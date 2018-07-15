@@ -1,0 +1,106 @@
+@import '../less/variables.less';
+@import '../less/mixins.less';
+@import '../less/common.mobile.less';
+
+/*
+* Hack to override the mobile .content margins.  They are pretty funky but
+* only messing with it here for mobile tools since so many other pages depend on it
+*/
+.content, #intro {
+  margin: 0px !important;
+  border: 0px !important;
+}
+
+.steps_list_2 li, .section_text, .steps_text {
+  .roundedAll(0) !important;
+  border: 0px !important;
+}
+
+.section h2 .mw-headline, .steps h3 .mw-headline {
+  margin-left: 5px;
+}
+
+
+#intro {
+  padding-top: .7em !important;
+}
+
+.mt_button_bar {
+  z-index: 10;
+  background-color: @grayLight;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.mt_button_bar a.button {
+  padding: 17px 0px;
+  font-size: 1.2em;
+  width: 29%;
+  max-width: 150px;
+  margin-right: 5px;
+}
+
+.content .mt_button_bar a.primary:hover {
+  background-color: #97ba78;
+  border: 1px solid #97ba78;
+  color: #ffffff;
+  background-image: none;
+}
+
+.mt_button_bar a.button:last-child {
+  margin-right: 0px;
+}
+
+.mt_button_bar a.button.secondary:active {
+  background: #e4e4e4;
+  color: white;
+}
+
+.mt_button_bar a.button.primary:active {
+  background: #83a168;
+  color: white;
+}
+
+.mt_prompt_box, .mt_box {
+  padding: 10px 15px;
+  font-size: 1.15em;
+}
+
+.mt_prompt_article_title {
+  font-weight: bold;
+}
+
+.mt_box {
+  background: white;
+}
+
+.mt_box_black {
+  background: black;
+}
+
+.spinner_black {
+  background-image: url(/extensions/wikihow/mobile_tool_common/img/spinner_black.gif);
+  width: 80px;
+  height: 79px;
+}
+
+// Hide button bar when nav drawer is open to fix
+// iOS issue where button bar doesn't return to 100% width
+// when drawer is closed
+body.navigation-enabled .mt_button_bar {
+  display: none;
+}
+
+@media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {
+  /*
+  * Hack to override the mobile .content margins.  They are pretty funky but
+  * only messing with it here for mobile tools since so many other pages depend on it
+  */
+  .content, #intro {
+    margin: 0px !important;
+  }
+
+}

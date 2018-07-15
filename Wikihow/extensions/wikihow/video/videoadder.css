@@ -1,0 +1,158 @@
+
+#va_instructions {
+	font-weight: normal;
+	font-size: 14px;
+	margin-left: 10px;
+}
+
+#va_instructions a {
+	color:#363;
+}
+
+#va_main {
+	margin-top: 5px;
+	min-height: 635px;
+}
+
+#va_browsecat {
+	text-align: center; 
+	font-weight: bold;
+	margin-bottom:10px;
+}
+#va_title {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#va_title a, #va_title span{
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
+#va_title a.button{
+	font-size:inherit;
+	font-weight:inherit;
+}
+
+#va_video {
+	margin-top: 15px;
+	text-align: center;
+}
+
+#va_video_title{
+	font-size: 1.1em;
+	text-align: center;
+	border-top: 1px solid #999999;
+	border-left: 1px solid #999999;
+	border-right: 1px solid #999999;
+	width:468px;
+	padding:15px 5px;
+	color: #666666;
+}
+
+#va_video_title span{
+	font-weight:bold;
+	color:#414141;
+}
+
+#va_help {
+	text-align: center;
+	margin-top: 10px;
+}
+
+#va_question {
+	font-size: 2.0em;
+	margin-top: 10px;
+	clear:both;
+}
+
+#va_yes.disabled { cursor: default; }
+
+#va_yes {
+	margin-right: 0
+}
+
+#va_skip {
+	float: right;
+	margin-right: 50px;
+	font-weight: bold;
+}
+
+#va_guts {
+	background-color:#F5F5F5;
+	margin-left:-15px;
+	margin-right:-15px;
+	min-height:530px;
+	padding:10px 27px 15px 23px;
+}
+
+#va_stats{
+	width:100%;
+}
+
+.va_stat{
+	text-align: right;
+	color:#555555;
+}
+
+.va_reviewer{
+	text-align: left;
+}
+
+.va_image{
+	width:42px;
+}
+
+#va_stats td{
+	border-bottom:1px dashed #CCCCCC;
+	padding:5px 0;
+}
+
+#top_va table{
+	width:100%;
+	margin:10px 0;
+}
+
+#top_va td{
+	border-bottom:1px dashed #CCCCCC;
+	padding:5px 0;
+}
+
+#top_va img{
+	width:32px;
+	height:32px;
+}
+
+#article div.article_inner, div#article{
+	padding-bottom:0px;
+}
+
+.bottom_link{
+	text-align:center;
+	padding-top:5px;
+}
+
+#va_articleintro{
+	padding:15px 0;
+	display:none;
+}
+
+#va_more{
+	width:11px;
+	height:11px;
+	background: url(/skins/WikiHow/images/arrow_blue.png) 0 -11px no-repeat;
+	float:left;
+}
+
+#va_more.off{
+	background-position:0 -11px;
+}
+
+#va_more.on{
+	background-position:0 0;
+}
+
+#va_notice {
+	font-size: 12px;
+	margin-bottom: 10px;
+}

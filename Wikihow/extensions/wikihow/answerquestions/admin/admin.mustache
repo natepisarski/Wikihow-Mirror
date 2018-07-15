@@ -1,0 +1,16 @@
+<h3>Current Categories</h3>
+<ol id="aq_cat_list">
+{{#categories}}
+	<li>{{category}} ({{count}} articles in queue, last udpated: {{timestamp}}) <input type="checkbox" name="categories" value="{{category}}" /></li>
+{{/categories}}
+</ol>
+<a href="#" id="aq_delete_cats" class="button secondary">Delete selected categories</a>
+
+<h3>Categories to add</h3>
+<p>Please enter categories below, one per line</p>
+<form action="#">
+	<textarea id="aq_new_cats"></textarea>
+	<a href="#" id="aq_new_cats_submit" class="button primary">Add</a>
+	<p id="aq_new_success"></p>
+	<p id="aq_new_error"></p>
+</form>

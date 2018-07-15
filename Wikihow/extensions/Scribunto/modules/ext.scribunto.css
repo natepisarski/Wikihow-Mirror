@@ -1,0 +1,12 @@
+.scribunto-error {
+	cursor: pointer;
+}
+
+.scribunto-error:hover, .scribunto-error:focus {
+	text-decoration: underline;
+}
+
+.scribunto-limitreport-logs {
+	margin: 0;
+	white-space: pre-wrap;
+}

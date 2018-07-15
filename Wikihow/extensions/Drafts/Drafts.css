@@ -1,0 +1,29 @@
+/* CSS StyleSheet for Drafts extensions */
+
+#drafts-list-table {
+	width: 100%;
+	margin-top: 1em;
+	font-size: .75em;
+}
+#drafts-list-table td {
+	padding: 5px;
+}
+
+td.draftpage {
+	min-width: 200px;
+}
+td.draftsaved {
+	width: 100px;
+}
+td.draftdiscard, td.draftedit {
+	width: 80px;
+	font-weight: bold;
+	text-align: center;
+}
+td.draftedit a {
+	font-weight: bold;
+}
+
+	
+
+

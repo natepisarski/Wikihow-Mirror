@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="62px" height="62px" viewBox="0 0 62 62" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.8.3 (29802) - http://www.bohemiancoding.com/sketch -->
+    <title>Smile Face</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Other-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Mobile-Helpfullness_other_V1" transform="translate(-111.000000, -397.000000)">
+            <g id="Smile-Face" transform="translate(113.000000, 399.000000)">
+                <circle id="Oval-1" stroke="#93b874" stroke-width="4" cx="29" cy="29" r="29"></circle>
+                <ellipse id="Oval-2" fill="#93b874" cx="20.1388889" cy="18.5277778" rx="4.02777778" ry="4.02777778"></ellipse>
+                <circle id="Oval-2" fill="#93b874" cx="37.8611111" cy="18.5277778" r="4.02777778"></circle>
+                <path d="M16.1111111,32.2222222 C16.1111111,32.2222222 18.5155696,45.1111114 29.3966737,45.1111111 C40.2777778,45.1111108 41.8888889,32.2222222 41.8888889,32.2222222" id="Path-5" stroke="#93b874" stroke-width="4"></path>
+            </g>
+        </g>
+    </g>
+</svg>

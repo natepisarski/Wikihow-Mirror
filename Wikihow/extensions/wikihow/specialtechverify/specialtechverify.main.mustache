@@ -1,0 +1,24 @@
+<div id='tooltitle'>
+    <a href='#' id='chooseplatform' class='changeplatform'>{{choosePlatform}}</a>
+    <h5>{{titleTop}}</h5>
+</div>
+<div id='desktop-title'>
+    <div id='header-remaining'><h3 id="header-count"></h3>remaining</div>
+    <div id="header-title"></div>
+    <div id='platformmessagetop' class='changeplatform'>{{{platformMessageTop}}}</div>
+    <div id="platformselect">
+        <span>{{platformSelect}}</span>
+        <form>
+            {{#platforms}}
+                <label><input type='radio' name='platform' value='{{platformId}}'>{{platformName}}</label>
+            {{/platforms}}
+            <br>
+            <input type='submit' value='{{platformSelectButton}}' class='button primary'>
+        </form>
+    </div>
+</div>
+<div class="spinner"></div>
+<div id='bottom-tool'>
+    <div style="clear: both;"></div>
+</div>
+<div id='chooseplatformbottom' class='changeplatform'>{{{choosePlatformBottom}}}</div>

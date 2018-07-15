@@ -1,0 +1,12 @@
+<div class="qa_person_circle" {{#ta_image}}style="background-image:url({{{ta_image}}})"{{/ta_image}}></div>
+<div class='qa_ta_name'>
+	<span><a href="{{userLink}}" class="sp_namelink" target="_blank">{{userName}}</a>, {{ta_label}}</span><br />
+	{{answersCount}} {{ta_answers_label}}
+</div>
+<div class="qa_ta_cats">
+{{#topCats.0}}
+	{{ta_subcats_intro}}
+	{{#topCats}}<a href="{{cat_link}}">{{cat}}</a>, {{/topCats}}
+	{{ta_subcats_outro}}
+{{/topCats.0}}
+</div>

@@ -1,0 +1,24 @@
+{{#items}}
+<div id='current-title' class='{{platformclass}}' data-title='{{titleText}}'>{{{title}}}</div>
+<div class='{{platformclass}}'>
+    <div id='icon-text-wrap'>
+        <div id="icon"><div id='icon-image'></div><div id='icon-text'>A wikiHow reader said:</div></div>
+        <div id='text-line' class="arrow_box">{{text}}</div>
+    </div>
+    <div id="show-article-line"><a href='#' class="full-link" data-page-id="{{pageId}}">Show full article</a><a href='#' class="hide-full-link">Hide article</a></div>
+    <div id="buttons-line" data-page-id="{{pageId}}" data-rating-reason-id="{{ratingReasonId}}">
+            <div id='buttons-desktop'>
+                <a href="#" class="yes choice op-action button secondary">Yes, send to editors</a>
+                <a href="#" class="notsure choice op-action button secondary">Not Sure</a>
+                <a href="#" class="no choice op-action button primary">No, not useful</a>
+            </div>
+            <div id='buttons-mobile'>
+                <a href="#" class="yes choice op-action button secondary">Yes</a>
+                <a href="#" class="notsure choice op-action button secondary">Not Sure</a>
+                <a href="#" class="no choice op-action button primary">No</a>
+            </div>
+    </div>
+    <div id='tool-data-line'>{{{tool_info}}}</div>
+    <div style="clear: both;"></div>
+</div>
+{{/items}}

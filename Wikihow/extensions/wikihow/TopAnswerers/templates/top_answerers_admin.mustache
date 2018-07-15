@@ -1,0 +1,42 @@
+	<h2>{{ta_title}} ({{count}}) <div class="total_answer_count">{{total_answer_count}} {{ta_answers_label}}</div></h2>
+	<input type="text" id="ta_add_input" class="search_input" placeholder="{{ta_search_placeholder}}" />
+	<button id="ta_add_button" class="button primary">{{ta_add_button}}</button>
+	<a href="{{ta_export_link}}" id="ta_export" class="button secondary">{{ta_export_button}}</a>
+	<div id="ta_results">
+	{{#ta_results}}
+		{{> top_answerers_result}}
+	{{/ta_results}}
+	</div>
+</div>
+
+<div class="minor_section">
+	<h2>{{ta_blocked_title}} ({{blocked_count}})</h2>
+	<input type="text" id="ta_block_input" class="search_input" placeholder="{{ta_search_placeholder}}" />
+	<button id="ta_block_button" class="button primary">{{ta_blocked_button}}</button>
+	<div id="ta_blocked_results">
+	{{#blocked_results}}
+		{{> top_answerers_block_result}}
+	{{/blocked_results}}
+	</div>
+</div>
+
+<div class="minor_section">
+	<h2>{{ta_settings_title}}</h2>
+	{{#ta_settings}}
+		<p>{{name}}: <b>{{setting}}</b></p>
+	{{/ta_settings}}
+</div>
+<!--  Template for rendering a new Top Answerer -->
+<script id="top_answerers_result" type="text/x-handlebars-template">
+	{{top_answerers_result}}
+</script>
+
+<!--  Template for rendering a new blocked Top Answerer -->
+<script id="top_answerers_block_result" type="text/x-handlebars-template">
+	{{top_answerers_block_result}}
+</script>
+
+<!--  Template for rendering an action response -->
+<script id="top_answerers_response" type="text/x-handlebars-template">
+	{{top_answerers_response}}
+</script>

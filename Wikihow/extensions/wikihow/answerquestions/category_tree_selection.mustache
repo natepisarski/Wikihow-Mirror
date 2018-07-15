@@ -1,0 +1,23 @@
+<h3></h3>
+<p id="qat_cat_info">You are answering questions about <span></span></p>
+<a href="#" id="qat_open_cat">Change category</a>
+<div id="qat_cat_container">
+	<ul id="qat_cat_top">
+		{{#categories}}
+			<li><a href="#" id="top_{{id}}" class="{{class}}">{{category}}</a></li>
+		{{/categories}}
+	</ul>
+	<div id="qat_cat_topics">
+		{{#categories}}
+			<div id="qat_cat_{{id}}" class="qat_cat_subgroup">
+				<h4>{{category}}<a href="#" class="qat_cat_totop">X</a></h4>
+				<div class="qat_cat_sublist">
+				{{#subcategories}}
+					<a href="#" class="qat_cat_sub {{class}}">{{category}}</a>
+				{{/subcategories}}
+				</div>
+			</div>
+		{{/categories}}
+	</div>
+	<a href="#" id="qat_change_cancel">Cancel</a>
+</div>

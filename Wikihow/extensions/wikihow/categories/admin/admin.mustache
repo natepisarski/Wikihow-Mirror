@@ -1,0 +1,18 @@
+<form id='acd-upload-form' name='acdUploadForm' enctype='multipart/form-data' method='post' action='/Special:AdminCategoryDescriptions'>
+	<input type="hidden" name="action" value="save-list" />
+	<a href="#" id="acd_download" class="button secondary">Download current list</a>
+	<div id="acd_upload" style="background-color: #fff; border: 1px solid #e5e5e5; padding: 10px; margin-top: 20px;">
+		<p style="margin-bottom: 10px;">Upload new set of categories.</p>
+		<input type="file" id="acd_file" name="acd_file" style="margin-bottom: 10px;">
+		<div id="acd_results">
+			<div id="acd_good" style="display:none;">
+				<p id="acd_insert"><span></span> inserted</p>
+				<p id="acd_delete"><span></span> deleted</p>
+				<p id="acd_bad">The following categories don't exist: <span></span></p>
+			</div>
+			<div id="acd_error"></div>
+		</div>
+	</div>
+
+	<div id="recent_activity"></div>
+</form>

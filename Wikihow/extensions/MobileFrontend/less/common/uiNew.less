@@ -1,0 +1,42 @@
+@import "mediawiki.mixins";
+@import "minerva.mixins";
+@import "minerva.variables";
+
+.beta, .alpha {
+	.top-bar {
+		background-color: #F3F3F3;
+		padding: 5px @contentMargin;
+		display: block;
+		color: #666;
+		a {
+			color: #666;
+			// If browser supports
+			&:nth-child(2) {
+				font-weight: bold;
+			}
+		}
+
+		&.active {
+			background-color: #00AF8B;
+			color: #fff;
+			a {
+				color: #fff;
+			}
+		}
+	}
+}
+
+// FIXME [mediawiki ui] These rules should not be needed in the mobile context
+.alpha .mw-ui-button-group {
+	text-align: center;
+
+	* {
+		float: none !important;
+	}
+
+	// For talk and CTA drawer
+	.mw-ui-block {
+		width: auto;
+	}
+}
+

@@ -1,0 +1,54 @@
+#cl {
+	border: none;
+	margin: 15px 10px;
+}
+#cl input[type='text'], #cl_faux_username {
+	width: 100%;
+	padding: 12px 10px;
+	box-sizing: border-box;
+	margin: 5px 0 20px 0;
+}
+#cl_faux_username {
+	padding: 0px;
+	border: 1px solid #ccc;
+}
+#cl table {
+	margin-top: 4px;
+}
+#cl td {
+	padding: 9px 5px;
+}
+#cl_error {
+	padding: 10px 0 0 0;
+}
+#cl_header {
+	border: none;
+}
+#cl_header, #cl_submit {
+	font-size: 1em;
+}
+#cl_submit {
+	font-weight: bold;
+}
+#cl_submit {
+	padding: 11px 18px;
+	margin-top: 4px;
+}
+#cl_x:after {
+    margin: 12px 15px 0 0;
+}
+.cl_label {
+	font-size: 0.95em;
+	text-align: left;
+	display: block;
+}
+.cl_label.first {
+	margin-top: 10px;
+}
+.cl_readonly {
+	color: #777;
+}
+.cl_user_avatar {
+	border-radius: 3px 0 0 3px;
+	width: 42px;
+}

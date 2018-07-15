@@ -1,0 +1,12 @@
+{
+	"@metadata": {},
+
+	"tas_intro_label": "Community Tested",
+	"taw_heading": "Tech Article Data",
+	"taw_product_title": "1) What product is this article about?",
+	"taw_platform_title": "2) What platform(s) is this article about? Which ones have been tested?",
+	"taw_please_fill_widget": "Please select a product and platforms",
+	"taw_dropdown_select_one": "Select one",
+	"taw_dropdown_platform": "Platform",
+	"taw_dropdown_tested": "Tested"
+}

@@ -1,0 +1,81 @@
+/*
+PLEASE DONT EDIT THE CSS DIRECTLY
+FILE IS COMPILED FROM category_checker_mobile.less
+*/
+
+@import '../../less/variables.less';
+@import '../../less/mixins.less';
+@import '../../less/common.mobile.less';
+
+
+.quiz {
+	background-image: none !important;
+
+	.alert {
+		margin: @margin;
+	}
+
+	.question {
+		margin: 0;
+		line-height: 21px;
+		padding: @margin @margin @margin @margin*2 !important;
+	}
+
+	.quiz-instruct {
+		display: none !important;
+	}
+
+	#next-container {
+		box-shadow: 0px 0px 2px #999;
+		box-sizing: border-box;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+	}
+
+	.question.anon-limit {
+		margin-top: @margin/2;
+	}
+}
+
+#footer {
+	display: none !important;
+}
+
+#mw-mf-page-center {
+	padding-bottom: 80px !important;
+}
+
+#skip_prompt {
+	background-color: #FFF;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	text-align: center;
+	box-shadow: 0 -2px 7px #666;
+}
+
+#skip_prompt_inner { 
+	padding: 1.5em;
+	font-size: 1.1em;
+}
+#firstP { 
+	font-weight: bold;
+	margin-bottom: 0;
+	font-size: 1.3em;
+}
+#skip_prompt_x {
+	float: right;
+	color: #CCC;
+	font-size: 1.5em;
+	margin: -0.5em -0.5em 0px 0px;
+}
+
+#skip_prompt_button {
+	padding: 12px;
+	width: 60%;
+}
+
+#eoq_box { margin-top: 1em; }

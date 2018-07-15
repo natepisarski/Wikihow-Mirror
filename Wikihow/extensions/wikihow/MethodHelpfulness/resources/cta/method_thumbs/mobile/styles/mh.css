@@ -1,0 +1,144 @@
+.mh-method-thumbs {
+	position: relative;
+	width: 100%;
+	background-color: #fff;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	border: 1px solid #bfbfbf;
+	margin-top: 15px;
+}
+
+.mh-method-thumbs:after, .mh-method-thumbs:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.mh-method-thumbs:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-bottom-color: #f7f6f3;
+	border-width: 12px;
+	margin-left: -12px;
+}
+
+.mh-method-thumbs.mhmt-v:after {
+	border-bottom-color: #fff;
+}
+
+.mh-method-thumbs:before {
+	border-color: rgba(191, 191, 191, 0);
+	border-bottom-color: #bfbfbf;
+	border-width: 13px;
+	margin-left: -13px;
+}
+
+.mh-method-thumbs-inner {
+	display: table;
+	text-align: center;
+	width: 100%;
+}
+
+.mhmt-cell {
+	display: table-cell;
+	position: relative;
+	vertical-align: middle;
+}
+
+.mhmt-info {
+	font-size: 0.9em;
+	padding: 6px;
+}
+
+.mhmt-method {
+	font-weight: bold;
+}
+
+.mhmt-vote {
+	width: 56px;
+	font-weight: 600;
+	color: #8bb568;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: hand; /* Some browsers are weird */
+	cursor: pointer;
+}
+
+.mhmt-down {
+	-webkit-border-top-left-radius: 4px;
+	-moz-border-top-left-radius: 4px;
+	border-top-left-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+	-moz-border-bottom-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+	border-right: 1px solid #dfdfdf;
+}
+
+.mhmt-up {
+	-webkit-border-top-right-radius: 4px;
+	-moz-border-top-right-radius: 4px;
+	border-top-right-radius: 4px;
+	-webkit-border-bottom-right-radius: 4px;
+	-moz-border-bottom-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-left: 1px solid #dfdfdf;
+}
+
+.mhmt-cheer,.mhmt-oops {
+	padding: 5px;
+}
+
+.mhmt-cheer {
+	color: #93b874;
+}
+
+.mhmt-oops {
+	color: #8a8a8a;
+}
+
+.mhmt-not-voted>.mhmt-info>.mhmt-cheer,.mhmt-not-voted>.mhmt-info>.mhmt-oops {
+	display: none;
+}
+
+.mhmt-voted-down>.mhmt-info>.mhmt-cheer,.mhmt-voted-down>.mhmt-info>.mhmt-prompt {
+	display: none;
+}
+
+.mhmt-voted-up>.mhmt-info>.mhmt-oops,.mhmt-voted-up>.mhmt-info>.mhmt-prompt {
+	display: none;
+}
+
+.mhmt-not-voted>.mhmt-info {
+	background-color: #f7f6f3;
+}
+
+.mhmt-voted-down>.mhmt-info,.mhmt-voted-up>.mhmt-info {
+	background-color: #fff;
+}
+
+.mhmt-voted-up>.mhmt-down,.mhmt-voted-down>.mhmt-down {
+	display: none;
+}
+
+.mhmt-voted-down>.mhmt-up,.mhmt-voted-up>.mhmt-up {
+	display: none;
+}
+
+.mhmt-voted-up>.mhmt-info,.mhmt-voted-down>.mhmt-info {
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+

@@ -1,0 +1,19 @@
+<div class="cat_carousel" id="carousel_{{cat_id}}" data-article_view="{{article_view}}" data-leaf_node="{{leaf_node}}" data-last_sortkey="{{cat_articles.last_sortkey}}" data-last_page_is_featured="{{cat_articles.last_page_is_featured}}" data-cat_id="{{cat_id}}">
+	<div class="cat_nav"></div>
+    <div class="cat_title">
+        {{#subcat}}<a href="{{url}}">{{cat_title}} <i class="fa fa-chevron-right"></i></a>{{/subcat}}
+        {{^subcat}}
+            {{#article_view}}{{all_articles_title}}{{/article_view}}
+            {{^article_view}}
+                {{#leaf_node}}{{all_articles_title}}{{/leaf_node}}
+                {{^leaf_node}}<a href="{{url}}">{{all_articles_title}} <i class="fa fa-chevron-right"></i></a>{{/leaf_node}}
+            {{/article_view}}
+
+        {{/subcat}}
+    </div>
+	<div class="cat_imgs">
+        {{#cat_articles.articles}}
+            {{> category_carousel_item}}
+        {{/cat_articles.articles}}
+	</div>
+</div>

@@ -1,0 +1,19 @@
+.userlogin,#sidebar,#carbon_neutral {
+	display: none;
+}
+#article_shell {
+	width: 100%;
+	margin-right: 0;
+}
+.related-article {
+	width: 23%;
+	margin-right: 1%;
+	margin-bottom: 1%;
+}
+.hp_top .hp_text {
+	background: none;
+}
+.related-image-link {
+    height: 128px;
+    overflow: hidden;
+}

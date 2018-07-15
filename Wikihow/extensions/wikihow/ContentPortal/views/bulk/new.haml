@@ -1,0 +1,29 @@
+
+!= partial('bulk/_download')
+
+.well
+	%h2 Bulk operation on Articles
+
+
+	%ul.nav.nav-tabs(role="tablist")
+		%li{class: $action == 'manage' ? 'active' : ''}
+			%a(href="#manage" aria-controls="messages" role="tab" data-toggle="tab") Manage Titles
+
+		%li{class: $action == 'destroy' ? 'active' : ''}
+			%a(href="#delete" id="invoice-tab" aria-controls="home" role="tab" data-toggle="tab") Delete Titles
+
+	//  Tab panes
+	.tab-content.well-body
+		.tab-pane#manage{class: $action == 'manage' ? 'active' : ''}
+			!= partial("bulk/_form", ['formAction' => url('bulk/create')])
+
+		.tab-pane#delete{class: $action == 'destroy' ? 'active' : ''}
+			!= partial("bulk/_form", ['formAction' => url('bulk/delete')])
+
+	- if (isset($articles) && !empty($articles))
+		- if ($action == 'manage')
+			!= partial('bulk/_table')
+		- else
+			!= partial('bulk/_delete')
+
+- addScript("WH.bulk.init();")

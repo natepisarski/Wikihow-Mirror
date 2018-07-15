@@ -1,0 +1,17 @@
+<h3>Current Pages</h3>
+<p>There are {{total}} live on quickAnswers</p>
+<ol id="qa_url_list">
+	{{#urls}}
+		<li><a target="_blank" href="//{{domain}}/{{wa_title}}">{{domain}}/{{wa_title}}</a> from <a href="{{parentUrl}}">{{parentTitle}}</a></li>
+	{{/urls}}
+</ol>
+
+<h3>QA's to add/delete</h3>
+<p>Please enter ids below, one per line</p>
+<form action="#">
+	<textarea id="qa_ids"></textarea>
+	<a href="#" id="qa_new_ids_submit" class="button primary">Add</a>
+	<a href="#" id="qa_delete_ids_submit" class="button secondary">Delete</a>
+	<p id="qa_new_success"></p>
+	<p id="qa_new_error"></p>
+</form>

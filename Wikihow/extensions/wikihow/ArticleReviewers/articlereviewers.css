@@ -1,0 +1,163 @@
+.reviewer {
+	border: 1px solid #e5e5e5;
+	width: 298px;
+	padding: 25px 30px;
+	background-color: #fff;
+	position: relative;
+	display: table-cell;
+}
+
+.reviewer_top {
+	padding-left: 93px;
+	height: 80px;
+	padding-top: 10px;
+}
+
+.ar_name {
+	color: #686868;
+	font-weight: bold;
+	margin-bottom: 4px;
+	font-size: 1.15em;
+}
+
+.ar_more_icon {
+	width: 15px;
+	height: 15px;
+	/* @embed */
+	background-image: url(info.svg);
+	background-size: 15px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	float: right;
+	margin-top: -15px;
+	margin-right: -20px;
+}
+
+.ar_blurb {
+	color: #b4b4b4;
+	font-weight: bold;
+	font-size: 13px;
+	margin-bottom: 13px;
+}
+
+.ar_hoverblurb {
+	color: #787878;
+	line-height: 1.3em;
+	border-top: 1px solid #e5e5e5;
+	padding-top: 10px;
+	font-size: .9em;
+}
+
+.ar_category {
+	padding: 0;
+}
+
+.ar_category h3 {
+	font-size: 24px;
+	padding: 23px 30px;
+}
+
+.ar_icon {
+	position:absolute;
+	left: 27px;
+	width: 40px;
+	height: 40px;
+	background-size: 40px;
+	/* @embed */
+	background-image: url(Badge-Certificate-Green-01.svg);
+	top: 28px;
+	background-repeat: no-repeat;
+}
+
+.ar_initials {
+	background-color: #ced9be;
+	width: 80px;
+	height: 80px;
+	color: #fff;
+	text-align: center;
+	font-size: 40px;
+	line-height: 80px;
+	border-radius: 50%;
+	margin: 0;
+	position: static;
+	float: left;
+}
+
+.ar_avatar {
+	border-radius: 50%;
+	width: 80px;
+	height: 80px;
+	background-size: cover;
+}
+
+.ar_row {
+	margin: 0 -1px 7px;
+}
+
+.ar_row:last-child {
+	margin-bottom: 0px;
+}
+
+.ar_spacer {
+	width: 7px;
+	display: table-cell;
+}
+
+.wh_block h1 {
+	padding-left: 47px;
+	background-size: 40px;
+	/* @embed */
+	background-image: url(Badge-Certificate-Green-01.svg);
+	background-repeat: no-repeat;
+	line-height: 40px;
+	height: 40px;
+}
+
+.wh_block p {
+	line-height: 1.5em;
+	margin-top: 10px;
+}
+
+.ar_anchor {
+	position: absolute;
+	top: -90px;
+}
+.ar_name_link {
+	display: block;
+	font-weight: bold;
+	font-size: 13px;
+	margin-bottom: 5px;
+	margin-top: -9px;
+}
+
+.ar_sidebar {
+	background-color: #FFF;
+	padding: 0;
+}
+
+.ar_sidebar h2 {
+	font-size: 18px;
+	padding: 30px 30px 5px 30px;
+}
+
+.ar_apply {
+	font-size: 0.9em;
+	margin: 0 0 20px 30px;
+}
+
+.ar_sidebar_item {
+	border-left: 10px solid #FFF;
+	padding: 15px 22px;
+	cursor: pointer;
+}
+
+.ar_sidebar_item:hover {
+	background-color: #F6F5F4;
+	border-color: #F6F5F4;
+}
+
+.ar_sidebar_item.selected {
+	background-color: #F6F5F4;
+	border-color: #93B874;
+	font-weight: bold;
+}

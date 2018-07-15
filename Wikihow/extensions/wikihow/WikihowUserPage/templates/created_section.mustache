@@ -1,0 +1,32 @@
+<div id="created" class="minor_section">
+	<h2>{{pb-articlesstarted}} {{#article_count}}({{article_count}}){{/article_count}}</h2>
+	<table class="pb-articles {{intl}}" id="pb-created">
+	<thead>
+		<tr>
+			<th class="first pb-title">{{pb-articlename}}</th>
+			<th class="middle pb-star">{{pb-rising}}</th>
+			<th class="middle pb-feature">{{pb-featured}}</th>
+			<th class="last pb-view">{{pb-views}}</th>
+		</tr>
+	</thead>
+	<tbody>
+	{{#items}}
+		{{> created_item}}
+	{{/items}}
+
+	{{^items.0}}
+	<tr>
+			<td colspan="4" align="center" class="pb-empty-text">{{{empty_text}}}</td>
+	</tr>
+	{{/items.0}}
+	</tbody>
+</table>
+
+	{{#view_toggle}}
+	<a href='#' class="view_toggle more">{{pb-viewmore}}</a>
+	{{/view_toggle}}
+</div>
+
+<script id="created_item" type="text/x-handlebars-template">
+	{{created_item}}
+</script>

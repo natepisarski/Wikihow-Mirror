@@ -1,0 +1,41 @@
+
+
+- if (isset($_GET['from_staff']))
+	!= alert('You have been added to the Content Portal. Please update your category and roles.', 'success');
+
+%ol.breadcrumb
+	%li
+		%a{href: url("users")} All Users
+	%li.active
+		= "Edit {$user->username}"
+
+.row
+	.col-md-8
+		.wellUser
+			%h2= "Edit {$user->username}"
+			.well-body
+				!= partial("users/_form")
+
+
+	.col-md-4
+		.panel.panel-default
+			.panel-heading
+				%h5
+					= $user->disabled ? 'Re-Activate User?' : 'Disable User?'
+
+			.panel-body
+				%blockquote
+					Disabling a user unassigns all their work and locks them out of the portal.
+					Be sure you want to do this.
+
+				- if ($user->disabled)
+					%form.prevent-double{method:"post", action: url('users/update', ['id' => $user->id])}
+						%input(type="hidden" name="user[disabled]" value="0")
+						%button(type="submit" class="btn btn-primary btn-block")
+							%i.fa.fa-check-circle
+							Reinstate User
+
+				- else
+					%a.btn.btn-danger.btn-block.confirm{"data-content" => "Disabling a user will unassign all their work and lock them out of the portal", href: url('users/delete', ['id' => $user->id])}
+						%i.fa.fa-times
+						Disable User

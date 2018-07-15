@@ -1,0 +1,37 @@
+{{^difficult_article}}
+<div id="sp_helpful_box" class="sp_box sp_box_hoverable sp_helpful_hoverable {{helpful_sidebox}}" data-helpful="{{helpful.value}}">
+	{{#helpful_sidebox}}
+	<div id="sp_helpful_statement">{{{helpful_statement}}}</div>
+	{{/helpful_sidebox}}
+	<div id="sp_star_section_upper">
+		<div class="sp_star_section_hoverable">
+			<div class="sp_star_container" id="star1">
+				<div class="sp_helpful_icon_star {{helpful.pretty_star}}" style="width:{{helpful.width.0}}%"></div>
+			</div>
+			<div class="sp_star_container" id="star2">
+				<div class="sp_helpful_icon_star {{helpful.pretty_star}}" style="width:{{helpful.width.1}}%"></div>
+			</div>
+			<div class="sp_star_container" id="star3">
+				<div class="sp_helpful_icon_star {{helpful.pretty_star}}" style="width:{{helpful.width.2}}%"></div>
+			</div>
+			<div class="sp_star_container" id="star4">
+				<div class="sp_helpful_icon_star {{helpful.pretty_star}}" style="width:{{helpful.width.3}}%"></div>
+			</div>
+			<div class="sp_star_container" id="star5">
+				<div class="sp_helpful_icon_star {{helpful.pretty_star}}" style="width:{{helpful.width.4}}%"></div>
+			</div>
+		</div>
+	</div>
+	<div id="sp_helpful_lower">
+		<div id="sp_star_rating_text"></div>
+		<div id="sp_helpful_rating_count">{{helpful.ratingDisplay}}</div>
+		{{^helpful_sidebox}}<div id="helpfulness_text">{{helpful.vote_text}}</div>{{/helpful_sidebox}}
+	</div>
+	{{#helpful_sidebox}}<div id="sp_helpful_text_sidebox">{{helpful.vote_text_verbose}}</div>{{/helpful_sidebox}}
+	{{#helpful.popup}}
+	<div class='sp_popup_container'>
+		<div class='hint_box'>{{helpful.popup}}</div>
+	</div>
+	{{/helpful.popup}}
+</div>
+{{/difficult_article}}

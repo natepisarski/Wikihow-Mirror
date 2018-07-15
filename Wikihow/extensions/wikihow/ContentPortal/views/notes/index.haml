@@ -1,0 +1,12 @@
+.message-container
+	- $roleId = null
+
+	- foreach($article->notes as $note)
+		- if (!$note->isKudos() && !$note->isResponse())
+			- $role = noteState($note)
+			- if ($roleId != $role->id)
+				- $roleId = $role->id
+				%h4= $role->present_tense
+
+			!= partial('notes/_note', ['note' => $note])
+

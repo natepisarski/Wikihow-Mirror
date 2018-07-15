@@ -1,0 +1,92 @@
+#mcta_root, .mcta_rating {
+  display: none;
+}
+
+#mcta_close {
+  float: right;
+  color: darkgray;
+  font-size: 1.5em;
+  display: inline-block;
+  line-height: 0px;
+  //padding: 0.5em .325em .7em;
+  margin: 1.25em .5em;
+}
+
+@font-face {
+  font-family: 'icomoon';
+  src:    url('fonts/icomoon.eot?pvngmo');
+  src:    url('fonts/icomoon.eot?pvngmo#iefix') format('embedded-opentype'),
+  url('fonts/icomoon.ttf?pvngmo') format('truetype'),
+  url('fonts/icomoon.woff?pvngmo') format('woff'),
+  url('fonts/icomoon.svg?pvngmo#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="mcta_icon-"], [class*=" mcta_icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mcta_icon-x-altx-alt:before {
+  content: "\e904";
+}
+.mcta_icon-star_outline:before {
+  content: "\e901";
+}
+.mcta_icon-star_half:before {
+  content: "\e902";
+}
+.mcta_icon-star2:before {
+  content: "\e903";
+}
+
+.mcta_app_icon {
+  background: url(ic_app.png) center no-repeat;
+  width: 50px;
+  height: 40px;
+  background-size: 50px;
+  float: left;
+  padding: .75em 1em 0 0;
+}
+
+#mcta_link {
+  color: #605F5D;
+  font-weight: bold;
+}
+
+#mcta_subprompt {
+  font-size: .75em;
+  color: #605F5D;
+}
+
+#mcta_root {
+  background: #DEDEDE;
+  padding: .5em .5em .6em .5em;
+}
+
+#mcta_root.android {
+  display: inherit;
+
+  #mcta_rating_android {
+    display: block;
+  }
+}
+
+#mcta_root.ios {
+  display: inherit;
+
+  #mcta_rating_ios {
+    display: block;
+  }
+}

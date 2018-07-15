@@ -1,0 +1,39 @@
+{
+    "name": "froodley/amazon-alexa-php",
+    "description": "Amazon Alexa interface for PHP - XSS Filtering, Improved Testability",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Mathias Hansen",
+            "email": "me@codemonkey.io"
+        },
+        {
+            "name": "Emanuele Corradini",
+            "email": "korra88@gmail.com"
+        },
+        {
+            "name": "Jakub Suchy",
+            "email": "info@jsuchy.cz"
+        },
+        {
+            "name": "froodley",
+            "email": "froodley@froodley.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "ext-curl": "*",
+        "doctrine/orm": "^2.5.6",
+        "symfony/validator": "^3.2.6",
+        "ezyang/htmlpurifier": "^4.7"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7.15"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alexa\\" : "src/"
+        }
+    }
+}

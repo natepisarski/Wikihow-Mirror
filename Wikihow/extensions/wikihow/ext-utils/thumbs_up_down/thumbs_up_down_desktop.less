@@ -1,0 +1,103 @@
+@defaultColor: #cdcdcc;
+@downColor: #cc8969;
+@upColor: rgb(147, 184, 116);
+
+
+.wh_thumb {
+  /* @embed */
+  background-image: url(assets/thumbs_up_down.svg);
+  background-repeat: no-repeat;
+  height: 22px;
+  width: 22px;
+  /* these are needed to override minerva skin on mobile */
+  margin: 0;
+  border:none;
+  background-color: inherit;
+  display: inline-block;
+}
+
+.wh_up {
+  background-position: -35px 0;
+  position: relative;
+  top: .1em;
+}
+
+.wh_down {
+  position: relative;
+  top: .45em;
+}
+
+.wh_count {
+  color: @defaultColor;
+}
+
+.wh_vote_container {
+  margin: .5em 0 0 0;
+  max-width: 310px;
+}
+
+.wh_thumb_default {
+  display: inline-block;
+}
+.wh_thumb_msg {
+  width: 75px;
+}
+
+.wh_thumb_response {
+  display: none;
+}
+
+.wh_thumb_default {
+  color: @defaultColor;
+}
+
+.wh_vote_container.clicked {
+  .wh_thumb_default {
+    display: none;
+  }
+
+  .wh_thumb_response {
+    display: inline-block;
+
+  }
+}
+
+.wh_vote_container.up .wh_thumb_response {
+  color: @upColor;
+}
+
+.wh_vote_container.down .wh_thumb_response {
+  color: @downColor;
+}
+
+.wh_vote_up.clicked {
+  .wh_count {
+    color: @upColor;
+  }
+
+  .wh_up {
+    background-position: -35px -23px;
+  }
+}
+
+.wh_vote_down.clicked {
+  .wh_count {
+    color: @downColor;
+  }
+
+  .wh_down {
+    background-position: 0 -23px;
+  }
+}
+
+.wh_vote_box {
+  display: inline-block;
+}
+
+.wh_vote_box:hover {
+  text-decoration: none;
+}
+
+.wh_vote_down {
+  margin-left: 10px;
+}

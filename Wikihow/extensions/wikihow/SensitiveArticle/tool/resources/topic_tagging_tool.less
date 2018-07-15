@@ -1,0 +1,106 @@
+#ttt_top {
+	background: #FFF;
+	padding: 1.5em 1.5em 1em 1.5em;
+	margin: -22px -27px 1em;
+
+	#ttt_remaining {
+		font-size: .7em;
+		float: right;
+
+		p {
+			font-size: 3em;
+			font-weight: bold;
+		}
+	}
+}
+
+#ttt_tool_title {
+	font-weight: bold;
+	padding-bottom: .3em;
+}
+
+#ttt_title {
+	font-size: 2em;
+	color: #363;
+	text-decoration: none;
+}
+
+#ttt_question {
+	font-size: 1.5em;
+	margin-bottom: .1em;
+	font-weight: bold;
+}
+
+#ttt_buttons {
+	margin-top: 1em;
+	text-align: right;
+}
+
+#ttt_vote_skip {
+	float: left;
+}
+
+#topic_tagging_tool #ti_icon {
+	padding-top: 12px;
+	background-position: 0 12px;
+}
+
+#ttt_spinner {
+	display: none;
+	background: url(/extensions/wikihow/rotate.gif) center no-repeat;
+	height: 33px;
+}
+
+.mobile {
+
+	#ttt_top {
+		padding: .5em 1em;
+		margin: 0 -5px;
+	}
+
+	#ttt_title {
+		display: none;
+		line-height: 1.2em;
+		padding-bottom: .3em;
+	}
+
+	#ttt_tool_title {
+		background: none;
+		font-size: 1.2em;
+		padding: 0;
+	}
+
+	#ttt_guts {
+		padding: 1em .5em 1.5em .5em;
+	}
+
+	#intro {
+		padding: 15px;
+	}
+
+	#ttt_buttons {
+		background-color: #f6f5f4;
+		text-align: center;
+		position: fixed;
+		z-index: 1;
+		bottom: 0;
+		left: 0;
+		padding: 10px;
+		width: 100%;
+		box-sizing: border-box;
+		-webkit-overflow-scrolling: touch;
+		-webkit-backface-visibility: hidden;
+		-webkit-transform: translateZ(0);
+
+		.button {
+			width: 30%;
+			margin: 0;
+		}
+
+		#ttt_vote_skip {
+			float: none;
+			margin: 0 1%;
+		}
+	}
+
+}

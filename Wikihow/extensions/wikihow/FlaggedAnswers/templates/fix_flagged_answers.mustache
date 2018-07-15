@@ -1,0 +1,38 @@
+<div id="ffa_top">
+	<div id="ffa_remaining"><p></p>{{ffa_remaining}}</div>
+	<h5>{{ffa_title}}</h5>
+	<div id="ffa_article_title"><a href='' target="_blank"></a></div>
+</div>
+<div id="ffa_main">
+	{{{tool_info}}}
+	<b>{{ffa_prompt}}</b>
+
+	<div id="ffa_guts"></div>
+
+	<div id="ffa_view_btns" class="ffa_btns">
+		<input type="button" id="ffa_delete_pair" class="button secondary" value="{{ffa_delete_pair}}" />
+		<input type="button" id="ffa_delete_answer" class="button secondary" value="{{ffa_delete_answer}}" />
+		<input type="button" id="ffa_edit" class="button primary" value="{{ffa_edit}}" />
+		<input type="button" id="ffa_skip" class="button secondary" value="{{ffa_skip}}" />
+	</div>
+	<div id="ffa_edit_btns" class="ffa_btns">
+		<input type="button" id="ffa_cancel" class="button secondary" value="{{ffa_cancel}}" />
+		<input type="button" id="ffa_save" class="button primary" value="{{ffa_save}}" />
+	</div>
+
+	{{{ffa_perfect_text}}} <a href="#" id="ffa_remove_flag">{{ffa_perfect_link}}</a>.
+</div>
+
+<div id="ffa_article_html"></div>
+
+{{#ffa_staff}}<input type="hidden" id="ffa_staff" value="1" />{{/ffa_staff}}
+
+<!--  Template for rendering the Q&A part -->
+<script id="fix_flagged_answers_qa_section" type="text/x-handlebars-template">
+	{{fix_flagged_answers_qa_section}}
+</script>
+
+<!--  Template for end of queue -->
+<script id="fix_flagged_answers_eoq" type="text/x-handlebars-template">
+	{{{ffa_eoq_msg}}}
+</script>

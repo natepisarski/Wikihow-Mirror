@@ -1,0 +1,220 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+@import "mediawiki.mixins";
+
+// FIXME: Separate imported folders into a components directory
+@import 'mainmenu';
+
+html,
+body {
+	// Ensure overlays take up full screen
+	height: 100%;
+}
+
+// FIXME: refactor all the below and reuse OverlayNew header styling
+#mw-mf-page-center {
+	padding: @headerMargin @headerMargin 0;
+}
+
+#content_wrapper {
+	margin: 0 -@headerMargin;
+}
+
+.header {
+	display: table;
+	width: 100%;
+	white-space: nowrap;
+	border-bottom: 1px solid @grayLight;
+
+	> * {
+		width: @headerHeight - @headerMargin;
+		display: table-cell;
+		vertical-align: middle;
+
+		&:first-child {
+			border-right: 1px solid @grayLight;
+		}
+
+		&:nth-child(3) {
+			border-left: 1px solid @grayLight;
+		}
+	}
+
+	> h1, > form, > ul {
+		padding: (@headerTitleMarginV - @headerMargin) @headerTitleMarginH;
+		width: auto;
+	}
+
+	h1 {
+		text-align: center;
+		font-weight: bold;
+	}
+
+	// FIXME: use .icon class
+	#mw-mf-main-menu-button, #secondary-button {
+		height: @headerHeight - @headerMargin;
+		text-indent: -9999px;
+		background-repeat: no-repeat;
+		.background-size( 24px, auto );
+	}
+
+	#mw-mf-main-menu-button {
+		background-position: 40% 40%;
+		.background-image-svg( 'images/menu/hamburger.svg', 'images/menu/hamburger.png' );
+	}
+
+	#secondary-button {
+		height: @headerHeight - 2 * @headerMargin;
+		background-position: 60% 40%;
+	}
+
+	// need to specify id or else other rules are more important
+	// FIXME: simplify when .icon class from OverlayNew used instead
+	#secondary-button.user-button {
+		text-indent: 0;
+		width: @headerHeight - 2 * @headerMargin;
+		padding-left: @headerMargin;
+		padding-bottom: @headerMargin;
+		text-align: center;
+
+		&:hover {
+			text-decoration: none;
+		}
+
+		span {
+			display: inline-block;
+			width: 24px;
+			height: 24px;
+			font-weight: bold;
+			color: #fff;
+			line-height: 24px;
+			background: #c91f2c;
+			border-radius: 2px;
+
+			&.zero {
+				background: @grayLight;
+			}
+		}
+	}
+
+	// FIXME: merge with SearchOverlay
+	.search {
+		border: none;
+		padding: 0;
+	}
+}
+
+// Used for messages on login screen, page lists and uploads and when showing old revisions
+.alert {
+	padding: 1em @contentMargin;
+	margin: 0 0 1em;
+
+	&.warning {
+		color: #850;
+		background: #feb
+	}
+
+	h2 {
+		font: bold 100% @fontFamily;
+		padding: 0;
+		margin: 0 0 .5em 0;
+	}
+}
+
+.client-js {
+	.searchSubmit {
+		display: none;
+	}
+}
+
+.client-nojs {
+	.searchSubmit {
+		// FIXME: do all buttons in header need to have padding by default?
+		padding: 0 !important;
+		width: 20%;
+	}
+
+	input.search {
+		width: 80%;
+	}
+}
+
+/* Search */
+input.search {
+	outline: 0;
+	width: 100%;
+	// FIXME: unable to check but the important may not be needed for Nokia S60;
+	background-color: #fff !important; /* remove fennec default background also see bug 36490 */
+	.box-sizing( border-box );
+	// get rid of rounded corners in Safari
+	-webkit-appearance: none;
+	// get rid of X in Chrome
+	&::-webkit-search-cancel-button {
+		-webkit-appearance: none;
+	}
+}
+
+// FIXME: remove when micro.tap in stable and rule from common-js.less too
+.search-box {
+	-webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+
+.content {
+	/*
+	.edit-page {
+		display: none;
+		position: absolute;
+		background: url(../common/images/pagemenu/edit.png) 100% @headingMargin no-repeat;
+		.background-size( auto, 30px );
+		text-indent: -9999px;
+		border-left: solid 1px @sectionBorderColor;
+		width: @sectionIconWidth + 5px;
+		top: 0;
+		bottom: 0;
+		right: 0;
+	}
+	*/
+	
+	.edit-page {
+		background-size: 14px;
+		background-position: 50% 75%;
+		background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjQuODc4cHgiIGhlaWdodD0iMjQuODg3cHgiIHZpZXdCb3g9IjAgMCAyNC44NzggMjQuODg3IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyNC44NzggMjQuODg3IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiM3ODc4NzgiIGQ9Ik0yNC44NjMsNi4wMTdsLTguMDMzLDguMDMybC05LjI0Myw5LjE4TDAsMjQuODg3bDEuNTk0LTcuNjVsOS4yNDQtOS4xOGw4LjAzMy04LjAzMw0KCQljMCwwLDEuNzIxLTAuMzgzLDQuMDE3LDEuOTEzQzI1LjE4Miw0LjI5NSwyNC44NjMsNi4wMTcsMjQuODYzLDYuMDE3eiBNNy45MDUsMjEuNTczYzAsMC0wLjA2My0xLjQwMy0xLjY1Ny0yLjk5Nw0KCQljLTEuNTMtMS41OTUtMi45OTctMS41OTUtMi45OTctMS41OTVMMi41NSwxNy43NDdsLTAuNTczLDIuNTVjMC40NDYsMC4yNTUsMC45NTYsMC41NzQsMS40NjYsMS4wODMNCgkJYzAuNTc0LDAuNTc0LDAuODkzLDEuMDIsMS4xNDcsMS41M2wyLjU1MS0wLjU3NEw3LjkwNSwyMS41NzN6Ii8+DQo8L2c+DQo8L3N2Zz4NCg==);
+		background-repeat: no-repeat;
+	}
+
+	h1.openSection,
+	h2.openSection {
+		.edit-page {
+			display: block;
+		}
+	}
+}
+
+.stub .edit-page {
+	margin: 0;
+	display: block;
+}
+
+// FIXME: this is here only because non-JS version doesn't load watchstar.less
+.watch-this-article {
+	background: url(../common/images/watch.png) 50% 50% no-repeat;
+	text-indent: -9999px;
+
+	&.watched {
+		background-image: url(../common/images/watched.png);
+	}
+}
+
+// Remove when/if page-secondary-actions are promoted to stable
+.stable {
+	.languageSelector {
+		margin-top: 1em;
+	}
+}
+
+.truncated-text {
+	white-space: nowrap;
+	overflow: hidden;
+	-webkit-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+}

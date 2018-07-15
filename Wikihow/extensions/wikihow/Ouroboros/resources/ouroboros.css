@@ -1,0 +1,56 @@
+.ouroboros {
+	margin-top: 10em;
+}
+
+.ouroboros:last {
+	margin-bottom: 3em;
+}
+
+.ouroboros-intro {
+	background-color: #ffffff;
+	margin: 0 -5px;
+	padding: 4px 12px 3px 12px;
+	border-bottom: 1px solid #bfbfbf;
+}
+
+.ouroboros-intro, .ouroboros-intro>div {
+	font-size: 16px;
+}
+
+body.action-view h1.ouroboros-title {
+    line-height: 1.3;
+	padding: 8px 0 0 0 !important;
+	margin-bottom: 8px;
+    font-size: 30px!important;
+    text-align: left;
+	border-bottom: none;
+    color: #3e3d3b;
+    font-family: inherit;
+    font-weight: bold;
+    line-height: 32px;
+}
+
+@media (min-width: 768px) {
+	body.action-view h1.ouroboros-title {
+		border-bottom: none;
+		color: #3e3d3b;
+		font-family: inherit;
+		font-weight: bold;
+		line-height: 1.3em;
+	}
+}
+
+.ouroboros-spinner {
+	width: 100%;
+	text-align: center;
+	margin-top: 24px;
+}
+
+.ouroboros-spinner>img {
+	margin: auto;
+}
+
+.noclick {
+	pointer-events: none;
+}
+

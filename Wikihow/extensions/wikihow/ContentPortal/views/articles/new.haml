@@ -1,0 +1,8 @@
+%ol.breadcrumb
+	%li
+		%a{href: url("articles")} All Articles
+	%li.active Add Article
+.well
+	%h2 Add New Article
+	.well-body
+		!= partial('articles/_form')

@@ -1,0 +1,457 @@
+body {
+  -webkit-backface-visibility: hidden;
+}
+.animated {
+  -webkit-animation-duration: 1.2s;
+  -moz-animation-duration: 1.2s;
+  -o-animation-duration: 1.2s;
+  animation-duration: 1.2s;
+  -webkit-animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@-moz-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@-o-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.fadeIn {
+  -webkit-animation-name: fadeIn;
+  -moz-animation-name: fadeIn;
+  -o-animation-name: fadeIn;
+  animation-name: fadeIn;
+}
+@-webkit-keyframes fadeInDownBig {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateY(-2000px);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+}
+@-moz-keyframes fadeInDownBig {
+  0% {
+    opacity: 0;
+    -moz-transform: translateY(-2000px);
+  }
+  100% {
+    opacity: 1;
+    -moz-transform: translateY(0);
+  }
+}
+@-o-keyframes fadeInDownBig {
+  0% {
+    opacity: 0;
+    -o-transform: translateY(-2000px);
+  }
+  100% {
+    opacity: 1;
+    -o-transform: translateY(0);
+  }
+}
+@keyframes fadeInDownBig {
+  0% {
+    opacity: 0;
+    transform: translateY(-2000px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fadeInDownBig {
+  -webkit-animation-name: fadeInDownBig;
+  -moz-animation-name: fadeInDownBig;
+  -o-animation-name: fadeInDownBig;
+  animation-name: fadeInDownBig;
+}
+@-webkit-keyframes fadeOutUpBig {
+  0% {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    -webkit-transform: translateY(-2000px);
+  }
+}
+@-moz-keyframes fadeOutUpBig {
+  0% {
+    opacity: 1;
+    -moz-transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    -moz-transform: translateY(-2000px);
+  }
+}
+@-o-keyframes fadeOutUpBig {
+  0% {
+    opacity: 1;
+    -o-transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    -o-transform: translateY(-2000px);
+  }
+}
+@keyframes fadeOutUpBig {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2000px);
+  }
+}
+.fadeOutUpBig {
+  -webkit-animation-name: fadeOutUpBig;
+  -moz-animation-name: fadeOutUpBig;
+  -o-animation-name: fadeOutUpBig;
+  animation-name: fadeOutUpBig;
+}
+.wh-featherlight {
+  z-index: 21474836400;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.7) !important;
+  overflow: auto;
+  padding: 0;
+  font-size: 14px;
+  /* Hide navigation while loading */
+}
+.wh-featherlight .fullImageLink {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+.wh-featherlight .featherlight-close-icon.featherlight-close {
+  -moz-opacity: 0.6;
+  -khtml-opacity: 0.6;
+  -webkit-opacity: 0.6;
+  opacity: 0.6;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=60);
+  filter: alpha(opacity=60);
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 41.66666667px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0px 0px 4px #333;
+  background: transparent;
+  cursor: pointer;
+  z-index: 21474836402;
+  background-image: url("/extensions/wikihow/common/featherlight/img/close.png");
+  background-repeat: no-repeat;
+  background-position: center 0;
+}
+.wh-featherlight .featherlight-close-icon.featherlight-close:hover {
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  -webkit-opacity: 1;
+  opacity: 1;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+  filter: alpha(opacity=100);
+}
+.wh-featherlight .featherlight-content {
+  -webkit-box-shadow: 3px 3px 8px #333333;
+  -moz-box-shadow: 3px 3px 8px #333333;
+  box-shadow: 3px 3px 8px #333333;
+  -webkit-box-sizing: border-box;
+  /* Safari 3.0 - 5.0, Chrome 1 - 9, Android 2.1 - 3.x */
+  -moz-box-sizing: border-box;
+  /* Firefox 1 - 28 */
+  box-sizing: border-box;
+  display: block;
+  max-height: none;
+  padding: 0 !important;
+  overflow: visible;
+  width: 900px;
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  margin-left: -450px;
+  margin-bottom: 30px;
+  padding: none !important;
+}
+.wh-featherlight .featherlight-previous,
+.wh-featherlight .featherlight-next {
+  display: none;
+}
+.wh-featherlight .featherlight-loading .featherlight-previous,
+.wh-featherlight .featherlight-loading .featherlight-next {
+  display: none;
+}
+.wh-featherlight .content-container {
+  display: block;
+  overflow: hidden;
+  height: auto;
+  position: relative;
+}
+.wh-featherlight .content-container a {
+  color: #383 !important;
+}
+.wh-featherlight .img-container {
+  position: relative;
+  padding: none;
+  background-color: #222;
+  text-align: center;
+  overflow: hidden;
+  background-image: url("/extensions/wikihow/common/featherlight/img/rotate-dark.gif");
+  background-position: center center;
+  background-repeat: no-repeat;
+  font-size: 0;
+}
+.wh-featherlight .img-container img {
+  display: inline-block;
+}
+.wh-featherlight .img-container .featherlight-previous,
+.wh-featherlight .img-container .featherlight-next {
+  -moz-opacity: 0;
+  -khtml-opacity: 0;
+  -webkit-opacity: 0;
+  opacity: 0;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+  filter: alpha(opacity=0);
+  background-color: black;
+  cursor: pointer;
+  display: inline-block;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 20%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.wh-featherlight .img-container .featherlight-previous span,
+.wh-featherlight .img-container .featherlight-next span {
+  -moz-opacity: 0.7;
+  -khtml-opacity: 0.7;
+  -webkit-opacity: 0.7;
+  opacity: 0.7;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+  filter: alpha(opacity=70);
+  display: none;
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: center center;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 75px;
+  line-height: 75px;
+  text-align: center;
+  font-size: 75px;
+  /* center vertically */
+  margin-top: -37.5px;
+  color: #fff;
+}
+.wh-featherlight .img-container .featherlight-previous:hover,
+.wh-featherlight .img-container .featherlight-next:hover {
+  -moz-opacity: 0.5;
+  -khtml-opacity: 0.5;
+  -webkit-opacity: 0.5;
+  opacity: 0.5;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+  filter: alpha(opacity=50);
+  display: inline-block;
+}
+.wh-featherlight .img-container .featherlight-previous:hover span,
+.wh-featherlight .img-container .featherlight-next:hover span {
+  display: block;
+}
+.wh-featherlight .img-container .featherlight-previous span {
+  background-image: url("/extensions/wikihow/common/featherlight/img/prev-arrow.png");
+}
+.wh-featherlight .img-container .featherlight-next {
+  left: 80%;
+}
+.wh-featherlight .img-container .featherlight-next span {
+  background-image: url("/extensions/wikihow/common/featherlight/img/next-arrow.png");
+}
+.wh-featherlight #im-info {
+  -webkit-box-sizing: border-box;
+  /* Safari 3.0 - 5.0, Chrome 1 - 9, Android 2.1 - 3.x */
+  -moz-box-sizing: border-box;
+  /* Firefox 1 - 28 */
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 15px 30px;
+  background-color: white;
+}
+.wh-featherlight #im-info .im-info-item {
+  display: inline-block;
+  float: center;
+  width: auto;
+  font-weight: bold;
+  padding: 0;
+  line-height: 21px;
+  margin: 0;
+  color: #777;
+}
+.wh-featherlight #im-info .im-info-item:empty {
+  display: none;
+}
+.wh-featherlight #im-info .im-info-item a {
+  margin-right: 15px;
+  font-weight: normal;
+}
+.wh-featherlight .mw-headline {
+  display: none;
+}
+.wh-featherlight #filehistory {
+  font-size: 16px;
+  display: block;
+}
+.wh-featherlight .minor_section,
+.wh-featherlight .wh_block {
+  border: none;
+  background-color: white;
+  padding: 0;
+}
+.wh-featherlight .minor_section {
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  padding: 0 30px 30px 30px;
+}
+.wh-featherlight .minor_section ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wh-featherlight .minor_section ul li {
+  color: #999;
+}
+.wh-featherlight .minor_section table {
+  margin-top: 15px;
+  border-spacing: 0;
+  width: 100%;
+  border-collapse: separate;
+}
+.wh-featherlight .minor_section table td {
+  font-size: 14px;
+  vertical-align: top;
+  padding: 15px 0 !important;
+  border-top: 1px solid #ccc;
+}
+.wh-featherlight .minor_section table td:first-child {
+  width: 10%;
+}
+.wh-featherlight .minor_section table td:nth-child(2) {
+  width: 8%;
+}
+.wh-featherlight .featherlight-inner,
+.wh-featherlight .minor_section,
+.wh-featherlight .wh_block {
+  display: block;
+  margin: 0;
+  white-space: wrap;
+  width: auto !important;
+}
+body.wh-featherlight-open {
+  overflow: hidden;
+  position: relative;
+}
+body.wh-featherlight-open #main_container,
+body.wh-featherlight-open #header,
+body.wh-featherlight-open #footer {
+  filter: blur(2px);
+  -webkit-filter: blur(2px);
+}
+@media (max-height: 700px) {
+  .wh-featherlight .img-container {
+    max-height: 500px !important;
+  }
+  .wh-featherlight .img-container img {
+    max-height: 500px;
+  }
+}
+@media (max-width: 700px) {
+  .wh-featherlight .featherlight-content #filehistory,
+  .wh-featherlight .featherlight-content table,
+  .wh-featherlight .featherlight-content .wh_block p {
+    display: none !important;
+  }
+  .wh-featherlight .featherlight-content .img-container {
+    height: auto !important;
+    max-height: 500px !important;
+  }
+  .wh-featherlight .featherlight-content .minor_section {
+    padding: 15px;
+  }
+  .wh-featherlight .featherlight-content #im-info {
+    padding: 15px 15px;
+    text-align: left;
+  }
+  .wh-featherlight .featherlight-content #im-info .im-info-item {
+    display: block !important;
+    line-height: 18px;
+  }
+  .wh-featherlight .featherlight-content ul li {
+    margin-top: -15px;
+  }
+}
+@media (max-width: 900px) {
+  .wh-featherlight .img-container {
+    min-height: 0;
+    display: block;
+    height: auto !important;
+  }
+  .wh-featherlight .img-container img {
+    max-width: 100%;
+    height: auto;
+  }
+  .wh-featherlight .featherlight-close-icon.featherlight-close {
+    margin-top: 3px;
+  }
+  .wh-featherlight .featherlight-content {
+    left: 2.5%;
+    margin-left: 0;
+    margin-top: 0;
+    width: 95%;
+  }
+  .wh-featherlight .featherlight-content #im-info {
+    padding: 15px;
+    text-align: left;
+  }
+}

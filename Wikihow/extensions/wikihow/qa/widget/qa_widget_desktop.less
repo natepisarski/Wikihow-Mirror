@@ -1,0 +1,421 @@
+@import 'qa_widget_common.less';
+
+#qa {
+	padding: 25px;
+}
+
+#qa_headline { margin-left: 0; }
+
+.qa_aq {
+	.qa_divider {
+		display: none;
+	}
+}
+
+.qa_li_container {
+	margin: 0 0 1.5em 0;
+}
+
+#qa_article_questions {
+	clear: both;
+}
+
+#qa_add_curated_question {
+	margin-top: -20px;
+}
+
+.qa_answers {
+	margin-top: .5em;
+}
+
+.qa_answer {
+	font-size: 16px;
+	line-height: 20px;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+#qa_submitted_questions_container, #qa_answered_questions_container, #qa_unpatrolled_questions_container {
+	border-bottom: none;
+	margin-bottom: 20px;
+}
+
+.qa_edit_submitted.button.secondary {
+	padding: 5px 10px;
+}
+
+.qa_q_txt {
+	font-weight: bold;
+	line-height: 20px !important;
+}
+
+.qa_sq {
+	.qa_sq_question {
+		padding-left: 33px;
+	}
+
+	.qa_q_txt {
+		font-weight: bold;
+	}
+	.qa_editor_tools {
+		font-size: 0.7em;
+		margin-top: 1em;
+		position: relative;
+	}
+
+	.qa_divider {
+		display: none;
+	}
+}
+
+.qa_section_heading {
+	margin: 0 0 20px 0;
+	font-size: 18px;
+}
+
+.qa.section {
+	.altblock {
+		background-image: url(./assets/qa_question_circle.png);
+		/* @embed */
+		background-image: url(./assets/qa_question_circle.svg);
+		background-repeat: no-repeat;
+		background-size: 25px auto;
+		background-position: center;
+		height: 52px;
+	}
+}
+
+.qa_editor {
+	.qa_ignore_submitted {
+	margin-left: 10px;
+	}
+
+	#qa_edit, #qa_edit_done {
+		font-size: .6em;
+	}
+}
+
+.qa_staff_info {
+	font-size: .7em;
+	color: #9A9A9A;
+	float: right;
+}
+
+.qa_bubble {
+	margin: 0 0 0 88px;
+	position: relative;
+	background: #F6F8F7;
+	font-weight:normal;
+	padding: 15px 15px 0 15px;
+	-moz-background-clip: padding;     /* Firefox 3.6 */
+	-webkit-background-clip: padding;  /* Safari 4? Chrome 6? */
+	background-clip: padding-box;
+	border-radius: 5px;
+}
+.qa_bubble:after {
+	top: 5px;
+	left: 0;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.qa_bubble:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-right-color: #F6F8F7;
+	border-width: 12px;
+	margin-left: -23px;
+}
+
+.qa_editing {
+	.qa_bubble {
+		padding-bottom: 15px;
+	}
+
+	.qa_ignore_answered, .qa_ingore_answered_thanks {
+		display: none;
+	}
+
+	.qa_staff_info {
+		display: inline;
+	}
+}
+
+.qa_person_circle, .qa_expert {
+	height: 35px;
+	width: 35px;
+	margin-left: 23px;
+	border-radius: 18px;
+}
+
+.qa_expert_pop .qa_expert, .qa_expert_pop .qa_expert span,.qa_ta_pop .qa_person_circle {
+	height: 45px;
+	width: 45px;
+	line-height: 45px;
+	font-size: 20px;
+	margin: 0;
+	border-radius: 23px;
+}
+
+.qa_expert_pop, .qa_ta_pop {
+	width: 250px;
+	padding: 18px;
+	font-size: .9em;
+}
+
+.qa_expert_name, .qa_ta_name {
+	padding: 5px 0 10px 55px;
+	border-bottom: 1px solid rgba(0, 0, 0, .13);
+	margin-bottom: 10px;
+	min-height: 40px;
+}
+
+.qa_expert_name a {
+	font-size: 1.1em;
+	font-weight: bold;
+	color: #545454;
+}
+
+.qa_expert_badge {
+	height: 15px;
+	width: 15px;
+	margin: 23px 0 0 48px;
+}
+
+.qa_expert_area, .qa_ta_area {
+	width: 72px;
+	height: 55px;
+	position: absolute;
+	cursor: pointer;
+}
+
+.qa_ta_name span {
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+.qa_ta_name a {
+	color: #545454;
+}
+
+.qa_ta_badge {
+	width: 17px;
+	height: 22px;
+	margin: 18px 0 0 47px;
+}
+
+.wh_vote_container {
+	font-size: .7em;
+	max-width: inherit;
+	color: @lightGray;
+	margin: 0;
+
+	a { color: @lightGray; }
+
+	a span {
+		padding: 2px 10px;
+		border-radius: 9px;
+		margin-left: 0.5em;
+		color: #686868;
+	}
+
+	.wh_vote_up {
+		padding-right: 0;
+
+		span {
+			background-color: #D6E7C9;
+		}
+
+		&:hover {
+			border-color: #383;
+			color: #383;
+		}
+	}
+	.wh_vote_down {
+		span {
+			background-color: #EBEAE7;
+		}
+
+		&:hover {
+			border-color: #CC8969;
+			color: #CC8969;
+		}
+	}
+}
+.wh_vote_container.clicked {
+	.wh_vote_box { display: none; }
+}
+
+.wh_vote_container.qa_vote_links {
+	.qa_widget_vote_buttons {
+		display: none;
+	}
+}
+
+.wh_vote_container.qa_vote_buttons {
+	text-align: right;
+
+	.qa_widget_vote_links, .wh_thumb_default {
+		display: none;
+	}
+}
+
+.wh_thumb_default { color: @lightGray; }
+.wh_thumb_msg { width: inherit; }
+.wh_thumb_response { line-height: 3em; }
+
+.qa_widget_vote_links, .qa_widget_vote_buttons {
+	display: inline-block;
+
+	.button {
+		text-align: center;
+		line-height: 1em;
+		padding: 5px 0;
+	}
+}
+
+.qa_widget_vote_links {
+	padding: 10px 0 5px 0;
+
+	.button {
+		width: 35px;
+		margin: 0 4px;
+		font-weight: normal;
+	}
+}
+
+.qa_widget_vote_buttons {
+	a {
+		color: #686868;
+		padding: 5px 1em;
+	}
+}
+
+.qa_ingore_answered_thanks { display: none; }
+
+.qa_ignore_answered, .qa_ingore_answered_thanks {
+	float: left;
+	font-size: .7em;
+	line-height: 3em;
+
+	a {
+		color: #686868;
+	}
+}
+
+.qa_user_name {
+	float: left;
+	margin-top: 40px;
+	width: 82px;
+	font-size: 0.5em;
+	line-height: 1.2em;
+	text-align: center;
+}
+
+#qa_ask_heading {
+	margin-bottom: 10px;
+}
+
+#qa_asked_count {
+	margin-top: -10px;
+}
+
+.qa_sq.qa_editing_aq {
+	margin-right: -25px;
+	margin-left: -25px;
+	margin-bottom: 20px;
+	padding: 30px 27px 8px;
+}
+
+.qa_aq_edit_form {
+	padding-left: 33px;
+}
+
+.qa_aq_submit, .qa_aq_cancel, .qa_aq_delete, .qa_social_login_done {
+	font-size: 1em;
+	font-weight: normal;
+	text-align: center;
+	width: 92px;
+	border-radius: 2.5px;
+}
+
+.qa_flag_submitted, .qa_ignore_submitted{
+	font-size: 12px;
+}
+
+#qa_flag_options {
+	display: none;
+	position: absolute;
+	bottom: 40px;
+	left: 130px;
+	padding-bottom: 13px;
+	font-size: 12px;
+	z-index: 998;
+
+	.hint_box {
+		min-width: auto;
+
+		ul {
+			padding: 0;
+			list-style: none;
+
+			li {
+				margin: 0;
+			}
+		}
+	}
+}
+
+#qa_answer_flag_options {
+	display: none;
+	position: absolute;
+	bottom: 40px;
+	left: -25px;
+	padding-bottom: 13px;
+	font-size: 12px;
+	z-index: 998;
+
+	.hint_box {
+		min-width: auto;
+
+		ul {
+			padding: 0;
+			list-style: none;
+
+			li {
+				margin: 0;
+			}
+		}
+	}
+}
+
+#qa_related_box {
+	padding: 15px 0 0 15px;
+}
+
+
+/* Social Login */
+
+.qa_social_login_avatar {
+	margin-top: -6px;
+	margin-right: 20px;
+}
+
+a.button.qa_social_login_done {
+	font-size: 0.9em;
+}
+
+.qa_button.social_login_button {
+	width: 168px;
+}
+
+#qa_email {
+	margin-bottom: 3px;
+}
+
+#qa_email_prompt {
+	font-size: .75em;
+	margin-bottom: 10px;
+}

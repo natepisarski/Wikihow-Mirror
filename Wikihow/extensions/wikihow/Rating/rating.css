@@ -1,0 +1,66 @@
+.article_rating_container {
+	width: 60%;
+	margin: 0 auto;
+	min-width: 270px;
+}
+
+.article_rating_divider {
+	display: block;
+	width: 90%;
+	height: 1px;
+	border: 0;
+	border-top: 1px solid #e5e5e5;
+	margin: 0 auto;
+	padding: 0;
+}
+
+.article_rating_inner {
+	display: none;
+}
+
+.article_rating_textarea {
+	width: 100%;
+	max-width: 100%;
+	height: 106px;
+	font-size: .82em;
+	padding: 12px;
+	margin-top: 10px;
+	margin-bottom: -5px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.article_rating_input {
+	display: block;
+	width: 100%;
+	padding: 12px;
+	font-size: 0.82em;
+	border: 1px solid #f2f0eb;
+	margin-top: 7px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: textfield;
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+#article_rating_more {
+	margin-top: 10px;
+}
+
+.article_rating_message,.article_rating_detail {
+	padding: 0 12px;
+}
+
+.article_rating_button {
+	display: block;
+	width: 100%;
+	float: none;
+	font-size: .82em;
+}
+

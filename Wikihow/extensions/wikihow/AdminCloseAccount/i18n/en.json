@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+    "aca_page_title": "Admin Close Account",
+    "aca_description": "A tool for staff members to close user accounts.",
+	"log-name-closeaccount": "Close Account",
+	"log-description-closeaccount": "Tracks when a user account is closed by an admin.",
+	"logentry-closeaccount-close": "$1 closed account (moved $4 to $5)"
+}

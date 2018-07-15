@@ -1,0 +1,99 @@
+body {
+	font-family: 'Helvetica Neue', Helvetica, 'Nimbus Sans L', Arial, 'Liberation Sans', sans-serif;
+	font-size: 14px;
+}
+.ad {
+	float: left;
+	width:100%;
+	margin-bottom: 5px;
+	position: relative;
+}
+a {
+	border: none;
+	text-decoration: none;
+	color: #FFF;
+}
+a:hover {
+	text-decoration: none;
+}
+.url-link {
+	color: #767676;
+}
+.url {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.ads .image-link {
+	display: block;
+	vertical-align: top;
+}
+.title {
+	background-color: rgba(67,95,44,.4);
+	padding: 2%;
+	width: 96%;
+	min-height: 32px;
+	position: absolute;
+	bottom: 0;
+}
+.image img {
+	border: none;
+	width: 100%;
+	height: auto;
+}
+
+@media (min-width:333px) and (max-width: 725px) {
+	.ad {
+		width: 49.75%;
+		margin-right: 0.5%;
+		margin-bottom: 0.5%;
+	}
+	.ad:nth-child(even) {
+		margin-right: 0px;
+	}
+	.title {
+		font-size: 13px;
+	}
+}
+@media (min-width:528px) {
+	.ad {
+		width: 33%;
+		margin-right: 0.5%;
+		margin-bottom: 0.5%;
+	}
+	.ad:nth-child(3n+3) {
+		margin-right: 0px;
+	}
+	.title {
+		width: 94%;
+		padding: 3%;
+		font-size: 13px;
+	}
+}
+@media (min-width:628px) {
+	.title {
+		font-size: 14px;
+	}
+}
+@media (max-height: 125px) {
+	.ad {
+		width: auto;
+		margin-bottom: 0px;
+		position: static;
+	}
+	.ads .image-link {
+		display: inline-block;
+	}
+	.title {
+		background-color: #6d944c;
+		width: 110px;
+		min-height: none;
+		font-size: 10px;
+		padding: 0px;
+		position: static;
+		bottom: auto;
+	}
+	.image img {
+		width: 22px;
+	}
+}

@@ -1,0 +1,12 @@
+.comdash-widget-AnswerQuestionsAppWidget {
+	height: 207px;
+}
+
+.comdash-widget-AnswerQuestionsAppWidget .comdash-widget-footer {
+	display: none;
+}
+
+.comdash-widget-AnswerQuestionsAppWidget .comdash-count {
+	margin-top: 77px;
+	margin-right: 48px;
+}

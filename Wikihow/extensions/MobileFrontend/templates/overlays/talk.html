@@ -1,0 +1,14 @@
+<p class="content-header">{{explanation}}<br>
+	<button class="add mw-ui-button mw-ui-progressive">{{addTopicLabel}}</button>
+</p>
+<ul class="page-list actionable">
+	<li class="lead-discussion">
+		<a data-id="0">{{leadHeading}}</a>
+	</li>
+	{{#sections}}
+		<li>
+			<a data-id="{{id}}">{{line}}</a>
+		</li>
+	{{/sections}}
+</ul>
+</div>

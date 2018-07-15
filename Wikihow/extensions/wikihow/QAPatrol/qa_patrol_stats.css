@@ -1,0 +1,49 @@
+.qaps_date_input {
+	padding: 10px;
+	border-radius: 4px;
+	border: 1px solid #e5e5e5;
+	width: 80px;
+	font-size: 14px;
+}
+
+#qap_export {
+	margin-left: 10px;
+}
+
+#qap_top_stats {
+	margin: .5em 0 1em;
+	display: grid;
+	grid-template: auto / auto 1fr;
+	grid-gap: .2em .8em;
+}
+
+.qap_span {
+	grid-row: auto;
+	grid-column: 1 / span 1;
+	background-color: #93B874;
+	padding: 3px 7px;
+	color: #F6F5F4;
+}
+
+.qap_count {
+	grid-row: auto;
+	grid-column: 2 / span 1;
+	align-self: center;
+}
+
+#qap_stats_exposition {
+	float: right;
+	font-size: .75em;
+	background-color: #E7EBE4;
+	padding: 1em;
+	border-radius: 4px;
+}
+
+#qap_stats_exposition ul {
+	margin: .5em;
+	list-style: inside;
+}
+
+#qap_stats_exposition li {
+	margin: .4em 0;
+}

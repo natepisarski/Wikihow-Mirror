@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "เข้าสู่ระบบ",
+	"ulb_nologin": "ยังไม่มีบัญชีการใช้งาน?",
+	"ulb_create": "สร้างบัญชีการใช้งาน",
+	"ulb_wh_act": "บัญชีการใช้งาน",
+	"ulb_joinwh": "เข้าร่วมวิกิฮาว",
+	"ulb_email": "อีเมล",
+	"ulb_haveacct": "มีบัญชีการใช้งานแล้ว?",
+	"ulb_whacct": "บัญชีการใช้งานวิกิฮาว",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "กำลังโหลด.."
+}

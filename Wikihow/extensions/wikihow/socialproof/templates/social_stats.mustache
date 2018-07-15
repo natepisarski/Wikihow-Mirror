@@ -1,0 +1,20 @@
+<div id="sp_stats_box" class="sp_box {{#helpful_sidebox}}sp_thin_box{{/helpful_sidebox}}">
+	<div class="sp_text">
+		{{{authors}}}
+	</div>
+	{{#modified}}
+	<div class="sp_text">
+		<span data-datestamp="{{modified}}" id="sp_modified">{{sp_updated_title}}: </span>
+	</div>
+	{{/modified}}
+	<div class="sp_text">
+		{{sp_views}}:&nbsp;<span class="sp_text_data">{{views}}</span>
+	</div>
+	{{#amp}}
+		{{#helpful.count}}
+		<div class="sp_text">
+			{{helpful.ratingPrefixAmp}}:&nbsp;<span class="sp_text_data">{{helpful.ratingDisplayAmp}}</span>
+		</div>
+		{{/helpful.count}}
+	{{/amp}}
+</div>

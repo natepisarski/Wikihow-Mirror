@@ -1,0 +1,30 @@
+<div id="thumbed" class="minor_section">
+	<h2>{{pb-thumbedupedits}} {{#thumb_count}}({{thumb_count}}){{/thumb_count}}</h2>
+	<table class='pb-articles' id='pb-thumbed'>
+		<thead>
+			<tr>
+				<th class='first pb-title'>{{pb-articlename}}</th>
+				<th class='last pb-view'>{{date}}</th>
+			</tr>
+		</thead>
+		<tbody>
+		{{#items}}
+			{{> thumbed_item}}
+		{{/items}}
+
+		{{^items.0}}
+		<tr>
+			<td colspan="2" align="center" class="pb-empty-text">{{empty_text}}</td>
+		</tr>
+		{{/items.0}}
+		</tbody>
+	</table>
+
+	{{#view_toggle}}
+	<a href='#' class="view_toggle more">{{pb-viewmore}}</a>
+	{{/view_toggle}}
+</div>
+
+<script id="thumbed_item" type="text/x-handlebars-template">
+	{{thumbed_item}}
+</script>

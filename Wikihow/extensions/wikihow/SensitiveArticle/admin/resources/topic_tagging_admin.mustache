@@ -1,0 +1,24 @@
+<div id="topic_tagging_admin">
+	{{{tag_prompt}}}
+
+	<div>
+		{{topic_select_label}}:
+		<select id="tta_topic">
+			<option value="0">{{default_topic_option}}</option>
+			{{#topics}}
+			<option value="{{id}}">{{name}} ({{internal_name}})</option>
+			{{/topics}}
+		</select>
+		<button id="tta_report" class="button secondary">{{report_button_label}}</button>
+	</div>
+
+	<div>
+		<p>{{articles_prompt}}</p>
+		<p class="tta_example">{{articles_example}}</p>
+		<textarea id="tta_article_list"></textarea>
+	</div>
+
+	<div id="tta_message"></div>
+
+	<button id="tta_submit" class="button primary">{{submit_button_label}}</button>
+</div>

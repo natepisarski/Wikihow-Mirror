@@ -1,0 +1,120 @@
+.ui-autocomplete-loading { 
+	background: white url('/skins/WikiHow/images/csui_working.gif') right center no-repeat; 
+} 
+.ui-autocomplete {
+	border: 1px solid #ABABAB;
+}
+
+.ui-widget-content a { color: #363; }
+
+ul.ui-corner-all {
+	-moz-border-radius-topleft: 0px 0px;
+	-moz-border-radius-topright: 0px 0px;
+	-moz-border-radius-bottomleft: 8px;
+	-moz-border-radius-bottomright: 8px;
+	-webkit-border-top-left-radius: 0px 0px;
+	-webkit-border-top-right-radius: 0px 0px;
+	-webkit-border-bottom-right-radius: 8px 8px;
+	-webkit-border-bottom-left-radius: 8px 8px;
+	border-top-left-radius: 0px 0px;
+	border-top-right-radius: 0px 0px;
+	border-bottom-right-radius: 8px 8px;
+	border-bottom-left-radius: 8px 8px;
+}
+
+#csui_interests_label { font-weight: bold; }
+
+#csui_none {
+	font-size: .8em;
+	color: #ABABAB;
+}
+#csui_none ul {
+	margin-top: 5px;
+}
+#csui_none ul li {
+	list-style: inside;
+	padding: 5px;
+}
+
+.csui_hidden {
+	display: none;
+	visibility: hidden;
+}
+
+.csui_nodisplay {
+	display: none;
+}
+
+#csui_interests {
+	margin: .5em 0;
+	width: 295px;
+	height: 17px;
+	border-color: #ABABAB;
+	font-size: .8em;
+}
+
+.csui_topic_subdesc {
+	color: #ABABAB;
+	padding: 5px 0;
+	font-size: .8em;
+}
+
+.csui_category {
+	margin: 10px 0;
+}
+
+.csui_active {
+	border: 2px #2DA9C4 solid;
+}
+
+
+.csui_close {
+	float: left;
+	cursor: pointer;
+	padding-right: .5em;
+	color: #ABABAB;
+}
+
+.csui_minus_icon, 
+.csui_plus_icon {
+	height: 15px;
+	width: 15px;
+}
+
+.csui_categories, .csui_suggestions {
+	min-height: 20px;
+	width: 300px;
+	margin-top: 3px;
+	margin-bottom: 10px;
+}
+
+.csui_categories_outer {
+	margin-top: 15px;
+}
+
+.csui_suggestion {
+	cursor: pointer;
+	color: #383;
+	text-decoration: none;
+	display: inline-block;
+}
+
+
+.csui_suggestion:hover {
+	text-decoration: underline;
+}
+
+.csui_suggestions_outer {
+	margin-top: 25px;
+}
+
+.csui_font_small {
+	font-size: 11px;
+}
+
+.csui_final_button {
+	margin: 1em 0;
+	text-align: right;
+}
+
+#csui_close_popup { margin: 0; }

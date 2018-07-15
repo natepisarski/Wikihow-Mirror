@@ -1,0 +1,19 @@
+<div class="ch_review" id="ch_review_{{index}}" data-review_id="{{uc_submitted_id}}">
+	<button class="button secondary remove_button"><i class="fa fa-trash"></i> {{remove}}</button>
+	<button class="button secondary add_button"><i class="fa fa-check"></i> {{add}}</button>
+	<div class="ch_user">
+		{{#avatarUrl}}
+			<img src="{{{avatarUrl}}}" class="ch_avatar" />
+		{{/avatarUrl}}
+		{{^avatarUrl}}
+			<span class="ch_initials">
+				{{initials}}
+			</span>
+		{{/avatarUrl}}
+		<p class="ch_name">{{{fullname}}}</p>
+	</div>
+	<div class="ch_review_text">
+		&quot;{{{uc_review}}}&quot;
+	</div>
+	<div class="ch_from_article">{{{from_article}}}</div>
+</div>

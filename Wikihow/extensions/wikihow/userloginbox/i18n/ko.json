@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "로그인",
+	"ulb_nologin": "계정이 없으신가요?",
+	"ulb_create": "계정 만들기",
+	"ulb_wh_act": "계정",
+	"ulb_joinwh": "위키하우 회원가입하기",
+	"ulb_email": "이메일",
+	"ulb_haveacct": "계정이 있으신가요?",
+	"ulb_whacct": "위키하우 계정",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "로딩 중..."
+}

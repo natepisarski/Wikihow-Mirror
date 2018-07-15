@@ -1,0 +1,23 @@
+<div id="topic_tagging_tool" {{#is_mobile}}class="mobile"{{/is_mobile}}>
+	<div id="ttt_top">
+		{{^is_mobile}}
+		<div id="ttt_remaining"><p>{{remaining}}</p>{{remaining_label}}</div>
+		{{/is_mobile}}
+		<div id="ttt_tool_title">{{tool_title}}</div>
+		<div id="ttt_title"></div>
+	</div>
+
+	<div id="ttt_guts">
+		<div id="ttt_question"></div>
+		<div id="ttt_description"></div>
+	</div>
+
+	<div id="ttt_buttons">
+		<button id="ttt_vote_yes" class="button secondary">{{yes}}</button>
+		<button id="ttt_vote_skip" class="button secondary">{{skip}}</button>
+		<button id="ttt_vote_no" class="button primary">{{no}}</button>
+	</div>
+
+</div>
+<div id="ttt_spinner"></div>
+<div id="ttt_article_html" {{#is_mobile}}class="mobile"{{/is_mobile}}></div>

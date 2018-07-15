@@ -1,0 +1,25 @@
+<div id="ur_curated_list">
+	<h3>Curated Reviews (<span>{{reviewCount}}</span>)</h3>
+	{{# reviews}}
+		<div class="ur_curated locked" reviewid="{{uc_submitted_id}}">
+			<a href="#" class="ur_delete">Delete</a> <a href="#" class="ur_edit">Edit</a>
+			{{#username}}
+				<p class="ur_linked_account">{{username}} (linked account, not editable)
+			{{/username}}
+			<form>
+				{{^username}}
+				<input class="ur_firstname" name="firstname" value="{{uc_firstname}}" disabled="disabled" /> <input class="ur_lastname" name="lastname" value="{{uc_lastname}}" disabled="disabled" />
+				<br /><br />
+				{{/username}}
+				<textarea class="ur_review" name="review" disabled="disabled">{{uc_review}}</textarea>
+				{{#imageUrl}}
+					<img src="{{imageUrl}}" class="ur_image" />
+				{{/imageUrl}}
+				<br />
+				<input type="hidden" name="aid" value="{{uc_article_id}}" />
+			</form>
+			<a href="#" class="ur_save">Save</a>
+			{{#staff}}<span class="ur_staff_info">Staff info: Last edited on {{editDate}} by {{editUser}}</span>{{/staff}}
+		</div>
+	{{/ reviews}}
+</div>

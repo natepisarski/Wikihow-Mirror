@@ -1,0 +1,89 @@
+.txt_strike {
+	 text-decoration: line-through;
+}
+
+#chk_praise_content {
+	display: none;
+}
+
+.chk_praise {
+	margin: 5px 0;
+	padding: 8px;
+	background: #93B874;
+	display: none;
+	color: #FFF;
+}
+.chk_praise a { 
+	color: #FFF;
+	text-decoration: underline;
+}
+
+#chk_praise_data { display: none; }
+
+.chk_close { float: right;}
+
+.chk_img_final {
+	width: 50px;
+	height: 40px;
+	margin: 0 0 0 -45px;
+	vertical-align: middle;
+}
+
+.chk_msg { padding-right: 50px; }
+
+.step_checkbox {
+	position: relative;
+	float: left;
+	margin-left: -43px;
+	width: 39px;
+	color: whiteSmoke;
+	background-color: #b8cca7;
+	border-radius: 20px 20px 0 0;
+	text-align: center;
+	padding: 3px 0;
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
+.step_checkbox .checkwhite {
+	width: 23px;
+	height: 23px;
+	background-color: #FFF;
+	margin: 2px auto 5px auto;
+	/*background-image: url(/extensions/wikihow/mobile/images/checkmark_grey.svg), url(/extensions/wikihow/mobile/images/checkmark_grey.png);*/
+	background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKCSB3aWR0aD0iMTAwcHgiIGhlaWdodD0iOTMuOTI0cHgiIHZpZXdCb3g9IjAgMCAxMDAgOTMuOTI0IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAgOTMuOTI0IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiNGMkVFRUIiIGQ9Ik0zMS4wMTUsOTMuOTI0Yy0yLjY4Ny0zLjk5NS02LjA3OS03LjQwNi05LjE4OS0xMS4wNDgKCWMtNi45NTctOC4xNTEtMTMuOTk0LTE2LjIzNS0yMS4wNDEtMjQuMzFjLTAuOTI5LTEuMDY1LTEuMTQ0LTEuODYxLTAuMDM2LTIuOTI0YzAuOTQ5LTAuOTA5LDEuNDE0LTIuMjA0LDMuMjY4LTEuMTE2CgljNy4xNTYsNC4xOTksMTQuNDQsOC4xOCwyMS42MjYsMTIuMzNjMS4yMjMsMC43MDYsMS43NzYsMC41MjIsMi41NjYtMC41N2MxMi4xMjgtMTYuNzczLDI1LjcyLTMyLjI0NSw0MS4yMDYtNDYuMDEKCWM4LjM1MS03LjQyMywxNy4yMzgtMTQuMTE3LDI2Ljg1OS0xOS44NDVjMi4xNDUtMS4yNzYsMi4yMDksMC42MTUsMy4wNTEsMS4zNzZjMS4wMTksMC45MjIsMC44MzQsMS42NTYtMC4yMjQsMi42MTIKCUM3MS41MTksMjkuMzM3LDUwLjY2LDU5LjIsMzQuNDk3LDkyLjVjLTAuMjE3LDAuNDQ1LTAuNTg3LDAuODU5LTAuNDE3LDEuNDI0QzMzLjA1OCw5My45MjQsMzIuMDM3LDkzLjkyNCwzMS4wMTUsOTMuOTI0eiIvPgo8L3N2Zz4K');
+	background-position: center center;
+	background-color: #FFF;
+	background-repeat: no-repeat;
+	background-size: 18px;
+}
+.step_checked .checkwhite {
+	/*background-image: url(/extensions/wikihow/mobile/images/checkmark.svg), url(/extensions/wikihow/mobile/images/checkmark.png);*/
+	/*background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKCSB3aWR0aD0iMTAwcHgiIGhlaWdodD0iOTMuOTI0cHgiIHZpZXdCb3g9IjAgMCAxMDAgOTMuOTI0IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAgOTMuOTI0IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMzMzUxMjUiIGQ9Ik0zMS4wMTUsOTMuOTI0Yy0yLjY4Ny0zLjk5NS02LjA3OS03LjQwNi05LjE4OS0xMS4wNDgKCWMtNi45NTctOC4xNTEtMTMuOTk0LTE2LjIzNS0yMS4wNDEtMjQuMzFjLTAuOTI5LTEuMDY1LTEuMTQ0LTEuODYxLTAuMDM2LTIuOTI0YzAuOTQ5LTAuOTA5LDEuNDE0LTIuMjA0LDMuMjY4LTEuMTE2CgljNy4xNTYsNC4xOTksMTQuNDQsOC4xOCwyMS42MjYsMTIuMzNjMS4yMjMsMC43MDYsMS43NzYsMC41MjIsMi41NjYtMC41N2MxMi4xMjgtMTYuNzczLDI1LjcyLTMyLjI0NSw0MS4yMDYtNDYuMDEKCWM4LjM1MS03LjQyMywxNy4yMzgtMTQuMTE3LDI2Ljg1OS0xOS44NDVjMi4xNDUtMS4yNzYsMi4yMDksMC42MTUsMy4wNTEsMS4zNzZjMS4wMTksMC45MjIsMC44MzQsMS42NTYtMC4yMjQsMi42MTIKCUM3MS41MTksMjkuMzM3LDUwLjY2LDU5LjIsMzQuNDk3LDkyLjVjLTAuMjE3LDAuNDQ1LTAuNTg3LDAuODU5LTAuNDE3LDEuNDI0QzMzLjA1OCw5My45MjQsMzIuMDM3LDkzLjkyNCwzMS4wMTUsOTMuOTI0eiIvPgo8L3N2Zz4K');*/
+	background-position: center center;
+	background-color: #FFF;
+	background-repeat: no-repeat;
+	background-size: 23px;
+}
+
+
+/********************RESPONSIVE PART*/
+/* SCREEN < 599 PIXELS (PORTRAIT WIDTH OR LANDSCAPE HEIGHT) */
+@media only screen and (max-width: 599px), 
+	only screen and (max-height: 420px) and (orientation:landscape) {
+
+	.step_checkbox { 
+		border-radius: 15px 15px 0 0;
+		width: 25px;
+		margin-left: -35px; 
+		padding: 3px 0 0 0;
+		font-size: 1em;
+	}
+
+	.step_checkbox .checkwhite {
+		width: 17px;
+		height: 17px;
+	}
+	.step_checked .checkwhite { background-size: 18px; }
+
+}

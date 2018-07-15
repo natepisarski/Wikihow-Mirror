@@ -1,0 +1,94 @@
+table.fl_table {
+	margin: 10px 0 10px 0;
+}
+
+table.fl_table td {
+	vertical-align: top;
+	text-align: middle;
+	width: 320px;
+}
+
+.fl_pic {
+	margin: 0 5px 0 0;
+	float: left;
+}
+
+#fl_options {
+	margin: 0 20px 14px 20px;
+	font-size: .8em;
+}
+
+.fl_button_save {
+	display: inline-block;
+	background: url("/skins/WikiHow/images/button_blue.png") no-repeat scroll left top transparent;
+    height: 38px;
+	line-height: 38px;
+	width: 136px;
+	margin-right: 5px;
+	font-size: 1.1em;
+	vertical-align: middle;
+	float: right;
+}
+
+.fl_button_save:hover { background-position: 0 -38px; }
+
+.fl_button_cancel {
+	vertical-align: middle;
+}
+
+.fl_acct_name {
+	margin-bottom: 3px;
+	font-weight: bold;
+	font-size: 1.1em;
+}
+
+.fl_acct_name_fb {
+	color: #01769F;
+}
+
+
+#fl_fb_acct {
+	display: inline-block;
+	color: #878787;
+	background: #F2F2F2;
+	width: 300px;
+	margin: 10px 20px 24px 20px;
+	zoom:1; *display: inline; _height: 100px;
+	vertical-align: top;
+	font-size: .8em;
+}
+
+
+#fl_overview {
+	width: 350px;
+	display: inline-block;
+	zoom:1; *display: inline; _height: 100px;
+	vertical-align: top;
+	font-size: .8em;
+}
+
+#fl_overview ul {
+	margin: 0 0 0 30px;
+}
+
+#fl_overview li {
+	padding: 2px;
+}
+
+#fl_warning {
+	margin-bottom: 25px;
+	font-size: .8em;
+}
+
+.fl_border {
+	padding: 10px;
+	border: 1px solid #BDB7A7;
+	-moz-border-radius-topright: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-moz-border-radius-bottomleft: 5px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+}

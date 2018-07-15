@@ -1,0 +1,104 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+// FIXME: hide in stable till talk code is stable
+.stable #ca-talk,
+// hide menu items when not possible to use
+.client-nojs #ca-watch.cta,
+.client-nojs #ca-edit,
+.client-nojs #ca-upload,
+#ca-talk.selected {
+	display: none;
+}
+
+#section_0 {
+	padding: 12px @contentMargin 7px;
+	// FIXME: Use a gray defined in variables e.g. @grayMediumLight
+	border-bottom: dotted 1px #CACACA;
+}
+
+.pre-content {
+	// FIXME: Use a gray defined in variables e.g. @grayMediumLight
+	border-bottom: solid 1px #CACACA;
+	// FIXME: Remove when pre-content in cache
+	#page-actions {
+		border-bottom: none;
+	}
+}
+
+#page-actions {
+	@verticalMargin: 8px;
+
+	padding: @verticalMargin @contentMargin @verticalMargin @contentMargin - 8;
+	// end hacks
+	// FIXME: Remove when pre-content in cache
+	border-bottom: solid 1px @grayMediumLight;
+
+	li,
+	.watch-this-article {
+		.background-size( auto, 30px );
+	}
+	li {
+		cursor: pointer;
+		// FIXME: why is this necessary?
+		vertical-align: top;
+		height: 30px;
+		width: 40px;
+		text-indent: -9999px;
+		background-position: 50% 0;
+		background-repeat: no-repeat;
+
+		// FIXME: use .cloaked class
+		// file inputs are notoriously difficult to style
+		input {
+			opacity: 0;
+		}
+
+		input,
+		a {
+			display: block;
+			width: 100%;
+			height: 100%;
+			// needed for ContentOverlay pointer arrow
+			margin: 0 0 @verticalMargin;
+		}
+	}
+}
+
+#ca-edit {
+	/*background-image: url(images/pagemenu/edit-locked.png);*/
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMzIuMDA1cHgiIGhlaWdodD0iMzEuNzI1cHgiIHZpZXdCb3g9IjAgMCAzMi4wMDUgMzEuNzI1IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzMi4wMDUgMzEuNzI1IiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0eWxlMHtmaWxsOgkjQ0RDRENEO30uc3R5bGUxe3N0cm9rZToJI0NEQ0RDRDtzdHJva2Utd2lkdGg6CTM7c3Ryb2tlLW1pdGVybGltaXQ6CTEwO2ZpbGw6CW5vbmU7fTwvc3R5bGU+PGc+PGc+PHBhdGggZD0iTTMxLjk5IDYuMDE3bC0xNS4xNiAxNC44N2wtOS4yNDMgOS4xOEwwIDMxLjcyNWwxLjU5NC03LjY1bDkuMjQ0LTkuMThMMjUuOTk3IDAgYzAgMCAxLjcyMi0wLjM4MyA0IDEuOTEzQzMyLjMwOSA0LjMgMzIgNiAzMiA2LjAxN3ogTTcuOTA1IDI4LjQxYzAgMC0wLjA2My0xLjQwMy0xLjY1Ny0yLjk5NyBjLTEuNTMtMS41OTQtMi45OTctMS41OTQtMi45OTctMS41OTRMMi41NSAyNC41ODVsLTAuNTczIDIuNTVjMC40NDYgMC4zIDEgMC42IDEuNSAxLjEgYzAuNTc0IDAuNiAwLjkgMSAxLjEgMS41M2wyLjU1MS0wLjU3NEw3LjkwNSAyOC40MXoiIGNsYXNzPSJzdHlsZTAiLz48L2c+PGNpcmNsZSBjeD0iMTUuNSIgY3k9IjE1LjMiIHI9IjEyLjMiIGNsYXNzPSJzdHlsZTEiLz48L2c+PC9zdmc+);
+	margin-right: 17px;
+	&.enabled {
+		/*background-image: url(images/pagemenu/edit.png);*/
+		background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjQuODc4cHgiIGhlaWdodD0iMjQuODg3cHgiIHZpZXdCb3g9IjAgMCAyNC44NzggMjQuODg3IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyNC44NzggMjQuODg3IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNDRENEQ0QiIGQ9Ik0yNC44NjMsNi4wMTdsLTguMDMzLDguMDMybC05LjI0Myw5LjE4TDAsMjQuODg3bDEuNTk0LTcuNjVsOS4yNDQtOS4xOGw4LjAzMi04LjAzMw0KCQljMCwwLDEuNzIyLTAuMzgzLDQuMDE3LDEuOTEzQzI1LjE4Miw0LjI5NSwyNC44NjMsNi4wMTcsMjQuODYzLDYuMDE3eiBNNy45MDUsMjEuNTcyYzAsMC0wLjA2My0xLjQwMy0xLjY1Ny0yLjk5Nw0KCQljLTEuNTMtMS41OTQtMi45OTctMS41OTQtMi45OTctMS41OTRMMi41NSwxNy43NDdsLTAuNTczLDIuNTVjMC40NDYsMC4yNTUsMC45NTYsMC41NzQsMS40NjYsMS4wODMNCgkJYzAuNTc0LDAuNTc0LDAuODkzLDEuMDIsMS4xNDcsMS41M2wyLjU1MS0wLjU3NEw3LjkwNSwyMS41NzJ6Ii8+DQo8L2c+DQo8L3N2Zz4NCg==);
+	}
+}
+
+#ca-talk {
+	margin-right: 14px;
+	// FIXME: remove in favour of using .talk class
+	background-image: url(images/pagemenu/talk.png);
+	text-indent: -999px;
+}
+
+.talk {
+	background: url(images/pagemenu/talk.png) 50% 50% no-repeat;
+	overflow: hidden;
+}
+
+#ca-upload {
+	margin-right: 19px;
+	background-image: url(images/pagemenu/upload-locked.png);
+	overflow: hidden;
+	input {
+		display: none;
+	}
+	&.enabled {
+		background-image: url(images/pagemenu/upload.png);
+		input {
+			display: block;
+		}
+	}
+}

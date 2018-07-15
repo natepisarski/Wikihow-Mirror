@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": [
+			"GerardM",
+			"Siebrand",
+			"Southparkfan"
+		]
+	},
+	"elastica-desc": "Basisfunctionaliteit voor [http://www.elasticsearch.org/ Elasticsearch] voor andere uitbreidingen door [http://elastica.io/ Elastica] bibliotheek aan te bieden"
+}

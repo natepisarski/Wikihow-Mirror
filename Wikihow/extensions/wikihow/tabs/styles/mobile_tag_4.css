@@ -1,0 +1,93 @@
+.steps .section_text, .section .section_text {
+	display: none;
+}
+
+.open.steps .section_text, .open.section .section_text {
+	display: block;
+}
+
+.edit-page {display: none;}
+
+h2 .chevron {
+	margin-top: 3px;
+}
+
+.chevron {
+	float: right;
+	margin: 11px 15px 0px 0;
+	line-height: 0;
+}
+
+.chevron::before {
+	border-style: solid;
+	border-width: 3px 3px 0 0;
+	content: '';
+	display: inline-block;
+	height: 10px;
+	left: 0;
+	position: relative;
+	top: 0;
+	transform: rotate(135deg);
+	vertical-align: top;
+	width: 10px;
+}
+
+.open .chevron:before {
+	top: 0.15em;
+	transform: rotate(-45deg);
+}
+
+.section.closed h3, .section.closed h2 {
+	border-bottom: 1px solid #ecebe8;
+}
+
+#mw-mf-page-center {
+	background-color: #fff;
+}
+
+.steps h3 {
+	background-color: #fff;
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+.section h2 {
+	background-color: #fff;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.section.shortsummary h2 {
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+#intro {
+	border-bottom: 1px solid #ecebe8;
+}
+
+.mw-headline {
+	font-size: 18px;
+}
+
+@media only screen and (max-aspect-ratio: 13/9) and (min-width: 500px), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	.mw-headline {
+		font-size: 24px;
+	}
+
+	.chevron {
+		margin-top: 18px;
+	}
+
+	h2 .chevron {
+		margin-top: 15px;
+	}
+}
+
+h2.mw-headline {
+	padding-left: 3px;
+}
+
+.qa_editor #qa_edit {
+	display: none;
+}

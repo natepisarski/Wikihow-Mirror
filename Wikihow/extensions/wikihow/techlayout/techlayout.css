@@ -1,0 +1,158 @@
+#tl_steps {
+	margin-bottom: 20px;
+	background-color: #fff;
+	border-radius: 3px;
+	padding: 0;
+}
+
+#tl_nav {
+	float: left;
+	width: 330px;
+	border-right: 1px solid #f6f5f4;
+	padding: 20px 0 0 0;
+	height: 530px;
+	overflow-y: auto;
+}
+
+#tl_nav h2 {
+	padding-left: 20px;
+	color: #000000;
+	margin-bottom: 20px;
+	font-size: 22px;
+}
+
+#tl_nav ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#tl_nav li a {
+	display: inline-block;
+	padding: 10px 20px;
+	color: #545454;
+}
+
+#tl_nav li:hover {
+	cursor: pointer;
+}
+
+#tl_nav li a:hover {
+	text-decoration: none;
+}
+
+#tl_nav li.hover {
+	background-color: #e3e3e3;
+}
+
+#tl_nav li.active, #tl_nav li.active a {
+	background-color: #f5f5f3;
+	color: #000000;
+}
+
+#tl_nav li.active {
+	padding: 0;
+}
+
+#tl_nav li.active a {
+	background-image: url(data:image/gif;base64,R0lGODlhCgAFAIAAAJS3dwAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjEgNjQuMTQwOTQ5LCAyMDEwLzEyLzA3LTEwOjU3OjAxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1LjEgTWFjaW50b3NoIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkEwNUMyODJFNkU1RjExRTc4MEM2RDBDRDVEOEVGMjQ2IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkEwNUMyODJGNkU1RjExRTc4MEM2RDBDRDVEOEVGMjQ2Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QzJBQTE4NDE2RTVFMTFFNzgwQzZEMENENUQ4RUYyNDYiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QzJBQTE4NDI2RTVFMTFFNzgwQzZEMENENUQ4RUYyNDYiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQAAAAAACwAAAAACgAFAAACBoSPqcudBQA7);
+	background-repeat: repeat-y;
+}
+
+.tl_num {
+	float: left;
+}
+
+.active .tl_num, .active .tl_nav_text {
+	font-weight: bold;
+}
+
+#tl_nav li.inactive .tl_step_text {
+	display: none;
+}
+
+.tl_nav_text {
+	margin-left: 25px;
+}
+
+
+#tl_step_container {
+	width: 664px;
+	float: left;
+	padding: 25px;
+	margin-left: -1px;
+	border-left: 1px solid #f6f5f4;
+}
+
+.section.steps {
+	display: none;
+}
+
+.tl_step {
+	display: none;
+	position: relative;
+}
+
+.tl_step:first-child {
+	display:block;
+}
+
+.tl_image {
+	overflow: hidden;
+}
+
+.tl_step_text {
+	padding: 10px 0 0 0;
+	font-size: 14px;
+	margin-left: 25px;
+	line-height: 18px;
+}
+
+.tl_arrow {
+	width: 40px;
+	height: 60px;
+	background-color: rgba(0,0,0, 0.15);
+	background-position: center;
+	background-repeat: no-repeat;
+	position: absolute;
+	z-index: 2;
+	top: 50%;
+	margin-top: -30px;
+	cursor: pointer;
+	background-size: 40px;
+}
+
+.tl_prev {
+	background-image: url('/extensions/wikihow/common/featherlight/img/prev-arrow.png');
+	left: 0;
+	border-bottom-right-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+.tl_next {
+	background-image: url('/extensions/wikihow/common/featherlight/img/next-arrow.png');
+	right: 0;
+	border-bottom-left-radius: 5px;
+	border-top-left-radius: 5px;
+}
+
+.tl_step:first-child .tl_prev {
+	display: none;
+}
+
+.tl_step:last-child .tl_next {
+	display: none;
+}
+
+.section h2.sticking, .section h3.sticking, .tool div.sticking {
+	width: 1050px;
+}
+
+h1 {
+	margin-bottom: 10px;
+}
+
+.10secondsummary {
+	display: none;
+}
+

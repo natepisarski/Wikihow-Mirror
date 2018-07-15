@@ -1,0 +1,39 @@
+
+.don_mobile #donate_bottom {
+	background-color: #f6f5f4;
+	margin: 0 -15px -14px -15px;
+	padding: 27px;
+	text-align: center;
+}
+
+.don_mobile #donate_button {
+	display: inline-block;
+	margin: 0 auto;
+	padding: 14px 20px;
+	text-align: center;
+}
+
+.don_desktop #donate_bottom {
+	background-color: #f6f5f4;
+	margin: 0 -27px -26px -27px;
+	padding: 27px;
+	text-align: center;
+}
+
+.don_desktop #donate_button {
+	display: inline-block;
+	margin: 0 auto;
+	text-align: center;
+	font-size: 16px;
+}
+
+#donate_close {
+	float: right;
+	margin: 22px 22px 0 0;
+	display: block;
+	/* @embed */
+	background: url(/skins/owl/images/ico-x.png) no-repeat 0 0;
+	width: 14px;
+	height: 14px;
+	position: relative;
+}

@@ -1,0 +1,56 @@
+/*quick tips sidebar*/
+#editpage_quick_tips {
+	font-weight: bold;
+}
+
+#epqt_hdr {
+	font-weight: bold;
+	color: #222;
+	font-size: 1.5em;
+	margin-bottom: 20px;
+}
+
+.epqt_quicktip {
+	margin-bottom: 25px;
+	color: #222;
+}
+
+.epqt_img {
+	margin-top: 12px;
+	background-repeat: no-repeat;
+	background-size: contain;
+	height: 110px;
+}
+
+#epqt_part .epqt_img {
+	/* @embed */
+	background-image: url(../../../skins/owl/images/quicktips_part.png);
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../../skins/owl/images/quicktips_part.png', sizingMethod='scale');
+}
+
+#epqt_step .epqt_img {
+	/* @embed */
+	background-image: url(../../../skins/owl/images/quicktips_step.png);
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../../skins/owl/images/quicktips_step.png', sizingMethod='scale');
+}
+
+#epqt_bullets .epqt_img {
+	/* @embed */
+	background-image: url(../../../skins/owl/images/quicktips_bullets.png);
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../../skins/owl/images/quicktips_bullets.png', sizingMethod='scale');
+}
+
+#epqt_tips .epqt_img {
+	/* @embed */
+	background-image: url(../../../skins/owl/images/quicktips_tips.png);
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../../skins/owl/images/quicktips_tips.png', sizingMethod='scale');
+}
+
+#epqt_part_link { 
+	height: inherit;
+}
+
+#epqt_part_link_text { 
+	font-weight: normal; 
+	margin-top: 6px;
+}

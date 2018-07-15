@@ -1,0 +1,47 @@
+<li class="qa_up" data-qapid="{{qapid}}" data-verifier_id="{{verifierId}}" data-submitter_id="{{submitterUserId}}" data-sqid="{{qapsqid}}" data-timestamp="{{qapTimestamp}}">
+	<div class="qa_li_container">
+		<div class="qa_q_txt question">{{{question}}}</div>
+		<div class="qa_editor_tools">
+			<a class="qa_edit_up">{{qa_edit}}</a>
+		</div>
+		<div class="qa_answers">
+		{{#verifierId}}
+			<div class="qa_expert_area">
+				<div class="qa_expert_badge"></div>
+				{{#verifierData.imagePath}}
+					<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person qa_expert" target="_blank" style="background-image: url({{verifierData.imagePath}})"></a>
+				{{/verifierData.imagePath}}
+				{{^verifierData.imagePath}}
+					<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person qa_expert" target="_blank"><span>{{verifierData.initials}}</span></a>
+				{{/verifierData.imagePath}}
+				<div class="qa_user_name">
+					{{verifierData.name}}
+				</div>
+			</div>
+		{{/verifierId}}
+		{{^verifierId}}
+			{{#isTopAnswerer}}
+			<div class="qa_ta_area">
+				<div class="qa_ta_pop hint_box">
+					<a href="{{topAnswererData.userLink}}" class="sp_namelink" target="_blank">{{topAnswererData.userName}}</a>, <b>{{ta_label}}</b><br />
+					{{topAnswererData.liveAnswersCount}} {{ta_answers_label}}<br /><br />
+					{{#topAnswererData.topCats.0}}
+						{{ta_subcats_intro}}
+						{{#topAnswererData.topCats}}{{cat}} ({{cat_count}}), {{/topAnswererData.topCats}}
+						{{ta_subcats_outro}}
+					{{/topAnswererData.topCats.0}}
+				</div>
+				<div class="qa_ta_badge"></div>
+			{{/isTopAnswerer}}
+			<div class="qa_person_circle" {{#submitterAvatar}}style="background-image:url({{{submitterAvatar}}})"{{/submitterAvatar}}></div>
+			<div class="qa_user_name">{{^qa_desktop}}{{qa_answered_by}} {{/qa_desktop}}{{{submitterDisplayName}}}</div>
+			{{#isTopAnswerer}}
+			</div>
+			{{/isTopAnswerer}}
+		{{/verifierId}}
+			<div class="qa_bubble">
+				<div class="qa_answer answer">{{{answer}}}</div>
+			</div>
+		</div>
+	</div>
+</li>

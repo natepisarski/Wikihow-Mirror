@@ -1,0 +1,52 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+.alpha #page-actions #ca-talk.count {
+	a {
+		text-indent: 0;
+		text-align: center;
+		line-height: 38px;
+		font-weight: bold;
+		color: #FFF;
+		padding-left: 4px;
+		font-size: 9px; // FIXME: use pixels for time being as the icon in pixels.
+	}
+}
+
+.overlay {
+	.error {
+		border: solid 1px @redBase;
+	}
+
+	.comment {
+		margin: 40px 0 10px 0;
+
+		.comment-content {
+			margin: 0 @contentMargin;
+		}
+
+		.wikitext-editor {
+			margin-top: 1em;
+			// Normally, wikitext editors don't have a border
+			border: 1px solid @grayLight;
+		}
+	}
+}
+
+.content-header {
+	.add {
+		margin-top: 1em;
+	}
+}
+
+@media all and (min-width: @wgMFDeviceWidthTablet) {
+	// Although talk pages are only loaded in alpha and beta currently, this is overriding
+	// a rule targeted to alpha and beta in tablet/common.less.
+	.alpha,
+	.beta {
+		.content.talk-section {
+			margin: 0 auto 0 0;
+		}
+	}
+}

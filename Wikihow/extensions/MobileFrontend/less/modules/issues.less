@@ -1,0 +1,69 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+@import "mediawiki.mixins";
+
+@smallIconSize: 24px;
+@largeIconSize: 50px;
+
+.mw-mf-cleanup {
+	display: block;
+	padding: 10px 15px 10px (@smallIconSize + 20px);
+	background-image: url(images/issues/blue.png);
+	.background-size( @smallIconSize, @smallIconSize );
+	background-repeat: no-repeat;
+	margin-bottom: 4px;
+	background-position: 10px center;
+}
+
+.stable {
+	.mw-mf-cleanup {
+		&:hover {
+			background-image: url(images/issues/gray.png);
+			text-decoration: none;
+			color: #565656;
+			background-color: #f0f0f0;
+		}
+	}
+}
+
+.alpha,
+.beta {
+	.mw-mf-cleanup {
+		.background-image-svg( 'images/issues/blue-triangle.svg', 'images/issues/blue-triangle.png' );
+	}
+}
+
+// overlay styles
+.overlay {
+	.cleanup {
+		margin: 0 @headerMargin;
+		li {
+			border-bottom: solid 1px @grayLight;
+			.issue-notice {
+				padding: (@smallIconSize * 2.5) @headerMargin @smallIconSize @headerMargin;
+				.background-image-svg( 'images/issues/gray-triangle.svg', 'images/issues/gray-triangle.png' );
+				.background-size( @smallIconSize, @smallIconSize );
+				background-position: center @smallIconSize;
+				background-repeat: no-repeat;
+			}
+		}
+	}
+}
+
+@media all and (min-width: @wgMFDeviceWidthTablet) {
+	.alpha,
+	.beta {
+		.overlay {
+			.cleanup {
+				li {
+					.issue-notice {
+						padding: 2em 1em 2em (@largeIconSize + 10px);
+						margin: 0 1em 0 3em;
+						.background-size( @largeIconSize, @largeIconSize );
+						background-position: left center;
+					}
+				}
+			}
+		}
+	}
+}

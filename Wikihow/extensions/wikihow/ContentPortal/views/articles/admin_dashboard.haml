@@ -1,0 +1,26 @@
+
+- foreach($currentUser->kudos() as $note)
+	!= partial('notes/_kudos', ['note' => $note])
+
+.well
+	%h2
+		%i.fa.fa-tachometer
+		Your Work
+
+	%p.lead
+		Below are all your assignments. They are grouped by role.
+
+.well
+
+	%ul.nav.nav-tabs
+		- foreach($roles as $role)
+			%li{role: "presentation", class: params('role', $roles[0]->id) == $role->id ? 'active' : '' }
+				%a{href: url('articles/dashboard', ['role' => $role->id])}
+					= $role->present_tense
+					%span.badge= articlecountForRole($role)
+
+	.well-body
+		- if (empty($articles))
+			!= alert("There are currently no articles assigned to you.", 'warning');
+		- else
+			!= partial('articles/_admin_table')

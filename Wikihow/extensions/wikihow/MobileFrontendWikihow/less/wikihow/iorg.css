@@ -1,0 +1,18 @@
+#header_logo {
+	background-size: 106px;
+	padding-top: 8px;
+}
+
+.mediawiki #search_oversearch {
+	display: none !important;
+}
+
+.wh_vote_container, .qa_editor_tools, #qa_submitted_question_form, #qa_show_more_submitted, #qa_show_more_answered, .trvote_box, #qa_submitted_questions_container, #qa_ask_heading, #search_oversearch #cse-search-box-noscript {
+	display: none !important;
+}
+
+#qa_answered_questions_container {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}

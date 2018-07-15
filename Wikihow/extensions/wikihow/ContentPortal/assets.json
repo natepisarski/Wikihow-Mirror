@@ -1,0 +1,38 @@
+{
+	"js": [
+		"node_modules/jquery/dist/jquery.min.js",
+		"node_modules/underscore/underscore-min.js",
+		"node_modules/handlebars/dist/handlebars.min.js",
+		"node_modules/bootstrap/dist/js/bootstrap.min.js",
+		"node_modules/moment/moment.js",
+		"node_modules/bootstrap-daterangepicker/daterangepicker.js",
+		"node_modules/typeahead.js/dist/typeahead.bundle.js",
+		"node_modules/clipboard/dist/clipboard.min.js",
+		"assets/js/cfApp.js",
+		"assets/js/cfEditor.js",
+		"assets/js/handlebars-helpers.js",
+
+		"assets/js/articleForm.js",
+		"assets/js/articleTable.js",
+		"assets/js/ajaxInfo.js",
+
+		"assets/js/exporter.js",
+		"assets/js/importer.js",
+		"assets/js/bulk.js",
+		"assets/js/noteModals.js",
+
+		"assets/js/utils/confirm.js",
+		"assets/js/utils/preventDouble.js",
+		"assets/js/utils/checkAll.js",
+		"assets/js/utils/animated.js",
+
+		"assets/js/reservations.js"
+	],
+
+	"css": [
+		"node_modules/font-awesome/css/font-awesome.min.css",
+		"node_modules/bootstrap-daterangepicker/daterangepicker.css",
+		"assets/css/cfApp.css",
+		"assets/css/articleEditor.css"
+	]
+}

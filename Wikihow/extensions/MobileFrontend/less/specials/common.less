@@ -1,0 +1,43 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+// FIXME: Apply these styles to all special pages
+.mw-mf-special #content_wrapper {
+	.content-header {
+		padding: 20px @contentMargin;
+		border-bottom: 1px solid @headerBorderBottom;
+	}
+
+	#section_0 {
+		padding: .5em 0;
+		text-align: center;
+		font-size: 1.25em;
+		font-weight: bold;
+	}
+
+	.pre-content {
+		border-bottom: none;
+	}
+
+	.content {
+		h2 {
+			text-align: center;
+			margin: .7em 0;
+			font-size: 1.1em;
+			color: @grayMedium;
+		}
+	}
+
+	h1,
+	h2 {
+		font-family: @fontFamily;
+	}
+
+	.error {
+		h2 {
+			margin-top: 0;
+			text-transform: none;
+		}
+	}
+}

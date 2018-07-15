@@ -1,0 +1,156 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+@cardMargin: @contentMargin / 2;
+@captionPadding: 8px;
+
+// FIXME: Refactor our CSS for errors - 1 class for the text, 1 for the block
+.error {
+	padding: 1em;
+}
+
+.profile {
+	margin: 1em 0 0 0;
+	color: @grayMedium;
+
+	a {
+		color: @grayMediumDark;
+		font-weight: bold;
+	}
+
+	// TODO: make centering work
+	.card-container,
+	.footer {
+		font-size: 0.9em;
+	}
+
+	.user-description-container {
+		padding: 0 (@contentMargin * 2) 1.5em;
+		position: relative;
+
+		.user-description-placeholder,
+		.user-description {
+			display: inline;
+			font-family: @fontFamilyHeading;
+			font-style: italic;
+			font-size: 1.2em;
+			line-height: @contentLineHeight;
+		}
+
+		.edit-button {
+			display: inline-block;
+			vertical-align: middle;
+			background: url(images/profile/edit.png) 50% 30% no-repeat;
+			.background-size( 16px, auto );
+			text-indent: 9999px;
+			width: 32px;
+			height: 32px;
+			cursor: pointer;
+		}
+
+		.editor {
+			text-align: right;
+		}
+
+		textarea {
+			.box-sizing( border-box );
+			width: 100%;
+			height: 120px;
+			margin-bottom: 1em;
+		}
+
+		.character-counter {
+			margin-right: 1em;
+			&.warning {
+				color: @redBase;
+			}
+		}
+	}
+
+	h2 {
+		color: @grayLight;
+		text-transform: uppercase;
+	}
+
+	.card-container {
+		text-align: center;
+		padding: 1px;
+	}
+
+	.card {
+		max-width: @wgMFDeviceWidthTablet;
+		background: #fff;
+		color: @grayMediumDark;
+		border: solid 1px @grayLight;
+		margin: 0 @cardMargin @cardMargin;
+		text-align: left;
+
+		.listThumb,
+		.caption {
+			display: inline-block;
+		}
+
+		// FIXME: Rename all instances of listThumb to list-thumb
+		.listThumb {
+			width: 33%;
+			vertical-align: middle;
+
+			&.list-thumb-placeholder {
+				.background-size( 32px, auto );
+				padding: @captionPadding 0;
+				background-color: @grayLightest;
+				min-height: @wgMFThumbnailTiny;
+				background-position: center center;
+			}
+
+			&.list-thumb-edit {
+				background-image: url(images/profile/placeholder-edit.png);
+			}
+
+			&.list-thumb-thanks {
+				background-image: url(images/profile/placeholder-thank.png);
+			}
+		}
+
+		.caption {
+			width: 66%;
+			vertical-align: top;
+			padding: @captionPadding;
+			.box-sizing(border-box);
+		}
+	}
+
+	.footer {
+		text-align: center;
+		color: @grayMediumDark;
+		clear: both;
+		padding: 2em 0 0;
+
+		.talk {
+			margin-top: 1.5em;
+			color: @blueBase;
+			padding-left: 40px;
+			background: url(images/profile/talk.png) 10px 50% no-repeat;
+			.background-size( 24px, auto );
+		}
+	}
+}
+
+// Tablet styling
+@media all and (min-width: @wgMFDeviceWidthTablet) {
+	.profile {
+		.card {
+			margin: @cardMargin auto;
+			min-height: @wgMFThumbnailSmall;
+
+			.listThumb {
+
+				&.list-thumb-placeholder {
+					.background-size( 64px, auto );
+					min-height: @wgMFThumbnailSmall;
+				}
+			}
+		}
+	}
+}

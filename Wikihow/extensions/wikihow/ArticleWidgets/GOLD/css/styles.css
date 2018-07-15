@@ -1,0 +1,68 @@
+#header h1 {
+	width:310px;
+	}
+.more {
+	top:105px;
+	left:294px;
+	}	
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+   	width: 305px;
+	}
+.right {
+	width:295px;
+	float:left;
+	position:relative;
+	}	
+.label {
+    color: #809080;
+    float: left;
+    font-family: Museo500;
+    margin: 37px 10px 0 16px;
+    text-align: right;
+    width: 82px;
+	}
+.label_2 {
+    width: 109px;
+	}
+#karat_uk,#lbs,#oz,#karat_si,#gr {
+	float:left;
+	width:auto;
+	}
+#result_uk,#result_si {
+    color: #809080;
+    float: left;
+    font-family: 'Museo500';
+    font-size: 50px;
+    font-weight: bold;
+    margin: 64px 0 0 11px;
+    text-align: center;
+    width: 95%;
+	}
+#result_si {
+    margin: 32px 0 0 11px;
+	}	
+.more_2 {
+	top:75px;
+	}		
+	
+.tab_container {
+}
+	
+#tab1 {
+    
+    opacity: 0;
+}
+.wh_ud_input {
+	text-align:right;
+	}
+.wh_ud_editable_value input {
+	float:right;
+	width:100%;
+	text-align:right;
+	}			
+.wh_dd_value {
+	text-align:center;
+	}	

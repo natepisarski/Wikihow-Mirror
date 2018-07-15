@@ -1,0 +1,18 @@
+<div id="ffa_q" class="wh_block ffa_qa_block">
+	<div class="ffa_q_a_label">{{ffa_q_label}}: </div>
+	<div id="ffa_q_text" class="ffa_q_a_text">{{curatedQuestion.text}}</div>
+	<div id="ffa_q_err" class="ffa_err"></div>
+</div>
+<div id="ffa_a" class="wh_block ffa_qa_block">
+	<div class="ffa_q_a_label">{{ffa_a_label}}: </div>
+	<div id="ffa_a_text" class="ffa_q_a_text">{{{curatedQuestion.curatedAnswer.text}}}</div>
+	<div id="ffa_a_err" class="ffa_err"></div>
+	<div id="ffa_a_info">
+	{{ffa_answer_by_label}}: {{submitter_name}}
+	</div>
+</div>
+
+<p>{{ffa_reason_label}}: {{qfa_reason}}</p>
+{{#qfa_details}}
+	<p>{{ffa_details_label}}: {{qfa_details}}</p>
+{{/qfa_details}}

@@ -1,0 +1,16 @@
+#article_rating_modal .article_rating_container {
+	border: none;
+}
+
+#wh_modal #ar_form_details .button {
+	margin: 0;
+}
+
+#wh_modal #ar_form_details .secondary {
+	float: right;
+}
+
+#wh_modal #modal_close_button {
+	display: none;
+	margin: 15px auto 0;
+}

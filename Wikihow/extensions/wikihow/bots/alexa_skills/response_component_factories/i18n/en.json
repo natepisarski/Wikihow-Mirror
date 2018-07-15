@@ -1,0 +1,17 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "ReadArticleDisplayTemplateResponse": "ReadArticleDisplayTemplateResponse",
+    "hint_next" : "next",
+    "hint_query" : "ask wikiHow How to survive an ostrich attack?",
+    "hint_read_steps": "read steps",
+    "display_template_summary_heading": "In a Hurry?<br/><br/><font size='2'>$1</font>",
+    "reprompt_no_response": "Thanks for using wikihow.  You can always ask another question later by saying open wikihow",
+    "reprompt_last_step":  "\n\n\n\nYou've reached the end of the article.  Do you want to learn how to do something else?  You can ask me now.",
+    "display_template_last_step" : "Last Step.  ",
+    "display_template_step_num" : "Step $1.  ",
+    "video_summary_subtitle": "Summary Video",
+    "display_template_in_a_hurry_text": "In a Hurry? Play Video",
+    "standard_card_text_body": "Here's a link to more information at wikiHow.com:\n$1"
+}

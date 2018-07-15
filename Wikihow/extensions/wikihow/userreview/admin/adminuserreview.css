@@ -1,0 +1,26 @@
+#aur_table, th, td {
+	border: 1px solid black;
+}
+
+#aur_table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 10px 0;
+}
+
+td {
+	padding: 5px;
+}
+
+.aur_range_input {
+	padding: 10px;
+	border-radius: 4px;
+	border: 1px solid #e5e5e5;
+	width: 80px;
+	margin: 0 10px;
+	font-size: 14px;
+}
+
+.aur_info {
+	margin: 10px 0;
+}

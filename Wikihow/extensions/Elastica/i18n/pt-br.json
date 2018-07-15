@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Jaideraf"
+		]
+	},
+	"elastica-desc": "Funcionalidade base do mecanismo de busca ''Elasticsearch'', utilizada por outras extensões"
+}

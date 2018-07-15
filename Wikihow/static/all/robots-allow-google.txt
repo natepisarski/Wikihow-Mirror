@@ -1,0 +1,8 @@
+# Google is special case
+User-agent: Googlebot
+Allow: *
+
+# Everyone else
+User-agent: *
+Disallow: /
+

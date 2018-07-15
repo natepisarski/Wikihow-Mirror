@@ -1,0 +1,26 @@
+/* CSS StyleSheet for Drafts extensions */
+
+/*#drafts-list-box {
+	margin-bottom: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border: red solid 1px;
+}*/
+
+/* Fix bug 1064: when you have a saved draft, the two links are veryclose */
+#drafts-list-box td {
+	padding-left: 7px;
+}
+
+#drafts-list-table {
+	margin-left: -5px;
+	margin-right:-5px;
+}
+
+#drafts-list-table td, #drafts-list-table th {
+	text-align: left;
+}
+
+.rtl #drafts-list-table td, .rtl #drafts-list-table th {
+	text-align: right;
+}

@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "Přihlášení",
+	"ulb_nologin": "Ještě nemáte účet?",
+	"ulb_create": "Vytvořit účet",
+	"ulb_wh_act": "účet",
+	"ulb_joinwh": "Připojte se k wikiHow",
+	"ulb_email": "E-mail",
+	"ulb_haveacct": "Máte účet?",
+	"ulb_whacct": "wikiHow Účet",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "Načítání..."
+}

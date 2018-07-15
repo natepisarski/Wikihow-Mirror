@@ -1,0 +1,6 @@
+Article_iD,UrL,is wrM,category,STATE,Url_TO UsER
+2345235,http://www.wikihow.com/Test-CSV-Import-1,true,Veterinary,Edit,Dr. Carrie
+2345345,http://www.wikihow.com/Test-CSV-Import-2,true,Veterinary,Verifying,
+2341234,http://www.wikihow.com/Test-CSV-Import-3,false,Veterinary,Proof Read,http://www.wikihow.com/User:Dperrymorrow
+23412334,http://www.wikihow.com/Test-CSV-Import-4,true,Veterinary,Proof Read,http://www.wikihow.com/User:Dperrymorrow
+,,false,Veterinary,Proof Read,http://www.wikihow.com/User:Dperrymorrow

@@ -1,0 +1,143 @@
+.qz_container {
+	position:relative;
+	margin-top: 25px;
+}
+
+.qz_container.qz_desktop {
+	margin-bottom: 25px;
+}
+
+#qz_container_0 {
+	margin-top: 0;
+}
+
+#mw-mf-page-center .qz_container {
+	margin-top: 26px;
+	font-size: 16px;
+}
+
+.qz_header {
+	background-color: #F6F5F4;
+	padding: 20px;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+.content .qz_header p {
+	margin: 0;
+	line-height: normal;
+}
+
+.qz_top_info, .stable .content .qz_top_info {
+	margin-top: 8px;
+}
+
+.qz_section {
+	margin-bottom: 13px;
+}
+
+.qz_section:last-child {
+	margin-bottom: 0;
+}
+
+.qz_explanation {
+	display: none;
+	background-repeat: no-repeat;
+	background-size: 30px;
+	background-position: 15px 15px;
+	line-height: 1.3em;
+	padding: 15px 25px 15px 60px;
+	min-height: 25px;
+	margin-top: 6px;
+	border-radius: 3px;
+}
+
+.stable .content .qz_explanation {
+	line-height: 1.4em;
+	font-size: 14.4px;
+}
+
+.qz_radio:checked ~ .qz_explanation{
+	display: block;
+}
+
+/*.qz_section:target .qz_radio {
+	background-color: #93b874
+}*/
+
+.qz_section.incorrect .qz_explanation {
+	background-color: #f7cdc5;
+	background-image: url("/extensions/wikihow/quiz/sad_face_red.png");
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD4AAAA+CAMAAABEH1h2AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADNQTFRF////8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/8ls/mcWrcAAAABB0Uk5TABAgMEBQYHCAkKCwwNDg8FTgqMgAAAIZSURBVEjHzVfHgoQgDJUihib+/9fuSnEghFGXy+Y25aUnLywLLXwF544ozsHKlxci9H4g2bV4hmWqw2YNit2jIRxDCXADXi/LXm8yRszlpv3lwfrNb1uwCuWKq6LBDiMQ2bQh88xNdmCQQ5WitsMi8eRcUCQ6/Sa/pUYmC2qEtje1ydlRNFrfF1ZTeBEGTg3cDE3+2P4YnfF7HaV96Hnlv616DX2+k2jt03+n64E9h7MzU/s1Jaeyut4KYGu0sQ2gzow8EVDpql13uDdTNzvkfvY3ZrLqVMhj8/kmj0s1rvxTqVO1qTSXgb/MizLu1Z9MiV4g40uZbdlEesqCzItcRb+8tR4D0tl31Xf199hTxvbsRTPizOOuThPhm1pm3Ip9PzVbh+vuLJ4IHzsP3nQ7jhFij2x/gW+xkxxq2MciI7zL3FOJuVtQO7yQ/w0/Kd45C+IGTqWOVVS7q2HqBoXbWp72YlA4um1MR+2KbhuyaRM6GCWlhMzaK9m01MgkNJSp4a4nljIy/cCmtd/8Wx+dkYLr1kXcvMiW6Ugsr4t+WZmDKIYfLSu8KjnJdwKZv1YlXtSaZizTOnktakwTAS/FyjwnaKIlqZh2ii597X1FUi1FasQ5TVCGoMiWoN3ozJAflmwJuj0Pfk9xkuoZSEmfB5PHyexpNHmYzZ6Fs0fp7Ek8e5DPPgdmHyOzT6Hph9j0M3D2EfrqCfwDpow/jS+f73YAAAAASUVORK5CYII=);
+	background-repeat: no-repeat;
+}
+
+.qz_section.correct .qz_explanation{
+	background-color: #d4e6c4;
+	background-image: url("/extensions/wikihow/quiz/smile_face_green.png");
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD4AAAA+CAMAAABEH1h2AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADNQTFRF////k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0k7h0arOxIAAAABB0Uk5TABAgMEBQYHCAkKCwwNDg8FTgqMgAAAIUSURBVEjH3VfXtuUgCLVFseb8/9fOsiRR1JTr2/B2CrCBTZGQsbANnPslcQ42Rj4I1+GHJGj+TpfKTrdYkPRZG/bfVHZ4UN5Oz14rkSJmQml/ItjucNtDV6JcMXlYsNMIeHFthnlmpgCY5FDmqO20SCyD2+VQO/8m7lIjsgc507YPtSnZkWNt/VxYPdLn+wTUBObe5I+G19pFP9RR2pfIK/y24hr6/CTJ28W/CH2n79VpzFQ4uyQaq+stAVRjjSqAOjMiakBlq4buMDczmx2CX/CmTFZMhdI21zelXap2ZVelomlTWT4a/nTPj3av/mSO6DlyTo7eFk2kUQhyz0sVPfnqPQWkC3bZs/o+9pyxUFA0LU49ZnXuCN/UsuhtGHu0bB2uu7O4I3xiHnxhO44REkfUX9RVYpJDhH0tIql3mXsrKXcE0eGD/B/qKHWTLURHqcOFAz8ppIhbtyscpo2dsVChgZM/Y9LKegri8QodaXHL0MnCYM0IOFuma1iLQFYTMPQN240LMXSfxjEMguyGlRstDY1BHsOqG5WiHy35OzNMBR7U2ZOjeH83iM5B3a2JMuz8RR7Vbf9qTXRLirByJG20uskMGS+pfkWeJ1olhkxW5GhBU4e0Yb6gh+dBcxg7fncejI+TzYRy3fL742T1NFo8zFbPwtWjdPUkXj3IV58Dq4+R1afQ8kNs+Rm4+gj99AT+B2RpP5LAb9GeAAAAAElFTkSuQmCC);
+	background-repeat: no-repeat;
+}
+
+.qz_radio {
+	margin-right: 10px;
+	float: left;
+	margin-top: 5px;
+}
+
+.qz_section label {
+	margin-left: 25px;
+	display: block;
+}
+
+
+.qz_form {
+	background-color: white;
+	padding: 20px;
+	border-radius: 4px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+.qz_question {
+	font-weight: bold;
+}
+
+.stable .content .qz_question {
+	line-height: 1.4em;
+}
+
+.qz_score {
+	float:right;
+	padding: 5px 8px;
+	border-radius: 3px;
+	margin-top: 20px;
+	margin-right: 20px;
+	background-color: #93b874;
+	color: #ffffff;
+	font-weight: bold;
+	text-align: center;
+	line-height: 20px;
+	font-size: 14px;
+	margin-left: 10px;
+}
+
+.qz_amp .qz_score {
+	display: none;
+}
+.qz_amp.qz_last .qz_section.correct .qz_addon {
+	display: none;
+}
+
+.qz_section.correct .qz_addon {
+	display: block;
+	margin-top: 10px;
+}
+
+@media only screen and (max-aspect-ratio: 13/9) and (min-width: 500px), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	.content .qz_container {font-size: 22px;}
+	.stable .content .qz_explanation {font-size: 22px;}
+	.content .qz_header {font-size: 22px;}
+	.content .qz_section {font-size: 22px;}
+	.qz_score {font-size: 16px;}
+}

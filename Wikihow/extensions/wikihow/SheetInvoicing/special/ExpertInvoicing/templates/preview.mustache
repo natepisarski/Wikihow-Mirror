@@ -1,0 +1,72 @@
+{{! The main template for the Special:ExpertInvoicing page}}
+
+<div id="sheet_invoicing">
+
+	<p id="sheetInv_intro">This tool can be used to preview and send invoices to experts by email. Click any row to preview the email that will be sent to the contractor.</p>
+
+	<h2>Invoice preview</h2>
+
+{{#errors}}
+	<div class="errors"><b>Errors:</b><br><br>
+		{{errors}}
+	</div>
+{{/errors}}
+
+{{#warnings}}
+	<div class="errors"><b>Warnings:</b><br><br>
+		{{warnings}}
+	</div>
+{{/warnings}}
+
+{{^errors}}
+
+	<table id="sheetInv_preview_table">
+		<tr>
+			<th>Expert name</th>
+			<th>Email address</th>
+			<th>Verified</th>
+			<th>Reverified</th>
+			<th>Paid</th>
+		</tr>
+		{{#items}}
+		<tr class="preview_row" data-name="{{fullName}}">
+			<td>{{fullName}}</td>
+			<td>{{email}}</td>
+			<td>{{verifiedCnt}}</td>
+			<td>{{reverifiedCnt}}</td>
+			<td>{{paid}}</td>
+		</tr>
+		{{/items}}
+	</table>
+
+	{{#items}}
+	<div class="preview_div hidden" data-name="{{fullName}}">
+		{{>invoice}}
+	</div>
+	{{/items}}
+
+	<form id="sheetInv_settings">
+		<h3>Settings</h3>
+		<table class='settings_table'>
+			<tr>
+				<td>Email subject:</td>
+				<td><input type="text" name="email_subject" value="{{email_subject}}"></td>
+			</tr>
+			<tr>
+				<td>Send staff report to:</td>
+				<td><input type="text" name="email_recipients" value="{{email_recipients}}"></td>
+			</tr>
+		</table>
+	</form>
+
+	<button class="button primary" id="sheetInv_send_btn" data-action="send">Send emails</button>
+
+	{{^is_prod}}
+	<div class="note">
+		<b>Note:</b> This is a dev server and contractors will not receive any emails.
+	</div>
+	{{/is_prod}}
+
+{{/errors}}
+
+</div>

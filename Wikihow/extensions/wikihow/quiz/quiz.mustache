@@ -1,0 +1,20 @@
+<a name="qz_anchor_{{quizNum}}"></a>
+<div class="qz_container {{platform}} {{ampClass}}" id="qz_container_{{quizNum}}">
+	<div class="qz_score">Score<br /><span class="qz_numerator">0</span> / <span class="qz_denominator">0</span></div>
+	<div class="qz_header">
+		<p>{{methodType}} Quiz</p>
+		<p class="qz_question">{{question}}</p>
+		{{#quizTopInfo}}
+			<p class="qz_top_info">{{quizTopInfo}}</p>
+		{{/quizTopInfo}}
+	</div>
+	<form class="qz_form" action="#" target="_blank">
+		{{#options}}
+			<div class="qz_section {{class}}" id="quiz_{{quizNum}}_{{optionNum}}">
+				<input type="radio" name="quiz_{{quizNum}}" id="radio_{{quizNum}}_{{optionNum}}" class="qz_radio" />
+				<label for="radio_{{quizNum}}_{{optionNum}}">{{option}}</label>
+				<p class="qz_explanation">{{explanation}} <span class="qz_addon">{{addon}}</span></p>
+			</div>
+		{{/options}}
+	</form>
+</div>

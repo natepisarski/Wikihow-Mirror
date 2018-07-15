@@ -1,0 +1,36 @@
+<p>{{aca_description}}</p>
+
+<form id="aca_search_form">
+    <input type="text" id="aca_search_username" class="input_med" placeholder="User name">
+    <input type="hidden" id="aca_edit_token" value="{{editToken}}">
+    <input type="submit" id="aca_close_acct_btn" class="button primary" value="Close account">
+</form>
+
+<div id="aca_error_box" class="hidden">
+
+    <h2>Error:</h2>
+
+    <p id="aca_error_msg">Test</p>
+
+</div>
+
+<div id="aca_search_results" class="hidden">
+
+    <h2>The following account was closed:</h2>
+
+    <div class="aca_search_result">
+        <div>User ID:</div>
+        <div id="aca_result_id">Placeholder</div>
+    </div>
+
+    <div class="aca_search_result">
+        <div>Old username:</div>
+        <div id="aca_result_old_username">Placeholder</div>
+    </div>
+
+    <div class="aca_search_result">
+        <div>New username:</div>
+        <div id="aca_result_new_username">Placeholder</div>
+    </div>
+
+</div>

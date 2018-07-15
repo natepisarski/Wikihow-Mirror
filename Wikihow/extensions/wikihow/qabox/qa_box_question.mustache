@@ -1,0 +1,21 @@
+<div class="qab_sq" id="{{sq_id}}">
+	<div class="qab_img_wrap">
+		<div class="content-spacer">
+			<img data-height="150" data-width="150" id="{{sq_id}}-img" data-src="{{img}}" class="content-fill">
+			<script>WH.shared.addScrollLoadItem("{{sq_id}}-img");</script>
+		</div>
+	</div>
+	<div class="qab_container">
+		<div class="qab_q_hdr">{{{question_hdr}}}</div>
+		<div class="qab_person"></div>
+		<div class="qab_q_txt qab_bubble">{{{text}}}</div>
+		<div class="qab_a_area">
+			<textarea class="qab_input qab_answer" placeholder="{{qab_ph}}" /></textarea>
+			<input type="text" class="qab_email qab_input" placeholder="{{qab_email_text}}" />
+			<input type="button" class="qab_submit button primary" value="{{qab_submit_text}}" />
+		</div>
+		<div class="qab_maxed">{{qab_max_text}}</div>
+		<div class="qab_min">{{qab_min_text}}</div>
+	</div>
+	<input type="hidden" class="qab_article_id" value="{{aid}}" />
+</div>

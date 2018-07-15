@@ -1,0 +1,24 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"summary_section_default_header": "Quick Summary",
+	"summary_section": "$1 <span id='summary_last_sentence'>$2</span><span id='summary_position' class='$3'></span>",
+	"summary_edit_text": "Edit Quick Summary",
+	"summary_edit_log": "Updated the Summary template for this article",
+	"summary_add_log": "Added the Summary template to this article",
+	"summary_move_log": "Summary updated with the page move",
+	"summary_edit_success": "Summary saved. Nice work!",
+	"summary_edit_fail": "D'oh! Something went a bit wonky. Summary not saved.",
+	"summary_edit_nochange": "Hmm...looks like there were no changes made. I guess we're all cool?",
+	"set_header": "Edit Quick Summary",
+	"set_content_header": "Section Content",
+	"set_last_sentence_header": "Last Sentence",
+	"set_checkbox_label": "Display summary on top of article",
+	"set_close_button": "Close",
+	"set_err_no_summary": "Quick summaries need a summary (those go in the Section Content input).",
+	"set_err_no_last_sentence": "Quick summaries need a last sentence.",
+	"summary_section_no_edit": "Editing this section requires particular user rights. If you see something that needs fixing, please report it to the [[wikiHow_talk:Help-Team|Help Team]] so we can get it corrected. Thanks!",
+	"summary_section_notice": "<!-- Quick Summary code below. Please move/edit via section Edit link if needed. -->",
+	"summary_namespace_instructions": "NOTE: This is the Summary template for [[$1]]. Use the Edit UI on the article to make any changes."
+}

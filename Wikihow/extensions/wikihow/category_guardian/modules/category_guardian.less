@@ -1,0 +1,218 @@
+/*
+PLEASE DONT EDIT THE CSS DIRECTLY
+FILE IS COMPILED FROM category_checker.less
+*/
+
+@import '../../less/variables.less';
+@import '../../less/mixins.less';
+@import '../../less/common.less';
+
+@buttonSize: 30px;
+@buttonSizeLarge: 40px;
+
+.quiz {
+	h1.quiz-instruct {
+		color: #555;
+		font-size: 18px;
+		margin: 0;
+		font-weight: normal;
+	}
+
+	.spinner {
+		display: none;
+	}
+
+	.quiz-body {
+		position: relative;
+	}
+
+	.question {
+		display: block;
+		height: auto;
+		font-size: 18px;
+		padding: @margin;
+		margin-bottom: @margin;
+
+		a:not(.button) {
+			color: #333;
+			font-weight: bold !important;
+		}
+
+		&.anon-limit {
+			display: block;
+			overflow: hidden;
+			text-align: center;
+			background-color: white;
+			box-sizing: border-box;
+			padding: @margin;
+			height: auto;
+
+			.message {
+			  text-align: center;
+			  display: block;
+			  padding-top: @margin*2;
+			  margin-bottom: @margin;
+
+			  p {
+				margin-bottom: @margin;
+			  }
+			}
+
+			.button {
+			  display: inline-block;
+			  box-sizing: border-box;
+			  margin: 0 0 @margin 0;
+			}
+		}
+	}
+
+	.answer-container {
+		.roundedAll();	
+	}
+
+	.answer {
+		display: block;
+		overflow: hidden;
+		background-color: #fff;
+		text-align: left;
+		padding: @margin*2 85px @margin*2 @margin;
+		position: relative;
+
+		&:nth-child(even) {
+			background-color: @grayLight;
+		}
+
+		.answer-text {
+			box-sizing: border-box;;
+			font-size: @baseFontSize*1.3;
+	  padding-left: @margin*2;
+	  position: relative;
+
+	  .toggle {
+		font-family: 'FontAwesome', sans-serif;
+		display: inline-block;
+		float: left;
+		margin-right: @margin;
+		cursor: pointer;
+		position: absolute;
+		left: 0;
+		top: 0;
+		text-align: center;
+		width: 18px;
+
+		&:after {
+		  content: '\f0da';
+		}
+	  }
+
+	  a.title {
+		color: @grayDark;
+		cursor: pointer;
+		margin: 0;
+		display: block;
+		overflow: hidden;
+
+		&:hover {
+		  color: @linkColor;
+		}
+
+	  }
+
+	  .blurb {
+		.transition(all 0.5s ease 0s);
+		display: block;
+		color: darken(@grayMedium, 15%);
+		opacity: 0;
+		max-height: 0;
+		overflow: hidden;
+	  }
+
+	  &.open {
+		.blurb {
+		  max-height: 160px;
+		  opacity: 100;
+		}
+
+		.toggle {
+		  &:after {
+			content: "\f0d7";
+		  }
+		}
+	  }
+		}
+
+		.answer-options {
+			display: inline-block;
+	  position: absolute;
+	  top: @margin;
+	  right: 0;
+			overflow: hidden;
+			float: right;
+			width: @buttonSizeLarge*2;
+			height: @buttonSizeLarge;
+
+			.choice {
+				.transition(margin 0.3s ease 0s);
+				position: relative;
+				display: inline-block;
+				float: left;
+				// margin-right: @margin;
+				text-decoration: none;
+				text-align: center;
+
+				i, i {
+					margin-top: 5px;
+					display: block;
+					font-size: @buttonSize;
+
+					&.on {
+						font-size: @buttonSizeLarge;
+					}
+				}
+
+				&.chosen {
+					margin-top: -(@buttonSizeLarge);
+				}
+
+				.counter {
+					top: @buttonSizeLarge + 1px;
+					right: -5px;
+				}
+
+				&.no {
+					color: lighten(@red, 40%);
+
+					&:hover, &.chosen {
+						color: @red;
+					}
+				}
+
+				&.yes {
+					color: lighten(@green, 5%);
+
+					&:hover, &.chosen {
+						color: darken(@green, 15%);
+					}
+				}
+			}
+		}
+	}
+
+	&.loading {
+		.spinner {
+			display: inline-block !important;
+		}
+		.next-bar {
+			opacity: 0.0;
+		}
+	}
+
+	&.inactive {
+		.spinner, .next-bar {
+			display: none !important;
+		}
+	}
+}
+
+.button-bar .arrow-right .arrow { border-bottom: 21px solid transparent; }
+#skip_prompt { display: none; }

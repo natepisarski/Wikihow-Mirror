@@ -1,0 +1,65 @@
+#ed_body {
+    margin: 5px 5px;
+    padding: 5px 5px;
+}
+.edi {
+	padding-top: 4px;
+	padding-bottom: 4px;
+	display: block;
+
+}
+.ed_button {
+    padding: 4px 10px;
+	margin:5px 5px;
+	width: 6%;
+	float: right;
+}
+.ed_button_advanced {
+	display: none;
+}
+.ed_input {
+	padding: 10px;
+	font-size: 1em;
+}
+.ed_file {
+	margin-top: 7px;
+	margin-bottom: 7px;
+}
+.ed_checkbox {
+	float: right;
+}
+.ed_result_item {
+	float: left;
+	word-wrap: break-word;
+	width: 24%;
+	text-align: center;
+}
+.ed_file_id {
+	font-size:12px;
+}
+.ed_result_head {
+	margin-left:0px;
+	margin-right:0px;
+}
+#ed_results {
+	margin-left: -25px;
+	margin-right: -25px;
+}
+.ed_status {
+	width: 15%;
+}
+.ed_link {
+	width: 40%;
+	font-size: 12px;
+}
+.ed_link_title {
+	width: 40%;
+}
+.ed_file_title {
+	font-size:12px;
+	width: 40%;
+}
+.ed_result_head.ed_file_title {
+	font-size:16px;
+	width: 40%;
+}

@@ -1,0 +1,21 @@
+<h2>{{title}}</h2>
+
+<table>
+	<tr>
+		<th>Name</th>
+		<th>Enabled</th>
+		<th>&nbsp;</th>
+	</tr>
+	{{#items}}
+	<tr data-type="{{type}}" data-id="{{id}}">
+		<td> <input type="text" value="{{name}}"> </td>
+		<td> <input type="checkbox" {{#enabled}} checked="1" {{/enabled}}> </td>
+		<td> <button data-action='update' disabled>Save</button> </td>
+	</tr>
+	{{/items}}
+	<tr data-type="{{type}}" data-id="0">
+		<td> <input type="text" placeholder="New {{type}}"> </td>
+		<td> <input type="checkbox" checked="1" disabled> </td>
+		<td> <button data-action='insert' disabled>Insert</button> </td>
+	</tr>
+</table>

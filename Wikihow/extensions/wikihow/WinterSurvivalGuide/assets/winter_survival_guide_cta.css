@@ -1,0 +1,28 @@
+#winter_survival_sidebox h3 {
+	text-align: center;
+	font-size: 1.2em;
+	margin-bottom: 8px;
+}
+
+#winter_survival_sidebox h3 span {
+	color: #94B777;
+}
+
+#winter_survival_guide {
+	height: 143px;
+	width: 100%;
+	display: block;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-image: url(winter_survival_guide.png);
+	/* @embed */
+	background-image: url(winter_survival_guide.svg);
+}
+
+#winter_survival_guide_button {
+	display: block;
+	width: 100px;
+	text-align: center;
+	margin: 6.5px auto 0;
+}

@@ -1,0 +1,228 @@
+.misspell{
+	color: #fff;
+	background-color: #ff0000;
+	padding: 1px 1px;
+	display: inline-block;
+}
+
+.editable {
+	font-size: 1em;
+	border: none;
+	background-color: #97ba78;
+	color: white;
+	font: inherit;
+}
+
+#spch-content{
+	height:450px;
+	overflow-y: scroll;
+	background-color:#ffffff;
+	border:2px solid #999999;
+}
+
+#spch-edit{
+	display:none;
+}
+
+#spch-title{
+    background-color: #F5F5F5;
+    margin-top: 15px;
+}
+
+.spch-head {
+	padding: 15px 0 50px 0;
+}
+
+.spch-head h1 {
+	margin:0;
+    padding: 10px 0 0 15px;
+}
+
+#spch-options, #spch-edit-buttons{
+	font-size:1em;
+	padding-top: 10px;
+	width: 100%;
+}
+
+#spch-options a, #spch-edit-buttons a {
+	float:right;
+}
+
+
+#spch-edit-buttons {
+	display: none;
+}
+
+#spch-instructions{
+	float: left;
+    margin-bottom: 15px;
+    margin-top: 5px;
+}
+
+#spch-id{display:none;}
+
+#spch-preview{
+	overflow-x: hidden;
+	display: none;
+}
+
+#spch-summary input {
+	height: 17px;
+	font-size: 12px;
+}
+
+#article #spch-help{
+    margin-top: 5px;
+	padding-bottom:0px;
+}
+
+#spch-buttons{
+	margin-top:10px;
+}
+
+#spch-container{
+}
+
+.spch-word{
+	float: left;
+    margin-top: 3px;
+    width: 200px
+}
+
+.spch-message{
+	line-height:26px;
+	clear:both;
+}
+
+.spch-add{
+	float: right;
+	margin-top:10px;
+}
+
+.ui-dialog{
+	position:fixed;
+}
+
+#spch-error{
+	display: none;
+}
+
+.spch-waiting{
+	margin:0 auto;
+	width:32px;
+}
+
+#spch-welcome{
+    font-size: 16px;
+    padding: 10px 20px;
+	background-color: #F9F7F1;
+	display: none;
+}
+
+#spch-welcome img{
+    float: left;
+    line-height: 20px;
+    margin-right: 10px;
+    margin-top: 9px;
+}
+
+#whitelistTable {
+	
+}
+
+#whitelistTable thead td {
+	background: none repeat scroll 0 0 #CCCCCC
+}
+
+#whitelistTable td {
+	padding:5px 10px;
+	border-top: 1px solid #CCCCCC;
+	text-align:right;
+}
+
+#whitelistTable td.word{
+	text-align: left;
+}
+
+#whitelistTable td.wide{
+	width:150px;
+}
+
+#whitelistTable tr.sample td {
+	background-color: #eeeeee;
+	font-style: italic;
+}
+
+#spch-words h3 {
+	margin:36px 36px 24px 0;
+}
+
+.spch-word-list {
+	margin-top:10px;
+}
+
+.spch-prompt {
+	background: #fafaf9;
+	padding: 10px 0;
+}
+
+.spch-snippet {
+	padding: 15px;
+	background: white;
+	font-size: 16px;
+	word-wrap: break-word;
+	border: 1px solid #e5e5e5;
+}
+
+.spch-snippet.anon_limited {
+	text-align: center;
+}
+
+.spch-prompt a.button {
+	padding: 12px 11px;
+}
+
+#spch-snippet b {
+	font-weight: normal;
+}
+
+#spch-snippet .label,  {
+	display: none;
+}
+
+#spch-snippet div.mwimg, #spch-snippet label, #spch-snippet .step_num, #spch-snippet .reference, #spch-snippet br {
+	display: none;
+}
+
+#spch-qe {
+	visibility: hidden;
+}
+
+#spch_help {
+	margin-left:10px;
+	margin-top:-33px;
+}
+
+#spch-skip-article.button, #spch-qe.button {
+	float: left;
+}
+
+#spch-skip-article {
+	margin-left: 10px;
+}
+
+#spch_help {
+	margin-left: 25px;
+}
+
+p.anon_limited_msg {
+	margin-bottom: 25px;
+	font-size: 18px;
+}
+
+.tip_bubble_outer {
+	position:relative;
+	bottom: 70px;
+}
+
+#eoq_box { margin-top: 1em; }

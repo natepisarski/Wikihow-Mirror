@@ -1,0 +1,23 @@
+{
+  "repositories": [
+    {
+      "url": "https://github.com/wikiHow/Underscore.php.git",
+      "type": "vcs"
+    }
+  ],
+
+  "require": {
+    "php-activerecord/php-activerecord": "dev-master",
+    "wikiHow/Underscore.php": "dev-master",
+    "mnshankar/csv": "^1.8",
+    "mustache/mustache": "^2.9",
+    "mthaml/mthaml": "^1.8",
+    "kevinlebrun/colors.php": "^1.0"
+  },
+
+  "autoload": {
+      "psr-4": {
+        "MVC\\": "./"
+      }
+  }
+}

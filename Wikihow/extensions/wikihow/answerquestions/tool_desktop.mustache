@@ -1,0 +1,44 @@
+<div class="">
+	{{#qat_welcome}}
+		<div id="qat_welcome">{{{qat_welcome}}}</div>
+	{{/qat_welcome}}
+	<div id="qat_start" style="display: none;">
+		<h3>wikiHow Q&A: Answer questions, help people.</h3>
+		<h4>What are you interested in?</h4>
+		<div>
+			<a href="#" id="start_Sports_and_Fitness" class='start_link'>Fitness</a>
+			<a href="#" id="start_Food_and_Entertaining" class='start_link'>Food</a>
+			<a href="#" id="start_Home_and_Garden" class='start_link'>Home</a>
+			<a href="#" id="start_Pets_and_Animals" class='start_link'>Pets</a>
+			<a href="#" id="start_Personal_Care_and_Style" class='start_link'>Style</a>
+			<a href="#" id="start_Computers_and_Electronics" class='start_link'>Tech</a>
+		</div>
+		<p>(or choose from more on the right)</p>
+	</div>
+	<div id="qat_container" class="{{#qat_admin}}qat_admin{{/qat_admin}} {{#qat_staff}}qat_staff{{/qat_staff}}" style="display: none;">
+		<div id="qat_header">
+			<p id="qat_prompt">Help us answer questions about</p>
+			<a href="#" class="button secondary qat_nexttopic">New Topic</a>
+			<a id="qat_title" href="" target="_blank"></a>
+			<div id="qat_exp_answered"></div>
+			<input type="hidden" id="qat_group" value="{{qat_group}}" />
+			<input type="hidden" id="qat_article_id" value="" />
+			<input type="hidden" id="qat_expert" value="{{qat_expert}}" />
+			<input type="hidden" id="qat_few_contribs" value="{{qat_few_contribs}}" />
+			<input type="hidden" id="qat_welcome_name" value="{{qat_welcome_name}}" />
+			<input type="hidden" id="qat_user_category" value="{{qat_user_category}}" />
+			<input type="hidden" id="qat_category_type" value="{{qat_category_type}}" />
+		</div>
+		{{#qat_showmenu}}
+		<div id="qat_menu">
+			<a href="#" id="qat_all" class="active">All Questions</a><a href="#" id="qat_new">Recent Only</a>
+		</div>
+		{{/qat_showmenu}}
+		<div id="qat_question_container"></div>
+
+		<a href="#" class="qat_showmore">Show more questions</a>
+	</div>
+	<div id="qat_queue_error" style="display:none">
+		That’s all we have in this category. Choose another category to keep answering questions.
+	</div>
+</div>

@@ -1,0 +1,53 @@
+- if (isset($errors))
+	.alert.alert-danger
+		%strong I could not find the following urls
+		%p The missing urls have been removed from the form. Hit download again to download without them.
+		%ul
+			- foreach($errors as $error)
+				%li= $error
+
+.well
+	%h1 Export Data
+	%p.lead Export CSV data from the Content Portal.
+
+	.row
+		.col-md-8
+			%form.form.form-vertical{action: url('exports/download'), method:"post"}
+				.well-body
+					.form-group
+						.radio
+							%label.control-label
+								%input{type:"radio", name:"export[type]", value:"date-range", checked: params('export[type]', 'date-range') == 'date-range'}
+								Articles that were:
+
+						.radio
+							%label.control-label
+								%input{type:"radio", name:"export[type]", value:"by-state", checked: params('export[type]') == 'by-state'}
+								Articles are currently in:
+
+						.radio
+							%label.control-label
+								%input{type:"radio", name:"export[type]", value:"all", checked: params('export[type]') == 'all'}
+								All Articles:
+
+						.radio
+							%label.control-label
+								%input{type:"radio", name:"export[type]", value:"urls", checked: params('export[type]') == 'urls'}
+								Provided URLs:
+
+					#form-container
+						!= partial('/exports/_form')
+
+					%button.btn.btn-primary.btn-lg(type="submit")
+						%i.fa.fa-download
+						Download
+					%a.btn.btn-lg.btn-default{href: url('')} Cancel
+
+		.col-md-4
+			.panel.panel-default
+				.panel-heading Quick Export
+				.panel-body
+					%p Download stats on all users.
+					%a.f-user-dl.btn.btn-info.btn-block{href: url('exports/users')} All User Stats
+
+!= addScript("WH.exporter.initialize(". json_encode($exportTypes) . ");")

@@ -1,0 +1,72 @@
+#header h1 {
+	width:310px;
+	}
+.more {
+	top:51px;
+	left:294px;
+	}
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+   	width: 305px;
+	padding-bottom:13px;
+	}
+.right {
+	width:295px;
+	float:left;
+	position:relative;
+	}		
+.form_uk .wh_dd_value {
+	background:none;
+	margin-left:22px;
+	}
+.form_uk .wh_dd_input {
+	width:75px !important;
+	}
+.form_uk .wh_dd_select	 {
+	width:75px !important;
+	}.wh_ud_editable_value { 
+	float: right;
+    padding-right: 4px;
+    text-align: right;
+    width: 126px !important;
+	}
+.wh_ud_input  {
+	width:211px !important;
+	}
+.wh_ud_input {
+	text-align:right;
+	}
+
+.active_input .wh_ud_editable_value	{
+	padding-right:0 !important;
+	}
+.wh_ud_editable_value input {
+	float:right;
+	width:128px !important;
+	text-align:right;
+	margin-right:3px;
+	}
+#result_uk,#result_si { 
+    color: #809080;
+    float: left;
+    font-family: 'Museo500';
+    font-weight: bold;
+    margin: 22px 0 0 17px;
+    text-align: center;
+    width: 93%;
+	font-size:23px;
+	}
+.whupdd_element {
+	margin:-11px 0 0 29px;
+	float:left;
+	}
+.form_si .wh_dd_value {
+    background: none repeat scroll 0 0 transparent;
+    margin-left: 9px;
+	}
+.whlabel_element {
+	margin:0 auto;
+	}		
+					

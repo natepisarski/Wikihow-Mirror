@@ -1,0 +1,16 @@
+
+.alert.alert-success.kudo
+	%a.dismiss.close{href: url('notes/dismiss', ['id' => $note->id])}
+		%i.fa.fa-times
+
+	= noteAuthor($note)
+	|
+	= noteRecipient($note)
+	|
+	= "Re: " . $note->article->title
+	|
+	= "Sent: " . timeAgo($note->created_at)
+
+	%p.body
+		%i.fa.fa-thumbs-up
+		= $note->message

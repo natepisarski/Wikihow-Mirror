@@ -1,0 +1,22 @@
+{
+    "require-dev": {
+
+    },
+    "require": {
+        "curl/curl": "^1.2",
+        "michelf/php-markdown": "^1.6"
+    },
+    "autoload": {
+      "files": [
+        "../ext-utils/mvc/Router.php",
+        "./config/Constants.php"
+      ],
+      "psr-4": {
+        "ContentPortal\\": [
+          "./", "controllers/", "models/", "config/",
+          "lib/", "controllers/traits",
+          "models/traits"
+        ]
+      }
+  }
+}

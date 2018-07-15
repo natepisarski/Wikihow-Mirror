@@ -1,0 +1,18 @@
+.mw-echo-date-section,.mw-echo-notification-footer { display: none; }
+.mw-echo-title { line-height: 15px; }
+li.mw-echo-notification { 
+	border: 1px solid #DDD;
+	border-bottom: none;
+	padding-right: .5em;
+}
+li.mw-echo-notification:nth-child(2) { 
+	-moz-border-radius: 5px 5px 0 0;
+	-webkit-border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 0 0;
+}
+li.mw-echo-notification:last-child { 
+	border-bottom: 1px solid #DDD;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
+}

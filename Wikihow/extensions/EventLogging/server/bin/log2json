@@ -1,0 +1,68 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+"""
+  log2json
+  --------
+  Transform raw log stream to JSON event stream
+
+  usage: log2json [-h] [--sid SID] format input output
+
+  positional arguments:
+    format      Format string
+    input       URI of raw input stream
+    output      URI of output stream
+
+  optional arguments:
+    -h, --help  show this help message and exit
+    --sid SID   set input socket identity
+
+  formatters:
+     %h         Client IP
+     %j         JSON object
+     %l         Hostname of origin
+     %n         Sequence ID
+     %q         Query-string-encoded JSON
+     %t         Timestamp in NCSA format.
+
+  :copyright: (c) 2012 by Ori Livneh <ori@wikimedia.org>
+  :license: GNU General Public Licence 2.0 or later
+
+"""
+from __future__ import unicode_literals
+
+import argparse
+import logging
+import sys
+
+import jsonschema
+import zmq
+
+from eventlogging import capsule_uuid, json, LogParser, validate, zmq_subscribe
+
+
+logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
+
+ap = argparse.ArgumentParser(description='Raw log -> JSON stream')
+ap.add_argument('format', help='Format string')
+ap.add_argument('input', help='URI of raw input stream')
+ap.add_argument('output', help='URI of output stream')
+ap.add_argument('--sid', help='set input socket identity')
+args = ap.parse_args()
+
+parser = LogParser(args.format)
+
+context = zmq.Context.instance()
+pub = context.socket(zmq.PUB)
+pub.bind(args.output)
+
+logging.info('Publishing JSON events on %s.', args.output)
+
+for raw_event in zmq_subscribe(args.input, sid=args.sid):
+    try:
+        event = parser.parse(raw_event)
+        validate(event)
+        event['uuid'] = capsule_uuid(event)
+    except Exception:
+        logging.exception('Unable to decode: %s', raw_event)
+    else:
+        pub.send_unicode(json.dumps(event) + '\n')

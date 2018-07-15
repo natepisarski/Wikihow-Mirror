@@ -1,0 +1,22 @@
+<div id="quiz-template">
+	<div class="article_title">{{{title}}}</div>
+	
+	<div class="question-container">
+		{{#questions}}
+			<div class="question" data-page_id="{{article_id}}" data-qs_id="{{question_id}}" data-question="{{question}}">
+				<div class="blurb">{{question}}</div>
+				<div class="question-options">
+					<a href="#"  class="no choice op-action">
+						<i class="fa fa-times off" role="button"></i>
+						<i class="fa fa-times-circle-o on" aria-hidden="true"></i>
+					</a>
+					<a href="#" class="yes choice op-action">
+						<i class="fa fa-check off" role="button"></i>
+						<i class="fa fa-check-circle-o on" aria-hidden="true"></i>
+					</a>
+				</div>
+			</div>
+		{{/questions}}
+	</div>
+	<input type="hidden" value="{{article_id}}" id="sqt_article_id" />
+</div>

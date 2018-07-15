@@ -1,0 +1,16 @@
+<div id="qaar_box" class="{{mobile_class}}">
+	<div id="qaar_hdr">{{hdr_txt}}</div>
+
+	<div id="qaar_body">
+		<div id="qaar_prompt">{{prompt}}</div>
+		<div id="qaar_question">{{question_prompt}}</div>
+
+		<textarea id="qaar_answer" placeholder="{{textarea_ph}}"></textarea>
+		<input type="submit" value="Submit" id="qaar_submit" class="button qaar_button disabled" />
+	</div>
+
+	<input type="hidden" value="0" id="qaar_vote" />
+	<input type="hidden" value="{{submittedTimestamp}}" id="qaar_st" />
+	<input type="hidden" value="{{emailTimestamp}}" id="qaar_et" />
+	<input type="hidden" value="{{qa_id}}" id="qaar_qa_id" />
+</div>

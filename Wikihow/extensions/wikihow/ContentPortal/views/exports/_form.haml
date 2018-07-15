@@ -1,0 +1,30 @@
+
+#states.form-group
+	%select.form-control.state.past-tense(name="export[key]")
+		!= optionsFromArray($exportTypes, 'pastTense', 'key', params('export[key]'))
+
+	%select.form-control.state.present-tense(name="export[key]")
+		!= optionsFromArray($exportTypes, 'presentTense', 'key', params('export[key]'))
+
+#datepicker.form-group
+	%label.control-label Within the Date Range of:
+	%input(type="text" id="picker" class="form-control" name="export[range]")
+
+#urls.form-group
+	%label.control-label Paste specific urls you would like exported
+	%textarea(name="export[urls]" class="form-control" rows="10" placeholder="full wikihow urls")= params('export[urls]')
+
+.form-group
+	.checkbox(style="margin-top:0;")
+		%label
+			%input.toggle-all(type="checkbox" name="check-all" value="1" checked="true" data-panel="#select-fields")
+			%strong Choose Fields:
+
+	#select-fields.row
+		- foreach($exportFields as $field)
+			- if ($field == "id")
+				%input{type:"hidden", name:"export[fields][]", value:$field}
+			- else
+				.checkbox.col-sm-4(style="margin-top:0;")
+					%label
+						%input{type:"checkbox", name:"export[fields][]", checked:"true", value: $field}= $field

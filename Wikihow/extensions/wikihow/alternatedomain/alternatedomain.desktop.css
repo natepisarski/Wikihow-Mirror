@@ -1,0 +1,24 @@
+.wh_ad_step {
+	margin-left: -20px;
+}
+.wh_ad_related {
+	margin-left: -15px;
+}
+#header .logo.tech_logo {
+	width: 168px;
+	height: auto;
+	margin-top: 16px;
+}
+#header.shrunk .logo.tech_logo {
+	margin-top: -1px;
+}
+#header .logo.pet_logo {
+	width: 168px;
+	height: auto;
+	margin-top: 15px;
+}
+#header.shrunk .logo.pet_logo {
+	margin-top: -1px;
+}
+#nav_explore_li.nav_item .menu  { right: 0px; }
+#nav_edit_li.nav_item .menu { right: 75px; }

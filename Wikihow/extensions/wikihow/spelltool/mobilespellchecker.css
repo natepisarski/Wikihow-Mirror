@@ -1,0 +1,19 @@
+#spch-options a.button, #spch-edit-buttons a {
+	float: none;
+}
+
+#spch-next {
+	font-size: 1em;
+}
+
+#spch-skip-article {
+	margin-left: 0px;
+}
+
+#spch-snippet.spch-eoq br {
+	display: initial;
+}
+
+#spch-waiting {
+	margin-top: 25px;
+}

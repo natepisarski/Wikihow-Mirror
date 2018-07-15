@@ -1,0 +1,358 @@
+// FIXME: merge with overlays.less when OverlayNew gets to stable
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+.overlay-enabled {
+	#mw-mf-page-center {
+		overflow: hidden;
+		// FIXME: override old overlay styles, remove when old overlays gone
+		display: block;
+	}
+
+	.overlay, #mw-mf-page-center {
+		// use height instead of bottom 0 so that overlay expands when there's
+		// more content, don't use min-height because of
+		// http://stackoverflow.com/questions/3808512/the-inherited-height-of-a-child-div-from-a-parent-with-a-min-height-attribute
+		height: 100%;
+	}
+}
+
+// Overlays
+//
+// Styleguide 7.
+
+// Overlays (read only)
+//
+// TODO: Document when this should be used.
+//
+// Markup:
+// <div class="overlay-enabled">
+//   <div class="overlay">
+//     <div class="overlay-header-container">
+//       <div class="overlay-header">
+//         <ul class="v-border bottom-border">
+//          <li><button class="cancel icon">Close</button></li>
+//         </ul>
+//         <div class="bottom-border"><h2>Overlay</h2></div>
+//       </div>
+//     </div>
+//     <div class="content">Overlay with no icon.</div>
+//   </div>
+// </div>
+//
+// Styleguide 7.1.
+
+// Overlays (primary)
+//
+// TODO: Document when this should be used.
+//
+// Markup:
+// <div class="overlay-enabled">
+//   <div class="overlay">
+//     <div class="overlay-header-container">
+//       <div class="overlay-header">
+//         <ul class="v-border bottom-border">
+//          <li><button class="cancel icon">Close</button></li>
+//         </ul>
+//         <div class="bottom-border"><h2>Overlay</h2></div>
+//         <ul class="v-border bottom-border">
+//          <li><button class="continue icon">Continue</button></li>
+//         </ul>
+//       </div>
+//     </div>
+//     <div class="content">Overlay with progressive action.</div>
+//   </div>
+// </div>
+//
+// Styleguide 7.2.
+
+// Overlays (constructive)
+//
+// TODO: Document when this should be used.
+//
+// Markup:
+// <div class="overlay-enabled">
+//   <div class="overlay">
+//     <div class="overlay-header-container">
+//       <div class="overlay-header">
+//         <ul class="v-border bottom-border">
+//          <li><button class="cancel icon">Close</button></li>
+//         </ul>
+//         <div class="bottom-border"><h2>Overlay</h2></div>
+//         <ul class="v-border bottom-border">
+//          <li><button class="submit icon">Submit</button></li>
+//         </ul>
+//       </div>
+//     </div>
+//     <div class="content">Overlay with completion action.</div>
+//   </div>
+// </div>
+//
+// Styleguide 7.3.
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background: #fff;
+	z-index: 4;
+	.box-sizing(border-box);
+	padding-top: @headerHeight;
+
+	.overlay-header {
+		display: table;
+		width: 100%;
+
+		h2 {
+			display: table;
+			width: 100%;
+
+			> * {
+				width: 1em;
+				display: table-cell;
+				// padding instead of spaces between words
+				padding-right: .4em;
+			}
+
+			span {
+				width: auto;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				// required for text-overflow to work
+				max-width: 1em;
+			}
+		}
+
+		> ul, > div {
+			display: table-cell;
+			vertical-align: middle;
+		}
+
+		.bottom-border {
+			border-bottom: 1px solid @grayLight;
+		}
+
+		> div {
+			padding: @headerTitleMarginV @headerTitleMarginH;
+		}
+
+		h2 {
+			// FIXME: should not be necessary, scope other h2s to .content
+			font-size: @headerTitleFontSize;
+		}
+
+		> ul, button {
+			width: @headerHeight - @headerMargin;
+		}
+
+		button {
+			padding: @headerTitleMarginV @headerTitleMarginH;
+			width: @headerHeight;
+			border-radius: 0;
+			min-height: @headerHeight;
+		}
+
+		.v-border:first-child {
+			border-right: 1px solid @grayLight;
+		}
+
+		.v-border:last-child li:last-child {
+			border-left: 1px solid @grayLight;
+		}
+
+		.icon {
+			text-indent: -9999px;
+			background-position: 50%;
+			background-repeat: no-repeat;
+			.background-size( 24px, auto );
+
+			&[disabled] {
+				opacity: .5;
+			}
+
+			&.cancel {
+				background-image: url('images/cancel.png');
+			}
+
+			&.clear {
+				background-image: url('images/clear.png');
+			}
+
+			&.submit {
+				background-image: url('images/check.png');
+				background-color: #00af8b;
+			}
+
+			&.continue {
+				background-image: url('images/continue-ltr.png');
+				background-color: #2f81f0;
+			}
+
+			&.back {
+				background-image: url('images/back-ltr.png');
+			}
+		}
+	}
+
+	.overlay-header-container {
+		width: 100%;
+		padding: @headerMargin @headerMargin 0;
+		.box-sizing(border-box);
+		background: #fff;
+		// For overlays that do not use position fixed headers e.g. ZeroOverlay
+		// FIXME: make those overlays use position fixed headers
+		position: absolute;
+		top: 0;
+		white-space: nowrap;
+
+		&.position-fixed {
+			// both top and left required for Android 2 for the element to be visible
+			left: 0;
+			// the following right: 0 is converted to left: 0 for RTL languages
+			// (for unknown reasons left: 0 is mandatory in Android 2 for the
+			// element to be visible, right: 0 doesn't work)
+			right: 0;
+			// prevent .page-list overlaping the header when scrolling
+			z-index: 5;
+		}
+
+		.overlay-header {
+			> div {
+				padding: (@headerTitleMarginV - @headerMargin) @headerTitleMarginH;
+			}
+
+			button {
+				margin-top: -@headerMargin;
+				// Line up with rest of header that has 1px bottom-border
+				margin-bottom: -1px;
+			}
+
+			> ul:first-child li:first-child button {
+				margin-left: -@headerMargin;
+			}
+
+			> ul:last-child li:last-child button {
+				margin-right: -@headerMargin;
+			}
+		}
+	}
+
+	input, textarea {
+		padding: .5em;
+	}
+
+	// FIXME: Use generic class for these input fields - can't use .panel currently due to LanguageOverlay
+	.captcha-word,
+	.summary {
+		margin: 0 0 .7em;
+		width: 100%;
+		.box-sizing( border-box );
+	}
+
+	.wikitext-editor {
+		width: 100%;
+		min-height: 50%;
+		padding: 10px @contentMargin;
+		line-height: 1.5;
+		border: none;
+		resize: none;
+		.box-sizing( border-box );
+	}
+
+	.panel {
+		padding: 12px @contentMargin;
+		border-bottom: 1px solid @grayLightest;
+	}
+
+	.surface {
+		padding: @headerMargin;
+	}
+
+	.license {
+		// FIXME: image should not be hard-coded
+		background: url('../modules/images/cc-by-sa.png') left 2px no-repeat;
+		.background-size( auto, 16px );
+		padding-left: 55px;
+		font-size: .9em;
+		// if license is only one line (big screens) prevent cutting off the image
+		min-height: 18px;
+		margin-top: .5em;
+		line-height: 1.4;
+	}
+
+	.mw-mf-overlay-header {
+		font-weight: normal;
+		font-size: 1em;
+		padding: .3em @contentMargin;
+		background-color: @grayLightest;
+		color: @grayMedium;
+	}
+
+	.content {
+		// AbuseFilterOverlay
+		.cancel {
+			display: block;
+			margin: 1em auto;
+		}
+		// KeepGoingOverlay
+		&.vertical-margin {
+			margin-top: 2em;
+			margin-bottom: 2em;
+		}
+		.wikitext-example {
+			background-color: white;
+			padding: 0.5em;
+			text-align: center;
+			.wikitext {
+				color: @grayMedium;
+			}
+			.fake-link {
+				color: #0645ad;
+			}
+		}
+	}
+
+	// Appears before the content providing an explanation of what follows
+	// Only used on overlays in beta (nearby pages)- may not want to push to stable
+	.content-header {
+		background: @searchBoxColorTo;
+		border-bottom: 1px solid #e2e2e2;
+		padding: 20px @contentMargin;
+		line-height: inherit;
+	}
+}
+
+// Bottom Overlays
+//
+// A overlay that is docked to the bottom of the screen.
+// All types of overlays (progressive and constructive) apply here.
+//
+// Markup:
+// <div class="overlay overlay-bottom position-fixed">
+//   <div class="overlay-header-container">
+//     <div class="overlay-header">
+//       <ul class="v-border bottom-border">
+//        <li><button class="cancel icon">Close</button></li>
+//       </ul>
+//       <div class="bottom-border"><h2>Overlay</h2></div>
+//       <ul class="v-border bottom-border">
+//        <li><button class="submit icon">Submit</button></li>
+//       </ul>
+//     </div>
+//   </div>
+//   <div class="content"></div>
+// </div>
+//
+// Styleguide 7.4.
+.overlay-bottom {
+	border-top: 1px solid @grayLight;
+	top: auto;
+	bottom: 0;
+	height: auto !important;
+	background: #f3f3f3;
+
+	.overlay-header-container {
+		background: #f3f3f3;
+	}
+}

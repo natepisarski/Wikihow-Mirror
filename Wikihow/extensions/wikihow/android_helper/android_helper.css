@@ -1,0 +1,48 @@
+div.header {
+	display: none;
+}
+
+.section h2.sticking, .section h3.sticking, .tool div.sticking, #method_toc.sticking {
+	top: 0px;
+}
+
+#content_wrapper {
+	padding-top: 0px;
+}
+
+#footer {
+	display: none !important;
+}
+
+div#rcl-header, div#kbg-header {
+	top: 0;
+}
+
+#mw-mf-page-center {
+	padding: 0 0 20px 0
+}
+
+div.rcl-waiting {
+	margin-top: 0px;
+}
+
+#page-actions {
+	display: none;
+}
+
+.edit-page {
+	display: none !important;
+}
+
+
+#search_oversearch {
+	display: none !important;
+}
+
+div.video {
+	display: none !important;
+}
+
+#qa_show_more_answered {
+	display: none;
+}

@@ -1,0 +1,152 @@
+#aag_sidebox {
+	display: none;
+}
+#aag_sidebox:after {
+	top: 0%;
+	margin-top:25px;
+}
+#aag_sidebox:before {
+	top: 0%;
+	margin-top:25px;
+}
+#aag_sidebox h3 {
+	margin: 8px 5px;
+	text-align:left;
+	font-size: 15px;
+}
+#ataglance {
+	position: relative;
+	padding-top: 50px;
+	padding-left: 50px;
+	padding-bottom: 20px;
+	padding-right: 50px;
+}
+#ataglance_after {
+	opacity: 0.17;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	position: absolute;
+}
+#aag_inner {
+  overflow: auto;
+  padding: 0 9px 0 0;
+}
+#aag_inner ol {
+  padding-top: 1px;
+  padding-left: 1px;
+  font-weight: normal;
+  text-align: left;
+  list-style-type: none;
+}
+#aag_inner li {
+	margin-bottom: 10px;
+	line-height: 16px;
+	font-size: 13px;
+	color: #686868;
+	padding-left: 17px;
+	/* @embed */
+	background-image: url(../../../skins/owl/images/ul_bullet.png);
+	background-repeat: no-repeat;
+	background-position: 0% 7%;
+}
+
+.ataglance img {
+	width: 100%;
+}
+#ataglance .aag_ol {
+	padding: 0px;
+	overflow: visible;
+}
+.glance_text {
+	display: inline-block;
+	font-size: 13px;
+	line-height: 16px;
+	padding-top: 7px;
+	padding-bottom: 5px;
+}
+.lightSlider > .lslide > .glance_text {
+	display: inline-block;
+	font-size: 16px;
+	line-height: 25px;
+	padding-top: 5px;
+}
+.lSSlideOuter li {
+	margin-bottom: 0;
+	line-height: 0;
+}
+/* overrides for the lightslider */
+#ataglance .lSAction > a {
+    z-index: 997;
+	top:42%;
+	height:87px;
+	width: 51px;
+	opacity: 1;
+	background-repeat: no-repeat;
+	background-size: 65%;
+}
+#ataglance .lSSlideWrapper > .lSAction > a {
+	display: none;
+}
+#ataglance .lSAction > .lSPrev {
+	left: 10px;
+	/* @embed */
+	background-image: url(glance_left_arrow.png);
+}
+#ataglance .lSAction > .lSNext {
+	right: -7px;
+	/* @embed */
+	background-image: url(glance_right_arrow.png);
+}
+.lSSlideOuter .lSPager.lSpg > li:hover a, .lSSlideOuter .lSPager.lSpg > li.active a {
+    background-color: #93b874 !important;
+}
+#ataglance .lSSlideOuter .lSPager.lSpg > li a {
+	overflow: visible;
+}
+.lSSlideOuter ul.lSPager.lSGallery > li {
+	opacity: 0.5;
+}
+.lSSlideOuter .lSPager.lSGallery {
+	padding-top: 0;
+	padding-right: 0;
+}
+.lSGalWrap {
+	margin-left: 22px;
+	margin-right: 22px;
+	overflow: hidden;
+}
+.lSGallery > li.active > a > img{
+	box-sizing: border-box;
+	border: 0px solid #000;
+}
+.galCount {
+	width: 48px;
+	position: absolute;
+	left: 13px;
+	bottom: 6.2%;
+	font-size: 12px;
+}
+#ataglance #lSPrevPager {
+	top: auto;
+	bottom: 6%;
+	left: 53px;
+	background-size: 100%;
+	height: 26px;
+	width: 13px;
+}
+#ataglance .lsActionPager > a{
+	opacity: 0.6;
+}
+#ataglance .lsActionPager > a:hover {
+	opacity: 1.0;
+}
+#ataglance #lSNextPager {
+	top: auto;
+	bottom: 6%;
+	right: 53px;
+	background-size: 100%;
+	height: 26px;
+	width: 13px;
+}

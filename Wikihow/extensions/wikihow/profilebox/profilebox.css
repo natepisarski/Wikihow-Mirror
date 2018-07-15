@@ -1,0 +1,346 @@
+.pb-articles {
+	width: 100%;
+	margin:15px 15px 15px 0;
+	border:1px solid #eeeeee;
+	background-color: #FFF;
+	font-size: .9em;
+}
+
+.pb-articles thead { font-size: .75em; }
+
+.pb-articles th {
+	border:none;
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+.pb-title{
+	text-align: left;
+	border-top:1px solid #eeeeee;
+	padding-left:15px;
+	padding-top:5px;
+	padding-bottom:5px;
+	width:401px;
+}
+
+.pb-star{
+	text-align: center;
+	border-top:1px dotted #E1E1E1;
+	padding:5px 0;
+	width:72px;
+}
+.intl .pb-star { display: none; }
+
+.pb-icon {
+	width: 22px;
+	height: 20px;
+	margin: 0 auto;
+	background-size: cover;
+}
+.pb-rising-icon {
+	background-image: url(star-green.png);
+}
+.pb-featured-icon {
+	background-image: url(star-blue.png);
+}
+
+.pb-feature{
+	text-align: center;
+	border-top:1px dotted #E1E1E1;
+	padding:5px 0 5px 15px;
+	width:50px;
+}
+.intl .pb-feature { display: none; }
+
+.pb-view{
+	text-align: right;
+	border-top:1px solid #eeeeee;
+	padding:5px 15px 5px 0;
+}
+
+/*.pb-stats
+{
+	float:left;
+	width:100%;
+	border:1px solid #dfdace;
+	padding:10px 0;
+	position:relative;
+}*/
+
+.pb-stats table{
+	width: 100%;
+/*	padding:0;
+	margin-top: 3px;
+	width: 50%;
+*/
+}
+/*
+.pb-stats table td{
+	width:50%;
+}*/
+
+.pb-badge {
+	background-image:url("/skins/WikiHow/images/badges.png?3");
+	position:absolute;
+	width:65px;
+	height:85px;
+	top:0;
+}
+
+.pb-nab {
+	background-position:-140px 0;
+}
+
+.pb-fa {
+	background-position:-70px 0;
+}
+
+.pb-welcome {
+	background-position: -210px 0;
+}
+
+.profileboxform_btns { text-align: right; }
+.profileboxform_btns .button { margin: 0 0 0 10px; }
+.profileboxform_btns a { padding: 14px 16px; }
+
+.stats_stat {
+	float: left;
+	width: 46%;
+	padding: 1% 2%;
+}
+
+.profileBoxInfo {
+	float:right;
+	border:1px solid #dfdace;
+	padding:15px;
+	margin:0; /*removed 10px because box was too low */
+	width:135px;
+}
+
+#pbTabs {
+	padding:10px 27px 0 23px;
+	margin:0;
+}
+
+#pbTabsContent {
+	border-right:1px solid #999999;
+	border-bottom:1px solid #999999;
+	border-left:1px solid #999999;
+	padding:10px;
+	padding-bottom:30px;
+	margin:0px;
+}
+
+#article ul.menu_tabbed {
+	list-style: none;
+	border-bottom: 1px #999999 solid;
+	padding-bottom: .4em;
+	margin:0;
+	}
+ul.menu_tabbed li {
+	display: inline;
+	margin-left: 10px;
+	}
+ul.menu_tabbed li a {
+	color:#999999;
+	-moz-border-radius-topleft:0.5em;
+	-moz-border-radius-topright:0.5em;
+	-webkit-border-top-left-radius:0.5em;
+	-webkit-border-top-right-radius:0.5em;
+	text-decoration: none;
+	background: #f7f7f7;
+	border: 1px #CCCCCC solid;
+	border-bottom: none;
+	padding: 5px 7px;
+	}
+ul.menu_tabbed li a.selected {
+	color:#666666;
+	background:#FFFFFF;
+	border: 1px #999999 solid;
+	border-bottom: 2px #FFFFFF solid;
+	padding: 5px 7px ;
+}
+
+ul.menu_tabbed li a:hover {
+	padding: 5px 7px ;
+	color:#666666;
+	}
+
+.selectFavs {
+	margin-left: 30px;
+	width: 350px;
+}
+
+div.autocomplete {
+  position:absolute;
+  width:300px;
+  background-color:white;
+  border:1px solid #888;
+  margin:0;
+  padding:0;
+}
+div.autocomplete ul {
+  list-style-type:none;
+  margin:0;
+  padding:0;
+}
+
+div.autocomplete ul li.selected {
+	background-color: #ffb;
+}
+
+div.autocomplete ul li {
+  list-style-type:none;
+  display:block;
+  margin:0;
+  padding:2px;
+  height:32px;
+  cursor:pointer;
+}
+
+.pbTable {
+	padding: 10px;
+	margin: 0;
+	border:1px solid #bbb;
+	min-width:100%;
+	width:100%;
+}
+
+.pbTable .pbTableHeader {
+	border:1px solid #000;
+	background-color: #DDD;
+}
+
+.pbTable .pbTableViews {
+	width: 100px;
+	text-align: center;
+}
+
+.pbTable .pbTableRS {
+	width: 100px;
+	text-align: center;
+}
+
+.pbTable .pbTableFA {
+	width: 100px;
+	text-align: center;
+}
+
+#gatEditRemoveButtons {
+	display: inline-block;
+	font-size: .4em;
+	padding-left: 1em;
+	font-weight: normal;
+	height: 22px;
+	vertical-align: middle;
+}
+#gatEditRemoveButtons a { color: #363; }
+
+#rcwidget_profile{
+	width:300px;
+	float:right;
+}
+
+#profileBoxID { display: inline; }
+
+.pb-left{
+	margin-right: 365px;
+}
+
+#rcElement_list {
+	height:auto;
+}
+
+.pb_userdata {
+	font-size: .8em;
+	line-height: 1.7em;
+}
+.pb_userdata span { font-weight: bold; }
+
+.pb_contact { font-size: .9em; }
+.pb_contact a {
+	background: url(/skins/owl/images/ico-email.png) no-repeat 0 center;
+	padding-left: 20px;
+}
+
+.pb_aboutme {
+	clear: both;
+	font-size: .9em;
+	padding-top: .5em;
+}
+
+#pb_finalstats { text-align: center; }
+#pb_finalstats a { font-weight: bold; }
+#userstats { padding-bottom: .5em; }
+
+#fl_linked_acct, #fl_enable_acct {
+	cursor: pointer;
+	float: right;
+	margin-top: 12px;
+}
+
+#fl_linked_img {
+	height: 18px;
+	width: 18px;
+	padding-right: 5px;
+	margin-bottom: -3px;
+}
+
+.fl_linked_txt { font-size: .75em; }
+
+.pb-gp-link, #gplus_disconnect {
+	margin-top: 12px;
+	background: url(/skins/WikiHow/images/social.png) no-repeat 0 -245px;
+	padding: 1px 0 0 23px;
+	float: right;
+	z-index: 2;
+	position: relative;
+}
+
+#gplus_disconnect {
+	padding: 4px 0px 0px 22px;
+}
+
+#gplus_disconnect > a:hover {
+	cursor: pointer;
+}
+
+#gplus_disconnect, .pb-gp-link > a {
+	font-size: .75em;
+}
+
+iframe[src^="https://apis.google.com"] {
+  display: none;
+}
+
+.pb_block {
+	margin: 1em 0;
+}
+
+.minor_section form .pb_block .input_med {
+	width: 50%;
+	border: 1px solid #E5E5E5;
+	margin-top: 5px;
+	font-size: 14px;
+}
+
+.pb_block .textarea_med {
+	width: 95%;
+	padding: 11px;
+	border: 1px solid #E5E5E5;
+	border-radius: 5px;
+	resize: none;
+	font-size: 14px;
+	margin-top: 5px;
+}
+
+.altblock {
+	height: 1em;
+	width: 1em;
+}
+
+.view_toggle { font-size: .75em; }
+
+.pb-empty-text {
+	padding: 1em;
+}

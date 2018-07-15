@@ -1,0 +1,162 @@
+#avatarModalPage{
+	display: none;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+}
+
+.avatarModalBackground{
+	filter: Alpha(Opacity=80);
+	-moz-opacity:0.8;
+	opacity: 0.8;
+	width: 100%;
+	height: 100%;
+	background-color: #999999;
+	position: fixed;
+	z-index: 500;
+	top: 0px;
+	left: 0px;
+}
+
+.avatarModalContainer
+{
+	position: relative;
+	top: 10%;
+	left: 10%;
+	z-index: 1000;
+	width: 679px;
+	height: 475px;
+	padding: 4px;
+	text-align: left;
+	font-style: normal;
+	cursor:pointer;
+	line-height: 120%;
+}
+
+.avatarModalContent{
+	background: url(/skins/WikiHow/images/article_bg.png) repeat-y;
+	width:633px;
+	padding:0 23px;
+}
+
+.avatarModalContainerReject
+{
+	background-color: #FFF;
+	border: 1px solid #999;
+	position: absolute;
+	top: 15%;
+	left: 20%;
+	z-index: 1000;
+	width: 575px;
+	//height: 150px;
+	padding: 4px;
+	text-align: left;
+	font-style: normal;
+	cursor:pointer;
+	//line-height: 120%;
+}
+
+.avatarModalTitle
+{
+	width: 95%;
+	background-color: #FFF;
+	padding: 10px;
+	color: #000;
+}
+
+.avatar, .avatar_fb, .avatar_gp {
+	float: left;
+	width: 90px;
+	font-size: .9em;
+}
+
+.avatar_wrap {
+	height: 80px;
+	width: 80px;
+	padding: 15px;
+	background: #eee;
+	border: 1px solid #433;
+}
+
+#avatarUpload {
+	padding-top: 1em;
+}
+
+#avatarCropBorder { padding: 1em 0; }
+#avatarJS
+{
+	float: left;
+}
+
+#avatarPreview
+{
+	float: left;
+	margin-top: 30px;
+	margin-left: 50px;
+	font-size: .8em;
+}
+
+#avatarPreview2 {
+	margin: 8px 0 0 8px;
+}
+
+#cropSubmit
+{
+	text-align: right;
+	margin-top: 10px;
+}
+
+#avatarNameWrap
+{
+	margin-top: -6px;
+}
+
+#article #avatarNameWrap h1{
+	padding-bottom:0px;
+	padding-left: 90px;
+	font-size:30px;
+	text-align: left;
+}
+
+#avatarNameWrap #regdate
+{
+	padding-top: 0;
+	margin: 0;
+	position: relative;
+	top:10px;
+	margin-left: 80px;
+}
+
+#avatarULaction
+{
+	width:80px;
+	height:80px;
+	position: relative;
+}
+#avatarULaction A
+{
+	text-decoration: none;
+}
+#avatarULaction A:hover {
+}
+
+.avatar_upload {
+	display:block;
+	width:80px;
+	height:80px;
+	background:url('/skins/WikiHow/images/button_avatar.png') -90px 0;
+}
+
+.avatar_upload:hover {
+	background-position: 0 0;
+}
+
+div#avatarID a {
+	color: #878787;
+}
+
+div#avatarID a:hover {
+	text-decoration: underline;
+}

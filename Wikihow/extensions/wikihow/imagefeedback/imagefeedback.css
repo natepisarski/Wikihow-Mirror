@@ -1,0 +1,58 @@
+.rpt_img {
+	position: absolute;
+	bottom: 10px;
+	z-index: 2;
+	padding: 5px 5px 5px 10px;
+	font-size: .8em;
+	display: none;
+	color: rgb(248, 248, 248);
+	background-color: rgb(0,0,0) !important;
+	background-color: rgba(0,0,0,.6) !important;
+	line-height: 25px;
+}
+
+.rpt_img_ico {
+	display: block;
+	height: 13px;
+	width: 10px;
+	margin: 6px 6px 0 0;
+	vertical-align: middle;
+	background: url(/skins/owl/images/article_sprite.png) no-repeat -91px -58px;
+	float: left;
+}
+
+.rpt_reason {
+	height: 55px;
+	width: 320px;
+	margin: 5px 0 10px 0;
+}
+
+.rpt_button {
+	vertical-align: middle;
+}
+
+.rpt_button:hover {
+	background-position: 0px -26px;
+}
+
+.rpt_controls {
+	line-height: 26px;
+	float: right;
+}
+
+.rpt_cancel {
+	margin-left: 5px;
+}
+
+.rpt_margin_5px {
+	margin-top: 5px;
+}
+
+.rpt_margin_20px {
+	margin-top: 20px;
+}
+
+.rpt_input_spacing {
+	margin-left: 20px;
+}
+

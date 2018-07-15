@@ -1,0 +1,40 @@
+#wh_modal {
+	width: 450px;
+	background-color: #FFF;
+	overflow: hidden;
+	color: #7E7E7E;
+	padding-bottom: 1em;
+}
+
+#wh_modal_close {
+	position: absolute;
+	color: #FFF;
+	right: 5px;
+	top: 5px;
+	cursor: pointer;
+}
+
+#wh_modal_top {
+	background-color: #97B97A;
+	color: #FFF;
+	font-weight: bold;
+	text-align: center;
+}
+
+.wh_modal_section { 
+	text-align: center;
+	padding: 1em; 
+}
+
+.wh_modal_text { 
+	font-size: .8em;
+	padding-bottom: 2em;
+	font-weight: bold;
+	line-height: 20px;
+}
+
+#wh_modal .button {
+	font-size: .8em;
+	padding: 8px 25px;
+	margin: 0 5px;
+}

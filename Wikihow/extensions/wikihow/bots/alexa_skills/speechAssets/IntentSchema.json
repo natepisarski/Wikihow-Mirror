@@ -1,0 +1,94 @@
+{
+  "intents": [
+    {
+      "intent": "AMAZON.NavigateSettingsIntent"
+    },
+    {
+      "intent": "AMAZON.MoreIntent"
+    },
+    {
+      "intent": "AMAZON.PageDownIntent"
+    },
+    {
+      "intent": "AMAZON.PageUpIntent"
+    },
+    {
+      "intent": "AMAZON.ScrollRightIntent"
+    },
+    {
+      "intent": "AMAZON.ScrollDownIntent"
+    },
+    {
+      "intent": "AMAZON.ScrollLeftIntent"
+    },
+    {
+      "intent": "AMAZON.ScrollUpIntent"
+    },
+    {
+      "intent": "FirstStep"
+    },
+    {
+      "intent": "LastStep"
+    },
+    {
+      "intent": "NextStep"
+    },
+    {
+      "intent": "AMAZON.NoIntent"
+    },
+    {
+      "intent": "AMAZON.YesIntent"
+    },
+    {
+      "intent": "AMAZON.StartOverIntent"
+    },
+    {
+      "intent": "AMAZON.RepeatIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.NextIntent"
+    },
+    {
+      "intent": "AMAZON.PreviousIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.ResumeIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    },
+    {
+      "intent": "AMAZON.PauseIntent"
+    },
+    {
+      "intent": "PlaySummaryVideo"
+    },
+    {
+      "intent": "ResumeIntent"
+    },
+    {
+      "slots": [
+        {
+          "name": "query",
+          "type": "QUERY_TERMS"
+        }
+      ],
+      "intent": "QueryIntent"
+    },
+    {
+      "slots": [
+        {
+          "name": "step_num",
+          "type": "AMAZON.NUMBER"
+        }
+      ],
+      "intent": "GoToStepIntent"
+    }
+  ]
+}

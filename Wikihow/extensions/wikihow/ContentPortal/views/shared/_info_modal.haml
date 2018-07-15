@@ -1,0 +1,14 @@
+.modal.fade#info-modal
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button(type="button" class="close" data-dismiss="modal" aria-hidden="true")
+					&times;
+				%h4.modal-title
+					= ucwords(singularize($_GET['controller']))
+					Information
+
+			.modal-body
+				// all the content goes here...
+
+- addScript("WH.ajaxInfo.init();")

@@ -1,0 +1,27 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "ReverificationQuickFeedback": "ReverificationQuickFeedback",
+    "rvq_tool_title": "Reverifications Feedback Editing Tool",
+    "rvq_btn_verified": "Save / Mark Reverified",
+    "rvq_btn_skip": "Skip",
+    "rvq_btn_edit": "Edit",
+    "rvq_btn_cancel": "Cancel",
+    "rvq_btn_flag": "Flag for outside review",
+    "rvq_quick_feedback_label": "$1 says: ",
+    "rvq_quick_feedback": "\"$1\"",
+    "rvq_edit_summary_error": "Please enter an edit summary before saving.",
+    "rvq_error": "Error: $1",
+    "rvq_status": "Status: $1",
+    "rvq_status_loading": "Loading next quick feedback...",
+    "rvq_status_eoq": "You've reached the end of the quick feedback queue.",
+    "rvq_edit_summary": "Incorporating expert feedback",
+    "rvq_edit_no_change": "No changes in wikitext.  Please reload the page and try again.",
+    "rvq_edit_conflict":  "There is an editing conflict. Please reload the page and try again.",
+    "rvq_edit_error": "There is an error saving wikitext. Please reload the page and try again.",
+    "rvq_override_error_not_found": "The reverification by this id was not found",
+    "rvq_override_error_reverified": "The reverification by this id is already reverified",
+    "rvq_override_error_no_edits": "The reverification by this id hasn't been processed in the Special:Reverification tool",
+    "rvq_status_reset_complete": "The reverification is updated."
+}

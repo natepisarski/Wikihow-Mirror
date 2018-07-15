@@ -1,0 +1,151 @@
+#editpage {
+	margin-top: -28px;
+}
+
+.minor_section textarea, .minor_section input[type="text"], .minor_section select {
+	width: 99%;
+	padding: 1%;
+	margin-bottom: 1.5em;
+	border: 1px solid #f2f0eb;
+}
+
+h2 {
+	font-size: 20px;
+}
+
+    #fixcaps_button {
+
+        padding-right: 8px;
+
+    }
+
+    .editOptions {
+        margin-top: 4px;
+    }
+	.editHelp{
+		margin-left:15px;
+	}
+
+    .head_details {
+		font-size: .65em;
+		display: inline;
+		padding-left: 1em;
+    }
+
+    
+
+A.expand_button {
+	background: url(/skins/WikiHow/images/button_downup_sprite.gif) left top no-repeat;
+	width: 20px;
+	height: 21px;
+	padding:0;
+	display:block;
+	float:right;
+}
+
+
+
+A.contract_button {
+	background: url(/skins/WikiHow/images/button_downup_sprite.gif) left -21px no-repeat;
+	width: 20px;
+	height: 21px;
+	padding:0;
+	float:right;
+	display:block;
+	
+}
+
+#wpPreview, #wpSave, #wpDiff, #wpDraftSave{ margin-right:10px; }
+
+#wpCancel{ line-height:26px; }
+
+
+
+#add_button {
+
+    float: left;
+
+    margin-top: -4px;
+
+}
+
+#option_cats {
+	font-size: .8em;
+	margin: 5px 0 1em;
+	line-height: 2em;
+}
+
+
+#optional_sections UL {
+    margin: 8px 0 15px 0;
+	list-style: none;
+}
+
+#optional_sections li {
+	display: inline;
+	font-size: .8em;
+	padding-right: 1em;
+}
+
+
+
+#wpSummary1 {
+    width: 338px;
+    font-size: 1.1em;
+	margin-right: -2px;
+	margin-bottom: 0;
+	border: none;
+	padding: 9px 6px;
+}
+
+table.edit_footer {
+    width: 1000px;
+	margin:0 auto;
+	height:60px;
+	white-space: nowrap;
+}
+
+td.summary {
+	text-align: right;
+	vertical-align: center;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+td.buttons{
+    text-align: left;
+    padding-right: 0;
+	width: 523px;
+}
+
+
+#gatPSBSave input {
+	margin-left: 0;
+	-moz-border-radius: 0 5px 5px 0;
+	-webkit-border-radius: 0 5px 5px 0;
+	-khtml-border-radius: 0 5px 5px 0;
+	border-radius: 0 5px 5px 0;
+}
+
+
+#sub_footer { margin-bottom: 45px !important; }
+
+h2 a {
+	position: absolute;
+	font-size: 12px;
+	font-weight: normal;
+	right: 1em;
+	top: .5em;
+}
+
+h5 a {
+	font-size: 12px;
+	font-weight: normal;
+	padding-left: 1em;
+}
+
+#article #steps P{ padding:0 0 1em 0; }
+
+#related_buttons { margin-top: 1em; }
+
+.editpage_sublinks { text-align: center; }

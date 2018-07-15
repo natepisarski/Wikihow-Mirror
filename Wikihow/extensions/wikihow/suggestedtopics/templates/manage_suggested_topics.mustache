@@ -1,0 +1,43 @@
+{{updateResult}}
+
+<form action='/Special:ManageSuggestedTopics' method='POST' name='suggested_topics_manage'>
+
+    <table class='suggested_titles_list manage_suggested_topics wh_block'>
+        <tr class='st_top_row'>
+            <td class='st_title'>Article request</td>
+            <td>Category</td>
+            <td>Edit Title</td>
+            <td>Requestor</td>
+            <td>Accept</td>
+            <td>Reject</td>
+        </tr>
+
+        {{#suggestions}}
+		<tr>
+			<input type='hidden' name='st_newname_{{suggestion_id}}' value=''/>
+			<td class='st_title_m' id='st_display_id_{{suggestion_id}}'>{{title}}</td>
+			<td>{{category}}</td>
+			<td>
+				<a href='' onclick='WH.SuggestedTopics.editSuggestion({{suggestion_id}}); return false;'>Edit</a>
+			</td>
+			<td>
+				{{#user}} <a href='{{user_url}}' target='new'>{{user_name}}</a> {{/user}}
+				{{^user}} {{user_name}} {{/user}}
+			</td>
+			<td class='st_radio'><input type='radio' name='ar_{{suggestion_id}}' value='accept'></td>
+			<td class='st_radio'><input type='radio' name='ar_{{suggestion_id}}' value='reject'></td>
+		</tr>
+        {{/suggestions}}
+    </table>
+
+    <br/> <br/>
+
+    <table width='100%'>
+        <tr>
+            <td style='text-align:right;'>
+                <input type='submit' value='Submit' class='button secondary' />
+            </td>
+        </tr>
+    </table>
+
+</form>

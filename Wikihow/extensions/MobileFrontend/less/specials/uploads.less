@@ -1,0 +1,40 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+ul.mobileUserGallery {
+	margin: 20px @contentMargin 0;
+
+	li {
+		text-align: center;
+		padding-bottom: 20px;
+
+		p { // description
+			color: #565656;
+			line-height: 1.2;
+		}
+	}
+}
+
+.ctaUploadPhoto {
+	// FIXME: should not be required
+	margin: 0;
+	padding: 8px;
+	background-color: #F3F3F3;
+	border-bottom: 1px solid #E2E2E2;
+
+	h2 {
+		font-size: 1.25em;
+		margin: 0 0 .5em;
+		text-align: center;
+	}
+}
+
+@media all and (min-width: @wgMFDeviceWidthTablet) {
+	.beta, .alpha {
+		.ctaUploadPhoto {
+			border-bottom: none;
+			background: none;
+		}
+	}
+}

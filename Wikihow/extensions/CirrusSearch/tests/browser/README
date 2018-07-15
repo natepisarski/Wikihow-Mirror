@@ -1,0 +1,159 @@
+Browser Tests for Search
+------------------------
+
+Read https://github.com/wikimedia/mediawiki-selenium for general instructions
+regarding running tests then read the rest of this file for information
+specific to CirrusSearch.
+
+
+Setup
+-----
+
+These are browser based tests for search written using the ruby page-object gem.
+To run them you should first install rvm from rvm.io.  Go through the whole
+setup including the gnome-terminal instructions if you are using Linux and
+gnome-terminal.
+
+Then you must install the dependencies:
+ cd <this directory>
+ gem update --system
+ gem install bundler
+ bundle install
+
+Some tests have to log in.  The simplest way to get this working is to setup a
+user named 'Selenium_user' with password 'selenium123' in your wiki and give
+them all all permissions.  You can do this by running this script from your
+mediawiki directory:
+ php maintenance/createAndPromote.php --force --sysop Selenium_user selenium123
+
+Back on the machine that will be running the tests you'll have to setup the
+environment variables that contain connection information.  In bash you'd do
+this:
+ export MEDIAWIKI_USER=Selenium_user
+ export MEDIAWIKI_PASSWORD=selenium123
+ export MEDIAWIKI_URL=http://<url>/wiki/
+
+You'll have to install a bunch of plugins and set up the search index for all
+the tests to pass.  In bash you'd do this (assuming your mediawiki install path
+is /srv/mediawiki and you are using debian/ubuntu):
+ export MW_INSTALL_PATH=/srv/mediawiki
+ pushd $MW_INSTALL_PATH/..
+ if [ ! -d Elastica ]; then git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/Elastica; fi
+ if [ ! -d CirrusSearch ]; then git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/CirrusSearch; fi
+ if [ ! -d TimedMediaHandler ]; then git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/TimedMediaHandler; fi
+ if [ ! -d MwEmbedSupport ]; then git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/MwEmbedSupport; fi
+ if [ ! -d PdfHandler ]; then git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/PdfHandler; fi
+ pushd mediawiki/extensions
+ if [ ! -d Elastica ]; then ln -s ../../Elastica; fi
+ if [ ! -d CirrusSearch ]; then ln -s ../../CirrusSearch; fi
+ if [ ! -d TimedMediaHandler ]; then ln -s ../../TimedMediaHandler; fi
+ if [ ! -d MwEmbedSupport ]; then ln -s ../../MwEmbedSupport; fi
+ if [ ! -d PdfHandler ]; then ln -s ../../PdfHandler; fi
+ sudo su -c 'crontab -u www-data -l' > /tmp/www-data-crontab
+ echo '* * * * * php /srv/mediawiki/maintenance/runJobs.php --type webVideoTranscode --maxjobs 1 >> /tmp/mw-transcode-log' >> /tmp/www-data-crontab
+ echo '0 0 * * * rm /tmp/mw-transcode-log' >> /tmp/www-data-crontab
+ sort /tmp/www-data-crontab | uniq | sudo su -c 'crontab -u www-data -'
+ rm /tmp/www-data-crontab
+ sudo apt-get install -y oggvideotools ffmpeg ffmpeg2theora libav-tools libavcodec-extra-53 imagemagick ghostscript xpdf-utils php5-curl php5-redis
+ popd
+Then add this to your LocalSettings.php:
+ require( "$IP/extensions/Elastica/Elastica.php" );
+ require( "$IP/extensions/CirrusSearch/CirrusSearch.php" );
+ require( "$IP/extensions/MwEmbedSupport/MwEmbedSupport.php" );
+ require( "$IP/extensions/TimedMediaHandler/TimedMediaHandler.php" );
+ require_once("$IP/extensions/PdfHandler/PdfHandler.php");
+ $wgSearchType = 'CirrusSearch';
+ $wgOggThumbLocation = '/usr/bin/oggThumb';
+ $wgGroupPermissions['*']['deleterevision'] = true;
+ $wgFileExtensions[] = 'pdf';
+ $wgShowExceptionDetails = true;
+ $wgDebugLogFile = '/tmp/mw-log';
+ $wgCapitalLinks = false;
+
+Finally, go back to the console:
+ php CirrusSearch/maintenance/updateSearchIndexConfig.php
+ php CirrusSearch/maintenance/forceSearchIndex.php --skipLinks --indexOnSkip
+ php CirrusSearch/maintenance/forceSearchIndex.php --skipParse
+ popd
+ sudo /etc/init.d/apache2 restart
+
+
+
+Replace:
+ $wgUseInstantCommons = false
+with
+ $wgUseInstantCommons = true;
+and replace:
+ $wgEnableUploads = false
+with
+ $wgEnableUploads = true;
+
+And add an Elasticsearch server, for example:
+ $wgCirrusSearchServers = array( '10.4.1.52' );
+
+If you want to test with Redis (it is better) add this to LocalSettings.php and
+installl Redis:
+ $wgRedisPassword = 'Q6dzak4k9vjYjh341fHS';
+ $wgJobTypeConf['default'] = array(
+	'class' => 'JobQueueRedis',
+	'order' => 'fifo',
+	'redisServer' => 'localhost',
+	'checkDelay' => true,
+	'redisConfig' => array(
+		'password' => $wgRedisPassword,
+	),
+ );
+ $wgJobQueueAggregator = array(
+	'class'       => 'JobQueueAggregatorRedis',
+	'redisServer' => 'localhost',
+	'redisConfig' => array(
+		'password' => $wgRedisPassword,
+			),
+ );
+
+
+Running
+-------
+If you want to run tests against anything other than
+en.wikipedia.beta.wmflabs.org first do this:
+ export MEDIAWIKI_URL=http://your-mediawiki/wiki/
+ export MEDIAWIKI_USER=Selenium_user
+ export MEDIAWIKI_PASSWORD=selenium123
+
+To run all tests:
+ bundle exec cucumber
+To run all tests in a file:
+ bundle exec cucumber path/to/file.feature
+To run one test in a file:
+ bundle exec cucumber path/to/file.feature:LINE_NUMBER
+To run tests with a tag:
+ bundle exec cucumber -t @exact_quotes
+
+By default, the browser will close itself at the end of every scenario. If you
+want the browser to stay open after each scenario:
+ export KEEP_BROWSER_OPEN=true
+
+You can also use one browser for all tests like this:
+ export REUSE_BROWSER=true
+but doing so cause previous tests to effect one another.  Do this at your own
+risk but this should be safe for search tests and is much faster and it doesn't
+cause the browser to keep stealing your focus.
+
+
+PhantomJS and Parallel Tests
+----------------------------
+We're starting to get things working on PhantomJS so we can run them in
+parallel and we don't have to worry about Firefox stealing out focus all the
+time.  You can install PhantomJS and then try it!
+ export BROWSER=phantomjs
+ bundle exec cucumber features/prefix.feature
+Or in parallel:
+ export BROWSER=phantomjs
+ bundle exec parallel_cucumber -n5 features
+
+
+Want to Contribute Some Tests?
+------------------------------
+Interested? Read more at [How to contribute]
+(http://www.mediawiki.org/wiki/QA/Browser_testing#How_to_contribute) section of
+Browser testing page.

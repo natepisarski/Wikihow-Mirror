@@ -1,0 +1,85 @@
+<div id='current-title' data-title='{{titleText}}' class='{{platformclass}}'>
+    <div id="show-article-line"><a href='#' class="full-link" data-page-id="{{pageId}}">Show full article</a><a href='#' class="hide-full-link">Hide article</a></div>
+    <div id='willtest-buttons' class="buttons-line" data-page-id="{{pageId}}" data-rev-id="{{revId}}" data-platformid="{{platformId}}">
+        <div class='buttonstext'>{{{willTestText}}}</div>
+        <div class='buttons-desktop'>
+            <a href="#" class="skip choice op-action button secondary">{{willTestButtonNo}}</a>
+        </div>
+    </div>
+    <div id='instructions-section' class='buttons-line'>
+       {{{testingInstructionsText}}}
+    </div>
+    <div id='testing-section' class="buttons-line section" data-page-id="{{pageId}}" data-rev-id="{{revId}}" data-platformid="{{platformId}}">
+        <h2><span>{{yourResults}}</span></h2>
+        <div class='buttonstext'>{{{testingText}}}</div>
+        <div class='buttons-desktop'>
+            <a href="#" class="yes choice op-action button primary">{{testingTextYes}}</a>
+            <a href="#" class="no choice op-action button secondary">{{testingTextNo}}</a>
+            <a href="#" class="skip choice op-action button secondary">{{testingTextSkip}}</a>
+        </div>
+    </div>
+    <div id='time-verification-section' class="buttons-line section" data-page-id="{{pageId}}" data-rev-id="{{revId}}" data-platformid="{{platformId}}">
+        <h2><span>{{yourResults}}</span></h2>
+        <div class='buttonstext'>{{{verificationText}}}</div>
+        <div class='buttons-desktop'>
+            <a href="#" class="yes choice op-action button primary">{{verificationTextYes}}</a>
+            <a href="#" class="no choice op-action button secondary">{{verificationTextNo}}</a>
+            <a href="#" class="skip choice op-action button secondary">{{verificationTextSkip}}</a>
+        </div>
+    </div>
+    <div id='yesfeedback-section' class="buttons-line feedback-section section" data-page-id="{{pageId}}" data-rev-id="{{revId}}" data-platformid="{{platformId}}">
+        <h2><span>{{yourResults}}</span></h2>
+        <div class='buttonstext'>{{{yesFeedbackText}}}</div>
+        <div class='buttonstext'>{{{noFeedbackTextSecond}}}</div>
+        <div class='buttonstext'>
+            <span>{{noFeedbackProductDropText}}</span>
+            <select id='yesfeedbackselect' name='yesfeedbackproducttype'>
+                <option selected="" disabled="" value="">-- Select one --</option>
+                {{#feedbackProducts}}
+                    <option value='{{tpr_id}}'>{{tpr_name}}</option>
+                {{/feedbackProducts}}
+            </select>
+        </div>
+        <div class='buttonstext'>
+            <span>{{noFeedbackModelText}}</span>
+            <textarea id='yesfeedbackmodeltext' tabindex="1" rows='1' placeholder="{{noFeedbackModelTextPlaceholder}}"></textarea>
+        </div>
+        <div class='buttonstext'>
+            <span>{{noFeedbackVersionText}}</span>
+            <textarea id='yesfeedbackversiontext' tabindex="2" rows='1' placeholder="{{noFeedbackVersionTextPlaceholder}}"></textarea>
+        </div>
+        <div class='buttons-desktop'>
+            <a href="#" tabindex="3" class="yes choice op-action button primary">{{yesFeedbackSubmit}}</a>
+            <a href="#" tabindex="4" class="skip choice op-action button secondary">{{yesFeedbackSkip}}</a>
+        </div>
+    </div>
+    <div id='nofeedback-section' class="buttons-line feedback-section section" data-page-id="{{pageId}}" data-rev-id="{{revId}}" data-platformid="{{platformId}}">
+        <h2><span>{{yourResults}}</span></h2>
+        <div class='buttonstext'>{{{noFeedbackText}}}</div>
+        <textarea id='nofeedback-mainfeedback' tabindex="1" rows="3" placeholder="{{noFeedbackTextareaPlaceholder}}"></textarea>
+        <div class='buttonstext'>{{{noFeedbackTextSecond}}}</div>
+        <div class='buttonstext'>
+            <span>{{noFeedbackProductDropText}}</span>
+            <select id='nofeedbackselect' name='nofeedbackproducttype'>
+                <option selected="" disabled="" value="">-- Select one --</option>
+                {{#feedbackProducts}}
+                    <option value='{{tpr_id}}'>{{tpr_name}}</option>
+                {{/feedbackProducts}}
+            </select>
+        </div>
+        <div class='buttonstext'>
+            <span>{{noFeedbackModelText}}</span>
+            <textarea id='nofeedbackmodeltext' tabindex="2" rows='1' placeholder="{{noFeedbackModelTextPlaceholder}}"></textarea>
+        </div>
+        <div class='buttonstext'>
+            <span>{{noFeedbackVersionText}}</span>
+            <textarea id='nofeedbackversiontext' tabindex="3" rows='1' placeholder="{{noFeedbackVersionTextPlaceholder}}"></textarea>
+        </div>
+        <div class='buttons-desktop'>
+            <a href="#" tabindex="4" class="yes choice op-action button primary">{{noFeedbackSubmit}}</a>
+            <a href="#" tabindex="5" class="skip choice op-action button secondary">{{noFeedbackSkip}}</a>
+        </div>
+    </div>
+    <div id='tool-data-line'>{{{tool_info}}}</div>
+    <div style="clear: both;"></div>
+</div>

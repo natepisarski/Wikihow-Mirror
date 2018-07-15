@@ -1,0 +1,34 @@
+#wh_modal {
+	width: 450px;
+}
+
+#wh_modal_top {
+	text-align: left;
+	font-size: 1.1em;
+	padding: .7em;
+}
+
+.wh_modal_section {
+	text-align: left;
+}
+
+.wh_modal_text {
+	font-size: 1em;
+	padding-bottom: 1em;
+}
+
+.wh_modal_textarea {
+	width: 96%;
+	height: 4em;
+	margin-bottom: 1em;
+	border: 1px solid #D3D3D3;
+	border-radius: 4px;
+}
+
+#wh_modal_buttons {
+	text-align: center;
+}
+
+#wh_modal_buttons .button {
+	width: 196px;
+}

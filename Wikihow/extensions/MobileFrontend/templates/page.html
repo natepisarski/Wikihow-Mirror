@@ -1,0 +1,39 @@
+{{#inBetaOrAlpha}}
+<a href="{{historyUrl}}" id="mw-mf-last-modified" data-timestamp="{{lastModifiedTimestamp}}"
+	data-user-name="{{lastModifiedUserName}}" data-user-gender="{{lastModifiedUserGender}}" class="top-bar	"
+	></a>
+{{/inBetaOrAlpha}}
+<div class="pre-content">
+	<h1 id="section_0">{{displayTitle}}</h1>
+	<ul id="page-actions" class="hlist">
+		<li id="ca-edit"></li><li id="ca-upload">
+		</li><li id="ca-talk" class="{{#isTalkPage}}selected{{/isTalkPage}}"><a href="{{talkLink}}" id="talk">{{talkLabel}}</a>
+		</li><li id="ca-watch"></li>
+	</ul>
+</div>
+<div id="content" class="content">
+	<div>{{{lead}}}</div>
+	{{#sections}}
+	<h2 data-id="{{id}}">
+		<span id="{{anchor}}">{{{line}}}</span>
+		<a href="#editor/{{id}}" data-section="{{id}}" class="edit-page">{{editLabel}}</a>
+	</h2>
+	<div
+		data-references="{{isReferences}}"
+		data-content="{{text}}">
+	</div>
+	{{/sections}}
+	{{#inBetaOrAlpha}}
+	{{#hasLanguages}}
+	<div id="page-secondary-actions">
+		<a class="mw-ui-button mw-ui-progressive button languageSelector">{{languageLabel}}</a>
+	</div>
+	{{/hasLanguages}}
+	{{/inBetaOrAlpha}}
+	{{^inBetaOrAlpha}}
+	<div class="section" id="mw-mf-language-section"></div>
+	<a href="{{historyUrl}}" id="mw-mf-last-modified" data-timestamp="{{lastModifiedTimestamp}}"
+		data-user-name="{{lastModifiedUserName}}" data-user-gender="{{lastModifiedUserGender}}"
+		></a>
+	{{/inBetaOrAlpha}}
+</div>

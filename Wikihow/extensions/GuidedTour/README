@@ -1,0 +1,50 @@
+This is GuidedTour ( https://www.mediawiki.org/wiki/Extension:GuidedTour ), a
+MediaWiki extension that allows the creation of guided tours.
+
+It supports both extension-defined tours (with localization) and tours defined by editing
+the MediaWiki namespace.
+
+To use:
+* Install the EventLogging extension, which is a dependency.
+* Put the extension files in your extension directory
+* Add the following line to your LocalSettings.php
+require_once "$IP/extensions/GuidedTour/GuidedTour.php";
+* Test that it worked by calling a page with tour=test appended to the URL. For
+example http://MyServer/w/index.php?tour=test
+
+'test' is a tour defined by the GuidedTour extenion.
+* Write an on-wiki tour on a page in the MediaWiki namespace.  Perhaps called
+MediaWiki:Guidedtour-tour-mytour.js
+
+Use this naming convention regardless of name. 'mytour' is the name of this
+local tour.
+* Call your intended page with tour=mytour appended to the URL. For example
+http://MyServer/w/index.php?tour=mytour
+* The name of the tour is the parameter you call it with.
+In the examples above, that's 'test' and 'mytour'
+
+* To style the output provide a file of overrides on the wiki page
+MediaWiki:Guidedtour-custom.css
+
+License
+
+This is free software.
+
+For the main GuidedTour code and Guiders.js:
+
+You may use, modify and distribute it under the terms of
+the Apache License 2.0.
+
+The mediawiki.libs.guiders directory is based on Guiders.js, developed by Optimizely
+and Jeff Pickhardt.
+See https://github.com/jeff-optimizely/Guiders-JS
+
+Further enhancements to Guiders.js were developed by the GuidedTour team.  Earlier
+work is at https://git.wikimedia.org/log/mediawiki%2Fextensions%2FGuidedTour%2Fguiders.git
+
+but that repository is no longer used.
+
+For the .docs dir, the MIT license applies:
+
+Copyright (c) 2011-2013 VisualEditor Team, E3 team and others under the terms
+of The MIT License.

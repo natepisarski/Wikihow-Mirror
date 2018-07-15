@@ -1,0 +1,311 @@
+.uci_voter .avatar {
+	width:auto;
+}
+
+.wh_block {
+	padding: 12px;
+}
+
+.tip_bubble_outer .tip_bubble {
+	z-index:10;
+	margin:0px;
+	left: 40%;
+	top: -90px;
+}
+
+#bodycontents {
+	margin-top:-28px;
+}
+
+#uci {
+	margin-top:-20px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#uci_img_wrap { 
+	margin-top: 0;
+	text-align: center;
+}
+#uci_img_spinner {
+	position: absolute;
+	margin: 100px 0 0 -15px;
+}
+
+#uci_img { 
+	margin: 0 auto;
+	max-height: 300px;
+	max-width: 450px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	position: relative;
+	z-index: 1;
+}
+
+#uci_header h1{
+	margin:15px 0 10px 0;
+}
+
+.uci_buttons {
+	width: 100%;
+	padding: 1px;
+	height: 56px;
+	text-align: center;
+}
+
+.uci_patrol_buttons {
+	top: 32px;
+	position: absolute;
+}
+
+.uci_button {
+	margin-left: 8px;
+	margin-top: 8px;
+}
+
+.uci_button_right{
+	float:right;
+}
+
+.uci_button_left {
+	float:left;
+}
+
+
+.uci_good, .uci_bad {
+	margin-left: 2px;
+	margin-right:8px;
+	margin-top: 8px;
+	width: 40px;
+	text-align:center;
+}
+
+#uci_upvotes {
+	float:right;
+	margin-left: 10px;
+	margin-top:15px;
+	margin-right:10px;
+}
+
+#uci_article #featurestar{
+	display: none;
+}
+
+#uci_complete_message {
+	color: #363;
+	font-size: 30px;
+	font-weight: normal;
+	margin-bottom: 5px;
+}
+
+#uci_complete_sub {
+	margin-bottom: 10px;
+}
+
+#uci_voters {
+	display: table;
+	margin-top: 100px;
+	margin-right: auto;
+	margin-bottom: 0px;
+	margin-left: auto;
+	text-align: center;
+}
+
+.uci_vote_no {
+	margin-top: 3px;
+	background:url("/extensions/wikihow/ucipatrol/no.png");
+	background-repeat: no-repeat;
+	background-position: 18px 0px;
+}
+
+.uci_vote_no:after {
+	content:"No";
+	font-size: 17px;
+	color: darkred;
+	margin-left: 24px;
+}
+
+.admin_vote_yes {
+	margin-top: 3px;
+	background:url("/extensions/wikihow/ucipatrol/yes.png");
+	background-repeat: no-repeat;
+	background-position: 70px 0px;
+}
+
+.admin_vote_yes:after {
+	content:"Yes";
+	font-size: 17px;
+	color: #363;
+	margin-left: 23px;
+}
+
+.uci_vote_yes {
+	margin-top: 3px;
+	background:url("/extensions/wikihow/ucipatrol/yes.png");
+	background-repeat: no-repeat;
+	background-position: 14px 0px;
+}
+
+.uci_vote_yes:after {
+	content:"Yes";
+	font-size: 17px;
+	color: #363;
+	margin-left: 23px;
+}
+
+
+.uci_voter a {
+	color: #363;
+}
+
+.uci_voter {
+	width: 80px;
+	height: 80px;
+	background-color: rgba(147, 184, 116, 0.4);
+	display: inline-block;
+	float: none;
+	margin: 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	vertical-align: top;
+}
+
+.uci_voter_placeholder {
+	/* default fallback */
+	background: rgb(147, 184, 116) transparent;
+	/* nice browsers */
+	background: rgba(147, 184, 116, 0.4);
+	/* IE 6/7 */
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#6693B874, endColorstr=#6693B874);
+	/* IE8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#6693B874, endColorstr=#6693B874)";
+}
+
+.admin_voter {
+	width: 192px;
+	background-color:transparent;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.uci_voter img {
+	border-radius: 4px;
+}
+
+.admin_voter img {
+	border-radius: 4px;
+	margin-left:8px;
+	margin-right:8px;
+}
+
+#uci_votecomplete {
+	position: absolute;
+	top:32px;
+	width: 100%;
+	height: 100%;
+	padding: 1px;
+	display: none;
+	z-index: 2;
+
+	/* default fallback */
+	background: rgb(255, 255, 255) transparent;
+	/* nice browsers */
+	background: rgba(255, 255, 255, 0.8);
+	/* IE 6/7 */
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#CCFFFFFF, endColorstr=#CCFFFFFF);
+	/* IE8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#CCFFFFFF, endColorstr=#CCFFFFFF)";
+}
+
+#uci_errortest{
+	margin-top: 8px;
+	float:left;
+	margin-left:0;
+	display:none;
+}
+
+#uci_resetskip{
+	margin-top: 8px;
+	float:left;
+	margin-left:0;
+	display:none;
+}
+
+.tool_count {
+	width:auto;
+}
+
+#uci_count_val{
+	margin-left:5px;
+	color: #555;
+	float:right;
+}
+
+#uci_count_title{
+	color: #555;
+	float:right;
+}
+
+#uci_waiting_spinner img {
+	position:absolute;
+	top:50%;
+}
+
+#uci_waiting {
+	text-align:center;
+	position: absolute;
+	top:32px;
+	width: 100%;
+	height: 100%;
+	padding: 1px;
+	z-index: 2;
+
+	/* default fallback */
+	background: rgb(255, 255, 255) transparent;
+	/* nice browsers */
+	background: rgba(255, 255, 255, 0.8);
+	/* IE 6/7 */
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#CCFFFFFF, endColorstr=#CCFFFFFF);
+	/* IE8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#CCFFFFFF, endColorstr=#CCFFFFFF)";
+}
+
+
+#uci_header a.clickfail {
+	color: #888;
+	cursor: default;
+	background-position: 0 -78px;
+}
+
+#uci_header a.clickfail:hover { 
+	text-decoration: none;
+	background-position: 0 -78px; 
+}
+
+h1.firstHeading a:hover {
+	text-decoration: underline;
+}
+
+#uci_article{
+	padding-top: 10px;
+}
+
+#uci_results {
+	display: none;
+	margin: -25px 0 30px 0;
+	padding: 10px 0;
+}
+
+#uci_header {
+	padding: 0px;
+	border: 0px;
+	margin-bottom: 20px;
+	position: relative;
+}
+
+#uci_keys {
+    float: right;
+    font-size: 10px;
+    margin-top: -45px;
+}

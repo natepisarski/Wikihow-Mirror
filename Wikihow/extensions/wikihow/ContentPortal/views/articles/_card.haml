@@ -1,0 +1,51 @@
+
+.panel.panel-default.article-card.animated.fadeIn{id: "article-#{$article->id}"}
+	.panel-heading
+		%a.ajax-info{href: url('articles/info', ['id' => $article->id])}
+			%i.fa.fa-info-circle
+			= $article->title
+
+	.panel-body
+		.row.metadata
+			.col-lg-6
+				.item
+					%label Category:
+					%span.val
+						= $article->category->title
+
+				- if ($article->exists())
+					.item
+						%label WikiHow:
+						%a.small.val{href: $article->wh_article_url, target: "_blank"}
+							%i.fa.fa-external-link
+							View Article
+
+				.item
+					%label
+						State:
+						- if ($article->state)
+							%span.val.label{class: "label-#{cssClass($article->state->key)}"}
+								= $article->state->present_tense
+
+						- else
+							%span.label.label-danger None
+
+						- if ($article->rejected)
+							%span.label.label-danger Returned
+
+
+			.col-lg-6
+				.item
+					%label Created:
+					%span.val= timeAgo($article->created_at)
+
+				.item
+					%label Updated:
+					%span.val= timeAgo($article->updated_at)
+		.message-container
+			- foreach($article->notesForState() as $note)
+				!= partial('notes/_note', ['note' => $note])
+
+	.panel-footer
+		!= partial('articles/_actions', ['article' => $article])
+

@@ -1,0 +1,66 @@
+
+- if (isset($roles))
+	- foreach($roles as $role)
+		- $filtered = filterByRole($articles, $role)
+
+		- if (count($filtered) > 0)
+			.panel.panel-default.bulk-block.group{id: "panel-#{$role->id}", class: $role->bulk_action_allowed ? '' : 'disabled'}
+				.panel-heading
+					%label
+						%input.toggle-all{type: "checkbox", id: "#{$role->id}-select-all", "data-panel" => "#panel-#{$role->id}"}
+						= $role->present_tense
+
+				%form{action: url("bulk/done"), method:"post"}
+					- foreach($articles as $article)
+						%input{type: "hidden", name: "all_articles_ids[]", value: $article->id}
+						%input{type: "hidden", name: "role_id", value: $role->id}
+
+					.panel-body
+						%table.table.table-striped.table-condensed
+							%tbody
+								- foreach($filtered as $article)
+									%tr
+										%td(width="20px")
+											%input{type:"checkbox", name:"article_ids[]", value: $article->id}
+
+										%td
+											%a{href: url('articles/show', ['id' => $article->id])}
+												= $article->title
+
+										%td= $article->category->title
+										%td= $article->updated_at->format('m/d/Y h:m a')
+										%td= articlesUsername($article)
+
+					- if ($role->bulk_action_allowed)
+						.panel-footer{id: $role->key}
+							- if ($role->nextStep()->canAssign())
+								.radio
+									%label
+										%input.assign-toggle(name="assign" type="radio" value="true")
+											= "Mass assign {$role->nextStep()->title} to checked articles"
+
+								.radio
+									%label
+										%input.assign-toggle(name="assign" type="radio" value="false" checked="true")
+											Leave assignments alone
+
+								.form-group.assign-selector.hide
+									%label Select Asignee
+									%select.form-control(name="assigned_id" disabled="true")
+										%optgroup(label="Compatable Users")
+											- foreach($role->nextStep()->users as $user)
+												%option{value: $user->id}= $user->username
+
+										%optgroup(label="Admin Users")
+											- foreach(adminUsers() as $user)
+												%option{value: $user->id}= $user->username
+
+							.form-group
+								%button.btn.btn-info(type="submit")
+									= "Move selected articles to {$role->nextStep()->present_tense}"
+								- if ($role->key == $role->complete()->key)
+									%button.btn.btn-warning(type="button" id="complete_to_editing")
+										= "Remove from {$role->complete()->present_tense} (back to {$role->edit()->present_tense})"
+								- elseif ($role->key == $role->verify()->key)
+									%button.btn.btn-warning(type="button" id="verify_to_complete")
+										= "Remove from {$role->verify()->present_tense} (back to {$role->complete()->present_tense})"

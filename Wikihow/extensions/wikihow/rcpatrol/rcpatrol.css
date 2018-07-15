@@ -1,0 +1,148 @@
+.tool h4 {
+	background-color: inherit;
+}
+
+span.mw-rollback-link {
+	display: none;
+}
+
+#mw-diff-ntitle2a, #mw-diff-ntitle4 {
+	display: none;
+}
+
+#feature_star, #markaspatrolledlinks, #fulledit, #undolink, #feature_star {
+	display: none;
+
+}
+
+#controls {
+	text-align: right;
+	font-size: 0.9em;
+}
+
+select.namespaceselector {
+	font-size: 11px;
+}
+
+table.rcleaders {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+table.rcleaderboard {
+	margin-top: 10px;
+}
+
+.rcleaders tr.dashed td {
+	border-bottom: 1px dashed #cccccc;
+	padding-bottom: 5px;
+}
+
+td.rcleaderimg {
+	width: 42px;
+}
+
+table.rcleaders img {
+	height: 32px;
+}
+
+table.rcleaders td {
+	padding: 5px 0 0 0;
+}
+
+table.rcleaderboard td {
+	border-bottom: 1px dashed #ccc;
+	padding-top: 2px;
+}
+
+td.patrolcount {
+	text-align: right;
+	color: #000;
+}
+
+#mw-diff-otitle2, #mw-diff-ntitle2 {
+	font-size: 12px;
+}
+
+#rc_header {
+	margin-bottom: 0;
+	padding: 10px 25px;
+}
+
+.rc_header .button {}
+
+.rc_header input.button {}
+
+#rc_help {
+	display: none;
+	clear: both;
+	padding-top: 15px;
+}
+
+.rc_submenu {
+	display: none;
+}
+
+.rc_submenu td {}
+
+#rc_subtabs {
+	margin: 10px 0 0 0;
+}
+
+#rc_subtabs div {
+	float: left;
+	margin-right: 10px;
+}
+
+#rc_subtabs a {
+	line-height: 20px;
+	font-size: 11px;
+}
+
+#rc_subtabs .on a {
+	font-weight: bold;
+}
+
+#rcactivewidget {
+	padding:5px 0;
+}
+
+.rchelp {
+	font-size: 10px;
+	font-weight: normal;
+	float: right;
+}
+
+#rcpatrol_keys {
+	float: right;
+	font-size: 10px;
+	margin-top: -30px;
+}
+
+#rc_helplink {
+	margin-top: -30px;
+}
+
+.rcp_err {
+	position: fixed;
+	bottom: 0;
+	right: 10px;
+	width: 190px;
+	background-color: #F9F7F1;
+	z-index: 10;
+	border-top: 1px solid #aaa;
+	border-left: 1px solid #aaa;
+	border-right: 1px solid #aaa;
+	font-size: 13px;
+	padding: 3px 2px 1px 7px;
+}
+
+.rcp_err_dump {
+	border-bottom: 1px solid #aaa;
+	padding-bottom: 5px;
+	margin-bottom: 8px;
+}
+
+.rcp_template_list {
+	margin: 3px 0 13px;
+}

@@ -1,0 +1,38 @@
+{{#show_top_box}}
+<div id="social_proof_sidebox" class="sidebox {{#arrow_box}}arrow_box{{/arrow_box}}">
+	{{^expert}}<h3>{{section_name}}</h3>{{/expert}}
+	<div id="sp_inner">
+		{{#expert}}
+			{{> expert_section}}
+		{{/expert}}
+
+		{{#difficult_article}}
+		<div id="sp_difficult_box" class="sp_box sp_box_hoverable">
+			<div class="sp_icon_bg" ></div>
+			<div class="sp_difficult_icon"></div>
+			{{sp_difficult}}
+		</div>
+		{{/difficult_article}}
+
+		{{^helpful_sidebox}}
+			{{> stars}}
+		{{/helpful_sidebox}}
+
+		{{> social_stats}}
+
+		<div class="clearall"></div>
+	</div>
+</div>
+{{/show_top_box}}
+
+{{#helpful_sidebox}}
+<div id="sp_star_box" class="sidebox social_sidebox">
+	{{> stars}}
+</div>
+{{/helpful_sidebox}}
+
+{{^show_top_box}}
+<div id="sp_stats_sidebox" class="sidebox social_sidebox">
+	{{> social_stats}}
+</div>
+{{/show_top_box}}

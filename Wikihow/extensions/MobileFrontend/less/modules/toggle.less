@@ -1,0 +1,44 @@
+/* Styling of sections and toggling
+moved from beta_common.css in
+Change-Id: I683d029d09340a460b02016c5c4fbd6ada5a9b35
+
+FIXME: Rename section_heading to section-heading and content_block to section-content (Avoid caching problems)
+*/
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+.content_block {
+	width: 100%; // bug 41401 - without this content doesn't always take up whole width
+}
+
+.client-js {
+	.section_heading,
+	.content_block {
+		border-bottom: solid 1px @sectionBorderColor;
+		clear: both;
+	}
+
+	.section_heading {
+		position: relative;
+        /* @embed */ background: url(images/show.png) left 1.05em no-repeat;
+		.background-size( 15px, auto );
+		padding-left: 24px;
+		cursor: pointer;
+
+		&.openSection {
+			background-image: url(images/hide.png);
+			padding-right: @sectionIconWidth + 15px;
+			border-bottom: solid 1px @sectionBorderColor;
+			margin-bottom: @headingMargin;
+		}
+	}
+
+	.content_block {
+		display: none;
+
+		&.openSection {
+			display: block;
+		}
+	}
+}

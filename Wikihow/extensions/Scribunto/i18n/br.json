@@ -1,0 +1,13 @@
+{
+	"@metadata": {
+		"authors": [
+			"Fohanno",
+			"Y-M D"
+		]
+	},
+	"scribunto-ignore-errors": "Aotren enrollañ kod gant fazioù",
+	"scribunto-line": "d'al linenn $1",
+	"scribunto-module-line": "e $1 d'al linenn $2",
+	"scribunto-console-clear": "Riñsañ",
+	"scribunto-module-with-errors-category-desc": "Ur fazi a zo er modulenn."
+}

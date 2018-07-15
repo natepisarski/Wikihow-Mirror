@@ -1,0 +1,26 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+@watchThisArticleSize: 48px;
+
+// watchlist and search results
+.page-list .watch-this-article {
+	position: absolute;
+	right: 0;
+	top: 50%;
+	margin-top: -(@watchThisArticleSize / 2);
+	width: @watchThisArticleSize;
+	height: @watchThisArticleSize;
+	.background-size( auto, (@watchThisArticleSize / 2) );
+}
+
+.animations {
+	.watch-this-article {
+		.transition-transform( .5s );
+
+		&.watched {
+			.transform( rotate(72deg) );
+		}
+	}
+}

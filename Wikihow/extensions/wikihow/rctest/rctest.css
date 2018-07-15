@@ -1,0 +1,105 @@
+#rct_data {
+	display: none;
+}
+
+#rct_debug {
+	display: block !important;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: yellow;
+}
+
+#rct_results {
+	display: none;
+	margin: -25px 0 30px 0;
+	padding: 10px 0;
+}
+
+#rct_next_button {
+	margin-left: auto;
+	margin-right: auto;
+	width: 52px;
+	display: block;
+}
+
+#rct_heading {
+	font-size: 1.5em;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.rct_section {
+	font-size: 1.2em;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+#rct_results p {
+	margin-bottom: 10px;
+}
+
+#rct_border {
+	padding: 10px;
+
+	border: 2px solid #e5e5e5
+	-moz-border-radius-topright: 4px;
+	-moz-border-radius-topleft: 4px;
+	-moz-border-radius-bottomright: 4px;
+	-moz-border-radius-bottomleft: 4px;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+.rct_background_incorrect {
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 9%, #efdcdc 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(9%,#ffffff), color-stop(100%,#efdcdc)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 9%,#efdcdc 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 9%,#efdcdc 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 9%,#efdcdc 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#efdcdc',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #ffffff 9%,#efdcdc 100%); /* W3C */
+}
+
+.rct_background_neutral {
+	background: #f3ecdf; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 13%, #f2eee6 62%, #f3ecdf 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(13%,#ffffff), color-stop(62%,#f2eee6), color-stop(100%,#f3ecdf)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 13%,#f2eee6 62%,#f3ecdf 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 13%,#f2eee6 62%,#f3ecdf 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 13%,#f2eee6 62%,#f3ecdf 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f3ecdf',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #ffffff 13%,#f2eee6 62%,#f3ecdf 100%); /* W3C */
+}
+
+.rct_background_correct {
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 9%, #dcefdc 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(9%,#ffffff), color-stop(100%,#dcefdc)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 9%,#dcefdc 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 9%,#dcefdc 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 9%,#dcefdc 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#dcefdc',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #ffffff 9%,#dcefdc 100%); /* W3C */
+}
+
+#rct_img {
+	width: 129px;
+	height: 99px;
+	float:right;
+}
+
+.rct_correct {
+	background: url(/skins/WikiHow/images/rct_sprite.png) 0px 0px no-repeat;
+}
+
+.rct_incorrect {
+	background: url(/skins/WikiHow/images/rct_sprite.png) 0px -99px no-repeat;
+}
+
+.rct_skip {
+	background: url(/skins/WikiHow/images/rct_sprite.png) 0px -198px no-repeat;
+}

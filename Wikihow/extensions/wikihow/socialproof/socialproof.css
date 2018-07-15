@@ -1,0 +1,24 @@
+.expert_data th {
+    text-align: left;
+}
+
+.instructions {
+    text-align: center;
+    margin-top: -24px;
+}
+
+.mousewithin {
+  background-image:none;
+}
+
+.sp_helpful_icon_star.mousevote,
+.sp_helpful_icon_star.mousedone {
+ background-image: url(star.png);
+/* @embed */
+ background-image: url(star.svg);
+ width: 100% !important;
+}
+
+#sp_helpful_box{
+	display: block;
+}

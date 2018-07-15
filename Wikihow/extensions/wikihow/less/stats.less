@@ -1,0 +1,46 @@
+@import './variables.less';
+
+.stats-container {
+	display: block;
+	overflow: hidden;
+	background-color: @grayLight;
+	padding: @margin;
+	border: 1px solid lighten(@grayMedium, 20%);
+}
+
+table.stats-table {
+	border-spacing: 0px;
+   // border-collapse: separate;
+   font-size: 13px;
+	// border: 1px solid @grayMedium;
+
+	th {
+		text-align: left;
+		padding: @margin;
+		background-color: @grayLight;
+		color: black;
+	}
+
+	tr {
+		background-color: lighten(@grayMedium, 25%);
+		border: 1px solid @grayMedium !important;
+	}
+
+	tr:nth-child(odd) {
+		background-color: white;
+		margin: 0;
+	}
+
+	td {
+		padding: @margin;
+		margin: 1px;
+
+		&.percent {
+			&:after {
+				display: inline-block;
+				margin-left: -3px;
+				content: '%';
+			}
+		}
+	}
+}

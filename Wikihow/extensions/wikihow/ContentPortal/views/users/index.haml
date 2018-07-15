@@ -1,0 +1,113 @@
+
+.row
+	.col-md-8
+		.well
+			%h2 Users
+			%p.lead
+				Below are all users of the system. You can add, edit and disable users here.
+				%br
+				%mark A disabled user cannot access the system, and all their assignments are released on deactivation.
+
+	.col-md-4
+		.panel.panel-default
+			.panel-heading
+				Create a new user
+
+			.panel-body
+				Add a new user and assign roles and work.
+				%hr
+				%a.btn.btn-primary.btn-block{href: url('users/new')}
+					%i.fa.fa-user-plus
+					Create User
+
+
+.well
+
+	%ul.nav.nav-tabs
+		%li{role:"presentation", class: params('disabled', false) == false ? 'active' : '' }
+			%a{href: url('users/index', ['disabled' => false]) }
+				Active users
+
+		%li{role: "presentation", class: params('disabled', false) == true ? 'active' : '' }
+			%a{href: url('users/index', ['disabled' => true]) }
+				Disabled Users
+
+
+	.well-body
+		!= paginate()
+
+		%table.table.table-striped
+			%thead
+				%tr
+					!= sortHeader('Username', 'username')
+					%th Roles
+					!= sortHeader('Category', 'category_id');
+					!= sortHeader('Last Seen', 'updated_at', true, 'DESC');
+					!= sortHeader('Nightly', 'send_mail', true, 'DESC');
+					!= sortHeader('Established', 'is_established', true, 'DESC');
+					!= sortHeader('Assignments', 'busy', false, 'DESC')
+
+					%th &nbsp;
+
+			%tbody
+				- foreach ($users as $user)
+					%tr
+						%td
+							%a.ajax-info{href: url('users/info', ['id' => $user->id])}
+								%i.fa.fa-info-circle
+								= $user->username
+
+						%td
+							- foreach ($user->user_roles as $assoc)
+								- $role = $assoc->role;
+
+								%span{class: "label label-#{cssClass($role->key)}"}
+									= $role->title
+
+						%td
+							%span.badge
+								= $user->category->title
+
+						%td= timeAgo($user->updated_at)
+
+						%td.text-center
+							- if ($user->send_mail)
+								%i.fa.fa-envelope-o
+
+						%td.text-center
+							- if ($user->is_established)
+								%i.fa.fa-check-circle
+
+
+						%td.text-center
+							%span.badge= count($user->active_articles)
+
+						%td.text-right
+							.btn-group
+								%button(type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false")
+									%i.fa.fa-cog
+									%span.caret
+
+								%ul.dropdown-menu.dropdown-left
+									%li
+										%a{href: url("users/edit", ["id" => $user->id])}
+											%i.fa.fa-pencil
+											Edit
+
+									%li
+										%a{href: url('events/user', ['user_id' => $user->id])}
+											%i.fa.fa-list
+											Activity
+
+									%li.divider
+
+									%li
+										%a{href: url("impersonate/create", ["id" => $user->id]) }
+											%i.fa.fa-user-secret
+											Impersonate
+
+		!= paginate()
+
+!= partial('shared/_info_modal')
+
+

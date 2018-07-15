@@ -1,0 +1,25 @@
+<h4>Instructions</h4>
+<p>
+To change an expert name:
+<ol>
+	<li>Submit the name change below.</li>
+	<li>Go to the <a href="{{sheetlink}}" target="_blank">Master Expert Verified Sheet</a> and use Find and Replace to change all instances of the current name to the new name in BOTH the vlookup tab and the individual article tab (Expert, Community, etc).</li>
+	<li>Reimport the master sheet <a href="/Special:AdminSocialProof" target="_blank">here</a>.</li>
+</ol>
+</p>
+<form id="enc_form">
+Current name:
+	<select name="enc_oldname" id="enc_oldname" required="required">
+		<option disabled="disabled" selected="selected">Choose name</option>
+		{{#experts}}
+			<option value="{{id}}">{{name}}</option>
+		{{/experts}}
+	</select><br /><br />
+
+New name: <input type="text" name="enc_newname" id="enc_newname" /><br /><br />
+	
+	<input type="submit"/>
+</form>
+<p id="enc_result" style="display: none;">
+	Name change successful.<br/><br />IMPORTANT: Now go to the <a href="{{sheetlink}}" target="_blank">Master Expert Verified Sheet</a> and change all instances of <span id="enc_changel_old" style="font-weight: bold;"></span> to <span id="enc_change_new" style="font-weight: bold;"></span> in all tabs.
+</p>

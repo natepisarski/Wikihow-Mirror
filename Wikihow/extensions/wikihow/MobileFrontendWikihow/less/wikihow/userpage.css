@@ -1,0 +1,274 @@
+#user_head {
+	background-color: #FFF;
+	text-align: center;
+	padding-top: 10px;
+	margin: 0 -5px 20px;
+}
+
+#user_head p {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.avatar {
+	-moz-border-radius: 30px;
+	-webkit-border-radius: 30px;
+	border-radius: 30px;
+}
+
+#user_head_tabs {
+	width: 100%;
+	display: table;
+	margin-top: 10px;
+	border-bottom: 1px solid #DDD;
+}
+#user_head_tabs a {
+	width: 50%;
+	display: table-cell;
+	height: 2.5em;
+	vertical-align: middle;
+}
+#uht_profile { border-right: 1px solid #DDD; }
+a.uht_off, a.uht_off:visited { color: #606060; }
+
+#user_head_tabs .icon {
+	background-image: url(../../images/wikihow/userpage_sprite.png);
+	background-repeat: no-repeat;
+	width: 15px;
+	height: 12px;
+	display: inline-block;
+	background-size: 80px;
+	margin-right: 5px;
+}
+#uht_profile .icon { background-position: 4px 1px; }
+#uht_profile.uht_off .icon { background-position: -21px 1px; }
+#uht_talk .icon { background-position: 0 -19px; }
+#uht_talk.uht_off .icon { background-position: -21px -19px; }
+#user_head_tabs  #uht_carat {
+	position: absolute;
+	background-position: 0 -40px;
+	margin: 28px 0 0 18px;
+	width: 21px;
+}
+#user_head_tabs  .uht_off #uht_carat { display: none; }
+
+.userpage_section { 
+	text-align: center;
+	margin-bottom: 1em;
+}
+
+/*BADGES*/
+.pb_badge_section a { 
+	float: left;
+	width: 50%;
+}
+.pb-badge {
+	background-image: url(../../images/wikihow/userpage_sprite.png);
+	background-repeat: no-repeat;
+	display: inline-block;
+	height: 67px;
+	width: 80px;
+	background-size: 80px;
+	margin: 10px 22px;
+	text-align: center;
+	vertical-align: bottom;
+	position: relative;
+}
+.pb-nab { background-position: 3px -57px; }
+.pb-admin { background-position: 4px -215px; }
+.pb-fa { background-position: 0 -135px; }
+.pb-welcome { background-position: 0 -296px; }
+
+.pb-badge div { 
+	position: absolute;
+	height: 23px;
+	bottom: 0px;
+	width: 80px;
+	display: table;
+}
+.pb-badge p {
+	vertical-align: middle;
+	line-height: .95em !important;
+	letter-spacing: .1em;
+	color: #FFF;
+	font-size: .65em;
+	font-weight: bold;
+	display: table-cell;
+	width: 80px;
+}
+
+/*User_talk comments*/
+.de, .discussion_entry, #discussion_entry {
+    padding: 15px;
+    margin: 15px 0 15px 65px;
+    position: relative;
+    background-color: #FFF;
+	border: 1px solid #DDD;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.de_comment, .discussion_entry_comment {
+    margin-bottom: 2em;
+    font-size: .9em;
+}
+
+.de_comment p {
+    margin-bottom: 10px;
+}
+
+.de_comment ul, .discussion_entry_comment ul {
+    padding-left:15px;
+}
+
+.de_comment .mwimg.tright { float: none; }
+
+.de_date, .discussion_entry_date {
+    font-size: .8em;
+    color: #ABABAB;
+    font-style: italic;
+	position: absolute;
+	bottom: 0;
+}
+
+.de_user, .postcomment_usericon {
+	position: absolute;
+	top: 0;
+	left: -75px;
+	width: 63px;
+	font-size: .8em;
+    font-weight: bold;
+	text-align: center;
+	line-height: 1.3em !important;
+	padding: 12px 5px 0;
+}
+
+.user_kudos .de_user {
+	width: auto;
+	text-align: left;
+	padding: 12px 0 0 0;
+	position: relative;
+	left: 0;
+}
+
+.de_user img, .postcomment_usericon img {
+    width: 40px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+}
+.user_kudos .de_user img { 
+	position: absolute;
+	left: -65px; 
+}
+
+.de_user span { display: block; }
+
+.de_user { visibility: hidden; }
+.user_kudos .de_user  { visibility: visible; }
+.de_user img, .de_user a, .de_user span { visibility: visible; }
+.de_user a { display: block; }
+.user_kudos .de_user a { display: inline; }
+
+.discussion_entry_user {
+    font-weight: bold;
+}
+
+.de_reply {
+	float: right;
+	margin-top: -10px;
+}
+.de_reply a {
+	background: url(../../images/wikihow/userpage_sprite.png) no-repeat -45px 0;
+	width: 18px;
+	height: 13px;
+	background-size: 80px;
+	display: block;
+	text-indent: -2000px;
+}
+
+.postcommentForm_textarea {
+    height: 100px;
+	width: 96%;
+    margin: 0;
+	border: 1px solid #DDD;
+	padding: 2%;
+	font-size: .9em !important;
+}
+
+.postcommentForm_buttons {
+	margin: 20px 0 0 0;
+	position: absolute;
+	right: 10px;
+}
+
+.postcommentForm_buttons .button { 
+	margin: 0 0 0 10px;
+	padding: 4px 12px !important;
+}
+
+.postcommentForm_buttons .button.secondary {
+	border: none;
+	color: #97BA78;
+	margin-right: 0px;
+}
+
+.postcommentForm_buttons .button.secondary:hover { border: none; }
+
+.postcommentForm_buttons .button.primary {
+	margin-right: 0px;
+}
+
+.postcommentForm_details {
+    font-size: .8em;
+	padding-top: 0px;
+	height: 40px;
+}
+
+.postcomment_preview .preview_header {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 3px;
+}
+
+.captcha_label {
+	padding-right: 1em;
+}
+
+#touchdown { text-align: center; }
+#touchdown a {
+	background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjkuMzc1cHgiIGhlaWdodD0iMTcuNTE2cHgiIHZpZXdCb3g9IjAgMCAyOS4zNzUgMTcuNTE2IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyOS4zNzUgMTcuNTE2IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiM5M0I4NzQiIGQ9Ik0yOS4zNzUsMmMwLDAuNTEyLTAuMTk1LDEuMDIyLTAuNTg2LDEuNDE0TDE0LjY4OCwxNy41MTZMMC41ODYsMy40MTRjLTAuNzgxLTAuNzgxLTAuNzgxLTIuMDQ3LDAtMi44MjgNCgkJYzAuNzgxLTAuNzgxLDIuMDQ3LTAuNzgxLDIuODI4LDBsMTEuMjczLDExLjI3MkwyNS45NiwwLjU4NmMwLjc4MS0wLjc4MSwyLjA0Ny0wLjc4MSwyLjgyOCwwQzI5LjE4LDAuOTc3LDI5LjM3NSwxLjQ4OCwyOS4zNzUsMnoiDQoJCS8+DQo8L2c+DQo8L3N2Zz4NCg==');
+	background-repeat: no-repeat;
+	background-position: right;
+	background-size: 14px;
+	padding-right: 21px;
+}
+
+
+@media only screen and (min-width: 600px) and (max-aspect-ratio: 13/9), 
+only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	.pb-badge p {
+		font-size: .45em;
+	}
+
+	.de_comment, .discussion_entry_comment {
+		font-size: 1.1em;
+	}
+
+	#user_head_tabs a { font-size: 1.5em; }
+	#user_head_tabs #uht_carat { margin-top: 1.45em; }
+	#user_head_tabs .icon {
+		background-size: 100px;
+		width: 25px;
+		height: 20px;
+	}
+	#uht_profile .icon { background-position: 8px 5px; }
+	#uht_profile.uht_off .icon { background-position: -18px 5px; }
+	
+	#touchdown { font-size: 1.2em; }
+	#touchdown a { 
+		background-size: 12px;
+		padding-right: 18px;
+	}
+}

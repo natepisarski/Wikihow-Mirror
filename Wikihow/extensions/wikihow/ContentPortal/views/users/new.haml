@@ -1,0 +1,10 @@
+
+%ol.breadcrumb
+	%li
+		%a{href:  url("users")} All Users
+	%li.active Add User
+
+.well
+	%h2 Create a User
+	.well-body
+		!= partial("users/_form")

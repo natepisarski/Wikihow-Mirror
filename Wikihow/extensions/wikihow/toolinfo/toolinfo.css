@@ -1,0 +1,77 @@
+#ti_icon {
+	float: right;
+	height: 18px;
+	/* @embed */
+	background: url(../../../skins/owl/images/info.svg) no-repeat 0 0;
+	background-size: 18px;
+	margin-right: 17px;
+	cursor: pointer;
+	padding-left: 24px;
+	color: #93B874;
+	line-height: 18px;
+}
+
+#ti_outer_box {
+	clear: both;
+	margin: 1em;
+}
+
+
+#ti_box {
+	background-color: #FFF;
+	border-radius: 5px;
+	border: 1px solid #93B874;
+	overflow: hidden;
+}
+
+#ti_box ul {
+	padding: 14px 8px 8px 8px;
+	list-style: none;
+}
+
+#ti_box li {
+	font-size: 13px;
+	margin-bottom: 10px;
+	line-height: 18px;
+	/* @embed */
+	background: url(../../../skins/owl/images/checkmark_green.svg) no-repeat left 3px;
+	padding-left: 22px;
+	background-size: 13px;
+}
+
+#ti_hdr {
+	background-color: #93B874;
+	color: #FFF;
+	padding: 8px;
+	text-align: center;
+	font-size: 16px;
+}
+
+#ti_caret_box {
+	height: 12px;
+}
+
+#ti_caret {
+	width: 0; 
+	height: 0; 
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 10px solid #93B874;
+	position: absolute;
+	right: 52px;
+	margin-top: 3px;
+}
+
+#ti_link {
+	text-align: center;
+	display: block;
+	padding-bottom: 14px;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+@media only screen and (min-width: 500px) {
+	#ti_box li {
+		font-size: 15px;
+	}
+}

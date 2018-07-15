@@ -1,0 +1,22 @@
+{
+  "esnext": false,
+  "moz": true,
+  "strict": true,
+  "boss": true,
+  "node": false,
+  "validthis": true,
+  "unused": true,
+  // "camelcase": true,
+  "quotmark": "single",
+  "indent": 4,
+  "globals": {
+  	"WH": true,
+  	"JQuery": true,
+  	"_": true,
+  	"$": true,
+  	"console": true,
+  	"window": true,
+  	"Mustache": true,
+  	"Bowser": true
+  }
+}

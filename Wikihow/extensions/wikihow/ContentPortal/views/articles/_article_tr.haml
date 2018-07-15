@@ -1,0 +1,95 @@
+
+%tr{id: "article-#{$article->id}", "data-stale" => isset($articleIsStale) ? "true" : "false"}
+	%td(style="width:5%")
+		- if ($article->is_redirect)
+			.flag
+				%a{href: url('articles/edit', ['id' => $article->id]), data: ["toggle" => "tooltip", "placement" => "right"], title: "Article is a redirect"}
+					%i.fa.fa-exclamation-triangle
+
+		- if ($article->is_deleted)
+			.flag
+				%a{href: url('articles/edit', ['id' => $article->id]), data: ["toggle" => "tooltip", "placement" => "right"], title: "Article has been deleted"}
+					%i.fa.fa-exclamation-triangle
+
+		%a.ajax-info{href: url('articles/info', ['id' => $article->id]), data: $article->attributes()}
+			%i.fa.fa-info-circle
+
+	%td(style="width:20%")
+		.btn-group.actions
+			%a.actions-view.btn.btn-xs.btn-default{href: url("articles/show", ["id" => $article->id])}
+				= $article->title
+			%button(type="button" class="actions-toggle btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false")
+				%span.caret
+
+			%ul.dropdown-menu(role="menu")
+				- if ($article->wh_article_id)
+					%li
+						%a{href: $article->wh_article_url, target: "_blank"}
+							%i.fa.fa-external-link
+							View On WikiHow
+
+				- if ($article->hasWritingDoc())
+					%li
+						%a{href: '#', class: "copy_doc_link", data: ["clipboard-text" => $article->writingDoc()->doc_url]}
+							%i.fa.fa-clipboard
+							Copy Writing Doc Link
+
+				- if ($article->hasVerifyDoc())
+					%li
+						%a{href: '#', class: "copy_doc_link", data: ["clipboard-text" => $article->lastVerifyDoc()->doc_url]}
+							%i.fa.fa-clipboard
+							Copy Verify Doc Link
+
+				- if (isset($includeActionRow))
+					!= partial('articles/_actions', ['article' => $article])
+					%li.divider
+
+				%li
+					%a{href: url("articles/edit", ["id" => $article->id])}
+						%i.fa.fa-pencil
+						Edit
+
+				%li.divider(role="separator")
+				%li
+					%a.confirm.confirm-block{href: url("articles/delete", ["id" => $article->id])}
+						%i.fa.fa-times
+						Delete
+
+	%td.small(style="width:15%")= $article->category->title
+	%td(style="width:5%")
+		- if (!$article->isFinished())
+			!= partial('articles/_admin_controls', ['article' => $article])
+
+	// 50%
+	%td.text-center(style="width:5%")
+		// - if (!$article->isFinished() && !$article->belongsTo($currentUser))
+		- if ($article->isBlocked() && $action != 'dashboard')
+			.hover
+				.btn-group
+					// %a.btn.btn-info.btn-sm.assign-user{href: "#", data: ["role" => $article->state_id, "user" => $currentUser->id, "article" => $article->id]}
+					// 	%i.fa.fa-hand-paper-o
+					// 	Assign to Self
+
+					%a.done.btn.btn-warning.btn-sm.modal-trigger{href: url('articles/reject_form', ['auto_assign' => true, 'ajax' => true, 'id' => $article->id])}
+						%i.fa.fa-comment-o
+						= $article->state->action_label
+
+		- if ($article->isLinked())
+			%i.fa.fa-link
+
+	%td(style="width:10%")
+		.label{class: "label-#{cssClass($article->state->key)}"}
+			= $article->state->present_tense
+
+		- if ($article->rejected)
+			.label.label-danger Returned
+
+	%td.text-center
+		- if ($article->reviewReturnCount() > 0)
+			%span.badge
+				= $article->reviewReturnCount()
+
+	%td.small(style="width:10%")= timeAgo($article->lastTouched())
+	%td(style="width:25%")
+		%small
+			!= $article->mostRecentEventMessage()

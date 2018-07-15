@@ -1,0 +1,15 @@
+#aq_new_cats {
+	width: 200px;
+	height: 100px;
+	margin-right: 10px;
+}
+
+#aq_new_cats_submit {
+	display: inline-block;
+	vertical-align: bottom;
+}
+
+#aq_delete_cats {
+	margin-bottom: 15px;
+	display: inline-block;
+}

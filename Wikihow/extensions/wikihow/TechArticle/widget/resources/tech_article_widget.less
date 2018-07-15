@@ -1,0 +1,65 @@
+#tech_article_widget {
+
+	@border: 1px solid #b7b7b7;
+	@radius: 4px;
+	@input_bg_color: #fdfdfd;
+
+	table {
+
+		margin-top: 8px;
+		background-color: @input_bg_color;
+
+		border-collapse: separate;
+		border-spacing: 0;
+		border: @border;
+		border-radius: @radius;
+
+		th, td {
+			border-bottom: @border;
+			padding: 6px 10px 5px;
+			text-align: left;
+
+			&:last-child {
+				text-align: center;
+			}
+		}
+
+		td {
+			font-size: 0.9em;
+		}
+
+		tr:first-child th {
+			background-color: #f5f5f5;
+			padding: 7px 12px 6px;
+			&:first-child { border-top-left-radius: @radius;  }
+			&:last-child  { border-top-right-radius: @radius; }
+		}
+
+		tr:last-child td {
+			border-bottom: none;
+			&:first-child { border-bottom-left-radius: @radius; }
+			&:last-child  { border-bottom-right-radius: @radius; }
+		}
+
+	}
+
+	h2 {
+		font-size: 18px;
+	}
+
+	h4 {
+		font-size: 16px;
+		margin: 22px 0 5px;
+	}
+
+	select {
+		margin-bottom: 8px;
+		background-color: @input_bg_color;
+		border: @border;
+	}
+
+}
+
+input.select2-search__field {
+	font-size: 0.85em;
+}

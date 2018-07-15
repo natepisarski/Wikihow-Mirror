@@ -1,0 +1,12 @@
+.finner-search-box-label {
+	margin-right: 6px;
+}
+
+.finner-search-drop-down, input.finner-search-checkbox, input.finner-search-radio, input.finner-search-input-field {
+	margin-left: 6px;
+}
+
+.finner-bad-template {
+	color: #b52;
+}
+

@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "Masuk",
+	"ulb_nologin": "Belum memiliki akun?",
+	"ulb_create": "Buat akun",
+	"ulb_wh_act": "akun",
+	"ulb_joinwh": "Bergabung dengan wikiHow",
+	"ulb_email": "Surel",
+	"ulb_haveacct": "Sudah punya akun?",
+	"ulb_whacct": "Akun wikihow",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "Memuat..."
+}

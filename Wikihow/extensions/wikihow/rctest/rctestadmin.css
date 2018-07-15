@@ -1,0 +1,36 @@
+table.rct_scores {
+	width: 640px;	
+	font-variant: normal;
+	font-style: normal;
+	border-spacing: 0px;
+}
+
+table.rct_scores th {
+	text-align: left;
+	border-bottom: 1px black solid;
+	padding: 5px;
+	line-height: 15px;
+}
+
+table.rct_scores tr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+table.rct_scores tr.odd{
+	background: #EEEEEE;
+}
+
+table.rct_scores td {
+	padding: 5px;
+	line-height: 15px;
+}
+
+form.rct_ts {
+	margin-bottom: 25px;
+}
+
+form.rct_ts input[type=text] {
+	padding: 2px;
+	width: 15px;
+}

@@ -1,0 +1,13 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "specialtechfeedback": "Review Tech Feedback",
+	"specialtechfeedbacknext": "Next",
+	"specialtechfeedbacktext": "Could this reader feedback be used to improve the article $1?",
+	"specialtechfeedbacktool": "Vote on feedback",
+	"specialtechfeedbackcurrentstats": "Your Tech Feedback Stats",
+	"specialtechfeedbackleaderboardtitle": "Top Tech Feedback User- Last 7 Days",
+    "specialtechfeedbacklogentryvote": "Action '$2' on Tech Feedback for [[$1]] -- rating reason id: $3",
+    "tech_update_tool": "Review Tech Feedback"
+}

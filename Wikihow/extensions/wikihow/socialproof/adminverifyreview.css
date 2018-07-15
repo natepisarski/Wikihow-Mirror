@@ -1,0 +1,124 @@
+.wh_block  {
+	display: none;
+}
+#avr_body {
+    margin: 0px 5px;
+    padding: 0px 5px;
+	overflow: auto;
+}
+#avr_items {
+	margin-top:5px;
+}
+.avr_int_rev {
+	display: none;
+	font-size: 13px;
+}
+.avr_int_title {
+	font-size: 13px;
+	margin-top:5px;
+}
+#avr_results {
+	word-wrap: break-word;
+}
+.avr_advanced {
+	display: none;
+}
+.button {
+    padding: 4px 10px;
+	margin:5px 5px;
+	width: 10%;
+}
+.avr_buttons {
+	display: inline-block;
+	width: 95%;
+}
+.avr_button {
+    padding: 10px 10px;
+	margin:5px 5px;
+	width: 20%;
+	float: right;
+	text-align: center;
+}
+.avr_button .avr_nav_button {
+    padding: 10px 6px;
+}
+.avr_page {
+	margin-bottom:5px;
+	display: none;
+}
+.avr_article {
+	text-align: center;
+	font-size: 32px;
+	line-height: 32px;
+	margin-bottom: 10px;
+}
+.avr_items_count {
+	float: right;
+}
+.avr_items_position {
+	float: left;
+}
+.diff {
+	font-size: 80%;
+}
+.diffchange {
+	padding: 0.1em !important;
+}
+.avr_final_rev {
+	font-size: 13px;
+	margin-top: 5px;
+}
+.avr_vname {
+	margin: 4px 0;
+	padding: 5px 0;
+	padding-left: 34px;
+	font-size: 18px;
+	background-image: url(/skins/WikiHow/images/80x80_user.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+	background-size: 30px;
+	line-height: 28px;
+	float: left;
+}
+.avr_last_editor {
+	position: relative;
+	margin: 4px 0;
+	padding: 5px 0;
+	padding-left: 34px;
+	font-size: 18px;
+	line-height: 28px;
+	float: right;
+}
+.diff_avatar {
+	position: absolute;
+	left: 0px;
+	top: 4px;
+	width: 30px;
+}
+.avr_email_watch {
+	display: none;
+}
+.avr_nav {
+	height: 14px;
+	width: 40px;
+	/* @embed */
+	background-image: url(../../../skins/owl/images/icon-arrow-left-c.svg);
+	background-repeat: no-repeat;
+	background-size: 55%;
+	background-position: 13px 1px;
+}
+.avr_next {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	-ms-transform: rotate(90deg);
+	transform: rotate(180deg);
+}
+.hidden {
+	display: none;
+}
+.mw-spinner {
+	position: absolute;
+	top: 133px;
+	left: 355px;
+}

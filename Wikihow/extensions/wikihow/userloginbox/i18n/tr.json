@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "Giriş yap",
+	"ulb_nologin": "Henüz hesabınız yok mu?",
+	"ulb_create": "Hesap aç",
+	"ulb_wh_act": "hesap",
+	"ulb_joinwh": "wikiHow'a katıl",
+	"ulb_email": "E-posta",
+	"ulb_haveacct": "Hesabınız var mı?",
+	"ulb_whacct": "wikiHow Hesabı",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "Yükleniyor..."
+}

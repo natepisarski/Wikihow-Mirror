@@ -1,0 +1,7 @@
+<table id="aur_table">
+	<tr><th>Username</th><th>Approved</th><th>Deleted</th><th>Export</th></tr>
+	{{#reviewers}}
+		<tr><td>{{username}}</td><td>{{approved}}</td><td>{{deleted}}</td><td><a href="{{exportUrl}}" class="aur_export_link">Export</a></td></tr>
+	{{/reviewers}}
+	<tr><td>Total</td><td>{{totalApproved}}</td><td>{{totalDeleted}}</td><td>&nbsp;</td></tr>
+</table>

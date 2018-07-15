@@ -1,0 +1,33 @@
+#mh-bottom-form {
+	padding: 17px;
+
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border: 1px solid #e5e5e5;
+}
+
+#mhbf-details, .mhbf-input, .mhbf-button {
+	border: 1px solid #eee;
+}
+
+/* Override existing styling on mobile by utilizing the higher priority of IDs */
+#mhbf-submit.mh-submit-inactive,#mhbf-submit.mh-submit-inactive:hover,
+#mhbf-details-submit.mh-submit-inactive,#mhbf-details-submit.mh-submit-inactive:hover {
+	border: 1px solid #eee;
+}
+
+#mhbf-details {
+	padding: 8px;
+	height: 4.68em;
+}
+
+.mhbf-button, .mhbf-spinner {
+	width: 200px;
+}
+
+.mhbf-button {
+	margin-top: 2px;
+	padding: 8px;
+}
+

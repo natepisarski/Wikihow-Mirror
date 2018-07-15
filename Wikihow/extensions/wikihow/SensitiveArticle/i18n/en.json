@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"topic_tagging": "Topic Tagging",
+	"topic_tagging_title": "Topic Tagging Tool",
+	"topic_tagging_remaining": "remaining",
+	"topic_tagging_button_skip": "Not Sure",
+	"topic_tagging_article_header": "Full Article",
+	"topic_tagging_log_upvote": "Upvoted topic '$2' for [[$1]]",
+	"topic_tagging_log_downvote": "Downvoted topic '$2' for [[$1]]",
+	"topic_tagging_log_approved": "Topic '$2' for [[$1]] approved",
+	"topic_tagging_log_resolved": "Topic '$2' for [[$1]] resolved without a clear consensus",
+	"topic_tagging_log_rejected": "Topic '$2' for [[$1]] rejected",
+	"topic_tagging_admin_title": "Topic Tagging Admin",
+	"topic_tagging_admin_tag_prompt": "Choose a topic to associate with the articles you're submitting.\n\nIf you don't see the one you need, add one [[Special:SensitiveArticleAdmin|here]].",
+	"topic_select_label": "Topics",
+	"default_topic_option": "-- choose a topic --",
+	"topic_tagging_admin_articles_prompt": "List of articles to which to add topics:",
+	"topic_tagging_admin_articles_example": "(you can use page ids, page names, and full urls like https://www.wikihow.com/Page-Name)",
+	"topic_tagging_admin_report_button": "Run Report",
+	"tta_err_no_topic": "Gotta have a topic if you want to tag stuff...",
+	"tta_err_no_articles": "So...which articles did you want to tag?",
+	"topic_tagging_admin_import_bad_urls": "There's something funky with one or more article urls. Import aborted. Funky URLs:<br />$1",
+	"topic_tagging_admin_import_bad_ids": "Something went wrong importing one or more articles in this new collection. Page ids that weren't imported (others were successfully added):<br />$1",
+	"topic_tagging_admin_import_fail": "Something went wrong importing this new collection.",
+	"topic_tagging_admin_import_success": "Collection imported!",
+	"topictaggingcurrentstats": "Your Topic Tagging Stats",
+	"topictaggingleaderboardtitle": "Top Topic Tagging User - Last 7 Days"
+}

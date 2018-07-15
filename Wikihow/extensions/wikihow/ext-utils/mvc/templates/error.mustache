@@ -1,0 +1,121 @@
+
+
+<style type="text/css">
+	.error {
+		font-size:14px;
+		text-align:left;
+
+		top: 0;
+		left: 0;
+		background-color: white;
+		box-sizing: border-box;
+		color: #000;
+		overflow: auto;
+		padding: 30px 50px;
+
+	}
+
+	.error h1 {
+		font-family: Helvetica;
+		margin: 20px 0;
+		color: #333;
+	}
+
+	hr {
+		border-color: black;
+	}
+
+	.error .msg {
+		font-family:Monaco,Verdana,Arial,sans-serif;
+		margin: 0;
+		font-size: 14px;
+		padding: 20px;
+		max-height: 60%;
+		overflow:auto;
+		line-height: 21px;
+		color: black;
+		background-color: #e2757a;
+	}
+
+	.msg .file {
+		background-color: #ffcc66;
+	}
+
+	.lines {
+		margin-top: 20px;
+		border-top: none;
+		padding: 0;
+		background-color: #142730;
+	}
+
+	.lines .line {
+		color: #cc92a2;
+		white-space: pre-wrap;
+		font-size: 13px;
+		font-family: Monaco,monospace;
+		box-sizing: border-box;
+		line-height: 200%;
+		display: block;
+		tab-size: 2;
+		-moz-tab-size: 2;
+		-o-tab-size: 2;
+		-webkit-tab-size: 2;
+	}
+
+
+	.line .line-num {
+		counter-increment: line;
+		content: counter(line);
+		display: inline-block;
+		border-right: 1px solid #6e7165;
+		padding: 0 .5em;
+		margin-right: .5em;
+		color: #6e7165;
+		min-width: 15px;
+		text-align: center;
+	}
+
+	.line:nth-child({{mark}}) {
+		background-color: #cc92a2;
+		color: black;
+		font-weight: bold;
+	}
+
+	.line:nth-child({{mark}}) .line-num {
+		background-color: #ffcc66;
+		border-color: black;
+		color: inherit;
+	}
+
+</style>
+
+<div id="error-{{id}}" class="error {{type}}">
+	<h1>{{errstr}}<small>{{type}}</small></h1>
+	<div class="msg">
+		<strong>Error:</strong> {{errstr}}
+		<br/>
+		<strong>File:</strong>
+		<span class="file">{{file}}</span>
+		<br/>
+		<strong>Line:</strong> {{line}}
+	</div>
+
+	<div class="lines">
+		{{#lines}}
+			<span class="line"><span class="line-num"></span>{{.}}</span>
+		{{/lines}}
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	var container = document.querySelector("#error-{{id}}"),
+		lines = Array.from(container.querySelectorAll(".line-num")),
+		start = {{start}};
+
+	lines.forEach(function (line, index) {
+		var marker = String(index + start + 1);
+		marker = marker.length < 2 ? "0" + marker : marker;
+		line.innerHTML = marker;
+	});
+</script>

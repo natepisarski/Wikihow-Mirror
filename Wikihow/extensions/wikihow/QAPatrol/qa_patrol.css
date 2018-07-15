@@ -1,0 +1,162 @@
+#qap_main { display: none; }
+
+#qap_spinner {
+	display: none;
+	background: url(/extensions/wikihow/rotate.gif) center no-repeat;
+	height: 33px;
+}
+
+#qap_top {
+	background-color: #FFF;
+	margin: -22px -27px 20px;
+	padding: 30px;
+	border-radius: 4px 4px 0 0;
+}
+
+#qap_top h5 {
+	color: #555;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+#qap_count {
+	color: #555;
+	float: right;
+	font-size: .7em;
+    text-align: right;
+}
+
+#qap_count h3 {
+	color: #555;
+	font-size: 3em;
+    line-height: 1em;
+	background: none;
+}
+
+#qap_edited { display: none; }
+#qap_edited h2 {
+	color: #555;
+	margin: 5px 0 0 0;
+}
+
+#qap_q, #qap_a {
+	float: left;
+	padding: 15px 8px 15px 15px;
+	font-weight: bold;
+}
+
+#qap_delete_q {
+	float: right;
+	font-size: .7em;
+	margin: -30px 8px 0 8px;
+}
+
+#qap_qid {
+	font-size: .7em;
+	float: left;
+	display: inline-block;
+	margin-bottom: 20px;
+}
+
+#qap_user_data {
+	font-size: .7em;
+	text-align: right;
+	margin: 0 0 20px 0;
+}
+
+#qap_article {
+	font-size: 2em;
+	color: #363;
+	text-decoration: none;
+}
+
+#qap_txt {
+	font-weight: bold;
+	padding-bottom: 10px;
+}
+
+#qap_question, #qap_answer {
+	padding: 15px 15px 25px 15px;
+	margin-bottom: 10px;
+}
+
+.qap_edit_ta {
+	width: 95%;
+	border-color: #93B874;
+	padding: 15px;
+	margin-bottom: 2px;
+}
+
+.qap_text_err { border-color: #C00; }
+
+#qap_answer_edit {
+	margin-top: 8px;
+	min-height: 7em;
+}
+
+.qap_char_limit, #qap_err_msg {
+	color: #C00;
+	font-size: .8em;
+	text-align: right;
+	display: none;
+}
+
+#qap_err_msg {
+	text-align: left;
+	padding: .5em 0;
+}
+
+#qap_buttons {
+	text-align: right;
+	clear: both;
+}
+
+#qap_btn_no { float: left; }
+#qap_btn_yes, #qap_btn_save { margin-right: 0; }
+
+#qap_buttons_edit {
+	display: none;
+	margin-top: 10px;
+}
+
+#qap_votes_left {
+    text-align: right;
+    padding: 10px;
+    font-size: 0.8em;
+}
+
+#qap_dup {
+	display: none;
+	padding: 15px;
+	border-radius: 5px;
+	border: 1px solid #F00;
+	background-color: #F9F0F0;
+}
+
+/*tip box tweaks*/
+#qap_main #ti_icon { margin-right: 0; }
+#qap_main #ti_box ul { padding: 0 8px 8px 0; }
+
+/*widget stuff*/
+#qa_submitted_question_form, .qa_section_heading, .qa_divider, .wh_vote_container, #qa_show_more_answered, .qa_ignore_answered {
+	display: none !important;
+}
+
+.qa_answers .qa_bubble {
+	padding-bottom: 15px;
+}
+
+#qa_answered_questions_container {
+	border-bottom: 0px !important;
+}
+
+.qap_qa_qid {
+	font-size: .7em;
+	float: right;
+	margin-left: 5px;
+}
+
+.qap_eoq {
+	text-align: center;
+	font-size: 18px;
+}

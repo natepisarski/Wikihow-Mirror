@@ -1,0 +1,33 @@
+<div id="answered" class="minor_section">
+	<h2>
+		{{pb-questionsanswered}}
+		{{#answered_count}}({{answered_count}}){{/answered_count}}
+	</h2>
+	<table class='pb-articles' id='pb-answered'>
+		<thead>
+			<tr>
+				<th class='first pb-title'>{{pb-category}}</th>
+				<th class='last pb-view'>{{pb-count}}</th>
+			</tr>
+		</thead>
+		<tbody>
+		{{#items}}
+			{{> answered_item}}
+		{{/items}}
+
+		{{^items.0}}
+		<tr>
+			<td colspan="2" align="center" class="pb-empty-text">{{empty_text}}</td>
+		</tr>
+		{{/items.0}}
+		</tbody>
+	</table>
+
+	{{#view_toggle}}
+	<a href='#' class="view_toggle more">{{pb-viewmore}}</a>
+	{{/view_toggle}}
+</div>
+
+<script id="answered_item" type="text/x-handlebars-template">
+	{{answered_item}}
+</script>

@@ -1,0 +1,30 @@
+{
+	"name": "KnowledgeBoxFilter",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "David Morrow",
+	"license": "MIT",
+	"dependencies": {
+		"bootstrap": "^3.3.4",
+		"font-awesome": "^4.3.0",
+		"grunt": "^0.4.5",
+		"grunt-cli": "^0.1.13",
+		"grunt-contrib-copy": "^0.8.0",
+		"grunt-contrib-cssmin": "^0.12.3",
+		"grunt-contrib-jshint": "^0.11.2",
+		"grunt-contrib-less": "^1.0.1",
+		"grunt-contrib-uglify": "^0.9.1",
+		"grunt-contrib-watch": "^0.6.1",
+		"grunt-growl": "^0.1.5",
+		"grunt-lesslint": "^1.1.14",
+		"grunt-notify": "^0.4.1",
+		"handlebars": "^3.0.3",
+		"jquery": "^2.1.4",
+		"underscore": "^1.8.3",
+		"zeroclipboard": "^2.2.0"
+	}
+}

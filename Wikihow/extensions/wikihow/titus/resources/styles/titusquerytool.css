@@ -1,0 +1,140 @@
+.tqt-query-builder-buttons {
+	margin-bottom: 20px;
+}
+
+.wh_block {
+	background-image: url("https://www.wikihow.com/images/thumb/9/9a/Write-a-Love-Email-Step-10.jpg/aid2206990-900px-Write-a-Love-Email-Step-10.jpg");
+	background-size: 180px 100px;
+	background-repeat: no-repeat;
+	background-color: rgba(248,255,234,100);
+	background-position: right top;
+}
+
+.tqt-vault, .tqt-type {
+	padding-top: 5px;
+}
+
+.group-condtions div {
+	border: 3px !important;
+}
+
+.group-conditions button {
+	margin-right: 5px;
+	border-top-right-radius: 3px !important;
+	border-bottom-right-radius: 3px !important;
+}
+
+.group-conditions label.active {
+	background-color: green !important;
+	border-color: grey !important;
+}
+
+.group-conditions label {
+	background-color: #ffb3b3 !important;
+	border-color: grey !important;
+}
+
+#tqt-query-builder-ace {
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	height: 185px;
+}
+
+.sqlselect, .sqlwhere {
+	padding-bottom: 10px;
+}
+
+.tqt-query-builder-sql {
+	padding-bottom: 10px;
+}
+
+.sqlselect .rules-list>::after, .sqlselect .rules-list>::before {
+	border-style: none;
+}
+
+#selectcontainers {
+	list-style-type: none;
+}
+
+.urls {
+	margin-top: 5px;
+	height: 300px;
+	width: 850px;
+}
+
+.qv-input {
+	width: 220px;
+	padding: 5px;
+	margin-right: 5px;
+}
+
+.tqt-type {
+	display: table;
+	table-layout: fixed;
+
+	width: 100%;
+	height: 40px;
+
+	margin-bottom: 16px;
+}
+
+.tqt-tab {
+	display: table-cell;
+	width: 50%;
+	height: 40px;
+
+	font-weight: bold;
+	font-size: 1.1em;
+
+	border: 2px solid #acb;
+	color: #444;
+	background-color: #ccc;
+
+	transition-property: background-color;
+	transition-duration: 0.5s;
+}
+
+.tqt-tab:hover {
+	color: #573;
+	background-color: #ddd;
+}
+
+.tqt-tab-active {
+	color: #351;
+	background-color: #efd;
+}
+
+.tqt-tab-active:hover {
+	background-color: #e8ffe8;
+}
+
+#tqt-tab-builder-btn {
+	border-top-left-radius: 20px 20px;
+	border-bottom-left-radius: 20px 20px;
+	border-right: none;
+}
+
+#tqt-tab-loader-btn {
+	border-top-right-radius: 20px 20px;
+	border-bottom-right-radius: 20px 20px;
+	border-left: none;
+}
+
+.tqt p {
+	padding-bottom: 10px;
+}
+
+textarea.urls {
+	height: 100px;
+	width: 100%;
+}
+
+input.sqllabel {
+	width: 250px;
+}
+
+.qv-input {
+	width: 42%;
+}

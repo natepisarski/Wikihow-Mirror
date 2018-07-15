@@ -1,0 +1,163 @@
+.leader_head{
+	display:block;
+	font-size:18px;
+	font-weight:bold;
+	float:left;
+	clear:both;
+}
+
+.leader_learn{
+	float:right;
+	margin-top:5px;
+}
+
+.leader_learn img{
+	vertical-align:middle;
+	margin-right:5px;
+
+}
+
+.leader_table{
+	width:475px;
+	margin:10px auto 0 auto;
+	clear:both;
+}
+
+.leader_table td.leader_title{
+	border:none;
+	text-align:right;
+}
+
+.leader_table td{
+	border-top:1px dashed #aaaaaa;
+}
+
+.leader_image{
+	padding:10px 10px 10px 0;
+	width:40px;
+}
+
+.leader_image img{
+	width:40px;
+	height:40px;
+}
+
+.leader_count{
+	text-align:right;
+	font-size:24px;
+}
+
+.leader_count a{
+	font-size:24px;
+	color:#000000;
+}
+
+.leader_user{
+	text-align:left;
+}
+
+.leader_user a{
+	font-size:18px;
+}
+
+.sub_tab{
+background:url(/skins/WikiHow/images/bkg_leaderboard.gif) repeat-x;
+height:41px;
+border-bottom:1px solid #A59983;
+padding:0 10px 0 7px;
+margin-top:-1em;
+clear:both;
+}
+
+.sub_tab.tab_tall{
+    background-image:url(/skins/WikiHow/images/bkg_leaderboard_tall.gif);
+    height:82px;
+}
+
+#article .sub_tab ul{
+	float:left;
+	padding:0;
+}
+
+#article .sub_tab li{
+	float:left;
+	list-style-type:none;
+	list-style-image:none;
+	clear:none;
+	line-height:41px;
+	padding:0;
+}
+
+.sub_tab li a {
+color:#000000;
+display:block;
+margin:0 5px;
+text-align:center;
+}
+
+.sub_tab li a.on {
+background-image:url(/skins/WikiHow/images/bkg_submenu.png);
+background-position:0 6px;
+background-repeat:no-repeat;
+color:#FFFFFF;
+height:36px;
+margin:0 8px;
+padding:0;
+width:124px;
+}
+
+#article_tabs a.tab_129 {
+background-image:url(/skins/WikiHow/images/tab_129.png);
+width:129px;
+}
+
+#Leaderboard {
+}
+
+#Leaderboard.tab_tall {
+}
+
+#leaderboard_tabs{
+	position:relative;
+}
+
+#leaderboard_tabs #tabs {
+	position: relative;
+}
+
+#leaderboard_tabs #tabs li {
+	line-height: normal;
+}
+
+ul.sub_tabs {
+	position:relative;
+	padding-bottom:0px;
+	margin:0;
+	clear:both;
+}
+
+ul.firstrow {
+	border-bottom: none;
+}
+
+ul.sub_tabs.secondrow {
+}
+
+#leaderboard_tabs .sub_tabs li {
+	float: left;
+	list-style: none !important;
+	padding: 0px;
+	margin: 0px;
+	padding-left: 15px;
+}
+
+.sub_tabs li a{
+	font-size: 12px;
+	text-decoration: none;
+	line-height: 25px;
+}
+
+.sub_tabs li a.on {
+	color: #475347;
+}
+

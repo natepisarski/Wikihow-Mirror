@@ -1,0 +1,47 @@
+<h2 class="subheader">{{msg.subheader}}</h2>
+
+<form action="/Special:RequestTopic" method="POST" name="suggest_topic_form"
+		onsubmit="return WH.SuggestedTopics.checkSTForm();">
+
+<table width="100%" class="request_table">
+	<tr>
+		<td class="label" style="vertical-align: middle;">{{msg.howto_label}}</td>
+		<td style="vertical-align: middle;"><span class="input_border">
+			<input class="input_med" type="text" name="suggest_topic" id="entry_howto" value="">
+		</td>
+	</tr>
+	<tr>
+		<td class="label">{{msg.category_label}}:</td>
+		<td>
+			<select class="input_med" name="suggest_category">
+			<option value="">({{msg.category_please}}...)</option>
+			{{#cats}}
+				<option class='input_med' value="{{value}}">{{text}}</option>
+			{{/cats}}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td class="label">{{msg.notification_label}}:</td>
+		<td>
+			<input type="checkbox" class="input_med" name="suggest_email_me_check" checked> {{msg.email_me}}:
+			<br/><br/>
+			<span class="input_borderx" style="margin-top:10px;"></span>
+			<input type="text" class="input_med" name="suggest_email" value="{{user_email}}" style="width:230px;" class="fancy_entry">
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>{{{catpcha_form}}} <font color='red'>{{msg.captcha_error}}</font></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>
+			<a href="/Special:ListRequestedTopics" style="line-height:27px; margin-left:10px;">{{msg.view_current_list}}</a>
+			<input class="button primary" onmouseout="button_unswap(this);" onmouseover="button_swap(this);" type="submit" value="Submit" style="float:left;">
+		</td>
+	</tr>
+
+</table>
+
+</form>

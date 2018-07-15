@@ -1,0 +1,38 @@
+.btn-group
+	- if (shouldShowDoc($article))
+		%a.btn.view-doc{href: url('articles/show', ['id' => $article->id])}
+			%i.fa.fa-google
+			= $article->hasWritingDoc() ? "View Doc" : 'Start Doc'
+
+	- if (!$article->state->needs_doc)
+		%a.btn.view-wikihow{target: "_blank", href: $article->editLink()}
+			%i.fa.fa-external-link
+			= $article->titleExists() ? 'Edit ' : 'Create '
+			on WikiHow
+
+
+	- if ($article->isBlocked())
+		%a.done.btn.modal-trigger{href: url('articles/reject_form', ['id' => $article->id])}
+			%i.fa.fa-check
+			= $article->state->action_label
+
+	- else
+		!= partial('articles/_reject_btn', ['article' => $article])
+
+		- if ($article->prevAssignment())
+			%a.done.btn.modal-trigger{href: url('articles/approve_form', ['id' => $article->id])}
+				%i.fa.fa-check
+				= $article->state->action_label
+		- elseif (canShowDone($article))
+			%a.done.btn.confirm{title: "Done?", "data-content" => doneWarning($article), href: url('articles/done', ['id' => $article->id])}
+				%i.fa.fa-check
+				= $article->state->action_label
+
+		- if (canTurnDown($article))
+			%a.btn.confirm.unassign{"data-content" => "Once you remove yourself from an article, it will be gone from your dashboard.",  href: url("articles/unassign", ['id' => $article->id])}
+				%i.fa.fa-thumbs-down
+				Turn Down
+
+		%a.btn.btn-default.modal-trigger{href: url('notes/new', ['article_id' => $article->id])}
+			%i.fa.fa-question
+			Ask Question

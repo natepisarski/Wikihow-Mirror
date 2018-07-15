@@ -1,0 +1,58 @@
+#mh-bottom-form {
+	padding: 0;
+}
+
+.mhbf-input {
+	margin-bottom: 8px;
+}
+
+.mhbf-input, .mhbf-button, #mhbf-details, #mhbf-email {
+	border: 2px solid #eee;
+}
+
+#mhbf-details {
+	height: 68px;
+	padding: 5px;
+	line-height: 18px;
+}
+
+/* Override existing styling by utilizing the higher priority of IDs */
+#mhbf-submit, #mhbf-details, #mhbf-email {
+	font-size: 14px;
+}
+
+#mhbf-email {
+	padding: 7px;
+}
+
+#mhbf-submit {
+	margin-top: 1px;
+	padding: 8px 11px;
+}
+
+/* Override existing styling on mobile by utilizing the higher priority of IDs */
+#mhbf-submit.mh-submit-inactive,#mhbf-submit.mh-submit-inactive:hover,
+#mhbf-details-submit.mh-submit-inactive,#mhbf-details-submit.mh-submit-inactive:hover {
+	border: 2px solid #eee;
+}
+
+/* Override existing styling on mobile by utilizing the higher priority of IDs */
+#mhbf-submit.mh-submit-active,#mhbf-submit.mh-submit-active:hover {
+	border: 2px solid #97ba78;
+}
+
+.mhbf-button, .mhbf-spinner {
+	width: 100%;
+	max-width: 100%;
+}
+
+@media only screen and (max-aspect-ratio: 13/9) and (min-width: 500px), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	#mhbf-header-prompt,.mhbf-selector-text {
+		font-size: 18px;
+	}
+
+	input[type=checkbox].mhbf-selector-checkbox+label.mhbf-selector-label {
+		margin-bottom: 3px;
+	}
+}
+

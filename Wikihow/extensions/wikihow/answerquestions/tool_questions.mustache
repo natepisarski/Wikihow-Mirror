@@ -1,0 +1,36 @@
+<ul>
+	{{#questions}}
+		<li class="qat_question_box qat_question_old_{{qat_submit_old}}" id="{{qat_question_id}}">
+			<div class="qat_section qat_question_show">
+				<div class="qat_dup_tooltip">Is this a duplicate of "<span></span>" which is already answered?</div>
+				<p class="qat_question">{{qat_question}}</p>
+				<a href="#" class="button primary qat_answer_button">Answer</a>
+				<a href="#" class="button secondary qat_notsure">Not sure</a>
+				<div class="qat_mark">Mark as...
+					<div class="qat_menu">
+						<a href="#" class="qat_duplicate_button">Duplicate</a>
+						<a href="#" class="qat_flag_button">Unhelpful</a>
+					</div>
+				</div>
+				<p class="qat_submit_date">Asked {{qat_submit_date}}</p>
+			</div>
+			<div class="qat_section qat_duplicate_alert">
+				<a href="#" class="button secondary qat_duplicate_button">Mark as Duplicate</a>
+				This question might be very similar to one that is already answered:<br /><span></span><br />
+				<br />
+				If so, please mark it as a duplicate instead of answering again.
+			</div>
+			<div class="qat_section qat_answer_box">
+				<textarea class="qat_question_txt">{{qat_question}}</textarea>
+				<textarea class="qat_answer" placeholder="Your answer here"></textarea>
+				<p class="qat_err_msg qat_error">Please use 700 characters or less. The best answers are clear and concise.</p>
+				<p class="qat_err_msg qat_error_min">The most helpful answers are more detailed. Can you add more information?</p>
+				<p class="qat_err_msg qat_error_url">URLs are not supported.</p>
+				<p class="qat_err_msg qat_error_phone">Phone numbers are not supported.</p>
+				<a href="#" class="button primary qat_submit">Submit</a> <a href="#" class="button secondary qat_cancel">Cancel</a>
+			</div>
+			<div class="qat_feedback_answer">Thanks for your answer!</div>
+			<div class="qat_feedback_remove">Thanks for letting us know.</div>
+		</li>
+	{{/questions}}
+</ul>

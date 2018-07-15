@@ -1,0 +1,47 @@
+@grayCategoryBorder: #dbdbdb;
+
+#cat_slide_template {
+  display: none;
+}
+
+#content {
+ margin: 0px;
+}
+
+.pre-content {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1.3;
+  display: table;
+  width: 100%;
+}
+
+#cat_parent {
+  display: table-cell;
+  padding: 15px;
+  min-height: 23px;
+  width: 15px;
+  vertical-align: middle;
+  color: inherit;
+}
+
+#cat_parent:active {
+  background-color: @grayCategoryBorder;
+  color: white;
+}
+
+.cat_page_title {
+  border-left: 1px @grayCategoryBorder solid;
+  display: table-cell;
+  padding: 15px;
+  margin-left: 31px;
+}
+
+.cat_loading {
+  background: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/ajax-loader-green.gif) center no-repeat;
+  background-size: 32px 32px;
+  width: 32px;
+  height: 32px;
+  margin: 10px auto;
+  display: none;
+}

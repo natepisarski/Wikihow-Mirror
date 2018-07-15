@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "Entra",
+	"ulb_nologin": "Non hai ancora un account?",
+	"ulb_create": "Crea un account",
+	"ulb_wh_act": "account",
+	"ulb_joinwh": "Unisciti a wikiHow",
+	"ulb_email": "Email",
+	"ulb_haveacct": "Hai un account?",
+	"ulb_whacct": "Account wikiHow",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "Caricamento in corso..."
+}

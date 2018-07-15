@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "लॉग इन",
+	"ulb_nologin": "कोई अकाउंट नहीं है?",
+	"ulb_create": "एक अकाउंट बनायें",
+	"ulb_wh_act": "अकाउंट",
+	"ulb_joinwh": "विकीहाउ ज्वाइन करें",
+	"ulb_email": "ई-मेल",
+	"ulb_haveacct": "क्या पहले से कोई अकाउंट है?",
+	"ulb_whacct": "विकीहाउ अकाउंट",
+	"ulb-btn-fb": "फेसबुक",
+	"ulb-btn-gplus": "गूगल",
+	"ulb-btn-civic": "सिविक",
+	"ulb-btn-loading": "लोडिंग..."
+}

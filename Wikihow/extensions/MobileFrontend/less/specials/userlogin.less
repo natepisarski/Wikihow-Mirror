@@ -1,0 +1,73 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+// This serves no purpose on the login screen as you are not logged in so cannot use.
+#user-button {
+	display: none;
+}
+
+#mw-mf-login,
+#mw-mf-accountcreate {
+	.watermark {
+		text-align: center;
+		// FIXME: Should we set the height here?
+		height: 72px;
+		margin-bottom: @headingMargin;
+		img {
+			// Important to override default max-width and height auto combo
+			height: 72px !important;
+		}
+	}
+
+	.headmsg {
+		background-color: #eee;
+		border: 1px solid #ccc;
+		color: #252525;
+		padding: 0.5em 1em;
+		margin: 1em 0;
+	}
+}
+
+#mw-mf-accountcreate {
+	.alert {
+		margin-left: 0;
+		margin-right: 0;
+	}
+}
+
+/* sign up form */
+form.user-login {
+	padding-bottom: 12px;
+
+	input {
+		width: 100%;
+		display: block;
+	}
+
+	.mw-mf-create-account {
+		padding-top: 12px;
+		display: block;
+		text-align: center;
+	}
+}
+
+/* fancycaptcha reload button */
+#mf-captcha-reload-container {
+	border-top: 1px dashed #e1e1e1;
+	display: inline-block;
+	padding: 14px 25%;
+
+	.fancycaptcha-reload {
+		color: #787878;
+		font-weight: bold;
+		background-image: url(images/login/refresh.png);
+		background-repeat: no-repeat;
+		background-size: 24px;
+		padding: 4px 0px 4px 26px;
+	}
+
+	.fancycaptcha-reload-loading {
+		background-image: @ajaxLoadingImage;
+	}
+}

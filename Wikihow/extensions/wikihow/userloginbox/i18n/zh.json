@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "登录",
+	"ulb_nologin": "还没有账号？",
+	"ulb_create": "创建账号",
+	"ulb_wh_act": "账号",
+	"ulb_joinwh": "加入wikiHow",
+	"ulb_email": "电邮",
+	"ulb_haveacct": "已经有账号？",
+	"ulb_whacct": "wikiHow账号",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "加载中..."
+}

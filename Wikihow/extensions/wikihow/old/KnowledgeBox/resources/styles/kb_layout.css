@@ -1,0 +1,12 @@
+/**
+ * Does not use flexbox because Safari and old IEs are terrible
+ */
+.kb-row {
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+	margin: 0 auto;
+	border-spacing: 10px;
+	border-collapse: separate;
+}
+

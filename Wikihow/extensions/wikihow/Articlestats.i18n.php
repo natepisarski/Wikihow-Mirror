@@ -1,0 +1,26 @@
+<?
+$messages = array();
+
+$messages['en'] = array ('articlestats' => 'Article Stats',
+					'articlestats_notitle' => 'Error: No title specified.',
+					'articlestats_notintopten' => "<a href='http://www.google.com/search?q=$1' target='new'>Not in the top 10 results</a>",
+    				'articlestats_indexrank' => "<a href='http://www.google.com/search?q=$1' target='new'>$2</a>",
+					'articlestats_notcheckedyet' => "<a href='http://www.google.com/search?q=$1' target='new'>Hasn't been checked yet</a>",
+					'articlestats_lastchecked' => " (Last checked: $1)",
+					'articlestats_yes'  => 'yes',
+            		'articlestats_no'   => 'no',
+            		'articlestats_notenoughvotes' => 'Not enough votes to determine accuracy yet',
+            		'articlestats_rating'   => '$1% of $2 votes',
+            		'articlestats_accuracy' => 'Accuracy',
+            		'articlestats_hasphotoinintro' => 'Has photo in introduction',
+            		'articlestats_stepbystepphotos' => 'Has step-by-step photos in over half of steps',
+            		'articlestats_numinboundlinks' => 'Number of inbound links',
+            		'articlestats_outboundlinks' => 'Outbound weaved links and related wikiHows',
+            		'articlestats_isfeatured' => 'Has been selected as a Featured Article?',
+            		'articlestats_pageviews' => "Page views",
+            		'articlestats_pageviewsrank' => "(Rank: $1)",
+            		'articlestats_rankingoogle' => 'Rank in Google',
+            		'articlestats_sources' => 'Number of Sources',
+            		'articlestats_langlinks' => 'Number of Languages',
+					'articlestats_footer' => '',
+			);

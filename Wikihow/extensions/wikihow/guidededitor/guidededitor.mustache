@@ -1,0 +1,202 @@
+<div id='editpage'>
+<form id='editform' name='editform' method='post' action='{{{action}}}' enctype='application/x-www-form-urlencoded'>
+{{#is_new_article}}
+	<input type='hidden' name='new_article' value='true' id='is_new_article' />
+{{/is_new_article}}
+{{#nab_overwrite}}
+	<input type='hidden' name='overwrite' value='yes' />
+	<input type='hidden' name='wpRecreate' value='true' />
+{{/nab_overwrite}}
+{{#show_hidden_cats}}
+<input type='hidden' name='categories22' value='{{categories_str}}'>
+{{/show_hidden_cats}}
+
+<input type='hidden' value='{{start_time}}' name='wpStarttime' />
+<input type='hidden' name='requested' value='{{requested}}' />
+<input type='hidden' name='langlinks' value='{{lang_links}}' />
+<input type='hidden' value='{{edit_time}}' name='wpEdittime' />
+
+{{^show_edit_summary}}
+	{{subject_msg}}: <input tabindex='1' type='text' value='{{summarytext}}' name='wpSummary' id='wpSummary' maxlength='200' size='60' />
+{{/show_edit_summary}}
+{{#show_heading}}
+<div id='title'><h3>{{title_msg}}</h3><br/>{{howto_msg}} &nbsp;&nbsp;&nbsp;
+<input autocomplete='off' size=60 type='text' name='title' id=category tabindex='1' value='{{suggested_title}}'></div>";
+{{/show_heading}}
+<br clear='all'/>
+{{{weave_links}}}
+
+<div id='saveErrors' {{{maybe_hide_errors}}} class='minor_section'>{{hook_error}}</div>
+
+<div id='introduction' class='minor_section'>  
+	<h2>{{introduction_msg}}
+		<div class='head_details'>{{summaryinfo_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=2#{{introduction_url}}" target='new'>{{moreinfo_msg}}</a>  
+	</h2>
+	<textarea rows='4' cols='100' name='summary' id='summary' tabindex='2' wrap='virtual'>{{intro_section}}</textarea>
+	<div class='clearall'></div>
+</div>
+
+<div id='ingredients' class='{{ingredients_vis}} minor_section'>
+	<h2>{{ingredients_msg}}
+		<div class='head_details'>{{ingredients_tooltip_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=2#{{ingredients_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<textarea name='ingredients' rows='4' cols='100' tabindex='3' id='ingredients_text'>{{ingredients_section}}</textarea>
+	<a href='#' class='button secondary add_image_button' data-section='ingredients'>{{add_image_ingredients_msg}}</a>
+</div>
+
+<div id='steps' class='minor_section'>
+	<h2>{{steps_msg}}
+		<div class='head_details'>{{stepsinfo_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=2#{{steps_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<textarea name='steps' rows='{{txtarea_steps_text}}' cols='100' wrap='virtual' tabindex='4' id='steps_text'>{{{steps_section}}}</textarea>
+	<a href='#' class='button secondary add_image_button' data-section='steps'>{{add_image_steps_msg}}</a>
+</div>
+
+<div id='video' class='minor_section'>
+	<h2>{{video_msg}}
+		<div class='head_details'>{{videoinfo_msg}}</div>
+		<a href="{{writers_guide_url}}?section=2#{{video_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	{{^show_video_button}}
+		<input type='hidden' name='video' value="{{video_section}}"/>
+	{{/show_video_button}}
+	<input type='text' name='video{{video_disabled}}' size='60' id='video_text' style='float:left' value='{{video_section}}' {{video_disabled}} /><br />
+	{{#show_video_button}}
+		<a id='gatVideoImportEdit' type='button' href='#' class='change_add_video_button button secondary'>{{video_change_msg}}</a>
+	{{/show_video_button}}
+	<a href='#' id='show_preview_button' class='button secondary {{vidbtn_vis}}'>{{show_preview_msg}}</a>
+	{{^show_video_button}}
+		{{{video_loggedin_msg}}}
+	{{/show_video_button}}
+</div>
+<div id='viewpreview' class='{{vidpreview_vis}} minor_section' style='text-align: center; margin-top: 5px;'>
+	<center><a href='#' id='hide_preview_button'>{{ep_hide_preview_msg}}</a></center><br/>
+	<div id='viewpreview_innards'>{{{vidpreview}}}</div>
+</div>
+
+<div id='tips' class='minor_section'>
+	<h2>{{tips_msg}}
+		<div class='head_details'>{{listhints_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=2#{{tips_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<textarea name='tips' rows='{{txtarea_tips_text}}' cols='100' wrap='virtual' tabindex='5' id='tips_text'>{{tips_section}}</textarea>
+	<a href='#' class='button secondary add_image_button' data-section='tips'>{{add_image_tips_msg}}</a>
+</div>
+
+<div id='warnings' class='minor_section'>
+	<h2>{{warnings_msg}}
+		<div class='head_details'>{{optionallist_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=3#{{warnings_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<textarea name='warnings' rows='{{txtarea_warnings_text}}' cols='100' wrap='virtual' id='warnings_text' tabindex='6' id='warnings_text'>{{warnings_section}}</textarea>
+	<a href='#' class='button secondary add_image_button' data-section='warnings'>{{add_image_warnings_msg}}</a>
+</div>
+
+<div id='thingsyoullneed' class='{{things_vis}} minor_section'>
+	<h2>{{thingsyoullneed_msg}}
+		<div class='head_details'>{{items_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=4#{{thingsyoullneed_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<textarea name='thingsyoullneed' rows='4' cols='65' wrap='virtual' tabindex='7' id='thingsyoullneed_text'>{{thingsyoullneed_section}}</textarea>
+	<a href='#' class='button secondary add_image_button' data-section='thingsyoullneed'>{{add_image_thingsyoullneed_msg}}</a>
+</div>
+
+<div id='relatedwikihows' class='{{related_vis}} minor_section'>
+	<h2>{{relatedarticlestext_msg}}
+		<div class='head_details'>{{relatedlist_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=5#{{relatedwikihows_url_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<div id='related_buttons'>
+		<a href='#' id='relateds_move_up' class='button secondary'>{{epw_move_up_msg}}</a>
+		<a href='#' id='relateds_move_down' class='button secondary'>{{epw_move_down_msg}}</a>
+		<a href='#' id='relateds_remove' class='button red'>{{epw_remove_msg}}</a>
+		<br />
+		<br />
+	</div>
+	<input type=hidden value='' name='related_list'>
+	<select size='4' name='related' id='related_select'>
+	{{#relateds_titles}}
+		<option value="{{.}}">{{.}}</option>
+	{{/relateds_titles}}
+	</select>
+	<br />
+	<br />
+	<br class='clearall'/>
+	<div>
+		<b>{{addtitle_msg}}</b><br />
+		<input type='text' id='relateds_title_search' autocomplete='off' maxLength='256' name='q' value='' tabindex='8'>
+	</div>
+	<a href='#' id='add_button' class='button secondary'>{{epw_add_msg}}</a>
+	<br class='clearall'/>
+</div>
+
+<div id='sources' class='{{sources_vis}} minor_section'>
+	<h2>{{sources_msg}}
+		<div class='head_details'>{{linkstosites_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=2#{{sources_url_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<textarea name='sources' rows='3' cols='100' wrap='virtual' id='sources' tabindex='9'>{{sources_section}}</textarea>
+</div>
+
+<div class='minor_section'>
+	<h2>{{optional_options_msg}}</h2>
+	{{#show_category_edit}}
+		<div id='categories'>
+			<h5>{{add_categories_msg}}
+			{{#is_english}}
+				<a href="/{{writers_guide_url}}?section=2#{{more_info_categorization_msg}}" target='new'>{{moreinfo_msg}}</a>
+			{{/is_english}}
+			</h5>
+			<div id='option_cats'>
+			{{#is_english}}
+				<a href='#' id='ep_cat'>[{{editcategory_msg}}]</a><strong></strong>
+			{{/is_english}}
+			{{{category_options_form}}}
+			</div>
+		</div>
+	{{/show_category_edit}}
+
+	<div id='optional_sections'>
+		<h5>{{optionalsections_msg}}</h5>
+		<ul>
+			<li><input type='checkbox' id='thingsyoullneed_checkbox' name='thingsyoullneed_checkbox' {{thingsyoullneed_checked}} /> <label for='thingsyoullneed_checkbox'>{{thingsyoullneed_msg}}</label></li>
+			<li><input type='checkbox' id='relatedwikihows_checkbox' name='relatedwikihows_checkbox' {{relatedwikihows_checked}} /> <label for='relatedwikihows_checkbox'>{{relatedwikihows_msg}}</label></li>
+			<li><input type='checkbox' id='sources_checkbox' name='sources_checkbox' {{sources_checked}} /> <label for='sources_checkbox'>{{sources_msg}}</label></li>
+			<li><input type='checkbox' id='ingredients_checkbox' name='ingredients_checkbox' {{ingredients_checked}} /> <label for='ingredients_checkbox'>{{ingredients_checkbox_msg}}</label></li>
+		</ul>
+	</div>
+</div>
+
+<div class='minor_section'>
+	<div class='editOptions'>
+		<h2>{{editdetails_msg}}
+			<div class='head_details'>{{summaryedit_msg}}</div>
+			<a href="/{{writers_guide_url}}?section=2#{{summary_msg}}" target='new'>{{moreinfo_msg}}</a>
+		</h2>
+		{{#show_edit_summary}}
+			<input tabindex='10' type='text' value='{{summarytext}}' name='wpSummary' id='wpSummary' maxlength='200' size='60' /><br />
+		{{/show_edit_summary}}
+		{{#show_minor_edit_html}}
+			<input tabindex='11' type='checkbox' value='1' name='wpMinoredit' {{minor_edit_checked}} accesskey='{{accesskey_minoredit_msg}}' id='wpMinoredit' />
+			<label for='wpMinoredit' title='{{tooltip_minoredit_msg}}'>{{minoredit_msg}}</label>
+		{{/show_minor_edit_html}}
+		{{#show_watch_html}}
+			<input tabindex='12' type='checkbox' name='wpWatchthis' {{watchthis_checked}} accesskey='{{accesskey_watch_msg}}' id='wpWatchthis' />
+			<label for='wpWatchthis' title='{{tooltip_watch_msg}}'>{{watchthis_msg}}</label>
+		{{/show_watch_html}}
+		{{#undo_id}}
+			<input type='hidden' value='{{undo_id}}' name='wpUndoEdit' />
+		{{/undo_id}}
+		<input type='hidden' value='{{edit_token}}' name='wpEditToken' />
+		<input type='hidden' value='{{edit_token_track}}' name='wpEditTokenTrack' />
+		<div class='editButtons'>
+			<a href='#' id='wpCancel' class='button secondary'>{{cancel_msg}}</a>
+			{{{all_buttons}}}
+		</div>
+		{{{copyright_warning}}}
+	</div>
+</div>
+<input type='hidden' value="{{section_number}}" name='wpSection' />

@@ -1,0 +1,26 @@
+{{! Rendered after the user clicks "Send emails" }}
+
+<h2>
+	{{#is_ok}} The invoices were sent successfully {{/is_ok}}
+	{{^is_ok}} There were some errors {{/is_ok}}
+</h2>
+
+<div class="confirmation_result">
+
+	{{^is_ok}}
+		<h3>Errors:</h3>
+		<ul class="summary_list">
+		{{#bad}}
+			<li>{{fullName}} ({{email}}). Error: {{error}}</li>
+		{{/bad}}
+		</ul>
+	{{/is_ok}}
+
+	<h3>Sent:</h3>
+	<ul class="summary_list">
+	{{#good}}
+		<li>{{fullName}} ({{email}})</li>
+	{{/good}}
+	</ul>
+
+</div>

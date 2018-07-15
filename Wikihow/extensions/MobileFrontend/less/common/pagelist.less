@@ -1,0 +1,150 @@
+@import "minerva.variables";
+@import "minerva.mixins";
+
+
+@thumbGap: 15px;
+@thumbWidth: 70px;
+@thumbSpace: @thumbWidth + @thumbGap;
+@thumbOverlayWidth: @searchBarPaddingLeft;
+@thumbOverlaySpace: @thumbOverlayWidth + @thumbGap;
+
+
+.listThumb {
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	&.needsPhoto {
+		.background-size(100%, auto);
+		background-color: #3b6fba;
+		background-image: url(../specials/images/camera.png);
+	}
+}
+
+.listThumbH {
+	.background-size(auto, 100%);
+}
+
+.listThumbV {
+	.background-size(100%, auto);
+}
+
+// Lists of pages
+//
+// Use the page-list class when rendering a list of pages.
+// Always render a page-list outside a .content element
+//
+// Markup:
+// <ul class="page-list thumbs">
+//  <li>
+//    <div class="listThumb"></div>
+//    <div class="title"><h2>San Francisco</h2></div>
+//  </li>
+//  <li>
+//    <div class="listThumb needsPhoto"></div>
+//    <div class="title"><h2>New York</h2></div>
+//  </li>
+// </ul>
+//
+// Styleguide 5.
+.page-list {
+	// needed for rotated watchstars to avoid horizontal scrollbar
+	overflow: hidden;
+
+	li {
+		color: #666;
+		position: relative;
+		border-bottom: solid 1px @grayLightest;
+		padding: 18px @contentMargin;
+		// avoid the gap between thumbnails
+		margin: -1px 0 0;
+		line-height: 1;
+
+		> a {
+			display: block;
+			color: #666;
+
+			&:active,
+			&:hover,
+			&:visited {
+				text-decoration: none;
+				color: #666;
+			}
+		}
+	}
+
+	&.thumbs li {
+		padding-left: @thumbSpace;
+	}
+
+	.title {
+		// 22px is the width of the watchlist star, +2px for additional padding
+		padding-right: 24px;
+
+		h2 {
+			.watchlist-heading();
+		}
+	}
+
+	.listThumb {
+		position: absolute;
+		width: @thumbWidth;
+		height: 100%;
+		top: 0;
+		left: 0;
+	}
+
+	// something on watchlist that doesn't exist
+	.title.new h2 {
+		color: @redBase;
+	}
+
+	div, p {
+		font-size: .9em;
+		margin: 0;
+		color: #999b9e;
+	}
+
+	// mw-mf-comment
+	p {
+		line-height: 1;
+		margin: .25em 0 0;
+	}
+
+	// FIXME: Add component class to all info classes in currently defined page-lists
+	.info,
+	.component {
+		color: #a6a6a6;
+		margin: .6em 0 0;
+	}
+
+	.info {
+		font-size: .7em;
+		text-transform: uppercase;
+	}
+
+	.mw-mf-user {
+		margin: .5em 0 0;
+	}
+}
+
+// For search in stable ONLY
+// FIXME: there is no reason for styling in overlays to be different!
+// FIXME: remove when new search overlays in stable
+.stable .mw-mf-overlay {
+	.page-list {
+		font-size: .9em;
+
+		li {
+			padding-left: @searchBarPaddingLeft;
+		}
+
+		h2 {
+			font: inherit;
+		}
+	}
+
+	.actionable {
+		li:hover {
+			background-color: #ACD1E9;
+		}
+	}
+}

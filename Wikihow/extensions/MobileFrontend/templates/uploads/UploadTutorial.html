@@ -1,0 +1,18 @@
+<button class="slider-button prev"></button>
+<ul>
+	{{#pages}}
+	<li class="slide slide-image">
+		<strong>{{caption}}</strong>
+		<p>{{text}}</p>
+		{{#button}}
+		{{#funnel}}
+		<div class="button cloaked"></div>
+		{{/funnel}}
+		{{^funnel}}
+		<button class="cancel button">{{button}}</button>
+		{{/funnel}}
+		{{/button}}
+	</li>
+	{{/pages}}
+</ul>
+<button class="slider-button next"></button>

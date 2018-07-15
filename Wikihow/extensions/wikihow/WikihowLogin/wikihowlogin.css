@@ -1,0 +1,289 @@
+/***** SIGNUP/LOGIN PAGE *****/
+.login_header {
+	padding: 15px 22px;
+	margin-bottom: 0;
+	border-radius: 5px 5px 0 0;
+	-moz-border-radius: 5px 5px 0 0;
+	-webkit-border-radius: 5px 5px 0 0;
+}
+.login_headline {
+	font-size: 2.2em;
+	font-weight: bold;
+}
+.login_top_link {
+	float: right;
+	font-size: .8em;
+	line-height: 3.3em;
+}
+
+#userloginForm {
+	font-size: 13px;
+	display: inline-block;
+	border-right: 1px solid #e4e4e4;
+	position: relative;
+	width: 400px;
+}
+#userloginForm.userloginform {
+	margin-top: 20px;
+	margin-bottom: 15px;
+}
+
+#userLoginOr {
+	position: absolute;
+	right: -8px;
+	top: 115px;
+	background-color: #F6F5F4;
+	padding: 5px 2px;
+	color: #a9a9a9;
+}
+
+.usercreateform { width: 380px; }
+#userloginForm table { border-spacing: 0; }
+.userloginform .mw-info, .userloginform  .mw-error {
+	margin: -56px 0 0 312px;
+}
+
+.usercreateform  .mw-info, .usercreateform   .mw-error {
+	margin: -82px 0 0 352px;
+}
+#userloginForm .mw-info#wpCaptchaWord_error { z-index: 1; }
+#userloginForm .mw-info#wpCaptchaWord_error h4 { color: #F00; }
+.userlogin_label, .captcha_label {
+	display: block;
+	width: 64px;
+	float: left;
+	padding-top: .8em;
+}
+.captcha_label { padding-top: 12px; }
+.mw-ui-checkbox-label { font-weight: normal; }
+#userloginForm .input_med { font-size: 1.3em; width: 305px; margin-bottom: 15px;}
+.remember_pwd {  padding-bottom: 9px;}
+.minor_section form .remember_pwd input[type="checkbox"] {
+	margin-left: 0px;
+}
+.fancycaptcha-image-container { margin-left: 66px; margin-bottom: 5px; }
+#realname_check {
+	margin-left: 65px;
+	margin-bottom: 10px;
+	margin-top: -10px;
+}
+#realname_check  input {
+	margin-left: 0;
+	vertical-align: middle;
+}
+#wpLoginAttempt {
+	width: 327px;
+	margin-right: 0;
+}
+#realname_check label { font-weight: normal; font-size: .75em; }
+.userlogin_option_row {
+	padding-bottom: .5em;
+	font-size: .85em;
+}
+.userlogin_captcha {
+	position:relative;
+	padding-top: 1em;
+	font-size: .85em;
+}
+.userlogin_captcha p { margin-bottom: 1em; }
+#real_name_row { display: none; }
+
+#userlogin_alt_logins {
+	float: right;
+	padding: 20px 5px 5px 15px;
+	width: 265px;
+	color: #ABABAB;
+	width: 220px;
+}
+
+#userlogin_alt_logins.signup {
+	padding-top: 0px;
+}
+
+#userlogin_alt_logins .headline {
+	margin-bottom: 30px;
+	font-size: 14px;
+	color: #545454;
+	font-weight: bold;
+}
+
+#userlogin_alt_logins.sign_up .headline {
+	font-weight: bold;
+	font-size: 14px;
+}
+
+#userlogin_alt_logins.sign_up {
+	width: 200px;
+	padding-top: 0px;
+	margin-top: 15px;
+}
+
+.sub_social_login {
+	margin: 0 0 30px 0;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#userloginprompt {
+	padding: .5em 0;
+	margin-top: 20px;
+	font-size: 12px;
+	color: #b1b1b1;
+}
+
+#signupreasons {
+	display: inline-block;
+	background-color: #fff;
+	padding: 25px;
+	float: right;
+	clear: right;
+	width: 350px;
+	margin-right: 10%;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+}
+
+#signupreasons ul li {
+	word-wrap: break-word;
+}
+
+.usercreateform {
+	margin-left: 20px;
+	margin-top: 15px;
+}
+
+.captcha_fineprint {
+	font-size: .8em;
+	width: 335px;
+	margin-left: 20px;
+}
+
+#userlogin_alt_logins .ulb_button {
+	height: 40px;
+	background-size: 36px;
+	line-height: 40px;
+	margin-bottom: 15px;
+	font-size: 14px;
+	width: 140px;
+	/* @noflip */
+	padding-left: 40px;
+}
+
+#userlogin_alt_logins .ulb_button .ulb_icon {
+	height: 40px;
+}
+
+.mw-error, .mw-info {
+	position: absolute;
+	background: #ffffff;
+	border: 3px solid #D6D5D4;
+	overflow: visible;
+	padding: 10px;
+	width: 200px;
+	-webkit-background-clip: padding-box;
+	-moz-background-clip: padding-box;
+	background-clip: padding-box;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+.mw-error {
+	color: #ff0000;
+}
+.mw-error:after, .mw-error:before, .mw-info:after, .mw-info:before {
+	right: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.mw-error:after, .mw-info:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-right-color: #ffffff;
+	border-width: 11px;
+	margin-top: -11px;
+}
+.mw-error:before, .mw-info:before {
+	border-color: rgba(0, 0, 0, 0);
+	border-right-color: #D6D5D4;
+	border-width: 15px;
+	margin-top: -15px;
+}
+
+.mw-info h4 {
+	font-size: 17px;
+	line-height: normal;
+	margin: 0;
+	background-color: inherit;
+}
+
+#userloginForm.usercreateform .input_med {
+	width: 260px;
+	margin-bottom: 15px;
+}
+
+#wpCreateaccount {
+	width: 350px;
+}
+
+.usercreateform #userlogin_alt_logins {
+	padding-top: 0;
+}
+
+.fancy_instructions {
+	margin-top: 15px;
+}
+
+.wpMark {
+	display: none;
+	/* @embed */
+	background-image: url(images/error.svg);
+	width: 31px;
+	height: 23px;
+	float: right;
+	margin: 13px 12px 0 0;
+	background-repeat: no-repeat;
+}
+
+#wpPassword2_error, #wpRetype_error, #wpCaptchaWord_error, #wpName2_error { margin-top: -57px; }
+#wpCaptchaWord_info {margin-top: -90px;}
+#wpEmail_info {margin-top: -100px;}
+#forgot_pwd {
+	margin-top: 10px;
+}
+
+#userloginForm.usercreateform #wpName2 { margin-bottom: 10px; }
+
+#userlogin2, #userlogin { margin-top: 0px; }
+#userlogin {margin-left: 20px; margin-bottom: 0;}
+
+.sidebox.usercreate {
+	padding: 16px 25px 25px 25px;
+}
+
+.sidebox.usercreate li {
+	/* @embed */
+	background-image: url(images/check.svg);
+	background-repeat: no-repeat;
+	background-position: 0 0;
+	background-size: 18px;
+	margin-bottom: 20px;
+	line-height: 18px;
+	color: #545454;
+	padding-left: 28px;
+}
+
+.sidebox.usercreate h2 {
+	margin: 25px 0;
+	color: #545454;
+}
+
+.sidebox.usercreate p {
+	font-weight: bold;
+	margin: 25px 0 10px 0;
+}

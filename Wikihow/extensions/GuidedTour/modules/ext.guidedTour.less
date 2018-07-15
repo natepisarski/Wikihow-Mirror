@@ -1,0 +1,83 @@
+@import 'ext.guidedTour.mixins';
+@import 'mediawiki.mixins';
+
+.guider {
+	border-color: #bbb;
+	font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif;
+	font-size: 14px;
+	padding: 12px;
+	.box-shadow(0 0 12px #ccc);
+	.border-radius(3px);
+}
+
+.guider_buttons {
+	height: auto;
+	margin-top: 8px;
+
+	.mw-ui-button {
+		margin-left: 6px;
+		float: right;
+	}
+}
+
+.guider_content {
+	h1 {
+		color: #252525;
+		font-size: 1.5em;
+		font-weight: bold;
+		margin-bottom: 4px;
+		border-bottom: none;
+	}
+
+	p {
+		font-size: 1em;
+		line-height: 1.3em;
+	}
+}
+
+.guider_close {
+	padding: 0;
+}
+
+.guider_arrow {
+	width: 40px;
+	/*.background-image('ext.guidedTour.arrows.png');*/
+	background-image: url('ext.guidedTour.arrows-green.png');
+}
+
+.guider_arrow_right,
+.guider_arrow_left {
+	height: 39px;
+}
+
+.guider_arrow_up,
+.guider_arrow_down {
+	height: 24px;
+}
+
+/**
+	Since Guiders uses dynamic absolute positioning, the elements below need to be flipped at a higher level.
+*/
+
+.guider_arrow_right {
+	background-position: 0 -63px;
+	/* @noflip */
+	right: -40px;
+}
+
+.guider_arrow_down {
+	background-position: 0 0;
+	//bottom: -23px;
+	bottom: -24px;
+}
+
+.guider_arrow_up {
+	background-position: 0 -102px;
+	top: -23px;
+}
+
+.guider_arrow_left {
+	background-position: 0 -24px;
+	/* @noflip */
+	left: -40px;
+}

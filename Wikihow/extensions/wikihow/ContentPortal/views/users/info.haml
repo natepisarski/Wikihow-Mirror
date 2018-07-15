@@ -1,0 +1,35 @@
+
+
+.info-container
+	%h4= "Info for {$user->username}"
+
+	%ul.nav.nav-tabs(role="tablist")
+		%li.active(role="presentation")
+			%a(href="#notes" role="tab" data-toggle="tab") User Notes
+
+		%li(role="presentation")
+			%a(href="#history" role="tab" data-toggle="tab") Recent Activity
+
+
+	.tab-content.well-body
+		.tab-pane.active#notes(role="tabpanel")
+			- if (empty($user->note))
+				!= alert("There are no notes for this user.")
+			- else
+				.message-container
+					.message
+						%p= $user->note
+
+		.tab-pane#history(role="tabpanel")
+
+			- if (!$user->events)
+				!= alert("There have been no events logged for this user.")
+
+			- else
+				%h4
+					25 Most Recent Events
+					%small
+						for full list visit
+						%a{href: url('events/user', ['user_id' => $user->id])} Full event list
+				- foreach($user->recentEvents() as $event)
+					!= partial('events/_event', ['event' => $event]);

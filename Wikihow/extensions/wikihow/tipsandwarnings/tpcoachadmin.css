@@ -1,0 +1,50 @@
+table.tpc_scores {
+	width: 640px;
+	font-variant: normal;
+	font-style: normal;
+	border-spacing: 0px;
+}
+
+table.tpc_scores th {
+	text-align: left;
+	border-bottom: 1px black solid;
+	padding: 5px;
+	line-height: 15px;
+}
+
+table.tpc_scores tr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+table.tpc_scores tr.odd{
+	background: #EEEEEE;
+}
+
+table.tpc_scores td {
+	padding: 5px;
+	line-height: 15px;
+}
+
+form.tpc_ts {
+	margin-bottom: 25px;
+}
+
+form.tpc_ts input[type=text] {
+	padding: 2px;
+	width: 15px;
+}
+#tpc_newtest {
+	overflow: auto;
+	width: 100%;
+	padding-bottom: 1em;
+	border-bottom:1px solid #A59983;
+}
+.tpc_newtest_line {
+	padding-bottom: 5px;
+}
+#article_tabs {
+	margin-bottom:10px;
+	padding-bottom:5px;
+	border-bottom:1px solid #A59983;
+}

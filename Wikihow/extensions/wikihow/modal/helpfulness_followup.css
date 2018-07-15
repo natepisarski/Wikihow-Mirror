@@ -1,0 +1,49 @@
+
+.wh_modal_section {
+	padding: .7em 1em;
+	text-align: left;
+}
+
+.wh_modal_text { 
+	line-height: normal;
+	padding-bottom: 1em;
+}
+#hfu_default .wh_modal_text { font-size: .9em; }
+
+#wh_modal_buttons { text-align: center; }
+#wh_modal_buttons .button { font-weight: normal; }
+
+#hfu_methods, #hfu_ty { display: none; }
+
+#hfu_method_list {
+	display: none;
+	list-style: none;
+	font-size: .8em;
+	padding: 10px 15px;
+}
+#hfu_method_list li {
+	padding: 5px;
+}
+
+.hfu_button {
+	width: 35%;
+	margin: 0 1em;
+}
+
+#hfu_ty {
+	text-align: center;
+	font-size: 1em;
+}
+#hfu_ty .wh_modal_text { font-size: 1em; }
+
+#hfu_nothanks_div {
+	text-align: center;
+	font-size: .8em;
+}
+
+#wh_modal_close {
+	font-weight: bold;
+	padding-right: 2px;
+	margin-top: -2px;
+}
+#wh_modal_close:hover { text-decoration: none; }

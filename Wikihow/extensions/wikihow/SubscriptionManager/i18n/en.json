@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": [
+			"Lojjik Braughler"
+		]
+	},
+	"subscriptionmanager": "Subscription Manager",
+	"subscriptionmanager-receive-emails-title": "Receive {{SITENAME}} emails",
+	"subscriptionmanager-unsubscribe-emails-title": "Unsubscribe from {{SITENAME}} emails",
+	"subscriptionmanager-desc": "Provides [[Special:SubscriptionManager|a special page]] allowing users (and email addresses) to opt-out of {{SITENAME}} e-mails through preferences and generated links.",
+	"subscriptionmanager-unsubscribe-success": "You have successfully opted out of {{SITENAME}} emails. If you change your mind, you can re-enable them by [[Special:Preferences#mw-prefsection-echo|changing your preferences.]]",
+	"subscriptionmanager-optin-success": "You have successfully opted in to receiving {{SITENAME}} emails. You can configure which types of email you would like to receive by [[Special:Preferences#mw-prefsection-echo|changing your preferences]].",
+	"subscriptionmanager-btn-optout-label": "Unsubscribe",
+	"subscriptionmanager-btn-optin-label": "Allow emails from {{SITENAME}}",
+	"subscriptionmanager-changeprefs-anon": "If you'd like to receive other types of email from {{SITENAME}}, you can [{{fullurl:{{#special:Userlogin}}|returnto=Special:Preferences#mw-prefsection-echo}} log in and change your preferences].",
+	"subscriptionmanager-changeprefs-user": "Want to change the types of email you receive? You can [[Special:Preferences#mw-prefsection-echo|change your preferences]].",
+	"subscriptionmanager-community": "... or, check out [[Special:CommunityDashboard|what's happening in the community]]!",
+	"subscriptionmanager-check-optout-label": "Please unsubscribe me from '''all''' future {{SITENAME}} e-mails.",
+	"subscriptionmanager-undo": "Want to undo?",
+	"subscriptionmanager-error-1": "The token that was given didn't match our records.",
+	"subscriptionmanager-error-2": "Whoops! We couldn't find your email or account.",
+	"subscriptionmanager-error-3": "Uh oh... there was no token given in your request. Maybe a broken link?",
+	"subscriptionmanager-error-4": "Hmm...we were unable to determine what type of user you are.",
+	"subscriptionmanager-error-5": "Please check the box and try again.",
+	"subscriptionmanager-error-6": "The email address that was given looked a bit broken.",
+	"subscriptionmanager-error-7": "We couldn't find your account name.",
+	"subscriptionmanager-error-8": "Your email has already unsubscribed from {{SITENAME}} emails. ",
+	"subscriptionmanager-error-9": "Your email needs to be authenticated before you can opt-out from Preferences.",
+	"subscriptionmanager-error-report-problem": "If you think you might be receiving this message in error, you can [mailto:support@wikihow.com report it]."
+}

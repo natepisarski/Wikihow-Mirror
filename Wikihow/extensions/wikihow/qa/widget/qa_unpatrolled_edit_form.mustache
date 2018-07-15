@@ -1,0 +1,34 @@
+<div class="qa_up_edit_form">
+	<div class="qa_up_edit_form_status"></div>
+	<textarea class="qa_cq_text" spellcheck="true" placeholder="{{qa_edit_form_question_placeholder}}">{{qa_up_edit_form_question}}</textarea>
+	<div class="qa_invalid_msg qa_cq_text_error qap_char_limit">{{qa_cq_text_error}}</div>
+	<textarea class="qa_ca_text" spellcheck="true" placeholder="{{qa_edit_form_answer_placeholder}}">{{qa_up_edit_form_answer}}</textarea>
+	<div class="qa_invalid_msg qa_ca_text_error qap_char_limit">{{qa_ca_text_error}}</div>
+	<div class="qa_invalid_msg qa_ca_text_error2 qap_char_limit">{{qa_ca_text_min}}</div>
+	<div class="qa_invalid_msg qa_ca_text_error3 qap_char_limit">{{qa_ca_error_url}}</div>
+	<div class="qa_invalid_msg qa_ca_text_error_phone qap_char_limit">{{qa_ca_error_phone}}</div>
+
+	<span class="qa_edit_form_verifier_container">
+		{{qa_edit_form_verifier_label}}
+		<select class="qa_edit_form_verifier">
+			{{#qa_edit_form_verifiers}}
+				<option value="{{id}}" {{selected}}>{{name}}</option>
+			{{/qa_edit_form_verifiers}}
+		</select>
+	</span>
+	{{#qa_edit_form_show_remove_submitter}}
+		<span class="qa_edit_form_remove_submitter_container">
+		<label for="qa_aq_remove_submitter">{{qa_edit_form_remove_submitter}}</label> <input type="checkbox" id="qa_aq_remove_submitter" class="qa_checkbox" />
+	</span>
+	{{/qa_edit_form_show_remove_submitter}}
+
+	<div class="clearall"></div>
+
+	<div class="qa_up_edit_buttons">
+		<a class="qa_up_delete button secondary">{{qa_up_edit_form_delete}}</a>
+		<a class="qa_up_reject button secondary">{{qa_up_edit_form_reject}}</a>
+		<a class="qa_up_approve button primary">{{qa_up_edit_form_approve}}</a>
+		<a class="qa_up_cancel button secondary">{{qa_edit_form_cancel}}</a>
+		<span class="qa_spinner"></span>
+	</div>
+</div>

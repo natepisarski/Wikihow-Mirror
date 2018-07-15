@@ -1,0 +1,9 @@
+.svn
+*~
+*.kate-swp
+.*.swp
+.idea/
+node_modules/
+tmp/
+docs/
+scripts/remotes

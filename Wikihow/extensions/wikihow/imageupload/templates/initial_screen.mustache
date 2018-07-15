@@ -1,0 +1,17 @@
+<div id="iu_initial">
+
+	<div id="iu_start_error"></div>
+
+	<h2>{{upload_details_msg}}</h2>
+
+	<h3>{{image_msg}}</h3>
+	<form id='iu_uploadform' name='iu_uploadform' enctype='multipart/form-data' method='post' action='/Special:ImageUploader'>
+		<input type='hidden' name='action' value='uploadfile' />
+		<div id='iu_submitfile'>
+			<button id="iu_choose_file" class="button secondary">{{{choose_button_msg}}}</button>
+			<img src="/extensions/wikihow/rotate.gif" alt="" class="iu_wheel" id="iu_wheel_upload" />
+			<span id="iu_error_message"></span>
+		</div>
+	</form>
+
+</div>

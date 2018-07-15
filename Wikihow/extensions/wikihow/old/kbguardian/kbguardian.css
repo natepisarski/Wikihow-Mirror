@@ -1,0 +1,69 @@
+div#kbg-toolbar-buttons {
+	margin-left: auto;
+	margin-right: auto;
+	width: 305px;
+}
+
+div.kbg-waiting {
+	background: url(/extensions/wikihow/rclite/rcl_background.png) repeat;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	z-index: 10;
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+	color: white;
+	padding: 100px 0;
+	text-align: center;
+}
+
+div.kbg-waiting.loggedin {
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+
+#kbg-waiting-heading {
+	font-size: 38px;
+}
+
+#kbg-waiting-subheading {
+	font-size: 24px;
+}
+
+#kbg-waiting-spinner {
+	background: url(/skins/owl/images/200x200_circle.png) center;
+	width: 200px;
+	height: 200px;
+	margin: 50px auto;
+	-webkit-animation: rotation 2s infinite linear;
+}
+
+@-webkit-keyframes rotation {
+	from {
+		-webkit-transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(359deg);
+	}
+}
+
+a#kbg-no {
+	margin-right: 0px;
+}
+
+.kbg_image_placeholder {
+	padding: 20px;
+	text-align: center;
+	border-bottom: 1px solid lightgray;
+}
+
+div#footer div#footer_random_button {
+	visibility: hidden;
+	display: block;
+}
+
+.kbg_error {
+	text-align: center;
+}
+

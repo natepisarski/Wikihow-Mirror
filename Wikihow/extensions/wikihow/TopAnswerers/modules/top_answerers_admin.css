@@ -1,0 +1,43 @@
+.total_answer_count {
+	display: inline-block;
+	color: #666;
+	font-size: .7em;
+	font-weight: normal;
+	margin-left: .5em;
+}
+
+.search_input {
+	width: 300px;
+}
+
+#ta_export {
+	float: right;
+}
+
+.ta_result {
+	padding: 1em;
+	font-size: .9em;
+}
+.ta_result:nth-child(even) {
+	background-color: #EEE;
+}
+
+.block_link, .unblock_link {
+	float: right;
+}
+
+.ta_response {
+	border-radius: 4px;
+	padding: 12px;
+	margin-top: .5em;
+}
+
+.good { background-color: #E7EBE4; }
+.bad  { background-color: #EACECA; }
+
+.newTA { display: none; }
+
+.subcat + .subcat:before {
+	content: ",";
+	padding-right: 5px;
+}

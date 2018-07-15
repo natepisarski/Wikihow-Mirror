@@ -1,0 +1,61 @@
+{{! The invoice sent to contractors }}
+
+<div style="font-family:arial,sans,sans-serif;font-size:14px;">
+
+	<p>Hello {{firstName}},</p>
+	<p>Here is a summary of your invoice:</p>
+
+	<b>Total paid:</b> {{paid}}
+	<br>
+
+	{{#verified.0}}
+
+	<br>
+	<b>Paid Verification URLs:</b>
+	<br><br>
+
+	<table cellspacing="0" cellpadding="0" border="1" style="table-layout:fixed;font-size:13px;border-collapse:collapse;border:none">
+		<tbody>
+			<tr>
+				<td style="padding: 4px; color: white; background-color: #93b874;">{{fullName}}</td>
+				<td style="padding: 4px; color: white; background-color: #93b874; text-align: right">{{verifiedCnt}}</td>
+			</tr>
+			{{#verified}}
+			<tr>
+				<td style="padding: 3px 4px; color: black;"><a href="{{url}}">{{.}}</a></td>
+				<td style="padding: 3px 4px; color: black; text-align:right">1</td>
+			</tr>
+			{{/verified}}
+		</tbody>
+	</table>
+
+	{{/verified.0}}
+
+	{{#reverified.0}}
+
+	<br>
+	<b>Paid Reverification URLs:</b>
+	<br><br>
+
+	<table cellspacing="0" cellpadding="0" border="1" style="table-layout:fixed;font-size:13px;border-collapse:collapse;border:none">
+		<tbody>
+			<tr>
+				<td style="padding: 4px; color: white; background-color: #93b874;">{{fullName}}</td>
+				<td style="padding: 4px; color: white; background-color: #93b874; text-align: right">{{reverifiedCnt}}</td>
+			</tr>
+			{{#reverified}}
+			<tr>
+				<td style="padding: 3px 4px; color: black;"><a href="{{url}}">{{.}}</a></td>
+				<td style="padding: 3px 4px; color: black; text-align:right">1</td>
+			</tr>
+			{{/reverified}}
+		</tbody>
+	</table>
+
+	{{/reverified.0}}
+
+	<div style="margin-top: 20px;">
+		Thank you,<br>Daniel
+	</div>
+
+</div>

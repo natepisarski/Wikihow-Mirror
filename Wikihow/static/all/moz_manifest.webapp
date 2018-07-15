@@ -1,0 +1,57 @@
+{
+	"name": "wikiHow",
+	"description": "wikiHow Mobile",
+	"launch_path": "/",
+	"icons": {
+		"128": "http://pad1.whstatic.com/skins/WikiHow/images/wh_icon_128.png"
+	},
+	"developer": {
+		"name": "wikiHow",
+		"url": "http://www.wikihow.com/"
+	},
+	"default_locale": "en",
+	"locales": {
+		"es": {
+			"description": "wikiHow - Cómo hacer de todo",
+			"developer": {
+				"url": "http://es.wikihow.com/"
+			}
+		},
+		"de": {
+			"description": "wikiHow - Wie man's macht von A bis Z",
+			"developer": {
+				"url": "http://de.wikihow.com/"
+			}
+		},
+		"pt": {
+			"description": "wikiHow - Como Fazer Qualquer Coisa",
+			"developer": {
+				"url": "http://pt.wikihow.com/"
+			}
+		},
+		"it": {
+			"description": "wikiHow - Il Manuale del \"Come si Fa\" che Tutti Possono Modificare",
+			"developer": {
+			"url": "http://it.wikihow.com/"
+			}
+		},
+		"fr": {
+			"description": "wikiHow - Le manuel que vous pouvez modifier",
+			"developer": {
+				"url": "http://fr.wikihow.com/"
+			}
+		},
+		"nl": {
+			"description": "wikiHow - De handleiding die jij kan bewerken",
+			"developer": {
+				"url": "http://nl.wikihow.com/"
+			}
+		},
+		"hi": {
+			"description": "wikiHow - कैसे कुछ भी करें",
+			"developer": {
+				"url": "http://hi.wikihow.com/"
+			}
+		}
+	}
+}

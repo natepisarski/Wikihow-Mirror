@@ -1,0 +1,10 @@
+<div class="ta_result {{class_new}}" data-id="{{ta_id}}">
+	<a href="#" class="block_link">{{ta_block_link}}</a>
+	<a href="{{ta_user_link}}" target="_blank">{{ta_user_name}}</a> {{#ta_user_real_name}}({{ta_user_real_name}}){{/ta_user_real_name}}<br />
+	<b>{{ta_added_text}}:</b> {{added_date}}, <b>{{ta_last_answer_text}}:</b> {{last_answer_date}}, <b>{{ta_type_text}}:</b> {{ta_source}}, <b>{{ta_answers_live_label}}:</b> {{ta_answers_live_count}}<br />
+	{{ta_avg_sim_score}} {{ta_sim_label}}, {{ta_avg_app_rating}} {{ta_rating_label}} <em>({{ta_answers_calc_label}}: {{ta_answers_calc_count}})</em><br />
+	{{#ta_top_cats.0}}
+		<b>{{ta_subcats_label}}:</b>
+		{{#ta_top_cats}}<span class="subcat"><a href="{{cat_link}}" target="_blank">{{cat}}</a> ({{cat_count}})</span>{{/ta_top_cats}}
+	{{/ta_top_cats.0}}
+</div>

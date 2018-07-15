@@ -1,0 +1,183 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+"""
+  eventlogging-devserver
+  ----------------------
+
+  Invoking this command-line tool will spawn a web server that can serve
+  as a test logging endpoint. Events logged against this server will be
+  validated verbosely and pretty-printed to the terminal.
+
+  To use this, you probably want to set '$wgEventLoggingBaseUri' on your
+  test wiki to point at the host and port of this web server. The value
+  '//localhost:8080/event.gif' should work.
+
+  usage: eventlogging-devserver [-h] [--host HOST] [--port PORT]
+
+  optional arguments:
+    -h, --help    show this help message and exit
+    --host HOST   server host (default: 'localhost')
+    --port PORT   server port (default: 8080)
+    --nocolor     turn off all syntax highlighting
+
+  :copyright: (c) 2012 by Ori Livneh <ori@wikimedia.org>
+  :license: GNU General Public Licence 2.0 or later
+
+"""
+# pylint: disable=E0611
+from __future__ import print_function, unicode_literals
+
+import argparse
+import itertools
+
+from wsgiref.simple_server import make_server, WSGIRequestHandler
+
+import eventlogging
+import jsonschema
+
+from pygments import formatters, highlight, lexers
+from pygments.console import ansiformat
+
+
+argparser = argparse.ArgumentParser()
+argparser.add_argument('--host', default='localhost',
+                       help='server host (default: localhost)')
+argparser.add_argument('--port', default=8080, type=int,
+                       help='server port (default: 8080)')
+argparser.add_argument('--nocolor', action='store_true',
+                       help='turn off all syntax highlighting')
+args = argparser.parse_args()
+
+if args.nocolor:
+    formatter = formatters.get_formatter_by_name('null')
+    colorize = lambda color, string: string
+else:
+    formatter = formatters.get_formatter_by_name('256', style='rrt')
+    colorize = ansiformat
+
+json_lexer = lexers.get_lexer_by_name('json')
+php_lexer = lexers.get_lexer_by_name('php', startinline=True)
+
+server_software = 'EventLogging/%s' % eventlogging.__version__
+
+seq_ids = itertools.count()
+parser = eventlogging.LogParser('%q %l %n %t %h')
+log_fmt = ('?%(QUERY_STRING)s %(SERVER_NAME)s %(SEQ_ID)d '
+           '%(TIME)s %(REMOTE_ADDR)s')
+
+
+def format_config(vars):
+    code = '\n'.join('$%s = %r;' % item for item in items(vars))
+    return highlight(code, php_lexer, formatter).strip()
+
+
+def heading(caption=None):
+    if caption is None:
+        return 74 * '-'
+    return '-- {:-<95}'.format(colorize('*yellow*', caption) + ' ')
+
+def prepare_response(status, headers):
+    """Encode a dictionary of HTTP headers to a list of tuples
+    containing bytes."""
+    if eventlogging.compat.PY3:
+        return status, list(headers.items())
+    status = status.encode('utf-8')
+    headers = [(k.encode('utf-8'), v.encode('utf-8')) for k, v in
+               headers.iteritems()]
+    return status, headers
+
+
+class EventLoggingHandler(WSGIRequestHandler):
+    """WSGI request handler; annotates environ dict with seq ID and
+    timestamp in NCSA Common Log Format."""
+
+    def get_environ(self):
+        environ = WSGIRequestHandler.get_environ(self)
+        environ.update(SEQ_ID=next(seq_ids), TIME=eventlogging.ncsa_utcnow())
+        return environ
+
+    def log_message(self, format, *args):  # pylint: disable=W0621
+        pass  # We'll handle logging in the WSGI app.
+
+
+def validate(log_line):
+    """Parse and validate a log line containing an encapsulated event.
+    Returns a tuple of (event, errors). If no object was decoded,
+    'event' will be None."""
+    try:
+        event = parser.parse(log_line)
+    except ValueError as err:
+        return None, [err]
+
+    try:
+        scid = event['schema'], event['revision']
+    except KeyError as err:
+        return event, [err]
+
+    try:
+        schema = eventlogging.get_schema(scid, encapsulate=True)
+    except jsonschema.SchemaError as err:
+        return event, [err]
+
+    validator = jsonschema.Draft3Validator(schema)
+    return event, list(validator.iter_errors(event))
+
+
+def handle_event(environ, start_response):
+    """WSGI app; parses, validates and pretty-prints incoming event
+    requests."""
+    log_line = log_fmt % environ
+    event, errors = validate(log_line)
+
+    headers = {
+        'Server': server_software,
+        'Requested-Event-Valid': str(int(not errors))
+    }
+
+    for i, error in enumerate(errors):
+        headers['Validation-Error-%d' % (i + 1)] = str(error)
+    status, headers = prepare_response('204 No Content', headers)
+    start_response(status, headers)
+
+    print(heading('request'))
+    print(log_line)
+
+    print(heading('event'))
+    json = eventlogging.json.dumps(event, indent=2, sort_keys=True)
+    print(highlight(json, json_lexer, formatter), end='')
+
+    print(heading('validation'))
+    for error in errors:
+        print(colorize('_red_', 'Error:'), error)
+
+    if not errors:
+        print(colorize('_green_', 'Valid.'))
+
+    print(heading())
+    return []
+
+
+httpd = make_server(args.host, args.port, handle_event,
+                    handler_class=EventLoggingHandler)
+
+print('''
+   ___                        _
+  / (_)                    \_|_)                 o
+  \__        _   _  _  _|_   |     __   __,  __,     _  _    __,
+  /    |  |_|/  / |/ |  |   _|    /  \_/  | /  | |  / |/ |  /  |
+  \___/ \/  |__/  |  |_/|_/(/\___/\__/ \_/|/\_/|/|_/  |  |_/\_/|/
+-----------------------------------------/|---/|--------------/|----------
+  (C) Wikimedia Foundation, 2013         \|   \|              \|
+
+''' + highlight('''
+# Ensure the following values are set in LocalSettings.php:
+require_once( "$IP/extensions/EventLogging/EventLogging.php" );
+$wgEventLoggingBaseUri = 'http://%s:%s/event.gif';
+$wgEventLoggingSchemaIndexUri = 'http://meta.wikimedia.org/w/index.php';
+
+# Listening to events.''' % (args.host, args.port), php_lexer, formatter))
+
+try:
+    httpd.serve_forever()
+except KeyboardInterrupt:
+    pass

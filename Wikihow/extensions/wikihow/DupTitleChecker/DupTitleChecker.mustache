@@ -1,0 +1,37 @@
+<form action="/Special:{{action}}?dedup=1" method="post" id ="dedup">
+<div class='bx'>
+	<p>
+		<span class='sm'>Upload a list of titles to check if a duplicate article exists on wikiHow (ignores deindexed articles)</span>
+		<ul>
+			<li>Uses bing search to find duplicates on website.</li>
+			<li>If duplicates are found, they are added to dedup tool to be manually resolved.</li>
+			<li>If an exact duplicate is found, it is reported as exact match.</li>
+			<li>The results of this process can be obtained from AdminDedupTool.</li>
+		</ul>
+		<span class='sm'>Upload a list to check if there are duplicates within the list (Checkbox under the input below) </span>
+		<ul>
+			<li>Uses bing search to find duplicates.</li>
+			<li>The results of this process is a csv that is downloaded after the script is done.</li>
+		</ul>
+	</p>
+</div>
+<div class='bx'>
+<div class=bx>
+	<p>
+		<span class=sm>enter queries (Choose one)</span>
+		<p>
+			<textarea name="queries" id="queries"></textarea><br/>
+		</p>
+		<p>
+			<span class=sm>Dedup within the List</span>
+			<input type='checkbox' value='' name='listdedup' id='listdedup'	 />
+		</p>
+	</p>
+	<p><button class='submit' type="submit" id="keyword-submit">Submit</button></p>
+</div>
+</form>
+
+<div class=bx>
+	<p class=sm>Recent Job Status</p>
+	<div class="jobStatusStyle">{{{jobStatus}}}</div>
+</div>

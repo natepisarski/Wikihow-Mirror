@@ -1,0 +1,59 @@
+FirstStep First Step
+FirstStep Go to first step
+FirstStep Go to the first step
+FirstStep Go to the first step in the article
+FirstStep Read first step
+FirstStep Read the first step
+FirstStep Read the first step in the article
+FirstStep Read steps
+LastStep Last Step
+LastStep last step
+LastStep Go to last step
+LastStep Go to the last step
+LastStep Read the last step
+NextStep Keep going
+NextStep Continue
+AMAZON.StartOverIntent start over
+AMAZON.StartOverIntent reset
+AMAZON.StartOverIntent home
+AMAZON.StartOverIntent new query
+AMAZON.NextIntent Next step
+AMAZON.NextIntent Go on
+AMAZON.NextIntent Go forward
+AMAZON.PreviousIntent Go back
+AMAZON.PreviousIntent Back up
+AMAZON.PreviousIntent Previous
+AMAZON.PreviousIntent Prev
+ResumeIntent continue
+ResumeIntent resume
+QueryIntent how can I {query}
+QueryIntent how can you {query}
+QueryIntent how do I {query}
+QueryIntent how do you {query}
+QueryIntent Query for {query}
+QueryIntent how to {query}
+QueryIntent {query}
+GoToStepIntent Go to {step_num}
+GoToStepIntent Go to number {step_num}
+GoToStepIntent Go to step {step_num}
+GoToStepIntent Go to step number {step_num}
+GoToStepIntent Repeat step {step_num}
+GoToStepIntent Repeat step number {step_num}
+GoToStepIntent Read step {step_num}
+GoToStepIntent Read step number {step_num}
+GoToStepIntent Re-read step {step_num}
+GoToStepIntent Re-read step number {step_num}
+GoToStepIntent Reread step {step_num}
+GoToStepIntent Reread step number {step_num}
+GoToStepIntent Replay step {step_num}
+GoToStepIntent Replay step number {step_num}
+GoToStepIntent Step number {step_num}
+GoToStepIntent Step {step_num}
+PlaySummaryVideo Play Summary Video
+PlaySummaryVideo Play Summary
+PlaySummaryVideo Replay Summary Video
+PlaySummaryVideo Play Video Video Summary
+PlaySummaryVideo Play Video
+PlaySummaryVideo Replay Video Summary
+PlaySummaryVideo In a Hurry
+PlaySummaryVideo In a Hurry Video

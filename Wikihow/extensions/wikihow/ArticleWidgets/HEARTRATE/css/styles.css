@@ -1,0 +1,93 @@
+	
+#header h1 {
+	width:100%;
+	}
+.more {
+	top:111px;
+	left:294px;
+	}	
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+   	width: 305px;
+	}
+.right {
+	width:295px;
+	float:left;
+	position:relative;
+	}	
+.label,.lanel {
+    color: #809080;
+    float: left;
+    font-family: Museo500;
+    margin: 37px 10px 0 30px;
+    text-align: right;
+}
+.wh_ud_input {
+	text-align:right;
+	}
+.wh_ud_editable_value input {
+	float:right;
+	width:100%;
+	text-align:right;
+	}	
+.wh_ud_editable_value {
+	padding-right:5px;
+	}
+.label_first {
+	width:auto;
+	margin:35px 9px 0 45px;
+	}
+.line {
+	background:#d8d8d8;
+	float:left;
+	width:272px;
+	height:1px;
+	margin:15px 0 0 14px;
+	}
+.left p {
+	color: #809080;
+    text-align: center;
+    font-family: 'Museo700';
+    font-size: 16px;
+    font-style: normal;
+    font-weight: normal;
+	float:left;
+	width:100%;
+	margin:12px 0 0 0px;
+	}		
+#age {
+	width:auto;
+	margin:2px 0 0 0px;
+	}
+.float {
+	float:left;
+	width:90px;
+	margin:13px 0 0 13px;
+	}
+.float_2 {
+	margin-left:2px;
+	}	
+.float .lanel {
+	margin:0;
+	width:100%;
+	text-align:center;
+	}	
+.float .whupdown_element {
+	margin-top:-12px;
+	}
+#thr {
+    color: #809080;
+    float: left;
+    font-family: 'Museo500';
+    font-weight: bold;
+    margin: 68px 0 0 17px;
+    text-align: center;
+    width: 88%;
+	font-size:50px;
+	}
+.wh_ud_editable_value input {
+	width:100% !important;
+	float:right;
+	}  							

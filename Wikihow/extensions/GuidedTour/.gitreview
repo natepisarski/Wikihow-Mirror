@@ -1,0 +1,6 @@
+[gerrit]
+host=gerrit.wikimedia.org
+port=29418
+project=mediawiki/extensions/GuidedTour.git
+defaultbranch=wmf/1.23wmf15
+defaultrebase=0

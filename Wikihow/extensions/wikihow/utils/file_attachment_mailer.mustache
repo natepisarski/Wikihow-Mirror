@@ -1,0 +1,18 @@
+--PHP-mixed-{{boundaryHash}}
+Content-Type: multipart/alternative; boundary="PHP-alt-{{boundaryHash}}"
+
+--PHP-alt-{{boundaryHash}}
+Content-Type: text/plain; charset="UTF-8"
+
+{{msg}}
+
+--PHP-alt-{{boundaryHash}}--
+
+--PHP-mixed-{{boundaryHash}}
+Content-Type: {{mimeType}}; name="{{{filename}}}"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment
+
+{{attachment}}
+
+--PHP-mixed-{{boundaryHash}}--

@@ -1,0 +1,44 @@
+<div id="sp_{{expert.key}}" class="sp_top_box sp_person">
+	<div class="sp_expert_icon_info {{^mobile}}sp_top_box_hoverable{{/mobile}}"></div>
+{{^mobile}}
+	{{#section_name}}<div id="sp_section_name">{{section_name}}</div>{{/section_name}}
+{{/mobile}}
+{{#expert.is_verifier}}
+	<div class="ar_initials {{expert.wh_initials}}">
+	{{^expert.wh_initials}}
+		<div class="ar_check"></div>
+		{{#expert.avatar_image_html}}
+			{{{expert.avatar_image_html}}}
+		{{/expert.avatar_image_html}}
+		<span>{{expert.initials}}</span>
+	{{/expert.wh_initials}}
+	</div>
+{{/expert.is_verifier}}
+{{^expert.is_verifier}}
+	<div class="sp_top_icon_bg">
+		<div class="sp_top_icon_check"></div>
+		<div class="sp_{{expert.key}}_icon"></div>
+	</div>
+{{/expert.is_verifier}}
+	<div class="sp_expert_text sp_top_box_hoverable {{^expert.is_verifier}}sp_nonverifier_text{{/expert.is_verifier}}">
+		<div>
+		{{#expert.team}}
+			<div id="sp_expert_team_label">{{expert.team_label}}</div>
+			<div id="sp_expert_team">{{expert.team}}</div>
+		{{/expert.team}}
+		{{#expert.name_link}}
+			<div id="sp_expert_name">{{{expert.name_link}}}</div>
+		{{/expert.name_link}}
+			<div id="sp_expert_blurb">{{{expert.subname_blurb}}}</div>
+		</div>
+	</div>
+</div>
+
+{{#expert.hover_blurb}}
+<div class='sp_top_popup_container'>
+	<div class='hint_box {{expert.key}}_hint_box'>
+		{{#expert.popup_img}}<img src="{{expert.popup_img}}" />{{/expert.popup_img}}
+		<p>{{{expert.hover_blurb}}}</p>
+	</div>
+</div>
+{{/expert.hover_blurb}}

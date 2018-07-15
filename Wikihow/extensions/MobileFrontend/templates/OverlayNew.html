@@ -1,0 +1,18 @@
+<div class="overlay-header-container{{#fixedHeader}} position-fixed{{/fixedHeader}}">
+	<div class="overlay-header">
+		<ul class="v-border bottom-border">
+			<li><button class="cancel icon">{{closeMsg}}</button></li>
+		</ul>
+		<div class="bottom-border">
+			<h2>{{{heading}}}</h2>
+		</div>
+		{{#headerButtons}}
+		<ul class="{{headerButtonsListClassName}}">
+			{{#headerButtons}}
+			<li><button class="{{className}}">{{msg}}</button></li>
+			{{/headerButtons}}
+		</ul>
+		{{/headerButtons}}
+	</div>
+</div>
+{{>content}}

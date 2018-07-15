@@ -1,0 +1,16 @@
+# Google is special case
+User-agent: Googlebot
+Allow: /images/
+Allow: /skins/
+Allow: /extensions/min/
+Allow: /extensions/wikihow/
+Disallow: /
+Disallow: /images/samplepdfs
+Disallow: /images/sampledocs*pdf
+Disallow: /images/sampledocs*doc
+Disallow: /images/sampledocs*txt
+
+# Everyone else
+User-agent: *
+Disallow: /
+

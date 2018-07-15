@@ -1,0 +1,18 @@
+<amp-consent id="myUserConsent" layout="nodisplay">
+	<script type="application/json">
+	{
+		"consents": {
+			"eu": {
+				"promptIfUnknownForGeoGroup": "eu",
+					"promptUI": "myConsentFlow"
+			}
+		}
+	}
+	</script>
+	<div id="myConsentFlow" class="popupOverlay">
+		<div id="gdpr" class="consentPopup">
+			<div id="gdpr_text">{{{gdpr_message}}}</div>
+			<button class="gdpr_button" on="tap:myUserConsent.accept" class="ampstart-btn ampstart-btn-secondary caps mx1">{{gdpr_accept}}</button>
+		</div>
+	</div>
+</amp-consent>

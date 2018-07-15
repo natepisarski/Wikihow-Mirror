@@ -1,0 +1,14 @@
+{
+	"--title": "GuidedTour Code Documentation",
+	"--warnings": ["-no_doc"],
+	"--meta-tags": "./MetaTags.rb",
+	"--builtin-classes": true,
+	"--output": "../docs",
+	"--": [
+		"./external.js",
+		"../modules/ext.guidedTour.lib.js",
+		"../modules/ext.guidedTour.lib.internal.js",
+		"../modules/externals/mediawiki.libs.guiders/mediawiki.libs.guiders.exposeGuiders.js",
+		"../tests/"
+	]
+}

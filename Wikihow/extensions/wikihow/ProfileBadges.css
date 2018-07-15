@@ -1,0 +1,44 @@
+.ab-box{
+	border:1px solid #BBB;
+	-moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px;
+	padding:10px;
+	margin:20px 0px;
+	font-size:1.1em;
+	position:relative;
+	background-color:#fff;
+}
+
+.ab-badge{
+	background-image:url("/skins/WikiHow/images/badges.png?3");
+	position:absolute;
+	top:0;
+	left:15px;
+	width:65px;
+	height:85px;
+}
+
+.ab-nab{
+	background-position:-140px 0;
+}
+
+.ab-fa{
+	background-position:-70px 0;
+}
+
+.ab-welcome {
+	background-position:-210px 0;
+}
+
+.ab-box h3{
+	margin-left:80px;
+	font-size:16px;
+	margin-bottom:5px;
+}
+
+.ab-box p{
+	margin-left:80px;
+}
+
+.undoArticleInner{
+	padding:13px 27px 50px 23px;
+}

@@ -1,0 +1,234 @@
+#sliderbox {
+	position: fixed;
+/*	width: 500px;
+	bottom: 0;*/
+	right: -500px;
+	z-index: 4;
+	*display: none; /* hide from IE6 & IE 7 */
+	margin-right: -10px;
+	/*_03*/
+	/*width: 250px;
+	bottom: -300px;*/
+}
+
+/*
+.sliderbox_06 {
+	width: 275px;
+	bottom: -300px;
+}
+*/
+
+/* IE6 HACK for position: fixed */
+/* blech */
+* html #sliderbox  { position: absolute; }
+/* end blech */
+
+
+#sliderbox h2 {
+	background: url(./header_bg.png) repeat-x 0 0;
+	height: 32px;
+	line-height: 32px;
+	padding-left: 12px;
+	font-size: 1.2em;
+	border: 2px solid #b5ab97;
+	-moz-border-radius: 10px 10px 0 0;
+    -webkit-border-radius: 10px 10px 0 0;
+    -khtml-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 0 0;
+	-moz-box-shadow: -3px 3px 4px #BFBFBF;
+	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
+	box-shadow: -3px 3px 4px #BFBFBF;
+}
+
+a#slider_close_button {
+	float: right;
+}
+a#slider_close_button:hover { text-decoration: none; }
+
+/*
+#slider_contents {
+	background: url(./book_question.png) #FFF no-repeat 20px 20px;
+	border: 2px solid #b5ab97;
+	border-top: none;
+	height: 250px;
+	padding: 20px 40px 20px 90px;
+	font-size: .9em;
+	-moz-box-shadow: -3px 3px 4px #BFBFBF;
+	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
+	box-shadow: -3px 3px 4px #BFBFBF;
+}
+
+.slider_strong {
+	font-weight: bold;
+	font-size: 1.6em;
+	padding: 2px 0;
+}
+
+#slider_no {
+	float: right;
+	line-height: 26px;
+	font-weight: bold;
+}
+
+#slider_choices {
+	margin-top: 14px;
+}
+*/
+
+/*Thank The Authors
+#slider_thanks {
+	border: 2px solid #b5ab97;
+	background: url(/skins/WikiHow/images/thank_you_pen_sm.png) #FFF no-repeat 390px top;
+	border: 4px solid #4A3C31;
+	border-left: 2px solid #b5ab97;
+	border-right: none;
+	border-bottom: none;
+	height: 70px;
+	padding: 8px;
+	font-size: .9em;
+	-moz-box-shadow: -3px 3px 4px #BFBFBF;
+	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
+	box-shadow: -3px 3px 4px #BFBFBF;
+	margin-bottom: 0;
+}
+
+#slider_thanks_02 {
+	border-top: 4px solid #645349;
+	background: url(/extensions/wikihow/slider/wikisquare.png) #FFF no-repeat left top;
+	height: 70px;
+	padding: 8px;
+	font-size: .9em;
+	-moz-box-shadow: -3px 3px 4px #BFBFBF;
+	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
+	box-shadow: -3px 3px 4px #BFBFBF;
+	margin-bottom: 0;
+}
+#slider_thanks_03 {
+	\/*background-color: #F3ECDE;*\/
+	background-color: #FFF;
+    \/*border: 4px solid #645349;*\/
+	border: 4px solid #E2DDD1;
+	border-right: none;
+	border-bottom: none;
+    border-radius: 150px 150px 0 150px;
+    \/*box-shadow: -3px 3px 4px #BFBFBF;*\/
+    font-size: 0.9em;
+    height: 160px;
+    margin-bottom: 0;
+    padding: 40px;
+	text-align: center;
+}*/
+#slider_thanks_outer_03 {
+	/*border: 5px solid #F3ECDE;*/
+	border: 5px solid #FFF;
+	border-radius: 150px 150px 0 150px;
+    box-shadow: -3px 3px 4px #BFBFBF;
+    margin-bottom: 0;
+}
+/*
+#slider_thanks_06 {
+	background-color: #FFF;
+	border: 4px solid #93b874;
+	border-right: none;
+	border-bottom: none;
+    border-radius: 150px 150px 0 150px;
+    font-size: 0.9em;
+    height: 160px;
+    margin-bottom: 0;
+    padding: 40px;
+	text-align: center;
+}
+*/
+/*
+.tta_plus1 {
+	float: left;
+	margin: 7px 0 0 10px;
+}
+
+.tta_plus1_02 {
+	float: left;
+	margin: 7px 0 0 100px;
+}
+
+.tta_plus1_03 {
+	clear: both;
+	text-align: center;
+}
+
+.tta_text {
+	padding: 10px 0 0 80px;
+	font-size: 1.5em;    
+}
+
+.tta_text_02 {
+	color: #D94E37;
+	padding: 10px 0 0 165px;
+	font-size: 1.5em;    
+}
+
+.tta_text_03 {
+	font-size: 1.4em;    
+	margin: 0 0 20px 0;
+}
+
+.tta_text_06 {
+	font-size: 1.4em;    
+	margin: 0 0 14px 0;
+}
+
+.tta_first {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+.tta_first_03 {
+	font-size: 1.3em;
+	font-weight: bold;
+}
+.slider_thanks_intl {
+	background: #FEFFFE !important;
+}
+.sliderbox_rating {
+	width: 500px !important;
+}
+
+.tta_text_05{
+	font-size: 1.4em;    
+	margin: 0 0 5px 100px;
+}
+*/
+
+
+/*Become an Author*/
+.sliderbox_08 {
+	width: 250px;
+	bottom: -310px;
+}
+#slider_thanks_08 {
+	background-color: #FFF;
+	border: 5px solid #93b874;
+	border-right: none;
+	border-bottom: none;
+    border-radius: 150px 150px 0 150px;
+    font-size: 0.9em;
+    height: 160px;
+    margin-bottom: 0;
+    padding: 40px;
+	text-align: center;
+}
+.slider_become_main { 
+	font-size: 1.4em;
+	margin-top: 18px;
+}
+.slider_become_text {
+	font-size: 1.3em;
+	font-weight: bold;
+}
+.sliderbox_08 .slider_button { margin-top: 1em; }
+.sliderbox_08 .slider_button a { margin-right: 0; }
+.sliderbox_08 #slider_close_button { 
+	/* @embed */
+	background: url(/skins/owl/images/ico-x.png) no-repeat 0 0;
+	width: 14px;
+	height: 14px;
+	position: relative;
+}

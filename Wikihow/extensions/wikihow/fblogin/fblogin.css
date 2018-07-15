@@ -1,0 +1,132 @@
+#fbc {
+	border: 1px solid #C1C1C1;
+	font: 11px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color: gray;
+}
+
+.fbc_hidden {
+	display: none;
+	visibility: hidden;
+}
+
+#fbc_header {
+	background-color: #F2F2F2;
+	border-bottom: 1px solid #CCC;
+	padding: 10px;
+}
+
+#fbc_error {
+	color: #A40000;
+	padding-left: 10px;
+}
+
+#fbc_footer {
+	border-top: 1px solid #CCC;
+	padding: 10px;
+	font-size: 9px;
+}
+
+.fbc_link {
+	color: #3B5998;
+}
+
+#fbc_x:after {
+	display: inline-block;
+	content: "\00d7";
+	float: right;
+	font-size: 27px;
+	margin: -2px -3px 0 0;
+	color: #a5a4a2;
+	margin-left: 8px;
+	font-weight: bold;
+	font-family: Helvetica,arial,sans-serif;
+}
+
+#fbc_x:hover {
+	cursor: pointer;
+}
+
+#fbc_icon {
+	float: left;
+	margin: -1px 10px 0 0;
+	vertical-align: middle;
+}
+
+.fbc_header_text {
+	display:block;
+	zoom: 1;
+	*display: inline;
+	padding-top: 0px;
+	vertical-align: middle;
+	margin-left: 7px;
+}
+
+#fbc table {
+	margin-top: 15px;
+	margin-bottom: 10px;
+	width: 100%;
+}
+
+#fbc td {
+	padding-bottom: 5px;
+}
+#fbc input[type='text'], #fbc_faux_username {
+	width: 232px;
+	font-size: 1.3em;
+}
+#fbc_faux_username {
+	padding: 4px 16px 4px 7px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+}
+
+#fbc_user_text {
+	display: inline-block;
+	zoom: 1;
+	*display:inline;
+	vertical-align: middle;
+	margin-left: 5px;
+}
+
+#fbc_user_text_username {
+	font-weight: bold;
+	margin-bottom: 3px;
+}
+
+#fbc_user_text_info {
+	font-size: 9px;
+}
+
+.fbc_readonly {
+	color: #999;
+	background-color: #F0F0F0;
+}
+
+.fbc_label {
+	text-align: right;
+	padding-right: 10px;
+	font-weight: bold;
+	color: #666;
+}
+
+.fbc_user_avatar {
+	width: 32px;
+	height: 32px;
+	border: 0px;
+	vertical-align: middle;
+}
+.fbc_avatar {
+	width: 24px;
+	height: 24px;
+	border: 0px;
+	vertical-align: middle;
+}
+
+#fb_linked_img {
+	display: inline-block;
+	height: 42px;
+	width: 42px;
+	background-image: url(/skins/WikiHow/images/follow-sprite.png?4);
+}

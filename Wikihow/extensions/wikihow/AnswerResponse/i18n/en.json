@@ -1,0 +1,24 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"qaar_title": "Q&A Answer Response",
+	"qaar_hdr_1": "Hooray! We're happy to have helped.",
+	"qaar_hdr_0": "We're sorry! We'll try to do better next time.",
+	"qaar_prompt_1": "Optional: What made this answer helpful?",
+	"qaar_prompt_0": "Optional: What would have made this answer more helpful?",
+	"qaar_prompt_generic": "Want to help others by answering questions about your favorite topics?",
+	"qaar_question_prompt": "Your comments are private and will not be shared with the person who answered.",
+	"qaar_taph": "Your comments here...",
+	"qaar_taph_1": "Your custom message here (optional)",
+	"qaar_thanks": "Thanks for helping!",
+	"qaar_thanks_1": "Awesome! Your message has been sent, and we're sure they'll appreciate it.",
+	"qaar_paragraph_1": "Would you like to send a thank you message to the person who answered? Your message will appear on the answerer's wikiHow talk page like this:",
+	"qaar_head_end": "said:",
+	"qaar_talkpage_thanks": "Thank you for answering my question about $1: \"$2\"",
+	"qaar_footnote": "Note: This message will be posted publicly on the answerer's wikiHow talk page and will include the title of the article, the question asked, and your username.",
+	"qaar_footnote_anon": "Note: This message will be posted publicly on the answerer's wikiHow talk page and will include the title of the article, the question asked, and your IP address.",
+	"qaar_anon_toggle": "Send anonymously",
+	"qaar_edit_summary": "A thank you message from the Answer Response tool.",
+	"qaar_btn_generic": "Yes, I'll try it!"
+}

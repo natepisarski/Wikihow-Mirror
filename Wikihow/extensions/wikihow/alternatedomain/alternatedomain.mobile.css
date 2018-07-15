@@ -1,0 +1,56 @@
+.related-article {
+	float: left;
+	position: relative;
+	width: 100%; margin-bottom: 2%;
+}
+.related-image-link {
+	display: block;
+	vertical-align: top;
+}
+.related-image-link img {
+	display: block;
+	border: none;
+	width: 100%;
+	height: auto;
+}
+.related-title {
+	background-color: rgba(50,50,50,.5);
+	padding-right: 4%;
+	padding-left: 4%;
+	padding-top: 2%;
+	padding-bottom: 2%;
+	width: 92%;
+	min-height: 32px;
+	position: absolute;
+	bottom: 0;
+	cursor: pointer;
+	color: #fff;
+	font-weight: bold;
+}
+
+.related-title:hover {
+	background-color: white;
+	color: #2483ef;
+	text-decoration: none;
+}
+.related-title-text p {
+	font-size: 12px;
+	line-height: 15px;
+}
+
+.related-image-link {
+	text-decoration: none;
+}
+.sp_fullbox {
+	display: none;
+}
+#header_logo.pet_logo {
+	background-position: 50% 65%;
+	background-image: url(/skins/owl/images/wikihow_logo_pet_2.png);
+	background-size: 140px
+}
+#header_logo.tech_logo {
+	background-position: 50% 65%;
+	background-image: url(/skins/owl/images/wikihow_logo_tech_3.png);
+	background-size: 150px
+}

@@ -1,0 +1,27 @@
+<h2 id="sp_h2" class="mw-headline">{{section_name}}</h2>
+<div id="social_proof_mobile">
+	<a name="social_proof_anchor" id="social_proof_anchor"></a>
+	<div id="sp_inner">
+		{{#expert}}
+			{{> expert_section}}
+		{{/expert}}
+
+		{{#difficult_article}}
+		<div id="sp_difficult_box" class="sp_box sp_box_hoverable">
+			<div class="sp_icon_bg" ></div>
+			<div class="sp_difficult_icon"></div>
+			{{sp_difficult}}
+		</div>
+		{{/difficult_article}}
+
+		{{> stars}}
+		{{> social_stats}}
+
+		{{#category_links}}
+			<div class="sp_box sp_fullbox">
+				{{categories}}: {{{category_links}}}
+			</div>
+		{{/category_links}}
+		<div class="clearall"></div>
+	</div>
+</div>

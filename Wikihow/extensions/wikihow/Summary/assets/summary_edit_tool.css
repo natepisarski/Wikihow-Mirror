@@ -1,0 +1,50 @@
+#summary_edit_tool {
+	display: none;
+}
+
+h2#summary_edit_header {
+	background-color: #93b874;
+	color: #FFF;
+}
+
+#summary_edit_close {
+	float: right;
+	color: #FFF;
+}
+
+#summary_edit_err {
+	display: none;
+	padding: .5em 1em;
+	background-color: #f2ed61;
+}
+
+.set_header {
+	text-align: left;
+}
+
+.set_textarea {
+	width: 96%;
+	margin-bottom: 1em;
+}
+
+#set_content {
+	height: 125px;
+}
+
+#set_submit {
+	float: right;
+}
+
+#set_buttons {
+	text-align: left;
+	padding-top: 1em;
+}
+
+#set_post_submit_buttons {
+	display: none;
+	text-align: center;
+}
+
+#temp_summary {
+	display: none;
+}

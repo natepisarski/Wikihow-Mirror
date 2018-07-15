@@ -1,0 +1,15 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "MessengerBot": "MessengerSearchBot",
+    "cta_message": "Hi I’m wikiHow! I’m a bot that loves to teach.  So ask me how to do anything. Yes, anything. I’m a bot, I won’t judge you. :)  For example try asking \"how can I survive an ostrich attack?\"",
+    "cta_button": "Anything?",
+    "cta_accepted_message": "What would you like to learn to do?  Try asking \"how to change a tire\". Or even \"revive a goldfish.\"",
+    "cta_howto_button": "Ask something else…",
+    "postback_something_else_message": "Ask me how to do anything.  I won’t judge you :)",
+    "view_article_button_label": "View Article",
+    "view_category_button_label": "View Category",
+    "unknown_message": "Hey, so, I'm a robot over here. I'm not always as smart as you humans :) Can you ask me how to do something else? For example try asking \"how to survive an ostrich attack?\".\n\nYou can always type 'help' to see things I'm good at helping with.",
+    "help_menu": "Hi I’m wikiHow! I’m a bot that loves to teach.  So ask me how to do anything. Yes, anything. I’m a bot, I won’t judge you. :)  For example try asking \"how can I survive an ostrich attack?\""
+}

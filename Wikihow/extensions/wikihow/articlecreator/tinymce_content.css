@@ -1,0 +1,16 @@
+body, td, pre {
+	color:#545454; 
+	font-family: Helvetica,arial,sans-serif;
+	-webkit-font-smoothing: antialiased;
+	font-size: 14px; 
+	margin:8px;
+}
+
+body.mce-content-body div {
+	color: #b3b3b3;
+}
+
+#mce_3.mce-button {
+	border: 1px solid #c9c9c9 !important;
+	background: red;
+}

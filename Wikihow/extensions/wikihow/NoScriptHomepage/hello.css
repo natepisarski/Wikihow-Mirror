@@ -1,0 +1,204 @@
+.content {
+  margin: 0 0 1.5em 0;
+}
+.header, #header_outer, #header_space, #sidebar, #actionbar, .wh_block, #footer{
+	display: none;
+}
+.mediawiki #search_oversearch {
+	display: none !important;
+}
+#mw-mf-page-center {
+	padding-bottom: 0;
+}
+#nojs_header {
+	background-color: #93B874;
+	border-bottom: 0px;
+	width: 100%;
+	background-position: 40% center;
+	background-repeat: no-repeat;
+	background-image: url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);
+	background-size: 115px;
+	height: 38px;
+	position: fixed;
+	top: 0;
+	z-index: 50;
+}
+.top_section {
+	padding-top: 5px;
+}
+.top_section h3 {
+	font-size: 1.2em;
+	font-weight: normal;
+	text-align: center;
+	margin: 10px;
+}
+.pre-content {
+	display: none;
+}
+#mw-mf-main-menu-button {
+	display: none;
+}
+.header .search {
+	display: none;
+}
+#mw-mf-page-center {
+  background-color: #FFFFFF;
+}
+.nojssb {
+	position: relative;
+}
+#search {
+	margin: 15px;
+}
+#search_oversearch {
+	display: none;
+}
+#nojs_input_container {
+	border: 3px solid #97ba78;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+#nojssb_b_input {
+	height: 42px;
+	-webkit-appearance: none;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	display: -webkit-box;
+	flex: 1 0;
+	color: #FFF;
+	line-height: 25px;
+	background-color: rgb(175,200,153);
+	border: none;
+	margin: 0;
+	padding: 0;
+	padding-left: 10px;
+	font-size: 1.2em;
+	width: 100%;
+}
+#nojssb_b_input::-webkit-input-placeholder {
+	color: #FFF;
+}
+ 
+#nojssb_b_input:-moz-placeholder { /* Firefox 18- */
+	color: #FFF;  
+}
+
+#nojssb_b_input::-moz-placeholder {  /* Firefox 19+ */
+	color: #FFF;  
+}
+
+#nojssb_b_input:-ms-input-placeholder {  
+	color: #FFF;  
+}
+
+#nojssb_input {
+	height: 42px;
+	-webkit-appearance: none;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	display: -webkit-box;
+	-webkit-box-ordinal-group: 2;
+	-webkit-order: 2;
+	order: 2;
+	-webkit-box-flex: 1;
+	-webkit-flex: 1 0;
+	flex: 1 0;
+	padding-left: 8px;
+	color: #000;
+	line-height: 25px;
+	background-color: transparent;
+	border: none;
+	margin: 0;
+	padding: 0;
+	font-size: 1.4em;
+	width: 100%;
+}
+#nojssb_btn {
+	position: absolute;
+	right: 2px;
+	top: 1px;
+	margin: 0;
+	height: 46px;
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px;
+	background-color: #97ba78;
+	border: 1px solid #97ba78;
+	color: #FFF;
+	padding: 8px 11px;
+}
+#nojssb_b_btn {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	margin: 0;
+	color: #97ba78;
+	border: 0px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	background-color: #FFF;
+	height:42px;
+	min-width:80px;
+}
+.s_text {
+	font-size:1.1em;
+}
+#nojs_search_label {
+	display: none;
+}
+#nojs_fa {
+	list-style: none;
+	display: table;
+	width: 100%;
+}
+.nojs_fa_item {
+	font-size: 1.1em;
+	height: 60px;
+	display: inline-block;
+	display: table-row;
+}
+#nojs_b_search {
+	margin: 10px 12px;
+}
+#nojs_fa_first {
+	text-align: center;
+	font-weight: bold;
+	padding-left: 0px;
+}
+.nojs_fa_cell {
+	display: table-cell;
+	vertical-align: middle;
+	padding-left: 9px;
+	line-height: 1.2em;
+}
+.nojs_fa_cell a {
+	font-weight: normal;
+	color: #382;
+	font-size: 1em;
+}
+.nojs_fa_odd {
+  background-color: #f7f9f6;
+}
+#nojs_surprise {
+	margin: 20px 10px;
+	height: 46px;
+}
+#nojs_slink {
+	margin: 0 auto;
+	max-width: 400px;
+	display: block;
+	font-size: 1.3em;
+	padding: 12px;
+	text-align: center;
+}
+#nojs_b_search_bg {
+	padding: 2px 0;
+	background-color: #97ba78;
+}
+.nojs_fa_cell a:hover {
+	background-color: #dfdfdf;
+	display:block;
+	padding:20px 0;
+	padding-left: 9px;
+	margin-left: -9px;
+}

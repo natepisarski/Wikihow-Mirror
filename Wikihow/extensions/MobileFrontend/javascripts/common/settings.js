@@ -1,0 +1,78 @@
+( function( M, $ ) {
+
+/* @name M.settings */
+M.settings = ( function() {
+	var supportsLocalStorage;
+
+	// using feature detection used by http://diveintohtml5.info/storage.html
+	try {
+		supportsLocalStorage = 'localStorage' in window && window.localStorage !== null;
+
+		// Reuben (wikiHow), 12/3/2014: Temporary bug fix (bug: Editing in Safari private mode
+		// is broken) until we do next Mediawiki / MobileFrontend upgrade
+		// fix from: https://www.mail-archive.com/mediawiki-commits@lists.wikimedia.org/msg142548.html
+		localStorage.setItem( 'localStorageTest', 'localStorageTest' );
+		localStorage.removeItem( 'localStorageTest' );
+	} catch ( e ) {
+		supportsLocalStorage = false;
+	}
+
+	function cookiesEnabled() {
+		// If session cookie already set, return true
+		if ( $.cookie( 'mf_testcookie' ) === 'test_value' ) {
+			return true;
+		// Otherwise try to set mf_testcookie and return true if it was set
+		} else {
+			$.cookie( 'mf_testcookie', 'test_value', { path: '/' } );
+			return $.cookie( 'mf_testcookie' ) === 'test_value';
+		}
+	}
+
+	// FIXME: Deprecate - use $.cookie instead
+	function writeCookie( name, value, days, path, domain ) {
+		$.cookie( name, value, { path: path, expires: days, domain: domain } );
+	}
+
+	// FIXME: Deprecate - use $.cookie instead
+	function readCookie( name ) {
+		return $.cookie( name );
+	}
+
+	/**
+	 * Saves a user setting for a later browser settings via localStorage
+	 *
+	 * @name M.settings.saveUserSetting
+	 * @param {String} name The key to refer to this value
+	 * @param {String} value The value to store alongside the key
+	 * @param {Boolean} useCookieFallback Optional: When set this will use cookies when local storage not available.
+	 * @returns {Boolean} Whether the save was successful or not
+	 */
+	function saveUserSetting( name, value, useCookieFallback ) {
+		return supportsLocalStorage ?
+			localStorage.setItem( name, value ) :
+				( useCookieFallback ? writeCookie( name, value, 1 ) : false );
+	}
+
+	/**
+	 * Retrieves a user setting from a previous browser setting
+	 *
+	 * @param {String} name The key to refer to this value
+	 * @param {Boolean} useCookieFallback Optional: When set this will use cookies when local storage not available.
+	 * @returns {String|False} Returns the associated value or False if nothing is found
+	 */
+	function getUserSetting( name, useCookieFallback ) {
+		return supportsLocalStorage ? localStorage.getItem( name ) :
+			( useCookieFallback ? readCookie( name ) : false );
+	}
+
+	return {
+		getUserSetting: getUserSetting,
+		readCookie: readCookie,
+		saveUserSetting: saveUserSetting,
+		supportsLocalStorage: supportsLocalStorage,
+		writeCookie: writeCookie,
+		cookiesEnabled: cookiesEnabled
+	};
+}());
+
+}( mw.mobileFrontend, jQuery ) );
