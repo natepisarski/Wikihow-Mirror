@@ -14,7 +14,7 @@ class OptimizelyPageSelector {
 
 	protected static $specialPageWhiteList = [ 'Charity', 'DocViewer' ];
 
-	protected static $altDomainWhitelist = [   ];
+	protected static $altDomainWhitelist = [ 'wikihow.mom'  ];
 	protected static $altDomainSnippetIds = [ 'wikihow.pet' => '10427340836', 'wikihow.mom' => '10370078292'];
 
 	/* Static Methods */
@@ -55,7 +55,7 @@ class OptimizelyPageSelector {
 			} elseif ( $isOptiDomain ) {
 				// wikiHow.somethingelse
 				$tag = Html::rawElement( 'script', [
-					'src' => 'https://cdn.optimizely.com/js/' . self::$altDomainSnippetIds[$altDomain] . '.js'
+					'async', 'src' => 'https://cdn.optimizely.com/js/' . self::$altDomainSnippetIds[$altDomain] . '.js'
 				] );
 			} else {
 				if ( $location === 'head' ) {
@@ -101,9 +101,7 @@ class OptimizelyPageSelector {
 		$title = $context->getTitle();
 
 		return $title && 
-		(ArticleTagList::hasTag( 'opti_header', $title->getArticleID() ) || 
-			(class_exists( 'AlternateDomain' ) && 
-				in_array(AlternateDomain::getAlternateDomainForCurrentPage(), self::$altDomainWhitelist))) ?
+		(ArticleTagList::hasTag( 'opti_header', $title->getArticleID() ) ) ?
 			'head' : 'body';
 	}
 

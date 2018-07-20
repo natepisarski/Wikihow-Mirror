@@ -161,6 +161,12 @@ class Pagestats extends UnlistedSpecialPage {
 			}
 			$html .= "<hr style='margin:5px 0; '/>";
 			$html .= "<p><b>Stu2</b> $nb$nb$nb$resetLine</p>";
+			if ($titusData->ti_stu2_search_desktop) {
+				$html .= "<p>desktop:$nb$stu2Dt10sAc$nb$stu2Dt3mAc$nb{$nb}views:{$titusData->ti_stu2_search_desktop}</p>";
+			} else {
+				$html .= "<p>desktop: <i>(no search views)</i></p>";
+			}
+			$html .= "<p style='font-size:13px; font-style:italic; font-weight:bold; padding-top:3px'>Beta</p>";
 			$html .= "<p>mobile:$nb{$stu2MbLine}</p>";
 			$html .= "<p>desktop:$nb{$stu2DtLine}</p>";
 			if ($stu2MbSt) $html .= "<p>steps mobile$nb{$stu2MbSt}</p>";
@@ -176,6 +182,9 @@ class Pagestats extends UnlistedSpecialPage {
 				$html .= "<p>" . 'In a Hurry Views: ' . "{$titusData->ti_summary_video_views}</p>";
 				$html .= "<p>" . 'In a Hurry Plays: ' . "{$titusData->ti_summary_video_play}</p>";
 				$html .= "<p>" . 'In a Hurry CTR: ' . "{$titusData->ti_summary_video_ctr}%</p>";
+				$html .= "<p>" . 'In a Hurry Views Mobile: ' . "{$titusData->ti_summary_video_views_mobile}</p>";
+				$html .= "<p>" . 'In a Hurry Plays Mobile: ' . "{$titusData->ti_summary_video_play_mobile}</p>";
+				$html .= "<p>" . 'In a Hurry CTR Mobile: ' . "{$titusData->ti_summary_video_ctr_mobile}%</p>";
 			}
 		}
 

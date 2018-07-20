@@ -123,7 +123,7 @@
 			ypaAdConfig   : adConfig,
 			ypaAdTypeTag  : adTagType,
 			ypaPubParams : {
-				query: mw.util.getParamValue('search'),
+				query: <?= $query ?>,
 			},
 			ypaPageCount: <?= $page ?>,
 			ypaAdSlotInfo : [

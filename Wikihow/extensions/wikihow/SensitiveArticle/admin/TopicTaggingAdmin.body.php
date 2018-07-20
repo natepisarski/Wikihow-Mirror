@@ -6,6 +6,17 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 
 	public function __construct() {
 		parent::__construct( 'TopicTaggingAdmin');
+		global $wgHooks;
+		$wgHooks['ShowSideBar'][] = [$this, 'removeSideBarCallback'];
+		$wgHooks['ShowBreadCrumbs'][] = [$this, 'removeBreadCrumbsCallback'];
+	}
+
+	public function removeSideBarCallback(&$showSideBar) {
+		$showSideBar = false;
+	}
+
+	public function removeBreadCrumbsCallback(&$showBreadCrumbs) {
+		$showBreadCrumbs = false;
 	}
 
 	public function execute($par) {
@@ -26,19 +37,32 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 			return;
 		}
 
-		if ($request->getVal('action') == 'add_collection') {
+		$action = $request->getVal('action', '');
+
+		if (!empty($action)) {
+			if ($action == 'run_report') {
+				$job_id = $request->getInt('job_id');
+				$this->getOutput()->disable();
+				$this->exportCSV($job_id);
+				return;
+			}
+
 			global $wgMimeType;
 			$wgMimeType = 'application/json';
 			$out->setArticleBodyOnly(true);
 
-			$result = $this->addNewCollection($request);
+			if ($action == 'save_job') {
+				$result = $this->saveJob($request);
+			}
+			elseif ($action == 'change_job_state') {
+				$result = $this->changeJobState($request);
+			}
+			elseif ($action == 'get_job_details') {
+				$job_id = $request->getInt('job_id', 0);
+				$result = $this->jobDetails($job_id);
+			}
+
 			print json_encode($result);
-			return;
-		}
-		elseif ($request->getVal('action') == 'run_report') {
-			$topic_id = $request->getInt('topic_id');
-			$this->getOutput()->disable();
-			$this->exportCSV($topic_id);
 			return;
 		}
 
@@ -68,14 +92,23 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 		$m = new \Mustache_Engine(['loader' => $loader]);
 
 		$vars = [
-			'tag_prompt' => wfMessage('topic_tagging_admin_tag_prompt')->parse(),
-			'topic_select_label' => wfMessage('topic_select_label')->text(),
-			'default_topic_option' => wfMessage('default_topic_option')->text(),
-			'submit_button_label' => wfMessage('submit')->text(),
 			'report_button_label' => wfMessage('topic_tagging_admin_report_button')->text(),
 			'topics' => $this->getSensitiveTopics(),
 			'articles_prompt' => wfMessage('topic_tagging_admin_articles_prompt')->text(),
-			'articles_example' => wfMessage('topic_tagging_admin_articles_example')->text()
+			'articles_example' => wfMessage('topic_tagging_admin_articles_example')->text(),
+			'jobs' => $this->currentJobs(),
+			'job_column_id' => wfMessage('job_column_id')->text(),
+			'job_column_topic' => wfMessage('job_column_topic')->text(),
+			'job_column_article_count' => wfMessage('job_column_article_count')->text(),
+			'job_column_status' => wfMessage('job_column_status')->text(),
+			'job_column_yes_count' => wfMessage('job_column_yes_count')->text(),
+			'job_column_no_count' => wfMessage('job_column_no_count')->text(),
+			'job_column_unresolved_count' => wfMessage('job_column_unresolved_count')->text(),
+			'job_column_enabled' => wfMessage('job_column_enabled')->text(),
+			'job_column_date' => wfMessage('job_column_date')->text(),
+			'add_new_button_label' => wfMessage('topic_tagging_admin_add_new')->text(),
+			'enabled_button_label' => wfMessage('topic_tagging_admin_enabled_button')->text(),
+			'topic_tagging_admin_edit' => $loader->load('topic_tagging_admin_edit')
 		];
 
 		$html = $m->render('topic_tagging_admin', $vars);
@@ -99,52 +132,111 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 		return $topics;
 	}
 
-	private function addNewCollection(\WebRequest $request): array {
-		$success = false;
-		$page_ids = [];
-		$bad_urls = [];
-		$bad_ids = [];
+	private function currentJobs(): array {
+		$jobs = SensitiveTopicJob::getAllTopicJobs();
 
-		$topic = $request->getInt('topic',0);
-		$article_list = explode("\n", $request->getVal('article_list',''));
+		foreach ($jobs as $job) {
+			$this->formatTopicJobForDisplay($job);
+			$job->addCounts();
+		}
 
-		if (empty($topic) || empty($article_list)) {
-			$message = wfMessage('topic_tagging_admin_import_fail')->text();
+		return $jobs;
+	}
+
+	private function formatTopicJobForDisplay(SensitiveTopicJob &$job) {
+		$create_date = new \MWTimestamp($job->dateCreated);
+		$job->dateCreated = $create_date->format('m/d/Y');
+	}
+
+	private function saveJob(\WebRequest $request): array {
+		$error_message = '';
+		$job_id = $request->getInt('job_id', 0);
+		$is_new = $job_id == 0;
+		$job_name = strip_tags(trim($request->getVal('job_name', '')));
+		$job_question = strip_tags(trim($request->getVal('job_question', '')));
+		$job_description = strip_tags(trim($request->getVal('job_description', '')));
+		$article_list = explode("\n", $request->getVal('article_list', ''));
+		$enabled = $request->getInt('enabled',0);
+
+		if (empty($job_name) ||
+			empty($job_question) ||
+			empty($job_description) ||
+			($is_new && empty($article_list)))
+		{
+			$error_message = wfMessage('topic_tagging_admin_save_bad')->text();
 		}
 		else {
-
-			foreach ($article_list as $article) {
-				$page_id = $this->getPageIdFromArticleList($article);
-				if (!empty($page_id))
-					$page_ids[] = $page_id;
-				else
-					$bad_urls[] = $article;
+			if ($is_new) {
+				$error_message = $this->prepareArticleList($article_list);
 			}
 
-			if (!empty($bad_urls)) {
-				$message = wfMessage('topic_tagging_admin_import_bad_urls', implode("<br />",$bad_urls))->text();
-			}
-			else {
-				foreach ($page_ids as $page_id) {
-					$article_vote = SensitiveArticleVote::newFromValues($page_id, $topic);
-					$res = $article_vote->save();
-					if (!$res) $bad_ids[] = $page_id;
-				}
+			if (empty($error_message)) {
+				$job = SensitiveTopicJob::newFromValues(
+					$job_id,
+					$job_name,
+					$job_question,
+					$job_description,
+					$enabled
+				);
+				$res = $job->save();
 
-				if (empty($bad_ids)) {
-					$success = true;
-					$message = wfMessage('topic_tagging_admin_import_success')->text();
+				if ($res) {
+					if ($is_new) {
+						$new_job_id = SensitiveTopicJob::newestJobId();
+						$error_message = $this->addNewCollection($new_job_id, $article_list);
+					}
 				}
 				else {
-					$message = wfMessage('topic_tagging_admin_import_bad_ids', implode("<br />",$bad_ids))->text();
+					$error_message = wfMessage('topic_tagging_admin_save_bad')->text();
 				}
 			}
 		}
 
 		return [
-			'success' => $success,
-			'message' => $message
+			'success' => empty($error_message),
+			'message' => $error_message ?: wfMessage('topic_tagging_admin_save_good')->text()
 		];
+	}
+
+	private function prepareArticleList(array &$article_list): string {
+		$message = ''; //empty string means success!
+		$page_ids = [];
+		$bad_urls = [];
+
+		foreach ($article_list as $article) {
+			$page_id = $this->getPageIdFromArticleList($article);
+			if (!empty($page_id))
+				$page_ids[] = $page_id;
+			else
+				$bad_urls[] = $article;
+		}
+
+		if (!empty($bad_urls)) {
+			$message = wfMessage('topic_tagging_admin_import_bad_urls', implode("<br />",$bad_urls))->text();
+		}
+
+		$article_list = $page_ids;
+
+		return $message;
+	}
+
+	private function addNewCollection(int $job_id, array $article_list): string {
+		$message = ''; //empty string means success!
+		$bad_ids = [];
+
+		//randomize articles on import
+		shuffle($article_list);
+
+		foreach ($article_list as $article_id) {
+			$article_vote = SensitiveArticleVote::newFromValues($article_id, $job_id);
+			if (!$article_vote->save()) $bad_ids[] = $article_id;
+		}
+
+		if (!empty($bad_ids)) {
+			$message = wfMessage('topic_tagging_admin_import_bad_ids', implode("<br />",$bad_ids))->text();
+		}
+
+		return $message;
 	}
 
 	private function getPageIdFromArticleList($article): int {
@@ -160,12 +252,35 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 		return $title && $title->exists() ? $title->getArticleId() : 0;
 	}
 
-	private function exportCSV(int $topic_id) {
+	private function changeJobState(\WebRequest $request): array {
+		$job_id = $request->getInt('job_id', 0);
+		$enabled = $request->getInt('enabled', 0);
+
+		$job = SensitiveTopicJob::newFromDB($job_id);
+		$job->enabled = $enabled;
+		$success = $job->save();
+
+		return ['success' => $success];
+	}
+
+	private function jobDetails(int $job_id): array {
+		$job = SensitiveTopicJob::newFromDB($job_id);
+
+		return [
+			'id' => $job->id,
+			'topic' => $job->topic,
+			'question' => $job->question,
+			'description' => $job->description,
+			'enabled' => $job->enabled
+		];
+	}
+
+	private function exportCSV(int $job_id) {
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="data.csv"');
 
-		$savs = SensitiveArticleVote::getAllActiveByReasonId($topic_id);
-		$topic_name = SensitiveReason::getReason($topic_id)->name;
+		$savs = SensitiveArticleVote::getAllActiveByJobId($job_id);
+		$topic_name = SensitiveTopicJob::newFromDB($job_id)->topic;
 
 		$headers = [
 			'Page',
@@ -174,8 +289,7 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 			'Yes votes',
 			'No votes',
 			'Skips',
-			'Status',
-			'Date Created'
+			'Status'
 		];
 
 		$lines[] = implode(",", $headers);
@@ -197,8 +311,7 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 				$sav->voteYes,
 				$sav->voteNo,
 				$sav->skip,
-				$status,
-				date('Ymd', strtotime($sav->dateCreated))
+				$status
 			];
 
 			$lines[] = implode(",", $this_line);

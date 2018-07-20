@@ -476,28 +476,31 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
-		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $intlSite ) );
+		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
 		pq( "#intro" )->append( $adhtml );
 		// put an ad after first step if there is more than 1 step in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $intlSite ) );
+			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
 			pq(".steps_list_2:first > li:first")->append( $adhtml );
 		}
 
 		// put an ad after fifth step if there is more than 5 steps in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 5 ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $fifthStep, $intlSite ) );
+			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $fifthStep, $pageId, $intlSite ) );
 			pq(".steps_list_2:first > li:eq(4)")->append( $adhtml );
 		}
 
 		// ad in last step of each method
-		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $method, $intlSite ) );
+		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $method, $pageId, $intlSite ) );
 		pq(".steps:not('.sample') .steps_list_2 > li:last-child")->append($adhtml);
 
 		$relatedsname = RelatedWikihows::getSectionName();
 		if ( pq("#{$relatedsname}")->length ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $intlSite ) );
+			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
 			pq("#{$relatedsname}")->append($adhtml);
+		} else if ( pq("#relatedwikihows")->length ) {
+			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
+			pq("#relatedwikihows")->append($adhtml);
 		}
 	}
 
@@ -526,30 +529,70 @@ class GoogleAmp {
         return $slotData;
     }
 
-	public static function getAd( $num, $intl ) {
-		global $wgTitle;
-		$pageId = 0;
-		if ( $wgTitle ) {
-			$pageId = $wgTitle->getArticleID();
+	//given the language code, ad number and page id, determine ad type
+	private static function getAdType( $num, $pageId, $intl ) {
+		// setup by language, then by ad number (0 is default) then by ad type (adsense or gpt)
+		$testSetup = [
+			'en' => [
+				0 => ['adsense' => 10, 'gpt' => 90],
+				1 => ['adsense' => 100],
+			],
+			'intl' => [
+				0 => ['adsense' => 50, 'gpt' => 50],
+				1 => ['adsense' => 100],
+			]
+		];
+
+		$lang = 'en';
+		if ( $intl ) {
+			$lang = 'intl';
 		}
-		if ( $num == 1 || $pageId % 100 <= 50 ) {
+
+		// default types for this lang
+		$types = $testSetup[$lang][0];
+		if ( isset( $testSetup[$lang][$num] ) ) {
+			$types = $testSetup[$lang][$num];
+		}
+
+		$group = $pageId % 100;
+
+		$total = 0;
+		foreach ( $types as $adType => $split ) {
+			$total += $split;
+			if ( $group < $total ) {
+				return $adType;
+			}
+		}
+		return "";
+	}
+
+	public static function getAd( $num, $pageId, $intl ) {
+		$adType = self::getAdType( $num, $pageId, $intl );
+
+		if ( $adType == "adsense" ) {
 			return self::getAdsenseAd( $num, $intl );
-		} else {
+		}
+
+		if ( $adType == 'gpt' ) {
 			return self::getGPTAd( $num, $intl );
 		}
 	}
 
 	public static function getGPTAd( $num, $intl ) {
-		global $wgTitle;
+		global $wgLanguageCode, $wgTitle;
 		$pageId = 0;
 		if ( $wgTitle ) {
 			$pageId = $wgTitle->getArticleID();
 		}
+		$intlSite = $wgLanguageCode != 'en';
 		$whAdClass = "wh_ad";
 		$whAdLabelBottom = "";
 		$dataLoadingStrategy = null;
 		$slot = '/10095428/AMP_Test_1';
 
+		if ( $intlSite ) {
+			$slot = '/10095428/AMP_Test_2';
+		}
 		// no intro ad for GPT for now
 		if ( $num == 1 ) {
 			return '';

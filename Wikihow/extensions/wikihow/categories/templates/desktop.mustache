@@ -4,7 +4,7 @@
 </div>
 {{#hasFeatured}}
 <div class="cat_section" id="cat_featured">
-	<h2>Featured Articles</h2>
+	<h2>{{featuredHeader}}</h2>
 	<div id="cat_featured_articles">
 		{{#featured}}
 		<div class="{{classes}}">
@@ -20,7 +20,7 @@
 {{/hasFeatured}}
 {{#hasTopLevel}}
 <div id="cat_related_tags">
-	<p>Related Categories:
+	<p>{{relatedHeader}}
 		{{#topLevel}}
 			<a href="{{relatedUrl}}" class="button secondary">{{relatedText}}</a>
 		{{/topLevel}}
@@ -37,7 +37,7 @@
 {{/hasTopLevel}}
 <div id="cat_container">
 	<div class="cat_section {{^hasSubcats}}cat_nosidebar{{/hasSubcats}}" id="cat_all">
-		<h2>All {{catName}} Articles</h2>
+		<h2>{{allArticlesHeader}}</h2>
 		{{#all}}
 			<div class="{{classes}}">
 				<a href="{{url}}">
@@ -52,7 +52,7 @@
 	{{#hasSubcats}}
 	<div class="cat_section" id="cat_sub_categories">
 
-		<h2>Related Topics</h2>
+		<h2>{{topicsHeader}}</h2>
 		{{#subcats}}
 			<div>{{{categoryLink}}}
 			{{#hasSubsubcats}}

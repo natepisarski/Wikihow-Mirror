@@ -1,0 +1,33 @@
+<div class="tta_job_edit" data-job_id="{{job_id}}" data-enabled="{{enabled}}">
+	<i class="fa fa-times"></i>
+
+	<div>
+		{{job_name_label}}<br />
+		<input type="text" id="tta_job_name" value="{{job_name}}" />
+	</div>
+
+	<div>
+		{{job_question_label}}<br />
+		<textarea id="tta_job_question">{{job_question}}</textarea>
+	</div>
+
+	<div>
+		{{job_description_label}}<br />
+		<textarea id="tta_job_description">{{job_description}}</textarea>
+	</div>
+
+	{{#new}}
+	<div>
+		<p>{{articles_prompt}}</p>
+		<p class="tta_example">{{articles_example}}</p>
+		<textarea id="tta_article_list"></textarea>
+	</div>
+	{{/new}}
+
+	<div id="tta_message"></div>
+
+	<div class="button_div">
+		<button id="tta_edit_submit" class="button primary">{{job_submit_button}}</button>
+		<button id="tta_edit_done" class="button secondary">{{job_done_button}}</button>
+	</div>
+</div>

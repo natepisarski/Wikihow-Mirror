@@ -30,6 +30,11 @@ class SensitiveArticleDao
 		return wfGetDB(DB_MASTER)->insert('sensitive_article', $rows);
 	}
 
+	public function getSensitiveArticleCountByReasonId(int $reasonId): int {
+		$conds = ['sa_reason_id' => $reasonId];
+		return (int)wfGetDB(DB_SLAVE)->selectField('sensitive_article', 'count(*)', $conds, __METHOD__);
+	}
+
 	/**
 	 * @return ResultWrapper|bool
 	 */
@@ -38,10 +43,16 @@ class SensitiveArticleDao
 		return wfGetDB(DB_MASTER)->delete('sensitive_article', ['sa_page_id' => $pageId]);
 	}
 
+	public function deleteSensitiveArticleDataByReasonId(int $reasonId)
+	{
+		$conds = ['sa_reason_id' => $reasonId];
+		return wfGetDB(DB_MASTER)->delete('sensitive_article', $conds, __METHOD__);
+	}
+
 	public function getAllReasons(): \Iterator
 	{
-		$fields = [ 'sr_id', 'sr_internal_name', 'sr_name', 'sr_question', 'sr_description', 'sr_enabled' ];
-		$options = [ 'ORDER BY' => ['sr_name','sr_internal_name'] ];
+		$fields = [ 'sr_id', 'sr_name', 'sr_enabled' ];
+		$options = [ 'ORDER BY' => 'sr_name' ];
 		$res = wfGetDB(DB_SLAVE)->select('sensitive_reason', $fields, [], __METHOD__, $options);
 		return $res ?? new \EmptyIterator();
 	}
@@ -57,10 +68,7 @@ class SensitiveArticleDao
 	{
 		$values = [
 			'sr_id' => $sr->id,
-			'sr_internal_name' => $sr->internal_name,
 			'sr_name' => $sr->name,
-			'sr_question' => $sr->question,
-			'sr_description' => $sr->description,
 			'sr_enabled' => (int) $sr->enabled
 		];
 		return wfGetDB(DB_MASTER)->insert('sensitive_reason', $values);
@@ -68,13 +76,7 @@ class SensitiveArticleDao
 
 	public function updateReason(SensitiveReason $sr): bool
 	{
-		$values = [
-			'sr_internal_name' => $sr->internal_name,
-			'sr_name' => $sr->name,
-			'sr_question' => $sr->question,
-			'sr_description' => $sr->description,
-			'sr_enabled' => (int) $sr->enabled
-		];
+		$values = [ 'sr_name' => $sr->name, 'sr_enabled' => (int) $sr->enabled ];
 		$conds = [ 'sr_id' => $sr->id ];
 		return wfGetDB(DB_MASTER)->update('sensitive_reason', $values, $conds);
 	}
@@ -85,11 +87,17 @@ class SensitiveArticleDao
 		return $id + 1;
 	}
 
-	public function getSensitiveArticleVoteData(int $pageId, int $reasonId): \Iterator
+	public function deleteReason(SensitiveReason $sr): bool
+	{
+		$conds = ['sr_id' => $sr->id];
+		return wfGetDB(DB_MASTER)->delete('sensitive_reason', $conds, __METHOD__);
+	}
+
+	public function getSensitiveArticleVoteData(int $pageId, int $jobId): \Iterator
 	{
 		$conds = [
 			'sav_page_id' => $pageId,
-			'sav_reason_id' => $reasonId
+			'sav_job_id' => $jobId
 		];
 		$res = wfGetDB(DB_SLAVE)->select(SensitiveArticleVote::TABLE, '*', $conds);
 		return $res ?? new \EmptyIterator();
@@ -98,9 +106,9 @@ class SensitiveArticleDao
 	/**
 	 * @return ResultWrapper|bool
 	 */
-	public function deleteSensitiveArticleVoteData(int $pageId, int $reasonId)
+	public function deleteSensitiveArticleVoteData(int $pageId, int $jobId)
 	{
-		$conds = ['sav_page_id' => $pageId, 'sav_reason_id' => $reasonId];
+		$conds = ['sav_page_id' => $pageId, 'sav_job_id' => $jobId];
 		return wfGetDB(DB_MASTER)->delete(SensitiveArticleVote::TABLE, $conds);
 	}
 
@@ -108,12 +116,11 @@ class SensitiveArticleDao
 	{
 		$rows = [
 			'sav_page_id' => $sav->pageId,
-			'sav_reason_id' => $sav->reasonId,
+			'sav_job_id' => $sav->jobId,
 			'sav_vote_yes' => $sav->voteYes,
 			'sav_vote_no' => $sav->voteNo,
 			'sav_skip' => $sav->skip,
-			'sav_complete' => $sav->complete,
-			'sav_created' => wfTimestampNow()
+			'sav_complete' => $sav->complete
 		];
 
 		$uniqueIndexes = ['page_reason_pair'];
@@ -128,24 +135,69 @@ class SensitiveArticleDao
 		return wfGetDB(DB_MASTER)->upsert(SensitiveArticleVote::TABLE, $rows, $uniqueIndexes, $set, __METHOD__);
 	}
 
-	public function getNextSensitiveArticleVoteData(int $reasonId = 0, array $skipIds = [],
+	public function getAllTopicJobs(): \Iterator
+	{
+		$options = [ 'ORDER BY' => 'stj_id' ];
+		$res = wfGetDB(DB_SLAVE)->select(SensitiveTopicJob::TABLE, '*', [], __METHOD__, $options);
+		return $res ?? new \EmptyIterator();
+	}
+
+	public function getTopicJob(int $jobId): \Iterator
+	{
+		$conds = [ 'stj_id' => $jobId ];
+		$res = wfGetDB(DB_SLAVE)->select(SensitiveTopicJob::TABLE, '*', $conds, __METHOD__);
+		return $res ?? new \EmptyIterator();
+	}
+
+	public function insertTopicJob(SensitiveTopicJob $stj): bool
+	{
+		$values = [
+			'stj_topic' => $stj->topic,
+			'stj_question' => $stj->question,
+			'stj_description' => $stj->description,
+			'stj_enabled' => (int) $stj->enabled,
+			'stj_created' => wfTimestampNow()
+		];
+		return wfGetDB(DB_MASTER)->insert(SensitiveTopicJob::TABLE, $values);
+	}
+
+	public function updateTopicJob(SensitiveTopicJob $stj): bool
+	{
+		$values = [
+			'stj_topic' => $stj->topic,
+			'stj_question' => $stj->question,
+			'stj_description' => $stj->description,
+			'stj_enabled' => (int) $stj->enabled
+		];
+
+		$conds = [ 'stj_id' => $stj->id ];
+		return wfGetDB(DB_MASTER)->update(SensitiveTopicJob::TABLE, $values, $conds);
+	}
+
+	public function getNewestJobId(): int
+	{
+		$id = (int) wfGetDB(DB_SLAVE)->selectField(SensitiveTopicJob::TABLE, 'max(stj_id)');
+		return $id;
+	}
+
+	public function getNextSensitiveArticleVoteData(int $jobId = 0, array $skipIds = [],
 		int $userId = 0, string $visitorId = ''): \Iterator
 	{
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$tables = [
-			'sensitive_reason',
+			SensitiveTopicJob::TABLE,
 			SensitiveArticleVote::TABLE,
 			SensitiveArticleVoteAction::TABLE
 		];
 
 		$conds = [
-			'sav_reason_id = sr_id',
+			'sav_job_id = stj_id',
 			'sav_complete' => 0,
-			'sr_enabled' => 1,
+			'stj_enabled' => 1,
 			'sava_id' => NULL
 		];
-		if (!empty($reasonId)) $conds['sav_reason_id'] = $reasonId;
+		if (!empty($jobId)) $conds['sav_job_id'] = $jobId;
 		if (!empty($skipIds)) $conds[] = "sav_id NOT IN (".$dbr->makeList($skipIds).")";
 
 		$options = [ 'LIMIT' => 1 ];
@@ -166,14 +218,14 @@ class SensitiveArticleDao
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$tables = [
-			'sensitive_reason',
+			SensitiveTopicJob::TABLE,
 			SensitiveArticleVote::TABLE
 		];
 
 		$conds = [
-			'sav_reason_id = sr_id',
+			'sav_job_id = stj_id',
 			'sav_complete' => 0,
-			'sr_enabled' => 1
+			'stj_enabled' => 1
 		];
 
 		$joins = [];
@@ -197,10 +249,10 @@ class SensitiveArticleDao
 		return (int)$dbr->fetchRow($res)[0];
 	}
 
-	public function getAllSensitiveArticleVotes(int $reason_id = 0): \Iterator
+	public function getAllSensitiveArticleVotes(int $jobId = 0): \Iterator
 	{
 		$where = [];
-		if (!empty($reason_id)) $where['sav_reason_id'] = $reason_id;
+		if (!empty($jobId)) $where['sav_job_id'] = $jobId;
 		$res = wfGetDB(DB_SLAVE)->select(SensitiveArticleVote::TABLE, '*', $where, __METHOD__);
 		return $res ?? new \EmptyIterator();
 	}

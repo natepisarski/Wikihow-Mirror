@@ -1488,6 +1488,9 @@ class TSSummarized extends TitusStat {
 * ALTER TABLE titus_intl add column `ti_summary_video_views` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video;
 * ALTER TABLE titus_intl add column `ti_summary_video_play` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_views;
 * ALTER TABLE titus_intl add column `ti_summary_video_ctr` tinyint(3) unsigned NOT NULL DEFAULT '0' after ti_summary_video_play;
+* ALTER TABLE titus_intl add column `ti_summary_video_views_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_ctr;
+* ALTER TABLE titus_intl add column `ti_summary_video_play_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_views_mobile;
+* ALTER TABLE titus_intl add column `ti_summary_video_ctr_mobile` tinyint(3) unsigned NOT NULL DEFAULT '0' after ti_summary_video_play_mobile;
 */
 class TSEventLog extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -1532,37 +1535,47 @@ class TSEventLog extends TitusStat {
 	private function getSummaryVideoEventData( $dbr, $pageId ) {
 		global $wgLanguageCode;
 		global $wgIsDevServer;
-		$result = array( 'ti_summary_video_views' => 0, 'ti_summary_video_play' => 0, 'ti_summary_video_ctr' => 0 );
+		$result = array();
 
-		$domain = wfCanonicalDomain( $wgLanguageCode );
+		$desktopDomain = wfCanonicalDomain( $wgLanguageCode );
+		$mobileDomain = wfCanonicalDomain( $wgLanguageCode, true );
+		$domains = array( 'desktop' => wfCanonicalDomain( $wgLanguageCode ), 'mobile' => wfCanonicalDomain( $wgLanguageCode, true ) );
 
-		// for testing purposes
-		if ($wgIsDevServer) {
-			$domain = '';
-		}
-		$date = $this->getSummaryVideoClearDate( $dbr, $pageId, $domain );
-
-		$table = 'event_log';
-		$var = array( 'el_count', 'el_action' );
-		$cond = array(
-			'el_page_id' => $pageId,
-		);
-		if ( $domain ) {
-			$cond['el_domain'] = $domain;
-		}
-		if ( $date ) {
-			$cond[] = "el_date > '$date'";
-		}
-		$res = $dbr->select( $table, $var, $cond, __METHOD__ );
-		foreach ( $res as $row ) {
-			if ( $row->el_action == 'svideoview' ) {
-				$result['ti_summary_video_views'] = $result['ti_summary_video_views'] + $row->el_count;
-			} else if ( $row->el_action == 'svideoplay' ) {
-				$result['ti_summary_video_play'] = $result['ti_summary_video_play'] + $row->el_count;
+		foreach ( $domains as $domainKey => $domain ) {
+			$columnNameSuffix = '';
+			// use blank AND desktop domain to get the date cleared since originally the
+			// domain was not recorded when we cleared the events .. now it is but for
+			// backwards compatibility use blank as well
+			$clearDateDomain = array( $domain, '' );
+			if ( $domainKey == 'mobile' ) {
+				$columnNameSuffix = '_mobile';
+				$clearDateDomain = $domain;
 			}
-		}
-		if ( $result['ti_summary_video_views'] > 0 ) {
-		   $result['ti_summary_video_ctr'] = $result['ti_summary_video_play'] / $result['ti_summary_video_views'] * 100;
+			$result += array( 'ti_summary_video_views'.$columnNameSuffix => 0, 'ti_summary_video_play'.$columnNameSuffix => 0, 'ti_summary_video_ctr'.$columnNameSuffix => 0 );
+			$date = $this->getSummaryVideoClearDate( $dbr, $pageId, $clearDateDomain );
+
+			$table = 'event_log';
+			$var = array( 'el_count', 'el_action' );
+			$cond = array(
+				'el_page_id' => $pageId,
+			);
+			if ( $domain ) {
+				$cond['el_domain'] = $domain;
+			}
+			if ( $date ) {
+				$cond[] = "el_date > '$date'";
+			}
+			$res = $dbr->select( $table, $var, $cond, __METHOD__ );
+			foreach ( $res as $row ) {
+				if ( $row->el_action == 'svideoview' ) {
+					$result['ti_summary_video_views'.$columnNameSuffix] = $result['ti_summary_video_views'.$columnNameSuffix] + $row->el_count;
+				} else if ( $row->el_action == 'svideoplay' ) {
+					$result['ti_summary_video_play'.$columnNameSuffix] = $result['ti_summary_video_play'.$columnNameSuffix] + $row->el_count;
+				}
+			}
+			if ( $result['ti_summary_video_views'.$columnNameSuffix] > 0 ) {
+			   $result['ti_summary_video_ctr'.$columnNameSuffix] = $result['ti_summary_video_play'.$columnNameSuffix] / $result['ti_summary_video_views'.$columnNameSuffix] * 100;
+			}
 		}
 		return $result;
 	}
@@ -1574,10 +1587,9 @@ class TSEventLog extends TitusStat {
 			'ce_page_id' => $pageId,
 			'ce_action' => 'summaryvideoevents',
 		);
-		// do not use the domain yet
-		//if ( $domain ) {
-			//$cond['ce_domain'] = $domain;
-		//}
+		if ( $domain ) {
+			$cond['ce_domain'] = $domain;
+		}
 		$options = array( 'ORDER BY' => 'ce_date DESC' );
 
 		$date = $dbr->selectField( $table, $var, $cond, __METHOD__, $options );

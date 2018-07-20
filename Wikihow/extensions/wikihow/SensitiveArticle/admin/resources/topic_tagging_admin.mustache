@@ -1,24 +1,43 @@
 <div id="topic_tagging_admin">
-	{{{tag_prompt}}}
+	<button id="tta_add_new_button" class="button primary">{{add_new_button_label}}</button>
 
-	<div>
-		{{topic_select_label}}:
-		<select id="tta_topic">
-			<option value="0">{{default_topic_option}}</option>
-			{{#topics}}
-			<option value="{{id}}">{{name}} ({{internal_name}})</option>
-			{{/topics}}
-		</select>
-		<button id="tta_report" class="button secondary">{{report_button_label}}</button>
+	{{#jobs.0}}
+	<div id="tta_jobs">
+		<div class="tta_job_row tta_job_headers">
+			<div>{{job_column_id}}</div>
+			<div>{{job_column_topic}}</div>
+			<div></div>
+			<div>{{job_column_date}}</div>
+			<div>{{job_column_article_count}}</div>
+			<div>{{job_column_yes_count}}</div>
+			<div>{{job_column_no_count}}</div>
+			<div>{{job_column_unresolved_count}}</div>
+			<div></div>
+			<div>{{job_column_enabled}}</div>
+		</div>
+		{{#jobs}}
+		<div class="tta_job_row" data-job_id="{{id}}">
+			<div><div class="job_number">{{id}}</div></div>
+			<div>{{topic}}</div>
+			<div><i class="fa fa-pencil tta_edit" /></div>
+			<div>{{dateCreated}}</div>
+			<div>{{article_count}}</div>
+			<div>{{yes_count}}</div>
+			<div>{{no_count}}</div>
+			<div>{{unresolved_count}}</div>
+			<div><button class="button secondary tta_report">{{report_button_label}}</button></div>
+			<div>
+				{{#enabled}}<i class="fa fa-toggle-on tta_enabled"></i>{{/enabled}}
+				{{^enabled}}<i class="fa fa-toggle-off tta_enabled"></i>{{/enabled}}
+				<button class="button primary tta_change_enabled">{{enabled_button_label}}</button>
+			</div>
+		</div>
+		{{/jobs}}
 	</div>
+	{{/jobs.0}}
 
-	<div>
-		<p>{{articles_prompt}}</p>
-		<p class="tta_example">{{articles_example}}</p>
-		<textarea id="tta_article_list"></textarea>
-	</div>
-
-	<div id="tta_message"></div>
-
-	<button id="tta_submit" class="button primary">{{submit_button_label}}</button>
 </div>
+
+<script id="topic_tagging_admin_edit" type="text/x-handlebars-template">
+	{{topic_tagging_admin_edit}}
+</script>

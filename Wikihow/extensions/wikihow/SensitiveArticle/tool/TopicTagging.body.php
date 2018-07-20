@@ -37,18 +37,18 @@ class TopicTagging extends \UnlistedSpecialPage {
 			$wgMimeType = 'application/json';
 			$out->setArticleBodyOnly(true);
 
-			$topic_id = $request->getInt('topic_id', 0);
+			$job_id = $request->getInt('job_id', 0);
 			$page_id = $request->getInt('page_id', 0);
 
 			if ($action == 'next') {
-				$result = $this->getNextArticleToTag($topic_id);
+				$result = $this->getNextArticleToTag($job_id);
 			}
 			elseif ($action == 'vote') {
 				$vote = $request->getInt('vote');
-				$result = $this->vote($page_id, $topic_id, $vote);
+				$result = $this->vote($page_id, $job_id, $vote);
 			}
 			elseif ($action == 'skip') {
-				$result = $this->skip($page_id, $topic_id);
+				$result = $this->skip($page_id, $job_id);
 			}
 
 			print json_encode($result);
@@ -89,14 +89,15 @@ class TopicTagging extends \UnlistedSpecialPage {
 			'yes' => wfMessage('htmlform-yes')->text(),
 			'no' => wfMessage('htmlform-no')->text(),
 			'skip' => wfMessage('topic_tagging_button_skip')->text(),
-			'is_mobile' => $this->isMobile
+			'is_mobile' => $this->isMobile,
+			'tool_help' => \ToolInfo::getTheIcon($this, [wfMessage('topic_tagging_default_topic_phrase')->text()])
 		];
 
 		$html = $m->render('topic_tagging_tool', $vars);
 		return $html;
 	}
 
-	private function getNextArticleToTag(int $topic_id = 0): array {
+	private function getNextArticleToTag(int $job_id = 0): array {
 		$next = [];
 
 		$userId = \RequestContext::getMain()->getUser()->getId();
@@ -105,7 +106,7 @@ class TopicTagging extends \UnlistedSpecialPage {
 		$skip_ids = $this->skipTool->getSkipped();
 		if (!is_array($skip_ids)) $skip_ids = [];
 
-		$sav = SensitiveArticleVote::getNextArticleVote($topic_id, $skip_ids, $userId, $visitorId);
+		$sav = SensitiveArticleVote::getNextArticleVote($job_id, $skip_ids, $userId, $visitorId);
 
 		if (!empty($sav)) {
 			$title = \Title::newFromId($sav->pageId);
@@ -115,14 +116,15 @@ class TopicTagging extends \UnlistedSpecialPage {
 
 				$remaining = !$this->isMobile ? self::articlesRemaining($skip_ids, $userId, $visitorId) : '';
 
-				$sr = SensitiveReason::getReason($sav->reasonId);
+				$job = SensitiveTopicJob::newFromDB($sav->jobId);
 
 				$next = [
 					'page_id' => $sav->pageId,
 					'page_title' => $page_link,
-					'topic_id' => $sav->reasonId,
-					'question' => $sr->question,
-					'description' => $sr->description,
+					'job_id' => $sav->jobId,
+					'topic_name' => $job->topic,
+					'question' => $job->question,
+					'description' => $job->description,
 					'article_html' => $this->articleHtml($sav->pageId),
 					'remaining' => $remaining
 				];
@@ -169,6 +171,10 @@ class TopicTagging extends \UnlistedSpecialPage {
 
 					if ($content) {
 						$parserOutput = $content->getParserOutput($title, null, $popts, false)->getText();
+
+						//this is needed to show the Method TOC
+						$parserOutput = '<div class="firstHeading"></div>'.$parserOutput;
+
 						$whOpts = [ 'no-ads' => true, 'ns' => NS_MAIN ];
 						$articleHtml = new \WikihowArticleHTML( $parserOutput, $whOpts );
 						$html = $articleHtml->processBody();
@@ -195,10 +201,10 @@ class TopicTagging extends \UnlistedSpecialPage {
 	}
 
 
-	private function vote(int $page_id, int $topic_id, int $vote): array {
+	private function vote(int $page_id, int $job_id, int $vote): array {
 		$result = false;
 
-		$sav = SensitiveArticleVote::newFromDB($page_id, $topic_id);
+		$sav = SensitiveArticleVote::newFromDB($page_id, $job_id);
 		if (!empty($sav)) {
 			$num_of_votes = $this->numberOfVotesForUser();
 
@@ -206,7 +212,7 @@ class TopicTagging extends \UnlistedSpecialPage {
 			$result = $sav->save();
 
 			$action = $vote ? 'upvote' : 'downvote';
-			self::log($page_id, $topic_id, $action);
+			self::log($page_id, $job_id, $action);
 
 			SensitiveArticleVoteAction::markVoted($sav->rowId, $vote);
 		}
@@ -214,10 +220,10 @@ class TopicTagging extends \UnlistedSpecialPage {
 		return ['success' => $result];
 	}
 
-	private function skip(int $page_id, int $topic_id): array {
+	private function skip(int $page_id, int $job_id): array {
 		$result = false;
 
-		$sav = SensitiveArticleVote::newFromDB($page_id, $topic_id);
+		$sav = SensitiveArticleVote::newFromDB($page_id, $job_id);
 		if (!empty($sav->rowId)) {
 			$sav->skip += 1;
 			$result = $sav->save();
@@ -228,10 +234,11 @@ class TopicTagging extends \UnlistedSpecialPage {
 		return ['success' => $result];
 	}
 
-	public static function log(int $page_id, int $topic_id, string $action) {
-		$sr = SensitiveReason::getReason($topic_id);
-		if (empty($sr)) return;
-		$topic = $sr->name;
+	public static function log(int $page_id, int $job_id, string $action) {
+		$job = SensitiveTopicJob::newFromDB($job_id);
+
+		if (empty($job)) return;
+		$topic = $job->topic;
 
 		$title = \Title::newFromID($page_id);
 		if (empty($title)) return;

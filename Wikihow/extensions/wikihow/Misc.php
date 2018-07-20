@@ -194,7 +194,7 @@ function wfGetLangCodeFromDomain($domain) {
 	 *   // ...
 	 * );
 	 */
-	global $wgIsDevServer;
+	global $wgIsDevServer, $wgIsToolsServer;
 	static $domainToLanguageMap = false;
 
 	if ($domainToLanguageMap === false) {
@@ -218,7 +218,7 @@ function wfGetLangCodeFromDomain($domain) {
 	} elseif (preg_match('@^([a-z]{2})\.@', $domain, $m)) {
 		// Fall-back when domain not in list, but does start with two-character code
 		return $m[1];
-	} elseif ($wgIsDevServer) {
+	} elseif ($wgIsDevServer || $wgIsToolsServer) {
 		if (preg_match('@(^|[-.])([a-z]{2})([-.])@', $domain, $m)) {
 			return $m[2];
 		} else {

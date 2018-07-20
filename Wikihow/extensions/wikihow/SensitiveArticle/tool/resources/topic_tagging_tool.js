@@ -6,7 +6,7 @@
 		tool_url: '/Special:TopicTagging',
 		dynamic_elements: "#ttt_title, #ttt_remaining, #ttt_topic, #ttt_question, #ttt_description, #ttt_article_html, #ttt_buttons",
 		active_page_id: 0,
-		active_topic_id: 0,
+		active_job_id: 0,
 		is_mobile: 0,
 
 		init: function() {
@@ -40,7 +40,7 @@
 					}
 					else {
 						this.active_page_id = data.page_id;
-						this.active_topic_id = data.topic_id;
+						this.active_job_id = data.job_id;
 						this.displayResult(data);
 					}
 				}
@@ -70,6 +70,8 @@
 			}
 
 			$('#ttt_article_html').show();
+
+			$('#ti_box ul').html(mw.message('ti_TopicTagging_bullets', data.topic_name).text());
 		},
 
 		vote: function(vote) {
@@ -83,7 +85,7 @@
 					action: 'vote',
 					vote: vote,
 					page_id: this.active_page_id,
-					topic_id: this.active_topic_id
+					job_id: this.active_job_id
 				},
 				$.proxy(function(data) {
 					this.updateStats();
@@ -113,7 +115,7 @@
 				{
 					action: 'skip',
 					page_id: this.active_page_id,
-					topic_id: this.active_topic_id
+					job_id: this.active_job_id
 				},
 				$.proxy(function(data) {
 					this.getNextArticle();
@@ -125,6 +127,8 @@
 		endOfQueue: function(eoq_msg) {
 			$('#ttt_spinner').hide();
 			$('#ttt_top').after(eoq_msg);
+			$('#ti_icon').hide();
+			$('#ti_outer_box').hide();
 		},
 
 		processing: function(is_processing) {

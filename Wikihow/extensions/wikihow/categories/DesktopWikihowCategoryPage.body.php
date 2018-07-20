@@ -62,6 +62,10 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			$vars = [];
 			$vars['description'] = AdminCategoryDescriptions::getCategoryDescription($this->mTitle);
 			$vars['catName'] = $categoryName;
+			$vars['featuredHeader'] = wfMessage("cat_featured")->text();
+			$vars['relatedHeader'] = wfMessage("cat_related")->text();
+			$vars['topicsHeader'] = wfMessage("cat_topics")->text();
+			$vars['allArticlesHeader'] = wfMessage("cat_allarticles", $categoryName)->text();
 
 			$viewer = new WikihowCategoryViewer($this->mTitle, $this->getContext());
 

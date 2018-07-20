@@ -22,7 +22,7 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		foreach ($pageList as $url) {
 			$url = trim($url);
 			if (!empty($url)) {
-				$title = WikiPhoto::getArticleTitle($url);
+				$title = WikiPhoto::getArticleTitleNoCheck($url);
 				$urls[] = array('url' => $url, 'title' => $title);
 			}
 		}
@@ -459,6 +459,14 @@ EOHTML;
 					$domain = substr($action, -2);
 					$html = self::resetStats($urls, $domain);
 				}
+
+				// keep track of stu resets in the rating_history table
+				foreach ($urls as $url) {
+					if ($url['title'] && $url['title']->getArticleID() > 0) {
+						RatingsTool::keepHistory( $url['title']->getArticleID(), 'stu' );
+					}
+				}
+
 				self::resetVarnishes($urls);
 
 				self::mailUserResetDone($user, $urls);

@@ -1302,7 +1302,7 @@ class wikihowAds {
 		if ($engine == 'google') {
 			return self::getSearchAdsGoogle($query, $page);
 		} elseif ($engine == 'yahoo') {
-			return self::getSearchAdsYPA($page, $results);
+			return self::getSearchAdsYPA($query, $page, $results);
 		}
 
 		return '';
@@ -1332,12 +1332,13 @@ class wikihowAds {
 		return $tmpl->execute('wikihowAdSearchGoogle.tmpl.php');
 	}
 
-	private static function getSearchAdsYPA(int $page, int $results) {
+	private static function getSearchAdsYPA(string $query, int $page, int $results) {
 		$vars = [
 			'slotIdPrefix' => '',
 			'adConfig' => '0000008c4',
 			"page" => $page,
 			"rangeTop" => $results ? '1-2' : '1-3',
+			'query' => json_encode($query),
 		];
 		if (Misc::isMobileMode()) {
 			$vars['slotIdPrefix'] = 'M';

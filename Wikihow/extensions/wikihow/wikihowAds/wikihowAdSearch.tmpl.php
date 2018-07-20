@@ -8,7 +8,7 @@
 <script type="text/javascript" charset="utf-8">
 	var pageOptions = {
 		'pubId': 'pub-9543332082073187',
-		'query': mw.util.getParamValue('search'),
+		'query': <?= $query ?>,
 		'hl': mw.config.get('wgUserLanguage'),
 		'channel': '6215427373'
 	};

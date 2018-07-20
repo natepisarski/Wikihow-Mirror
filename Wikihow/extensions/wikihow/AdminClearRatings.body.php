@@ -249,7 +249,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 		return $html;
 	}
 
-	private static function recordClearEvent( $pageId, $action ) {
+	private static function recordClearEvent( $pageId, $action, $domain = null ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$table = 'clear_event';
 		$date = gmdate( "Y-m-d H:i:s" );
@@ -258,11 +258,15 @@ class AdminClearRatings extends UnlistedSpecialPage {
 			'ce_action' => $action,
 			'ce_date' => $date,
 		);
+		if ( $domain ) {
+			$insertData['ce_domain'] = $domain;
+		}
 		$options = array( 'IGNORE' );
 		$dbw->insert( $table, $insertData, __METHOD__, $options );
 	}
 
 	public static function resetSummaryData( $pageId ) {
+		global $wgLanguageCode;
 		$dbr = wfGetDB( DB_MASTER );
 
 		$table = 'event_log';
@@ -274,10 +278,14 @@ class AdminClearRatings extends UnlistedSpecialPage {
 		);
 		$hasData = $dbr->selectRow( $table, $var, $cond, __METHOD__ );
 		if ( $hasData ) {
-			self::recordClearEvent( $pageId, 'summaryvideoevents' );
+			$domains = array( wfCanonicalDomain( $wgLanguageCode ), wfCanonicalDomain( $wgLanguageCode, true ) );
+			foreach ( $domains as $domain ) {
+				self::recordClearEvent( $pageId, 'summaryvideoevents', $domain );
+			}
 		}
 
 		$table = 'item_rating';
+
 		$helpfulnessActions = array( 'summaryvideohelp', 'summarytexthelp' );
 		foreach ( $helpfulnessActions as $type ) {
 			$cond = array(

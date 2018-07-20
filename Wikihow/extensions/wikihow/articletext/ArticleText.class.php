@@ -17,6 +17,7 @@ class ArticleText {
 	var $hasSummary = false;
 	var $summaryText = "";
 	var $summaryVideoUrl = "";
+	var $lifeHack = "";
 
 	/**
 	 * ReadArticleModel constructor.
@@ -90,6 +91,11 @@ class ArticleText {
 				$this->setSummaryText($summaryText);
 				$this->setSummaryVideoUrl($de->getSummarizedSectionVideoUrl());
 			}
+		}
+
+		$lifeHack = $this->getLifeHackFromDB();
+		if ($lifeHack) {
+			$this->setLifeHack($lifeHack);
 		}
 	}
 
@@ -216,6 +222,23 @@ class ArticleText {
 		}
 
 		return $topCats;
+	}
+
+	protected function getLifeHackFromDB() {
+		$dbr = wfGetDB(DB_SLAVE);
+		return $dbr->selectField(
+			'alexa_life_hacks',
+			'al_hack_text',
+			['al_article_id' => $this->getArticleId()]
+		);
+	}
+
+	public function getLifeHack() {
+		return $this->lifeHack;
+	}
+
+	public function setLifeHack($lifeHack) {
+		$this->lifeHack = $lifeHack;
 	}
 
 	public function getTopLevelCategories() {

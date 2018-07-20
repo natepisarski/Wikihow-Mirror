@@ -195,7 +195,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 	}
 
 	public static function getCategoryDescription(Title $title, $useLinks = true) {
-		global $wgMemc, $wgParser;
+		global $wgMemc, $wgParser, $wgLanguageCode;
 
 		$cacheKey = wfMemcKey(self::CACHE_KEY_DESCRIPTION, $title->getArticleID(), $useLinks);
 		$val = $wgMemc->get($cacheKey);
@@ -221,15 +221,16 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 				$description = wfMessage(self::MESSAGE_DESCRIPTION_WIKIHOW, $title->getText())->text();
 			} else {
 				//get the top 3 articles in the current category
+				$titus_copy = WH_DATABASE_NAME_EN . '.titus_copy';
 				$res = $dbr->select(
-					['categorylinks', 'index_info', 'titus_copy'],
+					['categorylinks', 'index_info', $titus_copy],
 					['ti_page_id'],
 					['ii_policy IN (1, 4)', 'cl_to' => $title->getDBkey()],
 					__METHOD__,
 					['ORDER BY' => 'ti_30day_views DESC', 'LIMIT' => 3],
 					[
 						'index_info' => ['INNER JOIN', 'cl_from = ii_page'],
-						'titus_copy' => ['LEFT JOIN', 'cl_from = ti_page_id AND ti_language_code = "en"']
+						$titus_copy => ['LEFT JOIN', 'cl_from = ti_page_id AND ti_language_code = "'. $wgLanguageCode . '"']
 					]
 				);
 

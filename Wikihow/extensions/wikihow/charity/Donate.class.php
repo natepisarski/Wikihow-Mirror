@@ -7,7 +7,8 @@ class Donate extends ContextSource {
 			'np2.jpg',
 			'np3.jpg',
 			'np4.jpg',
-			'np5.jpg'
+			'np5.jpg',
+			'np6.jpg'
 		];
 
 	public static function addDonateSectionToArticle() {

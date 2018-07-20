@@ -16,7 +16,9 @@
 
 	<select id="saw_reasons" name="reasons[]" multiple style="display: block; margin: 4px 0 10px;">
 	{{#reasons}}
-		<option value="{{id}}" {{#selected}} selected {{/selected}}>{{internal_name}}</option>
+		{{#enabled}}
+			<option value="{{id}}" {{#selected}} selected {{/selected}}>{{name}}</option>
+		{{/enabled}}
 	{{/reasons}}
 	</select>
 

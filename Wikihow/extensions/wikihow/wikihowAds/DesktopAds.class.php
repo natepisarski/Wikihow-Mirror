@@ -297,7 +297,7 @@ class DesktopAds {
 			$adCreator->setAdLabelVersion( 2 );
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else if ( $this->mSearchPage == true ) {
-			$searchQuery = $this->mContext->getRequest()->getText('search');
+			$searchQuery = LSearch::getSearchQuery();
 			$adCreator  = new SearchPageAdCreator( $searchQuery );
 			if ( !$this->mEnglishSite ) {
 				$adCreator = new InternationalSearchPageAdCreator( $searchQuery );

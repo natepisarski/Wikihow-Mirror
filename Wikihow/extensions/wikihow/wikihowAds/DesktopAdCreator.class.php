@@ -1512,7 +1512,7 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 		);
 	}
 	public function getQuizAd( $num ) {
-		return $this->getNewAd( "quiz".$num );
+		return "";
 	}
 }
 

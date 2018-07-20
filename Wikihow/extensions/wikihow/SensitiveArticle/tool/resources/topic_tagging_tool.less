@@ -14,15 +14,33 @@
 	}
 }
 
+#topic_tagging_tool {
+	#ti_icon {
+		margin: 12px 0 0 0;
+	}
+
+	#ti_box ul {
+		padding: 0 8px 8px 0;
+	}
+
+	&.mobile {
+		#ti_icon {
+			margin-top: 0;
+		}
+
+		#ti_outer_box {
+			margin: 0;
+		}
+
+		#ti_box ul {
+			padding: 14px 8px 8px 8px;
+		}
+	}
+}
+
 #ttt_tool_title {
 	font-weight: bold;
 	padding-bottom: .3em;
-}
-
-#ttt_title {
-	font-size: 2em;
-	color: #363;
-	text-decoration: none;
 }
 
 #ttt_question {
@@ -33,16 +51,6 @@
 
 #ttt_buttons {
 	margin-top: 1em;
-	text-align: right;
-}
-
-#ttt_vote_skip {
-	float: left;
-}
-
-#topic_tagging_tool #ti_icon {
-	padding-top: 12px;
-	background-position: 0 12px;
 }
 
 #ttt_spinner {
@@ -58,12 +66,6 @@
 		margin: 0 -5px;
 	}
 
-	#ttt_title {
-		display: none;
-		line-height: 1.2em;
-		padding-bottom: .3em;
-	}
-
 	#ttt_tool_title {
 		background: none;
 		font-size: 1.2em;
@@ -72,10 +74,6 @@
 
 	#ttt_guts {
 		padding: 1em .5em 1.5em .5em;
-	}
-
-	#intro {
-		padding: 15px;
 	}
 
 	#ttt_buttons {
@@ -98,9 +96,40 @@
 		}
 
 		#ttt_vote_skip {
-			float: none;
 			margin: 0 1%;
 		}
 	}
-
 }
+
+#ttt_title {
+	font-size: 2em;
+	color: #363;
+	text-decoration: none;
+}
+
+#method_toc.sp_method_toc {
+	margin-top: -27px;
+	border-radius: 4px 4px 0 0;
+	margin-bottom: 1em;
+}
+
+#ttt_article_html {
+	&.mobile {
+		margin-top: .5em;
+
+		#ttt_title {
+			display: none;
+			line-height: 1.2em;
+			padding-bottom: .3em;
+		}
+
+		#intro {
+			padding: 15px;
+		}
+
+		#method_toc {
+			display: none;
+		}
+	}
+}
+

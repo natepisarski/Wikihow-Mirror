@@ -8,9 +8,6 @@ class SensitiveReason
 
 	public $id; // int
 	public $name; // string
-	public $internal_name; // string
-	public $question; // string
-	public $description; // string
 	public $enabled; // bool
 
 	protected function __construct() {}
@@ -18,17 +15,27 @@ class SensitiveReason
 	/**
 	 * Create an instance from the given values
 	 */
-	public static function newFromValues(int $id, string $name, string $internal_name,
-		string $question, string $description, bool $enabled): SensitiveReason
+	public static function newFromValues(int $id, string $name, bool $enabled): SensitiveReason
 	{
 		$reason = new static();
 		$reason->id = $id;
 		$reason->name = trim($name);
-		$reason->internal_name = trim($internal_name);
-		$reason->question = trim($question);
-		$reason->description = trim($description);
 		$reason->enabled = $enabled;
 		return $reason;
+	}
+
+	public static function newFromDB(int $id): SensitiveReason
+	{
+		$name = '';
+		$enabled = false;
+
+		$res = static::getDao()->getReason($id);
+		foreach ($res as $row) {
+			$name = $row->sr_name;
+			$enabled = (int)$row->sr_enabled;
+		}
+
+		return static::newFromValues($id, $name, $enabled);
 	}
 
 	/**
@@ -41,42 +48,14 @@ class SensitiveReason
 		$rows = static::getDao()->getAllReasons();
 		$reasons = [];
 		foreach ($rows as $r) {
-			$reasons[] = static::newFromValues(
-				$r->sr_id,
-				$r->sr_name,
-				$r->sr_internal_name,
-				$r->sr_question,
-				$r->sr_description,
-				$r->sr_enabled
-			);
+			$reasons[] = static::newFromValues($r->sr_id, $r->sr_name, $r->sr_enabled);
 		}
 		return $reasons;
 	}
 
-	/**
-	 * Get one specific reason
-	 *
-	 * @return SensitiveReason[]
-	 */
-	public static function getReason(int $reason_id): SensitiveReason
-	{
-		$rows = static::getDao()->getReason($reason_id);
-		foreach ($rows as $r) {
-			$reason = static::newFromValues(
-				$r->sr_id,
-				$r->sr_name,
-				$r->sr_internal_name,
-				$r->sr_question,
-				$r->sr_description,
-				$r->sr_enabled
-			);
-		}
-		return $reason;
-	}
-
 	public function isValid(): bool
 	{
-		return !empty(trim($this->name)) && !empty(trim($this->internal_name));
+		return !empty(trim($this->name));
 	}
 
 	/**
@@ -94,6 +73,13 @@ class SensitiveReason
 			$this->id = static::getDao()->getNewReasonId();
 			$res = static::getDao()->insertReason($this);
 		}
+		return $res;
+	}
+
+	public function delete(): bool
+	{
+		$res = static::getDao()->deleteReason($this);
+		wfRunHooks( "SensitiveReasonDeleted" , [$this->id]);
 		return $res;
 	}
 

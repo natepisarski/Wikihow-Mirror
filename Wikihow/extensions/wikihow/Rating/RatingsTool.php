@@ -85,13 +85,17 @@ abstract class RatingsTool {
 			["{$pf}page" => $itemId, "{$pf}isdeleted" => 0],
 			__METHOD__);
 
-		//FIX
-		if ($wgLanguageCode == 'en')
-			$dbw->delete($this->lowTable, array("{$this->lowTablePrefix}page" => $itemId));
-		if ($reason == null)
+		if ($wgLanguageCode == 'en') {
+			$dbw->delete($this->lowTable, ["{$this->lowTablePrefix}page" => $itemId], __METHOD__);
+		}
+
+		if (!$reason) {
 			$reason = $wgRequest->getVal('reason');
+		}
 
 		if ($this->ratingType == 'article') {
+			$this->keepHistory($itemId, 'rating');
+
 			wfRunHooks("RatingsCleared", array($this->ratingType, $itemId));
 		}
 
@@ -99,20 +103,44 @@ abstract class RatingsTool {
 		$this->logClear($itemId, $result->max, $result->min, $result->count, $reason);
 	}
 
+	/*
+	CREATE TABLE rating_history (
+		rh_pageid INTEGER UNSIGNED NOT NULL,
+		rh_timestamp VARCHAR(14) NOT NULL,
+		rh_source VARCHAR(32) NOT NULL DEFAULT '',
+		INDEX(rh_pageid),
+		INDEX(rh_timestamp)
+	);
+	*/
+	// We keep records of all clears of ratings or Stu, since Stu2 uses either of
+	// these events as a "reset event".
+	//
+	// We also keep track of this because there are reset events of ratings done
+	// by users that are never tracked in the database anywhere outside the MW
+	// logging system. For example, if a page has no ratings and the ratings are
+	// reset, the only way to see that a reset happened is to look at the log
+	// messages. This isn't good enough for our purposes.
+	public function keepHistory($itemId, $source) {
+		$dbw = wfGetDB(DB_MASTER);
+		$dbw->insert('rating_history',
+			['rh_pageid' => $itemId, 'rh_timestamp' => wfTimestampNow(), 'rh_source' => substr($source, 0, 32)],
+			__METHOD__);
+	}
+
 	public function listRecentResets($humanTime = '24 hours ago') {
-		$newerThan = strtotime($humanTime);
+		$newer = strtotime($humanTime);
+		if (!$newer) return [];
+		$newerThan = wfTimestamp( TS_MW, $newer );
 		$dbr = wfGetDB( DB_SLAVE );
 		$pf = $this->tablePrefix;
-		$res = $dbr->select( $this->tableName,
-			["{$pf}page AS pageid", "UNIX_TIMESTAMP(MAX({$pf}deleted_when)) AS reset_time"],
-			["{$pf}deleted_when > FROM_UNIXTIME({$newerThan})", "{$pf}isdeleted" => 1],
+		$res = $dbr->select( 'rating_history',
+			['rh_pageid AS pageid', 'MAX(rh_timestamp) AS reset_time'],
+			["rh_timestamp > $newerThan"],
 			__METHOD__,
-			["GROUP BY" => "{$pf}page"] );
+			['GROUP BY' => 'rh_pageid'] );
 		$rows = [];
 		foreach ($res as $row) {
-			// cast array values to int
-			$row = array_map(function ($x) { return (int)$x; }, (array)$row);
-			$rows[] = $row;
+			$rows[] = [(int)$row->pageid, $row->reset_time];
 		}
 		return $rows;
 	}

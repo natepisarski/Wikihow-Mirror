@@ -606,7 +606,7 @@ class LSearch extends SpecialPage {
 
 		$ss = new SpecialSearch( $request, $user );
 
-		$term = str_replace( "\n", " ", $request->getText( 'search', '' ) );
+		$term = str_replace( "\n", " ", $this->mQ );
 
 		$ss->load();
 		$search = $ss->getSearchEngine();
@@ -679,6 +679,16 @@ class LSearch extends SpecialPage {
 		$this->displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId );
 	}
 
+	public static function getSearchQuery(): string {
+		$req = RequestContext::getMain()->getRequest();
+		$q = trim($req->getVal('search', ''));
+		// Prepend "how to" to the query on EN
+		if ( $q && !Misc::isIntl() && strtolower(substr($q, 0, 4)) != 'how ' ) {
+			$q = "how to " . $q;
+		}
+		return $q;
+	}
+
 	/**
 	 * /wikiHowTo?... and /Special:LSearch page entry point
 	 */
@@ -696,7 +706,7 @@ class LSearch extends SpecialPage {
 		$req = $this->getRequest();
 
 		$this->mStart = $req->getVal('start', 0);
-		$this->mQ = $req->getVal('search');
+		$this->mQ = self::getSearchQuery();
 		$this->mLimit = $req->getVal('limit', 20);
 
 		// special case search term filtering
@@ -880,7 +890,7 @@ class LSearch extends SpecialPage {
 	}
 
 	private function rssSearch() {
-		$results = $this->externalSearchResultTitles($this->getRequest()->getVal('search'), $this->mStart, self::RESULTS_PER_PAGE, 0, self::SEARCH_RSS);
+		$results = $this->externalSearchResultTitles($this->mQ, $this->mStart, self::RESULTS_PER_PAGE, 0, self::SEARCH_RSS);
 		$this->getOutput()->setArticleBodyOnly(true);
 		$pad = "           ";
 		header("Content-type: text/xml;");

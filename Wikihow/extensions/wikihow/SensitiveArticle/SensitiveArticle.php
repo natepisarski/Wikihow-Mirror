@@ -14,6 +14,8 @@ $wgAutoloadClasses['SensitiveArticle\SensitiveArticle'] = __DIR__ . '/core/Sensi
 $wgAutoloadClasses['SensitiveArticle\SensitiveReason'] = __DIR__ . '/core/SensitiveReason.class.php';
 $wgAutoloadClasses['SensitiveArticle\SensitiveArticleVote'] = __DIR__ . '/core/SensitiveArticleVote.class.php';
 $wgAutoloadClasses['SensitiveArticle\SensitiveArticleVoteAction'] = __DIR__ . '/core/SensitiveArticleVoteAction.class.php';
+$wgAutoloadClasses['SensitiveArticle\SensitiveTopicJob'] = __DIR__ . '/core/SensitiveTopicJob.class.php';
+$wgHooks['SensitiveReasonDeleted'][] = ['SensitiveArticle\SensitiveArticle::onSensitiveReasonDeleted'];
 
 // The Sensitive Article Tagging widget on the staff-only section
 $wgSpecialPages['SensitiveArticleWidgetApi'] = 'SensitiveArticle\SensitiveArticleWidgetApi';
@@ -30,6 +32,9 @@ $wgResourceModules['ext.wikihow.SensitiveArticle.admin'] = [
 	'localBasePath' => __DIR__ . '/admin/resources',
 	'styles' => ['sensitive_article_admin.less'],
 	'scripts' => ['sensitive_article_admin.js'],
+	'messages' => [
+		'saa_delete_confirm_2'
+	]
 ];
 
 // Special:TopicTagging
@@ -42,6 +47,9 @@ $wgResourceModules['ext.wikihow.topic_tagging_tool'] = [
 	'localBasePath' => __DIR__ . '/tool/resources',
 	'styles' => ['topic_tagging_tool.less'],
 	'scripts' => ['topic_tagging_tool.js'],
+	'messages' => [
+		'ti_TopicTagging_bullets'
+	]
 ];
 
 $wgLogTypes[] = 'topic_tagging';
@@ -52,15 +60,49 @@ $wgLogHeaders['topic_tagging'] = 'topic_tagging';
 $wgSpecialPages['TopicTaggingAdmin'] = 'SensitiveArticle\TopicTaggingAdmin';
 $wgAutoloadClasses['SensitiveArticle\TopicTaggingAdmin'] = __DIR__ . '/admin/TopicTaggingAdmin.body.php';
 $wgResourceModules['ext.wikihow.topic_tagging_admin'] = [
-	'targets' => ['desktop', 'mobile'],
+	'targets' => ['desktop'],
 	'position' => 'top',
 	'remoteExtPath' => 'wikihow/SensitiveArticle/admin/resources',
 	'localBasePath' => __DIR__ . '/admin/resources',
-	'styles' => ['topic_tagging_admin.less'],
-	'scripts' => ['topic_tagging_admin.js'],
+	'styles' => [
+		'topic_tagging_admin.less',
+		'../../../common/font-awesome-4.2.0/css/font-awesome.min.css'
+	],
+	'scripts' => [
+		'topic_tagging_admin.js',
+		'../../../common/jquery.simplemodal.1.4.4.min.js'
+	],
 	'messages' => [
 		'tta_err_no_topic',
-		'tta_err_no_articles'
+		'tta_err_no_articles',
+		'tta_err_no_question',
+		'tta_err_no_description',
+		'tta_job_name_label',
+		'tta_job_question_label',
+		'tta_job_description_label',
+		'tta_articles_prompt',
+		'tta_articles_example',
+		'submit',
+		'tta_done_button'
 	]
+];
+
+// Special:BulkTopicTagging
+$wgSpecialPages['BulkTopicTagging'] = 'SensitiveArticle\BulkTopicTagging';
+$wgAutoloadClasses['SensitiveArticle\BulkTopicTagging'] = __DIR__ . '/admin/BulkTopicTagging.body.php';
+$wgResourceModules['ext.wikihow.bulk_topic_tagging'] = [
+	'targets' => ['desktop'],
+	'position' => 'top',
+	'remoteExtPath' => 'wikihow/SensitiveArticle/admin/resources',
+	'localBasePath' => __DIR__ . '/admin/resources',
+	'styles' => ['bulk_topic_tagging.less'],
+	'scripts' => ['bulk_topic_tagging.js'],
+	'messages' => [
+		'btt_no_tag',
+		'btt_err_no_tag',
+		'btt_err_no_action',
+		'btt_err_no_articles'
+	],
+	'dependencies' => ['jquery.chosen']
 ];
 

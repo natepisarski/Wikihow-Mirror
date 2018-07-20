@@ -10,9 +10,11 @@
 	<div id="ttt_guts">
 		<div id="ttt_question"></div>
 		<div id="ttt_description"></div>
+		{{#is_mobile}}{{{tool_help}}}{{/is_mobile}}
 	</div>
 
 	<div id="ttt_buttons">
+		{{^is_mobile}}{{{tool_help}}}{{/is_mobile}}
 		<button id="ttt_vote_yes" class="button secondary">{{yes}}</button>
 		<button id="ttt_vote_skip" class="button secondary">{{skip}}</button>
 		<button id="ttt_vote_no" class="button primary">{{no}}</button>

@@ -10,17 +10,6 @@ class SensitiveArticleAdmin extends \UnlistedSpecialPage
 	public function __construct()
 	{
 		parent::__construct('SensitiveArticleAdmin');
-		global $wgHooks;
-		$wgHooks['ShowSideBar'][] = [$this, 'removeSideBarCallback'];
-		$wgHooks['ShowBreadCrumbs'][] = [$this, 'removeBreadCrumbsCallback'];
-	}
-
-	public function removeSideBarCallback(&$showSideBar) {
-		$showSideBar = false;
-	}
-
-	public function removeBreadCrumbsCallback(&$showBreadCrumbs) {
-		$showBreadCrumbs = false;
 	}
 
 	public function execute($par)
@@ -37,9 +26,11 @@ class SensitiveArticleAdmin extends \UnlistedSpecialPage
 		}
 
 		if ($req->wasPosted()) {
-			$errors = $this->processAction($req);
-			$out->disable();
-			echo $errors ?: $this->getHTML($out);
+			global $wgMimeType;
+			$wgMimeType = 'application/json';
+			$out->setArticleBodyOnly(true);
+			$result = $this->processAction($req);
+			print json_encode($result);
 		} else {
 			$out->setPageTitle('Sensitive Article Admin');
 			$out->addModules('ext.wikihow.SensitiveArticle.admin');
@@ -51,25 +42,45 @@ class SensitiveArticleAdmin extends \UnlistedSpecialPage
 	/**
 	 * Process an AJAX request triggered from the UI
 	 */
-	private function processAction(\WebRequest $req)
+	private function processAction(\WebRequest $req): array
 	{
-		$action = $req->getText('action');
+		$result = [];
+		$action = $req->getText('action', '');
+		$id = $req->getInt('id', 0);
 
-		if ($action != 'upsert') {
-			return "Action not recognized: '$action'";
+		if ($action == 'upsert') {
+			$name = $req->getText('name', '');
+			$enabled = $req->getText('enabled') === 'true';
+
+			$sr = SensitiveReason::newFromValues($id, $name, $enabled);
+
+			if (!$sr->save()) {
+				$values = var_export($req->getValues(), true);
+				$result['error'] = "<b>Error</b>. Unable to process request:<br><br><pre>$values</pre>";
+			}
+			else {
+				if ($req->getInt('from_btt',0)) {
+					$result['tag_id'] = $sr->id;
+				}
+			}
+
+		}
+		elseif ($action == 'delete_verify') {
+			if ($id) {
+				$count = SensitiveArticle::getSensitiveArticleCountByReasonId($id);
+				$result['confirm_message'] = wfMessage('saa_delete_confirm', $count)->text();
+			}
+		}
+		elseif ($action == 'delete') {
+			if (!SensitiveReason::newFromDB($id)->delete()) {
+				$result['error'] = 'Something went wrong';
+			}
+		}
+		else {
+			 $result['error'] = "Action not recognized: '$action'";
 		}
 
-		$id = $req->getInt('id');
-		$internal_name = $req->getText('internal_name');
-		$name = $req->getText('name');
-		$question = $req->getText('question');
-		$description = $req->getText('description');
-		$enabled = $req->getText('enabled') === 'true';
-
-		if (!SensitiveReason::newFromValues($id, $name, $internal_name, $question, $description, $enabled)->save()) {
-			$values = var_export($req->getValues(), true);
-			return "<b>Error</b>. Unable to process request:<br><br><pre>$values</pre>";
-		}
+		return $result;
 	}
 
 	private function getHTML(\OutputPage $out): string
@@ -77,8 +88,20 @@ class SensitiveArticleAdmin extends \UnlistedSpecialPage
 		$mustacheEngine = new \Mustache_Engine([
 			'loader' => new \Mustache_Loader_FilesystemLoader(__DIR__ . '/resources' )
 		]);
-		$vars = [ 'reasons' => SensitiveReason::getAll() ];
-		return $mustacheEngine->render('sensitive_article_admin.mustache', $vars);
+
+		$reasons = $this->prepareReasons(SensitiveReason::getAll());
+		return $mustacheEngine->render('sensitive_article_admin.mustache', ['reasons' => $reasons]);
+	}
+
+	private function prepareReasons(array $reasons): array
+	{
+		$permanent_reasons = [9,10];
+
+		foreach ($reasons as $reason) {
+			$reason->can_delete = !in_array($reason->id, $permanent_reasons);
+		}
+
+		return $reasons;
 	}
 
 }

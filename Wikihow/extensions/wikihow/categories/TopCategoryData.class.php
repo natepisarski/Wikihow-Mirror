@@ -118,15 +118,18 @@ class TopCategoryData {
 	}
 
 	static function getPagesForCategoryArray($catArray, $pageCount) {
+		global $wgLanguageCode;
+
 		$dbr = wfGetDB(DB_SLAVE);
 		$pages = [];
+		$titus_copy = WH_DATABASE_NAME_EN . '.titus_copy';
 		$res = $dbr->select(
-			['categorylinks', 'titus_copy'],
+			['categorylinks', $titus_copy],
 			['cl_from', 'ti_30day_views'],
 			[
 				'ti_page_id=cl_from',
 				'cl_to' => $catArray,
-				'ti_language_code' => 'en'
+				'ti_language_code' => $wgLanguageCode
 			],
 			__METHOD__,
 			[
