@@ -129,11 +129,11 @@ class CreatepageEmailFriend extends UnlistedSpecialPage {
 			return;
 		}
 		$summary = Article::getSection($rev->getText(), 0);
-		$summary = ereg_replace("<.*>", "", $summary);
-		$summary = ereg_replace("\[\[.*\]\]", "", $summary);
-		$summary = ereg_replace("\{\{.*\}\}", "", $summary);
-		$body = wfMessage('createpage_email_body', $target->getFullText(), $summary, $target->getFullURL());
-		$subject = wfMessage('createpage_email_subject', $target->getFullText());
+		$summary = preg_replace('@<[^>]*>@', '', $summary);
+		$summary = preg_replace('@\[\[[^\]]*\]\]@', '', $summary);
+		$summary = preg_replace('@\{\{[^}]*\}\}@', '', $summary);
+		$body = wfMessage('createpage_email_body', $target->getFullText(), $summary, $target->getFullURL())->text();
+		$subject = wfMessage('createpage_email_subject', $target->getFullText())->text();
 		$count = 0;
 		if ($user->isAnon() || !$user->getEmail()) {
 			$from = new MailAddress("wiki@wikihow.com", "wikiHow");

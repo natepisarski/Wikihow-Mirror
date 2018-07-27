@@ -140,7 +140,7 @@ abstract class RatingsTool {
 			['GROUP BY' => 'rh_pageid'] );
 		$rows = [];
 		foreach ($res as $row) {
-			$rows[] = [(int)$row->pageid, $row->reset_time];
+			$rows[] = ['pageid' => (int)$row->pageid, 'reset_time' => $row->reset_time];
 		}
 		return $rows;
 	}

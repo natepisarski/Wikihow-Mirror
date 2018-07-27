@@ -156,6 +156,10 @@ class ImageUploader extends UnlistedSpecialPage {
 		$upload = new UploadFromStash($user);
 		$upload->initialize($fileKey, $mwname);
 		$file = $upload->getLocalFile();
+		if (!$file) {
+			return ['error' => 'Unable to upload file'];
+		}
+
 		self::getFileS3($file);
 		$comment = $this->getFileCommitComment();
 		$status = $upload->performUpload(
@@ -356,6 +360,10 @@ class ImageUploader extends UnlistedSpecialPage {
 
 	private function checkMediawikiFilename($mwname) {
 		list($first, $ext) = self::splitFilenameExt($mwname);
+		if (!trim($first)) {
+			return ['valid' => false, 'error' => wfMessage('iu-invalid-title')->text()];
+		}
+
 		$ext = strtolower($ext);
 		$exts = self::getFileExtensions();
 		if (!in_array($ext, $exts)) {

@@ -21,7 +21,7 @@
 				</tr>
 			<?php endforeach; ?>
 			<tr>
-				<td colspan="4"><input type="submit" value="Update active items"/> </td>
+				<td colspan="4"><input type="submit" value="Update active items" class="button"/> </td>
 			</tr>
 		</tbody>
 	</table>

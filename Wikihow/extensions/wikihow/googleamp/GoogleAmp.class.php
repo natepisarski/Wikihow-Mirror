@@ -538,7 +538,7 @@ class GoogleAmp {
 				1 => ['adsense' => 100],
 			],
 			'intl' => [
-				0 => ['adsense' => 50, 'gpt' => 50],
+				0 => ['adsense' => 100],
 				1 => ['adsense' => 100],
 			]
 		];

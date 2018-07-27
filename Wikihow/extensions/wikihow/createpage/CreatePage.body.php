@@ -92,9 +92,8 @@ class CreatePage extends SpecialPage {
 		return '';
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		global $wgOut, $wgRequest, $wgUser, $wgLanguageCode, $wgScriptPath;
-		$fname = "wfCreatePage";
 		$target = $wgRequest->getVal( 'target' );
 		$topic = $wgRequest->getVal('topic');
 
@@ -102,8 +101,8 @@ class CreatePage extends SpecialPage {
 		if (isset($par)) $wgOut->redirect('/Special:CreatePage?target='.urlencode($par));
 
 		if ($wgRequest->getVal('ajax') == 'true') {
-			if ($topic != null) {
-				$wgOut->disable();
+			if ($topic) {
+				$wgOut->setArticleBodyOnly(true);
 				$matches = SuggestionSearch::matchKeyTitles($topic, 30);
 
 				if (count($matches) > 0) {
@@ -134,11 +133,12 @@ class CreatePage extends SpecialPage {
 				$result['header'] = $hdr;
 				$result['html'] = $html;
 
-				print_r(json_encode($result));
+				$wgOut->addHTML(json_encode($result));
 				return;
 			}
-			if ($target != null) {
-				$wgOut->disable();
+
+			if ($target) {
+				$wgOut->setArticleBodyOnly(true);
 				$t = Title::newFromText($target);
 
 				//creating a redirect?
@@ -150,47 +150,61 @@ class CreatePage extends SpecialPage {
 					return;
 				}
 
-				if ($wgLanguageCode == 'en'  && (!$t || !$t->exists())) {
+				if ($wgLanguageCode == 'en' && (!$t || !$t->exists())) {
 					$t2 = Title::newFromText(GuidedEditorHelper::formatTitle($target));
 					if ($t2) $t = $t2;
 				}
 
-				//redir check
-				if ($t->isRedirect()) {
-					$r = Revision::newFromTitle($t);
-					$text =  $r->getText();
-					$redirect = Title::newFromRedirect( $text );
-					if ($redirect != null) $t = $redirect;
-					$redir = true;
-				}
-				else {
-					$redir = false;
-				}
+				if (!$t) {
 
-				if ($t->getArticleID() > 0 && !Newarticleboost::isOverwriteAllowed($t)) {
-					//exists
-					$result = array(
+					$result = [
 						'target' => $target,
 						'class' => 'cp_result_err',
-						'header' => wfMessage('cp_title_exists')->text(),
+						'header' => 'Bad title',
 						'button_text' => wfMessage('cp_existing_btn')->text(),
-						'html' => $this->getTitleResult($t, $target, $redir),
-						'edit_url' => $t->getEditURL(),
-					);
-				}
-				else {
-					//new?
-					$result = array(
-						'new' => 'true',
-						'target' => $target,
-						'list' => $this->getRelatedTopicsText($t),
-						'class' => 'cp_result_good',
-						'header' => wfMessage('cp_title_new')->text(),
-						'text' => wfMessage('cp_title_new_details',$t->getText())->text(),
-					);
+						'html' => 'Bad title: ' . $target,
+						'edit_url' => '',
+					];
+
+				} else {
+
+					// redirect check
+					if ($t->isRedirect()) {
+						$r = Revision::newFromTitle($t);
+						$text =  $r->getText();
+						$redirect = Title::newFromRedirect( $text );
+						if ($redirect != null) $t = $redirect;
+						$redir = true;
+					}
+					else {
+						$redir = false;
+					}
+
+					if ($t->getArticleID() > 0 && !Newarticleboost::isOverwriteAllowed($t)) {
+						// existing title -> error
+						$result = [
+							'target' => $target,
+							'class' => 'cp_result_err',
+							'header' => wfMessage('cp_title_exists')->text(),
+							'button_text' => wfMessage('cp_existing_btn')->text(),
+							'html' => $this->getTitleResult($t, $target, $redir),
+							'edit_url' => $t->getEditURL(),
+						];
+					} else {
+						// new title
+						$result = [
+							'new' => 'true',
+							'target' => $target,
+							'list' => $this->getRelatedTopicsText($t),
+							'class' => 'cp_result_good',
+							'header' => wfMessage('cp_title_new')->text(),
+							'text' => wfMessage('cp_title_new_details',$t->getText())->text(),
+						];
+					}
+
 				}
 
-				print_r(json_encode($result));
+				$wgOut->addHTML(json_encode($result));
 				return;
 			}
 		}

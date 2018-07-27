@@ -582,7 +582,9 @@ class TitusConfig {
 		// Stu stats don't make sense to calculate on a page edit.  This should be done nightly via
 		// across all pages
 		$stats['Stu'] = 0;
+		$stats['Stu2'] = 0;
 		$stats['PageViews'] = 0;
+		$stats['GooglebotViews'] = 0;
 
 		return $stats;
 	}
@@ -602,6 +604,7 @@ class TitusConfig {
 			"Stu" => 1,
 			"Stu2" => 1,
 			"PageViews" => 1,
+			"GooglebotViews" => 1,
 			"Intl" => 0,
 			"Video" => 1,
 			"Summarized" => 1,
@@ -2399,6 +2402,7 @@ class TSPageViews extends TitusStat {
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
+
 		$stats = array(
 			'ti_daily_views' => 0,
 			'ti_30day_views' => 0,
@@ -2468,6 +2472,60 @@ class TSPageViews extends TitusStat {
 		if ($row = $res->fetchObject()) {
 			if ($row->pv_u) $stats['ti_daily_views_unique_mobile'] = $row->pv_u;
 		}
+
+		return $stats;
+	}
+}
+
+/*
+ * Googlebot requests to wikiHow's service
+ *
+alter table titus_intl add column `ti_googlebot_7day_views_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_30day_views_unique_mobile,
+					   add column `ti_googlebot_7day_views_amp` int(10) unsigned NOT NULL DEFAULT '0' after ti_googlebot_7day_views_mobile,
+					   add column `ti_googlebot_7day_views_desktop` int(10) unsigned NOT NULL DEFAULT '0' after ti_googlebot_7day_views_amp,
+					   add column `ti_googlebot_7day_last_mobile` varchar(14) NOT NULL DEFAULT '' after ti_googlebot_7day_views_desktop,
+					   add column `ti_googlebot_7day_last_amp` varchar(14) NOT NULL DEFAULT '' after ti_googlebot_7day_last_mobile,
+					   add column `ti_googlebot_7day_last_desktop` varchar(14) NOT NULL DEFAULT '' after ti_googlebot_7day_last_amp
+					   ;
+*/
+class TSGooglebotViews extends TitusStat {
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::ALL_IDS;
+	}
+
+	public function calc( $dbr, $r, $t, $pageRow ) {
+		global $wgLanguageCode;
+
+		$stats = array(
+			'ti_googlebot_7day_views_mobile' => 0,
+			'ti_googlebot_7day_views_amp' => 0,
+			'ti_googlebot_7day_views_desktop' => 0,
+			'ti_googlebot_7day_last_mobile' => '',
+			'ti_googlebot_7day_last_amp' => '',
+			'ti_googlebot_7day_last_desktop' => '',
+		);
+
+		$pageid = $t->getArticleID();
+
+        $res = $dbr->select('botwatcher.botwatch_daily',
+            ['MAX(bwd_last) AS last', 'SUM(bwd_count) AS hits', 'bwd_type'],
+            ['bwd_lang' => $wgLanguageCode, 'bwd_pageid' => $pageid],
+            __METHOD__,
+            ['GROUP BY' => 'bwd_type']);
+
+        foreach ($res as $row) {
+			if ($row->bwd_type == 'mb') {
+				$stats['ti_googlebot_7day_views_mobile'] = $row->hits;
+				$stats['ti_googlebot_7day_last_mobile'] = $row->last;
+			} elseif ($row->bwd_type == 'amp') {
+				$stats['ti_googlebot_7day_views_amp'] = $row->hits;
+				$stats['ti_googlebot_7day_last_amp'] = $row->last;
+			} elseif ($row->bwd_type == 'dt') {
+				$stats['ti_googlebot_7day_views_desktop'] = $row->hits;
+				$stats['ti_googlebot_7day_last_desktop'] = $row->last;
+			}
+        }
 
 		return $stats;
 	}

@@ -24,7 +24,8 @@ CREATE TABLE `qa_patrol` (
 	KEY (`qap_timestamp`),
 	KEY (`qap_vote_total`),
 	KEY (`qap_articles_questions`),
-	UNIQUE KEY (`qap_aqid`)
+	UNIQUE KEY (`qap_aqid`),
+	KEY `qap_submitter_email` (`qap_submitter_email`(16))
 );
 CREATE TABLE `qap_vote` (
 	`qapv_qapid` int(10) NOT NULL DEFAULT 0,

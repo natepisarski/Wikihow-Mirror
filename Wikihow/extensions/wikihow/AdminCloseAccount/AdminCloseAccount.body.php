@@ -45,6 +45,10 @@ class AdminCloseAccount extends UnlistedSpecialPage
 			$this->renderPage();
 		} elseif ($req->getText('action') == 'close_account') {
 			$this->apiCloseAccount();
+		} elseif ($req->getText('action') == 'remove_email') {
+			$this->apiRemoveEmail();
+		} elseif ($req->getText('action') == 'query_users') {
+			$this->apiQueryUsers();
 		} else {
 			$this->apiError("Action not supported");
 		}
@@ -60,10 +64,135 @@ class AdminCloseAccount extends UnlistedSpecialPage
 		$this->getOutput()->addHTML($html);
 	}
 
+	private function apiQueryUsers() {
+		$req = $this->getRequest();
+		$dbr = wfGetDB(DB_SLAVE);
+
+		$editToken = $req->getText('editToken');
+		if (!$this->getUser()->matchEditToken($editToken)) {
+			$this->apiError("You are not authorized to perform this operation");
+			return;
+		}
+
+		$query = $req->getText('query');
+		$fuzzy = $req->getText('fuzzy');
+
+		if (!$users) {
+			if ( $fuzzy ) {
+				// TODO: Figure out how to make case insentitive matches fast
+				$where = $dbr->makeList([
+					"convert(`user_email` using utf8mb4) = {$dbr->addQuotes($query)}",
+					"convert(`user_name` using utf8mb4) = {$dbr->addQuotes($query)}"
+				], LIST_OR );
+			} else {
+				$where = $dbr->makeList([
+					'user_email' => $query,
+					'user_name' => $query
+				], LIST_OR );
+			}
+			$rows = $dbr->select(
+				'user',
+				['user_id', 'user_name', 'user_email'],
+				$where,
+				__METHOD__,
+				[ 'LIMIT' => 1 ]
+			);
+			$users = [];
+			$emailMatch = false;
+			foreach ($rows as $row) {
+				$user = User::newFromId( $row->user_id );
+				$avatar = Avatar::getAvatarURL( $row->user_name );
+				if ( $row->user_email && $row->user_email == $query ) {
+					$emailMatch = true;
+				}
+				$users[] = [
+					'id' => $row->user_id,
+					'name' => $row->user_name,
+					'email' => $row->user_email,
+					'confirmed' => $user->isEmailConfirmed(),
+					'edits' => $user->getEditCount(),
+					'since' => wfTimestamp( TS_ISO_8601, $user->getRegistration() ),
+					'submission' => null,
+					'avatar' => $avatar,
+					'url' => Title::makeTitle(NS_USER, $row->user_name)->getFullURL()
+				];
+			}
+		}
+
+		if ( !$emailMatch && strpos( $query, '@' ) ) {
+			$tables = [
+				[
+					'table' => UserReview::TABLE_SUBMITTED,
+					'time' => 'us_submitted_timestamp',
+					'email' => 'us_email'
+				],
+				[
+					'table' => QADB::TABLE_QA_PATROL,
+					'time' => 'qap_timestamp',
+					'email' => 'qap_submitter_email'
+				],
+				[
+					'table' => QADB::TABLE_SUBMITTED_QUESTIONS,
+					'time' => 'qs_submitted_timestamp',
+					'email' => 'qs_email'
+				]
+			];
+			$min = null;
+			foreach ( $tables as $table ) {
+				$row = $dbr->selectRow(
+					$table['table'],
+					$table['time'],
+					[ $table['email'] => $query ],
+					__METHOD__,
+					[ 'ORDER BY' => "{$table['time']} ASC" ]
+				);
+				$time = $row->{$table['time']};
+				if ( $time !== null ) {
+					$min = $min ? ( $time < $min ? $time : $min ) : $time;
+				}
+			}
+			if ( $min !== null ) {
+				$users[] = [
+					'id' => null,
+					'name' => null,
+					'email' => $query,
+					'confirmed' => false,
+					'edits' => 0,
+					'since' => wfTimestamp( TS_ISO_8601, $min ),
+					'avatar' => Avatar::DEFAULT_PROFILE,
+					'url' => null
+				];
+			}
+		}
+
+		Misc::jsonResponse(compact('users'));
+	}
+
+	private function apiRemoveEmail()
+	{
+		$req = $this->getRequest();
+
+		$editToken = $req->getText('editToken');
+		if (!$this->getUser()->matchEditToken($editToken)) {
+			$this->apiError("You are not authorized to perform this operation");
+			return;
+		}
+
+		$oldEmail = $req->getText('email');
+		if (empty($oldEmail)) {
+			$this->apiError("Missing 'email' parameter");
+			return;
+		}
+
+		Misc::jsonResponse([
+			'target' => "email: $oldEmail",
+			'results' => $this->removeEmail($oldEmail)
+		]);
+	}
+
 	private function apiCloseAccount()
 	{
 		$req = $this->getRequest();
-		$warnings = [];
 
 		$editToken = $req->getText('editToken');
 		if (!$this->getUser()->matchEditToken($editToken)) {
@@ -78,35 +207,120 @@ class AdminCloseAccount extends UnlistedSpecialPage
 		}
 
 		$user = User::newFromName($oldUsername);
-		$userId = $user->getId();
+		if ( $user ) {
+			$userId = $user->getId();
+		}
 		if (!$userId) {
 			$this->apiError("Username '$oldUsername' not found");
 			return;
 		}
 
-		$oldUsername = $user->getName(); // Use the canonical username from now on
+		Misc::jsonResponse([
+			'target' => "user: $oldUsername ($userId)",
+			'results' => $this->closeAccount($user)
+		]);
+	}
+
+	private function removeEmail($oldEmail) {
+		$dbw = wfGetDB(DB_MASTER);
+		$changes = [];
+		$warnings = [];
+
+		// Remove email from QA tables
+
+		$dbw->update(
+			QADB::TABLE_SUBMITTED_QUESTIONS,
+			['qs_email' => ''],
+			['qs_email' => $oldEmail],
+			__METHOD__
+		);
+		$count = $dbw->affectedRows();
+		if ($count) {
+			$changes[] = "Removed '$oldEmail' from {$count} QA Submission items";
+		}
+
+		$dbw->update(
+			QADB::TABLE_QA_PATROL,
+			['qap_submitter_email' => ''],
+			['qap_submitter_email' => $oldEmail],
+			__METHOD__
+		);
+		$count = $dbw->affectedRows();
+		if ($count) {
+			$changes[] = "Removed '$oldEmail' from {$count} QA Patrol items";
+		}
+
+		// Remove email (and names) from User Review tables
+		$dbw->query(
+			"UPDATE " .
+				"{$dbw->tableName(UserReview::TABLE_SUBMITTED)} " .
+				"LEFT JOIN {$dbw->tableName(UserReview::TABLE_CURATED)} ON (us_id=uc_submitted_id) " .
+			"SET " .
+				"us_email='', " .
+				"us_user_id=0, " .
+				"us_firstname='Anonymous', " .
+				"us_lastname='', " .
+				"uc_user_id=0, " .
+				"uc_firstname='Anonymous', " .
+				"uc_lastname='' " .
+			"WHERE us_email={$dbw->addQuotes($oldEmail)} ",
+			__METHOD__
+		);
+		$count = $dbw->affectedRows();
+		if ($count) {
+			$changes[] = "Removed '$oldEmail' from {$count} " .
+				"UserReview Submission and UserReview Submitted items";
+		}
+
+		return [ 'changes' => $changes, 'warnings' => $warnings ];
+	}
+
+	private function closeAccount($user) {
+		$dbw = wfGetDB(DB_MASTER);
+		$dbr = wfGetDB(DB_SLAVE);
+
+		$changes = [];
+		$warnings = [];
+		$userId = $user->getId();
+
+		// Use the canonical username and email from now on
+		$oldUsername = $user->getName();
+		$oldRealName = $user->getRealName();
+		$oldEmail = $user->getEmail();
+		$isEmailConfirmed = $user->isEmailConfirmed();
 
 		// Unlink social login accounts
 
 		$su = GoogleSocialUser::newFromWhId($userId) ?? FacebookSocialUser::newFromWhId($userId);
 		if ($su) {
-			if (!$su->unlink()) {
-				$warnings[] = "Failed to unlink social login details for '$oldUsername'";
+			if ($su->unlink()) {
+				$changes[] = 'Unlinked social login details';
+			} else {
+				$warnings[] = 'Failed to unlink social login details';
 			}
 		}
 
 		// Remove avatar
 
 		$ra = new AdminRemoveAvatar();
-		if (!$ra->removeAvatar($oldUsername)) {
-			$warnings[] = "Failed to remove avatar for '$oldUsername'";
+		if ($ra->removeAvatar($oldUsername)) {
+			$changes[] = 'Removed avatar';
+		} else {
+			$avatarRow = $dbr->selectRow(
+				'avatar', ['av_image'], ['av_user' => $user->getID()], __METHOD__
+			);
+			if ($avatarRow->av_image) {
+				$warnings[] = 'Failed to remove avatar';
+			}
 		}
 
 		// Reset password
 
 		$arp = new AdminResetPassword();
-		if (!$arp->resetPassword($oldUsername)) {
-			$warnings[] = "Failed to reset password for '$oldUsername'";
+		if ($arp->resetPassword($oldUsername)) {
+			$changes[] = 'Reset password';
+		} else {
+			$warnings[] = 'Failed to reset password';
 		}
 
 		// Empty user_email and user_email
@@ -115,6 +329,13 @@ class AdminCloseAccount extends UnlistedSpecialPage
 		$user->setEmail('');
 		$user->setRealName('');
 		$user->saveSettings();
+		if ( $oldEmail ) {
+			$confirmed = $isEmailConfirmed ? 'confirmed' : 'unconfirmed';
+			$changes[] = "Removed $confirmed email '$oldEmail' from profile";
+		}
+		if ( $oldRealName ) {
+			$changes[] = "Removed real name '$oldRealName' from profile";
+		}
 
 		// Delete User pages
 
@@ -130,18 +351,81 @@ class AdminCloseAccount extends UnlistedSpecialPage
 			if ($title->exists()) {
 				$wikiPage = WikiPage::factory($title);
 				$status = $wikiPage->doDeleteArticleReal('This account was closed');
-				if (!$status->isGood()) {
+				if ($status->isGood()) {
+					$changes[] = "Removed user page: " . $title->getFullUrl();
+				} else {
 					$warnings[] = "Failed to remove user page: " . $title->getFullUrl();
 				}
 			}
 		}
+
+		// Remove username from QA tables
+		$dbw->update(
+			QADB::TABLE_QA_PATROL,
+			['qap_submitter_name' => '', 'qap_submitter_user_id' => 0],
+			['qap_submitter_user_id' => $userId],
+			__METHOD__
+		);
+		$count = $dbw->affectedRows();
+		if ( $count ) {
+			$changes[] = "Renamed '$oldUsername' to 'Anonymous' " .
+				"in {$dbw->affectedRows()} QA Patrol items";
+		}
+
+		$dbw->update(
+			QADB::TABLE_ARTICLES_QUESTIONS,
+			['qa_submitter_user_id' => 0],
+			['qa_submitter_user_id' => $userId],
+			__METHOD__
+		);
+		$count = $dbw->affectedRows();
+		if ( $count ) {
+			$changes[] = "Removed user ID '$userId' " .
+				"in {$dbw->affectedRows()} QA Articles Questions items";
+		}
+
+		// Remove username from User Review tables
+		$dbw->update(
+			UserReview::TABLE_SUBMITTED,
+			['us_user_id' => 0, 'us_firstname' => 'Anonymous', 'us_lastname' => ''],
+			['us_user_id' => $userId],
+			__METHOD__
+		);
+		$count = $dbw->affectedRows();
+		if ( $count ) {
+			$changes[] = "Removed user ID '$userId' and renamed to 'Anonymous' " .
+				"in {$dbw->affectedRows()} UserReview Submission items";
+		}
+
+		$dbw->update(
+			UserReview::TABLE_CURATED,
+			['uc_user_id' => 0, 'uc_firstname' => 'Anonymous', 'uc_lastname' => ''],
+			['uc_user_id' => $userId],
+			__METHOD__
+		);
+		$count = $dbw->affectedRows();
+		if ( $count ) {
+			$changes[] = "Removed user ID '$userId' and renamed to 'Anonymous' " .
+				"in {$count} UserReview Submission items";
+		}
+
+		// Purge user from UserDisplayCache
+		$dc = new UserDisplayCache( [ $userId ] );
+		$dc->purge();
+
+		// Remove email address used anywhere else
+		$emailResults = $this->removeEmail($oldEmail);
+		$changes = array_merge( $changes, $emailResults['changes'] );
+		$warnings = array_merge( $warnings, $emailResults['warnings'] );
 
 		// Rename user
 
 		$newUsername = 'WikiHowUser' . wfTimestampNow();
 		$newUsername = User::getCanonicalName($newUsername, 'creatable');
 		$rename = new RenameuserSQL($oldUsername, $newUsername, $userId);
-		if (!$rename->rename()) {
+		if ($rename->rename()) {
+			$changes[] = "Renamed user '$oldUsername' to '$newUsername'";
+		} else {
 			$warnings[] = "Failed to rename '$oldUsername' to '$newUsername'";
 		}
 
@@ -158,12 +442,11 @@ class AdminCloseAccount extends UnlistedSpecialPage
 		]);
 		$logEntry->insert();
 
-		Misc::jsonResponse(compact('oldUsername', 'newUsername', 'userId'));
+		return [ 'changes' => $changes, 'warnings' => $warnings ];
 	}
 
 	private function apiError($msg = 'The API call resulted in an error.')
 	{
 		Misc::jsonResponse(['error' => $msg], 400);
 	}
-
 }

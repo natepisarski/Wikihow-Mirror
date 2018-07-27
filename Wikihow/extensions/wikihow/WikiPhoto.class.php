@@ -170,7 +170,7 @@ class WikiPhoto {
 	 * couldn't be found, return null.
 	 */
 	public static function getArticleTitleNoCheck($url) {
-		$url = trim($url);
+		$url = urldecode(trim($url));
 		if (preg_match('@^[0-9]+$@', $url)) {
 			$title = Title::newFromID($url);
 		} else {

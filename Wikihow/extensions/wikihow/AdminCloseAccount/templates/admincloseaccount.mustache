@@ -1,36 +1,59 @@
-<p>{{aca_description}}</p>
+<div id="aca">
+    <p>{{aca_description}}</p>
 
-<form id="aca_search_form">
-    <input type="text" id="aca_search_username" class="input_med" placeholder="User name">
-    <input type="hidden" id="aca_edit_token" value="{{editToken}}">
-    <input type="submit" id="aca_close_acct_btn" class="button primary" value="Close account">
-</form>
+    <form id="aca_search_form" autocomplete="off">
+        <input type="hidden" id="aca_edit_token" value="{{editToken}}" autocomplete="off">
+        <label id="aca_search_fuzzy_label"><input type="checkbox" id="aca_search_fuzzy"> Fuzzy matching (slower)</label>
+        <input type="text" id="aca_search_query" class="input_med" placeholder="User name or email">
+        <div id="aca_search_spinner" class="mw-small-spinner"></div>
+    </form>
 
-<div id="aca_error_box" class="hidden">
+    <div id="aca_error" class="hidden">
 
-    <h2>Error:</h2>
+        <h2>Error:</h2>
 
-    <p id="aca_error_msg">Test</p>
+        <p id="aca_error_msg">Test</p>
 
-</div>
+        <button id="aca_error_done" class="button primary">Done</button>
 
-<div id="aca_search_results" class="hidden">
-
-    <h2>The following account was closed:</h2>
-
-    <div class="aca_search_result">
-        <div>User ID:</div>
-        <div id="aca_result_id">Placeholder</div>
     </div>
 
-    <div class="aca_search_result">
-        <div>Old username:</div>
-        <div id="aca_result_old_username">Placeholder</div>
+    <div id="aca_loading">
+
+        <h2 class="hidden" id="aca_remove_loading">Removing <span id="aca_remove_loading_subject"></span>...</h2>
+
     </div>
 
-    <div class="aca_search_result">
-        <div>New username:</div>
-        <div id="aca_result_new_username">Placeholder</div>
+    <div id="aca_search_results" class="hidden">
+        <div id="aca_search_results_loading" class="hidden">Searching...</div>
+        <div id="aca_search_results_none" class="hidden">No matches.</div>
+        <table id="aca_search_results_some" class="hidden">
+            <tbody id="aca_search_result_container">
+                <tr id="aca_search_result_template" class="aca_search_result hidden">
+                    <td class="aca_search_result_avatar"><span></span></td>
+                    <td class="aca_search_result_info">
+                        <p class="aca_search_result_username"></p>
+                        <p class="aca_search_result_useremail"></p>
+                    </td>
+                    <td class="aca_search_result_edits"></td>
+                    <td class="aca_search_result_registration"></td>
+                    <td class="aca_search_result_submit">
+                        <button class="aca_remove_submit button primary"></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
     </div>
 
+    <div id="aca_remove_results" class="hidden">
+
+        <h2>The following actions were taken on <span id="aca_remove_results_target"></span></h2>
+        <h3>Changes</h3>
+        <ul id="aca_remove_results_changes"></ul>
+        <h3>Warnings</h3>
+        <ul id="aca_remove_results_warnings"></ul>
+        <button id="aca_remove_done" class="button primary">Done</button>
+
+    </div>
 </div>

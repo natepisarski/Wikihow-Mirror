@@ -126,7 +126,7 @@ class Categoryhelper extends UnlistedSpecialPage {
 	} */
 
 	// Used in this class and in Category Guardian
-	private static function getAllCategories() {
+	public static function getAllCategories() {
 		//global $wgMemc;
 
 		//$key = wfMemcKey('category', 'arraytree', 'wikihow');

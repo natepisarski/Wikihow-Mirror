@@ -2,7 +2,7 @@
 
 class AdminCategoryDescriptions extends UnlistedSpecialPage {
 	const CATEGORY_DESCRIPTIONS = "category_descriptions";
-	const CACHE_KEY_DESCRIPTION = "cat_desc5";
+	const CACHE_KEY_DESCRIPTION = "cat_desc6";
 	const CACHE_LENGTH = 60*60*24*14; //2 weeks
 
 	const MESSAGE_NO_ARTICLES = "Category_meta_description_noarticles";

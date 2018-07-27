@@ -70,10 +70,8 @@ class updateRecipeSchema extends Maintenance {
 				$indexableTitles[] = $title;
 			}
 		}
-		$pageIdsWithIngredients = array();
 		foreach( $indexableTitles as $title ) {
 			$this->processTitle( $title );
-			$dbw = wfGetDB( DB_MASTER );
 		}
 	}
 

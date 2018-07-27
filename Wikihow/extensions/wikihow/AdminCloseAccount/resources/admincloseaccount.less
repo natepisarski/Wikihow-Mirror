@@ -2,48 +2,147 @@ p {
 	margin-bottom: 10px;
 }
 
+.aca_mute {
+	color: #bbb;
+}
+
+.aca_search_result_useremail .aca_confirmed:after {
+	content: '✓';
+	color: #383;
+	display: inline-block;
+	padding-left: 8px;
+	font-size: 0.9em;
+}
+
 #aca_search_form {
-	margin-top: 20px;
+	position: relative;
+	margin: 20px 0;
 }
 
-#aca_search_username {
+#aca_search_query {
 	font-size: 1em;
+	width: 100%;
+	box-sizing: border-box;
 }
 
-#aca_close_acct_btn {
-	margin-left: 15px;
+#aca_search_fuzzy_label {
+	font-size: 12px;
+	position: absolute;
+	top: -20px;
+	right: 0;
+}
+
+#aca_search_fuzzy {
+	vertical-align: middle;
+}
+
+#aca_search_spinner {
+	position: absolute;
+	bottom: 16px;
+	right: 4px;
+	display: none;
+}
+
+#aca_search_form.aca_loading #aca_search_spinner {
+	display: block;
+}
+
+#aca_search_results_some {
+	width: 672px;
+	border-collapse: collapse;
+	font-size: 14px;
+	table-layout: fixed;
+}
+
+#aca_search_results tr:nth-child(even) {
+	background: #fafafa;
+}
+
+#aca_search_results tr:nth-child(odd) {
+	background: #fff;
+}
+
+#aca_search_results td:first-child {
+	border-top-left-radius: 4px;
+}
+
+#aca_search_results td:last-child {
+	border-top-right-radius: 4px;
+}
+
+#aca_search_results td:first-child {
+	border-bottom-right-radius: 4px;
+}
+
+#aca_search_results td:last-child {
+	border-bottom-right-radius: 4px;
+}
+
+#aca_search_results td {
+	padding: 10px;
+    text-overflow: ellipsis;
+}
+
+#aca_search_results.aca_loading {
+	opacity: 0.25;
+}
+
+#aca_search_results td p {
+	margin: 0;
+}
+
+#aca_search_results td {
+	width: 70px;
+}
+
+#aca_search_results td.aca_search_result_avatar {
+	width: 40px;
+	span {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		border-radius: 40px;
+		background-repeat: no-repeat;
+		background-size: cover;
+		background-color: #ddd;
+	}
+}
+
+#aca_search_results td.aca_search_result_info {
+	width: 200px;
+}
+
+#aca_search_results td.aca_search_result_submit {
+	width: 120px;
+	text-align: right;
+
+	button {
+		margin: 0;
+	}
+}
+
+.aca_remove_submit.button {
+	white-space: nowrap;
 	background-color: #d56262;
 	border: 1px solid #d56262;
 	&:hover {
 		background-color: #ce4b4b;
 		border: 1px solid #ce4b4b;
 	}
-
 }
 
 #aca_search_results {
 	margin-top: 22px;
 }
 
-.aca_search_result {
-	margin-bottom: 10px;
-
-	& > div {
-		display: inline-block;
-		&:first-child {
-			min-width: 150px;
-		}
-	}
-
-	a {
-		cursor: pointer;
-	}
-}
-
-#aca_error_box h2, #aca_search_results h2 {
+#aca h2 {
 	margin: 24px 0 22px;
 }
 
-#aca_error_box h2 {
+#aca h3 {
+	font-size: 16px;
+}
+
+#aca_error h2 {
 	color: #d31414;
 }

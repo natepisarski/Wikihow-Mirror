@@ -43,8 +43,8 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 			$wgOut->addHTML($html);
 			return;
 		}
-		
-		
+
+
 		$this->postSuccessful = true;
 		if($wgRequest->wasPosted()) {
 			if($wgRequest->getVal("updateActive")) {
@@ -63,7 +63,7 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 			}
 			else {
 				$title = WikiPhoto::getArticleTitleNoCheck($wgRequest->getVal('articleName'));
-				if(!$title->exists()) {
+				if(!$title || !$title->exists()) {
 					$this->postSuccessful = false;
 					$this->errorTitle = "* That article does not exist.";
 				}
@@ -113,7 +113,6 @@ wgAjaxLicensePreview = {$alp};
 
 		$this->displayForm();
 
-
 	}
 
 	function getHomepageData() {
@@ -156,21 +155,25 @@ wgAjaxLicensePreview = {$alp};
 	function displayForm() {
 		global $wgOut, $wgRequest;
 
-		$articleName = "";
-		if($this->errorTitle != "")
+		if ($this->errorTitle || $this->errorFile) {
 			$articleName = $wgRequest->getVal('articleName');
+			$destFile = $wgRequest->getVal('wpDestFile');
+		} else {
+			$articleName = $destFile = '';
+		}
 
 		$tmpl = new EasyTemplate( dirname(__FILE__) );
 		$tmpl->set_vars(array(
 			'errorTitle' => $this->errorTitle,
 			'errorFile' => $this->errorFile,
-			'articleName' => $articleName
+			'articleName' => $articleName,
+			'destFile' => $destFile
 		));
 		$html = $tmpl->execute('form.tmpl.php');
 
 		$wgOut->addHTML($html);
 	}
-	
+
 	function deleteHPImage($hpid) {
 		$dbw = wfGetDB(DB_MASTER);
 		$res = $dbw->delete(WikihowHomepageAdmin::HP_TABLE, array('hp_id' => $hpid), __METHOD__);

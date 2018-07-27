@@ -25,7 +25,8 @@ class ThankAuthors extends UnlistedSpecialPage {
 
 		if(!$title || !$title->exists()) {
 			$out->setStatusCode( '404' );
-			$out->addHtml(wfMessage("thankauthors-title-not-exist", $title->getText())->text());
+			$titleText = ($title ? $title->getText() : '');
+			$out->addHtml(wfMessage("thankauthors-title-not-exist", $titleText)->text());
 			return;
 		}
 

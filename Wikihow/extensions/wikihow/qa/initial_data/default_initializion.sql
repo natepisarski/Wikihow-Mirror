@@ -65,7 +65,8 @@ CREATE TABLE `qa_submitted_questions` (
   PRIMARY KEY (`qs_id`),
   KEY `qs_ignore` (`qs_ignore`),
   KEY `qs_submitted_timestamp` (`qs_submitted_timestamp`),
-  KEY `qs_curated` (`qs_curated`)
+  KEY `qs_curated` (`qs_curated`),,
+  KEY `qs_email` (`qs_email`(16))
 ) ENGINE=InnoDB AUTO_INCREMENT=257 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

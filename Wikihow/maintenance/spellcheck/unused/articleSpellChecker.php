@@ -96,7 +96,7 @@ class WikiHowSpellChecker {
 		// Clear out all the rest of the junk and delimit tokens with ,
 		$article = preg_replace("/[^'A-Za-z0-9]/", ",", $article); 
 		// Remove empty tokens
-		$article = ereg_replace(",{2,}", ",", $article);
+		$article = preg_replace("/,{2,}/", ",", $article);
 		// Tokenize! Mwuhahaha!
 		$tokens = explode(",", $article);
 		// Strip single quotes from beginning and end of tokens

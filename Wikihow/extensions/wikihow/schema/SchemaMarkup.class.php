@@ -347,7 +347,7 @@ class SchemaMarkup {
 		];
 
 		$data += self::getMainEntityOfPage( $title );
-		$data += self::getSchemaImage();
+		$data += self::getSchemaImage( $title );
 		$data += self::getAuthors( $title );
 		$data += self::getAggregateRating( $title );
 		$data += self::getDatePublished( $title );
@@ -668,11 +668,18 @@ class SchemaMarkup {
 		return $result;
 	}
 
-	private static function getSchemaImage() {
+	private static function getSchemaImage( $title = null ) {
 		global $wgIsDevServer;
 
 		$result = array();
-		$thumb = ArticleMetaInfo::getTitleImageThumb();
+		// if we pass a title in, clear out the AMI cached info so we can
+		// force it to regenerate the image. otherwise if this is run in a script
+		// it will not get the correct image due to using a static var
+		if ( $title != null ) {
+			ArticleMetaInfo::$wgTitleAmiImageName = null;
+			ArticleMetaInfo::$wgTitleAMIcache = null;
+		}
+		$thumb = ArticleMetaInfo::getTitleImageThumb( $title );
 		if ( !$thumb ) {
 			$thumb = Wikitext::getDefaultTitleImage();
 		}
@@ -730,7 +737,6 @@ class SchemaMarkup {
 	// uses $out to get title and wikipage but does not write to $out
 	public static function getSchema( $out ) {
 		wfProfileIn( __METHOD__ );
-		// for now we are restricting this to recipe category pages
 		if ( !self::okToShowSchema( $out ) ) {
 			wfProfileOut( __METHOD__ );
 			return '';
@@ -749,11 +755,9 @@ class SchemaMarkup {
 			$schema = self::getOrganizationSchema( $out );
 		} else {
 			$schema = self::getArticleSchema( $out );
-			if ( ArticleTagList::hasTag( 'howto_article_schema', $title->getArticleID() ) ) {
-				$howToSchema = self::getHowToSchema( $pageId );
-				if ( $howToSchema ) {
-					$schema .= $howToSchema;
-				}
+			$howToSchema = self::getHowToSchema( $pageId );
+			if ( $howToSchema ) {
+				$schema .= $howToSchema;
 			}
 			if ( ArticleTagList::hasTag( 'breadcrumb_schema', $title->getArticleID() ) ) {
 				$schema .= self::getBreadcrumbSchema( $out );

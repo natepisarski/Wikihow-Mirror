@@ -177,7 +177,10 @@ class GPlusLogin extends UnlistedSpecialPage {
 			return;
 		}
 
-		GoogleSocialUser::newFromWhId($wgUser->getID())->unlink();
+		$googleSocialUser = GoogleSocialUser::newFromWhId($wgUser->getID());
+		if ($googleSocialUser) {
+			$googleSocialUser->unlink();
+		}
 
 		// Display confirmation message and temporary password
 		$newpass = AdminResetPassword::resetPassword($wgUser->getName());

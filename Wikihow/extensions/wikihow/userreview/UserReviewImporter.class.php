@@ -268,14 +268,14 @@ CREATE TABLE `userreview_submitted` (
 	KEY `us_article_id` (`us_article_id`),
 	KEY `us_submitted_timestamp` (`us_submitted_timestamp`),
 	KEY `us_eligible` (`us_eligible`),
-	KEY `us_positive` (`us_positive`)
+	KEY `us_positive` (`us_positive`),
+	KEY `us_email` (`us_email`(16))
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `userreview_curated` (
 	`uc_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 	`uc_submitted_id` int(10) unsigned NOT NULL,
 	`uc_article_id` int(10) unsigned NOT NULL,
-	`uc_email` text NOT NULL,!!!
 	`uc_review` text NOT NULL,
 	`uc_firstname` text NOT NULL,
 	`uc_lastname` text NOT NULL,

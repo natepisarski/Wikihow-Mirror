@@ -1785,7 +1785,13 @@ class wikihowAds {
 
 		$script = Html::inlineScript("WH.mobileads.add('$id');");
 		$relatedsname = RelatedWikihows::getSectionName();
-		pq("#{$relatedsname}")->append($html.$script);
+		if ( pq("#{$relatedsname}")->length ) {
+			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
+			pq("#{$relatedsname}")->append( $html.$script );
+		} else if ( pq("#relatedwikihows")->length ) {
+			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
+			pq("#relatedwikihows")->append( $html.$script );
+		}
 	}
 
 	private static function insertMatchedContentAdMobile() {

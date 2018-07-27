@@ -30,13 +30,13 @@ class UserTrustScore extends SqlSuper {
 		$this->toolName = $toolName;
 		// have to camelize, kredscores is underscored, and plantscores is camelized for tool name
 		$this->camelizedToolName = self::camelize($this->toolName);
-		$this->plantTool = Plants::getPlantTool($this->camelizedToolName);
+		$this->plantTool = class_exists('Plants') ? Plants::getPlantTool($this->camelizedToolName) : null;
 		return $this;
 	}
 	
 	public function getScore() {
 		// have to be playing the planted question game to participate
-		if (!Plants::usesPlants($this->camelizedToolName)) {
+		if (!class_exists('Plants') || !Plants::usesPlants($this->camelizedToolName)) {
 			return 0;
 		}
 		
@@ -73,6 +73,9 @@ class UserTrustScore extends SqlSuper {
 	}
 	
 	public function calcScore() {
+		if (!$this->plantTool) {
+			return 0;
+		}
 		$grades = $this->plantTool->gradeUser();
 		// if we found something in the scores table, use that, otherwise, we got nothing
 		if ($grades->total > 0) {

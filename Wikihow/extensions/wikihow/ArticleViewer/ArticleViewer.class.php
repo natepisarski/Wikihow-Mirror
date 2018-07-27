@@ -280,7 +280,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 
 			$html .= "<h3>" . wfMessage('articles_that_require_attention')->text() . "</h3>\n";
 
-			$html .= "<p>There are " . count($articles_with_templates) . " articles in this category that require attention.</p>\n";
+			$html .= "<p>" . wfMessage('cat_attention_description', count($articles_with_templates)) . "</p>\n";
 
 			$html .= '<ul>' . "\n";
 			for ($index = 0; $index < sizeof($articles_with_templates); $index++) {

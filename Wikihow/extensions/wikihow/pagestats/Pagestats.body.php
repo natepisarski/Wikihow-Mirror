@@ -251,13 +251,72 @@ class Pagestats extends UnlistedSpecialPage {
 		$html .= "<hr style='margin:5px 0;' />";
 		$html .= "<p>Inbound links: $link</p>";
 
-		// article id
+		// Add Googlebot stats for page from botwatch_daily
+		$html .= "<hr style='margin:5px 0;' />";
+		$html .= "<p>Googlebot</p>";
+		if ($titusData->ti_googlebot_7day_views_mobile) {
+			$hits = round($titusData->ti_googlebot_7day_views_mobile / 7.0, 1);
+			$ts = wfTimestamp(TS_UNIX, $titusData->ti_googlebot_7day_last_mobile);
+			$last = self::timeElapsedString('@' . $ts);
+			$html .= "<p>mobile: {$hits} hits/day (last: {$last})</p>";
+		}
+		if ($titusData->ti_googlebot_7day_views_amp) {
+			$hits = round($titusData->ti_googlebot_7day_views_amp / 7.0, 1);
+			$ts = wfTimestamp(TS_UNIX, $titusData->ti_googlebot_7day_last_amp);
+			$last = self::timeElapsedString('@' . $ts);
+			$html .= "<p>AMP: {$hits} hits/day (last: {$last})</p>";
+		}
+		if ($titusData->ti_googlebot_7day_views_desktop) {
+			$hits = round($titusData->ti_googlebot_7day_views_desktop / 7.0, 1);
+			$ts = wfTimestamp(TS_UNIX, $titusData->ti_googlebot_7day_last_desktop);
+			$last = self::timeElapsedString('@' . $ts);
+			$html .= "<p>desktop: {$hits} hits/day (last: {$last})</p>";
+		}
+		if (!$titusData->ti_googlebot_7day_views_mobile
+			&& !$titusData->ti_googlebot_7day_views_amp
+			&& !$titusData->ti_googlebot_7day_views_desktop
+		) {
+			$html .= "<p><i>No recorded data</i></p>";
+		} else {
+			$html .= "<p><i>times are relative to midnight</i></p>";
+		}
+
+		// Article id
 		$html .= "<hr style='margin:5px 0;' />";
 		$html .= "<p>Article Id: $pageId</p>";
 
-		// George 2015-07-08: added hostname for debugging.
-		// TODO: remove hostname when titus DNS issue is resolved.
-		return array("body"=>$html, "error"=>$error, "hostname"=>gethostname());
+		return ["body"=>$html, "error"=>$error];
+	}
+
+	// https://stackoverflow.com/questions/1416697/converting-timestamp-to-time-ago-in-php-e-g-1-day-ago-2-days-ago
+	private static function timeElapsedString($datetime, $full = false) {
+		$tz = new DateTimeZone('America/Los_Angeles');
+		$now = new DateTime('midnight today', $tz);
+		$ago = new DateTime($datetime);
+		$diff = $now->diff($ago);
+
+		$diff->w = floor($diff->d / 7);
+		$diff->d -= $diff->w * 7;
+
+		$string = array(
+			'y' => 'year',
+			'm' => 'month',
+			'w' => 'week',
+			'd' => 'day',
+			'h' => 'hour',
+			'i' => 'minute',
+			's' => 'second',
+		);
+		foreach ($string as $k => &$v) {
+			if ($diff->$k) {
+				$v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+			} else {
+				unset($string[$k]);
+			}
+		}
+
+		if (!$full) $string = array_slice($string, 0, 1);
+		return $string ? implode(', ', $string) . ' before' : 'midnight';
 	}
 
     private static function getEditingStatus( $status ) {

@@ -37,6 +37,14 @@ class UserDisplayCache {
 		return $dd;
 	}
 
+	public function purge() {
+		global $wgMemc;
+
+		foreach ( $this->user_ids as $user_id ) {
+			$wgMemc->delete( $this->makeCacheKey( $user_id ) );
+		}
+	}
+
 	private function getFromCache($dd) {
 		global $wgMemc;
 		$user_keys = [];

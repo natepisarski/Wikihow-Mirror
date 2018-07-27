@@ -10,12 +10,26 @@ table td{
 }
 
 #hp_form{
-	border:1px solid #cdcdcd;
-	padding:5px;
+	border: 1px solid #cdcdcd;
+	padding: 10px;
+	border-radius: 3px;
 }
 
 .error {
 	color: #ff0000;
 	font-size: 14px;
 	font-weight: bold;
+}
+
+input[type=text] {
+	font-size: 15px;
+	padding: 3px 5px;
+}
+
+input[name=articleName] {
+	width: 84%;
+}
+
+input[name=wpDestFile] {
+	width: 68%;
 }
