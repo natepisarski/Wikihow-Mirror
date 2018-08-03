@@ -77,7 +77,7 @@
 			$li.addClass('qa_editing_up');
 			var formData = {
 				qa_up_edit_form_question: $li.find('.qa_q_txt').html(),
-				qa_up_edit_form_answer: $li.find('.qa_answer:first-child').html(),
+				qa_up_edit_form_answer: $li.find('.qa_answer').html(),
 				qa_up_edit_form_submitter_id: $li.data('submitter_id'),
 				selected: function() {
 					return this.id == $li.data('verifier_id') ? 'selected' : '';
@@ -115,7 +115,7 @@
 			var formData = {
 				qa_edit_form_inactive_val: $li.data('qa_inactive') ? 'checked' : '',
 				qa_edit_form_question: $li.find('.qa_q_txt').html(),
-				qa_edit_form_answer: $li.find('.qa_answer:first-child').html(),
+				qa_edit_form_answer: $li.find('.qa_answer').html(),
 				qa_edit_form_submitter_id: $li.data('submitter_id'),
 				selected: function() {
 					return this.id == $li.data('verifier_id') ? 'selected' : '';
@@ -402,10 +402,7 @@
 			if (!WH.isMobileDomain) {
 				$('#qa')
 					.on('mouseenter mouseleave', '.qa_expert_area', function(e) {
-						WH.QAWidget.popExpertInfo($(this).parent().find('.qa_expert_pop'), e.type);
-					})
-					.on('mouseenter mouseleave', '.qa_expert_pop', function(e) {
-						WH.QAWidget.popExpertInfo(this, e.type);
+						WH.QAWidget.popExpertInfo($(this).parent().find('.qa_user_hover'), e.type);
 					});
 			}
 
@@ -419,9 +416,6 @@
 				$('#qa')
 					.on('mouseenter mouseleave', '.qa_ta_area', function(e) {
 						WH.QAWidget.topAnswererBox($(this).parent(), e.type);
-					})
-					.on('mouseenter mouseleave', '.qa_ta_pop', function(e) {
-						WH.QAWidget.topAnswererBox(this, e.type);
 					});
 			}
 			//--------------------
@@ -651,6 +645,7 @@
 		enableEditing: function(aq) {
 			aq.qa_admin = true;
 			aq.qa_edit = mw.msg('qa_edit');
+			aq.show_editor_tools = true;
 			return aq;
 		},
 
@@ -689,7 +684,8 @@
 				'ta_answers_label',
 				'ta_label',
 				'ta_subcats_intro',
-				'ta_subcats_outro'
+				'ta_subcats_outro',
+				'qa_question_label'
 			];
 
 			aq = $.extend(aq, this.getTemplateVars(msgs));
@@ -1044,6 +1040,7 @@
 
 		disableEditingUI: function() {
 			$('.qa').removeClass('qa_editing');
+			$('.qa_aq_cancel').click(); //close all forms
 			location.hash = '';
 			location.hash = '#Questions_and_Answers_sub';
 		},
@@ -1127,8 +1124,11 @@
 
 		popFlagOptions: function (flag) {
 			var box = $('#qa_flag_options');
+			var left_pos = $(flag).position().left;
+
 			$(flag).before(box);
 			$(box)
+				.css('left', left_pos - 30)
 				.fadeIn({queue: false, duration: 150})
 				.animate({ bottom: WH.QAWidget.fo_reg_height, opacity: 1 }, 150);
 
@@ -1178,8 +1178,11 @@
 
 		popAnswerFlagOptions: function (flag) {
 			var box = $('#qa_answer_flag_options');
+			var left_pos = $(flag).position().left;
+
 			$(flag).before(box);
 			$(box)
+				.css('left',left_pos - 30)
 				.fadeIn({queue: false, duration: 150})
 				.animate({ bottom: WH.QAWidget.afo_reg_height, opacity: 1 }, 150);
 
@@ -1198,8 +1201,8 @@
 			var widget = WH.QAWidget;
 			var option = $(obj).html();
 			var $li = $(obj).closest('.qa_aq');
-			var $flagLink = $(obj).closest(".qa_bubble").find(".qa_ignore_answered");
-			var $thanksLink = $flagLink.siblings(".qa_ingore_answered_thanks");
+			var $flagLink = $(obj).closest(".qa_answer_footer").find(".qa_ignore_answered");
+			var $thanksLink = $flagLink.siblings(".qa_ignore_answered_thanks");
 			var qa_id = $li.data('aqid');
 			var question = $li.find('.qa_q_txt').html();
 			var answer = $li.find('.qa_answer').html();
@@ -1225,7 +1228,7 @@
 
 			$flagLink.hide();
 			widget.hideAnswerFlagOptions();
-			$thanksLink.show();
+			$thanksLink.css('display','inline-block');
 
 		},
 
@@ -1233,14 +1236,14 @@
 		 * topAnswererBox()
 		 * - grabs data for top answerer box (if needed) & then fires the show/hide function
 		 *
-		 * @param obj = the hover box
+		 * @param obj = user name area
 		 * @param e = (string) mouseenter/mouseleave/null
 		 */
 		topAnswererBox: function(obj, e) {
 			if (WH.isAltDomain)
 				return;
 
-			var tabox = WH.isMobileDomain ? $(obj).find('.qa_ta_mobile_extra') : $(obj).find('.qa_ta_pop');
+			var tabox = WH.isMobileDomain ? $(obj).find('.qa_ta_mobile_extra') : $(obj).find('.qa_ta_area .hint_box');
 			var show = '';
 
 			if (WH.isMobileDomain)
@@ -1250,7 +1253,7 @@
 
 			if (show && $(tabox).html() == '') {
 				//showing the box AND we haven't already loaded it? load it
-				var $li = $(obj).closest('.qa_aq');
+				var $li = $(obj).closest('.qa_block');
 				var the_url = this.endpoint+'?a=get_ta_data&user_id='+$li.data('submitter_id')+'&aid='+wgArticleId;
 
 				//load up the data
@@ -1291,7 +1294,7 @@
 		 * popTopAnswererBox()
 		 * - shows/hides top answerer dialog box
 		 *
-		 * @param obj = the hover box
+		 * @param tabox = the hover box
 		 * @param show = (boolean)
 		 */
 		popTopAnswererBox: function(tabox, show) {

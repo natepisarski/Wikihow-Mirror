@@ -1,19 +1,31 @@
-<div class="cat_carousel" id="carousel_{{cat_id}}" data-article_view="{{article_view}}" data-leaf_node="{{leaf_node}}" data-last_sortkey="{{cat_articles.last_sortkey}}" data-last_page_is_featured="{{cat_articles.last_page_is_featured}}" data-cat_id="{{cat_id}}">
+<div class="cat_carousel" id="carousel_{{cat_id}}" data-subcat="{{issubcat}}" data-last_page="{{cat_articles.last_page}}" data-cat_id="{{cat_id}}">
 	<div class="cat_nav"></div>
     <div class="cat_title">
-        {{#subcat}}<a href="{{url}}">{{cat_title}} <i class="fa fa-chevron-right"></i></a>{{/subcat}}
-        {{^subcat}}
-            {{#article_view}}{{all_articles_title}}{{/article_view}}
-            {{^article_view}}
-                {{#leaf_node}}{{all_articles_title}}{{/leaf_node}}
-                {{^leaf_node}}<a href="{{url}}">{{all_articles_title}} <i class="fa fa-chevron-right"></i></a>{{/leaf_node}}
-            {{/article_view}}
-
-        {{/subcat}}
+        {{#issubcat}}
+			<a href="{{url}}">{{cat_title}} <i class="fa fa-chevron-right"></i></a>
+            {{#has_subsublist}}<a href="#" class="cat_subcat_toggle closed">Show more</a>{{/has_subsublist}}
+        {{/issubcat}}
+        {{^issubcat}}
+            {{all_articles_title}}
+        {{/issubcat}}
     </div>
+	{{#postload}}<div class="cat_loading"></div>{{/postload}}
 	<div class="cat_imgs">
+	{{^postload}}
         {{#cat_articles.articles}}
             {{> category_carousel_item}}
         {{/cat_articles.articles}}
+	{{/postload}}
 	</div>
+	{{#has_subsublist}}
+		<ul class="subcat_list">
+		{{#subsublist}}
+			<li><a href="{{url}}">{{text}}</a></li>
+			<li>·</li>
+		{{/subsublist}}
+		</ul>
+	{{/has_subsublist}}
+	{{#has_pagination}}
+		{{> category_carousel_pagination}}
+	{{/has_pagination}}
 </div>

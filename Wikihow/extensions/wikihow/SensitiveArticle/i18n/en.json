@@ -68,5 +68,6 @@
 	"btt_url_header": "URL",
 	"btt_page_id_header": "Page ID",
 	"saa_delete_confirm": "Deleting this tag will remove it from $1 {{PLURAL:$1|article|articles}}. Are you sure you want to delete it?",
-	"saa_delete_confirm_2": "Are you really sure you want to delete this tag?"
+	"saa_delete_confirm_2": "Are you really sure you want to delete this tag?",
+	"saw_title": "Sensitive Topic Reasons"
 }

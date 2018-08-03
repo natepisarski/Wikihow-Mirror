@@ -1,0 +1,9 @@
+<a href="{{prev_url}}" class="button buttonleft page_prev {{prev_class}}">{{{prev_text}}}</a>
+<a rel="next" href="{{next_url}}" class="button buttonright page_next {{next_class}}">{{{next_text}}}</a>
+<ul class="pagination">
+	{{#pages}}
+	<li>
+		{{#page_url}}<a href="{{page_url}}" {{rel}}>{{/page_url}}{{text}}{{#page_url}}</a>{{/page_url}}
+	</li>
+	{{/pages}}
+</ul>

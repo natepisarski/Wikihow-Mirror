@@ -3,7 +3,7 @@
 @qaFontSize: .95em;
 
 #qa {
-	padding: 15px;
+	padding: 12px 15px 15px 15px;
 }
 
 #qa input[type=text], #qa input[type=textarea], #qa_submit_button {
@@ -54,7 +54,7 @@
 }
 
 .qa_li_container {
-	padding: 1.3em 0 1.3em 0;
+	padding: .6em 0 1.3em 0;
 }
 
 .qa_bullet {
@@ -63,11 +63,10 @@
 
 .qa_q_txt {
 	font-weight: bold;
-	display: inline-block;
 }
 
-#qa li.qa_answer {
-	margin: .3em 0 0 0;
+#qa .qa_answer {
+	margin: 1em 0 0 0;
 	text-indent: -0em;
 	font-size: @qaFontSize;
 }
@@ -155,7 +154,7 @@
 
 .qa_aq {
 	.qa_q_txt {
-		padding-bottom: 8px;
+		padding-bottom: 1em;
 	}
 }
 
@@ -183,7 +182,7 @@ li .qa_divider { margin-bottom: 0; }
 }
 
 #qa_answered_questions_container li:first-of-type .qa_li_container {
-	padding-top: .3em;
+	padding-top: 0;
 }
 
 .content .button.secondary.qa_edit_submitted {
@@ -201,52 +200,62 @@ li .qa_divider { margin-bottom: 0; }
 }
 
 .wh_vote_container {
-	text-align: right;
 	font-size: @qaFontSize;
 }
 
-.qa_person_circle, .qa_expert {
-	height: 40px;
-	width: 40px;
-	border-radius: 20px;
+.qa_person_circle {
+	height: 56px;
+	width: 56px;
 	margin-left: 0;
-}
 
-.qa_user_name {
-	font-size: 0.8em;
-	padding-left: 50px;
-	color: #BBB;
-	line-height: 1em;
-	display: table-cell;
-	vertical-align: middle;
-	height: 40px; /* acts as min-height because of display type table-cell */
-}
-
-.qa_expert {
 	span {
-		width: 40px;
-		height: 40px;
-		font-size: 21px;
-		line-height: 40px;
-		border-radius: 20px;
+		line-height: 56px;
+		font-size: 23px;
 	}
 }
-.qa_expert_badge {
-	height: 18px;
-	width: 18px;
-	margin: 27px 0 0 28px;
+
+.qa_answerer_info {
+	padding-left: 70px;
+	font-size: 0.8em;
+	line-height: 1.3em;
+	height: 56px; /* acts as min-height because of display type table-cell */
 }
 
-.qa_ta_badge {
-	height: 22px;
-	width: 15px;
-	margin: 24px 0 0 27px;
+.qa_user_title {
+	font-size: .9em;
+	padding: .3em 0;
 }
+
+.qa_expert_area, .qa_ta_area {
+	.qa_person_circle, .qa_person_circle span {
+		height: 52px;
+		width: 52px;
+		font-size: 21px;
+	}
+}
+
+.qa_expert_area {
+	.qa_badge {
+		height: 19px;
+		width: 19px;
+		margin: 40px 0 0 40px;
+	}
+}
+
+.qa_ta_area {
+	.qa_badge {
+		height: 25px;
+		width: 18px;
+		margin: 34px 0 0 37px;
+	}
+}
+
 
 .qa_ta_mobile_extra {
 	display: none;
 	line-height: 1.1em;
 	margin-top: .1em;
+	font-size: .9em;
 }
 
 .wh_thumb_response {
@@ -255,38 +264,6 @@ li .qa_divider { margin-bottom: 0; }
 
 #qa_ask_heading {
 	margin-top: 25px;
-}
-
-@media only screen and (max-width: 400px) {
-	.qa_person_circle, .qa_expert {
-		height: 25px;
-		width: 25px;
-	}
-
-	.qa_user_name {
-		padding-left: 35px;
-		height: 25px; /* acts as min-height because of display type table-cell */
-	}
-
-	.qa_expert {
-		span {
-			width: 25px;
-			height: 25px;
-			font-size: 11px;
-			line-height: 25px;
-		}
-	}
-	.qa_expert_badge {
-		height: 14px;
-		width: 14px;
-		margin: 15px 0 0 17px;
-	}
-
-	.qa_ta_badge {
-		height: 20px;
-		width: 14px;
-		margin: 11px 0 0 15px;
-	}
 }
 
 /* Social Login */

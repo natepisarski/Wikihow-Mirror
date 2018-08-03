@@ -32,9 +32,9 @@ class SensitiveArticleVote
 
 	const TABLE 						= 'sensitive_article_vote';
 	const VOTE_POWER_VOTER 	= 2;
-	const VOTE_MAX_VOTES 		= 15;
-	const VOTE_RESOLVE_DIFF	= 3;
-	const MAX_SKIPS					= 5;
+	const MAX_SKIPS					= 3;
+	const VOTE_MAX_YES			= 2;
+	const VOTE_MAX_NO				= 3;
 
 	const STATUS_APPROVED		= 'approved';
 	const STATUS_REJECTED		= 'rejected';
@@ -143,9 +143,10 @@ class SensitiveArticleVote
 
 	/**
 	 * completed scenarios:
-	 * - 3 more yes than no = approved
-	 * - 3 more no than yes = rejected
-	 * - 15 votes w/o resolution = resolved without clear consensus
+	 * 2 yes = ACCEPT
+	 * 3 no; 0 yes = REJECT
+	 * 3 no; > 0 yes = UNRESOLVED
+	 * 3 skips = UNRESOLVED
 	 */
 	protected function checkForComplete() {
 		if ($this->complete) return;
@@ -175,15 +176,15 @@ class SensitiveArticleVote
 	}
 
 	public static function isApproved(SensitiveArticleVote $sav): bool {
-		return ($sav->voteYes - $sav->voteNo) >= self::VOTE_RESOLVE_DIFF;
+		return $sav->voteYes >= self::VOTE_MAX_YES;
 	}
 
 	public static function isRejected(SensitiveArticleVote $sav): bool {
-		return ($sav->voteNo - $sav->voteYes) >= self::VOTE_RESOLVE_DIFF;
+		return $sav->voteNo >= self::VOTE_MAX_NO && $sav->voteYes == 0;
 	}
 
 	public static function isUnresolved(SensitiveArticleVote $sav): bool {
-		return ($sav->voteYes + $sav->voteNo) >= self::VOTE_MAX_VOTES || $sav->skip >= self::MAX_SKIPS;
+		return ($sav->voteNo >= self::VOTE_MAX_NO && $sav->voteYes > 0) || $sav->skip >= self::MAX_SKIPS;
 	}
 
 	/**

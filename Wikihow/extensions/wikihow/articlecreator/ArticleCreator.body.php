@@ -36,6 +36,10 @@ class ArticleCreator extends SpecialPage {
 		}
 		
 		$t = Title::newFromText($request->getVal('t'));
+		if (!$t) {
+			$out->addWikitext( 'Bad title specified.' );
+			return;
+		}
 		$out->setHTMLTitle(wfMessage('ac-html-title', $t->getText()));
 
 		$overwriteAllowed = Newarticleboost::isOverwriteAllowed($t);

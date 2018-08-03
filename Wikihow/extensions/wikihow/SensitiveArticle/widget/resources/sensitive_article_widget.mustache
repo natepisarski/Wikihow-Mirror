@@ -1,6 +1,6 @@
 <p id="saw_info_box" {{^isTagged}} class="hidden" {{/isTagged}}>
 
-	Sensitive Topic Reasons - <a href="#" id="saw_edit_btn">Edit</a>
+	{{title}} - <a href="#" id="saw_edit_btn">{{edit}}</a>
 
 	{{#reasons}}
 		{{#selected}}
@@ -12,14 +12,13 @@
 
 <p id="saw_edit_box" {{#isTagged}} class="hidden" {{/isTagged}}>
 
-	Sensitive Topic Reasons - <a href="#" id="saw_save_btn">Save</a>
+	{{title}} - <a href="#" id="saw_save_btn">{{save}}</a>
 
-	<select id="saw_reasons" name="reasons[]" multiple style="display: block; margin: 4px 0 10px;">
 	{{#reasons}}
 		{{#enabled}}
-			<option value="{{id}}" {{#selected}} selected {{/selected}}>{{name}}</option>
+		<br />
+		<input type="checkbox" {{#selected}}checked{{/selected}} value="{{id}}" id="reason_{{id}}" />
+		<label for="reason_{{id}}">{{name}}</label>
 		{{/enabled}}
 	{{/reasons}}
-	</select>
-
 </p>

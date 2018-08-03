@@ -106,7 +106,8 @@ $wgResourceModules['mobile.wikihow.qa_widget'] = array(
 		'ta_answers_label',
 		'ta_label',
 		'ta_subcats_intro',
-		'ta_subcats_outro'
+		'ta_subcats_outro',
+		'qa_question_label'
 	],
 	'targets' => [
 		'mobile',
@@ -185,7 +186,8 @@ $wgResourceModules['ext.wikihow.qa_widget'] = array(
 		'ta_subcats_intro',
 		'ta_subcats_outro',
 		'qa_afo_incorrect',
-		'qa_afo_other'
+		'qa_afo_other',
+		'qa_question_label'
 	],
 	'targets' => array('mobile', 'desktop'),
 	'dependencies' => [

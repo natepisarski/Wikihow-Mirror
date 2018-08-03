@@ -1203,15 +1203,10 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	font-size: 120%;
 }
 .green_tips_box_inline {
-	background-color:#D2E9B8;
+	background-color:#F0F6EC;
 	color:#000;
 	margin:0px;
 	width:75%;
-	border:1px;
-	border-style:solid;
-	border-color:#93B874;
-	padding:3px;
-	border-radius:4px;
 	display:inline;
 }
 .img-loading-hide {

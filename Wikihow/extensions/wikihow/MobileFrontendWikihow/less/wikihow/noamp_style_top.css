@@ -163,3 +163,8 @@
 video::-webkit-media-controls-overlay-play-button {
 	  display: none;
 }
+@media only screen and (max-aspect-ratio: 13/9) and (min-width: 500px), only screen and (min-aspect-ratio: 1/1) and (min-height: 421px) {
+	.green_tips_box_inline {
+	    line-height: 27px;
+	}
+}

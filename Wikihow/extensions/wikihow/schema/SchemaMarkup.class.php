@@ -217,10 +217,13 @@ class SchemaMarkup {
 		$parsed = MessageCache::singleton()->parse( $text, null, false, false )->getText();
 		$doc = phpQuery::newDocument( $parsed );
 		$stepsId = '#'.wfMessage('steps')->text();
+		$stepsUpper = strtoupper( $stepsId );
+		$stepsSelector = $stepsId . ', ' . $stepsUpper;
 		// if we want all the steps then we can iterate over this pq($stepsId)->parent()->nextAll()
 		// until we see the next h2
 		$steps = array();
-		foreach ( pq( $stepsId )->parent()->nextAll( 'ol:first' )->children( 'li' ) as $step ) {
+
+		foreach ( pq( $stepsSelector )->filter(':first')->parent()->nextAll( 'ol:first' )->children( 'li' ) as $step ) {
 			$text = self::getTextFromStep( $step );
 			$stepData = [
 				"@type" => "HowToStep",

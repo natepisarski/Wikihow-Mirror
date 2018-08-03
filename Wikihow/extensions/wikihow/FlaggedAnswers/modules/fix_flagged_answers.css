@@ -103,10 +103,6 @@
 	display: none !important;
 }
 
-.qa_answers .qa_bubble {
-	padding-bottom: 15px;
-}
-
 #qa_answered_questions_container {
 	border-bottom: 0px !important;
 }

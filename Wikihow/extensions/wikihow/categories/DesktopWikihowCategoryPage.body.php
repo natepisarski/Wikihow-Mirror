@@ -39,10 +39,12 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			$viewer->clearState();
 			$viewer->doQuery();
 			$out->addHtml('<div class="section minor_section">');
-			$out->addHtml('<ul><li>');
+			$out->addHtml('<ul>');
 			$articles = $viewer->articles;
-			$out->addHtml( implode("</li>\n<li>", $articles) );
-			$out->addHtml('</li></ul>');
+			foreach($articles as $title) {
+				$out->addHtml( "<li>" . Linker::link($title) . "</li>");
+			}
+			$out->addHtml('</ul>');
 			$out->addHtml('</div>');
 		}
 		else {
@@ -79,7 +81,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 				$i = 0;
 				if (count($fas) >= 4) {
 					foreach ($fas as $fa) {
-						$info = $this->getArticleThumbWithPathFromUrl($fa);
+						$info = $this->getArticleThumbWithPathFromTitle($fa);
 						if ($info) {
 							$featuredImages[] = $info;
 						}
@@ -144,7 +146,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			$articles = $viewer->articles;
 			$allArticles = [];
 			for($i = $start; $i < count($articles) && $i < ($start + $articlesPerPage); $i++){
-				$info = $this->getArticleThumbWithPathFromUrl($articles[$i]);
+				$info = $this->getArticleThumbWithPathFromTitle($articles[$i]);
 				if($info) {
 					$allArticles[] = $info;
 				}

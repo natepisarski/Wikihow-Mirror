@@ -6,6 +6,7 @@
 	#ttt_remaining {
 		font-size: .7em;
 		float: right;
+		text-align: right;
 
 		p {
 			font-size: 3em;
@@ -17,15 +18,28 @@
 #topic_tagging_tool {
 	#ti_icon {
 		margin: 12px 0 0 0;
+		float: left;
+	}
+
+	#ti_caret {
+		left: 52px;
+		right: inherit;
 	}
 
 	#ti_box ul {
 		padding: 0 8px 8px 0;
+		text-align: left;
 	}
 
 	&.mobile {
 		#ti_icon {
 			margin-top: 0;
+			float: right;
+		}
+
+		#ti_caret {
+			right: 52px;
+			left: inherit;
 		}
 
 		#ti_outer_box {
@@ -51,6 +65,7 @@
 
 #ttt_buttons {
 	margin-top: 1em;
+	text-align: right;
 }
 
 #ttt_spinner {

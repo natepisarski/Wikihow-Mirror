@@ -185,16 +185,10 @@ class CustomTitle {
 		{
 			$titleTxt = self::makeTitle($title, $new_article);
 
-			$startTime = strtotime('July 5, 2018');
-			$threeWeeks = 3 * 7 * 24 * 60 * 60;
-			$saveCustomTitle = Misc::percentileRolloutByPageId($startTime, $threeWeeks, $title->getArticleId());
-
-			if ($saveCustomTitle) {
-				//whenever we do the hard work to figure out the title...save it
-				$dbw = wfGetDB(DB_MASTER);
-				$note = wfMessage('custom_note_auto_gen')->text();
-				self::dbSetCustomTitle($dbw, $title, $titleTxt, $note, self::TYPE_AUTO_GENERATED);
-			}
+			//whenever we do the hard work to figure out the title...save it
+			$dbw = wfGetDB(DB_MASTER);
+			$note = wfMessage('custom_note_auto_gen')->text();
+			self::dbSetCustomTitle($dbw, $title, $titleTxt, $note, self::TYPE_AUTO_GENERATED);
 		}
 
 		return $titleTxt;

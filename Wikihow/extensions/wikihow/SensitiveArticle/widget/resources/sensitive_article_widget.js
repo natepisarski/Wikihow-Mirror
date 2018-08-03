@@ -15,7 +15,7 @@
 		var data = {
 			'page_id': wgArticleId,
 			'action': 'edit',
-			'reasons': $('#saw_reasons').val() || []
+			'reasons': getReasons()
 		};
 		$.ajax({
 			type: 'POST',
@@ -38,6 +38,14 @@
 	{
 		var obj = JSON.parse(jqXHR.responseText);
 		alert('There was an error: ' + obj.error);
+	}
+
+	function getReasons() {
+		var reasons = [];
+		$('#saw_edit_box input:checkbox').each(function() {
+			if ($(this).prop('checked')) reasons.push($(this).val());
+		});
+		return reasons;
 	}
 
 }(jQuery));

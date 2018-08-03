@@ -7,6 +7,7 @@ window.WH.CategoryCarousel = (function ($, mw) {
 		this.rootSelector = '#' + this.id;
 		this.$imagesSelector = $(this.rootSelector).find('.cat_imgs');
 		this.hasMoreArticles = true;
+		this.hasLoaded = $(this.rootSelector).find('.cat_imgs').children().length > 0;
 
 		if (this.id === undefined) {
 			console.error("you must pass a unique id to CategoryCarousel ");
@@ -104,8 +105,8 @@ window.WH.CategoryCarousel = (function ($, mw) {
 				lazyLoad: 'ondemand',
 				appendArrows: this.rootSelector + ' .cat_nav',
 				vertical: true,
-				verticalSwiping: true,
-				rows: 5,
+				verticalSwiping: false,
+				rows: 20,
 				slidesPerRow: 5,
 				infinite: false,
 				speed: 250,
@@ -118,49 +119,49 @@ window.WH.CategoryCarousel = (function ($, mw) {
 						breakpoint: 769,
 						settings: {
 							slidesPerRow: 5,
-							rows: 5
+							rows: 20
 						}
 					},
 					{
 						breakpoint: 750,
 						settings: {
 							slidesPerRow: 5,
-							rows: 3
+							rows: 20
 						}
 					},
 					{
 						breakpoint: 569,
 						settings: {
 							slidesPerRow: 4,
-							rows: 2
+							rows: 25
 						}
 					},
 					{
 						breakpoint: 481,
 						settings: {
 							slidesPerRow: 4,
-							rows: 2
+							rows: 25
 						}
 					},
 					{
 						breakpoint: 415,
 						settings: {
 							slidesPerRow: 3,
-							rows: 4
+							rows: 33
 						}
 					},
 					{
 						breakpoint: 376,
 						settings: {
 							slidesPerRow: 3,
-							rows: 4
+							rows: 33
 						}
 					},
 					{
 						breakpoint: 321,
 						settings: {
 							slidesPerRow: 3,
-							rows: 3
+							rows: 33
 						}
 					}
 				]
@@ -168,7 +169,9 @@ window.WH.CategoryCarousel = (function ($, mw) {
 		},
 
 		init: function () {
-			this.slick = this.$imagesSelector.slick(this.getConfig());
+			if(this.hasLoaded) {
+                this.slick = this.$imagesSelector.slick(this.getConfig());
+            }
 			this.initEventListeners();
 			this.pendingRequest = false;
 		},
@@ -176,7 +179,7 @@ window.WH.CategoryCarousel = (function ($, mw) {
 		getConfig: function() {
 			var config = this.getSingleRowConfig();
 			var $root = $(this.rootSelector);
-			if ($root.data('leaf_node') || $root.data('article_view')) {
+			if (!$root.data('subcat')) {
 				config = this.getMultiRowConfig();
 			} else if ($root.data('category_listing')) {
 				config = this.getListingConfig();
@@ -189,6 +192,88 @@ window.WH.CategoryCarousel = (function ($, mw) {
 
 		initEventListeners: function () {
 			this.initOnAfterChangeListener();
+			this.initSubcatListToggle();
+			if(!this.hasLoaded) {
+                this.initLoadCarouselsListener();
+            }
+		},
+
+		initLoadCarouselsListener: function() {
+            $('.cat_loading', this.rootSelector).show();
+            var that = this;
+            $(window).scroll($.proxy(function(e) {
+                e.preventDefault();
+                var bottomOfPage = $(window).height() + $(window).scrollTop() >= $(this.rootSelector).offset().top - 400;
+                if (!this.hasLoaded && !this.pendingRequest && bottomOfPage) {
+                    this.pendingRequest = true;
+                    that.pendingRequest = true;
+                    $.getJSON(
+                        '/' + mw.config.get('wgPageName'),
+                        {
+                            a: 'more',
+                            cat_id: $(this.rootSelector).data('cat_id'),
+                            cat_last_page: $(this.rootSelector).data('last_page')
+                        },
+                        $.proxy(function (response) {
+                            $(this.rootSelector).data('last_page', response.last_page);
+                            var numArticles = response.articles.length;
+
+                            // No more articles to load for this category
+                            if (numArticles == 0) {
+                                that.pendingRequest = false;
+                                that.hasMoreArticles = false;
+                                return;
+                            }
+
+                            var html = [];
+                            $.each(response.articles,
+                                $.proxy(
+                                    function (i, article) {
+                                        article['howto_prefix'] = response.howto_prefix;
+                                        article['default_image'] = response.default_image;
+                                        html.push(Mustache.render(unescape($('#cat_slide_template').html()), article));
+                                    },
+                                    this
+                                )
+                            );
+                            html = $('<div/>').html(html.join('')).text();
+                            this.$imagesSelector.append(html).slick(this.getConfig());
+                            $('.cat_loading', this.rootSelector).hide();
+                            that.pendingRequest = false;
+                            this.hasLoaded = true;
+                        }, this)
+                    );
+                }
+            }, this));
+		},
+
+		initSubcatListToggle: function() {
+			$(document).on('click', '.cat_subcat_toggle', function(e) {
+				e.preventDefault();
+				var that = this;
+				if(!$(this).hasClass("disabled")) {
+                    $(this).addClass("disabled");
+                    if ($(this).hasClass("closed")) {
+                    	//now open it
+                        $(this).parents(".cat_carousel").find(".subcat_list").slideDown(
+                        	"fast",
+							function(){
+                        		$(that).removeClass("disabled");
+                        	}
+						);
+                        $(this).addClass("open").removeClass("closed").html("Show less");
+                    } else {
+                    	//now close it
+                        $(this).parents(".cat_carousel").find(".subcat_list").slideUp(
+                        	"fast",
+							function(){
+                        		$(that).removeClass("disabled")
+                        	}
+                        );
+                        $(this).addClass("closed").removeClass("open").html("Show more");
+                    }
+                }
+            });
 		},
 
 		initOnAfterChangeListener: function() {
@@ -204,12 +289,10 @@ window.WH.CategoryCarousel = (function ($, mw) {
 						{
 							a: 'more',
 							cat_id: $(this).data('cat_id'),
-							cat_last_sortkey: $(this).data('last_sortkey'),
-							cat_last_page_is_featured: $(this).data('last_page_is_featured')
+							cat_last_page: $(this).data('last_page')
 						},
 						$.proxy(function (response) {
-							$(this).data('last_sortkey', response.last_sortkey);
-							$(this).data('last_page_is_featured', response.last_page_is_featured);
+							$(this).data('last_page', response.last_page);
 							var numArticles = response.articles.length;
 
 							// No more articles to load for this category
@@ -239,7 +322,7 @@ window.WH.CategoryCarousel = (function ($, mw) {
 					that.pendingRequest = false;
 				}
 			});
-		}
+		},
 	};
 
 	return CategoryCarousel;

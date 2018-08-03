@@ -84,7 +84,69 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$this->article_info_fa = array();
 	}
 
-	function doQuery() {
+	public function getChildren() {
+		return $this->children;
+	}
+
+	public function getNumArticles() {
+		return count($this->articles);
+	}
+
+	public function getNumOnPage($page, $perPage) {
+		$pages = count($this->articles)/$perPage;
+		if($page < $pages) {
+			return $perPage;
+		} else {
+			return ($pages-floor($pages))*$perPage;
+		}
+	}
+
+	/****
+	 * @param $page  = 1 based number
+	 * @param $number = number of articles to return
+	 * @return array
+	 */
+	public function getArticlesMobile($page, $number) {
+		if($page <= 0) {
+			$page = 1;
+		}
+		$articlesArray = array_slice($this->articles, ($page-1)*$number, $number);
+		$articles = ['articles' => []];
+		foreach($articlesArray as $title) {
+			$data = [];
+			$data['url'] = $title->getLocalUrl();
+			$data['title'] = $title->getText();
+			$data['thumb_url'] = wfGetPad($this->getThumbUrl($title, CategoryData::CAT_IMG_WIDTH, CategoryData::CAT_IMG_HEIGHT));
+			$articles['articles'][] = $data;
+		}
+		return $articles;
+	}
+
+	protected function getThumbUrl($title, $width, $height) {
+		$file = Wikitext::getTitleImage($title);
+		$thumbUrl = "";
+		if (!$file || !$file->exists()) {
+			$file = Wikitext::getDefaultTitleImage($title);
+		}
+
+		if ($file && $file->exists()) {
+			// Use same transform params as "Related Images"
+			$params = array(
+				'width' => $width,
+				'height' => $height,
+				'crop' => 1
+			);
+			$thumb = $file->transform($params, 0);
+		}
+
+		if ($thumb) {
+			$thumbUrl = $thumb->getUrl();
+		}
+
+		return $thumbUrl;
+	}
+
+	function doQuery($getSubcats = true) {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		// Show only indexable articles to anons
@@ -125,22 +187,24 @@ class WikihowCategoryViewer extends ArticleViewer {
 			Misc::respondWith404();
 		}
 
-		// get all of the subcategories this time
-		$res = $dbr->select(
-			['page', 'categorylinks', 'index_info'],
-			['page_title', 'page_namespace', 'page_len', 'page_further_editing', 'cl_sortkey', 'page_counter', 'page_is_featured'],
-			['cl_to' => $safeTitle, 'page_namespace' => NS_CATEGORY, $indexConds],
-			__METHOD__,
-			['GROUP BY' => 'page_id', 'ORDER BY' => 'cl_sortkey'],
-			[
-				'categorylinks' => ['INNER JOIN', 'cl_from = page_id'],
-				'index_info' => ['LEFT JOIN', 'ii_page = page_id']
-			]
-		);
+		if($getSubcats) {
+			// get all of the subcategories this time
+			$res = $dbr->select(
+				['page', 'categorylinks', 'index_info'],
+				['page_title', 'page_namespace', 'page_len', 'page_further_editing', 'cl_sortkey', 'page_counter', 'page_is_featured'],
+				['cl_to' => $safeTitle, 'page_namespace' => NS_CATEGORY, $indexConds],
+				__METHOD__,
+				['GROUP BY' => 'page_id', 'ORDER BY' => 'cl_sortkey'],
+				[
+					'categorylinks' => ['INNER JOIN', 'cl_from = page_id'],
+					'index_info' => ['LEFT JOIN', 'ii_page = page_id']
+				]
+			);
 
-		$count = 0;
-		foreach ($res as $row) {
-			$this->processRow($row, $count);
+			$count = 0;
+			foreach ($res as $row) {
+				$this->processRow($row, $count);
+			}
 		}
 	}
 
@@ -187,6 +251,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 
 	//still used
 	function getSubcategories($title) {
+		$onlyIndexed = $this->getUser()->isAnon() || Misc::isMobileMode();
 		$dbr = wfGetDB(DB_SLAVE);
 		$tables = ['categorylinks', 'page', 'index_info'];
 		$fields = ['page_title', 'page_namespace'];
@@ -196,7 +261,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 			'cl_to' => $title->getDBKey(),
 			'page_namespace' => NS_CATEGORY
 		];
-		if ($this->getUser()->isAnon()) {
+		if ($onlyIndexed) {
 			$where['ii_policy'] = [1, 4];
 		}
 		$options = ['ORDER BY' => 'cl_sortkey'];
@@ -242,17 +307,13 @@ class WikihowCategoryViewer extends ArticleViewer {
 	function addPage($title, $isRedirect = false, $info_entry = null) {
 
 		// AG - the makeSizeLinkObj is deprecated and Linker::link takes care of size/color of the link now
-		$this->articles[] = $isRedirect
-			? '<span class="redirect-in-category">' . Linker::linkKnown($title) . '</span>'
-			: Linker::link($title);
+		$this->articles[] = $title;
 		if (is_array($info_entry))
 			$this->article_info[] = $info_entry;
 	}
 
 	function addFA($title) {
-		global $wgContLang;
-
-		$this->articles_fa[] = Linker::link( $title, $wgContLang->convert($title->getPrefixedText()) );
+		$this->articles_fa[] = $title;
 	}
 
 	function getArticlesFurtherEditing($articles, $article_info) {
@@ -287,7 +348,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 				if (($index == $chunk) && (sizeof($articles_with_templates) > 5)) {
 					$html .= '</ul> <ul>' . "\n";
 				}
-				$html .= "<li>{$articles_with_templates[$index]} </li>\n";
+				$html .= "<li><a href='{$articles_with_templates[$index]->getLocalUrl()}'>{$articles_with_templates[$index]->getText()}</a></li>\n";
 			}
 			$html .= "</ul><div class=\"clearall\"></div>";
 		}

@@ -466,8 +466,10 @@ class QAPatrol extends UnlistedSpecialPage {
 			$logPage = new LogPage('qa_patrol', false);
 			$logData = array($qap_id);
 			$logAction = $vote ? 'vote_approve' : 'vote_delete';
-			$logMsg = wfMessage('qap-logentry-vote', $title->getFullText(), $vote_str, $row->qap_question, $row->qap_answer)->text();
-			$logS = $logPage->addEntry($logAction, $title, $logMsg, $logData);
+			if ($title) {
+				$logMsg = wfMessage('qap-logentry-vote', $title->getFullText(), $vote_str, $row->qap_question, $row->qap_answer)->text();
+				$logS = $logPage->addEntry($logAction, $title, $logMsg, $logData);
+			}
 
 			//usage log
 			UsageLogs::saveEvent(
@@ -592,8 +594,10 @@ class QAPatrol extends UnlistedSpecialPage {
 			//log
 			$logPage = new LogPage('qa_patrol', false);
 			$logData = array($qap_id);
-			$logMsg = wfMessage('qap-logentry-edit', $title->getFullText(), $question, $answer)->text();
-			$logS = $logPage->addEntry("edit", $title, $logMsg, $logData);
+			if ($title) {
+				$logMsg = wfMessage('qap-logentry-edit', $title->getFullText(), $question, $answer)->text();
+				$logS = $logPage->addEntry("edit", $title, $logMsg, $logData);
+			}
 
 			if ($this->canAutoApprove()) {
 				list($max_res, $result) = $this->voteMaxxed(1, $qap_id);
@@ -708,8 +712,10 @@ class QAPatrol extends UnlistedSpecialPage {
 		//log it
 		$logPage = new LogPage('qa_patrol', false);
 		$logData = array($qap_id);
-		$logMsg = wfMessage($msg, $title->getFullText(), $row->qap_question, $row->qap_answer)->text();
-		$logS = $logPage->addEntry($action, $title, $logMsg, $logData);
+		if ($title) {
+			$logMsg = wfMessage($msg, $title->getFullText(), $row->qap_question, $row->qap_answer)->text();
+			$logS = $logPage->addEntry($action, $title, $logMsg, $logData);
+		}
 
 		//usage log
 		UsageLogs::saveEvent(

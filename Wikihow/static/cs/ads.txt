@@ -3,3 +3,4 @@ google.com, pub-5462137703643346, DIRECT, f08c47fec0942fa0
 indexexchange.com, 186325, DIRECT
 rubiconproject.com, 18654, DIRECT, 0bfd66d529a55807
 rubiconproject.com, 15274, DIRECT, 0bfd66d529a55807
+adtech.com, 11484, DIRECT

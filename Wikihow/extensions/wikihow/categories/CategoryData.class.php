@@ -3,6 +3,7 @@
 class CategoryData {
 	var $t = null;
 	var $data = null;
+	var $currentPage = null;
 
 	const CAT_LISTING_IMG_WIDTH = 201;
 	const CAT_LISTING_IMG_HEIGHT = 134;
@@ -10,8 +11,12 @@ class CategoryData {
 	const CAT_IMG_WIDTH = 127;
 	const CAT_IMG_HEIGHT = 120;
 
-	function __construct(Title $title) {
+	const ALL_ARTICLES_CHUNK = 100;
+	const SUB_CAT_CHUNK = 24;
+
+	function __construct(Title $title, int $currentPage = 1) {
 		$this->t = $title;
+		$this->currentPage = $currentPage;
 	}
 
 	public function getText() {
@@ -20,6 +25,10 @@ class CategoryData {
 
 	public function getUrl() {
 		return $this->t->getLocalUrl();
+	}
+
+	public function getArticleID() {
+		return $this->t->getArticleID();
 	}
 
 	public function getParentCategoryUrl() {
@@ -33,127 +42,55 @@ class CategoryData {
 		return json_encode($this->getAllData());
 	}
 
-	public function getAllData($sortKey = '', $withFeatured = true) {
-		return array(
-			'howto_prefix' => wfMessage('howto','')->text(),
-			'cat_title' => $this->getText(),
-			'cat_id' => $this->t->getArticleID(),
-			'url' => $this->getUrl(),
-			'parent_url' => $this->getParentCategoryUrl(),
-			'cat_articles' => $this->getArticles($sortKey, $withFeatured),
-			'subcategories' => $this->getSubcategories()
-		);
-	}
+	public function getPagination($numArticles ) {
+		$numPages = (self::ALL_ARTICLES_CHUNK > 0) ? ceil($numArticles / self::ALL_ARTICLES_CHUNK) : 0;
+		$thisUrl = $this->getUrl();
 
-	protected function getArticles($sortKey = '', $withFeatured = true) {
-		$rows = array();
+		$data = [];
 
-		$limit = 48;
-		if ($withFeatured) {
-			$rows = array_merge($rows, $this->getArticlesFromDB($sortKey, $limit, true));
-		}
-
-		$additionalRows = $limit - sizeof($rows);
-		if ($additionalRows) {
-			// If we've already pulled some from featured articles, reset the sortkey so
-			// we can pull non-featured articles starting from the beginning
-			if ($additionalRows != $limit) {
-				$sortKey = "";
+		if($numArticles > self::ALL_ARTICLES_CHUNK) {
+			$data['has_pagination'] = true;
+			$data['next_text'] = wfMessage('lsearch_next')->text();
+			$data['prev_text'] = wfMessage('lsearch_previous')->text();
+			if($this->currentPage > 1) {
+				$data['prev_url'] = "?pg=" . ($this->currentPage-1);
+				$data['prev_class'] = "";
+			} else {
+				$data['prev_url'] = "#";
+				$data['prev_class'] = "disabled";
+			}
+			if ($this->currentPage < $numPages) {
+				$data['next_url'] = "?pg=".($this->currentPage+1);
+				$data['next_class'] = "";
+			}
+			else {
+				$data['next_url'] = "#";
+				$data['next_class'] = "disabled";
 			}
 
-			$rows = array_merge($rows, $this->getArticlesFromDB($sortKey, $additionalRows, false));
-		}
+			$data['pages'] = [];
+			for ($i=1; $i<=$numPages; $i++) {
+				$data['pages'][$i-1] = ['rel' => ''];
+				if ($i == ($this->currentPage-1)) {
+					$data['pages'][$i-1]['rel'] = 'rel="prev"';
+				}
+				elseif ($i == ($this->currentPage+1)) {
+					$data['pages'][$i-1]['rel'] = 'rel="next"';
+				}
 
-		return $this->getArticlesData($rows);
-	}
-
-	protected function getArticlesFromDB($sortKey = '', int $limit, $featured) {
-		global $wgUser;
-
-		// Show only indexable articles to anons
-		$indexConds = $wgUser->isAnon() ? 'AND ii_policy IN (1, 4)' : '';
-
-		$dbr = wfGetDB(DB_SLAVE);
-		if (empty($sortKey)) {
-			$sortKeyWhere = '';
-		} else {
-			$sortKeyWhere = " AND cl_sortkey > " . $dbr->addQuotes($sortKey);
-		}
-
-		$featuredWhere = " AND page_is_featured = " . intVal($featured);
-
-		$sql = "SELECT cl_sortkey, page_id, page_title, page_namespace, page_is_featured
-			FROM (page, categorylinks )
-			LEFT JOIN index_info
-			  ON ii_page = page_id
-			WHERE
-				cl_from = page_id
-				AND cl_to = " . $dbr->addQuotes($this->t->getDBKey()) . "
-				AND page_namespace != " . NS_CATEGORY . "
-				$sortKeyWhere
-				$featuredWhere
-				$indexConds
-			GROUP BY page_id
-			ORDER BY page_is_featured DESC, cl_sortkey
-			LIMIT $limit";
-
-
-		$res = $dbr->query($sql, __METHOD__);
-
-		$rows = array();
-		foreach ($res as $row) {
-			if (wfRunHooks('WikihowCategoryViewerQueryBeforeProcessTitle', [$row->page_id])) {
-				$rows[] = $row;
+				$data['pages'][$i-1]['text'] = $i;
+				if($this->currentPage != $i) {
+					if ($i == 1) {
+						$data['pages'][$i - 1]['page_url'] = $thisUrl;
+					} else {
+						$data['pages'][$i - 1]['page_url'] = "$thisUrl?pg=$i";
+					}
+				}
 			}
+			return $data;
 		}
 
-		return $rows;
-	}
-
-
-
-	public function getSubcategories() {
-		$dbr = wfGetDB(DB_SLAVE);
-		$res = $dbr->select(
-			array('categorylinks', 'page'),
-			array('page_title', 'page_namespace'),
-			array('page_id=cl_from',
-				'cl_to' => $this->t->getDBKey(),
-				'page_namespace=' . NS_CATEGORY
-			),
-			__METHOD__,
-			array('ORDER BY' => 'LOWER(page_title)')
-		);
-		$results = array();
-		foreach ($res as $row) {
-			$results[] = Title::makeTitle($row->page_namespace, $row->page_title);
-		}
-
-		return $results;
-	}
-
-	private function getArticleData($row) {
-		$data = get_object_vars($row);
-		$t = Title::newFromID($data['page_id'], $data['page_namespace']);
-		$data['url'] = $t->getLocalUrl();
-		$data['title'] =  $t->getText();
-		$data['thumb_url'] = wfGetPad($this->getThumbUrl($t, self::CAT_IMG_WIDTH, self::CAT_IMG_HEIGHT));
-		return $data;
-	}
-
-	protected function getArticlesData($res){
-		$articles = array();
-		foreach ($res as $i => $row) {
-			$articles[] = $this->getArticleData($row);
-		}
-
-
-
-		return array(
-			'articles' => $articles,
-			'last_sortkey' => end($articles)['cl_sortkey'],
-			'last_page_is_featured' => strval(end($articles)['page_is_featured'])
-		);
+		return ['has_pagination' => "0"];
 	}
 
 	protected function getThumbUrl($title, $width, $height) {

@@ -32,7 +32,8 @@ class AdminCloseAccount extends UnlistedSpecialPage
 		$user = $this->getUser();
 		$groups = $user->getGroups();
 
-		if ($user->isBlocked() || !in_array('staff', $groups)) {
+		//taking tool down temporarily
+		if (true || $user->isBlocked() || !in_array('staff', $groups)) {
 			$out->setRobotpolicy('noindex,nofollow');
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;

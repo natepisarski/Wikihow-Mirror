@@ -115,32 +115,20 @@ class CategoryLister {
 
             // Featured articles:
             if ($viewer->articles_fa) {
-                foreach ($viewer->articles_fa as $fArtHtml) {
-                    // Extract article name from HTML
-                    $matches = array();
-                    preg_match('/<a ?.*>(.*)<\/a>/', $fArtHtml, $matches);
-                    $fArt = $matches[1];
-                    $fArtTitle = Title::newFromText($fArt, NS_MAIN);
-
+                foreach ($viewer->articles_fa as $fArtTitle) {
                     if ($fArtTitle && $fArtTitle->exists()
                             && $fArtTitle->getNamespace() === NS_MAIN) {
-                        $fArtResult[$fArt] = $fArtTitle->getFullURL();
+                        $fArtResult[$fArtTitle->getText()] = $fArtTitle->getFullURL();
                     }
                 }
             }
 
             // General articles:
             if ($viewer->articles) {
-                foreach ($viewer->articles as $artHtml) {
-                    // Extract article name from HTML
-                    $matches = array();
-                    preg_match('/<a ?.*>(.*)<\/a>/', $artHtml, $matches);
-                    $art = $matches[1];
-                    $artTitle = Title::newFromText($art, NS_MAIN);
-
+                foreach ($viewer->articles as $artTitle) {
                     if ($artTitle && $artTitle->exists() 
                             && $artTitle->getNamespace() === NS_MAIN) {
-                        $artResult[$art] = $artTitle->getFullURL();
+                        $artResult[$artTitle->getText()] = $artTitle->getFullURL();
                     }
                 }
             }

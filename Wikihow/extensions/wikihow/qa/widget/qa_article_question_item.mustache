@@ -1,91 +1,67 @@
-<li class="qa_aq {{#inactive}}qa_inactive{{/inactive}}" data-aqid="{{id}}" data-cqid="{{curatedQuestion.id}}" data-caid="{{curatedQuestion.curatedAnswer.id}}" data-sqid="{{curatedQuestion.submittedId}}" data-qa_inactive="{{inactive}}" data-votes_up="{{votesUp}}" data-votes_down="{{votesDown}}" data-verifier_id="{{verifierId}}" data-submitter_id="{{submitterUserId}}">
+<li class="qa_aq qa_block {{#inactive}}qa_inactive{{/inactive}}" data-aqid="{{id}}" data-cqid="{{curatedQuestion.id}}" data-caid="{{curatedQuestion.curatedAnswer.id}}" data-sqid="{{curatedQuestion.submittedId}}" data-qa_inactive="{{inactive}}" data-votes_up="{{votesUp}}" data-votes_down="{{votesDown}}" data-verifier_id="{{verifierId}}" data-submitter_id="{{submitterUserId}}">
 	<div class="qa_divider"></div>
+
 	<div class="qa_li_container">
+		<div class="qa_question_tab">{{qa_question_label}}</div>
 		<div class="qa_q_txt{{#qa_desktop}} question{{/qa_desktop}}">{{{curatedQuestion.text}}}</div>
 		{{#qa_staff}}<div class="qa_staff_info">{{staffInfo}}</div>{{/qa_staff}}
-		{{#qa_editor}}
-			{{#qa_admin}}
-			<div class="qa_editor_tools">
-				<a class="qa_edit_aq">{{qa_edit}}</a>
-			</div>
-			{{/qa_admin}}
-			{{^qa_admin}}
-				{{^verifierId}}
-				<div class="qa_editor_tools">
-					<a class="qa_edit_aq">{{qa_edit}}</a>
-				</div>
-				{{/verifierId}}
-			{{/qa_admin}}
-		{{/qa_editor}}
-		{{#qa_desktop}}<div class="qa_answers">{{/qa_desktop}}
-		{{#verifierId}}
-			<div class="qa_expert_area">
+
+		{{#show_editor_tools}}
+		<div class="qa_editor_tools">
+			<a class="qa_edit_aq">{{qa_edit}}</a>
+		</div>
+		{{/show_editor_tools}}
+
+		<div class="qa_answers">
+			<div class="{{qa_answerer_class}}">
 			{{#qa_desktop}}
-				<div class="qa_expert_pop hint_box">
-				{{#verifierData.imagePath}}
-					<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person qa_expert" target="_blank" style="background-image: url({{verifierData.imagePath}})"></a>
-				{{/verifierData.imagePath}}
-				{{^verifierData.imagePath}}
-					<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person qa_expert" target="_blank"><span>{{verifierData.initials}}</span></a>
-				{{/verifierData.imagePath}}
-					<div class='qa_expert_name'>
-						<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink" target="_blank">{{verifierData.name}}</a><br />
-						{{{verifierData.blurb}}}
-					</div>
-					{{verifierData.hoverBlurb}}
-				</div>
+				<div class="qa_user_hover hint_box">{{#verifierId}}{{> qa_expert_hover}}{{/verifierId}}</div>
 			{{/qa_desktop}}
-				<div class="qa_expert_badge"></div>
-				{{#verifierData.imagePath}}
-				<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person qa_expert" target="_blank" style="background-image: url({{verifierData.imagePath}})"></a>
-				{{/verifierData.imagePath}}
-				{{^verifierData.imagePath}}
-				<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person qa_expert" target="_blank"><span>{{verifierData.initials}}</span></a>
-				{{/verifierData.imagePath}}
-				<div class="qa_user_name">
-				{{^qa_desktop}}
-					{{qa_answered_by}}
-				{{/qa_desktop}}
-				<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" target="_blank">{{verifierData.name}}</a>
+
+				<div class="qa_badge"></div>
+
+			{{#verifierId}}
+				<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
+					{{^verifierData.imagePath}}<span>{{verifierData.initials}}</span>{{/verifierData.imagePath}}</a>
+			{{/verifierId}}
+
+			{{^verifierId}}
+				<div class="qa_person_circle" {{#submitterAvatar}}style="background-image:url({{{submitterAvatar}}})"{{/submitterAvatar}}></div>
+			{{/verifierId}}
+
+				<div class="qa_answerer_info">
+				{{#verifierId}}
+					<div class="qa_user_name">
+						<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" target="_blank">{{verifierData.name}}</a>
+					</div>
+					<div class="qa_user_title">{{{verifierData.blurb}}}</div>
+				{{/verifierId}}
+
+				{{^verifierId}}
+					<div class="qa_user_name">{{{submitterDisplayName}}}</div>
+				{{/verifierId}}
+
+					<div class="qa_user_label">{{qa_answerer_label}}</div>
+					{{#isTopAnswerer}}{{^qa_desktop}}<div class="qa_ta_mobile_extra"></div>{{/qa_desktop}}{{/isTopAnswerer}}
 				</div>
 			</div>
-		{{/verifierId}}
-		{{^verifierId}}
-			{{#isTopAnswerer}}
-			<div class="qa_ta_area">
-				{{#qa_desktop}}
-				<div class="qa_ta_pop hint_box"></div>
-				{{/qa_desktop}}
-				<div class="qa_ta_badge"></div>
-			{{/isTopAnswerer}}
-			<div class="qa_person_circle" {{#submitterAvatar}}style="background-image:url({{{submitterAvatar}}})"{{/submitterAvatar}}></div>
-			<div class="qa_user_name">
-				{{^qa_desktop}}{{qa_answered_by}} {{/qa_desktop}}
-				{{{submitterDisplayName}}}{{^qa_desktop}}{{#isTopAnswerer}}, {{ta_label}}
-				<div class="qa_ta_mobile_extra"></div>
-				{{/isTopAnswerer}}
-				{{/qa_desktop}}
-			</div>
-			{{#isTopAnswerer}}
-			</div>
-			{{/isTopAnswerer}}
-		{{/verifierId}}
+
 		{{#qa_desktop}}
-			<div class="qa_bubble">
-				<div class="qa_answer answer">{{{curatedQuestion.curatedAnswer.text}}}</div>
+			<div class="qa_answer answer">{{{curatedQuestion.curatedAnswer.text}}}</div>
+			<div class="qa_answer_footer">
+				{{> thumbs_qa_widget}}
 				{{^qa_anon}}
 				<a class="qa_ignore_answered" href="#">{{qa_flag_duplicate}}</a>
-				<p class="qa_ingore_answered_thanks">Thanks!</p>
+				<p class="qa_ignore_answered_thanks">Thanks!</p>
 				{{/qa_anon}}
-				{{> thumbs_qa_widget}}
 			</div>
-		</div>
 		{{/qa_desktop}}
 		{{^qa_desktop}}
-		<ul class="qa_answers">
+		<ul>
 			<li class="qa_answer">{{{curatedQuestion.curatedAnswer.text}}}</li>
 		</ul>
 		{{> thumbs_up_down}}
 		{{/qa_desktop}}
+		</div>
 	</div>
 </li>

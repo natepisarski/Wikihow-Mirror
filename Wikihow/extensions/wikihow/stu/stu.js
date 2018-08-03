@@ -19,7 +19,7 @@ var countableView = typeof WH.stuCount != 'undefined' ? WH.stuCount : 0,
 	isMobile = typeof WH.isMobile != 'undefined' ? WH.isMobile : 0,
 	exitTimerEnabled = countableView && pageLang == 'en' && !isMobile,
 	dev = !!(location.href.match(/\.wikidogs\.com/)),
-	pingTimersEnabled = !!(location.href.match(/\.wikihow\.(com|cz|jp|it|vn)/)) || dev,
+	pingTimersEnabled = !!(location.href.match(/\.wikihow\.[a-z]+$/)) || dev,
 	startTime = false,
 	restartTime = false,
 	activeElapsed = 0,
@@ -36,6 +36,9 @@ var debugCallbackFunc = null,
 // Project LIA -- logging data on periodic visitors to the site so that we
 // can eventually offer to edit articles that might be in their interests.
 var timers = [{'t':1}, {'t':10}, {'t':30}, {'t':60}, {'t':120}, {'t':180}];
+
+var alternateTimersTest = [6256];
+var alternateTimers = [{'t':1}, {'t':10}, {'t':20}, {'t':30}, {'t':45}, {'t':60}, {'t':90}, {'t':120}, {'t':180}, {'t':240}, {'t':300}, {'t':420}, {'t':480}, {'t':540}, {'t':600} ];
 
 function makeID(len) {
 	var text = '';
@@ -199,6 +202,9 @@ function start() {
 
 	// Set timers for Project LIA (Project "Log It All" and let a Norse god sort it out)
 	if (pingTimersEnabled) {
+		if (alternateTimersTest.indexOf(WH.pageID) !== -1) {
+			timers = alternateTimers;
+		}
 		// Setup first timer ping, indexed by currentTimerIndex
 		setupNextTimerPing();
 	}
@@ -249,9 +255,9 @@ function registerDebug(func) {
 function pingDebug(url) {
 	// Only turn on this logging if we think we're in debug mode.
 	// See StuInspector.php for the php side of this Stu debug code.
-	if (location.href.indexOf('stu=debug') === -1) {
-		return;
-	}
+	//if (location.href.indexOf('stu=debug') === -1) {
+	//	return;
+	//}
 
 	if (debugCallbackFunc) {
 		debugCallbackFunc(url);
