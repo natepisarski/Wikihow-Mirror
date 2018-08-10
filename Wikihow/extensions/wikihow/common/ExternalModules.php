@@ -169,3 +169,28 @@ $wgResourceModules['wikihow.common.select2'] = array (
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => COMMONS_DIR,
 );
+
+$wgResourceModules['wikihow.common.taffy'] = array(
+	'scripts' => [ 'taffy.js' ],
+	'targets' => [ 'desktop', 'mobile' ],
+	'localBasePath' => __DIR__ . '/taffy',
+	'remoteExtPath' => COMMONS_DIR . '/taffy'
+);
+
+$wgResourceModules['wikihow.router'] = array(
+	'scripts' => [ 'Router.js' ],
+	'targets' => [ 'desktop', 'mobile' ],
+	'localBasePath' => __DIR__ . '/router',
+	'remoteExtPath' => COMMONS_DIR . '/router'
+);
+
+$wgResourceModules['wikihow.render'] = array(
+	'scripts' => [
+		'lib/incremental-dom.js',
+		'lib/jsonml2idom.js',
+		'Render.js'
+	],
+	'targets' => [ 'desktop', 'mobile' ],
+	'localBasePath' => __DIR__ . '/render',
+	'remoteExtPath' => COMMONS_DIR . '/render'
+);

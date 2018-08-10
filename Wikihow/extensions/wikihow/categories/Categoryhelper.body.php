@@ -155,6 +155,45 @@ class Categoryhelper extends UnlistedSpecialPage {
 		return $result;
 	}
 
+	/**
+	 * Get all indexable categories in the tree as a hash table:
+	 *   array (
+	 *     'Arts and Entertainment' => 1,
+	 *     'Amusement and Theme Parks' => 1,
+	 *     'Carnivals' => 1,
+	 *     ...
+	 */
+	public static function getIndexableCategoriesFromTree(): array {
+		global $wgMemc;
+
+		$lastID = self::getCategoryTreeTitle()->getLatestRevID();
+		$cacheKey = wfMemcKey('categ_tree_map');
+		$data = $wgMemc->get($cacheKey);
+
+		if (is_array($data) && $data['last_id'] == $lastID) {
+			return $data['map'];
+		}
+
+		$tree = self::getCategoryTreeArray();
+		unset($tree['WikiHow']); // We don't want these categories to be indexed
+
+		$map = [];
+		$getKeys = function(array $tree) use (&$map, &$getKeys) {
+			foreach ($tree as $categ => $subTree) {
+				$map[$categ] = 1;
+				if (is_array($subTree)) {
+					$getKeys($subTree);
+				}
+			}
+		};
+		$getKeys($tree);
+
+		$data = [ 'last_id' => $lastID, 'map' => $map ];
+		$wgMemc->set($cacheKey, $data); // cache until there is a new tree revision
+
+		return $map;
+	}
+
 	public static function getCurrentParentCategories($title = null) {
 		global $wgTitle, $wgMemc;
 
@@ -793,15 +832,6 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 			$isWatch, $section, $flags, $revision, $status, $baseRevId) {
 		if ($wikiPage) {
 			self::recalcCategoryMask($wikiPage);
-			/**
-			 * Alberto - Disabling for now - 2018-06-12
-			 *
-			 * E wants to think more about this, because human errors can make
-			 * quick policy updates less desirable.
-			 */
-			// if ($revision) { // NULL means the edit doesn't contain any changes
-			// 	self::recalcCategoryPolicies($wikiPage, $revision);
-			// }
 		}
 	}
 
@@ -831,6 +861,9 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
         );
 	}
 
+	/*
+	These two methods are not used, but could come in handy in the future (Alberto, 2018-08)
+
 	/**
 	 * Recalculate the indexation policy of modified categories in wikiHow:Categories.
 	 *
@@ -838,7 +871,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 	 * flags categories that are not in the tree as "noindex,nofollow". Therefore, when the
 	 * category tree changes, we recalculate the relevant policies so that removed categories
 	 * become noindex, and vice-versa.
-	 */
+	 *
 	private static function recalcCategoryPolicies(WikiPage $page, Revision $rev) {
 		// Check if the page is wikiHow:Categories
 		$title = $page->getTitle();
@@ -859,7 +892,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 	/**
 	 * Given 2 revisions of wikiHow:Categories, return the lines that changed (i.e. the
 	 * categories that were added or removed)
-	 */
+	 *
 	private static function getCategsFromDiff(Title $title, int $oldRev, int $newRev): array {
 		global $wgContLang;
 
@@ -885,7 +918,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 				$edit->closing ? $edit->closing : []
 			);
 			foreach ($lines as $line) {
-				$categ = str_replace('*', '', trim($line));
+				$categ = trim(str_replace('*', '', $line));
 				if ($categ) {
 					$categ = self::removeQuotesFromCategoryName($categ);
 					$categs[$categ] = true; // Deduplicate
@@ -895,6 +928,8 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 		}
 		return array_keys($categs);
 	}
+
+	*/
 
 	/**
 	 * A bit tricky because some languages use a localized version, but other use English:
@@ -913,7 +948,6 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 		}
 		return $title;
 	}
-
 
 }
 

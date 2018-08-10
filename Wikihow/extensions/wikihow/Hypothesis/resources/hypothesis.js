@@ -1,10 +1,14 @@
+/*global mw, WH, $, moment*/
 $( function () {
 	$( '#bodycontents' ).removeClass( 'minor_section' );
 
-	var app = new WH.App( '#hyp' );
-	app
+	var $hyp = $( '#hyp' );
+	var router = new WH.Router( '/Special:Hypothesis' );
+	var api = new mw.Api();
+
+	router
 		.mount( '/(is-:filter/?)(/?page-:page)', function ( params ) {
-			app.get( 'hypxs', {
+			get( 'hypxs', {
 				filter: params.filter || '',
 				page: params.page || ''
 			} )
@@ -18,9 +22,9 @@ $( function () {
 					link( '.hyp-create', '/create' );
 					action( '.hyp-purge', function () {
 						if ( confirm( 'Are you sure you want to purge archived experiments' ) ) {
-							return app.post( 'hypx', { purge: true } )
+							return post( 'hypx', { purge: true } )
 								.done( function () {
-									app.go( '/' );
+									router.go( router.link( '/' ) );
 								} )
 								.fail( error( 'Purge failed' ) );
 						}
@@ -30,7 +34,7 @@ $( function () {
 				.fail( error( 'Load failed' ) );
 		} )
 		.mount( '/view/:id', function ( params ) {
-			$.when( app.get( 'hypxs', params ), app.get( 'hypts', { experiment: params.id } ) )
+			$.when( get( 'hypxs', params ), get( 'hypts', { experiment: params.id } ) )
 				.done( function ( hypxs, hypts ) {
 					addExperimentInfo( hypxs.experiment );
 					hypts.tests.forEach( addTestInfo );
@@ -40,9 +44,9 @@ $( function () {
 					} );
 					[ 'start', 'pause', 'archive', 'unarchive' ].forEach( function ( val ) {
 						action( '.hyp-' + val, function () {
-							return app.post( 'hypx', { hypx_id: params.id, opti_action: val } )
+							return post( 'hypx', { hypx_id: params.id, opti_action: val } )
 								.done( function () {
-									app.go( '/view/' + params.id );
+									router.go( router.link( '/view/' + params.id ) );
 								} )
 								.fail( error( labelify( val ) + ' failed' ) );
 						} );
@@ -51,7 +55,7 @@ $( function () {
 				.fail( error( 'Load failed' ) );
 		} )
 		.mount( '/edit/:id', function ( params ) {
-			$.when( app.get( 'hypxs', params ), app.get( 'hypts', { experiment: params.id } ) )
+			$.when( get( 'hypxs', params ), get( 'hypts', { experiment: params.id } ) )
 				.done( function ( hypxs, hypts ) {
 					addExperimentInfo( hypxs.experiment );
 					hypts.tests.forEach( addTestInfo );
@@ -60,9 +64,9 @@ $( function () {
 						tests: hypts.tests,
 					} );
 					action( '.hyp-save', function () {
-						return app.post( 'hypx', addEditInputs( { hypx_id: params.id } ) )
+						return post( 'hypx', addEditInputs( { hypx_id: params.id } ) )
 							.done( function () {
-								app.go( '/view/' + params.id );
+								router.go( router.link( '/view/' + params.id ) );
 							} )
 							.fail( error( 'Save failed' ) );
 					} );
@@ -79,15 +83,15 @@ $( function () {
 			addExperimentInfo( experiment );
 			render( 'edit', { experiment: experiment } );
 			action( '.hyp-create', function () {
-				return app.post( 'hypx', addEditInputs( {} ) )
+				return post( 'hypx', addEditInputs( {} ) )
 					.done( function ( hypx ) {
-						app.go( '/view/' + hypx.hypx_id );
+						router.go( router.link( '/view/' + hypx.hypx_id ) );
 					} )
 					.fail( error( 'Create failed' ) );
 			} );
 		} );
 
-	app.start();
+	router.start();
 
 	/* Helper Functions */
 
@@ -97,7 +101,7 @@ $( function () {
 				'desktop': 'desktop',
 				'mobile': 'mobile',
 				'all': 'desktop & mobile'
-			};
+			},
 			statusLabels = {
 				'not_started': 'Not Started',
 				'archived': 'Archived',
@@ -155,8 +159,8 @@ $( function () {
 
 	function addIndexInfo( data, params ) {
 		function link( filter, page ) {
-			return (
-				'#/' +
+			return router.link(
+				'/' +
 				( filter ? 'is-' + filter : '' ) +
 				( page ? ( filter ? '/' : '' ) + 'page-' + page : '' )
 			);
@@ -208,37 +212,67 @@ $( function () {
 	}
 
 	function render( template, params ) {
-		app.$.empty().append( WH.Hypothesis.template.render( template, params ) );
+		$hyp.empty().append( WH.Hypothesis.template.render( template, params ) );
 	}
 
 	function error( message ) {
 		return function( error ) {
-			app.$.append( '<h2><span class="hyp-error">Error: ' + message + '</span></h2>' );
-			app.$.append( '<pre>' + error + '</pre>' );
-		}
+			$hyp.append( '<h2><span class="hyp-error">Error: ' + message + '</span></h2>' );
+			$hyp.append( '<pre>' + error + '</pre>' );
+		};
 	}
 
 	function link( selector, location ) {
-		app.$.find( selector ).on( 'click', function ( event ) {
-			app.go( typeof location === 'function' ? location.call( this ) : location );
+		$hyp.find( selector ).on( 'click', function ( event ) {
+			router.go( router.link( typeof location === 'function' ? location.call( this ) : location ) );
 			event.preventDefault();
 		} );
 	}
 
 	function action( selector, callback ) {
-		app.$.find( selector ).on( 'click', function ( event ) {
+		$hyp.find( selector ).on( 'click', function ( event ) {
 			var $button = $( this );
-			if ( !app.locked && !$button.hasClass( 'hyp-disabled' ) ) {
-				app.locked = true;
+			if ( !router.locked && !$button.hasClass( 'hyp-disabled' ) ) {
+				router.locked = true;
 				$button.addClass( 'hyp-disabled' );
-				app.$.prepend( '<div class="hyp-lock"><div class="hyp-wait"></div></div>' );
+				$hyp.prepend( '<div class="hyp-lock"><div class="hyp-wait"></div></div>' );
 				$.when( callback.call( this ) ).done( function () {
-					app.$.find( '.hyp-lock' ).remove();
+					$hyp.find( '.hyp-lock' ).remove();
 					$button.removeClass( 'hyp-disabled' );
-					app.locked = false;
+					router.locked = false;
 				} );
 			}
 			event.preventDefault();
+			return false;
+		} );
+	}
+
+	/**
+	 * Get data from the API.
+	 *
+	 * @param {string} action API action
+	 * @param {Object} params Parameters to pass to API
+	 */
+	function get( action, params ) {
+		var key;
+		params = params || {};
+		params.action = action;
+		return api.get( params ).then( function ( response ) {
+			return response.query[action];
+		} );
+	}
+
+	/**
+	 * Post data to the API.
+	 *
+	 * @param {string} action API action
+	 * @param {Object} params Parameters to pass to API
+	 */
+	function post( action, params ) {
+		params = params || {};
+		params.action = action;
+		return api.postWithToken( 'edit', params ).then( function( response ) {
+			return response[action];
 		} );
 	}
 

@@ -89,6 +89,24 @@ WH.mobileads = (function () {
 			channels +=  "+7355504173";
 		}
 
+		if (document.body.classList.contains('introspacing')) {
+			if (window.isBig) {
+				// control group for tablet
+				channels +=  "+8960399778";
+			} else {
+				// control group for regular mobile
+				channels +=  "+7550510170";
+			}
+		} else {
+			if (window.isBig) {
+				// test group for tablet
+				channels +=  "+1437132970";
+			} else {
+				// test group for regular mobile
+				channels +=  "+9027243372";
+			}
+		}
+
 		if (!window.isBig) {
 			channels += adData.channels.small[adPosition];
 		}

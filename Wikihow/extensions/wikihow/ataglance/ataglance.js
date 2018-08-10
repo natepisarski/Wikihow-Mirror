@@ -31,7 +31,7 @@
 					var n = scene + 1;
 					var count =  $('.aag_ol > li').length;
 					$('.galCount').text(n + " of " + count);
-				},
+				}
 			};
 
 			var ls = $(".aag_ol").lightSlider(opts);
@@ -211,7 +211,7 @@
 						WH.ataglance.initSlideshow();
 					}
 				}
-			},
+			}
 		};
 	}());
 	$( function() {

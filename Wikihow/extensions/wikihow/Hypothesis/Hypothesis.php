@@ -53,14 +53,6 @@ $wgResourceModules['ext.wikihow.hypothesis.core'] = [
 	]
 ];
 
-$wgResourceModules['ext.wikihow.app'] = [
-	'scripts' => [ 'resources/app.js' ],
-	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/Hypothesis',
-	'position' => 'top',
-	'targets' => [ 'desktop', 'mobile' ]
-];
-
 $wgResourceModules['ext.wikihow.hypothesis'] = [
 	'styles' => [ 'resources/hypothesis.less' ],
 	'scripts' => [ 'resources/hypothesis.js' ],
@@ -71,7 +63,7 @@ $wgResourceModules['ext.wikihow.hypothesis'] = [
 	'dependencies' => [
 		'ext.wikihow.hypothesis.core',
 		'ext.wikihow.hypothesis.data',
-		'ext.wikihow.app',
+		'wikihow.router',
 		'moment'
 	]
 ];

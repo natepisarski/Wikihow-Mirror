@@ -17,9 +17,11 @@ WH.shared = (function () {
 	videoRoot = 'https://www.wikihow.com/video';
 
 	function resize() {
-		resizeFunctions.forEach(function(callback) {
-			  callback();
-		});
+		if ( resizeFunctions.forEach ) {
+			resizeFunctions.forEach(function(callback) {
+				  callback();
+			});
+		}
 	}
 	window.onresize = resize;
 

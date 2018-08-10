@@ -265,9 +265,9 @@ class RobotPolicy {
 		} elseif ($this->isBlacklistPage()) {
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
 			$policyText = 'isBlacklistPage';
-		} elseif ($this->isBadCategory()) {
+		} elseif ($this->isCategoryInTree()) {
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
-			$policyText = 'isBadCategory';
+			$policyText = 'isNotInTree';
 		} elseif ($this->isEmptyCategory()) {
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
 			$policyText = 'isEmptyCategory';
@@ -565,72 +565,18 @@ class RobotPolicy {
 	}
 
 	/**
-	 * We want to noindex,nofollow "junk" categories outside the main
-	 * category tree.
+	 * Whether a category is included in the category tree (/wikiHow:Categories)
 	 */
-	private function isBadCategory() {
-		$result = false;
-		if ( $this->title->inNamespace(NS_CATEGORY) ) {
-			$articleID = $this->title->getArticleID();
-			$categoryText = $this->title->getText();
-			$catTreeArray = Categoryhelper::getCategoryTreeArray();
-
-			// Fix for strange behaviour on the French site:
-			// Top-level categories seem to get formatted with <big> tags (WHY?!?),
-			// e.g.:
-			// "<big>'''Foo Bar'''</big>"
-			// It's unknown why this happens, and it seems inconsistent.
-			// If such a case is detected, we replace the key with:
-			// "Foo Bar"
-			// TODO: for perf reasons, we might want to check language code first
-			// if this issue only appears on the French wiki
-			$pattern = "@^<big>'''(.*)'''</big>$@";
-			$matches = array();
-			foreach ($catTreeArray as $key=>$value) {
-				if (preg_match($pattern, $key, $matches)) {
-					$catTreeArray[$matches[1]] = $value;
-					unset($catTreeArray[$key]);
-				}
-			}
-
-			unset($catTreeArray['WikiHow']);
-
-			$array_key_exists_recursive = function ($needle, $haystack)
-										  use (&$array_key_exists_recursive) {
-				foreach ($haystack as $key=>$value) {
-					$current_key = $key;
-					if ($needle === $key || is_array($value) &&
-							$array_key_exists_recursive($needle, $value) !== false) {
-						return true;
-					}
-				}
-				return false;
-			};
-
-			$result = !$array_key_exists_recursive($categoryText, $catTreeArray);
-
-			// Some categories on International appear as empty pages
-			// when they are defined in the `page` table but not the
-			// `category` table. Deindex those as well.
-			// TODO: This might be redundant, as those articles are
-			// likely to not be a part of the main category tree.
-			// Further testing required to determine this.
-			if ($result) {
-				$catDBKey = $this->title->getDBKey();
-
-				$dbr = $this->getDB();
-				$res = $dbr->select(
-					'category',
-					array('*'),
-					array('cat_title' => $catDBKey),
-					__METHOD__
-				);
-
-				$result = $res !== false;
-			}
+	public function isCategoryInTree(): bool
+	{
+		if ( !$this->title->inNamespace(NS_CATEGORY) ) {
+			return false;
 		}
 
-		return $result;
+		$txt = $this->title->getText();
+		$categs = Categoryhelper::getIndexableCategoriesFromTree();
+
+		return !isset($categs[$txt]);
 	}
 
 	/**
@@ -705,40 +651,43 @@ class RobotPolicy {
 		}
 	}
 
-	public static function recalcArticlePolicyBasedOnId($aid) {
+	public static function recalcArticlePolicyBasedOnId($aid, bool $dry=false): int {
 		$title = Title::newFromID($aid);
 
-		self::recalcArticlePolicyBasedOnTitle($title);
+		return self::recalcArticlePolicyBasedOnTitle($title, $dry);
 	}
 
-	private static function recalcArticlePolicyBasedOnTitle(&$title) {
+	/**
+	 * @param  int  $aid Article ID
+	 * @param  bool $dry Dry run: calculate but don't write to DB nor cache
+	 */
+	public static function recalcArticlePolicyBasedOnTitle(&$title, bool $dry=false): int {
 		$cache = wfGetCache(CACHE_MEMSTATIC);
 		if (!$title || !$title->exists() || !$title->inNamespaces(NS_MAIN, NS_CATEGORY)) {
 			// Not an article or category page, so index info is not stored in the DB
-			return;
+			return 0;
 		}
 
 		$cachekey = self::getCacheKey($title);
 
 		$robotPolicy = RobotPolicy::newFromTitle($title);
-		if (!$robotPolicy) {
-			$cache->delete($cachekey);
-		}
 
 		list($policy, $policyText) = $robotPolicy->generateRobotPolicyBasedOnTitle();
 
-		self::savePolicyInDB($title, $policy, $policyText);
-
-		$res = array('policy' => $policy, 'text' => $policyText);
-		$cache->set($cachekey, $res);
+		if (!$dry) {
+			self::savePolicyInDB($title, $policy, $policyText);
+			$cache->set($cachekey, ['policy'=>$policy, 'text'=>$policyText]);
+		}
 
 		// Recalculate the policies of the categories to which the article belongs
-		if ($title->inNamespace(NS_MAIN)) {
+		if (!$dry && $title->inNamespace(NS_MAIN)) {
 			$categories = WikiPage::newFromID($title->getArticleID())->getCategories();
 			foreach ($categories as $category) {
 				self::recalcArticlePolicyBasedOnTitle($category);
 			}
 		}
+
+		return $policy;
 	}
 
 	// Used as hook on page save complete

@@ -527,13 +527,11 @@ class QAWidget {
 	private static function showEditorTools($article_question, $isEditor, $isAdmin): bool {
 		$show = false;
 
-		if ($isEditor) {
-			if ($isAdmin) {
-				$show = true;
-			}
-			elseif (!empty($article_question->verifierId)) {
-				$show = true;
-			}
+		if ($isAdmin) {
+			$show = true;
+		}
+		elseif ($isEditor && empty($article_question->verifierId)) {
+			$show = true;
 		}
 
 		return $show;

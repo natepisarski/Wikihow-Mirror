@@ -646,6 +646,11 @@ class WikihowArticleHTML {
 		//Made Recently section
 		if (class_exists('UserCompletedImages') && $showCurrentTitle) UserCompletedImages::addDesktopSection($context);
 
+		// Related videos section
+		// if ( class_exists( 'VideoBrowser') && $showCurrentTitle ) {
+		// 	VideoBrowser::addDesktopSection( $context );
+		// }
+
 		//remove all images in the intro that aren't
 		//marked with the class "introimage"
 		pq("#intro .mwimg:not(.introimage)")->remove();

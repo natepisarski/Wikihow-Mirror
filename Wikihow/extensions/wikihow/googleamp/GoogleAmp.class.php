@@ -674,6 +674,11 @@ class GoogleAmp {
 		$whAdLabelBottom = "";
 
 		$adsenseChannel = null;
+		if ( $pageId % 100 >= 10 && $pageId % 100 < 55 ) {
+			$adsenseChannel = 6747976769;
+		} else if ( $pageId % 100 >= 55 ) {
+			$adsenseChannel = 7642611252;
+		}
 		$dataLoadingStrategy = 'prefer-viewability-over-views';
 
 		// intro ad

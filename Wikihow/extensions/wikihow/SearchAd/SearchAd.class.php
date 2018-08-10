@@ -71,7 +71,7 @@ class SearchAd extends UnlistedSpecialPage {
 	
 	private static function getVersion($request) {
 		//first, let's see if we're forcing a version
-		$num = $request->getVal('v');
+		$num = $request->getInt('v');
 		
 		if (!$num || count($num) != 1) {		
 			//okay, so let's show each one 25% of the time

@@ -354,7 +354,7 @@ $(document).ready(function() {
 		var postData = {
 			'pageId': wgArticleId,
 			'type': type,
-			'rating': yes,
+			'rating': yes
 		};
 		var wrap = $(this).parent();
 		var requestUrl = '/Special:RateItem';

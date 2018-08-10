@@ -349,10 +349,6 @@ sup {
 	font-size: 16px;
 	border-bottom: 1px solid #bfbfbf;
 }
-#intro p {
-	line-height: 20px;
-}
-
 body.action-view #content>#intro {
 	padding-top: 7px;
 }
@@ -861,14 +857,6 @@ body.action-view #fa_container p {
 	.content .sticking .edit-page { margin-right: 50px; }
 }
 
-/* this corresponds to the isBig variable defined in sizing-vars.js */
-@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
-only screen and (min-height: 421px) and (min-aspect-ratio: 1/1) {
-	#intro p {
-		line-height: 22px;
-	}
-}
-
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
 only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	h1.title_sm { font-size: 2.1em; }
@@ -1349,4 +1337,12 @@ and (-webkit-device-pixel-ratio : 3) {
 }
 a.related-title,a.related-title:active, a.related-title:visited {
 	color: #FFF;
+}
+.introspacing #intro p {
+	line-height: 20px;
+}
+only screen and (min-height: 421px) and (min-aspect-ratio: 1/1) {
+	.introspacing #intro p {
+		line-height: 22px;
+	}
 }

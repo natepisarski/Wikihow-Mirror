@@ -100,7 +100,7 @@ class OptimizelyPageSelector {
 	public static function getOptimizelyTagLocation( $context ) {
 		$title = $context->getTitle();
 
-		return $title && 
+		return $title &&
 		(ArticleTagList::hasTag( 'opti_header', $title->getArticleID() ) ) ?
 			'head' : 'body';
 	}
@@ -157,4 +157,19 @@ class OptimizelyPageSelector {
 			)
 		);
 	}
+
+	public static function isArticleEnabledOptimize( $title ) {
+		global $wgLanguageCode;
+
+		if ($wgLanguageCode == "en" &&
+			(!class_exists( 'AlternateDomain' ) || !AlternateDomain::onAlternateDomain()) &&
+			!Misc::isMobileMode() &&
+			ArticleTagList::hasTag( 'optimize_list', $title->getArticleId() )
+			) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

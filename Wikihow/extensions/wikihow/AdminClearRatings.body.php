@@ -83,7 +83,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 
 	function getGuts($action) {
 		return "		<form method='post' action='/Special:$action'>
-		<h4>Enter a list of full URLs such as <code>http://www.wikihow.com/Kill-a-Scorpion</code> or partial URLs like <code>Sample/Research-Outline</code> for pages whose ratings should be cleared.  One per line.</h4>
+		<h4>Enter a list of full URLs such as <code>https://www.wikihow.com/Kill-a-<a href='https://www.gva.be/cnt/blpbr_01728395/scorpions-bissen-in-sportpaleis'>Scorpion</a></code> or partial URLs like <code>Sample/Research-Outline</code> for pages whose ratings should be cleared.  One per line.</h4>
 		<br/>
 		<table><tr><td>Pages:</td><td><textarea id='pages-list' type='text' rows='10' cols='70'></textarea></td></tr>
 		<tr><td>Reason:</td><td><textarea id='reason' type='text' rows='1' cols='70'></textarea></td></tr></table>
@@ -153,7 +153,9 @@ class AdminClearRatings extends UnlistedSpecialPage {
 			$tool = null;
 			$notFound = false;
 
-			if (!preg_match('/:/', $p) && $title->exists()) {
+			if (!preg_match('/:/', $p) && !$title) {
+				$notFound = true;
+			} elseif (!preg_match('/:/', $p) && $title->exists()) {
 				// It's an article in NS_MAIN:
 				$artId = $title->getArticleID();
 				if ($artId > 0) {
@@ -172,6 +174,16 @@ class AdminClearRatings extends UnlistedSpecialPage {
 					$dataRow['type'] = 'sample';
 					$dataRow['pageId'] = $sampleId;
 					$tool = $sampleRatingTool;
+				} else {
+					$notFound = true;
+				}
+			} elseif (preg_match('@^[0-9]+$@', $p)) {
+				$title = Title::newFromID((int)$p);
+				if ($title && $title->exists()) {
+					$artId = $title->getArticleID();
+					$dataRow['title'] = $title;
+					$dataRow['pageId'] = $artId;
+					$tool = $articleRatingTool;
 				} else {
 					$notFound = true;
 				}

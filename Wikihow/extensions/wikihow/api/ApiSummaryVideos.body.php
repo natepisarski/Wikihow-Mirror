@@ -15,44 +15,147 @@ class ApiSummaryVideos extends ApiQueryBase {
 
 	/* Methods */
 
+	public static function query( $params = [] ) {
+		global $wgCategoryNames, $wgLanguageCode, $wgMemc, $wgSquidMaxage;
+
+		if ( isset( $params['page'] ) && $params['page'] !== null ) {
+			$page = $params['page'];
+			$title = Title::newFromID( $page );
+		}
+		if ( isset( $params['related'] ) && $params['related'] !== null ) {
+			$related = (bool)$params['related'];
+		} else {
+			$related = false;
+		}
+		if ( isset( $params['shuffle'] ) && $params['shuffle'] !== null ) {
+			$shuffle = (bool)$params['shuffle'];
+		} else {
+			$shuffle = false;
+		}
+		if ( isset( $params['limit'] ) && $params['limit'] !== null ) {
+			if ( !is_numeric( $params['limit'] ) ) {
+				$limit = 1;
+			} else {
+				$limit = intval( $params['limit'] );
+			}
+		}
+
+		$key = wfMemcKey( "ApiSummaryVideos::query(page:{$page},related:{$related},limit{$limit})" );
+		//$data = $wgMemc->get( $key );
+
+		if ( !is_array( $data ) ) {
+			$dbr = wfGetDB( DB_SLAVE );
+
+			$tables = [ 'article_meta_info', 'page', 'wikivisual_article_status', 'titus_copy' ];
+			$fields = [ 'ami_id', 'ami_title', 'ami_video', 'ami_summary_video', 'ami_facebook_desc',
+				'page_catinfo', 'vid_processed', 'ti_featured', 'ti_30day_views_unique',
+				'ti_summary_video_play'
+			];
+			$where = [ 'ami_summary_video != \'\'' ];
+			$options = [ 'ORDER BY' =>
+				'ti_featured DESC, ti_30day_views_unique DESC, ti_summary_video_play DESC'
+			];
+			$joins = [
+				'page' => [ 'INNER JOIN', [ 'ami_id=page_id' ] ],
+				'wikivisual_article_status' => [ 'INNER JOIN', [ 'ami_id=article_id' ] ],
+				'titus_copy' => [ 'INNER JOIN', [
+					'ti_language_code="' . $wgLanguageCode . '"', 'ti_page_id=page_id' ]
+				]
+			];
+
+			// If title was given, the state of related makes it either the only one we get, or the
+			// only one we don't get
+			if ( isset( $page ) ) {
+				if ( $related ) {
+					$where[] = "page_id != {$dbr->addQuotes( $page )}";
+				} else {
+					$where['page_id'] = $page;
+				}
+			}
+
+			// Apply limit, just 1 for anything we don't recognize, except for related since we have
+			// to limit that during category intersection testing
+			if ( isset( $limit ) && !$related ) {
+				$options['LIMIT'] = $limit;
+			}
+
+			// Get meta info for every article with a summary video
+			$rows = $dbr->select( $tables, $fields, $where, __METHOD__, $options, $joins );
+
+			// Filter by category intersection
+			if ( $title && $related ) {
+				$categories = Categoryhelper::getTitleTopLevelCategories( $title );
+				$filterCategories = [];
+				foreach ( $categories as $category ) {
+					$filterCategories[] = $category->getText();
+				}
+			}
+
+			// Shuffle if requested
+			if ( $shuffle ) {
+				$items = [];
+				foreach ( $rows as $row ) {
+					$items[] = $row;
+				}
+				shuffle( $items );
+				$rows = $items;
+			}
+
+			// Build results
+			$videos = [];
+			foreach ( $rows as $row ) {
+				$rowCategories = static::getCategoryListFromCatInfo( $row->page_catinfo );
+				// Detect category intersection
+				if ( isset( $filterCategories ) ) {
+					$intersection = array_intersect(
+						$filterCategories, explode( ',', $rowCategories )
+					);
+					if ( count( $intersection ) === 0 ) {
+						continue;
+					}
+				}
+				$videos[] = [
+					'id' => $row->ami_id,
+					'title' => $row->ami_title,
+					'updated' => wfTimestamp(  TS_ISO_8601, $row->vid_processed ),
+					'video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
+					'poster' => static::getPosterUrlFromVideo( $row->ami_summary_video ),
+					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
+					'categories' => $rowCategories,
+					'description' => $row->ami_facebook_desc,
+					'popularity' => $row->ti_30day_views_unique,
+					'featured' => $row->ti_featured,
+					'plays' => $row->ti_summary_video_play
+				];
+
+				if ( isset( $limit ) && count( $videos ) >= $limit ) {
+					break;
+				}
+			}
+
+			$data = [ 'videos' => $videos ];
+			//$wgMemc->set( $key, $data, $wgSquidMaxage );
+		}
+
+		return $data;
+	}
+
 	/**
 	 * Execute API
 	 */
 	public function execute() {
-		global $wgCategoryNames;
-		$dbr = wfGetDB( DB_SLAVE );
-
 		// To avoid API warning, register the parameter used to bust browser cache
 		$this->getMain()->getVal( '_' );
-
-		// Database access - get meta info for every article with a summary video
-		$res = $dbr->select(
-			[ 'article_meta_info', 'page', 'wikivisual_article_status' ],
-			[ 'ami_id', 'ami_title', 'ami_summary_video', 'page_catinfo', 'vid_processed' ],
-			[ 'ami_summary_video != \'\'' ],
-			__METHOD__,
-			[ 'ORDER BY' => 'vid_processed DESC' ],
-			[
-				'page' => [ 'INNER JOIN', [ 'ami_id=page_id' ] ],
-				'wikivisual_article_status' => [ 'INNER JOIN', [ 'ami_id=article_id' ] ]
-			]
-		);
-
-		// Build results
-		$videos = [];
-		foreach ( $res as $row ) {
-			$videos[] = [
-				'id' => $row->ami_id,
-				'title' => $row->ami_title,
-				'updated' => $row->vid_processed,
-				'video' => $this->getVideoUrlFromVideo( $row->ami_summary_video ),
-				'poster' => $this->getPosterUrlFromVideo( $row->ami_summary_video ),
-				'categories' => $this->getCategoryListFromCatInfo( $row->page_catinfo )
-			];
-		}
-		$result = [ 'videos' => $videos ];
-		$this->getResult()->setIndexedTagName( $result['videos'], 'video' );
-		$this->getResult()->addValue( 'query', $this->getModuleName(), $result );
+		// Get the parameters
+		$request = $this->getRequest();
+		$page = $request->getVal( 'sv_page', null );
+		$related = $request->getBool( 'sv_related' );
+		$shuffle = $request->getBool( 'sv_shuffle', null );
+		$limit = $request->getVal( 'sv_limit', null );
+		$data = self::query( compact( 'page', 'related', 'limit' ) );
+		$result = $this->getResult();
+		$result->setIndexedTagName( $data['videos'], 'video' );
+		$result->addValue( 'query', $this->getModuleName(), $data );
 	}
 
 	/**
@@ -65,13 +168,36 @@ class ApiSummaryVideos extends ApiQueryBase {
 	}
 
 	/**
+	 * Get API description
+	 *
+	 * @return string API description
+	 */
+	public function getAllowedParams() {
+		return [
+			'sv_page' => [ ApiBase::PARAM_TYPE => 'integer' ],
+			'sv_related' => [ ApiBase::PARAM_TYPE => 'boolean' ],
+			'sv_shuffle' => [ ApiBase::PARAM_TYPE => 'boolean' ],
+			'sv_limit' => [ ApiBase::PARAM_TYPE => 'integer' ]
+		];
+	}
+
+	public function getParamDescription() {
+		return [
+			'sv_page' => 'Page ID to get video (or related videos) for',
+			'sv_related' => 'Get related videos (except the video for the given page if it exists)',
+			'sv_shuffle' => 'Shuffle results',
+			'sv_limit' => 'Maximum number of videos to list',
+		];
+	}
+
+	/**
 	 * Get a video URL from a video name
 	 *
 	 * @param string $video Video name from ami_summary_video column of article_meta_info table
 	 * @return string Absolute URL of video
 	 */
-	protected function getVideoUrlFromVideo( $video ) {
-		return static::$cdn . str_replace( ' ', '+', $video );
+	protected static function getVideoUrlFromVideo( $video ) {
+		return $video ? static::$cdn . str_replace( ' ', '+', $video ) : '';
 	}
 
 	/**
@@ -80,7 +206,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 	 * @param string $video Video name from ami_summary_video column of article_meta_info table
 	 * @return string Absolute URL of poster
 	 */
-	protected function getPosterUrlFromVideo( $video ) {
+	protected static function getPosterUrlFromVideo( $video ) {
 		global $wgCanonicalServer;
 
 		// Translate between video filename and poster image filename by changing the 
@@ -114,7 +240,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 	 * @param integer $catInfo Category bitmask from page_catinfo column of page table
 	 * @return string Comma delimited category list
 	 */
-	protected function getCategoryListFromCatInfo( $catInfo ) {
+	protected static function getCategoryListFromCatInfo( $catInfo ) {
 		global $wgCategoryNames;
 
 		$categories = [];

@@ -32,6 +32,11 @@ class WikihowImagePage extends ImagePage {
 		$out->setArticleBodyOnly(true);
 
 		$image = RepoGroup::singleton()->findFile($this->mTitle);
+		// findFile returns false when there's a title problem
+		if (!$image) {
+			throw new MWException(__METHOD__ . ": invalid title '" . htmlspecialchars($this->mTitle) . "'");
+		}
+
 		// get the id of the page that requested this so we can use it in the watermark
 		$aid = $wgRequest->getVal('aid');
 

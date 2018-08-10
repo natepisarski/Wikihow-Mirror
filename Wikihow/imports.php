@@ -229,6 +229,7 @@ require_once("$IP/extensions/wikihow/modal/WikihowModal.php");
 require_once("$IP/extensions/wikihow/TopAnswerers/TopAnswerers.php");
 require_once("$IP/extensions/wikihow/keywordtool/SearchVolume.php");
 require_once("$IP/extensions/wikihow/jatrending/JaTrending.php");
+require_once("$IP/extensions/wikihow/VideoBrowser/VideoBrowser.php");
 
 // We create a triaged form of wikiHow if WIKIHOW_LIMITED is defined
 // in LocalSettings.php, which requires fewer resources and pings
