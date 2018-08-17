@@ -1,4 +1,4 @@
-/*global WH, $*/
+/*global WH, $, ga*/
 $( '#bodycontents' ).removeClass( 'minor_section' );
 
 WH.VideoBrowser = WH.VideoBrowser || {};
@@ -9,6 +9,24 @@ function showUnsupportedMessage() {
 			'<h2 class="section_head"><span>Sorry, but your web browser does not support our videos page.</span></h2>' +
 			'<p class="section_text"><a href="/">Visit out home page</a> to learn how to do anything.</p>' +
 		'</div>';
+}
+
+var initial = true;
+function trackPageView() {
+	if ( initial ) {
+		// Don't track initial pageview, since that's handled automatically
+		initial = false;
+	} else {
+		if ( ga ) {
+			ga( 'set', 'page', window.location.pathname );
+			ga( 'send', 'pageview' );
+		}
+	}
+}
+
+function onInteract() {
+	WH.VideoBrowser.hasUserInteracted = true;
+	document.removeEventListener( 'click', onInteract, true );
 }
 
 // Start
@@ -34,10 +52,6 @@ $( function () {
 			WH.VideoBrowser.hasUserInteracted = false;
 			WH.VideoBrowser.hasUserMuted = false;
 			WH.VideoBrowser.sessionStreak = 0;
-			function onInteract() {
-				WH.VideoBrowser.hasUserInteracted = true;
-				document.removeEventListener( 'click', onInteract, true );
-			}
 			document.addEventListener( 'click', onInteract, true );
 
 			WH.VideoBrowser.missingPosterUrl = '/extensions/wikihow/VideoBrowser/resources/images/no-poster.png';
@@ -52,11 +66,13 @@ $( function () {
 				.mount( '/', function ( params ) {
 					app.setView( 'index' );
 					title.change( { slug: null } );
+					requestAnimationFrame( trackPageView, 0 );
 				} )
 				.mount( '/(:slug)', function ( params ) {
 					var slug = params.slug;
 					app.setView( 'viewer', { slug: slug } );
 					title.change( { slug: slug } );
+					requestAnimationFrame( trackPageView, 0 );
 				} );
 
 			WH.VideoBrowser.router.start();

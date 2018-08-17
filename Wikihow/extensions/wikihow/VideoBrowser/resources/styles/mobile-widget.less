@@ -1,15 +1,33 @@
-.videobrowser_sidebox {
-	padding-bottom: 5px;
+#videoBrowser-widget {
+	margin: -5px 3px 0 -5px;
 }
 
 .videoBrowser-widget-items .videoBrowser-item {
 	width: 100%;
-	//padding-right: 0;
-	padding: 4px;
+	padding: 4px 0 4px 8px;
+	margin: 0;
 }
 
+.content p.videoBrowser-item-title {
+	width: 100%;
+	margin: 0;
+	padding: 8px;
+}
 
-.videoBrowser-widget-items .videoBrowser-item-content {
-	border-radius: 5px;
-	overflow: hidden;
+@media only screen and (min-width: 500px) {
+	.videoBrowser-widget-items .videoBrowser-item {
+		width: 50%;
+	}
+}
+
+@media only screen and (min-width: 1000px) {
+	.videoBrowser-widget-items .videoBrowser-item {
+		width: 33.333%;
+	}
+}
+
+@media only screen and (min-width: 1500px) {
+	.videoBrowser-widget-items .videoBrowser-item {
+		width: 25%;
+	}
 }

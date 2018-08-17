@@ -25,7 +25,7 @@ WH.VideoBrowser.ItemComponent = WH.Render.createComponent( {
 				],
 				item.watched ? [ 'div.videoBrowser-item-watched', '✔' ] : undefined,
 				[ 'p.videoBrowser-item-title',
-					[ 'p', mw.msg( 'videobrowser-how-to' ) + ' ' ],
+					[ 'p', mw.msg( 'videobrowser-how-to', '' ) ],
 					item.title
 				],
 				this.props.icon ?

@@ -309,6 +309,8 @@
 			params = null;
 		}
 		return function ( url ) {
+			// Ignore query string - TODO: maybe parse query string and pass as params?
+			url = url.replace( /\?+.*$/, '' );
 			var p = regex.exec( url ),
 				res = {};
 			if ( p ) {

@@ -1,0 +1,19 @@
+<div id="videoBrowser">
+	<div class="videoBrowser-browser">
+		{{#video}}
+		<div class="videoBrowser-viewer section_text">
+			<div>
+				<p class="videoBrowser-viewer-description">{{description}}</p>
+				<p class="videoBrowser-viewer-more">
+					<a class="button primary" href="{{article}}">{{read-more}}</a>
+				</p>
+				<div class="videoBrowser-viewer-player">
+					<video key="{{id}}" width="728" height="410" playsinline="" controls="" controlslist="nodownload" poster="{{poster}}"><source src="{{video}}" type="video/mp4"></video>
+				</div>
+				<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{title}}","description":"{{description}}","thumbnailUrl":["{{poster@1:1}}","{{poster@4:3}}","{{poster}}"],"uploadDate":"{{updated}}","contentUrl":"{{url}}","embedUrl":"{{video}}","interactionCount":"{{plays}}"}</script>
+			</div>
+			<div class="videoBrowser-viewer-queue"></div>
+		</div>
+		{{/video}}
+	</div>
+</div>

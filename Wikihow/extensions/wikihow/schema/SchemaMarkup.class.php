@@ -371,7 +371,7 @@ class SchemaMarkup {
 
 		$data['recipeInstructions'] = $recipeInstructions;
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 
 		wfProfileOut( __METHOD__ );
 		return $schema;
@@ -413,7 +413,7 @@ class SchemaMarkup {
 
 		wfRunHooks( 'SchemaMarkupAfterGetData', array( &$data ) );
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 
 		// set in memcached
 		$cacheKey = wfMemcKey( self::HOWTO_SCHEMA_CACHE_KEY, $title->getArticleID() );
@@ -829,7 +829,7 @@ class SchemaMarkup {
 
 		$data = self::getWikihowOrganization();
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 		return $schema;
 	}
 
@@ -901,7 +901,7 @@ class SchemaMarkup {
 			"itemListElement" => $items
 		];
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 		return $schema;
 	}
 	public static function getArticleSchema( $out ) {
@@ -934,7 +934,7 @@ class SchemaMarkup {
 
 		wfRunHooks( 'SchemaMarkupAfterGetData', array( &$data ) );
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 		return $schema;
 	}
 

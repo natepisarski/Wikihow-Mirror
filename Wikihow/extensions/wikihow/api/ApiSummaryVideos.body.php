@@ -114,12 +114,16 @@ class ApiSummaryVideos extends ApiQueryBase {
 						continue;
 					}
 				}
+				$title = Title::newFromText( $row->ami_title );
 				$videos[] = [
 					'id' => $row->ami_id,
 					'title' => $row->ami_title,
+					'article' => 'https:' . $title->getFullUrl(),
 					'updated' => wfTimestamp(  TS_ISO_8601, $row->vid_processed ),
 					'video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
 					'poster' => static::getPosterUrlFromVideo( $row->ami_summary_video ),
+					'poster@1:1' => static::getPosterUrlFromVideo( $row->ami_summary_video, 1 / 1 ),
+					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, 4 / 3 ),
 					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
 					'categories' => $rowCategories,
 					'description' => $row->ami_facebook_desc,
@@ -204,10 +208,15 @@ class ApiSummaryVideos extends ApiQueryBase {
 	 * Get a poster URL from a video name
 	 *
 	 * @param string $video Video name from ami_summary_video column of article_meta_info table
+	 * @param number $aspect Aspect ratio
 	 * @return string Absolute URL of poster
 	 */
-	protected static function getPosterUrlFromVideo( $video ) {
+	protected static function getPosterUrlFromVideo( $video, $aspect = null ) {
 		global $wgCanonicalServer;
+
+		// Hardcoded for now
+		$width = 548;
+		$height = 360;
 
 		// Translate between video filename and poster image filename by changing the 
 		//     From: '/{X}/{YZ}/{NAME} Step 0 Version 1.360p.mp4'
@@ -225,9 +234,13 @@ class ApiSummaryVideos extends ApiQueryBase {
 			$file = RepoGroup::singleton()->findFile( $image );
 			if ( $file ) {
 				// Get a thumbnail from a file
-				$thumb = $file->transform(
-					[ 'width' => 548, WatermarkSupport::NO_WATERMARK => true ], 0
-				);
+				$params = [ 'width' => $width, WatermarkSupport::NO_WATERMARK => true ];
+				if ( is_numeric( $aspect ) ) {
+					$params['crop'] = 1;
+					$params['width'] = $height * $aspect;
+					$params['height'] = $height;
+				}
+				$thumb = $file->transform( $params, 0 );
 				return $wgCanonicalServer . $thumb->getUrl();
 			}
 		}

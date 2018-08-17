@@ -9,7 +9,7 @@
 	display: block;
 	position: relative;
 	text-align: center;
-	margin: 0 -5px;
+	margin: 3px 3px 0 -5px;
 }
 
 #fa_container {
@@ -22,13 +22,13 @@
 #fa_container .related_box {
 	height: 120px;
 	border-left-width: 8px;
-	border-right-width: 8px;
+	border-right-width: 0;
 	background-color: #ecebe8;
 	border-color: #ecebe8;
 }
 
-#fa_container .related_box:first-child {
-	border-top-width: 8px;
+#fa_container .related_img_wrapper {
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
 }
 
 .search {
@@ -189,11 +189,6 @@ p.hp_howto {
 
 @media only screen and (min-width: 500px) and (orientation: landscape) {
 	#slider { margin: 0 -25px; }
-
-	.search,#fa_container {
-		margin-left: -25px;
-		margin-right: -25px;
-	}
 }
 
 @media only screen and (min-width: 500px),
@@ -251,44 +246,11 @@ only screen and (max-height: 421px) and (orientation:landscape) {
 	#fa_container .related_box {
 		width: 50%;
 	}
-
-	#fa_container .related_box:nth-child(2) {
-		border-top-width: 8px;
-	}
-
-	#fa_container .related_box:nth-child(odd) {
-		border-left-width: 8px;
-		border-right-width: 4px;
-	}
-
-	#fa_container .related_box:nth-child(even) {
-		border-left-width: 4px;
-		border-right-width: 8px;
-	}
 }
 
 @media only screen and (min-width: 1000px) {
 	#fa_container .related_box {
 		width: 33.333%;
-	}
-
-	#fa_container .related_box:nth-child(3) {
-		border-top-width: 8px;
-	}
-
-	#fa_container .related_box:nth-child(3n+1) {
-		border-left-width: 0;
-		border-right-width: 4px;
-	}
-
-	#fa_container .related_box:nth-child(3n+2) {
-		border-left-width: 4px;
-		border-right-width: 4px;
-	}
-
-	#fa_container .related_box:nth-child(3n) {
-		border-left-width: 4px;
-		border-right-width: 0;
 	}
 }
 
@@ -296,25 +258,4 @@ only screen and (max-height: 421px) and (orientation:landscape) {
 	#fa_container .related_box {
 		width: 25%;
 	}
-
-	#fa_container .related_box:nth-child(4) {
-		border-top-width: 0;
-	}
-
-	#fa_container .related_box:nth-child(4n+1) {
-		border-left-width: 0;
-		border-right-width: 1px;
-	}
-
-	#fa_container .related_box:nth-child(4n+2),
-	#fa_container .related_box:nth-child(4n+3) {
-		border-left-width: 1px;
-		border-right-width: 1px;
-	}
-
-	#fa_container .related_box:nth-child(4n) {
-		border-left-width: 1px;
-		border-right-width: 0;
-	}
 }
-

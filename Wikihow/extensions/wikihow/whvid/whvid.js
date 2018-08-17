@@ -141,6 +141,22 @@ WH.video = (function () {
 	};
 
 	function videoControlSetup(video) {
+		if (video.replay) {
+			video.replay.addEventListener('click', function() {
+				video.play();
+			});
+		}
+		if (video.replay && video.helpfulwrap) {
+			video.helpfulwrap.addEventListener('click', function(event) {
+				if (event.target.tagName == 'BUTTON') {
+					video.showHelpfulness = false;
+				}
+				if (event.target.tagName == 'INPUT') {
+					video.playButton.style.visibility = 'hidden';
+				}
+			});
+		}
+
 		if (video.playButton) {
 			video.playButton.addEventListener('click', function() {
 				video.toggle();
@@ -207,6 +223,9 @@ WH.video = (function () {
 			if (video.helpfulwrap) {
 				video.helpfulwrap.style.display = 'none';
 			}
+			if (video.replay) {
+				video.replay.style.display = 'none';
+			}
 		});
 		video.element.addEventListener('pause', function() {
 			if (video.playButton) {
@@ -216,13 +235,18 @@ WH.video = (function () {
 			}
 		});
 
-		if (!window.WH.isMobile && video.helpfulwrap) {
-			// show the help buttons after the video ends
-			video.element.addEventListener('ended', function feedback() {
+		video.element.addEventListener('ended', function feedback() {
+			if (video.replay) {
+				video.replay.style.display = 'block';
+			}
+			if (video.showHelpfulness) {
 				video.helpfulwrap.style.display = 'block';
-				video.element.removeEventListener('ended', feedback, false);
-			}, false);
-		}
+			} else {
+				if (video.replayOverlay) {
+					video.replayOverlay.style.display = 'block';
+				}
+			}
+		});
 	}
 
 	function setVideoAutoplay(value) {
@@ -262,6 +286,8 @@ WH.video = (function () {
 		this.poster = this.element.getAttribute('data-poster');
 		this.inlinePlayButton = false;
 		this.autoplay = autoPlayVideo;
+		this.replayOverlay = null;
+		this.showHelpfulness = !window.WH.isMobile;
 		if (this.element.getAttribute('data-video-no-autoplay') == 1) {
 			this.inlinePlayButton = true;
 			this.autoplay = false;
@@ -300,6 +326,10 @@ WH.video = (function () {
 				}
 			} else if (el.className == 'm-video-helpful-wrap') {
 				this.helpfulwrap = el;
+			} else if (el.className == 's-video-replay') {
+				this.replay = el;
+			} else if (el.className == 's-video-replay-overlay') {
+				this.replayOverlay = el;
 			} else if (el.className == 'm-video-wm') {
 				//this.watermarkTitleText = el.getAttribute('data-wm-title-text');
 				drawWatermark(el);
@@ -317,6 +347,10 @@ WH.video = (function () {
 				this.isLoaded = true;
 				this.element.setAttribute('src', videoUrl);
 			}
+			if (this.replayOverlay) {
+				this.replayOverlay.style.display = 'none';
+			}
+
 			var video = this;
 			this.playPromise = this.element.play();
 			if (this.playPromise !== undefined) {

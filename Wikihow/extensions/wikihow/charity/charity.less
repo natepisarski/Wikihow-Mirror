@@ -206,9 +206,13 @@
 		}
 	}
 
+	#ch_about_charity_box {
+		text-align: center;
+	}
+
 	#ch_charity_image {
 		width: 400px;
-		float:left;
+		float: left;
 		margin-right: 20px;
 	}
 
@@ -219,6 +223,7 @@
 
 	#ch_charity_specific {
 		font-size: 15px;
+		text-align: left;
 
 		p {
 			padding-bottom: 1em;
@@ -354,28 +359,36 @@
 	}
 
 	#ch_charity_image {
-		width: 53%;
-		float: left;
-		margin-right: 4%;
-		max-width: 400px;
-		margin-bottom: 3%;
+		width: 400px;
+		height: 267px;
 	}
 
 	#ch_charity_logo {
-		width: 40%;
-		margin-bottom: 1%;
-		max-width: 140px;
+		margin: 0 2em;
+		width: 140px;
 		position: relative;
 	}
 
 	#ch_charity_specific {
 		font-size: 1em;
 		width: 43%;
-		float: left;
 
 		p {
 			padding-bottom: 1em;
 		}
+	}
+
+	#ch_about_charity_box {
+		display: -ms-flexbox;
+		display: -webkit-flex;
+		display: flex;
+		-webkit-justify-content: space-between;
+		-ms-flex-pack: justify;
+		justify-content: space-between;
+		-webkit-align-items: center;
+		-ms-flex-align: center;
+		align-items: center;
+		padding-bottom: 2em;
 	}
 
 	#ch_footer {

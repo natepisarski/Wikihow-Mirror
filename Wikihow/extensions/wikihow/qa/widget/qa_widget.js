@@ -547,7 +547,22 @@
 								WH.whEvent( WH.QAWidget.EVENT_CAT, 'proposed_answer_submission' );
 								$.publish( WH.QAWidget.EVENT_PROPOSED_ANSWER_SUBMISSION );
 							}
-						} );
+						},
+						function() {
+							// fail case
+							$li.removeClass( 'qa_saving' );
+							widget.sqids.push( $li.data( 'sqid' ) );
+							var html = Mustache.render(unescape($('#qa_social_login_form').html()), {
+								qa_thanks_for_answer: mw.msg('qa_thanks_for_answer')
+							});
+							$li.find('.qa_li_container').html(widget.escapeHtml(html));
+							$li.find('.qa_li_container').find('.qa_social_login_body').remove();
+							$li.find('.qa_li_container').find('.qa_social_login_button_container').remove();
+							if ( !result.userBlocked ) {
+								WH.whEvent( WH.QAWidget.EVENT_CAT, 'proposed_answer_submission' );
+								$.publish( WH.QAWidget.EVENT_PROPOSED_ANSWER_SUBMISSION );
+							}
+						});
 					},
 					'json'
 				);

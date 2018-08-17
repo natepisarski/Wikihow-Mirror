@@ -93,6 +93,89 @@
 	font-style: normal;
 	display: none;
 }
+.s-video-replay {
+	display: none;
+	width: 97px;
+	height: 47px;
+	padding-left: 47px;
+	padding-right: 5px;
+	position: absolute;
+	bottom: 75px;
+	left: 283px;
+	z-index: 12;
+	background-color: #FFF;
+	border-radius: 5px;
+	line-height: 45px;
+	color: #686868;
+	font-size: 14px;
+	font-weight: bold;
+	cursor: pointer;
+}
+.s-video-replay:hover {
+	color: #2483ef;
+	border: 1px solid #2483ef;
+	margin-bottom: -1px;
+	margin-left: -1px;
+	margin-right: -1px;
+}
+.s-video-replay.s-video-replay-center {
+	bottom: 195px;
+}
+.s-video-replay-overlay {
+	display: none;
+	background-color: rgba(241,247,240,0.95);
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	z-index: 9;
+}
+.s-help-feedback-bg {
+	display: none;
+	background: #000;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	opacity: 0.6;
+	z-index:9;
+	background: none;
+}
+.s-video-replay-inner {
+	width: 27px;
+	height: 27px;
+	border-radius: 50%;
+	box-sizing: border-box;
+	border-width: 4px;
+	border-style: solid;
+	border-color: #93b874 #93b874 transparent #93b874;
+	transform: rotate(45deg);
+	position: absolute;
+	left: 15px;
+	top: 10px;
+}
+.s-video-replay-inner-t-down {
+	width: 0;
+	height: 0;
+	border-left: 7px solid transparent;
+	border-right: 7px solid transparent;
+	border-top: 8px solid #93b874;
+	position: absolute;
+	left: 10px;
+	top: 23px;
+}
+.s-video-replay-inner-t-right {
+	width: 0;
+	height: 0;
+	border-top: 6px solid transparent;
+	border-bottom: 6px solid transparent;
+	border-left: 8px solid #93b874;
+	position: absolute;
+	left: 26px;
+	top: 17px;
+}
 .m-video-helpful-wrap {
 	display: none;
 	width: 728px;
@@ -116,7 +199,7 @@
 	text-align: center;
 	left: 0;
 	right: 0;
-	top: 30%;
+	top: 20%;
 }
 .m-video-helpful-wrap .button {
 	background-color: white;
@@ -125,6 +208,9 @@
 	font-size: 16px;
 	min-width: 60px;
 	margin-top: 165px;
+}
+.m-video-helpful-wrap .button:hover {
+    padding: 11px 15px;
 }
 .m-video-helpful-readmore {
 	color: #93b874;

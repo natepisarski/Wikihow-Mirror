@@ -605,12 +605,12 @@ class GoogleAmp {
 		// have to use multi size to request the 300x250 ad we want
 		// setting multi size validation to false so the ad shows up on tablets
 		$setSize = array(
-			'width' => 'auto',
+			'width' => 300,
 			'height' => 250,
+			'layout' => 'responsive',
 			'type' => 'doubleclick',
 			'data-slot' => $slot,
-			'data-multi-size' => '300x250',
-			'data-multi-size-validation'=>'false',
+			'rtc-config' => '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}',
 		);
 
 		// this is a layout we never got working but
@@ -674,11 +674,6 @@ class GoogleAmp {
 		$whAdLabelBottom = "";
 
 		$adsenseChannel = null;
-		if ( $pageId % 100 >= 10 && $pageId % 100 < 55 ) {
-			$adsenseChannel = 6747976769;
-		} else if ( $pageId % 100 >= 55 ) {
-			$adsenseChannel = 7642611252;
-		}
 		$dataLoadingStrategy = 'prefer-viewability-over-views';
 
 		// intro ad

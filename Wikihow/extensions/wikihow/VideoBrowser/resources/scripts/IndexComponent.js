@@ -5,6 +5,7 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 		this.onViewportChange = this.onViewportChange.bind( this );
 	},
 	onAttach: function () {
+		document.title = mw.msg( 'videobrowser-index-title', mw.msg( 'videobrowser' ) );
 		this.lists = WH.VideoBrowser.catalog.categories()
 			.order( 'rank desc' )
 			.get()

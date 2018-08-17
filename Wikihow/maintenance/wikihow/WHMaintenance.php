@@ -18,12 +18,14 @@ abstract class WHMaintenance extends Maintenance {
 
 	public function execute()
 	{
+		global $wgLanguageCode;
 		$this->debug = $this->getOption('debug', false);
-		$this->echo('Starting' . ($this->debug ? ' (debug)' : '') );
+		$this->echo("Starting ($wgLanguageCode)" . ($this->debug ? ' (debug)' : '') );
 	}
 
 	protected function echo(string $msg, string $level='INFO')
 	{
+		global $wgLanguageCode;
 		$fileName = $this->getFileName();
 		$nowStr = (new DateTime())->format('Y-m-d H:i:s');
 		$this->output("$fileName | $level | $nowStr | $msg\n");

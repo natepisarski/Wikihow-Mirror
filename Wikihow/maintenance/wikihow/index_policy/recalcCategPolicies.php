@@ -83,12 +83,6 @@ class RecalcCategPolicies extends WHMaintenance {
 		$this->echo("Done (details in $logFile)");
 	}
 
-	protected function echo(string $msg, string $level='INFO')
-	{
-		global $wgLanguageCode;
-		parent::echo("$wgLanguageCode | $msg");
-	}
-
 }
 
 $maintClass = "RecalcCategPolicies";

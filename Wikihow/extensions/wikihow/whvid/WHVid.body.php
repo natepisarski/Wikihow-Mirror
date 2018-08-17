@@ -448,6 +448,16 @@ class WHVid {
 		return $wrap;
 	}
 
+	public static function getVideoReplayHtml() {
+		$replayText = Html::element( 'div', ['class'=> 's-video-replay-text'], wfMessage( 'summary_video_finish_replay' )->text() );
+		$icon = Html::element( "div", ['class' => 's-video-replay-inner'] );
+		$icon .= Html::element( "div", ['class' => 's-video-replay-inner-t-right'] );
+		$icon .= Html::element( "div", ['class' => 's-video-replay-inner-t-down'] );
+		$html = Html::rawElement( 'div', ['class' => 's-video-replay'], $icon . $replayText );
+		$html .= Html::rawElement( 'div', ['class' => 's-video-replay-overlay'] );
+		return $html;
+	}
+
 	public static function getDesktopVideoHelpfulness() {
 		$type = 'summaryvideo';
 		$buttonClass = 'button secondary yes s-help-response';

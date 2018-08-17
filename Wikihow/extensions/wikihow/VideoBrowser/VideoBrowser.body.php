@@ -5,7 +5,7 @@
 class VideoBrowser {
 	static $mustache = null;
 
-	private static function render( $template, $params ) {
+	public static function render( $template, $params ) {
 		if ( !static::$mustache ) {
 			static::$mustache = new \Mustache_Engine( [
 				'loader' => new \Mustache_Loader_FilesystemLoader(__DIR__ . '/templates' )
@@ -30,19 +30,22 @@ class VideoBrowser {
 	 * Add routes to make /Video the canonical URL for Special:VideoBrowser
 	 */
 	public static function onWebRequestPathInfoRouter( $router ) {
-		$router->add( '/Video$1', array( 'title' => 'Special:VideoBrowser$1' ) );
+		$router->add( '/Video/$1', array( 'title' => 'Special:VideoBrowser/$1' ) );
+		$router->addStrict( '/Video', array( 'title' => 'Special:VideoBrowser' ) );
 		return true;
 	}
 
 	public static function onWikihowHomepageFAContainerHtml( &$html1, &$html2, &$html3 ) {
 		global $wgOut;
 
-		// $html1 .= static::render( 'mobile-widget.mustache', [
-		// 	'howto' => 'How to',
-		// 	'items' => static::queryVideos( [ 'limit' => 4 ] )
-		// ] );
+		if ( Misc::isMobileMode() ) {
+			$html1 .= static::render( 'mobile-widget.mustache', [
+				'howto' => 'How to',
+				'items' => static::queryVideos( [ 'limit' => 4 ] )
+			] );
 
-		// $wgOut->addModules( 'ext.wikihow.videoBrowser-mobile-widget' );
+			$wgOut->addModules( 'ext.wikihow.videoBrowser-mobile-widget' );
+		}
 
 		return true;
 	}

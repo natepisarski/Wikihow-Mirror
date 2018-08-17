@@ -606,7 +606,8 @@ class WikihowArticleHTML {
 		// add the controls
 		$summaryHtml = WHVid::getVideoControlsSummaryHtml( $headingText );
 		$summaryHelpfulHtml = WHVid::getDesktopVideoHelpfulness();
-		pq( '.summarysection video' )->after( $summaryHtml . $summaryHelpfulHtml );
+		$replayHtml = WHVid::getVideoReplayHtml();
+		pq( '.summarysection video' )->after( $summaryHtml . $summaryHelpfulHtml . $replayHtml );
 
 		//move each of the large images to the top
 		foreach (pq(".steps_list_2 li .mwimg.largeimage") as $image) {

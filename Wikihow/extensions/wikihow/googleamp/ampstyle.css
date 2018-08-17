@@ -884,3 +884,6 @@ amp-accordion section:not([expanded]) .show-less {
 .embedvideo_gdpr_headline:focus {
 	outline: 0;
 }
+#intro p {
+	line-height: 20px;
+}

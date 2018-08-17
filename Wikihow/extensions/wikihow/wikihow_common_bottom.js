@@ -338,9 +338,7 @@ $(document).ready(function() {
 		$.post( requestUrl, postData, function(data) {
 			wrap.find('.s-help-prompt').html(finishPrompt);
 			wrap.find('.s-help-feedback-wrap').hide();
-			wrap.animate( {
-				height: "70px"
-			}, 800);
+			wrap.parent().find('.s-video-replay').show();
 		});
 	});
 
@@ -361,6 +359,8 @@ $(document).ready(function() {
 		$.post( requestUrl, postData, function(data) {
 			// hide the buttons
 			wrap.find('button').hide();
+			wrap.parent().find('.s-video-replay').addClass('s-video-replay-center');
+			wrap.parent().find('.s-video-replay').hide();
 
 			// set the feedback for text
 			wrap.find('.s-help-textarea').attr('placeholder', textareaPrompt);

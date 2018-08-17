@@ -725,20 +725,6 @@ class SkinMinerva extends SkinTemplate {
 	public function addToBodyAttributes( $out, &$bodyAttrs ) {
 		// does nothing by default - used by Special:MobileMenu
 		$classes = $out->getProperty( 'bodyClassName' );
-
-		// for an ad test we want to add a class to body
-		if ( $out && $out->isArticle() && $out->getTitle() ) {
-			$pageId = $out->getTitle()->getArticleID();
-			if ( GoogleAmp::isAmpMode( $out ) ) {
-				if ( $pageId % 100 < 55 ) {
-					$bodyAttrs[ 'class' ] .= ' ' . 'introspacing';
-				}
-			} else {
-				if ( $pageId % 100 < 70 ) {
-					$bodyAttrs[ 'class' ] .= ' ' . 'introspacing';
-				}
-			}
-		}
 		$bodyAttrs[ 'class' ] .= ' ' . $classes;
 	}
 

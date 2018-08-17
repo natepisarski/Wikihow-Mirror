@@ -6,17 +6,17 @@ class GoogSearch extends SpecialPage {
 		parent::__construct( 'GoogSearch' );
 		$this->setListed(false);
 	}
-	
+
 	public static function removeSideBarCallback(&$showSideBar) {
 		$showSideBar = false;
 		return true;
 	}
-	
+
 	public static function removeBreadCrumbsCallback(&$showBreadCrum) {
 		$showBreadCrum = false;
 		return true;
 	}
-	
+
 	public static function removeGrayContainerCallback(&$showGrayContainer) {
 		$showGrayContainer = false;
 		return true;
@@ -47,7 +47,7 @@ EOHTML;
 		$wgHooks['ShowBreadCrumbs'][] = array($this, 'removeBreadCrumbsCallback');
 		$wgHooks['ShowSideBar'][] = array($this, 'removeSideBarCallback');
 		$wgHooks['ShowGrayContainer'][] = array($this, 'removeGrayContainerCallback');
-		
+
 		$me = Title::makeTitle(NS_SPECIAL, "GoogSearch");
 
 		$q = $wgRequest->getVal('q');
@@ -56,12 +56,12 @@ EOHTML;
 
 		$start = $wgRequest->getInt('start', 0);
 
-		$wgOut->setHTMLTitle(wfMessage('lsearch_title_q', $q));
+		$wgOut->setHTMLTitle(wfMessage('lsearch_title_q', $q)->text());
 		$wgOut->setRobotPolicy('noindex,nofollow');
 
-		$search_page_results = wfMessage('cse_search_page_results');
+		$search_page_results = wfMessage('cse_search_page_results')->text();
 		$search_page_results = preg_replace('/\<[\/]?pre\>/', '', $search_page_results);
-		
+
 		$wgOut->addHTML('<div class="wh_block cse_search_page_block">'.$search_page_results.'</div>');
 		return;
 	}

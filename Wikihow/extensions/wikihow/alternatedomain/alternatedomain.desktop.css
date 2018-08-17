@@ -22,3 +22,6 @@
 }
 #nav_explore_li.nav_item .menu  { right: 0px; }
 #nav_edit_li.nav_item .menu { right: 75px; }
+.qa_social_login_form .x_button {
+	display: none;
+}

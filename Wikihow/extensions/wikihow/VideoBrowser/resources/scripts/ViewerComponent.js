@@ -19,6 +19,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		this.touched = false;
 		this.seeking = false;
 		this.finished = false;
+		this.attached = false;
 	},
 	render: function () {
 		var state = this.state;
@@ -41,6 +42,9 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				.map( function ( id ) {
 					return new WH.VideoBrowser.ItemComponent( { id: id, link: true } );
 				} );
+			document.title = mw.msg(
+				'videobrowser-viewer-title', mw.msg( 'videobrowser-how-to', item.title )
+			);
 			// Track view
 			WH.maEvent( 'videoBrowser_view', {
 				videoId: this.item.id,
@@ -61,6 +65,8 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				controls: '',
 				controlsList: 'nodownload',
 				poster: item.poster || WH.VideoBrowser.missingPosterUrl,
+				playsinline: '',
+				autoplay: '',
 				onended: 'onEnded',
 				onplay: 'onPlay',
 				oncanplay: 'onCanPlay',
@@ -73,7 +79,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 					[ 'p.videoBrowser-viewer-description', item.description ],
 					[ 'p.videoBrowser-viewer-more',
 						[ 'a.button.primary',
-							{ href: '/' + item.title },
+							{ href: item.article },
 							mw.msg( 'videobrowser-read-more' )
 						]
 					],
@@ -113,11 +119,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 						'@type': 'VideoObject',
 						'name': item.title,
 						'description': item.description,
-						'thumbnailUrl': [
-							item.poster.replace( /\/([^/]+$)/, '/-crop-360-360-$1' ),
-							item.poster.replace( /\/([^/]+$)/, '/-crop-480-360-$1' ),
-							item.poster
-						],
+						'thumbnailUrl': [ item['poster@1:1'], item['poster@4:3'], item.poster ],
 						'uploadDate': item.updated,
 						//'duration': 'PT1M33S', // TODO: Actual duration
 						'contentUrl': String( window.location ),
@@ -146,7 +148,11 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		return [ 'div.videoBrowser-viewer', mw.msg( 'videobrowser-not-found' ) ];
 	},
 	onDetach: function () {
+		this.attached = false;
 		clearInterval( this.clock );
+	},
+	onAttach: function () {
+		this.attached = true;
 	},
 	onSeeking: function () {
 		this.touched = true;
@@ -168,7 +174,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		}
 	},
 	onCanPlay: function () {
-		if ( this.element && !this.touched ) {
+		if ( this.element && !this.touched && this.attached ) {
 			if ( !WH.VideoBrowser.hasUserInteracted || WH.VideoBrowser.hasUserMuted ) {
 				this.muting = true;
 				this.element.muted = true;
