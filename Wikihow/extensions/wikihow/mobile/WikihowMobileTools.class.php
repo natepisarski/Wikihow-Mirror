@@ -397,7 +397,13 @@ class WikihowMobileTools {
 			$mVideo->next('script')->insertAfter( $whvid );
 			// move the video into the mwimg, just after the <a class='image'> which we can remove later
 			$whvid->find( ".image" )->before( $mVideo );
-			$mVideo->wrap('<div class="content-spacer" style="padding-top: 56.25%;">');
+
+			$mVideo->wrap( '<div class="video-container">' );
+			$videoContainer = $mVideo->parent();
+			$videoContainer->wrap( '<div class="video-player">' );
+			$videoPlayer = $videoContainer->parent();
+			$videoPlayer->wrap('<div class="content-spacer" style="padding-top: 56.25%;">');
+			$videoContainer->addClass('content-fill');
 			$mVideo->addClass('content-fill');
 		}
 
@@ -432,9 +438,9 @@ class WikihowMobileTools {
 		}
 
 		// add the controls
-		pq( '.summarysection video' )->addClass( 'summary-m-video' )->after( WHVid::getVideoControlsSummaryHtml( $summaryIntroHeadingText ) );
+		pq( '.summarysection video' )->addClass( 'summary-m-video' )->parent()->after( WHVid::getVideoControlsSummaryHtml( $summaryIntroHeadingText ) );
 
-		pq( 'video:not(.summary-m-video)' )->after( WHVid::getVideoControlsHtmlMobile() );
+		pq( 'video:not(.summary-m-video)' )->parent()->after( WHVid::getVideoControlsHtmlMobile() );
 
 		//move each of the large images to the top
 		foreach(pq(".steps_list_2 li .mwimg.largeimage") as $image) {
@@ -591,7 +597,7 @@ class WikihowMobileTools {
 		// remove any images that are next to m-video.
 		// we moved them to be next to each other above, but left them
 		// in order to create the poster image for the video
-		pq( ".m-video" )->parent()->nextAll( '.image' )->remove();
+		pq( ".video-player" )->parent()->nextAll( '.image' )->remove();
 
 		//remove all images in the intro that aren't
 		//marked with the class "introimage"

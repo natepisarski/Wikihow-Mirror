@@ -887,3 +887,17 @@ amp-accordion section:not([expanded]) .show-less {
 #intro p {
 	line-height: 20px;
 }
+.m-video-play-count-triangle {
+	border-radius: 0;
+	width:  38px;
+	height: 38px;
+	background-image: url(/skins/owl/images/whvid_play_inner.svg);
+	background-size:cover;
+	position: absolute;
+	background-color: initial;
+	bottom: 5px;
+	left: 4px;
+}
+.m-video-intro-text {
+	position: absolute;
+}

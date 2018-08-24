@@ -14,7 +14,7 @@ class UserReview {
 	const NUMBER_REVIEWS_KEY = "ur_numreviews";
 	const NUMBER_REVIEWS_ALL_KEY = "ur_numreviews_all";
 	const REVIEWS_KEY = "userreviews1";
-	const ELIGIBLE_KEY = "userrevieweligible3";
+	const ELIGIBLE_KEY = "userrevieweligible4";
 	const HELPFULNESS_KEY = "userreviewhelpful1";
 	const WHITELIST = "userreview_whitelist";
 
@@ -104,6 +104,11 @@ class UserReview {
 		}
 
 		if (\SensitiveArticle\SensitiveArticle::hasReasons($articleId, [self::SENSITIVE_ID])) {
+			return 0;
+		}
+
+		$title = Title::newFromId($articleId);
+		if ( $title && !RobotPolicy::isTitleIndexable($title) ) {
 			return 0;
 		}
 
@@ -656,5 +661,20 @@ class UserReview {
 		}
 
 		return $results;
+	}
+
+	public static function purge( $articleId ) {
+		global $wgMemc;
+
+		$keys = [
+			wfMemcKey( self::ELIGIBLE_KEY, $articleId ),
+			wfMemcKey( self::HELPFULNESS_KEY, $articleId ),
+			wfMemcKey( self::NUMBER_REVIEWS_ALL_KEY, $articleId ),
+			wfMemcKey( self::NUMBER_REVIEWS_KEY, $articleId ),
+			wfMemcKey( self::REVIEWS_KEY, $articleId )
+		];
+		foreach ( $keys as $key ) {
+			$wgMemc->delete( $key );
+		}
 	}
 }

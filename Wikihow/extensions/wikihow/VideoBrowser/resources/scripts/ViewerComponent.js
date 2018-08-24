@@ -3,6 +3,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 	create: function () {
 		this.state = {
 			slug: null,
+			summary: null,
 			bumper: false,
 			next: null,
 			current: null,
@@ -18,19 +19,37 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		this.isMobile = !!mw.mobileFrontend;
 		this.touched = false;
 		this.seeking = false;
-		this.finished = false;
 		this.attached = false;
+		this.progress = 0;
+		this.api = new mw.Api();
 	},
 	render: function () {
+		var viewer = this;
 		var state = this.state;
 		var item = this.item;
 		if ( !item || item.slug !== state.slug ) {
 			this.touched = false;
-			this.finished = false;
+			this.progress = 0;
 			WH.VideoBrowser.sessionStreak++;
 			this.cancelCountdown();
 			item = this.item = WH.VideoBrowser.catalog.items()
 				.filter( { slug: state.slug } ).first();
+
+			// Async summary
+			this.change( { summary: 'Loading...' } );
+			this.api.get( {
+				action: 'parse',
+				page: 'Summary:' + item.title
+			} ).then( function ( data ) {
+				var html = data.parse.text['*'];
+				var element = document.createElement( 'div' );
+				element.innerHTML = html;
+				viewer.change( {
+					summary: html,
+					summaryText: element.innerText.replace( /^\s\s*/, '' ).replace( /\s\s*$/, '' )
+				} );
+			} );
+
 			var categories = item.categories.split( ',' );
 			this.queue = WH.VideoBrowser.catalog.items( categories.map( function ( category ) {
 				return { categories: { 'regex': new RegExp( '\\b' + category + '\\b' ) } };
@@ -71,12 +90,15 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				onplay: 'onPlay',
 				oncanplay: 'onCanPlay',
 				onvolumechange: 'onVolumeChange',
-				onseeking: 'onSeeking'
+				onseeking: 'onSeeking',
+				ontimeupdate: 'onTimeUpdate'
 			};
 			var player = this;
 			return [ 'div.videoBrowser-viewer' + ( !this.isMobile ? '.section_text' : '' ),
 				[ 'div' + ( this.isMobile ? '.section_text' : '' ),
-					[ 'p.videoBrowser-viewer-description', item.description ],
+					[ 'p.videoBrowser-viewer-summary' ].concat(
+						WH.Render.parseHTML( state.summary || mw.msg( 'videoBrowser-loading' ) )
+					),
 					[ 'p.videoBrowser-viewer-more',
 						[ 'a.button.primary',
 							{ href: item.article },
@@ -118,7 +140,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 						'@context': 'http://schema.org',
 						'@type': 'VideoObject',
 						'name': item.title,
-						'description': item.description,
+						'description': state.summaryText || undefined,
 						'thumbnailUrl': [ item['poster@1:1'], item['poster@4:3'], item.poster ],
 						'uploadDate': item.updated,
 						//'duration': 'PT1M33S', // TODO: Actual duration
@@ -194,6 +216,33 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			//
 		}
 	},
+	onTimeUpdate: function () {
+		if ( this.element ) {
+			var currentTime = this.element.currentTime;
+			var duration = this.element.duration;
+			var progress = currentTime / duration;
+			if ( progress > this.progress ) {
+				var prev = Math.floor( this.progress * 4 );
+				var next = Math.floor( progress * 4 );
+				if ( prev < next ) {
+					// Track played %
+					WH.maEvent( 'videoBrowser_progress', {
+						videoId: this.item.id,
+						videoTitle: this.item.title,
+						userVideoTime: ( duration / 4 ) * next,
+						userVideoDuration: duration,
+						userVideoProgress: next * 0.25,
+						userIsSeeking: this.seeking,
+						userIsMobile: this.isMobile,
+						userHasAutoPlayNextUpEnabled: WH.VideoBrowser.preferences.autoPlayNextUp,
+						userHasInteracted: WH.VideoBrowser.hasUserInteracted,
+						userHasMuted: WH.VideoBrowser.hasUserMuted
+					}, false );
+				}
+				this.progress = progress;
+			}
+		}
+	},
 	onVolumeChange: function () {
 		var track = false;
 		if ( this.element ) {
@@ -230,19 +279,6 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 	onEnded: function () {
 		var next;
 		var current = this.item.id;
-
-		if ( !this.seeking && !this.finished ) {
-			this.finished = true;
-			// Track mute change
-			WH.maEvent( 'videoBrowser_played', {
-				videoId: this.item.id,
-				videoTitle: this.item.title,
-				userIsMobile: this.isMobile,
-				userHasAutoPlayNextUpEnabled: WH.VideoBrowser.preferences.autoPlayNextUp,
-				userHasInteracted: WH.VideoBrowser.hasUserInteracted,
-				userHasMuted: WH.VideoBrowser.hasUserMuted
-			}, false );
-		}
 
 		if ( !WH.VideoBrowser.preferences.autoPlayNextUp || this.isMobile || this.seeking ) {
 			return;

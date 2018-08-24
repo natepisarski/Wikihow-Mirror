@@ -85,6 +85,7 @@
 	"qa_checkout_error": "I'm sorry, that question can't be checked out right now.",
 	"qa_staff_info": "Staff info: Last patrolled or edited on $1 by $2",
 	"qa_staff_editor": "wikiHow Staff Editor",
+	"qa_staff_label": "Staff Answer",
 	"qa_email_prompt": "Include your email address to get a message when this question is answered.",
 	"qa_expert_answer": "Expert Answer",
 	"qa_question_label": "Question",

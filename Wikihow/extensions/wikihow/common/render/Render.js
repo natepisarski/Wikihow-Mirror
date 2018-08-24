@@ -43,6 +43,57 @@ WH.Render.createContext = function ( prototype ) {
 	return extend( CreatedContext, Context, prototype );
 };
 
+/**
+ * Parse DOM Element to JSONML.
+ *
+ * @param {Element} element DOM Element to parse
+ * @return {array} List of JSONML elements
+ */
+WH.Render.parseElement = function ( element ) {
+	var i, len;
+
+	if ( element.nodeType === 3 ) {
+		return element.data;
+	} else if ( element.nodeType === 1 ) {
+		// Name
+		var name = 'div';
+		if ( element.nodeName ) {
+			name = element.nodeName.toLowerCase();
+		}
+
+		// Attributes
+		var attributes = {};
+		if ( element.attributes ) {
+			for ( i = 0, len = element.attributes.length; i < len; i++ ) {
+				var attribute = element.attributes[i];
+				attributes[attribute.name] = attribute.value;
+			}
+		}
+
+		// Children
+		var children = [];
+		if ( element.childNodes ) {
+			for ( i = 0, len = element.childNodes.length; i < len; i++) {
+				var node = element.childNodes[i];
+				children.push( WH.Render.parseElement( node ) );
+			}
+		}
+		return [ name, attributes ].concat( children );
+	}
+};
+
+/**
+ * Parse HTML string to JSONML.
+ *
+ * @param {string} html HTML string to parse
+ * @return {array} List of JSONML elements
+ */
+WH.Render.parseHTML = function ( html ) {
+	var wrapper = document.createElement( 'span' );
+	wrapper.innerHTML = html;
+	return WH.Render.parseElement( wrapper ).slice( 2 );
+};
+
 /* Functions */
 
 /**

@@ -529,8 +529,10 @@ class WikihowArticleHTML {
 		wfProfileIn( __METHOD__ . "-images" );
 
 		// if we find videos, then replace the images with videos
+		$videoCount = 0;
 		foreach( pq( '.m-video' ) as $node ) {
 			$mVideo = pq( $node );
+			$videoCount++;
 
 			$imgAttributes = array( 'poster', 'data-poster', 'data-poster-mobile', 'data-gifsrc', 'data-giffirstsrc' );
 			foreach ( $imgAttributes as $attrName ) {
@@ -557,20 +559,36 @@ class WikihowArticleHTML {
 
 			$mwimg->find( ".image" )->before( $mVideo )->remove();
 
-			$mVideo->wrap('<div class="content-spacer" style="padding-top: 56.25%;">');
+			$mVideo->wrap( '<div class="video-container">' );
+			$videoContainer = $mVideo->parent();
+			$videoContainer->wrap( '<div class="video-player">' );
+			$videoPlayer = $videoContainer->parent();
+			$videoPlayer->wrap('<div class="content-spacer" style="padding-top: 56.25%;">');
+			$videoContainer->addClass('content-fill');
 			$mVideo->addClass('content-fill');
 
 			if ( $mVideo->attr( 'data-watermark' ) ) {
-				$mVideo->after( WHVid::getVideoWatermarkHtml( $context->getTitle() ) );
+				$videoContainer->after( WHVid::getVideoWatermarkHtml( $context->getTitle() ) );
 			}
 			if ( $mVideo->attr( 'data-summary' ) ) {
 				if ($wgUser && in_array('staff', $wgUser->getGroups() ) ) {
 					$mVideo->attr( 'oncontextmenu', '' );
 				}
+				// this is where we put the ad container to enable video ads which are not active
+				// for this type of video at the moment
+				if ( $wgTitle && $wgTitle->getArticleID() == 2723473 ) {
+					$videoContainer->after( '<div class="video-ad-container"></div>' );
+					$mVideo->attr( 'data-ad-type', 'linear' );
+				}
+			} else if ( $videoCount < 2 ) {
+				if ( $wgTitle && $wgTitle->getArticleID() == 1630 ) {
+					$videoContainer->after( '<div class="video-ad-container"></div>' );
+					$mVideo->attr( 'data-ad-type', 'nonlinear' );
+				}
 			}
 
 			if ( $mVideo->attr( 'data-controls' ) && !$mVideo->attr( 'data-summary' )) {
-				$mVideo->after( WHVid::getVideoControlsHtml() );
+				$videoContainer->after( WHVid::getVideoControlsHtml() );
 			}
 		}
 
@@ -607,7 +625,16 @@ class WikihowArticleHTML {
 		$summaryHtml = WHVid::getVideoControlsSummaryHtml( $headingText );
 		$summaryHelpfulHtml = WHVid::getDesktopVideoHelpfulness();
 		$replayHtml = WHVid::getVideoReplayHtml();
-		pq( '.summarysection video' )->after( $summaryHtml . $summaryHelpfulHtml . $replayHtml );
+		pq( '.summarysection .video-container' )->after( $summaryHtml . $summaryHelpfulHtml . $replayHtml );
+
+		if( pq('#quick_summary_section video')->length > 0) {
+			$titleText =wfMessage('howto', $wgTitle->getText())->text();
+			if(strlen($titleText) > 49) {
+				$titleText = mb_substr($titleText, 0, 46) . '...';
+			}
+			pq("#quick_summary_section h2 span")->html("Short Video: " . $titleText);
+			pq( "#quick_summary_section")->addClass("summary_with_video");
+		}
 
 		//move each of the large images to the top
 		foreach (pq(".steps_list_2 li .mwimg.largeimage") as $image) {

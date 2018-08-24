@@ -1,11 +1,11 @@
 <div id="aca">
     <p>{{aca_description}}</p>
 
-    <form id="aca_search_form" autocomplete="off">
+    <form id="aca_query_form" autocomplete="off">
         <input type="hidden" id="aca_edit_token" value="{{editToken}}" autocomplete="off">
-        <label id="aca_search_fuzzy_label"><input type="checkbox" id="aca_search_fuzzy"> Fuzzy matching (slower)</label>
-        <input type="text" id="aca_search_query" class="input_med" placeholder="User name or email">
-        <div id="aca_search_spinner" class="mw-small-spinner"></div>
+        <label id="aca_query_fuzzy_label"><input type="checkbox" id="aca_query_fuzzy"> Fuzzy matching (slower)</label>
+        <input type="text" id="aca_query_query" class="input_med" placeholder="User name or email">
+        <div id="aca_query_spinner" class="mw-small-spinner"></div>
     </form>
 
     <div id="aca_error" class="hidden">
@@ -20,25 +20,26 @@
 
     <div id="aca_loading">
 
-        <h2 class="hidden" id="aca_remove_loading">Removing <span id="aca_remove_loading_subject"></span>...</h2>
+        <h2 class="hidden" id="aca_describe_loading">Checking <span id="aca_describe_loading_subject"></span>...</h2>
+        <h2 class="hidden" id="aca_execute_loading">Removing <span id="aca_execute_loading_subject"></span>...</h2>
 
     </div>
 
-    <div id="aca_search_results" class="hidden">
-        <div id="aca_search_results_loading" class="hidden">Searching...</div>
-        <div id="aca_search_results_none" class="hidden">No matches.</div>
-        <table id="aca_search_results_some" class="hidden">
-            <tbody id="aca_search_result_container">
-                <tr id="aca_search_result_template" class="aca_search_result hidden">
-                    <td class="aca_search_result_avatar"><span></span></td>
-                    <td class="aca_search_result_info">
-                        <p class="aca_search_result_username"></p>
-                        <p class="aca_search_result_useremail"></p>
+    <div id="aca_query_results" class="hidden">
+        <div id="aca_query_results_loading" class="hidden">Searching...</div>
+        <div id="aca_query_results_none" class="hidden">No matches.</div>
+        <table id="aca_query_results_some" class="hidden">
+            <tbody id="aca_query_result_container">
+                <tr id="aca_query_result_template" class="aca_query_result hidden">
+                    <td class="aca_query_result_avatar"><span></span></td>
+                    <td class="aca_query_result_info">
+                        <p class="aca_query_result_username"></p>
+                        <p class="aca_query_result_useremail"></p>
                     </td>
-                    <td class="aca_search_result_edits"></td>
-                    <td class="aca_search_result_registration"></td>
-                    <td class="aca_search_result_submit">
-                        <button class="aca_remove_submit button primary"></button>
+                    <td class="aca_query_result_edits"></td>
+                    <td class="aca_query_result_registration"></td>
+                    <td class="aca_query_result_submit">
+                        <button class="aca_describe_submit button primary"></button>
                     </td>
                 </tr>
             </tbody>
@@ -46,14 +47,30 @@
 
     </div>
 
-    <div id="aca_remove_results" class="hidden">
+    <div id="aca_describe_results" class="hidden">
 
-        <h2>The following actions were taken on <span id="aca_remove_results_target"></span></h2>
-        <h3>Changes</h3>
-        <ul id="aca_remove_results_changes"></ul>
-        <h3>Warnings</h3>
-        <ul id="aca_remove_results_warnings"></ul>
-        <button id="aca_remove_done" class="button primary">Done</button>
+        <h2>The following changes <i>can be</i> made for <span id="aca_describe_results_target"></span></h2>
+        <h3 id="aca_describe_results_changes_some">Changes</h3>
+        <h3 id="aca_describe_results_changes_none">No changes</h3>
+        <ul id="aca_describe_results_changes"></ul>
+        <h3 id="aca_describe_results_warnings_some">Warnings</h3>
+        <h3 id="aca_describe_results_warnings_none">No warnings</h3>
+        <ul id="aca_describe_results_warnings"></ul>
+        <button id="aca_execute_submit" class="button primary">Remove</button>
+        <button id="aca_describe_cancel" class="button secondary">Cancel</button>
+
+    </div>
+
+    <div id="aca_execute_results" class="hidden">
+
+        <h2>The following changes <i>were</i> made for <span id="aca_execute_results_target"></span></h2>
+        <h3 id="aca_execute_results_changes_some">Changes</h3>
+        <h3 id="aca_execute_results_changes_none">No changes</h3>
+        <ul id="aca_execute_results_changes"></ul>
+        <h3 id="aca_execute_results_warnings_some">Warnings</h3>
+        <h3 id="aca_execute_results_warnings_none">No warnings</h3>
+        <ul id="aca_execute_results_warnings"></ul>
+        <button id="aca_execute_done" class="button primary">Done</button>
 
     </div>
 </div>

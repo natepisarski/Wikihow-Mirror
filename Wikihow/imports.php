@@ -277,7 +277,7 @@ require_once("$IP/extensions/wikihow/ArticleWidgets/ArticleWidgets.php");
 require_once("$IP/extensions/wikihow/ToolSkip.php");
 require_once("$IP/extensions/wikihow/wikihowAds/wikihowAds.class.php");
 require_once("$IP/extensions/wikihow/wikihowAds/DesktopAds.php");
-require_once("$IP/extensions/wikihow/WikihowShare.php");
+require_once("$IP/extensions/wikihow/WikihowShare/WikihowShare.php");
 require_once("$IP/extensions/wikihow/DatabaseHelper.class.php");
 require_once("$IP/extensions/wikihow/WikihowUser.php");
 require_once("$IP/extensions/wikihow/Alien.php");

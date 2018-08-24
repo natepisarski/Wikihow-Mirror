@@ -191,10 +191,9 @@ class SchemaMarkup {
 			"logo" => $logo,
 		];
 
-		$socialData = self::SOCIAL_DATA;
-
-		if ( isset( $socialData[$wgLanguageCode] ) ) {
-			$data['sameAs'] =  array_values($socialData[$wgLanguageCode]);
+		$socialData = self::getSocialData();
+		if ($socialData) {
+			$data['sameAs'] =  array_values($socialData);
 		}
 
 		return $data;
@@ -1065,6 +1064,12 @@ class SchemaMarkup {
 		$wgTitle = $title;
 		self::processRecipeSchema( $title, $goodRevision );
 		$wgTitle = $oldTitle;
+	}
+
+	public static function getSocialData($lang = ''): array {
+		global $wgLanguageCode;
+		$lang = $lang ? $lang : $wgLanguageCode;
+		return self::SOCIAL_DATA[$lang] ?? [];
 	}
 }
 

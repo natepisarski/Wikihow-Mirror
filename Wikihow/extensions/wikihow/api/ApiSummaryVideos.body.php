@@ -16,7 +16,10 @@ class ApiSummaryVideos extends ApiQueryBase {
 	/* Methods */
 
 	public static function query( $params = [] ) {
-		global $wgCategoryNames, $wgLanguageCode, $wgMemc, $wgSquidMaxage;
+		global $wgCategoryNames, $wgLanguageCode, $wgMemc, $wgCanonicalServer;
+
+		// Refresh daily
+		$refreshAfter = 24 * 60 * 60;
 
 		if ( isset( $params['page'] ) && $params['page'] !== null ) {
 			$page = $params['page'];
@@ -32,6 +35,11 @@ class ApiSummaryVideos extends ApiQueryBase {
 		} else {
 			$shuffle = false;
 		}
+		if ( isset( $params['featured'] ) && $params['featured'] !== null ) {
+			$featured = (bool)$params['shuffle'];
+		} else {
+			$featured = false;
+		}
 		if ( isset( $params['limit'] ) && $params['limit'] !== null ) {
 			if ( !is_numeric( $params['limit'] ) ) {
 				$limit = 1;
@@ -40,14 +48,25 @@ class ApiSummaryVideos extends ApiQueryBase {
 			}
 		}
 
-		$key = wfMemcKey( "ApiSummaryVideos::query(page:{$page},related:{$related},limit{$limit})" );
-		//$data = $wgMemc->get( $key );
+		$key = wfMemcKey(
+			"ApiSummaryVideos::query(" .
+				implode( [
+					"page:{$page}",
+					"related:{$related}",
+					"shuffle:{$shuffle}",
+					"featured:{$featured}",
+					"limit{$limit})"
+				], ',' ) .
+				// Include wgCanonicalServer in key because article prop has full URLs
+				"@{$wgCanonicalServer}"
+		);
+		$data = $wgMemc->get( $key );
 
 		if ( !is_array( $data ) ) {
 			$dbr = wfGetDB( DB_SLAVE );
 
 			$tables = [ 'article_meta_info', 'page', 'wikivisual_article_status', 'titus_copy' ];
-			$fields = [ 'ami_id', 'ami_title', 'ami_video', 'ami_summary_video', 'ami_facebook_desc',
+			$fields = [ 'ami_id', 'ami_video', 'ami_summary_video',
 				'page_catinfo', 'vid_processed', 'ti_featured', 'ti_30day_views_unique',
 				'ti_summary_video_play'
 			];
@@ -73,9 +92,14 @@ class ApiSummaryVideos extends ApiQueryBase {
 				}
 			}
 
+			if ( $featured ) {
+				// Restrict to featured articles
+				$where['ti_featured'] = 1;
+			}
+
 			// Apply limit, just 1 for anything we don't recognize, except for related since we have
 			// to limit that during category intersection testing
-			if ( isset( $limit ) && !$related ) {
+			if ( isset( $limit ) && !( $related || $shuffle ) ) {
 				$options['LIMIT'] = $limit;
 			}
 
@@ -114,10 +138,10 @@ class ApiSummaryVideos extends ApiQueryBase {
 						continue;
 					}
 				}
-				$title = Title::newFromText( $row->ami_title );
+				$title = Title::newFromId( $row->ami_id );
 				$videos[] = [
 					'id' => $row->ami_id,
-					'title' => $row->ami_title,
+					'title' => $title->getText(),
 					'article' => 'https:' . $title->getFullUrl(),
 					'updated' => wfTimestamp(  TS_ISO_8601, $row->vid_processed ),
 					'video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
@@ -126,7 +150,6 @@ class ApiSummaryVideos extends ApiQueryBase {
 					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, 4 / 3 ),
 					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
 					'categories' => $rowCategories,
-					'description' => $row->ami_facebook_desc,
 					'popularity' => $row->ti_30day_views_unique,
 					'featured' => $row->ti_featured,
 					'plays' => $row->ti_summary_video_play
@@ -138,7 +161,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 			}
 
 			$data = [ 'videos' => $videos ];
-			//$wgMemc->set( $key, $data, $wgSquidMaxage );
+			$wgMemc->set( $key, $data, $refreshAfter );
 		}
 
 		return $data;
@@ -155,8 +178,9 @@ class ApiSummaryVideos extends ApiQueryBase {
 		$page = $request->getVal( 'sv_page', null );
 		$related = $request->getBool( 'sv_related' );
 		$shuffle = $request->getBool( 'sv_shuffle', null );
+		$featured = $request->getBool( 'sv_featured', null );
 		$limit = $request->getVal( 'sv_limit', null );
-		$data = self::query( compact( 'page', 'related', 'limit' ) );
+		$data = self::query( compact( 'page', 'related', 'shuffle', 'featured', 'limit' ) );
 		$result = $this->getResult();
 		$result->setIndexedTagName( $data['videos'], 'video' );
 		$result->addValue( 'query', $this->getModuleName(), $data );
@@ -181,6 +205,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 			'sv_page' => [ ApiBase::PARAM_TYPE => 'integer' ],
 			'sv_related' => [ ApiBase::PARAM_TYPE => 'boolean' ],
 			'sv_shuffle' => [ ApiBase::PARAM_TYPE => 'boolean' ],
+			'sv_featured' => [ ApiBase::PARAM_TYPE => 'boolean' ],
 			'sv_limit' => [ ApiBase::PARAM_TYPE => 'integer' ]
 		];
 	}
@@ -190,6 +215,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 			'sv_page' => 'Page ID to get video (or related videos) for',
 			'sv_related' => 'Get related videos (except the video for the given page if it exists)',
 			'sv_shuffle' => 'Shuffle results',
+			'sv_featured' => 'Limit results to videos related to featured articles',
 			'sv_limit' => 'Maximum number of videos to list',
 		];
 	}

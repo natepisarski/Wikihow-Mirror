@@ -553,6 +553,8 @@ class QAWidget {
 			$label = wfMessage('qa_expert_answer')->text();
 		elseif (!empty($article_question->isTopAnswerer))
 			$label = wfMessage('ta_label')->text();
+		elseif ($article_question->getSubmitterDisplayName() == wfMessage('qa_staff_editor')->text())
+			$label = wfMessage('qa_staff_label')->text();
 		else
 			$label = wfMessage('qa_user_label_default')->text();
 

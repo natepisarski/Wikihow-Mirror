@@ -1,10 +1,10 @@
 <?php
 
 class WikihowShare {
-	
+
 	public static function getTopShareButtons($isIndexed = true){
 		global $wgLanguageCode, $wgTitle, $wgCanonicalServer;
-		
+
 		$action = self::getAction();
 
 		if(!$wgTitle->exists() || $wgTitle->getNamespace() != NS_MAIN || $action != "view" || $wgTitle->getText() == "Main-Page")
@@ -12,20 +12,20 @@ class WikihowShare {
 
 		$url = $wgCanonicalServer . "/" . urlencode($wgTitle->getPrefixedURL());
 		$img = urlencode(self::getPinterestImage($wgTitle));
-		$desc = urlencode(wfMessage('Pinterest_text', $wgTitle->getText())->text()); 
-				
+		$desc = urlencode(wfMessage('Pinterest_text', $wgTitle->getText())->text());
+
 		$fb = '<div class="like_button"><fb:like href="' . $url . '" send="false" layout="box_count" width="46" show_faces="false"></fb:like></div>';
 		if($isIndexed)
 			$gp1 = '<div class="gplus1_button"><g:plusone size="tall" callback="WH.plusone_vote"></g:plusone></div>';
 		else
 			$gp1 = "";
-		
+
 		$pinterest = '<div id="pinterest"><a href="https://pinterest.com/pin/create/button/?url=' . $url . '&media=' . $img . '&description=' . $desc . '" class="pin-it-button" count-layout="vertical">Pin It</a></div>';
 
 		// German includes "how to " in the title text
 		$howto = $wgLanguageCode != 'de' ? wfMessage('howto', htmlspecialchars($wgTitle->getText()))->text() : htmlspecialchars($wgTitle->getText());
 		$tb = '<div class="admin_state"><a href="https://twitter.com/share" data-lang="' . $wgLanguageCode . '" style="display:none; background-image: none; color: #ffffff;" class="twitter-share-button" data-count="vertical" data-via="wikiHow" data-text="' . $howto . '" data-related="JackH:Founder of wikiHow">Tweet</a></div>';
-		
+
 		if ($wgLanguageCode != 'en') {
 			return $gp1 . $tb . $fb;
 		}
@@ -36,89 +36,28 @@ class WikihowShare {
 
 	public static function getMainPageShareButtons(){
 		global $wgTitle;
-		
-		$action = self::getAction();
-		if(!$wgTitle->exists() || $wgTitle->getNamespace() != NS_MAIN || $action != "view" || $wgTitle->getText() != wfMessage('Mainpage')->text())
-			return "";
-		
-		return wfMessage('mainpage_share_buttons')->text();
-		
-	}
-	
-	public static function getBottomShareButtons($isIndexed = true) {
-		global $wgLanguageCode, $wgTitle, $wgCanonicalServer;
-		
-		$action = self::getAction();
-		
-		if(!$wgTitle->exists() || $wgTitle->getNamespace() != NS_MAIN || $action != "view" || self::isMainPage($action))
-			return "";
-		
-		$url = $wgCanonicalServer . "/" . urlencode($wgTitle->getPrefixedURL());
-				
-		$fb_share = '<div class="like_button like_tools"><fb:like href="' . $url . '" send="false" layout="button_count" width="86" show_faces="false"></fb:like></div>';
-		// German includes "how to " in the title text
-		$howto = $wgLanguageCode != 'de' ? wfMessage('Twitter_text', htmlspecialchars($wgTitle->getText()))->text() : htmlspecialchars($wgTitle->getText());
-		$tb_share = '<a href="https://twitter.com/share" data-lang="' . $wgLanguageCode . '" style="display:none; background-image: none; color: #ffffff;" class="twitter-share-button" data-count="horizontal" data-via="wikiHow" data-text="' . $howto. '" data-related="JackH:Founder of wikiHow">Tweet</a>';
 
-		
-		if ($wgLanguageCode != 'en') {
-			return $fb_share . $tb_share;
-		} else {
-			return $fb_share . $tb_share;
+		if (!$wgTitle->exists() || !$wgTitle->isMainPage() || self::getAction() != 'view') {
+			return '';
 		}
-	}
-	
-	public static function getBottomShareButtons_redesign($isIndexed = true) {
-		global $wgLanguageCode, $wgTitle, $wgCanonicalServer;
-		
-		$action = self::getAction();
-		
-		if (!$wgTitle->exists() || $wgTitle->getNamespace() != NS_MAIN || $action != "view" || self::isMainPage($action))
-			return "";
-		
-		$url = $wgCanonicalServer . "/" . urlencode($wgTitle->getPrefixedURL());
-		$img = urlencode(self::getPinterestImage($wgTitle));
-		$desc = urlencode(wfMessage('Pinterest_text', $wgTitle->getText())->text()); 
-				
-		$fb = '<div class="fb-like like_button like_tools"><fb:like href="' . $url . '" send="false" layout="button_count" width="86" show_faces="false"></fb:like></div>';
-		// German includes "how to " in the title text
-		$howto = $wgLanguageCode != 'de' ? wfMessage('Twitter_text', htmlspecialchars($wgTitle->getText()))->text() : htmlspecialchars($wgTitle->getText());
-		$tb = '<a href="https://twitter.com/share" data-lang="' . $wgLanguageCode . '" style="display:none; background-image: none; color: #ffffff;" class="twitter-share-button" data-count="horizontal" data-via="wikiHow" data-text="' . $howto. '" data-related="JackH:Founder of wikiHow">Tweet</a>';
 
-		if($isIndexed)
-			$gp1 = '<div class="gplus1_button"><g:plusone callback="WH.plusone_vote"></g:plusone></div>';
-		else
-			$gp1 = "";
-		
-		$pinterest = '<div id="pinterest"><a data-pin-config="beside" href="https://pinterest.com/pin/create/button/?url=' . $url . '&media=' . $img . '&description=' . $desc . '" class="pin-it-button" data-pin-do="buttonPin">Pin It</a></div>';
-		
-		if ($wgLanguageCode != 'en') {
-			return $gp1 . $tb . $fb;
-		}
-		else {
-			return $gp1 . $pinterest . $fb;
-		}
+		$mustache = new Mustache_Engine(['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)]);
+		$social = SchemaMarkup::getSocialData();
+		return $mustache->render('homepage_share_buttons.mustache', [
+			'fb_url' => $social['facebook'] ?? 'https://www.facebook.com/wikiHow/'
+		]);
 	}
-	
+
 	private static function getAction() {
 		global $wgRequest;
-		
-		$action = $wgRequest->getVal("action", "view");
-		if ($wgRequest->getVal("diff", "") != "")
-			$action = "diff";
-		
+
+		$action = $wgRequest->getVal('action', 'view');
+		if ($wgRequest->getVal('diff', '') != '')
+			$action = 'diff';
+
 		return $action;
 	}
-	
-	private static function isMainPage($action) {
-		global $wgTitle;
-		
-		return $wgTitle
-			&& $wgTitle->getNamespace() == NS_MAIN
-			&& $wgTitle->getText() == wfMessage('mainpage')->text()
-			&& $action == 'view';
-	}
-	
+
 	public static function getShareImage(&$title) {
 		return self::getPinterestImage($title, false);
 	}
@@ -128,7 +67,7 @@ class WikihowShare {
 
 		if (in_array($title->getNamespace(), array(NS_MAIN, NS_CATEGORY))) {
 			if ($title->getNamespace() == NS_MAIN) {
-				
+
 				$file = Wikitext::getTitleImage($title);
 				if($file && isset($file)) {
 					$url = "/images/" . $file->getRel();
@@ -137,10 +76,10 @@ class WikihowShare {
 					}
 					return $url;
 				}
-				
+
 			}
 
-			$catmap = Categoryhelper::getIconMap(); 
+			$catmap = Categoryhelper::getIconMap();
 			// still here? use default categoryimage
 
 			// if page is a top category itself otherwise get top
@@ -190,7 +129,7 @@ class WikihowShare {
 			}
 		}
 	}
-	
+
 	public static function getPinterestTitleInfo($context) {
 		if (!$context->canUseWikiPage()) return '';
 
@@ -206,10 +145,10 @@ class WikihowShare {
 		} else {
 			$titleDetail = '';
 		}
-		
+
 		return $titleDetail;
 	}
-	
+
 }
 
 class WikihowShareRest extends UnlistedSpecialPage {
@@ -256,10 +195,10 @@ class WikihowShareRest extends UnlistedSpecialPage {
 					'Make-a-Fire-Starter-Using-a-Straw',
 					'Make-a-Double-Fisherman\'s-Knot-Paracord-Bracelet')
 				);
-				
+
 		$pin_group_num = rand(0, (count($pins_of_three) - 1));
 		$pin_group = $pins_of_three[$pin_group_num];
-		
+
 		global $wgCanonicalServer;
 		$html = '';
 		foreach ($pin_group as $pin) {
@@ -268,10 +207,10 @@ class WikihowShareRest extends UnlistedSpecialPage {
 			$pin_link = $wgCanonicalServer.'/'.$pin.'?utm_source='.urlencode($pin).'&utm_medium=Pinterest%2BArticle&utm_campaign=Pinterest_DropDown';
 			$html .= '<td valign="top"><div class="pin-head-pin"><a href="'.$pin_link.'">'.$pin_img.'</a><p><a href="'.$pin_link.'">'.$pin_title.'</a></p></div></td>';
 		}
-		
+
 		return $html;
 	}
-	
+
 	public function execute($par) {
 		global $wgOut, $wgRequest;
 		$socialNet = $wgRequest->getVal('soc', '');
@@ -280,7 +219,7 @@ class WikihowShareRest extends UnlistedSpecialPage {
 		if ($socialNet == 'pinterest') {
 			$pins = self::getPinterestArticles();
 			$pinterest_follow = wfGetPad('/skins/WikiHow/images/pinterest-test/pinterest_follow_box.jpg');
-			
+
 			$html = <<<EOHTML
 <style>
 #pin-head-cta {
@@ -300,8 +239,8 @@ class WikihowShareRest extends UnlistedSpecialPage {
 	border: 1px solid #DCD5CC;
 	margin: 7px 7px 7px 7px;
 }
-.pin-head-pin p { 
-	margin: 1em 0 .5em 0; 
+.pin-head-pin p {
+	margin: 1em 0 .5em 0;
 	font-size: .9em;
 }
 .pin-head-pin p a { color: #000; }

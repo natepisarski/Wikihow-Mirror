@@ -41,7 +41,11 @@ class VideoBrowser {
 		if ( Misc::isMobileMode() ) {
 			$html1 .= static::render( 'mobile-widget.mustache', [
 				'howto' => 'How to',
-				'items' => static::queryVideos( [ 'limit' => 4 ] )
+				'items' => static::queryVideos( [
+					'limit' => 4,
+					'featured' => true,
+					'shuffle' => true
+				] )
 			] );
 
 			$wgOut->addModules( 'ext.wikihow.videoBrowser-mobile-widget' );
@@ -112,7 +116,11 @@ class VideoBrowser {
 		echo static::render( 'desktop-widget.mustache', [
 			'title' => 'wikiHow Videos',
 			'howto' => 'How to',
-			'items' => static::queryVideos( [ 'limit' => 4 ] )
+			'items' => static::queryVideos( [
+				'limit' => 4,
+				'featured' => true,
+				'shuffle' => true
+			] )
 		] );
 	}
 }

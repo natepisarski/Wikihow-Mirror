@@ -161,16 +161,6 @@ WH.video = (function () {
 			video.playButton.addEventListener('click', function() {
 				video.toggle();
 			});
-			if (video.summaryVideo && "onloadedmetadata" in window) {
-				video.element.addEventListener( 'loadedmetadata', function() {
-					var duration = video.element.duration;
-					duration = Math.round(duration / 10 ) * 10;
-					document.getElementById('m-video-intro-time').innerHTML = duration + ' second ';
-					document.getElementById('m-video-intro-time-v2').innerHTML = duration;
-					document.getElementById('m-video-intro-time-v2').style.display = 'block';
-
-				});
-			}
 			if (video.summaryVideo) {
 				var introReadmore = document.getElementById('m-video-intro-readmore');
 				if (introReadmore) {
@@ -272,6 +262,66 @@ WH.video = (function () {
 		}
 	}
 
+	// gets the controls element and sets up the helpfulness and watermarks if present
+	function getVideoControls(video) {
+		if (video.element.parentNode.parentNode.className == 'video-player') {
+			video.videoPlayer = video.element.parentNode.parentNode;
+		}
+		for (var i = 0; i < video.element.parentNode.parentNode.children.length; i++) {
+			var el = video.element.parentNode.parentNode.children[i];
+			if (el.className == 'm-video-controls') {
+				video.controls = el;
+				for (var j = 0; j < video.controls.children.length; j++) {
+					var child = video.controls.children[j];
+					if (child.className == 'm-video-play') {
+						video.playButton = child;
+					} else if (child.className == 'm-video-play-old') {
+						video.playButton = child;
+					} else if (child.className == 'm-video-intro-over') {
+						video.textOverlay = child;
+						for (var k = 0; k < video.textOverlay.children.length; k++) {
+							var overlayChild = video.textOverlay.children[k];
+							if (overlayChild.className == 'm-video-play') {
+								video.playButton = overlayChild;
+							}
+						}
+					}
+				}
+			} else if (el.className == 'm-video-helpful-wrap') {
+				video.helpfulwrap = el;
+			} else if (el.className == 's-video-replay') {
+				video.replay = el;
+			} else if (el.className == 's-video-replay-overlay') {
+				video.replayOverlay = el;
+			} else if (el.className == 'm-video-wm') {
+				drawWatermark(el);
+			} else if (el.className == 'video-ad-container') {
+				video.adContainer = el;
+			}
+		}
+	}
+
+	function playVideoElement(video) {
+		video.playPromise = video.element.play();
+		if (video.playPromise !== undefined) {
+			video.playPromise.then(function(value) {
+				video.isPlaying = true;
+			}).catch(function(error) {
+				console.log(error)
+			});
+		} else {
+			video.isPlaying = true;
+		}
+		if (video.summaryVideo) {
+			video.element.setAttribute('controls', 'true');
+			video.element.style.filter = "none";
+			if (!video.played) {
+				video.played = true;
+				logAction('svideoplay');
+			}
+		}
+	}
+
 	function Video(mVideo) {
 		this.played = false;
 		this.isLoaded = false;
@@ -281,6 +331,7 @@ WH.video = (function () {
 		this.pausedQueued = false;
 		this.element = mVideo;
 		this.summaryVideo = false;
+		this.adContainer = null;
 		this.controls = null;
 		this.helpfulwrap = null;
 		this.poster = this.element.getAttribute('data-poster');
@@ -288,6 +339,7 @@ WH.video = (function () {
 		this.autoplay = autoPlayVideo;
 		this.replayOverlay = null;
 		this.showHelpfulness = !window.WH.isMobile;
+		this.hasPlayedOnce = false;
 		if (this.element.getAttribute('data-video-no-autoplay') == 1) {
 			this.inlinePlayButton = true;
 			this.autoplay = false;
@@ -300,41 +352,12 @@ WH.video = (function () {
 			okToLoadVideos = true;
 		}
 		this.summaryVideo = this.element.getAttribute('data-summary') == 1;
+		this.linearAd = this.element.getAttribute('data-ad-type') == 'linear';
 		if (this.summaryVideo) {
 			this.autoplay = false;
 			logAction('svideoview');
 		}
-		for (var i = 0; i < this.element.parentNode.children.length; i++) {
-			var el = this.element.parentNode.children[i];
-			if (el.className == 'm-video-controls') {
-				this.controls = el;
-				for (var j = 0; j < this.controls.children.length; j++) {
-					var child = this.controls.children[j];
-					if (child.className == 'm-video-play') {
-						this.playButton = child;
-					} else if (child.className == 'm-video-play-old') {
-						this.playButton = child;
-					} else if (child.className == 'm-video-intro-over') {
-						this.textOverlay = child;
-						for (var k = 0; k < this.textOverlay.children.length; k++) {
-							var overlayChild = this.textOverlay.children[k];
-							if (overlayChild.className == 'm-video-play') {
-								this.playButton = overlayChild;
-							}
-						}
-					}
-				}
-			} else if (el.className == 'm-video-helpful-wrap') {
-				this.helpfulwrap = el;
-			} else if (el.className == 's-video-replay') {
-				this.replay = el;
-			} else if (el.className == 's-video-replay-overlay') {
-				this.replayOverlay = el;
-			} else if (el.className == 'm-video-wm') {
-				//this.watermarkTitleText = el.getAttribute('data-wm-title-text');
-				drawWatermark(el);
-			}
-		}
+		getVideoControls(this);
 		if (this.inlinePlayButton == false && !this.summaryVideo) {
 			this.playButton.style.visibility = 'hidden';
 		}
@@ -352,23 +375,27 @@ WH.video = (function () {
 			}
 
 			var video = this;
-			this.playPromise = this.element.play();
-			if (this.playPromise !== undefined) {
-				this.playPromise.then(function(value) {
-					video.isPlaying = true;
-				}).catch(function(error) {
-				console.log(error)});
-			} else {
-				this.isPlaying = true;
-			}
-			if (this.summaryVideo) {
-				this.element.setAttribute('controls', 'true');
-				this.element.style.filter = "none";
-				if (!this.played) {
-					this.played = true;
-					logAction('svideoplay');
+			if ( this.hasPlayedOnce == false ) {
+				//load the ads
+				this.hasPlayedOnce = true;
+				if (video.adContainer) {
+					video.adDisplayContainer.initialize();
+				}
+				try {
+					video.shouldInitAdsManager = true;
+					if (WH.videoads) {
+						WH.videoads.initAdsManager(this);
+					}
+				} catch (adError) {
+					// An error may be thrown if there was a problem with the VAST response.
+					console.log("ad error", adError);
+					playVideoElement(video);
+				}
+				if (video.adContainer) {
+					return;
 				}
 			}
+			playVideoElement(video);
 		};
 		this.pause = function() {
 			var video = this;
@@ -390,12 +417,26 @@ WH.video = (function () {
 				this.load();
 				if (this.summaryVideo) {
 					this.element.removeAttribute('muted');
+					// start the ad
+					this.play();
+					return;
 				}
 			}
 			if (this.isPlaying) {
 				this.pause();
 			} else {
 				this.play();
+			}
+		}
+		this.adComplete = function() {
+			this.adContainer.parentElement.removeChild(this.adContainer);
+		}
+		this.adStarting = function() {
+			if (video.textOverlay) {
+				video.textOverlay.style.visibility = 'hidden';
+			}
+			if (video.playButton) {
+				video.playButton.style.visibility = 'hidden';
 			}
 		}
 		this.load = function() {
@@ -494,10 +535,17 @@ WH.video = (function () {
 	function pageLoaded() {
 		okToLoadVideos = true;
 		for (var i = 0; i < videos.length; i++ ) {
-			videos[i].isVisible = false;
-			videos[i].isPlaying = false;
+			var video = videos[i];
+			video.isVisible = false;
+			video.isPlaying = false;
+
+			if (WH.videoads && video.adContainer) {
+				// set up ads for this video
+				WH.videoads.setUpIMA(video);
+			}
 		}
 		updateVisibility();
+
 	}
 
 	function start() {

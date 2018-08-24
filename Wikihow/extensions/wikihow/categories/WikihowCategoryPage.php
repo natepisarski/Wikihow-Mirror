@@ -25,7 +25,6 @@ $wgAutoloadClasses['TopCategoryData'] = dirname(__FILE__) . '/TopCategoryData.cl
 $wgHooks['ArticleFromTitle'][] = array('WikihowCategoryPage::onArticleFromTitle');
 
 $wgResourceModules['ext.wikihow.desktop_category_page'] = array(
-	'styles' => array('categories-owl.css'),
 	'scripts' => array('categories-owl.js'),
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/categories',

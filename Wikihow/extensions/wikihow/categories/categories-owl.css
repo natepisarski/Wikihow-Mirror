@@ -204,34 +204,34 @@ h1 {
 	display: inline-block;
 }
 
-.slick-prev:before, .slick-next:before {
+.cat_section .slick-prev:before, .cat_section .slick-next:before {
 	font-size: 40px;
 	line-height: 39px;
 	margin-left: -4px;
 	opacity: 1;
 }
 
-.slick-prev, .slick-next {
+.cat_section .slick-prev, .cat_section .slick-next {
 	width: 31px;
 	height: 31px;
 	background-color: #8fb978;
 	border-radius: 14px;
 }
 
-.slick-prev {
+.cat_section .slick-prev {
 	left: -44px;
 }
 
-.slick-next {
+.cat_section .slick-next {
 	right: -40px;
 }
 
-.slick-prev:hover, .slick-next:hover {
+.cat_section .slick-prev:hover, .cat_section .slick-next:hover {
 	background-color: #8fb978;
 	color: inherit;
 }
 
-.slick-prev:hover:before, .slick-next:hover:before {
+.cat_section .slick-prev:hover:before, .cat_section .slick-next:hover:before {
 	opacity: 1;
 }
 

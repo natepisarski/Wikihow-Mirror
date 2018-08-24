@@ -239,24 +239,25 @@ class WikihowHomepage extends Article {
 			return $wgCanonicalServer . '/wikiHowTo?search={search_term_string}';
 		}
 
-		// [cxid, mobile, desktop]
+		// [ [ lang => [cxid, url] ]
 		$cnf = [
-			'ar' => [ 'p69otx3fxl8',  'https://cse.google.ae/cse',     'https://cse.google.ae/cse' ],
-			'cs' => [ 'rbfdcv7xp3y',  'https://cse.google.cz/cse',     'https://cse.google.cz/cse' ],
-			'de' => [ 'uodsdlb5i_g',  'https://cse.google.de/cse',     "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'es' => [ 'd-m9-bge-b8',  'https://cse.google.es/cse',     "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'fr' => [ 'ar_ivxaiyic',  'https://cse.google.fr/cse',     "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'hi' => [ 'veo5jv3yqlo',  'https://cse.google.co.in/cse',  "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'id' => [ '-gta3fdvfh8',  'https://cse.google.co.id/cse',  'https://cse.google.co.id/cse' ],
-			'it' => [ 'tav742__lhu',  'https://cse.google.it/cse',     "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'ja' => [ 'g_epwflza0e',  'https://cse.google.co.jp/cse',  'https://cse.google.co.jp/cse' ],
-			'ko' => [ '4datrbvuolo',  'https://cse.google.co.kr/cse',  'https://cse.google.co.kr/cse' ],
-			'nl' => [ 'lgi9gl9f5so',  'https://cse.google.nl/cse',     "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'pt' => [ 'npdtpoa9n0o',  'https://cse.google.pt/cse',     "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'ru' => [ '9eczeje2tra',  'https://cse.google.ru/cse',     "{$wgCanonicalServer}/Special:GoogSearch" ],
-			'th' => [ 'ub6yetul04s',  'https://cse.google.co.th/cse',  'https://cse.google.co.th/cse' ],
-			'vi' => [ 'tghxspjdhxu',  'https://cse.google.com.vn/cse', 'https://cse.google.com.vn/cse' ],
-			'zh' => [ 'wqu8qtfdf2g',  'https://cse.google.com.hk/cse', "{$wgCanonicalServer}/Special:GoogSearch" ],
+			'ar' => [ 'p69otx3fxl8', 'https://cse.google.ae/cse' ],
+			'cs' => [ 'rbfdcv7xp3y', 'https://cse.google.cz/cse' ],
+			'de' => [ 'uodsdlb5i_g', 'https://cse.google.de/cse' ],
+			'es' => [ 'd-m9-bge-b8', 'https://cse.google.es/cse' ],
+			'fr' => [ 'ar_ivxaiyic', 'https://cse.google.fr/cse' ],
+			'hi' => [ 'veo5jv3yqlo', 'https://cse.google.co.in/cse' ],
+			'id' => [ '-gta3fdvfh8', 'https://cse.google.co.id/cse' ],
+			'it' => [ 'tav742__lhu', 'https://cse.google.it/cse' ],
+			'ja' => [ 'g_epwflza0e', 'https://cse.google.co.jp/cse' ],
+			'ko' => [ '4datrbvuolo', 'https://cse.google.co.kr/cse' ],
+			'nl' => [ 'lgi9gl9f5so', 'https://cse.google.nl/cse' ],
+			'pt' => [ 'npdtpoa9n0o', 'https://cse.google.pt/cse' ],
+			'ru' => [ '9eczeje2tra', 'https://cse.google.ru/cse' ],
+			'th' => [ 'ub6yetul04s', 'https://cse.google.co.th/cse' ],
+			'tr' => [ '5fi_u5xsm5k', 'https://cse.google.com.tr/cse' ],
+			'vi' => [ 'tghxspjdhxu', 'https://cse.google.com.vn/cse' ],
+			'zh' => [ 'wqu8qtfdf2g', 'https://cse.google.com.hk/cse' ],
 		];
 
 		$langCnf = $cnf[$wgLanguageCode] ?? null;
@@ -264,7 +265,7 @@ class WikihowHomepage extends Article {
 			return false;
 		}
 
-		$site = Misc::isMobileMode() ? $langCnf[1] : $langCnf[2];
+		$site = Misc::isMobileMode() ? $langCnf[1] : "{$wgCanonicalServer}/Special:GoogSearch";
 		$cxid = $langCnf[0];
 
 		return $site . '?cx=008953293426798287586:' . $cxid . '&cof=FORID%3A10&ie=UTF-8&q={search_term_string}';

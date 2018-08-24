@@ -69,10 +69,7 @@ var debugCallbackFunc = null,
 
 // Project LIA -- logging data on periodic visitors to the site so that we
 // can eventually offer to edit articles that might be in their interests.
-var timers = [{'t':1}, {'t':10}, {'t':30}, {'t':60}, {'t':120}, {'t':180}];
-
-var alternateTimersTest = [6256, 273369, 2161942, 1215252, 1756524, 86484, 1099813, 703191, 1410426, 1151586, 33060, 1464781, 4063687, 2854494, 3037374, 2660480, 192336, 4458945, 1231084, 2115025, 2850868, 7495, 4019578, 373667, 2188607, 441133, 5868, 4082, 5884688, 25067, 45696, 26479, 237241, 129781, 2723288, 36973, 867321, 175672, 391387, 75604, 381649, 2768446, 1365615, 650388, 13498, 232692, 2053, 1685302, 784172, 47930, 3126454, 23163];
-var alternateTimers = [{'t':1}, {'t':10}, {'t':20}, {'t':30}, {'t':45}, {'t':60}, {'t':90}, {'t':120}, {'t':180}, {'t':240}, {'t':300}, {'t':420}, {'t':480}, {'t':540}, {'t':600} ];
+var timers = [{'t':1}, {'t':10}, {'t':20}, {'t':30}, {'t':45}, {'t':60}, {'t':90}, {'t':120}, {'t':180}, {'t':240}, {'t':300}, {'t':360}, {'t':420}, {'t':480}, {'t':540}, {'t':600} ];
 
 function makeID(len) {
 	var text = '';
@@ -238,13 +235,12 @@ function start() {
 
 	// Set timers for Project LIA (Project "Log It All" and let a Norse god sort it out)
 	if (pingTimersEnabled) {
-		if (alternateTimersTest.indexOf(WH.pageID) !== -1) {
-			timers = alternateTimers;
-		}
 		// Setup first timer ping, indexed by currentTimerIndex
 		setupNextTimerPing();
 	}
 
+	// Set onFocus and onBlur event handlers to track "active" time on page
+	//
 	// Use a different event for IE 7-9
 	// reference: http://www.thefutureoftheweb.com/blog/detect-browser-window-focus
 	if (msieVersion && 7 <= msieVersion && msieVersion <= 9) {
@@ -255,7 +251,13 @@ function start() {
 		window.onblur = onBlur;
 	}
 
-	// If we are exit timing this page, set onUnload, onFocus and onBlur event handlers
+	// do a test where we enable exit timers on mobile for a set of articles
+	var testArticles = [6256, 273369, 2161942, 1215252, 1756524, 86484, 1099813, 703191, 1410426, 1151586, 33060, 1464781, 4063687, 2854494, 3037374, 2660480, 192336, 4458945, 1231084, 2115025, 2850868, 7495, 4019578, 373667, 2188607, 441133, 5868, 4082, 5884688, 25067, 45696, 26479, 237241, 129781, 2723288, 36973, 867321, 175672, 391387, 75604, 381649, 2768446, 1365615, 650388, 13498, 232692, 2053, 1685302, 784172, 47930, 3126454, 23163];
+	if (testArticles.indexOf(WH.pageID) !== -1) {
+		exitTimerEnabled = countableView && pageLang == 'en';
+	}
+
+	// If we are exit timing this page, set onUnload (and onBeforeUnload) event handlers
 	if (exitTimerEnabled) {
 		window.onunload = onUnload;
 		window.onbeforeunload = onUnload;

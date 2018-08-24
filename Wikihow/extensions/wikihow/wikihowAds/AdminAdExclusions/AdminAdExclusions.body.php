@@ -123,7 +123,7 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 			Misc::jsonResponse(['html' => $html]);
 
 		} else {
-			Misc::respondWith404();
+			Misc::exitWith404();
 		}
 	}
 

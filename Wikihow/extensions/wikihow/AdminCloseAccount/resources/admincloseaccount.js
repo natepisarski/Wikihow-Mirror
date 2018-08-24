@@ -9,34 +9,34 @@
 	var cache = { fuzzy: {}, strict: {} };
 
 	var states = {
-		'search_results': {
-			toggle: [ '#aca_search_results' ],
+		'query_results': {
+			toggle: [ '#aca_query_results' ],
 			enter: function ( params ) {
-				$( '#aca_search_form' ).show();
-				var $template = $( '#aca_search_result_template' ),
-					$results = $( '#aca_search_result_container' );
+				$( '#aca_query_form' ).show();
+				var $template = $( '#aca_query_result_template' ),
+					$results = $( '#aca_query_result_container' );
 
 				if ( params.blank ) {
 					return;
 				}
 				if ( params.loading ) {
-					$( '#aca_search_results' ).addClass( 'aca_loading' );
-					$( '#aca_search_results_loading' ).show();
+					$( '#aca_query_results' ).addClass( 'aca_loading' );
+					$( '#aca_query_results_loading' ).show();
 				} else if ( params.users ) {
-					$( '#aca_search_results' ).removeClass( 'aca_loading' );
+					$( '#aca_query_results' ).removeClass( 'aca_loading' );
 					if ( !params.users.length ) {
-						$( '#aca_search_results_none' ).show();
+						$( '#aca_query_results_none' ).show();
 						return;
 					}
-					$( '#aca_search_results_some' ).show();
+					$( '#aca_query_results_some' ).show();
 					$results.append( params.users.map( function ( user ) {
 						var $result = $template.clone();
 						var registered = user.id !== null;
 
-						$result.attr( 'id', '' ).addClass( 'aca_search_result_rendered' ).show();
-						$result.find( '.aca_search_result_avatar span' )
+						$result.attr( 'id', '' ).addClass( 'aca_query_result_rendered' ).show();
+						$result.find( '.aca_query_result_avatar span' )
 							.css( { backgroundImage: 'url(' + user.avatar + ')' } );
-						$result.find( '.aca_search_result_username' ).append(
+						$result.find( '.aca_query_result_username' ).append(
 							registered ?
 								$( '<a>' )
 									.attr( { target: '_blank', href: user.url } )
@@ -50,14 +50,14 @@
 									.addClass( 'aca_mute' )
 									.text( '(anonymous)' )
 						);
-						$result.find( '.aca_search_result_useremail' ).append(
+						$result.find( '.aca_query_result_useremail' ).append(
 							user.email ?
 								$( '<span>' )
 									.toggleClass( 'aca_confirmed', user.confirmed )
 									.text( user.email ) :
 								$( '<span>' ).addClass( 'aca_mute' ).text( '(no email)' )
 						);
-						$result.find( '.aca_search_result_edits' ).append(
+						$result.find( '.aca_query_result_edits' ).append(
 							user.edits ?
 								$( '<a>' )
 									.attr( {
@@ -71,15 +71,13 @@
 						);
 						var date = new Date( user.since );
 						date = [ date.getYear() + 1900, date.getMonth(), date.getDay() ].join( '/' );
-						$result.find( '.aca_search_result_registration' )
+						$result.find( '.aca_query_result_registration' )
 							.addClass( 'aca_mute' )
 							.append( $( '<p>' ).text( 'Since' ), $( '<p>' ).text( date ) );
-						$result.find( '.aca_remove_submit' )
-							.text( registered ? 'Close Account' : 'Remove Email' )
+						$result.find( '.aca_describe_submit' )
+							.text( 'Review' )
 							.on( 'click', function () {
-								if ( confirm( 'Are you sure? This action is not reversible.' ) ) {
-									change( 'remove_loading', { user: user } );
-								}
+								change( 'describe_loading', { user: user } );
 							} );
 
 						return $result;
@@ -87,27 +85,30 @@
 				}
 			},
 			exit() {
-				$( '.aca_search_result_rendered' ).remove();
-				$( '#aca_search_results_loading' ).hide();
-				$( '#aca_search_results_none' ).hide();
-				$( '#aca_search_results_some' ).hide();
+				$( '.aca_query_result_rendered' ).remove();
+				$( '#aca_query_results_loading' ).hide();
+				$( '#aca_query_results_none' ).hide();
+				$( '#aca_query_results_some' ).hide();
 			}
 		},
-		'remove_loading': {
-			toggle: [ '#aca_remove_loading' ],
+		'describe_loading': {
+			toggle: [ '#aca_describe_loading' ],
 			enter: function ( params ) {
-				$( '#aca_remove_loading_subject' ).text( params.user.name || params.user.email );
-				$( '#aca_search_form' ).hide();
+				var registered = params.user.id !== null;
+				$( '#aca_describe_loading_subject' ).text(
+					registered ? params.user.name + ' (' + params.user.id + ')' : params.user.email
+				);
+				$( '#aca_query_form' ).hide();
 
-				// Purge cache since the about-to-be-removed user is in there
-				cache = { fuzzy: {}, strict: {} };
-				var action = params.user.id !== null ? 'close_account' : 'remove_email';
 				var data = {
 					editToken: editToken,
-					action: action,
-					username: params.user.name,
-					email: params.user.email
+					action: 'describe'
 				};
+				if ( params.user.name ) {
+					data.name = params.user.name;
+				} else {
+					data.email = params.user.email;
+				}
 				queried = false;
 				$.ajax( {
 					type: 'POST',
@@ -116,34 +117,107 @@
 					data: data
 				} )
 					.done( function ( response ) {
-						change( 'remove_results', response );
+						change( 'describe_results', { user: params.user, response: response } );
 					} )
 					.fail( function ( response ) {
 						change( 'error', parseError( response ) );
 					} );
 			}
 		},
-		'remove_results': {
-			toggle: [ '#aca_remove_results' ],
+		'describe_results': {
+			toggle: [ '#aca_describe_results' ],
 			enter: function ( params ) {
-				$( '#aca_remove_results_target' ).text( params.target );
-				var $changes = $( '#aca_remove_results_changes' ).empty();
-				if ( params.results.changes.length ) {
-					params.results.changes.forEach( function ( change ) {
-						$changes.append( $( '<li>' ).text( change ) );
+				var registered = params.user.id !== null;
+				var response = params.response;
+				$( '#aca_describe_results_target' ).text( response.target );
+
+				var someChanges = response.results.changes.length;
+				$( '#aca_describe_results_changes_some' ).toggle( !!someChanges );
+				$( '#aca_describe_results_changes_none' ).toggle( !someChanges );
+				var $changes = $( '#aca_describe_results_changes' ).empty();
+				response.results.changes.forEach( function ( change ) {
+					$changes.append( $( '<li>' ).html( change ) );
+				} );
+
+				var someWarnings = response.results.warnings.length;
+				$( '#aca_describe_results_warnings_some' ).toggle( !!someWarnings );
+				$( '#aca_describe_results_warnings_none' ).toggle( !someWarnings );
+				var $warnings = $( '#aca_describe_results_warnings' ).empty();
+				response.results.warnings.forEach( function ( warning ) {
+					$warnings.append( $( '<li>' ).html( warning ) );
+				} );
+
+				$( '#aca_execute_submit' )
+					.text( registered ? 'Close Account' : 'Remove Email' )
+					.off( 'click' )
+					.one( 'click', function () {
+						if ( confirm( 'Are you sure? This action is not reversible.' ) ) {
+							change( 'execute_loading', {
+								user: params.user,
+								executeToken: response.executeToken
+							} );
+						}
 					} );
+				$( '#aca_query_form' )[0].reset();
+			}
+		},
+		'execute_loading': {
+			toggle: [ '#aca_execute_loading' ],
+			enter: function ( params ) {
+				var registered = params.user.id !== null;
+				$( '#aca_execute_loading_subject' ).text(
+					registered ? params.user.name + ' (' + params.user.id + ')' : params.user.email
+				);
+
+				// Purge cache since the about-to-be-removed user is in there
+				cache = { fuzzy: {}, strict: {} };
+				var data = {
+					editToken: editToken,
+					executeToken: params.executeToken,
+					action: 'execute',
+				};
+				if ( params.user.name ) {
+					data.name = params.user.name;
 				} else {
-					$changes.append( $( '<li>' ).text( 'None' ) );
+					data.email = params.user.email;
 				}
-				var $warnings = $( '#aca_remove_results_warnings' ).empty();
-				if ( params.results.warnings.length ) {
-					params.results.warnings.forEach( function ( warning ) {
-						$warnings.append( $( '<li>' ).text( warning ) );
+				$.ajax( {
+					type: 'POST',
+					dataType: 'json',
+					url: '/Special:AdminCloseAccount',
+					data: data
+				} )
+					.done( function ( response ) {
+						change( 'execute_results', { user: params.user, response: response } );
+					} )
+					.fail( function ( response ) {
+						change( 'error', parseError( response ) );
 					} );
-				} else {
-					$warnings.append( $( '<li>' ).text( 'None' ) );
-				}
-				$( '#aca_search_form' )[0].reset();
+			}
+		},
+		'execute_results': {
+			toggle: [ '#aca_execute_results' ],
+			enter: function ( params ) {
+				var response = params.response;
+				$( '#aca_execute_results_target' ).text( response.target );
+
+				var someChanges = response.results.changes.length;
+				$( '#aca_execute_results_changes_some' ).toggle( !!someChanges );
+				$( '#aca_execute_results_changes_none' ).toggle( !someChanges );
+				var $changes = $( '#aca_execute_results_changes' ).empty();
+				response.results.changes.forEach( function ( change ) {
+					$changes.append( $( '<li>' ).html( change ) );
+				} );
+
+				var someWarnings = response.results.warnings.length;
+				$( '#aca_execute_results_warnings_some' ).toggle( !!someWarnings );
+				$( '#aca_execute_results_warnings_none' ).toggle( !someWarnings );
+				var $warnings = $( '#aca_execute_results_warnings' ).empty();
+				response.results.warnings.forEach( function ( warning ) {
+					$warnings.append( $( '<li>' ).html( warning ) );
+				} );
+
+				$( '#aca_query_form' )[0].reset();
 			}
 		},
 		'error': {
@@ -192,24 +266,24 @@
 		var mode = fuzzy ? 'fuzzy' : 'strict';
 		next = function () {
 			if ( !query ) {
-				change( 'search_results', { blank: true } );
+				change( 'query_results', { blank: true } );
 				return;
 			}
 			if ( query in cache[mode] ) {
-				change( 'search_results', cache[mode][query] );
+				change( 'query_results', cache[mode][query] );
 				return;
 			}
 			if ( !queried ) {
-				change( 'search_results', { loading: true } );
+				change( 'query_results', { loading: true } );
 				queried = true;
 			}
-			$( '#aca_search_form,#aca_search_results' ).addClass( 'aca_loading' );
+			$( '#aca_query_form,#aca_query_results' ).addClass( 'aca_loading' );
 			loading = $.ajax( {
 				type: 'POST',
 				dataType: 'json',
 				url: '/Special:AdminCloseAccount',
 				data: {
-					action: 'query_users',
+					action: 'query',
 					query: query,
 					fuzzy: fuzzy,
 					editToken: editToken
@@ -218,14 +292,14 @@
 				.done( function ( response ) {
 					cache[mode][query] = response;
 					if ( !next ) {
-						change( 'search_results', response );
+						change( 'query_results', response );
 					}
 				} )
 				.fail( function ( response ) {
 					change( 'error', parseError( response ) );
 				} )
 				.always( function () {
-					$( '#aca_search_form,#aca_search_results' ).removeClass( 'aca_loading' );
+					$( '#aca_query_form,#aca_query_results' ).removeClass( 'aca_loading' );
 				} );
 		};
 		if ( loading ) {
@@ -244,18 +318,19 @@
 	$( function () {
 		editToken = $( '#aca_edit_token' ).val();
 		function query() {
-			queryUsers( $( '#aca_search_query' ).val(), $( '#aca_search_fuzzy:checked' ).val() );
+			queryUsers( $( '#aca_query_query' ).val(), $( '#aca_query_fuzzy:checked' ).val() );
 		}
-		$( '#aca_search_query' ).on( 'input', query );
-		$( '#aca_search_fuzzy' ).on( 'input', query );
-		$( '#aca_search_form' ).on( 'submit', function () {
+		$( '#aca_query_query' ).on( 'input', query );
+		$( '#aca_query_fuzzy' ).on( 'input', query );
+		$( '#aca_query_form' ).on( 'submit', function () {
 			query();
 			return false;
 		} );
-		$( '#aca_remove_done,#aca_error_done' ).on( 'click', function () {
-			change( 'search_results', { blank: true } );
+		$( '#aca_execute_done,#aca_error_done,#aca_describe_cancel' ).on( 'click', function () {
+			change( 'query_results', { blank: true } );
+			$(window).scrollTop(0);
 		} );
-		change( 'search_results', { blank: true } );
+		change( 'query_results', { blank: true } );
 	} );
 
 }( window, document, jQuery ) );

@@ -16,7 +16,7 @@ class CategoryQuestions {
 	function getQuestionsByCategory($category = "") {
 		//first make sure the category exists
 		$title = Title::makeTitle(NS_CATEGORY, $category);
-		if(!$title || $title->getArticleID() <= 0) {
+		if(!$title || $title->getArticleID() <= 0 || $title->isRedirect()) {
 			//cat no longer exists, so remove it from the table.
 			$dbw = wfGetDB(DB_MASTER);
 			$dbw->delete(AnswerQuestions::TABLE_QUEUE, ['aqq_category' => $category], __METHOD__);

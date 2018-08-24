@@ -399,7 +399,12 @@ class WHVid {
 	}
 
 	public static function getSummaryIntroOverlayHtml( $sectionName, $title ) {
-		$playButtonInner = Html::element( 'div', ['class' => 'm-video-play-count-triangle' ] );
+		$isMobile = Misc::isMobileMode();
+		if($isMobile) {
+			$playButtonInner = Html::element('div', ['class' => 'm-video-play-count-triangle']);
+		} else {
+			$playButtonInner = Html::element('div', ['class' => 'm-video-play-count-triangle']) . " Watch";
+		}
 
 		$playButtonAttributes = array(
 			'class' => 'm-video-play',
@@ -410,14 +415,36 @@ class WHVid {
 		$titleTextClass = self::getTitleTextClass( $title );
 		$titleTextAttributes = ['class' => $titleTextClass];
 
-		$introText = Html::rawElement( 'div', ['class' => $introTextClass], $sectionName );
-		$introText .= Html::rawElement( 'div', ['class' => 'm-video-intro-text'], 'Watch this <span id="m-video-intro-time">30 second</span><div id="m-video-intro-time-v2"></div> video' );
-		$introText .= Html::rawElement( 'div', $titleTextAttributes, 'to learn how to ' . $title->getText() );
-		$introText .= Html::rawElement( 'div', ['class' => 'm-video-intro-text'], 'or read the full article below!' . $readMore );
+		if($isMobile) {
+			$introText = Html::rawElement('div', ['class' => $introTextClass], $sectionName);
+			$introText .= Html::rawElement('div', ['class' => 'm-video-intro-text'], 'Watch this <span id="m-video-intro-time">30 second</span><div id="m-video-intro-time-v2"></div> video');
+			$introText .= Html::rawElement('div', $titleTextAttributes, 'to learn how to ' . $title->getText());
+			$introText .= Html::rawElement('div', ['class' => 'm-video-intro-text'], 'or read the full article below!' . $readMore);
+		} else {
+			$introText = Html::rawElement('div', ['class' => 'm-video-intro-overlay']);
+		}
+
 		$intro = Html::rawElement( 'div', ['class' => 'm-video-intro'], $introText );
 
 		$playButton = Html::rawElement( "div", $playButtonAttributes, $playButtonInner );
 		$introContents .= $intro . $playButton;
+
+		if(!$isMobile) {
+			$dbr = wfGetDB(DB_SLAVE);
+			$titus_copy = WH_DATABASE_NAME_EN . '.titus_copy';
+			$count = intval($dbr->selectField(
+				$titus_copy,
+				'ti_summary_video_views',
+				['ti_page_id' => $title->getArticleID(), 'ti_language_code' => 'en'],
+				__METHOD__
+			));
+			if ($count > 1000) {
+				$count = floor($count / 1000) . "k";
+			}
+
+			$views = Html::rawElement('div', ['class' => 'm-video-views'], $count . " views");
+			$introContents .= $views;
+		}
 
 		$mVideoIntroOver = Html::rawElement( 'div', ['class' => 'm-video-intro-over'], $introContents );
 		if ( $title && ArticleTagList::hasTag( 'summary-video-no-overlay', $title->getArticleID() ) ) {

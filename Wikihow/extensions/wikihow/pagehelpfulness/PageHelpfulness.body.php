@@ -461,7 +461,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 				}
 				if ($title && $title->exists()) {
 					$html = $this->getPageData($title);
-					$result = array('body'=>$html);
+					$result = array( 'body' => utf8_encode( $html ) );
 					echo json_encode($result);
 				}
 			} elseif ($type == "sample") {

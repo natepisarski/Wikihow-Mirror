@@ -15,7 +15,7 @@ class SpecialVideoBrowser extends SpecialPage {
 	}
 
 	public function execute( $sub ) {
-		global $wgHooks, $wgSquidMaxage;
+		global $wgHooks, $wgSquidMaxage, $wgParser;
 
 		$wgHooks['CustomSideBar'][] = [ $this, 'makeCustomSideBar' ];
 		$wgHooks['ShowBreadCrumbs'][] = [ $this, 'removeBreadCrumbsCallback' ];
@@ -55,9 +55,19 @@ class SpecialVideoBrowser extends SpecialPage {
 				// Viewer
 				$pageTitle = wfMessage( 'videobrowser-how-to', $viewing['title'] )->text();
 				$htmlTitle = wfMessage( 'videobrowser-viewer-title', $pageTitle )->text();
+
+				$title = Title::newFromText( "Summary:{$viewing['title']}" );
+				$article = Article::newFromTitle( $title, $output->getContext() );
+				$parserOutput = $wgParser->parse(
+					$article->getContent(), $title, new ParserOptions()
+				);
+				$summary = $parserOutput->getText();
+
 				$prerender = VideoBrowser::render( 'viewer-prerender.mustache', [
 					'url' => $url,
 					'read-more' => wfMessage( 'videobrowser-read-more' )->text(),
+					'summary' => $summary,
+					'summaryText' => trim( strip_tags( $summary ) ),
 					'video' => $viewing
 				] );
 			} else {
@@ -70,7 +80,10 @@ class SpecialVideoBrowser extends SpecialPage {
 			$output->setHtmlTitle( $htmlTitle );
 			$output->addHtml( $prerender );
 
-			$root = FormatJson::encode( preg_replace( "/\/?{$sub}(\?.*)?\$/", '', $url ) );
+			$parsedUrl = parse_url( $url );
+			$root = FormatJson::encode(
+				preg_replace( "/(\\/" . preg_quote( $sub, '/' ) . ")?\$/", '', $parsedUrl['path'] )
+			);
 			$data = FormatJson::encode( $videos );
 
 			$output->addHtml( Html::inlineScript(

@@ -14,6 +14,8 @@ class CategoryData {
 	const ALL_ARTICLES_CHUNK = 100;
 	const SUB_CAT_CHUNK = 24;
 
+	const LISTING_TABLE = 'categorylisting';
+
 	function __construct(Title $title, int $currentPage = 1) {
 		$this->t = $title;
 		$this->currentPage = $currentPage;
@@ -123,7 +125,7 @@ class CategoryData {
 		$catmap = Categoryhelper::getIconMap();
 		ksort($catmap);
 
-		$catData = array();
+		$catData = ["subcats" => []];
 		foreach ($catmap as $cat => $image) {
 			$title = Title::newFromText($image);
 
@@ -141,14 +143,28 @@ class CategoryData {
 				$category = urldecode(str_replace("-", " ", $cat));
 				$catTitle = Title::newFromText($category, NS_CATEGORY);
 				if ($catTitle) {
-					$catData[] = array(
+					$catData["subcats"][] = [
 						'url' => $catTitle->getLocalURL($queryString),
 						'img_url' => wfGetPad($thumb->getUrl()),
 						'cat_title' => $category
-					);
+					];
+
 				}
+
+
 			}
 		}
 		return $catData;
+	}
+
+	private function getCategoryListingInfo() {
+		$dbr = wfGetDB(DB_SLAVE);
+		$dbr->select(
+			self::LISTING_TABLE,
+			'*',
+			[],
+			__METHOD__
+		);
+
 	}
 }

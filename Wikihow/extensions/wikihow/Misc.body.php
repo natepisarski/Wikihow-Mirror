@@ -983,11 +983,14 @@ class Misc {
 		return $wgLanguageCode != 'en';
 	}
 
-	public static function respondWith404($msg = "Page not found") {
+	/**
+	 * Send a 404 response and exit()
+	 */
+	public static function exitWith404($msg = "Page not found") {
 		global $wgRequest;
 		$wgRequest->response()->header("HTTP/1.1 404 Not Found");
 		echo $msg;
-		die();
+		exit();
 	}
 
 	public static function isAltDomain(): bool {

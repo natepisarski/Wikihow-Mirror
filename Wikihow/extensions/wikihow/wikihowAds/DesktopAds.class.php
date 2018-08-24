@@ -308,6 +308,9 @@ class DesktopAds {
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
 			$adCreator = new MixedAdCreatorVersion2();
+			if ( $pageId % 100 < 50 ) {
+				$adCreator = new MixedAdCreatorVersion3();
+			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
@@ -342,13 +345,19 @@ class DesktopAds {
 		$this->mAdCreator->insertAdsInBody();
 	}
 
+	public function getVideoAdsJavascriptFile() {
+		if ( !$this->mActive ) {
+			return '';
+		}
+		return dirname( __FILE__ ) . "/videoads.compiled.js";
+	}
+
 	public function getJavascriptFile() {
 		if ( !$this->mActive ) {
 			return '';
 		}
+		// TODO compiled this js
 		return dirname( __FILE__ ) . "/wikihowdesktopads.js";
 	}
-	// a comment
-	// another comment
 }
 

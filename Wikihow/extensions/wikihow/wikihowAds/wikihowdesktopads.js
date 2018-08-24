@@ -20,6 +20,12 @@ WH.desktopAds = (function () {
 	var bodyAds = [];
 	var lastScrollPosition = window.scrollY;
 
+	function log() {
+		if (window.location.pathname == "/Drive-Manual") {
+			console.log.apply(null, arguments);
+		}
+	}
+
 	function isDocumentHidden() {
 		var hidden = false;
 		if (null!=document.hidden) {
@@ -35,6 +41,7 @@ WH.desktopAds = (function () {
 	}
 
 	function apsFetchBids(slotValues, gptSlotIds) {
+		log("apsFetchBids", slotValues, gptSlotIds);
 		var gptSlots = [];
 		for (var i = 0; i < gptSlotIds.length; i++) {
 			gptSlots.push(gptAdSlots[gptSlotIds[i]]);
@@ -55,6 +62,7 @@ WH.desktopAds = (function () {
 	}
 
 	function apsLoad(ad) {
+		log("apsLoad", ad);
 		var id = ad.adTargetId;
 		var display = ad.lateLoad;
 		var slotName = gptAdSlots[id].getName();
@@ -78,6 +86,7 @@ WH.desktopAds = (function () {
 	}
 
 	function gptLoad(ad) {
+		log('gptLoad', ad);
 		var id = ad.adTargetId;
 		var display = ad.lateLoad;
 		var refreshValue = ad.getRefreshValue();
@@ -94,6 +103,7 @@ WH.desktopAds = (function () {
 	}
 
 	function impressionViewable(slot) {
+		log('impression viewable on slot', slot);
 		var ad;
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var tempAd = rightRailElements[i];
@@ -118,6 +128,7 @@ WH.desktopAds = (function () {
 	}
 
 	function slotRendered(slot, size, e) {
+		log('slotRendered', e);
 		// look for right rail ads which are the only ones that will be moved/refreshed
 		var ad;
 		for (var i = 0; i < rightRailElements.length; i++) {
@@ -264,6 +275,7 @@ WH.desktopAds = (function () {
 		};
 
 		this.refresh = function() {
+			log('refresh called on ad', this);
 			var ad = this;
 			if (isDocumentHidden()) {
 				// check again later

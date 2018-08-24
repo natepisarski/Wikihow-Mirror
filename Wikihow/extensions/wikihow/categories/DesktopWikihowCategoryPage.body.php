@@ -11,7 +11,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 		$wgHooks['ShowSideBar'][] = ['DesktopWikihowCategoryPage::removeSideBarCallback'];
 
 		if (Misc::isAltDomain()) {
-			Misc::respondWith404();
+			Misc::exitWith404();
 		}
 
 		$ctx = $this->getContext();
@@ -237,6 +237,8 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 				$out->setStatusCode(404);
 				return;
 			} else {
+				$css = Misc::getEmbedFile('css', dirname(__FILE__) . '/categories-owl.css');
+				$out->addHeadItem('catcss', HTML::inlineStyle($css));
 				$out->addModules('ext.wikihow.desktop_category_page');
 				$out->addHTML($html);
 			}

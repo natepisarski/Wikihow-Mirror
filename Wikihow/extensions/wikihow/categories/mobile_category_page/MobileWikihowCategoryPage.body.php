@@ -11,7 +11,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		global $wgSquidMaxage;
 
 		if (Misc::isAltDomain()) {
-			Misc::respondWith404();
+			Misc::exitWith404();
 		}
 
 		$ctx = RequestContext::getMain();
@@ -109,7 +109,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$carouselHtml = array_merge($carouselHtml,  $this->getSubcategoryCarouselsHtml($subCats, $maxSubsToFill));
 
 		if (!$carouselHtml) {
-			Misc::respondWith404();
+			Misc::exitWith404();
 		}
 
 		return [

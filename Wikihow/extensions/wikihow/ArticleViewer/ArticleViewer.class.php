@@ -184,7 +184,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		}
 
 		if ($count == 0 && Misc::isAltDomain()) {
-			Misc::respondWith404();
+			Misc::exitWith404();
 		}
 
 		if($getSubcats) {

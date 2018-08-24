@@ -1,7 +1,21 @@
 <?php
 
 class QAPatrolItem {
-	var $qapid, $submitterName, $submitterUserId, $verifierId, $verifierData, $articleId, $question, $answer, $qapsqid, $qapTimestamp, $isTopAnswerer;
+	var $qapid, $submitterName, $submitterUserId, $verifierId, $verifierData, $articleId, $question, $answer, $qapsqid, $qapTimestamp, $isTopAnswerer, $submitterDisplayName, $submitterAvatar;
+
+	/**
+	 * @return mixed
+	 */
+	public function getSubmitterName() {
+		return $this->submitterName;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getSubmitterDisplayName() {
+		return $this->submitterDisplayName;
+	}
 
 	/**
 	 * @return mixed
@@ -34,6 +48,9 @@ class QAPatrolItem {
 		} else {
 			$this->verifierData = null;
 		}
+
+		$this->submitterDisplayName = '';
+		$this->submitterAvatar = '';
 	}
 
 	public function setProfileDisplayData($display_data) {
