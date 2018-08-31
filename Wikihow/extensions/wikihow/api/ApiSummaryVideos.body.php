@@ -97,12 +97,6 @@ class ApiSummaryVideos extends ApiQueryBase {
 				$where['ti_featured'] = 1;
 			}
 
-			// Apply limit, just 1 for anything we don't recognize, except for related since we have
-			// to limit that during category intersection testing
-			if ( isset( $limit ) && !( $related || $shuffle ) ) {
-				$options['LIMIT'] = $limit;
-			}
-
 			// Get meta info for every article with a summary video
 			$rows = $dbr->select( $tables, $fields, $where, __METHOD__, $options, $joins );
 
@@ -138,11 +132,16 @@ class ApiSummaryVideos extends ApiQueryBase {
 						continue;
 					}
 				}
+				// Filter out alt-domain titles
+				if ( !empty( AlternateDomain::getAlternateDomainForPage( $row->ami_id ) ) ) {
+					continue;
+				}
 				$title = Title::newFromId( $row->ami_id );
 				$videos[] = [
 					'id' => $row->ami_id,
 					'title' => $title->getText(),
-					'article' => 'https:' . $title->getFullUrl(),
+					'article' => $title->getCanonicalURL(),
+					//'article_test' => 'https:' . $title->getFullURL(),
 					'updated' => wfTimestamp(  TS_ISO_8601, $row->vid_processed ),
 					'video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
 					'poster' => static::getPosterUrlFromVideo( $row->ami_summary_video ),

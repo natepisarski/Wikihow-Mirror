@@ -39,7 +39,7 @@ abstract class DesktopAdCreator {
 	var $mAdLabelVersion = 1;
 	var $mRightRailAdLabelVersion = 1;
 	var $mStickyIntro = false;
-	var $mDFPKeyVals = array(array());
+	var $mDFPKeyVals = array();
 	var $mRefreshableRightRail = false;
 	var $mApsLoad = false;
 
@@ -502,7 +502,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		} else if ( $this->mAdServices['method'] == "dfp" ) {
 			$ad = $this->getMethodAdDFP();
 		}
-		$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
+		if ( $ad->targetId ) {
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
+		}
 		return $ad;
 	}
 
@@ -847,7 +849,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 
 	// returns a javascript snippet of the ad unit path
 	// instead of just a string to prevetn google bot from crawling these paths
-	private function getGPTAdSlot( $ad ) {
+	protected function getGPTAdSlot( $ad ) {
 		$adUnitPath = $this->mDFPData[$ad->mType]['adUnitPath'];
 		$adUnitPath = str_replace( "/", "|", $adUnitPath);
 		$adUnitPath = "'".$adUnitPath . "'.replace(/\|/g,'/')";
@@ -1226,45 +1228,24 @@ class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
 	}
 }
 // RR1 has different ad unit
-class MixedAdCreatorVersion4 extends MixedAdCreatorVersion2 {
+class MixedAdCreatorVersion4 extends MixedAdCreatorVersion3 {
 	public function __construct() {
 		$this->mAdsenseSlots = array(
-			'intro' => 7862589374,
-			'step' => 1652132604,
-			'rightrail0' => 4769522171,
 		);
 		$this->mAdServices = array(
-			'intro' => 'adsense',
-			'step' => 'adsense',
-			'method' => 'dfp',
 			'rightrail0' => 'dfp',
-			'rightrail1' => 'dfp',
-			'rightrail2' => 'dfp',
-			'quiz' => 'dfp'
 		);
+	}
+	protected function getGPTAdSlot( $ad ) {
+		$adUnitPath = $this->mDFPData[$ad->mType]['adUnitPath'];
+		return "'". $adUnitPath . "'";
 	}
 
 	protected function setDFPAdUnitPaths() {
 		$this->mDFPData = array(
-			'method' => array(
-				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
-				'size' => '[728, 90]'
-			),
 			'rightrail0' => array(
-				'adUnitPath' => '/10095428/AllPages_RR1_English_Desktop',
+				'adUnitPath' => '/10095428/Refreshing_Ad_RR1_Test',
 				'size' => '[[300, 250],[300, 600]]'
-			),
-			'rightrail1' => array(
-				'adUnitPath' => '/10095428/RR2_Test_32',
-				'size' => '[[300, 250],[300, 600]]'
-			),
-			'rightrail2' => array(
-				'adUnitPath' => '/10095428/RR3_Test_32',
-				'size' => '[[300, 250],[300, 600]]'
-			),
-			'quiz' => array(
-				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
-				'size' => '[728, 90]'
 			),
 		);
 	}

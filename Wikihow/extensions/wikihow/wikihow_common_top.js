@@ -311,8 +311,24 @@ $jqWindow.scroll(handleScrollEvent);
 
 var isIOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/gi) !== null;
 if (isIOS) {
-	$jqWindow.bind('touchmove', handleScrollEvent);
-	$jqWindow.bind('touchstart', handleScrollEvent);
+	// Feature test for passive event listener support. From:
+	// https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
+
+	// Test via a getter in the options object to see if the passive property is accessed
+	var supportsPassive = false;
+	try {
+		var opts = Object.defineProperty({}, 'passive', {
+			get: function() {
+				supportsPassive = true;
+			}
+		});
+		window.addEventListener('testPassive', null, opts);
+		window.removeEventListener('testPassive', null, opts);
+	} catch (e) {}
+	var passiveParam = supportsPassive ? { passive: true } : false;
+
+	$jqWindow.bind('touchstart', handleScrollEvent, passiveParam);
+	$jqWindow.bind('touchmove', handleScrollEvent, passiveParam);
 	$jqWindow.bind('touchend', handleScrollEvent);
 }
 

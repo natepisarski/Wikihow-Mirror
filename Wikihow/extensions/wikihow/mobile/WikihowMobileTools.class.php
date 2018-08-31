@@ -860,6 +860,8 @@ class WikihowMobileTools {
 		// this is a way to ensure that the sticky class is not added when it is not needed
 		pq('.section.sticky')->removeClass('sticky');
 
+		wfRunHooks('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
+
 		UserTiming::modifyDOM($canonicalSteps);
 		PinterestMod::modifyDOM();
 		ImageCaption::modifyDOM();

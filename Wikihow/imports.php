@@ -99,6 +99,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/WinterSurvivalGuide/WinterSurvivalGuide.php");
 	require_once("$IP/extensions/wikihow/Hypothesis/Hypothesis.php");
 	require_once("$IP/extensions/wikihow/Summary/Summary.php");
+	require_once("$IP/extensions/wikihow/GreenBox/GreenBox.php");
 }
 
 if ($wgLanguageCode == "zh") {

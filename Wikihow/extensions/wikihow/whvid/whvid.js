@@ -154,6 +154,7 @@ WH.video = (function () {
 				if (event.target.tagName == 'INPUT') {
 					video.playButton.style.visibility = 'hidden';
 				}
+				event.stopPropagation();
 			});
 		}
 
@@ -293,6 +294,9 @@ WH.video = (function () {
 				video.replay = el;
 			} else if (el.className == 's-video-replay-overlay') {
 				video.replayOverlay = el;
+				video.replayOverlay.addEventListener('click', function(event) {
+					event.stopPropagation();
+				});
 			} else if (el.className == 'm-video-wm') {
 				drawWatermark(el);
 			} else if (el.className == 'video-ad-container') {
@@ -490,13 +494,15 @@ WH.video = (function () {
 			}
 		};
 
-		var video = this;
-		this.element.addEventListener('click', function() {
-			video.toggle();
-		});
+		if (this.videoPlayer) {
+			var video = this;
+			this.videoPlayer.addEventListener('click', function() {
+				video.toggle();
+			});
+		}
 
 		if (this.controls) {
-			videoControlSetup(video);
+			videoControlSetup(this);
 		}
 	}
 

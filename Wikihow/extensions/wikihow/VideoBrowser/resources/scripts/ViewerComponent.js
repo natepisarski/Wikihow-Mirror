@@ -59,7 +59,9 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				.limit( 3 )
 				.select( 'id' )
 				.map( function ( id ) {
-					return new WH.VideoBrowser.ItemComponent( { id: id, link: true } );
+					return new WH.VideoBrowser.ItemComponent( {
+						id: id, link: true, static: true
+					} );
 				} );
 			document.title = mw.msg(
 				'videobrowser-viewer-title', mw.msg( 'videobrowser-how-to', item.title )
@@ -139,7 +141,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 					[ 'script', { type: 'application/ld+json' }, JSON.stringify( {
 						'@context': 'http://schema.org',
 						'@type': 'VideoObject',
-						'name': item.title,
+						'name': mw.msg( 'videobrowser-how-to', item.title ),
 						'description': state.summaryText || undefined,
 						'thumbnailUrl': [ item['poster@1:1'], item['poster@4:3'], item.poster ],
 						'uploadDate': item.updated,

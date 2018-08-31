@@ -1,0 +1,32 @@
+.green_box, .green_tips_box {
+	background-color: #f0f6ec;
+	margin: .8em auto .5em;
+	width: 95%;
+	border-left: 5px solid #93b873;
+	padding: 10px;
+	border-radius: 4px;
+	box-sizing: border-box;
+	color: #434343;
+	line-height: 1.5em;
+}
+
+.green_box.mobile {
+	margin: 1em auto .2em;
+}
+
+.green_box_headline, .green_tips_box > span {
+	font-weight: bold;
+	font-size: 120%;
+}
+
+/*the Pabst selector*/
+.green_box p+br {
+	display: none;
+}
+
+.green_box p {
+	margin-bottom: .8em;
+}
+.green_box p:last-child {
+	margin-bottom: 0;
+}

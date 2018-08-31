@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"green_box_container": "{{greenbox:$1}}",
+	"green_box_cta_text": "Edit Green Box",
+	"green_box_edit_header": "Edit Green Box",
+	"green_box_log_message": "Updated green box.",
+	"green_box_error_spam": "one or more links triggered the spam filter",
+	"green_box_notice_ref": "<nowiki>Note: new <ref> tags require a page reload to appear in the Sources and Citations section below</nowiki>",
+	"green_box_notice_math": "<nowiki>Note: new <math> tags may require a page reload to appear</nowiki>"
+}

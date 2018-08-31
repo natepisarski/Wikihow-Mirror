@@ -595,15 +595,15 @@
 }
 .ur_rating_off {
 	background-image: url(/skins/owl/images/sp_helpful_icon_star_empty.png);
-	/* @embed sp_helpful_icon_star_empty.optimized.svg */
-	background-image: linear-gradient(transparent, transparent), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26.028' height='24.652' viewBox='0 0 26.028 24.652'%3E%3Cpath fill='%23CDCDCD' d='M13.014 3.378l2.678 5.403.35.706.779.113 5.974.865-4.319 4.192-.568.551.134.78 1.021 5.928-5.354-2.803-.696-.364-.696.364-5.354 2.803 1.021-5.928.134-.78-.568-.551-4.319-4.192L9.205 9.6l.779-.113.35-.706 2.68-5.403m0-3.378L8.992 8.115 0 9.416l6.507 6.316-1.536 8.919 8.043-4.211 8.043 4.211-1.536-8.919 6.507-6.316-8.992-1.301L13.014 0z'/%3E%3C/svg%3E");
+	/* @embed */
+	background-image: linear-gradient(transparent, transparent), url(/skins/owl/images/sp_helpful_icon_star_empty.optimized.svg);
 }
 
 .ur_rating_on {
 	background-size: cover;
 	background-image: url(/skins/owl/images/sp_helpful_icon_star.png);
-	/* @embed sp_helpful_icon_star.optimized.svg */
-	background-image: linear-gradient(transparent, transparent), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26.028' height='24.652' viewBox='0 0 26.028 24.652'%3E%3Cpath fill='%23CDCDCD' d='M13.014 0l4.022 8.115 8.992 1.301-6.507 6.316 1.536 8.919-8.043-4.211-8.043 4.211 1.536-8.919L0 9.416l8.992-1.301L13.014 0z'/%3E%3C/svg%3E");
+	/* @embed */
+	background-image: linear-gradient(transparent, transparent), url(/skins/owl/images/sp_helpful_icon_star.optimized.svg);
 }
 
 .content .ur_uci {
@@ -900,4 +900,28 @@ amp-accordion section:not([expanded]) .show-less {
 }
 .m-video-intro-text {
 	position: absolute;
+}
+.green_box, .green_tips_box {
+	background-color: #f0f6ec;
+	margin: 1em auto;
+	width: 95%;
+	border-left: 5px solid #93b873;
+	padding: 10px;
+	border-radius: 4px;
+	box-sizing: border-box;
+	color: #434343;
+	line-height: 1.5em;
+}
+.green_box_headline, .green_tips_box span {
+	font-weight: bold;
+	font-size: 120%;
+}
+.green_box p+br {
+	display: none;
+}
+.green_box p {
+	margin-bottom: .8em;
+}
+.green_box p:last-child {
+	margin-bottom: 0;
 }

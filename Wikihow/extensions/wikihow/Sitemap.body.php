@@ -9,7 +9,8 @@ class Sitemap extends SpecialPage {
 	function getTopLevelCategories() {
 		global $wgCategoriesArticle;
 		$results = array ();
-		$revision = Revision::newFromTitle( Title::newFromText( wfMessage('categories_article')->text() ) );
+		$title = Categoryhelper::getCategoryTreeTitle();
+		$revision = Revision::newFromTitle($title);
 		if (!$revision) return $results;
 
 		// INTL: If there is a redirect to a localized page name, follow it

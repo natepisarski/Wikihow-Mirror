@@ -268,6 +268,22 @@ function start() {
 
 // Added user input event listening for activity metrics
 function addActivityListeners() {
+
+	// Feature test for passive event listener support. From:
+	// https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
+
+	// Test via a getter in the options object to see if the passive property is accessed
+	var supportsPassive = false;
+	try {
+		var opts = Object.defineProperty({}, 'passive', {
+			get: function() {
+				supportsPassive = true;
+			}
+		});
+		window.addEventListener('testPassive', null, opts);
+		window.removeEventListener('testPassive', null, opts);
+	} catch (e) {}
+
 	window.addEventListener('scroll', function(/*e*/) {
 		a2Events++;
 
@@ -299,10 +315,11 @@ function addActivityListeners() {
 	window.addEventListener('click', function(/*e*/) { a2Events++; });
 
 	// touchpad events
-	window.addEventListener('touchstart', function(/*e*/) { a2Events++; });
+	var passiveParam = supportsPassive ? { passive: true } : false;
+	window.addEventListener('touchstart', function(/*e*/) { a2Events++; }, passiveParam);
 	window.addEventListener('touchend', function(/*e*/) { a2Events++; });
 	window.addEventListener('touchcancel', function(/*e*/) { a2Events++; });
-	window.addEventListener('touchmove', function(/*e*/) { a2Events++; });
+	window.addEventListener('touchmove', function(/*e*/) { a2Events++; }, passiveParam);
 
 	// keyboard events
 	document.addEventListener('keydown', function(/*e*/) { a2Events++; });
@@ -445,18 +462,18 @@ function registerDebug(func) {
 	debugQueue = [];
 }
 
+var pingDebugFirst = true;
 function pingDebug(line) {
-	var first = true;
 
 	// debugCallbackFunc only gets set when Stu is in debug mode.
 	// See StuInspector.php for the php side of this Stu debug code.
 	if (debugCallbackFunc) {
 		debugCallbackFunc(line);
-		if (first) {
+		if (pingDebugFirst) {
 			setInterval( function() {
 				basicStatsGen();
 			}, 1000);
-			first = false;
+			pingDebugFirst = false;
 		}
 	} else {
 		debugQueue.push(line);
@@ -647,10 +664,13 @@ function basicStatsGen(extraAttrs) {
 			'a1': calcActivity1(wordCount),
 			'a2': calcActivity2(wordCount),
 			'a3': calcActivity3(),
-			'a4': calcActivity4()
+			'a4': calcActivity4(),
+			'a5': calcActivity5(),
+			'a6': calcActivity6(),
+			'a7': calcActivity7()
 		};
 		attrs = mergeObjects(activity, attrs);
-		//pingDebug('<span class="replace_line">' + 'A1:' + attrs.a1 + ' A2:' + attrs.a2 + ' A3:' + attrs.a3 + ' A4:' + attrs.a4 + '</span>');
+		//pingDebug('<span class="replace_line">' + 'A1:' + attrs.a1 + ' A2:' + attrs.a2 + ' A3:' + attrs.a3 + ' A4:' + attrs.a4 + ' A5:' + attrs.a5 + ' A6:' + attrs.a6 + ' A7:' + attrs.a7 + '</span>');
 	}
 
 	return attrs;
@@ -778,6 +798,32 @@ function calcActivity4() {
 
 	var score = Math.round( (pctReached + pctTime) / 2.0 );
 	return score;
+}
+
+// If user views the last step and stays active on page for:
+//   article_height_in_pixels / 40_pixels_per_second seconds, return 100
+// Else, return 0
+function calcActivity5() {
+	return calcActivityTimeHeight(40);
+}
+
+function calcActivity6() {
+	return calcActivityTimeHeight(80);
+}
+
+function calcActivity7() {
+	return calcActivityTimeHeight(160);
+}
+
+function calcActivityTimeHeight(pixelsPerSec) {
+	if (typeof WH.Stu.lastStepPingSent === 'boolean' && WH.Stu.lastStepPingSent) {
+		var activeTimeSecs = getCurrentActiveTime() / 1000.0;
+		var bodyHeight = getBodyHeight();
+		var expectedSecs = 1.0 * bodyHeight / pixelsPerSec;
+		return activeTimeSecs >= expectedSecs ? 100 : 0;
+	} else {
+		return 0;
+	}
 }
 
 // Expose WH.Stu.start method

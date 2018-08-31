@@ -4,10 +4,10 @@ class Charity extends SpecialPage {
 
 	/* change non-profit info here */
 	/* also, remember to purge AJAX urls after launch */
-	public static $non_profit = 'Wikipedia';
-	var $non_profit_link 			= 'https://www.wikipedia.org/';
-	var $non_profit_logo 			= 'Wikipedia/logo.png';
-	var $non_profit_photo 		= 'Wikipedia/photo_landing.jpg';
+	public static $non_profit = 'NaNoWriMo';
+	var $non_profit_link 			= 'https://nanowrimo.org/';
+	var $non_profit_logo 			= 'NaNoWriMo/logo.png';
+	var $non_profit_photo 		= 'NaNoWriMo/photo_landing.jpg';
 	/*******************************/
 
 	public static $non_profit_water_org = 'WaterOrg';

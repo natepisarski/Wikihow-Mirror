@@ -9,7 +9,7 @@ WH.VideoBrowser.ItemComponent = WH.Render.createComponent( {
 			{ key: item.id, href: item.pathname },
 			[ 'div.videoBrowser-item-content',
 				[ 'div.videoBrowser-item-image',
-					item.clip ?
+					item.clip && !this.props.static ?
 						[ 'video',
 							{
 								src: item.clip,

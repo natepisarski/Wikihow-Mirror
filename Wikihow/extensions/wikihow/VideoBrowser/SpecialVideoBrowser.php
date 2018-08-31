@@ -17,16 +17,31 @@ class SpecialVideoBrowser extends SpecialPage {
 	public function execute( $sub ) {
 		global $wgHooks, $wgSquidMaxage, $wgParser;
 
+		$output = $this->getOutput();
+
+		// Disable for alt domains
+		if ( Misc::isAltDomain() ) {
+			$output->setStatusCode( 404 );
+			return;
+		}
+
 		$wgHooks['CustomSideBar'][] = [ $this, 'makeCustomSideBar' ];
 		$wgHooks['ShowBreadCrumbs'][] = [ $this, 'removeBreadCrumbsCallback' ];
 
-		$this->setHeaders();
-		$output = $this->getOutput();
 		$output->addModules( [ 'ext.wikihow.videoBrowser' ] );
 
-		$videos = ApiSummaryVideos::query();
 		$url = $output->getRequest()->getRequestURL();
+		$parsedUrl = parse_url( $url );
+		$parts = explode( '/', $parsedUrl['path'] );
+		if ( $parts[0] === '' && $parts[1] === 'Special:VideoBrowser' ) {
+			$path = implode( '/', array_merge( [ '', 'Video' ], array_slice( $parts, 2 ) ) );
+			$output->redirect( $path, 301 );
+			return;
+		}
 
+		$this->setHeaders();
+
+		$videos = ApiSummaryVideos::query();
 		$viewing = null;
 		$missing = false;
 		if ( !empty( $sub ) ) {
@@ -68,6 +83,7 @@ class SpecialVideoBrowser extends SpecialPage {
 					'read-more' => wfMessage( 'videobrowser-read-more' )->text(),
 					'summary' => $summary,
 					'summaryText' => trim( strip_tags( $summary ) ),
+					'howToTitle' => wfMessage( 'videobrowser-how-to', $viewing['title'] )->text(),
 					'video' => $viewing
 				] );
 			} else {
@@ -80,7 +96,6 @@ class SpecialVideoBrowser extends SpecialPage {
 			$output->setHtmlTitle( $htmlTitle );
 			$output->addHtml( $prerender );
 
-			$parsedUrl = parse_url( $url );
 			$root = FormatJson::encode(
 				preg_replace( "/(\\/" . preg_quote( $sub, '/' ) . ")?\$/", '', $parsedUrl['path'] )
 			);

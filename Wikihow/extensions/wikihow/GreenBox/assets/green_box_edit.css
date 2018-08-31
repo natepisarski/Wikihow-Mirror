@@ -1,0 +1,45 @@
+#green_box_edit_tool {
+	display: none;
+	margin: 10px -20px;
+	padding: 10px 20px 20px;
+	background-color: #f0f6ec;
+	border-left: 5px solid #93b873;
+}
+
+#green_box_edit_header {
+	font-weight: bold;
+	margin-bottom: .3em;
+}
+
+#green_box_edit_tool textarea {
+	width: 97%;
+	height: 8em;
+	margin: 0 0 .5em;
+	border: 2px solid #93b873;
+}
+
+#green_box_edit_submit,
+#green_box_edit_cancel {
+	float: right;
+}
+
+#green_box_edit_tool .button:hover:disabled,
+#green_box_edit_tool .button[disabled]:hover {
+	border-color: #e4e4e4;
+	color: #686868;
+}
+
+#green_box_edit_err {
+	font-size: .8em;
+	color: #C00;
+	padding: 0 1em 1em 0;
+	text-align: right;
+}
+
+#green_box_notice_box {
+	background-color: #686868;
+	color: #f0f6ec;
+	padding: .2em .4em;
+	font-style: italic;
+	font-size: .8em;
+}

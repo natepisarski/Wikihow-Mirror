@@ -7,3 +7,4 @@ $wgHooks['MarkPatrolledDB'][] = 'DailyEdits::onMarkPatrolledDB';
 $wgHooks['ArticleDeleteComplete'][] = 'DailyEdits::onArticleDeleteComplete';
 $wgHooks['ArticleUndelete'][] = 'DailyEdits::onArticleUndelete';
 $wgHooks['TitleMoveComplete'][] = 'DailyEdits::onTitleMoveComplete';
+$wgHooks['QuickSummaryEditComplete'][] = ['DailyEdits::onQuickSummaryEditComplete'];

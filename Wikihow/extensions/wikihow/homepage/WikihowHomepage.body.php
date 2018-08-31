@@ -231,12 +231,14 @@ class WikihowHomepage extends Article {
 		return true;
 	}
 
-	private static function getSearchUrl() {
+	public static function getSearchUrl($query = '') {
 		global $wgCanonicalServer, $wgLanguageCode;
+
+		$query = $query ? urlencode($query) : '{search_term_string}';
 
 		if ($wgLanguageCode == 'en') {
 			// $cxid = 'mr-gwotjmbs'; // Unused
-			return $wgCanonicalServer . '/wikiHowTo?search={search_term_string}';
+			return $wgCanonicalServer . '/wikiHowTo?search=' . $query;
 		}
 
 		// [ [ lang => [cxid, url] ]
@@ -268,7 +270,7 @@ class WikihowHomepage extends Article {
 		$site = Misc::isMobileMode() ? $langCnf[1] : "{$wgCanonicalServer}/Special:GoogSearch";
 		$cxid = $langCnf[0];
 
-		return $site . '?cx=008953293426798287586:' . $cxid . '&cof=FORID%3A10&ie=UTF-8&q={search_term_string}';
+		return $site . '?cx=008953293426798287586:' . $cxid . '&cof=FORID%3A10&ie=UTF-8&q=' . $query;
 	}
 
 	public static function getLanguageLinksForHomePage() {

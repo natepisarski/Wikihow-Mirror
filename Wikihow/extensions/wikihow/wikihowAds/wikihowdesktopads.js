@@ -24,6 +24,9 @@ WH.desktopAds = (function () {
 		if (window.location.pathname == "/Drive-Manual") {
 			console.log.apply(null, arguments);
 		}
+		if (window.location.pathname == "/Drive-a-Stick") {
+			console.log.apply(null, arguments);
+		}
 	}
 
 	function isDocumentHidden() {
@@ -129,6 +132,9 @@ WH.desktopAds = (function () {
 
 	function slotRendered(slot, size, e) {
 		log('slotRendered', e);
+		if (window.location.pathname == "/Drive-a-Stick") {
+			return;
+		}
 		// look for right rail ads which are the only ones that will be moved/refreshed
 		var ad;
 		for (var i = 0; i < rightRailElements.length; i++) {
@@ -148,7 +154,9 @@ WH.desktopAds = (function () {
         } else if (ad.extraChild) {
             ad.extraChild.style.visibility = "hidden";
         }
-		updateFixedPositioning(ad, viewportHeight, ad.last);
+		if (window.location.pathname != "/Drive-a-Stick") {
+			updateFixedPositioning(ad, viewportHeight, ad.last);
+		}
 
 		if (ad.refreshable && ad.renderrefresh) {
 			setTimeout(function() {ad.refresh();}, ad.refreshTime);
@@ -570,6 +578,21 @@ WH.desktopAds = (function () {
 		}
 	}
 
+	function updateSingleRR(ad) {
+		var sizer = document.getElementById('rrsizer');
+		if (!sizer) {
+		}
+		// calculate height here
+		var doc = document.documentElement;
+		var top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
+		var height = 0;
+		var offset = 250;
+		if (top > offset ) {
+			height = top - offset;
+		}
+		sizer.style.height = height + 'px';
+	}
+
 	// this is registered by the scroll handler
 	function updateVisibility() {
 		lastScrollPosition = window.scrollY;
@@ -577,6 +600,13 @@ WH.desktopAds = (function () {
 
 		// keep track of ad heights for possible use if they are too tall for the article
 		var adHeights = [];
+		if ( rightRailElements.length == 1 ) {
+			if (window.location.pathname != "/Drive-Manual") {
+				var ad = rightRailElements[0];
+				updateSingleRR(ad);
+				return;
+			}
+		}
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var ad = rightRailElements[i];
 			updateAdLoading(ad, viewportHeight);
@@ -621,6 +651,18 @@ WH.desktopAds = (function () {
             rightRailElements[rightRailElements.length -1].last = false;
         }
         rightRailElements.push(ad);
+		if (window.location.pathname == "/Drive-a-Stick") {
+			var sizer = document.createElement("div");
+			sizer.id = 'rrsizer';
+			ad.element.parentElement.insertBefore(sizer, ad.element);
+			ad.element.removeAttribute("style");
+			ad.element.style.height = "600px";
+			//ad.element.style.border = "1px solid #333";
+			var article_shell = document.getElementById('article_shell');
+			article_shell.className = 'article_shell_nofloat';
+			var sidebar = document.getElementById('sidebar');
+			sidebar.className = 'sidebar_nofloat';
+		}
     }
     function addBodyAd(id) {
         var element = document.getElementById(id);
@@ -665,6 +707,10 @@ WH.desktopAds = (function () {
         if (!rightRailElements.length) {
             return;
         }
+		// special testing case for now
+		if (rightRailElements.length == 1) {
+			return;
+		}
         // make sure this is an ad
         var ad = rightRailElements[0];
         var item = document.getElementById(id);

@@ -62,6 +62,7 @@ function maybeDoStatsPing() {
 	}
 	if (sendLast) {
 		lastStepPingSent = true;
+		WH.Stu.lastStepPingSent = true; // this variable is used for A5-7 in stu.js
 		WH.Stu.ping({ 'ev': 'last_step_view', 'he': docHeight, 'bt': lastStepLine });
 	}
 }

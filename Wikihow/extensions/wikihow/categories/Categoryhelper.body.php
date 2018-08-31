@@ -939,7 +939,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 	 *
 	 * @return Title  /wikiHow:Categories
 	 */
-	private static function getCategoryTreeTitle(): Title {
+	public static function getCategoryTreeTitle(): Title {
 		// Try the natively named category structure project page first
 		$title = Title::makeTitle(NS_PROJECT, wfMessage('categories')->text());
 		if (!$title->exists()) {

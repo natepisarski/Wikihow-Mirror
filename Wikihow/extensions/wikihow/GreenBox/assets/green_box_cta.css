@@ -1,0 +1,13 @@
+.green_box_cta {
+	display: none;
+	font-size: .8em;
+	font-weight: bold;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	border-radius: 0 0 4px;
+	background-color: #93b873;
+	color: #f0f6ec;
+	padding: 0 .5em;
+	text-decoration: none;
+}

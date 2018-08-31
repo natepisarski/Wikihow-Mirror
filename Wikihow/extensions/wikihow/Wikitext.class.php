@@ -376,7 +376,7 @@ class Wikitext {
 	 * steps (returned as an array).
 	 */
 	public static function splitSteps($wikitext, $includeSubsteps = true) {
-		$regex = $includeSubsteps ? '@^#@m' : '@^#[^*]@m';
+		$regex = $includeSubsteps ? '@^#@m' : '@^#(?!\*)@m';
 		$steps = preg_split($regex, $wikitext);
 		for ($i = 1; $i < count($steps); $i++) {
 			$steps[$i] = "#" . $steps[$i];

@@ -174,7 +174,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 		$l = new LSearch();
 
 		if ( $web ) {
-			$hits = $l->webSearchResults( $query, 0, 50, LSearch::SEARCH_WEB );
+			$hits = $l->getBingSearchResults( $query, 0, 50, LSearch::SEARCH_WEB );
 		}
 		else {
 			$hits = $l->externalSearchResultTitles( $query, 0, 10, 0, LSearch::SEARCH_INTERNAL );

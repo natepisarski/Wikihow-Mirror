@@ -1152,21 +1152,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 .video-poster-image img {
 	object-fit: cover;
 }
-.green_tips_box {
-	background-color:#D2E9B8;
-	color:#000;
-	margin:0px;
-	width:75%;
-	float:right;
-	border:5px;
-	border-style:solid;
-	border-color:#93B874;
-	padding:10px;
-	border-radius:4px;
-}
-.green_tips_box > span {
-	font-size: 120%;
-}
 .green_tips_box_inline {
 	background-color:#F0F6EC;
 	color:#000;

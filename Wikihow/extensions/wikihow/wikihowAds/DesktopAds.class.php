@@ -308,8 +308,10 @@ class DesktopAds {
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
 			$adCreator = new MixedAdCreatorVersion2();
-			if ( $pageId % 100 < 50 ) {
+			if ( $pageId == 110310 ) {
 				$adCreator = new MixedAdCreatorVersion3();
+			} else if ( $pageId == 647971 ) {
+				$adCreator = new MixedAdCreatorVersion4();
 			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
@@ -321,7 +323,11 @@ class DesktopAds {
 			// some settings that have become default over time
 			// we can refactor them to be the default in the class at construction time
 			$adCreator->mAdServices['step'] = '';
-			$adCreator->setApsLoad(true);
+			if ( $pageId == 647971 ) {
+				$adCreator->setApsLoad( false );
+			} else {
+				$adCreator->setApsLoad( true );
+			}
 			$adCreator->setRefreshableRightRail( true );
 			$adCreator->setStickyIntro( false );
 			$adCreator->setShowRightRailLabel( true );

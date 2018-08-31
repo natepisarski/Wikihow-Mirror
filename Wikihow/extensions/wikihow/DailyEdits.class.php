@@ -106,4 +106,21 @@ class DailyEdits {
 		}
 		return true;
 	}
+
+	public static function onQuickSummaryEditComplete($summary_page, $main_title) {
+		if ($main_title && $main_title->exists() && $main_title->inNamespace(NS_MAIN)) {
+			try {
+				$aid = $main_title->getArticleId();
+				$ts = wfTimestampNow();
+				$type = DailyEdits::EDIT_TYPE;
+				$sql = "INSERT IGNORE INTO daily_edits (de_page_id, de_timestamp, de_edit_type) VALUES ($aid, '$ts', $type)
+					ON DUPLICATE KEY UPDATE de_timestamp = '$ts', de_edit_type = $type";
+				$dbw = wfGetDB(DB_MASTER);
+				$dbw->query($sql, __METHOD__);
+			} catch(DBError $e) {
+				//whoops! Oh, well. Don't sweat the little stuff. #YOLO
+			}
+		}
+		return true;
+	}
 }

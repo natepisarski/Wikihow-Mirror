@@ -5,6 +5,10 @@
  */
 class LSearch extends SpecialPage {
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	const RESULTS_PER_PAGE = 30;
 	const RESULTS_PER_PAGE_DESKTOP = 10;
 	const RESULTS_PER_PAGE_MOBILE = 20;
@@ -27,7 +31,9 @@ class LSearch extends SpecialPage {
 	const NO_IMG_GREEN = '/extensions/wikihow/search/no_img_green.png';
 	const NO_IMG_GREEN_MOBILE = '/extensions/wikihow/search/no_img_green_mobile.png';
 
-	const MAXAGE_SECS = 86400; // 24 hours
+	const ONE_WEEK_IN_SECONDS = 604800;
+	const ONE_DAY_IN_SECONDS = 86400;
+	const FIVE_MINUTES_IN_SECONDS = 300;
 
 	var $mResults = array();
 	var $mSpelling = array();
@@ -36,9 +42,6 @@ class LSearch extends SpecialPage {
 	var $mStart = 0;
 	var $mLimit = 0;
 	var $searchUrl = '/wikiHowTo';
-
-	const ONE_WEEK_IN_SECONDS = 60 * 60 * 24 * 7;
-	const FIVE_MINUTES_IN_SECONDS = 300;
 
 	public function __construct() {
 		global $wgHooks;
@@ -52,42 +55,47 @@ class LSearch extends SpecialPage {
 		$wgHooks['AfterFinalPageOutput'][] = array($this, 'onAfterFinalPageOutput');
 	}
 
-	public static function allowMaxageHeadersCallback() {
-		return false;
-	}
-
-	public function isMobileCapable() {
-		return true;
-	}
-
 	/**
-	 * A Mediawiki callback set in contructor of this class to stop the display
-	 * of breadcrumbs at the top of the page.
+	 * /wikiHowTo?... and /Special:LSearch page entry point
 	 */
-	public function removeBreadCrumbsCallback(&$showBreadCrumb) {
-		$showBreadCrumb = false;
-		return true;
-	}
-	/**
-	 * This function is called by DupTitleChecker for deduping titles.
-	 * It returns Bing results for $q
-	 * Check with Jordan before using this function for any other purpose.
-	 * This is a paid service.
-	 */
-	public function webSearchResults( $q, $first = 0, $limit = 50, $searchType = self::SEARCH_WEB ) {
-		$this->externalSearchResultsBing( $q, $first, $limit, $searchType );
-		return $this->mResults['results'] ;
-	}
-
-	/*
-	* Set cache-control headers right before page diplay
-	*/
-	public function onAfterFinalPageOutput($out) {
-		$user = $out->getUser();
-		if ( $user && $user->isAnon() && $out->getTitle() ) {
-			$this->setMaxAgeHeaders();
+	public function execute($par) {
+		// Added this hack to test whether we can stop some usertype:logged(in|out)
+		// queries can be removed from index. Remove this code eventually, say 6 mos.
+		// from now. Added by Reuben originally on July 30, 2012.
+		$queryString = @$_SERVER['REQUEST_URI'];
+		if (strpos($queryString, 'usertype') !== false) {
+			header('HTTP/1.0 404 Not Found');
+			print "Page not found";
+			exit;
 		}
-		return true;
+
+		$req = $this->getRequest();
+
+		$this->mStart = $req->getVal('start', 0);
+		$this->mQ = self::getSearchQuery();
+		$this->mLimit = $req->getVal('limit', 20);
+
+		// special case search term filtering
+		if (strtolower($this->mQ) == 'sat') { // searching for SAT, not sitting
+			$this->mQ = "\"SAT\"";
+		}
+
+		$this->getOutput()->setRobotPolicy( 'noindex,nofollow' );
+
+		if ($req->getBool('internal')) {
+			$this->regularSearch(true);
+		} elseif ($req->getBool('rss')) {
+			$this->rssSearch();
+		} elseif ($req->getBool('raw')) {
+			$this->rawSearch();
+		} elseif ($req->getBool('mobile')) {
+			$this->jsonSearch();
+		} elseif ($this->getLanguage()->getCode() == 'tr') {
+			// Redirect to Google CSE on mobile, or /Special:GoogSearch on desktop
+			$this->getOutput()->redirect( WikihowHomepage::getSearchUrl($this->mQ) );
+		} else {
+			$this->regularSearch();
+		}
 	}
 
 	/**
@@ -114,38 +122,129 @@ class LSearch extends SpecialPage {
 	}
 
 	/**
-	 * Query the Bing Search API, which is a (paid-for) API.  Use sparingly and check in with PMs before making
-	 * a bunch of calls for any new feature work
+	 * This function is called by DupTitleChecker for deduping titles.
+	 * It returns Bing results for $q
+	 * Check with Jordan before using this function for any other purpose.
+	 * This is a paid service.
 	 */
-	private function externalSearchResults($q, $start, $limit = 30, $searchType = self::SEARCH_OTHER) {
+	public function getBingSearchResults( $q, $first = 0, $limit = 50, $searchType = self::SEARCH_WEB ) {
+		$this->externalSearchResultsBing( $q, $first, $limit, $searchType );
+		return $this->mResults['results'] ;
+	}
+
+	public static function getSearchQuery(): string {
+		$req = RequestContext::getMain()->getRequest();
+		$q = trim($req->getVal('search', ''));
+		// Prepend "how to" to the query on EN
+		if ( $q && !Misc::isIntl() && strtolower(substr($q, 0, 4)) != 'how ' ) {
+			$q = "how to " . $q;
+		}
+		return $q;
+	}
+
+	# Hook callbacks
+
+	/**
+	 * A Mediawiki callback set in contructor of this class to stop the display
+	 * of breadcrumbs at the top of the page.
+	 */
+	public function removeBreadCrumbsCallback(&$showBreadCrumb) {
+		$showBreadCrumb = false;
+		return true;
+	}
+
+	/*
+	* Set cache-control headers right before page diplay
+	*/
+	public function onAfterFinalPageOutput($out) {
+		$user = $out->getUser();
+		if ( $user && $user->isAnon() && $out->getTitle() ) {
+			$out = $this->getOutput();
+			$req = $this->getRequest();
+			$out->setSquidMaxage( self::ONE_DAY_IN_SECONDS );
+			$req->response()->header( 'Cache-Control: s-maxage=' . self::ONE_DAY_IN_SECONDS . ', must-revalidate, max-age=' . self::ONE_DAY_IN_SECONDS );
+			$future = time() + self::ONE_DAY_IN_SECONDS;
+			$req->response()->header( 'Expires: ' . gmdate('D, d M Y H:i:s T', $future) );
+			$out->enableClientCache(true);
+			$out->sendCacheControl();
+		}
+		return true;
+	}
+
+	/*
+	 * This hook removes the canonical url if it's Special:LSearch.  As per SEO discussions
+	 * between Jordan and Reuben, a canonical link doesn't make sense for this particular page
+	 */
+	public static function onOutputPageAfterGetHeadLinksArray( &$headLinks, $out ) {
+		$t = SpecialPage::getTitleFor('LSearch');
+		$canonicalLink = Html::element( 'link', array(
+			'rel' => 'canonical',
+			'href' => wfExpandUrl($t->getLocalURL(), PROTO_CANONICAL)
+		) );
+
+		foreach($headLinks as $key => $val) {
+			if ($val === $canonicalLink) {
+				unset($headLinks[$key]);
+			}
+		}
+		return true;
+	}
+
+	# Internals
+
+	private function regularSearch($internal = false) {
+		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
+			$resultsPerPage = self::RESULTS_PER_PAGE;
+		} elseif (Misc::isMobileMode()) {
+			$resultsPerPage = self::RESULTS_PER_PAGE_MOBILE;
+		} else {
+			$resultsPerPage = self::RESULTS_PER_PAGE_DESKTOP;
+		}
+
+		if ($internal) {
+			$this->mNoImgBlueMobile = '';
+			$this->mNoImgGreenMobile = '';
+			$resultCount = $this->internalSearchResults($this->mQ, $this->mStart, $resultsPerPage);
+		} else {
+			$resultCount = $this->externalSearchResults($this->mQ, $this->mStart, $resultsPerPage, self::SEARCH_LOGGED_IN);
+		}
+
+		if ($resultCount <= 0) {
+			$reqUrl = $this->getRequest()->getRequestURL();
+			$out = $this->getOutput();
+			$out->addHTML(wfMessage('lsearch_query_error', $reqUrl)->plain());
+			$out->setStatusCode( 404 );
+			return;
+		}
+
+		$enc_q = htmlspecialchars($this->mQ);
+		$this->getOutput()->setHTMLTitle(wfMessage('lsearch_title_q', $enc_q));
+
+		$suggestionLink = $this->getSpellingSuggestion($this->searchUrl);
+		$results = $this->mResults['results'] ? $this->mResults['results'] : [];
+		$results = $this->makeTitlesUniform($results);
+		$results = $this->supplementResults($results);
+
+		wfRunHooks( 'LSearchRegularSearch', array( &$results ) );
+
+		$searchId = $this->sherlockSearch();	// initialize/check Sherlock cookie
+		$this->displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId );
+	}
+
+	/**
+	 * @return int  Amount of results
+	 */
+	private function externalSearchResults($q, $start, $limit = 30, $searchType = self::SEARCH_OTHER): int {
 		// Internal search is used for requests coming from services like FB messenger bot or Alexa.
 		// These services often are intermittently blocked by yahoo search (which is free through our DDC contract).
 		// Instead we send them to Bing, which we have to pay per query.
-		if ($searchType == self::SEARCH_INTERNAL) {
+		if ($this->getLanguage()->getCode() == 'tr') {
+			return $this->internalSearchResults($q, $start, $limit);
+		} elseif ($searchType == self::SEARCH_INTERNAL) {
 			return $this->externalSearchResultsBing($q, $start, $limit, $searchType);
 		} else {
 			return $this->externalSearchResultsYahoo($q, $start, $limit, $searchType);
 		}
-	}
-
-	private function isBadQuery($q): bool {
-		global $wgBogusQueries, $wgCensoredWords;
-
-		if (empty($q)) {
-			return true;
-		}
-
-		if (in_array(strtolower($q), $wgBogusQueries) ) {
-			return true;
-		}
-
-		foreach ($wgCensoredWords as $censoredWord) {
-			if (stripos($q, $censoredWord) !== false) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -166,14 +265,16 @@ class LSearch extends SpecialPage {
 	 *  &useragent=Mozilla/5.0 ...
 	 *
 	 * @link https://developers.google.com/custom-search/docs/xml_results
+	 *
+	 * @return int  Amount of results
 	 */
-	private function externalSearchResultsGoogle($q, $start, $limit = 30, $gm_type = self::SEARCH_OTHER) {
+	private function externalSearchResultsGoogle($q, $start, $limit = 30, $gm_type = self::SEARCH_OTHER): int {
 		global $wgMemc;
 
 		$q = trim($q);
 
 		if ($this->isBadQuery($q)) {
-			return null;
+			return -1;
 		}
 
 		$key = wfMemcKey('GoogleXMLAPIResultsV2', str_replace(' ', '-', $q), $start, $limit);
@@ -207,7 +308,7 @@ class LSearch extends SpecialPage {
 
 			if ($respCode != 200 || curl_errno($ch)) {
 				curl_close($ch);
-				return null;
+				return -1;
 			}
 
 			curl_close($ch);
@@ -215,7 +316,7 @@ class LSearch extends SpecialPage {
 			try {
 				$xmlResp = @ new SimpleXMLElement($respBody);
 			} catch (Exception $e) {
-				return null;
+				return -1;
 			}
 
 			// Collect data
@@ -249,11 +350,13 @@ class LSearch extends SpecialPage {
 		if ($gm_type == self::SEARCH_LOGGED_IN || $gm_type == self::SEARCH_LOGGED_OUT) {
 			$this->mSpelling = $data['spelling'] ?? [];
 		}
+
+		$num_results = count($data['results']);
 		$this->mResults['results'] = $data['results'];
-		$this->mLast = $this->mStart + count($data['results']);
+		$this->mLast = $this->mStart + $num_results;
 		$this->mResults['totalresults'] = $data['totalresults'];
 
-		return $data['results'];
+		return $num_results;
 
 	}
 
@@ -261,8 +364,10 @@ class LSearch extends SpecialPage {
 	 * Query Yahoo proxy search. This is a search proxy to the search service formerly known as Yahoo BOSS provided
 	 * by our search ad provider DDC (http://ddc.com). We get this service for free in exchange for hosting ads
 	 * on our search results
+	 *
+	 * @return int  Amount of results
 	 */
-	private function externalSearchResultsYahoo($q, $start, $limit = 30, $gm_type = self::SEARCH_OTHER) {
+	private function externalSearchResultsYahoo($q, $start, $limit = 30, $gm_type = self::SEARCH_OTHER): int {
 		global $wgMemc, $IP;
 
 		$key = wfMemcKey("YPAResults4", str_replace(" ", "-", $q), $start, $limit);
@@ -271,7 +376,7 @@ class LSearch extends SpecialPage {
 
 		$q = trim($q);
 		if ($this->isBadQuery($q)) {
-			return null;
+			return -1;
 		}
 
 		$set_cache = false;
@@ -313,7 +418,7 @@ class LSearch extends SpecialPage {
 			if ($http_code != 200 || curl_errno($ch)) {
 //				echo $rsp;exit;
 				curl_close($ch);
-				return null;
+				return -1;
 			} else {
 				//echo $rsp;exit;
 				$contents = json_decode($rsp, true);
@@ -343,22 +448,24 @@ class LSearch extends SpecialPage {
 		// does exist make the total results one more than the last result count to ensure proper pagination
 		$this->mResults['totalresults'] = empty($contents['nextargs']) ? $num_results : $this->mLast + 1;
 
-		return $contents;
+		return $num_results;
 
 	}
 
 	/**
 	 * Query the Bing Search API, which is a (paid-for) API.  Use sparingly and check in with PMs before making
 	 * a bunch of calls for any new feature work
+	 *
+	 * @return int  Amount of results
 	 */
-	private function externalSearchResultsBing($q, $start, $limit = 30, $searchType = self::SEARCH_OTHER) {
+	private function externalSearchResultsBing($q, $start, $limit = 30, $searchType = self::SEARCH_OTHER): int {
 		global $wgMemc;
 
 		$key = wfMemcKey("BingSearchAPI-V7", str_replace(" ", "-", $q), $start, $limit);
 
 		$q = trim($q);
 		if ($this->isBadQuery($q)) {
-			return null;
+			return -1;
 		}
 
 		$set_cache = false;
@@ -398,7 +505,7 @@ class LSearch extends SpecialPage {
 			$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			if ($http_code != 200 || curl_errno($ch)) {
 				curl_close($ch);
-				return null;
+				return -1;
 			} else {
 				$contents = json_decode($rsp, true);
 				$contents = empty($contents['webPages']['value']) ? [] : $contents['webPages'];
@@ -428,7 +535,7 @@ class LSearch extends SpecialPage {
 
 		$this->mLast = $this->mStart + $num_results;
 
-		return $contents;
+		return $num_results;
 	}
 
 	/**
@@ -446,6 +553,240 @@ class LSearch extends SpecialPage {
 		}
 
 		return $results;
+	}
+
+	private function internalSearchResults($q, $start, $limit = 30): int {
+		global $IP, $wgMemc;
+
+		$key = wfMemcKey('InternalSearchResults', str_replace(' ', '-', $q), $start, $limit);
+		$mResults = $wgMemc->get($key);
+
+		if (!is_array($mResults))
+		{
+			require_once("$IP/includes/specials/SpecialSearch.php");
+
+			$specialSearch = new SpecialSearch($this->getRequest(), $this->getUser());
+			$specialSearch->load();
+
+			$engine = $specialSearch->getSearchEngine();
+			$engine->setLimitOffset($limit, $start);
+			$engine->setNamespaces($specialSearch->getNamespaces());
+			$engine->showRedirects = false;
+			$engine->setFeatureData('list-redirects', false);
+
+			$term = str_replace("\n", ' ', $q);
+			$term = $engine->transformSearchTerm($term);
+
+			wfRunHooks('SpecialSearchSetupEngine', [$specialSearch, 'default', $engine]);
+
+			$rewritten = $engine->replacePrefixes($term);
+			$titleMatches = $engine->searchTitle($rewritten);
+			if (!($titleMatches instanceof SearchResultTooMany)) {
+				$textMatches = $engine->searchText($rewritten);
+			}
+
+			$anyTextMatches = $textMatches && $textMatches instanceof CirrusSearch\Search\ResultSet;
+
+			$totalResults = 0;
+			if ($titleMatches)   { $totalResults += $titleMatches->getTotalHits(); }
+			if ($anyTextMatches) { $totalResults += $textMatches->getTotalHits();  }
+
+			$mResults = [ 'results' => [], 'totalresults' => $totalResults ];
+
+			$matches = [];
+			if ($titleMatches)   { while ($m = $titleMatches->next()) { $matches[] = $m; } }
+			if ($anyTextMatches) { while ($m = $textMatches->next())  { $matches[] = $m; } }
+
+			foreach ($matches as $match) {
+				$title = $match->getTitle();
+				if ($title) {
+					$mResults['results'][] = [
+						'title' => wfMessage('howto', $title->getText())->text(),
+						'url' => $title->getDBKey(),
+					];
+				}
+			}
+
+			$expiry = $mResults['results'] ? self::ONE_DAY_IN_SECONDS : self::FIVE_MINUTES_IN_SECONDS;
+			$wgMemc->set($key, $mResults, $expiry);
+		}
+
+		$count = count($mResults['results']);
+		$this->mLast = $this->mStart + $count;
+		$this->mResults = $mResults;
+
+		return $count;
+	}
+
+	private function rssSearch() {
+		$results = $this->externalSearchResultTitles($this->mQ, $this->mStart, self::RESULTS_PER_PAGE, 0, self::SEARCH_RSS);
+		$this->getOutput()->setArticleBodyOnly(true);
+		$pad = "           ";
+		header("Content-type: text/xml;");
+		print '<GSP VER="3.2">
+<TM>0.083190</TM>
+<Q>' . htmlspecialchars($this->mQ) . '</Q>
+<PARAM name="filter" value="0" original_value="0"/>
+<PARAM name="num" value="16" original_value="30"/>
+<PARAM name="access" value="p" original_value="p"/>
+<PARAM name="entqr" value="0" original_value="0"/>
+<PARAM name="start" value="0" original_value="0"/>
+<PARAM name="output" value="xml" original_value="xml"/>
+<PARAM name="sort" value="date:D:L:d1" original_value="date%3AD%3AL%3Ad1"/>
+<PARAM name="site" value="main_en" original_value="main_en"/>
+<PARAM name="ie" value="UTF-8" original_value="UTF-8"/>
+<PARAM name="client" value="internal_frontend" original_value="internal_frontend"/>
+<PARAM name="q" value="' . htmlspecialchars($this->mQ) . '" original_value="' . htmlspecialchars($this->mQ) . '"/>
+<PARAM name="ip" value="192.168.100.100" original_value="192.168.100.100"/>
+<RES SN="1" EN="' . sizeof($results) . '">
+<M>' . sizeof($results) . '</M>
+<XT/>';
+		$count = 1;
+		foreach ($results as $r) {
+			print "<R N=\"{$count}\">
+<U>{$r->getFullURL()}</U>
+<UE>{$r->getFullURL()}</UE>
+<T>How to " . htmlspecialchars($r->getFullText()) . "{$pad}</T>
+<RK>10</RK>
+<HAS></HAS>
+<LANG>en</LANG>
+</R>";
+			$count++;
+		}
+		print "</RES>
+</GSP>";
+	}
+
+	private function rawSearch() {
+		$contents = $this->externalSearchResultTitles($this->mQ, $this->mStart, self::RESULTS_PER_PAGE, 0, self::SEARCH_RAW);
+		header("Content-type: text/plain");
+		$this->getOutput()->setArticleBodyOnly(true);
+		foreach ($contents as $t) {
+			print "{$t->getCanonicalURL()}\n";
+		}
+	}
+
+	/*
+	 * Return a json array of articles that includes the title, full url and abbreviated intro text.
+	 *
+	 * NOTE: This method is really slow and shouldn't be used. It creates the 'intro' array element
+	 *   by getting the latest revision of the wikitext, pulling out the intro and flattening it.
+	 *   We should remove it. - Reuben, 2016/1/8
+	 *
+	 * NOTE (Alberto, 2018-08)
+	 * I found that this method was broken. The fact that nobody has complained suggests
+	 * that it's no longer used, or not very important, so we can probably remove it.
+	 *
+	 * The issue was that it only printed JSON to the screen the 1st time it got called.
+	 * After that, the method would just return the cached $val without printing anything.
+	 */
+	private function jsonSearch() {
+		global $wgMemc;
+
+		// Don't return more than 50 search results at a time to prevent abuse
+		$limit = min($this->mLimit, 50);
+
+		$key = wfMemcKey("MobileSearch", str_replace(" ", "-", $this->mQ), $this->mStart, $limit);
+		$json = $wgMemc->get($key);
+
+		if (!$json) {
+			$contents = $this->externalSearchResultTitles($this->mQ, $this->mStart, $limit, 0, self::SEARCH_MOBILE);
+			$results = array();
+			foreach ($contents as $t) {
+				// Only return articles
+				if ($t->getNamespace() != NS_MAIN) {
+					continue;
+				}
+
+				$result = array();
+				$result['title'] = $t->getText();
+				$result['url'] = $t->getFullURL();
+				$result['imgurl'] = ImageHelper::getGalleryImage($t, 103, 80);
+				$result['intro'] = null;
+				if ($r = Revision::newFromId($t->getLatestRevID())) {
+					$intro = Wikitext::getIntro($r->getText());
+					$intro = trim(Wikitext::flatten($intro));
+					$result['intro'] = mb_substr($intro, 0, 180);
+					// Put an ellipsis on the end
+					$len = mb_strlen($result['intro']);
+					$result['intro'] .= mb_substr($result['intro'], $len - 1, $len) == '.' ? '..' : '...';
+				}
+				if (!is_null($result['intro'])) {
+					$results[] = array('article' => $result);
+				}
+			}
+
+			$json = json_encode([ 'results' => $results]);
+			$wgMemc->set($key, $json, 3600); // 1 hour
+		}
+
+		header("Content-type: application/json");
+		$this->getOutput()->setArticleBodyOnly(true);
+		print $json;
+	}
+
+	// Executes the logic for managing the Sherlock Cookie & loggin search to DB
+	private function sherlockSearch() {
+		if (class_exists("Sherlock")) {
+			$context = $this->getContext();
+
+			// check if the user is logged in
+			$user = $context->getUser();
+			if ($user->isAnon()) {
+				$logged = false;
+			} else {
+				$logged = true;
+			}
+
+			// Check if their using the mobile site
+			if (Misc::isMobileMode()) {
+				$platform = "mobile";
+			} else {
+				$platform = "desktop";
+			}
+
+			// Get visitor ID
+			$vId = WikihowUser::getVisitorId();
+
+			// Check if there's already a search id cookie
+			$request = $context->getRequest();
+			$searchId = $request->getCookie("sherlock_id");
+
+			// Determine whether or not this is a new search
+			if ($request->getCookie("sherlock_q") != $this->mQ) {
+				$searchId = Sherlock::logSherlockSearch($this->mQ, $vId, $this->mResults['totalresults'], $logged, $platform);
+
+				// Then make a new cookie
+				$response = $request->response();
+				$response->setcookie("sherlock_id", $searchId);
+				$response->setcookie("sherlock_q", $this->mQ);
+			} else {
+				// It's the same query, so we're saying it's not a new search & they must have just gone "back".
+				// Don't make a new search entry.
+			}
+
+			return $searchId;
+		}
+	}
+
+	private function isBadQuery($q): bool {
+		global $wgBogusQueries, $wgCensoredWords;
+
+		if (empty($q)) {
+			return true;
+		}
+
+		if (in_array(strtolower($q), $wgBogusQueries) ) {
+			return true;
+		}
+
+		foreach ($wgCensoredWords as $censoredWord) {
+			if (stripos($q, $censoredWord) !== false) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private function cleanTitle(&$t) {
@@ -577,190 +918,6 @@ class LSearch extends SpecialPage {
 		return $results;
 	}
 
-	private function setMaxAgeHeaders($maxAgeSecs = self::MAXAGE_SECS) {
-		$out = $this->getOutput();
-		$req = $this->getRequest();
-		$out->setSquidMaxage( $maxAgeSecs );
-		$req->response()->header( 'Cache-Control: s-maxage=' . $maxAgeSecs . ', must-revalidate, max-age=' . $maxAgeSecs );
-		$future = time() + $maxAgeSecs;
-		$req->response()->header( 'Expires: ' . gmdate('D, d M Y H:i:s T', $future) );
-		$out->enableClientCache(true);
-		$out->sendCacheControl();
-	}
-
-	/**
-	 * Use the same search results that would be visible on Special:Search.
-	 *
-	 * We stopped using this method in June 2017, but now it can still be accessed by adding
-	 * `internal=1` to the URL.
-	 */
-	private function specialSearchFallback() {
-		global $IP;
-		require_once("$IP/includes/specials/SpecialSearch.php");
-
-		$user = $this->getUser();
-		$request = $this->getRequest();
-
-		$this->setNoImgBlueMobile("");
-		$this->setNoImgGreenMobile("");
-
-		$ss = new SpecialSearch( $request, $user );
-
-		$term = str_replace( "\n", " ", $this->mQ );
-
-		$ss->load();
-		$search = $ss->getSearchEngine();
-		$search->setLimitOffset( 10, $this->mStart );
-		$search->setNamespaces( $ss->getNamespaces() );
-		$search->showRedirects = false;
-		$search->setFeatureData( 'list-redirects', false );
-		$term = $search->transformSearchTerm( $term );
-
-		wfRunHooks( 'SpecialSearchSetupEngine', array( $ss, 'default', $search ) );
-
-		$rewritten = $search->replacePrefixes( $term );
-		$titleMatches = $search->searchTitle( $rewritten );
-		if ( !( $titleMatches instanceof SearchResultTooMany ) ) {
-			$textMatches = $search->searchText( $rewritten );
-		}
-
-		$totalMatches = 0;
-		if ( $titleMatches ) {
-			$totalMatches += $titleMatches->getTotalHits();
-		}
-		if ( $textMatches ) {
-			$totalMatches += $textMatches->getTotalHits();
-		}
-		$this->mResults = array('totalresults' => $totalMatches);
-		$results = array();
-
-		if ( $titleMatches ) {
-			$matches = $titleMatches;
-			$m = $matches->next();
-			while ( $m ) {
-				$results[] = $m;
-				$m = $matches->next();
-			}
-		}
-		if ( $textMatches ) {
-			$matches = $textMatches;
-			$m = $matches->next();
-			while ( $m ) {
-				$results[] = $m;
-				$m = $matches->next();
-			}
-		}
-
-		$formattedResults = array();
-		foreach ( $results as $m ) {
-			$t = $m->getTitle();
-			if ( $t ) {
-				$r = array();
-				$r['title_match'] = wfMessage('howto',$t->getText())->text();
-				$r['url'] = $t->getDBKey();
-				$r['id'] = $t->getArticleID();
-				$r['key'] = $t->getDBKey();
-				$r['namespace'] = $t->getNamespace();
-				$formattedResults[] = $r;
-			}
-		}
-
-		$results = $this->supplementResults($formattedResults);
-		$this->mResults['count'] = count( $results );
-		$this->mLast = $this->mStart + $this->mResults['count'];
-
-		$this->getOutput()->setHTMLTitle( wfMessage( 'lsearch_title_q', $term )->text() );
-
-		$resultsPerPage = 10;
-		$enc_q = htmlspecialchars($this->mQ);
-		$suggestionLink = $this->getSpellingSuggestion($this->searchUrl);
-
-		$searchId = $this->sherlockSearch();	// Initialize/check Sherlock cookie
-		$this->displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId );
-	}
-
-	public static function getSearchQuery(): string {
-		$req = RequestContext::getMain()->getRequest();
-		$q = trim($req->getVal('search', ''));
-		// Prepend "how to" to the query on EN
-		if ( $q && !Misc::isIntl() && strtolower(substr($q, 0, 4)) != 'how ' ) {
-			$q = "how to " . $q;
-		}
-		return $q;
-	}
-
-	/**
-	 * /wikiHowTo?... and /Special:LSearch page entry point
-	 */
-	public function execute($par) {
-		// Added this hack to test whether we can stop some usertype:logged(in|out)
-		// queries can be removed from index. Remove this code eventually, say 6 mos.
-		// from now. Added by Reuben originally on July 30, 2012.
-		$queryString = @$_SERVER['REQUEST_URI'];
-		if (strpos($queryString, 'usertype') !== false) {
-			header('HTTP/1.0 404 Not Found');
-			print "Page not found";
-			exit;
-		}
-
-		$req = $this->getRequest();
-
-		$this->mStart = $req->getVal('start', 0);
-		$this->mQ = self::getSearchQuery();
-		$this->mLimit = $req->getVal('limit', 20);
-
-		// special case search term filtering
-		if (strtolower($this->mQ) == 'sat') { // searching for SAT, not sitting
-			$this->mQ = "\"SAT\"";
-		}
-
-		$this->getOutput()->setRobotPolicy( 'noindex,nofollow' );
-
-		if ($req->getVal('rss')) {
-			$this->rssSearch();
-		} elseif ($req->getVal('raw')) {
-			$this->rawSearch();
-		} elseif ($req->getVal('mobile')) {
-			$this->jsonSearch();
-		} elseif ($req->getVal('internal')) {
-			$this->specialSearchFallback();
-		} else {
-			$this->regularSearch();
-		}
-	}
-
-	private function regularSearch() {
-		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
-			$resultsPerPage = self::RESULTS_PER_PAGE;
-		} elseif (Misc::isMobileMode()) {
-			$resultsPerPage = self::RESULTS_PER_PAGE_MOBILE;
-		} else {
-			$resultsPerPage = self::RESULTS_PER_PAGE_DESKTOP;
-		}
-
-		$contents = $this->externalSearchResults($this->mQ, $this->mStart, $resultsPerPage, self::SEARCH_LOGGED_IN);
-		if ($contents === null) {
-			$reqUrl = $this->getRequest()->getRequestURL();
-			$out = $this->getOutput();
-			$out->addHTML(wfMessage('lsearch_query_error', $reqUrl)->plain());
-			$out->setStatusCode( 404 );
-			return;
-		}
-
-		$enc_q = htmlspecialchars($this->mQ);
-		$this->getOutput()->setHTMLTitle(wfMessage('lsearch_title_q', $enc_q));
-
-		$suggestionLink = $this->getSpellingSuggestion($this->searchUrl);
-		$results = $this->mResults['results'] ? $this->mResults['results'] : [];
-		$results = $this->makeTitlesUniform($results);
-		$results = $this->supplementResults($results);
-
-		wfRunHooks( 'LSearchRegularSearch', array( &$results ) );
-
-		$searchId = $this->sherlockSearch();	// initialize/check Sherlock cookie
-		$this->displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId );
-	}
-
 	// will display the search results that have been formatted by supplementResults
 	private function displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId ) {
 		global $wgServer;
@@ -838,8 +995,8 @@ class LSearch extends SpecialPage {
 		if (Misc::isMobileMode()) {
 			$tmpl = 'search-results-mobile';
 			$out->addModuleStyles('ext.wikihow.lsearch.mobile.styles');
-			$vars['no_img_blue'] = $this->getNoImgBlueMobile();
-			$vars['no_img_green'] = $this->getNoImgGreenMobile();
+			$vars['no_img_blue'] = $this->mNoImgBlueMobile;
+			$vars['no_img_green'] = $this->mNoImgGreenMobile;
 		} else {
 			$tmpl = 'search-results-desktop';
 			$out->addModuleStyles('ext.wikihow.lsearch.desktop.styles');
@@ -858,22 +1015,6 @@ class LSearch extends SpecialPage {
 		$out->addHTML($html);
 	}
 
-	private function setNoImgBlueMobile( $val ) {
-		$this->mNoImgBlueMobile = $val;
-	}
-
-	private function setNoImgGreenMobile( $val ) {
-		$this->mNoImgGreenMobile = $val;
-	}
-
-	private function getNoImgGreenMobile() {
-		return $this->mNoImgGreenMobile;
-	}
-
-	private function getNoImgBlueMobile() {
-		return $this->mNoImgBlueMobile;
-	}
-
 	private function getSpellingSuggestion($url) {
 		$spellingResults = $this->mSpelling;
 		$suggestionLink = null;
@@ -887,179 +1028,6 @@ class LSearch extends SpecialPage {
 
 		}
 		return $suggestionLink;
-	}
-
-	private function rssSearch() {
-		$results = $this->externalSearchResultTitles($this->mQ, $this->mStart, self::RESULTS_PER_PAGE, 0, self::SEARCH_RSS);
-		$this->getOutput()->setArticleBodyOnly(true);
-		$pad = "           ";
-		header("Content-type: text/xml;");
-		print '<GSP VER="3.2">
-<TM>0.083190</TM>
-<Q>' . htmlspecialchars($this->mQ) . '</Q>
-<PARAM name="filter" value="0" original_value="0"/>
-<PARAM name="num" value="16" original_value="30"/>
-<PARAM name="access" value="p" original_value="p"/>
-<PARAM name="entqr" value="0" original_value="0"/>
-<PARAM name="start" value="0" original_value="0"/>
-<PARAM name="output" value="xml" original_value="xml"/>
-<PARAM name="sort" value="date:D:L:d1" original_value="date%3AD%3AL%3Ad1"/>
-<PARAM name="site" value="main_en" original_value="main_en"/>
-<PARAM name="ie" value="UTF-8" original_value="UTF-8"/>
-<PARAM name="client" value="internal_frontend" original_value="internal_frontend"/>
-<PARAM name="q" value="' . htmlspecialchars($this->mQ) . '" original_value="' . htmlspecialchars($this->mQ) . '"/>
-<PARAM name="ip" value="192.168.100.100" original_value="192.168.100.100"/>
-<RES SN="1" EN="' . sizeof($results) . '">
-<M>' . sizeof($results) . '</M>
-<XT/>';
-		$count = 1;
-		foreach ($results as $r) {
-			print "<R N=\"{$count}\">
-<U>{$r->getFullURL()}</U>
-<UE>{$r->getFullURL()}</UE>
-<T>How to " . htmlspecialchars($r->getFullText()) . "{$pad}</T>
-<RK>10</RK>
-<HAS></HAS>
-<LANG>en</LANG>
-</R>";
-			$count++;
-		}
-		print "</RES>
-</GSP>";
-	}
-
-	private function rawSearch() {
-		$contents = $this->externalSearchResultTitles($this->mQ, $this->mStart, self::RESULTS_PER_PAGE, 0, self::SEARCH_RAW);
-		header("Content-type: text/plain");
-		$this->getOutput()->setArticleBodyOnly(true);
-		foreach ($contents as $t) {
-			print "{$t->getCanonicalURL()}\n";
-		}
-	}
-
-	/*
-	 * Return a json array of articles that includes the title, full url and abbreviated intro text.
-	 *
-	 * NOTE: This method is really slow and shouldn't be used. It creates the 'intro' array element
-	 *   by getting the latest revision of the wikitext, pulling out the intro and flattening it.
-	 *   We should remove it. - Reuben, 2016/1/8
-	 */
-	private function jsonSearch() {
-		global $wgMemc;
-
-		// Don't return more than 50 search results at a time to prevent abuse
-		$limit = min($this->mLimit, 50);
-
-		$key = wfMemcKey("MobileSearch", str_replace(" ", "-", $this->mQ), $this->mStart, $limit);
-		if ($val = $wgMemc->get($key)) {
-			return $val;
-		}
-
-		$contents = $this->externalSearchResultTitles($this->mQ, $this->mStart, $limit, 0, self::SEARCH_MOBILE);
-		$results = array();
-		foreach ($contents as $t) {
-			// Only return articles
-			if ($t->getNamespace() != NS_MAIN) {
-				continue;
-			}
-
-			$result = array();
-			$result['title'] = $t->getText();
-			$result['url'] = $t->getFullURL();
-			$result['imgurl'] = ImageHelper::getGalleryImage($t, 103, 80);
-			$result['intro'] = null;
-			if ($r = Revision::newFromId($t->getLatestRevID())) {
-				$intro = Wikitext::getIntro($r->getText());
-				$intro = trim(Wikitext::flatten($intro));
-				$result['intro'] = mb_substr($intro, 0, 180);
-				// Put an ellipsis on the end
-				$len = mb_strlen($result['intro']);
-				$result['intro'] .= mb_substr($result['intro'], $len - 1, $len) == '.' ? '..' : '...';
-			}
-			if (!is_null($result['intro'])) {
-				$results[] = array('article' => $result);
-			}
-		}
-
-		$searchResults['results'] = $results;
-		$json = json_encode($searchResults);
-		$wgMemc->set($key, $json, 3600); // 1 hour
-
-		header("Content-type: application/json");
-		$this->getOutput()->setArticleBodyOnly(true);
-		print $json;
-	}
-
-	/**
-	 * Used to log the search in the site_search_log table, to store this data for
-	 * later analysis.
-	 */
-	/*
-		private function logSearch($q, $host_id, $cache, $error, $curl_err, $gm_tm_count, $gm_ts_count, $username, $userid, $rank, $num_results, $gm_type) {
-			$dbw = wfGetDB(DB_MASTER);
-			$q = $dbw->strencode($q);
-			$username = $dbw->strencode($username);
-			$vals = array(
-					'ssl_query' 		=> strtolower($q),
-					'ssl_host_id' 		=> $host_id,
-					'ssl_cache' 		=> $cache,
-					'ssl_error' 		=> $error,
-					'ssl_curl_error'	=> $curl_err,
-					'ssl_ts_count' 		=> $gm_ts_count,
-					'ssl_tm_count' 		=> $gm_tm_count,
-					'ssl_user'			=> $userid,
-					'ssl_user_text' 	=> $username,
-					'ssl_num_results'	=> $num_results,
-					'ssl_rank'			=> $rank,
-					'ssl_type'			=> $gm_type
-				);
-			// FYI: this table has moved to whdata
-			$res = $dbw->insert('site_search_log', $vals, __METHOD__);
-		}
-	*/
-
-	// Executes the logic for managing the Sherlock Cookie & loggin search to DB
-	private function sherlockSearch() {
-		if (class_exists("Sherlock")) {
-			$context = $this->getContext();
-
-			// check if the user is logged in
-			$user = $context->getUser();
-			if ($user->isAnon()) {
-				$logged = false;
-			} else {
-				$logged = true;
-			}
-
-			// Check if their using the mobile site
-			if (Misc::isMobileMode()) {
-				$platform = "mobile";
-			} else {
-				$platform = "desktop";
-			}
-
-			// Get visitor ID
-			$vId = WikihowUser::getVisitorId();
-
-			// Check if there's already a search id cookie
-			$request = $context->getRequest();
-			$searchId = $request->getCookie("sherlock_id");
-
-			// Determine whether or not this is a new search
-			if ($request->getCookie("sherlock_q") != $this->mQ) {
-				$searchId = Sherlock::logSherlockSearch($this->mQ, $vId, $this->mResults['totalresults'], $logged, $platform);
-
-				// Then make a new cookie
-				$response = $request->response();
-				$response->setcookie("sherlock_id", $searchId);
-				$response->setcookie("sherlock_q", $this->mQ);
-			} else {
-				// It's the same query, so we're saying it's not a new search & they must have just gone "back".
-				// Don't make a new search entry.
-			}
-
-			return $searchId;
-		}
 	}
 
 	private function getSurl(): string {
@@ -1088,22 +1056,33 @@ class LSearch extends SpecialPage {
 		return "http://$domain";
 	}
 
-	/*
-	 * This hook removes the canonical url if it's Special:LSearch.  As per SEO discussions
-	 * between Jordan and Reuben, a canonical link doesn't make sense for this particular page
-	 */
-	public static function onOutputPageAfterGetHeadLinksArray( &$headLinks, $out ) {
-		$t = SpecialPage::getTitleFor('LSearch');
-		$canonicalLink = Html::element( 'link', array(
-			'rel' => 'canonical',
-			'href' => wfExpandUrl($t->getLocalURL(), PROTO_CANONICAL)
-		) );
+	# Unused
 
-		foreach($headLinks as $key => $val) {
-			if ($val === $canonicalLink) {
-				unset($headLinks[$key]);
-			}
-		}
-		return true;
+	/**
+	 * Used to log the search in the site_search_log table, to store this data for
+	 * later analysis.
+	 */
+	/*
+	private function logSearch($q, $host_id, $cache, $error, $curl_err, $gm_tm_count, $gm_ts_count, $username, $userid, $rank, $num_results, $gm_type) {
+		$dbw = wfGetDB(DB_MASTER);
+		$q = $dbw->strencode($q);
+		$username = $dbw->strencode($username);
+		$vals = array(
+				'ssl_query' 		=> strtolower($q),
+				'ssl_host_id' 		=> $host_id,
+				'ssl_cache' 		=> $cache,
+				'ssl_error' 		=> $error,
+				'ssl_curl_error'	=> $curl_err,
+				'ssl_ts_count' 		=> $gm_ts_count,
+				'ssl_tm_count' 		=> $gm_tm_count,
+				'ssl_user'			=> $userid,
+				'ssl_user_text' 	=> $username,
+				'ssl_num_results'	=> $num_results,
+				'ssl_rank'			=> $rank,
+				'ssl_type'			=> $gm_type
+			);
+		// FYI: this table has moved to whdata
+		$res = $dbw->insert('site_search_log', $vals, __METHOD__);
 	}
+	*/
 }
