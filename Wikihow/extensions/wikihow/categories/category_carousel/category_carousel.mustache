@@ -3,7 +3,7 @@
     <div class="cat_title">
         {{#issubcat}}
 			<a href="{{url}}">{{cat_title}} <i class="fa fa-chevron-right"></i></a>
-            {{#has_subsublist}}<a href="#" class="cat_subcat_toggle closed">Show more</a>{{/has_subsublist}}
+            {{#has_subsublist}}<a href="#" class="cat_subcat_toggle closed">{{show_more}}</a>{{/has_subsublist}}
         {{/issubcat}}
         {{^issubcat}}
             {{all_articles_title}}

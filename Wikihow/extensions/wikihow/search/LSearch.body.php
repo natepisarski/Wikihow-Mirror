@@ -43,6 +43,8 @@ class LSearch extends SpecialPage {
 	var $mLimit = 0;
 	var $searchUrl = '/wikiHowTo';
 
+	var $mEnableBeta = false;
+
 	public function __construct() {
 		global $wgHooks;
 		parent::__construct('LSearch');
@@ -75,12 +77,14 @@ class LSearch extends SpecialPage {
 		$this->mQ = self::getSearchQuery();
 		$this->mLimit = $req->getVal('limit', 20);
 
-		// special case search term filtering
-		if (strtolower($this->mQ) == 'sat') { // searching for SAT, not sitting
-			$this->mQ = "\"SAT\"";
-		}
-
 		$this->getOutput()->setRobotPolicy( 'noindex,nofollow' );
+
+		// Track requests in statds/grafana
+		WikihowStatsd::increment('search.request');
+
+		// Enable beta search for Desktop/English only
+		// Temporary while we are transitioning to the new search service
+		$this->mEnableBeta = !Misc::isMobileMode() && $this->getLanguage()->getCode() === 'en';
 
 		if ($req->getBool('internal')) {
 			$this->regularSearch(true);
@@ -88,8 +92,6 @@ class LSearch extends SpecialPage {
 			$this->rssSearch();
 		} elseif ($req->getBool('raw')) {
 			$this->rawSearch();
-		} elseif ($req->getBool('mobile')) {
-			$this->jsonSearch();
 		} elseif ($this->getLanguage()->getCode() == 'tr') {
 			// Redirect to Google CSE on mobile, or /Special:GoogSearch on desktop
 			$this->getOutput()->redirect( WikihowHomepage::getSearchUrl($this->mQ) );
@@ -135,9 +137,37 @@ class LSearch extends SpecialPage {
 	public static function getSearchQuery(): string {
 		$req = RequestContext::getMain()->getRequest();
 		$q = trim($req->getVal('search', ''));
+		return $q;
+	}
+
+	public static function formatSearchQuery( $q ): string {
+		// special case search term filtering
+		if (strtolower($q) == 'sat') { // searching for SAT, not sitting
+			$q = "\"SAT\"";
+		}
+
 		// Prepend "how to" to the query on EN
-		if ( $q && !Misc::isIntl() && strtolower(substr($q, 0, 4)) != 'how ' ) {
-			$q = "how to " . $q;
+		$prefixes = [
+			'how to ',
+			'howto ',
+			'how ',
+			'wikihow to ',
+			'wikihowto ',
+			'wikihow ',
+			'to '
+		];
+		if ( $q && !Misc::isIntl() ) {
+			$changed = false;
+			foreach ( $prefixes as $prefix ) {
+				if ( strtolower( substr( $q, 0, strlen( $prefix ) ) ) === $prefix ) {
+					$q = 'how to ' . substr( $q, strlen( $prefix ) );
+					$changed = true;
+					break;
+				}
+			}
+			if ( !$changed ) {
+				$q = "how to " . $q;
+			}
 		}
 		return $q;
 	}
@@ -209,7 +239,7 @@ class LSearch extends SpecialPage {
 			$resultCount = $this->externalSearchResults($this->mQ, $this->mStart, $resultsPerPage, self::SEARCH_LOGGED_IN);
 		}
 
-		if ($resultCount <= 0) {
+		if ($resultCount < 0) {
 			$reqUrl = $this->getRequest()->getRequestURL();
 			$out = $this->getOutput();
 			$out->addHTML(wfMessage('lsearch_query_error', $reqUrl)->plain());
@@ -217,8 +247,7 @@ class LSearch extends SpecialPage {
 			return;
 		}
 
-		$enc_q = htmlspecialchars($this->mQ);
-		$this->getOutput()->setHTMLTitle(wfMessage('lsearch_title_q', $enc_q));
+		$this->getOutput()->setHTMLTitle(wfMessage('lsearch_title_q', $this->formatSearchQuery($this->mQ)));
 
 		$suggestionLink = $this->getSpellingSuggestion($this->searchUrl);
 		$results = $this->mResults['results'] ? $this->mResults['results'] : [];
@@ -227,6 +256,7 @@ class LSearch extends SpecialPage {
 
 		wfRunHooks( 'LSearchRegularSearch', array( &$results ) );
 
+		$enc_q = htmlspecialchars($this->mQ);
 		$searchId = $this->sherlockSearch();	// initialize/check Sherlock cookie
 		$this->displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId );
 	}
@@ -238,13 +268,151 @@ class LSearch extends SpecialPage {
 		// Internal search is used for requests coming from services like FB messenger bot or Alexa.
 		// These services often are intermittently blocked by yahoo search (which is free through our DDC contract).
 		// Instead we send them to Bing, which we have to pay per query.
-		if ($this->getLanguage()->getCode() == 'tr') {
-			return $this->internalSearchResults($q, $start, $limit);
-		} elseif ($searchType == self::SEARCH_INTERNAL) {
-			return $this->externalSearchResultsBing($q, $start, $limit, $searchType);
-		} else {
-			return $this->externalSearchResultsYahoo($q, $start, $limit, $searchType);
+		// Trevor, 9/4/18 - Fallback to Special:Search if we have 0 results from an external provider
+		if ( $this->getLanguage()->getCode() !== 'tr' && !$this->getRequest()->getBool( 'internal' ) ) {
+			if ( $searchType == self::SEARCH_INTERNAL ) {
+				$count = $this->externalSearchResultsBing( $q, $start, $limit, $searchType );
+			} else {
+				if ( $this->mEnableBeta ) {
+					$count = $this->externalSearchResultsSolr( $q, $start, $limit, $searchType );
+				} else {
+					$count = $this->externalSearchResultsYahoo( $q, $start, $limit, $searchType );
+				}
+			}
+			if ( $count > 0 ) {
+				return $count;
+			}
 		}
+		// Fallback to internal search results (extracts results from MediaWiki Special:Search)
+		return $this->internalSearchResults( $q, $start, $limit );
+	}
+
+	/**
+	 * Solr internal search API
+	 *
+	 * @return int  Amount of results
+	 */
+	private function externalSearchResultsSolr($q, $start, $limit = 30, $gm_type = self::SEARCH_OTHER): int {
+		global $wgMemc;
+
+		$q = trim($q);
+
+		if ($this->isBadQuery($q)) {
+			return null;
+		}
+		$q = $this->formatSearchQuery($q);
+		if ( substr( $q, 0, 7 ) === 'how to ' ) {
+			// Use the normalization but not the "how to " since Solr does that on its own
+			$q = substr( $q, 7 );
+		}
+
+		$key = wfMemcKey('SolrSearchResultsV1', str_replace(' ', '-', $q), $start, $limit);
+		$data = $wgMemc->get($key);
+
+		if ( !is_array( $data ) ) {
+			// Query Solr
+			$params = [
+				'count' => $limit,
+				'start' => $start,
+				'q' => $q
+			];
+			$url = 'http://54.89.17.202/search?' . http_build_query( $params );
+
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+			// Parse response contents or return on failure
+
+			$respBody = curl_exec($ch);
+			$respCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+			if ($respCode != 200 || curl_errno($ch)) {
+				curl_close($ch);
+				return null;
+			}
+
+			curl_close($ch);
+
+			try {
+				$response = json_decode( $respBody );
+			} catch (Exception $e) {
+				return null;
+			}
+
+			// Collect data
+
+			$data = [];
+
+			if ( $response->spellcheck && $response->spellcheck->suggestions ) {
+				// Replace each misspelling with the first suggested correction
+				function interpolate( $query, $suggestions, $format = false ) {
+					$suggestedQuery = $query;
+					$offset = 0;
+					for ( $i = 0; $i < count( $suggestions ); $i += 2 ) {
+						$misspelling = $suggestions[$i];
+						$suggestion = $suggestions[$i + 1];
+						$start = $suggestion->startOffset + $offset;
+						$length = $suggestion->endOffset + $offset - $start;
+						$replacement = $suggestion->suggestion[0];
+						if ( $format ) {
+							$replacement = "<b><i>{$replacement}</i></b>";
+						}
+						$suggestedQuery = substr_replace( $suggestedQuery, $replacement, $start, $length );
+						$offset += strlen( $replacement ) - strlen( $misspelling );
+					}
+					return $suggestedQuery;
+				}
+				$value = interpolate( $q, $response->spellcheck->suggestions );
+				$label = interpolate( $q, $response->spellcheck->suggestions, true );
+
+				$data['spelling'] = [ [ 'Value' => $value, 'Label' => $label ] ];
+			}
+
+			$data['results'] = [];
+			if ( $response->results ) {
+				foreach ( $response->results as $result ) {
+					$formattedTitle = $response->highlighting->{$result->id}->formatted_title ?
+						$response->highlighting->{$result->id}->formatted_title[0] : $result->formatted_title[0];
+					if ( $result->category === 1 ) {
+						$url = 'Category:' . $result->formatted_title[0];
+					} else {
+						$title = Title::newFromID( $result->pageid );
+						if ( !$title ) {
+							continue;
+						}
+						$url = $title->getDBKey();
+					}
+					$data['results'][] = [
+						'title' => $formattedTitle,
+						'description' => '...',
+						'url' => 'https://' . wfCanonicalDomain() . '/' . $url
+					];
+				}
+			}
+
+			$data['totalresults'] = (int) $response->numfound;
+
+			// Update cache. If no results, cache only for 5 minutes to handle hiccups in search service
+			$count = count( $data['results'] );
+			$expiry = ( $count > 0 ) ? self::ONE_WEEK_IN_SECONDS : self::FIVE_MINUTES_IN_SECONDS;
+			$wgMemc->set( $key, $data, $expiry );
+		}
+
+		// Use data
+
+		if (
+			($gm_type == self::SEARCH_LOGGED_IN || $gm_type == self::SEARCH_LOGGED_OUT ) &&
+			// Suppress suggestions unless there are 0 results
+			$count === 0
+		) {
+			$this->mSpelling = $data['spelling'] ?? [];
+		}
+		$this->mResults['results'] = $data['results'];
+		$this->mLast = $this->mStart + count( $data['results'] );
+		$this->mResults['totalresults'] = $data['totalresults'];
+
+		return count( $data['results'] );
 	}
 
 	/**
@@ -272,10 +440,10 @@ class LSearch extends SpecialPage {
 		global $wgMemc;
 
 		$q = trim($q);
-
 		if ($this->isBadQuery($q)) {
 			return -1;
 		}
+		$q = $this->formatSearchQuery($q);
 
 		$key = wfMemcKey('GoogleXMLAPIResultsV2', str_replace(' ', '-', $q), $start, $limit);
 		$data = $wgMemc->get($key);
@@ -325,7 +493,7 @@ class LSearch extends SpecialPage {
 
 			if ($xmlResp->Spelling->CORRECTED_QUERY->Q instanceof SimpleXMLElement) {
 				$chunks = explode(' site:', $xmlResp->Spelling->CORRECTED_QUERY->Q);
-				$data['spelling'] = [ ['Value' => $chunks[0]] ];
+				$data['spelling'] = [ [ 'Value' => $chunks[0], 'Label' => "<b><i>{$chunks[0]}</i></b>" ] ];
 			}
 
 			$data['results'] = [];
@@ -378,6 +546,7 @@ class LSearch extends SpecialPage {
 		if ($this->isBadQuery($q)) {
 			return -1;
 		}
+		$q = $this->formatSearchQuery($q);
 
 		$set_cache = false;
 		$contents = $wgMemc->get($key);
@@ -429,7 +598,10 @@ class LSearch extends SpecialPage {
 		}
 
 		if ($gm_type == self::SEARCH_LOGGED_IN || $gm_type == self::SEARCH_LOGGED_OUT) {
-			$this->mSpelling = $contents['bossresponse']['spelling'];
+			$suggestion = $contents['bossresponse']['spelling'][0]['Value'];
+			if ( !empty( $suggestion ) ) {
+				$this->mSpelling = [ [ 'Value' => $suggestion, 'Label' => "<b><i>{$suggestion}</i></b>" ] ];
+			}
 		}
 
 		$this->mResults['results'] = $contents['web']['web'];
@@ -467,6 +639,7 @@ class LSearch extends SpecialPage {
 		if ($this->isBadQuery($q)) {
 			return -1;
 		}
+		$q = $this->formatSearchQuery($q);
 
 		$set_cache = false;
 		$contents = $wgMemc->get($key);
@@ -516,7 +689,10 @@ class LSearch extends SpecialPage {
 		}
 
 		if ($searchType == self::SEARCH_LOGGED_IN || $searchType == self::SEARCH_LOGGED_OUT) {
-			$this->mSpelling = $contents['SpellingSuggestions'];
+			$suggestion = $contents['SpellingSuggestions'];
+			if ( !empty( $suggestion ) ) {
+				$this->mSpelling = [ [ 'Value' => $suggestion, 'Label' => "<b><i>{$suggestion}</i></b>" ] ];
+			}
 		}
 
 		$this->mResults['results'] = isset($contents['value']) ?
@@ -664,65 +840,6 @@ class LSearch extends SpecialPage {
 		foreach ($contents as $t) {
 			print "{$t->getCanonicalURL()}\n";
 		}
-	}
-
-	/*
-	 * Return a json array of articles that includes the title, full url and abbreviated intro text.
-	 *
-	 * NOTE: This method is really slow and shouldn't be used. It creates the 'intro' array element
-	 *   by getting the latest revision of the wikitext, pulling out the intro and flattening it.
-	 *   We should remove it. - Reuben, 2016/1/8
-	 *
-	 * NOTE (Alberto, 2018-08)
-	 * I found that this method was broken. The fact that nobody has complained suggests
-	 * that it's no longer used, or not very important, so we can probably remove it.
-	 *
-	 * The issue was that it only printed JSON to the screen the 1st time it got called.
-	 * After that, the method would just return the cached $val without printing anything.
-	 */
-	private function jsonSearch() {
-		global $wgMemc;
-
-		// Don't return more than 50 search results at a time to prevent abuse
-		$limit = min($this->mLimit, 50);
-
-		$key = wfMemcKey("MobileSearch", str_replace(" ", "-", $this->mQ), $this->mStart, $limit);
-		$json = $wgMemc->get($key);
-
-		if (!$json) {
-			$contents = $this->externalSearchResultTitles($this->mQ, $this->mStart, $limit, 0, self::SEARCH_MOBILE);
-			$results = array();
-			foreach ($contents as $t) {
-				// Only return articles
-				if ($t->getNamespace() != NS_MAIN) {
-					continue;
-				}
-
-				$result = array();
-				$result['title'] = $t->getText();
-				$result['url'] = $t->getFullURL();
-				$result['imgurl'] = ImageHelper::getGalleryImage($t, 103, 80);
-				$result['intro'] = null;
-				if ($r = Revision::newFromId($t->getLatestRevID())) {
-					$intro = Wikitext::getIntro($r->getText());
-					$intro = trim(Wikitext::flatten($intro));
-					$result['intro'] = mb_substr($intro, 0, 180);
-					// Put an ellipsis on the end
-					$len = mb_strlen($result['intro']);
-					$result['intro'] .= mb_substr($result['intro'], $len - 1, $len) == '.' ? '..' : '...';
-				}
-				if (!is_null($result['intro'])) {
-					$results[] = array('article' => $result);
-				}
-			}
-
-			$json = json_encode([ 'results' => $results]);
-			$wgMemc->set($key, $json, 3600); // 1 hour
-		}
-
-		header("Content-type: application/json");
-		$this->getOutput()->setArticleBodyOnly(true);
-		print $json;
 	}
 
 	// Executes the logic for managing the Sherlock Cookie & loggin search to DB
@@ -940,6 +1057,8 @@ class LSearch extends SpecialPage {
 		// -Reuben, June 14, 2016
 		if (!$results) {
 			$out->setStatusCode(404);
+			// count 'no results' in statsd too, so we can see ops-related spikes in grafana
+			WikihowStatsd::increment('search.noresults');
 		}
 
 		$androidParam = class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest() ?
@@ -949,6 +1068,10 @@ class LSearch extends SpecialPage {
 		$disabled = !($total > $start + $resultsPerPage && $last == $start + $resultsPerPage);
 		// equivalent to: $disabled = $total <= $start + $resultsPerPage || $last != $start + $resultsPerPage;
 		$next_url = '/' . $me . '?search=' . urlencode($q) . '&start=' . ($start + $resultsPerPage) . $androidParam;
+		if ( $this->mEnableBeta ) {
+			$next_url .= '&beta=true';
+		}
+
 		$nextButtonAttr = array(
 			'href' => $next_url,
 			'class' => 'button buttonright primary ' . ($disabled ? 'disabled' : ''),
@@ -963,6 +1086,9 @@ class LSearch extends SpecialPage {
 		// equivalent to: $disabled = $start < $resultsPerPage;
 
 		$prev_url = '/' . $me . '?search=' . urlencode($q) . ($start - $resultsPerPage !== 0 ? '&start=' . ($start - $resultsPerPage) : '') . $androidParam;
+		if ( $this->mEnableBeta ) {
+			$prev_url .= '&beta=true';
+		}
 		$prevButtonAttr = array(
 			'href' => $prev_url,
 			'class' => 'button buttonleft primary ' . ($disabled ? 'disabled' : ''),
@@ -973,10 +1099,12 @@ class LSearch extends SpecialPage {
 		$prev_button = Html::rawElement( 'a', $prevButtonAttr, wfMessage( "lsearch_previous" )->text() );
 		$page = (int) ($start / $resultsPerPage) + 1;
 
+		$adProvider = $this->mEnableBeta ? 'google' : 'yahoo';
+
 		$vars = array(
 			'q' => $q,
 			'enc_q' => $enc_q,
-			'ads' => wikihowAds::getSearchAds('yahoo', $q, $page, count($results)),
+			'ads' => wikihowAds::getSearchAds($adProvider, self::formatSearchQuery($q), $page, count($results)),
 			'sk' => $sk,
 			'me' => $me,
 			'max_results' => $resultsPerPage,
@@ -1019,11 +1147,12 @@ class LSearch extends SpecialPage {
 		$spellingResults = $this->mSpelling;
 		$suggestionLink = null;
 		if (sizeof($spellingResults) > 0) {
-			$suggestion = $spellingResults[0]['Value'];
+			$suggestionValue = $spellingResults[0]['Value'];
+			$suggestionLabel = $spellingResults[0]['Label'];
 			// Lighthouse #1527 - We don't want spelling corrections for wikihow
 			if (stripos($suggestion, "wiki how") === false) {
-				$suggestionUrl = "$url?search=" . urlencode($suggestion);
-				$suggestionLink = "<a href='$suggestionUrl'>$suggestion</a>";
+				$suggestionUrl = "$url?search=" . urlencode($suggestionValue);
+				$suggestionLink = "<a href='$suggestionUrl'>$suggestionLabel</a>";
 			}
 
 		}

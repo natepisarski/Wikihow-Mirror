@@ -54,7 +54,7 @@ WH.ga.loadGoogleAnalytics = function(siteVersion, propertyId, config) {
 
 	// Do the main GA ping
 	ga('create', propertyId, 'auto', { 'allowLinker': true });
-	ga('linker:autoLink', [/^.*wikihow\.(com|cz|it|jp|vn)$/]);
+	ga('linker:autoLink', [/^.*wikihow\.(com|cz|it|jp|vn|com\.tr)$/]);
 	ga('send', 'pageview');
 	ga('set', 'anonymizeIp', true);
 	// ... and extra events if we got any
@@ -327,9 +327,9 @@ if (isIOS) {
 	} catch (e) {}
 	var passiveParam = supportsPassive ? { passive: true } : false;
 
-	$jqWindow.bind('touchstart', handleScrollEvent, passiveParam);
-	$jqWindow.bind('touchmove', handleScrollEvent, passiveParam);
-	$jqWindow.bind('touchend', handleScrollEvent);
+	window.addEventListener('touchstart', handleScrollEvent, passiveParam);
+	window.addEventListener('touchmove', handleScrollEvent, passiveParam);
+	window.addEventListener('touchend', handleScrollEvent);
 }
 
 // Late-load youtube videos. We do this for SEO because youtube

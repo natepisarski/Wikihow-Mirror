@@ -18,6 +18,7 @@ $messages['en'] = [
  <a href='https://ru.wikihow.com'>Русский</a>,
  <a href='https://ar.wikihow.com'>العربية</a>,
  <a href='https://th.wikihow.com'>ไทย</a>,
+ <a href='https://www.wikihow.com.tr'>Türkçe</a>,
  <a href='https://www.wikihow.vn'>Tiếng Việt</a>,
  <a href='https://ko.wikihow.com'>한국어</a>,
  <a href='https://zh.wikihow.com'>中文</a>.

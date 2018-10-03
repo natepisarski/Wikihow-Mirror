@@ -524,6 +524,11 @@ class MobileContext extends ContextSource {
 		// Validates value as IP address
 		$host = $this->getRequest()->getHeader( 'Host' );
 		if ( !IP::isValid( $host ) ) {
+			// Alberto, 2018/09 - Temporary hack until we update MW, which should now
+			// be able to handle effective TLDs: https://phabricator.wikimedia.org/T150768
+			if (strpos($host, 'wikihow.com.tr') !== false) {
+				return '.wikihow.com.tr';
+			}
 			$domainParts = explode( '.', $host );
 			$domainParts = array_reverse( $domainParts );
 			// Although some browsers will accept cookies without the initial ., » RFC 2109 requires it to be included.

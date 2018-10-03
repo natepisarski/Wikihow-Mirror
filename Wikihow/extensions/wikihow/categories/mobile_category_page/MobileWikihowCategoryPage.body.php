@@ -121,7 +121,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 
 	protected function getData($isMainCategory, $currentPage, CategoryData $catData, $getArticles, $viewer) {
 		$data = [
-			'howto_prefix' => wfMessage('howto','')->text(),
+			'howto_prefix' => wfMessage('howto_prefix')->showIfExists(),
 			'cat_title' => $catData->getText(),
 			'cat_id' => $catData->getArticleID(),
 			'url' => $catData->getUrl(),

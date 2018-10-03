@@ -830,6 +830,8 @@ class LoginForm extends SpecialPage {
 		$ctx = MobileContext::singleton();
 		$isMobileMode = $ctx->shouldDisplayMobileView();
 
+		WikihowStatsd::increment('login.request');
+
 		switch ( $this->authenticateUserData() ) {
 			case self::SUCCESS:
 				# We've verified now, update the real record
@@ -856,6 +858,8 @@ class LoginForm extends SpecialPage {
 				$request = $this->getRequest();
 				$key = wfMemcKey( 'password-throttle', $request->getIP(), md5( $this->mUsername ) );
 				$wgMemc->delete( $key );
+
+				WikihowStatsd::increment('login.success');
 
 				if ( $this->hasSessionCookie() || $this->mSkipCookieCheck ) {
 					/* Replace the language object to provide user interface in

@@ -1,6 +1,6 @@
 <?php
 
-//example: php GetCustomTitlesTest.php --new=1 --title='Avoid Arsenic in Rice'
+//example: php GetCustomTitlesTest.php --wrm=1 --title='Avoid Arsenic in Rice'
 
 require_once __DIR__ . '/../../Maintenance.php';
 
@@ -8,42 +8,43 @@ class GetCustomTitlesTest extends Maintenance {
 
 	const MAX_TITLE_LENGTH = 66;
 
-	static $firstTime = true;
-
 	public function __construct() {
 		parent::__construct();
 		$this->addOption('title', 'Title of page to test', true, true, 't');
-		$this->addOption('new', 'Whether article is new or not', false, true, 'n');
+		$this->addOption('wrm', 'Whether article was created by WRM', false, true, 'w');
 	}
 
 	public function execute() {
 		$titleTxt = trim($this->getOption('title'));
-		$new_article = $this->hasOption('new');
+		$wrm_created = $this->hasOption('wrm');
 
 		$title = Title::newFromText($titleTxt);
-
-		for ($ii=0; $ii < 20; $ii++) {
-			print $this->makeTitle($title, $new_article)."\n";
-			self::$firstTime = false;
-		}
+		print $this->makeTitle($title, $wrm_created)."\n";
 	}
 
 
-	private static function getRandomPrefix(int $ways): string {
+	private static function getWRMPrefix(int $ways, string $titleTxt): string {
 		$message = $ways > 2 ? 'custom_title_ways_prefixes_big' : 'custom_title_ways_prefixes_tiny';
-
 		$prefixes = explode(',', wfMessage($message)->text());
-		$prefix = $prefixes[mt_rand(0, count($prefixes)-1)];
+
+		$modulus = count($prefixes);
+		if (empty($modulus)) return trim(wfMessage('howto','')->text());
+
+		$crc32 = crc32($titleTxt);
+		$crc32 = abs($crc32);
+		$key = $crc32 % $modulus;
+
+		$prefix = $prefixes[$key];
 
 		if ($ways <= 2) $ways = '';
 
 		return trim($ways.' '.$prefix);
 	}
 
-	private static function makeTitleWays(int $ways, string $titleTxt, bool $new_article): string {
+	private static function makeTitleWays(int $ways, string $titleTxt, bool $wrm_created): string {
 		if (RequestContext::getMain()->getLanguage()->getCode() == 'en') {
-			if ($new_article)
-				$prefix = self::getRandomPrefix($ways);
+			if ($wrm_created)
+				$prefix = self::getWRMPrefix($ways, $titleTxt);
 			else
 				$prefix = $ways.' '.wfMessage('custom_title_ways')->text();
 
@@ -59,7 +60,7 @@ class GetCustomTitlesTest extends Maintenance {
 		return trim($ret);
 	}
 
-	private static function makeTitle(Title $title, bool $new_article): string {
+	private static function makeTitle(Title $title, bool $wrm_created): string {
 		// MediaWiki:max_title_length is used for INTL
 		$maxTitleLength = (int)wfMessage("max_title_length")->plain() ?: self::MAX_TITLE_LENGTH;
 
@@ -68,28 +69,27 @@ class GetCustomTitlesTest extends Maintenance {
 		$methods = Wikitext::countAltMethods($stepsText);
 		$hasParts = MagicWord::get( 'parts' )->match($wikitext);
 
-if (self::$firstTime) {
-	print 'Methods: '.$methods."\n";
-	print 'Has Parts: ';
-	print $hasParts ? "true\n" : "false\n";
-}
+		print 'Methods: '.$methods."\n";
+		print 'Has Parts: ';
+		print $hasParts ? "true\n" : "false\n";
+
 		$pageName = $title->getText();
 
 		if ($methods >= 3 && !$hasParts) {
-			$inner = self::makeTitleWays($methods, $pageName, $new_article);
+			$inner = self::makeTitleWays($methods, $pageName, $wrm_created);
 			$titleText = wfMessage('pagetitle', $inner)->text();
 
-if (self::$firstTime) print 'Initial Length[1]: '.strlen($titleText)."\n";
+			print 'Initial Length[1]: '.strlen($titleText)."\n";
 
 			if (strlen($titleText) > $maxTitleLength) {
 				$titleText = $inner;
 			}
 		}
 		else {
-			if ($new_article && $hasParts)
-				$howto = self::makeTitleWays(0, $pageName, $new_article);
-			elseif ($new_article)
-				$howto = self::makeTitleWays($methods, $pageName, $new_article);
+			if ($wrm_created && $hasParts)
+				$howto = self::makeTitleWays(0, $pageName, $wrm_created);
+			elseif ($wrm_created)
+				$howto = self::makeTitleWays($methods, $pageName, $wrm_created);
 			else
 				$howto = wfMessage('howto', $pageName)->text();
 
@@ -98,7 +98,7 @@ if (self::$firstTime) print 'Initial Length[1]: '.strlen($titleText)."\n";
 			$inner = self::makeTitleInner($howto, $numSteps, $withPictures);
 			$titleText = wfMessage('pagetitle', $inner)->text();
 
-if (self::$firstTime) print 'Initial Length[2]: '.strlen($titleText)."\n";
+			print 'Initial Length[2]: '.strlen($titleText)."\n";
 
 			// first, try articlename + metadata + wikihow
 			if (strlen($titleText) > $maxTitleLength) {
@@ -173,11 +173,8 @@ if (self::$firstTime) print 'Initial Length[2]: '.strlen($titleText)."\n";
 
 	private static function makeTitleInner(string $howto, int $numSteps, bool $withPictures = false): string {
 		if (RequestContext::getMain()->getLanguage()->getCode() == 'en') {
-			$stepsText = wfMessage('custom_title_step_number', $numSteps)->text();
-			if ($numSteps <= 0 || $numSteps > 15) $stepsText = '';
-
-			$picsText = $withPictures ? wfMessage('custom_title_with_pictures') : '';
-
+			$stepsText = self::makeTitleSteps($numSteps);
+			$picsText = $withPictures ? wfMessage('custom_title_with_pictures')->text() : '';
 			$ret = $howto.$stepsText.$picsText;
 		}
 		else {
@@ -189,6 +186,11 @@ if (self::$firstTime) print 'Initial Length[2]: '.strlen($titleText)."\n";
 			$ret = preg_replace("@ +$@", "", $inner);
 		}
 		return trim($ret);
+	}
+
+	private static function makeTitleSteps(int $numSteps): string {
+		if ($numSteps <= 0 || $numSteps > 15) return '';
+		return wfMessage('custom_title_step_number', $numSteps)->text();
 	}
 
 }

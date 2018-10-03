@@ -9,7 +9,6 @@ if (!$isMobile) {
 	$extraInputClass = ' ar_border_thin';
 	$extraButtonClass = ' ar_button_short';
 ?>
-<hr class='article_rating_divider' /><br />
 <div class='article_rating_container clearfix'>
 <?
 } else {

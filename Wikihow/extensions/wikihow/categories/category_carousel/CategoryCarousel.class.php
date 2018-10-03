@@ -56,6 +56,8 @@ class CategoryCarousel {
 		if($this->isSubCategory) {
 			$data['subsublist'] = $this->formatSubcategoryList($data['subcategories']);
 		}
+		$data['show_more'] = wfMessage('cat_show_more')->text();
+		$data['show_less'] = wfMessage('cat_show_less')->text();
 		$data['postload'] = count($data['cat_articles']['articles']) > 0 ? "0" : "1";
 
 		return $data;

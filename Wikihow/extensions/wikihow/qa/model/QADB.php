@@ -489,15 +489,21 @@ class QADB {
 			$where['qa_inactive'] = 0;
 		}
 
+		$order_by = [
+			'qa_verifier_id > 0 DESC'
+		];
+
 		$staff_editor_ids = $this->staffEditorIds();
+		if (!empty($staff_editor_ids)) {
+			$order_by[] = 'FIELD(qa_submitter_user_id,'.$dbw->makeList($staff_editor_ids).') DESC';
+		}
+
+		$order_by[] = 'qa_score DESC';
 
 		$options = [
-			'ORDER BY' => [
-				'qa_verifier_id > 0 DESC',
-				'FIELD(qa_submitter_user_id,'.$dbw->makeList($staff_editor_ids).') DESC',
-				'qa_score DESC'
-			]
+			'ORDER BY' => $order_by
 		];
+
 		if ($limit > 0) {
 			$options['LIMIT'] = $limit;
 		}
@@ -1175,7 +1181,7 @@ class QADB {
 	private function staffEditorIds() {
 		global $wgMemc;
 
-		$cachekey = wfMemcKey('qa_staff_editor_ids');
+		$cachekey = wfMemcKey('qa_staff_editor_and_staff_ids');
 		$staff_editor_ids = $wgMemc->get($cachekey);
 
 		if (empty($staff_editor_ids)) {
@@ -1183,7 +1189,12 @@ class QADB {
 			$res = $dbr->select(
 				'user_groups',
 				'ug_user',
-				['ug_group' => 'editor_team'],
+				[
+					'ug_group' => [
+						'editor_team',
+						'staff'
+					]
+				],
 				__METHOD__
 			);
 

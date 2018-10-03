@@ -4,3 +4,4 @@ indexexchange.com, 186325, DIRECT
 rubiconproject.com, 18654, DIRECT, 0bfd66d529a55807
 rubiconproject.com, 15274, DIRECT, 0bfd66d529a55807
 adtech.com, 11484, DIRECT
+appnexus.com, 9929, DIRECT

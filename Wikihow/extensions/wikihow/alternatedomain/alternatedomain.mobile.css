@@ -2,6 +2,7 @@
 	float: left;
 	position: relative;
 	width: 100%; margin-bottom: 2%;
+	overflow: hidden;
 }
 .related-image-link {
 	display: block;
@@ -33,9 +34,13 @@
 	color: #2483ef;
 	text-decoration: none;
 }
+.related-article .related-title .related-title-text p {
+    line-height: 12px;
+}
 .related-title-text p {
+	margin: 0;
 	font-size: 12px;
-	line-height: 15px;
+    font-weight: normal;
 }
 
 .related-image-link {

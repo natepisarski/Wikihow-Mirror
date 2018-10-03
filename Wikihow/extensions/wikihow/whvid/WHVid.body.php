@@ -337,60 +337,6 @@ class WHVid {
 		return $wrap;
 	}
 
-	// get the classes to apply to the title text for summary overlay
-	// based on the length of the title text
-	public static function getTitleTextClass( $title ) {
-		$class = 'm-video-intro-text';
-		if ( !$title ) {
-			return $class;
-		}
-
-		$titleText = $title->getText();
-		$titleLength = strlen( $titleText );
-		$suffix = ceil( $titleLength / 10 );
-		$class = 'm-video-intro-text m-video-title-text-long-' . $suffix;
-
-		return $class;
-	}
-
-	/*
-	public static function getVideoControlsSummaryHtmlVersion1( $headingText ) {
-		global $wgTitle;
-
-		$introTextClass = self::getInroTextClass( $headingText );
-
-		$titleTextClass = self::getTitleTextClass( $wgTitle );
-		$titleTextAttributes = ['class' => $titleTextClass];
-
-		$playContents= Html::element( 'div', ['class' => 'm-video-play-count-triangle' ] );
-		$playButton = Html::rawElement( 'div', ['class' => 'm-video-play'], $playContents . $playCount );
-		$introText = Html::rawElement( 'div', ['class' => $introTextClass], $headingText );
-		$introText .= Html::rawElement( 'div', ['class' => 'm-video-intro-text'], 'Watch this <span id="m-video-intro-time"></span> video' );
-		$introText .= Html::rawElement( 'div', $titleTextAttributes, 'to learn how to ' . $wgTitle->getText() );
-		$readMore = Html::rawElement( 'div', ['id' => 'm-video-intro-readmore' ] );
-		$introText .= Html::rawElement( 'div', ['class' => 'm-video-intro-text'], 'or read the full article below!' . $readMore );
-		$introHtml = Html::rawElement( 'div', ['class' => 'm-video-intro'], $introText );
-		$introCss = Html::rawElement( 'div', ['class' => 'm-video-intro-over'], $introHtml );
-
-		$contents = $playButton;
-		if ( $wgTitle && !ArticleTagList::hasTag( 'summary-video-no-overlay', $wgTitle->getArticleID() ) ) {
-			$contents = $introCss . $contents;
-		}
-		$wrap = Html::rawElement( 'div', ['class' => 'm-video-controls', 'oncontextmenu' => 'return false;' ], $contents );
-		return $wrap;
-	}
-	 */
-
-	public static function getIntroTextClass( $headingText ) {
-		$introTextClass = "m-video-intro-text";
-		if ( strlen( $headingText ) > 15 ) {
-			$introTextClass .= " m-video-intro-text-very-long";
-		} else if ( strlen( $headingText ) > 11 ) {
-			$introTextClass .= " m-video-intro-text-long";
-		}
-		return $introTextClass;
-	}
-
 	public static function getVideoControlsSummaryHtml( $introText ) {
 		global $wgTitle;
 		$html = self::getSummaryIntroOverlayHtml( $introText, $wgTitle );
@@ -399,38 +345,15 @@ class WHVid {
 	}
 
 	public static function getSummaryIntroOverlayHtml( $sectionName, $title ) {
-		$isMobile = Misc::isMobileMode();
-		$playButtonInner = Html::element('div', ['class' => 'm-video-play-count-triangle']);
+		$playButtonInner = Html::element('div', ['class' => 'm-video-play-count-triangle']) . " Watch";
 
 		$playButtonAttributes = array(
 			'class' => 'm-video-play',
 		);
 
-		$introTextClass = self::getIntroTextClass( $sectionName );
-
-		$titleTextClass = self::getTitleTextClass( $title );
-		$titleTextAttributes = ['class' => $titleTextClass];
-
-		if($isMobile) {
-			$introText = Html::rawElement('div', ['class' => $introTextClass], $sectionName);
-			$introText .= Html::rawElement('div', ['class' => 'm-video-intro-text'], 'Watch this <span id="m-video-intro-time">30 second</span><div id="m-video-intro-time-v2"></div> video');
-			$introText .= Html::rawElement('div', $titleTextAttributes, 'to learn how to ' . $title->getText());
-			$introText .= Html::rawElement('div', ['class' => 'm-video-intro-text'], 'or read the full article below!' . $readMore);
-		} else {
-			//$introText = Html::rawElement('div', ['class' => 'm-video-intro-overlay']);
-		}
-
-		$intro = Html::rawElement( 'div', ['class' => 'm-video-intro'], $introText );
-
 		$playButton = Html::rawElement( "div", $playButtonAttributes, $playButtonInner );
-		$introContents .= $intro . $playButton;
 
-		if(!$isMobile) {
-			$views = Html::rawElement('div', ['class' => 'm-video-views'],  "Play<br />Video<span>(30 seconds)</span>");
-			$introContents .= $views;
-		}
-
-		$mVideoIntroOver = Html::rawElement( 'div', ['class' => 'm-video-intro-over'], $introContents );
+		$mVideoIntroOver = Html::rawElement( 'div', ['class' => 'm-video-intro-over'], $playButton );
 		if ( $title && ArticleTagList::hasTag( 'summary-video-no-overlay', $title->getArticleID() ) ) {
 			$mVideoIntroOver = $playButton;
 		}

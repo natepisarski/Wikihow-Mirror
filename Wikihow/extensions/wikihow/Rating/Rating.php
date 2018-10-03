@@ -109,3 +109,11 @@ $wgResourceModules['ext.wikihow.rating_sidebar.styles'] = array(
 	'targets' => array('desktop')
 );
 
+$wgResourceModules['ext.wikihow.rating_desktop.style'] = array(
+	'styles' => 'rating_desktop_body.css',
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/Rating',
+	'position' => 'bottom',
+	'targets' => array('desktop')
+);
+

@@ -41,6 +41,10 @@ $wgResourceModules['mobile.wikihow.mobile_category_page'] = array(
 	'position' => 'top',
 	'targets' => array('mobile', 'desktop'),
 	'dependencies' => array('mobile.wikihow.category_carousel','ext.wikihow.common_top'),
+	'messages' => [
+		'cat_show_more',
+		'cat_show_less'
+	]
 );
 
 $wgResourceModules['mobile.wikihow.category_carousel'] = array(

@@ -56,7 +56,12 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 		$text = Wikitext::flatten($r->getText());
 		$text = Wikitext::stripLinkUrls($text);
 		
+		$start = microtime(true);
 		$res = copyscape_api_text_search_internet($text, 'ISO-8859-1', 2);
+		$time = sprintf('%.4f', microtime(true) - $start);
+		$title = $t->getText();
+		$logline = "Took $time seconds checking article $title";
+		self::logit($logline);
 		
 		if ($res['count']) {
 			$words = $res['querywords'];
@@ -74,6 +79,11 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 		}
 	
 		return $result;
+	}
+
+	private static function logit($line) {
+		$date = date('r');
+		error_log("$date: $line\n", 3, '/var/log/wikihow/copyscape.log');
 	}
 
 	/**

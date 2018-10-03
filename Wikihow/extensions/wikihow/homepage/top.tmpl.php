@@ -10,7 +10,9 @@
 	<div id="hp_middle">
 		<div id="hp_middle2">
 		<p class="hp_tag"><?= wfMessage('hp_tag')->text() ?></p>
-		<p class="hp_howto"><?= WikihowSkinHelper::getHowToLabel() ?></p>
+		<?php if ($howToPrefix = wfMessage('howto_prefix')->showIfExists()): ?>
+			<p class="hp_howto"><?= $howToPrefix ?></p>
+		<?php endif ?>
 		<p class="hp_title"></p>
 		<?= $search ?>
 		<?= $login ?>

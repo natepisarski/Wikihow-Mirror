@@ -429,6 +429,30 @@ elseif($wgLanguageCode == 'ko') {
 			CAT_YOUTH => "청소년",
 			);
 }
+elseif($wgLanguageCode == 'tr') {
+	$wgCategoryNames = array(
+			CAT_ARTS => 'Sanat ve Eğlence',
+			CAT_CARS => 'Araba ve Diğer Araçlar',
+			CAT_COMPUTERS => 'Bilgisayar ve Elektronik Cihazlar',
+			CAT_EDUCATION => 'Eğitim ve İletişim',
+			CAT_FAMILY => 'Aile Yaşamı',
+			CAT_FINANCE => 'Finans ve Ticaret',
+			CAT_FOOD => 'Yemek ve Davetler',
+			CAT_HEALTH => 'Sağlık',
+			CAT_HOBBIES => 'Hobi ve Beceriler',
+			CAT_HOLIDAYS => 'Bayram ve Gelenekler',
+			CAT_HOME => 'Ev ve Bahçe',
+			CAT_PERSONAL => 'Kişisel Bakım ve Stil',
+			CAT_PETS => 'Evcil ve Yabani Hayvanlar',
+			CAT_PHILOSOPHY => 'Felsefe ve Din',
+			CAT_RELATIONSHIPS => 'İlişkiler',
+			CAT_SPORTS => 'Spor ve Fitness',
+			CAT_TRAVEL => 'Seyahat',
+			// CAT_WIKIHOW => 'wikiHow',
+			CAT_WORK => 'İş Hayatı',
+			CAT_YOUTH => 'Gençlik',
+			);
+}
 else {
 	$wgCategoryNames = $englishCategs;
 }

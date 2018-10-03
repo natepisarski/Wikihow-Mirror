@@ -7,11 +7,11 @@ $.getScript('https://www.google.com/adsense/search/ads.js', function()
 		arguments)},g[o]['t']=1*new Date})(window,'_googCsa');
 
 	var pageOptions = {
-		pubId: 'wikihow',
+		pubId: 'pub-9543332082073187',
 		query: <?= $query ?>,
 		hl: <?= $lang ?>,
 		adPage: <?= $page ?>,
-		adtest: <?= $test ?>,
+		//adtest: <?= $test ?>,
 		location: true,
 		sellerRatings: true,
 		siteLinks: false
@@ -28,12 +28,12 @@ $.getScript('https://www.google.com/adsense/search/ads.js', function()
 
 	var adBlockTop = {
 		container: 'search_adblock_top',
-		number: 2
+		number: 3
 	};
 
 	var adBlockBottom = {
 		container: 'search_adblock_bottom',
-		number: 2
+		number: 4
 	};
 
 	$.extend(adBlockTop, commonBlockCnf);

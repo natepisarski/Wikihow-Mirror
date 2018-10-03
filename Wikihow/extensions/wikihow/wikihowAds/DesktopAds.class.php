@@ -274,7 +274,6 @@ class DesktopAds {
 				 $adCreator->mAdServices['intro'] = '';
 			}
 			$adCreator->mAdServices['step'] = '';
-			$adCreator->setApsLoad(true);
 			$adCreator->setRefreshableRightRail( true );
 			$adCreator->setStickyIntro( false );
 			$adCreator->setShowRightRailLabel( true );
@@ -291,7 +290,6 @@ class DesktopAds {
 			$adCreator = new CategoryPageAdCreator();
 		} else if ( $this->mDocViewer == true ) {
 			$adCreator = new DocViewerAdCreatorVersion2();
-			$adCreator->setApsLoad(true);
 			$adCreator->setRefreshableRightRail( true );
 			$adCreator->setShowRightRailLabel( true );
 			$adCreator->setAdLabelVersion( 2 );
@@ -308,10 +306,15 @@ class DesktopAds {
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
 			$adCreator = new MixedAdCreatorVersion2();
+			if ( $pageId % 100 == 0 ) {
+				$adCreator = new MixedAdCreatorVersion5();
+			}
 			if ( $pageId == 110310 ) {
 				$adCreator = new MixedAdCreatorVersion3();
 			} else if ( $pageId == 647971 ) {
 				$adCreator = new MixedAdCreatorVersion4();
+			} else if ( $pageId == 8917510 ) {
+				$adCreator = new MixedAdCreatorVersion5();
 			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
@@ -323,17 +326,11 @@ class DesktopAds {
 			// some settings that have become default over time
 			// we can refactor them to be the default in the class at construction time
 			$adCreator->mAdServices['step'] = '';
-			if ( $pageId == 647971 ) {
-				$adCreator->setApsLoad( false );
-			} else {
-				$adCreator->setApsLoad( true );
-			}
 			$adCreator->setRefreshableRightRail( true );
 			$adCreator->setStickyIntro( false );
 			$adCreator->setShowRightRailLabel( true );
 			$adCreator->setAdLabelVersion( 2 );
 			$adCreator->setRightRailAdLabelVersion( 2 );
-
 		}
 
 		return $adCreator;

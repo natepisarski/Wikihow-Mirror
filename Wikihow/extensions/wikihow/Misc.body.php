@@ -745,6 +745,8 @@ class Misc {
 			$codes['UA-2375655-18'] = 'it';
 		} elseif ($wgLanguageCode == 'cs') {
 			$codes['UA-2375655-19'] = 'cs';
+		} elseif ($wgLanguageCode == 'tr') {
+			$codes['UA-2375655-29'] = 'tr';
 		} elseif (class_exists('QADomain') && QADomain::isQADomain()) {
 			$codes[QADomain::getGACode()] = 'qa';
 		}
@@ -1000,29 +1002,5 @@ class Misc {
 	public static function isAdjustedBounceRateEnabled(): bool {
 		global $domainName;
 		return strpos($domainName, 'wikihow.pet') !== false;
-	}
-
-	public static function maybeApril1Redirect() {
-		global $wgUser;
-		if ($wgUser
-			&& !$wgUser->isAnon()
-			&& in_array('staff', $wgUser->getGroups())
-			&& empty($_POST)
-			&& $_GET
-			&& count($_GET) == 1 # always present title element
-			&& date('md') == '0405' # belatedly this year!
-			&& rand(1,4) == 1
-		) {
-			$urls = [
-				'https://www.youtube.com/watch?v=moSFlvxnbgk',
-				'https://www.youtube.com/watch?v=GC_mV1IpjWA',
-				'https://www.youtube.com/watch?v=gy1B3agGNxw',
-				'https://www.youtube.com/watch?v=tVj0ZTS4WF4',
-				'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-			];
-			$url = $urls[ array_rand($urls, 1) ];
-			header("Location: $url");
-			exit;
-		}
 	}
 }

@@ -49,10 +49,10 @@ class LoginReminder extends UnlistedSpecialPage {
 		<div class="modal_form">
 
 		<form name="userlogin" method="post" action="#" onSubmit="return WH.LoginReminder.checkSubmit('wpName2', 'wpCaptchaWord', 'wpCaptchaId');">
-			<div id="userloginprompt"><?= wfMessage('loginprompt') ?></div>
+			<div id="userloginprompt"><?= wfMessage('loginprompt')->text() ?></div>
 			<table>
 				<tr>
-					<td class="mw-label"><label for='wpName2'><?= wfMessage('username_or_email_html') ?></label></td>
+					<td class="mw-label"><label for='wpName2'><?= wfMessage('username_or_email_html')->text() ?></label></td>
 					<td class="mw-input">
 						<div style="position:relative">
 							<input type='text' class='loginText input_med' name="wpName" id="wpName2" value="<?= urldecode($wgRequest->getVal('name')) ?>" size='20' />
@@ -65,7 +65,7 @@ class LoginReminder extends UnlistedSpecialPage {
 					</td>
 				</tr>
 				<tr>
-					<td class="mw-label" style="vertical-align:bottom;"><label style="display:block; padding-bottom: 25px"><?= wfMessage('lr_security_label') ?></label></td>
+					<td class="mw-label" style="vertical-align:bottom;"><label style="display:block; padding-bottom: 25px"><?= wfMessage('lr_security_label')->text() ?></label></td>
 					<td class="mw-input">
 						<div style="position:relative">
 							<?php $template->html('header'); /* pre-table point for form plugins... */ ?>
@@ -83,7 +83,7 @@ class LoginReminder extends UnlistedSpecialPage {
 						<table cellpadding="0" cellspacing="0">
 							<tr>
 								<td>
-								<input type="submit" value="<?=wfMessage('lr_reset_password_label');?>" id="wpMailmypassword" class="button primary" name="wpMailmypassword" />
+								<input type="submit" value="<?=wfMessage('lr_reset_password_label')->text();?>" id="wpMailmypassword" class="button primary" name="wpMailmypassword" />
 								</td>
 								<td>
 
@@ -96,10 +96,10 @@ class LoginReminder extends UnlistedSpecialPage {
 		</form>
 
 		</div>
-		<div id="loginend"><?= wfMessage( 'loginend' ) ?></div>
+		<div id="loginend"><?= wfMessage( 'loginend' )->text() ?></div>
 		<div id="password-reset-dialog" style="display:none" title="<?= wfMessage('lr_password_reset')->text() ?>">
 			<div style="font-size:14px">
-				<?= wfMessage('loginreminder_password_reset') ?><br/>
+				<?= wfMessage('loginreminder_password_reset')->text() ?><br/>
 			</div>
 			<br/>
 			<input type="submit" value="OK" id="password-reset-ok" onmouseout='button_unswap(this);' onmouseover='button_swap(this);' class="button button52 submit_button" style="float:right">
@@ -114,14 +114,14 @@ class LoginReminder extends UnlistedSpecialPage {
 		$result = array();
 
 		if( !$wgAuth->allowPasswordChange() ) {
-			$result['error_general'] = wfMessage( 'resetpass_forbidden' );
+			$result['error_general'] = wfMessage( 'resetpass_forbidden' )->text();
 			return $result;
 		}
 
 		# Check against blocked IPs
 		# fixme -- should we not?
 		if( $wgUser->isBlocked() ) {
-			$result['error_general'] = wfMessage( 'blocked-mailpassword' );
+			$result['error_general'] = wfMessage( 'blocked-mailpassword' )->text();
 			return $result;
 		}
 		# Check against the rate limiter
@@ -130,14 +130,14 @@ class LoginReminder extends UnlistedSpecialPage {
 			// because they prevented error from showing in the upgrade
 			//$wgOut->disable();
 			//$wgOut->rateLimited();
-			$result['error_general'] = "<h4>" . wfMessage('actionthrottled') . "</h4>";
-			$result['error_general'] .= wfMessage('actionthrottledtext');
+			$result['error_general'] = "<h4>" . wfMessage('actionthrottled')->text() . "</h4>";
+			$result['error_general'] .= wfMessage('actionthrottledtext')->text();
 			return $result;
 		}
 		$name = $wgRequest->getVal('name');
 
 		if ( !isset($name) || '' == $name ) {
-			$result['error_username'] = wfMessage( 'noname' );
+			$result['error_username'] = wfMessage( 'noname' )->text();
 			return $result;
 		}
 		$name = trim( $name );
@@ -156,21 +156,21 @@ class LoginReminder extends UnlistedSpecialPage {
 			// with an '@' in it either
 			if ($looksLikeEmail) {
 				if ($count < 1) {
-					$result['error_username'] = wfMessage( 'noemail_login' );
+					$result['error_username'] = wfMessage( 'noemail_login' )->text();
 					return $result;
 				} elseif ($count > 1) {
-					$result['error_username'] = wfMessage( 'multipleemails_login' );
+					$result['error_username'] = wfMessage( 'multipleemails_login' )->text();
 					return $result;
 				}
 			}
 		}
 
 		if( is_null( $u ) ) {
-			$result['error_username'] = wfMessage( 'noname' );
+			$result['error_username'] = wfMessage( 'noname' )->text();
 			return $result;
 		}
 		if ( 0 == $u->getID() ) {
-			$result['error_username'] = wfMessage( 'nosuchuser', $u->getName() );
+			$result['error_username'] = wfMessage( 'nosuchuser', $u->getName() )->text();
 			return $result;
 		}
 
@@ -200,13 +200,13 @@ class LoginReminder extends UnlistedSpecialPage {
 		if ( $u->isPasswordReminderThrottled() ) {
 			global $wgPasswordReminderResendTime;
 			# Round the time in hours to 3 d.p., in case someone is specifying minutes or seconds.
-			$result['error_general'] = wfMessage( 'throttled-mailpassword', round( $wgPasswordReminderResendTime, 3 ) );
+			$result['error_general'] = wfMessage( 'throttled-mailpassword', round( $wgPasswordReminderResendTime, 3 ) )->text();
 			return $result;
 		}
 
 		$mailResult = $this->mailPasswordInternal( $u, true, 'passwordremindertitle', 'passwordremindertext' );
 		if( WikiError::isError( $mailResult ) ) {
-			$result['error_general'] = wfMessage( 'mailerror', $mailResult->getMessage() );
+			$result['error_general'] = wfMessage( 'mailerror', $mailResult->getMessage() )->text();
 			return $result;
 		} else {
 			$result['success'] = wfMessage( 'passwordsent' )->rawParams( $u->getName() )->escaped();
@@ -219,7 +219,7 @@ class LoginReminder extends UnlistedSpecialPage {
 		global $wgCanonicalServer, $wgScript;
 
 		if ( '' == $u->getEmail() ) {
-			return new WikiError( wfMessage( 'noemail', $u->getName() ) );
+			return new WikiError( wfMessage( 'noemail', $u->getName() )->text() );
 		}
 
 		$np = $u->randomPassword();
@@ -233,7 +233,7 @@ class LoginReminder extends UnlistedSpecialPage {
 		if ( '' == $ip ) { $ip = '(Unknown)'; }
 
 		$m = wfMessage( $emailText, $ip, $u->getName(), $np, $wgCanonicalServer . $wgScript )->text();
-		$result = $u->sendMail( wfMessage( $emailTitle ), $m, null, null, false );
+		$result = $u->sendMail( wfMessage( $emailTitle )->text(), $m, null, null, false );
 
 		return $result;
 	}
@@ -264,7 +264,7 @@ class LoginFacebook extends UnlistedSpecialPage {
 
 			<table border='0' width='100%'>
 				<tr>
-					<td style='text-align:center;'>" . wfMessage('facebook_account_login', $linkLogin, $link ) . "</td>
+					<td style='text-align:center;'>" . wfMessage('facebook_account_login', $linkLogin, $link )->text() . "</td>
 				</tr>
 			</table>
 
@@ -297,7 +297,7 @@ class LoginCheck extends UnlistedSpecialPage {
 
 		$username = $wgRequest->getVal('username');
 		if (empty($username)) {
-			echo json_encode(array('error' => wfMessage('mandatory_field_is_empty')));
+			echo json_encode(array('error' => wfMessage('mandatory_field_is_empty')->text()));
 		} elseif (isset($username)) {
 			echo json_encode(self::checkUsername($username));
 		}
@@ -312,8 +312,8 @@ class LoginCheck extends UnlistedSpecialPage {
 			$suggestions = array_map($pad, WikihowUser::getUsernameSuggestions($dbr, $username));
 
 			$msg = empty($suggestions)
-				? wfMessage('userexists')
-				: wfMessage('userexists_with_suggestions', implode(' or ', $suggestions));
+				? wfMessage('userexists')->text()
+				: wfMessage('userexists_with_suggestions', implode(' or ', $suggestions))->text();
 			return array('error' => $msg);
 		}
 		return array('success' => '1');

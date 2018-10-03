@@ -154,16 +154,23 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 	}
 
 	private function splitAltMethods(string $steps_section): array {
+		$sample_prefix = MWNamespace::getCanonicalName(NS_DOCUMENT);
+
 		$altMethods = preg_split('/^=/m', $steps_section, $limit = -1, PREG_SPLIT_NO_EMPTY);
 
-		//header-only sections are not sections; remove 'em
+		//Ignore sections if they're:
+		//1) header-only sections
+		//2) Samples sections
 		foreach ($altMethods as $key => $value) {
-			if (empty(preg_replace('/^=+\s*.*?\s*=+\s*[\n|$]/', '', $altMethods[$key]))) {
-				array_splice($altMethods, $key, 1);
+			if (
+				empty(preg_replace('/^=+\s*.*?\s*=+\s*[\n|$]/', '', $value)) ||
+				preg_match('/\[\['.$sample_prefix.':/', $value)
+			) {
+				unset($altMethods[$key]);
 			}
 		}
 
-		return $altMethods;
+		return array_values($altMethods);
 	}
 
 	private function parseStepInfo(string $step_info): array {

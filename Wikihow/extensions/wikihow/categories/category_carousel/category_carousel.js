@@ -261,7 +261,7 @@ window.WH.CategoryCarousel = (function ($, mw) {
                         		$(that).removeClass("disabled");
                         	}
 						);
-                        $(this).addClass("open").removeClass("closed").html("Show less");
+                        $(this).addClass("open").removeClass("closed").html(mw.message('cat_show_less').text());
                     } else {
                     	//now close it
                         $(this).parents(".cat_carousel").find(".subcat_list").slideUp(
@@ -270,7 +270,7 @@ window.WH.CategoryCarousel = (function ($, mw) {
                         		$(that).removeClass("disabled")
                         	}
                         );
-                        $(this).addClass("closed").removeClass("open").html("Show more");
+                        $(this).addClass("closed").removeClass("open").html(mw.message('cat_show_more').text());
                     }
                 }
             });

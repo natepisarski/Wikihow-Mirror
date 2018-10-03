@@ -2,7 +2,6 @@
 function setDFPTargeting(slot, data) {
 	var slotData = data[slot.getName()];
     for (var key in slotData) {
-
       slot.setTargeting(key, slotData[key]);
     }
 }

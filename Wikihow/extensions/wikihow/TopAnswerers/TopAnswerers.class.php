@@ -193,7 +193,7 @@ class TopAnswerers {
 			//let's load up all the stuff
 			$this->loadByUserId($this->userId);
 			//let's also send a congratulatory email
-			$this->sendGratsEmail();
+			if (!$this->isBlocked) $this->sendGratsEmail();
 			//oh! and clear the ta cache
 			$this->clearTAcache();
 		}
@@ -666,8 +666,8 @@ class TopAnswerers {
 
 			UserMailer::send($to, $from, $subject, $body, null, $content_type);
 
-			//send an email to Ethan too!
-			$to = new MailAddress('ethan@wikihow.com');
+			//send an email to Anna too!
+			$to = new MailAddress('anna@wikihow.com');
 			$subject = '[Top Answerer email] '.$name;
 			UserMailer::send($to, $from, $subject, $body, null, $content_type);
 		}

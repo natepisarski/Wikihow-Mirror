@@ -47,7 +47,7 @@ class QACopyCheckJob extends Job {
 		else {
 			//uh oh...
 			if (self::NOTIFICATION_MODE) {
-				//notify Ethan, keep the row, do not flip the switch
+				//notify someone, keep the row, do not flip the switch
 				$t = $this->title;
 				if (!$t || !$t->exists()) return;
 				$article_name = $t->getText();
@@ -78,7 +78,7 @@ class QACopyCheckJob extends Job {
 
 				$subject = $skipQAP ? 'Q&A plagiarized answer (article)' : 'Q&A plagiarized answer';
 
-				mail('ethan@wikihow.com', $subject, $body);
+				mail('anna@wikihow.com', $subject, $body);
 
 				//inactive for live Q&As
 				if ($skipQAP) $this->inactivate($data['qa_id']);
@@ -122,7 +122,7 @@ class QACopyCheckJob extends Job {
 
 			foreach ($res['result'] as $r) {
 				//for the article ones, let's overlook wikiHow matches
-				if ($ignoreWH && preg_match("@^http://[a-z0-9]*.(wikihow|whstatic).com@i", $r['url'])) continue;
+				if ($ignoreWH && preg_match('/^https?:\/\/[a-z0-9]*\.?(wikihow|whstatic)\.com/i', $r['url'])) continue;
 
 				if (isset($r['percentmatched']) && $r['percentmatched'] > $threshold) {
 					// we got one!

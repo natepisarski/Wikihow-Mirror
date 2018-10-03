@@ -261,22 +261,30 @@ EOHTML;
 
 	public static function getDesktopBodyForm( $pageId ) {
 		$context = RequestContext::getMain();
-		$msgText = wfMessage( 'rateitem_question_desktop' )->text();
-		$yesText = wfMessage('rateitem_yes_button')->text();
-		$noText = wfMessage('rateitem_no_button')->text();
+		$context->getOutput()->addModules('ext.wikihow.rating_desktop.style');
 
-		if ( SpecialTechFeedback::isTitleInTechCategory( $context->getTitle() ) ) {
+		if ( SpecialTechFeedback::isTitleInTechCategory( $context->getTitle() ) )
 			$msgText = wfMessage( 'rateitem_question_tech' )->text();
-		}
-		$tmpl = new EasyTemplate(dirname(__FILE__));
-		$tmpl->set_vars(
-			array(
-				'msgText' => $msgText,
-				'yesText' => $yesText,
-				'noText' => $noText,
-				'pageId' => $pageId
-		));
-		return $tmpl->execute('rating_desktop_body.tmpl.php');
+		else
+			$msgText = wfMessage( 'rateitem_question_desktop' )->text();
+
+		$show_koala = mt_rand(1, 20) == 1 || $context->getRequest()->getInt('show_koala',0) == 1;
+
+		$vars = [
+			'msgText' => $msgText,
+			'yesText' => wfMessage('rateitem_yes_button')->text(),
+			'noText' => wfMessage('rateitem_no_button')->text(),
+			'pageId' => $pageId,
+			'show_koala' => $show_koala
+		];
+
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		$html = $m->render('rating_desktop_body', $vars);
+		return $html;
 	}
 
 	public static function getMobileForm( $pageId, $isAmp = false ) {
@@ -318,7 +326,7 @@ EOHTML;
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader( [
-			new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )
+			new Mustache_Loader_FilesystemLoader( __DIR__ )
 		] );
 		$m = new Mustache_Engine(['loader' => $loader]);
 		$html = $m->render('rating_desktop_modal', $vars);

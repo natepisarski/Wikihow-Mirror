@@ -131,7 +131,7 @@
 					EnhancedSiteLink: false,
 					SiteLink: false,
 					ypaAdSlotId : slotIdPrefix + 'WH_Top_Center',
-					ypaAdDivId  : 'search_adcontainer1',
+					ypaAdDivId  : 'search_adblock_top',
 					ypaAdWidth  : '722',
 					ypaAdHeight : '127',
 					ypaSlotOptions : {
@@ -144,7 +144,7 @@
 					EnhancedSiteLink: false,
 					SiteLink: false,
 					ypaAdSlotId : slotIdPrefix + 'WH_Mid_Center',
-					ypaAdDivId  : 'search_adcontainer2',
+					ypaAdDivId  : 'search_adblock_middle',
 					ypaAdWidth  : '722',
 					ypaAdHeight : '127',
 					ypaSlotOptions : {
@@ -157,7 +157,7 @@
 					EnhancedSiteLink: false,
 					SiteLink: false,
 					ypaAdSlotId : slotIdPrefix + 'WH_Bottom_Center',
-					ypaAdDivId  : 'search_adcontainer3',
+					ypaAdDivId  : 'search_adblock_bottom',
 					ypaAdWidth  : '722',
 					ypaAdHeight : '127',
 					ypaSlotOptions : {

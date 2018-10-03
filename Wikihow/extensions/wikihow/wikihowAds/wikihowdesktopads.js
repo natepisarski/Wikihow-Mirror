@@ -11,7 +11,9 @@ WH.desktopAds = (function () {
 	// only check the size MaxCount times
 	var rrSizeChanged = false;
 	var rrSizeCheckCount = 0;
-	var RR_SIZE_MAX_COUNT = 15;
+	var RR_SIZE_MAX_COUNT = 40;
+	var AD_INSERT_MAX_COUNT = 5;
+	var adInsertCount = 0;
 
     var rightRailExtra = null;
 
@@ -21,6 +23,9 @@ WH.desktopAds = (function () {
 	var lastScrollPosition = window.scrollY;
 
 	function log() {
+		if (window.location.pathname == "/Upshift") {
+			console.log.apply(null, arguments);
+		}
 		if (window.location.pathname == "/Drive-Manual") {
 			console.log.apply(null, arguments);
 		}
@@ -43,15 +48,16 @@ WH.desktopAds = (function () {
 		return hidden;
 	}
 
-	function apsFetchBids(slotValues, gptSlotIds) {
-		log("apsFetchBids", slotValues, gptSlotIds);
+	function apsFetchBids(slotValues, gptSlotIds, timeoutValue) {
+		log("apsFetchBids", slotValues, gptSlotIds, timeoutValue);
 		var gptSlots = [];
 		for (var i = 0; i < gptSlotIds.length; i++) {
 			gptSlots.push(gptAdSlots[gptSlotIds[i]]);
 		}
+
 		apstag.fetchBids({
 			slots: slotValues,
-			timeout: 2e3
+			timeout: timeoutValue
 		}, function(bids) {
 			googletag.cmd.push(function(){
 				apstag.setDisplayBids();
@@ -67,7 +73,6 @@ WH.desktopAds = (function () {
 	function apsLoad(ad) {
 		log("apsLoad", ad);
 		var id = ad.adTargetId;
-		var display = ad.lateLoad;
 		var slotName = gptAdSlots[id].getName();
 		var sizes = gptAdSlots[id].getSizes();
 		var sizesArray = [];
@@ -79,10 +84,14 @@ WH.desktopAds = (function () {
 		}
 		var slotsArray = [{slotID: id, slotName: slotName, sizes: sizesArray}];
 		var gptSlotIds = [id];
-		apsFetchBids(slotsArray, gptSlotIds);
+		apsFetchBids(slotsArray, gptSlotIds, ad.apsTimeout);
 	}
 
 	function updateKeyVal(adId, key, value) {
+		if (!dfpKeyVals[gptAdSlots[adId]]) {
+			return;
+		}
+
 		if (dfpKeyVals[gptAdSlots[adId].getName()]) {
 			dfpKeyVals[gptAdSlots[adId].getName()][key] = value;
 		}
@@ -101,12 +110,13 @@ WH.desktopAds = (function () {
 			updateKeyVal(id, 'refreshing', refreshValue);
 			setDFPTargeting(gptAdSlots[id], dfpKeyVals);
 			// the refresh call actually loads the ad
+			log("gptLoad calling pubads().refresh on", gptAdSlots[id]);
 			googletag.pubads().refresh([gptAdSlots[id]]);
 		});
 	}
 
 	function impressionViewable(slot) {
-		log('impression viewable on slot', slot);
+		log('impressionViewable: slot', slot);
 		var ad;
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var tempAd = rightRailElements[i];
@@ -131,10 +141,7 @@ WH.desktopAds = (function () {
 	}
 
 	function slotRendered(slot, size, e) {
-		log('slotRendered', e);
-		if (window.location.pathname == "/Drive-a-Stick") {
-			return;
-		}
+		log('slotRendered: slot, e', slot, e);
 		// look for right rail ads which are the only ones that will be moved/refreshed
 		var ad;
 		for (var i = 0; i < rightRailElements.length; i++) {
@@ -154,12 +161,16 @@ WH.desktopAds = (function () {
         } else if (ad.extraChild) {
             ad.extraChild.style.visibility = "hidden";
         }
-		if (window.location.pathname != "/Drive-a-Stick") {
-			updateFixedPositioning(ad, viewportHeight, ad.last);
-		}
+		updateFixedPositioning(ad, viewportHeight, ad.last);
 
 		if (ad.refreshable && ad.renderrefresh) {
 			setTimeout(function() {ad.refresh();}, ad.refreshTime);
+		} else if (ad.refreshable && e.isEmpty) {
+			if (window.location.pathname == "/Upshift") {
+				// the ad we got back is empty..keep trying to load one
+				// but this has a bug, the ad will not be in the viewport so it will never refresh
+				// setTimeout(function() {ad.refresh();}, 2000);
+			}
 		}
 	}
 
@@ -196,15 +207,115 @@ WH.desktopAds = (function () {
 		window.document.getElementById(target).appendChild(glade);
 	}
 
+	function insertNewAdsenseAd(ad) {
+		if (adInsertCount >= AD_INSERT_MAX_COUNT) {
+			return;
+		}
+
+		var count = rightRailElements.length + 1;
+		var newItemId = 'rightrail' + count;
+		var newRightrailAd = document.createElement("div");
+		newRightrailAd.className = 'rr_container';
+		newRightrailAd.id = newItemId;
+		newRightrailAd.style.height = '3300px';
+
+		var newAdItem = document.createElement("div");
+		newAdItem.className = 'whad';
+		newAdItem.setAttribute('data-service', 'adsense');
+		newAdItem.setAttribute('data-adlabelclass', 'ad_label ad_label_dollar');
+		newAdItem.setAttribute('data-adtargetid', newItemId);
+		newAdItem.setAttribute('data-adsensewidth', ad.asWidth);
+		newAdItem.setAttribute('data-adsenseheight', ad.asHeight);
+		newAdItem.setAttribute('data-slot', ad.slot);
+		newRightrailAd.appendChild(newAdItem);
+		ad.element.parentElement.insertBefore(newRightrailAd, ad.element);
+		// remove the other ad?
+
+		var ad = new RightRailAd(newRightrailAd);
+		rightRailElements.push(ad);
+		adInsertCount++;
+		updateVisibility();
+	}
+
+	function insertNewDFPAd(ad) {
+		if (adInsertCount >= AD_INSERT_MAX_COUNT) {
+			log("insertNewDFPAd: max refreshes reached");
+			return;
+		}
+
+		var count = rightRailElements.length + adInsertCount;
+		var newItemId = 'rightrail' + count;
+		var newRightrailAd = document.createElement("div");
+		newRightrailAd.className = 'rr_container';
+		newRightrailAd.id = newItemId;
+		newRightrailAd.style.height = '3300px';
+
+		var newTargetId = 'rightrail_gpt_' + count;
+		var newAdItem = document.createElement("div");
+		newAdItem.className = 'whad';
+		newAdItem.setAttribute('data-service', 'dfp');
+		newAdItem.setAttribute('data-refreshable', ad.refreshable ? 1 : 0);
+		newAdItem.setAttribute('data-viewablerefresh', ad.viewablerefresh ? 1 : 0);
+		newAdItem.setAttribute('data-refresh-time', ad.refreshTime );
+		newAdItem.setAttribute('data-insert-refresh', ad.insertRefresh ? 1 : 0);
+		newAdItem.setAttribute('data-apsload', ad.apsload ? 1 : 0);
+		newAdItem.setAttribute('data-aps-timeout', ad.apsTimeout );
+		newAdItem.setAttribute('data-adtargetid', newTargetId);
+		newAdItem.setAttribute('data-loaded', 0);
+		var newTarget = document.createElement("div");
+		newTarget.id = newTargetId;
+		newTarget.className = 'ad_label ad_label_dollar';
+		newAdItem.appendChild(newTarget);
+		newRightrailAd.appendChild(newAdItem);
+		ad.element.parentElement.insertBefore(newRightrailAd, ad.element);
+
+		// get the slot name and sizes of the current ad to use it
+		// to define a new ad
+		var slotName = gptAdSlots[ad.adTargetId].getName();
+		var sizes = gptAdSlots[ad.adTargetId].getSizes();
+		var sizesArray = [];
+		for (var i = 0; i < sizes.length; i++) {
+			var sizesSub = [];
+			sizesSub.push(sizes[i].getWidth());
+			sizesSub.push(sizes[i].getHeight());
+			sizesArray.push(sizesSub);
+		}
+		googletag.cmd.push(function() {
+			gptAdSlots[newTargetId] = googletag.defineSlot(slotName, sizesArray, newTargetId).addService(googletag.pubads());
+			googletag.display(newTargetId);
+		});
+		var newAd = new RightRailAd(newRightrailAd);
+		ad.last = false;
+		newAd.last = true;
+		for (var i = 0; i < rightRailElements.length; i++) {
+			if (ad == rightRailElements[i]) {
+				rightRailElements[i] = newAd;
+			}
+		}
+		googletag.cmd.push(function() {
+			var result = googletag.destroySlots([gptAdSlots[ad.adTargetId]]);
+		});
+		// remove the ad causes a warning in GPT, but it's probably not a big deal..
+		// in any case we already destroyed the ad so hiding it should be fine too
+		ad.element.parentNode.removeChild(ad.element);
+		//ad.element.style.display = "none";
+		adInsertCount++;
+		updateVisibility();
+	}
+
 	function insertAdsenseAd(ad) {
 		// set the height of he ad to the adsense height
 		ad.adHeight = ad.asHeight;
 		var client = "ca-pub-9543332082073187";
 		var i = window.document.createElement('ins');
 		i.setAttribute('data-ad-client', client);
+		if (ad.adLabelClass) {
+			i.setAttribute('class', 'adsbygoogle' + ' ' + ad.adLabelClass);
+		} else {
+			i.setAttribute('class', 'adsbygoogle');
+		}
 		var slot = ad.slot;
 		i.setAttribute('data-ad-slot', slot);
-		i.setAttribute('class', 'adsbygoogle');
 		var css = 'display:inline-block;width:'+ad.asWidth+'px;height:'+ad.asHeight+'px;';
 		i.style.cssText = css;
 		var target = ad.adTargetId;
@@ -238,12 +349,21 @@ WH.desktopAds = (function () {
 		this.adunitpath = this.adElement.getAttribute('data-adunitpath');
 		this.channels = this.adElement.getAttribute('data-channels');
 		this.refreshable = this.adElement.getAttribute('data-refreshable') == 1;
+		this.insertRefresh = this.adElement.getAttribute('data-insert-refresh') == 1;
 		this.viewablerefresh = this.adElement.getAttribute('data-viewablerefresh') == 1;
 		this.renderrefresh = this.adElement.getAttribute('data-renderrefresh') == 1;
+		this.adLabelClass = this.adElement.getAttribute('data-adlabelclass');
+		this.apsTimeout = this.adElement.getAttribute('data-aps-timeout');
 		this.refreshtimeout = false;
 		this.refreshNumber = 0;
-        this.maxRefresh = false;
-        this.refreshTime = RR_REFRESH_TIME;
+        this.maxRefresh = this.adElement.getAttribute('data-max-refresh');
+        this.refreshTime = this.adElement.getAttribute('data-refresh-time');
+		if (!this.refreshTime) {
+			this.refreshTime = RR_REFRESH_TIME;
+		} else {
+			this.refreshTime = parseInt(this.refreshTime);
+		}
+
 		if (this.isLoaded) {
 			this.refreshNumber++;
 		}
@@ -278,12 +398,14 @@ WH.desktopAds = (function () {
 				insertDFPLightAd(this);
 			} else {
 				insertAdsenseAd(this);
+				var ad = this;
+				setTimeout(function() {ad.refresh();}, 5000);
 			}
 			this.isLoaded = true;
 		};
 
 		this.refresh = function() {
-			log('refresh called on ad', this);
+			log('refresh: ad', this);
 			var ad = this;
 			if (isDocumentHidden()) {
 				// check again later
@@ -297,16 +419,24 @@ WH.desktopAds = (function () {
 			var rect = this.element.getBoundingClientRect();
 			if (!isInViewport(rect, viewportHeight, false, ad)) {
 				// check again later
+				log("refresh: not in viewport", rect, viewportHeight);
 				setTimeout(function() {ad.refresh();}, VIEW_REFRESH_TIME);
 				return;
 			}
 			var refreshValue = this.getRefreshValue();
 			if (this.maxRefresh && refreshValue > this.maxRefresh) {
+				log("refresh: max refresh reached");
 				this.refreshable = false;
 				return;
 			}
-			updateKeyVal(this.adTargetId, 'refreshing', refreshValue);
-			if (this.apsload) {
+			if (this.service != 'adsense') {
+				updateKeyVal(this.adTargetId, 'refreshing', refreshValue);
+			}
+			if (this.service == 'adsense') {
+				insertNewAdsenseAd(this);
+			} else if (this.insertRefresh) {
+				insertNewDFPAd(this);
+			} else if (this.apsload) {
 				apsLoad(this)
 			} else {
 				var id = this.adTargetId;
@@ -578,21 +708,6 @@ WH.desktopAds = (function () {
 		}
 	}
 
-	function updateSingleRR(ad) {
-		var sizer = document.getElementById('rrsizer');
-		if (!sizer) {
-		}
-		// calculate height here
-		var doc = document.documentElement;
-		var top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0);
-		var height = 0;
-		var offset = 250;
-		if (top > offset ) {
-			height = top - offset;
-		}
-		sizer.style.height = height + 'px';
-	}
-
 	// this is registered by the scroll handler
 	function updateVisibility() {
 		lastScrollPosition = window.scrollY;
@@ -600,13 +715,6 @@ WH.desktopAds = (function () {
 
 		// keep track of ad heights for possible use if they are too tall for the article
 		var adHeights = [];
-		if ( rightRailElements.length == 1 ) {
-			if (window.location.pathname != "/Drive-Manual") {
-				var ad = rightRailElements[0];
-				updateSingleRR(ad);
-				return;
-			}
-		}
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var ad = rightRailElements[i];
 			updateAdLoading(ad, viewportHeight);
@@ -646,23 +754,12 @@ WH.desktopAds = (function () {
     function addRightRailAd(id) {
         var rightRailElement = document.getElementById(id);
         var ad = new RightRailAd(rightRailElement);
+
         ad.last = true;
         if (rightRailElements.length > 0) {
             rightRailElements[rightRailElements.length -1].last = false;
         }
         rightRailElements.push(ad);
-		if (window.location.pathname == "/Drive-a-Stick") {
-			var sizer = document.createElement("div");
-			sizer.id = 'rrsizer';
-			ad.element.parentElement.insertBefore(sizer, ad.element);
-			ad.element.removeAttribute("style");
-			ad.element.style.height = "600px";
-			//ad.element.style.border = "1px solid #333";
-			var article_shell = document.getElementById('article_shell');
-			article_shell.className = 'article_shell_nofloat';
-			var sidebar = document.getElementById('sidebar');
-			sidebar.className = 'sidebar_nofloat';
-		}
     }
     function addBodyAd(id) {
         var element = document.getElementById(id);
@@ -707,10 +804,6 @@ WH.desktopAds = (function () {
         if (!rightRailElements.length) {
             return;
         }
-		// special testing case for now
-		if (rightRailElements.length == 1) {
-			return;
-		}
         // make sure this is an ad
         var ad = rightRailElements[0];
         var item = document.getElementById(id);

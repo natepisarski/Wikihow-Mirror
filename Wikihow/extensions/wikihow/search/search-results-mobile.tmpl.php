@@ -1,8 +1,5 @@
-<?
-if ($q == null):
-	return;
-endif;
-?>
+<?php if (!$q): return; endif; ?>
+
 <script type="text/javascript">
 	$(window).load(function() {
 		if ($('.search').is(':visible') && !$('#search_oversearch').is(':visible')) {
@@ -11,24 +8,21 @@ endif;
 	});
 </script>
 
-<? if (count($results) == 0): ?>
-	<h2 class='sr_noresults_for'><?= wfMessage('lsearch_no_results_for', $enc_q)->inContentLanguage()->text() ?></h2>
-<? endif; ?>
-
 <? if ($suggestionLink): ?>
 	<div class="sr_suggest"><?= wfMessage('lsearch_suggestion', $suggestionLink)->text() ?></div>
 <? endif; ?>
 
+<? if (!$results): ?>
+	<div class="search_no_results_container">
+		<?= wfMessage('lsearch_no_results_for', $enc_q)->inContentLanguage()->text() ?>
+	</div>
+<? endif; ?>
+
 <?= $ads; ?>
 
-<div id="search_adcontainer1"></div>
 <div id="search_adblock_top" class="search_adblock"></div>
 
-<? if (count($results) == 0): ?>
-	<div class="sr_noresults"><?= wfMessage('lsearch_desktop_noresults', $enc_q) ?></div>
-	<div id='searchresults_footer'><br /></div>
-	<? return; ?>
-<? endif; ?>
+<?php if (!$results): return; endif; ?>
 
 <div id='searchresults_list' class='wh_block'>
 
@@ -41,7 +35,6 @@ endif;
 				$no_img_green : $no_img_blue;
 		}
 		if ($i == 5) {
-			echo '<div id="search_adcontainer2"></div>';
 			echo '<div id="search_adblock_middle" class="search_adblock"></div>';
 		}
 		if (!(class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest() && $result['is_category'])):
@@ -98,7 +91,6 @@ endif;
 		endif;
 	endforeach;
 	?>
-	<div id="search_adcontainer3"></div>
 	<div id="search_adblock_bottom" class="search_adblock"></div>
 </div>
 

@@ -573,11 +573,12 @@ class PageHooks {
 
 	// Redirect anons to HTTPS if they come in on HTTP
 	public static function maybeRedirectHTTPS(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
-		global $wgIsSecureSite;
+		global $wgIsSecureSite, $isOldDevServer;
 
 		// HTTP -> HTTPS redirect
 		// NOTE: don't redirect posted requests
 		if ( !$wgIsSecureSite
+			&& !$isOldDevServer
 			&& $user && $user->isAnon()
 			&& !$request->wasPosted()
 		) {
@@ -585,6 +586,9 @@ class PageHooks {
 
 			$debugtext = "maybeRedirectHTTPS HTTP -> HTTPS: wgIsSecureSite: $wgIsSecureSite, user.IsAnon: " . var_export($user->isAnon(), true) . " forceHTTPS: " . $request->getCookie('forceHTTPS', '') . " wasPosted: " . var_export($request->wasPosted(), true);
 			wfDebugLog('redirects', $debugtext);
+			$output->redirect( $redirUrl, 301 );
+		} elseif ($wgIsSecureSite && $isOldDevServer) {
+			$redirUrl = wfExpandUrl( $request->getRequestURL(), PROTO_HTTP );
 			$output->redirect( $redirUrl, 301 );
 		}
 
@@ -615,6 +619,11 @@ class PageHooks {
 
 	/**
 	 * Redirect or 404 domains such as wikihow.es, testers.wikihow.com, ...
+	 * NOTE: We should redirect to the mobile domains when relevant. E.g.
+	 *
+		elseif (preg_match('@it\.m\.wikihow\.com$@', $httpHost)) {
+			$wgServer = 'https://m.wikihow.it';
+		}
 	 */
 	public static function maybeRedirectProductionDomain(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
 		global $wgServer, $wgCommandLineMode;
@@ -696,6 +705,14 @@ class PageHooks {
 			}
 			elseif (preg_match('@^wikihow\.cz$@', $httpHost)) {
 				$wgServer = 'https://www.wikihow.cz';
+			}
+
+			// Turkish (dedicated domain)
+			elseif (preg_match('@tr\.(m\.)?wikihow\.com$@', $httpHost)) {
+				$wgServer = 'https://www.wikihow.com.tr';
+			}
+			elseif (preg_match('@^wikihow\.com.tr$@', $httpHost)) {
+				$wgServer = 'https://www.wikihow.com.tr';
 			}
 
 			if ($preRedir != $wgServer) {

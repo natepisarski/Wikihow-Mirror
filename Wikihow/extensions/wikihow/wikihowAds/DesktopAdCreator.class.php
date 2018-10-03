@@ -41,7 +41,6 @@ abstract class DesktopAdCreator {
 	var $mStickyIntro = false;
 	var $mDFPKeyVals = array();
 	var $mRefreshableRightRail = false;
-	var $mApsLoad = false;
 
 	protected function getNewAd( $type ) {
 		$labelExtra = "";
@@ -100,9 +99,11 @@ abstract class DesktopAdCreator {
 		if ( $this->mRefreshableRightRail ) {
 			$dfpKeyVals['/10095428/RR3_Test_32']['refreshing'] = '1';
 			$dfpKeyVals['/10095428/Refreshing_Ad_RR1_Test']['refreshing'] = '1';
+			$dfpKeyVals['/10095428/RR3_DFP_Test']['refreshing'] = '1';
 		} else {
 			$dfpKeyVals['/10095428/RR3_Test_32']['refreshing'] = 'not';
 			$dfpKeyVals['/10095428/Refreshing_Ad_RR1_Test']['refreshing'] = 'not';
+			$dfpKeyVals['/10095428/RR3_DFP_Test']['refreshing'] = '1';
 		}
 
 		$dfpKeyVals = json_encode( $dfpKeyVals );
@@ -137,14 +138,6 @@ abstract class DesktopAdCreator {
 
 	public function getViewableRefresh( $ad ) {
 		return false;
-	}
-
-	public function getApsLoad() {
-		return $this->mApsLoad;
-	}
-
-	public function setApsLoad( $value ) {
-		$this->mApsLoad = $value;
 	}
 
 	public function getIsLastAd( $ad ) {
@@ -217,6 +210,7 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 		}
 		$this->mAds['step'] = $this->getStepAd();
 		$this->mAds['method'] = $this->getMethodAd();
+		$this->mAds['method2'] = $this->getMethod2Ad();
 		for ( $i = 0; $i < pq('.qz_container')->length; $i++ ) {
 			$this->mAds['quiz'.$i] = $this->getQuizAd( $i ); //taking ads off quizzes temporairily
 		}
@@ -274,6 +268,15 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			}
 		}
 
+		$method2Ad = $this->mAds['method2']->mHtml;
+		if ( $method2Ad ) {
+			if ( pq( ".steps_list_2:eq(1) > li" )->length > 2 && pq( ".steps_list_2:eq(1) > li:last-child)" )->length() ) {
+				pq( ".steps_list_2:eq(1) > li:last-child" )->append( $method2Ad );
+			} else {
+				$this->mAds['method2']->notInBody = true;
+			}
+		}
+
 		$introHtml = $this->mAds['intro']->mHtml;
 		if ( $introHtml ) {
 			pq( "#intro" )->append( $introHtml )->addClass( "hasad" );
@@ -315,15 +318,18 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$this->mDFPData = array(
 			'rightrail1' => array(
 				'adUnitPath' => '/10095428/RR2_Test_32',
-				'size' => '[300, 600]'
+				'size' => '[300, 600]',
+				'apsLoad' => false
 			),
 			'rightrail2' => array(
 				'adUnitPath' => '/10095428/RR3_Test_32',
-				'size' => '[300, 600]'
+				'size' => '[300, 600]',
+				'apsLoad' => false
 			),
 			'quiz' => array(
 				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
-				'size' => '[728, 90]'
+				'size' => '[728, 90]',
+				'apsLoad' => false
 			),
 		);
 	}
@@ -467,12 +473,40 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad->mHtml = $this->getBodyAdHtml( $ad );
 		return $ad;
 	}
+
 	protected function getMethodAdDFP() {
 		$ad = $this->getNewAd( 'method' );
 		$ad->mLabel = '';
 		$ad->service = "dfp";
 		$ad->adClass = "step_ad";
 		$ad->targetId = "methodad";
+		$ad->width = 728;
+		$ad->height = 90;
+		$ad->initialLoad = false;
+		$ad->lateLoad = false;
+		$ad->mHtml = $this->getBodyAdHtml( $ad );
+		return $ad;
+	}
+
+	protected function getMethod2AdAdsense() {
+		$ad = $this->getNewAd( 'method2' );
+		$ad->mLabel = '';
+		$ad->service = "adsense";
+		$ad->adClass = "step_ad";
+		$ad->width = 728;
+		$ad->height = 90;
+		$ad->initialLoad = true;
+		$ad->lateLoad = false;
+		$ad->mHtml = $this->getBodyAdHtml( $ad );
+		return $ad;
+	}
+
+	protected function getMethod2AdDFP() {
+		$ad = $this->getNewAd( 'method2' );
+		$ad->mLabel = '';
+		$ad->service = "dfp";
+		$ad->adClass = "step_ad";
+		$ad->targetId = "method2ad";
 		$ad->width = 728;
 		$ad->height = 90;
 		$ad->initialLoad = false;
@@ -501,6 +535,22 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			$ad = $this->getMethodAdAdsense();
 		} else if ( $this->mAdServices['method'] == "dfp" ) {
 			$ad = $this->getMethodAdDFP();
+		}
+		if ( $ad->targetId ) {
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
+		}
+		return $ad;
+	}
+
+	/*
+	 * creates the method2 Ad
+	 */
+	public function getMethod2Ad() {
+		$ad = $this->getNewAd( 'method2' );
+		if ( $this->mAdServices['method2'] == "adsense" ) {
+			$ad = $this->getMethod2AdAdsense();
+		} else if ( $this->mAdServices['method2'] == "dfp" ) {
+			$ad = $this->getMethod2AdDFP();
 		}
 		if ( $ad->targetId ) {
 			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
@@ -632,6 +682,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		if ( $ad->getLabel() ) {
 			$class[] = $ad->getLabel();
 		}
+
 		$attributes = array(
 			'class' => $class,
 			'style' => "display:inline-block;width:".$ad->width."px;height:".$ad->height."px;",
@@ -679,9 +730,17 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			'data-refreshable' => $this->getRefreshable( $ad ),
 			'data-renderrefresh' => $this->getRenderRefresh( $ad ),
 			'data-viewablerefresh' => $this->getViewableRefresh( $ad ),
-			'data-apsload' => $this->getApsLoad(),
+			'data-apsload' => $this->getApsLoad( $ad ),
+			'data-aps-timeout' => 2000,
 			'id' => $ad->outerId,
 		);
+		$extras = $this->mAdSetupData[$ad->mType];
+		if ( $extras ) {
+			foreach ( $extras as $key => $val ) {
+				$adKey = 'data-'.$key;
+				$attributes[$adKey] = $val;
+			}
+		}
 		if ( $ad->adClass ) {
 			$attributes['class'][] = $ad->adClass;
 		}
@@ -713,9 +772,20 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			'data-refreshable' => $this->getRefreshable( $ad ),
 			'data-renderrefresh' => $this->getRenderRefresh( $ad ),
 			'data-viewablerefresh' => $this->getViewableRefresh( $ad ),
-			'data-apsload' => $this->getApsLoad(),
+			'data-apsload' => $this->getApsLoad( $ad ),
+			'data-aps-timeout' => 2000,
 			'data-lastad' => $this->getIsLastAd( $ad ),
 		);
+
+
+		// add any extra data attributes defined for this adCreator instance
+		$extras = $this->mAdSetupData[$ad->mType];
+		if ( $extras ) {
+			foreach ( $extras as $key => $val ) {
+				$adKey = 'data-'.$key;
+				$attributes[$adKey] = $val;
+			}
+		}
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
 		$containerAttributes = array(
@@ -783,7 +853,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			$ad = $this->getRightRailThird();
 		}
 		// now ad the js snippet to add the ad to the js sroll handler
-		$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addRightRailAd('{$ad->mType}')" );
+		if ( $ad && $ad->mHtml ) {
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addRightRailAd('{$ad->mType}')" );
+		}
 
 		return $ad;
 	}
@@ -831,10 +903,17 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		//get initial ad refresh slots snippet to request them both in one call
 		$refreshSlots = array();
 		foreach ( $this->mAds as $type => $ad ) {
-			if ( $ad->service == 'dfp' && $ad->initialLoad ) {
-				$id = $ad->targetId;
-				$refreshSlots[] = "gptAdSlots['$id']";
+			if ( $ad->service != 'dfp' ) {
+				continue;
 			}
+			if ( !$ad->initialLoad ) {
+				continue;
+			}
+			if ( $this->getApsLoad( $ad ) ) {
+				continue;
+			}
+			$id = $ad->targetId;
+			$refreshSlots[] = "gptAdSlots['$id']";
 		}
 		if ( !count( $refreshSlots ) ) {
 			return "";
@@ -861,6 +940,13 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		return $adSize;
 	}
 
+	private function getApsLoad( $ad ) {
+		if ( !isset( $this->mDFPData[$ad->mType]['apsLoad'] ) ) {
+			return false;
+		}
+		return $this->mDFPData[$ad->mType]['apsLoad'];
+	}
+
 	/*
 	 * get js snippet to refresh the first set of ads in a single call
 	 */
@@ -868,20 +954,28 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$slotIds = array();
 		$apsSlots = array();
 		foreach ( $this->mAds as $type => $ad ) {
-			if ( $ad->service == 'dfp' && $ad->initialLoad ) {
-				$slotId = $ad->targetId;
-				$slotIds[] = "'".$slotId."'";
-				$slotName = $this->getGPTAdSlot( $ad );
-				$slotSizes = $this->getGPTAdSize( $ad );
-				$apsSlots[] = "{slotID: '$slotId', slotName: $slotName, sizes: $slotSizes}";
+			if ( $ad->service != 'dfp' ) {
+				continue;
 			}
+			if ( !$ad->initialLoad ) {
+				continue;
+			}
+			if ( !$this->getApsLoad( $ad ) ) {
+				continue;
+			}
+			$slotId = $ad->targetId;
+			$slotIds[] = "'".$slotId."'";
+			$slotName = $this->getGPTAdSlot( $ad );
+			$slotSizes = $this->getGPTAdSize( $ad );
+			$apsSlots[] = "{slotID: '$slotId', slotName: $slotName, sizes: $slotSizes}";
 		}
 		if ( !count( $slotIds ) ) {
 			return "";
 		}
 		$apsSlots = "[" . implode( ",", $apsSlots ) . "]";
 		$gptSlotIds = "[" . implode( ",", $slotIds ) . "]";
-		$html = Html::inlineScript("googletag.cmd.push(function(){WH.desktopAds.apsFetchBids($apsSlots, $gptSlotIds);});");
+		// TODO get the timeout time from the ad itself
+		$html = Html::inlineScript("googletag.cmd.push(function(){WH.desktopAds.apsFetchBids($apsSlots, $gptSlotIds, 2000);});");
 		return $html;
 	}
 
@@ -889,11 +983,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 * get js snippet to refresh the first set of ads in a single call
 	 */
 	protected function getInitialRefreshSnippet() {
-		if ( $this->getApsLoad() ) {
-			return $this->getInitialRefreshSnippetApsLoad();
-		} else {
-			return $this->getInitialRefreshSnippetGPT();
-		}
+		$html = $this->getInitialRefreshSnippetApsLoad();
+		$html .= $this->getInitialRefreshSnippetGPT();
+		return $html;
 	}
 
 	/*
@@ -940,7 +1032,14 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 				$dfpInit = file_get_contents( dirname( __FILE__ )."/desktopDFP.js" );
 				$dfpScript .= Html::inlineScript( $dfpInit );
 
-				if ( $this->getApsload() ) {
+				$apsLoadOk = false;
+				foreach ( $this->mAds as $type => $ad ) {
+					if ( $this->getApsLoad( $ad ) ) {
+						$apsLoadOk = true;
+						break;
+					}
+				}
+				if ( $apsLoadOk ) {
 					$apsInit = file_get_contents( dirname( __FILE__ )."/desktopAPSInit.js" );
 					$dfpScript .= Html::inlineScript( $apsInit );
 				}
@@ -993,6 +1092,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$gpt .= "googletag.pubads().disableInitialLoad();\n";
 		$gpt .= "googletag.pubads().collapseEmptyDivs();\n";
 		$gpt .= "googletag.enableServices();\n";
+
 		$gpt .= "}\n";
 		$result = Html::inlineScript( $gpt );
 		return $result;
@@ -1063,6 +1163,7 @@ class CategoryPageAdCreator extends MixedAdCreator {
 	}
 }
 
+// TODO remove this if no longer used
 class MixedAdCreatorVersion1 extends MixedAdCreator {
 	public function __construct() {
 		$this->mAdsenseSlots = array(
@@ -1084,15 +1185,18 @@ class MixedAdCreatorVersion1 extends MixedAdCreator {
 		$this->mDFPData = array(
 			'rightrail1' => array(
 				'adUnitPath' => '/10095428/RR2_AdX',
-				'size' => '[300, 600]'
+				'size' => '[300, 600]',
+				'apsLoad' => false
 			),
 			'rightrail2' => array(
 				'adUnitPath' => '/10095428/RR3_AdX',
-				'size' => '[300, 600]'
+				'size' => '[300, 600]',
+				'apsLoad' => false
 			),
 			'quiz' => array(
 				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
-				'size' => '[728, 90]'
+				'size' => '[728, 90]',
+				'apsLoad' => false
 			),
 		);
 	}
@@ -1110,6 +1214,11 @@ class MixedAdCreatorVersion1 extends MixedAdCreator {
 }
 class MixedAdCreatorVersion2 extends MixedAdCreator {
 	public function __construct() {
+		$this->mAdSetupData = array(
+			'rightrail2' => array(
+				'aps-timeout' => 800
+			)
+		);
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
 			'step' => 1652132604,
@@ -1119,6 +1228,7 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 			'intro' => 'adsense',
 			'step' => 'adsense',
 			'method' => 'dfp',
+			'method2' => 'dfp',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
@@ -1129,19 +1239,28 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 		$this->mDFPData = array(
 			'method' => array(
 				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
-				'size' => '[728, 90]'
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'method2' => array(
+				'adUnitPath' => '/10095428/Method_2_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
 			),
 			'rightrail1' => array(
 				'adUnitPath' => '/10095428/RR2_Test_32',
-				'size' => '[[300, 250],[300, 600]]'
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
 			),
 			'rightrail2' => array(
 				'adUnitPath' => '/10095428/RR3_Test_32',
-				'size' => '[[300, 250],[300, 600]]'
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
 			),
 			'quiz' => array(
 				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
-				'size' => '[728, 90]'
+				'size' => '[728, 90]',
+				'apsLoad' => true
 			)
 		);
 	}
@@ -1151,6 +1270,7 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 	 * @param Integer the right rail number or position on the page usually 0 1 or 2
 	 * @return Ad an ad for the right rail but no html
 	 */
+	// TODO this function seems to be identical to the one in the base class, if so, remove it
 	public function getRightRailAd( $num ) {
 		$type = "rightrail".$num;
 		$ad = $this->getNewAd( $type );
@@ -1162,7 +1282,9 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 			$ad = $this->getRightRailThird();
 		}
 		// now ad the js snippet to add the ad to the js sroll handler
-		$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addRightRailAd('{$ad->mType}')" );
+		if ( $ad && $ad->mHtml ) {
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addRightRailAd('{$ad->mType}')" );
+		}
 
 		return $ad;
 	}
@@ -1189,35 +1311,23 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 	}
 }
 
-// RR3 has different ad unit
 class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
 	public function __construct() {
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
-			'step' => 1652132604,
 		);
 		$this->mAdServices = array(
 			'intro' => 'adsense',
-			'step' => 'adsense',
-			'method' => 'dfp',
 			'rightrail0' => 'dfp',
-			'quiz' => 'dfp'
 		);
 	}
 	protected function setDFPAdUnitPaths() {
 		$this->mDFPData = array(
-			'method' => array(
-				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
-				'size' => '[728, 90]'
-			),
 			'rightrail0' => array(
 				'adUnitPath' => '/10095428/Refreshing_Ad_RR1_Test',
-				'size' => '[[300, 250],[300, 600]]'
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => false
 			),
-			'quiz' => array(
-				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
-				'size' => '[728, 90]'
-			)
 		);
 	}
 	public function getRefreshable( $ad ) {
@@ -1227,27 +1337,105 @@ class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
 		return false;
 	}
 }
-// RR1 has different ad unit
-class MixedAdCreatorVersion4 extends MixedAdCreatorVersion3 {
+
+class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 	public function __construct() {
+		// right now this data will be added to each ad as data attributes
+		// however we can use it in the future to define almost everything about each ad
+		$this->mAdSetupData = array(
+			'rightrail2' => array(
+				'refreshable' => 1,
+				'refresh-time' => 15000,
+				'insert-refresh' => 1,
+				'aps-timeout' => 800
+			),
+		);
+
 		$this->mAdsenseSlots = array(
+			'intro' => 7862589374,
+			'step' => 1652132604,
+			'rightrail0' => 4769522171,
 		);
+
 		$this->mAdServices = array(
-			'rightrail0' => 'dfp',
+			'intro' => 'adsense',
+			'step' => 'adsense',
+			'method' => 'dfp',
+			'method2' => 'dfp',
+			'rightrail0' => 'adsense',
+			'rightrail1' => 'dfp',
+			'rightrail2' => 'dfp',
+			'quiz' => 'dfp'
 		);
-	}
-	protected function getGPTAdSlot( $ad ) {
-		$adUnitPath = $this->mDFPData[$ad->mType]['adUnitPath'];
-		return "'". $adUnitPath . "'";
 	}
 
 	protected function setDFPAdUnitPaths() {
 		$this->mDFPData = array(
+			'method' => array(
+				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'method2' => array(
+				'adUnitPath' => '/10095428/Method_2_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'rightrail1' => array(
+				'adUnitPath' => '/10095428/RR2_Test_32',
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
+			),
+			'rightrail2' => array(
+				'adUnitPath' => '/10095428/RR3_800ms_CSTO_Test',
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
+			),
+			'quiz' => array(
+				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			)
+		);
+	}
+
+	public function getRefreshable( $ad ) {
+		if ( $ad->service == 'dfp' && strstr( $ad->mType, "rightrail0") && $this->mRefreshableRightRail ) {
+			return true;
+
+		}
+		return false;
+	}
+}
+
+class MixedAdCreatorVersion4 extends MixedAdCreatorVersion2 {
+	public function __construct() {
+		$this->mAdsenseSlots = array(
+		);
+		$this->mAdServices = array(
+			'intro' => 'dfp',
+			'rightrail0' => 'dfp',
+		);
+	}
+	protected function setDFPAdUnitPaths() {
+		$this->mDFPData = array(
+			'intro' => array(
+				'adUnitPath' => '/10095428/Intro_DFP_Test',
+				'size' => '[728, 90]',
+				'apsLoad' => false,
+			),
 			'rightrail0' => array(
 				'adUnitPath' => '/10095428/Refreshing_Ad_RR1_Test',
-				'size' => '[[300, 250],[300, 600]]'
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => false,
 			),
 		);
+	}
+	public function getRefreshable( $ad ) {
+		if ( $ad->service == 'dfp' && strstr( $ad->mType, "rightrail0") && $this->mRefreshableRightRail ) {
+			return true;
+		}
+		return false;
 	}
 }
 
@@ -1310,11 +1498,14 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 		$this->mDFPData = array(
 			'method' => array(
 				'adUnitPath' => '/10095428/Method_1_Alt_Domain',
-				'size' => '[728, 90]'
+				'size' => '[728, 90]',
+				'apsLoad' => true
 			),
 			'rightrail0' => array(
 				'adUnitPath' => '/10095428/' . $adUnitPath,
-				'size' => '[[300, 250], [300, 600]]'
+				'size' => '[[300, 250], [300, 600]]',
+				'apsLoad' => true
+
 			),
 		);
 	}
@@ -1343,7 +1534,8 @@ class DocViewerAdCreator extends MixedAdCreator {
 		$this->mDFPData = array(
 			'docviewer0' => array(
 				'adUnitPath' => '/10095428/Image_Ad_Sample_Page',
-				'size' => '[[300, 250], [300, 600]]'
+				'size' => '[[300, 250], [300, 600]]',
+				'apsLoad' => true
 			)
 		);
 	}
@@ -1409,11 +1601,13 @@ class DocViewerAdCreatorVersion2 extends DocViewerAdCreator {
 		$this->mDFPData = array(
 			'docviewer0' => array(
 				'adUnitPath' => '/10095428/Image_Ad_Sample_Page',
-				'size' => '[[300, 250], [300, 600]]'
+				'size' => '[[300, 250], [300, 600]]',
+				'apsLoad' => true,
 			),
 			'docviewer1' => array(
 				'adUnitPath' => '/10095428/Image_Ad_Sample_728x90',
-				'size' => '[728, 90]'
+				'size' => '[728, 90]',
+				'apsLoad' => true,
 			)
 		);
 	}
@@ -1480,15 +1674,18 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 		$this->mDFPData = array(
 			'method' => array(
 				'adUnitPath' => '/10095428/AllPages_Method_1_Intl_Desktop_All',
-				'size' => '[728, 90]'
+				'size' => '[728, 90]',
+				'apsLoad' => false
 			),
 			'rightrail1' => array(
 				'adUnitPath' => '/10095428/AllPages_RR_2_Intl_Desktop_All',
-				'size' => '[[300, 250], [300, 600]]'
+				'size' => '[[300, 250], [300, 600]]',
+				'apsLoad' => false
 			),
 			'rightrail2' => array(
 				'adUnitPath' => '/10095428/AllPages_RR_3_Intl_Desktop_All',
-				'size' => '[[300, 250], [300, 600]]'
+				'size' => '[[300, 250], [300, 600]]',
+				'apsLoad' => false
 			),
 		);
 	}

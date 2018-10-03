@@ -183,7 +183,7 @@ class WikihowMobileTools {
 					}*/
 
 					$wikitext = ContentHandler::getContentText($context->getWikiPage()->getContent(Revision::RAW));
-                    $hasParts = MagicWord::get( 'parts' )->match( $wikitext );
+					$hasParts = MagicWord::get( 'parts' )->match( $wikitext );
 
 					$displayMethod = 1;
 					for($i = 1; $i <= $h3Count; $i++) {
@@ -381,7 +381,11 @@ class WikihowMobileTools {
 
 			$imgAttributes = array( 'poster', 'data-poster', 'data-poster-mobile', 'data-gifsrc', 'data-giffirstsrc' );
 			foreach ( $imgAttributes as $attrName ) {
-				$attrVal = wfGetPad( $mVideo->attr( $attrName ) );
+				$attrVal = $mVideo->attr( $attrName );
+				if ( !$attrVal ) {
+					continue;
+				}
+				$attrVal = wfGetPad( $attrVal );
 				if ( $attrVal ) {
 					$mVideo->attr( $attrName, $attrVal );
 				}
@@ -566,9 +570,9 @@ class WikihowMobileTools {
 					'bigHeight' => $bigHeight,
 				);
 
-                // set the widths and height on the img for use in js to have placeholder space
-                $img->attr( 'data-width', $smallWidth );
-                $img->attr( 'data-height', $smallHeight );
+				// set the widths and height on the img for use in js to have placeholder space
+				$img->attr( 'data-width', $smallWidth );
+				$img->attr( 'data-height', $smallHeight );
 
 				if($showHighDPI) {
 					//get all the info for retina images
@@ -896,11 +900,11 @@ class WikihowMobileTools {
 		}
 
 		if ( !$amp ) {
-            $scripts = [];
+			$scripts = [];
 			wfRunHooks( 'AddTopEmbedJavascript', [&$scripts] );
-            if ($scripts) {
-                $html = Html::inlineScript(Misc::getEmbedFiles('js', $scripts)) . $html;
-            }
+			if ($scripts) {
+				$html = Html::inlineScript(Misc::getEmbedFiles('js', $scripts)) . $html;
+			}
 		}
 
 		return $html;
@@ -1291,7 +1295,7 @@ class WikihowMobileTools {
 		$box->url = '';
 		$box->name = '';
 		$box->fullname = '';
-        $box->title = $title;
+		$box->title = $title;
 
 		foreach ($boxResolutions as $resolutionKey => $resolutionInfo) {
 			$box->$resolutionKey = '';
@@ -1385,10 +1389,10 @@ class WikihowMobileTools {
 	}
 
 	public static function getImageContainerBoxHtml( $imageContainerBox ) {
-        $url = $imageContainerBox->url;
-        $titleText = $imageContainerBox->name;
-        $thumbUrl = $imageContainerBox->thumburl;
-        $title = $imageContainerBox->title;
+		$url = $imageContainerBox->url;
+		$titleText = $imageContainerBox->name;
+		$thumbUrl = $imageContainerBox->thumburl;
+		$title = $imageContainerBox->title;
 
 		$thumbUrl = wfGetPad( $thumbUrl );
 		$imgAttrs = [
@@ -1396,25 +1400,27 @@ class WikihowMobileTools {
 			'src' => $thumbUrl
 		];
 
-        // look for video
-        $videoUrl = ArticleMetaInfo::getVideoSrc( $title );
-        if ( $videoUrl && !$imageContainerBox->noVideo ) {
-            $attributes = [
-                'src' => $videoUrl,
-                'poster' => $thumbUrl,
-            ];
-            $mediaElement = Misc::getMediaScrollLoadHtml( 'video', $attributes );
-        } else {
-            $mediaElement = Misc::getMediaScrollLoadHtml( 'img', $imgAttrs );
-        }
-        $mediaWrapper = Html::rawElement( 'div', ['class' => 'related_img_wrapper'], $mediaElement );
+		// look for video
+		$videoUrl = ArticleMetaInfo::getVideoSrc( $title );
+		if ( $videoUrl && !$imageContainerBox->noVideo ) {
+			$attributes = [
+				'src' => $videoUrl,
+				'poster' => $thumbUrl,
+			];
+			$mediaElement = Misc::getMediaScrollLoadHtml( 'video', $attributes );
+		} else {
+			$mediaElement = Misc::getMediaScrollLoadHtml( 'img', $imgAttrs );
+		}
+		$mediaWrapper = Html::rawElement( 'div', ['class' => 'related_img_wrapper'], $mediaElement );
 
-        $text = Html::element( 'span', [], WikihowSkinHelper::getHowToLabel() ) . htmlspecialchars( $titleText );
-        $label = Html::rawElement( 'p', [], $text );
+		$howToPrefix = wfMessage('howto_prefix')->showIfExists();
+		$howToSuffix = wfMessage('howto_suffix')->showIfExists();
+		$text = Html::element('span', [], $howToPrefix) . '&nbsp;' . htmlspecialchars($titleText) . $howToSuffix;
+		$label = Html::rawElement( 'p', [], $text );
 
-        $html = Html::rawElement('a',  ['class' => 'related_box', 'href' => $url], $mediaWrapper . $label );
+		$html = Html::rawElement('a',  ['class' => 'related_box', 'href' => $url], $mediaWrapper . $label );
 
-        return $html;
+		return $html;
 	}
 
 	public static function makeFeaturedArticlesBox($title, $forceProcessing=false, $showHighDPI=false) {

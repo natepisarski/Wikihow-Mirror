@@ -948,9 +948,9 @@ class AuthorEmailNotification extends SpecialPage {
 				$term = "patrol";
 				break;
 			case 4:
-				$title = "Special:Videoadder";
-				$text = "adding a video";
-				$term = "add_video";
+				$title = "Special:AnswerQuestions";
+				$text = "answering reader questions";
+				$term = "answer_questions";
 				break;
 			case 5:
 				$title = "Special:Random";
@@ -974,7 +974,6 @@ class AuthorEmailNotification extends SpecialPage {
 				break;
 			case 9:
 			default:
-				//spellchecker
 				$title = "Special:Spellchecker";
 				$text = "fixing a spelling error";
 				$term = "spelling";

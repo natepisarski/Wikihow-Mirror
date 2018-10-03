@@ -35,6 +35,9 @@ fputs($fp, "id,full-title,title-len,url\n");
 // Force no memcaching by CustomTitle class, in case of bugs while testing
 CustomTitle::$forceNoCache = true;
 
+// Force CustomTitle to not save (we're just generating for testing purposes)
+CustomTitle::$saveCustomTitle = false;
+
 global $wgLanguageCode;
 foreach ($titles as $title) {
 	if (empty($title)) continue;

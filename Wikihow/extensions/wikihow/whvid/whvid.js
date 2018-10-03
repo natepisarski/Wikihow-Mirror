@@ -349,9 +349,7 @@ WH.video = (function () {
 			this.autoplay = false;
 		}
 		this.summaryOutro = this.element.getAttribute('data-summary-outro');
-		if (this.poster && this.poster.split('.').pop() == 'jpg' &&  WH.shared.webpSupport) {
-			this.poster = this.poster + '.webp';
-		}
+		this.poster = WH.shared.getCompressedImageSrc(this.poster);
 		if (this.element.getAttribute('data-no-poster-images') == 1) {
 			okToLoadVideos = true;
 		}

@@ -23,12 +23,17 @@ class CustomTitle {
 
 	const MAX_TITLE_LENGTH = 66;
 
+	const WRM_CREATED_START_TIME = '20180919000000';
+
 	var $title;
 	var $row;
 	var $cachekey;
 
 	// Flag can be set to avoid using memcache altogether
 	static $forceNoCache = false;
+
+	// Flag can be set so we only generate the title, but don't save it (for testing purposes)
+	static $saveCustomTitle = true;
 
 	// Constructor called by factory method
 	protected function __construct($title, $row) {
@@ -81,7 +86,7 @@ class CustomTitle {
 
 	public function getDefaultTitle(): array {
 		$wasEdited = $this->row['ct_type'] == self::TYPE_CUSTOM;
-		$defaultPageTitle = self::genTitle($this->title, self::TYPE_DEFAULT, '');
+		$defaultPageTitle = self::genTitle($this->title, self::TYPE_DEFAULT);
 		return array($defaultPageTitle, $wasEdited);
 	}
 
@@ -127,11 +132,8 @@ class CustomTitle {
 
 	private static function makeTitleInner(string $howto, int $numSteps, bool $withPictures = false): string {
 		if (RequestContext::getMain()->getLanguage()->getCode() == 'en') {
-			$stepsText = wfMessage('custom_title_step_number', $numSteps)->text();
-			if ($numSteps <= 0 || $numSteps > 15) $stepsText = '';
-
-			$picsText = $withPictures ? wfMessage('custom_title_with_pictures') : '';
-
+			$stepsText = self::makeTitleSteps($numSteps);
+			$picsText = $withPictures ? wfMessage('custom_title_with_pictures')->text() : '';
 			$ret = $howto.$stepsText.$picsText;
 		}
 		else {
@@ -145,10 +147,10 @@ class CustomTitle {
 		return trim($ret);
 	}
 
-	private static function makeTitleWays(int $ways, string $titleTxt, bool $new_article): string {
+	private static function makeTitleWays(int $ways, string $titleTxt, bool $wrm_created): string {
 		if (RequestContext::getMain()->getLanguage()->getCode() == 'en') {
-			if ($new_article)
-				$prefix = self::getRandomPrefix($ways);
+			if ($wrm_created)
+				$prefix = self::getWRMPrefix($ways, $titleTxt);
 			else
 				$prefix = $ways.' '.wfMessage('custom_title_ways')->text();
 
@@ -164,7 +166,12 @@ class CustomTitle {
 		return trim($ret);
 	}
 
-	private static function genTitle(Title $title, int $type = 0, string $custom = '', bool $new_article = false): string {
+	private static function makeTitleSteps(int $numSteps): string {
+		if ($numSteps <= 0 || $numSteps > 15) return '';
+		return wfMessage('custom_title_step_number', $numSteps)->text();
+	}
+
+	private static function genTitle(Title $title, int $type = 0, string $custom = ''): string {
 		if (!empty($custom) && ($type == self::TYPE_CUSTOM || $type == self::TYPE_AUTO_GENERATED))
 		{
 			//we already have it; use it
@@ -183,18 +190,20 @@ class CustomTitle {
 		}
 		else
 		{
-			$titleTxt = self::makeTitle($title, $new_article);
+			$titleTxt = self::makeTitle($title);
 
-			//whenever we do the hard work to figure out the title...save it
-			$dbw = wfGetDB(DB_MASTER);
-			$note = wfMessage('custom_note_auto_gen')->text();
-			self::dbSetCustomTitle($dbw, $title, $titleTxt, $note, self::TYPE_AUTO_GENERATED);
+			if (self::$saveCustomTitle) {
+				//whenever we do the hard work to figure out the title...save it
+				$dbw = wfGetDB(DB_MASTER);
+				$note = wfMessage('custom_note_auto_gen')->text();
+				self::dbSetCustomTitle($dbw, $title, $titleTxt, $note, self::TYPE_AUTO_GENERATED);
+			}
 		}
 
 		return $titleTxt;
 	}
 
-	private static function makeTitle(Title $title, bool $new_article): string {
+	private static function makeTitle(Title $title): string {
 		// MediaWiki:max_title_length is used for INTL
 		$maxTitleLength = (int)wfMessage("max_title_length")->plain() ?: self::MAX_TITLE_LENGTH;
 
@@ -205,18 +214,21 @@ class CustomTitle {
 
 		$pageName = $title->getText();
 
+		//different rules for WRM-created articles
+		$wrm_created = self::isArticleWRMCreated($title);
+
 		if ($methods >= 3 && !$hasParts) {
-			$inner = self::makeTitleWays($methods, $pageName, $new_article);
+			$inner = self::makeTitleWays($methods, $pageName, $wrm_created);
 			$titleText = wfMessage('pagetitle', $inner)->text();
 			if (strlen($titleText) > $maxTitleLength) {
 				$titleText = $inner;
 			}
 		}
 		else {
-			if ($new_article && $hasParts)
-				$howto = self::makeTitleWays(0, $pageName, $new_article);
-			elseif ($new_article)
-				$howto = self::makeTitleWays($methods, $pageName, $new_article);
+			if ($wrm_created && $hasParts)
+				$howto = self::makeTitleWays(0, $pageName, $wrm_created);
+			elseif ($wrm_created)
+				$howto = self::makeTitleWays($methods, $pageName, $wrm_created);
 			else
 				$howto = wfMessage('howto', $pageName)->text();
 
@@ -255,15 +267,40 @@ class CustomTitle {
 		return $titleText;
 	}
 
-	private static function getRandomPrefix(int $ways): string {
+	// uses the title text to grab a custom prefix from a mw msg list
+	private static function getWRMPrefix(int $ways, string $titleTxt): string {
 		$message = $ways > 2 ? 'custom_title_ways_prefixes_big' : 'custom_title_ways_prefixes_tiny';
-
 		$prefixes = explode(',', wfMessage($message)->text());
-		$prefix = $prefixes[mt_rand(0, count($prefixes)-1)];
+
+		$modulus = count($prefixes);
+		if (empty($modulus)) return trim(wfMessage('howto','')->text());
+
+		$crc32 = crc32($titleTxt); //number based on title text
+		$crc32 = abs($crc32); //positive numbers only
+		$key = $crc32 % $modulus;
+
+		$prefix = $prefixes[$key];
 
 		if ($ways <= 2) $ways = '';
 
 		return trim($ways.' '.$prefix);
+	}
+
+	private static function isArticleWRMCreated(Title $title): bool {
+		$page_id = !empty($title) && $title->exists() ? $title->getArticleId() : 0;
+		if (empty($page_id)) return false;
+
+		$first_edit_user = wfGetDB(DB_SLAVE)->selectField(
+			'firstedit',
+			'fe_user_text',
+			[
+				'fe_page' => $page_id,
+				'fe_timestamp > ' . self::WRM_CREATED_START_TIME
+			],
+			__METHOD__
+		);
+
+		return !empty($first_edit_user) && $first_edit_user == 'WRM';
 	}
 
 	/**
@@ -337,14 +374,6 @@ class CustomTitle {
 			__METHOD__);
 		$cachekey = self::getCachekey($pageid);
 		if ($cachekey) $wgMemc->delete($cachekey);
-	}
-
-	public static function setCustomTitleForWRMCreatedArticle(WikiPage $wikiPage, User $user) {
-		if (RequestContext::getMain()->getLanguage()->getCode() == 'en') {
-			if ($user && $user->getName() == 'WRM') {
-				self::genTitle($wikiPage->getTitle(), $type = self::TYPE_AUTO_GENERATED, $custom = '', $new_article = true);
-			}
-		}
 	}
 
 	public static function recalculateCustomTitleOnPageSave(WikiPage $wikiPage, User $user, Content $content,

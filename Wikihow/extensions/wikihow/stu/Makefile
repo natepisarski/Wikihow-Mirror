@@ -11,7 +11,7 @@ COMPILED=$(SOURCES:.js=.compiled.js)
 all: $(COMPILED)
 
 $(COMPILED): $(SOURCES)
-	$(JAVA) -jar $(CLOSURE) --js_output_file=$@ $(patsubst %.compiled.js,%.js,$@)
+	$(JAVA) -jar $(CLOSURE) --compilation_level ADVANCED_OPTIMIZATIONS --js_output_file=$@ $(patsubst %.compiled.js,%.js,$@)
 
 clean:
 	rm -f *.compiled.js

@@ -13,7 +13,9 @@ class ReverificationSpreadsheetUpdater {
 	var $emailLog = [];
 	var $totalUpdateCount = 0;
 	var $totalUpdated = 0;
+	var $verifierCount = [];
 	var $totalSkipped = 0;
+	var $verifierSkipCount = [];
 	var $startTime = null;
 	var $sheetNames = ['Expert', 'Academic'];
 	//var $sheetNames = ['Academic'];
@@ -47,7 +49,6 @@ class ReverificationSpreadsheetUpdater {
 	protected function processSheet(Google_Spreadsheet_Sheet $sheet) {
 		$updateCount = 0;
 		$skipCount = 0;
-		$verifierCount = [];
 		foreach ($sheet->items as $row => $data) {
 			$rowAid = $data["ArticleID"];
 			$shouldUpdateRow = true;
@@ -59,17 +60,20 @@ class ReverificationSpreadsheetUpdater {
 				$spreadsheetVerifiedDate = $data["Verified Date"];
 
 				$verifierName = $data["Verifier Name"];
-				if(!isset($verifierCount[$verifierName])) {
-					$verifierCount[$verifierName] = 0;
+				if(!isset($this->verifierCount[$verifierName])) {
+					$this->verifierCount[$verifierName] = 0;
+					$this->verifierSkipCount[$verifierName] = 0;
 				}
-				if($verifierCount[$verifierName] >= Self::MAX_PER_DAY) {
+				if($this->verifierCount[$verifierName] >= Self::MAX_PER_DAY) {
 					$skipCount++;
+					$this->verifierSkipCount[$verifierName]++;
 					$this->totalSkipped++;
 					$shouldUpdateRow = false; //we don't want to update the row in the db, b/c we're saving it for another day
-					$this->log("-Skipping. Already processed " . $verifierCount[$verifierName] . " by " . $verifierName);
+					$this->log("-Skipping. Already processed " . $this->verifierCount[$verifierName] . " by " . $verifierName);
 				} elseif (strtotime($reverificationDate) <= strtotime($spreadsheetVerifiedDate)) {
 					$skipCount++;
 					$this->totalSkipped++;
+					$this->verifierSkipCount[$verifierName]++;
 					$this->log("-Skipping.  Reverified date less than or equal to current spreadsheet date " .
 						"$spreadsheetVerifiedDate.");
 					$this->emailLog("Article ID: $rowAid, Reverification Date: $reverificationDate - Skipping " .
@@ -88,10 +92,10 @@ class ReverificationSpreadsheetUpdater {
 
 						if ($rever->getVerifierName() != $data["Verifier Name"]) {
 							$this->log("-Updating spreadsheet 'Verifier Name' fields. Replacing " .
-							"{$data["Verifier Name"]} with {$rever->getVerifierName()}");
+								"{$data["Verifier Name"]} with {$rever->getVerifierName()}");
 							$sheet->update($row, 'Verifier Name', $rever->getVerifierName());
 						}
-						$verifierCount[$verifierName]++;
+						$this->verifierCount[$verifierName]++;
 					} else {
 						$this->log("-Skipping. Title doesn't exist for Article ID $rowAid");
 						$this->emailLog("Article ID: $rowAid, Reverification Date: $reverificationDate - Title " .
@@ -128,20 +132,29 @@ class ReverificationSpreadsheetUpdater {
 		$startTime = $this->startTime;
 		$endTime = wfTimestampNow();
 		$duration = gmdate("H:i:s", strtotime($endTime) - strtotime($startTime));
-		$reportBody = "Total processed reverifications: {$this->totalUpdateCount}\n" .
-			"Total updated: {$this->totalUpdated}\n" .
-			"Total skipped: {$this->totalSkipped}\n";
+		$reportBody = "Total processed reverifications: {$this->totalUpdateCount}\n\n" .
+			"Total updated: {$this->totalUpdated}\n\n" .
+			"Total skipped: {$this->totalSkipped}\n\n\n\n";
 
-		if (!empty($this->emailLog)) {
-			$reportBody .= "Notices:\n" . implode("\n", $this->emailLog) . "\n\n";
+		if($this->totalUpdated > 0) {
+			foreach ($this->verifierCount as $verifier => $count) {
+				$reportBody .= "Total updated by {$verifier}: {$count}\n\n";
+				if(isset($this->verifierSkipCount[$verifier]) && $this->verifierSkipCount[$verifier] > 0) {
+					$reportBody .= "Total skipped by {$verifier}: {$count}\n\n";
+				}
+			}
 		}
 
-		$reportBody .=	"Script Start: {$this->convertoLocalTime($startTime)}\n" .
-			"Script End: {$this->convertoLocalTime($endTime)}\n" .
+		if (!empty($this->emailLog)) {
+			$reportBody .= "Notices:\n\n" . implode("\n\n", $this->emailLog) . "\n\n";
+		}
+
+		$reportBody .=	"Script Start: {$this->convertoLocalTime($startTime)}\n\n" .
+			"Script End: {$this->convertoLocalTime($endTime)}\n\n" .
 			"Duration: $duration";
 
 		UserMailer::send(
-			new MailAddress('jordan@wikihow.com, elizabeth@wikihow.com, daniel@wikihow.com, bebeth@wikihow.com'),
+			new MailAddress('jordan@wikihow.com, elizabeth@wikihow.com, connor@wikihow.com , bebeth@wikihow.com'),
 			new MailAddress('ops@wikihow.com'),
 			"Reverifications: Master Expert Verified Update Report - " . $this->convertoLocalTime(wfTimestampNow()),
 			$reportBody

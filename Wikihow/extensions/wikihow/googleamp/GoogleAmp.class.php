@@ -480,6 +480,9 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
+		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
+		pq( "#intro" )->append( $adhtml );
+
 		// put an ad after first step if there is more than 1 step in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
@@ -1001,7 +1004,6 @@ class GoogleAmp {
 			self::addGoogleAnalytics( WH_GA_ID_ANDROID_APP, $i++ );
 		} else {
 			self::addGoogleAnalytics( WH_GA_ID, $i++ );
-			self::addGoogleAnalytics( WH_GA_ID_AMP, $i++ );
 			self::addConsentElement();
 		}
 

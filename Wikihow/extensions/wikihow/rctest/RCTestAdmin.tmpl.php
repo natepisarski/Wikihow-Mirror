@@ -36,13 +36,13 @@ $('a.rct_detail').live('click', function(e) {
 		$i++
 	?>
 		<tr class="<?=$class?>">
-			<td><a href='#' class='rct_detail' id='rct_<?=$result['rs_user_id']?>'><?=$result['rs_user_name']?></a></td>
+			<td><a href='/Special:Contributions/<?=$result['rs_user_name']?>' target="_blank"><?=$result['rs_user_name']?></a></td>
 			<td><?=$result['correct_easy']?></td>
 			<td><?=$result['correct_other']?></td>
 			<td><?=$result['correct']?></td>
 			<td><?=$result['incorrect']?></td>
 			<td><?=$result['failed_easy']?></td>
-			<td><?=$result['total']?></td>
+			<td><a href='#' class="rct_detail" id="rct_<?=$result['rs_user_id']?>"><?=$result['total']?></a</td>
 		</tr>
 	<? endforeach; ?>
 </table>

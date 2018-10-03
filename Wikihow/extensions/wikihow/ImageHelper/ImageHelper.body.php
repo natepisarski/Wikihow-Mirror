@@ -898,8 +898,22 @@ class ImageHelper extends UnlistedSpecialPage {
 			$img = Html::element( 'img', $imgAttributes );
 			$noscript = '';
 		}
-		$html = "<div class='thumbnail' style='width:{$data['width']}px; height:{$data['height']}px;'><a href='$url'>{$img}<div class='text'><p>" . WikihowSkinHelper::getHowToLabel() . "<br /><span>{$articleName}</span></p></div></a>{$noscript}</div>";
-
+		$msg = wfMessage('howto_prefix');
+		$howToPrefix = $msg->exists() ? ($msg->text() . '<br>') : '';
+		$howToSuffix = wfMessage('howto_suffix')->showIfExists();
+		$html = <<<EOT
+<div class='thumbnail' style='width:{$data['width']}px; height:{$data['height']}px;'>
+	<a href='$url'>
+		{$img}
+		<div class='text'>
+			<p>
+				{$howToPrefix}<span>{$articleName}{$howToSuffix}</span>
+			</p>
+		</div>
+	</a>
+	{$noscript}
+</div>
+EOT;
 		return $html;
 	}
 
@@ -910,10 +924,10 @@ class ImageHelper extends UnlistedSpecialPage {
 	 *
 	 * For non-image formats, this may return a filetype-specific icon.
 	 *
-	 * @param integer $width	maximum width of the generated thumbnail
-	 * @param integer $height	maximum height of the image (optional)
-	 * @param boolean $render	True to render the thumbnail if it doesn't exist,
-	 *                       	false to just return the URL
+	 * @param integer $width    maximum width of the generated thumbnail
+	 * @param integer $height   maximum height of the image (optional)
+	 * @param boolean $render   True to render the thumbnail if it doesn't exist,
+	 *                          false to just return the URL
 	 *
 	 * @return ThumbnailImage or null on failure
 	 *

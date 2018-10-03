@@ -2,7 +2,7 @@
 
 class FacebookApiClient {
 
-	const API_VERSION = 'v2.11';
+	const API_VERSION = 'v3.1';
 
 	private $fb; // \Facebook\Facebook
 

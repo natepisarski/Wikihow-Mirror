@@ -6,7 +6,7 @@ class SummaryEditTool extends UnlistedSpecialPage {
 	static $default_summary_data = [
 		'content' => '',
 		'last_sentence' => '',
-		'at_top' => true
+		'at_top' => false
 	];
 
 	public function __construct() {
@@ -160,9 +160,12 @@ class SummaryEditTool extends UnlistedSpecialPage {
 		$steps_position = !empty($steps) && !empty($steps[0]) ? strpos($wikitext, $steps[0]) : false;
 		$summary_position = strpos($wikitext, $old_summary);
 
-		$use_default_value = $summary_position === false || $steps_position === false;
+		if ($summary_position === false || $steps_position === false)
+			$at_top = false; //default value
+		else
+			$at_top = $summary_position < $steps_position;
 
-		return $use_default_value || $summary_position < $steps_position;
+		return $at_top;
 	}
 
 	private function summarySubmit(): array {

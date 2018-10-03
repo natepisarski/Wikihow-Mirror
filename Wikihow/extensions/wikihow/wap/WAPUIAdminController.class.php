@@ -5,7 +5,7 @@ abstract class WAPUIAdminController extends WAPUIController {
 		global $wgOut, $wgUser, $wgRequest;
 
 		if ($this->config->isMaintenanceMode()) {
-			$wgOut->addHtml($this->config->getSystemName() . 
+			$wgOut->addHtml($this->config->getSystemName() .
 				' is down for maintenance. Please check back later.');
 			return;
 		}
@@ -308,12 +308,12 @@ abstract class WAPUIAdminController extends WAPUIController {
 	function outputReleaseArticlesHtml() {
 		global $wgOut;
 		$vars = $this->getDefaultVars($this->dbType);
-		$vars['add'] = true; 
+		$vars['add'] = true;
 		$wgOut->setPageTitle('Release Articles');
 		$tmpl = new WAPTemplate($this->dbType);
 		$wgOut->addHtml($tmpl->getHtml('release_articles.tmpl.php', $vars));
 	}
-	
+
 	function outputCustomReportHtml() {
 		global $wgOut;
 		$vars = $this->getDefaultVars($this->dbType);
@@ -363,7 +363,7 @@ abstract class WAPUIAdminController extends WAPUIController {
 		global $wgRequest;
 		$userController = $this->config->getUIUserControllerClassName();
 		$controller = new $userController($this->config);
-		$controller->completedArticlesReport($wgRequest->getVal('langcode'), 
+		$controller->completedArticlesReport($wgRequest->getVal('langcode'),
 			$wgRequest->getVal('fromDate', null), $wgRequest->getVal('toDate', null));
 	}
 
@@ -523,13 +523,13 @@ abstract class WAPUIAdminController extends WAPUIController {
 	}
 
 	function outputCustomReport() {
-		global $wgRequest; 
+		global $wgRequest;
 		$urlList = $wgRequest->getVal('urls');
 		$langCode = $wgRequest->getVal('langcode');
-		$urls = $this->wapDB->processUrlListByLang($urlList, $langCode);	
+		$urls = $this->wapDB->processUrlListByLang($urlList, $langCode);
 		$cr = new WAPReport($this->dbType);
 		$rpt = $cr->getCustomReport($urls, $langCode);
-		Misc::outputFile("system_custom_rpt" . WAPReport::FILE_EXT, 
+		Misc::outputFile("system_custom_rpt" . WAPReport::FILE_EXT,
 			$rpt['data'], WAPReport::MIME_TYPE);
 	}
 
@@ -559,7 +559,7 @@ abstract class WAPUIAdminController extends WAPUIController {
 		$tmpl = new WAPTemplate($this->dbType);
 		$wgOut->addHtml($tmpl->getHtml('validate_articles.tmpl.php', $vars));
 	}
-	
+
 	function validateRemoveArticles() {
 		global $wgRequest, $IP;
 		$urls = $this->wapDB->processUrlList($wgRequest->getVal('urls'));
@@ -589,19 +589,19 @@ abstract class WAPUIAdminController extends WAPUIController {
 		}
 		$this->outputSuccessHtml('Url(s) successfully released');
 	}
-	
+
 	function validateAssignUser() {
 		global $wgRequest, $IP;
 		$urls = $this->wapDB->processUrlList($wgRequest->getVal('urls'));
 		$this->outputArticlesValidationHtml($urls, 'assign_user', 'Assign');
 	}
-	
+
 	function validateCompleteArticles() {
 		global $wgRequest, $IP;
 		$urls = $this->wapDB->processUrlList($wgRequest->getVal('urls'));
 		$this->outputArticlesValidationHtml($urls, 'complete_articles', 'Complete');
 	}
-	
+
 	function tagArticles() {
 		global $wgRequest, $IP;
 		$aids = $wgRequest->getArray('aids');
@@ -641,13 +641,13 @@ abstract class WAPUIAdminController extends WAPUIController {
 		global $wgOut;
 		$vars = $this->getDefaultVars($this->dbType);
 		$vars['tags'] = $this->getAllTags();
-		$vars['add'] = true; 
+		$vars['add'] = true;
 
 		$wgOut->setPageTitle('Tag Articles');
 		$tmpl = new WAPTemplate($this->dbType);
 		$wgOut->addHtml($tmpl->getHtml('tag.tmpl.php', $vars));
 	}
-	
+
 	function outputRemoveArticlesHtml() {
 		global $wgOut;
 		$vars = $this->getDefaultVars($this->dbType);
@@ -655,12 +655,12 @@ abstract class WAPUIAdminController extends WAPUIController {
 		$tmpl = new WAPTemplate($this->dbType);
 		$wgOut->addHtml($tmpl->getHtml('remove_articles.tmpl.php', $vars));
 	}
-	
+
 	function outputRemoveTagArticlesHtml() {
 		global $wgOut;
 		$vars = $this->getDefaultVars($this->dbType);
 		$vars['tags'] = $this->getAllTags();
-		$vars['add'] = false; 
+		$vars['add'] = false;
 		$wgOut->setPageTitle('Remove Tags from Articles');
 		$tmpl = new WAPTemplate($this->dbType);
 		$wgOut->addHtml($tmpl->getHtml('tag.tmpl.php', $vars));
@@ -750,7 +750,7 @@ abstract class WAPUIAdminController extends WAPUIController {
 			$ca = $articleClass::newFromUrl($url, $lang, $this->dbType);
 			$vars['lang']  = $lang;
 			$vars['article'] = $ca;
-			$vars['user'] = is_null($ca) ? null : $ca->getUser(); 
+			$vars['user'] = is_null($ca) ? null : $ca->getUser();
 			$vars['tags'] = is_null($ca) ? null : $ca->getTags(WAPArticleTagDB::TAG_ALL);
 
 			$tmpl = new WAPTemplate($this->dbType);
@@ -783,7 +783,7 @@ abstract class WAPUIAdminController extends WAPUIController {
 	function outputUntaggedUnassignedReport() {
 		$cr = new WAPReport($this->dbType);
 		$rpt = $cr->getUntaggedUnassignedArticles();
-		Misc::outputFile("system_unassigned_untagged_articles_{$rpt['ts']}" . WAPReport::FILE_EXT, 
+		Misc::outputFile("system_unassigned_untagged_articles_{$rpt['ts']}" . WAPReport::FILE_EXT,
 			$rpt['data'], WAPReport::MIME_TYPE);
 	}
 

@@ -1,0 +1,104 @@
+#high_school_hacks {
+	padding: 1em 0 10em 0;
+	font-size: calc(.9em + .3vw);
+}
+
+#hsh_wH_logo {
+	display: block;
+	width: 216px;
+	margin: 0 auto .75em;
+}
+
+#high_school_hacks h2 {
+	text-align: center;
+	padding: 0 .5em;
+	color: #545454;
+}
+
+#hsh_topics {
+	margin: .5em auto;
+	max-width: 759px;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-wrap: wrap;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-justify-content: space-around;
+	-ms-flex-pack: distribute;
+	justify-content: space-around;
+	position: relative;
+}
+
+.hsh_topic {
+	text-align: center;
+	font-size: 1.2em;
+	width: 140px;
+	padding: 1em .3em;
+	cursor: pointer;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	color: #4A4A4A;
+}
+.topic_selected .hsh_topic {
+	opacity: .3;
+}
+.hsh_topic.selected, .hsh_topic.over {
+	background-color: #f6f8f7;
+	opacity: 1;
+}
+
+.hsh_icon {
+	width: 80px;
+	height: 80px;
+	background-size: 80px;
+	margin: 0 auto .3em;
+}
+
+.high_school_hacks_article_list {
+	display: none;
+	background-color: #f6f8f7;
+	padding: 1em;
+	margin-bottom: 1.5em;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	width: 98%;
+	box-sizing: border-box;
+	position: absolute;
+	z-index: 1;
+}
+
+.high_school_hacks_article_list p, .stable .content .high_school_hacks_article_list p {
+	padding-bottom: .5em;
+	line-height: 1.2em;
+}
+
+.high_school_hacks_article_list a,
+.high_school_hacks_article_list a:active,
+.high_school_hacks_article_list a:visited {
+	color: #383;
+}
+
+#bodycontents, body #content {
+	background-color: #FFF;
+}
+
+body #content {
+	padding-top: 1.7em;
+	margin: 7px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+}
+
+body #mw-mf-page-center {
+	padding-bottom: 7px;
+}
+
+#bodycontents {
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}

@@ -106,7 +106,7 @@ class MiscTest extends MediaWikiTestCase {
 
 		// Make sure we're using known active languages and domain overrides for testing
 		$tmpActiveLanguages = $wgActiveLanguages;
-		$wgActiveLanguages  = array('ar','cs','de','es','fr','hi','id','it','ja','ko','nl','pt','ru','th','vi','zh');
+		$wgActiveLanguages  = array('ar','cs','de','es','fr','hi','id','it','ja','ko','nl','pt','ru','th','tr','vi','zh');
 
 		$tmpDomainOverrides = $wgActiveDomainOverrides;
 		$wgActiveDomainOverrides = array(
@@ -129,12 +129,16 @@ class MiscTest extends MediaWikiTestCase {
 			'cs' => array(
 				'desktop' => 'www.wikihow.cz',
 				'mobile' => 'm.wikihow.cz'
+			),
+			'tr' => array(
+				'desktop' => 'www.wikihow.com.tr',
+				'mobile' => 'm.wikihow.com.tr'
 			)
 		);
 
 		// Domain regex for desktop, including En and capturing output:
 		$domainRegex = wfGetDomainRegex(false, true, true);
-		$expectedOutput = '(www\.wikihow\.com|ar\.wikihow\.com|www\.wikihow\.cz|de\.wikihow\.com|es\.wikihow\.com|fr\.wikihow\.com|hi\.wikihow\.com|id\.wikihow\.com|www\.wikihow\.it|www\.wikihow\.jp|ko\.wikihow\.com|nl\.wikihow\.com|pt\.wikihow\.com|ru\.wikihow\.com|th\.wikihow\.com|www\.wikihow\.vn|zh\.wikihow\.com)';
+		$expectedOutput = '(www\.wikihow\.com|ar\.wikihow\.com|www\.wikihow\.cz|de\.wikihow\.com|es\.wikihow\.com|fr\.wikihow\.com|hi\.wikihow\.com|id\.wikihow\.com|www\.wikihow\.it|www\.wikihow\.jp|ko\.wikihow\.com|nl\.wikihow\.com|pt\.wikihow\.com|ru\.wikihow\.com|th\.wikihow\.com|www\.wikihow\.com\.tr|www\.wikihow\.vn|zh\.wikihow\.com)';
 
 		$this->assertEquals($domainRegex, $expectedOutput,
 			'Ensures that Get Domain Regex for desktop with English included and output capturing enabled is correct.'
@@ -154,7 +158,7 @@ class MiscTest extends MediaWikiTestCase {
 
 		// Make sure we're using known active languages and domain overrides for testing
 		$tmpActiveLanguages = $wgActiveLanguages;
-		$wgActiveLanguages  = array('ar','cs','de','es','fr','hi','id','it','ja','ko','nl','pt','ru','th','vi','zh');
+		$wgActiveLanguages  = array('ar','cs','de','es','fr','hi','id','it','ja','ko','nl','pt','ru','th','tr','vi','zh');
 
 		$tmpDomainOverrides = $wgActiveDomainOverrides;
 		$wgActiveDomainOverrides = array(
@@ -177,12 +181,16 @@ class MiscTest extends MediaWikiTestCase {
 			'cs' => array(
 				'desktop' => 'www.wikihow.cz',
 				'mobile' => 'm.wikihow.cz'
+			),
+			'tr' => array(
+				'desktop' => 'www.wikihow.com.tr',
+				'mobile' => 'm.wikihow.com.tr'
 			)
 		);
 
 		// Domain regex for mobile, excluding En and not capturing output:
 		$domainRegex = wfGetDomainRegex(true, false, false);
-		$expectedOutput = '(?:ar\.m\.wikihow\.com|m\.wikihow\.cz|de\.m\.wikihow\.com|es\.m\.wikihow\.com|fr\.m\.wikihow\.com|hi\.m\.wikihow\.com|id\.m\.wikihow\.com|m\.wikihow\.it|m\.wikihow\.jp|ko\.m\.wikihow\.com|nl\.m\.wikihow\.com|pt\.m\.wikihow\.com|ru\.m\.wikihow\.com|th\.m\.wikihow\.com|m\.wikihow\.vn|zh\.m\.wikihow\.com)';
+		$expectedOutput = '(?:ar\.m\.wikihow\.com|m\.wikihow\.cz|de\.m\.wikihow\.com|es\.m\.wikihow\.com|fr\.m\.wikihow\.com|hi\.m\.wikihow\.com|id\.m\.wikihow\.com|m\.wikihow\.it|m\.wikihow\.jp|ko\.m\.wikihow\.com|nl\.m\.wikihow\.com|pt\.m\.wikihow\.com|ru\.m\.wikihow\.com|th\.m\.wikihow\.com|m\.wikihow\.com\.tr|m\.wikihow\.vn|zh\.m\.wikihow\.com)';
 
 		$this->assertEquals($domainRegex, $expectedOutput,
 			'Ensures that Get Domain Regex for mobile with English excluded and output capturing disabled is correct.'

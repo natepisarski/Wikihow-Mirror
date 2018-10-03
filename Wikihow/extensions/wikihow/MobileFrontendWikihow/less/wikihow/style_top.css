@@ -1124,23 +1124,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	width: 100%;
 	height: auto;
 }
-.m-video-play {
-	margin: auto;
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	z-index: 3;
-	width: 35px;
-	height: 35px;
-	-moz-border-radius: 100%;
-	-webkit-border-radius: 100%;
-	border-radius: 100%;
-	background-color:rgba(10, 10, 10, 0.3);
-	border: 2px solid #FFF;
-	visibility: hidden;
-}
 .summary-video {
 	position: relative;
 	overflow: hidden;
@@ -1153,7 +1136,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	object-fit: cover;
 }
 .green_tips_box_inline {
-	background-color:#F0F6EC;
+	background-color:#fff5d9;
 	color:#000;
 	margin:0px;
 	width:75%;

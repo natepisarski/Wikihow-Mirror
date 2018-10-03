@@ -23,10 +23,10 @@ class RelatedWikihow {
 
 	private function createHtml( $width, $height, $isSidebar = false, $ampMode = false ) {
 		$imgSrc = '';
-        $videoSrc = $this->mVideoUrl;
+		$videoSrc = $this->mVideoUrl;
 		if ( $isSidebar ) {
 			$imgSrc = $this->mThumbUrlSide;
-            $videoSrc = "";
+			$videoSrc = "";
 		} else {
 			$imgSrc = $this->mThumbUrl;
 			if ( $this->mGifUrl ) {
@@ -37,9 +37,9 @@ class RelatedWikihow {
 		$imgSrc = wfGetPad( $imgSrc );
 		$text =  $this->mText;
 		$url =  $this->mUrl;
-        $id = wfRandomString(10);
+		$id = wfRandomString(10);
 		$imgAttributes = [
-            'id' => $id,
+			'id' => $id,
 			'class' => 'scrolldefer content-fill',
 			'src' => $imgSrc,
 			'alt' => $text,
@@ -47,19 +47,19 @@ class RelatedWikihow {
 			'height' => $height
 		];
 
-        // create the fallback noscript img tag
-        $noscript = Html::openElement('noscript')
-            . Html::element('img', ['src' => $imageAttrs['src']])
-            . Html::closeElement('noscript');
+		// create the fallback noscript img tag
+		$noscript = Html::openElement('noscript')
+			. Html::element('img', ['src' => $imageAttrs['src']])
+			. Html::closeElement('noscript');
 
-        $imgAttributes['data-src'] = $imgAttributes['src'];
-        unset( $imgAttributes['src'] );
-        $img = Html::rawElement( 'img', $imgAttributes );
+		$imgAttributes['data-src'] = $imgAttributes['src'];
+		unset( $imgAttributes['src'] );
+		$img = Html::rawElement( 'img', $imgAttributes );
 
 		// now create the video if we have it
 		if ( $videoSrc ) {
 			$videoAttributes = [
-                'id' => $id,
+				'id' => $id,
 				'class' => 'scrolldefer content-fill',
 				'data-src' => $videoSrc,
 				'alt' => $this->mText,
@@ -79,21 +79,21 @@ class RelatedWikihow {
 			$img = $videoElement;
 		}
 
-        $img = Html::rawElement( 'div', [ 'class' => 'content-spacer' ], $img );
-        $script = "WH.shared.addScrollLoadItem('$id')";
-        $script = Html::inlineScript( $script );
-        $img .= $script . $noscript;
+		$img = Html::rawElement( 'div', [ 'class' => 'content-spacer' ], $img );
+		$script = "WH.shared.addScrollLoadItem('$id')";
+		$script = Html::inlineScript( $script );
+		$img .= $script . $noscript;
 
 		if ( $ampMode ) {
-            $imgAttributes = [
-                'src' => $imgSrc,
-                'alt' => $text,
-                'width' => $width,
-                'height' => $height,
-                'layout' => 'responsive'
-            ];
+			$imgAttributes = [
+				'src' => $imgSrc,
+				'alt' => $text,
+				'width' => $width,
+				'height' => $height,
+				'layout' => 'responsive'
+			];
 			$img = Html::rawElement( 'amp-img', $imgAttributes );
-        }
+		}
 
 		$linkAttributes = [
 			'class' => 'related-image-link',
@@ -109,7 +109,10 @@ class RelatedWikihow {
 
 
 		// the text to show for each related wikihow
-		$howToText = "<p>" . WikihowSkinHelper::getHowToLabel() . "</p>" . $text;
+
+		$msg = wfMessage('howto_prefix');
+		$howToPrefix = $msg->exists() ? ('<p>' . $msg->text() . '</p>') : '';
+		$howToText = $howToPrefix . $text . wfMessage('howto_suffix')->showIfExists();
 		$titleText = Html::rawElement( "span", [ 'class' => 'related-title-text' ], $howToText );
 		$titleAttributes = [
 			'class' => 'related-title',
@@ -343,14 +346,14 @@ class RelatedWikihows {
 				continue;
 			}
 
-            if ( !$useCategoryThumbs && strstr( $thumbnailImage->getUrl(), "Category" ) ) {
-                if ( mt_rand( 1, 3 ) <= 2 ) {
-                    $defaultImageFile = Wikitext::getDefaultTitleImage();
-                    $thumbnailImage = ImageHelper::getThumbnail( $defaultImageFile, $width, $height );
-                    $thumbnailImageSide = ImageHelper::getThumbnail( $defaultImageFile, $sideWidth, $sideHeight );
-                    $thumbnailImageMobile = ImageHelper::getThumbnail( $defaultImageFile, $mobileWidth, $mobileHeight );
-                }
-            }
+			if ( !$useCategoryThumbs && strstr( $thumbnailImage->getUrl(), "Category" ) ) {
+				if ( mt_rand( 1, 3 ) <= 2 ) {
+					$defaultImageFile = Wikitext::getDefaultTitleImage();
+					$thumbnailImage = ImageHelper::getThumbnail( $defaultImageFile, $width, $height );
+					$thumbnailImageSide = ImageHelper::getThumbnail( $defaultImageFile, $sideWidth, $sideHeight );
+					$thumbnailImageMobile = ImageHelper::getThumbnail( $defaultImageFile, $mobileWidth, $mobileHeight );
+				}
+			}
 			$item = new RelatedWikihow();
 			$item->mGifUrl = $gifUrl;
 			$item->mVideoUrl = $videoUrl;

@@ -558,7 +558,8 @@ class ArticleMetaInfo {
 		$desc = self::trimDescription($desc, $descLength);
 		return array(true, $desc);
 	}
-	private static function trimDescription($desc, $maxLength = self::MAX_DESC_LENGTH) {
+	private static function trimDescription($desc, $maxLength = 0) {
+		if ($maxLength <= 0) $maxLength = self::MAX_DESC_LENGTH;
 		// Chop desc length at MAX_DESC_LENGTH, and then last space in
 		// description so that '...' is added at the end of a word.
 		$desc = mb_substr($desc, 0, $maxLength);
@@ -632,10 +633,10 @@ class ArticleMetaInfo {
 	/**
 	 * Set the meta description to a hand-edited one.
 	 */
-	public function setEditedDescription($desc, $customNote) {
+	public function setEditedDescription($desc, $customNote, $customMaxLength = 0) {
 		$this->loadInfo();
 		$this->row['ami_desc_style'] = self::DESC_STYLE_EDITED;
-		$this->row['ami_desc'] = self::trimDescription($desc);
+		$this->row['ami_desc'] = self::trimDescription($desc, $customMaxLength);
 		$this->row['ami_edited_note'] = $customNote;
 		$this->refreshMetaData();
 	}

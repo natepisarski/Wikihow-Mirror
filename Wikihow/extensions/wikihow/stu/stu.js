@@ -1,7 +1,8 @@
 var STU_BUILD = '6';
 
 // EXIT TIMER MODULE
-WH.Stu = (function () {
+window['WH'] = window['WH'] || {};
+window['WH']['Stu'] = (function () {
 	'use strict';
 
 // Make it really clear that we can't use jQuery in this context because it may
@@ -14,10 +15,11 @@ WH.Stu = (function () {
 // Only enable Stu pings if running on English, not on mobile,
 // with the view action of an article page. Only enable ping timers on
 // production because they require a varnish front end to catch and log them.
-var countableView = typeof WH.stuCount !== 'undefined' ? WH.stuCount : 0,
-	pageLang = typeof WH.pageLang !== 'undefined' ? WH.pageLang : '',
-	isMobile = typeof WH.isMobile !== 'undefined' ? WH.isMobile : 0,
-	exitTimerEnabled = countableView && pageLang == 'en' && !isMobile,
+var WH = window['WH'];
+var countableView = WH['stuCount'],
+	pageLang = WH['pageLang'],
+	isMobile = WH['isMobile'],
+	exitTimerEnabled = countableView && pageLang == 'en',
 	dev = !!(location.href.match(/\.wikidogs\.com/)),
 	pingTimersEnabled = !!(location.href.match(/\.wikihow\.[a-z]+\//)) || dev,
 	startTime = false,
@@ -94,8 +96,8 @@ function sendRestRequest(u, a) {
 }
 
 function sendExitPing(priority, domain, message, doAsync) {
-	var stats = basicStatsGen();
-	delete stats.dl; // we don't send this longer attribute 'dl' with exit pings
+	var stats = basicStatsGen({});
+	delete stats['dl']; // we don't send this longer attribute 'dl' with exit pings
 
 	var attrs = {
 		'd': domain,
@@ -103,7 +105,7 @@ function sendExitPing(priority, domain, message, doAsync) {
 		'b': STU_BUILD
 	};
 	if (priority != DEFAULT_PRIORITY) {
-		attrs.p = priority;
+		attrs['p'] = priority;
 	}
 
 	var loggerUrl = (!dev ? '/Special:Stu' : '/x/devstu') + '?v=' + STU_BUILD;
@@ -148,7 +150,7 @@ function getCurrentActiveTime() {
 
 function collectExitTime() {
 	var activeTime = getCurrentActiveTime();
-	var message = WH.pageName + ' btraw ' + (activeTime / 1000);
+	var message = WH['pageName'] + ' btraw ' + (activeTime / 1000);
 	var domain = getDomain();
 
 	// No pinging for IE 6
@@ -216,11 +218,11 @@ function start() {
 	randPageViewSessionID = makeID(12);
 
 	// Check if user is coming in from Google (since those are the exiting timings
-	// we care most about. Set startTime based on the WH.timeStart if it's been
+	// we care most about. Set startTime based on the WH['timeStart'] if it's been
 	// set at the top of the page.
 	fromGoogle = checkFromGoogle();
-	if (typeof WH.timeStart == 'number' && WH.timeStart > 0) {
-		startTime = WH.timeStart;
+	if (typeof WH['timeStart'] == 'number' && WH['timeStart'] > 0) {
+		startTime = WH['timeStart'];
 	} else {
 		startTime = getTime();
 	}
@@ -252,10 +254,9 @@ function start() {
 	}
 
 	// do a test where we enable exit timers on mobile for a set of articles
-	var testArticles = [6256, 273369, 2161942, 1215252, 1756524, 86484, 1099813, 703191, 1410426, 1151586, 33060, 1464781, 4063687, 2854494, 3037374, 2660480, 192336, 4458945, 1231084, 2115025, 2850868, 7495, 4019578, 373667, 2188607, 441133, 5868, 4082, 5884688, 25067, 45696, 26479, 237241, 129781, 2723288, 36973, 867321, 175672, 391387, 75604, 381649, 2768446, 1365615, 650388, 13498, 232692, 2053, 1685302, 784172, 47930, 3126454, 23163];
-	if (testArticles.indexOf(WH.pageID) !== -1) {
-		exitTimerEnabled = countableView && pageLang == 'en';
-	}
+	//var testArticles = [6256, 273369, 2161942, 1215252, 1756524, 86484, 1099813, 703191, 1410426, 1151586, 33060, 1464781, 4063687, 2854494, 3037374, 2660480, 192336, 4458945, 1231084, 2115025, 2850868, 7495, 4019578, 373667, 2188607, 441133, 5868, 4082, 5884688, 25067, 45696, 26479, 237241, 129781, 2723288, 36973, 867321, 175672, 391387, 75604, 381649, 2768446, 1365615, 650388, 13498, 232692, 2053, 1685302, 784172, 47930, 3126454, 23163];
+	//if (testArticles.indexOf(WH['pageID']) !== -1) {
+	//}
 
 	// If we are exit timing this page, set onUnload (and onBeforeUnload) event handlers
 	if (exitTimerEnabled) {
@@ -264,88 +265,6 @@ function start() {
 	}
 
 	addActivityListeners();
-}
-
-// Added user input event listening for activity metrics
-function addActivityListeners() {
-
-	// Feature test for passive event listener support. From:
-	// https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
-
-	// Test via a getter in the options object to see if the passive property is accessed
-	var supportsPassive = false;
-	try {
-		var opts = Object.defineProperty({}, 'passive', {
-			get: function() {
-				supportsPassive = true;
-			}
-		});
-		window.addEventListener('testPassive', null, opts);
-		window.removeEventListener('testPassive', null, opts);
-	} catch (e) {}
-
-	window.addEventListener('scroll', function(/*e*/) {
-		a2Events++;
-
-		// we run this at the start of the page load every 250ms, when
-		// the setInterval for 3s isn't active yet
-		if (a3RecalcScrollSectionsLastRun != -1) {
-			// don't allow this method to run more often than every 250ms
-			var time = getTime() - startTime;
-			if (time >= a3RecalcScrollSectionsLastRun + 250) {
-				a3RecalcScrollSectionsLastRun = time;
-				a3RecalcScrollSections();
-			}
-		}
-
-		// record how long viewport stays active over important parts of the page
-		a3RecordScrollTiming();
-
-		// record deepest scroll point in page
-		var scrollTop = getScrollTop();
-		var windowHeight = getViewportHeight();
-		var scrollBottom = scrollTop + windowHeight;
-		// record scroll amounts
-		if (scrollBottom > a4ScrollMax) {
-			a4ScrollMax = scrollBottom;
-		}
-	});
-
-	window.addEventListener('resize', function(/*e*/) { a2Events++; });
-	window.addEventListener('click', function(/*e*/) { a2Events++; });
-
-	// touchpad events
-	var passiveParam = supportsPassive ? { passive: true } : false;
-	window.addEventListener('touchstart', function(/*e*/) { a2Events++; }, passiveParam);
-	window.addEventListener('touchend', function(/*e*/) { a2Events++; });
-	window.addEventListener('touchcancel', function(/*e*/) { a2Events++; });
-	window.addEventListener('touchmove', function(/*e*/) { a2Events++; }, passiveParam);
-
-	// keyboard events
-	document.addEventListener('keydown', function(/*e*/) { a2Events++; });
-	document.addEventListener('keyup', function(/*e*/) { a2Events++; });
-	document.addEventListener('keypress', function(/*e*/) { a2Events++; });
-
-	// every n seconds, update counts to see if there was activity in that interval
-	setInterval(function () {
-		// stop this from running in scroll handler
-		a3RecalcScrollSectionsLastRun = -1;
-		a3RecalcScrollSections();
-
-		if (a2Events > 0) {
-			a2Sum++;
-			a2Events = 0;
-		}
-
-		// if window was not active, we don't count it as an interval
-		var activeTime = getCurrentActiveTime();
-		if (activeTime > a2LastActiveTime) {
-			a2LastActiveTime = activeTime;
-			if (a2IntervalCount < a2Intervals) {
-				a2IntervalCount++;
-			}
-		}
-	}, 1000 * A2_INTERVAL_SECS);
 }
 
 function a3RecalcScrollSections() {
@@ -436,6 +355,88 @@ function getBodyHeight() {
 	return Math.max( document.body.clientHeight, document.body.offsetHeight, document.body.scrollHeight );
 }
 
+// Added user input event listening for activity metrics
+function addActivityListeners() {
+
+	// Feature test for passive event listener support. From:
+	// https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
+
+	// Test via a getter in the options object to see if the passive property is accessed
+	var supportsPassive = false;
+	try {
+		var opts = Object.defineProperty({}, 'passive', {
+			get: function() {
+				supportsPassive = true;
+			}
+		});
+		window.addEventListener('testPassive', null, opts);
+		window.removeEventListener('testPassive', null, opts);
+	} catch (e) {}
+
+	window.addEventListener('scroll', function(/*e*/) {
+		a2Events++;
+
+		// we run this at the start of the page load every 250ms, when
+		// the setInterval for 3s isn't active yet
+		if (a3RecalcScrollSectionsLastRun != -1) {
+			// don't allow this method to run more often than every 250ms
+			var time = getTime() - startTime;
+			if (time >= a3RecalcScrollSectionsLastRun + 250) {
+				a3RecalcScrollSectionsLastRun = time;
+				a3RecalcScrollSections();
+			}
+		}
+
+		// record how long viewport stays active over important parts of the page
+		a3RecordScrollTiming();
+
+		// record deepest scroll point in page
+		var scrollTop = getScrollTop();
+		var windowHeight = getViewportHeight();
+		var scrollBottom = scrollTop + windowHeight;
+		// record scroll amounts
+		if (scrollBottom > a4ScrollMax) {
+			a4ScrollMax = scrollBottom;
+		}
+	});
+
+	window.addEventListener('resize', function(/*e*/) { a2Events++; });
+	window.addEventListener('click', function(/*e*/) { a2Events++; });
+
+	// touchpad events
+	var passiveParam = supportsPassive ? { passive: true } : false;
+	window.addEventListener('touchstart', function(/*e*/) { a2Events++; }, passiveParam);
+	window.addEventListener('touchend', function(/*e*/) { a2Events++; });
+	window.addEventListener('touchcancel', function(/*e*/) { a2Events++; });
+	window.addEventListener('touchmove', function(/*e*/) { a2Events++; }, passiveParam);
+
+	// keyboard events
+	document.addEventListener('keydown', function(/*e*/) { a2Events++; });
+	document.addEventListener('keyup', function(/*e*/) { a2Events++; });
+	document.addEventListener('keypress', function(/*e*/) { a2Events++; });
+
+	// every n seconds, update counts to see if there was activity in that interval
+	setInterval(function () {
+		// stop this from running in scroll handler
+		a3RecalcScrollSectionsLastRun = -1;
+		a3RecalcScrollSections();
+
+		if (a2Events > 0) {
+			a2Sum++;
+			a2Events = 0;
+		}
+
+		// if window was not active, we don't count it as an interval
+		var activeTime = getCurrentActiveTime();
+		if (activeTime > a2LastActiveTime) {
+			a2LastActiveTime = activeTime;
+			if (a2IntervalCount < a2Intervals) {
+				a2IntervalCount++;
+			}
+		}
+	}, 1000 * A2_INTERVAL_SECS);
+}
+
 // Ping our servers to collect data about how long the user might have stayed on the page
 function eventPing(pingType, stats) {
 	// location url of where to ping
@@ -471,7 +472,7 @@ function pingDebug(line) {
 		debugCallbackFunc(line);
 		if (pingDebugFirst) {
 			setInterval( function() {
-				basicStatsGen();
+				basicStatsGen({});
 			}, 1000);
 			pingDebugFirst = false;
 		}
@@ -644,8 +645,8 @@ function basicStatsGen(extraAttrs) {
 		'gg': fromGoogle,
 		'to': calcTotalElapsedSeconds(),
 		'ac': calcActiveElapsedSeconds(),
-		'pg': WH.pageID,
-		'ns': WH.pageNamespace,
+		'pg': WH['pageID'],
+		'ns': WH['pageNamespace'],
 		'ra': randPageViewSessionID,
 		'cv': countableView,
 		'cl': pageLang,
@@ -654,12 +655,9 @@ function basicStatsGen(extraAttrs) {
 		'b': STU_BUILD
 	};
 
-	if (typeof extraAttrs === 'undefined') {
-		extraAttrs = {};
-	}
 	attrs = mergeObjects(extraAttrs, attrs);
 
-	if (WH.pageNamespace === 0) {
+	if (WH['pageNamespace'] === 0) {
 		var activity = {
 			'a1': calcActivity1(wordCount),
 			'a2': calcActivity2(wordCount),
@@ -670,7 +668,7 @@ function basicStatsGen(extraAttrs) {
 			'a7': calcActivity7()
 		};
 		attrs = mergeObjects(activity, attrs);
-		//pingDebug('<span class="replace_line">' + 'A1:' + attrs.a1 + ' A2:' + attrs.a2 + ' A3:' + attrs.a3 + ' A4:' + attrs.a4 + ' A5:' + attrs.a5 + ' A6:' + attrs.a6 + ' A7:' + attrs.a7 + '</span>');
+		//pingDebug('<span class="replace_line">' + 'A1:' + attrs['a1'] + ' A2:' + attrs['a2'] + ' A3:' + attrs['a3'] + ' A4:' + attrs['a4'] + ' A5:' + attrs['a5'] + ' A6:' + attrs['a6'] + ' A7:' + attrs['a7'] + '</span>');
 	}
 
 	return attrs;
@@ -816,7 +814,7 @@ function calcActivity7() {
 }
 
 function calcActivityTimeHeight(pixelsPerSec) {
-	if (typeof WH.Stu.lastStepPingSent === 'boolean' && WH.Stu.lastStepPingSent) {
+	if (typeof WH['Stu']['lastStepPingSent'] === 'boolean' && WH['Stu']['lastStepPingSent']) {
 		var activeTimeSecs = getCurrentActiveTime() / 1000.0;
 		var bodyHeight = getBodyHeight();
 		var expectedSecs = 1.0 * bodyHeight / pixelsPerSec;
@@ -826,7 +824,7 @@ function calcActivityTimeHeight(pixelsPerSec) {
 	}
 }
 
-// Expose WH.Stu.start method
+// Expose WH['Stu'].start method
 return {
 	'start': start,
 	'ping': customEventPing,
@@ -836,4 +834,4 @@ return {
 })();
 
 // Start stu event handlers here now
-WH.Stu.start();
+window['WH']['Stu'].start();

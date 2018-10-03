@@ -49,7 +49,7 @@ class SchemaMarkup {
 			'facebook' => 'https://www.facebook.com/wikihow.ko/',
 		],
 		'nl'  => [
-			'facebook' => 'https://www.facebook.com/wikiHow.fr/',
+			'facebook' => 'https://www.facebook.com/wikiHow.nl/',
 		],
 		'pt' => [
 			'facebook' => 'https://www.facebook.com/wikihowpt',
@@ -60,6 +60,9 @@ class SchemaMarkup {
 		],
 		'th'  => [
 			'facebook' => 'https://www.facebook.com/wikihow.th/',
+		],
+		'tr'  => [
+			'facebook' => 'https://www.facebook.com/tr.wikihow/',
 		],
 		'vi'  => [
 			'facebook' => 'https://www.facebook.com/WikiHow-Ti%E1%BA%BFng-Vi%E1%BB%87t-816102758534978/',

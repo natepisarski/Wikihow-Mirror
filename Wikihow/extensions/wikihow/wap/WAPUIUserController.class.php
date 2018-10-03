@@ -56,7 +56,6 @@ abstract class WAPUIUserController extends WAPUIController {
 					$this->handleOtherActions();
 			}
 		} else {
-Misc::maybeApril1Redirect();
 			if ($actions[0] == 'tag') {
 				$sanitizedTag = $this->wapDB->getArticleTagDB()->sanitizeRawTag($actions[1]);
 				$this->tagDetails($sanitizedTag);

@@ -36,11 +36,7 @@ class GreenBox {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
-		$title = $out->getTitle();
-
-		if ($title && $title->inNamespace( NS_MAIN )) {
-			$out->addModules('ext.wikihow.green_box');
-		}
+		$out->addModules('ext.wikihow.green_box');
 	}
 
 	//this uses the phpQuery object

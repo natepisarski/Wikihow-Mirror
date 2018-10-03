@@ -10,7 +10,9 @@ class Categorylisting extends SpecialPage {
 	function __construct($source = null) {
 		global $wgHooks;
 		parent::__construct( 'Categorylisting' );
-		$wgHooks['ShowSideBar'][] = ['AdminCategoryDescriptions::removeSideBarCallback'];
+		if(RequestContext::getMain()->getLanguage()->getCode() == "en") {
+			$wgHooks['ShowSideBar'][] = ['AdminCategoryDescriptions::removeSideBarCallback'];
+		}
 	}
 
 	function execute($par) {
@@ -29,6 +31,10 @@ class Categorylisting extends SpecialPage {
 			$this->renderMobile($catData);
 		} else {
 			$wgHooks['ShowGrayContainer'][] = array('Categorylisting::removeGrayContainerCallback');
+
+			// allow varnish to redirect this page to mobile if browser conditions are right
+			Misc::setHeaderMobileFriendly();
+
 			$this->getCategoryListingData($catData);
 			$this->renderDesktop($catData);
 		}
@@ -43,16 +49,27 @@ class Categorylisting extends SpecialPage {
 
 	function renderDesktop($catData) {
 		$out = $this->getOutput();
+		if(RequestContext::getMain()->getLanguage()->getCode() != "en") {
+			$out->addHTML("<br /><br />");
+			$out->addHTML("<div class='section_text'>");
+			foreach ($catData['subcats'] as $row) {
+				$out->addHTML("<div class='thumbnail'><a href='{$row['url']}'><img src='{$row['img_url']}'/><div class='text'><p><span>{$row['cat_title']}</span></p></div></a></div>");
+			}
+			$out->addHTML("<div class='clearall'></div>");
+			$out->addHTML("</div><!-- end section_text -->");
+		} else {
 
-		$css = Misc::getEmbedFile('css', dirname(__FILE__) . '/categories-listing.css');
-		$out->addHeadItem('listcss', HTML::inlineStyle($css));
 
-		$loader = new Mustache_Loader_FilesystemLoader(dirname(__FILE__));
-		$options = array('loader' => $loader);
-		$m = new Mustache_Engine($options);
-		$html = $m->render("/templates/categorylisting", $catData);
+			$css = Misc::getEmbedFile('css', dirname(__FILE__) . '/categories-listing.css');
+			$out->addHeadItem('listcss', HTML::inlineStyle($css));
 
-		$out->addHTML($html);
+			$loader = new Mustache_Loader_FilesystemLoader(dirname(__FILE__));
+			$options = array('loader' => $loader);
+			$m = new Mustache_Engine($options);
+			$html = $m->render("/templates/categorylisting", $catData);
+
+			$out->addHTML($html);
+		}
 	}
 
 

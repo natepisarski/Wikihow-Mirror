@@ -209,22 +209,31 @@ WH.shared = (function () {
 		this.load = function() {};
 	}
 
+	function getCompressedImageSrc( src ) {
+		if ( !src ) {
+			return '';
+		}
+		if ( !webpSupport ) {
+			return src;
+		}
+		var ext = src.split('.').pop();
+		if (
+			( ext === 'jpg' || ext === 'png' ) &&
+			src.match(/images(_[a-z]{2})?\/thumb\//) &&
+			!src.match(/(\.[a-zA-Z]+){2}$/)
+		) {
+			src = src + '.webp';
+		}
+		return src;
+	}
+
 	function ScrollLoadImage( element ) {
 		ScrollLoadElement.call( this, element );
 		this.alt = element.alt;
 		element.alt = '';
 		this.finishedLoadingEvent = 'load';
 		this.src = element.getAttribute( 'data-src' );
-		if ( webpSupport && this.src ) {
-			var ext = this.src.split('.').pop();
-			if (
-				( ext === 'jpg' || ext === 'png' ) &&
-				this.src.match(/images(_[a-z]{2})?\/thumb\//) &&
-				!this.src.match(/(\.[a-zA-Z]+){2}$/)
-			) {
-				this.src = this.src + '.webp';
-			}
-		}
+		this.src = getCompressedImageSrc( this.src );
 		if ( element && element.classList !== undefined ) {
 			element.classList.add( 'img-loading-hide' );
 		}
@@ -242,6 +251,7 @@ WH.shared = (function () {
 		this.isPlaying = false;
 		this.src = videoRoot + this.element.getAttribute('data-src');
 		this.poster = this.element.getAttribute('data-poster');
+		this.poster = getCompressedImageSrc(this.poster);
 		if (this.poster && this.poster.split('.').pop() == 'jpg' &&  webpSupport) {
 			this.poster = this.poster + '.webp';
 		}
@@ -316,7 +326,8 @@ WH.shared = (function () {
 		'videoRoot' : videoRoot,
 		'setupLoader' : setupLoader,
 		'addResizeFunction' : addResizeFunction,
-		'loadAllImages' : loadAllImages
+		'loadAllImages' : loadAllImages,
+		'getCompressedImageSrc' : getCompressedImageSrc
 	};
 
 }());

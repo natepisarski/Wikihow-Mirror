@@ -6,6 +6,7 @@
 	<allow-access-from domain="*.wikihow.jp" />
 	<allow-access-from domain="*.wikihow.it" />
 	<allow-access-from domain="*.wikihow.cz" />
+	<allow-access-from domain="*.wikihow.com.tr" />
 	<allow-access-from domain="*.wikidiy.com" />
 	<allow-access-from domain="*.wikidogs.com" />
 	<allow-http-request-headers-from domain="*.wikihow.com" headers="*" secure="true"/>
@@ -13,4 +14,5 @@
 	<allow-http-request-headers-from domain="*.wikihow.jp" headers="*" secure="true"/>
 	<allow-http-request-headers-from domain="*.wikihow.it" headers="*" secure="true"/>
 	<allow-http-request-headers-from domain="*.wikihow.cz" headers="*" secure="true"/>
+	<allow-http-request-headers-from domain="*.wikihow.com.tr" headers="*" secure="true"/>
 </cross-domain-policy>

@@ -1,0 +1,66 @@
+<form id="tqual">
+
+    <div class=bx>
+        <p>
+            <span class=sm>Manager turk workers</span>
+            <ul>
+                <li> Add or remove qualifications for a worker.</li>
+                <li> Enter worker id to see relevant qualifications.</li>
+                <li> Send message to workers.</li>
+                <li> Max size for the message is 4096 characters (Amazon limit).</li>
+                <li> The message is only delivered to a worker who has done approved work in the past.
+                    This cannot be used to contact any worker on Turk.</li>
+                <li> This page is slow to load, as it gets data from Amazon API at load time.</li>
+            </ul>
+        </p>
+    </div>
+
+    <div class=bx>
+        <p>
+            <span class=sm>Manage Quailifications</span>
+            <p>
+                <span >Enter Worker ID</span>
+                <input type='text' value='' name='workerid' id='workerid' />
+                <input type="button" value="Get Worker Quals" id="workerid-submit">
+                <p>
+                    <div id ="checkbox-container" class=bx>
+                        <p>
+                            <div id="cblist"></div>
+                        </p>
+                    </div>
+                </p>
+                <div id = "save-confirm">
+                    <p>
+                        <input type="button" value="Save updates" id="qual-submit">
+                    </p>
+                </div>
+            </p>
+        </p>
+    </div>
+
+    <div class=bx>
+        <p>
+            <span class=sm>Message Worker</span>
+            <p>
+                <span >Enter Worker ID</span>
+                <input type='text' value='' name='email-workerid' id='email-workerid' />
+                <p>
+                    <textarea id="email-message" name="email-message"
+                          rows="15" cols="80"maxlength="4096"
+                          wrap="hard"/>
+                </p>
+                <p>
+                    <input type="button" value="Send Email" id="message-submit">
+                </p>
+            </p>
+        </p>
+    </div>
+
+    <div class=bx>
+        <p>
+            <span class=sm>Status Update</span>
+            <div id='m_status' class=errors> </div>
+        </p>
+    </div>
+
+</form>

@@ -226,6 +226,12 @@ class CustomTitleChanges extends CustomMetaChanges {
 }
 
 class CustomDescChanges extends CustomMetaChanges {
+
+	const CUSTOM_MAX_LENGTH = 700;
+
+	// this reflects the database schema maximum currently
+	const CUSTOM_NOTE_MAX_LENGTH = 255;
+
 	public function __construct() {
 		parent::__construct('desc');
 	}
@@ -260,9 +266,14 @@ class CustomDescChanges extends CustomMetaChanges {
 
 	protected function dbSetItemID($dbw, $titleObj, $item) {
 		$ami = new ArticleMetaInfo($titleObj);
-		$item['custom'] = static::maybeShorten($item['custom'], 255);
-		$item['custom_note'] = static::maybeShorten($item['custom_note'], 255);
-		$ami->setEditedDescription($item['custom'], $item['custom_note']);
+
+		// NOTE/WARNING: we don't consider utf8 strings at all here, which can be more than
+		// 1 byte per character. If we break the string in the middle of a utf8 character,
+		// it could make an invalid encoding.
+		$item['custom'] = static::maybeShorten($item['custom'], self::CUSTOM_MAX_LENGTH);
+		$item['custom_note'] = static::maybeShorten($item['custom_note'], self::CUSTOM_NOTE_MAX_LENGTH);
+
+		$ami->setEditedDescription($item['custom'], $item['custom_note'], self::CUSTOM_MAX_LENGTH);
 	}
 }
 

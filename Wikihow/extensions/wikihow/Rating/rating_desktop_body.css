@@ -1,0 +1,38 @@
+.aritem {
+	min-width: 100px;
+	background-repeat: no-repeat;
+	background-size: 30px;
+	background-position: 15px center;
+  padding: 15px 10px 15px 50px;
+ 	font-size: 18px;
+}
+
+#gatAccuracyYes {
+	color: #97ba78;
+	background-image: url(images/face_smile_green.png);
+	/* @embed */
+	background-image: url(images/face_smile_green.svg);
+}
+#gatAccuracyYes:hover {
+	border: 1px solid #97ba78;
+}
+
+#gatAccuracyNo {
+	color: #686868;
+	background-image: url(images/face_sad_gray.png);
+	/* @embed */
+	background-image: url(images/face_sad_gray.svg);
+}
+#gatAccuracyNo:hover {
+	border: 1px solid #686868;
+}
+
+#ar_koala {
+	background-image: url(images/koala_right.gif);
+	background-size: 135px;
+	width: 130px;
+	height: 137px;
+	position: absolute;
+	left: 13px;
+	bottom: -1px;
+}

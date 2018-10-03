@@ -6,7 +6,7 @@
 	</div>
 	<div id="cp_title_input_block" class="cp_block">
 		<form>
-		<b><?=wfMessage('howto','')?></b><input autocomplete='off' maxLength='256' id='cp_title_input' name='target' value='' class='search_input' type='text' placeholder='<?=wfMessage('cp_title_ph')->text()?>' />
+		<b><?=wfMessage('howto_prefix')->showIfExists()?></b><input autocomplete='off' maxLength='256' id='cp_title_input' name='target' value='' class='search_input' type='text' placeholder='<?=wfMessage('cp_title_ph')->text()?>' />
 		<input type='submit' id='cp_title_btn' value='<?= wfMessage('cp_title_submit') ?>' class='button primary createpage_button' />
 		</form>
 	</div>

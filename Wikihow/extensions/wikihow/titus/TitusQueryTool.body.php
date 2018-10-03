@@ -75,7 +75,6 @@ class TitusQueryTool extends UnlistedSpecialPage {
 			}
 			$wgOut->disable();
 		} else {
-Misc::maybeApril1Redirect();
 			$wgOut->setPageTitle('Dear Titus...');
 			$wgOut->addHtml($this->getToolHtml());
 		}

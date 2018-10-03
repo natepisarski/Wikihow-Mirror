@@ -292,7 +292,7 @@ class QA extends UnlistedSpecialPage {
 		$isNew = empty($formData['aqid']);
 		if ($isNew) {
 			$user = RequestContext::getMain()->getUser();
-			if ($user && $user->hasGroup('editor_team')) {
+			if ($user && ($user->hasGroup('editor_team') || $user->hasGroup('staff'))) {
 				$formData['submitter_user_id'] = $user->getId();
 			}
 		}

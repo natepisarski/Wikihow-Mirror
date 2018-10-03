@@ -291,9 +291,13 @@ class WikihowCreateTemplate extends BaseTemplate {
 ?>
 <style type="text/css">
 #userlogin2 > div > label {
-    float:left;
-    display:inline-block;
-    width:80px;
+    float: left;
+    display: inline-block;
+    width: 80px;
+}
+#userlogin2 > div.remember_pwd > label.mw-ui-checkbox-label {
+	width: inherit;
+	margin-bottom: 10px;
 }
 label[for="wpName2"], label[for="wpPassword2"] {
     margin-top:1.5em;

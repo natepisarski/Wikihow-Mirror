@@ -100,6 +100,9 @@ class WikihowMobileHomepage extends Article {
 		return true;
 	}
 
+	/**
+	 * NOTE: Much of this code is duplicated in WikihowHomepage.body.php (Alberto - 2018-09)
+	 */
 	public static function showTopImage() {
 		global $wgOut;
 
@@ -114,7 +117,7 @@ class WikihowMobileHomepage extends Article {
 			$title = Title::newFromID($result->hp_page);
 			// Append Google Analytics tracking to slider URLs
 			$item->url = $title->getLocalURL() . "?utm_source=wikihow&utm_medium=main_page_carousel&utm_campaign=mobile";
-			$item->text = $title->getText();
+			$item->text = $title->getText() . wfMessage('howto_suffix')->showIfExists();
 			$imageTitle = Title::newFromID($result->hp_image);
 			if($imageTitle) {
 				$file = wfFindFile($imageTitle->getText());

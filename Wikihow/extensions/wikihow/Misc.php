@@ -34,7 +34,7 @@ function wfGetPad($relurl = '') {
 	global $wgServer, $wgRequest, $wgIsSecureSite, $wgLanguageCode;
 	global $wgIsStageDomain, $wgIsDevServer, $wgIsImageScaler, $wgIsAnswersDomain;
 
-	$isCanonicalProdDomain = preg_match('@^(https?:)?//(www|m|[a-z]{2}(\.m)?)\.wikihow\.(com|cz|it|jp|vn)$@', $wgServer) > 0;
+	$isCanonicalProdDomain = preg_match('@^(https?:)?//(www|m|[a-z]{2}(\.m)?)\.wikihow\.(com|cz|it|jp|vn|com\.tr)$@', $wgServer) > 0;
 	$isCachedCopy = $wgRequest && $wgRequest->getVal('c') == 't';
 	$externalEnSourceImage = false;
 

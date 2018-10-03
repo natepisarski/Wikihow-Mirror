@@ -305,7 +305,10 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 		// but prefixed title with no lead for other namespaces
 
 		if ( $title->inNamespace( NS_MAIN ) ) {
-			$textBlock = WikihowSkinHelper::getHowToLabel() . "<br/><span>$articleName</span>";
+			$msg = wfMessage('howto_prefix');
+			$howToPrefix = $msg->exists() ? ($msg->text() . '<br>') : '';
+			$howToSuffix = wfMessage('howto_suffix')->showIfExists();
+			$textBlock = "{$howToPrefix}<span>{$articleName}{$howToSuffix}</span>";
 		} else {
 			$textBlock = "<br/><span>" . $title->getFullText() . "</span>";
 		}

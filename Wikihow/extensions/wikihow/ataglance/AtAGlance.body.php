@@ -1,7 +1,7 @@
 <?php
 
 /*
-* 	gets at a glance html 
+* 	gets at a glance html
 */
 class AtAGlance {
 	public static function showSidebar( $title ) {
