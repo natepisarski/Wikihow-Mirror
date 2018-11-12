@@ -84,7 +84,9 @@ class LSearch extends SpecialPage {
 
 		// Enable beta search for Desktop/English only
 		// Temporary while we are transitioning to the new search service
-		$this->mEnableBeta = !Misc::isMobileMode() && $this->getLanguage()->getCode() === 'en';
+		$this->mEnableBeta = !Misc::isAltDomain() &&
+			!Misc::isMobileMode() &&
+			$this->getLanguage()->getCode() === 'en';
 
 		if ($req->getBool('internal')) {
 			$this->regularSearch(true);
@@ -247,7 +249,9 @@ class LSearch extends SpecialPage {
 			return;
 		}
 
-		$this->getOutput()->setHTMLTitle(wfMessage('lsearch_title_q', $this->formatSearchQuery($this->mQ)));
+		$this->getOutput()->setHTMLTitle(htmlspecialchars(
+			wfMessage('lsearch_title_q', $this->formatSearchQuery($this->mQ))->text()
+		));
 
 		$suggestionLink = $this->getSpellingSuggestion($this->searchUrl);
 		$results = $this->mResults['results'] ? $this->mResults['results'] : [];
@@ -293,12 +297,12 @@ class LSearch extends SpecialPage {
 	 * @return int  Amount of results
 	 */
 	private function externalSearchResultsSolr($q, $start, $limit = 30, $gm_type = self::SEARCH_OTHER): int {
-		global $wgMemc;
+		global $wgMemc, $wgSearchServerBase;
 
 		$q = trim($q);
 
 		if ($this->isBadQuery($q)) {
-			return null;
+			return -1;
 		}
 		$q = $this->formatSearchQuery($q);
 		if ( substr( $q, 0, 7 ) === 'how to ' ) {
@@ -307,7 +311,7 @@ class LSearch extends SpecialPage {
 		}
 
 		$key = wfMemcKey('SolrSearchResultsV1', str_replace(' ', '-', $q), $start, $limit);
-		$data = $wgMemc->get($key);
+		//$data = $wgMemc->get($key);
 
 		if ( !is_array( $data ) ) {
 			// Query Solr
@@ -316,7 +320,7 @@ class LSearch extends SpecialPage {
 				'start' => $start,
 				'q' => $q
 			];
-			$url = 'http://54.89.17.202/search?' . http_build_query( $params );
+			$url = $wgSearchServerBase . '/search?' . http_build_query( $params );
 
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
@@ -328,8 +332,9 @@ class LSearch extends SpecialPage {
 			$respCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 			if ($respCode != 200 || curl_errno($ch)) {
+				WikihowStatsd::increment('search.error');
 				curl_close($ch);
-				return null;
+				return -1;
 			}
 
 			curl_close($ch);
@@ -337,7 +342,7 @@ class LSearch extends SpecialPage {
 			try {
 				$response = json_decode( $respBody );
 			} catch (Exception $e) {
-				return null;
+				return -1;
 			}
 
 			// Collect data
@@ -375,7 +380,7 @@ class LSearch extends SpecialPage {
 					$formattedTitle = $response->highlighting->{$result->id}->formatted_title ?
 						$response->highlighting->{$result->id}->formatted_title[0] : $result->formatted_title[0];
 					if ( $result->category === 1 ) {
-						$url = 'Category:' . $result->formatted_title[0];
+						$url = 'Category:' . str_replace( ' ', '-', $result->formatted_title[0] );
 					} else {
 						$title = Title::newFromID( $result->pageid );
 						if ( !$title ) {
@@ -386,7 +391,7 @@ class LSearch extends SpecialPage {
 					$data['results'][] = [
 						'title' => $formattedTitle,
 						'description' => '...',
-						'url' => 'https://' . wfCanonicalDomain() . '/' . $url
+						'url' => 'https://' . wfCanonicalDomain() . '/' . urlencode( $url )
 					];
 				}
 			}

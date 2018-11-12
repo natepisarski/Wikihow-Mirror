@@ -82,10 +82,14 @@
 			var img = mwimg.querySelector('.image');
 			if (img) {
 				img = img.querySelector('img');
-				src = img.getAttribute('data-src');
+				if (img) {
+					src = img.getAttribute('data-src');
+				}
 			} else {
 				var video = mwimg.querySelector('.m-video');
-				src = video.getAttribute('data-poster');
+				if (video) {
+					src = video.getAttribute('data-poster');
+				}
 			}
 		}
 		if (src) {

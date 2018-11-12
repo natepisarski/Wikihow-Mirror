@@ -15,6 +15,7 @@ $messages['en'] = array(
 	'videobrowser-loading' => 'Loading...',
 	'videobrowser-next' => 'Up next',
 	'videobrowser-not-found' => 'Video not found',
+	'videobrowser-plays' => '$1 views',
 	'videobrowser-read-more' => 'Read the Full Article',
 	'videobrowser-replay' => 'Watch again',
 	'videobrowser-show-more' => 'Show more videos',

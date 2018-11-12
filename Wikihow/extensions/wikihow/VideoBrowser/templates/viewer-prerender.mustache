@@ -1,18 +1,30 @@
 <div id="videoBrowser">
 	<div class="videoBrowser-browser">
+		<div class="videoBrowser-actionBar" role="navigation">
+			<div id="gatBreadCrumb">
+				<ul id="breadcrumb" class="Breadcrumbs" aria-label="Video breadcrumbs">
+					<li class="home"><a href="/Main-Page" title="Main Page">Home</a></li>
+					<li> » <a href="/Video" title="Video">Video</a></li>
+					<li> » <a href="{{url}}" title="{{howToTitle}}">{{howToTitle}}</a></li>
+				</ul>
+			</div>
+		</div>
 		{{#video}}
 		<div class="videoBrowser-viewer section_text">
 			<div>
-				<p class="videoBrowser-viewer-summary">{{{summary}}}</p>
-				<p class="videoBrowser-viewer-more">
-					<a class="button primary" href="{{article}}">{{read-more}}</a>
-				</p>
+				<div class="videoBrowser-viewer-text">
+					<h2 class="videoBrowser-viewer-title">{{howToTitle}}</h2>
+					<p class="videoBrowser-viewer-plays">{{plays}}</p>
+					<p class="videoBrowser-viewer-summary">{{{summary}}}</p>
+					<p class="videoBrowser-viewer-more">
+						<a class="button primary" href="{{article}}">{{read-more}}</a>
+					</p>
+				</div>
 				<div class="videoBrowser-viewer-player">
 					<video key="{{id}}" width="728" height="410" playsinline="" controls="" controlslist="nodownload" poster="{{poster}}"><source src="{{video}}" type="video/mp4"></video>
 				</div>
 				<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{howToTitle}}","description":"{{summaryText}}","thumbnailUrl":["{{poster@1:1}}","{{poster@4:3}}","{{poster}}"],"uploadDate":"{{updated}}","contentUrl":"{{url}}","embedUrl":"{{video}}","interactionCount":"{{plays}}"}</script>
 			</div>
-			<div class="videoBrowser-viewer-queue"></div>
 		</div>
 		{{/video}}
 	</div>

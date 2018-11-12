@@ -13,6 +13,7 @@ class DeferImages {
 
     // same as new defer selector but also includes mwimg..
 	const SCROLL_LOAD_SELECTOR = '.mwimg:not(.floatright, .tcenter) a.image:not(.mwimg-caption-image) img';
+	const BACKUP_DEFER_SELECTOR = '.mwimg.floatright a.image img,.mwimg.tcenter a.image img';
 	const ANCHOR_SELECTOR = '.mwimg a.image';
 	const GLOBAL_ENABLE = true;
 
@@ -51,12 +52,16 @@ class DeferImages {
 			if ( !ArticleTagList::hasTag( 'lazyloadstutest', $pageId ) ) {
 				$rollout = false;
 			}
-        }
+		} else {
+			if ( ArticleTagList::hasTag( 'lazyload_destkop_images_disabled', $pageId ) ) {
+				$rollout = false;
+			}
+		}
 
         $forceDefer = $wgRequest && $wgRequest->getInt('deferi') === 1;
 
         if ( !( $rollout || $forceDefer ) ) {
-            self::modifyDOMForOriginalDefer();
+            self::modifyDOMForOriginalDefer( self::IMG_SELECTOR );
             return;
         }
 
@@ -88,18 +93,20 @@ class DeferImages {
             pq( Html::inlineScript( $script ) )->insertAfter( $item );
         }
 
+        // now use original defer on any backup items we may have excluded
+        self::modifyDOMForOriginalDefer( self::BACKUP_DEFER_SELECTOR );
     }
 
     /*
      * use the old defer images code
      */
-    public static function modifyDOMForOriginalDefer() {
+    public static function modifyDOMForOriginalDefer( $selector ) {
         // do nothing if not an article page
         if ( !self::isArticlePage() ) {
             return;
         }
 
-        $images = pq(self::IMG_SELECTOR);
+        $images = pq( $selector );
 
         foreach($images as $node) {
             $img = pq($node);
@@ -137,11 +144,13 @@ class DeferImages {
             }
         }
 
-        self::modifyForScrollLoadDefer();
+        if ( $selector == self::IMG_SELECTOR ) {
+            self::modifyForScrollLoadDefer();
 
-        // defer is not enabled but we still want to profile the first img load time
-        if (!self::enabled()) {
-            pq('a.image:first img:first')->attr('onload', "WH.timingProfile.recordTime('firstImageLoaded');");
+            // defer is not enabled but we still want to profile the first img load time
+            if (!self::enabled()) {
+                pq('a.image:first img:first')->attr('onload', "WH.timingProfile.recordTime('firstImageLoaded');");
+            }
         }
 	}
 

@@ -4,14 +4,14 @@ This is the main class for doing transcoding of videos and placing
 images and videos in the mediawiki db and into the wikitext
 
 ==Quick steps for dev testing a single article
-1. Verify input data is in the test folder s3://wikivisual-upload-test/jordan/
+1. Verify input data is in the test folder s3://wikivisual-upload-test/aaron/
    * How do I do this?
    Run this s3 command to view the contents of the folder in this bucket (yes, it starts with a $)
-   $s3cmd_wikivisual ls s3://wikivisual-upload-test/jordan/
+   $s3cmd_wikivisual ls s3://wikivisual-upload-test/aaron/
 
    You should see a .zip file with the ID of your article like this:
-   $s3cmd_wikivisual ls s3://wikivisual-upload-test/jordan/
-   2016-01-20 18:15  10136878   s3://wikivisual-upload-test/jordan/109659.zip
+   $s3cmd_wikivisual ls s3://wikivisual-upload-test/aaron/
+   2016-01-20 18:15  10136878   s3://wikivisual-upload-test/aaron/109659.zip
 
 If your assets are there, then you can move on to step 2 to run the transcoder.
 
@@ -27,7 +27,7 @@ If your assets are not there, you have to copy them from the production folder.
    will print out the creator of those images.
 
    to copy the zip file from one folder to another do this but with the correct paths:
-   $s3cmd_wikivisual sync s3://wikivisual-upload/todd/4831.zip s3://wikivisual-upload-test/jordan/
+   $s3cmd_wikivisual sync s3://wikivisual-upload/todd/4831.zip s3://wikivisual-upload-test/aaron/
 
 
 2. Run the transcoder on that article ID with the -f argument to run on a single article
@@ -39,6 +39,8 @@ for the videos to be transcoded, then you will have to run the script a second t
 	articles and not submit the videos for transcoding a second time
 
 /opt/wikihow/scripts/whrun --user=apache -- php ~/wikihow/prod/maintenance/wikihow/transcoding/WikiVisualTranscoder.php -f 6918
+
+Note: you can also use the -v flag  to get verbose output
 
 data schema for reference:
     CREATE TABLE wikivisual_article_status ( 
@@ -130,10 +132,10 @@ use Guzzle\Http\EntityBody;
 *  which you can see defined at the top of this file and contain the assets to be processed
 *
 *  if you want to copy data into the test bucket from the main one for testing then execute:
-*  $s3cmd_wikivisual sync s3://wikivisual-upload/todd/4831.zip s3://wikivisual-upload-test/jordan/
+*  $s3cmd_wikivisual sync s3://wikivisual-upload/todd/4831.zip s3://wikivisual-upload-test/aaron/
 *  which will copy the upload for article 4831 from the live bucket to the test bucket
 *  the folder structure is organized by the name of the contractor on the live bucket, but
-*  on the test one we just have a few names of engineers so pick one that already exists (like jordan)
+*  on the test one we just have a few names of engineers so pick one that already exists (like aaron)
 *
 *  The article you are testing on must exist on the aws buckets you defined in AWS_BUCKET or else
 *  when you run the transcoder no assets will be found (esp important on dev)

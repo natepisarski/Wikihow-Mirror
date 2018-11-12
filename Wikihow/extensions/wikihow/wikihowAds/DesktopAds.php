@@ -9,6 +9,8 @@ $wgAutoloadClasses['MixedAdCreatorVersion2'] = dirname(__FILE__) . '/DesktopAdCr
 $wgAutoloadClasses['MixedAdCreatorVersion3'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['MixedAdCreatorVersion4'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['MixedAdCreatorVersion5'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['MethodsButNoIntroAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['AdsenseRaddingRR1AdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['DocViewerAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['DocViewerAdCreatorVersion2'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['SearchPageAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
@@ -18,5 +20,6 @@ $wgAutoloadClasses['CategoryPageAdCreator'] = dirname(__FILE__) . '/DesktopAdCre
 $wgAutoloadClasses['MainPageAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
 
 $wgHooks['BeforeActionbar'][] = 'DesktopAds::onBeforeActionbar';
+$wgHooks['AfterActionbar'][] = 'DesktopAds::onAfterActionbar';
 
 

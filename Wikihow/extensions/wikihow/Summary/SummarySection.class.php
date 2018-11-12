@@ -24,7 +24,7 @@ class SummarySection {
 	  */
 	public static function renderSummary( $parser, $position = '', $last_sentence = '', $summary_text = '' ) {
 		$position_class = self::positionClass($position);
-		$last_sentence = self::showLastSentence($position_class) ? $last_sentence : '';
+		$last_sentence = self::showLastSentence() ? $last_sentence : '';
 
 		$output = wfMessage('summary_section', $summary_text, $last_sentence, $position_class)->text();
 		return $output;
@@ -35,8 +35,9 @@ class SummarySection {
 		return $class;
 	}
 
-	private static function showLastSentence($position_class) {
-		return $position_class == self::SUMMARY_POSITION_TOP_CLASS;
+	//show the last sentence on desktop always, but never on mobile
+	private static function showLastSentence() {
+		return !Misc::isMobileMode();
 	}
 
 	public static function summaryData($page_title): array {
@@ -154,5 +155,10 @@ class SummarySection {
 				$page->doEditContent($content, $comment, $edit_flags);
 			}
 		}
+	}
+
+	public static function addDesktopTOCItems() {
+		$tocText = wfMessage('summary_toc')->text();
+		pq("<a id='summary_toc' href='#'>$tocText</a>")->insertAfter("#method_toc > span");
 	}
 }

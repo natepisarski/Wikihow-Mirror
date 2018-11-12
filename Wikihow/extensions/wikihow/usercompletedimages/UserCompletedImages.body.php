@@ -318,8 +318,9 @@ class UserCompletedImages extends UnlistedSpecialPage {
 			$lbSrc = wfGetPad($lightboxThumbs[$pageId]['url']);
 			$src = wfGetPad($thumb['url']);
 			$timeago = wfTimeAgo($thumb['ts']);
-			$html .= "<a class='uci_thumbnail uci_thumbnail_steps swipebox' pageid='$pageId' href='$lbSrc'><img src='$src' alt='' /></a>\n";
-			$data[] = array('pageId'=>$pageId, 'lbSrc'=>$lbSrc, 'src' => $src, 'timeago'=> $timeago);
+			$img = Misc::getMediaScrollLoadHtml( 'img', [ 'src' => $src, 'alt' => '', 'class' => 'whcdn' ] );
+			$html .= "<a class='uci_thumbnail uci_thumbnail_steps swipebox' pageid='$pageId' href='$lbSrc'>$img</a>\n";
+			$data[] = array('pageId'=>$pageId, 'lbSrc'=>$lbSrc, 'src' => $src, 'timeago'=> $timeago, 'img' => $img );
 		}
 
 		$lbData = array();

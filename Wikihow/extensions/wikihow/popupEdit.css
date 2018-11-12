@@ -68,6 +68,10 @@ color: #000;
 cursor:pointer;
 }
 
+#expertGreenBoxWarning {
+	font-size: .7em;
+}
+
 .editModalBody
 {
 overflow: auto;

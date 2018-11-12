@@ -48,6 +48,12 @@ function pue_Handler() {
 			textbxid.rows = 20;
 			textbxid.cols = 70;
 
+			//add warning if needed; hide if we don't
+			if (textbxid.innerHTML.match(/{{expertgreenbox:/))
+				$('#expertGreenBoxWarning').show();
+			else
+				$('#expertGreenBoxWarning').hide();
+
 			var summary = document.getElementById('wpSummary');
 			summary.value = gAutoSummaryText;
 

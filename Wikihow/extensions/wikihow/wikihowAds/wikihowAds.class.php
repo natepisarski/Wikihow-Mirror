@@ -1645,9 +1645,13 @@ class wikihowAds {
 		$relatedChannel = wikihowAds::getMobileChannels( $related );
 		$footerChannel = wikihowAds::getMobileChannels( $footer );
 
+		$largeIntroChannel = '';
+		$baseLargeChannels = '';
+
 		$data = [
 			"channels" => [
 				"base" => $baseChannels,
+				"baselarge" => $baseLargeChannels,
 				'small' => [
 					'intro' => $introChannel,
 					'method' => $methodChannel,
@@ -1657,6 +1661,10 @@ class wikihowAds {
 				'medium' => [
 				],
 				'large' => [
+					'intro' => $largeIntroChannel,
+					'method' => '',
+					'related' => '',
+					'footer' => '',
 				]
 			],
 			"slots" => [
@@ -1689,7 +1697,6 @@ class wikihowAds {
 	}
 
 	private static function insertMobileAdSetup( $intl ) {
-
 		// get the data which defines the slots and channels
 		$data = "";
 		// then add the setup js which reads the ad data

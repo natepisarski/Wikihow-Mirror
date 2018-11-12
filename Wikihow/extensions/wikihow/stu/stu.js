@@ -271,7 +271,7 @@ function a3RecalcScrollSections() {
 	var nodes = document.querySelectorAll(CONTENT_SECTIONS_SELECTOR);
 	if (!nodes) { return; }
 	var min = 1000000, max = 0;
-	nodes.forEach(function(i) {
+	Array.prototype.forEach.call( nodes, function(i) {
 		var start = getYPosition(i);
 		var height = getElementHeight(i);
 		min = Math.min( start, min );
@@ -700,7 +700,7 @@ function getWordCount() {
 	if (!nodes) { return 0; }
 
 	var wordCount = 0;
-	nodes.forEach(function(i) {
+	Array.prototype.forEach.call( nodes, function(i) {
 		var count = i.textContent.split(/\s/).filter(function(n) { return n !== ''; }).length;
 		wordCount += count;
 	});

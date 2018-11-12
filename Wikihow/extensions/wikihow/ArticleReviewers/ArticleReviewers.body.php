@@ -29,7 +29,7 @@ class ArticleReviewers extends UnlistedSpecialPage
 
 		$userCount = array();
 		$activeUsers = []; // Experts that reviewed an article after $oldestAllowed
-		$oldestAllowed = new DateTime('-60 days');
+		$oldestAllowed = new DateTime('-180 days');
 		foreach($expertArticles as $article) {
 			if (!isset($userCount[$article->name])) {
 				$userCount[$article->name] = 0;
@@ -129,6 +129,17 @@ class ArticleReviewers extends UnlistedSpecialPage
 
 	public static function getAnchorName($verifierName) {
 		return strtolower( str_replace(" ", "", $verifierName) );
+	}
+
+	public static function getLinkByVerifierName(string $verifierName): string {
+		$article_reviewers = Title::newFromText('ArticleReviewers', NS_SPECIAL);
+		if (empty($article_reviewers)) return '';
+
+		$article_reviewers_url = $article_reviewers->getFullURL();
+		$abbr_name = self::getAnchorName($verifierName);
+		if (empty($abbr_name)) return $article_reviewers_url;
+
+		return $article_reviewers_url.'?name='.$abbr_name.'#'.$abbr_name;
 	}
 
 	public static function removeBreadCrumbsCallback(&$showBreadCrumb) {

@@ -18,6 +18,7 @@ class ArticleText {
 	var $summaryText = "";
 	var $summaryVideoUrl = "";
 	var $lifeHack = "";
+	var $lifeHackImageUrl = "";
 
 	/**
 	 * ReadArticleModel constructor.
@@ -93,10 +94,28 @@ class ArticleText {
 			}
 		}
 
-		$lifeHack = $this->getLifeHackFromDB();
-		if ($lifeHack) {
-			$this->setLifeHack($lifeHack);
+		$lifeHackData = $this->getLifeHackDataFromDB();
+		if (!empty($lifeHackData['hack_text'])) {
+			$this->setLifeHack($lifeHackData['hack_text']);
 		}
+
+		if (!empty($lifeHackData['image_url'])) {
+			$this->setLifeHackImageUrl($lifeHackData['image_url']);
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLifeHackImageUrl(): string {
+		return $this->lifeHackImageUrl;
+	}
+
+	/**
+	 * @param string $lifeHackImageUrl
+	 */
+	public function setLifeHackImageUrl(string $lifeHackImageUrl) {
+		$this->lifeHackImageUrl = $lifeHackImageUrl;
 	}
 
 	/**
@@ -224,13 +243,26 @@ class ArticleText {
 		return $topCats;
 	}
 
-	protected function getLifeHackFromDB() {
+	protected function getLifeHackDataFromDB() {
+		$lifeHackData = [
+			'hack_text' => "",
+			'image_url' => ""
+		];
+
 		$dbr = wfGetDB(DB_SLAVE);
-		return $dbr->selectField(
+		$row =  $dbr->selectRow(
 			'alexa_life_hacks',
-			'al_hack_text',
-			['al_article_id' => $this->getArticleId()]
+			['al_hack_text', 'al_image_url'],
+			['al_article_id' => $this->getArticleId()],
+			__METHOD__
 		);
+
+		if ($row) {
+			$lifeHackData['hack_text'] = $row->al_hack_text;
+			$lifeHackData['image_url'] = $row->al_image_url;
+		}
+
+		return $lifeHackData;
 	}
 
 	public function getLifeHack() {

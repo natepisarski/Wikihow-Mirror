@@ -3,7 +3,7 @@ WH.VideoBrowser.Catalog = function Catalog() {
 
 	/* Properties */
 
-	this.items = TAFFY();
+	this.videos = TAFFY();
 	this.categories = TAFFY();
 	this.maxCategorySize = 0;
 	this.minCategorySize = 0;
@@ -17,10 +17,10 @@ WH.VideoBrowser.Catalog = function Catalog() {
 	var router = WH.VideoBrowser.router;
 	var watched = JSON.parse( localStorage.getItem( 'video-browser' ) || '{}' );
 	// Insert data from server
-	catalog.items.insert( data.videos );
+	catalog.videos.insert( data.videos );
 	// Apply access times from localstorage
 	watched.videos = watched.videos || {};
-	catalog.items().update( function () {
+	catalog.videos().update( function () {
 		var accessed = watched.videos[this.id];
 		this.accessed = accessed !== undefined ? accessed : 0;
 		this.watched = !!this.accessed;
@@ -31,12 +31,12 @@ WH.VideoBrowser.Catalog = function Catalog() {
 
 	// Insert data from server
 	var counts = {};
-	var categories = catalog.items()
+	var categories = catalog.videos()
 		.order( 'watched' )
 		.get()
-		.reduce( function ( categories, item ) {
+		.reduce( function ( categories, video ) {
 			var i, len, title,
-				titles = item.categories.split( ',' );
+				titles = video.categories.split( ',' );
 			for ( i = 0, len = titles.length; i < len; i++ ) {
 				title = titles[i];
 				if ( categories[titles[i]] === undefined ) {
@@ -47,19 +47,19 @@ WH.VideoBrowser.Catalog = function Catalog() {
 						popularity: 0
 					};
 				}
-				categories[titles[i]].popularity += parseInt( item.popularity );
+				categories[titles[i]].popularity += parseInt( video.popularity );
 				categories[titles[i]].size++;
-				if ( item.watched ) {
+				if ( video.watched ) {
 					categories[titles[i]].watched++;
 				}
 			}
 			return categories;
 		}, {} );
-	var categoryItems = [];
+	var keys = [];
 	for ( var key in categories ) {
-		categoryItems.push( categories[key] );
+		keys.push( categories[key] );
 	}
-	catalog.categories.insert( categoryItems );
+	catalog.categories.insert( keys );
 
 	// Scale popularity - separate pass so rank has maxPopularity
 	catalog.categories().update( function () {
@@ -100,29 +100,29 @@ WH.VideoBrowser.Catalog.prototype.persist = function () {
 					}
 					return data;
 				}, {} ),
-			videos: this.items().filter( { watched: true } ).get()
-				.reduce( function ( data, item ) {
-					data[item.id] = item.accessed;
+			videos: this.videos().filter( { watched: true } ).get()
+				.reduce( function ( data, video ) {
+					data[video.id] = video.accessed;
 					return data;
 				}, {} )
 		} )
 	);
 };
 
-WH.VideoBrowser.Catalog.prototype.watchItem = function ( item ) {
+WH.VideoBrowser.Catalog.prototype.watchVideo = function ( video ) {
 	var catalog = this,
 		now = ( new Date() ).getTime();
-	catalog.categories( item.categories.split( ',' ).map( function ( category ) {
+	catalog.categories( video.categories.split( ',' ).map( function ( category ) {
 		return { title: category };
 	} ) ).update( function () {
-		if ( !item.watched ) {
+		if ( !video.watched ) {
 			this.watched++;
 			this.rank = catalog.rankCategory( this );
 		}
 		this.accessed = now;
 		return this;
 	} );
-	catalog.items( item ).update( { watched: true, accessed: now } );
+	catalog.videos( video ).update( { watched: true, accessed: now } );
 	catalog.persist();
 };
 

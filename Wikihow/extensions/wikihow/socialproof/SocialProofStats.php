@@ -6,7 +6,7 @@
 class SocialProofStats extends ContextSource {
 	var $wikiPage;
 	var $categoryTree;
-	var $verifierName;
+	var $verifierInfo;
 	var $verifierType;
 
 	const PAGE_RATING_CACHE_KEY 		= "page_rating";
@@ -18,7 +18,10 @@ class SocialProofStats extends ContextSource {
 	const VERIFIER_TYPE_VIDEO 			= 'videov';
 	const VERIFIER_TYPE_TECH 				= 'tech';
 	const VERIFIER_TYPE_STAFF 			= 'staff';
+	const VERIFIER_TYPE_ACADEMIC 		= 'academic';
+	const VERIFIER_TYPE_YOUTUBER 		= 'youtuber';
 
+	const LEARN_MORE_LINK = '/wikiHow:About-wikiHow#Why_should_you_choose_wikiHow_first.3F_sub';
 
 	public static function getPageRatingData( $pageId ) {
 		global $wgMemc;
@@ -76,7 +79,7 @@ class SocialProofStats extends ContextSource {
 		$this->setContext( $context );
 		$this->categoryTree = $categoryTree;
 		$this->verifierType = '';
-		$this->verifierName = '';
+		$this->verifierInfo = null;
 	}
 
 	public static function getHelpfulness( $pageId, $cat_tree, $is_mobile ) {
@@ -162,14 +165,21 @@ class SocialProofStats extends ContextSource {
 		$data = !empty($expertInfo) ? array_pop( $expertInfo ) : null;
 
 		if ($data && $data->name) {
-			$verifierInfo = VerifyData::getVerifierInfoByName( $data->name );
-			$this->verifierName = $verifierInfo->name;
+			$this->verifierInfo = VerifyData::getVerifierInfoByName( $data->name );
 		}
 
 		$this->verifierType = self::mapVerifyDataToVerifyType($data, $pageId);
 
+		$learn_more_link = ' '.Html::rawElement(
+			'a',
+			[ 'href' => self::LEARN_MORE_LINK ],
+			wfMessage('sp_learn_more')->text()
+		);
+
 		switch ($this->verifierType) {
 			case self::VERIFIER_TYPE_EXPERT:
+			case self::VERIFIER_TYPE_ACADEMIC:
+			case self::VERIFIER_TYPE_YOUTUBER:
 				list($nameLink, $subNameLink, $hoverBlurb) = $this->formatExpertDetails($data, $title);
 
 				if ($data->whUserName && User::newFromName($data->whUserName)->getID() > 0) {
@@ -181,9 +191,9 @@ class SocialProofStats extends ContextSource {
 					'is_verifier' => true,
 					'name_link' => $nameLink,
 					'subname_blurb' => $subNameLink,
-					'hover_blurb' => $hoverBlurb,
-					'avatar_image_html' => self::getAvatarImageHtml( $verifierInfo ),
-					'initials' => $verifierInfo->initials,
+					'hover_blurb' => $hoverBlurb.$learn_more_link,
+					'avatar_image_html' => self::getAvatarImageHtml( $this->verifierInfo ),
+					'initials' => $this->verifierInfo->initials,
 					'popup_img' => $popup_img
 				];
 
@@ -192,7 +202,7 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_chef_verified')->text(),
 					'team_label' => wfMessage('sp_team_label_tested')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => wfMessage('sp_chef_verified_hover')->text()
+					'hover_blurb' => wfMessage('sp_chef_verified_hover')->text().$learn_more_link
 				];
 
 			case self::VERIFIER_TYPE_VIDEO:
@@ -200,7 +210,7 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_videov_verified')->text(),
 					'team_label' => wfMessage('sp_team_label_tested')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => wfMessage('sp_videov_verified_hover')->text()
+					'hover_blurb' => wfMessage('sp_videov_verified_hover')->text().$learn_more_link
 				];
 
 			case self::VERIFIER_TYPE_COMMUNITY:
@@ -219,7 +229,7 @@ class SocialProofStats extends ContextSource {
 					'is_verifier' => $is_verifier,
 					'name_link' => $nameLink,
 					'subname_blurb' => $subNameLink,
-					'hover_blurb' => $hoverBlurb,
+					'hover_blurb' => $hoverBlurb.$learn_more_link,
 					'wh_initials' => 'ar_initials_wh'
 				];
 
@@ -230,7 +240,7 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_tech_reviewed')->text(),
 					'team_label' => wfMessage('sp_team_label_tested')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => $tech_html
+					'hover_blurb' => $tech_html.$learn_more_link
 				];
 
 			case self::VERIFIER_TYPE_STAFF:
@@ -238,7 +248,7 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_staff_reviewed')->text(),
 					'team_label' => wfMessage('sp_team_label_reviewed')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => wfMessage('sp_staff_reviewed_hover')->text()
+					'hover_blurb' => wfMessage('sp_staff_reviewed_hover')->text().$learn_more_link
 				];
 		}
 
@@ -250,9 +260,11 @@ class SocialProofStats extends ContextSource {
 		if (!empty($verify_data)) {
 			switch($verify_data->worksheetName) {
 				case 'expert':
-				case 'academic':
-				case 'video':
 					return self::VERIFIER_TYPE_EXPERT;
+				case 'academic':
+					return self::VERIFIER_TYPE_ACADEMIC;
+				case 'video':
+					return self::VERIFIER_TYPE_YOUTUBER;
 				case 'chefverified':
 					return self::VERIFIER_TYPE_CHEF;
 				case 'videoverified':
@@ -277,9 +289,7 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private function formatExpertDetails($data, $title) {
-		$verifierpage = Title::newFromText('ArticleReviewers', NS_SPECIAL);
-		$anchorName = ArticleReviewers::getAnchorName($data->name);
-		$anchorChunk = !empty($anchorName) ? "?name=$anchorName#$anchorName" : '';
+		$verifierpage = ArticleReviewers::getLinkByVerifierName($data->name);
 
 		$nameLink = $data->mainNameLink;
 		if ( $nameLink ) {
@@ -290,7 +300,7 @@ class SocialProofStats extends ContextSource {
 			$nameLink = $data->name;
 		} else {
 			$nameLink = Html::rawElement( "a",
-				array( "href"=>$verifierpage->getFullURL().$anchorChunk, "class"=>"sp_namelink", "target"=>"_blank" ),
+				array( "href"=>$verifierpage, "class"=>"sp_namelink", "target"=>"_blank" ),
 				$data->name );
 		}
 
@@ -318,7 +328,7 @@ class SocialProofStats extends ContextSource {
 			$hoverNameLink = $data->name;
 		} else {
 			$hoverNameLink = Html::rawElement( "a",
-				array( "href"=>$verifierpage->getFullURL().$anchorChunk, "class"=>"sp_namelink", "target"=>"_blank" ),
+				array( "href"=>$verifierpage, "class"=>"sp_namelink", "target"=>"_blank" ),
 				$data->name );
 		}
 
@@ -342,24 +352,24 @@ class SocialProofStats extends ContextSource {
 	/**
 	 * get the html for the avatar of the expert icon with possible avatar image
 	 */
-	private static function getAvatarImageHtml( $vInfo ) {
+	private static function getAvatarImageHtml( $vInfo, $id = 'avatar_img', $after = '' ) {
 		$html = '';
 		if ( !$vInfo->imagePath ) {
 			return $html;
 		}
 		$imagePath = wfGetPad( $vInfo->imagePath );
 		$imgAttributes = array(
-			'id' => 'avatar_img',
+			'id' => $id,
 			'data-src' => $imagePath,
 			'width' => '50',
 			'height' => '50',
 			'class' => 'content-fill'
 		);
 		$img = Html::element( 'img', $imgAttributes );
-		$script = "<script>WH.shared.addScrollLoadItem('avatar_img');</script>";
+		$script = "<script>WH.shared.addScrollLoadItem('$id');</script>";
 		$contents = Html::rawElement( 'div', ['class' => 'content-spacer'], $img );
 		$contents = $contents . $script;
-		$html = Html::rawElement( 'div', ['class' => 'ar_avatar'], $contents );
+		$html = Html::rawElement( 'div', ['class' => 'ar_avatar'], $contents . $after );
 		return $html;
 	}
 
@@ -443,10 +453,9 @@ class SocialProofStats extends ContextSource {
 		return EasyTemplate::html( 'socialproof.verify', $vars );
 	}
 
-	public function introIcon() {
+	public function desktopIntroIcon() {
 		$vType = $this->verifierType;
-		$vName = $this->verifierName;
-		$icon = $this->buildExpertIconHtml($vType, $vName);
+		$icon = $this->buildExpertIconHtml($vType, $this->verifierInfo);
 		return $icon;
 	}
 
@@ -468,10 +477,9 @@ class SocialProofStats extends ContextSource {
 
 		if ($vData && $vData->name) {
 			$verifierInfo = VerifyData::getVerifierInfoByName( $vData->name );
-			$vName = $verifierInfo->name;
 		}
 
-		$iconHtml = self::buildExpertIconHtml($vType, $vName, $is_mobile);
+		$iconHtml = self::buildExpertIconHtml($vType, $verifierInfo, $is_mobile);
 
 		$data['expert_icon'] = $iconHtml;
 		return true;
@@ -483,25 +491,28 @@ class SocialProofStats extends ContextSource {
 		return $message->exists() ? $message->text() : '';
 	}
 
-	private static function buildExpertIconHtml($vType, $vName, $mobile = false) {
+	private static function buildExpertIconHtml($vType, $vData, $mobile = false) {
 		$link = '';
 		$class = '';
 		$target = '';
+		$amp = false;
 
 		$text = self::getIntroMessage($vType);
 		if (empty($text)) return '';
 
+		$expert_link = !empty($vData) ? ArticleReviewers::getLinkByVerifierName($vData->name) : '';
+
 		if ($mobile) {
-			$link = "#social_proof_anchor";
+			$amp = GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() );
+			$link = $amp ? "#" : "#social_proof_anchor";
 			$class = "sp_intro_expert";
+			$text .= Html::rawElement('span',['class'=>'sp_intro_tiny_i']);
 		}
 		else {
 			$class = "sp_expert_icon sp_intro_expert";
 
-			if (!empty($vName)) {
-				$verifierpage = Title::newFromText('ArticleReviewers', NS_SPECIAL);
-				$anchorName = ArticleReviewers::getAnchorName($vName);
-				$link = $verifierpage->getFullURL()."#".$anchorName;
+			if (!empty($expert_link)) {
+				$link = $expert_link;
 				$target = "_blank";
 			}
 		}
@@ -519,6 +530,7 @@ class SocialProofStats extends ContextSource {
 				"class" => $class
 			];
 			if (!empty($target)) $attributes['target'] = $target;
+			if ($amp) $attributes['on'] = 'tap:sp_icon_hover.toggleVisibility';
 
 			$html = Html::rawElement(
 				"a",
@@ -526,6 +538,9 @@ class SocialProofStats extends ContextSource {
 				"<p>".$text."</p>"
 			);
 		}
+
+		$hover_text = wfMessage('sp_hover_text_'.$vType, $expert_link, $vData->name, $vData->blurb)->text();
+		$html .= self::getIconHoverHtml($hover_text, $mobile, $amp);
 
 		return $html;
 	}
@@ -579,6 +594,8 @@ class SocialProofStats extends ContextSource {
 
 		switch ($this->verifierType) {
 			case self::VERIFIER_TYPE_EXPERT:
+			case self::VERIFIER_TYPE_ACADEMIC:
+			case self::VERIFIER_TYPE_YOUTUBER:
 				return wfMessage('sp_section_expert')->text();
 			case self::VERIFIER_TYPE_COMMUNITY:
 				return wfMessage('sp_section_community')->text();
@@ -598,6 +615,24 @@ class SocialProofStats extends ContextSource {
 			$vars[$key] = wfMessage($key)->text();
 		}
 		return $vars;
+	}
+
+	public static function getIconHoverHtml(string $hover_text, bool $is_mobile, bool $amp): string {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		$vars = [
+			'header' => wfMessage('sp_hover_expert_header')->text(),
+			'body' => $hover_text,
+			'learn_more_link' => self::LEARN_MORE_LINK,
+			'learn_more' => wfMessage('sp_learn_more')->text(),
+			'mobile' => $is_mobile,
+			'amp' => $amp
+		];
+
+		return $m->render('info_icon', $vars);
 	}
 
 	public static function articleVerified($pageId): bool {
@@ -646,6 +681,12 @@ class SocialProofStats extends ContextSource {
 
 		$cacheKey = wfMemcKey( self::VERIFIED_CACHE_KEY . $title->getArticleID() );
 		$wgMemc->delete( $cacheKey );
+	}
+
+	public function getIntroAvatarImageHtml( $after ) {
+		$verifierInfo = VerifyData::getVerifierInfoByName( $this->verifierName );
+		$html = self::getAvatarImageHtml( $verifierInfo, 'intro_avatar_img', $after );
+		return $html;
 	}
 }
 

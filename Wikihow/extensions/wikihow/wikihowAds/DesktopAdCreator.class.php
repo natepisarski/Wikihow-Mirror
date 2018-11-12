@@ -42,6 +42,10 @@ abstract class DesktopAdCreator {
 	var $mDFPKeyVals = array();
 	var $mRefreshableRightRail = false;
 
+	public function getPreContentAdHtml() {
+		return "";
+	}
+
 	protected function getNewAd( $type ) {
 		$labelExtra = "";
 		$showRRLabel = $this->mShowRightRailLabel;
@@ -255,8 +259,8 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 		}
 
 		$stepAd = $this->mAds['step']->mHtml;
-		if ( $stepAd && pq( ".steps_list_2 > li:eq(1)" )->length() ) {
-			pq( ".steps_list_2 > li:eq(1)" )->append( $stepAd );
+		if ( $stepAd && pq( ".steps_list_2 > li:eq(0)" )->length() ) {
+			pq( ".steps_list_2 > li:eq(0)" )->append( $stepAd );
 		}
 
 		$methodAd = $this->mAds['method']->mHtml;
@@ -270,10 +274,14 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 
 		$method2Ad = $this->mAds['method2']->mHtml;
 		if ( $method2Ad ) {
-			if ( pq( ".steps_list_2:eq(1) > li" )->length > 2 && pq( ".steps_list_2:eq(1) > li:last-child)" )->length() ) {
-				pq( ".steps_list_2:eq(1) > li:last-child" )->append( $method2Ad );
-			} else {
+			$count = pq( ".steps_list_2" )->length;
+			if ( $count < 2 ) {
 				$this->mAds['method2']->notInBody = true;
+			}
+			for ( $i = 1; $i < $count; $i++ ) {
+				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:last-child)" )->length() ) {
+					pq( ".steps_list_2:eq($i) > li:last-child" )->append( $method2Ad );
+				}
 			}
 		}
 
@@ -745,7 +753,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			$attributes['class'][] = $ad->adClass;
 		}
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
-		$html .= Html::element( 'div', ['class' => 'clearall adclear'] );
+		if ( !( $ad->noClearAll === true ) ) {
+			$html .= Html::element( 'div', ['class' => 'clearall adclear'] );
+		}
 		return $html;
 	}
 
@@ -940,7 +950,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		return $adSize;
 	}
 
-	private function getApsLoad( $ad ) {
+	protected function getApsLoad( $ad ) {
 		if ( !isset( $this->mDFPData[$ad->mType]['apsLoad'] ) ) {
 			return false;
 		}
@@ -1007,6 +1017,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 * @return string html for head
 	 */
 	public function getHeadHtml() {
+		global $wgTitle;
 		$addAdsense = false;
 		$addDFP = false;
 		foreach ( $this->mAds as $ad ) {
@@ -1228,7 +1239,6 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 			'intro' => 'adsense',
 			'step' => 'adsense',
 			'method' => 'dfp',
-			'method2' => 'dfp',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
@@ -1239,11 +1249,6 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 		$this->mDFPData = array(
 			'method' => array(
 				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
-				'size' => '[728, 90]',
-				'apsLoad' => true
-			),
-			'method2' => array(
-				'adUnitPath' => '/10095428/Method_2_English_Desktop',
 				'size' => '[728, 90]',
 				'apsLoad' => true
 			),
@@ -1309,6 +1314,10 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 	public function getViewableRefresh( $ad ) {
 		return true;
 	}
+
+	protected function getAdsenseChannels( $ad ) {
+		return implode( ',', $this->mAdsenseChannels );
+	}
 }
 
 class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
@@ -1340,16 +1349,26 @@ class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
 
 class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 	public function __construct() {
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+			$pageId = $wgTitle->getArticleID();
+		}
+		$this->mAdsenseChannels[] = 7275552975;
 		// right now this data will be added to each ad as data attributes
 		// however we can use it in the future to define almost everything about each ad
 		$this->mAdSetupData = array(
 			'rightrail2' => array(
 				'refreshable' => 1,
-				'refresh-time' => 15000,
+				'first-refresh-time' => 45000,
+				'refresh-time' => 28000,
 				'insert-refresh' => 1,
 				'aps-timeout' => 800
 			),
 		);
+		if ( $pageId % 10 == 0 ) {
+			unset( $this->mAdSetupData['rightrail2']['insert-refresh'] );
+		}
 
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
@@ -1361,7 +1380,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'intro' => 'adsense',
 			'step' => 'adsense',
 			'method' => 'dfp',
-			'method2' => 'dfp',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
@@ -1373,11 +1391,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 		$this->mDFPData = array(
 			'method' => array(
 				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
-				'size' => '[728, 90]',
-				'apsLoad' => true
-			),
-			'method2' => array(
-				'adUnitPath' => '/10095428/Method_2_English_Desktop',
 				'size' => '[728, 90]',
 				'apsLoad' => true
 			),
@@ -1397,14 +1410,123 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'apsLoad' => true
 			)
 		);
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+			$pageId = $wgTitle->getArticleID();
+		}
+		if ( $pageId % 10 == 0 ) {
+			$this->mDFPData['rightrail2']['adUnitPath'] = '/10095428/RR3_Test_32';
+		}
+	}
+}
+
+class MethodsButNoIntroAdCreator extends MixedAdCreatorVersion2 {
+	public function __construct() {
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+			$pageId = $wgTitle->getArticleID();
+		}
+		$this->mAdsenseChannels[] = 8752286177;
+		// right now this data will be added to each ad as data attributes
+		// however we can use it in the future to define almost everything about each ad
+		$this->mAdSetupData = array(
+			'rightrail2' => array(
+				'refreshable' => 1,
+				'first-refresh-time' => 45000,
+				'refresh-time' => 28000,
+				'insert-refresh' => 1,
+				'aps-timeout' => 800
+			),
+		);
+
+		if ( $pageId % 10 == 0 ) {
+			unset( $this->mAdSetupData['rightrail2']['insert-refresh'] );
+		}
+
+		$this->mAdsenseSlots = array(
+			'step' => 5875012246,
+			'method2' => 5875012246,
+			'rightrail0' => 4769522171,
+		);
+
+		$this->mAdServices = array(
+			'step' => 'adsense',
+			'method' => 'dfp',
+			'method2' => 'adsense',
+			'rightrail0' => 'adsense',
+			'rightrail1' => 'dfp',
+			'rightrail2' => 'dfp',
+			'quiz' => 'dfp'
+		);
 	}
 
-	public function getRefreshable( $ad ) {
-		if ( $ad->service == 'dfp' && strstr( $ad->mType, "rightrail0") && $this->mRefreshableRightRail ) {
-			return true;
-
+	protected function setDFPAdUnitPaths() {
+		$this->mDFPData = array(
+			'method' => array(
+				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'rightrail1' => array(
+				'adUnitPath' => '/10095428/RR2_Test_32',
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
+			),
+			'rightrail2' => array(
+				'adUnitPath' => '/10095428/RR3_800ms_CSTO_Test',
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
+			),
+			'quiz' => array(
+				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			)
+		);
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+			$pageId = $wgTitle->getArticleID();
 		}
-		return false;
+		if ( $pageId % 10 == 0 ) {
+			$this->mDFPData['rightrail2']['adUnitPath'] = '/10095428/RR3_Test_32';
+		}
+	}
+}
+
+class AdsenseRaddingRR1AdCreator extends MixedAdCreatorVersion2 {
+	public function __construct() {
+		// right now this data will be added to each ad as data attributes
+		// however we can use it in the future to define almost everything about each ad
+		$this->mAdSetupData = array(
+			'rightrail0' => array(
+				'refreshable' => 1,
+				'refresh-time' => 10000,
+				'insert-refresh' => 1,
+				'refresh-type' => 'adsense',
+				'viewablerefresh' => 1,
+			),
+		);
+
+		$this->mAdsenseSlots = array(
+			'intro' => 7862589374,
+			'step' => 1652132604,
+			'method' => 5875012246,
+			'rightrail0' => 2961854543,
+		);
+
+		$this->mAdServices = array(
+			'intro' => 'adsense',
+			'step' => 'adsense',
+			'method' => 'adsense',
+			'rightrail0' => 'adsense',
+		);
+	}
+
+	protected function setDFPAdUnitPaths() {
+		$this->mDFPData = array();
 	}
 }
 

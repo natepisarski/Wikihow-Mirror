@@ -2,8 +2,9 @@
 
 class StaffReviewed {
 
-	const STAFF_REVIEWERS_TAG = 'staff_reviewers';
-	const STAFF_REVIEWED_ARTICLES_TAG = 'staff_reviewed_articles';
+	const STAFF_REVIEWERS_TAG = 'staff_reviewers'; //manually updated
+	const STAFF_REVIEWED_ARTICLES_TAG = 'staff_reviewed_articles'; //automatically updated nightly
+	const STAFF_REVIEWED_ARTICLES_HANDPICKED_TAG = 'staff_reviewed_articles_handpicked'; //manually updated
 
 	const STAFF_HELPFUL_THRESHOLD = 80;
 	const STAFF_HELPFUL_TOTAL_THRESHOLD = 10;
@@ -16,6 +17,11 @@ class StaffReviewed {
 	 */
 	public static function staffReviewers() {
 		$bucket = ConfigStorage::dbGetConfig(self::STAFF_REVIEWERS_TAG, true);
+		return explode("\n", $bucket);
+	}
+
+	public static function handpickedStaffReviewedArticles(): array {
+		$bucket = ConfigStorage::dbGetConfig(self::STAFF_REVIEWED_ARTICLES_HANDPICKED_TAG, true);
 		return explode("\n", $bucket);
 	}
 

@@ -1,0 +1,57 @@
+#article_tabs #tab_edit,
+#page-actions {
+	display: none;
+}
+
+.firstHeading {
+	padding-bottom: 15px;
+	border-bottom: 1px solid #eee;
+}
+
+.pagepolicy.section_text {
+	padding: 0;
+}
+
+.pagepolicy h5  {
+	font-size: 20px;
+	margin: 18px 0;
+	font-weight: bold;
+}
+
+.pagepolicy h5:first-child {
+	margin-top: 13px;
+}
+
+.pagepolicy-home {
+	padding: 26px 0;
+}
+
+.skin-minervawh .content {
+	border-top: solid 1px #ddd;
+	margin: 0;
+}
+
+.skin-minervawh .pagepolicy.section_text {
+	padding: 16px;
+	margin: 0;
+	border: none;
+	border-radius: 0;
+}
+
+.skin-minervawh .pagepolicy h5 {
+	margin-bottom: 8px;
+}
+
+.skin-minervawh .pagepolicy h5:first-child {
+	margin-top: 0;
+}
+
+.skin-minervawh #mw-mf-page-center {
+	background-color: white;
+}
+
+@media only screen and (max-aspect-ratio: 13/9) and (min-width: 500px), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	.skin-minervawh .pagepolicy-home {
+		font-size: 22px;
+	}
+}

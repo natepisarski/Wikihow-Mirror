@@ -12,8 +12,10 @@
    ami_facebook_desc varchar(1024) not null default '',
    ami_video varchar(255) not null default '',
    ami_summary_video varchar(255) not null default '',
+   ami_summary_video_updated varchar(14) not null default '',
    ami_img varchar(255) default null,
-   primary key (ami_id)
+   primary key (ami_id),
+   KEY (ami_summary_video_updated)
  );
  *
  */
@@ -59,6 +61,8 @@ class ArticleMetaInfo {
 	const DESC_STYLE_EASY = 8;
 	const DESC_STYLE_SHORT = 9;
 	const DESC_STYLE_NEW_LONGER = 10;
+
+	const SUMMARY_VIDEO_UPDATED_KEY = 'ArticleMetaInfo:ami_summary_video_updated';
 
 	// this list of pageids was provided by Chris to Reuben on 6/14/2018 as part
 	// of a way to test and slowly roll out longer meta descriptions.
@@ -237,11 +241,31 @@ class ArticleMetaInfo {
 	}
 
 	public function updateSummaryVideoPath( $videoPath = '' ) {
+		global $wgMemc;
+
 		$this->loadInfo();
 		if ( $this->row['ami_summary_video'] != $videoPath ) {
 			$this->row['ami_summary_video'] = $videoPath;
+			$this->row['ami_summary_video_updated'] = wfTimestampNow(TS_MW);
 			$this->saveInfo();
+			$wgMemc->delete( self::SUMMARY_VIDEO_UPDATED_KEY );
 		}
+	}
+
+	public static function getLatestSummaryVideoUpdate() {
+		global $wgMemc;
+
+		$value = $wgMemc->get( self::SUMMARY_VIDEO_UPDATED_KEY );
+		if ( $value === false ) {
+			$dbr = wfGetDB( DB_SLAVE );
+			$sql = 'SELECT MAX(ami_summary_video_updated) as latest_update FROM article_meta_info;';
+			$res = $dbr->query( $sql, __METHOD__ );
+			$row = $dbr->fetchRow( $res );
+			$value = $row['latest_update'];
+			$wgMemc->set( self::SUMMARY_VIDEO_UPDATED_KEY, $value );
+		}
+
+		return $value;
 	}
 
 	public function getVideo() {

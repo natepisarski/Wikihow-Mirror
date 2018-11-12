@@ -4,6 +4,7 @@
 	window.WH.GreenBoxEdit = {
 		tool_url: '/Special:GreenBoxEditTool',
 		step: null,
+		deleting: false,
 
 		init: function(step) {
 			this.step = step;
@@ -12,6 +13,10 @@
 		},
 
 		addHandlers: function() {
+			$(document).on('change', '#green_box_type', $.proxy(function() {
+				this.changeGreenBoxType();
+			},this));
+
 			$(document).on('click', '#green_box_edit_cancel', $.proxy(function() {
 				this.hideEditUI();
 			},this));
@@ -27,6 +32,8 @@
 
 		openEditUI: function() {
 			if (typeof(this.step) === 'undefined' || this.step === null) return;
+
+			this.deleting = false; //reset
 
 			if ($('#green_box_edit_tool').length) {
 				this.showEditUI($('#green_box_edit_tool'));
@@ -77,18 +84,49 @@
 						'step_info': $(this.step).closest('li').find('.stepanchor').prop('name'),
 					},
 					$.proxy(function(data) {
-						this.insertGreenBoxContent(data.green_box_content);
+
+						if (data.error) {
+							this.showError(data.error);
+						}
+						else {
+							this.insertGreenBoxContent(data);
+							this.setGreenBoxEditType(data);
+						}
+
 					},this),
 					'json'
 				);
 			}
 		},
 
-		insertGreenBoxContent: function(green_box_content) {
-			//translate HTML line feeds
-			green_box_content = green_box_content.replace(/<br\s?\/?>/gim,'\n');
+		insertGreenBoxContent: function(green_box_data) {
+			var content = green_box_data.green_box_content;
+			var content_2 = green_box_data.green_box_content_2;
 
-			$('#green_box_edit_tool textarea').val(green_box_content.trim());
+			//translate HTML line feeds
+			if (content.length) content = content.replace(/<br\s?\/?>/gim,'\n');
+			if (content_2.length) content_2 = content_2.replace(/<br\s?\/?>/gim,'\n');
+
+			$('#green_box_edit_content').val(content.trim());
+			$('#green_box_edit_content_2').val(content_2.trim());
+			$('#green_box_edit_expert').val(green_box_data.green_box_expert);
+
+			//hide old errors
+			$('#green_box_edit_err').html('');
+		},
+
+		setGreenBoxEditType: function(green_box_data) {
+			var edit_type = 'green_box'; //default;
+
+			if (green_box_data.green_box_expert.length) {
+				if (green_box_data.green_box_content_2.length)
+					edit_type = 'green_box_expert_qa'
+				else
+					edit_type = 'green_box_expert';
+			}
+
+			$('#green_box_type').val(edit_type);
+			this.changeGreenBoxType();
 		},
 
 		readyDeleteButton: function() {
@@ -96,13 +134,13 @@
 			this.updateDeleteButtonDisableState();
 
 			//add the handler
-			$('#green_box_edit_tool textarea').on('keyup', $.proxy(function() {
+			$('#green_box_edit_content').on('keyup', $.proxy(function() {
 				this.updateDeleteButtonDisableState();
 			},this));
 		},
 
 		updateDeleteButtonDisableState: function() {
-			var disable_state = $('#green_box_edit_tool textarea').val().trim().length ? 0 : 1;
+			var disable_state = $('#green_box_edit_content').val().trim().length ? 0 : 1;
 			$('#green_box_edit_delete').prop('disabled', disable_state);
 		},
 
@@ -167,13 +205,22 @@
 		save: function() {
 			this.processing(true);
 
+			var err = this.validateAndCleanup();
+			if (err.length) {
+				this.showError(err);
+				this.processing(false);
+				return;
+			}
+
 			$.post(
 				this.tool_url,
 				{
 					'action': 'save',
 					'page_id': mw.config.get('wgArticleId'),
 					'step_info': $('#green_box_edit_tool').closest('li').find('.stepanchor').prop('name'),
-					'content': $('#green_box_edit_tool textarea').val()
+					'content': $('#green_box_edit_content').val(),
+					'content_2': $('#green_box_edit_content_2').val(),
+					'expert': $('#green_box_edit_expert').val()
 				},
 				$.proxy(function(data) {
 					if (data.error) {
@@ -187,9 +234,37 @@
 			);
 		},
 
+		validateAndCleanup: function() {
+			var err = '';
+
+			if (this.deleting) {
+				$('#green_box_edit_tool textarea, #green_box_edit_expert').val('');
+			}
+			else if ($('#green_box_type').val() == 'green_box') {
+				//but we don't need these...
+				$('#green_box_edit_content_2, #green_box_edit_expert').val('');
+			}
+			else if ($('#green_box_type').val() == 'green_box_expert') {
+				//need an expert
+				if ($('#green_box_edit_expert').val() == '0') err = mw.message('green_box_error_no_expert').text();
+
+				//no Answer needed...
+				$('#green_box_edit_content_2').val('');
+			}
+			else if ($('#green_box_type').val() == 'green_box_expert_qa') {
+
+				if ($('#green_box_edit_expert').val() == '0') //need an expert
+					err = mw.message('green_box_error_no_expert').text();
+				else if ($('#green_box_edit_content_2').val().trim() == '') //need an answer
+					err = mw.message('green_box_error_no_answer').text();
+			}
+
+			return err;
+		},
+
 		deleteContent: function() {
 			this.refreshBox(''); //we'll refresh after the save, but make it look immediate
-			$('#green_box_edit_tool textarea').val('');
+			this.deleting = true;
 			this.save();
 		},
 
@@ -217,6 +292,11 @@
 				$('#green_box_edit_tool .button').hide();
 			else
 				$('#green_box_edit_tool .button').show();
+		},
+
+		changeGreenBoxType: function() {
+			var type = $('#green_box_type').val();
+			$('#green_box_edit_tool').removeClass().addClass(type+'_edit_type');
 		}
 	}
 

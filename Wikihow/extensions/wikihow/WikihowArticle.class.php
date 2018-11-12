@@ -314,52 +314,13 @@ class WikihowArticleHTML {
 
 					//now we should have all the alt methods,
 					//let's create the links to them under the headline
-					$charCount = 0;
-					$maxCount = 80000; //temporarily turning off hidden headers
-					$hiddenCount = 0;
-					$anchorList = [];
 					self::$methodCount = count($altMethodAnchors);
-					for ($i = 0; $i < count($altMethodAnchors); $i++) {
-						$methodName = pq('<div>' . $altMethodNames[$i] . '</div>')->text();
-						// remove any reference notes
-						$methodName = preg_replace("@\[\d{1,3}\]$@", "", $methodName);
-						$charCount += strlen($methodName);
-						$class = "";
-						if ($charCount > $maxCount) {
-							$class = "hidden excess";
-							$hiddenCount++;
-						}
-						if ($methodName == "") {
-							continue;
-						}
-						$methodName = htmlspecialchars($methodName);
-						$anchorList []= "<a href='#{$altMethodAnchors[$i]}_sub' class='{$class}'>{$methodName}</a>";
-					}
-
-					$hiddentext = "";
-					if ($hiddenCount > 0) {
-						$hiddenText = "<a href='#' id='method_toc_unhide'>{$hiddenCount} more method" . ($hiddenCount > 1?"s":"") . "</a>";
-						$hiddenText .= "<a href='#' id='method_toc_hide' class='hidden'>show less methods</a>";
-					} else {
-						$hiddenText = '';
-					}
-
-					// A hook to add anchors to the TOC.
-					wfRunHooks('AddDesktopTOCItems', array($wgTitle, &$anchorList, &$maxCount));
-
-					//add our little list header
-					if ($hasParts) {//ucwords
-						$anchorList = 	'<span>'.ucwords(Misc::numToWord(count($altMethodAnchors),10)).
-										' ' . wfMessage('part_3')->text() . ':</span>' . implode("",$anchorList);
-					} else {
-						$anchorList = 	'<span>'.ucwords(Misc::numToWord(count($altMethodAnchors),10)).
-										' ' . wfMessage('method_3')->text() . ':</span>' . implode("", $anchorList);
-					}
+					$anchorList = self::getAnchorList( $altMethodAnchors, $altMethodNames );
 
 					//chance to reformat the alt method_toc before output
 					//using for running tests
 					wfRunHooks('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
-					pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}{$hiddenText}</p>");
+					pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}</p>");
 				}
 				else {
 					if ($set) {
@@ -381,20 +342,6 @@ class WikihowArticleHTML {
 					}
 
 					pq('.firstHeading')->addClass('no_toc');
-
-					/*
-					Disabled as per LH #1952
-
-					// Add TOC
-					$anchorList = [];
-					$maxCount = 80000;
-					// A hook to add anchors to the TOC.
-					wfRunHooks('AddDesktopTOCItems', array($wgTitle, &$anchorList, &$maxCount));
-					if (!empty($anchorList)) {
-						$anchorList = implode("",$anchorList);
-						pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}</p>");
-					}
-					*/
 				}
 			}
 			else {
@@ -604,12 +551,38 @@ class WikihowArticleHTML {
 			if ( pq( $headingId )->length ) {
 				$headingText = $heading;
 				// add helpful feedback section
-				if ( pq( $headingId . ' video' )->length == 0 ) {
+
+				if ( pq( $headingId . ' p' )->length != 0 ) {
 					$html = RateItem::getSummarySectionRatingHtml( $summary_at_top );
 					pq( $headingId )->append( $html );
 				}
 				//give the whole section a consistent id
 				pq('.'.$canonicalSummaryName)->attr('id','quick_summary_section');
+				//wrap the text part in a div
+				$textSummary = pq( $headingId )->find("p");
+				if($textSummary->length > 0) {
+					$textSummary->add($textSummary->nextAll())->wrapAll("<div id='summary_wrapper'><div id='summary_text'></div></div>");
+					pq("#summary_text")->prepend("<h2>" . wfMessage('summary_toc')->text() . "<a href='#' id='summary_close'>X</a></h2>");
+
+					//if there's no video, hide the section
+					if ( pq( $headingId . ' video' )->length == 0 ) {
+						pq("#summary_wrapper")->insertBefore(pq("#quick_summary_section"));
+						pq("#quick_summary_section")->remove();
+					} else {
+						//if there is, move this outside of that section so we can use the same css for both cases
+						pq("#summary_wrapper")->appendTo("#quick_summary_section");
+					}
+
+					//if there's no TOC, make one now
+					if(pq("#method_toc")->length <= 0) {
+						$specialAnchorArray = [Html::element( 'span', [], wfMessage('toc_title') )];
+						wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$specialAnchorArray ) );
+						$specialAnchorList = implode( "" , $specialAnchorArray );
+						pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$specialAnchorList}</p>");
+					}
+
+					SummarySection::addDesktopTOCItems();
+				}
 			}
 			$headingImages = pq( $headingId . ' .mwimg' )->addClass( 'summarysection' );
 			foreach( $headingImages as $headingImage ) {
@@ -632,7 +605,7 @@ class WikihowArticleHTML {
 			if(strlen($titleText) > 49) {
 				$titleText = mb_substr($titleText, 0, 46) . '...';
 			}
-			pq("#quick_summary_section h2 span")->html("Short Video: " . $titleText);
+			pq("#quick_summary_section h2 span")->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
 			pq( "#quick_summary_section")->addClass("summary_with_video");
 		}
 
@@ -873,6 +846,24 @@ class WikihowArticleHTML {
 
 			$ami->updateLastVideoPath( $lastVideo );
 			$ami->updateSummaryVideoPath( $summaryVideo );
+		}
+
+		// Trevor, 10/29/18 - Testing making videos a link to the video browser - this must come
+		// after videos are updated
+		$videoPlayer = pq( '#quicksummary .video-player' );
+		if ( $videoPlayer ) {
+			$link = pq( '<a id="summary_video_link">' )->attr(
+				'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )
+			);
+			$poster = pq( '<img id="summary_video_poster">' )->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) );
+			$poster->addClass( 'm-video' );
+			$poster->addClass( 'content-fill placeholder' );
+			$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $wgTitle ) );
+			$controls->attr( 'style', 'visibility:visible' );
+			$videoPlayer->empty()->append( $link );
+			$link->append( $poster );
+			$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
+			$link->append( $controls );
 		}
 
 		//tabs should really be last so that it has access to all the content that might be there
@@ -1453,4 +1444,24 @@ class WikihowArticleHTML {
 		return '';
 	}
 
+	public static function getAnchorList( $altMethodAnchors, $altMethodNames ) {
+		$anchorList = [];
+		for ( $i = 0; $i < count( $altMethodAnchors ); $i++ ) {
+			$methodName = pq( '<div>' . $altMethodNames[$i] . '</div>' )->text();
+			// remove any reference notes
+			$methodName = preg_replace( "@\[\d{1,3}\]$@", "", $methodName );
+			if ( $methodName == "" ) {
+				continue;
+			}
+			$methodName = htmlspecialchars( $methodName );
+			$anchorList[] = Html::element( 'a', ['href' => "#{$altMethodAnchors[$i]}_sub"], $methodName );
+		}
+
+		// A hook to add anchors to the TOC.
+		wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$anchorList ) );
+
+		$result = Html::element( 'span', [], wfMessage('toc_title') );
+		$result .= implode( "" , $anchorList );
+		return $result;
+	}
 }

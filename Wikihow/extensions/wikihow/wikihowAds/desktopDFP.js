@@ -1,6 +1,6 @@
 // Load GPT asynchronously
 function setDFPTargeting(slot, data) {
-	var slotData = data[slot.getName()];
+	var slotData = data[slot.getAdUnitPath()];
     for (var key in slotData) {
       slot.setTargeting(key, slotData[key]);
     }

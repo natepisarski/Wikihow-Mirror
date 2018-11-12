@@ -6,12 +6,13 @@ $wgAutoloadClasses['GreenBox'] = __DIR__ . '/GreenBox.class.php';
 $wgAutoloadClasses['GreenBoxEditTool'] = __DIR__ . '/GreenBoxEditTool.body.php';
 
 $wgExtensionMessagesFiles['GreenBox'] = __DIR__ . '/GreenBox.i18n.magic.php';
-$wgMessagesDirs['GreenBox'] = __DIR__ . '/i18n/';
+$wgMessagesDirs['GreenBox'] = __DIR__ . '/i18n';
 
 $wgHooks['ParserFirstCallInit'][] 					= ['GreenBox::onParserFirstCallInit'];
 $wgHooks['ProcessArticleHTMLAfter'][] 			= ['GreenBox::onProcessArticleHTMLAfter'];
 $wgHooks['MobileProcessArticleHTMLAfter'][] = ['GreenBox::onProcessArticleHTMLAfter'];
 $wgHooks['BeforePageDisplay'][] 						= ['GreenBox::onBeforePageDisplay'];
+$wgHooks['PageContentSave'][] 							= ['GreenBox::onPageContentSave'];
 
 $wgResourceModules['ext.wikihow.green_box'] = [
 	'styles' => [ 'green_box.css' ],
@@ -31,8 +32,12 @@ $wgResourceModules['ext.wikihow.green_box_cta'] = [
 ];
 
 $wgResourceModules['ext.wikihow.green_box_edit'] = [
-	'styles' => [ 'green_box_edit.css' ],
+	'styles' => [ 'green_box_edit.less' ],
 	'scripts' => [ 'green_box_edit.js' ],
+	'messages' => [
+		'green_box_error_no_expert',
+		'green_box_error_no_answer'
+	],
 	'localBasePath' => __DIR__.'/assets',
 	'remoteExtPath' => 'wikihow/GreenBox/assets',
 	'targets' => [ 'desktop' ],

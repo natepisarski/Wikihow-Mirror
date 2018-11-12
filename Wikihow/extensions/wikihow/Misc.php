@@ -272,8 +272,10 @@ function wfLoadExtensionMessages($module) {
 }
 
 function decho( $name, $value = "", $html = true, $showPrefix = true ) {
+	global $wgCommandLineMode;
+
 	$lineEnd = "\n";
-	if ( $html ) {
+	if ( !$wgCommandLineMode && $html ) {
 		$lineEnd = "<br>\n";
 	}
 

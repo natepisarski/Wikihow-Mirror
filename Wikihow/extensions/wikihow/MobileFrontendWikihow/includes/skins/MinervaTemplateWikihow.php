@@ -165,11 +165,12 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				<a href="/Special:Randomizer"><?=$creature?></a>
 			</div>
 			<div id="footer_bar">
-				<a href="<?= Title::newMainPage()->getLocalURL() ?>" id="footer_logo"<?php if ( $wgLanguageCode != "en" ) { ?> class="footer_logo_intl"<? } ?>></a>
 				<?php
 					global $IP;
 					EasyTemplate::set_path( $IP.'/extensions/wikihow/mobile/' );
 					echo EasyTemplate::html('search-box.tmpl.php',array('id' => 'search_footer', 'placeholder' => $footerPlaceholder, 'class' => '', 'lang' => $wgLanguageCode, 'form_id' => 'cse-search-box-bottom'));
+
+					if (class_exists('SocialFooter')) echo SocialFooter::getSocialFooter();
 				?>
 			</div>
 				<?php

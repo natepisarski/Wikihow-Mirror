@@ -1,4 +1,4 @@
-/*global WH, $, ga*/
+/*global WH, $, ga, mw*/
 $( '#bodycontents' ).removeClass( 'minor_section' );
 
 WH.VideoBrowser = WH.VideoBrowser || {};
@@ -31,6 +31,24 @@ function onInteract() {
 
 // Start
 $( function () {
+	$( '#bubble_search' ).on( 'submit', function ( event ) {
+		if ( event.isDefaultPrevented() ) {
+			return;
+		}
+		event.preventDefault();
+		WH.maEvent( 'videoBrowser_search_submit', {
+			origin: location.hostname,
+			referrer: location.pathname,
+			userIsMobile: !mw.mobileFrontend,
+			userHasAutoPlayNextUpEnabled: WH.VideoBrowser.preferences.autoPlayNextUp,
+			userHasInteracted: WH.VideoBrowser.hasUserInteracted,
+			userHasMuted: WH.VideoBrowser.hasUserMuted,
+			userSessionStreak: WH.VideoBrowser.sessionStreak
+		}, function () {
+			$( event.target ).unbind( 'submit' ).trigger( 'submit' );
+		} );
+	} );
+
 	try {
 		if (
 			typeof document.addEventListener !== 'function' ||
@@ -53,6 +71,14 @@ $( function () {
 			WH.VideoBrowser.hasUserMuted = false;
 			WH.VideoBrowser.sessionStreak = 0;
 			document.addEventListener( 'click', onInteract, true );
+			// Consider getting here from another page on the same site an interaction
+			if ( document.referrer ) {
+				var a = document.createElement( 'a' );
+				a.href = document.referrer;
+				if ( a.hostname === location.hostname ) {
+					onInteract();
+				}
+			}
 
 			WH.VideoBrowser.missingPosterUrl = '/extensions/wikihow/VideoBrowser/resources/images/no-poster.png';
 			WH.VideoBrowser.router = new WH.Router( WH.VideoBrowser.root );
@@ -64,7 +90,7 @@ $( function () {
 			// Setup routes
 			WH.VideoBrowser.router
 				.mount( '/', function ( params ) {
-					app.setView( 'index' );
+					app.setView( 'index', { slug: null } );
 					title.change( { slug: null } );
 					requestAnimationFrame( trackPageView, 0 );
 				} )

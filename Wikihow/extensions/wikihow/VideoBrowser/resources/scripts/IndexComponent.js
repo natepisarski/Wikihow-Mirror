@@ -2,6 +2,7 @@
 WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 	create: function () {
 		this.lists = [];
+		this.actionBar = new WH.VideoBrowser.ActionBarComponent();
 		this.onViewportChange = this.onViewportChange.bind( this );
 	},
 	onAttach: function () {
@@ -10,7 +11,7 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 			.order( 'rank desc' )
 			.get()
 			.map( function ( category ) {
-				return new WH.VideoBrowser.ListComponent( { category: category } );
+				return new WH.VideoBrowser.VideoListComponent( { category: category } );
 			} );
 		window.addEventListener( 'resize', this.onViewportChange );
 		window.addEventListener( 'scroll', this.onViewportChange );
@@ -21,7 +22,7 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 	},
 	onViewportChange: function () {
 		var i, len, video, bounding,
-			videos = document.querySelectorAll( '.videoBrowser-item video' );
+			videos = document.querySelectorAll( '.videoBrowser-video video' );
 		for ( i = 0, len = videos.length; i < len; i++ ) {
 			video = videos[i];
 			bounding = video.getBoundingClientRect();
@@ -42,6 +43,9 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 		}
 	},
 	render: function () {
-		return [ 'div.videoBrowser-index' ].concat( this.lists );
+		return [ 'div.videoBrowser-index',
+			this.actionBar,
+			[ 'div' ].concat( this.lists )
+		];
 	}
 } );

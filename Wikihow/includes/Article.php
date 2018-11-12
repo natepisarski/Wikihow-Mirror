@@ -1278,13 +1278,17 @@ class Article implements Page {
 		} else {
 			$text = wfMessage( 'noarticletext-nopermission' )->plain();
 		}
+
 		$text = "<div class='noarticletext'>\n$text\n</div>";
 
 		// WIKIHOW - BEBETH following 3 lines added for styling
 		if ( $showHeader ) {
 			$text = "<h2>" . wfMessage('noarticlefound')->text() . "</h2>$text";
 		}
+
 		$outputPage->addWikiText( $text );
+
+		wfRunHooks( 'AfterDisplayNoArticleText', array( $this ) );
 	}
 
 	/**

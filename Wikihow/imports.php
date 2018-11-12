@@ -100,10 +100,10 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/WinterSurvivalGuide/WinterSurvivalGuide.php");
 	require_once("$IP/extensions/wikihow/Hypothesis/Hypothesis.php");
 	require_once("$IP/extensions/wikihow/Summary/Summary.php");
-	require_once("$IP/extensions/wikihow/GreenBox/GreenBox.php");
 	require_once("$IP/extensions/wikihow/VideoBrowser/VideoBrowser.php");
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	// require_once("$IP/extensions/wikihow/AmazonAffiliates/AmazonAffiliates.php");
+	require_once("$IP/extensions/wikihow/AboutWikihow/AboutWikihow.php");
 }
 
 if ($wgLanguageCode == "zh") {
@@ -155,6 +155,7 @@ require_once("$IP/extensions/wikihow/PatrolHelper.php");
 require_once("$IP/extensions/BlockTitles/BlockTitles.php");
 require_once("$IP/extensions/wikihow/search/LSearch.php");
 require_once("$IP/extensions/wikihow/search/GoogSearch.php");
+require_once("$IP/extensions/wikihow/search/SearchBox.php");
 require_once("$IP/extensions/wikihow/Newcontributors.php");
 require_once("$IP/extensions/wikihow/TitleSearch.php");
 require_once("$IP/extensions/wikihow/ThankAuthors/ThankAuthors.php");
@@ -363,6 +364,7 @@ require_once("$IP/extensions/wikihow/api/ApiRDSlag.php");
 require_once("$IP/extensions/wikihow/api/ApiGraphs.php");
 require_once("$IP/extensions/wikihow/api/ApiSmsListing.php");
 require_once("$IP/extensions/wikihow/api/ApiSummaryVideos.php");
+require_once("$IP/extensions/wikihow/api/ApiRelatedArticles.php");
 
 if ($wgLanguageCode == "en") {
 	require_once("$IP/extensions/wikihow/api/ApiArticleText.php");
@@ -423,3 +425,5 @@ require_once("$IP/extensions/wikihow/UserDisplayCache.class.php");
 require_once("$IP/extensions/wikihow/userreview/UserReview.php");
 require_once("$IP/extensions/wikihow/userreview/UserReviewForm/UserReviewForm.php");
 require_once("$IP/extensions/wikihow/GDPR/GDPR.php");
+require_once("$IP/extensions/wikihow/GreenBox/GreenBox.php");
+require_once("$IP/extensions/wikihow/SocialFooter/SocialFooter.php");

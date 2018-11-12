@@ -10,4 +10,5 @@
 	color: #f0f6ec;
 	padding: 0 .5em;
 	text-decoration: none;
+	z-index: 1;
 }

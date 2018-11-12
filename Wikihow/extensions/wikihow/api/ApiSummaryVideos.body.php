@@ -1,6 +1,6 @@
 <?php
 /**
- * API for querying Hypothesis tests
+ * API for querying summary videos
  *
  * @class
  */
@@ -48,9 +48,11 @@ class ApiSummaryVideos extends ApiQueryBase {
 			}
 		}
 
+		$updated = ArticleMetaInfo::getLatestSummaryVideoUpdate();
 		$key = wfMemcKey(
 			"ApiSummaryVideos::query(" .
 				implode( [
+					"version:{$updated}",
 					"page:{$page}",
 					"related:{$related}",
 					"shuffle:{$shuffle}",

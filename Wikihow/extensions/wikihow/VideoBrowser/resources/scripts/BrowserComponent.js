@@ -11,12 +11,16 @@ WH.VideoBrowser.BrowserComponent = WH.Render.createComponent( {
 	},
 	render: function () {
 		return [ 'div.videoBrowser-browser',
+			this.actionBar,
 			this.state.view ? this.views[this.state.view] : undefined
 		];
 	},
 	setView: function ( view, changes ) {
 		if ( view in this.views ) {
 			this.views[view].change( changes );
+			if ( this.views[view].actionBar ) {
+				this.views[view].actionBar.change( changes );
+			}
 			this.change( { view: view } );
 		}
 	}

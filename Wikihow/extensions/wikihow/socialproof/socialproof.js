@@ -216,53 +216,110 @@
 		}
 
 		if (!WH.isMobileDomain) {
-			$(".sp_top_box_hoverable, .sp_top_popup_container").hover(function() {
-				hover_popup(true, this);
+			//side bar hover
+			$('.sp_top_box_hoverable, .sp_top_popup_container').hover(function() {
+				dialog_box(true, this, 'expert_dialog');
 			}, function() {
-				hover_popup(false, this);
+				dialog_box(false, this, 'expert_dialog');
+			});
+
+			//(i) icon hover
+			$('.sp_info_icon, #sp_icon_hover').hover(function() {
+				dialog_box(true, this, 'icon_hover');
+				if ($(this).hasClass('sp_info_icon')) WH.maEvent('article-information-hover');
+			}, function() {
+				dialog_box(false, this, 'icon_hover');
+			});
+
+			//(i) dialog link tracking
+			$(document).on('click', '.sp_learn_more_link', function() {
+				WH.maEvent('article-information-hover-learnmore-click');
 			});
 		}
 		else {
-			$('.sp_expert_icon_info').click(function() {
-				if ($('.sp_top_popup_container').is(':visible')) {
-					hover_popup(false, this);
+			// badge at the top
+			$('.sp_intro_expert, .tech_article_stamp, .sp_intro_user').click(function(e) {
+				e.preventDefault();
+				if ($('#sp_icon_hover').is(':visible')) {
+					dialog_box(false, this, 'badge_click');
 				}
 				else {
-					hover_popup(true, this);
+					dialog_box(true, this, 'badge_click');
+					WH.maEvent('article-info-badge-click-mobile');
+				}
+			});
+
+			//badge dialog click (close it)
+			$('#sp_icon_hover').click(function() {
+				var obj = $(this).parent().find('.sp_intro_expert, .tech_article_stamp, .sp_intro_user');
+				dialog_box(false, obj, 'badge_click');
+			});
+
+			// (i) in the bottom section
+			$('.sp_expert_icon_info').click(function() {
+				if ($('.sp_top_popup_container').is(':visible')) {
+					dialog_box(false, this, 'expert_dialog');
+				}
+				else {
+					dialog_box(true, this, 'expert_dialog');
 				}
 			});
 		}
 
 		var on_bubble = false;
 
-		function hover_popup(show, obj) {
-			if ($('.sp_top_popup_container').length == 0 || ($('.sp_expert_text').length == 0)) return;
+		function dialog_box(show, obj, type) {
+			var finalTopPopupPosition, startTopPopupPosition, popupContainer;
 
-			var finalTopPopupPosition = $('.sp_expert_text').position().top - $(".sp_top_popup_container").height();
-			var startTopPopupPosition = finalTopPopupPosition - 10;
+			if (type == 'icon_hover') {
+				if ($('#sp_icon_hover').length == 0) return;
+
+				popupContainer = $('#sp_icon_hover');
+				finalTopPopupPosition = $('.sp_info_icon').position().top + $('.sp_info_icon').height() + 2;
+				startTopPopupPosition = finalTopPopupPosition + 10;
+			}
+			else if (type == 'expert_dialog') {
+				if ($('.sp_top_popup_container').length == 0 || ($('.sp_expert_text').length == 0)) return;
+
+				popupContainer = $('.sp_top_popup_container');
+				finalTopPopupPosition = $('.sp_expert_text').position().top - $(".sp_top_popup_container").height();
+				startTopPopupPosition = finalTopPopupPosition - 10;
+			}
+			else if (type == 'badge_click') {
+				if ($('#sp_icon_hover').length == 0) return;
+
+				popupContainer = $('#sp_icon_hover');
+				finalTopPopupPosition = $(obj).position().top + $(obj).height() + 31;
+				startTopPopupPosition = finalTopPopupPosition + 10;
+			}
+			else {
+				return;
+			}
 
 			if (show) {
-				var wait = on_bubble ? 200 : 0;
+				var wait = on_bubble && type != 'badge_click' ? 300 : 0;
+				var speed = 75;
 				clearTimeout($(obj).data('sp_timeout2'));
 
 				$(obj).data('sp_timeout', setTimeout( function () {
-					$('.sp_top_popup_container')
+					$(popupContainer)
 						.stop(true)
-						.fadeIn({queue: false, duration: 150})
-						.animate({ top: finalTopPopupPosition, opacity: 1 }, 150);
+						.fadeIn({queue: false, duration: speed})
+						.animate({ top: finalTopPopupPosition, opacity: 1 }, speed);
 
 					on_bubble = true;
 				  }, wait));
 			}
 			else {
-				var wait = 200;
+				var wait = type != 'badge_click' ? 300: 0;
+				var speed = 65;
 				clearTimeout($(obj).data('sp_timeout'));
 
 				$(obj).data('sp_timeout2', setTimeout( function () {
-					$('.sp_top_popup_container')
+					$(popupContainer)
 						.stop(true)
-						.fadeOut({queue: false, duration: 130})
-						.animate({ top: startTopPopupPosition }, 130);
+						.fadeOut({queue: false, duration: speed})
+						.animate({ top: startTopPopupPosition }, speed);
 					on_bubble = false;
 				  }, wait));
 			}

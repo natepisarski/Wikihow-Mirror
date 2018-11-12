@@ -6,22 +6,15 @@ WH.VideoBrowser.BrowserTitleComponent = WH.Render.createComponent( {
 		};
 	},
 	render: function () {
-		var item,
+		var video,
 			text = mw.msg( 'videobrowser' ),
 			state = this.state;
 		if ( state.slug ) {
-			item = WH.VideoBrowser.catalog.items().filter( { slug: state.slug } ).first();
-			if ( item ) {
-				text = 'How to ' + item.title;
+			video = WH.VideoBrowser.catalog.videos().filter( { slug: state.slug } ).first();
+			if ( video ) {
+				text = mw.msg( 'videobrowser-how-to', video.title );
 			}
 		}
-		return [ 'span.videoBrowser-title' + ( item ? '.videoBrowser-title-subpage' : '' ),
-			[ 'span.videoBrowser-title-text',
-				text
-			],
-			item ? [ 'a.videoBrowser-title-indexButton',
-				{ href: WH.VideoBrowser.router.link( '/' ), title: mw.msg( 'videobrowser-back' ) }
-			] : undefined,
-		];
+		return [ 'span.videoBrowser-title', [ 'span.videoBrowser-title-text', text ] ];
 	}
 } );

@@ -1,4 +1,4 @@
-/*global jQuery, WH*/
+/*global jQuery, WH, mw*/
 ( function ( $ ) {
 	'use strict';
 	window.WH = window.WH || {};
@@ -11,19 +11,24 @@
 				$( this ).addClass( 'ulb_describe' );
 			} );
 
-			var LoginPopin = window.WH.LoginPopin || {};
+			var LoginPopin = window.WH.LoginPopin || {},
+				returnUrl;
 			if (LoginPopin.returnTo) { // Overrides default behavior
-				var returnUrl = LoginPopin.returnTo;
+				returnUrl = LoginPopin.returnTo;
 				delete LoginPopin.returnTo;
 			} else {
-				var returnUrl = $( '#social-login-navbar' ).data( 'returnTo' );
+				returnUrl = $( '#social-login-navbar' ).data( 'returnTo' );
 			}
 
-			WH.social.setupLoginButtons( {
+			var buttons = {
 				fb: '#fb_login,#fb_login_head',
-				gplus: '#gplus_login,#gplus_login_head',
-				civic: '#civic_login,#civic_login_head'
-			}, returnUrl );
+				gplus: '#gplus_login,#gplus_login_head'
+			};
+			if ( mw.config.get( 'wgUserLanguage' ) === 'en' ) {
+				buttons.civic = '#civic_login,#civic_login_head';
+			}
+
+			WH.social.setupLoginButtons( buttons, returnUrl );
 		}
 	} );
 

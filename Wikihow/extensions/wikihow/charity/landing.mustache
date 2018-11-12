@@ -15,16 +15,18 @@
 		<div><p>{{{ch_top_tile_text}}}</p></div>
 	</div>
 
+	{{^wikihow_specific}}
 	<div id="ch_about_charity">
 		<h3>{{ch_about_header}}</h3>
-		<p id="ch_charity_general">{{ch_charity_general}}</p>
-		<div id="ch_about_charity_box" class="trifold">
+		<p id="ch_charity_general">{{{ch_charity_general}}}</p>
+		<div id="ch_about_charity_box" {{! class="trifold" }}>
 			<img src="{{{ch_general_image}}}" id="ch_charity_image" />
 			<a href="{{ch_charity_link}}" target="_blank"><img src="{{{ch_charity_logo}}}" id="ch_charity_logo"  /></a>
 			<div id="ch_charity_specific"><p>{{{ch_charity_specific}}}</p></div>
 		</div>
 		<div class="clearall"></div>
 	</div>
+	{{/wikihow_specific}}
 
 	<p id="ch_about_2" class="ch_heading">{{ch_about_2}}</p>
 
@@ -81,11 +83,18 @@
 	</div>
 
 	<div id="ch_footer">
+		{{#is_mobile}}
+			<p class="ch_social_prompt">{{ch_bottom_prompt_mobile}}</p>
+		{{/is_mobile}}
 		<div id="ch_footer_inner">
+			{{^is_mobile}}
 			<img id="ch_koala" src="{{ch_koala_img}}" />
+			{{/is_mobile}}
 			<div id="ch_footer_inner_inner">
 				{{#is_mobile}}
 					<a href="/Main-Page" id="ch_explore_button" class="button primary">{{{ch_bottom_button_text_mobile}}}</a>
+					<span class="ch_social_prompt">{{ch_or}}</span>
+					<a id="ch_insta_button" href="https://www.instagram.com/wikihow/?hl=en" class="button primary">{{ch_instagram_mobile}}</a>
 				{{/is_mobile}}
 				{{^is_mobile}}
 					<a href="/Main-Page" id="ch_explore_button" class="button primary">{{ch_bottom_main_text}}</a>

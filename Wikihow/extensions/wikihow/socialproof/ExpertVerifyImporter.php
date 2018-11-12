@@ -39,47 +39,78 @@ class ExpertVerifyImporter {
 		return $result;
 	}
 
-	public function getSpreadsheet() {
-		global $IP, $wgIsDevServer;
+	private function getApiAccessToken() {
+		global $IP;
 		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
-
 		$service = SampleProcess::buildService();
 		if ( !isset( $service ) ) {
-			return;
+			return null;
 		}
-		$result = array();
-
 		$client = $service->getClient();
+		if ( !$client ) {
+			return null;
+		}
 		$token = $client->getAccessToken();
 		$token = json_decode($token);
+		if ( !$token ) {
+			return null;
+		}
 		$token = $token->access_token;
+		return $token;
+	}
 
+	/*
+	 * this function gets the data from a google sheet
+	 * @param string $feedLink the url of google sheets..never really changes
+	 * @param string $sheetId the id of the sheet which is easy to find in it's url
+	 * @param string $worksheetId the id of the specific tab or worksheet. very hard to find
+	 * usually I use the google auth playground explorer to find this
+	 * but it never changes once oyu have it
+	 * @param string $feedLinkSecond the rest of the url after the id, which  also does not change
+	 * and specifies that we want json and the name of the access_token param
+	 * @param string $token the access token obtained by created the API client
+	 * @return Array the data which is read from the sheet line by line and put in an array
+	 */
+	private function getWorksheetData( $feedLink, $sheetId, $worksheetId, $feedLinkSecond, $token ) {
+		$feedLink = $feedLink . $sheetId . '/' . $worksheetId . $feedLinkSecond;
+		$sheetData = file_get_contents( $feedLink . $token );
+		$sheetData = json_decode( $sheetData );
+		$sheetData = $sheetData->{'feed'}->{'entry'};
+		return $sheetData;
+	}
+
+	private function getMasterExpertSheetMainTabsData( $token ) {
 		$data = array();
 		foreach ( self::getWorksheetIds() as $worksheetId => $worksheetName ) {
-			$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.$worksheetId.self::FEED_LINK_2;
-			$sheetData = file_get_contents( $feedLink . $token );
-			$sheetData = json_decode( $sheetData );
-			$sheetData = $sheetData->{'feed'}->{'entry'};
+			$sheetData = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $worksheetId, self::FEED_LINK_2, $token );
+			if ( !$sheetData || !is_array( $sheetData ) ) {
+				continue;
+			}
+			// update the sheet data to also include the worksheet name for use later
 			foreach( $sheetData as $row ) {
 				$row->worksheetName = $worksheetName;
 			}
-			if ( $sheetData && is_array( $sheetData ) ) {
-				$data = array_merge( $data, $sheetData );
-			}
+			$data = array_merge( $data, $sheetData );
 		}
+		return $data;
+	}
 
-		$result = $this->parseGoogleResponse( $data );
+	public function getSpreadsheet() {
+		global $wgIsDevServer;
+
+		$token = $this->getApiAccessToken();
+
+		// get the data from the spreadsheet
+		$mainTabsData = $this->getMasterExpertSheetMainTabsData( $token );
+
+		// now parse that data
+		$result = $this->parseGoogleResponse( $mainTabsData );
 
 		//now get vlookup sheet
-		$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.'op2q2od'.self::FEED_LINK_2;
-		if($wgIsDevServer) {
-			$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.'oc5liec'.self::FEED_LINK_2;
-		}
+		$vLookupSheetId = 'op2q2od';
 
-		$sheetData = file_get_contents($feedLink.$token);
-		$sheetData = json_decode( $sheetData );
-		$sheetData = $sheetData->{'feed'}->{'entry'};
-		$result = array_merge_recursive( $result, $this->parseGoogleVerifierResponse( $sheetData ) );
+		$vLookupData = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $vLookupSheetId, self::FEED_LINK_2, $token );
+		$result = array_merge_recursive( $result, $this->parseGoogleVerifierResponse( $vLookupData ) );
 
 		// Schedule the maintenance for the Reverification tool.  Use the Main-page title because we need a title
 		// in order for the job to work properly
@@ -552,7 +583,7 @@ class ExpertVerifyImporter {
 		$newParent = new Google_Service_Drive_ParentReference();
 		$newParent->setId( self::EXPIRED_ITEMS_FOLDER );
 
-		$datetime= date( "c", strtotime( "-6 months" ) );
+		$datetime = date( "c", strtotime( "-6 months" ) );
 
         $processedCount = 0;
         foreach ( $oldParents as $oldParent ) {

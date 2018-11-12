@@ -1,0 +1,157 @@
+@min-thumb-width: 240px;
+
+.videoBrowser-video {
+	float: left;
+	position: relative;
+	width: 33.33%;
+	padding-right: 13px;
+	padding-bottom: 13px;
+	box-sizing: border-box;
+}
+
+.videoBrowser-video-content {
+	position: relative;
+	display: block;
+	overflow: hidden;
+}
+
+.videoBrowser-video-image {
+	padding-bottom: 56%;
+}
+
+.videoBrowser-video-image img,
+.videoBrowser-video-image video {
+	position: absolute;
+	width: 100%;
+	/* Fix for Safari showing videos as blank white boxes */
+	-webkit-backface-visibility: hidden;
+	-webkit-transform: translateZ( 0 );
+}
+
+.videoBrowser-video-title {
+	background-color: rgba(50,50,50,.5);
+	padding-right: 4%;
+	padding-left: 4%;
+	padding-top: 3%;
+	padding-bottom: 3%;
+	width: 92%;
+	min-height: 32px;
+	position: absolute;
+	bottom: 0;
+	cursor: pointer;
+	color: #fff;
+	font-weight: bold;
+}
+
+.videoBrowser-video:hover .videoBrowser-video-title {
+	background-color: white;
+	color: #2483ef;
+	text-decoration: none;
+}
+
+.videoBrowser-video-title p {
+	font-size: 12px;
+	line-height: 15px;
+}
+
+.skin-minervawh {
+	.videoBrowser-video-content {
+		border-radius: 5px;
+		overflow: hidden;
+		-webkit-mask-image: -webkit-radial-gradient(white, black);
+	}
+
+	.videoBrowser-video-title {
+		background-color: rgba(67,95,44,.4);
+		font-size: 16px;
+		line-height: 16px !important;
+		min-height: 16px;
+		margin-bottom: 0;
+	}
+
+	.videoBrowser-video-title p {
+		display: inline;
+		font-size: 16px;
+		line-height: 16px !important;
+	}
+
+	.videoBrowser-video:hover .videoBrowser-video-title {
+		background-color: rgba(67,95,44,.4);
+		color: #fff;
+		text-decoration: none;
+	}
+}
+
+.videoBrowser-video-button {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translateY(-50%) translateX(-50%);
+	background-color: rgba(0,0,0,0.5);
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 4px;
+	font-size: 16px;
+	text-align: center;
+}
+
+.videoBrowser-video-button span {
+	vertical-align: bottom;
+	line-height: 24px;
+}
+
+.videoBrowser-video-button span:before {
+	content: '';
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	vertical-align: bottom;
+	margin-right: 8px;
+}
+
+.videoBrowser-video-button-play span:before {
+	background-image: url(../images/play.svg);
+}
+
+.videoBrowser-video-button-play {
+	background-color: #93b874;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.videoBrowser-video-icon {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 15%;
+	opacity: 0.85;
+}
+
+.videoBrowser-video-icon-play {
+	background-image: url(../images/play.svg);
+}
+
+.videoBrowser-video-icon-replay {
+	background-image: url(../images/replay.svg);
+}
+
+.videoBrowser-video-icon-next {
+	background-image: url(../images/next.svg);
+}
+
+.videoBrowser-video-watched {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	color: white;
+	background-color: rgba(50,50,50,0.5);
+	border-radius: 20px;
+	padding: 5px;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+}

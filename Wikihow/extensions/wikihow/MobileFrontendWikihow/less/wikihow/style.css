@@ -57,7 +57,7 @@ a:hover {
  **********/
 
 #footer {
-	border-top:none;
+	border-top: none;
 	padding: 0;
 	margin: 0;
 	position: absolute;
@@ -66,24 +66,66 @@ a:hover {
 	font-size: .9em;
 }
 
-#footer a{
+#footer a {
 	color: #93B874;
 }
 
 #footer_bar {
-	display: table;
 	position: relative;
 	z-index: 3;
 	width: 100%;
 	background-color: #93B874;
 	-webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
 	box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
-	padding:0 !important;
+	padding: 10px;
+	box-sizing: border-box;
 }
 
-/*for tablet footer only*/
-#footer_logo { display: none !important; }
+#search_footer #cse-search-box {
+	margin: 0 10px;
+}
 
+#search_footer .cse_q {
+	color: #FFF;
+	background-color: #B3CE9C;
+	width: 86%;
+}
+#search_footer .cse_sa {
+	top: auto;
+	right: auto;
+	background-color: #B3CE9C;
+	background-image: url(/extensions/wikihow/mobile/images/white_mag.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/mobile/images/white_mag.svg);
+}
+
+#footer_random_button {
+	text-align: center;
+	width: 100px;
+	margin: auto;
+}
+
+.creature {
+	width: 100px;
+	height: 100px;
+	position: relative;
+	z-index: 2;
+	margin-bottom: -20px;
+}
+.creature .creature_path { fill: #93B874; }
+.creature:hover .creature_path { fill: #58773A; }
+.creature .creature_text, .creature_text_flat {
+	font-weight: bold;
+	font-size: 2em;
+	fill: #93B874;
+}
+.creature:hover .creature_text, .creature:hover + .creature_text_flat { fill: #58773A; }
+.creature_text_flat {
+	position:absolute;
+	bottom: 95px;
+	width: 100px;
+	text-align: center;
+}
 /* End footer */
 
 #mw-mf-last-modified{
@@ -263,82 +305,10 @@ body.navigation-enabled #footer {
 	background: rgba(255,255,255,0.2);
 }
 
-#search_footer {
-	display: table-cell;
-	background-color: #93B874;
-	padding: 8px 0;
-}
-
-#search_footer #cse-search-box {
-	margin: 0 10px;
-}
-
-#search_footer .cse_q {
-	color: #FFF;
-	background-color: #B3CE9C;
-	width: 86%;
-}
-#search_footer .cse_sa {
-	background-color: #B3CE9C !important;
-	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMzIuNTQ1cHgiIGhlaWdodD0iMzIuOTExcHgiIHZpZXdCb3g9IjAgMCAzMi41NDUgMzIuOTExIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzMi41NDUgMzIuOTExIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0zMS43OTgsMjguNTYybC05Ljc3Ni05Ljc3NmMxLjMwMy0xLjkyNCwyLjA2NC00LjI0NSwyLjA2NC02Ljc0M0MyNC4wODYsNS4zOTIsMTguNjk0LDAsMTIuMDQzLDANCglDNS4zOTIsMCwwLDUuMzkyLDAsMTIuMDQzYzAsNi42NTEsNS4zOTIsMTIuMDQzLDEyLjA0MywxMi4wNDNjMi4zMDksMCw0LjQ1OS0wLjY2Miw2LjI5Mi0xLjc4OQ0KCWMwLjAxMywwLjAxMywwLjAyMSwwLjAyOSwwLjAzNCwwLjA0Mmw5LjgyNyw5LjgyNmMwLjQ5OCwwLjQ5NywxLjE0OSwwLjc0NiwxLjgwMSwwLjc0NmMwLjY1MiwwLDEuMzA0LTAuMjQ5LDEuODAxLTAuNzQ2DQoJQzMyLjc5MywzMS4xNywzMi43OTMsMjkuNTU3LDMxLjc5OCwyOC41NjJ6IE0xMi4wNDMsMTkuODRjLTQuMjk5LDAtNy43OTctMy40OTgtNy43OTctNy43OTdzMy40OTgtNy43OTcsNy43OTctNy43OTcNCgljNC4yOTksMCw3Ljc5NywzLjQ5OCw3Ljc5Nyw3Ljc5N1MxNi4zNDIsMTkuODQsMTIuMDQzLDE5Ljg0eiIvPg0KPC9zdmc+DQo=) !important;
-}
-
-#search_oversearch .cse_x {
-	float: left;
-	background-color: #93B874;
-	background-size: 25px;
-	height: 25px;
-	width: 25px;
-	margin: 2px 0 0 8px;
-	cursor: pointer;
-	display: none;
-}
-
 .header > form {
 	width: 3em;
 	height: 25px;
 	padding: 0;
-}
-
-#footer ul {
-	display: table;
-	width: 100%;
-	height: 35px;
-}
-#footer ul li {
-	display: table-cell;
-	vertical-align: middle;
-	text-align: center;
-	line-height: normal;
-	padding: 0;
-}
-
-#footer_random_button {
-	text-align: center;
-	width: 100px;
-	margin: auto;
-}
-
-.creature {
-	width: 100px;
-	height: 100px;
-	position: relative;
-	z-index: 2;
-	margin-bottom: -20px;
-}
-.creature .creature_path { fill: #93B874; }
-.creature:hover .creature_path { fill: #58773A; }
-.creature .creature_text, .creature_text_flat {
-	font-weight: bold;
-	font-size: 2em;
-	fill: #93B874;
-}
-.creature:hover .creature_text, .creature:hover + .creature_text_flat { fill: #58773A; }
-.creature_text_flat {
-	position:absolute;
-	bottom: 95px;
-	width: 100px;
-	text-align: center;
 }
 
 .thumbnail {
@@ -659,6 +629,17 @@ a.button.disabled:hover, input.button.disabled:hover, a.button.clickfail:hover, 
 	background-size: 24px;
 }
 
+#search_oversearch .cse_x {
+	float: left;
+	background-color: #93B874;
+	background-size: 25px;
+	height: 25px;
+	width: 25px;
+	margin: 2px 0 0 8px;
+	cursor: pointer;
+	display: none;
+}
+
 .wh_search .cse_sa {
 	position: absolute;
 	top:8px;
@@ -666,33 +647,15 @@ a.button.disabled:hover, input.button.disabled:hover, a.button.clickfail:hover, 
 	margin: 5px 0 0 -23px;
 	width: 18px;
 	height: 18px;
-	background-image: url(/extensions/wikihow/mobile/images/white_mag.png);
-	background-image: linear-gradient(transparent, transparent), url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMzIuNTQ1cHgiIGhlaWdodD0iMzIuOTExcHgiIHZpZXdCb3g9IjAgMCAzMi41NDUgMzIuOTExIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzMi41NDUgMzIuOTExIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiM3NTc1NzUiIGQ9Ik0zMS43OTgsMjguNTYybC05Ljc3Ni05Ljc3NmMxLjMwMy0xLjkyNCwyLjA2NC00LjI0NSwyLjA2NC02Ljc0M0MyNC4wODYsNS4zOTIsMTguNjk0LDAsMTIuMDQzLDANCglDNS4zOTIsMCwwLDUuMzkyLDAsMTIuMDQzYzAsNi42NTEsNS4zOTIsMTIuMDQzLDEyLjA0MywxMi4wNDNjMi4zMDksMCw0LjQ1OS0wLjY2Miw2LjI5Mi0xLjc4OQ0KCWMwLjAxMywwLjAxMywwLjAyMSwwLjAyOSwwLjAzNCwwLjA0Mmw5LjgyNyw5LjgyNmMwLjQ5OCwwLjQ5NywxLjE0OSwwLjc0NiwxLjgwMSwwLjc0NmMwLjY1MiwwLDEuMzA0LTAuMjQ5LDEuODAxLTAuNzQ2DQoJQzMyLjc5MywzMS4xNywzMi43OTMsMjkuNTU3LDMxLjc5OCwyOC41NjJ6IE0xMi4wNDMsMTkuODRjLTQuMjk5LDAtNy43OTctMy40OTgtNy43OTctNy43OTdzMy40OTgtNy43OTcsNy43OTctNy43OTcNCgljNC4yOTksMCw3Ljc5NywzLjQ5OCw3Ljc5Nyw3Ljc5N1MxNi4zNDIsMTkuODQsMTIuMDQzLDE5Ljg0eiIvPg0KPC9zdmc+DQo=);
+	background-image: url(/extensions/wikihow/mobile/images/gray_mag.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/mobile/images/gray_mag.svg);
 	background-color: #FFF;
 	background-size: 18px;
 	background-repeat: no-repeat;
 	border: none;
 	padding: 0;
 	cursor: pointer;
-}
-
-/* the bottom search bar we want auto settings on top and right for abs positioning */
-#search_footer .cse_sa {
-	top:auto;
-	right:auto;
-	background-image: url(/extensions/wikihow/mobile/images/white_mag.png);
-	background-image: linear-gradient(transparent, transparent), url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMzIuNTQ1cHgiIGhlaWdodD0iMzIuOTExcHgiIHZpZXdCb3g9IjAgMCAzMi41NDUgMzIuOTExIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzMi41NDUgMzIuOTExIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiM3NTc1NzUiIGQ9Ik0zMS43OTgsMjguNTYybC05Ljc3Ni05Ljc3NmMxLjMwMy0xLjkyNCwyLjA2NC00LjI0NSwyLjA2NC02Ljc0M0MyNC4wODYsNS4zOTIsMTguNjk0LDAsMTIuMDQzLDANCglDNS4zOTIsMCwwLDUuMzkyLDAsMTIuMDQzYzAsNi42NTEsNS4zOTIsMTIuMDQzLDEyLjA0MywxMi4wNDNjMi4zMDksMCw0LjQ1OS0wLjY2Miw2LjI5Mi0xLjc4OQ0KCWMwLjAxMywwLjAxMywwLjAyMSwwLjAyOSwwLjAzNCwwLjA0Mmw5LjgyNyw5LjgyNmMwLjQ5OCwwLjQ5NywxLjE0OSwwLjc0NiwxLjgwMSwwLjc0NmMwLjY1MiwwLDEuMzA0LTAuMjQ5LDEuODAxLTAuNzQ2DQoJQzMyLjc5MywzMS4xNywzMi43OTMsMjkuNTU3LDMxLjc5OCwyOC41NjJ6IE0xMi4wNDMsMTkuODRjLTQuMjk5LDAtNy43OTctMy40OTgtNy43OTctNy43OTdzMy40OTgtNy43OTcsNy43OTctNy43OTcNCgljNC4yOTksMCw3Ljc5NywzLjQ5OCw3Ljc5Nyw3Ljc5N1MxNi4zNDIsMTkuODQsMTIuMDQzLDE5Ljg0eiIvPg0KPC9zdmc+DQo=);
-	background-color: #B3CE9C;
-	background-size: 18px;
-}
-
-#footer_bar {
-	background-color: #93B874;
-	padding:10px;
-}
-
-#search_footer #cse-search-box {
-	margin: 0 10px;
 }
 
 .editor-overlay .overlay-header .icon.cancel { background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMzguOTQ5cHgiIGhlaWdodD0iMzguOTQ5cHgiIHZpZXdCb3g9IjAgMCAzOC45NDkgMzguOTQ5IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzOC45NDkgMzguOTQ5IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiM2MDYwNjAiIGQ9Ik0yMy4wMSwxOS40NzRMMzguMjE2LDQuMjY4YzAuOTc3LTAuOTc2LDAuOTc3LTIuNTU5LDAtMy41MzVjLTAuOTc3LTAuOTc3LTIuNTU5LTAuOTc3LTMuNTM1LDANCglMMTkuNDc0LDE1LjkzOUw0LjI2OCwwLjczMmMtMC45NzctMC45NzctMi41NTktMC45NzctMy41MzUsMGMtMC45NzcsMC45NzYtMC45NzcsMi41NTksMCwzLjUzNWwxNS4yMDcsMTUuMjA3TDAuNzMzLDM0LjY4MQ0KCWMtMC45NzcsMC45NzYtMC45NzcsMi41NTksMCwzLjUzNWMwLjQ4OCwwLjQ4OCwxLjEyOCwwLjczMiwxLjc2OCwwLjczMnMxLjI3OS0wLjI0NCwxLjc2OC0wLjczMkwxOS40NzQsMjMuMDFsMTUuMjA3LDE1LjIwNw0KCWMwLjQ4OCwwLjQ4OCwxLjEyOCwwLjczMiwxLjc2OCwwLjczMnMxLjI3OS0wLjI0NCwxLjc2OC0wLjczMmMwLjk3Ny0wLjk3NiwwLjk3Ny0yLjU1OSwwLTMuNTM1TDIzLjAxLDE5LjQ3NHoiLz4NCjwvc3ZnPg==) !important; }
@@ -795,7 +758,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
    }
 
    #search_oversearch .cse_sa {
-       background-color: #B3CE9C !important;
+       background-color: #B3CE9C;
        background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMzIuNTQ1cHgiIGhlaWdodD0iMzIuOTExcHgiIHZpZXdCb3g9IjAgMCAzMi41NDUgMzIuOTExIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzMi41NDUgMzIuOTExIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0zMS43OTgsMjguNTYybC05Ljc3Ni05Ljc3NmMxLjMwMy0xLjkyNCwyLjA2NC00LjI0NSwyLjA2NC02Ljc0M0MyNC4wODYsNS4zOTIsMTguNjk0LDAsMTIuMDQzLDANCglDNS4zOTIsMCwwLDUuMzkyLDAsMTIuMDQzYzAsNi42NTEsNS4zOTIsMTIuMDQzLDEyLjA0MywxMi4wNDNjMi4zMDksMCw0LjQ1OS0wLjY2Miw2LjI5Mi0xLjc4OQ0KCWMwLjAxMywwLjAxMywwLjAyMSwwLjAyOSwwLjAzNCwwLjA0Mmw5LjgyNyw5LjgyNmMwLjQ5OCwwLjQ5NywxLjE0OSwwLjc0NiwxLjgwMSwwLjc0NmMwLjY1MiwwLDEuMzA0LTAuMjQ5LDEuODAxLTAuNzQ2DQoJQzMyLjc5MywzMS4xNywzMi43OTMsMjkuNTU3LDMxLjc5OCwyOC41NjJ6IE0xMi4wNDMsMTkuODRjLTQuMjk5LDAtNy43OTctMy40OTgtNy43OTctNy43OTdzMy40OTgtNy43OTcsNy43OTctNy43OTcNCgljNC4yOTksMCw3Ljc5NywzLjQ5OCw3Ljc5Nyw3Ljc5N1MxNi4zNDIsMTkuODQsMTIuMDQzLDE5Ljg0eiIvPg0KPC9zdmc+DQo=) !important;
    }
 }
@@ -822,29 +785,10 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	textarea.newtip {
 		font-size: 18px;
 	}
-
-	#search_footer .cse_saw {
-		background-color: #B3CE9C !important;
-		background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMzIuNTQ1cHgiIGhlaWdodD0iMzIuOTExcHgiIHZpZXdCb3g9IjAgMCAzMi41NDUgMzIuOTExIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzMi41NDUgMzIuOTExIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0zMS43OTgsMjguNTYybC05Ljc3Ni05Ljc3NmMxLjMwMy0xLjkyNCwyLjA2NC00LjI0NSwyLjA2NC02Ljc0M0MyNC4wODYsNS4zOTIsMTguNjk0LDAsMTIuMDQzLDANCglDNS4zOTIsMCwwLDUuMzkyLDAsMTIuMDQzYzAsNi42NTEsNS4zOTIsMTIuMDQzLDEyLjA0MywxMi4wNDNjMi4zMDksMCw0LjQ1OS0wLjY2Miw2LjI5Mi0xLjc4OQ0KCWMwLjAxMywwLjAxMywwLjAyMSwwLjAyOSwwLjAzNCwwLjA0Mmw5LjgyNyw5LjgyNmMwLjQ5OCwwLjQ5NywxLjE0OSwwLjc0NiwxLjgwMSwwLjc0NmMwLjY1MiwwLDEuMzA0LTAuMjQ5LDEuODAxLTAuNzQ2DQoJQzMyLjc5MywzMS4xNywzMi43OTMsMjkuNTU3LDMxLjc5OCwyOC41NjJ6IE0xMi4wNDMsMTkuODRjLTQuMjk5LDAtNy43OTctMy40OTgtNy43OTctNy43OTdzMy40OTgtNy43OTcsNy43OTctNy43OTcNCgljNC4yOTksMCw3Ljc5NywzLjQ5OCw3Ljc5Nyw3Ljc5N1MxNi4zNDIsMTkuODQsMTIuMDQzLDE5Ljg0eiIvPg0KPC9zdmc+DQo=) !important;
+	#search_footer {
+		padding-right: 180px;
 	}
-
-	#search_footer { text-align: right; }
 	#search_footer #cse-search-box .cse_q { width: 24%; }
-	#footer_logo {
-		display: table-cell !important;
-		vertical-align: middle;
-		width: 125px !important;
-		background-image: url(/extensions/wikihow/mobile/images/logo_230_with_tag.png) !important;
-		background-repeat: no-repeat;
-		background-position: center center;
-		background-size: 115px;
-		padding: 0 14px;
-		height: 38px;
-	}
-
-	#footer_logo.footer_logo_intl {
-		background-image: url(/extensions/wikihow/mobile/images/logo_230_without_tag.png) !important;
-	}
 
 	.sticky { padding-top: 67px; }
 
@@ -935,7 +879,7 @@ a.reference-anchor {
 	margin-top: 20px;
 }
 
-#social_proof_mobile + .articleinfo #articleinfo { /* WITH an About this wikiHow section (normal case) */
+#social_proof_mobile + .articleinfo #articleinfo, #summary_wrapper + .articleinfo #articleinfo { /* WITH an About this wikiHow section or summary section (normal case) */
 	padding: 15px;
 	border-top: 1px solid #e7e7e5;
 	border-radius: 0 0 4px 4px;
@@ -952,6 +896,32 @@ a.reference-anchor {
 	background-position: center right;
 	background-size: 20px;
 	color: #545454;
+}
+
+.section_text .collapse_link {
+	width: 100%;
+	display: block;
+	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjkuMzc1cHgiIGhlaWdodD0iMTcuNTE2cHgiIHZpZXdCb3g9IjAgMCAyOS4zNzUgMTcuNTE2IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyOS4zNzUgMTcuNTE2IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNDRENEQ0QiIGQ9Ik0yOS4zNzUsMmMwLDAuNTEyLTAuMTk1LDEuMDIyLTAuNTg2LDEuNDE0TDE0LjY4OCwxNy41MTZMMC41ODYsMy40MTRjLTAuNzgxLTAuNzgxLTAuNzgxLTIuMDQ3LDAtMi44MjgNCgkJYzAuNzgxLTAuNzgxLDIuMDQ3LTAuNzgxLDIuODI4LDBsMTEuMjczLDExLjI3MkwyNS45NiwwLjU4NmMwLjc4MS0wLjc4MSwyLjA0Ny0wLjc4MSwyLjgyOCwwQzI5LjE4LDAuOTc3LDI5LjM3NSwxLjQ4OCwyOS4zNzUsMnoiDQoJCS8+DQo8L2c+DQo8L3N2Zz4NCg==);
+	background-repeat: no-repeat;
+	background-position: center right;
+	background-size: 20px;
+	color: #545454;
+}
+
+.collapse_link.open {
+	margin-bottom: 5px;
+	background-image: none;
+}
+
+#summary_text {
+	display: none;
+}
+
+#social_proof_mobile +  #summary_wrapper {
+	border-top: 1px solid #e7e7e5;
+	margin-top: -5px;
+	position: relative;
+	border-radius: 0;
 }
 
 /* Checkmarks */

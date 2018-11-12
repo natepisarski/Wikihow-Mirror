@@ -8281,6 +8281,8 @@ To include your video in an article on the wiki, insert the following code into 
 'method_2' => 'Method $1 of $2: $3',
 'method_1' => 'Method $1 of $2',
 'method' => 'Method',
+'toc_title' => 'In this Article:',
+'summary_toc' => "Article Summary",
 'recentchanges-legend'  => '',
 'text_view' => 'View as Text',
 'image_view' => 'View as Images',

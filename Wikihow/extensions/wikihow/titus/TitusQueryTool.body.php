@@ -163,7 +163,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 		$headerRow = $this->getHeaderRow($res);
 		$outputValid = $wgRequest->getVal('ti_exclude');
 		$timestamp = date('Y_m_d');
-		$filename = sprintf("titus_query_%s.xls", $timestamp);
+		$filename = sprintf("titus_query_%s.tsv", $timestamp);
 		$this->startOutput($filename, $headerRow);
 
 		if($urlQuery) {

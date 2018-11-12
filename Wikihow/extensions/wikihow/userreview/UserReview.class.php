@@ -36,6 +36,9 @@ class UserReview {
 
 	const SENSITIVE_ID = 9;
 
+	const ICON_MIN_REVIEWS = 11;
+	const ICON_MIN_HELPFULNESS = 80;
+
 	public static function onMakeGlobalVariablesScript( &$vars, $out ) {
 		$title = $out->getTitle();
 
@@ -195,7 +198,7 @@ class UserReview {
 			return true;
 		}
 
-		$iconHtml = self::getUserReviewStamp();
+		$iconHtml = self::getUserReviewStamp($title->getArticleId());
 
 		if ( $iconHtml ) {
 			// remove the editsection if it exists
@@ -206,8 +209,53 @@ class UserReview {
 		return true;
 	}
 
-	public static function getUserReviewStamp() {
-		return "<a href='#userreview_anchor' class='sp_intro_user' >" . wfMessage('ur_stamp')->text() . "</a>";
+	private static function getIconHoverText(int $articleId): string {
+		if (empty($articleId)) return '';
+		$views = RequestContext::getMain()->getWikiPage()->getCount();
+		$helpfulness = class_exists(SocialProofStats) ? SocialProofStats::getPageRatingData($articleId)->rating : 0;
+		$numReviews = self::getEligibleNumCuratedReviews($articleId);
+
+		if ($numReviews < self::ICON_MIN_REVIEWS) {
+			if ($helpfulness < self::ICON_MIN_HELPFULNESS)
+				$msg = 'ur_hover_text_unhelpful_few_stories';
+			else
+				$msg = 'ur_hover_text_helpful_few_stories';
+		}
+		else {
+			if ($helpfulness < self::ICON_MIN_HELPFULNESS)
+				$msg = 'ur_hover_text_unhelpful_lotta_stories';
+			else
+				$msg = 'ur_hover_text_helpful_lotta_stories';
+		}
+
+		$views = number_format($views);
+		$numReviews = number_format($numReviews);
+		return !empty($msg) ? wfMessage($msg, $views, $helpfulness, $numReviews)->parse() : '';
+	}
+
+	public static function getUserReviewStamp(int $articleId = 0, bool $mobile = false): string {
+		$amp = $mobile ? GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() ) : false;
+		$link = $amp ? "#" : "#social_proof_anchor";
+
+		$attributes = [
+			'href' => $link,
+			'class' => 'sp_intro_user'
+		];
+
+		if ($amp) $attributes['on'] = 'tap:sp_icon_hover.toggleVisibility';
+
+		$text = wfMessage('ur_stamp')->text();
+		if ($mobile) $text .= Html::rawElement('span',['class'=>'sp_intro_tiny_i']);
+
+		$stamp = Html::rawElement("a", $attributes, $text);
+
+		if (class_exists('SocialProofStats')) {
+			//add the expert icon
+			$hover_text = self::getIconHoverText($articleId);
+			$stamp .= SocialProofStats::getIconHoverHtml($hover_text, $mobile, $amp);
+		}
+
+		return $stamp;
 	}
 
 	public static function onBeforeRenderPageActionsMobile(array &$data) {
@@ -226,7 +274,7 @@ class UserReview {
 			return true;
 		}
 
-		$html = static::getUserReviewStamp();
+		$html = static::getUserReviewStamp($title->getArticleId(), $mobile = true);
 		if ($html) {
 			$data['userreview_stamp'] = $html;
 		}

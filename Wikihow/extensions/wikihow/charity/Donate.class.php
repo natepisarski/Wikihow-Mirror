@@ -3,13 +3,20 @@
 class Donate extends ContextSource {
 
 	static $images = [
-			'np1.jpg',
-			'np2.jpg',
-			'np3.jpg',
-			'np4.jpg',
-			'np5.jpg',
-			'np6.jpg'
-		];
+		'np1.jpg',
+		'np2.jpg',
+		'np3.jpg',
+		'np4.jpg',
+		'np5.jpg'
+	];
+
+	static $wH_images = [
+		// 'dahlia_care.jpg',
+		// 'dahlia_planting.jpg',
+		// 'dahlia_pot.jpg',
+		// 'gardening.jpg'
+		'flowers.jpg'
+	];
 
 	public static function addDonateSectionToArticle() {
 		$ctx = RequestContext::getMain();
@@ -63,14 +70,36 @@ class Donate extends ContextSource {
 		if (empty($non_profit)) $non_profit = Charity::$non_profit;
 		$donate_image = self::donateImage($non_profit, $img_num);
 
+		if ($non_profit == 'wikihow') {
+			$donate_headline = wfMessage('donate_headline_default')->text();
+			$donate_link = wfMessage('donate_link_default')->text();
+			$default_class = 'don_default';
+			$donate_quote_opening = wfMessage('donate_quote_opening_wikihow')->parse();
+			$donate_quote = wfMessage('donate_quote_wikihow')->parse();
+		}
+		else {
+			$donate_headline = wfMessage('donate_headline')->text();
+			$donate_link = wfMessage('donate_link')->text();
+			$default_class = '';
+			$donate_quote_opening = '';
+			$donate_quote = '';
+		}
+		$src = wfGetPad('/extensions/wikihow/charity/images/'.$donate_image);
 		$vars = [
 			'platform' => $isMobile ? 'mobile' : 'desktop',
-			'image' => wfGetPad('/extensions/wikihow/charity/images/'.$donate_image),
+			'default_class' => $default_class,
+			'image' => $src,
+			'image_tag' => Misc::getMediaScrollLoadHtml(
+				'img', [ 'src' => $src, 'width' => 675, 'class' => 'whcdn' ]
+			),
 			'isAmp' => GoogleAmp::isAmpMode($out) ? 'true' : '',
 			'showX' => !$out->getUser()->isAnon() && !$isMobile,
-			'donate_headline' => wfMessage('donate_headline')->text(),
+			'showAltBlock' => $non_profit == 'wikihow' && !$isMobile,
+			'donate_headline' => $donate_headline,
+			'donate_quote_opening' => $donate_quote_opening,
+			'donate_quote' => $donate_quote,
 			'donate_text' => wfMessage('donate_text_'.$non_profit)->parse(),
-			'donate_link' => wfMessage('donate_link')->text()
+			'donate_link' => $donate_link
 		];
 		$html = $m->render('info', $vars);
 		return $html;
@@ -78,9 +107,9 @@ class Donate extends ContextSource {
 
 	private static function donateImage(string $non_profit, int $img_num) {
 		$dir = $non_profit;
-		$images = self::$images;
-
 		if ($non_profit == 'WaterOrg') return $dir.'/np_1.jpg';
+
+		$images = $non_profit == 'wikihow' ? self::$wH_images : self::$images;
 
 		$num = $img_num - 1;
 		if (!isset($images[$num])) $num = 0;

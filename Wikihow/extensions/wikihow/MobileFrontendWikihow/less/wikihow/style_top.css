@@ -90,7 +90,7 @@ html, body { height: 100%; }
 
 body {
 	background-color: #e9e7e3;
-	color: #606060;
+	color: #333;
 	font-family: "Helvetica Neue", "Helvetica", "Nimbus Sans L", "Arial", "Liberation Sans", sans-serif;
 	line-height: 1.4;
 }
@@ -143,7 +143,7 @@ a, a:active, a:visited {
 }
 
 #mw-mf-page-center {
-	padding: 0 0 129px; /*<-- height of footer*/
+	padding: 0 0 178px; /*<-- height of footer*/
 	min-height: 100%;
 	width: 100%;
 	position: relative;
@@ -351,6 +351,9 @@ sup {
 }
 body.action-view #content>#intro {
 	padding-top: 7px;
+}
+#intro p {
+	line-height: 20px;
 }
 
 .section h2, .steps h3 {
@@ -723,40 +726,42 @@ h4.steps_text::before {
 	height: 100%;
 }
 
-.sp_intro_expert, .tech_article_stamp {
+.sp_intro_expert, .tech_article_stamp, .sp_intro_user {
 	float: right;
-	padding-left: 27px;
-	margin: 15px 0 0 5px;
-	width: 55px;
+	padding: 0 5px 0 27px;
+	margin: 15px 0 0 0;
 	height: 24px;
 	background-size: 24px;
 	background-image: url(/skins/owl/images/sp_expert_icon.png);
 	/* @embed */
-	background-image: url(/skins/owl/images/sp_user_icon.svg);
+	background-image: url(/skins/owl/images/sp_expert_icon.svg);
 	background-repeat: no-repeat;
 	line-height: 12px;
 	font-size: 10px;
 	background-position: 0% 5%;
 	text-decoration: none;
-	color: #383;
+	color: #6f8460;
+	font-weight: bold;
+}
+.sp_intro_expert p, .tech_article_stamp p, .sp_intro_user p {
+	color: #6f8460;
 }
 
 .sp_intro_user {
-	float: right;
-	padding-left: 27px;
-	margin: 15px 0 0 5px;
-	width: 55px;
-	height: 24px;
-	background-size: 24px;
 	background-image: url(/skins/owl/images/sp_user_icon.png);
 	/* @embed */
 	background-image: url(/skins/owl/images/sp_user_icon.svg);
-	background-repeat: no-repeat;
-	line-height: 12px;
-	font-size: 10px;
-	background-position: 0% 5%;
-	text-decoration: none;
-	color: #383;
+}
+
+.sp_intro_tiny_i {
+	width: 10px;
+	height: 10px;
+	margin-left: 4px;
+	display: inline-block;
+	background-size: cover;
+	background-image: url(/skins/owl/images/sp_icon_info_green.png);
+	/* @embed */
+	background-image: url(/skins/owl/images/sp_icon_info_green.svg);
 }
 
 body.action-view #fa_container p {
@@ -867,6 +872,9 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 
 	#intro {
 		font-size: 22px;
+	}
+	#intro p {
+		line-height: 30px;
 	}
 
 	.section_text, .steps_text {
@@ -1283,11 +1291,15 @@ and (-webkit-device-pixel-ratio : 3) {
 a.related-title,a.related-title:active, a.related-title:visited {
 	color: #FFF;
 }
-#intro p {
-	line-height: 20px;
+#intro .green_box {
+	display: none;
 }
-@media only screen and (min-height: 421px) and (min-aspect-ratio: 1/1) {
-	#intro p {
-		line-height: 22px;
-	}
+
+.noarticletext div {
+	border: none !important;
+	padding: 0px;
+	margin-bottom: 0.75em;
+}
+.amazon_info {
+    display: none;
 }

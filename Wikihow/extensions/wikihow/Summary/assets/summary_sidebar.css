@@ -1,0 +1,52 @@
+#summary_section_sidebox {
+	background-color: #FFF;
+}
+
+#summary_section_sidebox.summary_side_with_user_reviews {
+	margin-bottom: -29px;
+}
+
+#summary_section_sidebox h3 {
+	line-height: 22px;
+	padding-left: 28px;
+	background-repeat: no-repeat;
+	background-position: 0 center;
+	background-size: 20px;
+}
+#summary_side_header {
+	background-image: url(info.png);
+	/* @embed */
+	background-image: url(info.svg);
+}
+#summary_side_review_header {
+	background-image: url(smile.png);
+	/* @embed */
+	background-image: url(smile.svg);
+}
+
+.summary_review_show {
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.summary_side_line {
+	border-top: 1px solid #CCC;
+	margin: 14px -16px;
+}
+
+.ur_review0 {
+	padding-top: 5px;
+}
+
+#userreviews .ur_author {
+	display: block;
+	text-align: right;
+}
+
+#userreviews .ur_name {
+	float: left;
+}
+
+#userreviews .ur_initials {
+	display: none;
+}

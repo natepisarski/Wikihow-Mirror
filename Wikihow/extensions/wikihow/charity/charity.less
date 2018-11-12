@@ -256,17 +256,15 @@
 	}
 
 	#ch_footer {
-		padding: 30px 0 20px;
+		padding: 5px 30px 0 20px;
+		margin-bottom:-25px;
+		border-top:2px solid #93B874;
 	}
 
 	#ch_footer_inner {
 		display: inline-block;
 		text-align: left;
-		margin-bottom: 1em;
-	}
-
-	#ch_footer_inner_inner {
-		padding-left: 115px;
+		margin-bottom: 30px;
 	}
 
 	#ch_koala {
@@ -278,14 +276,38 @@
 		font-size: 1.5em;
 	}
 
-	#ch_explore_button {
-		font-size: 1.2em;
-		margin-top: 20px;
-		line-height: normal;
+	#ch_insta_button, #ch_explore_button {
+		padding: 15px 20px;
+		text-align: center;
+		line-height: 1.5em;
+		min-width: 190px;
+		border-radius: 4px;
+		border: 1px solid #bfbfbf;
+		font-weight: bold;
+		font-size: 14px;
+	}
+
+	#ch_insta_button {
+		background-image: url('/extensions/wikihow/charity/images/instagram.png');
+		background-position: 10px;
+		padding-left: 55px;
+		padding-top: 15px;
+		padding-bottom: 15px;
+		background-size: 35px;
+		background-repeat: no-repeat;
+		min-width: 145px;
 	}
 
 	#ch_social {
 		display: none;
+	}
+
+	.ch_social_prompt {
+		display: block;
+		font-size: 1.2em;
+		font-weight: bold;
+		margin: 10px 0;
+		text-align: center;
 	}
 
 }
@@ -366,9 +388,8 @@
 	}
 
 	#ch_charity_logo {
-		width: 40%;
-		margin-bottom: 1%;
-		max-width: 175px;
+		width: 262px;
+		margin-bottom: 1em;
 		position: relative;
 	}
 

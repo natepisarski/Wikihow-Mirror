@@ -33,17 +33,21 @@ class GoogleAmp {
 			global $wgTitle;
 			$articleQuizzes = new ArticleQuizzes($wgTitle->getArticleID());
 			if(count($articleQuizzes::$quizzes) > 0) {
-				$style .= Misc::getEmbedFile('css', dirname(__FILE__) . '/../quiz/quiz.css');
+				$style .= Misc::getEmbedFile('css', __DIR__ . '/../quiz/quiz.css');
 			}
 		}
 		//remove data urls from the style_top since they are very large
 		$style = preg_replace("@background-image:url\(\"*data[^\)]*\);@", "", $style );
-		$style .= Misc::getEmbedFile('css', dirname(__FILE__) . '/ampstyle.css');
-		$style .= Misc::getEmbedFile('css', dirname(__FILE__) . '/../socialproof/mobilesocialproof.css');
+		$style .= Misc::getEmbedFile('css', __DIR__ . '/ampstyle.css');
+		$style .= Misc::getEmbedFile('css', __DIR__ . '/../socialproof/mobilesocialproof.css');
+
+		if (class_exists('SocialFooter')) {
+			$style .= Misc::getEmbedFile('css', __DIR__ . '/../SocialFooter/assets/social_footer.css');
+		}
 
 		// If this is an android app request, add the android styles
 		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
-			$style .= str_replace("!important", "", Misc::getEmbedFile('css', dirname(__FILE__) . '/../android_helper/android_helper.css'));
+			$style .= str_replace("!important", "", Misc::getEmbedFile('css', __DIR__ . '/../android_helper/android_helper.css'));
 		}
 
 		$style = HTML::inlineStyle($style);
@@ -190,19 +194,20 @@ class GoogleAmp {
 	}
 
 	public static function makeAmpImg( $image, $width, $height, $pageId = null ) {
-
 		$thumb = $image->getThumbnail( $width, $height );
+		return self::makeAmpImgElement($thumb->getUrl(), $thumb->getWidth(), $thumb->getHeight());
+	}
 
-		$ampImg = Html::element("amp-img",
-			array(
+	public static function makeAmpImgElement( $image_path, $width, $height ) {
+		return Html::element(
+			"amp-img",
+			[
 				'layout'=>'responsive',
-				"src" => wfGetPad( $thumb->getUrl() ),
-				"width" => $thumb->getWidth(),
-				"height" => $thumb->getHeight()
-			)
+				"src" => wfGetPad( $image_path ),
+				"width" => $width,
+				"height" => $height
+			]
 		);
-
-		return $ampImg;
 	}
 
 	public static function addRelatedWikihows( $related_boxes ) {
@@ -469,19 +474,12 @@ class GoogleAmp {
 		}
 		$intlSite = $wgLanguageCode != 'en';
 
-		if ( $wgLanguageCode == 'it' ) {
-			return;
-		}
-
 		$intro = 1;
 		$firstStep = 2;
 		$fifthStep = 3;
 		$method = 4;
 		$related = 5;
 		$testStep = 6;
-
-		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
-		pq( "#intro" )->append( $adhtml );
 
 		// put an ad after first step if there is more than 1 step in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
@@ -1132,7 +1130,7 @@ class GoogleAmp {
 			"id" => $submitId,
 			"class" => 'search_button'
 		];
-		$labels = Html::rawElement( "input", $inputAttr );
+		$button = Html::rawElement( "input", $inputAttr );
 
 		$inputAttr = [
 			"type" => "text",
@@ -1142,9 +1140,9 @@ class GoogleAmp {
 			"placeholder" => $placeholderText,
 			"aria-label" => wfMessage('aria_search')->showIfExists()
 		];
-		$labels .= Html::rawElement( "input", $inputAttr );
-		$formContents = Html::rawElement( "div", array(), $labels );
-		$formContents = $labels;
+		$input = Html::rawElement( "input", $inputAttr );
+
+		$formContents = $input.$button;
 
 		$formAttr  = [
 			"method" => "get",
@@ -1157,7 +1155,6 @@ class GoogleAmp {
 	}
 
 	public static function renderFooter( $data ) {
-		global $wgLanguageCode;
 		$creature = MinervaTemplateWikihow::getFooterCreatureArray()[rand(0,count(MinervaTemplateWikihow::getFooterCreatureArray())-1)];
 		$textPath = Html::rawElement( "textPath", [ "xlink:href" => "#textPath", "startoffset" => "22%" ], wfMessage('surprise-me-footer')->plain() );
 		$creatureTextCurved = Html::rawElement( "text", [ "class" => "creature_text" ], $textPath );
@@ -1167,7 +1164,12 @@ class GoogleAmp {
 		$creatureLink = Html::rawElement( "a", [ "href" => "/Special:Randomizer" ], $creature );
 		$footerRandom = Html::rawElement( "div", [ "id" => "amp_footer_random_button", "role" => "button" ], $creatureLink);
 		$footerSearch = self::getSearchBar( "footer_search", wfMessage('footer-search-placeholder')->text() );
-		$contents = $footerRandom . $footerSearch;
+
+		$contentsMain = $footerSearch;
+		if (class_exists('SocialFooter')) $contentsMain .= SocialFooter::getSocialFooter();
+		$footerMain = Html::rawElement( "div", [ "id" => "footer_main" ], $contentsMain);
+
+		$contents = $footerRandom . $footerMain;
 		$footerHtml = Html::rawElement( "div", [ "id" => "footer", "role" => "navigation" ], $contents);
 		echo $footerHtml;
 	}

@@ -2,12 +2,17 @@
 
 class Charity extends SpecialPage {
 
-	/* change non-profit info here */
-	/* also, remember to purge AJAX urls after launch */
-	public static $non_profit = 'MedicMobile';
-	var $non_profit_link 			= 'https://medicmobile.org/';
-	var $non_profit_logo 			= 'MedicMobile/logo.png';
-	var $non_profit_photo 		= 'MedicMobile/photo_landing.jpg';
+	/**
+	 * change non-profit info here
+	 * - set non_profit to 'wikihow' to show our default information
+	 * - link/logo/photo not needed for default info
+	 *
+	 * (also, remember to purge AJAX urls after launch)
+	 */
+	public static $non_profit = 'Flyte';
+	var $non_profit_link 			= 'https://www.takeflyte.org/';
+	var $non_profit_logo 			= 'Flyte/logo.png';
+	var $non_profit_photo 		= 'Flyte/photo_landing.jpg';
 	/*******************************/
 
 	public static $non_profit_water_org = 'WaterOrg';
@@ -45,11 +50,21 @@ class Charity extends SpecialPage {
 
 		$is_mobile = Misc::isMobileMode();
 
+		if (self::$non_profit == 'wikihow') {
+			$wikihow_specific = true;
+			$top_tile_text = wfMessage('ch_top_tile_text_wikihow')->parse();
+		}
+		else {
+			$wikihow_specific = false;
+			$top_tile_text = wfMessage('ch_top_tile_text')->parse();
+		}
+
 		$vars = [
 			'platform' => $is_mobile?'mobile':'desktop',
 			'is_mobile' => $is_mobile,
+			'wikihow_specific' => $wikihow_specific,
 			'wh_logo' => wfGetPad('/skins/owl/images/wikihow_logo.png'),
-			'ch_top_tile_text' => wfMessage('ch_top_tile_text')->parse(),
+			'ch_top_tile_text' => $top_tile_text,
 			'ch_tile_1' => wfMessage('ch_tile_1')->parse(),
 			'ch_tile_2' => wfMessage('ch_tile_2')->text(),
 			'ch_tile_3' => wfMessage('ch_tile_3')->text(),
@@ -63,7 +78,7 @@ class Charity extends SpecialPage {
 			'ch_stories_header_1' => wfMessage('ch_stories_header_1')->text(),
 			'ch_stories_header_2' => wfMessage('ch_stories_header_2')->text(),
 			'ch_about_header' => wfMessage('ch_about_header')->text(),
-			'ch_charity_general' => wfMessage('ch_charity_general_'.self::$non_profit)->text(),
+			'ch_charity_general' => wfMessage('ch_charity_general_'.self::$non_profit)->parse(),
 			'ch_charity_specific' => wfMessage('ch_charity_specific_'.self::$non_profit)->parse(),
 			'ch_team_image' => wfGetPad('/extensions/wikihow/charity/images/wikiHow_team.png'),
 			'ch_comm_image' => wfGetPad('/extensions/wikihow/charity/images/wikiHow_comm.png'),
@@ -81,7 +96,10 @@ class Charity extends SpecialPage {
 			'ch_social_prompt' => wfMessage('ch_social_prompt')->text(),
 			'ch_tweet_text' => wfMessage('ch_tweet_text_'.self::$non_profit)->text(),
 			'ch_lang_code' => $out->getLanguage()->getCode(),
-			'ch_bottom_button_text_mobile' => wfMessage('ch_bottom_button_text_mobile')->text()
+			'ch_bottom_button_text_mobile' => wfMessage('ch_bottom_button_text_mobile')->text(),
+			'ch_bottom_prompt_mobile' => wfMessage('ch_bottom_prompt_mobile')->text(),
+			'ch_or' => wfMessage('ch_or')->text(),
+			'ch_instagram_mobile' => wfMessage('ch_instagram_mobile')->text()
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );

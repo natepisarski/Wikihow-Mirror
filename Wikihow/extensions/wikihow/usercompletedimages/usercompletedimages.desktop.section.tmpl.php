@@ -9,7 +9,7 @@
 			<? foreach( $thumbs as $thumb): ?>
 				<a class='uci_thumbnail swipebox ucis_swipebox uci_flaggable' pageid=<?=$thumb['pageId'] ?> href=<?=$thumb['lbSrc'] ?>>
 					<div class="uci_thumb_wrapper">
-						<img src='<?=$thumb['src']?>' alt='' class="defer" />
+						<?=$thumb['img']?>
 					</div>
 					<div class="uci_thumbnail_description"><?=wfMessage('uploaded_timeago', $thumb['timeago'])->text()?></div>
 				</a>

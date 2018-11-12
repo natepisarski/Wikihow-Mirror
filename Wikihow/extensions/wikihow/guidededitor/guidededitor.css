@@ -32,7 +32,7 @@ h2 {
 		padding-left: 1em;
     }
 
-    
+
 
 A.expand_button {
 	background: url(/skins/WikiHow/images/button_downup_sprite.gif) left top no-repeat;
@@ -52,7 +52,7 @@ A.contract_button {
 	padding:0;
 	float:right;
 	display:block;
-	
+
 }
 
 #wpPreview, #wpSave, #wpDiff, #wpDraftSave{ margin-right:10px; }
@@ -126,9 +126,6 @@ td.buttons{
 	-khtml-border-radius: 0 5px 5px 0;
 	border-radius: 0 5px 5px 0;
 }
-
-
-#sub_footer { margin-bottom: 45px !important; }
 
 h2 a {
 	position: absolute;

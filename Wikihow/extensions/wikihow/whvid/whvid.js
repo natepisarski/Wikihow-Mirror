@@ -550,6 +550,21 @@ WH.video = (function () {
 		}
 		updateVisibility();
 
+		// Trevor, 10/30/18 - Dirty hack to track CTR of summary video links
+		var link = document.getElementById( 'summary_video_link' );
+		if ( link ) {
+			link.onclick = function ( e ) {
+				e.preventDefault();
+				var href = this.href;
+				WH.maEvent( 'videoBrowser_article_video_click', {
+					origin: location.hostname,
+					videoTarget: href,
+					articleOrigin: location.pathname
+				}, function () {
+					window.location = href;
+				} );
+			};
+		}
 	}
 
 	function start() {
@@ -583,7 +598,7 @@ WH.video = (function () {
 			var newId = "img-" + mVideo.id;
 			var src = mVideo.getAttribute('data-poster');
 			mVideo.parentElement.innerHTML = "<img id='" + newId + "' src='"+ src + "'></img>";
-		} else {
+		} else if (mVideo) {
 			item = new Video(mVideo);
 			videos.push(item);
 			updateItemVisibility(item);

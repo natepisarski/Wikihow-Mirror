@@ -20,5 +20,6 @@
 	"set_err_no_last_sentence": "Quick summaries need a last sentence.",
 	"summary_section_no_edit": "Editing this section requires particular user rights. If you see something that needs fixing, please report it to the [[wikiHow_talk:Help-Team|Help Team]] so we can get it corrected. Thanks!",
 	"summary_section_notice": "<!-- Quick Summary code below. Please move/edit via section Edit link if needed. -->",
-	"summary_namespace_instructions": "NOTE: This is the Summary template for [[$1]]. Use the Edit UI on the article to make any changes."
+	"summary_namespace_instructions": "NOTE: This is the Summary template for [[$1]]. Use the Edit UI on the article to make any changes.",
+	"summary_read_more": "Read more"
 }

@@ -1,0 +1,9 @@
+<div id="sp_icon_hover" hidden {{#amp}}on="tap:sp_icon_hover.toggleVisibility" role="button" tabindex="0"{{/amp}}>
+	{{#mobile}}<div id="sp_icon_close">X</div>{{/mobile}}
+	<div id="sp_icon_header">{{header}}</div>
+	<div id="sp_icon_body">
+		{{{body}}}
+		{{^mobile}}<a href="{{learn_more_link}}" class="sp_learn_more_link">{{learn_more}}</a>{{/mobile}}
+	</div>
+</div>
+{{^mobile}}<div class="sp_info_icon"></div>{{/mobile}}

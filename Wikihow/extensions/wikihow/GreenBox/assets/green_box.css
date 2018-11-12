@@ -1,9 +1,10 @@
 .green_box, .green_tips_box {
+	display: table;
 	background-color: #f0f6ec;
 	margin: .8em auto .5em;
 	width: 95%;
 	border-left: 5px solid #93b873;
-	padding: 10px;
+	padding: .7em;
 	border-radius: 4px;
 	box-sizing: border-box;
 	color: #434343;
@@ -12,6 +13,28 @@
 
 .green_box.mobile {
 	margin: 1em auto .2em;
+	width: 100%;
+}
+
+.green_box.expert_qa {
+	border-top-left-radius: 0;
+	margin-top: 2em;
+}
+
+.green_box_tab_label {
+	display: table-caption;
+	background-color: #93b873;
+	color: #FFF;
+	font-weight: bold;
+	font-size: .7em;
+	line-height: 2em;
+	border-radius: 4px 4px 0 0;
+	text-align: center;
+	width: 11em;
+}
+
+.green_box_row {
+	display: table-row;
 }
 
 .green_box_headline, .green_tips_box > span {
@@ -29,4 +52,76 @@
 }
 .green_box p:last-child {
 	margin-bottom: 0;
+}
+
+.green_box_person, .green_box_content {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.green_box_person {
+	color: #6F8460;
+	text-align: center;
+	width: 45px;
+	padding: .5em .3em;
+}
+
+.green_box_content {
+	padding: .5em .3em .5em .5em;
+}
+
+.green_box_expert_label {
+	font-size: .55em;
+	line-height: 1.2em;
+	font-weight: bold;
+	padding-top: .5em;
+}
+
+.green_box_person_circle {
+	width: 45px;
+	height: 45px;
+	background-color: #ced9be;
+	color: #FFF;
+	font-size: 1.3em;
+	line-height: 42px;
+	border: 2px solid #6F8460;
+	border-radius: 50%;
+	box-sizing: border-box;
+	overflow: hidden;
+	margin-top: 4px;
+}
+
+.green_box_person_circle img {
+	width: 100%;
+}
+
+.green_box_person_circle.questioner {
+	background-color: #93b873;
+	border-color: #93b873;
+	text-align: center;
+	font-size: 1.6em;
+}
+
+.stable .content .green_box_content p {
+	line-height: 22px;
+}
+
+@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
+only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+
+	.green_box.mobile .green_box_person {
+		width: 80px;
+	}
+
+	.green_box.mobile .green_box_person_circle {
+		width: 80px;
+		height: 80px;
+		border-width: 3px;
+		line-height: 75px;
+		font-size: 1.8em;
+	}
+
+	.stable .content .green_box_content p {
+		line-height: 28px;
+	}
 }

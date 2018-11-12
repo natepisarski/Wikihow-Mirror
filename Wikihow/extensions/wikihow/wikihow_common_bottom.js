@@ -309,15 +309,6 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-	$('.s-help-wrap').on('click', function(event) {
-		if ($(event.target).hasClass('firststeplink')) {
-			$('html, body').animate({
-				scrollTop: $(".section.steps:first").offset().top - 50
-			}, 750);
-			return false;
-		}
-	});
-
 	// helpfulness text form feedback
 	$('.s-help-feedback-wrap input').on('click', function(event) {
 		var ratingId = $(this).data("rating-id");

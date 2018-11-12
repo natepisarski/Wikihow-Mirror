@@ -291,6 +291,12 @@ class AlternateDomain {
 			'ti_robot_policy' => 'index,follow',
 			'ti_num_photos > 0'
 		);
+
+		if ( SensitiveRelatedWikihows::isSensitiveRelatedRemovePage( $wgTitle ) ) {
+			$srpTable = SensitiveRelatedWikihows::SENSITIVE_RELATED_PAGE_TABLE;
+			$conds[] = "ti_page_id NOT IN (select srp_page_id from $srpTable)";
+		}
+
 		$orderBy = 'ti_30day_views DESC';
 		$options = array( 'ORDER BY' => $orderBy, 'LIMIT' => $limit );
 		if ( $offset ) {
@@ -586,6 +592,15 @@ class AlternateDomain {
 
 					// if on mobile then allow the amp param for amp mode
 					if ( Misc::isMobileMode() && $key == "amp" && $value == "1") {
+						continue;
+					}
+
+					// If on mobile allow the Android app request parameter
+					if ( Misc::isMobileMode() &&
+						class_exists('AndroidHelper') &&
+						AndroidHelper::isAndroidRequest() &&
+						$key == AndroidHelper::QUERY_STRING_PARAM &&
+						$value == "1" ) {
 						continue;
 					}
 
@@ -1124,9 +1139,6 @@ class AlternateDomain {
 			if ( $lckey == 'pagetitle' ) {
 				$lckey = "pagetitle_alternate_domain";
 			}
-			if ( $lckey == 'sub_footer_new_anon' || $lckey == 'sub_footer_new' ) {
-				$lckey = 'sub_footer_alternate_domain';
-			}
 		}
 
 		if ( self::onNoBrandingDomain() ) {
@@ -1135,9 +1147,6 @@ class AlternateDomain {
 			}
 			if ( $lckey == 'qa_generic_username' ) {
 				$lckey = 'qausername_nobranding';
-			}
-			if ( $lckey == 'sub_footer_new_anon' || $lckey == 'sub_footer_new' ) {
-				$lckey = 'sub_footer_domain_nobranding';
 			}
 		}
 

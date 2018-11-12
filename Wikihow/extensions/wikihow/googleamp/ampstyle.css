@@ -133,7 +133,7 @@
 	height: 56px;
 	width: 56px;
 	margin-left: 0;
-	background-image: url(/extensions/wikihow/qa/widget/assets/qa_person_circle.png);
+	background-image: url(/skins/WikiHow/images/80x80_user.png);
 	border-radius: 50%;
 }
 
@@ -251,42 +251,41 @@
 	width: 100px;
 	margin: auto;
 }
-#footer form {
-	display: inline-block;
+#footer_main {
 	position: relative;
-	box-sizing: border-box;
-	width: 100%;
-	padding: 8px;
 	z-index: 3;
+	box-sizing: border-box;
+	padding: 8px;
 	background-color: #93b874;
 	-webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
 	box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
 }
-@media only screen and (min-width: 500px) {
-	#footer form {
-		background: url(/extensions/wikihow/mobile/images/logo_230_with_tag.png) #93b874 no-repeat 5% center;
-		background-size: 115px;
-	}
+#footer form {
+	display: block;
 }
 .search_text {
 	color: #FFF;
 	background-color: #B3CE9C;
 	border-radius: 5px 0px 0px 5px;
-	float: right;
-	width: 88%;
-	max-width: 490px;
+	width: 92%;
 	height: 29px;
-	padding-left: 4%
+	padding-left: 1em;
+	box-sizing: border-box;
 }
 .search_button {
 	width: 8%;
-	max-width: 35px;
 	height: 29px;
+	float: right;
 	background: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/search_icon.svg) #B3CE9C no-repeat 50% 50%;
 	background-size: contain;
-	float: right;
 	border: 4px solid #B3CE9C;
 	border-radius: 0px 5px 5px 0px;
+}
+@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
+only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	#footer form {
+		padding-right: 180px;
+	}
 }
 #menu-button-wrap {
 	position: relative;
@@ -314,7 +313,7 @@
 	color: black;
 }
 #top-sidebar .search_button {
-	width: 14%
+	width: 19%
 }
 #top-sidebar {
 	background-color: #5C5C5C;
@@ -376,11 +375,6 @@
 	background-size: 16px;
 	background-position: 12px;
 }
-.icon-categoryguardian a {
-	background-image: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-categoryguardian.svg);
-	background-size: auto 23px;
-	background-position: 14px;
-}
 .icon-spellchecker a {
 	background-image: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-spellchecker.svg);
 	background-size: 19px;
@@ -391,9 +385,6 @@
 }
 .icon-sortquestions a {
 	background-image: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-sortquestions.svg);
-}
-.icon-aboutwikihow a {
-	background-image: url(/skins/owl/images/wikihow_logo_round.png);
 }
 .header {
 	z-index: 10000;
@@ -442,7 +433,7 @@
 #sp_inner .sp_fullbox:first-child {
 	border-top: none;
 }
-#articleinfo:after {
+#articleinfo:after, .collapse_link:after {
 	position: absolute;
 	top: 25%;
 	right: 5%;
@@ -458,22 +449,13 @@
 .references {
 	list-style: decimal inside;
 }
-.aidata {
-	display:none;
-}
 .info_label {
 	font-weight: bold;
 }
-#aiinfo:target ~ .aidata {
+#aiinfo:target ~ .aidata, #social_proof_mobile:target ~ .aidata {
 	display: block;
 }
-#aiinfo:target {
-	display: none;
-}
-#social_proof_mobile:target ~ .aidata {
-	display: block;
-}
-#social_proof_mobile:target ~ #aiinfo {
+.aidata, #aiinfo:target, #social_proof_mobile:target ~ #aiinfo {
 	display: none;
 }
 #articleinfo {
@@ -484,6 +466,27 @@
 	position: relative;
 	z-index: 1;
 }
+.collapse_link {
+	display: block;
+	border-radius: 0 0 4px 4px;
+	margin: -5px -15px 0 -15px;
+	position: relative;
+	z-index: 1;
+	padding: 0 15px;
+}
+#summary_wrapper {
+	border-top: 1px solid #e7e7e5;
+	margin-top: -5px;
+	position: relative;
+	border-radius: 0;
+}
+#summary_text {display:none;}
+#summary_wrapper:target #summary_text{display:block;}
+#summary_wrapper:target .collapse_link{margin-bottom: 5px;}
+#summary_wrapper:target .collapse_link:after {
+	border: none;
+}
+
 .section.video {
 	display: block;
 }
@@ -610,10 +613,6 @@
 	margin-top: 10px;
 }
 
-#ur_mobile li:first-child .ur_divider {
-	display: none;
-}
-
 .ur_divider {
 	margin: 0 -15px 15px -15px;
 	border-top: 1px solid #e5e5e5;
@@ -623,27 +622,16 @@
 	display: list-item;
 }
 
-#ur_anchor:target ~ .ur_more {
-	display: none;
-}
 #ur_anchor:target ~ .ur_hide {
 	display: block;
 }
 
-#ur_anchor:target ~ ul .ur_ellipsis, #ur_anchor:target ~  ul .ur_review_show {
+#ur_mobile li:first-child .ur_divider, #ur_anchor:target ~ ul .ur_ellipsis, #ur_anchor:target ~  ul .ur_review_show, #ur_anchor:target ~ .ur_more, #ur_anchor_full:target ~ ul .ur_review_show, #ur_anchor_full:target ~ ul .ur_ellipsis {
 	display: none;
 }
 
-#ur_anchor:target ~ ul .ur_review_more {
+#ur_anchor:target ~ ul .ur_review_more, #ur_anchor_full:target ~ ul .ur_review_more {
 	display: inline;
-}
-
-#ur_anchor_full:target ~ ul .ur_review_show, #ur_anchor_full:target ~ ul .ur_ellipsis {
-	display: none;
-}
-
-#ur_anchor_full:target ~ ul .ur_review_more {
-	display:inline;
 }
 
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
@@ -678,7 +666,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 		line-height: 44px;
 		vertical-align: text-bottom;
 	}
-
 }
 #sd_container {
 	padding:15px;
@@ -786,6 +773,30 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	padding: 14px 20px;
 	text-align: center;
 }
+.don_default #donate_button {
+	padding-left: 46px;
+	background-repeat: no-repeat;
+	background-size: 23px;
+	background-position: 16px center;
+	background-image: url(/extensions/wikihow/charity/images/heart.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/charity/images/heart.svg);
+}
+.donate_quote_line {
+	border-top: 1px solid #cbdcbb;
+	width: 65%;
+	max-width: 350px;
+	margin: 1.3em auto;
+}
+#donate_quote {
+	font-style: italic;
+}
+#donate_quote_opening {
+	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+	font-weight: bold;
+	font-size: 1.4em;
+	margin-bottom: .7em;
+}
 .icon-aboutwikihow {
 	display: none;
 }
@@ -819,16 +830,10 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	margin: 0;
 	padding: 0;
 }
-.gdpr_no_display {
-	display: block;
-}
-.amp-geo-group-eu .gdpr_no_display {
+.amp-geo-group-eu .gdpr_no_display, .gdpr_only_display {
 	display: none;
 }
-.gdpr_only_display {
-	display: none;
-}
-.amp-geo-group-eu .gdpr_only_display {
+.gdpr_no_display, .amp-geo-group-eu .gdpr_only_display {
 	display: block;
 }
 .amp-geo-group-eu .mw-mf-display-toggle {
@@ -847,10 +852,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 #top-sidebar ul:first-child {
 	margin-top: 0;
 }
-amp-accordion section[expanded] .show-more {
-	display: none;
-}
-amp-accordion section:not([expanded]) .show-less {
+amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]) .show-less {
 	display: none;
 }
 .embedvideo_gdpr_headline span {
@@ -884,22 +886,38 @@ amp-accordion section:not([expanded]) .show-less {
 .embedvideo_gdpr_headline:focus {
 	outline: 0;
 }
-#intro p {
-	line-height: 20px;
-}
 
 .green_box, .green_tips_box {
+	display: table;
 	background-color: #f0f6ec;
-	margin: 1em auto;
-	width: 95%;
 	border-left: 5px solid #93b873;
-	padding: 10px;
+	padding: .7em;
 	border-radius: 4px;
 	box-sizing: border-box;
 	color: #434343;
 	line-height: 1.5em;
+	margin: 1em auto .2em;
+	width: 100%;
 }
-.green_box_headline, .green_tips_box span {
+.green_box.expert_qa {
+	border-top-left-radius: 0;
+	margin-top: 2em;
+}
+.green_box_tab_label {
+	display: table-caption;
+	background-color: #93b873;
+	color: #FFF;
+	font-weight: bold;
+	font-size: .7em;
+	line-height: 2em;
+	border-radius: 4px 4px 0 0;
+	text-align: center;
+	width: 11em;
+}
+.green_box_row {
+	display: table-row;
+}
+.green_box_headline, .green_tips_box > span {
 	font-weight: bold;
 	font-size: 120%;
 }
@@ -911,4 +929,56 @@ amp-accordion section:not([expanded]) .show-less {
 }
 .green_box p:last-child {
 	margin-bottom: 0;
+}
+.green_box_person, .green_box_content {
+	display: table-cell;
+	vertical-align: top;
+}
+.green_box_person {
+	color: #6F8460;
+	text-align: center;
+	width: 45px;
+	padding: .5em .3em;
+}
+.green_box_content {
+	padding: .5em .3em .5em .5em;
+}
+.green_box_expert_label {
+	font-size: .55em;
+	line-height: 1.2em;
+	font-weight: bold;
+	padding-top: .5em;
+}
+.green_box_person_circle {
+	width: 45px;
+	height: 45px;
+	background-color: #ced9be;
+	color: #FFF;
+	font-size: 1.3em;
+	line-height: 42px;
+	border: 2px solid #6F8460;
+	border-radius: 50%;
+	box-sizing: border-box;
+	overflow: hidden;
+	margin-top: 4px;
+}
+.green_box_person_circle img {
+	width: 100%;
+}
+.green_box_spacing_row {
+	height: .5em;
+}
+.green_box_person_circle.questioner {
+	background-color: #93b873;
+	border-color: #93b873;
+	text-align: center;
+	font-size: 1.6em;
+}
+.stable .content .green_box_content p {
+	line-height: 22px;
+}
+
+.unnabbed_alert_top,
+.unnabbed_alert {
+	display: none;
 }

@@ -284,7 +284,10 @@
 	self.setSchema = self.declareSchema;
 
 	if ( !mw.config.get( 'wgEventLoggingBaseUri' ) ) {
-		self.warn( '"$wgEventLoggingBaseUri" is not set.' );
+		// HACK, Trevor, 10/22/18 - Not ready to remove this dependency, but we don't use this
+		// logging code, so we aren't going to set this variable, so we just need the warning to
+		// go away so GoogleBot doesn't see it
+		// self.warn( '"$wgEventLoggingBaseUri" is not set.' );
 	}
 
 } ( mediaWiki, jQuery, window.console ) );

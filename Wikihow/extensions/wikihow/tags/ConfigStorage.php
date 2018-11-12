@@ -165,7 +165,7 @@ class ConfigStorage {
 			[ 'keys' => ['picture_patrol_whitelist', 'picture_patrol_blacklist'],
 			  'users' => ['ElizabethD', 'AlissaB', 'Argutier', 'Anna'] ],
 			[ 'keys' => ['qa_article_ids', 'qa_blacklisted_article_ids', 'qa_box_article_ids', 'qa_category_blacklist'],
-			  'users' => ['ElizabethD', 'AlissaB', 'Ethan Teng'] ],
+			  'users' => ['ElizabethD', 'AlissaB', 'Chris H', 'Anna'] ],
 			[ 'keys' => ['wikiphoto-article-exclude-list'],
 			  'users' => ['ElizabethD', 'WikiPhoto', 'Wikivisual', 'Wikiphoto'] ],
 		];

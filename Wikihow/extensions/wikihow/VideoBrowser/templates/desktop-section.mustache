@@ -1,17 +1,17 @@
 <div id="relatedvideos_section" class="section sticky">
 	<h2 class="section_head" id="relatedvideos_head"><span>{{title}}</span></h2>
 	<div id="relatedvideos" class="section_text">
-		{{#items}}
-		<a class="videoItem" href="{{link}}">
-			<div class="videoItem-content">
-				<div class="videoItem-preview">
+		{{#videos}}
+		<a class="relatedvideos-video" href="{{link}}">
+			<div class="relatedvideos-video-content">
+				<div class="relatedvideos-video-preview">
 					{{{preview}}}
 				</div>
-				<p class="videoItem-label">{{howto}}<br><span>{{title}}</span></p>
-				<div class="videoItem-icon videoItem-icon-play"></div>
+				<p class="relatedvideos-video-label">{{howto}}<br><span>{{title}}</span></p>
+				<div class="relatedvideos-video-icon relatedvideos-video-icon-play"></div>
 			</div>
 		</a>
-		{{/items}}
+		{{/videos}}
 		<div style="clear:both"></div>
 	</div>
 </div>

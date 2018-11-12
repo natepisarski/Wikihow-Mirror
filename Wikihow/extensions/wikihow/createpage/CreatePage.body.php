@@ -94,6 +94,7 @@ class CreatePage extends SpecialPage {
 
 	public function execute($par) {
 		global $wgOut, $wgRequest, $wgUser, $wgLanguageCode, $wgScriptPath;
+		global $wgMimeType;
 		$target = $wgRequest->getVal( 'target' );
 		$topic = $wgRequest->getVal('topic');
 
@@ -101,8 +102,11 @@ class CreatePage extends SpecialPage {
 		if (isset($par)) $wgOut->redirect('/Special:CreatePage?target='.urlencode($par));
 
 		if ($wgRequest->getVal('ajax') == 'true') {
+			$wgMimeType = 'application/json';
+			$wgOut->setArticleBodyOnly(true);
+
 			if ($topic) {
-				$wgOut->setArticleBodyOnly(true);
+
 				$matches = SuggestionSearch::matchKeyTitles($topic, 30);
 
 				if (count($matches) > 0) {
@@ -134,11 +138,9 @@ class CreatePage extends SpecialPage {
 				$result['html'] = $html;
 
 				$wgOut->addHTML(json_encode($result));
-				return;
-			}
 
-			if ($target) {
-				$wgOut->setArticleBodyOnly(true);
+			} elseif ($target) {
+
 				$t = Title::newFromText($target);
 
 				//creating a redirect?
@@ -205,8 +207,8 @@ class CreatePage extends SpecialPage {
 				}
 
 				$wgOut->addHTML(json_encode($result));
-				return;
 			}
+			return;
 		}
 
 		$me = Title::newFromText("CreatePage", NS_SPECIAL);

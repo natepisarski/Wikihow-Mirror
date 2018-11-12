@@ -72,6 +72,9 @@ WH.mobileads = (function () {
 	 */
 	function getAdChannels(type, target) {
 		var channels = adData.channels.base;
+		if (window.isBig) {
+			channels += adData.channels.baselarge;
+		}
 
 		var adPosition = type;
 
@@ -91,6 +94,8 @@ WH.mobileads = (function () {
 
 		if (!window.isBig) {
 			channels += adData.channels.small[adPosition];
+		} else {
+			channels += adData.channels.large[adPosition];
 		}
 
 		if (window.intlAds == true) {

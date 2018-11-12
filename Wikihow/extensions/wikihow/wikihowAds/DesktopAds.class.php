@@ -220,8 +220,8 @@ class DesktopAds {
 	 * get the html of the banner ad if it is set
 	 */
 	public function getBannerAdHtml() {
-		if ( isset( $this->mAdCreator->mAds['bannerad'] ) ) {
-			return $this->mAdCreator->mAds['bannerad']->mHtml;
+		if ( $this->mAdCreator ) {
+			return $this->mAdCreator->getPreContentAdHtml();
 		}
 	}
 
@@ -261,6 +261,13 @@ class DesktopAds {
 		if ( $desktopAds ) {
 			echo $desktopAds->getBannerAdHtml();
 		}
+	}
+
+	/*
+	 * Hook from the WikihowTemplate class that lets us insert html after the action bar
+	 */
+	public static function onAfterActionbar( $wgOut, $desktopAds ) {
+		echo "";
 	}
 
 	/*
@@ -305,16 +312,30 @@ class DesktopAds {
 			$adCreator->setAdLabelVersion( 2 );
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
-			$adCreator = new MixedAdCreatorVersion2();
-			if ( $pageId % 100 == 0 ) {
-				$adCreator = new MixedAdCreatorVersion5();
+
+			// our current complicated setup
+			$adCreator = new MixedAdCreatorVersion5();
+			$adCreator->mAdServices['step'] = '';
+
+			if ( $pageId % 100 < 50 ) {
+				$adCreator = new MethodsButNoIntroAdCreator();
 			}
+
+			//if ( $pageId % 100 == 53 ) {
+				//$adCreator = new AdsenseRaddingRR1AdCreator();
+				//$adCreator->mAdServices['step'] = '';
+			//}
+
 			if ( $pageId == 110310 ) {
 				$adCreator = new MixedAdCreatorVersion3();
+				$adCreator->mAdServices['step'] = '';
 			} else if ( $pageId == 647971 ) {
 				$adCreator = new MixedAdCreatorVersion4();
+				$adCreator->mAdServices['step'] = '';
 			} else if ( $pageId == 8917510 ) {
+				// Upshift used for testing new ad features that need to be live
 				$adCreator = new MixedAdCreatorVersion5();
+				$adCreator->mAdServices['step'] = '';
 			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
@@ -322,10 +343,10 @@ class DesktopAds {
 			}
 			if ( !$this->mEnglishSite ) {
 				$adCreator = new InternationalAdCreator();
+				$adCreator->mAdServices['step'] = '';
 			}
 			// some settings that have become default over time
 			// we can refactor them to be the default in the class at construction time
-			$adCreator->mAdServices['step'] = '';
 			$adCreator->setRefreshableRightRail( true );
 			$adCreator->setStickyIntro( false );
 			$adCreator->setShowRightRailLabel( true );

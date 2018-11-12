@@ -167,9 +167,10 @@ WH.whEvent = function(category, action, group, label, version, fromMAEvent) {
 // Machinify event system
 // eventName should be a string identifying the event.
 // eventProps should be a dict with the data to log set in it.
-// noLogToWHEvent is an ignored/unused param
+// callback is optionally a function, it's backwards safe so passing a bool as you would have using
+//    the previous noLogToWHEvent argument won't break anything
 WH.maEventInitialized = false;
-WH.maEvent = function(eventName, eventProps, noLogToWHEvent) {
+WH.maEvent = function(eventName, eventProps, callback) {
 	if (typeof MachinifyAPI == 'undefined') {
 		if (typeof console != 'undefined') {
 			console.log('error: Machinify API called before it was initialized! (Maybe a loading order issue?) maEvent=' + eventName);
@@ -220,7 +221,7 @@ WH.maEvent = function(eventName, eventProps, noLogToWHEvent) {
 		console.log(eventProps);
 	}
 
-	MachinifyAPI.sendEvent(eventName, eventProps);
+	MachinifyAPI.sendEvent(eventName, eventProps, callback);
 };
 
 /**

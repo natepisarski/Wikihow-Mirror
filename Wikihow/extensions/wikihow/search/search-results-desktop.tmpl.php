@@ -38,7 +38,13 @@
 			echo '<div id="search_adblock_middle" class="search_adblock"></div>';
 		}
 	?>
-
+		<?
+		$url = $result['url'];
+		if (!preg_match('@^http:@', $url)) {
+			$url = $BASE_URL . '/' . $url;
+		}
+		?>
+		<a href="<?= $url ?>" class="result_link">
 		<div class="result <?=$i == 0 || $i == 3 ? "result_margin" : "";?>">
 			<? if (!$result['is_category']): ?>
 				<div class='result_thumb'>
@@ -50,18 +56,12 @@
 				<div class='result_thumb cat_thumb'><img src="<?= $result['img_thumb_250'] ? $result['img_thumb_250'] : $noImg ?>" /></div>
 			<? endif; ?>
 
-			<?
-			$url = $result['url'];
-			if (!preg_match('@^http:@', $url)) {
-				$url = $BASE_URL . '/' . $url;
-			}
-			?>
 			<div class="result_data">
 			<? if ($result['has_supplement']): ?>
-				<? if (!$result['is_category']): ?>
-					<a href="<?= $url ?>" class="result_link"><?= $result['title_match'] ?></a>
+				<? if (!$result['has_supplement'] || !$result['is_category']): ?>
+					<div class="result_title"><?= $result['title_match'] ?></div>
 				<? else: ?>
-					<a href="<?= $url ?>" class="result_link"><?= wfMessage('lsearch_article_category', $result['title_match']) ?></a>
+					<div class="result_title"><?= wfMessage('lsearch_article_category', $result['title_match']) ?></div>
 				<? endif; ?>
 				<div class="result_data_divider"></div>
 				<ul class="search_results_stats">
@@ -80,14 +80,13 @@
 					</li>
 				</ul>
 			<? else: ?>
-				<a href="<?= $url ?>" class="result_link"><?= $result['title_match'] ?></a>
+				<div class="result_title"><?= $result['title_match'] ?></div>
 			<? endif; // has_supplement ?>
 			<? // Sherlock-form ?>
 			<?= EasyTemplate::html('sherlock-form', array("index" => $i + $first, "result" => $result)); ?>
 			</div>
-
-
 		</div>
+		</a>
 	<? endforeach; ?>
 	<div id="search_adblock_bottom" class="search_adblock"></div>
 </div>

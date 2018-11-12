@@ -31,9 +31,11 @@ $wgResourceModules['ext.wikihow.quizzes'] = [
 	'dependencies' => ['ext.wikihow.common_top'],
 ];
 
-$wgHooks['WebRequestPathInfoRouter'][] = array('wfGetQuizPage');
-$wgHooks["BeforeParserFetchFileAndTitle2"][] = array("wfGrabQuizCTA");
-$wgHooks["ArticleSaveComplete"][] = array("wfConnectQuiz");
+// Reuben disabled quizzes (per Eliz) because it was going to be work to make them
+// mobile-friendly on Oct 1, 2018. See LH #2541.
+//$wgHooks['WebRequestPathInfoRouter'][] = array('wfGetQuizPage');
+//$wgHooks["BeforeParserFetchFileAndTitle2"][] = array("wfGrabQuizCTA");
+//$wgHooks["ArticleSaveComplete"][] = array("wfConnectQuiz");
 
 function wfGrabQuizCTA(&$parser, &$nt, &$ret, $ns) {
 	global $wgCanonicalNamespaceNames;

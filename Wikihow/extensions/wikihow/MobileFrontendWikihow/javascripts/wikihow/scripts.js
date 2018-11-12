@@ -53,6 +53,12 @@ function initializeArticlePage() {
 		});
 	});
 
+	$(document).one("click", "#summary_wrapper .collapse_link", function(e){
+		e.preventDefault();
+		$("#summary_text").show();
+		$(this).addClass("open");
+	});
+
 	$('.checkmark').on('click', function() {
 		if ($(this).hasClass('checked')) {
 			$(this).removeClass('checked');

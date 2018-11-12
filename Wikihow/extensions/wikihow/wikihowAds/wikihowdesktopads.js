@@ -12,7 +12,7 @@ WH.desktopAds = (function () {
 	var rrSizeChanged = false;
 	var rrSizeCheckCount = 0;
 	var RR_SIZE_MAX_COUNT = 40;
-	var AD_INSERT_MAX_COUNT = 5;
+	var AD_INSERT_MAX_COUNT = 1000;
 	var adInsertCount = 0;
 
     var rightRailExtra = null;
@@ -73,7 +73,7 @@ WH.desktopAds = (function () {
 	function apsLoad(ad) {
 		log("apsLoad", ad);
 		var id = ad.adTargetId;
-		var slotName = gptAdSlots[id].getName();
+		var slotName = gptAdSlots[id].getAdUnitPath();
 		var sizes = gptAdSlots[id].getSizes();
 		var sizesArray = [];
 		for (var i = 0; i < sizes.length; i++) {
@@ -88,13 +88,14 @@ WH.desktopAds = (function () {
 	}
 
 	function updateKeyVal(adId, key, value) {
-		if (!dfpKeyVals[gptAdSlots[adId]]) {
+		if (!gptAdSlots[adId]) {
+			return;
+		}
+		if (!dfpKeyVals[gptAdSlots[adId].getAdUnitPath()]) {
 			return;
 		}
 
-		if (dfpKeyVals[gptAdSlots[adId].getName()]) {
-			dfpKeyVals[gptAdSlots[adId].getName()][key] = value;
-		}
+		dfpKeyVals[gptAdSlots[adId].getAdUnitPath()][key] = value;
 	}
 
 	function gptLoad(ad) {
@@ -136,7 +137,7 @@ WH.desktopAds = (function () {
 		ad.adHeight = ad.adElement.offsetHeight;
 
 		if (ad.refreshable && ad.viewablerefresh) {
-			setTimeout(function() {ad.refresh();}, ad.refreshTime);
+			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
 		}
 	}
 
@@ -164,7 +165,7 @@ WH.desktopAds = (function () {
 		updateFixedPositioning(ad, viewportHeight, ad.last);
 
 		if (ad.refreshable && ad.renderrefresh) {
-			setTimeout(function() {ad.refresh();}, ad.refreshTime);
+			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
 		} else if (ad.refreshable && e.isEmpty) {
 			if (window.location.pathname == "/Upshift") {
 				// the ad we got back is empty..keep trying to load one
@@ -269,36 +270,65 @@ WH.desktopAds = (function () {
 		newRightrailAd.appendChild(newAdItem);
 		ad.element.parentElement.insertBefore(newRightrailAd, ad.element);
 
-		// get the slot name and sizes of the current ad to use it
-		// to define a new ad
-		var slotName = gptAdSlots[ad.adTargetId].getName();
-		var sizes = gptAdSlots[ad.adTargetId].getSizes();
-		var sizesArray = [];
-		for (var i = 0; i < sizes.length; i++) {
-			var sizesSub = [];
-			sizesSub.push(sizes[i].getWidth());
-			sizesSub.push(sizes[i].getHeight());
-			sizesArray.push(sizesSub);
-		}
-		googletag.cmd.push(function() {
-			gptAdSlots[newTargetId] = googletag.defineSlot(slotName, sizesArray, newTargetId).addService(googletag.pubads());
-			googletag.display(newTargetId);
-		});
-		var newAd = new RightRailAd(newRightrailAd);
-		ad.last = false;
-		newAd.last = true;
-		for (var i = 0; i < rightRailElements.length; i++) {
-			if (ad == rightRailElements[i]) {
-				rightRailElements[i] = newAd;
+
+		if (ad.service == 'adsense') {
+			var slotName = ad.slotName;
+			var sizesArray = ad.sizesArray;
+			googletag.cmd.push(function() {
+				gptAdSlots[newTargetId] = googletag.defineSlot(slotName, sizesArray, newTargetId).addService(googletag.pubads());
+				googletag.display(newTargetId);
+			});
+
+			var newAd = new RightRailAd(newRightrailAd);
+			for (var i = 0; i < rightRailElements.length; i++) {
+				if (ad == rightRailElements[i]) {
+					rightRailElements[i] = newAd;
+				}
 			}
+
+			if (ad.last == true) {
+				ad.last = false;
+				newAd.last = true;
+			}
+
+			ad.element.parentNode.removeChild(ad.element);
+		} else {
+			// get the slot name and sizes of the current ad to use it
+			// to define a new ad
+			var slotName = gptAdSlots[ad.adTargetId].getAdUnitPath();
+			var sizes = gptAdSlots[ad.adTargetId].getSizes();
+			var sizesArray = [];
+			for (var i = 0; i < sizes.length; i++) {
+				var sizesSub = [];
+				sizesSub.push(sizes[i].getWidth());
+				sizesSub.push(sizes[i].getHeight());
+				sizesArray.push(sizesSub);
+			}
+			googletag.cmd.push(function() {
+				gptAdSlots[newTargetId] = googletag.defineSlot(slotName, sizesArray, newTargetId).addService(googletag.pubads());
+				googletag.display(newTargetId);
+			});
+
+			var newAd = new RightRailAd(newRightrailAd);
+			for (var i = 0; i < rightRailElements.length; i++) {
+				if (ad == rightRailElements[i]) {
+					rightRailElements[i] = newAd;
+				}
+			}
+
+			if (ad.last == true) {
+				ad.last = false;
+				newAd.last = true;
+			}
+
+			googletag.cmd.push(function() {
+				var result = googletag.destroySlots([gptAdSlots[ad.adTargetId]]);
+			});
+			// remove the ad causes a warning in GPT, but it's probably not a big deal..
+			// in any case we already destroyed the ad so hiding it should be fine too
+			ad.element.parentNode.removeChild(ad.element);
+			//ad.element.style.display = "none";
 		}
-		googletag.cmd.push(function() {
-			var result = googletag.destroySlots([gptAdSlots[ad.adTargetId]]);
-		});
-		// remove the ad causes a warning in GPT, but it's probably not a big deal..
-		// in any case we already destroyed the ad so hiding it should be fine too
-		ad.element.parentNode.removeChild(ad.element);
-		//ad.element.style.display = "none";
 		adInsertCount++;
 		updateVisibility();
 	}
@@ -350,12 +380,18 @@ WH.desktopAds = (function () {
 		this.channels = this.adElement.getAttribute('data-channels');
 		this.refreshable = this.adElement.getAttribute('data-refreshable') == 1;
 		this.insertRefresh = this.adElement.getAttribute('data-insert-refresh') == 1;
+		this.slotName = this.adElement.getAttribute('data-slot-name');
+		this.refreshType = this.adElement.getAttribute('data-refresh-type');
+		this.sizesArray = this.adElement.getAttribute('data-sizes-array');
+		if (this.sizesArray) {
+			this.sizesArray = JSON.parse(this.sizesArray);
+		}
 		this.viewablerefresh = this.adElement.getAttribute('data-viewablerefresh') == 1;
 		this.renderrefresh = this.adElement.getAttribute('data-renderrefresh') == 1;
 		this.adLabelClass = this.adElement.getAttribute('data-adlabelclass');
 		this.apsTimeout = this.adElement.getAttribute('data-aps-timeout');
 		this.refreshtimeout = false;
-		this.refreshNumber = 0;
+		this.refreshNumber = 1;
         this.maxRefresh = this.adElement.getAttribute('data-max-refresh');
         this.refreshTime = this.adElement.getAttribute('data-refresh-time');
 		if (!this.refreshTime) {
@@ -363,10 +399,29 @@ WH.desktopAds = (function () {
 		} else {
 			this.refreshTime = parseInt(this.refreshTime);
 		}
-
-		if (this.isLoaded) {
-			this.refreshNumber++;
+		this.firstRefresh = true;
+        this.firstRefreshTime = this.adElement.getAttribute('data-first-refresh-time');
+		if (!this.firstRefreshTime) {
+			this.firstRefreshTime = this.refreshTime;
+		} else {
+			this.firstRefreshTime = parseInt(this.firstRefreshTime);
 		}
+		this.getRefreshTime = function() {
+			if (this.firstRefresh == true ) {
+				this.firstRefresh = false;
+				return this.firstRefreshTime;
+			} else {
+				return this.refreshTime;
+			}
+
+		}
+
+		// special type of adsense ad that is immediately loaded which we will refresh
+		if (this.service == 'adsense' && this.isLoaded && this.insertRefresh && this.refreshTime) {
+			var ad = this;
+			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
+		}
+
 		this.getRefreshValue = function() {
 			if (this.refreshNumber == 0 && !this.refreshable) {
 				return 'not';
@@ -425,7 +480,6 @@ WH.desktopAds = (function () {
 			}
 			var refreshValue = this.getRefreshValue();
 			if (this.maxRefresh && refreshValue > this.maxRefresh) {
-				log("refresh: max refresh reached");
 				this.refreshable = false;
 				return;
 			}
@@ -433,7 +487,11 @@ WH.desktopAds = (function () {
 				updateKeyVal(this.adTargetId, 'refreshing', refreshValue);
 			}
 			if (this.service == 'adsense') {
-				insertNewAdsenseAd(this);
+				if (this.refreshType == 'dfp') {
+					insertNewDFPAd(this);
+				} else {
+					insertNewAdsenseAd(this);
+				}
 			} else if (this.insertRefresh) {
 				insertNewDFPAd(this);
 			} else if (this.apsload) {

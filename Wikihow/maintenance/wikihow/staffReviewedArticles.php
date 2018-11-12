@@ -10,13 +10,15 @@ class StaffReviewedArticles extends Maintenance {
 	}
 
 	public function execute() {
-		$article_ids = $this->staffReviewedArticlesFromTitus();
+		$titus_articles = $this->staffReviewedArticlesFromTitus();
+		$handpicked_articles = StaffReviewed::handpickedStaffReviewedArticles();
+		$article_ids = array_merge($titus_articles, $handpicked_articles);
 		StaffReviewed::updateArticlesAdminTag($article_ids);
 	}
 
 	private function staffReviewedArticlesFromTitus() {
 		$article_ids = [];
-		$two_years_ago = date('Ymd', strtotime('today - 2 years'));
+		$three_years_ago = date('Ymd', strtotime('today - 3 years'));
 
 		$staff = StaffReviewed::staffReviewers();
 		if (empty($staff)) return $article_ids;
@@ -34,7 +36,7 @@ class StaffReviewedArticles extends Maintenance {
 			[
 				'ti_language_code' => 'en',
 				"ti_expert_verified_source IN ('','".StaffReviewed::STAFF_REVIEWED_SOURCE."')",
-				"ti_last_fellow_edit_timestamp > $two_years_ago",
+				"ti_last_fellow_edit_timestamp > $three_years_ago",
 				"ti_last_fellow_edit IN ('".implode("','",$staff)."')"
 			],
 			__METHOD__

@@ -12,6 +12,8 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['AdminSocialProof'] = 'AdminSocialProof';
 $wgAutoloadClasses['AdminSocialProof'] = dirname(__FILE__) . '/AdminSocialProof.body.php';
+$wgAutoloadClasses['MasterExpertSheetUpdate'] = dirname(__FILE__) . '/deferred/MasterExpertSheetUpdate.php';
+$wgAutoloadClasses['ExpertVerifyImporter'] = dirname(__FILE__) . '/ExpertVerifyImporter.php';
 $wgExtensionMessagesFiles['AdminSocialProof'] = dirname(__FILE__) . '/AdminSocialProof.i18n.php';
 $wgResourceModules['ext.wikihow.adminsocialproof'] = array(
 	'scripts' => array( 'adminsocialproof.js', ),

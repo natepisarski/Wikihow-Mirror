@@ -1,0 +1,54 @@
+#social_footer {
+	margin: 15px 68px 0 0;
+	float: right;
+}
+
+#social_footer.mobile {
+	margin: 13px 0 0 0;
+	text-align: center;
+	float: none;
+}
+
+.sf_icon {
+	width: 32px;
+	height: 32px;
+	display: inline-block;
+	margin: 0 3px;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+#sf_instagram {
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_instagram.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_instagram.svg);
+}
+
+#sf_facebook {
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_facebook.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_facebook.svg);
+}
+
+#sf_twitter {
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_twitter.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_twitter.svg);
+}
+
+#sf_youtube {
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_youtube.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_youtube.svg);
+}
+
+@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
+only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+
+	#social_footer.mobile {
+		margin-top: -30px;
+		text-align: center;
+		float: right;
+		position: relative;
+	}
+}

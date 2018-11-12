@@ -22,6 +22,9 @@ class ApiGraphs extends ApiBase {
 
 	// 30day_views is summarized monthly
 	private function get30DayViews($params) {
+		// 20181022 Jordan - Temporarily disabling this call as it is very slow (10+ seconds) and run 3 times every
+		// time a staff user visits a page
+		return;
 		$viewsField = $params['titus_field'];
 		$queryResult = $this->runRedshiftQuery(
 			'titus_historical_intl',

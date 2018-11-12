@@ -172,8 +172,7 @@ class QAWidget {
 			$vars['qa_show_more_submitted'] = wfMessage('qa_show_more_submitted')->text();
 		}
 		$vars['formatName'] = function($text, Mustache_LambdaHelper $helper) {
-			$name = ArticleReviewers::getAnchorName($helper->render($text));
-			return  "/Special:ArticleReviewers?name=$name#$name";
+			return ArticleReviewers::getLinkByVerifierName($helper->render($text));
 		};
 		$vars['search_enabled'] = $this->isSearchTarget() ? 1 : 0;
 
@@ -422,9 +421,9 @@ class QAWidget {
 		return true;
 	}
 
-	public static function onAddDesktopTOCItems($wgTitle, &$anchorList, &$maxCount) {
+	public static function onAddDesktopTOCItems($wgTitle, &$anchorList) {
 		if (!Misc::isMobileMode() && QAWidget::isTargetPage()) {
-			$pos = $maxCount < count($anchorList) ? $maxCount : count($anchorList)	;
+			$pos = count($anchorList);
 			$tocText = wfMessage('qa_toc_section')->text();
 			array_splice($anchorList, $pos, 0, "<a id='qa_toc' href='#Questions_and_Answers_sub'>$tocText</a>");
 		}

@@ -616,4 +616,19 @@ class VerifyData {
 		$thumb = $file->getThumbnail(200, 200, true, true);
 		return $thumb->getUrl();
 	}
+
+	/*
+	 * gets the first verifier for this page including the image path
+	 * @param int page id
+	 * @return the verifier info object or null if not found for this page
+	 */
+	public static function getFirstVerifierByPageId( $pageId ) {
+		$verifyData = self::getByPageId( $pageId );
+		if ( !count( $verifyData ) ) {
+			return null;
+		}
+		$verifyData = $verifyData[0];
+		$verifyData->imagePath = self::getExpertImagePath( $verifyData );
+		return $verifyData;
+	}
 }

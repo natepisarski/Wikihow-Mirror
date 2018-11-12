@@ -127,8 +127,6 @@
 						}
 
 						$('#quick_summary_section').slideDown();
-
-						$('html, body').animate({scrollTop: $('#quick_summary_section').position().top}, 300);
 					}
 				},this)
 			);

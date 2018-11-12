@@ -45,7 +45,7 @@
 				$url = $BASE_URL . '/' . $url;
 			}
 		?>
-		<a href=<?= $url ?> >
+		<a class="result_link" href=<?= $url ?> >
 			<div class="result">
 				<? if (!$result['is_category']): ?>
 					<div class='result_thumb'>
@@ -60,9 +60,9 @@
 				<div class="result_data">
 				<? if ($result['has_supplement']): ?>
 					<? if (!$result['is_category']): ?>
-						<div class="result_link"><?= $result['title_match'] ?></div>
+						<div class="result_title"><?= $result['title_match'] ?></div>
 					<? else: ?>
-						<div class="result_link"><?= wfMessage('lsearch_article_category', $result['title_match']) ?></div>
+						<div class="result_title"><?= wfMessage('lsearch_article_category', $result['title_match']) ?></div>
 					<? endif; ?>
 					<div class="result_data_divider"></div>
 					<ul class="search_results_stats">
@@ -80,7 +80,7 @@
 						<? endif ?>
 					</ul>
 				<? else: ?>
-					<p class="result_link"><?= $result['title_match'] ?></p>
+					<div class="result_title"><?= $result['title_match'] ?></div>
 				<? endif; // has_supplement ?>
 				<? // Sherlock-form ?>
 				<?= EasyTemplate::html('sherlock-form', array("index" => $i + $first, "result" => $result)); ?>

@@ -946,5 +946,11 @@ class PageHooks {
 
 		return true;
 	}
-}
 
+	public static function onAfterDisplayNoArticleText( $article ) {
+		$out = $article->getContext()->getOutput();
+		if ( !GoogleAmp::isAmpMode( $out ) && $article->getTitle()->getNamespace() == NS_MAIN ) {
+			$out->addHtml( SearchBox::render( $out ) );
+		}
+	}
+}

@@ -235,6 +235,7 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 	 <div class='editModalBody'>
 		 <div id='article_contents'>
 		 </div>
+		 	<div id='expertGreenBoxWarning' style='display:none;'>".wfMessage('green_box_quick_edit_expert')->text()."</div>
 	 </div>
 	 <br />
 	 </div><!--end modalContent-->

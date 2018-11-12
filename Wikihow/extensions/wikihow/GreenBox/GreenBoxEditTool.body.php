@@ -28,8 +28,8 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 			print json_encode(['html' => $green_box_edit_tool_html]);
 		}
 		elseif ($action == 'get_green_box_content') {
-			$green_box_content = $this->greenBoxContent($request);
-			print json_encode(['green_box_content' => $green_box_content]);
+			$green_box_data = $this->greenBoxContent($request);
+			print json_encode($green_box_data);
 		}
 		elseif ($action == 'save') {
 			$result = $this->greenBoxSave($request);
@@ -57,41 +57,99 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		$m = new Mustache_Engine(['loader' => $loader]);
 
 		$vars = [
+			'default_type_class' => GreenBox::$green_box_types[0].'_edit_type',
 			'header' => wfMessage('green_box_edit_header')->text(),
+			'green_box_types' => $this->greenBoxTypes(),
+			'question_label' => wfMessage('green_box_question_label')->text(),
+			'answer_label' => wfMessage('green_box_answer_label')->text(),
 			'delete_button' => wfMessage('delete')->text(),
 			'cancel_button' => wfMessage('cancel')->text(),
-			'save_button' => wfMessage('save')->text()
+			'save_button' => wfMessage('save')->text(),
+			'expert_label' => wfMessage('green_box_edit_expert_label')->text(),
+			'experts' => $this->expertList()
 		];
 
 		$html = $m->render('green_box_edit', $vars);
 		return $html;
 	}
 
-	private function greenBoxContent(WebRequest $request) {
+	private function greenBoxTypes(): array {
+		$green_box_types = [];
+
+		foreach (GreenBox::$green_box_types as $type) {
+			$green_box_types[] = [
+				'type' => $type,
+				'name' => wfMessage($type.'_type')->text()
+			];
+		}
+
+		return $green_box_types;
+	}
+
+	private function expertList(): array {
+		$experts = [
+			['id' => 0, 'name' => wfMessage('green_box_expert_default')->text()]
+		];
+
+		$verifierData = VerifyData::getAllVerifierInfo();
+		foreach ($verifierData as $datum) {
+			$experts[]= ['id' => $datum->id, 'name' => $datum->name];
+		}
+
+		$buildSorter = function($key) {
+			return function ($a, $b) use ($key) {
+				return strnatcmp($a[$key], $b[$key]);
+			};
+		};
+		usort($experts, $buildSorter('name'));
+
+		return $experts;
+	}
+
+	private function greenBoxContent(WebRequest $request): array {
+		$expert_id = ''; $content = ''; $content_2 = '';
+
 		$page_id = $request->getInt('page_id', 0);
 		$step_info = $request->getText('step_info', '');
 
 		$title = Title::newFromId($page_id);
-		if (empty($title)) return 'bad title';
+		if (empty($title)) return ['error' => 'bad title'];
 
 		$revision = Revision::newFromTitle($title);
-		if (empty($revision)) return 'bad revision';
+		if (empty($revision)) return ['error' => 'bad revision'];
 
 		$wikitext = ContentHandler::getContentText($revision->getContent());
 		list($steps_section, $sectionID) = Wikitext::getStepsSection($wikitext, true);
-		if (empty($steps_section)) return 'could not find steps';
+		if (empty($steps_section)) return ['error' => 'could not find steps'];
 
 		$current_step = $this->getStep($steps_section, $step_info);
-		preg_match('/{{'.GreenBox::GREENBOX_TEMPLATE_PREFIX.'(.*)}}/is', $current_step, $m);
-		$green_box_content = !empty($m[1]) ? $m[1] : '';
 
-		return $green_box_content;
+		if (strpos($current_step, '{{'.GreenBox::GREENBOX_TEMPLATE_PREFIX)) {
+			//classic greenbox
+			preg_match('/{{'.GreenBox::GREENBOX_TEMPLATE_PREFIX.'(.*?)}}/is', $current_step, $m);
+			$content = !empty($m[1]) ? $m[1] : '';
+		}
+		elseif (strpos($current_step, '{{'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX)) {
+			//expert greenbox (quote or Q&A)
+			preg_match('/{{'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX.'(\d+?)\|(.*?)(?:\|(.*?)|)}}/is', $current_step, $m);
+			$expert_id = !empty($m[1]) ? $m[1] : '';
+			$content = !empty($m[2]) ? $m[2] : '';
+			$content_2 = !empty($m[3]) ? $m[3] : '';
+		}
+
+		return [
+			'green_box_expert' => $expert_id,
+			'green_box_content' => $content,
+			'green_box_content_2' => $content_2
+		];
 	}
 
 	private function greenBoxSave(WebRequest $request): array {
 		$page_id = $request->getInt('page_id', 0);
 		$step_info = $request->getText('step_info', '');
 		$box_content = $this->formatBoxContent($request->getText('content', ''));
+		$box_content_2 = $this->formatBoxContent($request->getText('content_2', ''));
+		$expert_id = $request->getInt('expert', 0);
 		$success = false;
 
 		$bad_stuff = $this->findInvalidContent($box_content);
@@ -110,7 +168,7 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		$original_step = $this->getStep($steps_section, $step_info);
 		if (empty($original_step)) return ['error' => 'could not find step'];
 
-		$updated_step = $this->insertGreenBoxIntoStep($original_step, $box_content);
+		$updated_step = $this->insertGreenBoxIntoStep($original_step, $box_content, $box_content_2, $expert_id);
 		$green_box_changed = strcmp($original_step, $updated_step) !== 0;
 
 		if ($green_box_changed) {
@@ -121,7 +179,7 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 			$success = true; //nothing updated, but didn't fail so...yay?
 		}
 
-		$html = $this->newGreenBoxHtml($box_content);
+		$html = $this->newGreenBoxHtml($box_content, $box_content_2, $expert_id);
 
 		return [
 			'success' => $success,
@@ -182,15 +240,21 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		return [ $method_num, $step_num ];
 	}
 
-	private function insertGreenBoxIntoStep(string $step, string $green_box_content): string {
+	private function insertGreenBoxIntoStep(string $step, string $box_content, string $box_content_2 = '',
+		int $expert_id = 0): string
+	{
 		$step = trim($step);
 
 		//remove any existing green boxes
-		$step = preg_replace('/{{'.GreenBox::GREENBOX_TEMPLATE_PREFIX.'.*}}/is', '', $step);
+		$template_regex = '('.GreenBox::GREENBOX_TEMPLATE_PREFIX.'|'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX.')';
+		$step = preg_replace('/{{'.$template_regex.'.*?}}/is', '', $step);
 
 		//add our updated one (if there is one)
-		if (!empty($green_box_content)) {
-			$step .= '{{'.GreenBox::GREENBOX_TEMPLATE_PREFIX.$green_box_content.'}}';
+		if (!empty($box_content)) {
+			if (empty($expert_id))
+				$step .= '{{'.GreenBox::GREENBOX_TEMPLATE_PREFIX.$box_content.'}}';
+			else
+				$step .= '{{'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX.$expert_id.'|'.$box_content.'|'.$box_content_2.'}}';
 		}
 
 		return $step."\n";
@@ -222,12 +286,15 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		return !empty($spamMatches);
 	}
 
-	private function newGreenBoxHtml(string $box_content): string {
+	private function newGreenBoxHtml(string $box_content, string $box_content_2 = '', int $expert_id = 0): string {
 		if (empty($box_content)) return '';
 
-		$box_content .= $this->contentNotices($box_content);
+		$box_content .= $this->contentNotices($box_content.$box_content_2);
 
-		$html = wfMessage('green_box_container', $box_content)->parse();
+		if (empty($expert_id))
+			$html = wfMessage('green_box_container', $box_content)->parse();
+		else
+			$html = wfMessage('green_box_expert_container', $expert_id, $box_content, $box_content_2)->parse();
 
 		//suppress any parsing errors that arise
 		$html = preg_replace('/<p><br\s?\/?><strong class="error">.*<\/p>/is', '', $html);
@@ -261,6 +328,9 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		$page = WikiPage::factory($title);
 		$status = $page->doEditContent($content, $comment, $edit_flags);
 
-		return $status->isOK();
+		$result = $status->isOK();
+		if ($result) $page->doPurge();
+
+		return $result;
 	}
 }

@@ -289,19 +289,22 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 	private function query( $query, $fuzzy ) {
 		$dbr = wfGetDB( DB_SLAVE );
 
-		// Lookup users that match either name or email
+		// Lookup users that match either name (with spaces or hyphens) or email
+		$querySpacesForHyphens = str_replace( '-', ' ', $query );
 		if ( $fuzzy ) {
 			// Fuzzy match
 			// TODO: Figure out how to make case insentitive matches fast
 			$where = $dbr->makeList( [
 				"convert(`user_email` using utf8mb4) = {$dbr->addQuotes( $query )}",
-				"convert(`user_name` using utf8mb4) = {$dbr->addQuotes( $query )}"
+				"convert(`user_name` using utf8mb4) = {$dbr->addQuotes( $query )}",
+				"convert(`user_name` using utf8mb4) = {$dbr->addQuotes( $querySpacesForHyphens )}"
 			], LIST_OR );
 		} else {
 			// Strict match
 			$where = $dbr->makeList( [
 				'user_email' => $query,
-				'user_name' => $query
+				'user_name' => $query,
+				'user_name' => $querySpacesForHyphens
 			], LIST_OR );
 		}
 		$rows = $dbr->select(

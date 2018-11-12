@@ -38,10 +38,12 @@ class VideoBrowser {
 	public static function onWikihowHomepageFAContainerHtml( &$html1, &$html2, &$html3 ) {
 		global $wgOut;
 
-		if ( Misc::isMobileMode() ) {
+		if (
+			Misc::isMobileMode()
+			&& !( class_exists( 'AndroidHelper' ) && AndroidHelper::isAndroidRequest() ) ) {
 			$html1 .= static::render( 'mobile-widget.mustache', [
 				'howto' => 'How to',
-				'items' => static::queryVideos( [
+				'videos' => static::queryVideos( [
 					'limit' => 4,
 					'featured' => true,
 					'shuffle' => true
@@ -102,7 +104,7 @@ class VideoBrowser {
 			pq( '#bodycontents' )->append( static::render( 'desktop-section.mustache', [
 				'title' => 'wikiHow Videos',
 				'howto' => 'How to',
-				'items' => static::queryVideos( [
+				'videos' => static::queryVideos( [
 					'page' => $title->getArticleId(),
 					'related' => true,
 					'limit' => 4,
@@ -116,7 +118,7 @@ class VideoBrowser {
 		echo static::render( 'desktop-widget.mustache', [
 			'title' => 'wikiHow Videos',
 			'howto' => 'How to',
-			'items' => static::queryVideos( [
+			'videos' => static::queryVideos( [
 				'limit' => 4,
 				'featured' => true,
 				'shuffle' => true

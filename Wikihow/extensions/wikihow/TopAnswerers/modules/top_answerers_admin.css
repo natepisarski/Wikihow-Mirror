@@ -10,7 +10,7 @@
 	width: 300px;
 }
 
-#ta_export {
+#ta_export, #qa_export {
 	float: right;
 }
 

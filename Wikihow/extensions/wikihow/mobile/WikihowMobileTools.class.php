@@ -639,7 +639,7 @@ class WikihowMobileTools {
 
 		if ( $wgTitle->inNamespace(NS_MAIN) && PagePolicy::showCurrentTitle($context) ) {
 
-			if (class_exists('SocialProofStats')) {
+			if (class_exists('SocialProofStats') && $wgTitle->exists()) {
 				$parenttree = Categoryhelper::getCurrentParentCategoryTree();
 				$fullCategoryTree = Categoryhelper::cleanCurrentParentCategoryTree($parenttree);
 
@@ -654,8 +654,10 @@ class WikihowMobileTools {
 			}
 
 			// mobile accuracy
-			$ratingHtml = RatingArticle::getMobileForm( $pageId, $amp );
-			$doc->append( $ratingHtml );
+			if ( $wgTitle->exists() ) {
+				$ratingHtml = RatingArticle::getMobileForm( $pageId, $amp );
+				$doc->append( $ratingHtml );
+			}
 		}
 
 		if (class_exists('Recommendations') && $config['show-recommendations-test']) {
@@ -747,6 +749,23 @@ class WikihowMobileTools {
 				//move any summary sections lower
 				pq(".steps:last")->after($summarySection);
 
+				if(pq("p", $summarySection)->length > 0) {
+					//move the text part only to the article info section
+					$summaryText = pq("p", $summarySection);
+					$summaryText->attr("id", "summary_text")->wrap("<div id='summary_wrapper' class='section_text'></div>");
+					pq("#social_proof_mobile")->after(pq("#summary_wrapper", $summarySection));
+					pq("#summary_wrapper")->prepend("<a href='#summary_wrapper' class='collapse_link'>" . wfMessage("summary_toc")->text() . "</a>");
+					//if there's no video summary, then remove that old section b/c nothing is left
+					if(pq('video', $summarySection)->length == 0) {
+						pq($summarySection)->remove();
+					}
+				}
+
+				//if there's a video summary, rename the section
+				if( pq('video', $summarySection)->length > 0) {
+					pq('.mw-headline', $summarySection)->html(wfMessage('qs_video_title')->text());
+				}
+
 				//no edit for the summary section since we're moving to templates [sc: 5/2018]
 				pq($summarySection)->find('.edit-page')->remove();
 
@@ -830,7 +849,7 @@ class WikihowMobileTools {
 				self::makeTableOfContentsAnchors($altMethodAnchors, $altMethodNames, $isSample)
 			);
 
-			$tocWrapperHtml = "<nav role='navigation' id='method_toc'><ul id='method_toc_list'>{$anchorList}{$hiddenText}</ul></nav>";
+			$tocWrapperHtml = "<nav role='navigation' id='method_toc'><ul id='method_toc_list'>{$anchorList}</ul></nav>";
 
 			// Instead of appending the TOC to the DOM here, just store it in a static
 			// variable so it can be inserted outside the '.content' div

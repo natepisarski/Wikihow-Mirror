@@ -2,6 +2,10 @@
     "@metadata": {
         "authors": []
     },
-    "pplp_header": "Log In",
-    "pplp_login_cta": "Log in to view"
+    "pagepolicy_login_header": "Log In",
+    "pagepolicy_login_message": "Log in to view",
+    "pagepolicy_review_header": "We're sorry. This article is currently in quality review.",
+    "pagepolicy_review_message": "This article may only be viewed while logged in to a wikiHow account. This is because the article either has not yet passed initial quality review by a wikiHow editor, or has been flagged by an editor for potential content concerns that would make it unhelpful to readers.\n\nIf you would like to view this article, <span class=\"plainlinks\">'''[$1 please log in to or create a wikiHow account]'''</span>.",
+    "pagepolicy_search_header": "Don’t leave yet! Try searching wikiHow for another article that could help:",
+    "pagepolicy_home_message": "Or '''[[Main Page|visit our home page]]''' to browse our featured articles."
 }

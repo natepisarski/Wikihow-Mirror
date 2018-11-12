@@ -1,0 +1,130 @@
+#searchad_lnk {
+	text-decoration: none;
+	color: #545454;
+	display: block;
+	width: 300px;
+	height: 250px;
+}
+
+#searchad {
+	cursor: pointer;
+	padding: 20px 10px;
+	font-family: Helvetica,arial,sans-serif;
+	width: 300px;
+	height: 250px;
+	box-sizing: border-box;
+}
+
+#searchad_tagline {
+	font-weight: bold;
+	font-size: 23px;
+}
+
+#searchad_searchbox {
+	background-color: #FFF;
+	color: #4E4F4E;
+	font-size: 19px;
+	font-weight: bold;
+	padding-left: 12px;
+	line-height: 44px;
+	border-radius: 4px;
+	margin-top: 22px;
+	white-space: nowrap;
+	overflow: hidden;
+	z-index: 1;
+	position: relative;
+}
+.searchad_sq_3 #searchad_searchbox, .searchad_sq_4 #searchad_searchbox {
+	border: 3px solid #CDCDCD;
+}
+
+#searchad_searchbox span {
+	display: inline-block;
+	width: 50px;
+	height: 30px;
+	border-left: 1px solid #CDCDCD;
+}
+
+#searchad_arrow {
+	/* @embed */
+	background-image: url(/extensions/wikihow/SearchAd/images/arrow.svg);
+	background-repeat: no-repeat;
+	width: 95px;
+	position: absolute;
+	height: 56px;
+	margin: 4px 0 0 6px;
+	z-index: 2;
+}
+.searchad_sq_3 #searchad_arrow, .searchad_sq_4 #searchad_arrow { margin: 6px 0 0 8px; }
+
+#searchad_logo {
+	/* @embed */
+	background-image: url(/extensions/wikihow/SearchAd/images/logo.svg);
+	background-repeat: no-repeat;
+	background-position: center top;
+	width: 100%;
+	height: 16px;
+	margin-bottom: 25px;
+	z-index: 1;
+	position: relative;
+}
+.searchad_sq_3 #searchad_logo {
+	/* @embed */
+	background-image: url(/extensions/wikihow/SearchAd/images/logo_green.svg);
+}
+
+#searchad_mag {
+	width: 40px;
+	height: 44px;
+	border-left: 1px solid #CDCDCD;
+	margin-left: 5px;
+	box-shadow: -5px 0 #FFF;
+	float: right;
+	position: relative;
+	background-size: 22px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-color: #FFF;
+	/* @embed */
+	background-image: url(/extensions/wikihow/SearchAd/images/mag.svg);
+}
+
+.searchad_sq_1 {
+	color: #FFF;
+	background-color: #9CDB6A;
+}
+
+.searchad_sq_2 {
+	color: #FFF;
+	background-color: #94BA73;
+	border: 4px solid #739E50;
+}
+
+.searchad_sq_3 {
+	color: #94B673;
+	background-color: #F6F5F4;
+}
+
+.searchad_sq_4 {
+	color: #FFF;
+	background-color: #93B874;
+}
+
+#searchad_button {
+	border-radius: 4px;
+	border: 0;
+	padding: 8px 12px;
+	font-size: 14px;
+	font-weight: bold;
+	color: #686868;
+	border: 1px solid #e5e5e5;
+	background-color: #FFF;
+	display: inline-block;
+	float: right;
+	margin-top: 8px;
+}
+.searchad_sq_3 #searchad_button {
+	background-color: #97ba78;
+	border: 1px solid #97ba78;
+	color: #FFF;
+}

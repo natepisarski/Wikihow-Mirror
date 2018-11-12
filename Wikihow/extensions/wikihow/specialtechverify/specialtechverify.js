@@ -104,7 +104,8 @@
         initEventHandlers: function() {
             $('a.changeplatform, .changeplatform a').on("click", this.changePlatform);
             $('#platformselect .button').on("click",function() {
-                var val = $('#platformselect input:radio[name=platform]:checked').val();
+                //var val = $('#platformselect select').val();
+				var val = $('#platformselect input:radio[name=platform]:checked').val();
                 var platformId = WH.SpecialTechVerify.getPlatformId();
                 if (!val) {
                     return false;
@@ -198,7 +199,7 @@
                 }
                 if ($(event.target).hasClass("skip")) {
                     console.log("feedback not given");
-                    WH.SpecialTechVerify.feedbackDone(payload, {});
+                    WH.SpecialTechVerify.feedbackDone(payload, '{}');
                     return false;
                 }
 
@@ -230,7 +231,7 @@
                 }
                 if ($(event.target).hasClass("skip")) {
                     console.log("feedback not given");
-                    WH.SpecialTechVerify.feedbackDone(payload, {});
+                    WH.SpecialTechVerify.feedbackDone(payload, '{}');
                     return false;
                 }
 

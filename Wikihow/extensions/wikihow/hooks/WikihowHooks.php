@@ -51,6 +51,7 @@ $wgHooks['UserRequiresHTTPS'][] = 'PageHooks::makeHTTPSforAllUsers';
 $wgHooks['OutputPageAfterGetHeadLinksArray'][] = 'PageHooks::onOutputPageAfterGetHeadLinksArray';
 $wgHooks['OutputPageBodyAttributes'][] = 'PageHooks::onOutputPageBodyAttributes';
 // $wgHooks['OutputPageBeforeHTML'][] = array('PageHooks::checkForDiscussionPage');
+$wgHooks['AfterDisplayNoArticleText'][] = 'PageHooks::onAfterDisplayNoArticleText';
 
 // Mediawiki 1.21 seems to redirect pages differently from 1.12, so we recreate
 // the 1.12 functionality from "redirect" articles that are present in the DB.

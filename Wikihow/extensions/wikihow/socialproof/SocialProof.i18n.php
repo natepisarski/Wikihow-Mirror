@@ -37,7 +37,7 @@ $messages['en'] = array (
 	'admin_verify_revert_summary' => 'Reversion to [[$1?oldid=$2|$2]] by [[Special:Contributions/$3|$3]] ([[UserTalk:$3|Talk]])',
 	'sp_intro_expert' => 'Expert Reviewed',
 	'sp_intro_academic' => 'Expert Reviewed',
-	'sp_intro_video' => 'Expert Reviewed',
+	'sp_intro_youtuber' => 'Expert Reviewed',
 	'sp_intro_community' => 'Community Tested',
 	'sp_intro_chef' => 'Community Tested',
 	'sp_intro_videov' => 'Community Tested',
@@ -66,4 +66,14 @@ $messages['en'] = array (
 	'sp_star_label_3' => "Possibly helpful",
 	'sp_star_label_4' => "Mostly helpful",
 	'sp_star_label_5' => "Very helpful",
+	'sp_learn_more' => 'Learn more...',
+	'sp_hover_expert_header' => 'Why choose wikiHow',
+	'sp_hover_text_expert' => "When you see the green expert <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review by a qualified expert. If you are on a medical article, that means that an actual doctor, nurse or other medical professional from our medical review board reviewed and approved it. Similarly, veterinarians review our pet articles, lawyers review our legal articles, and other experts review articles based on their specific areas of expertise.<br><br>This particular article was reviewed by <b><a href='$1'>$2</a></b> ($3).",
+	'sp_hover_text_community' => "When you see the green <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review. In this case, a trusted member of the wikiHow community confirmed that the instructions worked.",
+	'sp_hover_text_chef' => "When you see the green <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review. In this case, someone followed the recipe instructions in wikiHow's test kitchen and confirmed that the instructions worked.",
+	'sp_hover_text_videov' => "When you see the green <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review. In this case, someone tested the instructions while filming the article for wikiHow and confirmed that the instructions worked.",
+	'sp_hover_text_tech' => "When you see the green <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review. In this case, we tested the instructions on our own devices and confirmed that the instructions worked.",
+	'sp_hover_text_staff' => "When you see the green <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review. In this case, the article went through multiple rounds of research, revisions, and review by our trained team of writers and editors.",
+	'sp_hover_text_academic' => "When you see the green expert <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review by an expert. In this case, someone with an appropriate advanced degree has reviewed this article.<br><br>This particular article was reviewed by <b><a href='$1'>$2</a></b> ($3).",
+	'sp_hover_text_youtuber' => "When you see the green expert <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review. In this case, someone with proven expertise on this subject has reviewed this article.<br><br>This particular article was reviewed by <b><a href='$1'>$2</a></b> ($3)."
 );

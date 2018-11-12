@@ -1,0 +1,76 @@
+#green_box_edit_tool {
+	display: none;
+	margin: 10px -20px;
+	padding: 10px 20px 20px;
+	background-color: #f0f6ec;
+	border-left: 5px solid #93b873;
+
+	#toolbar {
+		float: right;
+	}
+
+	textarea {
+		width: 98%;
+		height: 8em;
+		margin: 0 0 .5em;
+		border: 2px solid #93b873;
+	}
+
+	.button:hover:disabled,
+	.button[disabled]:hover {
+		border-color: #e4e4e4;
+		color: #686868;
+	}
+}
+
+#green_box_edit_header {
+	font-weight: bold;
+	margin-bottom: .3em;
+}
+
+#green_box_type {
+	margin-bottom: .8em;
+}
+
+#green_box_edit_submit,
+#green_box_edit_cancel {
+	float: right;
+}
+
+#green_box_edit_err {
+	font-size: .8em;
+	color: #C00;
+	padding: 0 1em 1em 0;
+	text-align: right;
+}
+
+#green_box_notice_box {
+	width: 100%;
+	background-color: #686868;
+	color: #f0f6ec;
+	padding: .2em .4em;
+	font-style: italic;
+	font-size: .8em;
+}
+
+/* toggle logic */
+#green_box_edit_tool {
+	&.green_box_edit_type {
+		#green_box_edit_expert_section,
+		#green_box_edit_content_2,
+		.green_box_qa_label {
+			display: none;
+		}
+	}
+
+	&.green_box_expert_edit_type {
+		#green_box_edit_content_2,
+		.green_box_qa_label {
+			display: none;
+		}
+	}
+
+	&.green_box_expert_qa_edit_type {
+		//show it all!!!
+	}
+}

@@ -421,24 +421,20 @@
 		var initializing = CivicLogin.initializing;
 		if ( !initializing ) {
 			CivicLogin.initializing = initializing = $.Deferred();
-			if ( mw.config.get( 'wgUserLanguage' ) !== 'en' ) {
-				initializing.reject( 'Civic Login disabled on non-English language sites' );
-			} else {
-				$.ajax( {
-					url: 'https://hosted-sip.civic.com/sip/js/civic.sip.min.js',
-					dataType: 'script',
-					cache: true
-				} ).then(
-					function () {
-						$( 'head' ).append( '<link rel="stylesheet" href="https://hosted-sip.civic.com/sip/css/civic-modal.min.css">' );
-						var sip = new civic.sip( { appId: mw.config.get( 'wgCivicAppId' ) } );
-						initializing.resolve( new CivicLogin( sip ) );
-					},
-					function () {
-						initializing.reject( 'Failed to load Civic API' );
-					}
-				);
-			}
+			$.ajax( {
+				url: 'https://hosted-sip.civic.com/sip/js/civic.sip.min.js',
+				dataType: 'script',
+				cache: true
+			} ).then(
+				function () {
+					$( 'head' ).append( '<link rel="stylesheet" href="https://hosted-sip.civic.com/sip/css/civic-modal.min.css">' );
+					var sip = new civic.sip( { appId: mw.config.get( 'wgCivicAppId' ) } );
+					initializing.resolve( new CivicLogin( sip ) );
+				},
+				function () {
+					initializing.reject( 'Failed to load Civic API' );
+				}
+			);
 		}
 		return initializing.promise();
 	};

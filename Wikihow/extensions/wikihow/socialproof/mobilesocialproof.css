@@ -322,7 +322,7 @@
 	position: relative;
 	background: #FFFFFF;
 	border: 3px solid;
-	border-color: rgba(0, 0, 0, .13);
+	border-color: #d5d5d5;
 	border-radius: 4px;
 	font-weight:normal;
 	padding:9px;
@@ -483,6 +483,74 @@
 	background-repeat: no-repeat;
 	right: -5px;
 	bottom: -4px;
+}
+
+#sp_icon_hover {
+	z-index: 6;
+	position: absolute;
+	top: 94px;
+	right: 0;
+	font-size: 14px;
+	background: #FFFFFF;
+	border: 3px solid;
+	border-color: #d5d5d5;
+	border-radius: 4px;
+	padding:9px;
+	-moz-background-clip: padding;     /* Firefox 3.6 */
+	-webkit-background-clip: padding;  /* Safari 4? Chrome 6? */
+	background-clip: padding-box;
+	margin: 0 10px;
+	max-width: 30em;
+}
+#sp_icon_hover:after, #sp_icon_hover:before {
+	top: -29px;
+	right: 44px;
+	border: 14px solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+#sp_icon_hover:after {
+	border-bottom-color: #FFF;
+	margin-top: 3px;
+}
+#sp_icon_hover:before {
+	border-bottom-color: #d5d5d5;
+}
+
+#sp_icon_close {
+	position: absolute;
+	top: 15px;
+	right: 10px;
+	width: 14px;
+	height: 14px;
+	color: #c2c2c2;
+	border: 1px solid #c2c2c2;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 14px;
+	font-weight: bold;
+	text-decoration: none;
+	font-size: 9px;
+	cursor: pointer;
+}
+
+#sp_icon_header {
+	font-weight: bold;
+	padding: 8px 0;
+}
+.sp_learn_more_link {
+	font-weight: bold;
+	display: block;
+	padding-top: .8em;
+}
+#sp_icon_body .sp_expert_icon {
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	margin-bottom: -4px;
 }
 
 

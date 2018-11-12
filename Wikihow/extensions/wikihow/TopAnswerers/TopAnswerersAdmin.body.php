@@ -44,9 +44,14 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 				return;
 			}
 		}
-		elseif ($action == 'export') {
+		elseif ($action == 'exportTAs') {
 			$this->getOutput()->disable();
-			$this->exportCSV();
+			$this->exportTACSV();
+			return;
+		}
+		elseif ($action == 'exportQAstats') {
+			$this->getOutput()->disable();
+			$this->exportQACSV();
 			return;
 		}
 
@@ -77,7 +82,8 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 			'blocked_count' 							=> TopAnswerers::getTABlockedCount(),
 			'blocked_results' 						=> $this->getTABlockedResults(),
 			'top_answerers_response'			=> $loader->load('top_answerers_response'),
-			'ta_export_link'							=> $this->getTitle()->getLocalUrl().'?action=export',
+			'ta_export_link'							=> $this->getTitle()->getLocalUrl().'?action=exportTAs',
+			'qa_export_link'							=> $this->getTitle()->getLocalUrl().'?action=exportQAstats',
 			'ta_settings'									=> $this->getTASettings()
 		];
 
@@ -86,6 +92,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 			'ta_search_placeholder',
 			'ta_add_button',
 			'ta_export_button',
+			'qa_export_button',
 			'ta_blocked_title',
 			'ta_blocked_button',
 			'ta_block_link',
@@ -259,11 +266,9 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 		return $res;
 	}
 
-	private function exportCSV() {
-		global $wgCanonicalServer;
-
+	private function exportTACSV() {
 		header('Content-type: application/force-download');
-		header('Content-disposition: attachment; filename="data.csv"');
+		header('Content-disposition: attachment; filename="TopAnswerers.csv"');
 
 		$ta_results = TopAnswerers::getTAs();
 
@@ -299,6 +304,112 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 		}
 
 		print(implode("\n", $lines));
+	}
+
+	private function exportQACSV() {
+		header('Content-type: application/force-download');
+		header('Content-disposition: attachment; filename="QA_user_data_past_7_days.csv"');
+
+		$qa_results = $this->getQAData();
+
+		$headers = [
+			'Username',
+			'Real Name',
+			'Top Answerer',
+			'Last 7 Days Live Answers',
+			'Total Live Answers',
+			'Last Q&A submit date',
+			'Total Similarity Score',
+			'Total Approval Rating'
+		];
+
+		$lines[] = implode(",", $headers);
+
+		foreach ($qa_results as $qa) {
+
+			$this_line = [
+				$qa['userName'],
+				$qa['userRealName'],
+				$qa['isTopAnswerer'],
+				$qa['weeklyLiveAnswersCount'],
+				$qa['liveAnswersCount'],
+				date('Ymd', strtotime($qa['lastSubmitDate'])),
+				$qa['avgSimScore'],
+				$qa['avgAppRating']
+			];
+
+			$lines[] = implode(",", $this_line);
+		}
+
+		print(implode("\n", $lines));
+	}
+
+	private function getQAData(): array {
+		$qa_data = [];
+		$seven_days_ago = date('YmdHis', strtotime('today - 7 days'));
+
+		$res = wfGetDB(DB_SLAVE)->select(
+			[
+				QADB::TABLE_ARTICLES_QUESTIONS,
+				QADB::TABLE_CURATED_ANSWERS
+			],
+			[
+				'qa_submitter_user_id',
+				'MAX(qn_updated_timestamp) as last_date',
+				'count(*) as weekly_answered'
+			],
+			[
+				"qn_updated_timestamp > $seven_days_ago",
+				"qa_submitter_user_id != ''",
+				'qa_inactive' => 0
+			],
+			__METHOD__,
+			[
+				'GROUP BY' => 'qa_submitter_user_id',
+				'ORDER BY' => 'last_date'
+			],
+			[
+				QADB::TABLE_CURATED_ANSWERS => ['LEFT JOIN', 'qa_question_id = qn_question_id']
+			]
+		);
+
+		foreach ($res as $row) {
+			$user_id = $row->qa_submitter_user_id;
+			$user = User::newFromId($user_id);
+			if (empty($user)) continue;
+			if (QAWidget::isAdmin($user)) continue;
+
+			$total_answer_count = $this->getTotalQAAnswerCount($user_id);
+
+			$ta = new TopAnswerers();
+			$isTA = $ta->loadByUserId($user_id);
+
+			$qa_data[] = [
+				'userName' => $user->getName(),
+				'userRealName' => $user->getRealName(),
+				'isTopAnswerer' => $isTA ? 1 : 0,
+				'weeklyLiveAnswersCount' => $row->weekly_answered,
+				'liveAnswersCount' => $total_answer_count,
+				'lastSubmitDate' => $row->last_date,
+				'avgSimScore' => TopAnswerers::averageSimilarityScore($user_id),
+				'avgAppRating' => TopAnswerers::averageApprovalRating($user_id)
+			];
+		}
+
+		return $qa_data;
+	}
+
+	private function getTotalQAAnswerCount(int $user_id): int {
+		$res = wfGetDB(DB_SLAVE)->selectField(
+			QADB::TABLE_ARTICLES_QUESTIONS,
+			'COUNT(qa_id)',
+			[
+				'qa_submitter_user_id' => $user_id,
+				'qa_inactive' => 0
+			],
+			__METHOD__
+		);
+		return intval($res);
 	}
 
 	private function topCatsString($unformatted_top_cats) {

@@ -197,7 +197,15 @@ class RelatedWikihows {
 		return $showOld;
 	}
 
-	private function getRelatedArticlesByCat( $title ) {
+	/*
+	 * get list of related articles and their category given a title
+	 * @param Title $title the title of the page to act on
+	 *
+	 * @return array contains an associative array with "category" as the first key
+	 * which is the category of the title passed in, and "articles" as the other key
+	 * which is an array whose keys are pageIds of relted articles in that category
+	 */
+	public static function getRelatedArticlesByCat( $title ) {
 		global $wgMemc;
 
 		$cachekey = wfMemcKey( self::MEMCACHED_KEY, $title->getArticleID() );
@@ -206,13 +214,14 @@ class RelatedWikihows {
 			return $val;
 		}
 
+		$result = array();
+
 		// Determine first non-ignorable category associated with the article.
 		// Ignorable categories are ones like "Stub", "Nfd", "User-Thankers", etc.
 		$cat = '';
 
 		// this used to be cached but it causes bugs, if the category is an ignored one
-		// since this date itself is cached (the related wikihows) we can just look this
-		// up whenever we need to regenerate the related wikihows
+		// since the related wikihows are cached it's not a huge deal to regenerate this
 		$cats = $title->getParentCategories();
 
 		if ( is_array( $cats ) && sizeof( $cats ) > 0) {
@@ -237,6 +246,7 @@ class RelatedWikihows {
 			}
 		}
 
+		$result['category'] = $cat;
 		// Populate related articles box with other articles in the category,
 		// displaying the featured articles first
 		$data = [];
@@ -257,14 +267,20 @@ class RelatedWikihows {
 		);
 
 		if ( empty( $cat ) ) {
-			$this->mShowOtherWikihowsTitle = true;
 			// return a list of ten from chris
-			return $this->getDefaultRelatedWikihows();
+			$result['articles'] = self::getDefaultRelatedWikihows();
+			return $result;
 		} else {
 			$table[] = 'categorylinks';
 			$conds[] = 'ti_page_id = cl_from';
 			$conds['cl_to'] = $cat;
 		}
+
+		if ( SensitiveRelatedWikihows::isSensitiveRelatedRemovePage( $title ) ) {
+			$srpTable = SensitiveRelatedWikihows::SENSITIVE_RELATED_PAGE_TABLE;
+			$conds[] = "ti_page_id NOT IN (select srp_page_id from $srpTable)";
+		}
+
 
 		$orderBy = 'ti_30day_views DESC';
 		$limit = self::MIN_TO_SHOW_DESKTOP;
@@ -277,9 +293,10 @@ class RelatedWikihows {
 			$targetId = $row->ti_page_id;
 			$data[$targetId] = true;
 		}
+		$result['articles'] = $data;
 
-		$wgMemc->set( $cachekey, $data );
-		return $data;
+		$wgMemc->set( $cachekey, $result );
+		return $result;
 	}
 
 	/*
@@ -294,24 +311,34 @@ class RelatedWikihows {
 	 *		Play-Poker
 	 *		Care-for-Orchids
 	 */
-	private function getDefaultRelatedWikihows() {
+	private static function getDefaultRelatedWikihows() {
 		return array_flip( [ 57203, 4157156, 14093, 5207, 1304771, 3450, 22372, 5014, 221266 ] );
 	}
 
 	// gets the related wikihow titles from wikitext
 	private static function getRelatedArticlesFromWikitext( $relatedSection ) {
+		global $wgTitle;
 		$relatedArticles = array();
 
+		$isSensitiveRelatedRemovePage = SensitiveRelatedWikihows::isSensitiveRelatedRemovePage( $wgTitle );
 		//first lets check to make sure all the related are indexed
 		foreach( pq( "li a", $relatedSection ) as $related ) {
 			$titleText = pq( $related )->attr( "title" );
 			$title = Title::newFromText( $titleText );
-			if ( $title && $title->exists() ) {
-				$id = $title->getArticleID();
-				if ( self::isIndexed( $id ) ) {
-					$relatedArticles[$id] = true;
-				}
+			if ( !$title ) {
+				continue;
 			}
+			if ( !$title->exists() ) {
+				continue;
+			}
+			$id = $title->getArticleID();
+			if ( !self::isIndexed( $id ) ) {
+				continue;
+			}
+			if ( $isSensitiveRelatedRemovePage && SensitiveRelatedWikihows::isSensitiveRelatedPage( $id ) ) {
+				continue;
+			}
+			$relatedArticles[$id] = true;
 		}
 		return $relatedArticles;
 	}
@@ -368,6 +395,7 @@ class RelatedWikihows {
 		return $related;
 	}
 
+
 	private function isIndexed( $pageId ) {
 		$dbr = wfGetDB( DB_SLAVE );
 		$count = $dbr->selectField(
@@ -399,7 +427,17 @@ class RelatedWikihows {
 		if ( $count < $minNumber ) {
 			// the array keys are the page ids, and the + operator here
 			// prevent us having duplicate keys when combing arrays
-			$relatedArticles = $relatedArticles + $this->getRelatedArticlesByCat( $title );
+			$relatedByCat = $this->getRelatedArticlesByCat( $title );
+			if ( isset( $relatedByCat['category'] ) && $relatedByCat['category'] === '' ) {
+				$this->mShowOtherWikihowsTitle = true;
+			}
+			if ( isset( $relatedByCat['articles'] ) ) {
+				$relatedArticlesByCategory = $relatedByCat['articles'];
+			} else {
+				$relatedArticlesByCategory = $relatedByCat;
+			}
+
+			$relatedArticles = $relatedArticles + $relatedArticlesByCategory;
 
 			// limit the results of the wikitext and by-cat to 10
 			$relatedArticles = array_slice( $relatedArticles, 0, self::MIN_TO_SHOW_DESKTOP, true );
@@ -610,3 +648,244 @@ class RelatedWikihows {
 	}
 }
 
+class SensitiveRelatedWikihows {
+
+	/*
+	 * CREATE TABLE `sensitive_related_page` (
+	 * `srp_page_id` int(10) unsigned NOT NULL,
+	 * PRIMARY KEY (`srp_page_id`)
+	 * );
+	 * CREATE TABLE `sensitive_related_remove_page` (
+	 * `srrp_page_id` int(10) unsigned NOT NULL,
+	 * PRIMARY KEY (`srrp_page_id`)
+	 * );
+	 */
+
+	const FEED_LINK = "https://spreadsheets.google.com/feeds/list/";
+	const SHEET_ID = "1JCuh-aB-HxvZM-pKpaEIGFCrz7Er0c6fFyLM8qaWEK0";
+	const FEED_LINK_2 = "/private/values?alt=json&access_token=";
+	const SENSITIVE_RELATED_PAGE_TABLE = "sensitive_related_page";
+	const SENSITIVE_RELATED_REMOVE_PAGE_TABLE = "sensitive_related_remove_page";
+
+	public static function saveSensitiveRelatedArticles() {
+		global $IP;
+
+		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
+
+		$service = SampleProcess::buildService();
+		if ( !isset( $service ) ) {
+			return;
+		}
+		$result = array();
+
+		$client = $service->getClient();
+		$token = $client->getAccessToken();
+		$token = json_decode($token);
+		$token = $token->access_token;
+
+		$removeListWorksheetId = "ojdakpw";
+		$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.$removeListWorksheetId . self::FEED_LINK_2;
+		$sheetData = file_get_contents( $feedLink . $token );
+		$sheetData = json_decode( $sheetData );
+		//decho('sheetData', $sheetData->{'feed'});exit;
+		$sheetData = $sheetData->{'feed'}->{'entry'};
+		$removeList = self::parseRemoveList( $sheetData );
+		self::saveRemoveList( $removeList );
+
+		$sensitiveMasterWorksheetId = "od6";
+		$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.$sensitiveMasterWorksheetId . self::FEED_LINK_2;
+		$sheetData = file_get_contents( $feedLink . $token );
+		$sheetData = json_decode( $sheetData );
+		$sheetData = $sheetData->{'feed'}->{'entry'};
+		$sensitiveMasterList = self::parseSensitiveMaster( $sheetData );
+		self::saveSensitiveMasterList( $sensitiveMasterList );
+	}
+
+	/*
+	 * saves the list of pages from sensitive related wikihows remove tab
+	 *
+	 * @param Array $data array which has key of lang code and value of array of pageids
+	 */
+	private static function saveRemoveList( $data ) {
+		global $wgWikiHowLanguages;
+
+		// initialize with en data..for some reason this is not in the wgLanguages global used below
+		$updateData = array('en' => isset( $data['en'] ) ? $data['en'] : array() );
+
+		foreach ( $wgWikiHowLanguages as $lang ) {
+			if ( isset( $data[$lang] ) ) {
+				$updateData[$lang] = $data[$lang];
+			} else {
+				$updateData[$lang] = array();
+			}
+		}
+
+		$table = self::SENSITIVE_RELATED_REMOVE_PAGE_TABLE;
+		$fieldName = 'srrp_page_id';
+		foreach ( $updateData as $lang => $pageIds ) {
+			self::saveNewIdsRemoveDeleteIds( $lang, $pageIds, $table, $fieldName );
+		}
+	}
+
+	/*
+	 * saves all translations of pageId from EN to it's languages
+	 * with data read from the sensitive related wikihows master tab
+	 *
+	 * updates the sensitive_related_page table with these pages
+	 * and removes items which are no longer there
+	 *
+	 * @param Array $data array which has arrays of the form (pageid, articleurl)
+	 * right now assumes EN although that may change in the future so we do read in the articleurl
+	 * although we do not actually use it right now
+	 */
+	private static function saveSensitiveMasterList( $sheetData ) {
+		global $wgWikiHowLanguages;
+		if ( !$sheetData ) {
+			decho("no items to remove");
+			return;
+		}
+		$data = array();
+		// get translation page ids for each item in the list
+		foreach ( $sheetData as $pageInfo ) {
+			if ( !$pageInfo[0] ) {
+				continue;
+			}
+			$data['en'][] = $pageInfo[0];
+			$links = TranslationLink::getLinksTo( 'en', $pageInfo[0] );
+			foreach ( $links as $link ) {
+				$data[$link->toLang][] = $link->toAID;
+			}
+		}
+
+		// initialize with en data..for some reason this is not in the wgLanguages global used below
+		$updateData = array('en' => isset( $data['en'] ) ? $data['en'] : array() );
+
+		foreach ( $wgWikiHowLanguages as $lang ) {
+			if ( isset( $data[$lang] ) ) {
+				$updateData[$lang] = $data[$lang];
+			} else {
+				$updateData[$lang] = array();
+			}
+		}
+
+		$table = self::SENSITIVE_RELATED_PAGE_TABLE;
+		$fieldName = 'srp_page_id';
+		foreach ( $updateData as $lang => $pageIds ) {
+			self::saveNewIdsRemoveDeleteIds( $lang, $pageIds, $table, $fieldName );
+		}
+	}
+
+	private static function parseRemoveList( $data ) {
+		$result = array();
+		if ( !$data ) {
+			return $result;
+		}
+		foreach( $data as $row ) {
+			$lang = $row->{'gsx$language'}->{'$t'};
+			$pageId = $row->{'gsx$id'}->{'$t'};
+			$result[$lang][] = $pageId;
+		}
+
+		return $result;
+	}
+
+	private static function parseSensitiveMaster( $data ) {
+		$result = array();
+		foreach( $data as $row ) {
+			$pageId = $row->{'gsx$id'}->{'$t'};
+			$url = $row->{'gsx$url'}->{'$t'};
+			$result[] = array( $pageId, $url );
+		}
+
+		return $result;
+	}
+
+	/*
+	 * used to update items from a google sheet into the db into a table which is simply pageId
+	 *
+	 * @param string $lang the lang to use to get the lang database
+	 * @param Array $pageIds list of pages ids to be saved
+	 * @param string $table the name of the table to be used
+	 * @param string $fieldName the name of the field which contains the pageId on $table
+	 */
+	private static function saveNewIdsRemoveDeleteIds( $lang, $pageIds, $table, $fieldName ) {
+		$dbw = wfGetDB( DB_MASTER );
+
+		$langDB = Misc::getLangDB( $lang );
+		if ( !$langDB ) {
+			decho("could not get lang db for", $lang);
+			return;
+		}
+		$table = $langDB . '.' . $table ;
+		$cond = array();
+
+		$var = "$fieldName as page_id";
+		$res = $dbw->select( $table, $var, $cond, __METHOD__ );
+		$existing = array();
+		foreach ( $res as $row ) {
+			$existing[] = $row->page_id;
+		}
+
+		$removeIds = array_values( array_diff( $existing, $pageIds ) );
+		$insertIds = array_values( array_diff( $pageIds, $existing ) );
+		//$removeIds = array_diff( $existing, $pageIds );
+		//$insertIds = array_diff( $pageIds, $existing );
+
+		if ( $removeIds ) {
+			decho("field: $fieldName lang: $lang remove ids", json_encode( $removeIds ) );
+			$deleteCond = array( $fieldName => $removeIds );
+			$dbw->delete( $table, $deleteCond, __METHOD__ );
+		}
+		if ( $insertIds ) {
+			decho("field: $fieldName lang: $lang insert ids", json_encode( $insertIds ) );
+			$insertData  = array();
+			foreach ( $insertIds as $id ) {
+				$insertData[] = array( $fieldName => $id );
+			}
+
+			$dbw->insert( $table, $insertData, __METHOD__ );
+		}
+	}
+
+	/*
+	 * checks is this page is a sensitive related wikihows master page
+	 *
+	 * @param Title $title title of the page we are checking
+	 */
+	public static function isSensitiveRelatedRemovePage( $title ) {
+		global $wgLanguageCode;
+		if ( !$title ) {
+			return false;
+		}
+		$pageId = $title->getArticleID();
+		$dbr = wfGetDB( DB_SLAVE );
+		$table = self::SENSITIVE_RELATED_REMOVE_PAGE_TABLE;
+		$var = 'count(*)';
+		$conds = array(
+			'srrp_page_id' => $pageId,
+		);
+		$options = array();
+
+		$count = $dbr->selectField( $table, $var, $conds, __METHOD__, $options );
+		if ( $count ) {
+			return true;
+		}
+		return false;
+	}
+
+	public static function isSensitiveRelatedPage( $pageId ) {
+		global $wgLanguageCode;
+		$dbr = wfGetDB( DB_SLAVE );
+		$table = self::SENSITIVE_RELATED_PAGE_TABLE;
+		$var = 'count(*)';
+		$conds = array(
+			'srp_page_id' => $pageId,
+		);
+		$options = array();
+		$count = $dbr->selectField( $table, $var, $conds, __METHOD__, $options );
+		if ( $count ) {
+			return true;
+		}
+		return false;
+	}
+}

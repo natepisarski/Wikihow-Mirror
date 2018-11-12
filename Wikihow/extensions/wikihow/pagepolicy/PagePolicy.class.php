@@ -124,22 +124,41 @@ class PagePolicy {
 				$userPageOverride = $user && $user->getID() !== 0;
 			}
 
+			$css = Misc::getEmbedFile( 'css', dirname( __FILE__ ) . '/pagepolicy.css' );
+			$out->addHeadItem( 'pagepolicy-css', HTML::inlineStyle( $css ) );
+
 			if ( $wgTitle->exists() || $userPageOverride ) {
-				// For existing pages that are being hidden, show a login to view message and form
-				$out->addModules( 'ext.wikihow.login_popin' );
-				$out->addHTML( self::render(
-					Misc::isMobileMode() ? 'login_mobile' : 'login_desktop',
-					[
-						'encoded_title' => $wgTitle->getPrefixedUrl(),
-						'view_message' => wfMessage( 'pplp_login_cta' )
-					]
-				) );
+				if ( $wgTitle->inNamespace( NS_MAIN ) ) {
+					$login = Title::newFromText( 'Special:UserLogin' );
+					$url = $login->getCanonicalURL( [ 'returnto' => $wgTitle->getPrefixedUrl() ] );
+					$out->addHTML( self::render(
+						GoogleAmp::isAmpMode( $out ) ?
+							'article_under_review_amp' : 'article_under_review',
+						[
+							'review_header' => wfMessage( 'pagepolicy_review_header' )->text(),
+							'review_message' => wfMessage( 'pagepolicy_review_message', $url )->parse(),
+							'search_header' => wfMessage( 'pagepolicy_search_header' )->text(),
+							'searchbox' => SearchBox::render( $out ),
+							'home_message' => wfMessage( 'pagepolicy_home_message' )->parse()
+						]
+					) );
+				} else {
+					// For existing pages that are being hidden, show a login to view message and form
+					$out->addModules( 'ext.wikihow.login_popin' );
+					$out->addHTML( self::render(
+						Misc::isMobileMode() ? 'login_mobile' : 'login_desktop',
+						[
+							'encoded_title' => $wgTitle->getPrefixedUrl(),
+							'login_message' => wfMessage( 'pagepolicy_login_message' )->text()
+						]
+					) );
+				}
 			} else {
 				// Otherwise, show a "title doesn't exist" message
 				$out->addHTML( self::render(
 					Misc::isMobileMode() ? 'notitle_mobile' : 'notitle_desktop',
 					[
-						'view_message' => wfMessage( 'nopagetitle' )
+						'error_message' => wfMessage( 'nopagetitle' )->text()
 					]
 				) );
 			}
@@ -151,7 +170,7 @@ class PagePolicy {
 			'login_popin',
 			[
 				'login_chunk' => UserLoginBox::getLogin( false, true, $returnto ),
-				'header' => wfMessage('pplp_header')->text()
+				'login_header' => wfMessage('pagepolicy_login_header')->text()
 			]
 		);
 	}

@@ -14,7 +14,7 @@
 			var img_num = this.imageNumber();
 			var custom_non_profit = this.customNonProfitName();
 
-			this.show_button_message = custom_non_profit != '';
+			this.show_button_message = custom_non_profit == 'WaterOrg';
 
 			$.get( '/Special:Charity',
 				{

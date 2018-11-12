@@ -109,7 +109,7 @@ class TQualManager extends UnlistedSpecialPage
         $this->_mturk->associateQualificationWithWorker([
             'QualificationTypeId' => $qualId, // REQUIRED
             'SendNotification' => true,
-            'WorkerId' => '$workerId', // REQUIRED
+            'WorkerId' => $workerId, // REQUIRED
         ]);
     }
 

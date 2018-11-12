@@ -1,0 +1,78 @@
+.searchbox-form {
+	display: table;
+	width: 100%;
+}
+
+.searchbox-input {
+	display: table-cell;
+	vertical-align: top;
+	width: auto;
+}
+
+.searchbox-input input.search_input {
+	height: 41px;
+	width: 100%;
+	margin: 0;
+	padding: 9px;
+	font-size: 1.1em;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-sizing: border-box;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+input:focus::-webkit-input-placeholder { color:transparent; }
+input:focus:-moz-placeholder { color:transparent; }
+input:focus::-moz-placeholder { color:transparent; }
+input:focus:-ms-input-placeholder { color:transparent; }
+
+.searchbox-input input:focus::-webkit-input-placeholder,
+.searchbox-input input:focus:-moz-placeholder,
+.searchbox-input input:focus::-moz-placeholder,
+.searchbox-input input:focus::-ms-input-placeholder {
+	color: transparent;
+}
+
+.searchbox-button {
+	display: table-cell;
+	vertical-align: top;
+	width: 1%;
+}
+
+.searchbox-button button.button.primary {
+	font-size: 15px;
+	line-height: 15px;
+	height: 41px;
+	margin: 0;
+	box-sizing: border-box;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	padding-left: 36px;
+	background-size: 16px auto;
+	background-repeat: no-repeat;
+	background-position: 12px center;
+	background-image: url(/skins/owl/images/search.png);
+}
+
+.skin-minervawh .searchbox-button button.button.primary {
+	padding-left: 30px;
+}
+
+.skin-minervawh .searchbox-button button span {
+	display: none;
+}
+
+@media only screen and (max-aspect-ratio: 13/9) and (min-width: 500px), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	.skin-minervawh .searchbox-button button span {
+		display: inline-block;
+	}
+
+	.skin-minervawh .searchbox-button button.button.primary {
+		font-size: 18px;
+		line-height: 18px;
+		padding-left: 36px;
+		background-size: 18px auto;
+		font-weight: bold;
+	}
+}
