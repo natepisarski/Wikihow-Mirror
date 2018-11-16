@@ -10,7 +10,7 @@
 class VerifyData {
 	const VERIFIED_ARTICLES_KEY = "verified_articles";
 	const VERIFIER_TABLE = "verifier_info";
-	const VERIFIER_INFO_CACHE_KEY = "verifier_info_3";
+	const VERIFIER_INFO_CACHE_KEY = "verifier_info_4";
 
 	var $date, $name, $blurb, $hoverBlurb, $whUserName, $nameLink, $mainNameLink, $blurbLink, $category, $image, $initials, $revisionId, $worksheetName, $aid;
 

@@ -61,7 +61,7 @@ class APIAIWikihowAgentWebHook extends UnlistedSpecialPage {
 
 	function execute($par) {
 		//Define an error handler if you need to debug errors
-		//error_reporting(E_CORE_ERROR|E_COMPILE_ERROR);
+		error_reporting(E_ERROR|E_CORE_ERROR|E_COMPILE_ERROR);
 		//register_shutdown_function("APIAIWikihowAgentWebHook::fatalHandler");
 		$old_error_handler = set_error_handler("APIAIWikihowAgentWebHook::errorHandler");
 
@@ -386,8 +386,10 @@ class APIAIWikihowAgentWebHook extends UnlistedSpecialPage {
 		wfDebugLog(self::LOG_GROUP, var_export($response, true), true);
 
 		if (!$response) {
+			wfDebugLog(self::LOG_GROUP, var_export("Problem with reponse! Reverting to default message", true), true);
 			wfDebugLog(self::LOG_GROUP, var_export("json last error: " . json_last_error(), true), true);
 			wfDebugLog(self::LOG_GROUP, var_export(json_last_error_msg(), true), true);
+			$response = json_encode($this->getResponseWithContext(wfMessage('reading_article_unkown_command')->text()));
 		}
 
 		echo $response;

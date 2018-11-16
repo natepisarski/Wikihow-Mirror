@@ -1366,9 +1366,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'aps-timeout' => 800
 			),
 		);
-		if ( $pageId % 10 == 0 ) {
-			unset( $this->mAdSetupData['rightrail2']['insert-refresh'] );
-		}
 
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
@@ -1385,6 +1382,34 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'rightrail2' => 'dfp',
 			'quiz' => 'dfp'
 		);
+
+		if ( $pageId % 10 == 0 ) {
+			$this->mAdsenseChannels[] = 4388729740;
+			$this->mAdSetupData = array(
+				'rightrail0' => array(
+					'refreshable' => 1,
+					'first-refresh-time' => 45000,
+					'refresh-time' => 28000,
+					'insert-refresh' => 1,
+					//'refresh-type' => 'adsense',
+					'viewablerefresh' => 1,
+					'lastad' => 1,
+					'channels' => 4388729740
+				),
+			);
+			$this->mAdsenseSlots = array(
+				'intro' => 7862589374,
+				'step' => 1652132604,
+				'method' => 5875012246,
+				'rightrail0' => 2961854543,
+			);
+			$this->mAdServices = array(
+				'intro'=> 'adsense',
+				'step' => 'adsense',
+				'method' => 'adsense',
+				'rightrail0' => 'adsense'
+			);
+		}
 	}
 
 	protected function setDFPAdUnitPaths() {
@@ -1416,7 +1441,7 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			$pageId = $wgTitle->getArticleID();
 		}
 		if ( $pageId % 10 == 0 ) {
-			$this->mDFPData['rightrail2']['adUnitPath'] = '/10095428/RR3_Test_32';
+			$this->mDFPData = array();
 		}
 	}
 }
@@ -1441,10 +1466,6 @@ class MethodsButNoIntroAdCreator extends MixedAdCreatorVersion2 {
 			),
 		);
 
-		if ( $pageId % 10 == 0 ) {
-			unset( $this->mAdSetupData['rightrail2']['insert-refresh'] );
-		}
-
 		$this->mAdsenseSlots = array(
 			'step' => 5875012246,
 			'method2' => 5875012246,
@@ -1460,6 +1481,33 @@ class MethodsButNoIntroAdCreator extends MixedAdCreatorVersion2 {
 			'rightrail2' => 'dfp',
 			'quiz' => 'dfp'
 		);
+
+		if ( $pageId % 10 == 0 ) {
+			$this->mAdsenseChannels[] = 4388729740;
+			$this->mAdSetupData = array(
+				'rightrail0' => array(
+					'refreshable' => 1,
+					'first-refresh-time' => 45000,
+					'refresh-time' => 28000,
+					'insert-refresh' => 1,
+					//'refresh-type' => 'adsense',
+					'viewablerefresh' => 1,
+					'lastad' => 1,
+					'channels' => 4388729740
+				),
+			);
+			$this->mAdsenseSlots = array(
+				'intro' => 7862589374,
+				'step' => 1652132604,
+				'method' => 5875012246,
+				'rightrail0' => 2961854543,
+			);
+			$this->mAdServices = array(
+				'step' => 'adsense',
+				'method' => 'adsense',
+				'rightrail0' => 'adsense'
+			);
+		}
 	}
 
 	protected function setDFPAdUnitPaths() {
@@ -1485,48 +1533,15 @@ class MethodsButNoIntroAdCreator extends MixedAdCreatorVersion2 {
 				'apsLoad' => true
 			)
 		);
+
 		global $wgTitle;
 		$pageId = 0;
 		if ( $wgTitle ) {
 			$pageId = $wgTitle->getArticleID();
 		}
 		if ( $pageId % 10 == 0 ) {
-			$this->mDFPData['rightrail2']['adUnitPath'] = '/10095428/RR3_Test_32';
+			$this->mDFPData = array();
 		}
-	}
-}
-
-class AdsenseRaddingRR1AdCreator extends MixedAdCreatorVersion2 {
-	public function __construct() {
-		// right now this data will be added to each ad as data attributes
-		// however we can use it in the future to define almost everything about each ad
-		$this->mAdSetupData = array(
-			'rightrail0' => array(
-				'refreshable' => 1,
-				'refresh-time' => 10000,
-				'insert-refresh' => 1,
-				'refresh-type' => 'adsense',
-				'viewablerefresh' => 1,
-			),
-		);
-
-		$this->mAdsenseSlots = array(
-			'intro' => 7862589374,
-			'step' => 1652132604,
-			'method' => 5875012246,
-			'rightrail0' => 2961854543,
-		);
-
-		$this->mAdServices = array(
-			'intro' => 'adsense',
-			'step' => 'adsense',
-			'method' => 'adsense',
-			'rightrail0' => 'adsense',
-		);
-	}
-
-	protected function setDFPAdUnitPaths() {
-		$this->mDFPData = array();
 	}
 }
 

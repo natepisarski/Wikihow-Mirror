@@ -290,22 +290,32 @@ EOHTML;
 	public static function getMobileForm( $pageId, $isAmp = false ) {
 		$context = RequestContext::getMain();
 		$msgText = wfMessage( 'rateitem_question_mobile' )->text();
-		$yesText = wfMessage('rateitem_yes_button')->text();
-		$noText = wfMessage('rateitem_no_button')->text();
-		$ampResponseText = wfMessage('rateitem_amp_response')->text();
+		$ampResponseYesText = '';
+		$ampResponseNoText = '';
 
 		if ( SpecialTechFeedback::isTitleInTechCategory( $context->getTitle() ) ) {
 			$msgText = wfMessage( 'rateitem_question_tech' )->text();
 		}
+
+		if ($isAmp) {
+			$title = Title::newFromId($pageId);
+			$search_term = $title ? str_replace(' ', '+', $title->getText()) : '';
+			$search_term = htmlspecialchars($search_term);
+
+			$ampResponseYesText = wfMessage('ratearticle_reason_submitted_yes', $search_term)->text();
+			$ampResponseNoText = wfMessage('ratearticle_reason_submitted', $search_term)->text();
+		}
+
 		$tmpl = new EasyTemplate(dirname(__FILE__));
 		$tmpl->set_vars(
 			array(
 				'msgText' => $msgText,
-				'yesText' => $yesText,
-				'noText' => $noText,
+				'yesText' => wfMessage('rateitem_yes_button')->text(),
+				'noText' => wfMessage('rateitem_no_button')->text(),
 				'pageId' => $pageId,
 				'amp' => $isAmp,
-				'amp_form_response' => $ampResponseText
+				'amp_form_yes_response' => $ampResponseYesText,
+				'amp_form_no_response' => $ampResponseNoText
 		));
 		return $tmpl->execute('rating_form_mobile.tmpl.php');
 	}
@@ -360,20 +370,26 @@ EOHTML;
 	}
 
 	function getRatingResponseMessage($rating, $isMobile) {
-		    return 'ratearticle_reason_submitted' . ( $isMobile ? '_mobile' : '' ) . ( $rating ? '_yes' : '' );
+		    return 'ratearticle_reason_submitted' . ( $rating ? '_yes' : '' );
 	}
 
 	public function getRatingReasonResponse($rating, $itemId = null) {
-
+		$search_term = '';
 		$context = RequestContext::getMain();
 
 		if ($itemId) {
-			$context->setTitle( Title::newFromText($itemId) );
+			$title = Title::newFromText($itemId);
+
+			if (!empty($title)) {
+				$context->setTitle($title);
+				$search_term = str_replace(' ', '+', $title->getText());
+				$search_term = htmlspecialchars($search_term);
+			}
 		}
 
 		$msg = $this->getRatingResponseMessage(intval($rating), Misc::isMobileMode());
 
-		return $context->msg($msg)->parse();
+		return $context->msg($msg, $search_term)->text();
 	}
 }
 

@@ -51,6 +51,7 @@ $messages['en'] = array (
 	'menu-categories' => 'Browse Articles',
 	'menu-duplicatetitles' => 'Find Duplicate Titles',
 	'menu-spellchecker' => 'Fix Spelling',
+	'menu-aboutwikihow' => 'About wikiHow',
 	'main_tag_mobile' => 'wikiHow to do <span>anything</span>',
 	'loggedout-overlay-heading' => 'You are Logged Out',
 	'loggedout-main-heading' => 'You are Now Logged Out',

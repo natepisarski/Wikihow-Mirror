@@ -386,6 +386,10 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 .icon-sortquestions a {
 	background-image: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-sortquestions.svg);
 }
+.icon-aboutwikihow a {
+	background-image: url(/skins/owl/images/wikihow_logo_round.png);
+	background-size: 20px;
+}
 .header {
 	z-index: 10000;
 }
@@ -796,9 +800,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	font-weight: bold;
 	font-size: 1.4em;
 	margin-bottom: .7em;
-}
-.icon-aboutwikihow {
-	display: none;
 }
 .amp-geo-group-eu .icon-aboutwikihow {
 	 display: list-item;

@@ -213,7 +213,7 @@ WH.desktopAds = (function () {
 			return;
 		}
 
-		var count = rightRailElements.length + 1;
+		var count = rightRailElements.length + adInsertCount;
 		var newItemId = 'rightrail' + count;
 		var newRightrailAd = document.createElement("div");
 		newRightrailAd.className = 'rr_container';
@@ -223,17 +223,33 @@ WH.desktopAds = (function () {
 		var newAdItem = document.createElement("div");
 		newAdItem.className = 'whad';
 		newAdItem.setAttribute('data-service', 'adsense');
+		newAdItem.setAttribute('data-refreshable', ad.refreshable ? 1 : 0);
+		newAdItem.setAttribute('data-viewablerefresh', ad.viewablerefresh ? 1 : 0);
+		newAdItem.setAttribute('data-refresh-time', ad.refreshTime );
+		newAdItem.setAttribute('data-insert-refresh', ad.insertRefresh ? 1 : 0);
 		newAdItem.setAttribute('data-adlabelclass', 'ad_label ad_label_dollar');
 		newAdItem.setAttribute('data-adtargetid', newItemId);
 		newAdItem.setAttribute('data-adsensewidth', ad.asWidth);
 		newAdItem.setAttribute('data-adsenseheight', ad.asHeight);
+		newAdItem.setAttribute('data-channels', ad.channels);
+		newAdItem.setAttribute('data-loaded', 0);
 		newAdItem.setAttribute('data-slot', ad.slot);
 		newRightrailAd.appendChild(newAdItem);
 		ad.element.parentElement.insertBefore(newRightrailAd, ad.element);
-		// remove the other ad?
 
-		var ad = new RightRailAd(newRightrailAd);
-		rightRailElements.push(ad);
+		var newAd = new RightRailAd(newRightrailAd);
+		for (var i = 0; i < rightRailElements.length; i++) {
+			if (ad == rightRailElements[i]) {
+				rightRailElements[i] = newAd;
+			}
+		}
+
+		if (ad.last == true) {
+			ad.last = false;
+			newAd.last = true;
+		}
+		log("inserted adsense ad", newAd);
+		ad.element.parentNode.removeChild(ad.element);
 		adInsertCount++;
 		updateVisibility();
 	}
@@ -417,7 +433,7 @@ WH.desktopAds = (function () {
 		}
 
 		// special type of adsense ad that is immediately loaded which we will refresh
-		if (this.service == 'adsense' && this.isLoaded && this.insertRefresh && this.refreshTime) {
+		if (this.service == 'adsense' && this.insertRefresh && this.refreshTime) {
 			var ad = this;
 			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
 		}
@@ -453,8 +469,6 @@ WH.desktopAds = (function () {
 				insertDFPLightAd(this);
 			} else {
 				insertAdsenseAd(this);
-				var ad = this;
-				setTimeout(function() {ad.refresh();}, 5000);
 			}
 			this.isLoaded = true;
 		};
@@ -480,6 +494,7 @@ WH.desktopAds = (function () {
 			}
 			var refreshValue = this.getRefreshValue();
 			if (this.maxRefresh && refreshValue > this.maxRefresh) {
+				log("max refreshes reached returning");
 				this.refreshable = false;
 				return;
 			}
@@ -490,6 +505,7 @@ WH.desktopAds = (function () {
 				if (this.refreshType == 'dfp') {
 					insertNewDFPAd(this);
 				} else {
+					log("will insert new adsense ad");
 					insertNewAdsenseAd(this);
 				}
 			} else if (this.insertRefresh) {
@@ -696,7 +712,7 @@ WH.desktopAds = (function () {
 			}
 			var topPx = WH.shared.TOP_MENU_HEIGHT;
 			if (ad.last) {
-				var adBottom = window.scrollY + WH.shared.TOP_MENU_HEIGHT + ad.adHeight;
+				var adBottom = window.scrollY + WH.shared.TOP_MENU_HEIGHT + parseInt(ad.adHeight);
 				var offsetBottom = document.documentElement.scrollHeight - BOTTOM_MARGIN;
 				if ( adBottom > offsetBottom ) {
 					topPx = topPx - (adBottom - offsetBottom);

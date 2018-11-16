@@ -194,7 +194,7 @@ a, a:active, a:visited {
 .header {
 	background-color: #93B874;
 	position: fixed;
-	border-bottom: 0px;
+	border-bottom: 0;
 	z-index: 10;
 	height:40px;
 	top: 0;
@@ -278,7 +278,7 @@ a, a:active, a:visited {
   margin-bottom: .7em;
 }
 .content .thumb {
-  margin: 15px 0 15px 0;
+  margin: 15px 0;
   border: 1px solid #ccc;
   border-radius: 5px;
   background: #f9f9f9;
@@ -323,7 +323,7 @@ sup {
 }
 
 .pre-content {
-	background-color: #ffffff;
+	background-color: #FFF;
 	border-bottom: none;
 }
 
@@ -343,9 +343,9 @@ sup {
 }
 
 #intro {
-	background-color: #ffffff;
+	background-color: #FFF;
 	margin: 0 -5px; /* this should be the same/opposite as margin for .content */
-	padding: 7px 15px 3px 15px;
+	padding: 7px 15px 3px;
 	font-size: 16px;
 	border-bottom: 1px solid #bfbfbf;
 }
@@ -393,7 +393,7 @@ h4.steps_text::before {
 .step_num {
 	font-size: 30px;
 	color: #3e3d3b;
-	padding: 0px 15px 0px 0;
+	padding: 0 15px 0 0;
 	float:left;
 	font-weight: bold;
 	line-height: 39px;
@@ -411,7 +411,7 @@ h4.steps_text::before {
 	font-size: 16px;
 	line-height: normal;
 	list-style: none;
-	background-color:#ffffff;
+	background-color:#FFF;
 	border-radius: 4px;
 	padding:20px;
 	border: 1px solid #bfbfbf;
@@ -471,7 +471,7 @@ h4.steps_text::before {
 .mwimg.techicon .content-spacer {
 	width: auto;
 	height: 30px !important;
-	padding-top: 0px !important;
+	padding-top: 0 !important;
 	display: inline;
 }
 .content img.whvgif {
@@ -504,7 +504,7 @@ h4.steps_text::before {
 
 .section_text, .steps_text {
 	padding:15px;
-	background-color: #ffffff;
+	background-color: #FFF;
 	border: 1px solid #bfbfbf;
 	border-radius: 4px;
 	font-size: 16px;
@@ -576,7 +576,7 @@ h4.steps_text::before {
 	display: table;
 }
 .section h2.android, .section h3.android, .tool div.android {
-	top: 0px;
+	top: 0;
 }
 
 #ca-edit.enabled {
@@ -697,7 +697,7 @@ h4.steps_text::before {
 .ad_label_method, .ad_label_related {
 	text-align: center;
 	font-size: 12px;
-	color: #999999;
+	color: #999;
 }
 
 #intro_ad {
@@ -1037,15 +1037,15 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 
 #mobile_tab_outer {
-	margin: 10px -10px 0 -10px;
+	margin: 10px -10px 0;
 	padding: 10px;
-	background-color: #ffffff;
+	background-color: #FFF;
 }
 
 #mobile_tab_container {
 	display: table;
 	width: 100%;
-	border-spacing: 5px 0px;
+	border-spacing: 5px 0;
 }
 
 
@@ -1092,7 +1092,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 
 .mobile_tab.active {
-	color: #ffffff;
+	color: #FFF;
 	background-color: #93b874;
 	position: relative;
 }
@@ -1113,7 +1113,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 
 .mobile_tab.last {
-	margin-right: 0px;
+	margin-right: 0;
 }
 
 .tabbed_content .edit-page {
@@ -1163,7 +1163,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	text-align: center;
 	background-color: #475347;
 	color: #FFF;
-	padding: 9px 5px 9px 5px;
+	padding: 9px 5px;
 	display: none;
 }
 .gdpr_button, button.gdpr_button {
@@ -1180,7 +1180,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	border-radius: 4px;
 	text-decoration: none;
 	margin-left: 5px;
-	margin-right: 0px;
+	margin-right: 0;
 }
 #gdpr_dismiss {
 	display: none;
@@ -1233,7 +1233,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 @media only screen and (max-width:320px) {
 	#gdpr {
-		padding: 5px 0px 6px 0px;
+		padding: 5px 0 6px;
 	}
 	#gdpr_text {
 		font-size: 0.8em;
@@ -1242,7 +1242,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	.gdpr_button, button.gdpr_button {
 		font-size: 0.7em;
 		margin-left: 3px;
-		padding: 4px 8px 5px 8px;
+		padding: 4px 8px 5px;
 	}
 }
 @media only screen and (max-width:300px) {
@@ -1253,7 +1253,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	.gdpr_button, button.gdpr_button {
 		font-size: 0.7em;
 		margin-left: 3px;
-		padding: 4px 8px 5px 8px;
+		padding: 4px 8px 5px;
 	}
 }
 @media only screen and (min-width:450px) {
@@ -1266,14 +1266,14 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 @media only screen and (min-width:600px) {
 	#gdpr {
-		padding: 13px 5px 14px 5px;
+		padding: 13px 5px 14px;
 	}
 	#gdpr_text {
 		max-width: 88%;
 	}
 	.gdpr_button {
 		margin-left: 10px;
-		padding: 1px 6px 1px 6px;
+		padding: 1px 6px;
 	}
 }
 @media only screen
@@ -1297,9 +1297,24 @@ a.related-title,a.related-title:active, a.related-title:visited {
 
 .noarticletext div {
 	border: none !important;
-	padding: 0px;
+	padding: 0;
 	margin-bottom: 0.75em;
 }
 .amazon_info {
     display: none;
+}
+
+.sp_expert_inline {
+	display: inline-block;
+	line-height: 1em;
+	padding: 0 1.2em 0 16px;
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-size: contain;
+	background-image: url(/skins/owl/images/sp_expert_icon.png);
+	/* @embed */
+	background-image: url(/skins/owl/images/sp_expert_icon.svg);
+}
+.sp_expert_inline a {
+	color: #373;
 }

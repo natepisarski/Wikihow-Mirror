@@ -9,7 +9,11 @@ $wgSpecialPages['SocialProof'] = 'SocialProof';
 $wgAutoloadClasses['SocialProof'] = dirname(__FILE__) . '/SocialProof.body.php';
 $wgAutoloadClasses['StaffReviewed'] = dirname(__FILE__) . '/StaffReviewed.class.php';
 
+$wgHooks['BeforeRenderPageActionsMobile'][] = array('SocialProofStats::addMobileIntroIcon');
+$wgHooks['ArticlePurge'][] = array('SocialProofStats::onArticlePurge');
 $wgHooks['SensitiveArticleEdited'][] = 'StaffReviewed::handleSensitiveArticleEdit';
+$wgHooks['ProcessArticleHTMLAfter'][] = ['SocialProofStats::onProcessArticleHTMLAfter'];
+$wgHooks['MobilePreRenderPreContent'][] = ['SocialProofStats::addMobileInlineExpert'];
 
 $wgResourceModules['ext.wikihow.socialproof.special'] = array(
 	'styles' => array('socialproof.css'),
@@ -63,6 +67,3 @@ $wgResourceModules['mobile.wikihow.socialproof'] = array(
 		'sp_star_label_5'
 	]
 );
-
-$wgHooks['BeforeRenderPageActionsMobile'][] = array('SocialProofStats::addMobileIntroIcon');
-$wgHooks['ArticlePurge'][] = array('SocialProofStats::onArticlePurge');

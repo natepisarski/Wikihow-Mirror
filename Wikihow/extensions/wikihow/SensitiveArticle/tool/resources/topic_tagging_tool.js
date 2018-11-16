@@ -11,21 +11,20 @@
 
 		init: function() {
 			if (WH.isMobileDomain) this.is_mobile = 1;
-			this.addHandlers();
 			this.getNextArticle();
 			if (this.is_mobile) this.removeFooter();
 		},
 
-		addHandlers: function() {
-			$('#ttt_vote_yes').click($.proxy(function() {
+		addVoteHandlers: function() {
+			$('#ttt_vote_yes').unbind('click').one('click', $.proxy(function() {
 				this.vote(true);
 			},this));
 
-			$('#ttt_vote_no').click($.proxy(function() {
+			$('#ttt_vote_no').unbind('click').one('click', $.proxy(function() {
 				this.vote(false);
 			},this));
 
-			$('#ttt_vote_skip').click($.proxy(function() {
+			$('#ttt_vote_skip').unbind('click').one('click', $.proxy(function() {
 				this.skip();
 			},this));
 		},
@@ -53,6 +52,7 @@
 
 		displayResult: function(data) {
 			this.processing(false);
+			this.addVoteHandlers();
 
 			$('#ttt_title').stop().hide().html(data.page_title);
 			$('#ttt_question').html(data.question);

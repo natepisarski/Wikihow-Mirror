@@ -19,8 +19,8 @@
 		<input type="hidden" class="amp_input" name="source" value="mobile" />
 		<input type="hidden" class="amp_input" name="amp" value="1" />
 		<input type="hidden" class="amp_input" name="rating" value="1" />
-		<div submit-success><?=$amp_form_response?></div>
-		<div submit-error><?=$amp_form_response?></div>
+		<div submit-success><?=$amp_form_yes_response?></div>
+		<div submit-error><?=$amp_form_yes_response?></div>
 	</form>
 	<form id="amp-rate-form-no" method="post" action-xhr="/Special:RateItem" target="_top" on="submit-success:article_rating.hide,article_rating_header.hide">
 		<input type="hidden" class="amp_input" name="action" value="rate_page" />
@@ -29,8 +29,8 @@
 		<input type="hidden" class="amp_input" name="source" value="mobile" />
 		<input type="hidden" class="amp_input" name="amp" value="1" />
 		<input type="hidden" class="amp_input" name="rating" value="0" />
-		<div submit-success><?=$amp_form_response?></div>
-		<div submit-error><?=$amp_form_response?></div>
+		<div submit-success><?=$amp_form_no_response?></div>
+		<div submit-error><?=$amp_form_no_response?></div>
 	</form>
 	<? } ?>
 </div>

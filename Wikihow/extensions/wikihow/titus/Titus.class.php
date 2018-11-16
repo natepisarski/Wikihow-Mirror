@@ -1786,19 +1786,15 @@ class TSNumSourcesCites extends TitusStat {
 * additional rows added to track the all time helpfulness - including deleted ratings
 * alter table titus_intl add column `ti_helpful_percentage_including_deleted` tinyint(3) unsigned DEFAULT NULL after `ti_templates`;
 * alter table titus_intl add column `ti_helpful_total_including_deleted` int(10) unsigned DEFAULT NULL after `ti_templates`;
+* alter table titus_intl add column `ti_helpful_percentage_display_all_time` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_total_including_deleted`;
+* alter table titus_intl add column `ti_helpful_percentage_display_soft_reset` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_percentage_display_all_time`;
+* alter table titus_intl add column `ti_helpful_total_display_all_time` int(10) unsigned DEFAULT NULL after `ti_helpful_percentage_display_soft_reset`;
 * alter table titus_intl add column `ti_helpful_1_star` int(10) unsigned DEFAULT NULL after `ti_templates`;
 * alter table titus_intl add column `ti_helpful_2_star` int(10) unsigned DEFAULT NULL after `ti_helpful_1_star`;
 * alter table titus_intl add column `ti_helpful_3_star` int(10) unsigned DEFAULT NULL after `ti_helpful_2_star`;
 * alter table titus_intl add column `ti_helpful_4_star` int(10) unsigned DEFAULT NULL after `ti_helpful_3_star`;
 * alter table titus_intl add column `ti_helpful_5_star` int(10) unsigned DEFAULT NULL after `ti_helpful_4_star`;
 * alter table titus_intl add column `ti_display_stars` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_5_star`;
-* alter table titus_historical_intl add column `ti_helpful_percentage_including_deleted` tinyint(3) unsigned DEFAULT NULL after `ti_templates`;
-* alter table titus_historical_intl add column `ti_helpful_total_including_deleted` int(10) unsigned DEFAULT NULL after `ti_templates`;
-* alter table titus_historical_intl add column `ti_helpful_1_star` int(10) unsigned DEFAULT NULL after `ti_templates`;
-* alter table titus_historical_intl add column `ti_helpful_2_star` int(10) unsigned DEFAULT NULL after `ti_helpful_1_star`;
-* alter table titus_historical_intl add column `ti_helpful_3_star` int(10) unsigned DEFAULT NULL after `ti_helpful_2_star`;
-* alter table titus_historical_intl add column `ti_helpful_4_star` int(10) unsigned DEFAULT NULL after `ti_helpful_3_star`;
-* alter table titus_historical_intl add column `ti_helpful_5_star` int(10) unsigned DEFAULT NULL after `ti_helpful_4_star`;
 */
 class TSHelpful extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -1808,6 +1804,8 @@ class TSHelpful extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$stats = array();
 		$pageId = $pageRow->page_id;
+		// TODO make this come from not in our code
+		$displayResetDate = '2018-01-01';
 		$sql = "
 			select count(*) as C from rating where rat_page = $pageId and rat_rating = 1 and rat_isdeleted = 0
 			UNION ALL
@@ -1825,7 +1823,11 @@ class TSHelpful extends TitusStat {
 			UNION ALL
 			select count(*) as C from rating  where rat_page  = $pageId
 			UNION ALL
-			select count(*) as C from rating  where rat_page  = $pageId and rat_rating = 1";
+			select count(*) as C from rating  where rat_page  = $pageId and rat_rating = 1
+			UNION ALL
+			select count(*) as C from rating where rat_page = $pageId and rat_timestamp > '$displayResetDate'
+			UNION ALL
+			select count(*) as C from rating where rat_page = $pageId and rat_rating = 1 and rat_timestamp > '$displayResetDate'";
 
 		$res = $dbr->query($sql);
 		$row = $dbr->fetchObject($res);
@@ -1865,7 +1867,14 @@ class TSHelpful extends TitusStat {
 		$row = $dbr->fetchObject($res);
 		$yesIncludingDeleted = intVal($row->C);
 
-		$stats['ti_helpful_percentage_including_deleted'] = $this->percent( $yesIncludingDeleted, $totalIncludingDeleted );
+		// all votes since a given date
+		$row = $dbr->fetchObject($res);
+		$ratingDisplayCountTotal = intVal($row->C);
+
+		// all yes votes since a given date
+		$row = $dbr->fetchObject($res);
+		$ratingDisplayCountYesTotal = intVal($row->C);
+
 		$stats['ti_helpful_total_including_deleted'] = $totalIncludingDeleted;
 		$stats['ti_helpful_votes_per_1000_pv'] = $this->getRatingsPerPV( $dbr, $r, $t, $pageRow );
 
@@ -1900,6 +1909,19 @@ class TSHelpful extends TitusStat {
 		}
 		$stats["ti_display_stars"] = $rating;
 
+		$cond[] = "rs_timestamp > '$displayResetDate'";
+		$row = $dbr->selectRow( $ratingStarTable, $var, $cond, __METHOD__ );
+		$starDisplayCountTotal = $row ? $row->count : 0;
+		$starDisplayCountYesTotal = $row ? $row->yesVotes : 0;
+
+		$displayCountTotal = $ratingDisplayCountTotal + $starDisplayCountTotal;
+		$displayCountYesTotal = $ratingDisplayCountYesTotal + $starDisplayCountYesTotal;
+		$displayTotalPercent = $this->percent( $displayCountYesTotal, $displayCountTotal );
+
+		$stats['ti_helpful_total_display_all_time'] = $displayCountTotal;
+		$stats['ti_helpful_percentage_display_all_time'] = $displayTotalPercent;
+		$stats['ti_helpful_percentage_display_soft_reset'] = $this->getPercentDisplaySoftReset( $displayTotalPercent, $rating, $ratingCount );
+
 		return $stats;
 	}
 
@@ -1929,6 +1951,14 @@ class TSHelpful extends TitusStat {
 	function percent($numerator, $denominator) {
 		$percent = $denominator != 0 ? ($numerator / $denominator) * 100 : 0;
 		return number_format($percent, 0);
+	}
+
+	function getPercentDisplaySoftReset( $displayTotalPercent, $currentPercent, $currentTotal ) {
+		if ( $currentTotal >= 8 ) {
+			return $currentPercent;
+		} else {
+			return $displayTotalPercent;
+		}
 	}
 }
 

@@ -466,6 +466,16 @@ class WikihowMobileTools {
 				pq($image)->parent()->parent()->prepend($image);
 			}
 		}
+		// on project pages if the first bullet in a list is an image add a special class
+		if ( $wgTitle->getNamespace() == NS_PROJECT ) {
+			foreach ( pq( '.section_text ul' ) as $node ) {
+				foreach ( pq( $node )->find( 'li:first' ) as $firstItem ) {
+					if ( pq( $firstItem )->find( '.mwimg' )->length ) {
+						pq( $firstItem )->addClass( 'hasimg' );
+					}
+				}
+			}
+		}
 
 		//now that we've moved images up, we need to move all the step anchors
 		//back to the top so the offsets are easier to calculate
@@ -474,6 +484,7 @@ class WikihowMobileTools {
 		}
 
 		$imageCreators = array();
+		$pageId = $wgTitle->getArticleID();
 
 		//deal with swapping out all images for tablet
 		//and putting in the right size image
@@ -495,7 +506,6 @@ class WikihowMobileTools {
 			$imageObj = RepoGroup::singleton()->findFile($title);
 			if ($imageObj && $imageObj->exists()) {
 				$imageCreators[$imageObj->getUser( 'text' )] = $title;
-				$pageId = $wgTitle->getArticleID();
 				//get the mobile sized image
 				$smallWidth = 460; //we've chosed this as our max image size on mobile devices
 				$smallHeight = $smallWidth*$srcHeight/$srcWidth;

@@ -320,12 +320,6 @@ class DesktopAds {
 			if ( $pageId % 100 < 50 ) {
 				$adCreator = new MethodsButNoIntroAdCreator();
 			}
-
-			//if ( $pageId % 100 == 53 ) {
-				//$adCreator = new AdsenseRaddingRR1AdCreator();
-				//$adCreator->mAdServices['step'] = '';
-			//}
-
 			if ( $pageId == 110310 ) {
 				$adCreator = new MixedAdCreatorVersion3();
 				$adCreator->mAdServices['step'] = '';

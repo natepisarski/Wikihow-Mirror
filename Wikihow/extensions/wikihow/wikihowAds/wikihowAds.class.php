@@ -27,6 +27,7 @@ class wikihowAds {
 	public static $mCategories = array();
 	static $mCategoriesSet = false;
 	static $mTopLevelCategory = null;
+	static $excluded = false;
 
 	public static $mDesktopDfpCategoryInfo  = array(
 		'Health' => array(
@@ -344,8 +345,16 @@ class wikihowAds {
 		return $ret;
 	}
 
+	public static function exclude() {
+		self::$excluded = true;
+	}
+
 	public static function isExcluded($title) : bool {
 		global $wgLanguageCode, $wgMemc;
+
+		if (self::$excluded) {
+			return true;
+		}
 
 		if (!$title || !$title->exists()) {
 			return false;

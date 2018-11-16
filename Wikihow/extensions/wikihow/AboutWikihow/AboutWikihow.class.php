@@ -12,7 +12,11 @@
 
 class AboutWikihow {
 
+	private static $is_about_wikihow_page = null;
+
 	public static function aboutWikihowPage($context = null): bool {
+		if (!is_null(self::$is_about_wikihow_page)) return self::$is_about_wikihow_page;
+
 		if (empty($context)) $context = RequestContext::getMain()->getOutput();
 
 		$out = $context->getOutput();
@@ -23,12 +27,14 @@ class AboutWikihow {
 		$title = $out->getTitle();
 		$wikihow_page = !empty($title) ? $title->inNamespace(NS_PROJECT) : false;
 
-		return $out->getLanguage()->getCode() == 'en' &&
-			!Misc::isMobileMode() &&
+		self::$is_about_wikihow_page =
+			$out->getLanguage()->getCode() == 'en' &&
 			$action === 'view' &&
 			empty($diff_num) &&
 			$wikihow_page &&
 			$title->getDBKey() == 'About-wikiHow';
+
+		return self::$is_about_wikihow_page;
 	}
 
 	public static function pressSidebox(): string {
@@ -45,8 +51,8 @@ class AboutWikihow {
 			'press' => $press_data
 		];
 
-		$html = $m->render('press_sidebox', $vars);
-		return $html;
+		$template = Misc::isMobileMode() ? 'press_mobile' : 'press_sidebox';
+		return $m->render($template, $vars);
 	}
 
 	private static function pressData(): array {
@@ -77,7 +83,34 @@ class AboutWikihow {
 		return $press_item;
 	}
 
+	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		if (self::aboutWikihowPage()) {
+			Misc::setHeaderMobileFriendly();
+			$out->setPageTitle(wfMessage('aboutwikihow')->text());
+			$out->addModules('ext.wikihow.mobile_about_wikihow');
+		}
+	}
+
 	public static function onWikihowTemplateShowTopLinksSidebar(bool &$showTopLinksSidebar) {
 		if (self::aboutWikihowPage()) $showTopLinksSidebar = false;
+	}
+
+	//this uses the phpQuery object
+	public static function onMobileProcessArticleHTMLAfter(OutputPage $out) {
+		if (!self::aboutWikihowPage()) return;
+
+		foreach (pq('.section.steps') as $key => $step) {
+			$section_title = pq($step)->find('h3 span')->text();
+
+			if ($section_title == wfMessage('section_title_before_mobile_pressbox')->text()) {
+				//add press box after the designated section
+				pq($step)->after(self::pressSidebox());
+			}
+			elseif ($section_title == wfMessage('section_title_for_slideshow')->text()) {
+				//remove the slideshow because it looks bad on mobile
+				pq($step)->remove();
+			}
+
+		}
 	}
 }

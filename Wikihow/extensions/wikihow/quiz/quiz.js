@@ -18,6 +18,10 @@
 				var $related = $("#relatedwikihows").children().first();
 				var target = $("a", $related).attr("href");
 				var title = $(".related-title-text", $related).text();
+				//make sure there's a space after How to
+				if(title.indexOf("How to ") == -1) {
+					title = title.replace("How to", "How to ");
+				}
 				WH.Quiz.allRight += " <a href='" + target + "'>" + title + "</a>";
 			}
 

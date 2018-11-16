@@ -92,18 +92,15 @@ class MobileFrontendWikiHowHooks {
 				}
 			}
 			if ($wgTitle && $wgTitle->getNamespace() == NS_PROJECT ) {
-				if ($wgTitle->getDBkey() == wfMessage( 'gdpr_mobile_menu_bottom_link' )->text() ) {
-					$mobileAllowed = true;
-				}
-				if ($wgTitle->getDBkey() == wfMessage( 'gdpr_mobile_menu_top_link' )->text() ) {
-					$mobileAllowed = true;
-				}
-				if ($wgTitle->getDBkey() == wfMessage( 'cookie_policy_page' )->text() ) {
-					$mobileAllowed = true;
-				}
-				if ($wgTitle->getDBkey() == 'Privacy-Policy' ) {
-					$mobileAllowed = true;
-				}
+				$project_pages = [
+					wfMessage( 'gdpr_mobile_menu_bottom_link' )->text(),
+					wfMessage( 'gdpr_mobile_menu_top_link' )->text(),
+					wfMessage( 'cookie_policy_page' )->text(),
+					'Privacy-Policy',
+					'About-wikiHow'
+				];
+
+				if (in_array($wgTitle->getDBkey(), $project_pages)) $mobileAllowed = true;
 			}
 
 			wfRunHooks( 'IsEligibleForMobile', array( &$mobileAllowed ) );

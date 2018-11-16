@@ -19,8 +19,8 @@ class AdminMassEdit extends UnlistedSpecialPage {
 			}
 		}
 		return $urls;
-	}	
-	
+	}
+
 	private function getDefaultSummary() {
 		return wfMessage("mass-edit-summary");
 	}
@@ -90,7 +90,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		}
 
 		$result = new stdClass();
-		$result->bad = $bad; 
+		$result->bad = $bad;
 		$result->titles = array_unique($titles);
 		return $result;
 	}
@@ -194,7 +194,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 			$result = $page->doEditContent( $content, $summary, 0, false, $user);
 
 			if ($result->value['revision'] !== null) {
-				$rev = $result->value['revision']; 
+				$rev = $result->value['revision'];
 				$results[] = "Text added to " . Misc::getLangBaseURL($wgLanguageCode) . "/index.php?curid=$pageId " . Misc::getLangBaseURL($wgLanguageCode) . "/$title.  New revision is: ".$rev->getId();
 			} else {
 				$results[] = "No text added.  No revision made on $title";
@@ -224,8 +224,11 @@ class AdminMassEdit extends UnlistedSpecialPage {
 	public function execute($par) {
 		global $wgLanguageCode;
 
-		$user = $this->getUser();
-		if (!($user->getEmail() == "chris@wikihow.com" || $user->getName() == "Argutier" || $user->getName() == "ElizabethD") && !($wgLanguageCode != "en" && ( $user->getName() == "Bridget8" || $user->getName() == "AdrianaBaird" ) ) ) {
+		$uname = $this->getUser()->getName();
+		$allLangs = [ 'Chris H', 'Argutier', 'ElizabethD', 'Albur' ];
+		$intlOnly = [ 'Bridget8', 'AdrianaBaird' ];
+		$allowed = in_array($uname, $allLangs) || ( Misc::isIntl() && in_array($uname, $intlOnly) );
+		if (!$allowed) {
 			$this->displayRestrictionError();
 			return;
 		}
@@ -343,7 +346,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 				'json');
 			return false;
 		});
-		
+
 		(function($) {
 			$(document).ready(function() {
 				$('#update')

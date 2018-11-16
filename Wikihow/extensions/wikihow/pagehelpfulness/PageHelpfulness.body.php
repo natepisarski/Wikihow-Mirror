@@ -225,6 +225,43 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		return $date;
 	}
 
+	private static function getDisplayRatingHtml( $pageId ) {
+		global $wgLanguageCode;
+		if ( $wgLanguageCode != 'en' ) {
+			return '';
+		}
+		$dbr = wfGetDB(DB_SLAVE);
+
+		// see if the article has a summary video or text section
+		$table = array( WH_DATABASE_NAME_EN.'.titus_copy' );
+		$vars = array( 'ti_helpful_percentage_display_all_time', 'ti_helpful_percentage_display_soft_reset', 'ti_helpful_total_display_all_time' );
+
+		$conds = array(
+			'ti_page_id' => $pageId,
+			'ti_language_code' => $wgLanguageCode,
+		);
+
+		$row = $dbr->selectRow( $table, $vars, $conds, __METHOD__ );
+		if ( !$row ) {
+			return '';
+		}
+
+		$sectionName = "Display Rating All Time";
+		$percent = $row->ti_helpful_percentage_display_all_time;
+		$total = $row->ti_helpful_total_display_all_time;
+		$text = "$sectionName: $percent% -  $total votes";
+		$html = Html::element( 'div', [], $text );
+
+		$sectionName = "Display Rating Soft Reset";
+		$percent = $row->ti_helpful_percentage_display_soft_reset;
+		$total = $row->ti_helpful_total_display_all_time;
+		$text = "$sectionName: $percent% -  $total votes";
+		$html .= Html::element( 'div', [], $text );
+
+		return $html;
+
+	}
+
 	private static function getSummarySectionRating( $pageId ) {
 		global $wgLanguageCode;
 		if ( $wgLanguageCode != 'en' ) {
@@ -355,6 +392,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		$html .= "<div >Display Rating: {$aggregateRating->rating}% - {$aggregateRating->ratingCount} votes </div>";
 
 		$html .= self::getSummarySectionRating( $pageId );
+		$html .= self::getDisplayRatingHtml( $pageId );
 		// if the user can, show the clearing ratings link
 		if ($clearLink && Misc::isUserInGroups($user, array('staff', 'staff_widget'))) {
 			$cl = Title::newFromText('ClearRatings', NS_SPECIAL);

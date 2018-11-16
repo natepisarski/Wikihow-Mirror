@@ -10,7 +10,7 @@ class QuizImporter {
 	const SHEET_ID = "1PEqxKugzmaWPRH8vQO4qLS2xA7r9gV0Y_qURs5ReI0s";
 
 	const WORKSHEET = "/od6";
-	const DEV_WORKSHEET = "/oc0s99h";
+	const DEV_WORKSHEET = "/o988xiv";
 
 	function __construct() {
 		$this->methodInfo = [];

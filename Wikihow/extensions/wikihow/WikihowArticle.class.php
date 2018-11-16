@@ -1454,7 +1454,8 @@ class WikihowArticleHTML {
 				continue;
 			}
 			$methodName = htmlspecialchars( $methodName );
-			$anchorList[] = Html::element( 'a', ['href' => "#{$altMethodAnchors[$i]}_sub"], $methodName );
+			//use rawElement so any special characters from the method name shows up correctly in the TOC
+			$anchorList[] = Html::rawElement( 'a', ['href' => "#{$altMethodAnchors[$i]}_sub"], $methodName );
 		}
 
 		// A hook to add anchors to the TOC.

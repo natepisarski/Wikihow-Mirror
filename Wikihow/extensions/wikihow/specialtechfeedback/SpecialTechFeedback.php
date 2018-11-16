@@ -38,4 +38,4 @@ $wgResourceModules['ext.wikihow.specialtechfeedback.styles'] = array(
 $wgExtensionMessagesFiles['SpecialTechFeedbackAliases'] = __DIR__ . '/SpecialTechFeedback.alias.php';
 
 $wgHooks['RatingsToolRatingReasonAdded'][] = 'SpecialTechFeedback::onRatingsToolRatingReasonAdded';
-$wgHooks['RatingReasonAfterGetRatingReasonResponse'][] = 'SpecialTechFeedback::onRatingReasonAfterGetRatingReasonResponse';
+// $wgHooks['RatingReasonAfterGetRatingReasonResponse'][] = 'SpecialTechFeedback::onRatingReasonAfterGetRatingReasonResponse';

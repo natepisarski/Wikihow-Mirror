@@ -202,6 +202,15 @@ class SkinMinervaWikihow extends SkinMinerva {
 			}
 		}
 
+		if (class_exists('AboutWikihow')) {
+			$items['aboutwikihow'] = array(
+					'text' => wfMessage( 'menu-aboutwikihow' )->escaped(),
+					'href' => Title::newFromText( 'About-wikiHow', NS_PROJECT )->getFullUrl(),
+					'class' => 'icon-aboutwikihow',
+					'id' => 'icon-aboutwikihow',
+			);
+		}
+
 		$title = $this->getSkin()->getTitle();
 		if($title) {
 			//add page help header

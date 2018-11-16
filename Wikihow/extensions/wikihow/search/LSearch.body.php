@@ -42,6 +42,8 @@ class LSearch extends SpecialPage {
 	var $mStart = 0;
 	var $mLimit = 0;
 	var $searchUrl = '/wikiHowTo';
+	var $disableAds = false;
+	var $showSuicideHotline = false;
 
 	var $mEnableBeta = false;
 
@@ -348,6 +350,11 @@ class LSearch extends SpecialPage {
 			// Collect data
 
 			$data = [];
+
+			if ( $response->suicide_hotline ) {
+				$this->disableAds = true;
+				$this->showSuicideHotline = true;
+			}
 
 			if ( $response->spellcheck && $response->spellcheck->suggestions ) {
 				// Replace each misspelling with the first suggested correction
@@ -1106,10 +1113,15 @@ class LSearch extends SpecialPage {
 
 		$adProvider = $this->mEnableBeta ? 'google' : 'yahoo';
 
+		if ( $this->disableAds ) {
+			wikihowAds::exclude();
+		}
+
 		$vars = array(
 			'q' => $q,
 			'enc_q' => $enc_q,
-			'ads' => wikihowAds::getSearchAds($adProvider, self::formatSearchQuery($q), $page, count($results)),
+			'ads' => $this->disableAds ? '' :
+				wikihowAds::getSearchAds($adProvider, self::formatSearchQuery($q), $page, count($results)),
 			'sk' => $sk,
 			'me' => $me,
 			'max_results' => $resultsPerPage,
@@ -1139,7 +1151,11 @@ class LSearch extends SpecialPage {
 
 		// Use templates to generate the HTML for the search results & the Sherlock script
 		EasyTemplate::set_path(__DIR__ . '/');
-		$html = EasyTemplate::html($tmpl, $vars);
+		$html = '';
+		if ( $this->showSuicideHotline ) {
+			$html .= EasyTemplate::html( 'suicide-hotline' );
+		}
+		$html .= EasyTemplate::html($tmpl, $vars);
 		//Check that the Sherlock class is loaded (IE: Not on international)
 		if (class_exists("Sherlock")) {
 			$html .= EasyTemplate::html("sherlock-script", array("shs_key" => $searchId));

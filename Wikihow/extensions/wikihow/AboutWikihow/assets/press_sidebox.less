@@ -19,6 +19,7 @@
 		padding-left: 80px;
 		font-size: 1.1em;
 		line-height: 1.4em;
+		min-height: 65px;
 
 		.quote_mark {
 			font-size: 1.3em;
@@ -29,5 +30,29 @@
 	.press_outlet {
 		position: absolute;
 		margin-top: .2em;
+		width: 65px;
+		height: 65px;
+	}
+}
+
+#press_sidebox.mobile {
+	padding: 0;
+
+	.press_quote {
+		font-size: 1em;
+		padding-bottom: 2em;
+		border-bottom: 1px solid #EEE;
+	}
+
+	.press_outlet {
+		padding-bottom: 2em;
+	}
+
+	.press_block {
+		padding: 1em 1em 0 1em;
+
+		&:last-child .press_quote {
+			border: none;
+		}
 	}
 }

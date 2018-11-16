@@ -208,6 +208,7 @@ class Pagestats extends UnlistedSpecialPage {
 			$bfRank = $titusData->ti_babelfish_rank ?: "no data";
 			$html .= "<hr style='margin:5px 0; '/>";
 			$html .= "<p>" . wfMessage('ps-bfish') . ": {$bfRank}&nbsp;&nbsp;</p>";
+			$html .= "<p>" . wfMessage('ps-methods') . ": {$titusData->ti_alt_methods}</p>";
 		}
 
 		// languages translated

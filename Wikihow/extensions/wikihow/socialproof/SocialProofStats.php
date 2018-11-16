@@ -9,6 +9,8 @@ class SocialProofStats extends ContextSource {
 	var $verifierInfo;
 	var $verifierType;
 
+	static private $mInlineExpert = null;
+
 	const PAGE_RATING_CACHE_KEY 		= "page_rating";
 	const VERIFIED_CACHE_KEY 				= "page_verified";
 
@@ -20,6 +22,8 @@ class SocialProofStats extends ContextSource {
 	const VERIFIER_TYPE_STAFF 			= 'staff';
 	const VERIFIER_TYPE_ACADEMIC 		= 'academic';
 	const VERIFIER_TYPE_YOUTUBER 		= 'youtuber';
+
+	const EXPERT_INLINE_ARTICLES_TAG = 'expert_inline_articles';
 
 	const LEARN_MORE_LINK = '/wikiHow:About-wikiHow#Why_should_you_choose_wikiHow_first.3F_sub';
 
@@ -386,6 +390,8 @@ class SocialProofStats extends ContextSource {
 	}
 
 	protected function getStatsForDisplay($is_mobile = false) {
+		$pageId = $this->wikiPage->getId();
+
 		$result = [
 			'mobile' 				=> $is_mobile,
 			'views' 				=> number_format($this->wikiPage->getCount()),
@@ -396,11 +402,11 @@ class SocialProofStats extends ContextSource {
 
 		$result['section_name'] = $this->getSectionName($is_mobile);
 
-		$isDifficult = ArticleTagList::hasTag( 'difficult-articles', $this->wikiPage->getId() );
+		$isDifficult = ArticleTagList::hasTag( 'difficult-articles', $pageId );
 		$result['difficult_article'] = (bool)$isDifficult;
 
 		if (!$result['difficult_article']) {
-			$result['helpful'] = $this->getHelpfulness( $this->wikiPage->getId(), $this->categoryTree, $is_mobile );
+			$result['helpful'] = $this->getHelpfulness( $pageId, $this->categoryTree, $is_mobile );
 		}
 
 		$msgKeys = [
@@ -421,6 +427,7 @@ class SocialProofStats extends ContextSource {
 		$stats['helpful_statement'] = wfMessage('sp_helpful_statement',$stats['helpful']['value'])->text();
 		$stats['show_top_box'] = !$stats['helpful_sidebox'] || $stats['difficult_article'] || !empty($stats['expert']);
 		$stats['arrow_box'] = $stats['show_top_box'] && empty($stats['expert']);
+		if (self::isInlineExpert()) $stats['expert'] = '';
 
 		return $this->getHtmlFromTemplate('social_sidebar_desktop.mustache', $stats);
 	}
@@ -468,6 +475,11 @@ class SocialProofStats extends ContextSource {
 	 *
 	 */
 	public static function addMobileIntroIcon( &$data ) {
+		if (self::isInlineExpert())  {
+			$data['expert_icon'] = '';
+			return;
+		}
+
 		$is_mobile = true;
 		$vData = self::getVerification( $is_mobile, $data['articleid'] );
 		$vData = !empty($vData) ? array_pop($vData) : null;
@@ -493,11 +505,11 @@ class SocialProofStats extends ContextSource {
 
 	private static function buildExpertIconHtml($vType, $vData, $mobile = false) {
 		$link = '';
-		$class = '';
+		$class = 'sp_intro_expert';
 		$target = '';
 		$amp = false;
 
-		$text = self::getIntroMessage($vType);
+		$text = self::isInlineExpert() ? $vData->name : self::getIntroMessage($vType);
 		if (empty($text)) return '';
 
 		$expert_link = !empty($vData) ? ArticleReviewers::getLinkByVerifierName($vData->name) : '';
@@ -505,11 +517,15 @@ class SocialProofStats extends ContextSource {
 		if ($mobile) {
 			$amp = GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() );
 			$link = $amp ? "#" : "#social_proof_anchor";
-			$class = "sp_intro_expert";
-			$text .= Html::rawElement('span',['class'=>'sp_intro_tiny_i']);
+			if (self::isInlineExpert()) {
+				if (!empty($expert_link)) $link = $expert_link;
+			}
+			else {
+				$text .= Html::rawElement('span',['class'=>'sp_intro_tiny_i']);
+			}
 		}
 		else {
-			$class = "sp_expert_icon sp_intro_expert";
+			$class = 'sp_expert_icon '.$class;
 
 			if (!empty($expert_link)) {
 				$link = $expert_link;
@@ -525,21 +541,35 @@ class SocialProofStats extends ContextSource {
 			);
 		}
 		else {
-			$attributes = [
-				"href" => $link,
-				"class" => $class
+			$a_attributes = [
+				"href" => $link
 			];
-			if (!empty($target)) $attributes['target'] = $target;
-			if ($amp) $attributes['on'] = 'tap:sp_icon_hover.toggleVisibility';
+
+			if (!empty($target)) $a_attributes['target'] = $target;
+			if ($amp && !self::isInlineExpert()) $a_attributes['on'] = 'tap:sp_icon_hover.toggleVisibility';
+
+			if (!self::isInlineExpert()) {
+				$a_attributes['class'] = $class;
+				$text = '<p>'.$text.'</p>';
+			}
 
 			$html = Html::rawElement(
 				"a",
-				$attributes,
-				"<p>".$text."</p>"
+				$a_attributes,
+				$text
 			);
+
+			if (self::isInlineExpert()) {
+				//wrap it in a div w/ a msg
+				$html = Html::rawElement(
+					'div',
+					[ 'class' => 'sp_expert_inline'],
+					wfMessage('sp_inline_expert_label')->text().': '.$html
+				);
+			}
 		}
 
-		$hover_text = wfMessage('sp_hover_text_'.$vType, $expert_link, $vData->name, $vData->blurb)->text();
+		$hover_text = wfMessage('sp_hover_text_'.$vType, $expert_link, $vData->name, $vData->hoverBlurb)->text();
 		$html .= self::getIconHoverHtml($hover_text, $mobile, $amp);
 
 		return $html;
@@ -596,7 +626,7 @@ class SocialProofStats extends ContextSource {
 			case self::VERIFIER_TYPE_EXPERT:
 			case self::VERIFIER_TYPE_ACADEMIC:
 			case self::VERIFIER_TYPE_YOUTUBER:
-				return wfMessage('sp_section_expert')->text();
+				return $is_mobile ? wfMessage('sp_section_name')->text() : wfMessage('sp_section_expert')->text();
 			case self::VERIFIER_TYPE_COMMUNITY:
 				return wfMessage('sp_section_community')->text();
 			case self::VERIFIER_TYPE_CHEF:
@@ -687,6 +717,35 @@ class SocialProofStats extends ContextSource {
 		$verifierInfo = VerifyData::getVerifierInfoByName( $this->verifierName );
 		$html = self::getAvatarImageHtml( $verifierInfo, 'intro_avatar_img', $after );
 		return $html;
+	}
+
+	private static function isInlineExpert(): bool {
+		if (!is_null(self::$mInlineExpert)) return self::$mInlineExpert;
+		$context = RequestContext::getMain();
+
+		$pageId = $context->getTitle()->getArticleId();
+		self::$mInlineExpert = $context->getUser()->isAnon() &&
+					ArticleTagList::hasTag(self::EXPERT_INLINE_ARTICLES_TAG, $pageId);
+
+		return self::$mInlineExpert;
+	}
+
+	//this uses the phpQuery object
+	public static function onProcessArticleHTMLAfter(OutputPage $out) {
+		if (self::isInlineExpert()) {
+			//move the expert badge/info under the header
+			pq('.firstHeading')->after(pq('.sp_expert_inline'));
+		}
+	}
+
+	public static function addMobileInlineExpert(&$data) {
+		if (self::isInlineExpert()) {
+			//hack this in for this test, but if it works,
+			//we need a more elegant way to add it to mobile
+			$vType = self::VERIFIER_TYPE_EXPERT;
+			$vData = VerifyData::getVerifierInfoByName('Jennifer Mueller, JD');
+			$data['prebodytext'] .= self::buildExpertIconHtml($vType, $vData, $mobile = true);
+		}
 	}
 }
 
