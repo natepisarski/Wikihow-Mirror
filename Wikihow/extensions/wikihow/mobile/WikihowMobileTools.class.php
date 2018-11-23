@@ -737,11 +737,12 @@ class WikihowMobileTools {
 		$sourcesSection = pq( $sourcesSectionClass )->remove();
 
 		if ( $wgTitle && $wgTitle->exists() && PagePolicy::showCurrentTitle( $context ) ) {
+			$articleInfoText = wfMessage('more_references')->text();
 			if ( $wgLanguageCode != "en" ) {
 				//intl (old style)
-				pq(".section:last")->after("<div class='section articleinfo'><div class='section_text' id='articleinfo' role='button'><a href='#' aid='" .$docTitle->getArticleId() . "' id='info_link'>" . wfMessage('sources_and_attribution')->text() ."</a></div></div>");
+				pq(".section:last")->after("<div class='section articleinfo'><div class='section_text' id='articleinfo' role='button'><a href='#' aid='" .$docTitle->getArticleId() . "' id='info_link'>" . $articleInfoText ."</a></div></div>");
 			} else {
-				pq("#social_proof_mobile")->after("<div class='section articleinfo'><div class='section_text' id='articleinfo' role='button'><a href='#' aid='" . $docTitle->getArticleId() . "' id='info_link'>" . wfMessage('sources_and_attribution')->text() ."</a></div></div>");
+				pq("#social_proof_mobile")->after("<div class='section articleinfo'><div class='section_text' id='articleinfo' role='button'><a href='#' aid='" . $docTitle->getArticleId() . "' id='info_link'>" . $articleInfoText ."</a></div></div>");
 			}
 		}
 		wfRunHooks( 'MobileProcessDomAfterSetSourcesSection', array( $skin->getOutput(), $sourcesSection, $imageCreators ) );
@@ -892,6 +893,26 @@ class WikihowMobileTools {
 		// we do this because we often add the same html for mobile and desktop and
 		// this is a way to ensure that the sticky class is not added when it is not needed
 		pq('.section.sticky')->removeClass('sticky');
+
+		// Trevor, 11/8/18 - Testing making videos a link to the video browser - this must come
+		// after videos are updated
+		if ( !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
+			$videoPlayer = pq( '.summarysection .video-player' );
+			if ( $videoPlayer ) {
+				$link = pq( '<a id="summary_video_link">' )->attr(
+					'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )
+				);
+				$poster = pq( '<img id="summary_video_poster">' )->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) );
+				$poster->addClass( 'm-video' );
+				$poster->addClass( 'content-fill placeholder' );
+				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $wgTitle ) );
+				$controls->attr( 'style', 'visibility:visible' );
+				$videoPlayer->empty()->append( $link );
+				$link->append( $poster );
+				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
+				$link->append( $controls );
+			}
+		}
 
 		wfRunHooks('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
 

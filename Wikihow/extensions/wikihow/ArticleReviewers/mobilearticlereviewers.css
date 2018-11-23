@@ -23,21 +23,8 @@
 	line-height: normal;
 }
 
-.ar_more_icon {
-	width: 15px;
-	height: 15px;
-	/* @embed */
-	background-image: url(info.svg);
-	background-size: 15px;
-	background-repeat: no-repeat;
-	display: inline-block;
-	float: right;
-	margin-top: -15px;
-	margin-right: -20px;
-}
-
 .stable .content .ar_blurb {
-	color: #b4b4b4;
+	color: #777;
 	font-weight: bold;
 	margin-bottom: 13px;
 	line-height: normal;
@@ -152,6 +139,16 @@
 	font-size: 14px;
 	margin-bottom: 5px;
 	margin-top: -9px;
+}
+
+.reviewer a.external {
+	background-image: url(/skins/owl/images/external_link_ltr.png);
+	/* @embed */
+	background-image: url(/skins/owl/images/external_link_ltr.svg);
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-size: 14px;
+	padding-right: 20px;
 }
 
 @media only screen and (max-width: 770px) {

@@ -2,7 +2,7 @@
 WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 	create: function () {
 		this.lists = [];
-		this.actionBar = new WH.VideoBrowser.ActionBarComponent();
+		this.title = new WH.VideoBrowser.TitleComponent();
 		this.onViewportChange = this.onViewportChange.bind( this );
 	},
 	onAttach: function () {
@@ -44,7 +44,7 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 	},
 	render: function () {
 		return [ 'div.videoBrowser-index',
-			this.actionBar,
+			this.title,
 			[ 'div' ].concat( this.lists )
 		];
 	}

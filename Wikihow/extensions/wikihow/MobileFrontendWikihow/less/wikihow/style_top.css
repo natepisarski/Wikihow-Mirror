@@ -118,8 +118,21 @@ h6.steps_text .edit-page,
 .section.video,
 #hp_navigation,
 #mcta_root,
-#method_toc {
-	display: none;
+#method_toc,
+.reference_more,
+.amazon_info,
+#wh_ad_footer_fixed.wh_ad_footer_show,
+#servedtime,
+.customcontent .section_text .visible-header, .customcontent .section_text .visible-header .customize_section, .customcontent .steps_list_2, .customcontent .methodhelpfulness, .customcontent .qa.section, .customcontent .tips.section, .customcontent .warnings.section, .customcontent .relatedwikihows.section, .customcontent .sourcesandcitations.section, .customcontent #article_info_section, .customcontent .template_top, .customcontent .thingsyoullneed, .customcontent .steps_text,
+.customcontent .section.steps,
+.customcontent .articleinfo.section, .customcontent #social_proof_mobile, .customcontent #sp_h2.mw-headline, .customcontent #article_rating_mobile, .customcontent #footer_random_button,
+.tabbed_content, #sp_h2.tabbed_content, #social_proof_mobile.tabbed_content, #uci_section.tabbed_content,
+.tabbed_content .edit-page,
+.m-video-helpful-wrap,
+#gdpr_dismiss,
+#gdpr_close,
+#intro .green_box {
+	display:none;
 }
 
 a, a:active, a:visited {
@@ -169,9 +182,6 @@ a, a:active, a:visited {
 	border-left: 1px solid #bfbfbf;
 	border-right: 1px solid #bfbfbf;
 	display: none;
-}
-#wh_ad_footer_fixed.wh_ad_footer_show {
-	display: block;
 }
 .footer_ad_close {
 	margin: 8px 0 8px 8px;
@@ -637,10 +647,7 @@ h4.steps_text::before {
 #header_logo {
 	display: table-cell;
 	vertical-align: middle;
-	background-position: center center;
-	background-repeat: no-repeat;
-	background-image: url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);
-	background-size: 115px;
+	background: center center/115px no-repeat url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);
 	width: auto;
 	height: 38px;
 	padding: 0 14px;
@@ -768,9 +775,6 @@ body.action-view #fa_container p {
 	width: 100%;
 	font-size: 16px !important;
 	line-height: 16px !important;
-}
-#servedtime {
-	display: none;
 }
 #ab_notice {
 	margin-top: 10px;
@@ -904,17 +908,8 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 
 /**** CUSTOM CONTENT ****/
-.customcontent .section_text .visible-header, .customcontent .section_text .visible-header .customize_section, .customcontent .steps_list_2, .customcontent .methodhelpfulness, .customcontent .qa.section, .customcontent .tips.section, .customcontent .warnings.section, .customcontent .relatedwikihows.section, .customcontent .sourcesandcitations.section, .customcontent #article_info_section, .customcontent .template_top, .customcontent .thingsyoullneed, .customcontent .steps_text {
-	display: none;
-}
-.customcontent .section.steps {
-	display: none;
-}
 .customcontent .steps.steps_first { display: block; }
 
-.customcontent .articleinfo.section, .customcontent #social_proof_mobile, .customcontent #sp_h2.mw-headline, .customcontent #article_rating_mobile, .customcontent #footer_random_button {
-	display: none;
-}
 .related-article {
 	float: left;
 	position: relative;
@@ -1021,14 +1016,9 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 /***** MOBILE TAB TESTS ******/
 
-.tabbed_content, #sp_h2.tabbed_content, #social_proof_mobile.tabbed_content, #uci_section.tabbed_content {
-	display: none;
-}
-
 .tab_0 {
 	display: block;
 }
-
 .tabs2 {
 	width: 49%;
 }
@@ -1116,16 +1106,10 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	margin-right: 0;
 }
 
-.tabbed_content .edit-page {
-	display: none;
-}
 .summarysection.mwimg, .summarysection .mwimg {
 	margin-left: -15px;
 	margin-right: -15px;
 	margin-top: -16px;
-}
-.m-video-helpful-wrap {
-	display: none;
 }
 .content .m-video {
 	max-width: 100%;
@@ -1146,7 +1130,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 .green_tips_box_inline {
 	background-color:#fff5d9;
 	color:#000;
-	margin:0px;
+	margin:0;
 	width:75%;
 	display:inline;
 }
@@ -1182,9 +1166,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	margin-left: 5px;
 	margin-right: 0;
 }
-#gdpr_dismiss {
-	display: none;
-}
 #gdpr_text {
 	font-size: 0.9em;
 	display: inline-block;
@@ -1195,9 +1176,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 #gdpr_text > a{
 	color: #EEE;
 	text-decoration: underline;
-}
-#gdpr_close {
-	display: none;
 }
 .mw-mf-display-toggle > a {
 	color: #AFAFAF;
@@ -1291,19 +1269,11 @@ and (-webkit-device-pixel-ratio : 3) {
 a.related-title,a.related-title:active, a.related-title:visited {
 	color: #FFF;
 }
-#intro .green_box {
-	display: none;
-}
-
 .noarticletext div {
 	border: none !important;
 	padding: 0;
 	margin-bottom: 0.75em;
 }
-.amazon_info {
-    display: none;
-}
-
 .sp_expert_inline {
 	display: inline-block;
 	line-height: 1em;
@@ -1317,4 +1287,23 @@ a.related-title,a.related-title:active, a.related-title:visited {
 }
 .sp_expert_inline a {
 	color: #373;
+}
+.references li {
+	font-size: 14px;
+	position: relative;
+	list-style-position: outside;
+}
+.references li span {
+	margin-left: 9px;
+}
+.references li > a {
+	position: absolute;
+	left: -1px;
+	top: -2px;
+}
+.sourcesandcitations {
+	word-break: break-all;
+}
+.sourcesandcitations .section_text {
+	padding-left: 30px;
 }

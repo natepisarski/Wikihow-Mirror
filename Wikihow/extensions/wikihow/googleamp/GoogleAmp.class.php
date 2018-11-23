@@ -481,10 +481,13 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
+		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
+		pq( "#intro" )->append( $adhtml );
+
 		// put an ad after first step if there is more than 1 step in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
-			pq(".steps_list_2:first > li:first")->append( $adhtml );
+			pq(".steps_list_2:first > li:eq(1)")->append( $adhtml );
 		}
 
 		// put an ad after fifth step if there is more than 5 steps in first method
@@ -817,12 +820,19 @@ class GoogleAmp {
 	// get sources and citations section for use in amp pages
 	public static function getArticleCredits( $title, $sourcesSection, $imageCreators ) {
 		pq( $sourcesSection )->addClass( 'aidata' )->find('p')->remove();
-		$data = $sourcesSection;
-		$data .= self::getImageCredits( $imageCreators );
-		$data .= self::getAuthors( $title );
-		$text = Html::element( 'a', ['class' => 'section_text', 'href' => '#aiinfo', 'id' => 'articleinfo'], wfMessage('sources_and_attribution')->text() );
+
+		$referencesFirst = pq( $sourcesSection )->clone();
+		pq( $referencesFirst )->find('.mw-headline')->text( wfMessage( 'references' )->text() );
+		pq( $referencesFirst )->find('div:first')->attr('id', 'references_first');
+		pq( $referencesFirst )->removeClass( 'aidata' );
+		pq( $referencesFirst )->find( 'li:gt(14)' )->remove();
+		pq( $sourcesSection )->find( 'h2' )->remove();
+		pq( $sourcesSection )->find( 'ol' )->attr('start', 16);
+		pq( $sourcesSection )->find('div:first')->attr('id', 'references_second');
+		$references = $sourcesSection;
+		$text = Html::element( 'a', ['class' => 'section_text', 'href' => '#aiinfo', 'id' => 'articleinfo'], wfMessage('more_references')->text() );
 		$articleInfoHtml = Html::rawElement( 'div', ['id' => 'aiinfo', 'class' => 'section articleinfo'], $text );
-		return $articleInfoHtml . $data;
+		return $referencesFirst . $articleInfoHtml . $references;
 	}
 
 	private static function formatQABadges() {

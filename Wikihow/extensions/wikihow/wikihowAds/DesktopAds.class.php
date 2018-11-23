@@ -317,9 +317,6 @@ class DesktopAds {
 			$adCreator = new MixedAdCreatorVersion5();
 			$adCreator->mAdServices['step'] = '';
 
-			if ( $pageId % 100 < 50 ) {
-				$adCreator = new MethodsButNoIntroAdCreator();
-			}
 			if ( $pageId == 110310 ) {
 				$adCreator = new MixedAdCreatorVersion3();
 				$adCreator->mAdServices['step'] = '';

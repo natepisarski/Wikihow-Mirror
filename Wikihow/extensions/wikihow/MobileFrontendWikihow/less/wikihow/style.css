@@ -872,8 +872,10 @@ a.reference-anchor {
 
 /* Article info section */
 
-.articleinfo #articleinfo { /* WITHOUT an About this wikiHow section (edge case) */
-	margin-top: 20px;
+.articleinfo #articleinfo {
+	margin-top: -5px;
+	border-radius: 0 0 4px 4px;
+	border-top: none;
 }
 
 #social_proof_mobile + .articleinfo #articleinfo, #summary_wrapper + .articleinfo #articleinfo { /* WITH an About this wikiHow section or summary section (normal case) */

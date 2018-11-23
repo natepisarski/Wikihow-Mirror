@@ -6,7 +6,8 @@ class Donate extends ContextSource {
 		'np1.jpg',
 		'np2.jpg',
 		'np3.jpg',
-		'np4.jpg'
+		'np4.jpg',
+		'np5.jpg'
 	];
 
 	static $wH_images = [

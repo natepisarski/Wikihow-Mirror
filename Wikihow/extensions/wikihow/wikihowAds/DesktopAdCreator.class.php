@@ -1017,7 +1017,6 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 * @return string html for head
 	 */
 	public function getHeadHtml() {
-		global $wgTitle;
 		$addAdsense = false;
 		$addDFP = false;
 		foreach ( $this->mAds as $ad ) {
@@ -1349,12 +1348,6 @@ class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
 
 class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 	public function __construct() {
-		global $wgTitle;
-		$pageId = 0;
-		if ( $wgTitle ) {
-			$pageId = $wgTitle->getArticleID();
-		}
-		$this->mAdsenseChannels[] = 7275552975;
 		// right now this data will be added to each ad as data attributes
 		// however we can use it in the future to define almost everything about each ad
 		$this->mAdSetupData = array(
@@ -1382,34 +1375,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'rightrail2' => 'dfp',
 			'quiz' => 'dfp'
 		);
-
-		if ( $pageId % 10 == 0 ) {
-			$this->mAdsenseChannels[] = 4388729740;
-			$this->mAdSetupData = array(
-				'rightrail0' => array(
-					'refreshable' => 1,
-					'first-refresh-time' => 45000,
-					'refresh-time' => 28000,
-					'insert-refresh' => 1,
-					//'refresh-type' => 'adsense',
-					'viewablerefresh' => 1,
-					'lastad' => 1,
-					'channels' => 4388729740
-				),
-			);
-			$this->mAdsenseSlots = array(
-				'intro' => 7862589374,
-				'step' => 1652132604,
-				'method' => 5875012246,
-				'rightrail0' => 2961854543,
-			);
-			$this->mAdServices = array(
-				'intro'=> 'adsense',
-				'step' => 'adsense',
-				'method' => 'adsense',
-				'rightrail0' => 'adsense'
-			);
-		}
 	}
 
 	protected function setDFPAdUnitPaths() {
@@ -1435,113 +1400,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'apsLoad' => true
 			)
 		);
-		global $wgTitle;
-		$pageId = 0;
-		if ( $wgTitle ) {
-			$pageId = $wgTitle->getArticleID();
-		}
-		if ( $pageId % 10 == 0 ) {
-			$this->mDFPData = array();
-		}
-	}
-}
-
-class MethodsButNoIntroAdCreator extends MixedAdCreatorVersion2 {
-	public function __construct() {
-		global $wgTitle;
-		$pageId = 0;
-		if ( $wgTitle ) {
-			$pageId = $wgTitle->getArticleID();
-		}
-		$this->mAdsenseChannels[] = 8752286177;
-		// right now this data will be added to each ad as data attributes
-		// however we can use it in the future to define almost everything about each ad
-		$this->mAdSetupData = array(
-			'rightrail2' => array(
-				'refreshable' => 1,
-				'first-refresh-time' => 45000,
-				'refresh-time' => 28000,
-				'insert-refresh' => 1,
-				'aps-timeout' => 800
-			),
-		);
-
-		$this->mAdsenseSlots = array(
-			'step' => 5875012246,
-			'method2' => 5875012246,
-			'rightrail0' => 4769522171,
-		);
-
-		$this->mAdServices = array(
-			'step' => 'adsense',
-			'method' => 'dfp',
-			'method2' => 'adsense',
-			'rightrail0' => 'adsense',
-			'rightrail1' => 'dfp',
-			'rightrail2' => 'dfp',
-			'quiz' => 'dfp'
-		);
-
-		if ( $pageId % 10 == 0 ) {
-			$this->mAdsenseChannels[] = 4388729740;
-			$this->mAdSetupData = array(
-				'rightrail0' => array(
-					'refreshable' => 1,
-					'first-refresh-time' => 45000,
-					'refresh-time' => 28000,
-					'insert-refresh' => 1,
-					//'refresh-type' => 'adsense',
-					'viewablerefresh' => 1,
-					'lastad' => 1,
-					'channels' => 4388729740
-				),
-			);
-			$this->mAdsenseSlots = array(
-				'intro' => 7862589374,
-				'step' => 1652132604,
-				'method' => 5875012246,
-				'rightrail0' => 2961854543,
-			);
-			$this->mAdServices = array(
-				'step' => 'adsense',
-				'method' => 'adsense',
-				'rightrail0' => 'adsense'
-			);
-		}
-	}
-
-	protected function setDFPAdUnitPaths() {
-		$this->mDFPData = array(
-			'method' => array(
-				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
-				'size' => '[728, 90]',
-				'apsLoad' => true
-			),
-			'rightrail1' => array(
-				'adUnitPath' => '/10095428/RR2_Test_32',
-				'size' => '[[300, 250],[300, 600]]',
-				'apsLoad' => true
-			),
-			'rightrail2' => array(
-				'adUnitPath' => '/10095428/RR3_800ms_CSTO_Test',
-				'size' => '[[300, 250],[300, 600]]',
-				'apsLoad' => true
-			),
-			'quiz' => array(
-				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
-				'size' => '[728, 90]',
-				'apsLoad' => true
-			)
-		);
-
-		global $wgTitle;
-		$pageId = 0;
-		if ( $wgTitle ) {
-			$pageId = $wgTitle->getArticleID();
-		}
-		if ( $pageId % 10 == 0 ) {
-			$this->mDFPData = array();
-		}
 	}
 }
 

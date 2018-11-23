@@ -25,6 +25,7 @@ $wgResourceModules['ext.wikihow.videoBrowser'] = [
 		'resources/styles/main.less',
 		'resources/styles/ActionBarComponent.less',
 		'resources/styles/ArticleComponent.less',
+		'resources/styles/IndexComponent.less',
 		'resources/styles/VideoComponent.less',
 		'resources/styles/VideoListComponent.less',
 		'resources/styles/TitleComponent.less',

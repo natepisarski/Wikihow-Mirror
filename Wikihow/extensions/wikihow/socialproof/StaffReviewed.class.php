@@ -2,51 +2,50 @@
 
 class StaffReviewed {
 
-	const STAFF_REVIEWERS_TAG = 'staff_reviewers'; //manually updated
-	const STAFF_REVIEWED_ARTICLES_TAG = 'staff_reviewed_articles'; //automatically updated nightly
-	const STAFF_REVIEWED_ARTICLES_HANDPICKED_TAG = 'staff_reviewed_articles_handpicked'; //manually updated
-
-	const STAFF_HELPFUL_THRESHOLD = 80;
-	const STAFF_HELPFUL_TOTAL_THRESHOLD = 10;
-	const STAFF_HELPFUL_TOTAL_WITH_DELETED_THRESHOLD = 10;
-
+	const STAFF_REVIEWED_ARTICLES_HANDPICKED_TAG = 'staff_reviewed_articles_handpicked';
 	const STAFF_REVIEWED_SOURCE = 'staff';
+	const STAFF_REVIEWED_KEY = 'staff_reviewed_article';
 
-	/**
-	 * @return array (of names)
-	 */
-	public static function staffReviewers() {
-		$bucket = ConfigStorage::dbGetConfig(self::STAFF_REVIEWERS_TAG, true);
-		return explode("\n", $bucket);
-	}
+	public static function staffReviewedCheck(int $page_id): bool {
+		global $wgMemc;
 
-	public static function handpickedStaffReviewedArticles(): array {
-		$bucket = ConfigStorage::dbGetConfig(self::STAFF_REVIEWED_ARTICLES_HANDPICKED_TAG, true);
-		return explode("\n", $bucket);
-	}
+		$key = wfMemcKey(self::STAFF_REVIEWED_KEY, $page_id);
+		$reviewed = $wgMemc->get($key);
+		if (is_numeric($reviewed)) return $reviewed;
 
-	public static function updateArticlesAdminTag(array $article_ids) {
-		$err = '';
-		$ids = implode("\n",$article_ids);
-		ConfigStorage::dbStoreConfig(self::STAFF_REVIEWED_ARTICLES_TAG, $ids, true, $err);
-	}
+		//never for sensitive articles
+		if (!self::sensitiveArticle($page_id)) {
 
-	public static function removeStaffReviewedArticleFromArticleTag(int $page_id) {
-		$bucket = ConfigStorage::dbGetConfig(self::STAFF_REVIEWED_ARTICLES_TAG, true);
-		$articles = explode("\n", $bucket);
+			//check handpicked articles
+			$reviewed = ArticleTagList::hasTag(self::STAFF_REVIEWED_ARTICLES_HANDPICKED_TAG, $page_id);
 
-		$flipped_articles = array_flip($articles);
-		unset($flipped_articles[$page_id]);
-		$articles = array_flip($flipped_articles);
+			if ($reviewed == 0) {
+				//check titus_copy
+				$twentyfifteen = '20151231';
+				$reviewed = wfGetDB(DB_SLAVE)->selectField(
+					'titus_copy',
+					'count(*)',
+					[
+						'ti_language_code' => 'en',
+						"ti_expert_verified_source IN ('','".StaffReviewed::STAFF_REVIEWED_SOURCE."')",
+						"ti_last_fellow_edit_timestamp > $twentyfifteen",
+						"ti_last_fellow_edit != ''",
+						'ti_page_id' => $page_id
+					],
+					__METHOD__
+				);
+			}
+		}
 
-		self::updateArticlesAdminTag($articles);
+		$wgMemc->set($key, $reviewed);
+		return $reviewed;
 	}
 
 	/**
 	 * used nightly in Titus.class.php
 	 */
 	public static function dataForTitus($dbr, $page_id): array {
-		if (!ArticleTagList::hasTag(self::STAFF_REVIEWED_ARTICLES_TAG, $page_id)) return [];
+		if (!self::staffReviewedCheck($page_id)) return [];
 
 		$dbr = wfGetDB(DB_SLAVE);
 		$lastFellowEdit = $dbr->selectField(
@@ -61,15 +60,24 @@ class StaffReviewed {
 
 		$rev_data = self::revisionData($dbr, $page_id);
 
-		$unixTS = wfTimestamp(TS_UNIX, $rev_data->rev_timestamp);
-		$dateStr = DateTime::createFromFormat('U', $unixTS)->format('n/j/y');
+		if ($rev_data) {
+			$unixTS = wfTimestamp(TS_UNIX, $rev_data->rev_timestamp);
+			$dateStr = DateTime::createFromFormat('U', $unixTS)->format('n/j/y');
 
-		return [
-			'name' => $lastFellowEdit,
-			'source' => self::STAFF_REVIEWED_SOURCE,
-			'date' => $dateStr,
-			'revision' => $rev_data->rev_id
-		];
+			return [
+				'name' => $lastFellowEdit,
+				'source' => self::STAFF_REVIEWED_SOURCE,
+				'date' => $dateStr,
+				'revision' => $rev_data->rev_id
+			];
+		} else {
+			return [
+				'name' => '',
+				'source' => '',
+				'date' => '',
+				'revision' => ''
+			];
+		}
 	}
 
 	private static function revisionData($dbr, $page_id) {
@@ -112,21 +120,6 @@ class StaffReviewed {
 		return $user_ids;
 	}
 
-	public static function titusHelpfulnessCheck($titus_row): bool {
-		$helpfulness = 0;
-
-		if ($titus_row->ti_helpful_total >= self::STAFF_HELPFUL_TOTAL_THRESHOLD) {
-			$helpfulness = $titus_row->ti_helpful_percentage;
-		}
-		else {
-			if ($titus_row->ti_helpful_total_including_deleted >= self::STAFF_HELPFUL_TOTAL_WITH_DELETED_THRESHOLD) {
-				$helpfulness = $titus_row->ti_helpful_percentage_including_deleted;
-			}
-		}
-
-		return $helpfulness >= self::STAFF_HELPFUL_THRESHOLD;
-	}
-
 	public static function sensitiveArticle(int $articleId): bool {
 		return \SensitiveArticle\SensitiveArticle::hasReasons(
 			$articleId,
@@ -139,12 +132,5 @@ class StaffReviewed {
 			7, //Not real
 			10 //- Hide staff reviewed
 		];
-	}
-
-	public static function handleSensitiveArticleEdit(int $articleId, array $reasonIds) {
-		if(array_intersect(self::staffReviewedSensistiveReasonIds(), $reasonIds)) {
-			self::removeStaffReviewedArticleFromArticleTag($articleId);
-		}
-		return true;
 	}
 }

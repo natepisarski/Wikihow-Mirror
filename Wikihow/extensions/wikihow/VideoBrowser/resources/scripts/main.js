@@ -85,25 +85,21 @@ $( function () {
 			WH.VideoBrowser.catalog = new WH.VideoBrowser.Catalog();
 
 			var app = new WH.VideoBrowser.BrowserComponent();
-			var title = new WH.VideoBrowser.BrowserTitleComponent();
 
 			// Setup routes
 			WH.VideoBrowser.router
 				.mount( '/', function ( params ) {
 					app.setView( 'index', { slug: null } );
-					title.change( { slug: null } );
 					requestAnimationFrame( trackPageView, 0 );
 				} )
 				.mount( '/(:slug)', function ( params ) {
 					var slug = params.slug;
 					app.setView( 'viewer', { slug: slug } );
-					title.change( { slug: slug } );
 					requestAnimationFrame( trackPageView, 0 );
 				} );
 
 			WH.VideoBrowser.router.start();
 			WH.Render( app, document.getElementById( 'videoBrowser' ) );
-			WH.Render( title, document.querySelector( 'h1.firstHeading,h1.special_title' ) );
 		}
 	} catch ( error ) {
 		if ( console.log ) {

@@ -1,5 +1,5 @@
 /*global WH, mw*/
-WH.VideoBrowser.BrowserTitleComponent = WH.Render.createComponent( {
+WH.VideoBrowser.TitleComponent = WH.Render.createComponent( {
 	create: function () {
 		this.state = {
 			slug: null
@@ -15,6 +15,6 @@ WH.VideoBrowser.BrowserTitleComponent = WH.Render.createComponent( {
 				text = mw.msg( 'videobrowser-how-to', video.title );
 			}
 		}
-		return [ 'span.videoBrowser-title', [ 'span.videoBrowser-title-text', text ] ];
+		return [ 'h2.videoBrowser-title', [ 'span.videoBrowser-title-text', text ] ];
 	}
 } );

@@ -7,8 +7,8 @@ $wgHooks['WikihowTemplateShowTopLinksSidebar'][] = ['AboutWikihow::onWikihowTemp
 $wgHooks['BeforePageDisplay'][] = ['AboutWikihow::onBeforePageDisplay'];
 $wgHooks['MobileProcessArticleHTMLAfter'][] = ['AboutWikihow::onMobileProcessArticleHTMLAfter'];
 
-$wgResourceModules['ext.wikihow.press_sidebox'] = [
-	'styles' => [ 'press_sidebox.less' ],
+$wgResourceModules['ext.wikihow.press_boxes'] = [
+	'styles' => [ 'press_boxes.less' ],
 	'localBasePath' => __DIR__.'/assets',
 	'remoteExtPath' => 'wikihow/AboutWikihow/assets',
 	'targets' => [ 'desktop', 'mobile' ],
@@ -23,7 +23,7 @@ $wgResourceModules['ext.wikihow.mobile_about_wikihow'] = [
 	'position' => 'top',
 	'dependencies' => [
 		'mobile.wikihow.socialproof',
-		'ext.wikihow.press_sidebox'
+		'ext.wikihow.press_boxes'
 	]
 ];
 

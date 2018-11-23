@@ -65,6 +65,7 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'howto',
 			'mobile-facebook-login-failed',
 			'sources',
+			'references',
 			'image-attribution'
 		),
 		'dependencies' => array(

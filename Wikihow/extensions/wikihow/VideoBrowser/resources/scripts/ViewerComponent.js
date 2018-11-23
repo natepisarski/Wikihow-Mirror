@@ -13,6 +13,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			relatedVideos: null,
 			relatedArticles: null
 		};
+		this.title = new WH.VideoBrowser.TitleComponent();
 		this.actionBar = new WH.VideoBrowser.ActionBarComponent();
 		this.nextVideo = new WH.VideoBrowser.VideoComponent();
 		this.currentVideo = new WH.VideoBrowser.VideoComponent();
@@ -47,6 +48,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			this.progress = 0;
 			this.played = false;
 			this.change( { summary: null, relatedVideos: null, relatedArticles: null } );
+			this.title.change( { slug: state.slug } );
 
 			this.cancelCountdown();
 			video = this.video = WH.VideoBrowser.catalog.videos()
@@ -75,7 +77,8 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 							icon: 'play',
 							related: true
 						} );
-					} );
+					} )
+					.slice( 0, isMobile ? 4 : 9 );
 			} );
 
 			// Related Articles
@@ -84,7 +87,8 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				viewer.relatedArticles = relatedArticles
 					.map( function ( relatedArticle ) {
 						return new WH.VideoBrowser.ArticleComponent( relatedArticle );
-					} );
+					} )
+					.slice( 0, isMobile ? 4 : 9 );
 			} );
 
 			// Page title
@@ -148,9 +152,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				],
 				[ 'div.section_text',
 					this.actionBar,
-					[ 'h2.videoBrowser-viewer-title',
-						mw.msg( 'videobrowser-how-to', video.title )
-					],
+					this.title,
 					[ 'div.videoBrowser-viewer-description',
 						[ 'p.videoBrowser-viewer-plays' ].concat(
 							mw.msg( 'videobrowser-plays', video.plays )

@@ -713,10 +713,15 @@ class WikihowArticleHTML {
 		$sourcesId = str_replace( [' ','(',')'], "", mb_strtolower($sourcestext));
 		$sources = pq("#{$sourcesId}");
 
+		// rename the sources and citations section
+		if ($wgUser->isAnon()) {
+			pq($sources)->prev()->find( '.mw-headline' )->text( wfMessage("references")->text() );
+		}
+
 		if ($sources->length) {
 			pq($sources)->find("ol, ul")->addClass("sources");
 			$count = pq($sources)->find("ol li, ul li")->length;
-			$limit = 3; // The number of sources/citations to display initially
+			$limit = 15; // The number of sources/citations to display initially
 
 			$title = $context->getTitle();
 			$request = $context->getRequest();

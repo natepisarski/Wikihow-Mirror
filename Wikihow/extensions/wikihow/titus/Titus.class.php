@@ -4464,7 +4464,7 @@ class TSExpertVerified extends TitusStat {
 				$unixTS = wfTimestamp(TS_UNIX, $row->tar_date);
 				$dateStr = DateTime::createFromFormat('U', $unixTS)->format('n/j/y');
 				$data['ti_expert_verified_date'] = $dateStr;
-				$data['ti_expert_verified_name'] = User::newFromId($row->tar_user_id)->getName();
+				$data['ti_expert_verified_name'] = $dbr->strencode( User::newFromId($row->tar_user_id)->getName() );
 				$data['ti_expert_verified_revision'] = $row->tar_rev_id;
 				$data['ti_expert_verified_source'] = 'tech';
 				$overwriteExpert = false; // We only need to do this once, for the newest row
@@ -4487,8 +4487,8 @@ class TSExpertVerified extends TitusStat {
 		$data = StaffReviewed::dataForTitus($dbr, $pageRow->page_id);
 		if (empty($data)) return;
 
-		$stats['ti_expert_verified_name'] = $data['name'];
-		$stats['ti_expert_verified_source'] = $data['source'];
+		$stats['ti_expert_verified_name'] = $dbr->strencode($data['name']);
+		$stats['ti_expert_verified_source'] = $dbr->strencode($data['source']);
 		$stats['ti_expert_verified_date'] = $data['date'];
 		$stats['ti_expert_verified_revision'] = $data['revision'];
 	}

@@ -223,12 +223,16 @@
 				dialog_box(false, this, 'expert_dialog');
 			});
 
-			//(i) icon hover
-			$('.sp_info_icon, #sp_icon_hover').hover(function() {
+			//(i) icon & top badge hover
+			$('.sp_info_icon, #sp_icon_hover, .sp_intro_expert').hover(function() {
 				dialog_box(true, this, 'icon_hover');
 				if ($(this).hasClass('sp_info_icon')) WH.maEvent('article-information-hover');
 			}, function() {
 				dialog_box(false, this, 'icon_hover');
+			});
+
+			$('.sp_intro_expert').click(function() {
+				return false;
 			});
 
 			//(i) dialog link tracking
@@ -275,7 +279,12 @@
 				if ($('#sp_icon_hover').length == 0) return;
 
 				popupContainer = $('#sp_icon_hover');
-				finalTopPopupPosition = $('.sp_info_icon').position().top + $('.sp_info_icon').height() + 2;
+
+				if ($(obj).is($(popupContainer)))
+					finalTopPopupPosition = $(popupContainer).position().top;
+				else
+					finalTopPopupPosition = $(obj).position().top + $(obj).height() + 2;
+
 				startTopPopupPosition = finalTopPopupPosition + 10;
 			}
 			else if (type == 'expert_dialog') {

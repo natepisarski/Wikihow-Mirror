@@ -12,7 +12,7 @@ class SocialProofStats extends ContextSource {
 	static private $mInlineExpert = null;
 
 	const PAGE_RATING_CACHE_KEY 		= "page_rating";
-	const VERIFIED_CACHE_KEY 				= "page_verified";
+	const VERIFIED_CACHE_KEY 				= "page_verified_2";
 
 	const VERIFIER_TYPE_EXPERT 			= 'expert';
 	const VERIFIER_TYPE_COMMUNITY 	= 'community';
@@ -284,9 +284,7 @@ class SocialProofStats extends ContextSource {
 		else {
 			if (self::techArticleCheck($pageId)) return self::VERIFIER_TYPE_TECH;
 
-			if (ArticleTagList::hasTag(StaffReviewed::STAFF_REVIEWED_ARTICLES_TAG, $pageId)) {
-				return self::VERIFIER_TYPE_STAFF;
-			}
+			if (StaffReviewed::staffReviewedCheck($pageId)) return self::VERIFIER_TYPE_STAFF;
 		}
 
 		return '';

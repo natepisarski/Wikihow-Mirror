@@ -35,6 +35,11 @@ class TitusTestStats extends Maintenance {
 
 		$stats = [];
 		$stat = $this->getOption( 'stat', null );
+		// Clean up titus stat name, if a (relatively common, for me) mistake
+		// in naming was made ...
+		if ( $stat && preg_match( '@^TS@', $stat ) ) {
+			$stat = preg_replace( '@^TS@', '', $stat );
+		}
 		if ( $stat ) {
 			decho( 'will test on stat', $stat, false );
 			$stats = array_keys( array_flip( explode( ',', $stat ) ) );

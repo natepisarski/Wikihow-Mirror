@@ -11,7 +11,6 @@ WH.VideoBrowser.BrowserComponent = WH.Render.createComponent( {
 	},
 	render: function () {
 		return [ 'div.videoBrowser-browser',
-			this.actionBar,
 			this.state.view ? this.views[this.state.view] : undefined
 		];
 	},

@@ -20,7 +20,7 @@ class AboutWikihow {
 		if (empty($context)) $context = RequestContext::getMain()->getOutput();
 
 		$out = $context->getOutput();
-		$out->addModules('ext.wikihow.press_sidebox');
+		$out->addModules('ext.wikihow.press_boxes');
 
 		$action = Action::getActionName($context);
 		$diff_num = $out->getRequest()->getVal('diff', '');

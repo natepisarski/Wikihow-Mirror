@@ -43,6 +43,15 @@ function initializeArticlePage() {
 		$('#ca-edit').hide();
 	}
 
+	// show the citations by default now
+	if ($('.section.articleinfo').length) {
+		$.ajax({
+			url: '/api.php?action=app&subcmd=credits&id=' + wgArticleId + '&format=json',
+			async: false,
+			success: processArticleInfoOnLoad
+		});
+	}
+
 	$('#info_link').on('click', function(e){
 		e.preventDefault();
 
@@ -193,16 +202,73 @@ function addNoFollowAndBlank(stringHtml) {
 	return $('<div />').append($html).html();
 }
 
+function processArticleInfoOnLoad(data) {
+	var sources = null;
+	var images = null;
+	var info = '';
+
+	var allSourcesShown = true;
+
+	var hasSources = data.app.article_sources && data.app.article_sources.numbered.length;
+	var hasExtraSources = $('#extra_sources a').length;
+	if (hasSources || hasExtraSources) {
+		var sectionName = mw.message('sources').text();
+		if (typeof wgUserId === 'undefined') {
+			sectionName = mw.message('references').text();
+		}
+		sources = '<div class="section sourcesandcitations"><h2><span class="mw-headline">' +
+			sectionName + '</span></h2><div class="section_text">';
+
+		if (hasSources) {
+			sources += '<ol class="references">';
+			for (var i = 0; i < data.app.article_sources.numbered.length; i++) {
+				sources += '<a class="reference-anchor" id="_refanchor-' + (i+1) + '"></a>';
+				if ( i > 15 ) {
+					var allSourcesShown = false;
+					break;
+				}
+				sources += '<li id="_note-' + (i+1) + '">' + addNoFollowAndBlank(data.app.article_sources.numbered[i].html) + '</li>';
+			}
+			sources += '</ol>';
+		}
+		if (hasExtraSources) {
+			var style = hasSources ? ' style="margin-top: 15px;"' : '';
+			var extra = $('<ul' + style + '></ul>');
+			$('#extra_sources a').each(function(/*i*/) {
+				extra.append($('<li></li>').append(this));
+			});
+			sources += $(extra)[0].outerHTML;
+		}
+		sources += '</div></div>';
+	}
+
+	if (allSourcesShown) {
+		$('#articleinfo').remove();
+	}
+	if (sources) {
+		$('.articleinfo').before(sources);
+	}
+
+}
+
 function processArticleInfo(data) {
 	var sources = null;
 	var images = null;
 	var info = '';
 
+	// remove existing section if it exists
+	// it is loaded now on article load so it likely does
+	$('.section.sourcesandcitations').remove();
+
 	var hasSources = data.app.article_sources && data.app.article_sources.numbered.length;
 	var hasExtraSources = $('#extra_sources a').length;
 	if (hasSources || hasExtraSources) {
-		sources = '<div class="section sourcesandcitations"><h2><span class="mw-headline">' +
-			mw.message('sources') + '</span></h2><div class="section_text">';
+		var sectionName = mw.message('sources').text();
+		if (typeof wgUserId === 'undefined') {
+			sectionName = mw.message('references').text();
+		}
+		sources = '<div id="references_section" class="section sourcesandcitations"><h2><span class="mw-headline">' +
+			sectionName + '</span></h2><div class="section_text">';
 		if (hasSources) {
 			sources += '<ol class="references">';
 			for (var i = 0; i < data.app.article_sources.numbered.length; i++) {
@@ -222,57 +288,16 @@ function processArticleInfo(data) {
 		sources += '</div></div>';
 	}
 
-	if (data.app.image_sources.uploaders.length > 0 || data.app.image_sources.licenses.length > 0) {
-		images = '<div class="section imageattribution"><h2><span class="mw-headline">' + mw.message('image-attribution').text() + '</span></h2><div class="section_text"><ul>';
-		for (var i = 0; i < data.app.image_sources.uploaders.length; i++) {
-			images += '<li><span class="info_label">Uploaded by:</span>' + data.app.image_sources.uploaders[i] + '</li>';
-		}
-		if (data.app.image_sources.licenses.length > 0) {
-			for (var i = 0; i < data.app.image_sources.licenses.length; i++) {
-				images += '<li><span class="info_label">Licenses:</span>' + data.app.image_sources.licenses[i] + '</li>';
-			}
-		}
-		images += '</ul></div></div>';
-	}
+	$('#articleinfo').remove();
 
-	// George 2015-06-18: Disabled for international due to EU privacy
-	// protection laws affecting Google results.
-	if (mw.config.get('wgContentLanguage') == 'en') {
-		info = '<ul><li><span class="info_label">' + mw.message('thanks_to_all_authors').text() + '</span><br />';
-		for (var i = 0; i < data.app.authors.length; i++) {
-			if (i > 0) {
-				info += ', ';
-			}
-			info += data.app.authors[i];
-		}
-		info += '</li>';
-	}
-
-	// [sc] 12/16 - moved this to the About This WikiHow section
-	// if (data.app.categories.length > 0) {
-	// 	info += '<li><span class="info_label">' + mw.message('categories').text() + ':</span><br />';
-	// 	for(i = 0; i < data.app.categories.length; i++) {
-	// 		if (i > 0)
-	// 			info += ', ';
-	// 		info +=  data.app.categories[i];
-	// 	}
-	// 	info += '</li></ul>';
-	// }
-
-	if (info.length) {
-		$('#articleinfo').html(info);
-	} else {
-		$('#articleinfo').remove();
-	}
-
-	var sections = '';
 	if (sources) {
-		sections += sources;
+		$('.articleinfo').before(sources);
+		if ( $('#sp_stats_box').length ) {
+			location.href = "#sp_stats_box";
+		} else {
+			location.href = "#references_section";
+		}
 	}
-	if (images) {
-		sections += images;
-	}
-	$('.articleinfo').before(sections);
 }
 
 function resizeVideo() {
