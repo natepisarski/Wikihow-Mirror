@@ -224,14 +224,14 @@
 			});
 
 			//(i) icon & top badge hover
-			$('.sp_info_icon, #sp_icon_hover, .sp_intro_expert').hover(function() {
+			$('.sp_info_icon, .sp_intro_expert, .sp_intro_user, #sp_icon_hover').hover(function() {
 				dialog_box(true, this, 'icon_hover');
 				if ($(this).hasClass('sp_info_icon')) WH.maEvent('article-information-hover');
 			}, function() {
 				dialog_box(false, this, 'icon_hover');
 			});
 
-			$('.sp_intro_expert').click(function() {
+			$('.sp_intro_expert, .sp_intro_user').click(function() {
 				return false;
 			});
 
@@ -242,7 +242,7 @@
 		}
 		else {
 			// badge at the top
-			$('.sp_intro_expert, .tech_article_stamp, .sp_intro_user').click(function(e) {
+			$('.sp_intro_expert, .tech_article_stamp, .sp_intro_user, .ec_view').click(function(e) {
 				e.preventDefault();
 				if ($('#sp_icon_hover').is(':visible')) {
 					dialog_box(false, this, 'badge_click');

@@ -1348,6 +1348,11 @@ class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
 
 class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 	public function __construct() {
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+		        $pageId = $wgTitle->getArticleID();
+		}
 		// right now this data will be added to each ad as data attributes
 		// however we can use it in the future to define almost everything about each ad
 		$this->mAdSetupData = array(
@@ -1359,6 +1364,17 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'aps-timeout' => 800
 			),
 		);
+		// same as above but no insert refresh
+		if ( $pageId % 2 == 0 ) {
+			$this->mAdSetupData = array(
+				'rightrail2' => array(
+					'refreshable' => 1,
+					'first-refresh-time' => 45000,
+					'refresh-time' => 28000,
+					'aps-timeout' => 800
+				),
+			);
+		}
 
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
@@ -1400,6 +1416,14 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'apsLoad' => true
 			)
 		);
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+		        $pageId = $wgTitle->getArticleID();
+		}
+		if ( $pageId % 2 == 0 ) {
+			$this->mDFPData['rightrail2']['adUnitPath'] = '/10095428/RR3_Test_32';
+		}
 	}
 }
 

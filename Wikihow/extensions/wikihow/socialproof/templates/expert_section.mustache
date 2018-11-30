@@ -10,7 +10,9 @@
 		{{#expert.avatar_image_html}}
 			{{{expert.avatar_image_html}}}
 		{{/expert.avatar_image_html}}
-		<span>{{expert.initials}}</span>
+		{{^expert.avatar_image_html}}
+			<span>{{expert.initials}}</span>
+		{{/expert.avatar_image_html}}
 	{{/expert.wh_initials}}
 	</div>
 {{/expert.is_verifier}}

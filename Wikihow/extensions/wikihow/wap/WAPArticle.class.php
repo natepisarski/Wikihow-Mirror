@@ -17,7 +17,7 @@ abstract class WAPArticle {
 	const STATE_EXCLUDED = 'excluded';
 	const STATE_UNASSIGNED = 'unassigned';
 	const STATE_ASSIGNED = 'assigned';
-	const STATE_COMPLETED = 'completed';
+	const STATE_COMPLETE = 'completed';
 	const STATE_NEW = 'new';
 
 	protected function init(&$row, $dbType) {

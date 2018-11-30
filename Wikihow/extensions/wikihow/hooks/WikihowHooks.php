@@ -92,6 +92,8 @@ $wgHooks['DeferHeadScripts'][] = array('ArticleHooks::onDeferHeadScripts');
 $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::firstEditPopCheck');
 $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::onPageContentSaveCompleteAddFirstEditTag');
 $wgHooks['ArticlePageDataAfter'][] = array('ArticleHooks::firstEditPopIt');
+$wgHooks['AddDesktopTOCItems'][] = array('ArticleHooks::addDesktopTOCItems');
+
 
 $wgHooks['GoodRevisionUpdated'][] = array('ArticleHooks::updateExpertVerifiedRevision');
 

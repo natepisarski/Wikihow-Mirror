@@ -5,8 +5,6 @@
 	border: 1px solid #bfbfbf;
 	border-radius: 4px;
 	color: #686868;
-	font-size: 12px;
-	font-weight: bold;
 	position:relative;
 }
 #sp_h2 {
@@ -51,10 +49,6 @@
 	margin-top: -81px;
 }
 
-#sp_expert h4 {
-	font-size: 14px;
-}
-
 #social_proof_mobile h3 {
 	margin: 5px 5px;
 	text-align:left;
@@ -68,10 +62,8 @@
 	border-left: 1px solid #e7e7e5;
 	position: relative;
 	box-sizing: border-box;
-	font-size: 14px;
 }
 .sp_top_box {
-	float: left;
 	min-height: 70px;
 	width: 100%;
 	margin: 0;
@@ -84,9 +76,14 @@
 	display: none;
 }
 
+#sp_expert_desc {
+	padding: 10px 8px;
+	border-bottom: 1px solid #e7e7e5;
+}
+
 #sp_helpful_box {
 	border: none;
-	padding: 19px 15px 15px 15px;
+	padding: 19px 15px 15px;
 }
 
 #sp_star_section_upper {
@@ -97,14 +94,12 @@
 	width: 100%;
 	border-top: 1px solid #e7e7e5;
 	border-left: none;
-	font-weight: normal;
 	font-size: 16px;
 }
 
 #sp_difficult_box {
 	border: none;
 	padding: 15px;
-	font-weight: normal;
 }
 
 #social_proof {
@@ -139,11 +134,9 @@
 .sp_method_text {
 	padding-top: 33px;
 	line-height: 12px;
-	font-weight: normal;
 }
 .sp_text {
 	padding-top: 8px;
-	font-weight: normal;
 	line-height: 1em;
 }
 .sp_text:first-child {
@@ -187,12 +180,10 @@
 
 .sp_expert_text {
 	line-height: 52px;
-	font-weight: normal;
 	text-align: left;
 	margin-left: 66px;
 }
 .sp_expert_text > div {
-	font-size: 14px;
 	line-height: normal;
 	display:inline-block;
 	vertical-align:middle;
@@ -245,9 +236,6 @@
 #sp_expert_name, #sp_expert_team {
 	font-size: 16px;
 	font-weight: bold;
-	color: #545454;
-}
-#sp_expert_name a {
 	color: #545454;
 }
 
@@ -316,7 +304,6 @@
 	display:none;
 }
 .hint_box {
-	font-size: 14px;
 	min-width:150px;
 	max-width:180px;
 	position: relative;
@@ -489,8 +476,7 @@
 	z-index: 6;
 	position: absolute;
 	top: 94px;
-	right: 0;
-	font-size: 14px;
+	left: 0;
 	background: #FFFFFF;
 	border: 3px solid;
 	border-color: #d5d5d5;
@@ -504,7 +490,7 @@
 }
 #sp_icon_hover:after, #sp_icon_hover:before {
 	top: -29px;
-	right: 44px;
+	left: 44px;
 	border: 14px solid transparent;
 	content: " ";
 	height: 0;
@@ -581,4 +567,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 		margin: 38px 0 5px 103px;
 	}
 
+	#sp_expert_desc {
+		font-size: 1.3em;
+	}
 }

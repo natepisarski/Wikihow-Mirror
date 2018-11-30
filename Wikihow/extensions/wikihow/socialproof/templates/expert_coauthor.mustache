@@ -1,0 +1,15 @@
+<div id="expert_coauthor">
+	{{#hasBadge}}
+		{{{badge}}}
+		&middot;
+		{{#hasRef}}
+			<a href="#references_first" class="ec_ref">[{{ref}}] References</a>
+		{{/hasRef}}
+		{{^hasRef}}
+			<a href="#" class="ec_view">{{views}} Views</a>
+		{{/hasRef}}
+	{{/hasBadge}}
+	{{^hasBadge}}
+		<a href="#" class="ec_view">{{views}} Views</a> &middot; <a href="#references_first" class="ec_ref">[{{ref}}] References</a>
+	{{/hasBadge}}
+</div>

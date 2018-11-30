@@ -34,7 +34,6 @@ function initializeArticlePage() {
 	// it is hidden by default since it requires javascript to work
 	$('#uci_section').show();
 	$('.trvote_box').show();
-	$('#articleinfo').show();
 	$('.section.video').show();
 	$('#hp_navigation').show();
 
@@ -42,25 +41,6 @@ function initializeArticlePage() {
 	if (mw.config.get('wgArticleId') === 0) {
 		$('#ca-edit').hide();
 	}
-
-	// show the citations by default now
-	if ($('.section.articleinfo').length) {
-		$.ajax({
-			url: '/api.php?action=app&subcmd=credits&id=' + wgArticleId + '&format=json',
-			async: false,
-			success: processArticleInfoOnLoad
-		});
-	}
-
-	$('#info_link').on('click', function(e){
-		e.preventDefault();
-
-		$.ajax({
-			url: '/api.php?action=app&subcmd=credits&id=' + $(this).attr('aid') + '&format=json',
-			async: false,
-			success: processArticleInfo
-		});
-	});
 
 	$(document).one("click", "#summary_wrapper .collapse_link", function(e){
 		e.preventDefault();
@@ -200,104 +180,6 @@ function addNoFollowAndBlank(stringHtml) {
 	$html.find('a').attr('rel', 'nofollow');
 	$html.find('a').attr('target', '_blank');
 	return $('<div />').append($html).html();
-}
-
-function processArticleInfoOnLoad(data) {
-	var sources = null;
-	var images = null;
-	var info = '';
-
-	var allSourcesShown = true;
-
-	var hasSources = data.app.article_sources && data.app.article_sources.numbered.length;
-	var hasExtraSources = $('#extra_sources a').length;
-	if (hasSources || hasExtraSources) {
-		var sectionName = mw.message('sources').text();
-		if (typeof wgUserId === 'undefined') {
-			sectionName = mw.message('references').text();
-		}
-		sources = '<div class="section sourcesandcitations"><h2><span class="mw-headline">' +
-			sectionName + '</span></h2><div class="section_text">';
-
-		if (hasSources) {
-			sources += '<ol class="references">';
-			for (var i = 0; i < data.app.article_sources.numbered.length; i++) {
-				sources += '<a class="reference-anchor" id="_refanchor-' + (i+1) + '"></a>';
-				if ( i > 15 ) {
-					var allSourcesShown = false;
-					break;
-				}
-				sources += '<li id="_note-' + (i+1) + '">' + addNoFollowAndBlank(data.app.article_sources.numbered[i].html) + '</li>';
-			}
-			sources += '</ol>';
-		}
-		if (hasExtraSources) {
-			var style = hasSources ? ' style="margin-top: 15px;"' : '';
-			var extra = $('<ul' + style + '></ul>');
-			$('#extra_sources a').each(function(/*i*/) {
-				extra.append($('<li></li>').append(this));
-			});
-			sources += $(extra)[0].outerHTML;
-		}
-		sources += '</div></div>';
-	}
-
-	if (allSourcesShown) {
-		$('#articleinfo').remove();
-	}
-	if (sources) {
-		$('.articleinfo').before(sources);
-	}
-
-}
-
-function processArticleInfo(data) {
-	var sources = null;
-	var images = null;
-	var info = '';
-
-	// remove existing section if it exists
-	// it is loaded now on article load so it likely does
-	$('.section.sourcesandcitations').remove();
-
-	var hasSources = data.app.article_sources && data.app.article_sources.numbered.length;
-	var hasExtraSources = $('#extra_sources a').length;
-	if (hasSources || hasExtraSources) {
-		var sectionName = mw.message('sources').text();
-		if (typeof wgUserId === 'undefined') {
-			sectionName = mw.message('references').text();
-		}
-		sources = '<div id="references_section" class="section sourcesandcitations"><h2><span class="mw-headline">' +
-			sectionName + '</span></h2><div class="section_text">';
-		if (hasSources) {
-			sources += '<ol class="references">';
-			for (var i = 0; i < data.app.article_sources.numbered.length; i++) {
-				sources += '<a class="reference-anchor" id="_refanchor-' + (i+1) + '"></a>';
-				sources += '<li id="_note-' + (i+1) + '">' + addNoFollowAndBlank(data.app.article_sources.numbered[i].html) + '</li>';
-			}
-			sources += '</ol>';
-		}
-		if (hasExtraSources) {
-			var style = hasSources ? ' style="margin-top: 15px;"' : '';
-			var extra = $('<ul' + style + '></ul>');
-			$('#extra_sources a').each(function(/*i*/) {
-				extra.append($('<li></li>').append(this));
-			});
-			sources += $(extra)[0].outerHTML;
-		}
-		sources += '</div></div>';
-	}
-
-	$('#articleinfo').remove();
-
-	if (sources) {
-		$('.articleinfo').before(sources);
-		if ( $('#sp_stats_box').length ) {
-			location.href = "#sp_stats_box";
-		} else {
-			location.href = "#references_section";
-		}
-	}
 }
 
 function resizeVideo() {

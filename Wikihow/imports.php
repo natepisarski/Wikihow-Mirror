@@ -103,7 +103,8 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/VideoBrowser/VideoBrowser.php");
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	// require_once("$IP/extensions/wikihow/AmazonAffiliates/AmazonAffiliates.php");
-	require_once("$IP/extensions/wikihow/AboutWikihow/AboutWikihow.php");
+	require_once("$IP/extensions/wikihow/PressBoxes/PressBoxes.php");
+	require_once("$IP/extensions/wikihow/WikihowNamespacePages/WikihowNamespacePages.php");
 }
 
 if ($wgLanguageCode == "zh") {

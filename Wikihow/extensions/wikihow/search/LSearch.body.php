@@ -257,8 +257,10 @@ class LSearch extends SpecialPage {
 
 		$suggestionLink = $this->getSpellingSuggestion($this->searchUrl);
 		$results = $this->mResults['results'] ? $this->mResults['results'] : [];
+
 		$results = $this->makeTitlesUniform($results);
 		$results = $this->supplementResults($results);
+		$results = $this->removeDeIndexedResults($results);
 
 		wfRunHooks( 'LSearchRegularSearch', array( &$results ) );
 
@@ -313,7 +315,7 @@ class LSearch extends SpecialPage {
 		}
 
 		$key = wfMemcKey('SolrSearchResultsV1', str_replace(' ', '-', $q), $start, $limit);
-		//$data = $wgMemc->get($key);
+		$data = $wgMemc->get($key);
 
 		if ( !is_array( $data ) ) {
 			// Query Solr
@@ -323,6 +325,7 @@ class LSearch extends SpecialPage {
 				'q' => $q
 			];
 			$url = $wgSearchServerBase . '/search?' . http_build_query( $params );
+
 
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
@@ -753,7 +756,11 @@ class LSearch extends SpecialPage {
 		{
 			require_once("$IP/includes/specials/SpecialSearch.php");
 
-			$specialSearch = new SpecialSearch($this->getRequest(), $this->getUser());
+			// Exclude de-indexed articles
+			$this->getRequest()->setVal( 'ffrin', 0 );
+			$this->getRequest()->setVal( 'ffriy', 1 );
+
+			$specialSearch = new Finner($this->getRequest(), $this->getUser());
 			$specialSearch->load();
 
 			$engine = $specialSearch->getSearchEngine();
@@ -954,6 +961,21 @@ class LSearch extends SpecialPage {
 		wfRunHooks( 'LSearchAfterLocalizeUrl', array( &$localizedUrl, $url ) );
 
 		return $localizedUrl;
+	}
+
+	/**
+	 * Remove any results that are currently de-indexed. This might happend occasionally if
+	 * the search index is out of date.
+	 */
+	private function removeDeIndexedResults( $inResults ) {
+		$results = [];
+		foreach ( $inResults as $result ) {
+			$title = Title::newFromId( $result['id'] );
+			if ( RobotPolicy::isTitleIndexable( $title ) ) {
+				$results[] = $result;
+			}
+		}
+		return $results;
 	}
 
 	/**

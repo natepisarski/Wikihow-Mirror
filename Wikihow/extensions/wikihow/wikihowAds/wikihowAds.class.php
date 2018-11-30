@@ -1440,7 +1440,7 @@ class wikihowAds {
 
 		if ( Misc::isAltDomain() ) {
 			$currentDomain = AlternateDomain::getCurrentRootDomain();
-			if ( $currentDomain == 'howyougetfit.com' ) {
+			if ( $currentDomain == 'wikihow.mom' ) {
 				$isEligible = false;
 			}
 		}

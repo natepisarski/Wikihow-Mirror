@@ -411,54 +411,20 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 }
 .ar_avatar {
 	border-radius: 50%;
-	width: 44px;
-	height: 44px;
-	position: absolute;
-	background-size: 44px;
 	overflow:hidden;
 }
 .ar_initials_wh {
 	background: url(/skins/WikiHow/wH-initials_152x152.png) #93b874 no-repeat 45% 50%/81%;
 }
 
-#social_proof_mobile .sp_top_box {
-	border-bottom: none;
-}
-#sp_inner .sp_fullbox:first-child {
+#social_proof_mobile .sp_top_box, #sp_inner .sp_fullbox:first-child {
 	border-top: none;
-}
-#articleinfo:after, .collapse_link:after {
-	position: absolute;
-	top: 25%;
-	right: 5%;
-	content: "";
-	width: 13px;
-	height: 13px;
-	border: solid #CCC;
-	border-width: 0 3px 3px 0;
-	-ms-transform: rotate(45deg);
-	-webkit-transform: rotate(45deg);
-	transform: rotate(45deg);
 }
 .references {
 	list-style: decimal inside;
 }
 .info_label {
 	font-weight: bold;
-}
-#aiinfo:target ~ .aidata, #social_proof_mobile:target ~ .aidata {
-	display: block;
-}
-.aidata, #aiinfo:target, #social_proof_mobile:target ~ #aiinfo {
-	display: none;
-}
-#articleinfo {
-	display: block;
-	border-top: 1px solid #e7e7e5;
-	border-radius: 0 0 4px 4px;
-	margin-top: -5px;
-	position: relative;
-	z-index: 1;
 }
 .collapse_link {
 	display: block;
@@ -865,7 +831,7 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 	outline: 0;
 }
 
-.green_box, .green_tips_box {
+.green_box {
 	display: table;
 	background-color: #f0f6ec;
 	border-left: 5px solid #93b873;
@@ -895,7 +861,7 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 .green_box_row {
 	display: table-row;
 }
-.green_box_headline, .green_tips_box > span {
+.green_box_headline {
 	font-weight: bold;
 	font-size: 120%;
 }
@@ -959,13 +925,6 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 .unnabbed_alert_top,
 .unnabbed_alert {
 	display: none;
-}
-#references_second {
-	padding-top: 0;
-	border-top: 0;
-	margin-top: -10px;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
 }
 #articleinfo {
 	border-top: 0;

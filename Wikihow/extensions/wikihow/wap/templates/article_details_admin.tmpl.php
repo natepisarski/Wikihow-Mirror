@@ -3,7 +3,7 @@
 	<h4>Article doesn't exist in the system</h4>
 <? } else { ?>
 	<div style="margin-top: 10px">
-	Article Details for: <?=$article->getUrl()?>
+	Article Details for: <?= Html::element('a', ['href' => $article->getUrl(), 'target' => '_blank'], $article->getUrl()) ?>
 	<ul>
 	<?
 		$assignedLink = empty($user) ? "Not assigned" : $linker->linkUser($user);

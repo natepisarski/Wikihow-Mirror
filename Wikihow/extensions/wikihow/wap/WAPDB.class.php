@@ -116,7 +116,7 @@ class WAPDB {
 			WAPArticle::STATE_EXCLUDED => array(),
 			WAPArticle::STATE_UNASSIGNED => array(),
 			WAPArticle::STATE_ASSIGNED => array(),
-			WAPArticle::STATE_COMPLETED => array(),
+			WAPArticle::STATE_COMPLETE => array(),
 			WAPArticle::STATE_NEW => array());
 
 		$urls = $this->parseURLlist($urlList, $langCode);
@@ -128,7 +128,7 @@ class WAPDB {
 				if (in_array($aid, $excludeList)) {
 					$processedUrls[WAPArticle::STATE_EXCLUDED][] = $url;
 				} elseif ($wa->isCompleted()) {
-					$processedUrls[WAPArticle::STATE_COMPLETED][] = $url;
+					$processedUrls[WAPArticle::STATE_COMPLETE][] = $url;
 				} elseif ($wa->isAssigned()) {
 					$processedUrls[WAPArticle::STATE_ASSIGNED][] = $url;
 				} elseif (!$wa->isAssigned()) {

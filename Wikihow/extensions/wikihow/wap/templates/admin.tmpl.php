@@ -1,6 +1,14 @@
 <?=$css ?>
 <?=$js ?>
 <?=$nav?>
+
+<h3>Article Details</h3>
+<div>
+<label for='url'>URL<label> <input id='url' type='text' class='input_med' name='url' style='margin-right:10px;' />
+<input type='button' id='article_details' name='details' class='button primary' value='Article Details'>
+</div>
+<div id='results'></div>
+
 <h3>Bulk Operations</h3>
 <ul>
 	<li><a href='/Special:<?=$adminPage?>/tagArticles'>Tag Articles</a></li>
@@ -66,9 +74,3 @@ if (sizeof($users)) {
 <li><a id='rpt_excluded_articles' href='#'>Excluded Articles in <?=$system?></a></li>
 <li><a href='/Special:<?=$adminPage?>/customReport'>Custom Report</a></li>
 </ul>
-<h3>Article Details</h3>
-<div>
-<label for='url'>URL<label> <input id='url' type='text' class='input_med' name='url' style='margin-right:10px;' />
-<input type='button' id='article_details' name='details' class='button primary' value='Article Details'>
-</div>
-<div id='results'></div>

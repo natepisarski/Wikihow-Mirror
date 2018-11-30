@@ -262,4 +262,14 @@ class ArticleHooks {
 		return true;
 	}
 
+	public static function addDesktopTOCItems($wgTitle, &$anchorList) {
+		if (!Misc::isMobileMode()) {
+			$refCount = Misc::getReferencesCount();
+			if($refCount > 3) {
+				$anchorList[] = Html::rawElement('a', ['href' => '#sourcesandcitations'], $refCount . " References");
+			}
+		}
+		return true;
+	}
+
 }

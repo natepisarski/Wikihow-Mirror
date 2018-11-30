@@ -60,24 +60,18 @@ class StaffReviewed {
 
 		$rev_data = self::revisionData($dbr, $page_id);
 
+		$dateStr = '';
 		if ($rev_data) {
 			$unixTS = wfTimestamp(TS_UNIX, $rev_data->rev_timestamp);
 			$dateStr = DateTime::createFromFormat('U', $unixTS)->format('n/j/y');
-
-			return [
-				'name' => $lastFellowEdit,
-				'source' => self::STAFF_REVIEWED_SOURCE,
-				'date' => $dateStr,
-				'revision' => $rev_data->rev_id
-			];
-		} else {
-			return [
-				'name' => '',
-				'source' => '',
-				'date' => '',
-				'revision' => ''
-			];
 		}
+
+		return [
+			'name' => $lastFellowEdit,
+			'source' => self::STAFF_REVIEWED_SOURCE,
+			'date' => $dateStr,
+			'revision' => $rev_data->rev_id ?: ''
+		];
 	}
 
 	private static function revisionData($dbr, $page_id) {
@@ -107,7 +101,8 @@ class StaffReviewed {
 		$staff_users = [
 			'Seymour Edits', //main umbrella user
 			'Jean17',
-			'HisGirlFriday'
+			'HisGirlFriday',
+			'WRM'
 		];
 
 		$user_ids = [];

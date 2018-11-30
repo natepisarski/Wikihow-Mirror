@@ -154,9 +154,9 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 					this.actionBar,
 					this.title,
 					[ 'div.videoBrowser-viewer-description',
-						[ 'p.videoBrowser-viewer-plays' ].concat(
-							mw.msg( 'videobrowser-plays', video.plays )
-						),
+						// [ 'p.videoBrowser-viewer-plays' ].concat(
+						// 	mw.msg( 'videobrowser-plays', video.plays )
+						// ),
 						[ 'p.videoBrowser-viewer-summary' ].concat(
 							!state.summaryError ?
 								WH.Render.parseHTML( state.summary || mw.msg( 'videobrowser-loading' ) ) :

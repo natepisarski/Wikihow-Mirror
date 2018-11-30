@@ -215,6 +215,14 @@ class UserReview {
 		$helpfulness = class_exists(SocialProofStats) ? SocialProofStats::getPageRatingData($articleId)->rating : 0;
 		$numReviews = self::getEligibleNumCuratedReviews($articleId);
 
+		//first paragraph
+		$numEditors = count(ArticleAuthors::getAuthors($articleId));
+		$text = wfMessage('ur_hover_text_definition', $numEditors)->text();
+
+		$numCitations = Misc::getReferencesCount();
+		if ($numCitations >= 3) $text .= ' '. wfMessage('ur_hover_text_citations', $numCitations)->text();
+
+		//second paragraph
 		if ($numReviews < self::ICON_MIN_REVIEWS) {
 			if ($helpfulness < self::ICON_MIN_HELPFULNESS)
 				$msg = 'ur_hover_text_unhelpful_few_stories';
@@ -230,7 +238,9 @@ class UserReview {
 
 		$views = number_format($views);
 		$numReviews = number_format($numReviews);
-		return !empty($msg) ? wfMessage($msg, $views, $helpfulness, $numReviews)->parse() : '';
+		$text .= '<br><br>'.wfMessage($msg, $views, $helpfulness, $numReviews)->parse();
+
+		return $text;
 	}
 
 	public static function getUserReviewStamp(int $articleId = 0, bool $mobile = false): string {
@@ -245,14 +255,19 @@ class UserReview {
 		if ($amp) $attributes['on'] = 'tap:sp_icon_hover.toggleVisibility';
 
 		$text = wfMessage('ur_stamp')->text();
-		if ($mobile) $text .= Html::rawElement('span',['class'=>'sp_intro_tiny_i']);
+		if($mobile) {
+			//replace the <br> with a space
+			$text = str_replace("<br>", " ", $text);
+			$text = str_replace("<br />", " ", $text);
+		}
 
 		$stamp = Html::rawElement("a", $attributes, $text);
 
 		if (class_exists('SocialProofStats')) {
 			//add the expert icon
 			$hover_text = self::getIconHoverText($articleId);
-			$stamp .= SocialProofStats::getIconHoverHtml($hover_text, $mobile, $amp);
+			$vType = SocialProofStats::VERIFIER_TYPE_READER;
+			$stamp .= SocialProofStats::getIconHoverHtml($hover_text, $vType, $mobile, $amp);
 		}
 
 		return $stamp;

@@ -730,24 +730,9 @@ class WikihowMobileTools {
 			pq('.relatedwikihows')->before($rm_button);
 		}
 
-		//we don't want to show sources and citations, so replace it with our links
-		$doc->append('<div id="extra_sources" class="hidden"></div>');
-		pq('#extra_sources')->append(pq('#sourcesandcitations ul a'));
-		$sourcesSectionClass = ".".Misc::getSectionName((wfMessage('sources')->text()));
-		$sourcesSection = pq( $sourcesSectionClass )->remove();
+		self::formatReferencesSection( $skin );
 
-		if ( $wgTitle && $wgTitle->exists() && PagePolicy::showCurrentTitle( $context ) ) {
-			$articleInfoText = wfMessage('more_references')->text();
-			if ( $wgLanguageCode != "en" ) {
-				//intl (old style)
-				pq(".section:last")->after("<div class='section articleinfo'><div class='section_text' id='articleinfo' role='button'><a href='#' aid='" .$docTitle->getArticleId() . "' id='info_link'>" . $articleInfoText ."</a></div></div>");
-			} else {
-				pq("#social_proof_mobile")->after("<div class='section articleinfo'><div class='section_text' id='articleinfo' role='button'><a href='#' aid='" . $docTitle->getArticleId() . "' id='info_link'>" . $articleInfoText ."</a></div></div>");
-			}
-		}
-		wfRunHooks( 'MobileProcessDomAfterSetSourcesSection', array( $skin->getOutput(), $sourcesSection, $imageCreators ) );
-
-		// Making all reference links not part of {{reflist}} open in a new browser tab. Feature requested by Michelle.
+		// Making all reference links not part of {{reflist}} open in a new browser tab. Feature requested by Michelle
 		pq('#extra_sources .external.text,#extra_sources .external.free', $sources)->attr('target', '_blank');
 
 		//move any samples section below the last steps section
@@ -1663,6 +1648,45 @@ class WikihowMobileTools {
 
 	protected static function getTableOfContents() {
 		return self::$tableOfContentsHtml;
+	}
+
+	private static function formatReferencesSection( $skin ) {
+		$sourcesSectionClass = ".".Misc::getSectionName( (wfMessage('sources')->text()));
+		$sourcesSection = pq( $sourcesSectionClass );
+
+		// add class to the section so we can target it with css
+		pq( $sourcesSection )->addClass( 'aidata' )->find('p')->remove();
+		if ( $skin->getUser()->isAnon()) {
+			pq( $sourcesSection )->find('.mw-headline')->text( wfMessage( 'references' )->text() );
+		}
+
+		// move the regular references to be inside the same ordered list
+		// if this list does not exist create it
+		pq( $sourcesSection )->find( 'ul li a' )->wrap('<div>');
+		if ( !pq( $sourcesSection )->find( 'ol' )->length ) {
+			pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="references">' );
+		}
+		pq( $sourcesSection )->children( 'ol' )->append( pq( $sourcesSection )->find( 'ul li' ) );
+
+		$referencesFirst = pq( $sourcesSection )->clone();
+		pq( $referencesFirst )->find('div:first')->attr('id', 'references_first');
+		pq( $referencesFirst )->removeClass( 'aidata' );
+		pq( $referencesFirst )->find( 'li:gt(14)' )->remove();
+
+		pq( $sourcesSection )->find( 'li:lt(14)' )->remove();
+		pq( $sourcesSection )->find( 'h2' )->remove();
+		pq( $sourcesSection )->find( 'ol' )->attr('start', 16);
+		pq( $sourcesSection )->find('div:first')->attr('id', 'references_second');
+
+		// create a show more link if needed
+		if ( pq( $sourcesSection )->find( 'li' )->length > 0 ) {
+			$showMore = Html::element( 'a', ['id' => 'info_link', 'href' => '#aiinfo'], wfMessage('more_references')->text() );
+			$sectionText = Html::rawElement( 'div', ['id'=>'articleinfo', 'class'=>'section_text'], $showMore );
+			$articleInfoHtml = Html::rawElement( 'div', ['id' => 'aiinfo', 'class' => 'section articleinfo'], $sectionText );
+			pq( '#social_proof_mobile' )->after( $articleInfoHtml . $sourcesSection );
+		}
+
+		pq( '#social_proof_mobile' )->after( $referencesFirst );
 	}
 
 }

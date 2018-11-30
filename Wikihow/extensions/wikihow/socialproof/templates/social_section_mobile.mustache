@@ -4,6 +4,7 @@
 	<div id="sp_inner">
 		{{#expert}}
 			{{> expert_section}}
+			{{#expert.desc}}<div id="sp_expert_desc">{{{expert.desc}}}</div>{{/expert.desc}}
 		{{/expert}}
 
 		{{#difficult_article}}

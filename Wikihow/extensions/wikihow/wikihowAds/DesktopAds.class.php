@@ -154,7 +154,7 @@ class DesktopAds {
 
 		if ( Misc::isAltDomain() ) {
 			$currentDomain = AlternateDomain::getCurrentRootDomain();
-			if ( $currentDomain == 'howyougetfit.com' ) {
+			if ( $currentDomain == 'wikihow.mom' ) {
 				$this->mActive = false;
 				return;
 			}
@@ -312,8 +312,6 @@ class DesktopAds {
 			$adCreator->setAdLabelVersion( 2 );
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
-
-			// our current complicated setup
 			$adCreator = new MixedAdCreatorVersion5();
 			$adCreator->mAdServices['step'] = '';
 

@@ -114,7 +114,6 @@ h6.steps_text .edit-page,
 #uci_section,
 #footer_random_button,
 .trvote_box,
-#articleinfo,
 .section.video,
 #hp_navigation,
 #mcta_root,
@@ -733,31 +732,34 @@ h4.steps_text::before {
 	height: 100%;
 }
 
+#expert_coauthor {
+	background-color: #f4f8f1;
+	border-top: 1px solid #f0f2ef;
+	border-bottom: 1px solid #f0f2ef;
+	padding: 5px 16px;
+}
+
+#expert_coauthor a {
+	color: #6f8460;
+}
+
 .sp_intro_expert, .tech_article_stamp, .sp_intro_user {
-	float: right;
-	padding: 0 5px 0 27px;
-	margin: 15px 0 0 0;
-	height: 24px;
-	background-size: 24px;
+	background-size: 17px;
 	background-image: url(/skins/owl/images/sp_expert_icon.png);
 	/* @embed */
 	background-image: url(/skins/owl/images/sp_expert_icon.svg);
 	background-repeat: no-repeat;
-	line-height: 12px;
-	font-size: 10px;
-	background-position: 0% 5%;
-	text-decoration: none;
-	color: #6f8460;
-	font-weight: bold;
-}
-.sp_intro_expert p, .tech_article_stamp p, .sp_intro_user p {
-	color: #6f8460;
+	padding-left: 20px;
 }
 
 .sp_intro_user {
 	background-image: url(/skins/owl/images/sp_user_icon.png);
 	/* @embed */
 	background-image: url(/skins/owl/images/sp_user_icon.svg);
+}
+
+.sp_intro_expert p, .tech_article_stamp p, .sp_intro_user p {
+	display: inline-block;
 }
 
 .sp_intro_tiny_i {
@@ -1306,4 +1308,54 @@ a.related-title,a.related-title:active, a.related-title:visited {
 }
 .sourcesandcitations .section_text {
 	padding-left: 30px;
+}
+
+/* Article info section */
+#aiinfo:target ~ .aidata, #social_proof_mobile:target ~ .aidata {
+	display: block;
+}
+.aidata, #aiinfo:target, #social_proof_mobile:target ~ #aiinfo {
+	display: none;
+}
+.articleinfo #articleinfo {
+	margin-top: -5px;
+	border-radius: 0 0 4px 4px;
+	border-top: none;
+	position: relative;
+}
+
+
+#articleinfo #info_link {
+	width: 100%;
+	display: block;
+	color: #545454;
+}
+#articleinfo:after, .collapse_link:after {
+	position: absolute;
+	top: 25%;
+	right: 5%;
+	content: "";
+	width: 13px;
+	height: 13px;
+	border: solid #CCC;
+	border-width: 0 3px 3px 0;
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+/* Article info section */
+#social_proof_mobile + .articleinfo #articleinfo, #summary_wrapper + .articleinfo #articleinfo { /* WITH an About this wikiHow section or summary section (normal case) */
+	padding: 15px;
+	border-top: 1px solid #e7e7e5;
+	border-radius: 0 0 4px 4px;
+	margin-top: -5px;
+	position: relative;
+	z-index: 1;
+}
+#references_second {
+	padding-top: 0;
+	border-top: 0;
+	margin-top: -10px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }

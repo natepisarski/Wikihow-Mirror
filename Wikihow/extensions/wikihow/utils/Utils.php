@@ -13,6 +13,6 @@ $wgAutoloadClasses['DOMUtil'] = dirname( __FILE__ ) . '/DOMUtil.php';
 $wgAutoloadClasses['TitleUtil'] = dirname( __FILE__ ) . '/TitleUtil.php';
 $wgAutoloadClasses['TitleFilters'] = dirname( __FILE__ ) . '/TitleFilters.php';
 $wgAutoloadClasses['StringUtil'] = dirname( __FILE__ ) . '/StringUtil.php';
-
+$wgAutoloadClasses['JsonApi'] = dirname( __FILE__ ) . '/JsonApi.php';
 
 $wgHooks['UnitTestsList'][] = array( 'BadWordFilter::onUnitTestsList');

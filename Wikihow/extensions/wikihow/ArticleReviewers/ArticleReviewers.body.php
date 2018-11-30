@@ -139,6 +139,8 @@ class ArticleReviewers extends UnlistedSpecialPage
 		$abbr_name = self::getAnchorName($verifierName);
 		if (empty($abbr_name)) return $article_reviewers_url;
 
+		$abbr_name = urlencode($abbr_name);
+
 		return $article_reviewers_url.'?name='.$abbr_name.'#'.$abbr_name;
 	}
 

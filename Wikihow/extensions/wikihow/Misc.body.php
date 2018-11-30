@@ -6,6 +6,8 @@
 //
 class Misc {
 
+	public static $referencesCount = null;
+
 	/*
 	 * adminPostTalkMessage
 	 * - returns true/false
@@ -1003,4 +1005,30 @@ class Misc {
 		global $domainName;
 		return strpos($domainName, 'wikihow.pet') !== false;
 	}
+
+	public static function getReferencesCount(): int {
+		if (!is_null(self::$referencesCount)) return self::$referencesCount;
+
+		$context = RequestContext::getMain();
+		$lang_code = $context->getLanguage()->getCode();
+
+		$title = $context->getTitle();
+		if (!$title) return 0;
+
+		$page_id = $title->getArticleId();
+		if (!$page_id) return 0;
+
+		$count = wfGetDB(DB_SLAVE)->selectField(
+			'titus_copy',
+			'ti_num_sources_cites',
+			[
+				'ti_language_code' => $lang_code,
+				'ti_page_id' => $page_id
+			],
+			__METHOD__
+		);
+
+		return $count;
+	}
+
 }

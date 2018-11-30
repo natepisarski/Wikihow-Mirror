@@ -713,6 +713,11 @@ class WikihowArticleHTML {
 		$sourcesId = str_replace( [' ','(',')'], "", mb_strtolower($sourcestext));
 		$sources = pq("#{$sourcesId}");
 
+		if ( pq( $sources )->find( '.references' )->length ) {
+			$extraItems = pq( $sources )->find( 'ul' )->remove()->html();
+			pq( $sources )->find( '.references' )->append( $extraItems );
+		}
+
 		// rename the sources and citations section
 		if ($wgUser->isAnon()) {
 			pq($sources)->prev()->find( '.mw-headline' )->text( wfMessage("references")->text() );

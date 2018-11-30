@@ -870,40 +870,10 @@ a.reference-anchor {
     visibility: hidden;
 }
 
-/* Article info section */
-
-.articleinfo #articleinfo {
-	margin-top: -5px;
-	border-radius: 0 0 4px 4px;
-	border-top: none;
-}
-
-#social_proof_mobile + .articleinfo #articleinfo, #summary_wrapper + .articleinfo #articleinfo { /* WITH an About this wikiHow section or summary section (normal case) */
-	padding: 15px;
-	border-top: 1px solid #e7e7e5;
-	border-radius: 0 0 4px 4px;
-	margin-top: -5px;
-	position: relative;
-	z-index: 1;
-}
-
-#articleinfo #info_link {
-	width: 100%;
-	display: block;
-	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjkuMzc1cHgiIGhlaWdodD0iMTcuNTE2cHgiIHZpZXdCb3g9IjAgMCAyOS4zNzUgMTcuNTE2IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyOS4zNzUgMTcuNTE2IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNDRENEQ0QiIGQ9Ik0yOS4zNzUsMmMwLDAuNTEyLTAuMTk1LDEuMDIyLTAuNTg2LDEuNDE0TDE0LjY4OCwxNy41MTZMMC41ODYsMy40MTRjLTAuNzgxLTAuNzgxLTAuNzgxLTIuMDQ3LDAtMi44MjgNCgkJYzAuNzgxLTAuNzgxLDIuMDQ3LTAuNzgxLDIuODI4LDBsMTEuMjczLDExLjI3MkwyNS45NiwwLjU4NmMwLjc4MS0wLjc4MSwyLjA0Ny0wLjc4MSwyLjgyOCwwQzI5LjE4LDAuOTc3LDI5LjM3NSwxLjQ4OCwyOS4zNzUsMnoiDQoJCS8+DQo8L2c+DQo8L3N2Zz4NCg==);
-	background-repeat: no-repeat;
-	background-position: center right;
-	background-size: 20px;
-	color: #545454;
-}
 
 .section_text .collapse_link {
 	width: 100%;
 	display: block;
-	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjkuMzc1cHgiIGhlaWdodD0iMTcuNTE2cHgiIHZpZXdCb3g9IjAgMCAyOS4zNzUgMTcuNTE2IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyOS4zNzUgMTcuNTE2IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNDRENEQ0QiIGQ9Ik0yOS4zNzUsMmMwLDAuNTEyLTAuMTk1LDEuMDIyLTAuNTg2LDEuNDE0TDE0LjY4OCwxNy41MTZMMC41ODYsMy40MTRjLTAuNzgxLTAuNzgxLTAuNzgxLTIuMDQ3LDAtMi44MjgNCgkJYzAuNzgxLTAuNzgxLDIuMDQ3LTAuNzgxLDIuODI4LDBsMTEuMjczLDExLjI3MkwyNS45NiwwLjU4NmMwLjc4MS0wLjc4MSwyLjA0Ny0wLjc4MSwyLjgyOCwwQzI5LjE4LDAuOTc3LDI5LjM3NSwxLjQ4OCwyOS4zNzUsMnoiDQoJCS8+DQo8L2c+DQo8L3N2Zz4NCg==);
-	background-repeat: no-repeat;
-	background-position: center right;
-	background-size: 20px;
 	color: #545454;
 }
 

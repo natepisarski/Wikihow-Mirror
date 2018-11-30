@@ -61,7 +61,7 @@ class HtmlSnips {
 			$type = $m[3];
 			$filename = $m[2];
 			$path = $m[1];
-			return self::makeUrlTags($type, ["$filename.$type"], $path);
+			return self::makeUrlTags($type, ["$filename.$type"], $path, $debug);
 		} else {
 			throw new MWException(__METHOD__ . ': incorrect url format: ' . $file);
 		}

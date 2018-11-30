@@ -19,7 +19,7 @@
  * @example
  * WH.social.setupLoginButtons(
  *     {
- *.        fb: '#facebookButton', // Accepts CSS selectors
+ *         fb: '#facebookButton', // Accepts CSS selectors
  *         gplus: $container.find( '.google_button' ) // or jQuery selections
  *     },
  *     mw.config.get( 'wgPageName' )

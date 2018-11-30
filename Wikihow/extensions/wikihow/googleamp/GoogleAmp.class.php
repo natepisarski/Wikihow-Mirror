@@ -817,24 +817,6 @@ class GoogleAmp {
 		return $data;
 	}
 
-	// get sources and citations section for use in amp pages
-	public static function getArticleCredits( $title, $sourcesSection, $imageCreators ) {
-		pq( $sourcesSection )->addClass( 'aidata' )->find('p')->remove();
-
-		$referencesFirst = pq( $sourcesSection )->clone();
-		pq( $referencesFirst )->find('.mw-headline')->text( wfMessage( 'references' )->text() );
-		pq( $referencesFirst )->find('div:first')->attr('id', 'references_first');
-		pq( $referencesFirst )->removeClass( 'aidata' );
-		pq( $referencesFirst )->find( 'li:gt(14)' )->remove();
-		pq( $sourcesSection )->find( 'h2' )->remove();
-		pq( $sourcesSection )->find( 'ol' )->attr('start', 16);
-		pq( $sourcesSection )->find('div:first')->attr('id', 'references_second');
-		$references = $sourcesSection;
-		$text = Html::element( 'a', ['class' => 'section_text', 'href' => '#aiinfo', 'id' => 'articleinfo'], wfMessage('more_references')->text() );
-		$articleInfoHtml = Html::rawElement( 'div', ['id' => 'aiinfo', 'class' => 'section articleinfo'], $text );
-		return $referencesFirst . $articleInfoHtml . $references;
-	}
-
 	private static function formatQABadges() {
 
 		$badges = pq('.qa_expert, .qa_person_circle');
@@ -943,8 +925,6 @@ class GoogleAmp {
 			pq( '.qa.section' )->remove();
 		}
 		pq( '#qa_show_more_answered' )->remove();
-
-		pq( '.ar_avatar' )->remove();
 
 		// for some reason some articles use this font-size 0 inline style..removing it for now
 
@@ -1076,21 +1056,6 @@ class GoogleAmp {
 			$urls[] = $ampUrl;
 		}
 		return true;
-	}
-
-	public static function onMobileProcessDomAfterSetSourcesSection( $out, $sourcesSection, $imageCreators ) {
-		if ( !self::isAmpMode( $out ) ) {
-			return;
-		}
-
-		// get the article credits and place them after the social proof section
-		$title = $out->getTitle();
-		$html = GoogleAmp::getArticleCredits( $title, $sourcesSection, $imageCreators );
-		pq( ".articleinfo" )->remove();
-		pq( "#social_proof_mobile" )->after( $html );
-
-		// fix any reference links to point to this new section
-		pq( '.reference > a' )->attr( 'href', '#social_proof_mobile' );
 	}
 
 	public static function getAmpSidebar( $items ) {

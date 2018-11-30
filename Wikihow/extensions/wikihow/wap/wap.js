@@ -20,7 +20,7 @@
 		}
 	});
 
-	$(document).on('click', 
+	$(document).on('click',
 		'#validate_complete_articles,#validate_remove_articles,#validate_assign_user,#validate_tag_articles,#validate_release_articles,#validate_notes_articles',
 		function(e) {
 		e.preventDefault();
@@ -32,7 +32,7 @@
 		e.preventDefault();
 		if (hasCheckedAids()) {
 			var data = {'a' : $(this).attr('id'), 'aids' : getCheckedAids() };
-			setLoading();	
+			setLoading();
 			$.post(controller, data, function(res) {
 				$('#results').html(res);
 			});
@@ -42,7 +42,7 @@
 	$(document).on('click', '#removeTags', function(e) {
 		e.preventDefault();
 		var data = {'urls' : $('.urls').val(), 'a' : 'remove_tag_articles', 'tags' : getSelectedTags()};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -51,7 +51,7 @@
 	$(document).on('click', '#clearNotes', function(e) {
 		e.preventDefault();
 		var data = {'urls' : $('.urls').val(), 'a' : 'clear_notes_articles'};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -60,7 +60,7 @@
 	$(document).on('click', '#csvNotes', function(e) {
 		e.preventDefault();
 		var data = {'csv' : $('#csv').val(), 'a' : 'add_csv_notes_articles'};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -69,7 +69,7 @@
 	$(document).on('click', '#remove_tag_system', function(e) {
 		e.preventDefault();
 		var data = {'a' : 'remove_tag_system', 'tags' : getSelectedTags()};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -97,10 +97,10 @@
 		$('#results').html('<h4>thinking...</h4>');
 	}
 
-	
+
 	function validate(action) {
 		var data = {'urls' : $('.urls').val(), 'a' : action};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -133,7 +133,7 @@
 
 	$(document).on('click', '#article_details', function (e) {
 		var data = {'url' : $('#url').val(), 'a' : 'article_details'};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		}).fail(function(xhr) {
@@ -144,7 +144,7 @@
 
 	$(document).on('click', '#add_user', function (e) {
 		var data = {'url' : $('#url').val(), 'a' : 'add_user', 'powerUser' : $('#powerUser').is(':checked')};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -154,7 +154,7 @@
 		e.preventDefault();
 		if (hasCheckedAids()) {
 			var data = {'a' : $(this).attr('id'), 'tags' : getSelectedTags(), 'aids' : getCheckedAids()};
-			setLoading();	
+			setLoading();
 			$.post(controller, data, function(res) {
 				$('#results').html(res);
 			});
@@ -165,7 +165,7 @@
 		e.preventDefault();
 		if (hasCheckedAids()) {
 			var data = {'a' : $(this).attr('id'), 'notes' : $('#notes').val(), 'aids' : getCheckedAids()};
-			setLoading();	
+			setLoading();
 			$.post(controller, data, function(res) {
 				$('#results').html(res);
 			});
@@ -180,7 +180,7 @@
 			var langCode = $(val).attr('langcode');
 			if (!$.isArray(aids[langCode])) {
 				aids[langCode] = [];
-			} 
+			}
 			aids[langCode].push(unescape(aid));
 		});
 
@@ -189,7 +189,7 @@
 
 	function hasCheckedAids() {
 		var result = true;
-		if ($('.checked_article:checked').length == 0) {
+		if ($('.checked_article:checked:enabled').length == 0) {
 			alert('No articles checked.  Please select at least one article');
 			result = false;
 		}
@@ -210,9 +210,9 @@
 		e.preventDefault();
 		if (hasCheckedAids()) {
 			var data = {'a' : $(this).attr('id'), 'user' : $('#users').val(), 'aids' : getCheckedAids()};
-			setLoading();	
-			$.post(controller, data, function(res) { 
-				$('#results').html(res); 
+			setLoading();
+			$.post(controller, data, function(res) {
+				$('#results').html(res);
 			});
 		}
 	});
@@ -229,7 +229,7 @@
 	$(document).on('click', '#tag_users', function (e) {
 		e.preventDefault();
 		var data = {'urls' : $('.urls').val(), 'a' : 'tag_users', 'tags' : getSelectedTags(), 'users' : getSelectedUsers()};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -238,7 +238,7 @@
 	$(document).on('click', '#remove_users', function (e) {
 		e.preventDefault();
 		var data = {'a' : 'remove_users', 'users' : getSelectedUsers()};
-		setLoading();	
+		setLoading();
 		$.post(controller, data, function(res) {
 			$('#results').html(res);
 		});
@@ -331,7 +331,7 @@
 		e.preventDefault();
 		var anchor = this;
 		if (!$(anchor).hasClass('disabled')) {
-			var data = getRowData(this); 
+			var data = getRowData(this);
 			$.post(controller, data, function(res) {
 				if (res.length == 0) {
 					$(anchor).html('No More Articles').addClass('disabled');
@@ -343,7 +343,7 @@
 				$("table.wap").trigger('update');
 			});
 		}
-			
+
 
 	});
 
@@ -351,7 +351,7 @@
 		$('table.wap:first tbody').html('');
 		$('#tag_list_more_rows').attr('offset', 0).removeClass('disabled').click().html('[More Articles]');
 	}
-	
+
 
 	$(document).on('click', '#rpt_excluded_articles,#rpt_untagged_unassigned,#rpt_assigned_articles, #rpt_completed_articles', function(e) {
 		e.preventDefault();
@@ -362,7 +362,7 @@
 	$(document).on('click', '#rpt_assigned_articles_admin, #rpt_completed_articles_admin', function(e) {
 		e.preventDefault();
 		var data = {
-			'a' : $(this).attr('id'), 
+			'a' : $(this).attr('id'),
 			'langcode': $('#langcode').val(),
 			'fromDate': $('#fromDate').val() || null,
 			'toDate': $('#toDate').val() || null
@@ -396,4 +396,75 @@
 			$('#results').html(res);
 		});
 	});
+
+	$(document).on('change', '#csv_upload_input', function(e)
+	{
+		// Validation
+
+		if (!$(this).val()) { // Cancelled by user
+			return;
+		}
+
+		var file = this.files[0];
+		if (file.type != 'text/csv') {
+			alert("The file has the wrong format. It must be a CSV.")
+			return;
+		}
+		if (file.size > 2097152) {
+			alert("The file is too large. Max size is 2 megabytes.")
+			return;
+		}
+
+		// Upload
+
+		setLoading();
+		$.ajax({
+			type: 'POST',
+			data: new FormData($('#csv_upload_form')[0]),
+			cache: false,
+			contentType: false,
+			processData: false,
+		})
+		.done(function(data, textStatus, jqXHR) {
+			$('#results').html(data);
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			var data = JSON.parse(jqXHR.responseText);
+			$('#results').html('<br><b>Errors:</b><br><br>' + data.error);
+		})
+		.always(function() {
+			$('#csv_upload_input').val('');
+		});
+	});
+
+	$(document).on('click', '#complete_articles_from_csv', function(e)
+	{
+		e.preventDefault();
+		if (!hasCheckedAids()) {
+			return;
+		}
+
+		// Collect checked articles
+
+		var data = {};
+		$.each($('.checked_article:checked:enabled'), function(idx, val) {
+			var aid = $(val).data('aid');
+			var uid = $(val).data('uid');
+			data[uid] = data[uid] || [];
+			data[uid].push(unescape(aid));
+		});
+
+		// POST
+
+		setLoading();
+		$.post(controller, { a: 'complete_articles_from_csv', data: data })
+		.done(function(data, textStatus, jqXHR) {
+			$('#results').html(data);
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			var data = JSON.parse(jqXHR.responseText);
+			$('#results').html('<br>Error: <b>' + data.error + '</b>');
+		});;
+	});
+
 }(jQuery));

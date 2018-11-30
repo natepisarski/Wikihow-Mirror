@@ -321,7 +321,7 @@ WH.video = (function () {
 			video.element.style.filter = "none";
 			if (!video.played) {
 				video.played = true;
-				logAction('svideoplay');
+				//logAction('svideoplay');
 			}
 		}
 	}
@@ -357,7 +357,7 @@ WH.video = (function () {
 		this.linearAd = this.element.getAttribute('data-ad-type') == 'linear';
 		if (this.summaryVideo) {
 			this.autoplay = false;
-			logAction('svideoview');
+			//logAction('svideoview');
 		}
 		getVideoControls(this);
 		if (this.inlinePlayButton == false && !this.summaryVideo) {

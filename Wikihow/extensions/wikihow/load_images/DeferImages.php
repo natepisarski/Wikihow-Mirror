@@ -49,9 +49,7 @@ class DeferImages {
         $rollout = true;
 
         if ( Misc::isMobileMode() ) {
-			if ( !ArticleTagList::hasTag( 'lazyloadstutest', $pageId ) ) {
-				$rollout = false;
-			}
+			$rollout = true;
 		} else {
 			if ( ArticleTagList::hasTag( 'lazyload_destkop_images_disabled', $pageId ) ) {
 				$rollout = false;

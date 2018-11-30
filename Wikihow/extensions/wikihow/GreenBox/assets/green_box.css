@@ -1,4 +1,4 @@
-.green_box, .green_tips_box {
+.green_box {
 	display: table;
 	background-color: #f0f6ec;
 	margin: .8em auto .5em;
@@ -37,7 +37,7 @@
 	display: table-row;
 }
 
-.green_box_headline, .green_tips_box > span {
+.green_box_headline {
 	font-weight: bold;
 	font-size: 120%;
 }
