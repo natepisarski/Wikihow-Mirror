@@ -45,6 +45,14 @@ class EmailConfirmation extends UnlistedSpecialPage {
 		$this->checkReadOnly();
 		$this->checkPermissions();
 
+		// wikiHow changed (12/2018): adding referrer origin meta tag so that we
+		// don't send the ConfirmEmail code to external sites by accident in the
+		// Referer http header. I don't consider this a real security issue since
+		// this URL is effectively burned after it's viewed, but the security
+		// researcher might see something I don't. What ya gonna do?
+		$out = $this->getOutput();
+		$out->addMeta('referrer', 'origin');
+
 		$this->requireLogin( 'confirmemail_needlogin' );
 
 		// This could also let someone check the current email address, so

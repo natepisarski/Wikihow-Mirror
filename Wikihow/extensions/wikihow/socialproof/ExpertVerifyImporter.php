@@ -206,6 +206,8 @@ class ExpertVerifyImporter {
 
 			$dev = intval( $row->{'gsx$devleaveblankifnotdev'}->{'$t'} );
 			if ( $dev === 1 && !$wgIsDevServer ) {
+				$articleName = $row->{'gsx$articlename'}->{'$t'};
+				//$result['info'][] = "$articleName is marked as dev on $worksheetName";
 				continue;
 			}
 
@@ -216,7 +218,7 @@ class ExpertVerifyImporter {
 				// we got the article name we don't need to get any other data
 				$pageId = $row->{'gsx$articleid'}->{'$t'};
 
-				// we should hvae the page id if not just figure it out
+				// we should have the page id if not just figure it out
 				// although this takes forever so it is NOT recommended
 				if ( !$pageId ) {
 					$result['warnings'][] = "Specify article id for <b>$articleName</b> on Chef/Video Verified sheet for faster performance.";

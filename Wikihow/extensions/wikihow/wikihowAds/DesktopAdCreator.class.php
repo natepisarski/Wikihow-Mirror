@@ -1360,21 +1360,9 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'refreshable' => 1,
 				'first-refresh-time' => 45000,
 				'refresh-time' => 28000,
-				'insert-refresh' => 1,
 				'aps-timeout' => 800
 			),
 		);
-		// same as above but no insert refresh
-		if ( $pageId % 2 == 0 ) {
-			$this->mAdSetupData = array(
-				'rightrail2' => array(
-					'refreshable' => 1,
-					'first-refresh-time' => 45000,
-					'refresh-time' => 28000,
-					'aps-timeout' => 800
-				),
-			);
-		}
 
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
@@ -1406,7 +1394,7 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'apsLoad' => true
 			),
 			'rightrail2' => array(
-				'adUnitPath' => '/10095428/RR3_800ms_CSTO_Test',
+				'adUnitPath' => '/10095428/RR3_Test_32',
 				'size' => '[[300, 250],[300, 600]]',
 				'apsLoad' => true
 			),
@@ -1416,14 +1404,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 				'apsLoad' => true
 			)
 		);
-		global $wgTitle;
-		$pageId = 0;
-		if ( $wgTitle ) {
-		        $pageId = $wgTitle->getArticleID();
-		}
-		if ( $pageId % 2 == 0 ) {
-			$this->mDFPData['rightrail2']['adUnitPath'] = '/10095428/RR3_Test_32';
-		}
 	}
 }
 

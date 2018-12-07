@@ -3,13 +3,22 @@
 		{{{badge}}}
 		&middot;
 		{{#hasRef}}
-			<a href="#references_first" class="ec_ref">[{{ref}}] References</a>
+			<a href="#references_first" class="ec_ref">
+				{{#includeCount}}
+					 [{{refCount}}]
+				{{/includeCount}}
+			{{refMessage}}</a>
 		{{/hasRef}}
 		{{^hasRef}}
 			<a href="#" class="ec_view">{{views}} Views</a>
 		{{/hasRef}}
 	{{/hasBadge}}
 	{{^hasBadge}}
-		<a href="#" class="ec_view">{{views}} Views</a> &middot; <a href="#references_first" class="ec_ref">[{{ref}}] References</a>
+		<a href="#" class="ec_view">{{views}} Views</a> &middot; <a href="#references_first" class="ec_ref">
+		{{#includeCount}}
+			[{{refCount}}]
+		{{/includeCount}}
+		{{refMessage}}
+		</a>
 	{{/hasBadge}}
 </div>

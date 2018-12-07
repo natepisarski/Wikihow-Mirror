@@ -67,16 +67,35 @@
 				ev.stopPropagation();
 			} )*/; //BEBETH: Commenting out this js as it breaks our menu when you scroll. Not sure yet if there are issues with this.
 
-			// close navigation if content tapped
-			$( '#mw-mf-page-center' ).
-				on( 'touchend mouseup', function() {
-					if ( isOpen() && !moved ) {
-						closeNavigation();
+			// Trevor - 12/6/18 - Copied from wikihow_common_top.js
+			var supportsPassive = false;
+			try {
+				var opts = Object.defineProperty({}, 'passive', {
+					get: function() {
+						supportsPassive = true;
 					}
-				} ).
-				// but don't close if scrolled
-				on( 'touchstart', function() { moved = false; } ).
-				on( 'touchmove', function() { moved = true; } );
+				});
+				window.addEventListener('testPassive', null, opts);
+				window.removeEventListener('testPassive', null, opts);
+			} catch (e) {}
+			var passiveParam = supportsPassive ? { passive: true } : false;
+
+			// close navigation if content tapped
+			var $center = $( '#mw-mf-page-center' ).on( 'touchend mouseup', function () {
+				if ( isOpen() && !moved ) {
+					closeNavigation();
+				}
+			} );
+			// ...but don't close if scrolled
+			// Trevor - 12/6/18 - Use the DOM directly, jQuery doesn't support passive params
+			if ( $center[0] ) {
+				$center[0].addEventListener( 'touchstart', function () {
+					moved = false;
+				}, passiveParam );
+				$center[0].addEventListener( 'touchmove', function () {
+					moved = true;
+				}, passiveParam );
+			}
 		}
 	}
 

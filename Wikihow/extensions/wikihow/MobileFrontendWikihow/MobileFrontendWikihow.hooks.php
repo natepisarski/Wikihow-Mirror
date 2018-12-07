@@ -174,8 +174,6 @@ class MobileFrontendWikiHowHooks {
 		// Add the logged out overlay module.
 		$out->addModules('mobile.wikihow.loggedout');
 
-		$out->addModules('ext.wikihow.methodhelpfulness.cta.method_thumbs.mobile');
-
 		if (class_exists('Recommendations')) {
 			$whr = new Recommendations();
 			$whr->addModules();

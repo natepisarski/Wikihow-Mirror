@@ -2,8 +2,6 @@
 
 if (!defined('MEDIAWIKI')) die();
 
-use MethodHelpfulness\ArticleMethod;
-
 class WikihowMobileTools {
 	private static $tableOfContentsHtml = '';
 
@@ -633,17 +631,18 @@ class WikihowMobileTools {
 			TipsAndWarnings::addRedesignCTAs($doc, $docTitle);
 		}
 
-		$showUserImagesSection = $wgLanguageCode == 'en'
-			&& class_exists('UserCompletedImages')
-			&& isset($config['show-upload-images'])
-			&& $config['show-upload-images']
-			&& !$amp
-			&& PagePolicy::showCurrentTitle($context);
+		//[sc] 12/2018 - removing UCI from mobile
+		// $showUserImagesSection = $wgLanguageCode == 'en'
+		// 	&& class_exists('UserCompletedImages')
+		// 	&& isset($config['show-upload-images'])
+		// 	&& $config['show-upload-images']
+		// 	&& !$amp
+		// 	&& PagePolicy::showCurrentTitle($context);
 
-		if ( $showUserImagesSection ) {
-			$uci = UserCompletedImages::getMobileSectionHTML( $context );
-			$doc->append($uci);
-		}
+		// if ( $showUserImagesSection ) {
+		// 	$uci = UserCompletedImages::getMobileSectionHTML( $context );
+		// 	$doc->append($uci);
+		// }
 
 		DOMUtil::hideLinksInArticle();
 
@@ -673,19 +672,6 @@ class WikihowMobileTools {
 		if (class_exists('Recommendations') && $config['show-recommendations-test']) {
 			$whr = new Recommendations();
 			$doc->append($whr->getArticleDisplayHtml());
-		}
-
-		if ($wgLanguageCode == 'en'
-			&& class_exists('MethodHelpfulness\Controller')
-			&& $config['show-method-helpfulness']
-		) {
-			$templateInfo = MethodHelpfulness\Controller::generateMustacheCTATemplate(
-				'method_thumbs',
-				$t,
-				'mobile'
-			);
-			$mustacheTemplate = $templateInfo['template'];
-			$doc->append($mustacheTemplate);
 		}
 
 		//removing all images from the tips and thingsyoullneed sections for now
@@ -731,9 +717,6 @@ class WikihowMobileTools {
 		}
 
 		self::formatReferencesSection( $skin );
-
-		// Making all reference links not part of {{reflist}} open in a new browser tab. Feature requested by Michelle
-		pq('#extra_sources .external.text,#extra_sources .external.free', $sources)->attr('target', '_blank');
 
 		//move any samples section below the last steps section
 		foreach(pq(".sample") as $sample) {
@@ -920,10 +903,6 @@ class WikihowMobileTools {
 			Donate::addDonateSectionToArticle();
 		}
 
-		if (class_exists('MethodHelpfulness\ArticleMethod') && !$amp ) {
-			MethodHelpfulness\ArticleMethod::modifyDOM($nonAltMethodElements, '#extra_sources', false);
-		}
-
 		//tabs should really be last so it has access to all the content on the page
 		if ( class_exists( 'MobileTabs' ) ) {
 			MobileTabs::modifyDOM();
@@ -949,7 +928,6 @@ class WikihowMobileTools {
 		return array(
 			'display-deferred-javascript' => true,
 			'show-ads' => true,
-			'show-method-helpfulness' => true,
 			'show-qa' => true,
 			'show-recommendations-test' => true,
 			'show-related-articles' => true,
@@ -962,7 +940,6 @@ class WikihowMobileTools {
 		$config = self::getDefaultArticleConfig();
 		$config['display-deferred-javascript'] = false;
 		$config['show-ads'] = false;
-		$config['show-method-helpfulness'] = false;
 		$config['show-qa'] = false;
 		$config['show-recommendations-test'] = false;
 		$config['show-related-articles'] = false;

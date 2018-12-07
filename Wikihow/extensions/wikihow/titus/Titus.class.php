@@ -1755,7 +1755,7 @@ class TSNumWarnings extends TitusStat {
 }
 
 /*
-* Number of warnings in the article
+* Number of references in the article
 */
 class TSNumSourcesCites extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {

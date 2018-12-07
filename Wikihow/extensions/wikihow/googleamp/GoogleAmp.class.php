@@ -481,13 +481,10 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
-		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
-		pq( "#intro" )->append( $adhtml );
-
 		// put an ad after first step if there is more than 1 step in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
-			pq(".steps_list_2:first > li:eq(1)")->append( $adhtml );
+			pq(".steps_list_2:first > li:eq(0)")->append( $adhtml );
 		}
 
 		// put an ad after fifth step if there is more than 5 steps in first method

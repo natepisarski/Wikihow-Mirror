@@ -212,15 +212,17 @@ class UserReview {
 	private static function getIconHoverText(int $articleId): string {
 		if (empty($articleId)) return '';
 		$views = RequestContext::getMain()->getWikiPage()->getCount();
-		$helpfulness = class_exists(SocialProofStats) ? SocialProofStats::getPageRatingData($articleId)->rating : 0;
+		$helpfulness = class_exists('SocialProofStats') ? SocialProofStats::getPageRatingData($articleId)->rating : 0;
 		$numReviews = self::getEligibleNumCuratedReviews($articleId);
 
 		//first paragraph
 		$numEditors = count(ArticleAuthors::getAuthors($articleId));
-		$text = wfMessage('ur_hover_text_definition', $numEditors)->text();
-
 		$numCitations = Misc::getReferencesCount();
-		if ($numCitations >= 3) $text .= ' '. wfMessage('ur_hover_text_citations', $numCitations)->text();
+
+		$text = wfMessage('sp_hover_text_general', $numEditors)->text();
+
+		if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT)
+			$text .= ' '.wfMessage('sp_hover_text_citations', $numCitations)->text();
 
 		//second paragraph
 		if ($numReviews < self::ICON_MIN_REVIEWS) {

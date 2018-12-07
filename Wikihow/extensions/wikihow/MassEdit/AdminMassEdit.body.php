@@ -225,7 +225,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		global $wgLanguageCode;
 
 		$uname = $this->getUser()->getName();
-		$allLangs = [ 'Chris H', 'Argutier', 'ElizabethD', 'Albur' ];
+		$allLangs = [ 'Chris H', 'ElizabethD' ];
 		$intlOnly = [ 'Bridget8', 'AdrianaBaird' ];
 		$allowed = in_array($uname, $allLangs) || ( Misc::isIntl() && in_array($uname, $intlOnly) );
 		if (!$allowed) {

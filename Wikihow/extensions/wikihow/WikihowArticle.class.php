@@ -723,36 +723,7 @@ class WikihowArticleHTML {
 			pq($sources)->prev()->find( '.mw-headline' )->text( wfMessage("references")->text() );
 		}
 
-		if ($sources->length) {
-			pq($sources)->find("ol, ul")->addClass("sources");
-			$count = pq($sources)->find("ol li, ul li")->length;
-			$limit = 15; // The number of sources/citations to display initially
-
-			$title = $context->getTitle();
-			$request = $context->getRequest();
-			// Making all reference links open in a new browser tab. Feature requested by Michelle.
-			pq('.reference-text a, .sources li a', $sources)->attr('target', '_blank');
-			// Don't hide refs if it's a printable page, we're on a special page, or we're in a diff view
-			if ($count > $limit && !$wgOut->isPrintable()
-				&& ( $title && !$title->inNamespace( NS_SPECIAL ) )
-				&& ( $request && !$request->getVal( 'diff' ) && !$request->getVal( 'oldid') ) ) {
-				$index = $limit - 1; // Index of the last item that we will show
-				// Choose in which order the lists will be truncated
-				$selector = pq($sources)->find(".sources + .references-small")->length
-					? "ul, ol"  // Sources, then citations
-					: "ol, ul"; // Citations, then sources. This will work too if one of the
-								// sections is missing, as that won't affect the selector below.
-				// Hide items from the cutoff point
-				pq($sources)->find($selector)->find("li:gt($index)")->addClass("hidden");
-				// Append link to expand the list
-				$remaining = $count - $limit;
-				pq($sources)->append("<a href='#' class='showsources'>" . wfMessage("Show")->text()
-					. ' ' . strtolower(wfMessage("moredotdotdot")->text()) . " ({$remaining})</a>");
-			}
-
-			// Remove the extra <br> if it exists
-			pq($sources)->children("p")->remove();
-		}
+		self::formatSourcesSection( $sources, $context );
 
 		DOMUtil::hideLinksInArticle();
 
@@ -1452,6 +1423,149 @@ class WikihowArticleHTML {
 
 		//has no magic?
 		return '';
+	}
+
+	private static function formatSourcesSectionNew( $sources, $context) {
+		global $wgOut;
+		if ( !$sources->length ) {
+			return;
+		}
+
+		pq( $sources )->find( "ol, ul" )->addClass( "sources" );
+
+		$count = pq( $sources )->find( "ol li, ul li" )->length;
+
+		$limit = 21;
+
+		$title = $context->getTitle();
+		$request = $context->getRequest();
+		// Making all reference links open in a new browser tab. Feature requested by Michelle.
+		pq('.reference-text a, .sources li a', $sources)->attr('target', '_blank');
+
+		// Remove the extra <br> if it exists
+		pq( $sources )->children("p")->remove();
+
+		$titlesFetched = 0;
+		foreach ( pq( $sources )->find( "li a" ) as $refLink ) {
+			$refTitle = '';
+			$url = pq( $refLink )->text();
+			$refTitle = self::getReferenceTitle( $url );
+			$url = parse_url( $url );
+			$host = $url['host'];
+			$host = explode( '.', $host );
+			if ( count( $host ) > 2 ) {
+				$host = $host[1] . '.' . $host[2];
+			} else if ( count( $host ) == 2 ) {
+				$host = $host[0] . '.' . $host[1];
+			} else if ( count( $host ) == 1 ) {
+				$host = $host[0];
+			} else {
+				$host = '';
+			}
+			$refText = '';
+			if ( $host ) {
+				$refText = "[" . $host . "]";
+			}
+			if ( $refTitle ) {
+				$refText = $refTitle . " " . $refText;
+			}
+			$url = pq( $refLink )->text( $refText );
+		}
+
+		if ( $count <= $limit ) {
+			return;
+		}
+
+		// Don't hide refs if it's a printable page
+		if ( $wgOut->isPrintable() ) {
+			return;
+		}
+
+		// Don't hide refs if we're on a special page
+		if ( !$title || $title->inNamespace( NS_SPECIAL ) ) {
+			return;
+		}
+
+		// Don't hide refs if we're in a diff view
+		if ( !$request || $request->getVal( 'diff' ) || $request->getVal( 'oldid') ) {
+			return;
+		}
+
+		// Index of the last item that we will show
+		// Choose in which order the lists will be truncated
+		$index = $limit - 1;
+
+		// Citations, then sources. This will work too if one of the
+		// sections is missing, as that won't affect the selector below.
+		// Hide items from the cutoff point
+		$selector = "ul, ol";
+		if ( pq($sources)->find( ".sources + .references-small" )->length ) {
+			$selector =  "ol, ul";
+		}
+		pq( $sources )->find( $selector )->find( "li:gt($index)" )->addClass( "hidden" );
+
+		// Append link to expand the list
+		$remaining = $count - $limit;
+		pq( $sources )->append("<a href='#' class='showsources'>" . wfMessage("Show")->text() . ' ' . strtolower(wfMessage("moredotdotdot")->text()) . " ({$remaining})</a>");
+	}
+
+	private static function getReferenceTitle( $url ) {
+		$title = self::getLinkInfo( $url );
+		if ( $title ) {
+			return $title;
+		}
+
+		return $url;
+	}
+
+	public static function getLinkInfo( $url ) {
+		$dbr = wfGetDb( DB_SLAVE );
+        $table = 'link_info';
+        $var = 'li_title';
+		$cond = array( 'li_url' => $url );
+		$options = array();
+		$title = $dbr->selectField( $table, $var, $cond, __METHOD__, $options );
+		return $title;
+	}
+
+	private static function formatSourcesSection( $sources, $context) {
+		$alternateSources = false;
+		if ( $alternateSources ) {
+			return self::formatSourcesSectionNew( $sources, $context );
+		}
+		global $wgOut;
+		if ( !$sources->length ) {
+			return;
+		}
+
+		pq($sources)->find("ol, ul")->addClass("sources");
+		$count = pq($sources)->find("ol li, ul li")->length;
+		$limit = 15;
+
+		$title = $context->getTitle();
+		$request = $context->getRequest();
+		// Making all reference links open in a new browser tab. Feature requested by Michelle.
+		pq('.reference-text a, .sources li a', $sources)->attr('target', '_blank');
+		// Don't hide refs if it's a printable page, we're on a special page, or we're in a diff view
+		if ($count > $limit && !$wgOut->isPrintable()
+				&& ( $title && !$title->inNamespace( NS_SPECIAL ) )
+				&& ( $request && !$request->getVal( 'diff' ) && !$request->getVal( 'oldid') ) ) {
+			$index = $limit - 1; // Index of the last item that we will show
+			// Choose in which order the lists will be truncated
+			$selector = pq($sources)->find(".sources + .references-small")->length
+				? "ul, ol"  // Sources, then citations
+				: "ol, ul"; // Citations, then sources. This will work too if one of the
+			// sections is missing, as that won't affect the selector below.
+			// Hide items from the cutoff point
+			pq($sources)->find($selector)->find("li:gt($index)")->addClass("hidden");
+			// Append link to expand the list
+			$remaining = $count - $limit;
+			pq($sources)->append("<a href='#' class='showsources'>" . wfMessage("Show")->text()
+					. ' ' . strtolower(wfMessage("moredotdotdot")->text()) . " ({$remaining})</a>");
+		}
+
+		// Remove the extra <br> if it exists
+		pq($sources)->children("p")->remove();
 	}
 
 	public static function getAnchorList( $altMethodAnchors, $altMethodNames ) {

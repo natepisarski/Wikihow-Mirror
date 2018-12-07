@@ -63,7 +63,21 @@ class GoogleSpreadsheet {
 		return $sheetData;
 	}
 
-	// gets data from a google worksheet (including it's tab id) with given number of columns and start row
+	/**
+	 * Gets data from a google worksheet (including it's tab id) with given number of columns and start row
+	 *
+	 * WARNING: this method returns unexpected data if there are empty cells. E.g.
+	 *    A    B    C
+	 * 1  a1   b1   c1
+	 * 2  a2        c2
+	 * 3  a3   b3   c3
+	 *
+	 * Results in: [
+     *   ['a1', 'b1', 'c1'],
+     *   ['a2', 'c2', 'a3'],
+     *   ['b3', 'c3', 'a3'],
+     * ]
+	 */
 	public function getColumnData( $worksheet, $startCol, $endCol, $startRow = 1 ) {
 		$requestUrl = self::FEED_LINK . $worksheet . "/private/full";
 		$query = array(

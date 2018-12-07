@@ -75,13 +75,6 @@ WH.ratings.rateItem = function(r, itemId, type, source) {
 		var sample_rating = type == 'sample';
 		var discuss_tab = WH.DiscussTab && source == 'discuss_tab';
 
-		// [sc] turning off the method helpfulness form
-		// var displayMethodHelpfulnessBottomForm = 	r == 1 &&
-		// 																					WH.displayMethodHelpfulness &&
-		// 																					!sample_rating &&
-		// 																					!discuss_tab;
-		var displayMethodHelpfulnessBottomForm = false;
-
 		$.ajax({
 			type: 'POST',
 			url: '/Special:RateItem',
@@ -101,8 +94,7 @@ WH.ratings.rateItem = function(r, itemId, type, source) {
 
 			var scrollDown = 	source != 'sidebar' &&
 												!discuss_tab &&
-												!sample_rating &&
-												!displayMethodHelpfulnessBottomForm;
+												!sample_rating;
 
 			if (scrollDown) {
 				setTimeout(function () {
@@ -120,48 +112,11 @@ WH.ratings.rateItem = function(r, itemId, type, source) {
 				$('#article_rating').slideUp();
 			}
 		});
-
-		if (displayMethodHelpfulnessBottomForm && source != 'sidebar') {
-			// User clicked 'Yes' and the article has methods
-			var helpfulnessData = {
-				'action': 'cta',
-				'type': 'bottom_form',
-				'aid': mw.config.get('wgArticleId'),
-				'methods': JSON.stringify(WH.methods),
-				'platform': source
-			};
-
-			$.ajax({
-				type: 'POST',
-				url: '/Special:MethodHelpfulness',
-				data: helpfulnessData,
-				dataType: 'json'
-			}).done(function(result) {
-				var mh = $('<div>', {
-					'class': 'article_rating_result'
-				});
-
-				if (window.mw) {
-					mw.loader.using([result.resourceModule], function () {
-						mh.html(result.cta);
-						// A 1 ms delay seems to prevent flickering on some devices
-						setTimeout(function () {
-							$('#article_rating').html(mh);
-							$('body').scrollTo('#article_rating');
-						}, 1);
-					});
-				}
-			}).fail(function (/*result*/) {
-				$('#article_rating').html(ratingsData);
-				$('#article_rating').css('max-width', 'none');
-				$('body').scrollTo('#article_rating');
-			});
-		}
 	}
+
 	WH.ratings.gRated = true;
 };
 
-WH.displayMethodHelpfulness = false;
 WH.methods = [];
 
 WH.checkMethods = function() {
@@ -174,8 +129,6 @@ WH.checkMethods = function() {
 		$(methodSelector).each(function () {
 			WH.methods.push($(this).data('title'));
 		});
-
-		WH.displayMethodHelpfulness = WH.methods.length > 1;
 	}
 };
 
@@ -201,46 +154,6 @@ WH.updateProjectLinks = function() {
 	});
 };
 
-WH.injectMethodThumbs = function() {
-	var tmplElem = $('.mh-method-thumbs-template');
-
-	if (!tmplElem.length) {
-		return;
-	}
-
-	if (!WH.displayMethodHelpfulness || !WH.methodThumbsCTAActive) {
-		tmplElem.remove();
-		return;
-	}
-
-	var platform = WH.isMobileDomain ? 'mobile' : 'desktop';
-
-	// TODO: Remove this when/if we want a desktop CTA as well
-	if (platform !== 'mobile') {
-		tmplElem.remove();
-		return;
-	}
-
-	var params = {
-		questionText: mw.message('mhmt-question').plain()
-	};
-
-	var helpedText = mw.message('mhmt-helped').plain();
-	var thanksText = mw.message('mhmt-thanks').plain();
-	var cheerList = mw.message('mhmt-cheer').plain().split("\n");
-	var oopsList = mw.message('mhmt-oops').plain().split("\n");
-
-	$('.section.steps:not(:has(h2>span#Steps))').each(function (index) {
-		params.methodIndex = index;
-		params.currentMethod = WH.methods[index];
-		params.cheerText = cheerList[Math.floor(Math.random()*cheerList.length)] + ' ' + helpedText;
-		params.oopsText = oopsList[Math.floor(Math.random()*oopsList.length)] + ' ' + thanksText;
-		var cta = Mustache.render(unescape(tmplElem.html()), params);
-		$(this).find('.steps_list_2:last').append(cta);
-	});
-
-	tmplElem.remove();
-};
 
 /**
  * Late loading of printable styling for @media 'print' to prevent breaking
@@ -408,10 +321,6 @@ $(document).ready(function() {
 		// Alternatively, this variable can be set elsewhere with more complex
 		// logic if necessary.
 		WH.methodThumbsCTAActive = true;
-	}
-
-	if (WH.displayMethodHelpfulness) {
-		WH.injectMethodThumbs();
 	}
 
 	WH.loadPrintModule();

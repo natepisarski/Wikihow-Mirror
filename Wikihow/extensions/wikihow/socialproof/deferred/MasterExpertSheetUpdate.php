@@ -106,7 +106,6 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		$result = $importer->getSpreadsheet();
 		$result['html'] = "<p>Result: ". count( $result['imported'] ) ." lines imported.</p>";
 		unset($result['imported']);
-		$stats = self::getVerifierStats();
 		$result['stats'] = self::getVerifierStats();
 
 		$finishDate = gmdate( "Y-m-d H:i:s" );

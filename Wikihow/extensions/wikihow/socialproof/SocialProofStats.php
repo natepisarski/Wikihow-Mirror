@@ -29,6 +29,8 @@ class SocialProofStats extends ContextSource {
 
 	const LEARN_MORE_LINK = '/wikiHow:About-wikiHow#Why_should_you_choose_wikiHow_first.3F_sub';
 
+	const MESSAGE_CITATIONS_LIMIT = 5; //the threshold for some message logic
+
 	public static function getPageRatingData( $pageId ) {
 		global $wgMemc;
 
@@ -176,6 +178,7 @@ class SocialProofStats extends ContextSource {
 
 		$this->verifierType = self::mapVerifyDataToVerifyType($data, $pageId);
 
+		//generic version
 		$learn_more_link = ' '.Html::rawElement(
 			'a',
 			[ 'href' => self::LEARN_MORE_LINK ],
@@ -193,6 +196,12 @@ class SocialProofStats extends ContextSource {
 				}
 
 				$desc = wfMessage('sp_expert_desc', $data->name)->text().' '.$data->hoverBlurb;
+
+				$learn_more_link = ' '.Html::rawElement(
+					'a',
+					[ 'href' => ArticleReviewers::getLinkByVerifierName($data->name) ],
+					wfMessage('sp_learn_more')->text()
+				);
 
 				return [
 					'key' => $this->verifierType,
@@ -535,7 +544,7 @@ class SocialProofStats extends ContextSource {
 			$amp = GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() );
 			$link = $amp ? "#" : "#social_proof_anchor";
 			if (self::isInlineExpert()) {
-				if (!empty($expert_link)) $link = $expert_link;
+				if (!empty($expert_link) && !$amp) $link = $expert_link;
 			}
 			else {
 				$text .= Html::rawElement('span',['class'=>'sp_intro_tiny_i']);
@@ -692,19 +701,49 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private static function getHoverText($vType, $vData, $expert_link): string {
-		if ($vType == self::VERIFIER_TYPE_STAFF) {
-			$text = wfMessage('sp_hover_text_staff')->text();
+		$numCitations = Misc::getReferencesCount();
 
-			$numCitations = Misc::getReferencesCount();
-			$citation_msg = $numCitations < 3 ? 'sp_hover_text_citations_few' : 'sp_hover_text_citations_many';
+		switch ($vType) {
+			case self::VERIFIER_TYPE_EXPERT:
+			case self::VERIFIER_TYPE_ACADEMIC:
+			case self::VERIFIER_TYPE_YOUTUBER:
+				$text = wfMessage('sp_hover_text_expert')->text();
 
-			$text .= '<br><br>'.wfMessage($citation_msg, $numCitations)->text();
+				$text .= '<br><br>'.
+							wfMessage('sp_hover_text_expert_desc', $expert_link, $vData->name, $vData->hoverBlurb)->text();
+
+				if ($numCitations >= self::MESSAGE_CITATIONS_LIMIT)
+					$text .= '<br><br>'.wfMessage('sp_hover_text_expert_citations', $numCitations)->text();
+
+				return $text;
+
+			case self::VERIFIER_TYPE_CHEF:
+			case self::VERIFIER_TYPE_VIDEO:
+			case self::VERIFIER_TYPE_TECH:
+			case self::VERIFIER_TYPE_COMMUNITY:
+				$title = RequestContext::getMain()->getTitle();
+				if ($title) {
+					$numEditors = count(ArticleAuthors::getAuthors($title->getArticleId()));
+
+					$text = wfMessage('sp_hover_text_general', $numEditors)->text();
+
+					if ($numCitations >= self::MESSAGE_CITATIONS_LIMIT)
+						$text .= ' '.wfMessage('sp_hover_text_citations', $numCitations)->text();
+
+					return $text .= '<br><br>'.wfMessage('sp_hover_text_'.$vType)->text();
+				}
+
+			case self::VERIFIER_TYPE_STAFF:
+				$text = wfMessage('sp_hover_text_staff')->text();
+
+				if ($numCitations >= self::MESSAGE_CITATIONS_LIMIT)
+					$text .= ' '.wfMessage('sp_hover_text_citations', $numCitations)->text();
+
+				return $text.'<br><br>'.wfMessage('sp_hover_text_staff_addendum')->text();
+
+			default:
+				return '';
 		}
-		else {
-			$text = wfMessage('sp_hover_text_'.$vType, $expert_link, $vData->name, $vData->hoverBlurb)->text();
-		}
-
-		return $text;
 	}
 
 	public static function articleVerified($pageId): bool {
@@ -833,10 +872,16 @@ class SocialProofStats extends ContextSource {
 		$hasBadge = ($badgeHtml != "");
 		$refCount = Misc::getReferencesCount();
 		$views = number_format(RequestContext::getMain()->getWikiPage()->getCount());
-		if($refCount < 3) {
+		if($refCount == 0) {
 			$hasRef = false;
 		} else {
 			$hasRef = true;
+			$refMessage = wfMessage("References")->text();
+			if($refCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+				$includeCount = true;
+			} else {
+				$includeCount = false;
+			}
 		}
 		if(!$hasBadge) {
 			$hasViews = true;
@@ -844,7 +889,7 @@ class SocialProofStats extends ContextSource {
 			$hasViews = !$hasRef;
 		}
 
-		$stats = ['ref' => $refCount, 'badge' => $badgeHtml, 'hasRef' => $hasRef, 'views' => $views, 'hasBadge' => $hasBadge, 'hasViews' => $hasViews];
+		$stats = ['refMessage' => $refMessage, 'refCount' => $refCount, 'includeCount' => $includeCount, 'badge' => $badgeHtml, 'hasRef' => $hasRef, 'views' => $views, 'hasBadge' => $hasBadge, 'hasViews' => $hasViews];
 
 		if($hasBadge || $hasRef) {
 			return self::getHtmlFromTemplate("expert_coauthor", $stats);

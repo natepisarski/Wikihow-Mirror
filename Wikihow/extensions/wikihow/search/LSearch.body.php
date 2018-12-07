@@ -355,8 +355,7 @@ class LSearch extends SpecialPage {
 			$data = [];
 
 			if ( $response->suicide_hotline ) {
-				$this->disableAds = true;
-				$this->showSuicideHotline = true;
+				$data['suicide'] = true;
 			}
 
 			if ( $response->spellcheck && $response->spellcheck->suggestions ) {
@@ -426,6 +425,11 @@ class LSearch extends SpecialPage {
 		$this->mResults['results'] = $data['results'];
 		$this->mLast = $this->mStart + count( $data['results'] );
 		$this->mResults['totalresults'] = $data['totalresults'];
+
+		if ( $data['suicide'] ) {
+			$this->disableAds = true;
+			$this->showSuicideHotline = true;
+		}
 
 		return count( $data['results'] );
 	}
