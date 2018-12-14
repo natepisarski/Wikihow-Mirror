@@ -10,6 +10,7 @@ $messages['en'] = array (
 	'hp_tag_wikihow.mom' => '',
 	'hp_tag_wikihow.life' => '',
 	'hp_tag_wikihow.fitness' => '',
+	'hp_tag_wikihow.health' => '',
 	'qausername_nobranding' => 'User Contributor',
 	'opensearch-desc-howyougetfit.com' => 'howyougetfit',
 	'opensearch-desc-wikihow.tech' => 'wikiHow tech',
@@ -18,6 +19,7 @@ $messages['en'] = array (
 	'opensearch-desc-wikihow.mom' => 'wikiHow mom',
 	'opensearch-desc-wikihow.life' => 'wikiHow life',
 	'opensearch-desc-wikihow.fitness' => 'wikiHow fitness',
+	'opensearch-desc-wikihow.health' => 'wikiHow health',
 	'sub_footer_alternate_domain' => '<div id="creative_commons">
 	<a href="/wikiHow:Creative-Commons" class="imglink sub_footer_link footer_creative_commons footer_sprite"></a>
 	All text shared under a <a href="/wikiHow:Creative-Commons">Creative Commons License</a>.
@@ -40,6 +42,7 @@ $messages['en'] = array (
 	'cc_wikihow.mom' => 'wikiHow:Creative Commons',
 	'cc_wikihow.life' => 'wikiHow:Creative Commons',
 	'cc_wikihow.fitness' => 'wikiHow:Creative Commons',
+	'cc_wikihow.health' => 'wikiHow:Creative Commons',
 	'cc_howyougetfit.com' => 'wikiHow:Creative Commons',
 	'cc_howyoulivelife.com' => 'wikiHow:Creative Commons',
 	'termsofuse_wikihow.tech' => 'wikiHow:Terms of Use',
@@ -47,6 +50,7 @@ $messages['en'] = array (
 	'termsofuse_wikihow.mom' => 'wikiHow:Terms of Use',
 	'termsofuse_wikihow.life' => 'wikiHow:Terms of Use',
 	'termsofuse_wikihow.fitness' => 'wikiHow:Terms of Use',
+	'termsofuse_wikihow.health' => 'wikiHow:Terms of Use',
 	'termsofuse_howyougetfit.com' => 'wikiHow:Terms of Use',
 	'termsofuse_howyoulivelife.com' => 'wikiHow:Terms of Use',
 );

@@ -49,7 +49,6 @@ $wgHooks['IsTrustedProxy'][] = array('PageHooks::checkFastlyProxy');
 $wgHooks['BeforePageDisplay'][] = 'PageHooks::addFirebug';
 $wgHooks['UserRequiresHTTPS'][] = 'PageHooks::makeHTTPSforAllUsers';
 $wgHooks['OutputPageAfterGetHeadLinksArray'][] = 'PageHooks::onOutputPageAfterGetHeadLinksArray';
-$wgHooks['OutputPageBodyAttributes'][] = 'PageHooks::onOutputPageBodyAttributes';
 // $wgHooks['OutputPageBeforeHTML'][] = array('PageHooks::checkForDiscussionPage');
 $wgHooks['AfterDisplayNoArticleText'][] = 'PageHooks::onAfterDisplayNoArticleText';
 

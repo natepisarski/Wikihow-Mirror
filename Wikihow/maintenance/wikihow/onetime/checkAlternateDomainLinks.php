@@ -20,6 +20,7 @@ class TitleFromPageId extends Maintenance {
 		$pages .= ConfigStorage::dbGetConfig( "wikihow.mom", true ) . "\n";
 		$pages .= ConfigStorage::dbGetConfig( "wikihow.life", true ) . "\n";
 		$pages .= ConfigStorage::dbGetConfig( "wikihow.fitness", true ) . "\n";
+		$pages .= ConfigStorage::dbGetConfig( "wikihow.health", true ) . "\n";
 		$pages .= ConfigStorage::dbGetConfig( "howyoulivelife.com", true ) . "\n";
 		$pages .= ConfigStorage::dbGetConfig( "howyougetfit.com", true ) . "\n";
 		$pages = explode( "\n", $pages );

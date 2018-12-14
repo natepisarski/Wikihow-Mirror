@@ -1465,6 +1465,10 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 			$this->mAdsenseSlots = array(
 				'intro' => 1291201186,
 			);
+		} else if ( strstr( $domainName, "wikihow.health" ) ) {
+			$this->mAdsenseSlots = array(
+				'intro' => 0,
+			);
 		} else if ( strstr( $domainName, "wikihow.mom" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 1099629495,
@@ -1491,6 +1495,8 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 			$adUnitPath = 'AllPages_RR_1_wikiHowLife_Desktop_All';
 		} else if ( strstr( $domainName, "wikihow.fitness" ) ) {
 			$adUnitPath = 'AllPages_RR_1_wikiHowFit_Desktop_All';
+		} else if ( strstr( $domainName, "wikihow.health" ) ) {
+			$adUnitPath = 'AllPages_RR_1_wikiHowHealth_Desktop_All';
 		} else if ( strstr( $domainName, "wikihow.mom" ) ) {
 			$adUnitPath = 'AllPages_RR_1_wikiHowMom_Desktop_All';
 		}

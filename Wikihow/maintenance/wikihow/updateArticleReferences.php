@@ -25,7 +25,21 @@ used to keep track of which externallinks entries we have fetcheD data for
    );
 
 // query to get a csv list of all 4xx,4xx urls and their pages
-   SELECT CONCAT('https://www.wikihow.com/', page_title), el_from, el_to FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400)) INTO OUTFILE '/tmp/aaron.out' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+   SELECT el_to, CONCAT('https://www.wikihow.com/', page_title), el_from, el_to FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (1,4) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400)) INTO OUTFILE '/tmp/indexed.out' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
+   SELECT el_to, CONCAT('https://www.wikihow.com/', page_title), el_from, el_to FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (2,3) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400)) INTO OUTFILE '/tmp/deindexed.out' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+   SELECT el_to FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (1,4) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400)) INTO OUTFILE '/tmp/indexed_url.out' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+   SELECT el_to FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (2,3) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400)) INTO OUTFILE '/tmp/deindexed_url.out' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';
+
+   SELECT count(distinct el_from) FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (1,4) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400));
+   SELECT count(distinct el_from) FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (1,4);
+
+   SELECT count(distinct el_from) FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (2,3) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400));
+
+   SELECT distinct el_from FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (2,3) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400)) LIMIT 20;
+
+SELECT count(*) FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (1,4) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400));
+SELECT count(*) FROM `externallinks`,`page`,`index_info` WHERE (el_from = ii_page) AND (el_from = page_id) AND ii_policy in (2,3) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400));
 
 for a given page what external references exist NOT USED
    CREATE TABLE `page_reference_info` (
@@ -39,7 +53,9 @@ class updateArticleReferences extends Maintenance {
     public function __construct() {
         parent::__construct();
         $this->mDescription = "update article references";
-		$this->addOption( 'title', 'title of page', false, true, 't' );
+		$this->addOption( 'limit', 'number of items to process', false, true, 'l' );
+		$this->addOption( 'verbose', 'print verbose info', false, false, 'v' );
+		$this->addOption( 'url', 'recheck a url', false, true, 'u' );
     }
 
 	private static function get_pdf_prop($file) {
@@ -173,6 +189,8 @@ class updateArticleReferences extends Maintenance {
 		curl_setopt( $ch, CURLOPT_URL, $url);
 		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt( $ch, CURLOPT_TIMEOUT, 11);
+		curl_setopt($ch, CURLOPT_REFERER, 'https://www.google.com');
+		curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/534.30 (KHTML, like Gecko) Chrome/12.0.742.112 Safari/534.30');
 
 		$data = curl_exec($ch);
 		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -267,6 +285,8 @@ class updateArticleReferences extends Maintenance {
 	private function processItem( $url, $externalLinkId ) {
 		$forceUpdate = false;
 
+		$verbose = $this->hasOption( "verbose" );
+
 		$linkInfoId = self::getLinkInfoId( $url );
 		//if ( $linkInfoId ) {
 			//decho( "found link info for url $url with id", $linkInfoId );
@@ -275,6 +295,13 @@ class updateArticleReferences extends Maintenance {
 			$data = self::getRemoteInfo( $url );
 			if ( $data ) {
 				$linkInfoId = self::insertLinkInfo( $url, $data );
+				if ( $verbose ) {
+					decho("got remote data for $url and link info id $linkInfoId", $data);
+				}
+			}
+		} else {
+			if ( $verbose ) {
+				decho("found link info for $url in db already", $linkInfoId);
 			}
 		}
 		// update our join table so we know we have processed this row
@@ -296,7 +323,11 @@ class updateArticleReferences extends Maintenance {
 			'el_id NOT IN (select eli_el_id from externallinks_link_info)',
 			'page_namespace' => 0,
 		);
-		$options = array( 'LIMIT' => 100000 );
+		$limit = 1;
+		if ( $this->getOption( 'limit' ) ) {
+			$limit = $this->getOption( 'limit');
+		}
+		$options = array( 'LIMIT' => $limit);
 		$res = $dbr->select( $table, $var, $cond, __METHOD__, $options );
 		foreach ( $res as $row ) {
 			$this->processItem( $row->el_to, $row->el_id );
@@ -368,24 +399,22 @@ class updateArticleReferences extends Maintenance {
 		$this->processItems();
 	}
 
+	private function checkUrl( $url ) {
+		$data = self::getRemoteInfo( $url );
+		if ( $data && $data['code'] == 200) {
+			$linkInfoId = self::insertLinkInfo( $url, $data );
+		}
+	}
+
 	public function execute() {
 		global $wgTitle;
 
-		$checkAll = true;
-
-		$title = $this->getOption( 'title' );
-		if ( $title ) {
-			$checkAll = false;
+		if ( $this->getOption( 'url' ) ) {
+			$url = $this->getOption( 'url');
+			$this->checkUrl( $url );
+			return;
 		}
-
-		if ( $checkAll == true ) {
-			// all not allowed yet
-			$this->updateAll();
-		}
-
-		$title = Misc::getTitleFromText( $title );
-		$forceUpdate = true;
-		$this->processTitle( $title, $forceUpdate );
+		$this->updateAll();
 	}
 }
 

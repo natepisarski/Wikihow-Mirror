@@ -594,6 +594,12 @@ class WikihowArticleHTML {
 			pq( $headingId . ' .m-video-wm' )->remove();
 		}
 
+		// On INTL, move #expert_coauthor between .firstHeading and #method_toc
+		// NOTE: Similar to SocialProofStats::onProcessArticleHTMLAfter() on EN
+		if (Misc::isIntl() && pq('#expert_coauthor')->length) {
+			pq('.firstHeading')->after(pq('#expert_coauthor'));
+		}
+
 		// add the controls
 		$summaryHtml = WHVid::getVideoControlsSummaryHtml( $headingText );
 		$summaryHelpfulHtml = WHVid::getDesktopVideoHelpfulness();
@@ -691,6 +697,14 @@ class WikihowArticleHTML {
 
 		wfProfileOut( __METHOD__ . "-paragraphs" );
 
+		// 2018-12-13 - Remove entire video section as a test to see if it improves lighthouse performance reports
+		$isVideoSectionRemovalTarget = $wgLanguageCode == 'en' &&
+			$wgTitle->inNamespace(NS_MAIN) &&
+			ArticleTagList::hasTag( 'video_section_removal_test', $wgTitle->getArticleID());
+		if ($isVideoSectionRemovalTarget) {
+			pq(".video")->remove();
+		}
+		
 		// remove video section if it has no iframe (which means it has no video)
 		if ( pq("#video")->find('iframe')->length < 1 ) {
 			pq(".video")->remove();
@@ -831,20 +845,22 @@ class WikihowArticleHTML {
 
 		// Trevor, 10/29/18 - Testing making videos a link to the video browser - this must come
 		// after videos are updated
-		$videoPlayer = pq( '#quicksummary .video-player' );
-		if ( $videoPlayer ) {
-			$link = pq( '<a id="summary_video_link">' )->attr(
-				'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )
-			);
-			$poster = pq( '<img id="summary_video_poster">' )->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) );
-			$poster->addClass( 'm-video' );
-			$poster->addClass( 'content-fill placeholder' );
-			$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $wgTitle ) );
-			$controls->attr( 'style', 'visibility:visible' );
-			$videoPlayer->empty()->append( $link );
-			$link->append( $poster );
-			$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
-			$link->append( $controls );
+		if ( $wgLanguageCode == 'en' && !Misc::isAltDomain() ) {
+			$videoPlayer = pq( '#quicksummary .video-player' );
+			if ( $videoPlayer ) {
+				$link = pq( '<a id="summary_video_link">' )->attr(
+					'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )
+				);
+				$poster = pq( '<img id="summary_video_poster">' )->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) );
+				$poster->addClass( 'm-video' );
+				$poster->addClass( 'content-fill placeholder' );
+				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $wgTitle ) );
+				$controls->attr( 'style', 'visibility:visible' );
+				$videoPlayer->empty()->append( $link );
+				$link->append( $poster );
+				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
+				$link->append( $controls );
+			}
 		}
 
 		//tabs should really be last so that it has access to all the content that might be there
@@ -1540,7 +1556,7 @@ class WikihowArticleHTML {
 
 		pq($sources)->find("ol, ul")->addClass("sources");
 		$count = pq($sources)->find("ol li, ul li")->length;
-		$limit = 15;
+		$limit = 9;
 
 		$title = $context->getTitle();
 		$request = $context->getRequest();

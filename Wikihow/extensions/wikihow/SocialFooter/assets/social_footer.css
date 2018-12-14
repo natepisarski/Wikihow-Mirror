@@ -1,15 +1,15 @@
-#social_footer {
+#sf {
 	margin: 15px 68px 0 0;
 	float: right;
 }
 
-#social_footer.mobile {
+#sf.mobile {
 	margin: 13px 0 0 0;
 	text-align: center;
 	float: none;
 }
 
-.sf_icon {
+#sf .sf_icon {
 	width: 32px;
 	height: 32px;
 	display: inline-block;
@@ -18,34 +18,33 @@
 	background-size: cover;
 }
 
-#sf_instagram {
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_instagram.png);
+#sf_ig {
+	background: url(/extensions/wikihow/SocialFooter/images/ig.png);
 	/* @embed */
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_instagram.svg);
+	background: url(/extensions/wikihow/SocialFooter/images/ig.svg);
 }
 
-#sf_facebook {
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_facebook.png);
+#sf_fb {
+	background: url(/extensions/wikihow/SocialFooter/images/fb.png);
 	/* @embed */
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_facebook.svg);
+	background: url(/extensions/wikihow/SocialFooter/images/fb.svg);
 }
 
-#sf_twitter {
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_twitter.png);
+#sf_tt {
+	background: url(/extensions/wikihow/SocialFooter/images/tt.png);
 	/* @embed */
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_twitter.svg);
+	background: url(/extensions/wikihow/SocialFooter/images/tt.svg);
 }
 
-#sf_youtube {
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_youtube.png);
+#sf_yt {
+	background: url(/extensions/wikihow/SocialFooter/images/yt.png);
 	/* @embed */
-	background-image: url(/extensions/wikihow/SocialFooter/images/social_footer_youtube.svg);
+	background: url(/extensions/wikihow/SocialFooter/images/yt.svg);
 }
 
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
 only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-
-	#social_footer.mobile {
+	#sf.mobile {
 		margin-top: -30px;
 		text-align: center;
 		float: right;

@@ -34,7 +34,7 @@ class AlternateDomain {
 			return $result;
 		}
 
-		$brandedAlternateDomains = array ( 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness' );
+		$brandedAlternateDomains = array ( 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health' );
 		foreach ( $brandedAlternateDomains as $domain ) {
 			if ( ArticleTagList::hasTag( $domain, $pageId ) ) {
 				$result = $domain;
@@ -47,7 +47,7 @@ class AlternateDomain {
 	 * get list of all alternate domains
 	 */
 	public static function getAlternateDomains() {
-		return array( 'howyougetfit.com', 'howyoulivelife.com', 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness' );
+		return array( 'howyougetfit.com', 'howyoulivelife.com', 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health' );
 	}
 
 	/*
@@ -908,6 +908,24 @@ class AlternateDomain {
 					'related' => '6084841797'
 				]
 			];
+		} else if ( strstr( $domainName, "wikihow.health" ) ) {
+			// ads are currently disabled for this domain in another part of the code
+			// if they were to be turned on then these would need to be defined for ads to work
+			$data['slots'] = [
+				'small' => [
+					'intro' => '0',
+					'method' => '0',
+					'related' => '0'
+				],
+				'medium' => [
+
+				],
+				'large' => [
+					'intro' => '0',
+					'method' => '0',
+					'related' => '0'
+				]
+			];
 		}
 
 		$script = Html::element( 'script', [ 'id' => 'wh_ad_data', 'type'=>'application/json' ], json_encode( $data ) );
@@ -937,6 +955,8 @@ class AlternateDomain {
 			$codes['UA-2375655-27'] = 'wikihowlife';
 		} else if ( strstr( $domainName, "wikihow.fitness") ) {
 			$codes['UA-2375655-26'] = 'wikihowfitness';
+		} else if ( strstr( $domainName, "wikihow.health") ) {
+			$codes['UA-2375655-31'] = 'wikihowhealth';
 		}
 	}
 
@@ -1579,6 +1599,9 @@ class AlternateDomain {
 		} else if ( strstr( $domainName, "wikihow.fitness") ) {
 			$firstAd = 3823185129;
 			$regularAd = 6557993821;
+		} else if ( strstr( $domainName, "wikihow.health") ) {
+			$firstAd = 0;
+			$regularAd = 0;
 		}
 
 		$slotData['en'] = array(

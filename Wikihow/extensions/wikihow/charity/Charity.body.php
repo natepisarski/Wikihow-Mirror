@@ -9,10 +9,10 @@ class Charity extends SpecialPage {
 	 *
 	 * (also, remember to purge AJAX urls after launch)
 	 */
-	public static $non_profit = 'BlueHeart';
-	var $non_profit_link 			= 'https://www.blueheartaction.org/';
-	var $non_profit_logo 			= 'BlueHeart/logo.png';
-	var $non_profit_photo 		= 'BlueHeart/photo_landing.jpg';
+	public static $non_profit = 'BUILD';
+	var $non_profit_link 			= 'https://build.org/';
+	var $non_profit_logo 			= 'BUILD/logo.png';
+	var $non_profit_photo 		= 'BUILD/photo_landing.jpg';
 	/*******************************/
 
 	public static $non_profit_water_org = 'WaterOrg';

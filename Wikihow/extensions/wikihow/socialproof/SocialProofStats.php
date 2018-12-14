@@ -29,7 +29,8 @@ class SocialProofStats extends ContextSource {
 
 	const LEARN_MORE_LINK = '/wikiHow:About-wikiHow#Why_should_you_choose_wikiHow_first.3F_sub';
 
-	const MESSAGE_CITATIONS_LIMIT = 5; //the threshold for some message logic
+	const MESSAGE_CITATIONS_LIMIT = 5; 	//the threshold for some message logic
+	const DISPLAY_CITATIONS_LIMIT = 10; //the threshold for displaying the citations on the page
 
 	public static function getPageRatingData( $pageId ) {
 		global $wgMemc;
@@ -99,6 +100,10 @@ class SocialProofStats extends ContextSource {
 		];
 
 		$helpfulnessOk = self::isAllowedHelpfulnessCategory( $cat_tree );
+		if ( ArticleTagList::hasTag( 'hide-ratings', $pageId ) ) {
+			$helpfulnessOk = false;
+		}
+
 		if ($helpfulnessOk) $data = self::getPageRatingData( $pageId );
 		if ( empty($data) || !$data->ratingCount ) return $helpful;
 
@@ -407,6 +412,9 @@ class SocialProofStats extends ContextSource {
 		if ( ArticleTagList::hasTag( 'difficult-articles', $title->getArticleId() ) ) {
 			return false;
 		}
+		if ( ArticleTagList::hasTag( 'hide-ratings', $title->getArticleId() ) ) {
+			return false;
+		}
 		return true;
 	}
 
@@ -518,10 +526,15 @@ class SocialProofStats extends ContextSource {
 		return true;
 	}
 
-	public static function getIntroMessage($vType) {
+	public static function getIntroMessage(string $vType): string {
 		$introMessage = 'sp_intro_' . $vType;
 		$message = wfMessage( $introMessage );
 		return $message->exists() ? $message->text() : '';
+	}
+
+	public static function getAttributionMessage(string $vType, bool $mobile): string {
+		$msg = $mobile ? 'sp_expert_attribution_mobile' : 'sp_expert_attribution';
+		return self::isExpertType($vType) ? wfMessage($msg)->text().' ' : '';
 	}
 
 	private static function buildExpertIconHtml($vType, $vData, $mobile = false) {
@@ -529,7 +542,11 @@ class SocialProofStats extends ContextSource {
 		$class = 'sp_intro_expert';
 		$target = '';
 		$amp = false;
-		$inlineExpertOnly = self::isSpecialInline();
+
+		//hack - always inline for the "expert" types
+		if (self::isExpertType($vType)) self::$mInlineExpert = true;
+
+		$inlineExpertOnly = self::isSpecialInline() || self::isExpertType($vType);
 
 		$text = $inlineExpertOnly ? $vData->name : self::getIntroMessage($vType);
 		if (empty($text)) return '';
@@ -560,10 +577,11 @@ class SocialProofStats extends ContextSource {
 		}
 
 		if (empty($link)) {
+			$intro = self::getAttributionMessage($vType, $mobile);
 			$html = Html::rawElement(
 				"div",
 				["class" => $class],
-				"<p>".$text."</p>"
+				"<p>".$intro.$text."</p>"
 			);
 		}
 		else {
@@ -572,7 +590,6 @@ class SocialProofStats extends ContextSource {
 			];
 
 			if (!empty($target)) $a_attributes['target'] = $target;
-			if ($amp && !$inlineExpertOnly) $a_attributes['on'] = 'tap:sp_icon_hover.toggleVisibility';
 
 			if (!$inlineExpertOnly) {
 				$a_attributes['class'] = $class;
@@ -585,12 +602,24 @@ class SocialProofStats extends ContextSource {
 				$text
 			);
 
+			if (!$mobile && self::isExpertType($vType)) {
+				$refCount = Misc::getReferencesCount();
+				if ($refCount >= self::DISPLAY_CITATIONS_LIMIT) {
+					$html .= ' <span class="sp_pipe">|</span> '.$refCount.' '.wfMessage('References')->text();
+				}
+			}
+
 			if ($inlineExpertOnly) {
+				if (self::isSpecialInline())
+					$inner = wfMessage('sp_inline_expert_label')->text().' '.$html;
+				else
+					$inner = self::getAttributionMessage($vType, $mobile).$html;
+
 				//wrap it in a div w/ a msg
 				$html = Html::rawElement(
 					'div',
 					['class' => 'sp_expert_inline'],
-					wfMessage('sp_inline_expert_label')->text() . ': ' . $html
+					$inner
 				);
 			}
 		}
@@ -692,12 +721,15 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private static function showLearnMoreLink(string $vType): bool {
-		return $vType == self::VERIFIER_TYPE_COMMUNITY ||
-					$vType == self::VERIFIER_TYPE_CHEF ||
-					$vType == self::VERIFIER_TYPE_VIDEO ||
-					$vType == self::VERIFIER_TYPE_TECH ||
-					$vType == self::VERIFIER_TYPE_VIDEO ||
-					$vType == self::VERIFIER_TYPE_READER;
+		$learnmore_types = [
+			self::VERIFIER_TYPE_COMMUNITY,
+			self::VERIFIER_TYPE_CHEF,
+			self::VERIFIER_TYPE_VIDEO,
+			self::VERIFIER_TYPE_TECH,
+			self::VERIFIER_TYPE_VIDEO,
+			self::VERIFIER_TYPE_READER
+		];
+		return in_array($vType, $learnmore_types) && !Misc::isAltDomain();
 	}
 
 	private static function getHoverText($vType, $vData, $expert_link): string {
@@ -809,7 +841,7 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private static function isSpecialInline(): bool {
-		if (!is_null(self::$mInlineExpert)) return self::$mSpecialInline;
+		if (!is_null(self::$mSpecialInline)) return self::$mSpecialInline;
 		$context = RequestContext::getMain();
 		$pageId = $context->getTitle()->getArticleId();
 		self::$mSpecialInline = $context->getUser()->isAnon() && ArticleTagList::hasTag(self::EXPERT_INLINE_ARTICLES_TAG, $pageId);
@@ -841,12 +873,14 @@ class SocialProofStats extends ContextSource {
 				//we need a more elegant way to add it to mobile
 				$vType = self::VERIFIER_TYPE_EXPERT;
 				$vData = VerifyData::getVerifierInfoByName('Jennifer Mueller, JD');
-				$data['prebodytext'] .= self::buildExpertIconHtml($vType, $vData, $mobile = true);
+				$html = self::buildExpertIconHtml($vType, $vData, $mobile = true);
+				$data['prebodytext'] .= self::formatMobileInlineInfo($vType, $html);
 			} elseif(self::isRegularInline()) {
 				if (UserReview::shouldShowIntroStamp($page)){
 					$title = $page->getTitle();
 					$stamp = UserReview::getUserReviewStamp($title->getArticleId(), $mobile = true);
-					$data['prebodytext'] .= self::formatMobileInlineInfo($stamp);
+					$vType = self::VERIFIER_TYPE_READER;
+					$data['prebodytext'] .= self::formatMobileInlineInfo($vType, $stamp);
 				} else {
 					$vData = self::getVerification(true, $data['articleid']);
 					$vData = !empty($vData) ? array_pop($vData) : null;
@@ -860,42 +894,52 @@ class SocialProofStats extends ContextSource {
 
 					$html = self::buildExpertIconHtml($vType, $verifierInfo, true);
 
-					$data['prebodytext'] .= self::formatMobileInlineInfo($html);
+					$data['prebodytext'] .= self::formatMobileInlineInfo($vType, $html);
 				}
 			}
 		} else {
-			$data['prebodytext'] .= self::formatMobileInlineInfo("");
+			$data['prebodytext'] .= self::formatMobileInlineInfo();
 		}
 	}
 
-	public static function formatMobileInlineInfo($badgeHtml): String {
-		$hasBadge = ($badgeHtml != "");
+	private static function isExpertType(string $vType): bool {
+		$expert_types = [
+			self::VERIFIER_TYPE_EXPERT,
+			self::VERIFIER_TYPE_ACADEMIC,
+			self::VERIFIER_TYPE_YOUTUBER
+		];
+
+		return in_array($vType, $expert_types);
+	}
+
+	public static function formatMobileInlineInfo(string $vType = '', string $badgeHtml = ''): string {
+		$context = RequestContext::getMain();
 		$refCount = Misc::getReferencesCount();
-		$views = number_format(RequestContext::getMain()->getWikiPage()->getCount());
-		if($refCount == 0) {
-			$hasRef = false;
-		} else {
-			$hasRef = true;
-			$refMessage = wfMessage("References")->text();
-			if($refCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$includeCount = true;
-			} else {
-				$includeCount = false;
-			}
-		}
-		if(!$hasBadge) {
-			$hasViews = true;
-		} else {
-			$hasViews = !$hasRef;
+		$views = number_format($context->getWikiPage()->getCount());
+
+		$includeCount = $refCount >= self::DISPLAY_CITATIONS_LIMIT;
+		$showViews = $badgeHtml == '' ? true : $refCount == 0;
+
+		//don't want this to wrap so no references or views for experts
+		if (self::isExpertType($vType)) {
+			$refCount = 0;
+			$showViews = false;
 		}
 
-		$stats = ['refMessage' => $refMessage, 'refCount' => $refCount, 'includeCount' => $includeCount, 'badge' => $badgeHtml, 'hasRef' => $hasRef, 'views' => $views, 'hasBadge' => $hasBadge, 'hasViews' => $hasViews];
+		$stats = [
+			'refMessage' => wfMessage('References')->text(),
+			'refCount' => $refCount,
+			'includeCount' => $includeCount,
+			'badge' => $badgeHtml,
+			'views' => $views,
+			'showViews' => $showViews,
+			'amp' => GoogleAmp::isAmpMode( $context->getOutput() )
+		];
 
-		if($hasBadge || $hasRef) {
+		if ($badgeHtml != '' || $refCount > 0)
 			return self::getHtmlFromTemplate("expert_coauthor", $stats);
-		} else {
+		else
 			return "";
-		}
 	}
 }
 

@@ -132,14 +132,14 @@ class ArticleReviewers extends UnlistedSpecialPage
 	}
 
 	public static function getLinkByVerifierName(string $verifierName): string {
-		$article_reviewers = Title::newFromText('ArticleReviewers', NS_SPECIAL);
+		//en: forces a wikihow.com url, so check to see if it's an altdomain
+		$ar_title_text = Misc::isAltDomain() ? 'ArticleReviewers' : 'en:ArticleReviewers';
+		$article_reviewers = Title::newFromText($ar_title_text, NS_SPECIAL);
 		if (empty($article_reviewers)) return '';
 
-		$article_reviewers_url = $article_reviewers->getFullURL();
-		$abbr_name = self::getAnchorName($verifierName);
-		if (empty($abbr_name)) return $article_reviewers_url;
-
-		$abbr_name = urlencode($abbr_name);
+		$article_reviewers_url = $article_reviewers->getLocalUrl();
+		$abbr_name = urlencode(self::getAnchorName($verifierName));
+		if ($abbr_name == '') return $article_reviewers_url;
 
 		return $article_reviewers_url.'?name='.$abbr_name.'#'.$abbr_name;
 	}

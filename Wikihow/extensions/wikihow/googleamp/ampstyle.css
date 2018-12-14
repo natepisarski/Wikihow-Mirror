@@ -13,11 +13,6 @@
 	position: relative;
 }
 
-@media only screen and (min-width: 500px) {
-.related_box_amp {
-	    width: 50%;
-	}
-}
 .related_wh_amp {
 	padding: 1px;
 }
@@ -279,12 +274,6 @@
 	background: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/search_icon.svg) #B3CE9C no-repeat 50% 50%/contain;
 	border: 4px solid #B3CE9C;
 	border-radius: 0 5px 5px 0;
-}
-@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
-only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-	#footer form {
-		padding-right: 180px;
-	}
 }
 #menu-button-wrap {
 	position: relative;
@@ -586,39 +575,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	display: inline;
 }
 
-@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
-only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-
-	#ur_mobile {
-		font-size: 22px;
-		line-height: 30px;
-	}
-
-	.content .ur_author .ur_name {
-		font-size: 20px;
-	}
-
-	.content .ur_review .ur_date {
-		font-size: 15px;
-	}
-
-	.ur_rating span {
-		font-size: 15px;
-	}
-
-	.ur_initials, .content .ur_avatar {
-		width: 44px;
-		height: 44px;
-		-webkit-border-radius: 22px;
-		-moz-border-radius: 22px;
-		border-radius: 22px;
-	}
-
-	.ur_initials{
-		line-height: 44px;
-		vertical-align: text-bottom;
-	}
-}
 #sd_container {
 	padding:15px;
 	background-color: #FFF;
@@ -648,9 +604,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	width: 125px;
 	margin: 6px;
 }
-@media only screen and (min-width: 768px) {
-	.sd_thumb { width: 170px; }
-}
+
 .sd_thumb img {
 	border: 1px solid #BBB;
 	width: 100%;
@@ -928,4 +882,55 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 }
 #articleinfo {
 	border-top: 0;
+}
+
+/* Tablet Support */
+
+@media only screen and (min-width: 500px) {
+	.related_box_amp {
+	    width: 50%;
+	}
+}
+
+@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
+		only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	#footer form {
+		padding-right: 180px;
+	}
+
+	#ur_mobile {
+		font-size: 22px;
+		line-height: 30px;
+	}
+
+	.content .ur_author .ur_name {
+		font-size: 20px;
+	}
+
+	.content .ur_review .ur_date {
+		font-size: 15px;
+	}
+
+	.ur_rating span {
+		font-size: 15px;
+	}
+
+	.ur_initials, .content .ur_avatar {
+		width: 44px;
+		height: 44px;
+		-webkit-border-radius: 22px;
+		-moz-border-radius: 22px;
+		border-radius: 22px;
+	}
+
+	.ur_initials{
+		line-height: 44px;
+		vertical-align: text-bottom;
+	}
+}
+
+@media only screen and (min-width: 768px) {
+	.sd_thumb {
+		width: 170px;
+	}
 }

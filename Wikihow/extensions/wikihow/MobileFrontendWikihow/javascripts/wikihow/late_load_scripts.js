@@ -96,10 +96,8 @@
 		},
 		
 		initPage: function() {
-			if($(".customcontent").length == 0) {
-				$('#article_rating_mobile').show();
-				$('#footer_random_button').show();
-			}
+			$('#article_rating_mobile').show();
+			$('#footer_random_button').show();
 			this.placeholderToggle();
 		}
 	};

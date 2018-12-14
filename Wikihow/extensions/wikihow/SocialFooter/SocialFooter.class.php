@@ -4,10 +4,10 @@ class SocialFooter {
 
 	//the icons we show in the order we want to show them
 	private static $icons = [
-		'instagram',
-		'facebook',
-		'twitter',
-		'youtube'
+		'ig' => 'instagram',
+		'fb' => 'facebook',
+		'tt' => 'twitter',
+		'yt' => 'youtube'
 	];
 
 	public static function getSocialFooter(): string {
@@ -27,9 +27,9 @@ class SocialFooter {
 	private static function iconData(): array {
 		$icon_data = [];
 
-		foreach (self::$icons as $name) {
+		foreach (self::$icons as $abbr => $name) {
 			$icon_data[] = [
-				'id' => 'sf_'.$name,
+				'id' => 'sf_'.$abbr,
 				'name' => self::mwMsgDefaultEn($name),
 				'link' => self::mwMsgDefaultEn($name.'_url')
 			];

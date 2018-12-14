@@ -122,9 +122,6 @@ h6.steps_text .edit-page,
 .amazon_info,
 #wh_ad_footer_fixed.wh_ad_footer_show,
 #servedtime,
-.customcontent .section_text .visible-header, .customcontent .section_text .visible-header .customize_section, .customcontent .steps_list_2, .customcontent .qa.section, .customcontent .tips.section, .customcontent .warnings.section, .customcontent .relatedwikihows.section, .customcontent .sourcesandcitations.section, .customcontent #article_info_section, .customcontent .template_top, .customcontent .thingsyoullneed, .customcontent .steps_text,
-.customcontent .section.steps,
-.customcontent .articleinfo.section, .customcontent #social_proof_mobile, .customcontent #sp_h2.mw-headline, .customcontent #article_rating_mobile, .customcontent #footer_random_button,
 .tabbed_content, #sp_h2.tabbed_content, #social_proof_mobile.tabbed_content, #uci_section.tabbed_content,
 .tabbed_content .edit-page,
 .m-video-helpful-wrap,
@@ -733,14 +730,19 @@ h4.steps_text::before {
 }
 
 #expert_coauthor {
-	background-color: #f4f8f1;
-	border-top: 1px solid #f0f2ef;
-	border-bottom: 1px solid #f0f2ef;
+	border-top: 1px solid #e9e7e3;
+	border-bottom: 1px solid #e9e7e3;
 	padding: 5px 16px;
+	color: #545454;
 }
 
 #expert_coauthor a {
 	color: #6f8460;
+}
+
+#expert_coauthor .sp_pipe {
+	color: #e9e7e3;
+	padding: 0 .25em;
 }
 
 .sp_intro_expert, .tech_article_stamp, .sp_intro_user {
@@ -758,8 +760,9 @@ h4.steps_text::before {
 	background-image: url(/skins/owl/images/sp_user_icon.svg);
 }
 
-.sp_intro_expert p, .tech_article_stamp p, .sp_intro_user p {
+.sp_intro_expert p, .tech_article_stamp p, .sp_intro_user {
 	display: inline-block;
+	font-weight: bold;
 }
 
 .sp_intro_tiny_i {
@@ -823,80 +826,6 @@ body.action-view #fa_container p {
 	margin-bottom: 0;
 }
 
-@media only screen and (min-width: 773px) {
-	.mwimg {
-		border-bottom: none;
-	}
-}
-
-@media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {
-	.content {
-		margin: 0 25px;
-	}
-
-	#intro {
-		margin: 0 -25px;
-	}
-
-  #hp_container { /* fix for slider alignment inside content div */
-	margin: 0 -25px;
-  }
-
-	.content .sticking .edit-page { margin-right: 50px; }
-}
-
-@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
-only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-	h1.title_sm { font-size: 2.1em; }
-	h1.title_md { font-size: 2.5em; }
-	h1.title_lg { font-size: 2.8em; }
-
-	h4.steps_text {
-		padding-left: 30px;
-		background-size: 16px;
-	}
-
-	h4.steps_text::before {
-		top: 20px;
-		width: 16px;
-		height: 16px;
-	}
-
-	.mw-headline { font-size: 22px; }
-
-	.step_num {
-		font-size: 40px;
-	}
-
-	.steps_list_2 li {
-		font-size: 22px;
-	}
-
-	.stable .content p, .stable .content li, .stable .content dl {
-		line-height: 30px;
-	}
-
-	#intro {
-		font-size: 22px;
-	}
-	#intro p {
-		line-height: 30px;
-	}
-
-	.section_text, .steps_text {
-		font-size: 22px;
-	}
-
-	#section_0 {
-		font-size: 32px;
-	}
-
-	.section h2 { line-height: 1.7em; }
-	.content .edit-page, #page-actions li#ca-edit { background-size: 20px; }
-	#page-actions li#ca-edit { height: 20px; }
-
-}
-
 #social_proof_anchor {
 	margin-top: -115px;
 	display: block;
@@ -909,20 +838,11 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	margin-top: 15px;
 }
 
-/**** CUSTOM CONTENT ****/
-.customcontent .steps.steps_first { display: block; }
-
 .related-article {
 	float: left;
 	position: relative;
 	width: 100%;
 	margin-bottom: 2%;
-}
-@media only screen and (min-width: 768px) {
-	.related-article {
-		width: 48%;
-		margin-right: 2%;
-	}
 }
 .related-image-link {
 	display: block;
@@ -1038,16 +958,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	display: table;
 	width: 100%;
 	border-spacing: 5px 0;
-}
-
-
-@media only screen and (min-aspect-ratio: 13/9) and (min-width: 500px) {
-	#mobile_tab_outer {
-		margin-left: -25px;
-		margin-right: -25px;
-		padding-left: 25px;
-		padding-right: 25px;
-	}
 }
 
 #mobile_tab_cta {
@@ -1211,60 +1121,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 .geo-group-eu .no_gdpr {
 	visibility: hidden;
 }
-@media only screen and (max-width:320px) {
-	#gdpr {
-		padding: 5px 0 6px;
-	}
-	#gdpr_text {
-		font-size: 0.8em;
-		max-width: 78%;
-	}
-	.gdpr_button, button.gdpr_button {
-		font-size: 0.7em;
-		margin-left: 3px;
-		padding: 4px 8px 5px;
-	}
-}
-@media only screen and (max-width:300px) {
-	#gdpr_text {
-		font-size: 0.8em;
-		max-width: 78%;
-	}
-	.gdpr_button, button.gdpr_button {
-		font-size: 0.7em;
-		margin-left: 3px;
-		padding: 4px 8px 5px;
-	}
-}
-@media only screen and (min-width:450px) {
-	#gdpr_text {
-		max-width: 80%;
-	}
-	.gdpr_button, button.gdpr_button {
-		margin-left: 10px;
-	}
-}
-@media only screen and (min-width:600px) {
-	#gdpr {
-		padding: 13px 5px 14px;
-	}
-	#gdpr_text {
-		max-width: 88%;
-	}
-	.gdpr_button {
-		margin-left: 10px;
-		padding: 1px 6px;
-	}
-}
-@media only screen
-and (device-width : 375px)
-and (device-height : 812px)
-and (-webkit-device-pixel-ratio : 3) {
-	#gdpr {
-		padding-bottom: 15px;
-	}
 
-}
 #mw-mf-page-left {
 	position: fixed;
 }
@@ -1279,16 +1136,15 @@ a.related-title,a.related-title:active, a.related-title:visited {
 .sp_expert_inline {
 	display: inline-block;
 	line-height: 1em;
-	padding: 0 1.2em 0 16px;
-	background-repeat: no-repeat;
-	background-position: right center;
-	background-size: contain;
-	background-image: url(/skins/owl/images/sp_expert_icon.png);
+	padding: 0 0 0 1.2em;
+	background: url(/skins/owl/images/sp_expert_icon.png) left center no-repeat;
 	/* @embed */
-	background-image: url(/skins/owl/images/sp_expert_icon.svg);
+	background: url(/skins/owl/images/sp_expert_icon.svg) left center no-repeat;
+	background-size: contain;
 }
 .sp_expert_inline a {
 	color: #373;
+	font-weight: bold;
 }
 .references li {
 	font-size: 14px;
@@ -1358,4 +1214,163 @@ a.related-title,a.related-title:active, a.related-title:visited {
 	margin-top: -10px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+}
+
+/* Tablet Support */
+
+@media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {
+	.content {
+		margin: 0 25px;
+	}
+
+	#intro {
+		margin: 0 -25px;
+	}
+
+	#hp_container {
+		/* fix for slider alignment inside content div */
+		margin: 0 -25px;
+	}
+
+	.content .sticking .edit-page {
+		margin-right: 50px;
+	}
+
+	#mobile_tab_outer {
+		margin-left: -25px;
+		margin-right: -25px;
+		padding-left: 25px;
+		padding-right: 25px;
+	}
+}
+
+@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
+		only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	h1.title_sm {
+		font-size: 2.1em;
+	}
+
+	h1.title_md {
+		font-size: 2.5em;
+	}
+
+	h1.title_lg {
+		font-size: 2.8em;
+	}
+
+	h4.steps_text {
+		padding-left: 30px;
+		background-size: 16px;
+	}
+
+	h4.steps_text::before {
+		top: 20px;
+		width: 16px;
+		height: 16px;
+	}
+
+	.mw-headline {
+		font-size: 22px;
+	}
+
+	.step_num {
+		font-size: 40px;
+	}
+
+	.steps_list_2 li {
+		font-size: 22px;
+	}
+
+	.stable .content p, .stable .content li, .stable .content dl, #intro p {
+		line-height: 30px;
+	}
+
+	#intro {
+		font-size: 22px;
+	}
+
+	.section_text, .steps_text {
+		font-size: 22px;
+	}
+
+	#section_0 {
+		font-size: 32px;
+	}
+
+	.section h2 {
+		line-height: 1.7em;
+	}
+
+	.content .edit-page, #page-actions li#ca-edit {
+		background-size: 20px;
+	}
+
+	#page-actions li#ca-edit {
+		height: 20px;
+	}
+}
+
+@media only screen and (min-width: 768px) {
+	.mwimg {
+		border-bottom: none;
+	}
+	.related-article {
+		width: 48%;
+		margin-right: 2%;
+	}
+}
+
+@media only screen and (max-width: 320px) {
+	#gdpr {
+		padding: 5px 0 6px;
+	}
+	#gdpr_text {
+		font-size: 0.8em;
+		max-width: 78%;
+	}
+	.gdpr_button, button.gdpr_button {
+		font-size: 0.7em;
+		margin-left: 3px;
+		padding: 4px 8px 5px;
+	}
+}
+
+@media only screen and (max-width:300px) {
+	#gdpr_text {
+		font-size: 0.8em;
+		max-width: 78%;
+	}
+	.gdpr_button, button.gdpr_button {
+		font-size: 0.7em;
+		margin-left: 3px;
+		padding: 4px 8px 5px;
+	}
+}
+
+@media only screen and (min-width:450px) {
+	#gdpr_text {
+		max-width: 80%;
+	}
+	.gdpr_button, button.gdpr_button {
+		margin-left: 10px;
+	}
+}
+
+@media only screen and (min-width:600px) {
+	#gdpr {
+		padding: 13px 5px 14px;
+	}
+	#gdpr_text {
+		max-width: 88%;
+	}
+	.gdpr_button {
+		margin-left: 10px;
+		padding: 1px 6px;
+	}
+}
+
+@media only screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) {
+	#gdpr {
+		padding-bottom: 15px;
+	}
 }

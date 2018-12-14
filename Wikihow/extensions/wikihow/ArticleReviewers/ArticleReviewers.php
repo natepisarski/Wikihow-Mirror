@@ -7,8 +7,13 @@ $wgExtensionCredits['specialpage'][] = array(
 'author' => 'Bebeth Steudel',
 );
 
-$wgSpecialPages['ArticleReviewers'] = 'ArticleReviewers';
 $wgAutoloadClasses['ArticleReviewers'] = __DIR__ . '/ArticleReviewers.body.php';
+
+if (Misc::isIntl()) {
+	return;
+}
+
+$wgSpecialPages['ArticleReviewers'] = 'ArticleReviewers';
 $wgExtensionMessagesFiles['ArticleReviewers'] = __DIR__ . '/ArticleReviewers.i18n.php';
 $wgExtensionMessagesFiles['ArticleReviewersAliases'] = __DIR__ . '/ArticleReviewers.alias.php';
 

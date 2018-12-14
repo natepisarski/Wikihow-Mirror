@@ -224,14 +224,14 @@
 			});
 
 			//(i) icon & top badge hover
-			$('.sp_info_icon, .sp_intro_expert, .sp_intro_user, #sp_icon_hover').hover(function() {
+			$('.sp_info_icon, .sp_intro_expert, .sp_intro_user, #sp_icon_hover, .sp_expert_inline').hover(function() {
 				dialog_box(true, this, 'icon_hover');
 				if ($(this).hasClass('sp_info_icon')) WH.maEvent('article-information-hover');
 			}, function() {
 				dialog_box(false, this, 'icon_hover');
 			});
 
-			$('.sp_intro_expert, .sp_intro_user').click(function() {
+			$('.sp_intro_expert, .sp_intro_user, .sp_expert_inline').click(function() {
 				return false;
 			});
 
@@ -241,8 +241,10 @@
 			});
 		}
 		else {
+			var clickable_elements = '.sp_intro_expert, .tech_article_stamp, .sp_intro_user, .ec_view, .sp_expert_inline';
+
 			// badge at the top
-			$('.sp_intro_expert, .tech_article_stamp, .sp_intro_user, .ec_view').click(function(e) {
+			$(clickable_elements).click(function(e) {
 				e.preventDefault();
 				if ($('#sp_icon_hover').is(':visible')) {
 					dialog_box(false, this, 'badge_click');
@@ -255,7 +257,7 @@
 
 			//badge dialog click (close it)
 			$('#sp_icon_hover').click(function() {
-				var obj = $(this).parent().find('.sp_intro_expert, .tech_article_stamp, .sp_intro_user');
+				var obj = $(this).parent().find(clickable_elements);
 				dialog_box(false, obj, 'badge_click');
 			});
 
@@ -284,6 +286,16 @@
 					finalTopPopupPosition = $(popupContainer).position().top;
 				else
 					finalTopPopupPosition = $(obj).position().top + $(obj).height() + 2;
+
+				if ($(obj).is($('.sp_expert_inline'))) {
+					finalTopPopupPosition += 10;
+					$(popupContainer).css('left', $(obj).position().left);
+				}
+				else {
+					if (!$(obj).is($('#sp_icon_hover'))) {
+						$(popupContainer).css('left', 512); //reset (gotta keep in sync w/ main.css; lame)
+					}
+				}
 
 				startTopPopupPosition = finalTopPopupPosition + 10;
 			}

@@ -912,17 +912,6 @@ class PageHooks {
 		}
 	}
 
-	public static function onOutputPageBodyAttributes($out, $skin, &$bodyAttrs ) {
-		if(class_exists("CustomContent")) {
-			$customContentClass = CustomContent::getPageClass($out->getTitle());
-			if($customContentClass != "") {
-				$bodyAttrs['class'] .= ' ' . $customContentClass;
-			}
-		}
-
-		return true;
-	}
-
 	/**
 	 * Hide certain head links for anons on noindex pages, to avoid leaking
 	 * article info to Googlebot.

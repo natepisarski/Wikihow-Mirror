@@ -1,24 +1,21 @@
-<div id="expert_coauthor">
-	{{#hasBadge}}
+<div id="expert_coauthor" {{#amp}}on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1"{{/amp}}>
+	{{#badge}}
 		{{{badge}}}
-		&middot;
-		{{#hasRef}}
+		{{#refCount}}
+			<span class="sp_pipe">|</span>
 			<a href="#references_first" class="ec_ref">
-				{{#includeCount}}
-					 [{{refCount}}]
-				{{/includeCount}}
-			{{refMessage}}</a>
-		{{/hasRef}}
-		{{^hasRef}}
-			<a href="#" class="ec_view">{{views}} Views</a>
-		{{/hasRef}}
-	{{/hasBadge}}
-	{{^hasBadge}}
-		<a href="#" class="ec_view">{{views}} Views</a> &middot; <a href="#references_first" class="ec_ref">
-		{{#includeCount}}
-			[{{refCount}}]
-		{{/includeCount}}
+				{{#includeCount}}{{refCount}}{{/includeCount}}
+				{{refMessage}}
+			</a>
+		{{/refCount}}
+		{{^refCount}}
+			{{#showViews}}<span class="sp_pipe">|</span> <a href="#" class="ec_view">{{views}} Views</a>{{/showViews}}
+		{{/refCount}}
+	{{/badge}}
+	{{^badge}}
+		<a href="#" class="ec_view">{{views}} Views</a> <span class="sp_pipe">|</span> <a href="#references_first" class="ec_ref">
+		{{#includeCount}}{{refCount}}{{/includeCount}}
 		{{refMessage}}
 		</a>
-	{{/hasBadge}}
+	{{/badge}}
 </div>

@@ -646,6 +646,7 @@ class TitusConfig {
 			"RateTool" => 1,
 			"KeywordRank" => 1,
 			"ExpertVerified" => 1,
+			"ExpertVerifiedSince" => 1,
 			"FKReadingEase" => 1,
 			"EditFish" => 1,
 			"ChocoFish" => 1,
@@ -673,6 +674,7 @@ class TitusConfig {
 			$stats["UCIImages"] = 0;
 			$stats["RateTool"] = 0;
 			$stats["ExpertVerified"] = 0;
+			$stats["ExpertVerifiedSince"] = 0;
 			$stats["UserReview"] = 0;
 			$stats["Quizzes"] = 0;
 			$stats["SensitiveArticle"] = 0;
@@ -4821,4 +4823,66 @@ class TSInboundLinks extends TitusStat
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		return ['ti_inbound_links' => Articlestats::getInboundLinkCount($t)];
 	}
+}
+
+/**
+ * Fetch original verification dates for English articles from a Google Sheet.
+ *
+ * ALTER TABLE titus_intl ADD COLUMN ti_expert_verified_date_original varchar(14) DEFAULT NULL after ti_expert_verified_source;
+ */
+class TSExpertVerifiedSince extends TitusStat {
+	private $dates = []; // [ EN_AID => VERIFICATION_DATE]
+	private $isSheetProcessed = false;
+
+	public function getPageIdsToCalc($dbr, $date) {
+		if (Misc::isIntl()) {
+			return [];
+		}
+		if (!$this->isSheetProcessed) {
+			$this->processSpreadsheet($dbr);
+		}
+		return array_keys($this->dates);
+	}
+
+	public function calc($dbr, $r, $t, $pageRow) {
+		$aid = $pageRow->page_id;
+		if (!Misc::isIntl() && isset($this->dates[$aid])) {
+			return [ 'ti_expert_verified_date_original' => $this->dates[$aid] ];
+		} else {
+			return [ 'ti_expert_verified_date_original' => null ];
+		}
+	}
+
+	private function processSpreadsheet($dbr) {
+		print __CLASS__ . ": fetching 'Original Verification Dates' spreadsheet\n";
+		$this->isSheetProcessed = true;
+
+		try {
+			$sheet =@ new GoogleSpreadsheet();
+			$cols = $sheet->getSheetData(WH_TITUS_ORIGINAL_VERIFICATIONS_GOOGLE_DOC, 'production!A2:D');
+		} catch (Exception $e) {
+			$this->reportError("Problem fetching spreadsheet: " . $e->getMessage());
+			return;
+		}
+
+		$errors = 0;
+		foreach ($cols as $col) {
+			$aid = ( is_numeric($col[0]) && (int) $col[0] > 0 ) ? (int) $col[0] : null;
+			$date = $col[2] ? $this->fixDate($col[2]) : null;
+			if ($aid && $date) {
+				$this->dates[$aid] = $date;
+			} else {
+				$errors++;
+			}
+		}
+
+		if ($errors * 100 > count($this->dates)) { // 1% of 25k rows = 250 errors
+			$this->reportError("Encountered {$errors} parsing errors in WH_TITUS_ORIGINAL_VERIFICATIONS_GOOGLE_DOC");
+		}
+
+		$ids = array_keys($this->dates);
+		$this->checkForRedirects($dbr, $ids);
+		$this->checkForMissing($dbr, $ids);
+	}
+
 }

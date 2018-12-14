@@ -55,12 +55,23 @@ class GoogleSpreadsheet {
 	}
 
 	// this does a curl to get data of atom/xml content type
-	public function doJSONRequest( $url, $params ) {
+	public function doJSONRequest( $url, $params, $v4=false ) {
 		$url = wfAppendQuery( $url, $params );
 		$sheetData = file_get_contents( $url );
 		$sheetData = json_decode( $sheetData );
-		$sheetData = $sheetData->{'feed'}->{'entry'};
+		$sheetData = $v4 ? $sheetData->values : $sheetData->{'feed'}->{'entry'};
 		return $sheetData;
+	}
+
+	/**
+	 * Get all data in a sheet. It uses API V4, which can handle empty cells.
+	 *
+	 * @see GoogleSpreadsheet::getColumnData()
+	 */
+	public function getSheetData( $worksheet, $sheetName ) {
+		$url = "https://sheets.googleapis.com/v4/spreadsheets/{$worksheet}/values/{$sheetName}";
+		$query = [ 'access_token' => $this->getToken() ];
+		return $this->doJSONRequest( $url, $query, true );
 	}
 
 	/**
@@ -77,6 +88,8 @@ class GoogleSpreadsheet {
      *   ['a2', 'c2', 'a3'],
      *   ['b3', 'c3', 'a3'],
      * ]
+     *
+	 * @see GoogleSpreadsheet::getSheetData()
 	 */
 	public function getColumnData( $worksheet, $startCol, $endCol, $startRow = 1 ) {
 		$requestUrl = self::FEED_LINK . $worksheet . "/private/full";
@@ -88,9 +101,9 @@ class GoogleSpreadsheet {
 		);
 
 		$res = $this->doAtomXmlRequest( $requestUrl, $query );
-		
+
 		$xml = simplexml_load_string( $res );
-		
+
 		$row = array();
 		$cols = array();
 		$n = 0;
@@ -159,9 +172,9 @@ class GoogleSpreadsheet {
 
 		return $this->doJSONRequest( $url, $query );
 	}
-	
+
 	private function parseGoogleJSON( $data, $numCol ) {
-	
+
 		$result = array();
 		$temp = array();
 		foreach ($data as $d) {
@@ -175,26 +188,26 @@ class GoogleSpreadsheet {
 				unset($temp);
 				$last_col = false;
 			}
-			
+
 			//did we skip a column?
 			if ($last_col) {
 				$col_diff = $col - ($last_col+1);
 				if ($col_diff > 0) $this->addEmpty($temp, $col_diff);
 			}
-			
+
 			//THIS IS WHAT WE WANT!
 			$temp[] = $d->{'content'}->{'$t'};
-			
+
 			//for next loop reference
 			$last_row = $row;
 			$last_col = $col;
 		}
 		//and add the final one
 		$result[] = $temp;
-		
+
 		return $result;
 	}
-	
+
 	private function addEmpty(&$temp, $num) {
 		for ($i=1; $i < $num; $i++) {
 			$temp[] = '';

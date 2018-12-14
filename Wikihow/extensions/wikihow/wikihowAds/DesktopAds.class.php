@@ -158,6 +158,10 @@ class DesktopAds {
 				$this->mActive = false;
 				return;
 			}
+			if ( $currentDomain == 'wikihow.health' ) {
+				$this->mActive = false;
+				return;
+			}
 		}
 
 		// check for decline cookie policy cookie

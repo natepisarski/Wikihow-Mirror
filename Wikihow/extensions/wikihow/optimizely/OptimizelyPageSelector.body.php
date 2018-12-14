@@ -14,7 +14,7 @@ class OptimizelyPageSelector {
 
 	protected static $specialPageWhiteList = [ 'Charity', 'DocViewer' ];
 
-	protected static $altDomainWhitelist = [ 'wikihow.mom'  ];
+	protected static $altDomainWhitelist = [ ];
 	protected static $altDomainSnippetIds = [ 'wikihow.pet' => '10427340836', 'wikihow.mom' => '10370078292'];
 
 	/* Static Methods */

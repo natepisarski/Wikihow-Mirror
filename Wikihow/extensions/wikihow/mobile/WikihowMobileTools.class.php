@@ -798,6 +798,14 @@ class WikihowMobileTools {
 			}
 		}
 
+		// 2018-12-13 - Remove entire video section as a test to see if it improves lighthouse performance reports
+		$isVideoSectionRemovalTarget = $wgLanguageCode == 'en' &&
+			$wgTitle->inNamespace(NS_MAIN) &&
+			ArticleTagList::hasTag( 'video_section_removal_test', $wgTitle->getArticleID());
+		if ($isVideoSectionRemovalTarget) {
+			pq(".video")->remove();
+		}
+
 		// remove video section if it has no iframe (which means it has no video)
 		if ( pq("#video")->find('iframe')->length < 1 ) {
 			pq(".video")->remove();
@@ -864,7 +872,7 @@ class WikihowMobileTools {
 
 		// Trevor, 11/8/18 - Testing making videos a link to the video browser - this must come
 		// after videos are updated
-		if ( !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
+		if ( $wgLanguageCode == 'en' && !Misc::isAltDomain() && !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
 			$videoPlayer = pq( '.summarysection .video-player' );
 			if ( $videoPlayer ) {
 				$link = pq( '<a id="summary_video_link">' )->attr(
@@ -1630,9 +1638,11 @@ class WikihowMobileTools {
 	private static function formatReferencesSection( $skin ) {
 		$sourcesSectionClass = ".".Misc::getSectionName( (wfMessage('sources')->text()));
 		$sourcesSection = pq( $sourcesSectionClass );
+		$sourcesSection = pq( $sourcesSectionClass );
 
 		// add class to the section so we can target it with css
 		pq( $sourcesSection )->addClass( 'aidata' )->find('p')->remove();
+		pq( $sourcesSection )->addClass( 'sourcesandcitations' );
 		if ( $skin->getUser()->isAnon()) {
 			pq( $sourcesSection )->find('.mw-headline')->text( wfMessage( 'references' )->text() );
 		}
@@ -1648,22 +1658,28 @@ class WikihowMobileTools {
 		$referencesFirst = pq( $sourcesSection )->clone();
 		pq( $referencesFirst )->find('div:first')->attr('id', 'references_first');
 		pq( $referencesFirst )->removeClass( 'aidata' );
-		pq( $referencesFirst )->find( 'li:gt(14)' )->remove();
+		pq( $referencesFirst )->find( 'li:gt(8)' )->remove();
 
-		pq( $sourcesSection )->find( 'li:lt(14)' )->remove();
+		pq( $sourcesSection )->find( 'li:lt(8)' )->remove();
 		pq( $sourcesSection )->find( 'h2' )->remove();
-		pq( $sourcesSection )->find( 'ol' )->attr('start', 16);
+		pq( $sourcesSection )->find( 'ol' )->attr('start', 10);
 		pq( $sourcesSection )->find('div:first')->attr('id', 'references_second');
+
+		$referencesHtml = $referencesFirst;
 
 		// create a show more link if needed
 		if ( pq( $sourcesSection )->find( 'li' )->length > 0 ) {
 			$showMore = Html::element( 'a', ['id' => 'info_link', 'href' => '#aiinfo'], wfMessage('more_references')->text() );
 			$sectionText = Html::rawElement( 'div', ['id'=>'articleinfo', 'class'=>'section_text'], $showMore );
 			$articleInfoHtml = Html::rawElement( 'div', ['id' => 'aiinfo', 'class' => 'section articleinfo'], $sectionText );
-			pq( '#social_proof_mobile' )->after( $articleInfoHtml . $sourcesSection );
+			$referencesHtml .= $articleInfoHtml . $sourcesSection;
 		}
 
-		pq( '#social_proof_mobile' )->after( $referencesFirst );
+		if ( pq( '#social_proof_mobile' )->length ) {
+			pq( '#social_proof_mobile' )->after( $referencesHtml );
+		} else {
+			pq( '#article_rating_mobile' )->before( $referencesHtml );
+		}
 	}
 
 }

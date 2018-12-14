@@ -1443,6 +1443,9 @@ class wikihowAds {
 			if ( $currentDomain == 'wikihow.mom' ) {
 				$isEligible = false;
 			}
+			if ( $currentDomain == 'wikihow.health' ) {
+				$isEligible = false;
+			}
 		}
 		return $isEligible;
 
