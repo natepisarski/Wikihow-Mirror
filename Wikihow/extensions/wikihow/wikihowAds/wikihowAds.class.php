@@ -1328,6 +1328,8 @@ class wikihowAds {
 			return '';
 		}
 
+		$query = LSearch::formatSearchQuery($query);
+
 		$vars = [
 			"query" => json_encode($query),
 			"lang" => json_encode($wgLanguageCode),

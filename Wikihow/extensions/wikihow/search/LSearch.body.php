@@ -252,7 +252,7 @@ class LSearch extends SpecialPage {
 		}
 
 		$this->getOutput()->setHTMLTitle(htmlspecialchars(
-			wfMessage('lsearch_title_q', $this->formatSearchQuery($this->mQ))->text()
+			wfMessage('lsearch_title_q', self::formatSearchQuery($this->mQ))->text()
 		));
 
 		$suggestionLink = $this->getSpellingSuggestion($this->searchUrl);
@@ -308,7 +308,7 @@ class LSearch extends SpecialPage {
 		if ($this->isBadQuery($q)) {
 			return -1;
 		}
-		$q = $this->formatSearchQuery($q);
+		$q = self::formatSearchQuery($q);
 		if ( substr( $q, 0, 7 ) === 'how to ' ) {
 			// Use the normalization but not the "how to " since Solr does that on its own
 			$q = substr( $q, 7 );
@@ -462,7 +462,7 @@ class LSearch extends SpecialPage {
 		if ($this->isBadQuery($q)) {
 			return -1;
 		}
-		$q = $this->formatSearchQuery($q);
+		$q = self::formatSearchQuery($q);
 
 		$key = wfMemcKey('GoogleXMLAPIResultsV2', str_replace(' ', '-', $q), $start, $limit);
 		$data = $wgMemc->get($key);
@@ -565,7 +565,7 @@ class LSearch extends SpecialPage {
 		if ($this->isBadQuery($q)) {
 			return -1;
 		}
-		$q = $this->formatSearchQuery($q);
+		$q = self::formatSearchQuery($q);
 
 		$set_cache = false;
 		$contents = $wgMemc->get($key);
@@ -658,7 +658,7 @@ class LSearch extends SpecialPage {
 		if ($this->isBadQuery($q)) {
 			return -1;
 		}
-		$q = $this->formatSearchQuery($q);
+		$q = self::formatSearchQuery($q);
 
 		$set_cache = false;
 		$contents = $wgMemc->get($key);
@@ -1147,7 +1147,7 @@ class LSearch extends SpecialPage {
 			'q' => $q,
 			'enc_q' => $enc_q,
 			'ads' => $this->disableAds ? '' :
-				wikihowAds::getSearchAds($adProvider, self::formatSearchQuery($q), $page, count($results)),
+				wikihowAds::getSearchAds($adProvider, $q, $page, count($results)),
 			'sk' => $sk,
 			'me' => $me,
 			'max_results' => $resultsPerPage,

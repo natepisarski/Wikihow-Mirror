@@ -10,6 +10,7 @@ require_once("$IP/extensions/wikihow/statsd/WikihowStatsd.php");
 
 # English-specific extensions
 if ($wgLanguageCode == 'en') {
+	require_once("$IP/extensions/wikihow/socialstamp/SocialStamp.php");
 	require_once("$IP/extensions/wikihow/dedup/DedupTool.php");
 	require_once("$IP/extensions/wikihow/wikigame/WikiGame.php");
 	require_once("$IP/extensions/wikihow/FeaturedContributor.php");
@@ -101,8 +102,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/VideoBrowser/VideoBrowser.php");
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	// require_once("$IP/extensions/wikihow/AmazonAffiliates/AmazonAffiliates.php");
-	require_once("$IP/extensions/wikihow/PressBoxes/PressBoxes.php");
-	require_once("$IP/extensions/wikihow/WikihowNamespacePages/WikihowNamespacePages.php");
 }
 
 if ($wgLanguageCode == "zh") {
@@ -427,3 +426,5 @@ require_once("$IP/extensions/wikihow/userreview/UserReviewForm/UserReviewForm.ph
 require_once("$IP/extensions/wikihow/GDPR/GDPR.php");
 require_once("$IP/extensions/wikihow/GreenBox/GreenBox.php");
 require_once("$IP/extensions/wikihow/SocialFooter/SocialFooter.php");
+require_once("$IP/extensions/wikihow/PressBoxes/PressBoxes.php");
+require_once("$IP/extensions/wikihow/WikihowNamespacePages/WikihowNamespacePages.php");

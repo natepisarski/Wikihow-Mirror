@@ -118,9 +118,7 @@ h6.steps_text .edit-page,
 #hp_navigation,
 #mcta_root,
 #method_toc,
-.reference_more,
 .amazon_info,
-#wh_ad_footer_fixed.wh_ad_footer_show,
 #servedtime,
 .tabbed_content, #sp_h2.tabbed_content, #social_proof_mobile.tabbed_content, #uci_section.tabbed_content,
 .tabbed_content .edit-page,
@@ -163,37 +161,7 @@ a, a:active, a:visited {
 #mw-mf-page-center.footerad {
 	padding: 0 0 180px;
 }
-#wh_ad_footer_fixed {
-	background-color: #FFF;
-	position: fixed;
-	bottom: 0;
-	z-index: 1000;
-	text-align: center;
-	width: -moz-calc(100% - 12px);
-	width: -webkit-calc(100% - 12px);
-	width: -o-calc(100% - 12px);
-	width: calc(100% - 12px);
-	margin-right: 5px;
-	margin-left: 5px;
-	border-left: 1px solid #bfbfbf;
-	border-right: 1px solid #bfbfbf;
-	display: none;
-}
-.footer_ad_close {
-	margin: 8px 0 8px 8px;
-	top: -22px;
-	right: 10px;
-	position: absolute;
-	background-color: #333;
-	border-radius: 50%;
-	width: 17px;
-	height: 17px;
-	color: #FFF;
-	display: block;
-	text-align: center;
-	font-size: 13px;
-	line-height: 15px;
-}
+
 .footerad #footer {
 	bottom: 110px;
 }
@@ -703,10 +671,6 @@ h4.steps_text::before {
 	color: #999;
 }
 
-#intro_ad {
-	height: 120px;
-}
-
 .method_ad {
 	margin-top: 17px;
 	margin-left: -16px;
@@ -727,53 +691,6 @@ h4.steps_text::before {
 	left: 0;
 	width: 100%;
 	height: 100%;
-}
-
-#expert_coauthor {
-	border-top: 1px solid #e9e7e3;
-	border-bottom: 1px solid #e9e7e3;
-	padding: 5px 16px;
-	color: #545454;
-}
-
-#expert_coauthor a {
-	color: #6f8460;
-}
-
-#expert_coauthor .sp_pipe {
-	color: #e9e7e3;
-	padding: 0 .25em;
-}
-
-.sp_intro_expert, .tech_article_stamp, .sp_intro_user {
-	background-size: 17px;
-	background-image: url(/skins/owl/images/sp_expert_icon.png);
-	/* @embed */
-	background-image: url(/skins/owl/images/sp_expert_icon.svg);
-	background-repeat: no-repeat;
-	padding-left: 20px;
-}
-
-.sp_intro_user {
-	background-image: url(/skins/owl/images/sp_user_icon.png);
-	/* @embed */
-	background-image: url(/skins/owl/images/sp_user_icon.svg);
-}
-
-.sp_intro_expert p, .tech_article_stamp p, .sp_intro_user {
-	display: inline-block;
-	font-weight: bold;
-}
-
-.sp_intro_tiny_i {
-	width: 10px;
-	height: 10px;
-	margin-left: 4px;
-	display: inline-block;
-	background-size: cover;
-	background-image: url(/skins/owl/images/sp_icon_info_green.png);
-	/* @embed */
-	background-image: url(/skins/owl/images/sp_icon_info_green.svg);
 }
 
 body.action-view #fa_container p {
@@ -830,12 +747,6 @@ body.action-view #fa_container p {
 	margin-top: -115px;
 	display: block;
 	position: absolute;
-}
-.fc-native-message-container {
-	border: 1px solid #bfbfbf;
-	border-radius: 4px;
-	font-size: 16px;
-	margin-top: 15px;
 }
 
 .related-article {
@@ -941,12 +852,6 @@ body.action-view #fa_container p {
 .tab_0 {
 	display: block;
 }
-.tabs2 {
-	width: 49%;
-}
-.tabs3 {
-	width: 32%;
-}
 
 #mobile_tab_outer {
 	margin: 10px -10px 0;
@@ -1038,13 +943,6 @@ body.action-view #fa_container p {
 }
 .video-poster-image img {
 	object-fit: cover;
-}
-.green_tips_box_inline {
-	background-color:#fff5d9;
-	color:#000;
-	margin:0;
-	width:75%;
-	display:inline;
 }
 .img-loading-hide {
 	visibility: hidden;
@@ -1216,6 +1114,48 @@ a.related-title,a.related-title:active, a.related-title:visited {
 	border-top-right-radius: 0;
 }
 
+/***** NEW AUTHORSHIP STUFF ****/
+
+#expert_coauthor {
+	padding: 6px 16px;
+	color: #545454;
+	font-size: 12px;
+	background-color: #F6F8F7;
+}
+
+#expert_coauthor a {
+	color: #6f8460;
+}
+
+.expert_icon, .staff_icon, .community_icon {
+	font-weight: bold;
+}
+
+#expert_coauthor #ss_badge{
+	background-image: url(/skins/owl/images/sp_expert_icon_white.png);
+	/* @embed */
+	background-image: url(/skins/owl/images/sp_expert_icon_white.svg);
+	background-size: 14px;
+	background-repeat: no-repeat;
+	background-position: left 1px;
+	width: 16px;
+	height: 16px;
+	float: left;
+	vertical-align: bottom;
+}
+
+#expert_coauthor #ss_badge.author_icon {
+	background-image: url(/skins/owl/images/sp_icon_info_green5.png);
+	/* @embed */
+	background-image: url(/skins/owl/images/sp_icon_info_green5.svg);
+	background-position: left 0px;
+	background-size: 15px;
+}
+
+.ss_pipe {
+	color: #e9e7e3;
+	padding: 0 5px;
+}
 /* Tablet Support */
 
 @media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {
@@ -1246,6 +1186,18 @@ a.related-title,a.related-title:active, a.related-title:visited {
 
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
 		only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
+	#expert_coauthor {
+		font-size: 14px;
+	}
+
+	#expert_coauthor #ss_badge{
+		background-position: left 2px;
+	}
+
+	#expert_coauthor #ss_badge.author_icon {
+		background-position: left 1px;
+	}
+
 	h1.title_sm {
 		font-size: 2.1em;
 	}

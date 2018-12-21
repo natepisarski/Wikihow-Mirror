@@ -133,7 +133,7 @@ class ArticleReviewers extends UnlistedSpecialPage
 
 	public static function getLinkByVerifierName(string $verifierName): string {
 		//en: forces a wikihow.com url, so check to see if it's an altdomain
-		$ar_title_text = Misc::isAltDomain() ? 'ArticleReviewers' : 'en:ArticleReviewers';
+		$ar_title_text = (Misc::isAltDomain() || RequestContext::getMain()->getLanguage()->getCode() == "en") ? 'ArticleReviewers' : 'en:ArticleReviewers';
 		$article_reviewers = Title::newFromText($ar_title_text, NS_SPECIAL);
 		if (empty($article_reviewers)) return '';
 

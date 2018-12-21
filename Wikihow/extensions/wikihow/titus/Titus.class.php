@@ -646,6 +646,7 @@ class TitusConfig {
 			"RateTool" => 1,
 			"KeywordRank" => 1,
 			"ExpertVerified" => 1,
+			"StaffReviewed" => 1,
 			"ExpertVerifiedSince" => 1,
 			"FKReadingEase" => 1,
 			"EditFish" => 1,
@@ -674,6 +675,7 @@ class TitusConfig {
 			$stats["UCIImages"] = 0;
 			$stats["RateTool"] = 0;
 			$stats["ExpertVerified"] = 0;
+			$stats["StaffReviewed"] = 0;
 			$stats["ExpertVerifiedSince"] = 0;
 			$stats["UserReview"] = 0;
 			$stats["Quizzes"] = 0;
@@ -4399,11 +4401,6 @@ class TSExpertVerified extends TitusStat {
 		$techStats = $this->getTechReviewed($dbr, $pageRow, empty($verifierNames));
 		$stats = array_merge($stats, $techStats);
 
-		// Add Staff Reviewed stats
-		if ($stats['ti_expert_verified_source'] == '') {
-			$this->getStaffReviewed($dbr, $pageRow, $stats);
-		}
-
 		return $stats;
 	}
 
@@ -4481,18 +4478,24 @@ class TSExpertVerified extends TitusStat {
 
 		return $data;
 	}
+}
 
-	private function getStaffReviewed($dbr, $pageRow, &$stats) {
-		global $wgLanguageCode;
-		if ($wgLanguageCode != 'en') return;
+/**
+ * Get info about staff reviewed articles
+ * `ti_staff_byline_eligible` tinyint(1) NOT NULL default 0;
+ *
+ * additional row for staff_reviewed
+ * alter table titus_intl add column `ti_staff_byline_eligible` tinyint(1) NOT NULL default 0 after `ti_expert_verified_source`;
+ */
+class TSStaffReviewed extends TitusStat {
 
-		$data = StaffReviewed::dataForTitus($dbr, $pageRow->page_id);
-		if (empty($data)) return;
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return( TitusDB::ALL_IDS );
+	}
 
-		$stats['ti_expert_verified_name'] = $dbr->strencode($data['name']);
-		$stats['ti_expert_verified_source'] = $dbr->strencode($data['source']);
-		$stats['ti_expert_verified_date'] = $data['date'];
-		$stats['ti_expert_verified_revision'] = $data['revision'];
+	public function calc( $dbr, $r, $t, $pageRow ) {
+		$staff_reviewed = StaffReviewed::staffReviewedCheck($pageRow->page_id, $checkMemc = false) ? 1 : 0;
+		return ['ti_staff_byline_eligible' => $staff_reviewed];
 	}
 }
 
@@ -4719,7 +4722,7 @@ class TSUserReview extends TitusStat {
 
 		$pageId = $pageRow->page_id;
 		$numReviews = UserReview::getEligibleNumCuratedReviews( $pageId );
-		$hasIntro = UserReview::shouldShowIntroStamp( WikiPage::newFromId($pageId) );
+		$hasIntro = UserReview::eligibleForByline( WikiPage::newFromId($pageId) );
 		$totalReviews = UserReview::getTotalCuratedReviews( $pageId );
 		$isEligible = UserReview::getArticleEligibilityString( $pageId );
 

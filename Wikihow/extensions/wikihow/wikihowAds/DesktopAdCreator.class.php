@@ -277,6 +277,9 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			$count = pq( ".steps_list_2" )->length;
 			if ( $count < 2 ) {
 				$this->mAds['method2']->notInBody = true;
+			} else {
+				// only put this on the second method
+				$count = 2;
 			}
 			for ( $i = 1; $i < $count; $i++ ) {
 				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:last-child)" )->length() ) {
@@ -1367,6 +1370,7 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
 			'step' => 1652132604,
+			'method2' => 5875012246,
 			'rightrail0' => 4769522171,
 		);
 
@@ -1374,11 +1378,19 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'intro' => 'adsense',
 			'step' => 'adsense',
 			'method' => 'dfp',
+			'method2' => 'adsense',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
 			'quiz' => 'dfp'
 		);
+
+		//turn off the method2 ad around 7pm on friday dec 21 2018 pst
+		$time = time();
+		$startTime = strtotime('December 21, 2018 + 30 hours');
+		if ( $time > $startTime ) {
+			unset( $this->mAdServices['method2'] );
+		}
 	}
 
 	protected function setDFPAdUnitPaths() {

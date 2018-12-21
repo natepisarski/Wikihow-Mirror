@@ -12,7 +12,7 @@ class ReadArticleBot extends UnlistedSpecialPage {
 		"Sorry, couldn't find anything for you. Want to ask something else?",
 		"I know a lot of things, but apparently I don't know that.  Can you try rephrasing it?",
 		"Sorry, nothing came up! Can you try again?",
-		"Hmmm… Can you please try rephrasing that?",
+		"Hmmm, can you please try rephrasing that?",
 		"I know a lot of things, but I don’t know that. Want to try asking me something else?",
 		"Gosh, I know a lot of things but you’ve stumped me! Want to ask me something else?",
 	];

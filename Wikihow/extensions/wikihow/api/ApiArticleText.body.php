@@ -10,8 +10,9 @@ class ApiArticleText extends ApiBase {
 		// Get the parameters
 		$params = $this->extractRequestParams();
 
-		// Make it so that Varnish can cache these requests for 6 hours
-		$this->getMain()->setCacheMaxAge( 6 * 60 * 60 );
+		// Make it so that Varnish can cache these requests for 30 days. Surrogate key headers (see below)
+		// ensure that caches are cleared as articles are edited/updated
+		$this->getMain()->setCacheMaxAge( 30 * 24 * 60 * 60 );
 		$this->getMain()->setCacheMode( 'public' );
 
 		$result = $this->getResult();

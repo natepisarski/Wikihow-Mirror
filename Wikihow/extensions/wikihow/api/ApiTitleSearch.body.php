@@ -10,8 +10,8 @@ class ApiTitleSearch extends ApiBase {
 		// Get the parameters
 		$params = $this->extractRequestParams();
 
-		// Make it so that Varnish can cache these requests for 6 hours
-		$this->getMain()->setCacheMaxAge( 6 * 60 * 60 );
+		// Make it so that Varnish can cache these requests for 24 hours
+		$this->getMain()->setCacheMaxAge( 24 * 60 * 60 );
 		$this->getMain()->setCacheMode( 'public' );
 
 		$result = $this->getResult();
@@ -41,6 +41,7 @@ class ApiTitleSearch extends ApiBase {
 		if ($safeSearch) {
 			$titles = TitleFilters::filterExplicitAidsForAlexa($titles);
 			$titles = TitleFilters::filterTopLevelCategories($titles, [CAT_RELATIONSHIPS]);
+			$titles = TitleFilters::filterByBadWords($titles, BadWordFilter::TYPE_ALEXA);
 		}
 
 		$titles = TitleFilters::filterByNamespace($titles, [NS_MAIN]);

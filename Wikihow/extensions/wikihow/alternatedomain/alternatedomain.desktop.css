@@ -5,20 +5,47 @@
 	margin-left: -15px;
 }
 #header .logo.tech_logo {
-	width: 168px;
+	width: 135px;
 	height: auto;
-	margin-top: 16px;
+	margin-top: 20px;
+	margin-left: 33px;
+}
+#header #logo_link.no_tag {
+	overflow: visible !important
 }
 #header.shrunk .logo.tech_logo {
-	margin-top: -1px;
+	margin-top: 0px;
+	margin-left: 33px;
 }
 #header .logo.pet_logo {
-	width: 168px;
+	width: 155px;
 	height: auto;
-	margin-top: 15px;
+	margin-top: 20px;
+	margin-left: 13px;
+
 }
 #header.shrunk .logo.pet_logo {
-	margin-top: -1px;
+	margin-left: 13px;
+}
+#header .logo.mom_logo {
+	width: 151px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 17px;
+}
+#header.shrunk .logo.mom_logo {
+	margin-top: 0px;
+	margin-left: 17px;
+}
+#header .logo.fitness_logo {
+	width: 147px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 22px;
+}
+#header.shrunk .logo.fitness_logo {
+	margin-top: 0px;
+	margin-left: 22px;
 }
 #nav_explore_li.nav_item .menu  { right: 0px; }
 #nav_edit_li.nav_item .menu { right: 75px; }

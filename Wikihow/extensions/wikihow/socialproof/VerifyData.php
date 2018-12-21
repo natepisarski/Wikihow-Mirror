@@ -188,6 +188,8 @@ class VerifyData {
 			$vd->blurbLink = $verifier->blurbLink;
 			$vd->revisionId = $verifier->revisionId;
 			$vd->worksheetName = $verifier->worksheetName;
+			$vd->image = $verifier->image;
+			$vd->imagePath = self::getExpertImagePath($vd);
 			$results[] = $vd;
 		}
 

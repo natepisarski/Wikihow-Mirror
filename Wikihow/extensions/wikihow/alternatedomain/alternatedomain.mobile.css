@@ -10,8 +10,7 @@
 }
 .related-image-link img {
 	display: block;
-	border: none;
-	width: 100%;
+	border: none; width: 100%;
 	height: auto;
 }
 .related-title {
@@ -50,12 +49,22 @@
 	display: none;
 }
 #header_logo.pet_logo {
-	background-position: 50% 65%;
-	background-image: url(/skins/owl/images/wikihow_logo_pet_2.png);
-	background-size: 140px
+	background-position: 43% 65%;
+	background-image: url(/skins/owl/images/wikihow_logo_pet_3.png);
+	background-size: 143px;
 }
 #header_logo.tech_logo {
-	background-position: 50% 65%;
-	background-image: url(/skins/owl/images/wikihow_logo_tech_3.png);
-	background-size: 150px
+	background-position: 48% 75%;
+	background-image: url(/skins/owl/images/wikihow_logo_tech_4.png);
+	background-size: 131px;
+}
+#header_logo.mom_logo {
+	background-position: 43% 65%;
+	background-image: url(/skins/owl/images/wikihow_logo_mom.png);
+	background-size: 140px;
+}
+#header_logo.fitness_logo {
+	background-position: 43% 65%;
+	background-image: url(/skins/owl/images/wikihow_logo_fitness.png);
+	background-size: 143px;
 }

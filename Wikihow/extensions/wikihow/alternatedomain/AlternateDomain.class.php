@@ -507,6 +507,13 @@ class AlternateDomain {
 		if ( $title->inNamespace( NS_PROJECT ) && $titleText == 'Terms of Use' ) {
 			return true;
 		}
+		if ( $title->inNamespace( NS_PROJECT ) ) {
+			$domain = self::getCurrentRootDomain();
+			$aboutPage = wfMessage( "footer_about_wh_{$domain}" )->text();
+			if ( strpos( $aboutPage, $title->getDBKey() ) !== false ) {
+				return true;
+			}
+		}
 
 		return false;
 	}
@@ -1159,6 +1166,10 @@ class AlternateDomain {
 			if ( $lckey == 'pagetitle' ) {
 				$lckey = "pagetitle_alternate_domain";
 			}
+			if ( $lckey == 'footer_about_wh' ) {
+				$lckey = "footer_about_wh_{$domain}";
+			}
+
 		}
 
 		if ( self::onNoBrandingDomain() ) {
@@ -1502,11 +1513,17 @@ class AlternateDomain {
 		global $domainName;
 
 		if ( strstr( $domainName, "wikihow.tech") ) {
-			$logoPath = '/skins/owl/images/wikihow_logo_tech_3.png';
+			$logoPath = '/skins/owl/images/wikihow_logo_tech_4.png';
 			$logoClass[] = 'tech_logo';
 		} else if ( strstr( $domainName, "wikihow.pet") ) {
-			$logoPath = '/skins/owl/images/wikihow_logo_pet_2.png';
+			$logoPath = '/skins/owl/images/wikihow_logo_pet_3.png';
 			$logoClass[] = 'pet_logo';
+		} else if ( strstr( $domainName, "wikihow.mom") ) {
+			$logoPath = '/skins/owl/images/wikihow_logo_mom.png';
+			$logoClass[] = 'mom_logo';
+		} else if ( strstr( $domainName, "wikihow.fitness") ) {
+			$logoPath = '/skins/owl/images/wikihow_logo_fitness.png';
+			$logoClass[] = 'fitness_logo';
 		}
 	}
 
@@ -1524,6 +1541,18 @@ class AlternateDomain {
 				$headerClass = $headerClass . ' pet_logo';
 			} else {
 				$headerClass = 'pet_logo';
+			}
+		} else if ( strstr( $domainName, "wikihow.mom") ) {
+			if ( $headerClass ) {
+				$headerClass = $headerClass . ' mom_logo';
+			} else {
+				$headerClass = 'mom_logo';
+			}
+		} else if ( strstr( $domainName, "wikihow.fitness") ) {
+			if ( $headerClass ) {
+				$headerClass = $headerClass . ' fitness_logo';
+			} else {
+				$headerClass = 'fitness_logo';
 			}
 		}
 	}

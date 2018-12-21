@@ -248,19 +248,11 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 	protected function renderPageActions( $data ) {
 		wfRunHooks('BeforeRenderPageActionsMobile', array(&$data));
-		if (isset( $data['expert_icon'] ) && $data['expert_icon']) {
-			echo $data['expert_icon'];
-		} elseif (isset( $data['tech_stamp'] ) && $data['tech_stamp']) {
-			echo $data['tech_stamp'];
-		} elseif (isset( $data['userreview_stamp'] ) && $data['userreview_stamp']) {
-			echo $data['userreview_stamp'];
-		} else {
 		?><ul id="page-actions" class="hlist"><?php
 		foreach( $this->getPageActions() as $key => $val ):
 			echo $this->makeListItem( $key, $val );
 		endforeach;
 		?></ul><?php
-		}
 	}
 
 

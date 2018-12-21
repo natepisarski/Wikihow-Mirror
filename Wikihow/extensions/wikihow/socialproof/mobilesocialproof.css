@@ -508,8 +508,8 @@
 
 #sp_icon_close {
 	position: absolute;
-	top: 15px;
-	right: 10px;
+	top: 4px;
+	right: 4px;
 	width: 14px;
 	height: 14px;
 	color: #c2c2c2;
@@ -523,10 +523,14 @@
 	cursor: pointer;
 }
 
-#sp_icon_header {
-	font-weight: bold;
-	padding: 8px 0;
+#sp_icon_body {
+	margin-top: 10px;
 }
+
+#sp_icon_body a {
+	font-weight: bold;
+}
+
 .sp_learn_more_link {
 	font-weight: bold;
 	display: block;

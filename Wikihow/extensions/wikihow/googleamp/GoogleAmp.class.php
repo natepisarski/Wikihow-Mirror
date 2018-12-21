@@ -50,6 +50,9 @@ class GoogleAmp {
 			$style .= str_replace("!important", "", Misc::getEmbedFile('css', __DIR__ . '/../android_helper/android_helper.css'));
 		}
 
+		// Strip CSS comments (containing ResourceLoader debug info)
+		$style = preg_replace( '!/\*[^*]*\*+([^/][^*]*\*+)*/!' , '' , $style );
+
 		$style = HTML::inlineStyle($style);
 		$style = str_replace( "<style>", "<style amp-custom>", $style);
 		$out->addHeadItem('topcss', $style);
@@ -481,11 +484,32 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
-		// put an ad after first step if there is more than 1 step in first method
-		if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
-			pq(".steps_list_2:first > li:eq(0)")->append( $adhtml );
+		$hasIntroAd = true;
+
+		//turn off the intro ad around 7pm on friday dec 21 2018 pst
+		$time = time();
+		$startTime = strtotime('December 21, 2018 + 30 hours');
+		if ( $time > $startTime ) {
+			$hasIntroAd = false;
 		}
+
+		if ( $hasIntroAd == true ) {
+			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
+			pq( "#intro" )->append( $adhtml );
+
+			// put an ad after second step if there is more than 1 step in first method
+			if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
+				$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
+				pq(".steps_list_2:first > li:eq(1)")->append( $adhtml );
+			}
+		} else {
+			// put an ad after first step if there is more than 1 step in first method
+			if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
+				$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
+				pq(".steps_list_2:first > li:eq(0)")->append( $adhtml );
+			}
+		}
+
 
 		// put an ad after fifth step if there is more than 5 steps in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 5 ) {

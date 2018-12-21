@@ -19,5 +19,5 @@ $wgAutoloadClasses['TechArticle\TechPlatform'] = dirname( __FILE__ ) . '/core/Te
 
 require_once("$IP/extensions/wikihow/TechArticle/admin/TechArticleAdmin.php");
 // [sc] 10/2017 consolidated stamp logic into SocialProofStats.php
-// require_once("$IP/extensions/wikihow/TechArticle/stamp/TechArticleStamp.php");
+require_once("$IP/extensions/wikihow/TechArticle/stamp/TechArticleStamp.php");
 require_once("$IP/extensions/wikihow/TechArticle/widget/TechArticleWidget.php");

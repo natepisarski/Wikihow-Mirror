@@ -66,5 +66,4 @@ $wgResourceModules['ext.wikihow.adminuserreview'] = array(
 );
 
 $wgHooks['MakeGlobalVariablesScript'][] = array('UserReview::onMakeGlobalVariablesScript');
-$wgHooks['ProcessArticleHTMLAfter'][] = array('UserReview::addIntroIcon');
-//$wgHooks['BeforeRenderPageActionsMobile'][] = ['UserReview::onBeforeRenderPageActionsMobile'];
+$wgHooks['BylineStamp'][] = 'UserReview::setBylineInfo';

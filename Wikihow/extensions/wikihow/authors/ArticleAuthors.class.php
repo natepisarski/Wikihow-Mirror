@@ -88,6 +88,16 @@ class ArticleAuthors {
 		return $message;
 	}
 
+	public static function getAuthorCount() {
+		ArticleAuthors::loadAuthorsCache();
+		$users =  self::$authorsCache;
+		if (!empty($users)) {
+			return count($users);
+		} else {
+			return 0;
+		}
+	}
+
 	static function loadAuthorsCache() {
 		if (!is_array(self::$authorsCache)) {
 			self::$authorsCache = self::loadAuthors();

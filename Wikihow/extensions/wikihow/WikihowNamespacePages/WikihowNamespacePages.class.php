@@ -17,8 +17,8 @@ class WikihowNamespacePages {
 			wfMessage( 'gdpr_mobile_menu_bottom_link' )->text(),
 			wfMessage( 'gdpr_mobile_menu_top_link' )->text(),
 			wfMessage( 'cookie_policy_page' )->text(),
+			wfMessage('about-page')->text(),
 			'Privacy-Policy',
-			'About-wikiHow',
 			"Writer's-Guide",
 			'Language-Projects',
 			'Hybrid-Organization',
@@ -36,7 +36,7 @@ class WikihowNamespacePages {
 
 	public static function mobileWithStyle(): array {
 		return [
-			'About-wikiHow',
+			wfMessage('about-page')->text(),
 			'Jobs',
 			'Mission'
 		];
@@ -54,7 +54,6 @@ class WikihowNamespacePages {
 		$wikihow_ns_page = $title ? $title->inNamespace(NS_PROJECT) : false;
 
 		self::$is_wikihow_namespace_page =
-			$out->getLanguage()->getCode() == 'en' &&
 			$action === 'view' &&
 			empty($diff_num) &&
 			$wikihow_ns_page;
@@ -65,7 +64,14 @@ class WikihowNamespacePages {
 	private static function aboutWikihowPage(): bool {
 		$title = RequestContext::getMain()->getTitle();
 		if (!$title) return false;
-		return self::wikiHowNamespacePage() && $title->getDBkey() == 'About-wikiHow';
+		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('about-page')->text();
+	}
+
+	public static function showMobileAboutWikihow(): bool {
+		$mobile_about_languages = ['en', 'es'];
+		return in_array(RequestContext::getMain()->getLanguage()->getCode(), $mobile_about_languages) &&
+					!Misc::isAltDomain() &&
+					wfMessage('about-page')->exists();
 	}
 
 	public static function getAboutPagePressSidebox(): string {
@@ -96,7 +102,7 @@ class WikihowNamespacePages {
 
 	//this uses the phpQuery object
 	public static function onMobileProcessArticleHTMLAfter(OutputPage $out) {
-		if (!self::aboutWikihowPage()) return;
+		if (!self::aboutWikihowPage() || !self::showMobileAboutWikihow()) return;
 
 		foreach (pq('.section.steps') as $key => $step) {
 			$section_title = pq($step)->find('h3 span')->text();

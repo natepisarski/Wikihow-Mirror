@@ -218,20 +218,20 @@
 		if (!WH.isMobileDomain) {
 			//side bar hover
 			$('.sp_top_box_hoverable, .sp_top_popup_container').hover(function() {
-				dialog_box(true, this, 'expert_dialog');
+				dialog_box(true, this, 'icon_hover');
 			}, function() {
-				dialog_box(false, this, 'expert_dialog');
+				dialog_box(false, this, 'icon_hover');
 			});
 
 			//(i) icon & top badge hover
-			$('.sp_info_icon, .sp_intro_expert, .sp_intro_user, #sp_icon_hover, .sp_expert_inline').hover(function() {
+			$('.sp_info_icon, #sp_icon_hover, .sp_expert_inline, .expert_coauthor_link').hover(function() {
 				dialog_box(true, this, 'icon_hover');
 				if ($(this).hasClass('sp_info_icon')) WH.maEvent('article-information-hover');
 			}, function() {
 				dialog_box(false, this, 'icon_hover');
 			});
 
-			$('.sp_intro_expert, .sp_intro_user, .sp_expert_inline').click(function() {
+			$('.sp_expert_inline').click(function() {
 				return false;
 			});
 
@@ -241,7 +241,7 @@
 			});
 		}
 		else {
-			var clickable_elements = '.sp_intro_expert, .tech_article_stamp, .sp_intro_user, .ec_view, .sp_expert_inline';
+			var clickable_elements = '.ec_view, .sp_expert_inline, .expert_coauthor_link';
 
 			// badge at the top
 			$(clickable_elements).click(function(e) {
@@ -287,13 +287,12 @@
 				else
 					finalTopPopupPosition = $(obj).position().top + $(obj).height() + 2;
 
-				if ($(obj).is($('.sp_expert_inline'))) {
-					finalTopPopupPosition += 10;
+				if ($(obj).is($('.expert_coauthor_link'))) {
 					$(popupContainer).css('left', $(obj).position().left);
 				}
 				else {
 					if (!$(obj).is($('#sp_icon_hover'))) {
-						$(popupContainer).css('left', 512); //reset (gotta keep in sync w/ main.css; lame)
+						$(popupContainer).css('left', 667); //reset (gotta keep in sync w/ main.css; lame)
 					}
 				}
 

@@ -202,12 +202,12 @@ class SkinMinervaWikihow extends SkinMinerva {
 			}
 		}
 
-		if (class_exists('AboutWikihow')) {
+		if (WikihowNamespacePages::showMobileAboutWikihow()) {
 			$items['aboutwikihow'] = array(
-					'text' => wfMessage( 'menu-aboutwikihow' )->escaped(),
-					'href' => Title::newFromText( 'About-wikiHow', NS_PROJECT )->getFullUrl(),
-					'class' => 'icon-aboutwikihow',
-					'id' => 'icon-aboutwikihow',
+				'text' => wfMessage( 'menu-aboutwikihow' )->escaped(),
+				'href' => Title::newFromText( wfMessage('about-page')->text(), NS_PROJECT )->getFullUrl(),
+				'class' => 'icon-aboutwikihow',
+				'id' => 'icon-aboutwikihow',
 			);
 		}
 

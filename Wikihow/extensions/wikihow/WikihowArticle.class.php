@@ -91,6 +91,9 @@ class WikihowArticleHTML {
 			}
 		}
 
+		//remove top edit link
+		pq("#intro .editsection")->remove();
+
 		// The "whcdn" class is added to all <img> tags whose src contents
 		// should pull from the whstatic.com (CDN) domain. We apply this change
 		// as post-processing after the parser has done its thing so that
@@ -544,7 +547,7 @@ class WikihowArticleHTML {
 			$summary_at_top = pq('#summary_position')->hasClass(SummarySection::SUMMARY_POSITION_TOP_CLASS);
 		}
 
-		$headings = explode("\n", ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY));
+		$headings = Misc::isIntl() ? [] : explode("\n", ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY));
 		foreach ( $headings as $heading ) {
 			$canonicalSummaryName = self::canonicalizeHTMLSectionName( Misc::getSectionName( $heading ) );
 			$headingId = '#' . $canonicalSummaryName;
@@ -581,7 +584,7 @@ class WikihowArticleHTML {
 						pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$specialAnchorList}</p>");
 					}
 
-					SummarySection::addDesktopTOCItems();
+					class_exists('SummarySection') && SummarySection::addDesktopTOCItems();
 				}
 			}
 			$headingImages = pq( $headingId . ' .mwimg' )->addClass( 'summarysection' );
@@ -596,8 +599,8 @@ class WikihowArticleHTML {
 
 		// On INTL, move #expert_coauthor between .firstHeading and #method_toc
 		// NOTE: Similar to SocialProofStats::onProcessArticleHTMLAfter() on EN
-		if (Misc::isIntl() && pq('#expert_coauthor')->length) {
-			pq('.firstHeading')->after(pq('#expert_coauthor'));
+		if (Misc::isIntl() && pq('#expert_coauthor')->length && pq('#method_toc')->length) {
+			pq('#expert_coauthor')->after(pq('#method_toc'));
 		}
 
 		// add the controls
@@ -704,7 +707,7 @@ class WikihowArticleHTML {
 		if ($isVideoSectionRemovalTarget) {
 			pq(".video")->remove();
 		}
-		
+
 		// remove video section if it has no iframe (which means it has no video)
 		if ( pq("#video")->find('iframe')->length < 1 ) {
 			pq(".video")->remove();

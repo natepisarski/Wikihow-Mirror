@@ -13,9 +13,9 @@ class UserReview {
 	const MAX_REVIEWS = 30;
 	const NUMBER_REVIEWS_KEY = "ur_numreviews";
 	const NUMBER_REVIEWS_ALL_KEY = "ur_numreviews_all";
-	const REVIEWS_KEY = "userreviews1";
-	const ELIGIBLE_KEY = "userrevieweligible4";
-	const HELPFULNESS_KEY = "userreviewhelpful1";
+	const REVIEWS_KEY = "userreviews2";
+	const ELIGIBLE_KEY = "userrevieweligible7";
+	const HELPFULNESS_KEY = "userreviewhelpful5";
 	const WHITELIST = "userreview_whitelist";
 
 	const ELIGIBLE_EXPERT = 1;
@@ -125,26 +125,16 @@ class UserReview {
 		} elseif($inWhitelist) {
 			$eligible = self::ELIGIBLE_WHITELIST;
 		} else {
-			$helpfulKey = wfMemcKey(self::HELPFULNESS_KEY, $articleId);
-			$dbr = wfGetDB(DB_SLAVE);
-			$res = $dbr->select('titus_copy',
-				array('ti_page_id', 'ti_helpful_total_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage', 'ti_last_fellow_edit_timestamp', 'ti_stu_views_www', 'ti_stu_10s_percentage_www', 'ti_stu_3min_percentage_www'),
-				array('ti_language_code' => "en", 'ti_page_id' => $articleId),
-				__METHOD__);
+			$helpful = self::getHelpfulnessScore($articleId);
+			if($helpful > 0) {
+				$dbr = wfGetDB(DB_SLAVE);
+				$res = $dbr->select('titus_copy',
+					array('ti_page_id', 'ti_helpful_total_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage', 'ti_last_fellow_edit_timestamp', 'ti_stu_views_www', 'ti_stu_10s_percentage_www', 'ti_stu_3min_percentage_www'),
+					array('ti_language_code' => "en", 'ti_page_id' => $articleId),
+					__METHOD__);
 
-			$row = $res ? $res->fetchObject() : null;
-			if ( !$row ) {
-				$helpful = 0;
-			} else {
-				if ( $row->ti_helpful_total < 10 && $row->ti_helpful_total_including_deleted >= 10 ) {
-					$helpful = $row->ti_helpful_percentage_including_deleted;
-				} elseif ( $row->ti_helpful_total >= 10 ) {
-					$helpful = $row->ti_helpful_percentage;
-				} else {
-					$helpful = 0;
-				}
+				$row = $res ? $res->fetchObject() : null;
 			}
-			$wgMemc->set($helpfulKey, $helpful);
 
 			$datecutoff = "20140101"; //January 1, 2014 - titus table only stores 8 digits of the date
 
@@ -167,62 +157,42 @@ class UserReview {
 		return $eligible;
 	}
 
-	private static function getHelpfulness($articleId) {
+	private static function getHelpfulnessScore($articleId) {
 		global $wgMemc;
 
 		$helpfulKey = wfMemcKey(self::HELPFULNESS_KEY, $articleId);
 		$helpful = $wgMemc->get($helpfulKey);
+
 		if(!is_numeric($helpful)) {
-			self::setArticleEligibleForReviews($articleId);
+			$dbr = wfGetDB(DB_SLAVE);
+			$res = $dbr->select('titus_copy',
+				array('ti_page_id', 'ti_helpful_total_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage', 'ti_last_fellow_edit_timestamp', 'ti_stu_views_www', 'ti_stu_10s_percentage_www', 'ti_stu_3min_percentage_www'),
+				array('ti_language_code' => "en", 'ti_page_id' => $articleId),
+				__METHOD__);
+
+			$row = $res ? $res->fetchObject() : null;
+			if (!$row) {
+				$helpful = 0;
+			} else {
+				if ($row->ti_helpful_total < 10 && $row->ti_helpful_total_including_deleted >= 10) {
+					$helpful = $row->ti_helpful_percentage_including_deleted;
+				} elseif ($row->ti_helpful_total >= 10) {
+					$helpful = $row->ti_helpful_percentage;
+				} else {
+					$helpful = 0;
+				}
+			}
+			$wgMemc->set($helpfulKey, $helpful);
 		}
-		$helpful = $wgMemc->get($helpfulKey);
 
 		return $helpful;
 	}
 
-	/**
-	 * a hook that will add an html snippet to the intro if the page has user reviews
-	 */
-	public static function addIntroIcon( $out ) {
-		$title = $out->getTitle();
-
-		if ( !$title || !$title->exists() ) {
-			return true;
-		}
-
-		if (!$out->canUseWikiPage() || !self::shouldShowIntroStamp($out->getWikiPage()) ) {
-			return true;
-		}
-
-		if ( Misc::isMobileMode() ) {
-			return true;
-		}
-
-		$iconHtml = self::getUserReviewStamp($title->getArticleId());
-
-		if ( $iconHtml ) {
-			// remove the editsection if it exists
-			pq( '#intro' )->find('.editsection')->remove();
-			$intro = pq( '#intro' )->prepend( $iconHtml );
-		}
-
-		return true;
-	}
-
-	private static function getIconHoverText(int $articleId): string {
+	public static function getIconHoverText(int $articleId): string {
 		if (empty($articleId)) return '';
 		$views = RequestContext::getMain()->getWikiPage()->getCount();
 		$helpfulness = class_exists('SocialProofStats') ? SocialProofStats::getPageRatingData($articleId)->rating : 0;
 		$numReviews = self::getEligibleNumCuratedReviews($articleId);
-
-		//first paragraph
-		$numEditors = count(ArticleAuthors::getAuthors($articleId));
-		$numCitations = Misc::getReferencesCount();
-
-		$text = wfMessage('sp_hover_text_general', $numEditors)->text();
-
-		if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT)
-			$text .= ' '.wfMessage('sp_hover_text_citations', $numCitations)->text();
 
 		//second paragraph
 		if ($numReviews < self::ICON_MIN_REVIEWS) {
@@ -240,73 +210,29 @@ class UserReview {
 
 		$views = number_format($views);
 		$numReviews = number_format($numReviews);
-		$text .= '<br><br>'.wfMessage($msg, $views, $helpfulness, $numReviews)->parse();
+		$text = wfMessage($msg, $views, $helpfulness, $numReviews)->parse();
 
 		return $text;
 	}
 
-	public static function getUserReviewStamp(int $articleId = 0, bool $mobile = false): string {
-		$amp = $mobile ? GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() ) : false;
-		$link = $amp ? "#" : "#social_proof_anchor";
-
-		$attributes = [
-			'href' => $link,
-			'class' => 'sp_intro_user'
-		];
-
-		if ($amp) $attributes['on'] = 'tap:sp_icon_hover.toggleVisibility';
-
-		$text = wfMessage('ur_stamp')->text();
-		if($mobile) {
-			//replace the <br> with a space
-			$text = str_replace("<br>", " ", $text);
-			$text = str_replace("<br />", " ", $text);
-		}
-
-		$stamp = Html::rawElement("a", $attributes, $text);
-
-		if (class_exists('SocialProofStats')) {
-			//add the expert icon
-			$hover_text = self::getIconHoverText($articleId);
-			$vType = SocialProofStats::VERIFIER_TYPE_READER;
-			$stamp .= SocialProofStats::getIconHoverHtml($hover_text, $vType, $mobile, $amp);
-		}
-
-		return $stamp;
-	}
-
-	public static function onBeforeRenderPageActionsMobile(array &$data) {
-		global $wgOut;
-		$title = $wgOut->getTitle();
-
-		if ( !$title || !$title->exists() ) {
-			return true;
-		}
-
-		if ( !self::shouldShowIntroStamp($wgOut->getWikiPage()) ) {
-			return true;
-		}
-
-		if ( !Misc::isMobileMode() ) {
-			return true;
-		}
-
-		$html = static::getUserReviewStamp($title->getArticleId(), $mobile = true);
-		if ($html) {
-			$data['userreview_stamp'] = $html;
-		}
-		return true;
-	}
-
 	/**
-	 * Only show the intro icon if the article: is not expert verified, nor a tech article,
-	 * is eligible for reviews, and has a minimum amount of reviews.
+	 * No longer connected to expert stuff. Just based on complicated helpfulnes and # of reviews that
+	 * currently exist algorithm
 	 */
-	public static function shouldShowIntroStamp(WikiPage $page): bool {
-		$verified = class_exists('SocialProofStats') && SocialProofStats::articleVerified($page->getId());
-		return !$verified
-			&& self::isArticleEligibleForReviews($page->getId())
+	public static function eligibleForByline(WikiPage $page): bool {
+		return self::isArticleEligibleForReviews($page->getId())
 			&& self::hasEnoughReviewsForIcon($page->getId());
+	}
+
+	public static function setBylineInfo(&$verifiers, $pageId) {
+		$page = WikiPage::newFromID($pageId);
+		if(!$page)  return true;
+
+		if(self::eligibleForByline($page)) {
+			$verifiers[SocialProofStats::VERIFIER_TYPE_READER] = true;
+		}
+
+		return true;
 	}
 
 	/*****
@@ -387,7 +313,7 @@ class UserReview {
 	 */
 	public static function hasEnoughReviewsForIcon($articleId) {
 		$numReviews = self::getEligibleNumCuratedReviews($articleId);
-		$helpfulness = self::getHelpfulness($articleId);
+		$helpfulness = self::getHelpfulnessScore($articleId);
 		$inWhitelist = ArticleTagList::hasTag(self::WHITELIST, $articleId);
 
 		return (

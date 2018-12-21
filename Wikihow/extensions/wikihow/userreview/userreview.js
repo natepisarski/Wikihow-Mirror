@@ -58,19 +58,6 @@
 				$(".ur_review_more", $(this).parent()).show();
 				$(".ur_ellipsis", $(this).parent()).hide();
 			});
-			//expand all the reviews in the sidebar
-			$(".sp_intro_user").on("click", function (e) {
-				if(!WH.isMobileDomain) {
-					e.preventDefault();
-					$(".ur_review_show").hide();
-					$(".ur_review_more").show();
-					$(".ur_ellipsis").hide();
-					$("#" + WH.UserReview.ur_div + " .ur_review").show();
-					$(".ur_more").hide();
-					//$(".ur_even_more").hide();
-					$(".ur_hide").show().css("display", "block");
-				}
-			});
 			//hide all but the first review
 			$(".ur_hide").on("click", function (e) {
 				e.preventDefault();

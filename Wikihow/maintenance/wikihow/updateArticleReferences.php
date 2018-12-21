@@ -378,6 +378,21 @@ class updateArticleReferences extends Maintenance {
 		return $dbw->insertId();
 	}
 
+	private static function updateLinkInfo( $url, $data ) {
+		$title = self::processTitleText( $data['text'] );
+		$code = $data['code'];
+
+		$dbw = wfGetDB( DB_MASTER );
+		$table = 'link_info';
+		$conds = array( 'li_url' => $url );
+		$values = array(
+			'li_title' => $title,
+			'li_code' => $code,
+		);
+		$options = array( 'IGNORE' );
+		$dbw->update( $table, $values, $conds, __METHOD__ );
+	}
+
 	private static function getLinkInfoId( $url ) {
 		$dbr = wfGetDb( DB_SLAVE );
         $table = 'link_info';
@@ -387,6 +402,7 @@ class updateArticleReferences extends Maintenance {
 		$id = $dbr->selectField( $table, $var, $cond, __METHOD__, $options );
 		return $id;
 	}
+
 	private function processTitle( $title, $forceUpdate = false ) {
 		global $wgTitle;
 		if ( !$title ) {
@@ -399,10 +415,18 @@ class updateArticleReferences extends Maintenance {
 		$this->processItems();
 	}
 
-	private function checkUrl( $url ) {
+	private function updateUrl( $url ) {
 		$data = self::getRemoteInfo( $url );
 		if ( $data && $data['code'] == 200) {
-			$linkInfoId = self::insertLinkInfo( $url, $data );
+			// check if already in DB
+			$linkInfoId = self::getLinkInfoId( $url );
+			if ( $linkInfoId ) {
+				decho("updating data for $url", $data);
+				$linkInfoId = self::updateLinkInfo( $url, $data );
+			} else {
+				decho("inserting data for $url", $data);
+				$linkInfoId = self::insertLinkInfo( $url, $data );
+			}
 		}
 	}
 
@@ -411,7 +435,7 @@ class updateArticleReferences extends Maintenance {
 
 		if ( $this->getOption( 'url' ) ) {
 			$url = $this->getOption( 'url');
-			$this->checkUrl( $url );
+			$this->updateUrl( $url );
 			return;
 		}
 		$this->updateAll();
