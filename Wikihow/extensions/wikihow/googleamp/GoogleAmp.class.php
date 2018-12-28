@@ -484,14 +484,7 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
-		$hasIntroAd = true;
-
-		//turn off the intro ad around 7pm on friday dec 21 2018 pst
-		$time = time();
-		$startTime = strtotime('December 21, 2018 + 30 hours');
-		if ( $time > $startTime ) {
-			$hasIntroAd = false;
-		}
+		$hasIntroAd = false;
 
 		if ( $hasIntroAd == true ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );

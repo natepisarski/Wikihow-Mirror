@@ -55,6 +55,7 @@ class updateArticleReferences extends Maintenance {
         $this->mDescription = "update article references";
 		$this->addOption( 'limit', 'number of items to process', false, true, 'l' );
 		$this->addOption( 'verbose', 'print verbose info', false, false, 'v' );
+		$this->addOption( 'count', 'get remaining items count', false, false, 'c' );
 		$this->addOption( 'url', 'recheck a url', false, true, 'u' );
     }
 
@@ -334,6 +335,24 @@ class updateArticleReferences extends Maintenance {
 		}
 	}
 
+	private function showCount() {
+		$dbr = wfGetDb( DB_SLAVE );
+		$table = array(
+				'externallinks',
+				'page'
+				);
+		$var = 'count(el_to)';
+		$cond = array(
+				'el_from = page_id',
+				'el_id NOT IN (select eli_el_id from externallinks_link_info)',
+				'page_namespace' => 0,
+				);
+		$options = array();
+		decho("will query count" );
+		$count = $dbr->selectField( $table, $var, $cond, __METHOD__, $options );
+		decho("count", $count);
+	}
+
 	private static function addExternalLinkInfoItem( $externalLinkId, $linkInfoId ) {
 		$dbw = wfGetDB( DB_MASTER );
         $table = 'externallinks_link_info';
@@ -438,6 +457,12 @@ class updateArticleReferences extends Maintenance {
 			$this->updateUrl( $url );
 			return;
 		}
+
+		if ( $this->hasOption( 'count' ) ) {
+			$this->showCount();
+			return;
+		}
+
 		$this->updateAll();
 	}
 }

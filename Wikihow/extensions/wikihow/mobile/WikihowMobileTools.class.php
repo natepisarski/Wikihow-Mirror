@@ -1638,31 +1638,22 @@ class WikihowMobileTools {
 	private static function formatReferencesSection( $skin ) {
 		$sourcesSectionClass = ".".Misc::getSectionName( (wfMessage('sources')->text()));
 		$sourcesSection = pq( $sourcesSectionClass );
+		$sourcesSection = pq( $sourcesSectionClass );
 
-		$nestedRefs = false;
-		pq( $sourcesSection )->find( 'ol' )->find( '.references-small' )->remove();
-		pq( $sourcesSection )->find( 'ul' )->find( '.references-small' )->remove();
-
-		// add classes to the section so we can target it with css
-		// also remove any stray p tags
+		// add class to the section so we can target it with css
 		pq( $sourcesSection )->addClass( 'aidata' )->find('p')->remove();
 		pq( $sourcesSection )->addClass( 'sourcesandcitations' );
-
-		// change title of section if user is anon
 		if ( $skin->getUser()->isAnon()) {
 			pq( $sourcesSection )->find('.mw-headline')->text( wfMessage( 'references' )->text() );
 		}
 
-		if ( !$nestedRefs ) {
-			pq( $sourcesSection )->find( 'ul li a' )->wrap('<div>');
-		}
-
-		// move the regular unordered list of references to be inside the same list as the references in the main article
-		// which are an ordered list. if this list does not exist create it
+		// move the regular references to be inside the same ordered list
+		// if this list does not exist create it
+		pq( $sourcesSection )->find( 'ul li a' )->wrap('<div>');
 		if ( !pq( $sourcesSection )->find( 'ol' )->length ) {
 			pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="references">' );
 		}
-		pq( $sourcesSection )->find( 'ol' )->append( pq( $sourcesSection )->find( 'ul li' ) );
+		pq( $sourcesSection )->children( 'ol' )->append( pq( $sourcesSection )->find( 'ul li' ) );
 
 		$referencesFirst = pq( $sourcesSection )->clone();
 		pq( $referencesFirst )->find('div:first')->attr('id', 'references_first');

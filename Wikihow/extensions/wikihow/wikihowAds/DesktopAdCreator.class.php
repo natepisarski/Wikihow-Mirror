@@ -1378,19 +1378,12 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'intro' => 'adsense',
 			'step' => 'adsense',
 			'method' => 'dfp',
-			'method2' => 'adsense',
+			// 'method2' => 'adsense',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
 			'quiz' => 'dfp'
 		);
-
-		//turn off the method2 ad around 7pm on friday dec 21 2018 pst
-		$time = time();
-		$startTime = strtotime('December 21, 2018 + 30 hours');
-		if ( $time > $startTime ) {
-			unset( $this->mAdServices['method2'] );
-		}
 	}
 
 	protected function setDFPAdUnitPaths() {
