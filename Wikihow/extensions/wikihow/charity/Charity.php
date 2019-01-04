@@ -58,5 +58,5 @@ $wgResourceModules['ext.wikihow.admin_nonprofit_stories'] = [
 	'targets' => [ 'desktop', 'mobile' ]
 ];
 
-$wgHooks['BeforePageDisplay'][] = 'Donate::onBeforePageDisplay';
+// $wgHooks['BeforePageDisplay'][] = 'Donate::onBeforePageDisplay';
 $wgHooks["IsEligibleForMobileSpecial"][] = ["Charity::isEligibleForMobileSpecial"];

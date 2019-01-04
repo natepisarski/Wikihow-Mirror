@@ -477,7 +477,6 @@ class SocialProofStats extends ContextSource {
 		$stats['helpful_statement'] = wfMessage('sp_helpful_statement',$stats['helpful']['value'])->text();
 		$stats['show_top_box'] = !$stats['helpful_sidebox'] || $stats['difficult_article'] || !empty($stats['expert']);
 		$stats['arrow_box'] = $stats['show_top_box'] && empty($stats['expert']);
-		if (self::isSpecialInline()) $stats['expert'] = '';
 
 		return $this->getHtmlFromTemplate('social_sidebar_desktop.mustache', $stats);
 	}
@@ -566,6 +565,9 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private function getSectionName($is_mobile): string {
+		if(self::isSpecialInline()) {
+			return wfMessage('Sp_inline_expert_label')->text();
+		}
 
 		switch ($this->verifierType) {
 			case self::VERIFIER_TYPE_EXPERT:

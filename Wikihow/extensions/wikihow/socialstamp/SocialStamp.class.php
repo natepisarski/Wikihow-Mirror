@@ -100,7 +100,7 @@ class SocialStamp {
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "expert_icon";
 			if(SocialProofStats::isSpecialInline()) {
-				$params['coauthor'] = wfMessage("sp_inline_expert_label")->text();
+				$params['coauthor'] = wfMessage("ss_special_author")->text();
 			}
 		} else {
 			//second part, only if no expert
@@ -146,8 +146,12 @@ class SocialStamp {
 			if($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
 				$citations = wfMessage('ss_expert_citations', $numCitations, $referenceLink)->text();
 			}
+			$coauthor = lcfirst(wfMessage("ss_coauthor")->text());
+			if(SocialProofStats::isSpecialInline()) {
+				$coauthor = lcfirst(wfMessage("ss_special_author")->text());
+			}
 
-			$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations )->text();
+			$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthor )->text();
 		} elseif($hasCommunity) {
 			if($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
 				$citations = wfMessage('ss_expert_citations', $numCitations, $referenceLink)->text();

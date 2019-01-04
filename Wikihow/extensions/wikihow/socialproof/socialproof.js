@@ -231,7 +231,7 @@
 				dialog_box(false, this, 'icon_hover');
 			});
 
-			$('.sp_expert_inline').click(function() {
+			$('.sp_expert_inline, .expert_coauthor_link').click(function() {
 				return false;
 			});
 
@@ -309,7 +309,7 @@
 				if ($('#sp_icon_hover').length == 0) return;
 
 				popupContainer = $('#sp_icon_hover');
-				finalTopPopupPosition = $(obj).position().top + $(obj).height() + 31;
+				finalTopPopupPosition = $(obj).position().top + $(obj).height() + 15;
 				startTopPopupPosition = finalTopPopupPosition + 10;
 			}
 			else {

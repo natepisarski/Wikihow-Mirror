@@ -907,9 +907,9 @@ class WikihowMobileTools {
 			AlternateDomain::modifyDom();
 		}
 
-		if(class_exists("Donate")) {
-			Donate::addDonateSectionToArticle();
-		}
+		// if(class_exists("Donate")) {
+		// 	Donate::addDonateSectionToArticle();
+		// }
 
 		//tabs should really be last so it has access to all the content on the page
 		if ( class_exists( 'MobileTabs' ) ) {
