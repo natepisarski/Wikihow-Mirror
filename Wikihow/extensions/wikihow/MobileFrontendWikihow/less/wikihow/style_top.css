@@ -944,6 +944,13 @@ body.action-view #fa_container p {
 .video-poster-image img {
 	object-fit: cover;
 }
+.green_tips_box_inline {
+	background-color:#fff5d9;
+	color:#000;
+	margin:0;
+	width:75%;
+	display:inline;
+}
 .img-loading-hide {
 	visibility: hidden;
 }

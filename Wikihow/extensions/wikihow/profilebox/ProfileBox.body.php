@@ -411,8 +411,8 @@ $wgOut->addHTML("
 
 		}
 
-		//$answered_count = TopAnswerers::countLiveAnswersByUserId($u->getID());
-		//$response['qa_answered'] = number_format($answered_count, 0, "", ",");
+		$answered_count = TopAnswerers::countLiveAnswersByUserId($u->getID());
+		$response['qa_answered'] = number_format($answered_count, 0, "", ",");
 
 		//check badges
 		$badges = ProfileStats::genBadges($dbr, $u);
@@ -574,13 +574,12 @@ $wgOut->addHTML("
 					case 'created_more':
 						echo json_encode($stats->fetchCreatedData(100));
 						break;
-					// temporarily disabled, 1/16/18
-					//case 'answered_less':
-					//	echo json_encode($stats->fetchAnsweredData(5));
-					//	break;
-					//case 'answered_more':
-					//	echo json_encode($stats->fetchAnsweredData(100));
-					//	break;
+					case 'answered_less':
+						echo json_encode($stats->fetchAnsweredData(5));
+						break;
+					case 'answered_more':
+						echo json_encode($stats->fetchAnsweredData(100));
+						break;
 					case 'favs':
 						echo $this->fetchFavs($pagename);
 						break;
@@ -967,7 +966,6 @@ class ProfileStats {
 		return $results;
 	}
 
-/*
 	public function fetchAnsweredData($limit) {
 		global $wgMemc;
 
@@ -1012,7 +1010,6 @@ class ProfileStats {
 
 		return $results;
 	}
-*/
 
 	function getBadges() {
 		//no badges for anons

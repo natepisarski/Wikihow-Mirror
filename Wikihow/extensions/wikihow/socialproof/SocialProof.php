@@ -10,7 +10,6 @@ $wgAutoloadClasses['SocialProof'] = dirname(__FILE__) . '/SocialProof.body.php';
 $wgAutoloadClasses['StaffReviewed'] = dirname(__FILE__) . '/StaffReviewed.class.php';
 
 $wgHooks['ArticlePurge'][] = array('SocialProofStats::onArticlePurge');
-$wgHooks['SensitiveArticleEdited'][] = 'StaffReviewed::handleSensitiveArticleEdit';
 $wgHooks['BylineStamp'][] = ['SocialProofStats::setBylineInfo'];
 $wgHooks['BylineStamp'][] = ['StaffReviewed::setBylineInfo'];
 
@@ -47,7 +46,7 @@ $wgResourceModules['ext.wikihow.socialproof'] = array(
 );
 
 $wgResourceModules['mobile.wikihow.socialproof'] = array(
-	'styles' => array( 'socialproof.css','mobilesocialproof.css' ),
+	'styles' => array( 'socialproof.css', 'mobilesocialproof.css', 'noamp-mobilesocialproof.css' ),
 	'scripts' => 'socialproof.js',
 	'targets' => array( 'desktop', 'mobile' ),
 	'localBasePath' => __DIR__,

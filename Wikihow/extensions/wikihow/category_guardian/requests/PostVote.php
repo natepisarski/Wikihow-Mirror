@@ -17,8 +17,9 @@ class PostVote extends SqlSuper{
 	function __construct() {
 		global $wgUser;
 		$this->user = $wgUser;
-		$score = new UserTrustScore('category_guardian');
-		$this->userTrustScore = $score->getScore();
+		// $score = new UserTrustScore('category_guardian');
+		// $this->userTrustScore = $score->getScore();
+		$this->userTrustScore = 1; //trust everyone
 		parent::__construct('PostVote');
 	}
 

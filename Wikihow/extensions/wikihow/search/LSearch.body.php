@@ -650,7 +650,7 @@ class LSearch extends SpecialPage {
 	 * @return int  Amount of results
 	 */
 	private function externalSearchResultsBing($q, $start, $limit = 30, $searchType = self::SEARCH_OTHER): int {
-		global $wgMemc;
+		global $wgMemc, $wgLanguageCode;
 
 		$key = wfMemcKey("BingSearchAPI-V7", str_replace(" ", "-", $q), $start, $limit);
 
@@ -662,6 +662,8 @@ class LSearch extends SpecialPage {
 
 		$set_cache = false;
 		$contents = $wgMemc->get($key);
+		$siteKeyword = wfCanonicalDomain();
+
 		if (!is_array($contents)) {
 			// Request spelling results for logged in search
 			if ($searchType == self::SEARCH_LOGGED_IN || $searchType == self::SEARCH_LOGGED_OUT) {
@@ -672,10 +674,11 @@ class LSearch extends SpecialPage {
 
 			if ($searchType == self::SEARCH_WEB ) {
 				$queryUrl =  "https://api.cognitive.microsoft.com/bing/v7.0/search?responseFilter=$responseFilter"
-				. '&count=' . $limit . '&offset=' . $start . '&q=' . urlencode( $q );
+				. '&count=' . $limit . '&offset=' . $start . '&q=' . urlencode( $q ) . "&setLang=" . $wgLanguageCode;
 			} else {
 				$queryUrl =  "https://api.cognitive.microsoft.com/bing/v7.0/search?responseFilter=$responseFilter"
-					. '&count=' . $limit . '&offset=' . $start . '&q=' . urlencode( "$q site:wikihow.com" );
+					. '&count=' . $limit . '&offset=' . $start . '&q=' . urlencode( "$q site:$siteKeyword" )
+					. "&setLang=" . $wgLanguageCode;
 			}
 
 			// Enable text decoration if a search originates from a wikihow.com page

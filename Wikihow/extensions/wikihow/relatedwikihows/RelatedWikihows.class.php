@@ -698,7 +698,8 @@ class SensitiveRelatedWikihows {
 		$sheetData = json_decode( $sheetData );
 		$sheetData = $sheetData->{'feed'}->{'entry'};
 		$sensitiveMasterList = self::parseSensitiveMaster( $sheetData );
-		self::saveSensitiveMasterList( $sensitiveMasterList );
+		$result = self::saveSensitiveMasterList( $sensitiveMasterList );
+		return $result;
 	}
 
 	/*
@@ -722,9 +723,14 @@ class SensitiveRelatedWikihows {
 
 		$table = self::SENSITIVE_RELATED_REMOVE_PAGE_TABLE;
 		$fieldName = 'srrp_page_id';
+		$message = '';
 		foreach ( $updateData as $lang => $pageIds ) {
-			self::saveNewIdsRemoveDeleteIds( $lang, $pageIds, $table, $fieldName );
+			$resultMessage = self::saveNewIdsRemoveDeleteIds( $lang, $pageIds, $table, $fieldName );
+			if ( $resultMessage ) {
+				$message = $message . "\n" . $resultMessage;
+			}
 		}
+		return $message;
 	}
 
 	/*
@@ -740,9 +746,11 @@ class SensitiveRelatedWikihows {
 	 */
 	private static function saveSensitiveMasterList( $sheetData ) {
 		global $wgWikiHowLanguages;
+		$message = "";
 		if ( !$sheetData ) {
-			decho("no items to remove");
-			return;
+			$message = "no items to remove";
+			decho( $message );
+			return $message;
 		}
 		$data = array();
 		// get translation page ids for each item in the list
@@ -770,9 +778,14 @@ class SensitiveRelatedWikihows {
 
 		$table = self::SENSITIVE_RELATED_PAGE_TABLE;
 		$fieldName = 'srp_page_id';
+		$message = '';
 		foreach ( $updateData as $lang => $pageIds ) {
-			self::saveNewIdsRemoveDeleteIds( $lang, $pageIds, $table, $fieldName );
+			$resultMessage = self::saveNewIdsRemoveDeleteIds( $lang, $pageIds, $table, $fieldName );
+			if ( $resultMessage ) {
+				$message = $message . "\n" . $resultMessage;
+			}
 		}
+		return $message;
 	}
 
 	private static function parseRemoveList( $data ) {
@@ -813,8 +826,9 @@ class SensitiveRelatedWikihows {
 
 		$langDB = Misc::getLangDB( $lang );
 		if ( !$langDB ) {
-			decho("could not get lang db for", $lang);
-			return;
+			$message = "could not get lang db for:". $lang;
+			decho( $message );
+			return $message;
 		}
 		$table = $langDB . '.' . $table ;
 		$cond = array();
@@ -826,15 +840,17 @@ class SensitiveRelatedWikihows {
 			$existing[] = $row->page_id;
 		}
 
-		$removeIds = array_values( array_diff( $existing, $pageIds ) );
-		$insertIds = array_values( array_diff( $pageIds, $existing ) );
+		$removeIds = array_unique( array_values( array_diff( $existing, $pageIds ) ) );
+		$insertIds = array_unique( array_values( array_diff( $pageIds, $existing ) ) );
 		//$removeIds = array_diff( $existing, $pageIds );
 		//$insertIds = array_diff( $pageIds, $existing );
 
+		$message = '';
 		if ( $removeIds ) {
 			decho("field: $fieldName lang: $lang remove ids", json_encode( $removeIds ) );
 			$deleteCond = array( $fieldName => $removeIds );
 			$dbw->delete( $table, $deleteCond, __METHOD__ );
+			$message = "updated $table for $lang\n";
 		}
 		if ( $insertIds ) {
 			decho("field: $fieldName lang: $lang insert ids", json_encode( $insertIds ) );
@@ -844,7 +860,12 @@ class SensitiveRelatedWikihows {
 			}
 
 			$dbw->insert( $table, $insertData, __METHOD__ );
+			$message .= "updated $table for $lang\n";
 		}
+		if ( !$message ) {
+			$message = "no updates for $table for $lang";
+		}
+		return $message;
 	}
 
 	/*

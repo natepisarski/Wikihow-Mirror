@@ -543,8 +543,6 @@ class AlternateDomain {
 
 		// in certain cases we want to 404 the current page.. check that
 		if ( self::isOn404Page( $title->getArticleID() ) ) {
-			$output->setArticleBodyOnly(true);
-			$request->response()->header( "HTTP/1.1 404 Not Found" );
 			return true;
 		}
 
@@ -1080,18 +1078,15 @@ class AlternateDomain {
 		unset( $headLinks['apple-touch-icon'] );
 		unset( $headLinks['favicon'] );
 		unset( $headLinks['rsd'] );
-		if ( self::onNoBrandingDomain() ) {
+
+		if ( $out->getTitle()->isMainPage() ) {
 			$headLinks['meta-keywords'] = Html::element(
 				'meta',
 				['name' => 'keywords', 'content' => wfMessage( 'meta_keywords_' . $domain )]
 			);
-
-			if ( $out->getTitle()->isMainPage() ) {
-				$headLinks['meta-description'] = Html::element(
-					'meta', ['name' => 'description','content' => wfMessage( 'meta_description_hp_' . $domain )]
-				);
-			}
+			$headLinks['meta-description'] = Html::element( 'meta', ['name' => 'description','content' => wfMessage( 'meta_description_' . $domain )] );
 		}
+
 		$hasAmpHtml = false;
 		foreach ( $headLinks as $key => $val ) {
 			if ( strstr( $val, 'atom' ) ) {
@@ -1169,7 +1164,21 @@ class AlternateDomain {
 			if ( $lckey == 'footer_about_wh' ) {
 				$lckey = "footer_about_wh_{$domain}";
 			}
-
+			if ( $lckey == 'noarticletext' ) {
+				$lckey = "noarticletext_altdomain";
+			}
+			if ( $lckey == 'pagepolicy_review_header' ) {
+				$lckey = "pagepolicy_review_header_altdomain";
+			}
+			if ( $lckey == 'pagepolicy_review_message' ) {
+				$lckey = "noarticletext_altdomain";
+			}
+			if ( $lckey == 'pagepolicy_search_header' ) {
+				$lckey = "altdomain_blank";
+			}
+			if ( $lckey == 'pagepolicy_home_message' ) {
+				$lckey = "altdomain_blank";
+			}
 		}
 
 		if ( self::onNoBrandingDomain() ) {
@@ -1238,6 +1247,33 @@ class AlternateDomain {
 			unset( $navTabs['nav_edit'] );
 		} else {
 			return true;
+		}
+	}
+
+	/*
+	* used to show the regular 404 page on alt domains
+	*/
+	public static function onPagePolicyShowCurrentTitle( $title, &$showCurrentTitle ) {
+		// since we are only ever setting this to false under certain conditions
+		// we can return early if it is already false
+		if ( $showCurrentTitle == false) {
+			return;
+		}
+
+		if ( !self::onAlternateDomain() ) {
+			return;
+		}
+
+		if ( !$title->exists() ) {
+			return;
+		}
+
+		if ( self::isOnNoRedirectPage( $title ) ) {
+			return;
+		}
+
+		if ( self::isOn404Page( $title->getArticleID() ) ) {
+			$showCurrentTitle = false;
 		}
 	}
 
@@ -1426,10 +1462,6 @@ class AlternateDomain {
 			if ( $out->getTitle()->getNamespace() != 0 ) {
 				return true;
 			}
-		}
-		if ( self::isOn404Page( $out->getTitle()->getArticleID() ) ) {
-			echo "page not found";
-			die();
 		}
 	}
 

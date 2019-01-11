@@ -103,7 +103,8 @@ abstract class Plants {
 	}
 
 	static function getAllPlantTypes() {
-		return array("CategoryGuardian", "QGTip", "Spellchecker", "PicturePatrol");
+		// return array("CategoryGuardian", "QGTip", "Spellchecker", "PicturePatrol");
+		return array("QGTip", "Spellchecker", "PicturePatrol");
 	}
 
 	/***********

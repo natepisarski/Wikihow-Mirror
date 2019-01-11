@@ -128,12 +128,12 @@ class WikihowUserPage extends Article {
 				$out->addHTML($this->thumbedHTML($thumbsData, $stats['thumbs_received'], $max));
 			}
 
-			// tmp disabled 1/16/18
-			//if ($checkQuestionsAnswered) {
-			//	$max = 5;
-			//	$answeredData = $profileStats->fetchAnsweredData($max);
-			//	$out->addHTML($this->answeredHTML($answeredData, $stats['qa_answered'], $max));
-			//}
+			if ($checkQuestionsAnswered) {
+				$max = 5;
+				$answeredData = $profileStats->fetchAnsweredData($max);
+				$out->addHTML($this->answeredHTML($answeredData, $stats['qa_answered'], $max));
+
+			}
 		}
 
 		// should be? $this->mTitle = Title::newFromText('User:' . $this->user->getName());
@@ -290,7 +290,7 @@ class WikihowUserPage extends Article {
 				'edited' 			=> $stats['edited'] > 0 ? wfMessage('pb-articleedits', $stats['edited'])->text() : '',
 				'patrolled'		=> $patrolled,
 				'viewership'	=> $stats['viewership'] > 0 ? wfMessage('pb-articleviews', $stats['viewership'])->text() : '',
-				'answered'		=> '', //$stats['qa_answered'] > 0 ? wfMessage('pb-answered-stat', $stats['qa_answered'])->text() : '',
+				'answered'		=> $stats['qa_answered'] > 0 ? wfMessage('pb-answered-stat', $stats['qa_answered'])->text() : ''
 			];
 
 			$template = $is_mobile ? 'stats_section_mobile' : 'stats_section';

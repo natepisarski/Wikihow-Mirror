@@ -1,0 +1,40 @@
+#sp_helpful_box {
+	border: none;
+	padding: 19px 15px 15px;
+}
+
+#sp_difficult_box {
+	border: none;
+	padding: 15px;
+}
+
+.sp_expert_icon_info {
+	background-image: url(/skins/owl/images/sp_icon_info.png);
+	/* @embed */
+	background-image: url(/skins/owl/images/sp_icon_info.svg);
+	right: 15px;
+	top: 15px;
+	width: 16px;
+	height: 16px;
+	position:absolute;
+	background-size: cover;
+}
+
+#social_proof_mobile .expert_hint_box p {
+	line-height:normal;
+	margin: 0;
+	text-align: left;
+}
+.expert_hint_box img {
+	float:left;
+	width: 45px;
+	border-radius: 50%;
+	margin-right: 8px;
+	margin-bottom: 8px;
+}
+.expert_hint_box {
+	min-height:45px;
+	max-width:280px;
+	padding:8px;
+	margin-bottom:10px;
+}

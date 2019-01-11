@@ -25,6 +25,8 @@ class Donate extends ContextSource {
 		$action = $ctx->getRequest()->getVal( 'action', 'view' );
 
 		if (!Misc::isAltDomain() &&
+			$out->getTitle() &&
+			$out->getTitle()->getText() == 'Make Distilled Water' && //[sc] 1/7/2019 - ONLY SHOW FOR WATER.ORG NON-PROFIT
 			$out->getTitle()->inNamespace( NS_MAIN ) &&
 			$action == 'view' &&
 			$user && $user->getOption('showcharitysection'))
@@ -131,7 +133,8 @@ class Donate extends ContextSource {
 		$action = $out->getRequest()->getVal( 'action', 'view' );
 		$title = $out->getTitle();
 
-		if ($title && $title->inNamespace( NS_MAIN ) && $action == 'view') {
+		//[sc] 1/7/2019 - ONLY SHOW FOR WATER.ORG NON-PROFIT
+		if ($title && $title->getText() == 'Make Distilled Water' && $title->inNamespace( NS_MAIN ) && $action == 'view') {
 			$out->addModules('ext.wikihow.donate');
 		}
 	}

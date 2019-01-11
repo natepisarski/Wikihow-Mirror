@@ -9,11 +9,16 @@ class removeBadReferences extends Maintenance {
         $this->mDescription = "remove checked 404 pages from article references";
 		$this->addOption( 'limit', 'number of items to process', false, true, 'l' );
 		$this->addOption( 'verbose', 'print verbose info', false, false, 'v' );
+		$this->addOption( 'url', 'url which is bad', false, true, 'u' );
     }
 
 	private function removeFromArticle( $pageId, $url ) {
 		$verbose = $this->getOption( "verbose" );
-		decho("url is", $url);
+		//decho("url is", $url);
+		if ( $url == "http://" || $url == "https://" ) {
+			decho("bad url", $url);
+			return;
+		}
 
 		//get latest revision
 		$title = Title::newFromId( $pageId );
@@ -29,31 +34,60 @@ class removeBadReferences extends Maintenance {
 		$urlCount = substr_count( $text, $url );
 		if ( $urlCount < 1 ) {
 			decho("url: $url not found in text of article:", $title);
-			exit;
+			return;
 		}
-		$refUrl = "<ref>" . $url . "</ref>";
-		$refCount = substr_count( $text, $refUrl );
+
+		$refUrls = array(
+			"<ref>" . $url . "</ref>",
+			"<ref> " . $url . " </ref>",
+			"<ref> " . $url . "  </ref>",
+			"<reF>" . $url . "</ref>",
+			"<ref><" . $url . "</ref>",
+			"<ref>" . $url . "</reF>",
+			"<Ref>" . $url . "</ref>",
+			"<Ref>" . $url . "</reF>",
+			"<ref> " . $url . "</ref>",
+			"<ref> " . $url . PHP_EOL . "</ref>",
+			"<ref name=wh>" . $url . "</ref>",
+			"<ref name=shock>" . $url . "</ref>",
+			"<ref name=cent>" . $url . "</ref>",
+			'<ref name="sleep">' . $url . "</ref>"
+		);
+
+		$refCount = 0;
+		foreach( $refUrls as $refUrl ) {
+			$refCount += substr_count( $text, $refUrl );
+		}
 
 		$sourcesText = stristr( $text, "== sources and citations ==" );
+		if ( !$sourcesText ) {
+			$sourcesText = stristr( $text, "==sources and citations==" );
+		}
 		$sourcesSectionCount = substr_count( $sourcesText, $url );
 		if ( $sourcesSectionCount ) {
 			$text = $this->removeFromSourcesSection( $text, $url );
 		}
 
 		if ( $refCount + $sourcesSectionCount != $urlCount ) {
-			decho("url: $url ref count $refCount and sources count $sourcesSectionCount does not match url count $urlCount", $text);
-			exit;;
+			decho( "pageId: $pageId url: $url ref count $refCount and sources count $sourcesSectionCount does not match url count $urlCount" );
+			foreach( explode( PHP_EOL, $text ) as $line ) {
+				if ( substr_count( $line, $url ) ) {
+					decho("matching line", trim( $line ) );
+				}
+			}
+			return;
 		}
 
 		if ( $refCount > 0 ) {
-			decho( "will remove references from within article" );
-			exit;
-			$text = str_replace( $refUrl, "", $text );
+			//decho( "will remove references from within article" );
+			//exit;
+			foreach( $refUrls as $refUrl ) {
+				$text = str_replace( $refUrl, "", $text );
+			}
 		}
 
 		if ( $text != $originalText ) {
-			// not yet
-			decho(' will edit content ' );
+			//decho(' will edit content ' );
 			//$this->editContent( $text, $title );
 		}
 	}
@@ -65,9 +99,12 @@ class removeBadReferences extends Maintenance {
 		// check the sources and citations section too
 		$sectionText = stristr( $text, "== sources and citations ==" );
 		if ( !$sectionText ) {
+			$sectionText = stristr( $text, "==sources and citations==" );
 			// this should never happen so quit completely if it does
-			decho("Error: could not find section!");
-			exit();
+			if ( !$sectionText ) {
+				decho("Error: could not find section!");
+				exit();
+			}
 		}
 
 		$sectionLines = explode( PHP_EOL, $sectionText );
@@ -171,6 +208,26 @@ class removeBadReferences extends Maintenance {
 		}
 	}
 
+	private function markBadUrl( $url ) {
+		$dbw = wfGetDb( DB_MASTER );
+
+		$table = "link_info";
+		$var = "count(*)";
+		$cond = array( "li_url" => $url );
+		// first look for it
+		$exists = $dbw->selectField( $table, $var, $cond, __METHOD__ );
+		if ( $exists ) {
+			$values = array(
+				'li_user_checked' => 1,
+				'li_date_checked = now()'
+			);
+			$dbw->update( $table, $values, $cond, __METHOD__ );
+			decho( "updated", $url );
+		} else {
+			decho( "url not found", $url );
+		}
+	}
+
 	private function getItems() {
 		$limit = 1;
 		if ( $this->getOption( 'limit' ) ) {
@@ -179,10 +236,12 @@ class removeBadReferences extends Maintenance {
 
 		$items = array();
 		$dbr = wfGetDb( DB_SLAVE );
-		//$query = "SELECT page_title, el_from, el_to FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked > 0)) LIMIT " . $limit;
+		$query = "SELECT page_title, el_from, el_to FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked > 0)) LIMIT " . $limit;
 
-		$query = "SELECT page_title, el_from, el_to FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked = 0)) LIMIT ". $limit;
+		// the test query ignoring user checked
+		//$query = "SELECT page_title, el_from, el_to FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked = 0)) LIMIT ". $limit;
 		$res = $dbr->query( $query,__METHOD__ );
+		decho('last', $dbr->lastQuery());exit;
 		foreach ( $res as $row ) {
 			$item = array(
 				'pageId' => $row->el_from,
@@ -194,7 +253,13 @@ class removeBadReferences extends Maintenance {
 	}
 
 	public function execute() {
-		$this->processItems();
+		if ( $this->hasOption( "url" ) ) {
+			$url = $this->getOption( "url" );
+			decho("will mark url as bad", $url );
+			$this->markBadUrl( $url );
+		} else {
+			$this->processItems();
+		}
 	}
 }
 

@@ -1,0 +1,64 @@
+<div id="bible_citation_widget" class="section">
+	<h2>
+		<div class="altblock"></div>
+		<span class="mw-headline">{{header}}</span>
+	</h2>
+
+	<div id="bible_citation_notification" class="section_text" style="display:none"></div>
+
+	<form class="section_text">
+		<div class="row">
+			<div>
+				<span>{{format}}:</span>
+				<select id="bcw_format" name="format">
+					{{#formats}}<option value="{{option}}">{{option}}</option>{{/formats}}
+				</select>
+			</div>
+
+			<div>
+				<span>{{section}}:</span>
+				<select id="bcw_section" name="section">
+					{{#sections}}<option value="{{option}}">{{option}}</option>{{/sections}}
+				</select>
+			</div>
+		</div>
+
+		<div class="row">
+			<div id="bcw_book_title">
+				<span>{{title}}:</span>
+				<input id="bcw_title" name="title" type="text" />
+			</div>
+
+			<div id="bcw_publication">
+				<span>{{publication}}:</span>
+				<input id="bcw_publisher" name="publisher" type="text" placeholder="{{publisher_ph}}" />
+				<input id="bcw_city" name="city" type="text" placeholder="{{city_ph}}" />
+				<input id="bcw_year" name="year" type="text" placeholder="{{year_ph}}" />
+			</div>
+		</div>
+
+		<div class="row">
+			<div id="bcw_optional">
+				<span>{{optional}}:</span>
+				<input id="bcw_edition" name="edition" type="text" placeholder="{{edition_ph}}" />
+				<input id="bcw_volume" name="volume" type="text" placeholder="{{volume_ph}}" />
+			</div>
+
+			<div id="bcw_submit">
+				<button type="submit" class="button primary">{{submit}}</button>
+			</div>
+		</div>
+	</form>
+
+	<div id="bible_citation_result" class="section_text" style="display:none">
+		<span id="bible_citation_message"></span>
+		<button id="bible_citation_copy" class="button primary">{{copy}}</button>
+		<button id="bible_citation_create" class="button primary">{{create}}</button>
+		<div id="bible_citation_string" contenteditable="true"></div>
+	</div>
+
+</div>
+
+<script id="bible_citation" type="text/x-handlebars-template">
+	{{bible_citation}}
+</script>

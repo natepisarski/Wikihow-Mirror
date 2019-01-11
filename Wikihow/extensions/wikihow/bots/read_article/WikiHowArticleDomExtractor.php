@@ -176,7 +176,13 @@ class WikiHowArticleDomExtractor {
 	public function getStepImages($methodNum = 0) {
 		$extractionFn = function($step) {
 			$imgSrc = pq('img:first', $step)->attr('src');
-			return  empty($imgSrc) ? "" : Misc::getLangBaseURL('en') . $imgSrc;
+			if (empty($imgSrc)) {
+				$imgSrc = "";
+			}
+			else {
+			  $imgSrc = stripos($imgSrc, "/") === 0  ? Misc::getLangBaseURL() . $imgSrc : $imgSrc;
+			}
+			return  $imgSrc;
 		};
 
 		return $this->extractFromSteps($extractionFn, $methodNum);

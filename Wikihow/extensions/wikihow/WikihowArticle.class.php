@@ -806,9 +806,9 @@ class WikihowArticleHTML {
 		DeferImages::modifyDOM();
 		Lightbox::modifyDOM($wgTitle->getArticleID());
 		ImageCaption::modifyDOM();
-		// if (class_exists('Donate')) {
-		// 	Donate::addDonateSectionToArticle();
-		// }
+		if (class_exists('Donate')) {
+			Donate::addDonateSectionToArticle();
+		}
 
 		//english only test
 		if($wgLanguageCode == "en" && ArticleTagList::hasTag("test_bold_1", $wgTitle->getArticleID())) {

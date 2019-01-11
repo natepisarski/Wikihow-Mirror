@@ -109,23 +109,27 @@ class SocialStamp {
 				$params['hasSlot2'] = true;
 				$params['slot2_intro'] = wfMessage('ss_tested')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_TECH);
+				$params['slot2class'] = 'ss_tech';
 				$isTested = true;
 			} elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_VIDEO, $verifiers)) {
 				$testKey = SocialProofStats::VERIFIER_TYPE_VIDEO;
 				$params['hasSlot2'] = true;
 				$params['slot2_intro'] = wfMessage('ss_tested')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_VIDEO);
+				$params['slot2class'] = 'ss_video';
 				$isTested = true;
 			} elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_CHEF, $verifiers)) {
 				$testKey = SocialProofStats::VERIFIER_TYPE_CHEF;
 				$params['hasSlot2'] = true;
 				$params['slot2_intro'] = wfMessage('ss_tested')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_CHEF);
+				$params['slot2class'] = 'ss_video';
 				$isTested = true;
 			} elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_READER, $verifiers)) {
 				$params['hasSlot2'] = true;
 				$params['slot2_intro'] = wfMessage('ss_approved')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_READER);
+				$params['slot2class'] = 'ss_review';
 				$hoverText .= UserReview::getIconHoverText($articleId);
 				$hasReaders = true;
 			}

@@ -907,9 +907,9 @@ class WikihowMobileTools {
 			AlternateDomain::modifyDom();
 		}
 
-		// if(class_exists("Donate")) {
-		// 	Donate::addDonateSectionToArticle();
-		// }
+		if(class_exists("Donate")) {
+			Donate::addDonateSectionToArticle();
+		}
 
 		//tabs should really be last so it has access to all the content on the page
 		if ( class_exists( 'MobileTabs' ) ) {
@@ -1638,22 +1638,45 @@ class WikihowMobileTools {
 	private static function formatReferencesSection( $skin ) {
 		$sourcesSectionClass = ".".Misc::getSectionName( (wfMessage('sources')->text()));
 		$sourcesSection = pq( $sourcesSectionClass );
-		$sourcesSection = pq( $sourcesSectionClass );
 
-		// add class to the section so we can target it with css
+		pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="firstref references">' );
+
+		// take out all li items and move them in to an ol
+		foreach ( pq( $sourcesSection )->find( 'li' ) as $listItem ) {
+			// clone the item so  we do not mess with the data in our list we are iterating over
+			$tempListItem = pq( $listItem )->clone();
+			// remove any sub lists from each item
+			pq( $tempListItem )->find( 'ol,ul' )->remove();
+
+			$text = pq( $tempListItem )->text();
+			// skip any empty items
+			if ( !trim( $text ) ) {
+				continue;
+			}
+			// if the item does not have a ref text class wrap it in a span with that class
+			if ( !pq( $tempListItem )->find( '.reference-text' )->length ) {
+				pq( $tempListItem )->wrapinner('<span class="reference-text">');
+			}
+			// add this to the new list of references which will replace the existing one
+			pq( $sourcesSection )->find( '.firstref.references' )->append( $tempListItem );
+		}
+
+		foreach ( pq( $sourcesSection )->find( '.section_text' )->children() as $child ) {
+			if ( pq( $child )->hasClass('firstref') ) {
+				continue;
+			}
+			pq( $child )->remove();
+		}
+
+		// add classes to the section so we can target it with css
+		// also remove any stray p tags
 		pq( $sourcesSection )->addClass( 'aidata' )->find('p')->remove();
 		pq( $sourcesSection )->addClass( 'sourcesandcitations' );
+
+		// change title of section if user is anon
 		if ( $skin->getUser()->isAnon()) {
 			pq( $sourcesSection )->find('.mw-headline')->text( wfMessage( 'references' )->text() );
 		}
-
-		// move the regular references to be inside the same ordered list
-		// if this list does not exist create it
-		pq( $sourcesSection )->find( 'ul li a' )->wrap('<div>');
-		if ( !pq( $sourcesSection )->find( 'ol' )->length ) {
-			pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="references">' );
-		}
-		pq( $sourcesSection )->children( 'ol' )->append( pq( $sourcesSection )->find( 'ul li' ) );
 
 		$referencesFirst = pq( $sourcesSection )->clone();
 		pq( $referencesFirst )->find('div:first')->attr('id', 'references_first');

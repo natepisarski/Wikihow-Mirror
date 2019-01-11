@@ -49,6 +49,7 @@ $wgHooks['WikihowMobileSkinAfterPreparePersonalTools'][] = 'AlternateDomain::onW
 $wgHooks['HeaderBuilderAfterGetTabsArray'][] = 'AlternateDomain::onHeaderBuilderAfterGetTabsArray';
 $wgHooks['ResourceLoaderRegisterModules'][] = 'AlternateDomain::onResourceLoaderRegisterModules';
 $wgHooks['HeaderBuilderGetCategoryLinksShowCategoryListing'][] = 'AlternateDomain::onHeaderBuilderGetCategoryLinksShowCategoryListing';
+$wgHooks['PagePolicyShowCurrentTitle'][] = 'AlternateDomain::onPagePolicyShowCurrentTitle';
 
 // hooks for no branding site only
 $wgHooks['WikihowTemplateAfterCreateNotices'][] = 'AlternateDomain::onWikihowTemplateAfterCreateNotices';

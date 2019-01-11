@@ -97,9 +97,12 @@ class CategoryGuardian extends UnlistedSpecialPage {
 			$sum = new Summary($row->page_id);
 
 			if ($sum->page) {
+				$page_title = mb_convert_encoding($sum->getTitleText(), 'UTF-8', 'UTF-8');
+				$blurb = mb_convert_encoding($sum->getSummary(), 'UTF-8', 'UTF-8');
+
 				$item = array(
-					'page_title' => $sum->getTitleText(),
-					'blurb' => $sum->getSummary()
+					'page_title' => $page_title,
+					'blurb' => $blurb
 				);
 
 				array_push($slugs, array_merge($article, $item));

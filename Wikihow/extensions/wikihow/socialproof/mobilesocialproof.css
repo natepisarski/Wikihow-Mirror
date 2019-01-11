@@ -26,9 +26,6 @@
 	text-align: center;
 	position:relative;
 }
-#social_proof_wrapper {
-	position:relative;
-}
 .arrow_box {
 	position:relative;
 	border: 1px solid #e5e5e5;
@@ -81,11 +78,6 @@
 	border-bottom: 1px solid #e7e7e5;
 }
 
-#sp_helpful_box {
-	border: none;
-	padding: 19px 15px 15px;
-}
-
 #sp_star_section_upper {
 	display: inline-block;
 }
@@ -95,11 +87,6 @@
 	border-top: 1px solid #e7e7e5;
 	border-left: none;
 	font-size: 16px;
-}
-
-#sp_difficult_box {
-	border: none;
-	padding: 15px;
 }
 
 #social_proof {
@@ -131,10 +118,6 @@
 	margin-right: 3px;
 	float: left;
 }
-.sp_method_text {
-	padding-top: 33px;
-	line-height: 12px;
-}
 .sp_text {
 	padding-top: 8px;
 	line-height: 1em;
@@ -159,17 +142,6 @@
 	background-repeat: no-repeat;
 }
 
-.sp_expert_icon_info {
-	background-image: url(/skins/owl/images/sp_icon_info.png);
-	/* @embed */
-	background-image: url(/skins/owl/images/sp_icon_info.svg);
-	right: 15px;
-	top: 15px;
-	width: 16px;
-	height: 16px;
-	position:absolute;
-	background-size: cover;
-}
 .sp_expert_icon {
 	background-size: contain;
 	background-repeat: no-repeat;
@@ -189,10 +161,6 @@
 	vertical-align:middle;
 	margin: 0 auto;
 	color: #545454;
-}
-
-#sp_inner .sp_community_text p {
-	font-size: 16px;
 }
 
 .sp_tech_icon {
@@ -251,23 +219,6 @@
 	background-image: -webkit-linear-gradient(transparent, transparent), none;
 	background-image: linear-gradient(transparent, transparent), none;
 }
-.sp_oval_icon_bg {
-	position:absolute;
-	top:18px;
-	left: 0;
-	right: 0;
-	margin: 0 auto;
-	color: #ABABAB;;
-	font-size:22px;
-	font-weight:normal;
-}
-.sp_difficult_popup_container {
-	bottom:190px;
-	left:-20px;
-	position:absolute;
-	z-index:100000007;
-	display:none;
-}
 .sp_difficult_icon {
 	position:absolute;
 	left: 0;
@@ -296,13 +247,6 @@
 	z-index:100000007;
 	display:none;
 }
-.sp_helpful_popup_container {
-	bottom:190px;
-	left:-20px;
-	position:absolute;
-	z-index:100000007;
-	display:none;
-}
 .hint_box {
 	min-width:150px;
 	max-width:180px;
@@ -320,24 +264,6 @@
 .stable .content .hint_box p {
 	line-height: 1.3em;
 	margin-bottom: 0;
-}
-#social_proof_mobile .expert_hint_box p {
-	line-height:normal;
-	margin: 0;
-	text-align: left;
-}
-.expert_hint_box img {
-	float:left;
-	width: 45px;
-	border-radius: 50%;
-	margin-right: 8px;
-	margin-bottom: 8px;
-}
-.expert_hint_box {
-	min-height:45px;
-	max-width:280px;
-	padding:8px;
-	margin-bottom:10px;
 }
 .chef_hint_box, .tech_hint_box, .videov_hint_box {
 	min-height:28px;
@@ -555,12 +481,8 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 		font-size: 20px;
 	}
 
-	.sp_box, #articleinfo, #sp_expert h4, #sp_inner .sp_community_text p {
+	.sp_box, #articleinfo, #sp_expert h4 {
 		font-size: 20px;
-	}
-
-	#sp_inner .sp_community_text p {
-		line-height: 23px;
 	}
 
 	.sp_icon_bg {

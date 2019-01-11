@@ -553,6 +553,8 @@ class VerifyData {
 		);
 	}
 
+	/* Not used (Alberto, 2019-01)
+
 	// adds a single piece of verify data to the db
 	public static function insertOrUpdate($pageId, $verifyData) {
 		global $wgMemc;
@@ -602,6 +604,7 @@ class VerifyData {
 			$wgMemc->set( $cacheKey, $verifyData );
 		}
 	}
+	*/
 
 	public static function getExpertImagePath( $vd ) {
 		if ( !$vd || !$vd->image ) {

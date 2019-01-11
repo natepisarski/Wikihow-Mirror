@@ -36,7 +36,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/DupImage.php");
 	require_once("$IP/extensions/wikihow/bots/messenger_bot/MessengerBot.php");
 	require_once("$IP/extensions/wikihow/bots/alexa_skills/AlexaSkills.php");
-	require_once("$IP/extensions/wikihow/bots/Bots.php");
 	require_once("$IP/extensions/wikihow/tipsandwarnings/TipsAndWarnings.php");
 	require_once("$IP/extensions/wikihow/tipsandwarnings/TipsPatrol.php");
 	require_once("$IP/extensions/wikihow/docviewer/DocViewer.php");
@@ -50,7 +49,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/AdminUnlinkSocial/AdminUnlinkSocial.php");
 	require_once("$IP/extensions/wikihow/sherlock/SpecialSherlock.php");
 	require_once("$IP/extensions/wikihow/answerquestions/AnswerQuestions.php");
-	require_once("$IP/extensions/wikihow/articletext/ArticleText.php");
 
 	if ($wgIsDaikonDomain || $wgIsDevServer) {
 		require_once("$IP/extensions/wikihow/ContentPortal/ContentPortal.php");
@@ -102,6 +100,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/VideoBrowser/VideoBrowser.php");
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	// require_once("$IP/extensions/wikihow/AmazonAffiliates/AmazonAffiliates.php");
+	require_once("$IP/extensions/wikihow/BibleCitation/BibleCitation.php");
 }
 
 if ($wgLanguageCode == "zh") {
@@ -364,7 +363,9 @@ require_once("$IP/extensions/wikihow/api/ApiSmsListing.php");
 require_once("$IP/extensions/wikihow/api/ApiSummaryVideos.php");
 require_once("$IP/extensions/wikihow/api/ApiRelatedArticles.php");
 
-if ($wgLanguageCode == "en") {
+if ($wgLanguageCode == "en" || $wgLanguageCode == "de") {
+	require_once("$IP/extensions/wikihow/bots/Bots.php");
+	require_once("$IP/extensions/wikihow/articletext/ArticleText.php");
 	require_once("$IP/extensions/wikihow/api/ApiArticleText.php");
 	require_once("$IP/extensions/wikihow/api/ApiTitleSearch.php");
 }

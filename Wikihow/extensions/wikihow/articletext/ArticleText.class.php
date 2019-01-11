@@ -74,7 +74,7 @@ class ArticleText {
 		$this->setArticleTitle(wfMessage("howto", $t->getText())->text());
 		$this->setTopLevelCategories($this->getTopLevelCategoriesFromDB());
 		$this->setArticleUrl(
-			wfExpandUrl(Misc::getLangBaseURL('en') . $t->getLocalURL(), PROTO_CANONICAL));
+			wfExpandUrl(Misc::getLangBaseURL() . $t->getLocalURL(), PROTO_CANONICAL));
 
 		// Load a good revision if available
 		$goodRevision = GoodRevision::newFromTitle($t, $t->getArticleId());

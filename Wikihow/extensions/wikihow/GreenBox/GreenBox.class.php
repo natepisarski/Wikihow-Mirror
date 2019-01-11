@@ -38,17 +38,14 @@ class GreenBox {
 		$expert_data = !empty($expert_id) ? VerifyData::getVerifierInfoById($expert_id) : null;
 		if (empty($expert_data)) return [''];
 
-		$amp = GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() );
-
 		$vars = [
 			'green_box_tab_label' => wfMessage('green_box_tab_label')->text(),
 			'content' => self::formatBoxContents($parser, $wikitext),
 			'content_2' => self::formatBoxContents($parser, $wikitext_2),
-			'expert_display' => self::expertDisplayHtml($expert_data, $amp),
+			'expert_display' => self::expertDisplayHtml($expert_data),
 			'expert_label' => wfMessage('green_box_expert_label')->text(),
 			'questioner' => wfMessage('green_box_questioner')->text(),
-			'mobile_class' => Misc::isMobileMode() ? 'mobile' : '',
-			'amp' => $amp
+			'mobile_class' => Misc::isMobileMode() ? 'mobile' : ''
 		];
 
 		$template = empty($wikitext_2) ? 'green_box_expert' : 'green_box_expert_qa';
@@ -75,18 +72,11 @@ class GreenBox {
 	 * can return:
 	 * - the expert's initials
 	 * - the expert's image in an <img> tag
-	 * - the expert's image in an <amp-img> tag (for AMP, obv)
 	 */
-	private static function expertDisplayHtml(VerifyData $expert_data, bool $amp): string {
+	private static function expertDisplayHtml(VerifyData $expert_data): string {
 		$image_path = $expert_data->imagePath;
 		if (empty($image_path)) return $expert_data->initials;
-
-		if ($amp)
-			$img = GoogleAmp::makeAmpImgElement($image_path, 45, 45);
-		else
-			$img = Html::rawElement('img', ['src' => $image_path, 'alt' => $expert_data->name]);
-
-		return $img;
+		return Html::rawElement('img', ['src' => $image_path, 'alt' => $expert_data->name]);
 	}
 
 	private static function unauthorizedExpertGreenBoxEdits(WikiPage $wikiPage, Content $new_content, User $user): bool {
@@ -133,12 +123,20 @@ class GreenBox {
 
 	//this uses the phpQuery object
 	public static function onProcessArticleHTMLAfter(OutputPage $out) {
+		$amp = GoogleAmp::isAmpMode($out);
+
 		//move greenboxes to their proper places
 		//--------------------------------
 		if (pq('.green_box')->length) {
 			foreach(pq('.green_box') as $green_box) {
 				$step = pq($green_box)->parents('.step');
 				pq($step)->after(pq($green_box));
+
+				if ($amp) {
+					$gb_img = pq($green_box)->find('.green_box_person_circle.expert img');
+					$amp_img = GoogleAmp::makeAmpImgElement(pq($gb_img)->attr('src'), 45, 45);
+					pq($gb_img)->replaceWith($amp_img);
+				}
 			}
 		}
 
