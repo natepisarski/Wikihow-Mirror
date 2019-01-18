@@ -5,6 +5,8 @@ class GreenBox {
 	const GREENBOX_TEMPLATE_PREFIX = 'greenbox:';
 	const GREENBOX_EXPERT_TEMPLATE_PREFIX = 'expertgreenbox:';
 
+	const GREENBOX_EXPERT_STAFF = 'staff';
+
 	//here are the official flavors of our green boxes
 	public static $green_box_types = [
 		'green_box',					//uses {{greenbox}}
@@ -35,7 +37,19 @@ class GreenBox {
 		] );
 		$m = new Mustache_Engine(['loader' => $loader]);
 
-		$expert_data = !empty($expert_id) ? VerifyData::getVerifierInfoById($expert_id) : null;
+		if ($expert_id == self::GREENBOX_EXPERT_STAFF) {
+			$expert_data = new VerifyData;
+			$expert_data->imagePath = '/skins/WikiHow/wH-initials_152x152.png';
+			$expert_data->name = wfMessage('qa_staff_editor')->text();
+			$expert_data->initials = 'wH';
+			$expert_data->hoverBlurb = wfMessage('sp_staff_reviewed_hover')->text();
+			$expert_label = wfMessage('green_box_staff_label')->text();
+		}
+		else {
+			$expert_data = !empty($expert_id) ? VerifyData::getVerifierInfoById($expert_id) : null;
+			$expert_label = wfMessage('green_box_expert_label')->text();
+		}
+
 		if (empty($expert_data)) return [''];
 
 		$vars = [
@@ -43,7 +57,8 @@ class GreenBox {
 			'content' => self::formatBoxContents($parser, $wikitext),
 			'content_2' => self::formatBoxContents($parser, $wikitext_2),
 			'expert_display' => self::expertDisplayHtml($expert_data),
-			'expert_label' => wfMessage('green_box_expert_label')->text(),
+			'expert_label' => $expert_label,
+			// 'expert_dialog' => self::expertDialog($expert_data),
 			'questioner' => wfMessage('green_box_questioner')->text(),
 			'mobile_class' => Misc::isMobileMode() ? 'mobile' : ''
 		];
@@ -61,6 +76,10 @@ class GreenBox {
 		//== headline == >>> <span class="green_box_headline">headline</span>
 		$wikitext = preg_replace('/==\s?(.*?)\s?==/', '<span class="green_box_headline">$1</span>', $wikitext);
 
+		//bullets (*)
+		$wikitext = preg_replace('/<br><br>\*(.*?)<br><br>/', '<p class="green_box_bullet">$1</p>', $wikitext);
+		$wikitext = preg_replace('/\*/', '</p><p class="green_box_bullet">', $wikitext);
+
 		//wrap in <p> tags
 		$wikitext = '<p>'.preg_replace('/<br><br>/s', '</p><p>', $wikitext).'</p>';
 
@@ -77,6 +96,28 @@ class GreenBox {
 		$image_path = $expert_data->imagePath;
 		if (empty($image_path)) return $expert_data->initials;
 		return Html::rawElement('img', ['src' => $image_path, 'alt' => $expert_data->name]);
+	}
+
+	private static function expertDialog(VerifyData $expert_data): string {
+		if ($expert_data->name == wfMessage('qa_staff_editor')->text()) return '';
+
+		$dialog = $expert_data->hoverBlurb;
+
+		$link = self::expertInternalLinkHTML($expert_data->name, wfMessage('sp_learn_more')->text());
+		if ($link) $dialog .= ' ' . $link;
+
+		return $dialog;
+	}
+
+	private static function expertInternalLinkHTML(string $name, string $link_text): string {
+		$html = '';
+
+		if ($name != wfMessage('qa_staff_editor')->text()) {
+			$expert_link = ArticleReviewers::getLinkByVerifierName($name);
+			if ($expert_link) $html = Html::rawElement('a', ['href' => $expert_link], $link_text);
+		}
+
+		return $html;
 	}
 
 	private static function unauthorizedExpertGreenBoxEdits(WikiPage $wikiPage, Content $new_content, User $user): bool {
@@ -118,7 +159,8 @@ class GreenBox {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
-		$out->addModules('ext.wikihow.green_box');
+		// $out->addModules(['ext.wikihow.green_box','ext.wikihow.green_box.scripts']);
+		$out->addModules(['ext.wikihow.green_box']);
 	}
 
 	//this uses the phpQuery object
@@ -133,8 +175,18 @@ class GreenBox {
 				pq($step)->after(pq($green_box));
 
 				if ($amp) {
-					$gb_img = pq($green_box)->find('.green_box_person_circle.expert img');
+					//make amp-img
+					$gb_img = pq($green_box)->find('.green_box_person_circle img');
 					$amp_img = GoogleAmp::makeAmpImgElement(pq($gb_img)->attr('src'), 45, 45);
+
+					//no dialog hover; make image a link
+					$link = pq($green_box)->find('.green_box_expert_dialog a')->attr('href');
+					if ($link) {
+						//make relative because this can be a desktop link
+						$link = preg_replace('/https?:\/\/www.wikihow.com/i','',$link);
+						$amp_img = Html::rawElement('a', [ 'href' => $link, 'target' => '_blank' ], $amp_img);
+					}
+
 					pq($gb_img)->replaceWith($amp_img);
 				}
 			}

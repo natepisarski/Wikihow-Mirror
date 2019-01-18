@@ -24,7 +24,7 @@ class GenerateURLsMaintenance {
 
 		$domainIds = array();
 		// keep track of any pages in test domain
-		if ($forSitemap && class_exists('AlternateDomain')) {
+		if ($forSitemap && class_exists('AlternateDomain') && AlternateDomain::isAltDomainLang()) {
 			$domainIds = AlternateDomain::getAllPages();
 		}
 

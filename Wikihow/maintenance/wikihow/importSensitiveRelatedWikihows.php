@@ -14,7 +14,7 @@ class importSensitiveRelatedWikihows extends Maintenance {
 	private function emailResults( $message ) {
 		global $wgIsDevServer;
 
-		$to = new MailAddress("sensitiverelateds@wikihow.com,aaron@wikihow.com");
+		$to = new MailAddress( 'sensitiverelateds@wikihow.com,aaron@wikihow.com,chris@wikihow.com,elizabeth@wikihow.com' );
 		if ( $wgIsDevServer ) {
 			$to = new MailAddress("aaron@wikihow.com");
 		}

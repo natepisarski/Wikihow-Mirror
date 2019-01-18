@@ -54,7 +54,7 @@
 					page_title: mw.config.get('wgTitle'),
 					content: $('#set_content').val(),
 					last_sentence: $('#set_last_sentence').val(),
-					show_at_top: $('#set_checkbox').is(':checked') ? 1 : 0
+					// show_at_top: $('#set_checkbox').is(':checked') ? 1 : 0
 				},
 				$.proxy(function(result) {
 					this.showSubmitResult(result);
@@ -99,34 +99,20 @@
 				'api.php?action=parse&format=json&page=Summary:'+mw.config.get('wgTitle'),
 				$.proxy(function(data) {
 					if (data && data.parse) {
-						var summary = data.parse.text['*'];
 
-						if ($('#quick_summary_section').length) {
-							$('#quick_summary_section').hide();
-						}
-						else {
-							$('#temp_summary').attr('id','quick_summary_section');
-						}
+						//only replace existing summary
+						//(don't write a whole new TOC or anything crazy)
+						if ($('#summary_wrapper').length) {
+							$('#summary_wrapper').hide().find('#summary_text p').remove();
 
-						$('#quick_summary_section').find('.section_text p').remove();
-						$('#quick_summary_section .clearall').before(summary);
+							var summary = data.parse.text['*'];
+							$('#summary_wrapper .clearall').before(summary);
 
-						var at_top = $('#summary_position').hasClass('sumpos_top');
-						if (at_top) {
-							$('#intro').after($('#quick_summary_section'));
-						}
-						else {
-
-							if ($('div.video.section').length)
-								$('div.video.section').after($('#quick_summary_section'));
-							else if ($('div.qa.section').length)
-								$('div.qa.section').after($('#quick_summary_section'));
-							else
-								$('div.steps:last').after($('#quick_summary_section'));
-
+							$('html, body').animate({scrollTop: 0}, 300, function() {
+								$('#summary_wrapper').show();
+							});
 						}
 
-						$('#quick_summary_section').slideDown();
 					}
 				},this)
 			);

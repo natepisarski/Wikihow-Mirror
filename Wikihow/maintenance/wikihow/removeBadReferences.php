@@ -14,10 +14,13 @@ class removeBadReferences extends Maintenance {
 
 	private function removeFromArticle( $pageId, $url ) {
 		$verbose = $this->getOption( "verbose" );
-		//decho("url is", $url);
 		if ( $url == "http://" || $url == "https://" ) {
 			decho("bad url", $url);
 			return;
+		}
+
+		if ( $verbose ) {
+			decho("url", $url);
 		}
 
 		//get latest revision
@@ -85,10 +88,18 @@ class removeBadReferences extends Maintenance {
 				$text = str_replace( $refUrl, "", $text );
 			}
 		}
+		// count the number of remaining references
+		$remainingRefsCount = substr_count( strtolower( $text ), "<ref" );
+		// if we removed references and there are no remaining refs, then remove reflist
+		if  ( $remainingRefsCount == 0 && $refCount > 0 ) {
+			//decho("will remove {{reflist}}");
+			$text = $this->removeFromSourcesSection( $text, "{{reflist}}" );
+		}
+
 
 		if ( $text != $originalText ) {
-			//decho(' will edit content ' );
-			//$this->editContent( $text, $title );
+			decho( "will edit content on $title" );
+			$this->editContent( $text, $title );
 		}
 	}
 
@@ -115,7 +126,7 @@ class removeBadReferences extends Maintenance {
 		// iterate through the lines in this section, counting the number of references
 		// to determine if we removed all of them
 		foreach ( $sectionLines as $line ) {
-			// keep gtrack of heading in case we need to remove it
+			// keep track of heading in case we need to remove it
 			if ( $sectionHeading == null ) {
 				$sectionHeading = $line;
 				continue;
@@ -134,6 +145,9 @@ class removeBadReferences extends Maintenance {
 			if ( strpos( $line, "==" ) !== false ) {
 				break;
 			}
+			if ( substr( $line, 0, 4 ) === "<!--" ) {
+				continue;
+			}
 
 			if ( substr_count( $line, $url ) ) {
 				$linesToRemove[] = $line;
@@ -151,11 +165,20 @@ class removeBadReferences extends Maintenance {
 			}
 		}
 
-		if ( count( $linesToRemove == $referencesCount ) ) {
+		if ( count( $linesToRemove ) == $referencesCount ) {
 			//decho("will remove section name as well");
 			$text = str_replace( $sectionHeading.PHP_EOL, "", $text );
 		}
 		return $text;
+	}
+
+	public static function getScriptUser() {
+		$user = User::newFromName( "MiscBot" );
+		if ( $user && !$user->isLoggedIn() ) {
+			$user->addToDatabase();
+			$user->addGroup( 'bot' );
+		}
+		return $user;
 	}
 
 	// text - the final text to save on the title
@@ -241,7 +264,6 @@ class removeBadReferences extends Maintenance {
 		// the test query ignoring user checked
 		//$query = "SELECT page_title, el_from, el_to FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked = 0)) LIMIT ". $limit;
 		$res = $dbr->query( $query,__METHOD__ );
-		decho('last', $dbr->lastQuery());exit;
 		foreach ( $res as $row ) {
 			$item = array(
 				'pageId' => $row->el_from,

@@ -518,13 +518,22 @@ class AlternateDomain {
 		return false;
 	}
 
+	public static function isAltDomainLang() {
+		global $wgLanguageCode;
+		if ( $wgLanguageCode == 'en' ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/*
 	 * redirect anons to special domains if the page is on an alternate domain
 	 * prohibit any query parameters on viewing an article on the alternate domain
 	 * we redirect the page to the same url but with no query parameters at all
 	 */
 	public static function onBeforeInitialize( &$title, &$unused, &$output, &$user, $request, $wiki ) {
-		global $domainName, $wgLanguageCode;
+		global $domainName;
 
 		// check if we are on a specific page that never redirects for the alt domains
 		if ( self::isOnNoRedirectPage( $title ) ) {
@@ -537,7 +546,7 @@ class AlternateDomain {
 		}
 
 		// do not redirect if we are not on the english site
-		if ( $wgLanguageCode != 'en' ) {
+		if ( ! self::isAltDomainLang() ) {
 			return true;
 		}
 

@@ -22,6 +22,14 @@ $wgResourceModules['ext.wikihow.green_box'] = [
 	'position' => 'top'
 ];
 
+$wgResourceModules['ext.wikihow.green_box.scripts'] = [
+	'scripts' => [ 'green_box.js' ],
+	'localBasePath' => __DIR__.'/assets',
+	'remoteExtPath' => 'wikihow/GreenBox/assets',
+	'targets' => [ 'desktop', 'mobile' ],
+	'position' => 'bottom'
+];
+
 $wgResourceModules['ext.wikihow.green_box_cta'] = [
 	'styles' => [ 'green_box_cta.css' ],
 	'scripts' => [ 'green_box_cta.js' ],

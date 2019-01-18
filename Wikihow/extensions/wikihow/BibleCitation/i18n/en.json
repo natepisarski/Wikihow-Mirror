@@ -20,5 +20,6 @@
 	"bible_citation_copy": "Copy Citation",
 	"bible_citation_create": "Create New Citation",
 	"bible_citation_complete": "Your $1 citation is complete!",
-	"bible_citation_copied": "Citation copied to your clipboard"
+	"bible_citation_copied": "Citation copied to your clipboard",
+	"bible_citation_error_edition": "If you are adding an edition number, don't forget the ordinal indicator (st, nd, rd, th)."
 }

@@ -641,9 +641,6 @@ class PageHelpfulness extends UnlistedSpecialPage {
 						}
 
 						$('#page_helpfulness_box').removeClass('smhw');
-						<? if (class_exists('MethodHelpfulness\Widget')) {
-							print MethodHelpfulness\Widget::getWidgetLoaderJS();
-						} ?>
 					}
 				}
 			}, 'json');

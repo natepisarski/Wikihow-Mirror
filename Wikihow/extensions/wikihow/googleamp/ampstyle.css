@@ -793,7 +793,6 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 	border-radius: 4px;
 	box-sizing: border-box;
 	color: #434343;
-	line-height: 1.5em;
 	margin: 1em auto .2em;
 	width: 100%;
 }
@@ -823,14 +822,17 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 	display: none;
 }
 .green_box p {
-	margin-bottom: .8em;
+	margin: .8em 0 0 0;
 }
-.green_box p:last-child {
-	margin-bottom: 0;
+.green_box p:first-child {
+	margin: 0;
 }
 .green_box_person, .green_box_content {
 	display: table-cell;
 	vertical-align: top;
+}
+.green_box_person a {
+	color: #FFF;
 }
 .green_box_person {
 	color: #6F8460;
@@ -872,9 +874,15 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 	text-align: center;
 	font-size: 1.6em;
 }
-.stable .content .green_box_content p {
-	line-height: 22px;
+p.green_box_bullet {
+	padding-left: 1.6em;
+	margin: 0;
 }
+.green_box_bullet::before {
+	content: '\2022\20';
+	margin-left: -.6em;
+}
+.green_box_expert_dialog { display: none; }
 
 .unnabbed_alert_top,
 .unnabbed_alert {

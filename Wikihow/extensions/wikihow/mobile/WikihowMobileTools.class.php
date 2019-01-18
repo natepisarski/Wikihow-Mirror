@@ -1688,6 +1688,12 @@ class WikihowMobileTools {
 		pq( $sourcesSection )->find( 'ol' )->attr('start', 10);
 		pq( $sourcesSection )->find('div:first')->attr('id', 'references_second');
 
+		// remove all ISBN links
+		foreach ( pq( $referencesFirst )->find( '.mw-magiclink-isbn' ) as $isbn ) {
+			$replaceText = pq( $isbn )->text();
+			pq( $isbn )->replaceWith( $replaceText );
+		}
+
 		$referencesHtml = $referencesFirst;
 
 		// create a show more link if needed

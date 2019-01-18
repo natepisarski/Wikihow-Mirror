@@ -15,6 +15,7 @@
 	"green_box_notice_ref": "<nowiki>Note: new <ref> tags require a page reload to appear in the Sources and Citations section below</nowiki>",
 	"green_box_notice_math": "<nowiki>Note: new <math> tags may require a page reload to appear</nowiki>",
 	"green_box_expert_label": "EXPERT ADVICE",
+	"green_box_staff_label": "wikiHow Staff",
 	"green_box_type": "Green Box",
 	"green_box_expert_type": "Expert Quote",
 	"green_box_expert_qa_type": "Expert Q&A",

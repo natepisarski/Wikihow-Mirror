@@ -32,6 +32,11 @@
 				$(this).removeClass('error');
 				$('#bible_citation_notification').html('').hide();
 			})
+
+			var action = WH.isMobileDomain ? 'click' : 'mouseover mouseout';
+			$('#bible_citation_widget').on(action, '.question_mark', $.proxy(function() {
+				this.toggleEditionTip();
+			},this));
 		},
 
 		makeCitation: function() {
@@ -60,6 +65,11 @@
 				$('#bible_citation_message').html(result_msg);
 				$('#bible_citation_string').html(html);
 				$('#bible_citation_result').show();
+
+				if (WH.isMobileDomain) {
+					var positionTop = $('#bible_citation_widget').position().top - 50;
+					$('html, body').animate({scrollTop: positionTop}, 300);
+				}
 			}
 		},
 
@@ -85,10 +95,13 @@
 				bad_inputs.forEach(function(bad_input) {
 					$('#bible_citation_notification').addClass('error');
 					$('#bcw_'+bad_input).addClass('error').val('');
+
+					if (bad_input == 'edition') $('#bible_citation_widget .question_mark').show();
 				});
 			}
 
 			if (bad_inputs.length) {
+				document.activeElement.blur();
 				WH.maEvent('bible_citation_error', { 'errors': bad_inputs.toString() });
 			}
 
@@ -100,11 +113,10 @@
 			//optional, so it can be empty
 			if (this.citationData['edition'] != '') {
 
-				if (this.citationData['edition'].match(/\sedition/i)) {
-					//something "edition" is always valid, but strip the "edition" part for our value
-					this.citationData['edition'] = this.citationData['edition'].replace(/\sedition/i, '');
-				}
-				else if (!this.citationData['edition'].match(/^\d+(?:$|s|t|r|n)/i)) {
+				//always strip the "edition"
+				this.citationData['edition'] = this.citationData['edition'].replace(/\sedition/i, '');
+
+				if (!this.citationData['edition'].match(/^\d+(?:s|t|r|n)/i)) {
 					//gotta be number w/ ordinal suffix (e.g. 1st or 2nd)
 					return false;
 				}
@@ -156,10 +168,11 @@
 		},
 
 		copyToClipboard: function() {
-		  var citation = document.getElementById('bible_citation_string');
-		  citation.focus();
-		  document.execCommand("selectAll");
-		  document.execCommand("copy");
+			var citation = document.getElementById('bible_citation_string');
+			citation.focus();
+			document.execCommand("selectAll");
+			document.execCommand("copy");
+
 		  this.showCopiedMessage();
 		},
 
@@ -170,6 +183,11 @@
 				.html(copied_msg)
 				.show()
 				.delay(3000).slideUp();
+		},
+
+		toggleEditionTip: function() {
+			var dialog = $('#bcw_edition_tip');
+			$(dialog).is(':visible') ? $(dialog).hide() : $(dialog.show());
 		}
 	}
 

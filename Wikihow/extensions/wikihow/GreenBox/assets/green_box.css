@@ -1,18 +1,17 @@
 .green_box {
 	display: table;
 	background-color: #f0f6ec;
-	margin: .8em auto .5em;
+	margin: .8em auto 1em;
 	width: 95%;
 	border-left: 5px solid #93b873;
 	padding: .7em;
 	border-radius: 4px;
 	box-sizing: border-box;
 	color: #434343;
-	line-height: 1.5em;
 }
 
 .green_box.mobile {
-	margin: 1em auto .2em;
+	margin: 1em auto .4em;
 	width: 100%;
 }
 
@@ -47,11 +46,20 @@
 	display: none;
 }
 
-.green_box p {
-	margin-bottom: .8em;
+.green_box p, .stable .content .green_box p {
+	margin: .8em 0 0 0;
 }
-.green_box p:last-child {
-	margin-bottom: 0;
+.green_box p:first-child, .stable .content .green_box p:first-child {
+	margin: 0;
+}
+
+p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
+	padding-left: 1.6em;
+	margin: 0;
+}
+.green_box_bullet::before {
+	content: '\2022\20';
+	margin-left: -.6em;
 }
 
 .green_box_person, .green_box_content {
@@ -60,6 +68,8 @@
 }
 
 .green_box_person {
+	position: relative;
+	vertical-align: top;
 	color: #6F8460;
 	text-align: center;
 	width: 45px;
@@ -102,26 +112,50 @@
 	font-size: 1.6em;
 }
 
-.stable .content .green_box_content p {
-	line-height: 22px;
+.green_box_expert_dialog {
+	display: none;
+	position: absolute;
+	background: #FFF;
+	padding: .5em;
+	border: 3px solid #92B873;
+	width: 200px;
+	bottom: 100%;
+	left: -11px;
+	font-size: .8em;
+	line-height: 1.1em;
+	color: #434343;
+	text-align: left;
+}
+.green_box_expert_dialog:after, .green_box_expert_dialog:before {
+	top: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.green_box_expert_dialog:after {
+	border-top-color: #FFF;
+	border-width: 10px;
+	left: 28px;
+}
+.green_box_expert_dialog:before {
+	border-top-color: #92B873;
+	border-width: 14px;
+	left: 24px;
 }
 
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
 only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 
-	.green_box.mobile .green_box_person {
-		width: 80px;
+	.green_box.mobile .green_box_expert_label {
+		font-size: .45em;
 	}
 
-	.green_box.mobile .green_box_person_circle {
-		width: 80px;
-		height: 80px;
-		border-width: 3px;
-		line-height: 75px;
-		font-size: 1.8em;
+	.green_box_person_circle.questioner {
+		font-size: 1.3em;
 	}
 
-	.stable .content .green_box_content p {
-		line-height: 28px;
-	}
 }

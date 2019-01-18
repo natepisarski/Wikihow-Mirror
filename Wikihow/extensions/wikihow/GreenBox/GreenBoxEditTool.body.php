@@ -88,7 +88,8 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 
 	private function expertList(): array {
 		$experts = [
-			['id' => 0, 'name' => wfMessage('green_box_expert_default')->text()]
+			['id' => 0, 'name' => wfMessage('green_box_expert_default')->text()],
+			['id' => GreenBox::GREENBOX_EXPERT_STAFF, 'name' => '-- '.wfMessage('sp_staff_reviewed')->text().' --']
 		];
 
 		$verifierData = VerifyData::getAllVerifierInfo();
@@ -131,7 +132,7 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		}
 		elseif (strpos($current_step, '{{'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX)) {
 			//expert greenbox (quote or Q&A)
-			preg_match('/{{'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX.'(\d+?)\|(.*?)(?:\|(.*?)|)}}/is', $current_step, $m);
+			preg_match('/{{'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX.'(.*?)\|(.*?)(?:\|(.*?)|)}}/is', $current_step, $m);
 			$expert_id = !empty($m[1]) ? $m[1] : '';
 			$content = !empty($m[2]) ? $m[2] : '';
 			$content_2 = !empty($m[3]) ? $m[3] : '';
@@ -149,8 +150,11 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		$step_info = $request->getText('step_info', '');
 		$box_content = $this->formatBoxContent($request->getText('content', ''));
 		$box_content_2 = $this->formatBoxContent($request->getText('content_2', ''));
-		$expert_id = $request->getInt('expert', 0);
+		$expert_id = $request->getText('expert', '');
 		$success = false;
+
+		//expert id can only be an int or "staff"
+		if ($expert_id != GreenBox::GREENBOX_EXPERT_STAFF) $expert_id = intval($expert_id);
 
 		$bad_stuff = $this->findInvalidContent($box_content);
 		if (!empty($bad_stuff)) return ['error' => 'Invalid content found: '.$bad_stuff];
@@ -241,7 +245,7 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 	}
 
 	private function insertGreenBoxIntoStep(string $step, string $box_content, string $box_content_2 = '',
-		int $expert_id = 0): string
+		$expert_id = 0): string
 	{
 		$step = trim($step);
 
@@ -286,7 +290,7 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		return !empty($spamMatches);
 	}
 
-	private function newGreenBoxHtml(string $box_content, string $box_content_2 = '', int $expert_id = 0): string {
+	private function newGreenBoxHtml(string $box_content, string $box_content_2 = '', $expert_id = 0): string {
 		if (empty($box_content)) return '';
 
 		$box_content .= $this->contentNotices($box_content.$box_content_2);

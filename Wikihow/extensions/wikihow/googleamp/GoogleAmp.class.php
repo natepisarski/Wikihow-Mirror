@@ -459,6 +459,10 @@ class GoogleAmp {
 	}
 
 	public static function addAmpHtmlLink( $out, $languageCode ) {
+		// check a tag list to turn off amp
+		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $out->getTitle()->getArticleID() ) ) {
+			return;
+		}
 		if ( self::isAmpMode( $out ) || !WikihowSkinHelper::shouldShowMetaInfo($out) ) {
 			return;
 		}
@@ -953,9 +957,6 @@ class GoogleAmp {
 		//star ratings
 		pq( '#sp_helpful_box' )->remove();
 		pq( '#sp_helpful_new' )->remove();
-
-		// remove the (i) icon
-		pq( '.sp_expert_icon_info' )->remove();
 
 		// remove the "difficult" warning
 		pq( '#sp_difficult_box' )->remove();

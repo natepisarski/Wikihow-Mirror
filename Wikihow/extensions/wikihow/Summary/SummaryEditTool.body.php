@@ -79,8 +79,8 @@ class SummaryEditTool extends UnlistedSpecialPage {
 			'section_content' => $summary_data['content'],
 			'last_sentence_header' => wfMessage('set_last_sentence_header')->text(),
 			'last_sentence' => $summary_data['last_sentence'],
-			'checked' => $summary_data['at_top'],
-			'checkbox_label' => wfMessage('set_checkbox_label')->text(),
+			// 'checked' => $summary_data['at_top'],
+			// 'checkbox_label' => wfMessage('set_checkbox_label')->text(),
 			'cancel_button' => wfMessage('cancel')->text(),
 			'save_button' => wfMessage('save')->text(),
 			'close_button' => wfMessage('set_close_button')->text(),
@@ -176,7 +176,8 @@ class SummaryEditTool extends UnlistedSpecialPage {
 
 		$summary_content = trim(strip_tags($request->getVal('content'),'<br>'));
 		$last_sentence = trim(strip_tags($request->getVal('last_sentence'),'<br>'));
-		$summary_position = $request->getInt('show_at_top') ? 'top' : 'bottom';
+		// $summary_position = $request->getInt('show_at_top') ? 'top' : 'bottom';
+		$summary_position = 'bottom'; //always at the bottom (even though it's just TOC now)
 
 		$summary = Title::newFromText($this->page_title, NS_SUMMARY);
 		if ($summary) {

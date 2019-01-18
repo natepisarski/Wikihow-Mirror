@@ -684,7 +684,7 @@ class SchemaMarkup {
 			ArticleMetaInfo::$wgTitleAmiImageName = null;
 			ArticleMetaInfo::$wgTitleAMIcache = null;
 		}
-		$thumb = ArticleMetaInfo::getTitleImageThumb( $title );
+		$thumb = ArticleMetaInfo::getTitleImageThumb( $title, 1200 );
 		if ( !$thumb ) {
 			$thumb = Wikitext::getDefaultTitleImage();
 		}
@@ -699,10 +699,23 @@ class SchemaMarkup {
 			$url = "https://www.wikihow.com" . $url;
 		}
 
+		// check if the thumb we requested is actually created at that size
+		// if not, use the file width and height
+		$width = $thumb->getWidth();
+		$height = $thumb->getHeight();
+		if ( get_class( $thumb ) == "ThumbnailImage" ) {
+			$file = $thumb->getFile();
+			$fileWidth = intval( $file->getWidth() );
+			$fileHeight = intval( $file->getHeight() );
+			if ( $fileWidth < intval( $width ) ) {
+				$width = $fileWidth;
+				$height = $fileHeight;
+			}
+		}
 		$image = [ '@type' => 'ImageObject',
 			'url' => $url,
-			'width' => $thumb->getWidth(),
-			'height' => $thumb->getHeight()
+			'width' => $width,
+			'height' => $height
 		];
 
 		$result = [ 'image' => $image ];

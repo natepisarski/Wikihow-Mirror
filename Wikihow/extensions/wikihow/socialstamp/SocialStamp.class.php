@@ -6,16 +6,61 @@ class SocialStamp {
 
 	private static $verifiers = [];
 
+	private static $hoverText = "";
+	private static $byLineHtml = "";
+
 	public static function addDesktopByline($out) {
 		if(!self::isEligibleForByline()) return;
 
+		$html = self::getBylineHtml();
+
+		pq('.firstHeading')->after($html);
+	}
+
+	private static function getBylineHtml() {
+		if(self::$byLineHtml == "") {
+			self::setBylineVariables();
+		}
+
+		return self::$byLineHtml;
+	}
+
+	private static function getHoverText() {
+		if(self::$hoverText == "") {
+			self::setBylineVariables();
+		}
+
+		return self::$hoverText;
+	}
+
+	private static function setBylineVariables() {
+		$out = RequestContext::getMain()->getOutput();
+		$isAmp = GoogleAmp::isAmpMode($out);
+		$isMobile = Misc::isMobileMode();
 		$articleId = $out->getTitle()->getArticleId();
 		wfRunHooks( 'BylineStamp', [ &self::$verifiers, $articleId ] );
 
-		$params = self::setBylineData(self::$verifiers, $articleId, false, false, AlternateDomain::onAlternateDomain());
+		$params = self::setBylineData(self::$verifiers, $articleId, $isMobile, $isAmp, AlternateDomain::onAlternateDomain());
 		$html = self::getHtmlFromTemplate('mobile_byline', $params);
 
-		pq('.firstHeading')->after($html);
+		self::$hoverText = $params['body'];
+		self::$byLineHtml = $html;
+	}
+
+	public static function getHoverTextForArticleInfo(){
+		$text = trim(self::getHoverText());
+		$brLoc = stripos($text, "<br");
+		if($brLoc !== false) {
+			$text = substr($text, 0, $brLoc);
+		} else {
+			$learnmoreLoc = strripos($text, "</a>");
+			if($learnmoreLoc == strlen($text) - 4) {
+				//remove the learn more
+				$text = substr($text, 0, strripos($text, "<a"));
+			}
+		}
+
+		return $text;
 	}
 
 	public static function addMobileByline(&$data){
@@ -23,10 +68,7 @@ class SocialStamp {
 
 		wfRunHooks( 'BylineStamp', [ &self::$verifiers, $data['articleid'] ] );
 
-		$isAmp = GoogleAmp::isAmpMode(RequestContext::getMain()->getOutput());
-
-		$params = self::setBylineData(self::$verifiers, $data['articleid'], true, $isAmp, AlternateDomain::onAlternateDomain());
-		$html = self::getHtmlFromTemplate('mobile_byline', $params);
+		$html = self::getBylineHtml();
 
 		$data['prebodytext'] .= $html;
 	}
@@ -64,6 +106,7 @@ class SocialStamp {
 		}
 		$params['references'] = $numCitations;
 		$params['referencesUrl'] = $referenceLink;
+		$params['linkUrl'] = $isMobile ? "social_proof_anchor" : "article_info_section";
 
 		if ( array_key_exists(SocialProofStats::VERIFIER_TYPE_EXPERT, $verifiers)) {
 			$key = SocialProofStats::VERIFIER_TYPE_EXPERT;

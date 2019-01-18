@@ -1662,6 +1662,12 @@ class wikihowAds {
 		$largeIntroChannel = '';
 		$baseLargeChannels = '';
 
+		if ( $wgTitle && ArticleTagList::hasTag( 'amp_disabled_pages', $wgTitle->getArticleID() ) ) {
+			$baseChannels = $baseChannels . "+8411928010";
+		} else {
+			$baseChannels = $baseChannels . "+7928712280";
+		}
+
 		$data = [
 			"channels" => [
 				"base" => $baseChannels,

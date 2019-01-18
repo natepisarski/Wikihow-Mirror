@@ -1,5 +1,4 @@
 <div id="sp_{{expert.key}}" class="sp_top_box sp_person">
-{{#mobile}}<div class="sp_expert_icon_info"></div>{{/mobile}}
 {{^mobile}}
 	{{#section_name}}<div id="sp_section_name">{{section_name}}</div>{{/section_name}}
 {{/mobile}}
@@ -35,12 +34,3 @@
 		</div>
 	</div>
 </div>
-
-{{#expert.hover_blurb}}
-<div class='sp_top_popup_container'>
-	<div class='hint_box {{expert.key}}_hint_box'>
-		{{#expert.popup_img}}<img src="{{expert.popup_img}}" />{{/expert.popup_img}}
-		<p>{{{expert.hover_blurb}}}</p>
-	</div>
-</div>
-{{/expert.hover_blurb}}

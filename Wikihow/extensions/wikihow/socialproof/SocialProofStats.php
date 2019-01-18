@@ -485,6 +485,7 @@ class SocialProofStats extends ContextSource {
 		$stats = $this->getStatsForDisplay(true);
 		$stats['category_links'] = WikihowHeaderBuilder::getCategoryLinks(false, $this, $this->categoryTree);
 		$stats['amp'] = GoogleAmp::isAmpMode( $this->getOutput() );
+		$stats['author_info'] = SocialStamp::getHoverTextForArticleInfo();
 
 		return $this->getHtmlFromTemplate('social_section_mobile.mustache', $stats);
 	}
@@ -665,12 +666,9 @@ class SocialProofStats extends ContextSource {
 		$vData = !empty($vData) ? array_pop($vData) : null;
 
 		$vType = self::mapVerifyDataToVerifyTypeSpreadsheetOnly($vData);
-		$vData2 = VerifyData::getVerifierInfoByName( $vData->name ); //this isn't efficient, need to fix
-		if($vData2 != "") {
-			$vData = $vData2;
-		}
 
 		if($vType != "") {
+			//did we find one? If so, set it in the array
 			$verifiers[$vType] = $vData;
 		}
 

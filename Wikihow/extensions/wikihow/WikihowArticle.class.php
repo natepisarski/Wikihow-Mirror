@@ -343,8 +343,6 @@ class WikihowArticleHTML {
 						pq($overallSet)->wrapAll("<div class='section steps {$sticky}'></div>");
 					} catch (Exception $e) {
 					}
-
-					pq('.firstHeading')->addClass('no_toc');
 				}
 			}
 			else {
@@ -595,6 +593,10 @@ class WikihowArticleHTML {
 				}
 			}
 			pq( $headingId . ' .m-video-wm' )->remove();
+		}
+
+		if(pq("#method_toc")->length <= 0) {
+			pq('.firstHeading')->addClass('no_toc');
 		}
 
 		// On INTL, move #expert_coauthor between .firstHeading and #method_toc
@@ -1585,6 +1587,12 @@ class WikihowArticleHTML {
 
 		// Remove the extra <br> if it exists
 		pq($sources)->children("p")->remove();
+
+		// remove all ISBN links
+		foreach ( pq( $sources )->find( '.mw-magiclink-isbn' ) as $isbn ) {
+			$replaceText = pq( $isbn )->text();
+			pq( $isbn )->replaceWith( $replaceText );
+		}
 	}
 
 	public static function getAnchorList( $altMethodAnchors, $altMethodNames ) {

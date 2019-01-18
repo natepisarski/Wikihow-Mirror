@@ -8,18 +8,6 @@
 	padding: 15px;
 }
 
-.sp_expert_icon_info {
-	background-image: url(/skins/owl/images/sp_icon_info.png);
-	/* @embed */
-	background-image: url(/skins/owl/images/sp_icon_info.svg);
-	right: 15px;
-	top: 15px;
-	width: 16px;
-	height: 16px;
-	position:absolute;
-	background-size: cover;
-}
-
 #social_proof_mobile .expert_hint_box p {
 	line-height:normal;
 	margin: 0;

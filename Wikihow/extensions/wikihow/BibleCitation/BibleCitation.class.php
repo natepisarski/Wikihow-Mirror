@@ -9,6 +9,8 @@ class BibleCitation {
 		$context = RequestContext::getMain();
 		$title = $context->getTitle();
 
+		$android_app = class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest();
+
 		self::$includes_bible_citation_widget =
 			$context->getLanguage()->getCode() == 'en' &&
 			$title &&
@@ -17,7 +19,8 @@ class BibleCitation {
 			Action::getActionName($context) == 'view' &&
 			$context->getRequest()->getInt('diff', 0) == 0 &&
 			!Misc::isAltDomain() &&
-			!GoogleAmp::isAmpMode( $context->getOutput() );
+			!GoogleAmp::isAmpMode( $context->getOutput() ) &&
+			!$android_app;
 
 		return self::$includes_bible_citation_widget;
 	}
@@ -45,9 +48,11 @@ class BibleCitation {
 			'year_ph'					=> wfMessage('bible_citation_year_placeholder')->text(),
 			'submit' 					=> wfMessage('bible_citation_submit')->text(),
 			'bible_citation' 	=> $loader->load('bible_citation'),
-			'result_message'	=> wfMessage('bible_citation_complete'),
-			'copy'						=> wfMessage('bible_citation_copy'),
-			'create'					=> wfMessage('bible_citation_create')
+			'result_message'	=> wfMessage('bible_citation_complete')->text(),
+			'copy'						=> wfMessage('bible_citation_copy')->text(),
+			'create'					=> wfMessage('bible_citation_create')->text(),
+			'edition_tip'			=> wfMessage('bible_citation_error_edition')->text(),
+			'desktop_class'		=> Misc::isMobileMode() ? '' : 'desktop'
 		];
 
 		return $m->render('bible_citation_widget', $vars);
@@ -72,10 +77,7 @@ class BibleCitation {
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		if (self::pageIncludesBibleCitationWidget()) {
-			if (Misc::isMobileMode())
-				$out->addModules(['ext.wikihow.bible_citation.mobile.styles', 'ext.wikihow.bible_citation.scripts']);
-			else
-				$out->addModules(['ext.wikihow.bible_citation.desktop.styles', 'ext.wikihow.bible_citation.scripts']);
+			$out->addModules(['ext.wikihow.bible_citation.styles', 'ext.wikihow.bible_citation.scripts']);
 		}
 	}
 
