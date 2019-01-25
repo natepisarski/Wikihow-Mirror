@@ -8,6 +8,9 @@ class SocialStamp {
 
 	private static $hoverText = "";
 	private static $byLineHtml = "";
+	private static $isNotable = null;
+
+	const NOTABLE_TAG = "notable_coauthor";
 
 	public static function addDesktopByline($out) {
 		if(!self::isEligibleForByline()) return;
@@ -144,6 +147,9 @@ class SocialStamp {
 			$params['slot1class'] = "expert_icon";
 			if(SocialProofStats::isSpecialInline()) {
 				$params['coauthor'] = wfMessage("ss_special_author")->text();
+			}
+			if(SocialStamp::isNotable()) {
+				$params['coauthor'] = wfMessage("ss_notable")->text();
 			}
 		} else {
 			//second part, only if no expert
@@ -305,5 +311,13 @@ class SocialStamp {
 		} if ($vType == SocialProofStats::VERIFIER_TYPE_CHEF) {
 			return wfMessage("ss_chef_name_hover")->text();
 		}
+	}
+
+	public static function isNotable() {
+		if (!is_null(self::$isNotable)) return self::$isNotable;
+		$context = RequestContext::getMain();
+		$pageId = $context->getTitle()->getArticleId();
+		self::$isNotable = ArticleTagList::hasTag(self::NOTABLE_TAG, $pageId);
+		return self::$isNotable;
 	}
 }

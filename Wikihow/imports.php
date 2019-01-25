@@ -421,6 +421,7 @@ require_once("$IP/extensions/wikihow/alternatedomain/TermsOfUse.php");
 require_once("$IP/extensions/wikihow/specialtechfeedback/SpecialTechFeedback.php");
 require_once("$IP/extensions/wikihow/specialarticlefeedback/SpecialArticleFeedback.php");
 require_once("$IP/extensions/wikihow/specialtechverify/SpecialTechVerify.php");
+require_once("$IP/extensions/wikihow/specialtechverify/SpecialTechVerifyAdmin.php");
 require_once("$IP/extensions/wikihow/UserDisplayCache.class.php");
 require_once("$IP/extensions/wikihow/userreview/UserReview.php");
 require_once("$IP/extensions/wikihow/userreview/UserReviewForm/UserReviewForm.php");

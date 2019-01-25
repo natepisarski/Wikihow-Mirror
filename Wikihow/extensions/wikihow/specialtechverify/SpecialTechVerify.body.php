@@ -2,22 +2,27 @@
 
 /*
 CREATE TABLE `special_tech_verify_item` (
-	`stvi_page_id` int(10) NOT NULL,
-	`stvi_revision_id` int(10) NOT NULL,
-	`stvi_user_id` varbinary(20) NOT NULL,
-    `stvi_admin_user` tinyint(1) unsigned NOT NULL DEFAULT '0',
-	`stvi_tech_platform_id` int(10) NOT NULL,
-	`stvi_vote` tinyint(3) NOT NULL DEFAULT 0,
-	`stvi_tech_product_id` int(10) NOT NULL DEFAULT 0,
-    `stvi_feedback_model` varchar(255) NOT NULL,
-    `stvi_feedback_version` varchar(255) NOT NULL,
-    `stvi_feedback_text` varchar(255) NOT NULL,
-	`stvi_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	UNIQUE KEY (`stvi_page_id`, `stvi_revision_id`, `stvi_user_id`),
-	KEY (`stvi_user_id`),
-    KEY (`stvi_tech_platform_id`)
-);
-*/
+`stvi_id` int(11) NOT NULL AUTO_INCREMENT,
+`stvi_page_id` int(10) NOT NULL,
+`stvi_revision_id` int(10) NOT NULL,
+`stvi_user_id` varbinary(20) NOT NULL,
+`stvi_admin_user` tinyint(1) unsigned NOT NULL DEFAULT '0',
+`stvi_vote` tinyint(3) NOT NULL DEFAULT '0',
+`stvi_tech_product_id` int(10) NOT NULL DEFAULT '0',
+`stvi_feedback_model` varbinary(255) NOT NULL,
+`stvi_feedback_version` varbinary(255) NOT NULL,
+`stvi_feedback_text` varbinary(255) NOT NULL,
+`stvi_feedback_reason` varbinary(255) NOT NULL,
+`stvi_platform` varbinary(255) NOT NULL,
+`stvi_batch_name` varbinary(255) NOT NULL,
+`stvi_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+`stvi_enabled` tinyint(1) NOT NULL DEFAULT '0',
+UNIQUE KEY `stvi_id` (`stvi_id`),
+UNIQUE KEY `stvi_page_id` (`stvi_page_id`,`stvi_revision_id`,`stvi_user_id`,`stvi_batch_name`),
+KEY `stvi_user_id` (`stvi_user_id`),
+KEY `stvi_batch_name` (`stvi_batch_name`)
+)
+ */
 
 class SpecialTechVerify extends UnlistedSpecialPage {
 
@@ -27,89 +32,11 @@ class SpecialTechVerify extends UnlistedSpecialPage {
     var $mUserRemainingCount;
 
 	public function __construct() {
-		parent::__construct( 'TechVerify' );
+		parent::__construct( 'TechTesting' );
 		$this->out = $this->getContext()->getOutput();
 		$this->user = $this->getUser();
 		$this->request = $this->getRequest();
 	}
-
-    /**
-     * hook callback for when the config storage is changed to update our article list
-     */
-    public static function onConfigStorageAfterStoreConfig( $key, $config ) {
-        $platformId = null;
-        if ( $key === "techverifyiphone" ) {
-            $platformId = TechArticle\TechPlatform::PLATFORM_IOS;
-        }
-        if ( $key === "techverifyandroid" ) {
-            $platformId = TechArticle\TechPlatform::PLATFORM_ANDROID;
-        }
-        if ( $platformId ) {
-            $pageData = array();
-            foreach ( explode( "\n", $config ) as $line ) {
-                $parts = explode( ',', $line );
-                $data = ['pageId' => $parts[0]];
-                if ( $parts[1] ) {
-                    $data['revId'] = $parts[1];
-                }
-                $pageData[] = $data;
-            }
-            self::updatePagesForPlatform( $pageData, $platformId );
-        }
-    }
-
-    /**
-     * adds new pages to the tech verify table if they are not already there
-     * @param $pageIds array of page ids and revisions to insert if they aren't there already
-     * if no revision is specified then it uses the latest good revision
-     * @param $platform String the platform these pages are on
-     */
-    private static function updatePagesForPlatform( $pageInfo, $platformId ) {
-		$dbw = wfGetDB( DB_MASTER );
-        $table = self::STV_TABLE;
-        $var = "count(*)";
-        $cond = array( 'stvi_tech_platform_id' => $platformId );
-
-        $insertRows = array();
-
-        // check if it's already in the table
-        foreach ( $pageInfo as $info ) {
-            $pageId = $info['pageId'];
-            $revId = $info['revId'];
-            $cond['stvi_page_id'] = $pageId;
-            if ( $revId ) {
-                $cond['stvi_revision_id'] = $info['revId'];
-            }
-            $count = $dbw->selectField( $table, $var, $cond, __METHOD__ );
-            if ( !$count ) {
-                $title = Title::newFromID( $pageId );
-                if ( !$revId ) {
-                    $goodRevision = GoodRevision::newFromTitle( $title );
-                    $cond['stvi_revision_id'] = $goodRevision->latestGood();
-                }
-                $insertRows[] = $cond;
-            }
-        }
-
-        if ( $insertRows ) {
-            $dbw->insert( $table, $insertRows, __METHOD__);
-        }
-    }
-
-    // run when the tag changes for now
-    // for now use tag list
-    private function updateArticles() {
-        $platforms = array( 'android' => TechArticle\TechPlatform::PLATFORM_ANDROID, 'iphone' => TechArticle\TechPlatform::PLATFORM_IOS );
-        foreach ( $platforms as $platform => $platformID ) {
-            $articleTag = new ArticleTag( 'techverify' . $platform );
-            $tagList = $articleTag->getArticleList();
-            $pageData = array();
-            foreach ( $tagList as $pageId ) {
-                $pageData[] = ['pageId' => $pageId];
-            }
-            self::updatePagesForPlatform( $pageData, $platformID );
-        }
-    }
 
     private function resetForTesting() {
 		$dbw = wfGetDB( DB_MASTER );
@@ -120,24 +47,23 @@ class SpecialTechVerify extends UnlistedSpecialPage {
     }
 
     private static function getPlatforms() {
-        $res = array();
-        $res[] = ['platformId' => TechArticle\TechPlatform::PLATFORM_ANDROID, 'platformName' => 'Android'];
-        $res[] = ['platformId' => TechArticle\TechPlatform::PLATFORM_IOS, 'platformName' => 'iPhone'];
-        return $res;
-    }
+		$result = array();
+		$dbr = wfGetDb( DB_SLAVE );
+        $table = self::STV_TABLE;
+		$var = "DISTINCT(stvi_platform)";
+		$cond = array(
+			'stvi_enabled' => 1
+		);
 
-    private static function getTechProducts() {
-        $all = TechArticle\TechProduct::getAll();
-        $res = array();
-        foreach( $all as $item ) {
-            if ( $item->enabled ) {
-                $res[] = ['tpr_id' => $item->id, 'tpr_name' => $item->name];
-            }
-        }
-        return $res;
-    }
+		$res = $dbr->select( $table, $var, $cond, __METHOD__ );
 
+		foreach ( $res as $row ) {
+			$result[] = $row->stvi_platform;
+		}
+        return $result;
+    }
 	public function execute( $subPage ) {
+
 		$this->out->setRobotPolicy( "noindex,follow" );
 
 		if ( $this->user->getId() == 0 ) {
@@ -228,7 +154,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 	/*
      * get the next article to vote on
 	 */
-	private function getNextItem( $platformId ) {
+	private function getNextItem( $platform ) {
 		$dbr = wfGetDb( DB_SLAVE );
 		$result = [];
         $conds = [];
@@ -236,11 +162,11 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 
         $conds = array(
             'stvi_user_id' => array( '', $userId ),
-            'stvi_tech_platform_id' => $platformId,
+            'stvi_platform' => $platform,
         );
 
         $table = self::STV_TABLE;
-        $vars = array( 'stvi_page_id', 'stvi_user_id', 'stvi_revision_id' );
+        $vars = array( 'stvi_page_id', 'stvi_user_id', 'stvi_revision_id', 'stvi_batch_name' );
         $options = array(
             'GROUP BY' => 'stvi_page_id',
             'HAVING' => array( 'count(*) < 2', "stvi_user_id = ''" ),
@@ -251,6 +177,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
         $result = array(
             'pageId' => $row->stvi_page_id,
             'revId' => $row->stvi_revision_id,
+            'batchName' => $row->stvi_batch_name,
         );
 
         $res = $dbr->query('SELECT FOUND_ROWS() as count');
@@ -292,11 +219,12 @@ class SpecialTechVerify extends UnlistedSpecialPage {
     }
 
 	private function getNextItemData() {
-		$platformId = $this->getContext()->getRequest()->getInt( 'platformid' );
-		$nextItem = $this->getNextItem( $platformId );
+		$platform = $this->getContext()->getRequest()->getText( 'platform' );
+		$nextItem = $this->getNextItem( $platform );
 
         $pageId = $nextItem['pageId'];
         $revId = $nextItem['revId'];
+        $batchName = $nextItem['batchName'];
 
         if ( !$pageId ) {
             $eoq = new EndOfQueue();
@@ -323,23 +251,17 @@ class SpecialTechVerify extends UnlistedSpecialPage {
         if ( $articleHtml ) {
             $articleLoaded = true;
         }
-        $platformDisplayVersion = 'Android';
-        $platform = 'android';
-        if ( $platformId == TechArticle\TechPlatform::PLATFORM_IOS ) {
-            $platformDisplayVersion = 'iPhone';
-            $platform = 'iphone';
-        }
 		$vars = [
             'platformclass' => $platformClass,
 			//'willTestText' => wfMessage( 'stvwilltesttext' )->text(),
 			//'willTestButtonYes' => wfMessage( 'stvwillchooseyes' )->text(),
 			'willTestButtonNo' => wfMessage( 'stvwillchooseno' )->text(),
-			'testingInstructionsText' => wfMessage( 'stvtestinginstructionstext'.$platform )->text(),
-			'testingText' => wfMessage( 'stvtestingtext'.$platform )->text(),
+			'testingInstructionsText' => wfMessage( 'stvtestinginstructionstext' )->text(),
+			'testingText' => wfMessage( 'stvtestingtext' )->text(),
 			'testingTextYes' => wfMessage( 'stvtestingtextyes' )->text(),
 			'testingTextNo' => wfMessage( 'stvtestingtextno' )->text(),
 			'testingTextSkip' => wfMessage( 'stvtestingtextskip' )->text(),
-			'verificationText' => wfMessage( 'stvverificationtext', $platformDisplayVersion )->text(),
+			'verificationText' => wfMessage( 'stvverificationtext', $platform )->text(),
 			'verificationTextYes' => wfMessage( 'stvverificationtextyes' )->text(),
 			'verificationTextNo' => wfMessage( 'stvverificationtextno' )->text(),
 			'verificationTextSkip' => wfMessage( 'stvverificationtextskip' )->text(),
@@ -351,15 +273,16 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 			'noFeedbackSubmit' => wfMessage( 'stvnofeedbacksubmit' )->text(),
 			'noFeedbackSkip' => wfMessage( 'stvnofeedbackskip' )->text(),
 			'noFeedbackTextareaPlaceholder' => wfMessage( 'stvnofeedbacktextareaplaceholder' )->text(),
-			'noFeedbackProductDropText' => wfMessage( 'stvnofeedbackproductdroptext' )->text(),
-			'feedbackProducts' => self::getTechProducts(),
-			'noFeedbackModelText' => wfMessage( 'stvnofeedbackmodeltext'.$platform )->text(),
-			'noFeedbackModelTextPlaceholder' => wfMessage( 'stvnofeedbackmodeltextplaceholder'.$platform )->text(),
-			'noFeedbackVersionText' => wfMessage( 'stvnofeedbackversiontext'.$platform )->text(),
-			'noFeedbackVersionTextPlaceholder' => wfMessage( 'stvnofeedbackversiontextplaceholder'.$platform )->text(),
+			'noFeedbackReasonDropText' => wfMessage( 'stvnofeedbackreasondroptext' )->text(),
+			'noFeedbackReasons' => self::getNoFeedbackReasons(),
+			'noFeedbackModelText' => wfMessage( 'stvnofeedbackmodeltext' )->text(),
+			'noFeedbackModelTextPlaceholder' => wfMessage( 'stvnofeedbackmodeltextplaceholder' )->text(),
+			'noFeedbackVersionText' => wfMessage( 'stvnofeedbackversiontext', $platform )->text(),
+			'noFeedbackVersionTextPlaceholder' => wfMessage( 'stvnofeedbackversiontextplaceholder' )->text(),
             'pageId' => $pageId,
             'revId' => $revId,
-            'platformId' => $platformId,
+            'platform' => $platform,
+            'batch' => $batchName,
 			'yourResults' => wfMessage( 'stvyourresults' )->text(),
             'titleText' => $titleText,
 			//'tool_info' => class_exists( 'ToolInfo' ) ? ToolInfo::getTheIcon( $this->getContext() ) : ''
@@ -408,24 +331,26 @@ class SpecialTechVerify extends UnlistedSpecialPage {
         $pageId = $request->getInt( 'pageid' );
         $revId = $request->getInt( 'revid' );
         $userId = $this->getUserId();
-        $platformId = $request->getInt( 'platformid' );
+        $platform = $request->getText( 'platform' );
+        $batchName = $request->getText( 'batch' );
 
         $table =  self::STV_TABLE;
         $conds = array(
             'stvi_page_id' => $pageId,
             'stvi_revision_id' => $revId,
             'stvi_user_id' => $userId,
-            'stvi_tech_platform_id' => $platformId,
+            'stvi_platform' => $platform,
+            'stvi_batch_name' => $batchName,
         );
-        $techProductId = $request->getInt( 'product' );
+		$reason = $request->getText( 'reason' );
         $model = $request->getText( 'model' );
         $version = $request->getText( 'version' );
         $text = $request->getText( 'textbox' );
         $values = array(
-            'stvi_tech_product_id' => $techProductId,
             'stvi_feedback_model' => $model,
             'stvi_feedback_version' => $version,
             'stvi_feedback_text' => $text,
+            'stvi_feedback_reason' => $reason,
         );
         $dbw->update( $table, $values, $conds, __METHOD__ );
 
@@ -440,7 +365,8 @@ class SpecialTechVerify extends UnlistedSpecialPage {
         $revId = $request->getInt( 'revid' );
         $userId = $this->getUserId();
         $isAdminUser = $this->isPowerVoter();
-        $platformId = $request->getInt( 'platformid' );
+        $platform = $request->getText( 'platform' );
+        $batchName = $request->getText( 'batch' );
 
         $table =  self::STV_TABLE;
 
@@ -451,7 +377,8 @@ class SpecialTechVerify extends UnlistedSpecialPage {
             'stvi_revision_id' => $revId,
             'stvi_user_id' => $userId,
             'stvi_admin_user' => $isAdminUser,
-            'stvi_tech_platform_id' => $platformId,
+            'stvi_platform' => $platform,
+            'stvi_batch_name' => $batchName,
             'stvi_vote' => $vote
         );
         $dbw->insert( $table, $values, __METHOD__ );
@@ -482,46 +409,40 @@ class SpecialTechVerify extends UnlistedSpecialPage {
             $this->mLogActions[] = 'vote_down';
         }
 
-        // if this is an admin user that voted
-        // we might not have to check for completed in the db
         $approved = false;
         $rejected = false;
-        if ( $this->isPowerVoter() ) {
-            if ( $vote > 0 ) {
-                $approved = true;
-            }
-            if ( $vote < 0 ) {
-                $rejected = true;
-            }
-        }
 
         $table =  self::STV_TABLE;
         // check the db to see if the item is completed if not already completed
-        if ( !( $approved || $rejected ) ) {
-            $var = array(
-                'SUM(if(stvi_vote > 0, 1, 0)) as yes',
-                'SUM(if(stvi_vote < 0, 1, 0)) as no',
-            );
+		// TODO get the number of skips as well
+		$var = array(
+			'SUM(if(stvi_vote > 0, 1, 0)) as yes',
+			'SUM(if(stvi_vote < 0, 1, 0)) as no',
+			'count(stvi_vote) as total',
+		);
 
-            // ignore the blank user which is a placeholder
-            $cond = array(
-                'stvi_page_id' => $pageId,
-                'stvi_user_id <> ""',
-            );
+		// ignore the blank user which is a placeholder
+		$cond = array(
+			'stvi_page_id' => $pageId,
+			'stvi_user_id <> ""',
+		);
 
-            $row = $dbw->selectRow( $table, $var, $cond, __METHOD__ );
+		$row = $dbw->selectRow( $table, $var, $cond, __METHOD__ );
 
-            $yes = $row->yes;
-            $no = $row->no;
-            $total = $row->total;
-            if ( $yes >= 3 && $no == 0 ) {
-                $approved = true;
-            } else if ( $no >= 3 ) {
-                $rejected = true;
-            } else if ( $yes + $no >= 6 ) {
-                $rejected = true;
-            }
-        }
+		$yes = $row->yes;
+		$no = $row->no;
+		$totalVotes = $yes + $no;
+		$totalSkips = $row->total - $totalVotes;
+
+		if ( $yes - $no > 1 ) {
+			$approved = true;
+		} else if ( $no - $yes > 1 ) {
+			$rejected = true;
+		} else if ( $no >= 6 ) {
+			$rejected = true;
+		} else if ( $totalSkips >= 6 ) {
+			$rejected = true;
+		}
 
         if ( $approved) {
             $this->mLogActions[] = 'approved';
@@ -553,14 +474,13 @@ class SpecialTechVerify extends UnlistedSpecialPage {
     private function logVote( $action ) {
 		$request = $this->getContext()->getRequest();
         $pageId = $request->getInt( 'pageid' );
-        $platformId = $request->getInt( 'platformid' );
-        $platform = TechArticle\TechPlatform::newFromID( $platformId );
-        $platformName = $platform->name;
+        $platform = $request->getText( 'platform' );
+        $batchName = $request->getText( 'batch' );
 
         $title = Title::newFromId( $pageId );
         $logPage = new LogPage( 'test_tech_articles', false );
         $logData = array();
-        $logMsg = wfMessage( 'stvlogentryvote', $title->getFullText(), $action, $platformName )->text();
+        $logMsg = wfMessage( 'stvlogentryvote', $title->getFullText(), $action, $platform, $batchName )->text();
         $logPage->addEntry( $action, $title, $logMsg, $logData );
 
         UsageLogs::saveEvent(
@@ -582,5 +502,16 @@ class SpecialTechVerify extends UnlistedSpecialPage {
             return false;
         }
 		return ( in_array( 'staff', $userGroups ) || in_array( 'admin', $userGroups ) || in_array( 'newarticlepatrol', $userGroups ) );
+	}
+
+	private static function getNoFeedbackReasons() {
+		$res = array(
+			wfMessage('stv_bad_steps')->text(),
+			wfMessage('stv_bad_visuals')->text(),
+			wfMessage('stv_bad_steps_and_visuals')->text(),
+			wfMessage('stv_bad_topic')->text(),
+			wfMessage('stv_bad_other')->text(),
+		);
+		return $res;
 	}
 }

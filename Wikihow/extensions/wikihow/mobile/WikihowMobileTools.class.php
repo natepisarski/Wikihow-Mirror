@@ -749,7 +749,7 @@ class WikihowMobileTools {
 				pq($summarySection)->find('.edit-page')->remove();
 
 				//no last sentence for mobile (since we're forcing it lower)
-				pq($summarySection)->find('#summary_last_sentence')->remove();
+				pq('#summary_last_sentence')->remove();
 			}
 		}
 

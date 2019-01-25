@@ -199,11 +199,11 @@ a#slider_close_button:hover { text-decoration: none; }
 
 
 /*Become an Author*/
-.sliderbox_08 {
+.sliderbox_08, .sliderbox_10 {
 	width: 250px;
 	bottom: -310px;
 }
-#slider_thanks_08 {
+#slider_thanks_08, #slider_thanks_10 {
 	background-color: #FFF;
 	border: 5px solid #93b874;
 	border-right: none;
@@ -223,9 +223,10 @@ a#slider_close_button:hover { text-decoration: none; }
 	font-size: 1.3em;
 	font-weight: bold;
 }
-.sliderbox_08 .slider_button { margin-top: 1em; }
-.sliderbox_08 .slider_button a { margin-right: 0; }
-.sliderbox_08 #slider_close_button { 
+.sliderbox_10 .slider_become_text { font-size: 15.5px; }
+.sliderbox_08 .slider_button, .sliderbox_10 .slider_button { margin-top: 1em; }
+.sliderbox_08 .slider_button a, .sliderbox_10 .slider_button a { margin-right: 0; }
+.sliderbox_08 #slider_close_button, .sliderbox_10 #slider_close_button {
 	/* @embed */
 	background: url(/skins/owl/images/ico-x.png) no-repeat 0 0;
 	width: 14px;

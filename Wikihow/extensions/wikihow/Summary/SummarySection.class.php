@@ -17,15 +17,13 @@ class SummarySection {
 	  *
 	  * @param $parser = the Parser, obvs
 	  * @param $position = position of the summary section ('top' or 'bottom') [defaults to 'top']
-	  * @param $last_sentence = final sentence of the summary in wikitext (doesn't show for 'bottom' position)
+	  * @param $last_sentence = final sentence of the summary in wikitext
 	  * @param $summary_text = the wikitext of the summary
 	  *
 	  * @return wikitext
 	  */
 	public static function renderSummary( $parser, $position = '', $last_sentence = '', $summary_text = '' ) {
 		$position_class = self::positionClass($position);
-		$last_sentence = self::showLastSentence() ? $last_sentence : '';
-
 		$output = wfMessage('summary_section', $summary_text, $last_sentence, $position_class)->text();
 		return $output;
 	}
@@ -33,11 +31,6 @@ class SummarySection {
 	private static function positionClass($position) {
 		$class = $position == 'bottom' ? self::SUMMARY_POSITION_BOTTOM_CLASS : self::SUMMARY_POSITION_TOP_CLASS;
 		return $class;
-	}
-
-	//show the last sentence on desktop always, but never on mobile
-	private static function showLastSentence() {
-		return !Misc::isMobileMode();
 	}
 
 	public static function summaryData($page_title): array {

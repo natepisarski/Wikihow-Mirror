@@ -1,3 +1,10 @@
+.hidden {
+	display: none!important;
+}
+#stva_batch_name.existingbatch {
+	background: inherit;
+	pointer-events:none;
+}
 #desktop-title {
     background-color: #FFF;
     margin: 0px -27px 0px;
@@ -6,7 +13,8 @@
     padding-bottom: 16px;
     padding-right: 27px;
     border-radius: 4px 4px 0 0;
-    margin-bottom: -22px; display: none;
+    margin-bottom: -22px;
+    display: none;
 }
 #footer {
 	display: none !important;
@@ -176,7 +184,7 @@
 }
 #bottom-tool {
 	position: fixed;
-	top: 120px;
+	top: 90px;
 	right: 0;
 	z-index: 1000;
 	box-shadow: 0px 5px 10px 3px #999;
@@ -208,18 +216,11 @@
 #yesfeedback-section, #nofeedback-section {
     display: none;
 }
-#bottom-tool .feedback-section .button {
-	margin: 0;
-	display: inline-block;
-
+.feedback-section .buttonstext {
+    margin-bottom: 10px;
 }
 .feedback-section .buttonstext {
     margin-bottom: 15px;
-}
-.feedback-section .skip {
-	float: right;
-}
-.feedback-section .yes {
 }
 .feedback-section textarea {
     border: 1px solid #e5e5e5;
@@ -227,17 +228,16 @@
     padding: 8px;
     resize: none;
     vertical-align: middle;
-	font-size: 12px;
-    width: 100%;
-	box-sizing: border-box;
-}
-textarea {
-	margin-left: 0;
+    margin-left: 5px;
 }
 #nofeedback-section #nofeedback-mainfeedback {
+    width: 100%;
     margin-bottom: 20px;
     margin-left: 0;
-	resize: vertical;
+}
+.feedback-section .buttons-desktop {
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 #willtest-buttons {
     margin-top: 0px;
@@ -258,10 +258,8 @@ textarea {
 }
 #bottom-tool .button {
 	display: block;
-	max-width: 150px;
-	text-align: center;
-	min-width: 96px;
-	margin: 5px;
+	max-width: 88px;
+	margin: 8px;
 }
 #testing-section .buttonstext {
     margin-bottom: 10px;
@@ -277,7 +275,7 @@ textarea {
     display: none;
 }
 #tooltitle {
-    margin-top: -5px;
+    margin-top: 15px;
     margin-bottom: 12px;
 }
 #tooltitle h5 {
@@ -299,9 +297,114 @@ textarea {
 .section.quicksummary {
 	display: none;
 }
-.select2-results__options {
-	font-size: 12px;
+#stva_jobs {
+	display: table;
+	width: 100%;
+
+	.stva_job_row {
+		display: table-row;
+
+		&:nth-child(even) {
+			background-color: #E4E4E4;
+		}
+
+		&.stva_job_headers {
+			font-size: 1.4em;
+			letter-spacing: -.05em;
+		}
+
+		> div {
+			display: table-cell;
+			padding: .5em;
+			text-align: center;
+			vertical-align: middle;
+
+			&:nth-child(2),
+			&:nth-child(3) {
+				text-align: left;
+			}
+		}
+
+		.job_number {
+			color: #FFF;
+			font-size: 1.5em;
+			background-color: #545454;
+			border-radius: 1.5em;
+			width: 1.5em;
+			height: 1.5em;
+			line-height: 1.5em;
+			margin: 0 auto;
+		}
+
+		.stva_edit {
+			cursor: pointer;
+		}
+
+		.stva_enabled {
+			font-size: 1.7em;
+			cursor: pointer;
+		}
+
+		.stva_change_enabled {
+			display: none;
+			margin-right: 0;
+		}
+	}
 }
-div.floatright {
-	float: inherit !important;
+
+.stva_job_edit {
+	background-color: #EFEFEF;
+	padding: 1.5em;
+	width: 500px;
+	box-sizing: border-box;
+	border-radius: 5px;
+	box-shadow: -4px 4px 10px #333;
+
+	.fa-times {
+		position: absolute;
+		font-size: 1.5em;
+		cursor: pointer;
+		top: 6px;
+		right: 8px;
+	}
+
+	> div {
+		padding-bottom: .5em;
+	}
+
+	input, textarea {
+		padding: 0.3em;
+		border: 1px solid #545454;
+		width: 98%;
+		resize: none;
+	}
+
+	input {
+		font-size: 1.2em;
+	}
+
+	.stva_example {
+		font-size: .8em;
+		font-style: italic;
+		padding: .2em 0 .5em;
+	}
+
+	#stva_article_list {
+		height: 200px;
+	}
+
+	#stva_message {
+		&.stva_error {
+			color: #C00;
+		}
+	}
+
+	.button_div {
+		text-align: right;
+		padding: 0;
+
+		#stva_edit_done {
+			display: none;
+		}
+	}
 }

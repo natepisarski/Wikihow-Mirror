@@ -646,7 +646,7 @@ class LeaderboardStats {
 
 			$sql = "SELECT log_title ".
 				"FROM logging ".
-				"WHERE log_type='test_tech_articles' AND log_user = ".$u->getID()."  and log_timestamp >= '$starttimestamp' ".
+				"WHERE log_type='test_tech_articles' AND log_action <> 'skip' AND log_user = ".$u->getID()."  and log_timestamp >= '$starttimestamp' ".
 				"ORDER BY log_timestamp DESC ".
 				"LIMIT 30";
 			$res = $dbr->query($sql, __METHOD__);
@@ -669,7 +669,7 @@ class LeaderboardStats {
 
 			$sql = "SELECT log_user, count(*) as C , user_name
 				FROM logging left join $wgSharedDB.user on user_id=log_user
-				WHERE log_type='test_tech_articles' and log_timestamp >= '$starttimestamp' " . $bot .
+				WHERE log_type='test_tech_articles' and log_action <> 'skip' and log_timestamp >= '$starttimestamp' " . $bot .
 				"GROUP BY log_user ORDER BY C desc limit 30;";
 
 			$res = $dbr->query($sql, __METHOD__);

@@ -47,7 +47,7 @@ class AdminLatestRevision extends UnlistedSpecialPage {
 
 			$date = date('Y-m-d');
 			header('Content-type: application/force-download');
-			header('Content-disposition: attachment; filename="revisions_' . $date . '.xls"');
+			header('Content-disposition: attachment; filename="revisions_' . $date . '.tsv"');
 
 			if ($option == "chocothor") {
 				$out->addHTML("Url\tRevision\tUser\tDate\n");

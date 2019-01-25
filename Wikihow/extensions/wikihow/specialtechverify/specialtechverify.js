@@ -4,18 +4,20 @@
 	window.WH.SpecialTechVerify = {
         getNow : Date.now || function() { return new Date().getTime(); },
         startTime : null,
-        platformIdCookie: 'platformid',
+        platformCookie: 'stv_platform',
+        deviceVersionCookie: 'stv_version',
+        deviceModelCookie: 'stv_model',
         lastVote : 0,
         lastPageId : null,
         articleVisible: false,
-		tool: '/Special:TechVerify',
+		tool: '/Special:TechTesting',
 
         testedDone: function(payload, data) {
             var data = JSON.parse(data);
-            console.log("testedDone with payload:", payload);
-            console.log("testedDone with data:", data);
+            WH.SpecialTechVerify.log("testedDone with payload:", payload);
+            WH.SpecialTechVerify.log("testedDone with data:", data);
             if (payload.vote == 1) {
-                console.log("testedDone will show yes feedback section");
+                WH.SpecialTechVerify.log("testedDone will show yes feedback section");
                 $('#testing-section').hide();
                 $('#instructions-section').hide();
                 $('#time-verification-section').hide();
@@ -23,7 +25,7 @@
                 document.body.scrollTop = $('#yesfeedback-section').offset().top;
                 $('#yesfeedbackselect').select2();
             } else if (payload.vote == -1) {
-                console.log("testedDone will show no feedback section");
+                WH.SpecialTechVerify.log("testedDone will show no feedback section");
                 $('#testing-section').hide();
                 $('#instructions-section').hide();
                 $('#time-verification-section').hide();
@@ -33,7 +35,7 @@
             }
 
             if (data.logactions) {
-                console.log("log actions", data.logactions);
+                WH.SpecialTechVerify.log("log actions", data.logactions);
                 for (var i = 0; i < data.logactions.length; i++ ) {
                     this.maLog(data.logactions[i]);
                 }
@@ -43,7 +45,7 @@
 
         feedbackDone: function(payload, data) {
             var data = JSON.parse(data);
-            console.log("feedbackDone", data);
+            WH.SpecialTechVerify.log("feedbackDone", data);
             $('#yesfeedback-section').hide();
             $('#nofeedback-section').hide();
             $('#testing-section').hide();
@@ -52,15 +54,15 @@
 
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             if (data.logactions) {
-                console.log("log actions", data.logactions);
+                WH.SpecialTechVerify.log("log actions", data.logactions);
                 for (var i = 0; i < data.logactions.length; i++ ) {
                     this.maLog(data.logactions[i]);
                 }
             }
             WH.SpecialTechVerify.updateStats();
-            var platformId = WH.SpecialTechVerify.getPlatformId();
+            var platform = WH.SpecialTechVerify.getPlatform();
 
-            this.getNext(platformId);
+            this.getNext(platform);
         },
 
         hidePlatformMessageTop: function(platform) {
@@ -69,15 +71,8 @@
             $('#willtest-buttons').hide();
             $('#instructions-section').hide();
         },
-        showPlatformMessageTop: function(platformId) {
-            var platformName = '';
-            if (platformId == 1) {
-                platformName = "Android";
-            }
-            if (platformId == 2) {
-                platformName = "iPhone";
-            }
-            $('#platformmessagetop span').text(platformName);
+        showPlatformMessageTop: function(platform) {
+            $('#platformmessagetop span').text(platform);
             $('#platformmessagetop').show();
 
         },
@@ -104,9 +99,8 @@
         initEventHandlers: function() {
             $('a.changeplatform, .changeplatform a').on("click", this.changePlatform);
             $('#platformselect .button').on("click",function() {
-                //var val = $('#platformselect select').val();
-				var val = $('#platformselect input:radio[name=platform]:checked').val();
-                var platformId = WH.SpecialTechVerify.getPlatformId();
+                var val = $('#platformselect select').val();
+                var platform = WH.SpecialTechVerify.getPlatform();
                 if (!val) {
                     return false;
                 }
@@ -114,8 +108,8 @@
                 $('#header-title').show();
                 $('#tool-data').show();
                 WH.SpecialTechVerify.showPlatformMessageTop(val);
-                if (val != platformId) {
-                    WH.SpecialTechVerify.setPlatformId(val);
+                if (val != platform) {
+                    WH.SpecialTechVerify.setPlatform(val);
                     WH.SpecialTechVerify.getNext(val);
                 }
                 return false;
@@ -129,20 +123,22 @@
                 if ($(event.target).hasClass("skip")) {
                     vote = 0;
                     WH.SpecialTechVerify.lastVote = vote;
-                    var platformId = $(this).data('platformid');
+                    var platform = $(this).data('platform');
+                    var batch = $(this).data('batch');
                     var payload = {
                         pageid: $(this).data('page-id'),
                         revid: $(this).data('rev-id'),
                         vote: vote,
-                        platformid: platformId
+                        batch: batch,
+                        platform: platform
                     };
-                    console.log('willtest buttons: skip', payload);
+                    WH.SpecialTechVerify.log('willtest buttons: skip', payload);
 
                     // TODO switch these when you want to save to db
                     WH.SpecialTechVerify.save(payload, 'feedbackDone');
                     //WH.SpecialTechVerify.feedbackDone(payload);
                 } else {
-                    console.log('willtest buttons clicked yes. will show testing buttons');
+                    WH.SpecialTechVerify.log('willtest buttons clicked yes. will show testing buttons');
                     // show the testing-section
                     $('#testing-section').show();
                     $('#willtest-buttons').hide();
@@ -162,7 +158,7 @@
                     vote = 1;
                     var now = WH.SpecialTechVerify.getNow();
                     if ( this.id == 'testing-section' && (now - WH.SpecialTechVerify.startTime) < 30000) {
-                        console.log("not enough time passsed will show verify section");
+                        WH.SpecialTechVerify.log("not enough time passsed will show verify section");
                         $(this).hide();
                         $('#time-verification-section').show();
                         return false;
@@ -174,14 +170,16 @@
                 }
 
                 WH.SpecialTechVerify.lastVote = vote;
-                var platformId = $(this).data('platformid');
+                var platform = $(this).data('platform');
+                var batch = $(this).data('batch');
                 var payload = {
                     pageid: $(this).data('page-id'),
                     revid: $(this).data('rev-id'),
                     vote: vote,
-                    platformid:platformId
+                    batch: batch,
+                    platform:platform
                 };
-                console.log(this.id + ' clicked with payload:', payload);
+                WH.SpecialTechVerify.log(this.id + ' clicked with payload:', payload);
 
                 if (vote == 0) {
                     WH.SpecialTechVerify.save(payload, 'feedbackDone');
@@ -198,27 +196,30 @@
                     return;
                 }
                 if ($(event.target).hasClass("skip")) {
-                    console.log("feedback not given");
+                    WH.SpecialTechVerify.log("feedback not given");
                     WH.SpecialTechVerify.feedbackDone(payload, '{}');
                     return false;
                 }
 
-                var product = $('#yesfeedbackselect option:selected').val();
-                var model = $('#yesfeedbackmodeltext').val();
-                var version = $('#yesneedbackversiontext').val();
+				var platform = $(this).data('platform');
+				var batch = $(this).data('batch');
+				var model = $('#yesfeedbackmodeltext').val();
+				WH.SpecialTechVerify.setDeviceModel(platform, model);
+                var version = $('#yesfeedbackversiontext').val();
+				WH.SpecialTechVerify.setDeviceVersion(platform, version);
                 payload = {
                     action: 'feedback',
                     pageid: $(this).data('page-id'),
                     revid: $(this).data('rev-id'),
-                    platformid: $(this).data('platformid'),
-                    product: product,
+                    batch: batch,
+                    platform: platform,
                     model: model,
                     version: version
                 };
-                if (!product && !model && !version) {
+                if (!model && !version && !reason) {
                     return false;
                 }
-                console.log('yes feedback submitted', payload);
+                WH.SpecialTechVerify.log('yes feedback submitted', payload);
 				WH.SpecialTechVerify.save(payload, 'feedbackDone');
 
 				return false;
@@ -230,29 +231,34 @@
                     return;
                 }
                 if ($(event.target).hasClass("skip")) {
-                    console.log("feedback not given");
+                    WH.SpecialTechVerify.log("feedback not given");
                     WH.SpecialTechVerify.feedbackDone(payload, '{}');
                     return false;
                 }
 
                 var textbox = $('#nofeedback-mainfeedback').val();
-                var product = $('#nofeedbackselect option:selected').val();
+				var platform = $(this).data('platform');
+				var batch = $(this).data('batch');
                 var model = $('#nofeedbackmodeltext').val();
+				WH.SpecialTechVerify.setDeviceModel(platform, model);
                 var version = $('#nofeedbackversiontext').val();
-                if (!textbox && !product && !model && !version) {
+                var reason = $('#nofeedbackselect').select2().get(0).value;
+				WH.SpecialTechVerify.setDeviceVersion(platform, version);
+                if (!textbox && !model && !version && !reason) {
                     return false;
                 }
                 payload = {
                     action: 'feedback',
                     pageid: $(this).data('page-id'),
                     revid: $(this).data('rev-id'),
-                    platformid: $(this).data('platformid'),
+                    platform: platform,
+                    batch: batch,
                     textbox: textbox,
-                    product: product,
                     model: model,
-                    version: version
+                    version: version,
+                    reason: reason
                 };
-                console.log('no feedback submitted', payload);
+                WH.SpecialTechVerify.log('no feedback submitted', payload);
 
 				WH.SpecialTechVerify.save(payload, 'feedbackDone');
 
@@ -260,19 +266,34 @@
 			});
         },
 
-        getPlatformId: function() {
-            return $.cookie(this.platformIdCookie);
+        getPlatform: function() {
+            return $.cookie(this.platformCookie);
         },
-        setPlatformId: function(val) {
-            return $.cookie(this.platformIdCookie, val);
+        setPlatform: function(val) {
+            return $.cookie(this.platformCookie, val);
         },
+
+        getDeviceVersion: function(platform) {
+            return $.cookie(this.deviceVersionCookie+'_'+platform);
+        },
+        setDeviceVersion: function(platform, val) {
+            return $.cookie(this.deviceVersionCookie+'_'+platform, val);
+        },
+
+        getDeviceModel: function(platform) {
+            return $.cookie(this.deviceModelCookie+'_'+platform);
+        },
+        setDeviceModel: function(platform, val) {
+            return $.cookie(this.deviceModelCookie+'_'+platform, val);
+        },
+
         showPlatformSelect: function() {
             $('#header-title').hide();
             $('#tool-data').hide();
             $('#desktop-title').show();
-            var platformId = this.getPlatformId();
+            var platformId = this.getPlatform();
             if (platformId) {
-                $("#platformselect input[name=platform][value=" + platformId + "]").prop('checked', true);
+                $("#platformselect input[name='platform'][value='" + platformId + "']").prop('checked', true);
             }
 
             $('#platformselect').slideDown();
@@ -285,7 +306,19 @@
             this.fixBodyHtml();
             this.initEventHandlers();
 
-            var platformId = this.getPlatformId();
+            var platformId = this.getPlatform();
+			console.log("here", $('#platformselect'));
+			// check if platform is in list of platforms
+			var found = false;
+			$('#platformselect option').each(function() {
+				if (platformId == $(this).val()) {
+					found = true;
+				}
+			});
+			if (found == false) {
+				var platformId = '';
+				this.setPlatform('');
+			}
             if (!platformId) {
                 this.showPlatformSelect();
             } else {
@@ -299,18 +332,27 @@
 			var event = 'test_tech_articles';
             var data = { 'action' : action };
             data['article'] = $('#current-title').data('title');
-            console.log('will ma log data', data);
+            WH.SpecialTechVerify.log('will ma log data', data);
             WH.maEvent(event, data, true);
         },
 
+		log: function() {
+			if (wgUserId == 2029395 ) {
+				console.log.apply(null, arguments);
+			}
+		},
+
 		getNext: function(platformId) {
-			var url = this.tool+'?action=next&platformid='+platformId;
+			var url = this.tool+'?action=next&platform='+platformId;
             // check for uselang qqx
             if (window.location.search.includes("uselang=qqx")) {
                 url += "&uselang=qqx";
             }
 
             $('#testing-section').remove();
+            $('#time-verification-section').remove();
+            $('#yesfeedback-section').remove();
+            $('#nofeedback-section').remove();
             $('#article-data').fadeOut();
 			$('#tool-data').fadeOut(function() {
 				$('.spinner').fadeIn(function() {
@@ -354,6 +396,7 @@
                 if (data.remaining > 0) {
                     $('#article-data').fadeIn();
                 }
+
                 $('#chooseplatformbottom').show();
                 $('#testing-section').show();
             });
@@ -366,6 +409,20 @@
 
             $('a.changeplatform, .changeplatform a').off("click", this.changePlatform);
             $('a.changeplatform, .changeplatform a').on("click", this.changePlatform);
+
+			// TODO only do this if the platform matches??
+
+			var platform = $('#testing-section').data('platform');
+			var model = this.getDeviceModel(platform);
+			if (model) {
+				$('#yesfeedbackmodeltext').val(model);
+				$('#nofeedbackmodeltext').val(model);
+			}
+			var version = this.getDeviceVersion(platform);
+			if (version) {
+				$('#yesfeedbackversiontext').val(version);
+				$('#nofeedbackversiontext').val(version);
+			}
         },
 
         updateStats : function() {

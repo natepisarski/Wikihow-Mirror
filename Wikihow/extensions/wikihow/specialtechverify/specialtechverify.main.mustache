@@ -9,9 +9,11 @@
     <div id="platformselect">
         <span>{{platformSelect}}</span>
         <form>
+			<select name='platform'>
             {{#platforms}}
-                <label><input type='radio' name='platform' value='{{platformId}}'>{{platformName}}</label>
+                <option value='{{.}}'>{{.}}</option>
             {{/platforms}}
+			</select>
             <br>
             <input type='submit' value='{{platformSelectButton}}' class='button primary'>
         </form>

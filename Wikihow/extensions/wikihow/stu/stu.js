@@ -19,9 +19,9 @@ var WH = window['WH'];
 var countableView = WH['stuCount'],
 	pageLang = WH['pageLang'],
 	isMobile = WH['isMobile'],
-	exitTimerEnabled = countableView && pageLang == 'en',
 	dev = !!(location.href.match(/\.wikidogs\.com/)),
-	pingTimersEnabled = !!(location.href.match(/\.wikihow\.[a-z]+\//)) || dev,
+	exitTimerEnabled = (countableView && pageLang == 'en') || dev,
+	pingTimersEnabled = (location.href.match(/\.wikihow\.[a-z]+\//) && pageLang == 'en') || dev,
 	startTime = false,
 	restartTime = false,
 	activeElapsed = 0,
@@ -264,7 +264,9 @@ function start() {
 		window.onbeforeunload = onUnload;
 	}
 
-	addActivityListeners();
+	if (exitTimerEnabled || pingTimersEnabled) {
+		addActivityListeners();
+	}
 }
 
 function a3RecalcScrollSections() {
@@ -445,7 +447,12 @@ function eventPing(pingType, stats) {
 }
 
 function customEventPing(attrs) {
-	eventPing( 'event', basicStatsGen(attrs) );
+	// Only send custom pings if either exit or ping timers are enabled.
+	// I made this change to make it so that Stu plugins don't send events
+	// out of the context of all the events generated.
+	if (exitTimerEnabled || pingTimersEnabled) {
+		eventPing( 'event', basicStatsGen(attrs) );
+	}
 }
 
 // Set up a callback to external stu debug code. Callback is

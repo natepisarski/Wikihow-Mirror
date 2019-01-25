@@ -569,6 +569,9 @@ class SocialProofStats extends ContextSource {
 		if(self::isSpecialInline()) {
 			return wfMessage('Sp_inline_expert_label')->text();
 		}
+		if(SocialStamp::isNotable()) {
+			return wfMessage( 'ss_notable')->text();
+		}
 
 		switch ($this->verifierType) {
 			case self::VERIFIER_TYPE_EXPERT:

@@ -4,9 +4,9 @@ if (!defined('MEDIAWIKI')) {
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-	'name' => 'Special Tech Verify',
+	'name' => 'Special Tech Testing',
 	'author' => 'Aaron',
-	'description' => 'tool to help people verify tech articles',
+	'description' => 'tool to help people test tech articles',
 );
 
 $wgSpecialPages['SpecialTechVerify'] = 'SpecialTechVerify';
@@ -39,5 +39,3 @@ $wgResourceModules['ext.wikihow.specialtechverify.styles'] = array(
 );
 
 $wgExtensionMessagesFiles['SpecialTechVerifyAliases'] = __DIR__ . '/SpecialTechVerify.alias.php';
-
-$wgHooks['ConfigStorageAfterStoreConfig'][] = ['SpecialTechVerify::onConfigStorageAfterStoreConfig'];

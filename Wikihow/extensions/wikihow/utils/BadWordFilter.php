@@ -34,7 +34,7 @@ class BadWordFilter {
 
 	public static function getBadWordsArray($listType = self::TYPE_STRICT) {
 		global $IP, $wgMemc;
-		$key =  wfMemcKey($listType, "V7");
+		$key =  wfMemcKey($listType, "V8");
 		$badWordsArray = $wgMemc->get($key);
 		if (!is_array($badWordsArray)) {
 			$badWordsFilename = $IP . $listType;

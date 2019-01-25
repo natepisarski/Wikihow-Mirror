@@ -15,7 +15,12 @@ class Slider extends UnlistedSpecialPage {
 		//	return($html);	
 		//}
 		// Contribute to wikiHow slider
-		return self::getBox_08();
+		$articleId = RequestContext::getMain()->getTitle()->getArticleId();
+		if($articleId % 10 == 6) { //show box 10 only 10% of the time
+			return self::getBox_10();
+		} else { //show box 8 the rest of the time
+			return self::getBox_08();
+		}
 	}
 	
 	//original slider
@@ -190,6 +195,22 @@ class Slider extends UnlistedSpecialPage {
 								<p class='slider_editing_text'>".wfMessage('slider-text-editing')->text()."</p>
 								<!--p>".wfMessage('slider-sub-text-editing')->text()."</p-->
 								<p class='slider_button'><a class='button primary' id='slider_edit_button' href='".wfMessage('slider-text-editing-link')->text()."'>".wfMessage('slider-editing-button-text')."</a></p>
+							</div>
+						</div>
+					</div>";
+
+		return $theBox;
+	}
+
+	//circle slider with Become an expert link
+	public function getBox_10() {
+
+		$theBox = "<div id='sliderbox' class='sliderbox_10' style='display:none'>
+						<div id='slider_thanks_10'>
+							<a href='#' id='slider_close_button'></a>
+							<div class='slider_become_main'>
+								<p class='slider_become_text'>".wfMessage('slider-text-become-2')->text()."</p>
+								<p class='slider_button'><a class='button primary' target='_blank' href='".wfMessage('slider-text-become-link-2')->text()."'>".wfMessage('slider-button-text')."</a></p>
 							</div>
 						</div>
 					</div>";

@@ -882,6 +882,10 @@ a.reference-anchor {
 	background-image: none;
 }
 
+.collapse_link.open::after {
+	display: none;
+}
+
 #summary_text {
 	display: none;
 }
