@@ -292,6 +292,19 @@ class updateArticleReferences extends Maintenance {
 		//if ( $linkInfoId ) {
 			//decho( "found link info for url $url with id", $linkInfoId );
 		//}
+
+		$foundInEn = false;
+		if ( !$linkInfoId ) {
+			// check in EN database first to see if data is already there
+			$linkInfoEn = self::getLinkInfoEn( $url );
+			if ( $linkInfoEn ) {
+				$foundInEn = true;
+				$linkInfoId = self::insertLinkInfoFromEn( $url, $linkInfoEn );
+				if ( $verbose ) {
+					decho( "got linkinfo from EN db for", $url );
+				}
+			}
+		}
 		if ( !$linkInfoId || $forceUpdate ) {
 			$data = self::getRemoteInfo( $url );
 			if ( $data ) {
@@ -302,7 +315,11 @@ class updateArticleReferences extends Maintenance {
 			}
 		} else {
 			if ( $verbose ) {
-				decho("found link info for $url in db already", $linkInfoId);
+				if ( $foundInEn ) {
+					decho("found link info for $url in EN db", $linkInfoId);
+				} else {
+					decho("found link info for $url in db already", $linkInfoId);
+				}
 			}
 		}
 		// update our join table so we know we have processed this row
@@ -336,6 +353,7 @@ class updateArticleReferences extends Maintenance {
 	}
 
 	private function showCount() {
+		global $wgLanguageCode;
 		$dbr = wfGetDb( DB_SLAVE );
 		$table = array(
 				'externallinks',
@@ -348,7 +366,8 @@ class updateArticleReferences extends Maintenance {
 				'page_namespace' => 0,
 				);
 		$options = array();
-		decho("will query count" );
+
+		decho("will query count for lang", $wgLanguageCode );
 		$count = $dbr->selectField( $table, $var, $cond, __METHOD__, $options );
 		decho("count", $count);
 	}
@@ -378,6 +397,22 @@ class updateArticleReferences extends Maintenance {
 			$result = '';
 		}
 		return $result;
+	}
+
+	private static function insertLinkInfoFromEn( $url, $data ) {
+		$dbw = wfGetDB( DB_MASTER );
+        $table = 'link_info';
+        $values = array(
+            'li_url' => $data->li_url,
+            'li_title' => $data->li_title,
+            'li_code' => $data->li_code,
+            'li_date_checked' => $data->li_date_checked,
+            'li_user_checked' => $data->li_user_checked,
+        );
+		$options = array( 'IGNORE' );
+        $dbw->insert( $table, $values, __METHOD__ );
+
+		return $dbw->insertId();
 	}
 
 	private static function insertLinkInfo( $url, $data ) {
@@ -410,6 +445,21 @@ class updateArticleReferences extends Maintenance {
 		);
 		$options = array( 'IGNORE' );
 		$dbw->update( $table, $values, $conds, __METHOD__ );
+	}
+
+	private static function getLinkInfoEn( $url ) {
+		global $wgLanguageCode;
+		if ( $wgLanguageCode == 'en' ) {
+			return null;
+		}
+
+		$dbr = wfGetDb( DB_SLAVE );
+        $table = 'wikidb_112.link_info';
+        $var = '*';
+		$cond = array( 'li_url' => $url );
+		$options = array();
+		$row = $dbr->selectRow( $table, $var, $cond, __METHOD__, $options );
+		return $row;
 	}
 
 	private static function getLinkInfoId( $url ) {

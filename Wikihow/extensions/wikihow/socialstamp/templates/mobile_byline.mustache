@@ -1,4 +1,4 @@
-<div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}}">
+<div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}} {{oldToc}}">
 	{{#mobile}}<div id="ss_badge" class="{{slot1class}}"></div>{{/mobile}}
 	{{coauthor}} <a href="{{#amp}}#{{/amp}}{{^amp}}#{{linkUrl}}{{/amp}}" class="{{slot1class}} expert_coauthor_link" {{#amp}}on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1"{{/amp}}>
 		{{slot1}}</a>{{#hasSlot2}}{{{connector}}}{{slot2_intro}}<a href="{{#amp}}#{{/amp}}{{^amp}}#{{linkUrl}}{{/amp}}" class="expert_coauthor_link {{slot2class}}" {{#amp}}on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1"{{/amp}}>{{slot2}}</a>

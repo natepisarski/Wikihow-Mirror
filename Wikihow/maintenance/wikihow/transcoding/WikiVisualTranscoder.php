@@ -184,7 +184,7 @@ class WikiVisualTranscoder {
 	const TRANSCODER_360P_16x9_PRESET = '1373409713520-t0nqq0';
 	const TRANSCODER_360P_16x9_PRESET_AUDIO = '1503961241607-9swq73';
 	
-	const WARNING_MIN_WIDTH = 3200;
+	const ERROR_MIN_WIDTH = 3200;
 	const ERROR_MAX_IMG_DIMEN = 10000;
 	
 	const PHOTO_LICENSE = 'cc-by-sa-nc-3.0-self';
@@ -210,7 +210,7 @@ class WikiVisualTranscoder {
 	static $debugArticleID = '';
 	static $videoExts = array( 'mp4', 'avi', 'flv', 'aac', 'mov' );
 	static $assocVideoExts;
-	static $imgExts = array( 'jpg', 'jpeg', 'gif', 'png' );
+	static $imgExts = array( 'jpg', 'jpeg', 'gif' );
 	static $assocImgExts;
 	static $excludeArticles = array();
 	static $excludeUsers = array( 'old', 'backup' );
@@ -719,8 +719,11 @@ class WikiVisualTranscoder {
 		$ret = glob($dir . '/*.{' . join(',', $exts) . '}', GLOB_BRACE);
 		$err = null;
 		$files = null;
+
 		if (false === $ret) {
-			$err = 'no files unzipped';
+			$err = 'error unzipping files';
+		} else if ( empty( $ret ) ) {
+			$err = 'no valid files unzipped. check your file extensions (png is not supported)';
 		} else {
 			$files = $ret;
 		}

@@ -7,6 +7,8 @@ class ApiTitleSearch extends ApiBase {
 	}
 
 	function execute() {
+		global $wgLanguageCode;
+
 		// Get the parameters
 		$params = $this->extractRequestParams();
 
@@ -30,7 +32,7 @@ class ApiTitleSearch extends ApiBase {
 
 
 		if ($safeSearch) {
-			if (BadWordFilter::hasBadWord($q, BadWordFilter::TYPE_ALEXA)) {
+			if (BadWordFilter::hasBadWord($q, BadWordFilter::TYPE_ALEXA, $wgLanguageCode)) {
 				return $result->addValue(null,'data', $this->formatTitles([]));;
 			}
 		}
@@ -39,9 +41,9 @@ class ApiTitleSearch extends ApiBase {
 		$titles = $search->externalSearchResultTitles($q, 0, $numResults, 0, LSearch::SEARCH_INTERNAL);
 
 		if ($safeSearch) {
-			$titles = TitleFilters::filterExplicitAidsForAlexa($titles);
+			$titles = TitleFilters::filterExplicitAidsForAlexa($titles, $wgLanguageCode);
 			$titles = TitleFilters::filterTopLevelCategories($titles, [CAT_RELATIONSHIPS]);
-			$titles = TitleFilters::filterByBadWords($titles, BadWordFilter::TYPE_ALEXA);
+			$titles = TitleFilters::filterByBadWords($titles, BadWordFilter::TYPE_ALEXA, $wgLanguageCode);
 		}
 
 		$titles = TitleFilters::filterByNamespace($titles, [NS_MAIN]);

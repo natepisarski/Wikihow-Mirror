@@ -1,0 +1,56 @@
+<div id="game-adBanner" style="position: absolute; color: transparent;">
+	<ins class="ads">&nbsp;</ins>
+</div>
+<div class="sidebox" id="game-desktopWidget" style="display:none;padding:0;border-radius:4px;overflow:hidden;">
+<a id="game-link"><img id="game-image" width="100%" style="display:block"></a>
+</div>
+<script type="text/javascript" src="/_ads/ads.js"></script>
+<script type="text/javascript">
+/* global mw, WH, MachinifyAPI*/
+document.addEventListener( 'DOMContentLoaded', function () {
+	var banner = document.getElementById( 'game-adBanner' );
+	var widget = document.getElementById( 'game-desktopWidget' );
+	if ( mw.user.anonymous() && !window._ads || ( banner && widget && banner.offsetHeight == 0 ) ) {
+		var root = '/extensions/wikihow/Game/resources/game-';
+		var sources = [
+			{ ref: 'small', srcset: [ root + 'small@1x.png 300w', root + 'small@2x.png 600w', root + 'small@3x.png 900w' ] },
+			{ ref: 'large', srcset: [ root + 'large@1x.png 300w', root + 'large@2x.png 600w', root + 'large@3x.png 900w' ] },
+		];
+		var index = Math.floor( Math.random() * sources.length );
+		var ref = sources[index].ref;
+		var link = document.getElementById( 'game-link' );
+		var image = document.getElementById( 'game-image' );
+		widget.style.display = 'block';
+		image.setAttribute( 'srcset', sources[index].srcset.join() );
+		link.setAttribute(
+			'href',
+			'/Special:Game' +
+				'?ref=' + encodeURIComponent( ref ) +
+				'&origin=' + encodeURIComponent( location.pathname )
+		); 
+		link.onclick = function ( e ) {
+			e.preventDefault();
+			// Track click
+			WH.maEvent(
+				'game_ad_click',
+				{ origin: location.hostname, ref: ref },
+				function () {
+					window.location = link.getAttribute( 'href' );
+				}
+			);
+		};
+		image.onload = function () {
+			// Track view
+			var done = false;
+			var interval = setInterval( function () {
+				if ( !done && MachinifyAPI ) {
+					done = true;
+					WH.maEvent( 'game_ad_view', { origin: location.hostname, ref: ref } );
+					clearInterval( interval );
+				}
+			}, 100 );
+		};
+	}
+} );
+
+</script>

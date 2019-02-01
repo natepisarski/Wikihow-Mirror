@@ -261,17 +261,17 @@ abstract class AbsTranscoder implements Transcodable {
 					// Log pixel width issues
 					if (!$hadSizeProblems
 					&& !empty($image['width'])
-					&& $image['width'] < WikiVisualTranscoder::WARNING_MIN_WIDTH)
+					&& $image['width'] < WikiVisualTranscoder::ERROR_MIN_WIDTH)
 					{
-						$warning .= "size:{$image['width']}px:{$image['name']}\n";
+						$err .= "size:{$image['width']}px:{$image['name']}\n";
 						$hadSizeProblems = true;
 					}
 
                     // Log pixel width issues
                     if (!$hadSizeProblems
                     && !empty($image['width'])) {
-                        if ($image['width'] < WikiVisualTranscoder::WARNING_MIN_WIDTH) {
-                            $warning .= "size:{$image['width']}px:{$image['name']}\n";
+                        if ($image['width'] < WikiVisualTranscoder::ERROR_MIN_WIDTH) {
+                            $err .= "size:{$image['width']}px:{$image['name']}\n";
                             $hadSizeProblems = true;
                         } else {
                             $maxImgDimen = $image['width'] > $image['height'] ? $image['width'] : $image['height'];

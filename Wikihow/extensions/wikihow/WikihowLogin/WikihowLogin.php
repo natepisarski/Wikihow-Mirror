@@ -10,7 +10,7 @@ $wgResourceModules['ext.wikihow.loginpage'] = array(
 	'styles' => 'wikihowlogin.css',
 	'targets' => array( 'desktop' ),
 	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow',
+	'remoteExtPath' => 'wikihow/WikihowLogin',
 	'position' => 'top'
 );
 

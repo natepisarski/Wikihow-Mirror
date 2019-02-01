@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.TechVerifyAppWidget = (function($) {
+WH.dashboard.TechTestingAppWidget = (function($) {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -14,22 +14,22 @@ WH.dashboard.TechVerifyAppWidget = (function($) {
 		topTime = null;
 
 	// Our new widget class
-	function TechVerifyAppWidget() {
+	function TechTestingAppWidget() {
 
 		this.getWidgetName = function(){
-			return "TechVerifyAppWidget";
+			return "TechTestingAppWidget";
 		}
 
 		// Called by WH.dashboard.init after it's done running
 		this.init = function() {
-			unpatrolledNode = $('.comdash-widget-TechVerifyAppWidget .comdash-count span');
-			lastImage = $('.comdash-widget-TechVerifyAppWidget .comdash-lastcontributor .avatar');
-			lastName = $('.comdash-widget-TechVerifyAppWidget .comdash-lastcontributor .name');
-			lastTime = $('.comdash-widget-TechVerifyAppWidget .comdash-lastcontributor .time');
-			completedNode = $('.comdash-widget-TechVerifyAppWidget .comdash-today');
-			topImage = $('.comdash-widget-TechVerifyAppWidget .comdash-topcontributor .avatar');
-			topName = $('.comdash-widget-TechVerifyAppWidget .comdash-topcontributor .name');
-			topTime = $('.comdash-widget-TechVerifyAppWidget .comdash-topcontributor .time');
+			unpatrolledNode = $('.comdash-widget-TechTestingAppWidget .comdash-count span');
+			lastImage = $('.comdash-widget-TechTestingAppWidget .comdash-lastcontributor .avatar');
+			lastName = $('.comdash-widget-TechTestingAppWidget .comdash-lastcontributor .name');
+			lastTime = $('.comdash-widget-TechTestingAppWidget .comdash-lastcontributor .time');
+			completedNode = $('.comdash-widget-TechTestingAppWidget .comdash-today');
+			topImage = $('.comdash-widget-TechTestingAppWidget .comdash-topcontributor .avatar');
+			topName = $('.comdash-widget-TechTestingAppWidget .comdash-topcontributor .name');
+			topTime = $('.comdash-widget-TechTestingAppWidget .comdash-topcontributor .time');
 		};
 
 		// Called by WH.dashboard after new data has been downloaded from
@@ -64,13 +64,13 @@ WH.dashboard.TechVerifyAppWidget = (function($) {
 	}
 
 	// Make our widget inherit from the base widget
-	TechVerifyAppWidget.prototype = new WH.dashboard.DashboardWidget();
+	TechTestingAppWidget.prototype = new WH.dashboard.DashboardWidget();
 
 	// Instantiate this widget
-	widget = new TechVerifyAppWidget();
+	widget = new TechTestingAppWidget();
 
 	// Listen for data updates from the server
-	WH.dashboard.registerDataListener('TechVerifyAppWidget', widget);
+	WH.dashboard.registerDataListener('TechTestingAppWidget', widget);
 
 	return widget;
 })(jQuery);

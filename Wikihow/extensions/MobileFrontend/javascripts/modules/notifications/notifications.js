@@ -34,7 +34,6 @@
 			loadModuleScript( 'mobile.wikihow.notifications.overlay' ).done( function() {
 				//XXCHANGEDXX - immediately hide the notifications number while showing the overlay [sc]
 				$( '#secondary-button.user-button' ).hide();
-				$( '#search_oversearch').removeClass('has_notes');
 				var NotificationsOverlay = M.require( 'modules/notifications/NotificationsOverlay' );
 				result.resolve(
 					new NotificationsOverlay( { $badge: $btn, count: $btn.find( 'span' ).text() } )

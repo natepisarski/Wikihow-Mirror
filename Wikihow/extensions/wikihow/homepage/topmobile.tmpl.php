@@ -20,9 +20,6 @@
 	display:block;
 	margin-top:10px;
 }
-#search_oversearch #cse-search-box {
-	margin-left:10px;
-}
 .wh_search .cse_q, #cse-search-box .cse_q {
 	margin-bottom:5px;
 	background-color: #FFF;
@@ -33,26 +30,6 @@
 	-webkit-border-radius: 5px 0 0 5px;
 	-khtml-border-radius: 5px 0 0 5px;
 	border-radius: 5px 0 0 5px;
-}
-#search_oversearch .cse_sa {
-	background-color:#6d855e;
-	background-size: 32px;
-	width:31px;
-	height: 29px;
-	margin:0;
-	position:static;
-	float:left;
-	background-image: url(/extensions/wikihow/mobile/images/white_mag.png);
-	-moz-border-radius: 0 5px 5px 0;
-	-webkit-border-radius: 0 5px 5px 0;
-	-khtml-border-radius: 0 5px 5px 0;
-	border-radius: 0 5px 5px 0;
-}
-#search_oversearch {
-	display:inline-block;
-	height:40px;
-	margin-top:40px;
-	width:100%;
 }
 #mw-mf-main-menu-button {
 	display:none;

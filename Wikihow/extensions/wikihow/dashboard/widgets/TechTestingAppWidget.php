@@ -1,6 +1,6 @@
 <?
 
-class TechVerifyAppWidget extends DashboardWidget {
+class TechTestingAppWidget extends DashboardWidget {
 
 	public function __construct($name) {
 		parent::__construct($name);
@@ -43,9 +43,9 @@ class TechVerifyAppWidget extends DashboardWidget {
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
 		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
-			$link = "<a href='/Special:TechVerify' class='comdash-start'>Start";
+			$link = "<a href='/Special:TechTesting' class='comdash-start'>Start";
 		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
-			$link = "<a href='/Special:Userlogin?returnto=Special:TechVerify' class='comdash-login'>Login";
+			$link = "<a href='/Special:Userlogin?returnto=Special:TechTesting' class='comdash-login'>Login";
 		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
 		if($showArrow)
@@ -59,7 +59,7 @@ class TechVerifyAppWidget extends DashboardWidget {
 	 * Provides names of javascript files used by this widget.
 	 */
 	public function getJSFiles() {
-		return array('TechVerifyAppWidget.js');
+		return array('TechTestingAppWidget.js');
 	}
 
 	/**
@@ -78,13 +78,13 @@ class TechVerifyAppWidget extends DashboardWidget {
 	}
 
 	public function getUserCount(&$dbr){
-		$standings = new TechVerifyStandingsIndividual();
+		$standings = new TechTestingStandingsIndividual();
 		$data = $standings->fetchStats();
 		return $data['week'];
 	}
 
 	public function getAverageCount(&$dbr){
-		$standings = new TechVerifyStandingsGroup();
+		$standings = new TechTestingStandingsGroup();
 		return $standings->getStandingByIndex(self::GLOBAL_WIDGET_MEDIAN);
 	}
 
@@ -93,7 +93,7 @@ class TechVerifyAppWidget extends DashboardWidget {
 	 * Gets data from the Leaderboard class for this widget
 	 */
 	public function getLeaderboardData(&$dbr, $starttimestamp){
-		$data = LeaderboardStats::getTechVerifyVotedIn($starttimestamp);
+		$data = LeaderboardStats::getTechTestingVotedIn($starttimestamp);
 		arsort($data);
         $data = array();
 

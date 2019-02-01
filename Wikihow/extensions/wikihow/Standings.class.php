@@ -706,9 +706,9 @@ class QAPatrolStandingsGroup extends StandingsGroup  {
 	}
 }
 
-class TechVerifyStandingsGroup extends StandingsGroup  {
+class TechTestingStandingsGroup extends StandingsGroup  {
 	function __construct() {
-		parent::__construct("techverify_standings");
+		parent::__construct("techtesting_standings");
 	}
 
 	function getSQL($ts) {
@@ -1062,7 +1062,7 @@ class QAPatrolStandingsIndividual extends StandingsIndividual {
 
 }
 
-class TechVerifyStandingsIndividual extends StandingsIndividual {
+class TechTestingStandingsIndividual extends StandingsIndividual {
 
 	function __construct() {
 		$this->mLeaderboardKey = "techarticletested";
@@ -1088,7 +1088,7 @@ class TechVerifyStandingsIndividual extends StandingsIndividual {
 	}
 
 	function getGroupStandings() {
-		return new TechVerifyStandingsGroup();
+		return new TechTestingStandingsGroup();
 	}
 
 }

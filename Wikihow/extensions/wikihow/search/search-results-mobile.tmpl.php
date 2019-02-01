@@ -1,13 +1,5 @@
 <?php if (!$q): return; endif; ?>
 
-<script type="text/javascript">
-	$(window).load(function() {
-		if ($('.search').is(':visible') && !$('#search_oversearch').is(':visible')) {
-			$('.search').click();
-		}
-	});
-</script>
-
 <? if ($suggestionLink): ?>
 	<div class="sr_suggest"><?= wfMessage('lsearch_suggestion', $suggestionLink)->text() ?></div>
 <? endif; ?>

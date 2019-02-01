@@ -620,7 +620,7 @@ class LeaderboardStats {
 	}
 
 	/**
-	 * Query for Articles TechVerify Tested
+	 * Query for Articles TechTested
 	 **/
 	public static function getTechArticleTested($starttimestamp, $lb_user = '', $getArticles = false) {
 		global $wgMemc, $wgSharedDB;

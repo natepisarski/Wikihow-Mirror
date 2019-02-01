@@ -41,7 +41,6 @@ $wgExtensionMessagesFiles['CommunityDashboardAliases'] = dirname(__FILE__) . '/C
 $wgWidgetList = array(
 	'TechFeedbackAppWidget',
 	//'ArticleFeedbackAppWidget',
-	//'TechVerifyAppWidget',
 	'WriteAppWidget',
 	'RecentChangesAppWidget',
 	'CategorizerAppWidget',
@@ -67,7 +66,8 @@ $wgWidgetList = array(
 	'AnswerQuestionsAppWidget',
 	// 'DuplicateTitlesAppWidget',
 	'FixFlaggedAnswersAppWidget',
-	'QAPatrolWidget'
+	'QAPatrolWidget',
+	'TechTestingAppWidget'
 );
 
 /**
@@ -100,7 +100,7 @@ $wgWidgetShortCodes = array(
 	'AnswerQuestionsAppWidget' => 'aq',
 	'TechFeedbackAppWidget' => 'tf',
 	'ArticleFeedbackAppWidget' => 'af',
-	//'TechVerifyAppWidget' => 'tv',
+	'TechTestingAppWidget' => 'tv',
 	// 'DuplicateTitlesAppWidget' => 'dt',
 	'FixFlaggedAnswersAppWidget' => 'ffa',
 	'TopicTaggingAppWidget' => 'ttt'
@@ -153,7 +153,7 @@ $wgHooks['PicturePatrolled'][] = array("wfMarkCompleted", "UCIPatrolWidget");
 $wgHooks['WelcomeWagonMessageSent'][] = array("wfMarkCompleted", "WelcomeWagonWidget");
 $wgHooks['SpecialTechFeedbackItemCompleted'][] = array("wfMarkCompleted", "TechFeedbackAppWidget");
 $wgHooks['SpecialArticleFeedbackItemCompleted'][] = array("wfMarkCompleted", "ArticleFeedbackAppWidget");
-//$wgHooks['SpecialTechVerifyItemCompleted'][] = array("wfMarkCompleted", "TechVerifyAppWidget");
+$wgHooks['SpecialTechVerifyItemCompleted'][] = array("wfMarkCompleted", "TechTestingAppWidget");
 $wgHooks["IsEligibleForMobileSpecial"][] = array("wfCDIsEligibleForMobile");
 
 function wfMarkCompleted($appName) {

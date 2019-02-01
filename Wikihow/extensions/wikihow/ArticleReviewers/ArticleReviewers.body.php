@@ -20,7 +20,7 @@ class ArticleReviewers extends UnlistedSpecialPage
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 
-		$out->setHTMLTitle("Article Reviewers");
+		$out->setHTMLTitle(wfMessage('ar_page_title')->text());
 
 		$expertArticles = VerifyData::getAllVerifierArticlesFromDB();
 		$experts = VerifyData::getAllVerifierInfoFromDB();

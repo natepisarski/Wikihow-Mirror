@@ -1,5 +1,5 @@
 <div class="wh_block">
-	<h1>Article Reviewers</h1>
+	<h1><?= wfMessage('ar_page_title')->text() ?></h1>
 	<p><?= wfMessage('ar_subtitle')->text() ?></p>
 </div>
 <? foreach($expertCategories as $catname => $category): ?>

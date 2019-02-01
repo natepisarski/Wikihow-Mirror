@@ -10,9 +10,8 @@
 }
 
 .reviewer_top {
-	padding-left: 93px;
-	height: 88px;
-	padding-top: 10px;
+	padding-left: 120px;
+	min-height: 110px;
 }
 
 .stable .content .ar_name {
@@ -26,7 +25,7 @@
 .stable .content .ar_blurb {
 	color: #777;
 	font-weight: bold;
-	margin-bottom: 13px;
+	margin-bottom: 0;
 	line-height: normal;
 }
 
@@ -34,7 +33,8 @@
 	color: #787878;
 	line-height: 1.5em;
 	border-top: 1px solid #e5e5e5;
-	padding-top: 10px;
+	padding-top: 5px;
+	margin-top: 10px;
 	font-size: 1.1em;
 }
 
@@ -67,23 +67,21 @@
 }
 
 .ar_initials {
-	background-color: #ced9be;
-	width: 80px;
-	height: 80px;
-	color: #fff;
-	text-align: center;
-	font-size: 40px;
+	width: 110px;
+	height: 110px;
+	font-size: 50px;
 	position: static;
-	line-height: 80px;
-	border-radius: 50%;
+	line-height: 110px;
 	float: left;
-	border: 3px solid #6F8460;
+	border: none;
+	border-radius: 10%;
+	background-color: #d8d8d8;
 }
 
 .ar_avatar {
-	border-radius: 50%;
-	width: 80px;
-	height: 80px;
+	border-radius: 10%;
+	width: 110px;
+	height: 110px;
 	background-size: cover;
 }
 

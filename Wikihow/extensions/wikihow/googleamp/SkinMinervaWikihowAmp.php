@@ -90,7 +90,7 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 
 		// set amp to true for use in rendering later
 		$tpl->set( 'amp', true);
-		$out->setProperty( 'disableSearchAndFooter', true );
+		//$out->setProperty( 'disableSearchAndFooter', true );
 
 		$tpl->set( 'headelement', $out->headElement( $this ) );
 		$tpl->set( 'unstyledContent', $out->getProperty( 'unstyledContent' ) );

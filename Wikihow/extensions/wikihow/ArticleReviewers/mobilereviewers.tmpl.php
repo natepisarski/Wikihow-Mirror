@@ -1,6 +1,6 @@
 <div class="wh_block ar_intro">
-	<h1>Article Reviewers</h1>
-	<p><?= wfMessage('ar_subtitle')->text() ?> <?= wfMessage('ar_apply_mobile')->text() ?></p>
+	<h1><?= wfMessage('ar_page_title')->text() ?></h1>
+	<p><?= wfMessage('ar_subtitle')->text() ?></p>
 </div>
 <? foreach($expertCategories as $catname => $category): ?>
 	<? if ($catname == "experts" ) continue; ?>

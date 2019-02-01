@@ -117,10 +117,10 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 	}
 
 	protected function addStandingGroups() {
-		$indi = new TechVerifyStandingsIndividual();
+		$indi = new TechTestingStandingsIndividual();
 		$indi->addStatsWidget();
 
-		$group = new TechVerifyStandingsGroup();
+		$group = new TechTestingStandingsGroup();
 		$group->addStandingsWidget();
 	}
 

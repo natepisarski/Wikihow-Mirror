@@ -60,6 +60,8 @@ class WikihowArticleHTML {
 			&& $wgTitle->getText() == wfMessage('mainpage')->inContentLanguage()->text()
 			&& $wgRequest->getVal('action', 'view') == 'view';
 
+		$isNewTocArticle = class_exists('WikihowToc') && WikihowToc::isNewArticle();
+
 		$action = $wgRequest ? $wgRequest->getVal('action') : '';
 
 		// Remove __TOC__ resulting html from all pages other than User pages
@@ -320,10 +322,14 @@ class WikihowArticleHTML {
 					self::$methodCount = count($altMethodAnchors);
 					$anchorList = self::getAnchorList( $altMethodAnchors, $altMethodNames );
 
-					//chance to reformat the alt method_toc before output
-					//using for running tests
-					wfRunHooks('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
-					pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}</p>");
+					if($isNewTocArticle) {
+						WikihowToc::setMethods($altMethodAnchors, $altMethodNames);
+					} else {
+						//chance to reformat the alt method_toc before output
+						//using for running tests
+						wfRunHooks('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
+						pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}</p>");
+					}
 				}
 				else {
 					if ($set) {
@@ -574,15 +580,20 @@ class WikihowArticleHTML {
 						pq("#summary_wrapper")->appendTo("#quick_summary_section");
 					}
 
-					//if there's no TOC, make one now
-					if(pq("#method_toc")->length <= 0) {
-						$specialAnchorArray = [Html::element( 'span', [], wfMessage('toc_title') )];
-						wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$specialAnchorArray ) );
-						$specialAnchorList = implode( "" , $specialAnchorArray );
-						pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$specialAnchorList}</p>");
-					}
+					if($isNewTocArticle) {
+						//tell the TOC there's a summary
+						WikihowToc::setSummary();
+					} else {
+						//if there's no TOC, make one now
+						if(pq("#method_toc")->length <= 0) {
+							$specialAnchorArray = [Html::element( 'span', [], wfMessage('toc_title') )];
+							wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$specialAnchorArray ) );
+							$specialAnchorList = implode( "" , $specialAnchorArray );
+							pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$specialAnchorList}</p>");
+						}
 
-					class_exists('SummarySection') && SummarySection::addDesktopTOCItems();
+						class_exists('SummarySection') && SummarySection::addDesktopTOCItems();
+					}
 				}
 			}
 			$headingImages = pq( $headingId . ' .mwimg' )->addClass( 'summarysection' );
@@ -618,6 +629,7 @@ class WikihowArticleHTML {
 			}
 			pq("#quick_summary_section h2 span")->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
 			pq( "#quick_summary_section")->addClass("summary_with_video");
+			WikihowToc::setSummaryVideo();
 		}
 
 		//move each of the large images to the top
@@ -810,6 +822,10 @@ class WikihowArticleHTML {
 		ImageCaption::modifyDOM();
 		if (class_exists('Donate')) {
 			Donate::addDonateSectionToArticle();
+		}
+
+		if($isNewTocArticle) {
+			WikihowToc::addToc();
 		}
 
 		//english only test

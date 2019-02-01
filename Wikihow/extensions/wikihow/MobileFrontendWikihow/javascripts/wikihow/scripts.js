@@ -123,37 +123,24 @@ $(document).ready(function() {
 		}
 	});
 
-	$('.header .search').click(function() {
-		// Hide the visibility of the search button as it wraps if visibile
-		// when the search bar animates to its open state
-		$('.wh_search .cse_sa').css('visibility', 'hidden');
-		$('#search_oversearch').fadeIn(100, function() {
-			$('#cse-search-box').animate(marginAnimShow, 500, function() {
-				$('.wh_search .cse_sa').css( {
-					'background-size': '18px',
-					'top': 'auto',
-					'right': 'auto',
-					'visibility': 'visible'
-				} );
-			});
-			var $cseClose = $('.cse_x');
-			$cseClose.fadeIn();
-			$cseClose.click(function() {
-				$('.wh_search .cse_sa').css('visibility', 'hidden');
-				$cseClose.fadeOut();
-				$('#cse-search-box').animate(marginAnimHide,500,function() {
-					$('#search_oversearch').hide();
-
-				});
-			});
-		});
-		//focus has to be down here for this to work with iOS devices
-		// Don't focus for search results since we don't want to automatically
-		// pull up the keyboard
-		if (mw.config.get('wgTitle') != 'LSearch') {
-			$('#search_oversearch').find('.cse_q').focus();
+	var hs_touched = false;
+	$( '#hs_query' ).click( function () {
+		if ( !$( '#hs' ).hasClass( 'hs_active' ) || !hs_touched ) {
+			hs_touched = true;
+			$( '#hs' ).addClass( 'hs_active' );
+			var input = this;
+			setTimeout( function () {
+				if ( 'setSelectionRange' in input ) {
+					input.setSelectionRange( 0, 9999 );
+				} else if ( 'selectionStart' in input ) {
+					input.selectionStart = 0;
+					input.selectionEnd = input.value.length;
+				}
+			}, 10 );
 		}
-
+	} );
+	$( '#hs_close' ).click( function () {
+		$( '#hs' ).removeClass( 'hs_active' );
 	});
 
 	//add our click handers
@@ -207,18 +194,9 @@ function iOSheaderFixes() {
 			//search box is being used
 			//WARNING: the iOS keyboard approacheth!!!
 			$('.header').css('position','absolute');
-			$('#search_oversearch').css('position','absolute');
 			$(window).scrollTop(0);
-
-			//complete hack fix for Chrome on iPhone
-			var isIPhone = navigator.userAgent.match(/(iPod|iPhone)/gi) !== null;
-			var isChrome = navigator.userAgent.match(/(CriOS)/gi) !== null;
-			if (isIPhone && isChrome) {
-				$('#search_oversearch').css('top','40px');
-			}
 		})
 		.blur(function() {
-			$('#search_oversearch').css('position','fixed');
 			$('.header').css('position','fixed');
 		});
 }

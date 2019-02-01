@@ -58,10 +58,6 @@ class QAUtil {
 		return BadWordFilter::hasBadWord($content);
 	}
 
-	public static function getBadWordsArray() {
-		return BadWordFilter::getBadWordsArray();
-	}
-
 	public static function onInsertArticleQuestion($aid, $aqid, $isNew) {
 		if ($isNew) {
 			//send email to submitter

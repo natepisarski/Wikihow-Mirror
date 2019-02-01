@@ -8,9 +8,8 @@
 }
 
 .reviewer_top {
-	padding-left: 93px;
-	height: 80px;
-	padding-top: 10px;
+	padding-left: 90px;
+	min-height: 80px;
 }
 
 .ar_name {
@@ -24,7 +23,6 @@
 	color: #777;
 	font-weight: bold;
 	font-size: 13px;
-	margin-bottom: 13px;
 }
 
 .ar_hoverblurb {
@@ -32,6 +30,7 @@
 	line-height: 1.3em;
 	border-top: 1px solid #e5e5e5;
 	padding-top: 10px;
+	margin-top: 10px;
 	font-size: .9em;
 }
 
@@ -57,21 +56,17 @@
 }
 
 .ar_initials {
-	background-color: #ced9be;
+	background-color: #d8d8d8;
 	width: 80px;
 	height: 80px;
-	color: #fff;
-	text-align: center;
 	font-size: 40px;
 	line-height: 80px;
-	border-radius: 50%;
-	margin: 0;
-	position: static;
-	float: left;
+	border-radius: 10%;
+	border: none;
 }
 
 .ar_avatar {
-	border-radius: 50%;
+	border-radius: 10%;
 	width: 80px;
 	height: 80px;
 	background-size: cover;

@@ -295,35 +295,6 @@
 					WH.QAWidget.submitFlagOption($(this));
 				});
 				//^^^ Flag as... pop-up ^^^
-
-				//(desktop only)
-				//*** Flag as... pop-up for answered questions***
-				$('.qa').on('mouseenter', '.qa_ignore_answered',  function() {
-					WH.QAWidget.popAnswerFlagOptions($(this));
-				})
-					.on('mouseleave', '.qa_ignore_answered', function() {
-						WH.QAWidget.hideAnswerFlagOptions();
-					})
-					.on('click', '.qa_ignore_answered', function() {
-						return false;
-					});
-
-				$("#qa_answer_flag_options").hover(function() {
-					$(this)
-						.stop(true)
-						.fadeIn({queue: false, duration: 150})
-						.animate({ bottom: WH.QAWidget.afo_reg_height, opacity: 1 }, 80);
-				}, function() {
-					$(this)
-						.fadeOut({queue: false, duration: 150})
-						.animate({ bottom: WH.QAWidget.fo_trans_height }, 150);
-				});
-
-				$('#qa_answer_flag_options a').click(function(e){
-					e.preventDefault();
-					WH.QAWidget.submitAnswerFlagOption($(this));
-				});
-				//^^^ Flag as... pop-up ^^^
 			}
 
 			$('.qa').on('click', '.qa_aq_cancel',  function(e) {
@@ -868,6 +839,35 @@
 				e.preventDefault();
 				this.onSubmit();
 			}, this));
+
+			//(desktop only)
+			//*** Flag as... pop-up for answered questions***
+			$('.qa').on('mouseenter', '.qa_ignore_answered',  function() {
+				WH.QAWidget.popAnswerFlagOptions($(this));
+			})
+				.on('mouseleave', '.qa_ignore_answered', function() {
+					WH.QAWidget.hideAnswerFlagOptions();
+				})
+				.on('click', '.qa_ignore_answered', function() {
+					return false;
+				});
+
+			$("#qa_answer_flag_options").hover(function() {
+				$(this)
+					.stop(true)
+					.fadeIn({queue: false, duration: 150})
+					.animate({ bottom: WH.QAWidget.afo_reg_height, opacity: 1 }, 80);
+			}, function() {
+				$(this)
+					.fadeOut({queue: false, duration: 150})
+					.animate({ bottom: WH.QAWidget.fo_trans_height }, 150);
+			});
+
+			$('#qa_answer_flag_options a').click(function(e){
+				e.preventDefault();
+				WH.QAWidget.submitAnswerFlagOption($(this));
+			});
+			//^^^ Flag as... pop-up ^^^
 
 			$(window).scroll($.proxy($.throttle(250, function() {
 				if (!this.sectionViewed && this.isVisible('#qa')) {

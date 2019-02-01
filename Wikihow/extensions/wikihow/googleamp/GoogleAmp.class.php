@@ -899,6 +899,7 @@ class GoogleAmp {
 	}
 
 	public static function modifyDom() {
+
 		self::formatQABadges();
 		self::modifyVideoSection();
 		pq( 'script' )->remove();
@@ -1090,9 +1091,9 @@ class GoogleAmp {
 		$items .= $fullSiteLink;
 
 		// add the sidebar search
-		$sidebarSearch = self::getSearchBar( "sidebar_search" );
-		$item = Html::rawElement( 'li', [], $sidebarSearch );
-		$items = $item . $items;
+		// $sidebarSearch = self::getSearchBar( "sidebar_search" );
+		// $item = Html::rawElement( 'li', [], $sidebarSearch );
+		// $items = $item . $items;
 
 		$sidebarContents = Html::rawElement('ul', [], $items );
 		$sidebarAttr = [ 'id' => 'top-sidebar', 'layout'=>'nodisplay' ];

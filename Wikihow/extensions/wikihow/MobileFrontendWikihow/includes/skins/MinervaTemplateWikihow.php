@@ -314,36 +314,38 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if ( $data['amp'] ) {
 			echo GoogleAmp::getHeaderSidebarButton();
 		}
+
 		$headerClass = '';
 		wfRunHooks( 'MinervaTemplateWikihowBeforeCreateHeaderLogo', array( &$headerClass ) );
-
 		?>
 		<a href="<?= Title::newMainPage()->getLocalURL() ?>" id="header_logo" class="<?= $headerClass ?>"></a>
 		<?php
 		if ( !( Misc::isAltDomain() ) ) {
-		?>
+			?>
 			<a href="/Hello" id="noscript_header_logo" class="hide <?= $headerClass ?>"></a>
-		<?php
+			<?php
 		}
 		if ( $data['disableSearchAndFooter'] ) {
 			echo $data['specialPageHeader'];
 		} else {
-			//XXCHANGEDXX - using our own search [sc]
+			$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
+			$expand = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=true)"' : '';
+			$collapse = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=false)"' : '';
 			?>
-			<div class="search" role="button"></div>
-		<?php
+			<div id="hs" class="<?= $this->isSearchPage ? 'hs_active' : '' ?>">
+				<form action="/wikiHowTo" class="search" target="_top">
+					<input type="text" id="hs_query" role="textbox" tabindex="0" <?= $expand ?> name="search" value="<?= $query ?>" required placeholder="<?= wfMessage( 'header-search-placeholder' )->text() ?>" <?= !$data['amp'] ? 'x-webkit-speech' : '' ?> aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
+					<button type="submit" id="hs_submit"></button>
+					<div id="hs_close" role="button" tabindex="0" <?= $collapse ?> ></div>
+				</form>
+			</div>
+			<?php
 		}
+		?>
+		<?php
 		echo $data['secondaryButton'];
 		?>
-		</div><?php
-		if ( !$data['disableSearchAndFooter'] ) {
-			//XXCHANGEDXX - using our own search [sc]
-			global $IP;
-			EasyTemplate::set_path( $IP.'/extensions/wikihow/mobile/' );
-			$notif_class = ($data['secondaryButton']) ? 'has_notes' : '';
-			echo EasyTemplate::html('search-box.tmpl.php', array('id' => 'search_oversearch', 'placeholder' => '', 'class' => $notif_class, 'lang' => $wgLanguageCode));
-		}
-		?>
+		</div>
 		<?
 		// JRS 06/23/14 Add a hook to add classes to the top-level viewport object
 		// to make it easier to customize css based on classes

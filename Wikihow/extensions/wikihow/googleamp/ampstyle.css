@@ -277,10 +277,10 @@
 }
 #menu-button-wrap {
 	position: relative;
+	width: 72px;
 }
 .header #mw-mf-main-menu-button {
 	position: absolute;
-	width: 55px;
 	height: 40px;
 	top:0;
 	left:0;
@@ -307,12 +307,9 @@
 	background-color: #5C5C5C;
 	border: none;
 	padding-bottom: 3em;
-	font-size: 1.2em;
-	width: 10.5em;
-}
-#top-sidebar ul:first-child {
-	margin-top: 44px;
-	border: none;
+	font-size: 1.45em;
+	width: 11em;
+	margin-top: 40px;
 }
 #top-sidebar ul {
 	background-color: #5C5C5C;

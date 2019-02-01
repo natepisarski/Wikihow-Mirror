@@ -10,6 +10,7 @@ class removeBadReferences extends Maintenance {
 		$this->addOption( 'limit', 'number of items to process', false, true, 'l' );
 		$this->addOption( 'verbose', 'print verbose info', false, false, 'v' );
 		$this->addOption( 'url', 'url which is bad', false, true, 'u' );
+		$this->addOption( 'sync', 'sync user checked urls from EN', false, false, 's' );
     }
 
 	private function removeFromArticle( $pageId, $url ) {
@@ -73,9 +74,11 @@ class removeBadReferences extends Maintenance {
 
 		if ( $refCount + $sourcesSectionCount != $urlCount ) {
 			decho( "pageId: $pageId url: $url ref count $refCount and sources count $sourcesSectionCount does not match url count $urlCount" );
-			foreach( explode( PHP_EOL, $text ) as $line ) {
-				if ( substr_count( $line, $url ) ) {
-					decho("matching line", trim( $line ) );
+			if ( $verbose ) {
+				foreach( explode( PHP_EOL, $text ) as $line ) {
+					if ( substr_count( $line, $url ) ) {
+						decho("matching line", trim( $line ) );
+					}
 				}
 			}
 			return;
@@ -251,6 +254,32 @@ class removeBadReferences extends Maintenance {
 		}
 	}
 
+	private function syncUserChecked() {
+		global $wgLanguageCode;
+		if ( $wgLanguageCode == 'en' ) {
+			return;
+		}
+		$dbw = wfGetDb( DB_MASTER );
+
+		$table = "wikidb_112.link_info";
+		$var = "li_url";
+		$cond = array( "li_user_checked" => 1 );
+		// first look for it
+		$res = $dbw->select( $table, $var, $cond, __METHOD__ );
+		$urls = array();
+		foreach ( $res as $row ) {
+			$urls[] = $row->li_url;
+		}
+
+		$table = "link_info";
+		$cond = array( "li_url" => $urls );
+		$values = array(
+			'li_user_checked' => 1,
+			'li_date_checked = now()'
+		);
+		$dbw->update( $table, $values, $cond, __METHOD__ );
+	}
+
 	private function getItems() {
 		$limit = 1;
 		if ( $this->getOption( 'limit' ) ) {
@@ -275,10 +304,18 @@ class removeBadReferences extends Maintenance {
 	}
 
 	public function execute() {
+		global $wgLanguageCode;
 		if ( $this->hasOption( "url" ) ) {
 			$url = $this->getOption( "url" );
 			decho("will mark url as bad", $url );
 			$this->markBadUrl( $url );
+		} else if ( $this->hasOption( "sync" ) ) {
+			if ( $wgLanguageCode == 'en' ) {
+				decho("sync only available in non EN" );
+				return;
+			}
+			decho("will sync user checked from EN" );
+			$this->syncUserChecked();
 		} else {
 			$this->processItems();
 		}

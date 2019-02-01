@@ -4,9 +4,6 @@
 .header, #header_outer, #header_space, #sidebar, #actionbar, .wh_block, #footer{
 	display: none;
 }
-.mediawiki #search_oversearch {
-	display: none !important;
-}
 #mw-mf-page-center {
 	padding-bottom: 0;
 }
@@ -49,9 +46,6 @@
 }
 #search {
 	margin: 15px;
-}
-#search_oversearch {
-	display: none;
 }
 #nojs_input_container {
 	border: 3px solid #97ba78;

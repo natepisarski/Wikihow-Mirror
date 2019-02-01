@@ -648,6 +648,7 @@ class TitusConfig {
 			"ExpertVerified" => 1,
 			"StaffReviewed" => 1,
 			"ExpertVerifiedSince" => 1,
+			"QuickSummaryCreated" => 1,
 			"FKReadingEase" => 1,
 			"EditFish" => 1,
 			"ChocoFish" => 1,
@@ -4871,6 +4872,94 @@ class TSExpertVerifiedSince extends TitusStat {
 		$errors = 0;
 		foreach ($cols as $col) {
 			$aid = ( is_numeric($col[0]) && (int) $col[0] > 0 ) ? (int) $col[0] : null;
+			$date = $col[2] ? $this->fixDate($col[2]) : null;
+			if ($aid && $date) {
+				$this->dates[$aid] = $date;
+			} else {
+				$errors++;
+			}
+		}
+
+		if ($errors * 100 > count($this->dates)) { // 1% of 25k rows = 250 errors
+			$this->reportError("Encountered {$errors} parsing errors in WH_TITUS_ORIGINAL_VERIFICATIONS_GOOGLE_DOC");
+		}
+
+		$ids = array_keys($this->dates);
+		$this->checkForRedirects($dbr, $ids);
+		$this->checkForMissing($dbr, $ids);
+	}
+
+}
+/**
+ *  Quick Summary Created dates and authors for English articles from a Google Sheet.
+ *
+ * ALTER TABLE titus_intl ADD COLUMN ti_summary_created_date varchar(14) DEFAULT NULL after ti_expert_verified_date_original;
+ * ALTER TABLE titus_intl ADD COLUMN ti__summary_author_name varchar(255) DEFAULT NULL after ti_summary_created_date;
+ */
+class TSQuickSummaryCreated extends TitusStat {
+	private $dates = [];
+	private $names = [];
+	private $isSheetProcessed = false;
+
+	public function getPageIdsToCalc($dbr, $date) {
+		if (Misc::isIntl()) {
+			return [];
+		}
+		if (!$this->isSheetProcessed) {
+			$this->processSpreadsheet($dbr);
+		}
+		return array_keys($this->dates);
+	}
+
+	public function calc($dbr, $r, $t, $pageRow) {
+		$aid = $pageRow->page_id;
+		$date = null;
+		$name = null;
+
+		if ( !Misc::isIntl() ) {
+			if ( isset( $this->dates[$aid] ) ) {
+				$date = $this->dates[$aid];
+			}
+			if ( isset( $this->names[$aid] ) ) {
+				$name = $this->names[$aid];
+			}
+		}
+
+		$result = [
+			'ti_summary_created_date' => $date,
+			'ti_summary_author_name' => $name
+		];
+
+		return $result;
+	}
+
+	private function processSpreadsheet($dbr) {
+		print __CLASS__ . ": fetching 'Quick Summary Created Dates and Authors' spreadsheet\n";
+		$this->isSheetProcessed = true;
+
+		try {
+			$sheet =@ new GoogleSpreadsheet();
+			$cols = $sheet->getSheetData(WH_TITUS_QUICK_SUMMARY_CREATED_DATE_GOOGLE_DOC, 'production!A2:D');
+		} catch (Exception $e) {
+			$this->reportError("Problem fetching spreadsheet: " . $e->getMessage());
+			return;
+		}
+
+		$errors = 0;
+		foreach ($cols as $col) {
+			if ( !isset( $col[2] ) ) {
+				continue;
+			}
+			$aid = ( is_numeric($col[0]) && (int) $col[0] > 0 ) ? (int) $col[0] : null;
+
+			$name = null;
+			if ( isset( $col[3] ) ) {
+				$name = $col[3];
+			}
+			if ( $aid && $name ) {
+				$this->names[$aid] = $name;
+			}
+
 			$date = $col[2] ? $this->fixDate($col[2]) : null;
 			if ($aid && $date) {
 				$this->dates[$aid] = $date;
