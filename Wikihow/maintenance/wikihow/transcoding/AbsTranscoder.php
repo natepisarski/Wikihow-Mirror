@@ -139,6 +139,21 @@ abstract class AbsTranscoder implements Transcodable {
 		}
 	}
 
+	private function checkImageMinWidth( $image, $videoList ) {
+		$width = $image['width'];
+		$response = '';
+		$minWidth = WikiVisualTranscoder::ERROR_MIN_WIDTH;
+
+		if ( !empty( $videoList ) ) {
+			$minWidth = WikiVisualTranscoder::ERROR_MIN_WIDTH_VIDEO_COMPANION;
+		}
+
+		if ( $width < $minWidth ) {
+			$response = "size:{$image['width']}px:{$image['name']}\n";
+		}
+		return $response;
+	}
+
 	public function processHybridMedia( $pageId, $creator, $videoList, $photoList, $leaveOldMedia = false, $titleChange = false ) {
 		$err = '';
 		$warning = '';
@@ -258,28 +273,17 @@ abstract class AbsTranscoder implements Transcodable {
 						}
 					}
 					
-					// Log pixel width issues
-					if (!$hadSizeProblems
-					&& !empty($image['width'])
-					&& $image['width'] < WikiVisualTranscoder::ERROR_MIN_WIDTH)
-					{
-						$err .= "size:{$image['width']}px:{$image['name']}\n";
-						$hadSizeProblems = true;
-					}
-
-                    // Log pixel width issues
-                    if (!$hadSizeProblems
-                    && !empty($image['width'])) {
-                        if ($image['width'] < WikiVisualTranscoder::ERROR_MIN_WIDTH) {
-                            $err .= "size:{$image['width']}px:{$image['name']}\n";
+                    // check for min and max image size
+                    if ( !$hadSizeProblems && !empty( $image['width'] ) ) {
+						$err .= $this->checkImageMinWidth( $image, $videoList );
+						if ( $err ) {
                             $hadSizeProblems = true;
-                        } else {
-                            $maxImgDimen = $image['width'] > $image['height'] ? $image['width'] : $image['height'];
-                            if ($maxImgDimen > WikiVisualTranscoder::ERROR_MAX_IMG_DIMEN) {
-                                $err .= "size:{$image['width']}px > max size ". WikiVisualTranscoder::ERROR_MAX_IMG_DIMEN ."px:{$image['name']}\n";
-                                $hadSizeProblems = true;
-                            }
-                        }
+						}
+						$maxImgDimen = $image['width'] > $image['height'] ? $image['width'] : $image['height'];
+						if ($maxImgDimen > WikiVisualTranscoder::ERROR_MAX_IMG_DIMEN) {
+							$err .= "size:{$image['width']}px > max size ". WikiVisualTranscoder::ERROR_MAX_IMG_DIMEN ."px:{$image['name']}\n";
+							$hadSizeProblems = true;
+						}
                     }
 				}
 			

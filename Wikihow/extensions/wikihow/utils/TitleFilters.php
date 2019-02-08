@@ -1688,10 +1688,10 @@ class TitleFilters {
 
 		return array_values($titlesMap);
 	}
-
-	public static function filterByName($titles, $dbKeysToRemove = []) {
-		return array_filter($titles, function($t) use ($dbKeysToRemove) {
-			return !in_array($t->getDBKey(), $dbKeysToRemove);
+	
+	public static function filterByPageTitle($titles, $titleText = []) {
+		return array_filter($titles, function($t) use ($titleText) {
+			return !in_array($t->getText(), $titleText);
 		});
 	}
 

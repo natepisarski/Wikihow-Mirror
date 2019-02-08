@@ -185,6 +185,7 @@ class WikiVisualTranscoder {
 	const TRANSCODER_360P_16x9_PRESET_AUDIO = '1503961241607-9swq73';
 	
 	const ERROR_MIN_WIDTH = 3200;
+	const ERROR_MIN_WIDTH_VIDEO_COMPANION = 1920;
 	const ERROR_MAX_IMG_DIMEN = 10000;
 	
 	const PHOTO_LICENSE = 'cc-by-sa-nc-3.0-self';

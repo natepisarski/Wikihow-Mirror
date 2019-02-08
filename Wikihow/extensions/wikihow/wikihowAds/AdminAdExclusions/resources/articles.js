@@ -14,10 +14,10 @@ $('document').ready(function() {
 		}
 	});
 
-	$('#ae_form').submit(function(e) {
+	$('#ae_form .button').on("click", function(e) {
 		e.preventDefault();
 
-		if ($('#ae_form input').hasClass('disabled'))
+		if ($('#ae_form a').hasClass('disabled'))
 			return;
 
 		var urls = $('#ae_input_area').val().trim();
@@ -27,22 +27,33 @@ $('document').ready(function() {
 			return;
 		}
 
-		$('#ae_form input').addClass('disabled');
+		$('#ae_form a').addClass('disabled');
 		$('#ae_results').html('');
 		$('#ae_purging').html('');
+		var action = "";
+		if($(this).attr("id") == "ae_add") {
+			action = "add_urls";
+		} else {
+			action = "remove_urls";
+		}
 
 		$.ajax({
 			url: '/Special:AdminAdExclusions',
 			dataType: 'json',
 			data: {
 				urls: urls,
-				submitted: true
+				submitted: true,
+				action: action
 			},
 			success: function(data) {
 				$('#ae_form input').removeClass('disabled');
 
 				if (data.success) {
-					$('#ae_results').html('• The urls have been added to the exclusion list.');
+					if(action == "add_urls") {
+						$('#ae_results').html('• The urls have been added to the exclusion list.');
+					} else {
+						$('#ae_results').html('• The urls have been removed from the exclusion list.');
+					}
 				} else {
 					var results = '• We were not able to process the following urls:<br />';
 					for (var i = 0; i < data.errors.length; i++) {

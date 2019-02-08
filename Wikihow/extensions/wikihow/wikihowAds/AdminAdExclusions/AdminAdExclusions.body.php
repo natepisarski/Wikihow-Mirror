@@ -42,7 +42,11 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 			$out->setArticleBodyOnly(true);
 			$urlList = $req->getVal('urls');
 			$urlArray = explode("\n", $urlList);
-			list($articleIds, $errors) = $articleAdEx->addNewTitles($urlArray);
+			if($action == "add_urls") {
+				list($articleIds, $errors) = $articleAdEx->addNewTitles($urlArray);
+			} elseif($action == "remove_urls") {
+				list($articleIds, $errors) = $articleAdEx->deleteTitles($urlArray);
+			}
 
 			if (count($errors) > 0) {
 				$result['success'] = false;
@@ -205,6 +209,55 @@ class ArticleAdExclusions {
 		return [ $artIDs, $errors ];
 	}
 
+	/**
+	 * Take a list of article URLs and remove them to the table of excluded articles.
+	 *
+	 * For URLs on www.wikihow.com, it checks Titus for any translations and removes those from
+	 * the corresponding INTL DB.
+	 *
+	 * For URLs on intl domains, it only removes that article to that DB.
+	 *
+	 * @param array $articles  Full article URLs, on any wH domain
+	 */
+	public function deleteTitles(array $articles): array {
+		global $wgDBname;
+
+		$dbw = wfGetDB(DB_MASTER);
+
+		$articles = array_map('urldecode', $articles); // Article URLs submitted by the user
+		$pages = Misc::getPagesFromURLs($articles);
+		$artIDs = []; // All article IDs including translations, grouped by language code
+
+		foreach ($pages as $page) {
+
+			$langCode = $page['lang'];
+			$pageId = $page['page_id'];
+			$artIDs[$langCode][] = $pageId;
+
+			// Now show ads on this article in the current language HERE!!!
+			self::removeIntlArticle($dbw, $langCode, $pageId);
+
+			if ($langCode == 'en') {
+				// Don't show ads on any translations of this article
+				$artIDs = array_merge_recursive($artIDs, self::processTranslations($dbw, $pageId, 'remove_urls'));
+			}
+		}
+
+		// Find the ones that didn't work and tell user about them
+		$errors = [];
+		foreach ($articles as $article) {
+			if (!array_key_exists($article, $pages)){
+				$errors[] = $article;
+			}
+		}
+		$dbw->selectDB($wgDBname);
+
+		//reset memcache since we just changed a lot of values
+		wikihowAds::resetAllAdExclusionCaches();
+
+		return [ $artIDs, $errors ];
+	}
+
 	public function clearAllTitles() {
 		global $wgDBname, $wgActiveLanguages;
 
@@ -255,7 +308,7 @@ class ArticleAdExclusions {
 	 * for that article and adds all translations to corresponding list of excluded
 	 * articles for those languages.
 	 */
-	private static function processTranslations(&$dbw, $englishId): array {
+	private static function processTranslations(&$dbw, $englishId, $action = 'add_urls'): array {
 		global $wgActiveLanguages;
 
 		$titusData = Pagestats::getTitusData($englishId);
@@ -266,7 +319,11 @@ class ArticleAdExclusions {
 				//titus should return fields for all active languages
 				if (intval($titusData->$intl_id) > 0) {
 					$articleIds[$langCode][] = $titusData->$intl_id;
-					self::addIntlArticle($dbw, $langCode, $titusData->$intl_id);
+					if($action == 'add_urls') {
+						self::addIntlArticle($dbw, $langCode, $titusData->$intl_id);
+					} elseif ($action == 'remove_urls') {
+						self::removeIntlArticle($dbw, $langCode, $titusData->$intl_id);
+					}
 				}
 			}
 		}
@@ -287,6 +344,21 @@ class ArticleAdExclusions {
 
 		$sql = 'INSERT IGNORE into ' . self::TABLE . " VALUES ({$articleId})";
 		$dbw->query($sql, __METHOD__);
+	}
+
+	/**
+	 * Given an article ID and a language code, removes the given article from the
+	 * associated excluded article table in the correct language DB.
+	 */
+	private static function removeIntlArticle(&$dbw, $langCode, $articleId) {
+		global $wgDBname;
+
+		if ($langCode == 'en')
+			$dbw->selectDB($wgDBname);
+		else
+			$dbw->selectDB('wikidb_'.$langCode);
+
+		$dbw->delete(self::TABLE, ['ae_page' => $articleId], __METHOD__);
 	}
 
 }

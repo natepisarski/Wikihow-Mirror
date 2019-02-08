@@ -19,6 +19,7 @@ WH.desktopAds = (function () {
 
 	var quizAds = {};
 	var introAd;
+	var TOCAd;
 	var bodyAds = [];
 	var lastScrollPosition = window.scrollY;
 
@@ -365,7 +366,7 @@ WH.desktopAds = (function () {
 		var css = 'display:inline-block;width:'+ad.asWidth+'px;height:'+ad.asHeight+'px;';
 		i.style.cssText = css;
 		var target = ad.adTargetId;
-		window.document.getElementById(target).firstElementChild.appendChild(i);
+		window.document.getElementById(target).appendChild(i);
 		var channels = ad.channels ? ad.channels: "";
 		(adsbygoogle = window.adsbygoogle || []).push({
 			params: {
@@ -835,6 +836,29 @@ WH.desktopAds = (function () {
         }
         rightRailElements.push(ad);
     }
+
+	// special ad based on table of contents click
+    function addTOCAd(id) {
+        var element = document.getElementById(id);
+        var ad = new BodyAd(element);
+		TOCAd = ad;
+	}
+
+	// requires jquery to have been loaded
+    function loadTOCAd(anchor) {
+		if (!TOCAd) {
+			return;
+		}
+		var target = $(anchor).next('.section').find('.steps_list_2 > li:first');
+		if (target.length) {
+			target.append($('#tocad_wrap'));
+		}
+		if (TOCAd) {
+			TOCAd.load();
+			TOCAd = null;
+		}
+	}
+
     function addBodyAd(id) {
         var element = document.getElementById(id);
         var ad = new BodyAd(element);
@@ -897,6 +921,8 @@ WH.desktopAds = (function () {
 		'addRightRailAdExtraData': addRightRailAdExtraData,
 		'addQuizAd': addQuizAd,
 		'addBodyAd': addBodyAd,
+		'addTOCAd': addTOCAd,
+		'loadTOCAd': loadTOCAd,
 		'getIntroAd' : getIntroAd,
 		'slotRendered' : slotRendered,
 		'impressionViewable' : impressionViewable,

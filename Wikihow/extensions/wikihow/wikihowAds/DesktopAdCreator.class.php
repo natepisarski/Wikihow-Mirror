@@ -283,6 +283,7 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			}
 			for ( $i = 1; $i < $count; $i++ ) {
 				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:last-child)" )->length() ) {
+					$method2Ad = "<div id='tocad_wrap'>".$method2Ad."</div>";
 					pq( ".steps_list_2:eq($i) > li:last-child" )->append( $method2Ad );
 				}
 			}
@@ -504,10 +505,12 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad->mLabel = '';
 		$ad->service = "adsense";
 		$ad->adClass = "step_ad";
+		$ad->targetId = "tocad";
+		$ad->outerId = "tocad_outer";
 		$ad->width = 728;
 		$ad->height = 90;
-		$ad->initialLoad = true;
-		$ad->lateLoad = false;
+		$ad->initialLoad = false;
+		$ad->lateLoad = true;
 		$ad->mHtml = $this->getBodyAdHtml( $ad );
 		return $ad;
 	}
@@ -564,7 +567,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			$ad = $this->getMethod2AdDFP();
 		}
 		if ( $ad->targetId ) {
-			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addTOCAd('{$ad->targetId}')" );
 		}
 		return $ad;
 	}
@@ -687,7 +690,12 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	protected function getAdsenseInnerHtml( $ad ) {
 		// only get the inner html if initial load is true
 		if ( $ad->initialLoad == false ) {
-			return "";
+			$attributes = array(
+				'id' => $ad->targetId,
+				'class' => $class
+			);
+			$adTargetDiv = Html::element( "div", $attributes );
+			return $adTargetDiv;
 		}
 		$class = array( 'adsbygoogle' );
 		if ( $ad->getLabel() ) {
@@ -695,6 +703,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		}
 
 		$attributes = array(
+			'id' => $ad->targetId,
 			'class' => $class,
 			'style' => "display:inline-block;width:".$ad->width."px;height:".$ad->height."px;",
 			'data-ad-client' => $this->getAdClient( $ad ),
@@ -1370,7 +1379,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 		$this->mAdsenseSlots = array(
 			'intro' => 7862589374,
 			'step' => 1652132604,
-			'method2' => 5875012246,
 			'rightrail0' => 4769522171,
 		);
 
@@ -1378,12 +1386,17 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'intro' => 'adsense',
 			'step' => 'adsense',
 			'method' => 'dfp',
-			// 'method2' => 'adsense',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
 			'quiz' => 'dfp'
 		);
+
+		if ( ( class_exists("WikihowToc") && ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) ) {
+			$this->mAdsenseSlots['method2'] = 7710650179;
+			$this->mAdServices['method2'] = 'adsense';
+		}
+
 	}
 
 	protected function setDFPAdUnitPaths() {

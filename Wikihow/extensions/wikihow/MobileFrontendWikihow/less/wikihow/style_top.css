@@ -1279,6 +1279,17 @@ a.related-title,a.related-title:active, a.related-title:visited {
 	color: #e9e7e3;
 	padding: 0 5px;
 }
+.video-player-icon:before {
+	content: " ";
+	background-image :url(/skins/WikiHow/images/video_icon.png);
+	background-size: 23px 17px;
+	width: 23px;
+	height: 17px;
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	z-index: 100000;
+}
 /* Tablet Support */
 
 @media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {

@@ -1,1 +1,1 @@
-../wikihow.fitness/ads.txt
+../en/ads.txt

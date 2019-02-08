@@ -334,6 +334,13 @@ class DesktopAds {
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
 			}
+
+			if ( ( class_exists("WikihowToc") && ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) ) {
+				$adCreator->addAdsenseChannel( 4805470868 );
+			} else {
+				$adCreator->addAdsenseChannel( 3492389196 );
+			}
+
 			if ( !$this->mEnglishSite ) {
 				$adCreator = new InternationalAdCreator();
 				$adCreator->mAdServices['step'] = '';

@@ -161,6 +161,11 @@ class Pagestats extends UnlistedSpecialPage {
 			}
 			$html .= "<hr style='margin:5px 0; '/>";
 			$html .= "<p><b>Stu2</b> $nb$nb$nb$resetLine</p>";
+			if ($titusData->ti_stu2_search_mobile) {
+				$html .= "<p>mobile:$nb$stu2Mb10sAc$nb$stu2Mb3mAc$nb{$nb}views:{$titusData->ti_stu2_search_mobile}</p>";
+			} else {
+				$html .= "<p>mobile: <i>(no search views)</i></p>";
+			}
 			if ($titusData->ti_stu2_search_desktop) {
 				$html .= "<p>desktop:$nb$stu2Dt10sAc$nb$stu2Dt3mAc$nb{$nb}views:{$titusData->ti_stu2_search_desktop}</p>";
 			} else {

@@ -33,38 +33,37 @@ var countableView = WH['stuCount'],
 	currentTimerIndex = 0,
 	CONTENT_SECTIONS_SELECTOR = '#intro, .section.steps, #quick_summary_section';
 
-var a2TotalTime = 180.0,
+var activityTotalTime = 180.0,
 
 	// this interval is the length of our sample (in time) for
 	// how much activity we've seen in terms of user-generated
 	// events like scrolling, clicking, etc. it must be > 0.
-	A2_INTERVAL_SECS = 3,
+	ACTIVITY_INTERVAL_SECS = 3,
 
-	a2Intervals = a2TotalTime / A2_INTERVAL_SECS,
-	a2IntervalCount = 0,
-	a2Sum = 0,
-	a2Events = 0,
-	a2LastActiveTime = 0,
+	activityIntervals = activityTotalTime / ACTIVITY_INTERVAL_SECS,
+	activityIntervalCount = 0,
+	activitySum = 0,
+	activityEvents = 0,
+	activityLastActiveTime = 0,
 
 	// this represents the number of hidden sections that we break
 	// the article up into, for the purposes of watching user/viewport
 	// scroll activity. this value must be > 0.
-	A3_NUM_BUCKETS = 128,
+	ACTIVITY_NUM_BUCKETS = 128,
 
 	// scroll timing buckets
-	a3Timings = [],
+	activityTimings = [],
 
-	// the a3RecalcScrollSectionsLastRun does a couple things: it
+	// the activityRecalcScrollSectionsLastRun does a couple things: it
 	// is used to throttle the scroll handler so that the section
 	// length recomputations don't happen more than once every
 	// 250ms. we don't want to recompute this more often because
 	// it requires DOM lookups, which can be slow. eventually,
 	// this value is set to -1, which means that we don't want to
 	// do any more recomputation from within the scroll handler.
-	a3RecalcScrollSectionsLastRun = 0,
-	a3Min = 0, a3Max = 0,
-	a3LastActive = 0,
-	a4ScrollMax = 0;
+	activityRecalcScrollSectionsLastRun = 0,
+	activityMin = 0, activityMax = 0,
+	activityLastActive = 0;
 
 var debugCallbackFunc = null,
 	debugQueue = [];
@@ -269,7 +268,7 @@ function start() {
 	}
 }
 
-function a3RecalcScrollSections() {
+function activityRecalcScrollSections() {
 	var nodes = document.querySelectorAll(CONTENT_SECTIONS_SELECTOR);
 	if (!nodes) { return; }
 	var min = 1000000, max = 0;
@@ -283,33 +282,33 @@ function a3RecalcScrollSections() {
 	// TODO: we could detect if these change here and adjust bucket values if necessary.
 	// this isn't a high prio thing to do because we don't expect these numbers to change much,
 	// and it's kinda complicated to do.
-	a3Min = min;
-	a3Max = max;
+	activityMin = min;
+	activityMax = max;
 }
 
-function a3RecordScrollTiming() {
+function activityRecordScrollTiming() {
 	var activeTime = getCurrentActiveTime();
-	var diff = activeTime - a3LastActive;
-	a3LastActive = activeTime;
+	var diff = activeTime - activityLastActive;
+	activityLastActive = activeTime;
 	if (diff <= 0) return;
 
 	var scrollTop = getScrollTop();
 	var windowHeight = getViewportHeight();
 	var scrollBottom = scrollTop + windowHeight;
-	if (scrollTop > a3Max || scrollBottom < a3Min) return;
-	var pixelsHeight = a3Max - a3Min;
+	if (scrollTop > activityMax || scrollBottom < activityMin) return;
+	var pixelsHeight = activityMax - activityMin;
 	if (pixelsHeight <= 0) return;
-	var first = Math.floor( A3_NUM_BUCKETS * (1.0*scrollTop - a3Min) / pixelsHeight );
+	var first = Math.floor( ACTIVITY_NUM_BUCKETS * (1.0*scrollTop - activityMin) / pixelsHeight );
 	if (first < 0) first = 0;
-	var last = Math.ceil( A3_NUM_BUCKETS * (1.0*scrollBottom - a3Min) / pixelsHeight );
-	if (last > A3_NUM_BUCKETS - 1) last = A3_NUM_BUCKETS - 1;
+	var last = Math.ceil( ACTIVITY_NUM_BUCKETS * (1.0*scrollBottom - activityMin) / pixelsHeight );
+	if (last > ACTIVITY_NUM_BUCKETS - 1) last = ACTIVITY_NUM_BUCKETS - 1;
 
 	var i = first;
 	while (i <= last) {
-		if (typeof a3Timings[i] === 'undefined') {
-			a3Timings[i] = 0;
+		if (typeof activityTimings[i] === 'undefined') {
+			activityTimings[i] = 0;
 		}
-		a3Timings[i] += diff;
+		activityTimings[i] += diff;
 		i++;
 	}
 }
@@ -350,13 +349,6 @@ function getElementHeight(i) {
 	return i.offsetHeight || i.clientHeight;
 }
 
-// Returns the full height of the page in CSS pixels
-//
-// http://ryanve.com/lab/dimensions/
-function getBodyHeight() {
-	return Math.max( document.body.clientHeight, document.body.offsetHeight, document.body.scrollHeight );
-}
-
 // Added user input event listening for activity metrics
 function addActivityListeners() {
 
@@ -376,67 +368,58 @@ function addActivityListeners() {
 	} catch (e) {}
 
 	window.addEventListener('scroll', function(/*e*/) {
-		a2Events++;
+		activityEvents++;
 
 		// we run this at the start of the page load every 250ms, when
 		// the setInterval for 3s isn't active yet
-		if (a3RecalcScrollSectionsLastRun != -1) {
+		if (activityRecalcScrollSectionsLastRun != -1) {
 			// don't allow this method to run more often than every 250ms
 			var time = getTime() - startTime;
-			if (time >= a3RecalcScrollSectionsLastRun + 250) {
-				a3RecalcScrollSectionsLastRun = time;
-				a3RecalcScrollSections();
+			if (time >= activityRecalcScrollSectionsLastRun + 250) {
+				activityRecalcScrollSectionsLastRun = time;
+				activityRecalcScrollSections();
 			}
 		}
 
 		// record how long viewport stays active over important parts of the page
-		a3RecordScrollTiming();
-
-		// record deepest scroll point in page
-		var scrollTop = getScrollTop();
-		var windowHeight = getViewportHeight();
-		var scrollBottom = scrollTop + windowHeight;
-		// record scroll amounts
-		if (scrollBottom > a4ScrollMax) {
-			a4ScrollMax = scrollBottom;
-		}
+		activityRecordScrollTiming();
 	});
 
-	window.addEventListener('resize', function(/*e*/) { a2Events++; });
-	window.addEventListener('click', function(/*e*/) { a2Events++; });
+	window.addEventListener('resize', function(/*e*/) { activityEvents++; });
+	window.addEventListener('click', function(/*e*/) { activityEvents++; });
 
 	// touchpad events
 	var passiveParam = supportsPassive ? { passive: true } : false;
-	window.addEventListener('touchstart', function(/*e*/) { a2Events++; }, passiveParam);
-	window.addEventListener('touchend', function(/*e*/) { a2Events++; });
-	window.addEventListener('touchcancel', function(/*e*/) { a2Events++; });
-	window.addEventListener('touchmove', function(/*e*/) { a2Events++; }, passiveParam);
+	window.addEventListener('touchstart', function(/*e*/) { activityEvents++; }, passiveParam);
+	window.addEventListener('touchend', function(/*e*/) { activityEvents++; });
+	window.addEventListener('touchcancel', function(/*e*/) { activityEvents++; });
+	window.addEventListener('touchmove', function(/*e*/) { activityEvents++; }, passiveParam);
 
 	// keyboard events
-	document.addEventListener('keydown', function(/*e*/) { a2Events++; });
-	document.addEventListener('keyup', function(/*e*/) { a2Events++; });
-	document.addEventListener('keypress', function(/*e*/) { a2Events++; });
+	document.addEventListener('keydown', function(/*e*/) { activityEvents++; });
+	document.addEventListener('keyup', function(/*e*/) { activityEvents++; });
+	document.addEventListener('keypress', function(/*e*/) { activityEvents++; });
 
 	// every n seconds, update counts to see if there was activity in that interval
 	setInterval(function () {
 		// stop this from running in scroll handler
-		a3RecalcScrollSectionsLastRun = -1;
-		a3RecalcScrollSections();
+		activityRecalcScrollSectionsLastRun = -1;
+		activityRecalcScrollSections();
 
-		if (a2Events > 0) {
-			a2Sum++;
-			a2Events = 0;
+		if (activityEvents > 0) {
+			activitySum++;
+			activityEvents = 0;
 		}
 
 		// if window was not active, we don't count it as an interval
 		var activeTime = getCurrentActiveTime();
-		if (activeTime > a2LastActiveTime) {
-			a2LastActiveTime = activeTime;
-			if (a2IntervalCount < a2Intervals) {
-				a2IntervalCount++;
+		if (activeTime > activityLastActiveTime) {
+			activityLastActiveTime = activeTime;
+			if (activityIntervalCount < activityIntervals) {
+				activityIntervalCount++;
 			}
 		}
-	}, 1000 * A2_INTERVAL_SECS);
+	}, 1000 * ACTIVITY_INTERVAL_SECS);
 }
 
 // Ping our servers to collect data about how long the user might have stayed on the page
@@ -665,17 +648,7 @@ function basicStatsGen(extraAttrs) {
 	attrs = mergeObjects(extraAttrs, attrs);
 
 	if (WH['pageNamespace'] === 0) {
-		var activity = {
-			'a1': calcActivity1(wordCount),
-			'a2': calcActivity2(wordCount),
-			'a3': calcActivity3(),
-			'a4': calcActivity4(),
-			'a5': calcActivity5(),
-			'a6': calcActivity6(),
-			'a7': calcActivity7()
-		};
-		attrs = mergeObjects(activity, attrs);
-		//pingDebug('<span class="replace_line">' + 'A1:' + attrs['a1'] + ' A2:' + attrs['a2'] + ' A3:' + attrs['a3'] + ' A4:' + attrs['a4'] + ' A5:' + attrs['a5'] + ' A6:' + attrs['a6'] + ' A7:' + attrs['a7'] + '</span>');
+		attrs['a1'] = calcActivityScore(wordCount);
 	}
 
 	return attrs;
@@ -737,98 +710,47 @@ function calcActivity1(wordCount) {
 	return score;
 }
 
-// Activity2 metric uses the number of user-generated events (such as scroll events,
-// clicks, touches to the screen, keys being pressed, etc) and measures whether there
-// was any activity within (roughly) a series of 3s windows. If there was any activity
-// in the window, the score goes up. We expect activity based on the amount of time
-// that we expect it would take to read on the article, which is based on its word count.
-function calcActivity2(wordCount) {
+function calcActivityScore(wordCount) {
+	// Activity metric uses the number of user-generated events (such as scroll events,
+	// clicks, touches to the screen, keys being pressed, etc) and measures whether there
+	// was any activity within (roughly) a series of 3s windows. If there was any activity
+	// in the window, the score goes up. We expect activity based on the amount of time
+	// that we expect it would take to read on the article, which is based on its word count.
+	//
 	// We'll say average word count is 1500 words, and we adjust as a ratio upwards
 	// (or downwards) if more (or less) words than that. We watch for 180 seconds
 	// when there are 1500 words, so we adjust, using the ratio, that number of seconds.
 	var ratio = (wordCount / 1500.0);
-	a2TotalTime = ratio * 180.0;
-	a2Intervals = a2TotalTime / A2_INTERVAL_SECS;
-	var score = Math.round(100.0 * a2Sum / a2Intervals);
-	if (score < 0) score = 0;
-	if (score > 100) score = 100;
-	return score;
-}
+	activityTotalTime = ratio * 180.0;
+	activityIntervals = activityTotalTime / ACTIVITY_INTERVAL_SECS;
+	var score1 = Math.round(100.0 * activitySum / activityIntervals);
+	if (score1 < 0) score1 = 0;
+	if (score1 > 100) score1 = 100;
 
-// This activity metric is calculated using a sort of heat map about where the
-// user views on the important parts of the article page. All the parts between
-// the intro, quick summary and steps sections are split up into A3_NUM_BUCKETS
-// parts, and every moment of activity when the viewport is over these parts
-// is logged. For any given parts, if the user stays <= 1s on that parts, the
-// score for it is 0. Is the user stays >= 10s, the score is 100. The score is
-// the average of the A3_NUM_BUCKETS parts.
-function calcActivity3() {
-	var score = 0.0;
-	for (var i = 0; i < A3_NUM_BUCKETS; i++) {
+	// This activity metric is calculated using a sort of heat map about where the
+	// user views on the important parts of the article page. All the parts between
+	// the intro, quick summary and steps sections are split up into ACTIVITY_NUM_BUCKETS
+	// parts, and every moment of activity when the viewport is over these parts
+	// is logged. For any given parts, if the user stays <= 1s on that parts, the
+	// score for it is 0. Is the user stays >= 10s, the score is 100. The score is
+	// the average of the ACTIVITY_NUM_BUCKETS parts.
+	var score2 = 0.0;
+	for (var i = 0; i < ACTIVITY_NUM_BUCKETS; i++) {
 		var ms = 0;
-		if (typeof a3Timings[i] !== 'undefined') {
-			ms = a3Timings[i];
+		if (typeof activityTimings[i] !== 'undefined') {
+			ms = activityTimings[i];
 		}
 		var pct = (ms/1000.0 - 1.0) / (10.0 - 1.0);
 		if (pct < 0.0) pct = 0.0;
 		if (pct > 1.0) pct = 1.0;
-		score += pct;
+		score2 += pct;
 	}
-	score = Math.round(100 * score / A3_NUM_BUCKETS);
+	score2 = Math.round(100 * score2 / ACTIVITY_NUM_BUCKETS);
+
+	// Elizabeth wanted 50% of one metric and 50% of the other. No judgement!
+	var score = Math.round(0.5 * score1 + 0.5 * score2);
+	pingDebug('<span class="replace_line">score: ' + score + ' = 50% of ' + score1 + ' + 50% of ' + score2 + '</span>');
 	return score;
-}
-
-// Use the numbers: (1) percentage of pixels scrolled at the deepest point the
-// user reaches, and (2) active time spent on article. We use these to
-// calculate a score based on the ratio. 50% of the score comes from (1) and the
-// other 50% comes from (2).
-//
-// We assume ideal time on article is 3+ minutes and average document height in
-// pixels is 15000px, and adjust accordingly.
-function calcActivity4() {
-	var activeTime = getCurrentActiveTime();
-
-	var bodyHeight = getBodyHeight();
-
-	var pctReached = Math.round(100.0 * (a4ScrollMax / bodyHeight));
-	if (pctReached < 0) pctReached = 0;
-	if (pctReached > 100) pctReached = 100;
-
-	// this number of 15000px is CSS pixels
-	var ratio = bodyHeight / 15000.0;
-	var targetTime = ratio * 180.0;
-	var pctTime = Math.round( 100.0 * ((activeTime / 1000.0) / targetTime) );
-	if (pctTime < 0) pctTime = 0;
-	if (pctTime > 100) pctTime = 100;
-
-	var score = Math.round( (pctReached + pctTime) / 2.0 );
-	return score;
-}
-
-// If user views the last step and stays active on page for:
-//   article_height_in_pixels / 40_pixels_per_second seconds, return 100
-// Else, return 0
-function calcActivity5() {
-	return calcActivityTimeHeight(40);
-}
-
-function calcActivity6() {
-	return calcActivityTimeHeight(80);
-}
-
-function calcActivity7() {
-	return calcActivityTimeHeight(160);
-}
-
-function calcActivityTimeHeight(pixelsPerSec) {
-	if (typeof WH['Stu']['lastStepPingSent'] === 'boolean' && WH['Stu']['lastStepPingSent']) {
-		var activeTimeSecs = getCurrentActiveTime() / 1000.0;
-		var bodyHeight = getBodyHeight();
-		var expectedSecs = 1.0 * bodyHeight / pixelsPerSec;
-		return activeTimeSecs >= expectedSecs ? 100 : 0;
-	} else {
-		return 0;
-	}
 }
 
 // Expose WH['Stu'].start method

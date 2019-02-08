@@ -5,3 +5,5 @@ rubiconproject.com, 18654, DIRECT, 0bfd66d529a55807
 rubiconproject.com, 15274, DIRECT, 0bfd66d529a55807
 adtech.com, 11484, DIRECT
 appnexus.com, 9929, DIRECT
+districtm.io, 100369, DIRECT, 3fd707be9c4527c3
+appnexus.com, 1908, RESELLER, f5ab79cb980f11d1

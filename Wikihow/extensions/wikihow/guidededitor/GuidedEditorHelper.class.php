@@ -4,6 +4,8 @@ if ( !defined('MEDIAWIKI') ) die();
 
 class GuidedEditorHelper {
 
+	const TAG_SPECIAL_WORDS = 'special_title_words';
+
 	public static function formatTitle($title) {
 		$ctx = RequestContext::getMain();
 		$langCode = $ctx->getLanguage()->getCode();
@@ -37,30 +39,9 @@ class GuidedEditorHelper {
 				'per','than','the','then','to','via','vs','when','with',
 			];
 
-			$specialCase = [
-				'AAC','BSc','CS2','CS3','DNS','IM','MatLab','MP3',
-				'MySpace','.NET','PhD','PHP','PS3','SAT','XML',
-
-				// Generated from the titles already on the site
-				'ADHD','AIM','AP','BB','BBQ','BMX','CD','CS','DJ','DS',
-				'DSi','DVD','DVDs','eBay','eBook','FP','GIMP','GPS','GTA','HD',
-				'HP','HTML','ID','iMovie','iOS','IP','iPad','iPhone','iPod','IRC',
-				'ISO','iTunes','IV','LCD','LEGO','LLC','MediaWiki','MP','MS','MSN',
-				'MySpace','OS','PayPal','PC','PDF','PHP','PlayStation','PowerPoint','PS','PSP',
-				'PVC','RAM','RPG','RSS','RuneScape','RV','SEO','SketchUp','SMS','TV',
-				'UK','US','USA','USB','wikiHow','WWE','XP','YouTube',
-
-				// Other common ones I saw
-				'VoIP', 'CSS', 'iGoogle', 'StumbleUpon', 'IMDb', 'TweetDeck', 'GIMP', 'VCRs',
-				'AdSense', 'MySQL', 'eBooks', 'PCs', 'pH', 'AutoCAD', 'BMW', 'WordPress',
-				'LinkedIn', 'WiFi', 'MP4', 'AVI', 'PPT', 'PDFs', 'SWF',
-
-				// From 10k top queries
-				'MKV', '3GS', '4G', 'iMessage', 'WAV', 'WMA',
-				'JPG', '3D', 'BMI', 'MLA', 'M4A', 'APA',
-				'GPA', 'iCloud', 'NBA', 'NFL', 'NHL', 'MBA',
-				'MLB',
-			];
+			//all special words/acronyms/initializations that require unique capitalization
+			$bucket = ConfigStorage::dbGetConfig(self::TAG_SPECIAL_WORDS, true);
+			$specialCase = explode("\n", $bucket);
 
 			$domains = [
 				'.com', '.org', '.net', '.tv',

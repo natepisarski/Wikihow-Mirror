@@ -11,13 +11,14 @@ class removeBadReferences extends Maintenance {
 		$this->addOption( 'verbose', 'print verbose info', false, false, 'v' );
 		$this->addOption( 'url', 'url which is bad', false, true, 'u' );
 		$this->addOption( 'sync', 'sync user checked urls from EN', false, false, 's' );
+		$this->addOption( 'count', 'get remaining items count', false, false, 'c' );
     }
 
 	private function removeFromArticle( $pageId, $url ) {
 		$verbose = $this->getOption( "verbose" );
 		if ( $url == "http://" || $url == "https://" ) {
 			decho("bad url", $url);
-			return;
+			return 0;
 		}
 
 		if ( $verbose ) {
@@ -27,7 +28,7 @@ class removeBadReferences extends Maintenance {
 		//get latest revision
 		$title = Title::newFromId( $pageId );
 		if ( !$title ) {
-			return;
+			return 0;
 		}
 
 		$text = $this->getLatestGoodRevisionText( $title );
@@ -38,7 +39,7 @@ class removeBadReferences extends Maintenance {
 		$urlCount = substr_count( $text, $url );
 		if ( $urlCount < 1 ) {
 			decho("url: $url not found in text of article:", $title);
-			return;
+			return 0;
 		}
 
 		$refUrls = array(
@@ -73,16 +74,17 @@ class removeBadReferences extends Maintenance {
 		}
 
 		if ( $refCount + $sourcesSectionCount != $urlCount ) {
-			decho( "pageId: $pageId url: $url ref count $refCount and sources count $sourcesSectionCount does not match url count $urlCount" );
 			if ( $verbose ) {
+				decho( "pageId: $pageId url: $url ref count $refCount and sources count $sourcesSectionCount does not match url count $urlCount" );
 				foreach( explode( PHP_EOL, $text ) as $line ) {
 					if ( substr_count( $line, $url ) ) {
 						decho("matching line", trim( $line ) );
 					}
 				}
 			}
-			return;
+			return 0;
 		}
+
 
 		if ( $refCount > 0 ) {
 			//decho( "will remove references from within article" );
@@ -101,9 +103,13 @@ class removeBadReferences extends Maintenance {
 
 
 		if ( $text != $originalText ) {
-			decho( "will edit content on $title" );
+			if ( $verbose ) {
+				decho( "will edit content on $title" );
+			}
 			$this->editContent( $text, $title );
+			return 1;
 		}
+		return 0;
 	}
 
 	// text - the full wikitext of this article
@@ -223,15 +229,22 @@ class removeBadReferences extends Maintenance {
 
 	private function processItems() {
 		$items = $this->getItems();
-		if ( !count( $items ) ) {
+		$itemCount = count( $items );
+		if ( $itemCount == 0 ) {
 			decho("there are no items to process");
 			exit();
 		}
+		$edits = 0;
 		foreach ( $items as $item ) {
 			$pageId = $item['pageId'];
 			$url = $item['url'];
-			$this->removeFromArticle( $pageId, $url );
+			$result = $this->removeFromArticle( $pageId, $url );
+			if ( $result > 0 ) {
+				$edits++;
+			}
 		}
+		$errors = $itemCount - $edits;
+		decho( "procesed $itemCount items. edits: $edits errors", $errors );
 	}
 
 	private function markBadUrl( $url ) {
@@ -303,9 +316,24 @@ class removeBadReferences extends Maintenance {
 		return $items;
 	}
 
+	private function showCount() {
+		global $wgLanguageCode;
+		$dbr = wfGetDb( DB_SLAVE );
+		decho("will query count for lang", $wgLanguageCode );
+
+		$query = "SELECT count(page_title) as count FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked > 0))";
+
+		$res = $dbr->query( $query,__METHOD__ );
+		$row = $dbr->fetchRow( $res );
+		decho("remaining items", $row['count']);
+	}
+
 	public function execute() {
 		global $wgLanguageCode;
-		if ( $this->hasOption( "url" ) ) {
+		if ( $this->hasOption( 'count' ) ) {
+			$this->showCount();
+			return;
+		} else if ( $this->hasOption( "url" ) ) {
 			$url = $this->getOption( "url" );
 			decho("will mark url as bad", $url );
 			$this->markBadUrl( $url );

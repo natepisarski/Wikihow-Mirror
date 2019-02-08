@@ -7,7 +7,7 @@
 			$('#summary_edit_sidebox').fadeIn();
 		},
 
-		addHandlers() {
+		addHandlers: function() {
 			$('.summary_edit_link').click($.proxy(function() {
 				this.summaryEditUI();
 				return false;

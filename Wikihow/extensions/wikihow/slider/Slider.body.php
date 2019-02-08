@@ -7,20 +7,7 @@ class Slider extends UnlistedSpecialPage {
 	}
 	
 	public function getBox() {
-		//global $wgTitle;
-	
-		// First try to see if we have a recommendation
-		//$html = self::getRecBox();
-		//if($html) {
-		//	return($html);	
-		//}
-		// Contribute to wikiHow slider
-		$articleId = RequestContext::getMain()->getTitle()->getArticleId();
-		if($articleId % 10 == 6) { //show box 10 only 10% of the time
-			return self::getBox_10();
-		} else { //show box 8 the rest of the time
-			return self::getBox_08();
-		}
+		return self::getBox_08();
 	}
 	
 	//original slider

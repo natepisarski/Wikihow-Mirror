@@ -1,0 +1,94 @@
+#instagram_article_block {
+	margin-top: 20px;
+	background-color: #FFF;
+	border-radius: 4px;
+	color: #333;
+	display: block;
+	font-size: 1.3em;
+}
+
+#instagram_article_block.v1 {
+	height: 165px;
+	display: -webkit-flex;
+	display: flex;
+	font-size: 1em;
+}
+
+#instagram_article_block.v1 div:first-child {
+	-webkit-flex: 1 1 auto;
+	flex: 1 1 auto;
+	background-color: #93b874;
+	border-radius: 4px 0 0 4px;
+}
+
+#instagram_article_block.v1 div:last-child {
+	-webkit-flex: 1 1 auto;
+	flex: 1 1 auto;
+}
+
+.iab_body {
+	padding: 25px 15px 15px 15px;
+	max-width: 165px;
+	font-size: 1.1em;
+	line-height: 1.3em;
+}
+
+.iab_cta {
+	margin-top: .7em;
+	font-size: .8em;
+	font-style: italic;
+	font-weight: bold;
+	line-height: 1.3em;
+}
+.iab_cta > span {
+	font-size: 1.1rem;
+}
+.iab_cta > span > span {
+	background-color: #d5eec0;
+	height: .75em;
+	margin: -11px -2px 0 7px;
+	display: block;
+}
+
+.content .iab_image {
+	width: 102px;
+}
+
+.iab_top {
+	padding: 20px;
+	text-align: center;
+	color: #4a4a4a;
+	line-height: 1.2em;
+}
+
+.iab_top > div {
+	max-width: 275px;
+	margin: 0 auto;
+}
+
+.iab_bottom {
+	background-color: #93b874;
+	border-radius: 0 0 4px 4px;
+	text-align: center;
+	padding: 12px;
+}
+.iab_bottom > div {
+		color: #FFF;
+		font-size: .7em;
+		font-style: italic;
+		font-weight: bold;
+		line-height: 1.4em;
+		padding-left: 55px;
+		text-align: left;
+		display: inline-block;
+		/* @embed */
+		background: url(/extensions/wikihow/SocialFooter/images/ig.svg) left center / 50px 50px  no-repeat;
+}
+.iab_bottom > div > div {
+	font-size: 1.1rem;
+}
+
+.content .iab_wH_logo {
+	width: 80px;
+	display: inline-block;
+}

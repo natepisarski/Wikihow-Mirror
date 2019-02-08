@@ -47,7 +47,7 @@ class ApiTitleSearch extends ApiBase {
 		}
 
 		$titles = TitleFilters::filterByNamespace($titles, [NS_MAIN]);
-		$titles = TitleFilters::filterByName($titles, ['Main-Page']);
+		$titles = TitleFilters::filterByPageTitle($titles, [wfMessage('mainpage')->text()]);
 		$titles = TitleFilters::removeRedirects($titles);
 
 		$result->addValue(null,'data', $this->formatTitles($titles));
