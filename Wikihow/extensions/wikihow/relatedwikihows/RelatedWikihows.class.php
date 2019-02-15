@@ -749,7 +749,7 @@ class SensitiveRelatedWikihows {
 		$message = "";
 		if ( !$sheetData ) {
 			$message = "no items to remove";
-			decho( $message );
+			//decho( $message );
 			return $message;
 		}
 		$data = array();
@@ -827,7 +827,7 @@ class SensitiveRelatedWikihows {
 		$langDB = Misc::getLangDB( $lang );
 		if ( !$langDB ) {
 			$message = "could not get lang db for:". $lang;
-			decho( $message );
+			//decho( $message );
 			return $message;
 		}
 		$table = $langDB . '.' . $table ;
@@ -847,13 +847,13 @@ class SensitiveRelatedWikihows {
 
 		$message = '';
 		if ( $removeIds ) {
-			decho("field: $fieldName lang: $lang remove ids", json_encode( $removeIds ) );
+			//decho("field: $fieldName lang: $lang remove ids", json_encode( $removeIds ) );
 			$deleteCond = array( $fieldName => $removeIds );
 			$dbw->delete( $table, $deleteCond, __METHOD__ );
 			$message = "updated $table for $lang\n";
 		}
 		if ( $insertIds ) {
-			decho("field: $fieldName lang: $lang insert ids", json_encode( $insertIds ) );
+			//decho("field: $fieldName lang: $lang insert ids", json_encode( $insertIds ) );
 			$insertData  = array();
 			foreach ( $insertIds as $id ) {
 				$insertData[] = array( $fieldName => $id );

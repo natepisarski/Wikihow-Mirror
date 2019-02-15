@@ -495,9 +495,9 @@ class Reverification extends UnlistedSpecialPage {
 		$username = $this->getUser()->getName();
 		$usernames = preg_split("@\n@", ConfigStorage::dbGetConfig('reverification_override_list'));
 
-		// Make sure the username is a valid verifier or is Jordan so he can debug things
+		// Make sure the username is a valid verifier or is Jordan/Alberto so they can debug things
 		$isValidReverifier = ReverificationDB::getInstance()->getVerifierName($username) ||
-			$this->getUser()->getName() == 'Jordansmall';
+			in_array($username, ['Jordansmall', 'Albur']);
 
 		return false !== array_search(strtolower($username), array_map('strtolower', $usernames))
 			&& $isValidReverifier;

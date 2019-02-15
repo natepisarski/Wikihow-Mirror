@@ -9,6 +9,11 @@
 			$('#spa_import').css("background-color", "#97ba78");
 		}
 
+		function resetImportButton () {
+			$('#spa_import').css("cursor", "default");
+			$('#spa_import').css("background-color", "#83a168");
+		}
+
 		function makeUL(array) {
 			if (!array) {
 				return "";
@@ -23,17 +28,18 @@
 
 			return list;
 		}
+
 		function importResult(result) {
 			if (result['is_running'] == 1) {
-				$('#spa_is_running').html('<div id="spa_running">import in progress</div>');
 				$('#loader_container').show();
 				$('#import_button_text').hide();
-				$('#spa_import').css("cursor", "default");
-				$('#spa_import').css("cursor", "default");
-				$('#spa_import').css("background-color", "#83a168");
 
+				resetImportButton();
+
+				$('#spa_last_run_result').html('In progress...');
 				$('#spa_last_run_start').html(result['last_run_start'] || '');
-				$('#spa_last_run_finish').html('import in progress');
+
+				$('#spa_details_container').hide();
 
 				setTimeout(function() {
 					pollForResults()
@@ -44,14 +50,33 @@
 
 			$('#loader_container').hide();
 			$('#import_button_text').show();
-			$('#spa_last_run').html(result['last_run_result'] || '');
-			$('#spa_stats').html(result['stats'] || '');
-			$('#spa_errors').html(makeUL(result['errors']));
-			$('#spa_warnings').html(makeUL(result['warnings']));
-			$('#spa_info').html(makeUL(result['info'] ));
+
+			$('#spa_last_run_result').html(result['last_run_result'] || '');
 			$('#spa_last_run_start').html(result['last_run_start'] || '');
-			$('#spa_last_run_finish').html(result['last_run_finish'] || '');
-			$('#spa_is_running').html("import complete");
+
+			if (result['errors'].length) {
+				$('#spa_error_container').show();
+				$('#spa_errors').html(makeUL(result['errors']));
+			} else {
+				$('#spa_error_container').hide();
+			}
+
+			if (result['warnings'].length) {
+				$('#spa_warn_container').show();
+				$('#spa_warnings').html(makeUL(result['warnings']));
+			} else {
+				$('#spa_warn_container').hide();
+			}
+
+			if (result['stats'].length) {
+				$('#spa_stats_container').show();
+				$('#spa_stats').html(result['stats'] || '');
+			} else {
+				$('#spa_stats_container').hide();
+			}
+
+
+			$('#spa_details_container').show();
 
 			enableInputs();
 		}
@@ -69,17 +94,13 @@
 					return;
 				}
 
-				$('#spa_import').css("cursor", "default");
-				$('#spa_import').css("cursor", "default");
-				$('#spa_import').css("background-color", "#83a168");
+				resetImportButton();
 
 				var data = { 'action':'import' };
 				$.post(toolUrl, data, function (result) {
 					pollForResults();
 				}, "json").fail( function(xhr, textStatus, errorThrown) {
 					enableInputs();
-					$('#spa_results').append(xhr.responseText);
-					$('#spa_results').wrapInner("<pre></pre>");
 				});
 				return false;
 			});

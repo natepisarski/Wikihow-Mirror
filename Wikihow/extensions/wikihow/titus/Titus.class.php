@@ -707,7 +707,10 @@ abstract class TitusStat {
 	// @return Either an array of page ids, "all" to run through all pages, or "dailyedits"
 	abstract function getPageIdsToCalc( $dbr, $date );
 
-	private $_error=false;
+	// TODO: we should add a langCode reference in titus so that we don't need to
+	// declare and use $wgLanguageCode everywhere.
+
+	private $_error = false;
 
 	const ERROR_MAX_SIZE = 1000;
 
@@ -738,32 +741,46 @@ abstract class TitusStat {
 		return($this->_error);
 	}
 
-	function checkForRedirects(&$dbr, &$ids) {
+	function checkForRedirects(&$dbr, $ids) {
 		global $wgLanguageCode;
 
+		if (!$ids) {
+			$this->reportError('TitusStat::checkForRedirects was called with an empty $ids param. Backtrace: '.wfBacktrace());
+			return;
+		}
+
+		// TODO: we should be using the MW Database wrapper for this
 		$query = "select page_id,page_title  from " . Misc::getLangDB($wgLanguageCode) . ".page where page_is_redirect=1 AND page_id in (" . implode($ids,",") . ")";
 		$res = $dbr->query($query,__METHOD__);
 		$redirects = "";
-		foreach($res as $row) {
-			if($redirects == "") {
+		foreach ($res as $row) {
+			if ($redirects == "") {
 				$redirects = "The following pages are redirects:\n";
 			}
 			$redirects .= $this->getBaseUrl() . '/' . $row->page_title . "|" . $row->page_id . "\n\n";
 		}
-		if($redirects != "") {
+		if ($redirects) {
 			$this->reportError($redirects);
 		}
 	}
-	function checkForMissing(&$dbr, &$ids) {
+
+	function checkForMissing(&$dbr, $ids) {
 		global $wgLanguageCode;
+
+		if (!$ids) {
+			$this->reportError('TitusStat::checkForRedirects was called with an empty $ids param. Backtrace: '.wfBacktrace());
+			return;
+		}
+
+		// TODO: we should be using the MW Database wrapper for this
 		$query = "select page_id  from " . Misc::getLangDB($wgLanguageCode) . ".page where page_id in (" . implode($ids,",") . ")";
 		$res = $dbr->query($query,__METHOD__);
 		$foundIds = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$foundIds[] = $row->page_id;
 		}
 		$missing = array_diff($ids, $foundIds);
-		if(sizeof($missing) > 0) {
+		if (sizeof($missing) > 0) {
 			$error = "The following articles were not found and may have been deleted (" . implode($missing,',') . ")";
 			$this->reportError($error);
 		}
@@ -772,6 +789,7 @@ abstract class TitusStat {
 	// Abstract function that returns calculated stats.  IMPORTANT: All status must be returned with a
 	// default value or batch insertion of records will break
 	abstract function calc( $dbr, $r, $t, $pageRow );
+
 	function getBaseUrl() {
 		global $wgLanguageCode;
 		if($wgLanguageCode == "en") {
@@ -2274,28 +2292,22 @@ class TSStu extends TitusStat {
  * Stu2 data (www and mobile) for article
 
    alter table titus_intl
-     add column ti_stu2_3m_mobile int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_3m_desktop int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_10s_mobile int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_10s_desktop int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_3m_active_mobile int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_3m_active_desktop int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_10s_active_mobile int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_10s_active_desktop int(10) unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_activity_avg_mobile decimal(6,2) NOT NULL DEFAULT '0.0',
+     add column ti_stu2_activity_avg_desktop decimal(6,2) NOT NULL DEFAULT '0.0',
      add column ti_stu2_all_mobile int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_all_desktop int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_search_mobile  int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_search_desktop int(10) unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_activity_count_mobile int unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_activity_count_desktop int unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_quickbounce_mobile  int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_quickbounce_desktop int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_amp int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_stepfirst_mobile  int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_stepfirst_desktop int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_steplast_mobile  int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_steplast_desktop int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_last_reset varchar(8) NOT NULL DEFAULT '';
-
-   alter table titus_intl add column ti_stu2_amp int(10) unsigned NOT NULL DEFAULT '0' after ti_stu2_quickbounce_desktop;
  */
 class TSStu2 extends TitusStat {
 	public function __construct() {
@@ -2318,22 +2330,29 @@ class TSStu2 extends TitusStat {
 			[ 'sa_pageid' => $t->getArticleID(),
 			  'sa_lang' => $wgLanguageCode ],
 			__METHOD__ );
-
 		$rows = [];
 		foreach ($res as $row) {
 			$rows[] = (array)$row;
 		}
+		$statsStu2 = $this->extractStatsStu2($rows);
 
-		$stats = $this->extractStats($rows);
-		return $stats;
+		$res = $dbr->select( 'stu.activity_agg',
+			'*',
+			[ 'aa_pageid' => $t->getArticleID(),
+			  'aa_lang' => $wgLanguageCode ],
+			__METHOD__ );
+		$rows = [];
+		foreach ($res as $row) {
+			$rows[] = (array)$row;
+		}
+		$statsActivity = $this->extractStatsActivity($rows);
+
+		$result = $statsStu2 + $statsActivity;
+		return $result;
 	}
 
-	private function extractStats($rows) {
+	private function extractStatsStu2($rows) {
 		$stats = [
-			'ti_stu2_3m_mobile' => 0,
-			'ti_stu2_3m_desktop' => 0,
-			'ti_stu2_10s_mobile' => 0,
-			'ti_stu2_10s_desktop' => 0,
 			'ti_stu2_3m_active_mobile' => 0,
 			'ti_stu2_3m_active_desktop' => 0,
 			'ti_stu2_10s_active_mobile' => 0,
@@ -2345,10 +2364,6 @@ class TSStu2 extends TitusStat {
 			'ti_stu2_quickbounce_mobile' => 0,
 			'ti_stu2_quickbounce_desktop' => 0,
 			'ti_stu2_amp' => 0,
-			'ti_stu2_stepfirst_mobile' => 0,
-			'ti_stu2_stepfirst_desktop' => 0,
-			'ti_stu2_steplast_mobile' => 0,
-			'ti_stu2_steplast_desktop' => 0,
 			'ti_stu2_last_reset' => '',
 		];
 
@@ -2370,28 +2385,54 @@ class TSStu2 extends TitusStat {
 		}
 
 		if ($mb) {
-			$stats['ti_stu2_3m_mobile'] += $mb['sa_3m_total'];
-			$stats['ti_stu2_10s_mobile'] += $mb['sa_10s_total'];
 			$stats['ti_stu2_3m_active_mobile'] += $mb['sa_3m_active'];
 			$stats['ti_stu2_10s_active_mobile'] += $mb['sa_10s_active'];
 			$stats['ti_stu2_all_mobile'] += $mb['sa_all'];
 			$stats['ti_stu2_search_mobile'] += $mb['sa_search'];
 			$stats['ti_stu2_quickbounce_mobile'] += $mb['sa_quick_bounce'];
 			$stats['ti_stu2_amp'] += $mb['sa_amp'];
-			$stats['ti_stu2_stepfirst_mobile'] += $mb['sa_step_first'];
-			$stats['ti_stu2_steplast_mobile'] += $mb['sa_step_last'];
 		}
 
 		if ($dt) {
-			$stats['ti_stu2_3m_desktop'] += $dt['sa_3m_total'];
-			$stats['ti_stu2_10s_desktop'] += $dt['sa_10s_total'];
 			$stats['ti_stu2_3m_active_desktop'] += $dt['sa_3m_active'];
 			$stats['ti_stu2_10s_active_desktop'] += $dt['sa_10s_active'];
 			$stats['ti_stu2_all_desktop'] += $dt['sa_all'];
 			$stats['ti_stu2_search_desktop'] += $dt['sa_search'];
 			$stats['ti_stu2_quickbounce_desktop'] += $dt['sa_quick_bounce'];
-			$stats['ti_stu2_stepfirst_desktop'] += $dt['sa_step_first'];
-			$stats['ti_stu2_steplast_desktop'] += $dt['sa_step_last'];
+		}
+
+		return $stats;
+	}
+
+	private function extractStatsActivity($rows) {
+		$stats = [
+			'ti_stu2_activity_avg_mobile' => 0.0,
+			'ti_stu2_activity_avg_desktop' => 0.0,
+			'ti_stu2_activity_count_mobile' => 0,
+			'ti_stu2_activity_count_desktop' => 0,
+		];
+
+		$mb = [];
+		$dt = [];
+		foreach ($rows as $row) {
+			// there is a mobile and a desktop row for each article in activity_agg (like stu_agg)
+			if ($row['aa_mobile'] == 't') {
+				$mb = $row;
+			} elseif ($row['aa_mobile'] == 'f') {
+				$dt = $row;
+			} else {
+				$this->reportError( 'unexpected value received from activity_agg table! ' . print_r($row,true) );
+			}
+		}
+
+		if ($mb) {
+			$stats['ti_stu2_activity_avg_mobile'] = $mb['aa_a1_avg'];
+			$stats['ti_stu2_activity_count_mobile'] = $mb['aa_total'];
+		}
+
+		if ($dt) {
+			$stats['ti_stu2_activity_avg_desktop'] = $dt['aa_a1_avg'];
+			$stats['ti_stu2_activity_count_desktop'] = $dt['aa_total'];
 		}
 
 		return $stats;

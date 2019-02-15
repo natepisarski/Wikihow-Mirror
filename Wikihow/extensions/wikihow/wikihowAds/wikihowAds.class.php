@@ -1662,10 +1662,20 @@ class wikihowAds {
 		$largeIntroChannel = '';
 		$baseLargeChannels = '';
 
-		if ( $wgTitle && ArticleTagList::hasTag( 'amp_disabled_pages', $wgTitle->getArticleID() ) ) {
+		$pageId = $wgTitle->getArticleID();
+
+		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $pageId ) ) {
 			$baseChannels = $baseChannels . "+8411928010";
+			$baseLargeChannels = $baseLargeChannels . "+8411928010";
 		} else {
 			$baseChannels = $baseChannels . "+7928712280";
+			$baseLargeChannels = $baseLargeChannels . "+7928712280";
+			// this group of pages have adsense on AMP, so we want to put a special channel to measure it
+			// and we will put a corresponding channel on the adsense ads
+			if ( $pageId % 100 < 10 ) {
+				$baseChannels = $baseChannels . "+9252820051";
+				$baseLargeChannels = $baseLargeChannels . "+9252820051";
+			}
 		}
 
 		$data = [

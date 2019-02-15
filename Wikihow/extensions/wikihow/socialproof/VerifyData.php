@@ -12,7 +12,7 @@ class VerifyData {
 	const VERIFIER_TABLE = "verifier_info";
 	const VERIFIER_INFO_CACHE_KEY = "verifier_info_4";
 
-	var $date, $name, $blurb, $hoverBlurb, $whUserName, $nameLink, $mainNameLink, $blurbLink, $category, $image, $initials, $revisionId, $worksheetName, $aid;
+	var $date, $verifierId, $whUserName, $name, $blurb, $hoverBlurb, $nameLink, $mainNameLink, $blurbLink, $category, $image, $initials, $revisionId, $worksheetName, $aid;
 
 	// check the db for page existence
 	public static function isInDB( $pageId ) {
@@ -68,6 +68,7 @@ class VerifyData {
 			foreach( $verifiers as $verifier ) {
 				$vd = new VerifyData;
 				$vd->date = $verifier->date;
+				$vd->verifierId = $verifier->verifierId;
 				$vd->name = $verifier->name;
 				$vd->blurb = $verifier->blurb;
 				$vd->hoverBlurb = $verifier->hoverBlurb;
@@ -148,6 +149,7 @@ class VerifyData {
 	public static function newVerifierFromRow($row) {
 		$verifier = json_decode($row['vi_info']);
 		$vd = new VerifyData();
+		$vd->verifierId = $verifier->verifierId;
 		$vd->name = $verifier->name;
 		$vd->blurb = $verifier->blurb;
 		$vd->hoverBlurb = $verifier->hoverBlurb;
@@ -179,6 +181,7 @@ class VerifyData {
 		foreach( $verifiers as $verifier ) {
 			$vd = new VerifyData;
 			$vd->date = $verifier->date;
+			$vd->verifierId = $verifier->verifierId;
 			$vd->name = $verifier->name;
 			$vd->blurb = $verifier->blurb;
 			$vd->hoverBlurb = $verifier->hoverBlurb;
@@ -209,6 +212,7 @@ class VerifyData {
 
 		$info = json_decode( $info );
 		$vd->date = $info->date;
+		$vd->verifierId = $info->verifierId;
 		$vd->name = $info->name;
 		$vd->blurb = $info->blurb;
 		$vd->hoverBlurb = $info->hoverBlurb;
@@ -233,6 +237,7 @@ class VerifyData {
 		$info = array_pop($info);
 
 		$vd->date = $info->date;
+		$vd->verifierId = $info->verifierId;
 		$vd->name = $info->name;
 		$vd->blurb = $info->blurb;
 		$vd->hoverBlurb = $info->hoverBlurb;
@@ -246,6 +251,7 @@ class VerifyData {
 		return $vd;
 	}
 
+	/* Not used (Alberto, 2019-01)
 	private	function getWhUserName( $profileUrl ) {
 		if ( $profileUrl ) {
 			$pieces = explode( "User:", $profileUrl );
@@ -255,6 +261,7 @@ class VerifyData {
 		}
 		return "";
 	}
+	*/
 
 	/**
 	 * if we want a verify data object but only care about the worksheet name
@@ -269,9 +276,10 @@ class VerifyData {
 		return $vd;
 	}
 
-	public static function newFromAll( $date, $name, $blurb, $hoverBlurb, $whUserName, $nameLink, $mainNameLink, $blurbLink, $revId, $worksheetName ) {
+	public static function newFromAll( $verifierId, $date, $name, $blurb, $hoverBlurb, $whUserName, $nameLink, $mainNameLink, $blurbLink, $revId, $worksheetName ) {
 		$vd = new VerifyData;
 		$vd->date = $date;
+		$vd->verifierId = $verifierId;
 		$vd->name = $name;
 		$vd->blurb = $blurb;
 		$vd->hoverBlurb = $hoverBlurb;
@@ -285,8 +293,9 @@ class VerifyData {
 		return $vd;
 	}
 
-	public static function newVerifierFromAll( $name, $blurb, $hoverBlurb, $nameLink, $category, $image, $initials, $userName ) {
+	public static function newVerifierFromAll( $verifierId, $name, $blurb, $hoverBlurb, $nameLink, $category, $image, $initials, $userName ) {
 		$vd = new VerifyData;
+		$vd->verifierId = $verifierId;
 		$vd->name = $name;
 		$vd->blurb = $blurb;
 		$vd->hoverBlurb = $hoverBlurb;
@@ -492,6 +501,7 @@ class VerifyData {
 
 		foreach ( $toDelete as $deleteId ) {
 			$dbw = wfGetDB( DB_MASTER );
+			// TODO: we can delete from 'article_verifier' with a single query
 			$res = $dbw->delete( $table, array( "av_id"=> $deleteId ), __METHOD__ );
 			$cacheKey = wfMemcKey( 'article_verifier_data', $deleteId );
 			$wgMemc->delete( $cacheKey );
@@ -509,13 +519,14 @@ class VerifyData {
 		$res = $dbw->select( VerifyData::VERIFIER_TABLE, array( 'vi_id', 'vi_name' ), '', __METHOD__ );
 		$toDelete = array();
 		foreach ( $res as $row ) {
-			if ( !$data[$row->vi_name] ) {
+			if ( !$data[$row->vi_id] ) {
 				$toDelete[] = $row->vi_id;
 			}
 		}
 
 		$qadb = QADB::newInstance();
 		foreach ( $toDelete as $deleteId ) {
+			// TODO: we can delete from 'verifier_info' with a single query
 			$res = $dbw->delete( VerifyData::VERIFIER_TABLE, array( "vi_id" => $deleteId ), __METHOD__ );
 			$qadb->removeVerifierIdFromArticleQuestions($deleteId);
 		}
@@ -533,9 +544,18 @@ class VerifyData {
 
 		$dbw->upsert(
 			VerifyData::VERIFIER_TABLE,
-			['vi_info' => $jsonData, 'vi_name' => $verifyData->name, 'vi_user_name' => $verifyData->whUserName],
-			['vi_name'],
-			['vi_info = VALUES(vi_info), vi_user_name = VALUES(vi_user_name)'],
+			[
+				'vi_id' => $verifyData->verifierId,
+				'vi_name' => $verifyData->name,
+				'vi_user_name' => $verifyData->whUserName,
+				'vi_info' => $jsonData,
+			],
+			['vi_id'],
+			[
+				'vi_name = VALUES(vi_name)',
+				'vi_user_name = VALUES(vi_user_name)',
+				'vi_info = VALUES(vi_info)',
+			],
 			__METHOD__
 		);
 	}

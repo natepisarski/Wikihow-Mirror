@@ -47,10 +47,18 @@ class GoogleSpreadsheet {
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_URL, $url );
 		curl_setopt( $ch, CURLOPT_HEADER, 0 );
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
 		curl_setopt( $ch, CURLOPT_TIMEOUT, 60 * 5 );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, array( "Content-type: application/atom+xml" ) );
 		$res = curl_exec( $ch );
+		if ( curl_errno( $ch ) > 0 ) {
+			throw new MWException( 'Curl error: ' . curl_error( $ch ) );
+		}
+		$responseCode = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+		if ( $responseCode != 200 ) {
+			throw new MWException( 'Curl non-OK http response code: ' . $responseCode );
+		}
 		return $res;
 	}
 
@@ -58,6 +66,9 @@ class GoogleSpreadsheet {
 	public function doJSONRequest( $url, $params, $v4=false ) {
 		$url = wfAppendQuery( $url, $params );
 		$sheetData = file_get_contents( $url );
+		if ($sheetData === false) {
+			throw new MWException( 'file_get_contents error, could not open url: ' . $url );
+		}
 		$sheetData = json_decode( $sheetData );
 		$sheetData = $v4 ? $sheetData->values : $sheetData->{'feed'}->{'entry'};
 		return $sheetData;

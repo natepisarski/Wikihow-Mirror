@@ -1,5 +1,7 @@
 <?php
 
+// Not used? (Alberto, 2019-02)
+
 //define('WH_USE_BACKUP_DB', true);
 
 require_once __DIR__ . '/../Maintenance.php';

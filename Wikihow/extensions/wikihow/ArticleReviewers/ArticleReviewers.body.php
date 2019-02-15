@@ -47,14 +47,15 @@ class ArticleReviewers extends UnlistedSpecialPage
 		$requestedName = $req->getText('name');
 		$expert_count = 0;
 		foreach ($experts as $expert) {
-			if ( $expert->category == "" ) {
+
+			if ( strtolower($expert->category) == 'community' ) {
 				continue;
 			}
 
 			// see if the nameLink is not a url. if it isn't we will add it as nameLinkHTML instead
 			if ( trim( $expert->nameLink ) && !filter_var( trim( $expert->nameLink ), FILTER_VALIDATE_URL ) ) {
 				$expert->nameLinkHTML = $expert->nameLink;
-				$expert->nameLink = "";
+				$expert->nameLink = '';
 			}
 
 			if ( !isset($expertCategories[$expert->category]) ) {
@@ -128,7 +129,7 @@ class ArticleReviewers extends UnlistedSpecialPage
 	}
 
 	public static function getAnchorName($verifierName) {
-		return strtolower( str_replace(" ", "", $verifierName) );
+		return strtolower( str_replace(' ', '', $verifierName) );
 	}
 
 	public static function getLinkByVerifierName(string $verifierName): string {

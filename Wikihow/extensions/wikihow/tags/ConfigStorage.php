@@ -158,16 +158,24 @@ class ConfigStorage {
 
 		$user = $wgUser->getName();
 
-		// Elizabeth can edit any message
 		$rules = [
-			[ 'keys' => ['editfish-article-exclude-list'],
-			  'users' => ['ElizabethD', 'Chris H'] ],
-			[ 'keys' => ['picture_patrol_whitelist', 'picture_patrol_blacklist'],
-			  'users' => ['ElizabethD', 'AlissaB', 'Argutier', 'Anna'] ],
-			[ 'keys' => ['qa_article_ids', 'qa_blacklisted_article_ids', 'qa_box_article_ids', 'qa_category_blacklist'],
-			  'users' => ['ElizabethD', 'AlissaB', 'Chris H', 'Anna'] ],
-			[ 'keys' => ['wikiphoto-article-exclude-list'],
-			  'users' => ['ElizabethD', 'WikiPhoto', 'Wikivisual', 'Wikiphoto'] ],
+			[
+			  'keys' => [
+				'UserPageWhitelist', 'deindexed_link_removal_whitelist', 'difficult-articles', 'editfish-article-exclude-list',
+				'expert_inline_articles', 'fresh_q&a_pages', 'header-test', 'header-test2',
+				'hide-ratings', 'howyougetfit.com', 'howyoulivelife.com', 'lazyload_destkop_images_disabled',
+				'lazyloadstutest', 'notable_coauthor', 'opti_desktop', 'opti_header',
+				'opti_mobile', 'picture_patrol_blacklist', 'picture_patrol_whitelist', 'quickanswers_garden_donotedit',
+				'quickanswers_how_donotedit', 'quickanswers_love_donotedit', 'quickanswers_pet_donotedit', 'reverification_older_than_date',
+				'staff_reviewed_articles', 'staff_reviewed_articles_handpicked', 'userreview_whitelist', 'wikihow.fitness',
+				'wikihow.health', 'wikihow.life', 'wikihow.mom', 'wikihow.pet',
+				'wikihow.tech', 'wikihowanswers_donotedit', 'qa_blacklisted_article_ids', 'qa_box_article_ids',
+				'qa_category_blacklist', 'ad-exclude-list', 'amp_disabled_pages', 'staff_reviewers',
+			  ],
+			  'users' => ['Anna', 'Chris H', 'ElizabethD', ] // Anna, Chris, Eliz == ACE!
+			],
+			//[ 'keys' => ['wikiphoto-article-exclude-list'],
+			//  'users' => ['ElizabethD', 'WikiPhoto', 'Wikivisual', 'Wikiphoto'] ],
 		];
 
 		foreach ($rules as $rule) {

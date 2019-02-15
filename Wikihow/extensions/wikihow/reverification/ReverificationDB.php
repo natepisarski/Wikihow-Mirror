@@ -252,7 +252,7 @@ class ReverificationDB {
 		if (empty($username)) {
 			return false;
 		}
-		
+
 		$dbr = wfGetDB(DB_SLAVE);
 		return $dbr->selectField(
 			VerifyData::VERIFIER_TABLE,

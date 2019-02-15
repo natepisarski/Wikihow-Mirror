@@ -53,7 +53,7 @@ class Pagestats extends UnlistedSpecialPage {
 		return $val;
 	}
 
-	function getFellowsTime($fellowEditTimestamp) {
+	private static function getFellowsTime($fellowEditTimestamp) {
 		global $wgLang;
 		$d = false;
 		if (!$fellowEditTimestamp) {
@@ -124,35 +124,6 @@ class Pagestats extends UnlistedSpecialPage {
 
 			// stu2 data
 			$nb = '&nbsp;';
-			if ($titusData->ti_stu2_search_mobile) {
-				$stu2Mb10s = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
-				$stu2Mb3m = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
-				$stu2Mb10sAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_active_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
-				$stu2Mb3mAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_active_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
-				$stu2MbLine = "$stu2Mb10s$nb$stu2Mb3m$nb(active:$nb$stu2Mb10sAc$nb$stu2Mb3mAc)";
-
-				$stu2MbStF = sprintf( '%.1f', 100 * ($titusData->ti_stu2_stepfirst_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
-				$stu2MbStL = sprintf( '%.1f', 100 * ($titusData->ti_stu2_steplast_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
-				$stu2MbSt = "first:$stu2MbStF$nb{$nb}last:$stu2MbStL";
-			} else {
-				$stu2MbLine = "<i>(no search views)</i>";
-				$stu2MbSt = "";
-			}
-			if ($titusData->ti_stu2_search_desktop) {
-				$stu2Dt10s = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
-				$stu2Dt3m = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
-				$stu2Dt10sAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_active_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
-				$stu2Dt3mAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_active_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
-				$stu2DtLine = "$stu2Dt10s$nb$stu2Dt3m$nb(active:$nb$stu2Dt10sAc$nb$stu2Dt3mAc)";
-
-				$stu2DtStF = sprintf( '%.1f', 100 * ($titusData->ti_stu2_stepfirst_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
-				$stu2DtStL = sprintf( '%.1f', 100 * ($titusData->ti_stu2_steplast_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
-				$stu2DtSt = "first:$stu2DtStF$nb{$nb}last:$stu2DtStL";
-			} else {
-				$stu2DtLine = "<i>(no search views)</i>";
-				$stu2DtSt = "";
-			}
-
 			$r = $titusData->ti_stu2_last_reset;
 			if ($r && strlen($r) == 8) {
 				$resetLine = "<i>last reset " . substr($r, 0, 4) . '/' . substr($r, 4, 2) . '/' . substr($r, 6, 2) . "</i>";
@@ -162,20 +133,31 @@ class Pagestats extends UnlistedSpecialPage {
 			$html .= "<hr style='margin:5px 0; '/>";
 			$html .= "<p><b>Stu2</b> $nb$nb$nb$resetLine</p>";
 			if ($titusData->ti_stu2_search_mobile) {
+				$stu2Mb10sAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_active_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
+				$stu2Mb3mAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_active_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
 				$html .= "<p>mobile:$nb$stu2Mb10sAc$nb$stu2Mb3mAc$nb{$nb}views:{$titusData->ti_stu2_search_mobile}</p>";
 			} else {
 				$html .= "<p>mobile: <i>(no search views)</i></p>";
 			}
 			if ($titusData->ti_stu2_search_desktop) {
+				$stu2Dt10sAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_active_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
+				$stu2Dt3mAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_active_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
 				$html .= "<p>desktop:$nb$stu2Dt10sAc$nb$stu2Dt3mAc$nb{$nb}views:{$titusData->ti_stu2_search_desktop}</p>";
 			} else {
 				$html .= "<p>desktop: <i>(no search views)</i></p>";
 			}
-			$html .= "<p style='font-size:13px; font-style:italic; font-weight:bold; padding-top:3px'>Beta</p>";
-			$html .= "<p>mobile:$nb{$stu2MbLine}</p>";
-			$html .= "<p>desktop:$nb{$stu2DtLine}</p>";
-			if ($stu2MbSt) $html .= "<p>steps mobile$nb{$stu2MbSt}</p>";
-			if ($stu2DtSt) $html .= "<p>steps desktop$nb{$stu2DtSt}</p>";
+			if ($titusData->ti_stu2_activity_count_mobile) {
+				$mbAct = sprintf("%.1f%%$nb(%d)", $titusData->ti_stu2_activity_avg_mobile, $titusData->ti_stu2_activity_count_mobile);
+			} else {
+				$mbAct = "<i>(no activity)</i>";
+			}
+			if ($titusData->ti_stu2_activity_count_desktop) {
+				$dtAct = sprintf("%.1f%%$nb(%d)", $titusData->ti_stu2_activity_avg_desktop, $titusData->ti_stu2_activity_count_desktop);
+			} else {
+				$dtAct = "<i>(no activity)</i>";
+			}
+			$html .= "<p>activity{$nb}mobile:{$mbAct}{$nb}dt:{$dtAct}</p>";
+			$html .= "<p style='font-size:12px; font-weight:bold; padding-top:3px'>More info</p>";
 			$html .= "<p>search views mobile:{$titusData->ti_stu2_search_mobile}{$nb}dt:{$titusData->ti_stu2_search_desktop}</p>";
 			$html .= "<p>all views mobile:{$titusData->ti_stu2_all_mobile}{$nb}dt:{$titusData->ti_stu2_all_desktop}</p>";
 			$html .= "<p>quick{$nb}bounces{$nb}amp:{$titusData->ti_stu2_amp}{$nb}mobile:{$titusData->ti_stu2_quickbounce_mobile}{$nb}dt:{$titusData->ti_stu2_quickbounce_desktop}</p>";
@@ -410,7 +392,7 @@ class Pagestats extends UnlistedSpecialPage {
                     print json_encode($result);
                 }
             }
-        } else if ( $request->wasPosted() && $action == 'motiontostatic' ) {
+        } elseif ( $request->wasPosted() && $action == 'motiontostatic' ) {
 			$out->setArticleBodyOnly(true);
             $out->disable();
 			$editResult = MotionToStatic::handlePageStatsPost( $request, $user );
@@ -422,7 +404,7 @@ class Pagestats extends UnlistedSpecialPage {
 			}
 			print json_encode($result);
 			return;
-        } else if ( $request->wasPosted() && $action == 'editingoptions' ) {
+        } elseif ( $request->wasPosted() && $action == 'editingoptions' ) {
 			$out->setArticleBodyOnly(true);
             $out->disable();
             $textBox = $request->getVal( 'textbox' );

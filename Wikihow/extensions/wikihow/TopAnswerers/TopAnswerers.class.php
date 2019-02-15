@@ -680,6 +680,9 @@ class TopAnswerers {
 
 		if ($spaces) $templates = str_replace('-', ' ', $templates);
 
+		//all empty string categories are BAD
+		$templates[] = '';
+
 		return $templates;
 	}
 

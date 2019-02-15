@@ -7,11 +7,14 @@ class GreenBox {
 
 	const GREENBOX_EXPERT_STAFF = 'staff';
 
+	const GREENBOX_EXPERT_SHORT_MARKER = 'SHORT';
+
 	//here are the official flavors of our green boxes
 	public static $green_box_types = [
-		'green_box',					//uses {{greenbox}}
-		'green_box_expert',		//uses {{expertgreenbox}}
-		'green_box_expert_qa'	//uses {{expertgreenbox}}
+		'green_box',							//uses {{greenbox}}
+		'green_box_expert',				//uses {{expertgreenbox}}
+		'green_box_expert_qa',		//uses {{expertgreenbox}}
+		'green_box_expert_short'	//uses {{expertgreenbox}}
 	];
 
 	public static function renderBox(Parser $parser, string $wikitext = ''): array {
@@ -40,7 +43,8 @@ class GreenBox {
 		if ($expert_id == self::GREENBOX_EXPERT_STAFF) {
 			$expert_data = new VerifyData;
 			$expert_data->imagePath = '/skins/WikiHow/wH-initials_152x152.png';
-			$expert_data->name = wfMessage('qa_staff_editor')->text();
+			$expert_data->name = wfMessage('green_box_staff_name')->text();
+			$expert_data->blurb = wfMessage('green_box_staff_blurb')->text();
 			$expert_data->initials = 'wH';
 			$expert_data->hoverBlurb = wfMessage('sp_staff_reviewed_hover')->text();
 			$expert_label = wfMessage('green_box_staff_label')->text();
@@ -59,11 +63,18 @@ class GreenBox {
 			'expert_display' => self::expertDisplayHtml($expert_data),
 			'expert_label' => $expert_label,
 			// 'expert_dialog' => self::expertDialog($expert_data),
+			'expert_name' => $expert_data->name,
+			'expert_title' => $expert_data->blurb,
 			'questioner' => wfMessage('green_box_questioner')->text(),
 			'mobile_class' => Misc::isMobileMode() ? 'mobile' : ''
 		];
 
-		$template = empty($wikitext_2) ? 'green_box_expert' : 'green_box_expert_qa';
+		if (empty($wikitext_2))
+			$template = 'green_box_expert';
+		elseif ($wikitext_2 == self::GREENBOX_EXPERT_SHORT_MARKER)
+			$template = 'green_box_expert_short';
+		else
+			$template = 'green_box_expert_qa';
 
 		$output = $m->render($template, $vars);
 		$output = str_replace("\n",'',$output); //needs to be one line

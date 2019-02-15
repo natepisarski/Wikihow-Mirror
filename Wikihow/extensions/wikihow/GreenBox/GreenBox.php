@@ -44,7 +44,8 @@ $wgResourceModules['ext.wikihow.green_box_edit'] = [
 	'scripts' => [ 'green_box_edit.js' ],
 	'messages' => [
 		'green_box_error_no_expert',
-		'green_box_error_no_answer'
+		'green_box_error_no_answer',
+		'green_box_error_too_long'
 	],
 	'localBasePath' => __DIR__.'/assets',
 	'remoteExtPath' => 'wikihow/GreenBox/assets',

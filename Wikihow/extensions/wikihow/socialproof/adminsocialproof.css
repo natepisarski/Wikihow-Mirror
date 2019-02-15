@@ -1,24 +1,58 @@
+#sidebar {
+	display: none;
+}
+#article_shell {
+	width: 100%;
+}
+h5 {
+	margin: 20px 0 7px 0;
+	font-size: 18px;
+}
+.spa_error {
+	color: #e20000;
+	font-weight: bold;
+}
+.spa_warn {
+	color: #ec9900;
+	font-weight: bold;
+}
+.spa_okay {
+	color: green;
+	font-weight: bold;
+}
+.spa_table {
+	font-size: 16px;
+	line-height: 20px;
+	margin-bottom: 15px;
+}
+.spa_table td:nth-child(1) {
+	padding-right: 10px;
+}
 .spa_stats {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
-.spa_section {
-	margin-bottom: 2px;
+.spa_left {
+	float: left;
+}
+#spa_details_container {
+	font-size: 15px;
+	line-height: 19px;
+}
+#spa_go_to_sheet {
+	float: right;
 }
 .spa_sectioncontents {
-    margin: 2px;
 	position: relative;
+	margin-bottom: 15px;
 }
 .spa_buttonlarge {
 	height: 13px;
 	width: 77px;
-}
-#spa_results {
-	word-break: break-word;
-	overflow: scroll;
+	margin: 10px 0 15px;
 }
 #import_button_text {
-	padding-left: 21px;
+	padding-left: 20px;
 	display: none;
 }
 
@@ -29,11 +63,13 @@
 	margin: 0 !important;
 	list-style: none;
 }
-.spa_results_list {
-	margin-left: 10px;
-	font-size: 14px;
+.spa_location {
+	width: 130px;
+	display: inline-block;
 }
-
+.spa_location a {
+	color: #235d23;
+}
 #loader_container {
 	height: 40px;
 	position: absolute;

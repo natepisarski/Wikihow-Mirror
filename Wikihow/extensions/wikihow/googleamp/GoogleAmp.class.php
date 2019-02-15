@@ -698,6 +698,9 @@ class GoogleAmp {
 		$whAdLabelBottom = "";
 
 		$adsenseChannel = null;
+		if ( !ArticleTagList::hasTag( 'amp_disabled_pages', $pageId ) ) {
+			$adsenseChannel = 4198383040;
+		}
 		$dataLoadingStrategy = 'prefer-viewability-over-views';
 
 		// intro ad

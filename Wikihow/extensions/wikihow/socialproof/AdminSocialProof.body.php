@@ -55,11 +55,10 @@ class AdminSocialProof extends UnlistedSpecialPage {
 		$updateStats = MasterExpertSheetUpdate::getStats();
 		$updateStats = json_decode( $updateStats, 1 );
 
-		$result['stats'] = $updateStats['stats'];
-		$result['last_run_result'] = $updateStats['html'];
-		$result['errors'] = $updateStats['errors'];
-		$result['warnings'] = $updateStats['warnings'];
-		$result['info'] = $updateStats['info'];
+		$result['stats'] = $updateStats['stats'] ?? [];
+		$result['last_run_result'] = $updateStats['last_run_result'] ?? [];
+		$result['errors'] = $updateStats['errors'] ?? [];
+		$result['warnings'] = $updateStats['warnings'] ?? [];
 		$result['last_run_start']  = MasterExpertSheetUpdate::getLastRunStart();
 		$result['last_run_finish']  = MasterExpertSheetUpdate::getLastRunFinish();
 		$result['is_running']  = MasterExpertSheetUpdate::getCurrentStatus();
@@ -72,7 +71,7 @@ class AdminSocialProof extends UnlistedSpecialPage {
 		$out = $this->getOutput();
         $out->setPageTitle( "Social Proof Admin" );
         $vars = array();
-		$vars['sheetLink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I/';
+		$vars['sheetLink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/' . ExpertVerifyImporter::SHEET_ID;
         EasyTemplate::set_path( $path );
         $html = EasyTemplate::html( 'AdminSocialProof.tmpl.php', $vars );
 

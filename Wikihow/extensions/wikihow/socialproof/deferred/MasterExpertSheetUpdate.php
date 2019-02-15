@@ -48,7 +48,7 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		}
 		$dateTime = new DateTime($time);
 		$dateTime->setTimezone(new DateTimeZone('America/Los_Angeles'));
-		$result = $dateTime->format("Y-m-d h:i:s A (e)");
+		$result = $dateTime->format("M j \\a\\t H:i (T)");
 		return $result;
 	}
 
@@ -60,7 +60,7 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		}
 		$dateTime = new DateTime($time);
 		$dateTime->setTimezone(new DateTimeZone('America/Los_Angeles'));
-		$result = $dateTime->format("Y-m-d h:i:s A (e)");
+		$result = $dateTime->format("M j \\a\\t H:i (T)");
 		return $result;
 	}
 
@@ -103,9 +103,22 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		$dbw->update( 'master_expert_sheet_update', $updateData, array(), __METHOD__ );
 
 		$importer = new ExpertVerifyImporter();
-		$result = $importer->getSpreadsheet();
-		$result['html'] = "<p>Result: ". count( $result['imported'] ) ." lines imported.</p>";
+		$result = $importer->doImport();
+
+		$errors = count($result['errors']);
+		$warnings = count($result['warnings']);
+		$lines = count($result['imported']);
 		unset($result['imported']);
+		$success = "<span class='spa_okay'>Success ($lines lines imported)</span>";
+
+		if ($errors) {
+			$result['last_run_result'] = "<span class='spa_error'>Cancelled ($errors errors)</span>";
+		} elseif ($warnings) {
+			$result['last_run_result'] = "$success <span class='spa_warn'>($warnings warnings)</span>";
+		} else {
+			$result['last_run_result'] = "$success";
+		}
+
 		$result['stats'] = self::getVerifierStats();
 
 		$finishDate = gmdate( "Y-m-d H:i:s" );

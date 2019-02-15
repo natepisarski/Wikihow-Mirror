@@ -1370,7 +1370,7 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 		$this->mAdSetupData = array(
 			'rightrail2' => array(
 				'refreshable' => 1,
-				'first-refresh-time' => 45000,
+				'first-refresh-time' => 35000,
 				'refresh-time' => 28000,
 				'aps-timeout' => 800
 			),
@@ -1393,7 +1393,7 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 		);
 
 		if ( ( class_exists("WikihowToc") && ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) ) {
-			$this->mAdsenseSlots['method2'] = 7710650179;
+			$this->mAdsenseSlots['method2'] = 3356467874;
 			$this->mAdServices['method2'] = 'adsense';
 		}
 

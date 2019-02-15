@@ -5,7 +5,7 @@ use TokenBucket\Storage\StorageInterface;
 class WHMemcachedStorage implements StorageInterface
 {
     /**
-     * @var \MemcachedPhpBagOStuff|null
+     * @var \BagOStuff|null
      */
     private $memcachedObj = null;
 
@@ -17,7 +17,7 @@ class WHMemcachedStorage implements StorageInterface
 	}
 
 
-	public function __construct(\MemcachedPhpBagOStuff $memcachedObj)
+	public function __construct(\BagOStuff $memcachedObj)
     {
         $this->memcachedObj = $memcachedObj;
     }

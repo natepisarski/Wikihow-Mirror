@@ -212,6 +212,48 @@ function addClickHandlers() {
 			//e.preventDefault();
 			WH.ga.sendEvent('m-edit', 'pencil', mw.config.get('wgTitle'));
 		});
+
+		// Track hamburger clicks
+		$(document).on('click', '#mw-mf-main-menu-button', function() {
+			WH.maEvent('mobile_hamburger_menu_clicks');
+		});
+
+		// Track search clicks
+		var openCount = 0;
+		var closeCount = 0;
+		var hsCloseClicks = 0;
+		var open = $( '.hs_active' ).length > 0;
+		var pageType = 'other';
+		if ( wgIsArticle ) {
+			pageType = 'article';	
+		} else if ( wgTitle === 'LSearch' ) {
+			pageType = 'search';
+		} else if ( wgTitle === 'Main Page' ) {
+			pageType = 'main';
+		}
+		$('#hs_query').on( 'click', function ( e ) {
+			if ( !open ) {
+				openCount++;
+				open = true;
+				WH.maEvent( 'mobile_search_open', { count: openCount, pageType: pageType } );
+			}
+		} );
+		$('#hs_close').on( 'click', function ( e ) {
+			closeCount++;
+			open = false;
+			WH.maEvent( 'mobile_search_close', { count: closeCount, pageType: pageType } );
+		} );
+		var hsFormSubmitLogged = false;
+		$('#hs form').on( 'submit', function ( e ) {
+			if ( !hsFormSubmitLogged ) {
+				WH.maEvent( 'mobile_search_submit', { pageType: pageType }, function () {
+					hsFormSubmitLogged = true;
+					$('#hs form').submit();
+				} );
+				e.preventDefault();
+				return false;
+			}
+		} );
 }
 
 $(document).ready(function() {

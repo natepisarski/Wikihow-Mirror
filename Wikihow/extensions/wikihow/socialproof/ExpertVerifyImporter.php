@@ -2,7 +2,8 @@
 
 class ExpertVerifyImporter {
 	const SHEETS_URL = "https://docs.google.com/spreadsheets/d/";
-	const SHEET_ID = "19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I";
+	const SHEET_ID = "19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I"; // prod
+	const SHEET_ID_DEV = "18b4kYCe-NkkOrV30v-6sjRm3yUTigy1ULXwXDm24rKE";
 
 	const FEED_LINK = "https://spreadsheets.google.com/feeds/list/";
 	const FEED_LINK_2 = "/private/values?alt=json&access_token=";
@@ -17,26 +18,270 @@ class ExpertVerifyImporter {
 	const CPORTAL_PROD_FOLDER = '0B66Rhz56bzLHfllfVlJlTzNhRFJGOTNudnpDaFgxMkM5bmtLeUNFYjdxYmd4TUVKd3hIYWc';
 	const EXPIRED_ITEMS_FOLDER = '0B0oYgpQLcJkJdnY5Nk95SFFadkk';
 
-	const VLOOKUPDEV_SHEET_ID = 'oc5liec';
-
 	var $updateHistorical = true;
 	var $includeImages = false;
+
+	##################################
+	# Method Group 1
+	#
+	# These methods are used to import the 'Master Expert Verified' sheet into the DB.
+	# They are called by MasterExpertSheetUpdate via the AdminSocialProof special page.
+	##################################
+
+	public function doImport() {
+		global $wgIsDevServer;
+
+		$token = $this->getApiAccessToken();
+		$dbVerifiers = self::getVerifiersFromDB();
+		$result = ['errors' => [], 'warnings' => [], 'imported' => []];
+
+		$vlookupVerifiers = $this->importVerifierSheet($token, $dbVerifiers, $result);
+		$verifiedArticles = $this->importArticleVerificationsSheets($token, $vlookupVerifiers, $result);
+
+		if (!$result['errors']) {
+			VerifyData::replaceVerifierData( $vlookupVerifiers );
+			VerifyData::replaceData( $verifiedArticles );
+		}
+
+		// Schedule the maintenance for the Reverification tool. Use the Main-page title because we need a title
+		// in order for the job to work properly
+		$title = Title::newFromText('Main-Page');
+		$job = Job::factory('ReverificationMaintenanceJob', $title);
+		JobQueueGroup::singleton()->push($job);
+
+		return $result;
+	}
+
+	/**
+	 * Import article verifiers from "Vlookup".
+	 *
+	 * @param  $token        Google Docs API token
+	 * @param  $dbVerifiers  Existing verifiers, so we can detect removals
+	 * @param  &$result      To be populated with info/errors/warnings
+	 *
+	 * @return array         The verifiers that were imported
+	 */
+	private function importVerifierSheet( string $token, array $dbVerifiers, array &$result ) {
+		$vLookupSheetId = 'op2q2od';
+		$data = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $vLookupSheetId, self::FEED_LINK_2, $token );
+		$num = 1;
+		$verifierData = array();
+		foreach( $data as $row ) {
+			$num++;
+
+			$name = $row->{'gsx$people'}->{'$t'};
+			$verifierIdString = trim($row->{'gsx$verifierid'}->{'$t'});
+			$verifierId = (int) $verifierIdString;
+			$primaryBlurb = $row->{'gsx$primaryblurb'}->{'$t'};
+			$hoverBlurb = $row->{'gsx$hoverblurb'}->{'$t'};
+			$nameLink = trim($row->{'gsx$namelinkurlelizonly'}->{'$t'});
+			$userName = $row->{'gsx$portalusername'}->{'$t'};
+			$category = $row->{'gsx$category'}->{'$t'};
+			$image = $row->{'gsx$approvedimageurlelizonly'}->{'$t'};
+			$initials = $row->{'gsx$initials'}->{'$t'};
+
+			$href = self::getRowUrl('vlookup', $num);
+			$linkToRow = Html::rawElement('a', [ 'href'=>$href, 'target'=>'_blank' ], "vlookup: $num");
+			$rowInfo = "<span class='spa_location'>$linkToRow</span>";
+
+			if ( $verifierId <= 0) {
+				$result['errors'][] = "$rowInfo Invalid verifier ID: '$verifierIdString'";
+			} elseif ( isset($verifierData[$verifierId]) ) {
+				$result['errors'][] = "$rowInfo Duplicate verifier ID: '$verifierIdString'";
+			}
+			if ( !$name ) {
+				$result['errors'][] = "$rowInfo Empty verifier name";
+			}
+			if ( $nameLink && !filter_var($nameLink, FILTER_VALIDATE_URL) ) {
+				$result['errors'][] = "$rowInfo Invalid Name Link URL: '$nameLink'";
+			}
+
+			$verifyData = VerifyData::newVerifierFromAll( $verifierId, $name, $primaryBlurb, $hoverBlurb, $nameLink, $category, $image, $initials, $userName );
+			$verifierData[$verifierId] = $verifyData;
+		}
+
+		$rowInfo = "<span class='spa_location'>Vlookup</span>";
+		foreach ($dbVerifiers as $vID => $vName) {
+			if ( !isset($verifierData[$vID]) ) {
+				// TODO - ask user for confirmation, and then allow removals
+				$result['errors'][] = "$rowInfo Verifier was removed: id=$vID, name='$vName'";
+			}
+		}
+
+		return $verifierData;
+	}
+
+	/**
+	 * Import verified articles from: "Expert", "Academic", "YouTube", "Community",
+	 * "Video Team Verified", and "Chef Verified".
+	 *
+	 * @param  $token        Google Docs API token
+	 * @param  $vlVerifiers  Verifiers in 'Vlookup', so we can detect mismatches
+	 * @param  &$result      To be populated with info/errors/warnings
+	 *
+	 * @return void
+	 */
+	private function importArticleVerificationsSheets( string $token, array $vlVerifiers, array &$result ) {
+		$allRows = array(); // every row in every worksheet
+		$aids = array();    // article IDs every worksheet
+		$dups = array();    // duplicate article IDs
+
+		foreach ( self::getWorksheetIds() as $worksheetId => $worksheetName ) {
+			$rows = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $worksheetId, self::FEED_LINK_2, $token );
+			if ( !$rows || !is_array($rows) ) {
+				$result['errors'][] = "Unable to access worksheet '$worksheetName' (id=$worksheetId)";
+				continue;
+			}
+
+			$num = 1;
+			foreach( $rows as $row ) {
+				$skip = 1 === intval( $row->{'gsx$devleaveblankifnotdev'}->{'$t'} );
+				if ($skip) {
+					continue;
+				}
+
+				$row->worksheetName = $worksheetName;
+				$row->num = ++$num;
+				$aid = trim($row->{'gsx$articleid'}->{'$t'});
+				if ( isset($aids[$aid]) ) {
+					$dups[$aid] = 1;
+				}
+				$aids[$aid] = true;
+				$allRows[] = $row;
+			}
+		}
+
+		$verifDataByAID = array();
+		$titles = self::newFromIDsAssoc( $aids );
+
+		foreach( $allRows as $row ) {
+			$pageIdString = trim($row->{'gsx$articleid'}->{'$t'});
+			$pageId = (int) $pageIdString;
+
+			$verifierIdString = trim($row->{'gsx$verifierid'}->{'$t'});
+			$verifierId = (int) $verifierIdString;
+
+			$articleName = $row->{'gsx$articlename'}->{'$t'};
+			$verifierName = $row->{'gsx$verifiername'}->{'$t'};
+
+			$worksheetName = $row->worksheetName;
+
+			$href = self::getRowUrl($worksheetName, $row->num);
+			$link = Html::element('a', [ 'href'=>$href, 'target'=>'_blank' ], "$worksheetName: $row->num");
+			$rowInfo = "<span class='spa_location'>$link</span>";
+
+			// Data validation
+
+			$errors = [];
+
+			if ( $pageId <= 0 ) {
+				$result['errors'][] = "$rowInfo Invalid page ID: '$pageIdString'";
+			} else {
+				$title = $titles[$pageId];
+				if ( !$title ) {
+					$result['errors'][] = "$rowInfo Article not found: '$articleName' (id=$pageIdString)";
+				} elseif ( $title->isRedirect() ) {
+					$titleLink = Html::rawElement( 'a', ['href'=>$articleName], $title->getDBKey());
+					$result['warnings'][] = "$rowInfo Redirect: '$titleLink' (id=$pageIdString)";
+				}
+			}
+
+			if ( !in_array($worksheetName, ['chefverified', 'videoverified']) ) {
+				if ($verifierId <= 0) {
+					$result['errors'][] = "$rowInfo Invalid verifier ID: '$verifierIdString'";
+				} elseif ( !isset($vlVerifiers[$verifierId]) ) {
+					$result['errors'][] = "$rowInfo Verifier ID not found in Vlookup: '$verifierIdString'";
+				}
+				if (!$verifierName) {
+					$result['errors'][] = "$rowInfo Empty verifier name";
+				}
+			}
+
+			if ( isset($dups[$pageId]) ) {
+				$result['errors'][] = "$rowInfo Duplicate: '$articleName' (id=$pageIdString)";
+			}
+
+			if ( $worksheetName != 'chefverified' ) {
+				$revisionLink = $row->{'gsx$revisionlink'}->{'$t'};
+				$revId = $this->getRevId( $revisionLink );
+				if ( !$revId ) {
+					$result['errors'][] = "$rowInfo Invalid Revision Link: '$revisionLink'";
+				}
+			}
+
+			$t2 = Misc::getTitleFromText( $articleName );
+			if ( !$t2 || !$t2->exists() ) {
+				$result['warnings'][] = "$rowInfo Article Name not found: '$articleName' (id=$pageIdString)";
+			} else if ( $pageId != $t2->getArticleID() ) {
+				$key2 = $t2->getDBkey();
+				$id2 = $t2->getArticleID();
+				$result['warnings'][] = "$rowInfo Mismatch: 'ArticleID' is '$pageIdString', but the ID for '$key2' is $id2";
+			}
+
+			// Make a VerifyData object
+
+			if ( $worksheetName == "chefverified" ) { // this sheet has no verifier data
+				$verifyData = VerifyData::newFromWorksheetName( $worksheetName );
+			} else {
+				$date = $row->{'gsx$verifieddate'}->{'$t'};
+				$profileUrl = $row->{'gsx$verifierprofileurlifwewantpicture'}->{'$t'};
+				$whUserName = $this->getWhUserName( $profileUrl );
+				$primaryBlurb = $row->{'gsx$verifierprimaryblurb'}->{'$t'};
+				$hoverBlurb = $row->{'gsx$verifierhoverblurb'}->{'$t'};
+				$nameLink = $row->{'gsx$namelinkoptional'}->{'$t'};
+				$mainNameLink = $row->{'gsx$mainnamelinkoptional'}->{'$t'};
+				$blurbLink = $row->{'gsx$blurblinkoptional'}->{'$t'};
+
+				$verifyData = VerifyData::newFromAll( $verifierId, $date, $verifierName, $primaryBlurb,
+					$hoverBlurb, $whUserName, $nameLink, $mainNameLink, $blurbLink, $revId, $worksheetName );
+			}
+			$verifDataByAID[$pageId][] = $verifyData;
+			$result['imported'][] = [ $pageId => $verifyData ];
+		}
+
+		return $verifDataByAID;
+	}
+
+	private static function getVerifiersFromDB(): array {
+		$dbr = wfGetDB(DB_SLAVE);
+		$res = $dbr->select(VerifyData::VERIFIER_TABLE, ['vi_id', 'vi_name']);
+		$dbVerifiers = [];
+		foreach ($res as $row) {
+			$dbVerifiers[ (int) $row->vi_id ] = $row->vi_name;
+		}
+		return $dbVerifiers;
+	}
+
+	// the ids of the 3 worksheets on the expert verify spreadsheet
+	public static function getWorksheetIds() {
+		return [
+			'od6'     => 'expert',
+			'oc6ksye' => 'academic',
+			'o3x9v8q' => 'video',
+			'ocopjuk' => 'community',
+			'onbrokt' => 'videoverified',
+			'oy6rv04' => 'chefverified',
+		];
+	}
+
+	private static function getRowUrl(string $worksheet, int $row): string {
+		$gids = [
+			'vlookup' => '1516230615',
+			'expert' => '0',
+			'academic' => '736642124',
+			'video' => '237286064',
+			'community' => '767097190',
+			'videoverified' => '1410489847',
+			'chefverified' => '2067227246',
+		];
+		$gid = $gids[$worksheet] ?? 'worksheet_id_not_found';
+		return self::SHEETS_URL . self::SHEET_ID . "/edit#gid={$gid}&range=A{$row}";
+	}
 
 	private function getRevId( $revisionLink ) {
 		$output = array();
 		parse_str( $revisionLink, $output );
 		return $output['oldid'];
-	}
-
-	// the ids of the 3 worksheets on the expert verify spreadsheet
-	public static function getWorksheetIds() {
-		global $wgIsDevServer;
-		$result = array( "ocopjuk" => "community", "oc6ksye" => "academic", "od6" => "expert", "oy6rv04" => "chefverified", "o3x9v8q" => "video", 'onbrokt' => 'videoverified' );
-		//$result = array( 'onbrokt' => 'videoverified' );
-		if ( $wgIsDevServer ) {
-			$result["o3p076"] = "dev";
-		}
-		return $result;
 	}
 
 	private function getApiAccessToken() {
@@ -79,48 +324,6 @@ class ExpertVerifyImporter {
 		return $sheetData;
 	}
 
-	private function getMasterExpertSheetMainTabsData( $token ) {
-		$data = array();
-		foreach ( self::getWorksheetIds() as $worksheetId => $worksheetName ) {
-			$sheetData = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $worksheetId, self::FEED_LINK_2, $token );
-			if ( !$sheetData || !is_array( $sheetData ) ) {
-				continue;
-			}
-			// update the sheet data to also include the worksheet name for use later
-			foreach( $sheetData as $row ) {
-				$row->worksheetName = $worksheetName;
-			}
-			$data = array_merge( $data, $sheetData );
-		}
-		return $data;
-	}
-
-	public function getSpreadsheet() {
-		global $wgIsDevServer;
-
-		$token = $this->getApiAccessToken();
-
-		// get the data from the spreadsheet
-		$mainTabsData = $this->getMasterExpertSheetMainTabsData( $token );
-
-		// now parse that data
-		$result = $this->parseGoogleResponse( $mainTabsData );
-
-		//now get vlookup sheet
-		$vLookupSheetId = 'op2q2od';
-
-		$vLookupData = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $vLookupSheetId, self::FEED_LINK_2, $token );
-		$result = array_merge_recursive( $result, $this->parseGoogleVerifierResponse( $vLookupData ) );
-
-		// Schedule the maintenance for the Reverification tool.  Use the Main-page title because we need a title
-		// in order for the job to work properly
-		$title = Title::newFromText('Main-Page');
-		$job = Job::factory('ReverificationMaintenanceJob', $title);
-		JobQueueGroup::singleton()->push($job);
-
-		return $result;
-	}
-
 	private	function getWhUserName( $profileUrl ) {
 		if ( $profileUrl ) {
 			$pieces = explode( "User:", $profileUrl );
@@ -132,35 +335,12 @@ class ExpertVerifyImporter {
 	}
 
 	/**
-	 * Get the prefixed DB key associated with an ID
-	 *
-	 * @param int $id the page_id of the article
-	 * @return boolean the value of is_redirect for a given id
-	 */
-	public static function isPageIdRedirect( $id ) {
-		$dbr = wfGetDB( DB_SLAVE );
-
-		$r = $dbr->selectField(
-			'page',
-			array( 'page_is_redirect' ),
-			array( 'page_id' => $id ),
-			__METHOD__
-		);
-
-		if ( $r === false ) {
-			return null;
-		}
-
-		return $r;
-	}
-
-	/**
 	 * Make an associative array of titles from an array of IDs
 	 *
 	 * @param array $ids of Int Array of IDs
 	 * @return Array of Titles with key of the id
 	 */
-	public static function newFromIDsAssoc( $ids ) {
+	private static function newFromIDsAssoc( $ids ) {
 		if ( !count( $ids ) ) {
 			return array();
 		}
@@ -174,7 +354,7 @@ class ExpertVerifyImporter {
 		$res = $dbr->select(
 			'page',
 			$fields,
-			array( 'page_id' => $ids ),
+			array( 'page_id' => array_keys($ids) ),
 			__METHOD__
 		);
 
@@ -185,161 +365,285 @@ class ExpertVerifyImporter {
 		return $titles;
 	}
 
-	private function parseGoogleResponse( $data ) {
-		global $wgIsDevServer;
+	##################################
+	# Method Group 2
+	#
+	# These methods are used to manipulate Google Docs.
+	# Some users:
+	#     prod/extensions/wikihow/ContentPortal/lib/GoogleDoc.php
+	#     prod/extensions/wikihow/reverification/reverification_tool/Reverification.body.php
+	#     prod/extensions/wikihow/socialproof/AdminExpertDoc.body.php
+	#     prod/extensions/wikihow/socialproof/ExpertVerifyImporter.php
+	#     prod/maintenance/wikihow/updateDriveFilePermissions.php
+	##################################
 
-		$result = array('errors' => array(), 'warnings'=>array(), 'info'=>array(), 'imported'=>array());
-
-		$dataRows = array();
-		$avIds = array();
-		$pageIds = array();
-		$titles = array();
-
-		$ids = array();
-		foreach( $data as $row ) {
-			$ids[]= $row->{'gsx$articleid'}->{'$t'};
-		}
-		$titles = self::newFromIDsAssoc( $ids );
-
-		foreach( $data as $row ) {
-			$worksheetName = $row->worksheetName;
-
-			$dev = intval( $row->{'gsx$devleaveblankifnotdev'}->{'$t'} );
-			if ( $dev === 1 && !$wgIsDevServer ) {
-				$articleName = $row->{'gsx$articlename'}->{'$t'};
-				//$result['info'][] = "$articleName is marked as dev on $worksheetName";
-				continue;
-			}
-
-			$articleName = $row->{'gsx$articlename'}->{'$t'};
-
-			// if this is the chefverified sheet we can return early since it has no reviewer data
-			if ( $worksheetName == "chefverified" ) {
-				// we got the article name we don't need to get any other data
-				$pageId = $row->{'gsx$articleid'}->{'$t'};
-
-				// we should have the page id if not just figure it out
-				// although this takes forever so it is NOT recommended
-				if ( !$pageId ) {
-					$result['warnings'][] = "Specify article id for <b>$articleName</b> on Chef/Video Verified sheet for faster performance.";
-					$title = Misc::getTitleFromText( $articleName );
-					$pageId = $title->getArticleID();
-					$titles[$pageId] = $title;
-				}
-
-				$verifyData = VerifyData::newFromWorksheetName( $worksheetName );
-				$pageIds[$pageId][] = $verifyData;
-				$result['imported'][] = array( $pageId=>$verifyData );
-				continue;
-			}
-
-			$date = $row->{'gsx$verifieddate'}->{'$t'};
-			$name = $row->{'gsx$verifiername'}->{'$t'};
-			$pageId = $row->{'gsx$articleid'}->{'$t'};
-			if ( !$name && $worksheetName != 'videoverified' ) {
-				continue;
-			}
-			$primaryBlurb = $row->{'gsx$verifierprimaryblurb'}->{'$t'};
-			$hoverBlurb = $row->{'gsx$verifierhoverblurb'}->{'$t'};
-
-			$profileUrl = $row->{'gsx$verifierprofileurlifwewantpicture'}->{'$t'};
-			$whUserName = $this->getWhUserName( $profileUrl );
-
-			$revisionLink = $row->{'gsx$revisionlink'}->{'$t'};
-			$revId = $this->getRevId( $revisionLink );
-			if ( !$revId ) {
-				$result['errors'][] = "No revision id found for article: $articleName";
-				continue;
-			}
-
-			// check that the article name matches the page id
-			if ( $dev !== 1 ) {
-				$title = $titles[$pageId];
-				if ( !$title ) {
-					$result['warnings'][] = "No title matches ID <b>$pageId</b>.  Entered name is: <b>$articleName</b>";
-				} else {
-					$isRedirect = $title->isRedirect();
-					if ( $isRedirect ) {
-						$titleLink = Html::rawElement( 'a', array( 'href'=>$articleName ), $articleName );
-						$result['warnings'][] = "$titleLink : $pageId is a redirect.";
-					}
-
-					$titleFromName = Misc::getTitleFromText( $articleName );
-
-					if ( !$titleFromName || !$titleFromName->exists() ) {
-						$result['warnings'][] = "ArticleName not found.  ArticleName: <b>$articleName</b> does not exist. ArticleID: <b>$pageId</b>.  ";
-					} else if ( $pageId != $titleFromName->getArticleID() ) {
-						$articleID = $titleFromName->getArticleID();
-						$result['warnings'][] = "article ID mismatch.  ArticleID: <b>$pageId</b> but ArticleName: <b>{$titleFromName->getDBkey()}</b> has ID of <b>{$titleFromName->getArticleID()}</b> .";
-					}
-				}
-			}
-
-			$nameLink = $row->{'gsx$namelinkoptional'}->{'$t'};
-			$mainNameLink = $row->{'gsx$mainnamelinkoptional'}->{'$t'};
-
-			$blurbLink = $row->{'gsx$blurblinkoptional'}->{'$t'};
-
-			$verifyData = VerifyData::newFromAll( $date, $name, $primaryBlurb, $hoverBlurb, $whUserName, $nameLink, $mainNameLink, $blurbLink, $revId, $worksheetName );
-			$pageIds[$pageId][] = $verifyData;
-			$result['imported'][] = array( $pageId=>$verifyData );
+	// create an expert google doc for use by experts to review
+	// params:
+	// $service - the google php api service which can be obtained by the getService function
+	//          - used for doing the api calls to google
+	// $article - the name of an article (as a url or just a title (or even a page id will work)
+	// $name - the name of a user to create the doc for..it will be used in the title of the doc
+	// $context - a context object which is used to get the wikitext output
+	public function createExpertDoc( $service = null, $article, $name, $context, $folderId=self::EXPERT_FEEDBACK_FOLDER_ID ) {
+		$title = Misc::getTitleFromText( $article );
+		if ( !$title ) {
+			return null;
 		}
 
-		foreach ( $pageIds as $pageId => $verifyDataResults ) {
-			if ( count( $verifyDataResults ) > 1 ) {
-				$count = count( $verifyDataResults );
-				$title = $titles[$pageId];
-				if ( $title ) {
-					$a = Html::rawElement( "a", array( 'href'=>$title->getLinkURL() ), "http://www.wikihow.com/{$title->getPartialURL()}" );
-					$result['info'][] = "$a has $count verifiers.";
-				}
-			}
+		if (is_null($service)) {
+			$service = $this->getService();
 		}
 
-		VerifyData::replaceData( $pageIds );
+		$titleText = $this->getExpertDocTitle( $article, $name );
 
-		return $result;
+		$file = new Google_Service_Drive_DriveFile();
+		$file->setTitle($titleText);
+		$file->setDescription($name);
+
+		$parent = new Google_Service_Drive_ParentReference();
+		$parent->setId( $folderId );
+		$file->setParents( array( $parent ) );
+		$data = $this->getExpertDocContent( $title, $article, $name, $context->getOutput() );
+
+		$createdFile = $service->files->insert($file, array(
+			'data' => $data,
+			'mimeType' => 'text/html',
+			'uploadType' => 'multipart',
+			'convert' => 'true'
+		));
+
+		// set permissions on new file
+		$newPermission = new Google_Service_Drive_Permission();
+		$newPermission->setRole( 'reader' );
+		$newPermission->setType( 'anyone' );
+		$newPermission->setWithLink( true );
+		$newPermission->setAdditionalRoles( array( 'commenter' ) );
+		$service->permissions->insert($createdFile->id, $newPermission);
+
+		//$permissions = $service->permissions->listPermissions($createdFile->id);
+
+		return $createdFile;
 	}
 
-	private function validateHTML( $input, &$errors ) {
-		$html = '<!DOCTYPE html><html><head><title>test</title></head><body>' . $input . '</body></html>';
-		return MWTidy::checkErrors( $html, $errors );
+	/*
+	 * this function gets items older than 6 months from a list of folders then:
+	 * removes the anyoneWithLink permission
+	 * removes the anyone permission
+	 * removes the old parents
+	 * moves the file to a new folder
+	 */
+	public function fixPermissions($maxResults = 100) {
+		$service = $this->getService();
+
+		$oldParents = array(
+			self::CPORTAL_PROD_FOLDER,
+			self::EXPERT_FEEDBACK_FOLDER_ID,
+		);
+
+		$newParent = new Google_Service_Drive_ParentReference();
+		$newParent->setId( self::EXPIRED_ITEMS_FOLDER );
+
+		$datetime = date( "c", strtotime( "-6 months" ) );
+
+		$processedCount = 0;
+		foreach ( $oldParents as $oldParent ) {
+			if ( $processedCount >= $maxResults ) {
+				break;
+			}
+			$maxResults = $maxResults - $processedCount;
+			$parameters = array( 'maxResults' => $maxResults );
+			$parameters['q'] =  "('$oldParent' in parents) and modifiedDate < '$datetime'";
+			decho("searching with q", $parameters['q']);
+			$fileList = $service->files->listFiles( $parameters );
+			$files = $fileList->items;
+			foreach( $files as $file ) {
+				decho("id", $file->id, false);
+				//$permissions = $service->permissions->listPermissions($createdFile->id);
+
+				//delete anyone permissions
+				try {
+					$service->permissions->delete( $file->id, 'anyone' );
+				} catch ( Google_Service_Exception $e ) {
+				}
+
+				try {
+					$service->permissions->delete( $file->id, 'anyoneWithLink' );
+				} catch ( Google_Service_Exception $e ) {
+				}
+				$service->parents->insert( $file->id, $newParent );
+
+				try {
+					//delete old parent
+					$service->parents->delete( $file->id, $oldParent );
+				} catch ( Google_Service_Exception $e ) {
+				}
+
+				try {
+					$service->parents->insert( $file->id, $newParent );
+				} catch ( Google_Service_Exception $e ) {
+					decho("could not add parent", $e, false);
+				}
+				$processedCount++;
+			}
+		}
+
+		return $processedCount;
 	}
 
+	// on old docs, update the permissions so only wikihow can view
+	public function updatePermissions( $context ) {
+		$request = $context->getRequest();
+		$service = $this->getService();
 
-	private function parseGoogleVerifierResponse( $data ) {
-		$result = array('errors' => array(), 'warnings'=>array(), 'info'=>array(), 'imported'=>array());
+		// round 1..just fix the permissions
+		$this->fixPermissions( $service );
+		exit;
 
-		$dataRows = array();
-		foreach( $data as $row ) {
+	}
 
-			$name = $row->{'gsx$people'}->{'$t'};
-			if ( !$name ) {
+	public function moveFiles( $context ) {
+		$request = $context->getRequest();
+		$service = $this->getService();
+
+		$ids = $request->getArray( 'articles' );
+
+		$folderId = self::CPORTAL_PROD_FOLDER;
+		$oldFolderId = self::DRIVE_ROOT_FOLDER;
+
+		$newParent = new Google_Service_Drive_ParentReference();
+		$newParent->setId( $folderId );
+
+		$processed = 0;
+		$max = 1000;
+		foreach ( $ids as $fileId ) {
+			if ( !$fileId ) {
 				continue;
 			}
 
-			$primaryBlurb = $row->{'gsx$primaryblurb'}->{'$t'};
-			$hoverBlurb = $row->{'gsx$hoverblurb'}->{'$t'};
-			$nameLink = $row->{'gsx$namelinkurlelizonly'}->{'$t'};
-			$userName = $row->{'gsx$portalusername'}->{'$t'};
+			// add new parent
+			$service->parents->insert( $fileId, $newParent );
 
-			if ( trim( $nameLink ) && !filter_var( trim( $nameLink ), FILTER_VALIDATE_URL ) ) {
-				$errors = '';
-				$valid = self::validateHTML( $nameLink, $errors );
-				if ( !$valid ) {
-					$result['errors'][] ="vlookup: nameLink HTML error for name " . $name . "<br>" . $errors;
-				}
+			//delete old parent
+			$service->parents->delete( $fileId, $oldFolderId );
+
+			$processed++;
+
+			// stop after the first one for now
+			if ( $processed >= $max ) {
+				break;
 			}
-			$category = $row->{'gsx$category'}->{'$t'};
-			$image = $row->{'gsx$approvedimageurlelizonly'}->{'$t'};
-			$initials = $row->{'gsx$initials'}->{'$t'};
+		}
+	}
 
-			$verifyData = VerifyData::newVerifierFromAll( $name, $primaryBlurb, $hoverBlurb, $nameLink, $category, $image, $initials, $userName );
-			$dataRows[$name] = $verifyData;
+	// create multiple docs
+
+	// this function uses a $context and expects there to be request variables
+	// which provide one or more article names and an expet name
+	public function createExpertDocs( $context ) {
+		$request = $context->getRequest();
+		$service = $this->getService();
+
+		$name = $request->getVal( 'name' );
+		$articles = $request->getArray( 'articles' );
+		$articles = array_filter( $articles );
+
+		$this->includeImages = $request->getFuzzyBool( 'images' );
+
+		$files = array();
+		foreach ( $articles as $article ) {
+			$file = $this->createExpertDoc( $service, $article, $name, $context );
+			if ( !$file ) {
+				$files[] = array(
+					"title" => $article,
+					"error"=>"Error: cannot make title from ".$article);
+			} else {
+				$files[] = $file;
+			}
 		}
 
-		VerifyData::replaceVerifierData( $dataRows );
+		return $files;
+	}
 
+	public function listExpertDocParents( $context ) {
+		// only acts on first id in list
+		$request = $context->getRequest();
+		$ids = $request->getArray( 'articles' );
+		$service = $this->getService();
+		$parents = array();
+		foreach ( $ids as $fileId ) {
+			if ( !$fileId ) {
+				continue;
+			}
+			$parents = $service->parents->listParents( $fileId );
+			break;
+		}
+		//for now just echo the result since we haven't implemented the javascript handling
+		decho('parents', $parents);
+		exit();
+		return $parents;
+	}
+
+	// get list of expert docs
+	public function listExpertDocs( $context ) {
+		$request = $context->getRequest();
+		$ids = $request->getArray( 'articles' );
+		if ( count( $ids ) > 0 && $ids[0] ) {
+			return $this->getFiles( $context );
+		}
+
+		$service = $this->getService();
+
+		$parameters = array();
+		//$parentId = self::EXPERT_FEEDBACK_FOLDER_ID;
+		$parentId = self::CPORTAL_PROD_FOLDER;
+		$parameters['q'] =  "'$parentId' in parents";
+		//$parameters['q'] =  "'$parentId' in parents and title = 'Kiss'";
+		//$parameters['maxResults'] = 500;
+
+		$fileList = $service->files->listFiles($parameters);
+
+		$files = $fileList->items;
+
+		// Order  by createdDate desc. Do this locally since createdDate is not a valid
+		// parameter for listing files
+		usort($files, function($a, $b) {
+			$a = $a->createdDate;
+			$b = $b->createdDate;
+			if ($a == $b) {
+				return 0;
+			}
+			return ($a > $b) ? -1 : 1;
+		});
+
+		return  $files;
+	}
+
+	public function deleteExpertDocs( $context ) {
+		$request = $context->getRequest();
+		$service = $this->getService();
+		$result = array();
+
+		$ids = $request->getArray( 'articles' );
+
+		$count = 0;
+		foreach ( $ids as $id ) {
+			if ( !$id ) {
+				continue;
+			}
+			// can't delete special sheets
+			if ( $id == self::SHEET_ID ) {
+				continue;
+			}
+			if ( $id == self::EXPERT_FEEDBACK_FOLDER_ID ) {
+				continue;
+			}
+			if ( $id == self::COMMUNITY_VERIFY_SHEET_ID ) {
+				continue;
+			}
+			$service->files->delete($id);
+			$count++;
+		}
+		$result[] = array( "status" => "$count file(s) deleted" );
 		return $result;
 	}
 
@@ -393,7 +697,7 @@ class ExpertVerifyImporter {
 		return $result;
 	}
 
-	public static function getSubmittedQuestions( $title, $approved, $limit ) {
+	private static function getSubmittedQuestions( $title, $approved, $limit ) {
 		$dbr = wfGetDB(DB_SLAVE);
 		$table =  QADB::TABLE_SUBMITTED_QUESTIONS;
 		$vars = array('qs_question');
@@ -519,193 +823,21 @@ class ExpertVerifyImporter {
 		return $result;
 	}
 
-	// create an expert google doc for use by experts to review
-	// params:
-	// $service - the google php api service which can be obtained by the getService function
-	//          - used for doing the api calls to google
-	// $article - the name of an article (as a url or just a title (or even a page id will work)
-	// $name - the name of a user to create the doc for..it will be used in the title of the doc
-	// $context - a context object which is used to get the wikitext output
-	public function createExpertDoc( $service = null, $article, $name, $context, $folderId=self::EXPERT_FEEDBACK_FOLDER_ID ) {
-		$title = Misc::getTitleFromText( $article );
-		if ( !$title ) {
-			return null;
-		}
-
-		if (is_null($service)) {
-			$service = $this->getService();
-		}
-
-		$titleText = $this->getExpertDocTitle( $article, $name );
-
-		$file = new Google_Service_Drive_DriveFile();
-		$file->setTitle($titleText);
-		$file->setDescription($name);
-
-		$parent = new Google_Service_Drive_ParentReference();
-		$parent->setId( $folderId );
-		$file->setParents( array( $parent ) );
-		$data = $this->getExpertDocContent( $title, $article, $name, $context->getOutput() );
-
-		$createdFile = $service->files->insert($file, array(
-			'data' => $data,
-			'mimeType' => 'text/html',
-			'uploadType' => 'multipart',
-			'convert' => 'true'
-		));
-
-		// set permissions on new file
-		$newPermission = new Google_Service_Drive_Permission();
-		$newPermission->setRole( 'reader' );
-		$newPermission->setType( 'anyone' );
-		$newPermission->setWithLink( true );
-		$newPermission->setAdditionalRoles( array( 'commenter' ) );
-		$service->permissions->insert($createdFile->id, $newPermission);
-
-		//$permissions = $service->permissions->listPermissions($createdFile->id);
-
-		return $createdFile;
-	}
-
-    /*
-     * this function gets items older than 6 months from a list of folders then:
-     * removes the anyoneWithLink permission
-     * removes the anyone permission
-     * removes the old parents
-     * moves the file to a new folder
-     */
-	public function fixPermissions($maxResults = 100) {
-		$service = $this->getService();
-
-        $oldParents = array(
-            self::CPORTAL_PROD_FOLDER,
-            self::EXPERT_FEEDBACK_FOLDER_ID,
-        );
-
-		$newParent = new Google_Service_Drive_ParentReference();
-		$newParent->setId( self::EXPIRED_ITEMS_FOLDER );
-
-		$datetime = date( "c", strtotime( "-6 months" ) );
-
-        $processedCount = 0;
-        foreach ( $oldParents as $oldParent ) {
-            if ( $processedCount >= $maxResults ) {
-                break;
-            }
-            $maxResults = $maxResults - $processedCount;
-            $parameters = array( 'maxResults' => $maxResults );
-            $parameters['q'] =  "('$oldParent' in parents) and modifiedDate < '$datetime'";
-            decho("searching with q", $parameters['q']);
-            $fileList = $service->files->listFiles( $parameters );
-            $files = $fileList->items;
-            foreach( $files as $file ) {
-                decho("id", $file->id, false);
-                //$permissions = $service->permissions->listPermissions($createdFile->id);
-
-                //delete anyone permissions
-                try {
-                    $service->permissions->delete( $file->id, 'anyone' );
-                } catch ( Google_Service_Exception $e ) {
-                }
-
-                try {
-                    $service->permissions->delete( $file->id, 'anyoneWithLink' );
-                } catch ( Google_Service_Exception $e ) {
-                }
-                $service->parents->insert( $file->id, $newParent );
-
-                try {
-                    //delete old parent
-                    $service->parents->delete( $file->id, $oldParent );
-                } catch ( Google_Service_Exception $e ) {
-                }
-
-                try {
-                    $service->parents->insert( $file->id, $newParent );
-                } catch ( Google_Service_Exception $e ) {
-                    decho("could not add parent", $e, false);
-                }
-                $processedCount++;
-            }
-        }
-
-		return $processedCount;
-	}
-
-	// on old docs, update the permissions so only wikihow can view
-	public function updatePermissions( $context ) {
+	private function getFiles( $context ) {
 		$request = $context->getRequest();
-		$service = $this->getService();
-
-		// round 1..just fix the permissions
-		$this->fixPermissions( $service );
-		exit;
-
-	}
-
-	public function moveFiles( $context ) {
-		$request = $context->getRequest();
-		$service = $this->getService();
-
 		$ids = $request->getArray( 'articles' );
-
-		$folderId = self::CPORTAL_PROD_FOLDER;
-		$oldFolderId = self::DRIVE_ROOT_FOLDER;
-
-		$newParent = new Google_Service_Drive_ParentReference();
-		$newParent->setId( $folderId );
-
-		$processed = 0;
-		$max = 1000;
+		$service = $this->getService();
+		$files = array();
 		foreach ( $ids as $fileId ) {
 			if ( !$fileId ) {
 				continue;
 			}
-
-			// add new parent
-			$service->parents->insert( $fileId, $newParent );
-
-			//delete old parent
-			$service->parents->delete( $fileId, $oldFolderId );
-
-			$processed++;
-
-			// stop after the first one for now
-			if ( $processed >= $max ) {
-				break;
-			}
+			$files[] = $service->files->get( $fileId );
 		}
-	}
-
-	// create multiple docs
-
-	// this function uses a $context and expects there to be request variables
-	// which provide one or more article names and an expet name
-	public function createExpertDocs( $context ) {
-		$request = $context->getRequest();
-		$service = $this->getService();
-
-		$name = $request->getVal( 'name' );
-		$articles = $request->getArray( 'articles' );
-		$articles = array_filter( $articles );
-
-		$this->includeImages = $request->getFuzzyBool( 'images' );
-
-		$files = array();
-		foreach ( $articles as $article ) {
-			$file = $this->createExpertDoc( $service, $article, $name, $context );
-			if ( !$file ) {
-				$files[] = array(
-					"title" => $article,
-					"error"=>"Error: cannot make title from ".$article);
-			} else {
-				$files[] = $file;
-			}
-		}
-
 		return $files;
 	}
 
+	/* Not used (Alberto, 2019-01)
 	// get list of expert docs
 	public function updateFolderPermission( $context ) {
 		$request = $context->getRequest();
@@ -721,102 +853,6 @@ class ExpertVerifyImporter {
 		$service->permissions->insert(self::CPORTAL_PROD_FOLDER, $newPermission);
 		return;
 	}
-
-	public function getFiles( $context ) {
-		$request = $context->getRequest();
-		$ids = $request->getArray( 'articles' );
-		$service = $this->getService();
-		$files = array();
-		foreach ( $ids as $fileId ) {
-			if ( !$fileId ) {
-				continue;
-			}
-			$files[] = $service->files->get( $fileId );
-		}
-		return $files;
-	}
-
-	public function listExpertDocParents( $context ) {
-		// only acts on first id in list
-		$request = $context->getRequest();
-		$ids = $request->getArray( 'articles' );
-		$service = $this->getService();
-		$parents = array();
-		foreach ( $ids as $fileId ) {
-			if ( !$fileId ) {
-				continue;
-			}
-			$parents = $service->parents->listParents( $fileId );
-			break;
-		}
-		//for now just echo the result since we haven't implemented the javascript handling
-		decho('parents', $parents);
-		exit();
-		return $parents;
-	}
-
-	// get list of expert docs
-	public function listExpertDocs( $context ) {
-		$request = $context->getRequest();
-		$ids = $request->getArray( 'articles' );
-		if ( count( $ids ) > 0 && $ids[0] ) {
-			return $this->getFiles( $context );
-		}
-
-		$service = $this->getService();
-
-		$parameters = array();
-		//$parentId = self::EXPERT_FEEDBACK_FOLDER_ID;
-		$parentId = self::CPORTAL_PROD_FOLDER;
-		$parameters['q'] =  "'$parentId' in parents";
-		//$parameters['q'] =  "'$parentId' in parents and title = 'Kiss'";
-		//$parameters['maxResults'] = 500;
-
-		$fileList = $service->files->listFiles($parameters);
-
-		$files = $fileList->items;
-
-		// Order  by createdDate desc. Do this locally since createdDate is not a valid
-		// parameter for listing files
-		usort($files, function($a, $b) {
-			$a = $a->createdDate;
-			$b = $b->createdDate;
-			if ($a == $b) {
-				return 0;
-			}
-			return ($a > $b) ? -1 : 1;
-		});
-		
-		return  $files;
-	}
-
-	public function deleteExpertDocs( $context ) {
-		$request = $context->getRequest();
-		$service = $this->getService();
-		$result = array();
-
-		$ids = $request->getArray( 'articles' );
-
-		$count = 0;
-		foreach ( $ids as $id ) {
-			if ( !$id ) {
-				continue;
-			}
-			// can't delete special sheets
-			if ( $id == self::SHEET_ID ) {
-				continue;
-			}
-			if ( $id == self::EXPERT_FEEDBACK_FOLDER_ID ) {
-				continue;
-			}
-			if ( $id == self::COMMUNITY_VERIFY_SHEET_ID ) {
-				continue;
-			}
-			$service->files->delete($id);
-			$count++;
-		}
-		$result[] = array( "status" => "$count file(s) deleted" );
-		return $result;
-	}
+	*/
 
 }

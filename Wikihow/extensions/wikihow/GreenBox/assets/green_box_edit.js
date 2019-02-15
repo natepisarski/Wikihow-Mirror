@@ -5,6 +5,7 @@
 		tool_url: '/Special:GreenBoxEditTool',
 		step: null,
 		deleting: false,
+		short_marker: 'SHORT',
 
 		init: function(step) {
 			this.step = step;
@@ -119,8 +120,10 @@
 			var edit_type = 'green_box'; //default;
 
 			if (green_box_data.green_box_expert.length) {
-				if (green_box_data.green_box_content_2.length)
-					edit_type = 'green_box_expert_qa'
+				if (green_box_data.green_box_content_2 == this.short_marker)
+					edit_type = 'green_box_expert_short';
+				else if (green_box_data.green_box_content_2.length)
+					edit_type = 'green_box_expert_qa';
 				else
 					edit_type = 'green_box_expert';
 			}
@@ -251,6 +254,16 @@
 				//no Answer needed...
 				$('#green_box_edit_content_2').val('');
 			}
+			else if ($('#green_box_type').val() == 'green_box_expert_short') {
+				//need an expert
+				if ($('#green_box_edit_expert').val() == '0') err = mw.message('green_box_error_no_expert').text();
+
+				//has to be less than 140 characters
+				if ($('#green_box_edit_content').val().length > 140) err = mw.message('green_box_error_too_long').text();
+
+				//add a marker to show this is a short quote
+				$('#green_box_edit_content_2').val(this.short_marker);
+			}
 			else if ($('#green_box_type').val() == 'green_box_expert_qa') {
 
 				if ($('#green_box_edit_expert').val() == '0') //need an expert
@@ -297,6 +310,11 @@
 		changeGreenBoxType: function() {
 			var type = $('#green_box_type').val();
 			$('#green_box_edit_tool').removeClass().addClass(type+'_edit_type');
+
+			//HACK: there's a chance we're moving from Short Quote to Q&A
+			//so we'll need to remove the "SHORT" marker
+			if (type == 'green_box_expert_qa' && $('#green_box_edit_content_2').val() == this.short_marker)
+				$('#green_box_edit_content_2').val('');
 		}
 	}
 

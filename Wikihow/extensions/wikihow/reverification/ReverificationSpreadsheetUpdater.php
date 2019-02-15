@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Updates the Master Expert Verified spreadsheet with the latest reverifications.  Spreadsheet can be found here:
- * https://docs.google.com/spreadsheets/d/19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I/edit#gid=1516230615
+ * Updates the Master Expert Verified spreadsheet with the latest reverifications.
+ * Spreadsheet ID: ExpertVerifyImporter::SHEET_ID
  */
 class ReverificationSpreadsheetUpdater {
 
@@ -215,11 +215,8 @@ class ReverificationSpreadsheetUpdater {
 		];
 		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
 
-		if ($wgIsProduction) {
-			$fileId = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod file
-		} else {
-			$fileId = '1lSJt2B922mIH7A-rh8LXhJ7qnIDxPqp-wM6Ly-OEPzA'; // dev file
-		}
+		$fileId = $wgIsProduction ? ExpertVerifyImporter::SHEET_ID : ExpertVerifyImporter::SHEET_ID_DEV;
+
 		$file = $client->file($fileId);
 
 		return $file;
