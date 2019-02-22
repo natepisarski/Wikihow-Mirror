@@ -1,0 +1,64 @@
+button {
+	font-size: 16px;
+	padding: 0.5em;
+}
+#new-prob {
+	font-size: 16px;
+	padding: 0.5em;
+}
+
+p {
+	padding: 5px;
+}
+
+h3 {
+	padding: 5px;
+	color: #666;
+}
+
+#url-list table { width: 100%; }
+#url-list td {
+	background-color: #EEE;
+	padding: 5px;
+}
+#url-list td.x { text-align: center; }
+
+#cs-edit, #cs-add {
+    box-sizing: border-box;
+}
+
+#new-key {
+	font-size: 16px;
+	padding: 5px;
+}
+
+.admin-result {
+	background-color: #eee;
+}
+
+#reload-page {
+	display: none;
+}
+
+#article-list-notice {
+	display:none;
+	font-style: italic;
+}
+
+#edit-restriction {
+	font-weight: bold;
+}
+
+td {
+	vertical-align: top;
+}
+tr:nth-child(even) {
+	background: #EEE;
+}
+th {
+	background: #e5eedd;
+}
+
+.underline {
+	text-decoration: underline;
+}

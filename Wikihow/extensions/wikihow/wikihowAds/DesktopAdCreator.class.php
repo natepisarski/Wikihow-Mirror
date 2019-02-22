@@ -41,6 +41,7 @@ abstract class DesktopAdCreator {
 	var $mStickyIntro = false;
 	var $mDFPKeyVals = array();
 	var $mRefreshableRightRail = false;
+	var $mAdsenseAutoAds = false;
 
 	public function getPreContentAdHtml() {
 		return "";
@@ -374,6 +375,14 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		return implode( ',', $this->mAdsenseChannels );
 	}
 
+	public function getAdsenseAutoAds() {
+		return $this->mAdsenseAutoAds;
+	}
+
+	public function setAdsenseAutoAds( $value ) {
+		$this->mAdsenseAutoAds = $value;
+	}
+
 	public function addAdsenseChannel( $channel ) {
 		$this->mAdsenseChannels[] = $channel;
 	}
@@ -392,9 +401,14 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 */
 	protected function getAdsByGoogleJS( $ad ) {
 		$channels = $this->getAdsenseChannels( $ad );
+		$adsenseAutoAds = $this->getAdsenseAutoAds();
 		$script = "(adsbygoogle = window.adsbygoogle || []).push({";
 		if ( $channels ) {
 			$script .= "params: {google_ad_channel: '$channels'}";
+		}
+		if ( $adsenseAutoAds ) {
+			$script .= "google_ad_client: \"ca-pub-9543332082073187\",\n";
+			$script .= "enable_page_level_ads: true";
 		}
 		$script .= "});";
 		return $script;

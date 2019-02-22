@@ -1601,6 +1601,9 @@ class wikihowAds {
 	// add the mobile ad setup javascript to the output as a head item
 	public static function addMobileAdSetup( $out ) {
 		$abg = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>';
+		if ( self::isAdsenseAutoAdPage() ) {
+			$abg .= '<script>(adsbygoogle = window.adsbygoogle || []).push({google_ad_client: "ca-pub-9543332082073187", enable_page_level_ads: true, overlays: {bottom: true}});</script>';
+		}
 		$out->addHeadItem( 'mobileadsetup', $abg );
 	}
 
@@ -1676,6 +1679,14 @@ class wikihowAds {
 				$baseChannels = $baseChannels . "+9252820051";
 				$baseLargeChannels = $baseLargeChannels . "+9252820051";
 			}
+		}
+
+		if ( self::isAdsenseAutoAdPage() ) {
+			$baseChannels = $baseChannels . "+2268679110";
+			$baseLargeChannels = $baseLargeChannels . "+2268679110";
+		} else {
+			$baseChannels = $baseChannels . "+3830006946";
+			$baseLargeChannels = $baseLargeChannels . "+3830006946";
 		}
 
 		$data = [
@@ -1855,6 +1866,22 @@ class wikihowAds {
 		pq(".section.articleinfo")->before( $contents );
 	}
 
+	public static function isAdsenseAutoAdPage() {
+		global $wgOut;
+
+		$pageId = 0;
+		if ( $wgOut && $wgOut->getTitle() ) {
+			$pageId = $wgOut->getTitle()->getArticleID();
+		}
+		if ( !$pageId ) {
+			return;
+		}
+
+		if ( $pageId % 100 < 5 ) {
+			return true;
+		}
+		return false;
+	}
 
 	// public function which will get the mobile ads and insert them into the dom
 	// as well as the javascript to load them

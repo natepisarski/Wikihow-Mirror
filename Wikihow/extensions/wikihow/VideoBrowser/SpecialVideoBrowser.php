@@ -15,7 +15,7 @@ class SpecialVideoBrowser extends SpecialPage {
 	}
 
 	public function execute( $sub ) {
-		global $wgHooks, $wgSquidMaxage, $wgParser;
+		global $wgHooks, $wgSquidMaxage, $wgParser, $wgCanonicalServer, $wgSitename;
 
 		$output = $this->getOutput();
 
@@ -31,6 +31,7 @@ class SpecialVideoBrowser extends SpecialPage {
 		$output->addModules( [ 'ext.wikihow.videoBrowser' ] );
 
 		$url = $output->getRequest()->getRequestURL();
+		$output->setCanonicalUrl( $wgCanonicalServer . $url );
 		$parsedUrl = parse_url( $url );
 		$parts = explode( '/', $parsedUrl['path'] );
 		if ( $parts[0] === '' && $parts[1] === 'Special:VideoBrowser' ) {
@@ -70,19 +71,35 @@ class SpecialVideoBrowser extends SpecialPage {
 				// Viewer
 				$pageTitle = wfMessage( 'videobrowser-how-to', $viewing['title'] )->text();
 				$htmlTitle = wfMessage( 'videobrowser-viewer-title', $pageTitle )->text();
+				$summary = SummarySection::summaryData( $viewing['title'] );
+				$summaryHtml = SummarySection::summaryData( $viewing['title'] )['content'];
+				$summaryText = trim( strip_tags( $summaryHtml ) );
+				$titleText = wfMessage( 'videobrowser-meta-title', $viewing['title'] )->text();
+				$descriptionText = wfMessage( 'videobrowser-meta-description', $viewing['title'], $summaryText )->text();
 
-				$title = Title::newFromText( "Summary:{$viewing['title']}" );
-				$article = Article::newFromTitle( $title, $output->getContext() );
-				$parserOutput = $wgParser->parse(
-					$article->getContent(), $title, new ParserOptions()
-				);
-				$summary = $parserOutput->getText();
+				$meta = [
+					'meta-title' => [ 'name' => 'title', 'content' => $titleText ],
+					'meta-description' => [ 'name' => 'description', 'content' => $descriptionText ],
+					'og-title' => [ 'property' => 'og:title', 'content' => $pageTitle ],
+					'og-site_name' => [ 'property' => 'og:site_name', 'content' => $wgSitename ],
+					'og-url' => [ 'property' => 'og:url', 'content' => $wgCanonicalServer . $url ],
+					'og-description' => [ 'property' => 'og:description', 'content' => $descriptionText ],
+					'og-type' => [ 'property' => 'og:type', 'content' => 'video.other' ],
+					'og-image' => [ 'property' => 'og:image', 'content' => $viewing['poster'] ],
+					'og-video' => [ 'property' => 'og:video', 'content' => $viewing['video'] ],
+				];
+
+				$items = [];
+				foreach ( $meta as $name => $attributes ) {
+					$output->addHeadItem( $name, Html::element( 'meta', $attributes ) );
+				}
 
 				$prerender = VideoBrowser::render( 'viewer-prerender.mustache', [
 					'url' => $url,
 					'read-more' => wfMessage( 'videobrowser-read-more' )->text(),
-					'summary' => $summary,
-					'summaryText' => trim( strip_tags( $summary ) ),
+					'context' => wfMessage( 'videobrowser-context' )->text(),
+					'summary' => "<p>{$summaryHtml}</p>",
+					'summaryText' => $summaryText,
 					'howToTitle' => wfMessage( 'videobrowser-how-to', $viewing['title'] )->text(),
 					'video' => $viewing
 				] );

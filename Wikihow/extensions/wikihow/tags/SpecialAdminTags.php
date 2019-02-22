@@ -252,6 +252,18 @@ class AdminTags extends UnlistedSpecialPage {
 					}
 				}
 				$result = ['result' => $result, 'error' => $err, 'debug' => print_r($_POST, true)];
+			} elseif ('csh-history' == $action) {
+				$csh_id = $req->getInt('cshid', 0);
+				$data = ConfigStorageHistory::dbGetDetails($csh_id);
+				if (!$data) {
+					$result = ['error' => 'not found'];
+				} else {
+					$result = [
+						'csh_key' => $data['csh_key'],
+						'csh_summary' => $data['csh_log_short'],
+						'csh_changes' => $data['csh_log_full'],
+					];
+				}
 /*
 			} elseif ('remove-line' == $action) {
 				$key = $req->getVal('config-key', '');
@@ -267,7 +279,7 @@ class AdminTags extends UnlistedSpecialPage {
 
 		} else {
 
-			$out->addModules('jquery.ui.dialog');
+			$out->addModules( ['jquery.ui.dialog', 'ext.wikihow.AdminTags'] );
 			$out->setHTMLTitle(wfMessage('pagetitle', 'Admin - Article Tag Editor'));
 			$listConfigs = ConfigStorage::dbListConfigKeys();
 
@@ -285,6 +297,7 @@ class AdminTags extends UnlistedSpecialPage {
 		$params['configs'] = $configs;
 		$params['bURL'] = $style == 'url';
 		$params['specialPage'] = $this->specialPage;
+		$params['history'] = ConfigStorageHistory::dbListHistory();
 		$html = EasyTemplate::html('admin-config-guts.tmpl.php', $params);
 		return $html;
 	}

@@ -137,7 +137,8 @@ class QAOrderArticleQuestions extends Maintenance {
 
 	protected function setLastUpdatedeAid($aid) {
 		$error = "";
-		ConfigStorage::dbStoreConfig(self::KEY_LAST_ORDERED_ARTICLE_ID, $aid, false, $error);
+		// don't log these changes to the history table
+		ConfigStorage::dbStoreConfig(self::KEY_LAST_ORDERED_ARTICLE_ID, $aid, false, $error, true, 0, false);
 		if (!empty($error)) {
 			$this->output("Error when storing dbconfig: $error");
 		}

@@ -1113,14 +1113,20 @@ class LSearch extends SpecialPage {
 			$next_url .= '&beta=true';
 		}
 
-		$nextButtonAttr = array(
-			'href' => $next_url,
-			'class' => 'button buttonright primary ' . ($disabled ? 'disabled' : ''),
-		);
+		$next_label = wfMessage( "lsearch_next" )->text();
 		if ( $disabled ) {
-			$nextButtonAttr['onclick'] = 'return false;';
+			$next_button = Html::rawElement(
+				'span',
+				[ 'class' => 'button buttonright primary disabled' ],
+				$next_label
+			);
+		} else {
+			$next_button = Html::rawElement(
+				'a',
+				[ 'href' => $next_url, 'class' => 'button buttonright primary' ],
+				$next_label
+			);
 		}
-		$next_button = Html::rawElement( 'a', $nextButtonAttr, wfMessage( "lsearch_next" )->text() );
 
 		// - previous
 		$disabled = !($start - $resultsPerPage >= 0);
@@ -1130,14 +1136,23 @@ class LSearch extends SpecialPage {
 		if ( $this->mEnableBeta ) {
 			$prev_url .= '&beta=true';
 		}
-		$prevButtonAttr = array(
-			'href' => $prev_url,
-			'class' => 'button buttonleft primary ' . ($disabled ? 'disabled' : ''),
-		);
+
+
+		$prev_label = wfMessage( "lsearch_previous" )->text();
 		if ( $disabled ) {
-			$prevButtonAttr['onclick'] = 'return false;';
+			$prev_button = Html::rawElement(
+				'span',
+				[ 'class' => 'button buttonleft primary disabled' ],
+				$prev_label
+			);
+		} else {
+			$prev_button = Html::rawElement(
+				'a',
+				[ 'href' => $prev_url, 'class' => 'button buttonleft primary' ],
+				$prev_label
+			);
 		}
-		$prev_button = Html::rawElement( 'a', $prevButtonAttr, wfMessage( "lsearch_previous" )->text() );
+
 		$page = (int) ($start / $resultsPerPage) + 1;
 
 		$adProvider = $this->mEnableBeta ? 'google' : 'yahoo';

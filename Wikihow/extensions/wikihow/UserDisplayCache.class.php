@@ -96,6 +96,8 @@ class UserDisplayCache {
 	}
 
 	private function getSubmitterData($user_id) {
+		global $wgUser;
+
 		//defaults
 		$display_name = '';
 		$avatar_url = '';
@@ -114,16 +116,16 @@ class UserDisplayCache {
 				if (strncmp($user_name,'FB_',3) == 0 || strncmp($user_name, 'GP_', 3) == 0) return [ '', '' ];
 
 				$display_name = $user->getRealName() ?: $user_name;
+				$user_page = $user->getUserPage();
 
-				//only link for GOOD user pages
-				$checkLoggedIn = false;
-				$is_good_page = UserPagePolicy::isGoodUserPage($user_name, $checkLoggedIn);
+				$show_link = !Misc::isAltDomain()
+					&& UserPagePolicy::isGoodUserPage($user_name, false)
+					&& ( $wgUser->isLoggedIn() || RobotPolicy::isIndexable($user_page) );
 
-				if ($is_good_page && !Misc::isAltDomain()) {
-					$display_name = '<a href="'.$user->getUserPage()->getLocalUrl().'" target="_blank">'.$display_name.'</a>';
-				}
-				else {
-					$display_name = '<span class="qa_user_link" data-href="'.$user->getUserPage()->getLocalUrl().'">'.$display_name.'</span>';
+				if ($show_link) {
+					$display_name = '<a href="'.$user_page->getLocalUrl().'" target="_blank">'.$display_name.'</a>';
+				} else {
+					$display_name = '<span class="qa_user_link" data-href="'.$user_page->getLocalUrl().'">'.$display_name.'</span>';
 				}
 
 				$avatar_url = Avatar::getAvatarURL($user_name);

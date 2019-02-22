@@ -725,8 +725,7 @@ h4.steps_text::before {
 #header_logo {
 	display: table-cell;
 	vertical-align: middle;
-	/*background: center center/115px no-repeat url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);*/
-	background: center center/115px no-repeat url(/extensions/wikihow/mobile/images/wikiHow_logo_heart_mobile.png);
+	background: center center/115px no-repeat url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);
 	width: auto;
 	height: 38px;
 	padding: 0 14px;

@@ -20,4 +20,7 @@ $messages['en'] = array(
 	'videobrowser-replay' => 'Watch again',
 	'videobrowser-show-more' => 'Show more videos',
 	'videobrowser-viewer-title' => '$1 video - wikiHow',
+	'videobrowser-context' => 'This video teaches you',
+	'videobrowser-meta-title' => 'This video teaches you How to $1',
+	'videobrowser-meta-description' => 'wikiHow Quick Video on How to $1. $2',
 );

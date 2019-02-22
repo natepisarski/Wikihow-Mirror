@@ -62,12 +62,6 @@ class WikihowUserPage extends Article {
 			return;
 		}
 
-		//check whitelist for which userpages should be indexed
-		if( ArticleTagList::hasTag( "UserPageWhitelist" , $title->getArticleID())) {
-			$out->setRobotpolicy( RobotPolicy::POLICY_INDEX_FOLLOW_STR );
-		} else {
-			$out->setRobotPolicy( RobotPolicy::POLICY_NOINDEX_FOLLOW_STR );
-		}
 		//hack in the <title> because it disappears for some reason [sc]
 		$out->setHTMLTitle( wfMessage( 'pagetitle', $lang->getNsText($title->getNamespace()) . ': ' . $this->user->getName() )->text() );
 		$skin = $this->getContext()->getSkin();

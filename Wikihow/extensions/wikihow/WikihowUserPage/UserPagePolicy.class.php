@@ -1,4 +1,13 @@
 <?php
+/**
+ * Note that this class doesn't determine the robots indexation policy for user pages.
+ * That's taken care of by RobotPolicy::isIndexable().
+ *
+ * This class is used to decide whether to show the page to anons, or 404. And also
+ * whether to show certain links to user pages.
+ *
+ * We might want to move the one method in this class to WikihowUserPage.class.php
+ */
 
 if (!defined('MEDIAWIKI')) exit;
 

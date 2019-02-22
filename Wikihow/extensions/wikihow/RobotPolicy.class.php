@@ -438,30 +438,31 @@ class RobotPolicy {
 	}
 
 	/**
-	 * Don't allow indexing of user pages where the contributor has less
-	 * than 500 edits.  Also, ignore pages with a '/' in them, such as
-	 * User:Reuben/Sandbox.
-	 * Also prevent indexing when the user hasn't shown activity for more
-	 * than 90 days.
+	 * Check if this is a user page that should not be indexed
 	 */
 	private function hasUserPageRestrictions() {
 		global $wgLanguageCode;
 
 		if ($this->title->inNamespace(NS_USER)) {
+
+			// The vast majority of user pages are noindex, unless we whitelist them
+
+			$aid = $this->title->getArticleID();
+			$isWhitelisted = ArticleTagList::hasTag('UserPageWhitelist', $aid);
+			if (!$isWhitelisted) {
+				return true;
+			}
+
+			// These rules are older, but we keep them as a backstop
+
 			if (($this->userNumEdits() < 500 && !$this->isGPlusAuthor())
 				|| strpos($this->title->getText(), '/') !== false
 				|| $wgLanguageCode != 'en'
 			) {
 				return true;
 			}
-			$user = User::newFromName($this->title->getDBkey());
-			if ($user !== false
-				&& $user->getId() != 0
-				&& wfTimestamp() - wfTimestamp(TS_UNIX, $user->getTouched()) > 60*60*24*90
-			) {
-				return true;
-			}
 		}
+
 		return false;
 	}
 

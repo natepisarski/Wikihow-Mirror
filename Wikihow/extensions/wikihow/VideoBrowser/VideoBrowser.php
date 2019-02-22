@@ -63,7 +63,8 @@ $wgResourceModules['ext.wikihow.videoBrowser'] = [
 		'videobrowser-read-more',
 		'videobrowser-replay',
 		'videobrowser-show-more',
-		'videobrowser-viewer-title'
+		'videobrowser-viewer-title',
+		'videobrowser-context'
 	],
 	'targets' => [ 'desktop', 'mobile' ],
 	'dependencies' => [

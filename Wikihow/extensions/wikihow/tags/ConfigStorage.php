@@ -92,7 +92,7 @@ class ConfigStorage {
 	 * Set the new config key in the database (along with the config value).
 	 * Clear the memcache key too.
 	 */
-	public static function dbStoreConfig($key, $config, $isArticleList, &$error, $allowArticleErrors = true, $newTagProb = 0) {
+	public static function dbStoreConfig($key, $config, $isArticleList, &$error, $allowArticleErrors = true, $newTagProb = 0, $logIt = true) {
 		global $wgMemc, $wgUser;
 
 		if ( !self::checkUserRestrictions($key) ) {
@@ -112,6 +112,15 @@ class ConfigStorage {
 		$wgMemc->delete($cachekey);
 
 		$dbw = wfGetDB(DB_MASTER);
+
+		if ($logIt) {
+			$old_config = $dbw->selectField(
+				'config_storage',
+				'cs_config',
+				[ 'cs_key' => $key ],
+				__METHOD__ );
+		}
+
 		$dbw->replace('config_storage', 'cs_key',
 			[
 				['cs_key' => $key, 'cs_config' => $config,
@@ -119,7 +128,11 @@ class ConfigStorage {
 			],
 			__METHOD__);
 
-        wfRunHooks( 'ConfigStorageAfterStoreConfig', array( $key, $config) );
+		wfRunHooks( 'ConfigStorageAfterStoreConfig', array( $key, $config) );
+
+		if ($logIt) {
+			ConfigStorageHistory::dbChangeConfigStorage($key, $old_config, $config);
+		}
 
 		return $dbw->affectedRows() > 0;
 	}

@@ -152,14 +152,18 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				],
 				[ 'div.section_text',
 					this.actionBar,
+					[ 'p.videoBrowser-viewer-context', mw.msg( 'videobrowser-context' ) ],
 					this.title,
 					[ 'div.videoBrowser-viewer-description',
 						// [ 'p.videoBrowser-viewer-plays' ].concat(
 						// 	mw.msg( 'videobrowser-plays', video.plays )
 						// ),
-						[ 'p.videoBrowser-viewer-summary' ].concat(
+						[ 'div.videoBrowser-viewer-summary' ].concat(
 							!state.summaryError ?
-								WH.Render.parseHTML( state.summary || mw.msg( 'videobrowser-loading' ) ) :
+								WH.Render.parseHTML(
+									state.summary ||
+									mw.msg( 'videobrowser-loading' )
+								) :
 								''
 						),
 						[ 'p.videoBrowser-viewer-more',
@@ -353,9 +357,9 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		}
 	},
 	getSummary: function ( callback ) {
-		this.api.get( { action: 'parse', page: 'Summary:' + this.video.title } )
+		this.api.get( { action: 'summary_section', ss_page: this.video.id } )
 			.then( function ( data ) {
-				callback( data.parse.text['*'] );
+				callback( data.query.summary_section.content );
 			}, function () {
 				callback( null );
 			} );
