@@ -89,12 +89,17 @@ $( function () {
 			// Setup routes
 			WH.VideoBrowser.router
 				.mount( '/', function ( params ) {
-					app.setView( 'index', { slug: null } );
+					app.setView( 'index', { slug: null, category: null } );
+					requestAnimationFrame( trackPageView, 0 );
+				} )
+				.mount( '/Category:(:category)', function ( params ) {
+					var category = params.category;
+					app.setView( 'index', { slug: null, category: category } );
 					requestAnimationFrame( trackPageView, 0 );
 				} )
 				.mount( '/(:slug)', function ( params ) {
 					var slug = params.slug;
-					app.setView( 'viewer', { slug: slug } );
+					app.setView( 'viewer', { slug: slug, category: null } );
 					requestAnimationFrame( trackPageView, 0 );
 				} );
 

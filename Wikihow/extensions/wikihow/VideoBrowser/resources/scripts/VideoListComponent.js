@@ -2,7 +2,7 @@
 WH.VideoBrowser.VideoListComponent = WH.Render.createComponent( {
 	create: function () {
 		this.state = {
-			videosPerPage: 6,
+			videosPerPage: this.props.videosPerPage || 6,
 			page: 1
 		};
 		this.videos = [];
@@ -40,8 +40,8 @@ WH.VideoBrowser.VideoListComponent = WH.Render.createComponent( {
 	renderMoreLink: function () {
 		return this.state.page + 1 <= this.getPageCount() ?
 			[ 'p.videoBrowser-videoList-more',
-				[ 'a',
-					{ href: WH.VideoBrowser.router.link( '/' ), onclick: 'onMoreClick' },
+				[ 'span',
+					{ onclick: 'onMoreClick' },
 					mw.msg( 'videobrowser-show-more' )
 				]
 			] :

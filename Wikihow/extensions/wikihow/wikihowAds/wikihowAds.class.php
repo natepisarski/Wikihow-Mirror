@@ -1689,6 +1689,14 @@ class wikihowAds {
 			$baseLargeChannels = $baseLargeChannels . "+3830006946";
 		}
 
+		if ( self::isScrollToAdPage() ) {
+			$baseChannels = $baseChannels . "+3935734565";
+			$baseLargeChannels = $baseLargeChannels . "+3935734565";
+		} else if ( !self::isAdsenseAutoAdPage() ) {
+			$baseChannels = $baseChannels . "+4865672857";
+			$baseLargeChannels = $baseLargeChannels . "+4865672857";
+		}
+
 		$data = [
 			"channels" => [
 				"base" => $baseChannels,
@@ -1715,6 +1723,7 @@ class wikihowAds {
 					'related' => "9047782573",
 					'footer' => "8862180975",
 					'method-scrollload' => "7197620178",
+					'scrollto' => "7197620178",
 				],
 				'medium' => [
 
@@ -1725,6 +1734,7 @@ class wikihowAds {
 					'related' => "5854522578",
 					'footer' => "8862180975",
 					'method-scrollload' => "7197620178",
+					'scrollto' => "4377789372",
 				]
 
 			]
@@ -1815,6 +1825,55 @@ class wikihowAds {
 
 	}
 
+	private static function isScrollToAdPage() {
+		global $wgOut;
+
+		if ( self::isAdsenseAutoAdPage() ) {
+			return false;
+		}
+
+		$pageId = 0;
+		if ( $wgOut && $wgOut->getTitle() ) {
+			$pageId = $wgOut->getTitle()->getArticleID();
+		}
+		if ( !$pageId ) {
+			return false;
+		}
+
+		if ( $pageId % 2 == 1 ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private static function insertMobileAdScrollTo() {
+		global $wgTitle;
+		if ( !self::isEligibleForAds() ) {
+			return "";
+		}
+
+		if ( !self::isScrollToAdPage() ) {
+			return "";
+		}
+
+		$type = 'scrollto';
+		$id = 'wh_ad_scrollto';
+		$attr = array(
+				'data-scrollto' => true,
+				'data-load-class' => 'wh_ad_footer_show',
+				'data-scroll-load' => true,
+				'data-type' => $type,
+				'data-service' => 'adsense',
+				'data-refreshable' => 0,
+				'class' => 'wh_ad',
+				'id' => $id
+				);
+		$html .= Html::rawElement( 'div', $attr );
+		$html .= Html::inlineScript("WH.mobileads.add('$id');");
+		pq("#intro")->append( $html.$script );
+	}
+
 	private static function insertMobileAdRelated() {
         global $wgTitle;
 
@@ -1867,19 +1926,6 @@ class wikihowAds {
 	}
 
 	public static function isAdsenseAutoAdPage() {
-		global $wgOut;
-
-		$pageId = 0;
-		if ( $wgOut && $wgOut->getTitle() ) {
-			$pageId = $wgOut->getTitle()->getArticleID();
-		}
-		if ( !$pageId ) {
-			return;
-		}
-
-		if ( $pageId % 100 < 5 ) {
-			return true;
-		}
 		return false;
 	}
 
@@ -1905,6 +1951,7 @@ class wikihowAds {
 		}
 
 		wikihowAds::insertMobileAdRelated();
+		wikihowAds::insertMobileAdScrollTo();
 
 	}
 
@@ -1916,7 +1963,42 @@ class wikihowAds {
 	}
 
 	public static function getMobileAdAnchor() {
-		return "";
+		global $wgTitle;
+		if ( !self::isEligibleForAds() ) {
+			return "";
+		}
+
+		$type = 'footer';
+		$id = 'wh_ad_footer';
+		$attr = array(
+				'data-sticky-footer' => true,
+				'data-load-class' => 'wh_ad_footer_show',
+				'data-scroll-load' => true,
+				'data-type' => $type,
+				'data-service' => 'gpt',
+				'data-path' => '/10095428/Mobile_Anchor_Unit_No_Refresh',
+				'data-sizes' => json_encode([320,50]),
+				'data-refreshable' => 0,
+				'data-autohide' => 0,
+				'data-stickyfooterypos' => 0,
+				'class' => 'wh_ad',
+				'id' => $id
+				);
+		$html = Html::rawElement(
+				'span',
+				[
+				'class' => 'footer_ad_close',
+				'onclick' => 'var elem = document.getElementById("wh_ad_footer_fixed");elem.parentNode.removeChild(elem);'
+				],
+				'x'
+				);
+		$html .= Html::rawElement( 'div', $attr );
+		$html .= Html::inlineScript("WH.mobileads.add('$id');");
+		$wrapper = Html::rawElement( 'div', ['id'=> 'wh_ad_footer_fixed' ], $html );
+
+		// disabled for now
+		$wrapper = "";
+		return $wrapper;
 	}
 
 	public static function getMobilePageCenterClass() {

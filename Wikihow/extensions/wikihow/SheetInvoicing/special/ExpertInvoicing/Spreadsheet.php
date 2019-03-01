@@ -9,7 +9,7 @@ use SheetInv\ParsingResult;
 /**
  * The project's read-only data source, supported by Google Sheets.
  */
-class Spreadsheet extends GoogleSpreadSheet
+class Spreadsheet extends GoogleSpreadsheet
 {
 	private $sheetId; // String
 

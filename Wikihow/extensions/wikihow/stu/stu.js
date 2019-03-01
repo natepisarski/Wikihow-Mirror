@@ -688,28 +688,6 @@ function getWordCount() {
 	return wordCount;
 }
 
-// We calculate activity1 metric based on the number of words in the document and the
-// active time on page. We use the number of words to create an "expected reading time"
-// measure, and then use active time on page to calculate a percentage of the reading
-// time achieved so far.
-//
-// Note that we calculate the whole metrics every time these pings are sent because the
-// DOM contents will change between when Lia first runs (near top of DOM) and later on.
-function calcActivity1(wordCount) {
-
-	// Found the average words per minute "200" from here:
-	// https://marketingland.com/estimated-reading-times-increase-engagement-79830
-	var expectedReadTimeSecs = (wordCount / 200.0) * 60.0;
-	var activeSecs = getCurrentActiveTime() / 1000.0;
-
-	// Calculate activity score as a percentage
-	var score = Math.round( 100.0 * activeSecs / expectedReadTimeSecs );
-	if (score < 0) score = 0; // somehow?
-	if (score > 100) score = 100;
-
-	return score;
-}
-
 function calcActivityScore(wordCount) {
 	// Activity metric uses the number of user-generated events (such as scroll events,
 	// clicks, touches to the screen, keys being pressed, etc) and measures whether there

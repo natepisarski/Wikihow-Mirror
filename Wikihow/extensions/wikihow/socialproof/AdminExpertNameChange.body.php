@@ -41,7 +41,7 @@ class AdminExpertNameChange extends UnlistedSpecialPage {
 			$verifiers []= ['id' => $datum->id, 'name' => $datum->name];
 		}
 		$vars['experts'] = $verifiers;
-		$vars['sheetlink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/' . ExpertVerifyImporter::SHEET_ID;
+		$vars['sheetlink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/' . ExpertVerifyImporter::getSheetId();
 
 		$html = $m->render( 'adminexpertnamechange', $vars );
 		$out->addHtml($html);

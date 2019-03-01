@@ -62,7 +62,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 				// Include wgCanonicalServer in key because article prop has full URLs
 				"@{$wgCanonicalServer}"
 		);
-		$data = $wgMemc->get( $key );
+		//$data = $wgMemc->get( $key );
 
 		if ( !is_array( $data ) ) {
 			$dbr = wfGetDB( DB_SLAVE );
@@ -105,6 +105,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 			// Filter by category intersection
 			if ( $title && $related ) {
 				$categories = Categoryhelper::getTitleTopLevelCategories( $title );
+				//var_dump( $primary );
 				$filterCategories = [];
 				foreach ( $categories as $category ) {
 					$filterCategories[] = $category->getText();
@@ -124,20 +125,20 @@ class ApiSummaryVideos extends ApiQueryBase {
 			// Build results
 			$videos = [];
 			foreach ( $rows as $row ) {
-				$rowCategories = static::getCategoryListFromCatInfo( $row->page_catinfo );
-				// Detect category intersection
-				if ( isset( $filterCategories ) ) {
-					$intersection = array_intersect(
-						$filterCategories, explode( ',', $rowCategories )
-					);
-					if ( count( $intersection ) === 0 ) {
-						continue;
-					}
-				}
 				// Filter out alt-domain titles
 				if ( !empty( AlternateDomain::getAlternateDomainForPage( $row->ami_id ) ) ) {
 					continue;
 				}
+
+				// Detect category intersection
+				$rowCategories = explode( ',', static::getCategoryListFromCatInfo( $row->page_catinfo ) );
+				if ( isset( $filterCategories ) ) {
+					$intersection = array_intersect( $filterCategories, $rowCategories );
+					if ( count( $intersection ) === 0 ) {
+						continue;
+					}
+				}
+
 				$title = Title::newFromId( $row->ami_id );
 				$videos[] = [
 					'id' => $row->ami_id,
@@ -150,10 +151,11 @@ class ApiSummaryVideos extends ApiQueryBase {
 					'poster@1:1' => static::getPosterUrlFromVideo( $row->ami_summary_video, 1 / 1 ),
 					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, 4 / 3 ),
 					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
-					'categories' => $rowCategories,
+					'categories' => implode( $rowCategories, ',' ),
+					'breadcrumbs' => Categoryhelper::getBreadcrumbCategories( $title ),
 					'popularity' => $row->ti_30day_views_unique,
 					'featured' => $row->ti_featured,
-					'plays' => $row->ti_summary_video_play
+					'plays' => $row->ti_summary_video_play,
 				];
 
 				if ( isset( $limit ) && count( $videos ) >= $limit ) {

@@ -107,52 +107,29 @@ class GoogleAmp {
 	 * @return string http amp-video element
 	 */
 	private static function getAmpSummaryVideo( $video, $width, $height, $sectionName )  {
-		global $wgTitle;
+		global $wgTitle, $wgCanonicalServer;
 
-		$src = $video->attr( 'data-src' );
-		$poster = $video->attr( 'data-poster' );
-		$id = $video->attr( 'id' );
-		$overlayId = $id . '-overlay';
-		$src = WH_CDN_VIDEO_ROOT . $src;
-		// this is the dev url but we only need it if the video was also run on fred
-		//$src  = 'https://d2mnwthlgvr25v.cloudfront.net'.$src;
-		$attr = [
-			'id' => $id,
-			'src' => $src,
-			'width' => $width,
-			'height' => $height,
-			'layout' => 'responsive',
-			'class' => 'm-video',
-			'poster' => $poster,
-			'controls',
-		];
+		$href = "{$wgCanonicalServer}/Video/" . str_replace( ' ', '-', $wgTitle->getText() );
 
-		$ampVideo = Html::element( "amp-video", $attr );
-		$overlayContents = WHVid::getSummaryIntroOverlayHtml( $sectionName, $wgTitle );
-		$posterAttributes = array(
-			'class' => 'video-poster-image',
-			'layout' => 'fill',
-			'src' => $poster,
+		return Html::rawElement( 'div',
+			[ 'class' => 'summary-video' ],
+			Html::rawElement( 'a',
+				[
+					'class' => 'click-to-play-overlay',
+					'role' => 'button',
+					'href' => $href,
+					'tabindex' => 0
+				],
+				WHVid::getSummaryIntroOverlayHtml( $sectionName, $wgTitle ) .
+					Html::element( 'amp-img',
+						[
+							'class' => 'video-poster-image',
+							'layout' => 'fill',
+							'src' => $video->attr( 'data-poster' ),
+						]
+					)
+			)
 		);
-
-		$poster = Html::element( 'amp-img', $posterAttributes );
-		$overlayContents = $overlayContents . $poster;
-
-		$overlay = Html::rawElement(
-			'div',
-			[
-				'id' => $overlayId,
-				'class' => 'click-to-play-overlay',
-				'role' => 'button',
-				'on' => "tap:$overlayId.hide, $id.play",
-				'tabindex' => 0
-			],
-			$overlayContents
-		);
-
-		$videoPlayer = Html::rawElement( 'div', [ 'class' => 'summary-video' ], $ampVideo . $overlay );
-
-		return $videoPlayer;
 	}
 
 	// creates the amp-img that will be placed in the main article
@@ -488,7 +465,7 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
-		$hasIntroAd = false;
+		$hasIntroAd = true;
 
 		if ( $hasIntroAd == true ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );

@@ -21,7 +21,7 @@ if ($wgLanguageCode == "en") {
 	$wgMessagesDirs['ReadArticleBotV2'] = [__DIR__ . '/read_article/i18n/'];
 }
 
-if ($wgLanguageCode == "en" || $wgLanguageCode == "de") {
+if (in_array($wgLanguageCode, $wgActiveAlexaApiLanguages)) {
 	$wgAutoloadClasses['WikiHowArticleDomExtractor'] = __DIR__ . '/read_article/WikiHowArticleDomExtractor.php';
 }
 

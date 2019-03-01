@@ -14,6 +14,10 @@ WH.mobileads = (function () {
 	var bodyAds = [];
 	var gptRequested = false;
 	var anchorAd = null;
+	var scrollToAd = null;
+	var scrollToTimer = null;
+	var maxScrollToAds = 3;
+	var scrollToAdsLoaded = 0;
 
 	function setDFPTargeting(data) {
 		for (var key in data) {
@@ -142,6 +146,10 @@ WH.mobileads = (function () {
 			width = width - 20;
 		}
 
+		if (type == 'scrollto') {
+			width = width - 30;
+		}
+
 		if (type == 'related') {
 			width = width - 14;
 		}
@@ -157,7 +165,7 @@ WH.mobileads = (function () {
 		var height = 0;
 		if (type == 'intro') {
 			height = 120;
-		} else if (type == 'method') {
+		} else if (type == 'method' || type == 'scrollto') {
 			if (isBig) {
 				height = 300;
 			} else {
@@ -178,18 +186,17 @@ WH.mobileads = (function () {
 		return css;
 	}
 
-	function insertAd(ad) {
+	function insertAdsenseAd(type,targetElement) {
 		var client = "ca-pub-9543332082073187";
 		var i = window.document.createElement('ins');
 		i.setAttribute('data-ad-client', client);
-        var adType = ad.type;
-        var slot = getAdSlot(adType);
+        var slot = getAdSlot(type);
 		i.setAttribute('data-ad-slot', slot);
 		i.setAttribute('class', 'adsbygoogle');
-		var css = getAdCss(ad.type);
-		i.style.cssText = css; window.document.getElementById(ad.target).appendChild(i);
+		var css = getAdCss(type);
+		i.style.cssText = css;
+		targetElement.appendChild(i);
 	}
-
 
 	function localDefineGPTSlots() {
 		googletag.pubads().enableSingleRequest();
@@ -270,7 +277,8 @@ WH.mobileads = (function () {
 	 */
 	function loadAd(ad) {
 		// first create and add the ins element
-		insertAd(ad);
+		var targetElement = window.document.getElementById(ad.target);
+		insertAdsenseAd(ad.type, ad.adElement);
 		var chans = getAdChannels(ad.type, ad.target);
 		var maxNumAds = getMaxNumAds(ad.type);
 
@@ -403,6 +411,20 @@ WH.mobileads = (function () {
 				unloadedAds = true;;
 			}
 		}
+
+		// handle scrollTo ad if we have one
+		if (scrollToAd && scrollToAd.isLoaded == false) {
+			var scrollPosition = window.scrollY;
+			if (scrollPosition > 10) {
+				if (scrollToTimer !== null) {
+					clearTimeout(scrollToTimer);
+				}
+				scrollToTimer = setTimeout(function() {
+					scrollToAd.load();
+				}, 1000);
+			}
+			unloadedAds = true;
+		}
 		if (!unloadedAds) {
 			window.removeEventListener('scroll', scrollHandler);
 			scrollHandlerRegistered = false;
@@ -439,6 +461,81 @@ WH.mobileads = (function () {
 		document.addEventListener('DOMContentLoaded', function() {docLoad();}, false);
 		registerScrollHandler();
 	};
+	function isNearEndOfStep(rect, viewportHeight) {
+		if (rect.bottom >= screenTop && rect.bottom <= viewportHeight) {
+			return true;
+		}
+		return false;
+	}
+
+	// uses jquery to get the step after the one in the viewport or null
+	function getStepForScrollPosition() {
+		var scrollPosition = window.scrollY;
+
+		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
+		var steps = document.getElementsByClassName("step");
+		var targetStep = null;
+		var found = false;
+		for (var i = 0; i < steps.length; i++) {
+			var step = steps[i];
+			// sanity check on the step
+			step = step.parentElement;
+			if (step.nodeName != "LI") {
+				continue;
+			}
+			if (found == true) {
+				targetStep = step;
+				break;
+			}
+			var rect = step.getBoundingClientRect();
+			if (isInViewport(rect, viewportHeight, true)) {
+				// if we are near the end of teh step now, then put the ad at the next step instead
+				if (isNearEndOfStep(rect, viewportHeight)) {
+					found = true;
+				} else {
+					targetStep = step;
+					break;
+				}
+			}
+		}
+		return targetStep;
+	}
+
+	// moves the ad to a position near where you are scrolled
+	// intended to be called before loading it
+	// returns true if it was moved, false if something went wrong
+	function loadScrollToAd(ad) {
+
+		var step = getStepForScrollPosition();
+		if (!step) {
+			return false;
+		}
+
+		var existingAds = step.getElementsByTagName("INS")
+		if (existingAds.length > 0) {
+			return;
+		}
+
+		insertAdsenseAd(ad.type, step);
+		step.appendChild(ad.adElement);
+
+		var chans = getAdChannels(ad.type, ad.target);
+		(adsbygoogle = window.adsbygoogle || []).push({
+			params: {
+				google_max_num_ads: 3,
+				google_ad_region: "test",
+				google_override_format: true,
+				google_ad_channel: chans
+			}
+		});
+
+		scrollToAdsLoaded++;
+		if (scrollToAdsLoaded >= 3) {
+			ad.isLoaded = true;
+		}
+
+		return true;
+	}
 
 	function Ad(target) {
 		this.target = target;
@@ -447,6 +544,7 @@ WH.mobileads = (function () {
 		this.isLoaded = false;
 		this.scrollLoad = this.adElement.getAttribute('data-scroll-load') == 1;
 		this.loadClass = this.adElement.getAttribute('data-load-class');
+		this.scrollTo = this.adElement.getAttribute('data-scrollto') == 1;
 		this.stickyFooter = this.adElement.getAttribute('data-sticky-footer') == 1;
 		this.stickyFooterVisible = false;
 		this.stickyFooterDisabled = false;
@@ -457,17 +555,15 @@ WH.mobileads = (function () {
 		// for testing fluid ads do this instead
 		//this.sizes = this.adElement.getAttribute('data-sizes');
 		this.viewTargetElement = null;
-		this.showStickyFooterYPos = null;
 		if (this.stickyFooter) {
-			var anchors = document.getElementsByClassName('stepanchor');
-			if (anchors.length > 1 ) {
-				 this.viewTargetElement = anchors.item(1).parentElement;
-				 this.showStickyFooterYPos = this.viewTargetElement.getBoundingClientRect().top +  window.scrollY;
-			}
+			this.showStickyFooterYPos = parseInt(this.adElement.getAttribute('data-stickyfooterypos'));
 			registerAnchorScrollHandler();
 		}
 		this.load = function() {
-			if (this.service == 'gptlight') {
+			if (this.scrollTo) {
+				loadScrollToAd(this);
+				return;
+			} else if (this.service == 'gptlight') {
 				loadGptLight(this);
 			} else if (this.service == 'gpt') {
 				loadGpt(this);
@@ -524,6 +620,10 @@ WH.mobileads = (function () {
 	function add(target) {
 		var ad = new Ad(target);
 		if (ad.stickyFooter && window.isBig) {
+			return;
+		}
+		if (ad.scrollTo) {
+			scrollToAd = ad;
 			return;
 		}
 		if (ad.stickyFooter) {

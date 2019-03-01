@@ -16,7 +16,6 @@ class InstagramArticleAds {
 	function __construct(string $ad_type, int $version = 0) {
 		$this->ad_type = strtolower($ad_type);
 		$this->version = $version > 0 ? intval($version) : $this->getRandomizedVersion();
-		$this->amp = GoogleAmp::isAmpMode(RequestContext::getMain()->getOutput());
 	}
 
 	public function getAd(): string {
@@ -51,11 +50,10 @@ class InstagramArticleAds {
 
 	private function iPhoneAd1(): array {
 		$image = Html::rawElement(
-			$this->amp ? 'amp-img' : 'img',
+			'img',
 			[
 				'src' => wfGetPad('/extensions/wikihow/InstagramArticleAds/resources/assets/iphone_phone.png'),
 				'class' => 'iab_image',
-				'layout' => 'responsive',
 				'width' => 102,
 				'height' => 165
 			]
@@ -75,12 +73,11 @@ class InstagramArticleAds {
 
 	private function iPhoneAd2(): array {
 		$wH_logo = Html::rawElement(
-			$this->amp ? 'amp-img' : 'img',
+			'img',
 			[
 				'src' => wfGetPad('/extensions/wikihow/InstagramArticleAds/resources/assets/wikiHow_logo.png'),
 				'class' => 'iab_wH_logo',
 				'alt' => 'wikiHow',
-				'layout' => 'responsive',
 				'width' => 80,
 				'height' => 13
 			]
@@ -103,49 +100,25 @@ class InstagramArticleAds {
 
 		$title = $out->getTitle();
 
-		if (self::validMobileArticle($title))
+		if (self::validMobileArticle($out, $title))
 			self::$iphone_tips_article = ArticleTagList::hasTag( self::TAG_IPHONE_TIPS_ARTICLES, $title->getArticleID() );
 
 		return self::$iphone_tips_article;
 	}
 
-	private static function validMobileArticle(Title $title): bool {
+	private static function validMobileArticle(OutputPage $out, Title $title): bool {
 		$android_app = class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest();
 
 		return Misc::isMobileMode() &&
+			!GoogleAmp::isAmpMode($out) &&
 			$title->inNamespace( NS_MAIN ) &&
 			!$android_app;
 	}
 
-	//for late-load JS insertion (not AMP)
+	//for late-load JS insertions
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		if (self::iPhoneTipsArticle($out)) {
 			$out->addModules(['mobile.wikihow.iphonetips_ig_ad']);
-		}
-	}
-
-	//add CSS this way so AMP can get it too
-	public static function onMobileEmbedStyles(array &$stylePaths, Title $title) {
-		$out = RequestContext::getMain()->getOutput();
-		if (self::iPhoneTipsArticle($out)) {
-			$stylePaths[] = __DIR__ . '/resources/iphonetips_ig_ads.css';
-		}
-	}
-
-	//for AMP insertion
-	public static function onProcessArticleHTMLAfter(OutputPage $out) {
-		if (GoogleAmp::isAmpMode($out)) {
-			$type = '';
-
-			if (self::iPhoneTipsArticle($out)) {
-				$type = 'iphone';
-			}
-
-			if (!empty($type)) {
-				$insta_ad = new InstagramArticleAds($type);
-				$html = $insta_ad->getAd();
-				pq('#article_rating_mobile')->before($html);
-			}
 		}
 	}
 

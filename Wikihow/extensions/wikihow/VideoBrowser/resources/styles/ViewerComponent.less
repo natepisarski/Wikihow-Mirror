@@ -27,6 +27,11 @@
 	font-weight: bold;
 }
 
+.videoBrowser-viewer .videoBrowser-actionBar {
+	height: 40px;
+	margin-top: -26px;
+}
+
 @media only screen and (max-height: ceil( ( 1045px * @aspect-ratio ) + 72px ) ) {
 	.videoBrowser-viewer-player {
 		height: ceil( 720px * @aspect-ratio );
@@ -64,11 +69,6 @@
 .videoBrowser-viewer .videoBrowser-title {
 	font-size: 1.8em;
 	margin: 0 0 0.5em 0;
-}
-
-.videoBrowser-viewer .videoBrowser-actionBar {
-	height: 40px;
-	margin-top: -26px;
 }
 
 .videoBrowser-viewer-description {
@@ -190,32 +190,25 @@
 		margin-top: -4px;
 	}
 
-	.videoBrowser-viewer .videoBrowser-title {
+	.videoBrowser-viewer-context {
 		margin: 0;
-		padding-top: 0;
+		color: gray;
+		font-size: smaller;
+		font-weight: normal;
 	}
 
 	.videoBrowser-viewer .videoBrowser-actionBar {
-		height: auto;
 		margin-top: 0;
-	}
-	.videoBrowser-viewer .videoBrowser-actionBar ul {
-		margin: 0;
-		padding: 0;
-		line-height: 12px;
-		text-align: right;
-	}
-	.videoBrowser-viewer .videoBrowser-actionBar li {
-		margin: 0;
-		padding: 0 0.5em 0 0;
-		list-style: none;
-		display: inline-block;
-		font-size: 12px;
-		line-height: 12px;
+		height: auto;
 	}
 
-	.videoBrowser-viewer .videoBrowser-actionBar li:last-child {
-		display: none;
+	.videoBrowser-viewer .videoBrowser-actionBar #breadcrumb {
+		padding-left: 0;
+	}
+
+	.videoBrowser-viewer .videoBrowser-title {
+		margin: 0;
+		padding-top: 0;
 	}
 
 	.videoBrowser-viewer-description,

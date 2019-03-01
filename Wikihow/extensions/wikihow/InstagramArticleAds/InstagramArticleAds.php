@@ -8,11 +8,10 @@ $wgAPIModules['instagram_article_ads'] = 'InstagramArticleAdsAPI';
 $wgMessagesDirs['InstagramArticleAds'] = __DIR__ . '/i18n';
 
 $wgHooks['BeforePageDisplay'][] = ['InstagramArticleAds::onBeforePageDisplay'];
-$wgHooks['MobileProcessArticleHTMLAfter'][] = ['InstagramArticleAds::onProcessArticleHTMLAfter'];
-$wgHooks['MobileEmbedStyles'][] = ['InstagramArticleAds::onMobileEmbedStyles'];
 
 $wgResourceModules['mobile.wikihow.iphonetips_ig_ad'] = [
 	'scripts' => [ 'iphonetips_ig_ad.js' ],
+	'styles' => [ 'iphonetips_ig_ads.css' ],
 	'localBasePath' => __DIR__.'/resources',
 	'remoteExtPath' => 'wikihow/InstagramArticleAds/resources',
 	'targets' => [ 'mobile' ],

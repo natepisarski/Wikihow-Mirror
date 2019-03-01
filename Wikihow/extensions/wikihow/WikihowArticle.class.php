@@ -524,9 +524,6 @@ class WikihowArticleHTML {
 			if ( $mVideo->attr( 'data-watermark' ) ) {
 				$videoContainer->after( WHVid::getVideoWatermarkHtml( $context->getTitle() ) );
 			}
-			//if ( ArticleTagList::hasTag( 'video_icon', $context->getTitle()->getArticleID() ) ) {
-				//$videoContainer->after( WHVid::getVideoIconHtml( $context->getTitle() ) );
-			//}
 			if ( $mVideo->attr( 'data-summary' ) ) {
 				if ($wgUser && in_array('staff', $wgUser->getGroups() ) ) {
 					$mVideo->attr( 'oncontextmenu', '' );

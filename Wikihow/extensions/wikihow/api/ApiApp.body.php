@@ -333,7 +333,7 @@ class AppDataFormatter {
 		// prepend a siterev number to the revision id so we can 'clear the cache' of the ios articles
 		// since they will cache an article forever based on the rev id currently this is a way to allow
 		// us to force them to update
-		$siteRev = 2;
+		$siteRev = 4;
 		$revId = intval( $siteRev . $revId );
 		return $revId;
 	}
@@ -1185,11 +1185,149 @@ class ApiSectionParser {
 		}
 	}
 
+	private static function parseGreenBoxContent( $element, $splitSize, $forceHtml = false ) {
+		if ( pq( $element )->find('p')->length > 0 ) {
+			$text = trim( pq( $element )->find('p')->html() );
+		} else if ( $forceHtml ) {
+			$text = trim( pq( $element )->html() );
+		} else {
+			$text = trim( pq( $element )->text() );
+		}
+		$text = str_replace( "<b>", "", $text );
+
+		// allow bold tag for first line. keep track of closing bold tag position
+		// if it is in any other position it's too complicated to keep track of for now
+		$closingBoldPosition = strpos( $text, '</b>' );
+		if ( $closingBoldPosition  !== false ) {
+			$hasBold = true;
+		}
+		$text = str_replace( "</b>", "", $text );
+
+		$lines = explode( "\n", wordwrap( $text, $splitSize, "\n" ) );
+
+		if ( !$hasBold ) {
+			$fixedLines = array();
+			foreach ( $lines as $line ) {
+				$fixedLines[] = trim( $line );
+			}
+			return $fixedLines;
+		}
+
+		// put the bold tag back in. it may span multiple lines
+		$fixedLines = array();
+		foreach ( $lines as $line ) {
+			// first case, we have bold but the closing position is on the next line
+			if ( $hasBold && $closingBoldPosition > $splitSize ) {
+				$closingBoldPosition =  $closingBoldPosition - strlen( $line );
+				// add the bold tag to the beginning and end of the line
+				$line = '<b>' . $line . '</b>';
+			} else if ( $hasBold ) {
+				// add the closing bold to the specific spot
+				$line = substr_replace( $line, "</b>", $closingBoldPosition, 0);
+				// add the bold tag to the beginning of the line
+				$line = '<b>' . $line;
+				// set has bold to false so we know we are done
+				$hasBold = false;
+			}
+			$fixedLines[] = trim( $line );
+		}
+		return $fixedLines;
+	}
+
+	private static function parseGreenBoxChild( $element, $splitSize ) {
+		$lines = array();
+		if ( pq( $element )->hasClass( 'green_box_row' ) ) {
+			$newLines = self::getGreenBoxContents( $element, $splitSize );
+			$lines = array_merge( $lines, $newLines );
+		} else if ( pq( $element )->hasClass( 'green_box_person' ) && pq( $element )->find( '.green_box_expert_label' )->length == 0 ) {
+			// do nothing here, this is the case where the green box person has no label
+			// and the resulting html would just be the "Q" that we put in the circle
+			// we could handle this if we want to but for now skip it
+			$lines = $lines;
+		} else if ( pq( $element )->hasClass( 'green_box_content' ) ) {
+			$newLines = self::parseGreenBoxContent( $element, $splitSize );
+			$lines = array_merge( $lines, $newLines );
+		} else if ( pq( $element )->hasClass( 'green_box_expert_info' ) ) {
+			$newLines = self::parseGreenBoxContent( $element, $splitSize, false );
+			foreach ( $newLines as $line ) {
+				$lines[] = Html::rawElement( 'greenbox_expert_info', array(), $line );
+			}
+		} else if ( pq( $element )->find( '.green_box_expert_label' )->length > 0 ) {
+			$newLines = self::parseGreenBoxContent( $element, $splitSize );
+			foreach ( $newLines as $line ) {
+				$lines[] = Html::rawElement( 'greenbox_label', array(), $line );
+			}
+		} else if ( pq( $element )->find( '.green_box_tab_label' )->length > 0 || pq( $element )->hasClass( 'green_box_tab_label' )) {
+			// for now we do not show the green box tab labels at all
+			//$newLines = self::parseGreenBoxContent( $element, $splitSize );
+			//foreach ( $newLines as $line ) {
+				//$lines[] = Html::rawElement( 'greenbox_label', array(), $line );
+			//}
+			return $lines;
+		} else {
+			$newLines = self::parseGreenBoxContent( $element, $splitSize );
+			$lines = array_merge( $lines, $newLines );
+		}
+		return $lines;
+	}
+
+	// parses a green box returns text which can be split up in to lines
+	private static function getGreenBoxContents( $greenBox, $splitSize ) {
+		$lines = array();
+		foreach ( pq( $greenBox )->children() as $greenBoxChild ) {
+			$newLines = self::parseGreenBoxChild( $greenBoxChild, $splitSize );
+			$lines = array_merge( $lines, $newLines );
+		}
+		return $lines;
+	}
+
+	private static function makeGreenBox( $greenBox, $splitSize, $elementName ) {
+		$lines = self::getGreenBoxContents( $greenBox, $splitSize );
+		$box = "";
+		foreach( $lines as $line ) {
+			if ( !trim($line) ) {
+				continue;
+			}
+			if ( strpos( $line, 'greenbox_expert_info' ) !== false )  {
+				$box .= $line;
+			} else {
+				$box .= Html::rawElement( 'greenbox', array(), $line );
+			}
+		}
+		$box = Html::rawElement( $elementName, array(), $box );
+		return $box;
+	}
+
+	private static function processGreenBoxes() {
+		// we do not want to parse these
+		pq( '.green_box_person_circle' )->remove();
+
+		foreach ( pq( '.green_box' ) as $greenBox) {
+
+			$boxesHtml = '';
+			// get any header texts
+			$sizes = [
+				[ 33, 'greenboxwrap_small' ],
+				[ 38, 'greenboxwrap' ],
+				[ 44, 'greenboxwrap_large' ],
+				[ 72, 'greenboxwrap_tablet' ],
+				[ 78, 'greenboxwrap_largetablet' ],
+				//[ 1000, 'greenboxwrap_test' ],
+			];
+			foreach ( $sizes as $size ) {
+				$box = self::makeGreenBox( $greenBox, $size[0], $size[1] );
+				$boxesHtml .= $box;
+			}
+			$boxesHtml = Html::rawElement( 'image', ['class'=>'greenboxwrapper'], $boxesHtml );
+			pq( $greenBox )->after( $boxesHtml );
+			pq( $greenBox )->remove();
+		}
+	}
+
 	private function processStepContent($node) {
 		$steps = array();
 		foreach (pq('div.step_content', $node) as $stepNode) {
 			$step = array();
-
 			// Pull out step number
 			$numNode = pq('div.step_num:first', $stepNode);
 			if ($numNode->length) {
@@ -1197,6 +1335,7 @@ class ApiSectionParser {
 				$numNode->remove();
 			}
 
+			self::processGreenBoxes();
 			pq($stepNode)->find('script')->remove();
 
 			$imgNode = null;

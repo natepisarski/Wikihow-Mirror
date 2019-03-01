@@ -322,13 +322,6 @@ class WHVid {
 	}
 
 	/*
-	 * used to put a video icon over the video
-	 */
-	public static function getVideoIconHtml( $title ) {
-		$html = Html::element( 'img', ['class' => 'm-video-icon', 'src' => '/skins/WikiHow/images/video_icon.png'] );
-		return $html;
-	}
-	/*
 	 * used by desktop to make a fake watermark on video
 	 */
 	public static function getVideoWatermarkHtml( $title ) {

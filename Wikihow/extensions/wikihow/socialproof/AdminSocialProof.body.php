@@ -8,17 +8,20 @@ class AdminSocialProof extends UnlistedSpecialPage {
     }
 
     public function execute( $subPage ) {
-		global $wgDebugToolbar, $IP;
+		global $wgDebugToolbar, $IP, $wgIsDevServer;
 
 		$request = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$userGroups = $user->getGroups();
 
-		if ( $user->isBlocked() || !in_array( 'staff', $userGroups ) ) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
-			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
-			return;
+		if ( $user->isBlocked() || !in_array('staff', $userGroups) ) {
+			$devReq = $wgIsDevServer && $request->wasPosted() && $request->getVal('action') == 'import' && $request->getBool('dev');
+			if (!$devReq) {
+				$out->setRobotpolicy( 'noindex,nofollow' );
+				$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+				return;
+			}
 		}
 
 		if ( !$request->wasPosted() ) {
@@ -36,7 +39,7 @@ class AdminSocialProof extends UnlistedSpecialPage {
 		$result = array();
 
 		$out->setArticleBodyOnly( true );
-		if ( $request->getVal( 'action' ) == "import" ) {
+		if ( $request->getVal( 'action' ) == 'import' ) {
 			// only do this if not already running..
 			$running = MasterExpertSheetUpdate::getCurrentStatus();
 			if ( !$running ) {
@@ -71,7 +74,7 @@ class AdminSocialProof extends UnlistedSpecialPage {
 		$out = $this->getOutput();
         $out->setPageTitle( "Social Proof Admin" );
         $vars = array();
-		$vars['sheetLink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/' . ExpertVerifyImporter::SHEET_ID;
+		$vars['sheetLink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/' . ExpertVerifyImporter::getSheetId();
         EasyTemplate::set_path( $path );
         $html = EasyTemplate::html( 'AdminSocialProof.tmpl.php', $vars );
 

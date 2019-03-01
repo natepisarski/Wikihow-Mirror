@@ -2,7 +2,7 @@
 
 /**
  * Updates the Master Expert Verified spreadsheet with the latest reverifications.
- * Spreadsheet ID: ExpertVerifyImporter::SHEET_ID
+ * Spreadsheet ID: ExpertVerifyImporter::getSheetId()
  */
 class ReverificationSpreadsheetUpdater {
 
@@ -215,8 +215,7 @@ class ReverificationSpreadsheetUpdater {
 		];
 		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
 
-		$fileId = $wgIsProduction ? ExpertVerifyImporter::SHEET_ID : ExpertVerifyImporter::SHEET_ID_DEV;
-
+		$fileId = ExpertVerifyImporter::getSheetId();
 		$file = $client->file($fileId);
 
 		return $file;

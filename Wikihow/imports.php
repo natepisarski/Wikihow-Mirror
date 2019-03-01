@@ -367,7 +367,7 @@ require_once("$IP/extensions/wikihow/api/ApiSummaryVideos.php");
 require_once("$IP/extensions/wikihow/api/ApiSummarySection.php");
 require_once("$IP/extensions/wikihow/api/ApiRelatedArticles.php");
 
-if ($wgLanguageCode == "en" || $wgLanguageCode == "de") {
+if (in_array($wgLanguageCode, $wgActiveAlexaApiLanguages)) {
 	require_once("$IP/extensions/wikihow/bots/Bots.php");
 	require_once("$IP/extensions/wikihow/articletext/ArticleText.php");
 	require_once("$IP/extensions/wikihow/api/ApiArticleText.php");

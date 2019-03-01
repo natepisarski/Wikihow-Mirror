@@ -610,9 +610,6 @@ class WikihowMobileTools {
 		// we moved them to be next to each other above, but left them
 		// in order to create the poster image for the video
 		pq( ".video-player" )->parent()->nextAll( '.image' )->remove();
-		if ( $wgTitle && ArticleTagList::hasTag( 'video_icon', $wgTitle->getArticleID() ) ) {
-			pq( ".video-player" )->addClass( 'video-player-icon' );
-		}
 
 		//remove all images in the intro that aren't
 		//marked with the class "introimage"

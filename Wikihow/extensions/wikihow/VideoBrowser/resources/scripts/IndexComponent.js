@@ -3,16 +3,43 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 	create: function () {
 		this.lists = [];
 		this.title = new WH.VideoBrowser.TitleComponent();
+		this.actionBar = new WH.VideoBrowser.ActionBarComponent();
 		this.onViewportChange = this.onViewportChange.bind( this );
 	},
-	onAttach: function () {
-		document.title = mw.msg( 'videobrowser-index-title', mw.msg( 'videobrowser' ) );
-		this.lists = WH.VideoBrowser.catalog.categories()
-			.order( 'rank desc' )
+	rebuild: function () {
+		var categoryText;
+		var categories = WH.VideoBrowser.catalog.categories();
+		var isCategoryPage = !!this.state.category;
+		if ( isCategoryPage ) {
+			categoryText = this.state.category.replace( /-/g, ' ' );
+			categories = categories.filter( { title: categoryText } );
+		} else {
+			categories = categories.order( 'rank desc' );
+		} 
+		this.lists = categories
 			.get()
 			.map( function ( category ) {
-				return new WH.VideoBrowser.VideoListComponent( { category: category } );
+				return new WH.VideoBrowser.VideoListComponent( {
+					category: category,
+					videosPerPage: isCategoryPage ? 24 : 6
+				} );
 			} );
+		this.category = this.state.category;
+		document.title = categoryText ?
+			mw.msg( 'videobrowser-categoryindex-title', categoryText ) :
+			mw.msg( 'videobrowser-index-title' );
+	},
+	render: function () {
+		if ( this.category !== this.state.category ) {
+			this.rebuild();
+		}
+		return [ 'div.videoBrowser-index',
+			this.actionBar,
+			this.title,
+			[ 'div' ].concat( this.lists )
+		];
+	},
+	onAttach: function () {
 		window.addEventListener( 'resize', this.onViewportChange );
 		window.addEventListener( 'scroll', this.onViewportChange );
 	},
@@ -41,11 +68,5 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 				video.pause();
 			}
 		}
-	},
-	render: function () {
-		return [ 'div.videoBrowser-index',
-			this.title,
-			[ 'div' ].concat( this.lists )
-		];
 	}
 } );

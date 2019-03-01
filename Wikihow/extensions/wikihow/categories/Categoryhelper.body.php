@@ -296,6 +296,23 @@ class Categoryhelper extends UnlistedSpecialPage {
 		return $catmap;
 	}
 
+	public static function getBreadcrumbCategories( $title = null ) {
+		$tree = self::getCurrentParentCategoryTree( $title );
+		if ( is_array( $tree ) ) {
+			$tree = array_reverse( $tree );
+			$top = str_replace( '-', ' ', self::getTopCategory( $title ) );
+			// Get the first sub-tree that matches the top category as a list
+			foreach ( $tree as $cat => $subtree ) {
+				$list = self::cleanCurrentParentCategoryTree( [ $cat => $subtree ] );
+				if ( array_pop( array_slice( $list, -1 ) ) === $top ) {
+					return $list;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	public static function getTopCategory($title = null) {
 		global $wgContLang;
 		if (!$title) {

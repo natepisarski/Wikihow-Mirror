@@ -331,8 +331,15 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
 			$expand = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=true)"' : '';
 			$collapse = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=false)"' : '';
+			$classes = [];
+			if ( $this->isSearchPage ) {
+				$classes[] = 'hs_active';
+			}
+			if ( $data['secondaryButton'] ) {
+				$classes[] = 'hs_notif';
+			}
 			?>
-			<div id="hs" class="<?= $this->isSearchPage ? 'hs_active' : '' ?>">
+			<div id="hs" class="<?= implode( $classes, ' ' ) ?>">
 				<form action="/wikiHowTo" class="search" target="_top">
 					<input type="text" id="hs_query" role="textbox" tabindex="0" <?= $expand ?> name="search" value="<?= $query ?>" required placeholder="<?= wfMessage( 'header-search-placeholder' )->text() ?>" <?= !$data['amp'] ? 'x-webkit-speech' : '' ?> aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
 					<button type="submit" id="hs_submit"></button>

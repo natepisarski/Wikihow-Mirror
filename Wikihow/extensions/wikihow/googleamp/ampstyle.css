@@ -713,11 +713,9 @@
 	display: block;
 }
 .click-to-play-overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	display: block;
+	width: 100%;
+	padding-bottom: 56%; /* Maintain 16:9 aspect ratio */
 }
 .mw-mf-display-toggle {
 	position: static;

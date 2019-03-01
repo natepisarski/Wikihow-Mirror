@@ -46,14 +46,18 @@ class SpecialVideoBrowser extends SpecialPage {
 		$viewing = null;
 		$missing = false;
 		if ( !empty( $sub ) ) {
-			foreach ( $videos['videos'] as $video ) {
-				if ( str_replace( ' ', '-', $video['title'] ) === $sub ) {
-					$viewing = $video;
-					break;
+			if ( strpos( $sub, 'Category:' ) === 0 ) {
+				// Special category index
+			} else {
+				foreach ( $videos['videos'] as $video ) {
+					if ( str_replace( ' ', '-', $video['title'] ) === $sub ) {
+						$viewing = $video;
+						break;
+					}
 				}
-			}
-			if ( $viewing === null ) {
-				$missing = true;
+				if ( $viewing === null ) {
+					$missing = true;
+				}
 			}
 		}
 		if ( $missing ) {
@@ -70,7 +74,7 @@ class SpecialVideoBrowser extends SpecialPage {
 			if ( $viewing ) {
 				// Viewer
 				$pageTitle = wfMessage( 'videobrowser-how-to', $viewing['title'] )->text();
-				$htmlTitle = wfMessage( 'videobrowser-viewer-title', $pageTitle )->text();
+				$htmlTitle = wfMessage( 'videobrowser-viewer-title', $viewing['title'] )->text();
 				$summary = SummarySection::summaryData( $viewing['title'] );
 				$summaryHtml = SummarySection::summaryData( $viewing['title'] )['content'];
 				$summaryText = trim( strip_tags( $summaryHtml ) );
@@ -80,7 +84,7 @@ class SpecialVideoBrowser extends SpecialPage {
 				$meta = [
 					'meta-title' => [ 'name' => 'title', 'content' => $titleText ],
 					'meta-description' => [ 'name' => 'description', 'content' => $descriptionText ],
-					'og-title' => [ 'property' => 'og:title', 'content' => $pageTitle ],
+					'og-title' => [ 'property' => 'og:title', 'content' => $titleText ],
 					'og-site_name' => [ 'property' => 'og:site_name', 'content' => $wgSitename ],
 					'og-url' => [ 'property' => 'og:url', 'content' => $wgCanonicalServer . $url ],
 					'og-description' => [ 'property' => 'og:description', 'content' => $descriptionText ],
@@ -93,15 +97,24 @@ class SpecialVideoBrowser extends SpecialPage {
 				foreach ( $meta as $name => $attributes ) {
 					$output->addHeadItem( $name, Html::element( 'meta', $attributes ) );
 				}
-
+				$breadcrumbs = array_reverse( array_slice( $viewing['breadcrumbs'], 0, 1 ) );
+				$top = array_pop( array_slice($viewing['breadcrumbs'], -1 ) );
+				foreach ($breadcrumbs as $index => $breadcrumb ) {
+					$breadcrumbs[$index] = [
+						'label' => $breadcrumb,
+						'link' => '/Video/Category:' . str_replace( ' ', '-', $top )
+					];
+				}
 				$prerender = VideoBrowser::render( 'viewer-prerender.mustache', [
 					'url' => $url,
 					'read-more' => wfMessage( 'videobrowser-read-more' )->text(),
 					'context' => wfMessage( 'videobrowser-context' )->text(),
 					'summary' => "<p>{$summaryHtml}</p>",
 					'summaryText' => $summaryText,
+					'titleText' => $titleText,
 					'howToTitle' => wfMessage( 'videobrowser-how-to', $viewing['title'] )->text(),
-					'video' => $viewing
+					'video' => $viewing,
+					'breadcrumbs' => $breadcrumbs,
 				] );
 			} else {
 				// Index

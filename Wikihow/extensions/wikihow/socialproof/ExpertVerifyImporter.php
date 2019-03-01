@@ -1,16 +1,16 @@
 <?php
 
 class ExpertVerifyImporter {
-	const SHEETS_URL = "https://docs.google.com/spreadsheets/d/";
-	const SHEET_ID = "19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I"; // prod
-	const SHEET_ID_DEV = "18b4kYCe-NkkOrV30v-6sjRm3yUTigy1ULXwXDm24rKE";
+	const SHEETS_URL = 'https://docs.google.com/spreadsheets/d/';
+	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
+	const SHEET_ID_DEV = '1-BUw9GBzNBvhmJEpbRDb1_dsCQhaJoUmk1Yv3JHg7VI';
 
-	const FEED_LINK = "https://spreadsheets.google.com/feeds/list/";
-	const FEED_LINK_2 = "/private/values?alt=json&access_token=";
+	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
+	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
-	const DRIVE_ROOT_FOLDER = "0ANxdFk4C7ABLUk9PVA";
-	const EXPERT_FEEDBACK_FOLDER_ID = "0B9xdFk4C7ABLakZJdm8zUGFCa1k";
-	const COMMUNITY_VERIFY_SHEET_ID = "1uND-YYtRij_XmY5bSAce2VtXP4Lgsl7X8UICuRvzmVw";
+	const DRIVE_ROOT_FOLDER = '0ANxdFk4C7ABLUk9PVA';
+	const EXPERT_FEEDBACK_FOLDER_ID = '0B9xdFk4C7ABLakZJdm8zUGFCa1k';
+	const COMMUNITY_VERIFY_SHEET_ID = '1uND-YYtRij_XmY5bSAce2VtXP4Lgsl7X8UICuRvzmVw';
 
 	// folder link is like this:
 	// https://drive.google.com/a/wikihow.com/folderview?id=0B66Rhz56bzLHfllfVlJlTzNhRFJGOTNudnpDaFgxMkM5bmtLeUNFYjdxYmd4TUVKd3hIYWc&usp=drive_web&usp=docs_home&ths=true&ddrp=1#
@@ -29,8 +29,6 @@ class ExpertVerifyImporter {
 	##################################
 
 	public function doImport() {
-		global $wgIsDevServer;
-
 		$token = $this->getApiAccessToken();
 		$dbVerifiers = self::getVerifiersFromDB();
 		$result = ['errors' => [], 'warnings' => [], 'imported' => []];
@@ -63,7 +61,7 @@ class ExpertVerifyImporter {
 	 */
 	private function importVerifierSheet( string $token, array $dbVerifiers, array &$result ) {
 		$vLookupSheetId = 'op2q2od';
-		$data = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $vLookupSheetId, self::FEED_LINK_2, $token );
+		$data = $this->getWorksheetData( self::FEED_LINK, self::getSheetId(), $vLookupSheetId, self::FEED_LINK_2, $token );
 		$num = 1;
 		$verifierData = array();
 		foreach( $data as $row ) {
@@ -127,7 +125,7 @@ class ExpertVerifyImporter {
 		$dups = array();    // duplicate article IDs
 
 		foreach ( self::getWorksheetIds() as $worksheetId => $worksheetName ) {
-			$rows = $this->getWorksheetData( self::FEED_LINK, self::SHEET_ID, $worksheetId, self::FEED_LINK_2, $token );
+			$rows = $this->getWorksheetData( self::FEED_LINK, self::getSheetId(), $worksheetId, self::FEED_LINK_2, $token );
 			if ( !$rows || !is_array($rows) ) {
 				$result['errors'][] = "Unable to access worksheet '$worksheetName' (id=$worksheetId)";
 				continue;
@@ -264,6 +262,15 @@ class ExpertVerifyImporter {
 		];
 	}
 
+	public static function getSheetId() {
+		global $wgIsProduction;
+		if ($wgIsProduction) {
+			return self::SHEET_ID;
+		} else {
+			return self::SHEET_ID_DEV;
+		}
+	}
+
 	private static function getRowUrl(string $worksheet, int $row): string {
 		$gids = [
 			'vlookup' => '1516230615',
@@ -275,7 +282,7 @@ class ExpertVerifyImporter {
 			'chefverified' => '2067227246',
 		];
 		$gid = $gids[$worksheet] ?? 'worksheet_id_not_found';
-		return self::SHEETS_URL . self::SHEET_ID . "/edit#gid={$gid}&range=A{$row}";
+		return self::SHEETS_URL . self::getSheetId() . "/edit#gid={$gid}&range=A{$row}";
 	}
 
 	private function getRevId( $revisionLink ) {
@@ -631,7 +638,7 @@ class ExpertVerifyImporter {
 				continue;
 			}
 			// can't delete special sheets
-			if ( $id == self::SHEET_ID ) {
+			if ( $id == self::getSheetId() ) {
 				continue;
 			}
 			if ( $id == self::EXPERT_FEEDBACK_FOLDER_ID ) {

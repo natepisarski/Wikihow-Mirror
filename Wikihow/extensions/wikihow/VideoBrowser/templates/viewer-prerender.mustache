@@ -5,6 +5,9 @@
 				<ul id="breadcrumb" class="Breadcrumbs" aria-label="Video breadcrumbs">
 					<li class="home"><a href="/Main-Page" title="Main Page">Home</a></li>
 					<li> » <a href="/Video" title="Video">Video</a></li>
+					{{#breadcrumbs}}
+					<li> » <a href="{{link}}" title="{{label}}">{{label}}</a></li>
+					{{/breadcrumbs}}
 					<li> » <a href="{{url}}" title="{{howToTitle}}">{{howToTitle}}</a></li>
 				</ul>
 			</div>
@@ -24,7 +27,7 @@
 				<div class="videoBrowser-viewer-player">
 					<video key="{{id}}" width="728" height="410" playsinline="" controls="" controlslist="nodownload" poster="{{poster}}"><source src="{{video}}" type="video/mp4"></video>
 				</div>
-				<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{howToTitle}}","description":"{{summaryText}}","thumbnailUrl":["{{poster@1:1}}","{{poster@4:3}}","{{poster}}"],"uploadDate":"{{updated}}","contentUrl":"{{url}}","embedUrl":"{{video}}","interactionCount":"{{plays}}"}</script>
+				<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{titleText}}","description":"{{summaryText}}","thumbnailUrl":["{{poster@1:1}}","{{poster@4:3}}","{{poster}}"],"uploadDate":"{{updated}}","contentUrl":"{{url}}","embedUrl":"{{video}}","interactionCount":"{{plays}}"}</script>
 			</div>
 		</div>
 		{{/video}}

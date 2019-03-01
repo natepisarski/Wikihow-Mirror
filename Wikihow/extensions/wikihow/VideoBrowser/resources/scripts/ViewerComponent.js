@@ -92,9 +92,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			} );
 
 			// Page title
-			document.title = mw.msg(
-				'videobrowser-viewer-title', mw.msg( 'videobrowser-how-to', video.title )
-			);
+			document.title = mw.msg( 'videobrowser-viewer-title', video.title );
 
 			// Track view
 			this.trackView();
@@ -176,7 +174,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 					[ 'script', { type: 'application/ld+json' }, JSON.stringify( {
 						'@context': 'http://schema.org',
 						'@type': 'VideoObject',
-						'name': mw.msg( 'videobrowser-how-to', video.title ),
+						'name': mw.msg( 'videobrowser-meta-title', video.title ),
 						'description': state.summaryText || undefined,
 						'thumbnailUrl': [ video['poster@1:1'], video['poster@4:3'], video.poster ],
 						'uploadDate': video.updated,
