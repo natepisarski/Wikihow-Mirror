@@ -1,27 +1,28 @@
 <?php
 
-class Articlestats extends SpecialPage {
+class ArticleStats extends SpecialPage {
 
-	function __construct() {
-		parent::__construct( 'Articlestats' );
+	public function __construct() {
+		parent::__construct( 'ArticleStats' );
 	}
 
-	function execute($par) {
-		global $wgRequest, $wgOut;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
 		$this->setHeaders();
 
-		$target = $par != '' ? $par : $wgRequest->getVal('target');
+		$target = $par != '' ? $par : $req->getVal('target');
 
 		if (!$target) {
-			$wgOut->addHTML(wfMessage('articlestats_notitle'));
+			$out->addHTML(wfMessage('articlestats_notitle'));
 			return;
 		}
 
 		$t = Title::newFromText($target);
 		$id = $t->getArticleID();
 		if ($id == 0) {
-			$wgOut->addHTML(wfMessage("checkquality_titlenonexistant"));
+			$out->addHTML(wfMessage("checkquality_titlenonexistant"));
 			return;
 		}
 
@@ -140,7 +141,7 @@ class Articlestats extends SpecialPage {
 
 		$cl = SpecialPage::getTitleFor( 'ClearRatings', $t->getText() );
 
-		$wgOut->addHTML("
+		$out->addHTML("
 
 		<p> $articlelink<br/>
 		<table border=0 cellpadding=5>
@@ -170,8 +171,7 @@ class Articlestats extends SpecialPage {
 			'page_namespace' => NS_MAIN,
 			'page_is_redirect' => 0
 		];
-		return (int) $dbr->selectField($tables, $fields, $where);
+		return (int)$dbr->selectField($tables, $fields, $where);
 	}
 
 }
-

@@ -96,7 +96,7 @@ EOHTML;
 			array('GROUP BY' => 'rev_page'));
 		
 		foreach ($res as $row) {
-			$stats = Pagestats::get30day($row->rev_page,$dbr);
+			$stats = PageStats::get30day($row->rev_page,$dbr);
 			$total += (int)$stats;
 		}
 		

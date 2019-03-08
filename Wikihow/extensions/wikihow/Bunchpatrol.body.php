@@ -1,14 +1,12 @@
 <?php
 
-class Bunchpatrol extends SpecialPage {
+class BunchPatrol extends SpecialPage {
 
 	public function __construct() {
-		parent::__construct('Bunchpatrol');
+		parent::__construct('BunchPatrol');
 	}
 
 	private function writeBunchPatrolTableContent(&$dbr, $target, $readOnly) {
-		global $wgUser;
-
 		$out = $this->getOutput();
 		$out->addHTML( "<table width='100%' align='center' class='bunchtable'><tr>" );
 		if (!$readOnly) {
@@ -50,22 +48,21 @@ class Bunchpatrol extends SpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgUser;
-
+		$user = $this->getUser();
 		$out = $this->getOutput();
 		$request = $this->getRequest();
 		$this->setHeaders();
 
 		$target = isset($par) ? $par : $request->getVal('target');
 
-		if ($target == $wgUser->getName() ) {
+		if ($target == $user->getName() ) {
 			$out->addHTML(wfMessage('bunchpatrol_noselfpatrol'));
 			return;
 		}
 
 		$out->setHTMLTitle('Bunch Patrol - wikiHow');
 		$dbr =& wfGetDB(DB_SLAVE);
-		$me = Title::makeTitle(NS_SPECIAL, "Bunchpatrol");
+		$me = Title::makeTitle(NS_SPECIAL, "BunchPatrol");
 
 		$unpatrolled = $dbr->selectField('recentchanges', array('count(*)'), array('rc_patrolled=0'), __METHOD__);
 		if ( !strlen( $target ) ) {
@@ -81,7 +78,7 @@ class Bunchpatrol extends SpecialPage {
 			foreach ($res as $row) {
 				$u = User::newFromName($row->rc_user_text);
 				if ($u) {
-					$bpLink = SpecialPage::getTitleFor( 'Bunchpatrol', $u->getName() );
+					$bpLink = SpecialPage::getTitleFor( 'BunchPatrol', $u->getName() );
 					$out->addHTML("<tr><td>" . Linker::link($bpLink, $u->getName()) . "</td><td>{$row->C}</td>");
 				}
 			}
@@ -89,7 +86,7 @@ class Bunchpatrol extends SpecialPage {
 			return;
 		}
 
-		if ($request->wasPosted() && $wgUser->isAllowed('patrol') ) {
+		if ($request->wasPosted() && $user->isAllowed('patrol') ) {
 			$values = $request->getValues();
 			$vals = array();
 			foreach ($values as $key=>$value) {
@@ -138,7 +135,7 @@ class Bunchpatrol extends SpecialPage {
 			<input type='hidden' name='target' value='{$target}'>
 			");
 
-		if ($wgUser->isSysop()) {
+		if ($user->isSysop()) {
 			$out->addHTML("Select: <input type='button' onclick='checkall(true);' value='All'/>
 					<input type='button' onclick='checkall(false);' value='None'/>
 				");

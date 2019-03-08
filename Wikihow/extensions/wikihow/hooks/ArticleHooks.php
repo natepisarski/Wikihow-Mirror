@@ -262,17 +262,4 @@ class ArticleHooks {
 		return true;
 	}
 
-	public static function addDesktopTOCItems($wgTitle, &$anchorList) {
-		global $wgLanguageCode;
-		if (!Misc::isMobileMode() && $wgLanguageCode == "en") {
-			$refCount = Misc::getReferencesCount();
-			if($refCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$anchorList[] = Html::rawElement('a', ['href' => '#sourcesandcitations'], $refCount . " References");
-			} elseif( $refCount > 0 ) {
-				$anchorList[] = Html::rawElement('a', ['href' => '#sourcesandcitations'], "References");
-			}
-		}
-		return true;
-	}
-
 }

@@ -20,9 +20,6 @@ class SkinMinervaQADomain extends SkinMinerva {
 	}
 
 	private function prepareAmpTemplate() {
-		global $wgAppleTouchIcon;
-		global $wgWellFormedXml;
-		$wgWellFormedXml = true;
 		wfProfileIn( __METHOD__ );
 		$out = $this->getOutput();
 		// add head items
@@ -87,6 +84,9 @@ class SkinMinervaQADomain extends SkinMinerva {
 
 		$out = $this->getOutput();
 		global $wgEnableAPI, $wgAdvertisedFeedTypes;
+		// MWUP 3/2019 NOTE: $wgEnableAPI is going to be removed. We can edit the <head> links
+		// using the hook OutputPageAfterGetHeadLinksArray instead. We can do this:
+		//unset($tags['rsd']);
 		$wgEnableAPI = false; //removing stuff from the <head> that we don't want on this domain
 		$wgAdvertisedFeedTypes = [];
 

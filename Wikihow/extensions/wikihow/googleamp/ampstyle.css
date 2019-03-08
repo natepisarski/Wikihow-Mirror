@@ -364,6 +364,9 @@
 .icon-sortquestions a {
 	background-image: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-sortquestions.svg);
 }
+.icon-quizyourself a {
+	background-image: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-quizyourself.svg);
+}
 .icon-aboutwikihow a {
 	background: url(/skins/owl/images/wikihow_logo_round.png) 20px;
 }
@@ -917,6 +920,15 @@ p.green_box_bullet {
 }
 #articleinfo {
 	border-top: 0;
+}
+
+.qy_cta {
+	border-radius: 4px;
+	background-color: #FFF;
+	text-align: center;
+	font-size: 1.1em;
+	margin-top: 5px;
+	padding: 1em 1em 1.5em;
 }
 
 /* Tablet Support */

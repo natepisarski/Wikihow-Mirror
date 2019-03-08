@@ -10,48 +10,6 @@ a:hover {
 	text-decoration: none;
 }
 
-#sharing_buttons {
-	border: 1px solid #bfbfbf;
-	border-radius: 4px;
-	background-color: #ffffff;
-	padding: 5px;
-	-webkit-border-radius: 4px;
-}
-
-.share_icons {
-	display: inline-block;
-	text-align:left;
-	margin: 4px 4px 1px 8px;
-	height: 38px;
-	width: 38px;
-	position: relative;
-	background-size: cover;
-}
-
-#email_button {
-	/* @embed */
-	background-image: url(../../../../../skins/owl/images/email_icon.svg);
-}
-#facebook_share_button {
-	/* @embed */
-	background-image: url(../../../../../skins/owl/images/facebook2.svg);
-}
-
-#twitter_share_button {
-	/* @embed */
-	background-image: url(../../../../../skins/owl/images/twitter3.svg);
-}
-
-#gplus_share_button {
-	/* @embed */
-	background-image: url(../../../../../skins/owl/images/gplus2.svg);
-}
-
-#pinterest_share_button {
-	/* @embed */
-	background-image: url(../../../../../skins/owl/images/pinterest.svg);
-}
-
 /**********
  * FOOTER *
  **********/
@@ -461,6 +419,11 @@ body.navigation-enabled #footer {
 	background-position: 12px;
 	/* @embed */
 	background-image: url(../../images/wikihow/icon-categories.svg);
+}
+
+#mw-mf-page-left ul li.icon-quizyourself a {
+	/* @embed */
+	background-image: url(../../images/wikihow/icon-quizyourself.svg);
 }
 
 .toast {

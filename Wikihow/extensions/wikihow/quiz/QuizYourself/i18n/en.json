@@ -1,0 +1,21 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"quiz_yourself_title": "Quiz Yourself",
+	"menu-quizyourself": "Quiz App",
+	"quiz_yourself_cta_prompt": "Want more quizzes?",
+	"quiz_yourself_cta_text": "Keep testing yourself!",
+	"quiz_yourself_category_header": "QUIZ APP CATEGORIES",
+	"quiz_yourself_quiz_count": "$1 {{PLURAL:$1|quiz|quizzes}}",
+	"quiz_yourself_score_label": "points",
+	"quiz_yourself_quiz_label": "QUIZ ON ARTICLE",
+	"quiz_yourself_categories": "Categories",
+	"quiz_yourself_next_quiz": "Next Quiz",
+	"quiz_yourself_question_header": "QUESTION",
+	"quiz_yourself_of_count": "OF $1",
+	"quiz_yourself_eoq_category": "Awesome! You've finished all of the quizzes in the $1 category!",
+	"quiz_yourself_more_prompt": "Try more?",
+	"quiz_yourself_go_home": "Exit Quizzes",
+	"quiz_yourself_eoq_all": "You've finished every quiz! Come back later for more."
+}

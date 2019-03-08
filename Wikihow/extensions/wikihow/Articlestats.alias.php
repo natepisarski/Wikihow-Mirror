@@ -1,11 +1,11 @@
 <?php
 /**
- * Aliases for Special:Articlestats
+ * Aliases for Special:ArticleStats
  */
 
 $specialPageAliases = array();
 
 /** English (English) */
 $specialPageAliases['en'] = array(
-		'Articlestats' => array( 'Articlestats' ),
+		'ArticleStats' => array( 'ArticleStats', 'Articlestats' ),
 );

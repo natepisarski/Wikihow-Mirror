@@ -2,20 +2,20 @@ initModal();
 
 function initModal() {
 	$('#cm_input').focus();
-	
+
 	//closing logic
 	$('.created_modal_close').click(function() {
 		action = $(this).attr('id');
 		if (action == 'created_modal_signup') return false; //already logs
-		
+
 		var skip_checks = (action == 'created_modal_close') ? true : false;
-		
+
 		gatTrack('Author_engagement', action, 'Publishing_popup');
-		
+
 		var processed = processPop(skip_checks);
 		if (processed) $.modal.close();
 	});
-	
+
 	//toggle
 	$('#created_modal_toggle').click(function() {
 		if ($(this).hasClass('fa-toggle-on')) {
@@ -27,7 +27,7 @@ function initModal() {
 			if ($('#cm_input_box_1')) $('#cm_input_box_1').slideDown();
 		}
 	});
-	
+
 	//info circle
 	$('#created_modal_info').hover(function() {
 		$('#info_tooltip').fadeIn({queue: false, duration: 150});
@@ -36,19 +36,19 @@ function initModal() {
 		$('#info_tooltip').fadeOut({queue: false, duration: 130});
 		$('#info_tooltip').animate({ top: "-=13px" }, 130);
 	});
-	
+
 	//share on the facebook
 	$('#created_modal_share_fb').click(function() {
 		gatTrack('Author_engagement', 'facebook_share', 'Publishing_popup');
 		share_article('facebook');
 	});
-	
+
 	//share on the twitter
 	$('#created_modal_share_tw').click(function() {
 		gatTrack('Author_engagement', 'twitter_share', 'Publishing_popup');
 		share_article('twitter');
 	});
-	
+
 	//share via email button
 	$('#created_modal_share_em').click(function() {
 		gatTrack('Author_engagement', 'email_share', 'Publishing_popup');
@@ -56,13 +56,13 @@ function initModal() {
 			$('#cm_share_input').focus();
 		});
 	});
-	
+
 	//anon signup button
 	$('#created_modal_signup').click(function() {
 		gatTrack('Author_engagement', 'anon_signup', 'Publishing_popup');
 		window.location.href = '/index.php?title=Special:UserLogin&type=signup';
 	});
-	
+
 	$('#cm_input').change(function() {
 		$('#created_modal_toggle').removeClass('fa-toggle-off').addClass('fa-toggle-on');
 	});
@@ -76,7 +76,7 @@ function processPop(skip_checks) {
 	if ($('#created_modal_toggle')) {
 		article_watch = $('#created_modal_toggle').hasClass('fa-toggle-on') ? 1 : 0;
 		email = $('#cm_input') ? $('#cm_input').val() : '';
-		
+
 		if (email && !skip_checks) {
 			var isValid = mw.util.validateEmail( email );
 			if (!isValid) {
@@ -84,34 +84,34 @@ function processPop(skip_checks) {
 				return false;
 			}
 		}
-			
+
 		if (article_watch == 1 && email == '' && !skip_checks) {
 			//you want notifications but you don't want to give us an address? whoops...
 			displayEmailError();
 			return false;
 		}
 		else {
-			$.post('/Special:AuthorEmailNotification',{ 
-				action: 'addNotification', 
-				email: email, 
+			$.post('/Special:AuthorEmailNotification',{
+				action: 'addNotification',
+				email: email,
 				target: target_article,
 				value: article_watch
 			});
 			if ($('#created_modal_toggle').hasClass('fa-toggle-on')) {
-				gatTrack("Author_engagement","Email_updates","Publishing_popup");		
+				gatTrack("Author_engagement","Email_updates","Publishing_popup");
 			}
 		}
 	}
-		
+
 	//show future dialogs?
 	if ($("#created_modal_checkbox").prop('checked')) {
-		$.post('/Special:AuthorEmailNotification',{ 
-			action: 'updatePreferences', 
-			dontshow: 1 
+		$.post('/Special:AuthorEmailNotification',{
+			action: 'updatePreferences',
+			dontshow: 1
 		});
 		gatTrack("Author_engagement","Reject_pub_pop","Reject_pub_pop");
 	}
-	
+
 	//sharing with friends via email?
 	if ($('#cm_share_input').val() != '') {
 		$.post('/Special:CreatepageEmailFriend', {
@@ -120,7 +120,7 @@ function processPop(skip_checks) {
 		});
 		gatTrack("Author_engagement","Author_mail_friends","Publishing_popup");
 	}
-	
+
 	//all good
 	return true;
 }
@@ -159,9 +159,6 @@ function share_article(who) {
 		case 'blogger':
 			window.open('http://www.blogger.com/blog-this.g?&u=' +encodeURIComponent(location.href)+ '&n=' +encodeURIComponent(document.title), 'blogger', 'toolbar=no,width=700,height=400');
 			void(0);
-			break;
-		case 'google':
-			(function(){var a=window,b=document,c=encodeURIComponent,d=a.open("https://plus.google.com/share?url="+c(b.location),"bkmk_popup","left="+((a.screenX||a.screenLeft)+10)+",top="+((a.screenY||a.screenTop)+10)+",height=420px,width=550px,resizable=1,alwaysRaised=1");a.setTimeout(function(){d.focus()},300)})();
 			break;
 	}
 }

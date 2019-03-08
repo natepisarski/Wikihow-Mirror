@@ -311,7 +311,7 @@ class ArticleAdExclusions {
 	private static function processTranslations(&$dbw, $englishId, $action = 'add_urls'): array {
 		global $wgActiveLanguages;
 
-		$titusData = Pagestats::getTitusData($englishId);
+		$titusData = PageStats::getTitusData($englishId);
 		$articleIds = [];
 		if ($titusData) {
 			foreach ($wgActiveLanguages as $langCode) {

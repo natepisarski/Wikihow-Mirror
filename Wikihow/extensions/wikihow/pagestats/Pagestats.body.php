@@ -1,85 +1,84 @@
 <?php
 
-class Pagestats extends UnlistedSpecialPage {
+class PageStats extends UnlistedSpecialPage {
 
 	public function __construct() {
-		parent::__construct('Pagestats');
+		parent::__construct('PageStats');
 	}
 
 	public static function getTitusData($pageId) {
-		global $wgLanguageCode;
+		$context = RequestContext::getMain();
+		$lang = $context->getLanguage()->getCode();
 
 		$dbr = wfGetDB(DB_SLAVE);
 		$table = Misc::getLangDB('en') . '.titus_copy';
-		$where = ['ti_page_id' => $pageId, 'ti_language_code' => $wgLanguageCode];
+		$where = ['ti_page_id' => $pageId, 'ti_language_code' => $lang];
 		$row = $dbr->selectRow($table, '*', $where);
 		return $row ?? null;
 	}
 
     public static function getRatingReasonData($pageId, $type, &$dbr) {
     	if (!isset($val)) $val = new stdClass();
-        $val->total = $dbr->selectField('rating_reason', "count(*)", array("ratr_item" => $pageId, "ratr_type" => $type), __METHOD__);
+        $val->total = $dbr->selectField('rating_reason',
+			"count(*)",
+			array("ratr_item" => $pageId, "ratr_type" => $type),
+			__METHOD__);
         return $val;
     }
 
 	public static function getRatingData($pageId, $tableName, $tablePrefix, &$dbr) {
 		global $wgMemc;
 
-		//$key = "ps-rating-" . $pageId;
-		//$val = $wgMemc->get($key);
+		$val = new stdClass();
+		$val->total = 0;
+		$yes = 0;
 
-		//if(!$val) {
-			$val = new stdClass();
-			$val->total = 0;
-			$yes = 0;
+		$res = $dbr->select($tableName,
+			"{$tablePrefix}_rating as rating",
+			array("{$tablePrefix}_page" => $pageId, "{$tablePrefix}_isdeleted" => 0),
+			__METHOD__);
+		foreach ($res as $row) {
+			$val->total++;
+			if ($row->rating == 1)
+				$yes++;
+		}
 
-			$res = $dbr->select($tableName, "{$tablePrefix}_rating as rating", array("{$tablePrefix}_page" => $pageId, "{$tablePrefix}_isdeleted" => 0), __METHOD__);
-			while($row = $dbr->fetchObject($res)) {
-				$val->total++;
-				if($row->rating == 1)
-					$yes++;
-			}
-
-			if($val->total > 0)
-				$val->percentage = round($yes*1000/$val->total)/10;
-			else
-				$val->percentage = 0;
-
-
-			//$wgMemc->set($key, $val);
-
-		//}
+		if ($val->total > 0) {
+			$val->percentage = round($yes*1000/$val->total)/10;
+		} else {
+			$val->percentage = 0;
+		}
 
 		return $val;
 	}
 
 	private static function getFellowsTime($fellowEditTimestamp) {
-		global $wgLang;
+		$context = RequestContext::getMain();
+		$lang = $context->getLanguage();
+
 		$d = false;
 		if (!$fellowEditTimestamp) {
 			return false;
 		}
 
 		$ts = wfTimestamp( TS_MW, strtotime($fellowEditTimestamp));
-		$hourMinute = $wgLang->sprintfDate("H:i", $ts);
+		$hourMinute = $lang->sprintfDate("H:i", $ts);
 		if ($hourMinute == "00:00") {
-			$d = $wgLang->sprintfDate("j F Y", $ts);
+			$d = $lang->sprintfDate("j F Y", $ts);
 		} else {
-			$d = $wgLang->timeanddate($ts);
+			$d = $lang->timeanddate($ts);
 		}
 		$result = "<p>" . wfMessage('ps-fellow-time') . " $d&nbsp;&nbsp;</p>";
 		return $result;
 	}
 
-	public static function getPagestatData($pageId) {
-		$context = RequestContext::getMain();
+	private function getPagestatData($pageId) {
 		$t = Title::newFromID($pageId);
 		$dbr = wfGetDB(DB_SLAVE);
 
-
 		$html = "<h3 style='margin-bottom:5px'>Staff-only data</h3>";
 
-		if (class_exists('SummaryEditTool') && SummaryEditTool::authorizedUser($context->getUser())) {
+		if (class_exists('SummaryEditTool') && SummaryEditTool::authorizedUser($this->getUser())) {
 			$html =  SummaryEditTool::editCTAforArticlePage() . $html;
 		}
 
@@ -225,7 +224,7 @@ class Pagestats extends UnlistedSpecialPage {
 
 		// Sensitive Article Tagging
 
-		if ($context->getLanguage()->getCode() == 'en') {
+		if ($this->getLanguage()->getCode() == 'en') {
 			$html .= "<hr style='margin:5px 0; '/>";
 			$saw = new SensitiveArticle\SensitiveArticleWidget($pageId);
 			$html .= '<div id="sensitive_article_widget">' . $saw->getHTML() . '</div>';
@@ -233,7 +232,7 @@ class Pagestats extends UnlistedSpecialPage {
 
 		// Inbound links
 		$target = SpecialPage::getTitleFor('Whatlinkshere', $t->getText());
-		$anchor = Articlestats::getInboundLinkCount($t);
+		$anchor = ArticleStats::getInboundLinkCount($t);
 		$query = [ 'namespace' => 0, 'hideredirs' => 1 ];
 		$link = Linker::link($target, $anchor, [], $query);
 		$html .= "<hr style='margin:5px 0;' />";
@@ -497,13 +496,13 @@ class Pagestats extends UnlistedSpecialPage {
 	}
 
 	public static function getCSSsnippet() {
-		$file = dirname( __FILE__ ) . "/pagestats.css";
+		$file = __DIR__ . "/pagestats.css";
 		$files = array( $file );
 		echo Html::inlineStyle( Misc::getEmbedFiles( "css", $files ) );
 	}
 
 	public static function getJSsnippet($type) {
-		global $wgLanguageCode;
+		$langCode = RequestContext::getMain()->getLanguage()->getCode();
 ?>
 <script>
 
@@ -636,7 +635,7 @@ class Pagestats extends UnlistedSpecialPage {
 			// save the edit message for this type
             $.cookie('mts_'+type, textBox);
 
-			var url = '/Special:Pagestats';
+			var url = '/Special:PageStats';
             var action ='motiontostatic';
 			var payload = {
 				action:action,
@@ -742,7 +741,7 @@ class Pagestats extends UnlistedSpecialPage {
             }
 
             staffEditSubmitted = true;
-			var url = '/Special:Pagestats';
+			var url = '/Special:PageStats';
             var action ='editingoptions';
             var highpriority = $('#sem-hp-box').prop('checked');
             $.post(
@@ -796,7 +795,7 @@ class Pagestats extends UnlistedSpecialPage {
 
 		getData = {'action':'ajaxstats', 'target':target, 'type':type};
 
-		$.get('/Special:Pagestats', getData, function(data) {
+		$.get('/Special:PageStats', getData, function(data) {
 				var result = (data && data['body']) ? data['body'] : 'Could not retrieve stats';
 				$('#staff_stats_box').html(result);
 				if (data && data['error']) {
@@ -818,7 +817,7 @@ class Pagestats extends UnlistedSpecialPage {
 	}
 
 	<?php
-	if ($wgLanguageCode == 'en') {
+	if ($langCode == 'en') {
 		echo SensitiveArticle\SensitiveArticleWidget::getJS();
 	}
 	?>

@@ -102,7 +102,6 @@ class SocialStamp {
 		$params["coauthor"] = wfMessage('ss_coauthor')->text();
 		$params["connector"] = "<span class='ss_pipe'>|</span>";
 		$params['check'] = "ss_check";
-		$params['oldToc'] = (class_exists('WikihowToc') && WikihowToc::isNewArticle()) ? "" : "old_toc";
 		$numCitations = Misc::getReferencesCount();
 		$referencesEligible = false;
 		if($numCitations >= SocialProofStats::DISPLAY_CITATIONS_LIMIT) {

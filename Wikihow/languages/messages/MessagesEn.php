@@ -5653,6 +5653,7 @@ Article pages are deleted according to wikiHow\'s [[deletion policy]].  Please c
 'congratulations-image' => 'Congratulations. When you save the article you are editing, this image will appear in your article',
 'contextchars' => 'Context per line:',
 'contextlines' => 'Lines per hit:',
+'continue' => 'Continue',
 'contribs' => 'Contribs',
 'contribslink' => 'contribs',
 'contribsub' => 'For $1',
@@ -7344,6 +7345,7 @@ You may enter a user name (\'\'not\'\' real name) to view protections and unprot
 'proxyblocker' => 'Proxy blocker',
 'proxyblockreason' => 'Your IP address has been blocked because it is an open proxy. Please contact your Internet service provider or tech support and inform them of this serious security problem.',
 'proxyblocksuccess' => 'Done.',
+'publish' => 'Publish',
 'pubmedurl' => 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=pubmed&dopt=Abstract&list_uids=$1',
 'qbbrowse' => 'Browse',
 'qbedit' => 'Edit',
@@ -7785,7 +7787,7 @@ The [http://meta.wikimedia.org/wiki/Help:Job_queue job queue] length is \'\'\'$7
 'textmatches' => 'Page text matches',
 'thank-you-kudos' => '<b>Thank you for your words of praise!</b> Your message has been posted on the \'<a href=\'/Thank-the-Authors-of-a-wikiHow-Page\'>kudos</a>\' page of each author that contributed to <b>$2</b>, found at the bottom of each article.
 <br/><br/>
-wikiHow authors can check their <a href=\'/Special:Mypages/Fanmail\'>kudos pages</a> and can view your messages of thanks there.  Your appreciation and feedback truly matters, and will help to keep our authors inspired and motivated to continue writing great articles.
+wikiHow authors can check their <a href=\'/Special:MyPages/Fanmail\'>kudos pages</a> and can view your messages of thanks there.  Your appreciation and feedback truly matters, and will help to keep our authors inspired and motivated to continue writing great articles.
 <br/><br/>
 <a href=\'$1\'>Click here to return to $2</a>.',
 'thank-you-requesting-topic' => '\'\'\'Thank you for suggesting a topic.\'\'\'

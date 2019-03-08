@@ -95,7 +95,7 @@ class ConfigStorage {
 	public static function dbStoreConfig($key, $config, $isArticleList, &$error, $allowArticleErrors = true, $newTagProb = 0, $logIt = true) {
 		global $wgMemc, $wgUser;
 
-		if ( !self::checkUserRestrictions($key) ) {
+		if ( !self::hasUserRestrictions($key) ) {
 			$error = "Your username '" . $wgUser->getName() . "' cannot modify this key. Ping Elizabeth. :)";
 			return false;
 		}
@@ -161,7 +161,7 @@ class ConfigStorage {
 		return $result;
 	}
 
-	public static function checkUserRestrictions($key) {
+	public static function hasUserRestrictions($key) {
 		global $wgUser;
 
 		// if they are using a maintenance process, saving is always allowed
@@ -172,7 +172,7 @@ class ConfigStorage {
 		$user = $wgUser->getName();
 
 		$rules = [
-			[
+			[ // rule 1
 			  'keys' => [
 				'UserPageWhitelist', 'deindexed_link_removal_whitelist', 'difficult-articles', 'editfish-article-exclude-list',
 				'expert_inline_articles', 'fresh_q&a_pages', 'header-test', 'header-test2',
@@ -185,16 +185,35 @@ class ConfigStorage {
 				'wikihow.tech', 'wikihowanswers_donotedit', 'qa_blacklisted_article_ids', 'qa_box_article_ids',
 				'qa_category_blacklist', 'ad-exclude-list', 'amp_disabled_pages', 'staff_reviewers',
 			  ],
-			  'users' => ['Anna', 'Chris H', 'ElizabethD', ] // Anna, Chris, Eliz == ACE!
+			  'users' =>
+			    ['Anna', 'Chris H', 'ElizabethD', ] // Anna, Chris, Eliz == ACE!
+			],
+
+			[ // rule 2
+			  'keys' =>
+			    [ 'opti_header', 'opti_desktop', 'opti_mobile', ],
+			  'users' =>
+			    [ 'Bsteudel' ], // Bebeth needs access to these
 			],
 			//[ 'keys' => ['wikiphoto-article-exclude-list'],
 			//  'users' => ['ElizabethD', 'WikiPhoto', 'Wikivisual', 'Wikiphoto'] ],
 		];
 
+		// * IF the key is covered by any of the rules above AND the user is not given
+		//   permission for that key in any rule, then user cannot edit the key
+		// * IF the key is not covered by any rule OR the user is given permission for
+		//   the specific key, then they can edit the key
+		$coveredRule = false;
 		foreach ($rules as $rule) {
 			if ( in_array($key, $rule['keys']) ) {
-				return in_array($user, $rule['users']);
+				$coveredRule = true;
+				if ( in_array($user, $rule['users']) ) {
+					return true;
+				}
 			}
+		}
+		if ($coveredRule) {
+			return false;
 		}
 
 		// any staff or existing special page restrictions are still in effect

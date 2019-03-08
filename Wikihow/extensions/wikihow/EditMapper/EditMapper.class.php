@@ -60,11 +60,11 @@ abstract class EditMapper {
 	/**
 	 * Whether the edit should be mapped
 	 */
-	abstract public function shouldMapEdit($title, $user, bool $isNew): bool;
+	abstract public function shouldMapEdit($title, $user, bool $isNew, string $comment): bool;
 
 	/**
 	 * @return The User to map the edit to, or false, in which case the mapping won't happen
 	 */
-	abstract public function getDestUser(bool $isNew, bool $isSummaryPage);
+	abstract public function getDestUser($title, bool $isNew);
 
 }

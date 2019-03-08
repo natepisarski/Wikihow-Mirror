@@ -1,12 +1,8 @@
 <?php
 
-class FeaturedContributor extends UnlistedSpecialPage {
+class FeaturedContributor {
 
-	function __construct() {
-		parent::__construct( 'FeaturedContributor' );
-	}
-
-	function getFCList($top = false) {
+	private static function getFCList($top = false) {
 		$list = preg_split('/\n==/', wfMessage('fc_list')->text());
 
 		if ($top) {
@@ -21,10 +17,10 @@ class FeaturedContributor extends UnlistedSpecialPage {
 		}
 	}
 
-	function showWidget( $top = false ) {
+	public static function showWidget($top = false) {
 		global $wgLanguageCode, $wgParser;
 
-		$rec = FeaturedContributor::getFCList($top);
+		$rec = self::getFCList($top);
 		preg_match('/== (.*?) ==/',$rec,$matches);
 		$fc_user =  $matches[1];
 		preg_match('/==\n(.*)/',$rec,$matches);
@@ -61,10 +57,6 @@ class FeaturedContributor extends UnlistedSpecialPage {
 
 <?php
 
-		return;
-	}
-
-	function execute ($par) {
 		return;
 	}
 }

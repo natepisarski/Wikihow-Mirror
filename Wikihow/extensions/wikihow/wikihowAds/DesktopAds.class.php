@@ -199,6 +199,27 @@ class DesktopAds {
 		return "";
 	}
 
+	public function insertSocialProofSidebarRightRail( $socialProofSidebar ) {
+
+		if ( !isset( $this->mAdCreator->mAds['rightrail3'] ) ) {
+			return $socialProofSidebar;
+		}
+		$adHtml = $this->mAdCreator->mAds['rightrail3']->mHtml;
+		if ( !$adHtml ) {
+			return $socialProofSidebar;
+		}
+		$spDoc = phpQuery::newDocument( $socialProofSidebar );
+		if ( pq( '.sp_top_box' )->length > 0 ) {
+			pq( '.sp_top_box:first' )->addClass( 'ad_rr3_expert' );
+			pq( '.sp_top_box:first' )->after( $adHtml );
+		} else {
+			pq( '.social_sidebox:first' )->before( $adHtml );
+			pq( '#rightrail3' )->addClass('ad_rr3_no_top_box');
+		}
+		pq( '#rightrail3' )->addClass('ad_rr3_separator');
+		$socialProofSidebar = $spDoc->htmlOuter();
+		return $socialProofSidebar;
+	}
 	/*
 	 * @return the html for related section ad
 	 */
@@ -317,6 +338,7 @@ class DesktopAds {
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
 			$adCreator = new MixedAdCreatorVersion5();
+			$adCreator->addAdsenseChannel( 5547225363 );
 			$adCreator->mAdServices['step'] = '';
 
 			if ( $pageId == 110310 ) {
@@ -333,12 +355,6 @@ class DesktopAds {
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
-			}
-
-			if ( ( class_exists("WikihowToc") && ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) ) {
-				$adCreator->addAdsenseChannel( 4805470868 );
-			} else {
-				$adCreator->addAdsenseChannel( 3492389196 );
 			}
 
 			if ( !$this->mEnglishSite ) {

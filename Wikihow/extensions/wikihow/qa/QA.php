@@ -45,7 +45,6 @@ $wgAutoloadClasses['QAHelpfulnessEmailJob'] = dirname(__FILE__) . '/jobs/QAHelpf
 $wgMessagesDirs['QAHelpfulnessEmailJob'] = [ __DIR__ . '/jobs/i18n/' ];
 
 $wgHooks['BeforePageDisplay'][] = 'QAWidget::onBeforePageDisplay';
-$wgHooks['AddDesktopTOCItems'][] = array('QAWidget::onAddDesktopTOCItems');
 $wgHooks['AddMobileTOCItemData'][] = array('QAWidget::onAddMobileTOCItemData');
 $wgHooks['UnitTestsList'][] = array('ArticleQuestion::onUnitTestsList');
 $wgHooks['UnitTestsList'][] = array( 'QAUtil::onUnitTestsList');

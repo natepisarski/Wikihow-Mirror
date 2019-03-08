@@ -626,7 +626,7 @@ class SpellcheckerArticleWhitelist extends UnlistedSpecialPage {
 }
 
 class wikiHowDictionary {
-	const DICTIONARY_LOC	= "/maintenance/spellcheck/custom.pws";
+	const DICTIONARY_LOC	= "/maintenance/wikihow/spellcheck/custom.pws";
 	const WHITELIST_TABLE	= "spellchecker_whitelist";
 	const CAPS_TABLE		= "spellchecker_caps";
 	const WORD_TABLE		= "spellchecker_word";

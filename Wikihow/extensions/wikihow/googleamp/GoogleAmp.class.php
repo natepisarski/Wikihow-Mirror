@@ -465,7 +465,7 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
-		$hasIntroAd = true;
+		$hasIntroAd = false;
 
 		if ( $hasIntroAd == true ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );

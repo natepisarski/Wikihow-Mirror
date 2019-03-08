@@ -20,11 +20,11 @@ class TranslatorEditMapper extends EditMapper {
 	/**
 	 * True for new articles if the user in in the "translator" user group
 	 */
-	public function shouldMapEdit($title, $user, bool $isNew): bool {
+	public function shouldMapEdit($title, $user, bool $isNew, string $comment): bool {
 		return $isNew && TranslateEditor::isTranslatorUser();
 	}
 
-	public function getDestUser(bool $isNew, bool $isSummaryPage) {
+	public function getDestUser($title, bool $isNew) {
 		return User::newFromName( wfMessage("translator_account")->text() );
 	}
 

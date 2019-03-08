@@ -1,28 +1,29 @@
 /*global WH, mw*/
 WH.VideoBrowser.ActionBarComponent = WH.Render.createComponent( {
 	render: function () {
-		var list, top, item, i, len, breadcrumbs = [];
+		var list = [], top, breadcrumbs, item, i, len;
 
 		var video = WH.VideoBrowser.catalog.videos().filter( { slug: this.state.slug } ).first();
 		if ( video ) {
-			list = video.breadcrumbs.slice( 0, 1 ).reverse();
-			top = video.breadcrumbs.slice( -1 ).pop();
+			breadcrumbs = video.breadcrumbs.split( ',' );
+			list = breadcrumbs.slice( 0, 1 ).reverse();
+			top = breadcrumbs.slice( -1 ).pop();
 			for ( i = 0, len = list.length; i < len; i++ ) {
-				breadcrumbs.push( {
+				list[i] = {
 					label: list[i],
 					link: '/Video/Category:' + top.replace( / /g, '-' )
-				} );
+				};
 			}
 		} else if ( this.state.category ) {
-			breadcrumbs = [ {
+			list = [ {
 				label: this.state.category.replace( /-/g, ' ' ),
 				link: '/Video/Category:' +  this.state.category
 			} ];
 		}
 
-		for ( i = 0, len = breadcrumbs.length; i < len; i++ ) {
-			item = breadcrumbs[i];
-			breadcrumbs[i] = [ 'li',
+		for ( i = 0, len = list.length; i < len; i++ ) {
+			item = list[i];
+			list[i] = [ 'li',
 				' » ', [ 'a', { href: item.link, title: item.label }, item.label ]
 			];
 		}
@@ -37,7 +38,7 @@ WH.VideoBrowser.ActionBarComponent = WH.Render.createComponent( {
 					['li', ' » ',
 						[ 'a', { href: '/Video', title: 'Video' }, 'Video' ]
 					]
-				].concat( breadcrumbs )
+				].concat( list )
 			]
 		];
 	}

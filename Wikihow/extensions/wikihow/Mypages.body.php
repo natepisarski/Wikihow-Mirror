@@ -1,22 +1,22 @@
 <?php
 
-class Mypages extends SpecialPage {
+class MyPages extends SpecialPage {
 
-	function __construct() {
-		parent::__construct( 'Mypages' );
+	public function __construct() {
+		parent::__construct( 'MyPages' );
 	}
 
-	function execute($par) {
-		global $wgOut, $wgUser, $wgRequest; 
+	public function execute($par) {
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
 		if ('Fanmail' == $par) {
-			$url = Title::makeTitle(NS_USER_KUDOS, $wgUser->getName())->getFullURL();
+			$url = Title::makeTitle(NS_USER_KUDOS, $user->getName())->getFullURL();
 		} else { // default to 'Contributions' instead of empty page
-			$url = Title::makeTitle(NS_SPECIAL, "Contributions")->getFullURL() . "/" . $wgUser->getName();
+			$url = Title::makeTitle(NS_SPECIAL, "Contributions")->getFullURL() . "/" . $user->getName();
 		}
 
-		$wgOut->redirect($url);
+		$out->redirect($url);
 	}
 
 }
-

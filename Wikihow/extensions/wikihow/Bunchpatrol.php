@@ -7,7 +7,7 @@ if ( ! defined( 'MEDIAWIKI' ) )
  * @package MediaWiki
  * @subpackage Extensions
  *
- * @link http://www.wikihow.com/WikiHow:Bunchpatrol-Extension Documentation
+ * @link http://www.wikihow.com/WikiHow:BunchPatrol-Extension Documentation
  *
  *
  * @author Travis Derouin <travis@wikihow.com>
@@ -15,14 +15,13 @@ if ( ! defined( 'MEDIAWIKI' ) )
  */
 
 $wgExtensionCredits['special'][] = array(
-	'name' => 'Bunchpatrol',
+	'name' => 'BunchPatrol',
 	'author' => 'Travis Derouin',
 	'description' => 'Bunches a bunch of edits of 1 user together',
-	'url' => 'http://www.wikihow.com/WikiHow:Bunchpatrol-Extension',
+	'url' => 'http://www.wikihow.com/WikiHow:BunchPatrol-Extension',
 );
 
-$wgExtensionMessagesFiles['Bunchpatrol'] = dirname(__FILE__) . '/Bunchpatrol.i18n.php';
+$wgExtensionMessagesFiles['BunchPatrol'] = dirname(__FILE__) . '/Bunchpatrol.i18n.php';
 
-$wgSpecialPages['Bunchpatrol'] = 'Bunchpatrol';
-$wgAutoloadClasses['Bunchpatrol'] = dirname( __FILE__ ) . '/Bunchpatrol.body.php';
-
+$wgSpecialPages['BunchPatrol'] = 'BunchPatrol';
+$wgAutoloadClasses['BunchPatrol'] = dirname( __FILE__ ) . '/Bunchpatrol.body.php';

@@ -403,6 +403,7 @@ WH.desktopAds = (function () {
 		if (this.sizesArray) {
 			this.sizesArray = JSON.parse(this.sizesArray);
 		}
+		this.notfixedposition = this.adElement.getAttribute('data-notfixedposition') == 1;
 		this.viewablerefresh = this.adElement.getAttribute('data-viewablerefresh') == 1;
 		this.renderrefresh = this.adElement.getAttribute('data-renderrefresh') == 1;
 		this.adLabelClass = this.adElement.getAttribute('data-adlabelclass');
@@ -792,6 +793,9 @@ WH.desktopAds = (function () {
 		var adHeights = [];
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var ad = rightRailElements[i];
+			if (ad.notfixedposition) {
+				continue;
+			}
 			updateAdLoading(ad, viewportHeight);
 			adHeights[i] = updateFixedPositioning(ad, viewportHeight);
 		}

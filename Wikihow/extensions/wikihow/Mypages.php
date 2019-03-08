@@ -2,27 +2,13 @@
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
     
-/**#@+
- * 
- * @package MediaWiki
- * @subpackage Extensions
- *
- * @link http://www.wikihow.com/WikiHow:Mypages-Extension Documentation
- *
- *
- * @author Travis Derouin <travis@wikihow.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
- */
-
 $wgExtensionCredits['specialpage'][] = array(
-	'name' => 'Mypages',
+	'name' => 'MyPages',
 	'author' => 'Travis Derouin',
 	'description' => 'Provides redirecting static urls to dynamic user pages',
 );
 
+$wgSpecialPages['MyPages'] = 'MyPages';
+$wgAutoloadClasses['MyPages'] = __DIR__ . '/Mypages.body.php';
 
-$wgSpecialPages['Mypages'] = 'Mypages';
-$wgAutoloadClasses['Mypages'] = dirname( __FILE__ ) . '/Mypages.body.php';
-
-$wgExtensionMessagesFiles['MypagesAlias'] = __DIR__  . '/Mypages.alias.php';
-
+$wgExtensionMessagesFiles['MyPagesAlias'] = __DIR__ . '/Mypages.alias.php';

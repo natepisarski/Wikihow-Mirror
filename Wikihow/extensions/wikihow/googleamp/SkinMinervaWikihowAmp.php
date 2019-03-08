@@ -21,8 +21,7 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 
 	private function prepareAmpTemplate() {
 		global $wgAppleTouchIcon, $wgMFNoindexPages;
-		global $wgWellFormedXml;
-		$wgWellFormedXml = true;
+
 		wfProfileIn( __METHOD__ );
 		$out = $this->getOutput();
 		// add head items

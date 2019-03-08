@@ -82,7 +82,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$save = $wgRequest->getVal('wpSave',null);
 		$title = Title::newFromURL($target);
 		// We have the dialog to enter the URL when we are adding a new article, and have no existing draft.
-		if(self::isTranslatorUser()) {
+		if($title->inNamespace(NS_MAIN) && self::isTranslatorUser()) {
 
 			if($draft == null
 			&& !$title->exists()

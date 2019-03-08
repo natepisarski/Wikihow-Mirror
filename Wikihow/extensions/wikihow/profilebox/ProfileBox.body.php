@@ -832,11 +832,6 @@ $wgOut->addHTML("
 						$loginEnabledMsg = wfMessage('pb-google-login-enabled');
 						$unlinkMsg = wfMessage('pb-unlink-google-account');
 						$socialLinked = "<div id='gplus_disconnect'>$loginEnabledMsg (<a>$unlinkMsg</a>)</div><div class='clearall'></div>";
-					} elseif ($u->getOption('show_google_authorship')) {
-						// Show link to G+
-						$gplusUrl = 'https://plus.google.com/' . $u->getOption('gplus_uid');
-						$name = $u->getRealName() ? $u->getRealName() : $u->getName();
-						$socialLinked = "<div class='pb-gp-link'><a href='$gplusUrl' rel='me'>$name on Google</a></div>";
 					}
 				}
 			}

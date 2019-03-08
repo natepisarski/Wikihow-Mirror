@@ -14,7 +14,7 @@ $messages['en'] = array (
 	//Kudos/Fan Mail
 	'echo-category-title-kudos' => 'Fan Mail',
 	'echo-pref-tooltip-kudos' => 'Notify me when someone sends me fan mail.',
-	'notification-kudos' => '[[User_talk:$1#post|$1]] sent you [[Special:Mypages/Fanmail#post|fan mail]].',
+	'notification-kudos' => '[[User_talk:$1#post|$1]] sent you [[Special:MyPages/Fanmail#post|fan mail]].',
 	'notification-kudos-diff-link' => 'edit',
 	//Extension: Subscription Manager (adds new echo pref)	
 	'prefs-globalemailoptout' => 'Receive emails from wikiHow:',

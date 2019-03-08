@@ -319,6 +319,16 @@ class SkinMinervaWikihow extends SkinMinerva {
 			$hasCommunityTools = true;
 		}
 
+		if ($wgLanguageCode == "en" && class_exists('QuizYourself')) {
+			$items['quizyourself'] = array(
+				'text' => wfMessage( 'menu-quizyourself' )->escaped(),
+				'href' => SpecialPage::getTitleFor( 'QuizYourself' )->getFullUrl(),
+				'class' => 'icon-quizyourself',
+				'id' => 'icon-quizyourself',
+			);
+			$hasCommunityTools = true;
+		}
+
 		/*if (class_exists('DuplicateTitles')) {
 			$items['duplicatetitles'] = array(
 				'text' => wfMessage('menu-duplicatetitles')->escaped(),

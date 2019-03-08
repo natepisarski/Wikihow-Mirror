@@ -210,12 +210,13 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			return;
 		}
 		$this->mAds['intro'] = $this->getIntroAd();
-		for ( $i = 0; $i < 3; $i++ ) {
+		for ( $i = 0; $i < 4; $i++ ) {
 			$this->mAds['rightrail'.$i] = $this->getRightRailAd( $i );
 		}
 		$this->mAds['step'] = $this->getStepAd();
 		$this->mAds['method'] = $this->getMethodAd();
 		$this->mAds['method2'] = $this->getMethod2Ad();
+		$this->mAds['method3'] = $this->getMethod3Ad();
 		for ( $i = 0; $i < pq('.qz_container')->length; $i++ ) {
 			$this->mAds['quiz'.$i] = $this->getQuizAd( $i ); //taking ads off quizzes temporairily
 		}
@@ -587,6 +588,22 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	}
 
 	/*
+	 * creates the method2 Ad
+	 */
+	public function getMethod3Ad() {
+		$ad = $this->getNewAd( 'method3' );
+		if ( $this->mAdServices['method3'] == "adsense" ) {
+			$ad = $this->getMethodAdAdsense();
+		} else if ( $this->mAdServices['method3'] == "dfp" ) {
+			$ad = $this->getMethodAdDFP();
+		}
+		if ( $ad->targetId ) {
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
+		}
+		return $ad;
+	}
+
+	/*
 	 * @return Ad an ad for the first right rail
 	 */
 	protected function getRightRailFirstAdsense() {
@@ -630,6 +647,22 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad->lateLoad = false;
 		$ad->width = 300;
 		$ad->height = 600;
+		$ad->mHtml = $this->getRightRailAdHtml( $ad );
+		return $ad;
+	}
+
+	/*
+	 * @return Ad an ad for the third right rail
+	 */
+	protected function getRightRailTopAdsense() {
+		$ad = $this->getNewAd( 'rightrail3' );
+		$ad->service = "adsense";
+		$ad->targetId = $ad->mType;
+		$ad->containerHeight = 250;
+		$ad->initialLoad = true;
+		$ad->lateLoad = false;
+		$ad->width = 300;
+		$ad->height = 250;
 		$ad->mHtml = $this->getRightRailAdHtml( $ad );
 		return $ad;
 	}
@@ -778,9 +811,15 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		if ( $ad->adClass ) {
 			$attributes['class'][] = $ad->adClass;
 		}
-		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
+		$elem = 'div';
+		if ($ad->wrapElement) {
+			$elem = $ad->wrapElement;
+		}
+		$html = Html::rawElement( $elem, $attributes, $innerAdHtml );
 		if ( !( $ad->noClearAll === true ) ) {
-			$html .= Html::element( 'div', ['class' => 'clearall adclear'] );
+			if ( $elem == 'div' ) {
+				$html .= Html::element( 'div', ['class' => 'clearall adclear'] );
+			}
 		}
 		return $html;
 	}
@@ -872,6 +911,16 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		}
 		return $ad;
 	}
+	/*
+	 * @return Ad an ad for the top right rail
+	 */
+	public function getRightRailTop() {
+		$ad = $this->getNewAd( 'rightrail3' );
+		if ( $this->mAdServices['rightrail3'] == "adsense" ) {
+			$ad = $this->getRightRailTopAdsense();
+		}
+		return $ad;
+	}
 
 	/*
 	 * creates a right rail ad based on the right rail position for this ad implementation
@@ -887,6 +936,8 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			$ad = $this->getRightRailSecond();
 		} else if ( $num == 2 ) {
 			$ad = $this->getRightRailThird();
+		} else if ( $num == 3 ) {
+			$ad = $this->getRightRailTop();
 		}
 		// now ad the js snippet to add the ad to the js sroll handler
 		if ( $ad && $ad->mHtml ) {
@@ -1295,29 +1346,6 @@ class MixedAdCreatorVersion2 extends MixedAdCreator {
 		);
 	}
 
-	/*
-	 * creates a right rail ad based on the right rail position for this ad implementation
-	 * @param Integer the right rail number or position on the page usually 0 1 or 2
-	 * @return Ad an ad for the right rail but no html
-	 */
-	// TODO this function seems to be identical to the one in the base class, if so, remove it
-	public function getRightRailAd( $num ) {
-		$type = "rightrail".$num;
-		$ad = $this->getNewAd( $type );
-		if ( $num == 0 ) {
-			$ad = $this->getRightRailFirst();
-		} else if ( $num == 1 ) {
-			$ad = $this->getRightRailSecond();
-		} else if ( $num == 2 ) {
-			$ad = $this->getRightRailThird();
-		}
-		// now ad the js snippet to add the ad to the js sroll handler
-		if ( $ad && $ad->mHtml ) {
-			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addRightRailAd('{$ad->mType}')" );
-		}
-
-		return $ad;
-	}
 
 	public function getIsLastAd( $ad ) {
 		if ( $ad->mType == "rightrail2" ) {
@@ -1394,22 +1422,19 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'intro' => 7862589374,
 			'step' => 1652132604,
 			'rightrail0' => 4769522171,
+			'method2' => 3356467874
 		);
 
 		$this->mAdServices = array(
 			'intro' => 'adsense',
 			'step' => 'adsense',
 			'method' => 'dfp',
+			'method2' => 'adsense',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
 			'quiz' => 'dfp'
 		);
-
-		if ( ( class_exists("WikihowToc") && ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) ) {
-			$this->mAdsenseSlots['method2'] = 3356467874;
-			$this->mAdServices['method2'] = 'adsense';
-		}
 
 	}
 

@@ -60,4 +60,8 @@ class DraftsPage extends SpecialPage {
 			$wgOut->addHTML( wfMsgHTML( 'drafts-view-nonesaved' ) );
 		}
 	}
+
+	protected function getGroupName() {
+		return 'pagetools';
+	}
 }

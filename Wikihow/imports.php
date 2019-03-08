@@ -97,7 +97,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/WinterSurvivalGuide/WinterSurvivalGuide.php");
 	require_once("$IP/extensions/wikihow/Hypothesis/Hypothesis.php");
 	require_once("$IP/extensions/wikihow/Game/Game.php");
-	require_once("$IP/extensions/wikihow/Summary/Summary.php");
 	require_once("$IP/extensions/wikihow/VideoBrowser/VideoBrowser.php");
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	require_once("$IP/extensions/wikihow/BibleCitation/BibleCitation.php");
@@ -434,3 +433,4 @@ require_once("$IP/extensions/wikihow/GreenBox/GreenBox.php");
 require_once("$IP/extensions/wikihow/SocialFooter/SocialFooter.php");
 require_once("$IP/extensions/wikihow/PressBoxes/PressBoxes.php");
 require_once("$IP/extensions/wikihow/WikihowNamespacePages/WikihowNamespacePages.php");
+require_once("$IP/extensions/wikihow/Summary/Summary.php");

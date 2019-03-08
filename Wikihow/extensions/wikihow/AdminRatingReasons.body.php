@@ -79,7 +79,7 @@ abstract class Helpfulness extends QueryPage {
 		return false;
 	}
 
-	function execute( $par ) {
+	public function execute( $par ) {
         global $wgHooks;
 
         $wgHooks['ShowSideBar'][] = array($this, 'removeSideBarCallback');
@@ -289,7 +289,7 @@ EOHTML;
 
 		if (!$rd) {
 			$dbr = wfGetDB(DB_SLAVE);
-			$rd = Pagestats::getRatingData($key, $this->mRatingTableName, $this->mRatingTablePrefix, $dbr);
+			$rd = PageStats::getRatingData($key, $this->mRatingTableName, $this->mRatingTablePrefix, $dbr);
 			$this->ratingsCache[$key] = $rd;
 		}
 

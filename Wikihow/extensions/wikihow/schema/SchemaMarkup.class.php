@@ -20,7 +20,6 @@ class SchemaMarkup {
 			'twitter' => 'https://twitter.com/wikiHow',
 			'instagram' => 'https://www.instagram.com/wikihow/',
 			'linkedin' => 'https://www.linkedin.com/company/wikihow/',
-//			'googleplus' => 'https://plus.google.com/+wikihow',
 			'youtube' => 'https://www.youtube.com/user/WikiHow',
 //			'pinterest' => 'https://www.pinterest.com/wikihow/',
 		],

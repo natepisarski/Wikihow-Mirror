@@ -125,78 +125,6 @@ a#slider_close_button:hover { text-decoration: none; }
     box-shadow: -3px 3px 4px #BFBFBF;
     margin-bottom: 0;
 }
-/*
-#slider_thanks_06 {
-	background-color: #FFF;
-	border: 4px solid #93b874;
-	border-right: none;
-	border-bottom: none;
-    border-radius: 150px 150px 0 150px;
-    font-size: 0.9em;
-    height: 160px;
-    margin-bottom: 0;
-    padding: 40px;
-	text-align: center;
-}
-*/
-/*
-.tta_plus1 {
-	float: left;
-	margin: 7px 0 0 10px;
-}
-
-.tta_plus1_02 {
-	float: left;
-	margin: 7px 0 0 100px;
-}
-
-.tta_plus1_03 {
-	clear: both;
-	text-align: center;
-}
-
-.tta_text {
-	padding: 10px 0 0 80px;
-	font-size: 1.5em;    
-}
-
-.tta_text_02 {
-	color: #D94E37;
-	padding: 10px 0 0 165px;
-	font-size: 1.5em;    
-}
-
-.tta_text_03 {
-	font-size: 1.4em;    
-	margin: 0 0 20px 0;
-}
-
-.tta_text_06 {
-	font-size: 1.4em;    
-	margin: 0 0 14px 0;
-}
-
-.tta_first {
-	font-size: 1.2em;
-	font-weight: bold;
-}
-.tta_first_03 {
-	font-size: 1.3em;
-	font-weight: bold;
-}
-.slider_thanks_intl {
-	background: #FEFFFE !important;
-}
-.sliderbox_rating {
-	width: 500px !important;
-}
-
-.tta_text_05{
-	font-size: 1.4em;    
-	margin: 0 0 5px 100px;
-}
-*/
-
 
 /*Become an Author*/
 .sliderbox_08, .sliderbox_10 {
@@ -215,7 +143,7 @@ a#slider_close_button:hover { text-decoration: none; }
     padding: 40px;
 	text-align: center;
 }
-.slider_become_main { 
+.slider_become_main {
 	font-size: 1.4em;
 	margin-top: 18px;
 }

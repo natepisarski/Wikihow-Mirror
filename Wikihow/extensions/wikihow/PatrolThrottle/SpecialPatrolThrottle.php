@@ -116,4 +116,8 @@ class SpecialPatrolThrottle extends SpecialPage {
 		$template->set( 'next', $nextOffset );
 		$this->getOutput()->addTemplate( $template );
 	}
+
+	protected function getGroupName() {
+		return 'users';
+	}
 }

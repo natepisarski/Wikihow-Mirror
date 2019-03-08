@@ -16,11 +16,11 @@ CREATE TABLE `import_articles` (
 
 class ImportXML extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'ImportXML' );
 	}
 
-	function getNextTextTag(&$parts, $elem = "<text>")  {
+	private function getNextTextTag(&$parts, $elem = "<text>")  {
 		$skipped = false;
 		while (sizeof($parts) > 0) {
 			$x = trim(array_shift($parts));
@@ -62,7 +62,7 @@ class ImportXML extends UnlistedSpecialPage {
 		}
 	}
 
-	function parseXML($text) {
+	private function parseXML($text) {
 		$articles = array();
 		$parts = preg_split("@(<[/]?article>)@im", $text, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
@@ -81,32 +81,32 @@ class ImportXML extends UnlistedSpecialPage {
 					if ($t == "") continue;
 	#echo "got T +$t+\n";
 					if ($t == "<introduction>") {
-						$n = self::getNextTextTag($d);
+						$n = $this->getNextTextTag($d);
 						$text .= $n;
-					} else if (strpos($t, "<title>") === 0 && !$title) {
+					} elseif (strpos($t, "<title>") === 0 && !$title) {
 						$title = strip_tags($t);
-					} else if ($t == "<steps>") {
+					} elseif ($t == "<steps>") {
 						$text .= "\n\n== Steps ==\n";
 						array_push($prefix, "#");
-					} else if ($t == "<tips>") {
+					} elseif ($t == "<tips>") {
 						$text .= "\n== Tips ==\n";
 						array_push($prefix, "*");
-					} else if ($t == "<substeps>") {
+					} elseif ($t == "<substeps>") {
 						array_push($prefix, "*");
-					} else if ($t == "</substeps>") {
+					} elseif ($t == "</substeps>") {
 						array_pop($prefix);
-					} else if ($t == "<warnings>") {
+					} elseif ($t == "<warnings>") {
 						$text .= "\n== Warnings ==\n";
 						array_push($prefix, "*");
-					} else if ($t == "<sources>") {
+					} elseif ($t == "<sources>") {
 						$text .= "\n== Sources and Citations ==\n";
 						array_push($prefix, "*");
-					} else if ($t == "<things>") {
+					} elseif ($t == "<things>") {
 						$text .= "\n== Things You'll Need ==\n";
 						array_push($prefix, "*");
-					} else if ($t == "<step>" || $t == "<tip>" || $t == "<warning>" || $t == "<thing>" || $t == "<source>") {
-						$text .= implode("", $prefix) . " " . self::getNextTextTag($d) . "\n";
-					} else if ($t == "<subsection>") {
+					} elseif ($t == "<step>" || $t == "<tip>" || $t == "<warning>" || $t == "<thing>" || $t == "<source>") {
+						$text .= implode("", $prefix) . " " . $this->getNextTextTag($d) . "\n";
+					} elseif ($t == "<subsection>") {
 						// hack fix for WRM
 						$found = false;
 
@@ -120,13 +120,13 @@ class ImportXML extends UnlistedSpecialPage {
 							break;
 						}
 						if ($found) {
-							$subtitle = self::getNextTextTag($d, "<title>");
+							$subtitle = $this->getNextTextTag($d, "<title>");
 							$text .= "\n=== " . $subtitle  . " ===\n";
 						}
 						#array_push($prefix, "#");
-					} else if ($t == "</subsection>") {
+					} elseif ($t == "</subsection>") {
 						#array_pop($prefix);
-					} else if ($t == "</steps>" || $t == "</tips>" || $t=="</warnings>" || $t == "</things>") {
+					} elseif ($t == "</steps>" || $t == "</tips>" || $t=="</warnings>" || $t == "</things>") {
 						array_pop($prefix);
 					}
 				}
@@ -134,36 +134,38 @@ class ImportXML extends UnlistedSpecialPage {
 				$articles[$title] = $text;
 			}
 		}
-	#print_r($articles); exit;
-		return $articles;
 
+		return $articles;
 	}
 
-	function publishArticles() {
-		global $wgUser, $wgRequest, $wgOut;
+	private function publishArticles() {
+		global $wgUser;
 
-		$olduser = $wgUser;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+
+		$oldUser = $wgUser;
 		$wgUser = User::newFromName('WRM');
 		$dbr = wfGetDB(DB_SLAVE);
 		$dbw = wfGetDB(DB_MASTER);
-		foreach ($wgRequest->getValues() as $key=>$val) {
+		foreach ($req->getValues() as $key=>$val) {
 			if (!preg_match("@publish_[0-9]+@", $key)) continue;
 			$id = preg_replace("@publish_@", "", $key);
 			$row = $dbr->selectRow('import_articles', array('ia_text', 'ia_title'), array('ia_id'=>$id));
 			$title = Title::makeTitle(NS_MAIN, $row->ia_title);
 			if (!$title) {
-				$wgOut->addHTML("Couldn't make title out of {$row->ia_title} <br/>");
+				$out->addHTML("Couldn't make title out of {$row->ia_title} <br/>");
 				continue;
 			}
 			$a = new Article($title);
 			if ($title->getArticleID()) {
-				$wgOut->addHTML("<a href='{$title->getFullURL()}' target='new'>{$title->getFullText()}</a> already exists, was NOT created.<br/>");
+				$out->addHTML("<a href='{$title->getFullURL()}' target='new'>{$title->getFullText()}</a> already exists, was NOT created.<br/>");
 				continue;
 			}
 			if ($a->doEdit($row->ia_text, "Creating new article")) {
-				$wgOut->addHTML("<a href='{$title->getFullURL()}' target='new'>{$title->getFullText()}</a> was created.<br/>");
+				$out->addHTML("<a href='{$title->getFullURL()}' target='new'>{$title->getFullText()}</a> was created.<br/>");
 			} else {
-				$wgOut->addHTML("<a href='{$title->getFullURL()}' target='new'>{$title->getFullText()}</a> was NOT created.<br/>");
+				$out->addHTML("<a href='{$title->getFullURL()}' target='new'>{$title->getFullText()}</a> was NOT created.<br/>");
 				continue;
 			}
 			$dbw->update('import_articles', array('ia_published' => 1, 'ia_published_timestamp' => wfTimestampNow(TS_MW)), array('ia_id'=>$id));
@@ -171,29 +173,29 @@ class ImportXML extends UnlistedSpecialPage {
 			$dbw->update('recentchanges', array('rc_patrolled' => 1), array('rc_cur_id'=>$title->getArticleID()));
 			wfRunHooks("WRMArticlePublished", array($title->getArticleID()));
 		}
-		$wgUser = $olduser;
+		$wgUser = $oldUser;
 	}
 
-	function execute($par) {
-		global $wgOut, $wgRequest, $wgUser, $wgParser;
+	public function execute($par) {
+		global $wgParser;
 
-		if ( !in_array( 'importxml', $wgUser->getRights() ) ) {
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		if ( !in_array( 'importxml', $user->getRights() ) ) {
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
 		// used through ajax
-		if ($wgRequest->getVal('delete')) {
-			$wgOut->disable();
+		if ($req->getVal('delete')) {
+			$out->disable();
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->delete('import_articles', array('ia_id'=>$wgRequest->getVal('delete')));
+			$dbw->delete('import_articles', array('ia_id'=>$req->getVal('delete')));
 			return;
 		}
-		if ($wgRequest->getVal('publishedcsv')) {
-			$wgOut->disable(); 
+		if ($req->getVal('publishedcsv')) {
+			$out->disable();
 			header("Content-type: text/plain;");
 			$dbr = wfGetDB(DB_MASTER);
-			if ($wgRequest->getVal('errs')) {
+			if ($req->getVal('errs')) {
 				$opts = array('ia_publish_err'=>1);
 			} else {
 				$opts = array('ia_published'=>1);
@@ -208,60 +210,60 @@ class ImportXML extends UnlistedSpecialPage {
 			return;
 		}
 		// used through ajax
-		if ($wgRequest->getVal('view')) {
-			$wgOut->disable();
+		if ($req->getVal('view')) {
+			$out->disable();
 			$dbr = wfGetDB(DB_MASTER);
-			$text = $dbr->selectField('import_articles', array('ia_text'), array('ia_id'=>$wgRequest->getVal('view')));
+			$text = $dbr->selectField('import_articles', array('ia_text'), array('ia_id'=>$req->getVal('view')));
 			echo "<textarea class='xml_edit' id='xml_input'>$text</textarea><br/>"
-				. '<a onclick="save_xml(' . $wgRequest->getVal('view') . ');" class="button button136" style="float: left;" onmouseover="button_swap(this);" onmouseout="button_unswap(this);">Save</a>';
+				. '<a onclick="save_xml(' . $req->getVal('view') . ');" class="button button136" style="float: left;" onmouseover="button_swap(this);" onmouseout="button_unswap(this);">Save</a>';
 			return;
 		}
 		// used through ajax
-		if ($wgRequest->getVal('update')) {
-			$wgOut->disable();
+		if ($req->getVal('update')) {
+			$out->disable();
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->update('import_articles', array('ia_text'=>$wgRequest->getVal('text')), array('ia_id'=>$wgRequest->getVal('update')));
+			$dbw->update('import_articles', array('ia_text'=>$req->getVal('text')), array('ia_id'=>$req->getVal('update')));
 			return;
 		}
-		if ($wgRequest->getVal('preview')) {
+		if ($req->getVal('preview')) {
 			$dbr = wfGetDB(DB_SLAVE);
-			$text = $dbr->selectField('import_articles', array('ia_text'), array('ia_id'=>$wgRequest->getVal('preview')));
-			$title  = $dbr->selectField('import_articles', array('ia_title'), array('ia_id'=>$wgRequest->getVal('preview')));
+			$text = $dbr->selectField('import_articles', array('ia_text'), array('ia_id'=>$req->getVal('preview')));
+			$title  = $dbr->selectField('import_articles', array('ia_title'), array('ia_id'=>$req->getVal('preview')));
 			$t = Title::newFromText($title);
 			# try this parse, this is for debugging only
-			$popts = $wgOut->parserOptions();
+			$popts = $out->parserOptions();
 			$popts->setTidy(true);
 			$popts->enableLimitReport();
 			$parserOutput = $wgParser->parse( $text, $t, $popts);
 			$popts->setTidy(false);
 			$popts->enableLimitReport( false );
-			$wgOut->setPageTitle(wfMessage('howto', $t->getText()));
+			$out->setPageTitle(wfMessage('howto', $t->getText()));
 			$html = WikihowArticleHTML::postProcess($parserOutput->getText());
-			$wgOut->addHTML($html);
+			$out->addHTML($html);
 			return;
 		}
 
-		if ($wgRequest->wasPosted() && ($wgRequest->getVal('xml') || sizeof($_FILES) > 0)) {
+		if ($req->wasPosted() && ($req->getVal('xml') || sizeof($_FILES) > 0)) {
 			$dbw = wfGetDB(DB_MASTER);
 
 			// input can either come from an XML file or copy+pasted input from the textarea
 			// use the file if we have it.
-			$input = $wgRequest->getVal('xml');
+			$input = $req->getVal('xml');
 			foreach ($_FILES as $f) {
 				if (trim($f['tmp_name']) == "") continue;
 				$input = preg_replace('@\r@', "\n", file_get_contents($f['tmp_name']));
 				break;
 			}
-			
-			$articles = self::parseXML($input);
+
+			$articles = $this->parseXML($input);
 			foreach($articles as $t=>$text) {
 				$title = Title::newFromText($t);
 				if (!$title) {
-					$wgOut->addHTML("cant make title out of $t<br/>");
+					$out->addHTML("cant make title out of $t<br/>");
 					continue;
 				}
 				if ($dbw->selectField('import_articles', 'count(*)', array('ia_title'=>$title->getDBKey())) > 0) {
-					$wgOut->addHTML("Article {$title->getText()} already exists, not adding.<br/>");
+					$out->addHTML("Article {$title->getText()} already exists, not adding.<br/>");
 					continue;
 				}
 				$dbw->insert('import_articles',
@@ -269,16 +271,16 @@ class ImportXML extends UnlistedSpecialPage {
 						'ia_text' => $text,
 						'ia_timestamp' => wfTimestampNow())
 					);
-				$wgOut->addHTML("Article {$title->getText()} saved.<br/>");
+				$out->addHTML("Article {$title->getText()} saved.<br/>");
 			}
-		} else if ($wgRequest->wasPosted() && $wgRequest->getVal('publish_articles')) {
-			self::publishArticles();
+		} elseif ($req->wasPosted() && $req->getVal('publish_articles')) {
+			$this->publishArticles();
 		}
 
-		$wgOut->addHTML('<style type="text/css" media="all">/*<![CDATA[*/ @import "/extensions/min/f/extensions/wikihow/import_xml.css"; /*]]>*/</style>');
-		$wgOut->addScript('<script type="text/javascript" src="/extensions/min/f/extensions/wikihow/import_xml.js"></script>');
+		$out->addHTML('<style type="text/css" media="all">/*<![CDATA[*/ @import "/extensions/min/f/extensions/wikihow/import_xml.css"; /*]]>*/</style>');
+		$out->addScript('<script type="text/javascript" src="/extensions/min/f/extensions/wikihow/import_xml.js"></script>');
 
-		$wgOut->addHTML("
+		$out->addHTML("
 			<form method='post' action='/Special:ImportXML' enctype='multipart/form-data'>
 			<input type='hidden' name='publish_articles' value='1'/>
 			<a href='#' id='hide_btn' style='float: right;' class='button white_button_150' onmouseover='button_swap(this);' onmouseout='button_unswap(this);' onclick='hidePublished();'>Show Published</a><br/>
@@ -295,7 +297,7 @@ class ImportXML extends UnlistedSpecialPage {
 			if ($t) {
 				$class = $row->ia_published == 1 ? "pub" : "";
 				$safe_title = urlencode(htmlspecialchars($row->ia_title));
-				$wgOut->addHTML("<tr id='row_{$row->ia_id}' class='{$class}'><td>{$row->ia_id}</td><td>{$t->getText()}</td><td>{$row->ia_timestamp}</td>
+				$out->addHTML("<tr id='row_{$row->ia_id}' class='{$class}'><td>{$row->ia_id}</td><td>{$t->getText()}</td><td>{$row->ia_timestamp}</td>
 					<td><a href='/Special:ImportXML?preview={$row->ia_id}' target='new'>Preview</a></td>
 					<td>" . ($row->ia_published == 1 ? "yes" : "no") . "</td>
 					<td><a onclick=\"edit_xml({$row->ia_id});\">Edit</a></td>
@@ -304,11 +306,11 @@ class ImportXML extends UnlistedSpecialPage {
 				</tr>");
 			}
 		}
-		$wgOut->addHTML("</table>
+		$out->addHTML("</table>
 			<input type='submit' value='Publish'/>
 			</form>
 		<br/>
-		<a href='/Special:ImportXML?publishedcsv=1'>Published(CSV)</a> | 
+		<a href='/Special:ImportXML?publishedcsv=1'>Published(CSV)</a> |
 		<a href='/Special:ImportXML?publishedcsv=1&errs=1'>Errors (CSV) </a>
 		<br/><br/>Insert new articles:
 		<form action='/Special:ImportXML' method='post' accept-charset='UTF-8' enctype='multipart/form-data'>
@@ -325,28 +327,29 @@ class ImportXML extends UnlistedSpecialPage {
 
 class ExportXML extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'ExportXML' );
 	}
 
-	function grabNextToken(&$tokens) {
+	private function grabNextToken(&$tokens) {
 		while (sizeof($tokens) > 0) {
 			$x = trim(array_shift($tokens));
-			if ($x != "")
+			if ($x) {
 				return $x;
+			}
 		}
 		return null;
 	}
 
-	function handleImages($x, &$dom, &$s) {
-		// grab images
-		global $wgOut;
+	// grab images
+	private function handleImages($x, &$dom, &$s) {
 		preg_match_all("@\[\[Image:[^\]]*\]\]@im", $x, $matches);
 		$img = null;
 		foreach($matches[0] as $m ) {
-			if (!$img)
+			if (!$img) {
 				$img = $dom->createElement("images");
-			$url = $wgOut->parse($m);
+			}
+			$url = $this->getOutput()->parse($m);
 			preg_match("@<img[^>]*class=\"mwimage101\"[^>]*>@im", $url, $mx);
 			$url = preg_replace("@.*src=\"@", "", $mx[0]);
 			$url = preg_replace("@\".*@", "", $url);
@@ -354,13 +357,12 @@ class ExportXML extends UnlistedSpecialPage {
 			$i->appendChild($dom->createTextNode($url));
 			$img->appendChild($i);
 		}
-		if ($img)
+		if ($img) {
 			$s->appendChild($img);
-		return;
+		}
 	}
 
-	function convertLinks($x) {
-		#echo "\ngot $x \n";
+	private function convertLinks($x) {
 		if (preg_match("@^http://@", $x) && strpos($x, " ") === false) {
 			$x = "<a href='{$x}'>{$x}</a>";
 			return $x;
@@ -369,22 +371,19 @@ class ExportXML extends UnlistedSpecialPage {
 		foreach ($matches[0] as $m) {
 			if (preg_match("@\[\[@", $m)) continue;
 			$d = preg_replace("@\[([^ ]*)[ ]([^\]]*)]@", "<a href='$1'>$2</a>", $m);
-			#echo "\treplacing $m with $d\n";
 			$x = str_replace($m, $d, $x);
 		}
-		#echo "\treutrning $x" . print_r($matches, true ) . " \n";
 		return $x;
 	}
 
-	function processListSection(&$dom, &$sec, $beef, $aresteps = true, $elem = "step") {
-		global $wgOut;
+	private function processListSection(&$dom, &$sec, $beef, $aresteps = true, $elem = "step") {
 		$toks = preg_split("@(^[#\*]+)@im", $beef, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 		$substeps = null;
 
 		while (sizeof($toks) > 0) {
-			$x = self::grabNextToken($toks);
+			$x = $this->grabNextToken($toks);
 			while (!preg_match("@(^[#\*]+)@im", $x) && sizeof($toks) > 0)  {
-				$x = self::grabNextToken($toks);
+				$x = $this->grabNextToken($toks);
 			}
 			if ($aresteps && preg_match("@^#[#\*]@", $x)) {
 				if ($substeps == null)
@@ -394,15 +393,15 @@ class ExportXML extends UnlistedSpecialPage {
 					$sec->appendChild($substeps);
 				$substeps = null;
 			}
-			$x = self::grabNextToken($toks);
+			$x = $this->grabNextToken($toks);
 			$s = $dom->createElement($elem);
-			self::handleImages($x, $dom, $s);
+			$this->handleImages($x, $dom, $s);
 			$t = $dom->createElement("text");
-			$x = self::cleanUpText($x);
+			$x = $this->cleanUpText($x);
 
 			if ($x == "") continue;
 			if ($elem == "source")
-				$x = self::convertLinks($x);
+				$x = $this->convertLinks($x);
 
 			$t->appendChild($dom->createTextNode($x));
 			$s->appendChild($t);
@@ -416,7 +415,7 @@ class ExportXML extends UnlistedSpecialPage {
 		return;
 	}
 
-	function cleanupText($text, $source = false) {
+	private function cleanupText($text, $source = false) {
 		// strip templates
 		$text= preg_replace("@{{[^}]*}}@", "", $text);
 		$text= preg_replace("@\[\[Image:[^\]]*\]\]@", "", $text);
@@ -453,19 +452,19 @@ class ExportXML extends UnlistedSpecialPage {
 		return trim($text);
 	}
 
-	function execute($par) {
-		global $wgRequest, $wgUser, $wgOut, $wgEmbedVideoServiceList;
+	public function execute($par) {
+		global $wgEmbedVideoServiceList;
 
 		/* disabled this check, per Eliz and Jack.  added noindex meta tag.
-		if ( !in_array( 'importxml', $wgUser->getRights() ) ) {
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		if ( !in_array( 'importxml', $user->getRights() ) ) {
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 		*/
 
-		if (!$wgRequest->wasPosted()) {
-			$wgOut->addMeta('robots', 'noindex');
-			$wgOut->addHTML(<<<END
+		if (!$req->wasPosted()) {
+			$out->addMeta('robots', 'noindex');
+			$out->addHTML(<<<END
 			<form action='/Special:ExportXML' method='post' enctype="multipart/form-data" >
 			URLS to export: <textarea name='xml'></textarea>
 			WOI category mappings: <input type="file" name="uploadFile"> <br/>
@@ -476,7 +475,7 @@ END
 			return;
 		}
 		$dbr = wfGetDB(DB_SLAVE);
-		$urls = explode("\n", $wgRequest->getVal('xml'));
+		$urls = explode("\n", $req->getVal('xml'));
 		$valid_sections = array("steps", "tips", "warnings", "things", "sources", "videos");
 
 		$dom = new DOMDocument("1.0");
@@ -497,7 +496,7 @@ END
 					$parts = parse_url($url);
 					$query = $parts['query'];
 					$params = array();
-					$tx = explode("&", $query); 
+					$tx = explode("&", $query);
 					foreach($tx as $v) {
 						$xx = explode("=", $v);
 						if ($xx[0] == "title") {
@@ -505,7 +504,6 @@ END
 							break;
 						}
 					}
-					
 				}
 				if ($key == "") continue;
 				$woi_map[$key] = $tokens;
@@ -561,8 +559,8 @@ END
 			$content = $dom->createElement("content");
 			$intro = Article::getSection($text, 0);
 			$i = $dom->createElement("introduction");
-			self::handleImages($intro, $dom, $i);
-			$intro = self::cleanupText($intro);
+			$this->handleImages($intro, $dom, $i);
+			$intro = $this->cleanupText($intro);
 			$n = $dom->createElement("text");
 			$n->appendChild($dom->createTextNode($intro));
 			$i->appendChild($n);
@@ -630,22 +628,22 @@ END
 								$sub = $dom->createElement("subsection");
 								$x = str_replace("=", "", $y);
 								$tnode = $dom->createElement("title");
-								$ttext = self::cleanupText($x);
+								$ttext = $this->cleanupText($x);
 								$tnode->appendChild($dom->createTextNode($ttext));
 								$sub->appendChild($tnode);
 								$body = array_shift($subs);
-								self::processListSection($dom, $sub, $body);
+								$this->processListSection($dom, $sub, $body);
 								$section->appendChild($sub);
 							} else {
 								// this is not a subsection, it could be a set of steps preceeding  a subsection
 								$body = $y;
-								self::processListSection($dom, $section, $y);
+								$this->processListSection($dom, $section, $y);
 							}
 						}
 					} else {
-						self::processListSection($dom, $section, $beef);
+						$this->processListSection($dom, $section, $beef);
 					}
-				} else if ($x == "videos") {
+				} elseif ($x == "videos") {
 					// {{Video:...}} embeds can point to other videos, so
 					// we need a loop here
 					$title = $t->getText();
@@ -695,7 +693,7 @@ END
 						break;
 					}
 				} else {
-					self::processListSection($dom, $section, $beef, false, preg_replace("@s$@", "", $x));
+					$this->processListSection($dom, $section, $beef, false, preg_replace("@s$@", "", $x));
 				}
 
 				// append the section
@@ -710,8 +708,8 @@ END
 				$m = preg_replace("@<[/]*ref[^>]*>@", "", $m);
 				$e = $dom->createElement("source");
 				$tx = $dom->createElement("text");
-				$m = self::convertLinks($m);
-				$m = self::cleanUpText($m, true);
+				$m = $this->convertLinks($m);
+				$m = $this->cleanUpText($m, true);
 				$tx->appendChild($dom->createTextNode($m));
 				$e->appendChild($tx);
 				$sources_element->appendChild($e);
@@ -743,7 +741,7 @@ END
 			$root->appendChild($a);
 
 		}
-		$wgOut->disable();
+		$out->disable();
 		header("Content-type: text/xml;");
 		echo $dom->saveXML();
 	}

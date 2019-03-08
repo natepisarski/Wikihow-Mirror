@@ -84,11 +84,9 @@ class LSearch extends SpecialPage {
 		// Track requests in statds/grafana
 		WikihowStatsd::increment('search.request');
 
-		// Enable beta search for Desktop/English only
+		// Enable beta search for the main site on desktop only
 		// Temporary while we are transitioning to the new search service
-		$this->mEnableBeta = !Misc::isAltDomain() &&
-			!Misc::isMobileMode() &&
-			$this->getLanguage()->getCode() === 'en';
+		$this->mEnableBeta = !Misc::isAltDomain() && !Misc::isMobileMode();
 
 		if ($req->getBool('internal')) {
 			$this->regularSearch(true);
@@ -96,9 +94,6 @@ class LSearch extends SpecialPage {
 			$this->rssSearch();
 		} elseif ($req->getBool('raw')) {
 			$this->rawSearch();
-		} elseif ($this->getLanguage()->getCode() == 'tr') {
-			// Redirect to Google CSE on mobile, or /Special:GoogSearch on desktop
-			$this->getOutput()->redirect( WikihowHomepage::getSearchUrl($this->mQ) );
 		} else {
 			$this->regularSearch();
 		}
@@ -277,7 +272,7 @@ class LSearch extends SpecialPage {
 		// These services often are intermittently blocked by yahoo search (which is free through our DDC contract).
 		// Instead we send them to Bing, which we have to pay per query.
 		// Trevor, 9/4/18 - Fallback to Special:Search if we have 0 results from an external provider
-		if ( $this->getLanguage()->getCode() !== 'tr' && !$this->getRequest()->getBool( 'internal' ) ) {
+		if ( !$this->getRequest()->getBool( 'internal' ) ) {
 			if ( $searchType == self::SEARCH_INTERNAL ) {
 				$count = $this->externalSearchResultsBing( $q, $start, $limit, $searchType );
 			} else {
@@ -291,8 +286,12 @@ class LSearch extends SpecialPage {
 				return $count;
 			}
 		}
-		// Fallback to internal search results (extracts results from MediaWiki Special:Search)
-		return $this->internalSearchResults( $q, $start, $limit );
+		// Fallback to internal search results (extracts results from MediaWiki Special:Search) for
+		// English only
+		if ( $this->getLanguage()->getCode() == 'en' ) {
+			return $this->internalSearchResults( $q, $start, $limit );
+		}
+		return 0;
 	}
 
 	/**
@@ -322,10 +321,17 @@ class LSearch extends SpecialPage {
 			$params = [
 				'count' => $limit,
 				'start' => $start,
-				'q' => $q
+				'q' => $q,
+				'lang' => $this->getLanguage()->getCode()
 			];
-			$url = $wgSearchServerBase . '/search?' . http_build_query( $params );
 
+			// Look for language specific search server, fallback on intl
+			if ( array_key_exists( $params['lang'], $wgSearchServerBase ) ) {
+				$server = $wgSearchServerBase[$params['lang']];
+			} else {
+				$server = $wgSearchServerBase['intl'];
+			}
+			$url = $server . '/search?' . http_build_query( $params );
 
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);

@@ -4866,7 +4866,7 @@ class TSInboundLinks extends TitusStat
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		return ['ti_inbound_links' => Articlestats::getInboundLinkCount($t)];
+		return ['ti_inbound_links' => ArticleStats::getInboundLinkCount($t)];
 	}
 }
 

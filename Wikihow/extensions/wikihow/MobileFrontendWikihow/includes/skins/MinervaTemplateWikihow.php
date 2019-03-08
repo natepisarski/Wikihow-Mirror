@@ -217,35 +217,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $twitterlink;
 	}
 
-	protected function renderShareButtons() {
-		global $wgLanguageCode, $wgCanonicalServer;
-		if ( $wgLanguageCode != "en") return;
-
-		$title = $this->getSkin()->getContext()->getTitle();
-
-		$twitterlink = self::generateTwitterLink();
-		$fburl = "http://m.wikihow.com/" . $title->getPartialURL();
-		//google plus link
-		$gpluslink = "https://plus.google.com/share?url={$wgCanonicalServer}/{$title->getPartialURL()}";
-		$email_sub = 'wikiHow - '.wfMessage('howto',$title->getText())->text();
-		$email_bod = $wgCanonicalServer.'/'.$title->getPartialURL();
-		?>
- 	<div id="sharing_box" style="display:none;">
- 		<div class="section">
-			<h2><span class="mw-headline">Share</span></h2>
- 		</div>
- 		<div id='sharing_buttons'>
- 			<a target="_blank" href="fb_share"><div class='share_icons' id='facebook_share_button'></div></a>
- 			<a target="_blank" href="<?= $twitterlink ?>"><div class='share_icons' id='twitter_share_button'></div></a>
-			<a target="_blank" href="<?= $gpluslink ?>"><div class='share_icons' id='gplus_share_button'></div></a>
-			<a target="_blank" href="pin"><div class='share_icons' id='pinterest_share_button'></div></a>
-			<a href="mailto:?subject=<?=$email_sub?>&body=<?=$email_bod?>"><div class='share_icons' id='email_button'></div></a>
-		</div>
-	</div>
-		<?
-	}
-
-
 	protected function renderPageActions( $data ) {
 		wfRunHooks('BeforeRenderPageActionsMobile', array(&$data));
 		?><ul id="page-actions" class="hlist"><?php
@@ -390,11 +361,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				}?>
 
 				<?php
-				$renderShareButtons = DeferImages::isArticlepage() && !$this->isMainPage && !$data['amp'];
-				wfRunHooks( 'MinervaTemplateWikihowBeforeRenderShareButtons', array( &$renderShareButtons ) );
-				if ( $renderShareButtons ){
-					$this->renderShareButtons();
-				}
 
 				if ( isset( $data['tableofcontents'] ) ) {
 					echo $data['tableofcontents'];

@@ -97,10 +97,11 @@ class SpecialVideoBrowser extends SpecialPage {
 				foreach ( $meta as $name => $attributes ) {
 					$output->addHeadItem( $name, Html::element( 'meta', $attributes ) );
 				}
-				$breadcrumbs = array_reverse( array_slice( $viewing['breadcrumbs'], 0, 1 ) );
-				$top = array_pop( array_slice($viewing['breadcrumbs'], -1 ) );
-				foreach ($breadcrumbs as $index => $breadcrumb ) {
-					$breadcrumbs[$index] = [
+				$breadcrumbs = explode( ',', $viewing['breadcrumbs'] );
+				$list = array_reverse( array_slice( $breadcrumbs, 0, 1 ) );
+				$top = array_pop( array_slice( $breadcrumbs, -1 ) );
+				foreach ($list as $index => $breadcrumb ) {
+					$list[$index] = [
 						'label' => $breadcrumb,
 						'link' => '/Video/Category:' . str_replace( ' ', '-', $top )
 					];
@@ -114,7 +115,7 @@ class SpecialVideoBrowser extends SpecialPage {
 					'titleText' => $titleText,
 					'howToTitle' => wfMessage( 'videobrowser-how-to', $viewing['title'] )->text(),
 					'video' => $viewing,
-					'breadcrumbs' => $breadcrumbs,
+					'breadcrumbs' => $list,
 				] );
 			} else {
 				// Index

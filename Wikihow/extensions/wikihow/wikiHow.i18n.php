@@ -33,14 +33,6 @@ $messages['en'] =
 			'remember_me' => 'Remember me',
 			'forgot_pwd' => 'Forgot?',
 			'community_dashboard' => 'Community Dashboard',
-			'mainpage_share_buttons' => '<div style="margin-left: 18px;">
-  				    <div>
-						<div class="g-follow" data-annotation="bubble" data-height="20" data-href="https://plus.google.com/102818024478962731382" data-rel="publisher"></div>
-					</div>
-					<div class="like_button">
-				        <fb:like href="http://www.facebook.com/wikiHow" send="false" layout="button_count" width="150" show_faces="false"></fb:like>
-					</div>
-				</div>',
 			'part_2' => 'Part $1 of $2: $3',
 			'part_1' => 'Part $1 of $2',
 			'method_2' => 'Method $1 of $2: $3',

@@ -1614,7 +1614,7 @@ class NFDGuardian extends SpecialPage {
 
 	/*************
 	 * This function is used in the maintenance script
-	 * (/maintenance/importNfdArticles.php)
+	 * (/maintenance/wikihow/importNfdArticles.php)
 	 * to import all NFD articles into the NFD tables.
 	 */
 	public static function importNFDArticles() {

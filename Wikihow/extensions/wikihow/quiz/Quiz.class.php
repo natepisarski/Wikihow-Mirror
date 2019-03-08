@@ -107,7 +107,7 @@ class Quiz {
 		return $m->render('quiz', $data);
 	}
 
-	private function getData() {
+	public function getData() {
 		$data = [];
 		$data['question'] = $this->question;
 		$data['quizNum'] = $this->quizNum;

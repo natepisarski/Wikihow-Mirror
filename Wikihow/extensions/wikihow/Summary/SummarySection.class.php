@@ -63,15 +63,19 @@ class SummarySection {
 	}
 
 	public static function onParserFirstCallInit( &$parser ) {
-		if (RequestContext::getMain()->getLanguage()->getCode() == 'en') {
-			$parser->setFunctionHook( 'quicksummary', 'SummarySection::renderSummary' );
-		}
+		$parser->setFunctionHook( 'quicksummary', 'SummarySection::renderSummary' );
 	}
 
 	//this uses the phpQuery object already started in WikihowArticleHTML::processArticleHTML()
 	public static function onProcessArticleHTMLAfter($out) {
 		$context = RequestContext::getMain();
-		if ($context->getLanguage()->getCode() != 'en') return;
+
+		//remove the section for INTL
+		//so we can grab it in the API, but not display it on the article
+		if ($context->getLanguage()->getCode() != 'en') {
+			pq('.section.quicksummary')->remove();
+			return;
+		}
 
 		$context->getOutput()->addModules('ext.wikihow.summary_section_edit_link');
 
@@ -105,7 +109,7 @@ class SummarySection {
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		$title = $out->getTitle();
-		if ($title && $title->inNamespace( NS_SUMMARY )) {
+		if ($title && $title->inNamespace( NS_SUMMARY ) && $out->getLanguage()->getCode() == 'en') {
 			$page_url = $out->getTitle()->getText();
 			$html = '<b>'.wfMessage('summary_namespace_instructions', $page_url)->parse().'</b><br /><br />';
 			$out->prependHTML($html);
@@ -148,10 +152,5 @@ class SummarySection {
 				$page->doEditContent($content, $comment, $edit_flags);
 			}
 		}
-	}
-
-	public static function addDesktopTOCItems() {
-		$tocText = wfMessage('summary_toc')->text();
-		pq("<a id='summary_toc' href='#'>$tocText</a>")->insertAfter("#method_toc > span");
 	}
 }

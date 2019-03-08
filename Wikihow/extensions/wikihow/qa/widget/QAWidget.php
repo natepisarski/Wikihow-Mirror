@@ -424,15 +424,6 @@ class QAWidget {
 		return true;
 	}
 
-	public static function onAddDesktopTOCItems($wgTitle, &$anchorList) {
-		if (!Misc::isMobileMode() && QAWidget::isTargetPage()) {
-			$pos = count($anchorList);
-			$tocText = wfMessage('qa_toc_section')->text();
-			array_splice($anchorList, $pos, 0, "<a id='qa_toc' href='#Questions_and_Answers_sub'>$tocText</a>");
-		}
-		return true;
-	}
-
 	public static function isQAPatrol() {
 		$t = RequestContext::getMain()->getTitle();
 		return $t && $t->getText() == 'QAPatrol';

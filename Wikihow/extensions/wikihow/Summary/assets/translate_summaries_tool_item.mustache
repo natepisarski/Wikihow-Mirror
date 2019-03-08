@@ -1,0 +1,35 @@
+<div id="translate_summaries_tool">
+	<a href="#" id="tst_skip">{{skip}}</a>
+	<p><a href="{{article_en_link}}" target="_blank" id="tst_title_en">{{title_en_text}}</a></p>
+	<p>(<a href="{{article_intl_link}}" target="_blank" id="tst_title_intl">{{title_intl_text}}</a>)</p>
+
+	<div id="tst_boxes">
+
+		<div class="tst_box_row">
+			<div class="tst_block">
+				<p>{{summary_label}}</p>
+				<div class="tst_en_data" id="content_en">{{summary_content}}</div>
+			</div>
+
+			<div class="tst_block">
+				<p>{{summary_label}} ({{to_language}})</p>
+				<textarea id="content_intl" placeholder="{{placeholder}}"></textarea>
+			</div>
+		</div>
+
+		<div class="tst_box_row">
+			<div class="tst_block">
+				<p>{{sentence_label}}</p>
+				<div class="tst_en_data" id="sentence_en">{{summary_last_sentence}}</div>
+			</div>
+
+			<div class="tst_block">
+				<p>{{sentence_label}} ({{to_language}})</p>
+				<textarea id="sentence_intl" placeholder="{{placeholder}}"></textarea>
+				<div id="tst_error_message">{{error}}</div>
+				<button class="button primary" id="tst_publish">{{publish}}</button>
+			</div>
+		</div>
+
+	</div>
+</div>

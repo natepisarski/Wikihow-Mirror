@@ -12,8 +12,6 @@ class WikihowToc {
 	const MAX_ITEMS = 8;
 	const MAX_METHODS = 3;
 
-	const CONFIG_LIST_NAME = "new_toc";
-
 	public static function setMethods($methodAnchors, $methodNames) {
 
 		self::$methodAnchors = $methodAnchors;
@@ -26,11 +24,6 @@ class WikihowToc {
 
 	public static function setSummaryVideo() {
 		self::$videoSummary = ['url' => '#quick_summary_section', 'id' => 'summaryvideo_toc', 'text' => wfMessage('summaryvideo_toc')->text()];
-	}
-
-	public static function isNewArticle() {
-		$title = RequestContext::getMain()->getTitle();
-		return ArticleTagList::hasTag(self::CONFIG_LIST_NAME, $title->getArticleID());
 	}
 
 	public static function setQandA($hasAnsweredQuestions) {
@@ -146,7 +139,12 @@ class WikihowToc {
 
 		$html = $m->render('toc', $data);
 
-		pq('#expert_coauthor')->after($html);
+		if(pq('#expert_coauthor')->length > 0) {
+			pq('#expert_coauthor')->after($html);
+		} else {
+			pq(".firstHeading")->after($html); //for times when there's no byline (old revisions, intl, etc)
+		}
+
 	}
 
 	static function processMethodNames() {

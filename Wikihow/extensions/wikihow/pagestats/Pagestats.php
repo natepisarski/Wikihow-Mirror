@@ -3,14 +3,14 @@
 if ( !defined('MEDIAWIKI') ) die();
     
 $wgExtensionCredits['specialpage'][] = array(
-	'name' => 'Pagestats',
+	'name' => 'PageStats',
 	'author' => 'Bebeth Steudel',
 	'description' => 'Boring stats on article pages',
 );
 
-$wgSpecialPages['Pagestats'] = 'Pagestats';
-$wgAutoloadClasses['Pagestats'] = dirname( __FILE__ ) . '/Pagestats.body.php';
-$wgExtensionMessagesFiles['Pagestats'] = dirname(__FILE__) . '/Pagestats.i18n.php';
+$wgSpecialPages['PageStats'] = 'PageStats';
+$wgAutoloadClasses['PageStats'] = __DIR__ . '/Pagestats.body.php';
+$wgExtensionMessagesFiles['PageStats'] = __DIR__ . '/Pagestats.i18n.php';
 $wgResourceModules['ext.wikihow.pagestats'] = array(
 	'scripts' => array(
 		'../common/plotly-latest.min.js',
@@ -20,7 +20,7 @@ $wgResourceModules['ext.wikihow.pagestats'] = array(
 	'styles' => array(
 		'graphs.css',
 	),
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/pagestats',
 	'position' => 'bottom',
 	'targets' => array('desktop'),

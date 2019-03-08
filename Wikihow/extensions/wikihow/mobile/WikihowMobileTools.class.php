@@ -1709,6 +1709,8 @@ class WikihowMobileTools {
 		} else {
 			pq( '#article_rating_mobile' )->before( $referencesHtml );
 		}
+		// because we appended the new references section we need to remove this one
+		pq( $sourcesSection )->remove();
 	}
 
 }

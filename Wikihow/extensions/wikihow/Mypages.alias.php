@@ -1,11 +1,11 @@
 <?php
 /**
- * Aliases for Special:Mypages
+ * Aliases for Special:MyPages
  */
 
 $specialPageAliases = array();
 
 /** English (English) */
 $specialPageAliases['en'] = array(
-		'Mypages' => array( 'Mypages' ),
+		'MyPages' => array( 'MyPages', 'Mypages' ),
 );

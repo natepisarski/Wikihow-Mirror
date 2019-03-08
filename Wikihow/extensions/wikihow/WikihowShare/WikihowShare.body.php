@@ -2,7 +2,7 @@
 
 class WikihowShare {
 
-	public static function getTopShareButtons($isIndexed = true){
+	public static function getTopShareButtons() {
 		global $wgLanguageCode, $wgTitle, $wgCanonicalServer;
 
 		$action = self::getAction();
@@ -15,11 +15,6 @@ class WikihowShare {
 		$desc = urlencode(wfMessage('Pinterest_text', $wgTitle->getText())->text());
 
 		$fb = '<div class="like_button"><fb:like href="' . $url . '" send="false" layout="box_count" width="46" show_faces="false"></fb:like></div>';
-		if($isIndexed)
-			$gp1 = '<div class="gplus1_button"><g:plusone size="tall" callback="WH.plusone_vote"></g:plusone></div>';
-		else
-			$gp1 = "";
-
 		$pinterest = '<div id="pinterest"><a href="https://pinterest.com/pin/create/button/?url=' . $url . '&media=' . $img . '&description=' . $desc . '" class="pin-it-button" count-layout="vertical">Pin It</a></div>';
 
 		// German includes "how to " in the title text
@@ -27,10 +22,10 @@ class WikihowShare {
 		$tb = '<div class="admin_state"><a href="https://twitter.com/share" data-lang="' . $wgLanguageCode . '" style="display:none; background-image: none; color: #ffffff;" class="twitter-share-button" data-count="vertical" data-via="wikiHow" data-text="' . $howto . '" data-related="JackH:Founder of wikiHow">Tweet</a></div>';
 
 		if ($wgLanguageCode != 'en') {
-			return $gp1 . $tb . $fb;
+			return $tb . $fb;
 		}
 		else {
-			return $gp1 . $fb . $pinterest . $tb;
+			return $fb . $pinterest . $tb;
 		}
 	}
 

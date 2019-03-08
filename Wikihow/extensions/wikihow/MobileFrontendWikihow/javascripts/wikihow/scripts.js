@@ -213,9 +213,9 @@ function addClickHandlers() {
 			WH.ga.sendEvent('m-edit', 'pencil', mw.config.get('wgTitle'));
 		});
 
-		// Track hamburger clicks
-		$(document).on('click', '#mw-mf-main-menu-button', function() {
-			WH.maEvent('mobile_hamburger_menu_clicks');
+		// Track Quiz App clicks
+		$(document).on('click', '#icon-quizyourself', function() {
+			WH.maEvent('mobile_menu_quiz_app_click');
 		});
 
 		// Track search clicks
@@ -225,7 +225,7 @@ function addClickHandlers() {
 		var open = $( '.hs_active' ).length > 0;
 		var pageType = 'other';
 		if ( wgIsArticle ) {
-			pageType = 'article';	
+			pageType = 'article';
 		} else if ( wgTitle === 'LSearch' ) {
 			pageType = 'search';
 		} else if ( wgTitle === 'Main Page' ) {

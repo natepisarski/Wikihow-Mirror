@@ -62,7 +62,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 				// Include wgCanonicalServer in key because article prop has full URLs
 				"@{$wgCanonicalServer}"
 		);
-		//$data = $wgMemc->get( $key );
+		$data = $wgMemc->get( $key );
 
 		if ( !is_array( $data ) ) {
 			$dbr = wfGetDB( DB_SLAVE );
@@ -152,7 +152,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, 4 / 3 ),
 					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
 					'categories' => implode( $rowCategories, ',' ),
-					'breadcrumbs' => Categoryhelper::getBreadcrumbCategories( $title ),
+					'breadcrumbs' => implode( (array)Categoryhelper::getBreadcrumbCategories( $title ), ',' ),
 					'popularity' => $row->ti_30day_views_unique,
 					'featured' => $row->ti_featured,
 					'plays' => $row->ti_summary_video_play,

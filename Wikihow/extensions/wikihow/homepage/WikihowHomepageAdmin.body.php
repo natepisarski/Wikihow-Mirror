@@ -14,7 +14,7 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 
 	function execute($par) {
 		global $wgOut, $wgUser, $wgRequest;
-		global $wgUseAjax, $wgAjaxUploadDestCheck, $wgAjaxLicensePreview;
+		global $wgAjaxUploadDestCheck, $wgAjaxLicensePreview;
 
 		if ($wgUser->isBlocked()) {
 			$wgOut->blockedPage();
@@ -93,8 +93,8 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 		}
 
 
-		$useAjaxDestCheck = $wgUseAjax && $wgAjaxUploadDestCheck;
-		$useAjaxLicensePreview = $wgUseAjax && $wgAjaxLicensePreview;
+		$useAjaxDestCheck = $wgAjaxUploadDestCheck;
+		$useAjaxLicensePreview = $wgAjaxLicensePreview;
 
 		$adc = wfBoolToStr( $useAjaxDestCheck );
 		$alp = wfBoolToStr( $useAjaxLicensePreview );

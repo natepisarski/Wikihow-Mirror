@@ -101,7 +101,7 @@ class DocViewer extends UnlistedSpecialPage {
 		return $isLoggedIn &&
 			   in_array('staff', $wgUser->getGroups()) &&
 			   $wgTitle->getNamespace() == NS_SPECIAL &&
-			   class_exists('Pagestats');
+			   class_exists('PageStats');
 	}
 
 	/**

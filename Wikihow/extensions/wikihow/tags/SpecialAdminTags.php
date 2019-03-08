@@ -148,7 +148,7 @@ class AdminTags extends UnlistedSpecialPage {
 					$result['article-list'] = $isArticleList;
 				}
 
-				$allowed = ConfigStorage::checkUserRestrictions($key);
+				$allowed = ConfigStorage::hasUserRestrictions($key);
 				if (!$allowed) {
 					$result['restriction'] = 'Please contact Elizabeth to be able to edit this key';
 				}
