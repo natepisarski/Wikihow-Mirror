@@ -4,5 +4,5 @@
 /// Blocks bad usernames containing two spaces
 
 $wgHooks['AbortNewAccount'][] = 'AccountCreationFilter::abortNewAccount';
-$wgAutoloadClasses['AccountCreationFilter'] = dirname( __FILE__ ) . '/AccountCreationFilter.body.php';
+$wgAutoloadClasses['AccountCreationFilter'] = __DIR__ . '/AccountCreationFilter.body.php';
 

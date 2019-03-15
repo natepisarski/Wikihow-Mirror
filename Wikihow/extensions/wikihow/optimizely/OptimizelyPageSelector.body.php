@@ -30,11 +30,11 @@ class OptimizelyPageSelector {
 		global $wgIsDevServer, $wgIsAnswersDomain;
 
 		$altDomain = $isOptiDomain = false;
-		if( class_exists( 'AlternateDomain' )) {
+		if ( class_exists( 'AlternateDomain' )) {
 			$altDomain = AlternateDomain::getAlternateDomainForCurrentPage();
 		}
 
-		if($altDomain !== false) {
+		if ($altDomain !== false) {
 			$isOptiDomain = in_array($altDomain, self::$altDomainWhitelist);
 		}
 
@@ -63,7 +63,7 @@ class OptimizelyPageSelector {
 					$tag = Html::rawElement( 'script', [
 						'src' => 'https://cdn.optimizely.com/js/9727930021.js'
 					] );
-				} else if ( $location === 'body' ) {
+				} elseif ( $location === 'body' ) {
 					// General production
 					$tag = Html::rawElement( 'script', [
 						'async', 'src' => 'https://cdn.optimizely.com/js/526710254.js'

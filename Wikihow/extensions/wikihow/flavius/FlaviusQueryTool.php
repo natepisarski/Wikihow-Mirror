@@ -9,9 +9,9 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['FlaviusQueryTool'] = 'FlaviusQueryTool';
-$wgAutoloadClasses['FlaviusQueryTool'] = dirname(__FILE__) . '/FlaviusQueryTool.body.php';
+$wgAutoloadClasses['FlaviusQueryTool'] = __DIR__ . '/FlaviusQueryTool.body.php';
 $wgResourceModules['ext.wikihow.flaviusquerytool'] = array(
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/flavius',
 	'targets' => ['desktop'],
 	'styles' => [

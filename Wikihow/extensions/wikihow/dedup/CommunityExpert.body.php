@@ -24,12 +24,12 @@ class CommunityExpert extends UnlistedSpecialPage {
 
         $action = $wgRequest->getVal('act');
         if ($action == NULL) {
-            EasyTemplate::set_path(dirname(__FILE__));
+            EasyTemplate::set_path(__DIR__);
             $wgOut->addHTML(EasyTemplate::html('CommunityExpert.tmpl.php'));
         } elseif ($action == "get") {
 			$url = $wgRequest->getVal('url');
 			$query = $this->getQueryFromUrl($url);
-			if($query) {
+			if ($query) {
 				dedupQuery::addQuery($query);
 				dedupQuery::matchQueries(array($query));
 
@@ -40,7 +40,7 @@ class CommunityExpert extends UnlistedSpecialPage {
 		        header("Content-Type: text/tsv");
 		        header('Content-Disposition: attachment; filename="Dedup.xls"');
 				print "User page\tRelated title\n";
-				foreach($res as $row) {
+				foreach ($res as $row) {
 					print "http://www.wikihow.com/User:" . $row->user_name . "\thttp://www.wikihow.com/" . str_replace(" ","-",$row->title) . "\n";
 				}
 				exit;

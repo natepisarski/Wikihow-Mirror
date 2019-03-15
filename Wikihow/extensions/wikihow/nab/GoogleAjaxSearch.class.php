@@ -17,7 +17,7 @@ class GoogleAjaxSearch {
 				$url .="%20site%3A" . $site;
 			}
 			$url .= "&gl=www.google.com&qid=12521dc27f9815152&key={$wgGoogleAjaxKey}&v=1.0&start={$start}";
-			
+
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -27,7 +27,7 @@ class GoogleAjaxSearch {
 
 			$body = str_replace("google.search.WebSearch.RawCompletion('0',", "", $body);
 			$body = preg_replace("@, [0-9]*, [a-z]*, [0-9]*\)$@", "", $body);
-			$rex = json_decode($body, true); 
+			$rex = json_decode($body, true);
 			if (is_array($rex['results'])) {
 				$results = array_merge($results, $rex['results']);
 			} else {

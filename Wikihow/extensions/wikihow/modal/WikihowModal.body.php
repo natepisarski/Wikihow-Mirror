@@ -12,7 +12,7 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 		$request = $ctx->getRequest();
 		$out = $ctx->getOutput();
 
-		EasyTemplate::set_path(dirname(__FILE__));
+		EasyTemplate::set_path(__DIR__);
 
 		$modal_type = $request->getVal('modal');
 		if ($modal_type == 'firstedit') {
@@ -60,11 +60,11 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 
 		$vars['next_tool_link'] = $nt[$rand][0];
 		$vars['next_tool_text'] = $nt[$rand][1];
-		return EasyTemplate::html('firstEdit', $vars);
+		return EasyTemplate::html('firstEdit.tmpl.php', $vars);
 	}
 
 	private static function getExpertiseModal() {
-		return EasyTemplate::html('expertise');
+		return EasyTemplate::html('expertise.tmpl.php');
 	}
 
 	private static function getExpertiseModal2($cat) {
@@ -98,11 +98,11 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 		// $vars['arts'] = $boxes;
 
 		$vars['cat'] = str_replace('-',' ',$cat);
-		return EasyTemplate::html('expertise_2',$vars);
+		return EasyTemplate::html('expertise_2.tmpl.php',$vars);
 	}
 
 	private static function getHelpfulnessModal() {
-		return EasyTemplate::html('helpfulness_followup');
+		return EasyTemplate::html('helpfulness_followup.tmpl.php');
 	}
 
 	private static function getHelpfulnessModal2($pageid) {
@@ -129,11 +129,11 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 	}
 
 	private static function getPrintViewModal() {
-		return EasyTemplate::html('printview');
+		return EasyTemplate::html('printview.tmpl.php');
 	}
 
 	private static function getFlagAsDetailsModal() {
-		return EasyTemplate::html('flag_as_details');
+		return EasyTemplate::html('flag_as_details.tmpl.php');
 	}
 
 	private static function getDiscussTabModal($aid, $already_rated) {
@@ -149,10 +149,10 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader( [
-			new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/discuss_tab' )
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/discuss_tab' )
 		] );
 		$m = new Mustache_Engine(['loader' => $loader]);
-		$html = $m->render('discuss_tab', $vars);
+		$html = $m->render('discuss_tab.mustache', $vars);
 		return $html;
 	}
 

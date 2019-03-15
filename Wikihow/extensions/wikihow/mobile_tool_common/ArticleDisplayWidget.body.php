@@ -36,7 +36,7 @@ class ArticleDisplayWidget extends SpecialPage {
 	public function getWidgetHtml() {
 		$this->addModules();
 		$this->getOutput()->setProperty('disableSearchAndFooter', true);
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		return $tmpl->execute('ArticleDisplayWidget.tmpl.php', array());
 	}
 

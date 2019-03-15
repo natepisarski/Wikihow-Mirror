@@ -9,12 +9,12 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Quizzes'] = 'Quizzes';
-$wgAutoloadClasses['Quizzes'] = dirname( __FILE__ ) . '/Quizzes.body.php';
-$wgExtensionMessagesFiles['Quizzes'] = dirname(__FILE__) . '/Quizzes.i18n.php';
+$wgAutoloadClasses['Quizzes'] = __DIR__ . '/Quizzes.body.php';
+$wgExtensionMessagesFiles['Quizzes'] = __DIR__ . '/Quizzes.i18n.php';
 
 /*importer*/
 $wgSpecialPages['AdminQuizzes'] = 'AdminQuizzes';
-$wgAutoloadClasses['AdminQuizzes'] = dirname( __FILE__ ) . '/AdminQuizzes.body.php';
+$wgAutoloadClasses['AdminQuizzes'] = __DIR__ . '/AdminQuizzes.body.php';
 $wgGroupPermissions['*']['AdminQuizzes'] = false;
 $wgGroupPermissions['staff']['AdminQuizzes'] = true;
 

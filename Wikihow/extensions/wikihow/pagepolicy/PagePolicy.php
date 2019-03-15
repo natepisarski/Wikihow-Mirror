@@ -14,7 +14,7 @@ $wgSpecialPages['Validatron'] = 'SpecialValidatron';
 
 $wgResourceModules['ext.wikihow.login_popin'] = $wgResourceModulesDesktopBoiler + [
 	'styles' => [ 'pagepolicy/login_popin.css' ],
-	'scripts' => [ 
+	'scripts' => [
 		'common/jquery.simplemodal.1.4.4.min.js',
 		'pagepolicy/login_popin.js'
 	]

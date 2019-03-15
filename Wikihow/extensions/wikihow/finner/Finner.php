@@ -10,11 +10,11 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'Modified SpecialSearch',
 );
 
-$wgExtensionMessagesFiles['Finner'] = dirname(__FILE__) . '/Finner.i18n.php';
+$wgExtensionMessagesFiles['Finner'] = __DIR__ . '/Finner.i18n.php';
 $wgSpecialPages['Finner'] = 'Finner';
-$wgAutoloadClasses['Finner'] = dirname(__FILE__) . '/Finner.body.php';
-$wgAutoloadClasses['FinnerHooks'] = dirname(__FILE__) . '/FinnerHooks.class.php';
-$wgAutoloadClasses['FinnerSearchEngine'] = dirname(__FILE__) . '/FinnerSearchEngine.class.php';
+$wgAutoloadClasses['Finner'] = __DIR__ . '/Finner.body.php';
+$wgAutoloadClasses['FinnerHooks'] = __DIR__ . '/FinnerHooks.class.php';
+$wgAutoloadClasses['FinnerSearchEngine'] = __DIR__ . '/FinnerSearchEngine.class.php';
 
 $wgResourceModules['ext.wikihow.finner.styles'] = array(
 	'styles' => array(

@@ -86,7 +86,7 @@ class GuidedEditor extends EditPage {
 
 		if ($req->getVal("wpSave")
 			&& $req->getVal("overwrite") == "yes"
-			&& Newarticleboost::isOverwriteAllowed($this->mTitle)
+			&& NewArticleBoost::isOverwriteAllowed($this->mTitle)
 		) {
 			// it's a rewrite. let us start anew
 			$page = WikiPage::factory($this->mTitle);
@@ -174,7 +174,7 @@ class GuidedEditor extends EditPage {
 			$out->addHTML( wfMessage('newarticletext')->text() );
 		}
 
-		$nab_overwrite = ( $req->getVal('overwrite') == 'yes' && Newarticleboost::isOverwriteAllowed($this->mTitle) );
+		$nab_overwrite = ( $req->getVal('overwrite') == 'yes' && NewArticleBoost::isOverwriteAllowed($this->mTitle) );
 		if ($nab_overwrite) {
 			$out->addHTML("<div class='minor_section' style='background-color:#f7f7bc;'>" . wfMessage("nab_overwrite")->text() . "</div>");
 		}
@@ -333,7 +333,7 @@ class GuidedEditor extends EditPage {
 
 		// Build categorizer option form
 		$cat_string = $whow->getCategoryString();
-		$category_options_form = Categoryhelper::getCategoryOptionsForm($cat_string, $whow->mCategories);
+		$category_options_form = CategoryHelper::getCategoryOptionsForm($cat_string, $whow->mCategories);
 
 		// Display 'Switch to Advanced Editing' link
 		$advanced = '';

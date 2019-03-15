@@ -1,6 +1,6 @@
 <?php
 
-class Categorylisting extends SpecialPage {
+class CategoryListing extends SpecialPage {
 	const LISTING_TABLE = "categorylisting";
 	const CAT_WIDTH = 459;
 	const CAT_HEIGHT = 344;
@@ -9,8 +9,8 @@ class Categorylisting extends SpecialPage {
 
 	function __construct($source = null) {
 		global $wgHooks;
-		parent::__construct( 'Categorylisting' );
-		if(RequestContext::getMain()->getLanguage()->getCode() == "en") {
+		parent::__construct( 'CategoryListing' );
+		if (RequestContext::getMain()->getLanguage()->getCode() == "en") {
 			$wgHooks['ShowSideBar'][] = ['AdminCategoryDescriptions::removeSideBarCallback'];
 		}
 	}
@@ -22,7 +22,7 @@ class Categorylisting extends SpecialPage {
 
 		$this->setHeaders();
 		$out->setPageTitle(wfMessage("Categories")->text());
-		$out->setRobotpolicy('index,follow');
+		$out->setRobotPolicy('index,follow');
 		$out->setSquidMaxage(6 * 60 * 60);
 
 
@@ -30,7 +30,7 @@ class Categorylisting extends SpecialPage {
 		if (Misc::isMobileMode()) {
 			$this->renderMobile($catData);
 		} else {
-			$wgHooks['ShowGrayContainer'][] = array('Categorylisting::removeGrayContainerCallback');
+			$wgHooks['ShowGrayContainer'][] = array('CategoryListing::removeGrayContainerCallback');
 
 			// allow varnish to redirect this page to mobile if browser conditions are right
 			Misc::setHeaderMobileFriendly();
@@ -49,7 +49,7 @@ class Categorylisting extends SpecialPage {
 
 	function renderDesktop($catData) {
 		$out = $this->getOutput();
-		if(RequestContext::getMain()->getLanguage()->getCode() != "en") {
+		if (RequestContext::getMain()->getLanguage()->getCode() != "en") {
 			$out->addHTML("<br /><br />");
 			$out->addHTML("<div class='section_text'>");
 			foreach ($catData['subcats'] as $row) {
@@ -60,10 +60,10 @@ class Categorylisting extends SpecialPage {
 		} else {
 
 
-			$css = Misc::getEmbedFile('css', dirname(__FILE__) . '/categories-listing.css');
+			$css = Misc::getEmbedFile('css', __DIR__ . '/categories-listing.css');
 			$out->addHeadItem('listcss', HTML::inlineStyle($css));
 
-			$loader = new Mustache_Loader_FilesystemLoader(dirname(__FILE__));
+			$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
 			$options = array('loader' => $loader);
 			$m = new Mustache_Engine($options);
 			$html = $m->render("/templates/categorylisting", $catData);
@@ -89,11 +89,11 @@ class Categorylisting extends SpecialPage {
 		$data['cat_width'] = self::CAT_WIDTH;
 		$data['cat_height'] = self::CAT_HEIGHT;
 
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$catName = $row->cl_category;
-			foreach($data['subcats'] as &$item) {
-				if($item['cat_title'] == $catName) {
-					if(!isset($item['subsubcats'])) {
+			foreach ($data['subcats'] as &$item) {
+				if ($item['cat_title'] == $catName) {
+					if (!isset($item['subsubcats'])) {
 						$item['subsubcats'] = [];
 					}
 					$imageTitle = Title::newFromText($row->cl_sub_image, NS_IMAGE);
@@ -116,9 +116,9 @@ class Categorylisting extends SpecialPage {
 						'cat_titles' => []
 					];
 
-					for($i = 1; $i <= 3; $i++) {
+					for ($i = 1; $i <= 3; $i++) {
 						$title = Title::newFromId($row->{"cl_article_id{$i}"});
-						if(!$title) {
+						if (!$title) {
 							UserMailer::send(
 								new MailAddress('bebeth@wikihow.com'),
 								new MailAddress('ops@wikihow.com'),
@@ -127,7 +127,7 @@ class Categorylisting extends SpecialPage {
 							);
 							continue;
 						}
-						if(!RobotPolicy::isTitleIndexable($title)) {
+						if (!RobotPolicy::isTitleIndexable($title)) {
 							UserMailer::send(
 								new MailAddress('bebeth@wikihow.com'),
 								new MailAddress('ops@wikihow.com'),
@@ -136,7 +136,7 @@ class Categorylisting extends SpecialPage {
 							);
 							continue;
 						}
-						if($title->isRedirect()) {
+						if ($title->isRedirect()) {
 							UserMailer::send(
 								new MailAddress('bebeth@wikihow.com'),
 								new MailAddress('ops@wikihow.com'),

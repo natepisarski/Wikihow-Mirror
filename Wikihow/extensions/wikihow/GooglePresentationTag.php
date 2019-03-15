@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
@@ -9,6 +9,6 @@ $wgExtensionCredits['tagextensions'][] = array(
 	'description' => 'a tag extension to add support for embedding google presentations on articles',
 );
 
-$wgAutoloadClasses['GooglePresentationTag'] = dirname(__FILE__) . '/GooglePresentationTag.class.php';
+$wgAutoloadClasses['GooglePresentationTag'] = __DIR__ . '/GooglePresentationTag.class.php';
 
 $wgHooks['ParserFirstCallInit'][] = array( 'GooglePresentationTag::wfGooglePresentationParserInit' );

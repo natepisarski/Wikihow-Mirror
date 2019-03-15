@@ -23,9 +23,9 @@ class Alien extends UnlistedSpecialPage {
 
 	private function quickTestBackend() {
 		$dbr = wfGetDB(DB_SLAVE);
-		try { 
+		try {
 			$res = $dbr->selectField('page', 'page_id',
-				array('page_is_redirect' => 0, 
+				array('page_is_redirect' => 0,
 					'page_namespace' => NS_MAIN,
 					'page_random >= ' . wfRandom()),
 				__METHOD__,
@@ -42,4 +42,3 @@ class Alien extends UnlistedSpecialPage {
 	}
 
 }
-	

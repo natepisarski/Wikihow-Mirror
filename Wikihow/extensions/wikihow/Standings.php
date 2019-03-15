@@ -12,7 +12,7 @@ $wgExtensionCredits['specialpage'][] = array(
 
 // INTL: set $dir parth to the current file path.  Autoloader was having trouble finding otherwise
 $oldDirIntl = $dir;
-$dir = dirname(__FILE__) . '/';
+$dir = __DIR__ . '/';
 $wgSpecialPages['Standings'] = 'Standings';
 $wgAutoloadClasses['Standings'] =  $dir . 'Standings.body.php';
 $wgExtensionMessagesFiles['Standings'] = $dir . 'Standings.i18n.php';

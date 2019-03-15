@@ -249,4 +249,7 @@ $messages['en'] = array(
 	'cd-ttt-link' => 'Special:TopicTagging',
 	'cd-ttt-event-type' => 'topic_tagging_tool',
 
+	'cd-qy-title-mobile' => 'Take Quizzes',
+	'cd-qy-link' => 'Special:QuizYourself',
+	'cd-qy-event-type' => 'quiz_yourself',
 );

@@ -10,7 +10,7 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'Provides a way of reviewing a set of edits separate from RC Patrol, such as removal of stub templates.',
 );
 
-$dir = dirname(__FILE__) . '/';
+$dir = __DIR__ . '/';
 
 $wgSpecialPages['QG'] = 'QG';
 $wgSpecialPages['QC'] = 'QG';
@@ -149,7 +149,7 @@ function wfCheckQC(&$article, &$user, $text, $summary, $minoredit, $watchthis, $
 }
 
 function wfCheckQCPatrols(&$article, &$rcids, &$user) {
-	if ($article && $article->getTitle() && $article->getTitle()->getNamespace() == NS_MAIN) {
+	if ($article && $article->getTitle() && $article->getTitle()->inNamespace(NS_MAIN)) {
 			$l = new QCRCPatrol($article, $rcids); //
 			$l->process();
 	}
@@ -168,7 +168,7 @@ function wfClearQCOnDelete($wikiPage) {
 //only eligible for our Tips Guardian needs
 function wfQGIsEligibleForMobile(&$isEligible) {
 	global $wgTitle, $wgRequest;
-	if($wgTitle && strrpos($wgTitle->getText(), "QG") === 0 &&
+	if ($wgTitle && strrpos($wgTitle->getText(), "QG") === 0 &&
 		($wgRequest->getVal('fetchInnards') || $wgRequest->getVal('postResults'))) {
 		$isEligible = true;
 	}

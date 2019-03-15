@@ -4,11 +4,11 @@ class StepEditor extends UnlistedSpecialPage {
 
 	const STEP_TAG = "Single Step Edit";
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct("StepEditor");
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		# Check blocks
 		$user = $this->getUser();
 		if ( $user->isBlocked() ) {
@@ -31,17 +31,17 @@ class StepEditor extends UnlistedSpecialPage {
 			$checkValid = $request->getVal('checkValid');
 
 			if ($title) {
-				$out->disable();
+				$out->setArticleBodyOnly(true);
 				$stepEditorHelper = new StepEditorParser($title, $this->revisionId, $out);
-				if($checkValid) {
+				if ($checkValid) {
 					if ( $stepEditorHelper->isLatestRevision ) {
 						$result['isValid'] = true;
-						print_r(json_encode($result));
+						print json_encode($result);
 					} else {
 						$result['isValid'] = false;
-						$tmpl = new EasyTemplate(dirname(__FILE__));
+						$tmpl = new EasyTemplate(__DIR__);
 						$result['err'] = $tmpl->execute('stepediterror.tmpl.php');
-						print_r(json_encode($result));
+						print json_encode($result);
 					}
 					return;
 				}
@@ -51,21 +51,21 @@ class StepEditor extends UnlistedSpecialPage {
 					$result['success'] = false;
 					if ($errorInfo != null) {
 						if ($errorInfo['type'] == "spam") {
-							$tmpl = new EasyTemplate(dirname(__FILE__));
+							$tmpl = new EasyTemplate(__DIR__);
 							$tmpl->set_vars(array('link' => $errorInfo['link']));
 							$result['err'] = $tmpl->execute('stepeditspam.tmpl.php');
 						} else {
-							$tmpl = new EasyTemplate(dirname(__FILE__));
+							$tmpl = new EasyTemplate(__DIR__);
 							$tmpl->set_vars(array('message' => $errorInfo['message']));
 							$result['err'] = $tmpl->execute('stepediturls.tmpl.php');
 						}
 						$result['modal'] = false;
 					} else {
-						$tmpl = new EasyTemplate(dirname(__FILE__));
+						$tmpl = new EasyTemplate(__DIR__);
 						$result['err'] = $tmpl->execute('stepediterror.tmpl.php');
 						$result['modal'] = true;
 					}
-					print_r(json_encode($result));
+					print json_encode($result);
 				} else {
 					$popts = $out->parserOptions();
 					$popts->setTidy(true);
@@ -78,7 +78,7 @@ class StepEditor extends UnlistedSpecialPage {
 					$result['step'] = $boldedStep;
 					$result['newRevision'] = $newRevisionId;
 					$result['isEditable'] = $stepEditorHelperNew->isEditable($this->stepNum);
-					print_r(json_encode($result));
+					print json_encode($result);
 				}
 			}
 
@@ -119,10 +119,10 @@ class StepEditorParser {
 	static $captchaMessage;
 	static $captchaForm;
 
-	function StepEditorParser($title, $revisionId = 0, $out) {
+	function __construct($title, $revisionId = 0, $out) {
 		$this->articleId = $title->getArticleID();
 		$this->out = $out;
-		if( $revisionId == 0) {
+		if ( $revisionId == 0) {
 			$this->revisionNum = $title->getLatestRevID();
 			$this->isLatestRevision = true;
 		} else {
@@ -136,10 +136,10 @@ class StepEditorParser {
 	/********
 	 * Takes the wikitext for an article and parses it into an array of steps
 	 *******/
-	function parseSteps() {
+	private function parseSteps() {
 		global $wgMemc;
 
-		if($this->title->getArticleID() <= 0 || $this->title->getNamespace() != NS_MAIN) {
+		if ($this->title->getArticleID() <= 0 || !$this->title->inNamespace(NS_MAIN)) {
 			//if we're viewing a page that doesn't exist, we don't want to do any of this.
 			$this->hasAnyEditableSteps = false;
 			return;
@@ -177,7 +177,7 @@ class StepEditorParser {
 				$stepArray[$stepNum]['step'] .= "#".$steps[$i];
 				$stepArray[$stepNum]['hasSubstep'] = true;
 			}
-			
+
 			$steps[$i] = "#" . $steps[$i];
 		}
 
@@ -251,11 +251,11 @@ class StepEditorParser {
 			$this->parseSteps();
 		}
 
-		if($this->stepArray == null) {
+		if ($this->stepArray == null) {
 			//not exactly sure how this would happen but just in case
 			return false;
 		}
-		
+
 		if (!array_key_exists($stepNum, $this->stepArray)) {
 			return false;
 		}
@@ -273,7 +273,7 @@ class StepEditorParser {
 			return false;
 		}
 
-		if($step['imageCount'] > 1) {
+		if ($step['imageCount'] > 1) {
 			return false;
 		}
 
@@ -303,7 +303,7 @@ class StepEditorParser {
 			return false;
 		}*/
 
-		if ($this->title->getNamespace() != NS_MAIN) {
+		if (!$this->title->inNamespace(NS_MAIN)) {
 			return false;
 		}
 
@@ -312,7 +312,7 @@ class StepEditorParser {
 			return false;
 		}
 
-		if($wgRequest->getVal('oldid')) {
+		if ($wgRequest->getVal('oldid')) {
 			return false;
 		}
 		if ($this->stepArray == null) {
@@ -332,7 +332,7 @@ class StepEditorParser {
 	 * this function replaces the old step with the new one.
 	 *
 	 **********/
-	function replaceStep($newStep, $stepNum, $context) {
+	public function replaceStep($newStep, $stepNum, $context) {
 		if ($this->stepArray == null) {
 			$this->parseSteps();
 		}
@@ -422,13 +422,13 @@ class StepEditorParser {
 	}
 
 	/****************
-	 * 
+	 *
 	 * Given the new step and the info on the old step
 	 * this function process that step, adding back any data
 	 * or wikitext required to make the replacement.
 	 *
 	 ***************/
-	function processStep($stepText, $oldStepInfo) {
+	private function processStep($stepText, $oldStepInfo) {
 		//putting trim in b/c the html is adding a line break for some reason
 		$newStep = "# ".trim($stepText);
 		if ($oldStepInfo['imageCount']  == 1) {
@@ -439,7 +439,7 @@ class StepEditorParser {
 		return $newStep;
 	}
 
-	static function onCaptchaEditCallback($message, $form) {
+	public static function onCaptchaEditCallback($message, $form) {
 		if (self::$isActive) {
 			self::$captchaMessage = $message;
 			self::$captchaForm = $form;

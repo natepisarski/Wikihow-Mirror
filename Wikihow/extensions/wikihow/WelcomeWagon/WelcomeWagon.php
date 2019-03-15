@@ -8,10 +8,10 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'Tool for support personnel to help welcome new users',
 );
 
-$wgExtensionMessagesFiles['WelcomeWagon'] = dirname(__FILE__) .'/WelcomeWagon.i18n.php';
+$wgExtensionMessagesFiles['WelcomeWagon'] = __DIR__ .'/WelcomeWagon.i18n.php';
 
 $wgSpecialPages['WelcomeWagon'] = 'WelcomeWagon';
-$wgAutoloadClasses['WelcomeWagon'] = dirname( __FILE__ ) . '/WelcomeWagon.body.php';
+$wgAutoloadClasses['WelcomeWagon'] = __DIR__ . '/WelcomeWagon.body.php';
 
 $wgLogTypes[] = 'welcomewag';
 $wgLogNames['welcomewag'] = 'welcomewag';

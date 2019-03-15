@@ -32,8 +32,8 @@ class TitusStoredQuery extends UnlistedSpecialPage {
 	public function execute($par) {
 		global $wgRequest, $wgOut, $wgIsTitusServer, $wgIsDevServer;
 
-		if( !($wgIsTitusServer || $wgIsDevServer) ) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
+		if ( !($wgIsTitusServer || $wgIsDevServer) ) {
+			$wgOut->setRobotPolicy('noindex,nofollow');
 			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -77,7 +77,7 @@ class TitusStoredQuery extends UnlistedSpecialPage {
 				}
 				exit;
 			} else {
-				$wgOut->setRobotpolicy('noindex,nofollow');
+				$wgOut->setRobotPolicy('noindex,nofollow');
 				$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 				return;
 			}

@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminEditInfo',
 	'author' => 'Reuben Smith',
@@ -10,5 +10,5 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['AdminEditMetaInfo'] = 'AdminEditInfo';
 $wgSpecialPages['AdminEditPageTitles'] = 'AdminEditInfo';
-$wgAutoloadClasses['AdminEditInfo'] = dirname( __FILE__ ) . '/AdminEditInfo.body.php';
+$wgAutoloadClasses['AdminEditInfo'] = __DIR__ . '/AdminEditInfo.body.php';
 

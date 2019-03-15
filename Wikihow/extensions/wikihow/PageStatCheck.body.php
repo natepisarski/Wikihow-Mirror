@@ -7,29 +7,29 @@ class PageStatCheck extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgOut, $wgRequest;
-	
-	
-		if ($wgRequest->wasPosted()) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+
+		if ($req->wasPosted()) {
 			// this may take a while...
 			set_time_limit(0);
 
-			$wgOut->setArticleBodyOnly(true);
-			
-			$username = trim($wgRequest->getVal('username'));
+			$out->setArticleBodyOnly(true);
+
+			$username = trim($req->getVal('username'));
 			$u = User::newFromName($username);
 			if ($u && $u->getID())
 				$html = '<br /><h3>Page views in past 30 days on articles</h3>'.
-						'<p>Edited in past 30 days: '.self::getStatsByUser($u,true).'</p>'.
-						'<p>All time: '.self::getStatsByUser($u,false).'</p>';
+						'<p>Edited in past 30 days: '.$this->getStatsByUser($u,true).'</p>'.
+						'<p>All time: '.$this->getStatsByUser($u,false).'</p>';
 			else
 				$html = 'invalid user name';
-				
+
 			print json_encode(array('result' => $html));
 			return;
 		}
-		
-		$wgOut->setHTMLTitle('Page Stat Check - wikiHow');
+
+		$out->setHTMLTitle('Page Stat Check - wikiHow');
 
 $tmpl = <<<EOHTML
 <form id="page-stat-form" method="post" action="/Special:PageStatCheck">
@@ -70,13 +70,13 @@ Enter a user name to get page view stats on all their created and edited pages.
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
-	
-	public function getStatsByUser($u,$past30days) {
+
+	private function getStatsByUser($u,$past30days) {
 		$html = '';
      	$dbr = wfGetDB(DB_SLAVE);
-		
+
 		if ($past30days) {
 			//cutoff = past 30 days
 			$cutoff = wfTimestamp(TS_MW, time() - 60 * 60 * 24 * 30);
@@ -84,22 +84,22 @@ EOHTML;
 		else {
 			$cutoff = 0;
 		}
-		
+
 		$conds = array('page_id=rev_page', 'rev_user' => $u->getID(), 'page_is_redirect' => 0, 'page_namespace' => NS_MAIN);
 		if ($cutoff) $conds[] = 'rev_timestamp > ' . $cutoff;
-		
+
 		//grab all started articles in the past timeframe
 		$res = $dbr->select(array('revision','page'),
-			array('rev_page','page_title'), 
+			array('rev_page','page_title'),
 			$conds,
 			__METHOD__,
 			array('GROUP BY' => 'rev_page'));
-		
+
 		foreach ($res as $row) {
 			$stats = PageStats::get30day($row->rev_page,$dbr);
 			$total += (int)$stats;
 		}
-		
+
 		return (int)$total;
 	}
 }

@@ -20,7 +20,7 @@ class ImageHooks {
 		}
 
 		// return false here..we want to create the watermarked file!
-		// AG - TODO trying to figure out why we check if the file exists here..doesn't 
+		// AG - TODO trying to figure out why we check if the file exists here..doesn't
 		// seem necessary or should be inverted
 		if ( @$params[WatermarkSupport::ADD_WATERMARK] || $image->getRepo()->fileExists($params['dstPath']) ) {
 			return false;
@@ -38,7 +38,7 @@ class ImageHooks {
 		if (@$params[WatermarkSupport::ADD_WATERMARK]) {
 			if ( $params['pageId'] ) {
 				WatermarkSupport::addTitleBasedWatermark( $dstPath, $dstPath, $params['physicalWidth'], $params['physicalHeight'], $params['pageId'] );
-			} else if ( $params['version'] >= 3 ) {
+			} elseif ( $params['version'] >= 3 ) {
 				WatermarkSupport::addWatermarkV3($dstPath, $dstPath, $params['physicalWidth'], $params['physicalHeight']);
 			} else {
 				WatermarkSupport::addWatermark($dstPath, $dstPath, $params['physicalWidth'], $params['physicalHeight']);
@@ -94,9 +94,9 @@ class ImageHooks {
 	}
 
 	public static function onFileTransform($image, &$params) {
-		if ( $image->getUser("text") 
-			&& WatermarkSupport::isWikihowCreator($image->getUser('text')) 
-			&& (!isset($params[WatermarkSupport::NO_WATERMARK]) 
+		if ( $image->getUser("text")
+			&& WatermarkSupport::isWikihowCreator($image->getUser('text'))
+			&& (!isset($params[WatermarkSupport::NO_WATERMARK])
 				|| $params[WatermarkSupport::NO_WATERMARK] != true))
 		{
 			$params[WatermarkSupport::ADD_WATERMARK] = true;
@@ -157,8 +157,8 @@ class ImageHooks {
 			$params[WatermarkSupport::NO_WATERMARK] = true;
 		}
 
-		if ( $image->getUser('text') 
-			&& WatermarkSupport::isWikihowCreator($image->getUser('text')) 
+		if ( $image->getUser('text')
+			&& WatermarkSupport::isWikihowCreator($image->getUser('text'))
 			&& isset($params[WatermarkSupport::NO_WATERMARK])
 			&& $params[WatermarkSupport::NO_WATERMARK] == true)
 		{
@@ -285,15 +285,15 @@ class ImageHooks {
 				$result['width'] = ( int )array_shift( $parts );
 				$result['height'] = ( int )array_shift( $parts );
 				$result['crop'] = 1;
-			} else if ( $param == "nowatermark" ) {
+			} elseif ( $param == "nowatermark" ) {
 				$result[WatermarkSupport::NO_WATERMARK] = true;
-			} else if ( substr( $param, 0, 1 ) == 'v' ) {
+			} elseif ( substr( $param, 0, 1 ) == 'v' ) {
 				$result['version'] = substr( $param, 1 );
-			} else if ( substr( $param, 0, 1 ) == 'q' ) {
+			} elseif ( substr( $param, 0, 1 ) == 'q' ) {
 				$result['quality'] = ( int )substr( $param, 1 );
-			} else if ( substr( $param, 0, 3 ) == 'aid' ) {
+			} elseif ( substr( $param, 0, 3 ) == 'aid' ) {
 				$result['pageId'] = $param;
-			} else if ( substr( $param, -2, 2 ) == 'px' ) {
+			} elseif ( substr( $param, -2, 2 ) == 'px' ) {
 				$width = ( int )substr( $param, 0, strlen( $param ) - 2 );
 				if ( $result['crop'] == 1 && $result['width'] > 10 ) {
 					$result['reqwidth'] = $width;

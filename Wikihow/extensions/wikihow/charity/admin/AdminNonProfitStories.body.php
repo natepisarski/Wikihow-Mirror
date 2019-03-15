@@ -11,7 +11,7 @@ class AdminNonProfitStories extends UnlistedSpecialPage {
 		$user = $this->getUser();
 
 		if ($user->isBlocked() || !$user->hasGroup('staff')) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -126,7 +126,7 @@ class AdminNonProfitStories extends UnlistedSpecialPage {
 	}
 
 	private function getMustacheHTML($template, $vars) {
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 

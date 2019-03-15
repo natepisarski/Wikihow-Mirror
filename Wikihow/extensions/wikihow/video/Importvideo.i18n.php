@@ -1,4 +1,5 @@
-<?
+<?php
+
 $messages = array();
 $messages['en'] = array (
 		'Video' => 'Video',
@@ -58,13 +59,12 @@ A one sentence description will  help the reader know if he or she wants to spen
 		'importvideo_youtubesort_views' => "Number of views",
 		'importvideo_' => "",
 		'importvideo_howcast_result' => '<div>
-			<object width="480" height="299" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="howcastplayer">  
-				<param name="movie" value="http://www.howcast.com/flash/howcast_player.swf?file=$1"></param>  
-					<param name="allowFullScreen" value="false"></param>  
-					<param name="wmode" value="transparent"></param>
-						<param name="allowScriptAccess" value="always">  </param>
-							<param name="flashVars" value=""></param>  
-								<embed src="http://www.howcast.com/flash/howcast_player.swf?file=$1"  type="application/x-shockwave-flash" width="480" height="299" allowFullScreen="false" allowScriptAccess="always" flashVars=""></embed>  </object></div>',
+			<object width="480" height="299" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="howcastplayer">
+				<param name="movie" value="http://www.howcast.com/flash/howcast_player.swf?file=$1"></param>
+				<param name="allowFullScreen" value="false"></param>
+				<param name="wmode" value="transparent"></param>
+				<param name="allowScriptAccess" value="always">  </param>
+				<param name="flashVars" value=""></param>
+				<embed src="http://www.howcast.com/flash/howcast_player.swf?file=$1"  type="application/x-shockwave-flash" width="480" height="299" allowFullScreen="false" allowScriptAccess="always" flashVars=""></embed>  </object></div>',
 
 	);
-

@@ -18,7 +18,7 @@ class SummaryEditTool extends UnlistedSpecialPage {
 		$user = $this->getUser();
 		$action = $this->getRequest()->getVal('action','');
 
-		$out->setRobotpolicy('noindex, nofollow');
+		$out->setRobotPolicy('noindex, nofollow');
 
 		if (!self::authorizedUser($user) || empty($action)) {
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');

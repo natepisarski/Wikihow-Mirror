@@ -13,7 +13,7 @@ $wgResourceModules['mobile.wikihow.mmf'] = array(
 		'mobile_menu_flag',
 		'mobile_menu_percent'
 		],
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/MobileMenuFlag',
 	'dependencies' => ['ext.wikihow.common_top'],
 	'targets' => ['mobile']

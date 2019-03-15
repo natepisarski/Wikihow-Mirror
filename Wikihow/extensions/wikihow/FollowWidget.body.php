@@ -66,7 +66,7 @@ class FollowWidget extends UnlistedSpecialPage {
 
 /*
 		$email = $wgRequest->getVal('getEmailForm');
-		if($email == "1") {
+		if ($email == "1") {
 			$form = '<form id="ccsfg" name="ccsfg" method="post" action="/extensions/wikihow/common/CCSFG/signup/index.php" style="display:none;">
 
 		<h4>'.wfMessage('fw-head')->text().'</h4>

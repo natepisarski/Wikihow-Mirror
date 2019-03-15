@@ -161,7 +161,7 @@ class Hypothesis {
 						// Render normally, send a holdback for bucketing to varnish via a header
 						$holdback = ceil( (int)$row->{"hypx_holdback"} / 100 );
 						$request->response()->header( "X-Hypothesis-Holdback: {$holdback}" );
-					} else if ( $bucket === 'a' || $bucket === 'b' ) {
+					} elseif ( $bucket === 'a' || $bucket === 'b' ) {
 						// Render variant by faking the oldid parameter
 						$request->setVal( 'oldid', $row->{"hypt_rev_{$bucket}"} );
 						$request->setVal( 'hyp-opti-project', $row->hypx_opti_project );

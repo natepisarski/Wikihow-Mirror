@@ -10,4 +10,4 @@ if ( ! defined( 'MEDIAWIKI' ) )
                   );
 
 $wgSpecialPages['AtlasAdmin'] = 'AtlasAdmin';
-$wgAutoloadClasses['AtlasAdmin'] = dirname(__FILE__) . '/AtlasAdmin.body.php';
+$wgAutoloadClasses['AtlasAdmin'] = __DIR__ . '/AtlasAdmin.body.php';

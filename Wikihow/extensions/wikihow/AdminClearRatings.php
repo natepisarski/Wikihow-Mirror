@@ -9,4 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminClearRatings'] = 'AdminClearRatings';
-$wgAutoloadClasses['AdminClearRatings'] = dirname(__FILE__) . '/AdminClearRatings.body.php';
+$wgAutoloadClasses['AdminClearRatings'] = __DIR__ . '/AdminClearRatings.body.php';

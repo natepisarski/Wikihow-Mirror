@@ -183,7 +183,7 @@ window.WH.CategoryCarousel = (function ($, mw) {
 				config = this.getMultiRowConfig();
 			} else if ($root.data('category_listing')) {
 				config = this.getListingConfig();
-				// No paging for Special:Categorylisting
+				// No paging for Special:CategoryListing
 				this.hasMoreArticles = false;
 			}
 

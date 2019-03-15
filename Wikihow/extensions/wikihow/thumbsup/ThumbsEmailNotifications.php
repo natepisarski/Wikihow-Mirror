@@ -3,5 +3,5 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['ThumbsEmailNotifications'] = 'ThumbsEmailNotifications';
-$wgAutoloadClasses['ThumbsEmailNotifications'] = dirname( __FILE__ ) . '/ThumbsEmailNotifications.body.php';
-$wgExtensionMessagesFiles['ThumbsEmailNotifications'] = dirname(__FILE__) . '/ThumbsEmailNotifications.i18n.php';
+$wgAutoloadClasses['ThumbsEmailNotifications'] = __DIR__ . '/ThumbsEmailNotifications.body.php';
+$wgExtensionMessagesFiles['ThumbsEmailNotifications'] = __DIR__ . '/ThumbsEmailNotifications.i18n.php';

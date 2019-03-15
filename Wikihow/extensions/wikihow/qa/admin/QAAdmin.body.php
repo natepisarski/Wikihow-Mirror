@@ -2,25 +2,25 @@
 
 class QAAdmin extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		global $wgHooks;
 		parent::__construct('QAAdmin');
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
-	function execute($par) {
-		global $wgLanguageCode, $wgIsToolsServer, $wgIsDevServer;
+	public function execute($par) {
+		global $wgIsToolsServer, $wgIsDevServer;
 
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$userGroups = $user->getGroups();
 
-		if ($wgLanguageCode != 'en' ||
+		if ($this->getLanguage()->getCode() != 'en' ||
 			$user->isBlocked() ||
 			!in_array('staff', $userGroups) ||
-		    !($wgIsToolsServer || $wgIsDevServer)) {
-
-			$out->setRobotpolicy('noindex,nofollow');
+		    !($wgIsToolsServer || $wgIsDevServer)
+		) {
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -48,12 +48,12 @@ class QAAdmin extends UnlistedSpecialPage {
 
 	protected function outputHtml() {
 		$this->addModules();
-		
+
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
-		$this->getOutput()->addHtml($m->render('qa_admin', []));
+		$this->getOutput()->addHtml($m->render('qa_admin.mustache', []));
 	}
 
 	function addModules() {
@@ -81,8 +81,8 @@ class QAAdmin extends UnlistedSpecialPage {
 			$qadb->updateSubmittedQuestionsText($data);
 			$qadb->approveSubmittedQuestions($sqids);
 		}
-
 	}
+
 	protected function approveSubmittedQuestions() {
 		$qadb = QADB::newInstance();
 		$sqids = $this->getRequest()->getArray('sqids', []);

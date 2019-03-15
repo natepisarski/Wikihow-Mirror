@@ -183,7 +183,7 @@ class WHVid {
 		$summaryVideo = false;
 		$summaryIntroImage = null;
 		$summaryOutroImage = null;
-		if ( strstr( $vid, ' Step 0' ) )  {
+		if ( strstr( $vid, ' Step 0.' ) || strstr( $vid, ' Step 0 ' ) )  {
 			$isSummaryVideo = true;
 			$watermark = false;
 			$summaryIntroImage = self::getSummaryImage( $previewImg );
@@ -264,7 +264,7 @@ class WHVid {
 		$element = Html::element( 'video', $attr );
 
 		// the script which adds the video to js for loading
-		$script = "<script>if(WH.video)WH.video.add(document.getElementById('$id'));</script>";
+		$script = "<script>if (WH.video)WH.video.add(document.getElementById('$id'));</script>";
 //		$script = "";
 		return $element.$script;
 	}
@@ -411,7 +411,7 @@ class WHVid {
 		if ( !$wgTitle ) {
 			return;
 		}
-		if ( !( $wgTitle->getNamespace() == NS_SPECIAL || $wgTitle->getNamespace() == NS_MAIN ) ) {
+		if ( !( $wgTitle->inNamespace(NS_SPECIAL) || $wgTitle->inNamespace(NS_MAIN) ) ) {
 			return;
 		}
 		if ( pq('.m-video')->length <= 0 ) {
@@ -445,7 +445,7 @@ class WHVid {
 	public static function addMobileCSS(&$stylePath, $title) {
 		global $IP;
 
-		if(self::$showFirstAtTop) {
+		if (self::$showFirstAtTop) {
 			$stylePath[] = $IP . "/extensions/wikihow/quiz/quiz.css";
 		}
 

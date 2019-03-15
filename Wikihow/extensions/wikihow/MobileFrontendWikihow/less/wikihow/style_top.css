@@ -786,16 +786,29 @@ h4.steps_text::before {
 }
 
 /*** ADS ***/
-
+.has_scrolltoad .addTipElement {
+	margin-bottom: 20px;
+}
 .wh_ad_inner {
 	float:left;
 }
-.ad_label_method, .ad_label_related {
+.ad_label_method, .ad_label_related, .ad_label_scrollto {
 	text-align: center;
 	font-size: 12px;
 	color: #999;
 }
-
+.ad_label_scrollto {
+	line-height: 11px;
+}
+#references_first ins {
+	margin-top: 10px;
+}
+.steps_list_2 .scrollto_wrap {
+	margin-top: 5px;
+}
+.article_rating .scrollto_wrap {
+	background:none;
+}
 .method_ad {
 	margin-top: 17px;
 	margin-left: -16px;

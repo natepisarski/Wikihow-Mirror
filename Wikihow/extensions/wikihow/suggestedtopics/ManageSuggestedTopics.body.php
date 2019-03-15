@@ -13,7 +13,7 @@ class ManageSuggestedTopics extends SpecialPage {
 
 		if (!in_array( 'sysop', $user->getGroups()) && !in_array( 'newarticlepatrol', $user->getRights() ) ) {
 			$out->setArticleRelated( false );
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
         }

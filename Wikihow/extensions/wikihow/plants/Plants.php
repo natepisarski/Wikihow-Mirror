@@ -2,13 +2,13 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-$wgAutoloadClasses['Plants'] = dirname(__FILE__) . '/Plants.class.php';
-$wgAutoloadClasses['KnowledgePlants'] = dirname(__FILE__) .'/tools/KnowledgePlants.class.php';
-$wgAutoloadClasses['CategoryPlants'] = dirname(__FILE__) .'/tools/CategoryPlants.class.php';
-$wgAutoloadClasses['TipPlants'] = dirname(__FILE__) .'/tools/TipPlants.class.php';
-$wgAutoloadClasses['AdminPlants'] = dirname(__FILE__) .'/admin/AdminPlants.body.php';
-$wgAutoloadClasses['SpellingPlants'] = dirname(__FILE__) .'/tools/SpellingPlants.class.php';
-$wgAutoloadClasses['UCIPlants'] = dirname(__FILE__) .'/tools/UCIPlants.class.php';
+$wgAutoloadClasses['Plants'] = __DIR__ . '/Plants.class.php';
+$wgAutoloadClasses['KnowledgePlants'] = __DIR__ .'/tools/KnowledgePlants.class.php';
+$wgAutoloadClasses['CategoryPlants'] = __DIR__ .'/tools/CategoryPlants.class.php';
+$wgAutoloadClasses['TipPlants'] = __DIR__ .'/tools/TipPlants.class.php';
+$wgAutoloadClasses['AdminPlants'] = __DIR__ .'/admin/AdminPlants.body.php';
+$wgAutoloadClasses['SpellingPlants'] = __DIR__ .'/tools/SpellingPlants.class.php';
+$wgAutoloadClasses['UCIPlants'] = __DIR__ .'/tools/UCIPlants.class.php';
 $wgSpecialPages['AdminPlants'] = 'AdminPlants';
 
 $wgResourceModules['ext.wikihow.AdminPlants'] = array(

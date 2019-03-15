@@ -41,7 +41,7 @@ class APIAIWikihowAgentWebHook extends UnlistedSpecialPage {
 	public static function fatalHandler() {
 		wfDebugLog(self::LOG_GROUP, var_export('Last error on line following', true), true);
 		$error = error_get_last();
-		if( $error !== NULL) {
+		if ($error !== NULL) {
 			$errno   = $error["type"];
 			$errfile = $error["file"];
 			$errline = $error["line"];
@@ -310,7 +310,7 @@ class APIAIWikihowAgentWebHook extends UnlistedSpecialPage {
 
 		$ssml = $this->convertToSSML($responseText);
 
-		
+
 		if (strlen($responseText) > self::LENGTH_MAX_DISPLAY_TEXT) {
 			$responseText = substr($responseText, 0, self::LENGTH_MAX_DISPLAY_TEXT - 3) . '...';
 		}
@@ -336,7 +336,7 @@ class APIAIWikihowAgentWebHook extends UnlistedSpecialPage {
 
 	protected function setEndSession($response) {
 		$response['data']['google']['expectUserResponse'] = false;
-		
+
 		return $response;
 	}
 

@@ -9,8 +9,8 @@ class AdminAnswerQuestions extends UnlistedSpecialPage {
 	function execute($par) {
 		$user = $this->getUser();
 		$out = $this->getOutput();
-		if(!in_array('staff', $user->getGroups())) {
-			$out->setRobotpolicy('noindex,nofollow');
+		if (!in_array('staff', $user->getGroups())) {
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -18,7 +18,7 @@ class AdminAnswerQuestions extends UnlistedSpecialPage {
 
 		$request = $this->getRequest();
 		$action = $request->getVal("action");
-		if($action == "add") {
+		if ($action == "add") {
 			$out->setArticleBodyOnly(true);
 			$categories = $request->getVal("cats", "");
 			$result = $this->addNewCategories($categories);
@@ -29,11 +29,11 @@ class AdminAnswerQuestions extends UnlistedSpecialPage {
 			$result = $this->deleteCategories($categories);
 		} else {
 			$options = array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
-			$out->addHtml($m->render('admin', $this->getData()));
+			$out->addHTML($m->render('admin.mustache', $this->getData()));
 			$out->addModules('wikihow.adminanswerquestions');
 		}
 	}
@@ -44,20 +44,20 @@ class AdminAnswerQuestions extends UnlistedSpecialPage {
 	}
 
 	private function deleteCategories($categories) {
-		if(count($categories) > 0) {
+		if (count($categories) > 0) {
 			$dbw = wfGetDB(DB_MASTER);
 			$dbw->delete(AnswerQuestions::TABLE_QUEUE, array("aqq_category IN (" . $dbw->makeList($categories) . ")"), __METHOD__);
 		}
 	}
 
 	private function addNewCategories($categories) {
-		if($categories != "") {
+		if ($categories != "") {
 			$cats = explode("\n", trim($categories));
 			$validCats = array();
 			$result = array( 'valid' => 0, 'invalid' => 0, 'invalidCats' => [], 'validCats' => []);
-			foreach($cats as $cat) {
+			foreach ($cats as $cat) {
 				$title = Title::newFromText($cat, NS_CATEGORY);
-				if($title && $title->exists()) {
+				if ($title && $title->exists()) {
 					$validCats[] = [
 						'aqq_page' => 0,
 						'aqq_category' => str_replace(" ", "-", $title->getText()),
@@ -78,7 +78,7 @@ class AdminAnswerQuestions extends UnlistedSpecialPage {
 
 			$result['valid'] = count($validCats)/2; //because we have 2 queues for each category
 			$result['invalid'] = count($result['invalidCats']);
-			if($result['valid'] > 0) {
+			if ($result['valid'] > 0) {
 				$dbw = wfGetDB(DB_MASTER);
 				$dbw->insert(AnswerQuestions::TABLE_QUEUE, $validCats, __METHOD__);
 			}

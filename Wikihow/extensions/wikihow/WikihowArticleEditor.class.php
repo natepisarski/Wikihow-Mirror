@@ -578,7 +578,7 @@ class WikihowArticleEditor {
 			$text = preg_replace("@\[[^\]]*\]@", "", $text);
 			// for http://www.inlinedlinks.com
 			$text = preg_replace("@http://[^ |\n]*@", "", $text);
-		} else if (!isset($options["externallinks"])) {
+		} elseif (!isset($options["externallinks"])) {
 			// take out internal links
 			preg_match_all("@\[[^\]]*\]@", $text, $matches);
 			foreach ($matches[0] as $m) {
@@ -780,7 +780,7 @@ class WikihowArticleEditor {
 					if (count($parts) >= 3) {
 						$previewImageTitle = Title::newFromText($parts[1], NS_IMAGE);
 						$imageTitle = Title::newFromText($parts[2], NS_IMAGE);
-					} else if (count($parts) == 2) {
+					} elseif (count($parts) == 2) {
 						$previewImageTitle = Title::newFromText($parts[1]);
 					}
 
@@ -842,7 +842,7 @@ class BuildWikihowArticle extends UnlistedSpecialPage {
 	public function execute($par) {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
-		$out->disable();
+		$out->setArticleBodyOnly(true);
 		$whow = WikihowArticleEditor::newFromRequest($req);
 		if ($req->getVal('parse') == '1') {
 			$body = $out->parse($whow->formatWikiText());

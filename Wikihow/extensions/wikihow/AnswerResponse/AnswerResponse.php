@@ -14,7 +14,7 @@ $wgMessagesDirs['AnswerResponse'] = __DIR__ . '/i18n/';
 
 $wgResourceModules['wikihow.answer_response'] = array(
 	'styles' => 'answer_response.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/AnswerResponse',
 	'position' => 'top',
 	'targets' => array('mobile', 'desktop')
@@ -22,7 +22,7 @@ $wgResourceModules['wikihow.answer_response'] = array(
 
 $wgResourceModules['wikihow.scripts.answer_response'] = array(
 	'scripts' => 'answer_response.js',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/AnswerResponse',
 	'position' => 'bottom',
 	'messages' => [

@@ -7,7 +7,7 @@
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
-$localBasePath = dirname( __FILE__ );
+$localBasePath = __DIR__;
 $remoteExtPath = 'wikihow/MobileFrontendWikihow';
 
 

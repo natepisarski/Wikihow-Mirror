@@ -16,7 +16,7 @@ class CategoryHelperTest extends MediaWikiTestCase {
     public function testAdd( $pageId, $category, $expected )
     {
         $title = Title::newFromId( $pageId );
-		$this->assertEquals( $expected, Categoryhelper::isTitleInCategory( $title, $category ) );
+		$this->assertEquals( $expected, CategoryHelper::isTitleInCategory( $title, $category ) );
         //$this->assertEquals($expected, $pageId + $b);
     }
 
@@ -37,7 +37,7 @@ class CategoryHelperTest extends MediaWikiTestCase {
      */
     public function testGetTitleCategoryMask( $pageId, $expected ) {
         $title = Title::newFromId( $pageId );
-		$this->assertEquals( $expected, Categoryhelper::getTitleCategoryMask( $title ) );
+		$this->assertEquals( $expected, CategoryHelper::getTitleCategoryMask( $title ) );
     }
 
     public function titleCatMaskProvider() {
@@ -60,7 +60,7 @@ class CategoryHelperTest extends MediaWikiTestCase {
      */
     public function testGetTitleTopLevelCategories( $pageId, $expectedCategoryNames ) {
         $title = Title::newFromId( $pageId );
-        $cats = Categoryhelper::getTitleTopLevelCategories( $title );
+        $cats = CategoryHelper::getTitleTopLevelCategories( $title );
         $expected = array();
         foreach( $expectedCategoryNames as $cat ) {
 			$expected[] = Title::makeTitle(NS_CATEGORY, $cat);
@@ -76,7 +76,7 @@ class CategoryHelperTest extends MediaWikiTestCase {
      */
     public function testGetTopLevelCategories( $pageId, $expectedCategoryNames ) {
         $title = Title::newFromId( $pageId );
-        $cats = Categoryhelper::getTopLevelCategories( $title );
+        $cats = CategoryHelper::getTopLevelCategories( $title );
         $expected = array();
         foreach( $expectedCategoryNames as $cat ) {
 			$expected[] = Title::makeTitle(NS_CATEGORY, $cat);

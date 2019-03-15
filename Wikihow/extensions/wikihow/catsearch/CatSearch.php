@@ -3,8 +3,8 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['CatSearch'] = 'CatSearch';
-$wgAutoloadClasses['CatSearch'] = dirname( __FILE__ ) . '/CatSearch.body.php';
-$wgExtensionMessagesFiles['CatSearch'] = dirname(__FILE__) . '/CatSearch.i18n.php';
+$wgAutoloadClasses['CatSearch'] = __DIR__ . '/CatSearch.body.php';
+$wgExtensionMessagesFiles['CatSearch'] = __DIR__ . '/CatSearch.i18n.php';
 
 
 

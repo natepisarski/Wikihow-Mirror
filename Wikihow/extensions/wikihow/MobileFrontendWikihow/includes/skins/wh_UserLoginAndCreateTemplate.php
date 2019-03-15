@@ -144,7 +144,7 @@ abstract class UserLoginAndCreateTemplate extends QuickTemplate {
 			if ( isset( $this->pageMessages[$returnto] ) ) {
 				$content = wfMessage( $this->pageMessages[$returnto] )->parse();
 			}
-		} else if ( isset( $this->actionMessageHeaders[$action] ) ) {
+		} elseif ( isset( $this->actionMessageHeaders[$action] ) ) {
 			$heading = wfMessage( $this->actionMessageHeaders[$action], $title )->parse();
 			if ( isset( $this->actionMessages[$action] ) ) {
 				$content = wfMessage( $this->actionMessages[$action], $title, $loginsignup_link )->plain();

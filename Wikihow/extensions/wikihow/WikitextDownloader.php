@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['WikitextDownloader'] = 'WikitextDownloader';
-$wgAutoloadClasses['WikitextDownloader'] = dirname(__FILE__) . '/WikitextDownloader.body.php';
-$wgExtensionMessagesFiles['WikitextDownloader'] = dirname(__FILE__) . '/WikitextDownloader.i18n.php';
+$wgAutoloadClasses['WikitextDownloader'] = __DIR__ . '/WikitextDownloader.body.php';
+$wgExtensionMessagesFiles['WikitextDownloader'] = __DIR__ . '/WikitextDownloader.i18n.php';

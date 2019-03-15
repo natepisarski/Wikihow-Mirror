@@ -1,4 +1,4 @@
-<?
+<?php
 
 class Wikihow_i18n {
 

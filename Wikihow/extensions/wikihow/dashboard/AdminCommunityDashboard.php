@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminCommunityDashboard',
 	'author' => 'Reuben Smith',
@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminCommunityDashboard'] = 'AdminCommunityDashboard';
-$wgAutoloadClasses['AdminCommunityDashboard'] = dirname( __FILE__ ) . '/AdminCommunityDashboard.body.php';
+$wgAutoloadClasses['AdminCommunityDashboard'] = __DIR__ . '/AdminCommunityDashboard.body.php';
 

@@ -1,7 +1,7 @@
-<?
+<?php
 
 $messages = array();
-$messages['en'] = 
+$messages['en'] =
 	array (
 		'fw-title' => "Join wikiHow's Featured Email List",
 		'fw-message' => "We will use your email address to send you a weekly email showcasing our featured articles. Your email address will not be shared or used for any other purpose.",

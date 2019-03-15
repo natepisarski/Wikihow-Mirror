@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'MyPages',
 	'author' => 'Travis Derouin',

@@ -19,6 +19,6 @@ $wgExtensionMessagesFiles['MyTwitter'] = __DIR__ . '/TwitterFeed.i18n.php';
 $wgHooks['ArticleInsertComplete'][] = array("TwitterFeedHooks::myTwitterInsertComplete");
 $wgHooks["NABArticleFinished"][] = array("TwitterFeedHooks::myTwitterNAB");
 $wgHooks["UploadComplete"][] = array("TwitterFeedHooks::myTwitterUpload");
-$wgHooks["EditFinderArticleSaveComplete"][] = array("TwitterFeedHooks::myTwitterEditFinder"); 
-$wgHooks["ArticleSaveComplete"][] = array("TwitterFeedHooks::myTwitterOnSave"); 
+$wgHooks["EditFinderArticleSaveComplete"][] = array("TwitterFeedHooks::myTwitterEditFinder");
+$wgHooks["ArticleSaveComplete"][] = array("TwitterFeedHooks::myTwitterOnSave");
 

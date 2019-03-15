@@ -16,7 +16,7 @@ class GDPR extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 
 		$out->setArticleBodyOnly( true );
-		$out->setRobotpolicy('noindex,nofollow');
+		$out->setRobotPolicy('noindex,nofollow');
 
 		$req->response()->header('Content-type: text/plain');
 		$req->response()->header('Content-Disposition: attachment; filename="userdata.txt"');

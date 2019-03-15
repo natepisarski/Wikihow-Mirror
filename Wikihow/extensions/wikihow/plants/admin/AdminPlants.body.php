@@ -37,7 +37,7 @@ class AdminPlants extends UnlistedSpecialPage {
 
 		} else {
 			$out->setPageTitle("Planted Questions Admin");
-			$tmpl = new EasyTemplate( dirname(__FILE__) );
+			$tmpl = new EasyTemplate( __DIR__ );
 			$tmpl->set_vars( array('tools' => Plants::getAllPlantTypes()) );
 			$out->addHTML($tmpl->execute('toolselector.tmpl.php'));
 		}
@@ -48,7 +48,7 @@ class AdminPlants extends UnlistedSpecialPage {
 
 		$data = $plant->getAllPlantsForAdmin();
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars( array('data' => $data) );
 		$out->addHTML($tmpl->execute('tooldata.tmpl.php'));
 	}

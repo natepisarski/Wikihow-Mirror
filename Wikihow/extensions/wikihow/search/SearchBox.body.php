@@ -16,7 +16,7 @@ class SearchBox {
 	}
 
 	public static function render( $out ) {
-		$css = Misc::getEmbedFile( 'css', dirname( __FILE__ ) . '/searchbox.css' );
+		$css = Misc::getEmbedFile( 'css', __DIR__ . '/searchbox.css' );
 		$out->addHeadItem( 'searchbox-css', HTML::inlineStyle( $css ) );
 
 		return self::renderTemplate( 'searchbox',

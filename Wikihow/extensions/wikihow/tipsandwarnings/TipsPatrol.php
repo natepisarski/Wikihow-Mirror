@@ -9,8 +9,8 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['TipsPatrol'] = 'TipsPatrol';
-$wgAutoloadClasses['TipsPatrol'] = dirname(__FILE__) . '/TipsPatrol.body.php';
-$wgExtensionMessagesFiles['TipsPatrol'] = dirname(__FILE__) . '/TipsPatrol.i18n.php';
+$wgAutoloadClasses['TipsPatrol'] = __DIR__ . '/TipsPatrol.body.php';
+$wgExtensionMessagesFiles['TipsPatrol'] = __DIR__ . '/TipsPatrol.i18n.php';
 $wgExtensionMessagesFiles['TipsPatrolAliases'] = __DIR__ . '/TipsPatrol.alias.php';
 
 $wgLogTypes[] = 'newtips';

@@ -22,8 +22,8 @@ class FixFlaggedAnswers extends UnlistedSpecialPage {
 		}
 
 		//logged in and desktop only
-		if($user->isAnon() || Misc::isMobileMode() || !self::approvedUser($user)) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+		if ($user->isAnon() || Misc::isMobileMode() || !self::approvedUser($user)) {
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -64,7 +64,7 @@ class FixFlaggedAnswers extends UnlistedSpecialPage {
 
 	private function toolHTML() {
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__).'/templates'),
+			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates'),
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);

@@ -2,32 +2,28 @@
 
 class Interests extends SpecialPage {
 
-    function __construct() {
+    public function __construct() {
         parent::__construct( 'Interests' );
     }
 
-    function execute ($par) {
-		global $wgRequest, $wgOut, $wgUser;
-		$target = isset( $par ) ? $par : $wgRequest->getVal( 'target' );
+    public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
-		#if ($wgRequest->wasPosted() || true) {
-		if ($wgRequest->getVal('interests')) {
-			$wgOut->disable();
-			$x = new LSearch(); 
-			$interests = explode("\n", $wgRequest->getVal('interests'));
-			//$hits= $x->externalSearchResultTitles('"' . implode('" OR "', $interests) . '"');
+		$target = isset( $par ) ? $par : $req->getVal( 'target' );
+
+		if ($req->getVal('interests')) {
+			$out->setArticleBodyOnly(true);
+			$x = new LSearch();
+			$interests = explode("\n", $req->getVal('interests'));
 			$result = array();
 			$result['titles'] = array();
-			
-			/*foreach ($hits as $t) {
-				$result['titles'][] = $t->getText();	
-			}
-			*/
+
 			$hits = array(
-				Title::newFromText('French-Kiss'), 
-				Title::newFromText('Save-a-Wet-Cell-Phone'), 
+				Title::newFromText('French-Kiss'),
+				Title::newFromText('Save-a-Wet-Cell-Phone'),
 				Title::newFromText('Ollie-off-a-Kicker')
-				);
+			);
 			foreach ($hits as $t) {
 				$dbr = wfGetDB(DB_SLAVE);
 				$x = array();
@@ -41,14 +37,14 @@ class Interests extends SpecialPage {
 				} else {
 					$x['morehelp'] = "no";
 				}
-				$result['titles'][] = $x; 
-			} 
-			
-			echo json_encode($result); 
+				$result['titles'][] = $x;
+			}
+
+			echo json_encode($result);
 			return;
 		}
 
-		EasyTemplate::set_path( dirname(__FILE__) );
-		$wgOut->addHTML(EasyTemplate::html('interests.tmpl.php'));
+		EasyTemplate::set_path( __DIR__ );
+		$out->addHTML(EasyTemplate::html('interests.tmpl.php'));
 	}
-}	
+}

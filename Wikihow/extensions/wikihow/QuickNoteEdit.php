@@ -10,7 +10,6 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'quick popups for notes and edit',
 );
 
-
-$wgExtensionMessagesFiles['QuickNoteEdit'] = dirname(__FILE__) . '/QuickNoteEdit.i18n.php';
-$wgSpecialPages['QuickNoteEdit'] = 'QuickNoteEdit'; 
-$wgAutoloadClasses['QuickNoteEdit'] = dirname( __FILE__ ) . '/QuickNoteEdit.body.php';
+$wgExtensionMessagesFiles['QuickNoteEdit'] = __DIR__ . '/QuickNoteEdit.i18n.php';
+$wgSpecialPages['QuickNoteEdit'] = 'QuickNoteEdit';
+$wgAutoloadClasses['QuickNoteEdit'] = __DIR__ . '/QuickNoteEdit.body.php';

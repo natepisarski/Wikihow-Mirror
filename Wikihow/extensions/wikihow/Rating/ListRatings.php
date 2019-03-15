@@ -27,7 +27,7 @@ class ListRatings extends QueryPage {
 	var $targets = array();
 	var $tablePrefix = '';
 
-	function execute( $par ) {
+	public function execute( $par ) {
 		$action = $this->getRequest()->getVal('action','');
 		if ($action == 'csv') return $this->getSampleCSV();
 		parent::execute($par);
@@ -56,10 +56,10 @@ class ListRatings extends QueryPage {
 			$t = Title::newFromId($result->rat_page);
 		}
 
-		if($t == null)
+		if ($t == null)
 			return "";
 
-		if($this->forSamples) {
+		if ($this->forSamples) {
 			//need to tell the linker that the title is known otherwise it adds redlink=1 which eventually breaks the link
 			return Linker::linkKnown($t, $t->getFullText()) . " ({$result->C} votes, {$result->R} average)";
 		} else {

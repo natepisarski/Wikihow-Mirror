@@ -61,7 +61,7 @@ class Quizzes extends UnlistedSpecialPage {
 
 			list($question, $answers, $progress) = self::formatQuiz($quiz_blob);
 
-			$tmpl = new EasyTemplate( dirname(__FILE__) );
+			$tmpl = new EasyTemplate( __DIR__ );
 			$tmpl->set_vars(array(
 				'quiz_title' => $quiz_title,
 				'quiz_progress' => $progress,
@@ -359,13 +359,16 @@ class Quizzes extends UnlistedSpecialPage {
 		return $img;
 	}
 
-	public function execute($par = '') {
-		global $wgOut, $wgRequest, $wgHooks, $wgCanonical, $wgSquidMaxage;
+	public function execute($par) {
+		global $wgHooks, $wgCanonical, $wgSquidMaxage;
 
-		if ($wgRequest->getVal('otherquizzesfor')) {
-			$others = self::getOtherQuizzes($wgRequest->getVal('otherquizzesfor'));
-			$wgOut->disable();
-			print_r(json_encode($others));
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+
+		if ($req->getVal('otherquizzesfor')) {
+			$others = self::getOtherQuizzes($req->getVal('otherquizzesfor'));
+			$out->setArticleBodyOnly(true);
+			print json_encode($others);
 			return;
 		}
 
@@ -379,31 +382,31 @@ class Quizzes extends UnlistedSpecialPage {
 		//make a custom canonical url
 		self::$quizURL = Misc::getLangBaseURL() . self::$quizURL . $par;
 		$wgHooks['GetFullURL'][] = array('Quizzes::getCanonicalUrl');
-		$wgOut->setCanonicalUrl(self::$quizURL);
+		$out->setCanonicalUrl(self::$quizURL);
 
 		//page title
 		$page_title = wfMessage('quiz_pagetitle')->text().' '.wfMessage('howto',$quiz)->text();
-		$wgOut->setHTMLTitle( wfMessage('pagetitle', $page_title)->text() );
+		$out->setHTMLTitle( wfMessage('pagetitle', $page_title)->text() );
 
 		//css & js for quizzes
-		$wgOut->addModules('ext.wikihow.quizzes');
+		$out->addModules('ext.wikihow.quizzes');
 		$html = self::displayContainer($par);
 
 		if (!$html) {
 			//nothin'
-			$wgOut->setStatusCode(404);
+			$out->setStatusCode(404);
 			$html = '<p>'.wfMessage('quiz-no-quiz-err')->text().'</p>';
 		}
 		else {
 			//http caching headers
-			$wgOut->setSquidMaxage($wgSquidMaxage);
+			$out->setSquidMaxage($wgSquidMaxage);
 
 			//meta tags
-			$wgOut->addMeta('description','Test yourself on How to '.$quiz.' with a fun and challenging quiz from wikiHow. See how well you score.');
-			$wgOut->setRobotPolicy('index,follow');
+			$out->addMeta('description','Test yourself on How to '.$quiz.' with a fun and challenging quiz from wikiHow. See how well you score.');
+			$out->setRobotPolicy('index,follow');
 		}
 
-		$wgOut->addHTML($html);
+		$out->addHTML($html);
 	}
 
 }

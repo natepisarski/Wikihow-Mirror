@@ -3,7 +3,7 @@
 
 	$(document).ready(function () {
 		$('#ImageUploadFile').uploadify({
-			'swf': '/extensions/uploadify/uploadify.swf',
+			'swf': '/extensions/wikihow/common/uploadify/uploadify.swf',
 			'uploader': '/Special:AdminArticleReviewers',
 			'onUploadSuccess': function (file, data, response) {
 				info = JSON.parse(data);

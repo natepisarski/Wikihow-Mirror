@@ -125,7 +125,7 @@ class PagePolicy {
 				$userPageOverride = $user && $user->getID() !== 0;
 			}
 
-			$css = Misc::getEmbedFile( 'css', dirname( __FILE__ ) . '/pagepolicy.css' );
+			$css = Misc::getEmbedFile( 'css', __DIR__ . '/pagepolicy.css' );
 			$out->addHeadItem( 'pagepolicy-css', HTML::inlineStyle( $css ) );
 
 			if ( $wgTitle->exists() || $userPageOverride ) {

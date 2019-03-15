@@ -30,10 +30,10 @@ WH.ImportVideo.importvideo = function(id) {
 	document.videouploadform.video_id.value = id;
 	if (window.location.pathname == '/index.php') {
 		// see winpop.js
-		postForm('//' + window.location.hostname + '/Special:ImportvideoPopup', 'videouploadform', 'POST');
+		postForm('//' + window.location.hostname + '/Special:ImportVideoPopup', 'videouploadform', 'POST');
 		return;
 	}
-	$('#dialog-box').load('/Special:ImportvideoPopup',function() {
+	$('#dialog-box').load('/Special:ImportVideoPopup',function() {
 		$('#dialog-box').dialog({
 			modal: true,
 			width: 600,

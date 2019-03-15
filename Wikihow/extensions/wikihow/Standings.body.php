@@ -2,14 +2,13 @@
 
 class Standings extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'Standings' );
 	}
 
-	function execute($par) {
-		global $wgRequest, $wgOut, $wgUser;
-		$target = isset($par) ? $par : $wgRequest->getVal('target');
-		$wgOut->disable(); 
+	public function execute($par) {
+		$target = isset($par) ? $par : $this->getRequest()->getVal('target');
+		$this->getOutput()->setArticleBodyOnly(true);
 		$result = array();
 		if ($target) {
 			$rc = new ReflectionClass($target);
@@ -27,4 +26,3 @@ class Standings extends UnlistedSpecialPage {
 	}
 
 }
-

@@ -24,28 +24,28 @@ $wgResourceModules['ext.wikihow.lightbox'] = array(
 class Lightbox {
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin) {
 		if (self::enabled()) {
-			$out->addModules('ext.wikihow.lightbox');   
+			$out->addModules('ext.wikihow.lightbox');
 		}
-		
+
 		return true;
 	}
-	
+
 	public static function enabled() {
 		global $wgLanguageCode;
 		$enabled = false;
-		
+
 		if ($wgLanguageCode != 'en') {
-			$enabled = DeferImages::isArticlePage() && self::intlEnabled();        
+			$enabled = DeferImages::isArticlePage() && self::intlEnabled();
 		} else {
 			$enabled = DeferImages::isArticlePage();
 		}
 		return $enabled;
 	}
-	
+
 	public static function intlEnabled() {
 		return true;
 	}
-	
+
 	public static function modifyDOM($pageId) {
 		if (DeferImages::isArticlePage() && self::enabled()) {
 			$links = pq(DeferImages::ANCHOR_SELECTOR);

@@ -3,5 +3,5 @@
 $messages = array();
 
 $messages['en'] = array (
-	'fbappcontact' => 'Facebook App Contact Creator',	
+	'fbappcontact' => 'Facebook App Contact Creator',
 );

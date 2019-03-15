@@ -1,6 +1,6 @@
 <?
 abstract class WAPUIUserController extends WAPUIController {
-	
+
 	public function execute($par) {
 		global $wgOut, $wgUser, $wgRequest, $wgHooks;
 		$actions = $this->getActions($par);
@@ -13,7 +13,7 @@ abstract class WAPUIUserController extends WAPUIController {
 		}
 
 		if (!$this->cu->hasPermissions($actions)) {
-			$this->outputNoPermissionsHtml();	
+			$this->outputNoPermissionsHtml();
 			return;
 		}
 
@@ -71,7 +71,7 @@ abstract class WAPUIUserController extends WAPUIController {
 			}
 		}
 	}
-	
+
 	public static function removeSideBarCallback(&$showSideBar) {
 		$showSideBar = false;
 		return true;
@@ -182,14 +182,14 @@ abstract class WAPUIUserController extends WAPUIController {
 		$wgOut->setArticleBodyOnly(true);
 		$this->wapDB->completeArticle($aid, $langCode, $this->cu);
 	}
-	
+
 	function releaseArticle($aid, $langCode) {
 		global $wgOut;
 		$aids = array($aid);
 		$this->wapDB->releaseArticles($aids, $langCode, $this->cu);
 		$wgOut->setArticleBodyOnly(true);
 	}
-	
+
 	function reserveArticle($aid, $langCode) {
 		global $wgOut;
 		$wgOut->setArticleBodyOnly(true);
@@ -200,7 +200,7 @@ abstract class WAPUIUserController extends WAPUIController {
 		}
 
 	}
-	
+
 	function userArticlesReport() {
 		global $IP, $wgRequest;
 		$uid = intVal($wgRequest->getVal('uid'));
@@ -209,12 +209,12 @@ abstract class WAPUIUserController extends WAPUIController {
 		$cr = new $reportClass($this->dbType);
 		$rpt = $cr->getUserArticles($uid);
 		$system = $this->config->getSystemName();
-		Misc::outputFile("{$system}_user_{$username}_{$rpt['ts']}" . $reportClass::FILE_EXT, 
+		Misc::outputFile("{$system}_user_{$username}_{$rpt['ts']}" . $reportClass::FILE_EXT,
 			$rpt['data'], $reportClass::MIME_TYPE);
 		return;
 	}
 
-	
+
 	function tagArticlesReport() {
 		global $IP, $wgRequest;
 		$tagName = urldecode($wgRequest->getVal('tagname'));
@@ -222,7 +222,7 @@ abstract class WAPUIUserController extends WAPUIController {
 		$cr = new $reportClass($this->dbType);
 		$rpt = $cr->tagArticles($tagName);
 		$system = $this->config->getSystemName();
-		Misc::outputFile("{$system}_tag_{$tagName}_{$rpt['ts']}" . $reportClass::FILE_EXT, 
+		Misc::outputFile("{$system}_tag_{$tagName}_{$rpt['ts']}" . $reportClass::FILE_EXT,
 			$rpt['data'], $reportClass::MIME_TYPE);
 		return;
 	}
@@ -234,7 +234,7 @@ abstract class WAPUIUserController extends WAPUIController {
 		$cr = new $reportClass($this->dbType);
 		$rpt = $cr->getAssignedArticles($lang);
 		$system = $this->config->getSystemName();
-		Misc::outputFile("{$system}_assigned_{$rpt['ts']}" . $reportClass::FILE_EXT, 
+		Misc::outputFile("{$system}_assigned_{$rpt['ts']}" . $reportClass::FILE_EXT,
 			$rpt['data'], $reportClass::MIME_TYPE);
 		return;
 	}
@@ -260,7 +260,7 @@ abstract class WAPUIUserController extends WAPUIController {
 
 		$rpt = $cr->getCompletedArticles($lang, $fromDate, $toDate);
 		$system = $this->config->getSystemName();
-		Misc::outputFile("{$system}_completed_{$rpt['ts']}" . $reportClass::FILE_EXT, 
+		Misc::outputFile("{$system}_completed_{$rpt['ts']}" . $reportClass::FILE_EXT,
 			$rpt['data'], $reportClass::MIME_TYPE);
 		return;
 	}
@@ -298,13 +298,13 @@ abstract class WAPUIUserController extends WAPUIController {
 				case 'excluded':
 					$msg = "This article is on the exclude list. It is permanently unavailable.";
 					break;
-				case 'unassigned': 
+				case 'unassigned':
 					$t = Title::newFromId($urls[0]['aid']);
 					if (!$t || !$t->exists()) {
 						// Make sure it's still a valid wikiHow title. Edge case where articles are deleted
 						// before nightly maintenance script cleans those up
 						// If it isn't, stick with the default message
-					} else if (!$this->cu->canView($ca)) {
+					} elseif (!$this->cu->canView($ca)) {
 						$msg = "This article is on a special list, please email $supportEmail for permission to reserve.";
 					} else {
 						// Show the article

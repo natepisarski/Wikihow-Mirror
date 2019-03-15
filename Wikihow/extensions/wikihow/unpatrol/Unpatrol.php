@@ -22,12 +22,12 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['UnpatrolTips'] = 'UnpatrolTips';
-$wgAutoloadClasses['UnpatrolTips'] = dirname( __FILE__ ) . '/Unpatrol.body.php';
+$wgAutoloadClasses['UnpatrolTips'] = __DIR__ . '/Unpatrol.body.php';
 $wgExtensionMessagesFiles['UnpatrolTipsAliases'] = __DIR__ . '/Unpatrol.alias.php';
 $wgExtensionMessagesFiles['UnpatrolTips'] = __DIR__ . '/Unpatrol.i18n.php';
 
 $wgSpecialPages['Unpatrol'] = 'Unpatrol';
-$wgAutoloadClasses['Unpatrol'] = dirname( __FILE__ ) . '/Unpatrol.body.php';
+$wgAutoloadClasses['Unpatrol'] = __DIR__ . '/Unpatrol.body.php';
 
 $wgLogTypes[] = 'undotips';
 $wgLogNames['undotips'] = 'undotips';

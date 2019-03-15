@@ -6,8 +6,8 @@ class SubmittedUserReview {
 	const MIN_CHAR_COUNT = 20;
 	const MAX_CHAR_COUNT = 500;
 
-	var $id, $userId, $visitorId, $articleId, $email, $review, $firstName, $lastName, 
-		$submittedTimestamp, $curatedTimestamp, $status, $positive, $curatedUser, 
+	var $id, $userId, $visitorId, $articleId, $email, $review, $firstName, $lastName,
+		$submittedTimestamp, $curatedTimestamp, $status, $positive, $curatedUser,
 		$eligible, $checkout, $rating, $image;
 
 	private function __construct() {
@@ -20,25 +20,25 @@ class SubmittedUserReview {
 	}
 
 	public function isQualified(){
-		if( strlen($this->review) < self::MIN_CHAR_COUNT || strlen($this->review) > self::MAX_CHAR_COUNT ) return false;
+		if ( strlen($this->review) < self::MIN_CHAR_COUNT || strlen($this->review) > self::MAX_CHAR_COUNT ) return false;
 
 		$words = explode(" ", $this->review);
 
 		$wordCount = count($words);
-		if( $wordCount <= self::MIN_WORD_COUNT) return false;
+		if ( $wordCount <= self::MIN_WORD_COUNT) return false;
 
 		$maxWordLen = function($value) {
 				if ( strlen($value) > self::MAX_WORD_LENGTH ) return false;
 				return true;
 			       };
-		
+
 		$okWordLength = array_map($maxWordLen, $words);
 		$andReduce = function($v1, $v2) {
 				return $v1 && $v2;
 			    };
 		$allOkWordLength = array_reduce($okWordLength, $andReduce, true);
-		if(! $allOkWordLength) return false;
-		
+		if (! $allOkWordLength) return false;
+
 		if (BadWordFilter::hasBadWord($this->review)) return false;
 
 		return true;
@@ -50,11 +50,11 @@ class SubmittedUserReview {
 
 		$this->firstName =  ucfirst($this->firstName);
 		$this->lastName = ucfirst($this->lastName);
-		
+
 		$this->firstName = preg_replace( '/[^[:print:]]/', '',$this->firstName);
 		$this->lastName = preg_replace( '/[^[:print:]]/', '',$this->lastName);
 		//COPPA compliance for under 13 years
-		if(preg_match("/(I am|I'm|Im) \b([1-9]|1[0-2])\b/i", $this->review) === 1) {
+		if (preg_match("/(I am|I'm|Im) \b([1-9]|1[0-2])\b/i", $this->review) === 1) {
 			//throw out the last name
 			$this->lastName = "";
 		}
@@ -73,9 +73,9 @@ class SubmittedUserReview {
 
 	public static function newFromFields($articleId, $firstName, $lastName, $review, $email, $userId, $visitorId, $rating = 0, $image=''){
 		$sur = new SubmittedUserReview();
-		$data = array('articleId' => $articleId, 
+		$data = array('articleId' => $articleId,
 				'firstName' => $firstName,
-				'lastName' => $lastName, 
+				'lastName' => $lastName,
 				'review' => $review,
 				'email' => $email,
 				'userId' => $userId,
@@ -88,8 +88,8 @@ class SubmittedUserReview {
 	}
 
 	public function populateFlags() {
-		if($this->rating == 0 || $this->rating > 3) {
-			if($this->image != "") {
+		if ($this->rating == 0 || $this->rating > 3) {
+			if ($this->image != "") {
 				$this->status = UserReviewTool::STATUS_UCI_WAITING;
 			} else {
 				$this->status = UserReviewTool::STATUS_AVAILABLE;

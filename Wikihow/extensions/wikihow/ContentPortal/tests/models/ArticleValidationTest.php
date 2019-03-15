@@ -8,7 +8,7 @@ class ArticleValidationTest extends PHPUnit_Framework_TestCase {
 
 	public function setup() {
 		$this->article = new Article([
-			'title'       => "A test title", 
+			'title'       => "A test title",
 			'is_wrm'      => true,
 			'category_id' => Category::last()->id
 		]);
@@ -59,7 +59,7 @@ class ArticleValidationTest extends PHPUnit_Framework_TestCase {
 		Title::$exists = false;
 		$this->article->is_wrm = true;
 		$this->article->title = "http://someurl.com/with-test-article";
-		
+
 		$this->assertTrue($this->article->is_valid(), 'should be valid even if non-existing');
 		$this->assertNull($this->article->wh_article_id, 'should not set the id if not existing');
 		$this->assertEquals($this->article->title, "with test article", 'should not manipulate title if not existing');

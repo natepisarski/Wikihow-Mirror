@@ -11,7 +11,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 $wgMaxUploadFiles = 5;
 
-$wgExtensionMessagesFiles['MultipleUpload'] = dirname(__FILE__) . '/MultipleUpload.i18n.php';
+$wgExtensionMessagesFiles['MultipleUpload'] = __DIR__ . '/MultipleUpload.i18n.php';
 
 $wgSpecialPages['MultipleUpload'] = 'MultipleUpload';
 
@@ -23,10 +23,9 @@ class MultipleUpload extends SpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgOut;
-		$wgOut->setHTMLTitle('MultiUpload Retired');
-		$wgOut->addHTML('We have retired MultiUpload because it was out of date with the latest version of Mediawiki. We are considering adding the <a href="http://www.mediawiki.org/wiki/Extension:UploadWizard">UploadWizard</a> plugin to help with uploading multiple images instead. Please <a href="mailto:support@wikihow.com">let us know</a> if you feel strongly that we should add this plugin!');
+		$out = $this->getOutput();
+		$out->setHTMLTitle('MultiUpload Retired');
+		$out->addHTML('We have retired MultiUpload because it was out of date with the latest version of Mediawiki. We are considering adding the <a href="http://www.mediawiki.org/wiki/Extension:UploadWizard">UploadWizard</a> plugin to help with uploading multiple images instead. Please <a href="mailto:support@wikihow.com">let us know</a> if you feel strongly that we should add this plugin!');
 	}
 
 }
-

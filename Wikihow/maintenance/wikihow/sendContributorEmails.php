@@ -548,12 +548,12 @@ SQL;
 
 		$this->categoryWhitelist = array();
 
-		$categoryTreeArray = Categoryhelper::getCategoryTreeArray();
+		$categoryTreeArray = CategoryHelper::getCategoryTreeArray();
 		unset($categoryTreeArray['']);
 		unset($categoryTreeArray['WikiHow']);
 		unset($categoryTreeArray['Other']);
 		foreach ($categoryTreeArray as $subTree) {
-			Categoryhelper::flattenary($this->categoryWhitelist, $subTree);
+			CategoryHelper::flattenary($this->categoryWhitelist, $subTree);
 		}
 
 		$this->categoryWhitelist = array_unique($this->categoryWhitelist);

@@ -2,15 +2,15 @@
 
 class AdminQADomain extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('AdminQADomain');
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		$user = $this->getUser();
 		$out = $this->getOutput();
-		if(!in_array('staff', $user->getGroups())) {
-			$out->setRobotpolicy('noindex,nofollow');
+		if (!in_array('staff', $user->getGroups())) {
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -18,7 +18,7 @@ class AdminQADomain extends UnlistedSpecialPage {
 
 		$request = $this->getRequest();
 		$action = $request->getVal("action");
-		if($action == "add") {
+		if ($action == "add") {
 			$out->setArticleBodyOnly(true);
 			$ids = $request->getVal("ids", "");
 			$result = $this->addNewIds($ids);
@@ -29,7 +29,7 @@ class AdminQADomain extends UnlistedSpecialPage {
 			$result = $this->deleteIds($ids);
 		} else {
 			$options = array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
@@ -49,7 +49,7 @@ class AdminQADomain extends UnlistedSpecialPage {
 	}
 
 	private function deleteIds($idString) {
-		if($idString != "") {
+		if ($idString != "") {
 			$ids = explode("\n", trim($idString));
 			if ( count($ids) > 0 ) {
 				foreach($ids as $id) {
@@ -63,7 +63,7 @@ class AdminQADomain extends UnlistedSpecialPage {
 	}
 
 	private function addNewIds($idString) {
-		if($idString != "") {
+		if ($idString != "") {
 			$ids = explode("\n", trim($idString));
 			$result = array( 'valid' => 0, 'invalid' => 0, 'invalidCats' => [], 'validCats' => []);
 			foreach($ids as $id) {

@@ -1,9 +1,9 @@
 <?php
 
 if ( ! defined( 'MEDIAWIKI' ) ) die();
-    
+
 /**#@+
- * 
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *
@@ -23,12 +23,12 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['ManageRelated'] = 'ManageRelated';
 $wgSpecialPages['RelatedArticle'] = 'ManageRelated';
-$wgAutoloadClasses['ManageRelated'] = dirname( __FILE__ ) . '/ManageRelated.body.php';
+$wgAutoloadClasses['ManageRelated'] = __DIR__ . '/ManageRelated.body.php';
 
 $wgSpecialPages['PreviewPage'] = 'PreviewPage';
-$wgAutoloadClasses['PreviewPage'] = dirname( __FILE__ ) . '/ManageRelated.body.php';
+$wgAutoloadClasses['PreviewPage'] = __DIR__ . '/ManageRelated.body.php';
 
-$wgExtensionMessagesFiles['RelatedArticleAlias'] = dirname( __FILE__ ) . '/RelatedArticle.alias.php';
+$wgExtensionMessagesFiles['RelatedArticleAlias'] = __DIR__ . '/RelatedArticle.alias.php';
 
 $wgResourceModules['ext.wikihow.ManageRelated'] = [
 	'localBasePath' => __DIR__,

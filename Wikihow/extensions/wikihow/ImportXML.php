@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'ImportXML',
     'author' => 'Travis <travis@wikihow.com>',
@@ -9,6 +9,6 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ImportXML'] = 'ImportXML';
-$wgAutoloadClasses['ImportXML'] = dirname( __FILE__ ) . '/ImportXML.body.php';
+$wgAutoloadClasses['ImportXML'] = __DIR__ . '/ImportXML.body.php';
 $wgSpecialPages['ExportXML'] = 'ExportXML';
-$wgAutoloadClasses['ExportXML'] = dirname( __FILE__ ) . '/ImportXML.body.php';
+$wgAutoloadClasses['ExportXML'] = __DIR__ . '/ImportXML.body.php';

@@ -75,7 +75,7 @@ class ConciergeDataImporter {
 			$rows[] = array(
 				'ct_page_id' => $t->getArticleId(), 
 				'ct_page_title' => $dbw->strencode($t->getDBKey()),
-				'ct_catinfo' => Categoryhelper::getTitleCategoryMask($t),
+				'ct_catinfo' => CategoryHelper::getTitleCategoryMask($t),
 				'ct_categories' => implode(",", ConciergeDB::getTopLevelCategories($t)),
 				'ct_user_id' => $userId,
 				'ct_user_text' => $dbw->strencode($userText),

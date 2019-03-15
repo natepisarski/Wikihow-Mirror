@@ -23,44 +23,44 @@ class AdminQuizzes extends UnlistedSpecialPage {
 		}
 		return $urls;
 	}
-	
+
 	private static function validateQuiz($quiz,$db) {
 		//is it in the main db table?
 		$res = $db->select('quizzes','*',array('quiz_name' => $quiz), __METHOD__);
 		if (!$res->fetchObject()) return 'invalid quiz';
-		
+
 		//make sure it isn't linked from any articles
 		$res = $db->select('quiz_links','*',array('ql_name' => $quiz), __METHOD__);
 		if ($res->fetchObject()) return 'Still linked from articles';
-		
+
 		//still here?
 		return '';
 	}
-	
+
 	private static function fourOhFourQuizzes($urls) {
 		$quiz_array = array();
-		
+
 		//gather up the articles
 		foreach ($urls as $url) {
 			if (!$url['err']) {
 				$quiz_array[] = $url['quiz'];
 			}
 		}
-		
+
 		//do the deletes
 		if ($quiz_array) {
 			$dbw = wfGetDB(DB_MASTER);
 			$result = '';
-			
+
 			//ready it for the db
 			$the_quizzes = implode("','",$quiz_array);
 			$the_quizzes = "('".$the_quizzes."')";
-			
+
 			//remove the quiz from quizzes
 			$res = $dbw->delete('quizzes', array('quiz_name' => $quiz_array), __METHOD__);
 			if ($res) $result .= '<p>Quizzes removed.</p>';
 		}
-		
+
 		return $result;
 	}
 
@@ -69,11 +69,11 @@ class AdminQuizzes extends UnlistedSpecialPage {
 	 */
 	public function execute($par) {
 		global $wgRequest, $wgOut, $wgUser, $wgLang;
-		
+
 		$user = $wgUser->getName();
 		$userGroups = $wgUser->getGroups();
 		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
+			$wgOut->setRobotPolicy('noindex,nofollow');
 			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -88,13 +88,13 @@ class AdminQuizzes extends UnlistedSpecialPage {
 
 			$wgOut->setArticleBodyOnly(true);
 			$action = $wgRequest->getVal('action');
-		
+
 			if ($action == 'process') {
 				$maintDir = getcwd() . '/extensions/wikihow/quizzes';
 				system("cd $maintDir");
 				system("php QuizImport.php");
 				$result = array('result' => 'done');
-			} else {						
+			} else {
 				//NOT READY YET
 				return;
 				$pageList = $wgRequest->getVal('pages-list', '');

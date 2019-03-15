@@ -61,7 +61,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$arr = preg_split("@[\r\n]+@", wfMessage($msg)->plain());
 		// Remove empty elements at end
 		$last = sizeof($arr) - 1;
-		while($last >= 0 && !$arr[$last]) {
+		while ($last >= 0 && !$arr[$last]) {
 			unset($arr[$last]);
 			$last--;
 		}
@@ -82,13 +82,13 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$save = $wgRequest->getVal('wpSave',null);
 		$title = Title::newFromURL($target);
 		// We have the dialog to enter the URL when we are adding a new article, and have no existing draft.
-		if($title->inNamespace(NS_MAIN) && self::isTranslatorUser()) {
+		if ($title->inNamespace(NS_MAIN) && self::isTranslatorUser()) {
 
-			if($draft == null
+			if ($draft == null
 			&& !$title->exists()
 			&& $action=='edit') {
 
-				EasyTemplate::set_path(dirname(__FILE__).'/');
+				EasyTemplate::set_path(__DIR__.'/');
 
 				// Templates to remove from translation
 				$remove_templates = self::getMsgArray('remove_templates');
@@ -109,7 +109,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 				return false;
 			}
 			elseif($section == null && $save == null) {
-				EasyTemplate::set_path(dirname(__FILE__).'/');
+				EasyTemplate::set_path(__DIR__.'/');
 				$vars = array('title' => $target, 'checkForLL' => true, 'translateURL'=>false);
 				$html = EasyTemplate::html('TranslateEditor.tmpl.php', $vars);
 				$wgOut->addHTML($html);
@@ -131,7 +131,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$userGroups = $wgUser->getGroups();
 
 		if (!self::isTranslatorUser()) {
-			$wgOut->setRobotpolicy( 'noindex,nofollow' );
+			$wgOut->setRobotPolicy( 'noindex,nofollow' );
 			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -139,7 +139,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$target = $wgRequest->getVal('target', null);
 		$toTarget = $wgRequest->getVal('toTarget', null);
 
-		if($action == "getarticle") {
+		if ($action == "getarticle") {
 			$this->startTranslation($target, $toTarget);
 		}
 	}
@@ -174,18 +174,18 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$ak = array_keys($json['query']['pages']);
 		$fromAID = intVal($ak[0]);
 		//The article we are translating exists
-		if($fromAID > 0 ) {
+		if ($fromAID > 0 ) {
 			$exists = false;
 			$links = TranslationLink::getLinksTo("en", $fromAID, $wgLanguageCode);
-			foreach($links as $link) {
-				if($link->toLang == $wgLanguageCode) {
+			foreach ($links as $link) {
+				if ($link->toLang == $wgLanguageCode) {
 					$exists = true;
 				}
 			}
-			if(!$exists) {
+			if (!$exists) {
 				$fromRevisionId = $json['query']['pages'][$fromAID]['revisions'][0]['revid'];
 				$txt = $json['query']['pages'][$fromAID]['revisions'][0]['*'];
-				if(preg_match("/#REDIRECT/",$txt)) {
+				if (preg_match("/#REDIRECT/",$txt)) {
 					$output['error'] = "It seems the article you are attempting to translate is a redirect. Please contact your project manager.";
 					$output['success'] = false;
 				}
@@ -215,8 +215,8 @@ class TranslateEditor extends UnlistedSpecialPage {
 	 */
 	static function checkUrl($url) {
 		$pages = Misc::getPagesFromURLs(array($url));
-		foreach($pages as $u => $p) {
-			if($p['page_is_redirect'] == 0 && $p['page_namespace'] == NS_MAIN) {
+		foreach ($pages as $u => $p) {
+			if ($p['page_is_redirect'] == 0 && $p['page_namespace'] == NS_MAIN) {
 				return true;
 			}
 		}
@@ -233,7 +233,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 
 		$res = $dbr->query($sql, __METHOD__);
 		$row = $dbr->fetchObject($res);
-		if($row->ct == 1) {
+		if ($row->ct == 1) {
 			return true;
 		}
 		else {

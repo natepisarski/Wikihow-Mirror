@@ -12,7 +12,7 @@ $wgExtensionCredits['api'][] = array(
   'author' => 'Gershon Bialer'
 );
 
-$wgAutoloadClasses['ApiTitus'] = dirname( __FILE__ ) . '/ApiTitus.body.php';
+$wgAutoloadClasses['ApiTitus'] = __DIR__ . '/ApiTitus.body.php';
 
 $wgAPIModules['titus'] = 'ApiTitus';
 

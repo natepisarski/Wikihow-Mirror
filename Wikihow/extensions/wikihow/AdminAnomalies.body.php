@@ -80,37 +80,39 @@ EOHTML;
 	}
 
 	public function execute($par) {
-		global $wgUser, $wgRequest, $wgOut;
+		$out = $this->getOutput();
+		$req = $this->getRequest();
+		$user = $this->getUser();
 
-		$username = $wgUser->getName();
+		$username = $user->getName();
 		$allowed = array('Reuben', 'Bridget8');
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked()
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked()
 			|| (!in_array('sysop', $userGroups)
 				&& !in_array($username, $allowed)))
-		{   
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		{
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		if (empty($par)) {
 			$html = self::html();
-			$wgOut->addHTML($html);
+			$out->addHTML($html);
 		} else {
-			$terms = $wgRequest->getVal('terms');
-			$article = $wgRequest->getVal('article');
+			$terms = $req->getVal('terms');
+			$article = $req->getVal('article');
 			$error = '';
-			$wgOut->setArticleBodyOnly(true);
+			$out->setArticleBodyOnly(true);
 			if ($par == 'search') {
 				$html = self::searchHTML($terms);
-				$wgOut->addHTML($html);
+				$out->addHTML($html);
 			} elseif ($par == 'rename') {
 				if (!$article) {
 					$error = 'no article ID';
 				}
 				$response = array('error' => $error);
-				$wgOut->addHTML( json_encode($response) );
+				$out->addHTML( json_encode($response) );
 			} elseif ($par == 'delete') {
 				$id = intval($article);
 				$title = Title::newFromID($id);
@@ -126,11 +128,10 @@ EOHTML;
 					}
 				}
 				$response = array('error' => $error);
-				$wgOut->clearHTML();
-				$wgOut->addHTML( json_encode($response) );
+				$out->clearHTML();
+				$out->addHTML( json_encode($response) );
 			}
 		}
 	}
 
 }
-

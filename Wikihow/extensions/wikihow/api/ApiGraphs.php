@@ -9,5 +9,5 @@ $wgExtensionCredits['api'][] = [
 	'url' => 'https://www.mediawiki.org/wiki/API:Extensions',
 ];
 
-$wgAutoloadClasses['ApiGraphs'] = dirname(__FILE__) . '/ApiGraphs.body.php';
+$wgAutoloadClasses['ApiGraphs'] = __DIR__ . '/ApiGraphs.body.php';
 $wgAPIModules['graphs'] = 'ApiGraphs';

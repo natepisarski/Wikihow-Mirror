@@ -40,7 +40,7 @@ class RCLite extends MobileSpecialPage {
 				$patroller = PatrolUser::newFromUser($this->getUser());
 				if ( !$patroller->canUseRCPatrol(false) ) {
 					$result['error'] = PatrolUser::getThrottleMessageHTML(false);
-					print_r(json_encode($result));
+					print(json_encode($result));
 					return;
 				}
 			}
@@ -51,7 +51,7 @@ class RCLite extends MobileSpecialPage {
 			// that count so we can ignore them at this juncture.
 			if (!$user->isAnon() && !$user->isAllowed('patrol')) {
 				$result['error'] = wfMessage('rcl-error-patrolblocked')->text();
-				print_r(json_encode($result));
+				print(json_encode($result));
 				return;
 			}
 
@@ -83,7 +83,7 @@ class RCLite extends MobileSpecialPage {
 					$result['error'] = wfMessage('rcl-invalid-action')->text();
 			}
 
-			print_r(json_encode($result));
+			print(json_encode($result));
 			return;
 		}
 
@@ -91,7 +91,7 @@ class RCLite extends MobileSpecialPage {
 		$out->setHTMLTitle(wfMessage('rclite_title')->text());
 		$this->addModules();
 		//$this->setHeaders();
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$vars['anon'] = $this->getUser()->isAnon();
 		$tmpl->set_vars($vars);
 		$out->addHTML($tmpl->execute('rclite.tmpl.php'));
@@ -161,7 +161,7 @@ class RCLite extends MobileSpecialPage {
 				$txt = $newTxt;
 
 			} elseif ($d['action'] == 'add') {
-				if ($rRev->getTitle()->getNamespace() == NS_USER_TALK) {
+				if ($rRev->getTitle()->inNamespace(NS_USER_TALK)) {
 					// New Talk page messages
 					$type = self::EDIT_USER_TALK;
 					$txt  .= $d['new'];
@@ -233,7 +233,7 @@ class RCLite extends MobileSpecialPage {
 					//var_dump('breaking');
 					break;
 				}
-			} else if (!isset($result['title']) || !$result['title']) {
+			} elseif (!isset($result['title']) || !$result['title']) {
 				if (isset($result['rc_cur_id'])) {
 					self::skipArticle($result['rc_cur_id']);
 				}

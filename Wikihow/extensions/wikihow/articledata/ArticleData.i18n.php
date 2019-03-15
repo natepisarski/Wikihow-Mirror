@@ -3,5 +3,5 @@
 $messages = array();
 
 $messages['en'] = array (
-	'cattitles' => 'Titles by Category',	
+	'cattitles' => 'Titles by Category',
 );

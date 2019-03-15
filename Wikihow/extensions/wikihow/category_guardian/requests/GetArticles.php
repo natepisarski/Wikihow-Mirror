@@ -49,7 +49,7 @@ class GetArticles {
 
 	private static function getRandomCat() {
 		$ignore = array_flip( self::getCatsToIgnore() );
-		$cats = Categoryhelper::getAllCategories();
+		$cats = CategoryHelper::getAllCategories();
 		$cat = null;
 		while ( !$cat ) {
 			$i = array_rand( $cats );

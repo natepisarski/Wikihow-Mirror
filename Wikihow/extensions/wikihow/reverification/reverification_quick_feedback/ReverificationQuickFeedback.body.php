@@ -27,7 +27,7 @@ class ReverificationQuickFeedback extends UnlistedSpecialPage {
 		//$out->addHtml("tool is down for maintenance");return;
 
 		if (!$this->isValidUser()) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -301,7 +301,7 @@ class ReverificationQuickFeedback extends UnlistedSpecialPage {
 			"rvq_quick_feedback_label" => wfMessage('rvq_quick_feedback_label')->text(),
 		];
 
-		$options = ['loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__))];
+		$options = ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];
 		$m = new Mustache_Engine($options);
 		return $m->render(self::TEMPLATE_MUSTACHE, $data);
 	}

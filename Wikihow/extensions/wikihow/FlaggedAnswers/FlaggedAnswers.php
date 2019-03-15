@@ -10,8 +10,8 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['FixFlaggedAnswers'] = 'FixFlaggedAnswers';
 
-$wgAutoloadClasses['FixFlaggedAnswers'] = dirname(__FILE__) . '/FixFlaggedAnswers.body.php';
-$wgAutoloadClasses['FlaggedAnswers'] = dirname(__FILE__) . '/FlaggedAnswers.class.php';
+$wgAutoloadClasses['FixFlaggedAnswers'] = __DIR__ . '/FixFlaggedAnswers.body.php';
+$wgAutoloadClasses['FlaggedAnswers'] = __DIR__ . '/FlaggedAnswers.class.php';
 
 $wgMessagesDirs['FlaggedAnswers'] = __DIR__ . '/i18n';
 
@@ -31,7 +31,7 @@ $wgResourceModules['ext.wikihow.fix_flagged_answers'] = [
 		'ffa_url',
 		'ffa_err'
 	],
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/FlaggedAnswers',
 	'targets' => ['desktop'],
 	'dependencies' => [
@@ -41,7 +41,7 @@ $wgResourceModules['ext.wikihow.fix_flagged_answers'] = [
 
 $wgResourceModules['ext.wikihow.fix_flagged_answers.styles'] = [
 	'styles' => 'modules/fix_flagged_answers.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/FlaggedAnswers',
 	'targets' => ['desktop'],
 	'position' => 'top'

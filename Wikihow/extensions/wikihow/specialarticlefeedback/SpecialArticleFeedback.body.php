@@ -151,7 +151,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
 	}
 
     public static function isTitleInComputerCategory( $title ) {
-		$result = Categoryhelper::isTitleInCategory( $title, 'Computers and Electronics' );
+		$result = CategoryHelper::isTitleInCategory( $title, 'Computers and Electronics' );
         return $result;
     }
 
@@ -237,7 +237,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
 			'get_next_msg' => wfMessage( 'specialarticlefeedbacknext' )->text(),
 		];
 
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$html = $m->render( 'specialarticlefeedback', $vars );
@@ -359,7 +359,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
 			'tool_info' => class_exists( 'ToolInfo' ) ? ToolInfo::getTheIcon( $this->getContext() ) : ''
 		];
 
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
@@ -432,7 +432,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
         if ( $vote == 0 ) {
             $this->mLogActions[] = 'not_sure';
             return;
-        } else if ( $vote > 0 ) {
+        } elseif ( $vote > 0 ) {
             $this->mLogActions[] = 'vote_up';
         } else {
             $this->mLogActions[] = 'vote_down';

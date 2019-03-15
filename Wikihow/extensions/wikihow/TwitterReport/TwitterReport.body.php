@@ -33,7 +33,7 @@ class TwitterReport extends UnlistedSpecialPage
 		$groups = $user->getGroups();
 
 		if ($user->isBlocked() || !in_array('staff', $groups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -47,7 +47,7 @@ class TwitterReport extends UnlistedSpecialPage
 			} else {
 				throw new Exception("Malformed request");
 			}
-			$out->disable();
+			$out->setArticleBodyOnly(true);
 		} else {
 			$out->setPageTitle('Twitter Report');
 			$out->addModules('ext.wikihow.twitter_report');

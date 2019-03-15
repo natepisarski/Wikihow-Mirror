@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	exit(1);
@@ -10,7 +10,6 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'Follow Us Widget',
 );
 
-$wgExtensionMessagesFiles['FollowWidget'] = dirname(__FILE__) . '/FollowWidget.i18n.php';
+$wgExtensionMessagesFiles['FollowWidget'] = __DIR__ . '/FollowWidget.i18n.php';
 $wgSpecialPages['FollowWidget'] = 'FollowWidget';
-$wgAutoloadClasses['FollowWidget'] = dirname( __FILE__ ) . '/FollowWidget.body.php';
-
+$wgAutoloadClasses['FollowWidget'] = __DIR__ . '/FollowWidget.body.php';

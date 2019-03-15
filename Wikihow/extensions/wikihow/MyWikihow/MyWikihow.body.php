@@ -17,7 +17,7 @@ class MyWikihow extends SpecialPage {
 
 		//only for mobile
 		if (!Misc::isMobileMode()) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -44,7 +44,7 @@ class MyWikihow extends SpecialPage {
 
 		$template = 'my_wikihow';
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$tmpl->set_vars($this->getVars());
 		$out->addHTML($tmpl->execute($template,$vars));
 	}

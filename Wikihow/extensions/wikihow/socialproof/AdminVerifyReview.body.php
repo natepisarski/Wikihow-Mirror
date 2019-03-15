@@ -50,7 +50,7 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 
 		if ( !$this->isAllowed() ) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -245,19 +245,19 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 	private function isClearableEdit( $edit ) {
 		if ( $edit->type == "copy" ) {
 			return true;
-		} else if ( $edit->type == "add" ) {
+		} elseif ( $edit->type == "add" ) {
 			foreach ( $edit->closing as $line ) {
 				if ( !$this->isEditLineClearable( $line ) ) {
 					return false;
 				}
 			}
-		} else if ( $edit->type == "delete" ) {
+		} elseif ( $edit->type == "delete" ) {
 			foreach ( $edit->orig as $line ) {
 				if ( !$this->isEditLineClearable( $line ) ) {
 					return false;
 				}
 			}
-		} else if ( $edit->type == "change" ) {
+		} elseif ( $edit->type == "change" ) {
 			// iterate over the lines and compare side by side orig to change
 			for ( $i = 0; $i < count( $edit->orig ); $i++ ) {
 				$o = $edit->orig[$i];
@@ -533,9 +533,7 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 	}
 
     private function getTemplateHtml( $templateName, $vars = array() ) {
-        global $IP;
-        $path = "$IP/extensions/wikihow/socialproof";
-        EasyTemplate::set_path( $path );
+        EasyTemplate::set_path( __DIR__ );
 		$vars = $this->getOutputVars();
         return EasyTemplate::html( $templateName, $vars );
     }

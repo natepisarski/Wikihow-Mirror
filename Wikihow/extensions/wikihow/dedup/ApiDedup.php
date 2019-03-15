@@ -11,6 +11,6 @@ $wgExtensionsCredits['api'][] = array(
 		'author' => 'Gershon Bialer'
 		);
 
-$wgAutoloadClasses['ApiDedup'] = dirname(__FILE__) . '/ApiDedup.body.php';
+$wgAutoloadClasses['ApiDedup'] = __DIR__ . '/ApiDedup.body.php';
 
 $wgAPIModules['dedup'] = 'ApiDedup';

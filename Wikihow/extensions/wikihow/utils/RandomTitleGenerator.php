@@ -40,7 +40,7 @@ class RandomTitleGenerator {
 		$urls = [];
 		if ($type == self::TYPE_MOBILE) {
 			$urls = array_merge($urls, $getUrls($titles, $mobileBaseUrl));
-		} else if ($type == self::TYPE_DESKTOP) {
+		} elseif ($type == self::TYPE_DESKTOP) {
 			$urls = array_merge($urls, $getUrls($titles, $desktopBaseUrl));
 		} else {
 			$urls = array_merge($urls, $getUrls($titles, $mobileBaseUrl));

@@ -11,14 +11,14 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['TwitterReport'] = 'TwitterReport\TwitterReport';
-$wgAutoloadClasses['TwitterReport\TwitterReport'] = dirname(__FILE__) . '/TwitterReport.body.php';
-$wgAutoloadClasses['TwitterReport\TwitterClient'] = dirname(__FILE__) . '/TwitterClient.php';
+$wgAutoloadClasses['TwitterReport\TwitterReport'] = __DIR__ . '/TwitterReport.body.php';
+$wgAutoloadClasses['TwitterReport\TwitterClient'] = __DIR__ . '/TwitterClient.php';
 
 $wgResourceModules['ext.wikihow.twitter_report'] = [
 	'targets' => ['desktop', 'mobile'],
 	'position' => 'top',
 	'remoteExtPath' => 'wikihow/TwitterReport/resources',
-	'localBasePath' => dirname(__FILE__) . '/resources',
+	'localBasePath' => __DIR__ . '/resources',
 	'styles' => ['twitter_report.less'],
 	'scripts' => [
 		'../../common/download.jQuery.js',

@@ -9,8 +9,8 @@ $wgExtensionCredits['special'][] = array(
 );
 
 $wgSpecialPages['Slider'] = 'Slider';
-$wgAutoloadClasses['Slider'] = dirname( __FILE__ ) . '/Slider.body.php';
-$wgExtensionMessagesFiles['Slider'] = dirname(__FILE__) . '/Slider.i18n.php';
+$wgAutoloadClasses['Slider'] = __DIR__ . '/Slider.body.php';
+$wgExtensionMessagesFiles['Slider'] = __DIR__ . '/Slider.i18n.php';
 
 /*
 logging options:

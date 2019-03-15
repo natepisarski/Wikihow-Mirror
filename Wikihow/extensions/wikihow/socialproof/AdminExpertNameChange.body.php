@@ -13,7 +13,7 @@ class AdminExpertNameChange extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 
 		if ( $user->isBlocked() || !in_array( 'staff', $userGroups ) ) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -31,7 +31,7 @@ class AdminExpertNameChange extends UnlistedSpecialPage {
 	}
 
 	function outputPageHtml($out) {
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );

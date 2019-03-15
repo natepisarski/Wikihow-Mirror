@@ -23,11 +23,11 @@ $wgExtensionCredits['special'][] = array(
 );
 
 $wgSpecialPages['CommunityDashboard'] = 'CommunityDashboard';
-$wgAutoloadClasses['CommunityDashboard'] = dirname( __FILE__ ) . '/CommunityDashboard.body.php';
-$wgAutoloadClasses['DashboardData'] = dirname( __FILE__ ) . '/DashboardData.php';
-$wgAutoloadClasses['DashboardWidget'] = dirname( __FILE__ ) . '/DashboardWidget.php';
-$wgExtensionMessagesFiles['CommunityDashboard'] = dirname(__FILE__) . '/CommunityDashboard.i18n.php';
-$wgExtensionMessagesFiles['CommunityDashboardAliases'] = dirname(__FILE__) . '/CommunityDashboard.alias.php';
+$wgAutoloadClasses['CommunityDashboard'] = __DIR__ . '/CommunityDashboard.body.php';
+$wgAutoloadClasses['DashboardData'] = __DIR__ . '/DashboardData.php';
+$wgAutoloadClasses['DashboardWidget'] = __DIR__ . '/DashboardWidget.php';
+$wgExtensionMessagesFiles['CommunityDashboard'] = __DIR__ . '/CommunityDashboard.i18n.php';
+$wgExtensionMessagesFiles['CommunityDashboardAliases'] = __DIR__ . '/CommunityDashboard.alias.php';
 
 /**
  * $wgWidgetList is a list of that can be displayed on the CommunityDashboard
@@ -67,7 +67,8 @@ $wgWidgetList = array(
 	// 'DuplicateTitlesAppWidget',
 	'FixFlaggedAnswersAppWidget',
 	'QAPatrolWidget',
-	'TechTestingAppWidget'
+	'TechTestingAppWidget',
+	'QuizYourselfWidget'
 );
 
 /**
@@ -103,7 +104,8 @@ $wgWidgetShortCodes = array(
 	'TechTestingAppWidget' => 'tv',
 	// 'DuplicateTitlesAppWidget' => 'dt',
 	'FixFlaggedAnswersAppWidget' => 'ffa',
-	'TopicTaggingAppWidget' => 'ttt'
+	'TopicTaggingAppWidget' => 'ttt',
+	'QuizYourselfWidget' => 'qy'
 );
 
 /*top mobile widgets*/
@@ -120,7 +122,8 @@ $wgMobileWidgetList = array(
 	'TipsGuardianAppWidget',
 	'UCIPatrolWidget',
 	'RecentChangesAppWidget',
-	'UnitGuardianAppWidget'
+	'UnitGuardianAppWidget',
+	'QuizYourselfWidget'
 );
 
 /*widgets that SHOULD NOT show on desktop*/
@@ -128,6 +131,7 @@ $wgMobileOnlyWidgetList = array(
 	'TipsGuardianAppWidget',
 	'UnitGuardianAppWidget',
 	'SortQuestionsAppWidget',
+	'QuizYourselfWidget'
 );
 
 /**
@@ -190,13 +194,13 @@ function wfMarkCompletedWrite($article, $user, $text, $summary, $p5, $p6, $p7) {
 	try {
 		$dbr = wfGetDB(DB_MASTER);
 		$t = $article->getTitle();
-		if (!$t || $t->getNamespace() != NS_MAIN)  {
+		if (!$t || !$t->inNamespace(NS_MAIN))  {
 			return true;
 		}
 
 		$num_revisions = $dbr->selectField('revision', 'count(*)', array('rev_page=' . $article->getId()));
 
-		if($num_revisions == 1)
+		if ($num_revisions == 1)
 			wfMarkCompleted("WriteAppWidget");
 	} catch (Exception $e) {
 		return true;
@@ -206,7 +210,7 @@ function wfMarkCompletedWrite($article, $user, $text, $summary, $p5, $p6, $p7) {
 
 function wfCDIsEligibleForMobile(&$isEligible) {
 	global $wgTitle;
-	if($wgTitle && strrpos($wgTitle->getText(), "CommunityDashboard") === 0) {
+	if ($wgTitle && strrpos($wgTitle->getText(), "CommunityDashboard") === 0) {
 		$isEligible = true;
 	}
 

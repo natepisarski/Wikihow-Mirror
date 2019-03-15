@@ -310,7 +310,7 @@ class PageHooks {
 			return;
 		} elseif (!$newTitle
 				|| !$newTitle->exists()
-				|| $newTitle->getNamespace() != NS_MAIN)
+				|| !$newTitle->inNamespace(NS_MAIN))
 		{
 			$dbw->delete('redirect_page', array('rp_page_id' => $pageid), __METHOD__);
 		} else {
@@ -471,7 +471,7 @@ class PageHooks {
 
 		if ( $page->mTitle->inNamespace(NS_MAIN) ) {
 			//all edits to overwritable articles are autopatrolled
-			if ( $page->exists() && Newarticleboost::isOverwriteAllowed($page->getTitle()) && $wgRequest->getVal("overwrite") == "yes" ) {
+			if ( $page->exists() && NewArticleBoost::isOverwriteAllowed($page->getTitle()) && $wgRequest->getVal("overwrite") == "yes" ) {
 				$patrolled = true;
 			}
 
@@ -527,7 +527,7 @@ class PageHooks {
 		$title = $out->getTitle();
 
 		//talk pages for anons redir to login
-		if ($title && $title->isTalkPage() && $title->getNamespace() != NS_USER_TALK && $out->getUser()->isAnon()) {
+		if ($title && $title->isTalkPage() && !$title->inNamespace(NS_USER_TALK) && $out->getUser()->isAnon()) {
 			$login = 'index.php?title='.SpecialPage::getTitleFor('Userlogin').'&type=signup&returnto='.urlencode($title->getPrefixedURL());
 			$out->redirect($login);
 		}
@@ -938,7 +938,7 @@ class PageHooks {
 
 	public static function onAfterDisplayNoArticleText( $article ) {
 		$out = $article->getContext()->getOutput();
-		if ( !GoogleAmp::isAmpMode( $out ) && $article->getTitle()->getNamespace() == NS_MAIN ) {
+		if ( !GoogleAmp::isAmpMode( $out ) && $article->getTitle()->inNamespace(NS_MAIN) ) {
 			$out->addHtml( SearchBox::render( $out ) );
 		}
 	}

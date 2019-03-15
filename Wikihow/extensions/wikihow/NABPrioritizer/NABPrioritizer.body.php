@@ -10,8 +10,8 @@ class NABPrioritizer extends UnlistedSpecialPage {
 		global $wgOut, $wgRequest, $wgUser;
 
 		$userGroups = $wgUser->getGroups();
-		if( $wgUser->isBlocked() ||  (!in_array( 'staff', $userGroups ) && $wgUser->getName() != 'Lojjik') ) {
-			$wgOut->setRobotpolicy( 'noindex,nofollow' );
+		if ( $wgUser->isBlocked() ||  (!in_array( 'staff', $userGroups ) && $wgUser->getName() != 'Lojjik') ) {
+			$wgOut->setRobotPolicy( 'noindex,nofollow' );
 			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -27,7 +27,7 @@ class NABPrioritizer extends UnlistedSpecialPage {
 			$nums[] = $row->an_algorithm;
 		}
 		$res = $dbr->select( 'auto_nfd', array('an_page_title','an_day', 'an_page_id','an_revision_id','an_day','an_dscore','an_ndscore', 'an_sscore','an_reason'),array('an_dscore >= .75','an_algorithm' => $algorithm, 'an_day > date_sub(now(), interval 4 day)'), __METHOD__,array('ORDER BY' => 'an_day desc, an_dscore desc') );
-		EasyTemplate::set_path( dirname( __FILE__ ) . '/' );
+		EasyTemplate::set_path( __DIR__ . '/' );
 		$vars = array('rows' => $res, 'algorithm' => $algorithm, 'nums' => $nums);
 
 		$html = EasyTemplate::html( 'nabprioritizer.tmpl.php', $vars );

@@ -1,17 +1,16 @@
 <?php
 
-class ArticleReviewers extends UnlistedSpecialPage
-{
+class ArticleReviewers extends UnlistedSpecialPage {
 
 	const REVIEWER_ROWS = 2;
 
-	function __construct() {
+	public function __construct() {
 		global $wgHooks;
 		parent::__construct('ArticleReviewers');
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		global $wgHooks;
 
 		$wgHooks['CustomSideBar'][] = array($this, 'makeCustomSideBar');
@@ -30,7 +29,7 @@ class ArticleReviewers extends UnlistedSpecialPage
 		$userCount = array();
 		$activeUsers = []; // Experts that reviewed an article after $oldestAllowed
 		$oldestAllowed = new DateTime('-180 days');
-		foreach($expertArticles as $article) {
+		foreach ($expertArticles as $article) {
 			if (!isset($userCount[$article->name])) {
 				$userCount[$article->name] = 0;
 			}
@@ -90,11 +89,11 @@ class ArticleReviewers extends UnlistedSpecialPage
 		$expertCategories = array('Medical Review Board' => $expertCategories['Medical Review Board']) + $expertCategories;
 		$expertCategories = array('Notable Reviewers' => $expertCategories['Notable Reviewers']) + $expertCategories;
 
-		foreach($expertCategories as $category => $catArray) {
+		foreach ($expertCategories as $category => $catArray) {
 			uasort($expertCategories[$category], "ArticleReviewers::cmp");
 		}
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array('numRows' => self::REVIEWER_ROWS));
 		$tmpl->set_vars(array('expertCategories' => $expertCategories));
 		if (Misc::isMobileMode()) {
@@ -108,7 +107,7 @@ class ArticleReviewers extends UnlistedSpecialPage
 	}
 
 	private function getSideBar($expertCategories, $expert_count) {
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars([
 			'expertCategories' => $expertCategories,
 			'expert_count' => $expert_count
@@ -118,7 +117,7 @@ class ArticleReviewers extends UnlistedSpecialPage
 	}
 
 	static function cmp($a, $b) {
-		if($a['count'] == $b['count'] ) return 0;
+		if ($a['count'] == $b['count'] ) return 0;
 
 		return ($a['count'] < $b['count']) ? 1 : -1;
 	}

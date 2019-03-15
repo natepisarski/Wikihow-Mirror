@@ -31,7 +31,7 @@ class DedupTool extends UnlistedSpecialPage {
 		}
 
 		$groups = $user->getGroups();
-		if( !in_array('staff', $groups) && !in_array('staff_widget', $groups)) {
+		if ( !in_array('staff', $groups) && !in_array('staff_widget', $groups)) {
 			$output->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -44,7 +44,7 @@ class DedupTool extends UnlistedSpecialPage {
 			print json_encode( $data );
 
 			return;
-		} else if ( $request->wasPosted() && XSSFilter::isValidRequest() ) {
+		} elseif ( $request->wasPosted() && XSSFilter::isValidRequest() ) {
 			$output->setArticleBodyOnly( true );
 			$this->saveVote();
 			$data = $this->getNext();
@@ -60,7 +60,7 @@ class DedupTool extends UnlistedSpecialPage {
 	}
 
 	private function getToolHTML() {
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$html = $m->render( 'deduptool' );
@@ -94,7 +94,7 @@ class DedupTool extends UnlistedSpecialPage {
 		);
 
 		$row = $dbr->fetchObject($res);
-		if(!$row) {
+		if (!$row) {
 			//nothing left
 			$vars['error'] = true;
 			$vars['count'] = 0;
@@ -107,9 +107,9 @@ class DedupTool extends UnlistedSpecialPage {
 		$titlesTo = [];
 		$ids = json_decode($row->ddt_to);
 		$idsTo = [];
-		foreach($ids as $id) {
+		foreach ($ids as $id) {
 			$title = Title::newFromId($id);
-			if($title) {
+			if ($title) {
 				$titlesTo[] = wfMessage("howto", $title->getText())->text();
 				$idsTo[] = $id;
 			}

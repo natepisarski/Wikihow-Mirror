@@ -9,6 +9,6 @@ if ( ! defined( 'MEDIAWIKI' ) )
           'description' => 'A tool to see what users have contributed to an article',
           );
 
-$wgSpecialPages['EditContribution'] = 'EditContribution';                                                                                                                                           
-$wgAutoloadClasses['EditContribution'] = dirname(__FILE__) . '/EditContribution.body.php';
+$wgSpecialPages['EditContribution'] = 'EditContribution';
+$wgAutoloadClasses['EditContribution'] = __DIR__ . '/EditContribution.body.php';
 

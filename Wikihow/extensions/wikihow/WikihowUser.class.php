@@ -112,7 +112,7 @@ class WikihowUser extends User {
 			$bots = array();
 			$dbr = wfGetDB(DB_SLAVE);
 			$res = $dbr->select('user_groups', array('ug_user'), array('ug_group'=>'bot'), __METHOD__);
-			while ($row = $dbr->fetchObject($res)) {
+			foreach ($res as $row) {
 				$bots[] = $row->ug_user;
 			}
 			$wgMemc->set($key, $bots);
@@ -132,7 +132,7 @@ class WikihowUser extends User {
 			$ids = [];
 			$dbr = wfGetDB(DB_SLAVE);
 			$res = $dbr->select('user_groups', ['ug_user'], ['ug_group'=> $user_group], __METHOD__);
-			while ($row = $dbr->fetchObject($res)) {
+			foreach ($res as $row) {
 				$ids[] = $row->ug_user;
 			}
 			$wgMemc->set($key, $ids);

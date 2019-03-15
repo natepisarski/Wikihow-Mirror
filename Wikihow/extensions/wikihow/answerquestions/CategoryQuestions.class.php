@@ -8,7 +8,7 @@ class CategoryQuestions {
 	const MAX_QUEUE_LENGTH = 1000;
 
 	function __construct() {
-		$this->fullCategoryTree = Categoryhelper::getCategoryTreeArray();
+		$this->fullCategoryTree = CategoryHelper::getCategoryTreeArray();
 		$this->blacklistedCategories = array_flip(QAWidget::getCategoryBlacklist());
 		$this->trimCategoryTree($this->fullCategoryTree);
 	}
@@ -16,7 +16,7 @@ class CategoryQuestions {
 	function getQuestionsByCategory($category = "") {
 		//first make sure the category exists
 		$title = Title::makeTitle(NS_CATEGORY, $category);
-		if(!$title || $title->getArticleID() <= 0 || $title->isRedirect()) {
+		if (!$title || $title->getArticleID() <= 0 || $title->isRedirect()) {
 			//cat no longer exists, so remove it from the table.
 			$dbw = wfGetDB(DB_MASTER);
 			$dbw->delete(AnswerQuestions::TABLE_QUEUE, ['aqq_category' => $category], __METHOD__);
@@ -52,7 +52,7 @@ class CategoryQuestions {
 		} else {
 			$values = [];
 		}
-		
+
 		$shorterArray = array_slice($values, 0, self::MAX_QUEUE_LENGTH);
 
 		$this->updateCategory($category, $shorterArray);
@@ -84,7 +84,7 @@ class CategoryQuestions {
 			unset($value['timestamp']);
 			$value['aqq_category_type'] = AnswerQuestions::MOST_RECENT_QUEUE;
 		}
-		if($firstOldIndex > self::MAX_QUEUE_LENGTH){
+		if ($firstOldIndex > self::MAX_QUEUE_LENGTH){
 			$values = array_slice($values, 0, self::MAX_QUEUE_LENGTH);
 		} else {
 			$values = array_slice($values, 0, $firstOldIndex);
@@ -95,30 +95,30 @@ class CategoryQuestions {
 	}
 
 	public static function compareQuestionsByDate($question1, $question2) {
-		if($question1['timestamp'] == $question2['timestamp']) {
+		if ($question1['timestamp'] == $question2['timestamp']) {
 			return 0;
 		}
 		return $question1['timestamp'] < $question2['timestamp'] ? 1 : -1;
 	}
 
 	private function getSubTree($category = "") {
-		if($category == "") {
+		if ($category == "") {
 			return array();
 		}
 		$category = str_replace("-", " ", $category);
 
-		$parentCategories = Categoryhelper::getCurrentParentCategoryTree(Title::newFromText($category, NS_CATEGORY));
-		$parentCategories = Categoryhelper::flattenCategoryTree($parentCategories);
+		$parentCategories = CategoryHelper::getCurrentParentCategoryTree(Title::newFromText($category, NS_CATEGORY));
+		$parentCategories = CategoryHelper::flattenCategoryTree($parentCategories);
 		$parentArray = array();
 		$catLength = strlen("Category:");
-		for($i = count($parentCategories) - 1; $i >= 0; $i--) {
+		for ($i = count($parentCategories) - 1; $i >= 0; $i--) {
 			$parentArray[] = str_replace("-", " ", substr($parentCategories[$i], $catLength));
 		}
 
 		$tree = $this->fullCategoryTree;
 		$validCategory = false;
-		for($i = 0; $i < count($parentArray); $i++) {
-			if(array_key_exists($parentArray[$i], $tree)) {
+		for ($i = 0; $i < count($parentArray); $i++) {
+			if (array_key_exists($parentArray[$i], $tree)) {
 				$tree = $tree[$parentArray[$i]];
 				$validCategory = true;
 			} else {
@@ -126,7 +126,7 @@ class CategoryQuestions {
 				break;
 			}
 		}
-		if($validCategory && array_key_exists($category, $tree)) {
+		if ($validCategory && array_key_exists($category, $tree)) {
 			return self::flattenSubTree(array($category => $tree[$category]));
 		}
 
@@ -154,7 +154,7 @@ class CategoryQuestions {
 		$category = str_replace(" ", "-", $category);
 
 		$dbw->delete(AnswerQuestions::TABLE_QUEUE, ["aqq_category" => $category, "aqq_category_type" => $values[0]['aqq_category_type']], __METHOD__);
-		if(count($values) > 0) {
+		if (count($values) > 0) {
 			$dbw->insert(AnswerQuestions::TABLE_QUEUE, $values, __METHOD__);
 		}
 	}
@@ -163,7 +163,7 @@ class CategoryQuestions {
 	 * Trims the full category tree to remove any blacklisted categories
 	 ******/
 	private function trimCategoryTree(&$tree) {
-		if(is_array($tree)) {
+		if (is_array($tree)) {
 			foreach ($tree as $category => $subtree) {
 				if ( array_key_exists($category, $this->blacklistedCategories) ) {
 					unset($tree[$category]);
@@ -190,7 +190,7 @@ class CategoryQuestions {
 	private function outputTreeData($tree, $parentTreeString = "", $level=0) {
 		$csvString = "";
 		$treeData = ['qa_answered' => 0, 'qa_unanswered' => 0, 'qa_count' => 0];
-		if(is_array($tree)) {
+		if (is_array($tree)) {
 			//get this tree's info
 			foreach ($tree as $category => $subtree) {
 				$catData = $this->getTitusDataForCategory($category);

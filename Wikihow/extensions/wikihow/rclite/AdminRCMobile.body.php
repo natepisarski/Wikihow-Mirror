@@ -29,7 +29,7 @@ class AdminRCMobile extends SpecialPage {
 	 */
 	protected function getActivePatrollersHtml() {
 		$html = "";
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 
 		$oneDayAgo = wfTimestamp(TS_MW, time() - 24 * 60 * 60);
 		$vars = array();
@@ -59,7 +59,7 @@ class AdminRCMobile extends SpecialPage {
 			$patrollersLog[$row->log_user] = $row->cnt;
 		}
 
-		if(!empty($patrollersLog)) {
+		if (!empty($patrollersLog)) {
 			// Shrink list to patrollers that haven't engaged with patrol coach
 			// since this will be the mobile only users
 			$res = $dbr->select(

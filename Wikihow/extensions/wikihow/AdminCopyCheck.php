@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminCopyCheck',
 	'author' => 'Scott Cushman',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminCopyCheck'] = 'AdminCopyCheck';
-$wgAutoloadClasses['AdminCopyCheck'] = dirname( __FILE__ ) . '/AdminCopyCheck.body.php';
-
+$wgAutoloadClasses['AdminCopyCheck'] = __DIR__ . '/AdminCopyCheck.body.php';

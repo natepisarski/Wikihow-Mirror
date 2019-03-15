@@ -59,7 +59,7 @@ class TalkPageFormatter {
 			$footerTemplate = "\n{{comment_nofooter}}\n\n";
 			$formattedFooter = sprintf( $footerTemplate );
 		}
-			
+
 		$formattedComment = $formattedHeader . $comment . $formattedFooter;
 
 		return $formattedComment;

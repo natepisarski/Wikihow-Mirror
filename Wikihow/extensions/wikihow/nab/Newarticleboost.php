@@ -5,7 +5,7 @@ if ( ! defined('MEDIAWIKI') ) die();
  * @package MediaWiki
  * @subpackage Extensions
  *
- * @link http://www.wikihow.com/WikiHow:Newarticleboost-Extension Documentation
+ * @link http://www.wikihow.com/WikiHow:NewArticleBoost-Extension Documentation
  *
  *
  * @author Travis Derouin <travis@wikihow.com>
@@ -14,15 +14,15 @@ if ( ! defined('MEDIAWIKI') ) die();
 
 
 $wgExtensionCredits['specialpage'][] = array(
-	'name' => 'Newarticleboost',
+	'name' => 'NewArticleBoost',
 	'author' => 'Travis Derouin',
-	'description' => 'Provides a separate way of patrolling new articles',
-	'url' => 'http://www.wikihow.com/WikiHow:Newarticleboost-Extension',
+	'description' => 'Provides a separate way of boosting new articles',
+	'url' => 'http://www.wikihow.com/WikiHow:NewArticleBoost-Extension',
 );
 
 $wgResourceModules['ext.wikihow.nab'] = array(
     'scripts' => 'newarticleboost.js',
-    'localBasePath' => dirname(__FILE__) . '/',
+    'localBasePath' => __DIR__ . '/',
     'remoteExtPath' => 'wikihow/nab',
 	'messages' => array(
 		'nap_autosummary',
@@ -34,29 +34,31 @@ $wgResourceModules['ext.wikihow.nab'] = array(
 
 $wgResourceModules['ext.wikihow.nab.styles'] = array(
     'styles' => 'newarticleboost.css',
-    'localBasePath' => dirname(__FILE__),
+    'localBasePath' => __DIR__,
     'remoteExtPath' => 'wikihow/nab',
     'targets' => array('desktop', 'mobile'),
 );
 
-$wgExtensionMessagesFiles['Newarticleboost'] = dirname(__FILE__) . '/Newarticleboost.i18n.php';
-$wgSpecialPages['Newarticleboost'] = 'Newarticleboost';
+$wgExtensionMessagesFiles['NewArticleBoost'] = __DIR__ . '/Newarticleboost.i18n.php';
+$wgSpecialPages['NewArticleBoost'] = 'NewArticleBoost';
 $wgSpecialPages['NABStatus'] = 'NABStatus';
-$wgSpecialPages['Copyrightchecker'] = 'Copyrightchecker';
-$wgSpecialPages['Markrelated'] = 'Markrelated';
+$wgSpecialPages['CopyrightChecker'] = 'CopyrightChecker';
+$wgSpecialPages['MarkRelated'] = 'MarkRelated';
 $wgSpecialPages['NABClean'] = 'NABClean';
 $wgSpecialPages['AdminMarkPromoted'] = 'AdminMarkPromoted';
 $wgSpecialPages['NABPatrol'] = 'NABPatrol';
 $wgSpecialPages['AdminNAD'] = 'AdminNAD';
-$wgAutoloadClasses['Newarticleboost'] = dirname( __FILE__ ) . '/Newarticleboost.body.php';
-$wgAutoloadClasses['NABStatus'] = dirname( __FILE__ ) . '/Newarticleboost.body.php';
-$wgAutoloadClasses['Copyrightchecker'] = dirname( __FILE__ ) . '/Newarticleboost.body.php';
-$wgAutoloadClasses['Markrelated'] = dirname( __FILE__ ) . '/Newarticleboost.body.php';
-$wgAutoloadClasses['NABClean'] = dirname( __FILE__ ) . '/Newarticleboost.body.php';
-$wgAutoloadClasses['NABPatrol'] = dirname( __FILE__ ) . '/Newarticleboost.body.php';
-$wgAutoloadClasses['AdminMarkPromoted'] = dirname( __FILE__ ) . '/AdminMarkNAB.body.php';
-$wgAutoloadClasses['NabQueryPage'] = dirname( __FILE__ ) . '/Newarticleboost.body.php';
-$wgAutoloadClasses['AdminNAD'] = dirname( __FILE__ ) . '/AdminNAD.body.php';
+$wgAutoloadClasses['NewArticleBoost'] = __DIR__ . '/Newarticleboost.body.php';
+$wgAutoloadClasses['NABStatus'] = __DIR__ . '/Newarticleboost.body.php';
+$wgAutoloadClasses['CopyrightChecker'] = __DIR__ . '/Newarticleboost.body.php';
+$wgAutoloadClasses['MarkRelated'] = __DIR__ . '/Newarticleboost.body.php';
+$wgAutoloadClasses['NABClean'] = __DIR__ . '/Newarticleboost.body.php';
+$wgAutoloadClasses['NABPatrol'] = __DIR__ . '/Newarticleboost.body.php';
+$wgAutoloadClasses['AdminMarkPromoted'] = __DIR__ . '/AdminMarkNAB.body.php';
+$wgAutoloadClasses['NabQueryPage'] = __DIR__ . '/Newarticleboost.body.php';
+$wgAutoloadClasses['AdminNAD'] = __DIR__ . '/AdminNAD.body.php';
+
+$wgExtensionMessagesFiles['NewArticleBoostAlias'] = __DIR__ . '/Newarticleboost.alias.php';
 
 $wgHooks['ArticleDelete'][] = array("wfNewArticlePatrolClearOnDelete");
 $wgHooks['ArticleSaveComplete'][] = array("wfNewArticlePatrolAddOnCreation");
@@ -74,21 +76,18 @@ $wgLogHeaders['nap'] = 'newarticlepatrollogpagetext';
 // Take the article out of the queue if it's been deleted
 function wfNewArticlePatrolClearOnDelete($article, $user, $reason) {
 	$dbw = wfGetDB(DB_MASTER);
-
-	$dbw->delete(Newarticleboost::NAB_TABLE, array('nap_page' => $article->getId()), __METHOD__);
+	$dbw->delete(NewArticleBoost::NAB_TABLE, array('nap_page' => $article->getId()), __METHOD__);
 	return true;
 }
 
-function wfNewArticlePatrolAddOnCreation($article, $user, $text, $summary, $p5, $p6, $p7) {
-	global $wgUser, $wgLanguageCode;
-
+function wfNewArticlePatrolAddOnCreation($article, $napUser, $text, $summary, $p5, $p6, $p7) {
 	$db = wfGetDB(DB_MASTER);
 	$t = $article->getTitle();
-	if (!$t || $t->getNamespace() != NS_MAIN)  {
+	if (!$t || !$t->inNamespace(NS_MAIN))  {
 		return true;
 	}
 
-	if (in_array("bot", $wgUser->getGroups())) {
+	if (in_array("bot", RequestContext::getMain()->getUser()->getGroups())) {
 		// ignore bots
 		return true;
 	}
@@ -103,17 +102,25 @@ function wfNewArticlePatrolAddOnCreation($article, $user, $text, $summary, $p5, 
 	$min_rev = $row->min_rev;
 	$min_ts = $row->min_ts;
 
-	$row = $db->selectRow('revision', array('rev_timestamp', 'rev_user'), array('rev_id' => $min_rev), __METHOD__);
+	$row = $db->selectRow('revision',
+		array('rev_timestamp', 'rev_user'),
+		array('rev_id' => $min_rev),
+		__METHOD__);
 	$ts = $row->rev_timestamp;
 	$userid = $row->rev_user;
 
-	$nab_count = $db->selectField(Newarticleboost::NAB_TABLE, 'count(*)', array('nap_page' => $article->getId()), __METHOD__);
+	$nab_count = $db->selectField(NewArticleBoost::NAB_TABLE,
+		'count(*)',
+		array('nap_page' => $article->getId()),
+		__METHOD__);
+
+	$langCode = RequestContext::getMain()->getLanguage()->getCode();
 
 	// filter articles created by bots and non-English translators
 	if ($userid > 0) {
 		$revUser = User::newFromID($userid);
 		if ($revUser) {
-			if ($wgLanguageCode == 'en') {
+			if ($langCode == 'en') {
 				$specialGroups = array('bot');
 			} else {
 				// Edits by users in these groups won't go into NAB on intl
@@ -157,7 +164,7 @@ function wfNewArticlePatrolAddOnCreation($article, $user, $text, $summary, $p5, 
 
 		// only do checks if we the anon flag is set, or the user
 		// is logged in
-		if ($newbie['anon'] || $user->getID()) {
+		if ($newbie['anon'] || $napUser->getID()) {
 			// how many edits?
 			if ($newbie['edits'] > 0) {
 				$count = $db->selectField(
@@ -165,7 +172,7 @@ function wfNewArticlePatrolAddOnCreation($article, $user, $text, $summary, $p5, 
 					'count(*)',
 					array('rev_page=page_id',
 						'page_namespace' => NS_MAIN,
-						'rev_user_text'=>$user->getName()),
+						'rev_user_text' => $napUser->getName()),
 					__METHOD__);
 				if ($count < $newbie['edits']) {
 					$nab_newbie = 1;
@@ -174,9 +181,9 @@ function wfNewArticlePatrolAddOnCreation($article, $user, $text, $summary, $p5, 
 			if ($nab_newbie == 0 && $newbie['articles'] > 0) {
 				// how many articles created?
 				$count = $db->selectField(
-					array('firstedit'),
+					'firstedit',
 					'count(*)',
-					array('fe_user_text' => $user->getName()),
+					array('fe_user_text' => $napUser->getName()),
 					__METHOD__);
 				if ($count < $newbie['articles']) {
 					$nab_newbie = 1;
@@ -184,14 +191,14 @@ function wfNewArticlePatrolAddOnCreation($article, $user, $text, $summary, $p5, 
 			}
 		}
 
-		$db->insert(Newarticleboost::NAB_TABLE,
+		$db->insert(NewArticleBoost::NAB_TABLE,
 			array(
 				'nap_page' => $article->getId(),
 				'nap_timestamp' => $min_ts,
 				'nap_newbie' => $nab_newbie),
 			__METHOD__);
 
-		if ($wgLanguageCode == 'en') {
+		if ($langCode == 'en') {
 			$db->insert('nab_atlas', array('na_page_id' => $article->getId()), __METHOD__, array('IGNORE'));
 		}
 	}

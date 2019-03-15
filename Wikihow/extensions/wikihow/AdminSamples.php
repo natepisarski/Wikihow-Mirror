@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminSamples',
 	'author' => 'Scott Cushman',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminSamples'] = 'AdminSamples';
-$wgAutoloadClasses['AdminSamples'] = dirname( __FILE__ ) . '/AdminSamples.body.php';
-
+$wgAutoloadClasses['AdminSamples'] = __DIR__ . '/AdminSamples.body.php';

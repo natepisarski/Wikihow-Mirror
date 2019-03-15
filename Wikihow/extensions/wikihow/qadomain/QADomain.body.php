@@ -81,9 +81,9 @@ class QADomain extends UnlistedSpecialPage {
 
 		$data = $this->getQAData($par);
 
-		if($par == "" && $fullDomain == null) {
+		if ($par == "" && $fullDomain == null) {
 			$options = array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
@@ -93,10 +93,10 @@ class QADomain extends UnlistedSpecialPage {
 			$out->setHTMLTitle('quickAnswers');
 			$out->setCanonicalUrl($wgServer . "/" . $par);
 			$out->addMeta('description', $data['meta']);
-		} elseif(is_null($data)) {
+		} elseif (is_null($data)) {
 			$out->addHTML("that page does not exist");
-			$out->setRobotpolicy('noindex,nofollow');
-			if($par != "") {
+			$out->setRobotPolicy('noindex,nofollow');
+			if ($par != "") {
 				$out->setStatusCode(404);
 			}
 		} else {
@@ -108,14 +108,14 @@ class QADomain extends UnlistedSpecialPage {
 			$title = Title::newFromId($data['articleId']);
 			$data['titleTextLower'] = wfMessage("howto", $title->getText())->text();
 			$data['logo'] = wfGetPad('/extensions/wikihow/qadomain/images/' . $domainInfo['logo']);
-			if($this->amp) {
+			if ($this->amp) {
 				$data['amp'] = true;
 				$data['analytics'] = self::getAmpAnalytics(WH_GA_ID_QUICKANSWERS) . self::getAmpAnalytics(self::getGACode());
 			} else {
 				$data['amp'] = false;
 			}
 			$options = array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
@@ -140,7 +140,7 @@ class QADomain extends UnlistedSpecialPage {
 		$data['questions'] = $this->getOtherQuestions();
 		$data['meta'] = $domainInfo['meta'];
 		$data['randomUrl'] = $this->getRandomUrl();
-		if($this->amp) {
+		if ($this->amp) {
 			$data['amp'] = true;
 			$data['analytics'] = self::getAmpAnalytics(WH_GA_ID_QUICKANSWERS) . self::getAmpAnalytics(self::getGACode());
 		} else {
@@ -153,7 +153,7 @@ class QADomain extends UnlistedSpecialPage {
 	private function getQAData($par) {
 		global $canonicalDomain;
 
-		if($par == '') {
+		if ($par == '') {
 			return null;
 		}
 
@@ -161,7 +161,7 @@ class QADomain extends UnlistedSpecialPage {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$qaid = $dbr->selectField(self::TABLE_URLS, 'wa_qaid', ['wa_title' => $par], __METHOD__);
-		if($qaid === false) {
+		if ($qaid === false) {
 			//page doesn't exist
 			return null;
 		}
@@ -171,14 +171,14 @@ class QADomain extends UnlistedSpecialPage {
 
 		$qa_item = $qadb->getArticleQuestionByArticleQuestionId($qaid);
 
-		if(!$qa_item->getAltDomain()) {
+		if (!$qa_item->getAltDomain()) {
 			//shouldn't be on this domain
 			return null;
 		}
 
 		//now check that it's on the right domain
 		$catArray = $this->getCategoryArray();
-		if(!in_array($qaid, $catArray)) {
+		if (!in_array($qaid, $catArray)) {
 			return null;
 		}
 
@@ -194,8 +194,8 @@ class QADomain extends UnlistedSpecialPage {
 			shuffle($qas);
 			$relateds = [];
 			$found = 0;
-			for($i = 0; $found < self::NUM_RELATED && $i < count($qas); $i++) {
-				if($qa_item->getId() != $qas[$i]->getId()) {
+			for ($i = 0; $found < self::NUM_RELATED && $i < count($qas); $i++) {
+				if ($qa_item->getId() != $qas[$i]->getId()) {
 					$relateds[] = ['url' => self::getUrlFromDb($qas[$i]->getId()), 'question' => $qas[$i]->getCuratedQuestion()->getText()];
 					$found++;
 				}
@@ -209,10 +209,10 @@ class QADomain extends UnlistedSpecialPage {
 	}
 
 	private function getCategoryArray($domainName = null) {
-		if($this->categoryArray == null || $domainName != null) {
+		if ($this->categoryArray == null || $domainName != null) {
 			global $canonicalDomain;
 
-			if($domainName != null) {
+			if ($domainName != null) {
 				$catName = self::getParentCategoryForDomain($domainName);
 			} else {
 				$catName = self::getParentCategoryForDomain($canonicalDomain);
@@ -243,7 +243,7 @@ class QADomain extends UnlistedSpecialPage {
 
 		$ids = [];
 		$arrayChunk = count($catArray)/$numQuestions;
-		for($i = 0; $i < $numQuestions; $i++) {
+		for ($i = 0; $i < $numQuestions; $i++) {
 			$j = rand($i*$arrayChunk, ($i+1)*$arrayChunk);
 			$ids[] = $catArray[$j];
 		}
@@ -323,7 +323,7 @@ class QADomain extends UnlistedSpecialPage {
 
 	public static function getUrlsFromDb($ids) {
 		$urls = [];
-		if(count($ids) > 0) {
+		if (count($ids) > 0) {
 			$dbr = wfGetDB(DB_SLAVE);
 			$res = $dbr->select(self::TABLE_URLS, 'wa_title', ['wa_qaid IN (' . $dbr->makeList($ids) . ')'], __METHOD__);
 			foreach($res as $row) {
@@ -355,7 +355,7 @@ class QADomain extends UnlistedSpecialPage {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$options = [];
-		if($limit > 0) {
+		if ($limit > 0) {
 			$options['LIMIT'] = $limit;
 		}
 
@@ -385,7 +385,7 @@ class QADomain extends UnlistedSpecialPage {
 	 * Use this to help remove some of the javascript from amp pages
 	 ******/
 	public static function onDeferHeadScripts($outputPage, &$defer) {
-		if(GoogleAmp::isAmpMode($outputPage)) {
+		if (GoogleAmp::isAmpMode($outputPage)) {
 			$defer = true;
 		}
 		return true;
@@ -397,7 +397,7 @@ class QADomain extends UnlistedSpecialPage {
 	static function onBeforePageDisplay( &$out ){
 		if ( GoogleAmp::isAmpMode( $out ) ) {
 			$less = ResourceLoader::getLessCompiler();
-			$style = Misc::getEmbedFile('css', dirname(__FILE__) . '/qadomain.less');
+			$style = Misc::getEmbedFile('css', __DIR__ . '/qadomain.less');
 			$style = $less->compile($style);
 			$style = ResourceLoader::filter('minify-css', $style);
 			$style = HTML::inlineStyle($style);
@@ -446,14 +446,14 @@ class QADomain extends UnlistedSpecialPage {
 	/*** Taking all links to WHA down **/
 	public static function getRandomQADomainLinkFromWikihow($aid) {
 		return false;
-		/*if( RequestContext::getMain()->getUser()->isLoggedIn() ) {
+		/*if ( RequestContext::getMain()->getUser()->isLoggedIn() ) {
 			return false;
 		}
-		if( !ArticleTagList::hasTag(self::CONFIG_NAME, $aid) ) {
+		if ( !ArticleTagList::hasTag(self::CONFIG_NAME, $aid) ) {
 			return false;
 		}
 		$urls = self::getUrlsOnQADomain($aid);
-		if(count($urls) > 0) {
+		if (count($urls) > 0) {
 			$index = rand(0, count($urls) - 1);
 			return  $urls[] = 'http://' . self::LIVE_DOMAIN . "/" . $urls[$index]->wa_title . "?utm_source=whmain";
 		} else {
@@ -474,8 +474,8 @@ class QADomain extends UnlistedSpecialPage {
 	}
 
 	public function getBreadcrumb() {
-		if($this->parentCategory == "default") {
-			return str_replace("-", " ", Categoryhelper::getTopCategory($this->parentTitle));
+		if ($this->parentCategory == "default") {
+			return str_replace("-", " ", CategoryHelper::getTopCategory($this->parentTitle));
 		} else {
 			return $this->parentCategory;
 		}
@@ -498,11 +498,11 @@ class QADomain extends UnlistedSpecialPage {
 	public static function getParentCategoryForDomain($domainName) {
 		global $wgIsDevServer;
 
-		if($wgIsDevServer) {
+		if ($wgIsDevServer) {
 			$domainName = str_replace("dev", "www", $domainName);
 		}
 		foreach(self::$domainInfo as $category => $info) {
-			if($domainName == $info['domain']) {
+			if ($domainName == $info['domain']) {
 				return $category;
 			}
 		}
@@ -544,7 +544,7 @@ class QADomain extends UnlistedSpecialPage {
 	static function getFullUrl($domain) {
 		$fullDomain = "www." . $domain;
 		foreach(self::$domainInfo as $cat => $info) {
-			if($fullDomain == $info['domain']) {
+			if ($fullDomain == $info['domain']) {
 				return $info['domain'];
 			}
 		}

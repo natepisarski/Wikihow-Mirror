@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use MVC\Paginator;
 use __;
@@ -103,7 +103,7 @@ class UsersController extends AppController {
 		}
 
 		$user = User::find($_GET['id']);
-		$user->disable();
+		$user->setArticleBodyOnly(true);
 		$this->updateMediaWikiUser($user);
 
 		$this->redirectTo("users");

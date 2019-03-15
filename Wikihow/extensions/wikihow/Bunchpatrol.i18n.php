@@ -1,4 +1,5 @@
-<?
+<?php
+
 $messages = array();
 $messages['en'] =
         array(
@@ -8,4 +9,3 @@ $messages['en'] =
 		'bunchpatrol_noselfpatrol' => 'Sorry, you can\'t patrol your own edits.',
 		'bunchpatrol_unpatrolledlimit' => "There are currently less than 500 ($1) unpatrolled edits, so Bunch Patrol is disabled.",
 		);
-

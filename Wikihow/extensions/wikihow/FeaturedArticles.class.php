@@ -81,7 +81,7 @@ class FeaturedArticles {
 		$ret = array();
 		if (is_array($feeds)) {
 			foreach ($feeds as $feedItem) {
-				if($wgLanguageCode != "en") {
+				if ($wgLanguageCode != "en") {
 					$title = Title::newFromURL(urldecode($feedItem[0]));
 				}
 				else {
@@ -193,7 +193,7 @@ class FeaturedArticles {
 			$item[1] = $ts;
 			$xx = $t_url_map[$ts];
 			$item[0] = $xx[0];
-			if(isset($xx[1])) $item[2] = $xx[1];
+			if (isset($xx[1])) $item[2] = $xx[1];
 			$feeds[] = $item;
 		}
 
@@ -402,4 +402,3 @@ class FeaturedArticles {
 		return $articles;
 	}
 }
-

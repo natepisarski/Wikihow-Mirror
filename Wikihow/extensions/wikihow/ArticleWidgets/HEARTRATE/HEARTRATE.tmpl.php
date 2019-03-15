@@ -68,28 +68,28 @@ $(function() {
 $("#age").whUpDown({units:"", width: 91, min: 0, maxLength: 3, max: 99, value: 0, onChange: function(element,value){
     age = value;
 	if (isNaN(age)) age = 0;
-    if(val1 != 0 && val2 !=0 && val3!=0 && age!=0)
+    if (val1 != 0 && val2 !=0 && val3!=0 && age!=0)
     $("#thr").whLabel({value : target_heart_rate(val1,val2,val3,age), lines: 1, fade: false});
 } });
 
 $("#day1").whUpDown({units:"", width: 90, min: 0, maxLength: 3,  max: 300, value: 0, onChange: function(element,value){
     val1 = value;
 	if (isNaN(val1)) val1 = 0;
-    if(val1 != 0 && val2 !=0 && val3!=0 && age!=0)
+    if (val1 != 0 && val2 !=0 && val3!=0 && age!=0)
     $("#thr").whLabel({value : target_heart_rate(val1,val2,val3,age), lines: 1, fade: false});
 } });
 
 $("#day2").whUpDown({units:"", width: 90, min: 0, maxLength: 3, max: 300, value: 0, onChange: function(element,value){
     val2 = value;
 	if (isNaN(val2)) val2 = 0;
-    if(val1 != 0 && val2 !=0 && val3!=0 && age!=0)
+    if (val1 != 0 && val2 !=0 && val3!=0 && age!=0)
     $("#thr").whLabel({value : target_heart_rate(val1,val2,val3,age), lines: 1, fade: false});
 } });
 
 $("#day3").whUpDown({units:"", width: 90, min: 0, maxLength: 3, max: 300, value: 0, onChange: function(element,value){
     val3 = value;
 	if (isNaN(val3)) val3 = 0;
-    if(val1 != 0 && val2 !=0 && val3!=0 && age!=0)
+    if (val1 != 0 && val2 !=0 && val3!=0 && age!=0)
     $("#thr").whLabel({value : target_heart_rate(val1,val2,val3,age), lines: 1, fade: false});
 } });
 

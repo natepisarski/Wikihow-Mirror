@@ -5,7 +5,7 @@ class TechLayout {
 	const CONFIG_LIST = "tech_layout_test";
 
 	public static function isTechLayoutTest($title) {
-		if(Misc::isMobileMode() || !$title || $title->getArticleId() <= 0) {
+		if (Misc::isMobileMode() || !$title || $title->getArticleId() <= 0) {
 			return false;
 		}
 
@@ -15,12 +15,12 @@ class TechLayout {
 	public static function ModifyDom() {
 		global $wgTitle;
 
-		if(!self::isTechLayoutTest($wgTitle)) {
+		if (!self::isTechLayoutTest($wgTitle)) {
 			return;
 		}
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 
@@ -38,7 +38,7 @@ class TechLayout {
 		$data = ["steps" => [], "navigation" => []];
 
 		$steps = pq(".steps_list_2 > li");
-		foreach($steps as $index => $step) {
+		foreach ($steps as $index => $step) {
 			$stepText = pq($step)->find(".step");
 			pq($stepText)->find("script")->remove();
 			pq($stepText)->find(".reference")->remove();
@@ -53,7 +53,7 @@ class TechLayout {
 			];
 			pq($stepText)->find(".whb")->remove();
 			$navigationInfo["stepText"] = pq($stepText)->text();
-			if($index == 0) {
+			if ($index == 0) {
 				$navigationInfo['class'] = "active";
 			} else {
 				$navigationInfo['class'] = "inactive";
@@ -68,7 +68,7 @@ class TechLayout {
 	public static function removeSideBarCallback(&$showSideBar) {
 		global $wgTitle, $wgOut;
 
-		if(self::isTechLayoutTest($wgTitle)) {
+		if (self::isTechLayoutTest($wgTitle)) {
 			$showSideBar = false;
 			$wgOut->addModules("ext.wikihow.techlayout");
 		}
@@ -78,7 +78,7 @@ class TechLayout {
 	public static function addCSS(&$css, $title) {
 		global $IP;
 
-		if(self::isTechLayoutTest($title)) {
+		if (self::isTechLayoutTest($title)) {
 			$cssStr = Misc::getEmbedFiles('css', [$IP . "/extensions/wikihow/techlayout/techlayout.css"]);
 			$cssStr = wfRewriteCSS($cssStr, true);
 			$css .= HTML::inlineStyle($cssStr);

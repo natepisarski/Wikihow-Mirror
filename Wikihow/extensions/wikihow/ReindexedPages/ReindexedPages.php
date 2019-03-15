@@ -11,6 +11,6 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ReindexedPages'] = 'ReindexedPages';
-$wgAutoloadClasses['ReindexedPages'] = dirname(__FILE__) . '/ReindexedPages.body.php';
-$wgExtensionMessagesFiles['ReindexedPages'] = dirname(__FILE__) . '/ReindexedPages.i18n.php';
-$wgExtensionMessagesFiles['ReindexedPagesdAliases'] = dirname(__FILE__) . '/ReindexedPages.alias.php';
+$wgAutoloadClasses['ReindexedPages'] = __DIR__ . '/ReindexedPages.body.php';
+$wgExtensionMessagesFiles['ReindexedPages'] = __DIR__ . '/ReindexedPages.i18n.php';
+$wgExtensionMessagesFiles['ReindexedPagesdAliases'] = __DIR__ . '/ReindexedPages.alias.php';

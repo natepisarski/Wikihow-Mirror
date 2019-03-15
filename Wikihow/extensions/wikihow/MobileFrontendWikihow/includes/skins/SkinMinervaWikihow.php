@@ -186,7 +186,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 			$items['categories'] = array(
 				'text' => wfMessage( 'menu-categories' )->escaped(),
-				'href' => SpecialPage::getTitleFor( 'Categorylisting' )->getFullUrl(),
+				'href' => SpecialPage::getTitleFor( 'CategoryListing' )->getFullUrl(),
 				'class' => 'icon-categories',
 				'id' => 'icon-categories',
 			);
@@ -212,7 +212,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		}
 
 		$title = $this->getSkin()->getTitle();
-		if($title) {
+		if ($title) {
 			//add page help header
 			$items['header3'] =  array(
 				'text' => wfMessage('menu-help-page')->text(),
@@ -222,8 +222,8 @@ class SkinMinervaWikihow extends SkinMinerva {
 			$help_page_added = false;
 
 			$isMainPage = $title->getText() == wfMessage('mainpage')->text();
-			if($title->getNamespace() == NS_MAIN && !$isMainPage) {
-				if(class_exists('TipsAndWarnings') && TipsAndWarnings::isActivePage() && TipsAndWarnings::isValidTitle($title)) {
+			if ($title->inNamespace(NS_MAIN) && !$isMainPage) {
+				if (class_exists('TipsAndWarnings') && TipsAndWarnings::isActivePage() && TipsAndWarnings::isValidTitle($title)) {
 					$items['addtip'] = array(
 						'text' => wfMessage( 'mobile-wikihow-addtip-link' )->escaped(),
 						'href' => '#',
@@ -456,7 +456,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 			$tpl->set( 'disableFooter', $isTool);
 		} else {
 			if ( $pageHeading ) {
-				if ($title->getNamespace() == NS_MAIN) {
+				if ($title->inNamespace(NS_MAIN)) {
 					//standard; add "How to"
 					$titleMsg = $wgLanguageCode == 'ja' ? 'howto_article_heading' : 'howto';
 					$titleTxt = wfMessage($titleMsg, $pageHeading)->text();
@@ -570,7 +570,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($count > 40) {
 			$className = 'title_sm';
 		}
-		else if ($count > 20) {
+		elseif ($count > 20) {
 			$className = 'title_md';
 		}
 		else {

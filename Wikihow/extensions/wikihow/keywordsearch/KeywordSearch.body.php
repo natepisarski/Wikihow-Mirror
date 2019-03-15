@@ -3,7 +3,7 @@
 global $IP;
 require_once("$IP/extensions/wikihow/titus/Titus.class.php");
 
-/** 
+/**
  * Allows searching through top keywords to see the rank of them, and some associated information from Titus.
  */
 class KeywordSearch extends UnlistedSpecialPage {
@@ -12,29 +12,31 @@ class KeywordSearch extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgOut, $wgRequest, $wgUser, $wgIsTitusServer, $wgIsDevServer;
-	
-		$user = $wgUser->getName();
-		$userGroups = $wgUser->getGroups();
+		global $wgIsTitusServer, $wgIsDevServer;
 
-		if (!($wgIsTitusServer || $wgIsDevServer) || $wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+		$userGroups = $user->getGroups();
+
+		if (!($wgIsTitusServer || $wgIsDevServer) || $user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
-	
-		$keywords = $wgRequest->getVal('keywords');
-		
+
+		$keywords = $req->getVal('keywords');
+
 		if ( !$keywords ) {
-			EasyTemplate::set_path(dirname(__FILE__).'/');
-			$wgOut->addHTML(EasyTemplate::html('KeywordSearch.tmpl.php',array()));
+			EasyTemplate::set_path(__DIR__.'/');
+			$out->addHTML(EasyTemplate::html('KeywordSearch.tmpl.php',array()));
 		} else {
 			$dbr = wfGetDB(DB_SLAVE);
 
 			// Find keywords, which match keyword database
 			$sql = 'select keywords.* from dedup.keywords where match(title) against (' . $dbr->addQuotes($keywords) . ")";
 			$res = $dbr->query($sql, __METHOD__);
-			
+
 			$queryInfo = array();
 			foreach ( $res as $row ) {
 				$queryInfo[] = array('title' => $row->title, 'position' => $row->position);

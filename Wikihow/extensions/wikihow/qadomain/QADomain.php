@@ -9,16 +9,16 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['QADomain'] = 'QADomain';
-$wgAutoloadClasses['QADomain'] = dirname(__FILE__) . '/QADomain.body.php';
+$wgAutoloadClasses['QADomain'] = __DIR__ . '/QADomain.body.php';
 $wgSpecialPages['AdminQADomain'] = 'AdminQADomain';
-$wgAutoloadClasses['AdminQADomain'] = dirname(__FILE__) . '/AdminQADomain.body.php';
+$wgAutoloadClasses['AdminQADomain'] = __DIR__ . '/AdminQADomain.body.php';
 
 $wgResourceModules['ext.wikihow.qadomain'] = array(
 	'styles' => 'qadomain.less',
 	'scripts' => [
 		'../../../skins/WikiHow/MachinifyAPI.js',
 	],
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/qadomain',
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' )
@@ -26,7 +26,7 @@ $wgResourceModules['ext.wikihow.qadomain'] = array(
 
 $wgResourceModules['ext.wikihow.adminqadomain'] = array(
 	'scripts' => 'adminqadomain.js',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/qadomain',
 	'position' => 'top',
 	'targets' => array( 'desktop')

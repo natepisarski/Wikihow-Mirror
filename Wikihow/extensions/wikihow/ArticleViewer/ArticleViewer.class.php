@@ -41,7 +41,7 @@ class RsViewer extends ArticleViewer {
 			$i = 0;
 			foreach ($rs as $titleString => $star) {
 				$title = Title::newFromText($titleString);
-				if($title) {
+				if ($title) {
 					$this->articles[] = Linker::link($title);
 				}
 				if (++$i >= $this->maxNum) {
@@ -59,7 +59,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$sortAlpha,
 		$article_info; //this is used to keep info about the various titles (currently using template info)
 
-	function __construct($title, IContextSource $context, $sortAlpha = false) {
+	public function __construct($title, IContextSource $context, $sortAlpha = false) {
 		global $wgCategoryPagingLimit;
 
 		parent::__construct($context);
@@ -69,14 +69,13 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$this->sortAlpha = $sortAlpha;
 	}
 
-	//still used
-	function getFAs() {
+	public function getFAs() {
 		$this->clearCategoryState();
 		$this->doQuery();
 		return $this->articles_fa;
 	}
 
-	function clearCategoryState() {
+	public function clearCategoryState() {
 		$this->articles = array();
 		$this->children = array();
 		$this->articles_fa = array();
@@ -94,7 +93,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 
 	public function getNumOnPage($page, $perPage) {
 		$pages = count($this->articles)/$perPage;
-		if($page < $pages) {
+		if ($page < $pages) {
 			return $perPage;
 		} else {
 			return ($pages-floor($pages))*$perPage;
@@ -107,12 +106,12 @@ class WikihowCategoryViewer extends ArticleViewer {
 	 * @return array
 	 */
 	public function getArticlesMobile($page, $number) {
-		if($page <= 0) {
+		if ($page <= 0) {
 			$page = 1;
 		}
 		$articlesArray = array_slice($this->articles, ($page-1)*$number, $number);
 		$articles = ['articles' => []];
-		foreach($articlesArray as $title) {
+		foreach ($articlesArray as $title) {
 			$data = [];
 			$data['url'] = $title->getLocalUrl();
 			$data['title'] = $title->getText();
@@ -152,7 +151,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		// Show only indexable articles to anons
 		$indexConds = $this->getUser()->isAnon() ? 'ii_policy IN (1, 4)' : '1=1';
 		$safeTitle = $this->title->getDBKey();
-		if($this->sortAlpha) {
+		if ($this->sortAlpha) {
 			$order = "cl_sortkey ASC";
 		} else {
 			$order = "ti_30day_views DESC";
@@ -187,7 +186,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 			Misc::exitWith404();
 		}
 
-		if($getSubcats) {
+		if ($getSubcats) {
 			// get all of the subcategories this time
 			$res = $dbr->select(
 				['page', 'categorylinks', 'index_info'],
@@ -208,7 +207,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		}
 	}
 
-	function  processRow($x, &$count) {
+	private function processRow($x, &$count) {
 		if (++$count > $this->limit) {
 			// We've reached the one extra which shows that there are
 			// additional pages to be had. Stop here...
@@ -217,12 +216,12 @@ class WikihowCategoryViewer extends ArticleViewer {
 		}
 
 		$title = Title::makeTitle($x->page_namespace, $x->page_title);
-		if($title && $title->isMainPage()) {
+		if ($title && $title->isMainPage()) {
 			//we don't want the main page to show up on any category pages
 			return true;
 		}
 
-		if ($title->getNamespace() == NS_CATEGORY) {
+		if ($title->inNamespace(NS_CATEGORY)) {
 			// check for subcategories
 			$subcats = $this->getSubcategories($title);
 			if (sizeof($subcats) == 0) {
@@ -249,8 +248,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		return true;
 	}
 
-	//still used
-	function getSubcategories($title) {
+	public function getSubcategories($title) {
 		$onlyIndexed = $this->getUser()->isAnon() || Misc::isMobileMode();
 		$dbr = wfGetDB(DB_SLAVE);
 		$tables = ['categorylinks', 'page', 'index_info'];

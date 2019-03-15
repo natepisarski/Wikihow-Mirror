@@ -1,7 +1,7 @@
 <?php
- 
+
 $magicWords = array();
- 
+
 $magicWords['en'] = array(
 	'parts' => array( 0, '__parts__', '__part__'),
 	'methods' => array( 0, '__methods__', '__method__'),

@@ -10,15 +10,19 @@ class AnswerQuestionsAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus) {
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED || $widgetStatus == DashboardWidget::WIDGET_LOGIN)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED || $widgetStatus == DashboardWidget::WIDGET_LOGIN)
 			$link = "<a href='/Special:AnswerQuestions' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	public function getMWName() {

@@ -18,24 +18,24 @@ class SuccessfulEdit {
 		$gr = 0;
 		$gr = $dbr->selectField('good_revision',array('gr_rev'),array('gr_page' => $articleId));
 		$edits = self::getSigEdits($gr);
-		if($edits) {
-			return($edits);	
+		if ($edits) {
+			return($edits);
 		}
 		$res = $dbr->select(array('revision','text'),array('rev_id','old_text','old_flags','rev_timestamp', 'rev_user','rev_user_text'),array('rev_page' => $articleId, 'rev_text_id = old_id' ),__METHOD__,array('order by'=>'rev_timestamp asc'));
 		$txts = array();
 		$grTxt = false;
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$flags = explode( ',', $row->old_flags );
 			$rowText = Revision::decompressRevisionText($row->old_text, $flags);
 			$stepsSection = Wikitext::getStepsSection($rowText);
 			//print("Got txt for rev" . $row->rev_id . "\n");
 			$txts[] = array('text'=> $stepsSection[0], 'rev_page'=>$row->rev_page, 'rev_id' => $row->rev_id, 'rev_user'=> $row->rev_user, 'rev_user_text' => $row->rev_user_text);
-			if($row->rev_id == $gr) {
+			if ($row->rev_id == $gr) {
 				$grTxt = $stepsSection[0];
 				break;
 			}
 		}
-		if(!$grText) { 
+		if (!$grText) {
 			$grText = $txts[sizeof($txts) - 1]['text'];
 			$gr = $txts[sizeof($txts) - 1]['rev_id'];
 		}
@@ -48,25 +48,25 @@ class SuccessfulEdit {
 		$edits = array();
 		$first = true;
 		$lastAdds = 0;
-		foreach($txts as $txt) {
+		foreach ($txts as $txt) {
 			$txtArr = explode("\n",$wgContLang->segmentForDiff($txt['text']));
 			//print("diff for rev " . $txt['rev_id'] . " " . wfTimestampNow() . "\n");
 			$diffs = new Diff($txtArr,$grArr);
 			$adds = 0;
 
-			foreach($diffs as $diff) {
+			foreach ($diffs as $diff) {
 
-				foreach($diff as $d) {
-					if($d->type == 'copy') {
-						foreach($d->closing as $cl) {
+				foreach ($diff as $d) {
+					if ($d->type == 'copy') {
+						foreach ($d->closing as $cl) {
 							$adds += strlen($cl);
 						}
 					}
 					elseif($d->type == 'change') {
 						$wld = new WordLevelDiff($d->orig, $d->closing);
-						foreach($wld->edits as $edit) {
-							if($edit->type=='copy') {
-								foreach($edit->orig as $o) {
+						foreach ($wld->edits as $edit) {
+							if ($edit->type=='copy') {
+								foreach ($edit->orig as $o) {
 									$adds += strlen($o);
 								}
 							}
@@ -74,25 +74,25 @@ class SuccessfulEdit {
 					}
 				}
 			}
-			if($adds > $added) {
+			if ($adds > $added) {
 				$newAdded =  $adds - $added;
 				$added = $adds;
 			}
 			else {
 				$newAdded = 0;
 			}
-			if($newAdded > 0 ) {
+			if ($newAdded > 0 ) {
 				// First edit or didn't add steps
 				// This prevents counting the steps section formatting fix as a contributor
-				if($first || $lastAdds != 0) {
-					$edits[] = array('added' => $newAdded, 'gr' => $gr , 'rev' => $txt['rev_id'],'page'=>$txt['page_id'], 'user' => $txt['rev_user'], 'username' => $txt['rev_user_text']); 
+				if ($first || $lastAdds != 0) {
+					$edits[] = array('added' => $newAdded, 'gr' => $gr , 'rev' => $txt['rev_id'],'page'=>$txt['page_id'], 'user' => $txt['rev_user'], 'username' => $txt['rev_user_text']);
 				}
 			}
 			$first = false;
 
 			$lastAdds = $adds;
 		}
-		if($edits) {
+		if ($edits) {
 			self::saveSigEdits($edits);
 		}
 		return($edits);
@@ -112,8 +112,8 @@ class SuccessfulEdit {
 		$sql = "select ec_rev,ec_bytes,page_id,page_title,rev_user,rev_user_text from dedup.edit_contributions join revision on rev_id=ec_rev join page on rev_page=page_id where ec_gr=" . $dbr->addQuotes($gr);
 		$res = $dbr->query($sql, __METHOD__);
 		$added = array();
-		foreach($res as $row) {
-			$added[] = array('added' => $row->ec_bytes, 'gr' => $gr, 'rev' => $row->ec_rev, 'page' => $row->page_id, 'user' => $row->rev_user, 'username' => $row->rev_user_text);	
+		foreach ($res as $row) {
+			$added[] = array('added' => $row->ec_bytes, 'gr' => $gr, 'rev' => $row->ec_rev, 'page' => $row->page_id, 'user' => $row->rev_user, 'username' => $row->rev_user_text);
 		}
 		return($added);
 	}
@@ -125,8 +125,8 @@ class SuccessfulEdit {
 		$dbw = wfGetDB(DB_MASTER);
 		$sql = "insert ignore into dedup.edit_contributions(ec_rev, ec_gr, ec_bytes) values ";
 		$first = true;
-		foreach($edits as $edit) {
-			if(!$first) {
+		foreach ($edits as $edit) {
+			if (!$first) {
 				$sql .= ",";
 			}
 			else {

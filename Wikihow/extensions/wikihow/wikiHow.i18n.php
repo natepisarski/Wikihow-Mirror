@@ -1,4 +1,4 @@
-<?
+<?php
 
 $messages = array();
 $messages['en'] =
@@ -45,4 +45,3 @@ $messages['en'] =
 			'editarticle' => 'Edit Article',
 			'ad_label' => 'Advertisement'
    );
-

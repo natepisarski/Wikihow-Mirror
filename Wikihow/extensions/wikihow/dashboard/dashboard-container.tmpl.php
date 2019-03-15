@@ -40,7 +40,7 @@ WH.dashboard.appShortCodes = <?= json_encode($appShortCodes) ?>;
 			<div class="clearall"></div>
 		</div>
 	</div>
-	
+
 	<div class="minor_section">
 		<h2>Things to Try First</h2>
 		<div class="comdash-priorities">

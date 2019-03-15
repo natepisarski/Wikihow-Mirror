@@ -328,7 +328,7 @@ class UnitConverter {
 				$d1 = false;
 			}
 			//oh, and if there's a dash and a fraction our script will be very confused
-			else if (preg_match('@-@',$d1.$mid.$d2)) {
+			elseif (preg_match('@-@',$d1.$mid.$d2)) {
 				$d1 = false;
 			}
 			else {
@@ -358,7 +358,7 @@ class UnitConverter {
 
 			$convertedTemplates = $this->getConvertTemplate($m, $units, true);
 
-			foreach($convertedTemplates as $i => $template) {
+			foreach ($convertedTemplates as $i => $template) {
 				if ($template !== false) {
 					//check for a token - we took 10 extra characters, check for "TOKE_"
 					//start
@@ -389,7 +389,7 @@ class UnitConverter {
 		//x units
 		if (preg_match_all("@(.{{$this->excess}})(.?){$this->negLB}(\b{$this->numsWS}\s?$regex\b){$this->negLA}(.{{$this->excess}})@iu",$wikitext,$m)) {
 			$convertedTemplates = $this->getConvertTemplate($m, $units, false);
-			foreach($convertedTemplates as $i => $template) {
+			foreach ($convertedTemplates as $i => $template) {
 				if ($template !== false) {
 					//check for a token - we took 10 extra characters, check for "TOKE_"
 					//start
@@ -557,8 +557,8 @@ class UnitConverter {
 				if (!$canBeZero && $roundedNumber == 0) {
 					//we don't want to round to zero, make precision whatever is needed not to be zero
 					//I don't think this is used anymore, but leaving in for now
-					for($i = 0; $i < strlen($convertedNumber); $i++) {
-						if($convertedNumber[$i] != "0" && $convertedNumber[$i] != ".") {
+					for ($i = 0; $i < strlen($convertedNumber); $i++) {
+						if ($convertedNumber[$i] != "0" && $convertedNumber[$i] != ".") {
 							break;
 						}
 					}
@@ -578,7 +578,7 @@ class UnitConverter {
 
 				//if the number is > 1, then what we call sigfig, isn't right. We need total digits
 				//now actually calculate the sigfig (total digits) from the precision
-				if(abs($convertedNumber) >= 1) {
+				if (abs($convertedNumber) >= 1) {
 					if ($convertedNumber < 0) {
 						$digits = strlen(ceil($convertedNumber)) - 1;
 					} else {

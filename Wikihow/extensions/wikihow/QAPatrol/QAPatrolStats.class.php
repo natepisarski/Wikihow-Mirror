@@ -19,7 +19,7 @@ class QAPatrolStats {
 
 	public function getStatsHTML() {
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__).'/templates')
+			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
 		]);
 		$m = new Mustache_Engine(['loader' => $loader]);
 

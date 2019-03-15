@@ -134,7 +134,7 @@ EOHTML;
 	}
 
 	function getRatingResponseDesktop($itemId, $rating, $ratingId) {
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$title = Title::newFromID($itemId);
 		$titleText = htmlspecialchars($title->getText(), ENT_QUOTES);
 		$tmpl->set_vars(
@@ -158,7 +158,7 @@ EOHTML;
 
 		/* use this only for (Main) namespace pages that are not the main page - feel free to remove this... */
 		$mainPageObj = Title::newMainPage();
-		if ($wgTitle->getNamespace() != NS_MAIN
+		if (!$wgTitle->inNamespace(NS_MAIN)
 			|| $mainPageObj->getFullText() == $wgTitle->getFullText())
 		{
 			return;
@@ -199,7 +199,7 @@ EOHTML;
 		$context = RequestContext::getMain();
 		$context->getOutput()->addModules(['ext.wikihow.rating_sidebar.styles','ext.wikihow.rating_sidebar']);
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$tmpl->set_vars([
 			'class' => $class,
 			'is_intl' => ($context->getLanguage()->getCode() != 'en')
@@ -248,7 +248,7 @@ EOHTML;
 			$showNoForm = true;
 		}
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$tmpl->set_vars([
 			'headerText' => $headerText,
 			'class' => $class,
@@ -306,7 +306,7 @@ EOHTML;
 			$ampResponseNoText = wfMessage('ratearticle_reason_submitted', $search_term)->text();
 		}
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$tmpl->set_vars(
 			array(
 				'msgText' => $msgText,

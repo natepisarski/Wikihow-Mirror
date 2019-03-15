@@ -1,7 +1,7 @@
 <?php
 if (!defined('MEDIAWIKI')) die();
 
-class ImportvideoYoutube extends Importvideo {
+class ImportVideoYoutube extends ImportVideo {
 
 	private $prevOffset;
 	private $nextOffset;
@@ -216,7 +216,7 @@ class ImportvideoYoutube extends Importvideo {
 		global $wgRequest;
 		$query = $wgRequest->getVal('q');
 		$target = preg_replace('@ @','+',$wgRequest->getVal('target'));
-		$me = Title::makeTitle(NS_SPECIAL, "Importvideo");
+		$me = Title::makeTitle(NS_SPECIAL, "ImportVideo");
 
 		// Previous, Next buttons if necessary
 		$s = "<table width='100%'><tr><td>";
@@ -270,8 +270,8 @@ class ImportvideoYoutube extends Importvideo {
 			$title = Title::makeTitle(NS_VIDEO, $target);
 			$vid = Title::makeTitle(NS_VIDEO, $title->getText());
 			$editSummary = wfMessage('importvideo_addingvideo_summary')->text();
-			Importvideo::updateVideoArticle($vid, $text, $editSummary);
-			Importvideo::updateMainArticle($target, $editSummary);
+			ImportVideo::updateVideoArticle($vid, $text, $editSummary);
+			ImportVideo::updateMainArticle($target, $editSummary);
 			return;
 		}
 

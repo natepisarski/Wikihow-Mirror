@@ -9,11 +9,11 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['UCIPatrol'] = 'UCIPatrol';
-$wgAutoloadClasses['UCIPatrol'] = dirname(__FILE__) . '/UCIPatrol.body.php';
-$wgExtensionMessagesFiles['UCIPatrol'] = dirname(__FILE__) . '/UCIPatrol.i18n.php';
+$wgAutoloadClasses['UCIPatrol'] = __DIR__ . '/UCIPatrol.body.php';
+$wgExtensionMessagesFiles['UCIPatrol'] = __DIR__ . '/UCIPatrol.i18n.php';
 $wgExtensionMessagesFiles['UCIPatrolAliases'] = __DIR__ . '/UCIPatrol.alias.php';
 
-$wgAutoloadClasses['MobileUCIPatrol'] = dirname(__FILE__) . '/MobileUCIPatrol.body.php';
+$wgAutoloadClasses['MobileUCIPatrol'] = __DIR__ . '/MobileUCIPatrol.body.php';
 $wgHooks["IsEligibleForMobileSpecial"][] = array("MobileUCIPatrol::onIsEligibleForMobileSpecial");
 
 $wgLogTypes[] = 'ucipatrol';
@@ -25,7 +25,7 @@ $wgAvailableRights[] = 'ucipatrol';
 $wgResourceModules['ext.wikihow.ucipatrol'] = array(
 	'scripts' => 'ucipatrol.js',
 	'styles' => array( 'ucipatrol.css' ),
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/ucipatrol',
 	'messages' => array(),
 	'position' => 'bottom',
@@ -40,7 +40,7 @@ $wgResourceModules['ext.wikihow.mobile.ucipatrol']['position'] = 'top';
 /*
 CREATE TABLE `image_votes` (
   `iv_pageid` int(8) unsigned NOT NULL,
-  `iv_userid` int(8) NOT NULL,  
+  `iv_userid` int(8) NOT NULL,
   `iv_vote` int(8) NOT NULL,
   `iv_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`iv_pageid`,`iv_userid`)

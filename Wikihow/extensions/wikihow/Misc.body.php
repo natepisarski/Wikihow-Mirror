@@ -116,11 +116,12 @@ class Misc {
 	 * Send a file to the user that forces them to download it.
 	 */
 	public static function outputFile($filename, &$output, $mimeType  = 'text/tsv') {
-		global $wgOut, $wgRequest;
-		$wgOut->setArticleBodyOnly(true);
-		$wgRequest->response()->header('Content-type: ' . $mimeType);
-		$wgRequest->response()->header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"');
-		$wgOut->addHtml($output);
+		$req = RequestContext::getMain()->getRequest();
+		$out = RequestContext::getMain()->getOutput();
+		$out->disable();
+		$req->response()->header('Content-type: ' . $mimeType);
+		$req->response()->header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"');
+		print $output;
 	}
 
 	// Makes a url given a dbkey or page title string
@@ -639,7 +640,7 @@ class Misc {
 	 * @param boolean $flipCss Transform the CSS for right-to-left languages
 	 *
 	 * @example <code>
-	 * $embedStr = Misc::getEmbedFile('css', dirname(__FILE__) . "/startingcss.css");
+	 * $embedStr = Misc::getEmbedFile('css', __DIR__ . "/startingcss.css");
 	 * $outputPage->addHTML('<style>' . $embedStr . '</style>');
 	 * </code>
 	 */
@@ -780,24 +781,27 @@ class Misc {
 	 * @param string  $callback  An optional function name for JSONP
 	 */
 	public static function jsonResponse(array $data, int $code=200, string $callback='') {
-		global $wgOut, $wgRequest;
-
 		$contentType = empty($callback) ? 'application/json' : 'application/javascript';
 
-		$wgRequest->response()->header("Content-type: $contentType");
-		$wgOut->disable();
+		$req = RequestContext::getMain()->getRequest();
+		$req->response()->header("Content-type: $contentType");
+
+		$out = RequestContext::getMain()->getOutput();
+		// NOTE: cannot use setArticleBodyOnly(true) here because it sets content-type
+		// to be text/html every time.
+		$out->disable();
 
 		if ($code != 200) {
 			$message = HttpStatus::getMessage($code);
 			if ($message) {
-				$wgRequest->response()->header("HTTP/1.1 $code $message");
+				$req->response()->header("HTTP/1.1 $code $message");
 			}
 		}
 
 		if (empty($callback)) {
-			echo json_encode($data);
+			print json_encode($data);
 		} else {
-			echo htmlspecialchars($callback) . '(' . json_encode($data) . ')';
+			print htmlspecialchars($callback) . '(' . json_encode($data) . ')';
 		}
 
 	}
@@ -853,8 +857,7 @@ class Misc {
 
 	// Remove all non-alphanumeric characters
 	public static function getSectionName($name) {
-		global $wgLanguageCode;
-		$pattern = $wgLanguageCode == 'en'
+		$pattern = RequestContext::getMain()->getLanguage()->getCode() == 'en'
 			? "/[^A-Za-z0-9]/u"
 			: "/[^\p{L}\p{N}\p{M}]/u";
 		return preg_replace($pattern, '', mb_strtolower($name));
@@ -921,10 +924,10 @@ class Misc {
 	 * returns the redirect target title otherwise
 	 */
 	public static function getCaseRedirect( $title ) {
-		global $wgRequest;
+		$req = RequestContext::getMain()->getRequest();
 		$redir = null;
-		if ($title && $title->getNamespace() == NS_MAIN
-			&& $wgRequest && $wgRequest->getVal('redirect') !== 'no'
+		if ($title && $title->inNamespace(NS_MAIN)
+			&& $req && $req->getVal('redirect') !== 'no'
 		) {
 			$dbr = wfGetDB(DB_SLAVE);
 			$text = Misc::redirectGetFolded( $title->getText() );
@@ -991,10 +994,9 @@ class Misc {
 	 * Send a 404 response and exit()
 	 */
 	public static function exitWith404($msg = "Page not found") {
-		global $wgRequest;
-		$wgRequest->response()->header("HTTP/1.1 404 Not Found");
-		echo $msg;
-		exit();
+		RequestContext::getMain()->getRequest()->response()->header("HTTP/1.1 404 Not Found");
+		print $msg;
+		exit;
 	}
 
 	public static function isAltDomain(): bool {
@@ -1019,7 +1021,7 @@ class Misc {
 		if (!$page_id) return 0;
 
 		$count = wfGetDB(DB_SLAVE)->selectField(
-			'titus_copy',
+			WH_DATABASE_NAME_EN . '.titus_copy',
 			'ti_num_sources_cites',
 			[
 				'ti_language_code' => $lang_code,

@@ -309,7 +309,7 @@ class CustomTitle {
 	 */
 	public static function dbAddRecord(&$dbw, Title $title, int $type) {
 		global $wgMemc;
-		if (!$title || $title->getNamespace() != NS_MAIN) {
+		if (!$title || !$title->inNamespace(NS_MAIN)) {
 			throw new Exception('CustomTitle: bad title for DB call');
 		}
 		$pageid = $title->getArticleId();
@@ -330,7 +330,7 @@ class CustomTitle {
 		int $type = self::TYPE_CUSTOM)
 	{
 		global $wgMemc;
-		if (!$title || $title->getNamespace() != NS_MAIN) {
+		if (!$title || !$title->inNamespace(NS_MAIN)) {
 			throw new Exception('CustomTitle: bad title for DB call');
 		}
 		$pageid = $title->getArticleId();

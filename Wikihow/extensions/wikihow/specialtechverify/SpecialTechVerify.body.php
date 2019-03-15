@@ -143,7 +143,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 			'choosePlatformBottom' => wfMessage( 'stvchooseplatformbottom' )->text(),
 		];
 
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$html = $m->render( 'specialtechverify.main', $vars );
@@ -288,7 +288,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 			//'tool_info' => class_exists( 'ToolInfo' ) ? ToolInfo::getTheIcon( $this->getContext() ) : ''
 		];
 
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
@@ -403,7 +403,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
         $vote = $request->getInt( 'vote' );
         if ( $vote == 0 ) {
             $this->mLogActions[] = 'skip';
-        } else if ( $vote > 0 ) {
+        } elseif ( $vote > 0 ) {
             $this->mLogActions[] = 'vote_up';
         } else {
             $this->mLogActions[] = 'vote_down';
@@ -436,11 +436,11 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 
 		if ( $yes - $no > 1 ) {
 			$approved = true;
-		} else if ( $no - $yes > 1 ) {
+		} elseif ( $no - $yes > 1 ) {
 			$rejected = true;
-		} else if ( $no >= 6 ) {
+		} elseif ( $no >= 6 ) {
 			$rejected = true;
-		} else if ( $totalSkips >= 6 ) {
+		} elseif ( $totalSkips >= 6 ) {
 			$rejected = true;
 		}
 

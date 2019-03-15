@@ -117,7 +117,7 @@ class Spreadsheet extends GoogleSpreadsheet
 					$res->data[$expertName][$type] = []; // Article URLs
 				}
 			}
-			else if (!$skipExpert) { // Article URL
+			elseif (!$skipExpert) { // Article URL
 				$res->data[$expertName][$type][] = $firstCol;
 			}
 		}

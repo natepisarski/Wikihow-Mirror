@@ -48,7 +48,7 @@ class Turker extends UnlistedSpecialPage {
 		fputcsv($fileHandle,$header,',','"');
 		//if data found
 		if ($res) {
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				fputcsv($fileHandle,array($row->workerid,$row->trustscore,$row->wrongc, $row->rightc,$row->rewardtotal,$row->tier,$row->relaxscore,$row->rightr,$row->wrongr,$row->warningmessage,date('Y-m-d H:i:s', strtotime($row->timestamp)),($row->deleted>0?'Yes':'No')),',','"');
 			}
 		}
@@ -93,7 +93,7 @@ class Turker extends UnlistedSpecialPage {
 		fputcsv($fileHandle,$header,',','"');
 		//if data found
 		if ($res) {
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				if ($includeDeleted) {
 					$data = array($row->pageid,$row->workerid, date('Y-m-d H:i:s', strtotime($row->creationtime)),$row->hitgroupid,$row->hittypeid,$row->reward,($row->hitreviewed>0?'Yes':'No'),$row->algoscore,$row->algorating,
 									$row->turkrating,$row->turksatisfying, $row->turktext,$row->hitid,$row->revision,
@@ -124,10 +124,10 @@ class Turker extends UnlistedSpecialPage {
 		if (isset($posted_values['excludeTest'])) {
 			$excludeTest = True;
 		}
-		if(isset($posted_values['includeDeleted'])) {
+		if (isset($posted_values['includeDeleted'])) {
 			$includeDeleted = True;
 		}
-		if(isset($posted_values['onlyTest'])) {
+		if (isset($posted_values['onlyTest'])) {
 			$onlyTest = True;
 		}
 
@@ -184,7 +184,7 @@ class Turker extends UnlistedSpecialPage {
 				$condSet = true;
 			}
 			if ($posted_values['hitStatus'] !='All') {
-					if($posted_values['hitStatus']=='All Reviewed') {
+					if ($posted_values['hitStatus']=='All Reviewed') {
 						$conds[] = "hitreviewed =1";
 						$fileName =$fileName."_hitstatus_All_reviewed";
 					} else {
@@ -198,7 +198,7 @@ class Turker extends UnlistedSpecialPage {
 				$fileName =$fileName. "_worker_".$posted_values['workerid'];
 				$condSet = true;
 			}
-			if($condSet) {
+			if ($condSet) {
 				//save data
 				$this->SaveData($excludeTest,$includeDeleted,$onlyTest,$conds,$fileName);
 			}else{
@@ -211,7 +211,7 @@ class Turker extends UnlistedSpecialPage {
 	function ProcessUpload($uploadfile,$radio,$userName) {
 
 		//Check file for format and save it to the local dir
-		if(!file_exists($uploadfile) || !is_readable($uploadfile)) {
+		if (!file_exists($uploadfile) || !is_readable($uploadfile)) {
 			self::$errors[] = 'Could not find file. File not uploaded.';
 			return 'Bad File' ;
 		}
@@ -333,7 +333,7 @@ class Turker extends UnlistedSpecialPage {
 		$userGroups = $wgUser->getGroups();
 		if ($userName!='Rjsbhatia') {
 			if ($wgUser->isBlocked() || !(in_array('staff', $userGroups))) {
-				$wgOut->setRobotpolicy('noindex,nofollow');
+				$wgOut->setRobotPolicy('noindex,nofollow');
 				$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 				return;
 			}
@@ -349,10 +349,10 @@ class Turker extends UnlistedSpecialPage {
 		if ($wgRequest->getVal('keyword')) {
 			$this->ProcessKeywordQuery($wgRequest->getValues());
 		}
-		else if ($wgRequest->getVal('worker')) {
+		elseif ($wgRequest->getVal('worker')) {
 			$this->processWorkerRequest($wgRequest->getValues());
 		}
-		else if ($wgRequest->getVal('upload')) {
+		elseif ($wgRequest->getVal('upload')) {
 			$radio = $wgRequest->getVal('settype');
 			if (empty($radio)) {
 				self::$errors[] = 'Data set type not selected<br/>';

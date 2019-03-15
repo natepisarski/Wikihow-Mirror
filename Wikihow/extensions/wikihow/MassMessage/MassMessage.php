@@ -59,7 +59,7 @@ $wgExtensionCredits['specialpage'][] = array(
 	'descriptionmsg' => 'massmessage-desc',
 	'version' => '0.0.1',
 );
-$dir = dirname( __FILE__ );
+$dir = __DIR__;
 
 $wgSpecialPages['MassMessage'] = 'SpecialMassMessage';
 $wgExtensionMessagesFiles['MassMessage'] = "$dir/MassMessage.i18n.php";

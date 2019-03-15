@@ -58,7 +58,7 @@ class ImageTransfer {
 	 * @param altImageTags Language specific image tags
 	 */
 	public static function getImageRegex($altImageTags = array(), $matchSpaces=false) {
-		if($matchSpaces) {
+		if ($matchSpaces) {
 			$regex = "@\s*";
 		}
 		else {
@@ -66,10 +66,10 @@ class ImageTransfer {
 		}
 		$regex .= "(\[\[ *Image:[^\]]* *\]\]|\{\{ *largeimage\|[^\}]* *\}\}|\{\{ *whvid\|[^\}]* *\}\}";
 
-		foreach($altImageTags as $altImageTag) {
+		foreach ($altImageTags as $altImageTag) {
 			$regex .= "|\[\[ *" . preg_quote($altImageTag) . ":[^\]]* *\]\]";
 		}
-		if($matchSpaces) {
+		if ($matchSpaces) {
 			$regex .= ")\s*@im";
 		}
 		else {
@@ -82,7 +82,7 @@ class ImageTransfer {
 	 */
 	public function insert() {
 		global $wgDBname;
-		if($wgDBname != self::DB_NAME) {
+		if ($wgDBname != self::DB_NAME) {
 			throw new Exception("ImageTransfer::insert must be run from the language where its database is stored: $wgDBname!= ". self::DB_NAME);
 		}
 		$dbw = wfGetDB(DB_MASTER);
@@ -103,7 +103,7 @@ class ImageTransfer {
 		$dbw = wfGetDB(DB_MASTER);
 		$this->error = $error;
 		$sql = "update " . self::DB_NAME . "." . self::TABLE_NAME . " SET itj_error=" . $dbw->addQuotes($this->error) . " WHERE itj_from_lang=" . $dbw->addQuotes($this->fromLang) . " AND itj_from_aid=" . $dbw->addQuotes($this->fromAID) . " AND itj_to_lang=" . $dbw->addQuotes($this->toLang) . " AND itj_to_aid=" . $dbw->addQuotes($this->toAID);
-		if(!$dryRun) {
+		if (!$dryRun) {
 			$dbw->query($sql, __METHOD__);
 		}
 		else {
@@ -118,11 +118,11 @@ class ImageTransfer {
 		$dbw = wfGetDB(DB_MASTER);
 		$this->timeFinished = wfTimestampNow();
 		print "\n\nImage transfer run successfully at " . $this->timeFinished;
-		if(sizeof($this->warnings) != '') {
+		if (sizeof($this->warnings) != '') {
 			$this->error = 'Warning(s): ' . implode(',', $this->warnings) . '. Images were still transferred where possible.';
 		}
 		$sql = "update " . self::DB_NAME . "." . self::TABLE_NAME . " SET itj_time_finished=" . $dbw->addQuotes($this->timeFinished) . ",itj_warnings=" . $dbw->addQuotes($warnings) . " WHERE itj_from_lang=" . $dbw->addQuotes($this->fromLang) . " AND itj_from_aid=" . $dbw->addQuotes($this->fromAID) . " AND itj_to_lang=" . $dbw->addQuotes($this->toLang) . " AND itj_to_aid=" . $dbw->addQuotes($this->toAID);
-		if(!$dryRun) {
+		if (!$dryRun) {
 			$dbw->query($sql, __METHOD__);
 		}
 		else {
@@ -162,7 +162,7 @@ class ImageTransfer {
 
 		$res = $dbr->query($sql, __METHOD__);
 		$its = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$its[] = self::newFromRow($row);
 		}
 		return($its);
@@ -178,31 +178,31 @@ class ImageTransfer {
 		$from=Alfredo::fetchPage($this->fromLang, $this->fromAID);
 		$to=Alfredo::fetchPage($this->toLang, $this->toAID);
 
-		if(!isset($this->fromLang) || !isset($this->fromAID) || !isset($this->toLang) || !isset($this->toAID)) {
+		if (!isset($this->fromLang) || !isset($this->fromAID) || !isset($this->toLang) || !isset($this->toAID)) {
 			$this->reportError("Articles not set", $dryRun);
 			return(false);
 		}
-		if($this->toAID == 0) {
+		if ($this->toAID == 0) {
 			$this->reportError("No translation link found to article in " . $this->toLang, $dryRun);
 			return(false);
 		}
-		if(!$from) {
+		if (!$from) {
 			$this->reportError("Unable to fetch linked-from article",  $dryRun);
 			return(false);
 		}
-		if(!isset($from['steps']) || $from['steps']=='') {
+		if (!isset($from['steps']) || $from['steps']=='') {
 			$this->reportError("Unable to parse out from article", $dryRun);
 			return(false);
 		}
-		if(!$to) {
+		if (!$to) {
 			$this->reportError("Unable to fetch linked-to article", $dryRun);
 			return(false);
 		}
-		if(!isset($to['steps']) || $to['steps']=='') {
+		if (!isset($to['steps']) || $to['steps']=='') {
 			$this->reportError("Unable to parse out steps from article", $dryRun);
 			return(false);
 		}
-		if(self::haveSameImages($from['steps'], $to['steps'], array_merge($from['altImageTags'], $to['altImageTags'])) && self::haveSameImages($from['intro'], $to['intro']) ) {
+		if (self::haveSameImages($from['steps'], $to['steps'], array_merge($from['altImageTags'], $to['altImageTags'])) && self::haveSameImages($from['intro'], $to['intro']) ) {
 			$this->reportError("Translated from and translated to articles have same images", $dryRun);
 			return(false);
 		}
@@ -210,33 +210,33 @@ class ImageTransfer {
 		$token = Misc::genRandomString();
 
 		$templates = self::getImageTemplatesFromSteps($from['steps'], $token);
-		if(!$templates) {
+		if (!$templates) {
 			$this->reportError("Unable to generate template from article, no steps images or steps section not found", $dryRun);
 			return(false);
 		}
 		$badSubsteps = 0;
-		foreach($templates as $template) {
-			if($template == '') {
+		foreach ($templates as $template) {
+			if ($template == '') {
 				$badSubsteps++;
 			}
 		}
-		if($badSubsteps > 0) {
+		if ($badSubsteps > 0) {
 			$this->reportWarning("There are $badSubsteps steps or substeps, where image templates are unparsable");
 		}
 
 		$introTemplate = self::getIntroTemplate($from['intro'], $token);
-		if($introTemplate == '') {
+		if ($introTemplate == '') {
 			$this->reportWarning("Unable to parse intro template");
 		}
 		$newToSteps = self::replaceStepsImages($to['steps'], $templates, $token, $to['altImageTags']);
-		if(!$newToSteps) {
+		if (!$newToSteps) {
 			$this->reportError("Steps don't match", $dryRun);
 			return(false);
 		}
-		if(preg_match("@<\s*center\s*>|<\s*font\s*>@mi", $from['intro'])) {
+		if (preg_match("@<\s*center\s*>|<\s*font\s*>@mi", $from['intro'])) {
 			$this->reportWarning("Font and center tag are unsupported in intro");
 		}
-		if(preg_match("@<\s*center\s*>|<\s*font\s*>@mi", $from['steps'])) {
+		if (preg_match("@<\s*center\s*>|<\s*font\s*>@mi", $from['steps'])) {
 			$this->reportWarning("Font and center tag are unsupported in steps");
 		}
 
@@ -244,7 +244,7 @@ class ImageTransfer {
 		$newIntro = self::replaceIntroImages($to['intro'], $introTemplate, $token, $to['altImageTags']);
 
 		$t = Title::newFromId($this->toAID);
-		if(!$t || !$t->exists()) {
+		if (!$t || !$t->exists()) {
 			print("Title not found for ". $wgLanguageCode . $this->toLang . ":" . $this->toAID);
 			$this->reportError("Title not found", $dryRun);
 			return false;
@@ -253,26 +253,26 @@ class ImageTransfer {
 		$article = new Article($t);
 		$intialText = $r->getText();
 		$text = $r->getText();
-		if(preg_match("@" . preg_quote($to['steps'],"@") .  "@", $text)) {
+		if (preg_match("@" . preg_quote($to['steps'],"@") .  "@", $text)) {
 			$text = preg_replace_callback("@\s*" . preg_quote($to['steps'],  '@') . "\s*@",function($matches) use($newToSteps)
 			{
 				return("\n" . $newToSteps . "\n");
 			}, $text);
 
 			// Ensure we have a real intro before doing replacement
-			if(strlen($to['intro']) > 10) {
+			if (strlen($to['intro']) > 10) {
 				$text = preg_replace_callback("@\s*" . preg_quote($to['intro'],'@') . "\s*@",function($matches) use($newIntro) {
 					return($newIntro . "\n");
 				}, $text);
 			}
-			if($text == $initialText) {
+			if ($text == $initialText) {
 				$this->reportError("Alfredo doesn't change article", $dryRun);
 				return false;
 			}
-			if($text) {
+			if ($text) {
 				print("Article from http://" . $wgLanguageCode . ".wikihow.com/" . $t->getPartialURL() . " was edited to:\n\n" . $text);
 
-				if(!$dryRun) {
+				if (!$dryRun) {
 					$article->doEdit($text, wfMessage('alfredo-editsummary'));
 					print("\n\nMade edit");
 				}
@@ -301,8 +301,8 @@ class ImageTransfer {
 
 		//We ignore wiki-templates besides {{largeimage}} when creating our template pattern
 		$numMatches = preg_match_all('@(\s*\{\{[^}]*\}\}\s*|\s*\[\[Category:[^\]]+\]\])@im',$emptyIntro,$matches);
-		if($numMatches > 0) {
-			for($n=1;$n <= $numMatches;$n++) {
+		if ($numMatches > 0) {
+			for ($n=1;$n <= $numMatches;$n++) {
 				$intro = str_replace($matches[$n], '', $intro);
 				$emptyIntro = str_replace($matches[$n], '', $emptyIntro);
 			}
@@ -316,13 +316,13 @@ class ImageTransfer {
 		// Also, remove any caption from image
 		$template = preg_replace_callback(self::getImageRegex(),function($matches) use($token,$emptyStep) {
 				// Remove caption only from image tags, but not largeimage template
-				if(preg_match('@\[\[\s*Image\s*@', $matches[0])) {
+				if (preg_match('@\[\[\s*Image\s*@', $matches[0])) {
 					$matches[0] = Wikitext::removeImageCaption($matches[0]);
 				}
 				return(str_replace($token, $emptyStep, $matches[0]));
 			}, $template);
 
-		if(!preg_match('@' . preg_quote($token) . '@', $template) || (strlen($template) < 6)) {
+		if (!preg_match('@' . preg_quote($token) . '@', $template) || (strlen($template) < 6)) {
 			return('');
 		}
 		else {
@@ -347,10 +347,10 @@ class ImageTransfer {
 		$sections = preg_split("@[\r\n]\s*===@", $stepsText);
 		$emptyStep = "";
 
-		foreach($sections as $section) {
+		foreach ($sections as $section) {
 
 			$steps = preg_split("@[\r\n]+#@", $section);
-			if(count($steps) > 1) {
+			if (count($steps) > 1) {
 				for ($i = 1; $i < count($steps); $i++) {
 					$haveImage = false;
 					//Ignore sub-sections for calculating steps info
@@ -365,7 +365,7 @@ class ImageTransfer {
 					//Remove leading and trailing whitespace
 					$emptyStep = preg_replace('@^\s+@','',$emptyStep);
 					$emptyStep = preg_replace('@\s+$@','',$emptyStep);
-					if($emptyStep != '') {
+					if ($emptyStep != '') {
 						//Change step to token
 						$template = str_replace($emptyStep,$token, $steps[$i]);
 
@@ -373,7 +373,7 @@ class ImageTransfer {
 						$template = preg_replace_callback(self::getImageRegex(),function($matches) use($token,$emptyStep) {
 
 							// Remove thumbnail text, and mark if we have found an image
-							if(preg_match('@\[\[\s*Image\s*@', $matches[0])) {
+							if (preg_match('@\[\[\s*Image\s*@', $matches[0])) {
 								$haveImage = true;
 								$matches[0] = Wikitext::removeImageCaption($matches[0]);
 							}
@@ -381,8 +381,8 @@ class ImageTransfer {
 							return(str_replace($token, $emptyStep, $matches[0]));
 						}, $template);
 
-						if($template == $steps[$i]) {
-							if($haveImage) {
+						if ($template == $steps[$i]) {
+							if ($haveImage) {
 								$stepTemplates[$stepNum] = '';
 							}
 							else {
@@ -400,11 +400,11 @@ class ImageTransfer {
 				}
 			}
 		}
-		if($numImages == 0) {
+		if ($numImages == 0) {
 			return(false);
 		}
 		//Check for finished step, which was created from intro image
-		if(preg_match("@^Finished\.@", $emptyStep)) {
+		if (preg_match("@^Finished\.@", $emptyStep)) {
 			$stepTemplates[$stepNum - 1] = str_replace($token, self::getFinishedToken($token), $stepTemplates[$stepNum - 1]);
 		}
 		return($stepTemplates);
@@ -432,7 +432,7 @@ class ImageTransfer {
 		$introText = preg_replace('@== ([^\s]+) ==\s+@',"== \\1 ==\n", $introText);
 		$introText = preg_replace('@[\s]+$@','\n',$introText);
 		$introText = chop($introText);
-		if($introTemplate == '') {
+		if ($introTemplate == '') {
 			return($introText);
 		}
 		else {
@@ -473,7 +473,7 @@ class ImageTransfer {
 		$txt = "";
 
 		$sectionNum = 0;
-		foreach($sections as $section) {
+		foreach ($sections as $section) {
 			$steps = preg_split('@[\r\n]+#@m', $section);
 			//Clean up newline characters, add back === and add headings
 			//Remove images from before steps
@@ -481,7 +481,7 @@ class ImageTransfer {
 			$steps[0] = preg_replace('@^\s+@',"", $steps[0]);
 			$steps[0] = chop($steps[0]);
 
-			if($sectionNum != 0) {
+			if ($sectionNum != 0) {
 				$steps[0] = preg_replace("@(===+)\s*@","$1\n", $steps[0]);
 				$txt .= "\n===" . $steps[0] . "\n";
 			}
@@ -490,8 +490,8 @@ class ImageTransfer {
 				$txt .= "\n" . $steps[0] . "\n";
 			}
 
-			if(sizeof($steps) > 1) {
-				for($i=1; $i < sizeof($steps); $i++) {
+			if (sizeof($steps) > 1) {
+				for ($i=1; $i < sizeof($steps); $i++) {
 					$steps[$i] = "#" . chop($steps[$i]);
 
 					if (substr($steps[$i], 0, 2) !== '#*') { // Skip substeps: '#*...'
@@ -512,7 +512,7 @@ class ImageTransfer {
 			}
 			$sectionNum++;
 		}
-		if($addFinishedStep) {
+		if ($addFinishedStep) {
 			$txt .=  "\n" . str_replace($finishedToken, wfMessage('finished'), end($stepTemplates));
 		}
 
@@ -551,19 +551,19 @@ class ImageTransfer {
 	public static function haveSameImages($a, $b, $altImageTags = array()) {
 		preg_match_all(self::getImageRegex($altImageTags), $a, $matches);
 		preg_match_all(self::getImageRegex($altImageTags), $b, $matches2);
-		if(sizeof($matches) != sizeof($matches2)) {
+		if (sizeof($matches) != sizeof($matches2)) {
 			return(false);
 		}
-		for($n=0; $n < sizeof($matches); $n++) {
-			if(is_array($matches[$n])) {
-				if(sizeof($matches[$n]) != sizeof($matches2[$n])) {
+		for ($n=0; $n < sizeof($matches); $n++) {
+			if (is_array($matches[$n])) {
+				if (sizeof($matches[$n]) != sizeof($matches2[$n])) {
 					return(false);
 				}
-				for($m=0; $m < sizeof($matches[$n]); $m++) {
+				for ($m=0; $m < sizeof($matches[$n]); $m++) {
 				 	$matches[$n][$m] = Wikitext::removeImageCaption($matches[$n][$m]);
 					$matches2[$n][$m] = Wikitext::removeImageCaption($matches2[$n][$m]);
 
-					if($matches[$n][$m] != $matches2[$n][$m]) {
+					if ($matches[$n][$m] != $matches2[$n][$m]) {
 						return(false);
 					}
 				}
@@ -572,7 +572,7 @@ class ImageTransfer {
 			 	$matches[$n][$m] = Wikitext::removeImageCaption($matches[$n][$m]);
 				$matches2[$n][$m] = Wikitext::removeImageCaption($matches2[$n][$m]);
 
-				if($matches[$n] != $matches2[$n]) {
+				if ($matches[$n] != $matches2[$n]) {
 					return(false);
 				}
 			}
@@ -603,17 +603,17 @@ class ImageTransfer {
 		$urls = array();
 		$ret = array();
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$urls[] = $row->iti_from_url;
 			$ret[$row->iti_creator][] = $row->iti_from_url;
 		}
-		if(!empty($urls)) {
+		if (!empty($urls)) {
 			$dbw = wfGetDB(DB_MASTER);
 			$sql = 'UPDATE ' . self::DB_NAME . '.image_transfer_invalids
 					SET iti_time_finished=' . $dbw->addQuotes(wfTimestampNow()) . '
 					WHERE iti_to_lang=' . $dbw->addQuotes($language) . '
 					AND iti_from_url in (' . $dbw->makeList($urls) . ')' ;
-			if(!$dryRun) {
+			if (!$dryRun) {
 				$dbw->query($sql, __METHOD__);
 			}
 			else {

@@ -22,16 +22,16 @@ class DedupQuery {
 	 * Fetch a query from Bing, and save in the database for Dedup query matching
 	 */
 	public static function fetchQuery($query, $ts) {
-		if(!$query) {
+		if (!$query) {
 			return;
 		}
 		$dbr = wfGetDB(DB_SLAVE);
 		$sql = "select min(ql_time_fetched) as ts from dedup.query_lookup where ql_query=" . $dbr->addQuotes($query);
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$oldTs = $row->ts;
 		}
-		if($oldTs > $ts) {
+		if ($oldTs > $ts) {
 			$dbw = wfGetDB(DB_MASTER);
 			wfDebugLog('dedup', "Fetched result from db: $query");
 			$sql = "insert into dedup.query_lookup_log(qll_query, qll_result, qll_timestamp) values(" . $dbw->addQuotes($query) . "," . $dbw->addQuotes("exists") . "," . $dbw->addQuotes(wfTimestampNow()) . ")";
@@ -70,7 +70,7 @@ class DedupQuery {
 			) {
 				$n = 0;
 				$dbw = wfGetDB(DB_MASTER);
-				foreach($results->bossresponse->web->results as $result) {
+				foreach ($results->bossresponse->web->results as $result) {
 					$n++;
 					$sql = "insert into dedup.query_lookup(ql_query,ql_url,ql_pos,ql_time_fetched) values(" . $dbw->addQuotes($query) . "," . $dbw->addQuotes($result->url) . "," . $dbw->addQuotes($n) . "," . $dbw->addQuotes(wfTimestampNow()) . ") on duplicate key update ql_pos=" . $dbw->addQuotes($n) . ", ql_time_fetched=" . $dbw->addQuotes(wfTimestampNow());
 					$dbw->query($sql, __METHOD__);
@@ -109,16 +109,16 @@ class DedupQuery {
 	 * @param lang Language of the title to add
 	 */
 	public static function addTitle($title, $lang) {
-		if(!$title) {
+		if (!$title) {
 			return("");
 		}
 		$titleText = $title->getText();
-		if(!$titleText) {
+		if (!$titleText) {
 			return("");
 		}
 		$pageId = $title->getArticleID();
 		$query = self::getQueryFromTitleText($titleText);
-		if(!$query) {
+		if (!$query) {
 			return("");
 		}
 		self::fetchQuery($query, wfTimestamp(TS_MW, time() - self::SEARCH_REFRESH_INTERVAL));
@@ -126,12 +126,12 @@ class DedupQuery {
 		$sql = "select count(*) as ct from dedup.title_query where tq_title=" . $dbr->addQuotes($titleText);
 		$res = $dbr->query($sql, __METHOD__);
 		$ct = 0;
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$ct = $row->ct;
 		}
 		$dbw = wfGetDB(DB_MASTER);
 
-		if($ct == 0) {
+		if ($ct == 0) {
 			$sql = "insert into dedup.title_query(tq_page_id,tq_lang,tq_title,tq_query) values(" . $dbw->addQuotes($title->getArticleID()) . "," . $dbw->addQuotes($lang) . "," . $dbw->addQuotes($titleText) . "," . $dbw->addQuotes($query) . ")";
 			$dbw->query($sql, __METHOD__);
 			$sql = "insert into dedup.title_update_log(tul_title, tul_lang, tul_page_id, tul_page_action, tul_timestamp) values(" . $dbw->addQuotes($titleText) . "," . $dbw->addQuotes($lang) . "," . $dbw->addQuotes($pageId) . "," . $dbw->addQuotes('a') . "," . $dbw->addQuotes(wfTimestampNow()) . ")";
@@ -154,7 +154,7 @@ class DedupQuery {
 		$pageId = 0;
 		$pageLang = "en";
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pageLang = $row->tq_lang;
 			$pageId = $row->tq_page_id;
 		}
@@ -180,7 +180,7 @@ class DedupQuery {
 	public static function matchQueries($queries) {
 		$dbr = wfGetDB(DB_SLAVE);
 		$queriesN = array();
-		foreach($queries as $query) {
+		foreach ($queries as $query) {
 			$queriesN[] = $dbr->addQuotes($query);
 		}
 		$dbw = wfGetDB(DB_MASTER);
@@ -197,7 +197,7 @@ class DedupQuery {
 			$sql = "select cl_to, sum(ct) as score from categorylinks join dedup.title_query on tq_page_id=cl_from and tq_lang='en' join dedup.query_match on tq_query=query2 and tq_query<>query1 where query1=" . $dbr->addQuotes($query) . " group by cl_to order by score desc";
 			$res = $dbr->query($sql, __METHOD__);
 			$cats = array();
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				$cats[] = array('cat' => $row->cl_to, 'score' => $row->score);
 			}
 			return($cats);
@@ -211,16 +211,16 @@ class DedupQuery {
 
 		$dbr = wfGetDB(DB_SLAVE);
 		$query = DedupQuery::addTitle($title, $wgLanguageCode);
-		if(!$query) {
+		if (!$query) {
 			return(array());
 		}
 		$sql = "select query1, query2, ct, tq_page_id from dedup.query_match join dedup.title_query on tq_query=query2 where query1 =" . $dbr->addQuotes($query) . " and query1<> query2 order by query1, ct desc";
 		$res = $dbr->query($sql, __METHOD__);
 		$titles = array();
-		foreach($res as $row) {
-			if($row->ct >= $minScore) {
+		foreach ($res as $row) {
+			if ($row->ct >= $minScore) {
 				$t = Title::newFromId($row->tq_page_id);
-				if($t) {
+				if ($t) {
 					$titles[] = array('title' => $t, 'ct' =>$row->ct);
 				}
 			}

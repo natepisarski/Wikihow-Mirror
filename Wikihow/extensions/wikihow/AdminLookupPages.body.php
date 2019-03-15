@@ -2,26 +2,27 @@
 
 class AdminLookupNab extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('AdminLookupNab');
 	}
-	
-	function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
 
-		//$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() /*|| !in_array('staff', $userGroups)*/) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		//$userGroups = $user->getGroups();
+		if ($user->isBlocked() /*|| !in_array('staff', $userGroups)*/) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
-		
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			$dbr = wfGetDB(DB_SLAVE);
 
-			$pageList = $wgRequest->getVal('pages-list', '');
-			$wgOut->setArticleBodyOnly(true);
+			$pageList = $req->getVal('pages-list', '');
+			$out->setArticleBodyOnly(true);
 			$pageList = preg_split('@[\r\n]+@', $pageList);
 			foreach ($pageList as $url) {
 				$url = trim($url);
@@ -29,13 +30,13 @@ class AdminLookupNab extends UnlistedSpecialPage {
 				if (!empty($pagename)) {
 					$t = Title::newFromURL($pagename);
 					if (!empty($t)) {
-						$is_nabbed = Newarticleboost::isNABbed($dbr,$t->getArticleId());
+						$is_nabbed = NewArticleBoost::isNABbed($dbr,$t->getArticleId());
 						if ($is_nabbed) {
 							$nabbed = 'yes';
 						}
 						else {
 							$nabbed = 'no';
-							$nabbed .= '<br />[<a href="./Special:Newarticleboost/'.$pagename.'" target="_blank">boost it</a>]';
+							$nabbed .= '<br />[<a href="/Special:NewArticleBoost/'.$pagename.'" target="_blank">boost it</a>]';
 						}
 					}
 					$urls[] = array('url' => $url, 'id' => $t->getArticleId(), 'boosted' => $nabbed);
@@ -53,17 +54,16 @@ class AdminLookupNab extends UnlistedSpecialPage {
 			print json_encode($result);
 			return;
 		}
-		
-		
-		$wgOut->setHTMLTitle('Admin - Lookup NAB - wikiHow');
-		$wgOut->addStyle('../extensions/wikihow/adminlookup.css?rev='. WH_SITEREV);
-		
+
+
+		$out->setHTMLTitle('Admin - Lookup NAB - wikiHow');
+		$out->addStyle('../extensions/wikihow/adminlookup.css?rev='. WH_SITEREV);
+
 		$tmpl = AdminLookupPages::getGuts('AdminLookupNab');
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
-	
-	
+
 	/**
 	 * Given a URL, give back the page title
 	 */
@@ -79,28 +79,30 @@ class AdminLookupNab extends UnlistedSpecialPage {
 
 class AdminLookupPages extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('AdminLookupPages');
 	}
 
 	/**
 	 * Execute special page.  Only available to wikihow staff.
 	 */
-	function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		//$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() /*|| !in_array('staff', $userGroups)*/) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		//$userGroups = $user->getGroups();
+		if ($user->isBlocked() /*|| !in_array('staff', $userGroups)*/) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			$dbr = wfGetDB(DB_SLAVE);
 
-			$pageList = $wgRequest->getVal('pages-list', '');
-			$wgOut->setArticleBodyOnly(true);
+			$pageList = $req->getVal('pages-list', '');
+			$out->setArticleBodyOnly(true);
 			$pageList = preg_split('@[\r\n]+@', $pageList);
 			foreach ($pageList as $url) {
 				$url = trim($url);
@@ -127,14 +129,14 @@ class AdminLookupPages extends UnlistedSpecialPage {
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Lookup Pages - wikiHow');
+		$out->setHTMLTitle('Admin - Lookup Pages - wikiHow');
 
 		$tmpl = self::getGuts('AdminLookupPages');
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
-		
-	function getGuts($action) {			
+
+	public function getGuts($action) {
 		return "<form method='post' action='/Special:$action'>
 		<h4>Enter a list of URLs such as <code>http://www.wikihow.com/Lose-Weight-Fast</code> to look up.  One per line.</h4>
 		<br/>

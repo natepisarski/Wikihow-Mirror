@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use __;
 use ActiveRecord\DateTime;

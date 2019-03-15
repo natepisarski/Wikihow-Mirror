@@ -11,9 +11,9 @@ $wgExtensionCredits['api'][] = array(
 );
 
 $wgAutoloadClasses['ApiSmsListing'] =
-	dirname(__FILE__) . '/ApiSmsListing.body.php';
+	__DIR__ . '/ApiSmsListing.body.php';
 $wgAutoloadClasses['CategoryLister'] =
-	dirname(__FILE__) . '/ApiSmsListing.body.php';
+	__DIR__ . '/ApiSmsListing.body.php';
 $wgAPIModules['smslisting'] = 'ApiSmsListing';
 
 

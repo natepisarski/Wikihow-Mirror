@@ -2,19 +2,19 @@
 
 class Sitemap extends SpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'Sitemap' );
 	}
 
-	function getTopLevelCategories() {
+	private function getTopLevelCategories() {
 		global $wgCategoriesArticle;
 		$results = array ();
-		$title = Categoryhelper::getCategoryTreeTitle();
+		$title = CategoryHelper::getCategoryTreeTitle();
 		$revision = Revision::newFromTitle($title);
 		if (!$revision) return $results;
 
 		// INTL: If there is a redirect to a localized page name, follow it
-		if(strpos($revision->getText(), "#REDIRECT") !== false) {
+		if (strpos($revision->getText(), "#REDIRECT") !== false) {
 			$revision = Revision::newFromTitle( Title::newFromRedirect($revision->getText()));
 		}
 
@@ -40,7 +40,7 @@ class Sitemap extends SpecialPage {
 		return $subcats;
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		global $wgUser;
 		$out = $this->getOutput();
 		$out->setRobotPolicy('noindex,follow');
@@ -102,4 +102,3 @@ class Sitemap extends SpecialPage {
 	}
 
 }
-

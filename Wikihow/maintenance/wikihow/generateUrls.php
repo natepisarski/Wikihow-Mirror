@@ -134,7 +134,7 @@ class GenerateURLsMaintenance {
 	static function listCategories($titlesOnly) {
 		$epoch = wfTimestamp( TS_MW, strtotime('January 1, 2010') );
 
-		$ch = new Categoryhelper();
+		$ch = new CategoryHelper();
 		$tree = $ch->getCategoryTreeArray();
 		unset($tree['WikiHow']);
 		$list = [];

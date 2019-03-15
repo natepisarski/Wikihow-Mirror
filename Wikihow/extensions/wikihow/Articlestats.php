@@ -1,9 +1,9 @@
 <?php
 
 if ( ! defined( 'MEDIAWIKI' ) ) die();
-    
+
 /**#@+
- * 
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *

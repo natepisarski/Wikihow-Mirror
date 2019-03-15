@@ -29,7 +29,7 @@ class TechArticleStampHooks {
 	public static function setBylineInfo( &$verifiers, $pageId) {
 		if (!class_exists('TechArticle\TechArticle')) return true; // EN-only
 		$techArticle = TechArticle::newFromDB($pageId);
-		if($techArticle->isFullyTested()) {
+		if ($techArticle->isFullyTested()) {
 			$verifiers[\SocialProofStats::VERIFIER_TYPE_TECH] = true;
 		}
 

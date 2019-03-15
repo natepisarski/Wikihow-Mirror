@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'EditFinder',
 	'author' => 'Scott Cushman',
@@ -9,8 +9,8 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['EditFinder'] = 'EditFinder';
-$wgAutoloadClasses['EditFinder'] = dirname( __FILE__ ) . '/EditFinder.body.php';
-$wgExtensionMessagesFiles['EditFinder'] = dirname(__FILE__) . '/EditFinder.i18n.php';
+$wgAutoloadClasses['EditFinder'] = __DIR__ . '/EditFinder.body.php';
+$wgExtensionMessagesFiles['EditFinder'] = __DIR__ . '/EditFinder.i18n.php';
 
 $wgLogTypes[] = 'EF_format';
 $wgLogNames['EF_format'] = 'editfinder_format';
@@ -48,7 +48,7 @@ $wgResourceModules['ext.wikihow.greenhouse'] = array(
 		'gh_interests'
 	),
 	'dependencies' => 'jquery.ui.dialog',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/editfinder',
 	'position' => 'bottom',
 	'targets' => array( 'desktop', 'mobile' )
@@ -56,7 +56,7 @@ $wgResourceModules['ext.wikihow.greenhouse'] = array(
 
 $wgResourceModules['ext.wikihow.greenhouse.styles'] = array(
 	'styles' => 'editfinder.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/editfinder',
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' )

@@ -4,10 +4,10 @@ class DesktopTabs extends Tabs {
 
 	public static function modifyDOM() {
 		global $wgTitle, $wgOut, $wgRequest;
-		if(!self::isTabArticle($wgTitle, $wgOut)) {
+		if (!self::isTabArticle($wgTitle, $wgOut)) {
 			return;
 		}
-		if($wgRequest->getVal('action', 'view') != 'view' || $wgRequest->getVal( 'diff' ) ) {
+		if ($wgRequest->getVal('action', 'view') != 'view' || $wgRequest->getVal( 'diff' ) ) {
 			return;
 		}
 
@@ -29,29 +29,29 @@ class DesktopTabs extends Tabs {
 		$tabHtml = "";
 		$defaultIndex = -1;
 		$minClasses = "desktop_tab tabs".count($tabInfo);
-		foreach($tabInfo as $index => $info) {
+		foreach ($tabInfo as $index => $info) {
 			$class = $minClasses;
-			if($info['classes'] != "default") {
+			if ($info['classes'] != "default") {
 				pq($info['classes'])->removeClass("tab_default")->addClass("tab_{$index} tabbed_content");
 			} else {
 				$class .= " desktop_tab_default";
 				$defaultIndex = $index;
 			}
-			if($index == 0) {
+			if ($index == 0) {
 				$class .= " first active";
 			} else {
 				$class .= " inactive";
 			}
 
 			$countString = "";
-			if(array_key_exists("count", $info)) {
+			if (array_key_exists("count", $info)) {
 				$count = pq($info['count'])->length;
 				$countString = wfMessage("dt_count", $count)->text();
 			}
 
 			$tabHtml .= "<a href='#' id='desktop_tab_{$index}' class='{$class}'>" . wfMessage($info['label'], $countString)->text() . "</a>";
 		}
-		if($defaultIndex != -1) {
+		if ($defaultIndex != -1) {
 			pq(".tab_default")->addClass("tab_{$defaultIndex}");
 		}
 
@@ -73,11 +73,11 @@ class DesktopTabs extends Tabs {
 		$headings = explode("\n", $headingsList);
 
 		$summaryId = "";
-		if($headingsList != "") { //we only want to do this if we've defined the summary sections for this language
+		if ($headingsList != "") { //we only want to do this if we've defined the summary sections for this language
 			foreach ($headings as $heading) {
 				$headingText = WikihowArticleHTML::canonicalizeHTMLSectionName(Misc::getSectionName($heading));
 
-				if(pq(".".$headingText)->length > 0) {
+				if (pq(".".$headingText)->length > 0) {
 					//move the summary section to the bottom of the steps
 					pq(".steps:last")->after(pq("." . $headingText));
 					//put an anchor tag before it
@@ -93,7 +93,7 @@ class DesktopTabs extends Tabs {
 		}
 
 		//get link to first step
-		if(pq("#method_toc")->length > 0) {
+		if (pq("#method_toc")->length > 0) {
 			$href = pq(".anchor:first")->attr("name");
 		} else {
 			$href = "steps";
@@ -113,7 +113,7 @@ class DesktopTabs extends Tabs {
 	}
 
 	public static function isTabArticle($title, $out) {
-		if(Misc::isMobileMode() || GoogleAmp::isAmpMode($out)) {
+		if (Misc::isMobileMode() || GoogleAmp::isAmpMode($out)) {
 			return false;
 		}
 
@@ -157,7 +157,7 @@ class DesktopTabs extends Tabs {
 
 		//do the video section headers differently
 		$classArray = explode("\n", ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY));
-		foreach($classArray as &$sectionName) {
+		foreach ($classArray as &$sectionName) {
 			$sectionName = ".".WikihowArticleHTML::canonicalizeHTMLSectionName($sectionName);
 		}
 		$classArray[] = ".video";
@@ -169,7 +169,7 @@ class DesktopTabs extends Tabs {
 		global $IP;
 
 		$listName = self::getListName($title);
-		if($listName !== false) {
+		if ($listName !== false) {
 			$cssStr = Misc::getEmbedFiles('css', [$IP . "/extensions/wikihow/tabs/styles/" . $listName . ".css"]);
 			$cssStr = wfRewriteCSS($cssStr, true);
 			$css .= HTML::inlineStyle($cssStr);

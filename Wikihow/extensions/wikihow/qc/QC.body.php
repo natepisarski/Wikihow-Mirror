@@ -158,7 +158,6 @@ abstract class QCRule {
 		$dbw->insert('qc', $opts, __METHOD__);
 
 		return $dbw->insertId();
-		#print_r($dbw); exit;
 	}
 
 	function getPreviouslyViewedExp() {
@@ -820,7 +819,7 @@ class QCRuleVideoChange extends QCRuleTextChange {
 		// deal with the situation where the Video: page has been changed
 		// TODO: can we narrow it down to just the video changing? probably not. if
 		// a video namespace page has changed, we can assume the video has changed
-		if ($title->getNamespace() == NS_VIDEO) {
+		if ($title->inNamespace(NS_VIDEO)) {
 			if ($this->getLastRevisionText() == null) {
 				$this->mAction = "added";
 			}
@@ -1000,7 +999,7 @@ class QCRuleRollback extends QCRule {
 	}
 
 	function flagAction() {
-		if ($this->mArticle->getTitle()->getNamespace() == NS_MAIN &&
+		if ($this->mArticle->getTitle()->inNamespace(NS_MAIN) &&
 			preg_match("@Reverted edits@", $this->mRevision->mComment)) {
 			return true;
 		}
@@ -1704,7 +1703,7 @@ class QG extends SpecialPage {
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->select('qc_vote', array('qcv_user','qcv_vote'), array('qcv_qcid' => $qc_id), 'QG::getVoteBlock', array('ORDER BY' => 'qcv_vote DESC'));
 
-		while( $row = $dbr->fetchObject( $res ) ){
+		foreach ($res as $row) {
 			if ($row->qcv_vote == '1') {
 				array_push( $yes,$row->qcv_user );
 			} else {
@@ -1760,7 +1759,7 @@ class QG extends SpecialPage {
 		//grab upper text
 		if ( $status == 'approved' || $status == 'removed' ) {
 			$text = wfMessage('qcrule_'.$qc_key)->text().' '.wfMessage( 'qcvote_'.$status )->text();
-		} else if ( $status == 'tie' ) {
+		} elseif ( $status == 'tie' ) {
 			$text = wfMessage( 'qcvote_'.$status )->text();
 		} else {
 			$text = wfMessage( 'qcvote_'.$status )->text();
@@ -1808,7 +1807,7 @@ class QG extends SpecialPage {
 		$isMobile = $ctx->shouldDisplayMobileView();
 
 		if ($wgUser->getID() == 0 && !$isMobile) {
-			$wgOut->setRobotpolicy( 'noindex,nofollow' );
+			$wgOut->setRobotPolicy( 'noindex,nofollow' );
 			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -1818,7 +1817,7 @@ class QG extends SpecialPage {
 			$wgOut->setArticleBodyOnly(true);
 			header('Vary: Cookie' );
 			$result = self::getNextInnards($wgRequest->getVal('qc_type'),$wgRequest->getVal('by_username'));
-			print_r(json_encode($result));
+			print json_encode($result);
 			return;
 
 		} elseif ($wgRequest->getVal('getOptions')) {
@@ -1832,7 +1831,7 @@ class QG extends SpecialPage {
 			return;
 
 		} elseif ($wgRequest->wasPosted()) {
-			if(class_exists('Plants') && Plants::usesPlants("QGTip") && $wgRequest->getVal('qc_id') == -1) {
+			if (class_exists('Plants') && Plants::usesPlants("QGTip") && $wgRequest->getVal('qc_id') == -1) {
 				$plant = new TipPlants();
 				if ($wgRequest->getVal("qc_skip") == 1) {
 					$vote = -2;
@@ -1848,10 +1847,10 @@ class QG extends SpecialPage {
 			} else {
 				QCRule::vote($wgRequest->getVal('qc_id'), $wgRequest->getVal('qc_vote'));
 			}
-			$wgOut->disable();
+			$wgOut->setArticleBodyOnly(true);
 			$result = self::getNextInnards($wgRequest->getVal('qc_type'),$wgRequest->getVal('by_username'));
 			header('Vary: Cookie' );
-			print_r(json_encode($result));
+			print json_encode($result);
 			return;
 		}
 

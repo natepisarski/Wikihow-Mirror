@@ -239,7 +239,7 @@ function showPass(id, pass) {
 }
 
 function showCats() {
-	var url = '/Special:Categoryhelper?type=categorypopup';
+	var url = '/Special:CategoryHelper?type=categorypopup';
 	var modalParams = {
 		width: 650,
 		height: 500,
@@ -296,7 +296,7 @@ EOSCRIPT
 		$wgOut->addHTML("<table style='margin-left: auto; margin-right: auto;' width='70%'>
 				<tr><td>Username</td><td>Password</td><td>Category</td><td style='text-align:right;'>Delete</td></tr>");
 		$index = 0;
-		while ($row = $dbr->fetchObject($res)) {
+		foreach ($res as $row) {
 			$cat = Title::makeTitle(NS_CATEGORY, $row->tfc_category);
 			$wgOut->addHTML("<tr><td><a href='http://twitter.com/{$row->tws_username}' target='new'>{$row->tws_username}</a></td>");
 			$wgOut->addHTML("<td><span id='pass_$index'>*******

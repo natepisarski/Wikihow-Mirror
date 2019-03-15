@@ -12,5 +12,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['QueryCat'] = 'QueryCat';
-$wgAutoloadClasses['QueryCat'] = dirname(__FILE__) . '/QueryCat.body.php';
+$wgAutoloadClasses['QueryCat'] = __DIR__ . '/QueryCat.body.php';
 

@@ -4,10 +4,10 @@ class MobileTabs extends Tabs {
 
 	public static function modifyDom() {
 		global $wgTitle, $wgOut, $wgRequest;
-		if(!self::isTabArticle($wgTitle, $wgOut)) {
+		if (!self::isTabArticle($wgTitle, $wgOut)) {
 			return;
 		}
-		if($wgRequest->getVal('action', 'view') != 'view' || $wgRequest->getVal( 'diff' ) ) {
+		if ($wgRequest->getVal('action', 'view') != 'view' || $wgRequest->getVal( 'diff' ) ) {
 			return;
 		}
 
@@ -18,7 +18,7 @@ class MobileTabs extends Tabs {
 
 	private static function originalModifyDOM() {
 		global $wgTitle, $wgOut;
-		if(!self::isTabArticle($wgTitle, $wgOut)) {
+		if (!self::isTabArticle($wgTitle, $wgOut)) {
 			return;
 		}
 
@@ -30,29 +30,29 @@ class MobileTabs extends Tabs {
 		$tabHtml = "";
 		$defaultIndex = -1;
 		$minClasses = "mobile_tab tabs".count($tabInfo);
-		foreach($tabInfo as $index => $info) {
+		foreach ($tabInfo as $index => $info) {
 			$class = $minClasses;
-			if($info['classes'] != "default") {
+			if ($info['classes'] != "default") {
 				pq($info['classes'])->removeClass("tab_default")->addClass("tab_{$index} tabbed_content");
 			} else {
 				$class .= " mobile_tab_default";
 				$defaultIndex = $index;
 			}
-			if($index == 0) {
+			if ($index == 0) {
 				$class .= " first active";
 			} else {
 				$class .= " inactive";
 			}
 
 			$countString = "";
-			if(array_key_exists("count", $info)) {
+			if (array_key_exists("count", $info)) {
 				$count = pq($info['count'])->length;
 				$countString = wfMessage("mt_count", $count)->text();
 			}
 
 			$tabHtml .= "<a href='#' id='mobile_tab_{$index}' class='{$class}'>" . wfMessage($info['label'], $countString)->text() . "</a>";
 		}
-		if($defaultIndex != -1) {
+		if ($defaultIndex != -1) {
 			pq(".tab_default")->addClass("tab_{$defaultIndex}");
 		}
 
@@ -66,9 +66,9 @@ class MobileTabs extends Tabs {
 	}
 
 	function mobile_tag_4_modifyDOM($listName) {
-		foreach(pq(".steps:not(.sample) h3 .mw-headline") as $index => $header) {
+		foreach (pq(".steps:not(.sample) h3 .mw-headline") as $index => $header) {
 			$headerHtml = pq($header)->html();
-			if(strpos($headerHtml, "Part") !== false) {
+			if (strpos($headerHtml, "Part") !== false) {
 				$newText = "Part " . ($index+1) . ":";
 			} else {
 				$newText = "Method " . ($index+1) . ":";
@@ -89,11 +89,11 @@ class MobileTabs extends Tabs {
 		$headingsList = ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY);
 		$headings = explode("\n", $headingsList);
 
-		if($headingsList != "") { //we only want to do this if we've defined the summary sections for this language
+		if ($headingsList != "") { //we only want to do this if we've defined the summary sections for this language
 			foreach ($headings as $heading) {
 				$headingText = WikihowArticleHTML::canonicalizeHTMLSectionName(Misc::getSectionName($heading));
 
-				if(pq(".".$headingText)->length > 0) {
+				if (pq(".".$headingText)->length > 0) {
 					//move the summary section to the bottom of the steps
 					pq(".steps:first")->before(pq("." . $headingText));
 					pq("." . $headingText . " .mw-headline")->html("Quick Summary");
@@ -107,7 +107,7 @@ class MobileTabs extends Tabs {
 	}
 
 	public static function isTabArticle($title, $out) {
-		if(!Misc::isMobileMode() || GoogleAmp::isAmpMode($out)) {
+		if (!Misc::isMobileMode() || GoogleAmp::isAmpMode($out)) {
 			return false;
 		}
 
@@ -167,7 +167,7 @@ class MobileTabs extends Tabs {
 
 		//do the video section headers differently
 		$classArray = explode("\n", ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY));
-		foreach($classArray as &$sectionName) {
+		foreach ($classArray as &$sectionName) {
 			$sectionName = ".".WikihowArticleHTML::canonicalizeHTMLSectionName($sectionName);
 		}
 		$classArray[] = ".video";
@@ -178,12 +178,12 @@ class MobileTabs extends Tabs {
 	public static function addMobileCSS(&$stylePath, $title) {
 		global $IP, $wgOut;
 
-		if(!self::isTabArticle($title, $wgOut)) {
+		if (!self::isTabArticle($title, $wgOut)) {
 			return true;
 		}
 
 		$listName = self::getListName($title);
-		if($listName !== false) {
+		if ($listName !== false) {
 			$stylePath[] = $IP . "/extensions/wikihow/tabs/styles/" . $listName . ".css";
 			/*$cssStr = Misc::getEmbedFiles('css', []);
 			$cssStr = wfRewriteCSS($cssStr, true);
@@ -196,11 +196,11 @@ class MobileTabs extends Tabs {
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		$title = $skin->getTitle();
 
-		if(!$title) return;
-		if(!Misc::isMobileMode()) return;
+		if (!$title) return;
+		if (!Misc::isMobileMode()) return;
 
 		$listName = self::getListName($title);
-		if($listName !== false) {
+		if ($listName !== false) {
 			$out->addModules('ext.wikihow.' . $listName);
 		}
 

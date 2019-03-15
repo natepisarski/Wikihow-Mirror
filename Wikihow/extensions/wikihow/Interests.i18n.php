@@ -1,6 +1,3 @@
-<?
-$messages = array();
-$messages['en'] =
-        array(
-		);
-
+<?php
+$messages = [];
+$messages['en'] = [];

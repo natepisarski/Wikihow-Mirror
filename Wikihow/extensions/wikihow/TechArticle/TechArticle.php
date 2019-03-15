@@ -9,13 +9,13 @@ $wgExtensionCredits['other'][] = array(
 	'description' => 'Provides the Tech Article Widget features and admin tools'
 );
 
-$wgAutoloadClasses['TechArticle\TechArticleDao'] = dirname( __FILE__ ) . '/core/TechArticleDao.class.php';
-$wgAutoloadClasses['TechArticle\TechArticle'] = dirname( __FILE__ ) . '/core/TechArticle.class.php';
+$wgAutoloadClasses['TechArticle\TechArticleDao'] = __DIR__ . '/core/TechArticleDao.class.php';
+$wgAutoloadClasses['TechArticle\TechArticle'] = __DIR__ . '/core/TechArticle.class.php';
 
-$wgAutoloadClasses['TechArticle\TechComponentDao'] = dirname( __FILE__ ) . '/core/TechComponentDao.class.php';
-$wgAutoloadClasses['TechArticle\TechComponent'] = dirname( __FILE__ ) . '/core/TechComponent.class.php';
-$wgAutoloadClasses['TechArticle\TechProduct'] = dirname( __FILE__ ) . '/core/TechComponent.class.php';
-$wgAutoloadClasses['TechArticle\TechPlatform'] = dirname( __FILE__ ) . '/core/TechComponent.class.php';
+$wgAutoloadClasses['TechArticle\TechComponentDao'] = __DIR__ . '/core/TechComponentDao.class.php';
+$wgAutoloadClasses['TechArticle\TechComponent'] = __DIR__ . '/core/TechComponent.class.php';
+$wgAutoloadClasses['TechArticle\TechProduct'] = __DIR__ . '/core/TechComponent.class.php';
+$wgAutoloadClasses['TechArticle\TechPlatform'] = __DIR__ . '/core/TechComponent.class.php';
 
 require_once("$IP/extensions/wikihow/TechArticle/admin/TechArticleAdmin.php");
 // [sc] 10/2017 consolidated stamp logic into SocialProofStats.php

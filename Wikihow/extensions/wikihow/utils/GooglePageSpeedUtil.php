@@ -33,12 +33,12 @@ class GooglePageSpeedUtil {
 			if ($responseCode  == 200) {
 				// Get the PageSpeed score
 				$response = intVal($data['lighthouseResult']['categories']['performance']['score'] * 100);
-			} else if ($responseCode >= 400 && $responseCode < 500) {
+			} elseif ($responseCode >= 400 && $responseCode < 500) {
 				$response = self::WARNING_RESPONSE_CODE_4XX;
 			}
-			else if ($responseCode >= 500 && $responseCode < 600) {
+			elseif ($responseCode >= 500 && $responseCode < 600) {
 				$response = self::WARNING_RESPONSE_CODE_5XX;
-			} else if ($responseCode == 10000) {
+			} elseif ($responseCode == 10000) {
 					$response = self::WARNING_RESPONSE_CODE_NOT_PARSED;
 			} else {
 				$response = self::WARNING_RESPONSE_CODE_OTHER;

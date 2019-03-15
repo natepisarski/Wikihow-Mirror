@@ -9,13 +9,12 @@ class AdminMMKQueries extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-
 		$user = $this->getUser();
 		$userGroups = $user->getGroups();
 		$out = $this->getOutput();
 
 		if (!in_array('staff', $userGroups) && !in_array('staff_widget', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -42,7 +41,7 @@ class AdminMMKQueries extends UnlistedSpecialPage {
 		}
 
 		$out->setPageTitle("Admin MMK Query Matches");
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$out->addHTML($tmpl->execute('adminmmkquery.tmpl.php'));
 
 		$out->addModules('ext.wikihow.adminmmkqueries');
@@ -64,7 +63,7 @@ class AdminMMKQueries extends UnlistedSpecialPage {
 		}
 	}
 
-	function getAllResults($out) {
+	private function getAllResults($out) {
 		$date = date('Y-m-d');
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="query_matches_' . $date . '.xls"');
@@ -73,11 +72,11 @@ class AdminMMKQueries extends UnlistedSpecialPage {
 		$res = $dbw->select(self::TABLE_NAME, array("*"), array(), __METHOD__);
 
 		$out->addHTML("User name\tQuery\tRank\tPage Id\tArticle Name\tMatch\tReason\n");
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$user = User::newFromId($row->mm_user_id);
 			$title = Title::newFromID($row->mm_page);
 
-			if($title) {
+			if ($title) {
 				$line = $user->getName() . "\t" . "how to " . strtolower($title->getText()) . "\t" . $row->mm_rank . "\t" . $row->mm_page . "\t" . $title->getCanonicalURL() . "\t" . $row->mm_match . "\t" . $row->mm_reason . "\n";
 
 				$out->addHTML($line);

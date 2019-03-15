@@ -16,7 +16,7 @@ class AdminLatestRevision extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 
 		if (!in_array('staff', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -32,7 +32,7 @@ class AdminLatestRevision extends UnlistedSpecialPage {
 			return;
 
 		} else {
-			$tmpl = new EasyTemplate( dirname(__FILE__) );
+			$tmpl = new EasyTemplate( __DIR__ );
 			$out->addHTML($tmpl->execute('adminlatestrevision.tmpl.php'));
 		}
 
@@ -43,7 +43,7 @@ class AdminLatestRevision extends UnlistedSpecialPage {
 	function getAllResults($out, $articles, $username, $option) {
 		$urls = explode("\n", $articles);
 
-		if(count($urls) > 0) {
+		if (count($urls) > 0) {
 
 			$date = date('Y-m-d');
 			header('Content-type: application/force-download');
@@ -94,7 +94,7 @@ class AdminLatestRevision extends UnlistedSpecialPage {
 							$userEdit = $row->rev_user_text;
 							$userDate = date('m/j/Y', wfTimestamp(TS_UNIX, $row->rev_timestamp));
 						}
-					} else if ($option == "username" && $username != "") {
+					} elseif ($option == "username" && $username != "") {
 						$res = $dbr->select('revision', array('rev_id', 'rev_timestamp'), array('rev_user' => $user->getId(), 'rev_page' => $title->getArticleID()), __METHOD__, array('ORDER BY' => 'rev_timestamp DESC', 'LIMIT' => 1));
 						$row = $dbr->fetchObject($res);
 						if ($row) {

@@ -210,7 +210,7 @@ class ExpertVerifyImporter {
 			$t2 = Misc::getTitleFromText( $articleName );
 			if ( !$t2 || !$t2->exists() ) {
 				$result['warnings'][] = "$rowInfo Article Name not found: '$articleName' (id=$pageIdString)";
-			} else if ( $pageId != $t2->getArticleID() ) {
+			} elseif ( $pageId != $t2->getArticleID() ) {
 				$key2 = $t2->getDBkey();
 				$id2 = $t2->getArticleID();
 				$result['warnings'][] = "$rowInfo Mismatch: 'ArticleID' is '$pageIdString', but the ID for '$key2' is $id2";

@@ -7,20 +7,21 @@ abstract class WAPUIController {
 	protected $wapDB = null;
 
 	public function __construct(WAPConfig $config) {
-		global $wgUser;
+		$user = RequestContext::getMain()->getUser();
 
 		$this->config = $config;
 		$this->dbType = $config->getDBType();
 
 		$userClass = $config->getUserClassName();
-		$this->cu = $userClass::newFromUserObject($wgUser, $this->dbType);
+		$this->cu = $userClass::newFromUserObject($user, $this->dbType);
 		$this->wapDB = WAPDB::getInstance($this->dbType);
 	}
 
 	abstract public function execute($par);
 
 	protected function getDefaultVars() {
-		global $wgUser, $wgIsDevServer;
+		global $wgIsDevServer;
+		$user = RequestContext::getMain()->getUser();
 
 		$vars = array();
 		$vars['js'] = HtmlSnips::makeUrlTag('/extensions/wikihow/common/chosen/chosen.jquery.min.js');
@@ -33,7 +34,7 @@ abstract class WAPUIController {
 		$vars['system'] = $this->config->getSystemName();
 
 		$userClass = $this->config->getUserClassName();
-		$cu = $userClass::newFromId($wgUser->getId(), $this->dbType);
+		$cu = $userClass::newFromId($user->getId(), $this->dbType);
 		$admin = $cu->isAdmin() ? "<a href='/Special:{$vars['adminPage']}' class='button secondary'>Admin</a> " : "";
 		$vars['nav'] = "<div id='wap_nav'>$admin <a href='/Special:{$vars['userPage']}' class='button primary'>My Articles</a></div>";
 		$linkerClass = $this->config->getLinkerClassName();
@@ -44,8 +45,8 @@ abstract class WAPUIController {
 	}
 
 	protected function outputNoPermissionsHtml() {
-		global $wgOut;
-		$wgOut->setRobotpolicy('noindex,nofollow');
-		$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$out = RequestContext::getMain()->getOutput();
+		$out->setRobotPolicy('noindex,nofollow');
+		$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 	}
 }

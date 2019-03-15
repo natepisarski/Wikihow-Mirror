@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
     exit(1);
@@ -10,9 +10,8 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'Welcome to new wikiHow users',
 );
 
-$wgExtensionMessagesFiles['Welcome'] = dirname(__FILE__) . '/Welcome.i18n.php';
+$wgExtensionMessagesFiles['Welcome'] = __DIR__ . '/Welcome.i18n.php';
 $wgSpecialPages['Welcome'] = 'Welcome';
-$wgAutoloadClasses['Welcome'] = dirname( __FILE__ ) . '/Welcome.body.php';
+$wgAutoloadClasses['Welcome'] = __DIR__ . '/Welcome.body.php';
 
 $wgHooks['ConfirmEmailComplete'][] = array("Welcome::sendWelcomeUser");
-

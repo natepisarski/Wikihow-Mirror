@@ -126,7 +126,7 @@ class AQRater extends UnlistedSpecialPage {
 	function processUpload($uploadfile,$userName) {
 
 		// Check file for format and save it to the local dir
-		if(!file_exists($uploadfile) || !is_readable($uploadfile)) {
+		if (!file_exists($uploadfile) || !is_readable($uploadfile)) {
 			self::$errors[] = 'Could not find file. File not uploaded.';
 			return 'Bad File' ;
 		}
@@ -188,7 +188,7 @@ class AQRater extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 		if ($userName!='Rjsbhatia') {
 			if ($user->isBlocked() || !(in_array('staff', $userGroups))) {
-				$out->setRobotpolicy('noindex,nofollow');
+				$out->setRobotPolicy('noindex,nofollow');
 				$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 				return;
 			}

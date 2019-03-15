@@ -228,7 +228,7 @@ class RelatedWikihows {
 			$catsToIgnore = wfMessage( 'categories_to_ignore' )->inContentLanguage()->text();
 			$catsToIgnore = explode( "\n", $catsToIgnore );
 			$categories = array();
-			foreach( $catsToIgnore as $catToIgnore ) {
+			foreach ( $catsToIgnore as $catToIgnore ) {
 				$categories[] = end( explode( ":", $catToIgnore ) );
 			}
 			$catsToIgnore = array_flip( $categories ); // make the array associative.
@@ -322,7 +322,7 @@ class RelatedWikihows {
 
 		$isSensitiveRelatedRemovePage = SensitiveRelatedWikihows::isSensitiveRelatedRemovePage( $wgTitle );
 		//first lets check to make sure all the related are indexed
-		foreach( pq( "li a", $relatedSection ) as $related ) {
+		foreach ( pq( "li a", $relatedSection ) as $related ) {
 			$titleText = pq( $related )->attr( "title" );
 			$title = Title::newFromText( $titleText );
 			if ( !$title ) {
@@ -518,7 +518,7 @@ class RelatedWikihows {
 		foreach ( $relatedWikihows as $relatedWikihow ) {
 			if ( $this->mAmpMode ) {
 				$thumbs .= $relatedWikihow->createAmpHtml();
-			} else if ( $this->mMobile ) {
+			} elseif ( $this->mMobile ) {
 				$thumbs .= $relatedWikihow->createMobileHtml();
 			} else {
 				$thumbs .= $relatedWikihow->createDesktopHtml();
@@ -570,9 +570,9 @@ class RelatedWikihows {
 		// or just put it as the last section if these other sections do not exist
 		if ( $prevSection && $prevSection->length > 0  ) {
 			pq( $prevSection )->after( $relatedHtml );
-		} else if (!$this->mMobile && pq( ".section.sourcesandcitations" )->length > 0 ) {
+		} elseif (!$this->mMobile && pq( ".section.sourcesandcitations" )->length > 0 ) {
 			pq( ".section.sourcesandcitations" )->before( $relatedHtml );
-		} else if ( pq( "#sp_h2" )->length > 0 ) {
+		} elseif ( pq( "#sp_h2" )->length > 0 ) {
 			pq( "#sp_h2" )->before( $relatedHtml );
 		} else {
 			pq( ".section:last" )->after( $relatedHtml );
@@ -793,7 +793,7 @@ class SensitiveRelatedWikihows {
 		if ( !$data ) {
 			return $result;
 		}
-		foreach( $data as $row ) {
+		foreach ( $data as $row ) {
 			$lang = $row->{'gsx$language'}->{'$t'};
 			$pageId = $row->{'gsx$id'}->{'$t'};
 			$result[$lang][] = $pageId;
@@ -804,7 +804,7 @@ class SensitiveRelatedWikihows {
 
 	private static function parseSensitiveMaster( $data ) {
 		$result = array();
-		foreach( $data as $row ) {
+		foreach ( $data as $row ) {
 			$pageId = $row->{'gsx$id'}->{'$t'};
 			$url = $row->{'gsx$url'}->{'$t'};
 			$result[] = array( $pageId, $url );

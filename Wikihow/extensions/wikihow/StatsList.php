@@ -12,6 +12,4 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['StatsList'] = 'StatsList';
 
-$dir = dirname(__FILE__) . '/';
-
-$wgAutoloadClasses['StatsList'] = $dir . 'StatsList.body.php';
+$wgAutoloadClasses['StatsList'] = __DIR__ . '/StatsList.body.php';

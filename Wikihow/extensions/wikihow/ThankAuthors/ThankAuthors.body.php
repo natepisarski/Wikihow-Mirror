@@ -23,7 +23,7 @@ class ThankAuthors extends UnlistedSpecialPage {
 		$title = Title::newFromDBKey($target);
 		$me = Title::makeTitle(NS_SPECIAL, "ThankAuthors");
 
-		if(!$title || !$title->exists()) {
+		if (!$title || !$title->exists()) {
 			$out->setStatusCode( '404' );
 			$titleText = ($title ? $title->getText() : '');
 			$out->addHtml(wfMessage("thankauthors-title-not-exist", $titleText)->text());
@@ -46,7 +46,7 @@ class ThankAuthors extends UnlistedSpecialPage {
 				<script type='text/javascript'>
 					function submitThanks () {
 						var message = $('#details').val();
-						if(message == "") {
+						if (message == "") {
 							alert("Please enter a message");
 							return false;
 						}
@@ -73,7 +73,7 @@ class ThankAuthors extends UnlistedSpecialPage {
 				<div id="thanks_form"><div class="section_text">
 EOHTML
 				);
-			if($user->isLoggedIn()) {
+			if ($user->isLoggedIn()) {
 				$enjoyArticle = wfMessage('enjoyed-reading-article', $title->getFullText(), $talk_page->getFullText());
 			} else {
 				$enjoyArticle = wfMessage('enjoyed-reading-article-anon', $title->getFullText());

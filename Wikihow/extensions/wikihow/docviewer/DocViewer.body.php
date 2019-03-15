@@ -100,7 +100,7 @@ class DocViewer extends UnlistedSpecialPage {
 
 		return $isLoggedIn &&
 			   in_array('staff', $wgUser->getGroups()) &&
-			   $wgTitle->getNamespace() == NS_SPECIAL &&
+			   $wgTitle->inNamespace(NS_SPECIAL) &&
 			   class_exists('PageStats');
 	}
 
@@ -156,7 +156,7 @@ class DocViewer extends UnlistedSpecialPage {
 				}
 			}
 
-			$tmpl = new EasyTemplate( dirname(__FILE__) );
+			$tmpl = new EasyTemplate( __DIR__ );
 			$tmpl->set_vars(array(
 				'doc_title' => self::getDisplayName($doc_name),
 				'header_get' => wfMessage('header_get')->text(),
@@ -242,7 +242,7 @@ class DocViewer extends UnlistedSpecialPage {
 	}
 
 	private static function showPdf($doc_name) {
-		if( !isset(self::$isPdf) ) {
+		if ( !isset(self::$isPdf) ) {
 			$val = ConfigStorage::dbGetConfig('sample_pdfs');
 			$pageList = preg_split('@[\r\n]+@', $val);
 
@@ -332,7 +332,7 @@ class DocViewer extends UnlistedSpecialPage {
 		foreach ($res as $row) {
 			$t = Title::newFromId($row->dvl_page);
 
-			if($t && $t->exists()) {
+			if ($t && $t->exists()) {
 			    $html .= ImageHelper::getArticleThumb($t, 127, 140);
 
 				//save for meta description
@@ -579,7 +579,7 @@ class DocViewer extends UnlistedSpecialPage {
 		if (!$html) {
 			//nothin'
 			$wgOut->setStatusCode(404);
-			$wgOut->setRobotpolicy('noindex,nofollow');
+			$wgOut->setRobotPolicy('noindex,nofollow');
 			$html = '<p>'.wfMessage('dv-no-doc-err')->text().'</p>';
 		}
 		else {

@@ -58,9 +58,10 @@ class TranslatorEditMapper extends EditMapper {
 			$tl->toLang = $langCode;
 			$tl->toAID = $toTitle->getArticleId();
 			$tl->insert();
+
+			TranslationLink::writeLog(TranslationLink::ACTION_SAVE, 'en', NULL, $tl->fromAID,
+				NULL, $langCode, $toTitle->getText(), $toTitle->getArticleId());
 		}
-		TranslationLink::writeLog(TranslationLink::ACTION_SAVE, 'en', NULL, $tl->fromAID,
-			NULL, $langCode, $toTitle->getText(), $toTitle->getArticleId());
 	}
 
 }

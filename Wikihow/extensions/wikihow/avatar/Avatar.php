@@ -7,7 +7,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'Avatar',
     'author' => 'Vu <vu@wikihow.com>',
-    'description' => 'Avatar profile picture for user page', 
+    'description' => 'Avatar profile picture for user page',
 );
 
 /*
@@ -24,5 +24,5 @@ CREATE TABLE `avatar` (
 );
  */
 
-$wgSpecialPages['Avatar'] = 'Avatar'; 
-$wgAutoloadClasses['Avatar'] = dirname( __FILE__ ) . '/Avatar.body.php';
+$wgSpecialPages['Avatar'] = 'Avatar';
+$wgAutoloadClasses['Avatar'] = __DIR__ . '/Avatar.body.php';

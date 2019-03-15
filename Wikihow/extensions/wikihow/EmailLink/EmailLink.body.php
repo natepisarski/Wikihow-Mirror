@@ -95,7 +95,7 @@ class EmailLink extends SpecialPage {
 		}
 
 		if (!$wgRequest->wasPosted() || !$pass_captcha) {
-			if( $wgUser->getID() > 0 && !$wgUser->canSendEmail() ) {
+			if ( $wgUser->getID() > 0 && !$wgUser->canSendEmail() ) {
 				$userEmail = $wgUser->getEmail();
 				// If there is no verification time stamp and no email on record, show initial message to have a user input a valid email address
 				if ( empty($userEmail) ) {
@@ -277,7 +277,7 @@ class EmailLink extends SpecialPage {
 				$subject = wfMessage("howto", $subject);
 			}
 			$how_to = $subject;
-			if ($titleObj->getNamespace() == NS_ARTICLE_REQUEST) {
+			if ($titleObj->inNamespace(NS_ARTICLE_REQUEST)) {
 				$subject = wfMessage('subject-requested-howto').": ".wfMessage("howto", $subject);
 			} else {
 				$subject = wfMessage('wikihow-article-subject',$subject);
@@ -366,7 +366,7 @@ class EmailLink extends SpecialPage {
 			"http://www.wikihow.com/Request:$dbkey",
 			"http://www.wikihow.com/".wfMessage('writers-guide-url'),
 			"http://www.wikihow.com/".wfMessage('about-wikihow-url')."") ;
-			} else if ($titleObj->getText() == wfMessage('mainpage')) {
+			} elseif ($titleObj->getText() == wfMessage('mainpage')) {
 				$body = "$message
 
 ----------------

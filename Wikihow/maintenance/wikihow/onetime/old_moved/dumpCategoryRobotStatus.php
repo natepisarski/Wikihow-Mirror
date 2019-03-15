@@ -36,7 +36,7 @@ $recursive_key_search = function ($needle, $haystack) use (&$recursive_key_searc
 #	return false;
 #};
 
-$mainCatTreeArray = Categoryhelper::getCategoryTreeArray();
+$mainCatTreeArray = CategoryHelper::getCategoryTreeArray();
 
 $pattern = "@^<big>'''(.*)'''</big>$@";
 $matches = array();

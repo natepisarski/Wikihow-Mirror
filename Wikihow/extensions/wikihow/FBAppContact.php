@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['FBAppContact'] = 'FBAppContact';
-$wgAutoloadClasses['FBAppContact'] = dirname(__FILE__) . '/FBAppContact.body.php';
-$wgExtensionMessagesFiles['FBAppContact'] = dirname(__FILE__) . '/FBAppContact.i18n.php';
+$wgAutoloadClasses['FBAppContact'] = __DIR__ . '/FBAppContact.body.php';
+$wgExtensionMessagesFiles['FBAppContact'] = __DIR__ . '/FBAppContact.i18n.php';

@@ -3,10 +3,10 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['Categorizer'] = 'Categorizer';
-$wgAutoloadClasses['Categorizer'] = dirname( __FILE__ ) . '/Categorizer.body.php';
-$wgAutoloadClasses['CategorizerUtil'] = dirname( __FILE__ ) . '/CategorizerUtil.class.php';
-$wgExtensionMessagesFiles['Categorizer'] = dirname(__FILE__) . '/Categorizer.i18n.php';
-$wgExtensionMessagesFiles['CategorizerAlias'] = dirname(__FILE__) . '/Categorizer.alias.php';
+$wgAutoloadClasses['Categorizer'] = __DIR__ . '/Categorizer.body.php';
+$wgAutoloadClasses['CategorizerUtil'] = __DIR__ . '/CategorizerUtil.class.php';
+$wgExtensionMessagesFiles['Categorizer'] = __DIR__ . '/Categorizer.i18n.php';
+$wgExtensionMessagesFiles['CategorizerAlias'] = __DIR__ . '/Categorizer.alias.php';
 
 $wgResourceModules['ext.wikihow.categorizer'] = [
     'localBasePath' => __DIR__,

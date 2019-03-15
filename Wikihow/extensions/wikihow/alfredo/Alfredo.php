@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Alfredo'] = 'Alfredo';
-$wgAutoloadClasses['Alfredo'] = dirname(__FILE__) . '/Alfredo.body.php';
+$wgAutoloadClasses['Alfredo'] = __DIR__ . '/Alfredo.body.php';
 

@@ -1,6 +1,6 @@
 <?php
 
-$wgAutoloadClasses['AndroidHelper'] = dirname(__FILE__) . '/AndroidHelper.class.php';
+$wgAutoloadClasses['AndroidHelper'] = __DIR__ . '/AndroidHelper.class.php';
 
 $wgResourceModules['ext.wikihow.android_helper'] = array(
 	'scripts' => array(

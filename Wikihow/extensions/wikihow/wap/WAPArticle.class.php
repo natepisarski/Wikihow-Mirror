@@ -88,7 +88,7 @@ abstract class WAPArticle {
 	public function getUser() {
 		if (intVal($this->user_id) == 0) {
 			$this->ca = null;
-		} else if (empty($this->ca)) {
+		} elseif (empty($this->ca)) {
 			$userClass = WAPDB::getInstance($this->dbType)->getWAPConfig()->getUserClassName();
 			$this->ca = $userClass::newFromId($this->user_id, $this->dbType);
 		}

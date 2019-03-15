@@ -5,11 +5,13 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	const STV_TABLE = 'special_tech_verify_item';
 
 	public function __construct() {
+		global $wgHooks;
 		parent::__construct( 'TechTestingAdmin' );
-		$this->out = $this->getContext()->getOutput();
+
+		$this->out = $this->getOutput();
 		$this->user = $this->getUser();
 		$this->request = $this->getRequest();
-		global $wgHooks;
+
 		$wgHooks['ShowSideBar'][] = [$this, 'removeSideBarCallback'];
 		$wgHooks['ShowBreadCrumbs'][] = [$this, 'removeBreadCrumbsCallback'];
 	}
@@ -48,7 +50,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 		}
 
 		if ( \Misc::isMobileMode() || !$this->isUserAllowed( $this->user ) ) {
-			$this->out->setRobotpolicy( 'noindex, nofollow' );
+			$this->out->setRobotPolicy( 'noindex, nofollow' );
 			$this->out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -88,7 +90,6 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 
 		if ( $this->request->getVal( 'action' ) == 'run_report' ) {
 			$batchName = $this->request->getVal( 'batch_name' );
-			$this->out->disable();
 			$this->exportCSV( $batchName );
 			return;
 		}
@@ -294,10 +295,10 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 
 		if ( $no - $yes > 1 ) {
 			$rejected = true;
-		} else if ( $no >= 6 ) {
+		} elseif ( $no >= 6 ) {
 			$rejected = true;
 		}
-		
+
 		return $rejected;
 	}
 
@@ -364,7 +365,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getMainHTML() {
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$vars = [
@@ -573,6 +574,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function exportCSV( $batchName ) {
+		$this->out->disable();
 		header( 'Content-type: application/force-download' );
 		header( 'Content-disposition: attachment; filename="data.csv"' );
 
@@ -609,7 +611,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 			if ( !$this->isResolved( $pageId, $batchName ) ) {
 				if ( $this->isApproved( $pageId, $batchName ) ) {
 					$status = "approved";
-				} else if ( $this->isRejected( $pageId, $batchName ) ) {
+				} elseif ( $this->isRejected( $pageId, $batchName ) ) {
 					$status = "rejected";
 				} else {
 					$status = "skipped";

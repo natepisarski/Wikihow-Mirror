@@ -14,7 +14,7 @@ class UserReviewForm extends UnlistedSpecialPage {
 	}
 
 	private function getTemplateHtml() {
-		global $wgUser;
+		$user = $this->getUser();
 
 		Mustache_Autoloader::register();
 		$options = [
@@ -35,9 +35,9 @@ class UserReviewForm extends UnlistedSpecialPage {
 				'urf_tos' => html_entity_decode($this->msg('urf_tos'))
 			];
 		}
-		if($wgUser->isLoggedIn()) {
+		if ($user->isLoggedIn()) {
 			$vars['loggedIn'] = true;
-			$userId = $wgUser->getId();
+			$userId = $user->getId();
 			$dc = new UserDisplayCache([$userId]);
 			$display_data = $dc->getData();
 			$vars['avatar_url'] = $display_data[$userId]['avatar_url'];
@@ -54,24 +54,28 @@ class UserReviewForm extends UnlistedSpecialPage {
 
 
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+		global $wgSquidMaxage;
 
-		if ($wgUser->isBlocked()) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		if ($user->isBlocked()) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
-		$action = $wgRequest->getVal('action');
-		if ($wgRequest->wasPosted() && $action == 'post_review') {
-			$wgOut->setArticleBodyOnly(true);
-			$firstName = $wgRequest->getVal('firstName');
-			$lastName = $wgRequest->getVal('lastName');
-			$review = $wgRequest->getVal('review');
-			$articleId = $wgRequest->getVal('articleId');
-			$email = $wgRequest->getVal('email', '');
-			$rating = $wgRequest->getVal('rating', 0); //default of 0 means no rating at all
+		$action = $req->getVal('action');
+		if ($req->wasPosted() && $action == 'post_review') {
+			$out->setArticleBodyOnly(true);
+			$firstName = $req->getVal('firstName');
+			$lastName = $req->getVal('lastName');
+			$review = $req->getVal('review');
+			$articleId = $req->getVal('articleId');
+			$email = $req->getVal('email', '');
+			$rating = $req->getVal('rating', 0); //default of 0 means no rating at all
 			$result = array('success' => false);
-			$image = $wgRequest->getVal('image', '');
+			$image = $req->getVal('image', '');
 
 			$sur = SubmittedUserReview::newFromFields(
 				$articleId,
@@ -79,7 +83,7 @@ class UserReviewForm extends UnlistedSpecialPage {
 				$lastName,
 				$review,
 				$email,
-				$wgUser->getId(),
+				$user->getId(),
 				WikihowUser::getVisitorId(),
 				$rating,
 				$image
@@ -90,31 +94,30 @@ class UserReviewForm extends UnlistedSpecialPage {
 				$result['success'] = $sur->save();
 				RatingRedis::addRatingReason($articleId, $review);
 			}
-			$wgOut->addHTML(json_encode($result));
+			$out->addHTML(json_encode($result));
 			return;
 		} elseif ($action == 'get_form') {
-			global $wgSquidMaxage;
-			$wgOut->setSquidMaxage($wgSquidMaxage);
+			$out->setSquidMaxage($wgSquidMaxage);
 
-			$wgOut->setArticleBodyOnly(true);
+			$out->setArticleBodyOnly(true);
 			$result = array();
-			$result['html'] = self::getTemplateHtml();
-			$wgOut->addHTML(json_encode($result));
+			$result['html'] = $this->getTemplateHtml();
+			$out->addHTML(json_encode($result));
 			return;
-		} elseif($action == 'update') {
-			$wgOut->setArticleBodyOnly(true);
-			$usId = $wgRequest->getVal("us_id", 0);
-			$userId = $wgRequest->getVal("us_user_id", 0);
+		} elseif ($action == 'update') {
+			$out->setArticleBodyOnly(true);
+			$usId = $req->getVal("us_id", 0);
+			$userId = $req->getVal("us_user_id", 0);
 			self::updateUserReview($usId, $userId);
 			return;
 		} else {
-			$wgOut->addModules('ext.wikihow.UserReviewForm');
-			$wgOut->addHTML(self::getTemplateHtml());
+			$out->addModules('ext.wikihow.UserReviewForm');
+			$out->addHTML($this->getTemplateHtml());
 			return;
 		}
 	}
 
-	public static function updateUserReview($usId, $userId) {
+	private static function updateUserReview($usId, $userId) {
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->update(UserReview::TABLE_SUBMITTED, ['us_user_id' => $userId], ['us_id' => $usId], __METHOD__);
 		$dbw->update(UserReview::TABLE_CURATED, ['uc_user_id' => $userId], ['uc_submitted_id' => $usId], __METHOD__);

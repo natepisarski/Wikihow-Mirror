@@ -14,9 +14,9 @@ class MotionToStatic {
 			}
 			$steps = explode( ",", $steps );
 			$result = self::changeVideosToStatic( $pageId, $steps, $user, $editSummary );
-		} else if ( $type == "removeall" ) {
+		} elseif ( $type == "removeall" ) {
 			$result = self::removeAllMedia( $pageId, $user, $editSummary );
-		} else if ( $type == 'changeall' ) {
+		} elseif ( $type == 'changeall' ) {
 			$result = self::changeAllVideosToStatic( $pageId, $user, $editSummary );
 		}
 		return $result;

@@ -158,24 +158,26 @@ class AdminEditInfo extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
-			$wgOut->setArticleBodyOnly(true);
+		if ($req->wasPosted()) {
+			$out->setArticleBodyOnly(true);
 			$dbr = wfGetDB(DB_SLAVE);
 
-			$action = $wgRequest->getVal('action', '');
+			$action = $req->getVal('action', '');
 
 			if ('list-descs' == $action || 'list-titles' == $action) {
 				$type = preg_replace('@^list-@', '', $action);
-				$pageList = $wgRequest->getVal('pages-list', '');
+				$pageList = $req->getVal('pages-list', '');
 				$urls = self::parseURLlist($type, $pageList);
 				if (!empty($urls)) {
 					$html = self::genURLListTable($type, $urls);
@@ -184,7 +186,7 @@ class AdminEditInfo extends UnlistedSpecialPage {
 				}
 				$result = array('result' => $html);
 			} elseif ('load-descs' == $action) {
-				$page = $wgRequest->getInt('page', '');
+				$page = $req->getInt('page', '');
 				list($desc, $defaultDesc, $wasEdited) = self::loadPageDesc($page);
 				$result = array(
 					'data' => $desc,
@@ -192,9 +194,9 @@ class AdminEditInfo extends UnlistedSpecialPage {
 					'was-edited' => $wasEdited,
 				);
 			} elseif ('save-descs' == $action) {
-				$type = $wgRequest->getVal('edit-type', '');
-				$page = $wgRequest->getInt('page', '');
-				$desc = $wgRequest->getVal('data', '');
+				$type = $req->getVal('edit-type', '');
+				$page = $req->getInt('page', '');
+				$desc = $req->getVal('data', '');
 				$msg = 'saved';
 				$desc = self::savePageDesc($type, $page, $desc);
 				$result = array(
@@ -202,7 +204,7 @@ class AdminEditInfo extends UnlistedSpecialPage {
 					'data' => $desc,
 				);
 			} elseif ('load-titles' == $action) {
-				$page = $wgRequest->getInt('page', '');
+				$page = $req->getInt('page', '');
 				list($pageTitle, $defaultPageTitle, $wasEdited) = self::loadPageTitle($page);
 				$result = array(
 					'data' => $pageTitle,
@@ -210,9 +212,9 @@ class AdminEditInfo extends UnlistedSpecialPage {
 					'was-edited' => $wasEdited,
 				);
 			} elseif ('save-titles' == $action) {
-				$type = $wgRequest->getVal('edit-type', '');
-				$page = $wgRequest->getInt('page', '');
-				$pageTitle = $wgRequest->getVal('data', '');
+				$type = $req->getVal('edit-type', '');
+				$page = $req->getInt('page', '');
+				$pageTitle = $req->getVal('data', '');
 				$msg = 'saved';
 				$pageTitle = self::savePageTitle($type, $page, $pageTitle);
 				$result = array(
@@ -227,11 +229,11 @@ class AdminEditInfo extends UnlistedSpecialPage {
 			print json_encode($result);
 		} else {
 			$title = $this->editDescs ? 'Admin - Edit Meta Info' : 'Admin - Edit Page Titles';
-			$wgOut->setHTMLTitle( wfMessage('pagetitle', $title) );
-			$wgOut->addModules('jquery.ui.dialog');
+			$out->setHTMLTitle( wfMessage('pagetitle', $title) );
+			$out->addModules('jquery.ui.dialog');
 
 			$tmpl = $this->genAdminForm();
-			$wgOut->addHTML($tmpl);
+			$out->addHTML($tmpl);
 		}
 	}
 

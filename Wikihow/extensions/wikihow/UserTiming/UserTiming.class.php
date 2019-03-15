@@ -52,7 +52,7 @@ class UserTiming {
 
 		if ($type == 'text') {
 			$element->append("<script>WH.performance.mark('$name');</script>");
-		} else if ($type == 'image') {
+		} elseif ($type == 'image') {
 			$imageMarks = "WH.performance.clearMarks('$name'); WH.performance.mark('$name');";
 			$element->after("<script>$imageMarks</script>");
 			$element->attr("onload", $imageMarks);

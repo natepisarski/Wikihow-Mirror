@@ -100,7 +100,7 @@ class ClearRatings extends SpecialPage {
 			$id = $ratingTool->getId($t);
 			if ($id === 0) {
 				$err = wfMessage('clearratings_no_such_title', $target);
-			} elseif ($type == "article" && $t->getNamespace() != NS_MAIN) {
+			} elseif ($type == "article" && !$t->inNamespace(NS_MAIN)) {
 				$err = wfMessage('clearratings_only_main', $target);
 			} else {
 				// clearing info

@@ -9,7 +9,7 @@
 		<input type='hidden' name='returnTo' value='<?= $returnTo ?>'/>
 		<input type='hidden' name='isSignup' value='<?= $isSignup ?>'/>
 		<input name='proposed_username' class='fbc_readonly fbc_username' type='hidden' value='<?= $username ?>'/>
-<? if($isMobile): ?>
+<? if ($isMobile): ?>
 		<div id='fbc_error'><?= $error ?></div>
 
 		<label class='fbc_label first'><?= wfMessage('fbc_wikihow_username') ?></label>
@@ -52,7 +52,7 @@
 		</table>
 <? endif; ?>
 	</form>
-<? if(!$isApiSignup): ?>
+<? if (!$isApiSignup): ?>
 	<div id='fbc_footer'><?= wfMessage('fbc_clicking_register_will_give_wikihow_access') ?>
 	<a href='http://www.facebook.com/about/login/' class='fbc_link'><?= wfMessage('fbc_learn_more') ?>.</a></div>
 <? endif; ?>

@@ -32,9 +32,9 @@ class QAWidget {
 
 	public function getWidgetHTML() {
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__) . "/../../ext-utils/thumbs_up_down"),
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__) . "/../../TopAnswerers/templates")
+			new Mustache_Loader_FilesystemLoader(__DIR__),
+			new Mustache_Loader_FilesystemLoader(__DIR__ . "/../../ext-utils/thumbs_up_down"),
+			new Mustache_Loader_FilesystemLoader(__DIR__ . "/../../TopAnswerers/templates")
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
@@ -91,12 +91,12 @@ class QAWidget {
 			$vars['flag_options'] = $this->getFlagOptions();
 			$vars['qa_expert_hover'] = $loader->load('qa_expert_hover');
 			$vars['top_answerers_qa_widget_desktop'] = $loader->load('top_answerers_qa_widget_desktop');
-			if(!$u->isAnon()) {
+			if (!$u->isAnon()) {
 				$vars['answer_flag_options'] = $this->getAnswerFlagOptions();
 			}
 		}
 
-		if($showUnansweredQuestions) {
+		if ($showUnansweredQuestions) {
 			$vars['qa_answer_confirmation'] = $loader->load('qa_answer_confirmation');
 			$vars['qa_social_login_form'] = $loader->load('qa_social_login_form');
 			$vars['qa_social_login_confirmation'] = $loader->load('qa_social_login_confirmation');
@@ -154,7 +154,7 @@ class QAWidget {
 		$limit = $isMobile ? self::LIMIT_MOBILE_ANSWERED_QUESTIONS : self::LIMIT_DESKTOP_ANSWERED_QUESTIONS;
 		$offset = $fresh_qa ? $limit : 0;
 		$articleQuestions = self::getArticleQuestions($aid, $isEditor, $limit, $offset);
-		if(class_exists('WikihowToc')) {
+		if (class_exists('WikihowToc')) {
 			WikihowToc::setQandA(count($articleQuestions) > 0);
 		}
 		if (count($articleQuestions) >= $limit) {
@@ -162,7 +162,7 @@ class QAWidget {
 		}
 		if (class_exists("QADomain")) {
 			$qa_whalink = QADomain::getRandomQADomainLinkFromWikihow($this->t->getArticleID());
-			if($qa_whalink !== false) {
+			if ($qa_whalink !== false) {
 				$vars['qa_whalink'] = $qa_whalink;
 				$vars['qa_see_more_answered'] = wfMessage('qa_see_more_answered')->text();
 			}
@@ -171,7 +171,7 @@ class QAWidget {
 		$vars['qa_has_visible_answers'] = self::hasVisibleAnswers($isEditor, $articleQuestions);
 
 		$vars['submitted_questions'] = $this->getSubmittedQuestions($aid, self::LIMIT_SUBMITTED_QUESTIONS);
-		if(count($vars['submitted_questions']) == self::LIMIT_SUBMITTED_QUESTIONS) {
+		if (count($vars['submitted_questions']) == self::LIMIT_SUBMITTED_QUESTIONS) {
 			$vars['qa_show_more_submitted'] = wfMessage('qa_show_more_submitted')->text();
 		}
 		$vars['formatName'] = function($text, Mustache_LambdaHelper $helper) {
@@ -179,7 +179,7 @@ class QAWidget {
 		};
 		$vars['search_enabled'] = $this->isSearchTarget() ? 1 : 0;
 
-		if($showUnpatrolledQuestions) {
+		if ($showUnpatrolledQuestions) {
 			$msgKeys = [
 				'qa_section_unpatrolled'
 			];
@@ -187,7 +187,7 @@ class QAWidget {
 
 			$vars['unpatrolled_questions'] = $this->getUnpatrolledQuestions($aid, self::LIMIT_UPATROLLED_QUESTIONS);
 			$vars['qa_patrol_item'] = $loader->load('qa_patrol_item');
-			if(count($vars['unpatrolled_questions']) == self::LIMIT_UPATROLLED_QUESTIONS) {
+			if (count($vars['unpatrolled_questions']) == self::LIMIT_UPATROLLED_QUESTIONS) {
 				$vars['qa_show_more_unpatrolled'] = wfMessage('qa_show_more_unpatrolled')->text();
 			}
 			$vars['qa_has_unpatrolled'] = (count($vars['unpatrolled_questions']) > 0);
@@ -414,13 +414,22 @@ class QAWidget {
 				$moduleName = 'mobile.wikihow.qa_widget';
 			}  else {
 				$moduleName = 'ext.wikihow.qa_widget';
-				$qa_toc = Misc::getEmbedFile('css', dirname(__FILE__) . '/qa_widget_desktop_top.less');
+				$qa_toc = Misc::getEmbedFile('css', __DIR__ . '/qa_widget_desktop_top.less');
 				$out->addHeadItem('qa_toc', HTML::inlineStyle($qa_toc));
 			}
 
 			$out->addModules($moduleName);
 		}
 
+		return true;
+	}
+
+	public static function onAddDesktopTOCItems($wgTitle, &$anchorList) {
+		if (!Misc::isMobileMode() && QAWidget::isTargetPage()) {
+			$pos = count($anchorList);
+			$tocText = wfMessage('qa_toc_section')->text();
+			array_splice($anchorList, $pos, 0, "<a id='qa_toc' href='#Questions_and_Answers_sub'>$tocText</a>");
+		}
 		return true;
 	}
 

@@ -1,4 +1,4 @@
-<?
+<?php
 
 class MobileWikihowCategoryPage extends CategoryPage {
 	var $out = null;
@@ -26,7 +26,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 
 		if ($this->request->getVal('a', '') == 'more') {
 			$this->getMoreArticles();
-		} else if ($this->request->getVal('a', '') == 'fill') {
+		} elseif ($this->request->getVal('a', '') == 'fill') {
 			$this->getSubcategoryArticles();
 		} else {
 			$this->render();
@@ -73,7 +73,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$this->out->redirect($this->title->getFullURL());
 		}
 		if ($page > 1) {
-			$this->out->setRobotpolicy('noindex');
+			$this->out->setRobotPolicy('noindex');
 		}
 
 		$this->viewer = new WikihowCategoryViewer($this->title, $this->getContext());
@@ -99,7 +99,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$carousel = new CategoryCarousel($data, false, [], true);
 		$carouselHtml[] = $carousel->getCarouselHtml(CategoryData::ALL_ARTICLES_CHUNK);
 
-		if($this->viewer->getNumOnPage($page, CategoryData::ALL_ARTICLES_CHUNK) < 20) {
+		if ($this->viewer->getNumOnPage($page, CategoryData::ALL_ARTICLES_CHUNK) < 20) {
 			$maxSubsToFill = self::NUM_SUBCATS;
 		} else {
 			$maxSubsToFill = 0;
@@ -128,8 +128,8 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			'parent_url' => $catData->getParentCategoryUrl()
 		];
 
-		if($isMainCategory) {
-			if($getArticles) {
+		if ($isMainCategory) {
+			if ($getArticles) {
 				$data['cat_articles'] = $viewer->getArticlesMobile($currentPage, CategoryData::ALL_ARTICLES_CHUNK);
 				$data = array_merge($data, $catData->getPagination($viewer->getNumArticles()));
 				$data['cat_articles']['last_page'] = $currentPage;
@@ -138,7 +138,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 				$data['cat_articles']['last_page'] = $currentPage-1;
 			}
 		} else {
-			if($getArticles) {
+			if ($getArticles) {
 				$data['cat_articles'] = $viewer->getArticlesMobile($currentPage, CategoryData::SUB_CAT_CHUNK);
 				$data['cat_articles']['last_page'] = $currentPage;
 			} else {
@@ -151,12 +151,12 @@ class MobileWikihowCategoryPage extends CategoryPage {
 	}
 
 	protected function renderCarousels($page) {
-		$loader = new Mustache_Loader_FilesystemLoader(dirname(__FILE__));
+		$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
 		$this->out->addHtml(
 			$m->render(
-				'mobile_category_page',
+				'mobile_category_page.mustache',
 				array_merge($this->getCarouselsHtml($page), ['template' => $loader->load('../category_carousel/category_carousel_item')])
 			)
 		);
@@ -167,8 +167,8 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$carouselHtml = [];
 		$subcatsArray = [];
 		foreach ($subCats as $subcat) {
-			if($subcat instanceof Title) {
-				if($subcat->getArticleID() != $this->title->getArticleID()) {
+			if ($subcat instanceof Title) {
+				if ($subcat->getArticleID() != $this->title->getArticleID()) {
 					$subcatsArray[] = ['title' => $subcat, 'subsubcats' => []];
 					$topLevelSubcats[] = $subcat;
 				}
@@ -180,7 +180,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 				}
 			} elseif (count($subcat) == 2) {
 				$subsubcatsArray = [];
-				if(is_array($subcat[1])) {
+				if (is_array($subcat[1])) {
 					foreach ($subcat[1] as $t) {
 						$subsubcatsArray[] = $t;
 					}
@@ -190,9 +190,9 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			}
 		}
 
-		foreach($subcatsArray as $index => $subcats) {
+		foreach ($subcatsArray as $index => $subcats) {
 			$catData = new CategoryData($subcats['title'], 1);
-			if($index < $limit) {
+			if ($index < $limit) {
 				$viewer = new WikihowCategoryViewer($subcats['title'], $this->getContext());
 				$viewer->doQuery();
 				$data = $this->getData(false, 1, $catData, true, $viewer);

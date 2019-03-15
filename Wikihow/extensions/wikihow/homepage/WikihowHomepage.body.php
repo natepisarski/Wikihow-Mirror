@@ -76,7 +76,7 @@ class WikihowHomepage extends Article {
 
         $wgOut->addHTML( $container );
 
-		// $catmap = Categoryhelper::getIconMap();
+		// $catmap = CategoryHelper::getIconMap();
 		// ksort($catmap);
 
 		$categories = array();
@@ -114,7 +114,7 @@ class WikihowHomepage extends Article {
 			$categories[$category]->icon = $cat_class;
 		}
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'categories' => $categories
 		));
@@ -177,7 +177,7 @@ class WikihowHomepage extends Article {
 		<input type="text" class="search_box" name="search" />
 		</form>';
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$loginVal = ($wgUser->getID() == 0 ? UserLoginBox::getLogin(false, false) : "");
 		if ( Misc::isAltDomain() ) {
 			$loginVal = '';
@@ -223,7 +223,7 @@ class WikihowHomepage extends Article {
 				return true;
 			}
 
-			$tmpl = new EasyTemplate( dirname(__FILE__) );
+			$tmpl = new EasyTemplate( __DIR__ );
 			$tmpl->set_vars(array(
 				'hp_url' => json_encode($wgTitle->getFullUrl()),
 				'search_url' => json_encode($search_url),

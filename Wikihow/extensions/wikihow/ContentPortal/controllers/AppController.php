@@ -13,7 +13,7 @@ class AppController extends Controller {
 		if (!$this->currentUser) {
 			if ($this->isStaffUser()) {
 				$this->createUserForStaff();
-			} else if ($this->isEditorPersonalUser()) {
+			} elseif ($this->isEditorPersonalUser()) {
 				$this->createUserForEditorPersonal();
 			} else {
 				$this->render('session/new', 'session');

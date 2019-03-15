@@ -9,14 +9,14 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['MyWikihow'] = 'MyWikihow';
-$wgAutoloadClasses['MyWikihow'] = dirname(__FILE__) . '/MyWikihow.body.php';
-$wgExtensionMessagesFiles['MyWikihow'] = dirname(__FILE__) . '/MyWikihow.i18n.php';
+$wgAutoloadClasses['MyWikihow'] = __DIR__ . '/MyWikihow.body.php';
+$wgExtensionMessagesFiles['MyWikihow'] = __DIR__ . '/MyWikihow.i18n.php';
 
 $wgHooks["IsEligibleForMobileSpecial"][] = array("wfMWIsEligibleForMobile");
 
 $wgResourceModules['ext.wikihow.my_wikihow'] = array(
 	'scripts' => 'my_wikihow.js',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/MyWikihow',
 	'position' => 'bottom',
 	'dependencies' => array('mobile.wikihow', 'ext.wikihow.MobileToolCommon'),
@@ -26,7 +26,7 @@ $wgResourceModules['ext.wikihow.my_wikihow'] = array(
 
 $wgResourceModules['ext.wikihow.my_wikihow_styles'] = array(
 	'styles' => 'my_wikihow.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/MyWikihow',
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' )
@@ -34,7 +34,7 @@ $wgResourceModules['ext.wikihow.my_wikihow_styles'] = array(
 
 function wfMWIsEligibleForMobile(&$isEligible) {
 	global $wgTitle;
-	if($wgTitle && strrpos($wgTitle->getText(), "MyWikihow") === 0) {
+	if ($wgTitle && strrpos($wgTitle->getText(), "MyWikihow") === 0) {
 		$isEligible = true;
 	}
 

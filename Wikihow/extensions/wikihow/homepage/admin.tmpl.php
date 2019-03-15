@@ -12,11 +12,11 @@
 			</tr>
 		</thead>
 		<tbody class="hp_admin_box">
-			<?php foreach($items as $item): ?>
+			<?php foreach ($items as $item): ?>
 				<tr>
 					<td><a href="<?=$item->title->getLocalUrl()?>" target="_blank"><?= $item->title->getText()?></a></td>
 					<td><img src="<?= $item->file ?>" /></td>
-					<td><input type="checkbox" name="hp_images[]" value="<?= $item->hp_id ?>" <? if($item->hp_active==1) echo "checked='checked'"; ?> /></td>
+					<td><input type="checkbox" name="hp_images[]" value="<?= $item->hp_id ?>" <? if ($item->hp_active==1) echo "checked='checked'"; ?> /></td>
 					<td><input type="button" value="Delete" id="delete_<?= $item->hp_id ?>" class="hp_delete" /></td>
 				</tr>
 			<?php endforeach; ?>

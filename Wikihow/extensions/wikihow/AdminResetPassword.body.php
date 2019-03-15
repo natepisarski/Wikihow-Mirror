@@ -2,7 +2,7 @@
 
 class AdminResetPassword extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('AdminResetPassword');
 	}
 
@@ -11,10 +11,12 @@ class AdminResetPassword extends UnlistedSpecialPage {
 	 * was lifted from LoginReminder.body.php (but it wasn't generalized
 	 * there -- it was for email only).
 	 *
+	 * NOTE: this is called by CivicLogin and GoogleLogin too.
+	 *
 	 * @param $username string, the username
 	 * @return a temporary password string to give to user
 	 */
-	function resetPassword($username) {
+	public static function resetPassword($username) {
 		$user = User::newFromName($username);
 		if ($user->getID() > 0) {
 			$newPassword = $user->randomPassword();
@@ -31,20 +33,22 @@ class AdminResetPassword extends UnlistedSpecialPage {
 	/**
 	 * Execute special page.  Only available to wikihow staff.
 	 */
-	function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
-			$username = $wgRequest->getVal('username', '');
-			$wgOut->setArticleBodyOnly(true);
-			$newPass = $this->resetPassword($username);
+		if ($req->wasPosted()) {
+			$username = $req->getVal('username', '');
+			$out->setArticleBodyOnly(true);
+			$newPass = self::resetPassword($username);
 			if ($newPass) {
 				$url = 'http://www.wikihow.com/Special:Userlogin';
 				$tmpl = <<<EOHTML
@@ -60,7 +64,7 @@ EOHTML;
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Reset User Password - wikiHow');
+		$out->setHTMLTitle('Admin - Reset User Password - wikiHow');
 
 $tmpl = <<<EOHTML
 <form method="post" action="/Special:AdminResetPassword">
@@ -102,6 +106,6 @@ $tmpl = <<<EOHTML
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 }

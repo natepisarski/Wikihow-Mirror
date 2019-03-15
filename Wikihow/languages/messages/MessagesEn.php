@@ -6944,7 +6944,7 @@ in addition to a hand written note about their new article.',
 'newarticle' => '(New)',
 'newarticleboost' => 'New article boost',
 'newarticlepatrollogpage' => 'New article boost',
-'newarticlepatrollogpagetext' => 'This is the list of log entries for the [[Special:Newarticleboost|New article boost]] feature.',
+'newarticlepatrollogpagetext' => 'This is the list of log entries for the [[Special:NewArticleBoost|New article boost]] feature.',
 'newarticletext' => 'You\'ve followed a link to a page that doesn\'t exist yet.
 To create the page, start typing in the box below
 (see the [[{{ns:help}}:Contents|help page]] for more info).  <br/><br/>
@@ -7787,7 +7787,7 @@ The [http://meta.wikimedia.org/wiki/Help:Job_queue job queue] length is \'\'\'$7
 'textmatches' => 'Page text matches',
 'thank-you-kudos' => '<b>Thank you for your words of praise!</b> Your message has been posted on the \'<a href=\'/Thank-the-Authors-of-a-wikiHow-Page\'>kudos</a>\' page of each author that contributed to <b>$2</b>, found at the bottom of each article.
 <br/><br/>
-wikiHow authors can check their <a href=\'/Special:MyPages/Fanmail\'>kudos pages</a> and can view your messages of thanks there.  Your appreciation and feedback truly matters, and will help to keep our authors inspired and motivated to continue writing great articles.
+wikiHow authors can check their <a href=\'/Special:MyPages/fanmail\'>kudos pages</a> and can view your messages of thanks there.  Your appreciation and feedback truly matters, and will help to keep our authors inspired and motivated to continue writing great articles.
 <br/><br/>
 <a href=\'$1\'>Click here to return to $2</a>.',
 'thank-you-requesting-topic' => '\'\'\'Thank you for suggesting a topic.\'\'\'

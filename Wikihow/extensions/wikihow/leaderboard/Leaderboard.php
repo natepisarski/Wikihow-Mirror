@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
-    
+
 /**
  * An extension that displays number of new articles and number of rising stars
  */

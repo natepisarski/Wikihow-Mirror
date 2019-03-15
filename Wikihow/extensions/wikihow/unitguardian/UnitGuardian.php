@@ -9,12 +9,12 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['UnitGuardian'] = 'UnitGuardian';
-$wgAutoloadClasses['UnitGuardian'] = dirname(__FILE__) . '/UnitGuardian.body.php';
-$wgExtensionMessagesFiles['UnitGuardian'] = dirname(__FILE__) . '/UnitGuardian.i18n.php';
-$wgAutoloadClasses['UnitConverter'] = dirname(__FILE__) . '/UnitConverter.class.php';
+$wgAutoloadClasses['UnitGuardian'] = __DIR__ . '/UnitGuardian.body.php';
+$wgExtensionMessagesFiles['UnitGuardian'] = __DIR__ . '/UnitGuardian.i18n.php';
+$wgAutoloadClasses['UnitConverter'] = __DIR__ . '/UnitConverter.class.php';
 $wgSpecialPages['AdminUnitGuardian'] = 'AdminUnitGuardian';
-$wgAutoloadClasses['AdminUnitGuardian'] = dirname(__FILE__) . '/UnitGuardian.body.php';
-$wgAutoloadClasses['UnitGuardianContents'] = dirname(__FILE__) . '/UnitGuardian.body.php';
+$wgAutoloadClasses['AdminUnitGuardian'] = __DIR__ . '/UnitGuardian.body.php';
+$wgAutoloadClasses['UnitGuardianContents'] = __DIR__ . '/UnitGuardian.body.php';
 
 $wgLogTypes[] = 'unitguardian';
 $wgLogNames['unitguardian'] = 'unitguardian';
@@ -27,7 +27,7 @@ $wgHooks['ArticleDelete'][] = array('UnitGuardian::onArticleDelete');
 $wgResourceModules['ext.wikihow.mobile.unitguardian'] = array(
 	'scripts' => 'unitguardian.js',
 	'styles' => 'unitguardian.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/unitguardian',
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' ),

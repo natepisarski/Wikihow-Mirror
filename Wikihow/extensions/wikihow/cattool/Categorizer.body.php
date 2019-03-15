@@ -12,12 +12,12 @@ class Categorizer extends UnlistedSpecialPage {
 	var $oneWeek = 0;
 
 	public function __construct() {
-		global $wgUser, $wgHooks;
+		global $wgHooks;
 		parent::__construct( 'Categorizer' );
 
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 
-		$userId = $wgUser->getId();
+		$userId = $this->getUser()->getId();
 		$this->pageIdsKey = wfMemcKey("cattool_pageids1");
 		$this->inUseKey = wfMemcKey("cattool_inuse");
 		$this->skippedKey = wfMemcKey("cattool_{$userId}_skipped");
@@ -29,25 +29,25 @@ class Categorizer extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgOut, $wgRequest, $wgUser;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
-		$fname = 'Categorizer::execute';
-		wfProfileIn( $fname );
+		$section = new ProfileSection(__METHOD__);
 
-		$wgOut->setRobotpolicy( 'noindex,nofollow' );
-		if ($wgUser->getId() == 0) {
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		$out->setRobotPolicy( 'noindex,nofollow' );
+		$user = $this->getUser();
+		if ($user->getId() == 0) {
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
 		# Check blocks
-		$user = $this->getUser();
 		if ( $user->isBlocked() ) {
 			throw new UserBlockedError( $user->getBlock() );
 		}
 
-		$action = $wgRequest->getVal('a', 'default');
-		$pageId = $wgRequest->getVal('id', -1);
+		$action = $req->getVal('a', 'default');
+		$pageId = $req->getVal('id', -1);
 		switch ($action) {
 			case 'default':
 				$t = $this->getNext();
@@ -59,39 +59,36 @@ class Categorizer extends UnlistedSpecialPage {
 				$this->display($t);
 				break;
 			case 'complete':
-				$wgOut->setArticleBodyOnly(true);
+				$out->setArticleBodyOnly(true);
 				$this->complete($pageId);
 				$t = $this->getNext();
 				$vars['head'] = $this->getHeadHtml($t);
 				$vars['article'] = $this->getArticleHtml($t);
-				print_r(json_encode($vars));
+				print(json_encode($vars));
 				break;
 			case 'skip':
-				$wgOut->setArticleBodyOnly(true);
+				$out->setArticleBodyOnly(true);
 				$this->skip($pageId);
 				$t = $this->getNext();
 				$vars['head'] = $this->getHeadHtml($t);
 				$vars['article'] = $this->getArticleHtml($t);
-				print_r(json_encode($vars));
+				print(json_encode($vars));
 				break;
 			case 'view':
 				$t = Title::newFromId($pageId);
 				$this->display($t);
 				break;
 		}
-
-		wfProfileOut( $fname );
-		return;
 	}
 
 	/** Get javascript messages to add for Categorizer tool
 	 */
-	public function getJSMsgs() {
+	private  function getJSMsgs() {
 		$msgs = array('cat_sorry_label');
-		return($msgs);
+		return $msgs;
 	}
 
-	public function getNext() {
+	private function getNext() {
 		global $wgMemc;
 
 		$t = null;
@@ -106,8 +103,9 @@ class Categorizer extends UnlistedSpecialPage {
 		return $t;
 	}
 
-	public function getNextArticleId() {
-		global $wgMemc, $wgLanguageCode;
+	private function getNextArticleId() {
+		global $wgMemc;
+		$langCode = $this->getLanguage()->getCode();
 		$key = $this->pageIdsKey;
 		$pageIds = $wgMemc->get($key);
 		if (!$pageIds || $this->fetchMoreArticleIds()) {
@@ -119,7 +117,7 @@ class Categorizer extends UnlistedSpecialPage {
 		$pageId = -1;
 		foreach ($pageIds as $page) {
 			try {
-				if (!$this->skipped($page) && !$this->inUse($page) && ($wgLanguageCode != "en" || GoodRevision::patrolledGood(Title::newFromId($page)) ) ) {
+				if (!$this->skipped($page) && !$this->inUse($page) && ($langCode != "en" || GoodRevision::patrolledGood(Title::newFromId($page)) ) ) {
 					$this->markInUse($page);
 					$pageId = $page;
 					break;
@@ -132,7 +130,7 @@ class Categorizer extends UnlistedSpecialPage {
 		return $pageId;
 	}
 
-	function fetchMoreArticleIds() {
+	private function fetchMoreArticleIds() {
 		global $wgMemc;
 		$ret = false;
 		$pageIds = $wgMemc->get($this->pageIdsKey);
@@ -147,11 +145,11 @@ class Categorizer extends UnlistedSpecialPage {
 		return $ret;
 	}
 
-	function skip($pageId) {
+	private function skip($pageId) {
 		global $wgMemc;
 		$key = $this->skippedKey;
 		$val = $wgMemc->get($key);
-		if(is_array($val)) {
+		if (is_array($val)) {
 			$val[] = $pageId;
 		} else {
 			$val = array($pageId);
@@ -160,21 +158,21 @@ class Categorizer extends UnlistedSpecialPage {
 		$this->unmarkInUse($pageId);
 	}
 
-	function skipped($pageId) {
+	private function skipped($pageId) {
 		global $wgMemc;
 		$key = $this->skippedKey;
 		$val = $wgMemc->get($key);
 		return $val ? in_array($pageId, $val) : false;
 	}
 
-	function inUse($pageId) {
+	private function inUse($pageId) {
 		global $wgMemc;
 		$key = $this->inUseKey;
 		$val = $wgMemc->get($key);
 		return $val ? in_array($pageId, $val) : false;
 	}
 
-	function unmarkInUse($page) {
+	private function unmarkInUse($page) {
 		global $wgMemc;
 		$key = $this->inUseKey;
 		// Remove from page ids
@@ -190,13 +188,13 @@ class Categorizer extends UnlistedSpecialPage {
 		}
 	}
 
-	function markInUse($pageId) {
+	private function markInUse($pageId) {
 		global $wgMemc;
 		$key = $this->inUseKey;
 		$val = $wgMemc->get($key);
 		if ($val) {
 			// Throw an exception if someone else has marked this in use
-			if(in_array($pageId, $val)) {
+			if (in_array($pageId, $val)) {
 				throw new Exception("pageId in use: $pageId");
 			}
 			$val[] = $pageId;
@@ -206,43 +204,38 @@ class Categorizer extends UnlistedSpecialPage {
 		$wgMemc->set($key, $val, $this->halfHour);
 	}
 
-	function display(&$t) {
-		global $wgOut, $wgRequest;
+	private function display(&$t) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
 		$vars = array();
 		$this->setVars($vars, $t);
-		$wgOut->setArticleBodyOnly($this->editPage);
+		$out->setArticleBodyOnly($this->editPage);
 
 		if (!$this->editPage) {
-			$wgOut->addModules('ext.wikihow.categorizer');
+			$out->addModules('ext.wikihow.categorizer');
 		}
 		$msgs = $this->getJSMsgs($msgs);
-		$wgOut->addHTML(Wikihow_i18n::genJSMsgs($msgs));
+		$out->addHTML(Wikihow_i18n::genJSMsgs($msgs));
 
 		$vars['article'] = $this->getArticleHtml($t);
-		EasyTemplate::set_path(dirname(__FILE__).'/');
-		$html = $this->editPage ? EasyTemplate::html('Categorizer_editpage', $vars) : EasyTemplate::html('Categorizer', $vars);
-		$wgOut->addHtml($html);
+		EasyTemplate::set_path(__DIR__.'/');
+		$html = $this->editPage ? EasyTemplate::html('Categorizer_editpage.tmpl.php', $vars) : EasyTemplate::html('Categorizer.tmpl.php', $vars);
+		$out->addHtml($html);
 		$this->displayLeaderboards();
-		$wgOut->setHTMLTitle(wfMessage('cat_app_name'));
-		$wgOut->setPageTitle(wfMessage('cat_app_name'));
+		$out->setHTMLTitle(wfMessage('cat_app_name'));
+		$out->setPageTitle(wfMessage('cat_app_name'));
 	}
 
-	function displayHead(&$t) {
-		global $wgOut;
-		$wgOut->setArticleBodyOnly(true);
-		$wgOut->addHtml($this->getHeadHtml($t));
-	}
+	private function getArticleHtml($t) {
+		$out = $this->getOutput();
 
-	function getArticleHtml($t) {
-		global $wgOut;
-
-		if($t) {
-			$popts = $wgOut->parserOptions();
+		if ($t) {
+			$popts = $out->parserOptions();
 			$popts->setTidy(true);
 			$revision = Revision::newFromTitle($t);
 			if ($revision) {
-				$parserOutput = $wgOut->parse($revision->getText(), $t, $popts);
+				$parserOutput = $out->parse($revision->getText(), $t, $popts);
 				$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
 				return WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));
 			}
@@ -254,13 +247,13 @@ class Categorizer extends UnlistedSpecialPage {
 		return $html;
 	}
 
-	function getHeadHtml(&$t, &$vars = array()) {
-		global $wgUser, $IP;
+	private function getHeadHtml(&$t, &$vars = array()) {
+		$user = $this->getUser();
 
 		if ($t && $t->exists()) {
 			$vars['cats'] = $this->getCategoriesHtml($t);
 			$vars['pageId'] = $t->getArticleId();
-			$sk = $wgUser->getSkin();
+			$sk = $user->getSkin();
 			$vars['title'] = $t->getText();
 			$vars['titleUrl'] = "/" . urlencode(htmlspecialchars_decode(urldecode($t->getPartialUrl())));
 			$vars['intro'] = $this->getIntroText($t);
@@ -270,11 +263,11 @@ class Categorizer extends UnlistedSpecialPage {
 			return '<div id="cat_aid">'.$vars['pageId'].'</div>';
 		}
 		$vars['cat_help_url'] = wfMessage('cat_help_url');
-		EasyTemplate::set_path(dirname(__FILE__).'/');
-		return EasyTemplate::html('Categorizer_head', $vars);
+		EasyTemplate::set_path(__DIR__.'/');
+		return EasyTemplate::html('Categorizer_head.tmpl.php', $vars);
 	}
 
-	function getIntroText($t) {
+	private function getIntroText($t) {
 		$r = Revision::newFromTitle($t);
 		if ($r) {
 			$intro = Article::getSection($r->getText(), 0);
@@ -284,8 +277,7 @@ class Categorizer extends UnlistedSpecialPage {
 		}
 	}
 
-	function setVars(&$vars, &$t) {
-		global $wgUser, $wgRequest;
+	private function setVars(&$vars, &$t) {
 		$vars['cat_head'] = $this->getHeadHtml($t, $vars);
 		$vars['cat_help_url'] = wfMessage('cat_help_url');
 		$vars['tree'] = json_encode(CategoryInterests::getCategoryTreeArray());
@@ -296,7 +288,7 @@ class Categorizer extends UnlistedSpecialPage {
 		}
 	}
 
-	function displayLeaderboards() {
+	private function displayLeaderboards() {
 		if (!$this->editpage) {
 			$stats = new CategorizationStandingsIndividual();
 			$stats->addStatsWidget();
@@ -305,7 +297,7 @@ class Categorizer extends UnlistedSpecialPage {
 		}
 	}
 
-	function getCategoriesHtml(&$t) {
+	private function getCategoriesHtml(&$t) {
 		$html = "";
 		$cats = array_reverse($this->getCategories($t));
 		foreach ($cats as $cat) {
@@ -317,7 +309,7 @@ class Categorizer extends UnlistedSpecialPage {
 		return $html;
 	}
 
-	function getCategories(&$t) {
+	private function getCategories(&$t) {
 		global $wgContLang;
 
 		$parentCats = array_keys($t->getParentCategories());
@@ -336,7 +328,7 @@ class Categorizer extends UnlistedSpecialPage {
 		return $cats;
 	}
 
-	function getStickyCategoriesOnly(Title &$title): array {
+	private function getStickyCategoriesOnly(Title &$title): array {
 		$allArticleCats = $this->getCategories($title);
 		$stickyArticleCats = [];
 		foreach (CategorizerUtil::getStickyCats() as $stickyCat) {
@@ -348,7 +340,7 @@ class Categorizer extends UnlistedSpecialPage {
 		return $stickyArticleCats;
 	}
 
-	public function getUncategorizedPageIds($getCount=false) {
+	private function getUncategorizedPageIds($getCount=false) {
 		global $wgMemc;
 
 		$pageIds = CategorizerUtil::getUncategorizedPagesIds();
@@ -360,8 +352,9 @@ class Categorizer extends UnlistedSpecialPage {
 		return $pageIds;
 	}
 
-	function complete($page) {
-		global $wgMemc, $wgRequest;
+	private function complete($page) {
+		global $wgMemc;
+
 		$key = $this->pageIdsKey;
 		// Remove from page ids
 		$pageIds = $wgMemc->get($key);
@@ -378,8 +371,8 @@ class Categorizer extends UnlistedSpecialPage {
 		$this->unmarkInUse($page);
 	}
 
-	function categorize($aid) {
-		global $wgRequest;
+	private function categorize($aid) {
+		$req = $this->getRequest();
 
 		$t = Title::newFromId($aid);
 		if ($t && $t->exists()) {
@@ -390,7 +383,7 @@ class Categorizer extends UnlistedSpecialPage {
 			$intro = $this->stripCats($intro);
 
 			$stickyCats = $this->getStickyCategoriesOnly($t);
-			$submittedCats = array_reverse($wgRequest->getArray('cats', array()));
+			$submittedCats = array_reverse($req->getArray('cats', array()));
 			$cats = array_merge($stickyCats, $submittedCats);
 
 			$intro .= $this->getCatsWikiText($cats);
@@ -404,7 +397,7 @@ class Categorizer extends UnlistedSpecialPage {
 		}
 	}
 
-	function getCatsWikiText($cats) {
+	private function getCatsWikiText($cats) {
 		global $wgContLang;
 		$text = "";
 		foreach ($cats as $cat) {
@@ -413,13 +406,8 @@ class Categorizer extends UnlistedSpecialPage {
 		return $text;
 	}
 
-	function stripCats($text) {
+	private function stripCats($text) {
 		global $wgContLang;
 		return preg_replace("/\[\[" . $wgContLang->getNSText(NS_CATEGORY) . ":[^\]]*\]\]/im", "", $text);
-	}
-
-	function makeDBKey($cat) {
-		//return str_replace(" ", "-", $cat);
-		return $cat;
 	}
 }

@@ -19,7 +19,7 @@ class TopicTagging extends \UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$user = $this->getUser();
 
-		$out->setRobotpolicy('noindex, nofollow');
+		$out->setRobotPolicy('noindex, nofollow');
 
 		if ($user->isBlocked()) {
 			$out->blockedPage();

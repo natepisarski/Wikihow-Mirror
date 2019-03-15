@@ -9,8 +9,8 @@
 if (!defined('MEDIAWIKI'))
 	die();
 
-$wgAutoloadClasses['TechArticle\TechArticleWidgetHooks'] = dirname( __FILE__ ) . '/TechArticleWidget.hooks.php';
-$wgAutoloadClasses['TechArticle\TechArticleWidgetModel'] = dirname( __FILE__ ) . '/TechArticleWidgetModel.class.php';
+$wgAutoloadClasses['TechArticle\TechArticleWidgetHooks'] = __DIR__ . '/TechArticleWidget.hooks.php';
+$wgAutoloadClasses['TechArticle\TechArticleWidgetModel'] = __DIR__ . '/TechArticleWidgetModel.class.php';
 
 $wgHooks['PageContentSaveComplete'][] = 'TechArticle\TechArticleWidgetHooks::onPageContentSaveComplete';
 
@@ -20,7 +20,7 @@ $wgResourceModules['ext.wikihow.TechArticle.widget'] = [
 	'targets' => ['desktop'],
 	'position' => 'top',
 	'remoteExtPath' => 'wikihow/TechArticle/widget/resources',
-	'localBasePath' => dirname(__FILE__) . '/resources',
+	'localBasePath' => __DIR__ . '/resources',
 	'styles' => ['tech_article_widget.less'],
 	'scripts' => ['tech_article_widget.js'],
 	'messages' => [

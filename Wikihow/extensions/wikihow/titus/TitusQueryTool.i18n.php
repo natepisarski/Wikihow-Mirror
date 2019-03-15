@@ -3,5 +3,5 @@
 $messages = array();
 
 $messages['en'] = array (
-	'titusquerytool' => 'Titus Query Tool',	
+	'titusquerytool' => 'Titus Query Tool',
 );

@@ -40,7 +40,7 @@ class SuggestedTopicsHooks {
 		$r = Revision::loadFromPageId($dbw, $article_id);
 		if (!is_null($r) && preg_match($templateRegExp, $r->getText()) === 0) {
 			$emails = array();
-			while ($row = $dbw->fetchObject($res)) {
+			foreach ($res as $row) {
 				$title = Title::makeTitle($row->page_namespace, $row->page_title);
 				$arr = explode(',', $row->sn_notify);
 				foreach($arr as $e) {

@@ -29,19 +29,21 @@ class AdminRedirects extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			set_time_limit(0);
-			$pageList = $wgRequest->getVal('pages-list', '');
-			$wgOut->setArticleBodyOnly(true);
+			$pageList = $req->getVal('pages-list', '');
+			$out->setArticleBodyOnly(true);
 			if ($pageList) $pageList = urldecode($pageList);
 			$pageList = preg_split('@[\r\n]+@', $pageList);
 			$urls = array();
@@ -111,11 +113,11 @@ class AdminRedirects extends UnlistedSpecialPage {
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Lookup Redirects - wikiHow');
+		$out->setHTMLTitle('Admin - Lookup Redirects - wikiHow');
 
 		$tmpl = self::getGuts('AdminRedirects');
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 
 	function getGuts($action) {

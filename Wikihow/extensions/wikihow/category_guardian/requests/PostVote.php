@@ -116,7 +116,7 @@ class PostVote extends SqlSuper{
 						"cl_to" => $answer['cat_slug']
 					));
 
-					Categoryhelper::decategorize(
+					CategoryHelper::decategorize(
 						$answer['page_id'],
 						$answer['cat_slug'],
 						"Removing category that seems to be a poor fit, based on votes from the Category Guardian",

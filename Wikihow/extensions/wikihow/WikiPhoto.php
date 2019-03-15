@@ -2,5 +2,4 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['WikiPhoto'] = dirname(__FILE__) . '/WikiPhoto.class.php';
-
+$wgAutoloadClasses['WikiPhoto'] = __DIR__ . '/WikiPhoto.class.php';

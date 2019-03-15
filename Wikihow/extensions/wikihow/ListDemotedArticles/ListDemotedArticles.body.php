@@ -32,7 +32,7 @@ class ListDemotedArticles extends QueryPage {
 	function getQueryInfo() {
 		return array(
 				'tables' => array( 'newarticlepatrol' ),
-				'fields' => array( 'nap_page' ), 
+				'fields' => array( 'nap_page' ),
 				'conds' => array( 'nap_demote' => 1 )
 			);
 	}

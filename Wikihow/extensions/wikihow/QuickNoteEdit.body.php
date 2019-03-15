@@ -20,10 +20,10 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 			if ( preg_match('/^qnButton1=/', $item) ) {
 				list($key,$value) = explode('=', $item);
 				array_push($tb1_ary, $value ) ;
-			} else if ( preg_match('/^qnButton2=/', $item) ) {
+			} elseif ( preg_match('/^qnButton2=/', $item) ) {
 				list($key,$value) = explode('=', $item);
 				array_push($tb2_ary, $value ) ;
-			} else if ( preg_match('/^qnButton3=/', $item) ) {
+			} elseif ( preg_match('/^qnButton3=/', $item) ) {
 				list($key,$value) = explode('=', $item);
 				array_push($tb3_ary, $value ) ;
 			}
@@ -153,7 +153,7 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 			if ($regdate) {
 				$ts = wfTimestamp(TS_UNIX, $regdate);
 				$regdates[] = date('M j, Y', $ts);
-			} else if ($u->getID() == 0) {
+			} elseif ($u->getID() == 0) {
 				$regdates[] = "n/a";
 			} else {
 				$regdates[] = "or before 2006";
@@ -191,7 +191,7 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 		if ($regdate) {
 			$ts = wfTimestamp(TS_UNIX, $regdate);
 			$regdate = date('M j, Y', $ts);
-		} else if ($u->getID() == 0) {
+		} elseif ($u->getID() == 0) {
 			$regdate = "n/a";
 		} else {
 			$regdate = "or before 2006";
@@ -328,9 +328,9 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 		$wgOut->setArticleBodyOnly(true);
 		if ($par == 'quickedit') {
 			$wgOut->addHTML( self::displayQuickEdit2() );
-		} else if ($par == 'quicknote') {
+		} elseif ($par == 'quicknote') {
 			$wgOut->addHTML( self::displayQuickNote2() );
-		} else if( $par == 'quicknotebuttons'){
+		} elseif ( $par == 'quicknotebuttons'){
 			$wgOut->addHTML( self::displayQuickNoteButtons() );
 		}
 	}
@@ -340,4 +340,3 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 		return Wikihow_i18n::genJSMsgs($langKeys);
 	}
 }
-

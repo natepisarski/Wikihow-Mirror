@@ -9,11 +9,11 @@ $wgExtensionCredits['specialpage'][] = [
     ];
 
 $wgSpecialPages['TQualManager'] = 'TQualManager';
-$wgAutoloadClasses['TQualManager'] = dirname(__FILE__).'/TQualManager.body.php';
+$wgAutoloadClasses['TQualManager'] = __DIR__.'/TQualManager.body.php';
 $wgResourceModules['ext.wikihow.TQualManager'] = [
         'scripts' => [ 'resources/tqualmanager.js' ],
         'styles'  => [ 'resources/tqualmanager.css' ],
         'position' => 'top',
-        'localBasePath' => dirname(__FILE__),
+        'localBasePath' => __DIR__,
         'targets' => [ 'desktop' ]
 ];

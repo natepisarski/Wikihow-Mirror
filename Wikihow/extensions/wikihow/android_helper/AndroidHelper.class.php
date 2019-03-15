@@ -14,7 +14,7 @@ class AndroidHelper {
 	public static function onTitleSquidURLsPurgeVariants($title, &$urls) {
 		global $wgLanguageCode;
 
-		if ($title && $title->exists() && $title->getNamespace() == NS_MAIN) {
+		if ($title && $title->exists() && $title->inNamespace(NS_MAIN)) {
 			$androidUrl = $title->getInternalURL();
 			$partialUrl = preg_replace("@^(https?:)?//[^/]+/@", "/", $androidUrl);
 			$domain = Misc::getLangDomain($wgLanguageCode, true);

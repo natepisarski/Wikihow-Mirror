@@ -5,14 +5,13 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'Newcontributors',
+    'name' => 'NewContributors',
     'author' => 'Travis <travis@wikihow.com>',
     'description' => 'A list of users who have made their first contribution to the site',
 );
 
-$wgExtensionMessagesFiles['Newcontributors'] = dirname(__FILE__) . '/Newcontributors.i18n.php';
-$wgExtensionMessagesFiles['NewcontributorsAliases'] = dirname(__FILE__) . '/Newcontributors.alias.php';
+$wgExtensionMessagesFiles['NewContributors'] = __DIR__ . '/Newcontributors.i18n.php';
+$wgExtensionMessagesFiles['NewContributorsAliases'] = __DIR__ . '/Newcontributors.alias.php';
 
-$wgSpecialPages['Newcontributors'] = 'Newcontributors';
-$wgAutoloadClasses['Newcontributors'] = dirname( __FILE__ ) . '/Newcontributors.body.php';
-
+$wgSpecialPages['NewContributors'] = 'NewContributors';
+$wgAutoloadClasses['NewContributors'] = __DIR__ . '/Newcontributors.body.php';

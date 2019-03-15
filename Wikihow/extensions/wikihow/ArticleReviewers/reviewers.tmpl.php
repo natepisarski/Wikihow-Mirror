@@ -2,15 +2,15 @@
 	<h1><?= wfMessage('ar_page_title')->text() ?></h1>
 	<p><?= wfMessage('ar_subtitle')->text() ?></p>
 </div>
-<? foreach($expertCategories as $catname => $category): ?>
+<? foreach ($expertCategories as $catname => $category): ?>
 	<? if ($catname == "experts" ) continue; ?>
 	<div class="minor_section ar_category">
 		<h3><a class="ar_anchor" name="<?= strtolower($catname) ?>"></a><?= $catname ?></h3>
 
 		<? $i = 0; ?>
-		<? foreach($category as $name => $expert): ?>
+		<? foreach ($category as $name => $expert): ?>
 			<? if ($name == "count") continue; ?>
-			<? if($i % $numRows == 0): ?>
+			<? if ($i % $numRows == 0): ?>
 				<div class="ar_row">
 			<? endif; ?>
 			<div class="reviewer">
@@ -33,14 +33,14 @@
 
 			<?
 				$i++;
-				if($i % $numRows == 0): ?>
+				if ($i % $numRows == 0): ?>
 					</div>
 				<? else: ?>
 					<div class="ar_spacer"></div>
 				<? endif;
 			?>
 		<? endforeach; ?>
-		<? if($i % $numRows != 0): ?>
+		<? if ($i % $numRows != 0): ?>
 			</div>
 		<? endif; ?>
 	</div>

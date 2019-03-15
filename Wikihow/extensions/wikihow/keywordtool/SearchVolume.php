@@ -2,7 +2,7 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['SearchVolume'] = dirname(__FILE__) . '/SearchVolume.class.php';
+$wgAutoloadClasses['SearchVolume'] = __DIR__ . '/SearchVolume.class.php';
 $wgHooks['PageContentInsertComplete'][] = ['SearchVolume::onPageContentInsertComplete'];
 
 /****

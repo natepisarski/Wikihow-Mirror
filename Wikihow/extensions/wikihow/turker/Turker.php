@@ -9,4 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Turker'] = 'Turker';
-$wgAutoloadClasses['Turker'] = dirname( __FILE__ ) . '/Turker.body.php';
+$wgAutoloadClasses['Turker'] = __DIR__ . '/Turker.body.php';

@@ -12,6 +12,8 @@ class WikihowToc {
 	const MAX_ITEMS = 8;
 	const MAX_METHODS = 3;
 
+	const CONFIG_LIST_NAME = "new_toc";
+
 	public static function setMethods($methodAnchors, $methodNames) {
 
 		self::$methodAnchors = $methodAnchors;
@@ -26,8 +28,24 @@ class WikihowToc {
 		self::$videoSummary = ['url' => '#quick_summary_section', 'id' => 'summaryvideo_toc', 'text' => wfMessage('summaryvideo_toc')->text()];
 	}
 
+	public static function isNewArticle() {
+		$main = RequestContext::getMain();
+		$title = $main->getTitle();
+		$languageCode = $main->getLanguage()->getCode();
+
+		if (!$title->exists() || $title->isRedirect() || !$title->inNamespace(NS_MAIN)) {
+			return false;
+		}
+
+		if ($languageCode == "en" || $languageCode == "qqx") {
+			return true;
+		} else {
+			return $title->getArticleID() % 2 == 0;
+		}
+	}
+
 	public static function setQandA($hasAnsweredQuestions) {
-		if($hasAnsweredQuestions) {
+		if ($hasAnsweredQuestions) {
 			$tocText = wfMessage('qa_toc')->text();
 			self::$hasAnswers = true;
 		} else {
@@ -37,11 +55,10 @@ class WikihowToc {
 	}
 
 	public static function setReferences() {
-		global $wgLanguageCode;
-		if (!Misc::isMobileMode() && $wgLanguageCode == "en") {
+		if (!Misc::isMobileMode()) {
 			$refCount = Misc::getReferencesCount();
-			if($refCount > 0) {
-				self::$references = ['url' => '#sourcesandcitations', 'class' => 'toc_ref', 'text' => "References"];
+			if ($refCount > 0) {
+				self::$references = ['url' => '#' . Misc::getSectionName( wfMessage('sources')->text() ), 'class' => 'toc_ref', 'text' => wfMessage("references_toc")->text()];
 			}
 		}
 	}
@@ -49,13 +66,19 @@ class WikihowToc {
 	public static function addToc() {
 		self::processMethodNames();
 
+		//remove this later, but for now we need it
+		global $wgLanguageCode;
+		if ($wgLanguageCode != "en") {
+			self::setReferences();
+		}
+
 		$methodsShown = $primaryCount = min(self::MAX_METHODS, count(self::$methodNames));
 
 		$hasHidden = false;
 
 		$data = ['toc' => []];
 
-		if(count(self::$methodNames) > 0) {
+		if (count(self::$methodNames) > 0) {
 			for ($i = 0; $i < $methodsShown; $i++) {
 				$data['toc'][] = ['url' => "#".self::$methodAnchors[$i], 'class' => 'toc_method', 'text' => self::$methodNames[$i]];
 			}
@@ -68,10 +91,10 @@ class WikihowToc {
 			$primaryCount = 1;
 		}
 
-		if($hasHidden) {
+		if ($hasHidden) {
 			$hiddenCount = count(self::$methodNames) - $methodsShown;
-			$data['toc'][] = ['url' => '#', 'id' => 'toc_showmore', 'class' => 'toc_nav', 'text' => "Show $hiddenCount more..."];
-			$data['toc'][] = ['url' => '#', 'id' => 'toc_showless', 'class' => 'toc_nav', 'text' => 'Show less...'];
+			$data['toc'][] = ['url' => '#', 'id' => 'toc_showmore', 'class' => 'toc_nav', 'text' => wfMessage("more_toc", $hiddenCount)->text()];
+			$data['toc'][] = ['url' => '#', 'id' => 'toc_showless', 'class' => 'toc_nav', 'text' => wfMessage("less_toc")->text()];
 			$primaryCount++;
 		}
 
@@ -80,52 +103,52 @@ class WikihowToc {
 		//first deal with priority of the elements
 		$count = 0;
 		$useSummary = $useVideoSummary = $useQandA = $useRwhs = $useReferences = false;
-		if($count < $secondaryShown && self::$summary != null) {
+		if ($count < $secondaryShown && self::$summary != null) {
 			$useSummary = true;
 			$count++;
 		}
-		if($count < $secondaryShown && self::$references != null) {
+		if ($count < $secondaryShown && self::$references != null) {
 			$useReferences = true;
 			$count++;
 		}
-		if($count < $secondaryShown && self::$videoSummary != null) {
+		if ($count < $secondaryShown && self::$videoSummary != null) {
 			$useVideoSummary = true;
 			$count++;
 		}
-		if($count < $secondaryShown && self::$hasAnswers && self::$qanda) {
+		if ($count < $secondaryShown && self::$hasAnswers && self::$qanda) {
 			$useQandA = true;
 			$count++;
 		}
-		if($count < $secondaryShown) { //related wHs are always on the page
+		if ($count < $secondaryShown) { //related wHs are always on the page
 			$useRwhs = true;
 			$count++;
 		}
-		if($count < $secondaryShown && !self::$hasAnswers && self::$qanda) {
+		if ($count < $secondaryShown && !self::$hasAnswers && self::$qanda) {
 			$useQandA = true;
 			$count++;
 		}
 
 		//now put them in order
 		//summary
-		if($useSummary) {
+		if ($useSummary) {
 			$data['toc'][] = self::$summary;
 		}
 
-		if($useVideoSummary) {
+		if ($useVideoSummary) {
 			$data['toc'][] = self::$videoSummary;
 		}
 
 		//q&a
-		if($useQandA) {
+		if ($useQandA) {
 			$data['toc'][] = self::$qanda;
 		}
 
 		//related wHs
-		if($useRwhs) {
+		if ($useRwhs) {
 			$data['toc'][] = ['url' => '#relatedwikihows', 'id' => 'rwh_toc', 'text' => wfMessage('related_toc')];
 		}
 
-		if($useReferences) {
+		if ($useReferences) {
 			$data['toc'][] = self::$references;
 		}
 
@@ -139,7 +162,7 @@ class WikihowToc {
 
 		$html = $m->render('toc', $data);
 
-		if(pq('#expert_coauthor')->length > 0) {
+		if (pq('#expert_coauthor')->length > 0) {
 			pq('#expert_coauthor')->after($html);
 		} else {
 			pq(".firstHeading")->after($html); //for times when there's no byline (old revisions, intl, etc)

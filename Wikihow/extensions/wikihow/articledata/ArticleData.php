@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ArticleData'] = 'ArticleData';
-$wgAutoloadClasses['ArticleData'] = dirname(__FILE__) . '/ArticleData.body.php';
-$wgExtensionMessagesFiles['ArticleData'] = dirname(__FILE__) . '/ArticleData.i18n.php';
+$wgAutoloadClasses['ArticleData'] = __DIR__ . '/ArticleData.body.php';
+$wgExtensionMessagesFiles['ArticleData'] = __DIR__ . '/ArticleData.i18n.php';

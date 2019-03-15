@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'PageStatCheck',
 	'author' => 'Scott Cushman',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['PageStatCheck'] = 'PageStatCheck';
-$wgAutoloadClasses['PageStatCheck'] = dirname( __FILE__ ) . '/PageStatCheck.body.php';
-
+$wgAutoloadClasses['PageStatCheck'] = __DIR__ . '/PageStatCheck.body.php';

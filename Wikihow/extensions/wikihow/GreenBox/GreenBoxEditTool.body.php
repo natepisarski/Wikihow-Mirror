@@ -12,7 +12,7 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$action = $request->getVal('action','');
 
-		$out->setRobotpolicy('noindex, nofollow');
+		$out->setRobotPolicy('noindex, nofollow');
 
 		if (!self::authorizedUser($user) || empty($action)) {
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');

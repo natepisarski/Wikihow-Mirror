@@ -1,6 +1,6 @@
 <div id="nab-article-container">
 <div class="arrow_box">
-	<form action="/Special:Newarticleboost" name="nap_form" id="nap_form" method="post">
+	<form action="/Special:NewArticleBoost" name="nap_form" id="nap_form" method="post">
 		<a class="button secondary" id="nap_promote" data-event_action='promote'>Promote</a>
 		<a class="button secondary" id="nap_star" data-event_action='rising_star'>&nbsp;</a>
 		<br />
@@ -53,7 +53,7 @@
 	<div id="author_info">
 		<?= $authorInfo ?> <br />
 		Score: <?= $score ?>
-		<a style="float:right;" href="/Special:Newarticleboost?sortOrder=<?=$sortOrder?>&sortValue=<?=$sortValue?>&low=<?=$low?>">&larr; Back to NAB</a>
+		<a style="float:right;" href="/Special:NewArticleBoost?sortOrder=<?=$sortOrder?>&sortValue=<?=$sortValue?>&low=<?=$low?>">&larr; Back to NAB</a>
 	</div>
 	<?= $lockedMsg ?>
 	<?= $patrolledMsg ?>
@@ -61,10 +61,10 @@
 <div class='minor_section'>
 	<h2><?= wfMessage('nap_similarresults')?><span class="nap_expand"> </span></h2>
 	<div class='nap_body section_text'>
-		<?php if(count($matches) > 0): ?>
+		<?php if (count($matches) > 0): ?>
 			<?= wfMessage('nap_already-related-topics') ?>
 			<table id="nap_duplicates" cellspacing="0" cellpadding="0">
-				<?php foreach($matches as $match): ?>
+				<?php foreach ($matches as $match): ?>
 					<tr class=" <?= $match['count']%2?'even':'odd'; ?>">
 						<td style="width:473px;"><?= $match['relatedLink'] ?></td>
 						<td class="nap_duplicates_actions">

@@ -78,13 +78,13 @@ class IOSHelper {
 		$action = $ctx->getRequest()->getVal('action', 'view');
 
 		$isMainPage = $t
-			&& $t->getNamespace() == NS_MAIN
+			&& $t->inNamespace(NS_MAIN)
 			&& $t->getText() == wfMessage('mainpage')->inContentLanguage()->text()
 			&& $action == 'view';
 
 		$isArticlePage = $t
 			&& !$isMainPage
-			&& $t->getNamespace() == NS_MAIN
+			&& $t->inNamespace(NS_MAIN)
 			&& $action == 'view';
 
 		$content = 'app-id=309209200';
@@ -111,7 +111,7 @@ class IOSHelper {
 
 		if ($t
 			&& Misc::isMobileMode()
-			&& $t->getNamespace() == NS_MAIN
+			&& $t->inNamespace(NS_MAIN)
 			&& $r->getVal('action', 'view') == 'view') {
 			self::addIOSAppBannerTag();
 		}

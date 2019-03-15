@@ -48,8 +48,9 @@ if (WH.dashboard && !WH.dashboard.DashboardWidget) {
 		 * weather should be.
 		 */
 		this.getWeatherIcon = function(count){
+			if (!count.length) count = '0';
 			count = count.replace(",", ""); //get rid of commas
-			
+
 			var widName = this.getWidgetName();
 			var thresholds = WH.dashboard.thresholds(widName);
 

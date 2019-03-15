@@ -10,17 +10,21 @@ class QAPatrolWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
 			$link = "<a href='/Special:QAPatrol' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
 			$link = "<a href='/Special:Userlogin?returnto=Special:QAPatrol' class='comdash-login'>Login";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	public function getMWName(){
@@ -56,7 +60,16 @@ class QAPatrolWidget extends DashboardWidget {
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->qapv_user_id, $row->qapv_timestamp);
+		if (!empty($row)) {
+			$user = $row->qapv_user_id;
+			$timestamp = $row->qapv_timestamp;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -74,7 +87,7 @@ class QAPatrolWidget extends DashboardWidget {
 		$qa_editor_ids_sql = !empty($qa_editor_ids) ? 'AND qapv_user_id IN ('.$dbr->makeList($qa_editor_ids).')' : '';
 
 		$sql = "
-			SELECT *, SUM(C) AS C, MAX(qapv_timestamp) AS qap_recent
+			SELECT qapv_user_id, SUM(C) AS C, MAX(qapv_timestamp) AS qap_recent
 			  FROM (SELECT qapv_user_id, count(*) AS C, MAX(qapv_timestamp) AS qapv_timestamp
 					  FROM qap_vote LEFT JOIN $wgSharedDB.user ON qapv_user_id = user_id
 					 WHERE qapv_timestamp > {$starttimestamp} $qa_editor_ids_sql
@@ -89,7 +102,16 @@ class QAPatrolWidget extends DashboardWidget {
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->qapv_user_id, $row->qap_recent);
+		if (!empty($row)) {
+			$user = $row->qapv_user_id;
+			$timestamp = $row->qap_recent;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -142,9 +164,9 @@ class QAPatrolWidget extends DashboardWidget {
 	}
 
 	public function isAllowed($isLoggedIn, $userId=0){
-		if(!$isLoggedIn)
+		if (!$isLoggedIn)
 			return false;
-		else if($isLoggedIn && $userId == 0)
+		elseif ($isLoggedIn && $userId == 0)
 			return false;
 		else{
 			$user = User::newFromId($userId);

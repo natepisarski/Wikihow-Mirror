@@ -66,7 +66,7 @@ class CategorizerUtil {
 		$res = $dbr->select($q['tables'], $fields, $q['conds'], __METHOD__, $opts, $q['join_conds']);
 		$pageIds = [];
 
-		while ($row = $dbr->fetchObject($res)) {
+		foreach ($res as $row) {
 			$pageIds[] = $row->page_id;
 		}
 		return $pageIds;

@@ -11,6 +11,8 @@ class Dedup extends UnlistedSpecialPage {
 
 	public function __construct() {
 		parent::__construct("Dedup");
+
+		require_once(__DIR__ . "/dedupQuery.php");
 	}
 
 	// method stops redirects when running on titus host
@@ -25,7 +27,7 @@ class Dedup extends UnlistedSpecialPage {
 		$urlMatches = array();
 		$first = true;
 		foreach ( $this->closestUrls as $closestUrl ) {
-			if($first) {
+			if ($first) {
 				$first = false;
 				$closeURL = $closestUrl['url'];
 				$closeURLScore = $closestUrl['score'];
@@ -35,16 +37,16 @@ class Dedup extends UnlistedSpecialPage {
 			}
 		}
 
-		if(!$closeURLScore || $closeURLScore <= 7) {
+		if (!$closeURLScore || $closeURLScore <= 7) {
 			$todo = "write";
 		}
-		elseif($closeURLScore >= 35) {
+		elseif ($closeURLScore >= 35) {
 			$todo = "dup URL";
 		}
 		else {
 			$todo = "not sure";
 		}
-		if(sizeof($urlMatches) > 5) {
+		if (sizeof($urlMatches) > 5) {
 			$urlMatches = array_slice($urlMatches, 0,5);
 		}
 		print $this->query . "\t" . $todo . "\t" . $closeURL . "\t" . $closeURLScore . "\t" . implode("| ",$this->queryMatches) . "\t" . implode("| ",$urlMatches) . "\n";
@@ -55,7 +57,7 @@ class Dedup extends UnlistedSpecialPage {
 		$idMatches = [];
 		$first = true;
 		foreach ( $this->closestUrls as $closestUrl ) {
-			if($first) {
+			if ($first) {
 				$first = false;
 				$closeURLScore = $closestUrl['score'];
 				$closeId = $closestUrl['id'];
@@ -65,14 +67,14 @@ class Dedup extends UnlistedSpecialPage {
 				$idMatches[] = $closestUrl['id'];
 			}
 		}
-		if(sizeof($idMatches) > 5) {
+		if (sizeof($idMatches) > 5) {
 			$idMatches = array_slice($idMatches, 0, 5);
 		}
-		if(!$closeURLScore) {
+		if (!$closeURLScore) {
 			//needs to be written
 			DedupTool::addToTool($importTimestamp, "", $query, -1);
 		}
-		elseif($closeURLScore >= 40) {
+		elseif ($closeURLScore >= 40) {
 			//already found a good match
 			DedupTool::addToTool($importTimestamp, json_encode($idMatches), $query, $closeId);
 		}
@@ -87,12 +89,11 @@ class Dedup extends UnlistedSpecialPage {
 	 */
 	public function getTopMatchBatch() {
 		set_time_limit(0);
-		require_once('dedupQuery.php');
 		print "\"Query\",\"Status\",\"Dup queries >= 35\",\"Dup queries 19-34\"\n";
 		$dbw = wfGetDB(DB_MASTER);
 		$queryE = array();
 		wfDebugLog('dedup', "getTopMatchBatch: adding queries");
-		foreach($this->queriesR as $query) {
+		foreach ($this->queriesR as $query) {
 			dedupQuery::addQuery($query);
 			$queryE[] = $dbw->addQuotes($query);
 		}
@@ -102,7 +103,13 @@ class Dedup extends UnlistedSpecialPage {
 
 		wfDebugLog('dedup', "getTopMatchBatch: fetching results from mysql");
 		$dbr = wfGetDB(DB_SLAVE);
-		$sql = "select query1, query2, ct from dedup.query_match where query1 <> query2 and query1 in (" . implode($queryE,",") . ") and query2 in (" . implode($queryE,",") . ") group by query1, query2 order by field(query1," . implode($queryE,",") . ")";
+		$sql = "SELECT query1, query2, ct " .
+			   "FROM dedup.query_match " .
+			   "WHERE query1 <> query2 " .
+			   "  AND query1 IN (" . implode($queryE,",") . ") " .
+			   "  AND query2 IN (" . implode($queryE,",") . ") " .
+			   "GROUP BY query1, query2 " .
+			   "ORDER BY field(query1," . implode($queryE,",") . ")";
 		$res = $dbr->query($sql, __METHOD__);
 		$last = false;
 
@@ -114,45 +121,45 @@ class Dedup extends UnlistedSpecialPage {
 		$dup = array();
 		$posDup = array();
 		foreach ( $res as $row ) {
-			if($row->ct >= 35) {
+			if ($row->ct >= 35) {
 				$clusters35[$row->query1][] = $row->query2;
-				if(!in_array($row->query1,$dup) && !in_array($row->query1, $posDup)) {
+				if (!in_array($row->query1,$dup) && !in_array($row->query1, $posDup)) {
 					$nondup[] = $row->query1;
 				}
-				if(!in_array($row->query2, $nondup)) {
+				if (!in_array($row->query2, $nondup)) {
 					$dup[] = $row->query2;
 				}
 			}
-			elseif($row->ct >= 19) {
+			elseif ($row->ct >= 19) {
 				$clusters19[$row->query1][] = $row->query2;
-				if(!in_array($row->query1, $dup) && !in_array($row->query1, $posDup)) {
+				if (!in_array($row->query1, $dup) && !in_array($row->query1, $posDup)) {
 					$nondup[] = $row->query1;
 				}
-				if(!in_array($row->query2, $nondup)) {
+				if (!in_array($row->query2, $nondup)) {
 					$posDup[] = $row->query2;
 				}
 			}
 		}
 		foreach ( $this->queriesR as $query ) {
 			print "\"" . addslashes($query) . "\",\"";
-			if(in_array($query, $dup)) {
+			if (in_array($query, $dup)) {
 				print "duplicate";
 			}
-			elseif(in_array($query, $posDup)) {
+			elseif (in_array($query, $posDup)) {
 				print "possible duplicate";
 			}
-			elseif(isset($clusters35[$query])) {
+			elseif (isset($clusters35[$query])) {
 				print "dup check";
 			}
 			else {
 				print "write";
 			}
 			print "\",\"";
-			if(isset($clusters35[$query])) {
+			if (isset($clusters35[$query])) {
 				print addslashes(implode("\r",$clusters35[$query]));
 			}
 			print "\",\"";
-			if(isset($clusters19[$query])) {
+			if (isset($clusters19[$query])) {
 				print addslashes(implode("\r",$clusters19[$query]));
 			}
 
@@ -168,12 +175,11 @@ class Dedup extends UnlistedSpecialPage {
 	 */
 	public function getTopMatchBatchScores() {
 		set_time_limit(0);
-		require_once('dedupQuery.php');
 		print "\"Query1\",\"Query2\",\"Score\"\n";
 		$dbw = wfGetDB(DB_MASTER);
 		$queryE = array();
 		wfDebugLog('dedup', "getTopMatchBatchScores: adding queries");
-		foreach($this->queriesR as $query) {
+		foreach ($this->queriesR as $query) {
 			dedupQuery::addQuery($query);
 			$queryE[] = $dbw->addQuotes($query);
 		}
@@ -183,7 +189,14 @@ class Dedup extends UnlistedSpecialPage {
 
 		wfDebugLog('dedup', "getTopMatchBatchScores: fetching results from mysql");
 		$dbr = wfGetDB(DB_SLAVE);
-		$sql = "select query1, query2, ct from dedup.query_match where ct >= 20 and query1 <> query2 and query1 in (" . implode($queryE,",") . ") and query2 in (" . implode($queryE,",") . ") group by query1, query2 order by ct desc";
+		$sql = "SELECT query1, query2, ct " .
+			   "FROM dedup.query_match " .
+			   "WHERE ct >= 20 " .
+			   "  AND query1 <> query2 " .
+			   "  AND query1 IN (" . implode($queryE,",") . ") " .
+			   "  AND query2 IN (" . implode($queryE,",") . ") " .
+			   "GROUP BY query1, query2 " .
+			   "ORDER BY ct DESC";
 		$res = $dbr->query($sql, __METHOD__);
 
 		header("Content-Type: text/csv");
@@ -214,7 +227,6 @@ class Dedup extends UnlistedSpecialPage {
 
 	public function getBatch() {
 		set_time_limit(0);
-		require_once('dedupQuery.php');
 		$dbw = wfGetDB(DB_MASTER);
 		$queryE = array();
 		wfDebugLog('dedup', "getBatch: adding queries");
@@ -227,7 +239,11 @@ class Dedup extends UnlistedSpecialPage {
 
 		wfDebugLog('dedup', "getBatch: fetching results from mysql");
 		$dbr = wfGetDB(DB_SLAVE);
-		$sql = "select query1, query2, ct, tq_title from dedup.query_match left join dedup.title_query on tq_query=query2 where query1 in (" . implode($queryE,",") . ") order by field(query1," . implode($queryE, ",") . "), ct desc";
+		$sql = "SELECT query1, query2, ct, tq_title " .
+			   "FROM dedup.query_match " .
+			   "LEFT JOIN dedup.title_query ON tq_query=query2 " .
+			   "WHERE query1 IN (" . implode($queryE,",") . ") " .
+			   "ORDER BY field(query1," . implode($queryE, ",") . "), ct DESC";
 		$res = $dbr->query($sql, __METHOD__);
 		$query = false;
 		header("Content-Type: text/tsv");
@@ -238,23 +254,23 @@ class Dedup extends UnlistedSpecialPage {
 		$this->query = false;
 		$this->queryMatches = array();
 		foreach ( $res as $row ) {
-			if($this->query != $row->query1) {
-				if($this->query) {
+			if ($this->query != $row->query1) {
+				if ($this->query) {
 					$this->printLine();
 				}
 				$this->queryMatches = array();
 				$this->closestUrls = array();
 				$this->query = $row->query1;
 			}
-			if($row->ct >= 35 && $row->query1 != $row->query2) {
+			if ($row->ct >= 35 && $row->query1 != $row->query2) {
 				$this->queryMatches[] = $row->query2;
 			}
-			if($row->tq_title) {
+			if ($row->tq_title) {
 				$this->closestUrls[] = array('url' => ("http://www.wikihow.com/" . str_replace(" ","-",$row->tq_title)), 'score' => $row->ct);
 			}
 		}
 
-		if($this->query) {
+		if ($this->query) {
 			$this->printLine();
 		}
 
@@ -270,7 +286,6 @@ class Dedup extends UnlistedSpecialPage {
 	 */
 	public function getBatchForTool() {
 		set_time_limit(0);
-		require_once('dedupQuery.php');
 		$dbw = wfGetDB(DB_MASTER);
 		$queryE = array();
 		foreach ( $this->queriesR as $query ) {
@@ -280,30 +295,37 @@ class Dedup extends UnlistedSpecialPage {
 		dedupQuery::matchQueries($this->queriesR);
 
 		$dbr = wfGetDB(DB_SLAVE);
-		$sql = "select query1, query2, ct, tq_title, tq_page_id from dedup.query_match left join dedup.title_query on tq_query=query2 where query1 in (" . implode($queryE,",") . ") order by field(query1," . implode($queryE, ",") . "), ct desc";
+		$sql = "SELECT query1, query2, ct, tq_title, tq_page_id " .
+			   "FROM dedup.query_match " .
+			   "LEFT JOIN dedup.title_query ON tq_query=query2 " .
+			   "WHERE query1 IN (" . implode($queryE,",") . ") " .
+			   "ORDER BY field(query1," . implode($queryE, ",") . "), ct DESC";
 		$res = $dbr->query($sql, __METHOD__);
 
 		$this->closestUrls = [];
 		$this->query = false;
 		$this->queryMatches = [];
 		foreach ( $res as $row ) {
-			if($this->query != $row->query1) {
-				if($this->query) {
+			if ($this->query != $row->query1) {
+				if ($this->query) {
 					$this->processLineForTool(wfTimestampNow(), $this->query);
 				}
 				$this->queryMatches = [];
 				$this->closestUrls = [];
 				$this->query = $row->query1;
 			}
-			if($row->ct >= 35 && $row->query1 != $row->query2) {
+			if ($row->ct >= 35 && $row->query1 != $row->query2) {
 				$this->queryMatches[] = $row->query2;
 			}
-			if($row->tq_title) {
-				$this->closestUrls[] = array('url' => ("http://www.wikihow.com/" . str_replace(" ","-",$row->tq_title)), 'score' => $row->ct, 'id' => $row->tq_page_id);
+			if ($row->tq_title) {
+				$this->closestUrls[] = array(
+					'url' => ("https://www.wikihow.com/" . str_replace(" ","-",$row->tq_title)),
+					'score' => $row->ct,
+					'id' => $row->tq_page_id );
 			}
 		}
 
-		if($this->query) {
+		if ($this->query) {
 			$this->processLineForTool(wfTimestampNow(), $this->query);
 		}
 
@@ -316,8 +338,7 @@ class Dedup extends UnlistedSpecialPage {
 	 * @return true if there are queries and false otherwise
 	 */
 	private function getQueries() {
-		global $wgRequest;
-		$queries = $wgRequest->getVal('queries');
+		$queries = $this->getRequest()->getVal('queries');
 		if (!$queries) {
 			return false;
 		}
@@ -337,10 +358,12 @@ class Dedup extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgOut, $wgRequest, $wgUser;
-		$userGroups = $wgUser->getGroups();
-		if(!in_array('staff',$userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+
+		$userGroups = $this->getUser()->getGroups();
+		if (!in_array('staff',$userGroups)) {
+			$wgOut->setRobotPolicy('noindex,nofollow');
 			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -351,12 +374,12 @@ class Dedup extends UnlistedSpecialPage {
 
 		$action = $wgRequest->getVal('act');
 		if (!$action) {
-			EasyTemplate::set_path(dirname(__FILE__));
+			EasyTemplate::set_path(__DIR__);
 			$wgOut->addHTML(EasyTemplate::html('Dedup.tmpl.php'));
 			$wgOut->addModules("ext.wikihow.Dedup");
-		} elseif($action == 'getBatch' && $this->getQueries()) {
+		} elseif ($action == 'getBatch' && $this->getQueries()) {
 			$internalDedup = $wgRequest->getVal('internalDedup');
-			if($internalDedup) {
+			if ($internalDedup) {
 				$this->getTopMatchBatch();
 			} elseif ($wgRequest->getVal('internalDupTool', false)) {
 				$this->getBatchForTool();

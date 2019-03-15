@@ -9,11 +9,11 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['TitusQueryTool'] = 'TitusQueryTool';
-$wgAutoloadClasses['TitusQueryTool'] = dirname(__FILE__) . '/TitusQueryTool.body.php';
-$wgExtensionMessagesFiles['TitusQueryTool'] = dirname(__FILE__) . '/TitusQueryTool.i18n.php';
+$wgAutoloadClasses['TitusQueryTool'] = __DIR__ . '/TitusQueryTool.body.php';
+$wgExtensionMessagesFiles['TitusQueryTool'] = __DIR__ . '/TitusQueryTool.i18n.php';
 
 $wgResourceModules['ext.wikihow.titusquerytool'] = array(
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/titus',
 	'targets' => ['desktop'],
 	'styles' => [

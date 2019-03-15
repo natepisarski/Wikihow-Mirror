@@ -20,7 +20,7 @@ class ProposedRedirects extends SpecialPage {
 
 	public static function deleteProposedRedirect($from, $to, $deleteAllFrom = false) {
 		$dbw = wfGetDB(DB_MASTER);
-		if($deleteAllFrom) {
+		if ($deleteAllFrom) {
 			$dbw->delete('proposedredirects',
 				['pr_from' => $from],
 				__METHOD__);
@@ -34,7 +34,7 @@ class ProposedRedirects extends SpecialPage {
 	function createProposedRedirect($from, $to, $user = null) {
 		global $wgUser;
 
-		if($user == null) {
+		if ($user == null) {
 			$user = $wgUser;
 		}
 
@@ -79,7 +79,7 @@ class ProposedRedirects extends SpecialPage {
 
 		$this->setHeaders();
 		$wgOut->addHTML("<div class='minor_section'>");
-		if($wgRequest->getInt("tool") == 1) {
+		if ($wgRequest->getInt("tool") == 1) {
 			$wgOut->addHTML(wfMessage('proposedredirects_info_tool'));
 		} else {
 			$wgOut->addHTML(wfMessage('proposedredirects_info'));
@@ -96,7 +96,7 @@ class ProposedRedirects extends SpecialPage {
 				if (strpos($key, "id-") === false) continue;
 				$id = str_replace("id-", "btn-", $key);
 				$newval = $wgRequest->getVal($id);
-				switch($newval) {
+				switch ($newval) {
 					case 'accept':
 					case 'reject':
 						$changes[$value] = $newval;
@@ -107,7 +107,7 @@ class ProposedRedirects extends SpecialPage {
 				$from = Title::makeTitle(NS_MAIN, str_replace("_", " ", $params[0]));
 				$to = Title::makeTitle(NS_MAIN, str_replace("_", " ", $params[1]));
 				$response = self::handleRedirectVote($from, $to, $v);
-				if($response !== true) {
+				if ($response !== true) {
 					$wgOut->addHTML($response);
 				}
 			}
@@ -123,7 +123,7 @@ class ProposedRedirects extends SpecialPage {
 		$lines = explode("\n", $text);
 		$s = "";
 		$conditions = [];
-		if($wgRequest->getInt("tool") == 1) {
+		if ($wgRequest->getInt("tool") == 1) {
 			$conditions['pr_user_text'] = DuplicateTitles::BOT_NAME;
 		}
 		$dbr = wfGetDB(DB_SLAVE);

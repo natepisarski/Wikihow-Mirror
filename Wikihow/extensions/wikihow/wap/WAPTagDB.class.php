@@ -75,7 +75,7 @@ abstract class WAPTagDB {
 	}
 
 	public function deleteTags($tagIds) {
-		$dbw = wfGetDB(DB_MASTER);	
+		$dbw = wfGetDB(DB_MASTER);
 		$table = $this->wapConfig->getTagTableName();
 
 		if (!empty($tagIds)) {
@@ -107,11 +107,11 @@ abstract class WAPTagDB {
 		$raw_tag = $dbr->strencode($raw_tag);
 		$table = $this->wapConfig->getTagTableName();
 
-		$sql = "SELECT ct_id, ct_raw_tag  FROM $table 
-			WHERE 
+		$sql = "SELECT ct_id, ct_raw_tag  FROM $table
+			WHERE
 			ct_raw_tag = '$raw_tag'
 			LIMIT 1
-			";	
+			";
 		$res = $dbr->query($sql, __METHOD__);
 		$tag = array();
 		if ($row = $dbr->fetchObject($res)) {
@@ -164,7 +164,7 @@ abstract class WAPTagDB {
 		$dbr = wfGetDB(DB_SLAVE);
 		$table = $this->wapConfig->getTagTableName();
 		$res = $dbr->select($table, array('ct_id', 'ct_raw_tag'), '', __METHOD__);
-		$tagMap = array();	
+		$tagMap = array();
 		foreach ($res as $row) {
 			$tagMap[$row->ct_raw_tag] = $row->ct_id;
 		}
@@ -185,7 +185,7 @@ class WAPUserTagDB extends WAPTagDB  {
    function getUserIdsWithTag($tag) {
 		if (!isset($tag)) {
 			return false;
-		}               
+		}
 
 		$dbr = $this->dbr;
 		$tag = $this->getTagByRawTag($tag);
@@ -212,7 +212,7 @@ class WAPUserTagDB extends WAPTagDB  {
 	function getUserTags($userId, $tagType = self::TAG_ACTIVE) {
 		if (!isset($userId)) {
 			return false;
-		}		
+		}
 		$dbr = $this->dbr;
 
 		$where = $this->getTagTypeWhereClause($tagType);
@@ -241,12 +241,12 @@ class WAPUserTagDB extends WAPTagDB  {
 	}
 
 	function tagUsers($userIds, $tags) {
-		$dbw = $this->dbw;	
+		$dbw = $this->dbw;
 		$table = $this->objectTable;
-		
+
 		// Check for and add new tags
 		$tags = $this->addNewTags($tags);
-		
+
 		$ts = wfTimestampNow(TS_UNIX);
 		$data = array();
 		foreach ($userIds as $uid) {
@@ -270,16 +270,16 @@ class WAPUserTagDB extends WAPTagDB  {
 
 		$table = $this->wapConfig->getUserTagTableName();
 		if ($userId > 0) {
-			$sql = "DELETE FROM $table WHERE cr_user_id = $userId";	
+			$sql = "DELETE FROM $table WHERE cr_user_id = $userId";
 			$res = $dbw->query($sql, __METHOD__);
 			return true;
 		} else {
-			return false;	
+			return false;
 		}
 	}
 
 	function deleteAllUserTagsWithTagIds($tagIds) {
-		$dbw = wfGetDB(DB_MASTER);	
+		$dbw = wfGetDB(DB_MASTER);
 		$table = $this->wapConfig->getUserTagTableName();
 
 		if (!empty($tagIds)) {
@@ -301,7 +301,7 @@ class WAPUserTagDB extends WAPTagDB  {
 		$tagIds = "(" . implode(", ", $tagIds) . ")";
 		$table = $this->wapConfig->getUserTagTableName();
 
-		$sql = "DELETE FROM $table WHERE cr_user_id IN $userIds AND cr_tag_id in $tagIds";	
+		$sql = "DELETE FROM $table WHERE cr_user_id IN $userIds AND cr_tag_id in $tagIds";
 		$res = $dbw->query($sql, __METHOD__);
 		return true;
 	}
@@ -380,11 +380,11 @@ class WAPArticleTagDB extends WAPTagDB {
 	}
 
 	function tagArticles(&$pageIds, $langCode, $tags) {
-		$dbw = $this->dbw;	
+		$dbw = $this->dbw;
 
 		// Check for and add new tags
 		$tags = $this->addNewTags($tags);
-		
+
 		$ts = wfTimestampNow(TS_UNIX);
 		$data = array();
 		foreach ($pageIds as $aid) {
@@ -462,7 +462,7 @@ class WAPArticleTagDB extends WAPTagDB {
 	public function getTagsOnArticle($pageId, $langCode, $tagType = self::TAG_ACTIVE) {
 		if (!isset($pageId) && !isset($langCode)) {
 			return false;
-		}		
+		}
 		$dbr = $this->dbr;
 		$articleTagTable = $this->wapConfig->getArticleTagTableName();
 		$tagTable = $this->wapConfig->getTagTableName();
@@ -534,11 +534,11 @@ class WAPArticleTagDB extends WAPTagDB {
 		$table = $this->wapConfig->getArticleTagTableName();
 
 		$sql = "DELETE FROM $table
-			WHERE 
+			WHERE
 			ca_page_id IN $pageIds
 			AND ca_lang_code = '$langCode'
 			AND ca_tag_id in $tagIds
-			";	
+			";
 		$res = $dbw->query($sql, __METHOD__);
 		return true;
 	}

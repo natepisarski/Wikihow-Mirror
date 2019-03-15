@@ -31,7 +31,7 @@ class CTALinks {
 		}
 		return $result;
 	}
-	
+
 	function getCTAById($ctaId, &$ctaLinks) {
 		$ctaId = intval($ctaId);
 		$ctaIdx = array_search($ctaId, $ctaLinks);
@@ -56,7 +56,7 @@ class CTALinks {
 		}
 		return $script;
 	}
-	
+
 	function getGoogleControlScript() {
 		$script = "";
 		if (self::isArticlePageTarget()) {
@@ -72,13 +72,13 @@ class CTALinks {
 		}
 		return $script;
 	}
-	
-	
+
+
 	function isArticlePageTarget() {
 		global $wgTitle, $wgRequest, $wgUser;
 		// Only display for article pages that aren't new articles
 		$createNewArticle = $wgRequest->getVal('create-new-article', '') == 'true';
-		return !($createNewArticle || $wgTitle->getNamespace() != NS_MAIN || $wgTitle->getFullText() == wfMessage('mainpage') || $wgRequest->getVal('action') != '');
+		return !($createNewArticle || !$wgTitle->inNamespace(NS_MAIN) || $wgTitle->getFullText() == wfMessage('mainpage') || $wgRequest->getVal('action') != '');
 	}
 
 	function isLoggedIn() {

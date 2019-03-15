@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgHooks['ArticleSaveComplete'][] = 'RevisionCount::onArticleSaveComplete';
-$wgAutoloadClasses['RevisionCount'] = dirname(__FILE__) . '/RevisionCount.class.php';
+$wgAutoloadClasses['RevisionCount'] = __DIR__ . '/RevisionCount.class.php';
 

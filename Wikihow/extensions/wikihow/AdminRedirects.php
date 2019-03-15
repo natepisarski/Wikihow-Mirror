@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminRedirects',
 	'author' => 'Reuben Smith',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminRedirects'] = 'AdminRedirects';
-$wgAutoloadClasses['AdminRedirects'] = dirname( __FILE__ ) . '/AdminRedirects.body.php';
-
+$wgAutoloadClasses['AdminRedirects'] = __DIR__ . '/AdminRedirects.body.php';

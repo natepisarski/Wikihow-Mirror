@@ -2,49 +2,45 @@
 
 class CatSearchUI extends UnlistedSpecialPage {
 
-	function __construct() { 
+	public function __construct() {
 		parent::__construct( 'CatSearchUI' );
 	}
-	
-	function execute($par) {
+
+	public function execute($par) {
+		$profiler = new ProfileSection(__METHOD__);
+
 		$out = $this->getOutput();
 		$request = $this->getRequest();
-		$user = $this->getUser();		
+		$user = $this->getUser();
 
-		$fname = 'CatSearchUI::execute';
-		wfProfileIn( $fname );
+		$out->setRobotPolicy( 'noindex,nofollow' );
 
-		$out->setRobotpolicy( 'noindex,nofollow' );
-		
 		$vars = array();
 		$this->getUserCategoriesHtml($vars);
-		EasyTemplate::set_path( dirname(__FILE__).'/' );
-		$html = EasyTemplate::html('CatSearchUI', $vars);
+		EasyTemplate::set_path( __DIR__.'/' );
+		$html = EasyTemplate::html('CatSearchUI.tmpl.php', $vars);
 
 		$embedded = intval($request->getVal('embed'));
 		$out->setArticleBodyOnly($embedded);
 		$out->addHtml($html);
-
-		wfProfileOut( $fname );
 	}
 
-	function getUserCategoriesHtml(&$vars) {
+	private function getUserCategoriesHtml(&$vars) {
 		$cats = CategoryInterests::getCategoryInterests();
 		$html = "";
-		if(sizeof($cats)) {
-			$vars['cats'] = self::getCategoryDivs($cats);
+		if (sizeof($cats)) {
+			$vars['cats'] = $this->getCategoryDivs($cats);
 			$vars['nocats_hidden'] = 'csui_hidden';
-		}
-		else {
+		} else {
 			$vars['cats_hidden'] = 'csui_hidden';
 		}
 
-		$suggested = self::getSuggestedCategoryDivs(CategoryInterests::suggestCategoryInterests());
+		$suggested = $this->getSuggestedCategoryDivs(CategoryInterests::suggestCategoryInterests());
 		$vars['suggested_cats'] = $suggested;
 	}
 
 
-	function getSuggestedCategoryDivs(&$cats) {
+	private function getSuggestedCategoryDivs(&$cats) {
 		$html = "";
 		foreach ($cats as $key => $cat) {
 			$catName = trim(str_replace("-", " ", $cat));
@@ -55,7 +51,7 @@ class CatSearchUI extends UnlistedSpecialPage {
 		return $html;
 	}
 
-	function getCategoryDivs(&$cats) {
+	private function getCategoryDivs($cats) {
 		$html = "";
 		foreach ($cats as $cat) {
 			$catName = str_replace("-", " ", $cat);

@@ -24,7 +24,7 @@ class Alfredo extends UnlistedSpecialPage {
 	private function showTemplate() {
 		global $wgOut, $wgActiveLangs;
 
-		EasyTemplate::set_path( dirname(__FILE__) );
+		EasyTemplate::set_path( __DIR__ );
 		$tmpl = EasyTemplate::html("Alfredo.tmpl.php", array('langs'=>$this->langs));
 
 		$wgOut->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/download.jQuery.js'));
@@ -45,7 +45,7 @@ class Alfredo extends UnlistedSpecialPage {
 			$useConstants = in_array($domain, wfGetAllCanonicalDomains());
 		}
 		if ($useConstants) {
-			if(!defined('WH_API_HOST') || !defined('WH_API_PROTOCOL')) {
+			if (!defined('WH_API_HOST') || !defined('WH_API_PROTOCOL')) {
 				throw new Exception("WH_API_HOST and WH_API_PROTOCOL must be defined to fetch Alfredo pages from the command line or non-English site");
 			}
 			$host = WH_API_HOST;
@@ -55,7 +55,7 @@ class Alfredo extends UnlistedSpecialPage {
 			$host = $matches[3];
 			$protocol = $matches[2];
 		}
-		if($lang != 'en') {
+		if ($lang != 'en') {
 			$host = $lang . '.' . $host;
 		}
 		return(array('protocol'=>$protocol, 'host'=>$host));
@@ -94,7 +94,7 @@ class Alfredo extends UnlistedSpecialPage {
 			//exit;
 		}
 		if ($json) {
-			foreach($json as $id=>$page) {
+			foreach ($json as $id=>$page) {
 				self::$pageCache[$lang][$id] = $page;
 			}
 		}
@@ -110,7 +110,7 @@ class Alfredo extends UnlistedSpecialPage {
 	 * @return array with 'steps',  hash of page text, and image tag
 	 */
 	public static function fetchPage($lang,$pageId) {
-		if(isset(self::$pageCache[$lang][$pageId])) {
+		if (isset(self::$pageCache[$lang][$pageId])) {
 			return(self::$pageCache[$lang][$pageId]);
 		}
 		$ai = self::getAPIInfo($lang);
@@ -165,8 +165,8 @@ class Alfredo extends UnlistedSpecialPage {
 
 		$realUrls = array();
 		$langIds = array();
-		foreach($urls as $url) {
-			if(is_numeric($url)) {
+		foreach ($urls as $url) {
+			if (is_numeric($url)) {
 				$langIds[] = array("lang"=>"en","id"=>$url);
 			}
 			else {
@@ -177,9 +177,9 @@ class Alfredo extends UnlistedSpecialPage {
 		$badURLs = array();
 		$results = array();
 
-		foreach($realUrls as $url) {
-			if(!isset($pagesA[$url])) {
-				foreach($langs as $lang) {
+		foreach ($realUrls as $url) {
+			if (!isset($pagesA[$url])) {
+				foreach ($langs as $lang) {
 					ImageTransfer::addBadURL($url, $lang, "URL not found");
 				}
 				$results[] = array('fromURL' => $url, 'toURL' => '', 'status' => 'Bad URL');
@@ -192,27 +192,27 @@ class Alfredo extends UnlistedSpecialPage {
 
 		$fromIDs = array();
 		$urlLookup = array();
-		foreach($pages as $page) {
+		foreach ($pages as $page) {
 			$fromIDs[] = $page['page_id'];
 			$urlLookup[$page['page_id']] = Misc::getLangBaseURL('en') . '/' . $page['page_title'];
 		}
-		if(sizeof($fromIDs) == 0) {
+		if (sizeof($fromIDs) == 0) {
 			return(array());
 		}
 		// Fetch to cache the pages for later use in addImage
 		$this->batchFetchPages("en", $fromIDs);
 
 		$langTLs = array();
-		foreach($langs as $lang) {
+		foreach ($langs as $lang) {
 			$langTLs[$lang] = TranslationLink::getLinks("en",$lang,array("tl_from_aid in (" . implode(',', $fromIDs) . ")"));
 			$newFromIds = array_map( function($m) {
 				return($m->fromAID);
 			},$langTLs[$lang]);
-			foreach($fromIDs as $id) {
+			foreach ($fromIDs as $id) {
 				//Add error links
-				if(!in_array($id, $newFromIds)) {
+				if (!in_array($id, $newFromIds)) {
 					$this->addImage($id, $lang, 0);
-					if(isset($urlLookup[$id])) {
+					if (isset($urlLookup[$id])) {
 						$results[] = array('fromURL' => $urlLookup[$id], 'toURL' => '', 'status' => ('Could not find any translation link to ' . $lang));
 					}
 				}
@@ -221,14 +221,14 @@ class Alfredo extends UnlistedSpecialPage {
 
 			// Cache the other language pages too in a batch
 			$langIds = array();
-			foreach($langTLs[$lang] as $tl) {
+			foreach ($langTLs[$lang] as $tl) {
 					$langIds[] = $tls->toAID;
 			}
 			$this->batchFetchPages($lang, $langIds);
 		}
-		foreach($langs as $lang) {
-			foreach($langTLs[$lang] as $tl) {
-				if(!$this->addImage($tl->fromAID, $tl->toLang, $tl->toAID)) {
+		foreach ($langs as $lang) {
+			foreach ($langTLs[$lang] as $tl) {
+				if (!$this->addImage($tl->fromAID, $tl->toLang, $tl->toAID)) {
 					$results[] = array('fromURL' => $tl->fromURL, 'toURL'=> $tl->toURL, 'status' => 'Queued');
 				}
 				else {
@@ -250,10 +250,10 @@ class Alfredo extends UnlistedSpecialPage {
 		$wgOut->setArticleBodyOnly(true);
 
 		$articles = array();
-		foreach($articleIds as $articleId) {
-			if(is_numeric($articleId)) {
+		foreach ($articleIds as $articleId) {
+			if (is_numeric($articleId)) {
 				$r = Revision::loadFromPageId($dbr, $articleId);
-				if($r) {
+				if ($r) {
 					$txt = $r->getText();
 					$intro = Wikitext::getIntro($txt);
 					$text = Wikitext::getStepsSection($txt, true);
@@ -264,8 +264,8 @@ class Alfredo extends UnlistedSpecialPage {
 					// Find the last line starting with a '#'
 					$lastLine = 0;
 					$n = 0;
-					foreach($lines as $line) {
-						if($line[0] == '#') {
+					foreach ($lines as $line) {
+						if ($line[0] == '#') {
 							$lastLine = $n;
 						}
 						$n++;
@@ -273,17 +273,17 @@ class Alfredo extends UnlistedSpecialPage {
 
 					// Truncate lines after the last line with a '#'
 					$n = 0;
-					foreach($lines as $line) {
-						if($n > $lastLine) {
+					foreach ($lines as $line) {
+						if ($n > $lastLine) {
 							break;
 						}
-						if($n != 0) {
+						if ($n != 0) {
 							$text .= "\n";
 						}
 						$text .= $line;
 						$n++;
 					}
-					if(strlen($text) > 0) {
+					if (strlen($text) > 0) {
 						$articles[$articleId] = array("steps" => $text,
 																					"intro" => $intro,
 																					"altImageTags" => array($wgContLang->getNSText(NS_IMAGE)));
@@ -327,7 +327,7 @@ class Alfredo extends UnlistedSpecialPage {
 		header('Content-Disposition: attachment; filename="output.xls"');
 
 		$output = "From URL\tTo URL\n";
-		foreach($results as $result) {
+		foreach ($results as $result) {
 			$output .= self::partialURLEncode($result['fromURL']) . "\t" . self::partialURLEncode($result['toURL']) . "\t" . $result['status'] . "\n";
 		}
 		$wgOut->addHTML($output);
@@ -341,43 +341,43 @@ class Alfredo extends UnlistedSpecialPage {
 		global $wgRequest, $wgOut, $wgUser, $wgLanguageCode;
 		global $wgIsToolsServer, $wgIsDevServer;
 
-		if(!$wgIsToolsServer && !$wgIsDevServer) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
+		if (!$wgIsToolsServer && !$wgIsDevServer) {
+			$wgOut->setRobotPolicy('noindex,nofollow');
 			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if($wgRequest->wasPosted()) {
+		if ($wgRequest->wasPosted()) {
 			$api = $wgRequest->getVal("api");
 
-			if($api == 1) {
+			if ($api == 1) {
 				$auth = $wgRequest->getVal("auth");
-				if($auth != WH_DEV_ACCESS_AUTH) {
-					$wgOut->setRobotpolicy('noindex,nofollow');
+				if ($auth != WH_DEV_ACCESS_AUTH) {
+					$wgOut->setRobotPolicy('noindex,nofollow');
 					$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 					return;
 				}
 				$this->doAPI();
 			}
 			else {
-				if(!in_array('staff',$wgUser->getGroups())) {
-			      $wgOut->setRobotpolicy('noindex,nofollow');
+				if (!in_array('staff',$wgUser->getGroups())) {
+			      $wgOut->setRobotPolicy('noindex,nofollow');
 				    $wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 						return;
 				}
-				if($wgLanguageCode != "en") {
+				if ($wgLanguageCode != "en") {
 			    $wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 				}
 				$this->doAddURLs();
 			}
 		}
 		else {
-			if(!in_array('staff',$wgUser->getGroups())) {
-				$wgOut->setRobotpolicy('noindex,nofollow');
+			if (!in_array('staff',$wgUser->getGroups())) {
+				$wgOut->setRobotPolicy('noindex,nofollow');
 				$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 				return;
 			}
-			if($wgLanguageCode != "en") {
+			if ($wgLanguageCode != "en") {
 			    $wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			}
 

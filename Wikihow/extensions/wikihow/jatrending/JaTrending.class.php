@@ -8,11 +8,11 @@ class JaTrending {
 		$articleIds = explode("\n", $articles);
 
 		$data = ['articles' => []];
-		foreach($articleIds as $index => $id) {
+		foreach ($articleIds as $index => $id) {
 			$title = Title::newFromId($id);
 			$image = wfGetPad(ImageHelper::getGalleryImage($title, 100, 100));
 			$data['articles'][] = ['url' => $title->getFullURL(), 'count' => ($index+1), 'image' => $image, 'title' => $title->getText()];
-			if($index == 3) {
+			if ($index == 3) {
 				//no more than 4 in the box
 				break;
 			}
@@ -20,7 +20,7 @@ class JaTrending {
 		$data['header'] = wfMessage("jatrending_header")->text();
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 

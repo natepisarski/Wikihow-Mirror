@@ -1,4 +1,4 @@
-<?php                                                                                                                                        
+<?php
 if ( ! defined( 'MEDIAWIKI' ) )
   die();
 
@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['CommunityExpert'] = 'CommunityExpert';
-$wgAutoloadClasses['CommunityExpert'] = dirname(__FILE__) . '/CommunityExpert.body.php';
+$wgAutoloadClasses['CommunityExpert'] = __DIR__ . '/CommunityExpert.body.php';
 

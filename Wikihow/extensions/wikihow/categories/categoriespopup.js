@@ -169,7 +169,7 @@ function getFormData(form) {
     
 	if (top.document.getElementById("editform") == null) {
 		SUP = true;
-		var url = "/Special:Categoryhelper";
+		var url = "/Special:CategoryHelper";
 		//var url = "/x/f.php";
 
 		var JSONObj = new Object;

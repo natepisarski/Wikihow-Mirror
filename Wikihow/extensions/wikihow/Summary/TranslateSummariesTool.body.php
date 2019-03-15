@@ -1,6 +1,6 @@
 <?php
 
-class TranslateSummariesTool extends SpecialPage {
+class TranslateSummariesTool extends UnlistedSpecialPage {
 	private $specialPage;
 	private $secondAttempt = false;
 
@@ -20,7 +20,7 @@ class TranslateSummariesTool extends SpecialPage {
 		$out = $this->getOutput();
 
 		if (!self::allowedUser()) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}

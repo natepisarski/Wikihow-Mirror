@@ -55,7 +55,7 @@ class EmailActionButtonScript {
 				"target": "'.$url.'",
 				"name": "'.$buttonText.'",
 				"url": "'.$url.'"
-			}, 
+			},
 			"description": "'.$desc.'"
 		}
 		</script>';

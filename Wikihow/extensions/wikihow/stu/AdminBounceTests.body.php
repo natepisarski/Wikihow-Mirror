@@ -422,7 +422,7 @@ EOHTML;
 		if ($user->isBlocked()
 			|| !in_array('staff', $userGroups)
 		) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}

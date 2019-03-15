@@ -3,7 +3,7 @@
 $messages = array();
 
 $messages['en'] = array (
-	'special-editfinder'			=>	"Special:EditFinder", 
+	'special-editfinder'			=>	"Special:EditFinder",
 	'app-name'						=>	"Article Greenhouse",
 	'ef_statind_title'				=>	"Your Stats",
 	'editfinder_leaderboard_title'	=>	"Top Cultivators - Last 7 Days",

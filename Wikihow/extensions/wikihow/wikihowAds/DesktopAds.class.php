@@ -88,13 +88,13 @@ class DesktopAds {
 		}
 
 		// restricted url type
-		if( preg_match("@^/index\.php@", @$_SERVER["REQUEST_URI"]) ) {
+		if ( preg_match("@^/index\.php@", @$_SERVER["REQUEST_URI"]) ) {
 			$this->mActive = false;
 			return;
 		}
 
 		$allowedSpecialPage = false;
-		if ( $this->mTitle->isSpecial( 'Categorylisting' )
+		if ( $this->mTitle->isSpecial( 'CategoryListing' )
 			|| $this->mTitle->isSpecial( 'DocViewer' )
 			|| $this->mTitle->isSpecial( 'Quizzes' )
 			|| $this->mTitle->isSpecial( 'LSearch' )
@@ -118,7 +118,7 @@ class DesktopAds {
 
 		// restricted actions
 		$action = $this->mContext->getRequest()->getVal('action', 'view');
-		if( $action == 'edit' ) {
+		if ( $action == 'edit' ) {
 			$this->mActive = false;
 			return;
 		}
@@ -141,7 +141,7 @@ class DesktopAds {
 		}
 
 		// no ads on category pages
-		if ( $this->mTitle->getNamespace() == NS_CATEGORY ) {
+		if ( $this->mTitle->inNamespace(NS_CATEGORY) ) {
 			$this->mActive = false;
 			return;
 		}
@@ -183,7 +183,7 @@ class DesktopAds {
 		$data = wikihowAds::getUnitParams( 1 );
 		if ( $position == "left" ) {
 			return $data[0];
-		} else if ( $position == "right" ) {
+		} elseif ( $position == "right" ) {
 			return $data[1];
 		}
 	}
@@ -261,7 +261,7 @@ class DesktopAds {
 		if ( !$this->mFundingChoicesActive ) {
 			return "";
 		}
-		$html = file_get_contents( dirname( __FILE__ )."/fundingchoices.html" );
+		$html = file_get_contents( __DIR__."/fundingchoices.html" );
 		return $html;
 	}
 
@@ -316,17 +316,17 @@ class DesktopAds {
 
 		if ( RequestContext::getMain()->getRequest()->getInt( "dfpad" ) == 1 ) {
 			$adCreator  = new DeprecatedDFPAdCreator();
-		} else if ( $this->mIsMainPage ) {
+		} elseif ( $this->mIsMainPage ) {
 			$adCreator = new MainPageAdCreator();
-		} else if ( $this->mTitle->getNamespace() == NS_CATEGORY ) {
+		} elseif ( $this->mTitle->inNamespace(NS_CATEGORY) ) {
 			$adCreator = new CategoryPageAdCreator();
-		} else if ( $this->mDocViewer == true ) {
+		} elseif ( $this->mDocViewer == true ) {
 			$adCreator = new DocViewerAdCreatorVersion2();
 			$adCreator->setRefreshableRightRail( true );
 			$adCreator->setShowRightRailLabel( true );
 			$adCreator->setAdLabelVersion( 2 );
 			$adCreator->setRightRailAdLabelVersion( 2 );
-		} else if ( $this->mSearchPage == true ) {
+		} elseif ( $this->mSearchPage == true ) {
 			$searchQuery = LSearch::getSearchQuery();
 			$adCreator  = new SearchPageAdCreator( $searchQuery );
 			if ( !$this->mEnglishSite ) {
@@ -338,23 +338,20 @@ class DesktopAds {
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
 			$adCreator = new MixedAdCreatorVersion5();
-			$adCreator->addAdsenseChannel( 5547225363 );
 			$adCreator->mAdServices['step'] = '';
-
-			if ( $pageId == 110310 ) {
-				$adCreator = new MixedAdCreatorVersion3();
-				$adCreator->mAdServices['step'] = '';
-			} else if ( $pageId == 647971 ) {
-				$adCreator = new MixedAdCreatorVersion4();
-				$adCreator->mAdServices['step'] = '';
-			} else if ( $pageId == 8917510 ) {
-				// Upshift used for testing new ad features that need to be live
-				$adCreator = new MixedAdCreatorVersion5();
+			if ( $pageId % 10 == 3 ) {
+				$adCreator = new MixedAdCreatorScrollTo();
 				$adCreator->mAdServices['step'] = '';
 			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
+			}
+
+			if ( ( class_exists("WikihowToc") && ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) ) {
+				$adCreator->addAdsenseChannel( 4805470868 );
+			} else {
+				$adCreator->addAdsenseChannel( 3492389196 );
 			}
 
 			if ( !$this->mEnglishSite ) {
@@ -389,7 +386,7 @@ class DesktopAds {
 		if ( !$this->mActive ) {
 			return '';
 		}
-		return dirname( __FILE__ ) . "/videoads.compiled.js";
+		return __DIR__ . "/videoads.compiled.js";
 	}
 
 	public function getJavascriptFile() {
@@ -397,7 +394,7 @@ class DesktopAds {
 			return '';
 		}
 		// TODO compiled this js
-		return dirname( __FILE__ ) . "/wikihowdesktopads.js";
+		return __DIR__ . "/wikihowdesktopads.js";
 	}
 }
 

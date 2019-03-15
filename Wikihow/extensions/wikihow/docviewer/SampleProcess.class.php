@@ -137,7 +137,7 @@ class SampleProcess {
 			//force it to display as a PDF if this is the only file
 			if ($bOnlyPDF) self::displayAsPDF($file_name);
 		}
-		else if (self::$check_for_plagiarism && (($ending == 'doc') || ($ending == 'docx') || ($ending == 'txt'))) {
+		elseif (self::$check_for_plagiarism && (($ending == 'doc') || ($ending == 'docx') || ($ending == 'txt'))) {
 			//plagiarized?
 			$ripped_off_from = self::is_plagiarized($local_file);
 			if ($ripped_off_from) $err .= 'PLAGIARIZED! Possibly from: '.$ripped_off_from;
@@ -261,7 +261,7 @@ class SampleProcess {
 		//put the new image into the system
 		$title = Title::makeTitleSafe( NS_IMAGE, wfBaseName($img_file) );
 
-		if( !is_object( $title ) ) {
+		if ( !is_object( $title ) ) {
 			//swap user back
 			$wgUser = $tempUser;
 			return 'Image could not be imported; a valid title cannot be produced.';
@@ -274,7 +274,7 @@ class SampleProcess {
 		//remove the temp image file
 		@unlink($img_file);
 
-		if( WikiError::isError( $archive ) || !$archive->isGood() ) {
+		if ( WikiError::isError( $archive ) || !$archive->isGood() ) {
 			return 'Image archive publish failed.';
 		}
 
@@ -304,7 +304,7 @@ class SampleProcess {
 		$result = '';
 		if ($res['count']) {
 			$words = $res['querywords'];
-			foreach($res['result'] as $r) {
+			foreach ($res['result'] as $r) {
 				if (!preg_match("@^http://[a-z0-9]*.(wikihow|whstatic|youtube).com@i", $r['url'])) {
 					if ($r['minwordsmatched'] / $words > $threshold) {
 						//we got one!

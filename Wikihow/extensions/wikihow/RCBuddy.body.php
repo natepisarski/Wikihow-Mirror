@@ -2,19 +2,20 @@
 
 class RCBuddy extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'RCBuddy' );
 	}
 
-	// Gets the number of unpatrolled edits to featured articles, excluding 
+	// Gets the number of unpatrolled edits to featured articles, excluding
 	// edits by the current user
-	function getFeaturedUnpatrolCount($delay, $skip) {
-		global $wgMemc, $wgUser;
-		wfProfileIn(__METHOD__);
-		$key = wfMemcKey('rcbuddy_unp_count', $delay, $wgUser->getID());
+	private function getFeaturedUnpatrolCount($delay, $skip) {
+		global $wgMemc;
+
+		$section = new ProfileSection(__METHOD__);
+		$user = $this->getUser();
+		$key = wfMemcKey('rcbuddy_unp_count', $delay, $user->getID());
 		$count = $wgMemc->get($key);
 		if (is_string($count)) {
-			wfProfileOut(__METHOD__);
 			return $count;
 		}
 		$dbr = wfGetDB(DB_SLAVE);
@@ -22,28 +23,26 @@ class RCBuddy extends UnlistedSpecialPage {
 			array('count(*) as c'),
 			array('rc_cur_id=page_id',
 				'rc_patrolled=0',
-				'rc_user <= ' . $dbr->addQuotes($wgUser->getID()),
+				'rc_user <= ' . $dbr->addQuotes($user->getID()),
 				'page_is_featured=1',
 				$delay == 0 ? "1=1" : "rc_timestamp < " . $dbr->addQuotes( wfTimestamp( TS_MW, time() - $delay * 60 ) ),
 				!$skip ? "1=1" : "rc_id NOT IN (" . $dbr->makeList($skip) . ")"),
 			__METHOD__);
 		$count = (string)$row->c;
 		$wgMemc->set($key, $count, 60);
-		wfProfileOut(__METHOD__);
 		return $count;
 	}
 
 	// Gets page wide stats about # of unpatrolled edits, # of users online,
-	// with cacheable results, since they are page wide stats and not user 
+	// with cacheable results, since they are page wide stats and not user
 	// specific
-	function getPageWideStats($results) {
+	private function getPageWideStats($results) {
 		global $wgMemc;
-		wfProfileIn(__METHOD__);
+		$section = new ProfileSection(__METHOD__);
 
 		$key = wfMemcKey("rcbuddy_pagewidestats");
 		$result = $wgMemc->get($key);
 		if (is_array($result)) {
-			wfProfileOut(__METHOD__);
 			return array_merge($results, $result);
 		}
 
@@ -65,20 +64,23 @@ class RCBuddy extends UnlistedSpecialPage {
 		$count = $row->c;
 		$newstuff['users_editing'] = $count;
 
-		$nab_unpatrolled = Newarticleboost::getNABCount($dbr);
+		$nab_unpatrolled = NewArticleBoost::getNABCount($dbr);
 		$newstuff['nab_unpatrolled'] = $nab_unpatrolled;
 
 		$wgMemc->set($key, $newstuff, 60);
-		wfProfileOut(__METHOD__);
 		return array_merge($newstuff, $results);
 	}
 
 	// The following is just used by the wikihow toolbar
-	function execute($par) {
-		global $wgOut, $wgUser, $wgRequest, $wgCookiePrefix;
+	public function execute($par) {
+		global $wgCookiePrefix;
 
-		wfProfileIn(__METHOD__);
-		$wgOut->disable(true);
+		$section = new ProfileSection(__METHOD__);
+
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		$out->setArticleBodyOnly(true);
 		header("Content-type: text/plain");
 
 		// users may have skipped a bunch of edits, don't include them here
@@ -92,13 +94,13 @@ class RCBuddy extends UnlistedSpecialPage {
 			}
 		}
 
-		$delay = $wgRequest->getInt('delay');
+		$delay = $this->getRequest()->getInt('delay');
 		$count = $this->getFeaturedUnpatrolCount($delay, $skip);
 		$results = array('unpatrolled_fa' => $count);
 
-		$results = self::getPageWideStats($results);
+		$results = $this->getPageWideStats($results);
 
-		if ($wgUser->hasCookies() && $wgUser->getNewtalk()) {
+		if ($user->hasCookies() && $user->getNewtalk()) {
 			$results['new_talk'] = 1;
 		} else {
 			$results['new_talk'] = 0;
@@ -108,17 +110,15 @@ class RCBuddy extends UnlistedSpecialPage {
 		$dbr = wfGetDB( DB_SLAVE );
 		$count = $dbr->selectField('logging',
 			array('count(*)'),
-			array("log_user" => $wgUser->getId(),
+			array("log_user" => $user->getId(),
 				"log_type" => 'patrol',
 				"log_timestamp BETWEEN " . $dbr->addQuotes($window[0]) . " AND " . $dbr->addQuotes($window[1]) ),
 			__METHOD__);
 		$results['patrolledtoday'] = $count;
 
-		foreach ($results as $k=>$v) {
+		foreach ($results as $k => $v) {
 			print "$k=$v\n";
 		}
-		wfProfileOut(__METHOD__);
-		return;
 	}
 
 }

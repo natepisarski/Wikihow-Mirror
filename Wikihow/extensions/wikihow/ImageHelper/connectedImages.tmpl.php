@@ -1,5 +1,5 @@
 <div class="minor_section">
-	<? if(!$imgStrip) { ?>
+	<? if (!$imgStrip) { ?>
 	<h2>More images from <?= $title ?></h2>
 	<div class='im-images'>
 	<?} else {?>
@@ -7,7 +7,7 @@
 	<?}?>
 		<table>
 			<tr>
-			<? if($imgStrip) { ?>
+			<? if ($imgStrip) { ?>
 			<td>
 				<a href="<?= $imageUrl[0] ?>" title="<?= $imageTitle[0] ?>" class="image">
 					<img border="0" src="<?= wfGetPad('/skins/WikiHow/images/is_left.png') ?>" alt="<?= $imageTitle[0] ?>">
@@ -21,7 +21,7 @@
 					</a>
 				</td>
 			<?}?>
-			<? if($imgStrip) { 
+			<? if ($imgStrip) { 
 				$lastPos = $numImages - 1;
 			?>
 			<td style='padding-left:0px;padding-bottom:5px;'>

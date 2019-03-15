@@ -37,7 +37,7 @@ foreach ($res as $row) {
 
 // Figure out what the catinfo column is supposed to be
 foreach ($titles as $t) {
-	$val = Categoryhelper::getTitleCategoryMask($t);
+	$val = CategoryHelper::getTitleCategoryMask($t);
 	$count++;
 	$updates[] = "UPDATE page set page_catinfo={$val} where page_id={$t->getArticleID()};";
 }

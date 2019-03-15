@@ -9,10 +9,10 @@ $wgExtensionCredits['specialpage'][] = [
 ];
 
 $wgSpecialPages['HistoricalPV'] = 'HistoricalPV';
-$wgAutoloadClasses['HistoricalPV'] = dirname(__FILE__) . '/HistoricalPV.body.php';
+$wgAutoloadClasses['HistoricalPV'] = __DIR__ . '/HistoricalPV.body.php';
 
 $wgResourceModules['ext.wikihow.historicalpv'] = [
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/historicalpv',
 	'targets' => ['desktop'],
 	'styles' => [

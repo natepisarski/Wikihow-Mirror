@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 
 class RulesController extends AppController {
@@ -24,7 +24,7 @@ class RulesController extends AppController {
 				if ($rule->disabled) $rule->enable();
 			}
 			else {
-				if (!$rule->disabled) $rule->disable();
+				if (!$rule->disabled) $rule->setArticleBodyOnly(true);
 			}
 		}
 

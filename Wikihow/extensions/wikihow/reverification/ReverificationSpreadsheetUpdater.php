@@ -34,7 +34,7 @@ class ReverificationSpreadsheetUpdater {
 		$this->totalUpdateCount = count($this->exportData);
 		$this->log($this->totalUpdateCount . " reverifications to update");
 
-		if($this->totalUpdateCount > 0) {
+		if ($this->totalUpdateCount > 0) {
 			foreach ($this->sheetNames as $sheetName) {
 				$sheet = $file->sheet($sheetName);
 				$this->log("Processing Sheet: $sheetName");
@@ -60,11 +60,11 @@ class ReverificationSpreadsheetUpdater {
 				$spreadsheetVerifiedDate = $data["Verified Date"];
 
 				$verifierName = $data["Verifier Name"];
-				if(!isset($this->verifierCount[$verifierName])) {
+				if (!isset($this->verifierCount[$verifierName])) {
 					$this->verifierCount[$verifierName] = 0;
 					$this->verifierSkipCount[$verifierName] = 0;
 				}
-				if($this->verifierCount[$verifierName] >= Self::MAX_PER_DAY) {
+				if ($this->verifierCount[$verifierName] >= Self::MAX_PER_DAY) {
 					$skipCount++;
 					$this->verifierSkipCount[$verifierName]++;
 					$this->totalSkipped++;
@@ -103,7 +103,7 @@ class ReverificationSpreadsheetUpdater {
 					}
 				}
 
-				if($shouldUpdateRow) {
+				if ($shouldUpdateRow) {
 					$rever->setScriptExportTimestamp(wfTimestampNow());
 					ReverificationDB::getInstance()->update($rever);
 				}
@@ -136,10 +136,10 @@ class ReverificationSpreadsheetUpdater {
 			"Total updated: {$this->totalUpdated}\n\n" .
 			"Total skipped: {$this->totalSkipped}\n\n\n\n";
 
-		if($this->totalUpdated > 0) {
+		if ($this->totalUpdated > 0) {
 			foreach ($this->verifierCount as $verifier => $count) {
 				$reportBody .= "Total updated by {$verifier}: {$count}\n\n";
-				if(isset($this->verifierSkipCount[$verifier]) && $this->verifierSkipCount[$verifier] > 0) {
+				if (isset($this->verifierSkipCount[$verifier]) && $this->verifierSkipCount[$verifier] > 0) {
 					$reportBody .= "Total skipped by {$verifier}: {$count}\n\n";
 				}
 			}

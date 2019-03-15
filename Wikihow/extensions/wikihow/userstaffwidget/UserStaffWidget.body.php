@@ -56,7 +56,7 @@ class UserStaffWidget extends UnlistedSpecialPage {
 
 	public function execute($par) {
 		global $wgOut, $wgRequest, $wgUser;
-		if(!self::isAllowed()) {
+		if (!self::isAllowed()) {
 			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -66,7 +66,7 @@ class UserStaffWidget extends UnlistedSpecialPage {
 		$u = User::newFromName($userName);
 
 		$txt = "";
-		if($u) {
+		if ($u) {
 			$row = self::getStaffWidgetData($u->getId());
 			$txt = self::formatUserData($row);
 		}
@@ -77,13 +77,13 @@ class UserStaffWidget extends UnlistedSpecialPage {
 	public static function beforeHeaderDisplay() {
 		global $wgUser, $wgTitle, $wgLang;
 
-		if(!self::isAllowed()) {
+		if (!self::isAllowed()) {
 			return true;
 		}
-		if($wgTitle->getNamespace() == NS_USER ) {
-			if(preg_match("@^([^/]+)(/|$)@",$wgTitle->getText(),$matches)) {
+		if ($wgTitle->inNamespace(NS_USER) ) {
+			if (preg_match("@^([^/]+)(/|$)@",$wgTitle->getText(),$matches)) {
 				$u = User::newFromName($matches[1]);
-				if($u) {
+				if ($u) {
 					$row = self::getStaffWidgetData($u->getId());
 					$sk = $wgUser->getSkin();
 					$txt = "<b>User: </b>" . $row->fe_username . "<br/>\n";
@@ -104,7 +104,7 @@ class UserStaffWidget extends UnlistedSpecialPage {
 				}
 			}
 		}
-		elseif($wgTitle->getNamespace() == NS_USER_TALK) {
+		elseif($wgTitle->inNamespace(NS_USER_TALK)) {
 			$sk = $wgUser->getSkin();
 			$txt = "<script type\"text/javascript\">\n";
 			$txt .= "$(document).ready(function() {\n";

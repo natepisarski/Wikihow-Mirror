@@ -523,8 +523,8 @@ class RobotPolicy {
 		$ret = false;
 		if ($this->wikiPage
 			&& $this->title->inNamespace(NS_MAIN)
-			&& class_exists('Newarticleboost')
-			&& !Newarticleboost::isNABbed( self::getDB(), $this->title->getArticleID() )
+			&& class_exists('NewArticleBoost')
+			&& !NewArticleBoost::isNABbed( self::getDB(), $this->title->getArticleID() )
 		) {
 			$ret = true;
 		}
@@ -575,7 +575,7 @@ class RobotPolicy {
 		}
 
 		$txt = $this->title->getText();
-		$categs = Categoryhelper::getIndexableCategoriesFromTree();
+		$categs = CategoryHelper::getIndexableCategoriesFromTree();
 
 		return !isset($categs[$txt]);
 	}

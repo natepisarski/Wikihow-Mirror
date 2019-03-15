@@ -12,7 +12,7 @@
 	</div>
 </div>
 
-<?php global $wgLanguageCode; if($wgLanguageCode == 'en') { ?>
+<?php global $wgLanguageCode; if ($wgLanguageCode == 'en') { ?>
 <div class="minor_section">
 	<h3><div class='altblock'></div><?=wfMessage('createpage_topic_sugg_head')?></h3>
 	<div class="cp_block">

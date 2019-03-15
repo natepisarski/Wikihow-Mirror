@@ -33,12 +33,12 @@ class PostComment extends UnlistedSpecialPage {
 		if (!$title->isTalkPage() || $action || $this->getRequest()->getVal('diff'))
 			return;
 
-		if($title->inNamespace(NS_TALK) && !$this->getUser()->isLoggedIn()) {
+		if ($title->inNamespace(NS_TALK) && !$this->getUser()->isLoggedIn()) {
 			return;
 		}
 
 		if (!$title->userCan('edit')) {
-			echo  wfMessage('postcomment_discussionprotected');
+			print  wfMessage('postcomment_discussionprotected');
 			return;
 		}
 
@@ -56,7 +56,7 @@ class PostComment extends UnlistedSpecialPage {
 		$me = Title::makeTitle(NS_SPECIAL, "PostComment");
 
 		$pc = Title::newFromText("PostComment", NS_SPECIAL);
-		if ($title->getNamespace() == NS_USER_TALK) {
+		if ($title->inNamespace(NS_USER_TALK)) {
 			$msg = wfMessage('postcomment_leaveamessagefor', $title->getText())->escaped();
 		}
 
@@ -129,8 +129,7 @@ class PostComment extends UnlistedSpecialPage {
 			//need to be able to put that future comment space
 			//in JUST the right place
 			$result = array($result,$future_comment,$preview_place);
-		}
-		else {
+		} else {
 			if ($title->inNamespace(NS_TALK)) {
 				$articleTitle = Title::newFromText($title->getText());
 				$cta = "";
@@ -151,10 +150,11 @@ class PostComment extends UnlistedSpecialPage {
 			$result = $future_comment . $result . $error_box . $preview_place;
 		}
 
-		if ($return_result)
+		if ($return_result) {
 			return $result;
-		else
-			echo $result;
+		} else {
+			print $result;
+		}
 	}
 
 	public function execute($par) {
@@ -162,18 +162,17 @@ class PostComment extends UnlistedSpecialPage {
 
 		if ($this->getRequest()->getVal('jsonresponse') == 'true') {
 			$this->getRequest()->response()->header('Content-type: application/json');
+			// NOTE: must use disable() to be able to sent Content-Type response header
 			$this->getOutput()->disable();
-			echo json_encode( array( 'html' => $this->getOutput()->getHTML(),
+			print json_encode( array( 'html' => $this->getOutput()->getHTML(),
 									'revId' => $this->revId ) );
 		}
 	}
 
 	private function writeOutput($par) {
-		global $wgLang, $wgMemc, $wgDBname, $wgUser;
-		global $wgSitename, $wgLanguageCode;
-		global $wgFeedClasses, $wgFilterCallback, $wgWhitelistEdit, $wgParser;
+		global $wgSitename, $wgWhitelistEdit, $wgParser;
 
-		$this->getOutput()->setRobotpolicy( "noindex,nofollow" );
+		$this->getOutput()->setRobotPolicy( "noindex,nofollow" );
 
 		$target = !empty($par) ? $par : $this->getRequest()->getVal("target");
 		$t = Title::newFromDBKey($target);
@@ -200,8 +199,6 @@ class PostComment extends UnlistedSpecialPage {
 		}
 		$topic = $this->getRequest()->getVal("topic_name");
 
-		//echo "$dateStr<br/>";
-
 		// remove leading space, tends to be a problem with a lot of talk page comments as it breaks the
 		// HTML on the page
 		$comment = preg_replace('/\n[ ]*/', "\n", trim($comment));
@@ -227,8 +224,6 @@ class PostComment extends UnlistedSpecialPage {
 		$text .= $formattedComment;
 		$this->getOutput()->setStatusCode(409);
 
-		//echo "updating with text:<br/> $text";
-		//exit;
 		$tmp = "";
 		if ( $this->getUser()->isBlocked() ) {
 			$this->getOutput()->blockedPage();
@@ -259,7 +254,7 @@ class PostComment extends UnlistedSpecialPage {
 		$contentFormat = $handler->getDefaultFormat();
 		$content = ContentHandler::makeContent( $text, $t, $contentModel, $contentFormat );
 		$status = Status::newGood();
-		if (!wfRunHooks('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $wgUser, false))) {
+		if (!wfRunHooks('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $user, false))) {
 			return;
 		}
 		if (!$status->isGood()) {
@@ -279,8 +274,8 @@ class PostComment extends UnlistedSpecialPage {
 		}
 
 		$matches = array();
-		$preg = "/http:\/\/[^] \n'\">]*/";
-		$mod = str_ireplace('http://www.wikihow.com', '', $comment);
+		$preg = "/https?:\/\/[^] \n'\">]*/";
+		$mod = str_ireplace('https://www.wikihow.com', '', $comment);
 		preg_match_all($preg, $mod, $matches);
 
 		if (sizeof($matches[0] ) > 2) {
@@ -306,7 +301,7 @@ class PostComment extends UnlistedSpecialPage {
 		$fc = new FancyCaptcha();
 		$pass_captcha = $fc->passCaptcha();
 
-		if(!$pass_captcha && $this->getUser()->getID() == 0) {
+		if (!$pass_captcha && $this->getUser()->getID() == 0) {
 			$this->getOutput()->addHTML("Sorry, please enter the correct word.");
 			return;
 		}
@@ -318,7 +313,7 @@ class PostComment extends UnlistedSpecialPage {
 		}
 
 		// Notify users of usertalk updates
-		if ( $t->getNamespace() == NS_USER_TALK ) {
+		if ( $t->inNamespace(NS_USER_TALK) ) {
 			AuthorEmailNotification::notifyUserTalk($t->getArticleID(), $this->getUser()->getID(), $comment);
 		}
 
@@ -353,7 +348,6 @@ class PostcommentPreview extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgLang;
 		global $wgParser;
 
 		$user = $this->getUser();

@@ -11,7 +11,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminCloseAccount'] = 'AdminCloseAccount';
-$wgAutoloadClasses['AdminCloseAccount'] = dirname(__FILE__) . '/AdminCloseAccount.body.php';
+$wgAutoloadClasses['AdminCloseAccount'] = __DIR__ . '/AdminCloseAccount.body.php';
 
 $wgMessagesDirs['AdminCloseAccount'] = __DIR__ . '/i18n';
 
@@ -22,7 +22,7 @@ $wgResourceModules['ext.wikihow.admincloseaccount'] = [
 	'targets' => ['desktop', 'mobile'],
 	'position' => 'top',
 	'remoteExtPath' => 'wikihow/AdminCloseAccount/resources',
-	'localBasePath' => dirname(__FILE__) . '/resources',
+	'localBasePath' => __DIR__ . '/resources',
 	'styles' => ['admincloseaccount.less'],
 	'scripts' => ['admincloseaccount.js'],
 ];

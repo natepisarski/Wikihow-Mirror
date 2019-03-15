@@ -9,7 +9,7 @@
 class MobileSlideshow
 {
 	static function getHtml() {
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		return $tmpl->execute('mobileslideshow.tmpl.php');
 	}
 }

@@ -14,7 +14,7 @@ class WAPLinker {
 			$tag = htmlspecialchars($tag['raw_tag'], ENT_QUOTES);
 			$tag = "<a href='/Special:$userPage/tag/$encoded'>$tag</a>";
 			$tags[$i] = $tag;
-		}	
+		}
 		return $tags;
 	}
 
@@ -31,7 +31,7 @@ class WAPLinker {
 		if (!empty($realName)) {
 			$name .= " ($realName)";
 		}
-		$userPage = $this->config->getUserPageName();	
+		$userPage = $this->config->getUserPageName();
 		return "<a href='/Special:$userPage/user/{$user->getId()}'>" . htmlspecialchars($name, ENT_QUOTES) . "</a>";
 	}
 

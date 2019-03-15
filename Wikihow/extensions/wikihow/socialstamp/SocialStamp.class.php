@@ -13,7 +13,7 @@ class SocialStamp {
 	const NOTABLE_TAG = "notable_coauthor";
 
 	public static function addDesktopByline($out) {
-		if(!self::isEligibleForByline()) return;
+		if (!self::isEligibleForByline()) return;
 
 		$html = self::getBylineHtml();
 
@@ -21,7 +21,7 @@ class SocialStamp {
 	}
 
 	private static function getBylineHtml() {
-		if(self::$byLineHtml == "") {
+		if (self::$byLineHtml == "") {
 			self::setBylineVariables();
 		}
 
@@ -29,7 +29,7 @@ class SocialStamp {
 	}
 
 	private static function getHoverText() {
-		if(self::$hoverText == "") {
+		if (self::$hoverText == "") {
 			self::setBylineVariables();
 		}
 
@@ -53,11 +53,11 @@ class SocialStamp {
 	public static function getHoverTextForArticleInfo(){
 		$text = trim(self::getHoverText());
 		$brLoc = stripos($text, "<br");
-		if($brLoc !== false) {
+		if ($brLoc !== false) {
 			$text = substr($text, 0, $brLoc);
 		} else {
 			$learnmoreLoc = strripos($text, "</a>");
-			if($learnmoreLoc == strlen($text) - 4) {
+			if ($learnmoreLoc == strlen($text) - 4) {
 				//remove the learn more
 				$text = substr($text, 0, strripos($text, "<a"));
 			}
@@ -67,7 +67,7 @@ class SocialStamp {
 	}
 
 	public static function addMobileByline(&$data){
-		if(!self::isEligibleForByline()) return;
+		if (!self::isEligibleForByline()) return;
 
 		wfRunHooks( 'BylineStamp', [ &self::$verifiers, $data['articleid'] ] );
 
@@ -80,14 +80,14 @@ class SocialStamp {
 		$main = RequestContext::getMain();
 
 		$revision = $main->getRequest()->getVal('oldid', "");
-		if($revision != "") return false;
+		if ($revision != "") return false;
 
 		$title = $main->getTitle();
-		if(!$title->inNamespace(NS_MAIN) || $title->isMainPage() || $title->getArticleID() <= 0) return false;
+		if (!$title->inNamespace(NS_MAIN) || $title->isMainPage() || $title->getArticleID() <= 0) return false;
 
-		if($title->isRedirect()) return false;
+		if ($title->isRedirect()) return false;
 
-		if(!PagePolicy::showCurrentTitle($main)) return false;
+		if (!PagePolicy::showCurrentTitle($main)) return false;
 
 		return true;
 	}
@@ -102,9 +102,10 @@ class SocialStamp {
 		$params["coauthor"] = wfMessage('ss_coauthor')->text();
 		$params["connector"] = "<span class='ss_pipe'>|</span>";
 		$params['check'] = "ss_check";
+		$params['oldToc'] = (class_exists('WikihowToc') && WikihowToc::isNewArticle()) ? "" : "old_toc";
 		$numCitations = Misc::getReferencesCount();
 		$referencesEligible = false;
-		if($numCitations >= SocialProofStats::DISPLAY_CITATIONS_LIMIT) {
+		if ($numCitations >= SocialProofStats::DISPLAY_CITATIONS_LIMIT) {
 			$referencesEligible = true;
 		}
 		$params['references'] = $numCitations;
@@ -127,7 +128,7 @@ class SocialStamp {
 			$key = SocialProofStats::VERIFIER_TYPE_STAFF;
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "staff_icon";
-			if($referencesEligible) {
+			if ($referencesEligible) {
 				$params['hasReferences'] = true;
 			}
 			$hasStaff = true;
@@ -136,19 +137,19 @@ class SocialStamp {
 			unset($params["coauthor"]);
 			$params['slot1class'] = "author_icon";
 			$params["check"] = "ss_info";
-			if($referencesEligible) {
+			if ($referencesEligible) {
 				$params['hasReferences'] = true;
 			}
 			$isDefault = true;
 		}
 
-		if($hasExpert || $hasCommunity) {
+		if ($hasExpert || $hasCommunity) {
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "expert_icon";
-			if(SocialProofStats::isSpecialInline()) {
+			if (SocialProofStats::isSpecialInline()) {
 				$params['coauthor'] = wfMessage("ss_special_author")->text();
 			}
-			if(SocialStamp::isNotable()) {
+			if (SocialStamp::isNotable()) {
 				$params['coauthor'] = wfMessage("ss_notable")->text();
 			}
 		} else {
@@ -182,44 +183,44 @@ class SocialStamp {
 				$hoverText .= UserReview::getIconHoverText($articleId);
 				$hasReaders = true;
 			}
-			if($isDefault) {
+			if ($isDefault) {
 				$params['slot2_intro'] = ucfirst($params['slot2_intro']);
 			}
 
-			if(isset($params['hasSlot2']) && $isMobile) {
+			if (isset($params['hasSlot2']) && $isMobile) {
 				unset($params['hasReferences']);
 			}
 		}
 
-		if(class_exists('WikihowToc') && !isset($params['hasReferences'])) {
+		if (class_exists('WikihowToc') && !isset($params['hasReferences'])) {
 			WikihowToc::setReferences();
 		}
 
 		//now get the hovers
-		if($hasExpert) {
+		if ($hasExpert) {
 			$vData = $verifiers[$key];
 			$link = ArticleReviewers::getLinkByVerifierName($vData->name);
 
-			if($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
 				$citations = wfMessage('ss_expert_citations', $numCitations, $referenceLink)->text();
 			}
 			$coauthor = lcfirst(wfMessage("ss_coauthor")->text());
-			if(SocialProofStats::isSpecialInline()) {
+			if (SocialProofStats::isSpecialInline()) {
 				$coauthor = lcfirst(wfMessage("ss_special_author")->text());
 			}
 
 			$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthor )->text();
 		} elseif($hasCommunity) {
-			if($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
 				$citations = wfMessage('ss_expert_citations', $numCitations, $referenceLink)->text();
 			}
 			$hoverText = wfMessage("ss_community", $verifiers[$key]->name, $verifiers[$key]->hoverBlurb, $citations)->text();
 		} elseif ($hasStaff) {
-			if($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
 				$citations = wfMessage('ss_staff_citations', $numCitations, $referenceLink)->text();
 			}
 
-			if($isTested) {
+			if ($isTested) {
 				$hoverText = wfMessage('ss_staff_tested', $citations, self::getHoverInfo($testKey))->text();
 			} elseif ($hasReaders) {
 				$hoverText = wfMessage('ss_staff_readers', $citations, UserReview::getIconHoverText($articleId))->text();
@@ -227,22 +228,22 @@ class SocialStamp {
 				$hoverText = wfMessage('ss_staff', $citations)->text();
 			}
 		} elseif ($isDefault) {
-			if($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
 				$citations = wfMessage('ss_default_citations', $numCitations, $referenceLink)->text();
 			}
 			$numEditors = count(ArticleAuthors::getAuthors($articleId));
-			if($numEditors >= self::MIN_AUTHOR) {
+			if ($numEditors >= self::MIN_AUTHOR) {
 				$editorBlurb = wfMessage('ss_editors_big', $numEditors)->text();
 			} else {
 				$editorBlurb = wfMessage('ss_editors_small', $numEditors)->text();
 			}
 			$views = RequestContext::getMain()->getWikiPage()->getCount();
-			if($isTested) {
+			if ($isTested) {
 				$hoverText = wfMessage("ss_default_tested", $editorBlurb, $citations, self::getHoverInfo($testKey) )->text();
 			} elseif($hasReaders) {
 				$hoverText = wfMessage("ss_default_readers", $editorBlurb, $citations, UserReview::getIconHoverText($articleId) )->text();
 			} else {
-				if($views > self::MIN_VIEWS) {
+				if ($views > self::MIN_VIEWS) {
 					$viewText = wfMessage("ss_default_views", number_format($views))->text();
 				}
 				$hoverText = wfMessage('ss_default', $editorBlurb, $citations, $viewText)->text();
@@ -273,7 +274,7 @@ class SocialStamp {
 			'amp' => $amp
 		];
 
-		if(!$isExpert && !$isAlternateDomain) {
+		if (!$isExpert && !$isAlternateDomain) {
 			$vars['learn_more_link'] = SocialProofStats::LEARN_MORE_LINK;
 			$vars['learn_more'] = wfMessage('sp_learn_more')->text();
 		}
@@ -288,7 +289,7 @@ class SocialStamp {
 	}
 
 	public static function getIntroInfo($vType, $vData = null) {
-		if(in_array($vType, [SocialProofStats::VERIFIER_TYPE_YOUTUBER, SocialProofStats::VERIFIER_TYPE_ACADEMIC, SocialProofStats::VERIFIER_TYPE_EXPERT])) {
+		if (in_array($vType, [SocialProofStats::VERIFIER_TYPE_YOUTUBER, SocialProofStats::VERIFIER_TYPE_ACADEMIC, SocialProofStats::VERIFIER_TYPE_EXPERT])) {
 			return $vData->name;
 		} elseif ( $vType == SocialProofStats::VERIFIER_TYPE_TECH) {
 			return wfMessage("ss_tech_name")->text();

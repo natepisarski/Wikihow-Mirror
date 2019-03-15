@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminMarkEmailConfirmed',
 	'author' => 'Reuben Smith',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminMarkEmailConfirmed'] = 'AdminMarkEmailConfirmed';
-$wgAutoloadClasses['AdminMarkEmailConfirmed'] = dirname( __FILE__ ) . '/AdminMarkEmailConfirmed.body.php';
-
+$wgAutoloadClasses['AdminMarkEmailConfirmed'] = __DIR__ . '/AdminMarkEmailConfirmed.body.php';

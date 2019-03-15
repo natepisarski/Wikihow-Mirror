@@ -1,6 +1,6 @@
 <?
 $messages = array();
-$messages['en'] = 
+$messages['en'] =
         array(
 			'relatedarticle' => 'Manage Related wikiHows',
 			'notarget' => 'Error: No target specified. ',

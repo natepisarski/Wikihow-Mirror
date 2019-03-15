@@ -7,9 +7,10 @@ class FlaviusQueryTool extends UnlistedSpecialPage {
 	private $flavius;
 
 	public function __construct() {
+		global $wgHooks;
 		parent::__construct("FlaviusQueryTool");
 		$this->flavius = new Flavius;
-		$GLOBALS['wgHooks']['ShowSideBar'][] = array('TitusQueryTool::removeSideBarCallback');
+		$wgHooks['ShowSideBar'][] = array('TitusQueryTool::removeSideBarCallback');
 	}
 
 	static function removeSideBarCallback(&$showSideBar) {
@@ -23,30 +24,32 @@ class FlaviusQueryTool extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() ||  !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() ||  !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
-		if ($wgRequest->wasPosted()) {
-			$query = $wgRequest->getVal('query');
+		if ($req->wasPosted()) {
+			$query = $req->getVal('query');
 			ini_set('memory_limit', '2048M');
 			//Take up to 8 minutes to download big queries
 			set_time_limit(480);
 			$this->getQuery();
-		}
-		else {
-			EasyTemplate::set_path(dirname(__FILE__).'/resources/templates/');
+			return;
+		} else {
+			EasyTemplate::set_path(__DIR__.'/resources/templates/');
 
 			$vars = array('fields'=>$this->getFields() );
 
 			$html = EasyTemplate::html('flaviusquerytool.tmpl.php', $vars);
-			$wgOut->addModules('ext.wikihow.flaviusquerytool');
-			$wgOut->setPageTitle('Dear Flavius Anicius Petronius Maximus. I come seeking.....');
-			$wgOut->addHTML($html);
+			$out->addModules('ext.wikihow.flaviusquerytool');
+			$out->setPageTitle('Dear Flavius Anicius Petronius Maximus. I come seeking.....');
+			$out->addHTML($html);
 		}
 
 		return $html;
@@ -56,7 +59,7 @@ class FlaviusQueryTool extends UnlistedSpecialPage {
 	 * Get data
 	 */
 	public function getData($sql, $days) {
-
+		RequestContext::getMain()->getOutput()->disable();
 		header("Content-Type: text/tsv");
 		header('Content-Disposition: attachment; filename="Flavius.xls"');
 
@@ -94,7 +97,7 @@ class FlaviusQueryTool extends UnlistedSpecialPage {
 			}
 			foreach (array_keys($this->fields) as $field) {
 				if ($field == 'fe_username') {
-					print("http://www.wikihow.com/User:" . $rowArr[$field] . "\t");
+					print("https://www.wikihow.com/User:" . $rowArr[$field] . "\t");
 				}
 				else {
 					print($rowArr[$field] . "\t");
@@ -187,13 +190,13 @@ class FlaviusQueryTool extends UnlistedSpecialPage {
 	/*
 	 * Call a query to get the Flavius row
 	 */
-	function getQuery() {
-		global $wgRequest;
+	private function getQuery() {
+		$req = $this->getRequest();
 
-		$days = $wgRequest->getVal('days');
-		$userList = $wgRequest->getVal('users');
-		$usersType = $wgRequest->getVal('usersType');
-		$sql = Misc::getUrlDecodedData($wgRequest->getVal('sql'), false);
+		$days = $req->getVal('days');
+		$userList = $req->getVal('users');
+		$usersType = $req->getVal('usersType');
+		$sql = Misc::getUrlDecodedData($req->getVal('sql'), false);
 		if ($sql == "") {
 			$sql = "select * from flavius_summary";
 		}

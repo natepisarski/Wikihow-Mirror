@@ -114,6 +114,7 @@ Allow: /Special:AllPages
 Allow: /Special:Block
 Allow: /Special:BlockList
 Allow: /Special:Categorylisting
+Allow: /Special:CategoryListing
 Allow: /Special:Charity
 Allow: /Special:EmailUser
 Allow: /Special:LSearch

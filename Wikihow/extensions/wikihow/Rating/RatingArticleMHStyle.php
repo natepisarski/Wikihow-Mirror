@@ -10,7 +10,7 @@ class RatingArticleMHStyle extends RatingArticle {
 			return json_encode(['result' => 'true']);
 		}
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$title = Title::newFromID($itemId);
 		$tmpl->set_vars(
 			array(

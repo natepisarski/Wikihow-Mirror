@@ -1,7 +1,7 @@
 <?php
 
 $messages = array();
-$messages['en'] = 
+$messages['en'] =
         array(
 			'changerealname' => "Change a user's real name",
 			'changerealname_entername' => 'Enter the username of the user whose real name you want to change:',

@@ -123,7 +123,7 @@ class Special extends UnlistedSpecialPage {
 		}
 
 		$t = $this->getNewTitle($currentTitle, $blacklist);
-		
+
 		if (!$t) {
 			return ['error' => 'Failed to get article.'];
 		}

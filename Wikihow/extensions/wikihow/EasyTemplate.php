@@ -66,7 +66,7 @@ class EasyTemplate {
 	 * @return void
 	 */
 	public function set_vars( $vars, $clear = false ) {
-		if( $clear ) {
+		if ( $clear ) {
 			$this->mVars = $vars;
 		}
 		else {
@@ -91,7 +91,7 @@ class EasyTemplate {
 	public function execute($file) {
 
 		wfProfileIn(__METHOD__);
-		if( !strstr($file, ".tmpl.php") ) {
+		if ( !strstr($file, ".tmpl.php") ) {
 			$file .= ".tmpl.php";
 		}
 
@@ -128,7 +128,7 @@ class EasyTemplate {
 	 * @return boolean
 	 */
 	public function template_exists( $file ) {
-		if( !strstr($file, ".tmpl.php") ) {
+		if ( !strstr($file, ".tmpl.php") ) {
 			$file .= ".tmpl.php";
 		}
 		return file_exists($this->mPath ."/". $file);

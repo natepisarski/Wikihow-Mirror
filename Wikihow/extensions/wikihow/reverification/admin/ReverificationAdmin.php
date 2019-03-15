@@ -24,7 +24,7 @@ class ReverificationAdmin extends UnlistedSpecialPage {
 		$out->setHTMLTitle(wfMessage('rva_tool_title')->text());
 
 		if (!$this->isValidUser()) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -66,7 +66,7 @@ class ReverificationAdmin extends UnlistedSpecialPage {
 			"rva_range_to" => wfMessage('rva_range_to')->text(),
 		];
 
-		$options = ['loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__))];
+		$options = ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];
 		$m = new Mustache_Engine($options);
 		return $m->render(self::TEMPLATE_MUSTACHE, $data);
 	}

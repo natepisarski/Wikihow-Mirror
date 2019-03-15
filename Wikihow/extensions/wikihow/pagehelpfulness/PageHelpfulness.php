@@ -6,7 +6,7 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'Helfulness side widget for display article rating info and feedback',
 );
 $wgSpecialPages['PageHelpfulness'] = 'PageHelpfulness';
-$wgAutoloadClasses['PageHelpfulness'] = dirname( __FILE__ ) . '/PageHelpfulness.body.php';
+$wgAutoloadClasses['PageHelpfulness'] = __DIR__ . '/PageHelpfulness.body.php';
 
 $wgResourceModules['ext.wikihow.pagehelpfulness'] =
 	$wgResourceModulesDesktopBoiler + [

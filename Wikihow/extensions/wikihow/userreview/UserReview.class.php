@@ -66,7 +66,7 @@ class UserReview {
 
 		$key = wfMemcKey(self::ELIGIBLE_KEY, $articleId);
 		$eligible = $wgMemc->get($key);
-		if(!is_numeric($eligible)) {
+		if (!is_numeric($eligible)) {
 			$eligible = self::setArticleEligibleForReviews($articleId);
 		}
 
@@ -76,7 +76,7 @@ class UserReview {
 	public static function getArticleEligibilityString($articleId) {
 		$eligible = self::getArticleEligibility($articleId);
 
-		if(array_key_exists($eligible, self::$eligibleArray)) {
+		if (array_key_exists($eligible, self::$eligibleArray)) {
 			return self::$eligibleArray[$eligible];
 		} else {
 			return "unknown";
@@ -85,14 +85,14 @@ class UserReview {
 
 	/*** NOT IN USE RIGHT NOW ***/
 	public static function handleNewExpertImport($articleIds) {
-		if(!$articleIds || count($articleIds) <= 0) {
+		if (!$articleIds || count($articleIds) <= 0) {
 			return true;
 		}
 
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->update(UserReview::TABLE_CURATED, array('uc_eligible' => 0), array("uc_article_id IN (" . $dbw->makeList($articleIds) . ")"), __METHOD__);
 
-		foreach($articleIds as $id) {
+		foreach ($articleIds as $id) {
 			self::clearReviews($id);
 		}
 
@@ -126,7 +126,7 @@ class UserReview {
 			$eligible = self::ELIGIBLE_WHITELIST;
 		} else {
 			$helpful = self::getHelpfulnessScore($articleId);
-			if($helpful > 0) {
+			if ($helpful > 0) {
 				$dbr = wfGetDB(DB_SLAVE);
 				$res = $dbr->select('titus_copy',
 					array('ti_page_id', 'ti_helpful_total_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage', 'ti_last_fellow_edit_timestamp', 'ti_stu_views_www', 'ti_stu_10s_percentage_www', 'ti_stu_3min_percentage_www'),
@@ -141,7 +141,7 @@ class UserReview {
 			if ( $helpful >= intval(wfMessage('userreview_helpful_threshold')->text()) ) {
 				$eligible = self::ELIGIBLE_HELP_90;
 			} elseif ( $helpful >= intval(wfMessage('userreview_helpful_fellow_threshold')->text()) ) {
-				if($row->ti_last_fellow_edit_timestamp >= $datecutoff) {
+				if ($row->ti_last_fellow_edit_timestamp >= $datecutoff) {
 					$eligible = self::ELIGIBLE_HELP_80_EDIT;
 				} elseif ($row->ti_stu_views_www >= wfMessage('userreview_stuview_threshold')->text() && $row->ti_stu_10s_percentage_www <= wfMessage('userreview_stu10s_threshold')->text() &&  $row->ti_stu_3min_percentage_www >= wfMessage('userreview_stu3min_threshold')->text()) {
 					$eligible = self::ELIGIBLE_HELP_80_STU;
@@ -163,7 +163,7 @@ class UserReview {
 		$helpfulKey = wfMemcKey(self::HELPFULNESS_KEY, $articleId);
 		$helpful = $wgMemc->get($helpfulKey);
 
-		if(!is_numeric($helpful)) {
+		if (!is_numeric($helpful)) {
 			$dbr = wfGetDB(DB_SLAVE);
 			$res = $dbr->select('titus_copy',
 				array('ti_page_id', 'ti_helpful_total_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage', 'ti_last_fellow_edit_timestamp', 'ti_stu_views_www', 'ti_stu_10s_percentage_www', 'ti_stu_3min_percentage_www'),
@@ -226,9 +226,9 @@ class UserReview {
 
 	public static function setBylineInfo(&$verifiers, $pageId) {
 		$page = WikiPage::newFromID($pageId);
-		if(!$page)  return true;
+		if (!$page)  return true;
 
-		if(self::eligibleForByline($page)) {
+		if (self::eligibleForByline($page)) {
 			$verifiers[SocialProofStats::VERIFIER_TYPE_READER] = true;
 		}
 
@@ -245,7 +245,7 @@ class UserReview {
 		$key = wfMemcKey(self::REVIEWS_KEY, $articleId);
 		$value = $wgMemc->get($key);
 
-		if(is_array($value)) {
+		if (is_array($value)) {
 			return $value;
 		}
 
@@ -256,8 +256,8 @@ class UserReview {
 		$ids = [];
 		if ($dbr->numRows($res) >= 0) {
 			$reviews = array('reviews' => array());
-			while($row = $dbr->fetchRow($res)) {
-				if(!empty($row['uc_user_id'])) {
+			while ($row = $dbr->fetchRow($res)) {
+				if (!empty($row['uc_user_id'])) {
 					$ids[] = $row['uc_user_id'];
 					$user = User::newFromId($row['uc_user_id']);
 					$row['realname'] = $user->getRealName();
@@ -271,9 +271,9 @@ class UserReview {
 			$display_data = $dc->getData();
 			$topReviews = [];
 
-			foreach($reviews['reviews'] as $index => &$row) {
+			foreach ($reviews['reviews'] as $index => &$row) {
 
-				if(array_key_exists($row['uc_user_id'], $display_data) && strlen($row['uc_review']) > 200) {
+				if (array_key_exists($row['uc_user_id'], $display_data) && strlen($row['uc_review']) > 200) {
 					$row['avatarUrl'] = wfGetPad($display_data[$row['uc_user_id']]['avatar_url']);
 					$row['fullname'] = $display_data[$row['uc_user_id']]['display_name'];
 
@@ -284,7 +284,7 @@ class UserReview {
 				}
 			}
 
-			if(count($topReviews) > 0) {
+			if (count($topReviews) > 0) {
 				//first sort by length
 				usort($topReviews, "UserReview::compareReviewsByLength");
 				$reviews['reviews'] = array_merge($topReviews, $reviews['reviews']);
@@ -330,7 +330,7 @@ class UserReview {
 		$key = wfMemcKey(self::NUMBER_REVIEWS_KEY, $articleId);
 		$value = $wgMemc->get($key);
 
-		if(!$value) {
+		if (!$value) {
 			$dbr = wfGetDB(DB_SLAVE);
 			$value = $dbr->selectField(self::TABLE_CURATED, 'count(*)', array('uc_article_id' => $articleId, 'uc_eligible > 0'), __METHOD__);
 			$wgMemc->set($key, $value);
@@ -345,7 +345,7 @@ class UserReview {
 		$key = wfMemcKey(self::NUMBER_REVIEWS_ALL_KEY, $articleId);
 		$value = $wgMemc->get($key);
 
-		if(!$value) {
+		if (!$value) {
 			$dbr = wfGetDB(DB_SLAVE);
 			$value = $dbr->selectField(self::TABLE_CURATED, 'count(*)', array('uc_article_id' => $articleId), __METHOD__);
 			$wgMemc->set($key, $value);
@@ -404,8 +404,8 @@ class UserReview {
 				$newReviews = [];
 				$oldReviews = [];
 				$cutoffDate = wfTimestamp(TS_MW, strtotime("6 months ago"));
-				foreach($reviews['reviews'] as $index => $review ) {
-					if($review['avatarUrl'] != "") {
+				foreach ($reviews['reviews'] as $index => $review ) {
+					if ($review['avatarUrl'] != "") {
 						$newReviews[] = $review;
 					}
 					elseif($review['uc_timestamp'] > $cutoffDate) {
@@ -436,42 +436,42 @@ class UserReview {
 					$review['initials'] = $review['uc_firstname'][0] . $review['uc_lastname'][0];
 					$review['index'] = $index;
 					$review['date'] = self::getFormattedDate($review['uc_timestamp']);
-					if(self::shouldTruncate($articleId)) {
+					if (self::shouldTruncate($articleId)) {
 						$review['uc_lastname'] = $review['uc_lastname'][0].".";
 					}
 					$userId = $review['uc_user_id'];
-					if(array_key_exists($userId, $display_data)) {
+					if (array_key_exists($userId, $display_data)) {
 						$review['avatarUrl'] = wfGetPad($display_data[$userId]['avatar_url']);
 						$review['fullname'] = $display_data[$userId]['display_name'];
 					}
-					if(!empty($review['uc_user_id']) && $review['realname'] != "") {
-						if($review['initials'] == "") {
+					if (!empty($review['uc_user_id']) && $review['realname'] != "") {
+						if ($review['initials'] == "") {
 							$nameParts = explode(" ", $review['realname']);
-							if(count($nameParts) > 1) {
+							if (count($nameParts) > 1) {
 								$review['initials'] = $nameParts[0][0] . $nameParts[count($nameParts)-1][0];
 							} else {
 								$review['initials'] = $nameParts[0][0];
 							}
 						}
 					} elseif (!empty($review['uc_user_id']) &&  $review['username'] != ""){
-						if($review['initials'] == "") {
+						if ($review['initials'] == "") {
 							$review['initials'] = $review['username'][0];
 						}
 					} else {
 						$review['fullname'] = $review['uc_firstname'] . ($review['uc_lastname'] != '' ? ' ' . $review['uc_lastname'] : '');
 					}
-					if($review['uc_rating'] > 0) {
+					if ($review['uc_rating'] > 0) {
 						$review['hasrating'] = true;
 						$review['ratings'] = [];
-						for($i = 1; $i <= 5; $i++) {
-							if($review['uc_rating'] >= $i) {
+						for ($i = 1; $i <= 5; $i++) {
+							if ($review['uc_rating'] >= $i) {
 								$review['ratings'][$i-1]['ratingClass'] = 'ur_rating_on';
 							} else {
 								$review['ratings'][$i-1]['ratingClass'] = 'ur_rating_off';
 							}
 						}
 					}
-					if($review['uc_image'] != "") {
+					if ($review['uc_image'] != "") {
 						$width = 247;
 						$height = 247;
 						$row2 = new stdClass;
@@ -480,7 +480,7 @@ class UserReview {
 						if ( $thumb ) {
 							$review['imageUrl'] = wfGetPad($thumb['url']);
 						}
-						if($isAmp) {
+						if ($isAmp) {
 							$review['hideReview'] = true;
 						}
 					}
@@ -488,7 +488,7 @@ class UserReview {
 
 				$reviews['navigation'] = count($reviews['reviews']) > 1;
 
-				if(!$isMobile && in_array("staff", $wgUser->getGroups())) {
+				if (!$isMobile && in_array("staff", $wgUser->getGroups())) {
 					$toolTitle = Title::newFromText("UserReviewTool", NS_SPECIAL);
 					$title = Title::newFromId($articleId);
 					$reviews['staffLink'] = Linker::link($toolTitle, "Manage stories (staff)", ["target" => "_blank", "class" => "ur_nav_staff"], ["article" => $title->getText()]);
@@ -502,7 +502,7 @@ class UserReview {
 
 				Mustache_Autoloader::register();
 				$options =  array(
-					'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+					'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 				 );
 				$m = new Mustache_Engine($options);
 
@@ -519,9 +519,9 @@ class UserReview {
 	 */
 	private function formatReview($review) {
 		$review = htmlspecialchars($review);
-		if(strlen($review) > self::MAX_REVIEW_LENGTH) {
+		if (strlen($review) > self::MAX_REVIEW_LENGTH) {
 			$char = $review[self::MAX_REVIEW_LENGTH];
-			if($char != " ") {
+			if ($char != " ") {
 				$breakPoint = strrpos($review, " ",  self::MAX_REVIEW_LENGTH - strlen($review));
 			} else {
 				$breakPoint = self::MAX_REVIEW_LENGTH;
@@ -548,7 +548,7 @@ class UserReview {
 
 		//show Jan 2 format for all dates over a week old and Jan 2, 2011 for all dates not in the current calendar year
 		if ($interval->y > 0 || $interval->m > 0 || $interval->d > 7) {
-			if($dt1 >= $dt3) {
+			if ($dt1 >= $dt3) {
 				return $dt1->format("M j"); //If during the current year, don't show the year
 			} else {
 				return $dt1->format("M j, Y"); //If from a previous calendar year, show the year
@@ -589,7 +589,7 @@ class UserReview {
 	public static function handlePicturePatrol($imageName, $isGood) {
 		$dbw = wfGetDB(DB_MASTER);
 		$res = $dbw->select(self::TABLE_SUBMITTED, ['us_id', 'us_status', 'us_article_id'], ['us_image' => $imageName], __METHOD__);
-		if($dbw->numRows($res) > 0) {
+		if ($dbw->numRows($res) > 0) {
 			$row = $dbw->fetchRow($res);
 			$status = intval($row['us_status']);
 			$articleId = $row['us_article_id'];
@@ -624,14 +624,14 @@ class UserReview {
 	}
 
 	public static function handSensitiveArticleEdit($articleId, $reasonIds) {
-		if(in_array(self::SENSITIVE_ID, $reasonIds)) {
+		if (in_array(self::SENSITIVE_ID, $reasonIds)) {
 			self::updateEligibilityField($articleId);
 		}
 		return true;
 	}
 
 	public static function getCuratedReviewsBySubmittedIds($submittedIds) {
-		if(!is_array($submittedIds)) {
+		if (!is_array($submittedIds)) {
 			$submittedIds = [$submittedIds];
 		}
 
@@ -647,7 +647,7 @@ class UserReview {
 		);
 
 		$results = [];
-		while($row = $dbr->fetchRow($res)) {
+		while ($row = $dbr->fetchRow($res)) {
 			$results[] = $row;
 		}
 

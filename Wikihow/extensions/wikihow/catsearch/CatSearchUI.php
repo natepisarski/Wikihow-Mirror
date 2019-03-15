@@ -3,14 +3,14 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['CatSearchUI'] = 'CatSearchUI';
-$wgAutoloadClasses['CatSearchUI'] = dirname( __FILE__ ) . '/CatSearchUI.body.php';
-$wgExtensionMessagesFiles['CatSearchUI'] = dirname(__FILE__) . '/CatSearchUI.i18n.php';
+$wgAutoloadClasses['CatSearchUI'] = __DIR__ . '/CatSearchUI.body.php';
+$wgExtensionMessagesFiles['CatSearchUI'] = __DIR__ . '/CatSearchUI.i18n.php';
 
 $wgResourceModules['ext.wikihow.catsearchui'] = array(
 	'scripts' => 'catsearchui.js',
 	'styles' => 'catsearchui.css',
 	'dependencies' => 'jquery.ui.autocomplete',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/catsearch',
 	'position' => 'bottom',
 	'targets' => array( 'desktop', 'mobile' )

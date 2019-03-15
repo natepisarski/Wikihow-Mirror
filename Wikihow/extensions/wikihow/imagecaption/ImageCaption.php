@@ -9,7 +9,7 @@ $wgExtensionCredits['parserhook'][] = array(
 );
 
 $wgHooks['LanguageGetMagic'][] = 'ImageCaption::languageGetMagic';
-$wgAutoloadClasses['ImageCaption'] = dirname(__FILE__) . '/ImageCaption.class.php';
+$wgAutoloadClasses['ImageCaption'] = __DIR__ . '/ImageCaption.class.php';
 $wgHooks['ParserFirstCallInit'][] = 'ImageCaption::setParserFunction';
 $wgHooks['BeforePageDisplay'][] = 'ImageCaption::onBeforePageDisplay';
 $wgHooks['AddTopEmbedJavascript'][] = 'ImageCaption::getJavascriptPaths';

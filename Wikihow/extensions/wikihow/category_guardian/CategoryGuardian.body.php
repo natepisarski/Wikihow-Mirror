@@ -36,7 +36,7 @@ class CategoryGuardian extends UnlistedSpecialPage {
 	function execute($par) {
 		$request = $this->getRequest();
 
-		$this->out->setRobotpolicy('noindex,nofollow');
+		$this->out->setRobotPolicy('noindex,nofollow');
 		$this->out->setHTMLTitle(wfMessage('category-guardian')->text());
 		$this->out->setPageTitle(wfMessage('category-guardian')->text());
 
@@ -44,7 +44,7 @@ class CategoryGuardian extends UnlistedSpecialPage {
 		$user = $this->getUser();
 		if ( $user->isBlocked() ) {
 			throw new UserBlockedError( $user->getBlock() );
-		} else if (self::MAINTENANCE_MODE) {
+		} elseif (self::MAINTENANCE_MODE) {
 			$this->out->addWikiText(wfMessage('catch-disabled')->text());
 			return;
 		}
@@ -54,7 +54,7 @@ class CategoryGuardian extends UnlistedSpecialPage {
 			print_r($this->getJSON());
 			return;
 
-		} else if ($request->wasPosted()) {
+		} elseif ($request->wasPosted()) {
 		  if (!XSSFilter::isValidRequest()) {
 				$this->out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 				return;
@@ -80,7 +80,7 @@ class CategoryGuardian extends UnlistedSpecialPage {
 
 	protected function getJSON() {
 		$result = null;
-		if(class_exists('Plants') && Plants::usesPlants('CategoryGuardian') ) {
+		if (class_exists('Plants') && Plants::usesPlants('CategoryGuardian') ) {
 			$plants = new CategoryPlants();
 			$result = $plants->getNextPlant();
 		}

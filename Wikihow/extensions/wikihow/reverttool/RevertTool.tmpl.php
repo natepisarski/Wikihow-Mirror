@@ -31,10 +31,10 @@ List URL(s), one per line (If this is run on non-English domains, English URLs w
 					$("#page-list").val("");
 					$("#revert_pages_btn").removeAttr("disabled");
 					var msg="";
-					for(var l in links) {
-						if(links[l] != null) {
+					for (var l in links) {
+						if (links[l] != null) {
 							msg += links[l]['url'];
-							if(links[l]['success'] == 1) {
+							if (links[l]['success'] == 1) {
 								msg += "<span style=\"color:green\">Reverted</span>";
 							}
 							else {

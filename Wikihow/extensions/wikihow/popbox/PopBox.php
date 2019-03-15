@@ -22,9 +22,9 @@ $wgExtensionCredits['specialpage'][] = array(
 	'url' => 'http://www.mediawiki.org/wiki/InternalLinksPopup_Extension',
 );
 
-$wgExtensionMessagesFiles['PopBox'] = dirname(__FILE__) . '/PopBox.i18n.php';
+$wgExtensionMessagesFiles['PopBox'] = __DIR__ . '/PopBox.i18n.php';
 
-$wgAutoloadClasses['PopBox'] = dirname( __FILE__ ) . '/PopBox.body.php';
+$wgAutoloadClasses['PopBox'] = __DIR__ . '/PopBox.body.php';
 
 $wgResourceModules['ext.wikihow.popbox'] = [
     'styles' => ['popbox.css'],
@@ -35,6 +35,6 @@ $wgResourceModules['ext.wikihow.popbox'] = [
 	'messages' => [
 		'popbox_noelement', 'popbox_noresults', 'popbox_related_articles',
 		'popbox_revise', 'popbox_nothanks', 'popbox_editdetails',
-		'popbox_search', 'popbox_no_text_selected', 
+		'popbox_search', 'popbox_no_text_selected',
 	],
 ];

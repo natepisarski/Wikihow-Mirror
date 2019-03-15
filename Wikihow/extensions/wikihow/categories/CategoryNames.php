@@ -25,13 +25,13 @@ $englishCategs = [
 	CAT_YOUTH => "Youth",
 ];
 
-if($wgLanguageCode == 'en' ) {
+if ($wgLanguageCode == 'en' ) {
 	$wgCategoryNames = $englishCategs;
 } else {
 	$wgCategoryNamesEn = $englishCategs;
 }
 
-if($wgLanguageCode == 'es') {
+if ($wgLanguageCode == 'es') {
 	$wgCategoryNames = array(
 			CAT_ARTS => "Arte y entretenimiento",
 			CAT_CARS => "Automóviles y otros vehículos",

@@ -14,7 +14,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || !(in_array('staff', $userGroups) )) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -34,7 +34,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 			return;
 		} else {
 			$options =  array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
@@ -77,7 +77,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 	}
 
 	private function getExport($userId, $from, $to) {
-		if($userId <= 0) {
+		if ($userId <= 0) {
 			return;
 		}
 
@@ -88,18 +88,18 @@ class AdminUserReview extends UnlistedSpecialPage {
 
 		$dbr = wfGetDB(DB_SLAVE);
 		$where = ['us_curated_user' => $userId, 'us_curated_timestamp >= ' . $from];
-		if($to != "") {
+		if ($to != "") {
 			$where = 'us_curated_timestamp <= ' . $to;
 		}
 		$res = $dbr->select(
-			[UserReview::TABLE_SUBMITTED, UserReview::TABLE_CURATED], 
-			['us_curated_timestamp', 'us_curated_user', 'us_status', 'us_article_id', 'us_review', 'uc_review'], 
+			[UserReview::TABLE_SUBMITTED, UserReview::TABLE_CURATED],
+			['us_curated_timestamp', 'us_curated_user', 'us_status', 'us_article_id', 'us_review', 'uc_review'],
 			$where,
 			__METHOD__, ['ORDER BY' => 'us_curated_timestamp DESC', "LIMIT" => self::MAX_ROWS],
 			[UserReview::TABLE_CURATED => ['LEFT JOIN', 'us_id = uc_submitted_id']]
 		);
 
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$info = "";
 
 			$info .= date("F n, Y", wfTimestamp(TS_UNIX, $row->us_curated_timestamp)) . "\t";
@@ -108,7 +108,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 			$title = Title::newFromId($row->us_article_id);
 			$info .= $title->getText() . "\t";
 			$info .= "\"{$row->us_review}\"\t\"{$row->uc_review}\"\t"; //extra quotes to deal with the line breaks
-			if($row->us_status == UserReviewTool::STATUS_CURATED) {
+			if ($row->us_status == UserReviewTool::STATUS_CURATED) {
 				$info .= "approved\n";
 			} else {
 				$info .= "deleted\n";
@@ -122,12 +122,12 @@ class AdminUserReview extends UnlistedSpecialPage {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$where = ['us_status = ' . UserReviewTool::STATUS_CURATED . ' OR us_status = ' . UserReviewTool::STATUS_DELETED];
-		if($startDate == null) {
+		if ($startDate == null) {
 			//default to the last 2 weeks
 			$startDate = wfTimestamp(TS_MW, strtotime("2 weeks ago"));
 		}
 		$where[] = 'us_curated_timestamp >= ' .$startDate;
-		if($endDate != null) {
+		if ($endDate != null) {
 			$where[] = 'us_curated_timestamp <= ' . $endDate;
 		}
 		$res = $dbr->select(UserReview::TABLE_SUBMITTED, ['count(*) as count', 'us_curated_user', 'us_status'], $where, __METHOD__, ['GROUP BY' => 'us_curated_user, us_status']);
@@ -135,12 +135,12 @@ class AdminUserReview extends UnlistedSpecialPage {
 		$reviewers = [];
 		$data['totalApproved'] = 0;
 		$data['totalDeleted'] = 0;
-		foreach($res as $row) {
-			if(!key_exists($row->us_curated_user, $reviewers)) {
+		foreach ($res as $row) {
+			if (!key_exists($row->us_curated_user, $reviewers)) {
 				$user = User::newFromId($row->us_curated_user);
 				$reviewers[$row->us_curated_user] = ['username' => $user->getName(), 'approved' => 0, 'deleted' => 0, 'total' => 0, 'exportUrl' => "/Special:AdminUserReview?userId=" . $row->us_curated_user . "&from=" . $startDate . "&to=" . $endDate . "&action=export"];
 			}
-			if($row->us_status == UserReviewTool::STATUS_DELETED) {
+			if ($row->us_status == UserReviewTool::STATUS_DELETED) {
 				$reviewers[$row->us_curated_user]['deleted'] += $row->count;
 				$data['totalDeleted'] += $row->count;
 			} elseif ($row->us_status == UserReviewTool::STATUS_CURATED) {
@@ -156,7 +156,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 		});
 
 		$data['reviewers'] = [];
-		foreach($reviewers as &$reviewer) {
+		foreach ($reviewers as &$reviewer) {
 			$reviewer['deleted'] = number_format($reviewer['deleted']);
 			$reviewer['approved'] = number_format($reviewer['approved']);
 			$data['reviewers'][] = $reviewer;
@@ -172,7 +172,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 		$data = $this->getReviewerTableData($fromTime, $toTime);
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 

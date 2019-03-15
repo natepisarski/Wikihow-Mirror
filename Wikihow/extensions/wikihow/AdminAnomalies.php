@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminAnomalies'] = 'AdminAnomalies';
-$wgAutoloadClasses['AdminAnomalies'] = dirname( __FILE__ ) . '/AdminAnomalies.body.php';
-
+$wgAutoloadClasses['AdminAnomalies'] = __DIR__ . '/AdminAnomalies.body.php';

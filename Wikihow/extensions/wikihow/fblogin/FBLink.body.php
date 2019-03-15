@@ -7,18 +7,18 @@ class FBLink extends UnlistedSpecialPage {
 	private $profile = null;
 	private $fbApi;
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('FBLink');
 	}
 
 	public function execute($par) {
-		wfProfileIn(__METHOD__);
+		$section = new ProfileSection(__METHOD__);
 
 		$out = $this->getOutput();
 		$req = $this->getRequest();
 		$user = $this->getUser();
 
-		$out->setRobotpolicy('noindex,nofollow');
+		$out->setRobotPolicy('noindex,nofollow');
 
 		// Restrict page access
 		$groups = $user->getGroups();
@@ -47,11 +47,9 @@ class FBLink extends UnlistedSpecialPage {
 				Misc::jsonResponse(['error' => 'Unrecognized action'], 400);
 				return;
 		}
-
-		wfProfileOut(__METHOD__);
 	}
 
-	function linkAccounts() {
+	private function linkAccounts() {
 		$out = $this->getOutput();
 		$req = $this->getRequest();
 		$user = $this->getUser();
@@ -75,19 +73,19 @@ class FBLink extends UnlistedSpecialPage {
 		Misc::jsonResponse(['result' => 'success']);
 	}
 
-	function showConfirmation() {
-		global $wgOut, $wgUser;
-		EasyTemplate::set_path(dirname(__FILE__).'/');
+	private function showConfirmation() {
+		EasyTemplate::set_path(__DIR__.'/');
 		$vars = array();
 		$this->setVars($vars);
-		$html = EasyTemplate::html('FBLink_confirm', $vars);
-		$wgOut->setArticleBodyOnly(true);
-		$wgOut->addHtml($html);
+		$html = EasyTemplate::html('FBLink_confirm.tmpl.php', $vars);
+		$this->getOutput()->setArticleBodyOnly(true);
+		$this->getOutput()->addHtml($html);
 	}
 
-	function setVars(&$vars) {
-		global $wgUser, $wgIsDevServer;
+	private function setVars(&$vars) {
+		global $wgIsDevServer;
 
+		$user = $this->getUser();
 		$debug = $wgIsDevServer;
 		$vars['js'] = HtmlSnips::makeUrlTag('/extensions/wikihow/fblogin/fblink.js', $debug);
 		$vars['css'] = HtmlSnips::makeUrlTag('/extensions/wikihow/fblogin/fblink.css', $debug);
@@ -100,43 +98,36 @@ class FBLink extends UnlistedSpecialPage {
 		$vars['fbLocation'] = $this->truncate($result['location']['name']);
 
 		$vars['fbPicUrl'] = $this->fbApi->getAvatarUrl($result['id'], 'normal');
-		$vars['newAcct'] = $wgUser->getName();
-		$vars['whPicUrl'] = wfGetPad(Avatar::getAvatarURL($wgUser->getName()));
+		$vars['newAcct'] = $user->getName();
+		$vars['whPicUrl'] = wfGetPad(Avatar::getAvatarURL($user->getName()));
 
 		$socialUser = FacebookSocialUser::newfromExternalId($result['id']);
 		$whId = $socialUser ? $socialUser->getWhUser()->getId() : 0;
 		$vars['showWarning'] = $whId ? true : false;
 		$vars['oldAcct'] = $this->getUsername($whId);
 
-		$vars['editToken'] = $wgUser->getEditToken();
+		$vars['editToken'] = $user->getEditToken();
 	}
 
 
-	function truncate($string) {
+	private function truncate($string) {
 		$string = trim($string);
 		if (strlen($string) > 25) {
 			$string = substr($string, 0, 25) . "...";
 		}
 		return $string;
 	}
-	function getInfo(&$result, &$path) {
-		$info = "";
-		foreach ($path as $node) {
-		}
-		return $info;
-	}
 
-	function getUsername($uid) {
+	private function getUsername($uid) {
 		$u = User::newFromId($uid);
 		return $u->getName();
 	}
 
-	function showCTAHtml($template = 'FBLink_enable') {
-		global $wgOut;
-		$wgOut->addModules( 'ext.wikihow.FBEnable' );
+	public static function showCTAHtml($template = 'FBLink_enable') {
+		RequestContext::getMain()->getOutput()->addModules( 'ext.wikihow.FBEnable' );
 		$html = "";
 		if (self::isCompatBrowser()) {
-			EasyTemplate::set_path(dirname(__FILE__).'/');
+			EasyTemplate::set_path(__DIR__.'/');
 			$vars = array();
 			$vars['imgUrl'] = wfGetPad('/skins/WikiHow/images/facebook_48.png');
 			$html = EasyTemplate::html($template, $vars);
@@ -145,7 +136,7 @@ class FBLink extends UnlistedSpecialPage {
 	}
 
 	// Disabled for IE6 due to css formatting issues
-	public static function isCompatBrowser() {
+	private static function isCompatBrowser() {
 		return !preg_match('@MSIE 6@',$_SERVER['HTTP_USER_AGENT']);
 	}
 }

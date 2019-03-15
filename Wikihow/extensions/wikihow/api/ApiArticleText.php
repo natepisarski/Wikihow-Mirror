@@ -10,7 +10,7 @@ $wgExtensionCredits['api'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/API:Extensions',
 );
 
-$wgAutoloadClasses['ApiArticleText'] = dirname(__FILE__) . '/ApiArticleText.body.php';
+$wgAutoloadClasses['ApiArticleText'] = __DIR__ . '/ApiArticleText.body.php';
 $wgAPIModules['articletext'] = 'ApiArticleText';
 
 

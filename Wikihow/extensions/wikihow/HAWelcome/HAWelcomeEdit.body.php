@@ -17,12 +17,12 @@ class HAWelcomeEdit extends UnlistedSpecialPage {
 		$this->setHeaders();
 		$this->mTitle = SpecialPage::getTitleFor( 'HAWelcomeEdit' );
 
-		if( $this->isRestricted() && !$this->userCanExecute( $user ) ) {
+		if ( $this->isRestricted() && !$this->userCanExecute( $user ) ) {
 			$this->displayRestrictionError();
 			return;
 		}
 
-		if( $req->wasPosted() ) {
+		if ( $req->wasPosted() ) {
 			$this->doPost();
 		}
 
@@ -40,7 +40,7 @@ class HAWelcomeEdit extends UnlistedSpecialPage {
 		$out->addHTML("<fieldset>\n");
 		$out->addHTML("<legend>CurrentValue</legend>\n");
 		$sysopId = $wgMemc->get( wfMemcKey( "last-sysop-id" ) );
-		if( $sysopId ) {
+		if ( $sysopId ) {
 			$this->mSysop = User::newFromId( $sysopId );
 			$sysopName = wfEscapeWikiText( $this->mSysop->getName() );
 			$groups = $this->mSysop->getEffectiveGroups();
@@ -95,13 +95,13 @@ class HAWelcomeEdit extends UnlistedSpecialPage {
 
 		$method = $req->getVal('method');
 
-		if( $method == 'by_id' ) {
+		if ( $method == 'by_id' ) {
 			$new_id = $req->getInt('new_sysop_id');
-			if( empty($new_id) || $new_id < 0 ) {
+			if ( empty($new_id) || $new_id < 0 ) {
 				$out->addHTML("bad input");
 				return false;
 			}
-			if( !User::whois($new_id) ) {
+			if ( !User::whois($new_id) ) {
 				$out->addHTML("no user with that id");
 				return false;
 			}
@@ -111,12 +111,12 @@ class HAWelcomeEdit extends UnlistedSpecialPage {
 		}
 		elseif( $method == 'by_name' ) {
 			$new_text = $req->getText('new_sysop_text');
-			if( empty($new_text) ) {
+			if ( empty($new_text) ) {
 				$out->addHTML("bad input");
 				return false;
 			}
 			$new_id = User::idFromName($new_text);
-			if( empty($new_id) ) {
+			if ( empty($new_id) ) {
 				$out->addHTML("name not found as user");
 				return false;
 			}

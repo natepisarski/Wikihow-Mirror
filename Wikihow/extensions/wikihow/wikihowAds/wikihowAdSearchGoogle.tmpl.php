@@ -11,6 +11,7 @@ $.getScript('https://www.google.com/adsense/search/ads.js', function()
 		query: <?= $query ?>,
 		hl: <?= $lang ?>,
 		adPage: <?= $page ?>,
+		channel: <?= $channel ?>,
 		//adtest: <?= $test ?>,
 		location: true,
 		sellerRatings: true,

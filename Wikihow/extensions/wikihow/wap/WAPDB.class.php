@@ -311,7 +311,7 @@ class WAPDB {
 			$datum['ct_page_id'] = $t->getArticleId();
 			$datum['ct_lang_code'] = $langCode;
 			$datum['ct_page_title'] = $dbw->strencode($t->getDBKey());
-			$datum['ct_catinfo'] = Categoryhelper::getTitleCategoryMask($t);
+			$datum['ct_catinfo'] = CategoryHelper::getTitleCategoryMask($t);
 			$datum['ct_categories'] = implode(",", $this->getTopLevelCategories($t));
 			$data[] = $datum;
 		}
@@ -348,7 +348,7 @@ class WAPDB {
 		$cats = array();
 		if ($t && $t->exists()) {
 			$catTxt = $wgLang->getNsText (NS_CATEGORY) . ":";
-			$cats = Categoryhelper::getTitleTopLevelCategories($t);
+			$cats = CategoryHelper::getTitleTopLevelCategories($t);
 			foreach($cats as $i => $cat) {
 				if ($cat == $catTxt . "WikiHow") {
 					// Don't show wikiHow category

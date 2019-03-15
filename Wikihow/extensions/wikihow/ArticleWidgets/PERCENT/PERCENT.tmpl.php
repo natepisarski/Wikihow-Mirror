@@ -53,14 +53,14 @@
  $("#part").whUpDown({units:"", width:183, value: 0, maxLength: 16, cut: 10, onChange: function(element,value){
      part = value;
      var perc = percentage(total, value);
-     if(isFinite(perc))
+     if (isFinite(perc))
          $("#result").whLabel({value : perc + "%", lines: 1, fade: false});
  } });
  
  $("#total").whUpDown({units:"", width: 183, value: 0, maxLength: 16, cut: 10, onChange: function(element,value){
     total = value;
     var perc = percentage(value, part);
-    if(isFinite(perc))
+    if (isFinite(perc))
          $("#result").whLabel({value : perc + "%", lines: 1, fade: false});
  } });
  

@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminBounceTests',
 	'author' => 'Reuben Smith',
@@ -10,5 +10,5 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['AdminBounceTests'] = 'AdminBounceTests';
 $wgSpecialPages['Stu'] = 'AdminBounceTests'; // special page alias
-$wgAutoloadClasses['AdminBounceTests'] = dirname( __FILE__ ) . '/AdminBounceTests.body.php';
+$wgAutoloadClasses['AdminBounceTests'] = __DIR__ . '/AdminBounceTests.body.php';
 

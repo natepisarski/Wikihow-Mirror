@@ -148,7 +148,7 @@ function remove_help() {
 
 function calc_uk() {
 
-    if( w!= 0 && ft != 0 && target != 0 && age != 0 && activity != 0 && gender != -1 && activity != 1) {
+    if ( w!= 0 && ft != 0 && target != 0 && age != 0 && activity != 0 && gender != -1 && activity != 1) {
         remove_help();
         $("#calories").removeClass("hint").empty().whLabel({value:calories(w,ft,inch,age,gender,activity,target), fade: false, startFontSize:40, width:130,  lines: 1 });
         return;
@@ -160,7 +160,7 @@ function calc_uk() {
 
 function calc_si() {
 
-    if( w!= 0 && m != 0 && target != 0 && age != 0 && activity != 0 && gender != -1 && activity != 1) {
+    if ( w!= 0 && m != 0 && target != 0 && age != 0 && activity != 0 && gender != -1 && activity != 1) {
         remove_help_si();
         $("#calories_si").removeClass("hint").empty().whLabel({value:calories(w,m,cm,age,gender,activity,target), fade: false, startFontSize:40, width:130, lines: 1 });
         return;
@@ -195,7 +195,7 @@ $("#height_ft").empty().whUpDown({units:"ft", width: 112, maxLength:  3, min: 0,
 $("#height_in").empty().whUpDown({units:"in", width: 112, maxLength:  3, min: 0, max: 16, value: 0, onChange: function(element,value){
     
     
-    if(value >= 16) {
+    if (value >= 16) {
         ft++;
         inch=0;
         $("#height_ft").whUpDown({ "value" : ft});

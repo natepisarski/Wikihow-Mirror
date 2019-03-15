@@ -13,7 +13,7 @@ function fetchPreview() {
 		}
 	}
 	var title = mw.config.get('wgTitle').replace(' ', '-');
-	var vp_URL = '/Special:Previewvideo/Video:' + title;
+	var vp_URL = '/Special:PreviewVideo/Video:' + title;
 	pv_request.open('GET', vp_URL, true);
 	pv_request.send('');
 	pv_request.onreadystatechange = function() {

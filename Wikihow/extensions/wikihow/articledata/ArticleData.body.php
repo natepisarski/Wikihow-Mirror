@@ -6,24 +6,26 @@ class ArticleData extends UnlistedSpecialPage {
 	var $slowQuery = false;
 	var $introOnly = false;
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('ArticleData');
 	}
 
-	function execute($par) {
-		global $wgUser, $wgOut, $wgRequest;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
-			$this->action = $wgRequest->getVal('a');
-			$this->slowQuery = $wgRequest->getVal('alts') == 'true';
-			$this->introOnly = $wgRequest->getVal('intonly') == 'true';
+		if ($req->wasPosted()) {
+			$this->action = $req->getVal('a');
+			$this->slowQuery = $req->getVal('alts') == 'true';
+			$this->introOnly = $req->getVal('intonly') == 'true';
 			switch ($this->action) {
 				case 'cats':
 					$this->outputCategoryReport();
@@ -39,23 +41,24 @@ class ArticleData extends UnlistedSpecialPage {
 		}
 
 		$this->action = empty($par) ? 'cats' : strtolower($par);
-		$wgOut->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/download.jQuery.js'));
-		EasyTemplate::set_path( dirname(__FILE__).'/' );
+		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/download.jQuery.js'));
+		EasyTemplate::set_path( __DIR__.'/' );
 		$vars = array();
 		$this->setVars($vars);
-		$html = EasyTemplate::html('ArticleData', $vars);
-		$wgOut->setPageTitle('Article Stats');
-		$wgOut->addHTML($html);
+		$html = EasyTemplate::html('ArticleData.tmpl.php', $vars);
+		$out->setPageTitle('Article Stats');
+		$out->addHTML($html);
 	}
 
-	function setVars(&$vars) {
+	private function setVars(&$vars) {
 		$vars['ct_a'] = $this->action;
 	}
 
-	function outputCategoryReport() {
-		global $wgRequest, $wgOut;
+	private function outputCategoryReport() {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
-		$title = Misc::getTitleFromText(trim(Misc::getUrlDecodedData($wgRequest->getVal('data'))));
+		$title = Misc::getTitleFromText(trim(Misc::getUrlDecodedData($req->getVal('data'))));
 		$cat = $title->getText();
 		$catArr = array($cat);
 		$cats = CategoryInterests::getSubCategoryInterests($catArr);
@@ -77,7 +80,7 @@ class ArticleData extends UnlistedSpecialPage {
 		$res = $dbr->query($sql);
 
 		$articles = array();
-		while ($row = $dbr->fetchObject($res)) {
+		foreach ($res as $row) {
 			$altsData = "";
 			if ($this->slowQuery) {
 				$r = Revision::loadFromPageId($dbr, $row->page_id);
@@ -93,7 +96,7 @@ class ArticleData extends UnlistedSpecialPage {
 		}
 
 
-		if ($wgRequest->getVal('format') == 'csv') {
+		if ($req->getVal('format') == 'csv') {
 			$output = $this->getCategoryReportCSV($articles);
 			$this->sendFile($cat, $output);
 		} else {
@@ -102,7 +105,7 @@ class ArticleData extends UnlistedSpecialPage {
 		}
 	}
 
-	function getCategoryReportHtml(&$articles) {
+	private function getCategoryReportHtml(&$articles) {
 		$header = array("page_id", "url", "views");
 		/*
 		if ($this->slowQuery) {
@@ -125,7 +128,7 @@ class ArticleData extends UnlistedSpecialPage {
 		return $output;
 	}
 
-	function getCategoryReportCSV(&$articles) {
+	private function getCategoryReportCSV($articles) {
 		$slowColumns = $this->slowQuery ? "\talt_methods\tbyte_size" : "";
 		$output = "page_id\turl\tviews$slowColumns\n";
 		foreach ($articles as $row) {
@@ -135,7 +138,7 @@ class ArticleData extends UnlistedSpecialPage {
 		return $output;
 	}
 
-	function hasImages(&$wikitext) {
+	private function hasImages(&$wikitext) {
 		if ($this->introOnly) {
 			$text = WikiText::getIntro($wikitext);
 			$firstImage = Wikitext::getFirstImageURL($text);
@@ -154,14 +157,14 @@ class ArticleData extends UnlistedSpecialPage {
 		return $hasImages;
 	}
 
-	function hasAlternateMethods(&$wikitext) {
+	private function hasAlternateMethods(&$wikitext) {
 		return preg_match("@^===@m", $wikitext);
 	}
 
-	function getArticleSize(&$object) {
+	private function getArticleSize(&$object) {
 		$size = 0;
 		if ($object instanceof Title) {
-			if(!is_null($r = Revision::newFromId($object->getLatestRevID()))) {
+			if (!is_null($r = Revision::newFromId($object->getLatestRevID()))) {
 				$size = $r->getSize();
 			}
 		}
@@ -172,10 +175,10 @@ class ArticleData extends UnlistedSpecialPage {
 		return $size;
 	}
 
-	function outputArticleReport() {
-		global $wgRequest;
+	private function outputArticleReport() {
+		$req = $this->getRequest();
 
-		$urls = explode("\n", trim(Misc::getUrlDecodedData($wgRequest->getVal('data'))));
+		$urls = explode("\n", trim(Misc::getUrlDecodedData($req->getVal('data'))));
 		$dbr = wfGetDB(DB_SLAVE);
 		$articles = array();
 		foreach ($urls as $url) {
@@ -191,7 +194,7 @@ class ArticleData extends UnlistedSpecialPage {
 			}
 		}
 		$this->addPageCounts($articles);
-		if ($wgRequest->getVal('format') == 'csv') {
+		if ($req->getVal('format') == 'csv') {
 			$output = $this->getArticleReportCSV($articles);
 			$this->sendFile('article_stats', $output);
 		} else {
@@ -200,10 +203,10 @@ class ArticleData extends UnlistedSpecialPage {
 		}
 	}
 
-	function outputArticleIdReport() {
-		global $wgRequest;
+	private function outputArticleIdReport() {
+		$req = $this->getRequest();
 
-		$ids = explode("\n", trim(Misc::getUrlDecodedData($wgRequest->getVal('data'))));
+		$ids = explode("\n", trim(Misc::getUrlDecodedData($req->getVal('data'))));
 		$dbr = wfGetDB(DB_SLAVE);
 		$articles = array();
 		foreach ($ids as $id) {
@@ -213,7 +216,7 @@ class ArticleData extends UnlistedSpecialPage {
 				$articles[] = array("id" => $id, "url" => $t->getFullUrl());
 			}
 		}
-		if ($wgRequest->getVal('format') == 'csv') {
+		if ($req->getVal('format') == 'csv') {
 			$output = $this->getArticleIdReportCSV($articles);
 			$this->sendFile('article_stats', $output);
 		} else {
@@ -222,16 +225,16 @@ class ArticleData extends UnlistedSpecialPage {
 		}
 	}
 
-	function addPageCounts(&$articles) {
+	private function addPageCounts(&$articles) {
 		$dbr = wfGetDB(DB_SLAVE);
 		$aids = join(",", array_keys($articles));
 		$res = $dbr->select('page', array('page_counter', 'page_id'), array("page_id IN ($aids)"));
-		while ($row = $dbr->fetchObject($res)) {
+		foreach ($res as $row) {
 			$articles[$row->page_id]['views'] = $row->page_counter;
 		}
 	}
 
-	function getArticleReportHtml(&$articles) {
+	private function getArticleReportHtml(&$articles) {
 		$header = array("url");
 		if ($this->slowQuery) {
 			$header[] = "alt_methods";
@@ -254,7 +257,7 @@ class ArticleData extends UnlistedSpecialPage {
 		return $output;
 	}
 
-	function getArticleReportCSV(&$articles) {
+	private function getArticleReportCSV(&$articles) {
 		$slowColumns = $this->slowQuery ? "\timages\talt_methods\tbyte_size" : "";
 		$output = "url\tviews$slowColumns\n";
 
@@ -265,7 +268,7 @@ class ArticleData extends UnlistedSpecialPage {
 		return $output;
 	}
 
-	function getArticleIdReportHtml(&$articles) {
+	private function getArticleIdReportHtml(&$articles) {
 		$header = array("views", "url");
 
 		$output = "<table><thead><th>";
@@ -282,7 +285,7 @@ class ArticleData extends UnlistedSpecialPage {
 		return $output;
 	}
 
-	function getArticleIdReportCSV(&$articles) {
+	private function getArticleIdReportCSV(&$articles) {
 		$output = "id\turl\n";
 
 		foreach ($articles as $data) {
@@ -291,17 +294,17 @@ class ArticleData extends UnlistedSpecialPage {
 		return $output;
 	}
 
-	function sendHtml(&$output) {
-		global $wgOut;
-		$wgOut->setArticleBodyOnly(true);
-		echo $output;
+	private function sendHtml(&$output) {
+		$this->getOutput()->setArticleBodyOnly(true);
+		print $output;
 	}
 
-	function sendFile($filename, &$output) {
-		global $wgOut, $wgRequest;
-		$wgOut->setArticleBodyOnly(true);
-		$wgRequest->response()->header('Content-type: text/plain');
-		$wgRequest->response()->header('Content-Disposition: attachment; filename="' . addslashes($filename) . '.txt"');
-		$wgOut->addHtml($output);
+	private function sendFile($filename, &$output) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$out->setArticleBodyOnly(true);
+		$req->response()->header('Content-type: text/plain');
+		$req->response()->header('Content-Disposition: attachment; filename="' . addslashes($filename) . '.txt"');
+		$out->addHtml($output);
 	}
 }

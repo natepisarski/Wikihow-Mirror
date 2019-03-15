@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * Follows something like the active record pattern.
@@ -167,7 +167,7 @@ class Wikitext {
 	 */
 	public static function getSummarizedSection($wikitext) {
 		global $wgParser;
-		wfProfileIn(__METHOD__);
+		$profiler = new ProfileSection(__METHOD__);
 		$content = '';
 		$headings = explode("\n", ConfigStorage::dbGetConfig(self::SUMMARIZED_HEADINGS_KEY));
 		for ($i = 1; $i < 100; $i++) {
@@ -180,7 +180,6 @@ class Wikitext {
 				}
 			}
 		}
-		wfProfileOut(__METHOD__);
 		return $content;
 	}
 
@@ -393,7 +392,7 @@ class Wikitext {
 		// Special case: Check for random text at the beginning of the section.  If it's there
 		// add it as an element to the $tips array even though it's technically not a tip
 		$firstElement = trim(array_shift($split));
-		if(preg_match('@^[^*]@', $firstElement)) {
+		if (preg_match('@^[^*]@', $firstElement)) {
 			$tips[] = $firstElement;
 		}
 
@@ -456,7 +455,7 @@ class Wikitext {
 	 */
 	public static function removeImageCaption($img) {
 		$params = self::parseImageTag($img);
-		if(sizeof($params) < 2) {
+		if (sizeof($params) < 2) {
 			return($img);
 		}
 
@@ -465,9 +464,9 @@ class Wikitext {
 
 		$newParams = array();
 		$newParams[] = $params[0];
-		for($n=1; $n<sizeof($params); $n++) {
+		for ($n=1; $n<sizeof($params); $n++) {
 			// If it doesn't match the regex, it is a caption
-			if(preg_match($regex, $params[$n])) {
+			if (preg_match($regex, $params[$n])) {
 				$newParams[] = $params[$n];
 			}
 		}
@@ -745,7 +744,7 @@ class Wikitext {
 			return "";
 		}
 		$text = $r->getText();
-		if($wgLanguageCode == "zh") {
+		if ($wgLanguageCode == "zh") {
 			$text = $wgContLang->convert($text);
 		}
 		if (preg_match("/^#REDIRECT \[\[(.*?)\]\]/", $text, $matches)) {
@@ -813,7 +812,7 @@ class Wikitext {
 				foreach ( $params as $param ) {
 					if ( substr_compare( $param, 'preview.jpg',  -strlen( 'preview.jpg' ) ) === 0 ) {
 						$preview = $param;
-					} else if ( substr($param, -4) == ".jpg" ) {
+					} elseif ( substr($param, -4) == ".jpg" ) {
 						$default = $param;
 					}
 				}
@@ -842,7 +841,7 @@ class Wikitext {
 		wfProfileIn(__METHOD__);
 
 		$intlSuffix = "";
-		if($wgLanguageCode != "en") {
+		if ($wgLanguageCode != "en") {
 			$intlSuffix = "_intl";
 		}
 		if ($wide) {
@@ -853,7 +852,7 @@ class Wikitext {
 				"Default_wikihow_green" . $intlSuffix . ".png" : "Default_wikihow_blue" . $intlSuffix. ".png";
 		}
 		$file = wfFindFile($image, false);
-		if(!$file) {
+		if (!$file) {
 			$file = wfFindFile("Default_wikihow.jpg");
 		}
 
@@ -899,7 +898,7 @@ class Wikitext {
 		$revision = Revision::newFromTitle($fromTitle);
 		if (!$revision) return false;
 		$text = $revision->getText();
-		foreach($imageTitles as $imageTitle) {
+		foreach ($imageTitles as $imageTitle) {
 			$text = preg_replace(
 					'@(<\s*br\s*[\/]?>)*\s*\[\['.
 					preg_quote( $imageTitle->getFullText() ) .'([^\]]*)\]\]@im',

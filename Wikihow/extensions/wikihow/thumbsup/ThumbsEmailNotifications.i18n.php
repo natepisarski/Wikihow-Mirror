@@ -90,9 +90,9 @@ $messages['en'] = array (
 
 		'tn_email_plain' => 'Congratulations, $1! Someone just gave you a thumbs up for doing quality editing on wikiHow.
 
-To see your most recent thumbs up, visit your profile page: 
+To see your most recent thumbs up, visit your profile page:
 
-$2 
+$2
 
 Thanks for helping out. Your contributions are noticed and appreciated!
 

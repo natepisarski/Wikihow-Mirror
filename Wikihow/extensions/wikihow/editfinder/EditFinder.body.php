@@ -33,7 +33,7 @@ class EditFinder extends UnlistedSpecialPage {
 	 * Set html template path for EditFinder actions
 	 */
 	public static function setTemplatePath() {
-		EasyTemplate::set_path( dirname(__FILE__).'/' );
+		EasyTemplate::set_path( __DIR__.'/' );
 	}
 
 	public static function getUnfinishedCount(&$dbr, $type) {
@@ -107,7 +107,7 @@ class EditFinder extends UnlistedSpecialPage {
 	}
 
 	private function getNextByInterest() {
-		wfProfileIn(__METHOD__);
+		$profiler = new ProfileSection(__METHOD__);
 
 		$dbw = wfGetDB(DB_MASTER);
 
@@ -141,7 +141,6 @@ class EditFinder extends UnlistedSpecialPage {
 				}
 			}
 		}
-		wfProfileOut(__METHOD__);
 		return $pageid;
 	}
 
@@ -265,7 +264,7 @@ class EditFinder extends UnlistedSpecialPage {
 	}
 
 	private function confirmationModal($type, $id) {
-		wfProfileIn(__METHOD__);
+		$profiler = new ProfileSection(__METHOD__);
 
 		$t = Title::newFromID($id);
 		$titletag = "[[".$t->getText()."|".wfMessage('howto', $t->getText())."]]";
@@ -280,11 +279,10 @@ class EditFinder extends UnlistedSpecialPage {
 			</span>
 			</div>";
 		$this->getOutput()->addHTML($content);
-		wfProfileOut(__METHOD__);
 	}
 
 	private function cancelConfirmationModal($id) {
-		wfProfileIn(__METHOD__);
+		$profiler = new ProfileSection(__METHOD__);
 
 		$t = Title::newFromID($id);
 		$titletag = "[[".$t->getText()."|".wfMessage('howto', $t->getText())."]]";
@@ -298,7 +296,6 @@ class EditFinder extends UnlistedSpecialPage {
 			</p>
 			</div>";
 		$this->getOutput()->addHTML($content);
-		wfProfileOut(__METHOD__);
 	}
 
 	/**
@@ -433,6 +430,8 @@ class EditFinder extends UnlistedSpecialPage {
 	public function execute($par) {
 		global $wgParser, $efType;
 
+		$profiler = new ProfileSection(__METHOD__);
+
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
@@ -520,13 +519,11 @@ class EditFinder extends UnlistedSpecialPage {
 		} elseif ($req->getVal( 'confirmation' )) {
 			$out->setArticleBodyOnly(true);
 			print $this->confirmationModal($req->getVal('type'),$req->getInt('aid')) ;
-			wfProfileOut(__METHOD__);
 			return;
 
 		} elseif ($req->getVal( 'cancel-confirmation' )) {
 			$out->setArticleBodyOnly(true);
 			print $this->cancelConfirmationModal($req->getInt('aid')) ;
-			wfProfileOut(__METHOD__);
 			return;
 
 		} else { //default view (same as most of the views)
@@ -561,7 +558,7 @@ class EditFinder extends UnlistedSpecialPage {
 			$vars['ef_num_cats'] = $this->topicMode ? $this->getUserInterestCount() : 0;
 			$vars['edittype'] = strtolower($efType);
 
-			$html = EasyTemplate::html('editfinder_main',$vars);
+			$html = EasyTemplate::html('editfinder_main.tmpl.php',$vars);
 			$out->addHTML($html);
 
 			$out->setHTMLTitle(wfMessage('app-name').': '.wfMessage($efType).' - wikiHow');

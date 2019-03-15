@@ -22,7 +22,7 @@ class SocialLogin extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 
 		if ($req->getVal('callback') != self::$jsonpCallback) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}

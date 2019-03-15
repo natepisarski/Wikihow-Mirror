@@ -2,49 +2,36 @@
 
 class SpamDiffTool extends SpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('SpamDiffTool');
 		$this->setListed(false);
 	}
 
-	function getDiffLink($title) {
-		global $wgUser, $wgRequest, $wgSpamBlacklistArticle;
-		$sk = $wgUser->getSkin();
-		$sb = Title::newFromDBKey($wgSpamBlacklistArticle);
-		if (!$sb->userCan('edit')) {
-			return '';
-		}
-		$link = '[' . $sk->makeKnownLinkObj( Title::newFromText("SpamDiffTool", NS_SPECIAL), wfMessage('spamdifftool_spam_link_text'),
-					'target=' . $title->getPrefixedURL().
-					'&oldid2=' . $wgRequest->getVal('oldid') .
-					'&rcid='. $wgRequest->getVal('rcid') .
-					'&diff2='. $wgRequest->getVal('diff')  .
-					'&returnto=' . urlencode($_SERVER['QUERY_STRING'])
-					) .
-					']';
-		return $link;
-	}
+	public function execute($par) {
+		global $wgContLang, $wgSpamBlacklistArticle, $wgScript;
 
-	function execute($par) {
-		global $wgRequest, $wgContLang, $wgOut, $wgSpamBlacklistArticle, $wgUser, $wgScript;
-		$title = Title::newFromDBKey($wgRequest->getVal('target'));
-		$diff = $wgRequest->getVal( 'diff2' );
-		$rcid = $wgRequest->getVal( 'rcid' );
-		$rdfrom = $wgRequest->getVal( 'rdfrom' );
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$wgOut->setHTMLTitle(wfMessage('pagetitle', 'Spam Tool'));
+		$title = Title::newFromDBKey($req->getVal('target'));
+		$diff = $req->getVal( 'diff2' );
+		$rcid = $req->getVal( 'rcid' );
+		$rdfrom = $req->getVal( 'rdfrom' );
+
+		$out->setHTMLTitle(wfMessage('pagetitle', 'Spam Tool'));
 
 		// can the user even edit this?
 		$sb = Title::newFromDBKey($wgSpamBlacklistArticle);
 		if (!$sb->userCan('edit')) {
-			$wgOut->addHTML(wfMessage('spamdifftool_cantedit'));
+			$out->addHTML(wfMessage('spamdifftool_cantedit'));
 			return;
 		}
 
 		// do the processing
-		if ($wgRequest->wasPosted() ) {
+		if ($req->wasPosted() ) {
 
-			if ($wgRequest->getVal('confirm', null) != null) {
+			if ( $req->getVal('confirm') ) {
 				$t = Title::newFromDBKey($wgSpamBlacklistArticle);
 				$a = new Article($t);
 				$text = $a->getContent();
@@ -53,21 +40,23 @@ class SpamDiffTool extends SpecialPage {
 				$i = strrpos($text, "</pre>");
 				if ($i !== false) {
 					$text = substr($text, 0, $i)
-							. $wgRequest->getVal('newurls')
+							. $req->getVal('newurls')
 							. "\n" . substr($text, $i);
 				} else {
-					$text .= "\n" . $wgRequest->getVal('newurls');
+					$text .= "\n" . $req->getVal('newurls');
 				}
 				$watch = false;
-				if ($wgUser->getID() > 0)
-				$watch = $wgUser->isWatched($t);
+				if ($user->getID() > 0) {
+					$watch = $user->isWatched($t);
+				}
 				$a->updateArticle($text, wfMessage('spamdifftool_summary'), false, $watch);
-				$returnto = $wgRequest->getVal('returnto', null);
-				if ($returnto != null && $returnto != '')
-					$wgOut->redirect($wgScript . "?" . urldecode($returnto) ); // clear the redirect set by updateArticle
+				$returnto = $req->getVal('returnto');
+				if ($returnto) {
+					$out->redirect($wgScript . "?" . urldecode($returnto) ); // clear the redirect set by updateArticle
+				}
 				return;
 			}
-			$vals = $wgRequest->getValues();
+			$vals = $req->getValues();
 			$text = '';
 			$urls = array();
 			$source = wfMessage( 'top_level_domains' )->inContentLanguage()->text();
@@ -111,32 +100,30 @@ class SpamDiffTool extends SpecialPage {
 				}
 			}
 			if (trim($text) == '') {
-				$wgOut->addHTML( wfMessage('spamdifftool_notext', $wgScript . "?" . urldecode($wgRequest->getVal('returnto') )));
+				$out->addHTML( wfMessage('spamdifftool_notext', $wgScript . "?" . urldecode($req->getVal('returnto') )));
 				return;
 			}
-			$wgOut->addHTML("<form method=POST>
+			$out->addHTML("<form method=POST>
 					<input type='hidden' name='confirm' value='true'>
 					<input type='hidden' name='newurls' value=\"" . htmlspecialchars($text) . "\">
-					<input type='hidden' name='returnto' value=\"" . htmlspecialchars($wgRequest->getVal('returnto')) . "\">
+					<input type='hidden' name='returnto' value=\"" . htmlspecialchars($req->getVal('returnto')) . "\">
 				");
-			$wgOut->addHTML(wfMessage('spamdifftool_confirm') . "<pre style='padding: 10px'>$text</pre>");
-			$wgOut->addHTML("</table><input type=submit value=\"" . htmlspecialchars(wfMessage('submit')) . "\"></form>");
+			$out->addHTML(wfMessage('spamdifftool_confirm') . "<pre style='padding: 10px'>$text</pre>");
+			$out->addHTML("</table><input type=submit value=\"" . htmlspecialchars(wfMessage('submit')) . "\"></form>");
 			return;
 		}
 
 		if ( !is_null( $diff ) ) {
-			require_once( 'DifferenceEngine.php' );
-
 			// Get the last edit not by this guy
 			$current = Revision::newFromTitle( $title );
 			$dbw = wfGetDB(DB_MASTER);
-			$user = intval( $current->getUser() );
+			$currentUser = (int)$current->getUser();
 			$user_text = $dbw->addQuotes( $current->getUserText() );
 			$s = $dbw->selectRow( 'revision',
 				array( 'rev_id', 'rev_timestamp' ),
 				array(
 					'rev_page' => $current->getPage(),
-					"rev_user <> {$user} OR rev_user_text <> {$user_text}"
+					"rev_user <> {$currentUser} OR rev_user_text <> {$user_text}"
 				), $fname,
 				array(
 					'USE INDEX' => 'page_timestamp',
@@ -146,8 +133,8 @@ class SpamDiffTool extends SpecialPage {
 				$oldid = $s->rev_id;
 			}
 
-			if ($wgRequest->getVal('oldid2') < $oldid)
-				$oldid = $wgRequest->getVal('oldid2');
+			if ($req->getVal('oldid2') < $oldid)
+				$oldid = $req->getVal('oldid2');
 
 			$de = new DifferenceEngine( $title, $oldid, $diff, $rcid );
 			$de->loadText();
@@ -173,13 +160,13 @@ class SpamDiffTool extends SpecialPage {
 		preg_match_all($preg, $text, $matches);
 
 		if (sizeof($matches[0]) == 0) {
-			$wgOut->addHTML( wfMessage('spamdifftool_no_urls_detected', $wgScript . "?" . urldecode($wgRequest->getVal('returnto') )));
+			$out->addHTML( wfMessage('spamdifftool_no_urls_detected', $wgScript . "?" . urldecode($req->getVal('returnto') )));
 			return;
 		}
 
-		$wgOut->addHTML("
+		$out->addHTML("
 			<form method='POST'>
-					<input type='hidden' name='returnto' value=\"" . htmlspecialchars($wgRequest->getVal('returnto')) . "\">
+					<input type='hidden' name='returnto' value=\"" . htmlspecialchars($req->getVal('returnto')) . "\">
 				<style type='text/css'>
 						td.spam-url-row {
 							border: 1px solid #ccc;
@@ -193,7 +180,7 @@ class SpamDiffTool extends SpecialPage {
 				if (isset($urls[$url])) continue; // avoid dupes
 				$urls[$url] = true;
 				$name = htmlspecialchars(str_replace(".", "%2E", $url));
-				$wgOut->addHTML("<tr>
+				$out->addHTML("<tr>
 					<td class='spam-url-row'><b>$url</b><br/>
 					" . wfMessage('spamdifftool_block') . " &nbsp;&nbsp;
 					<INPUT type='radio' name=\"" . $name . "\"	value='domain' checked> " . wfMessage('spamdifftool_option_domain') . "
@@ -206,10 +193,9 @@ class SpamDiffTool extends SpecialPage {
 			}
 		}
 
-		$wgOut->addHTML("</table><input type=submit value=\"" . htmlspecialchars(wfMessage('submit')) . "\"></form>");
+		$out->addHTML("</table><input type=submit value=\"" . htmlspecialchars(wfMessage('submit')) . "\"></form>");
 		// DifferenceEngine directly fetched the revision:
 		$RevIdFetched = $de->mNewid;
 	}
 
 }
-

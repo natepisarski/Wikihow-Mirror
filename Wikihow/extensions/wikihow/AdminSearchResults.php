@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminSearchResults',
 	'author' => 'Reuben Smith',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminSearchResults'] = 'AdminSearchResults';
-$wgAutoloadClasses['AdminSearchResults'] = dirname( __FILE__ ) . '/AdminSearchResults.body.php';
-
+$wgAutoloadClasses['AdminSearchResults'] = __DIR__ . '/AdminSearchResults.body.php';

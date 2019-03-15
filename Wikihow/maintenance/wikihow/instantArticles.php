@@ -331,9 +331,7 @@ class InstantArticles extends Maintenance {
 
 	//get's Template HTml
 	 public function getTemplateHtml( $templateName, $vars = array() ) {
-        global $IP;
-        $path = "$IP/extensions/wikihow/instantarticles";
-        EasyTemplate::set_path( $path );
+        EasyTemplate::set_path( __DIR__ );
         return EasyTemplate::html( $templateName, $vars );
     }
 }

@@ -9,14 +9,14 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['TipsGuardian'] = 'TipsGuardian';
-$wgAutoloadClasses['TipsGuardian'] = dirname(__FILE__) . '/TipsGuardian.body.php';
-$wgExtensionMessagesFiles['TipsGuardian'] = dirname(__FILE__) . '/TipsGuardian.i18n.php';
+$wgAutoloadClasses['TipsGuardian'] = __DIR__ . '/TipsGuardian.body.php';
+$wgExtensionMessagesFiles['TipsGuardian'] = __DIR__ . '/TipsGuardian.i18n.php';
 
 $wgHooks["IsEligibleForMobileSpecial"][] = array("wfTGIsEligibleForMobile");
 
 $wgResourceModules['mobile.tipsguardian.styles'] = array(
 	'styles' => 'tipsguardian.css',
-	'localBasePath' => dirname(__FILE__),
+	'localBasePath' => __DIR__,
 	'position' => 'top',
 	'remoteExtPath' => 'wikihow/qc',
 	'targets' => array('mobile'),
@@ -25,7 +25,7 @@ $wgResourceModules['mobile.tipsguardian.styles'] = array(
 $wgResourceModules['mobile.tipsguardian.scripts'] = array(
 	'scripts' => array('../ext-utils/anon_throttle.js',
 					'tipsguardian.js'),
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/qc',
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' ),
@@ -35,7 +35,7 @@ $wgResourceModules['mobile.tipsguardian.scripts'] = array(
 
 function wfTGIsEligibleForMobile(&$isEligible) {
 	global $wgTitle;
-	if($wgTitle && strrpos($wgTitle->getText(), "TipsGuardian") === 0) {
+	if ($wgTitle && strrpos($wgTitle->getText(), "TipsGuardian") === 0) {
 		$isEligible = true;
 	}
 

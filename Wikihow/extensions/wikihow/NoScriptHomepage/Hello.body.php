@@ -20,12 +20,12 @@ class Hello extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 
 		if ( $user->isBlocked() ) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 		if ( !Misc::isMobileMode() ) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}

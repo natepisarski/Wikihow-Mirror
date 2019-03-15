@@ -1688,7 +1688,7 @@ class TitleFilters {
 
 		return array_values($titlesMap);
 	}
-	
+
 	public static function filterByPageTitle($titles, $titleText = []) {
 		return array_filter($titles, function($t) use ($titleText) {
 			return !in_array($t->getText(), $titleText);

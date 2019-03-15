@@ -10,8 +10,8 @@
  *
  ***************/
 
-$wgHooks['NABMarkPatrolled'][] = 'NewlyIndexed::MarkPatrolled';
-$wgHooks['TitusRobotPolicy'][] = 'NewlyIndexed::MarkIndexed';
+$wgHooks['NABMarkPatrolled'][] = 'NewlyIndexed::onMarkPatrolled';
+$wgHooks['TitusRobotPolicy'][] = 'NewlyIndexed::onMarkIndexed';
 
 class NewlyIndexed {
 
@@ -20,40 +20,40 @@ class NewlyIndexed {
 	const INDEX_FIELD	= "gnp_index";
 	const PAGE_FIELD	= "gnp_page";
 
-
-
-	static function MarkIndexed($title, $status) {
+	public static function onMarkIndexed($title, $status) {
 		$dbr = wfGetDB(DB_SLAVE);
 		$dbw = wfGetDB(DB_MASTER);
 
-		if($title == null)
+		if (!$title) {
 			return true;
+		}
 
 		$date = wfTimestamp(TS_MW);
 
 		$indexed = $dbr->selectField(NewlyIndexed::TABLE_NAME, NewlyIndexed::INDEX_FIELD, array(NewlyIndexed::PAGE_FIELD => $title->getArticleID()), __FUNCTION__);
 
-		if($indexed === false) {
+		if ($indexed === false) {
 			//row doesn't exist yet
-			if($status == RobotPolicy::POLICY_INDEX_FOLLOW_STR) {
+			if ($status == RobotPolicy::POLICY_INDEX_FOLLOW_STR) {
 				//has now been indexed, so add the new row
 				$dbw->insert(NewlyIndexed::TABLE_NAME, array(NewlyIndexed::PAGE_FIELD => $title->getArticleID(), NewlyIndexed::INDEX_FIELD => $date, NewlyIndexed::NAB_FIELD => 0), __METHOD__);
 			}
-		}
-		else {
-			if($status != RobotPolicy::POLICY_INDEX_FOLLOW_STR)
+		} else {
+			if ($status != RobotPolicy::POLICY_INDEX_FOLLOW_STR) {
 				$date = 0;
+			}
 			//either its already index and needs to be be-indexed OR it hasn't been indexed and now it is
-			if(($indexed > 0 && $date == 0) || ($indexed == 0 && $date > 0) )
+			if ($indexed > 0 && $date == 0 || $indexed == 0 && $date > 0 )
 				$dbw->update(NewlyIndexed::TABLE_NAME, array(NewlyIndexed::INDEX_FIELD => $date), array(NewlyIndexed::PAGE_FIELD => $title->getArticleID()), __METHOD__);
 		}
 
 		return true;
 	}
 
-	static function MarkPatrolled($articleId) {
-		if($articleId <= 0)
+	public static function onMarkPatrolled($articleId) {
+		if ($articleId <= 0) {
 			return true;
+		}
 
 		$articleId = (int)$articleId;
 		$dbw = wfGetDB(DB_MASTER);

@@ -20,7 +20,16 @@ class UCIPatrolWidget  extends DashboardWidget {
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->log_user, $row->log_timestamp);
+		if (!empty($row)) {
+			$user = $row->log_user;
+			$timestamp = $row->log_timestamp;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -29,33 +38,46 @@ class UCIPatrolWidget  extends DashboardWidget {
 	 * for the top contributor to this widget
 	 */
 	public function getTopContributor(&$dbr){
-		
+
 		$startdate = strtotime("7 days ago");
 		$starttimestamp = date('YmdG',$startdate) . floor(date('i',$startdate)/10) . '00000';
-		$res = $dbr->select('logging', array('log_user', 'count(*) as C', 'MAX(log_timestamp) as recent_timestamp'), 
+		$res = $dbr->select('logging', array('log_user', 'count(*) as C', 'MAX(log_timestamp) as recent_timestamp'),
 			array("log_type" => "ucipatrol",  "log_timestamp > '$starttimestamp'"), __METHOD__, array("GROUP BY" => 'log_user', "ORDER BY"=>"C DESC", "LIMIT"=>1));
-	
+
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->log_user, $row->recent_timestamp);
+		if (!empty($row)) {
+			$user = $row->log_user;
+			$timestamp = $row->recent_timestamp;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/*
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
 			$link = "<a href='/Special:PicturePatrol' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
 			$link = "<a href='/Special:Userlogin?returnto=Special:PicturePatrol' class='comdash-login'>Login";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	/**

@@ -50,11 +50,11 @@ class CategoryData {
 
 		$data = [];
 
-		if($numArticles > self::ALL_ARTICLES_CHUNK) {
+		if ($numArticles > self::ALL_ARTICLES_CHUNK) {
 			$data['has_pagination'] = true;
 			$data['next_text'] = wfMessage('lsearch_next')->text();
 			$data['prev_text'] = wfMessage('lsearch_previous')->text();
-			if($this->currentPage > 1) {
+			if ($this->currentPage > 1) {
 				$data['prev_url'] = "?pg=" . ($this->currentPage-1);
 				$data['prev_class'] = "";
 			} else {
@@ -81,7 +81,7 @@ class CategoryData {
 				}
 
 				$data['pages'][$i-1]['text'] = $i;
-				if($this->currentPage != $i) {
+				if ($this->currentPage != $i) {
 					if ($i == 1) {
 						$data['pages'][$i - 1]['page_url'] = $thisUrl;
 					} else {
@@ -122,7 +122,7 @@ class CategoryData {
 	public static function getCategoryListingData() {
 		$queryString = WikihowCategoryViewer::getViewModeParam();
 
-		$catmap = Categoryhelper::getIconMap();
+		$catmap = CategoryHelper::getIconMap();
 		ksort($catmap);
 
 		$catData = ["subcats" => []];

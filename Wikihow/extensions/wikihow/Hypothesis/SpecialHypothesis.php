@@ -17,7 +17,7 @@ class SpecialHypothesis extends SpecialPage {
 		$output = $this->getOutput();
 
 		if ( !in_array( 'staff', $this->getUser()->getGroups() ) ) {
-			$output->setRobotpolicy( 'noindex,nofollow' );
+			$output->setRobotPolicy( 'noindex,nofollow' );
 			$output->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}

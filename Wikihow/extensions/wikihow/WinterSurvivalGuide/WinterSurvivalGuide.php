@@ -8,7 +8,7 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'Accessory stuff for wikiHow:Winter-Survival-Guide'
 );
 
-$wgAutoloadClasses['WinterSurvivalGuide'] = dirname(__FILE__) . '/WinterSurvivalGuide.class.php';
+$wgAutoloadClasses['WinterSurvivalGuide'] = __DIR__ . '/WinterSurvivalGuide.class.php';
 
 $wgMessagesDirs['WinterSurvivalGuide'] = __DIR__ . '/i18n';
 
@@ -16,7 +16,7 @@ $wgHooks['BeforePageDisplay'][] = ['WinterSurvivalGuide::onBeforePageDisplay'];
 
 $wgResourceModules['ext.wikihow.winter_survival_guide'] = [
 	'scripts' => 'assets/winter_survival_guide.js',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/WinterSurvivalGuide',
 	'targets' => ['desktop'],
 	'dependencies' => [
@@ -27,7 +27,7 @@ $wgResourceModules['ext.wikihow.winter_survival_guide'] = [
 $wgResourceModules['ext.wikihow.winter_survival_guide_cta'] = [
 	'scripts' => 'assets/winter_survival_guide_cta.js',
 	'styles' => 'assets/winter_survival_guide_cta.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/WinterSurvivalGuide',
 	'targets' => ['desktop'],
 	'position' => 'top'

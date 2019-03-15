@@ -77,7 +77,7 @@ class YourArticles extends SpecialPage {
 				$t = Title::makeTitle(NS_MAIN, $row->page_title);
 				$cat = $row->st_category;
 				if ($cat == '') {
-					$str = Categoryhelper::getTopCategory($t);
+					$str = CategoryHelper::getTopCategory($t);
 					if ($str != '')  {
 						$title = Title::makeTitle(NS_CATEGORY, $str);
 						$cat = $title->getText();

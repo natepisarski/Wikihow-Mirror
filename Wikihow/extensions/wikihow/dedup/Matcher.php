@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class DedupMatcher {
 	public static function updateMatches() {

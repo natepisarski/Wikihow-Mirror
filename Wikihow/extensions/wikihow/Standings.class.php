@@ -1,4 +1,4 @@
-<?
+<?php
 
 // Extend this class for an individual stats wiget
 abstract class StandingsIndividual {
@@ -16,13 +16,13 @@ abstract class StandingsIndividual {
 	 *
 	 */
 	function getStandingsTable() {
+		$section = new ProfileSection(__METHOD__);
 		$this->fetchStats();
 
 		$rank = $this->mStats['standing'];
 		if ($rank == 0) {
 			$rank = "N/A";
 		}
-
 
 		$today 	= number_format($this->mStats['today'], 0, '.', ",");
 		$week 	= number_format($this->mStats['week'], 0, '.', ",");
@@ -65,8 +65,7 @@ abstract class StandingsIndividual {
 	 * add stats widget to right rail
 	 **/
 	function addStatsWidget() {
-		$fname = "StandingsIndividual::addStatsWidget";
-		wfProfileIn($fname);
+		$section = new ProfileSection(__METHOD__);
 
 		if (!$this->mContext) {
 			wfDeprecated( __METHOD__ . ' without setting context (will fallback to globals)');
@@ -82,7 +81,6 @@ abstract class StandingsIndividual {
 		"</div></div>";
 
 		$sk->addWidget( $display );
-		wfProfileOut($fname);
 	}
 
 	/**
@@ -91,9 +89,8 @@ abstract class StandingsIndividual {
 	 **/
 	function fetchStats() {
 		global $wgUser, $wgMemc, $wgLang;
-		$fname = "StandingsIndividual::fetchStats";
-		wfProfileIn($fname);
 
+		$section = new ProfileSection(__METHOD__);
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$ts_today = date('Ymd',strtotime('today')) . '000000';
@@ -122,7 +119,6 @@ abstract class StandingsIndividual {
 		);
 
 		$this->mStats = $s_arr;
-		wfProfileOut($fname);
 		return $this->mStats;
 	}
 
@@ -161,8 +157,8 @@ abstract class StandingsGroup {
 	 **/
 	function getStandingsTable() {
 		global $wgUser;
-		$fname = "StandingsGroup::getStandingsTable";
-		wfProfileIn($fname);
+
+		$section = new ProfileSection(__METHOD__);
 
 		$display = "<table>";
 
@@ -171,7 +167,7 @@ abstract class StandingsGroup {
 
 		$data = $this->getStandingsFromCache() ;
 		$count = 0;
-		foreach($data as $key => $value) {
+		foreach ($data as $key => $value) {
 			$u = new User();
 			$u->setName($key);
 			if (($value > 0) && ($key != '')) {
@@ -195,7 +191,6 @@ abstract class StandingsGroup {
 
 		$display .= "
 		</table>";
-		wfProfileOut($fname);
 		return $display;
 	}
 
@@ -205,8 +200,7 @@ abstract class StandingsGroup {
 	 */
 	function getStandingsFromCache() {
 		global $wgMemc;
-		$fname = "StandingsGroup::getStandingsFromCache";
-		wfProfileIn($fname);
+		$section = new ProfileSection(__METHOD__);
 		$standings = $wgMemc->get($this->mCacheKey);
 		if (!is_array($standings)) {
 			$dbr = wfGetDB(DB_SLAVE);
@@ -223,7 +217,6 @@ abstract class StandingsGroup {
 		} else {
 			wfDebug("Standings: DID get the cache\n");
 		}
-		wfProfileOut($fname);
 		return $standings;
 	}
 
@@ -233,18 +226,15 @@ abstract class StandingsGroup {
 	 *
 	 */
 	function getStanding($user) {
-		$fname = "StandingsGroup::getStanding";
-		wfProfileIn($fname);
+		$section = new ProfileSection(__METHOD__);
 		$standings = $this->getStandingsFromCache();
 		$index = 1;
 		foreach ($standings as $s => $c) {
 			if ($s == $user->getName()) {
-				wfProfileOut($fname);
 				return $index;
 			}
 			$index++;
 		}
-		wfProfileOut($fname);
 		return 0;
 	}
 
@@ -254,19 +244,18 @@ abstract class StandingsGroup {
 	 *
 	 **/
 	function addStandingsWidget() {
-		global $wgUser, $wgOut;
-		$fname = "StandingsGroup::addStandingsWidget";
-		wfProfileIn($fname);
+		$section = new ProfileSection(__METHOD__);
 
 		if (!$this->mContext) {
 			wfDeprecated( __METHOD__ . ' without setting context (will fallback to globals)');
-			global $wgUser;
+			global $wgUser, $wgOut;
 			$sk = $wgUser->getSkin();
+			$wgOut->addModules('ext.wikihow.leaderboard');
 		} else {
 			$sk = $this->mContext->getSkin();
+			$this->mContext->getOutput()->addModules('ext.wikihow.leaderboard');
 		}
 
-		$wgOut->addModules('ext.wikihow.leaderboard');
 
 		$display = "
 		<div class='iia_stats'>
@@ -277,7 +266,6 @@ abstract class StandingsGroup {
 		</div>";
 
 		$sk->addWidget( $display );
-		wfProfileOut($fname);
 	}
 
 
@@ -298,7 +286,7 @@ abstract class StandingsGroup {
 		$index = 1;
 		$c = 0;
 		foreach ($standings as $s => $c) {
-			if($index == $rowNum)
+			if ($index == $rowNum)
 				return $c;
 			$index++;
 		}
@@ -352,7 +340,7 @@ class RequestsAnsweredStandingsGroup extends StandingsGroup {
 		$bots = WikihowUser::getBotIDs();
 		$bot = "";
 
-		if(sizeof($bots) > 0) {
+		if (sizeof($bots) > 0) {
 			$dbr = wfGetDB(DB_SLAVE);
 			$bot = " AND fe_user NOT IN (" . $dbr->makeList($bots) . ", '0') ";
 		}
@@ -1372,7 +1360,7 @@ class QCStandingsIndividual extends StandingsIndividual {
 	function fetchStats() {
 		global $wgUser, $wgMemc, $wgLang;
 
-		wfProfileIn(__METHOD__);
+		$section = new ProfileSection(__METHOD__);
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$ts_today = $dbr->timestamp(strtotime('today'));
@@ -1403,7 +1391,6 @@ class QCStandingsIndividual extends StandingsIndividual {
 		);
 
 		$this->mStats = $s_arr;
-		wfProfileOut(__METHOD__);
 		return $this->mStats;
 	}
 

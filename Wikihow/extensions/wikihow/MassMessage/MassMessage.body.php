@@ -92,7 +92,7 @@ class MassMessage {
 	public static function getDBName( $host ) {
 		//hardcode for wikiHow
 		return WH_DATABASE_NAME;
-		
+
 		// global $wgConf, $wgMemc;
 		// static $mapping = null;
 		// if ( $mapping === null ) {
@@ -112,7 +112,7 @@ class MassMessage {
 				// $mapping = $data;
 			// }
 		// }
-		
+
 		// if ( isset( $mapping[$host] ) ) {
 			// return $mapping[$host];
 		// }
@@ -182,7 +182,7 @@ class MassMessage {
 		// Parse
 		$output = $parser->parse( $text, $spamlist, $parserOptions );
 		$data = unserialize( $output->getProperty( 'massmessage-targets' ) );
-		
+
 		if ( $data ) {
 			return self::normalizeTargets( $data );
 		} else {

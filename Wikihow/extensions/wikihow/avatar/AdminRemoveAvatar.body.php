@@ -18,11 +18,11 @@ class AdminRemoveAvatar extends UnlistedSpecialPage {
 		$userID = $user->getID();
 		if ($userID > 0) {
 			$ret = Avatar::removePicture($userID);
-			if(preg_match('@SUCCESS@',$ret)) {
-				return true;	
+			if (preg_match('@SUCCESS@',$ret)) {
+				return true;
 			}
 			else {
-				return false;	
+				return false;
 			}
 		} else {
 			return false;
@@ -33,21 +33,25 @@ class AdminRemoveAvatar extends UnlistedSpecialPage {
 	 * Execute special page, but only for staff group members
 	 */
 	function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang, $wgSquidMaxage;
+		global $wgSquidMaxage;
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('sysop', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('sysop', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
-			$username = $wgRequest->getVal('username', '');
-			$wgOut->setArticleBodyOnly(true);
+		if ($req->wasPosted()) {
+			$username = $req->getVal('username', '');
+			$out->setArticleBodyOnly(true);
 			$success = $this->removeAvatar($username);
 			if ($success) {
-				$url = 'http://www.wikihow.com/User:' . preg_replace('@ @', '-', $username);
+				$url = 'https://www.wikihow.com/User:' . preg_replace('@ @', '-', $username);
 				$cacheHours = round(1.0 * $wgSquidMaxage / (60 * 60), 1);
 				$tmpl = <<<EOHTML
 <p>Avatar for '$username' removed from user page.  This change will be visible to non-cookied users within $cacheHours hours and will be visible to cookied users immediately.</p>
@@ -58,7 +62,7 @@ EOHTML;
 				// Log the removal
 				$log = new LogPage('avatarrm', false); // false - dont show in recentchanges
 				$params = array();
-				$log->addEntry('', Title::newFromText('User:' . $username), 'admin "' . $wgUser->getName() . '" removed avatar for username: ' . $username, $params);
+				$log->addEntry('', Title::newFromText('User:' . $username), 'admin "' . $user->getName() . '" removed avatar for username: ' . $username, $params);
 
 			} else {
 				$result = array('result' => "error: either user '$username' not found or '$username' didn't have an avatar");
@@ -67,8 +71,8 @@ EOHTML;
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Remove Avatar - wikiHow');
-		$wgOut->setPageTitle('Admin - Remove Avatar');
+		$out->setHTMLTitle('Admin - Remove Avatar - wikiHow');
+		$out->setPageTitle('Admin - Remove Avatar');
 
 $tmpl = <<<EOHTML
 <form method="post" action="/Special:AdminRemoveAvatar">
@@ -111,6 +115,6 @@ $tmpl = <<<EOHTML
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 }

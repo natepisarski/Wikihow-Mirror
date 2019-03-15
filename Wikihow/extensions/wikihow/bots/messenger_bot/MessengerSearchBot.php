@@ -34,7 +34,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 	public static function fatalHandler() {
 		wfDebugLog(self::LOG_GROUP, var_export('Last error on line following', true), true);
 		$error = error_get_last();
-		if( $error !== NULL) {
+		if ($error !== NULL) {
 			$errno   = $error["type"];
 			$errfile = $error["file"];
 			$errline = $error["line"];
@@ -43,7 +43,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 			self::errorHandler($errno, $errstr, $errfile, $errline);
 		}
 	}
-	
+
 	public static function errorHandler($errno, $errstr, $errfile, $errline) {
 		/* Don't execute PHP internal error handler */
 		$str = "PHP Error #$errno: '$errstr' in file $errfile on line $errline";
@@ -124,7 +124,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 					if (isset($message['message']['attachments']['0']['type'])) {
 						if (isset($message['message']['sticker_id'])) {
 							$command = self::COMMAND_STICKER;
-						} else if ($message['message']['attachments']['0']['type'] == self::TYPE_IMAGE) {
+						} elseif ($message['message']['attachments']['0']['type'] == self::TYPE_IMAGE) {
 							$command = self::COMMAND_IMAGE;
 						} else {
 							$command = self::COMMAND_UNKNOWN;
@@ -134,7 +134,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 						$command = $this->parseCommand($originalCommand);
 					}
 				// When bot receive button click from user
-				} else if (!empty($message['postback'])) {
+				} elseif (!empty($message['postback'])) {
 					$originalCommand = $message['postback']['payload'];
 					$command = $this->parseCommand($originalCommand);
 				}
@@ -261,7 +261,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 			'sad' => 'Cheer-Up'
 		];
 		$titleResponses = array_change_key_case($titleResponses);
-		
+
 		$textResponses = [
 			'lol' => ':)',
 			'bye bye' => 'later',
@@ -433,7 +433,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 			":poop:" => "Quick! Check if it's healthy! http://www.wikihow.com/Check-Your-Health-by-Poop-or-Stool-Colors",
 			":|]" => "You don’t even know! Check it: http://www.wikihow.com/Do-the-Robot",
 		];
-		
+
 		$textResponses = array_change_key_case($textResponses);
 
 		if (isset($titleResponses[$command])) {
@@ -441,7 +441,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 			$message = new WikihowTitlesMessage($titles, $recipientId);
 			$response = $this->bot->send($message);
 			wfDebugLog(self::LOG_GROUP, var_export($response, true), true);
-		} else if (isset($textResponses[$command])) {
+		} elseif (isset($textResponses[$command])) {
 			$this->sendTextResponse($recipientId, $textResponses[$command]);
 		} else {
 			$this->handleHowTo();
@@ -490,7 +490,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 	protected function getRandomElement($arr) {
 		return $arr[mt_rand(0, count($arr) - 1)];
 	}
-	
+
 	protected function handleHelp() {
 		$recipientId = $this->message['sender']['id'];
 		$this->sendTextResponse($recipientId, wfMessage('help_menu')->text());
@@ -536,7 +536,7 @@ class MessengerSearchBot extends UnlistedSpecialPage {
 			if (self::NUM_DISPLAY_TITLES < count($titles)) {
 				$titles = array_splice($titles, 0, self::NUM_DISPLAY_TITLES);
 			}
-			
+
 			$button = new MessageButton(
 				MessageButton::TYPE_POSTBACK,
 				wfMessage('cta_howto_button')->text(),

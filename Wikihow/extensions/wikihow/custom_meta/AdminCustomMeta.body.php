@@ -9,9 +9,10 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 	var $customMeta, $type;
 
 	public function __construct() {
-		$this->action = $GLOBALS['wgTitle']->getPartialUrl();
+		global $wgHooks;
 		parent::__construct($this->action);
-		$GLOBALS['wgHooks']['ShowSideBar'][] = array('AdminCustomMeta::removeSideBarCallback');
+		$this->action = $this->getTitle()->getPartialUrl();
+		$wgHooks['ShowSideBar'][] = array('AdminCustomMeta::removeSideBarCallback');
 	}
 
 	// Callback indicating to remove the right rail
@@ -112,7 +113,7 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 		// Check permissions
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -139,7 +140,7 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 		if ($req->wasPosted()) {
 			set_time_limit(0);
-			$out->setArticleBodyOnly(true);
+			$out->disable();
 			$error = "";
 			$action = $req->getVal('action');
 			if ($action == 'save-list') {

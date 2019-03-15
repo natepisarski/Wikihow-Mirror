@@ -16,7 +16,7 @@ $wgResourceModules['wikihow.admincategorydescriptions'] = [
 	'position' => 'bottom',
 	'targets' => ['desktop'],
 	'dependencies' => [
-		'wikihow.common.jquery.download', 
+		'wikihow.common.jquery.download',
 		'wikihow.common.aim'
 	]
 ];

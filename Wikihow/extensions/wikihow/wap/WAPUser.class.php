@@ -70,16 +70,16 @@ abstract class WAPUser {
 		$adminGroup = WAPDB::getInstance($this->dbType)->getWAPConfig()->getWikiHowAdminGroupName();
 		if ($this->inGroup($adminGroup)) {
 			$viewable = true;
-		} else if (($article->isAssigned() || $article->isCompleted()) 
+		} elseif (($article->isAssigned() || $article->isCompleted())
 			&& $this->getId() == $article->getUserId()) {
 			// Viewable if the article is assigned to or completed by user
 			$viewable = true;
 		} else {
 			// See if there is a tag intersection.
 			$viewable = false;
-			$tags = $article->getRawTags();	
+			$tags = $article->getRawTags();
 			foreach ($tags as $tag) {
-				if($this->hasTag($tag)) {
+				if ($this->hasTag($tag)) {
 					$viewable = true;
 					break;
 				}
@@ -112,7 +112,7 @@ abstract class WAPUser {
 	}
 
 	public function inGroup($group) {
-		return in_array($group, $this->u->getGroups()); 	
+		return in_array($group, $this->u->getGroups());
 	}
 
 	function hasPermissions($action = array('')) {
@@ -123,7 +123,7 @@ abstract class WAPUser {
 
 		if ($this->inGroup($userGroup)) {
 			switch ($action[0]) {
-				case 'tag': 
+				case 'tag':
 					if ($this->hasTag(WAPTagDB::sanitizeRawTag($action[1]))) {
 						$hasPermissions = true;
 					}
@@ -156,7 +156,7 @@ abstract class WAPUser {
 			// for perf reasons
 			$hasPermissions = $wgIsDevServer;
 			$hasPermissions = true;
-		} 
+		}
 
 
 		return $hasPermissions;

@@ -6,9 +6,9 @@ class WikiGame {
 	public static function addGame() {
 		global $wgTitle;
 
-		if(self::isTargetPage($wgTitle)) {
+		if (self::isTargetPage($wgTitle)) {
 			$options = array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
@@ -30,7 +30,7 @@ class WikiGame {
 	}
 
 	public static function isTargetPage($title) {
-		if(!$title) {
+		if (!$title) {
 			return false;
 		}
 		//for now only on desktop

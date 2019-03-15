@@ -1,4 +1,4 @@
-<?php                                                                           
+<?php
 if ( ! defined( 'MEDIAWIKI' ) )
   die();
 
@@ -9,7 +9,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Dedup'] = 'Dedup';
-$wgAutoloadClasses['Dedup'] = dirname(__FILE__) . '/Dedup.body.php';
+$wgAutoloadClasses['Dedup'] = __DIR__ . '/Dedup.body.php';
 
 $wgResourceModules['ext.wikihow.Dedup'] = array(
 	'scripts' => ['dedup.js'],

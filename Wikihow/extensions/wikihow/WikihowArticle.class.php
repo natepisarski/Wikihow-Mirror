@@ -65,7 +65,17 @@ class WikihowArticleHTML {
 			&& $title->getText() == wfMessage('mainpage')->inContentLanguage()->text()
 			&& $req->getVal('action', 'view') == 'view';
 
+		$isNewTocArticle = class_exists('WikihowToc') && WikihowToc::isNewArticle();
 		$action = $req ? $req->getVal('action') : '';
+
+		// Remove __TOC__ resulting html from all pages other than User pages
+		if (@$opts['ns'] != NS_USER && pq('div#toc')->length) {
+			$toc = pq('div#toc');
+			//in upgrade, it's no longer preceded by an h2, so deleting the intro instead :(
+			//maybe this will change so leaving in for now.
+			//$toc->prev()->remove();
+			$toc->remove();
+		}
 
 		$sticky = "";
 		if (@$opts['sticky-headers']) {
@@ -110,7 +120,7 @@ class WikihowArticleHTML {
 			&& $title->exists()
 			&& PagePolicy::showCurrentTitle($context);
 
-		$showUnnabbed = $showCurrentTitle && !Newarticleboost::isNABbedNoDb($title->getArticleID());
+		$showUnnabbed = $showCurrentTitle && !NewArticleBoost::isNABbedNoDb($title->getArticleID());
 
 		if ($showUnnabbed) {
 			$intro = pq("#intro");
@@ -220,14 +230,14 @@ class WikihowArticleHTML {
 
 					$displayMethodCount = $h3Count;
 					$isSample = array();
-					for($i = 1; $i <= $h3Count; $i++) {
+					for ($i = 1; $i <= $h3Count; $i++) {
 						$isSampleItem = false;
 						if (!is_array($h3Elements[$i]) || count($h3Elements[$i]) < 1) {
 							$isSampleItem = false;
 						}
 						else {
 							//the sd_container isn't always the first element, need to look through all
-							foreach($h3Elements[$i] as $node) { //not the most efficient way to do this, but couldn't get the find function to work.
+							foreach ($h3Elements[$i] as $node) { //not the most efficient way to do this, but couldn't get the find function to work.
 								if (pq($node)->attr("id") == "sd_container") {
 									$isSampleItem = true;
 									break;
@@ -294,7 +304,7 @@ class WikihowArticleHTML {
 						}
 						$overallSet = array();
 						$overallSet[] = $h3Tags[$i];
-						foreach( pq("div#{$sectionName}_{$i}:first") as $temp){
+						foreach ( pq("div#{$sectionName}_{$i}:first") as $temp){
 							$overallSet[] = $temp;
 						}
 						try {
@@ -314,8 +324,16 @@ class WikihowArticleHTML {
 					//now we should have all the alt methods,
 					//let's create the links to them under the headline
 					self::$methodCount = count($altMethodAnchors);
+					$anchorList = self::getAnchorList( $altMethodAnchors, $altMethodNames );
 
-					WikihowToc::setMethods($altMethodAnchors, $altMethodNames);
+					if ($isNewTocArticle) {
+						WikihowToc::setMethods($altMethodAnchors, $altMethodNames);
+					} else {
+						//chance to reformat the alt method_toc before output
+						//using for running tests
+						wfRunHooks('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
+						pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}</p>");
+					}
 				}
 				else {
 					if ($set) {
@@ -327,7 +345,7 @@ class WikihowArticleHTML {
 
 					$overallSet = array();
 					$overallSet[] = $node;
-					foreach( pq("div#{$sectionName}:first") as $temp){
+					foreach ( pq("div#{$sectionName}:first") as $temp){
 						$overallSet[] = $temp;
 					}
 
@@ -470,7 +488,7 @@ class WikihowArticleHTML {
 
 		// if we find videos, then replace the images with videos
 		$videoCount = 0;
-		foreach( pq( '.m-video' ) as $node ) {
+		foreach ( pq( '.m-video' ) as $node ) {
 			$mVideo = pq( $node );
 			$videoCount++;
 
@@ -520,7 +538,7 @@ class WikihowArticleHTML {
 					$videoContainer->after( '<div class="video-ad-container"></div>' );
 					$mVideo->attr( 'data-ad-type', 'linear' );
 				}
-			} else if ( $videoCount < 2 ) {
+			} elseif ( $videoCount < 2 ) {
 				if ( $title && $title->getArticleID() == 1630 ) {
 					$videoContainer->after( '<div class="video-ad-container"></div>' );
 					$mVideo->attr( 'data-ad-type', 'nonlinear' );
@@ -566,12 +584,24 @@ class WikihowArticleHTML {
 						pq("#summary_wrapper")->appendTo("#quick_summary_section");
 					}
 
-					//tell the TOC there's a summary
-					WikihowToc::setSummary();
+					if ($isNewTocArticle) {
+						//tell the TOC there's a summary
+						WikihowToc::setSummary();
+					} else {
+						//if there's no TOC, make one now
+						if (pq("#method_toc")->length <= 0) {
+							$specialAnchorArray = [Html::element( 'span', [], wfMessage('toc_title') )];
+							wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$specialAnchorArray ) );
+							$specialAnchorList = implode( "" , $specialAnchorArray );
+							pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$specialAnchorList}</p>");
+						}
+
+						class_exists('SummarySection') && SummarySection::addDesktopTOCItems();
+					}
 				}
 			}
 			$headingImages = pq( $headingId . ' .mwimg' )->addClass( 'summarysection' );
-			foreach( $headingImages as $headingImage ) {
+			foreach ( $headingImages as $headingImage ) {
 				$headingImage = pq($headingImage)->remove();
 				if ( $headingImage ) {
 					pq( $headingId )->prepend( pq($headingImage));
@@ -673,7 +703,7 @@ class WikihowArticleHTML {
 		wfProfileIn( __METHOD__ . "-paragraphs" );
 
 		//add line breaks between the p tags
-		foreach(pq("p") as $paragraph) {
+		foreach (pq("p") as $paragraph) {
 			$sibling = pq($paragraph)->next();
 			if (!pq($sibling)->is("p"))
 				continue;
@@ -709,7 +739,7 @@ class WikihowArticleHTML {
 			pq( "#video" )->find( 'table:first' )->remove();
 		}
 
-		foreach(pq(".embedvideo_gdpr:first") as $node) {
+		foreach (pq(".embedvideo_gdpr:first") as $node) {
 			pq( $node )->parents( '.section:first' )->find( '.mw-headline:first' )->after( pq( $node )->html() );
 		}
 		pq( ".embedvideo_gdpr" )->remove();
@@ -737,7 +767,7 @@ class WikihowArticleHTML {
 		if (class_exists('ArticleQuizzes')) {
 			$articleQuizzes = new ArticleQuizzes($title->getArticleID());
 			$count = 1;
-			foreach(pq(".steps h3") as $headline) {
+			foreach (pq(".steps h3") as $headline) {
 				$methodType = pq(".altblock", $headline)->text();
 				$methodTitle = pq(".mw-headline", $headline)->html();
 				$quiz = $articleQuizzes->getQuiz($methodTitle, $methodType);
@@ -798,7 +828,9 @@ class WikihowArticleHTML {
 			Donate::addDonateSectionToArticle();
 		}
 
-		WikihowToc::addToc();
+		if ($isNewTocArticle) {
+			WikihowToc::addToc();
+		}
 
 		//english only test
 		if ($langCode == "en" && ArticleTagList::hasTag("test_bold_1", $title->getArticleID())) {
@@ -1191,7 +1223,7 @@ class WikihowArticleHTML {
 		if ($i !== false) {
 			$j = strpos($body, '<div id=', $i+5); //find the position of the next div. Starting after the '<div ' (5 characters)
 			$sub = "sd_"; //want to skip over the samples section if they're there
-			while($j !== false && $sub == "sd_") {
+			while ($j !== false && $sub == "sd_") {
 				$sub = substr($body, $j+9, 3); //find the id of the next div section 9=strlen(<div id="), 3=strlen(sd_)
 				$j = strpos($body, '<div id=', $j+12); //find the position of the next div. Starting after the '<div id="sd_' (12 characters)
 			}
@@ -1477,9 +1509,9 @@ class WikihowArticleHTML {
 			$host = explode( '.', $host );
 			if ( count( $host ) > 2 ) {
 				$host = $host[1] . '.' . $host[2];
-			} else if ( count( $host ) == 2 ) {
+			} elseif ( count( $host ) == 2 ) {
 				$host = $host[0] . '.' . $host[1];
-			} else if ( count( $host ) == 1 ) {
+			} elseif ( count( $host ) == 1 ) {
 				$host = $host[0];
 			} else {
 				$host = '';
@@ -1592,5 +1624,27 @@ class WikihowArticleHTML {
 			$replaceText = pq( $isbn )->text();
 			pq( $isbn )->replaceWith( $replaceText );
 		}
+	}
+
+	public static function getAnchorList( $altMethodAnchors, $altMethodNames ) {
+		$anchorList = [];
+		for ( $i = 0; $i < count( $altMethodAnchors ); $i++ ) {
+			$methodName = pq( '<div>' . $altMethodNames[$i] . '</div>' )->text();
+			// remove any reference notes
+			$methodName = preg_replace( "@\[\d{1,3}\]$@", "", $methodName );
+			if ( $methodName == "" ) {
+				continue;
+			}
+			$methodName = htmlspecialchars( $methodName );
+			//use rawElement so any special characters from the method name shows up correctly in the TOC
+			$anchorList[] = Html::rawElement( 'a', ['href' => "#{$altMethodAnchors[$i]}_sub"], $methodName );
+		}
+
+		// A hook to add anchors to the TOC.
+		wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$anchorList ) );
+
+		$result = Html::element( 'span', [], wfMessage('toc_title') );
+		$result .= implode( "" , $anchorList );
+		return $result;
 	}
 }

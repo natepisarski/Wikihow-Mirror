@@ -29,7 +29,10 @@ class TitleSearch extends UnlistedSpecialPage {
 
 		foreach ($searchResults as $title) {
 			$page = WikiPage::factory($title);
-			$isFeatured = $dbr->selectField('page','page_is_featured', array('page_id' => $title->getArticleId()), __METHOD__);
+			$isFeatured = $dbr->selectField('page',
+				'page_is_featured',
+				array('page_id' => $title->getArticleId()),
+				__METHOD__);
 			$results[] = array( $title->getDBKey(), $page->getCount(), $page->getContent()->getSize(), $isFeatured );
 		}
 
@@ -58,13 +61,13 @@ class TitleSearch extends UnlistedSpecialPage {
 		$ss->load();
 
 		$search = $ss->getSearchEngine();
-    $search->setLimitOffset( $limit, 0 );
-    $search->setNamespaces( array( NS_MAIN ) );
-    $term = $search->transformSearchTerm( $term );
+		$search->setLimitOffset( $limit, 0 );
+		$search->setNamespaces( array( NS_MAIN ) );
+		$term = $search->transformSearchTerm( $term );
 
-    wfRunHooks( 'SpecialSearchSetupEngine', array( $ss, 'default', $search ) );
-    $titleMatches = $search->searchText( $term );
-    $results = array();
+		wfRunHooks( 'SpecialSearchSetupEngine', array( $ss, 'default', $search ) );
+		$titleMatches = $search->searchText( $term );
+		$results = array();
 
 		if ( $titleMatches ) {
 			$matches = $titleMatches;
@@ -73,43 +76,43 @@ class TitleSearch extends UnlistedSpecialPage {
 			while ( $m ) {
 				$results[] = $m->getTitle();
 				$m = $matches->next();
-      }
+			}
+		}
 
-    }
-
-    return $results;
-  }
+		return $results;
+	}
 
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgLanguageCode;
+		$this->getOutput()->setArticleBodyOnly(true);
 
 		$t1 = time();
-		$search = $wgRequest->getVal("qu");
-		$limit = $wgRequest->getInt("lim", 10);
+		$search = $this->getRequest()->getVal("qu");
+		$limit = $this->getRequest()->getInt("lim", 10);
 
-		if ($search == "") exit;
+		if ($search) {
+			return;
+		}
 
-		$search = strtolower($search);
-		$howto = strtolower($this->msg('howto', ''));
+		$search = mb_strtolower($search);
+		$howto = mb_strtolower($this->msg('howto', ''));
 
-		// hack for german site
-		if ($wgLanguageCode != 'de') {
-			if (strpos($search, $howto) === 0) {
-				$search = substr($search, 6);
+		// hack for german, dutch sites
+		if ( !in_array( $this->getLanguage()->getCode(), ['de', 'nl'] ) ) {
+			if (mb_strpos($search, $howto) === 0) {
+				$search = mb_substr( $search, mb_strlen($howto) );
 				$search = trim($search);
 			}
 		}
 
 		$t = Title::newFromText($search, 0);
 		if (!$t) {
-			echo 'WH.AC.sendRPCDone(frameElement, "' . $search . '", new Array(""), new Array(""), new Array(""));';
-			$wgOut->disable();
+			print 'WH.AC.sendRPCDone(frameElement, "' . $search . '", new Array(""), new Array(""), new Array(""));';
 			return;
 		}
 		$dbkey = $t->getDBKey();
 
 		// do a case insensitive search
-		echo 'WH.AC.sendRPCDone(frameElement, "' . $search . '", new Array(';
+		print 'WH.AC.sendRPCDone(frameElement, "' . $search . '", new Array(';
 
 		$array = "";
 		$titles = $this->matchKeyTitles($search, $limit);
@@ -117,10 +120,12 @@ class TitleSearch extends UnlistedSpecialPage {
 			$t = Title::newFromDBkey($con[0]);
 			$array .= '"' . str_replace("\"", "\\\"", $t->getFullText()) . '", ' ;
 		}
-		if (strlen($array) > 2) $array = substr($array, 0, strlen($array) - 2); // trim the last comma
-		echo $array;
+		if (mb_strlen($array) > 2) {
+			$array = mb_substr($array, 0, mb_strlen($array) - 2); // trim the last comma
+		}
+		print $array;
 
-		echo '), new Array(';
+		print '), new Array(';
 
 		$array = "";
 		foreach ($titles as $con) {
@@ -132,21 +137,24 @@ class TitleSearch extends UnlistedSpecialPage {
 			else
 			$array .=  "\" $counter " . wfMessage('ts_views') . " $words " . wfMessage('ts_words') . "\", ";
 		}
-		if (strlen($array) > 2) $array = substr($array, 0, strlen($array) - 2); // trim the last comma
-		echo $array;
-		echo '), new Array(""));';
-		$wgOut->disable();
+		if (mb_strlen($array) > 2) {
+			$array = mb_substr($array, 0, mb_strlen($array) - 2); // trim the last comma
+		}
+		print $array;
+		print '), new Array(""));';
 	}
 
 	// used in a number of places to generate a title
 	public static function generateSearchKey($text) {
 		$stopWords = self::getSearchKeyStopWords();
 
-		$text = strtolower($text);
+		$text = mb_strtolower($text);
 		$tokens = explode(' ', $text);
 		$ok_words = array();
 		foreach ($tokens as $t) {
-			if ($t == '' || isset($stopWords[$t]) ) continue;
+			if ($t == '' || isset($stopWords[$t]) ) {
+				continue;
+			}
 			$ok_words[] = $t;
 		}
 		sort($ok_words);

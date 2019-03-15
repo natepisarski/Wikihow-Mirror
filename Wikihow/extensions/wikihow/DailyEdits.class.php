@@ -1,4 +1,12 @@
-<?
+<?php
+/*
+ * Contains a static method to store pages that have been edited or deleted for a given day.
+ * See maintenance/trimDailyEditsTable.php for maintenance of the table
+ *
+ * IMPORTANT:  This class should be included after GoodRevision.class.php to ensure a last good
+ * revision id is present when consumers of this table attempt to use it
+ */
+
 /** db schema:
 daily_edits | CREATE TABLE `daily_edits` (
   `de_page_id` int(8) unsigned NOT NULL,
@@ -7,14 +15,6 @@ daily_edits | CREATE TABLE `daily_edits` (
   PRIMARY KEY  (`de_page_id`,`de_edit_type`),
   KEY `de_timestamp` (`de_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1
-*/
-
-/*
-* Contains a static method to store pages that have been edited or deleted for a given day.
-* See maintenance/trimDailyEditsTable.php for maintenance of the table
-*
-* IMPORTANT:  This class should be included after GoodRevision.class.php to ensure a last good
-* revision id is present when consumers of this table attempt to use it
 */
 
 class DailyEdits {
@@ -44,7 +44,7 @@ class DailyEdits {
 
 	public static function onTitleMoveComplete(&$ot, &$nt, &$user, $oldid, $newid) {
 		// $nt represents the original article, aid with a new title. See hook documentation for more info
-		if ($nt && $nt->exists() && $nt->getNamespace() == NS_MAIN) {
+		if ($nt && $nt->exists() && $nt->inNamespace(NS_MAIN)) {
 			try {
 				$aid = $nt->getArticleId();
 				$ts = wfTimestampNow();
@@ -61,7 +61,7 @@ class DailyEdits {
 	public static function onMarkPatrolledDB(&$rcid, &$article) {
 		if ($article) {
 			$t = $article->getTitle();
-			if ($t && $t->exists() && $t->getNamespace() == NS_MAIN) {
+			if ($t && $t->exists() && $t->inNamespace(NS_MAIN)) {
 				try {
 					$aid = $t->getArticleId();
 					$ts = wfTimestampNow();
@@ -91,7 +91,7 @@ class DailyEdits {
 	}
 
 	public static function onArticleUndelete($t, $create) {
-		if ($t && $t->getArticleId() > 0  && $t->getNamespace() == NS_MAIN) {
+		if ($t && $t->getArticleId() > 0  && $t->inNamespace(NS_MAIN)) {
 			try {
 				$dbw = wfGetDB(DB_MASTER);
 				$aid = $t->getArticleId();

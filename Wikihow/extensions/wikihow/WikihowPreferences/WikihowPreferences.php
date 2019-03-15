@@ -5,8 +5,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 	die( 1 );
 }
 
-$wgAutoloadClasses['WikihowPreferences'] = dirname( __FILE__ ) . '/WikihowPreferences.class.php';
+$wgAutoloadClasses['WikihowPreferences'] = __DIR__ . '/WikihowPreferences.class.php';
 
 $wgHooks['GetPreferences'][]	= 'WikihowPreferences::getPreferences';
 $wgHooks['UserResetAllOptions'][] = 'WikihowPreferences::userResetAllOptions';
-$wgExtensionMessagesFiles['WikihowPreferences'] = dirname(__FILE__) . '/WikihowPreferences.i18n.php';
+$wgExtensionMessagesFiles['WikihowPreferences'] = __DIR__ . '/WikihowPreferences.i18n.php';

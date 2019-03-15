@@ -12,6 +12,6 @@ $wgExtensionCredits['api'][] = array(
   'author' => 'Gershon Bialer'
 );
 
-$wgAutoloadClasses['ApiFlavius'] = dirname( __FILE__ ) . '/ApiFlavius.body.php';
+$wgAutoloadClasses['ApiFlavius'] = __DIR__ . '/ApiFlavius.body.php';
 
 $wgAPIModules['flavius'] = 'ApiFlavius';

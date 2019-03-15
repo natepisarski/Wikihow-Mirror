@@ -145,8 +145,8 @@ class SocialProofStats extends ContextSource {
 	private static function isAllowedHelpfulnessCategory( $categoryTree = null ) {
 		$restricted = explode( "\n", ConfigStorage::dbGetConfig( 'restricted-sp-help-categories' ) );
 		if ( !$categoryTree ) {
-			$parentTree = Categoryhelper::getCurrentParentCategoryTree();
-			$categoryTree = Categoryhelper::cleanCurrentParentCategoryTree( $parentTree );
+			$parentTree = CategoryHelper::getCurrentParentCategoryTree();
+			$categoryTree = CategoryHelper::cleanCurrentParentCategoryTree( $parentTree );
 		}
 		$intersection = array_intersect( $restricted, $categoryTree );
 
@@ -177,8 +177,8 @@ class SocialProofStats extends ContextSource {
 		$expertInfo = $this->getVerification($is_mobile,  $pageId, $requestedRev, $latestRev, $goodRev );
 		$data = !empty($expertInfo) ? array_pop( $expertInfo ) : null;
 
-		if ($data && $data->name) {
-			$this->verifierInfo = VerifyData::getVerifierInfoByName( $data->name );
+		if ($data && $data->verifierId) {
+			$this->verifierInfo = VerifyData::getVerifierInfoById( $data->verifierId );
 		}
 
 		$this->verifierType = self::mapVerifyDataToVerifyType($data, $pageId);
@@ -280,7 +280,7 @@ class SocialProofStats extends ContextSource {
 	private static function mapVerifyDataToVerifyType($verify_data, $pageId) {
 
 		if (!empty($verify_data)) {
-			switch($verify_data->worksheetName) {
+			switch ($verify_data->worksheetName) {
 				case 'expert':
 					return self::VERIFIER_TYPE_EXPERT;
 				case 'academic':
@@ -311,7 +311,7 @@ class SocialProofStats extends ContextSource {
 	private static function mapVerifyDataToVerifyTypeSpreadsheetOnly($verify_data) {
 
 		if (!empty($verify_data)) {
-			switch($verify_data->worksheetName) {
+			switch ($verify_data->worksheetName) {
 				case 'expert':
 					return self::VERIFIER_TYPE_EXPERT;
 				case 'academic':
@@ -506,8 +506,8 @@ class SocialProofStats extends ContextSource {
 		$vars = array();
 		$stats['authors'] = ArticleAuthors::getAuthorHeaderSidebar();
 
-		EasyTemplate::set_path( dirname( __FILE__ ).'/' );
-		return EasyTemplate::html( 'socialproof.verify', $vars );
+		EasyTemplate::set_path( __DIR__.'/' );
+		return EasyTemplate::html( 'socialproof.verify.tmpl.php', $vars );
 	}
 
 	public static function getIntroMessage(string $vType): string {
@@ -566,10 +566,10 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private function getSectionName($is_mobile): string {
-		if(self::isSpecialInline()) {
+		if (self::isSpecialInline()) {
 			return wfMessage('Sp_inline_expert_label')->text();
 		}
-		if(SocialStamp::isNotable()) {
+		if (SocialStamp::isNotable()) {
 			return wfMessage( 'ss_notable')->text();
 		}
 
@@ -670,7 +670,7 @@ class SocialProofStats extends ContextSource {
 
 		$vType = self::mapVerifyDataToVerifyTypeSpreadsheetOnly($vData);
 
-		if($vType != "") {
+		if ($vType != "") {
 			//did we find one? If so, set it in the array
 			$verifiers[$vType] = $vData;
 		}

@@ -32,7 +32,7 @@ class TipsPatrol extends SpecialPage {
 		}
 
 		if ($user->isAnon() || self::isBlockedFromTipsPatrol($user)) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -99,7 +99,7 @@ class TipsPatrol extends SpecialPage {
 
 		WikihowSkinHelper::maybeAddDebugToolbar($out);
 
-		EasyTemplate::set_path(dirname(__FILE__));
+		EasyTemplate::set_path(__DIR__);
 		$vars = array();
 		$vars['tip_skip_title'] = wfMessage('tip_skip_title')->text();
 		$vars['tip_keep_title'] = wfMessage('tip_keep_title')->text();
@@ -192,7 +192,7 @@ CREATE TABLE `tipspatrol_views` (
 				$target = $target - $coachedCount;
 				$p = 100 - 100 * $target / ($firstSectionSize - $patrolledCount);
 			}
-		} else if ($patrolledCount <= $secondSectionSize) {
+		} elseif ($patrolledCount <= $secondSectionSize) {
 			// show a tip every 15 tips or so
 			$p = 85;
 		}
@@ -254,7 +254,7 @@ CREATE TABLE `tipspatrol_views` (
 		$parserOutput = $out->parse($revision->getText(), $title, $popts);
 
 		$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
-		
+
 		$content['article'] = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads', 'ns' => NS_MAIN, 'magic-word' => $magic));
 		$content['tip'] = $row->tpt_tip;
 		$content['tipId'] = $row->tpt_id;
@@ -350,11 +350,11 @@ CREATE TABLE `tipspatrol_views` (
 			if (!$exists) {
 				// send a talk message to the user telling them they failed
 				$from_user = User::newFromName('Patrol-Coach');
-				$comment = "Oops! It looks like you accidentally added a less helpful tip while working on Tips Patrol just now. 
+				$comment = "Oops! It looks like you accidentally added a less helpful tip while working on Tips Patrol just now.
 					That's okay though; you're still learning, and it can be tricky at first!\r\n
-					If you haven't already, read our article on [[Use the Tips Patrol Tool on wikiHow|How to Use the Tips Patrol Tool on wikiHow]] and 
-					give it another try! If you have any questions about adding tips, don't hesitate to reach out to the [[wikiHow_talk:Help-Team|Help Team]]. 
-					And remember, if you're not sure what to do, just press the \"skip\" 
+					If you haven't already, read our article on [[Use the Tips Patrol Tool on wikiHow|How to Use the Tips Patrol Tool on wikiHow]] and
+					give it another try! If you have any questions about adding tips, don't hesitate to reach out to the [[wikiHow_talk:Help-Team|Help Team]].
+					And remember, if you're not sure what to do, just press the \"skip\"
 					button and you'll do fine :)\r\n
 					The Patrol Coach";
 				Misc::adminPostTalkMessage($user, $from_user, $comment);
@@ -582,7 +582,7 @@ CREATE TABLE `tipspatrol_views` (
 				if (self::tipAlreadyAdded($tipId, $tip, $section[0])) {
 					return false;
 				}
-				
+
 				//make a log for this
 				$logPage = new LogPage('newtips', false);
 				$logData = array($tipId);
@@ -595,7 +595,7 @@ CREATE TABLE `tipspatrol_views` (
 
 				// the save hook will log this tip being approved
 				$success = $article->doEdit($newText, wfMessage('newtips-article-edit-entry_tp')->text());
-				
+
 				return $success;
 			}
 		}
@@ -603,19 +603,19 @@ CREATE TABLE `tipspatrol_views` (
 
 	public function addToQG($tipId, $articleId, $tip) {
 		$title = Title::newFromID($articleId);
-		if ($title) { 
+		if ($title) {
 			$article = new Article($title);
 			if ($article) {
 				//Add it to the QG queue
 				$l = new QCRuleTip($article, $tipId);
-				$qcId = $l->process();	
-				
+				$qcId = $l->process();
+
 				// //log it
 				// $logPage = new LogPage('newtips', false);
 				// $logData = array($tipId);
 				// $logMsg = wfMessage('newtips-sentToQG-logentry', $title->getFullText(), $tip)->text();
 				// $logS = $logPage->addEntry("Added", $title, $logMsg, $logData);
-				
+
 				//add to tips log table tool
 				$this->logTip($tipId, self::TIP_ACTION_DEFAULT, $tip, $qcId);
 				return true;
@@ -635,7 +635,7 @@ CREATE TABLE `tipspatrol_views` (
 	}
 
 	function logTip($tipId, $tipAction, $newtip=null, $qcId = null) {
-		
+
 		$userId = $this->getUser()->getID();
 
 		$row = TipsPatrol::getTipRow($tipId);

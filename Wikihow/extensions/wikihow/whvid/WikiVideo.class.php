@@ -23,7 +23,7 @@ class WikiVideo {
 			self::$s3 =  new S3(WH_AWS_WIKIVIDEO_PROD_ACCESS_KEY, WH_AWS_WIKIVIDEO_PROD_SECRET_KEY);
 		}
 		return self::$s3;
-		
+
 	}
 	/*
 	* Returns the full path for a file if it exists, '' otherwise
@@ -42,8 +42,8 @@ class WikiVideo {
 	/*
 	* Copies file from an amazon bucket to the prod bucket. Will determine
 	* appropriate hashed path given filename.
-	* 
-	* Returns an associative array with an 'error' and 'filePath' key. 
+	*
+	* Returns an associative array with an 'error' and 'filePath' key.
 	* Returns an error if a file exists with the given filename.
 	*/
 	public static function copyFileToProd($srcBucket, $srcUri, $filename) {
@@ -55,7 +55,7 @@ class WikiVideo {
 
 		$s3 = self::getS3();
 		$bucket = self::getBucket();
-		$uri = WHVid::getVidFilePath($filename); 
+		$uri = WHVid::getVidFilePath($filename);
 		$result = $s3->copyObject($srcBucket, $srcUri, $bucket, $uri, S3::ACL_PUBLIC_READ);
 		if (!$result) {
 			$ret['error'] = "Unable to copy $filename to S3 path $uri";

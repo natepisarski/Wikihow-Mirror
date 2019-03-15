@@ -1,5 +1,5 @@
 <?php
-	
+
 	$messages = array();
 	$messages['en'] = array(
 		"nfd" => "NFD Guardian",
@@ -30,4 +30,4 @@
 		"nfd_keep_log_message" => "$4 was reviewed for deletion on $1 and the decision was to keep the article. $2 voted to keep the article. $3 voted to delete the article.",
 		"nfd_dropdown_text" => "Select NFD type: ",
 		"NFDAdvanced" => "NFD Articles requiring advanced attention"
-	); 
+	);

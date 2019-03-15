@@ -18,7 +18,7 @@ $wgSpecialPages['RequestTopic'] = 'RequestTopic';
 $wgSpecialPages['SuggestCategories'] = 'SuggestCategories';
 $wgSpecialPages['YourArticles'] = 'YourArticles';
 
-$dir = dirname(__FILE__) . '/';
+$dir = __DIR__ . '/';
 
 $wgExtensionMessagesFiles['ListRequestedTopics'] =
 	$wgExtensionMessagesFiles['ManageSuggestedTopics'] =

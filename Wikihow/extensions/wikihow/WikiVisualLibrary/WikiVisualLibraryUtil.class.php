@@ -25,7 +25,7 @@ class Util {
 
 	/**
 	 * @var string the table in which wikiVisual Library assets are indexed.
-	 * 
+	 *
 	 * @see WVL\Model
 	 */
 	const DB_TABLE_ASSETS = 'wikivisual_library_asset';
@@ -82,7 +82,7 @@ class Util {
 
 	/**
 	 * @var string default sort order strategy.
-	 * 
+	 *
 	 * @see WVL\Model::getSortStrategy()
 	 */
 	const SORT_ORDER_DEFAULT = 'title';

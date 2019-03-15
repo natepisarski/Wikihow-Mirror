@@ -73,7 +73,7 @@
 <script type="text/javascript">
 
 function calc_uk(lbs,oz,karat) {
-    if(oz <= 0 && lbs <=0){
+    if (oz <= 0 && lbs <=0){
         $("#result_si,#result_uk").empty().whLabel({value : "Please, fill out all required fields on the left side and then you see the result here automatically", lines: 4, fade: false, startFontSize: 16});
         return;
     }
@@ -82,7 +82,7 @@ function calc_uk(lbs,oz,karat) {
 }
 
 function calc_si(weight,karat) {
-    if(weight <= 0) {
+    if (weight <= 0) {
         $("#result_si,#result_uk").empty().whLabel({value : "Please, fill out all required fields on the left side and then you see the result here automatically", lines: 4, fade: false, startFontSize: 16});
         return;
     }
@@ -109,7 +109,7 @@ function tabs_switch(a) {
         
         $("#oz").empty().whUpDown({units:"oz", width: 150, value: 0, min: 0, max: 16, maxLength: 4, cut: 4, fixFloat: 1, resetToZero: true, onChange: function(element,value){
 
-            if(value >= 16) {
+            if (value >= 16) {
                 console.log(">16");
                 lbs++;
                 oz=0;

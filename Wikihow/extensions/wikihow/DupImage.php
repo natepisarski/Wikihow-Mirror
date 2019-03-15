@@ -2,4 +2,4 @@
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
-$wgAutoloadClasses['DupImage'] = dirname(__FILE__) . '/DupImage.class.php';
+$wgAutoloadClasses['DupImage'] = __DIR__ . '/DupImage.class.php';

@@ -4,10 +4,10 @@
  * @author Jim R. Wilson
  * @version 0.1.2
  * @copyright Copyright (C) 2007 Jim R. Wilson
- * @license The MIT License - http://www.opensource.org/licenses/mit-license.php 
+ * @license The MIT License - http://www.opensource.org/licenses/mit-license.php
  * -----------------------------------------------------------------------
  * Description:
- *     This is a MediaWiki extension which adds a parser function for embedding 
+ *     This is a MediaWiki extension which adds a parser function for embedding
  *     video from popular sources (configurable).
  * Requirements:
  *     MediaWiki 1.6.x, 1.9.x, 1.10.x or higher
@@ -27,28 +27,28 @@
  *         Initial release.
  * -----------------------------------------------------------------------
  * Copyright (c) 2007 Jim R. Wilson
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy 
- * of this software and associated documentation files (the "Software"), to deal 
- * in the Software without restriction, including without limitation the rights to 
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of 
- * the Software, and to permit persons to whom the Software is furnished to do 
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all 
+ *
+ * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
- * OTHER DEALINGS IN THE SOFTWARE. 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  * -----------------------------------------------------------------------
  */
- 
+
 # Confirm MW environment
 if ( !defined( 'MEDIAWIKI' ) ) {
 	exit(1);
@@ -64,7 +64,7 @@ $wgExtensionCredits['parserhook'][] = array(
 );
 
 
-$wgExtensionMessagesFiles['EmbedVideo'] = dirname(__FILE__) . '/EmbedVideo.i18n.php';
+$wgExtensionMessagesFiles['EmbedVideo'] = __DIR__ . '/EmbedVideo.i18n.php';
 
 $wgHooks['LanguageGetMagic'][] = 'wfEmbedVideoLanguageGetMagic';
 
@@ -78,7 +78,7 @@ $wgEmbedVideoServiceList = array(
 		'url' => '//www.dailymotion.com/embed/video/$1'
 	),
 	'funnyordie' => array(
-		'url' => 
+		'url' =>
 			'//www.funnyordie.com/embed/$1'
 	),
 	'googlevideo' => array(
@@ -110,19 +110,19 @@ $wgEmbedVideoServiceList = array(
 	'howcast' => array (
 				'url' => '//player.ooyala.com/iframe.html?ec=$1&pbid=5d8891bc445c4156a75933fbf4bcfc9a&platform=html5-fallback&docUrl=http%3A%2F%2Fwww.wikihow.com&options[liverail-ads-manager.LR_PUBLISHER_ID]=6283&options[liverail-ads-manager.LR_PARTNERS]=6929',
 			),
-	'wonderhowto' => array( 
-			'id_pattern' => '',	
+	'wonderhowto' => array(
+			'id_pattern' => '',
 			'url' => '',
 			),
 );
 
 //</source>
 
-  function wfEmbedVideoSetParserFunction () { 
+  function wfEmbedVideoSetParserFunction () {
 		# Setup parser hook
 		global $wgParser;
 		$wgParser->setFunctionHook( 'ev', 'wfEmbedVideoParserFunction' );
-		return true;    
+		return true;
 	}
 
 	function wfEmbedVideoLanguageGetMagic( &$magicWords ) {
@@ -142,28 +142,28 @@ $wgEmbedVideoServiceList = array(
 		global $wgEmbedVideoMinWidth, $wgEmbedVideoMaxWidth;
 		if (!is_numeric($wgEmbedVideoMinWidth) || $wgEmbedVideoMinWidth<100) $wgEmbedVideoMinWidth = 100;
 		if (!is_numeric($wgEmbedVideoMaxWidth) || $wgEmbedVideoMaxWidth>1024) $wgEmbedVideoMaxWidth = 1024;
-		
+
 		global $wgEmbedVideoServiceList;
 		$service = $wgEmbedVideoServiceList[$params['service']];
 		if (!$service) return '<div class="errorbox">'.wfMessage('embedvideo-unrecognized-service', @htmlspecialchars($params['service']))->text().'</div>';
-		
+
 		$id = htmlspecialchars($params['id']);
 		$idpattern = ( isset($service['id_pattern']) ? $service['id_pattern'] : '%[^A-Za-z0-9_\\-]%' );
 #echo wfBacktrace(); print_r($params); echo $id; exit;
 		if ($id==null || ($idpattern != '' &&preg_match($idpattern,$id))) {
 			return '<div class="errorbox">'.wfMessage('embedvideo-bad-id', $id, @htmlspecialchars($params['service']))->inContentLanguage()->text().'</div>';
 		}
-	 
+
 		# Build URL and output embedded flash object
 		$ratio = 425 / 350;
 		$width = 425;
-		
+
 		if ($params['width']!==null) {
 			if (
-				!is_numeric($params['width']) || 
+				!is_numeric($params['width']) ||
 				$params['width'] < $wgEmbedVideoMinWidth ||
 				$params['width'] > $wgEmbedVideoMaxWidth
-			) return 
+			) return
 				'<div class="errorbox">'.
 				wfMessage('embedvideo-illegal-width', @htmlspecialchars($params['width']))->inContentLanguage()->text().
 				'</div>';
@@ -172,24 +172,24 @@ $wgEmbedVideoServiceList = array(
 		$height = round($width / $ratio);
 
 		$url = wfMsgReplaceArgs($service['url'], array($id, $width, $height));
-		
+
 		if ($params['service'] == 'youtube' || $params['service'] == 'whyoutube') {
 			$pOut = $parser->getOutput();
 			$pOut->addOutputHook( 'ampEmbedVideoParserOutputHook' );
 		}
 		if ($params['service'] == 'videojug') {
 			return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-videojug', $url, $width, $height)->inContentLanguage()->text());
-		} else if ($params['service'] == 'popcorn') {
+		} elseif ($params['service'] == 'popcorn') {
 				return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-popcorn', $url, $width, $height)->inContentLanguage()->text());
-		} else if ($params['service'] == 'wonderhowto') {
-			$id = str_replace("&61;", "=", htmlspecialchars_decode($id)); 
-			// youtube now requires a ? after the http://www.youtube.com/v/[^?&]+). If you use 
+		} elseif ($params['service'] == 'wonderhowto') {
+			$id = str_replace("&61;", "=", htmlspecialchars_decode($id));
+			// youtube now requires a ? after the http://www.youtube.com/v/[^?&]+). If you use
 			// an ampersand things will autoplay.  Very bad!
-			$id = preg_replace("@(https?://www.youtube.com/v/[^?&]+)(&)autoplay=@", "$1?", $id); 
+			$id = preg_replace("@(https?://www.youtube.com/v/[^?&]+)(&)autoplay=@", "$1?", $id);
 			return $parser->insertStripItem( $id );
-		} else if ($params['service'] == 'howcast') {
+		} elseif ($params['service'] == 'howcast') {
 			return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-howcast', $url, $width, $height)->inContentLanguage()->text());
-		} else if ($params['service'] == '5min') {
+		} elseif ($params['service'] == '5min') {
 			return "";
 		} else {
 			$gdprWarningText = wfMessage( 'embedvideo-gdpr' )->text();

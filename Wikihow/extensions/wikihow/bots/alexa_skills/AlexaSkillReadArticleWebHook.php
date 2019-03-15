@@ -37,7 +37,7 @@ class AlexaSkillReadArticleWebHook extends UnlistedSpecialPage {
 	public static function fatalHandler() {
 		wfDebugLog(self::LOG_GROUP, var_export('Last error on line following', true), true);
 		$error = error_get_last();
-		if( $error !== NULL) {
+		if ( $error !== NULL) {
 			$errno   = $error["type"];
 			$errfile = $error["file"];
 			$errline = $error["line"];

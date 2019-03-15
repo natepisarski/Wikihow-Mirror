@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class for reconciling the article titles in the Dedup system, and article titles 
+ * Class for reconciling the article titles in the Dedup system, and article titles
  * on the site.
  */
 class TitleReconcile
@@ -19,7 +19,7 @@ class TitleReconcile
 		}
 		foreach($deletedTitles as $pageTitle) {
 			print("Removing title from system " . $pageTitle . "\n");
-			DedupQuery::removeTitle($pageTitle,$wgLanguageCode);	
+			DedupQuery::removeTitle($pageTitle,$wgLanguageCode);
 		}
 
 		// Add titles missing from our system with associated keywords
@@ -33,7 +33,7 @@ class TitleReconcile
 		foreach($missingTitles as $title) {
 			print("Adding title to system " . $title->page_title . "\n");
 			$t = Title::newFromRow($title);
-			DedupQuery::addTitle($t, $wgLanguageCode);	
+			DedupQuery::addTitle($t, $wgLanguageCode);
 		}
 
 	}

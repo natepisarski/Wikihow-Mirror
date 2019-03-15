@@ -14,19 +14,19 @@ abstract class Tabs {
 	}
 
 	protected static function getListName($title) {
-		if(!$title) {
+		if (!$title) {
 			return false;
 		}
 		$articleId = $title->getArticleId();
-		if($articleId <= 0) {
+		if ($articleId <= 0) {
 			return false;
 		}
 
-		if( !self::$configList ) {
+		if ( !self::$configList ) {
 			static::initConfigLists();
 		}
-		foreach(self::$configList as $listName) {
-			if(ArticleTagList::hasTag($listName, $articleId)) {
+		foreach (self::$configList as $listName) {
+			if (ArticleTagList::hasTag($listName, $articleId)) {
 				return $listName;
 			}
 		}

@@ -1,7 +1,7 @@
-<?
+<?php
 
 function wfGetRCPatrols($rcid, $hi, $low, $curid) {
-	$dbr = &wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_SLAVE);
 	$res = $dbr->select( 'recentchanges',
 		array('rc_id'),
 		array('rc_id <= ' . $hi,
@@ -16,4 +16,3 @@ function wfGetRCPatrols($rcid, $hi, $low, $curid) {
 	}
 	return $result;
 }
-

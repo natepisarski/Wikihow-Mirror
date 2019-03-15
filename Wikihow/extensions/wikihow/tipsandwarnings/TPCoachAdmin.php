@@ -3,4 +3,4 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['TPCoachAdmin'] = 'TPCoachAdmin';
-$wgAutoloadClasses['TPCoachAdmin'] = dirname( __FILE__ ) . '/TPCoachAdmin.body.php';
+$wgAutoloadClasses['TPCoachAdmin'] = __DIR__ . '/TPCoachAdmin.body.php';

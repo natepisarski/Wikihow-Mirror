@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'UserReviewForm',
 	'author' => 'Wilson Restrepo',
@@ -9,16 +9,16 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['UserReviewForm'] = 'UserReviewForm';
-$wgAutoloadClasses['UserReviewForm'] = dirname( __FILE__ ) . '/SpecialUserReviewForm.php';
-$wgAutoloadClasses['UserReviewImporter'] = dirname( __FILE__ ) . '/../UserReviewImporter.class.php';
-$wgAutoloadClasses['UserReview'] = dirname( __FILE__ ) . '/../UserReview.class.php';
-$wgAutoloadClasses['UserReviewTool'] = dirname( __FILE__ ) . '/../UserReviewTool.body.php';
-$wgAutoloadClasses['SubmittedUserReview'] = dirname(__FILE__) . '/model/SubmittedUserReview.php';
-$wgAutoloadClasses['URDB'] = dirname(__FILE__) . '/model/URDB.php';
+$wgAutoloadClasses['UserReviewForm'] = __DIR__ . '/SpecialUserReviewForm.php';
+$wgAutoloadClasses['UserReviewImporter'] = __DIR__ . '/../UserReviewImporter.class.php';
+$wgAutoloadClasses['UserReview'] = __DIR__ . '/../UserReview.class.php';
+$wgAutoloadClasses['UserReviewTool'] = __DIR__ . '/../UserReviewTool.body.php';
+$wgAutoloadClasses['SubmittedUserReview'] = __DIR__ . '/model/SubmittedUserReview.php';
+$wgAutoloadClasses['URDB'] = __DIR__ . '/model/URDB.php';
 
 $wgHooks['UnitTestsList'][] = array( 'SubmittedUserReview::onUnitTestsList');
 
-$wgExtensionMessagesFiles['UserReviewForm'] = dirname(__FILE__) . '/UserReviewForm.i18n.php';
+$wgExtensionMessagesFiles['UserReviewForm'] = __DIR__ . '/UserReviewForm.i18n.php';
 
 $wgResourceModules['ext.wikihow.UserReviewForm'] = [
     'localBasePath' => __DIR__ . '/',

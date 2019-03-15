@@ -7,7 +7,7 @@ class WikihowShare {
 
 		$action = self::getAction();
 
-		if(!$wgTitle->exists() || $wgTitle->getNamespace() != NS_MAIN || $action != "view" || $wgTitle->getText() == "Main-Page")
+		if (!$wgTitle->exists() || !$wgTitle->inNamespace(NS_MAIN) || $action != "view" || $wgTitle->getText() == "Main-Page")
 			return "";
 
 		$url = $wgCanonicalServer . "/" . urlencode($wgTitle->getPrefixedURL());
@@ -61,10 +61,10 @@ class WikihowShare {
 		global $wgLanguageCode, $wgContLang;
 
 		if (in_array($title->getNamespace(), array(NS_MAIN, NS_CATEGORY))) {
-			if ($title->getNamespace() == NS_MAIN) {
+			if ($title->inNamespace(NS_MAIN)) {
 
 				$file = Wikitext::getTitleImage($title);
-				if($file && isset($file)) {
+				if ($file && isset($file)) {
 					$url = "/images/" . $file->getRel();
 					if ($fromPad) {
 						$url = wfGetPad($url);
@@ -74,20 +74,20 @@ class WikihowShare {
 
 			}
 
-			$catmap = Categoryhelper::getIconMap();
+			$catmap = CategoryHelper::getIconMap();
 			// still here? use default categoryimage
 
 			// if page is a top category itself otherwise get top
 			if (isset($catmap[urldecode($title->getPartialURL())])) {
 				$cat = urldecode($title->getPartialURL());
 			} else {
-				$cat = Categoryhelper::getTopCategory($title);
+				$cat = CategoryHelper::getTopCategory($title);
 
 				//INTL: Get the partial URL for the top category if it exists
 				// For some reason only the english site returns the partial URL for getTopCategory
 				if (isset($cat) && $wgLanguageCode != 'en') {
 					$title = Title::newFromText($cat);
-					if($title != null)
+					if ($title != null)
 						$cat = $title->getPartialURL();
 				}
 			}
@@ -95,7 +95,7 @@ class WikihowShare {
 			if (isset($catmap[$cat])) {
 				$image = Title::newFromText($catmap[$cat]);
 				$file = wfFindFile($image, false);
-				if($file) {
+				if ($file) {
 					$url = "/images/" . $file->getRel();
 					if ($fromPad) {
 						$url = wfGetPad($url);

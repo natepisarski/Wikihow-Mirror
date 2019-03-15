@@ -312,8 +312,8 @@ class WatermarkSupport {
 
 				$result = $file->getHandler()->doTransform($file, $thumbPath, $thumbUrl, $params);
 				if ( get_class($result) == 	MediaTransformError) {
-					echo "there was an error processing this file \n";
-					echo $result->toText();
+					print "there was an error processing this file \n";
+					print $result->toText();
 				}
 			}
 		}

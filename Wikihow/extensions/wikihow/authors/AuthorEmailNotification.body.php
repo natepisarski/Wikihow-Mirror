@@ -430,7 +430,7 @@ class AuthorEmailNotification extends SpecialPage {
 			self::populateTrackingLinks('video', $titleLink, $editLink, $diffLink, $articleTitle, $revision, $btnLink);
 			$subject = wfMessage('aen_mod_subject_video', $articleName)->text();
 			$body = wfMessage('aen_mod_body_video1', $recipientUser->getName(), $titleLink, $editUser, $editLink, $articleName)->text();
-		} else if (stripos($comment, "categorization") !== FALSE) {
+		} elseif (stripos($comment, "categorization") !== FALSE) {
 			self::populateTrackingLinks('categorization', $titleLink, $editLink, $diffLink, $articleTitle, $revision, $btnLink);
 			$subject = wfMessage('aen_mod_subject_categorization', $articleName)->text();
 			$body = wfMessage('aen_mod_body_categorization1', $recipientUser->getName(), $titleLink, $editUser, $diffLink, $editLink, $articleName)->text();
@@ -492,7 +492,7 @@ class AuthorEmailNotification extends SpecialPage {
 		if (!$touser) return;
 
 		if ( $t->getArticleID() > 0 &&
-			$t->getNamespace() == NS_USER_TALK &&
+			$t->inNamespace(NS_USER_TALK) &&
 			$touser->getEmail() != '' &&
 			$touser->getOption('usertalknotifications') == '0'
 		) {
@@ -545,7 +545,7 @@ class AuthorEmailNotification extends SpecialPage {
 			if ($type == 'text') {
 				UserMailer::send($to, $from, $subject, $body, null, null, $category);
 				//XX HARDCODE SEND TO ELIZABETH FOR TEST
-				if($debug) {
+				if ($debug) {
 					$to = new MailAddress("elizabethwikihowtest@gmail.com");
 					UserMailer::send($to, $from, $subject, $body, null, null, $category);
 				}
@@ -554,7 +554,7 @@ class AuthorEmailNotification extends SpecialPage {
 				$content_type = "text/html; charset=UTF-8";
 				UserMailer::send($to, $from, $subject, $body, null, $content_type, $category);
 				//XX HARDCODE SEND TO ELIZABETH FOR TEST
-				if($debug) {
+				if ($debug) {
 					$to = new MailAddress ("elizabethwikihowtest@gmail.com");
 					UserMailer::send($to, $from, $subject, $body, null, $content_type, $category);
 				}
@@ -780,7 +780,6 @@ class AuthorEmailNotification extends SpecialPage {
 				<input type='button' name='aen_viewership' value='viewership email' onClick='send_test(\"viewership\");'  />\n");
 */
 
-		$dbr->freeResult($res);
 		$wgOut->addHTML("</center>\n");
 		$wgOut->addHTML("</form>\n");
 	}
@@ -822,12 +821,12 @@ class AuthorEmailNotification extends SpecialPage {
 	public function execute($par) {
 		global $wgCanonicalServer, $wgRequest, $wgOut, $wgUser;
 
-		if( $wgUser->isBlocked() ) {
+		if ( $wgUser->isBlocked() ) {
 			$wgOut->blockedPage();
 			return;
 		}
 
-		if( $wgUser->getID() == 0) {
+		if ( $wgUser->getID() == 0) {
 			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -840,7 +839,7 @@ class AuthorEmailNotification extends SpecialPage {
 		if ($action == 'Save') {
 			$articles = array();
 			$articlecount = $wgRequest->getVal( 'articlecount' );
-			for($i=1;$i<= ($articlecount + 1);$i++) {
+			for ($i=1;$i<= ($articlecount + 1);$i++) {
 				$item = $wgRequest->getVal( 'articles-'.$i );
 				if (($item != '') && ($item != 0)) {
 					array_push($articles, $item);
@@ -848,7 +847,7 @@ class AuthorEmailNotification extends SpecialPage {
 			}
 
 			self::addUserWatchBulk($articles);
-		} else if ($action == 'update') {
+		} elseif ($action == 'update') {
 			$watch = 1;
 			$watch = $wgRequest->getVal( 'watch' );
 
@@ -858,7 +857,7 @@ class AuthorEmailNotification extends SpecialPage {
 				wfDebug('Ajax call for AuthorEmailNotifications with improper parameters.');
 			}
 			return;
-		} else if ($action == 'addNotification') {
+		} elseif ($action == 'addNotification') {
 
 			$email = '';
 			$email = $wgRequest->getVal( 'email' );
@@ -867,7 +866,7 @@ class AuthorEmailNotification extends SpecialPage {
 			self::addNotification( $target, $email, $value );
 
 			return;
-		} else if ($action == 'updatePreferences') {
+		} elseif ($action == 'updatePreferences') {
 			wfDebug("AEN DEBUG in updatepreferences\n");
 			if ($wgRequest->getVal( 'dontshow' ) == 1) {
 				wfDebug("AEN DEBUG in dontshow\n");
@@ -876,7 +875,7 @@ class AuthorEmailNotification extends SpecialPage {
 				$wgUser->saveSettings();
 			}
 			return;
-		} else if ($action == 'testsend') {
+		} elseif ($action == 'testsend') {
 			//FOR TESTING
 		   $subject = "";
 		   $body = "";
@@ -884,7 +883,7 @@ class AuthorEmailNotification extends SpecialPage {
 			  $title = "Help Your Dog Lose Weight";
 			  $titlelink = "<a href='$wgCanonicalServer/Help-Your-Dog-Lose-Weight'>Help Your Dog Lose Weight</a>";
 
-			switch($target) {
+			switch ($target) {
 				case 'rs':
 					$subject = wfMessage('aen_rs_subject', $title)->text();
 					$body = wfMessage('aen_rs_body', $wgUser->getName(), $titlelink)->text();
@@ -931,7 +930,7 @@ class AuthorEmailNotification extends SpecialPage {
 	public static function getCTALink($campaign, $medium) {
 		$randAction = rand(1, 9); //chose which action to suggest to them
 
-		switch($randAction) {
+		switch ($randAction) {
 			case 1:
 				$title = "Special:CreatePage";
 				$text = "writing a new article";

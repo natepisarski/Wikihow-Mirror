@@ -6,7 +6,7 @@
  * For consistency, pass user IDs as integers and emails as strings
  */
 class UnsubscribeToken {
-	
+
 	/**
 	 * const TOKEN_LENGTH
 	 * length of the automatically generated token to be used for unsubscribing

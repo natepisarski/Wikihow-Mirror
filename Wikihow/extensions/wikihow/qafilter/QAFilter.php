@@ -9,7 +9,7 @@ $wgExtensionCredits['api'][] = [
 	'author' => 'George Bahij',
 ];
 
-$wgAutoloadClasses['ApiQAFilter'] = dirname(__FILE__) . '/ApiQAFilter.body.php';
+$wgAutoloadClasses['ApiQAFilter'] = __DIR__ . '/ApiQAFilter.body.php';
 
 $wgAPIModules['qafilter'] = 'ApiQAFilter';
 

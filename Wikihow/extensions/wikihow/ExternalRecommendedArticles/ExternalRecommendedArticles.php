@@ -55,13 +55,13 @@ class ExternalRecommendedArticles {
 		// ---------------- Do NOT change code below this line. ------------------
 		GcrABTesting.commonCode = function() {
 		  var ret = '<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"><\/script>' +
-			  '<style>' +  
+			  '<style>' +
 			  '.responsive_core { width:' + GcrABTesting.mCoReWidth + 'px;height:' + GcrABTesting.mCoReHeight +'px; }' +
 				'@media(min-width: 800px) { .responsive_core { width:' + GcrABTesting.CoReWidth + 'px;height:' + GcrABTesting.CoReHeight +'px; } }' +
 			  '<\/style>' +
 			  '<ins class="adsbygoogle responsive_core "' +
 			  'style="display:inline-block "' +
-			  'data-ad-client="' + GcrABTesting.PubCode + 
+			  'data-ad-client="' + GcrABTesting.PubCode +
 			  '" data-ad-region="gCoRe' +
 			  '" data-analytics-url-parameters="' + GcrABTesting.URLParams +
 			  '" data-content-recommendation-ui-type="' + GcrABTesting.CoReType +
@@ -75,11 +75,11 @@ class ExternalRecommendedArticles {
 		GcrABTesting.getCode = function() {
 		  var variation = GcrABTesting.pick();
 		  var TrailingScript = '<script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>';
-		  if(variation == 0) {
+		  if (variation == 0) {
 			return GcrABTesting.recHeader + GcrABTesting.commonCode() +
 				' data-ad-channel="CoRe_Exp_Image"><\/ins>' +
 				TrailingScript;
-		  } else if(variation == 1) {
+		  } else if (variation == 1) {
 			return GcrABTesting.CurrentSolution +
 				'<div style="display:none">' +
 				GcrABTesting.commonCode() +
@@ -114,7 +114,7 @@ class ExternalRecommendedArticles {
 		GcrABTesting.getCookie = function() {
 		  var name = GcrABTesting.CookieName + '=';
 		  var ca = document.cookie.split(';');
-		  for(var i = 0; i < ca.length; i++) {
+		  for (var i = 0; i < ca.length; i++) {
 			var c = ca[i].trim();
 			if (c.indexOf(name) == 0) {
 			  return c.substring(name.length, c.length);

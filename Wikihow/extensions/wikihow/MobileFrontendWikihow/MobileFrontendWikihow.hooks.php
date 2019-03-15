@@ -35,7 +35,7 @@ class MobileFrontendWikiHowHooks {
 			$mobileAllowed = false;
 
 			//we're checking this elsewhere, so if we get here, it's ok
-			if ($wgTitle && $wgTitle->getNamespace() == NS_SPECIAL) {
+			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL)) {
 				$mobileAllowed = true;
 			}
 
@@ -45,7 +45,7 @@ class MobileFrontendWikiHowHooks {
 			}
 
 			//article pages
-			if ($wgTitle && $wgTitle->getNamespace() == NS_MAIN) {
+			if ($wgTitle && $wgTitle->inNamespace(NS_MAIN)) {
 				$action = $wgRequest ? $wgRequest->getVal('action') : '';
 				if ($action != "edit") {
 					$mobileAllowed = true;
@@ -57,32 +57,32 @@ class MobileFrontendWikiHowHooks {
 			}
 
 			//user talk pages
-			if ($wgTitle && $wgTitle->getNamespace() == NS_USER_TALK) {
+			if ($wgTitle && $wgTitle->inNamespace(NS_USER_TALK)) {
 				$mobileAllowed = true;
 			}
 
 			//discussion pages for logged out users (we're 404ing instead of redirecting them now)
-			if ($wgTitle && $wgTitle->getNamespace() == NS_TALK && !$wgUser->isLoggedIn()) {
+			if ($wgTitle && $wgTitle->inNamespace(NS_TALK) && !$wgUser->isLoggedIn()) {
 				$mobileAllowed = true;
 			}
 
-			if ($wgTitle && $wgTitle->getNamespace() == NS_USER_KUDOS) {
+			if ($wgTitle && $wgTitle->inNamespace(NS_USER_KUDOS)) {
 				$mobileAllowed = true;
 			}
 
-			if ($wgTitle && $wgTitle->getNamespace() == NS_SPECIAL && $wgTitle->getText() == "UserLogin") {
+			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getText() == "UserLogin") {
 				$mobileAllowed = true;
 			}
 
-			if ($wgTitle && $wgTitle->getNamespace() == NS_SPECIAL && $wgTitle->getText() == "Spellchecker") {
+			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getText() == "Spellchecker") {
 				$mobileAllowed = true;
 			}
 
-			if ($wgTitle && $wgTitle->getNamespace() == NS_SPECIAL && $wgTitle->getText() == "PicturePatrol") {
+			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getText() == "PicturePatrol") {
 				$mobileAllowed = true;
 			}
 
-			if ($wgTitle && $wgTitle->getNamespace() == NS_USER) {
+			if ($wgTitle && $wgTitle->inNamespace(NS_USER)) {
 				if ($wgUser->getID() > 0) { //if the current user is logged in
 					$userName = $wgTitle->getText();
 					$user = User::newFromName($userName);
@@ -116,7 +116,7 @@ class MobileFrontendWikiHowHooks {
 
 		$stylePaths = [__DIR__ . '/less/wikihow/style_top.css'];
 
-		if(WikihowMobileTools::isInternetOrgRequest()) {
+		if (WikihowMobileTools::isInternetOrgRequest()) {
 			$stylePaths[] = __DIR__ . '/less/wikihow/iorg.css';
 		}
 
@@ -145,7 +145,7 @@ class MobileFrontendWikiHowHooks {
 			// These requests should always have the wh_an=1 query string parameter set.
 			if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
 				$out->addModules('ext.wikihow.android_helper');
-				$top_style_android = Misc::getEmbedFile('css', dirname(__FILE__) . '/../android_helper/android_helper.css');
+				$top_style_android = Misc::getEmbedFile('css', __DIR__ . '/../android_helper/android_helper.css');
 				$out->addHeadItem('androidcss', HTML::inlineStyle($top_style_android));
 			}
 
@@ -154,8 +154,8 @@ class MobileFrontendWikiHowHooks {
 			}
 		}
 
-		if($wgTitle->inNamespace(NS_MAIN) && !Newarticleboost::isNABbedNoDb($wgTitle->getArticleID())) {
-			$unnabbed = Misc::getEmbedFile('css', dirname(__FILE__) . '/less/wikihow/noindex.css');
+		if ($wgTitle->inNamespace(NS_MAIN) && !NewArticleBoost::isNABbedNoDb($wgTitle->getArticleID())) {
+			$unnabbed = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/noindex.css');
 			$out->addHeadItem('unnabbed', HTML::inlineStyle($unnabbed));
 		}
 
@@ -198,28 +198,28 @@ class MobileFrontendWikiHowHooks {
 		}
 
 		// Include Javascript for setting global size vars
-		if ($out->getTitle()->getNamespace() == NS_MAIN || $out->getTitle()->getNamespace() == NS_SPECIAL) {
+		if ($out->getTitle()->inNamespace(NS_MAIN) || $out->getTitle()->inNamespace(NS_SPECIAL)) {
 			$varScript = Misc::getEmbedFile('js', "$IP/extensions/wikihow/load_images/sizing-vars.compiled.js");
 			$out->addHeadItem('vars', HTML::inlineScript($varScript));
 		}
 
-		if ( $out->getTitle()->getNamespace() == NS_MAIN || $out->getTitle()->getText() == 'TopicTagging' ) {
-			$sharedjs = array( dirname(__FILE__). '/../../wikihow/commonjs/whshared.compiled.js' );
+		if ( $out->getTitle()->inNamespace(NS_MAIN) || $out->getTitle()->getText() == 'TopicTagging' ) {
+			$sharedjs = array( __DIR__. '/../../wikihow/commonjs/whshared.compiled.js' );
 			$out->addHeadItem( 'sharedjs', Html::inlineScript( Misc::getEmbedFiles( 'js', $sharedjs ) ) );
 		}
 
-		$gdprjs = array( dirname(__FILE__). '/../../wikihow/GDPR/gdpr.js' );
+		$gdprjs = array( __DIR__. '/../../wikihow/GDPR/gdpr.js' );
 		$out->addHeadItem( 'gdpr', Html::inlineScript( Misc::getEmbedFiles( 'js', $gdprjs ) ) );
 
 		//include noscript styling for people without javascript (like internet.org users)
 		if ($wgTitle && !$wgTitle->isMainPage()) {
-			$template = new EasyTemplate( dirname(__FILE__) );
+			$template = new EasyTemplate( __DIR__ );
 			$noScript = $template->execute('templates/mobile-noscript.tmpl.php');
 			$minNoscript = CSSMin::minify( $noScript );
 			$out->addScript($minNoscript);
 		}
 
-		if ( $wgTitle->getNamespace() == NS_MAIN && class_exists( 'SocialProofStats' ) ) {
+		if ( $wgTitle->inNamespace(NS_MAIN) && class_exists( 'SocialProofStats' ) ) {
 			$out->addModules('mobile.wikihow.socialproof');
 		}
 
@@ -232,7 +232,7 @@ class MobileFrontendWikiHowHooks {
 			wikihowAds::getGlobalChannels();
 		}
 
-		if ($wgTitle->getNamespace() == NS_MAIN
+		if ($wgTitle->inNamespace(NS_MAIN)
 			&& !$wgTitle->isMainPage()
 			&& class_exists('Ouroboros\Special')
 			&& Ouroboros\Special::isActive()
@@ -303,7 +303,7 @@ class MobileFrontendWikiHowHooks {
 		// scripts, at start of footer
 		$context = $data['skin']->getContext();
 
-		EasyTemplate::set_path( dirname(__FILE__) );
+		EasyTemplate::set_path( __DIR__ );
 
 		// Include GA and other 3rd party scripts
 		$footerVars = array();
@@ -317,7 +317,7 @@ class MobileFrontendWikiHowHooks {
 
 		$footerVars['showInternetOrgAnalytics'] = WikihowMobileTools::isInternetOrgRequest();
 
-		if(class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
+		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
 			$propertyId = WH_GA_ID_ANDROID_APP; // Android app
 		} elseif(class_exists('QADomain') && QADomain::isQADomain()) {
 			$propertyId = WH_GA_ID_QUICKANSWERS; //QuickAnswers

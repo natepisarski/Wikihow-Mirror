@@ -1,6 +1,6 @@
-<?
+<?php
 $messages = array();
-$messages['en'] = 
+$messages['en'] =
  	array(
 			'spamdifftool' => 'Manage Spam Blacklist',
 			'spamdifftool_cantedit' => 'Sorry - you don\'t have permission to edit the Spam Blacklist.',

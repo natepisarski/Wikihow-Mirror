@@ -1,9 +1,9 @@
 <?php
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
-    
+
 /**#@+
- * 
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *
@@ -21,7 +21,7 @@ $wgExtensionCredits['special'][] = array(
 	'url' => 'http://www.wikihow.com/WikiHow:BunchPatrol-Extension',
 );
 
-$wgExtensionMessagesFiles['BunchPatrol'] = dirname(__FILE__) . '/Bunchpatrol.i18n.php';
+$wgExtensionMessagesFiles['BunchPatrol'] = __DIR__ . '/Bunchpatrol.i18n.php';
 
 $wgSpecialPages['BunchPatrol'] = 'BunchPatrol';
-$wgAutoloadClasses['BunchPatrol'] = dirname( __FILE__ ) . '/Bunchpatrol.body.php';
+$wgAutoloadClasses['BunchPatrol'] = __DIR__ . '/Bunchpatrol.body.php';

@@ -19,45 +19,48 @@ class UCIPatrol extends SpecialPage {
 
 	const TABLE_NAME = "user_completed_images";
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct("PicturePatrol", "ucipatrol");
 	}
 
-	function printStatsUploads($uploads) {
-		echo("User Completed Images Stats:<br>");
-		foreach($uploads as $key => $val) {
-			echo($key.", $val<br>");
+	private static function printStatsUploads($uploads) {
+		print("User Completed Images Stats:<br>");
+		foreach ($uploads as $key => $val) {
+			print($key.", $val<br>");
 		}
 	}
 
+	/* unused as of 3/2019 - Reuben
 	function printStatsAnon($anon) {
-		echo("<br>Anon Votes:<br>");
-		echo("Total Anon Upvotes, ".$anon['Anonymous Upvotes']."<br>");
-		echo("Total Anon Downvotes, ".$anon['Anonymous Downvotes']."<br>");
+		print("<br>Anon Votes:<br>");
+		print("Total Anon Upvotes, ".$anon['Anonymous Upvotes']."<br>");
+		print("Total Anon Downvotes, ".$anon['Anonymous Downvotes']."<br>");
 	}
+	*/
 
-	function printStatsTitles($titles) {
+	private static function printStatsTitles($titles) {
 		global $wgServer;
-		echo("<br>Pages with User Completed Images (most recent first)<br>");
-		echo("Titles, Number of Images<br>");
+		print("<br>Pages with User Completed Images (most recent first)<br>");
+		print("Titles, Number of Images<br>");
 
 		if (count($titles) < 1) {
-			echo("none, n/a<br>");
+			print("none, n/a<br>");
 			return;
 		}
-		foreach($titles as $title => $data) {
+		foreach ($titles as $title => $data) {
 			$tDisplay  = str_replace(' ', '-', $title);
 			$link = "$wgServer/$tDisplay";
 			$num = $data['number'];
-			echo("<a href=$link>$link</a>, $num<br>");
+			print("<a href=$link>$link</a>, $num<br>");
 		}
 	}
 
+	/* unused as of 3/2019 - Reuben
 	function printStatsFlagged($flagged) {
 		global $wgServer;
-		echo("<br>Flagged Removed Images (most recent first)<br>");
-		echo("Image, From<br>");
-		foreach($flagged as $image => $info) {
+		print("<br>Flagged Removed Images (most recent first)<br>");
+		print("Image, From<br>");
+		foreach ($flagged as $image => $info) {
 			$tDisplay  = str_replace(' ', '-', $image);
 			$t = Title::newFromText($image);
 			$link = Linker::link($t, $wgServer."/".$tDisplay);
@@ -67,16 +70,13 @@ class UCIPatrol extends SpecialPage {
 			$fromLink = Linker::link($from, $wgServer."/".$fromDisplay);
 			$date = $info['time'];
 
-			echo("$link, $fromLink<br>");
+			print("$link, $fromLink<br>");
 		}
 	}
+	*/
 
-
-	/**
-	 * @param $out
-	 */
 	protected function addTemplateHtml() {
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 
 		$out = $this->getOutput();
 		$out->addHTML($tmpl->execute('UCIPatrol.tmpl.php'));
@@ -98,7 +98,7 @@ class UCIPatrol extends SpecialPage {
 		return $result;
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		global $wgDebugToolbar;
 
 		$request = $this->getRequest();
@@ -112,17 +112,17 @@ class UCIPatrol extends SpecialPage {
 
 		$this->checkPermissions();
 		if ($request->getVal("stats")) {
-			$out->disable();
+			$out->setArticleBodyOnly(true);
 			$uploads = $this->getStatsUploads();
 			$titles = $this->getStatsTitles();
 			if ($request->getVal("format") == "json") {
-				echo json_encode($uploads);
-				echo json_encode($titles);
+				print(json_encode($uploads));
+				print(json_encode($titles));
 				return;
 			}
 
-			UCIPatrol::printStatsUploads($uploads);
-			UCIPatrol::printStatsTitles($titles);
+			self::printStatsUploads($uploads);
+			self::printStatsTitles($titles);
 			return;
 		}
 
@@ -177,12 +177,12 @@ class UCIPatrol extends SpecialPage {
 					$result['debug']['queries'] = $info['queries'];
 				}
 
-				echo json_encode($result);
+				print(json_encode($result));
 
 			} catch (MWException $e) {
 				$result = $result ?: array();
 				$result['error'][] = $e->getText();
-				echo json_encode($result);
+				print(json_encode($result));
 				throw $e;
 			}
 		} else {
@@ -294,7 +294,7 @@ class UCIPatrol extends SpecialPage {
 
 		if ($this->getUser()->isAnon()) {
 			$title = Title::newFromText($this->getRequest()->getVal('articleTitle'));
-			UCIPatrol::logUCIAnonUpVote($title, $pageId);
+			self::logUCIAnonUpVote($title, $pageId);
 			$this->skip();
 			return;
 		}
@@ -320,7 +320,7 @@ class UCIPatrol extends SpecialPage {
 		$title = Title::newFromText($row->uci_article_name);
 
 		if ($row->uci_upvotes < UserCompletedImages::UPVOTES) {
-			UCIPatrol::logUCIUpVote($title, $pageId);
+			self::logUCIUpVote($title, $pageId);
 		} else {
 			// UsageLogs::saveEvent(
 				// array(
@@ -331,7 +331,7 @@ class UCIPatrol extends SpecialPage {
 			// );
 
 			UserCompletedImages::addImageToPage($pageId, $row->uci_article_name, UserCompletedImages::fileFromRow($row));
-			UCIPatrol::logUCIAdded($title, $pageId);
+			self::logUCIAdded($title, $pageId);
 
 			wfRunHooks( "PicturePatrolResolved" , [$row->uci_image_name, true]);
 		}
@@ -341,15 +341,15 @@ class UCIPatrol extends SpecialPage {
 	}
 
 	private static function logUCIError($title, $pageId) {
-		UCIPatrol::logUCI($title, $pageId, "error");
+		self::logUCI($title, $pageId, "error");
 	}
 
 	private static function logUCIFlagRemoved($title, $pageId) {
-		UCIPatrol::logUCI($title, $pageId, "flagremoved");
+		self::logUCI($title, $pageId, "flagremoved");
 	}
 
 	private static function logUCIFlagged($title, $pageId) {
-		UCIPatrol::logUCI($title, $pageId, "flagged");
+		self::logUCI($title, $pageId, "flagged");
 	}
 
 	private static function logUCIRejected($title, $pageId) {
@@ -358,7 +358,7 @@ class UCIPatrol extends SpecialPage {
 			'event_action' => 'rejected',
 			'article_id' => $pageId
 		));
-		UCIPatrol::logUCI($title, $pageId, "rejected");
+		self::logUCI($title, $pageId, "rejected");
 	}
 
 	private static function logUCIAdded($title, $pageId) {
@@ -367,23 +367,23 @@ class UCIPatrol extends SpecialPage {
 			'event_action' => 'approved',
 			'article_id' => $pageId
 		));
-		UCIPatrol::logUCI($title, $pageId, "approved");
+		self::logUCI($title, $pageId, "approved");
 	}
 
 	private static function logUCIAnonUpVote($title, $pageId) {
-		UCIPatrol::logUCI($title, $pageId, "anonupvote");
+		self::logUCI($title, $pageId, "anonupvote");
 	}
 
 	private static function logUCIAnonDownVote($title, $pageId) {
-		UCIPatrol::logUCI($title, $pageId, "anondownvote");
+		self::logUCI($title, $pageId, "anondownvote");
 	}
 
 	private static function logUCIUpVote($title, $pageId) {
-		UCIPatrol::logUCI($title, $pageId, "upvote");
+		self::logUCI($title, $pageId, "upvote");
 	}
 
 	private static function logUCIDownVote($title, $pageId) {
-		UCIPatrol::logUCI($title, $pageId, "downvote");
+		self::logUCI($title, $pageId, "downvote");
 	}
 
 	private static function logUCI($title, $pageId, $type) {
@@ -412,14 +412,14 @@ class UCIPatrol extends SpecialPage {
 
 		$pageId = $this->getRequest()->getVal('pageId');
 
-		UCIPatrol::fullDownVote($pageId);
+		self::fullDownVote($pageId);
 		$this->skip();
 		$title = Title::newFromText($this->getRequest()->getVal("articleTitle"));
-		UCIPatrol::logUCIError($title, $pageId);
+		self::logUCIError($title, $pageId);
 	}
 
 	private function fullDownVote($pageId) {
-		UCIPatrol::downVoteItem($pageId, UserCompletedImages::DOWNVOTES, false);
+		self::downVoteItem($pageId, UserCompletedImages::DOWNVOTES, false);
 	}
 
 	private function fullDownVoteImg($img_name) {
@@ -464,7 +464,7 @@ class UCIPatrol extends SpecialPage {
 
 		if ($this->getUser()->isAnon()) {
 			$title = Title::newFromText($this->getRequest()->getVal('articleTitle'));
-			UCIPatrol::logUCIAnonDownVote($title, $pageId);
+			self::logUCIAnonDownVote($title, $pageId);
 			$this->skip();
 			return;
 		}
@@ -484,9 +484,9 @@ class UCIPatrol extends SpecialPage {
 		$title = Title::newFromText($this->getRequest()->getVal("articleTitle"));
 
 		if ($row->uci_downvotes < UserCompletedImages::DOWNVOTES) {
-			UCIPatrol::logUCIDownVote($title, $pageId);
+			self::logUCIDownVote($title, $pageId);
 		} else {
-			UCIPatrol::logUCIRejected($title, $pageId);
+			self::logUCIRejected($title, $pageId);
 			// UsageLogs::saveEvent(
 				// array(
 					// 'event_type' => 'picture_patrol',
@@ -500,6 +500,7 @@ class UCIPatrol extends SpecialPage {
 		wfRunHooks( 'PicturePatrolled' );
 		$this->skip();
 	}
+
 	private function flag() {
 		global $wgMemc;
 
@@ -513,14 +514,14 @@ class UCIPatrol extends SpecialPage {
 
 		if ($this->getUser()->isAnon()) {
 			$title = Title::newFromText($hostPageTitle);
-			UCIPatrol::logUCIAnonDownVote($title, $id);
+			self::logUCIAnonDownVote($title, $id);
 			return;
 		}
 
 
 		// make sure this user didn't already flag this image
-		$voters = UCIPatrol::getVoters($id);
-		foreach($voters as $voter) {
+		$voters = self::getVoters($id);
+		foreach ($voters as $voter) {
 			if ($voter['id'] == $this->getUser()->getID() && $voter['vote'] < 0) {
 				return;
 			}
@@ -541,7 +542,7 @@ class UCIPatrol extends SpecialPage {
 		$title = Title::newFromText($hostPageTitle);
 		if ($row->uci_downvotes < UserCompletedImages::DOWNVOTES) {
 			//log the action
-			UCIPatrol::logUCIFlagged($title, $id);
+			self::logUCIFlagged($title, $id);
 		} else {
 			if (UserCompletedImages::UCI_CACHE) {
 				UserCompletedImages::removeImageFromPage($hostPageTitle, $id);
@@ -555,7 +556,7 @@ class UCIPatrol extends SpecialPage {
 				$dbw->update( self::TABLE_NAME, ['uci_upvotes' => 0], ['uci_article_id' => $id], __METHOD__ );
 				wfRunHooks( "PicturePatrolResolved" , [$row->uci_image_name, false]);
 			}
-			UCIPatrol::logUCIFlagRemoved($title, $id);
+			self::logUCIFlagRemoved($title, $id);
 		}
 	}
 
@@ -577,7 +578,7 @@ class UCIPatrol extends SpecialPage {
 		}
 
 		$newSkipped = array();
-		foreach($skipped as $skip) {
+		foreach ($skipped as $skip) {
 			if ($skip == $id) {
 				continue;
 			}
@@ -636,7 +637,7 @@ class UCIPatrol extends SpecialPage {
 		$where["uci_on_whitelist"] = 1;
 
 		$newSkipped = array();
-		foreach($oldSkipped as $skippedId) {
+		foreach ($oldSkipped as $skippedId) {
 			$where["uci_article_id"] = $skippedId;
 			$dbr = wfGetDB(DB_SLAVE);
 			$count = $dbr->selectField(self::TABLE_NAME, 'count(*)', $where, __METHOD__);
@@ -652,7 +653,7 @@ class UCIPatrol extends SpecialPage {
 
 	private function getVoteMultiplier() {
 		$value = 1;
-		if (UCIPatrol::userInUCIAdminGroup($this->getUser())) {
+		if (self::userInUCIAdminGroup($this->getUser())) {
 			$value = 2;
 		}
 
@@ -665,7 +666,7 @@ class UCIPatrol extends SpecialPage {
 	private function getStatsUploads() {
 		global $wgMemc;
 
-		if(!in_array('sysop',$this->getUser()->getGroups())) {
+		if (!in_array('sysop',$this->getUser()->getGroups())) {
 			return;
 		}
 
@@ -719,7 +720,7 @@ class UCIPatrol extends SpecialPage {
 
 	private function getStatsTitles() {
 		global $wgMemc;
-		if(!in_array('sysop',$this->getUser()->getGroups())) {
+		if (!in_array('sysop',$this->getUser()->getGroups())) {
 			return;
 		}
 		$rev = "1";
@@ -733,7 +734,7 @@ class UCIPatrol extends SpecialPage {
 			$res = $dbr->select(self::TABLE_NAME, array('uci_article_name as title', 'count(uci_article_name) as count'), $where, __METHOD__, $options);
 
 			$titles = array();
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				$title = $row->title;
 				$number = $row->count;
 				$titles[$title]['number'] = $number;;
@@ -747,7 +748,7 @@ class UCIPatrol extends SpecialPage {
 
 	// this function uses very expensive queries and is now not called
 	private function getStatsAnonAndFlagged() {
-		if(!in_array('sysop',$this->getUser()->getGroups())) {
+		if (!in_array('sysop',$this->getUser()->getGroups())) {
 			return;
 		}
 
@@ -765,7 +766,7 @@ class UCIPatrol extends SpecialPage {
 		$res = $dbr->select('logging', array('log_title', 'log_comment', 'log_timestamp'), $where, __METHOD__, $options);
 
 		$removed = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$comment = $row->log_comment;
 
 			$image = explode("]]", $comment);
@@ -803,7 +804,7 @@ class UCIPatrol extends SpecialPage {
 		$content = array();
 
 		$guestId = WikihowUser::getVisitorId();
-		$content['user_voter'] = UCIPatrol::getUserAvatar($this->getUser(), $guestId);
+		$content['user_voter'] = self::getUserAvatar($this->getUser(), $guestId);
 
 		$content['required_upvotes'] = UserCompletedImages::UPVOTES;
 		$content['required_downvotes'] = UserCompletedImages::DOWNVOTES;
@@ -816,10 +817,10 @@ class UCIPatrol extends SpecialPage {
 		}
 
 		if ( $row == null) {
-			$skipped = UCIPatrol::getSkipList();
+			$skipped = self::getSkipList();
 			MWDebug::log("skip list is " . implode(", ", $skipped));
 
-			$count = UCIPatrol::getCount() - count($skipped);
+			$count = self::getCount() - count($skipped);
 			MWDebug::log("count is $count");
 			$content['uciCount'] = $count;
 
@@ -848,7 +849,7 @@ class UCIPatrol extends SpecialPage {
 		// $content['sql' . $i] = $dbr->lastQuery();
 		// $content['row'] = $row;
 
-		if($row === false) {
+		if ($row === false) {
 			MWDebug::log("no more images to patrol");
 			return $content;
 		}
@@ -860,7 +861,7 @@ class UCIPatrol extends SpecialPage {
 		$content['articleDisplayTitle'] = wfMessage("Howto", $title->getText())->text();
 		$content['articleURL'] = $title->getPartialUrl();
 
-		if(!$title) {
+		if (!$title) {
 			MWDebug::log("no title: ".$title);
 			$content['error'] = "notitle";
 			$this->fullDownVote($content['pageId']);
@@ -879,7 +880,7 @@ class UCIPatrol extends SpecialPage {
 
 		// get info about the originating page the image was added for
 		$revision = Revision::newFromTitle($title);
-		if(!$revision) {
+		if (!$revision) {
 			MWDebug::log("no revision");
 			$content['error'] = "norevision";
 			$this->fullDownVote($content['pageId']);
@@ -903,7 +904,7 @@ class UCIPatrol extends SpecialPage {
 			$content['articleDisplayTitle'] = wfMessage("Howto", $title->getText())->text();
 			$content['articleURL'] = $title->getPartialUrl();
 
-			UCIPatrol::updateArticleName($row, $title->getText());
+			self::updateArticleName($row, $title->getText());
 		}
 
 		$isMobile = MobileContext::singleton()->shouldDisplayMobileView();
@@ -934,10 +935,10 @@ class UCIPatrol extends SpecialPage {
 		// this is the page id of the image file itself not the same as articleTitle
 		// used for skipping
 
-		$voters = UCIPatrol::getVoters($row->uci_article_id);
+		$voters = self::getVoters($row->uci_article_id);
 
 		$content['voters'] = $voters;
-		foreach($voters as $voter) {
+		foreach ($voters as $voter) {
 			$id = $this->getUser()->isAnon() ? $guestId : $this->getUser()->getID();
 
 			if ($voter['id'] == $id && $voter['vote'] != 0) {
@@ -962,7 +963,7 @@ class UCIPatrol extends SpecialPage {
 	private function userInUCIAdminGroup($user) {
 		$groups = $user->getGroups();
 
-		if(in_array('sysop',$groups) || in_array('staff', $groups) || in_array('newarticlepatrol', $groups)) {
+		if (in_array('sysop',$groups) || in_array('staff', $groups) || in_array('newarticlepatrol', $groups)) {
 			return true;
 		}
 		return false;
@@ -986,8 +987,8 @@ class UCIPatrol extends SpecialPage {
 				$voter = User::newFromId($row->iv_userid);
 			}
 
-			$admin = UCIPatrol::userInUCIAdminGroup($voter);
-			$avatar = UCIPatrol::getUserAvatar($voter, $row->iv_userid);
+			$admin = self::userInUCIAdminGroup($voter);
+			$avatar = self::getUserAvatar($voter, $row->iv_userid);
 			$result[] = array(
 					"name"=>$avatar['name'],
 					"vote"=>$row->iv_vote,
@@ -999,6 +1000,7 @@ class UCIPatrol extends SpecialPage {
 		return $result;
 	}
 
+	// NOTE: used in UCIPatrolWidget
 	public static function getCount() {
 		$dbr = wfGetDB(DB_SLAVE);
 		$where = array();
@@ -1012,7 +1014,7 @@ class UCIPatrol extends SpecialPage {
 		return $dbr->selectField(self::TABLE_NAME, 'count(*) as count', $where);
 	}
 
-	function displayLeaderboards() {
+	protected function displayLeaderboards() {
 		$stats = new UCIPatrolStandingsIndividual();
 		$stats->setContext($this->getContext());
 		$stats->addStatsWidget();
@@ -1022,6 +1024,7 @@ class UCIPatrol extends SpecialPage {
 	}
 
 	// get the number of UCI images showing on a page
+	// NOTE: called from Titus
 	public static function getNumUCIForPage($pageTitle) {
 		if (!$pageTitle) {
 			return 0;
@@ -1046,34 +1049,36 @@ class UCIPatrol extends SpecialPage {
 		return true;
 	}
 
+	// NOTE: used in removeUnlicensedImages.php
 	public static function getImagesToBeCopyrightChecked($limit = null) {
 		$dbr = wfGetDB(DB_SLAVE);
 		$options = [];
-		if($limit) {
+		if ($limit) {
 			$options['LIMIT'] = $limit;
 		}
 		$res = $dbr->select(self::TABLE_NAME, ['uci_article_id'], ['uci_copyright_checked' => 0], __METHOD__, $options);
 
 		$ids = [];
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$ids[] = $row->uci_article_id;
 		}
 
 		return $ids;
 	}
 
+	// NOTE: used in removeUnlicensedImages.php
 	public static function markCopyright($pageId, $violates, $matches = 0, $error = 0) {
 		$dbw = wfGetDB(DB_MASTER);
-		$dbw->update(self::TABLE_NAME, 
+		$dbw->update(self::TABLE_NAME,
 			['uci_copyright_checked' => 1, 'uci_copyright_error' => $error, 'uci_copyright_violates' => $violates, 'uci_copyright_matches' => $matches],
 			['uci_article_id' => $pageId],
 			__METHOD__
 		);
-		if($violates == 1) {
+		if ($violates == 1) {
 			//first get the image name
 			$dbr = wfGetDB(DB_SLAVE);
 			$imageName = $dbr->selectField(self::TABLE_NAME, 'uci_image_name', ['uci_article_id' => $pageId], __METHOD__);
-			if($imageName !== false) {
+			if ($imageName !== false) {
 				wfRunHooks("PicturePatrolResolved", [$imageName, false]);
 			}
 		}

@@ -95,7 +95,7 @@ class PatrolThrottleUITemplate extends QuickTemplate {
 
 $user = RequestContext::getMain()->getUser();
 
-if( in_array( 'staff', $user->getGroups() ) ) {
+if ( in_array( 'staff', $user->getGroups() ) ) {
 		echo '		<li> Staff: ' . Linker::link( Title::newFromText( 'patrolthrottle-hit-message', NS_MEDIAWIKI ), 'Configure throttle message') . '</li>';
 		echo '		<li> Staff: ' . Linker::link( Title::newFromText( 'patrolthrottle-auto-expiry-age', NS_MEDIAWIKI ), 'Configure auto expiry timeout' ) . '</li>';
 }

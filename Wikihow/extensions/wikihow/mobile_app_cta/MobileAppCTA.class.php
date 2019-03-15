@@ -7,7 +7,7 @@ class MobileAppCTA {
 	const TEMPLATE_NAME = 'mobile_app_cta';
 
 	public function getHtml() {
-		$loader = new Mustache_Loader_FilesystemLoader(dirname(__FILE__));
+		$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
 		return $m->render(self::TEMPLATE_NAME, $this->getVars($loader));

@@ -10,7 +10,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ArticleWidgets'] = 'ArticleWidgets';
-$wgAutoloadClasses['ArticleWidgets'] = dirname( __FILE__ ) . '/ArticleWidgets.body.php';
+$wgAutoloadClasses['ArticleWidgets'] = __DIR__ . '/ArticleWidgets.body.php';
 
 $wgArticleWidgets = array(
 	'BINTODEC' => '195',

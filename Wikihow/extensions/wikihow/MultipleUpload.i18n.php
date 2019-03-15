@@ -1,7 +1,8 @@
-<?
+<?php
+
 global $wgMaxUploadFiles;
 $messages = array();
-$messages['en'] = 
+$messages['en'] =
         array(
 			'ignoreallwarnings' => "Ignore <b>all warnings</b> and save the files anyway.",
             'multipleupload' => "Upload Files",

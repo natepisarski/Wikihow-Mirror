@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use MVC\Controller;
 use __;
@@ -192,7 +192,7 @@ class AssignRule extends AppModel {
 				$valid = $inst->currentUser->id == $from->id;
 			}
 		}
-		else if ($rule->from_type == self::TYPE_BUCKET) {
+		elseif ($rule->from_type == self::TYPE_BUCKET) {
 			$bucket = ConfigStorage::dbGetConfig($rule->from_name, true);
 			$users = explode("\n", $bucket);
 
@@ -204,11 +204,11 @@ class AssignRule extends AppModel {
 				}
 			}
 		}
-		else if ($rule->from_type == self::TYPE_CATEGORY) {
+		elseif ($rule->from_type == self::TYPE_CATEGORY) {
 			$cat = Category::find_by_title($rule->from_name);
 			$valid = $inst->article->category_id == $cat->id;
 		}
-		else if ($rule->from_type == self::TYPE_CATCHALL) {
+		elseif ($rule->from_type == self::TYPE_CATCHALL) {
 			$valid = true;
 		}
 
@@ -234,7 +234,7 @@ class AssignRule extends AppModel {
 			//check if this user has reached their max
 			if (self::maxxed($rule, $to_user)) return null;
 		}
-		else if ($rule->to_type == self::TYPE_BUCKET) {
+		elseif ($rule->to_type == self::TYPE_BUCKET) {
 			$bucket = ConfigStorage::dbGetConfig($rule->to_name, true);
 			$users = explode("\n", $bucket);
 			$to_user = self::grabFromBucket($users);

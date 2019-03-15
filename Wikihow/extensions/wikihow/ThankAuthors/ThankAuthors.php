@@ -11,8 +11,8 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ThankAuthors'] = 'ThankAuthors';
-$wgAutoloadClasses['ThankAuthors'] = dirname( __FILE__ ) . '/ThankAuthors.body.php';
-$wgAutoloadClasses['ThankAuthorsJob'] = dirname( __FILE__ ) .'/ThankAuthorsJob.php';
+$wgAutoloadClasses['ThankAuthors'] = __DIR__ . '/ThankAuthors.body.php';
+$wgAutoloadClasses['ThankAuthorsJob'] = __DIR__ .'/ThankAuthorsJob.php';
 
 define('NS_USER_KUDOS', 18);
 define('NS_USER_KUDOS_TALK', 19);

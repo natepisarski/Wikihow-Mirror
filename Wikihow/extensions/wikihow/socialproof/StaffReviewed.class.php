@@ -54,7 +54,7 @@ class StaffReviewed {
 	}
 
 	public static function setBylineInfo(&$verifiers, $pageId) {
-		if(self::staffReviewedCheck($pageId)) {
+		if (self::staffReviewedCheck($pageId)) {
 			$verifiers[SocialProofStats::VERIFIER_TYPE_STAFF] = true;
 		}
 

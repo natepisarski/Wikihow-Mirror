@@ -1,6 +1,6 @@
 <?php
 
-class Importvideo extends SpecialPage {
+class ImportVideo extends SpecialPage {
 
 	// youtube, 5min, etc.
 	public $mSource;
@@ -8,7 +8,7 @@ class Importvideo extends SpecialPage {
 	//public $mResponseData = array(), $mCurrentNode, $mResults, $mCurrentTag = array();
 
 	public function __construct($source = null) {
-		parent::__construct( 'Importvideo' );
+		parent::__construct( 'ImportVideo' );
 		$this->mSource = $source;
 	}
 
@@ -70,7 +70,7 @@ class Importvideo extends SpecialPage {
 	private function doSearch($target, $orderby, $query, $search) {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
-		$me = Title::makeTitle(NS_SPECIAL, "Importvideo");
+		$me = Title::makeTitle(NS_SPECIAL, 'ImportVideo');
 		$out->addHTML(wfMessage('importvideo_searchinstructions')->text() .
 			"<br/><br/><form action='{$me->getFullURL()}'>
 					<input type='hidden' name='target' value='" . htmlspecialchars($target) . "'/>
@@ -132,7 +132,7 @@ class Importvideo extends SpecialPage {
 		$source = $this->mSource = $req->getVal('source', 'youtube');
 		$target = isset($par) ? $par : $req->getVal('target');
 		$query = $req->getVal('q');
-		$me = Title::makeTitle(NS_SPECIAL, "Importvideo");
+		$me = Title::makeTitle(NS_SPECIAL, "ImportVideo");
 		$wasnew = $this->getRequest()->getVal('wasnew');
 
 		// some sanity checks on the target
@@ -162,11 +162,11 @@ class Importvideo extends SpecialPage {
 		$sp = null;
 		switch ($source) {
 			case 'howcast':
-				$sp = new ImportvideoHowcast($source);
+				$sp = new ImportVideoHowcast($source);
 				break;
 			case 'youtube':
 			default:
-				$sp = new ImportvideoYoutube($source);
+				$sp = new ImportVideoYoutube($source);
 				break;
 		}
 
@@ -215,9 +215,9 @@ class Importvideo extends SpecialPage {
 		$steps = $out->parse($steps);
 		$cancel = "";
 
-		$nextlink = "/Special:Importvideo?new=1&skip={$title->getArticleID()}";
+		$nextlink = "/Special:ImportVideo?new=1&skip={$title->getArticleID()}";
 		if ($req->getVal('category'))
-			$nextlink = "/Special:Importvideo?category=" . urlencode($req->getVal('category'));
+			$nextlink = "/Special:ImportVideo?category=" . urlencode($req->getVal('category'));
 
 		if ($req->getVal('popup') != 'true') {
 			$out->addHTML("<div class='article_title'>
@@ -307,7 +307,7 @@ class Importvideo extends SpecialPage {
 
 	protected function getPostForm($target) {
 		$req = $this->getRequest();
-		$me = Title::makeTitle(NS_SPECIAL, "Importvideo");
+		$me = Title::makeTitle(NS_SPECIAL, "ImportVideo");
 		$tar_es = htmlspecialchars($target);
 		$query = $req->getVal('q');
 		$popup = $req->getVal('popup') == "true" ?  "true" : "false" ;
@@ -317,7 +317,7 @@ class Importvideo extends SpecialPage {
 					? "<input type='hidden' name='category' value=\"" . htmlspecialchars($req->getVal('category')) . "\"/>" : "";
 		return "<form method='POST' action='{$me->getFullURL()}' name='videouploadform' id='videouploadform'>
 				<input type='hidden' name='description' value='' />
-				<input type='hidden' name='url' id='url' value='/Special:Importvideo?{$_SERVER['QUERY_STRING']}'/>
+				<input type='hidden' name='url' id='url' value='/Special:ImportVideo?{$_SERVER['QUERY_STRING']}'/>
 				<input type='hidden' name='popup' value='{$req->getVal('popup')}'/>
 				{$rand}
 				{$cat}
@@ -341,7 +341,7 @@ class Importvideo extends SpecialPage {
 		return $contents;
 	}
 
-	// Called by Videoadder
+	// Called by VideoAdder
 	public static function updateVideoArticle($title, $text, $editSummary) {
 		$a = new Article($title);
 		$a->doEdit($text, $editSummary);
@@ -449,7 +449,7 @@ class Importvideo extends SpecialPage {
 
 		if ($req->getVal("popup") == "true") {
 			$out->clearHTML();
-			$out->disable();
+			$out->setArticleBodyOnly(true);
 			echo "<script type='text/javascript'>
 			function onLoad() {
 				var e = document.getElementById('video_text');
@@ -466,7 +466,7 @@ class Importvideo extends SpecialPage {
 				</script>
 				";
 		}
-		$me = Title::makeTitle(NS_SPECIAL, "Importvideo");
+		$me = Title::makeTitle(NS_SPECIAL, "ImportVideo");
 		if ($req->getVal('wasnew') || $req->getVal('new')) {
 			// log it, we track when someone uploads a video for a new article
 			$params = array($title->getArticleID());
@@ -531,10 +531,10 @@ class Importvideo extends SpecialPage {
  * This class is used to grab a description from the user when they
  * insert their video
  */
-class ImportvideoPopup extends UnlistedSpecialPage {
+class ImportVideoPopup extends UnlistedSpecialPage {
 
 	public function __construct() {
-		parent::__construct( 'ImportvideoPopup' );
+		parent::__construct( 'ImportVideoPopup' );
 	}
 
 	public function execute($par) {
@@ -544,10 +544,10 @@ class ImportvideoPopup extends UnlistedSpecialPage {
 		$out->addHTML('<div style="margin-top:20px">');
 		$out->addWikiText(wfMessage('importvideo_add_desc_details')->text());
 		if ($req->wasPosted()) {
-			$iv = Title::makeTitle(NS_SPECIAL, "Importvideo");
+			$iv = Title::makeTitle(NS_SPECIAL, "ImportVideo");
 			$out->addHTML("<form method='POST' name='importvideofrompopup' action='{$iv->getLocalUrl()}'>");
 			$vals = $req->getValues();
-			foreach($vals as $key=>$val) {
+			foreach ($vals as $key=>$val) {
 				if ($key != "title") {
 					$out->addHTML("<input type='hidden' name='{$key}' value=\"" . htmlspecialchars($val) . "\"/>");
 				}
@@ -573,9 +573,9 @@ class ImportvideoPopup extends UnlistedSpecialPage {
 /**
  *  This page is used for processing ajax requests to show a video preview in the guided editor
  */
-class Previewvideo extends UnlistedSpecialPage {
+class PreviewVideo extends UnlistedSpecialPage {
 	public function __construct() {
-		parent::__construct( 'Previewvideo' );
+		parent::__construct( 'PreviewVideo' );
 	}
 
 	public function execute($par) {
@@ -583,7 +583,7 @@ class Previewvideo extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 
-		$out->disable();
+		$out->setArticleBodyOnly(true);
 
 		$target = !empty($par) ? $par : $req->getVal( 'target' );
 		$vt = Title::newFromURL($target);
@@ -613,11 +613,11 @@ class Previewvideo extends UnlistedSpecialPage {
 /**
  * This is a leaderboard for users who are adding videos to new articles
  */
-class Newvideoboard extends SpecialPage {
+class NewVideoBoard extends SpecialPage {
 
 
 	public function __construct() {
-		parent::__construct( 'Newvideoboard' );
+		parent::__construct( 'NewVideoBoard' );
 	}
 
 	public function execute($par) {
@@ -633,7 +633,7 @@ class Newvideoboard extends SpecialPage {
 
 		$out->addModuleStyles('ext.wikihow.PatrolCount');
 
-		$me = Title::makeTitle(NS_SPECIAL, "Newvideoboard");
+		$me = Title::makeTitle(NS_SPECIAL, 'NewVideoBoard');
 		$now = wfTimestamp(TS_UNIX);
 
 		// allow the user to grab the local patrol count relative to their own timezone
@@ -661,7 +661,7 @@ class Newvideoboard extends SpecialPage {
 							<td  align='right'>" . wfMessage('videoboard_numberofvidsadded')->text() . "</td>
 							</tr>");
 
-		while ( ($row = $dbr->fetchObject($res)) != null) {
+		foreach ($res as $row) {
 			$u = User::newFromID($row->log_user);
 			$count = number_format($row->C, 0, "", ',');
 			$class = "";

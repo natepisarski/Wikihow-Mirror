@@ -84,8 +84,8 @@ class QAPatrol extends UnlistedSpecialPage {
 		}
 
 		//logged in and desktop only
-		if($user->isAnon() || Misc::isMobileMode() || !self::isAllowed($user)) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+		if ($user->isAnon() || Misc::isMobileMode() || !self::isAllowed($user)) {
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -203,7 +203,6 @@ class QAPatrol extends UnlistedSpecialPage {
 			$user = $request->getVal('user');
 
 			if (!empty($from) && !empty($to)) {
-				$out->disable();
 				$this->exportSummaryCSV($from, $to, $user);
 			}
 			return;
@@ -225,8 +224,8 @@ class QAPatrol extends UnlistedSpecialPage {
 		$vars['top_answerer_mode'] = $this->qap_top_answerer_mode;
 		$vars['remaining_text'] = wfMessage($remain_msg)->text();
 
-		EasyTemplate::set_path( dirname(__FILE__).'/templates' );
-		$html = EasyTemplate::html('qa_patrol', $vars);
+		EasyTemplate::set_path( __DIR__.'/templates' );
+		$html = EasyTemplate::html('qa_patrol.tmpl.php', $vars);
 
 		$out->addHTML($html);
 	}
@@ -906,7 +905,7 @@ class QAPatrol extends UnlistedSpecialPage {
 			__METHOD__
 		);
 		$expired = $this->getExpiryTime();
-		if($checkout === false || $checkout >= $expired) {
+		if ($checkout === false || $checkout >= $expired) {
 			print json_encode(["success" => false]);
 			return;
 		} else {
@@ -975,6 +974,8 @@ class QAPatrol extends UnlistedSpecialPage {
 
 		$filename = "patroller_stats_{$from}_{$to}.csv";
 
+		// NOTE: must use disable() to be able to set these headers
+		$this->getOutput()->disable();
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="'.$filename.'"');
 

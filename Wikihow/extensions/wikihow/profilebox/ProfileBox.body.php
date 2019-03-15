@@ -181,7 +181,7 @@ $wgOut->addHTML("
 		$article = new Article($t);
 		if ($t->getArticleId() > 0) {
 			$article->updateArticle($live, 'profilebox-live-update', true, $watch);
-		} else if($live != ''){
+		} elseif ($live != ''){
 			$article->insertNewArticle($live, 'profilebox-live-update', true, $watch, false, false, true);
 		}
 
@@ -189,7 +189,7 @@ $wgOut->addHTML("
 		$article = new Article($t);
 		if ($t->getArticleId() > 0) {
 			$article->updateArticle($occupation, 'profilebox-occupation-update', true, $watch);
-		} else if($occupation != ''){
+		} elseif ($occupation != ''){
 			$article->insertNewArticle($occupation, 'profilebox-occupation-update', true, $watch, false, false, true);
 		}
 
@@ -197,7 +197,7 @@ $wgOut->addHTML("
 		$article = new Article($t);
 		if ($t->getArticleId() > 0) {
 			$article->updateArticle($aboutme, 'profilebox-aboutme-update', true, $watch);
-		} else if($aboutme != ''){
+		} elseif ($aboutme != ''){
 			$article->insertNewArticle($aboutme, 'profilebox-aboutme-update', true, $watch, false, false, true);
 		}
 
@@ -547,7 +547,7 @@ $wgOut->addHTML("
 			$out->setArticleBodyOnly(true);
 			$this->favsTitleSelector();
 			return;
-		} else if ($type == 'ajax') {
+		} elseif ($type == 'ajax') {
 			$out->setArticleBodyOnly(true);
 			$element = $request->getVal('element');
 			$dbr = wfGetDB(DB_SLAVE);
@@ -558,7 +558,7 @@ $wgOut->addHTML("
 				$pageuser = User::newFromName($t->getText());
 				$stats = new ProfileStats($pageuser);
 
-				switch($element) {
+				switch ($element) {
 					case 'thumbed_less':
 						echo json_encode($stats->fetchThumbsData(5));
 						break;
@@ -598,7 +598,7 @@ $wgOut->addHTML("
 
 			$t = $user->getUserPage();
 			$out->redirect($t->getFullURL());
-		} else if ($type == 'remove') {
+		} elseif ($type == 'remove') {
 			$out->setArticleBodyOnly(true);
 			$this->removeData();
 			$out->addHTML("SUCCESS");
@@ -664,7 +664,7 @@ $wgOut->addHTML("
 			'pb_email_url' => "/" . $wgLang->specialPage('Emailuser') ."?target=" . $u->getName(),
 		);
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars($vars);
 
 		$tmpl_file = ($isMobile) ? 'header_mobile.tmpl.php' : 'header.tmpl.php';
@@ -690,13 +690,13 @@ $wgOut->addHTML("
 		if ($interval->y > 0) {
 			return $over . $interval->y .' '. ($interval->y==1?$period[3]:$periods[3]);
 		}
-		else if ($interval->m > 0) {
+		elseif ($interval->m > 0) {
 			return $over . $interval->m .' '. ($interval->m==1?$period[2]:$periods[2]);
 		}
-		else if ($interval->w > 0) {
+		elseif ($interval->w > 0) {
 			return $over . $interval->w .' '. ($interval->w==1?$period[1]:$periods[1]);
 		}
-		else if ($interval->d > 0) {
+		elseif ($interval->d > 0) {
 			return $over . $interval->d .' '. ($interval->d==1?$period[0]:$periods[0]);
 		}
 		else {
@@ -745,22 +745,22 @@ $wgOut->addHTML("
 		}
 		$distance = 15;
 
-		if($data['welcome'] == 1) {
+		if ($data['welcome'] == 1) {
 			$inner = "<div class='pb-welcome pb-badge' style='{$side}:{$distance}px'></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
 		}
-		if($data['nab'] == 1) {
+		if ($data['nab'] == 1) {
 			$inner = "<div class='pb-nab pb-badge' style='{$side}:{$distance}px'></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
 		}
-		if($data['admin'] == 1){
+		if ($data['admin'] == 1){
 			$inner = "<div class='pb-admin pb-badge' style='{$side}:{$distance}px'></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
 		}
-		if($data['fa'] == 1){
+		if ($data['fa'] == 1){
 			$inner = "<div class='pb-fa pb-badge' style='{$side}:{$distance}px'></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
@@ -775,19 +775,19 @@ $wgOut->addHTML("
 		$display = '';
 		$isLoggedIn = $wgUser->getID() != 0;
 
-		if($data['nab'] == 1) {
+		if ($data['nab'] == 1) {
 			$inner = "<div class='pb-nab pb-badge'><div><p>".wfMessage('pb-badge-nab')->text()."</p></div></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 		}
-		if($data['admin'] == 1){
+		if ($data['admin'] == 1){
 			$inner = "<div class='pb-admin pb-badge'><div><p>".wfMessage('pb-badge-admin')->text()."</p></div></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 		}
-		if($data['fa'] == 1){
+		if ($data['fa'] == 1){
 			$inner = "<div class='pb-fa pb-badge'><div><p>".wfMessage('pb-badge-fa')->text()."</p></div></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 		}
-		if($data['welcome'] == 1) {
+		if ($data['welcome'] == 1) {
 			$inner = "<div class='pb-welcome pb-badge'><div><p>".wfMessage('pb-badge-welcome')->text()."</p></div></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 		}
@@ -821,7 +821,7 @@ $wgOut->addHTML("
 		global $wgTitle, $wgUser;
 		$socialLinked = "";
 		if ($u = User::newFromName($wgTitle->getDBKey())) {
-			if(UserPagePolicy::isGoodUserPage($wgTitle->getDBKey())) {
+			if (UserPagePolicy::isGoodUserPage($wgTitle->getDBKey())) {
 				if (class_exists('FBLogin') && class_exists('FBLink') && $u->getID() == $wgUser->getId() && !$wgUser->isGPlusUser() && !$wgUser->isCivicUser()) {
 					//show or offer FB link
 					$socialLinked = !$wgUser->isFacebookUser() ? FBLink::showCTAHtml() : FBLink::showCTAHtml('FBLink_linked');
@@ -885,7 +885,7 @@ class ProfileStats {
 
 		if ($res) {
 			$fas = ProfileBox::getFeaturedArticles();
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				$created = get_object_vars($row);
 				$created['views'] = number_format($row->page_counter, 0, '',',');
 				$created['fa'] = isset($fas[ $row->page_title ]) ? (bool)$fas[ $row->page_title ] : false;

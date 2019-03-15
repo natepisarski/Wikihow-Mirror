@@ -27,7 +27,7 @@ class SpecialMassMessage extends SpecialPage {
 	 * @var int
 	 */
 	protected $count;
-	
+
 	const SEND_LIMIT = 1000;
 
 	public function __construct() {
@@ -205,7 +205,7 @@ class SpecialMassMessage extends SpecialPage {
 			// Only add the footer if it is not just whitespace
 			$data['message'] .= "\n" . $footer;
 		}
-		
+
 		//format this message the wikiHow way
 		$data['message'] = self::FormatMessage($data['message']);
 
@@ -255,7 +255,7 @@ class SpecialMassMessage extends SpecialPage {
 		if ( !( $spamlist instanceof Title ) ) {
 			$this->status->fatal( $spamlist );
 		}
-		
+
 		//how many writes are we going to do?
 		$spamlist = $this->getSpamlist( $data['spamlist'] );
 		$targets = MassMessage::getParserFunctionTargets( $spamlist, $this->getContext() );
@@ -280,10 +280,10 @@ class SpecialMassMessage extends SpecialPage {
 	 * @param $data Array
 	 * @return Status
 	 */
-	protected function preview( array $data ) {		
+	protected function preview( array $data ) {
 		$firstTarget = Title::newFromText( 'Project:Example' );
 		$wikipage = WikiPage::factory( $firstTarget );
-		
+
 		// Hacked up from EditPage.php
 		// Is this really the best way to do this???
 
@@ -345,17 +345,17 @@ class SpecialMassMessage extends SpecialPage {
 
 		return $this->status;
 	}
-	
+
 	//let's format this message wikiHow-style
 	function FormatMessage($msg) {
 		global $wgLang;
-		
+
 		$user = $this->getUser();
-		
+
 		$msg = TalkPageFormatter::createComment( $user, $msg );
 		//add a hidden variable to id mass message notifications for echo
 		$msg .= '<!--massmessage-->';
-		
+
 		return $msg;
 	}
 }

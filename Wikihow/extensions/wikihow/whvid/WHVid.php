@@ -1,4 +1,4 @@
-<?php 
+<?php
 if ( !defined( 'MEDIAWIKI' ) ) {
     exit(1);
 }
@@ -6,11 +6,11 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgExtensionCredits['parserhook'][] = array(
     'name'=>'WHVid',
     'author'=>'Jordan Small',
-    'description'=>'Adds a parser function to embed wikihow-created videos', 
+    'description'=>'Adds a parser function to embed wikihow-created videos',
 );
 
-$wgExtensionMessagesFiles['WHVid'] = dirname(__FILE__) . '/WHVid.i18n.php';
-$wgAutoloadClasses['WHVid'] = dirname(__FILE__) . '/WHVid.body.php';
+$wgExtensionMessagesFiles['WHVid'] = __DIR__ . '/WHVid.i18n.php';
+$wgAutoloadClasses['WHVid'] = __DIR__ . '/WHVid.body.php';
 $wgHooks['LanguageGetMagic'][] = 'WHVid::languageGetMagic';
 $wgHooks['BeforePageDisplay'][] = 'WHVid::onBeforePageDisplay';
 $wgHooks['AddTopEmbedJavascript'][] = 'WHVid::onAddTopEmbedJavascript';

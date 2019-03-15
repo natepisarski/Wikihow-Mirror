@@ -6,7 +6,7 @@ if ( ! defined( 'MEDIAWIKI' ) )
 /**#@+
  * An extension that allows users to upload an image while on the edit page
  * without leaving that page.
- * 
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *

@@ -17,7 +17,7 @@ class RecentChangesAppWidget extends DashboardWidget {
 	 */
 	public function getLastContributor(&$dbr){
 		$user = RCWidget::getLastPatroller($dbr);
-		
+
 		return $this->populateUserObject($user['id'], $user['date']);
 	}
 
@@ -36,17 +36,21 @@ class RecentChangesAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
 			$link = "<a href='/Special:RCPatrol' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
 			$link = "<a href='/Special:Userlogin?returnto=Special:RCPatrol' class='comdash-start'>Login";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-login'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	/**
@@ -100,7 +104,7 @@ class RecentChangesAppWidget extends DashboardWidget {
 	}
 
 	public function isAllowed($isLoggedIn, $userId=0){
-		if(!$isLoggedIn)
+		if (!$isLoggedIn)
 			return false;
 		else
 			return true;

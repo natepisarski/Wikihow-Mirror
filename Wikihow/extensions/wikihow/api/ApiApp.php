@@ -1,5 +1,5 @@
 <?php
- 
+
 // The basis for this code was taken from:
 // https://www.mediawiki.org/wiki/API:Extensions
 
@@ -12,8 +12,8 @@ $wgExtensionCredits['api'][] = array(
 	'author' => 'Reuben Smith',
 	'url' => 'https://www.mediawiki.org/wiki/API:Extensions',
 );
- 
-$wgAutoloadClasses['ApiApp'] = dirname( __FILE__ ) . '/ApiApp.body.php';
+
+$wgAutoloadClasses['ApiApp'] = __DIR__ . '/ApiApp.body.php';
 
 $wgAPIModules['app'] = 'ApiApp';
- 
+

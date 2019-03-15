@@ -13,7 +13,7 @@ class FeaturedContributor {
 				return $list[0];
 			} else {
 				return "== " . $list[$r];
-			}	
+			}
 		}
 	}
 
@@ -34,7 +34,7 @@ class FeaturedContributor {
 
 		$u->load();
 		$avatar = ($wgLanguageCode == 'en') ? Avatar::getPicture($u->getName(), true, true) : "";
-	
+
 		$t = new Title();
 		$output = $wgParser->parse($fc_blurb, $t, new ParserOptions() );
 		$fc_blurb = preg_replace("/\n/","",strip_tags($output->getText() , '<p><b><a><br>'));

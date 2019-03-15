@@ -10,14 +10,14 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['RCLite'] = 'RCLite';
 $wgSpecialPages['AdminRCMobile'] = 'AdminRCMobile';
-$wgAutoloadClasses['RCLite'] = dirname(__FILE__) . '/RCLite.body.php';
-$wgAutoloadClasses['AdminRCMobile'] = dirname(__FILE__) . '/AdminRCMobile.body.php';
-$wgExtensionMessagesFiles['RCLite'] = dirname(__FILE__) . '/RCLite.i18n.php';
+$wgAutoloadClasses['RCLite'] = __DIR__ . '/RCLite.body.php';
+$wgAutoloadClasses['AdminRCMobile'] = __DIR__ . '/AdminRCMobile.body.php';
+$wgExtensionMessagesFiles['RCLite'] = __DIR__ . '/RCLite.i18n.php';
 
 $wgResourceModules['mobile.rclite'] = array(
 	'scripts' => array('../ext-utils/anon_throttle.js', 'rclite.js'),
 	'styles' => 'rclite.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/rclite',
 	'messages' => array(
 		'rcl-image-placeholder-txt',

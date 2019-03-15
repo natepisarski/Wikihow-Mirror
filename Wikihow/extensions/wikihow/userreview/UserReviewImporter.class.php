@@ -28,7 +28,7 @@ class UserReviewImporter extends UnlistedSpecialPage {
 
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -51,7 +51,7 @@ class UserReviewImporter extends UnlistedSpecialPage {
 		$out->setPageTitle("User Review Importer");
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 		$vars = array('waitingurl' => wfGetPad('/extensions/wikihow/rotate.gif'));
@@ -70,8 +70,7 @@ class UserReviewImporter extends UnlistedSpecialPage {
 		return self::processCuratedSheetData($data);
 	}
 
-	private static function getSpreadsheetData($sheetId, $worksheetId)
-	{
+	private static function getSpreadsheetData($sheetId, $worksheetId) {
 		global $IP;
 		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
 
@@ -134,7 +133,7 @@ class UserReviewImporter extends UnlistedSpecialPage {
 		foreach($data as $row) {
 			$isEligible = UserReview::isArticleEligibleForReviews($row->{'gsx$articleid'}->{'$t'});
 			$reviewId = $row->{'gsx$usidfromsubmittedtable'}->{'$t'};
-			if($reviewId == "") {
+			if ($reviewId == "") {
 				self::insertNewReview(
 					$row->{'gsx$articleid'}->{'$t'},
 					$row->{'gsx$email'}->{'$t'},
@@ -185,7 +184,7 @@ class UserReviewImporter extends UnlistedSpecialPage {
 			'us_positive' => $isPositive
 		);
 
-		if($autoCurate) {
+		if ($autoCurate) {
 			$insertValues['us_curated_user'] = $wgUser->getId();
 			$insertValues['us_curated_timestamp'] = wfTimestampNow();
 		}
@@ -236,7 +235,7 @@ class UserReviewImporter extends UnlistedSpecialPage {
 
 		$dbw->update(UserReview::TABLE_SUBMITTED, $submittedArray, array('us_id' => $reviewId), __METHOD__);
 
-		if($autoCurate) {
+		if ($autoCurate) {
 			$dbw->upsert(UserReview::TABLE_CURATED,
 				array_merge($curatedArray, array('uc_submitted_id' => $reviewId)),
 				array(),

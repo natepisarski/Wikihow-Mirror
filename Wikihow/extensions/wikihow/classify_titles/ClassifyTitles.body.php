@@ -11,9 +11,10 @@ class ClassifyTitles extends UnlistedSpecialPage {
 	const JOBNAME = "Classify Titles";
 
 	public function __construct() {
-		$this->action = $GLOBALS[ 'wgTitle' ]->getPartialUrl();
+		global $wgHooks;
 		parent::__construct( $this->action );
-		$GLOBALS[ 'wgHooks' ][ 'ShowSideBar' ][] = [ 'Turker::removeSideBarCallback' ];
+		$this->action = $this->getTitle()->getPartialUrl();
+		$wgHooks[ 'ShowSideBar' ][] = [ 'Turker::removeSideBarCallback' ];
 	}
 
 	public static function removeSideBarCallback( &$showSideBar ) {
@@ -27,7 +28,7 @@ class ClassifyTitles extends UnlistedSpecialPage {
 	}
 
 	// Function to get results
-	function processBatchRequest( $postedValues ) {
+	private function processBatchRequest( $postedValues ) {
 		$allData = False;
 		$lastBatch = False;
 		$batchId = 0;
@@ -48,7 +49,6 @@ class ClassifyTitles extends UnlistedSpecialPage {
 		}
 
 		$this->getResults( $batchId, $allData );
-		return;
 	}
 
 	// Used to fectch results from the db
@@ -78,7 +78,7 @@ class ClassifyTitles extends UnlistedSpecialPage {
 		$fileHandle = fopen( 'php://output' ,'w' );
 		fputcsv( $fileHandle, $header, ',', '"' );
 		if ( $res ) {
-			foreach( $res as $row ) {
+			foreach ( $res as $row ) {
 				$restData = explode( ',', str_replace( [ '(', ')' ], '', $row->ct_rest ) );
 				if ( $restData ) {
 					$data = array_merge( [ $row->ct_text, $row->ct_result, $row->ct_confidence ], $restData );
@@ -88,7 +88,6 @@ class ClassifyTitles extends UnlistedSpecialPage {
 				fputcsv( $fileHandle, $data, ',', '"' );
 			}
 		}
-		return;
 	}
 
 	// Displays existing job status at page load
@@ -126,10 +125,10 @@ class ClassifyTitles extends UnlistedSpecialPage {
 	}
 
 	// Post the job to the jobdb table
-	function processUpload( $uploadfile, $userName ) {
+	private function processUpload( $uploadfile, $userName ) {
 
 		// Check file for format and save it to the local dir
-		if( !file_exists( $uploadfile ) || !is_readable( $uploadfile ) ) {
+		if ( !file_exists( $uploadfile ) || !is_readable( $uploadfile ) ) {
 			$this->$errors[] = 'Could not find file. File not uploaded.';
 			return 'Bad File' ;
 		}
@@ -195,7 +194,7 @@ class ClassifyTitles extends UnlistedSpecialPage {
 		// Check permissions
 		$userGroups = $user->getGroups();
 		if ( ( $userName != 'Rjsbhatia' ) && ( $user->isBlocked() || !( in_array( 'staff', $userGroups ) ) ) ) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -219,7 +218,7 @@ class ClassifyTitles extends UnlistedSpecialPage {
 						'jobStatus' => $this->getJobStatus()
 						];
 
-		$options = [ 'loader' => new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) ) , ];
+		$options = [ 'loader' => new Mustache_Loader_FilesystemLoader( __DIR__ ) , ];
 		$m = new Mustache_Engine( $options );
 		$tmpl = $m->render( 'classifytitles.mustache', $must_vars );
 

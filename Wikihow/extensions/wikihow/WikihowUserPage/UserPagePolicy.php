@@ -2,4 +2,4 @@
 if ( ! defined( 'MEDIAWIKI' ) )
   die();
 
-$wgAutoloadClasses['UserPagePolicy'] = dirname(__FILE__) . '/UserPagePolicy.class.php';
+$wgAutoloadClasses['UserPagePolicy'] = __DIR__ . '/UserPagePolicy.class.php';

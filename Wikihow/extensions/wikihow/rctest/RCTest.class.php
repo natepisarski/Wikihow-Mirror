@@ -54,14 +54,14 @@ class RCTest {
 	private function fetchUserInfo() {
 		global $wgUser;
 
-		if(!$this->userExists()) {
+		if (!$this->userExists()) {
 			$this->addUser($wgUser);
 		}
 
 		// Use the master so we can fetch the user if it was just created
 		$dbw = wfGetDB(DB_MASTER);
 		$row = $dbw->selectRow('rctest_users', array('*'), array('ru_user_id' => $wgUser->getId()));
-		if(is_object($row)) {
+		if (is_object($row)) {
 			$this->userInfo = get_object_vars($row);
 		}
 		else {
@@ -171,7 +171,7 @@ class RCTest {
 		if ($nextTestPatrolCount >= 1000) {
 			$difficulty = 3; //hard
 		}
-		else if ($nextTestPatrolCount >= 500) {
+		elseif ($nextTestPatrolCount >= 500) {
 			$difficulty = 2; //medium
 		}
 		else {

@@ -16,7 +16,9 @@ WH.mobileads = (function () {
 	var anchorAd = null;
 	var scrollToAd = null;
 	var scrollToTimer = null;
-	var maxScrollToAds = 3;
+	var maxScrollToAdsSteps = 3;
+	var maxScrollToAds = 6;
+	var scrollToAdsLoadedSteps = 0;
 	var scrollToAdsLoaded = 0;
 
 	function setDFPTargeting(data) {
@@ -468,18 +470,11 @@ WH.mobileads = (function () {
 		return false;
 	}
 
-	// uses jquery to get the step after the one in the viewport or null
-	function getStepForScrollPosition() {
-		var scrollPosition = window.scrollY;
-
-		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
-		var steps = document.getElementsByClassName("step");
+	function getStepForScrollPosition(viewportHeight, scrollPosition, steps) {
 		var targetStep = null;
 		var found = false;
 		for (var i = 0; i < steps.length; i++) {
 			var step = steps[i];
-			// sanity check on the step
-			step = step.parentElement;
 			if (step.nodeName != "LI") {
 				continue;
 			}
@@ -501,23 +496,121 @@ WH.mobileads = (function () {
 		return targetStep;
 	}
 
+	function getInsertTargetForScrollPosition() {
+		var scrollPosition = window.scrollY;
+
+		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
+		var sections = document.getElementsByClassName("section");
+		var target = null;
+		var found = false;
+		for (var i = 0; i <= sections.length; i++) {
+			var section = null;
+			if (i == sections.length) {
+				section = document.getElementById('ur_mobile');
+				if (!section) {
+					break;
+				}
+			} else {
+				section = sections[i];
+			}
+			if (section.id == "aiinfo") {
+				continue;
+			}
+
+			if (found == true) {
+				var sectionText = section.getElementsByClassName("section_text");
+				if (!sectionText || !sectionText[0]) {
+					return null;
+				}
+				target = sectionText[0];
+				break;
+			}
+
+			// skip intro
+			if (section.id == "intro") {
+				continue;
+			}
+			if (section.classList.contains('steps')) {
+				var steps = section.getElementsByClassName("steps_list_2");
+				if (!steps || !steps[0]) {
+					continue;
+				}
+				var stepsTarget = getStepForScrollPosition(viewportHeight, scrollPosition, steps[0].childNodes);
+				if (!stepsTarget) {
+					continue;
+				}
+				target = stepsTarget;
+				break;
+			}
+
+			var sectionText = section.getElementsByClassName("section_text");
+			if (!sectionText || !sectionText[0]) {
+				continue;
+			}
+			section = sectionText[0];
+			var rect = section.getBoundingClientRect();
+			if (isInViewport(rect, viewportHeight, true)) {
+				// if we are near the end of the section now, then put the ad at the next section instead
+				if (isNearEndOfStep(rect, viewportHeight)) {
+					found = true;
+				} else {
+					target = section;
+					break;
+				}
+			}
+		}
+		return target;
+	}
+
 	// moves the ad to a position near where you are scrolled
 	// intended to be called before loading it
 	// returns true if it was moved, false if something went wrong
 	function loadScrollToAd(ad) {
-
-		var step = getStepForScrollPosition();
-		if (!step) {
+		var insertTarget = getInsertTargetForScrollPosition();
+		if (!insertTarget) {
 			return false;
 		}
+		var isStep = insertTarget.tagName == "LI";
 
-		var existingAds = step.getElementsByTagName("INS")
+		if (isStep) {
+			if (scrollToAdsLoadedSteps >= maxScrollToAdsSteps) {
+				return;
+			}
+		} else {
+			if (scrollToAdsLoaded>= maxScrollToAds) {
+				return;
+			}
+		}
+
+		var existingAds = insertTarget.getElementsByTagName("INS")
+		if (existingAds.length > 0) {
+			return;
+		}
+		existingAds = insertTarget.getElementsByClassName("wh_ad")
 		if (existingAds.length > 0) {
 			return;
 		}
 
-		insertAdsenseAd(ad.type, step);
-		step.appendChild(ad.adElement);
+		var addTips = insertTarget.getElementsByClassName("addTipElement");
+		if (addTips.length > 0) {
+			insertTarget.classList.add('has_scrolltoad');
+		}
+
+		// if we wrap the ad in a div it always seems to center itself better
+		var wrap = document.createElement('div');
+		wrap.className = "scrollto_wrap";
+		insertTarget.appendChild(wrap);
+		insertTarget = wrap;
+
+		insertAdsenseAd(ad.type, insertTarget);
+		insertTarget.appendChild(ad.adElement);
+
+		// now insert label
+		var label = document.createElement('div');
+		label.className = 'ad_label_scrollto';
+		label.innerHTML = "Advertisement";
+
+		insertTarget.appendChild(label);
 
 		var chans = getAdChannels(ad.type, ad.target);
 		(adsbygoogle = window.adsbygoogle || []).push({
@@ -529,8 +622,13 @@ WH.mobileads = (function () {
 			}
 		});
 
-		scrollToAdsLoaded++;
-		if (scrollToAdsLoaded >= 3) {
+		if (isStep) {
+			scrollToAdsLoadedSteps++;
+		} else {
+			scrollToAdsLoaded++;
+		}
+
+		if (scrollToAdsLoaded >= maxScrollToAds && scrollToAdsLoadedSteps >= maxScrollToAdsSteps) {
 			ad.isLoaded = true;
 		}
 

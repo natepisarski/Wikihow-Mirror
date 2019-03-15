@@ -1,10 +1,10 @@
 <?php
 
 if (!defined('MEDIAWIKI')) die();
-    
+
 /**#@+
  * Display a google form/spreadsheet which people can use to sign up.
- * 
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *
@@ -22,5 +22,4 @@ $wgExtensionCredits['special'][] = array(
 );
 
 $wgSpecialPages['Bloggers'] = 'Bloggers';
-$wgAutoloadClasses['Bloggers'] = dirname( __FILE__ ) . '/Bloggers.body.php';
-
+$wgAutoloadClasses['Bloggers'] = __DIR__ . '/Bloggers.body.php';

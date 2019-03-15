@@ -15,7 +15,7 @@ class FileAttachmentMailer {
 			'mimeType' => $mimeType,
 		];
 
-		$options =  ['loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__))];
+		$options =  ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];
 		$m = new Mustache_Engine($options);
 		$body = $m->render('file_attachment_mailer', $data);
 

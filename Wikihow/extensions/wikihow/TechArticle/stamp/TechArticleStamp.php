@@ -9,7 +9,7 @@
 if (!defined('MEDIAWIKI'))
 	die();
 
-$wgAutoloadClasses['TechArticle\TechArticleStampHooks'] = dirname( __FILE__ ) . '/TechArticleStamp.hooks.php';
+$wgAutoloadClasses['TechArticle\TechArticleStampHooks'] = __DIR__ . '/TechArticleStamp.hooks.php';
 
 $wgHooks['BylineStamp'][] = 'TechArticle\TechArticleStampHooks::setBylineInfo';
 

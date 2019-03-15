@@ -13,15 +13,19 @@ class TopicTaggingAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus) {
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED || $widgetStatus == DashboardWidget::WIDGET_LOGIN)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED || $widgetStatus == DashboardWidget::WIDGET_LOGIN)
 			$link = "<a href='/Special:TopicTagging' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	/**
@@ -52,7 +56,16 @@ class TopicTaggingAppWidget extends DashboardWidget {
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->log_user, $row->log_timestamp);
+		if (!empty($row)) {
+			$user = $row->log_user;
+			$timestamp = $row->log_timestamp;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -89,7 +102,16 @@ class TopicTaggingAppWidget extends DashboardWidget {
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->log_user, $row->log_recent);
+		if (!empty($row)) {
+			$user = $row->log_user;
+			$timestamp = $row->log_recent;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**

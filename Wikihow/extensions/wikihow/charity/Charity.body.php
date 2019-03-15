@@ -102,7 +102,7 @@ class Charity extends SpecialPage {
 			'ch_instagram_mobile' => wfMessage('ch_instagram_mobile')->text()
 		];
 
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$out->addHTML($m->render( 'landing', $vars ));
@@ -144,28 +144,28 @@ class Charity extends SpecialPage {
 		$display_data = $dc->getData();
 
 		$count = 0;
-		foreach($reviews as &$review) {
+		foreach ($reviews as &$review) {
 			$userId = $review['uc_user_id'];
 			$review['uc_firstname'] = trim($review['uc_firstname']);
 			$review['uc_lastname'] = trim($review['uc_lastname']);
 			$review['initials'] = $review['uc_firstname'][0] . $review['uc_lastname'][0];
-			if(array_key_exists($userId, $display_data)) {
+			if (array_key_exists($userId, $display_data)) {
 				$review['avatarUrl'] = wfGetPad($display_data[$userId]['avatar_url']);
 				$review['fullname'] = $display_data[$userId]['display_name'];
 			} else {
 				$review['fullname'] = $review['uc_firstname'] . ($review['uc_lastname'] != '' ? ' ' . $review['uc_lastname'] : '');
 			}
-			if(!empty($review['uc_user_id']) && $review['realname'] != "") {
-				if($review['initials'] == "") {
+			if (!empty($review['uc_user_id']) && $review['realname'] != "") {
+				if ($review['initials'] == "") {
 					$nameParts = explode(" ", $review['realname']);
-					if(count($nameParts) > 1) {
+					if (count($nameParts) > 1) {
 						$review['initials'] = $nameParts[0][0] . $nameParts[count($nameParts)-1][0];
 					} else {
 						$review['initials'] = $nameParts[0][0];
 					}
 				}
 			} elseif (!empty($review['uc_user_id']) &&  $review['username'] != ""){
-				if($review['initials'] == "") {
+				if ($review['initials'] == "") {
 					$review['initials'] = $review['username'][0];
 				}
 			}
@@ -184,7 +184,7 @@ class Charity extends SpecialPage {
 
 	public static function isEligibleForMobileSpecial(&$isEligible) {
 		global $wgTitle;
-		if($wgTitle && strrpos($wgTitle->getText(), "Charity") === 0) {
+		if ($wgTitle && strrpos($wgTitle->getText(), "Charity") === 0) {
 			$isEligible = true;
 		}
 

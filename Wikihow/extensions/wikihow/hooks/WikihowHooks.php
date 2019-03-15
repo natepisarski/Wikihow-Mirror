@@ -2,14 +2,14 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['ImageHooks'] = dirname( __FILE__ ) . '/ImageHooks.body.php';
-$wgAutoloadClasses['DevImageHooks'] = dirname( __FILE__ ) . '/DevImageHooks.body.php';
-$wgAutoloadClasses['PageHooks'] = dirname( __FILE__ ) . '/PageHooks.body.php';
-$wgAutoloadClasses['SpecialPagesHooks'] = dirname( __FILE__ ) . '/SpecialPagesHooks.php';
-$wgAutoloadClasses['ArticleHooks'] = dirname( __FILE__ ) . '/ArticleHooks.php';
-$wgAutoloadClasses['DiffHooks'] = dirname( __FILE__ ) . '/DiffHooks.php';
-$wgAutoloadClasses['EmailBounceHooks'] = dirname(__FILE__) . '/Email.body.php';
-$wgAutoloadClasses['EmailNotificationHooks'] = dirname(__FILE__) . '/Email.body.php';
+$wgAutoloadClasses['ImageHooks'] = __DIR__ . '/ImageHooks.body.php';
+$wgAutoloadClasses['DevImageHooks'] = __DIR__ . '/DevImageHooks.body.php';
+$wgAutoloadClasses['PageHooks'] = __DIR__ . '/PageHooks.body.php';
+$wgAutoloadClasses['SpecialPagesHooks'] = __DIR__ . '/SpecialPagesHooks.php';
+$wgAutoloadClasses['ArticleHooks'] = __DIR__ . '/ArticleHooks.php';
+$wgAutoloadClasses['DiffHooks'] = __DIR__ . '/DiffHooks.php';
+$wgAutoloadClasses['EmailBounceHooks'] = __DIR__ . '/Email.body.php';
+$wgAutoloadClasses['EmailNotificationHooks'] = __DIR__ . '/Email.body.php';
 
 
 //
@@ -91,6 +91,7 @@ $wgHooks['DeferHeadScripts'][] = array('ArticleHooks::onDeferHeadScripts');
 $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::firstEditPopCheck');
 $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::onPageContentSaveCompleteAddFirstEditTag');
 $wgHooks['ArticlePageDataAfter'][] = array('ArticleHooks::firstEditPopIt');
+$wgHooks['AddDesktopTOCItems'][] = array('ArticleHooks::addDesktopTOCItems');
 
 
 $wgHooks['GoodRevisionUpdated'][] = array('ArticleHooks::updateExpertVerifiedRevision');

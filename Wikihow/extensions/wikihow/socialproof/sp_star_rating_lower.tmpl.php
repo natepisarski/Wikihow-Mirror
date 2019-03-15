@@ -1,4 +1,4 @@
-			<div id="sp_star_rating_lower" <?php if(@$helpful !== null): ?> style="display:none"<?php endif; ?>>
+			<div id="sp_star_rating_lower" <?php if (@$helpful !== null): ?> style="display:none"<?php endif; ?>>
 		    	<div id="sp_star_rating_text"></div>
 		    	<div style="clear: both;"></div>
 			    <div id="votetext"><?=wfMessage('sp_votetext')->text()?></div>

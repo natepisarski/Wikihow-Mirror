@@ -60,6 +60,9 @@
 				}
 			}
 
+			var $quiz_yourself_cta = $container.next('.qy_cta');
+			if ($quiz_yourself_cta.length) $quiz_yourself_cta.slideDown();
+
 			WH.maEvent('quiz_answer_click', { correct: isCorrect?1:0, articleTitle: mw.config.get('wgPageName') }, true);
 		},
 

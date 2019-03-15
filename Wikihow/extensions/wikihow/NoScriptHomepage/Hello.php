@@ -12,8 +12,8 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Hello'] = 'Hello';
-$wgAutoloadClasses['Hello'] = dirname(__FILE__) . '/Hello.body.php';
-$wgExtensionMessagesFiles['Hello'] = dirname(__FILE__) . '/Hello.i18n.php';
+$wgAutoloadClasses['Hello'] = __DIR__ . '/Hello.body.php';
+$wgExtensionMessagesFiles['Hello'] = __DIR__ . '/Hello.i18n.php';
 
 $wgHooks['WebRequestPathInfoRouter'][] = array('helloPathInfoRouter');
 function helloPathInfoRouter( $router ) {

@@ -11,7 +11,7 @@ $wgHooks['DesktopTopStyles'][] = ['TechLayout::addCSS'];
 
 $wgResourceModules['ext.wikihow.techlayout'] = array(
 	'scripts' => 'techlayout.js',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/techlayout',
 	'position' => 'top',
 	'targets' => array( 'desktop' )

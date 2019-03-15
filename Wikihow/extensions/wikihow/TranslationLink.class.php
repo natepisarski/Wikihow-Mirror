@@ -9,15 +9,15 @@ class TranslationLink {
 
 	//These actions are written to the translation_link_log table
 	//Retrieve an article by name to be translated
-	const ACTION_NAME="n";
+	const ACTION_NAME = "n";
 	//Save a link to to the translation_link table
-	const ACTION_SAVE="s";
+	const ACTION_SAVE = "s";
 	//Delete an translation link
-	const ACTION_DELETE="d";
+	const ACTION_DELETE = "d";
 	//Add an interwiki link based off the translation_link table
-	const ACTION_INTERWIKI="i";
+	const ACTION_INTERWIKI = "i";
 	//Delete an interwiki link
-	const ACTION_INTERWIKI_DELETE="e";
+	const ACTION_INTERWIKI_DELETE = "e";
 	// Language and article id translated from
 	public $fromLang;
 	public $fromAID;
@@ -29,15 +29,15 @@ class TranslationLink {
 	public $toURL;
 
 	// Status in database is unknown
-	const TL_STATUS_UNKNOWN=0;
+	const TL_STATUS_UNKNOWN = 0;
 	// Not yet added to database
-	const TL_STATUS_NEW=1;
+	const TL_STATUS_NEW = 1;
 	// Link is in database
-	const TL_STATUS_SAVED=2;
+	const TL_STATUS_SAVED = 2;
 	// Link is updatable (I.E. only one side of the link is the same in the database)
-	const TL_STATUS_UPDATEABLE=3;
+	const TL_STATUS_UPDATEABLE = 3;
 	// Link interferes with the link in the database
-	const TL_STATUS_NON_UPDATEABLE=4;
+	const TL_STATUS_NON_UPDATEABLE = 4;
 
 	// Status with regards to lang links table
 	public $tlStatus;
@@ -68,12 +68,14 @@ class TranslationLink {
 		$this->toAID = NULL;
 		$this->fromAID = NULL;
 	}
+
 	/**
 	 * Update the translation link status, saving the old status */
 	private function setTlStatus($status) {
 		$this->oldTlStatus = $this->tlStatus;
 		$this->tlStatus = $status;
 	}
+
 	/**
 	 * Check that all basic fields aren't null */
 	private function isValid() {
@@ -114,13 +116,23 @@ class TranslationLink {
 	 */
 	private function updateDB() {
 		$dbr = wfGetDB(DB_SLAVE);
-		$sql = "select tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid FROM " . WH_DATABASE_NAME . ".translation_link where tl_from_lang=" . $dbr->addQuotes($this->fromLang) . " AND tl_from_aid="  . $dbr->addQuotes($this->fromAID) . " AND tl_to_lang=" . $dbr->addQuotes($this->toLang);
-		$res = $dbr->query($sql, __METHOD__);
-		$row = $dbr->fetchObject($res);
-		$sql = "select tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid FROM " . WH_DATABASE_NAME . ".translation_link where tl_from_lang=" . $dbr->addQuotes($this->fromLang) . " AND tl_to_lang=" . $dbr->addQuotes($this->toLang) . " AND tl_to_aid=" . $dbr->addQuotes($this->toAID);
-		$res2 = $dbr->query($sql, __METHOD__);
-		$row2 = $dbr->fetchObject($res2);
-		//If there are other links for both the translation links
+		$columns = [ 'tl_from_lang', 'tl_from_aid', 'tl_to_lang', 'tl_to_aid' ];
+		$table = WH_DATABASE_NAME . '.translation_link';
+
+		$row = $dbr->selectRow( $table,
+			$columns,
+			[ 'tl_from_lang' => $this->fromLang,
+			  'tl_from_aid' => $this->fromAID,
+			  'tl_to_lang' => $this->toLang ],
+			__METHOD__ );
+		$row2 = $dbr->selectRow( $table,
+			$columns,
+			[ 'tl_from_lang' => $this->fromLang,
+			  'tl_to_lang' => $this->toLang,
+			  'tl_to_aid' => $this->toAID ],
+			__METHOD__ );
+
+		// If there are other links for both the translation links
 		if ($row && $row2) {
 			$this->setTlStatus(self::TL_STATUS_NON_UPDATEABLE);
 			return 0;
@@ -128,14 +140,24 @@ class TranslationLink {
 
 		if ($row) {
 			$dbw = wfGetDB(DB_MASTER);
-			$sql = "update " . WH_DATABASE_NAME . ".translation_link set tl_to_aid=" . $dbw->addQuotes($this->toAID) . ", tl_timestamp=" . wfTimestampNow(TS_MW) . " where tl_from_lang=" . $dbw->addQuotes($row->tl_from_lang) . " AND tl_from_aid=" . $dbw->addQuotes($row->tl_from_aid) . " AND tl_to_lang=" . $dbw->addQuotes($this->toLang) ;
-			$dbw->query($sql, __METHOD__);
+			$dbw->update( $table,
+				[ 'tl_to_aid' => $this->toAID,
+				  'tl_timestamp' =>  wfTimestampNow(TS_MW) ],
+				[ 'tl_from_lang' => $row->tl_from_lang,
+				  'tl_from_aid' => $row->tl_from_aid,
+				  'tl_to_lang' => $this->toLang ],
+				__METHOD__ );
 			$this->setTlStatus(self::TL_STATUS_SAVED);
 			return 2;
 		} elseif ($row2) {
 			$dbw = wfGetDB(DB_MASTER);
-			$sql = "update " . WH_DATABASE_NAME . ".translation_link set tl_from_aid=" . $dbw->addQuotes($this->fromAID) . ", tl_timestamp=" . wfTimestampNow(TS_MW) . " where tl_from_lang=" . $dbw->addQuotes($row2->tl_from_lang) . " AND tl_to_lang=" . $dbw->addQuotes($row2->tl_to_lang) . " AND tl_to_aid=" . $dbw->addQuotes($row2->tl_to_aid);
-			$dbw->query($sql, __METHOD__);
+			$dbw->update( $table,
+				[ 'tl_from_aid' => $this->fromAID,
+				  'tl_timestamp' =>  wfTimestampNow(TS_MW) ],
+				[ 'tl_from_lang' => $row2->tl_from_lang,
+				  'tl_to_lang' => $row2->tl_to_lang,
+				  'tl_to_aid' => $row2->tl_to_aid ],
+				__METHOD__ );
 			$this->setTlStatus(self::TL_STATUS_SAVED);
 			return 2;
 		} else {
@@ -144,22 +166,27 @@ class TranslationLink {
 		}
 	}
 
-/* unused method, looks like - Reuben, 3/2019
 	public function insert() {
-		$dbr = wfGetDB(DB_MASTER);
-		$sql = "insert ignore into " . WH_DATABASE_NAME . ".translation_link(tl_from_lang, tl_from_aid, tl_to_lang,tl_to_aid,tl_timestamp) values(" . $dbr->addQuotes($this->fromLang) . "," . intVal($this->fromAID) . "," . $dbr->addQuotes($this->toLang) . "," . intVal($this->toAID) . "," . $dbr->addQuotes(wfTimestampNow( TS_MW))  . ") ";
-		$dbr->query($sql, __METHOD__);
+		$dbw = wfGetDB(DB_MASTER);
+		$dbw->insert(WH_DATABASE_NAME . ".translation_link",
+			[ $this->fromLang,
+			  (int)$this->fromAID,
+			  $this->toLang,
+			  (int)$this->toAID,
+			  wfTimestampNow(TS_MW) ],
+			__METHOD__,
+			[ 'IGNORE' ]);
 		$this->setTlStatus(self::TL_STATUS_SAVED);
 		return true;
 	}
-*/
 
 	/**
 	 * Bulk insert of translation links. If a translation link is updateable, we will do an update
 	 */
 	// NOTE: used in TranslationLinkOverride
 	public static function batchAddTranslationLinks(&$links) {
-		$dbr = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
+		// TODO: convert this to Mediawiki Database interface
 		$sql = "INSERT IGNORE INTO " .
 				WH_DATABASE_NAME . ".translation_link " .
 				"(tl_from_lang, tl_from_aid, tl_to_lang,tl_to_aid,tl_timestamp) " .
@@ -171,9 +198,9 @@ class TranslationLink {
 				if (!$first) {
 					$sql .= ",";
 				}
-				$sql .= "(" . $dbr->addQuotes($link->fromLang) . "," . $dbr->addQuotes($link->fromAID) . "," .
-					$dbr->addQuotes($link->toLang) . "," . $dbr->addQuotes($link->toAID) . "," .
-					$dbr->addQuotes(wfTimestampNow(TS_MW)) . ")";
+				$sql .= "(" . $dbw->addQuotes($link->fromLang) . "," . $dbw->addQuotes($link->fromAID) . "," .
+					$dbw->addQuotes($link->toLang) . "," . $dbw->addQuotes($link->toAID) . "," .
+					$dbw->addQuotes(wfTimestampNow(TS_MW)) . ")";
 				$first = false;
 			} elseif ($link->tlStatus == self::TL_STATUS_UPDATEABLE) {
 				$updateLinks[] = $link;
@@ -182,7 +209,7 @@ class TranslationLink {
 		try {
 			// Do query we have at least element to insert into translation link table
 			if (!$first) {
-				$dbr->query($sql, __METHOD__);
+				$dbw->query($sql, __METHOD__);
 				foreach ($links as &$link) {
 					if ($link->tlStatus == self::TL_STATUS_NEW) {
 						$link->setTlStatus(self::TL_STATUS_SAVED);
@@ -206,6 +233,7 @@ class TranslationLink {
 	// Note: used in TranslationLinkOverride
 	public static function batchUpdateTLStatus(&$links) {
 		$dbr = wfGetDB(DB_SLAVE);
+		// TODO: convert this to Mediawiki Database interface
 		$prefixSql =
 				"SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid " .
 				"FROM " . WH_DATABASE_NAME . ".translation_link " .
@@ -228,7 +256,7 @@ class TranslationLink {
 		if (!$first) {
 			$sql .= ")";
 			$res = $dbr->query($sql, __METHOD__);
-			while ($row = $dbr->fetchObject($res)) {
+			foreach ($res as $row) {
 				$lh[$row->tl_from_lang . $row->tl_from_aid . $row->tl_to_lang][] = $row->tl_to_aid;
 			}
 		}
@@ -247,7 +275,7 @@ class TranslationLink {
 		if (!$first) {
 			$sql .= ")";
 			$res = $dbr->query($sql, __METHOD__);
-			while ($row = $dbr->fetchObject($res)) {
+			foreach ($res as $row) {
 				$rh[$row->tl_from_lang . $row->tl_to_aid . $row->tl_to_lang][] = $row->tl_from_aid;
 			}
 		}
@@ -263,24 +291,20 @@ class TranslationLink {
 					} else {
 						$link->setTlStatus(self::TL_STATUS_NON_UPDATEABLE);
 					}
-				}
-				elseif (isset($lhl)) {
+				} elseif (isset($lhl)) {
 					if (in_array($link->toAID, $lhl)) {
 						$link->setTlStatus(self::TL_STATUS_SAVED);
 					}
 					else {
 						$link->setTlStatus(self::TL_STATUS_UPDATEABLE);
 					}
-				}
-				elseif (isset($rhl)) {
+				} elseif (isset($rhl)) {
 					if (in_array($link->fromAID, $rhl)) {
 						$link->setTlStatus(self::TL_STATUS_SAVED);
-					}
-					else {
+					} else {
 						$link->setTlStatus(self::TL_STATUS_UPDATEABLE);
 					}
-				}
-				else {
+				} else {
 					$link->setTlStatus(self::TL_STATUS_NEW);
 				}
 			}
@@ -312,7 +336,7 @@ class TranslationLink {
 					return $l->toAID;
 				}),',') . ")";
 				$res = $dbr->query($sql, __METHOD__);
-				while ($row = $dbr->fetchObject($res)) {
+				foreach ($res as $row) {
 					$iwl[$lang . $lang2 . $row->ll_from][] = $row->page_id;
 					if ($row->page_id && is_numeric($row->page_id)) {
 						$iwlf[$lang2 . $lang . $row->page_id][] = $row->ll_from;
@@ -326,7 +350,7 @@ class TranslationLink {
 					return $l->fromAID;
 				}),',') . ")";
 				$res2 = $dbr->query($sql, __METHOD__);
-				while ($row2 = $dbr->fetchObject($res2)) {
+				foreach ($res2 as $row) {
 					$iwl[$lang . $lang2 . $row2->ll_from][] = $row2->page_id;
 					if ($row2->page_id && is_numeric($row2->page_id)) {
 						$iwlf[$lang . $lang2 . $row2->page_id][] = $row->ll_from;
@@ -363,11 +387,11 @@ class TranslationLink {
 	 * @param skipNonActive Exclude titles that aren't main namespace or are redirects
 	 */
 	// NOTE: used in Alfredo too.
-	public static function batchPopulateURLs(&$links, $fullUrl=true, $skipNonActive = false) {
-		$bl=array();
+	public static function batchPopulateURLs(&$links, $fullUrl = true, $skipNonActive = false) {
+		$bl = array();
 		foreach ($links as $link) {
-			$bl[] = array('id' => $link->fromAID, 'lang'=>$link->fromLang);
-			$bl[] = array('id' => $link->toAID, 'lang'=>$link->toLang);
+			$bl[] = array('id' => $link->fromAID, 'lang' => $link->fromLang);
+			$bl[] = array('id' => $link->toAID, 'lang' => $link->toLang);
 		}
 		$pages = Misc::getPagesFromLangIds($bl);
 		$ll = array();
@@ -473,7 +497,7 @@ class TranslationLink {
 		$toPage = Misc::fullUrlToPartial($toURL);
 
 		$fromTitle = Title::newFromId($fromAID);
-		if (!$fromTitle || $fromTitle->getNamespace() != NS_MAIN) {
+		if (!$fromTitle || !$fromTitle->inNamespace(NS_MAIN)) {
 			return $ret;
 		}
 		$r = Revision::newFromTitle($fromTitle);
@@ -582,7 +606,7 @@ class TranslationLink {
 	 * Gets all the links between two languages satisfying
 	 * various query parameters
 	 */
-	public static function getLinks($fromLang, $toLang, $where=array()) {
+	public static function getLinks($fromLang, $toLang, $where = array()) {
 		$fromPageTable = Misc::getLangDB($fromLang) . ".page";
 		$toPageTable = Misc::getLangDB($toLang) . ".page";
 
@@ -653,6 +677,7 @@ class TranslationLink {
 		$fromPageId = (int) $fromPageId;
 		$safeFromLang = $dbr->addQuotes($fromLang);
 
+		// TODO: convert this to Mediawiki Database interface
 		$sql = "
 		SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid
 		  FROM {$enTrLinkTable}
@@ -732,26 +757,28 @@ class TranslationLink {
 	public static function writeLog(
 		$action, $fromLang, $fromRevisionId, $fromAID, $fromTitleName,
 		$toLang, $toTitleName, $toAID = NULL,
-		$toolName=TranslateEditor::TOOL_NAME
+		$toolName = TranslateEditor::TOOL_NAME
 	) {
 		$user = RequestContext::getMain()->getUser();
 
-		$dbr = wfGetDB(DB_MASTER);
-		$query = "INSERT INTO " .
-			WH_DATABASE_NAME . ".translation_link_log " .
-			"(tll_from_lang, tll_from_aid, tll_from_title, tll_from_revision_id, tll_to_lang, " .
-				"tll_to_aid, tll_to_title, tll_user, tll_tool, tll_action, tll_timestamp) " .
-			"VALUES (" . $dbr->addQuotes($fromLang) . "," . $dbr->addQuotes($fromAID) . "," .
-				$dbr->addQuotes($fromTitleName) . "," . $dbr->addQuotes($fromRevisionId) . "," .
-				$dbr->addQuotes($toLang) . "," . $dbr->addQuotes($toAID) . "," .
-				$dbr->addQuotes($toTitleName) . "," . $dbr->addQuotes($user->getName()) . "," .
-				$dbr->addQuotes($toolName) . "," . $dbr->addQuotes($action) . "," .
-				$dbr->addQuotes(wfTimestampNow(TS_MW)) . ")";
-		$dbr->query($query, __METHOD__);
+		$dbw = wfGetDB(DB_MASTER);
+		$dbw->insert( WH_DATABASE_NAME . ".translation_link_log",
+			[ $fromLang,
+			  $fromAID,
+			  $fromTitleName,
+			  $fromRevisionId,
+			  $toLang,
+			  $toAID,
+			  $toTitleName,
+			  $user->getName(),
+			  $toolName,
+			  $action,
+			  wfTimestampNow(TS_MW) ],
+			__METHOD__ );
 	}
 
 	/**
-	 * Delete a link
+	 * Delete a link. Returns true if and only if it deletes something.
 	 */
 	// NOTE: I can't tell if this method is actually used outside this class.
 	// There are too many similarly named methods.
@@ -769,27 +796,28 @@ class TranslationLink {
 			return false;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
-		$query = "SELECT * " .
-			"FROM " . WH_DATABASE_NAME . ".translation_link " .
-			"WHERE tl_from_lang=" . $dbr->addQuotes($this->fromLang) .
-			"  AND tl_from_aid=" . $dbr->addQuotes($this->fromAID) .
-			"  AND tl_to_lang=" . $dbr->addQuotes($this->toLang) .
-			"  AND tl_to_aid=" . $dbr->addQuotes($this->toAID);
-		$res = $dbr->query($query, __METHOD__);
-		if (!$dbr->fetchObject($res)) {
+		$dbw = wfGetDB(DB_MASTER);
+
+		$conds = [
+			'tl_from_lang' => $this->fromLang,
+			'tl_from_aid' => $this->fromAID,
+			'tl_to_lang' => $this->toLang,
+			'tl_to_aid' => $this->toAID,
+		];
+
+		$count = $dbw->selectField( WH_DATABASE_NAME . ".translation_link",
+			'count(*)',
+			$conds,
+			__METHOD__ );
+		if ($count == 0) {
 			return false;
 		}
 
-		$dbw = wfGetDB(DB_MASTER);
-		$query = "DELETE FROM " .
-			WH_DATABASE_NAME . ".translation_link " .
-			"WHERE tl_from_lang=" . $dbw->addQuotes($this->fromLang) .
-			"  AND tl_from_aid=" . $dbw->addQuotes($this->fromAID) .
-			"  AND tl_to_lang=" . $dbw->addQuotes($this->toLang) .
-			"  AND tl_to_aid=" . $dbw->addQuotes($this->toAID) .
-			"LIMIT 1";
-		$dbw->query($query, __METHOD__);
+		$dbw->delete( WH_DATABASE_NAME . ".translation_link",
+			$conds,
+			__METHOD__,
+			[ 'LIMIT' => 1 ] );
+
 		return true;
 	}
 

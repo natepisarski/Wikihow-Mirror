@@ -17,14 +17,14 @@ class PageStats extends UnlistedSpecialPage {
 		return $row ?? null;
 	}
 
-    public static function getRatingReasonData($pageId, $type, &$dbr) {
-    	if (!isset($val)) $val = new stdClass();
-        $val->total = $dbr->selectField('rating_reason',
+	public static function getRatingReasonData($pageId, $type, &$dbr) {
+		if (!isset($val)) $val = new stdClass();
+		$val->total = $dbr->selectField('rating_reason',
 			"count(*)",
 			array("ratr_item" => $pageId, "ratr_type" => $type),
 			__METHOD__);
-        return $val;
-    }
+		return $val;
+	}
 
 	public static function getRatingData($pageId, $tableName, $tablePrefix, &$dbr) {
 		global $wgMemc;
@@ -187,7 +187,7 @@ class PageStats extends UnlistedSpecialPage {
 			$html .= $titusData->ti_last_fellow_edit ?:"";
 			$html .= "&nbsp;&nbsp;</p>";
 			$html .= self::getFellowsTime($titusData->ti_last_fellow_edit_timestamp) ?: "";
-            $html .= self::getEditingStatus( $titusData->ti_editing_status );
+			$html .= self::getEditingStatus( $titusData->ti_editing_status );
 
 			// babelfish rank
 			$haveBabelfishData = true;
@@ -310,28 +310,28 @@ class PageStats extends UnlistedSpecialPage {
 	}
 
 
-    private static function getEditingStatus( $status ) {
-        $statusLine = Html::element( 'p', array( 'id' => 'staff-editing-menu-status' ), 'Editing Status: ' . $status );
-        $menuTitle = Html::element( 'p', array( 'id' => 'staff-editing-menu-title' ), 'Editing option:' );
-        $options = '';
-        $options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'editing' ), 'Request Editing' );
-        $options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'stub' ), 'Send note to future editor' );
-        $options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'removal' ), 'Request removal from Editfish' );
-        $options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'stub' ), 'Request Stub (low quality/low PV/bad title)' );
-        $options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'summaryvideo' ), 'Edit In A Hurry' );
-        $menuContent = Html::rawElement( 'div', array( 'id'=> 'staff-editing-menu-content', 'class' => 'menu' ), $options );
-        $textArea = Html::rawElement( 'textarea', array( 'id'=> 'sem-textarea', 'class' => 'sem-h', 'placeholder' => 'add any extra comments here' ) );
+	private static function getEditingStatus( $status ) {
+		$statusLine = Html::element( 'p', array( 'id' => 'staff-editing-menu-status' ), 'Editing Status: ' . $status );
+		$menuTitle = Html::element( 'p', array( 'id' => 'staff-editing-menu-title' ), 'Editing option:' );
+		$options = '';
+		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'editing' ), 'Request Editing' );
+		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'stub' ), 'Send note to future editor' );
+		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'removal' ), 'Request removal from Editfish' );
+		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'stub' ), 'Request Stub (low quality/low PV/bad title)' );
+		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'summaryvideo' ), 'Edit In A Hurry' );
+		$menuContent = Html::rawElement( 'div', array( 'id'=> 'staff-editing-menu-content', 'class' => 'menu' ), $options );
+		$textArea = Html::rawElement( 'textarea', array( 'id'=> 'sem-textarea', 'class' => 'sem-h', 'placeholder' => 'add any extra comments here' ) );
 
-        $checkBox = Html::rawElement( 'input', array( 'id'=> 'sem-hp-box', 'type' => 'checkbox' ) );
-        $checkBoxLabel = Html::rawElement( 'label', array(), "High Priority" );
-        $checkBoxWrap = Html::rawElement( 'div', array( 'id' => 'sem-hp', 'class' => 'sem-h' ), $checkBox . $checkBoxLabel );
+		$checkBox = Html::rawElement( 'input', array( 'id'=> 'sem-hp-box', 'type' => 'checkbox' ) );
+		$checkBoxLabel = Html::rawElement( 'label', array(), "High Priority" );
+		$checkBoxWrap = Html::rawElement( 'div', array( 'id' => 'sem-hp', 'class' => 'sem-h' ), $checkBox . $checkBoxLabel );
 
-        $submit .= Html::rawElement( 'a', array( 'id' => 'staff-editing-menu-submit', 'class' => 'sem-h', 'href' => '#' ), 'Submit Editing Request' );
-        $menuWrap = Html::rawElement( 'div', array( 'id' => 'staff-editing-menu' ), $menuTitle . $menuContent );
-        return $statusLine . $menuWrap . $type . $textArea . $checkBoxWrap . $submit;
-    }
+		$submit .= Html::rawElement( 'a', array( 'id' => 'staff-editing-menu-submit', 'class' => 'sem-h', 'href' => '#' ), 'Submit Editing Request' );
+		$menuWrap = Html::rawElement( 'div', array( 'id' => 'staff-editing-menu' ), $menuTitle . $menuContent );
+		return $statusLine . $menuWrap . $type . $textArea . $checkBoxWrap . $submit;
+	}
 
-    public static function getSampleStatData($sampleTitle) {
+	public static function getSampleStatData($sampleTitle) {
 		$html = "";
 
 		$dbr = wfGetDB(DB_SLAVE);
@@ -340,24 +340,24 @@ class PageStats extends UnlistedSpecialPage {
 		$html .= "<hr style='margin:5px 0;' />";
 		$html .= "<p>Rating Accuracy: {$data->percentage}% of {$data->total} votes</p>";
 
-        $cl = Title::newFromText('ClearRatings', NS_SPECIAL);
-        $link = Linker::link($cl, 'Clear ratings', array(), array('type' => 'sample', 'target' => $sampleTitle));
-        $html .= "<p>{$link}</p>";
+		$cl = Title::newFromText('ClearRatings', NS_SPECIAL);
+		$link = Linker::link($cl, 'Clear ratings', array(), array('type' => 'sample', 'target' => $sampleTitle));
+		$html .= "<p>{$link}</p>";
 
 		$data = self::getRatingReasonData($sampleTitle, 'sample', $dbr);
 		$html .= "<hr style='margin:5px 0;' />";
 		$html .= "<p>Rating Reasons: {$data->total}</p>";
 
-        $cl = SpecialPage::getTitleFor( 'AdminRatingReasons');
-        $link = Linker::link($cl, 'View rating reasons', array(), array('item' => $sampleTitle));
-        $html .= "<p>{$link}</p>";
+		$cl = SpecialPage::getTitleFor( 'AdminRatingReasons');
+		$link = Linker::link($cl, 'View rating reasons', array(), array('item' => $sampleTitle));
+		$html .= "<p>{$link}</p>";
 
-        $cl = SpecialPage::getTitleFor( 'AdminRemoveRatingReason', $sampleTitle);
-        $link = Linker::link($cl, 'Clear rating reasons');
-        $html .= "<p>{$link}</p>";
+		$cl = SpecialPage::getTitleFor( 'AdminRemoveRatingReason', $sampleTitle);
+		$link = Linker::link($cl, 'Clear rating reasons');
+		$html .= "<p>{$link}</p>";
 
-        return $html;
-    }
+		return $html;
+	}
 
 	private static function addData(&$data) {
 		$html = "";
@@ -372,28 +372,27 @@ class PageStats extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$action = $request->getVal('action');
 		if ($action == 'ajaxstats') {
-            $out->setArticleBodyOnly(true);
-            $target = $request->getVal('target');
-
-            $type = $request->getVal('type');
-            if ($type == "article") {
-                $title = !empty($target) ? Title::newFromURL($target) : null;
-                if ($title && $title->exists()) {
-                    $result = self::getPagestatData($title->getArticleID());
-                    print json_encode($result);
-                }
-            } elseif ($type == "sample") {
-                $title = !empty($target) ? Title::newFromText("sample/$target") : null;
-                if ($title) {
-                    $result = array(
-                        'body' => self::getSampleStatData($target)
-                    );
-                    print json_encode($result);
-                }
-            }
-        } elseif ( $request->wasPosted() && $action == 'motiontostatic' ) {
 			$out->setArticleBodyOnly(true);
-            $out->disable();
+			$target = $request->getVal('target');
+
+			$type = $request->getVal('type');
+			if ($type == "article") {
+				$title = !empty($target) ? Title::newFromURL($target) : null;
+				if ($title && $title->exists()) {
+					$result = self::getPagestatData($title->getArticleID());
+					print json_encode($result);
+				}
+			} elseif ($type == "sample") {
+				$title = !empty($target) ? Title::newFromText("sample/$target") : null;
+				if ($title) {
+					$result = array(
+						'body' => self::getSampleStatData($target)
+					);
+					print json_encode($result);
+				}
+			}
+		} elseif ( $request->wasPosted() && $action == 'motiontostatic' ) {
+			$out->setArticleBodyOnly(true);
 			$editResult = MotionToStatic::handlePageStatsPost( $request, $user );
 			$result = array();
 			if ($editResult == '') {
@@ -403,40 +402,39 @@ class PageStats extends UnlistedSpecialPage {
 			}
 			print json_encode($result);
 			return;
-        } elseif ( $request->wasPosted() && $action == 'editingoptions' ) {
+		} elseif ( $request->wasPosted() && $action == 'editingoptions' ) {
 			$out->setArticleBodyOnly(true);
-            $out->disable();
-            $textBox = $request->getVal( 'textbox' );
-            $type = $request->getVal( 'type' );
-            $highPriority = $request->getVal( 'highpriority' );
-            if ( $highPriority == 'true' ) {
-                $highPriority = 1;
-            } else {
-                $highPriority = 0;
-            }
-            $pageId = $request->getVal( 'pageid' );
-            $title  = Title::newFromID( $pageId );
-            if ( $title && $title->exists() ) {
-                $title = 'http:' . $title->getFullURL();
-            } else {
-                $title = "unknown";
-            }
+			$textBox = $request->getVal( 'textbox' );
+			$type = $request->getVal( 'type' );
+			$highPriority = $request->getVal( 'highpriority' );
+			if ( $highPriority == 'true' ) {
+				$highPriority = 1;
+			} else {
+				$highPriority = 0;
+			}
+			$pageId = $request->getVal( 'pageid' );
+			$title  = Title::newFromID( $pageId );
+			if ( $title && $title->exists() ) {
+				$title = 'http:' . $title->getFullURL();
+			} else {
+				$title = "unknown";
+			}
 			$isSummaryVideoFeedback = false;
 			if ( $type == 'Edit In A Hurry' ) {
 				$isSummaryVideoFeedback = true;
 			}
-            $file = $this->getSheetsFile( $isSummaryVideoFeedback );
-            $sheet = $file->sheet('default');
-            $userName = $this->getUser()->getName();
-            $data = array(
-                'submitter' => $userName,
-                'time' => date('Y-m-d'),
-                'option' => $type,
-                'comment' => $textBox,
-                'url' => $title,
-                'pageid' => $pageId,
-                'highpriority' => $highPriority,
-            );
+			$file = $this->getSheetsFile( $isSummaryVideoFeedback );
+			$sheet = $file->sheet('default');
+			$userName = $this->getUser()->getName();
+			$data = array(
+				'submitter' => $userName,
+				'time' => date('Y-m-d'),
+				'option' => $type,
+				'comment' => $textBox,
+				'url' => $title,
+				'pageid' => $pageId,
+				'highpriority' => $highPriority,
+			);
 			if ( $isSummaryVideoFeedback ) {
 				$data = array(
 					'time' => date('Y-m-d'),
@@ -447,8 +445,8 @@ class PageStats extends UnlistedSpecialPage {
 					'new' => $highPriority,
 				);
 			}
-            $sheet->insert( $data );
-            return;
+			$sheet->insert( $data );
+			return;
 		}
 	}
 
@@ -470,7 +468,7 @@ class PageStats extends UnlistedSpecialPage {
 			return $client->client;
 		};
 		$rawClient = Closure::bind($rawClient, null, $client);
-        $timeoutLength = 600;
+		$timeoutLength = 600;
 		$configOptions = [
 			CURLOPT_CONNECTTIMEOUT => $timeoutLength,
 			CURLOPT_TIMEOUT => $timeoutLength
@@ -534,17 +532,17 @@ class PageStats extends UnlistedSpecialPage {
 				$(this).addClass('mts-item');
 				$(this).find('.mts-toggle').show();
 			}
-        }, function() {
+		}, function() {
 			if ($(this).find('video.m-video').length) {
 				$(this).removeClass('mts-item');
 				if (!$(this).find('.mts-toggle').hasClass('toggleset')) {
 					$(this).find('.mts-toggle').hide();
 				}
 			}
-        });
+		});
 
 		$('#mts-close').on('click',function(e) {
-            e.preventDefault();
+			e.preventDefault();
 			turnOffMtsSelect();
 		});
 
@@ -573,28 +571,28 @@ class PageStats extends UnlistedSpecialPage {
 
 	function setupMtsMenu() {
 		$('#mts-title').on('click',function(e) {
-            e.preventDefault();
-            return;
-        });
+			e.preventDefault();
+			return;
+		});
 
 		$('#mts-cancel').on('click',function(e) {
-            e.preventDefault();
+			e.preventDefault();
 			turnOffMtsSelect();
 		});
 
 		$('#motion-to-static').hover(function(e) {
-            $('#mts-content').show();
-            $("#mts-done").remove();
-        }, function() {
-            $('#mts-content').hide();
-        });
+			$('#mts-content').show();
+			$("#mts-done").remove();
+		}, function() {
+			$('#mts-content').hide();
+		});
 
 		$('#motion-to-static a').on('click',function(e) {
-            var type = $(e.target).data('type');
+			var type = $(e.target).data('type');
 			if (type == 'select') {
 				setupMtsSelect();
 			}
-            $('#mts-textarea').data('type', type);
+			$('#mts-textarea').data('type', type);
 
 			var savedEditMessage = $.cookie('mts_'+type);
 			if (savedEditMessage) {
@@ -612,31 +610,31 @@ class PageStats extends UnlistedSpecialPage {
 			if (resetStuChecked == 'false') {
 				$('#mts-stu-box').prop('checked', false);
 			}
-            $('#mts-content').hide();
-            $('.mts-h').show();
-            e.preventDefault();
-            return;
-        });
+			$('#mts-content').hide();
+			$('.mts-h').show();
+			e.preventDefault();
+			return;
+		});
 
-        var mtsSubmitted = false;
+		var mtsSubmitted = false;
 		$('#mts-submit').on('click',function(e) {
-            if (mtsSubmitted) {
-                e.preventDefault();
-                return;
-            }
+			if (mtsSubmitted) {
+				e.preventDefault();
+				return;
+			}
 			$('#mts-done').text('');
 			var textBox = $('#mts-textarea').val();
 			var type = $('#mts-textarea').data('type');
 			if (textBox == '') {
-                alert("you must enter text to submit");
-                e.preventDefault();
-                return;
-            }
+				alert("you must enter text to submit");
+				e.preventDefault();
+				return;
+			}
 			// save the edit message for this type
-            $.cookie('mts_'+type, textBox);
+			$.cookie('mts_'+type, textBox);
 
 			var url = '/Special:PageStats';
-            var action ='motiontostatic';
+			var action ='motiontostatic';
 			var payload = {
 				action:action,
 				editsummary:textBox,
@@ -655,18 +653,18 @@ class PageStats extends UnlistedSpecialPage {
 				selectedSteps = selectedSteps.join();
 				payload['steps'] = selectedSteps;
 			}
-            var resetStu = $('#mts-stu-box').prop('checked');
-            $.cookie('mts_stu', resetStu);
+			var resetStu = $('#mts-stu-box').prop('checked');
+			$.cookie('mts_stu', resetStu);
 			//if (resetStu == false) {
 				//resetStu = confirm("also reset all stu data for this page?");
 			//}
 			//console.log("payload", payload);return;
-            mtsSubmitted = true;
-            $.post(
-                url,
+			mtsSubmitted = true;
+			$.post(
+				url,
 				payload,
-                function(result) {
-                    mtsSubmitted = false;
+				function(result) {
+					mtsSubmitted = false;
 					var data = JSON.parse(result);
 					console.log("data", data);
 					console.log("data success", data.success);
@@ -689,23 +687,23 @@ class PageStats extends UnlistedSpecialPage {
 						alert(data.message);
 					}
 				});
-            e.preventDefault();
-            return;
-        });
-    }
+			e.preventDefault();
+			return;
+		});
+	}
 
 	function setupEditMenu() {
 		$('#staff-editing-menu-title').on('click',function(e) {
-            e.preventDefault();
-            return;
-        });
+			e.preventDefault();
+			return;
+		});
 
 		$('#staff-editing-menu').hover(function(e) {
-            $('#staff-editing-menu-content').show();
-            $("#sem-done").remove();
-        }, function() {
-            $('#staff-editing-menu-content').hide();
-        });
+			$('#staff-editing-menu-content').show();
+			$("#sem-done").remove();
+		}, function() {
+			$('#staff-editing-menu-content').hide();
+		});
 
 		$('#staff-editing-menu a').on('click',function(e) {
 			if ($(e.target).data('type') == 'summaryvideo') {
@@ -713,51 +711,51 @@ class PageStats extends UnlistedSpecialPage {
 			} else {
 				$('#sem-hp label').text('High Priority');
 			}
-            var text = $(e.target).text();
-            $('#semt-type').remove();
-            var type = $('<div id="semt-type" class="sem-h"></div>').text(text);
-            $('#sem-textarea').data('type', text);
-            $('#staff-editing-menu').after(type);
-            $('#staff-editing-menu-content').hide();
+			var text = $(e.target).text();
+			$('#semt-type').remove();
+			var type = $('<div id="semt-type" class="sem-h"></div>').text(text);
+			$('#sem-textarea').data('type', text);
+			$('#staff-editing-menu').after(type);
+			$('#staff-editing-menu-content').hide();
 			// if this is the summary then set the text to something else
-            $('.sem-h').show();
-            e.preventDefault();
-            return;
-        });
+			$('.sem-h').show();
+			e.preventDefault();
+			return;
+		});
 
-        var staffEditSubmitted = false;
+		var staffEditSubmitted = false;
 		$('#staff-editing-menu-submit').on('click',function(e) {
-            if (staffEditSubmitted) {
-                e.preventDefault();
-                return;
-            }
+			if (staffEditSubmitted) {
+				e.preventDefault();
+				return;
+			}
 			var textBox = $('#sem-textarea').val();
 			var type = $('#sem-textarea').data('type');
 			var isSummary = type == 'Edit In A Hurry';
 			if (textBox == '' && !isSummary) {
-                alert("you must enter text to submit");
-                e.preventDefault();
-                return;
-            }
+				alert("you must enter text to submit");
+				e.preventDefault();
+				return;
+			}
 
-            staffEditSubmitted = true;
+			staffEditSubmitted = true;
 			var url = '/Special:PageStats';
-            var action ='editingoptions';
-            var highpriority = $('#sem-hp-box').prop('checked');
-            $.post(
-                url,
-                {action:action,textbox:textBox,type:type,pageid:wgArticleId,highpriority:highpriority},
-                function(result) {
-                    staffEditSubmitted = false;
-                    $('.sem-h').hide();
-                    $('#sem-textarea').val('');
-                    $('#sem-textarea').data('type', '');
-                    $('#staff-editing-menu-submit').after('<p id="sem-done">your submission has been saved</p>');
-            });
-            e.preventDefault();
-            return;
-        });
-    }
+			var action ='editingoptions';
+			var highpriority = $('#sem-hp-box').prop('checked');
+			$.post(
+				url,
+				{action:action,textbox:textBox,type:type,pageid:wgArticleId,highpriority:highpriority},
+				function(result) {
+					staffEditSubmitted = false;
+					$('.sem-h').hide();
+					$('#sem-textarea').val('');
+					$('#sem-textarea').data('type', '');
+					$('#staff-editing-menu-submit').after('<p id="sem-done">your submission has been saved</p>');
+			});
+			e.preventDefault();
+			return;
+		});
+	}
 
 	function clearStu(onComplete) {
 		var url = '/Special:Stu';
@@ -790,8 +788,8 @@ class PageStats extends UnlistedSpecialPage {
 
 	if ($('#staff_stats_box').length) {
 		$('#staff_stats_box').html('Loading...');
-        var type = "<?php echo $type ?>";
-        var target = (type == "sample") ? wgSampleName : wgTitle;
+		var type = "<?= $type ?>";
+		var target = (type == "sample") ? wgSampleName : wgTitle;
 
 		getData = {'action':'ajaxstats', 'target':target, 'type':type};
 
@@ -806,13 +804,13 @@ class PageStats extends UnlistedSpecialPage {
 					setupStaffWidgetClearStuLinks();
 				}
 
-                if ( $('#staff-editing-menu').length ) {
+				if ( $('#staff-editing-menu').length ) {
 					setupEditMenu();
-                }
+				}
 
-                if ( $('#motion-to-static').length ) {
+				if ( $('#motion-to-static').length ) {
 					setupMtsMenu();
-                }
+				}
 			}, 'json');
 	}
 

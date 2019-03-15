@@ -43,7 +43,7 @@ class GoodRevisionTest extends MediaWikiTestCase {
 		$content = ContentHandler::makeContent( $wikitext, $title );
 		$summary = "Second revision";
 		$flags = $flags | EDIT_UPDATE;
-		
+
 		$page->doEditContent( $content, $summary, $flags);
 		$goodRev = GoodRevision::newFromTitle($title);
 

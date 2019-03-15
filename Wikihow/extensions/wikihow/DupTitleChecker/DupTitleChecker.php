@@ -9,11 +9,11 @@ $wgExtensionCredits['specialpage'][] = [
     ];
 
 $wgSpecialPages['DupTitleChecker']='DupTitleChecker';
-$wgAutoloadClasses['DupTitleChecker']=dirname(__FILE__).'/DupTitleChecker.body.php';
-$wgAutoloadClasses['RankBiasedOverlap']=dirname( __FILE__).'/RankBiasedOverlap.php';
+$wgAutoloadClasses['DupTitleChecker']=__DIR__.'/DupTitleChecker.body.php';
+$wgAutoloadClasses['RankBiasedOverlap']=__DIR__.'/RankBiasedOverlap.php';
 $wgResourceModules['ext.wikihow.DupTitleChecker'] = [
         'styles'  => [ 'DupTitleChecker.css' ],
         'position' => 'top',
-        'localBasePath' => dirname(__FILE__),
+        'localBasePath' => __DIR__,
         'targets' => [ 'desktop' ]
 ];

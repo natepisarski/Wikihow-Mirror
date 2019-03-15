@@ -21,19 +21,17 @@ class QA extends UnlistedSpecialPage {
 	var $isAdmin = false;
 	var $isEditor = false;
 
-	function __construct() {
+	public function __construct() {
 		global $wgHooks;
 		parent::__construct('QA');
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
-	function execute($par) {
-		global $wgLanguageCode;
-
+	public function execute($par) {
 		$out = $this->getOutput();
 		$user = $this->getUser();
-		if ($wgLanguageCode != 'en') {
-			$out->setRobotpolicy('noindex,nofollow');
+		if ($this->getLanguage()->getCode() != 'en') {
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -152,7 +150,7 @@ class QA extends UnlistedSpecialPage {
 
 		$answerOnly = filter_var($request->getVal('answer_only'),FILTER_VALIDATE_BOOLEAN);
 
-		echo json_encode($qadb->deleteArticleQuestion($formData, $answerOnly));
+		$this->getOutput()->addHTML( json_encode($qadb->deleteArticleQuestion($formData, $answerOnly)) );
 	}
 
 	protected function handleIgnoreSubmittedQuestion() {
@@ -433,8 +431,6 @@ class QA extends UnlistedSpecialPage {
 
 		echo json_encode($ta->toJSON());
 	}
-
-
 
 	public function isMobileCapable() {
 		return true;

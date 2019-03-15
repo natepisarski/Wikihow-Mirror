@@ -1,5 +1,5 @@
 <?php
-if ( !defined( 'MEDIAWIKI' ) ) 
+if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgExtensionCredits['specialpage'][] = array(
@@ -9,8 +9,8 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ArticleCreator'] = 'ArticleCreator';
-$wgAutoloadClasses['ArticleCreator'] = dirname(__FILE__) . '/ArticleCreator.body.php';
-$wgExtensionMessagesFiles['ArticleCreator'] = dirname(__FILE__) . '/ArticleCreator.i18n.php';
+$wgAutoloadClasses['ArticleCreator'] = __DIR__ . '/ArticleCreator.body.php';
+$wgExtensionMessagesFiles['ArticleCreator'] = __DIR__ . '/ArticleCreator.i18n.php';
 $wgHooks['EditFormPreloadText'][] = 'ArticleCreator::onEditFormPreloadText';
 
 
@@ -64,8 +64,8 @@ $wgResourceModules['ext.wikihow.articlecreator'] = array(
 		'ac-title-exists',
 		'ac-html-title',
 		'ac-successful-publish',
-		'ac-copy-wikitext',	
-		'ac-whats-this-txt',	
+		'ac-copy-wikitext',
+		'ac-whats-this-txt',
 		'ac-validation-error-title',
 		'ac-error-too-short',
 		'ac-error-no-steps',

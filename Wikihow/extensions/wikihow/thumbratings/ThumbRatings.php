@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ThumbRatings'] = 'ThumbRatings';
-$wgAutoloadClasses['ThumbRatings'] = dirname(__FILE__) . '/ThumbRatings.body.php';
-$wgExtensionMessagesFiles['ThumbRatings'] = dirname(__FILE__) . '/ThumbRatings.i18n.php';
+$wgAutoloadClasses['ThumbRatings'] = __DIR__ . '/ThumbRatings.body.php';
+$wgExtensionMessagesFiles['ThumbRatings'] = __DIR__ . '/ThumbRatings.i18n.php';

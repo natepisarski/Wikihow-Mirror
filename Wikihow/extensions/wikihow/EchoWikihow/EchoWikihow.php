@@ -2,9 +2,9 @@
 
 if ( !defined('MEDIAWIKI') ) exit;
 
-$wgExtensionMessagesFiles['EchoWikihow'] = dirname(__FILE__) . '/EchoWikihow.i18n.php';
-$wgAutoloadClasses['EchoWikiHowFormatter'] = dirname(__FILE__) . '/EchoWikihow.body.php';
-$wgAutoloadClasses['EchoWikiHowHooks'] = dirname(__FILE__) . '/EchoWikihow.body.php';
+$wgExtensionMessagesFiles['EchoWikihow'] = __DIR__ . '/EchoWikihow.i18n.php';
+$wgAutoloadClasses['EchoWikiHowFormatter'] = __DIR__ . '/EchoWikihow.body.php';
+$wgAutoloadClasses['EchoWikiHowHooks'] = __DIR__ . '/EchoWikihow.body.php';
 
 /****************** HOOK, LINE, WINNER ***/
 $wgHooks['BeforeCreateEchoEvent'][] = array('EchoWikiHowHooks::onBeforeCreateEchoEvent');

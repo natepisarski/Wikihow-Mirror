@@ -65,7 +65,7 @@ class Donate extends ContextSource {
 		$out = $ctx->getOutput();
 
 		$isMobile = Misc::isMobileMode();
-		$loader = new Mustache_Loader_CascadingLoader([new Mustache_Loader_FilesystemLoader(dirname(__FILE__))]);
+		$loader = new Mustache_Loader_CascadingLoader([new Mustache_Loader_FilesystemLoader(__DIR__)]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
 

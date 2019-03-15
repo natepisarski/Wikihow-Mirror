@@ -2,20 +2,20 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['DesktopAds'] = dirname(__FILE__) . '/DesktopAds.class.php';
-$wgAutoloadClasses['DeprecatedDFPAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['MixedAdCreatorVersion1'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['MixedAdCreatorVersion2'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['MixedAdCreatorVersion3'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['MixedAdCreatorVersion4'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['MixedAdCreatorVersion5'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['DocViewerAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['DocViewerAdCreatorVersion2'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['SearchPageAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['InternationalAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['AlternateDomainAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['CategoryPageAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
-$wgAutoloadClasses['MainPageAdCreator'] = dirname(__FILE__) . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['DesktopAds'] = __DIR__ . '/DesktopAds.class.php';
+$wgAutoloadClasses['DeprecatedDFPAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['MixedAdCreatorVersion1'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['MixedAdCreatorVersion2'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['MixedAdCreatorVersion3'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['MixedAdCreatorVersion4'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['MixedAdCreatorVersion5'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['DocViewerAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['DocViewerAdCreatorVersion2'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['SearchPageAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['InternationalAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['AlternateDomainAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['CategoryPageAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['MainPageAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
 
 $wgHooks['BeforeActionbar'][] = 'DesktopAds::onBeforeActionbar';
 $wgHooks['AfterActionbar'][] = 'DesktopAds::onAfterActionbar';

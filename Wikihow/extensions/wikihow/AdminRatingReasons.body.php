@@ -86,7 +86,8 @@ abstract class Helpfulness extends QueryPage {
 
 		$action = $this->getRequest()->getVal('action');
 		if ($action == 'csv') {
-			return $this->getCSV();
+			$this->getCSV();
+			return;
 		}
 
 		parent::execute($par);
@@ -97,11 +98,11 @@ abstract class Helpfulness extends QueryPage {
         return true;
     }
 
-	function getHeaderTitle() {
+	protected function getHeaderTitle() {
 		return "Helpfulness Responses";
 	}
 
-	function getPageJS() {
+	private function getPageJS() {
 		$html = <<<EOHTML
 		<script>
 		$('.mw-spcontent').on("click", '.arr_ratings_show', function(e) {
@@ -141,7 +142,7 @@ EOHTML;
 		return $html;
 	}
 
-	function getTotalReasonsHTML($item) {
+	private function getTotalReasonsHTML($item) {
 		$dbr = wfGetDB(DB_SLAVE);
 		$type = $this->mType;
 		$where = array( 'ratr_type' => $type );
@@ -164,12 +165,15 @@ EOHTML;
 	private function getCSV() {
 		global $wgCanonicalServer;
 
-		header('Content-type: application/force-download');
-		header('Content-disposition: attachment; filename="data.csv"');
+		$req = $this->getRequest();
+		$req->response()->header('Content-type: application/force-download');
+		$req->response()->header('Content-disposition: attachment; filename="data.csv"');
 
+		// NOTE: if we used setArticleBodyOnly(true) instead here, Content-Type would
+		// automatically change to text/html. Not what we want.
 		$this->getOutput()->disable();
 
-		$item = $this->getRequest()->getVal('item');
+		$item = $req->getVal('item');
 
 		$lines = array();
 
@@ -192,7 +196,6 @@ EOHTML;
 		}
 
 		$options = array("ORDER BY"=>"ratr_timestamp DESC", "LIMIT" => 50000);
-
 		$res = $dbr->select('rating_reason', $vars, $where, __METHOD__, $options);
 
 		foreach ($res as $row) {
@@ -220,8 +223,9 @@ EOHTML;
 			$lines[] = implode(",", $line);
 		}
 
-		print("title,rating,reason,user,name,email,date,type,accuracy,accuracy votes,detail\n");
-		print(implode("\n", $lines));
+		// print must be used if disabling OutputPage
+		print "title,rating,reason,user,name,email,date,type,accuracy,accuracy votes,detail\n";
+		print implode("\n", $lines);
 	}
 
 	private function getCSVLink($item) {
@@ -271,18 +275,18 @@ EOHTML;
 		return array("ratr_timestamp");
 	}
 
-	function getAccuracyText($ratingsData) {
+	private function getAccuracyText($ratingsData) {
 		if ($this->mShowAccuracyInline) {
 			return "{$ratingsData->percentage}% of {$ratingsData->total} votes";
 		}
 	}
 
-	function getRatingAccuracyKey($titleText) {
+	protected function getRatingAccuracyKey($titleText) {
 		$title = $this->getResultTitle( urldecode( $titleText ) );
 		return $title->getArticleId();
 	}
 
-	function getRatingAccuracy($titleText) {
+	protected function getRatingAccuracy($titleText) {
 		$key = $this->getRatingAccuracyKey($titleText);
 
 		$rd = $this->ratingsCache[$key];
@@ -296,7 +300,7 @@ EOHTML;
 		return $rd;
 	}
 
-	function getRatingHTML($titleText) {
+	protected function getRatingHTML($titleText) {
 		$key = $this->getRatingAccuracyKey($titleText);
 
 		$rd = $this->ratingsCache[$key];
@@ -313,7 +317,7 @@ EOHTML;
 		return false;
 	}
 
-	function getResultTitle($titleText) {
+	protected function getResultTitle($titleText) {
 		return Title::newFromText($titleText);
 	}
 
@@ -380,22 +384,22 @@ class AdminRatingReasons extends Helpfulness {
 		parent::__construct('AdminRatingReasons');
 	}
 
-	function getRatingHTML($titleText) {
+	protected function getRatingHTML($titleText) {
 		$acc = $this->getRatingAccuracy($titleText);
 		$accText .= "{$acc->percentage}% of {$acc->total} votes";
 		$html = "<div class='phr_data'>Accuracy: ".$accText."</div><br>";
 		return $html;
 	}
 
-	function getHeaderTitle() {
+	protected function getHeaderTitle() {
 		return "Sample Rating Reasons";
 	}
 
-	function getResultTitle($titleText) {
+	protected function getResultTitle($titleText) {
 		return Title::newFromText('sample/'.$titleText);
 	}
 
-	function getRatingAccuracyKey($titleText) {
+	protected function getRatingAccuracyKey($titleText) {
 		return $titleText;
 	}
 }

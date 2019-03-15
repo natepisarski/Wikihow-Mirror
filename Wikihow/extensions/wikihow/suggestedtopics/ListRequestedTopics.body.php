@@ -71,7 +71,7 @@ class ListRequestedTopics extends SpecialPage {
 
 			$link = '/Special:ListRequestedTopics';
 
-			$catmap = Categoryhelper::getIconMap();
+			$catmap = CategoryHelper::getIconMap();
 			ksort($catmap);
 
 			// additional cats added to the end of the list

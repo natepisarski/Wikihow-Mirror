@@ -2,16 +2,15 @@
 
 class Awards extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'Awards' );
 	}
 
-	function execute($par) {
-		global $wgOut;
+	public function execute($par) {
+		$out = $this->getOutput();
+		$out->setSquidMaxage( 3600 );
 
-		$wgOut->setSquidMaxage( 3600 );
-
-		$wgOut->addHTML("
+		$out->addHTML("
 
 <style>
 div.content
@@ -46,4 +45,3 @@ padding:1em;
 	}
 
 }
-

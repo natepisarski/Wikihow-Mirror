@@ -144,7 +144,11 @@ class ImageHelper extends UnlistedSpecialPage {
 						array ('ORDER BY' => 'rand()', 'LIMIT' => $num*2));
 
 					$count = 0;
-					while (($row = $dbr->fetchObject($res)) && $count < $num) {
+					foreach ($res as $row) {
+						if ($count >= $num) {
+							break;
+						}
+
 						if ($row->cl_from == $title->getArticleID()) {
 							continue;
 						}
@@ -152,7 +156,7 @@ class ImageHelper extends UnlistedSpecialPage {
 						if (!$t) {
 							continue;
 						}
-						if ($t->getNamespace() != NS_MAIN) {
+						if (!$t->inNamespace(NS_MAIN)) {
 							continue;
 						}
 						$relatedTitles[] = $t->getText();
@@ -242,7 +246,7 @@ class ImageHelper extends UnlistedSpecialPage {
 
 		$sizes = self::getDisplaySize($image);
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'preview' => $sizes['width'] . "x" . $sizes['height'] . "px",
 			'full' => ($sizes['full'] == 0 ? "<a href='" . $image->getFullUrl() . "'>" . $image->getWidth() . "x" . $image->getHeight() . " px </a>" : wfMessage( 'file-nohires')),
@@ -376,7 +380,7 @@ class ImageHelper extends UnlistedSpecialPage {
 				}
 			}
 			if ($count > 0) {
-				$tmpl = new EasyTemplate( dirname(__FILE__) );
+				$tmpl = new EasyTemplate( __DIR__ );
 				$tmpl->set_vars(array(
 					'imageUrl' => $imageUrl,
 					'thumbUrl' => $thumbUrl,
@@ -776,7 +780,7 @@ class ImageHelper extends UnlistedSpecialPage {
 		$expiry = 6 * 3600; // 6 hours
 
 		if ( $title->inNamespaces(NS_MAIN, NS_CATEGORY) ) {
-			if ($title->getNamespace() == NS_MAIN) {
+			if ($title->inNamespace(NS_MAIN)) {
 				$file = Wikitext::getTitleImage($title, $skip_parser);
 
 				if ($file && isset($file)) {
@@ -787,7 +791,7 @@ class ImageHelper extends UnlistedSpecialPage {
 					$sourceWidth = $file->getWidth();
 					$sourceHeight = $file->getHeight();
 					$heightPreference = false;
-					if($width/$height < $sourceWidth/$sourceHeight) {
+					if ($width/$height < $sourceWidth/$sourceHeight) {
 						//desired image is portrait
 						$heightPreference = true;
 					}
@@ -803,13 +807,13 @@ class ImageHelper extends UnlistedSpecialPage {
 				}
 			}
 
-			$catmap = Categoryhelper::getIconMap();
+			$catmap = CategoryHelper::getIconMap();
 
 			// if page is a top category itself otherwise get top
 			if (isset($catmap[urldecode($title->getPartialURL())])) {
 				$cat = urldecode($title->getPartialURL());
 			} else {
-				$cat = Categoryhelper::getTopCategory($title);
+				$cat = CategoryHelper::getTopCategory($title);
 
 				//INTL: Get the partial URL for the top category if it exists
 				// For some reason only the english site returns the partial
@@ -829,7 +833,7 @@ class ImageHelper extends UnlistedSpecialPage {
 					$sourceWidth = $file->getWidth();
 					$sourceHeight = $file->getHeight();
 					$heightPreference = false;
-					if($width/$height < $sourceWidth/$sourceHeight) {
+					if ($width/$height < $sourceWidth/$sourceHeight) {
 						//desired image is portrait
 						$heightPreference = true;
 					}
@@ -842,7 +846,7 @@ class ImageHelper extends UnlistedSpecialPage {
 			} else {
 				$image = Title::makeTitle(NS_IMAGE, $wgDefaultImage);
 				$file = wfFindFile($image, false);
-				if(!$file) {
+				if (!$file) {
 					$file = wfFindFile($wgDefaultImage);
 					if (!$file) {
 						return "";
@@ -851,7 +855,7 @@ class ImageHelper extends UnlistedSpecialPage {
 				$sourceWidth = $file->getWidth();
 				$sourceHeight = $file->getHeight();
 				$heightPreference = false;
-				if($width/$height < $sourceWidth/$sourceHeight) {
+				if ($width/$height < $sourceWidth/$sourceHeight) {
 					//desired image is portrait
 					$heightPreference = true;
 				}

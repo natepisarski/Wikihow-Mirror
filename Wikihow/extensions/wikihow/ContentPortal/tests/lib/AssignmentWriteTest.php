@@ -30,7 +30,7 @@ class AssignmentWriteTest extends PHPUnit_Framework_TestCase {
 
 	function testStatesWriting() {
 		$this->assertEquals(count($this->assign->allAssignments), 1, 'should only have one assignment at this point');
-		
+
 		$this->assertEquals($this->assign->nextStep->id, Role::proofRead()->id, 'next step should be proof reading');
 		$this->assertEquals($this->assign->currentStep->id, Role::write()->id, 'current step should be in writing');
 		$this->assertNull($this->assign->prevStep, 'should be no prev step, we are in writing');

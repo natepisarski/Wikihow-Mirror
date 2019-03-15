@@ -337,7 +337,7 @@ class Leaderboard extends SpecialPage {
 		}
 
 		$out->setPageTitle( wfMessage('leaderboard_title') );
-		$out->setRobotpolicy('noindex,nofollow');
+		$out->setRobotPolicy('noindex,nofollow');
 
 		$wgHooks["pageTabs"][] = "wfLeaderboardTabs";
 

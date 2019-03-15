@@ -552,11 +552,11 @@ class QADB {
 			'ORDER BY' => array('qap_verifier_id desc', 'qap_vote_total desc', 'qap_timestamp asc')
 		];
 
-		if($limit > 0) {
+		if ($limit > 0) {
 			$options['LIMIT'] = $limit;
 		}
 
-		if($offset > 0) {
+		if ($offset > 0) {
 			$options['OFFSET'] = $offset;
 		}
 
@@ -1314,7 +1314,7 @@ class QADB {
 		);
 
 		$ids = [];
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$ids[] = $row->qa_id;
 		}
 

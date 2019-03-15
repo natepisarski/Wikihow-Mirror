@@ -10,7 +10,7 @@ class MyPages extends SpecialPage {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 
-		if ('Fanmail' == $par) {
+		if ('fanmail' == $par) {
 			$url = Title::makeTitle(NS_USER_KUDOS, $user->getName())->getFullURL();
 		} else { // default to 'Contributions' instead of empty page
 			$url = Title::makeTitle(NS_SPECIAL, "Contributions")->getFullURL() . "/" . $user->getName();

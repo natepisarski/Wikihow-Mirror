@@ -9,4 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminUserCompletedImages'] = 'AdminUserCompletedImages';
-$wgAutoloadClasses['AdminUserCompletedImages'] = dirname(__FILE__) . '/AdminUserCompletedImages.body.php';
+$wgAutoloadClasses['AdminUserCompletedImages'] = __DIR__ . '/AdminUserCompletedImages.body.php';

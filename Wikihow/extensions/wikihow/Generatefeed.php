@@ -5,10 +5,10 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'Generatefeed',
+    'name' => 'GenerateFeed',
     'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Generates the RSS feed for the featured articles', 
+    'description' => 'Generates the RSS feed for the featured articles',
 );
 
-$wgSpecialPages['Generatefeed'] = 'Generatefeed'; 
-$wgAutoloadClasses['Generatefeed'] = dirname( __FILE__ ) . '/Generatefeed.body.php';
+$wgSpecialPages['GenerateFeed'] = 'GenerateFeed';
+$wgAutoloadClasses['GenerateFeed'] = __DIR__ . '/Generatefeed.body.php';

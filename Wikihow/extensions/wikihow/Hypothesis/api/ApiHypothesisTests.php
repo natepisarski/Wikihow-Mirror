@@ -37,7 +37,7 @@ class ApiHypothesisTests extends ApiQueryBase {
 			'revision_b' => 'revision'
 		];
 		$fields = [
-			'hyp_test.*', 
+			'hyp_test.*',
 			'page_title',
 			'revision_a.rev_timestamp AS rev_timestamp_a',
 			'revision_b.rev_timestamp AS rev_timestamp_b'

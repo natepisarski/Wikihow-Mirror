@@ -508,7 +508,7 @@ class TopAnswerers {
 		$t = Title::newFromId($article_id);
 		if (empty($t)) return '';
 
-		$cats = Categoryhelper::getCurrentParentCategories($t);
+		$cats = CategoryHelper::getCurrentParentCategories($t);
 		if (empty($cats) || !is_array($cats) || sizeof($cats) == 0) return '';
 
 		$keys = array_keys($cats);

@@ -7,13 +7,13 @@ $wgExtensionCredits['specialpage'][] = [
     'author' => 'RJS Bhatia',
     'description'=> 'Page for posting jobs to the python classifier',
     ];
-    
+
 $wgSpecialPages['ClassifyTitles']='ClassifyTitles';
-$wgAutoloadClasses['ClassifyTitles']=dirname(__FILE__).'/ClassifyTitles.body.php';
+$wgAutoloadClasses['ClassifyTitles']=__DIR__.'/ClassifyTitles.body.php';
 $wgResourceModules['ext.wikihow.ClassifyTitles'] = [
         'scripts' => [ 'classifytitles.js' ],
         'styles'  => [ 'classifytitles.css' ],
         'position' => 'top',
-        'localBasePath' => dirname(__FILE__),
+        'localBasePath' => __DIR__,
         'targets' => [ 'desktop' ]
 ];

@@ -1,11 +1,11 @@
 <?php
 /**
- * Aliases for Special:Newcontributors
+ * Aliases for Special:NewContributors
  */
 
 $specialPageAliases = array();
 
 /** English (English) */
 $specialPageAliases['en'] = array(
-		'Newcontributors' => array( 'Newcontributors' ),
+		'NewContributors' => array( 'NewContributors', 'Newcontributors' ),
 );

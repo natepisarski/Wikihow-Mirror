@@ -17,7 +17,7 @@ class TwitterFeedHooks {
 
 		// is it in nab? is it patrolled? If unpatrolled, skip this.
 		$dbr = wfGetDB(DB_MASTER);
-		if ( ! Newarticleboost::isNABbed( $dbr, $article->getID() ) ) {
+		if ( ! NewArticleBoost::isNABbed( $dbr, $article->getID() ) ) {
 			return true;
 		}
 
@@ -47,7 +47,7 @@ class TwitterFeedHooks {
 				$cat = Title::makeTitle(NS_CATEGORY, $n);
 				$tocheck[] = $cat;
 				$tree = $cat->getParentCategoryTree();
-				$flat = Categoryhelper::flattenArrayCategoryKeys($tree);
+				$flat = CategoryHelper::flattenArrayCategoryKeys($tree);
 				foreach ($flat as $f) {
 					$f = str_replace("Category:", "", $f);
 					$c = Title::makeTitle(NS_CATEGORY, $f);
@@ -174,7 +174,7 @@ class TwitterFeedHooks {
 	public static function myTwitterEditFinder($a, $text, $sum, $user, $efType) {
 		if ($user && $user->isAnon()) return true;
 		$t = $a->getTitle();
-		if ($t->getNamespace() == NS_MAIN && MyTwitter::userHasOption($user, "editfinder")) {
+		if ($t->inNamespace(NS_MAIN) && MyTwitter::userHasOption($user, "editfinder")) {
 			MyTwitter::tweetEditFinder($t, $user);
 		}
 		return true;
@@ -182,7 +182,7 @@ class TwitterFeedHooks {
 
 	public static function myTwitterInsertComplete(&$a, &$user, $text) {
 		$t = $a->getTitle();
-		if ($t->getNamespace() == NS_MAIN && MyTwitter::userHasOption($user, "createpage")) {
+		if ($t->inNamespace(NS_MAIN) && MyTwitter::userHasOption($user, "createpage")) {
 			MyTwitter::tweetNewArticle($t, $user);
 		}
 		return true;

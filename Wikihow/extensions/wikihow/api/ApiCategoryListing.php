@@ -12,7 +12,7 @@ $wgExtensionCredits['api'][] = array(
 );
 
 $wgAutoloadClasses['ApiCategoryListing'] =
-    dirname(__FILE__) . '/ApiCategoryListing.body.php';
+    __DIR__ . '/ApiCategoryListing.body.php';
 $wgAutoloadClasses['CategoryLister'] =
-    dirname(__FILE__) . '/ApiCategoryListing.body.php';
+    __DIR__ . '/ApiCategoryListing.body.php';
 $wgAPIModules['categorylisting'] = 'ApiCategoryListing';

@@ -12,7 +12,7 @@
 class CreatePage extends SpecialPage {
 	function __construct() {
 		parent::__construct('CreatePage');
-		EasyTemplate::set_path( dirname(__FILE__) );
+		EasyTemplate::set_path( __DIR__ );
 	}
 
 	function cleanupProposedRedirects(&$text) {
@@ -57,7 +57,7 @@ class CreatePage extends SpecialPage {
 
 		$hits = array();
 		$t = Title::newFromText(GuidedEditorHelper::formatTitle($target));
-		$overwriteAllowed = Newarticleboost::isOverwriteAllowed($target);
+		$overwriteAllowed = NewArticleBoost::isOverwriteAllowed($target);
 		$l = new LSearch();
 		$hits  = $l->externalSearchResultTitles($target, 0, 10);
 		$count = 0;
@@ -66,7 +66,7 @@ class CreatePage extends SpecialPage {
 				$t1 = $hit;
 				if ($count == 5) break;
 				if ($t1 == null) continue;
-				if ($t1->getNamespace() != NS_MAIN) continue;
+				if (!$t1->inNamespace(NS_MAIN)) continue;
 
 				// check if the result is a redirect
 				$a = new Article($t1);
@@ -182,7 +182,7 @@ class CreatePage extends SpecialPage {
 						$redir = false;
 					}
 
-					if ($t->getArticleID() > 0 && !Newarticleboost::isOverwriteAllowed($t)) {
+					if ($t->getArticleID() > 0 && !NewArticleBoost::isOverwriteAllowed($t)) {
 						// existing title -> error
 						$result = [
 							'target' => $target,
@@ -274,14 +274,14 @@ class CreatePage extends SpecialPage {
 	function grabEditURL($t) {
 		global $wgUser;
 		if (!class_exists('ArticleCreator') || !$wgUser->getOption('articlecreator')) {
-			if(Newarticleboost::isOverwriteAllowed($t)) {
+			if (NewArticleBoost::isOverwriteAllowed($t)) {
 				$url = $t->getEditURL() . "&review=1&overwrite=yes";
 			} else {
 				$url = $t->getEditURL() . "&review=1";
 			}
 		} else {
 			$url = '/Special:ArticleCreator?t=' . $t->getPartialUrl();
-			if (Newarticleboost::isOverwriteAllowed($t)) {
+			if (NewArticleBoost::isOverwriteAllowed($t)) {
 				$url .=  "&overwrite=yes";
 			}
 		}

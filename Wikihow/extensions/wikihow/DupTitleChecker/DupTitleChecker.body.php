@@ -581,7 +581,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 		// Check permissions
 		$userGroups = $user->getGroups();
 		if ( ( $userName != 'Rjsbhatia' ) && ( $user->isBlocked() || !( in_array( 'staff', $userGroups ) ) ) ) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}

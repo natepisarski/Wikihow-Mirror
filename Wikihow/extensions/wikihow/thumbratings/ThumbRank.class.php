@@ -114,7 +114,7 @@ class ThumbRank {
 
 		$vars['bodyHtml'] = WikihowArticleHTML::postProcess($bodyHtml, $opts);
 		$vars['lang'] = $wgLanguageCode;
-		EasyTemplate::set_path(dirname(__FILE__).'/');
+		EasyTemplate::set_path(__DIR__.'/');
 		$html = EasyTemplate::html('thumb_html.tmpl.php', $vars);
 
 		$doc = new DOMDocument('1.0', 'utf-8');

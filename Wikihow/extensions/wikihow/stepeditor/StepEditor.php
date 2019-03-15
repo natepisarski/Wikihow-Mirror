@@ -3,8 +3,8 @@ if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['StepEditor'] = 'StepEditor';
-$wgAutoloadClasses['StepEditor'] = dirname(__FILE__) . '/StepEditor.class.php';
-$wgAutoloadClasses['StepEditorParser'] = dirname(__FILE__) . '/StepEditor.class.php';
+$wgAutoloadClasses['StepEditor'] = __DIR__ . '/StepEditor.class.php';
+$wgAutoloadClasses['StepEditorParser'] = __DIR__ . '/StepEditor.class.php';
 
 $wgResourceModules['ext.wikihow.stepeditor'] = array(
 	'scripts' =>

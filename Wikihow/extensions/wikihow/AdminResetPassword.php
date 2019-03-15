@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminResetPassword',
 	'author' => 'Reuben Smith',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminResetPassword'] = 'AdminResetPassword';
-$wgAutoloadClasses['AdminResetPassword'] = dirname( __FILE__ ) . '/AdminResetPassword.body.php';
-
+$wgAutoloadClasses['AdminResetPassword'] = __DIR__ . '/AdminResetPassword.body.php';

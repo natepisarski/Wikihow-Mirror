@@ -10,7 +10,7 @@
  * @
  */
 class WikihowImagePage extends ImagePage {
-	
+
 	const LIGHTBOX_WIDTH = 900;
 	const LIGHTBOX_HEIGHT = 900;
 
@@ -23,10 +23,10 @@ class WikihowImagePage extends ImagePage {
 		}
 		return true;
 	}
-	
+
 	function renderAjax() {
 		global $wgUser, $wgImageLimits, $wgRequest, $wgSquidMaxage;
-		
+
 		$out = $this->getContext()->getOutput();
 		$out->setSquidMaxage($wgSquidMaxage);
 		$out->setArticleBodyOnly(true);
@@ -49,20 +49,20 @@ class WikihowImagePage extends ImagePage {
 		}
 		$helper = new ImageHelper();
 		$info = $helper->getImageInfoWidget($this, $this->mTitle, $this->getDisplayedFile());
-		
+
 		$newSize = $helper->calcResize($image->width, $image->height, self::LIGHTBOX_WIDTH, self::LIGHTBOX_HEIGHT);
-		
+
 		if ($image && $image->exists()) {
 				$out->addHtml("<div class='img-container animated fadeIn' style='height:" . $newSize['height'] . "px;'><img src='" . wfGetPad($url) . "'/></div>");
 		}
-		
+
 		$out->addHtml('<div class="content-container animated fadeIn">');
 		$out->addHtml($info);
-		
+
 		$out->addHtml('<div class="description">');
 		$helper->showDescription($this->mTitle);
 		$out->addHtml('</div>');
-		
+
 		if ($wgUser && !$wgUser->isAnon()) {
 			$this->imageHistory();
 		}
@@ -78,22 +78,22 @@ class WikihowImagePage extends ImagePage {
 	*/
 	function view() {
 		global $wgShowEXIF, $wgRequest, $wgUser;
-		
+
 		// used by the lightbox effect on the article page
 		if ($wgRequest->getVal('ajax') == 'true') {
 			$this->renderAjax();
 			return;
 		}
-		
+
 		$out = $this->getContext()->getOutput();
 		$sk = $this->getContext()->getSkin();
 		$diff = $wgRequest->getVal( 'diff' );
 		$diffOnly = $wgRequest->getBool( 'diffonly', $wgUser->getOption( 'diffonly' ) );
-		
 
 
-		if ( $this->mTitle->getNamespace() != NS_IMAGE || ( isset( $diff ) && $diffOnly ) )
-			return Article::view();	
+
+		if ( !$this->mTitle->inNamespace(NS_IMAGE) || ( isset( $diff ) && $diffOnly ) )
+			return Article::view();
 
 		if ($wgShowEXIF && $this->getDisplayedFile()->exists()) {
 			// FIXME: bad interface, see note on MediaHandler::formatMetadata().
@@ -114,7 +114,7 @@ class WikihowImagePage extends ImagePage {
 		# Show shared description, if needed
 		if ( $this->mExtraDescription ) {
 			$fol = wfMessage( 'shareddescriptionfollows' )->plain();
-			if( $fol != '-' && !wfMessage( 'shareddescriptionfollows' )->isBlank() ) {
+			if ( $fol != '-' && !wfMessage( 'shareddescriptionfollows' )->isBlank() ) {
 				$out->addWikiText( $fol );
 			}
 			$out->addHTML( '<div id="shared-image-desc">' . $this->mExtraDescription . '</div>' );
@@ -129,12 +129,12 @@ class WikihowImagePage extends ImagePage {
 
 		$diffSeparator = "<h2>" . wfMessage('currentrev')->text() . "</h2>";
 		$articleParts = explode($diffSeparator, $articleContent);
-		if(count($articleParts) > 1){
+		if (count($articleParts) > 1){
 			$out->addHTML($articleParts[0]);
 		}
 		$ih = new ImageHelper;
 		$articles = $ih->getLinkedArticles($this->mTitle);
-		
+
 		if (ImageHelper::IMAGES_ON) {
 			$ih->getConnectedImages($articles, $this->mTitle);
 			ImageHelper::getRelatedWikiHows($this->mTitle, $sk);
@@ -143,12 +143,12 @@ class WikihowImagePage extends ImagePage {
 
 		# No need to display noarticletext, we use our own message, output in openShowImage()
 		if ( $this->getID() ) {
-			
+
 
 		} else {
 			# Just need to set the right headers
 			$out->setArticleFlag( true );
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->setPageTitle( $this->mTitle->getPrefixedText() );
 			//$this->viewUpdates();
 		}
@@ -169,15 +169,15 @@ class WikihowImagePage extends ImagePage {
 			$out->addModules( array( 'mediawiki.action.view.metadata' ) );
 		}
 	}
-		
-		
+
+
 		/*
-		*  We're not interested in displaying this so just return an empty string in the 
+		*  We're not interested in displaying this so just return an empty string in the
 		* case where writeIt is false
 		*/
-		function uploadLinksBox($writeIt = true) { 
+		function uploadLinksBox($writeIt = true) {
 			if (!$writeIt) {
-				return "";	
+				return "";
 			}
 		}
 
@@ -187,7 +187,7 @@ class WikihowImagePage extends ImagePage {
 		 function uploadLinksMessage($writeIt = true) {
 				global $wgUser, $wgOut, $wgTitle;
 
-				if( !$this->getDisplayedFile()->isLocal() )
+				if ( !$this->getDisplayedFile()->isLocal() )
 						return;
 
 				$html = '<br /><ul>';
@@ -202,7 +202,7 @@ class WikihowImagePage extends ImagePage {
 						return $html;
 				}
 		}
-	
+
 
 }
 

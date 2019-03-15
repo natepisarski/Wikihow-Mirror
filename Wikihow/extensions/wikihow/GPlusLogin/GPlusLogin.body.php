@@ -29,7 +29,7 @@ class GPlusLogin extends UnlistedSpecialPage {
 		}
 
 		if (!$req->wasPosted()) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -92,7 +92,7 @@ class GPlusLogin extends UnlistedSpecialPage {
 			return;
 		}
 		$isMobile = Misc::isMobileMode();
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'formUrl' => $formUrl,
 			'username' => $username,

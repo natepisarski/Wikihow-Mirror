@@ -11,12 +11,12 @@ $wgExtensionCredits['specialpage'][] = array(
 $wgSpecialPages['Spellchecker'] = 'Spellchecker';
 $wgSpecialPages['Spellcheckerwhitelist'] = 'Spellcheckerwhitelist';
 $wgSpecialPages['SpellcheckerArticleWhitelist'] = 'SpellcheckerArticleWhitelist';
-$wgAutoloadClasses['Spellchecker'] = dirname(__FILE__) . '/Spellchecker.body.php';
-$wgAutoloadClasses['MobileSpellchecker'] = dirname(__FILE__) . '/MobileSpellchecker.body.php';
-$wgAutoloadClasses['wikiHowDictionary'] = dirname(__FILE__) . '/Spellchecker.body.php';
-$wgAutoloadClasses['Spellcheckerwhitelist'] = dirname(__FILE__) . '/Spellchecker.body.php';
-$wgAutoloadClasses['SpellcheckerArticleWhitelist'] = dirname(__FILE__) . '/Spellchecker.body.php';
-$wgExtensionMessagesFiles['Spellchecker'] = dirname(__FILE__) . '/Spellchecker.i18n.php';
+$wgAutoloadClasses['Spellchecker'] = __DIR__ . '/Spellchecker.body.php';
+$wgAutoloadClasses['MobileSpellchecker'] = __DIR__ . '/MobileSpellchecker.body.php';
+$wgAutoloadClasses['wikiHowDictionary'] = __DIR__ . '/Spellchecker.body.php';
+$wgAutoloadClasses['Spellcheckerwhitelist'] = __DIR__ . '/Spellchecker.body.php';
+$wgAutoloadClasses['SpellcheckerArticleWhitelist'] = __DIR__ . '/Spellchecker.body.php';
+$wgExtensionMessagesFiles['Spellchecker'] = __DIR__ . '/Spellchecker.i18n.php';
 
 $wgLogTypes[] = 'spellcheck';
 $wgLogTypes[] = 'whitelist';
@@ -33,21 +33,21 @@ $wgHooks['NABMarkPatrolled'][] = 'Spellchecker::onMarkNabbed';
 $wgHooks['NABArticleDemoted'][] = 'Spellchecker::onArticleDemoted';
 
 function wfCheckspelling(&$article, &$user, $text, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
-	if($article->mTitle->getNamespace() == NS_MAIN)
+	if ($article->mTitle->inNamespace(NS_MAIN))
 		Spellchecker::markAsDirty($article->getID());
 
 	return true;
 }
 
 function wfRemoveCheckspelling($wikiPage, $user, $reason) {
-	if($wikiPage->getTitle()->getNamespace() == NS_MAIN)
+	if ($wikiPage->getTitle()->inNamespace(NS_MAIN))
 		Spellchecker::markAsIneligible($wikiPage->getId());
 
 	return true;
 }
 
 function wfUndeleteCheckpelling( $title, $create) {
-	if(!$create && $title->getNamespace() == NS_MAIN)
+	if (!$create && $title->inNamespace(NS_MAIN))
 		Spellchecker::markAsDirty($title->getArticleID());
 
 	return true;
@@ -56,7 +56,7 @@ function wfUndeleteCheckpelling( $title, $create) {
 $wgResourceModules['ext.wikihow.spellchecker'] = array(
 	'scripts' => array('../ext-utils/anon_throttle.js', 'spellchecker.js'),
 	'styles' => array('spellchecker.css'),
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/spelltool',
 	'messages' => array('spch-loading-next','spch-qe-summary', 'spch-error-noarticles', 'spch-error-noarticles-mobile', 'spch-msg-anon-limit1', 'spch-login', 'spch-signup'),
 	'position' => 'top',

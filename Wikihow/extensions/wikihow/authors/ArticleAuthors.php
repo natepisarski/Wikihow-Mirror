@@ -8,6 +8,6 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'An extension that provides the list of authors for a given article',
 );
 
-$wgAutoloadClasses['ArticleAuthors'] = dirname(__FILE__) . '/ArticleAuthors.class.php';
-$wgExtensionMessagesFiles['ArticleAuthors'] = dirname(__FILE__) . '/ArticleAuthors.i18n.php';
+$wgAutoloadClasses['ArticleAuthors'] = __DIR__ . '/ArticleAuthors.class.php';
+$wgExtensionMessagesFiles['ArticleAuthors'] = __DIR__ . '/ArticleAuthors.i18n.php';
 

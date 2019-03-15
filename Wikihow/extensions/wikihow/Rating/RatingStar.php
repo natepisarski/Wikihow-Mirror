@@ -141,7 +141,7 @@ EOHTML;
 	}
 
 	function getRatingResponseDesktop($itemId, $rating, $ratingId) {
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$title = Title::newFromID($itemId);
 		$titleText = htmlspecialchars($title->getText(), ENT_QUOTES);
 		$tmpl->set_vars(
@@ -164,7 +164,7 @@ EOHTML;
 
 		// use this only for (Main) namespace pages that are not the main page - feel free to remove this...
 		$mainPageObj = Title::newMainPage();
-		if ($wgTitle->getNamespace() != NS_MAIN
+		if (!$wgTitle->inNamespace(NS_MAIN)
 			|| $mainPageObj->getFullText() == $wgTitle->getFullText())
 		{
 			return;

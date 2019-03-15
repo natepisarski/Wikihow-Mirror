@@ -8,7 +8,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminMMKQueries'] = 'AdminMMKQueries';
-$wgAutoloadClasses['AdminMMKQueries'] = dirname( __FILE__ ) . '/AdminMMKQueries.body.php';
+$wgAutoloadClasses['AdminMMKQueries'] = __DIR__ . '/AdminMMKQueries.body.php';
 
 $wgResourceModules['ext.wikihow.adminmmkqueries'] = array(
 	'scripts' => array(

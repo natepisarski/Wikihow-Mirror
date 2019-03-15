@@ -43,7 +43,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		//XXCHANGED: BEBETH 2/3/2015 to put in unnabbed alert
 			$skin = $this->getSkin();
 			$title = $skin->getTitle();
-			if ($wgLanguageCode == "en" && $title->getNamespace() == NS_MAIN && !Newarticleboost::isNABbedNoDb($title->getArticleID())) {
+			if ($wgLanguageCode == "en" && $title->inNamespace(NS_MAIN) && !NewArticleBoost::isNABbedNoDb($title->getArticleID())) {
 				/* Show element if showdemoted option is enabled */
 				$style = ($wgUser->getOption('showdemoted') == '1') ? "style='display:block'" : '';
 				echo "<div class='unnabbed_alert_top' $style>" . wfMessage('nab_warning_top')->parse() . "</div>";
@@ -55,7 +55,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				if ( isset( $data['_old_revision_warning'] ) ) {
 					echo $data['_old_revision_warning'];
 					//XX CHANGED: BEBETH
-				} else if ( !$isSpecialPage && !$this->isMainPage ){
+				} elseif ( !$isSpecialPage && !$this->isMainPage ){
 					$this->renderPageActions( $data );
 				}
 				//XXCHANGED: BEBETH

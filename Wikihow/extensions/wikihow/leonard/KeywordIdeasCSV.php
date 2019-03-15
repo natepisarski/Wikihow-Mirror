@@ -2,22 +2,22 @@
 
 class KeywordIdeasCSV {
 	const NUM_COLUMNS_GAD_CSV = 10;
-	
+
 	const KEY_KEYWORD = "Keyword";
 	const KEY_AVG_SEARCHES = "Avg. Monthly Searches (exact match only)";
 	const KEY_AD_GRP = "Ad group";
 	const KEY_IP_RANK = "iprank";
-	
+
 	const VAL_AD_GRP_SEED = "Seed Keywords";
-	
+
 	const GET_DATA_AFTER_DAYS = 7;
-	
+
 	const SORT_ON_AVG_SEARCHES = false;
-	
+
 	private static function csv_to_array($filename = '', $delimiter = "\t") {
 		if (! file_exists ( $filename ) || ! is_readable ( $filename ))
 			$err = "Error: file ". $filename ." does not exist or not readable.";
-		
+
 		if (!$err) {
 			$header = NULL;
 			$data = array ();
@@ -34,10 +34,10 @@ class KeywordIdeasCSV {
 							}
 							$header = $row;
 							$header[] = self::KEY_IP_RANK;
-						} else if ($rowCnt > 2) {
+						} elseif ($rowCnt > 2) {
 							$row[] = $rowCnt;
 							$data [] = array_combine ( $header, $row );
-						} else if ($rowCnt == 2) {
+						} elseif ($rowCnt == 2) {
 							$row[] = $rowCnt; //not needed for seed but good to be consistent
 							$seed = array_combine ( $header, $row );
 						}
@@ -49,7 +49,7 @@ class KeywordIdeasCSV {
 		}
 		return array($err, $seed, $data);
 	}
-	
+
 	private static function aasort(&$array, $key) {
 		$sorter = array ();
 		$ret = array ();
@@ -68,7 +68,7 @@ class KeywordIdeasCSV {
 		if (empty($seed)) return null;
 		return $seed[self::KEY_KEYWORD];
 	}
-	
+
 	protected static function updateDb($seed, $rows) {
 		include_once 'LDao.php';
 		include_once 'dbutils.php';
@@ -79,20 +79,20 @@ class KeywordIdeasCSV {
 
 			if (!$err) {
 				$res = LDao::addDbSeedKeyword($seedKeyword);
-				
+
 				$getSuggForTheseKw = array();
 				$activeKeywords = array();
-				
+
 				foreach ($rows as $row) {
 					$keyword = $row[self::KEY_KEYWORD];
 					$avgMonthSearches = $row[self::KEY_AVG_SEARCHES];
 					$activeKeywords[] = $keyword;
-					
+
 					if (empty($keyword)) continue;
-					
+
 					//check if row exists in keyword table
 					$res = LDao::getKeyword($seedKeyword, $keyword);
-		
+
 					if ($res === false || $res->numRows() == 0) { //if no keyword found
 						$getSuggForTheseKw[] = $row;
 					} else { //check if need to refetch sugg
@@ -113,14 +113,14 @@ class KeywordIdeasCSV {
 		}
 		return array($err, $getSuggForTheseKw);
 	}
-	
+
 	public static function getKeywordIdeas($csvFile, $avgSearchThresh) {
 		list($err, $seed, $csvData) = self::csv_to_array ( $csvFile, "\t" );
 		if (!$err) {
 			if (self::SORT_ON_AVG_SEARCHES === true) {
 				self::aasort ( $csvData, self::KEY_AVG_SEARCHES );
 			}
-			
+
 			$retData = array();
 			if ($csvData) {
 				foreach ( $csvData as $row ) {
@@ -131,7 +131,7 @@ class KeywordIdeasCSV {
 				}
 			}
 		}
-		
+
 		list($err1, $retFilteredData) = self::updateDb($seed, $retData);
 		if ($err1) $err .= $err1;
 		return array($err, $seed, $retFilteredData);

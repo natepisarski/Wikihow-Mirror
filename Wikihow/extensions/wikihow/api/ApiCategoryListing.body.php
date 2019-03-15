@@ -22,7 +22,7 @@ class ApiCategoryListing extends ApiBase {
             }
         }
         $resultProps = CategoryLister::getCategoryContents($this->getContext(), $title);
-    
+
         $result->addValue(null, $module, $resultProps);
 
         if ($error) {
@@ -90,9 +90,9 @@ class CategoryLister {
         $arts = array();
 
         if (!$title) {
-            $cats = Categoryhelper::getTopLevelCategoriesForDropDown();
+            $cats = CategoryHelper::getTopLevelCategoriesForDropDown();
         } else {
-            $tree = Categoryhelper::getCategoryTreeArray();
+            $tree = CategoryHelper::getCategoryTreeArray();
             self::getChildNodesFromTreeNode($tree, str_replace('-', ' ', $title->getBaseText()), $cats);
         }
 
@@ -100,7 +100,7 @@ class CategoryLister {
 
         foreach ($cats as $cat) {
             $catTitle = Title::newFromText($cat, NS_CATEGORY);
-            if($catTitle) {
+            if ($catTitle) {
 	            $catResult[$cat] = $catTitle->getFullURL();
             }
         }
@@ -126,7 +126,7 @@ class CategoryLister {
             // General articles:
             if ($viewer->articles) {
                 foreach ($viewer->articles as $artTitle) {
-                    if ($artTitle && $artTitle->exists() 
+                    if ($artTitle && $artTitle->exists()
                             && $artTitle->getNamespace() === NS_MAIN) {
                         $artResult[$artTitle->getText()] = $artTitle->getFullURL();
                     }

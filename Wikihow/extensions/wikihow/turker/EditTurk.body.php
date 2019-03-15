@@ -117,7 +117,7 @@ class EditTurk extends UnlistedSpecialPage {
 			$deleteConditions .= " Worker Id ".$posted_values['workerid'];
 		}
 
-		if($conds) {
+		if ($conds) {
 			$dbw = wfGetDB(DB_MASTER);
 			$res = $dbw->update('aqturkstore.hits', array('deleted'=> '1'),  $conds, __METHOD__, array());
 		}
@@ -234,7 +234,7 @@ class EditTurk extends UnlistedSpecialPage {
 		$userGroups = $wgUser->getGroups();
 		if ($userName!='Rjsbhatia') {
 			if ($wgUser->isBlocked() || !(in_array('staff', $userGroups))) {
-				$wgOut->setRobotpolicy('noindex,nofollow');
+				$wgOut->setRobotPolicy('noindex,nofollow');
 				$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 				return;
 			}
@@ -250,7 +250,7 @@ class EditTurk extends UnlistedSpecialPage {
 		if ($wgRequest->getVal('dbdelete')) {
 			//check if a file was uploaded
 			$fileName = $wgRequest->getFileTempName('hitsdbFile');
-			if(!file_exists($fileName) || !is_uploaded_file($fileName)) {
+			if (!file_exists($fileName) || !is_uploaded_file($fileName)) {
 				//not a file task
 				$this->ProcessKeywordQuery($wgRequest->getValues());
 			}else{
@@ -258,13 +258,13 @@ class EditTurk extends UnlistedSpecialPage {
 				$this->ProcessHITDBDelBatch($fileName);
 			}
 		}
-		else if ($wgRequest->getVal('worker')) {
+		elseif ($wgRequest->getVal('worker')) {
 			$this->processWorkerRequest($wgRequest->getValues());
 		}
-		else if ($wgRequest->getVal('amzturk')) {
+		elseif ($wgRequest->getVal('amzturk')) {
 			//do this?
 			$fileName = $wgRequest->getFileTempName('hitsFile');
-			if(!file_exists($fileName) || !is_uploaded_file($fileName)) {
+			if (!file_exists($fileName) || !is_uploaded_file($fileName)) {
 				$this->DeleteHITs($wgRequest->getValues(),$userName);
 			}else{
 				//a batch file was uploaded

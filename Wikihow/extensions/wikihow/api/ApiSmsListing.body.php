@@ -15,7 +15,7 @@ class ApiSmsListing extends ApiBase {
 		$result = $this->getResult();
 		$search = $params['text'];
 
-		if($params['skipcat'] != "1") {
+		if ($params['skipcat'] != "1") {
 			$searchEngine = SearchEngine::create();
 			$titleMatches = $searchEngine->searchTitle($search);
 			if ( !($titleMatches instanceof SearchResultTooMany) ) {
@@ -72,7 +72,7 @@ class ApiSmsListing extends ApiBase {
 			$result->addValue(null, 'title', wfMessage("howto", $title->getFullText())->text());
 			$result->addValue(null, 'url', $title->getFullUrl());
 
-			if(!empty($summaryText)) {
+			if (!empty($summaryText)) {
 				$result->addValue(null, 'result', 'summary');
 				$result->addValue(null, 'summary', $summaryText);
 			} else {
@@ -150,7 +150,7 @@ class ApiSmsListing extends ApiBase {
 		$requestContext = RequestContext::getMain();
 		$request = $requestContext->getRequest();
 
-		if($request->getVal("skipcat") != "1") {
+		if ($request->getVal("skipcat") != "1") {
 			$newFilters = [
 				"templates" => "ffts",
 				"templates_specific_extras" => "smsproject"

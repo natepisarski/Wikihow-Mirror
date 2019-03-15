@@ -20,7 +20,7 @@ $wgExtensionCredits['specialpage'][] = array(
 	'descriptionmsg' => 'adminnabatlaslist-desc',
 	'version' => '0.1',
 );
-$dir = dirname( __FILE__ );
+$dir = __DIR__;
 
 $wgSpecialPages['AdminNabAtlasList'] = 'SpecialAdminNabAtlasList';
 $wgExtensionMessagesFiles['AdminNabAtlasList'] = "$dir/AdminNabAtlasList.i18n.php";

@@ -58,7 +58,7 @@ class ExternalVideoProvider {
 		if (!isset(ExternalVideoProvider::$supportedArticles[$articleTitle])) {
 			return false;
 		}
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		return $tmpl->execute('ExternalVideo.tmpl.php');
 	}
 

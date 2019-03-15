@@ -6,10 +6,10 @@ class EndOfQueue extends UnlistedSpecialPage {
 	public $next_tools_anon; //stored in mw message 'next_tools_anon
 	public $next_tools_mobile; //stored in mw message 'next_tools_mobile
 	public $done_tool = '';
-	
+
 	public function __construct() {
 		parent::__construct('EndOfQueue');
-		EasyTemplate::set_path( dirname(__FILE__) );
+		EasyTemplate::set_path( __DIR__ );
 		$this->next_tools_user = array_map('trim', explode("\n", trim(wfMessage("next_tools_user")->text())));
 		$this->next_tools_anon = array_map('trim', explode("\n", trim(wfMessage("next_tools_anon")->text())));
 		$this->next_tools_mobile = array_map('trim', explode("\n", trim(wfMessage("next_tools_mobile")->text())));
@@ -18,13 +18,13 @@ class EndOfQueue extends UnlistedSpecialPage {
 	public function getMessage($dt) {
 		if (!$dt) return '';
 		$this->done_tool = $dt;
-		
+
 		$isMobile = MobileContext::singleton()->shouldDisplayMobileView();
 		$mobile_suffix = $isMobile ? '_mobile' : '';
-		
+
 		//and the suggested next tool is...[drumroll]...
 		$next_tool = $this->getNextTool();
-		
+
 		$from =  wfMessage('cd-'.$this->done_tool.'-phrase-prog')->text();
 		if ($next_tool) {
 			$to = $next_tool ? wfMessage('cd-'.$next_tool.'-phrase')->text() : '';
@@ -38,7 +38,7 @@ class EndOfQueue extends UnlistedSpecialPage {
 			$link = wfMessage('eoq_link_default')->text();
 			$btn_msg = wfMessage('eoq_button_default')->text();
 		}
-		
+
 		$vars = array(
 			'styles' => "<link type='text/css' rel='stylesheet' href='".wfGetPad('/extensions/wikihow/eoq/end_of_queue.css?rev=' . WH_SITEREV) . "' />",
 			'msg' => $msg,
@@ -47,7 +47,7 @@ class EndOfQueue extends UnlistedSpecialPage {
 			'e_type' => wfMessage('cd-'.$this->done_tool.'-event-type')->text(),
 			'redirect' =>  wfMessage('cd-'.$next_tool.'-event-type')->text()
 		);
-		
+
 		$msg = EasyTemplate::html('end_of_queue.tmpl.php',$vars);
 
 		// usage logs
@@ -60,16 +60,16 @@ class EndOfQueue extends UnlistedSpecialPage {
 				)
 			)
 		);
-		
+
 		return $msg;
 	}
-	
+
 	public function getCounts() {
 		$counts = array();
-		
+
 		//use dashboard counts
 		$data = DashboardData::getStatsData();
-		
+
 		if ($data) {
 			//only grab the abbreviation and the count
 			foreach ($data['widgets'] as $type => $val) {
@@ -80,10 +80,10 @@ class EndOfQueue extends UnlistedSpecialPage {
 			//sort by count
 			arsort($counts);
 		}
-		
+
 		return $counts;
 	}
-	
+
 	//grab the proper array of tools for this user
 	public function getNextToolList() {
 		$isMobile = MobileContext::singleton()->shouldDisplayMobileView();
@@ -98,14 +98,14 @@ class EndOfQueue extends UnlistedSpecialPage {
 		//remove the tool we're coming from
 		if ($this->done_tool) {
 			$key = array_search($this->done_tool,$next_tools);
-			if($key !== false) {
+			if ($key !== false) {
 				array_splice($next_tools, $key, 1);
 			}
 		}
 
 		return $next_tools;
 	}
-	
+
 	//get the next tool
 	public function getNextTool() {
 		$next = '';
@@ -128,11 +128,11 @@ class EndOfQueue extends UnlistedSpecialPage {
 		return true;
 	}
 
-	public function execute($par) {	
+	public function execute($par) {
 		//gotta have the tool send its tool abbreviation
 		$dt = $this->getRequest()->getVal('this_tool');
 		if (!$dt) return;
-		
+
 		$out = $this->getOutput();
 		$out->setArticleBodyOnly(true);
 		$out->addModules('ext.wikihow.UsageLogs');

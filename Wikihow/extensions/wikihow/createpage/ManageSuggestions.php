@@ -37,7 +37,7 @@ class ManageSuggestions extends UnlistedSpecialPage {
 			<input type='submit' value='Delete'/></form></div>
 			");
 			return;
-		} else if ($wgRequest->wasPosted() && $wgRequest->getVal('delete') != null) {
+		} elseif ($wgRequest->wasPosted() && $wgRequest->getVal('delete') != null) {
 			$dbw = wfGetDB(DB_MASTER);
 			$log = new LogPage( 'suggestion', true );
 			foreach($wgRequest->getValues() as $key => $value) {
@@ -53,7 +53,7 @@ class ManageSuggestions extends UnlistedSpecialPage {
 				}
 			}
 			$wgOut->addHTML("<br/><br/>");
-		} else if ($wgRequest->wasPosted() && $wgRequest->getVal('new_suggestions') != null) {
+		} elseif ($wgRequest->wasPosted() && $wgRequest->getVal('new_suggestions') != null) {
 			$dbw = wfGetDB(DB_MASTER);
 			$sugg = $wgRequest->getVal('new_suggestions');
 			$format = $wgRequest->getVal('formatted') != 'on';
@@ -84,7 +84,7 @@ class ManageSuggestions extends UnlistedSpecialPage {
 				$wgOut->addHTML("Suggestion \"{$title}\" added (key $key) <br/>");
 			}
 			$wgOut->addHTML("<br/><br/>");
-		} else if ($wgRequest->wasPosted() && $wgRequest->getVal('remove_suggestions') != null) {
+		} elseif ($wgRequest->wasPosted() && $wgRequest->getVal('remove_suggestions') != null) {
 			$dbw = wfGetDB(DB_MASTER);
 			$sugg = $wgRequest->getVal('remove_suggestions');
 			$lines = explode("\n", $sugg);

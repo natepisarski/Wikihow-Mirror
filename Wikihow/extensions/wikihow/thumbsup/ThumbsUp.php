@@ -3,8 +3,8 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['ThumbsUp'] = 'ThumbsUp';
-$wgAutoloadClasses['ThumbsUp'] = dirname( __FILE__ ) . '/ThumbsUp.body.php';
-$wgExtensionMessagesFiles['ThumbsUp'] = dirname(__FILE__) . '/ThumbsUp.i18n.php';
+$wgAutoloadClasses['ThumbsUp'] = __DIR__ . '/ThumbsUp.body.php';
+$wgExtensionMessagesFiles['ThumbsUp'] = __DIR__ . '/ThumbsUp.i18n.php';
 
 
 $wgLogTypes[]             = 'thumbsup';

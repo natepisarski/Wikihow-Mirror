@@ -32,7 +32,7 @@ class WikihowMobileHomepage extends Article {
         $boxes = array();
         $videoBoxes = array();
 		foreach ($fas as $fa) {
-			if($count >= 24) {
+			if ($count >= 24) {
 				break;
 			}
 			$box = WikihowMobileTools::makeFeaturedArticlesBox($fa['title'],false,$showHighDPI);
@@ -112,16 +112,16 @@ class WikihowMobileHomepage extends Article {
 		$res = $dbr->select(WikihowHomepageAdmin::HP_TABLE, array('*'), array('hp_active' => 1), __METHOD__, array('ORDER BY' => 'hp_order'));
 
 		$i = 0;
-		foreach($res as $result) {
+		foreach ($res as $result) {
 			$item = new stdClass();
 			$title = Title::newFromID($result->hp_page);
 			// Append Google Analytics tracking to slider URLs
 			$item->url = $title->getLocalURL() . "?utm_source=wikihow&utm_medium=main_page_carousel&utm_campaign=mobile";
 			$item->text = $title->getText() . wfMessage('howto_suffix')->showIfExists();
 			$imageTitle = Title::newFromID($result->hp_image);
-			if($imageTitle) {
+			if ($imageTitle) {
 				$file = wfFindFile($imageTitle->getText());
-				if($file) {
+				if ($file) {
 					$item->imagePath = wfGetPad($file->getUrl());
 					$item->itemNum = ++$i;
 					$items[] = $item;
@@ -131,7 +131,7 @@ class WikihowMobileHomepage extends Article {
 
 		wfRunHooks( 'WikihowHomepageAfterGetTopItems', array( &$items ) );
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'items' => $items,
 			'imagePath' => wfGetPad('/skins/owl/images/home1.jpg'),

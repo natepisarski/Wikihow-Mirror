@@ -8,20 +8,22 @@ class QuickEdit extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgUser, $wgRequest, $wgOut;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		if ($wgUser->isBlocked()) {
-			$wgOut->blockedPage();
+		if ($user->isBlocked()) {
+			$out->blockedPage();
 			return;
 		}
 
-		$type = $wgRequest->getVal('type', null);
-		$target = $wgRequest->getVal('target', null);
+		$type = $req->getVal('type', null);
+		$target = $req->getVal('target', null);
 		if ($type == 'editform') {
-			$wgOut->setArticleBodyOnly(true);
+			$out->setArticleBodyOnly(true);
 			$title = Title::newFromURL($target);
 			if (!$title) {
-				$wgOut->addHTML('error: bad target');
+				$out->addHTML('error: bad target');
 			} else {
 				self::showEditForm($title);
 			}
@@ -35,24 +37,28 @@ class QuickEdit extends UnlistedSpecialPage {
 	 * @param Title $title title object describing which article to edit
 	 */
 	public static function showEditForm($title) {
-		global $wgRequest, $wgTitle, $wgOut;
+		global $wgTitle;
+
+		$ctx = RequestContext::getMain();
+		$req = $ctx->getRequest();
+		$out = $ctx->getOutput();
 
 		$wgTitle = $title;
 		$article = new Article($title);
 		$editor = new EditPage($article);
 		$editor->edit();
 
-		if ($editor->isConflict && $wgRequest->wasPosted()) {
-			$wgOut->clearHTML();
-			$wgOut->setStatusCode(409);
-			$wgOut->addWikiText( 'Your edit could not be saved due to an edit conflict. Try closing and re-opening the Quick Edit window' );
+		if ($editor->isConflict && $req->wasPosted()) {
+			$out->clearHTML();
+			$out->setStatusCode(409);
+			$out->addWikiText( 'Your edit could not be saved due to an edit conflict. Try closing and re-opening the Quick Edit window' );
 			return;
 		}
 
-		if ($wgOut->mRedirect && $wgRequest->wasPosted()) {
-			$wgOut->redirect('');
+		if ($out->mRedirect && $req->wasPosted()) {
+			$out->redirect('');
 			$rev = Revision::newFromTitle($title);
-			$wgOut->addHTML( $wgOut->parse( $rev->getText() ) );
+			$out->addHTML( $out->parse( $rev->getText() ) );
 		}
 	}
 
@@ -62,7 +68,6 @@ class QuickEdit extends UnlistedSpecialPage {
 		print $status->getHTML();
 		// Never let this function end, otherwise the output is overwritten
 		exit;
-		return true;
 	}
 
 	public static function getQuickEditUrl($t) {

@@ -1,11 +1,11 @@
 <?
 $messages = array();
-$messages['en'] = 
+$messages['en'] =
  	array(
 		'popbox_related_articles' => 'Related Articles',
 		'popbox_accesskey' => "r",
 		'popbox_loading_results' => "Loading Results....",
-		'popbox_nothanks' => "No Thanks", 
+		'popbox_nothanks' => "No Thanks",
 		'popbox_noresults' => "Sorry - no results.",
 		'popbox_close' => "Close",
 		'popbox_revise' => "Revise Search",

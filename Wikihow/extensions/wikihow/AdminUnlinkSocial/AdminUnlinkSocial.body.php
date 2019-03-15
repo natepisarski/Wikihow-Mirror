@@ -6,34 +6,36 @@ use SocialAuth\SocialUser;
 
 class AdminUnlinkSocial extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'AdminUnlinkSocial' );
 	}
 
-	function execute($par) {
-		global $wgOut, $wgUser, $wgRequest;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
 		// Restrict page access to staff members
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
 		// Set the page title and load the JS and CSS files
-		$wgOut->setPageTitle(wfMessage('unlinksocial-page-title')->text());
-		$wgOut->addModules('ext.wikihow.adminunlinksocial.scripts');
-		$wgOut->addModuleStyles('ext.wikihow.adminunlinksocial.styles');
+		$out->setPageTitle(wfMessage('unlinksocial-page-title')->text());
+		$out->addModules('ext.wikihow.adminunlinksocial.scripts');
+		$out->addModuleStyles('ext.wikihow.adminunlinksocial.styles');
 
 		// Map the request to the appropriate action
-		if (!$wgRequest->wasPosted()) {
+		if (!$req->wasPosted()) {
 			$this->renderPage();
-		} elseif ($wgRequest->getText('action') == 'getUser') {
+		} elseif ($req->getText('action') == 'getUser') {
 			$this->apiGetUser();
-		} elseif ($wgRequest->getText('action') == 'unlinkGoogle') {
+		} elseif ($req->getText('action') == 'unlinkGoogle') {
 			$this->apiUnlink('Google');
-		} elseif ($wgRequest->getText('action') == 'unlinkFacebook') {
+		} elseif ($req->getText('action') == 'unlinkFacebook') {
 			$this->apiUnlink('Facebook');
 		} else {
 			$this->apiError('Action not supported');
@@ -41,9 +43,9 @@ class AdminUnlinkSocial extends UnlistedSpecialPage {
 	}
 
 	private function renderPage() {
-		global $wgOut;
-		$tmpl = new EasyTemplate(dirname(__FILE__));
-		$wgOut->addHTML($tmpl->execute('AdminUnlinkSocial.tmpl.php'));
+		$out = $this->getOutput();
+		$tmpl = new EasyTemplate(__DIR__);
+		$out->addHTML($tmpl->execute('AdminUnlinkSocial.tmpl.php'));
 	}
 
 	private function apiGetUser() {

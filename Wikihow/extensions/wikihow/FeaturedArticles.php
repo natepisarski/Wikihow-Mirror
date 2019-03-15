@@ -2,7 +2,7 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['FeaturedArticles'] = dirname(__FILE__) . '/FeaturedArticles.class.php';
+$wgAutoloadClasses['FeaturedArticles'] = __DIR__ . '/FeaturedArticles.class.php';
 
 $wgHooks['ArticleSaveComplete'][] = array('wfMarkFeaturedSaved');
 
@@ -50,4 +50,3 @@ function wfMarkFeaturedSaved(&$article, &$user, $text, $summary, $minoredit, $wa
 	}
 	return true;
 }
-

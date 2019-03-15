@@ -2,7 +2,7 @@
 
 $messages = array();
 $messages['en'] = array(
-	'postcomment_discussionprotected' => 'This discussion page has been protected from further postings.', 
+	'postcomment_discussionprotected' => 'This discussion page has been protected from further postings.',
 	'postcomment_notloggedin' => 'You are not logged in.',
 	'postcomment_youareloggedinas' => 'You are logged in as $1',
 	'postcomment_addcommentdiscussionpage' => 'Add your comment...',

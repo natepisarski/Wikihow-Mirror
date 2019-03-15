@@ -10,8 +10,8 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['TranslateEditor'] = 'TranslateEditor';
 
-$wgAutoloadClasses['TranslateEditor'] = dirname( __FILE__ ) . '/TranslateEditor.body.php';
-$wgAutoloadClasses['EditMapper\TranslatorEditMapper'] = dirname( __FILE__ ) . '/TranslatorEditMapper.class.php';
+$wgAutoloadClasses['TranslateEditor'] = __DIR__ . '/TranslateEditor.body.php';
+$wgAutoloadClasses['EditMapper\TranslatorEditMapper'] = __DIR__ . '/TranslatorEditMapper.class.php';
 
 $wgHooks['CustomEditor'][] = 'TranslateEditor::onCustomEdit';
 

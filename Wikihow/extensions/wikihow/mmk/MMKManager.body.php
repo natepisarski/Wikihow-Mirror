@@ -35,13 +35,14 @@ class MMKManager extends UnlistedSpecialPage {
 	static $title_changes = 0;
 	static $errors = array();
 
-	function __construct() {
-		$this->action = $GLOBALS['wgTitle']->getPartialUrl();
+	public function __construct() {
+		global $wgHooks;
 		parent::__construct($this->action);
-		$GLOBALS['wgHooks']['ShowSideBar'][] = array('MMKManager::removeSideBarCallback');
+		$this->action = $this->getTitle()->getPartialUrl();
+		$wgHooks['ShowSideBar'][] = array('MMKManager::removeSideBarCallback');
 	}
 
-	static function removeSideBarCallback(&$showSideBar) {
+	public static function removeSideBarCallback(&$showSideBar) {
 		$showSideBar = false;
 		return true;
 	}
@@ -57,7 +58,7 @@ class MMKManager extends UnlistedSpecialPage {
 	}
 
 	function doKeywordQuery($posted_values) {
-		global $wgLanguageCode;
+		$langCode = $this->getLanguage()->getCode();
 
 		$keywords = $posted_values['keywords'];
 		$query_rank = (int) ($posted_values['query_rank'] ?? 1);
@@ -82,7 +83,7 @@ class MMKManager extends UnlistedSpecialPage {
 		$sql = "select keywords.* from mmk.keywords
 				left join mmk.mmk_manager on position = mmk_position
 				where position >= $query_rank $kws $status_query
-				and (mmk_language_code = " . $dbr->addQuotes($wgLanguageCode) . " or mmk_language_code IS NULL)
+				and (mmk_language_code = " . $dbr->addQuotes($langCode) . " or mmk_language_code IS NULL)
 				order by position limit $limit";
 		$res = $dbr->query($sql, __METHOD__);
 
@@ -108,9 +109,9 @@ class MMKManager extends UnlistedSpecialPage {
 			$altKeywords = array($dbr->addQuotes($qi['title']));
 			$sql = 'select ti.*, mmkm.* from mmk.mmk_manager mmkm
 					left join ' . TitusDB::getDBname().'.'.TitusDB::TITUS_INTL_TABLE_NAME . ' ti
-					on ti_page_id = mmk_page_id and ti_language_code = '. $dbr->addQuotes($wgLanguageCode).'
+					on ti_page_id = mmk_page_id and ti_language_code = '. $dbr->addQuotes($langCode).'
 					where mmk_keyword in (' . implode(',', $altKeywords) . ')
-					and mmk_language_code = ' . $dbr->addQuotes($wgLanguageCode);
+					and mmk_language_code = ' . $dbr->addQuotes($langCode);
 			$res = $dbr->query($sql, __METHOD__);
 
 			foreach ($res as $row) {
@@ -140,7 +141,7 @@ class MMKManager extends UnlistedSpecialPage {
 	}
 
 	function processUpload($uploadfile) {
-		if(!file_exists($uploadfile) || !is_readable($uploadfile)) {
+		if (!file_exists($uploadfile) || !is_readable($uploadfile)) {
 			self::$errors[] = 'Bad file. Could not upload.';
 			return;
 		}
@@ -163,7 +164,7 @@ class MMKManager extends UnlistedSpecialPage {
 			// skip first line if it's the position\t... header
 			$position = intval($fields[1]);
 			if (!$position) {
-				if(!$header) $header = $fields;
+				if (!$header) $header = $fields;
 				continue;
 			}
 
@@ -187,8 +188,8 @@ class MMKManager extends UnlistedSpecialPage {
 	}
 
 	private function saveUploadedRow($row) {
-		global $wgLanguageCode;
 		$dbw = wfGetDB(DB_MASTER);
+		$langCode = $this->getLanguage()->getCode();
 
 		$new_page_id = '';
 
@@ -247,7 +248,7 @@ class MMKManager extends UnlistedSpecialPage {
 						'mmk_old_page_id' => is_null($old_page_id) ? '' : $old_page_id,
 						'mmk_rating' => $row['rating'],
 						'mmk_rating_date' => $row['rating date'],
-						'mmk_language_code' => $wgLanguageCode,
+						'mmk_language_code' => $langCode,
 						'mmk_last_updated' => wfTimeStampNow());
 
 		$res = $dbw->upsert('mmk.mmk_manager',array_merge($position,$updates),$position,$updates,__METHOD__);
@@ -261,8 +262,8 @@ class MMKManager extends UnlistedSpecialPage {
 	}
 
 	private function setStatus($row,$new_state) {
-		global $wgLanguageCode;
 		$dbw = wfGetDB(DB_MASTER);
+		$langCode = $this->getLanguage()->getCode();
 
 		$position = array('mmk_position' => $row['position']);
 		$updates = array('mmk_keyword' => $row['title'],
@@ -272,7 +273,7 @@ class MMKManager extends UnlistedSpecialPage {
 						'mmk_old_page_id' => is_null($old_page_id) ? '' : $old_page_id,
 						'mmk_rating' => $row['rating'],
 						'mmk_rating_date' => $row['rating date'],
-						'mmk_language_code' => $wgLanguageCode,
+						'mmk_language_code' => $langCode,
 						'mmk_last_updated' => wfTimeStampNow());
 
 		$res = $dbw->upsert('mmk.mmk_manager',array_merge($position,$updates),$position,$updates,__METHOD__);
@@ -330,35 +331,39 @@ class MMKManager extends UnlistedSpecialPage {
 	/**
 	 * Execute special page.  Only available to wikihow staff.
 	 */
-	function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang, $wgIsDevServer;
+	public function execute($par) {
+		global $wgIsDevServer;
+
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
 		// Check permissions
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		$titusHost = 'titus.wikiknowhow.com';
 		if (!$wgIsDevServer && $_SERVER['HTTP_HOST'] != $titusHost) {
-			$wgOut->redirect("https://$titusHost/Special:MMKManager");
+			$out->redirect("https://$titusHost/Special:MMKManager");
 		}
 
 		//some of these take a little while
 		set_time_limit(0);
 
-		if ($wgRequest->getVal('keyword')) {
-			$this->doKeywordQuery($wgRequest->getValues());
+		if ($req->getVal('keyword')) {
+			$this->doKeywordQuery($req->getValues());
 			return;
 		}
-		else if ($wgRequest->getVal('upload')) {
-			$html = $this->processUpload($wgRequest->getFileTempName('adminFile'));
+		elseif ($req->getVal('upload')) {
+			$html = $this->processUpload($req->getFileTempName('adminFile'));
 		}
 
-		$wgOut->setHTMLTitle('MMK Manager - wikiHow');
-		$wgOut->setPageTitle('MMK Manager');
+		$out->setHTMLTitle('MMK Manager - wikiHow');
+		$out->setPageTitle('MMK Manager');
 
 		$tmpl = $this->getGuts();
 
@@ -369,7 +374,7 @@ class MMKManager extends UnlistedSpecialPage {
 			$tmpl = $errors.  $tmpl;
 		}
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 
 	function getGuts() {

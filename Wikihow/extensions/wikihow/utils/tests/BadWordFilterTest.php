@@ -10,7 +10,7 @@ class BadWordFilterTest extends MediaWikiTestCase {
 	var $badWordContent = "This has the word 'fuck' in it. Fuck.  What a bad word it is.";
 	var $okWordContent = "This has no bad words in it.";
 	var $maybeWordContent = "This kinda has the word f uck in it.";
-	var $multiWordContent = "nut sack";	
+	var $multiWordContent = "nut sack";
 
 	protected function setUp() {
 		parent::setUp();

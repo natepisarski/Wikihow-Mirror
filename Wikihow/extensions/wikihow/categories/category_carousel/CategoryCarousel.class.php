@@ -18,7 +18,7 @@ class CategoryCarousel {
 		RequestContext::getMain()->getOutput()->addModules(array('mobile.wikihow.category_carousel'));
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 		$data = $this->getFormattedData();
@@ -30,7 +30,7 @@ class CategoryCarousel {
 		RequestContext::getMain()->getOutput()->addModules(array('mobile.wikihow.category_carousel'));
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 		return $m->render('category_listing_carousel', $listingData);
@@ -53,7 +53,7 @@ class CategoryCarousel {
 		$data['cat_articles']['articles'] = $this->removeArticleSortKeys($data['cat_articles']['articles']);
 		$data['default_image'] = wfGetPad(self::DEFAULT_THUMB_IMG);
 		$data['all_articles_title'] = wfMessage('cat_all_articles')->text();
-		if($this->isSubCategory) {
+		if ($this->isSubCategory) {
 			$data['subsublist'] = $this->formatSubcategoryList($data['subcategories']);
 		}
 		$data['show_more'] = wfMessage('cat_show_more')->text();
@@ -70,10 +70,10 @@ class CategoryCarousel {
 
 		$html = "";
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
-		foreach($data['cat_articles']['articles'] as $item) {
+		foreach ($data['cat_articles']['articles'] as $item) {
 			$item['default_image'] = $defaultImage;
 			$item['howto_prefix'] = $data['howto_prefix'];
 			$html .=  $m->render('category_carousel_item', $item);
@@ -83,7 +83,7 @@ class CategoryCarousel {
 
 	protected function formatSubcategoryList($subcats) {
 		$subdata = [];
-		foreach($subcats as $title) {
+		foreach ($subcats as $title) {
 			$subdata[] = ['url' => $title->getLocalUrl(), 'text' => $title->getText()];
 		}
 		return $subdata;

@@ -25,7 +25,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 		// Check permissions
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -86,13 +86,13 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 			// skip first line if it's the pageid\t... header
 			$categoryUrl = $fields[0];
 			$title = Title::newFromText(Misc::fullUrlToPartial($categoryUrl), NS_CATEGORY);
-			if(!$title) {
+			if (!$title) {
 				$stats['badcats'][] = $categoryUrl;
 				continue;
 			}
-			
+
 			$pageId = $title->getArticleID();
-			if($pageId <= 0) {
+			if ($pageId <= 0) {
 				$stats['badcats'][] = $categoryUrl;
 				continue;
 			}
@@ -113,7 +113,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 	}
 
 	private function displayPage() {
-		$loader = new Mustache_Loader_FilesystemLoader(dirname(__FILE__));
+		$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
 		$this->getOutput()->addHtml(
@@ -138,13 +138,13 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 
 		$stats['update'] = count($changes);
 		$stats['delete'] = count($toDelete);
-		if(count($toDelete) > 0) {
+		if (count($toDelete) > 0) {
 			$dbw->delete(self::CATEGORY_DESCRIPTIONS, ['cd_page_id  in (' . $dbw->makeList($toDelete) . ')'], __METHOD__);
 		}
 
 
 		$toInsert = [];
-		foreach($changes as $row) {
+		foreach ($changes as $row) {
 			$toInsert[] = $row;
 			$cacheClear[] = $row['cd_page_id'];
 		}
@@ -160,7 +160,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 			__METHOD__
 		);
 
-		foreach($cacheClear as $id) {
+		foreach ($cacheClear as $id) {
 			$this->clearMemc($id);
 		}
 
@@ -175,7 +175,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 
 		$dbr = wfGetDB( DB_SLAVE );
 		$res = $dbr->select( self::CATEGORY_DESCRIPTIONS, ['*'], '', __METHOD__ );
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$title = Title::newFromId($row->cd_page_id);
 			print $title->getFullURL() . "\t" . $row->cd_description . "\t" . $row->cd_custom_note . "\n";
 		}
@@ -199,25 +199,25 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 
 		$cacheKey = wfMemcKey(self::CACHE_KEY_DESCRIPTION, $title->getArticleID(), $useLinks);
 		$val = $wgMemc->get($cacheKey);
-		if(is_string($val)) {
+		if (is_string($val)) {
 			return $val;
 		}
 
 		$dbr = wfGetDB(DB_SLAVE);
 		$description = $dbr->selectField(AdminCategoryDescriptions::CATEGORY_DESCRIPTIONS, "cd_description", ['cd_page_id' => $title->getArticleID()], __METHOD__);
-		if($description !== false && $description != "") {
+		if ($description !== false && $description != "") {
 			$options = new ParserOptions;
 			$options->setTidy( true );
 			$out = $wgParser->parse($description, $title, $options);
 			$description = $out->getText();
-			if(!$useLinks) {
+			if (!$useLinks) {
 				$description = trim(strip_tags($description));
 			}
 			$wgMemc->set($cacheKey, $description, self::CACHE_LENGTH);
 			return $description;
 		} else {
-			$topCatKey = Categoryhelper::getTopCategoryIncludingWikiHow($title);
-			if($topCatKey == "WikiHow") {
+			$topCatKey = CategoryHelper::getTopCategoryIncludingWikiHow($title);
+			if ($topCatKey == "WikiHow") {
 				$description = wfMessage(self::MESSAGE_DESCRIPTION_WIKIHOW, $title->getText())->text();
 			} else {
 				//get the top 3 articles in the current category

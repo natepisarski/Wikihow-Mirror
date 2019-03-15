@@ -3,6 +3,9 @@
 class AdminSamples extends UnlistedSpecialPage {
 
 	public function __construct() {
+		global $IP;
+		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
+
 		parent::__construct('AdminSamples');
 	}
 
@@ -21,7 +24,7 @@ class AdminSamples extends UnlistedSpecialPage {
 					$urls[] = $url;
 				}
 				else {
-					$sample = preg_replace('@http://www.wikihow.com/Sample/@','',$url);
+					$sample = preg_replace('@https?://www.wikihow.com/Sample/@','',$url);
 					$err = self::validateSample($sample,$dbr);
 					$urls[] = array('url' => $url, 'sample' => $sample, 'err' => $err);
 				}
@@ -29,61 +32,61 @@ class AdminSamples extends UnlistedSpecialPage {
 		}
 		return $urls;
 	}
-	
-	private static function validateSample($sample,$db) {
+
+	private static function validateSample($sample, $db) {
 		//is it in the main db table?
 		$res = $db->select('dv_sampledocs','*',array('dvs_doc' => $sample), __METHOD__);
 		if (!$res->fetchObject()) return 'invalid sample';
-		
+
 		//make sure it isn't linked from any articles
 		$res = $db->select('dv_links','*',array('dvl_doc' => $sample), __METHOD__);
 		if ($res->fetchObject()) return 'Still linked from articles';
-		
+
 		//still here?
 		return '';
 	}
-	
+
 	private static function fourOhFourSamples($urls) {
 		$sample_array = array();
-		
+
 		//gather up the articles
 		foreach ($urls as $url) {
 			if (!$url['err']) {
 				$sample_array[] = $url['sample'];
 			}
 		}
-		
+
 		//do the deletes
 		if ($sample_array) {
 			$dbw = wfGetDB(DB_MASTER);
 			$result = '';
-			
+
 			//ready it for the db
 			$the_samples = implode("','",$sample_array);
 			$the_samples = "('".$the_samples."')";
-			
+
 			//remove the sample from dv_sampledocs
 			$res = $dbw->delete('dv_sampledocs', array('dvs_doc' => $sample_array), __METHOD__);
 			if ($res) $result .= '<p>Samples removed.</p>';
-			
+
 			//remove custom names from dv_display_names
 			$res = $dbw->delete('dv_display_names', array('dvdn_doc' => $sample_array), __METHOD__);
 			if ($res) $result .= '<p>Sample display names removed.</p>';
-			
+
 			//remove the sample from qbert
 			$res = $dbw->delete('dv_sampledocs_status', array('sample' => $sample_array), __METHOD__);
 			if ($res) $result .= '<p>Qbert updated.</p>';
 		}
-		
+
 		return $result;
 	}
-	
+
 	public function getDisplayNames() {
 		$html = '';
-		
-		$dbr = wfGetDB(DB_SLAVE);		
+
+		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->select('dv_display_names',array('dvdn_doc','dvdn_display_name'), "REPLACE(dvdn_doc,'-',' ') != dvdn_display_name", __METHOD__, array('ORDER BY' => 'dvdn_doc ASC'));
-		
+
 		if ($res) {
 			$html = '<table class="display_name_table">
 					<tr><th>Sample-Name</th><th>Display Name</th><th></th><th></th></tr>
@@ -97,27 +100,27 @@ class AdminSamples extends UnlistedSpecialPage {
 		}
 		return $html;
 	}
-	
+
 	private function updateDisplayName($sample,$new_dname) {
 		if (!$sample || !$new_dname) return false;
-		
+
 		$dbw = wfGetDB(DB_MASTER);
 		$res = $dbw->update('dv_display_names', array('dvdn_display_name' => $new_dname), array('dvdn_doc' => $sample), __METHOD__);
 		if ($res) self::clearDisplayNameCache($sample);
-		
+
 		$result = ($res) ? 'The display name for '.$sample.' has been updated' : '';
 		return $result;
 	}
-	
+
 	private function addDisplayName($sample,$new_dname) {
 		if (!$sample || !$new_dname) return false;
-		
+
 		$dbw = wfGetDB(DB_MASTER);
-		
+
 		//first, check to see if we even have this sample
 		$res = $dbw->select('dv_sampledocs','*',array('dvs_doc' => $sample), __METHOD__);
 		if (!$res->fetchObject()) return 'invalid sample';
-		
+
 		//check to make sure it's not already in there
 		$res = $dbw->select('dv_display_names','*',array('dvdn_doc' => $sample),__METHOD__);
 		if (!$res->fetchObject()) {
@@ -130,21 +133,21 @@ class AdminSamples extends UnlistedSpecialPage {
 			//it is? just update
 			$result = self::updateDisplayName($sample,$new_dname);
 		}
-		
+
 		return $result;
 	}
-	
+
 	private function removeDisplayName($sample) {
 		if (!$sample) return false;
-		
+
 		$dbw = wfGetDB(DB_MASTER);
 		$res = $dbw->delete('dv_display_names', array('dvdn_doc' => $sample), __METHOD__);
 		if ($res) self::clearDisplayNameCache($sample);
-		
-		$result = ($res) ? 'The display name for '.$sample.' has been removed' : '';	
+
+		$result = ($res) ? 'The display name for '.$sample.' has been removed' : '';
 		return $result;
 	}
-	
+
 	private function clearDisplayNameCache($sample) {
 		global $wgMemc;
 		$memkey = wfMemcKey('sample_display_name', $sample);
@@ -156,31 +159,31 @@ class AdminSamples extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang, $IP;
-		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$user = $wgUser->getName();
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		if ($_SERVER['HTTP_HOST'] != 'parsnip.wikiknowhow.com') {
-			$wgOut->redirect('https://parsnip.wikiknowhow.com/Special:AdminSamples');
+			$out->redirect('https://parsnip.wikiknowhow.com/Special:AdminSamples');
 		}
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			// this may take a while...
 			set_time_limit(0);
-			
-			$wgOut->setArticleBodyOnly(true);
-			$bImport = ($wgRequest->getVal('action') == 'import');
-			$check_for_plagiarism = ($wgRequest->getVal('cfp') == 'on') ? true : false;
+
+			$out->setArticleBodyOnly(true);
+			$bImport = ($req->getVal('action') == 'import');
+			$check_for_plagiarism = ($req->getVal('cfp') == 'on') ? true : false;
 
 			//grab those urls
-			$pageList = ($bImport) ? $wgRequest->getVal('samples-list','') : $wgRequest->getVal('pages-list','');
+			$pageList = ($bImport) ? $req->getVal('samples-list','') : $req->getVal('pages-list','');
 			$urls = self::parseURLlist($pageList,$bImport);
 
 			//we *do* have some urls, right?
@@ -188,7 +191,7 @@ class AdminSamples extends UnlistedSpecialPage {
 				print json_encode(array('result' => '<i>ERROR: no URLs given</i>'));
 				return;
 			}
-					
+
 			if ($bImport) {
 				$html = '';
 				//importing
@@ -203,30 +206,30 @@ class AdminSamples extends UnlistedSpecialPage {
 					}
 					$html .= '</table>';
 				}
-				
-			} else if ($wgRequest->getVal('action') == 'edit') {
+
+			} elseif ($req->getVal('action') == 'edit') {
 				//update this display name
-				$sample = $wgRequest->getVal('sample','');
-				$dname = $wgRequest->getVal('dname','');
+				$sample = $req->getVal('sample','');
+				$dname = $req->getVal('dname','');
 				$res = self::updateDisplayName($sample,$dname);
 				if ($res) print $res;
 				return;
-				
-			} else if ($wgRequest->getVal('action') == 'delete') {
+
+			} elseif ($req->getVal('action') == 'delete') {
 				//dump this display name
-				$sample = $wgRequest->getVal('sample','');
+				$sample = $req->getVal('sample','');
 				$res = self::removeDisplayName($sample);
 				if ($res) print $res;
 				return;
-				
-			} else if ($wgRequest->getVal('action') == 'addnew') {
+
+			} elseif ($req->getVal('action') == 'addnew') {
 				//add a new display name
-				$sample = $wgRequest->getVal('sample','');
-				$dname = $wgRequest->getVal('dname','');
+				$sample = $req->getVal('sample','');
+				$dname = $req->getVal('dname','');
 				$res = self::addDisplayName($sample,$dname);
 				if ($res) print $res;
 				return;
-				
+
 			} else {
 				//404ing
 				$res = self::fourOhFourSamples($urls);
@@ -242,8 +245,8 @@ class AdminSamples extends UnlistedSpecialPage {
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Samples - wikiHow');
-		$userEmail = $wgUser->getEmail();
+		$out->setHTMLTitle('Admin - Samples - wikiHow');
+		$userEmail = $user->getEmail();
 
 $tmpl = <<<EOHTML
 <style type="text/css">
@@ -336,7 +339,7 @@ $tmpl = <<<EOHTML
 			var samp = $(this).prev().prev().html();
 			var dname = $(this).prev();
 			$(dname).html('<input type=\"text\" class=\"dname_edit\" name=\"dname_edit\" value=\"'+$(dname).html()+'\" /> <input type=\"button\" id=\"dname_change\" value=\"Update\" />');
-		
+
 			$('#dname_change').click(function() {
 				var new_dname = $(this).prev().attr('value');
 				$.post('/Special:AdminSamples?action=edit', { 'sample': samp, 'dname': new_dname, 'pages-list': 'nothing' }, function(data) {
@@ -362,11 +365,11 @@ $tmpl = <<<EOHTML
 				});
 			}
 		});
-		
+
 		$('#add_new_dname').click(function() {
 			var samp = $('#new_sample').attr('value');
 			var dname = $('#new_dname').attr('value');
-			
+
 			$.post('/Special:AdminSamples?action=addnew', { 'sample': samp, 'dname': dname, 'pages-list': 'nothing' }, function(data) {
 				if (data.length) {
 					$('#new_sample').attr('value','');
@@ -386,6 +389,6 @@ EOHTML;
 
 		$display_names = self::getDisplayNames();
 
-		$wgOut->addHTML($tmpl.$display_names);
+		$out->addHTML($tmpl.$display_names);
 	}
 }

@@ -18,7 +18,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 
 		//we don't want no anons
 		if ($user->isAnon()) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -31,7 +31,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 			if ($new_ta) {
 				$out->setArticleBodyOnly(true);
 				$res = $this->addTA($new_ta,$req->getVal('block',0));
-				print json_encode($res);
+				$this->getOutput()->addHTML( json_encode($res) );
 				return;
 			}
 		}
@@ -40,17 +40,15 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 			if ($id) {
 				$out->setArticleBodyOnly(true);
 				$res = $this->setBlockTA($id,$req->getVal('block'));
-				print json_encode($res);
+				$this->getOutput()->addHTML( json_encode($res) );
 				return;
 			}
 		}
 		elseif ($action == 'exportTAs') {
-			$this->getOutput()->disable();
 			$this->exportTACSV();
 			return;
 		}
 		elseif ($action == 'exportQAstats') {
-			$this->getOutput()->disable();
 			$this->exportQACSV();
 			return;
 		}
@@ -69,22 +67,22 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 	 */
 	public function getBody() {
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__).'/templates')
+			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
 		]);
 		$options = array('loader' => $loader);
 
 		$vars = [
-			'count' 											=> TopAnswerers::getTACount(),
-			'total_answer_count'					=> TopAnswerers::getTAAnswerCount(),
-			'top_answerers_result'				=> $loader->load('top_answerers_result'),
-			'ta_results' 									=> $this->getTAResults(),
-			'top_answerers_block_result'	=> $loader->load('top_answerers_block_result'),
-			'blocked_count' 							=> TopAnswerers::getTABlockedCount(),
-			'blocked_results' 						=> $this->getTABlockedResults(),
-			'top_answerers_response'			=> $loader->load('top_answerers_response'),
-			'ta_export_link'							=> $this->getTitle()->getLocalUrl().'?action=exportTAs',
-			'qa_export_link'							=> $this->getTitle()->getLocalUrl().'?action=exportQAstats',
-			'ta_settings'									=> $this->getTASettings()
+			'count'                        => TopAnswerers::getTACount(),
+			'total_answer_count'           => TopAnswerers::getTAAnswerCount(),
+			'top_answerers_result'         => $loader->load('top_answerers_result'),
+			'ta_results'                   => $this->getTAResults(),
+			'top_answerers_block_result'   => $loader->load('top_answerers_block_result'),
+			'blocked_count'                => TopAnswerers::getTABlockedCount(),
+			'blocked_results'              => $this->getTABlockedResults(),
+			'top_answerers_response'       => $loader->load('top_answerers_response'),
+			'ta_export_link'               => $this->getTitle()->getLocalUrl().'?action=exportTAs',
+			'qa_export_link'               => $this->getTitle()->getLocalUrl().'?action=exportQAstats',
+			'ta_settings'                  => $this->getTASettings()
 		];
 
 		$msgKeys = [
@@ -150,7 +148,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 	 * @return array
 	 */
 	private function formatTAResult($ta) {
-		if (empty($ta)) return;
+		if (empty($ta)) return '';
 		$taa = $ta->toJSON();
 
 		//created date
@@ -267,6 +265,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 	}
 
 	private function exportTACSV() {
+		$this->getOutput()->disable();
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="TopAnswerers.csv"');
 
@@ -307,6 +306,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 	}
 
 	private function exportQACSV() {
+		$this->getOutput()->disable();
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="QA_user_data_past_7_days.csv"');
 

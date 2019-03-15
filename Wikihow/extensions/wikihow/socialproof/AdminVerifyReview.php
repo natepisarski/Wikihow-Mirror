@@ -10,10 +10,10 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'review pages that have been expert verified that have since had edits',
 );
 
-$wgExtensionMessagesFiles['AdminVerifyReview'] = dirname(__FILE__) . '/SocialProof.i18n.php';
+$wgExtensionMessagesFiles['AdminVerifyReview'] = __DIR__ . '/SocialProof.i18n.php';
 $wgExtensionMessagesFiles['AdminVerifyRewviewAliases'] = __DIR__ . '/AdminVerifyReview.alias.php';
 $wgSpecialPages['AdminVerifyReview'] = 'AdminVerifyReview';
-$wgAutoloadClasses['AdminVerifyReview'] = dirname(__FILE__) . '/AdminVerifyReview.body.php';
+$wgAutoloadClasses['AdminVerifyReview'] = __DIR__ . '/AdminVerifyReview.body.php';
 
 $wgResourceModules['ext.wikihow.adminverifyreview'] = array(
 	'scripts' => array( 'adminverifyreview.js', ),

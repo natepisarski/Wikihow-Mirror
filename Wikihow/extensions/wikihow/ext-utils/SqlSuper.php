@@ -61,10 +61,9 @@ class SqlSuper {
 	// fetch result as array of rows from db result
 	public function fetchObjects($result, $single=false) {
 		$rows = array();
-		while ($row = $this->dbr->fetchObject($result)) {
+		foreach ($result as $row) {
 			array_push($rows, $row);
 		}
-		$this->dbr->freeResult($result);
 		return $single ? $rows[0] : $rows;
 	}
 

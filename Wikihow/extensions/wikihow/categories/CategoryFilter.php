@@ -59,10 +59,10 @@ class CategoryFilter {
 	 * @return array
 	 */
 	protected function getTitleCategories($t) {
-		$parenttrees = Categoryhelper::getCurrentParentCategoryTree($t);
+		$parenttrees = CategoryHelper::getCurrentParentCategoryTree($t);
 		$cats = [];
 		if (is_array($parenttrees)) {
-			$cats = array_map('strtolower', Categoryhelper::cleanCurrentParentCategoryTree($parenttrees));
+			$cats = array_map('strtolower', CategoryHelper::cleanCurrentParentCategoryTree($parenttrees));
 		}
 
 		return $cats;

@@ -47,11 +47,11 @@ class WikihowLogin {
 
 	function generateErrorList($errorArray) {
 		$errorlist = array();
-		foreach($errorArray as $error) {
+		foreach ($errorArray as $error) {
 			// We determine where the message goes
 			// AbortUserLogin stuff is a raw message, and so we consider all raw messages
-			if($error && is_object($error) && get_class($error) == 'RawMessage') {
-				if(preg_match("@confirmation code@", $error->parse(), $matches)) {
+			if ($error && is_object($error) && get_class($error) == 'RawMessage') {
+				if (preg_match("@confirmation code@", $error->parse(), $matches)) {
 					$errorlist['captcha'][] = $error;
 				}
 				else {
@@ -59,26 +59,26 @@ class WikihowLogin {
 				}
 			}
 			elseif(is_array($error)) {
-				if(in_array($error[0], self::$BAD_USER_ERRORS)) {
-					if(!isset($errorlist['username'])) {
+				if (in_array($error[0], self::$BAD_USER_ERRORS)) {
+					if (!isset($errorlist['username'])) {
 						$errorlist['username'] = array();
 					}
 					$errorlist['username'][] = $error;
 				}
 				elseif(in_array($error[0], self::$BAD_PASSWORD_ERRORS)) {
-					if(!isset($errorlist['password'])) {
+					if (!isset($errorlist['password'])) {
 						$errorlist['password'] = array();
 					}
 					$errorlist['password'][] = $error;
 				}
 				elseif(in_array($error[0], self::$BAD_EMAIL_ERRORS)) {
-					if(!isset($errorlist['email'])) {
+					if (!isset($errorlist['email'])) {
 						$errorlist['email'] = array();
 					}
 					$errorlist['email'][] = $error;
 				}
 				elseif(in_array($error[0], self::$BAD_CAPTCHA_ERRORS)) {
-					if(!isset($errorlist['captcha'])) {
+					if (!isset($errorlist['captcha'])) {
 						$errorlist['captcha'] = array();
 					}
 					$errorlist['captcha'][] = $error;
@@ -287,7 +287,7 @@ class WikihowCreateTemplate extends BaseTemplate {
 			echo wfMessage('alreadysignedin','Special:UserLogout')->parse();
 			return;
 		}
-		if($ctx->getLanguage()->getCode() != "en") {
+		if ($ctx->getLanguage()->getCode() != "en") {
 ?>
 <style type="text/css">
 #userlogin2 > div > label {
@@ -364,7 +364,7 @@ label[for="wpName2"], label[for="wpPassword2"] {
 				) );
 				?>
 				<div class="mw-error" id="wpName2_error" <?php if (!isset($this->data['errorlist']['username'])) echo 'style="display:none;"' ?>>
-					<? if(isset($this->data['errorlist']['username'])) {
+					<? if (isset($this->data['errorlist']['username'])) {
 						foreach ($this->data['errorlist']['username'] as $error) {
 							if ( is_array($error) ) {
 								echo $this->msgHtml($error[0]);
@@ -407,7 +407,7 @@ label[for="wpName2"], label[for="wpPassword2"] {
 				) + User::passwordChangeInputAttribs() );
 				?>
 				<div class="mw-error" id="wpPassword2_error" <?php if ( !isset($this->data['errorlist']['password'])) echo 'style="display:none;"' ?>>
-					<? if(isset($this->data['errorlist']['password'])): ?>
+					<? if (isset($this->data['errorlist']['password'])): ?>
 					<?php foreach ( $this->data['errorlist']['password'] as $error): ?>
 						<?= wfMessage($error[0])->params(array_splice($error,1))->plain()  ?>
 					<?php endforeach;

@@ -23,7 +23,7 @@ $wgResourceModules['ext.wikihow.qa_box'] = array(
 		'qab_min',
 		'qab_thanks'
 	),
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/qabox',
 	'targets' => array( 'desktop' ),
 	'dependencies' => ['wikihow.common.pub_sub']

@@ -131,7 +131,7 @@ class ApiGraphs extends ApiBase {
 	function execute() {
 		$userGroups = $this->getUser()->getGroups();
 		if ($this->getUser()->isBlocked() || !in_array('staff', $userGroups)) {
-			$this->getOutput()->setRobotpolicy('noindex,nofollow');
+			$this->getOutput()->setRobotPolicy('noindex,nofollow');
 			$this->dieUsageMsg('badaccess-groups');
 			return;
 		}

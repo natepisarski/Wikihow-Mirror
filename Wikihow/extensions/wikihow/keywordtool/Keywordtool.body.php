@@ -26,7 +26,7 @@ class Keywordtool extends UnlistedSpecialPage {
 	}
 
 	// Function to get results
-	function processBatchRequest( $postedValues ) {
+	private function processBatchRequest( $postedValues ) {
 		$allData = False;
 		$lastBatch = False;
 		$batchId = 0;
@@ -37,8 +37,7 @@ class Keywordtool extends UnlistedSpecialPage {
 		// get all data
 		if ( isset( $postedValues[ 'alldata' ] ) ) {
 			$allData = True;
-		}
-		elseif ( isset( $postedValues[ 'lastbatch' ] ) ) {
+		} elseif ( isset( $postedValues[ 'lastbatch' ] ) ) {
 			// find the last batch id
 			$row = $dbr->selectRow( 'keywordtool.kwtjobs', [ 'kwt_id' , 'kwt_other_cols', 'kwt_question' ], [ 'kwt_status=2' ], __METHOD__, [ 'ORDER BY' => 'kwt_id DESC' ] );
 			if ( $row ) {
@@ -46,7 +45,7 @@ class Keywordtool extends UnlistedSpecialPage {
 				$questionType = $row->kwt_question;
 				$colHeader = explode( ',', str_replace( [ '(' , ')'  ], '' , $row->kwt_other_cols ) );
 			}
-		}elseif ( $postedValues[ 'batchid' ] != '' ) {
+		} elseif ( $postedValues[ 'batchid' ] != '' ) {
 				$batchId = (int) $postedValues[ 'batchid' ];
 				$conds= [ "kwt_id" => $batchId ];
 				$row = $dbr->selectRow( 'keywordtool.kwtjobs', [ 'kwt_id' , 'kwt_other_cols', 'kwt_question' ], $conds, __METHOD__, [] );
@@ -57,10 +56,9 @@ class Keywordtool extends UnlistedSpecialPage {
 		}
 		if ($questionType == 3) {
 			$this->getDedupResults($batchId,$colHeader);
-		}else {
+		} else {
 			$this->getResults( $batchId, $allData, $colHeader );
 		}
-		return;
 	}
 
 	//Used to fetch results from the dedup table
@@ -87,7 +85,7 @@ class Keywordtool extends UnlistedSpecialPage {
 		$fileHandle = fopen( 'php://output' ,'w' );
 		fputcsv( $fileHandle, $header, ',', '"' );
 		if ( $res ) {
-			foreach( $res as $row ) {
+			foreach ( $res as $row ) {
 				$restData = explode( ',', str_replace( [ '(' ,  ')' ], '', $row->kwt_rest ) );
 				$data = array_merge( [ $row->kwt_query, $row->kwt_volume, $row->kwt_query_dup, $row->kwt_total_volume],
 										$restData );
@@ -103,7 +101,7 @@ class Keywordtool extends UnlistedSpecialPage {
 		$dbr = wfGetDB( DB_SLAVE );
 		if ( !$allData ) {
 			$conds= [ "kwt_batchid" => $batchId ];
-		}else{
+		} else {
 			$conds = [];
 		}
 		$colms = [ 'kwt_query', 'kwt_query_asked',  'kwt_mod_query', 'kwt_volume', 'kwt_cpc', 'kwt_cmp', 'kwt_slope',
@@ -127,7 +125,7 @@ class Keywordtool extends UnlistedSpecialPage {
 		$fileHandle = fopen( 'php://output' ,'w' );
 		fputcsv( $fileHandle, $header, ',', '"' );
 		if ( $res ) {
-			foreach( $res as $row ) {
+			foreach ( $res as $row ) {
 
 				$monthly = explode( ',', str_replace( [ '(' , ')'  ], '' , $row->kwt_monthly ) );
 				$restData = explode( ',', str_replace( [ '(' ,  ')' ], '', $row->kwt_rest ) );
@@ -137,9 +135,9 @@ class Keywordtool extends UnlistedSpecialPage {
 				fputcsv( $fileHandle, $data, ',', '"' );
 			}
 		}
-		return;
 	}
-// Displays existing job status at page load
+
+	// Displays existing job status at page load
 	private function getJobStatus() {
 		$dbr = wfGetDB( DB_SLAVE );
 		$dbw = wfGetDB( DB_MASTER );
@@ -152,11 +150,10 @@ class Keywordtool extends UnlistedSpecialPage {
 			if ( $row->kwt_status == 0 ) {
 				// not started the job yet
 				$html .= '<p><b> Batch id - ' .$row->kwt_id .' ' .$row->kwt_jobname  .' not started </b><br /> '.$row->kwt_jobmessage . $row->kwt_error .'</p>';
-			}elseif ( $row->kwt_status == 1 ) {
+			} elseif ( $row->kwt_status == 1 ) {
 				// job started
 				$html .= '<p><b>Batch id - '.$row->kwt_id .' ' .$row->kwt_jobname .' is in progress </b><br />'.$row->kwt_jobmessage . $row->kwt_error .'</p>';
-			}
-			elseif ( $row->kwt_status == 2 ) {
+			} elseif ( $row->kwt_status == 2 ) {
 				// job completed or terminated due to error
 				// show completed message and update the db that the job is done
 				// update the job as been done.
@@ -164,7 +161,7 @@ class Keywordtool extends UnlistedSpecialPage {
 
 				if ( empty ( $row->kwt_error ) ) {
 					$html .= '<p><b>Batch id.'.$row->kwt_id .' ' .$row->kwt_jobname .' completed </b><br />'.$row->kwt_jobmessage.'</p>';
-				}else {
+				} else {
 					//there was an error and the job got terminated because of it
 					$html .= '<p><b>'.$row->kwt_jobname.$row->kwt_jobmessage .' not completed because of errors: '. $row->kwt_error.'</b><br/></p>';
 				}
@@ -172,11 +169,12 @@ class Keywordtool extends UnlistedSpecialPage {
 		}
 		return $html;
 	}
-//Post the job to the jobdb table
- function processUpload( $uploadfile, $userName, $question ) {
+
+	// Post the job to the jobdb table
+	private function processUpload( $uploadfile, $userName, $question ) {
 
 		// Check file for format and save it to the local dir
-		if( !file_exists( $uploadfile ) || !is_readable( $uploadfile ) ) {
+		if ( !file_exists( $uploadfile ) || !is_readable( $uploadfile ) ) {
 			$this->$errors[] = 'Could not find file. File not uploaded.';
 			return 'Bad File' ;
 		}
@@ -233,7 +231,7 @@ class Keywordtool extends UnlistedSpecialPage {
 	/**
 	 * Execute special page.  Only available to wikihow staff.
 	 */
-	function execute( $par ) {
+	public function execute( $par ) {
 
 		$req = $this->getRequest();
 		$out = $this->getOutput();
@@ -243,7 +241,7 @@ class Keywordtool extends UnlistedSpecialPage {
 		// Check permissions
 		$userGroups = $user->getGroups();
 		if ( ( $userName != 'Rjsbhatia' ) && ( $user->isBlocked() || !( in_array( 'staff', $userGroups ) ) ) ) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -267,7 +265,7 @@ class Keywordtool extends UnlistedSpecialPage {
 						'jobStatus' => $this->getJobStatus()
 						];
 
-		$options = [ 'loader' => new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) ) , ];
+		$options = [ 'loader' => new Mustache_Loader_FilesystemLoader( __DIR__ ) , ];
 		$m = new Mustache_Engine( $options );
 		$tmpl = $m->render( 'keyword_tool.mustache', $mustVars );
 

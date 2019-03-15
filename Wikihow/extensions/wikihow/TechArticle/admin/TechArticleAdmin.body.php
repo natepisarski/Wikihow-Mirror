@@ -30,15 +30,15 @@ class TechArticleAdmin extends UnlistedSpecialPage {
 		// Restrict page access
 		$groups = $user->getGroups();
 		if ($user->isBlocked() || !in_array('staff', $groups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
 		if ($req->wasPosted()) {
+			$out->setArticleBodyOnly(true);
 			$errors = $this->processAction($req);
-			$out->disable();
-			echo $errors ?: $this->getPageHtml($out);
+			$this->addHTML( $errors ?: $this->getPageHtml($out) );
 		} else {
 			$out->setPageTitle(wfMessage('twa_page_title')->text());
 			$out->addModules('ext.wikihow.TechArticle.admin');

@@ -19,14 +19,14 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['QuickEdit'] = 'QuickEdit';
-$wgAutoloadClasses['QuickEdit']      = dirname( __FILE__ ) . '/QuickEdit.body.php';
+$wgAutoloadClasses['QuickEdit']      = __DIR__ . '/QuickEdit.body.php';
 
 $wgHooks["UserToolLinksEdit"][] = array("wfAddQuickNoteLink");
 
 //add quick note link
 function wfAddQuickNoteLink($userId, $userText, &$items) {
 	global $wgTitle, $wgLanguageCode, $wgRequest;
-	if ($wgTitle->getNamespace() != NS_SPECIAL &&
+	if (!$wgTitle->inNamespace(NS_SPECIAL) &&
 		$wgLanguageCode =='en' &&
 		$wgRequest->getVal("diff", ""))
 	{

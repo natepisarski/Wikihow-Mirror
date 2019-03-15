@@ -48,11 +48,11 @@
     // From 0 to Inf.
     $("#dec").whInputText({units:"", width: 220, min: 0, value:0, onlyNumber: true, maxLength: 15, cut: 33, onChange: function(instance,value) {
         $("#bin").whLabel({value : dec2bin(value), lines: 2, fade: false, startFontSize: 24, onChange: function(element,new_fs) {
-            if($(element).find(".whlabel_element").height() == 24)
+            if ($(element).find(".whlabel_element").height() == 24)
                 $(element).css("margin-top",20);
-            if($(element).find(".whlabel_element").height() == 48)
+            if ($(element).find(".whlabel_element").height() == 48)
                 $(element).css("margin-top",8);   
-            if($(element).find(".whlabel_element").height() == 72)
+            if ($(element).find(".whlabel_element").height() == 72)
                 $(element).css("margin-top",14);
         }});        
     }});

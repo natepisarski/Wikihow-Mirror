@@ -2,8 +2,8 @@
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
-$wgExtensionMessagesFiles['Misc'] = dirname(__FILE__) . '/Misc.i18n.php';
-$wgAutoloadClasses['Misc'] = dirname(__FILE__) . '/Misc.body.php';
+$wgExtensionMessagesFiles['Misc'] = __DIR__ . '/Misc.i18n.php';
+$wgAutoloadClasses['Misc'] = __DIR__ . '/Misc.body.php';
 
 $wgHooks['UnitTestsList'][] = array('Misc::onUnitTestsList');
 
@@ -286,7 +286,7 @@ function decho( $name, $value = "", $html = true, $showPrefix = true ) {
 
 	if ( is_string( $value ) ) {
 		echo $prefix.$name.": $value";
-	} else if ( ( !is_array( $value ) || !is_object( $value ) ) && method_exists( $value, '__toString' ) ) {
+	} elseif ( ( !is_array( $value ) || !is_object( $value ) ) && method_exists( $value, '__toString' ) ) {
 		print_r( $prefix.$name.": $value");
 	} else {
 		echo $prefix.$name.": ";

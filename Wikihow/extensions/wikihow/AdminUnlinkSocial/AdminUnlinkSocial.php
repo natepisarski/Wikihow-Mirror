@@ -12,12 +12,12 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminUnlinkSocial'] = 'AdminUnlinkSocial';
-$wgAutoloadClasses['AdminUnlinkSocial'] = dirname(__FILE__) . '/AdminUnlinkSocial.body.php';
-$wgExtensionMessagesFiles['AdminUnlinkSocial'] = dirname(__FILE__) . '/AdminUnlinkSocial.i18n.php';
+$wgAutoloadClasses['AdminUnlinkSocial'] = __DIR__ . '/AdminUnlinkSocial.body.php';
+$wgExtensionMessagesFiles['AdminUnlinkSocial'] = __DIR__ . '/AdminUnlinkSocial.i18n.php';
 
 $wgResourceModules['ext.wikihow.adminunlinksocial.scripts'] = array(
     'scripts'       => 'AdminUnlinkSocial.js',
-    'localBasePath' => dirname(__FILE__) . '/',
+    'localBasePath' => __DIR__ . '/',
     'remoteExtPath' => 'wikihow/AdminUnlinkSocial',
     'position'      => 'bottom',
     'targets'       => array('desktop', 'mobile')
@@ -25,7 +25,7 @@ $wgResourceModules['ext.wikihow.adminunlinksocial.scripts'] = array(
 
 $wgResourceModules['ext.wikihow.adminunlinksocial.styles'] = array(
     'styles'        => 'AdminUnlinkSocial.css',
-    'localBasePath' => dirname(__FILE__),
+    'localBasePath' => __DIR__,
     'remoteExtPath' => 'wikihow/AdminUnlinkSocial',
     'targets'       => array('desktop', 'mobile'),
 );

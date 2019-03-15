@@ -11,5 +11,5 @@ $wgExtensionCredits['api'][] = array(
 );
 
 $wgAutoloadClasses['ApiRDSlag'] =
-    dirname(__FILE__) . '/ApiRDSlag.body.php';
+    __DIR__ . '/ApiRDSlag.body.php';
 $wgAPIModules['rdslag'] = 'ApiRDSlag';

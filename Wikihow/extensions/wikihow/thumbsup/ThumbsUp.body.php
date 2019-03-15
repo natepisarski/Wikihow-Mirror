@@ -331,7 +331,7 @@ class ThumbsUp extends UnlistedSpecialPage {
 
 	function isThumbableTitle($articleId) {
 		$t = Title::newFromID($articleId);
-		return $t->getNamespace() == NS_MAIN;
+		return $t->inNamespace(NS_MAIN);
 	}
 
 	/*****************************
@@ -353,7 +353,7 @@ class ThumbsUp extends UnlistedSpecialPage {
 			if (self::isThumbedByCurrentUser($result['new'])) {
 				$link = "<input type='button' class='button thumbbutton alreadyThumbed $diffClass'/>";
 			}
-			else if ($r && $result['vandal'] != 1 && $wgUser->getID() != $r->getUser() && $t->getNamespace() == NS_MAIN) {
+			elseif ($r && $result['vandal'] != 1 && $wgUser->getID() != $r->getUser() && $t->inNamespace(NS_MAIN)) {
 				/*
 				Show a thumbs up button for:
 				- NS_MAIN titles only

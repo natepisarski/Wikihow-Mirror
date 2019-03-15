@@ -5,8 +5,8 @@ exit(1);
 }
 
 /**#@+
- * A simple extension that allows users to enter a title before creating a page. 
- * 
+ * A simple extension that allows users to enter a title before creating a page.
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *
@@ -18,7 +18,7 @@ exit(1);
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'RCPatrol',
 	'author' => 'Travis Derouin',
-	'description' => 'An improved way of doing RC Patrol', 
+	'description' => 'An improved way of doing RC Patrol',
 );
 
 $wgExtensionMessagesFiles['RCPatrol'] = __DIR__ . '/RCPatrol.i18n.php';

@@ -52,6 +52,6 @@ class Sherlock {
 	}
 
 	private static function checkSherlockSearchDuplicate() {
-		//query the DB for the last entry for 
+		//query the DB for the last entry for
 	}
 }

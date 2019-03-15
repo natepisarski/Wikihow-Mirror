@@ -1,7 +1,7 @@
 <?
 
 $messages = array();
-$messages['en'] = 
+$messages['en'] =
            array (
 				'rcwidget_title' => "What's happening on wikiHow right now...",
 				'action_newpage' => "$1 just created $2",

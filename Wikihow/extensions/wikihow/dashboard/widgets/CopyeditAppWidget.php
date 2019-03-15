@@ -10,17 +10,21 @@ class CopyeditAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
 			$link = "<a href='/Special:EditFinder/Copyedit' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
 			$link = "<a href='/Special:Userlogin?returnto=Special:EditFinder/Copyedit' class='comdash-login'>Login";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	public function getMWName(){
@@ -36,19 +40,28 @@ class CopyeditAppWidget extends DashboardWidget {
 		$sql = "";
 		$bots = WikihowUser::getBotIDs();
 
-		if(sizeof($bots) > 0) {
+		if (sizeof($bots) > 0) {
 			$sql = "log_user NOT IN (" . $dbr->makeList($bots) . ")";
 		}
 
 		// Note log_type == EF_copyedi, not EF_copyediT.  wiki log types can only be 10 chars, so truncating
-		if($sql != "")
-			$res = $dbr->select('logging', array('*'), array('log_type' => 'EF_copyedi', $sql), 'CopyeditAppWidget::getLastContributor', array("ORDER BY"=>"log_timestamp DESC", "LIMIT"=>1));
+		if ($sql != "")
+			$res = $dbr->select('logging', array('log_user','log_timestamp'), array('log_type' => 'EF_copyedi', $sql), 'CopyeditAppWidget::getLastContributor', array("ORDER BY"=>"log_timestamp DESC", "LIMIT"=>1));
 		else
-			$res = $dbr->select('logging', array('*'), array('log_type' => 'EF_copyedi'), 'CopyeditAppWidget::getLastContributor', array("ORDER BY"=>"log_timestamp DESC", "LIMIT"=>1));
+			$res = $dbr->select('logging', array('log_user','log_timestamp'), array('log_type' => 'EF_copyedi'), 'CopyeditAppWidget::getLastContributor', array("ORDER BY"=>"log_timestamp DESC", "LIMIT"=>1));
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->log_user, $row->log_timestamp);
+		if (!empty($row)) {
+			$user = $row->log_user;
+			$timestamp = $row->log_timestamp;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -63,19 +76,28 @@ class CopyeditAppWidget extends DashboardWidget {
 		$sql = "";
 		$bots = WikihowUser::getBotIDs();
 
-		if(sizeof($bots) > 0) {
+		if (sizeof($bots) > 0) {
 			$sql = "log_user NOT IN (" . $dbr->makeList($bots) . ")";
 		}
 
 		// Note log_type == EF_copyedi, not EF_copyediT.  wiki log types can only be 10 chars, so truncating
-		if($sql != "")
-			$res = $dbr->select('logging', array('*', 'count(*) as C', 'MAX(log_timestamp) as log_recent'), array('log_type' => 'EF_copyedi', 'log_timestamp >= "' . $starttimestamp . '"', $sql), 'CopyeditAppWidget::getTopContributor', array("GROUP BY" => 'log_user', "ORDER BY"=>"C DESC", "LIMIT"=>1));
+		if ($sql != "")
+			$res = $dbr->select('logging', array('log_user', 'count(*) as C', 'MAX(log_timestamp) as log_recent'), array('log_type' => 'EF_copyedi', 'log_timestamp >= "' . $starttimestamp . '"', $sql), 'CopyeditAppWidget::getTopContributor', array("GROUP BY" => 'log_user', "ORDER BY"=>"C DESC", "LIMIT"=>1));
 		else
-			$res = $dbr->select('logging', array('*', 'count(*) as C', 'MAX(log_timestamp) as log_recent'), array('log_type' => 'EF_copyedi', 'log_timestamp >= "' . $starttimestamp . '"'), 'CopyeditAppWidget::getTopContributor', array("GROUP BY" => 'log_user', "ORDER BY"=>"C DESC", "LIMIT"=>1));
+			$res = $dbr->select('logging', array('log_user', 'count(*) as C', 'MAX(log_timestamp) as log_recent'), array('log_type' => 'EF_copyedi', 'log_timestamp >= "' . $starttimestamp . '"'), 'CopyeditAppWidget::getTopContributor', array("GROUP BY" => 'log_user', "ORDER BY"=>"C DESC", "LIMIT"=>1));
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->log_user, $row->log_recent);
+		if (!empty($row)) {
+			$user = $row->log_user;
+			$timestamp = $row->log_recent;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -128,7 +150,7 @@ class CopyeditAppWidget extends DashboardWidget {
 	}
 
 	public function isAllowed($isLoggedIn, $userId=0){
-		if(!$isLoggedIn)
+		if (!$isLoggedIn)
 			return false;
 		else
 			return true;

@@ -1,7 +1,7 @@
-<?
+<?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-    exit(1);
+    exit;
 }
 
 $wgExtensionCredits['specialpage'][] = array(
@@ -11,5 +11,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['TitleSearch'] = 'TitleSearch';
-$wgAutoloadClasses['TitleSearch'] = dirname( __FILE__ ) . '/TitleSearch.body.php';
-
+$wgAutoloadClasses['TitleSearch'] = __DIR__ . '/TitleSearch.body.php';

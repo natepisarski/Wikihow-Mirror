@@ -11,8 +11,7 @@ class ExpertInvoicing extends \UnlistedSpecialPage
 {
 	private $mustache;	// Mustache_Engine
 
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct('ExpertInvoicing');
 		$loader = new \Mustache_Loader_CascadingLoader([
 			new \Mustache_Loader_FilesystemLoader(__DIR__ . '/../../templates'),
@@ -21,15 +20,14 @@ class ExpertInvoicing extends \UnlistedSpecialPage
 		$this->mustache = new \Mustache_Engine(['loader' => $loader]);
 	}
 
-	public function execute($par)
-	{
+	public function execute($par) {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$groups = $user->getGroups();
 
 		if ($user->isBlocked() || !in_array('staff', $groups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -56,8 +54,7 @@ class ExpertInvoicing extends \UnlistedSpecialPage
 		}
 	}
 
-	private function getMainHtml(ParsingResult $res): string
-	{
+	private function getMainHtml(ParsingResult $res): string {
 		global $wgIsProduction;
 		$vars = [
 			'items' => $res->data,
@@ -70,8 +67,7 @@ class ExpertInvoicing extends \UnlistedSpecialPage
 		return $this->mustache->render('preview.mustache', $vars);
 	}
 
-	private function getConfirmationHtml(array $result): string
-	{
+	private function getConfirmationHtml(array $result): string {
 		$vars = [
 			'is_ok' => empty($result['bad']),
 			'good' => $result['good'],

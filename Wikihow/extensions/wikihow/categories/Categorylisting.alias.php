@@ -1,11 +1,11 @@
 <?php
 /**
- * Aliases for Special:Categorylisting
+ * Aliases for Special:CategoryListing
  */
 
 $specialPageAliases = array();
 
 /** English (English) */
 $specialPageAliases['en'] = array(
-		'Categorylisting' => array( 'Categorylisting' ),
+		'CategoryListing' => array( 'CategoryListing', 'Categorylisting' ),
 );

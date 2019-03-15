@@ -14,7 +14,7 @@ interface WAPConfig {
 	public function getWikiHowGroupName();
 
 	// Group name system power users are assigned to
-	// Power users have access to specific reports 
+	// Power users have access to specific reports
 	public function getWikiHowPowerUserGroupName();
 
 	// Admin group name

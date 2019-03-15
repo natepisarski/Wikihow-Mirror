@@ -119,7 +119,7 @@ class CLI extends Maintenance {
 		$color = new Color();
 		$output = $color($output);
 
-		foreach($colors as $color) {
+		foreach ($colors as $color) {
 			$output = $output->{strtolower($color)}();
 		}
 		echo $output .  PHP_EOL;

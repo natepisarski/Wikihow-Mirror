@@ -39,7 +39,7 @@ class TitusDB {
 	 * Gets a singleton of a particular stat class to avoid re-instantiation
 	 */
 	function getStatClass( $name ) {
-		if( isset( $this->statClasses[$name] ) ) {
+		if ( isset( $this->statClasses[$name] ) ) {
 			return $this->statClasses[$name];
 		} else {
 			$tsName = "TS" . $name;
@@ -103,7 +103,7 @@ class TitusDB {
 					$dbr->ignoreErrors( false );
 				}
 
-				if( is_array( $ids ) ) {
+				if ( is_array( $ids ) ) {
 					// check if the all ids or daily edit is part of the return array
 					if ( array_key_exists( TitusDB::DAILY_EDIT_IDS, $ids ) && $ids[TitusDB::DAILY_EDIT_IDS] == 1 ) {
 						$ret["daily_edit_stats"][$stat] = 1;
@@ -545,7 +545,7 @@ class TitusDB {
 	* Store records currently queued in $this->dataBatchMulti
 	*/
 	private function flushDataBatchMulti() {
-		while( sizeof( $this->dataBatchMulti ) ) {
+		while ( sizeof( $this->dataBatchMulti ) ) {
 			$dataBatch = array_pop( $this->dataBatchMulti );
 			$this->storeRecords( $dataBatch );
 		}
@@ -725,7 +725,7 @@ abstract class TitusStat {
 	 * $limitMaxSize - this is useful for certain stats where many exceptions would be the same like in try/catch blocks for db errors
 	 */
 	public function storeError( $msg, $limitMaxSize = false ) {
-		if(!$this->_error) {
+		if (!$this->_error) {
 			$this->_error = "";
 		}
 
@@ -792,7 +792,7 @@ abstract class TitusStat {
 
 	function getBaseUrl() {
 		global $wgLanguageCode;
-		if($wgLanguageCode == "en") {
+		if ($wgLanguageCode == "en") {
 			return("http://www.wikihow.com");
 		}
 		else {
@@ -1131,7 +1131,7 @@ class TSParentCat extends TitusStat {
 		global $wgContLang;
 		$text = $r->getText();
 		$parentCat = "";
-		if(preg_match("/\[\[(?:" . $wgContLang->getNSText(NS_CATEGORY) . "|Category):([^\]]*)\]\]/im", $text, $matches)) {
+		if (preg_match("/\[\[(?:" . $wgContLang->getNSText(NS_CATEGORY) . "|Category):([^\]]*)\]\]/im", $text, $matches)) {
 			$parentCat = $dbr->strencode(trim($matches[1]));
 		}
 		return array('ti_cat' => $parentCat);
@@ -1201,7 +1201,7 @@ class TSByteSize extends TitusStat {
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$byteSize = $r->getSize();
-		if(is_null($byteSize)) {
+		if (is_null($byteSize)) {
 			$byteSize = strlen($r->getText());
 		}
 		return array("ti_bytes" => $byteSize);
@@ -1460,7 +1460,7 @@ class TSVideo extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		if(get_class($r) == "RevisionNoTemplateWrapper") {
+		if (get_class($r) == "RevisionNoTemplateWrapper") {
 						$txt = $r->getOrigText();
 				}
 				else {
@@ -1595,7 +1595,7 @@ class TSEventLog extends TitusStat {
 			foreach ( $res as $row ) {
 				if ( $row->el_action == 'svideoview' ) {
 					$result['ti_summary_video_views'.$columnNameSuffix] = $result['ti_summary_video_views'.$columnNameSuffix] + $row->el_count;
-				} else if ( $row->el_action == 'svideoplay' ) {
+				} elseif ( $row->el_action == 'svideoplay' ) {
 					$result['ti_summary_video_play'.$columnNameSuffix] = $result['ti_summary_video_play'.$columnNameSuffix] + $row->el_count;
 				}
 			}
@@ -1878,7 +1878,7 @@ class TSHelpful extends TitusStat {
 		$row = $dbr->fetchObject($res);
 		$lastReset = $row->C;
 		$stats['ti_helpful_last_reset_timestamp'] = "";
-		if(!is_null($lastReset) && '0000-00-00 00:00:00' != $lastReset) {
+		if (!is_null($lastReset) && '0000-00-00 00:00:00' != $lastReset) {
 			$stats['ti_helpful_last_reset_timestamp'] = wfTimestamp(TS_MW, strtotime($row->C));
 		}
 
@@ -2118,7 +2118,7 @@ class TSPhotos extends TitusStat {
 
 		$stats=array();
 		$stats['ti_num_photos'] = $numPhotos;
-		if($wgLanguageCode == "en") {
+		if ($wgLanguageCode == "en") {
 			$numWikiPhotos = intVal($dbr->selectField(array('imagelinks','image'),'count(*)', array('il_from' => $pageRow->page_id, 'img_name = il_to', 'img_user_text' => array('Wikiphoto','Wikivisual'))));
 			$stats = array_merge($stats, $this->getIntroPhotoStats($r));
 			$stats['ti_num_wikiphotos'] = $numWikiPhotos;
@@ -2202,7 +2202,7 @@ class TSStu extends TitusStat {
 			$query = "select * from stu.stu_dump where domain=" . $dbr->addQuotes($domain) . " AND page=" . $dbr->addQuotes($t->getDBKey());
 			$res = $dbr->query($query);
 			$rets = array();
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				$rets[$row->page][$row->k] = $row->v;
 			}
 			AdminBounceTests::cleanBounceData($rets);
@@ -2221,7 +2221,7 @@ class TSStu extends TitusStat {
 		$query = "select ti_stu_views_www as views from titusdb2.titus_historical_intl where ti_language_code = 'en' and ti_page_id=" . $pageId . " order by ti_datestamp DESC limit 7";
 		$res = $dbr->query( $query );
 		$views = array();
-		foreach( $res as $row ) {
+		foreach ( $res as $row ) {
 			$views[] = $row->views;
 		}
 
@@ -2732,23 +2732,23 @@ class TSTranslations extends TitusStat {
 		$sql = "select distinct tl_from_aid from " . WH_DATABASE_NAME_EN . ".translation_link where tl_from_lang=" . $dbr->addQuotes($wgLanguageCode) . " AND tl_timestamp > " . $dbr->addQuotes($start);
 		$res = $dbr->query($sql, __METHOD__);
 		$ids = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$ids[] = $row->tl_from_aid;
 		}
 		$sql = "select distinct tl_to_aid from " . WH_DATABASE_NAME_EN . ".translation_link where tl_to_lang=" . $dbr->addQuotes($wgLanguageCode) . " AND tl_timestamp > " . $dbr->addQuotes($start);
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$ids[] = $row->tl_to_aid;
 		}
 		$sql = "select distinct tll_from_aid from " . WH_DATABASE_NAME_EN . ".translation_link_log where tll_from_lang=" . $dbr->addQuotes($wgLanguageCode) . " AND tll_timestamp>" . $dbr->addQuotes($start) . " AND NOT (tll_from_aid is NULL)";
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$ids[] = $row->tll_from_aid;
 		}
 
 		$sql = "select distinct tll_to_aid from " . WH_DATABASE_NAME_EN . ".translation_link_log where tll_to_lang=" . $dbr->addQuotes($wgLanguageCode) . " AND tll_timestamp>" . $dbr->addQuotes($start) . " AND NOT (tll_to_aid is NULL)";
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$ids[] = $row->tll_to_aid;
 		}
 
@@ -2757,7 +2757,7 @@ class TSTranslations extends TitusStat {
 		return($ids);
 	}
 	private function fixURL($url) {
-		if(preg_match("@(http://[a-z]+\.wikihow\.com/)(.+)@",$url,$matches)) {
+		if (preg_match("@(http://[a-z]+\.wikihow\.com/)(.+)@",$url,$matches)) {
 			return($matches[1] . urlencode($matches[2]));
 		}
 		else {
@@ -2775,22 +2775,22 @@ class TSTranslations extends TitusStat {
 		// Added template fields to each language
 		$ret = array();
 		$links = array();
-		foreach($langs as $l) {
+		foreach ($langs as $l) {
 
 			$ret["ti_tl_" . $l] =  "";
 			$ret["ti_tl_" . $l . "_id"] = "";
 		}
 		$links = array_merge($links,TranslationLink::getLinksTo($wgLanguageCode,$pageRow->page_id));
 
-		foreach($links as $l) {
-			if($l->fromAID == $pageRow->page_id && $wgLanguageCode == $l->fromLang && in_array($l->toLang,$langs)) {
-				if(isset($l->toURL)) {
+		foreach ($links as $l) {
+			if ($l->fromAID == $pageRow->page_id && $wgLanguageCode == $l->fromLang && in_array($l->toLang,$langs)) {
+				if (isset($l->toURL)) {
 					$ret["ti_tl_" . $l->toLang ] = $dbr->strencode($this->fixURL($l->toURL));
 				}
 				$ret["ti_tl_" . $l->toLang . "_id"] = intVal($l->toAID);
 			}
 			elseif($l->toAID == $pageRow->page_id && $wgLanguageCode == $l->toLang && in_array($l->fromLang, $langs)) {
-				if(isset($l->fromURL)) {
+				if (isset($l->fromURL)) {
 					$ret["ti_tl_" . $l->fromLang] = $dbr->strencode($this->fixURL($l->fromURL));
 				}
 				$ret["ti_tl_" . $l->fromLang . "_id"] = intVal($l->fromAID);
@@ -2811,7 +2811,7 @@ class TSSample extends TitusStat {
 		$txt = $r->getText();
 		$samples = 0;
 		preg_match_all("/\[\[Doc:[^\]]*\]\]/", $txt, $matches);
-		foreach($matches[0] as $match) {
+		foreach ($matches[0] as $match) {
 			$samples++;
 			$samples += preg_match_all('/,/', $match, $dummyMatches);
 
@@ -2895,10 +2895,10 @@ class TSTop10k extends TitusStat {
 			$urlList = array();
 			$pageIds = array();
 			$dups = "";
-			foreach($cols as $col) {
-				if(is_numeric($col[1]) && $wgLanguageCode == $col[2]) {
-					if(isset($this->_kwl[$col[1]])) {
-						if($dups == "") {
+			foreach ($cols as $col) {
+				if (is_numeric($col[1]) && $wgLanguageCode == $col[2]) {
+					if (isset($this->_kwl[$col[1]])) {
+						if ($dups == "") {
 							$dups = "Duplicate article ids:\n\n";
 						}
 						else {
@@ -2911,16 +2911,16 @@ class TSTop10k extends TitusStat {
 					$ids[] = $col[1];
 				}
 			}
-			if($dups != "") {
+			if ($dups != "") {
 				$this->reportError($dups);
 			}
-			if(sizeof($this->_kwl) < 1000 && $wgLanguageCode == "en") {
+			if (sizeof($this->_kwl) < 1000 && $wgLanguageCode == "en") {
 				$this->_gotSpreadsheet = true;
 				$this->_badSpreadsheet = true;
 				$this->reportError("Top10k problem fetching spreadsheet. Fewer than 1000 ids found ");
 				return;
 			}
-			if($ids) {
+			if ($ids) {
 				$this->checkForRedirects($dbr, $ids);
 				$this->checkForMissing($dbr, $ids);
 			}
@@ -2928,14 +2928,14 @@ class TSTop10k extends TitusStat {
 			$query = "select ti_page_id, ti_top10k FROM " . TitusDB::getDBName() . "." . TitusDB::TITUS_INTL_TABLE_NAME  . " WHERE ti_language_code=" . $dbr->addQuotes($wgLanguageCode) ;
 			$res = $dbr->query($query, __METHOD__);
 			$pageIds = array();
-			foreach($res as $row) {
-				if(isset($this->_kwl[$row->ti_page_id])) {
-					if($this->_kwl[$row->ti_page_id] != $row->ti_top10k) {
+			foreach ($res as $row) {
+				if (isset($this->_kwl[$row->ti_page_id])) {
+					if ($this->_kwl[$row->ti_page_id] != $row->ti_top10k) {
 						$pageIds[] = $row->ti_page_id;
 					}
 				}
 				else {
-					if($row->ti_top10k != NULL && $row->ti_top10k != "") {
+					if ($row->ti_top10k != NULL && $row->ti_top10k != "") {
 						$pageIds[] = $row->ti_page_id;
 					}
 				}
@@ -2954,23 +2954,23 @@ class TSTop10k extends TitusStat {
 	 * Get the page ids to calculate
 	 */
 	public function getPageIdsToCalc( $dbr, $date ) {
-		if(! $this->_gotSpreadsheet) {
+		if (! $this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
 		}
-		if($this->_badSpreadsheet) {
+		if ($this->_badSpreadsheet) {
 			return(array());
 		}
 		return($this->_ids);
 	}
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
-		if($this->_badSpreadsheet) {
+		if ($this->_badSpreadsheet) {
 			return(array());
 		}
 		$ret =array('ti_top10k'=>'', 'ti_is_top10k'=>0, 'ti_top_list' => '');
-		if(isset($this->_kwl[$pageRow->page_id])) {
+		if (isset($this->_kwl[$pageRow->page_id])) {
 			//1000 is the database limit for the size of the keywords
-			if(sizeof($this->_kwl[$pageRow->page_id]) > 1000) {
+			if (sizeof($this->_kwl[$pageRow->page_id]) > 1000) {
 				$this->reportError("Keyword for " . $pageRow->page_id . " over 1000 characters(truncating) :" . $this->_kwl[$pageRow->page_id]);
 			}
 			else {
@@ -3000,20 +3000,20 @@ class TSRatings extends TitusStat {
 			$cols = $gs->getColumnData( WH_TITUS_RATINGS_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
 			$ids = array();
 			$badDates = 0;
-			foreach($cols as $col) {
-				if(is_numeric($col[0])) {
+			foreach ($cols as $col) {
+				if (is_numeric($col[0])) {
 					$output = array($col[1],$this->fixDate($col[2]));
-					if($output[1] == NULL) {
+					if ($output[1] == NULL) {
 						$badDates++;
 					}
-					if(isset($this->_kwl[$col[0]])) {
+					if (isset($this->_kwl[$col[0]])) {
 						$this->reportError("Duplicate ratings for article " . $col[0]);
 					}
 					$this->_kwl[$col[0]] = $output;
 					$ids[] = $col[0];
 				}
 			}
-			if($badDates > 100) {
+			if ($badDates > 100) {
 				$this->reportError("Unable to parse over 100 dates in spreadsheet");
 
 				$this->_gotSpreadsheet=true;
@@ -3021,7 +3021,7 @@ class TSRatings extends TitusStat {
 				return;
 
 			}
-			if(sizeof($ids) < 1000) {
+			if (sizeof($ids) < 1000) {
 				$this->reportError("Less than 1000 ratings in ratings spreadsheet found");
 				$this->_gotSpreadsheet=true;
 				$this->_badSpreadsheet=true;
@@ -3033,14 +3033,14 @@ class TSRatings extends TitusStat {
 			$query = "select ti_page_id, ti_rating, ti_rating_date FROM " . TitusDB::getDBName() . "." . TitusDB::TITUS_INTL_TABLE_NAME . " WHERE ti_language_code=" . $dbr->addquotes($wgLanguageCode) ;
 			$res = $dbr->query($query, __METHOD__);
 			$pageIds = array();
-			foreach($res as $row) {
-				if(isset($this->_kwl[$row->ti_page_id])) {
-					if($this->_kwl[$row->ti_page_id][0] != $row->ti_rating || $this->_kwl[$row->ti_page_id][1]!=$row->ti_rating_date) {
+			foreach ($res as $row) {
+				if (isset($this->_kwl[$row->ti_page_id])) {
+					if ($this->_kwl[$row->ti_page_id][0] != $row->ti_rating || $this->_kwl[$row->ti_page_id][1]!=$row->ti_rating_date) {
 						$pageIds[] = $row->ti_page_id;
 					}
 				}
 				else {
-					if(($row->ti_rating != NULL && $row->ti_rating != "") || ($row->ti_rating_date != NULL && $row->ti_rating_date != "") ) {
+					if (($row->ti_rating != NULL && $row->ti_rating != "") || ($row->ti_rating_date != NULL && $row->ti_rating_date != "") ) {
 						$pageIds[] = $row->ti_page_id;
 					}
 				}
@@ -3064,12 +3064,12 @@ class TSRatings extends TitusStat {
 			$query = "select mmk_page_id, mmk_rating, mmk_rating_date FROM mmk.mmk_manager WHERE mmk_language_code=" . $dbr->addquotes($wgLanguageCode) ;
 			$res = $dbr->query($query, __METHOD__);
 			$ids = array();
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				$output = array($row->mmk_rating,$this->fixDate($row->mmk_rating_date));
-				if($output[1] == NULL) {
+				if ($output[1] == NULL) {
 					$badDates++;
 				}
-				if(isset($this->_kwl[$row->mmk_page_id])) {
+				if (isset($this->_kwl[$row->mmk_page_id])) {
 					$this->reportError("Duplicate ratings for article " . $row->mmk_page_id);
 				}
 				$this->_kwl[$row->mmk_page_id] = $output;
@@ -3082,14 +3082,14 @@ class TSRatings extends TitusStat {
 			$query = "select ti_page_id, ti_rating, ti_rating_date FROM " . TitusDB::getDBName() . "." . TitusDB::TITUS_INTL_TABLE_NAME . " WHERE ti_language_code=" . $dbr->addquotes($wgLanguageCode) ;
 			$res = $dbr->query($query, __METHOD__);
 			$pageIds = array();
-			foreach($res as $row) {
-				if(isset($this->_kwl[$row->ti_page_id])) {
-					if($this->_kwl[$row->ti_page_id][0] != $row->ti_rating || $this->_kwl[$row->ti_page_id][1]!=$row->ti_rating_date) {
+			foreach ($res as $row) {
+				if (isset($this->_kwl[$row->ti_page_id])) {
+					if ($this->_kwl[$row->ti_page_id][0] != $row->ti_rating || $this->_kwl[$row->ti_page_id][1]!=$row->ti_rating_date) {
 						$pageIds[] = $row->ti_page_id;
 					}
 				}
 				else {
-					if(($row->ti_rating != NULL && $row->ti_rating != "") || ($row->ti_rating_date != NULL && $row->ti_rating_date != "") ) {
+					if (($row->ti_rating != NULL && $row->ti_rating != "") || ($row->ti_rating_date != NULL && $row->ti_rating_date != "") ) {
 						$pageIds[] = $row->ti_page_id;
 					}
 				}
@@ -3105,7 +3105,7 @@ class TSRatings extends TitusStat {
 	}
 	protected function fixDate($date) {
 		$d=date_parse($date);
-		if($d) {
+		if ($d) {
 			return($d['year'] . $this->fixDatePart($d['month']) . $this->fixDatePart($d['day']) );
 		}
 		else {
@@ -3118,7 +3118,7 @@ class TSRatings extends TitusStat {
 		// if (!$this->_gotMMKRatings) {
 			// $this->getRatingsFromMMK($dbr);
 		// }
-		if(isset($this->_kwl[$pageRow->page_id]) && $wgLanguageCode == "en") {
+		if (isset($this->_kwl[$pageRow->page_id]) && $wgLanguageCode == "en") {
 			$a = $this->_kwl[$pageRow->page_id];
 			return(array("ti_rating"=> $a[0],"ti_rating_date"=> $a[1]));
 		}
@@ -3128,10 +3128,10 @@ class TSRatings extends TitusStat {
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
-		if($wgLanguageCode != "en") {
+		if ($wgLanguageCode != "en") {
 			return(array());
 		}
-		if(!$this->_gotSpreadsheet) {
+		if (!$this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
 		}
 
@@ -3199,7 +3199,7 @@ class TSLibrarian extends TitusStat {
 						|| $this->_kwl[$row->ti_page_id][1]!=$row->ti_visual_librarian ) {
 							$pageIds[] = $row->ti_page_id;
 					}
-				} else if ( ($row->ti_visual_librarian_timestamp != NULL && $row->ti_visual_librarian_timestamp != "" )
+				} elseif ( ($row->ti_visual_librarian_timestamp != NULL && $row->ti_visual_librarian_timestamp != "" )
 					|| ($row->ti_visual_librarian != NULL && $row->ti_visual_librarian != "") ) {
 						$pageIds[] = $row->ti_page_id;
 				}
@@ -3230,11 +3230,11 @@ class TSLibrarian extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
 
-		if( $wgLanguageCode != "en" ) {
+		if ( $wgLanguageCode != "en" ) {
 			return array();
 		}
 
-		if( !$this->_gotSpreadsheet ) {
+		if ( !$this->_gotSpreadsheet ) {
 			$this->getSpreadsheet( $dbr );
 		}
 
@@ -3282,17 +3282,17 @@ class TSLastFellowStubEdit extends TitusStat {
 			$cols = $gs->getColumnData( WH_TITUS_STUB_EDITOR_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
 			$ids = array();
 			$badDates = 0;
-			foreach($cols as $col) {
-				if(is_numeric($col[0])) {
+			foreach ($cols as $col) {
+				if (is_numeric($col[0])) {
 					$output = array($this->fixDate($col[1]),$col[2]);
-					if($output[1] == NULL) {
+					if ($output[1] == NULL) {
 						$badDates++;
 					}
 					$this->_kwl[$col[0]] = $output;
 					$ids[] = $col[0];
 				}
 			}
-			if($badDates > 100) {
+			if ($badDates > 100) {
 				$this->reportError("Unable to parse over 100 dates in spreadsheet");
 
 				$this->_gotSpreadsheet=true;
@@ -3301,7 +3301,7 @@ class TSLastFellowStubEdit extends TitusStat {
 			}
 
 			// this is an error for the main fellow edit sheet, but not the stub edit sheet
-			if( sizeof( $ids ) < 1000 ) {
+			if ( sizeof( $ids ) < 1000 ) {
 				decho( "Less than 1000 ratings in ratings spreadsheet found", '', false);
 			}
 
@@ -3311,9 +3311,9 @@ class TSLastFellowStubEdit extends TitusStat {
 			$query = "select ti_page_id, ti_last_fellow_stub_edit, ti_last_fellow_stub_edit_timestamp FROM " . TitusDB::getDBName() . "." . TitusDB::TITUS_INTL_TABLE_NAME . " WHERE ti_language_code=" . $dbr->addquotes($wgLanguageCode) ;
 			$res = $dbr->query($query, __METHOD__);
 			$pageIds = array();
-			foreach($res as $row) {
-				if(isset($this->_kwl[$row->ti_page_id])) {
-					if($this->_kwl[$row->ti_page_id][0] != $row->ti_last_fellow_stub_edit_timestamp || $this->_kwl[$row->ti_page_id][1]!=$row->ti_last_fellow_stub_edit) {
+			foreach ($res as $row) {
+				if (isset($this->_kwl[$row->ti_page_id])) {
+					if ($this->_kwl[$row->ti_page_id][0] != $row->ti_last_fellow_stub_edit_timestamp || $this->_kwl[$row->ti_page_id][1]!=$row->ti_last_fellow_stub_edit) {
 						$pageIds[] = $row->ti_page_id;
 					}
 				}
@@ -3339,7 +3339,7 @@ class TSLastFellowStubEdit extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
 
-		if(isset($this->_kwl[$pageRow->page_id]) && $wgLanguageCode == "en") {
+		if (isset($this->_kwl[$pageRow->page_id]) && $wgLanguageCode == "en") {
 			$a = $this->_kwl[$pageRow->page_id];
 			return(array("ti_last_fellow_stub_edit_timestamp"=> $a[0],"ti_last_fellow_stub_edit"=> $a[1]));
 		}
@@ -3349,10 +3349,10 @@ class TSLastFellowStubEdit extends TitusStat {
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
-		if($wgLanguageCode != "en") {
+		if ($wgLanguageCode != "en") {
 			return(array());
 		}
-		if(!$this->_gotSpreadsheet) {
+		if (!$this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
 		}
 
@@ -3377,17 +3377,17 @@ class TSLastFellowEdit extends TitusStat {
 			$cols = $gs->getColumnData( WH_TITUS_EDITOR_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
 			$ids = array();
 			$badDates = 0;
-			foreach($cols as $col) {
-				if(is_numeric($col[0])) {
+			foreach ($cols as $col) {
+				if (is_numeric($col[0])) {
 					$output = array($this->fixDate($col[1]),$col[2]);
-					if($output[1] == NULL) {
+					if ($output[1] == NULL) {
 						$badDates++;
 					}
 					$this->_kwl[$col[0]] = $output;
 					$ids[] = $col[0];
 				}
 			}
-			if($badDates > 100) {
+			if ($badDates > 100) {
 				$this->reportError("Unable to parse over 100 dates in spreadsheet");
 
 				$this->_gotSpreadsheet=true;
@@ -3395,7 +3395,7 @@ class TSLastFellowEdit extends TitusStat {
 				return;
 
 			}
-			if(sizeof($ids) < 1000) {
+			if (sizeof($ids) < 1000) {
 				$this->reportError("Less than 1000 ratings in ratings spreadsheet found");
 				$this->_gotSpreadsheet=true;
 				$this->_badSpreadsheet=true;
@@ -3448,7 +3448,7 @@ class TSLastFellowEdit extends TitusStat {
 		$pageId = $pageRow->page_id;
 
 		$editData = $this->_kwl[$pageId];
-		if( $editData && $wgLanguageCode == "en" ) {
+		if ( $editData && $wgLanguageCode == "en" ) {
 			$result["ti_last_fellow_edit_timestamp"] = $dbr->strencode( $editData[0] );
 			$result["ti_last_fellow_edit"] = $dbr->strencode( $editData[1] );
 		}
@@ -3458,10 +3458,10 @@ class TSLastFellowEdit extends TitusStat {
 
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
-		if($wgLanguageCode != "en") {
+		if ($wgLanguageCode != "en") {
 			return(array());
 		}
-		if(!$this->_gotSpreadsheet) {
+		if (!$this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
 		}
 
@@ -3476,7 +3476,7 @@ class TSEditingStatus extends TitusStat {
 		$result = array(
 			"ti_editing_status" => ""
 		);
-		if($wgLanguageCode != "en") {
+		if ($wgLanguageCode != "en") {
 			return $result;
 		}
 
@@ -3559,12 +3559,12 @@ class TSBabelfishData extends TitusStat {
 		global $wgLanguageCode;
 
 		$ret = array('ti_babelfish_rank' => NULL, 'ti_babelfish_score' => NULL);
-		if($wgLanguageCode != 'en') {
+		if ($wgLanguageCode != 'en') {
 			$sql = "select ct_rank, ct_score FROM " . WH_DATABASE_NAME_EN . ".babelfish_articles "
 		. " JOIN " . WH_DATABASE_NAME_EN . ".translation_link on tl_from_lang='en' AND tl_from_aid = ct_page_id AND tl_to_lang=ct_lang_code"
 		. " WHERE tl_to_aid=" . $dbr->addQuotes($pageRow->page_id) . " AND ct_lang_code=" . $dbr->addQuotes($wgLanguageCode);
 			$res = $dbr->query($sql, __METHOD__);
-			if($row = $dbr->fetchObject($res)) {
+			if ($row = $dbr->fetchObject($res)) {
 				$ret['ti_babelfish_rank'] = $row->ct_rank;
 				$ret['ti_babelfish_score'] = $row->ct_score;
 			}
@@ -3573,7 +3573,7 @@ class TSBabelfishData extends TitusStat {
 			// Grabbing Spanish rank for article from English because all articles have the same rank and score for all languages
 			$sql = "select ct_rank, ct_score FROM " . WH_DATABASE_NAME_EN . ".babelfish_articles WHERE ct_page_id=" . $dbr->addQuotes($pageRow->page_id) . " AND ct_lang_code='es'";
 			$res = $dbr->query($sql, __METHOD__);
-			if($row = $dbr->fetchObject($res)) {
+			if ($row = $dbr->fetchObject($res)) {
 				$ret['ti_babelfish_rank'] = $row->ct_rank;
 				$ret['ti_babelfish_score'] = $row->ct_score;
 			}
@@ -3596,12 +3596,12 @@ class TSNABPromoted extends TitusStat {
 		$res = $dbr->query($sql, __METHOD__);
 
 		$pr = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pr[$row->nap_page] = 1;
 		}
 		$sql = "select de_page_id FROM " . $langDB . ".daily_edits left join " . $langDB . ".newarticlepatrol on de_page_id = nap_page where nap_patrolled is NULL AND de_edit_type <> " . DailyEdits::DELETE_TYPE . " AND de_timestamp > " . $dbr->addQuotes($d) ;
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pr[$row->de_page_id] = 1;
 		}
 		$ids = array_keys($pr);
@@ -3610,7 +3610,7 @@ class TSNABPromoted extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$nab = Newarticleboost::getNABbedDate($dbr, $pageRow->page_id);
+		$nab = NewArticleBoost::getNABbedDate($dbr, $pageRow->page_id);
 		$ret = array('ti_nab_promoted' => $nab);
 		return($ret);
 	}
@@ -3629,12 +3629,12 @@ class TSNABDemoted extends TitusStat {
 		$res = $dbr->query($sql, __METHOD__);
 
 		$pr = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pr[$row->nap_page] = 1;
 		}
 		$sql = "select de_page_id FROM " . $langDB . ".daily_edits left join " . $langDB . ".newarticlepatrol on de_page_id = nap_page where nap_patrolled is NULL AND de_edit_type <> " . DailyEdits::DELETE_TYPE . " AND de_timestamp > " . $dbr->addQuotes($d) ;
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pr[$row->de_page_id] = 1;
 		}
 		$ids = array_keys($pr);
@@ -3643,7 +3643,7 @@ class TSNABDemoted extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$nad = Newarticleboost::getDemotedDate($dbr, $pageRow->page_id);
+		$nad = NewArticleBoost::getDemotedDate($dbr, $pageRow->page_id);
 		$ret = array('ti_nab_demoted' => $nad);
 		return($ret);
 	}
@@ -3660,12 +3660,12 @@ class TSNABScore extends TitusStat {
 		$res = $dbr->query($sql, __METHOD__);
 
 		$pr = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pr[$row->nap_page] = 1;
 		}
 		$sql = "select de_page_id FROM " . $langDB . ".daily_edits left join " . $langDB . ".newarticlepatrol on de_page_id = nap_page where nap_patrolled is NULL AND de_edit_type <> " . DailyEdits::DELETE_TYPE . " AND de_timestamp > " . $dbr->addQuotes($d) ;
 		$res = $dbr->query($sql, __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pr[$row->de_page_id] = 1;
 		}
 		$ids = array_keys($pr);
@@ -3674,7 +3674,7 @@ class TSNABScore extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$score = $dbr->selectField(Newarticleboost::NAB_TABLE, 'nap_atlas_score', array('nap_page' => $pageRow->page_id), __METHOD__);
+		$score = $dbr->selectField(NewArticleBoost::NAB_TABLE, 'nap_atlas_score', array('nap_page' => $pageRow->page_id), __METHOD__);
 		$ret = array('ti_nab_score' => $score);
 		return($ret);
 	}
@@ -3706,14 +3706,14 @@ class TSPetaMetrics extends TitusStat {
 
 		$lines = preg_split("@[\r\n]+@",$str);
 		$first = true;
-		foreach($lines as $line) {
-			if($first) {
+		foreach ($lines as $line) {
+			if ($first) {
 				$header = preg_split("@\t@",$line);
 				$first = false;
 			}
 			else {
 				$fs = preg_split("@\t@",$line);
-				for($n=0;$n < sizeof($header); $n++) {
+				for ($n=0;$n < sizeof($header); $n++) {
 					$this->_stats[$fs[1]][$header[$n]] = $fs[$n];
 				}
 			}
@@ -3722,7 +3722,7 @@ class TSPetaMetrics extends TitusStat {
 	// Some Petametrics data returns -1 on NULL. We want to convert this to NULL
 	private function nullOrVal($val) {
 		$nv = floatval($val);
-		if(!is_numeric($val) || $nv < 0.0) {
+		if (!is_numeric($val) || $nv < 0.0) {
 			$this->_hasError = true;
 			return(NULL);
 		}
@@ -3735,20 +3735,20 @@ class TSPetaMetrics extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		if(!$this->_loaded) {
+		if (!$this->_loaded) {
 			$this->loadSpreadsheet();
 			$this->_loaded = true;
 		}
 		$articleId = $t->getArticleId();
-		if(isset($this->_stats[$articleId])) {
+		if (isset($this->_stats[$articleId])) {
 			$statsForPage = $this->_stats[$articleId];
 			$this->_hasError = false;
 			$ret = array('ti_pm_desktop_30day_views' => $statsForPage['desktop:30days:views'], 'ti_pm_mobile_30day_views' => $statsForPage['mobile:30days:views'], 'ti_pm_tablet_30day_views' => $statsForPage['tablet:30days:views'], 'ti_pm_desktop_10s' => $this->nullOrVal($statsForPage['desktop:bounce10s'])*100.0, 'ti_pm_mobile_10s' => $this->nullOrVal($statsForPage['mobile:bounce10s']) * 100, 'ti_pm_tablet_10s' => $this->nullOrVal($statsForPage['tablet:bounce10s']) * 100, 'ti_pm_desktop_3m' => $this->nullOrVal($statsForPage['desktop:stay3mRate']) * 100, 'ti_pm_mobile_3m' => $this->nullOrVal($statsForPage['mobile:stay3mRate']) * 100, 'ti_pm_tablet_3m' => $this->nullOrVal($statsForPage['tablet:stay3mRate']) * 100, 'ti_pm_desktop_scroll_px' => $this->nullOrVal($statsForPage['desktop:avgSpx']), 'ti_pm_mobile_scroll_px' => $this->nullOrVal($statsForPage['mobile:avgSpx']), 'ti_pm_tablet_scroll_px' => $this->nullOrVal($statsForPage['tablet:avgSpx']), 'ti_pm_desktop_scroll_pct' => $this->nullOrVal($statsForPage['desktop:avgSpct']), 'ti_pm_mobile_scroll_pct' => $this->nullOrVal($statsForPage['mobile:avgSpct']), 'ti_pm_tablet_scroll_pct' => $this->nullOrVal($statsForPage['tablet:avgSpct']) );
-			if($this->_hasError) {
-				if($this->_errors < 50) {
+			if ($this->_hasError) {
+				if ($this->_errors < 50) {
 					$this->reportError("Null or bad values for article " . $t->getArticleID());
 				}
-				else if($this->_errors == 50) {
+				elseif ($this->_errors == 50) {
 					$this->reportError("Too many bad values in articles. Deprecating further PetaMetrics errors.");
 				}
 				$this->_errors++;
@@ -3779,7 +3779,7 @@ class TSCaps extends TitusStat {
 		if ($stepsSection) {
 			$stepsCaps = preg_match_all("@[A-Z]@",$stepsSection[0], $matches);
 			$stepsLower = preg_match_all("@[a-z]@",$stepsSection[0], $matches);
-			if($stepsCaps + $stepsLower == 0) {
+			if ($stepsCaps + $stepsLower == 0) {
 				$stepsRatio = 1;
 			}
 			else {
@@ -3794,7 +3794,7 @@ class TSCaps extends TitusStat {
 		if ($intro) {
 			$introCaps = preg_match_all("@[A-Z]@", $intro, $matches);
 			$introLower = preg_match_all("@[a-z]@", $intro, $matches);
-			if($introLower + $introCaps == 0) {
+			if ($introLower + $introCaps == 0) {
 				$introRatio =1;
 			}
 			else {
@@ -3826,16 +3826,16 @@ class TSStepLength extends TitusStat {
 				$min = $length;
 				$max = $length;
 			}
-			if($length < $min) {
+			if ($length < $min) {
 				$min = $length;
 			}
-			if($length > $max) {
+			if ($length > $max) {
 				$max = $length;
 			}
 			$sum += $length;
 			$n++;
 		}
-		if($n > 0) {
+		if ($n > 0) {
 			$avg = $sum / $n;
 		}
 		else {
@@ -3857,9 +3857,9 @@ class TSNumLinks extends TitusStat {
 		$links = preg_match_all("@(http://[^\"\b'>]+)@",$txt, $matches);
 		$baseLinks = preg_match_all("@(http://[^\"/\b'>]+/?)@", $txt, $matches);
 		$maxRepeats = 0;
-		foreach($matches[0] as $match) {
+		foreach ($matches[0] as $match) {
 			$repeats = preg_match_all('@' . preg_quote($match, '@') . '@',$txt, $matches2);
-			if(is_numeric($repeats) && $repeats > $maxRepeats) {
+			if (is_numeric($repeats) && $repeats > $maxRepeats) {
 				$maxRepeats = $repeats;
 			}
 		}
@@ -3876,7 +3876,7 @@ class TSNumLinks extends TitusStat {
  */
 class TSInUse extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-				if(get_class($r) == "RevisionNoTemplateWrapper") {
+				if (get_class($r) == "RevisionNoTemplateWrapper") {
 						$txt = $r->getOrigText();
 				}
 				else {
@@ -3913,9 +3913,9 @@ class TSWordLength extends TitusStat{
 		$wc = array();
 		$numWords = 0;
 		$wordTextSize = 0;
-		foreach($matches[0] as $match) {
+		foreach ($matches[0] as $match) {
 			$match = strtolower($match);
-			if(!isset($wc[$match])) {
+			if (!isset($wc[$match])) {
 				$wc[$match] = 0;
 			}
 			$wc[$match]++;
@@ -3925,15 +3925,15 @@ class TSWordLength extends TitusStat{
 		$numUniqWords = 0;
 		$maxWordCt = 0;
 		$totalUniqWordLen = 0;
-		foreach($wc as $match => $ct) {
+		foreach ($wc as $match => $ct) {
 			$numUniqWords++;
 			$totalUniqWordLen += $ct;
-			if($ct > $maxWordCt) {
+			if ($ct > $maxWordCt) {
 				$maxWordCt = $ct;
 			}
 		}
 		$len = strlen($txt);
-		if($len == 0) {
+		if ($len == 0) {
 			$len = 1;
 		}
 		// ti_num_words Number of words in document
@@ -3970,7 +3970,7 @@ class TSCharTypes extends TitusStat {
 		$ob = preg_match_all("@\[@",$txt,$matches);
 		$cb = preg_match_all("@\]@",$txt,$matches);
 		$numPeriods = preg_match_all("@\.@",$txt,$matches);
-		if($len == 0) {
+		if ($len == 0) {
 			$len = 1;
 		}
 		return(array("ti_num_oparen" => $op, "ti_pct_oparen" => $op/$len, "ti_pct_cparen" => $cp/$len, "ti_pct_colon" => $colon/$len, "ti_num_semicolon" => $semicolons,  "ti_pct_semicolon" => $semicolons/$len, 'ti_num_dashes' => $dashes, 'ti_pct_dashes' => $dashes/$len, 'ti_num_pluses' => $pluses, 'ti_pct_pluses' => $pluses/$len, 'ti_num_vowels' => $vowels, 'ti_pct_vowels' => $vowels/ ($letters ? $letters : 1), 'ti_num_numbers' => $numbers, 'ti_pct_numbers' => $numbers/$len, 'ti_pc_ob' => $ob/$len, 'ti_num_ob' => $ob, 'ti_num_cb' => $cb, 'ti_pct_cb' => $cb/$len, 'ti_num_periods' => $numPeriods, 'ti_pct_periods' => $numPeriods/$len, 'ti_num_ats' => $ats, 'ti_num_tabs' => $tabs, 'ti_num_spaces' => $spaces, 'ti_pct_spaces' => $spaces/$len));
@@ -4012,7 +4012,7 @@ class TSSubSteps extends TitusStat {
 		global $IP;
 		$f = fopen("$IP/extensions/wikihow/titus/verbs.txt","r");
 		$this->_verbList = array();
-		while(!feof($f)) {
+		while (!feof($f)) {
 			$l = fgets($f);
 			$l = chop($l);
 			$l = strtolower($l);
@@ -4048,13 +4048,13 @@ class TSSubSteps extends TitusStat {
 
 			// Match first word in steps
 			preg_match_all("@(?:^|\n)\# *([a-zA-Z]+) *@", $text, $matches);
-			if($matches[1]) {
-				foreach($matches[1] as $match) {
+			if ($matches[1]) {
+				foreach ($matches[1] as $match) {
 					$match = strtolower($match);
-					if(!isset($fwc[$match])) {
+					if (!isset($fwc[$match])) {
 						$fwc[$match] = 0;
 					}
-					if(isset($this->_verbList[$match])) {
+					if (isset($this->_verbList[$match])) {
 						$verbFirstWord ++;
 					}
 					$firstWords++;
@@ -4062,10 +4062,10 @@ class TSSubSteps extends TitusStat {
 			}
 			// Check how many verbs are in the steps
 			preg_match_all("@(\b[a-zA-Z]+\b)@", $text, $matches);
-			if($matches[1]) {
-				foreach($matches[1] as $match) {
+			if ($matches[1]) {
+				foreach ($matches[1] as $match) {
 					$match = strtolower($match);
-					if(isset($this->_verbList[$match])) {
+					if (isset($this->_verbList[$match])) {
 						$stepVerbs++;
 					}
 				}
@@ -4074,10 +4074,10 @@ class TSSubSteps extends TitusStat {
 
 			// Check how many steps have at least one verb
 			$stepsWithVerbs = 0;
-			foreach($steps as $step) {
-				if(preg_match_all("@(\b[a-zA-Z]+\b)@", $text, $matches)) {
-					foreach($matches[1] as $match) {
-						if(isset($this->_verbList[$match])) {
+			foreach ($steps as $step) {
+				if (preg_match_all("@(\b[a-zA-Z]+\b)@", $text, $matches)) {
+					foreach ($matches[1] as $match) {
+						if (isset($this->_verbList[$match])) {
 							$stepsWithVerbs++;
 							break;
 						}
@@ -4085,7 +4085,7 @@ class TSSubSteps extends TitusStat {
 				}
 			}
 				}
-		if($firstWords) {
+		if ($firstWords) {
 			$fwVerbRatio = $verbFirstWord/$firstWords;
 		}
 		else {
@@ -4100,13 +4100,13 @@ class TSSubSteps extends TitusStat {
 }
 class TSCopyVio extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		if(get_class($r) == "RevisionNoTemplateWrapper") {
+		if (get_class($r) == "RevisionNoTemplateWrapper") {
 			$text = $r->getOrigText();
 		}
 		else {
 			$text = $r->getText();
 		}
-		if(preg_match("@{{[^}]*copyvio@i", $text, $matches)) {
+		if (preg_match("@{{[^}]*copyvio@i", $text, $matches)) {
 			return(array("ti_copyvio" => 1));
 		}
 		else {
@@ -4120,13 +4120,13 @@ class TSCopyVio extends TitusStat {
 }
 class TSNFD extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		if(get_class($r) == "RevisionNoTemplateWrapper") {
+		if (get_class($r) == "RevisionNoTemplateWrapper") {
 			$text = $r->getOrigText();
 		}
 		else {
 			$text = $r->getText();
 		}
-		if(preg_match("@{{[^}]*nfd\|([a-zA-Z]+)@", $text, $matches)) {
+		if (preg_match("@{{[^}]*nfd\|([a-zA-Z]+)@", $text, $matches)) {
 			return(array("ti_nfd" => 1, "ti_nfd_type" => $matches[1]));
 		}
 		else {
@@ -4316,7 +4316,7 @@ class TSSpellCheck extends TitusStat {
 				$newText = WikihowArticleEditor::textify($txt, array('remove_ext_links' => 1));
 				preg_replace_callback('/\b(\w|\')+\b/',function($word) use(&$badWords,&$n,&$t) {
 			$word = $word[0];
-						if(!isset($t->wl[$word]) && !isset($t->wl[$word]) && !preg_match("@[0-9]@",$word, $matches) && !pspell_check($t->pspell, $word)) {
+						if (!isset($t->wl[$word]) && !isset($t->wl[$word]) && !preg_match("@[0-9]@",$word, $matches) && !pspell_check($t->pspell, $word)) {
 				$badWords[$word] = 1;
 								$n++;
 						}
@@ -4345,7 +4345,7 @@ class TSGrammar extends TitusStat {
 		curl_close($ch);
 		$xml = simplexml_load_string($str);
 		$ret = array();
-		foreach($xml->error as $e) {
+		foreach ($xml->error as $e) {
 			$attr = $e->attributes();
 			$cat = 'ti_lt_' . str_replace(' ','_',$attr['category']);
 			if (!isset($ret[$cat])) {
@@ -4369,7 +4369,7 @@ class TSGrammar extends TitusStat {
 		$text = $text[0];
 		$steps = preg_split("@#\*?@", $text);
 		$ret = array("ti_lt_Bad_style" => 0,"ti_lt_Capitalization" => 0,"ti_lt_Collocations" => 0,"ti_lt_Commonly_Confused_Words" => 0,"ti_lt_Grammar" => 0,"ti_lt_Miscellaneous" => 0,"ti_lt_Nonstandard_Phrases" => 0,"ti_lt_Possible_Typo" => 0,"ti_lt_Punctuation_Errors" => 0,"ti_lt_Redundant_Phrases" => 0,"ti_lt_Slang" => 0);
-		foreach($steps as $step) {
+		foreach ($steps as $step) {
 			$txt = $this->cleanText($step);
 			$subRet = $this->checkGrammar($txt);
 			foreach ( $subRet as $k => $v ) {
@@ -4724,7 +4724,7 @@ class TSStepsText extends TitusStat {
 		$realSteps = array();
 		$subSteps = array();
 		foreach ( $steps as $step ) {
-			if( $step[0] == '*' ) {
+			if ( $step[0] == '*' ) {
 				$substep = $this->cleanText(substr($step, 1));
 				if (!preg_match("@^==@", $substep, $matches)) {
 					$subSteps[] = $substep;

@@ -8,16 +8,16 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['DocViewer'] = 'DocViewer';
-$wgAutoloadClasses['DocViewer'] = dirname( __FILE__ ) . '/DocViewer.body.php';
-$wgExtensionMessagesFiles['DocViewer'] = dirname(__FILE__) . '/DocViewer.i18n.php';
+$wgAutoloadClasses['DocViewer'] = __DIR__ . '/DocViewer.body.php';
+$wgExtensionMessagesFiles['DocViewer'] = __DIR__ . '/DocViewer.i18n.php';
 
 $wgSpecialPages['DocViewerList'] = 'DocViewerList';
-$wgAutoloadClasses['DocViewerList'] = dirname( __FILE__ ) . '/DocViewerList.body.php';
+$wgAutoloadClasses['DocViewerList'] = __DIR__ . '/DocViewerList.body.php';
 $wgGroupPermissions['*']['DocViewerList'] = false;
 $wgGroupPermissions['staff']['DocViewerList'] = true;
 
 $wgSpecialPages['GetSamples'] = 'GetSamples';
-$wgAutoloadClasses['GetSamples'] = dirname( __FILE__ ) . '/GetSamples.body.php';
+$wgAutoloadClasses['GetSamples'] = __DIR__ . '/GetSamples.body.php';
 
 $wgHooks['WebRequestPathInfoRouter'][] = array('wfGetSamplePage');
 $wgHooks["BeforeParserFetchFileAndTitle2"][] = array("wfGrabDocThumb");
@@ -27,7 +27,7 @@ $wgHooks["IsEligibleForMobileSpecial"][] = array("wfDocIsEligibleForMobile");
 $wgResourceModules['ext.wikihow.samples'] = array(
 	'scripts' => 'docviewer.js',
 	'styles' => 'docviewer.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/docviewer',
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' )
@@ -35,7 +35,7 @@ $wgResourceModules['ext.wikihow.samples'] = array(
 
 function wfDocIsEligibleForMobile(&$isEligible) {
 	global $wgTitle;
-	if($wgTitle && strrpos($wgTitle->getText(), "DocViewer/") === 0) {
+	if ($wgTitle && strrpos($wgTitle->getText(), "DocViewer/") === 0) {
 		$isEligible = true;
 	}
 

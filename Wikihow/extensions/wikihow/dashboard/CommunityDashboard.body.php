@@ -20,21 +20,22 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	}
 
 	/**
-	 * The callback made to process and display the output of the 
+	 * The callback made to process and display the output of the
 	 * Special:CommunityDashboard page.
 	 */
 	public function execute($par) {
-		global $wgHooks, $wgLanguageCode, $wgReadOnly, $wgCookiePrefix, $wgCookiePath, $wgCookieDomain;
-		
+		global $wgHooks, $wgReadOnly, $wgCookiePrefix, $wgCookiePath, $wgCookieDomain;
+
 		$out = $this->getOutput();
 		$request = $this->getRequest();
 
-		if ($wgLanguageCode != "en") {
+		$langCode = $this->getLanguage()->getCode();
+		if ($langCode != "en") {
 			$dashboardPage = Title::makeTitle(NS_PROJECT, wfMessage("community")->text());
 			$out->redirect($dashboardPage->getFullURL());
 			return;
 		}
-		
+
 		// Anna wanted us to turn off community dashboard while site is in read-only mode
 		if ($wgReadOnly) {
 			$out->prepareErrorPage("Community Dashboard Disabled Temporarily");
@@ -57,7 +58,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			$refreshData = $this->dashboardData->getStatsData();
 
 			$this->restResponse($expiresSecs, json_encode($refreshData));
-		} else if ($target == 'userrefresh') {
+		} elseif ($target == 'userrefresh') {
 			$expiresSecs = self::USER_DATA_REFRESH_TIME_SECS;
 
 			// get user-specific stats
@@ -67,17 +68,17 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			// TODO: don't send all this data. But for now leaving so I can
 			// see what's available
 			$this->restResponse($expiresSecs, json_encode(@$userData));
-		} else if ($target == 'leaderboard') {
+		} elseif ($target == 'leaderboard') {
 			$widget = $request->getVal('widget', '');
 			if ($widget) {
 				$leaderboardData = $this->dashboardData->getLeaderboardData($widget);
 				$this->restResponse($expiresSecs, json_encode($leaderboardData));
 			}
-		} else if ($target == 'userstats') {
+		} elseif ($target == 'userstats') {
 			$data = $this->dashboardData->loadUserStats();
 			$this->restResponse($expiresSecs, json_encode($data));
-		} else if ($target == 'customize') {
-			$out->disable();
+		} elseif ($target == 'customize') {
+			$out->setArticleBodyOnly(true);
 
 			$userData = $this->dashboardData->loadUserData();
 			$prefs = $userData && $userData['prefs'] ? $userData['prefs'] : array();
@@ -107,9 +108,9 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			}
 			else {
 				$html = $this->displayContainer();
-				
-				//check if we need the expertise modal (after signup)	
-				if ($wgLanguageCode == "en" && isset($_COOKIE[$wgCookiePrefix.'_exp_modal'])) {
+
+				//check if we need the expertise modal (after signup)
+				if (isset($_COOKIE[$wgCookiePrefix.'_exp_modal'])) {
 					//dump cookie
 					setcookie($wgCookiePrefix.'_exp_modal', '', time()-3600, $wgCookiePath, $wgCookieDomain);
 					//add modal stuff
@@ -121,7 +122,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	}
 
 	/**
-	 * Returns a relative URL by querying all the widgets for what 
+	 * Returns a relative URL by querying all the widgets for what
 	 * JS or CSS files they use.
 	 *
 	 * @param $type must be the string 'js' or 'css'
@@ -143,12 +144,13 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	 * Display the HTML for this special page with all the widgets in it
 	 */
 	private function displayContainer() {
-		global $wgWidgetList, $wgMobileOnlyWidgetList, $wgUser, $wgWidgetShortCodes;
+		global $wgWidgetList, $wgMobileOnlyWidgetList, $wgWidgetShortCodes;
+
+		$user = $this->getUser();
 
 		$containerJS = array(
 			'community-dashboard.js',
 			'dashboard-widget.js',
-			'jquery.ui.sortable.min.js',
 			'jquery.json-2.2.min.js',
 		);
 		$containerCSS = array(
@@ -162,7 +164,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 		// displays with
 		$this->refreshData = $this->dashboardData->getStatsData();
 
-		// get all data such as wikihow-defined structure goals, dynamic 
+		// get all data such as wikihow-defined structure goals, dynamic
 		// global data, and user-specific data
 		$staticData = $this->dashboardData->loadStaticGlobalOpts();
 		$priorities = json_decode($staticData['cdo_priorities_json'], true);
@@ -202,7 +204,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			foreach ($priorities as $name) {
 				if ($arr['wid'] == $name) { $found = true; break; }
 			}
-			
+
 			//remove ones that are only for mobile
 			if (in_array($arr['wid'],$wgMobileOnlyWidgetList)) continue;
 
@@ -222,9 +224,9 @@ class CommunityDashboard extends UnlistedSpecialPage {
 		//but not sure where yet
 		//load user specific info that only needs to be loaded
 		//once
-		if ($wgUser->getID() > 0) { //if the user is logged in
+		if ($user->getID() > 0) { //if the user is logged in
 			$u = new User();
-			$u->setID($wgUser->getID());
+			$u->setID($user->getID());
 			$img = Avatar::getPicture($u->getName(), true);
 			if ($img == '') {
 				$img = Avatar::getDefaultPicture();
@@ -237,20 +239,20 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			$tipsLink = "/Special:Userlogin?returnto=Special:TipsPatrol";
 		}
 
-		$booster = Newarticleboost::isNewArticlePatrol($wgUser);
+		$booster = NewArticleBoost::isNewArticlePatrol($user);
 		//check to see if we need a NAB alert
 		$needBoosterAlert = false;
-		if($booster){
+		if ($booster){
 			$dbr = wfGetDB(DB_SLAVE);
 			if ( isset( $this->refreshData['widgets'] ) &&isset( $this->refreshData['widgets']['nab'] ) ) {
 				$nabCount = $this->refreshData['widgets']['nab']['ct'];
-				if($nabCount > (int)(wfMessage('Comm-dashboard-NABmessage-threshold')->text())) {
+				if ($nabCount > (int)(wfMessage('Comm-dashboard-NABmessage-threshold')->text())) {
 					$needBoosterAlert = true;
 				}
         	}
 		}
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'jsTags' => $jsTags,
 			'cssTags' => $cssTags,
@@ -258,7 +260,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			'GLOBAL_DATA_REFRESH_TIME_SECS' => self::GLOBAL_DATA_REFRESH_TIME_SECS,
 			'USER_DATA_REFRESH_TIME_SECS' => self::USER_DATA_REFRESH_TIME_SECS,
 			'USERNAME_MAX_LENGTH' => self::USERNAME_MAX_LENGTH,
-			'widgetTitles' => DashboardData::getTitles(),
+			'widgetTitles' => DashboardData::getDesktopTitles(),
 			'priorityWidgets' => $priorities,
 			'userWidgets' => $userWidgets,
 			'prefsOrdering' => $userOrdering,
@@ -271,7 +273,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			'needBoosterAlert' => $needBoosterAlert,
 			'NABcount' => $nabCount,
 		));
-		
+
 		$html = $tmpl->execute('dashboard-container.tmpl.php');
 		return $langScript . $html;
 	}
@@ -280,10 +282,12 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	 * Display the HTML for this special page with all the widgets in it
 	 */
 	private function displayMobileContainer() {
-		global $wgMobileWidgetList, $wgMobilePriorityWidgetList, $wgUser, $wgWidgetShortCodes;
+		global $wgMobileWidgetList, $wgMobilePriorityWidgetList, $wgWidgetShortCodes;
 
-		DashboardWidget::setIsMobile();	
-		
+		$user = $this->getUser();
+
+		DashboardWidget::setIsMobile();
+
 		$containerJS = array(
 			'community-dashboard.js',
 			'dashboard-widget.js',
@@ -299,7 +303,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 		// displays with
 		$this->refreshData = $this->dashboardData->getStatsData();
 
-		// get all data such as wikihow-defined structure goals, dynamic 
+		// get all data such as wikihow-defined structure goals, dynamic
 		// global data, and user-specific data
 		$staticData = $this->dashboardData->loadStaticGlobalOpts();
 		$priorities = json_decode($staticData['cdo_priorities_json'], true);
@@ -321,9 +325,9 @@ class CommunityDashboard extends UnlistedSpecialPage {
 		//but not sure where yet
 		//load user specific info that only needs to be loaded
 		//once
-		if ($wgUser->getID() > 0) {
+		if ($user->getID() > 0) {
 			$u = new User();
-			$u->setID($wgUser->getID());
+			$u->setID($user->getID());
 			$img = Avatar::getPicture($u->getName(), true);
 			if ($img == '') {
 				$img = Avatar::getDefaultPicture();
@@ -336,7 +340,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			$tipsLink = "/Special:Userlogin?returnto=Special:TipsPatrol";
 		}
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'jsTags' => $jsTags,
 			'cssTags' => $cssTags,
@@ -344,7 +348,6 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			'GLOBAL_DATA_REFRESH_TIME_SECS' => self::GLOBAL_DATA_REFRESH_TIME_SECS,
 			'USER_DATA_REFRESH_TIME_SECS' => self::USER_DATA_REFRESH_TIME_SECS,
 			'USERNAME_MAX_LENGTH' => self::USERNAME_MAX_LENGTH,
-			'widgetTitles' => DashboardData::getTitles(),
 			'priorityWidgets' => $wgMobilePriorityWidgetList,
 			'userWidgets' => $wgMobileWidgetList,
 			'prefsOrdering' => $userOrdering,
@@ -355,7 +358,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			'appShortCodes' => $wgWidgetShortCodes,
 			'tipsLink' => $tipsLink
 		));
-		
+
 		$html = $tmpl->execute('dashboard-container-mobile.tmpl.php');
 		return $html;
 	}
@@ -410,20 +413,20 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	 * JSONP response if requested.  Expires in $expiresSecs seconds.
 	 */
 	private function restResponse($expiresSecs, $data) {
-		global $wgOut, $wgRequest;
-
-		$wgOut->disable();
+		$out = $this->getOutput();
+		$out->setArticleBodyOnly(true);
 		$this->controlFrontEndCache($expiresSecs);
 
 		if (!$data) {
 			$data = array('error' => 'data not refreshing on server');
 		}
 
-		$funcName = $wgRequest->getVal('function', '');
+		$req = $this->getRequest();
+		$funcName = $req->getVal('function', '');
 		if ($funcName) {
-			print "$funcName($data)";
+			$out->addHTML( "$funcName($data)" );
 		} else {
-			print $data;
+			$out->addHTML( $data );
 		}
 	}
 
@@ -432,12 +435,12 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	 * seconds.
 	 */
 	private function controlFrontEndCache($maxAgeSecs) {
-		global $wgOut, $wgRequest;
-		$wgRequest->response()->header( 'Cache-Control: s-maxage=' . $maxAgeSecs . ', must-revalidate, max-age=' . $maxAgeSecs );
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$req->response()->header( 'Cache-Control: s-maxage=' . $maxAgeSecs . ', must-revalidate, max-age=' . $maxAgeSecs );
 		$future = time() + $maxAgeSecs;
-		$wgRequest->response()->header( 'Expires: ' . gmdate('D, d M Y H:i:s T', $future) );
-		$wgOut->setArticleBodyOnly(true);
-		$wgOut->sendCacheControl();
+		$req->response()->header( 'Expires: ' . gmdate('D, d M Y H:i:s T', $future) );
+		$out->sendCacheControl();
 	}
 
 	public static function removeSideBarCallback(&$showSideBar) {

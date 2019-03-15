@@ -17,13 +17,13 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 
 		if ( $user->isBlocked() || !in_array( 'staff', $userGroups ) ) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		if ( !$request->wasPosted() ) {
-			$this->outputAdminPageHtml(); 
+			$this->outputAdminPageHtml();
 			return;
 		}
 
@@ -75,9 +75,7 @@ class AdminExpertDoc extends UnlistedSpecialPage {
     }
 
     public function getTemplateHtml( $templateName, $vars = array() ) {
-        global $IP;
-        $path = "$IP/extensions/wikihow/socialproof";
-        EasyTemplate::set_path( $path );
+        EasyTemplate::set_path( __DIR__ );
         return EasyTemplate::html( $templateName, $vars );
     }
 

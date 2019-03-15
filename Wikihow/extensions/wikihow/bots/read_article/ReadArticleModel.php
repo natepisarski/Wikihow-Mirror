@@ -150,7 +150,7 @@ class ReadArticleModel {
 		foreach ($steps as $step) {
 			if (Wikitext::isStep($step, true)) {
 				$stepData []= $this->flatten($step);
-			} else if (Wikitext::isStep($step, false)) {
+			} elseif (Wikitext::isStep($step, false)) {
 				$stepData[count($stepData) - 1] .= "\n" . $this->flatten($step);
 			}
 		}

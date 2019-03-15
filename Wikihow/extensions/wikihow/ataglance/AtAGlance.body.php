@@ -11,7 +11,7 @@ class AtAGlance {
 				return false;
 		}
 
-		if ( $title->getNamespace() != NS_MAIN ) {
+		if ( !$title->inNamespace(NS_MAIN) ) {
 			return false;
 		}
 
@@ -41,8 +41,8 @@ class AtAGlance {
 		// get any vars to pass to the template
 		$vars = array();
 		$vars['atAGlance'] = wfMessage('ataglance_sidebar_title')->text();
-		EasyTemplate::set_path( dirname( __FILE__ ).'/' );
-		return EasyTemplate::html( 'ataglance.desktop.sidebar', $vars );
+		EasyTemplate::set_path( __DIR__.'/' );
+		return EasyTemplate::html( 'ataglance.desktop.sidebar.tmpl.php', $vars );
 	}
 
 	public static function runArticleHookTest( $title ) {
@@ -62,13 +62,13 @@ class AtAGlance {
 						pq( '.firstHeading' )->after( $p->html() );
 						pq( '.firstHeading' )->after( $toc );
 						pq( '.ataglance' )->remove();
-					} else if ( pq( '#intro' )->children( 'div' )->children( 'p' )->length > 0 ) {
+					} elseif ( pq( '#intro' )->children( 'div' )->children( 'p' )->length > 0 ) {
 						pq( '#intro' )->children( 'div' )->children('p')->remove();
 						pq( '#intro' )->children( 'div' )->html( $p->html() );
 						pq( '.ataglance' )->remove();
 					}
 				}
-			} else if ( self::isInTestGroup( $title, 6 ) ) {
+			} elseif ( self::isInTestGroup( $title, 6 ) ) {
 				if ( !$mobile ) {
 					pq( '.ataglance' )->addClass( "hidden" );
 					pq( '.ataglance' )->addClass( "aag_slideshow" );

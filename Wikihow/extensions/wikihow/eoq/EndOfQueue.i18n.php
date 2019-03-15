@@ -1,7 +1,7 @@
 <?
 $messages = array();
 
-$messages['en'] = 
+$messages['en'] =
 	array(
 		'eoq_message' => "Thanks for $1! That's all we have for now.<br /><br />Can you help us $2 instead?",
 		'eoq_message_default' => "Thanks for $1! That's all we have for now.<br /><br />Check out our Community Dashboard for more ways to help.",

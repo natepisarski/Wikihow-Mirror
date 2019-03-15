@@ -6,10 +6,10 @@ $wgHooks['MobileEmbedStyles'][] = ['ArticleQuizzes::addMobileCSS'];
 $wgHooks['BeforePageDisplay'][] = ['QuizYourselfCTA::onBeforePageDisplay'];
 $wgHooks['MobileProcessArticleHTMLAfter'][] = ['QuizYourselfCTA::onProcessArticleHTMLAfter'];
 
-$wgAutoloadClasses['Quiz'] = dirname( __FILE__ ) . '/Quiz.class.php';
-$wgAutoloadClasses['ArticleQuizzes'] = dirname( __FILE__ ) . '/ArticleQuizzes.class.php';
-$wgAutoloadClasses['QuizImporter'] = dirname( __FILE__ ) . '/QuizImporter.class.php';
-$wgAutoloadClasses['AdminQuiz'] = dirname( __FILE__ ) . '/AdminQuiz.body.php';
+$wgAutoloadClasses['Quiz'] = __DIR__ . '/Quiz.class.php';
+$wgAutoloadClasses['ArticleQuizzes'] = __DIR__ . '/ArticleQuizzes.class.php';
+$wgAutoloadClasses['QuizImporter'] = __DIR__ . '/QuizImporter.class.php';
+$wgAutoloadClasses['AdminQuiz'] = __DIR__ . '/AdminQuiz.body.php';
 $wgAutoloadClasses['QuizYourself'] = __DIR__ . '/QuizYourself/QuizYourself.body.php';
 $wgAutoloadClasses['QuizYourselfCTA'] = __DIR__ . '/QuizYourself/QuizYourselfCTA.class.php';
 

@@ -48,7 +48,7 @@ function MagicArticlesStartedwgVariableIDs(&$wgVariableIDs) {
 }
 
 function MagicArticlesStartedLanguageGetMagic(&$magicWords, $langCode) {
-	switch($langCode) {
+	switch ($langCode) {
 		default:
 			#$magicWords[MAG_ARTICLESSTARTED] = array( 0, 'ARTICLESSTARTED' );
 			$magicWords['ARTICLESSTARTED'] 	= array( 0, 'ARTICLESSTARTED' );
@@ -63,7 +63,7 @@ function MagicArticlesStartedLanguageGetMagic(&$magicWords, $langCode) {
 function articlesstarted($parser, $part1 = '', $part2 = '', $part3 = 'time', $part4 = '', $part5 = 'width:200px;border: 1px solid #ccc; padding:10px;') {
 	$title = RequestContext::getMain()->getTitle();
 	$ret = "";
-	if ($title instanceof Title && $title->getNamespace() === NS_USER) {
+	if ($title instanceof Title && $title->inNamespace(NS_USER)) {
 		$ret = "";
 		$msg = "";
 		if ($part2 == 'box') {
@@ -109,11 +109,10 @@ function articlesstarted($parser, $part1 = '', $part2 = '', $part3 = 'time', $pa
 			__METHOD__,
 			$order
 		);
-		while ($row=$dbr->fetchObject($res)) {
+		foreach ($res as $row) {
 			$t = Title::makeTitle($row->page_namespace, $row->page_title);
 			$ret .= "# [[" . $t->getFullText() . "]]\n";
 		}
-		$dbr->freeResult($res);
 		if ($part2 == 'box') $ret .= "</div>";
 	}
 	return $ret;
@@ -122,7 +121,7 @@ function articlesstarted($parser, $part1 = '', $part2 = '', $part3 = 'time', $pa
 function patrolcount($parser, $date1 = '', $date2  = '') {
 	$title = RequestContext::getMain()->getTitle();
 	$ret = "";
-	if ($title instanceof Title && $title->getNamespace() === NS_USER) {
+	if ($title instanceof Title && $title->inNamespace(NS_USER)) {
 		$msg_key = $fdate1 = $fdate2 = '';
 		$u = User::newFromName($title->getText());
 		if (!$u || $u->getID() == 0) {
@@ -150,7 +149,7 @@ function patrolcount($parser, $date1 = '', $date2  = '') {
 function nabcount($parser, $date1 = '', $date2  = '') {
 	$title = RequestContext::getMain()->getTitle();
 	$ret = "";
-	if ($title instanceof Title && $title->getNamespace() === NS_USER) {
+	if ($title instanceof Title && $title->inNamespace(NS_USER)) {
 		$msg_key = $fdate1 = $fdate2 = '';
 		$u = User::newFromName($title->getText());
 		if (!$u || $u->getID() == 0) {
@@ -178,7 +177,7 @@ function nabcount($parser, $date1 = '', $date2  = '') {
 function wfWikiHowMagicAssignAValue(&$parser, &$cache, &$magicWordId, &$ret) {
 	$title = RequestContext::getMain()->getTitle();
 
-	if( !$title || !$title instanceof Title ) {
+	if ( !$title || !$title instanceof Title ) {
 		return true;
 	}
 
@@ -208,4 +207,3 @@ function wfWikiHowMagicAssignAValue(&$parser, &$cache, &$magicWordId, &$ret) {
 
 	return false;
 }
-

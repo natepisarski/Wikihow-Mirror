@@ -1,6 +1,6 @@
-<?
+<?php
 
-class ImportvideoHowcast extends Importvideo {
+class ImportVideoHowcast extends ImportVideo {
 
 	function parseStartElement ($parser, $name, $attrs) {
 	   switch ($name) {
@@ -65,7 +65,7 @@ class ImportvideoHowcast extends Importvideo {
 			$text = "{{Curatevideo|howcast|$id|{$titletext}|{$tags}|{$v['description']}||{$desc}}}
 {{VideoDescription|{{{1}}} }}";
 			$editSummary = wfMessage('importvideo_addingvideo_summary')->text();
-			Importvideo::updateVideoArticle($title, $text, $editSummary);
+			ImportVideo::updateVideoArticle($title, $text, $editSummary);
 			ImportVideo::updateMainArticle($target, $editSummary);
 			return;
 		}

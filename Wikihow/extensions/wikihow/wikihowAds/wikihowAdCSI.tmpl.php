@@ -13,10 +13,10 @@ google_override_format = true;
 google_ad_channel = "<?= $channels ?>" + gchans + xchannels;
 google_max_num_ads = <?= $params['max_ads'] ?>;
 
-if(<?= ($adId === "intro"?"true":"false") ?> && fromsearch) {
+if (<?= ($adId === "intro"?"true":"false") ?> && fromsearch) {
 	document.write('<sc' + 'ript t' + 'ype="text/javascript" s' + 'rc="http://pagead2.googlesyndication.com/pagead/show_ads.js"></' + 'script>');
 }
-else if( <?= ($adId === "intro"?"true":"false") ?> && !fromsearch) {
+else if ( <?= ($adId === "intro"?"true":"false") ?> && !fromsearch) {
 	
 }
 else {

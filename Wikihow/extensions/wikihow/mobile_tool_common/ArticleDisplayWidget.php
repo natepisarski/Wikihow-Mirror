@@ -9,13 +9,13 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ArticleDisplayWidget'] = 'ArticleDisplayWidget';
-$wgAutoloadClasses['ArticleDisplayWidget'] = dirname(__FILE__) . '/ArticleDisplayWidget.body.php';
-$wgExtensionMessagesFiles['ArticleDisplayWidget'] = dirname(__FILE__) . '/ArticleDisplayWidget.i18n.php';
+$wgAutoloadClasses['ArticleDisplayWidget'] = __DIR__ . '/ArticleDisplayWidget.body.php';
+$wgExtensionMessagesFiles['ArticleDisplayWidget'] = __DIR__ . '/ArticleDisplayWidget.i18n.php';
 
 $wgResourceModules['ext.wikihow.ArticleDisplayWidget'] = array(
 	'styles' => array('article_display_widget.less'),
 	'scripts' => 'article_display_widget.js',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/mobile_tool_common',
 	'messages' => array(
 		'adw_show',

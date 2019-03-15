@@ -7,8 +7,8 @@
 			var langs = "";
 			var urls = $("#urls").val();
 			$('.lang_checkbox').each(function(e) {
-				if(this.checked) {
-					if(langs != "") {
+				if (this.checked) {
+					if (langs != "") {
 						langs = langs + ',';	
 					}
 					langs = langs + this.id;
@@ -26,7 +26,7 @@
 <h3>English URLs or Article Ids (one per line):</h3>
 <textarea id="urls" rows="20" cols="90">
 </textarea>
-<?php foreach($langs as $lg) { ?>
+<?php foreach ($langs as $lg) { ?>
     <input class="lang_checkbox" name="urls" id="<?php print $lg['languageCode']?>" type="checkbox" name="lang-<?php print $lg['languageCode'] ?>" value="<?php print $lg['languageCode']?>"> <?php print $lg['languageName'] ?>
 <?php } ?><br/><br/>
 <input id="btn" type="button" value="Add Images"/>

@@ -82,7 +82,7 @@ class EchoWikihowHooks {
 
 		//remap some mw msgs
 		$notifications['edit-user-talk']['email-body-batch-message'] = 'notification-edit-talk-page-email-batch-body-wh';
-		
+
 		//remap some icons
 		$notifications['welcome']['icon'] = 'star';
 
@@ -169,10 +169,10 @@ class EchoWikihowHooks {
 					'uid'   => $user->getId(),
 					'token' => $token
 			));
-		
+
 		$optout_text .= wfMessage( 'word-separator' )->escaped() .
 		wfMessage( 'parentheses' )->rawParams($link)->escaped();
-		
+
 		$preferences['globalemailoptout'] = array(
 				'type' => 'info',
 				'raw' => true,
@@ -181,17 +181,17 @@ class EchoWikihowHooks {
 				'label-message' => 'prefs-globalemailoptout',
 				'id' => 'wpGlobalEmailOptout'
 		);
-		
+
 		wfRunHooks('EchoPreferencesStart', array($user, &$preferences));
 	}
-	
+
 	public static function onGetPreferences( $user, &$preferences ) {
 		unset($preferences['echo-show-alert']);
-		
-		if(array_key_exists('emailauthentication', $preferences)) {
+
+		if (array_key_exists('emailauthentication', $preferences)) {
 			$preferences['emailauthentication']['section'] = 'echo/emailsettings';
 		}
-		
+
 		return true;
 	}
 

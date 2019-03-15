@@ -6,55 +6,53 @@ require_once("$IP/includes/specials/SpecialContributions.php");
 class WelcomeWagonContribsPager extends ContribsPager {
 
 	function formatRow( $row ) {
-		global $wgLang, $wgContLang;
+		global $wgContLang;
 
-		wfProfileIn( __METHOD__ );
-
+		$profiler = new ProfileSection(__METHOD__);
 		$rev = new Revision( $row );
 
 		$page = Title::makeTitle( $row->page_namespace, $row->page_title );
 		$link = Linker::link( $page );
 		$difftext = $topmarktext = '';
-		if( $row->rev_id == $row->page_latest ) {
-			if( !$row->page_is_new ) {
+		if ( $row->rev_id == $row->page_latest ) {
+			if ( !$row->page_is_new ) {
 				$difftext .= '(' . Linker::link( $page, $this->messages['diff'], array(), 'diff=0' ) . ')';
 			} else {
 				$difftext .= $this->messages['newarticle'];
 			}
 
 		}
-		if( $rev->userCan( Revision::DELETED_TEXT ) ) {
+		if ( $rev->userCan( Revision::DELETED_TEXT ) ) {
 			$difftext = '(' . Linker::link( $page, $this->messages['diff'], array(), 'diff=prev&oldid='.$row->rev_id ) . ')';
 		} else {
 			$difftext = '(' . $this->messages['diff'] . ')';
 		}
 
 		$comment = $wgContLang->getDirMark() . Linker::revComment( $rev );
-		$d = $wgLang->timeanddate( wfTimestamp( TS_MW, $row->rev_timestamp ), true );
+		$d = RequestContext::getMain()->getLanguage()->timeanddate( wfTimestamp( TS_MW, $row->rev_timestamp ), true );
 
-		if( $this->target == 'newbies' ) {
+		if ( $this->target == 'newbies' ) {
 			$userlink = ' . . ' . Linker::userLink( $row->rev_user, $row->rev_user_text );
 			$userlink .= ' (' . Linker::userTalkLink( $row->rev_user, $row->rev_user_text ) . ') ';
 		} else {
 			$userlink = '';
 		}
 
-		if( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
+		if ( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
 			$d = '<span class="history-deleted">' . $d . '</span>';
 		}
 
-		if( $row->rev_minor_edit ) {
+		if ( $row->rev_minor_edit ) {
 			$mflag = '<span class="minor">' . $this->messages['minoreditletter'] . '</span> ';
 		} else {
 			$mflag = '';
 		}
 
 		$ret = "{$d} {$difftext} {$mflag} {$link}{$userlink}{$comment} {$topmarktext}";
-		if( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
+		if ( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
 			$ret .= ' ' . wfMessage( 'deletedrev' )->escaped();
 		}
 		$ret = "<li>$ret</li>\n";
-		wfProfileOut( __METHOD__ );
 		return $ret;
 	}
 }
@@ -94,9 +92,9 @@ class WelcomeWagon extends UnlistedSpecialPage {
 	const WW_COUNT_KEY = "welcomewagon_count";
 
 	public function __construct() {
-		global $wgHooks;
 		parent::__construct('WelcomeWagon');
 
+		global $wgHooks;
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 
 		$this->maxMessagesPerUser = 2;
@@ -109,33 +107,26 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		$this->cacheOk = wfMemcKey("welcomewagon_cacheok");
 	}
 
-	public function getAllowedUsers() {
-		return array();
-	}
+	private function userAllowed() {
+		$user = $this->getUser();
+		$userGroups = $user->getGroups();
 
-	public function userAllowed() {
-		global $wgUser;
-
-		$user = $wgUser->getName();
-
-		$allowedUsers = $this->getAllowedUsers();
-
-		$userGroups = $wgUser->getGroups();
-
-		if ($wgUser->isBlocked() || !(in_array($user, $allowedUsers) ||
-										in_array('staff', $userGroups) ||
-										in_array('staff_widget', $userGroups) ||
-										in_array('welcome_wagon', $userGroups))) {
-			return False;
+		if ($user->isBlocked()
+			|| !( in_array('staff', $userGroups) ||
+				  in_array('staff_widget', $userGroups) ||
+				  in_array('welcome_wagon', $userGroups))
+		) {
+			return false;
 		}
 
-		return True;
+		return true;
 	}
 
 	public function writeDiff(&$dbr, $target) {
-		global $wgOut;
+		global $out;
+		$out = $this->getOutput();
 
-		$wgOut->addHTML( "<table width='100%' align='center' class='bunchtable'><tr>" );
+		$out->addHTML( "<table width='100%' align='center' class='bunchtable'><tr>" );
 
 		$opts = array ('rc_user_text' =>$target);
 		$opts[] = ' (rc_namespace = 0) ';
@@ -154,82 +145,81 @@ class WelcomeWagon extends UnlistedSpecialPage {
 			$rcid = $row->rc_id;
 			$oldid = $row->rc_last_oldid;
 			$de = new DifferenceEngine( $t, $oldid, $diff, $rcid );
-			$wgOut->addHTML( "<tr>" );
-			$wgOut->addHTML( "<td>" );
-			$wgOut->addHTML( Linker::link($t) );
+			$out->addHTML( "<tr>" );
+			$out->addHTML( "<td>" );
+			$out->addHTML( Linker::link($t) );
 			$de->showDiffPage(true);
-			$wgOut->addHTML("</td></tr>");
+			$out->addHTML("</td></tr>");
 			$count++;
 		}
-		$dbr->freeResult($res);
 
-		$wgOut->addHTML( "</table><br/><br/>" );
+		$out->addHTML( "</table><br/><br/>" );
 		return $count;
 	}
 
-	function addUserTalkHTML($targetUser) {
-		global $wgOut, $wgTitle, $wgArticle;
+	private function addUserTalkHTML($targetUser) {
+		global $wgTitle, $wgArticle;
+		$out = $this->getOutput();
 		// the joys of globals...got this idea from docs/globals.txt
 		$oldTitle = $wgTitle;
 		$oldArticle = $wgArticle;
 		$wgTitle = Title::makeTitle(NS_USER_TALK, $targetUser->getName());
 		$wgArticle = new Article($wgTitle);
 		if ($wgArticle) {
-			$wgOut->addHTML("<div id='content-talkpage' class='ww_content wh_block'> ");
-			$wgOut->addHTML($wgArticle->view());
+			$out->addHTML("<div id='content-talkpage' class='ww_content wh_block'> ");
+			$out->addHTML($wgArticle->view());
 		} else {
-			$wgOut->addHTML("no user talk info");
+			$out->addHTML("no user talk info");
 		}
 
 		$wgTitle = $oldTitle;
 		$wgArticle = $oldArticle;
 
-		$wgOut->addHTML("</div>");
+		$out->addHTML("</div>");
 	}
 
-	function addSummary($targetUser) {
-		global $wgOut;
-		$wgOut->addHTML("<div id='content-summary' class='ww_content wh_block'>");
+	private function addSummary($targetUser) {
+		$out = $this->getOutput();
+		$out->addHTML("<div id='content-summary' class='ww_content wh_block'>");
 
 		$target = $targetUser->getName();
 		$pager = new WelcomeWagonContribsPager($this->getContext(), array("target" => $target));
 		if ( !$pager->getNumRows() ) {
-			$wgOut->addWikiMsg( 'nocontribs' );
-			$wgOut->addHTML("</div>");
+			$out->addWikiMsg( 'nocontribs' );
+			$out->addHTML("</div>");
 			return;
 		}
-		$wgOut->addHTML($pager->getBody());
+		$out->addHTML($pager->getBody());
 
-		$wgOut->addHTML("</div>");
+		$out->addHTML("</div>");
 
 	}
 
-	function addRecentContributionsHTML($targetUser) {
-		global $wgOut;
-		$wgOut->addHTML("<div id='content-contributions' class='wh_block'>");
+	private function addRecentContributionsHTML($targetUser) {
+		$out = $this->getOutput();
+		$out->addHTML("<div id='content-contributions' class='wh_block'>");
 
 		$target = $targetUser->getName();
 		$dbr = wfGetDB(DB_SLAVE);
 		$this->writeDiff($dbr, $target);
 
-		$wgOut->addHTML("</div>");
+		$out->addHTML("</div>");
 	}
 
-	function addContentProfileHTML($targetUser) {
-		global $wgOut;
-
+	private function addContentProfileHTML($targetUser) {
 		$userArticle = new Article($targetUser->getUserPage());
 
-		$wgOut->addHTML("<div id='content-profile' class='ww_content wh_block'>");
+		$out = $this->getOutput();
+		$out->addHTML("<div id='content-profile' class='ww_content wh_block'>");
 
 		$userPage = WikihowUserPage::newFromTitle( $targetUser->getUserPage(), $this->getContext() );
 		$userPage->view($targetUser);
 
 		if ($userArticle->getId() > 0) {
-			$wgOut->addHTML($userArticle->getContent());
+			$out->addHTML($userArticle->getContent());
 		}
 
-		$wgOut->addHTML("</div>");
+		$out->addHTML("</div>");
 	}
 
 	private function getMessagesSentForUserIds($userIds) {
@@ -245,7 +235,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 								WHERE user_id in (" . $dbr->makeList(array_keys($userIds)) . ")
 								GROUP BY user_id;");
 		$messages = array();
-		while( $row = $dbr->fetchObject( $result ) ) {
+		foreach ($result as $row) {
 			$messages[$row->user_id] = $row->ww_messages;
 		}
 
@@ -265,7 +255,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 								WHERE user_id in (" . $dbr->makeList(array_keys($userIds)) . ")
 								GROUP BY user_id;");
 		$skips = array();
-		while( $row = $dbr->fetchObject( $result ) ) {
+		foreach ($result as $row) {
 			$skips[$row->user_id] = $row->skips;
 		}
 
@@ -283,7 +273,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		$done = false;
 		$batchSize = 100;
 		$offset = 0;
-		while($done == false) {
+		while ($done == false) {
 			$sql = "SELECT user_id, user_registration as registration
 					FROM $wgSharedDB.user
 					ORDER BY user_id DESC limit $batchSize OFFSET $offset";
@@ -295,8 +285,8 @@ class WelcomeWagon extends UnlistedSpecialPage {
 					break;
 			}
 
-			while ($row = $dbr->fetchObject($result)) {
-				if (intval($row->registration) < intval($beginTime)) {
+			foreach ($result as $row) {
+				if ((int)$row->registration < (int)$beginTime) {
 					$done = true;
 					break;
 				}
@@ -327,20 +317,24 @@ class WelcomeWagon extends UnlistedSpecialPage {
 				unset($initialUserIds[$i]);
 			}
 		}
-		foreach($initialUserIds as $i => $userId) {
+		foreach ($initialUserIds as $i => $userId) {
 			$userIds[$userId]  = true;
 		}
 
 		return $userIds;
 	}
 
-	function skipUser($userId) {
-		global $wgUser, $wgMemc;
+	private function skipUser($userId) {
+		global $wgMemc;
+		$user = $this->getUser();
 		$dbw = wfGetDB(DB_MASTER);
-		$dbw->insert("welcome_wagon_skips", array("wws_from_user_id"=>$wgUser->getId(), "wws_to_user_id"=>$userId), __METHOD__, array('IGNORE'));
+		$dbw->insert("welcome_wagon_skips",
+			array("wws_from_user_id" => $user->getId(), "wws_to_user_id" => $userId),
+			__METHOD__,
+			array('IGNORE'));
 
 		$skips = $wgMemc->get($this->userSkipsKey);
-		$key = intval($userId);
+		$key = (int)$userId;
 		if (is_array($skips) && $skips[$key] != null) {
 			$skips[$key] = $skips[$key] + 1;
 			$wgMemc->set($this->userSkipsKey, $skips);
@@ -355,9 +349,9 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		}
 	}
 
-	function messagedUser($toId) {
+	private function messagedUser($toId) {
 		global $wgMemc;
-		$key = intval($toId);
+		$key = (int)$toId;
 		$sent = $wgMemc->get($this->userMessagesKey);
 		if (is_array($sent) && $sent[$key] != null) {
 			$sent[$key] = $sent[$key] + 1;
@@ -373,13 +367,13 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		}
 	}
 
-	function resetCache() {
+	private function resetCache() {
 		global $wgMemc;
 		$userIds = $this->getUserIds();
 		$messagesSent = $this->getMessagesSentForUserIds($userIds);
 		$skips = $this->getSkipsForUserIds($userIds);
 
-		foreach($userIds as $id => $val) {
+		foreach ($userIds as $id => $val) {
 			if ($messagesSent[$id] > $this->maxMessagesPerUser) {
 				$userIds[$id] = false;
 			}
@@ -394,12 +388,12 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		$wgMemc->set($this->cacheOk, true, 60*15);
 	}
 
-	function isMessaged($userId) {
-		global $wgUser;
+	private function isMessaged($userId) {
+		$user = $this->getUser();
 		$dbr = wfGetDB(DB_SLAVE);
 		$count = $dbr->selectField("welcome_wagon_messages",
 									array('count(*)'),
-									array('ww_from_user_id'=>$wgUser->getId(), 'ww_to_user_id'=>$userId),
+									array('ww_from_user_id'=>$user->getId(), 'ww_to_user_id'=>$userId),
 									__METHOD__);
 		if ($count > 0) {
 			return true;
@@ -408,13 +402,13 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		}
 	}
 
-	function isSkipped($userId) {
-		global $wgUser;
+	private function isSkipped($userId) {
+		$user = $this->getUser();
 
 		$dbr = wfGetDB(DB_SLAVE);
 		$count = $dbr->selectField("welcome_wagon_skips",
 									array('count(*)'),
-									array('wws_from_user_id'=>$wgUser->getId(), 'wws_to_user_id'=>$userId),
+									array('wws_from_user_id'=>$user->getId(), 'wws_to_user_id'=>$userId),
 									__METHOD__);
 		if ($count > 0) {
 			return true;
@@ -444,7 +438,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		return $count;
 	}
 
-	function getNextUserId() {
+	private function getNextUserId() {
 		global $wgMemc;
 
 		$userIds = $wgMemc->get($this->userIdsKey);
@@ -461,7 +455,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		}
 
 		$this->usersCount = 0;
-		foreach($userIds as $id => $val) {
+		foreach ($userIds as $id => $val) {
 			$messageCount = $messages[$id];
 			$skipsCount = $skips[$id];
 			if ($val == true && ($skipsCount == 0 || $this->isSkipped($id) == false) && ($messageCount == 0 || $this->isMessaged($id) == false)) {
@@ -474,31 +468,30 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		$wgMemc->set(self::WW_COUNT_KEY, $this->usersCount);
 
 		// return first result
-		foreach($idsByMessages as $idsArray) {
-			foreach($idsArray as $id) {
+		foreach ($idsByMessages as $idsArray) {
+			foreach ($idsArray as $id) {
 				return $id;
 			}
 		}
 	}
 
-	function getStats() {
-		global $wgOut;
+	private function getStats() {
 		$stats = new WelcomeWagonStandingsIndividual();
 		return $stats->getStandingsTable();
 
 	}
 
-	function displayLeaderboards() {
+	private function displayLeaderboards() {
 		$stats = new WelcomeWagonStandingsIndividual();
 		$stats->addStatsWidget();
 		$standings = new WelcomeWagonStandingsGroup();
 		$standings->addStandingsWidget();
 	}
 
-	function getLastArticle($userName) {
+	private function getLastArticle($userName) {
 		$lastArticle = null;
 		$res = ProfileBox::fetchEditedData($userName, 1);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$t = Title::newFromId($row->page_id);
 			if ($t && $t->exists()) {
 				$lastArticle = '[['.$t->getFullText().']]';
@@ -507,18 +500,16 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		return $lastArticle;
 	}
 
-	function tabSwitch() {
-		global $wgOut, $wgRequest;
-
+	private function tabSwitch() {
 		// We use this method instead of $out->disable() so that we can
 		// see and debug MWExceptions
-		$wgOut->setArticleBodyOnly(true);
+		$this->getOutput()->setArticleBodyOnly(true);
 
-		$target = $wgRequest->getVal('userName');
+		$target = $this->getRequest()->getVal('userName');
 		$user = User::newFromName($target);
 
-		$tab = $wgRequest->getVal('tabName');
-		switch($tab) {
+		$tab = $this->getRequest()->getVal('tabName');
+		switch ($tab) {
 			case 'contributions':
 				$this->addRecentContributionsHTML($user);
 				break;
@@ -539,22 +530,22 @@ class WelcomeWagon extends UnlistedSpecialPage {
 				break;
 		}
 
-		echo json_encode(array('html' => $wgOut->getHTML()));
-		$wgOut->clearHTML();
-		return;
+		print json_encode(array('html' => $this->getOutput()->getHTML()));
+		$this->getOutput()->clearHTML();
 	}
 
-	function nextUser() {
-		global $wgOut, $wgRequest;
+	private function nextUser() {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
 		// We use this method instead of $out->disable() so that we can
 		// see and debug MWExceptions
-		$wgOut->setArticleBodyOnly(true);
+		$out->setArticleBodyOnly(true);
 
 		// first remove or skip the user
-		$id = $wgRequest->getVal('userId');
+		$id = $req->getVal('userId');
 		if ($id) {
-			if($wgRequest->getVal('skip') == 'true') {
+			if ($req->getVal('skip') == 'true') {
 				$this->skipUser($id);
 			} else {
 				$this->messagedUser($id);
@@ -566,11 +557,11 @@ class WelcomeWagon extends UnlistedSpecialPage {
 			return; // Nothing to do
 		} else {
 			$user = User::newFromId($userId);
-			echo json_encode($this->getOutputVariables($user));
+			print json_encode($this->getOutputVariables($user));
 		}
 	}
 
-	function getOutputVariables($user) {
+	private function getOutputVariables($user) {
 		$userLink = Linker::link($user->getUserPage(), $user->getName());
 		$lastArticle = $this->getLastArticle($user->getName());
 
@@ -586,8 +577,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		return $output;
 	}
 
-	function logMessage($fromId, $toId, $revId, $message) {
-
+	private function logMessage($fromId, $toId, $revId, $message) {
 		$dbw = wfGetDB(DB_MASTER);
 		$rev = Revision::newFromId($revId);
 		if ($rev) {
@@ -614,27 +604,32 @@ class WelcomeWagon extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgUser, $wgRequest, $wgOut, $wgMemc;
+		global $wgMemc;
+
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
 		if (!$this->userAllowed()) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted() || $wgRequest->getVal('show')) {
-			switch($wgRequest->getVal('action')) {
+		if ($req->wasPosted() || $req->getVal('show')) {
+			switch ($req->getVal('action')) {
 				case 'nextUser':
 					$this->nextUser();
 					break;
 				case 'logMessage':
 					// We use this method instead of $out->disable() so that we can
 					// see and debug MWExceptions
-					$wgOut->setArticleBodyOnly(true);
-					$toId = $wgRequest->getVal('toId');
-					$revId = $wgRequest->getVal('revId');
-					$message = $wgRequest->getVal('message');
-					$this->logMessage($wgUser->getId(), $toId, $revId, $message);
-					echo json_encode(array('stats'=>$this->getStats()));
+					$out->setArticleBodyOnly(true);
+					$toId = $req->getVal('toId');
+					$revId = $req->getVal('revId');
+					$message = $req->getVal('message');
+					$this->logMessage($user->getId(), $toId, $revId, $message);
+					print json_encode(array('stats'=>$this->getStats()));
 					break;
 				case 'switchTab':
 					$this->tabSwitch();
@@ -646,7 +641,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 			return;
 		}
 
-		$target = $wgRequest->getVal('target');
+		$target = $req->getVal('target');
 		if ($target) {
 			$targetUser = User::newFromName($target);
 			if ($targetUser->getId() > 0) {
@@ -656,14 +651,14 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		if (!$wgMemc->get($this->cacheOk)) {
 			$this->resetCache();
 		}
-		$wgOut->setPageTitle('Welcome Wagon');
-		$wgOut->setHTMLTitle('Welcome Wagon');
+		$out->setPageTitle('Welcome Wagon');
+		$out->setHTMLTitle('Welcome Wagon');
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 
-		$wgOut->addHTML($tmpl->execute('WelcomeWagon.tmpl.php'));
-		$wgOut->addModules('ext.wikihow.diff_styles');
-		$wgOut->addModules('ext.wikihow.welcome_wagon');
+		$out->addHTML($tmpl->execute('WelcomeWagon.tmpl.php'));
+		$out->addModules('ext.wikihow.diff_styles');
+		$out->addModules('ext.wikihow.welcome_wagon');
 
 		InterfaceElements::addBubbleTipToElement('form-header', 'wwagon', 'No matter what happens keep the message positive and personalized.');
 		$this->displayLeaderboards();

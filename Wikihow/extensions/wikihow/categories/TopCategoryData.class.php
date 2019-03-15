@@ -11,7 +11,7 @@ class TopCategoryData {
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->select(self::TABLE, ['tcd_page_id'], ['tcd_category' => $categoryName, 'tcd_type' => $type], __METHOD__, ['LIMIT' => $maxPages, 'ORDER BY' => 'tcd_id DESC']);
 		$pageIds = [];
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pageIds[] = $row->tcd_page_id;
 		}
 
@@ -24,7 +24,7 @@ class TopCategoryData {
 		$dbr = wfGetDB(DB_SLAVE);
 		$oldPages = [];
 		$res = $dbr->select(self::TABLE, ['tcd_id'], ['tcd_category' => $categoryName], __METHOD__);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$oldPages[] = $row->tcd_id;
 		}
 		$pages = [];
@@ -34,11 +34,11 @@ class TopCategoryData {
 
 		$subcatList = [];
 
-		foreach($subcats as $catInfo) {
+		foreach ($subcats as $catInfo) {
 			$subcatList[] = $catInfo['page_title'];
 		}
 
-		if(count($subcatList) == 0) {
+		if (count($subcatList) == 0) {
 			echo "No subcats, done!\n";
 			return;
 		}
@@ -52,7 +52,7 @@ class TopCategoryData {
 		$pages = array_slice($pages, 0, $pageCount);
 
 		$pageInserts = [];
-		foreach($pages as $page) {
+		foreach ($pages as $page) {
 			$pageInserts[] = ['tcd_category' => $categoryName, 'tcd_page_id' => $page['page_id'], 'tcd_type' => self::HIGHTRAFFIC];
 		}
 
@@ -65,7 +65,7 @@ class TopCategoryData {
 		);
 
 		//now delete all the old ones
-		if(count($oldPages) > 0) {
+		if (count($oldPages) > 0) {
 			$dbw->delete(self::TABLE, ['tcd_id IN (' . $dbw->makeList($oldPages) . ')'], __METHOD__);
 		}
 	}
@@ -74,11 +74,11 @@ class TopCategoryData {
 		$dbr = wfGetDB(DB_SLAVE);
 		$featuredArticles = [];
 		$res = $dbr->select('categorylinks', 'cl_from', ['cl_to' => 'Featured-Articles'], __METHOD__);
-		foreach($res as $row) {
-			$parentCatTitles = Categoryhelper::getTitleTopLevelCategories(Title::newFromID($row->cl_from));
-			foreach($parentCatTitles as $parentTitle) {
+		foreach ($res as $row) {
+			$parentCatTitles = CategoryHelper::getTitleTopLevelCategories(Title::newFromID($row->cl_from));
+			foreach ($parentCatTitles as $parentTitle) {
 				$parentKey = $parentTitle->getDBKey();
-				if(!isset($featuredArticles[$parentKey])) {
+				if (!isset($featuredArticles[$parentKey])) {
 					$featuredArticles[$parentKey] = [];
 				}
 				$featuredArticles[$parentKey][$row->cl_from] = ['tcd_category' => $parentKey, 'tcd_page_id' => $row->cl_from, 'tcd_type' => self::FEATURED];
@@ -88,9 +88,9 @@ class TopCategoryData {
 		//now grab all the ones we already have
 		$toDelete = [];
 		$res = $dbr->select(self::TABLE, ['tcd_id', 'tcd_category', 'tcd_page_id'], ['tcd_type' => self::FEATURED], __METHOD__);
-		foreach($res as $row) {
-			if(isset($featuredArticles[$row->tcd_category])) {
-				if(isset($featuredArticles[$row->tcd_category][$row->tcd_page_id])) {
+		foreach ($res as $row) {
+			if (isset($featuredArticles[$row->tcd_category])) {
+				if (isset($featuredArticles[$row->tcd_category][$row->tcd_page_id])) {
 					//It's in the list of new ones AND the old ones, so throw it out
 					unset($featuredArticles[$row->tcd_category][$row->tcd_page_id]);
 				} else {
@@ -101,13 +101,13 @@ class TopCategoryData {
 		}
 
 		$dbw = wfGetDB(DB_MASTER);
-		if(count($toDelete) > 0) {
+		if (count($toDelete) > 0) {
 			echo "Deleting " . count($toDelete) . "rows from the featured articles lists\n";
 			$dbw->delete(self::TABLE, ['tcd_id IN (' . $dbw->makeList($toDelete) . ')'], __METHOD__);
 		}
 
 		//now insert all the remaining ones into the db
-		foreach($featuredArticles as $catArray) {
+		foreach ($featuredArticles as $catArray) {
 			$loops = ceil(count($catArray) / self::MAX_INSERTS);
 			echo "Adding " . count($catArray) . "rows from the featured articles lists\n";
 			for ($i = 0; $i < $loops; $i++) {
@@ -139,7 +139,7 @@ class TopCategoryData {
 			]
 		);
 
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$pages[$row->cl_from] = ['page_id' => $row->cl_from, 'ti_30day_views' => intval($row->ti_30day_views)];
 		}
 
@@ -147,7 +147,7 @@ class TopCategoryData {
 	}
 
 	static function getFullSubcategories($categoryName, $subcats = []) {
-		if(array_key_exists($categoryName, $subcats)) {
+		if (array_key_exists($categoryName, $subcats)) {
 			return [];
 		}
 		$dbr = wfGetDB( DB_SLAVE );
@@ -165,7 +165,7 @@ class TopCategoryData {
 			['index_info' => ['LEFT JOIN', 'ii_page=page_id']]
 		);
 
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$subcats[$row->page_title] = ['page_title' => $row->page_title, 'page_id' => $row->page_id];
 			$subcats = array_merge($subcats, self::getFullSubcategories($row->page_title, $subcats));
 		}

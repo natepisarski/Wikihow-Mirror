@@ -1,14 +1,14 @@
 <?php
 
 class GetSamples extends UnlistedSpecialPage {
-	
+
 	function __construct() {
 		parent::__construct( 'GetSamples' );
 	}
-	
+
 	private static $doc_array = array('doc','html','txt','pdf');
 	private static $xls_array = array('xls','pdf');
-	
+
 	private static function getForm() {
 		global $wgServer;
 		$html = '<style type="text/css">
@@ -20,10 +20,10 @@ class GetSamples extends UnlistedSpecialPage {
 				</form>';
 		return $html;
 	}
-	
+
 	private static function processForm($url,$sample_name) {
 		global $wgServer;
-		
+
 		//parse url for the id and sample type
 		$pieces = explode('/',$url);
 		foreach ($pieces as $key => $p) {
@@ -33,7 +33,7 @@ class GetSamples extends UnlistedSpecialPage {
 				$url_piece = 'documents/export/Export?id='.$id;
 				break;
 			}
-			else if (preg_match('/spreadsheet/',$p)) {
+			elseif (preg_match('/spreadsheet/',$p)) {
 				$dl_array = self::$xls_array;
 				$id = $pieces[$key+1];
 				$id = preg_replace('/ccc\?key=|#gid.*$/','',$id);
@@ -41,7 +41,7 @@ class GetSamples extends UnlistedSpecialPage {
 				break;
 			}
 		}
-		
+
 		if (!$id) return '<p>invalid url</p><p><a href="'.$wgServer.'/Special:GetSamples">Try again</a>.</p>';
 
 		//assemble all the download urls
@@ -49,7 +49,7 @@ class GetSamples extends UnlistedSpecialPage {
 		foreach ($dl_array as $format) {
 			$dl_url[] = 'https://docs.google.com/feeds/download/'.$url_piece.'&exportFormat='.$format;
 		}
-		
+
 		//DOWNLOAD!
 		foreach ($dl_url as $dl) {
 			$js .= 'window.open("'.$dl.'");'."\n";
@@ -58,31 +58,29 @@ class GetSamples extends UnlistedSpecialPage {
 		$html = '<script type="text/javascript">
 				'.$js.'
 				</script>';
-		
+
 		return $html;
 	}
 
-	/**
-	 * EXECUTE
-	 **/
-	function execute($par) {
-		global $wgUser, $wgOut, $wgRequest;
-		
-		$user = $wgUser->getName();
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
-			$html = self::processForm($wgRequest->getVal('url'),$wgRequest->getVal('sample'));
+		if ($req->wasPosted()) {
+			$html = self::processForm($req->getVal('url'),$req->getVal('sample'));
 		}
-		
+
 		$html .= self::getForm();
-		
-		$wgOut->addHTML($html);
+
+		$out->addHTML($html);
 	}
-	
+
 }

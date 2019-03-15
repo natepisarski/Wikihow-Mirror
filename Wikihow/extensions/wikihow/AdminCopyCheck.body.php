@@ -29,20 +29,20 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 		}
 		return array($urls, $goodCount);
 	}
-	
+
 	private static function checkArticle($article) {
 		if (!$article) return 'No such title';
-	
+
 		$t = Title::newFromText($article);
 		if (!$t) return 'No such title';
-		
+
 		$err = self::copyCheck($t);
 		if ($err) return $err;
-		
+
 		//still here?
 		return '';
 	}
-	
+
 	/**
 	 * check for plagiarism with copyscape
 	 * return true if there's an issue
@@ -52,17 +52,17 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 		$result = '';
 		$r = Revision::newFromTitle($t);
 		if (!$r) return 'No such article';
-		
+
 		$text = Wikitext::flatten($r->getText());
 		$text = Wikitext::stripLinkUrls($text);
-		
+
 		$start = microtime(true);
 		$res = copyscape_api_text_search_internet($text, 'ISO-8859-1', 2);
 		$time = sprintf('%.4f', microtime(true) - $start);
 		$title = $t->getText();
 		$logline = "Took $time seconds checking article $title";
 		self::logit($logline);
-		
+
 		if ($res['count']) {
 			$words = $res['querywords'];
 			foreach($res['result'] as $r) {
@@ -72,12 +72,12 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 						$result .= '<b>Plagiarized:</b> <a href="'.$r['url'].'">'.$r['url'].'</a><br />';
 					//}
 				}
-			}			
+			}
 		}
 		else {
 			$result = '';
 		}
-	
+
 		return $result;
 	}
 
@@ -90,33 +90,34 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$user = $wgUser->getName();
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || (!in_array('staff', $userGroups) && !in_array('staff_widget', $userGroups))) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || (!in_array('staff', $userGroups) && !in_array('staff_widget', $userGroups))) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		if ($_SERVER['HTTP_HOST'] != 'parsnip.wikiknowhow.com') {
-			$wgOut->redirect('https://parsnip.wikiknowhow.com/Special:AdminCopyCheck');
+			$out->redirect('https://parsnip.wikiknowhow.com/Special:AdminCopyCheck');
 		}
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			// this may take a while...
 			set_time_limit(0);
 
-			$wgOut->setArticleBodyOnly(true);
-			$action = $wgRequest->getVal('action');
-		
-			$pageList = $wgRequest->getVal('pages-list', '');
+			$out->setArticleBodyOnly(true);
+			$action = $req->getVal('action');
+
+			$pageList = $req->getVal('pages-list', '');
 
 			list($urls, $goodCount) = self::processURLlist($pageList);
 
 			$html = '<p><b>Originals:</b> '.(int)$goodCount.'</p>';
-			
+
 			if (!empty($urls)) {
 				$html .= '<style>.tres tr:nth-child(even) {background: #ccc;} .tres td { padding: 5px; }</style>'.
 						'<table class="tres"><tr><th>URL</th><th>Error</th></tr>';
@@ -126,7 +127,7 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 				}
 				$html .= '</table>';
 			}
-			
+
 			$result = array('result' => $html);
 
 			print json_encode($result);
@@ -134,8 +135,8 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Copy Check - wikiHow');
-		$userEmail = $wgUser->getEmail();
+		$out->setHTMLTitle('Admin - Copy Check - wikiHow');
+		$userEmail = $user->getEmail();
 
 $tmpl = <<<EOHTML
 <form id="images-resize" method="post" action="/Special:AdminCopyCheck">
@@ -181,6 +182,6 @@ $tmpl = <<<EOHTML
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 }

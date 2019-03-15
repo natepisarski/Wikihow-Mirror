@@ -43,7 +43,7 @@ trait ImportValidator {
 	function validateFile() {
 		if (is_null($this->file)) {
 			$this->addError('There was no file uploaded.');
-		} else if ($this->file['type'] !== 'text/csv') {
+		} elseif ($this->file['type'] !== 'text/csv') {
 			$this->addError('Upload must be a CSV file');
 		}
 

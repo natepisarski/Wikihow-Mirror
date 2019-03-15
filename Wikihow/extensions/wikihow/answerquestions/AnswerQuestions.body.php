@@ -40,7 +40,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 		$request = $this->getRequest();
 		$action = $request->getVal("action");
-		if($action == "getNext") {
+		if ($action == "getNext") {
 			$out->setArticleBodyOnly(true);
 			$this->getNext();
 		} elseif($action == "skip"){
@@ -57,7 +57,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 			$data = $this->getPageData();
 			$out->addHTML($this->getDesktopHtml($data));
 			$skin = $out->getSkin();
-			if($request->getVal("group", "") == "") {
+			if ($request->getVal("group", "") == "") {
 				$skin->addWidget($this->getCategoryChooser(), 'qat_cat_chooser');
 			}
 			$skin->addWidget($this->getSidebarHtml(), 'qat_sidebar');
@@ -66,7 +66,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 	function getDesktopHtml($data) {
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 
@@ -75,7 +75,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 	function getCategoryChooser() {
 		$options = array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 
@@ -85,7 +85,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 	function getSidebarHtml() {
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 
@@ -100,20 +100,20 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$vars['qat_admin'] = QAWidget::isAdmin($user);
 		$vars['qat_staff'] = QAWidget::isStaff($user);
 		$vars['qat_group'] = $request->getVal("group", "");
-		if($vars['qat_group'] == "") {
+		if ($vars['qat_group'] == "") {
 			$vars['qat_showmenu'] = true;
 		}
 
 		$expertId = $request->getVal("expert", 0);
 		list($isExpert, $expertName) = $this->isExpert($expertId);
-		if($isExpert) {
+		if ($isExpert) {
 			$vars['qat_expert'] = $expertId;
 		}
 
 		$vars['qat_few_contribs'] = $user->getEditCount() < QAWidget::MINIMUM_CONTRIBS ? 1 : 0;
 
 		$welcomeParam = $request->getVal("welcome", "");
-		if($isExpert) {
+		if ($isExpert) {
 			//this overrides any other welcome param in the url
 			$welcomeParam = "expert";
 		}
@@ -121,7 +121,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$welcomeMessage = wfMessage("qa_answerquestions_" . $welcomeParam, $expertName);
 		$vars['qat_welcome'] = $welcomeMessage->showIfExists();
 
-		if($vars['qat_group'] == "") {
+		if ($vars['qat_group'] == "") {
 			$cat = $request->getVal("cat", "");
 			if ( $cat != "" ) {
 				$title = Title::newFromText($cat, NS_CATEGORY);
@@ -140,7 +140,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$res = $dbr->selectField(VerifyData::VERIFIER_TABLE, "vi_name", array("vi_id" => $adminId), __METHOD__);
-		if($res !== false) {
+		if ($res !== false) {
 			return array(true, $res);
 		} else {
 			return array(false, "");
@@ -160,10 +160,10 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$group = $request->getVal("group", "");
 		$expertId = $request->getVal("expert", 0);
 		$queueType = $request->getVal("queue", '');
-		if($queueType == '') {
+		if ($queueType == '') {
 			$queueNum = 0;
 		} else {
-			if(array_key_exists($queueType, self::$queue_strings)) {
+			if (array_key_exists($queueType, self::$queue_strings)) {
 				$queueNum = self::$queue_strings[$queueType];
 			} else {
 				$queueNum = 0;
@@ -174,7 +174,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$exp_answered = false;
 
 		list($qs, $t) = self::getQuestionArray($group, $category, $expertId, $queueNum);
-		if(count($qs) == 0) {
+		if (count($qs) == 0) {
 			$this->skipTool->clearSkipCache();
 			print json_encode(array(
 				'error' => 1
@@ -194,7 +194,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		}
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 
 		$m = new Mustache_Engine($options);
@@ -207,7 +207,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		//now get the questions for the right rail
 		$aqs = $qadb->getArticleQuestions([$t->getArticleID()]);
 		$qaArray = array();
-		foreach($aqs as $aq) {
+		foreach ($aqs as $aq) {
 			$qaArray[] = $aq->getCuratedQuestion()->getText();
 		}
 
@@ -228,7 +228,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 	 *
 	 ******/
 	private function getQuestionArray($param = '', $category = '', $expertId = 0, $queueNum = 0) {
-		if($param != '') {
+		if ($param != '') {
 			return $this->getQuestionArrayGroup($param, $expertId);
 		}
 
@@ -238,13 +238,13 @@ class AnswerQuestions extends UnlistedSpecialPage {
 	private function getQuestionArrayGroup($param = 'primary', $expertId = 0) {
 		$queueName = self::GROUP_PREFIX . $param;
 		$stringList = trim(ConfigStorage::dbGetConfig($queueName));
-		if($stringList === false || $stringList == "") {
+		if ($stringList === false || $stringList == "") {
 			$queueName = self::GROUP_PREFIX . 'primary';
 			$stringList = ConfigStorage::dbGetConfig($queueName);
 		}
 
 		$queue = explode("\n", $stringList);
-		if(count($queue) == 0) {
+		if (count($queue) == 0) {
 			return $queue;
 		}
 
@@ -252,7 +252,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		if (is_array($skippedIds) && !empty($skippedIds)) {
 			$queue = array_diff($queue, $skippedIds);
 		}
-		if(count($queue) == 0) {
+		if (count($queue) == 0) {
 			return $queue;
 		}
 
@@ -264,18 +264,18 @@ class AnswerQuestions extends UnlistedSpecialPage {
 			//look for articles that have been checked out and can't be used
 			$res = $dbr->select(self::TABLE_CHECKOUT, array('aq_page_id'), array("aq_checkout_timestamp >= '{$expirytimestamp}'", "aq_page_id IN (" . $dbr->makeList($subqueue) . ")"), __METHOD__);
 			$badArray = array();
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				$badArray[] = $row->aq_page_id;
 			}
 			$finalQueue = array_merge($finalQueue, array_diff($subqueue, $badArray));
-			if(count($finalQueue) >= self::MAX_TRIES) {
+			if (count($finalQueue) >= self::MAX_TRIES) {
 				//we're going to check MAX_TRIES articles to see if there are questions left
 				//so we need that many to move forward
 				break;
 			}
 		} while (count($queue) > 0);
 
-		if(count($finalQueue) == 0) {
+		if (count($finalQueue) == 0) {
 			return $finalQueue;
 		}
 
@@ -286,7 +286,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 		//now let's see if any of the articles has any questions, we only need 1 article!!
 		foreach ($finalQueue as $aid) {
-			if($expertId > 0) {
+			if ($expertId > 0) {
 				$sqs = $qadb->getSubmittedQuestions($aid, 0, self::MAX_NUM_QUESTIONS, false, false, true);
 			} else {
 				$sqs = $qadb->getSubmittedQuestions($aid, 0, self::MAX_NUM_QUESTIONS);
@@ -298,7 +298,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 				break; //got one
 			}
 
-			if($expertId > 0) {
+			if ($expertId > 0) {
 				//since we're an expert, don't remove it from the queue
 				//but skip it since we don't want to see it again
 				$this->skipTool->skipItem($aid);
@@ -308,17 +308,17 @@ class AnswerQuestions extends UnlistedSpecialPage {
 			}
 		}
 
-		if(count($aidToRemove) > 0) {
+		if (count($aidToRemove) > 0) {
 			//let's get rid of these articles. They don't have any questions left
 			self::removeIdsFromQueue($queueName, $aidToRemove);
 		}
 
-		if(!$t || !$t->exists()) {
+		if (!$t || !$t->exists()) {
 			return array();
 		}
 		self::checkoutArticle($t->getArticleID());
 
-		foreach($sqs as $sq) {
+		foreach ($sqs as $sq) {
 			$qs[] = [
 				'qat_question' => $sq->getText(),
 				'qat_question_id' => $sq->getId()
@@ -341,7 +341,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 					"aqq_category_type" => $queueNum,
 					"(aq_checkout_timestamp < '{$expirytimestamp}' || aq_checkout_timestamp IS NULL)"
 				];
-		if(is_array($skippedIds) && !empty($skippedIds)) {
+		if (is_array($skippedIds) && !empty($skippedIds)) {
 			$where[] = "aqq_page not in (" . $dbr->makeList($skippedIds) . ")";
 		}
 
@@ -357,7 +357,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 		$idsToRemove = array();
 		$qadb = QADB::newInstance();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$sqs = $qadb->getSubmittedQuestions($row->aqq_page, 0, self::MAX_NUM_QUESTIONS, false, false, false, false, true);
 			//make sure it's real and has enough questions
 			$t = Title::newFromId($row->aqq_page);
@@ -369,21 +369,21 @@ class AnswerQuestions extends UnlistedSpecialPage {
 			$idsToRemove[] = $row->aqq_page;
 		}
 
-		if(count($idsToRemove) > 0) {
+		if (count($idsToRemove) > 0) {
 			//let's get rid of these articles. They don't have any questions left
 			self::removeIdsFromDbQueue($idsToRemove);
 		}
 
-		if(!$t || !$t->exists()) {
+		if (!$t || !$t->exists()) {
 			return array();
 		}
 		self::checkoutArticle($t->getArticleID());
 
 		//this assumes that the questions are in time order
 		$onemonthago = wfTimestamp(TS_MW, strtotime("1 month ago"));
-		foreach($sqs as $index => $sq) {
+		foreach ($sqs as $index => $sq) {
 			$ts = $sq->getSubmittedTimestamp();
-			if($queueNum == self::MOST_RECENT_QUEUE && $onemonthago > $ts) {
+			if ($queueNum == self::MOST_RECENT_QUEUE && $onemonthago > $ts) {
 				break;
 			}
 			$dt1 = new DateTime($ts);
@@ -399,7 +399,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 	}
 
 	private function removeIdsFromDbQueue($idsToRemove) {
-		if(is_array($idsToRemove) && count($idsToRemove) > 0) {
+		if (is_array($idsToRemove) && count($idsToRemove) > 0) {
 			$dbw = wfGetDb(DB_MASTER);
 
 			$dbw->delete(self::TABLE_QUEUE, array("aqq_page IN (" . $dbw->makeList($idsToRemove) . ")"), __METHOD__);
@@ -418,7 +418,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$oldUser = $wgUser;
 		$wgUser = null;
 		$stringList = ConfigStorage::dbGetConfig($queueName);
-		if($stringList !== false) {
+		if ($stringList !== false) {
 			$queue = explode("\n", $stringList);
 			$finalArray = array_diff($queue, $aidToRemove);
 			$err = "";
@@ -454,7 +454,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$res = $dbr->select(AnswerQuestions::TABLE_QUEUE, array('aqq_category', 'aqq_queue_timestamp', 'count(*) as total'), array('aqq_queue_timestamp != ""', 'aqq_category_type' => AnswerQuestions::NUM_QUESTIONS_QUEUE), __METHOD__, array('GROUP BY' => 'aqq_category'));
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$categories[] = (object)['category' => $row->aqq_category, 'timestamp' => date("d F Y", wfTimestamp(TS_UNIX, $row->aqq_queue_timestamp)), 'count' => $row->total];
 		}
 		return $categories;
@@ -462,11 +462,11 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 	private function getCategoryTree(){
 		$topUserCategory =  "";
-		if($this->userCategory != null && $this->userCategory != "") {
+		if ($this->userCategory != null && $this->userCategory != "") {
 			$title = Title::newFromText($this->userCategory, NS_CATEGORY);
-			$parents = Categoryhelper::getCurrentParentCategoryTree($title);
-			$parents = Categoryhelper::flattenCategoryTree($parents);
-			if(is_null($parents)) {
+			$parents = CategoryHelper::getCurrentParentCategoryTree($title);
+			$parents = CategoryHelper::flattenCategoryTree($parents);
+			if (is_null($parents)) {
 				$topUserCategory = $this->userCategory;
 			} else {
 				$topUserCategory =  str_replace("-", " ", substr($parents[count($parents) - 1], 9));
@@ -474,17 +474,17 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		}
 		$categoryTree = [];
 		$categories = self::getAllCategories();
-		foreach($categories as $categoryData) {
+		foreach ($categories as $categoryData) {
 			$title = Title::newFromText($categoryData->category, NS_CATEGORY);
-			$parents = Categoryhelper::getCurrentParentCategoryTree($title);
-			$parents = Categoryhelper::flattenCategoryTree($parents);
-			if(is_null($parents)) {
+			$parents = CategoryHelper::getCurrentParentCategoryTree($title);
+			$parents = CategoryHelper::flattenCategoryTree($parents);
+			if (is_null($parents)) {
 				$parent = $categoryData->category;
 			} else {
 				$parent =  str_replace("-", " ", substr($parents[count($parents) - 1], 9));
 			}
 
-			if($categoryTree[$parent] == null) {
+			if ($categoryTree[$parent] == null) {
 				$categoryTree[$parent] = [];
 			}
 			$cat = str_replace("-", " ", $categoryData->category);
@@ -494,7 +494,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		//now sort
 		ksort($categoryTree);
 		$categoryData = ['categories' => []];
-		foreach($categoryTree as $key => $value) {
+		foreach ($categoryTree as $key => $value) {
 			$categoryData['categories'][] = ['category' => $key, 'subcategories' => $value, 'id' => str_replace(".", "", Sanitizer::escapeId($key, 'noninitial')), 'class' => ($topUserCategory==$key?"selected":"")];
 		}
 
@@ -521,15 +521,15 @@ class AnswerQuestions extends UnlistedSpecialPage {
 	}
 
 	private function getUserCategory() {
-		if($this->userCategory == null) {
+		if ($this->userCategory == null) {
 			$user = $this->getUser();
 			$cond = [];
 
-			if(!$user->isAnon()) {
+			if (!$user->isAnon()) {
 				$cond['qac_user_id'] = $user->getId();
 			} else {
 				$cond['qac_visitor_id'] = WikihowUser::getVisitorId();
-				if($cond['qac_visitor_id'] == '') { //they are not logged in and don't have a visitor id, so assume no category.
+				if ($cond['qac_visitor_id'] == '') { //they are not logged in and don't have a visitor id, so assume no category.
 					$this->userCategory = "";
 					return $this->userCategory;
 				}

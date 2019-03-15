@@ -188,26 +188,26 @@ class AlternateDomain {
 
 		if ( Misc::isMobileMode() ) {
 			if ( self::onNoBrandingDomain() ) {
-				$style = Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.nobranding.mobile.css' );
+				$style = Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.nobranding.mobile.css' );
 				if ( $isMainPage ) {
-					$style .= Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.nobranding.mainpage.mobile.css' );
+					$style .= Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.nobranding.mainpage.mobile.css' );
 				}
 			} else {
-				$style = Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.mobile.css' );
+				$style = Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.mobile.css' );
 				if ( $isMainPage ) {
-					$style .= Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.mainpage.mobile.css' );
+					$style .= Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.mainpage.mobile.css' );
 				}
 			}
 		} else {
 			if ( self::onNoBrandingDomain() ) {
-				$style = Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.nobranding.desktop.css' );
+				$style = Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.nobranding.desktop.css' );
 				if ( $isMainPage ) {
-					$style .= Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.mainpage.desktop.css' );
+					$style .= Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.mainpage.desktop.css' );
 				}
 			} else {
-				$style = Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.desktop.css' );
+				$style = Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.desktop.css' );
 				if ( $isMainPage ) {
-					$style .= Misc::getEmbedFile( 'css', dirname(__FILE__) . '/alternatedomain.mainpage.desktop.css' );
+					$style .= Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.mainpage.desktop.css' );
 				}
 
 			}
@@ -666,9 +666,9 @@ class AlternateDomain {
 		$domain = explode ( '.', $domainName );
 		if ( count( $domain ) < 2 ) {
 			return "";
-		} else if ( count ( $domain ) == 2 ) {
+		} elseif ( count ( $domain ) == 2 ) {
 			// do nothing
-		} else if ( count ( $domain ) == 3 ) {
+		} elseif ( count ( $domain ) == 3 ) {
 			array_shift( $domain );
 		} else {
 			array_shift( $domain );
@@ -826,7 +826,7 @@ class AlternateDomain {
 					'related' => '5001600976'
 				]
 			];
-		} else if ( strstr( $domainName, "wikihow.tech" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.tech" ) ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '6757535770',
@@ -842,7 +842,7 @@ class AlternateDomain {
 					'related' => '2187735379'
 				]
 			];
-		} else if ( strstr( $domainName, "wikihow.pet" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.pet" ) ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '7189227370',
@@ -858,7 +858,7 @@ class AlternateDomain {
 					'related' => '8665960573'
 				]
 			];
-		} else if ( strstr( $domainName, "howyoulivelife.com" ) ) {
+		} elseif ( strstr( $domainName, "howyoulivelife.com" ) ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '4370814181',
@@ -874,7 +874,7 @@ class AlternateDomain {
 					'related' => '5189071838'
 				]
 			];
-		} else if ( strstr( $domainName, "wikihow.mom" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.mom" ) ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '2618748819',
@@ -890,7 +890,7 @@ class AlternateDomain {
 					'related' => '3245434778'
 				]
 			];
-		} else if ( strstr( $domainName, "wikihow.life" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.life" ) ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '7567823162',
@@ -906,7 +906,7 @@ class AlternateDomain {
 					'related' => '8497761450'
 				]
 			];
-		} else if ( strstr( $domainName, "wikihow.fitness" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.fitness" ) ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '1743816697',
@@ -922,7 +922,7 @@ class AlternateDomain {
 					'related' => '6084841797'
 				]
 			];
-		} else if ( strstr( $domainName, "wikihow.health" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.health" ) ) {
 			// ads are currently disabled for this domain in another part of the code
 			// if they were to be turned on then these would need to be defined for ads to work
 			$data['slots'] = [
@@ -957,19 +957,19 @@ class AlternateDomain {
 
 		if ( strstr( $domainName, "howyougetfit.com") ) {
 			$codes['UA-2375655-16'] = 'howyougetfit';
-		} else if ( strstr( $domainName, "wikihow.tech") ) {
+		} elseif ( strstr( $domainName, "wikihow.tech") ) {
 			$codes['UA-2375655-17'] = 'wikihowtech';
-		} else if ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( strstr( $domainName, "wikihow.pet") ) {
 			$codes['UA-2375655-20'] = 'wikihowpet';
-		} else if ( strstr( $domainName, "howyoulivelife.com") ) {
+		} elseif ( strstr( $domainName, "howyoulivelife.com") ) {
 			$codes['UA-2375655-28'] = 'howyoulivelife';
-		} else if ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( strstr( $domainName, "wikihow.mom") ) {
 			$codes['UA-2375655-25'] = 'wikihowmom';
-		} else if ( strstr( $domainName, "wikihow.life") ) {
+		} elseif ( strstr( $domainName, "wikihow.life") ) {
 			$codes['UA-2375655-27'] = 'wikihowlife';
-		} else if ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
 			$codes['UA-2375655-26'] = 'wikihowfitness';
-		} else if ( strstr( $domainName, "wikihow.health") ) {
+		} elseif ( strstr( $domainName, "wikihow.health") ) {
 			$codes['UA-2375655-31'] = 'wikihowhealth';
 		}
 	}
@@ -1245,9 +1245,9 @@ class AlternateDomain {
 	public static function onHeaderBuilderAfterGenNavTabs( &$navTabs ) {
 		if ( self::onNoBrandingDomain() ) {
 			$navTabs = array();
-		} else if ( self::onAlternateDomain() ) {
+		} elseif ( self::onAlternateDomain() ) {
 			$html = Linker::link( Title::makeTitle(NS_SPECIAL, 'Randomizer'), wfMessage('randompage')->text(), ['role' => 'menuitem'] );
-			//$html .= Linker::link( Title::makeTitle(NS_SPECIAL, "Categorylisting"), wfMessage('navmenu_categories')->text(), ['role' => 'menuitem'] );
+			//$html .= Linker::link( Title::makeTitle(NS_SPECIAL, "CategoryListing"), wfMessage('navmenu_categories')->text(), ['role' => 'menuitem'] );
 			$html = '<div class="menu" role="menu">'.$html.'</div>';
 			$navTabs['nav_explore']['menu'] = $html;
 			unset( $navTabs['nav_help'] );
@@ -1468,7 +1468,7 @@ class AlternateDomain {
 			return true;
 		}
 		if ( !self::onNoBrandingDomain() ) {
-			if ( $out->getTitle()->getNamespace() != 0 ) {
+			if ( !$out->getTitle()->inNamespace(NS_MAIN) ) {
 				return true;
 			}
 		}
@@ -1487,7 +1487,7 @@ class AlternateDomain {
 		// if on regular wikihow branded alternate domain
 		if ( !self::onNoBrandingDomain() ) {
 			// if the title is not in the main namespace then do not 404 the page
-			if ( $wgTitle->getNamespace() != 0 ) {
+			if ( !$wgTitle->inNamespace(NS_MAIN) ) {
 				return false;
 			}
 		}
@@ -1556,13 +1556,13 @@ class AlternateDomain {
 		if ( strstr( $domainName, "wikihow.tech") ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_tech_4.png';
 			$logoClass[] = 'tech_logo';
-		} else if ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( strstr( $domainName, "wikihow.pet") ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_pet_3.png';
 			$logoClass[] = 'pet_logo';
-		} else if ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( strstr( $domainName, "wikihow.mom") ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_mom.png';
 			$logoClass[] = 'mom_logo';
-		} else if ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_fitness.png';
 			$logoClass[] = 'fitness_logo';
 		}
@@ -1577,19 +1577,19 @@ class AlternateDomain {
 			} else {
 				$headerClass = 'tech_logo';
 			}
-		} else if ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( strstr( $domainName, "wikihow.pet") ) {
 			if ( $headerClass ) {
 				$headerClass = $headerClass . ' pet_logo';
 			} else {
 				$headerClass = 'pet_logo';
 			}
-		} else if ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( strstr( $domainName, "wikihow.mom") ) {
 			if ( $headerClass ) {
 				$headerClass = $headerClass . ' mom_logo';
 			} else {
 				$headerClass = 'mom_logo';
 			}
-		} else if ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
 			if ( $headerClass ) {
 				$headerClass = $headerClass . ' fitness_logo';
 			} else {
@@ -1651,25 +1651,25 @@ class AlternateDomain {
 		if ( strstr( $domainName, "howyougetfit.com") ) {
 			$firstAd = 6329126174;
 			$regularAd = 7805859374;
-		} else if ( strstr( $domainName, "wikihow.tech") ) {
+		} elseif ( strstr( $domainName, "wikihow.tech") ) {
 			$firstAd = 3236058970;
 			$regularAd = 4712792172;
-		} else if ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( strstr( $domainName, "wikihow.pet") ) {
 			$firstAd = 9282592570;
 			$regularAd = 1759325775;
-		} else if ( strstr( $domainName, "howyoulivelife.com") ) {
+		} elseif ( strstr( $domainName, "howyoulivelife.com") ) {
 			$firstAd = 7885008625;
 			$regularAd = 1407230185;
-		} else if ( strstr( $domainName, "wikihow.life") ) {
+		} elseif ( strstr( $domainName, "wikihow.life") ) {
 			$firstAd = 2905689278;
 			$regularAd = 5874633394;
-		} else if ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( strstr( $domainName, "wikihow.mom") ) {
 			$firstAd = 7962574839;
 			$regularAd = 8359172411;
-		} else if ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
 			$firstAd = 3823185129;
 			$regularAd = 6557993821;
-		} else if ( strstr( $domainName, "wikihow.health") ) {
+		} elseif ( strstr( $domainName, "wikihow.health") ) {
 			$firstAd = 0;
 			$regularAd = 0;
 		}
@@ -1719,6 +1719,7 @@ class AlternateDomain {
 		unset( $items['addtip'] );
 		unset( $items['header2'] );
 		unset( $items['header3'] );
+		unset( $items['quizyourself'] );
 	}
 
 	/*

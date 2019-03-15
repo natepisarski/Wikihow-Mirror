@@ -4,7 +4,7 @@
  * Our custom login and sign-up page templates *
  ***********************************************/
 
-if( !defined( 'MEDIAWIKI' ) ) die( -1 );
+if ( !defined( 'MEDIAWIKI' ) ) die( -1 );
 
 $wgResourceModules['ext.wikihow.loginpage'] = array(
 	'styles' => 'wikihowlogin.css',

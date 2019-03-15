@@ -1,4 +1,4 @@
-<?php                                                                           
+<?php
 if ( ! defined( 'MEDIAWIKI' ) )
   die();
 
@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Leonard'] = 'Leonard';
-$wgAutoloadClasses['Leonard'] = dirname(__FILE__) . '/Leonard.body.php';
+$wgAutoloadClasses['Leonard'] = __DIR__ . '/Leonard.body.php';
 

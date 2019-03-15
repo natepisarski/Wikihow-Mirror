@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminRatingReasons',
 	'author' =>'Argutier <aaron@wikihow.com>',
@@ -15,10 +15,10 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminRatingReasons'] = 'AdminRatingReasons';
-$wgAutoloadClasses['AdminRatingReasons'] = dirname( __FILE__ ) . '/AdminRatingReasons.body.php';
+$wgAutoloadClasses['AdminRatingReasons'] = __DIR__ . '/AdminRatingReasons.body.php';
 
 $wgSpecialPages['AdminRemoveRatingReason'] = 'AdminRemoveRatingReason';
-$wgAutoloadClasses['AdminRemoveRatingReason'] = dirname( __FILE__ ) . '/AdminRatingReasons.body.php';
+$wgAutoloadClasses['AdminRemoveRatingReason'] = __DIR__ . '/AdminRatingReasons.body.php';
 
 $wgSpecialPages['ArticleHelpfulness'] = 'ArticleHelpfulness';
-$wgAutoloadClasses['ArticleHelpfulness'] = dirname( __FILE__ ) . '/AdminRatingReasons.body.php';
+$wgAutoloadClasses['ArticleHelpfulness'] = __DIR__ . '/AdminRatingReasons.body.php';

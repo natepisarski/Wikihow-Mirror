@@ -218,7 +218,7 @@ trait ArticlesAdmin {
 
 		if (is_numeric($query)) {
 			$conditions = ['wh_article_id' => $query];
-		} else if (strpos($query, '://')) {
+		} elseif (strpos($query, '://')) {
 			$conditions = ['wh_article_url' => $article->wh_article_url];
 		} else {
 			$conditions = ['`title` LIKE ?', "%{$article->title}%"];

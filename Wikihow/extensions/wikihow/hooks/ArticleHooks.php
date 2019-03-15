@@ -141,8 +141,8 @@ class ArticleHooks {
 	// Add to the list of available JS vars on every page
 	public static function addJSglobals(&$vars) {
 		$vars['wgCDNbase'] = wfGetPad('');
-        $tree = Categoryhelper::getCurrentParentCategoryTree();
-        $cats = Categoryhelper::cleanCurrentParentCategoryTree( $tree );
+		$tree = CategoryHelper::getCurrentParentCategoryTree();
+		$cats = CategoryHelper::cleanCurrentParentCategoryTree( $tree );
 		$vars['wgCategories'] = $cats;
 		return true;
 	}
@@ -252,11 +252,24 @@ class ArticleHooks {
 		}
 
 		$title = $out->getTitle();
-		if($title && $title->getArticleID() == 19958) {
-			if(Misc::isMobileMode()) {
+		if ($title && $title->getArticleID() == 19958) {
+			if (Misc::isMobileMode()) {
 				pq("#intro")->after(wfMessage("Muscle_test_mobile")->text());
 			} else {
 				pq("#intro")->after(wfMessage("Muscle_test")->text());
+			}
+		}
+		return true;
+	}
+
+	public static function addDesktopTOCItems($wgTitle, &$anchorList) {
+		global $wgLanguageCode;
+		if (!Misc::isMobileMode() && $wgLanguageCode == "en") {
+			$refCount = Misc::getReferencesCount();
+			if ($refCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+				$anchorList[] = Html::rawElement('a', ['href' => '#sourcesandcitations'], $refCount . " References");
+			} elseif( $refCount > 0 ) {
+				$anchorList[] = Html::rawElement('a', ['href' => '#sourcesandcitations'], "References");
 			}
 		}
 		return true;

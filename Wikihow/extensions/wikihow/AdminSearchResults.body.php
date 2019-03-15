@@ -45,7 +45,7 @@ class AdminSearchResults extends UnlistedSpecialPage {
 		for ($i = 1; $i <= 10; ++$i) {
 			$headers[] = 'result ' . $i;
 		}
-		
+
 		print "query," . implode(",", $headers) . "\n";
 		foreach ($data as $page => $datum) {
 			$line = '"' . $datum['query'] . '"';
@@ -62,29 +62,30 @@ class AdminSearchResults extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$user = $wgUser->getName();
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked()
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked()
 			|| !in_array('staff', $userGroups))
 		{
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			// handle more data at once
 			ini_set('memory_limit', '512M');
 
-			$wgOut->setArticleBodyOnly(true);
+			$out->setArticleBodyOnly(true);
 			$dbr = wfGetDB(DB_SLAVE);
 
-			$action = $wgRequest->getVal('action', '');
+			$action = $req->getVal('action', '');
 
-			$dataType = $wgRequest->getVal('data-type');
-			$pageList = $wgRequest->getVal('pages-list', '');
+			$dataType = $req->getVal('data-type');
+			$pageList = $req->getVal('pages-list', '');
 			if ('csv' == $dataType) {
 				$pageList = urldecode($pageList);
 			}
@@ -107,7 +108,7 @@ class AdminSearchResults extends UnlistedSpecialPage {
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Yahoo Boss Search Results - wikiHow');
+		$out->setHTMLTitle('Admin - Yahoo Boss Search Results - wikiHow');
 
 $tmpl = <<<EOHTML
 <script src="/extensions/wikihow/common/download.jQuery.js"></script>
@@ -169,6 +170,6 @@ $tmpl = <<<EOHTML
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 }

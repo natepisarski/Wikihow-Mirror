@@ -1,4 +1,4 @@
-<?php                                                                                                                                              
+<?php
 if ( ! defined( 'MEDIAWIKI' ) )
     die();
 
@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['TitusStoredQuery'] = 'TitusStoredQuery';
-$wgAutoloadClasses['TitusStoredQuery'] = dirname(__FILE__) . '/TitusStoredQuery.body.php';
+$wgAutoloadClasses['TitusStoredQuery'] = __DIR__ . '/TitusStoredQuery.body.php';
 

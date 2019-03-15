@@ -6,5 +6,8 @@
   "qa_toc": "Questions & Answers",
   "qa_ask_toc": "Ask a Question",
   "summaryvideo_toc": "Video",
-  "title_toc": "Explore this Article"
+  "title_toc": "Explore this Article",
+  "more_toc": "Show $1 more...",
+  "less_toc": "Show less...",
+  "references_toc": "References"
 }

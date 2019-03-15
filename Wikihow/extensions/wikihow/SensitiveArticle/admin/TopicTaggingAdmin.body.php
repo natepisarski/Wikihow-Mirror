@@ -24,7 +24,7 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$user = $this->getUser();
 
-		$out->setRobotpolicy('noindex, nofollow');
+		$out->setRobotPolicy('noindex, nofollow');
 
 		if ($user->isBlocked()) {
 			$out->blockedPage();
@@ -32,7 +32,7 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 		}
 
 		if (\Misc::isMobileMode() || !$this->isUserAllowed($user)) {
-			$out->setRobotpolicy( 'noindex, nofollow' );
+			$out->setRobotPolicy( 'noindex, nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -42,7 +42,6 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 		if (!empty($action)) {
 			if ($action == 'run_report') {
 				$job_id = $request->getInt('job_id');
-				$this->getOutput()->disable();
 				$this->exportCSV($job_id);
 				return;
 			}
@@ -276,6 +275,7 @@ class TopicTaggingAdmin extends \UnlistedSpecialPage {
 	}
 
 	private function exportCSV(int $job_id) {
+		$this->getOutput()->disable();
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="data.csv"');
 

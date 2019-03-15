@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminLookupPages',
 	'author' => 'Reuben Smith',
@@ -9,7 +9,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminLookupPages'] = 'AdminLookupPages';
-$wgAutoloadClasses['AdminLookupPages'] = dirname( __FILE__ ) . '/AdminLookupPages.body.php';
+$wgAutoloadClasses['AdminLookupPages'] = __DIR__ . '/AdminLookupPages.body.php';
 
 $wgSpecialPages['AdminLookupNab'] = 'AdminLookupNab';
-$wgAutoloadClasses['AdminLookupNab'] = dirname( __FILE__ ) . '/AdminLookupPages.body.php';
+$wgAutoloadClasses['AdminLookupNab'] = __DIR__ . '/AdminLookupPages.body.php';

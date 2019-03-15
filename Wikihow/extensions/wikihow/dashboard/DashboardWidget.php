@@ -45,7 +45,7 @@ abstract class DashboardWidget {
 	 * Returns HTML internals of the widget box.
 	 */
 	public function getHTML($initialData) {
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'data' => $initialData,
 			'completedToday' => $this->getCompletion(),
@@ -72,7 +72,7 @@ abstract class DashboardWidget {
 	 * Returns HTML internals of the mobile widget box.
 	 */
 	public function getMobileHTML($initialData) {
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'data' => $initialData,
 			'widgetName' => $this->getName(),
@@ -80,6 +80,7 @@ abstract class DashboardWidget {
 			'countDescription' => $this->getCountDescription(),
 			'widgetLink' => $this->getWidgetLink(),
 			'extraInternalHTML' => $this->getExtraInternalHTML(),
+			'showCount' => $this->showMobileCount()
 		));
 
 		$html = $tmpl->execute('widgets/dashboardWidgetMobile.tmpl.php');
@@ -286,10 +287,10 @@ abstract class DashboardWidget {
 		if ($count <= $thresholds['low']) {
 			return "sunny";
 		}
-		else if ($count <= $thresholds['med']) {
+		elseif ($count <= $thresholds['med']) {
 			return "cloudy";
 		}
-		else if ($count <= $thresholds['high']) {
+		elseif ($count <= $thresholds['high']) {
 			return "rainy";
 		}
 		else {
@@ -298,10 +299,16 @@ abstract class DashboardWidget {
 	}
 
 	/*
-	 * Must be implemented by sublcass. Needs to return the start link that appears
+	 * Must be implemented by subclass. Needs to return the start link that appears
 	 * in the header of the widget.
 	 */
 	protected abstract function getStartLink($showArrow, $widgetStatus);
+
+	/**
+	 * Normally, true (for dynamic queue widgets)
+	 * But false for mobile widgets that are just static links
+	 */
+	protected abstract function showMobileCount();
 
 	/**
 	 * Returns the HTML for just the top part of the widget
@@ -449,7 +456,7 @@ abstract class DashboardWidget {
 		}
 		if ($type == 'df') {
 			return Avatar::getDefaultProfile();
-		} else if ($type == 'fb' || $type == 'gp') {
+		} elseif ($type == 'fb' || $type == 'gp') {
 			return $param;
 		} else {
 			$filename = explode("?", $param);
@@ -490,7 +497,7 @@ abstract class DashboardWidget {
 		else {
 			if ($this->isAllowed(false))
 				return DashboardWidget::WIDGET_ENABLED;
-			else if ($this->isAllowed(true))
+			elseif ($this->isAllowed(true))
 				return DashboardWidget::WIDGET_LOGIN;
 			else
 				return DashboardWidget::WIDGET_DISABLED;

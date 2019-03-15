@@ -132,7 +132,7 @@ class MassMessageJob extends Job {
 
 		// If we're sending to a User:/User talk: page, make sure the user exists.
 		// Redirects are automatically followed in getLocalTargets
-		if ( $title->getNamespace() == NS_USER || $title->getNamespace() == NS_USER_TALK ) {
+		if ( $title->inNamespace(NS_USER) || $title->inNamespace(NS_USER_TALK) ) {
 			$user = User::newFromName( $title->getBaseText() );
 			if ( !$user->getId() ) { // Does not exist
 				$this->logLocalSkip( 'skipnouser' );
@@ -162,7 +162,7 @@ class MassMessageJob extends Job {
 			'bot' => true,
 			'token' => $user->getEditToken()
 		);
-		
+
 		//XXCHANGEDXX [sc]
 		//notify via the echo notification system
 		if (class_exists('EchoEvent')) {
@@ -172,7 +172,7 @@ class MassMessageJob extends Job {
 			else {
 				$agent = $user; //default (yuck) to out bot name
 			}
-				
+
 			EchoEvent::create( array(
 				'type' => 'edit-user-talk',
 				'title' => $this->title,

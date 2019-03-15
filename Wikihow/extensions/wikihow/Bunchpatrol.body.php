@@ -140,7 +140,7 @@ class BunchPatrol extends SpecialPage {
 					<input type='button' onclick='checkall(false);' value='None'/>
 				");
 		}
-		
+
 		$count = $this->writeBunchPatrolTableContent($dbr, $target, false);
 
 		if ($count > 0) {

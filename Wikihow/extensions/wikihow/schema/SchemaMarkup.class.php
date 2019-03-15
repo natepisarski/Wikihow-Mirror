@@ -731,7 +731,7 @@ class SchemaMarkup {
 		// getting the wikipage does not work for special pages so
 		// do more sanity checking
 		$title = $out->getTitle();
-		if ( !$title || $title->getNamespace() != NS_MAIN || !WikihowSkinHelper::shouldShowMetaInfo($out) ) {
+		if ( !$title || !$title->inNamespace(NS_MAIN) || !WikihowSkinHelper::shouldShowMetaInfo($out) ) {
 			return false;
 		}
 
@@ -780,7 +780,7 @@ class SchemaMarkup {
 				$schema .= self::getBreadcrumbSchema( $out );
 			}
 
-			if ( Categoryhelper::isTitleInCategory( $title, "Recipes" ) ) {
+			if ( CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
 				$schema .= self::getRecipeSchema( $title, $out->getRevisionId() );
 			}
 		}
@@ -865,7 +865,7 @@ class SchemaMarkup {
 	}
 
 	public static function getCategoryListForBreadcrumb( $title ) {
-		$tree = Categoryhelper::getCurrentParentCategoryTree();
+		$tree = CategoryHelper::getCurrentParentCategoryTree();
 		$allCats = array();
 		// get the list
 		foreach ( $tree as $catTitle => $parents ) {
@@ -876,7 +876,7 @@ class SchemaMarkup {
 				continue;
 			}
 			$cats = [$catTitle];
-			$parentCats = Categoryhelper::flattenCategoryTree( $parents );
+			$parentCats = CategoryHelper::flattenCategoryTree( $parents );
 			if ( !$parentCats ) {
 				continue;
 			}
@@ -1058,7 +1058,7 @@ class SchemaMarkup {
 		if ( !$dbRev ) {
 			$schema = SchemaMarkup::calculateRecipeSchema( $title );
 			self::insertRecipeSchema( $pageId, $latestGood, $schema );
-		} else if ( $dbRev < $latestGood || $forceUpdate ) {
+		} elseif ( $dbRev < $latestGood || $forceUpdate ) {
 			$schema = SchemaMarkup::calculateRecipeSchema( $title );
 			self::updateRecipeSchema( $pageId, $latestGood, $schema );
 		}

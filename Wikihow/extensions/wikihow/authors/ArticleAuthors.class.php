@@ -67,7 +67,7 @@ class ArticleAuthors {
 	static function getAuthorHeaderSidebar() {
 		global $wgTitle, $wgRequest, $wgUser;
 		if (!$wgTitle
-			|| !($wgTitle->getNamespace() == NS_MAIN || $wgTitle->getNamespace() == NS_PROJECT)
+			|| !($wgTitle->inNamespace(NS_MAIN) || $wgTitle->inNamespace(NS_PROJECT))
 			|| $wgRequest->getVal('action', 'view') != 'view'
 			|| $wgRequest->getVal('diff') != '') {
 				return "";

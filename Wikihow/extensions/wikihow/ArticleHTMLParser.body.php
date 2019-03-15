@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Static functions that can be used to pull out parts of an article
  * for use in mobile html builder and ios api
@@ -88,7 +89,7 @@ class ArticleHTMLParser {
 
 		$urlPrefix = "";
 		if ( $wgIsDevServer ) {
-		    $urlPrefix = "http://www.wikihow.com";
+		    $urlPrefix = "https://www.wikihow.com";
 		}
 		$result = array('obj' => '', 'url' => '');
 		if ($image) {
@@ -172,7 +173,7 @@ class ArticleHTMLParser {
 		if (pq('div#toc')->length) {
 			pq('div#toc')->remove();
 		}
-	
+
 		// the intro is before the first h2
 		$before = "h2";
 
@@ -180,7 +181,7 @@ class ArticleHTMLParser {
 		$id = self::randomDivId();
 
 		$first = pq("$before:first");
-		if(pq($first)->length() > 0) {
+		if (pq($first)->length() > 0) {
 			pq($first)->prevAll()->reverse()->wrapAll("<div id='".$id."' class='section'></div>");
 		}
 

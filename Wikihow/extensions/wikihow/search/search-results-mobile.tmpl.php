@@ -75,7 +75,7 @@
 					<div class="result_title"><?= $result['title_match'] ?></div>
 				<? endif; // has_supplement ?>
 				<? // Sherlock-form ?>
-				<?= EasyTemplate::html('sherlock-form', array("index" => $i + $first, "result" => $result)); ?>
+				<?= EasyTemplate::html('sherlock-form.tmpl.php', array("index" => $i + $first, "result" => $result)); ?>
 				</div>
 			</div>
 		</a>
@@ -100,3 +100,5 @@ if (($total > $start + $max_results
 	</div>
 
 <? endif; ?>
+
+<!-- search results source: <?= $results_source ?> -->

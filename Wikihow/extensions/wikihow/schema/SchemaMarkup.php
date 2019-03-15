@@ -2,5 +2,5 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['SchemaMarkup'] = dirname(__FILE__) . '/SchemaMarkup.class.php';
+$wgAutoloadClasses['SchemaMarkup'] = __DIR__ . '/SchemaMarkup.class.php';
 $wgHooks['AfterGoodRevisionUpdated'][] = array('SchemaMarkup::onAfterGoodRevisionUpdated');

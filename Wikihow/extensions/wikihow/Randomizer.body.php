@@ -375,8 +375,6 @@ CREATE TABLE page_randomizer (
 	 * @return Title the title object result
 	 */
 	public static function getRandomTitle() {
-		global $wgUser;
-
 		$fname = __METHOD__;
 		wfProfileIn($fname);
 
@@ -409,11 +407,9 @@ CREATE TABLE page_randomizer (
 	 * we've defined.
 	 */
 	public function execute($par) {
-		global $wgOut, $wgLanguageCode, $wgRequest;
+		$section = new ProfileSection( __METHOD__ );
 
-		wfProfileIn(__METHOD__);
-
-		if ($wgLanguageCode != 'en') {
+		if ($this->getLanguage()->getCode() != 'en') {
 			$rp = new RandomPage();
 			$title = $rp->getRandomTitle();
 		} else {
@@ -426,13 +422,10 @@ CREATE TABLE page_randomizer (
 		}
 		$url = $title->getFullUrl();
 
-		$wgOut->redirect($url);
-
-		wfProfileOut(__METHOD__);
+		$this->getOutput()->redirect($url);
 	}
 
 	public function isMobileCapable() {
 		return true;
 	}
 }
-

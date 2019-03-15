@@ -1,6 +1,6 @@
 <?php
 
-class TranslateSummariesAdmin extends SpecialPage {
+class TranslateSummariesAdmin extends UnlistedSpecialPage {
 	const TABLE = 'translate_summaries_log';
 
 	private $specialPage;
@@ -20,7 +20,7 @@ class TranslateSummariesAdmin extends SpecialPage {
 		$out = $this->getOutput();
 
 		if ($this->getLanguage()->getCode() != 'en' || !$this->allowedUser()) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -83,7 +83,7 @@ class TranslateSummariesAdmin extends SpecialPage {
 		$uploadfile = $this->getRequest()->getFileTempName('upload_file');
 
 		// Check file for format and save it to the local dir
-		if( !file_exists( $uploadfile ) || !is_readable( $uploadfile ) ) return;
+		if ( !file_exists( $uploadfile ) || !is_readable( $uploadfile ) ) return;
 
 		$report = [];
 		$headers = [

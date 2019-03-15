@@ -2,8 +2,8 @@
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
-$wgAutoloadClasses['AtAGlance'] = dirname(__FILE__) . '/AtAGlance.body.php';
-$wgExtensionMessagesFiles['AtAGlance'] = dirname(__FILE__) . '/AtAGlance.i18n.php';
+$wgAutoloadClasses['AtAGlance'] = __DIR__ . '/AtAGlance.body.php';
+$wgExtensionMessagesFiles['AtAGlance'] = __DIR__ . '/AtAGlance.i18n.php';
 
 $wgResourceModules['ext.wikihow.ataglance'] = array(
 	'scripts' => array( 'ataglance.js', ),

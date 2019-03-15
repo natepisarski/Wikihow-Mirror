@@ -16,8 +16,8 @@ class QueryCat extends UnlistedSpecialPage {
 	public static function getCategoryTree($categoryName) {
 		$t = Title::newFromText($categoryName);
 		$sc = $t->getParentCategories();
-		foreach($sc as $parent => $cat) {
-			if($parent == $cat) {
+		foreach ($sc as $parent => $cat) {
+			if ($parent == $cat) {
 				return(array());
 			}
 			$cats = self::getCategoryTree($parent);
@@ -34,25 +34,25 @@ class QueryCat extends UnlistedSpecialPage {
 
 		// Determine the score of the secondary level cats from the scores of the bottom level
 		$sLevelCats = array();
-		foreach($cats as $cat) {
+		foreach ($cats as $cat) {
 			$cTree = self::getCategoryTree('Category:' . $cat['cat']);
 			//print_r($cTree[1]);
 			$cTreeLen = sizeof($cTree);
-			if($cTreeLen >= ($level + 1)) {
-				if($cTree[0] != 'Category:WikiHow') {
+			if ($cTreeLen >= ($level + 1)) {
+				if ($cTree[0] != 'Category:WikiHow') {
 					$sLevelCats[$cTree[$level]] += $cat['score'];
 				}
 			}
 		}
 		arsort($sLevelCats);
 		$numPrinted = 0;
-		foreach($sLevelCats as $cat => $score) {
+		foreach ($sLevelCats as $cat => $score) {
 			print(str_replace('Category:','',$cat) . "\t");
-			if($printScore) {
+			if ($printScore) {
 				print($score . "\t");
 			}
 			$numPrinted++;
-			if($max && $numPrinted >= $max) {
+			if ($max && $numPrinted >= $max) {
 				break;
 			}
 		}
@@ -62,8 +62,8 @@ class QueryCat extends UnlistedSpecialPage {
 		global $wgRequest, $wgOut;
         $queries = $wgRequest->getVal('queries');
 		$checkUrls = $wgRequest->getVal('checkUrls');
-        if($queries == NULL) {
-            EasyTemplate::set_path(dirname(__FILE__));
+        if ($queries == NULL) {
+            EasyTemplate::set_path(__DIR__);
             $wgOut->addHTML(EasyTemplate::html('QueryCat.tmpl.php'));
 		}
 		elseif($checkUrls) {
@@ -71,24 +71,24 @@ class QueryCat extends UnlistedSpecialPage {
 			header('Content-Disposition: attachment; filename="Dedup.xls"');
 
 			$urls = preg_split("@[\r\n]+@",$queries);
-			foreach($urls as $url) {
-				if(preg_match("@http://www\.wikihow\.com/(.+)@",$url, $matches)) {
+			foreach ($urls as $url) {
+				if (preg_match("@http://www\.wikihow\.com/(.+)@",$url, $matches)) {
 					$t = Title::newFromText($matches[1]);
-					if(!$t) {
+					if (!$t) {
 						$t = Title::newFromText(urldecode($matches[1]));
 					}
-					if($t) {
+					if ($t) {
 						$cats = $t->getParentCategories();
 						$cats = array_keys($cats);
 						$sls = array();
-						foreach($cats as $cat) {
+						foreach ($cats as $cat) {
 							$tree = $this->getCategoryTree($cat);
-							if(sizeof($tree) >= 2 && $tree[0] != "Category:WikiHow") {
+							if (sizeof($tree) >= 2 && $tree[0] != "Category:WikiHow") {
 								$sls[str_replace('Category:','',$tree[1])] = 1;
 							}
 						}
 						print $url;
-						foreach($sls as $sl => $v) {
+						foreach ($sls as $sl => $v) {
 							print "\t" . $sl;
 						}
 						print "\n";
@@ -102,7 +102,7 @@ class QueryCat extends UnlistedSpecialPage {
 			header('Content-Disposition: attachment; filename="Dedup.xls"');
 			print("Query\tTop Level Match\t2nd level match\t3rd level matches\n");
 	        $queries = preg_split("@[\r\n]+@",$queries);
-			foreach($queries as $query) {
+			foreach ($queries as $query) {
 				print $query . "\t";
 				self::printQueryLevelCat($query,0,1,false);
 				self::printQueryLevelCat($query,1,1,false);

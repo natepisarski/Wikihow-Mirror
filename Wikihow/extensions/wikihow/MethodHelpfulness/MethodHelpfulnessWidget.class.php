@@ -155,11 +155,11 @@ abstract class CTAWidgetSection {
 	public static function rawVoteFormat($method, $voteInfo) {
 		return array(
 			\Sanitizer::escapeId( $method ),
-			number_format(100.0 * $voteInfo['count'] / $voteInfo['total'], 0) 
+			number_format(100.0 * $voteInfo['count'] / $voteInfo['total'], 0)
 		);
 	}
 
-	abstract public static function getVoteDataFormattingFunction();	
+	abstract public static function getVoteDataFormattingFunction();
 
 	abstract public static function getDisplayName();
 
@@ -185,7 +185,7 @@ class BottomFormWidgetSection extends CTAWidgetSection {
 	public static function getValidCTATypes() {
 		return array('bottom_form');
 	}
-	
+
 	public static function getVoteDataFormattingFunction() {
 		return 'simpleVoteFormat';
 	}

@@ -3,10 +3,10 @@
 global $IP;
 require_once("$IP/extensions/wikihow/FeaturedRSSFeed.php");
 
-class Generatefeed extends UnlistedSpecialPage {
+class GenerateFeed extends UnlistedSpecialPage {
 
 	public function __construct() {
-		parent::__construct('Generatefeed');
+		parent::__construct('GenerateFeed');
 	}
 
 	private static function addTargetBlank($source) {
@@ -70,15 +70,15 @@ class Generatefeed extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgOut, $wgParser, $wgRequest, $wgCanonicalServer;
+		global $wgParser, $wgCanonicalServer;
 
 		$fullfeed = 0;
 		$mrss = 0;
 		if ($par == 'fullfeed') $fullfeed = 1;
-		else if ($par == 'mrss') $mrss = 1;
+		elseif ($par == 'mrss') $mrss = 1;
 
 		header('Content-Type: text/xml');
-		$wgOut->setSquidMaxage(60);
+		$this->getOutput()->setSquidMaxage(60);
 		$feedFormat = 'rss';
 
 		$feedTitle = wfMessage('Rss-feedtitle');

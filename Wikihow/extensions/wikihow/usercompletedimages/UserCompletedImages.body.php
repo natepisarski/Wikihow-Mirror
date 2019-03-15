@@ -254,7 +254,7 @@ class UserCompletedImages extends UnlistedSpecialPage {
 
 	public static function hasUCI($title, $purge = false) {
 		$result = false;
-		if (!$title->exists() || $title->getNamespace() != NS_MAIN) {
+		if (!$title->exists() || !$title->inNamespace(NS_MAIN)) {
 			return false;
 		}
 
@@ -384,8 +384,8 @@ class UserCompletedImages extends UnlistedSpecialPage {
 		$result = null;
 		$data = self::getUCIData( $context, $title, $offset, $limit );
 		if ( $data ) {
-			EasyTemplate::set_path(dirname(__FILE__).'/');
-			$result = EasyTemplate::html( 'usercompletedimages.desktop.sidebar', $data );
+			EasyTemplate::set_path(__DIR__.'/');
+			$result = EasyTemplate::html( 'usercompletedimages.desktop.sidebar.tmpl.php', $data );
 		}
 		return $result;
 	}
@@ -567,8 +567,8 @@ class UserCompletedImages extends UnlistedSpecialPage {
 			if ( !$data['totalCount'] ) {
 				$data['headerextraclass'] = 'nouciimages';
 			}
-			EasyTemplate::set_path(dirname(__FILE__).'/');
-			$result = EasyTemplate::html( 'usercompletedimages.desktop.section', $data );
+			EasyTemplate::set_path(__DIR__.'/');
+			$result = EasyTemplate::html( 'usercompletedimages.desktop.section.tmpl.php', $data );
 
 		}
 		return $result;
@@ -626,8 +626,8 @@ class UserCompletedImages extends UnlistedSpecialPage {
 	// 	$limit = 7;
 	// 	$data = self::getUCIData( $context, $title, $offset, $limit );
 	// 	if ( $data ) {
-	// 		EasyTemplate::set_path(dirname(__FILE__).'/');
-	// 		$result = EasyTemplate::html( 'mobile-image-upload', $data );
+	// 		EasyTemplate::set_path(__DIR__.'/');
+	// 		$result = EasyTemplate::html( 'mobile-image-upload.tmpl.php', $data );
 	// 	}
 
 	// 	return $result;

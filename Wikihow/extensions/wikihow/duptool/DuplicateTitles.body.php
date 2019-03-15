@@ -30,7 +30,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
 			return;
 		}
 
-		if( !$this->user->isLoggedIn() ) {
+		if ( !$this->user->isLoggedIn() ) {
 			$this->out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -45,7 +45,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
 			print json_encode( $data );
 
 			return;
-		} else if ( $this->request->wasPosted() && XSSFilter::isValidRequest() ) {
+		} elseif ( $this->request->wasPosted() && XSSFilter::isValidRequest() ) {
 			$this->out->setArticleBodyOnly( true );
 			$this->saveVote();
 			return;
@@ -75,7 +75,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
 			'tool_info' => class_exists( 'ToolInfo' ) ? ToolInfo::getTheIcon( $this->getContext() ) : ''
 		];
 
-		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) )] );
+		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$html = $m->render( 'tool', $vars );
@@ -112,7 +112,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
 
 		$row = $dbr->fetchObject($res);
 
-		if($row->pr_id != null) {
+		if ($row->pr_id != null) {
 			$this->skipTool->skipItem($row->pr_id);
 		}
 
@@ -150,7 +150,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
 		$userId = $this->getUserId();
 		$prId = $request->getInt( 'pr_id' );
 		$vote = $request->getInt( 'vote' );
-		if($vote == 1) {
+		if ($vote == 1) {
 			$action = "accept";
 		} elseif ($vote == -1) {
 			$action = "reject";
@@ -207,17 +207,17 @@ class DuplicateTitles extends UnlistedSpecialPage {
 		);
 
 		$row = $dbw->selectRow( $table, $var, $cond, __METHOD__ );
-		if($row === false) {
+		if ($row === false) {
 			return;
 		}
 		if ( abs( $row->sum ) >= self::DIFF_VOTES ) {
-			if($row->sum < 0) {
+			if ($row->sum < 0) {
 				//reject it!
 				ProposedRedirects::handleRedirectVote($from, $to, "reject");
 			} else {
 				//it was accepted, now need to handle by removing all the duplicate rows and adding one new one
 				ProposedRedirects::handleRedirectVote($from, $to, "reject");
-				
+
 				$user = User::newFromName(self::BOT_NAME);
 				ProposedRedirects::createProposedRedirect($from->getDBkey(), $to->getDBkey(), $user);
 			}
@@ -228,7 +228,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
 	}
 
 	private function logVote( $vote, $from, $to ) {
-		if($vote == 0) {
+		if ($vote == 0) {
 			return;
 		} elseif ($vote == 1) {
 			$action = "vote_up";

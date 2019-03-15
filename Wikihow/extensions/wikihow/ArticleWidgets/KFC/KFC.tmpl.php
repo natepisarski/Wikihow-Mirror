@@ -49,21 +49,21 @@
 <script>
 
 $("#kelv").whUpDown({units:"ºK", width: 150, value: 0, maxLength: 5, cut: 6, onChange: function(element,value){
-    if(!isNaN(value)) {
+    if (!isNaN(value)) {
         $("#cels").whUpDown({"value": k2c(value)});
         $("#fahr").whUpDown({"value": k2f(value)});
     }
 } });
 
 $("#cels").whUpDown({units:"ºC", width: 150, value: -273.1, maxLength: 5, cut: 6, onChange: function(element,value){
-    if(!isNaN(value)) {
+    if (!isNaN(value)) {
         $("#kelv").whUpDown({"value": c2k(value)});
         $("#fahr").whUpDown({"value": c2f(value)});
     }
 } });
 
 $("#fahr").whUpDown({units:"ºF", width: 150, value: -459.7, maxLength: 5, cut: 6, onChange: function(element,value){
-    if(!isNaN(value)) {
+    if (!isNaN(value)) {
         $("#kelv").whUpDown({"value": f2k(value)});
         $("#cels").whUpDown({"value": f2c(value)});
     }

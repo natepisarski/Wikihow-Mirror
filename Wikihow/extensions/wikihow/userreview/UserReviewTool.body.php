@@ -19,7 +19,7 @@ class UserReviewTool extends UnlistedSpecialPage {
 
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || !(in_array('staff', $userGroups) || in_array('user_review', $userGroups))) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -32,14 +32,14 @@ class UserReviewTool extends UnlistedSpecialPage {
 			$action = $request->getVal("a");
 			$articleName = $request->getVal("article");
 			$aid = null;
-			if($articleName != null) {
+			if ($articleName != null) {
 				$title = Title::newFromText($articleName);
 				if ($title && $title->exists()) {
 					$aid = $title->getArticleID();
 				} else {
 					//check if the capitalization is wrong
 					$title = Misc::getCaseRedirect($title);
-					if($title && $title->exists()) {
+					if ($title && $title->exists()) {
 						$aid = $title->getArticleID();
 					} else {
 						$out->setArticleBodyOnly(true);
@@ -161,7 +161,7 @@ class UserReviewTool extends UnlistedSpecialPage {
 		$isStaff = in_array("staff", $this->getUser()->getGroups());
 		list($curated, $uncurated) = $this->getReviewData($aid, $isStaff);
 
-		if($curated['reviewCount'] == 0 && $uncurated['reviewCount'] == 0) {
+		if ($curated['reviewCount'] == 0 && $uncurated['reviewCount'] == 0) {
 			echo json_encode(['success' => false]);
 		} else {
 			echo json_encode(['html' => $this->getHtml($curated, $uncurated), 'success' => true, 'count' => $this->getPositiveUncuratedCount()]);
@@ -182,9 +182,9 @@ class UserReviewTool extends UnlistedSpecialPage {
 
 	private function getHtml($curated, $uncurated) {
 		$html = "";
-		
+
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 
@@ -214,36 +214,36 @@ class UserReviewTool extends UnlistedSpecialPage {
 		$id = null;
 		$isEligible = 0;
 		while ($row = $dbr->fetchRow($res)) {
-			if($row['us_status'] == self::STATUS_UCI_WAITING) {
+			if ($row['us_status'] == self::STATUS_UCI_WAITING) {
 				//it has a UCI image that hasn't been patrolled yet
 				continue;
 			}
 			$id = $row['us_article_id'];
 			$isEligible = max($isEligible, $row['us_eligible']);
 
-			if($row['us_image'] != "") {
+			if ($row['us_image'] != "") {
 				$width = UserCompletedImages::THUMB_WIDTH;
 				$height =UserCompletedImages::THUMB_HEIGHT;
 				$row2 = new stdClass;
 				$row2->uci_image_name = $row['us_image'];
 				$thumb = UserCompletedImages::getUCICacheData(null, UserCompletedImages::fileFromRow($row2), $width, $height);
-				if($thumb) {
+				if ($thumb) {
 					$row['imageUrl'] = wfGetPad($thumb['url']);
 				}
 			}
-			if($row['uc_submitted_id'] != null) {
-				if($row['uc_user_id'] > 0) {
+			if ($row['uc_submitted_id'] != null) {
+				if ($row['uc_user_id'] > 0) {
 					$user = User::newFromId($row['uc_user_id']);
 					$row['username'] = $user->getName();
 				}
 			} else {
-				if($row['us_user_id'] > 0) {
+				if ($row['us_user_id'] > 0) {
 					$user = User::newFromId($row['us_user_id']);
 					$row['username'] = $user->getName();
 				}
 			}
-			if($row['us_status'] == self::STATUS_CURATED) {
-				if($isStaff) {
+			if ($row['us_status'] == self::STATUS_CURATED) {
+				if ($isStaff) {
 					$row['editDate'] = date("n/j/Y", wfTimestamp(TS_UNIX, $row['us_curated_timestamp']));
 					$row['editUser'] = User::newFromId($row['us_curated_user'])->getName();
 				}
@@ -254,9 +254,9 @@ class UserReviewTool extends UnlistedSpecialPage {
 		}
 
 		$uncurated['reviewCount'] = count($uncurated['reviews']);
-		if($id != null) {
+		if ($id != null) {
 			$title = Title::newFromID($id);
-			if($title) {
+			if ($title) {
 				$uncurated['articleText'] = $title->getText();
 				$uncurated['articleUrl'] = $title->getFullURL();
 			} else {
@@ -265,13 +265,13 @@ class UserReviewTool extends UnlistedSpecialPage {
 			}
 		}
 		$curated['reviewCount'] = count($curated['reviews']);
-		if($isStaff) {
+		if ($isStaff) {
 			$curated['staff'] = true;
 		}
 
 		self::checkoutArticle($id);
 
-		if($isEligible) {
+		if ($isEligible) {
 			$uncurated['eligible'] = $isEligible;
 		}
 
@@ -290,10 +290,10 @@ class UserReviewTool extends UnlistedSpecialPage {
 		}
 
 		$tries = 0;
-		while($tries < 2) {
+		while ($tries < 2) {
 			$res = $dbr->select(UserReview::TABLE_SUBMITTED, array('*', 'count(us_article_id) as count'), ($tries==0?$where1:$whereDefault), __METHOD__, array("GROUP BY" => "us_article_id", "ORDER BY" => "us_positive DESC, us_eligible DESC, count desc", "LIMIT" => "1"));
 			$row = $res->fetchRow();
-			if($row === false) {
+			if ($row === false) {
 				//nothing left, undo all the skipped
 				self::resetSkips();
 			} else {
@@ -310,14 +310,14 @@ class UserReviewTool extends UnlistedSpecialPage {
 	}
 
 	private function checkoutArticle($articleId) {
-		if($articleId != "") {
+		if ($articleId != "") {
 			$dbw = wfGetDB(DB_MASTER);
 			$dbw->update(UserReview::TABLE_SUBMITTED, array('us_checkout' => wfTimestampNow()), array('us_article_id' => $articleId), __METHOD__);
 		}
 	}
 
 	private function releaseArticle($articleId) {
-		if($articleId) {
+		if ($articleId) {
 			$dbw = wfGetDB(DB_MASTER);
 			$dbw->update(UserReview::TABLE_SUBMITTED, array('us_checkout' => ''), array('us_article_id' => $articleId), __METHOD__);
 		}

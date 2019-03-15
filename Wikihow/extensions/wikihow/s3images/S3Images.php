@@ -1,11 +1,11 @@
 <?
 
 if (!defined('MEDIAWIKI')) die();
-    
+
 /**#@+
  * wikiHow stores its images on S3. This class contains a bunch of the glue for
  * those operations.
- * 
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *
@@ -22,10 +22,10 @@ $wgExtensionCredits['special'][] = array(
 	'url' => 'http://www.wikihow.com/WikiHow:S3Images-Extension',
 );
 
-$wgAutoloadClasses['S3Images'] = dirname( __FILE__ ) . '/S3Images.body.php';
-$wgAutoloadClasses['AwsFiles'] = dirname( __FILE__ ) . '/AwsFiles.body.php';
-$wgAutoloadClasses['UploadS3FileJob'] = dirname( __FILE__ ) . '/S3Job.body.php';
-$wgAutoloadClasses['DeleteS3FileJob'] = dirname( __FILE__ ) . '/S3Job.body.php';
+$wgAutoloadClasses['S3Images'] = __DIR__ . '/S3Images.body.php';
+$wgAutoloadClasses['AwsFiles'] = __DIR__ . '/AwsFiles.body.php';
+$wgAutoloadClasses['UploadS3FileJob'] = __DIR__ . '/S3Job.body.php';
+$wgAutoloadClasses['DeleteS3FileJob'] = __DIR__ . '/S3Job.body.php';
 
 $wgJobClasses['UploadS3FileJob'] = 'UploadS3FileJob';
 $wgJobClasses['DeleteS3FileJob'] = 'DeleteS3FileJob';

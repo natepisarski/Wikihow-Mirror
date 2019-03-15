@@ -8,7 +8,7 @@ class AdminInstantArticles extends UnlistedSpecialPage {
     }
 
     public function execute( $subPage ) {
-		global $wgDebugToolbar, $IP;
+		global $wgDebugToolbar;
 
 		$request = $this->getRequest();
 		$out = $this->getOutput();
@@ -16,13 +16,13 @@ class AdminInstantArticles extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 
 		if ( $user->isBlocked() || !in_array( 'staff', $userGroups ) ) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		if ( !$request->wasPosted() ) {
-			$this->outputAdminPageHtml(); 
+			$this->outputAdminPageHtml();
 			return;
 		}
 
@@ -46,24 +46,20 @@ class AdminInstantArticles extends UnlistedSpecialPage {
 			$result['debug']['queries'] = $info['queries'];
 		}
 
-		echo json_encode($result);
+		print json_encode($result);
     }
 
     public function getTemplateHtml( $templateName, $vars = array() ) {
-        global $IP;
-        $path = "$IP/extensions/wikihow/instantarticles";
-        EasyTemplate::set_path( $path );
+        EasyTemplate::set_path( __DIR__ );
         return EasyTemplate::html( $templateName, $vars );
     }
 
-    function outputAdminPageHtml() {
+    private function outputAdminPageHtml() {
 		$out = $this->getOutput();
-
         $out->setPageTitle( "Instant Articles Creator" );
 		$out->addModules( 'ext.wikihow.admininstantarticles' );
         $out->addHtml( $this->getTemplateHtml( 'AdminInstantArticles.tmpl.php' ) );
     }
-
 
 	public static function getSubmittedQuestions( $title, $approved, $limit ) {
 		$dbr = wfGetDB(DB_SLAVE);
@@ -143,7 +139,7 @@ class AdminInstantArticles extends UnlistedSpecialPage {
 			if ( $pqNode->nextAll('.step')->find('.whvid_gif')->length > 0 ) {
 				$src = $pqNode->nextAll('.step')->find('.whvid_gif')->attr('data-src');
 			}
-			$pqNode->find('img')->attr('src', "http://pad1.whstatic.com".$src );
+			#$pqNode->find('img')->attr('src', "http://pad1.whstatic.com".$src );
 		}
 
 		// TODO just remove and change things as needed
@@ -202,8 +198,8 @@ class AdminInstantArticles extends UnlistedSpecialPage {
 		}
 
 		$data = $this->getArticleContent( $title, $article, $context->getOutput() );
-		
-		echo $data."\n";
+
+		print $data."\n";
 
 		// figure out how to use facebook api
 	}

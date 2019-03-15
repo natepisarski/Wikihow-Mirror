@@ -11,4 +11,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminIntroSummary'] = 'AdminIntroSummary';
-$wgAutoloadClasses['AdminIntroSummary'] = dirname(__FILE__) . '/AdminIntroSummary.body.php';
+$wgAutoloadClasses['AdminIntroSummary'] = __DIR__ . '/AdminIntroSummary.body.php';

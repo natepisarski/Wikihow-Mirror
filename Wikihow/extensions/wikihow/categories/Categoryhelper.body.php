@@ -1,9 +1,9 @@
 <?php
 
-class Categoryhelper extends UnlistedSpecialPage {
+class CategoryHelper extends UnlistedSpecialPage {
 
 	function __construct() {
-		parent::__construct( 'Categoryhelper' );
+		parent::__construct( 'CategoryHelper' );
 	}
 
 	private static function getCategoryDropDownTree() {
@@ -754,7 +754,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
      */
 	public static function getTitleCategoryMask( $title ) {
 		global $wgCategoryNames;
-		if ( !$title || $title->getNamespace() != NS_MAIN ) {
+		if ( !$title || !$title->inNamespace(NS_MAIN) ) {
 			return 0;
 		}
 
@@ -770,7 +770,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 
 	public static function getTitleTopLevelCategories($title) {
 		global $wgCategoryNames, $wgContLang;
-		if ( !$title || $title->getNamespace() != NS_MAIN ) {
+		if ( !$title || !$title->inNamespace(NS_MAIN) ) {
 			return array();
 		}
 		$tree = $title->getParentCategoryTree();

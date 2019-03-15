@@ -15,7 +15,7 @@ class NFDProcessor {
 	var	$mTemplatePart = "nfd";
 	var $mRevision	= null; // current revision of the current article we are processing
 
-	function __construct($revision = null, $article = null) {
+	public function __construct($revision = null, $article = null) {
 		$this->mRevision	= $revision;
 		$this->mArticle		= $article;
 	}
@@ -26,34 +26,34 @@ class NFDProcessor {
 	 * NOTE: called by hooks in NFDGuardian.php
 	 */
 	public function process($echoInfo = false) {
-		if ($this->hasNFD($this->mRevision->getText())) { //currently has NFD tag
+		if (self::hasNFD($this->mRevision->getText())) { //currently has NFD tag
 			//now grab all the relevant information from this tag
 			$this->mTemplate = $this->getFullTemplateFromText($this->mRevision->getText());
-			$this->mReason = $this->extractReason($this->mTemplate);
+			$this->mReason = self::extractReason($this->mTemplate);
 			$this->setFirstEdit();
 
 			//now check to see if we actually need to add it in to the db
 			/*if ($this->mReason['type'] == "dup") {
 				//we don't use duplicates in this tool
 				self::markPreviousAsInactive($this->mArticle->getID());
-			} else*/ if ($this->hasInUse()) {
+			} else*/ if ($this->hasInuseTemplate()) {
 				//we don't put articles with inuse tags in the tool
 				//remove if already in tool
 				self::markPreviousAsInactive($this->mArticle->getID());
 				if ($echoInfo) {
-					echo "Removing from tool: " . $this->mArticle->getTitle()->getText() . "\n";
+					print "Removing from tool: " . $this->mArticle->getTitle()->getText() . "\n";
 				}
 			} elseif ($this->hasBeenDecided()) {
 				//its already been decided at another point in time (either in NFDGuardian or in regular discussions
 				//now make it advanced
 				$this->markAsAdvanced($this->mArticle->getID());
 				if ($echoInfo) {
-					echo "Marking as Advanced: " . $this->mArticle->getTitle()->getText() . "\n";
+					print "Marking as Advanced: " . $this->mArticle->getTitle()->getText() . "\n";
 				}
 			} elseif (!$this->availableOrAdvancedInTool($this->mArticle->getID())) {
 				$this->logEntry(NFDGuardian::NFD_AVAILABLE);
 				if ($echoInfo) {
-					echo "Adding: " . $this->mArticle->getTitle()->getText() . "\n";
+					print "Adding: " . $this->mArticle->getTitle()->getText() . "\n";
 				}
 			} else {
 				//already in tool, so no need to do anything
@@ -61,19 +61,20 @@ class NFDProcessor {
 		} else { //currently doesn't have NFD tag
 			self::markPreviousAsInactive($this->mArticle->getID());
 			if ($echoInfo) {
-				echo "Removing from tool: " . $this->mArticle->getTitle()->getText() . "\n";
+				print "Removing from tool: " . $this->mArticle->getTitle()->getText() . "\n";
 			}
 		}
 	}
 
-	static function hasNFD($text) {
+	public static function hasNFD($text) {
 		return preg_match("@{{nfd@i", $text);
 	}
 
-	function hasInuse() {
+	private function hasInuseTemplate() {
 		return preg_match("@{{inuse@i", $this->mRevision->getText());
 	}
 
+	/* unused in 3/2019 - Reuben
 	function availableInTool() {
 		$dbr = wfGetDB(DB_SLAVE);
 
@@ -86,8 +87,9 @@ class NFDProcessor {
 
 		return $entries > 0;
 	}
+	*/
 
-	static function hasBeenDiscussed($title) {
+	private function hasBeenDiscussed($title) {
 		if ($title) {
 			$discussionTitle = Title::newFromText($title->getText(), NS_TALK);
 			if ($discussionTitle) {
@@ -108,7 +110,7 @@ class NFDProcessor {
 		return false;
 	}
 
-	static function hasBeenPatrolled($page_id) {
+	private function hasBeenPatrolled($page_id) {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$count = $dbr->selectField('nfd', 'count(*)', array('nfd_page' => $page_id, 'nfd_patrolled' => "1"));
@@ -116,11 +118,11 @@ class NFDProcessor {
 		return $count > 0;
 	}
 
-	function hasBeenDecided() {
+	private function hasBeenDecided() {
 		return $this->hasBeenDiscussed($this->mArticle->getTitle()) || $this->hasBeenPatrolled($this->mArticle->getID());
 	}
 
-	function markAsAdvanced($articleId) {
+	private function markAsAdvanced($articleId) {
 		//check to see if it exists in the table
 		$hasEntry = $this->existsInTool();
 		if ($hasEntry) {
@@ -130,7 +132,7 @@ class NFDProcessor {
 		}
 	}
 
-	function existsInTool() {
+	private function existsInTool() {
 		$dbr = wfGetDB(DB_MASTER);
 
 		$articleId = $this->mArticle->getID();
@@ -154,8 +156,9 @@ class NFDProcessor {
 	 * Given an NFD template in the form {{nfd|rea|date}}, extracts
 	 * the specific reason given (3 letter code) and also checks for
 	 * the existence of a duplicate article title.
+	 * NOTE: called by NFDGuardian
 	 */
-	function extractReason($nfdTemplate) {
+	public static function extractReason($nfdTemplate) {
 		$nfdReasons = array();
 		$nfdReasons['type'] = "none";
 
@@ -177,7 +180,7 @@ class NFDProcessor {
 	 * (eg: {{nfd|acc|date}}
 	 *
 	 */
-	function getFullTemplate($nfdid = 0) {
+	private function getFullTemplate($nfdid = 0) {
 		if ($this->mTemplate != null) {
 			return $this->mTemplate;
 		} else {
@@ -190,7 +193,7 @@ class NFDProcessor {
 	/**
 	 *  Removes an unneeded NFD entry from the nfd table
 	 *  if the title doesn't exist in the db
-	 */
+	 * NOTE: unused 3/2019
 	function deleteBad($nfd_page) {
 		// is there something we can delete ?
 		$dbw = wfGetDB(DB_MASTER);
@@ -199,15 +202,17 @@ class NFDProcessor {
 			$dbw->delete('nfd', array('nfd_page'=>$nfd_page));
 		}
 	}
+	 */
 
-	function getTitleFromNFDID($nfdid) {
-
+	// Used in NFDGuardian
+	public static function getTitleFromNFDID($nfdid) {
 		$dbr = wfGetDB(DB_MASTER);
 		$page_id = $dbr->selectField('nfd', 'nfd_page', ['nfd_id' => $nfdid], __METHOD__);
 		$t = Title::newFromID($page_id);
 		return $t;
 	}
 
+	/* unused in 3/2019
 	static function markAsPatrolled($nfdid, $id) {
 		$dbw = wfGetDB(DB_MASTER);
 		//mark any existing entries as patrolled for this entry
@@ -217,8 +222,9 @@ class NFDProcessor {
 			__METHOD__);
 		self::markPreviousAsInactive($id);
 	}
+	*/
 
-	static function markAsDup($nfdid, $id) {
+	private static function markAsDup($nfdid, $id) {
 		$dbw = wfGetDB(DB_MASTER);
 		//mark any existing entries as patrolled for this entry
 		$dbw->update("nfd",
@@ -243,7 +249,7 @@ class NFDProcessor {
 			__METHOD__);
 	}
 
-	static function markPreviousAsAdvanced($id) {
+	private static function markPreviousAsAdvanced($id) {
 		$dbw = wfGetDB(DB_MASTER);
 		//mark any existing entries as advanced for this entry
 		$dbw->update("nfd",
@@ -252,16 +258,16 @@ class NFDProcessor {
 			__METHOD__);
 	}
 
-	function logEntry($status) {
-		global $wgUser;
+	private function logEntry($status) {
+		$user = RequestContext::getMain()->getUser();
 
 		$opts = array(	"nfd_action" => "added",
 						"nfd_template" => $this->mTemplate,
 						"nfd_reason" => $this->mReason['type'],
 						"nfd_timestamp" => $this->mRevision->getTimestamp(),
 						"nfd_fe_timestamp" => $this->mFirstEdit,
-						"nfd_user" => $wgUser->getID(),
-						"nfd_user_text" => $wgUser->getName(),
+						"nfd_user" => $user->getID(),
+						"nfd_user_text" => $user->getName(),
 						"nfd_page" => $this->mArticle->getID(),
 						"nfd_status" => $status
 				);
@@ -272,8 +278,9 @@ class NFDProcessor {
 		$dbw->insert('nfd', $opts, __METHOD__);
 	}
 
-	function getNextToPatrolHTML() {
-		global $wgOut, $wgParser;
+	// Called by NFDGuardian
+	public function getNextToPatrolHTML() {
+		global $wgParser;
 
 		if ( !$this->mResult ) {
 			// Nothing to patrol
@@ -296,7 +303,7 @@ class NFDProcessor {
 		}
 
 		// Generate article preview
-		$popts = $wgOut->parserOptions();
+		$popts = RequestContext::getMain()->getOutput()->parserOptions();
 		$popts->setTidy( true );
 		$text = $revision->getText();
 		$output = $wgParser->parse( $text, $title, $popts );
@@ -308,7 +315,7 @@ class NFDProcessor {
 		);
 
 		// Wrap article preview in template
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars( array(
 			'titleUrl' => $title->getFullURL(),
 			'title' => $title->getText(),
@@ -322,14 +329,12 @@ class NFDProcessor {
 	}
 
 	/**
-	 *
 	 * Marks the given nfd as viewed by the user (could
 	 * be b/c of skip or vote)
-	 *
 	 */
-	static function markNFDAsViewed($nfdid) {
-		global $wgMemc, $wgUser;
-		$userid = $wgUser->getID();
+	private static function markNFDAsViewed($nfdid) {
+		global $wgMemc;
+		$userid = RequestContext::getMain()->getUser()->getID();
 		$key = wfMemcKey("nfduserlog");
 		$log = $wgMemc->get($key);
 		if (!$log) {
@@ -343,14 +348,12 @@ class NFDProcessor {
 	}
 
 	/**
-	 *
 	 * Gets a list of all articles previously viewed
 	 * by the current user
-	 *
 	 */
-	static function getPreviouslyViewed() {
-		global $wgMemc, $wgUser;
-		$userid = $wgUser->getID();
+	private static function getPreviouslyViewed() {
+		global $wgMemc;
+		$userid = RequestContext::getMain()->getUser()->getID();
 		$key = wfMemcKey("nfduserlog");
 
 		$log = $wgMemc->get($key);
@@ -372,8 +375,9 @@ class NFDProcessor {
 		return $str;
 	}
 
+	// Called by NFDGuardian
 	public static function getNextToPatrol($type) {
-		global $wgUser;
+		$user = RequestContext::getMain()->getUser();
 
 		// grab the next one
 		$dbw = wfGetDB(DB_MASTER);
@@ -381,11 +385,11 @@ class NFDProcessor {
 		$eligible = wfTimestamp(TS_MW, time() - NFDGuardian::NFD_WAITING);
 
 
-		$sql = "SELECT * from nfd left join nfd_vote ON nfd_id=nfdv_nfdid AND nfdv_user = {$wgUser->getID()} "
+		$sql = "SELECT * from nfd left join nfd_vote ON nfd_id=nfdv_nfdid AND nfdv_user = {$user->getID()} "
 			. " WHERE ( nfd_checkout_time < '{$expired}' OR nfd_checkout_time = '')
 				AND nfd_patrolled = 0
 				AND nfd_status = '" . NFDGuardian::NFD_AVAILABLE . "'
-				AND nfd_user != {$wgUser->getID()}
+				AND nfd_user != {$user->getID()}
 				AND nfd_timestamp < '{$eligible}'
 				AND nfdv_nfdid is NULL ";
 
@@ -422,7 +426,7 @@ class NFDProcessor {
 		if ($result) {
 			// mark this as checked out
 			$dbw->update('nfd',
-				['nfd_checkout_time' => wfTimestampNow(), 'nfd_checkout_user' => $wgUser->getID()],
+				['nfd_checkout_time' => wfTimestampNow(), 'nfd_checkout_user' => $user->getID()],
 				['nfd_id' => $result->nfd_id],
 				__METHOD__);
 		}
@@ -430,7 +434,7 @@ class NFDProcessor {
 		return $c;
 	}
 
-	function releaseNFD($nfdid) {
+	private static function releaseNFD($nfdid) {
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->update('nfd',
 			['nfd_checkout_time' => "", 'nfd_checkout_user' => 0],
@@ -449,14 +453,14 @@ class NFDProcessor {
 	}
 
 	public static function save($nfdid, &$t) {
-		global $wgUser, $wgLang;
+		$user = RequestContext::getMain()->getUser();
 		$dbw = wfGetDB(DB_MASTER);
 		$nfdUser = new User();
 		$nfdUser->setName( 'NFD Voter Tool' );
 		// have they already voted on this?  if so, forget about it, release the current one back to the queue and get out of here
 		$count = $dbw->selectField('nfd_vote',
 			'count(*)',
-			['nfdv_user' => $wgUser->getID(), 'nfdv_nfdid' => $nfdid],
+			['nfdv_user' => $user->getID(), 'nfdv_nfdid' => $nfdid],
 			__METHOD__);
 		if ($count > 0) {
 			self::releaseNFD($nfdid);
@@ -473,7 +477,7 @@ class NFDProcessor {
 		//now mark a keep vote
 		$opts = array();
 		$voteCount = 0;
-		if ($wgUser->isSysOp()) {
+		if ($user->isSysOp()) {
 			$voteCount = 2;
 			$opts[] = "nfd_admin_keep_votes = nfd_admin_keep_votes + 1";
 		} else {
@@ -485,7 +489,7 @@ class NFDProcessor {
 		$dbw->update('nfd', $opts, ['nfd_id '=> $nfdid], __METHOD__);
 		if ($nfdid) {
 			$dbw->insert('nfd_vote',
-				['nfdv_user' => $wgUser->getID(), 'nfdv_vote' => $voteint, 'nfdv_nfdid' => $nfdid, 'nfdv_timestamp' => wfTimestampNow()],
+				['nfdv_user' => $user->getID(), 'nfdv_vote' => $voteint, 'nfdv_nfdid' => $nfdid, 'nfdv_timestamp' => wfTimestampNow()],
 				__METHOD__);
 		}
 
@@ -504,8 +508,8 @@ class NFDProcessor {
 			//not enough votes to keep, so just mark about the save
 			//post on discussion page
 			$discussionTitle = $t->getTalkPage();
-			$userName = $wgUser->getName();
-			$dateStr = $wgLang->date(wfTimestampNow());
+			$userName = $user->getName();
+			$dateStr = RequestContext::getMain()->getLanguage()->date(wfTimestampNow());
 
 			$comment = wfMessage('nfd_save_message')->rawParams("[[User:$userName|$userName]]", $dateStr)->escaped();
 			$formattedComment = TalkPageFormatter::createComment( $nfdUser, $comment );
@@ -532,22 +536,26 @@ class NFDProcessor {
 
 			$msg = wfMessage("nfdrule_log_{$vote_param}")->rawParams("[[{$title->getText()}]]")->escaped();
 			$log->addEntry('vote', $title, $msg, array($vote));
-			wfRunHooks("NFDVoted", array($wgUser, $title, '0'));
+			wfRunHooks("NFDVoted", array($user, $title, '0'));
 		}
 	}
 
 	public static function vote($nfdid, $vote) {
-		global $wgUser;
+		$user = RequestContext::getMain()->getUser();
 		$dbw = wfGetDB(DB_MASTER);
 		// have they already voted on this?  if so, forget about it, release the current one back to the queue and get out of here
-		$count = $dbw->selectField('nfd_vote', array('count(*)'), array('nfdv_user'=>$wgUser->getID(), 'nfdv_nfdid'=>$nfdid));
+		$count = $dbw->selectField('nfd_vote',
+			array('count(*)'),
+			array('nfdv_user' => $user->getID(),
+				  'nfdv_nfdid' => $nfdid),
+			__METHOD__);
 		if ($count > 0) {
 			self::releaseNFD($nfdid);
 			return;
 		}
 		$opts = array();
 		$voteCount = 0;
-		if ($wgUser->isSysOp()) {
+		if ($user->isSysOp()) {
 			$voteCount = 2;
 			if ($vote == 1) {
 				$opts[] = "nfd_admin_delete_votes = nfd_admin_delete_votes + 1";
@@ -567,7 +575,12 @@ class NFDProcessor {
 
 		$dbw->update('nfd', $opts, array('nfd_id'=>$nfdid), __METHOD__);
 		if ($nfdid != null) {
-			$dbw->insert('nfd_vote', array('nfdv_user'=>$wgUser->getID(), 'nfdv_vote'=>$voteint, 'nfdv_nfdid'=>$nfdid, 'nfdv_timestamp' => wfTimestampNow()), __METHOD__);
+			$dbw->insert('nfd_vote',
+				array('nfdv_user' => $user->getID(),
+					  'nfdv_vote' => $voteint,
+					  'nfdv_nfdid' => $nfdid,
+					  'nfdv_timestamp' => wfTimestampNow()),
+				__METHOD__);
 		}
 
 		$row = $dbw->selectRow('nfd', '*', array('nfd_id'=>$nfdid), __METHOD__);
@@ -580,7 +593,7 @@ class NFDProcessor {
 
 			$msg = wfMessage("nfdrule_log_{$vote_param}")->rawParams("[[{$title->getText()}]]")->escaped();
 			$log->addEntry('vote', $title, $msg, array($vote));
-			wfRunHooks("NFDVoted", array($wgUser, $title, $vote));
+			wfRunHooks("NFDVoted", array($user, $title, $vote));
 		}
 
 		// check, do we have to mark it as patrolled, or roll the change back?
@@ -605,15 +618,13 @@ class NFDProcessor {
 	}
 
 	// user skips it, so add this to the stuff they have viewed
-	function skip($nfdid) {
+	// Called by NFDGuardian
+	public static function skip($nfdid) {
 		self::markNFDAsViewed($nfdid);
 	}
 
-	function getPart() {
-		return "\{\{" . $this->mTemplatePart;
-	}
-
-	function getFullTemplateFromText($text) {
+	// Called by NFDGuardian
+	public function getFullTemplateFromText($text) {
 		$matches = array();
 		$count = preg_match('/{{nfd[^{{]*}}/i', $text, $matches);
 		if (count($matches) > 0) {
@@ -624,13 +635,16 @@ class NFDProcessor {
 		}
 	}
 
-	function setFirstEdit() {
+	private function setFirstEdit() {
 		$dbr = wfGetDB(DB_SLAVE);
-
-		$this->mFirstEdit = $dbr->selectField('firstedit', 'fe_timestamp', ['fe_page'=> $this->mArticle->getID()], __METHOD__);
+		$this->mFirstEdit = $dbr->selectField('firstedit',
+			'fe_timestamp',
+			['fe_page'=> $this->mArticle->getID()],
+			__METHOD__);
 	}
 
-	static function getDeleteVotesRequired($currentKeepVotes) {
+	// Called by NFDGuardian
+	public static function getDeleteVotesRequired($currentKeepVotes) {
 		global $wgNfdVotesRequired;
 
 		if ($currentKeepVotes > 0) {
@@ -640,32 +654,29 @@ class NFDProcessor {
 		}
 	}
 
-	static function getAdminDeleteVotesRequired() {
+	// Called by NFDGuardian
+	public static function getAdminDeleteVotesRequired() {
 		global $wgNfdVotesRequired;
 		return $wgNfdVotesRequired["admin_delete"];
 	}
 
-	static function getKeepVotesRequired() {
+	// Called by NFDGuardian
+	public static function getKeepVotesRequired() {
 		global $wgNfdVotesRequired;
 		return $wgNfdVotesRequired["keep"];
 	}
 
-	static function getAdminKeepVotesRequired() {
+	// Called by NFDGuardian
+	public static function getAdminKeepVotesRequired() {
 		global $wgNfdVotesRequired;
 		return $wgNfdVotesRequired["admin_keep"];
 	}
 
 	/**
-	 *
-	 * Returns the html for the box at the
-	 * top of NFD Guardian which contains
-	 * information about the current
-	 * article being voted on.
-	 *
+	 * Returns the html for the box at the top of NFD Guardian which
+	 * contains information about the current article being voted on.
 	 */
-	function getArticleInfoBox() {
-		global $wgOut;
-
+	private function getArticleInfoBox() {
 		//first find out who the author was
 		$articleInfo = $this->getArticleInfo();
 		if (intval($articleInfo->fe_user) > 0) {
@@ -727,13 +738,13 @@ class NFDProcessor {
 		}
 
 		$articleInfo = $this->getArticleInfo();
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'age' => wfTimeAgo($this->mResult->nfd_fe_timestamp),
 			'authorUrl' => $userLink,
 			'authorName' => $userName,
 			'views' => $articleInfo->page_counter,
-			'nfd' => $wgOut->parse($nfdLongReason),
+			'nfd' => RequestContext::getMain()->getOutput()->parse($nfdLongReason),
 			'edits' => $edits,
 			'userEdits' => $uEdits,
 			'nfdVotes' => $this->getTotalVotes($this->mResult->nfd_id),
@@ -744,7 +755,7 @@ class NFDProcessor {
 		return $html;
 	}
 
-	static function replaceTemplatesInText(&$text, $pageId) {
+	private static function replaceTemplatesInText(&$text, $pageId) {
 		$t = Title::newFromID($pageId);
 		if ($t) {
 			//check for talk page
@@ -757,13 +768,10 @@ class NFDProcessor {
 	}
 
 	/**
-	 *
 	 * Returns the text for the all the votes listed
 	 * in the info section.
-	 *
 	 */
-	function getTotalVotes($nfd_id) {
-
+	private function getTotalVotes($nfd_id) {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$keeps = array();
@@ -808,7 +816,7 @@ class NFDProcessor {
 
 	}
 
-	function getArticleInfo() {
+	private function getArticleInfo() {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$row = $dbr->selectRow(array('page', 'firstedit'), '*', array('fe_page=page_id', 'page_id' => $this->mResult->nfd_page), __METHOD__);
@@ -816,13 +824,10 @@ class NFDProcessor {
 	}
 
 	/**
-	 *
 	 * Deletes the article with the given nfdid
-	 *
+	 * NOTE: called in NFDGuardian
 	 */
-	function deleteArticle($nfdid, $nfdReason) {
-		global $wgUser, $wgLang;
-
+	public function deleteArticle($nfdid, $nfdReason) {
 		$nfdUser = new User();
 		$nfdUser->setName( 'NFD Voter Tool' );
 
@@ -846,7 +851,7 @@ class NFDProcessor {
 			return false;
 		}
 
-		$dateStr = gmdate('n/j/Y', time()); //$wgLang->date(wfTimestampNow());
+		$dateStr = gmdate('n/j/Y', time());
 		$votes = $this->getVotes($nfdid, $dbr);
 		$comment = wfMessage('nfd_delete_message')->rawParams($dateStr, $nfdReason['type'], $votes['deleteUsers'], $votes['keepUsers'], "[[".$t->getText()."]]", number_format($article->getCount(), 0, "", ","))->escaped();
 
@@ -919,30 +924,28 @@ class NFDProcessor {
 	}
 
 	/**
-	 *
 	 * Helper function to get an array of all the votes
 	 * to delete and keep for the given nfdid
-	 *
 	 */
-	function getVotes($nfdid, &$dbr) {
+	private function getVotes($nfdid, $dbr) {
 		$votes = array();
 		$votes['keepUsers'] = "";
 		$votes['deleteUsers'] = "";
 		$res = $dbr->select('nfd_vote', ['nfdv_user', 'nfdv_vote'], ['nfdv_nfdid' => $nfdid], __METHOD__);
 		foreach ($res as $row) {
-			$user = User::newFromId($row->nfdv_user);
-			if ($user) {
+			$nfdvUser = User::newFromId($row->nfdv_user);
+			if ($nfdvUser) {
 				if ($row->nfdv_vote == 0) {
 					if ($votes['keepUsers']) {
 						$votes['keepUsers'] .= ", ";
 					}
-					$userName = $user->getName();
+					$userName = $nfdvUser->getName();
 					$votes['keepUsers'] .= "[[User:$userName|$userName]]";
 				} else {
 					if ($votes['deleteUsers']) {
 						$votes['deleteUsers'] .= ", ";
 					}
-					$userName = $user->getName();
+					$userName = $nfdvUser->getName();
 					$votes['deleteUsers'] .= "[[User:$userName|$userName]]";
 				}
 			}
@@ -958,12 +961,8 @@ class NFDProcessor {
 		return $votes;
 	}
 
-	/*
-	 * NOTE: used in NFDGuardian.
-	 */
+	// NOTE: used in NFDGuardian.
 	public function keepArticle($nfdid) {
-		global $wgUser, $wgLang;
-
 		// keep the article
 		$dbr = wfGetDB(DB_SLAVE);
 
@@ -997,9 +996,10 @@ class NFDProcessor {
 			$votes = $this->getVotes($nfdid, $dbr);
 
 			$fullTemplate = $this->getFullTemplate($nfdid);
-			$nfdReason = $this->extractReason($fullTemplate);
+			$nfdReason = self::extractReason($fullTemplate);
 			$keepTemplate = "{{" . $this->mTemplatePart . "|" . $nfdReason['type'] . "|result=keep}}\n";
-			$dateStr = $wgLang->date(wfTimestampNow());
+			$lang = RequestContext::getMain()->getLanguage();
+			$dateStr = $lang->date(wfTimestampNow());
 
 			$comment = $keepTemplate . wfMessage('nfd_keep_message')->rawParams($dateStr, $votes['keepUsers'], $votes['deleteUsers'])->escaped();
 			$formattedComment = TalkPageFormatter::createComment( $nfdUser, $comment );
@@ -1039,13 +1039,13 @@ class NFDGuardian extends SpecialPage {
 	const NFD_WAITING = 604800; //60*60*24*7 = 604800 = 7 days
 	const NFD_EXPIRED = 3600; //60*60 = 1 hour
 
-	function __construct() {
+	public function __construct() {
 		global $wgHooks;
 		parent::__construct( 'NFDGuardian' );
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
-	function getNextInnards($nfd_type) {
+	private static function getNextInnards($nfd_type) {
 		// grab the next check
 		$result = array();
 		$c = NFDProcessor::getNextToPatrol($nfd_type);
@@ -1055,9 +1055,9 @@ class NFDGuardian extends SpecialPage {
 			$result['html'] 		= $c->getNextToPatrolHTML();
 			$result['nfd_id'] 		= $c->mResult->nfd_id;
 			$result['nfd_page']		= $c->mResult->nfd_page;
-			$result['nfd_reasons_link'] = $this->getNfdReasonsLink();
-			$result['nfd_reasons']	= $this->getNfdReasonsDropdown($nfd_type);
-			$result['nfd_discussion_count'] = $this->getDiscussionCount($c->mResult->nfd_page);
+			$result['nfd_reasons_link'] = self::getNfdReasonsLink();
+			$result['nfd_reasons']	= self::getNfdReasonsDropdown($nfd_type);
+			$result['nfd_discussion_count'] = self::getDiscussionCount($c->mResult->nfd_page);
 		} else {
 			$result['done'] 		= 1;
 			$result['title'] 		= wfMessage('nfd');
@@ -1067,43 +1067,47 @@ class NFDGuardian extends SpecialPage {
 										<p>".wfMessage('nfd_congrats_3')->text()."</p>
 										</div></div>";
 
-			$result['nfd_reasons_link'] = $this->getNfdReasonsLink();
-			$result['nfd_reasons']	= $this->getNfdReasonsDropdown($nfd_type);
+			$result['nfd_reasons_link'] = self::getNfdReasonsLink();
+			$result['nfd_reasons']	= self::getNfdReasonsDropdown($nfd_type);
 		}
 		return $result;
 	}
 
-	function execute($par) {
-		global $wgUser, $wgOut, $wgRequest, $wgTitle;
+	public function execute($par) {
+		global $wgTitle;
 
-		if ($wgUser->isBlocked()) {
-			$wgOut->blockedPage();
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		if ($user->isBlocked()) {
+			$out->blockedPage();
 			return;
 		}
 
-		if ( !$wgUser->isSysop() && !in_array( 'nfd', $wgUser->getGroups()) ) {
-			$wgOut->setRobotpolicy( 'noindex,nofollow' );
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		if ( !$user->isSysop() && !in_array( 'nfd', $user->getGroups()) ) {
+			$out->setRobotPolicy( 'noindex,nofollow' );
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
-		if ($wgRequest->getVal('fetchInnards')) {
+		if ($req->getVal('fetchInnards')) {
 			//get next article to vote on
-			$wgOut->disable();
-			$result = self::getNextInnards($wgRequest->getVal('nfd_type'));
-			print_r(json_encode($result));
+			$out->setArticleBodyOnly(true);
+			$result = self::getNextInnards($req->getVal('nfd_type'));
+			print(json_encode($result));
 			return;
 
-		} elseif ($wgRequest->getVal('getVoteBlock')) {
+		} elseif ($req->getVal('getVoteBlock')) {
 			//get all the votes for the right rail module
-			$wgOut->setArticleBodyOnly(true);
-			$wgOut->addHTML(self::getVoteBlock($wgRequest->getVal('nfd_id')));
+			$out->setArticleBodyOnly(true);
+			$out->addHTML(self::getVoteBlock($req->getVal('nfd_id')));
 			return;
 
-		} elseif ( $wgRequest->getVal('edit') ) {
+		} elseif ( $req->getVal('edit') ) {
 			//get the html that goes into the page when a user clicks the edit tab
-			$wgOut->setArticleBodyOnly(true);
-			$t = Title::newFromID($wgRequest->getVal('articleId'));
+			$out->setArticleBodyOnly(true);
+			$t = Title::newFromID($req->getVal('articleId'));
 			if ($t) {
 				$a = new Article($t);
 				$editor = new EditPage( $a );
@@ -1111,8 +1115,8 @@ class NFDGuardian extends SpecialPage {
 
 				//Old code for when we wanted to remove
 				//the nfd template from the edit window
-				/*$content = $wgOut->getHTML();
-				$wgOut->clearHTML();
+				/*$content = $out->getHTML();
+				$out->clearHTML();
 
 				//grab the edit form
 				$data = array();
@@ -1120,17 +1124,17 @@ class NFDGuardian extends SpecialPage {
 
 				//then take out the template
 				$c = new NFDProcessor();
-				$template = $c->getFullTemplate($wgRequest->getVal('nfd_id'));
+				$template = $c->getFullTemplate($req->getVal('nfd_id'));
 				$articleContent = $a->getContent();
 				$articleContent = str_replace($template, "", $articleContent);
 				$data['newContent'] = $articleContent;
-				print_r(json_encode($data));*/
+				print(json_encode($data));*/
 			}
 			return;
-		} elseif ( $wgRequest->getVal('discussion')) {
+		} elseif ( $req->getVal('discussion')) {
 			//get the html that goes into the page when a user clicks the discussion tab
-			$wgOut->setArticleBodyOnly(true);
-			$t = Title::newFromID($wgRequest->getVal('articleId'));
+			$out->setArticleBodyOnly(true);
+			$t = Title::newFromID($req->getVal('articleId'));
 			if ($t) {
 				$tDiscussion = $t->getTalkPage();
 				if ($tDiscussion) {
@@ -1138,23 +1142,23 @@ class NFDGuardian extends SpecialPage {
 					$content = $a->getContent();
 					$wgOldTitle = $wgTitle;
 					$wgTitle = $tDiscussion;
-					$wgOut->addHTML($wgOut->parse($content));
+					$out->addHTML($out->parse($content));
 					$postComment = new PostComment;
-					$wgOut->addHTML($postComment->getForm(true, $tDiscussion, true));
+					$out->addHTML($postComment->getForm(true, $tDiscussion, true));
 					$wgTitle = $wgOldTitle;
 				}
 			}
 			return;
-		} elseif ($wgRequest->getVal( 'confirmation' )) {
+		} elseif ($req->getVal( 'confirmation' )) {
 			//get confirmation dialog after user has edited the article
-			$wgOut->setArticleBodyOnly(true);
-			echo $this->confirmationModal($wgRequest->getVal('articleId')) ;
+			$out->setArticleBodyOnly(true);
+			print $this->confirmationModal($req->getVal('articleId')) ;
 			return;
 
-		} elseif ($wgRequest->getVal('history')) {
+		} elseif ($req->getVal('history')) {
 			//get the html that goes into the page when a user clicks the history tab
-			$wgOut->setArticleBodyOnly(true);
-			$t = Title::newFromID($wgRequest->getVal('articleId'));
+			$out->setArticleBodyOnly(true);
+			$t = Title::newFromID($req->getVal('articleId'));
 			if ($t) {
 				$historyContext = clone $this->getContext();
 				$historyContext->setTitle( $t );
@@ -1165,58 +1169,58 @@ class NFDGuardian extends SpecialPage {
 
 				return;
 			}
-		} elseif ($wgRequest->getVal('helpful')) {
+		} elseif ($req->getVal('helpful')) {
 			//get the html that goes into the page when a user clicks the helpfulness tab
-			$wgOut->setArticleBodyOnly(true);
-			$t = Title::newFromID($wgRequest->getVal('articleId'));
+			$out->setArticleBodyOnly(true);
+			$t = Title::newFromID($req->getVal('articleId'));
 			if ($t && $t->exists()) {
-				echo PageHelpfulness::getJSsnippet("article");
+				print PageHelpfulness::getJSsnippet("article");
 				return;
 			}
-		} elseif ($wgRequest->getVal('diff')) {
+		} elseif ($req->getVal('diff')) {
 			//get the html that goes into the page when a user asks for a diffs
-			$wgOut->setArticleBodyOnly(true);
-			$t = Title::newFromID($wgRequest->getVal('articleId'));
+			$out->setArticleBodyOnly(true);
+			$t = Title::newFromID($req->getVal('articleId'));
 			if ($t) {
 				$a = new Article($t);
-				$wgOut->addHtml('<div class="article_inner">');
+				$out->addHtml('<div class="article_inner">');
 				$a->view();
-				$wgOut->addHtml('</div>');
+				$out->addHtml('</div>');
 			}
 			return;
-		} elseif ($wgRequest->getVal('article')) {
+		} elseif ($req->getVal('article')) {
 			//get the html that goes into the page when a user clicks the article tab
-			$wgOut->setArticleBodyOnly(true);
-			$t = Title::newFromId($wgRequest->getVal('articleId'));
+			$out->setArticleBodyOnly(true);
+			$t = Title::newFromId($req->getVal('articleId'));
 			if ($t) {
 				$r = Revision::newFromTitle($t);
 				if ($r) {
-					$popts = $wgOut->parserOptions();
+					$popts = $out->parserOptions();
 					$popts->setTidy(true);
-					echo WikihowArticleHTML::processArticleHTML($wgOut->parse($r->getText(), $t, $popts), array('no-ads'=> true, 'ns' => $t->getNamespace()));
+					print WikihowArticleHTML::processArticleHTML($out->parse($r->getText(), $t, $popts), array('no-ads'=> true, 'ns' => $t->getNamespace()));
 				}
 			}
 			return;
 
-		} elseif ($wgRequest->wasPosted()) {
-			$wgOut->setArticleBodyOnly(true);
-			if ($wgRequest->getVal('submitEditForm')) {
+		} elseif ($req->wasPosted()) {
+			$out->setArticleBodyOnly(true);
+			if ($req->getVal('submitEditForm')) {
 				//user has edited the article from within the NFD Guardian tool
-				$wgOut->disable();
+				$out->disable();
 				$this->submitEdit();
-				$result = self::getNextInnards($wgRequest->getVal('nfd_type'));
-				print_r(json_encode($result));
+				$result = self::getNextInnards($req->getVal('nfd_type'));
+				print(json_encode($result));
 				return;
 			} else {
 				//user has voted
-				if ($wgRequest->getVal('nfd_skip', 0) == 1) {
-					NFDProcessor::skip($wgRequest->getVal('nfd_id'));
+				if ($req->getVal('nfd_skip', 0) == 1) {
+					NFDProcessor::skip($req->getVal('nfd_id'));
 				} else {
-					NFDProcessor::vote($wgRequest->getVal('nfd_id'), $wgRequest->getVal('nfd_vote'));
+					NFDProcessor::vote($req->getVal('nfd_id'), $req->getVal('nfd_vote'));
 				}
-				$wgOut->disable();
-				$result = self::getNextInnards($wgRequest->getVal('nfd_type'));
-				print_r(json_encode($result));
+				$out->disable();
+				$result = self::getNextInnards($req->getVal('nfd_type'));
+				print(json_encode($result));
 				return;
 			}
 		}
@@ -1224,19 +1228,19 @@ class NFDGuardian extends SpecialPage {
 		/**
 		 * This is the shell of the page, has the buttons, etc.
 		 */
-		$wgOut->addModules('jquery.ui.dialog');
-		$wgOut->addModules( ['ext.wikihow.nfd_guardian', 'ext.wikihow.editor_script'] );
-		$wgOut->addModules( ['ext.wikihow.diff_styles', 'ext.wikihow.pagehelpfulness'] );
+		$out->addModules('jquery.ui.dialog');
+		$out->addModules( ['ext.wikihow.nfd_guardian', 'ext.wikihow.editor_script'] );
+		$out->addModules( ['ext.wikihow.diff_styles', 'ext.wikihow.pagehelpfulness'] );
 
 		//add delete confirmation to bottom of page
-		$wgOut->addHtml("<div class='waiting'><img src='" . wfGetPad('/extensions/wikihow/rotate.gif') . "' alt='' /></div>");
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
-		$wgOut->addHTML($tmpl->execute('NFDdelete.tmpl.php'));
-		$wgOut->setHTMLTitle(wfMessage('nfd'));
-		$wgOut->setPageTitle(wfMessage('nfd'));
+		$out->addHtml("<div class='waiting'><img src='" . wfGetPad('/extensions/wikihow/rotate.gif') . "' alt='' /></div>");
+		$tmpl = new EasyTemplate( __DIR__ );
+		$out->addHTML($tmpl->execute('NFDdelete.tmpl.php'));
+		$out->setHTMLTitle(wfMessage('nfd'));
+		$out->setPageTitle(wfMessage('nfd'));
 
 		// Load UsageLogs for tracking
-		$wgOut->addModules('ext.wikihow.UsageLogs');
+		$out->addModules('ext.wikihow.UsageLogs');
 
 		// add standings widget
 		$group= new NFDStandingsGroup();
@@ -1257,16 +1261,14 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * Returns the html for the confirmation dialog
 	 * after a user has edited an article
-	 *
 	 */
-	function confirmationModal($articleId) {
+	private function confirmationModal($articleId) {
 		$html = '';
 		$t = Title::newFromID($articleId);
 		if ($t) {
-			$tmpl = new EasyTemplate( dirname(__FILE__) );
+			$tmpl = new EasyTemplate( __DIR__ );
 			$tmpl->set_vars(array(
 				'titleUrl' => $t->getLocalURL(),
 				'title' => $t->getText(),
@@ -1278,13 +1280,11 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * Returns the html for voting module
 	 * in the right rail for a given
 	 * NFD Id.
-	 *
 	 */
-	function getVoteBlock($nfd_id) {
+	private static function getVoteBlock($nfd_id) {
 		$dbr = wfGetDB(DB_SLAVE);
 		$row = $dbr->selectRow('nfd', '*', ['nfd_id' => $nfd_id], __METHOD__);
 
@@ -1294,15 +1294,12 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * Handles an edit the user has made.
-	 *
 	 */
-	function submitEdit() {
-		global $wgRequest;
-
-		$nfd_id = $wgRequest->getVal('nfd_id');
-		$t = Title::newFromID($wgRequest->getVal('articleId'));
+	private function submitEdit() {
+		$req = $this->getRequest();
+		$nfd_id = $req->getVal('nfd_id');
+		$t = Title::newFromID($req->getVal('articleId'));
 		if ($t) {
 			$a = new Article($t);
 			//log the edit
@@ -1311,8 +1308,8 @@ class NFDGuardian extends SpecialPage {
 			$msg = wfMessage('nfd_edit_log_message')->rawParams("[[{$t->getText()}]]")->escaped();
 			$log->addEntry('edit', $t, $msg, $params);
 
-			$text = $wgRequest->getVal('wpTextbox1');
-			$summary = $wgRequest->getVal('wpSummary');
+			$text = $req->getVal('wpTextbox1');
+			$summary = $req->getVal('wpSummary');
 
 			//check to see if there is still an nfd tag
 			$c = new NFDProcessor();
@@ -1322,7 +1319,7 @@ class NFDGuardian extends SpecialPage {
 				if (strpos($text, $fullTemplate) === false) {
 					//nfd template has changed
 					$newFullTemplate = $c->getFullTemplateFromText($text);
-					$nfdReason = $c->extractReason($newFullTemplate);
+					$nfdReason = NFDProcessor::extractReason($newFullTemplate);
 
 					$dbw = wfGetDB(DB_MASTER);
 					$dbw->update('nfd', array('nfd_template' => $newFullTemplate, 'nfd_reason' => $nfdReason['type']), array('nfd_id' => $nfd_id));
@@ -1334,22 +1331,20 @@ class NFDGuardian extends SpecialPage {
 				$a->doEdit($text, $summary);
 			}
 
-			if ($wgRequest->getval('removeTemplate') == 'true') {
+			if ($req->getval('removeTemplate') == 'true') {
 				//they vote to remove template, which is the same as vote to keep
-				NFDProcessor::save($wgRequest->getInt('nfd_id'), $t);
+				NFDProcessor::save($req->getInt('nfd_id'), $t);
 			} else {
 				//they didn't want to remove template, so that's like a skip
-				NFDProcessor::skip($wgRequest->getInt('nfd_id'));
+				NFDProcessor::skip($req->getInt('nfd_id'));
 			}
 		}
 	}
 
 	/**
-	 *
 	 * Get the keep/delete votes html for the right rail
-	 *
 	 */
-	function getDeleteKeepVotes($nfd_id, $act_d, $act_k, $act_d_a, $act_k_a, $nfd_page) {
+	private static function getDeleteKeepVotes($nfd_id, $act_d, $act_k, $act_d_a, $act_k_a, $nfd_page) {
 		$t = NFDProcessor::getTitleFromnfdID($nfd_id);
 
 		$req_d = NFDProcessor::getDeleteVotesRequired($act_k);
@@ -1436,12 +1431,11 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * For the given NFD id, populates the delete and keep arrays
 	 * with the current votes for this article.
-	 *
+	 * NOTE: called by NFDProcessor
 	 */
-	static function getDeleteKeep(&$delete, &$keep, $nfd_id) {
+	public static function getDeleteKeep(&$delete, &$keep, $nfd_id) {
 		$dbr = wfGetDB(DB_SLAVE);
 
 		$res = $dbr->select( 'nfd_vote',
@@ -1460,13 +1454,11 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * For the given userId, returns the html for that user's
 	 * avatar. Also makes $foundAdmin true if the current user
 	 * is an admin.
-	 *
 	 */
-	static function getActualAvatar($user_id, &$foundAdmin) {
+	private static function getActualAvatar($user_id, &$foundAdmin) {
 		if ($user_id) {
 			$u = new User();
 			$u->setID($user_id);
@@ -1488,13 +1480,11 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * Returns the html for an empty vote in the right
 	 * rail module. If an admin hasn't voted, then makes
 	 * it an "admin" space.
-	 *
 	 */
-	static function getNeededAvatar(&$foundAdmin) {
+	private static function getNeededAvatar(&$foundAdmin) {
 		$avatar = "<div class='nfd_emptybox'>" . ($foundAdmin ? "" : "Admin") . "</div>";
 		$foundAdmin = $foundAdmin || true;
 
@@ -1502,13 +1492,12 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * For a given user id, returns the html
 	 * for an avatar to be displayed on the right
 	 * rail or in the info box
-	 *
+	 * NOTE: called by NFDProcessor
 	 */
-	static function getUserInfo($user_id) {
+	public static function getUserInfo($user_id) {
 		if ($user_id) {
 			$u = new User();
 			$u->setID($user_id);
@@ -1527,12 +1516,10 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * Return the total number of discussion messages
 	 * for the given article.
-	 *
 	 */
-	static function getDiscussionCount($pageId) {
+	private static function getDiscussionCount($pageId) {
 		$t = Title::newFromId($pageId);
 		if ($t) {
 			$dt = Title::newFromText($t->getText(), NS_TALK);
@@ -1545,17 +1532,15 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * Returns the html for the dropdown for users
 	 * to select which types of NFD's to show
 	 * the user
-	 *
 	 */
-	function getNfdReasonsDropdown($defaultValue='all') {
+	private static function getNfdReasonsDropdown($defaultValue='all') {
 		$html = "<div id='nfd_reasons' class='tool_options'><span>" . wfMessage('nfd_dropdown_text') . "<select>";
 		$html .= "<option value='all'>all</option>";
 
-		$reasons = $this->getNfdReasons();
+		$reasons = self::getNfdReasons();
 		foreach ($reasons as $key => $value) {
 			$selected = $key == $defaultValue ? " selected='yes' " : "";
 			$html .= "<option value='{$key}'{$selected}>{$key}</option>";
@@ -1567,22 +1552,19 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	/**
-	 *
 	 * Returns the html for the link the shows/hides the reasons dropdown
-	 *
 	 */
-	function getNfdReasonsLink($defaultValue='all') {
+	private static function getNfdReasonsLink($defaultValue='all') {
 		$html = "<span id='nfd_reasons_link' class='tool_options_link'>(<a href='#' class='nfd_options_link'>Change Options</a>)</span>";
 		return $html;
 	}
 
 	/**
-	 *
 	 * Returns an array of all possible nfd reasons
 	 * that show up in the nfd templates
-	 *
+	 * NOTE: called by NFDProcessor
 	 */
-	static function getNfdReasons() {
+	public static function getNfdReasons() {
 		global $wgMemc;
 
 		$key = wfMemcKey("nfdreasons");
@@ -1618,11 +1600,8 @@ class NFDGuardian extends SpecialPage {
 	 * to import all NFD articles into the NFD tables.
 	 */
 	public static function importNFDArticles() {
-
 		$dbr = wfGetDB(DB_SLAVE);
-
 		$count = 0;
-
 		$resultsNFD = array();
 
 		$res = $dbr->select(
@@ -1654,9 +1633,10 @@ class NFDGuardian extends SpecialPage {
 				}
 			}
 		}
-		//echo "Imported a total of " . $count . " articles.\n";
+		//print "Imported a total of " . $count . " articles.\n";
 	}
 
+	// Used in importNfdArticles.php
 	public static function checkArticlesInNfdTable() {
 		$dbr = wfGetDB(DB_SLAVE);
 
@@ -1677,12 +1657,12 @@ class NFDGuardian extends SpecialPage {
 				$a = new Article($t);
 				/*if ($result->nfd_reason == "dup") {
 					NFDProcessor::markPreviousAsInactive($result->nfd_page);
-					echo "Removing Dup: " . $t->getText() . "\n";
+					print "Removing Dup: " . $t->getText() . "\n";
 					$count++;
 				} else*/ if ($a->isRedirect()) {
 					//check if its a redirect
 					NFDProcessor::markPreviousAsInactive($result->nfd_page);
-					echo "Removing Redirect: " . $t->getText() . "\n";
+					print "Removing Redirect: " . $t->getText() . "\n";
 					$count++;
 				} else {
 					//check to see if it still has an NFD tag
@@ -1695,12 +1675,12 @@ class NFDGuardian extends SpecialPage {
 			} else {
 				//title doesn't exist, so remove it from the db
 				NFDProcessor::markPreviousAsInactive($result->nfd_page);
-				echo "Title no longer exists: " . $result->nfd_page . "\n";
+				print "Title no longer exists: " . $result->nfd_page . "\n";
 				$count++;
 			}
 		}
 
-		//echo "Removed a total of " . $count . " articles from tool.\n";
+		//print "Removed a total of " . $count . " articles from tool.\n";
 	}
 
 }
@@ -1725,14 +1705,15 @@ class NFDDup extends QueryPage {
 	}
 
 	function formatResult( $skin, $result ) {
-		global $wgLang, $wgContLang;
+		global $wgContLang;
+		$lang = RequestContext::getMain()->getLanguage();
 		$title = Title::newFromID($result->nfd_page);
 		if ($title) {
 			$revision = Revision::newFromTitle($title);
 			$previsionRevision = $revision->getPrevious();
 			$article = new Article($title);
 			if ($revision != null) {
-				$link = $wgLang->date( $revision->getTimestamp() ) . " " . $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ), 'redirect=no', " (" . number_format($previsionRevision->getSize(), 0, "", ",") . " bytes, " . number_format($article->getCount(), 0, "", ",") . " Views) " );
+				$link = $lang->date( $revision->getTimestamp() ) . " " . $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ), 'redirect=no', " (" . number_format($previsionRevision->getSize(), 0, "", ",") . " bytes, " . number_format($article->getCount(), 0, "", ",") . " Views) " );
 				$redirectTitle = Title::newFromRedirect($revision->getText());
 				if ($redirectTitle) {
 					$link .= " => " . $skin->makeKnownLinkObj( $redirectTitle, htmlspecialchars( $wgContLang->convert( $redirectTitle->getPrefixedText() ) ) );
@@ -1743,10 +1724,9 @@ class NFDDup extends QueryPage {
 	}
 
 	function getPageHeader() {
-		global $wgOut;
-		$wgOut->setPageTitle("NFD Duplicates Deleted");
-		$wgOut->setHTMLTitle('NFD Dup - wikiHow');
-		return;
+		$out = RequestContext::getMain()->getOutput();
+		$out->setPageTitle("NFD Duplicates Deleted");
+		$out->setHTMLTitle('NFD Dup - wikiHow');
 	}
 }
 
@@ -1772,7 +1752,7 @@ class NFDAdvanced extends QueryPage {
 	}
 
 	function formatResult( $skin, $result ) {
-		global $wgLang, $wgContLang;
+		global $wgContLang;
 		$title = Title::newFromID($result->title);
 		if ($title) {
 			$link = $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ) );

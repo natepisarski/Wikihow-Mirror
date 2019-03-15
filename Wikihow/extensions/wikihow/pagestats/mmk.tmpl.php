@@ -7,7 +7,7 @@
 </form>
 <script type="text/javascript">
 	$("input:radio[name=match]").on("change", function(){
-		if($(this).val() == "yes") {
+		if ($(this).val() == "yes") {
 			$("#mmk_why").hide();
 		} else {
 			$("#mmk_why").show();

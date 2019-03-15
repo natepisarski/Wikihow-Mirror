@@ -1,26 +1,26 @@
 <?php
 
-class Toolbarhelper extends UnlistedSpecialPage {
+class ToolbarHelper extends UnlistedSpecialPage {
 
-    function __construct() {
-        parent::__construct( 'Toolbarhelper' );
+    public function __construct() {
+        parent::__construct( 'ToolbarHelper' );
     }
 
-    function execute($par) {
-		global $wgOut, $wgUser, $wgRequest;
-		$wgOut->setArticleBodyOnly(true);
-		$go = $wgRequest->getVal('go', 'null');
+    public function execute($par) {
+		$out = $this->getOutput();
+		$user = $this->getUser();
+		$out->setArticleBodyOnly(true);
+		$go = $this->getRequest()->getVal('go');
 		if ($go == 'talk') {
-			$t = $wgUser->getTalkPage();
-			$wgOut->redirect( $t->getFullURL() . "#post");
-			return;
-		}
-		if ($wgUser->getNewtalk()) {
-			$wgOut->addHTML("1");
+			$t = $user->getTalkPage();
+			$out->redirect( $t->getFullURL() . "#post");
 		} else {
-			$wgOut->addHTML("0");
+			if ($user->getNewtalk()) {
+				$result = '1';
+			} else {
+				$result = '0';
+			}
+			$out->addHTML($result);
 		}
-		return;
 	}
 }
-	

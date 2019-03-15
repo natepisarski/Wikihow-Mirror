@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'VideoEmbedHelperTool',
 	'author' => 'Wilson Restrepo',
@@ -9,8 +9,8 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['VideoEmbedHelperTool'] = 'VideoEmbedHelperTool';
-$wgAutoloadClasses['VideoEmbedHelperTool'] = dirname( __FILE__ ) . '/SpecialVideoEmbedHelperTool.php';
-$wgExtensionMessagesFiles['VideoEmbedHelperTool'] = dirname(__FILE__) . '/VideoEmbedHelperTool.i18n.php';
+$wgAutoloadClasses['VideoEmbedHelperTool'] = __DIR__ . '/SpecialVideoEmbedHelperTool.php';
+$wgExtensionMessagesFiles['VideoEmbedHelperTool'] = __DIR__ . '/VideoEmbedHelperTool.i18n.php';
 
 $wgResourceModules['ext.wikihow.VideoEmbedHelperTool'] = [
     'localBasePath' => __DIR__ . '/',

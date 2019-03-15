@@ -1,17 +1,17 @@
 <?php
 
-class Videoadder extends SpecialPage {
+class VideoAdder extends SpecialPage {
 
 	public function __construct() {
 		global $wgHooks;
-		parent::__construct( 'Videoadder' );
+		parent::__construct( 'VideoAdder' );
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
 	// returns the HTML for the category drop down
 	private function getCategoryDropDown() {
 		$req = $this->getRequest();
-		$cats = Categoryhelper::getTopLevelCategoriesForDropDown();
+		$cats = CategoryHelper::getTopLevelCategoriesForDropDown();
 		$selected = $req->getVal('cat');
 		$html = '<select id="va_category" onchange="WH.VideoAdder.chooseCat();"><option value="">All</option>';
 		foreach ($cats as $c) {
@@ -26,20 +26,6 @@ class Videoadder extends SpecialPage {
 		$html .= '</select>';
 		return $html;
 	}
-
-	// to be used when we allow a user to skip a video more than once
-	// basically filters out previously skipped videos
-	/*
-	function getSkipVal($title, $src = 'youtube') {
-		$dbr = wfGetDB(DB_SLAVE);
-		$ids = array();
-		$res = $dbr->select('videoadder', array('va_vid_id'), array('va_page'=>$title->getArticleID()));
-		while ($row = $dbr->fetchObject($res)) {
-			$ids[] = "-" . $row->va_vid_id;
-		}
-		return implode("", $ids);
-	}
-	*/
 
 	// handles the coookie settings for skipping a video
 	private static function skipArticle($id) {
@@ -109,15 +95,23 @@ class Videoadder extends SpecialPage {
 			$sql = " AND va_user NOT IN (" . $dbr->makeList($bots) . ") ";
 		}
 
-		$sql = "SELECT *, count(va_user) as va_count, MAX(va_timestamp) as va_recent FROM `videoadder` WHERE va_timestamp >= '" . $starttimestamp . "'" . $sql . " AND va_skipped_accepted IN ('0','1') GROUP BY va_user ORDER BY va_count DESC";
+		$sql = "SELECT va_user, count(va_user) as va_count, MAX(va_timestamp) as va_recent FROM `videoadder` WHERE va_timestamp >= '" . $starttimestamp . "'" . $sql . " AND va_skipped_accepted IN ('0','1') GROUP BY va_user ORDER BY va_count DESC";
 		$res = $dbr->query($sql);
 		$row = $dbr->fetchObject($res);
 
-		$vauser = array();
-		$vauser['id'] = $row->va_user;
-		$vauser['date'] = wfTimeAgo($row->va_recent);
+		if (!empty($row)) {
+			$user = $row->va_user;
+			$date = wfTimeAgo($row->va_recent);
+		}
+		else {
+			$user = '';
+			$date = '';
+		}
 
-		return $vauser;
+		return [
+			'id' => $user,
+			'date' => $date
+		];
 	}
 
 	// performs all of the logic of getting the next video, returns an array
@@ -125,7 +119,7 @@ class Videoadder extends SpecialPage {
 	private function getNext() {
 		global $wgCookiePrefix, $wgCategoryNames;
 		$req = $this->getRequest();
-		$iv = new ImportvideoYoutube();
+		$iv = new ImportVideoYoutube();
 		$dbw = wfGetDB(DB_MASTER);
 		$dbr = wfGetDB(DB_SLAVE);
 		$cat = $req->getVal('va_cat') ? Title::makeTitleSafe(NS_CATEGORY, $req->getVal('va_cat')) : null;
@@ -205,31 +199,13 @@ class Videoadder extends SpecialPage {
 			$dbr = wfGetDB(DB_SLAVE);
 			$ts 	= substr(wfTimestamp(TS_MW, time() - 7 * 24 * 3600), 0, 8) . "000000";
 			$res = $dbr->query("SELECT va_user, count(*) as C from videoadder where va_timestamp >= '{$ts}' AND (va_skipped_accepted = '0' OR va_skipped_accepted = '1') group by va_user ORDER BY C desc;");
-			while ($row = $dbr->fetchObject($res))  {
+			foreach ($res as $row) {
 				$rankings[$row->va_user] = $row->C;
 			}
 			$wgMemc->set($key, $rankings, 3600);
 		}
 		return $rankings;
 	}
-
-/* UNUSED? - Reuben 2015/09/15
-	// gets the ranking  of the user for this week, returns "N/A" if they haven't added videos
-	function getRankThisWeek() {
-		$user = $this->getUser();
-		$rankings = $this->getWeekRankings();
-		$i = 0;
-		if (isset($rankings) && is_array($rankings)){
-			foreach ($rankings as $u=>$c) {
-				if ($u == $user->getID()) {
-					return $i + 1;
-				}
-				$i++;
-			}
-		}
-		return "N/A";
-	}
-*/
 
 	// sets all of the side widgets for the page
 	private static function setSideWidgets() {
@@ -280,7 +256,7 @@ class Videoadder extends SpecialPage {
 			if (preg_match('/{{nfd/', $intro)) return true;
 
 			//is it NABbed?
-			$is_nabbed = Newarticleboost::isNABbed($dbr,$t->getArticleId());
+			$is_nabbed = NewArticleBoost::isNABbed($dbr,$t->getArticleId());
 			if (!$is_nabbed) return true;
 
 			//last edit patrolled?
@@ -293,7 +269,7 @@ class Videoadder extends SpecialPage {
 
 	public function execute($par) {
 		$out = $this->getOutput();
-		$out->setRobotpolicy( 'noindex,nofollow' );
+		$out->setRobotPolicy( 'noindex,nofollow' );
 		$this->showPage($par);
 	}
 
@@ -308,7 +284,7 @@ class Videoadder extends SpecialPage {
 		}
 
 		if ($user->getID() == 0) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -353,13 +329,13 @@ class Videoadder extends SpecialPage {
 				if ($req->getVal('va_skip') == 0 ) {
 					// import the video
 					$tx = Title::newFromID($req->getVal('va_page_id'));
-					$ipv = new ImportvideoYoutube();
+					$ipv = new ImportVideoYoutube();
 
 					if ( !empty( $req->getVal('va_vid_id') ) ) {
 						$text = $ipv->loadVideoText($req->getVal('va_vid_id'));
 						$vid = Title::makeTitle(NS_VIDEO, $tx->getText());
-						Importvideo::updateVideoArticle($vid, $text, wfMessage('va_addingvideo')->text());
-						Importvideo::updateMainArticle($tx, wfMessage('va_addingvideo')->text());
+						ImportVideo::updateVideoArticle($vid, $text, wfMessage('va_addingvideo')->text());
+						ImportVideo::updateMainArticle($tx, wfMessage('va_addingvideo')->text());
 					}
 					wfRunHooks("VAdone", array());
 					$out->redirect('');

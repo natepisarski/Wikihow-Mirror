@@ -2,33 +2,32 @@
 
 class WikitextDownloader extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('WikitextDownloader');
 	}
 
-	function execute($par) {
-		global $wgOut, $wgRequest;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
 		if (!self::isAuthorized()) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		$dbr = wfGetDB(DB_SLAVE);
-		$r = Revision::loadFromPageId($dbr, $wgRequest->getVal('pageid'));
+		$r = Revision::loadFromPageId($dbr, $req->getVal('pageid'));
 		if ($r) {
 			$title = $r->getTitle()->getText();
 			Misc::outputFile("$title.txt", $r->getText(), "application/force-download");
 		}
-		return;
 	}
 
 	public static function isAuthorized() {
-		global $wgUser;
-		$user = $wgUser->getName();
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('translator', $userGroups)) {
+		$user = RequestContext::getMain()->getUser();
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('translator', $userGroups)) {
 			return false;
 		} else {
 			return true;

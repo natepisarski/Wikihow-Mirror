@@ -95,7 +95,7 @@ function wfClearSuggestionsCache($t) {
 function wfCheckSuggestionOnDelete($wikiPage) {
 	try {
 		$t = $wikiPage->getTitle();
-		if (!$t || $t->getNamespace() != NS_MAIN) {
+		if (!$t || !$t->inNamespace(NS_MAIN)) {
 			return true;
 		}
 		$dbw = wfGetDB(DB_MASTER);
@@ -126,7 +126,7 @@ function wfCheckSuggestionOnSave($article, $user, $text, $summary, $p5, $p6, $p7
 	try {
 		$dbr = wfGetDB(DB_SLAVE);
 		$t = $article->getTitle();
-		if (!$t || $t->getNamespace() != NS_MAIN) {
+		if (!$t || !$t->inNamespace(NS_MAIN)) {
 			return true;
 		}
 		$num_revisions = $dbr->selectField('revision',
@@ -168,7 +168,7 @@ function wfProcessNewArticle(&$article, &$user, $text) {
 	global $wgCookiePath, $wgCookieDomain, $wgCookieSecure, $wgCookiePrefix, $wgLanguageCode;
 
 	$title = $article->getTitle();
-	if (!$title || $title->getNamespace() != NS_MAIN) {
+	if (!$title || !$title->inNamespace(NS_MAIN)) {
 		return true;
 	}
 
@@ -271,7 +271,7 @@ function wfShowFollowUpOnCreation() {
 
 	try {
 		$t = $wgTitle;
-		if (!$t || $t->getNamespace() != NS_MAIN) {
+		if (!$t || !$t->inNamespace(NS_MAIN)) {
 			return true;
 		}
 		$articleID = $t->getArticleID();

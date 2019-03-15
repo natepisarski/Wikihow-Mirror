@@ -10,9 +10,9 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['TopAnswerersAdmin'] = 'TopAnswerersAdmin';
 
-$wgAutoloadClasses['TopAnswerersAdmin']						= dirname(__FILE__) . '/TopAnswerersAdmin.body.php';
-$wgAutoloadClasses['TopAnswerers'] 								= dirname(__FILE__) . '/TopAnswerers.class.php';
-$wgAutoloadClasses['TAInsertArticleQuestionJob'] 	= dirname(__FILE__) . '/jobs/TAInsertArticleQuestionJob.php';
+$wgAutoloadClasses['TopAnswerersAdmin']            = __DIR__ . '/TopAnswerersAdmin.body.php';
+$wgAutoloadClasses['TopAnswerers']                 = __DIR__ . '/TopAnswerers.class.php';
+$wgAutoloadClasses['TAInsertArticleQuestionJob']   = __DIR__ . '/jobs/TAInsertArticleQuestionJob.php';
 
 $wgJobClasses['TAInsertArticleQuestionJob'] = 'TAInsertArticleQuestionJob';
 
@@ -34,15 +34,14 @@ $wgResourceModules['ext.wikihow.top_answerers'] = array(
 		'ta_subcats_label',
 		'ta_unblock_link'
 	],
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/TopAnswerers',
 	'targets' => ['desktop', 'mobile']
 );
 
 $wgResourceModules['ext.wikihow.top_answerers.style'] = array(
 	'styles' => 'modules/top_answerers_admin.css',
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/TopAnswerers',
 	'targets' => ['desktop', 'mobile']
 );
-

@@ -5,29 +5,29 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-	'name' => 'Importvideo',
+	'name' => 'ImportVideo',
 	'author' => 'Travis <travis@wikihow.com>',
 	'description' => 'Provides a way to search and \'import\' videos  from various sources (Youtube, 5min.com, Howcast, Videojug, WonderHowTo) into the wiki',
 );
 
-$wgSpecialPages['Importvideo'] = 'Importvideo';
-$wgSpecialPages['ImportvideoPopup'] = 'ImportvideoPopup';
-$wgSpecialPages['Previewvideo'] = 'Previewvideo';
-$wgSpecialPages['Newvideoboard'] = 'Newvideoboard';
+$wgSpecialPages['ImportVideo'] = 'ImportVideo';
+$wgSpecialPages['ImportVideoPopup'] = 'ImportVideoPopup';
+$wgSpecialPages['PreviewVideo'] = 'PreviewVideo';
+$wgSpecialPages['NewVideoBoard'] = 'NewVideoBoard';
 
 # Internationalisation file
-$dir = dirname(__FILE__) . '/';
-$wgExtensionMessagesFiles['Importvideo'] = $dir . 'Importvideo.i18n.php';
-$wgExtensionMessagesFiles['ImportvideoAlias'] = $dir . 'Importvideo.alias.php';
+$dir = __DIR__ . '/';
+$wgExtensionMessagesFiles['ImportVideo'] = $dir . 'Importvideo.i18n.php';
+$wgExtensionMessagesFiles['ImportVideoAlias'] = $dir . 'Importvideo.alias.php';
 
-$wgAutoloadClasses['Importvideo']		= $dir . 'Importvideo.body.php';
-$wgAutoloadClasses['ImportvideoPopup']	= $dir . 'Importvideo.body.php';
-$wgAutoloadClasses['Previewvideo']		= $dir . 'Importvideo.body.php';
+$wgAutoloadClasses['ImportVideo']		= $dir . 'Importvideo.body.php';
+$wgAutoloadClasses['ImportVideoPopup']	= $dir . 'Importvideo.body.php';
+$wgAutoloadClasses['PreviewVideo']		= $dir . 'Importvideo.body.php';
 $wgAutoloadClasses['VideoPage']			= $dir . 'VideoPage.class.php';
-$wgAutoloadClasses['Newvideoboard']		= $dir . 'Importvideo.body.php';
+$wgAutoloadClasses['NewVideoBoard']		= $dir . 'Importvideo.body.php';
 
-$wgAutoloadClasses['ImportvideoYoutube']		= $dir . 'Importvideo.Youtube.class.php';
-$wgAutoloadClasses['ImportvideoHowcast']		= $dir . 'Importvideo.Howcast.class.php';
+$wgAutoloadClasses['ImportVideoYoutube']		= $dir . 'Importvideo.Youtube.class.php';
+$wgAutoloadClasses['ImportVideoHowcast']		= $dir . 'Importvideo.Howcast.class.php';
 
 define('NS_VIDEO' , 24);
 define('NS_VIDEO_TALK' , 25);

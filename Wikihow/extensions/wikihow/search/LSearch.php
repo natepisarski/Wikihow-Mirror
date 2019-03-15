@@ -10,11 +10,11 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'Customed search backend for wikiHow',
 );
 
-$wgExtensionMessagesFiles['LSearch'] = dirname(__FILE__) . '/LSearch.i18n.php';
-$wgExtensionMessagesFiles['LSearchAlias'] = dirname(__FILE__) . '/LSearch.alias.php';
+$wgExtensionMessagesFiles['LSearch'] = __DIR__ . '/LSearch.i18n.php';
+$wgExtensionMessagesFiles['LSearchAlias'] = __DIR__ . '/LSearch.alias.php';
 
 $wgSpecialPages['LSearch'] = 'LSearch';
-$wgAutoloadClasses['LSearch'] = dirname( __FILE__ ) . '/LSearch.body.php';
+$wgAutoloadClasses['LSearch'] = __DIR__ . '/LSearch.body.php';
 
 $wgBogusQueries  = array(
     "_vti_bin/owssvr.dll",

@@ -334,15 +334,15 @@ class WikiHowArticleDomExtractor {
 
 					$displayMethodCount = $h3Count;
 					$isSample = array();
-					for($i = 1; $i <= $h3Count; $i++) {
+					for ($i = 1; $i <= $h3Count; $i++) {
 						$isSampleItem = false;
-						if(!is_array($h3Elements[$i]) || count($h3Elements[$i]) < 1) {
+						if (!is_array($h3Elements[$i]) || count($h3Elements[$i]) < 1) {
 							$isSampleItem = false;
 						}
 						else {
 							//the sd_container isn't always the first element, need to look through all
-							foreach($h3Elements[$i] as $node) { //not the most efficient way to do this, but couldn't get the find function to work.
-								if(pq($node)->attr("id") == "sd_container") {
+							foreach ($h3Elements[$i] as $node) { //not the most efficient way to do this, but couldn't get the find function to work.
+								if (pq($node)->attr("id") == "sd_container") {
 									$isSampleItem = true;
 									break;
 								}
@@ -380,7 +380,7 @@ class WikiHowArticleDomExtractor {
 							$displayMethod++;
 						}
 						pq("span.mw-headline", $h3Tags[$i])->html($methodTitle);
-						if(!$isSample[$i]) {
+						if (!$isSample[$i]) {
 							pq(".altblock", $h3Tags[$i])->html($methodPrefix);
 						} else {
 							pq(".altblock", $h3Tags[$i])->remove();
@@ -397,7 +397,7 @@ class WikiHowArticleDomExtractor {
 						}
 						$overallSet = array();
 						$overallSet[] = $h3Tags[$i];
-						foreach( pq("div#{$sectionName}_{$i}:first") as $temp){
+						foreach ( pq("div#{$sectionName}_{$i}:first") as $temp){
 							$overallSet[] = $temp;
 						}
 						try {
@@ -465,7 +465,7 @@ class WikiHowArticleDomExtractor {
 
 					$overallSet = array();
 					$overallSet[] = $node;
-					foreach( pq("div#{$sectionName}:first") as $temp){
+					foreach ( pq("div#{$sectionName}:first") as $temp){
 						$overallSet[] = $temp;
 					}
 

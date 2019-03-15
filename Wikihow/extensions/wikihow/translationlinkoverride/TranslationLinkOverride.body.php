@@ -97,7 +97,7 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 			|| !(in_array('sysop', $userGroups) || in_array('staff', $userGroups))
 			|| !($wgIsToolsServer || $wgIsDevServer)
 		) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -164,7 +164,7 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 			exit;
 			return true;
 		} elseif ($action == null) {
-			EasyTemplate::set_path( dirname(__FILE__) );
+			EasyTemplate::set_path( __DIR__ );
 			$tmpl = EasyTemplate::html( "TranslationLinkOverride.tmpl.php");
 			$out->addHTML($tmpl);
 			return true;
@@ -174,7 +174,7 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 			$this->fetchLinks($lang, $id);
 			return true;
 		} elseif ($action == "search") {
-			EasyTemplate::set_path(dirname(__FILE__));
+			EasyTemplate::set_path(__DIR__);
 			$langs = $wgActiveLanguages;
 			$langs[] = 'en';
 			$tmpl = EasyTemplate::html("TranslationLinkOverride.delete.tmpl.php",array('langs'=>$langs ));

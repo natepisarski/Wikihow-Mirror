@@ -2,9 +2,9 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgExtensionMessagesFiles['AlternateDomain'] = dirname(__FILE__) . '/AlternateDomain.i18n.php';
+$wgExtensionMessagesFiles['AlternateDomain'] = __DIR__ . '/AlternateDomain.i18n.php';
 
-$wgAutoloadClasses['AlternateDomain'] = dirname(__FILE__) . '/AlternateDomain.class.php';
+$wgAutoloadClasses['AlternateDomain'] = __DIR__ . '/AlternateDomain.class.php';
 
 $wgHooks['BeforePageDisplay'][] = 'AlternateDomain::onBeforePageDisplay'; $wgHooks['TitleSquidURLs'][] = array('AlternateDomain::onTitleSquidURLs');
 $wgHooks['ImageHelperGetThumbnail'][] = 'AlternateDomain::onGetThumbnail';

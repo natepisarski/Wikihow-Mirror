@@ -1,11 +1,11 @@
 <?
 namespace ContentPortal;
-use MVC\Output; 
+use MVC\Output;
 use MVC\ControllerTestClass;
 
 class SessionControllerTest extends ControllerTestClass {
 
-	function testNew() {	
+	function testNew() {
 		Helpers::logout();
 		$this->get('new')
 			->assertTemplate('new');

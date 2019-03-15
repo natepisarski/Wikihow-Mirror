@@ -31,7 +31,7 @@ class BulkTopicTagging extends \UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$user = $this->getUser();
 
-		$out->setRobotpolicy('noindex, nofollow');
+		$out->setRobotPolicy('noindex, nofollow');
 
 		if ($user->isBlocked()) {
 			$out->blockedPage();
@@ -39,7 +39,7 @@ class BulkTopicTagging extends \UnlistedSpecialPage {
 		}
 
 		if (\Misc::isMobileMode() || !$this->isUserAllowed($user)) {
-			$out->setRobotpolicy( 'noindex, nofollow' );
+			$out->setRobotPolicy( 'noindex, nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -56,7 +56,6 @@ class BulkTopicTagging extends \UnlistedSpecialPage {
 				print json_encode($result);
 			}
 			elseif ($action == 'export_results') {
-				$this->getOutput()->disable();
 				$this->exportResults();
 			}
 
@@ -285,6 +284,7 @@ class BulkTopicTagging extends \UnlistedSpecialPage {
 	}
 
 	private function exportResults() {
+		$this->getOutput()->disable();
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="data.csv"');
 

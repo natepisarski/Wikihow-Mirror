@@ -161,13 +161,13 @@ class Controller {
 
 	public static function createUrlParams($params) {
 		$paramArray = [];
-		if(!is_null($params["keyword"])) {
+		if (!is_null($params["keyword"])) {
 			$paramArray["keyword"] = $params["keyword"];
 		}
-		if(!is_null($params['creatorEncrypted'])) {
+		if (!is_null($params['creatorEncrypted'])) {
 			$paramArray["ce"] = $params["creatorEncrypted"];
 		}
-		if(!is_null($params['topcat'])) {
+		if (!is_null($params['topcat'])) {
 			$paramArray["topcat"] = $params["topcat"];
 		}
 

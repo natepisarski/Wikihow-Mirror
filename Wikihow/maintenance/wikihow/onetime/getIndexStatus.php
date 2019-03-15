@@ -59,7 +59,7 @@ class getIndexStatus extends Maintenance {
 				$item['count'] = 0;
 			}
 
-			$fullCategoryTree = Categoryhelper::cleanCurrentParentCategoryTree( Categoryhelper::getCurrentParentCategoryTree($title));
+			$fullCategoryTree = CategoryHelper::cleanCurrentParentCategoryTree( CategoryHelper::getCurrentParentCategoryTree($title));
 			$breadcrumb = WikihowHeaderBuilder::getCategoryLinks(true, $context, $fullCategoryTree, true);
 
 			$item['breadcrumb'] = $breadcrumb;

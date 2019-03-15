@@ -10,7 +10,7 @@ $wgExtensionCredits['api'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/API:Extensions',
 );
 
-$wgAutoloadClasses['ApiTitleSearch'] = dirname(__FILE__) . '/ApiTitleSearch.body.php';
+$wgAutoloadClasses['ApiTitleSearch'] = __DIR__ . '/ApiTitleSearch.body.php';
 $wgAPIModules['titlesearch'] = 'ApiTitleSearch';
 
 

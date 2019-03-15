@@ -89,7 +89,7 @@ class CreatepageFinished extends UnlistedSpecialPage {
 				$share_fb = "share_article('facebook')";
 			} else {
 				$template = 'createpage_finished.tmpl.php';
-				$share_fb = "gatTrack('Author_engagement','Facebook_post','Publishing_popup'); var d=document,f='http://www.facebook.com/share',l=d.location,e=encodeURIComponent,p='.php?src=bm&v=4&i=1178291210&u='+e(l.href)+'&t='+e(d.title);1;try{if(!/^(.*\.)?facebook\.[^.]*$/.test(l.host))throw(0);share_internal_bookmarklet(p)}catch(z){a=function(){if(!window.open(f+'r'+p,'sharer','toolbar=0,status=0,resizable=0,width=626,height=436'))l.href=f+p};if(/Firefox/.test(navigator.userAgent))setTimeout(a,0);else{a()}}void(0)";
+				$share_fb = "gatTrack('Author_engagement','Facebook_post','Publishing_popup'); var d=document,f='http://www.facebook.com/share',l=d.location,e=encodeURIComponent,p='.php?src=bm&v=4&i=1178291210&u='+e(l.href)+'&t='+e(d.title);1;try{if (!/^(.*\.)?facebook\.[^.]*$/.test(l.host))throw(0);share_internal_bookmarklet(p)}catch(z){a=function(){if (!window.open(f+'r'+p,'sharer','toolbar=0,status=0,resizable=0,width=626,height=436'))l.href=f+p};if (/Firefox/.test(navigator.userAgent))setTimeout(a,0);else{a()}}void(0)";
 			}
 		} else {
 			$template = 'createpage_finished_anon.tmpl.php';

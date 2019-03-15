@@ -14,14 +14,14 @@ $wgExtensionCredits['specialpage'][] = array(
 
 # Shared code
 
-$wgAutoloadClasses['SheetInv\Mailer'] = dirname( __FILE__ ) . '/Mailer.php';
-$wgAutoloadClasses['SheetInv\ParsingResult'] = dirname( __FILE__ ) . '/ParsingResult.php';
+$wgAutoloadClasses['SheetInv\Mailer'] = __DIR__ . '/Mailer.php';
+$wgAutoloadClasses['SheetInv\ParsingResult'] = __DIR__ . '/ParsingResult.php';
 
 $wgResourceModules['ext.wikihow.SheetInvoicing'] = [
 	'targets' => ['desktop'],
 	'position' => 'top',
 	'remoteExtPath' => 'wikihow/SheetInvoicing/resources',
-	'localBasePath' => dirname(__FILE__) . '/resources',
+	'localBasePath' => __DIR__ . '/resources',
 	'styles' => ['sheet_invoicing.less'],
 	'scripts' => ['sheet_invoicing.js'],
 ];
@@ -30,7 +30,7 @@ $wgResourceModules['ext.wikihow.SheetInvoicing'] = [
 
 $wgSpecialPages['ExpertInvoicing'] = 'ExpInv\ExpertInvoicing';
 
-$baseDir = dirname(__FILE__) . '/special/ExpertInvoicing';
+$baseDir = __DIR__ . '/special/ExpertInvoicing';
 $wgAutoloadClasses['ExpInv\ExpertInvoicing'] = "$baseDir/ExpertInvoicing.body.php";
 $wgAutoloadClasses['ExpInv\Mailer'] = "$baseDir/Mailer.php";
 $wgAutoloadClasses['ExpInv\Spreadsheet'] = "$baseDir/Spreadsheet.php";
@@ -48,7 +48,7 @@ $wgResourceModules['ext.wikihow.ExpertInvoicing'] = [
 
 $wgSpecialPages['WikiVisualInvoicing'] = 'WVI\WikiVisualInvoicing';
 
-$baseDir = dirname(__FILE__) . '/special/WikiVisualInvoicing';
+$baseDir = __DIR__ . '/special/WikiVisualInvoicing';
 $wgAutoloadClasses['WVI\WikiVisualInvoicing'] = "$baseDir/WikiVisualInvoicing.body.php";
 $wgAutoloadClasses['WVI\Mailer'] = "$baseDir/Mailer.php";
 $wgAutoloadClasses['WVI\Spreadsheet'] = "$baseDir/Spreadsheet.php";

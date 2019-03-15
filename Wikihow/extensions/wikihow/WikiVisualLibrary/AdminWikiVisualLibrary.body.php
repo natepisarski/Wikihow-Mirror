@@ -21,14 +21,14 @@ class AdminWikiVisualLibrary extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 
 		if (!in_array('staff', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
 		if ($request->wasPosted()) {
 			$action = $request->getVal('action');
-			if($action == "add") {
+			if ($action == "add") {
 				$creator = $request->getVal('creator');
 				$type = $request->getVal('type');
 				WVL\Model::addCreator($creator, $type);
@@ -42,7 +42,7 @@ class AdminWikiVisualLibrary extends UnlistedSpecialPage {
 
 		} else {
 			$options = array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
@@ -61,7 +61,7 @@ class AdminWikiVisualLibrary extends UnlistedSpecialPage {
 	function getAllResults($out, $articles) {
 		$urls = explode("\n", $articles);
 
-		if(count($urls) > 0) {
+		if (count($urls) > 0) {
 
 			$date = date('Y-m-d');
 			header('Content-type: application/force-download');
@@ -81,7 +81,7 @@ class AdminWikiVisualLibrary extends UnlistedSpecialPage {
 
 				$bulletList = "\"";
 				$textList = "";
-				foreach($allStepsData as $stepInfo) {
+				foreach ($allStepsData as $stepInfo) {
 					$bulletList .= "*[[#" . $stepInfo["anchor"] . "|" . str_replace('"', '""', $stepInfo["summary"]) . "]]\n"; //need to replace all quotes with "" (twice) so it will import into excel correctly
 					$textList .= "[[#" . $stepInfo["anchor"] . "|" . $stepInfo["summary"] . "]] ";
 				}

@@ -19,7 +19,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 		$out = $this->getOutput();
 
 		if (!$this->userAllowed()) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}

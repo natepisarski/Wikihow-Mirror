@@ -85,7 +85,7 @@ class UnpatrolTips extends UnlistedSpecialPage {
 					$this->getOutput()->addHTML("There were no tips patrolled to show for this time frame.<br/>");
 				}
 
-			} else if ($this->getRequest()->getVal("view")) {
+			} elseif ($this->getRequest()->getVal("view")) {
 				if (!$end) {
 					$this->getOutput()->addHTML("showing changes by $user since {$humanCutoff}<br/>");
 				} else {
@@ -287,7 +287,7 @@ class Unpatrol extends UnlistedSpecialPage {
 
 			if ($res) {
 				// set logs to deleted
-				// Reuben 1/22/2014: No more deleting of logs, per community managers and bug #49, 
+				// Reuben 1/22/2014: No more deleting of logs, per community managers and bug #49,
 				// because how this works in MWUP has changed
 				//$res = $dbw->update('logging', array('log_deleted' => 1), $options, __METHOD__, $limit);
 

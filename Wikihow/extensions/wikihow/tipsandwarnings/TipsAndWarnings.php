@@ -9,7 +9,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['TipsAndWarnings'] = 'TipsAndWarnings';
-$wgAutoloadClasses['TipsAndWarnings'] = dirname(__FILE__) . '/TipsAndWarnings.body.php';
+$wgAutoloadClasses['TipsAndWarnings'] = __DIR__ . '/TipsAndWarnings.body.php';
 
 $wgLogTypes[] = 'newtips';
 $wgLogNames['newtips'] = 'newtips';
@@ -23,7 +23,7 @@ $wgHooks["IsEligibleForMobileSpecial"][] = array("wfTipsIsEligibleForMobile");
 
 function wfTipsIsEligibleForMobile(&$isEligible) {
 	global $wgTitle;
-	if($wgTitle && strrpos($wgTitle->getText(), "TipsAndWarnings") === 0) {
+	if ($wgTitle && strrpos($wgTitle->getText(), "TipsAndWarnings") === 0) {
 		$isEligible = true;
 	}
 

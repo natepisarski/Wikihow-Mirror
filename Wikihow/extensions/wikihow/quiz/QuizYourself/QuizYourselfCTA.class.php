@@ -56,7 +56,10 @@ class QuizYourselfCTA {
 	public static function onProcessArticleHTMLAfter(OutputPage $out) {
 		if (self::showArticleCTA($out)) {
 			$top_cat = CategoryHelper::getTopCategory($out->getTitle());
-			pq('.qz_container')->after( self::getHTML($top_cat) );
+			$cta_html = self::getHTML($top_cat);
+
+			$element = GoogleAmp::isAmpMode($out) ? '.qz_container:last' : '.qz_container';
+			pq($element)->after($cta_html);
 		}
 	}
 }

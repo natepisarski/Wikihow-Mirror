@@ -55,10 +55,10 @@ abstract class DesktopAdCreator {
 			if ( $this->mRightRailAdLabelVersion > 1 ) {
 				$labelExtra = "ad_label_dollar";
 			}
-		} else if ( strstr( $type, "intro" ) ) {
+		} elseif ( strstr( $type, "intro" ) ) {
 			if ( $this->mAdLabelVersion == 2 ) {
 				$labelExtra = "ad_label_dollar";
-			} else if ( $this->mAdLabelVersion == 3 ) {
+			} elseif ( $this->mAdLabelVersion == 3 ) {
 				$labelExtra = "ad_label_none";
 			}
 		} else {
@@ -221,10 +221,16 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			$this->mAds['quiz'.$i] = $this->getQuizAd( $i ); //taking ads off quizzes temporairily
 		}
 		$this->mAds['related'] = $this->getRelatedAd();
+		$this->mAds['scrollto'] = $this->getScrollToAd();
 	}
 
 	/*
-	 * creates the quiz Ads
+	 * creates the related Ad
+	 */
+	abstract public function getScrollToAd();
+
+	/*
+	 * creates the related Ad
 	 */
 	abstract public function getRelatedAd();
 
@@ -302,6 +308,10 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 				pq( '.qz_container' )->eq($i)->append( $quizHtml );
 			}
 		}
+
+		$scrollToHtml = $this->mAds['scrollto']->mHtml;
+		pq( "#intro" )->after( $scrollToHtml );
+
 	}
 }
 
@@ -384,6 +394,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$this->mAdsenseAutoAds = $value;
 	}
 
+	// TODO this function should be removed and then we required the channels to be set
+	// at the beginning of the constructor instead. that way we can define the channels
+	// for the ads in the mAdSetupData
 	public function addAdsenseChannel( $channel ) {
 		$this->mAdsenseChannels[] = $channel;
 	}
@@ -464,9 +477,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( 'intro' );
 		if ( $this->mAdServices['intro'] == "adsense" ) {
 			$ad = $this->getIntroAdAdsense();
-		} else if ( $this->mAdServices['intro'] == "dfp" ) {
+		} elseif ( $this->mAdServices['intro'] == "dfp" ) {
 			$ad = $this->getIntroAdDFP();
-		} else if ( $this->mAdServices['intro'] == "dfplight" ) {
+		} elseif ( $this->mAdServices['intro'] == "dfplight" ) {
 			$ad = $this->getIntroAdDFPLight();
 		} else {
 			return $ad;
@@ -562,7 +575,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( 'method' );
 		if ( $this->mAdServices['method'] == "adsense" ) {
 			$ad = $this->getMethodAdAdsense();
-		} else if ( $this->mAdServices['method'] == "dfp" ) {
+		} elseif ( $this->mAdServices['method'] == "dfp" ) {
 			$ad = $this->getMethodAdDFP();
 		}
 		if ( $ad->targetId ) {
@@ -578,7 +591,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( 'method2' );
 		if ( $this->mAdServices['method2'] == "adsense" ) {
 			$ad = $this->getMethod2AdAdsense();
-		} else if ( $this->mAdServices['method2'] == "dfp" ) {
+		} elseif ( $this->mAdServices['method2'] == "dfp" ) {
 			$ad = $this->getMethod2AdDFP();
 		}
 		if ( $ad->targetId ) {
@@ -594,7 +607,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( 'method3' );
 		if ( $this->mAdServices['method3'] == "adsense" ) {
 			$ad = $this->getMethodAdAdsense();
-		} else if ( $this->mAdServices['method3'] == "dfp" ) {
+		} elseif ( $this->mAdServices['method3'] == "dfp" ) {
 			$ad = $this->getMethodAdDFP();
 		}
 		if ( $ad->targetId ) {
@@ -765,7 +778,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	protected function getAdInnerHtml( $ad ) {
 		if ( $ad->service == "dfp" ) {
 			return $this->getDFPInnerHtml( $ad );
-		} else if ( $ad->service == "adsense" ) {
+		} elseif ( $ad->service == "adsense" ) {
 			return $this->getAdsenseInnerHtml( $ad );
 		} else {
 			return "";
@@ -880,7 +893,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		// for now only adsense supported for intro
 		if ( $this->mAdServices['rightrail0'] == "adsense" ) {
 			$ad = $this->getRightRailFirstAdsense();
-		} else if ( $this->mAdServices['rightrail0'] == "dfp" ) {
+		} elseif ( $this->mAdServices['rightrail0'] == "dfp" ) {
 			$ad = $this->getRightRailFirstDFP();
 		}
 		return $ad;
@@ -893,7 +906,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( 'rightrail1' );
 		if ( $this->mAdServices['rightrail1'] == "adsense" ) {
 			$ad = $this->getRightRailSecondAdsense();
-		} else if ( $this->mAdServices['rightrail1'] == "dfp" ) {
+		} elseif ( $this->mAdServices['rightrail1'] == "dfp" ) {
 			$ad = $this->getRightRailSecondDFP();
 		}
 		return $ad;
@@ -906,7 +919,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( 'rightrail2' );
 		if ( $this->mAdServices['rightrail2'] == "adsense" ) {
 			$ad = $this->getRightRailThirdAdsense();
-		} else if ( $this->mAdServices['rightrail2'] == "dfp" ) {
+		} elseif ( $this->mAdServices['rightrail2'] == "dfp" ) {
 			$ad = $this->getRightRailThirdDFP();
 		}
 		return $ad;
@@ -932,11 +945,11 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( $type );
 		if ( $num == 0 ) {
 			$ad = $this->getRightRailFirst();
-		} else if ( $num == 1 ) {
+		} elseif ( $num == 1 ) {
 			$ad = $this->getRightRailSecond();
-		} else if ( $num == 2 ) {
+		} elseif ( $num == 2 ) {
 			$ad = $this->getRightRailThird();
-		} else if ( $num == 3 ) {
+		} elseif ( $num == 3 ) {
 			$ad = $this->getRightRailTop();
 		}
 		// now ad the js snippet to add the ad to the js sroll handler
@@ -945,6 +958,13 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		}
 
 		return $ad;
+	}
+
+	/*
+	 * creates the scrollto Ad
+	 */
+	public function getScrollToAd() {
+		return "";
 	}
 
 	/*
@@ -1108,7 +1128,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 
 		$adsenseScript = "";
 		if ( $addAdsense ) {
-			$adsenseScript = file_get_contents( dirname( __FILE__ )."/desktopAdsense.js" );
+			$adsenseScript = file_get_contents( __DIR__."/desktopAdsense.js" );
 			$adsenseScript = Html::inlineScript( $adsenseScript );
 		}
 
@@ -1116,7 +1136,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		if ( $addDFP ) {
 			$dfpScript = $this->getGPTDefine();
 			if ( $this->mLateLoadDFP == false ) {
-				$dfpInit = file_get_contents( dirname( __FILE__ )."/desktopDFP.js" );
+				$dfpInit = file_get_contents( __DIR__."/desktopDFP.js" );
 				$dfpScript .= Html::inlineScript( $dfpInit );
 
 				$apsLoadOk = false;
@@ -1127,7 +1147,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 					}
 				}
 				if ( $apsLoadOk ) {
-					$apsInit = file_get_contents( dirname( __FILE__ )."/desktopAPSInit.js" );
+					$apsInit = file_get_contents( __DIR__."/desktopAPSInit.js" );
 					$dfpScript .= Html::inlineScript( $apsInit );
 				}
 			}
@@ -1422,7 +1442,6 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'intro' => 7862589374,
 			'step' => 1652132604,
 			'rightrail0' => 4769522171,
-			'method2' => 3356467874
 		);
 
 		$this->mAdServices = array(
@@ -1436,6 +1455,109 @@ class MixedAdCreatorVersion5 extends MixedAdCreatorVersion2 {
 			'quiz' => 'dfp'
 		);
 
+		if ( ( class_exists("WikihowToc") && WikihowToc::isNewArticle() ) ) {
+			$this->mAdsenseSlots['method2'] = 3356467874;
+			$this->mAdServices['method2'] = 'adsense';
+		}
+
+		$this->mAdsenseChannels[] = 1647408144;
+	}
+
+	protected function setDFPAdUnitPaths() {
+		$this->mDFPData = array(
+			'method' => array(
+				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'rightrail1' => array(
+				'adUnitPath' => '/10095428/RR2_Test_32',
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
+			),
+			'rightrail2' => array(
+				'adUnitPath' => '/10095428/RR3_Test_32',
+				'size' => '[[300, 250],[300, 600]]',
+				'apsLoad' => true
+			),
+			'quiz' => array(
+				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			)
+		);
+	}
+}
+
+class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
+	public function __construct() {
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+		        $pageId = $wgTitle->getArticleID();
+		}
+		$this->mAdsenseChannels[] = 7467367570;
+		// right now this data will be added to each ad as data attributes
+		// however we can use it in the future to define almost everything about each ad
+		$this->mAdSetupData = array(
+			'rightrail2' => array(
+				'refreshable' => 1,
+				'first-refresh-time' => 35000,
+				'refresh-time' => 28000,
+				'aps-timeout' => 800
+			),
+			'scrollto' => array(
+				'id' => 'scrolltoad',
+				'type' => 'scrollto',
+				'slot' => 6515934903,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'adsensewidth' => 728,
+				'adsenseheight' => 90,
+				'channels' => implode( ',', $this->mAdsenseChannels )
+			)
+		);
+
+		$this->mAdsenseSlots = array(
+			'intro' => 7862589374,
+			'step' => 1652132604,
+			'rightrail0' => 4769522171,
+		);
+
+		$this->mAdServices = array(
+			'intro' => 'adsense',
+			'step' => 'adsense',
+			'method' => 'dfp',
+			'method2' => 'adsense',
+			'rightrail0' => 'adsense',
+			'rightrail1' => 'dfp',
+			'rightrail2' => 'dfp',
+			'quiz' => 'dfp'
+		);
+
+		if ( ( class_exists("WikihowToc") && WikihowToc::isNewArticle() ) ) {
+			$this->mAdsenseSlots['method2'] = 3356467874;
+			$this->mAdServices['method2'] = 'adsense';
+		}
+
+	}
+
+	/*
+	 * creates the scroll to Ad
+	 */
+	public function getScrollToAd() {
+		$ad = $this->getNewAd( 'scrollto' );
+		$setupData = $this->mAdSetupData[$ad->mType];
+		$attributes = array(
+			'id' => $setupData['id']
+		);
+		foreach ( $setupData as $key => $val ) {
+			$adKey = 'data-'.$key;
+			$attributes[$adKey] = $val;
+		}
+		$ad->mHtml = Html::element( 'div', $attributes );
+		$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addScrollToAd('{$attributes['id']}');" );
+		return $ad;
 	}
 
 	protected function setDFPAdUnitPaths() {
@@ -1502,31 +1624,31 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 			$this->mAdsenseSlots = array(
 				'intro' => 2258884570,
 			);
-		} else if ( strstr( $domainName, "wikihow.tech" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.tech" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 8305418177,
 			);
-		} else if ( strstr( $domainName, "wikihow.pet" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.pet" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 3009706573,
 			);
-		} else if ( strstr( $domainName, "howyoulivelife.com" ) ) {
+		} elseif ( strstr( $domainName, "howyoulivelife.com" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 4845456904,
 			);
-		} else if ( strstr( $domainName, "wikihow.life" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.life" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 3917364520,
 			);
-		} else if ( strstr( $domainName, "wikihow.fitness" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.fitness" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 1291201186,
 			);
-		} else if ( strstr( $domainName, "wikihow.health" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.health" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 0,
 			);
-		} else if ( strstr( $domainName, "wikihow.mom" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.mom" ) ) {
 			$this->mAdsenseSlots = array(
 				'intro' => 1099629495,
 			);
@@ -1542,19 +1664,19 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 		global $domainName;
 		if ( strstr( $domainName, "howyougetfit.com" ) ) {
 			$adUnitPath = 'AllPages_RR_1_HowYouGetFit_Desktop_All';
-		} else if ( strstr( $domainName, "wikihow.tech" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.tech" ) ) {
 			$adUnitPath = 'AllPages_RR_1_WikiHowTech_Desktop_All';
-		} else if ( strstr( $domainName, "wikihow.pet" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.pet" ) ) {
 			$adUnitPath = 'AllPages_RR_1_WikiHowPet_Desktop_All';
-		} else if ( strstr( $domainName, "howyoulivelife.com" ) ) {
+		} elseif ( strstr( $domainName, "howyoulivelife.com" ) ) {
 			$adUnitPath = 'AllPages_RR_1_HowYouLifeLife_Desktop_All';
-		} else if ( strstr( $domainName, "wikihow.life" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.life" ) ) {
 			$adUnitPath = 'AllPages_RR_1_wikiHowLife_Desktop_All';
-		} else if ( strstr( $domainName, "wikihow.fitness" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.fitness" ) ) {
 			$adUnitPath = 'AllPages_RR_1_wikiHowFit_Desktop_All';
-		} else if ( strstr( $domainName, "wikihow.health" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.health" ) ) {
 			$adUnitPath = 'AllPages_RR_1_wikiHowHealth_Desktop_All';
-		} else if ( strstr( $domainName, "wikihow.mom" ) ) {
+		} elseif ( strstr( $domainName, "wikihow.mom" ) ) {
 			$adUnitPath = 'AllPages_RR_1_wikiHowMom_Desktop_All';
 		}
 		$this->mDFPData = array(
@@ -1631,7 +1753,7 @@ class DocViewerAdCreator extends MixedAdCreator {
 			}
 			$ad->mHtml = $this->getRightRailAdHtml( $ad );
 			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addRightRailAd('{$ad->mType}')" );
-		} else if ( $num == 1 ) {
+		} elseif ( $num == 1 ) {
 			$ad->service = "adsense";
 			$ad->targetId = $ad->mType;
 			$ad->initialLoad = true;
@@ -1699,7 +1821,7 @@ class DocViewerAdCreatorVersion2 extends DocViewerAdCreator {
 			}
 			$ad->mHtml = $this->getRightRailAdHtml( $ad );
 			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addRightRailAd('{$ad->mType}')" );
-		} else if ( $num == 1 ) {
+		} elseif ( $num == 1 ) {
 			$ad->service = "dfp";
 			$ad->targetId = $ad->mType;
 			$ad->initialLoad = true;
@@ -1731,6 +1853,14 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp'
 		);
+
+		if ( WikihowToc::isNewArticle() ) {
+			$this->mAdsenseSlots['method2'] = 8388669218;
+			$this->mAdServices['method2'] = 'adsense';
+			$this->mAdsenseChannels[] = 1412197323;
+		} else {
+			$this->mAdsenseChannels[] = 7466415884;
+		}
 	}
 	protected function setDFPAdUnitPaths() {
 		$this->mDFPData = array(

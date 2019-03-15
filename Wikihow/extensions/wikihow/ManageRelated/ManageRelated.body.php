@@ -11,7 +11,7 @@ class ManageRelated extends UnlistedSpecialPage {
 
 		$this->setHeaders();
 
-		if( $wgUser->isBlocked() ) {
+		if ( $wgUser->isBlocked() ) {
 			$wgOut->blockedPage();
 			return;
 		}
@@ -139,8 +139,8 @@ class ManageRelated extends UnlistedSpecialPage {
 
 		// MW should handle editing extensions better, duplication of code sucks
 
-		if( $titleObj->isProtected( 'edit' ) ) {
-			if( $titleObj->isSemiProtected() ) {
+		if ( $titleObj->isProtected( 'edit' ) ) {
+			if ( $titleObj->isSemiProtected() ) {
 				$notice = wfMessage( 'semiprotectedpagewarning' );
 			} else {
 				$notice = wfMessage( 'protectedpagewarning' );

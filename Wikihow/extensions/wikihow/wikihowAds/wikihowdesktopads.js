@@ -19,20 +19,12 @@ WH.desktopAds = (function () {
 
 	var quizAds = {};
 	var introAd;
+	var scrollToAd;
 	var TOCAd;
 	var bodyAds = [];
 	var lastScrollPosition = window.scrollY;
 
 	function log() {
-		if (window.location.pathname == "/Upshift") {
-			console.log.apply(null, arguments);
-		}
-		if (window.location.pathname == "/Drive-Manual") {
-			console.log.apply(null, arguments);
-		}
-		if (window.location.pathname == "/Drive-a-Stick") {
-			console.log.apply(null, arguments);
-		}
 	}
 
 	function isDocumentHidden() {
@@ -365,8 +357,13 @@ WH.desktopAds = (function () {
 		i.setAttribute('data-ad-slot', slot);
 		var css = 'display:inline-block;width:'+ad.asWidth+'px;height:'+ad.asHeight+'px;';
 		i.style.cssText = css;
-		var target = ad.adTargetId;
-		window.document.getElementById(target).appendChild(i);
+		var target = null
+		if (ad.adTargetId) {
+			target = ad.adTargetId;
+			window.document.getElementById(target).appendChild(i);
+		} else {
+			ad.target.appendChild(i);
+		}
 		var channels = ad.channels ? ad.channels: "";
 		(adsbygoogle = window.adsbygoogle || []).push({
 			params: {
@@ -538,6 +535,185 @@ WH.desktopAds = (function () {
 	function BodyAd(element) {
 		Ad.call(this, element.parentElement);
 		this.element = element;
+	}
+
+	function isNearEndOfStep(rect, viewportHeight) {
+		if (rect.bottom >= screenTop && rect.bottom <= viewportHeight) {
+			return true;
+		}
+		return false;
+	}
+
+	function getStepForScrollPosition(viewportHeight, scrollPosition, steps, ad) {
+		var targetStep = null;
+		var found = false;
+		for (var i = 0; i < steps.length; i++) {
+			var step = steps[i];
+			if (step.nodeName != "LI") {
+				continue;
+			}
+			if (found == true) {
+				targetStep = step;
+				break;
+			}
+			var rect = step.getBoundingClientRect();
+			if (isInViewport(rect, viewportHeight, false, ad)) {
+				// if we are near the end of teh step now, then put the ad at the next step instead
+				if (isNearEndOfStep(rect, viewportHeight)) {
+					found = true;
+				} else {
+					targetStep = step;
+					break;
+				}
+			}
+		}
+		return targetStep;
+	}
+
+	function getInsertTargetForScrollPosition(ad) {
+		var scrollPosition = ad.lastScrollPositionY;
+
+		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
+		var sections = document.getElementsByClassName("section");
+		var target = null;
+		var found = false;
+		for (var i = 0; i <= sections.length; i++) {
+			var section = null;
+			if (i == sections.length) {
+				section = document.getElementById('ur_mobile');
+				if (!section) {
+					break;
+				}
+			} else {
+				section = sections[i];
+			}
+			if (section.id == "aiinfo") {
+				continue;
+			}
+
+			if (found == true) {
+				var sectionText = section.getElementsByClassName("section_text");
+				if (!sectionText || !sectionText[0]) {
+					return null;
+				}
+				section = sectionText[0];
+				var rect = section.getBoundingClientRect();
+				if (isNearEndOfStep(rect, viewportHeight)) {
+					continue;
+				}
+				break;
+			}
+
+			// skip intro
+			if (section.id == "intro") {
+				continue;
+			}
+			if (section.classList.contains('steps')) {
+				var steps = section.getElementsByClassName("steps_list_2");
+				if (!steps || !steps[0]) {
+					continue;
+				}
+				var stepsTarget = getStepForScrollPosition(viewportHeight, scrollPosition, steps[0].childNodes, ad);
+				if (!stepsTarget) {
+					continue;
+				}
+				target = stepsTarget;
+				break;
+			}
+
+			var sectionText = section.getElementsByClassName("section_text");
+			if (!sectionText || !sectionText[0]) {
+				continue;
+			}
+			section = sectionText[0];
+			var rect = section.getBoundingClientRect();
+			if (isInViewport(rect, viewportHeight, false, ad)) {
+				// if we are near the end of the section now, then put the ad at the next section instead
+				if (isNearEndOfStep(rect, viewportHeight)) {
+					found = true;
+				} else {
+					target = section;
+					break;
+				}
+			}
+		}
+		return target;
+	}
+
+	function ScrollToAd(element) {
+		Ad.call(this, element);
+		this.element = element;
+		this.scrollToTimer = null;
+		this.lastScrollPositionY = 0;
+
+		this.asWidth = parseInt(this.asWidth);;
+		this.asHeight = parseInt(this.asHeight);;
+		this.maxNonSteps = parseInt(this.adElement.getAttribute('data-maxnonsteps'));
+		this.maxSteps = parseInt(this.adElement.getAttribute('data-maxsteps'));
+		this.updateVisibility = function() {
+			// handle scrollTo ad if we have one
+			if (this.maxNonSteps < 1 && this.maxSteps < 1) {
+				return;
+			}
+
+			this.lastScrollPositionY = window.scrollY;
+			if (this.lastScrollPositionY > 10) {
+				if (this.scrollToTimer !== null) {
+					clearTimeout(this.scrollToTimer);
+				}
+				var ad = this;
+				this.scrollToTimer = setTimeout(function() {
+					ad.load();
+				}, 1000);
+			}
+		};
+		this.load = function() {
+			var insertTarget = getInsertTargetForScrollPosition(this);
+			if (!insertTarget) {
+				return;
+			}
+
+			var isStep = insertTarget.tagName == "LI";
+
+			if (isStep && this.maxSteps < 1) {
+				return;
+			} else if (!isStep && this.maxNonSteps < 1) {
+				return;
+			}
+
+			var existingAds = insertTarget.getElementsByTagName("INS")
+			if (existingAds.length > 0) {
+				return;
+			}
+			existingAds = insertTarget.getElementsByClassName("wh_ad_inner")
+			if (existingAds.length > 0) {
+				return;
+			}
+
+			var addTips = insertTarget.getElementsByClassName("addTipElement");
+			if (addTips.length > 0) {
+				insertTarget.classList.add('has_scrolltoad');
+			}
+
+			var wrap = document.createElement('div');
+			if (isStep) {
+				wrap.className = "wh_ad_inner step_ad scrollto_wrap";
+			} else {
+				wrap.className = "wh_ad_inner scrollto_wrap";
+			}
+			insertTarget.appendChild(wrap);
+			insertTarget = wrap;
+			this.target = insertTarget;
+			insertAdsenseAd(this);
+
+			if (isStep) {
+				this.maxSteps--;
+			} else {
+				this.maxNonSteps--;
+			}
+
+			return;
+		};
 	}
 
 	function IntroAd(element) {
@@ -815,11 +991,20 @@ WH.desktopAds = (function () {
 		}
 
 		checkSidebarHeight(rightRailElements, adHeights);
+
+		if (scrollToAd) {
+			scrollToAd.updateVisibility();
+		}
 	}
 
 	function init() {
 		updateVisibility();
 		window.addEventListener('scroll', WH.shared.throttle(updateVisibility, 10));
+	}
+
+	function addScrollToAd(id) {
+		var el = document.getElementById(id);
+		scrollToAd = new ScrollToAd(el);
 	}
 
 	function addIntroAd(id) {
@@ -930,7 +1115,8 @@ WH.desktopAds = (function () {
 		'getIntroAd' : getIntroAd,
 		'slotRendered' : slotRendered,
 		'impressionViewable' : impressionViewable,
-		'apsFetchBids' : apsFetchBids
+		'apsFetchBids' : apsFetchBids,
+		'addScrollToAd': addScrollToAd
 	};
 
 })();

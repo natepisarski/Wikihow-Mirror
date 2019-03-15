@@ -17,7 +17,7 @@ class QuizYourself extends SpecialPage {
 
 		//mobile-only
 		if (!Misc::isMobileMode()) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -55,7 +55,7 @@ class QuizYourself extends SpecialPage {
 	}
 
 	private function getBaseHTML(): string {
-		return $this->renderTemplate('quiz_yourself_app');
+		return $this->renderTemplate('quiz_yourself_app.mustache');
 	}
 
 	private function getQuiz(): array {
@@ -85,7 +85,7 @@ class QuizYourself extends SpecialPage {
 		];
 
 		return [
-			'html' => $this->renderTemplate('quiz_yourself_quiz', $vars),
+			'html' => $this->renderTemplate('quiz_yourself_quiz.mustache', $vars),
 			'question_count' => $question_count
 		];
 	}
@@ -174,7 +174,7 @@ class QuizYourself extends SpecialPage {
 		];
 
 		if ($has_quizzes_left)
-			$html = $this->renderTemplate('quiz_yourself_categories', $vars);
+			$html = $this->renderTemplate('quiz_yourself_categories.mustache', $vars);
 		else
 			$html = $this->appEOQ();
 
@@ -208,7 +208,7 @@ class QuizYourself extends SpecialPage {
 			'home_text' => wfMessage('quiz_yourself_go_home')->text()
 		];
 
-		return $this->renderTemplate('quiz_yourself_category_eoq', $vars);
+		return $this->renderTemplate('quiz_yourself_category_eoq.mustache', $vars);
 	}
 
 	private function appEOQ(): string {
@@ -217,6 +217,6 @@ class QuizYourself extends SpecialPage {
 			'home_text' => wfMessage('quiz_yourself_go_home')->text()
 		];
 
-		return $this->renderTemplate('quiz_yourself_app_eoq', $vars);
+		return $this->renderTemplate('quiz_yourself_app_eoq.mustache', $vars);
 	}
 }

@@ -3,5 +3,5 @@
 $messages = array();
 
 $messages['en'] = array (
-	'thumbratings' => 'THumbs Up/Down Ratings',	
+	'thumbratings' => 'THumbs Up/Down Ratings',
 );

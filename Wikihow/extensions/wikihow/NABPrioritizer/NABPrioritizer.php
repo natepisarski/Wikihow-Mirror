@@ -10,5 +10,5 @@ if ( ! defined( 'MEDIAWIKI' ) )
 		  );
 
 $wgSpecialPages['NABPrioritizer'] = 'NABPrioritizer';
-$wgAutoloadClasses['NABPrioritizer'] = dirname(__FILE__) . '/NABPrioritizer.body.php';
+$wgAutoloadClasses['NABPrioritizer'] = __DIR__ . '/NABPrioritizer.body.php';
 

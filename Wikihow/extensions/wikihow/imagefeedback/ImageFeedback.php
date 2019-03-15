@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ImageFeedback'] = 'ImageFeedback';
-$wgAutoloadClasses['ImageFeedback'] = dirname(__FILE__) . '/ImageFeedback.body.php';
-$wgExtensionMessagesFiles['ImageFeedback'] = dirname(__FILE__) . '/ImageFeedback.i18n.php';
+$wgAutoloadClasses['ImageFeedback'] = __DIR__ . '/ImageFeedback.body.php';
+$wgExtensionMessagesFiles['ImageFeedback'] = __DIR__ . '/ImageFeedback.i18n.php';

@@ -56,14 +56,14 @@ class SubmittedUserReviewTest extends MediaWikiTestCase {
 		$sur->review = $tooLong;
 		$this->assertFalse($sur->isQualified());
 
-		$tooFewWords = "too few ";	
+		$tooFewWords = "too few ";
 		$sur->review = $tooFewWords;
 		$this->assertFalse($sur->isQualified());
 
 		$longWords =  "these words are long: antidisesteblishmentarianism supercalifragilisticexpialidocious";
 		$sur->review = $longWords;
 		$this->assertFalse($sur->isQualified());
-		
+
 		$hasBadWords = "This is a perfectly valid review but it has the word fuck in it. Fuck.";
 		$sur->review = $hasBadWords;
 		$this->assertFalse($sur->isQualified());
@@ -73,10 +73,10 @@ class SubmittedUserReviewTest extends MediaWikiTestCase {
 		$sur = SubmittedUserReview::newFromFormData($this->userReviewFormData);
 
 		$wikiHowCapReview = "wikiHow can be spelled wikihow, Wikihow, WikiHow, wiki how, Wiki How, Wiki how";
-	        $sur->review = $wikiHowCapReview;	
+	        $sur->review = $wikiHowCapReview;
 		$wikiHowCapReviewFix ="wikiHow can be spelled wikiHow, wikiHow, wikiHow, wikiHow, wikiHow, wikiHow";
 		$sur->correctFields();
-		$this->assertEquals($sur->review, $wikiHowCapReviewFix);		
+		$this->assertEquals($sur->review, $wikiHowCapReviewFix);
 
 		$utf8Review = "This character \xee\x90\x95 is unicode";
 		$sur->review = $utf8Review;
@@ -100,12 +100,12 @@ class SubmittedUserReviewTest extends MediaWikiTestCase {
 
 	public function testSave() {
 		$dbw = wfGetDB(DB_MASTER);
-		
+
 		$sur = SubmittedUserReview::newFromFormData($this->userReviewFormData);
 		$result = $sur->save();
 		$surId = $result['id'];
 		$insertedReview = $dbw->selectField(URDB::TABLE_SUBMITTED, 'us_review', ['us_id' => $surId] );
-		
+
 		$this->assertEquals($sur->review, $insertedReview);
 	}
 
@@ -121,7 +121,7 @@ class SubmittedUserReviewTest extends MediaWikiTestCase {
 		$this->assertEquals($sur->status, 0);
 		$this->assertEquals($sur->positive, 0);
 		$this->assertEquals($sur->eligible,UserReview::isArticleEligibleForReviews($sur->articleId));
-		
+
 	}
 
 }

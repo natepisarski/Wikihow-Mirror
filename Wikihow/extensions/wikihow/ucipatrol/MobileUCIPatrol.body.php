@@ -19,7 +19,7 @@ class MobileUCIPatrol extends UCIPatrol {
 
 	public static function onIsEligibleForMobileSpecial(&$mobileAllowed) {
 		global $wgTitle;
-		if($wgTitle && strrpos($wgTitle->getText(), "PicturePatrol") === 0) {
+		if ($wgTitle && strrpos($wgTitle->getText(), "PicturePatrol") === 0) {
 			$mobileAllowed = true;
 		}
 		return true;
@@ -30,12 +30,12 @@ class MobileUCIPatrol extends UCIPatrol {
 	}
 
 	protected function addTemplateHtml() {
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 
 		$out = $this->getOutput();
 		$vars = $this->getTemplateVars();
 		$vars['tool_info'] = class_exists('ToolInfo') ? ToolInfo::getTheIcon($this->getContext()) : '';
-		
+
 		$tmpl->set_vars($vars);
 		$out->addHTML($tmpl->execute('MobileUCIPatrol.tmpl.php'));
 	}

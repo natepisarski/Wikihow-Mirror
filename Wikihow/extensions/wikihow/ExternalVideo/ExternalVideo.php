@@ -15,4 +15,4 @@ $wgExtensionCredits['other'][] = array(
     'description' => "Helper to manage article videos from third-party providers",
 );
 
-$wgAutoloadClasses['ExternalVideoProvider'] = dirname(__FILE__) . '/ExternalVideo.class.php';
+$wgAutoloadClasses['ExternalVideoProvider'] = __DIR__ . '/ExternalVideo.class.php';

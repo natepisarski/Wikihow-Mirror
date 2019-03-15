@@ -89,7 +89,7 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		if ( $running == null ) {
 			// edge case if there is no data in this table
 			$running = $dbw->insert( 'master_expert_sheet_update', array( 'mesu_running' => 1 ), __METHOD__ );
-		} else if ( $running == 1 ) {
+		} elseif ( $running == 1 ) {
 			return;
 		}
 

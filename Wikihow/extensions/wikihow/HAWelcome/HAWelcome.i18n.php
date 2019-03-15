@@ -252,7 +252,7 @@ $messages['es'] = array(
 	'welcome-message-user' => '¡Hola, bienvenido(a) a {{SITENAME}}! Muchas gracias por tu edición en [[:$1]].
 
 Por favor, si tienes alguna duda, no seas tímido, deja un mensaje en [[$2|mi discusión]] para ver si puedo ayudarte con cualquier cosa. $3',
-	'welcome-message-anon' => "¡Hola, bienvenido(a) a {{SITENAME}}! Muchas gracias por tu edición en [[:$1]]. 
+	'welcome-message-anon' => "¡Hola, bienvenido(a) a {{SITENAME}}! Muchas gracias por tu edición en [[:$1]].
 
 ¿Por qué no '''[[Special:Userlogin|te creas una cuenta y te identificas?]]'''. De esta forma será mucho más fácil saber qué páginas has editado y se te atribuirá tu trabajo en el wiki, además te será de ayuda a la hora de comunicarte con el resto de la comunidad.
 
@@ -542,20 +542,20 @@ Si tu ha besonio de adjuta, e il ha nulle administratores local hic, nos suggere
  * @author Irwangatot
  */
 $messages['id'] = array(
-	'welcome-user-page' => "== Tentang saya == 
+	'welcome-user-page' => "== Tentang saya ==
 
-''Ini adalah halaman pengguna Anda. Silahkan sunting halaman ini untuk memberitahu komunitas tentang diri Anda!'' 
+''Ini adalah halaman pengguna Anda. Silahkan sunting halaman ini untuk memberitahu komunitas tentang diri Anda!''
 
 == Kontribusi saya ==
 
-* [[Special:Contributions/{{PAGENAME}}|Kontribusi pengguna]] 
+* [[Special:Contributions/{{PAGENAME}}|Kontribusi pengguna]]
 
-== Halaman kesukaan saya == 
+== Halaman kesukaan saya ==
 
-* Tambahkan pranala ke halaman kesukaan anda pada wiki di sini! 
-* Halaman kesukaan # 2 
+* Tambahkan pranala ke halaman kesukaan anda pada wiki di sini!
+* Halaman kesukaan # 2
 * Halaman kesukaan # 3",
-	'welcome-message-user' => 'Hi, selamat datang di {{SITENAME}}! Terima kasih untuk suntingan anda dihalaman [[:$1]]. 
+	'welcome-message-user' => 'Hi, selamat datang di {{SITENAME}}! Terima kasih untuk suntingan anda dihalaman [[:$1]].
 
 Silakan tinggalkan pesan di [[$2|Pembicaraan halaman saya]] jika saya dapat membantu! $3',
 );
@@ -591,7 +591,7 @@ Lascia un messaggio sulla [[$2|pagina delle mie discussioni]], se posso esserti 
 
 Ciao, benvenuto/a su {{SITENAME}}! Grazie per la tua modifica alla pagina [[:$1]].
 
-Se hai bisogno di aiuto e non ci sono amministratori disponibili, visita 
+Se hai bisogno di aiuto e non ci sono amministratori disponibili, visita
 [[wikia:Forum:Community Central Forum|i forum sul wiki centrale della Community]] $3',
 	'welcome-message-anon-staff' => "==Benvenuto==
 
@@ -958,7 +958,7 @@ Për piasì ch'a lassa un mëssagi su [[$2|mia pàgina ëd discussion]] s'i peus
 
 Cerea, bin ëvnù su {{SITENAME}}! Mersì për soa modìfica a la pàgina [[:$1]].
 
-S'a l'has dabzògn d'agiut, e a-i é gnun aministrator locaj ambelessì, a peul 
+S'a l'has dabzògn d'agiut, e a-i é gnun aministrator locaj ambelessì, a peul
 visité le [[wikia:Forum:Community Central Forum|piasse dla Wiki Sentral ëd la Comunità]] $3",
 	'welcome-message-anon-staff' => "==Bin ëvnù==
 

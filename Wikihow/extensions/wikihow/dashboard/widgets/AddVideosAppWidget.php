@@ -1,4 +1,4 @@
-<?
+<?php
 
 class AddVideosAppWidget extends DashboardWidget {
 
@@ -10,17 +10,21 @@ class AddVideosAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus) {
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
-			$link = "<a href='/Special:Videoadder' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
-			$link = "<a href='/Special:UserLogin?returnto=Special:Videoadder' class='comdash-login'>Login";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
+			$link = "<a href='/Special:VideoAdder' class='comdash-start'>Start";
+		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
+			$link = "<a href='/Special:UserLogin?returnto=Special:VideoAdder' class='comdash-login'>Login";
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	public function getMWName(){
@@ -36,7 +40,7 @@ class AddVideosAppWidget extends DashboardWidget {
 		global $wgUser;
 		$sk = $wgUser->getSkin();
 
-		$user = Videoadder::getLastVA($dbr);
+		$user = VideoAdder::getLastVA($dbr);
 
 		return $this->populateUserObject($user['id'], $user['date']);
 	}
@@ -50,7 +54,7 @@ class AddVideosAppWidget extends DashboardWidget {
 		global $wgUser;
 		$sk = $wgUser->getSkin();
 
-		$user = Videoadder::getHighestVA($dbr);
+		$user = VideoAdder::getHighestVA($dbr);
 		return $this->populateUserObject($user['id'], $user['date']);
 	}
 
@@ -72,7 +76,7 @@ class AddVideosAppWidget extends DashboardWidget {
 	 * Returns the number of videos left to be added.
 	 */
 	public function getCount(&$dbr){
-		return Videoadder::getArticleCount($dbr);
+		return VideoAdder::getArticleCount($dbr);
 	}
 
 	public function getUserCount(){
@@ -103,7 +107,7 @@ class AddVideosAppWidget extends DashboardWidget {
 	}
 
 	public function isAllowed($isLoggedIn, $userId=0){
-		if(!$isLoggedIn)
+		if (!$isLoggedIn)
 			return false;
 		else
 			return true;

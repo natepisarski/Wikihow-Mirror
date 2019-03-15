@@ -1,6 +1,6 @@
 <script type="text/javascript">
 var llText="";
-<?php if($checkForLL) { ?>
+<?php if ($checkForLL) { ?>
 function checkForLL() {
 	var txt = $("#wpTextbox1").val();
 	var re = /\[\[[a-zA-Z][a-zA-Z]:[^\]]+\]\]/;
@@ -21,7 +21,7 @@ function checkForCite() {
 			alert("ERROR: Article contains '<ref>', so there must be a '" + sources + "' section with template {{reflist}} before saving or previewing");
 			return(false);
 		}
-		else if(!txt.match(/<\/ref>/)) {
+		else if (!txt.match(/<\/ref>/)) {
 			alert("ERROR: Article must contain closing '</ref>' for ref tag");
 		}
 	}
@@ -52,7 +52,7 @@ function checkForSteps() {
 }
 <?php } ?>
 $(document).ready(function() {
-<?php if($checkForLL) { ?>
+<?php if ($checkForLL) { ?>
 <?php //Hack to remove un-needed stuff from editor
 ?> 	$("#othereditlink").hide();
 	$(".editpage_links").hide();
@@ -69,14 +69,14 @@ $(document).ready(function() {
 
 	<?php } ?>
 	$(".mw-newarticletext").hide();
-<?php if($translateURL) { ?>
+<?php if ($translateURL) { ?>
 	$("#editform").hide();
 	function removeLinks(revision) {
 		links = revision.match(/\[\[[^\]]+\]\]/gi);
-		for(var n in links) {
+		for (var n in links) {
 			var m;
-			if(m = links[n].match(/\[\[([^|]+)\|([^\]]+)\]\]/)) {
-				if(!m[1].match(/^ *image/i) && !m[1].match(/:/)) {
+			if (m = links[n].match(/\[\[([^|]+)\|([^\]]+)\]\]/)) {
+				if (!m[1].match(/^ *image/i) && !m[1].match(/:/)) {
 					revision = revision.replace(links[n],m[2]);
 				}
 			}
@@ -86,9 +86,9 @@ $(document).ready(function() {
 
 	function fixCite(revision) {
 		var sources = "<?= addslashes(wfMessage('Sources')) ?>";
-		if(revision.match(/<ref>/)) {
-			if(!revision.match(/{{reflist}}/)) {
-				if(revision.match("== "  + sources + " ==")) {
+		if (revision.match(/<ref>/)) {
+			if (!revision.match(/{{reflist}}/)) {
+				if (revision.match("== "  + sources + " ==")) {
 					revision = revision.replace(new RegExp("== *" + sources + " *=="), "== " + sources + " ==\n{{reflist}}");
 				}
 				else {
@@ -104,7 +104,7 @@ $(document).ready(function() {
 		do {
 			rLen = revision.length;
 			revision = revision.replace("\n\n#","\n#");
-		} while(revision.length != rLen);
+		} while (revision.length != rLen);
 
 		return(revision);
 	}
@@ -125,7 +125,7 @@ $(document).ready(function() {
 		var translations = <?php print $translations ?>;
 		var remove_templates = <?php print json_encode($remove_templates) ?>;
 		var remove_sections = <?php print $remove_sections ?>;
-		if(m) {
+		if (m) {
 			var article = m[1];
 			$.ajax({'url':"/Special:TranslateEditor",'data':{'target':article,'action':"getarticle",'toTarget': wgTitle} ,'success':function(data) {
 				var jData;
@@ -136,38 +136,38 @@ $(document).ready(function() {
 					alert("Unable to fetch article. Please make sure you are logged in to wikiHow, and your internet connection is working properly.");
 					return;
 				}
-				if(jData.success) {
+				if (jData.success) {
 					var revision = jData.text;
 					// revision = removeLinks(revision); // Disabled a per LH #1910
-					for(var n in translations) {
+					for (var n in translations) {
 						revision = revision.replace(new RegExp(translations[n].from,"gi"), translations[n].to);
 					}
-					for(var n in remove_templates) {
+					for (var n in remove_templates) {
 						revision = revision.replace(new RegExp(remove_templates[n],"gi"),"");
 					}
 					var sectionNames = revision.match(new RegExp("\n==[^=]+==","gi"));
 					sections = revision.split(new RegExp("\n==[^=]+=="));
 					revision = "";
 					var first = true;
-					for(var n in sections) {
+					for (var n in sections) {
 						var isGood = true;
-						for(var m in remove_sections) {
-							if(!first && sectionNames[n-1].match(new RegExp("\n== *" + remove_sections[m] + " *==","i"))) {
+						for (var m in remove_sections) {
+							if (!first && sectionNames[n-1].match(new RegExp("\n== *" + remove_sections[m] + " *==","i"))) {
 								isGood = false;
 							}
 						}
-						if(isGood) {
-							if(!first) {
+						if (isGood) {
+							if (!first) {
 								revision += sectionNames[n - 1];
 							}
 							revision += sections[n];
 						}
 						else {
-							if(sections[n].match(/__PARTS__/)) {
+							if (sections[n].match(/__PARTS__/)) {
 								revision += "\n__PARTS__";
 							}
 							match = sections[n].match(/\[\[[a-zA-Z][a-zA-Z]\:[^\[]+\]\]/g);
-							for(var m in match) {
+							for (var m in match) {
 								revision += "\n" + match[m];
 							}
 						}
@@ -197,7 +197,7 @@ $(document).ready(function() {
 <?php } ?>
 });
 </script>
-<?php if($translateURL) { ?>
+<?php if ($translateURL) { ?>
 <div id="translatesection">
 <form>
 <div style="margin-left:15px;">

@@ -2,16 +2,11 @@
 
 class Welcome extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('Welcome');
 	}
 
-	function sendWelcome() {
-		global $wgUser;
-		return self::sendWelcomeUser($wgUser);
-	}
-
-	function sendWelcomeUser($user) {
+	public static function sendWelcomeUser($user) {
 		global $wgCanonicalServer;
 
 		if ($user->getID() == 0) {
@@ -70,13 +65,12 @@ class Welcome extends UnlistedSpecialPage {
 
 	}
 
-	function execute($par) {
-		global $wgUser, $wgRequest, $wgOut, $wgCanonicalServer;
-		$fname = 'Welcome';
+	public function execute($par) {
+		global $wgCanonicalServer;
 
-		$wgOut->setArticleBodyOnly(true);
+		$this->getOutput()->setArticleBodyOnly(true);
 
-		$username = htmlspecialchars( strip_tags( $wgRequest->getVal('u', null) ) );
+		$username = htmlspecialchars( strip_tags( $this->getRequest()->getVal('u', null) ) );
 
 		if ($username != '') {
 			$u = new User();

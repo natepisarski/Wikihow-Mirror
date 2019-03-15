@@ -24,9 +24,7 @@ class ImportXML extends UnlistedSpecialPage {
 		$skipped = false;
 		while (sizeof($parts) > 0) {
 			$x = trim(array_shift($parts));
-			#echo "got  $x\n";
 			if ($x == "" ) {
-				#echo "skipping empty\n";
 				continue;
 			}
 			if ($x == "<text>") {
@@ -34,7 +32,6 @@ class ImportXML extends UnlistedSpecialPage {
 				continue;
 			}
 			if (!$skipped && strpos($x, $elem) !== 0) {
-				#echo "skipping position\n";
 				continue;
 			}
 			$close = str_replace("<", "</", $elem);
@@ -42,8 +39,6 @@ class ImportXML extends UnlistedSpecialPage {
 			$x = str_replace($close, "", $x);
 			$x = preg_replace("@^<!\[CDATA\[@", "", $x);
 			$x = preg_replace("@\]\]>$@", "", $x);
-			#$x = preg_replace("@^<[^>]*>@", "", $x);
-			#$x = preg_replace("@</[^>]*>$@", "", $x);
 			preg_match_all("@<a[^>]href=['\"](.*)['\"][^>]*>(.*)</a>@", $x, $matches);
 			if ($matches > 0) {
 				for ($i = 0; $i < sizeof($matches[0]); $i++) {
@@ -72,14 +67,12 @@ class ImportXML extends UnlistedSpecialPage {
 				// we got a live one here!
 				$a = array_shift($parts);
 				$d = preg_split("@(<[/]?.*>)@im", $a, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-	#print_r($d);
 				$title = null;
 				$text = "";
 				$prefix = array();
 				while (sizeof($d) > 0) {
 					$t = trim(array_shift($d));
 					if ($t == "") continue;
-	#echo "got T +$t+\n";
 					if ($t == "<introduction>") {
 						$n = $this->getNextTextTag($d);
 						$text .= $n;
@@ -178,6 +171,7 @@ class ImportXML extends UnlistedSpecialPage {
 
 	public function execute($par) {
 		global $wgParser;
+		$out = $this->getOutput();
 
 		if ( !in_array( 'importxml', $user->getRights() ) ) {
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
@@ -186,55 +180,67 @@ class ImportXML extends UnlistedSpecialPage {
 
 		// used through ajax
 		if ($req->getVal('delete')) {
-			$out->disable();
+			$out->setArticleBodyOnly(true);
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->delete('import_articles', array('ia_id'=>$req->getVal('delete')));
+			$dbw->delete('import_articles',
+				array('ia_id' => $req->getInt('delete')),
+				__METHOD__);
 			return;
 		}
 		if ($req->getVal('publishedcsv')) {
 			$out->disable();
-			header("Content-type: text/plain;");
+			header("Content-type: text/plain");
 			$dbr = wfGetDB(DB_MASTER);
 			if ($req->getVal('errs')) {
 				$opts = array('ia_publish_err'=>1);
 			} else {
 				$opts = array('ia_published'=>1);
 			}
-			$res = $dbr->select('import_articles', array('ia_title', 'ia_published_timestamp'),  $opts,
-					"ImportXML::execute", array("ORDER BY"=>"ia_published_timestamp"));
-			while ($row = $dbr->fetchObject($res)) {
+			$res = $dbr->select( 'import_articles',
+				array('ia_title', 'ia_published_timestamp'),
+				$opts,
+				__METHOD__,
+				array("ORDER BY"=>"ia_published_timestamp") );
+			foreach ($res as $row) {
 				$t = Title::newFromDBKey($row->ia_title);
 				$ts = date("Y-m-d", wfTimestamp(TS_UNIX, $row->ia_published_timestamp));
-				echo "{$t->getFullURL()}\t{$t->getText()}\t{$ts}\n";
+				print "{$t->getFullURL()}\t{$t->getText()}\t{$ts}\n";
 			}
 			return;
 		}
 		// used through ajax
 		if ($req->getVal('view')) {
-			$out->disable();
+			$out->setArticleBodyOnly(true);
 			$dbr = wfGetDB(DB_MASTER);
 			$text = $dbr->selectField('import_articles', array('ia_text'), array('ia_id'=>$req->getVal('view')));
-			echo "<textarea class='xml_edit' id='xml_input'>$text</textarea><br/>"
-				. '<a onclick="save_xml(' . $req->getVal('view') . ');" class="button button136" style="float: left;" onmouseover="button_swap(this);" onmouseout="button_unswap(this);">Save</a>';
+			$out->addHTML("<textarea class='xml_edit' id='xml_input'>$text</textarea><br/>" .
+				'<a onclick="save_xml(' . $req->getVal('view') . ');" class="button button136" style="float: left;" ' .
+				'  onmouseover="button_swap(this);" onmouseout="button_unswap(this);">Save</a>');
 			return;
 		}
 		// used through ajax
 		if ($req->getVal('update')) {
-			$out->disable();
+			$out->setArticleBodyOnly(true);
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->update('import_articles', array('ia_text'=>$req->getVal('text')), array('ia_id'=>$req->getVal('update')));
+			// TODO: this feels like it should probably be better secured
+			$dbw->update('import_articles',
+				array('ia_text' => $req->getVal('text')),
+				array('ia_id' => $req->getInt('update')),
+				__METHOD__);
 			return;
 		}
 		if ($req->getVal('preview')) {
 			$dbr = wfGetDB(DB_SLAVE);
-			$text = $dbr->selectField('import_articles', array('ia_text'), array('ia_id'=>$req->getVal('preview')));
-			$title  = $dbr->selectField('import_articles', array('ia_title'), array('ia_id'=>$req->getVal('preview')));
-			$t = Title::newFromText($title);
+			$row = $dbr->selectRow('import_articles',
+				['ia_text', 'ia_title'],
+				array('ia_id' => $req->getInt('preview')),
+				__METHOD__);
+			$t = Title::newFromText($row->ia_title);
 			# try this parse, this is for debugging only
 			$popts = $out->parserOptions();
 			$popts->setTidy(true);
 			$popts->enableLimitReport();
-			$parserOutput = $wgParser->parse( $text, $t, $popts);
+			$parserOutput = $wgParser->parse( $row->ia_text, $t, $popts );
 			$popts->setTidy(false);
 			$popts->enableLimitReport( false );
 			$out->setPageTitle(wfMessage('howto', $t->getText()));
@@ -256,7 +262,7 @@ class ImportXML extends UnlistedSpecialPage {
 			}
 
 			$articles = $this->parseXML($input);
-			foreach($articles as $t=>$text) {
+			foreach ($articles as $t=>$text) {
 				$title = Title::newFromText($t);
 				if (!$title) {
 					$out->addHTML("cant make title out of $t<br/>");
@@ -292,7 +298,7 @@ class ImportXML extends UnlistedSpecialPage {
 			</tr>");
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->select('import_articles', array('ia_published', 'ia_title', 'ia_id', 'ia_timestamp'), array(), "ImportXML", array("ORDER BY"=>"ia_id"));
-		while ($row = $dbr->fetchObject($res)) {
+		foreach ($res as $row) {
 			$t = Title::newFromText($row->ia_title);
 			if ($t) {
 				$class = $row->ia_published == 1 ? "pub" : "";
@@ -345,7 +351,7 @@ class ExportXML extends UnlistedSpecialPage {
 	private function handleImages($x, &$dom, &$s) {
 		preg_match_all("@\[\[Image:[^\]]*\]\]@im", $x, $matches);
 		$img = null;
-		foreach($matches[0] as $m ) {
+		foreach ($matches[0] as $m ) {
 			if (!$img) {
 				$img = $dom->createElement("images");
 			}
@@ -497,7 +503,7 @@ END
 					$query = $parts['query'];
 					$params = array();
 					$tx = explode("&", $query);
-					foreach($tx as $v) {
+					foreach ($tx as $v) {
 						$xx = explode("=", $v);
 						if ($xx[0] == "title") {
 							$key = urldecode($xx[1]);
@@ -532,13 +538,13 @@ END
 			}
 			$t = Title::newFromDBKey(urldecode($urlParams['title']));
 			if (!$t) {
-				echo "Can't get title from {$origUrl}\n";
+				print "Can't get title from {$origUrl}\n";
 				continue;
 			}
 			$revid = !empty($urlParams['oldid']) ? $urlParams['oldid'] : '';
 			$r = Revision::newFromTitle($t, $revid);
 			if (!$r) {
-				echo "Can't get revision from {$origUrl}\n";
+				print "Can't get revision from {$origUrl}\n";
 				continue;
 			}
 			$text = $r->getText();
@@ -702,9 +708,10 @@ END
 
 			// process references
 			preg_match_all("@<ref[^>]*>.*</ref>@imU", $text, $matches);
-			foreach($matches[0] as $m) {
-				if (!$sources_element)
+			foreach ($matches[0] as $m) {
+				if (!$sources_element) {
 					$sources_element = $dom->createElement("sources");
+				}
 				$m = preg_replace("@<[/]*ref[^>]*>@", "", $m);
 				$e = $dom->createElement("source");
 				$tx = $dom->createElement("text");
@@ -725,7 +732,7 @@ END
 			$res = $dbr->select("revision", array("distinct(rev_user_text)"), array("rev_page"=>$t->getArticleID(), "rev_user != 0"), __FILE__, array("ORDER BY" => "rev_timestamp DESC"));
 			$num->appendChild($dom->createTextNode($dbr->numRows($res)));
 			$attr->appendChild($num);
-			while ($row = $dbr->fetchObject($res)) {
+			foreach ($res as $row) {
 				$u = User::newFromName($row->rev_user_text);
 				$u->load();
 				$name = $u->getRealName() != "" ? $u->getRealName() : $u->getName();
@@ -742,7 +749,7 @@ END
 
 		}
 		$out->disable();
-		header("Content-type: text/xml;");
-		echo $dom->saveXML();
+		header("Content-type: text/xml");
+		print $dom->saveXML();
 	}
 }

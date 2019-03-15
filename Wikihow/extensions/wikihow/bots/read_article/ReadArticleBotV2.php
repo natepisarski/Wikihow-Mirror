@@ -224,7 +224,7 @@ class ReadArticleBotV2 extends UnlistedSpecialPage {
 		$a = $this->a;
 		if (is_null($a)) {
 			$responseText = $this->onNoArticleSelected();
-		} else if ($a->isLastStepInMethod()) {
+		} elseif ($a->isLastStepInMethod()) {
 			$responseText = $this->onIntentEnd();
 		} else {
 			$responseText = $this->onIntentFallback();
@@ -384,7 +384,7 @@ class ReadArticleBotV2 extends UnlistedSpecialPage {
 		$a = $this->a;
 		if (is_null($a)) {
 			$responseText = $this->onNoArticleSelected();
-		} else if ($a->isFirstStepInMethod()) {
+		} elseif ($a->isFirstStepInMethod()) {
 			$responseText = wfMessage('reading_article_no_previous_step')->text();
 		} else {
 			$a->decrementStepPosition();
@@ -402,7 +402,7 @@ class ReadArticleBotV2 extends UnlistedSpecialPage {
 		$a = $this->a;
 		if (is_null($a)) {
 			$responseText = $this->onNoArticleSelected();
-		} else if ($a->getStepCount() < $stepNum || $stepNum < 1) {
+		} elseif ($a->getStepCount() < $stepNum || $stepNum < 1) {
 			$responseText = wfMessage('reading_article_invalid_step')->text();
 
 		} else {

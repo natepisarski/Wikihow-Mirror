@@ -1,7 +1,7 @@
 <?
 $messages = array();
 
-$messages['en'] = 
+$messages['en'] =
         array(
 			'createpage_congratulations' => 'Congratulations - Your Article is Published',
 			'createpage' => 'Create a Page',
@@ -22,7 +22,7 @@ $messages['en'] =
 			'createpage_cancel' => 'Cancel',
 			'createpage_search_again' => 'Search Again',
 			'createpage_enter_title' => 'Enter Article Title',
-			'managesuggestions' => "Manage suggestions", 
+			'managesuggestions' => "Manage suggestions",
 			'managesuggestions_boxes' => "<div class='cpbox'>
 			<h3>Search for existing suggestions to delete</h3>
 			<form method='POST' onsubmit='return checkform()' name='createform_topics'>
@@ -61,7 +61,7 @@ $messages['en'] =
 			",
 			'cp_loading' => 'Loading...',
 			'createpage_review_options' => "<div><center>
-					<a onclick='closeModal();' class='button'>Continue Editing</a> 
+					<a onclick='closeModal();' class='button'>Continue Editing</a>
 					<input type='button' value='Save & Publish' onclick='saveandpublish(); return false;' class='button primary' />
 					</center></div>",
 			'cp_title_head' => 'I know what to write about',
@@ -93,7 +93,7 @@ $messages['en'] =
 			'cp_no_topics' => 'No suggestions found, please try another topic.',
 			'cp_other_details' => "Do you want to publish an article you already wrote? Just email it to us at <a id='gatPubAssist' href='mailto:publish@wikihow.com'>publish@wikiHow.com</a> and we'll post it to wikiHow for you.",
 			'usertalk_first_article_message' => "Congrats on starting your first wikiHow article!
-			
+
 I just wanted to touch base in case you were wondering what happens next :) All new articles go through a quality review process to ensure they follow our community guidelines. If your article meets those guidelines, you'll get a note letting you know that it's been promoted.
 
 In the meantime you can continue editing to improve your article, or try visiting our [[Special:CommunityDashboard|Community Dashboard]] for other ways to help. You might get a kick out of flipping through the [[Special:EditFinder/Topic|Topic Greenhouse]] to find articles in your area of expertise so you can add your knowledge there, too!",

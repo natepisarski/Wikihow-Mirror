@@ -73,14 +73,14 @@ class Controller {
 			$result = self::generateHeaderWidgetData($context);
 		}
 
-		print_r(json_encode($result));
+		print(json_encode($result));
 	}
 
 	public static function handleGetRequest(&$context) {
 		global $wgSquidMaxage;
 		$req = $context->getRequest();
 		$out = $context->getOutput();
-		
+
 		$out->setSquidMaxage($wgSquidMaxage);
 		$out->setArticleBodyOnly(true);
 		$action = $req->getVal('action', '');
@@ -88,8 +88,8 @@ class Controller {
 		if ($action == 'get_header_widget_data') {
 			$result = self::generateHeaderWidgetData($context);
 		}
-		
-		print_r(json_encode($result));
+
+		print(json_encode($result));
 	}
 
 	protected static function generateCTA(&$context) {
@@ -504,7 +504,7 @@ class DetailsFormSubmissionHandler extends SubmissionHandler {
 				$wgUser->getId(),
 				WikihowUser::getVisitorId()
 			);
-			if( $sur->isQualified()) {
+			if ( $sur->isQualified()) {
 				$sur->correctFields();
 				$sur->save();
 			}

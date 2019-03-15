@@ -12,7 +12,7 @@ class AdminMarkEmailConfirmed extends UnlistedSpecialPage {
 	 * @param $username string, the username
 	 * @return their email address
 	 */
-	function confirmEmailAddress($username) {
+	private function confirmEmailAddress($username) {
 		$user = User::newFromName($username);
 		if ($user && $user->getID() > 0) {
 			$user->confirmEmail();
@@ -27,18 +27,20 @@ class AdminMarkEmailConfirmed extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
-			$username = $wgRequest->getVal('username', '');
-			$wgOut->setArticleBodyOnly(true);
+		if ($req->wasPosted()) {
+			$username = $req->getVal('username', '');
+			$out->setArticleBodyOnly(true);
 			$emailAddr = $this->confirmEmailAddress($username);
 			if ($emailAddr) {
 				$tmpl = <<<EOHTML
@@ -53,7 +55,7 @@ EOHTML;
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Confirm User Email Address - wikiHow');
+		$out->setHTMLTitle('Admin - Confirm User Email Address - wikiHow');
 
 $tmpl = <<<EOHTML
 <form method="post" action="/Special:AdminMarkEmailConfirmed">
@@ -95,6 +97,6 @@ $tmpl = <<<EOHTML
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 }

@@ -40,7 +40,7 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 
 		// Only alow staff to use this tool
 		if ( $user->isBlocked() || !in_array( 'staff', $user->getGroups() ) ) {
-			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -87,7 +87,7 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 	 * Provides a response for POST requests with action=query.
 	 *
 	 * Expects query and fuzzy query parameters, responds with a list of users matching query.
-	 * 
+	 *
 	 * Pseudo code: ( query, fuzzy ) -> ( [ users[] ] )
 	 */
 	private function apiQuery() {
@@ -104,7 +104,7 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 	 * Expects name or email query parameters, responds with a description of the target user, a
 	 * list of changes and warnings that describe what execute would do if called with the same name
 	 * or email values and a token execute will require to do so.
-	 * 
+	 *
 	 * Pseudo code: ( ( name | email ) ) ->
 	 *                  ( [ target, results[ changes[], warnings[] ], executeToken ] )
 	 */
@@ -136,7 +136,7 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 	 * Expects name or email query parameters and a token provided by describe, responds with a
 	 * description of the target user and a list of changes and warnings describing what execute has
 	 * done.
-	 * 
+	 *
 	 * Pseudo code: ( ( name | email ), executeToken ) ->
 	 *                  ( [ target, results[ changes[], warnings[] ] ] )
 	 */

@@ -21,7 +21,7 @@ class WikihowTitlesMessage extends Message {
 		$this->recipientId = $recipientId;
 		$this->additionalButton = $additionalButton;
 	}
-	
+
 	protected function buildMessage() {
 		$titles = $this->titles;
 		$recipientId = $this->recipientId;
@@ -110,7 +110,7 @@ class WikihowTitlesMessage extends Message {
 			StructuredMessage::TYPE_GENERIC,
 			['elements' => $elements]
 		);
-		
+
 		return $response;
 	}
 

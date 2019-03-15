@@ -11,9 +11,9 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['ProfileBox'] = 'ProfileBox';
-$wgAutoloadClasses['ProfileBox'] = dirname( __FILE__ ) . '/ProfileBox.body.php';
-$wgAutoloadClasses['ProfileStats'] = dirname( __FILE__ ) . '/ProfileBox.body.php';
-$wgExtensionMessagesFiles['ProfileBox'] = dirname( __FILE__ ) . "/ProfileBox.i18n.php";
+$wgAutoloadClasses['ProfileBox'] = __DIR__ . '/ProfileBox.body.php';
+$wgAutoloadClasses['ProfileStats'] = __DIR__ . '/ProfileBox.body.php';
+$wgExtensionMessagesFiles['ProfileBox'] = __DIR__ . "/ProfileBox.i18n.php";
 
 $wgHooks['AddNewAccount'][] = 'ProfileBox::onInitProfileBox';
 

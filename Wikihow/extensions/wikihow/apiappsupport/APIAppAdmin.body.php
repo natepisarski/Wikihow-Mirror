@@ -6,39 +6,41 @@ class APIAppAdmin extends UnlistedSpecialPage {
 	const DIFFICULTY_MEDIUM = 2;
 	const DIFFICULTY_HARD = 3;
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'APIAppAdmin' );
 	}
 
-	function execute($par) {
-		global $wgUser, $wgOut, $wgRequest;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || !in_array('staff', $userGroups)) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
-		if ($wgRequest->wasPosted()) {
-			$wgOut->disable();
+		if ($req->wasPosted()) {
+			$out->setArticleBodyOnly(true);
 			$result = array();
 			$result['debug'][] = "posted to apiappadmin";
-			if ($wgRequest->getVal("action") == "default") {
+			if ($req->getVal("action") == "default") {
 				$this->testQuery($result);
-			} else if ($wgRequest->getVal("action") == "getpage") {
+			} elseif ($req->getVal("action") == "getpage") {
 				//nothing yet
 			}
 			echo json_encode($result);
 			return;
 		}
 
-		$wgOut->setPageTitle('APIAppAdmin');
-		EasyTemplate::set_path( dirname(__FILE__).'/' );
+		$out->setPageTitle('APIAppAdmin');
+		EasyTemplate::set_path( __DIR__.'/' );
 
 		$vars['css'] = HtmlSnips::makeUrlTag('/extensions/wikihow/apiappsupport/apiappadmin.css', true);
-		$wgOut->addScript( HtmlSnips::makeUrlTag('/extensions/wikihow/apiappsupport/apiappadmin.js', true) );
-		$html = EasyTemplate::html('APIAppAdmin', $vars);
-		$wgOut->addHTML($html);
+		$out->addScript( HtmlSnips::makeUrlTag('/extensions/wikihow/apiappsupport/apiappadmin.js', true) );
+		$html = EasyTemplate::html('APIAppAdmin.tmpl.php', $vars);
+		$out->addHTML($html);
 	}
 
 	private function testQuery(&$result) {

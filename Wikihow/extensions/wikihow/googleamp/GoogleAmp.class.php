@@ -29,10 +29,10 @@ class GoogleAmp {
 	public static function addAmpStyle( $style, $out ) {
 		// remove any important tags which are not valid in amp
 		$style = str_replace( "!important", "", $style );
-		if(class_exists('ArticleQuizzes')) {
+		if (class_exists('ArticleQuizzes')) {
 			global $wgTitle;
 			$articleQuizzes = new ArticleQuizzes($wgTitle->getArticleID());
-			if(count($articleQuizzes::$quizzes) > 0) {
+			if (count($articleQuizzes::$quizzes) > 0) {
 				$style .= Misc::getEmbedFile('css', __DIR__ . '/../quiz/quiz.css');
 			}
 		}
@@ -196,7 +196,7 @@ class GoogleAmp {
 		$currentBox = null;
 		$relatedwikihows->prepend('<div class="related_boxes"></div>');
 		$currentBox = pq("#relatedwikihows .related_boxes:last");
-		foreach($related_boxes as $box) {
+		foreach ($related_boxes as $box) {
 			$ampImg = self::makeRelatedAmpImg( $box->imgFile );
 			$url = $box->url;
 			$currentBox->append("<a href='$url' class='related_box_amp'>".$ampImg."<p><span>How to </span>$box->name</p></a>");
@@ -302,7 +302,7 @@ class GoogleAmp {
 	 * Fix broken <a> tags
 	 */
 	private static function fixBrokenLinks() {
-		foreach(pq('a') as $link) {
+		foreach (pq('a') as $link) {
 			if (!self::isValidLink($link, true)) {
 				pq($link)->replaceWith($link->textContent);
 			}
@@ -499,7 +499,7 @@ class GoogleAmp {
 		if ( pq("#{$relatedsname}")->length ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
 			pq("#{$relatedsname}")->append($adhtml);
-		} else if ( pq("#relatedwikihows")->length ) {
+		} elseif ( pq("#relatedwikihows")->length ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
 			pq("#relatedwikihows")->append($adhtml);
 		}
@@ -747,7 +747,7 @@ class GoogleAmp {
 	}
 
 	public static function fixSampleImages() {
-		foreach( pq( '.sd_thumb img' ) as $img ) {
+		foreach ( pq( '.sd_thumb img' ) as $img ) {
 			// Trevor, 6/18/18 - Now that sample images are deferred they need to be treated the
 			// same way article images are, specifically that the src is stored in data-src to be
 			// loaded when scrolled into view
@@ -819,7 +819,7 @@ class GoogleAmp {
 
 		$badges = pq('.qa_expert, .qa_person_circle');
 
-		foreach( $badges as $badge ) {
+		foreach ( $badges as $badge ) {
 			preg_match("@background-image:\s?url\((.*)\)@", pq($badge)->attr('style'), $m);
 			if (!empty($m[1])) {
 				$ampImg = self::getAmpArticleImg($m[1], 80, 80);
@@ -868,7 +868,7 @@ class GoogleAmp {
 		);
 		$element = Html::element( 'amp-youtube', $attributes );
 		$first = true;
-		foreach( pq( $videoSelector )->children() as $child ) {
+		foreach ( pq( $videoSelector )->children() as $child ) {
 			if ( $first ) {
 				pq($child)->replaceWith( $element );
 				$first = false;
@@ -945,12 +945,12 @@ class GoogleAmp {
 		// remove any font tags and unwrap them (unwrap does not exist in php query so use this)
 		// wrap in while loop in case there is a font tag within a font tag
 		while ( pq( 'font' )->length > 0 ) {
-			foreach( pq( 'font' ) as $elem ) {
+			foreach ( pq( 'font' ) as $elem ) {
 				pq( $elem )->replaceWith( pq( $elem )->html() );
 			}
 		}
 
-		foreach( pq( '.mwe-math-mathml-inline' ) as $elem ) {
+		foreach ( pq( '.mwe-math-mathml-inline' ) as $elem ) {
 			$text = pq( $elem )->attr( 'data-original-text' );
 			$text = htmlspecialchars( $text );
 			pq($elem)->after( $text );
@@ -1043,7 +1043,7 @@ class GoogleAmp {
 	public static function onTitleSquidURLsPurgeVariants( $title, &$urls ) {
 		global $wgLanguageCode;
 
-		if ( $title && $title->exists() && $title->getNamespace() == NS_MAIN ) {
+		if ( $title && $title->exists() && $title->inNamespace(NS_MAIN) ) {
 			$ampUrl = $title->getInternalURL();
 			$partialUrl = preg_replace("@^(https?:)?//[^/]+/@", "/", $ampUrl );
 			$mobile = true;
@@ -1172,7 +1172,7 @@ class GoogleAmp {
 		// see if this title is set to a fixed revision
 		$revision = null;
 		$urls = explode( "\n", ConfigStorage::dbGetConfig( "mobilefixedrevision" ) );
-		foreach( $urls as $url ) {
+		foreach ( $urls as $url ) {
 			$paramString = parse_url( $url, PHP_URL_QUERY );
 			$params = array();
 			parse_str( $paramString, $params );

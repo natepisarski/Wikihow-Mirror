@@ -55,7 +55,7 @@ class ApiTitleSearch extends ApiBase {
 		return true;
 
 	}
-	
+
 	/**
 	 * @param Title[] $titles
 	 * @return array

@@ -3,4 +3,4 @@
  * Autoload class definitions for category-related classes
  */
 
-$wgAutoloadClasses['CategoryFilter'] = dirname( __FILE__ ) . '/CategoryFilter.php';
+$wgAutoloadClasses['CategoryFilter'] = __DIR__ . '/CategoryFilter.php';

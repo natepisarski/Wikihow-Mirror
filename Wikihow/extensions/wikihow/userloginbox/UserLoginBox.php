@@ -9,7 +9,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['UserLoginBox'] = 'UserLoginBox';
-$wgAutoloadClasses['UserLoginBox'] = dirname( __FILE__ ) . '/UserLoginBox.body.php';
+$wgAutoloadClasses['UserLoginBox'] = __DIR__ . '/UserLoginBox.body.php';
 $wgMessagesDirs['UserLoginBox'] = __DIR__ . '/i18n/';
 
 $wgResourceModules['ext.wikihow.userloginbox'] = array(

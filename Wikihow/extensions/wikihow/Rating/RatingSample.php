@@ -27,7 +27,7 @@ class RatingSample extends RatingsTool {
 	function logClear($itemId, $max, $min, $count, $reason){
 		$title = $this->makeTitle($itemId);
 
-		if($title) {
+		if ($title) {
 			$params = array($itemId, $min, $max);
 			$log = new LogPage( $this->logType, true );
 			$log->addEntry( $this->logType, $title, wfMessage('clearratings_logsummary', $reason, $title->getFullText(), $count)->text(), $params );
@@ -47,7 +47,7 @@ class RatingSample extends RatingsTool {
 		);
 
 		$results = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$item = array();
 			$item['date'] = $wgLang->date($row->log_timestamp);
 			$u = User::newFromId($row->log_user);
@@ -86,14 +86,14 @@ class RatingSample extends RatingsTool {
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->selectField('dv_sampledocs', 'dvs_doc', array('dvs_doc' => $name));
 
-		if($res === false)
+		if ($res === false)
 			return 0;
 		else
 			return $name;
 	}
 
 	function getRatingResponse($itemId, $rating, $source, $ratingId) {
-        if($rating == 0)
+        if ($rating == 0)
             return $this->getRatingReasonForm($itemId);
         else
             return wfMessage('ratesample_rated')->text();
@@ -164,6 +164,6 @@ class RatingSample extends RatingsTool {
 	`rsl_count` tinyint(4) NOT NULL default '0'
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1
 	ALTER TABLE ratesample_low CHANGE rsl_count rsl_count int not null default '0';
-    
+
  */
 

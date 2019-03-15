@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminEnlargeImages',
 	'author' => 'Reuben Smith',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminEnlargeImages'] = 'AdminEnlargeImages';
-$wgAutoloadClasses['AdminEnlargeImages'] = dirname( __FILE__ ) . '/AdminEnlargeImages.body.php';
-
+$wgAutoloadClasses['AdminEnlargeImages'] = __DIR__ . '/AdminEnlargeImages.body.php';

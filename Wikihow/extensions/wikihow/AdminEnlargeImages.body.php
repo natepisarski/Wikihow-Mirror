@@ -45,9 +45,11 @@ class AdminEnlargeImages extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		$user = $wgUser->getName();
+		$userName = $user->getName();
 		$allowedUsers = array(
 			'Goldenzebra', // Zareen
 			'Emazing', // Emma
@@ -57,28 +59,28 @@ class AdminEnlargeImages extends UnlistedSpecialPage {
 			'Gersh', // For coding changes
 			'Argutier', // For coding changes
 		);
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked()
-			|| (!in_array($user, $allowedUsers)
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked()
+			|| (!in_array($userName, $allowedUsers)
 				&& !in_array('staff', $userGroups)))
 		{
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		if ($wgRequest->wasPosted()) {
-			$wgOut->setArticleBodyOnly(true);
+		if ($req->wasPosted()) {
+			$out->setArticleBodyOnly(true);
 			$dbr = wfGetDB(DB_SLAVE);
 
-			$center = $wgRequest->getVal('pages-resize', '') == 'enlarge-center';
-			$px = $wgRequest->getVal('pages-pixels', '0');
+			$center = $req->getVal('pages-resize', '') == 'enlarge-center';
+			$px = $req->getVal('pages-pixels', '0');
 			$px = intval($px);
 
-			$introPx = $wgRequest->getVal('pages-intro-pixels', 0);
+			$introPx = $req->getVal('pages-intro-pixels', 0);
 			$introPx = intval($introPx);
 
-			$pageList = $wgRequest->getVal('pages-list', '');
+			$pageList = $req->getVal('pages-list', '');
 
 			if ($px < 50 || $px > 1000 ||
 				($introPx && ($introPx < 50 || $introPx > 1000)))
@@ -109,7 +111,7 @@ class AdminEnlargeImages extends UnlistedSpecialPage {
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Enlarge Images - wikiHow');
+		$out->setHTMLTitle('Admin - Enlarge Images - wikiHow');
 
 		$defaultCenterPixels = self::DEFAULT_CENTER_PIXELS;
 		$defaultEnlargePixels = self::DEFAULT_ENLARGE_PIXELS;
@@ -192,6 +194,6 @@ $tmpl = <<<EOHTML
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 }

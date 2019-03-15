@@ -10,5 +10,5 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'Customed search backend for Google Mini and wikiHow',
 );
 $wgSpecialPages['EmailLink'] = 'EmailLink';
-$wgAutoloadClasses['EmailLink'] = dirname( __FILE__ ) . '/EmailLink.body.php';
-$wgExtensionMessagesFiles['EmailLinkAlias'] = dirname( __FILE__ ) . '/EmailLink.alias.php';
+$wgAutoloadClasses['EmailLink'] = __DIR__ . '/EmailLink.body.php';
+$wgExtensionMessagesFiles['EmailLinkAlias'] = __DIR__ . '/EmailLink.alias.php';

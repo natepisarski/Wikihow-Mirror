@@ -12,6 +12,7 @@ class removeBadReferences extends Maintenance {
 		$this->addOption( 'url', 'url which is bad', false, true, 'u' );
 		$this->addOption( 'sync', 'sync user checked urls from EN', false, false, 's' );
 		$this->addOption( 'count', 'get remaining items count', false, false, 'c' );
+		$this->addOption( 'clean', 'will clean up any non existing external links', false, false );
     }
 
 	private function removeFromArticle( $pageId, $url ) {
@@ -74,13 +75,17 @@ class removeBadReferences extends Maintenance {
 		}
 
 		if ( $refCount + $sourcesSectionCount != $urlCount ) {
+			$badLines = array();
+			foreach( explode( PHP_EOL, $text ) as $line ) {
+				if ( substr_count( $line, $url ) ) {
+					$badLines[] = trim($line);
+				}
+			}
 			if ( $verbose ) {
 				decho( "pageId: $pageId url: $url ref count $refCount and sources count $sourcesSectionCount does not match url count $urlCount" );
-				foreach( explode( PHP_EOL, $text ) as $line ) {
-					if ( substr_count( $line, $url ) ) {
-						decho("matching line", trim( $line ) );
-					}
-				}
+				decho("matching lines", $badLines );
+			} else {
+				decho("error: url: " . $url . " could not be removed from page", "https://www.wikihow.com/" . $title->getDBkey(), false);
 			}
 			return 0;
 		}
@@ -316,6 +321,9 @@ class removeBadReferences extends Maintenance {
 		return $items;
 	}
 
+	private function cleanRemovedExternalLinks() {
+		//delete from externallinks_link_info left join externallinks on externallinks.el_id = externallinks_link_info.eli_el_id where externallinks.el_id is null;
+	}
 	private function showCount() {
 		global $wgLanguageCode;
 		$dbr = wfGetDb( DB_SLAVE );
@@ -344,6 +352,9 @@ class removeBadReferences extends Maintenance {
 			}
 			decho("will sync user checked from EN" );
 			$this->syncUserChecked();
+		} else if ( $this->hasOption( "clean" ) ) {
+			decho("will clean up any non existing external links" );
+			$this->cleanRemovedExternalLinks();
 		} else {
 			$this->processItems();
 		}

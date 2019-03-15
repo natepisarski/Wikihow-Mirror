@@ -50,11 +50,11 @@ class UnsubscribeLink {
 	 */
 	public function getLink() {
 		global $wgCanonicalServer;
-		
+
 		$link_base = $wgCanonicalServer . '/Special:Unsubscribe';
 		$link_params = "?" . (($this->hasAccount == true) ? "uid=" : "email=") . $this->id .
 			 "&token=" . $this->token->generateToken( $this->id );
-		
+
 		return $link_base . $link_params;
 	}
 }

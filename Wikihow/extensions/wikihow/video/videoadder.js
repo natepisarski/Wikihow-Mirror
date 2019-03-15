@@ -10,7 +10,7 @@ function whdbg(str, obj) {
 }
 
 function loadNext() {
-	var url = "/Special:Videoadder/getnext";
+	var url = "/Special:VideoAdder/getnext";
 	var cat = $("#va_cat").val();
 	var page =  $("#va_page_id").val();
 	var vid = $("#va_vid_id").val();
@@ -21,7 +21,7 @@ function loadNext() {
 	$("#va_guts").html("<center><img src='/extensions/wikihow/rotate.gif'/></center>");
 	$("#va_article").html("");
 	
-	$.get("/Special:Videoadder/getnext",
+	$.get("/Special:VideoAdder/getnext",
 		{
 			va_cat: cat,
 			va_page_id: page,
@@ -34,7 +34,7 @@ function loadNext() {
 		},
 		'json'
 	);
-	/*$("#va_guts").load("/Special:Videoadder/getnext",
+	/*$("#va_guts").load("/Special:VideoAdder/getnext",
 		{
 			va_cat: cat,
 			va_page_id: page,
@@ -142,7 +142,7 @@ function skip() {
 }
 
 function updateReviewersTable() {
-	var url = '/Special:Videoadder?fetchReviewersTable=true';
+	var url = '/Special:VideoAdder?fetchReviewersTable=true';
 
 	$.get(url, function (data) {
 		$('#top_va').html(data);
@@ -172,7 +172,7 @@ function addOptions() {
 }
 
 function chooseCat() {
-	window.location.href = '/Special:Videoadder?cat='+ encodeURIComponent($("#va_category").val());
+	window.location.href = '/Special:VideoAdder?cat='+ encodeURIComponent($("#va_category").val());
 }
 
 function closeDialog() {

@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['FBLink'] = 'FBLink';
-$wgAutoloadClasses['FBLink'] = dirname(__FILE__) . '/FBLink.body.php';
-$wgExtensionMessagesFiles['FBLink'] = dirname(__FILE__) . '/FBLink.i18n.php';
+$wgAutoloadClasses['FBLink'] = __DIR__ . '/FBLink.body.php';
+$wgExtensionMessagesFiles['FBLink'] = __DIR__ . '/FBLink.i18n.php';

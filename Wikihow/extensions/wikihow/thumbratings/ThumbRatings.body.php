@@ -180,7 +180,7 @@ class ThumbRatings extends UnlistedSpecialPage {
 	}
 
 	public static function isValidTitle(&$t) {
-		return $t && $t->exists() && $t->getNamespace() == NS_MAIN;
+		return $t && $t->exists() && $t->inNamespace(NS_MAIN);
 	}
 
 	public static function getTipsWarningsMap(&$t) {

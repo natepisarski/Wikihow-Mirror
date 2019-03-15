@@ -115,7 +115,7 @@ User-agent: Googlebot
 Allow: /Special:AllPages
 Allow: /Special:Block
 Allow: /Special:BlockList
-Allow: /Special:Categorylisting
+Allow: /Special:CategoryListing
 Allow: /Special:EmailUser
 Allow: /Special:LSearch
 Allow: /Special:NewPages
@@ -157,7 +157,7 @@ Noindex: /*variant=
 
 User-agent: *
 Allow: /Special:AllPages
-Allow: /Special:Categorylisting
+Allow: /Special:CategoryListing
 Allow: /Special:LSearch
 Allow: /Special:NewPages
 Allow: /Special:ReindexedPages

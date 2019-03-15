@@ -9,4 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['EditTurk'] = 'EditTurk';
-$wgAutoloadClasses['EditTurk'] = dirname( __FILE__ ) . '/EditTurk.body.php';
+$wgAutoloadClasses['EditTurk'] = __DIR__ . '/EditTurk.body.php';

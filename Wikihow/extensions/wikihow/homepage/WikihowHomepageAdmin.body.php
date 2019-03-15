@@ -8,83 +8,83 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 	var $errorFile;
 	var $postSuccessful;
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct('WikihowHomepageAdmin');
 	}
 
-	function execute($par) {
-		global $wgOut, $wgUser, $wgRequest;
+	public function execute($par) {
 		global $wgAjaxUploadDestCheck, $wgAjaxLicensePreview;
 
-		if ($wgUser->isBlocked()) {
-			$wgOut->blockedPage();
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		if ($user->isBlocked()) {
+			$out->blockedPage();
 			return;
 		}
 
-		if ($wgUser->getID() == 0) {
-			$wgOut->setRobotpolicy( 'noindex,nofollow' );
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		if ($user->getID() == 0) {
+			$out->setRobotPolicy( 'noindex,nofollow' );
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
-		if(!in_array('staff', $wgUser->getGroups())) {
-			$wgOut->setRobotpolicy( 'noindex,nofollow' );
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+		if (!in_array('staff', $user->getGroups())) {
+			$out->setRobotPolicy( 'noindex,nofollow' );
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
 		$this->errorFile = "";
 		$this->errorTitle = "";
 
-		if ($wgRequest->getVal('delete')) {
-			$wgOut->setArticleBodyOnly(true);
-			$hpid = str_replace('delete_','',$wgRequest->getVal('delete'));
+		if ($req->getVal('delete')) {
+			$out->setArticleBodyOnly(true);
+			$hpid = str_replace('delete_','',$req->getVal('delete'));
 			$html = self::deleteHPImage($hpid);
-			$wgOut->addHTML($html);
+			$out->addHTML($html);
 			return;
 		}
 
 
 		$this->postSuccessful = true;
-		if($wgRequest->wasPosted()) {
-			if($wgRequest->getVal("updateActive")) {
-
+		if ($req->wasPosted()) {
+			if ($req->getVal("updateActive")) {
 				$dbw = wfGetDB(DB_MASTER);
 				//first clear them all
-				$dbw->update(WikihowHomepageAdmin::HP_TABLE, array('hp_active' => 0, 'hp_order' => 0), '*', __METHOD__);
+				$dbw->update(self::HP_TABLE, array('hp_active' => 0, 'hp_order' => 0), '*', __METHOD__);
 
-				$images = $wgRequest->getArray("hp_images");
+				$images = $req->getArray("hp_images");
 				$count = 1;
-				foreach($images as $image) {
+				foreach ($images as $image) {
 					if (!$image) continue;
-					$dbw->update(WikihowHomepageAdmin::HP_TABLE, array('hp_active' => 1, 'hp_order' => $count), array('hp_id' => $image));
+					$dbw->update(self::HP_TABLE, array('hp_active' => 1, 'hp_order' => $count), array('hp_id' => $image));
 					$count++;
 				}
-			}
-			else {
-				$title = WikiPhoto::getArticleTitleNoCheck($wgRequest->getVal('articleName'));
-				if(!$title || !$title->exists()) {
+			} else {
+				$title = WikiPhoto::getArticleTitleNoCheck($req->getVal('articleName'));
+				if (!$title || !$title->exists()) {
 					$this->postSuccessful = false;
 					$this->errorTitle = "* That article does not exist.";
 				}
 
-				if($this->postSuccessful) {
+				if ($this->postSuccessful) {
 					//keep going
-					$imageTitle = Title::newFromText($wgRequest->getVal('wpDestFile'), NS_IMAGE);
+					$imageTitle = Title::newFromText($req->getVal('wpDestFile'), NS_IMAGE);
 					$file = new LocalFile($imageTitle, RepoGroup::singleton()->getLocalRepo());
-					$file->upload($wgRequest->getFileTempName('wpUploadFile'), '', '');
+					$file->upload($req->getFileTempName('wpUploadFile'), '', '');
 					$filesize = $file->getSize();
-					if($filesize > 0) {
+					if ($filesize > 0) {
 						$dbw = wfGetDB(DB_MASTER);
-						$dbw->insert(WikihowHomepageAdmin::HP_TABLE, array('hp_page' => $title->getArticleID(), 'hp_image' => $imageTitle->getArticleID()));
+						$dbw->insert(self::HP_TABLE, array('hp_page' => $title->getArticleID(), 'hp_image' => $imageTitle->getArticleID()));
 
 						$article = new Article($imageTitle);
 						$limit = array();
 						$limit['move'] = "sysop";
 						$limit['edit'] = "sysop";
 						$protectResult = $article->updateRestrictions($limit, "Used on homepage");
-					}
-					else {
+					} else {
 						$this->postSuccessful = false;
 						$this->errorFile = "* We encountered an error uploading that file.";
 					}
@@ -98,35 +98,34 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 
 		$adc = wfBoolToStr( $useAjaxDestCheck );
 		$alp = wfBoolToStr( $useAjaxLicensePreview );
-		$wgOut->setPageTitle('WikiHow Homepage Admin');
-		$wgOut->addScript( "<script type=\"text/javascript\">
+		$out->setPageTitle('WikiHow Homepage Admin');
+		$out->addScript( "<script type='text/javascript'>
 wgAjaxUploadDestCheck = {$adc};
 wgAjaxLicensePreview = {$alp};
 </script>" );
-		$wgOut->addModules('jquery.ui.dialog');
-		$wgOut->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/ui/js/jquery-ui-1.8.custom.min.js'));
-		$wgOut->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.js'));
-		$wgOut->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.css'));
-		$wgOut->addScript(HtmlSnips::makeUrlTag('/skins/common/upload.js'));
+		$out->addModules('jquery.ui.dialog');
+		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/ui/js/jquery-ui-1.8.custom.min.js'));
+		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.js'));
+		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.css'));
+		$out->addScript(HtmlSnips::makeUrlTag('/skins/common/upload.js'));
 
 		$this->displayHomepageData();
 
 		$this->displayForm();
-
 	}
 
-	function getHomepageData() {
+	private function getHomepageData() {
 		$dbr = wfGetDB(DB_SLAVE);
 
-		$res = $dbr->select(WikihowHomepageAdmin::HP_TABLE, '*', '', __METHOD__, array('ORDER BY' => 'hp_active DESC,hp_order'));
+		$res = $dbr->select(self::HP_TABLE, '*', '', __METHOD__, array('ORDER BY' => 'hp_active DESC,hp_order'));
 
 		$results = array();
-		foreach($res as $item) {
+		foreach ($res as $item) {
 			$item->title = Title::newFromID($item->hp_page);
 			$imageTitle = Title::newFromID($item->hp_image);
 			if ($imageTitle) {
 				$file = wfFindFile($imageTitle->getText());
-				if($file) {
+				if ($file) {
 					$thumb = $file->getThumbnail(81, 54, true, true, true);
 					$item->file = wfGetPad($thumb->getUrl());
 					$results[] = $item;
@@ -137,32 +136,30 @@ wgAjaxLicensePreview = {$alp};
 		return $results;
 	}
 
-	function displayHomepageData() {
-		global $wgOut;
-
+	private function displayHomepageData() {
 		$results = $this->getHomepageData();
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'items' => $results
 		));
 		$html = $tmpl->execute('admin.tmpl.php');
 
-		$wgOut->addHTML($html);
-
+		$this->getOutput()->addHTML($html);
 	}
 
-	function displayForm() {
-		global $wgOut, $wgRequest;
+	private function displayForm() {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
 		if ($this->errorTitle || $this->errorFile) {
-			$articleName = $wgRequest->getVal('articleName');
-			$destFile = $wgRequest->getVal('wpDestFile');
+			$articleName = $req->getVal('articleName');
+			$destFile = $req->getVal('wpDestFile');
 		} else {
 			$articleName = $destFile = '';
 		}
 
-		$tmpl = new EasyTemplate( dirname(__FILE__) );
+		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'errorTitle' => $this->errorTitle,
 			'errorFile' => $this->errorFile,
@@ -171,12 +168,12 @@ wgAjaxLicensePreview = {$alp};
 		));
 		$html = $tmpl->execute('form.tmpl.php');
 
-		$wgOut->addHTML($html);
+		$out->addHTML($html);
 	}
 
-	function deleteHPImage($hpid) {
+	private static function deleteHPImage($hpid) {
 		$dbw = wfGetDB(DB_MASTER);
-		$res = $dbw->delete(WikihowHomepageAdmin::HP_TABLE, array('hp_id' => $hpid), __METHOD__);
+		$res = $dbw->delete(self::HP_TABLE, array('hp_id' => $hpid), __METHOD__);
 		return $res;
 	}
 }

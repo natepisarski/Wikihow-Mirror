@@ -139,7 +139,7 @@ class TQualManager extends UnlistedSpecialPage
         $applicableQuals = $this->_workersQualList[$workerId];
         $qualChanges = json_decode($qualChanges);
 
-        foreach($qualChanges as $nqual=>$val) {
+        foreach ($qualChanges as $nqual=>$val) {
             $qualId = $this->getQualIdFromQualName(($nqual));
 
             if (!empty($applicableQuals) && in_array($nqual, $applicableQuals)) {
@@ -248,7 +248,7 @@ class TQualManager extends UnlistedSpecialPage
             $this->_allQualNames[$value['QualificationTypeId']] = $value['Name'];
             $workerids = $this->getWorkerIDsforQual($value['QualificationTypeId']);
 
-            foreach($workerids as $workerid) {
+            foreach ($workerids as $workerid) {
                 if (!isset($this->_workersQualList[$workerid])) {
                     $this->_workersQualList[$workerid] =
                         [$value['QualificationTypeId']=>$value['Name']];
@@ -301,7 +301,7 @@ class TQualManager extends UnlistedSpecialPage
 
         if ( ($userName != 'Rjsbhatia') && ( $user->isBlocked()
             || !(in_array('staff', $userGroups))) ) {
-            $out->setRobotpolicy('noindex,nofollow');
+            $out->setRobotPolicy('noindex,nofollow');
             $out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
             return;
         }
@@ -310,7 +310,7 @@ class TQualManager extends UnlistedSpecialPage
         $out->setHTMLTitle('Manage Turk worker qualifications/notfiy workers');
         $out->setPageTitle('Manage Turk Workers');
 
-        $options = ['loader' => new Mustache_Loader_FilesystemLoader(dirname( __FILE__ )), ];
+        $options = ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__), ];
         $m = new Mustache_Engine($options);
         $tmpl = $m->render('tqualmanager.mustache');
 

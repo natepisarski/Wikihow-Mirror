@@ -31,8 +31,8 @@ class WikihowPreferences {
 		//reset all comes from the preferences page
 		//these are set in other locations
 
-		foreach(self::$otherPreferences as $prefName) {
-			if(array_key_exists($prefName, $oldOptions))
+		foreach (self::$otherPreferences as $prefName) {
+			if (array_key_exists($prefName, $oldOptions))
 				$newOptions[$prefName] = $oldOptions [$prefName];
 		}
 
@@ -269,31 +269,31 @@ class WikihowPreferences {
 		 * Register the ones that we use, but are not accessible
 		 * through the preferences page
 		 */
-		foreach(self::$otherPreferences as $prefName) {
+		foreach (self::$otherPreferences as $prefName) {
 			$preferences[$prefName] = array( 'type' => 'api');
 		}
 
 		/**** MOVING core preferences around ****/
-		// if(array_key_exists('emailaddress', $preferences))
+		// if (array_key_exists('emailaddress', $preferences))
 			// $preferences['emailaddress']['section'] = 'email';
-		// if(array_key_exists('enotifwatchlistpages', $preferences))
+		// if (array_key_exists('enotifwatchlistpages', $preferences))
 			// $preferences['enotifwatchlistpages']['section'] = 'email';
-		// if(array_key_exists('disablemail', $preferences))
+		// if (array_key_exists('disablemail', $preferences))
 			// $preferences['disablemail']['section'] = 'email';
-		// if(array_key_exists('ccmeonemails', $preferences))
+		// if (array_key_exists('ccmeonemails', $preferences))
 			// $preferences['ccmeonemails']['section'] = 'email';
-		// if(array_key_exists('enotifminoredits', $preferences))
+		// if (array_key_exists('enotifminoredits', $preferences))
 			// $preferences['enotifminoredits']['section'] = 'email';
-		// if(array_key_exists('enotifrevealaddr', $preferences))
+		// if (array_key_exists('enotifrevealaddr', $preferences))
 			// $preferences['enotifrevealaddr']['section'] = 'email';
 
-		if(array_key_exists('enotifwatchlistpages', $preferences))
+		if (array_key_exists('enotifwatchlistpages', $preferences))
 			$preferences['enotifwatchlistpages']['section'] = 'echo/emailsettings';
-		if(array_key_exists('disablemail', $preferences))
+		if (array_key_exists('disablemail', $preferences))
 			$preferences['disablemail']['section'] = 'echo/emailsettings';
-		if(array_key_exists('enotifminoredits', $preferences))
+		if (array_key_exists('enotifminoredits', $preferences))
 			$preferences['enotifminoredits']['section'] = 'echo/emailsettings';
-		if(array_key_exists('enotifrevealaddr', $preferences))
+		if (array_key_exists('enotifrevealaddr', $preferences))
 			$preferences['enotifrevealaddr']['section'] = 'echo/emailsettings';
 
 		//remove a couple we don't need any longer

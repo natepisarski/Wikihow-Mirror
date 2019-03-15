@@ -13,7 +13,7 @@ $wgHooks['MobileEmbedStyles'][] = 'MobileTabs::addMobileCSS'; //embed mobile css
 
 $wgResourceModules['ext.wikihow.tabs'] = array(
 	'scripts' => array('tabs.js'),
-	'localBasePath' => dirname(__FILE__) . '/',
+	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/tabs',
 	'position' => 'top',
 	'targets' => array( 'mobile', 'desktop' ),
@@ -21,7 +21,7 @@ $wgResourceModules['ext.wikihow.tabs'] = array(
 
 $wgResourceModules['ext.wikihow.mobile_tag_4'] = array(
 	'scripts' => array('mobile_tag_4.js'),
-	'localBasePath' => dirname(__FILE__) . '/scripts/',
+	'localBasePath' => __DIR__ . '/scripts/',
 	'remoteExtPath' => 'wikihow/tabs/scripts',
 	'position' => 'top',
 	'targets' => array( 'mobile' ),

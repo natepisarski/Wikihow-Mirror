@@ -75,7 +75,7 @@ class SortQuestions extends UnlistedSpecialPage {
 			print json_encode(array('html' => $html));
 			return;
 		}
-		else if ($this->request->wasPosted() && XSSFilter::isValidRequest()) {
+		elseif ($this->request->wasPosted() && XSSFilter::isValidRequest()) {
 			$this->out->setArticleBodyOnly(true);
 			self::saveVotes($this->request->getValues());
 			return;
@@ -100,7 +100,7 @@ class SortQuestions extends UnlistedSpecialPage {
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			new Mustache_Loader_FilesystemLoader(__DIR__),
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
@@ -253,7 +253,7 @@ class SortQuestions extends UnlistedSpecialPage {
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			new Mustache_Loader_FilesystemLoader(__DIR__),
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);

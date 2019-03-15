@@ -45,7 +45,7 @@ $wgResourceModules['ext.wikihow.mobilearticlereviewers'] = array(
 );
 
 $wgResourceModules['ext.wikihow.adminarticlereviewers'] = array(
-	'styles' => array('../../uploadify/uploadify.css'),
+	'styles' => array('../common/uploadify/uploadify.css'),
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/ArticleReviewers',
 	'position' => 'top',

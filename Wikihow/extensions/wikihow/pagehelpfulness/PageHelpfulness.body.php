@@ -92,7 +92,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		foreach ($combinedFeedback as $row) {
 			$phr_rating = $row['rating'] > 0 ? "phr_yes" : "phr_no";
 			$rowClass = array();
-			if(strtotime($row['timestamp']) < self::$lastClear) {
+			if (strtotime($row['timestamp']) < self::$lastClear) {
 				$rowClass[] = "old_rating";
 			}
 
@@ -122,7 +122,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		$res = $dbr->select($table, $vars, $conds, __METHOD__, $options);
 
 		$result = array(1=>0, 2=>0, 3=>0, 4=>0);
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$result[$row->D] = $row->C;
 		}
 
@@ -174,7 +174,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		$res = $dbr->select($table, $var, $cond, __METHOD__, $options);
 
 		$result = array();
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			// all time stats skipping sections with less than 10 votes
 			$data = new stdClass();
 
@@ -294,7 +294,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		if ( $row->ti_summary_video ) {
 			$lookup = true;
 			$conds['ir_type'] = 'summaryvideohelp';
-		} else if ( $row->ti_summarized ) {
+		} elseif ( $row->ti_summarized ) {
 			$lookup = true;
 			$conds['ir_type'] = 'summarytexthelp';
 			$sectionName = "Summary Text";
@@ -358,7 +358,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 			$html .= "<div class='phr_ratings_show_link'>(<a href='#'>show past ratings</a>)</div>";
 			$html .= "</div>";
 			$html .= "<ol class='phr_ratings_old'>";
-			foreach($data as $d) {
+			foreach ($data as $d) {
 				$html .= "<li>";
 				$html .= "{$d->percent}% - {$d->total} votes";
 				if ($d->date > 0) {

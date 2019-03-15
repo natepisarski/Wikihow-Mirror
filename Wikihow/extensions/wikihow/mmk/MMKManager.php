@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'MMK Manager',
 	'author' => 'Scott Cushman',
@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['MMKManager'] = 'MMKManager';
-$wgAutoloadClasses['MMKManager'] = dirname( __FILE__ ) . '/MMKManager.body.php';
+$wgAutoloadClasses['MMKManager'] = __DIR__ . '/MMKManager.body.php';
 

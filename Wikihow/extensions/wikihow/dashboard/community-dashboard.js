@@ -451,6 +451,9 @@ WH.dashboard = (function ($) {
 
 	function animateUpdateImage(oldImage, newImageHtml) {
 		var oldImageHtml = oldImage.first().html();
+		if (typeof $(oldImageHtml).attr('src') === 'undefined') return;
+		if (typeof $(newImageHtml).attr('src') === 'undefined') return;
+
 		var oldSrc = $(oldImageHtml).attr('src').replace(/^https?:\/\/[^\/]*/, '');
 		var newSrc = $(newImageHtml).attr('src').replace(/^https?:\/\/[^\/]*/, '');
 		if (newSrc != oldSrc) {
@@ -463,8 +466,9 @@ WH.dashboard = (function ($) {
 
 	// To be called by widgets to make updates more interactive
 	function animateUpdate(div, newValue, widgetName) {
-		var oldValue = div.html();
+		if (!div.length) return;
 
+		var oldValue = div.html();
 		if (oldValue == newValue) return;
 
 		$(".comdash-widget-" + widgetName).addClass("active");
@@ -473,8 +477,8 @@ WH.dashboard = (function ($) {
 			clearInterval(activeInterval);
 		}, 3000);
 
-		var offset = div.offset(),
-			offsetTop = Math.round(offset['top']),
+		var offset = div.offset();
+		var offsetTop = Math.round(offset['top']),
 			offsetLeft = Math.round(offset['left']),
 			offsetRight = offsetLeft + div.width(),
 			offsetBottom = offsetTop + div.height();

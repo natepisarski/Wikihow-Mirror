@@ -51,11 +51,11 @@ class QuizImporter {
 		$quizzesToInsert = [];
 		$badUrls = [];
 
-		foreach($sheetData as $row) {
+		foreach ($sheetData as $row) {
 			$articleUrl = $row->{'gsx$url'}->{'$t'};
 			$title = Misc::getTitleFromText($articleUrl);
 
-			if(!$title || !$title->exists()) {
+			if (!$title || !$title->exists()) {
 				$badUrls[] = $articleUrl . " (Bad Url)";
 				continue;
 			}
@@ -65,34 +65,34 @@ class QuizImporter {
 			$answer = ord(strtolower($row->{'gsx$correctanswer'}->{'$t'})) - ord("a");
 			$data = ['options' => [], 'explanations' => []];
 
-			if($row->{'gsx$answera'}->{'$t'} != "") {
+			if ($row->{'gsx$answera'}->{'$t'} != "") {
 				$data['options'][] = html_entity_decode($row->{'gsx$answera'}->{'$t'});
 				$data['explanations'][] = html_entity_decode($row->{'gsx$responsea'}->{'$t'});
 			}
-			if($row->{'gsx$answerb'}->{'$t'} != "") {
+			if ($row->{'gsx$answerb'}->{'$t'} != "") {
 				$data['options'][] = html_entity_decode($row->{'gsx$answerb'}->{'$t'});
 				$data['explanations'][] = html_entity_decode($row->{'gsx$responseb'}->{'$t'});
 			}
-			if($row->{'gsx$answerc'}->{'$t'} != "") {
+			if ($row->{'gsx$answerc'}->{'$t'} != "") {
 				$data['options'][] = html_entity_decode($row->{'gsx$answerc'}->{'$t'});
 				$data['explanations'][] = html_entity_decode($row->{'gsx$responsec'}->{'$t'});
 			}
-			if($row->{'gsx$answerd'}->{'$t'} != "") {
+			if ($row->{'gsx$answerd'}->{'$t'} != "") {
 				$data['options'][] = html_entity_decode($row->{'gsx$answerd'}->{'$t'});
 				$data['explanations'][] = html_entity_decode($row->{'gsx$responsed'}->{'$t'});
 			}
-			if($row->{'gsx$answere'}->{'$t'} != "") {
+			if ($row->{'gsx$answere'}->{'$t'} != "") {
 				$data['options'][] = html_entity_decode($row->{'gsx$answere'}->{'$t'});
 				$data['explanations'][] = html_entity_decode($row->{'gsx$responsee'}->{'$t'});
 			}
 			$author = $row->{'gsx$author'}->{'$t'};
 
 			$isValid = $this->checkMethodName($title, $method);
-			if(!$isValid) {
+			if (!$isValid) {
 				$badUrls[] = $articleUrl . " -> " . $method . " (Bad Method Name)";
 			}
 
-			if(!array_key_exists($aid, $quizzes)) {
+			if (!array_key_exists($aid, $quizzes)) {
 				$quizzes[$aid] = [];
 			}
 			$quizzes[$aid][md5($method)] = true;
@@ -103,19 +103,19 @@ class QuizImporter {
 		$this->replaceQuizzes($quizzesToInsert);
 
 		//now clear memc for all those articles
-		foreach($quizzes as $aid => $value) {
+		foreach ($quizzes as $aid => $value) {
 			Quiz::clearMemc($aid);
 		}
 
 		$allQuizzes = Quiz::loadAllQuizzes();
 		$numDeleted = 0;
-		foreach($allQuizzes as $quiz) {
-			if(!array_key_exists($quiz->getArticleId(), $quizzes)) {
+		foreach ($allQuizzes as $quiz) {
+			if (!array_key_exists($quiz->getArticleId(), $quizzes)) {
 				$this->deleteQuiz($quiz);
 				$numDeleted++;
 				continue;
 			}
-			if(!array_key_exists($quiz->getHash(), $quizzes[$quiz->getArticleId()])) {
+			if (!array_key_exists($quiz->getHash(), $quizzes[$quiz->getArticleId()])) {
 				$this->deleteQuiz($quiz);
 				$numDeleted++;
 			}
@@ -151,8 +151,8 @@ class QuizImporter {
 		$importer = new QuizImporter();
 		$articleQuizzes = new ArticleQuizzes($aid);
 		$count = ['good' => 0, 'bad' => 0];
-		foreach($articleQuizzes::$quizzes as $quiz) {
-			if($importer->checkMethodHash($title, $quiz->getHash())) {
+		foreach ($articleQuizzes::$quizzes as $quiz) {
+			if ($importer->checkMethodHash($title, $quiz->getHash())) {
 				$count['good']++;
 			} else {
 				$count['bad']++;
@@ -168,8 +168,11 @@ class QuizImporter {
 	}
 
 	private function checkMethodHash($title, $methodHash) {
+		if (is_null($title)) {
+			return false;
+		}
 		$id = $title->getArticleId();
-		if(!array_key_exists($id, $this->methodInfo)) {
+		if (!array_key_exists($id, $this->methodInfo)) {
 			$this->getAltMethods($title);
 		}
 
@@ -180,6 +183,10 @@ class QuizImporter {
 		$this->methodInfo[$title->getArticleID()] = [];
 
 		$r = Revision::newFromTitle($title);
+		if (is_null($r)) {
+			mail('bebeth@wikihow.com', 'quiz issue', $title->getDBkey() . " can't find a revision");
+			return;
+		}
 		$wikitext = ContentHandler::getContentText($r->getContent());
 
 		$stepsSection = Wikitext::getStepsSection($wikitext, true);
@@ -190,7 +197,7 @@ class QuizImporter {
 			$altMethods = Wikitext::splitAltMethods($stepsText);
 			foreach ($altMethods as $i => $method) {
 				$ret = preg_match('@===([^=]*)===@', $method, $matches);
-				if($ret) {
+				if ($ret) {
 					$this->methodInfo[$title->getArticleID()][md5(trim($matches[1]))] = true;
 				}
 			}
@@ -206,15 +213,15 @@ class QuizImporter {
 
 		$data = ['quizCount' => 0, 'articleCount' => 0, 'mismatchCount' => 0];
 		$lastId = 0;
-		foreach($quizzes as $row) {
+		foreach ($quizzes as $row) {
 			$title = Title::newFromID($row->qz_aid);
 			$isValid = $this->checkMethodHash($title, $row->qz_hash);
-			if($isValid) {
+			if ($isValid) {
 				$data['quizCount']++;
 			} else {
 				$data['mismatchCount']++;
 			}
-			if($lastId != $row->qz_aid) {
+			if ($lastId != $row->qz_aid) {
 				$data['articleCount']++;
 			}
 			$lastId = $row->qz_aid;
@@ -228,7 +235,7 @@ class QuizImporter {
 		$res = $dbr->select(Quiz::TABLE_NAME, ['qz_aid', 'qz_hash'], [], __METHOD__, ['ORDER BY' => 'qz_aid']);
 
 		$total = [];
-		foreach($res as $row) {
+		foreach ($res as $row) {
 			$total[] = $row;
 		}
 

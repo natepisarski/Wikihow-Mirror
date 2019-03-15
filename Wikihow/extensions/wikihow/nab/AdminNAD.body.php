@@ -1,33 +1,35 @@
 <?php
 
 class AdminNAD extends UnlistedSpecialPage {
-	function __construct() {
+	public function __construct() {
 		parent::__construct('AdminNAD');
 	}
 
 	/**
 	 * Execute special page. Only available to wikihow staff.
 	 */
-	function execute($par) {
-		global $wgRequest, $wgOut, $wgLang, $wgServer;
+	public function execute($par) {
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
 		if (!$this->userAllowed()) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - NAD Articles - wikiHow');
-		$wgOut->setPageTitle('NAD Multiple Articles');
+		$out->setHTMLTitle('Admin - NAD Articles - wikiHow');
+		$out->setPageTitle('NAD Multiple Articles');
 
-		if ($wgRequest->wasPosted()) {
-			$wgOut->setArticleBodyOnly(true);
+		if ($req->wasPosted()) {
+			$out->setArticleBodyOnly(true);
 			$html = '';
 
 			set_time_limit(0);
 
-			$pageList = $wgRequest->getVal('pages-list', '');
-			$comment = '[Batch Clear] ' . $wgRequest->getVal('comment', '');
+			$pageList = $req->getVal('pages-list', '');
+			$comment = '[Batch Clear] ' . $req->getVal('comment', '');
 
 			if ($pageList) $pageList = urldecode($pageList);
 			$pageList = preg_split('@[\r\n]+@', $pageList);
@@ -46,7 +48,7 @@ class AdminNAD extends UnlistedSpecialPage {
 			}
 
 			$html .= $this->generateResults($pageData, $failedPages, $comment);
-			
+
 			if (!empty($failedPages)) {
 				$html .= '<br/><p>Unable to parse the following URLs:</p>';
 				$html .= '<p>';
@@ -60,8 +62,8 @@ class AdminNAD extends UnlistedSpecialPage {
 			return;
 		} else {
 			$tmpl = self::getGuts('AdminNAD');
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->addHTML($tmpl);
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->addHTML($tmpl);
 		}
 
 	}
@@ -69,15 +71,15 @@ class AdminNAD extends UnlistedSpecialPage {
 	/**
 	 * Given a URL or partial, give back the page title
 	 */
-	public static function getPartial($url) {
+	private static function getPartial($url) {
 		$partial = preg_replace('@^https?://[^/]+@', '', $url);
 		$partial = preg_replace('@^/@', '', $partial);
 		return $partial;
 	}
 
-	function getGuts($action) {
+	private static function getGuts($action) {
 		return "		<form method='post' action='/Special:$action'>
-		<h4 style='margin-left:0'>Enter a list of full URLs such as <code>http://www.wikihow.com/Kill-a-Scorpion</code> or partial URLs like <code>/Research-Wallabies</code> for pages that should be marked as demoted in <a href='/Special:Newarticleboost'>Special:Newarticleboost</a>.  One per line.</h4>
+		<h4 style='margin-left:0'>Enter a list of full URLs such as <code>http://www.wikihow.com/Kill-a-Scorpion</code> or partial URLs like <code>/Research-Wallabies</code> for pages that should be marked as demoted in <a href='/Special:NewArticleBoost'>Special:NewArticleBoost</a>.  One per line.</h4>
 		<br/>
 		** This tool can only be used to demote non-promoted URLs
 		<br /><br />
@@ -110,22 +112,19 @@ class AdminNAD extends UnlistedSpecialPage {
 		</script>";
 	}
 
-	public function getAllowedUsers() {
-		return array("G.bahij");
-	}
+	private function userAllowed() {
+		$user = $this->getUser();
 
-	public function userAllowed() {
-		global $wgUser, $wgLanguageCode;
-
-		$user = $wgUser->getName();
 		$allowedUsers = $this->getAllowedUsers();
-		$userGroups = $wgUser->getGroups();
-		$hasNABrights = in_array($user, $allowedUsers) || in_array('staff', $userGroups);
+		$userGroups = $user->getGroups();
+		$hasNABrights = in_array('staff', $userGroups);
 
 		// On int'l, admins should do this NAB marking too
-		if ($wgLanguageCode != 'en') $hasNABrights = $hasNABrights || in_array('sysop', $userGroups);
+		if ($this->getLanguage()->getCode() != 'en') {
+			$hasNABrights = $hasNABrights || in_array('sysop', $userGroups);
+		}
 
-		if ($wgUser->isBlocked() || !$hasNABrights) {
+		if ($user->isBlocked() || !$hasNABrights) {
 			return false;
 		}
 
@@ -133,7 +132,7 @@ class AdminNAD extends UnlistedSpecialPage {
 	}
 
 	private function generateResults($pageData, $failedPages, $comment) {
-		global $wgUser;
+		global $wgServer;
 
 		// Set up the output table
 		$html = '<style>.tres tr:nth-child(even) {background: #e0e0e0;} .failed {color: #a84810;} .success {color: #48a810;}</style>';
@@ -142,7 +141,7 @@ class AdminNAD extends UnlistedSpecialPage {
 		$html .= '<th width="240px"><b>Status</b></th></tr>';
 
 		$dbw = wfGetDB( DB_MASTER );
-		$userid = $wgUser->getID();
+		$userid = $this->getUser()->getID();
 		foreach($pageData as &$dataRow) {
 			$html .= '<tr>';
 			$p = $dataRow['partial'];
@@ -151,14 +150,14 @@ class AdminNAD extends UnlistedSpecialPage {
 			$dataRow['type'] = 'none';
 			$notFound = false;
 
-			if ($title && $title->exists() && $title->getNamespace() == NS_MAIN) {
+			if ($title && $title->exists() && $title->inNamespace(NS_MAIN)) {
 				// It's an article in NS_MAIN
 				$artId = $title->getArticleID();
 				if ($artId > 0) {
 					$dataRow['type'] = 'article';
 					$dataRow['pageId'] = $artId;
-					$dataRow['nabbed'] = Newarticleboost::isNABbed($dbw, $artId);
-					$dataRow['demoted'] = Newarticleboost::isDemoted($dbw, $artId);
+					$dataRow['nabbed'] = NewArticleBoost::isNABbed($dbw, $artId);
+					$dataRow['demoted'] = NewArticleBoost::isDemoted($dbw, $artId);
 				} else {
 					$notFound = true;
 				}
@@ -177,7 +176,7 @@ class AdminNAD extends UnlistedSpecialPage {
 				$html .= "<td><b><span class=\"failed\">Already demoted</span></b></td>";
 			} else {
 				$status = '<span class="success">Demoted</span>';
-				Newarticleboost::demoteArticle($dbw, $artId, $userid);
+				NewArticleBoost::demoteArticle($dbw, $artId, $userid);
 
 				$html .= "<td><a href='{$wgServer}/{$dataRow['title']}' rel='nofollow'>{$dataRow['title']}</a></td>";
 				$html .= "<td><b>{$status}</b></td>";

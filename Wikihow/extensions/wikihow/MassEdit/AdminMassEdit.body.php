@@ -120,7 +120,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 				$results[] = "will not edit $title because it is a redirect";
 				continue;
 			}
-			if ($title->getNamespace() != NS_MAIN) {
+			if (!$title->inNamespace(NS_MAIN)) {
 				$results[] = "will not edit $title because it is not in main namespace";
 				continue;
 			}
@@ -170,7 +170,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 				$results[] = "will not edit $title because it is a redirect";
 				continue;
 			}
-			if ($title->getNamespace() != NS_MAIN) {
+			if (!$title->inNamespace(NS_MAIN)) {
 				$results[] = "will not edit $title because it is not in main namespace";
 				continue;
 			}

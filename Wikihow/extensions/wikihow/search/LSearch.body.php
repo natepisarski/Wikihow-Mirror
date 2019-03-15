@@ -44,6 +44,7 @@ class LSearch extends SpecialPage {
 	var $searchUrl = '/wikiHowTo';
 	var $disableAds = false;
 	var $showSuicideHotline = false;
+	var $mResultsSource = '';
 
 	var $mEnableBeta = false;
 
@@ -261,7 +262,7 @@ class LSearch extends SpecialPage {
 
 		$enc_q = htmlspecialchars($this->mQ);
 		$searchId = $this->sherlockSearch();	// initialize/check Sherlock cookie
-		$this->displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId );
+		$this->displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId, $this->mResultsSource );
 	}
 
 	/**
@@ -322,18 +323,20 @@ class LSearch extends SpecialPage {
 				'count' => $limit,
 				'start' => $start,
 				'q' => $q,
-				'lang' => $this->getLanguage()->getCode()
 			];
 
+			$langCode = $this->getLanguage()->getCode();
+
 			// Look for language specific search server, fallback on intl
-			if ( array_key_exists( $params['lang'], $wgSearchServerBase ) ) {
-				$server = $wgSearchServerBase[$params['lang']];
+			if ( array_key_exists( $langCode, $wgSearchServerBase ) ) {
+				$server = $wgSearchServerBase[$langCode];
 			} else {
 				$server = $wgSearchServerBase['intl'];
 			}
-			$url = $server . '/search?' . http_build_query( $params );
+			$url = $server . '/search/' . $langCode . '?' . http_build_query( $params );
 
 			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, ['Host: search.wikihow']);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
@@ -431,6 +434,7 @@ class LSearch extends SpecialPage {
 		$this->mResults['results'] = $data['results'];
 		$this->mLast = $this->mStart + count( $data['results'] );
 		$this->mResults['totalresults'] = $data['totalresults'];
+		$this->mResultsSource = 'whsolr';
 
 		if ( $data['suicide'] ) {
 			$this->disableAds = true;
@@ -645,6 +649,8 @@ class LSearch extends SpecialPage {
 		// does exist make the total results one more than the last result count to ensure proper pagination
 		$this->mResults['totalresults'] = empty($contents['nextargs']) ? $num_results : $this->mLast + 1;
 
+		$this->mResultsSource = 'yahoo';
+
 		return $num_results;
 
 	}
@@ -738,6 +744,7 @@ class LSearch extends SpecialPage {
 		}
 
 		$this->mLast = $this->mStart + $num_results;
+		$this->mResultsSource = 'bing';
 
 		return $num_results;
 	}
@@ -822,6 +829,7 @@ class LSearch extends SpecialPage {
 		$count = count($mResults['results']);
 		$this->mLast = $this->mStart + $count;
 		$this->mResults = $mResults;
+		$this->mResultsSource = 'elastic';
 
 		return $count;
 	}
@@ -1083,7 +1091,7 @@ class LSearch extends SpecialPage {
 	}
 
 	// will display the search results that have been formatted by supplementResults
-	private function displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId ) {
+	private function displaySearchResults( $results, $resultsPerPage, $enc_q, $suggestionLink, $searchId, $resultsSource ) {
 		global $wgServer;
 
 		$out = $this->getOutput();
@@ -1167,6 +1175,10 @@ class LSearch extends SpecialPage {
 			wikihowAds::exclude();
 		}
 
+		if (!$resultsSource) {
+			$resultsSource = '(unknown)';
+		}
+
 		$vars = array(
 			'q' => $q,
 			'enc_q' => $enc_q,
@@ -1185,15 +1197,16 @@ class LSearch extends SpecialPage {
 			'BASE_URL' => $wgServer,
 			'next_button' => $next_button,
 			'prev_button' => $prev_button,
+			'results_source' => $resultsSource,
 		);
 
 		if (Misc::isMobileMode()) {
-			$tmpl = 'search-results-mobile';
+			$tmpl = 'search-results-mobile.tmpl.php';
 			$out->addModuleStyles('ext.wikihow.lsearch.mobile.styles');
 			$vars['no_img_blue'] = $this->mNoImgBlueMobile;
 			$vars['no_img_green'] = $this->mNoImgGreenMobile;
 		} else {
-			$tmpl = 'search-results-desktop';
+			$tmpl = 'search-results-desktop.tmpl.php';
 			$out->addModuleStyles('ext.wikihow.lsearch.desktop.styles');
 			$vars['no_img_blue'] = wfGetPad(self::NO_IMG_BLUE);
 			$vars['no_img_green'] = wfGetPad(self::NO_IMG_GREEN);
@@ -1203,12 +1216,12 @@ class LSearch extends SpecialPage {
 		EasyTemplate::set_path(__DIR__ . '/');
 		$html = '';
 		if ( $this->showSuicideHotline ) {
-			$html .= EasyTemplate::html( 'suicide-hotline' );
+			$html .= EasyTemplate::html( 'suicide-hotline.tmpl.php' );
 		}
 		$html .= EasyTemplate::html($tmpl, $vars);
-		//Check that the Sherlock class is loaded (IE: Not on international)
-		if (class_exists("Sherlock")) {
-			$html .= EasyTemplate::html("sherlock-script", array("shs_key" => $searchId));
+		// Check that the Sherlock class is loaded (IE: Not on international)
+		if (class_exists('Sherlock')) {
+			$html .= EasyTemplate::html('sherlock-script.tmpl.php', ['shs_key' => $searchId]);
 		}
 
 		$out->addHTML($html);

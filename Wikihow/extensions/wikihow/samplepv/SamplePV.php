@@ -10,5 +10,5 @@ if ( ! defined( 'MEDIAWIKI' ) )
     );
 
     $wgSpecialPages['SamplePV'] = 'SamplePV';
-	$wgAutoloadClasses['SamplePV'] = dirname(__FILE__) . '/SamplePV.body.php';
+	$wgAutoloadClasses['SamplePV'] = __DIR__ . '/SamplePV.body.php';
 

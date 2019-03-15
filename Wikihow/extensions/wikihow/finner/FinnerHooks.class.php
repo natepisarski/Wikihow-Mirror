@@ -102,7 +102,7 @@ class FinnerHooks {
 	 * SpecialSearch ShowSearchHitTitle hook handler
 	 */
 	public static function onShowSearchHitTitle(
-		&$link_t, &$titleSnippet, $result, $terms, $context 
+		&$link_t, &$titleSnippet, $result, $terms, $context
 	) {
 		// TODO
 		return true;
@@ -296,7 +296,7 @@ class FinnerHooks {
 	}
 
 	// ==== CirrusSearch hook handlers for custom hooks ====
-	
+
 	/**
 	 * CirrusSearchBuildDocumentFinishBatchExtras custom hook handler
 	 *

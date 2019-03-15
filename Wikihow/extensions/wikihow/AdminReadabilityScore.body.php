@@ -2,22 +2,22 @@
 
 if (!defined('MEDIAWIKI')) die();
 
-global $IP;
-$DavePath = $IP.'/extensions/wikihow/common/composer/vendor/davechild/textstatistics/src/DaveChild/TextStatistics';
-require_once "$DavePath/Maths.php";
-require_once "$DavePath/Pluralise.php";
-require_once "$DavePath/Resource.php";
-require_once "$DavePath/Syllables.php";
-require_once "$DavePath/Text.php";
-require_once "$DavePath/TextStatistics.php";
-
 class AdminReadabilityScore extends UnlistedSpecialPage {
-	
+
 	public static $text_stats = null;
 	public static $forDisplay;
 
 	public function __construct() {
+		global $IP;
 		parent::__construct('AdminReadabilityScore');
+
+		$loadPath = $IP.'/extensions/wikihow/common/composer/vendor/davechild/textstatistics/src/DaveChild/TextStatistics';
+		require_once "$loadPath/Maths.php";
+		require_once "$loadPath/Pluralise.php";
+		require_once "$loadPath/Resource.php";
+		require_once "$loadPath/Syllables.php";
+		require_once "$loadPath/Text.php";
+		require_once "$loadPath/TextStatistics.php";
 	}
 
 	private static function processURLlist($pageList) {
@@ -27,7 +27,7 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 		foreach ($pageList as $url) {
 			$url = trim($url);
 			if (!empty($url)) {
-				$article = preg_replace('@http://www.wikihow.com/@','',$url);
+				$article = preg_replace('@https?://www.wikihow.com/@','',$url);
 				$article = urldecode($article);
 				$res = self::checkArticle($article);
 				if (!empty($res)) {
@@ -35,8 +35,8 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 						$score = is_array($res) ? $res['score'] : $res;
 						$smog = is_array($res) ? $res['smog'] : '';
 						$urls[] = array(
-							'url' => $url, 
-							'article' => $article, 
+							'url' => $url,
+							'article' => $article,
 							'score' => $score,
 							'smog' => $smog,
 						);
@@ -45,7 +45,7 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 					else {
 						if (is_array($res)) {
 							$urls[] = array(
-								'article' => 'http://www.wikihow.com/'.$article, 
+								'article' => 'http://www.wikihow.com/'.$article,
 								'agl' => $res['agl'],
 								'fkgl' => $res['fkgl'],
 								'gfs' => $res['gfs'],
@@ -74,46 +74,46 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 		}
 		return array($urls, $goodCount);
 	}
-	
+
 	private static function checkArticle($article) {
 		if (!$article) return 'No such title';
-	
+
 		$t = Title::newFromText($article);
 		if (!$t || !$t->exists()) return 'No such title';
 		if ($t->isRedirect()) return 'Bad article';
-		
+
 		$r = Revision::newFromTitle($t);
 		if (!$r) return 'No such article';
-		
+
 		$res = self::readabilityCheck($t, $r->getText());
 		if ($res) return $res;
-		
+
 		//still here?
 		return '';
 	}
-	
+
 	/**
 	 * check for readability
 	 * return true if there's an issue
 	 */
 	private static function readabilityCheck($title, $text) {
-		$result = '';		
+		$result = '';
 		$text = self::cleanUpText($title, $text);
-		
+
 		if (self::$forDisplay) {
 			$result = self::getDisplayResults($text);
 		}
 		else {
 			$result = self::getDetails($text);
 		}
-		
+
 		return $result;
 	}
-	
+
 	public static function cleanUpText($title, $text) {
 		$context = new RequestContext;
 		$context->setTitle($title);
-		
+
 		//only the intro and steps
 		$intro = Wikitext::getIntro($text);
 		$steps = Wikitext::getStepsSection($text, true);
@@ -123,23 +123,23 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 		$text = $context->getOutput()->parse($text);
 		$text = preg_replace('@<div class="(img-whvid|vid-whvid|mwimg).*?>.+?</div>@im','',$text); //remove whole image div chunks
 		$text = preg_replace('@<.+?>@im','',$text); //remove all html stuff
-		
+
 		return $text;
 	}
-	
+
 	private static function getDisplayResults($text) {
 		if (empty(self::$text_stats)) self::$text_stats = new DaveChild\TextStatistics\TextStatistics;
-		
+
 		$smog = self::$text_stats->smogIndex($text);
-		
+
 		$result = array(
 			'score' => self::avgReadLevel($text),
 			'smog' => $smog ? $smog : '',
 		);
-		
+
 		return $result;
 	}
-	
+
 	private static function avgReadLevel($text) {
 		if (empty(self::$text_stats)) self::$text_stats = new DaveChild\TextStatistics\TextStatistics;
 
@@ -151,16 +151,16 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 			'smogIndex',
 			'automatedReadabilityIndex',
 		);
-		
+
 		foreach ($tests as $test) {
-			$total += self::$text_stats->$test($text);	
+			$total += self::$text_stats->$test($text);
 		}
-		
+
 		$result = round($total / count($tests), 2);
-		
+
 		return $result;
 	}
-	
+
 	public static function getFKReadingEase($text) {
 		$fkre = '';
 		if ($text) {
@@ -169,7 +169,7 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 		}
 		return $fkre;
 	}
-	
+
 	private static function getDetails($text) {
 		if (empty(self::$text_stats)) self::$text_stats = new DaveChild\TextStatistics\TextStatistics;
 
@@ -185,7 +185,7 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 		$sentences = self::$text_stats->sentenceCount($text);
 		$avg_words = self::$text_stats->averageWordsPerSentence($text);
 		$avg_syllables = self::$text_stats->averageSyllablesPerWord($text);
-			
+
 		$result = array(
 			'agl' => $agl ? $agl : '',
 			'fkgl' => $fkgl ? $fkgl : '',
@@ -200,41 +200,42 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 			'avg_words' => $avg_words ? $avg_words : '',
 			'avg_syllables' => $avg_syllables ? $avg_syllables : '',
 		);
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang;
-		
-		$user = $wgUser->getName();
-		$userGroups = $wgUser->getGroups();
-		if ($wgUser->isBlocked() || (!in_array('staff', $userGroups) && !in_array('staff_widget', $userGroups))) {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+
+		$userGroups = $user->getGroups();
+		if ($user->isBlocked() || (!in_array('staff', $userGroups) && !in_array('staff_widget', $userGroups))) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
-		
+
 		if ($_SERVER['HTTP_HOST'] != 'parsnip.wikiknowhow.com') {
-			$wgOut->redirect('https://parsnip.wikiknowhow.com/Special:AdminReadabilityScore');
+			$out->redirect('https://parsnip.wikiknowhow.com/Special:AdminReadabilityScore');
 		}
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			// this may take a while...
 			set_time_limit(0);
-			$wgOut->setArticleBodyOnly(true);
-			$pageList = $wgRequest->getVal('pages-list', '');
-			
-			self::$forDisplay = $wgRequest->getVal('display') == '1';
-			
+			$out->setArticleBodyOnly(true);
+			$pageList = $req->getVal('pages-list', '');
+
+			self::$forDisplay = $req->getVal('display') == '1';
+
 			list($res, $goodCount) = self::processURLlist($pageList);
-			
+
 			if (self::$forDisplay) {
 				$html = '<p><b>Articles:</b> '.(int)$goodCount.'</p>';
-				
+
 				if (!empty($res)) {
 					$html .= '<style>.tres tr:nth-child(even) {background: #ccc;} .tres td { padding: 5px; }</style>'.
 							'<table class="tres"><tr><th>Article URL</th><th>Avg. Grade Level</th><th>SMOG Grade<br />(best for health topics)</th></tr>';
@@ -244,7 +245,7 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 					}
 					$html .= '</table>';
 				}
-				
+
 				$result = array('result' => $html);
 
 				print json_encode($result);
@@ -264,7 +265,7 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 			return;
 		}
 
-		$wgOut->setHTMLTitle('Admin - Readability Score - wikiHow');
+		$out->setHTMLTitle('Admin - Readability Score - wikiHow');
 
 $tmpl = <<<EOHTML
 <form id="articles" method="post" action="/Special:AdminReadabilityScore">
@@ -278,7 +279,7 @@ $tmpl = <<<EOHTML
 	One per line.
 </div>
 <textarea id="pages-list" name="pages-list" type="text" rows="10" cols="70"></textarea><br />
-<button id="pages-go" disabled="disabled" style="padding: 5px;">View Summary</button> 
+<button id="pages-go" disabled="disabled" style="padding: 5px;">View Summary</button>
 <button id="pages-dl" disabled="disabled" style="padding: 5px;">Download Details</button><br/>
 <br/>
 <div id="pages-result">
@@ -302,7 +303,7 @@ $tmpl = <<<EOHTML
 					'json');
 				return false;
 			});
-			
+
 		$('#pages-dl').removeAttr('disabled');
 
 		$('#pages-list').focus();
@@ -311,6 +312,6 @@ $tmpl = <<<EOHTML
 </script>
 EOHTML;
 
-		$wgOut->addHTML($tmpl);
+		$out->addHTML($tmpl);
 	}
 }

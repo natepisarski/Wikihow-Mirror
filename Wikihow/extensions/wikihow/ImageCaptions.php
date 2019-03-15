@@ -1,4 +1,4 @@
-<?
+<?php
 //$wgHooks['ParserBeforeStrip'][] = array('wfAddCaptionsToImageSteps');
 
 /****
@@ -6,12 +6,12 @@
  *
  * Adds a caption to images in steps that don't have them.
  *
- */ 
+ */
 function wfAddCaptionsToImageSteps(&$parser, &$text, &$stripstate) {
 
 	// only do this on main namespace articles that have steps
 	$title = $parser->mTitle;
-	if (!$title || $title->getNamespace() != NS_MAIN) {
+	if (!$title || !$title->inNamespace(NS_MAIN)) {
 		return true;
 	}
 	if (!preg_match("@==[ ]*" . wfMessage('steps') . "@", $text)) {
@@ -32,7 +32,7 @@ function wfAddCaptionsToImageSteps(&$parser, &$text, &$stripstate) {
 			break;
 		}
 	}
-	
+
 	// barf!
 	if (!$steps ) {
 		return true;
@@ -55,15 +55,15 @@ function wfAddCaptionsToImageSteps(&$parser, &$text, &$stripstate) {
 			}
 		}
 		$f = preg_replace("@\[|\]@", "", $f);
-		$f = preg_replace("@^[^A-Za-z0-9]*@", "", $f); 
-		preg_match("@\[\[Image:[^\]]*\]\]@", $s, $images); 
+		$f = preg_replace("@^[^A-Za-z0-9]*@", "", $f);
+		preg_match("@\[\[Image:[^\]]*\]\]@", $s, $images);
 		if (sizeof($images) > 0) {
 			// just put a caption in the first image
 			$parts = preg_split("@\|@", preg_replace("@\[|\]@", "", $images[0]));
 			if (sizeof($parts) == 1) {
 				// boundary case here it's just [[Image:hidyho.jpg]]
 				$img = "[[" . $parts[0] . "|". $f . "]]";
-			} else { 
+			} else {
 				// otherwise it has params
 				$last = $parts[sizeof($parts)-1];
 
@@ -75,8 +75,8 @@ function wfAddCaptionsToImageSteps(&$parser, &$text, &$stripstate) {
 
 				$caption = false;
 				foreach ($parts as $p) {
-					if (!preg_match("@px$@", $p) 
-						&& !preg_match("@^Image:@", $p) 
+					if (!preg_match("@px$@", $p)
+						&& !preg_match("@^Image:@", $p)
 						&& !in_array($p, array("thumb", "border", "right", "left"))) {
 						$caption = true;
 					}

@@ -1,6 +1,6 @@
 <?php
 
-$wgAutoloadClasses['MobileSlideshow'] = dirname(__FILE__) . '/MobileSlideshow.class.php';
+$wgAutoloadClasses['MobileSlideshow'] = __DIR__ . '/MobileSlideshow.class.php';
 
 $wgResourceModules['mobile.wikihow.mobileslideshow'] = array(
 	'scripts' => array(

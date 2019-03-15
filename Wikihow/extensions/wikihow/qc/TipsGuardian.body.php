@@ -17,7 +17,7 @@ class TipsGuardian extends MobileSpecialPage {
 		$user = $this->getUser();
 
 		$out->setRobotPolicy("noindex,follow");
-		
+
 		# Check blocks
 		if ( $user->isBlocked() ) {
 			throw new UserBlockedError( $user->getBlock() );
@@ -34,11 +34,11 @@ class TipsGuardian extends MobileSpecialPage {
 
 		$vars = $this->getTGVars();
 		$vars['tool_info'] = class_exists('ToolInfo') ? ToolInfo::getTheIcon($this->getContext()) : '';
-		
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+
+		$tmpl = new EasyTemplate(__DIR__);
 		$tmpl->set_vars($vars);
 		$out->addHTML($tmpl->execute('tipsguardian.tmpl.php'));
-	}	
+	}
 
 	function addModules() {
 		$out = $this->getOutput();
@@ -46,7 +46,7 @@ class TipsGuardian extends MobileSpecialPage {
 		$out->addModules('mobile.tipsguardian.scripts');
 		$out->addModules('ext.wikihow.UsageLogs');
 	}
-	
+
 	function getTGVars() {
 		$adw = new ArticleDisplayWidget();
 		return $adw->addTemplateVars();

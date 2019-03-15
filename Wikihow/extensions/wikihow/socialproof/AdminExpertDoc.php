@@ -10,9 +10,9 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'create shared google doc from an article',
 );
 
-$wgExtensionMessagesFiles['AdminExpertDoc'] = dirname(__FILE__) . '/SocialProof.i18n.php';
+$wgExtensionMessagesFiles['AdminExpertDoc'] = __DIR__ . '/SocialProof.i18n.php';
 $wgSpecialPages['AdminExpertDoc'] = 'AdminExpertDoc';
-$wgAutoloadClasses['AdminExpertDoc'] = dirname(__FILE__) . '/AdminExpertDoc.body.php';
+$wgAutoloadClasses['AdminExpertDoc'] = __DIR__ . '/AdminExpertDoc.body.php';
 
 $wgResourceModules['ext.wikihow.adminexpertdoc'] = array(
 	'scripts' => array( 'adminexpertdoc.js', ),

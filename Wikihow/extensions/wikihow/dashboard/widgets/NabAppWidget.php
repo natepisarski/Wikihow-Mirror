@@ -1,4 +1,4 @@
-<?
+<?php
 
 class NabAppWidget extends DashboardWidget {
 
@@ -10,17 +10,21 @@ class NabAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
-			$link = "<a href='/Special:Newarticleboost' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
-			$link = "<a href='/Special:Userlogin?returnto=Special:Newarticleboost' class='comdash-login'>Login";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
+			$link = "<a href='/Special:NewArticleBoost' class='comdash-start'>Start";
+		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
+			$link = "<a href='/Special:Userlogin?returnto=Special:NewArticleBoost' class='comdash-login'>Login";
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	public function getMWName(){
@@ -33,7 +37,7 @@ class NabAppWidget extends DashboardWidget {
 	 * for the last contributor to this widget
 	 */
 	public function getLastContributor(&$dbr) {
-		$user = Newarticleboost::getLastNAB($dbr);
+		$user = NewArticleBoost::getLastNAB($dbr);
 
 		return $this->populateUserObject($user['id'], $user['date']);
 	}
@@ -44,7 +48,7 @@ class NabAppWidget extends DashboardWidget {
 	 * for the top contributor to this widget
 	 */
 	public function getTopContributor(&$dbr){
-		$user = Newarticleboost::getHighestNAB($dbr);
+		$user = NewArticleBoost::getHighestNAB($dbr);
 
 		return $this->populateUserObject($user['id'], $user['date']);
 	}
@@ -67,14 +71,14 @@ class NabAppWidget extends DashboardWidget {
 	 * Returns the number of articles left to be NABed.
 	 */
 	public function getCount(&$dbr){
-		return Newarticleboost::getNABCount($dbr);
+		return NewArticleBoost::getNABCount($dbr);
 	}
 
 	public function getUserCount(&$dbr){
 		global $wgUser;
 		$startdate = strtotime('7 days ago');
 		$starttimestamp = date('YmdG',$startdate) . floor(date('i',$startdate)/10) . '00000';
-		return Newarticleboost::getUserNABCount($dbr, $wgUser->getID(), $starttimestamp);
+		return NewArticleBoost::getUserNABCount($dbr, $wgUser->getID(), $starttimestamp);
 	}
 
 	public function getAverageCount(){
@@ -100,9 +104,9 @@ class NabAppWidget extends DashboardWidget {
 	}
 
 	public function isAllowed($isLoggedIn, $userId=0){
-		if(!$isLoggedIn)
+		if (!$isLoggedIn)
 			return false;
-		else if($isLoggedIn && $userId == 0)
+		elseif ($isLoggedIn && $userId == 0)
 			return false;
 		else{
 			$user = new User();

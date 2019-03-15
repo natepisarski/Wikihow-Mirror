@@ -120,7 +120,7 @@ class GoogleSpreadsheet {
 		$n = 0;
 		$columnDiff = $endCol - $startCol;
 		foreach ( $xml->entry as $e ) {
-			if( $n > $columnDiff ) {
+			if ( $n > $columnDiff ) {
 				$cols[] = $row;
 				$n = 0;
 			}

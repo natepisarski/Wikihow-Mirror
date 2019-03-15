@@ -273,7 +273,7 @@ class ImageUploader extends UnlistedSpecialPage {
 
 	private function getFileCommitComment() {
 		$commentMsg = $this->msg('eiu-upload', 'edit page image upload');
-		$comment = $commentMsg->inContentLanguage()->isBlank() 
+		$comment = $commentMsg->inContentLanguage()->isBlank()
 			? 'Image upload via edit page'
 			: $commentMsg->plain();
 		return $comment;

@@ -153,4 +153,9 @@ class SummarySection {
 			}
 		}
 	}
+
+	public static function addDesktopTOCItems() {
+		$tocText = wfMessage('summary_toc')->text();
+		pq("<a id='summary_toc' href='#'>$tocText</a>")->insertAfter("#method_toc > span");
+	}
 }

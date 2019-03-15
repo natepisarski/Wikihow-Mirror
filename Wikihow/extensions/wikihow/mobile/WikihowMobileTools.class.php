@@ -39,7 +39,7 @@ class WikihowMobileTools {
 		$context = MobileContext::singleton();
 
 		$featurestar = pq("div#featurestar");
-		if($featurestar) {
+		if ($featurestar) {
 			$clearelement = pq($featurestar)->next();
 			$clearelement->remove();
 			$featurestar->remove();
@@ -49,7 +49,7 @@ class WikihowMobileTools {
 
 		//move firstHeading to inside the intro
 		$firstH2 = pq("h2:first");
-		if(pq($firstH2)->length() == 0) {
+		if (pq($firstH2)->length() == 0) {
 			try {
 				// on mobile the bodycontents does not exist so consider removing this line of code
 				// or replaceing it with div:first as is done on NS_PROJECT namespace pages below
@@ -64,8 +64,8 @@ class WikihowMobileTools {
 			}
 		}
 
-		if ($wgTitle && $wgTitle->getNamespace() == NS_PROJECT ) {
-			if(pq($firstH2)->length() == 0) {
+		if ($wgTitle && $wgTitle->inNamespace(NS_PROJECT) ) {
+			if (pq($firstH2)->length() == 0) {
 				try {
 					pq("div:first")->children(":first")->wrapAll("<div id='intro' class='section'></div>");
 				} catch (Exception $e) {
@@ -77,7 +77,7 @@ class WikihowMobileTools {
 		$nonAltMethodElements = array();
 		$showTOC = false;
 
-		foreach(pq("h2") as $node) {
+		foreach (pq("h2") as $node) {
 			$h2Parent = pq($node)->parent();
 			//find each section
 
@@ -96,17 +96,17 @@ class WikihowMobileTools {
 
 			$nodeDiv = pq($node)->next();
 
-			foreach(pq($nodeDiv)->children() as $sibling) {
-				if(pq($sibling)->is("h2")) {
+			foreach (pq($nodeDiv)->children() as $sibling) {
+				if (pq($sibling)->is("h2")) {
 					break;
 				}
-				if(pq($sibling)->is("h3")) {
+				if (pq($sibling)->is("h3")) {
 					$h3Count++;
 					$h3Tags[$h3Count] = $sibling;
 					$h3Elements[$h3Count] = array();
 				}
 				else {
-					if($h3Count > 0)
+					if ($h3Count > 0)
 						$h3Elements[$h3Count][] = $sibling;
 					else {
 						$priorToH3Set[] = $sibling;
@@ -119,13 +119,13 @@ class WikihowMobileTools {
 			$canonicalSteps = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('steps')->text());
 			if ($canonicalSectionName == $canonicalSteps) {
 
-				if($h3Count > 0) {
+				if ($h3Count > 0) {
 					//has alternate methods
 
 					$altMethodNames = array();
 					$altMethodAnchors = array();
 
-					if(count($priorToH3Set) > 0) {
+					if (count($priorToH3Set) > 0) {
 						//needs to have a steps section prior to the
 						//alt method
 						try {
@@ -135,7 +135,7 @@ class WikihowMobileTools {
 
 						$overallSet = array();
 						$overallSet[] = $node;
-						foreach( pq("div#{$sectionName}:first") as $temp){
+						foreach ( pq("div#{$sectionName}:first") as $temp){
 							$overallSet[] = $temp;
 						}
 
@@ -153,15 +153,15 @@ class WikihowMobileTools {
 
 					$displayMethodCount = $h3Count;
 					$isSample = array();
-					for($i = 1; $i <= $h3Count; $i++) {
+					for ($i = 1; $i <= $h3Count; $i++) {
 						$isSampleItem = false;
-						if(!is_array($h3Elements[$i]) || count($h3Elements[$i]) < 1) {
+						if (!is_array($h3Elements[$i]) || count($h3Elements[$i]) < 1) {
 							$isSampleItem = false;
 						}
 						else {
 							//the sd_container isn't always the first element, need to look through all
-							foreach($h3Elements[$i] as $node) { //not the most efficient way to do this, but couldn't get the find function to work.
-								if(pq($node)->attr("id") == "sd_container") {
+							foreach ($h3Elements[$i] as $node) { //not the most efficient way to do this, but couldn't get the find function to work.
+								if (pq($node)->attr("id") == "sd_container") {
 									$isSampleItem = true;
 									break;
 								}
@@ -176,7 +176,7 @@ class WikihowMobileTools {
 						}
 					}
 
-					/*if($ads) {
+					/*if ($ads) {
 						wikihowAds::setAltMethods($displayMethodCount > 1);
 					}*/
 
@@ -184,7 +184,7 @@ class WikihowMobileTools {
 					$hasParts = MagicWord::get( 'parts' )->match( $wikitext );
 
 					$displayMethod = 1;
-					for($i = 1; $i <= $h3Count; $i++) {
+					for ($i = 1; $i <= $h3Count; $i++) {
 
 						$methodTitle = htmlspecialchars_decode(pq("span.mw-headline", $h3Tags[$i])->html());
 						$methodTitle = pq("<div>$methodTitle</div>")->text();
@@ -192,14 +192,14 @@ class WikihowMobileTools {
 						$altMethodAnchors[] = pq("span.mw-headline", $h3Tags[$i])->attr("id");
 						$displayMethodWord = ucwords(Misc::numToWord($displayMethod,10));
 						$displayMethodCountWord = ucwords(Misc::numToWord($displayMethodCount,10));
-						if ($displayMethodCount > 1 && !$isSample[$i] && $hasParts && $docTitle->getNamespace() == NS_MAIN) {
+						if ($displayMethodCount > 1 && !$isSample[$i] && $hasParts && $docTitle->inNamespace(NS_MAIN)) {
 							if ($methodTitle) {
 								$methodTitle = wfMessage("part_mobile_2",$displayMethodWord,$displayMethodCountWord,$methodTitle)->text();
 							} else {
 								$methodTitle = wfMessage("part_1",$displayMethodWord, $displayMethodCountWord)->text();
 							}
 							$displayMethod++;
-						} elseif ($displayMethodCount > 1 && !$isSample[$i] && $docTitle->getNamespace() == NS_MAIN) {
+						} elseif ($displayMethodCount > 1 && !$isSample[$i] && $docTitle->inNamespace(NS_MAIN)) {
 							$nonAltMethodElements[] = pq("span.mw-headline", $h3Tags[$i])->clone();
 							if ($methodTitle) {
 								$methodTitle = wfMessage("method_mobile_2",$displayMethodWord,$displayMethodCountWord, $methodTitle)->text();
@@ -220,12 +220,12 @@ class WikihowMobileTools {
 						//only wrap if there's stuff there to wrap.
 						//This happens when people put two sub methods on top of each other without
 						//any content between.
-						if(count($h3Elements[$i]) > 0) {
+						if (count($h3Elements[$i]) > 0) {
 							pq($h3Elements[$i])->wrapAll("<div id='{$sectionName}_{$i}' class='section_text'></div>");
 						}
 						$overallSet = array();
 						$overallSet[] = $h3Tags[$i];
-						foreach( pq("div#{$sectionName}_{$i}:first") as $temp){
+						foreach ( pq("div#{$sectionName}_{$i}:first") as $temp){
 							$overallSet[] = $temp;
 						}
 						try {
@@ -266,7 +266,7 @@ class WikihowMobileTools {
 
 					$overallSet = array();
 					$overallSet[] = $node;
-					foreach( pq("div#{$sectionName}:first") as $temp){
+					foreach ( pq("div#{$sectionName}:first") as $temp){
 						$overallSet[] = $temp;
 					}
 
@@ -275,18 +275,18 @@ class WikihowMobileTools {
 					} catch (Exception $e) {
 					}
 				}
-				if(class_exists('ArticleQuizzes')) {
+				if (class_exists('ArticleQuizzes')) {
 					$articleQuizzes = new ArticleQuizzes($wgTitle->getArticleID());
 					$count = 1;
-					foreach(pq(".steps .mw-headline span") as $headline) {
+					foreach (pq(".steps .mw-headline span") as $headline) {
 						$methodType = ($hasParts?"Part ":"Method ") . $count;
 						$methodTitle = pq($headline)->html();
 						$quiz = $articleQuizzes->getQuiz($methodTitle, $methodType);
-						if($count == 1 && $articleQuizzes->showFirstAtTop()) {
+						if ($count == 1 && $articleQuizzes->showFirstAtTop()) {
 							pq($headline)->parent()->parent()->parent()->prepend($quiz);
 						} else {
 							pq($headline)->parent()->parent()->parent()->append($quiz);
-							if($articleQuizzes->showFirstAtTop()) { //this is temporary while we test
+							if ($articleQuizzes->showFirstAtTop()) { //this is temporary while we test
 								pq($headline)->parent()->parent()->parent()->find(".qz_top_info")->remove();
 							}
 						}
@@ -297,7 +297,7 @@ class WikihowMobileTools {
 
 			} else {
 				//list page?
-				$list_page = $docTitle->getNamespace() == NS_PROJECT && ($docTitle->getDbKey() == 'RSS-feed' || $docTitle->getDbKey() == 'Rising-star-feed');
+				$list_page = $docTitle->inNamespace(NS_PROJECT) && ($docTitle->getDbKey() == 'RSS-feed' || $docTitle->getDbKey() == 'Rising-star-feed');
 
 				//not a steps section
 				if ($set) {
@@ -310,7 +310,7 @@ class WikihowMobileTools {
 
 				$overallSet = array();
 				$overallSet[] = $node;
-				foreach( pq("div#{$sectionName}:first") as $temp){
+				foreach ( pq("div#{$sectionName}:first") as $temp){
 					$overallSet[] = $temp;
 				}
 				try {
@@ -343,10 +343,10 @@ class WikihowMobileTools {
 
 		//now put the step numbers in
 		$methodNum = 1;
-		foreach(pq("div.steps .section_text > ol") as $list) {
+		foreach (pq("div.steps .section_text > ol") as $list) {
 			pq($list)->addClass("steps_list_2");
 			$stepNum = 1;
-			foreach(pq($list)->children() as $step) {
+			foreach (pq($list)->children() as $step) {
 				$boldStep = WikihowArticleHTML::boldFirstSentence(pq($step)->html());
 				pq($step)->html($boldStep);
 				pq($step)->prepend("<a name='" . wfMessage('step_anchor', $methodNum, $stepNum) . "' class='stepanchor'></a>");
@@ -358,7 +358,7 @@ class WikihowMobileTools {
 			//handles the case where there's some text prior to the
 			//numbered steps
 			$prev = pq($list)->prev();
-			if(pq($prev)->length) {
+			if (pq($prev)->length) {
 				pq($prev)->addClass("steps_text");
 			}
 			$methodNum++;
@@ -369,7 +369,7 @@ class WikihowMobileTools {
 		}
 
 		// clean up the dom for use of video
-		foreach( pq( '.m-video' ) as $node ) {
+		foreach ( pq( '.m-video' ) as $node ) {
 			$mVideo = pq( $node );
 
 			$mobilePoster = $mVideo->attr( 'data-poster-mobile' );
@@ -414,7 +414,7 @@ class WikihowMobileTools {
 
 		$summarySections = [];
 		$summaryIntroHeadingText = '';
-		if($headingsList != "") { //we only want to do this if we've defined the summary sections for this language
+		if ($headingsList != "") { //we only want to do this if we've defined the summary sections for this language
 			foreach ($headings as $heading) {
 				$headingText = WikihowArticleHTML::canonicalizeHTMLSectionName(Misc::getSectionName($heading));
 				$headingId = '#' . $headingText;
@@ -430,7 +430,7 @@ class WikihowMobileTools {
 
 				//keeping this code for now, we'll likely bring back soon.
 				/*$headingImages = pq( $headingId . ' .mwimg' )->addClass( 'summarysection' );
-				foreach( $headingImages as $headingImage ) {
+				foreach ( $headingImages as $headingImage ) {
 					$headingImage = pq( $headingImage )->remove();
 					if ( $headingImage ) {
 						pq( $headingId )->prepend( pq( $headingImage ) );
@@ -445,10 +445,10 @@ class WikihowMobileTools {
 		pq( 'video:not(.summary-m-video)' )->parent()->after( WHVid::getVideoControlsHtmlMobile() );
 
 		//move each of the large images to the top
-		foreach(pq(".steps_list_2 li .mwimg.largeimage") as $image) {
+		foreach (pq(".steps_list_2 li .mwimg.largeimage") as $image) {
 			//delete any previous <br>
-			foreach(pq($image)->prevAll() as $node) {
-				if( pq($node)->is("br") )
+			foreach (pq($image)->prevAll() as $node) {
+				if ( pq($node)->is("br") )
 					pq($node)->remove();
 				else
 					break;
@@ -456,16 +456,16 @@ class WikihowMobileTools {
 
 			//first handle the special case where the image
 			//ends up inside the bold tag by accident
-			if(pq($image)->parent()->is("b")) {
+			if (pq($image)->parent()->is("b")) {
 				pq($image)->insertBefore(pq($image)->parent());
 			}
 
-			if(pq($image)->parent()->parent()->parent()->is(".steps_list_2")) {
+			if (pq($image)->parent()->parent()->parent()->is(".steps_list_2")) {
 				pq($image)->parent()->parent()->prepend($image);
 			}
 		}
 		// on project pages if the first bullet in a list is an image add a special class
-		if ( $wgTitle->getNamespace() == NS_PROJECT ) {
+		if ( $wgTitle->inNamespace(NS_PROJECT) ) {
 			foreach ( pq( '.section_text ul' ) as $node ) {
 				foreach ( pq( $node )->find( 'li:first' ) as $firstItem ) {
 					if ( pq( $firstItem )->find( '.mwimg' )->length ) {
@@ -477,7 +477,7 @@ class WikihowMobileTools {
 
 		//now that we've moved images up, we need to move all the step anchors
 		//back to the top so the offsets are easier to calculate
-		foreach(pq(".steps_list_2 .stepanchor") as $anchor) {
+		foreach (pq(".steps_list_2 .stepanchor") as $anchor) {
 			pq($anchor)->parent()->prepend($anchor);
 		}
 
@@ -486,7 +486,7 @@ class WikihowMobileTools {
 
 		//deal with swapping out all images for tablet
 		//and putting in the right size image
-		foreach(pq(".mwimg a") as $a) {
+		foreach (pq(".mwimg a") as $a) {
 			$img = pq($a)->find('img');
 			//get original info
 			$srcWidth = pq($img)->attr("width");
@@ -556,7 +556,7 @@ class WikihowMobileTools {
 				$thumb_id = md5(pq($img)->attr("src") . microtime());
 				pq($img)->attr("id", $thumb_id);
 
-				foreach(pq($img)->parents(".mwimg") as $parent) {
+				foreach (pq($img)->parents(".mwimg") as $parent) {
 					pq($parent)->attr("style", "");
 				}
 
@@ -582,7 +582,7 @@ class WikihowMobileTools {
 				$img->attr( 'data-width', $smallWidth );
 				$img->attr( 'data-height', $smallHeight );
 
-				if($showHighDPI) {
+				if ($showHighDPI) {
 					//get all the info for retina images
 					list($retina_small, $newWidth, $newHeight) =
 						self::makeThumbDPI($imageObj, $smallWidth, $smallHeight, true, $pageId);
@@ -649,8 +649,8 @@ class WikihowMobileTools {
 		if ( $wgTitle->inNamespace(NS_MAIN) && PagePolicy::showCurrentTitle($context) ) {
 
 			if (class_exists('SocialProofStats') && $wgTitle->exists()) {
-				$parenttree = Categoryhelper::getCurrentParentCategoryTree();
-				$fullCategoryTree = Categoryhelper::cleanCurrentParentCategoryTree($parenttree);
+				$parenttree = CategoryHelper::getCurrentParentCategoryTree();
+				$fullCategoryTree = CategoryHelper::cleanCurrentParentCategoryTree($parenttree);
 
 				$spStats = new SocialProofStats( $context, $fullCategoryTree );
 				$sp = $spStats->getMobileHtml();
@@ -675,7 +675,7 @@ class WikihowMobileTools {
 		}
 
 		//removing all images from the tips and thingsyoullneed sections for now
-		foreach(pq(".tips .mwimg, .thingsyoullneed .mwimg") as $img) {
+		foreach (pq(".tips .mwimg, .thingsyoullneed .mwimg") as $img) {
 			pq($img)->remove();
 		}
 
@@ -688,7 +688,7 @@ class WikihowMobileTools {
 			$canonicalIngredients = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('ingredients')->text());
 			pq("#" . $canonicalIngredients)->attr('id', 'ingredients');
 			// Thing you'll need fixing code goes haywire on Hindi, so take it out
-			if( $wgLanguageCode != "hi" ) {
+			if ( $wgLanguageCode != "hi" ) {
 				$canonicalThings = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('thingsyoullneed')->text());
 				pq("#" . $canonicalThings)->attr('id', 'thingsyoullneed');
 			}
@@ -696,11 +696,11 @@ class WikihowMobileTools {
 
 		}
 
-		foreach(pq("#ingredients h3, #thingsyoullneed h3") as $item) {
+		foreach (pq("#ingredients h3, #thingsyoullneed h3") as $item) {
 			pq($item)->prepend('<div class="altblock"></div>');
 		}
 
-		foreach(pq("#ingredients li, #thingsyoullneed li") as $item) {
+		foreach (pq("#ingredients li, #thingsyoullneed li") as $item) {
 			pq($item)->prepend("<div class='checkmark'></div>");
 		}
 
@@ -719,29 +719,29 @@ class WikihowMobileTools {
 		self::formatReferencesSection( $skin );
 
 		//move any samples section below the last steps section
-		foreach(pq(".sample") as $sample) {
+		foreach (pq(".sample") as $sample) {
 			pq(".steps:last")->after($sample);
 		}
 
-		if(count($summarySections) > 0) {
+		if (count($summarySections) > 0) {
 			foreach (pq(join(", ", $summarySections)) as $summarySection) {
 				//move any summary sections lower
 				pq(".steps:last")->after($summarySection);
 
-				if(pq("p", $summarySection)->length > 0) {
+				if (pq("p", $summarySection)->length > 0) {
 					//move the text part only to the article info section
 					$summaryText = pq("p", $summarySection);
 					$summaryText->attr("id", "summary_text")->wrap("<div id='summary_wrapper' class='section_text'></div>");
 					pq("#social_proof_mobile")->after(pq("#summary_wrapper", $summarySection));
 					pq("#summary_wrapper")->prepend("<a href='#summary_wrapper' class='collapse_link'>" . wfMessage("summary_toc")->text() . "</a>");
 					//if there's no video summary, then remove that old section b/c nothing is left
-					if(pq('video', $summarySection)->length == 0) {
+					if (pq('video', $summarySection)->length == 0) {
 						pq($summarySection)->remove();
 					}
 				}
 
 				//if there's a video summary, rename the section
-				if( pq('video', $summarySection)->length > 0) {
+				if ( pq('video', $summarySection)->length > 0) {
 					pq('.mw-headline', $summarySection)->html(wfMessage('qs_video_title')->text());
 				}
 
@@ -755,27 +755,27 @@ class WikihowMobileTools {
 
 		// Remove logged in templates for logged out users
 		// so that they don't display
-		if($wgUser->getID() == 0) {
-			foreach(pq(".tmp_li") as $template) {
+		if ($wgUser->getID() == 0) {
+			foreach (pq(".tmp_li") as $template) {
 				pq($template)->remove();
 			}
 		}
 
 		//remove the table under the video
 		$table = pq("#video center table");
-		if(pq($table)->attr("width") == "375px" ){
+		if (pq($table)->attr("width") == "375px" ){
 			pq($table)->remove();
 		}
 		//remove the <p><br><p> that's just causing blank space
-		foreach(pq("#video p") as $paragraph) {
+		foreach (pq("#video p") as $paragraph) {
 			$children = pq($paragraph)->children();
 			//var_dump($children[0]);
-			if(pq($children)->length == 1 && pq($children[0])->is("br")) {
+			if (pq($children)->length == 1 && pq($children[0])->is("br")) {
 				pq($paragraph)->remove();
 			}
 		}
 
-		foreach(pq("embed") as $node) {
+		foreach (pq("embed") as $node) {
 			$url = '';
 			$src = pq($node)->attr("src");
 			if (stripos($src, 'youtube.com') === false) {
@@ -811,7 +811,7 @@ class WikihowMobileTools {
 			pq(".video")->remove();
 		}
 
-		if($config['show-ads'] && wikihowAds::isEligibleForAds() && !wikihowAds::isExcluded($docTitle)) {
+		if ($config['show-ads'] && wikihowAds::isEligibleForAds() && !wikihowAds::isExcluded($docTitle)) {
 			wikihowAds::insertMobileAds();
 
 			if (class_exists('AdblockNotice')) {
@@ -843,7 +843,7 @@ class WikihowMobileTools {
 			self::$tableOfContentsHtml = $tocWrapperHtml;
 		}
 
-		foreach( pq( ".embedvideo_gdpr:first" ) as $node ) {
+		foreach ( pq( ".embedvideo_gdpr:first" ) as $node ) {
 			pq( $node )->parents( '.section:first' )->find( '.mw-headline:first' )->after( pq( $node )->html() );
 		}
 		pq( ".embedvideo_gdpr" )->remove();
@@ -853,9 +853,9 @@ class WikihowMobileTools {
 		$isUnnabbed = $wgLanguageCode == "en"
 			&& $wgTitle->inNamespace(NS_MAIN)
 			&& PagePolicy::showCurrentTitle($context)
-			&& !Newarticleboost::isNABbedNoDb($wgTitle->getArticleID())
+			&& !NewArticleBoost::isNABbedNoDb($wgTitle->getArticleID())
 			&& $wgUser->getOption('showdemoted') == '0';
-		if($isUnnabbed) {
+		if ($isUnnabbed) {
 			$intro = pq("#intro");
 			$unnabbedAlert = "<div class='unnabbed_alert'><div><a href='#' id='nab_alert_close'>Ok,<br /> Close</a>" . wfMessage('nab_warning')->text() . " <a id='nab_learn' href='/Get-your-Article-Reviewed-or-Approved-on-wikiHow'>Learn more</a></div></div>";
 			if (pq($intro)->length) {
@@ -907,7 +907,7 @@ class WikihowMobileTools {
 			AlternateDomain::modifyDom();
 		}
 
-		if(class_exists("Donate")) {
+		if (class_exists("Donate")) {
 			Donate::addDonateSectionToArticle();
 		}
 
@@ -1171,7 +1171,7 @@ class WikihowMobileTools {
 			$methodName = preg_replace("@\[\d{1,3}\]$@", "", $methodName);
 			$class = "method_toc_section_link";
 
-			if(!$methodName) {
+			if (!$methodName) {
 				continue;
 			}
 
@@ -1547,7 +1547,7 @@ class WikihowMobileTools {
 	 **/
 	public static function isHighDPI($title) {
 
-		if(!$title || !$title->exists())
+		if (!$title || !$title->exists())
 			return false;
 
 		$aid = $title->getArticleID();

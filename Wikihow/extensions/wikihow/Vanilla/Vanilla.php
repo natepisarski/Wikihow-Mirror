@@ -21,9 +21,9 @@ function wfLogoutOfVanilla() {
 }
 
 function wfProcessVanillaRedirect() {
-	global $wgRequest, $wgOut, $wgForumLink;
-	if ($wgRequest->getVal('returnto') == 'vanilla') {
-		$wgOut->redirect($wgForumLink);
+	global $wgForumLink;
+	if (RequestContext::getMain()->getRequest()->getVal('returnto') == 'vanilla') {
+		RequestContext::getMain()->getOutput()->redirect($wgForumLink);
 	}
 	return true;
 }
@@ -32,7 +32,9 @@ function wfBlockVanillaUser($block, $blocker) {
 	try {
 		$blockInfo = $block->getTargetAndType();
 
-		if ( !is_array($blockInfo) || $blockInfo[1] != Block::TYPE_USER ) return true;
+		if ( !is_array($blockInfo) || $blockInfo[1] != Block::TYPE_USER ) {
+			return true;
+		}
 
 		$blockedUser = User::newFromName($blockInfo[0], false);
 		if ( $blockedUser ) $blockedUser->load();

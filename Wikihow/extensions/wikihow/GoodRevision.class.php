@@ -35,7 +35,7 @@ class GoodRevision {
 
 		if ( !$title
 			|| !$title->exists()
-			|| $title->getNamespace() != NS_MAIN)
+			|| !$title->inNamespace(NS_MAIN))
 		{
 			return null;
 		}
@@ -287,8 +287,8 @@ class GoodRevision {
 	 */
 	public static function onMovePage(&$oldTitle, &$newTitle) {
 		$oldids = array();
-		if ($oldTitle && $oldTitle->getNamespace() == NS_MAIN) $oldids[] = $oldTitle->getArticleID();
-		if ($newTitle && $newTitle->getNamespace() == NS_MAIN) $oldids[] = $newTitle->getArticleID();
+		if ($oldTitle && $oldTitle->inNamespace(NS_MAIN)) $oldids[] = $oldTitle->getArticleID();
+		if ($newTitle && $newTitle->inNamespace(NS_MAIN)) $oldids[] = $newTitle->getArticleID();
 		if ($oldids) {
 			self::dbDeleteIDs($oldids);
 		}
@@ -324,4 +324,3 @@ class GoodRevision {
 		return true;
 	}
 }
-

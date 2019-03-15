@@ -21,7 +21,7 @@ class SpecialValidatron extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 
 		if (!$this->userAllowed()) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}

@@ -24,7 +24,7 @@ define('JS_TIMEOUT', 24 * 60);
  */
 function WriteJsConnect($User, $Request, $ClientID, $Secret, $Secure = TRUE) {
    $User = array_change_key_case($User);
-   
+
    // Error checking.
    if ($Secure) {
       // Check the client.
@@ -53,7 +53,7 @@ function WriteJsConnect($User, $Request, $ClientID, $Secret, $Secure = TRUE) {
             $Error = array('error' => 'access_denied', 'message' => 'Signature invalid.');
       }
    }
-   
+
    if (isset($Error))
       $Result = $Error;
    elseif (is_array($User) && count($User) > 0) {
@@ -68,7 +68,7 @@ function WriteJsConnect($User, $Request, $ClientID, $Secret, $Secure = TRUE) {
       $Result = array('name' => '', 'photourl' => '');
    }
    $Json = json_encode($Result);
-   
+
    if (isset($Request['callback']))
       echo "{$Request['callback']}($Json)";
    else
@@ -83,7 +83,7 @@ function SignJsConnect($Data, $ClientID, $Secret, $HashType, $ReturnData = FALSE
       if ($Value === NULL)
          $Data[$Key] = '';
    }
-   
+
    $String = http_build_query($Data2, NULL, '&');
 //   echo "$String\n";
    $Signature = JsHash($String.$Secret, $HashType);
@@ -101,13 +101,13 @@ function SignJsConnect($Data, $ClientID, $Secret, $HashType, $ReturnData = FALSE
  * Return the hash of a string.
  * @param string $String The string to hash.
  * @param string|bool $Secure The hash algorithm to use. TRUE means md5.
- * @return string 
+ * @return string
  * @since 1.1b
  */
 function JsHash($String, $Secure = TRUE) {
    if ($Secure === TRUE)
       $Secure = 'md5';
-   
+
    switch ($Secure) {
       case 'sha1':
          return sha1($String);
@@ -126,7 +126,7 @@ function JsTimestamp() {
 
 /**
  * Generate an SSO string suitible for passing in the url for embedded SSO.
- * 
+ *
  * @param array $User The user to sso.
  * @param string $ClientID Your client ID.
  * @param string $Secret Your secret.
@@ -135,11 +135,11 @@ function JsTimestamp() {
 function JsSSOString($User, $ClientID, $Secret) {
    if (!isset($User['client_id']))
       $User['client_id'] = $ClientID;
-   
+
    $String = base64_encode(json_encode($User));
    $Timestamp = time();
    $Hash = hash_hmac('sha1', "$String $Timestamp", $Secret);
-   
+
    $Result = "$String $Hash $Timestamp hmacsha1";
    return $Result;
 }

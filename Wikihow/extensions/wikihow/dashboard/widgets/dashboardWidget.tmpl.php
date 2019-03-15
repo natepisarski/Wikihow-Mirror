@@ -5,7 +5,7 @@
 	<div class="comdash-weather rainy <?= $weather=='rainy'?'active':'' ?>"><?= wfMessage('cd-rainy') ?></div>
 	<div class="comdash-weather cloudy <?= $weather=='cloudy'?'active':'' ?>"><?= wfMessage('cd-cloudy') ?></div>
 	<div class="comdash-count">
-		<?php if(isset($data['error']) || $data == null ): ?>
+		<?php if (isset($data['error']) || $data == null ): ?>
 			<div class="cd-error"><?= wfMessage('cd-widget-error') ?></div>
 			<div class="cd-count-div" style="display:none;">
 		<?php else: ?>

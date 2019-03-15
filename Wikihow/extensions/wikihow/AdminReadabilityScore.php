@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminReadabilityScore',
 	'author' => 'Scott Cushman',
@@ -9,5 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminReadabilityScore'] = 'AdminReadabilityScore';
-$wgAutoloadClasses['AdminReadabilityScore'] = dirname( __FILE__ ) . '/AdminReadabilityScore.body.php';
-
+$wgAutoloadClasses['AdminReadabilityScore'] = __DIR__ . '/AdminReadabilityScore.body.php';

@@ -16,7 +16,7 @@ class AdminIntroSummary extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 
 		if (!in_array('staff', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -31,7 +31,7 @@ class AdminIntroSummary extends UnlistedSpecialPage {
 
 		} else {
 			$options = array(
-				'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+				'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 			);
 			$m = new Mustache_Engine($options);
 
@@ -44,7 +44,7 @@ class AdminIntroSummary extends UnlistedSpecialPage {
 	function getAllResults($out, $articles) {
 		$urls = explode("\n", $articles);
 
-		if(count($urls) > 0) {
+		if (count($urls) > 0) {
 
 			$date = date('Y-m-d');
 			header('Content-type: application/force-download');
@@ -71,15 +71,14 @@ class AdminIntroSummary extends UnlistedSpecialPage {
 				$bulletList .= "\"";
 
 				$out->addHTML("{$id}\t{$url}\t{$editUrl}\t{$bulletList}\t{$textList}\n");
-
 			}
 		}
 	}
-	
+
 	private function getStepsData($title) {
 		$r = Revision::newFromTitle($title);
 		$wikitext = ContentHandler::getContentText($r->getContent());
-		
+
 		$stepInfo = [];
 
 		$stepsSection = Wikitext::getStepsSection($wikitext, true);

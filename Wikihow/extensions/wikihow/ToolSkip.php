@@ -2,5 +2,4 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['ToolSkip'] = dirname(__FILE__) . '/ToolSkip.class.php';
-
+$wgAutoloadClasses['ToolSkip'] = __DIR__ . '/ToolSkip.class.php';

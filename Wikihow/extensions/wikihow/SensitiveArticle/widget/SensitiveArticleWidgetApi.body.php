@@ -20,7 +20,7 @@ class SensitiveArticleWidgetApi extends \UnlistedSpecialPage
 		$groups = $user->getGroups();
 
 		if (!$req->wasPosted() || $user->isBlocked() || !in_array('staff', $groups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}

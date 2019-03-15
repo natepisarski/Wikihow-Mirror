@@ -11,4 +11,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminLatestRevision'] = 'AdminLatestRevision';
-$wgAutoloadClasses['AdminLatestRevision'] = dirname(__FILE__) . '/AdminLatestRevision.body.php';
+$wgAutoloadClasses['AdminLatestRevision'] = __DIR__ . '/AdminLatestRevision.body.php';

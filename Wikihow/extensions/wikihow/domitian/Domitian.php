@@ -4,7 +4,7 @@ if (!defined('MEDIAWIKI')) {
 	die();
 }
 
-$wgAutoloadClasses['DomitianDB'] = dirname(__FILE__) . '/DomitianDB.class.php';
+$wgAutoloadClasses['DomitianDB'] = __DIR__ . '/DomitianDB.class.php';
 
 $wgExtensionCredits['specialpage'][] = array(
 	'path' => __FILE__,
@@ -18,7 +18,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['DomitianSummary'] = 'DomitianSummary';
-$wgAutoloadClasses['DomitianSummary'] = dirname(__FILE__) . '/DomitianSummary.body.php';
+$wgAutoloadClasses['DomitianSummary'] = __DIR__ . '/DomitianSummary.body.php';
 
 $wgResourceModules['ext.wikihow.domitian.Summary'] = array(
 	'scripts' => array(
@@ -51,7 +51,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['DomitianDetails'] = 'DomitianDetails';
-$wgAutoloadClasses['DomitianDetails'] = dirname(__FILE__) . '/DomitianDetails.body.php';
+$wgAutoloadClasses['DomitianDetails'] = __DIR__ . '/DomitianDetails.body.php';
 
 $wgResourceModules['ext.wikihow.domitian.Details'] = array(
 	'scripts' => array(
@@ -84,7 +84,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['DomitianSegments'] = 'DomitianSegments';
-$wgAutoloadClasses['DomitianSegments'] = dirname(__FILE__) . '/DomitianSegments.body.php';
+$wgAutoloadClasses['DomitianSegments'] = __DIR__ . '/DomitianSegments.body.php';
 
 $wgResourceModules['ext.wikihow.domitian.Segments'] = array(
 	'scripts' => array(

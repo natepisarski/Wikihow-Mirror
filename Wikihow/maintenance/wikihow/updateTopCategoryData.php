@@ -12,7 +12,7 @@ class UpdateTopCategoryData extends Maintenance {
 
 	public function execute() {
 		TopCategoryData::setFeaturedArticlePages();
-		$topCats = Categoryhelper::getTopLevelCategoriesForDropDown();
+		$topCats = CategoryHelper::getTopLevelCategoriesForDropDown();
 		foreach($topCats as $cat) {
 			$title = Title::newFromText($cat, NS_CATEGORY);
 			if($title && $title->exists()) {

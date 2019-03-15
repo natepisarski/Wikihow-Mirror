@@ -2,7 +2,7 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['RCTest'] = dirname(__FILE__) . '/RCTest.class.php';
+$wgAutoloadClasses['RCTest'] = __DIR__ . '/RCTest.class.php';
 
 // Hook to mark quizzes deleted that reference pages no longer in the database
 $wgHooks['ArticleDelete'][] = array("wfMarkRCTestDeleted");

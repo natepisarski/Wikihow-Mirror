@@ -11,5 +11,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Terms-Of-Use'] = 'TermsOfUse';
-$wgAutoloadClasses['TermsOfUse'] = dirname(__FILE__) . '/TermsOfUse.body.php';
+$wgAutoloadClasses['TermsOfUse'] = __DIR__ . '/TermsOfUse.body.php';
 

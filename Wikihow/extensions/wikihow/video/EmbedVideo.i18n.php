@@ -7,7 +7,7 @@
 // See: https://blog.dareboost.com/en/2015/07/securing-iframe-sandbox-attribute/
 
 $messages = array();
-$messages['en']= 
+$messages['en']=
 		array(
 		'embedvideo-missing-params' => 'EmbedVideo is missing a required parameter.',
 		'embedvideo-bad-params' => 'EmbedVideo received a bad parameter.',

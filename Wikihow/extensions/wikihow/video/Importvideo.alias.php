@@ -1,11 +1,11 @@
 <?php
 /**
- * Aliases for Special:Importvideo
+ * Aliases for Special:ImportVideo
  */
 
 $specialPageAliases = array();
 
 /** English (English) */
 $specialPageAliases['en'] = array(
-	'Importvideo' => array( 'Importvideo' ),
+	'ImportVideo' => array( 'ImportVideo', 'Importvideo' ),
 );

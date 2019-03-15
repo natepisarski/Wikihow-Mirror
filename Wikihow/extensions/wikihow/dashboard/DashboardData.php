@@ -31,7 +31,7 @@ class DashboardData {
 	}
 
 	/**
-	 * Loads the list $wgWidgetList of widgets into the $widgets class 
+	 * Loads the list $wgWidgetList of widgets into the $widgets class
 	 * variable.  This variable is defined in CommunityDashboard.php.
 	 */
 	private function loadWidgets() {
@@ -42,7 +42,7 @@ class DashboardData {
 				die("error: widget name not valid: $widgetName");
 			}
 
-			include_once( dirname(__FILE__) . '/widgets/' . $widgetName . '.php' );
+			include_once( __DIR__ . '/widgets/' . $widgetName . '.php' );
 			if (!class_exists($widgetName)) {
 				die("error: widget class didn't load correctly: $widgetName");
 			}
@@ -71,10 +71,11 @@ class DashboardData {
 	 * Return a list of widget titles, indexed by widget ID.
 	 * @return array('RecentChangesAppWidget' => 'Recent Changes Patrol', ...)
 	 */
-	public static function getTitles() {
-		global $wgWidgetList, $wgWidgetShortCodes;
+	public static function getDesktopTitles() {
+		global $wgWidgetList, $wgWidgetShortCodes, $wgMobileOnlyWidgetList;
 		$titles = array();
 		foreach ($wgWidgetList as $widget) {
+			if (in_array($widget, $wgMobileOnlyWidgetList)) continue;
 			$short = @$wgWidgetShortCodes[$widget];
 			if (!$short) throw 'You must add ' . $widget . ' to $wgWidgetShortCodes';
 			$titles[$widget] = wfMessage('cd-' . $short . '-title')->text();
@@ -163,19 +164,19 @@ class DashboardData {
 	/*
 	 * DB schema:
 	 CREATE TABLE community_dashboard_users(
-		cdu_userid INT UNSIGNED NOT NULL PRIMARY KEY, 
+		cdu_userid INT UNSIGNED NOT NULL PRIMARY KEY,
 		cdu_prefs_json TEXT NOT NULL,
 		cdu_completion_json TEXT NOT NULL
 	 );
 	 *
-	 * Note: in community_dashboard_users, I wanted to separate 
+	 * Note: in community_dashboard_users, I wanted to separate
 	 *   cdu_completion_json from cdu_prefs_json because there's a query in
 	 *   resetDailyCompletionAllUsers() that would have been very slow if
 	 *   the data was one column
 	 *
 	 * initial values:
-	 INSERT INTO community_dashboard_users SET 
-	 	cdu_userid='', 
+	 INSERT INTO community_dashboard_users SET
+	 	cdu_userid='',
 	 	cdu_prefs_json='{"ordering":["RecentChangesAppWidget"]}',
 		cdu_completion_json='{"RecentChangesAppWidget":0}';
 	 */
@@ -216,7 +217,7 @@ class DashboardData {
 				}
 
 				if ($row['cdu_prefs_json']) {
-					$row['prefs'] = 
+					$row['prefs'] =
 						json_decode($row['cdu_prefs_json'], true);
 				}
 				if (!is_array($row['prefs'])) {
@@ -244,7 +245,7 @@ class DashboardData {
 			if ($cacheWrite) {
 				$wgMemc->set($this->userCachekey, $row, self::USER_STATS_EXPIRES);
 			}
-			
+
 			return $row;
 		} else {
 			return array();
@@ -253,7 +254,7 @@ class DashboardData {
 
 	public function loadUserStats() {
 		global $wgUser;
-		
+
 		if ($wgUser->getID() > 0) {
 			$dbr = $this->dbHandle();
 
@@ -261,8 +262,10 @@ class DashboardData {
 			$data = array();
 			foreach ($widgets as $name => $widget) {
 				try {
+					if (!$widget->showMobileCount()) continue;
+
 					$stats = $widget->getUserStats($dbr);
-					if($stats) {
+					if ($stats) {
 						$data[$name] = $stats;
 					}
 				} catch(Exception $e) {
@@ -342,14 +345,14 @@ class DashboardData {
 	/*
 	 * DB schema:
 	 CREATE TABLE community_dashboard_opts(
-		cdo_priorities_json TEXT, 
+		cdo_priorities_json TEXT,
 		cdo_thresholds_json TEXT,
 	    cdo_baselines_json TEXT
 	 );
 	 *
 	 * initial values:
-	 INSERT INTO community_dashboard_opts SET 
-	 	cdo_priorities_json='["RecentChangesAppWidget"]', 
+	 INSERT INTO community_dashboard_opts SET
+	 	cdo_priorities_json='["RecentChangesAppWidget"]',
 	 	cdo_thresholds_json='{"RecentChangesAppWidget":{"mid":250,"high":500}}';
 	 */
 
@@ -366,10 +369,10 @@ class DashboardData {
 		if (!$opts) {
 			$dbr = $this->dbHandle();
 
-			// get any over-arching community priority widgets to display 
+			// get any over-arching community priority widgets to display
 			// them first
 			$opts = (array)$dbr->selectRow(
-				'community_dashboard_opts', 
+				'community_dashboard_opts',
 				'cdo_priorities_json, cdo_thresholds_json, cdo_baselines_json',
 				'', __METHOD__);
 
@@ -386,7 +389,7 @@ class DashboardData {
 		global $wgMemc;
 
 		$dbw = wfGetDB(DB_MASTER);
-		$setPart = 
+		$setPart =
 			'cdo_priorities_json=' . $dbw->addQuotes($opts['cdo_priorities_json']) . ', ' .
 			'cdo_thresholds_json=' . $dbw->addQuotes($opts['cdo_thresholds_json']) . ', ' .
 			'cdo_baselines_json=' . $dbw->addQuotes($opts['cdo_baselines_json']);

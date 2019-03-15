@@ -1,10 +1,10 @@
 <?php
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
-    
+
 /**#@+
  * Takes a set of URLs, finds related pages, and adds inbound links to the submitted pages
- * 
+ *
  * @package MediaWiki
  * @subpackage Extensions
  *
@@ -23,6 +23,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AddRelatedLinks'] = 'AddRelatedLinks';
-$wgAutoloadClasses['AddRelatedLinks'] = dirname( __FILE__ ) . '/AddRelatedLinks.body.php';
-
-
+$wgAutoloadClasses['AddRelatedLinks'] = __DIR__ . '/AddRelatedLinks.body.php';

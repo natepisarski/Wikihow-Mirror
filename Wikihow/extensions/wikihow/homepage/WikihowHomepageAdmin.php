@@ -3,7 +3,7 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
 $wgSpecialPages['WikihowHomepageAdmin'] = 'WikihowHomepageAdmin';
-$wgAutoloadClasses['WikihowHomepageAdmin'] = dirname( __FILE__ ) . '/WikihowHomepageAdmin.body.php';
+$wgAutoloadClasses['WikihowHomepageAdmin'] = __DIR__ . '/WikihowHomepageAdmin.body.php';
 
 /*******
  *

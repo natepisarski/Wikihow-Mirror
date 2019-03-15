@@ -9,5 +9,5 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['EndOfQueue'] = 'EndOfQueue';
-$wgAutoloadClasses['EndOfQueue'] = dirname( __FILE__ ) . '/EndOfQueue.body.php';
-$wgExtensionMessagesFiles['EndOfQueue'] = dirname(__FILE__) . '/EndOfQueue.i18n.php';
+$wgAutoloadClasses['EndOfQueue'] = __DIR__ . '/EndOfQueue.body.php';
+$wgExtensionMessagesFiles['EndOfQueue'] = __DIR__ . '/EndOfQueue.i18n.php';

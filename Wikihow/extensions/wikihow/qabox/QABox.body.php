@@ -62,7 +62,7 @@ class QABox extends UnlistedSpecialPage {
 
 	public static function getQABoxHTML($answered_sqid) {
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			new Mustache_Loader_FilesystemLoader(__DIR__),
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);

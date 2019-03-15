@@ -6,9 +6,8 @@ if ( ! defined( 'MEDIAWIKI' ) )
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'Unguard',
     'author' => 'Scott',
-    'description' => 'Reverse all votes by a user',
+    'description' => 'Reverse all QC votes by a user',
 );
 
 $wgSpecialPages['Unguard'] = 'Unguard';
-$wgAutoloadClasses['Unguard'] = dirname( __FILE__ ) . '/Unguard.body.php';
-
+$wgAutoloadClasses['Unguard'] = __DIR__ . '/Unguard.body.php';

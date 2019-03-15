@@ -12,7 +12,7 @@
 	while ($row = $dbr->fetchObject($res)) {
 		$t = Title::makeTitle($row->page_namespace, $row->page_title);
 		if (!$t) continue;
-		$cats = Categoryhelper::getTitleTopLevelCategories($t);
+		$cats = CategoryHelper::getTitleTopLevelCategories($t);
 		foreach ($cats as $c) {
 			if (in_array($c->getText(), $wanted)) {
 				$titles[$t->getText()]= $c;

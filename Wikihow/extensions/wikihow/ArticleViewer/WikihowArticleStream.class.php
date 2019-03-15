@@ -79,7 +79,7 @@ class WikihowArticleStream extends ContextSource {
 		wfProfileIn(__METHOD__);
 		$html = '';
 
-		switch($device) {
+		switch ($device) {
 			case WikihowArticleStream::MOBILE:
 				$rowWidth = 2;
 				break;
@@ -109,10 +109,10 @@ class WikihowArticleStream extends ContextSource {
 						$html .= $this->getArticleThumbWithPath($item['title'], $xUnits*$singleWidth + $singleSpacing*($xUnits-1), $yUnits*$singleHeight + $singleSpacing*($yUnits-1), $item['image']);
 						$html .= "</td>";
 
-						if($across1 < $rowWidth) {
+						if ($across1 < $rowWidth) {
 							//we're still on the first row
 							$across1 += $xUnits;
-							if($yUnits > 1)
+							if ($yUnits > 1)
 								$across2 += $xUnits;
 						}
 						else {
@@ -120,7 +120,7 @@ class WikihowArticleStream extends ContextSource {
 							$across2 += $xUnits;
 						}
 
-						if($across1 == $rowWidth && !$doneAcross1) {
+						if ($across1 == $rowWidth && !$doneAcross1) {
 							$html .= "</tr><tr>";
 							$doneAcross1 = true;
 						}
@@ -138,7 +138,7 @@ class WikihowArticleStream extends ContextSource {
 		wfProfileIn(__METHOD__);
 		$html = '';
 
-		switch($device) {
+		switch ($device) {
 			case WikihowArticleStream::MOBILE:
 				$rowWidth = 2;
 				break;
@@ -168,10 +168,10 @@ class WikihowArticleStream extends ContextSource {
 						$html .= $this->getArticleThumbWithPath($item['title'], $xUnits*$singleWidth + $singleSpacing*($xUnits-1), $yUnits*$singleHeight + $singleSpacing*($yUnits-1), $item['image']);
 						$html .= "</td>";
 
-						if($across1 < $rowWidth) {
+						if ($across1 < $rowWidth) {
 							//we're still on the first row
 							$across1 += $xUnits;
-							if($yUnits > 1)
+							if ($yUnits > 1)
 								$across2 += $xUnits;
 						}
 						else {
@@ -179,7 +179,7 @@ class WikihowArticleStream extends ContextSource {
 							$across2 += $xUnits;
 						}
 
-						if($across1 == $rowWidth && !$doneAcross1) {
+						if ($across1 == $rowWidth && !$doneAcross1) {
 							$html .= "</tr><tr>";
 							$doneAcross1 = true;
 						}
@@ -233,7 +233,7 @@ class WikihowArticleStream extends ContextSource {
             $mediaElement = Misc::getMediaScrollLoadHtml( 'video', $attributes );
         }
 		$articleName = $t->getText();
-		if($wgLanguageCode == "zh") {
+		if ($wgLanguageCode == "zh") {
 			$articleName = $wgContLang->convert($articleName);
 		}
 
@@ -258,7 +258,7 @@ class WikihowArticleStream extends ContextSource {
             'textBlock' => $textBlock,
         );
 
-        $tmpl = new EasyTemplate( dirname(__FILE__) );
+        $tmpl = new EasyTemplate( __DIR__ );
         $tmpl->set_vars($vars);
         $html = $tmpl->execute('ArticleViewerThumb.tmpl.php');
 
@@ -447,7 +447,7 @@ class WikihowBlockLayout {
 		$taller = self::findFirstTall($articles);
 		$large = self::findFirstLarge($articles, $consumed);
 
-		if($device == WikihowArticleStream::MOBILE) {
+		if ($device == WikihowArticleStream::MOBILE) {
 			$possibleFormats = self::getPossibleMobileFormats();
 		}
 		else {

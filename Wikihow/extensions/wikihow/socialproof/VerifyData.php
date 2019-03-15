@@ -85,12 +85,6 @@ class VerifyData {
 		return $results;
 	}
 
-	public static function getVerifierInfoByName( $name ) {
-		$vInfo = self::getAllVerifierInfo();
-		$result = !empty($vInfo) && !empty($vInfo[$name]) ? $vInfo[$name] : '';
-		return $result;
-	}
-
 	public static function getVerifierInfoById( $id ) {
 		$result = array();
 		$vInfo = self::getAllVerifierInfo();
@@ -343,7 +337,7 @@ class VerifyData {
 
 		$allowed = false;
 		foreach ( $verifiers as $verifier ) {
-			$verifierInfo = self::getVerifierInfoByName( $verifier->name );
+			$verifierInfo = self::getVerifierInfoById( $verifier->verifierId );
 			if ( $verifierInfo ) {
 				$allowed = true;
 				break;

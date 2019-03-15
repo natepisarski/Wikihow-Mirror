@@ -9,7 +9,7 @@ $wgExtensionCredits['specialpage'][] = array(
     'author' => 'Bebeth Steudel',
     'description' => 'Page which shows the current Author Badges available',
 );
-$wgExtensionMessagesFiles['ProfileBadges'] = dirname(__FILE__) . '/ProfileBadges.i18n.php';
+$wgExtensionMessagesFiles['ProfileBadges'] = __DIR__ . '/ProfileBadges.i18n.php';
 
 $wgSpecialPages['ProfileBadges'] = 'ProfileBadges';
-$wgAutoloadClasses['ProfileBadges'] = dirname( __FILE__ ) . '/ProfileBadges.body.php';
+$wgAutoloadClasses['ProfileBadges'] = __DIR__ . '/ProfileBadges.body.php';

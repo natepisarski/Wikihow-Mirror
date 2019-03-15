@@ -6,7 +6,7 @@
  */
 class StuCollector {
 
-	/** 
+	/**
 	 * Setup ignoring of signals from nginx/apache so that data isn't lost.
 	 */
 	public static function setupEnv() {
@@ -32,7 +32,7 @@ class StuCollector {
 	// Map bounce times to particular buckets
 	private static function bucketize($n) {
 		$buckets = self::getBuckets();
-		$b = false; 
+		$b = false;
 		foreach ($buckets as $label => $threshold) {
 			// find highest bucket that $n is above
 			if ($n >= $threshold) $b = $label;
@@ -121,7 +121,7 @@ class StuCollector {
 		fwrite($fp, $msg);
 		fclose($fp);
 		return true;
-	} 
+	}
 
 	/**
 	 * Run a Stu query against the daemon that exists on a remote server.

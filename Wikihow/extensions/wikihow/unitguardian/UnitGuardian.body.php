@@ -22,7 +22,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 
 	public static function onIsEligibleForMobileSpecial(&$mobileAllowed) {
 		global $wgTitle;
-		if($wgTitle && strrpos($wgTitle->getText(), "UnitGuardian") === 0) {
+		if ($wgTitle && strrpos($wgTitle->getText(), "UnitGuardian") === 0) {
 			$mobileAllowed = true;
 		}
 
@@ -33,7 +33,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$out = $this->getOutput();
 
-		if(!Misc::isMobileMode()) {
+		if (!Misc::isMobileMode()) {
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -85,7 +85,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 					$result['error'] = wfMessage('ug-invalid-action');
 			}
 
-			print_r(json_encode($result));
+			print(json_encode($result));
 			return;
 		}
 
@@ -93,10 +93,10 @@ class UnitGuardian extends UnlistedSpecialPage {
 		$out->setHTMLTitle(wfMessage('unitguardian'));
 		$this->addModules();
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$vars = $this->getTemplateVars();
 		$vars['tool_info'] = class_exists('ToolInfo') ? ToolInfo::getTheIcon($this->getContext()) : '';
-		
+
 		$tmpl->set_vars($vars);
 		$out->addHTML($tmpl->execute("unitguardian.tmpl.php"));
 
@@ -317,7 +317,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 
 	public static function onPageContentSaveComplete($article) {
 		$dbw = wfGetDB(DB_MASTER);
-		if($article->getTitle()->getNamespace() == NS_MAIN && !$article->isRedirect()) {
+		if ($article->getTitle()->inNamespace(NS_MAIN) && !$article->isRedirect()) {
 			$dbw->update(self::TABLE_NAME_CONVERSIONS, array('ugc_dirty' => 1), array('ugc_page' => $article->getId()), __METHOD__);
 			$dbw->upsert(self::TABLE_NAME_TOOL, array('ug_page' => $article->getId(), 'ug_dirty' => 1, 'ug_whitelist' => 0), array(), array('ug_dirty' => 1), __METHOD__);
 		} else {

@@ -68,7 +68,7 @@ class ArticleMetaInfo {
 	// of a way to test and slowly roll out longer meta descriptions.
 	//
 	// Note: if you need to change this list, you should delete the existing rows
-	// of any changed articles from the article_meta_info table and restart memcached. 
+	// of any changed articles from the article_meta_info table and restart memcached.
 	static $longDescTest = [
 		1404977 => true,	1194030 => true,	1331675 => true,	1829689 => true,	3316272 => true,	3530104 => true,
 		9474195 => true,	148677 => true,		1108880 => true,	2480560 => true,	4515975 => true,	2479722 => true,
@@ -860,7 +860,7 @@ class ArticleMetaInfo {
 		global $wgOut, $wgTitle, $wgRequest;
 
 		$action = $wgRequest->getVal('action', '');
-		if ($wgTitle->getNamespace() != NS_MAIN
+		if (!$wgTitle->inNamespace(NS_MAIN)
 			|| $wgTitle->getText() == wfMessage('mainpage')->text()
 			|| (!empty($action) && $action != 'view')
 			|| !WikihowSkinHelper::shouldShowMetaInfo($wgOut))

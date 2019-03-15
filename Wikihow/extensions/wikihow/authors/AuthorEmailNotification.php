@@ -20,10 +20,10 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'Notifies by email on certain events',
 );
 
-$wgExtensionMessagesFiles['AuthorEmailNotification'] = dirname(__FILE__) . '/AuthorEmailNotification.i18n.php';
+$wgExtensionMessagesFiles['AuthorEmailNotification'] = __DIR__ . '/AuthorEmailNotification.i18n.php';
 $wgSpecialPages['AuthorEmailNotification'] = 'AuthorEmailNotification';
-$wgAutoloadClasses['AuthorEmailNotification'] = dirname( __FILE__ ) . '/AuthorEmailNotification.body.php';
-$wgAutoloadClasses['EmailActionButtonScript'] = dirname( __FILE__ ) . '/EmailActionButtonScript.class.php';  //Class that returns script for including gmail action buttons
+$wgAutoloadClasses['AuthorEmailNotification'] = __DIR__ . '/AuthorEmailNotification.body.php';
+$wgAutoloadClasses['EmailActionButtonScript'] = __DIR__ . '/EmailActionButtonScript.class.php';  //Class that returns script for including gmail action buttons
 
 $wgHooks['AddNewAccount'][] = array("attributeAnon");
 $wgHooks['AddNewAccount'][] = array("setUserTalkOption");
@@ -86,7 +86,7 @@ function addFirstEdit($article, $details) {
 
 	try {
 		$t = $article->getTitle();
-		if (!$t || $t->getNamespace() != NS_MAIN)
+		if (!$t || !$t->inNamespace(NS_MAIN))
 			return true;
 		$dbr = wfGetDB(DB_MASTER);
 		$num_revisions = $dbr->selectField('revision', 'count(*)', array('rev_page=' . $article->getId()));

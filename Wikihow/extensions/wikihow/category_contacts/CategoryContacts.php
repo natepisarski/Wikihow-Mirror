@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'Category Contacts',
 	'author' => 'Scott Cushman',
@@ -10,9 +10,9 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['CategoryContacts'] = 'CategoryContacts';
 $wgSpecialPages['CategoryContactMailer'] = 'CategoryContactMailer';
-$wgAutoloadClasses['CategoryContacts'] = dirname( __FILE__ ) . '/CategoryContacts.body.php';
-$wgAutoloadClasses['CategoryContactMailer'] = dirname( __FILE__ ) . '/CategoryContacts.body.php';
-$wgExtensionMessagesFiles['CategoryContacts'] = dirname(__FILE__) . '/CategoryContacts.i18n.php';
+$wgAutoloadClasses['CategoryContacts'] = __DIR__ . '/CategoryContacts.body.php';
+$wgAutoloadClasses['CategoryContactMailer'] = __DIR__ . '/CategoryContacts.body.php';
+$wgExtensionMessagesFiles['CategoryContacts'] = __DIR__ . '/CategoryContacts.i18n.php';
 
 $wgResourceModules['ext.wikihow.CategoryContacts'] = array(
 	'scripts' => array(

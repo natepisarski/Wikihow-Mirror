@@ -23,7 +23,7 @@ class DeferImages {
 		}
 
 		$items = pq( self::NEW_DEFER_SELECTOR );
-		foreach( $items as $node ) {
+		foreach ( $items as $node ) {
 			$item = pq( $node );
 			$link = $item->parent();
 			$src = $item->attr('src');
@@ -72,7 +72,7 @@ class DeferImages {
 		}
 
         $items = pq( self::SCROLL_LOAD_SELECTOR );
-        foreach( $items as $node ) {
+        foreach ( $items as $node ) {
             $item = pq( $node );
             $item->wrap("<div class='content-spacer'></div>");
             $item->addClass('content-fill');
@@ -106,7 +106,7 @@ class DeferImages {
 
         $images = pq( $selector );
 
-        foreach($images as $node) {
+        foreach ($images as $node) {
             $img = pq($node);
             $link = $img->parent();
             $src = $img->attr('src');

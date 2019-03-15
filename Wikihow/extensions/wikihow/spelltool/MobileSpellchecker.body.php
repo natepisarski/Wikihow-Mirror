@@ -15,7 +15,7 @@ class MobileSpellchecker extends Spellchecker {
 
 	public static function onIsEligibleForMobileSpecial(&$mobileAllowed) {
 		global $wgTitle;
-		if($wgTitle && strrpos($wgTitle->getText(), "Spellchecker") === 0) {
+		if ($wgTitle && strrpos($wgTitle->getText(), "Spellchecker") === 0) {
 			$mobileAllowed = true;
 		}
 		return true;
@@ -40,11 +40,11 @@ class MobileSpellchecker extends Spellchecker {
 	 * @param $out
 	 */
 	protected function addSpellCheckerTemplateHtml($out) {
-		$tmpl = new EasyTemplate(dirname(__FILE__));
-		
+		$tmpl = new EasyTemplate(__DIR__);
+
 		$vars = $this->getTemplateVars();
 		$vars['tool_info'] = class_exists('ToolInfo') ? ToolInfo::getTheIcon($this->getContext()) : '';
-		
+
 		$tmpl->set_vars($vars);
 		$out->addHTML($tmpl->execute('MobileSpellchecker.tmpl.php'));
 	}

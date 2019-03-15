@@ -104,7 +104,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 
 			// Filter by category intersection
 			if ( $title && $related ) {
-				$categories = Categoryhelper::getTitleTopLevelCategories( $title );
+				$categories = CategoryHelper::getTitleTopLevelCategories( $title );
 				//var_dump( $primary );
 				$filterCategories = [];
 				foreach ( $categories as $category ) {
@@ -152,7 +152,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, 4 / 3 ),
 					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
 					'categories' => implode( $rowCategories, ',' ),
-					'breadcrumbs' => implode( (array)Categoryhelper::getBreadcrumbCategories( $title ), ',' ),
+					'breadcrumbs' => implode( (array)CategoryHelper::getBreadcrumbCategories( $title ), ',' ),
 					'popularity' => $row->ti_30day_views_unique,
 					'featured' => $row->ti_featured,
 					'plays' => $row->ti_summary_video_play,
@@ -247,7 +247,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 		$width = 548;
 		$height = 360;
 
-		// Translate between video filename and poster image filename by changing the 
+		// Translate between video filename and poster image filename by changing the
 		//     From: '/{X}/{YZ}/{NAME} Step 0 Version 1.360p.mp4'
 		//     To:   '{NAME} Step 0 preview Version 1.jpg'
 		$name = str_replace(

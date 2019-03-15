@@ -32,6 +32,8 @@ WH.dashboard.AnswerQuestionsAppWidget = (function($) {
 		// @param type either 'global' or 'user'
 		this.listenData = function(type, data) {
 			if (type == 'global') {
+				var unpatrolled = data['ct'];
+
 				//get weather
 				var weatherIcon = this.getWeatherIcon(unpatrolled);
 				this.animateUpdateWeather(weatherIcon);

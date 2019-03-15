@@ -7,8 +7,10 @@ class AdminUserCompletedImages extends UnlistedSpecialPage {
 	private $defaultColumnsPerRow = 4;
 
 	public function __construct() {
-		global $wgTitle;
+		global $wgTitle, $wgHooks;
+
 		$this->specialPage = $wgTitle->getPartialUrl();
+		$wgHooks['ShowSideBar'][] = array($this, 'removeSideBarCallback');
 
 		parent::__construct($this->specialPage);
 	}
@@ -17,42 +19,45 @@ class AdminUserCompletedImages extends UnlistedSpecialPage {
 	 * Execute special page. Only available to wikiHow staff.
 	 */
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser, $wgLang, $wgLanguageCode, $wgHooks;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
+		$langCode = $this->getLanguage()->getCode();
 
-		$wgHooks['ShowSideBar'][] = array($this, 'removeSideBarCallback');
-
-		$userGroups = $wgUser->getGroups();
-		if ($wgLanguageCode != 'en' || $wgUser->isBlocked() || !in_array('staff', $userGroups) && $wgUser->getName() != "G.bahij") {
-			$wgOut->setRobotpolicy('noindex,nofollow');
-			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		$userGroups = $user->getGroups();
+		if ($langCode != 'en' || $user->isBlocked() || !in_array('staff', $userGroups) && $user->getName() != "G.bahij") {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 		} else {
 			// Fetch images before or after time 't'
-			$timeCutoff = $wgRequest->getVal('t') or wfTimestamp(TS_MW);
+			$timeCutoff = $req->getVal('t') or wfTimestamp(TS_MW);
 			if (!ctype_digit($timeCutoff))
 				$timeCutoff = wfTimestamp(TS_MW);
 
-			$after = (bool) $wgRequest->getVal('a');
-			$gridView = (bool) $wgRequest->getVal('g');
+			$after = (bool) $req->getVal('a');
+			$gridView = (bool) $req->getVal('g');
 
-			$rowsPerPage = $wgRequest->getVal('r');
+			$rowsPerPage = $req->getVal('r');
 			if ($rowsPerPage && is_numeric($rowsPerPage) && ctype_digit($rowsPerPage))
 				$rowsPerPage = max(5, min(100, $rowsPerPage)); // limit it to something reasonable
 			else
 				$rowsPerPage = $this->defaultRowsPerPage;
 
-			$copyVioFilter = (bool) $wgRequest->getVal('c');
+			$copyVioFilter = (bool) $req->getVal('c');
 
 			$title = 'Admin - Manage User Completed Images';
-			$wgOut->setHTMLTitle(wfMessage('pagetitle', $title));
-			$wgOut->setPageTitle('Manage User Completed Images');
+			$out->setHTMLTitle(wfMessage('pagetitle', $title));
+			$out->setPageTitle('Manage User Completed Images');
 
 			$tmpl = $this->genAdminForm($timeCutoff, $after, $rowsPerPage, $gridView, $copyVioFilter);
-			$wgOut->addHTML($tmpl);
+			$out->addHTML($tmpl);
 		}
 	}
 
 	private function genAdminForm($timeCutoff, $after, $rowsPerPage, $gridView, $copyVioFilter) {
-		global $wgRequest, $wgCanonicalServer;
+		global $wgCanonicalServer;
+
+		$req = $this->getRequest();
 
 		$columnsPerRow = $this->defaultColumnsPerRow;
 		$totalImages = $rowsPerPage * ($gridView ? $columnsPerRow : 1);
@@ -66,7 +71,7 @@ class AdminUserCompletedImages extends UnlistedSpecialPage {
 			} else { // Not numeric? Ignore it and use current time
 				$timeCutoff = wfTimestamp(TS_MW);
 				$timeCutoffPrint = Datetime::createFromFormat('YmdHis', $timeCutoff)->format($timePrintFormat);
-			}				
+			}
 		} else {
 			$timeCutoffPrint = $dateTimeTmp->format($timePrintFormat);
 		}
@@ -90,10 +95,10 @@ HHTML;
 		if ($copyVioFilter) {
 			$whereClause['uci_copyright_checked'] = '1';
 			$whereClause['uci_copyright_violates'] = '1';
-		} elseif ($wgRequest->getVal('hideCprViolations')) {
+		} elseif ($req->getVal('hideCprViolations')) {
 			$whereClause['uci_copyright_violates'] = '0';
 			// $whereClause['uci_copyright_checked'] = '1';
-		} elseif ($wgRequest->getVal('onlyCprChecked')) {
+		} elseif ($req->getVal('onlyCprChecked')) {
 			$whereClause['uci_copyright_checked'] = '1';
 		}
 
@@ -128,15 +133,15 @@ HHTML;
 				$html .= '<table>';
 			}
 
-			foreach($resArr as $row) {
+			foreach ($resArr as $row) {
 				$imgName = 'User-Completed-Image-' . $row->uci_image_name;
 				$imgTitle = Title::makeTitleSafe(NS_IMAGE, $imgName);
 				$imgPageURL = '/' . $imgTitle->getPrefixedUrl();
 				$articleName = str_replace('-', ' ', $row->uci_article_name);
 				$articleURL = '/' . Title::makeTitleSafe(NS_MAIN, $row->uci_article_name)->getPartialUrl();
-				$user = $row->uci_user_text;
-				$userURL = '/' . Title::makeTitleSafe(NS_USER, $user);
-				$userPrint = "<a href=\"$userURL\" rel=\"nofollow\">$user</a>";
+				$userName = $row->uci_user_text;
+				$userURL = '/' . Title::makeTitleSafe(NS_USER, $userName);
+				$userPrint = "<a href=\"$userURL\" rel=\"nofollow\">$userName</a>";
 				$date = Datetime::createFromFormat('YmdHis', $row->uci_timestamp)->format($timePrintFormat);
 				$deleteName = urlencode($imgName);
 				$lastTime = $row->uci_timestamp;
@@ -158,7 +163,7 @@ HHTML;
 						$notfound = true;
 					}
 
-					if ($wgRequest->getVal('updateDBFileURLs')) {
+					if ($req->getVal('updateDBFileURLs')) {
 						$fileURL = $wgCanonicalServer . $file->getUrl();
 						$dbw = wfGetDB(DB_MASTER);
 						$dbw->update(
@@ -316,13 +321,13 @@ IMGHTML;
 		$html .= '.image-view-is-deleted {font-size: 11px; color: #b40000;} ';
 		$html .= '</style>';
 
-		$prevPage = ($after || $wgRequest->getVal('t')) ? '<a href="' . $basepage . '?t=' . $firstTime . '&a=1&r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Previous</a>' : 'Previous';
+		$prevPage = ($after || $req->getVal('t')) ? '<a href="' . $basepage . '?t=' . $firstTime . '&a=1&r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Previous</a>' : 'Previous';
 
-		$nextPage = (!$after || $wgRequest->getVal('t')) ? '<a href="' . $basepage . '?t=' . $lastTime . '&a=0&r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Next</a>' : 'Next';
+		$nextPage = (!$after || $req->getVal('t')) ? '<a href="' . $basepage . '?t=' . $lastTime . '&a=0&r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Next</a>' : 'Next';
 
-		$newestPage = ($after || $wgRequest->getVal('t')) ? '<a href="' . $basepage . '?r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Newest</a>' : 'Newest';
+		$newestPage = ($after || $req->getVal('t')) ? '<a href="' . $basepage . '?r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Newest</a>' : 'Newest';
 
-		$oldestPage = (!$after || $wgRequest->getVal('t')) ? '<a href="' . $basepage . '?t=0&a=1&r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Oldest</a>' : 'Oldest';
+		$oldestPage = (!$after || $req->getVal('t')) ? '<a href="' . $basepage . '?t=0&a=1&r=' . $rowsPerPage . '&g=' . $gridView . '&c=' . $copyVioFilter . '" rel="nofollow">Oldest</a>' : 'Oldest';
 
 		$gridToggle = '<a href="' . $basepage . '?t=' . $timeCutoff . '&a=' . $after . '&r=' . $rowsPerPage . '&g=' . !((bool) $gridView) . '&c=' . $copyVioFilter . '" rel="nofollow">Toggle grid view</a>';
 

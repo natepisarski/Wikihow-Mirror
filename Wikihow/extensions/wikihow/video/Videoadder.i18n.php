@@ -2,12 +2,12 @@
 $messages = array();
 
 $messages['en'] = array (
-	//'videoadder' => "Video Picker", 
+	//'videoadder' => "Video Picker",
 	'videoadder'	=> "Video Picker",
-	//'videoadder' => "Video Picker", 
+	//'videoadder' => "Video Picker",
 	'va_question'	=> "Does this video go with this article?",
-	'va_instructions' => '# Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-# Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+	'va_instructions' => '# Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+# Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 	',
 	'va_browsemsg'	=> 'Browse articles from:',
 	'va_yourstats'	=> "Your Video Stats",

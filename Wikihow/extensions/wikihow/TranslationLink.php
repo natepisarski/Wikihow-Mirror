@@ -2,7 +2,7 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
-$wgAutoloadClasses['TranslationLink'] = dirname(__FILE__) . '/TranslationLink.class.php';
+$wgAutoloadClasses['TranslationLink'] = __DIR__ . '/TranslationLink.class.php';
 $wgHooks['BeforePageDisplay'][] = 'TranslationLink::beforePageDisplay';
 
 /*

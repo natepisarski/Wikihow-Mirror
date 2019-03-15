@@ -54,21 +54,21 @@ class Quiz {
 	public static function loadAllQuizzesForArticle($aid) {
 		global $wgMemc;
 
-		if($aid <= 0) {
+		if ($aid <= 0) {
 			return [];
 		}
 
 		$key = wfMemcKey(self::MEMC_KEY, $aid);
 		$val = $wgMemc->get($key);
 
-		if(is_array($val)) {
+		if (is_array($val)) {
 			return $val;
 		}
 		$dbr = wfGetDB(DB_SLAVE);
 		$quizzes = [];
 
 		$res = $dbr->select(self::TABLE_NAME, ['*'], ['qz_aid' => $aid], __METHOD__);
-		foreach($res as $index => $row) {
+		foreach ($res as $index => $row) {
 			$quizzes[$row->qz_hash] = Quiz::loadFromDBRow(get_object_vars($row), $index);
 		}
 
@@ -82,7 +82,7 @@ class Quiz {
 		$quizzes = [];
 
 		$res = $dbr->select(self::TABLE_NAME, ['*'], [], __METHOD__);
-		foreach($res as $index => $row) {
+		foreach ($res as $index => $row) {
 			$quizzes[] = Quiz::loadFromDBRow(get_object_vars($row), $index);
 		}
 
@@ -93,7 +93,7 @@ class Quiz {
 		global $wgOut;
 
 		$options =  array(
-			'loader' => new Mustache_Loader_FilesystemLoader(dirname(__FILE__)),
+			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
 		);
 		$m = new Mustache_Engine($options);
 
@@ -101,7 +101,7 @@ class Quiz {
 		$data['methodType'] = $methodType;
 		$data['ampClass'] = GoogleAmp::isAmpMode($wgOut)?'qz_amp':'';
 		$data['platform'] = Misc::isMobileMode()?'qz_mobile':'qz_desktop';
-		if($showFirstAtTop) {
+		if ($showFirstAtTop) {
 			$data['quizTopInfo'] = "Take your best guess, or read below to learn the answer.";
 		}
 		return $m->render('quiz', $data);
@@ -113,9 +113,9 @@ class Quiz {
 		$data['quizNum'] = $this->quizNum;
 		$data['options'] = [];
 		$wrongOptions = count($this->options) > 2 ? $this->wrongOptions : $this->wrongOptionsTwo;
-		foreach($this->options as $index => $option) {
+		foreach ($this->options as $index => $option) {
 			$info = ['option' => $option, 'explanation' => $this->explanations[$index], 'optionNum' => $index];
-			if($index == $this->answer) {
+			if ($index == $this->answer) {
 				$info['class'] = "correct";
 				$info['addon'] = $this->rightResponse;
 			} else {

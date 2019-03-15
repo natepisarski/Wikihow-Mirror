@@ -13,7 +13,7 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
-			$out->setRobotpolicy('noindex,nofollow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -42,9 +42,9 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 			$out->setArticleBodyOnly(true);
 			$urlList = $req->getVal('urls');
 			$urlArray = explode("\n", $urlList);
-			if($action == "add_urls") {
+			if ($action == "add_urls") {
 				list($articleIds, $errors) = $articleAdEx->addNewTitles($urlArray);
-			} elseif($action == "remove_urls") {
+			} elseif ($action == "remove_urls") {
 				list($articleIds, $errors) = $articleAdEx->deleteTitles($urlArray);
 			}
 
@@ -65,7 +65,7 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 				];
 			}
 
-			echo json_encode($result);
+			$out->addHTML( json_encode($result) );
 		} elseif ($action == 'delete'){
 			$out->setArticleBodyOnly(true);
 			$articleAdEx->clearAllTitles();
@@ -74,7 +74,7 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 			$this->setCSVHeaders("adexclusions_{$date}.xls");
 			$pages = $articleAdEx->getAllExclusions();
 			foreach ($pages as $page) {
-				echo Misc::getLangBaseURL($page['lang']) . '/' . $page['page_title'] . "\n";
+				print(Misc::getLangBaseURL($page['lang']) . '/' . $page['page_title'] . "\n");
 			}
 		} else {
 			$out->setPageTitle('Ad Exclusions for articles');
@@ -84,7 +84,7 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 				'articlesLinkClass' => 'active',
 				'searchLinkClass' => '',
 			];
-			$html = $this->mustache->render('articles_form', $vars);
+			$html = $this->mustache->render('articles_form.mustache', $vars);
 			$out->addHTML($html);
 		}
 	}
@@ -102,25 +102,26 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 				'articlesLinkClass' => '',
 				'searchLinkClass' => 'active',
 			];
-			$html = $this->mustache->render('search_form', $vars);
+			$html = $this->mustache->render('search_form.mustache', $vars);
 			$out->addHTML($html);
 
 		} elseif ($action == 'add') {
 			list($queries, $errors) = SearchAdExclusions::parse($req->getText('text'));
 			SearchAdExclusions::add($queries);
 			$errCnt = count($errors);
-			$html = $this->mustache->render('search_results', compact('errCnt', 'errors', 'queries'));
+			$html = $this->mustache->render('search_results.mustache', compact('errCnt', 'errors', 'queries'));
 			Misc::jsonResponse(['html' => $html]);
 
 		} elseif ($action == 'get') {
 			$all = SearchAdExclusions::getAll();
 			$date = date('Y-m-d');
 			$this->setCSVHeaders("adexclusions_search_{$date}.xls");
-			echo "lang\tquery\n";
-			foreach ($all as $lang => $queries)
-				foreach ($queries as $query => $foo)
-					echo "{$lang}\t{$query}\n";
-
+			print( "lang\tquery\n" );
+			foreach ($all as $lang => $queries) {
+				foreach ($queries as $query => $foo) {
+					print( "{$lang}\t{$query}\n" );
+				}
+			}
 		} elseif ($action == 'del') {
 			$count = SearchAdExclusions::deleteAll();
 			$html = "Removed <b>$count</b> entries from the database.";
@@ -132,9 +133,11 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 	}
 
 	private function setCSVHeaders(string $fname) {
-		$this->getOutput()->setArticleBodyOnly(true);
+		// NOTE: setArticleBodyOnly(true) doesn't work here because
+		// we need to change Content-Type response header.
+		$this->getOutput()->disable();
 		header("Content-type: application/force-download");
-		header("Content-disposition: attachment; filename='$fname'");
+		header("Content-disposition: attachment; filename=$fname");
 	}
 
 }
@@ -319,7 +322,7 @@ class ArticleAdExclusions {
 				//titus should return fields for all active languages
 				if (intval($titusData->$intl_id) > 0) {
 					$articleIds[$langCode][] = $titusData->$intl_id;
-					if($action == 'add_urls') {
+					if ($action == 'add_urls') {
 						self::addIntlArticle($dbw, $langCode, $titusData->$intl_id);
 					} elseif ($action == 'remove_urls') {
 						self::removeIntlArticle($dbw, $langCode, $titusData->$intl_id);

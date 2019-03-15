@@ -7,9 +7,9 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'Awards',
     'author' => 'Vu <vu@wikihow.com>',
-    'description' => 'wikiHow Awards Page', 
+    'description' => 'wikiHow Awards Page',
 );
 
 
-$wgSpecialPages['Awards'] = 'Awards'; 
-$wgAutoloadClasses['Awards'] = dirname( __FILE__ ) . '/Awards.body.php';
+$wgSpecialPages['Awards'] = 'Awards';
+$wgAutoloadClasses['Awards'] = __DIR__ . '/Awards.body.php';

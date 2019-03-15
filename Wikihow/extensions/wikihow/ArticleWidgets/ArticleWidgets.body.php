@@ -11,18 +11,18 @@ class ArticleWidgets extends UnlistedSpecialPage {
 		$html = '';
 		$target = isset( $par ) ? $par : $wgRequest->getVal( 'target' );
 		$target = strtoupper($target);
-		
+
 		$html = self::getCalculator($target);
 
 		$wgOut->setArticleBodyOnly(true);
 		$wgOut->addHTML($html);
 	}
-	
+
 	function getCalculator($widget) {
 		global $wgArticleWidgets;
-		
+
 		if (isset($wgArticleWidgets[$widget])) {
-			$tmpl = new EasyTemplate( dirname(__FILE__) );
+			$tmpl = new EasyTemplate( __DIR__ );
 			$html = $tmpl->execute($widget.'/'.$widget.'.tmpl.php');
 		}
 		else {
@@ -30,18 +30,18 @@ class ArticleWidgets extends UnlistedSpecialPage {
 		}
 		return $html;
 	}
-	
+
 	function GrabWidget($widget_name) {
 		global $wgArticleWidgets;
 		$html = '';
-		
+
 		if (isset($wgArticleWidgets[$widget_name])) {
 			$widget_height = $wgArticleWidgets[$widget_name];
-		
+
 			$html = '<iframe src="'.wfGetPad('/Special:ArticleWidgets/'.$widget_name).'" scrolling="no" frameborder="0" class="article_widget" style="height:'.$widget_height.'px" allowTransparency="true"></iframe>';
 			$html = '<div class="widget_br"></div>'.$html.'<div class="widget_br"></div>';
 		}
-		
+
 		return $html;
 	}
 }

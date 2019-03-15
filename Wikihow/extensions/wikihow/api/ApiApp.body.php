@@ -257,7 +257,7 @@ class AppDataFormatter {
 		// for now the search is just partial search results formatted
 		$pResults = self::searchPartial($q, $num);
 		$results = array();
-		foreach($pResults as $res) {
+		foreach ($pResults as $res) {
 			$results[] = Title::newFromID($res['id']);
 		}
 		$results = self::formatResults($results);
@@ -477,7 +477,7 @@ class AppDataFormatter {
 			if ($k == "type" && $v == "relatedwikihows") {
 				return;
 			}
-			if(!is_array($v) && ($k == "url" || $k == "html")) {
+			if (!is_array($v) && ($k == "url" || $k == "html")) {
 				if (strpos(strtolower($v), 'jpg') === FALSE && strpos(strtolower($v), 'png') === FALSE) {
 					continue;
 				}
@@ -563,7 +563,7 @@ class AppDataFormatter {
 			return;
 		}
 
-		foreach($parsed['sections'] as &$section) {
+		foreach ($parsed['sections'] as &$section) {
 			if ( !isset( $section["type"] ) ) {
 				continue;
 			}
@@ -607,13 +607,13 @@ class AppDataFormatter {
 	static function getCategoryImageFile($title) {
 		global $wgLanguageCode, $wgDefaultImage;
 
-		$catmap = Categoryhelper::getIconMap();
+		$catmap = CategoryHelper::getIconMap();
 
 		// if page is a top category itself otherwise get top
 		if (isset($catmap[urldecode($title->getPartialURL())])) {
 			$cat = urldecode($title->getPartialURL());
 		} else {
-			$cat = Categoryhelper::getTopCategory($title);
+			$cat = CategoryHelper::getTopCategory($title);
 
 			//INTL: Get the partial URL for the top category if it exists
 			// For some reason only the english site returns the partial
@@ -632,7 +632,7 @@ class AppDataFormatter {
 		} else {
 			$image = Title::makeTitle(NS_IMAGE, $wgDefaultImage);
 			$file = wfFindFile($image, false);
-			if(!$file) {
+			if (!$file) {
 				$file = wfFindFile($wgDefaultImage);
 			}
 		}
@@ -777,7 +777,7 @@ class ApiSectionParser {
 
 		// Remove #newaltmethod node
 		$node = $doc->getElementById('newaltmethod');
-		if( !empty($node)) {
+		if ( !empty($node)) {
 			   $node->parentNode->removeChild($node);
 		}
 
@@ -825,7 +825,7 @@ class ApiSectionParser {
 		$pqDoc = phpQuery::newDocument($doc);
 
 		// remove table of contents
-		if(pq('table#toc')->length) {
+		if (pq('table#toc')->length) {
 			$toc = pq('table#toc');
 			$toc->remove();
 		}
@@ -895,7 +895,7 @@ class ApiSectionParser {
 			if ($heading) {
 				$section = array();
 				$type = null;
-				foreach($sectionMap as $key=>$value) {
+				foreach ($sectionMap as $key=>$value) {
 					if (strpos($heading, $key) !== FALSE) {
 						$type = $value;
 						break;
@@ -1188,7 +1188,7 @@ class ApiSectionParser {
 	private static function parseGreenBoxContent( $element, $splitSize, $forceHtml = false ) {
 		if ( pq( $element )->find('p')->length > 0 ) {
 			$text = trim( pq( $element )->find('p')->html() );
-		} else if ( $forceHtml ) {
+		} elseif ( $forceHtml ) {
 			$text = trim( pq( $element )->html() );
 		} else {
 			$text = trim( pq( $element )->text() );
@@ -1221,7 +1221,7 @@ class ApiSectionParser {
 				$closingBoldPosition =  $closingBoldPosition - strlen( $line );
 				// add the bold tag to the beginning and end of the line
 				$line = '<b>' . $line . '</b>';
-			} else if ( $hasBold ) {
+			} elseif ( $hasBold ) {
 				// add the closing bold to the specific spot
 				$line = substr_replace( $line, "</b>", $closingBoldPosition, 0);
 				// add the bold tag to the beginning of the line
@@ -1239,25 +1239,25 @@ class ApiSectionParser {
 		if ( pq( $element )->hasClass( 'green_box_row' ) ) {
 			$newLines = self::getGreenBoxContents( $element, $splitSize );
 			$lines = array_merge( $lines, $newLines );
-		} else if ( pq( $element )->hasClass( 'green_box_person' ) && pq( $element )->find( '.green_box_expert_label' )->length == 0 ) {
+		} elseif ( pq( $element )->hasClass( 'green_box_person' ) && pq( $element )->find( '.green_box_expert_label' )->length == 0 ) {
 			// do nothing here, this is the case where the green box person has no label
 			// and the resulting html would just be the "Q" that we put in the circle
 			// we could handle this if we want to but for now skip it
 			$lines = $lines;
-		} else if ( pq( $element )->hasClass( 'green_box_content' ) ) {
+		} elseif ( pq( $element )->hasClass( 'green_box_content' ) ) {
 			$newLines = self::parseGreenBoxContent( $element, $splitSize );
 			$lines = array_merge( $lines, $newLines );
-		} else if ( pq( $element )->hasClass( 'green_box_expert_info' ) ) {
+		} elseif ( pq( $element )->hasClass( 'green_box_expert_info' ) ) {
 			$newLines = self::parseGreenBoxContent( $element, $splitSize, false );
 			foreach ( $newLines as $line ) {
 				$lines[] = Html::rawElement( 'greenbox_expert_info', array(), $line );
 			}
-		} else if ( pq( $element )->find( '.green_box_expert_label' )->length > 0 ) {
+		} elseif ( pq( $element )->find( '.green_box_expert_label' )->length > 0 ) {
 			$newLines = self::parseGreenBoxContent( $element, $splitSize );
 			foreach ( $newLines as $line ) {
 				$lines[] = Html::rawElement( 'greenbox_label', array(), $line );
 			}
-		} else if ( pq( $element )->find( '.green_box_tab_label' )->length > 0 || pq( $element )->hasClass( 'green_box_tab_label' )) {
+		} elseif ( pq( $element )->find( '.green_box_tab_label' )->length > 0 || pq( $element )->hasClass( 'green_box_tab_label' )) {
 			// for now we do not show the green box tab labels at all
 			//$newLines = self::parseGreenBoxContent( $element, $splitSize );
 			//foreach ( $newLines as $line ) {
@@ -1284,7 +1284,7 @@ class ApiSectionParser {
 	private static function makeGreenBox( $greenBox, $splitSize, $elementName ) {
 		$lines = self::getGreenBoxContents( $greenBox, $splitSize );
 		$box = "";
-		foreach( $lines as $line ) {
+		foreach ( $lines as $line ) {
 			if ( !trim($line) ) {
 				continue;
 			}
@@ -1345,7 +1345,7 @@ class ApiSectionParser {
 
 				if ($pqNode->is('.mwimg')) {
 					$imgNode = pq('a.image:first', $pqNode);
-				} else if ($pqNode->is("b")) {
+				} elseif ($pqNode->is("b")) {
 					//special case- the first image might end up inside a bold tag if the
 					// first sentence wasn't punctuated correctly
 					if ($pqNode->children()->is('.mwimg')) {
@@ -1507,14 +1507,14 @@ class ApiSectionParser {
 				if ($pq->is('ol')) {
 					$steps = array_merge($steps, $this->processStepContent($pq));
 				}
-				else if ($pq->is('p') || $pq->is('ul')) {
+				elseif ($pq->is('p') || $pq->is('ul')) {
 					ArticleHTMLParser::removeEmptyNodes($pq);
 					$html = trim($pq->html());
 					if ($html) {
 						$steps[] = array("html"=>$html);
 					}
 				}
-				else if ($pq->is('h4')) {
+				elseif ($pq->is('h4')) {
 					ArticleHTMLParser::removeEmptyNodes($pq);
 					$html = trim(strip_tags($pq->html(), "<a>"));
 					if ($html) {

@@ -1,4 +1,5 @@
 <?php
+
 /*
 	Pinterest google chrome extension and mobile app pull pin descriptions from the alt field of images.
 	This class removes the trailing .jpg and Version # from the alt field to make pinterest pins look cleaner.

@@ -132,7 +132,7 @@ class Spreadsheet extends GoogleSpreadsheet
 					];
 				}
 			}
-			else if (!$skipChild) { // Article URL
+			elseif (!$skipChild) { // Article URL
 				$res->data[$parent]['contractors'][$child]['urls'][] = [
 					'url' => $firstCol,
 					'url_count' => $urlCount,

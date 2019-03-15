@@ -1,7 +1,7 @@
 <?php
 
 if ( !defined('MEDIAWIKI') ) die();
-    
+
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminMassEdit',
 	'author' => 'Aaron G',
@@ -9,4 +9,4 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminMassEdit'] = 'AdminMassEdit';
-$wgAutoloadClasses['AdminMassEdit'] = dirname( __FILE__ ) . '/AdminMassEdit.body.php';
+$wgAutoloadClasses['AdminMassEdit'] = __DIR__ . '/AdminMassEdit.body.php';

@@ -41,7 +41,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			$out->addHtml('<div class="section minor_section">');
 			$out->addHtml('<ul>');
 			$articles = $viewer->articles;
-			foreach($articles as $title) {
+			foreach ($articles as $title) {
 				$out->addHtml( "<li>" . Linker::link($title) . "</li>");
 			}
 			$out->addHtml('</ul>');
@@ -54,10 +54,10 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			//get pg and start info
 			$pg = $req->getInt('pg',1);
 
-			$topCats = Categoryhelper::getTopLevelCategoriesForDropDown();
+			$topCats = CategoryHelper::getTopLevelCategoriesForDropDown();
 			$isTopCat = in_array($categoryName, $topCats);
 
-			$loader = new Mustache_Loader_FilesystemLoader(dirname(__FILE__));
+			$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
 			$options = array('loader' => $loader);
 
 			$m = new Mustache_Engine($options);
@@ -75,7 +75,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			$fas = $viewer->getFAs(); //we still do this call even if we don't want FA section on this page b/c it initializes the article viewer object
 
 			//First get the featured articles, but only if not on the featured article category page
-			if($this->mTitle->getLocalUrl() !== wfMessage('Featuredarticles_url')->text()) {
+			if ($this->mTitle->getLocalUrl() !== wfMessage('Featuredarticles_url')->text()) {
 				$featuredImages = [];
 				$maxFas = 50;
 				$i = 0;
@@ -99,10 +99,10 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			$subcatsArray = [];
 			$topLevelSubcats = [];
 			$total = 0;
-			if(count($viewer->children) > 0) {
+			if (count($viewer->children) > 0) {
 				foreach ($viewer->children as $subcats) {
-					if($subcats instanceof Title) {
-						if($subcats->getArticleID() != $categoryTitle->getArticleID()) {
+					if ($subcats instanceof Title) {
+						if ($subcats->getArticleID() != $categoryTitle->getArticleID()) {
 							$subcatsArray[] = ['categoryLink' => Linker::link($subcats, $subcats->getText())];
 							$topLevelSubcats[] = $subcats;
 							$total++;
@@ -116,7 +116,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 						}
 					} elseif (count($subcats) == 2) {
 						$subsubcatsArray = [];
-						if(is_array($subcats[1])) {
+						if (is_array($subcats[1])) {
 							foreach ($subcats[1] as $t) {
 								$subsubcatsArray[] = ['categoryLink' => Linker::link($t, $t->getText())];
 							}
@@ -127,13 +127,13 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 						$total++;
 					}
 				}
-				if(count($subcatsArray) > 0) {
+				if (count($subcatsArray) > 0) {
 					$vars['hasSubcats'] = true;
 					$vars['subcats'] = $subcatsArray;
 				}
 			}
 
-			if(count($subcatsArray) > 0) {
+			if (count($subcatsArray) > 0) {
 				$articlesPerPage = self::PULL_CHUNKS;
 			} else {
 				$articlesPerPage = ceil(self::PULL_CHUNKS/4)*4;
@@ -145,21 +145,21 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			//don't need to doQuery b/c it was done earlier in the getFA call
 			$articles = $viewer->articles;
 			$allArticles = [];
-			for($i = $start; $i < count($articles) && $i < ($start + $articlesPerPage); $i++){
+			for ($i = $start; $i < count($articles) && $i < ($start + $articlesPerPage); $i++){
 				$info = $this->getArticleThumbWithPathFromTitle($articles[$i]);
-				if($info) {
+				if ($info) {
 					$allArticles[] = $info;
 				}
 			}
 
-			if($pg == 1 && $isTopCat && count($allArticles) < $articlesPerPage) {
+			if ($pg == 1 && $isTopCat && count($allArticles) < $articlesPerPage) {
 				//if we're in a top level category and there isn't a full page, fill it!
 				$pageIds = TopCategoryData::getPagesForCategory($categoryTitle->getDBkey(), TopCategoryData::HIGHTRAFFIC, ($articlesPerPage - count($allArticles)));
-				foreach($pageIds as $pageId) {
+				foreach ($pageIds as $pageId) {
 					$addedTitle = Title::newFromID($pageId);
-					if($addedTitle) {
+					if ($addedTitle) {
 						$info = $this->getArticleThumbWithPathFromTitle($addedTitle);
-						if($info) {
+						if ($info) {
 							$allArticles[] = $info;
 						}
 					}
@@ -167,19 +167,19 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			}
 
 
-			if(count($articles) > $articlesPerPage) {
+			if (count($articles) > $articlesPerPage) {
 				$vars['pagination'] = $this->getPaginationHTML($pg, count($articles), $articlesPerPage);
 			}
 			$vars['all'] = $allArticles;
 
 			//Now the related section (which only shows if the "all articles" section isn't full AND there isn't a featured section
-			if(!isset($vars['pagination']) && $vars['hasFeatured'] != true) {
-				if($isTopCat) {
+			if (!isset($vars['pagination']) && $vars['hasFeatured'] != true) {
+				if ($isTopCat) {
 					$topCat = $categoryTitle->getDBkey();
 					$topCatText = $categoryTitle->getText();
 				} else {
-					$topCat = Categoryhelper::getTopCategory($categoryTitle);
-					if($topCat) {
+					$topCat = CategoryHelper::getTopCategory($categoryTitle);
+					if ($topCat) {
 						$topCatText = Title::newFromDBkey($topCat, NS_CATEGORY)->getText();
 					} else {
 						$topCatText = "";
@@ -188,42 +188,42 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 
 				$pageIds = TopCategoryData::getPagesForCategory($topCat, TopCategoryData::FEATURED, 12);
 				$featuredArticles = [];
-				foreach($pageIds as $pageId) {
+				foreach ($pageIds as $pageId) {
 					$addedTitle = Title::newFromID($pageId);
-					if($addedTitle) {
+					if ($addedTitle) {
 						$info = $this->getArticleThumbWithPathFromTitle($addedTitle);
-						if($info) {
+						if ($info) {
 							$featuredArticles[] = $info;
 						}
 					}
 				}
 
-				if(count($featuredArticles)) {
+				if (count($featuredArticles)) {
 					$vars['hasRelated'] = true;
 					$vars['topCat'] = $topCatText;
 					$vars['related'] = $featuredArticles;
 				}
 			}
 
-			if(count($topLevelSubcats) > 0) {
+			if (count($topLevelSubcats) > 0) {
 				$count = 0;
 				$vars['hasTopLevel'] = true;
 				$vars['topLevel'] = [];
 				$vars['topLevelSecondRow'] = [];
-				foreach($topLevelSubcats as $t) {
-					if($count < 4 || count($allArticles) < 10) {
+				foreach ($topLevelSubcats as $t) {
+					if ($count < 4 || count($allArticles) < 10) {
 						$vars['topLevel'][] = ['relatedUrl' => $t->getLocalUrl(), 'relatedText' => $t->getText()];
 					} else {
 						$vars['topLevelSecondRow'][] = ['relatedUrl' => $t->getLocalUrl(), 'relatedText' => $t->getText()];
 					}
 					$count++;
 				}
-				if(count($vars['topLevelSecondRow']) > 0) {
+				if (count($vars['topLevelSecondRow']) > 0) {
 					$vars['hasTopLevelSecondRow'] = true;
 				}
 			}
 
-			if($ctx->getUser()->isLoggedIn()) {
+			if ($ctx->getUser()->isLoggedIn()) {
 				$furtherEditing = $viewer->getArticlesFurtherEditing($viewer->articles, $viewer->article_info);
 				if ($furtherEditing != "") {
 					$vars['furtherEditing'] = $furtherEditing;
@@ -237,7 +237,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 				$out->setStatusCode(404);
 				return;
 			} else {
-				$css = Misc::getEmbedFile('css', dirname(__FILE__) . '/categories-owl.css');
+				$css = Misc::getEmbedFile('css', __DIR__ . '/categories-owl.css');
 				$out->addHeadItem('catcss', HTML::inlineStyle($css));
 				$out->addModules('ext.wikihow.desktop_category_page');
 				$out->addHTML($html);
@@ -265,7 +265,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 	private function getArticleThumbWithPathFromTitle(Title $title) {
 		global $wgContLang, $wgLanguageCode;
 
-		if(!$title) return null;
+		if (!$title) return null;
 
 		$width = SELF::SINGLE_WIDTH;
 		$height = SELF::SINGLE_HEIGHT;
@@ -297,7 +297,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 
 		//removed the fixed width for now
 		$articleName = $title->getText();
-		if($wgLanguageCode == "zh") {
+		if ($wgLanguageCode == "zh") {
 			$articleName = $wgContLang->convert($articleName);
 		}
 
@@ -355,11 +355,11 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 		$html = $prev.$next;
 
 		// set <head> links for SEO
-		if ($pg > 1) $out->setRobotpolicy('noindex');
+		if ($pg > 1) $out->setRobotPolicy('noindex');
 		if ($pg == 2) {
 			$out->addHeadItem('prev_pagination','<link rel="prev" href="'.$wgCanonicalServer.$here.'" />');
 		}
-		else if ($pg > 2) {
+		elseif ($pg > 2) {
 			$out->addHeadItem('prev_pagination','<link rel="prev" href="'.$wgCanonicalServer.$here.'?pg='.($pg-1).'" />');
 		}
 		if ($pg < $numOfPages) $out->addHeadItem('next_pagination','<link rel="next" href="'.$wgCanonicalServer.$here.'?pg='.($pg+1).'" />');
@@ -379,7 +379,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			if ($pg == $i) {
 				$html .= '<li>'.$i.'</li>';
 			}
-			else if ($i == 1) {
+			elseif ($i == 1) {
 				$html .= '<li><a '.$rel.' href="'.$here.'">'.$i.'</a></li>';
 			}
 			else {

@@ -16,7 +16,7 @@ class RevisionNoTemplateWrapper {
           * Remove text with templates gone, caching the replace
 	  */
 	public function getText() {
-		if(!$this->text) {
+		if (!$this->text) {
 			$this->text = $this->revision->getText();
 			$this->text = preg_replace("@\{\{[^}]+\}\}@","",$this->text);
 		}
@@ -32,6 +32,6 @@ class RevisionNoTemplateWrapper {
 		return($this->revision->getTitle());
 	}
 	public function getSize() {
-		return($this->revision->getSize());	
+		return($this->revision->getSize());
 	}
 }

@@ -27,12 +27,12 @@ class ChangeRealName extends SpecialPage {
 				//yeah...if you could not go straight to the database, that'd be great... [sc]
 				// $oldname = $dbw->selectField( 'user', 'user_real_name', array('user_name'=>$req->getVal('target')) );
 				// $dbw->update('user', array('user_real_name' => $req->getVal('realname')), array('user_name'=>$req->getVal('target')));
-				
+
 				$oldname = $changeUser->getRealName();
-				
+
 				$changeUser->setRealName($req->getVal('realname'));
 				$changeUser->saveSettings();
-				
+
 				$summary = wfMessage('changerealname_summary', $user->getName(), $changeUser->getName(), $oldname, $req->getVal('realname'))->text();
 				$log = new LogPage( 'realname', true );
 				$log->addEntry( 'realname', $changeUser->getUserPage(), $summary );

@@ -1,4 +1,5 @@
-<?
+<?php
+
 class WAPTemplate {
 	protected $dbType = null;
 	protected $config = null;

@@ -10,5 +10,5 @@ $wgExtensionCredits['other'][] = array(
 	'description' => 'Search box widget',
 );
 
-$wgExtensionMessagesFiles['SearchBox'] = dirname( __FILE__ ) . '/SearchBox.i18n.php';
-$wgAutoloadClasses['SearchBox'] = dirname( __FILE__ ) . '/SearchBox.body.php';
+$wgExtensionMessagesFiles['SearchBox'] = __DIR__ . '/SearchBox.i18n.php';
+$wgAutoloadClasses['SearchBox'] = __DIR__ . '/SearchBox.body.php';

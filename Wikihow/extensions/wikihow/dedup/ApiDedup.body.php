@@ -11,7 +11,7 @@ class ApiDedup extends ApiBase {
 		$result = $this->getResult();
 		$module = $this->getModuleName();
 
-		switch($command) {
+		switch ($command) {
 			case 'queries':
 				$internal = $params['internal'];
 				$clusterScore = $params['clusterScore'];
@@ -30,8 +30,8 @@ class ApiDedup extends ApiBase {
 		$queries = preg_split("@\|@",$queries);
 		$dbw = wfGetDB(DB_MASTER);
 		$queryE = array();
-		foreach($queries as $query) {
-			if($query) {
+		foreach ($queries as $query) {
+			if ($query) {
 				DedupQuery::addQuery($query);
 				$queryE[] = $dbw->addQuotes($query);
 			}
@@ -39,38 +39,38 @@ class ApiDedup extends ApiBase {
 		DedupQuery::matchQueries($queries, $internal);
 		$dbr = wfGetDB(DB_SLAVE);
 		$sql = "select query1, query2, ct, tq_title, tq_page_id from dedup.query_match left join dedup.title_query on tq_query=query2 where query1 in (" . implode($queryE,",") . ")";
-		if($internal) {
+		if ($internal) {
 			$sql .= " and query2 in (" . implode($queryE,",") . ")";
 		}
 		$sql .= " order by query1, ct desc";
 		$res = $dbr->query($sql, __METHOD__);
 		$ret = array();
 
-		if(!$clusterScore) {
-			foreach($res as $row) {
+		if (!$clusterScore) {
+			foreach ($res as $row) {
 				$ret[$row->query1][] = array('query' => $row->query2, 'score' => $row->ct, 'title' => $row->tq_title, 'aid' => $row->tq_page_id);
 			}
 		}
 		else {
 			$clusters = array();
 			$clusterLookup = array();
-			foreach($queries as $query) {
+			foreach ($queries as $query) {
 				$clusters[$query] = $query;
 				$clusterLookup[$query] = array($query);
 			}
-			foreach($res as $row) {
+			foreach ($res as $row) {
 				$ret[$row->query2] = array('query' => $row->query2, 'title' => $row->tq_title, 'aid' => $row->tq_page_id);
-				if($row->ct >= $clusterScore) {
-					if(!isset($clusters[$row->query2])) {
+				if ($row->ct >= $clusterScore) {
+					if (!isset($clusters[$row->query2])) {
 						$clusters[$row->query2] = $row->query2;
 						$clusterLookup[$row->query2] = array($row->query2);
 					}
 
 					$cl1 = $clusters[$row->query1];
 					$cl2 = $clusters[$row->query2];
-					if($cl2 && $cl1 != $cl2) {
+					if ($cl2 && $cl1 != $cl2) {
 						$clusterLookup[$cl1] = array_merge($clusterLookup[$cl1],$clusterLookup[$cl2]);
-						foreach($clusterLookup[$cl2] as $q) {
+						foreach ($clusterLookup[$cl2] as $q) {
 							$clusters[$q] = $cl1;
 						}
 						unset($clusterLookup[$cl2]);
@@ -78,9 +78,9 @@ class ApiDedup extends ApiBase {
 				}
 			}
 			$ret2 = array();
-			foreach($clusterLookup as $name => $cl) {
+			foreach ($clusterLookup as $name => $cl) {
 				$fullCl = array();
-				foreach($cl as $q) {
+				foreach ($cl as $q) {
 					$fullCl[] = $ret[$q];
 				}
 				$ret2[] = $fullCl;

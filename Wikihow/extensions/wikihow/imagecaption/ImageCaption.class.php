@@ -38,9 +38,9 @@ class ImageCaption {
 		if ( $icon === 'orange' ) {
 			$iconClass[] = "caption-icon-flag";
 			$iconClass[] = "caption-icon-orange";
-		} else if ( $icon == 'lightbulb' ) {
+		} elseif ( $icon == 'lightbulb' ) {
 			$iconClass[] = "caption-icon-lightbulb";
-		} else if ( $icon == 'lightbulb2' ) {
+		} elseif ( $icon == 'lightbulb2' ) {
 			$iconClass[] = "caption-icon-lightbulb";
 			$iconClass[] = "caption-icon-lightbulb-2";
 		} else {
@@ -57,7 +57,7 @@ class ImageCaption {
 
 		if ( $stripes === 'black' ) {
 			$textWrapClass[] = " caption-bg-grey";
-		} else if ( $stripes === 'white' ) {
+		} elseif ( $stripes === 'white' ) {
 			$textWrapClass[] = " caption-bg-white";
 		}
 
@@ -135,9 +135,9 @@ class ImageCaption {
 		// look for the image caption template
 		$templateIds = $out->getTemplateIds();
 		if ( isset( $templateIds[NS_TEMPLATE] ) && ( isset( $templateIds[NS_TEMPLATE]['Imagecaptiontop'] ) || isset( $templateIds[NS_TEMPLATE]['Imagecaptionbottom'] ) ) ) {
-			$style = Misc::getEmbedFile( 'css', dirname(__FILE__) . '/imagecaption.css' );
+			$style = Misc::getEmbedFile( 'css', __DIR__ . '/imagecaption.css' );
 			if ( !Misc::isMobileMode() ) {
-				$style .= Misc::getEmbedFile( 'css', dirname(__FILE__) . '/imagecaption.desktop.css' );
+				$style .= Misc::getEmbedFile( 'css', __DIR__ . '/imagecaption.desktop.css' );
 			}
 			$out->addHeadItem( 'imagecaption', HTML::inlineStyle( $style ) );
 		}

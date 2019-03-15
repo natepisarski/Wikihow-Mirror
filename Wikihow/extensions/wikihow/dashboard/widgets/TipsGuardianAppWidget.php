@@ -10,17 +10,21 @@ class TipsGuardianAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
-		if($widgetStatus == DashboardWidget::WIDGET_ENABLED)
+		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
 			$link = "<a href='/Special:TipsGuardian' class='comdash-start'>Start";
-		else if($widgetStatus == DashboardWidget::WIDGET_LOGIN)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
 			$link = "<a href='/Special:Userlogin?returnto=Special:TipsGuardian' class='comdash-login'>Login";
-		else if($widgetStatus == DashboardWidget::WIDGET_DISABLED)
+		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
-		if($showArrow)
+		if ($showArrow)
 			$link .= " <img src='" . wfGetPad('/skins/owl/images/actionArrow.png') . "' alt=''>";
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	public function showMobileCount() {
+		return true;
 	}
 
 	public function getMWName(){
@@ -34,11 +38,20 @@ class TipsGuardianAppWidget extends DashboardWidget {
 	 */
 	public function getLastContributor(&$dbr){
 		// TODO: make this work for just tips
-		$res = $dbr->select('qc_vote', array('*'), array(), 'TipsGuardianAppWidget::getLastContributor', array("ORDER BY"=>"qc_timestamp DESC", "LIMIT"=>1));
+		$res = $dbr->select('qc_vote', array('qcv_user','qc_timestamp'), array(), 'TipsGuardianAppWidget::getLastContributor', array("ORDER BY"=>"qc_timestamp DESC", "LIMIT"=>1));
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->qcv_user, $row->qc_timestamp);
+		if (!empty($row)) {
+			$user = $row->qcv_user;
+			$timestamp = $row->qc_timestamp;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -52,7 +65,7 @@ class TipsGuardianAppWidget extends DashboardWidget {
 		$startdate = strtotime("7 days ago");
 		$starttimestamp = date('YmdG',$startdate) . floor(date('i',$startdate)/10) . '00000';
 		$starttimestamp = $dbr->addQuotes($starttimestamp);
-		$sql = "SELECT *, SUM(C) as C, MAX(qc_timestamp) as qc_recent  FROM
+		$sql = "SELECT qcv_user, SUM(C) as C, MAX(qc_timestamp) as qc_recent  FROM
 			( (SELECT qcv_user, count(*) as C, MAX(qc_timestamp) as qc_timestamp FROM qc_vote LEFT JOIN $wgSharedDB.user ON qcv_user=user_id
 				WHERE qc_timestamp > {$starttimestamp} GROUP BY qcv_user ORDER BY C DESC LIMIT 25)
 			UNION
@@ -64,7 +77,16 @@ class TipsGuardianAppWidget extends DashboardWidget {
 		$row = $dbr->fetchObject($res);
 		$res->free();
 
-		return $this->populateUserObject($row->qcv_user, $row->qc_recent);
+		if (!empty($row)) {
+			$user = $row->qcv_user;
+			$timestamp = $row->qc_recent;
+		}
+		else {
+			$user = '';
+			$timestamp = '';
+		}
+
+		return $this->populateUserObject($user, $timestamp);
 	}
 
 	/**
@@ -117,7 +139,7 @@ class TipsGuardianAppWidget extends DashboardWidget {
 	}
 
 	public function isAllowed($isLoggedIn, $userId=0){
-		if(!$isLoggedIn)
+		if (!$isLoggedIn)
 			return false;
 		else
 			return true;

@@ -13,7 +13,7 @@ class ToolInfo {
 			'bullets' => wfMessage('ti_'.$tool_name.'_bullets', $params)->text(),
 		);
 
-		$tmpl = new EasyTemplate(dirname(__FILE__));
+		$tmpl = new EasyTemplate(__DIR__);
 		$tmpl->set_vars($vars);
 		return $tmpl->execute('toolinfo.tmpl.php');
 	}
