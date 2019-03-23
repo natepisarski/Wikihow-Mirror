@@ -59,7 +59,7 @@ class ArticleTagList {
 		}
 
 		$tags = [];
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			['articletaglinks', 'articletag'],
 			['at_tag', 'at_prob'],

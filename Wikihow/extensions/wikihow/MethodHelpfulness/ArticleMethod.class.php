@@ -100,7 +100,7 @@ class ArticleMethod {
 	 * @return array|bool array with method info, or false for no result
 	 */
 	public static function getMethod($aid, $methodName, $active=self::METHOD_ACTIVE_ONLY) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$conds = array(
 			'am_aid' => $aid,
@@ -137,7 +137,7 @@ class ArticleMethod {
 	 * @return array nested array with method info
 	 */
 	public static function getArticleMethods($aid, $active=self::METHOD_ACTIVE_ONLY) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$conds = array(
 			'am_aid' => $aid
@@ -214,7 +214,7 @@ class ArticleMethod {
 			__METHOD__
 		);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$methodCount = $dbr->selectField(
 			'article_method_helpfulness_stats',
@@ -295,7 +295,7 @@ class ArticleMethod {
 	}
 
 	public static function getArticleMethodVoteCounts($aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			array(
@@ -337,7 +337,7 @@ class ArticleMethod {
 	}
 
 	public static function getCTAVoteDetails($aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			array(
@@ -390,7 +390,7 @@ class ArticleMethod {
 	}
 
 	public static function getTotalCTAVotes($ctaType, $aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectField(
 			'article_method_helpfulness_summarized_stats',
@@ -404,7 +404,7 @@ class ArticleMethod {
 	}
 
 	public static function getLatestFeedback($aid, $limit=10) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			array(

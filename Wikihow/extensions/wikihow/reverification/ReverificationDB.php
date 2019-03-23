@@ -253,7 +253,7 @@ class ReverificationDB {
 			return false;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		return $dbr->selectField(
 			VerifyData::VERIFIER_TABLE,
 			'vi_name',
@@ -273,7 +273,7 @@ class ReverificationDB {
 			return false;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		return $dbr->selectField(
 			VerifyData::VERIFIER_TABLE,
 			'vi_user_name',

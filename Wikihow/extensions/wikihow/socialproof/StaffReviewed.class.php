@@ -21,7 +21,7 @@ class StaffReviewed {
 			if ($reviewed == 0) {
 				//check titus_copy
 				$twentyfifteen = '20151231';
-				$reviewed = wfGetDB(DB_SLAVE)->selectField(
+				$reviewed = wfGetDB(DB_REPLICA)->selectField(
 					'titus_copy',
 					'count(*)',
 					[

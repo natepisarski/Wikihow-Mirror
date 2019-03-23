@@ -231,7 +231,7 @@ class QuizImporter {
 	}
 
 	private function getAllQuizzes() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(Quiz::TABLE_NAME, ['qz_aid', 'qz_hash'], [], __METHOD__, ['ORDER BY' => 'qz_aid']);
 
 		$total = [];

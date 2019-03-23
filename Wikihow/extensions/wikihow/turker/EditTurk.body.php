@@ -185,7 +185,7 @@ class EditTurk extends UnlistedSpecialPage {
 	}
 
    private function getJobStatus() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$html = '';
 		$conds = array();
 		$conds[]="tj_newjobs=1";

@@ -334,7 +334,7 @@ class AuthorEmailNotification extends SpecialPage {
 		}
 
 		$t = $article->getTitle();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 					array('email_notifications'),
 					array('en_watch', 'en_user', 'en_watch_email', 'en_last_emailsent'),
@@ -613,7 +613,7 @@ class AuthorEmailNotification extends SpecialPage {
 		$thresholds = array(25, 100, 500, 1000, 5000);
 		$thresh2 = 10000;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 					'email_notifications',
@@ -673,7 +673,7 @@ class AuthorEmailNotification extends SpecialPage {
 	private static function showUser() {
 		global $wgRequest, $wgOut, $wgUser;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$order = array();
 		switch ($wgRequest->getVal('orderby')) {
@@ -1009,7 +1009,7 @@ class AuthorEmailNotification extends SpecialPage {
 
 			//verify we're emailling this author
 			if (!empty($to_email)) {
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$watch = $dbr->selectField('email_notifications', 'en_watch', array('en_page' => $pageid, 'en_user' => $og->getID()), __METHOD__ );
 				if ($watch == 1) $res = $to_email;
 			}

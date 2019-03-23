@@ -65,7 +65,7 @@ class AnswerQuestionsAppWidget extends DashboardWidget {
 	 * Returns the number of images left to be added.
 	 */
 	public function getCount(&$dbr) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$count = $dbr->selectField([AnswerQuestions::TABLE_QUEUE, QADB::TABLE_SUBMITTED_QUESTIONS], 'count(*)', ['aqq_page = qs_article_id', 'qs_ignore' => 0, 'qs_curated' => 0, 'qs_proposed' => 0], __METHOD__);
 		$count = floor($count/10);

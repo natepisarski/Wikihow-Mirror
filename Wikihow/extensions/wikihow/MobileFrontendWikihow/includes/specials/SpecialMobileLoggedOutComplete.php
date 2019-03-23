@@ -9,7 +9,6 @@ class SpecialMobileLoggedOutComplete extends MobileSpecialPage {
 	}
 
 	public function executeWhenAvailable( $par ) {
-		wfProfileIn( __METHOD__ );
 		$out = $this->getOutput();
 		$this->addModules();
 		$out->addModuleStyles( 'mobile.special.styles' );
@@ -37,7 +36,6 @@ class SpecialMobileLoggedOutComplete extends MobileSpecialPage {
 		}
 		$out->addHTML("</div><div class='clearall'></div></div></div>");
 
-		wfProfileOut( __METHOD__ );
 	}
 
 	// WIKIHOW added this function to allow login/logout on mobile

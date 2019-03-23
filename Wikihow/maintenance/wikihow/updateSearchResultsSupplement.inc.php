@@ -17,7 +17,7 @@ function updateSearchResultsSupplement($start, $end, $quiet) {
 	$wgBots = WikihowUser::getBotIDs();
 
 	$dbw = wfGetDB(DB_MASTER);
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 
 	output("Updating search index results between $start and $end\n");
 

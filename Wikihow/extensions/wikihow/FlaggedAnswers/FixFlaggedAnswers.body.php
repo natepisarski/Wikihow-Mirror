@@ -109,7 +109,7 @@ class FixFlaggedAnswers extends UnlistedSpecialPage {
 			$where[] = "qfa_id NOT IN (" . implode(',', $skippedIds) . ")";
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			FlaggedAnswers::TABLE,
 			'*',

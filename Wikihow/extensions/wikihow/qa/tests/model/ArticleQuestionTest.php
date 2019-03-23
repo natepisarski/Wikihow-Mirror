@@ -24,7 +24,7 @@ class ArticleQuestionTest extends MediaWikiTestCase {
 			'qq_updated_timestamp' => '20150101000000',
 			'qa_updated_timestamp' => '20150101000000',
 			'vi_id' => 7,
-			'vi_info' => '{"date":null,"name":"Neal Gorenflo","blurb":"Founder of Shareable","hoverBlurb":"Neal Gorenflo is an expert on sharing. He has 10 years of experience as an entrepreneur and thought leader.","whUserName":null,"nameLink":"http:\/\/www.shareable.net\/users\/neal-gorenflo","mainNameLink":null,"blurbLink":null,"category":"Miscellaneous","image":"http:\/\/www.wikihow.com\/Image:Neal-Gorenflo.jpg","initials":"NG","revisionId":null,"worksheetName":null}',
+			'vi_info' => '{"date":null,"name":"Neal Gorenflo","blurb":"Founder of Shareable","hoverBlurb":"Neal Gorenflo is an expert on sharing. He has 10 years of experience as an entrepreneur and thought leader.","nameLink":"http:\/\/www.shareable.net\/users\/neal-gorenflo","mainNameLink":null,"category":"Miscellaneous","image":"http:\/\/www.wikihow.com\/Image:Neal-Gorenflo.jpg","initials":"NG","revisionId":null,"worksheetName":null}',
 	];
 	var $formData = [
 		'aid' => 1,

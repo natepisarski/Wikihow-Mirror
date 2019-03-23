@@ -67,7 +67,7 @@ class countSpecialSubHeaders {
 	 * grab that wikitext
 	 */
 	private static function getWikitext($title) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$wikitext = Wikitext::getWikitext($dbr, $title);
 		$stepsText = '';
 		if ($wikitext) {

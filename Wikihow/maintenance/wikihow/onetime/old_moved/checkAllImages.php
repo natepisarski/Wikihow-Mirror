@@ -10,7 +10,7 @@ class CheckImagesMaint {
 	const DB_PAGE_SIZE = 2000;
 
 	private static function listImagesFromDB() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$images = array();
 		$page = 0;

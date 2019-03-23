@@ -239,7 +239,7 @@ EOHTML;
 				$summary = trim( $summary );
 
 				// Truncate for whole multibyte characters.
-				$summary = $wgContLang->truncate( $summary, 255 );
+				$summary = $wgContLang->truncateForDatabase( $summary, 255 );
 
 				$a = new Article($t);
 				$newRev = Revision::newFromTitle( $t );
@@ -508,7 +508,7 @@ EOHTML;
 		$lo = $req->getInt( 'rclow', null );
 		$rcid = $req->getInt( 'rcid' );
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$pageid = $dbr->selectField('recentchanges', 'rc_cur_id', array('rc_id=' . $rcid));
 		if ($pageid && $pageid != '')
 			$featured = $dbr->selectField('page', 'page_is_featured', array("page_id={$pageid}") );
@@ -545,7 +545,7 @@ EOHTML;
 
 class RCPatrolData {
 	public static function getListofEditors($result) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$users = array();
 		$users_len = array();
 		$res = $dbr->select('recentchanges',
@@ -606,7 +606,7 @@ class RCPatrolData {
 		if ($skiptitle)
 			$skip = Title::newFromText($skiptitle);
 
-		$dbr = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
 		/*	DEPRECATED rc_moved_to_ns & rc_moved_to_title columns
 			$sql = "SELECT rc_id, rc_cur_id, rc_moved_to_ns, rc_moved_to_title, rc_new,
 			  rc_namespace, rc_title, rc_last_oldid, rc_this_oldid
@@ -623,7 +623,7 @@ class RCPatrolData {
 
 		// if we filter by user we show both patrolled and non-patrolled edits
 		if ($rc_user_filter) {
-			$sql .= " rc_user_text = " . $dbr->addQuotes($rc_user_filter);
+			$sql .= " rc_user_text = " . $dbw->addQuotes($rc_user_filter);
 			if ($rcid)
 				$sql .= " AND rc_id < " . $rcid;
 		} else  {
@@ -655,16 +655,16 @@ class RCPatrolData {
 		}
 
 		if ($t) {
-			$sql .= " AND rc_title <> " . $dbr->addQuotes($t->getDBKey());
+			$sql .= " AND rc_title <> " . $dbw->addQuotes($t->getDBKey());
 		}
 		if ($skip) {
-			$sql .= " AND rc_title <> " . $dbr->addQuotes($skip->getDBKey());
+			$sql .= " AND rc_title <> " . $dbw->addQuotes($skip->getDBKey());
 		}
 
 		$sa = $req->getVal('sa');
 		if ($sa) {
 			$sa = Title::newFromText($sa);
-			$sql .= " AND rc_title = " . $dbr->addQuotes($sa->getDBKey());
+			$sql .= " AND rc_title = " . $dbw->addQuotes($sa->getDBKey());
 		}
 
 		// has the user skipped any articles?
@@ -683,7 +683,7 @@ class RCPatrolData {
 		}
 		$sql .= "$skipids ORDER BY rc_timestamp " . ($reverse == 1 ? "" : "DESC ") . "LIMIT 1";
 
-		$res = $dbr->query($sql, __METHOD__);
+		$res = $dbw->query($sql, __METHOD__);
 		$row = $res->fetchObject();
 
 		if ($row) {
@@ -708,12 +708,12 @@ class RCPatrolData {
 
 			if ($rc_user_filter) {
 				$result['rchi'] = $result['rclo'] = $row->rc_id;
-				$result['new']		= $dbr->selectField('recentchanges', array('rc_this_oldid'), array('rc_id' => $row->rc_id));
+				$result['new']		= $dbw->selectField('recentchanges', array('rc_this_oldid'), array('rc_id' => $row->rc_id), __METHOD__);
 			} else {
 				// always compare to current version
-				$result['new']		= $dbr->selectField('revision', array('max(rev_id)'), array('rev_page' => $row->rc_cur_id));
-				$result['rchi']		= $dbr->selectField('recentchanges', array('rc_id'), array('rc_this_oldid' => $result['new']));
-				$result['rclo']		= $dbr->selectField('recentchanges', array('min(rc_id)'), array('rc_patrolled'=>0,"rc_cur_id"=>$row->rc_cur_id));
+				$result['new']		= $dbw->selectField('revision', array('max(rev_id)'), array('rev_page' => $row->rc_cur_id), __METHOD__);
+				$result['rchi']		= $dbw->selectField('recentchanges', array('rc_id'), array('rc_this_oldid' => $result['new']), __METHOD__);
+				$result['rclo']		= $dbw->selectField('recentchanges', array('min(rc_id)'), array('rc_patrolled'=>0,"rc_cur_id"=>$row->rc_cur_id), __METHOD__);
 
 				// do we have a reverted edit caught between these 2?
 				// if so, only show the reversion, because otherwise you get the reversion trapped in the middle
@@ -721,17 +721,19 @@ class RCPatrolData {
 				$hi = isset($result['rchi']) ? $result['rchi'] : $row->rc_id;
 
 				if ($hi) {
-					$reverted_id = $dbr->selectField('recentchanges',
+					$reverted_id = $dbw->selectField('recentchanges',
 						array('min(rc_id)'),
-						array('rc_comment like ' . $dbr->addQuotes($rollbackCommentPrefix . '%'),
+						array('rc_comment like ' . $dbw->addQuotes($rollbackCommentPrefix . '%'),
 							"rc_id < $hi" ,
 							"rc_id >= {$result['rclo']}",
-							"rc_cur_id"=>$row->rc_cur_id));
+							"rc_cur_id"=>$row->rc_cur_id),
+						__METHOD__);
 					if ($reverted_id) {
 						$result['rchi'] = $reverted_id;
-						$result['new'] = $dbr->selectField('recentchanges',
+						$result['new'] = $dbw->selectField('recentchanges',
 							array('rc_this_oldid'),
-							array('rc_id' => $reverted_id));
+							array('rc_id' => $reverted_id),
+							__METHOD__);
 						$row->rc_id = $result['rchi'];
 					}
 				//} else {
@@ -747,9 +749,9 @@ class RCPatrolData {
 				// is the last patrolled edit a rollback? if so, show the diff starting at that edit
 				// makes it more clear when someone has reverted vandalism
 				$result['vandal'] = 0;
-				$comm = $dbr->selectField('recentchanges', array('rc_comment'), array('rc_id'=>$result['rclo']));
+				$comm = $dbw->selectField('recentchanges', array('rc_comment'), array('rc_id'=>$result['rclo']), __METHOD__);
 				if (strpos($comm, $rollbackCommentPrefix) === 0) {
-					$row2 = $dbr->selectRow('recentchanges', array('rc_id', 'rc_comment'),
+					$row2 = $dbw->selectRow('recentchanges', array('rc_id', 'rc_comment'),
 						array("rc_id < {$result['rclo']}", 'rc_cur_id' => $row->rc_cur_id),
 						__METHOD__,
 						array("ORDER BY" => "rc_id desc", "LIMIT"=>1));
@@ -759,8 +761,8 @@ class RCPatrolData {
 					$result['vandal'] = 1;
 				}
 			}
-			$result['user']		= $dbr->selectField('recentchanges', array('rc_user_text'), array('rc_this_oldid' => $result['new']));
-			$result['old']      = $dbr->selectField('recentchanges', array('rc_last_oldid'), array('rc_id' => $result['rclo']));
+			$result['user']		= $dbw->selectField('recentchanges', array('rc_user_text'), array('rc_this_oldid' => $result['new']), __METHOD__);
+			$result['old']      = $dbw->selectField('recentchanges', array('rc_last_oldid'), array('rc_id' => $result['rclo']), __METHOD__);
 			$result['title']	= $t;
 			$result['rcid']		= $row->rc_id;
 			if ($result['rchi'] == $result['rclo']) {
@@ -770,12 +772,13 @@ class RCPatrolData {
 					'rc_id <= ' . $result['rchi'],
 					'rc_id >= ' . $result['rclo']);
 			}
-			$result['count'] = $dbr->selectField('recentchanges',
+			$result['count'] = $dbw->selectField('recentchanges',
 				array('count(*)'),
 				array("rc_id <= " . $result['rchi'],
 					"rc_id >= " . $result['rclo'],
 					"rc_patrolled" => 0,
-					"rc_cur_id" => $row->rc_cur_id));
+					"rc_cur_id" => $row->rc_cur_id),
+				__METHOD__);
 			$result = self::getListofEditors($result);
 			return $result;
 		} else {
@@ -807,7 +810,7 @@ class RCPatrolGuts extends UnlistedSpecialPage {
 	}
 
 	static function getUnpatrolledCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField('recentchanges', array('count(*)'), array('rc_patrolled'=>0));
 		$count = number_format($count, 0, ".", ",");
 		$count .= wfMessage('rcpatrol_helplink')->text();
@@ -973,7 +976,7 @@ class RCPatrolGuts extends UnlistedSpecialPage {
 				RecentChange::markPatrolled( $id, false);
 			}
 
-			wfRunHooks( 'MarkPatrolledBatchComplete', array(&$article, &$rcids, &$user));
+			Hooks::run( 'MarkPatrolledBatchComplete', array(&$article, &$rcids, &$user));
 		} else {
 			RCPatrol::skipPatrolled($article);
 		}

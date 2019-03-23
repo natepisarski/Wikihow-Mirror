@@ -2,7 +2,7 @@
 require_once('commandLine.inc');
 require_once  dirname(__FILE__) . '/sdk/sdk.class.php';
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $dbw = wfGetDB(DB_MASTER);
 
 $maxWrites = 10;

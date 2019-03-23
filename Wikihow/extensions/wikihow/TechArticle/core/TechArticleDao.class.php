@@ -17,7 +17,7 @@ class TechArticleDao {
 	const FIELDS = ['tar_page_id', 'tar_rev_id', 'tar_user_id', 'tar_product_id', 'tar_platform_id', 'tar_tested', 'tar_date'];
 
 	public function getTechArticleData(int $pageId): Iterator {
-		$res = wfGetDB(DB_SLAVE)->select(
+		$res = wfGetDB(DB_REPLICA)->select(
 			'tech_article', static::FIELDS, ['tar_page_id' => $pageId]
 		);
 		return $res ?? new EmptyIterator();

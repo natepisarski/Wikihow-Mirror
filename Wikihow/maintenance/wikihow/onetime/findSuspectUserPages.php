@@ -127,7 +127,7 @@ $wgUser = User::newFromName("MiscBot");
 
 $maxAge = 60*60*24*14; // 2 weeks
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 echo "Checking user pages  on " . date("F j, Y") . "\n";
 
@@ -242,7 +242,7 @@ function getProfileBoxLink(&$u) {
 }
 
 function getExternalLinks($aid) {
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$extLinks = $dbr->select(array('externallinks'), array('el_to'), array('el_from' => $aid), __FUNCTION__, array('LIMIT' => '2'));
 	$links = array();
 	foreach ($extLinks as $link) {

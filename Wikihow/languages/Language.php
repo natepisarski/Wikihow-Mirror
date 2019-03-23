@@ -3285,6 +3285,11 @@ class Language {
 		);
 	}
 
+	// MWUP: ignore merging this function when upgrading. it will exist in MW 1.31+
+	function truncateForDatabase($string, $length) {
+		return $this->truncate($string, $length);
+	}
+
 	/**
 	 * Truncate a string to a specified length in bytes, appending an optional
 	 * string (e.g. for ellipses)

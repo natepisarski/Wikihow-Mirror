@@ -76,7 +76,7 @@ class MyWikihow extends SpecialPage {
 
 		if ($cats[0] != '') {
 			//use their chosen cats
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$catarray = [];
 			foreach ($cats as $cat) {

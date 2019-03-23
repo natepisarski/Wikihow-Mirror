@@ -930,6 +930,11 @@ p.green_box_bullet {
 	margin-top: 5px;
 	padding: 1em 1em 1.5em;
 }
+#quicksummary {position: relative;}
+#summarysection_anchor {
+	position: absolute;
+	top: -88px;
+}
 
 /* Tablet Support */
 

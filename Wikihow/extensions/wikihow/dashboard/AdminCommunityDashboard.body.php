@@ -108,7 +108,7 @@ class AdminCommunityDashboard extends UnlistedSpecialPage {
 
 		$widgets = $this->dashboardData->getWidgets();
 		$current = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($widgets as $widget) {
 			$current[$widget->getName()] = $widget->getCount($dbr);
 		}

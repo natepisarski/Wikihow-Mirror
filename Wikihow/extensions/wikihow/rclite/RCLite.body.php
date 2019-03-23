@@ -211,7 +211,7 @@ class RCLite extends MobileSpecialPage {
 			$a = new Article($t);
 			$rcids = array($rcid);
 			$user = $this->getUser();
-			wfRunHooks( 'MarkPatrolledBatchComplete', array(&$a, &$rcids, &$user));
+			Hooks::run( 'MarkPatrolledBatchComplete', array(&$a, &$rcids, &$user));
 		}
 	}
 

@@ -48,7 +48,7 @@ class RemoveExtraImgAttribs extends Maintenance {
 		$wgDisableScriptEmails = true;
 
 		$lang = $wgLanguageCode;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		if (!$dbw) $dbw = wfGetDB(DB_MASTER);
 		$page_titles = array();
 		$err = '';

@@ -18,7 +18,7 @@ abstract class WAPTagDB {
 		}
 
 		if (!is_object($this->dbr)) {
-			$this->dbr = wfGetDB(DB_SLAVE);
+			$this->dbr = wfGetDB(DB_REPLICA);
 		}
 	}
 
@@ -161,7 +161,7 @@ abstract class WAPTagDB {
 	}
 
 	public function getTagMap() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = $this->wapConfig->getTagTableName();
 		$res = $dbr->select($table, array('ct_id', 'ct_raw_tag'), '', __METHOD__);
 		$tagMap = array();

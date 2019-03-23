@@ -39,7 +39,7 @@ class StatsList extends UnlistedSpecialPage {
 		if (is_string($result)) {
 			return $result;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$starttimestamp = $dbr->addQuotes($starttimestamp);
 		$sql = "SELECT count(page_title) AS count " .
 					"FROM firstedit " .
@@ -66,7 +66,7 @@ class StatsList extends UnlistedSpecialPage {
 			return $result;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField('logging',
 			array('count(*)'),
 			array('log_type' => 'spellcheck', "log_timestamp >= '{$starttimestamp}'"),

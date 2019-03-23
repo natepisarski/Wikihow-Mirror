@@ -96,7 +96,7 @@ class Sitemap extends SpecialPage {
 
 		$html .= "</table>";
 
-		wfRunHooks( 'SitemapOutputHtml', array( &$html ) );
+		Hooks::run( 'SitemapOutputHtml', array( &$html ) );
 
 		$out->addHTML( $html );
 	}

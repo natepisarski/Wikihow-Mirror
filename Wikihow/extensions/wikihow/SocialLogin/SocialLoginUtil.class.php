@@ -75,13 +75,13 @@ class SocialLoginUtil {
 
 		// Run hooks
 		if ($event == 'signup') {
-			wfRunHooks('AddNewAccount', [$wgUser, false]);
+			Hooks::run('AddNewAccount', [$wgUser, false]);
 			if ($type == 'facebook') {
-				wfRunHooks( 'FacebookSignupComplete', [$wgUser]);
+				Hooks::run( 'FacebookSignupComplete', [$wgUser]);
 			} elseif ($type == 'google') {
-				wfRunHooks('GoogleSignupComplete', [$wgUser]);
+				Hooks::run('GoogleSignupComplete', [$wgUser]);
 			} elseif ($type == 'civic') {
-				wfRunHooks('CivicSignupComplete', [$wgUser]);
+				Hooks::run('CivicSignupComplete', [$wgUser]);
 			}
 		}
 
@@ -99,7 +99,7 @@ class SocialLoginUtil {
 		if ($isSignup) { # As seen in SpecialUserlogin.php#successfulCreation()
 			$injected_html = '';
 			$welcome_creation_msg = 'welcomecreation-msg';
-			wfRunHooks('BeforeWelcomeCreation', [&$welcome_creation_msg, &$injected_html]);
+			Hooks::run('BeforeWelcomeCreation', [&$welcome_creation_msg, &$injected_html]);
 		}
 
 		$title = $pageName ? Title::newFromText(urldecode($pageName)) : null;

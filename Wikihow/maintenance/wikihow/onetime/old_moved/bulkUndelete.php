@@ -12,7 +12,7 @@ $startDate = '201204140000';
 $wgUser = User::newFromName($user);
 $wgUser->load();
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $sql = "select log_title from logging where log_timestamp > '$startDate' and log_user = {$wgUser->getId()} and log_type = 'delete' and log_namespace = $ns order by log_timestamp asc limit 1";
 $res = $dbr->query($sql);
 

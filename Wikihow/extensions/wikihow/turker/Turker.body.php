@@ -27,7 +27,7 @@ class Turker extends UnlistedSpecialPage {
 		$workerId = $postedValues['workerid'];
 
 		$fileName ='';
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = null;
 		if (isset($postedValues['allWorkers'])) {
 			// get all worker data
@@ -58,7 +58,7 @@ class Turker extends UnlistedSpecialPage {
 
 	function SaveData($excludeTest,$includeDeleted,$onlyTest,$conds,$fileName) {
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = null;
 
 		if ($excludeTest) {
@@ -282,7 +282,7 @@ class Turker extends UnlistedSpecialPage {
 	}
 
 	private function getJobStatus() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 		$html = '';
 		$conds = array();

@@ -81,7 +81,7 @@ class FindMissingInternalLinks extends WHMaintenance {
 			   AND ii_policy IN (1, 4)
 		  ";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$intLinks = $dbr->query($sql);
 		$intIDs = []; // indexable INTL articles
 		$pages = []; // [ EN_ID => [ INT_ID, INT_TITLE, ... ] ]

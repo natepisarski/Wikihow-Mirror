@@ -281,7 +281,7 @@ class AlternateDomain {
 		$pageId = $wgTitle->getArticleID();
 		$pages = self::getAlternateDomainPagesForCurrentDomain();
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = array( WH_DATABASE_NAME_EN.'.titus_copy' );
 		$vars = array( 'ti_page_id' );
 		$conds = array(
@@ -1621,12 +1621,12 @@ class AlternateDomain {
 
 			// allow visitors to mobile or desktop vesion of the alternate domain page
 			if ( $httpHost == $desktopDomain || $httpHost == $mobileDomain ) {
-				$wgServer = '//' . $httpHost;
+				$wgServer = 'https://' . $httpHost;
 			}
 
 			// if the visitor hits the alternate domain without a prefix (eg http://howyougetfit.com) then set the server to the desktop domain
 			if ( $httpHost == $domain ) {
-				$wgServer = '//' . $desktopDomain;
+				$wgServer = 'https://' . $desktopDomain;
 			}
 
 			// it would normally be done in onSetupAfterCacheSetMobile in PageHooks

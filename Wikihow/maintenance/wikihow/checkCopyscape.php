@@ -21,7 +21,7 @@ $threshold = 0.25;
 
 $wgUser = User::newFromName("Copyviocheckbot");
 
-$dbr = wfGetDB(DB_MASTER);
+$dbr = wfGetDB(DB_REPLICA);
 
 $tags = array("Category", "Image");
 

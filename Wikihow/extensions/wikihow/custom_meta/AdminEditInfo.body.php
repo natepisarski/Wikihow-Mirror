@@ -144,7 +144,7 @@ class AdminEditInfo extends UnlistedSpecialPage {
 	 */
 	private static function listPageTitlesCSV() {
 		header("Content-Type: text/csv");
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$titles = CustomTitle::dbListCustomTitles($dbr);
 		print "page,title\n";
 		foreach ($titles as $custom) {
@@ -171,7 +171,7 @@ class AdminEditInfo extends UnlistedSpecialPage {
 
 		if ($req->wasPosted()) {
 			$out->setArticleBodyOnly(true);
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$action = $req->getVal('action', '');
 

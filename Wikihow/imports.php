@@ -96,7 +96,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/FlaggedAnswers/FlaggedAnswers.php");
 	require_once("$IP/extensions/wikihow/WinterSurvivalGuide/WinterSurvivalGuide.php");
 	require_once("$IP/extensions/wikihow/Hypothesis/Hypothesis.php");
-	require_once("$IP/extensions/wikihow/Game/Game.php");
+	require_once("$IP/extensions/wikihow/Honeypot/Honeypot.php");
 	require_once("$IP/extensions/wikihow/VideoBrowser/VideoBrowser.php");
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	require_once("$IP/extensions/wikihow/BibleCitation/BibleCitation.php");
@@ -165,7 +165,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/Vanilla/Vanilla.php");
 }
 require_once("$IP/extensions/wikihow/VanillaProxyConnect/ProxyConnect.php");
-require_once("$IP/extensions/wikihow/ImportXML.php");
 require_once("$IP/extensions/wikihow/unpatrol/Unpatrol.php");
 require_once("$IP/extensions/wikihow/rcpatrol/RCPatrol.php");
 require_once("$IP/extensions/wikihow/fblogin/FBLink.php");

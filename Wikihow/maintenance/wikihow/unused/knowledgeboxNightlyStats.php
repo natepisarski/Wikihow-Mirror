@@ -31,7 +31,7 @@ class KnowledgeBoxNightlyStats extends Maintenance {
 		AS ts_upper)
 SQL;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$totalActiveTopics = $dbr->selectField(
 			array(

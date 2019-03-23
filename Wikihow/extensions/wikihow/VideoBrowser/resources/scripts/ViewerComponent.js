@@ -176,7 +176,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 						'@type': 'VideoObject',
 						'name': mw.msg( 'videobrowser-meta-title', video.title ),
 						'description': state.summaryText || undefined,
-						'thumbnailUrl': [ video['poster@1:1'], video['poster@4:3'], video.poster ],
+						'thumbnailUrl': [ video.poster, video['poster@4:3'], video['poster@1:1'] ],
 						'uploadDate': video.updated,
 						//'duration': 'PT1M33S', // TODO: Actual duration
 						'contentUrl': String( window.location ),
@@ -390,8 +390,9 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 	},
 	logAction: function ( action ) {
 		var xmlHttp = new XMLHttpRequest();
-		var time = Math.round( new Date().getTime() / 60000 ) * 60;
-		var url = '/x/event?action=' + action + '&t=' + time;
+		var url = '/x/event' +
+			'?action=' + encodeURIComponent( action ) +
+			'&page=' + encodeURIComponent( this.video.id );
 		xmlHttp.open( 'GET', url, true );
 		xmlHttp.send( null );
 	},
@@ -417,7 +418,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 	},
 	trackView: function () {
 		WH.VideoBrowser.sessionStreak++;
-		// this.logAction( 'svideoview' );
+		this.logAction( 'svideoview' );
 		WH.maEvent( 'videoBrowser_view', {
 			origin: location.hostname,
 			videoId: this.video.id,
@@ -430,7 +431,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		} );
 	},
 	trackPlay: function () {
-		// this.logAction( 'svideoplay' );
+		this.logAction( 'svideoplay' );
 	},
 	trackMute: function () {
 		WH.maEvent( 'videoBrowser_mute', {

@@ -182,7 +182,7 @@ class SampleProcess {
 	}
 
 	private static function qbertLog($sample, $format, $error = '') {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$res = $dbr->selectField(self::SAMPLE_STATUS_DB, 'sample', array('sample' => $sample),__METHOD__);

@@ -35,7 +35,7 @@
 require_once __DIR__ . '/../../commandLine.inc';
 require_once __DIR__ . '/../../../extensions/wikihow/unitguardian/UnitGuardian.php';
 $wgUser = User::newFromName('MiscBot');
-$db = wfGetDB(DB_SLAVE);
+$db = wfGetDB(DB_REPLICA);
 
 echo microtime(true) . "\n";
 

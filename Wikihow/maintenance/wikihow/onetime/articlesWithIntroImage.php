@@ -1,6 +1,6 @@
 <?
 	require_once('commandLine.inc');
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$res = $dbr->select('page', array('page_title', 'page_namespace'), array('page_namespace'=>NS_MAIN, 'page_is_redirect'=>0),
 		"who_has_intro_image"
 		//, array("LIMIT" => 1000)

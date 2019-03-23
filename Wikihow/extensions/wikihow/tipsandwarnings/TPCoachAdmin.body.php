@@ -97,7 +97,7 @@ class TPCoachAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getTests() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('tipspatrol_test', '*', '', __METHOD__, ["ORDER BY" => "tpt_id DESC"]);
 
 		$tests = array();
@@ -124,7 +124,7 @@ class TPCoachAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getScores() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('tipspatrol_completed_test',
 			array('tpc_user_id as user_id', 'tpc_test_id', 'count(tpc_user_id) as total'),
 			array("tpc_timestamp >= '{$this->ts}'"),

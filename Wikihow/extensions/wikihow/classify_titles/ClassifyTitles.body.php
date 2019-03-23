@@ -39,7 +39,7 @@ class ClassifyTitles extends UnlistedSpecialPage {
 		}
 		elseif ( isset( $postedValues[ 'lastbatch' ] ) ) {
 			// find the last batch id
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$row = $dbr->selectRow( 'classify_titles.ctjobs', [ 'ct_id' ], [ 'ct_status=2' ], __METHOD__, [ 'ORDER BY' => 'ct_id DESC' ] );
 			if ( $row ) {
 				$batchId = $row->ct_id;
@@ -54,7 +54,7 @@ class ClassifyTitles extends UnlistedSpecialPage {
 	// Used to fectch results from the db
 	private function getResults( $batchId, $allData ) {
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		if ( !$allData ) {
 			$conds= [ "ct_batchid" => $batchId ];
 		}else{
@@ -92,7 +92,7 @@ class ClassifyTitles extends UnlistedSpecialPage {
 
 	// Displays existing job status at page load
 	private function getJobStatus() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$dbw = wfGetDB( DB_MASTER );
 		$html = '';
 		$conds = [ "ct_newjobs" => 1 ] ;

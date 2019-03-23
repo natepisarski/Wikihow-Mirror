@@ -67,6 +67,10 @@ WH.mobileads = (function () {
 			return 3;
 		}
 
+		if (adPosition == 'middlerelated') {
+			return 20;
+		}
+
 		return 1;
 	}
 
@@ -140,31 +144,27 @@ WH.mobileads = (function () {
 
 		var width = document.documentElement.clientWidth;
 
-		if (type == 'intro') {
-			width = getIntroAdWidth(type);
-		}
-
-		if (type == 'method') {
-			width = width - 20;
-		}
-
-		if (type == 'scrollto') {
-			width = width - 30;
-		}
-
-		if (type == 'related') {
-			width = width - 14;
-		}
-
-		if (type == 'footer') {
-			width = width;
+		switch(type) {
+			case "intro":
+				width = getIntroAdWidth(type);
+				break;
+			case "method":
+				width = width - 20;
+				break;
+			case "related":
+				width = width - 14;
+				break;
+			case "footer":
+				break;
+			default:
+				width = width - 20;
 		}
 
 		return width;
 	}
 
 	function getAdHeight(type) {
-		var height = 0;
+		var height = 250;
 		if (type == 'intro') {
 			height = 120;
 		} else if (type == 'method' || type == 'scrollto') {
@@ -177,6 +177,8 @@ WH.mobileads = (function () {
 			height = 280;
 		} else if (type == 'footer') {
 			height = 100;
+		} else if (type == 'middlerelated') {
+			height = 200;
 		}
 		return height;
 	}
@@ -184,7 +186,7 @@ WH.mobileads = (function () {
 	function getAdCss(type) {
 		var width = getAdWidth(type);
 		var height = getAdHeight(type);
-		var css = 'display:inline-block;width:'+width+'px;height:'+height+'px;';
+		var css = 'display:inline-block;width:'+width+'px;max-width:'+width+'px;height:'+height+'px;';
 		return css;
 	}
 
@@ -195,6 +197,10 @@ WH.mobileads = (function () {
         var slot = getAdSlot(type);
 		i.setAttribute('data-ad-slot', slot);
 		i.setAttribute('class', 'adsbygoogle');
+		if (type == 'middlerelated') {
+			i.setAttribute('data-ad-format', 'fluid');
+			i.setAttribute('data-ad-layout-key', '-fb+5w+4e-db+86');
+		}
 		var css = getAdCss(type);
 		i.style.cssText = css;
 		targetElement.appendChild(i);

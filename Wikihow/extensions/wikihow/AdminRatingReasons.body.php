@@ -143,7 +143,7 @@ EOHTML;
 	}
 
 	private function getTotalReasonsHTML($item) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$type = $this->mType;
 		$where = array( 'ratr_type' => $type );
 
@@ -177,7 +177,7 @@ EOHTML;
 
 		$lines = array();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$vars = array('ratr_item as title',
 			'ratr_rating as rating',
@@ -292,7 +292,7 @@ EOHTML;
 		$rd = $this->ratingsCache[$key];
 
 		if (!$rd) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$rd = PageStats::getRatingData($key, $this->mRatingTableName, $this->mRatingTablePrefix, $dbr);
 			$this->ratingsCache[$key] = $rd;
 		}
@@ -306,7 +306,7 @@ EOHTML;
 		$rd = $this->ratingsCache[$key];
 
 		if (!$rd) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$rd = PageHelpfulness::getRatingHTML($key, $this->getUser());
 			$this->ratingsCache[$key] = $rd;
 		}

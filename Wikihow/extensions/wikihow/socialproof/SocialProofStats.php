@@ -47,7 +47,7 @@ class SocialProofStats extends ContextSource {
 		}
 
 		// get the ratings from the db
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = "page_rating";
 		$var = array( "pr_rating", "pr_count" );
 		$cond = array( "pr_page_id" => $pageId );
@@ -195,10 +195,6 @@ class SocialProofStats extends ContextSource {
 			case self::VERIFIER_TYPE_YOUTUBER:
 				list($nameLink, $subNameLink, $hoverBlurb) = $this->formatExpertDetails($data, $title);
 
-				if ($data->whUserName && User::newFromName($data->whUserName)->getID() > 0) {
-					$popup_img = wfGetPad( Avatar::getAvatarURL( $data->whUserName ) );
-				}
-
 				$desc = wfMessage('sp_expert_desc', $data->name)->text().' '.$data->hoverBlurb;
 
 				$learn_more_link = ' '.Html::rawElement(
@@ -216,7 +212,6 @@ class SocialProofStats extends ContextSource {
 					'desc' => $desc,
 					'avatar_image_html' => $this->getAvatarImageHtml( $this->verifierInfo ),
 					'initials' => $this->verifierInfo->initials,
-					'popup_img' => $popup_img
 				];
 
 			case self::VERIFIER_TYPE_CHEF:
@@ -346,15 +341,6 @@ class SocialProofStats extends ContextSource {
 				$data->name );
 		}
 
-		$blurbLink = $data->blurbLink;
-		if ( $blurbLink ) {
-			$blurbLink = Html::rawElement( "a",
-				array( "href"=>$blurbLink, "class"=>"sp_blurblink" ),
-				$data->blurb );
-		} else {
-			$blurbLink = $data->blurb;
-		}
-
 		//hover text
 		$revLink = "";
 		if ( $data->revisionId ) {
@@ -388,7 +374,7 @@ class SocialProofStats extends ContextSource {
 			$hoverBlurb .=". ";
 		}
 
-		return [$nameLink, $blurbLink, $hoverBlurb];
+		return [$nameLink, $data->blurb, $hoverBlurb];
 	}
 
 	/**

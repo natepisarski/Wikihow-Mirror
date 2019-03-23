@@ -189,7 +189,7 @@ class Flavius {
 	 * Get a list of users for which to calculate the stats
 	 */
 	public function getIdsToCalc($fromDate) {
-		$dbr = wfGetDb(DB_SLAVE);
+		$dbr = wfGetDb(DB_REPLICA);
 
 		// Facebook registration doesn't set user_touched
 		$sql = "select user_id from wiki_shared.user where user_touched >= " . $dbr->addQuotes($fromDate) . " or user_registration >= " . $dbr->addQuotes($fromDate);
@@ -207,7 +207,7 @@ class Flavius {
 	 * Get a list of all the user ids
 	 */
 	public function getAllIdsToCalc() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select user_id from wiki_shared.user";
 		$ids = array();
 		$res = $dbr->query($sql, __METHOD__);
@@ -251,7 +251,7 @@ class Flavius {
 			}
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($statC as $stat) {
 			if (is_array($this->flaviusProfile)) {
 				$stat->setProfiler($this);
@@ -326,7 +326,7 @@ class Flavius {
 		}
 
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($statsC as $stat) {
 			$ret = $stat->batchCalcTotals($dbr, $users, $endDate);
 			print_r('Total for ');
@@ -398,7 +398,7 @@ class Flavius {
 		$sqlUpdate = ' ON DUPLICATE KEY UPDATE fe_user=values(fe_user), fe_date_calculated=values(fe_date_calculated) ';
 
 		$statVals = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($statsE as $stat) {
 			$ret = $stat->batchCalc($dbr, $users);
 			foreach ($ret as $userId => $uStats) {
@@ -458,7 +458,7 @@ class Flavius {
 		}
 		$sql = 'insert ignore into flavius_group(fg_user, fg_group_type, fg_group_name) values';
 		$first = true;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($statsG as $stat) {
 			$ret = $stat->calcGroupsForUsers($dbr,$users);
 			foreach ($ret as $rUser => $rGroup) {

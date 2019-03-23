@@ -107,7 +107,6 @@ class EditFinder extends UnlistedSpecialPage {
 	}
 
 	private function getNextByInterest() {
-		$profiler = new ProfileSection(__METHOD__);
 
 		$dbw = wfGetDB(DB_MASTER);
 
@@ -264,7 +263,6 @@ class EditFinder extends UnlistedSpecialPage {
 	}
 
 	private function confirmationModal($type, $id) {
-		$profiler = new ProfileSection(__METHOD__);
 
 		$t = Title::newFromID($id);
 		$titletag = "[[".$t->getText()."|".wfMessage('howto', $t->getText())."]]";
@@ -282,7 +280,6 @@ class EditFinder extends UnlistedSpecialPage {
 	}
 
 	private function cancelConfirmationModal($id) {
-		$profiler = new ProfileSection(__METHOD__);
 
 		$t = Title::newFromID($id);
 		$titletag = "[[".$t->getText()."|".wfMessage('howto', $t->getText())."]]";
@@ -304,7 +301,7 @@ class EditFinder extends UnlistedSpecialPage {
 	 * returns boolean
 	 **/
 	private function articleInUse($aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$r = Revision::loadFromPageId( $dbr, $aid );
 
 		if (strpos($r->getText(),'{{inuse') === false) {
@@ -320,7 +317,7 @@ class EditFinder extends UnlistedSpecialPage {
 		$interests = array_merge($interests, CategoryInterests::getSubCategoryInterests($interests));
 		$interests = array_values(array_unique($interests));
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$fn = function(&$value) {
 			$value = str_replace(' ','-',$value);
@@ -347,7 +344,7 @@ class EditFinder extends UnlistedSpecialPage {
 		$catsql = '';
 		$bitcat = 0;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$row = $dbr->selectRow(
 			'suggest_cats',
@@ -430,7 +427,6 @@ class EditFinder extends UnlistedSpecialPage {
 	public function execute($par) {
 		global $wgParser, $efType;
 
-		$profiler = new ProfileSection(__METHOD__);
 
 		$req = $this->getRequest();
 		$out = $this->getOutput();
@@ -513,7 +509,7 @@ class EditFinder extends UnlistedSpecialPage {
 
 			//save the edit
 			$a->doEdit($text,$sum,EDIT_UPDATE);
-			wfRunHooks("EditFinderArticleSaveComplete", array($a, $text, $sum, $user, $efType));
+			Hooks::run("EditFinderArticleSaveComplete", array($a, $text, $sum, $user, $efType));
 			return;
 
 		} elseif ($req->getVal( 'confirmation' )) {

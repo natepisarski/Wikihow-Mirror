@@ -214,7 +214,7 @@ class FeaturedArticles {
 
 		// Select the $limit newest articles older than 2 weeks, and their EN pageviews
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$twoWeeksAgo = wfTimestamp(TS_MW, time() - 1209600);
 
 		if (in_array($wgLanguageCode, ['es', 'pt', 'de', 'fr', 'it'])) {
@@ -389,7 +389,7 @@ class FeaturedArticles {
 	 * The article IDs are stored in the 'featured_articles_exclude' AdminTag in the EN DB.
 	 */
 	private static function getArticlesToExclude(): array {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$tables = [ 'wikidb_112.articletag', 'wikidb_112.articletaglinks' ];
 		$fields = [ 'atl_page_id' ];
 		$where = [ 'at_id = atl_tag_id', 'at_tag' => 'featured_articles_exclude' ];

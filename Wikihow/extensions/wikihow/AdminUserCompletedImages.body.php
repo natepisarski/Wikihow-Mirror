@@ -102,7 +102,7 @@ HHTML;
 			$whereClause['uci_copyright_checked'] = '1';
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'user_completed_images',
 			'*',

@@ -30,10 +30,11 @@ class WikihowToc {
 
 	public static function isNewArticle() {
 		$main = RequestContext::getMain();
+		$user = $main->getUser();
 		$title = $main->getTitle();
 		$languageCode = $main->getLanguage()->getCode();
 
-		if (!$title->exists() || $title->isRedirect() || !$title->inNamespace(NS_MAIN)) {
+		if (!$title->exists() || $title->isRedirect() || !$title->inNamespace(NS_MAIN) || (!$user->isLoggedIn() && !RobotPolicy::isIndexable($title))) {
 			return false;
 		}
 

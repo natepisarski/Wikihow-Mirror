@@ -9,7 +9,7 @@ require_once __DIR__ . '/commandLine.inc';
 class ListRolloutOrderMaintenance {
     static function listArticles() {
         $PAGE_SIZE = 2000;
-        $dbr = wfGetDB(DB_SLAVE);
+        $dbr = wfGetDB(DB_REPLICA);
 
 		$titles = array();
         for ($page = 0; ; $page++) {

@@ -12,7 +12,7 @@ class qaExpertRestore extends Maintenance {
 	}
 
 	public function execute() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		//grab all the rows were the backup doesn't have a 0 but the current db does have 0 for the verifier id
 		$res = $dbr->query("select * from bkup.qa_articles_questions as o where o.qa_id in (select qa_id from wikidb_112.qa_articles_questions as n where n.qa_verifier_id = 0) and  o.qa_verifier_id != 0 limit 500;");

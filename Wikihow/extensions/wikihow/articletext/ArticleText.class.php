@@ -215,7 +215,7 @@ class ArticleText {
 	protected function getTopLevelCategoriesFromDB() {
 		global $wgCategoryNames;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$topCats = [];
 		$topCatDefault = "";
 		$catMask = $dbr->selectField(
@@ -249,7 +249,7 @@ class ArticleText {
 			'image_url' => ""
 		];
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row =  $dbr->selectRow(
 			'alexa_life_hacks',
 			['al_hack_text', 'al_image_url'],

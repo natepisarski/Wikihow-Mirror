@@ -15,7 +15,7 @@ class AdminSamples extends UnlistedSpecialPage {
 	private static function parseURLlist($pageList,$bImport) {
 		$pageList = preg_split('@[\r\n]+@', $pageList);
 		$urls = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($pageList as $url) {
 			$url = trim($url);
 			if (!empty($url)) {
@@ -84,7 +84,7 @@ class AdminSamples extends UnlistedSpecialPage {
 	public function getDisplayNames() {
 		$html = '';
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('dv_display_names',array('dvdn_doc','dvdn_display_name'), "REPLACE(dvdn_doc,'-',' ') != dvdn_display_name", __METHOD__, array('ORDER BY' => 'dvdn_doc ASC'));
 
 		if ($res) {

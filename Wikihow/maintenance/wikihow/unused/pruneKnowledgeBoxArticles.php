@@ -21,7 +21,7 @@ class PruneKnowledgeBoxArticles extends Maintenance {
 			print "KnowledgeBox is currently in maintenance mode. pruneKnowledgeBoxArticles will not run\n";
 			return;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$threshold = $this->getOption('threshold');
 		$thresholdSafe = $dbr->addQuotes($threshold);

@@ -51,7 +51,7 @@ class RemoveThumbnailsSince extends Maintenance {
 		// if there is a start, add articles to the array
 		$start = $this->getOption('start');
 		if ($start) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$options = array("page_id > $start", "page_namespace = 6");
 			$stop = $this->getOption('stop');
 			if ($stop) {

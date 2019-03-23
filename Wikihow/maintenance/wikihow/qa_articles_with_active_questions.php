@@ -22,7 +22,7 @@ class ArticlesWithApprovedQuestions extends Maintenance {
 	public function execute() {
 		error_reporting(E_ERROR);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			QADB::TABLE_SUBMITTED_QUESTIONS,
 			[

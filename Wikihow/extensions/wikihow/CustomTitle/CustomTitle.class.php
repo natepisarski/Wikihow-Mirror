@@ -63,7 +63,7 @@ class CustomTitle {
 		$cachekey = self::getCachekey($pageid);
 		$row = $cachekey ? $wgMemc->get($cachekey) : false;
 		if (!is_array($row)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$row = $dbr->selectRow(
 				self::TABLE,
 				array('ct_type', 'ct_custom'),
@@ -98,7 +98,7 @@ class CustomTitle {
 	}
 
 	private static function getWikitext(Title $title): array {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$wikitext = Wikitext::getWikitext($dbr, $title);
 		$stepsText = '';
 		if ($wikitext) {
@@ -290,7 +290,7 @@ class CustomTitle {
 		$page_id = !empty($title) && $title->exists() ? $title->getArticleId() : 0;
 		if (empty($page_id)) return false;
 
-		$first_edit_user = wfGetDB(DB_SLAVE)->selectField(
+		$first_edit_user = wfGetDB(DB_REPLICA)->selectField(
 			'firstedit',
 			'fe_user_text',
 			[

@@ -182,7 +182,7 @@ class EchoWikihowHooks {
 				'id' => 'wpGlobalEmailOptout'
 		);
 
-		wfRunHooks('EchoPreferencesStart', array($user, &$preferences));
+		Hooks::run('EchoPreferencesStart', array($user, &$preferences));
 	}
 
 	public static function onGetPreferences( $user, &$preferences ) {

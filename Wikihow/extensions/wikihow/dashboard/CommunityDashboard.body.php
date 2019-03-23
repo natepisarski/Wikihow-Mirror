@@ -243,7 +243,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 		//check to see if we need a NAB alert
 		$needBoosterAlert = false;
 		if ($booster){
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			if ( isset( $this->refreshData['widgets'] ) &&isset( $this->refreshData['widgets']['nab'] ) ) {
 				$nabCount = $this->refreshData['widgets']['nab']['ct'];
 				if ($nabCount > (int)(wfMessage('Comm-dashboard-NABmessage-threshold')->text())) {

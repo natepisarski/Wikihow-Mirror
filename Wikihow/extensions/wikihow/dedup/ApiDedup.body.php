@@ -37,7 +37,7 @@ class ApiDedup extends ApiBase {
 			}
 		}
 		DedupQuery::matchQueries($queries, $internal);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select query1, query2, ct, tq_title, tq_page_id from dedup.query_match left join dedup.title_query on tq_query=query2 where query1 in (" . implode($queryE,",") . ")";
 		if ($internal) {
 			$sql .= " and query2 in (" . implode($queryE,",") . ")";

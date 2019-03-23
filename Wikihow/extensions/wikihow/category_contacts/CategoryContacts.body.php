@@ -161,7 +161,7 @@ class CategoryContacts extends UnlistedSpecialPage {
 
 	//process the "Stop" tab on the sheet
 	private function processStopContacts() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = $this->getDocData(self::WH_MAILINGLIST_STOP);
 
 		$stopped = 0;
@@ -295,7 +295,7 @@ class CategoryContactMailer extends UnlistedSpecialPage {
 		if (!$cat || $cat == 'no_cat') return 0;
 		if ($validate) $this->updateSendFlags();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$filters = array('cc_subcat' => $cat, 'cc_sendflag' => 1);
 
 		if ($src) $filters['LOWER(cc_source)'] = strtolower($src);
@@ -312,7 +312,7 @@ class CategoryContactMailer extends UnlistedSpecialPage {
 
 	//max times we've sent someone an email
 	public function getMaxSent() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField('category_contacts', 'max(cc_num_contacted)', array('cc_sendflag' => 1), __METHOD__);
 		return $count;
 	}
@@ -348,7 +348,7 @@ class CategoryContactMailer extends UnlistedSpecialPage {
 			}
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('category_contacts',
 					array('cc_email'),
 					$filters,

@@ -61,7 +61,7 @@ class UserPagePolicy {
 			return true;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// Has the user started an indexable article?
 		$tables = ['firstedit', 'index_info'];

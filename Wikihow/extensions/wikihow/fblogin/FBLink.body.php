@@ -12,7 +12,6 @@ class FBLink extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		$section = new ProfileSection(__METHOD__);
 
 		$out = $this->getOutput();
 		$req = $this->getRequest();

@@ -16,7 +16,7 @@ class RevisionCount {
 		$revisionCount = (int)$wgMemc->get($cachekey);
 		if ($revisionCount) return $revisionCount;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$revisionCount = (int)$dbr->selectField("revision",array('count(*)'),array('rev_page'=>$aid),__METHOD__);
 		$wgMemc->set($cachekey, $revisionCount);
 		return $revisionCount;

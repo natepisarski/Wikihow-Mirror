@@ -245,7 +245,7 @@ class TranslateSummariesAdmin extends UnlistedSpecialPage {
 			if ($date_from != '') $where[] = 'ts_translated_timestamp >= '. wfTimestamp(TS_MW, strtotime($date_from));
 			if ($date_to != '') $where[] = 'ts_translated_timestamp <= '. wfTimestamp(TS_MW, strtotime($date_to.' 11:59pm'));
 		}
-		$res = wfGetDB(DB_SLAVE)->select(self::TABLE, '*', $where, __METHOD__, $options);
+		$res = wfGetDB(DB_REPLICA)->select(self::TABLE, '*', $where, __METHOD__, $options);
 
 		foreach ($res as $row) {
 			$report[] = implode("\t", $this->translateSummariesReportRow($row));
@@ -302,7 +302,7 @@ class TranslateSummariesAdmin extends UnlistedSpecialPage {
 	private function getIntlTitleFromTitus(string $language_code, int $article_id): string {
 		if (empty($language_code) || empty($article_id)) return [];
 
-		return wfGetDB(DB_SLAVE)->selectField(
+		return wfGetDB(DB_REPLICA)->selectField(
 			'titus_copy',
 			[	'ti_page_title' ],
 			[

@@ -115,7 +115,7 @@ class TranslationLink {
 	 * Updates database
 	 */
 	private function updateDB() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$columns = [ 'tl_from_lang', 'tl_from_aid', 'tl_to_lang', 'tl_to_aid' ];
 		$table = WH_DATABASE_NAME . '.translation_link';
 
@@ -232,7 +232,7 @@ class TranslationLink {
 	 */
 	// Note: used in TranslationLinkOverride
 	public static function batchUpdateTLStatus(&$links) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		// TODO: convert this to Mediawiki Database interface
 		$prefixSql =
 				"SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid " .
@@ -325,7 +325,7 @@ class TranslationLink {
 		foreach ($links as &$link) {
 			$ll[$link->fromLang][$link->toLang][] = $link;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($ll as $lang => $llfrom) {
 			foreach ($llfrom as $lang2 => $llinks) {
 				$langDB = Misc::getLangDB($lang);
@@ -610,7 +610,7 @@ class TranslationLink {
 		$fromPageTable = Misc::getLangDB($fromLang) . ".page";
 		$toPageTable = Misc::getLangDB($toLang) . ".page";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "";
 		if ( $fromLang == "en"  || $toLang == "en" ) {
 			$sql = "SELECT " .
@@ -672,7 +672,7 @@ class TranslationLink {
 	 * @param timeOrder Order by time
      */
 	public static function getLinksTo($fromLang, $fromPageId, $getTitles = true, $indirectLinks = false, $timeOrder = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$enTrLinkTable = WH_DATABASE_NAME_EN . '.translation_link';
 		$fromPageId = (int) $fromPageId;
 		$safeFromLang = $dbr->addQuotes($fromLang);
@@ -734,7 +734,7 @@ class TranslationLink {
 			if ( !$dbName ) {
 				continue;
 			}
-			$pageId = wfGetDB(DB_SLAVE)->selectField(
+			$pageId = wfGetDB(DB_REPLICA)->selectField(
 				"{$dbName}.index_info",
 				'ii_page',
 				[ 'ii_page' => ($flip ? $tl->fromAID : $tl->toAID), 'ii_policy' => $indexablePolicies ],
@@ -827,26 +827,16 @@ class TranslationLink {
 	public static function beforePageDisplay(OutputPage &$out, Skin &$skin) {
 		$langCode = RequestContext::getMain()->getLanguage()->getCode();
 
-		$section = new ProfileSection(__METHOD__ . '-rollout');
-		unset($section);
-
-		$section = new ProfileSection(__METHOD__ . '-getTitle');
 		$t = $out->getTitle();
 		$aid = $t->getArticleId();
-		unset($section);
 
-		$section = new ProfileSection(__METHOD__ . '-getLinks');
 		$tls = self::getLinksTo($langCode, $aid, false, true, true);
-		unset($section);
 
-		$section = new ProfileSection(__METHOD__ . '-populateURLs');
 		self::batchPopulateURLs($tls, false, true);
-		unset($section);
 
-		$section = new ProfileSection(__METHOD__ . '-setArray');
 		$lls = array();
 		foreach ($tls as $tl) {
-			wfRunHooks('TranslationLinkAddLanguageLink', [$tl]);
+			Hooks::run('TranslationLinkAddLanguageLink', [$tl]);
 
 			if (!$tl->isIndexable) {
 				continue;
@@ -858,13 +848,10 @@ class TranslationLink {
 				$lls[] = $tl->fromURL;
 			}
 		}
-		unset($section);
 
-		$section = new ProfileSection(__METHOD__ . '-setLL');
 		if ($lls) {
 			$out->setLanguageLinks($lls);
 		}
-		unset($section);
 
 		return true;
 	}

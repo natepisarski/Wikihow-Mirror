@@ -137,7 +137,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 	}
 
 	private function isExpert($adminId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->selectField(VerifyData::VERIFIER_TABLE, "vi_name", array("vi_id" => $adminId), __METHOD__);
 		if ($res !== false) {
@@ -256,7 +256,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 			return $queue;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$expirytimestamp = wfTimestamp( TS_MW, time() - self::CHECKOUT_EXPIRY );
 		$finalQueue = array();
 		do{
@@ -333,7 +333,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 		$category = str_replace(" ", "-", $category);
 
 		$expirytimestamp = wfTimestamp( TS_MW, time() - self::CHECKOUT_EXPIRY );
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$skippedIds = $this->skipTool->getSkipped();
 		$where = [
@@ -451,7 +451,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 	public static function getAllCategories() {
 		$categories = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(AnswerQuestions::TABLE_QUEUE, array('aqq_category', 'aqq_queue_timestamp', 'count(*) as total'), array('aqq_queue_timestamp != ""', 'aqq_category_type' => AnswerQuestions::NUM_QUESTIONS_QUEUE), __METHOD__, array('GROUP BY' => 'aqq_category'));
 		foreach ($res as $row) {
@@ -535,7 +535,7 @@ class AnswerQuestions extends UnlistedSpecialPage {
 				}
 			}
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$category = $dbr->selectField(self::TABLE_CATEGORY, 'qac_category', $cond, __METHOD__);
 			if ( $category === false ) {
 				$this->userCategory = "";

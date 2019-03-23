@@ -36,7 +36,7 @@ class updateRecipeSchema extends Maintenance {
 
 	private function searchCategoryLinks( &$pageIds, &$subCats ) {
 		$subCatsNew = array();
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = 'categorylinks';
         $vars = array( 'cl_from', 'cl_type' );
 		foreach ( $subCats as $subCat ) {

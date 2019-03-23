@@ -20,7 +20,7 @@ class ApiTitus extends ApiBase {
 				}
 				$pageId = $params['page_id'];
 				$lang = $params['language_code'];
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$t = new TitusDB();
 				$sql = "select * from titus_intl where ti_page_id=" . $dbr->addQuotes($pageId) . " AND ti_language_code=" . $dbr->addQuotes($lang);
 				$res = $t->performTitusQuery($sql, 'read', __METHOD__);
@@ -42,7 +42,7 @@ class ApiTitus extends ApiBase {
 				require_once("$IP/extensions/wikihow/retranslatefish/RetranslatefishDB.class.php");
 
 				$lang = $params['language_code'];
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 
 				$rtfdb = WAPDB::getInstance(WAPDB::DB_RETRANSLATEFISH);
 				$query = $rtfdb->getAutoImportQuery($lang);
@@ -64,7 +64,7 @@ class ApiTitus extends ApiBase {
 				require_once("$IP/extensions/wikihow/retranslatefish/RetranslatefishDB.class.php");
 
 				$lang = $params['language_code'];
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 
 				$rtfdb = WAPDB::getInstance(WAPDB::DB_RETRANSLATEFISH);
 				$query = $rtfdb->getManualUpdateQuery($lang);
@@ -87,7 +87,7 @@ class ApiTitus extends ApiBase {
 
 				$pageId = $params['page_id'];
 				$lang = $params['language_code'];
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 
 				$rtfdb = WAPDB::getInstance(WAPDB::DB_RETRANSLATEFISH);
 				$query = $rtfdb->getArticleUpdateQuery($pageId, $lang);

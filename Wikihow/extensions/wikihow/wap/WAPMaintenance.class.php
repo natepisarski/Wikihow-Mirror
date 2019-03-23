@@ -98,7 +98,7 @@ abstract class WAPMaintenance {
 
 	private function removeDeletedPages($startDate, $endDate) {
 		$type = DailyEdits::DELETE_TYPE;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT de_page_id FROM daily_edits WHERE (de_timestamp >= '$startDate' AND de_timestamp < '$endDate')
 			AND de_edit_type = $type";
 		$res = $dbr->query($sql, __METHOD__);
@@ -111,7 +111,7 @@ abstract class WAPMaintenance {
 
 	private function removeRedirects($startDate, $endDate) {
 		$deleteType = DailyEdits::DELETE_TYPE;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT de_page_id FROM daily_edits de LEFT JOIN page p ON de_page_id = page_id
 			WHERE (de_timestamp >= '$startDate' AND de_timestamp < '$endDate') AND de_edit_type != $deleteType AND page_is_redirect = 1";
 		$res = $dbr->query($sql, __METHOD__);
@@ -123,7 +123,7 @@ abstract class WAPMaintenance {
 	}
 
 	private function updateMovedArticles($startDate, $endDate) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'recentchanges',
 			array('rc_params'),
@@ -160,7 +160,7 @@ abstract class WAPMaintenance {
 		$articleTagTable = $this->wapConfig->getArticleTagTableName();
 		$sql = "select distinct ct_page_title, ct_user_text from $articleTable, $articleTagTable where
 			ca_tag_id IN ($tagIds) and ca_page_id = ct_page_id and ct_completed = 1 and (ct_completed_timestamp >= '$startDate' AND ct_completed_timestamp < '$endDate')";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		foreach ($res as $row) {
 			$urls[] = WAPLinker::makeWikiHowUrl($row->ct_page_title) . " | {$row->ct_user_text}";
@@ -176,7 +176,7 @@ abstract class WAPMaintenance {
 	}
 
 	private function removeBadTemplates($startDate, $endDate) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$deleteType = DailyEdits::DELETE_TYPE;
 		$badTemplates = $this->getBadTemplates();
 		if (!empty($badTemplates)) {
@@ -336,7 +336,7 @@ abstract class WAPMaintenance {
 
 
 	protected function genericCheckup($sql, $type) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$rows = $dbr->query($sql, __METHOD__);
 
 		$urls = array();

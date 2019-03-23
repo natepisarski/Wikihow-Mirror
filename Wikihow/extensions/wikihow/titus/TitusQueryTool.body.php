@@ -90,7 +90,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 
 
 	private function getHeaderRow($res, $delimiter = "\t") {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$n = $dbr->numFields($res);
 		$fields = array('titus_query_url', 'titus_status', 'redirect_target');
 		for ( $i = 0; $i < $n; $i++ ) {
@@ -101,7 +101,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 
 	private function getTitusFields() {
 		$data = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$titus = $this->titus;
 		$res = $titus->performTitusQuery("SELECT COLUMN_NAME, ORDINAL_POSITION, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" . $titus->getDBName() . "' AND TABLE_NAME = '" . $titus::TITUS_INTL_TABLE_NAME . "'", 'read', __METHOD__);
 		foreach ($res as $r) {
@@ -229,7 +229,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 	}
 
 	private function buildSQL($ids) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		// WARNING: sending SQL over the wire is not something Reuben loves. </3
 		// We need to be super careful that injections, csrfs, hijacking etc can't
 		// happen with this special page.
@@ -320,7 +320,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 	public static function getIdsFromUrls($lines) {
 		$ids = array();
 		$lines = explode("\n", trim($lines));
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($lines as $line) {
 			$ids[] = self::parseInputLine($dbr, $line);
 		}
@@ -574,7 +574,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 	}
 
 	private function getQueryInfoById($id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$row = $dbr->selectRow(
 			'titusdb2.titus_query_vault',
@@ -590,7 +590,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 	}
 
 	protected function validateExistsAndAllowed($id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$row = $dbr->selectRow(
 			'titusdb2.titus_query_vault',
@@ -682,7 +682,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 		$queries = array();
 		$username = $user->getName();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			'titusdb2.titus_query_vault',
@@ -711,7 +711,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 	private function getAllUserQueries() {
 		$userQueries = array();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			'titusdb2.titus_query_vault',
@@ -749,7 +749,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 	}
 
 	private function getQueryByName($userName, $queryName) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectField(
 			'titusdb2.titus_query_vault',

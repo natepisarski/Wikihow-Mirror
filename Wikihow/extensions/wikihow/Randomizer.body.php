@@ -263,7 +263,7 @@ CREATE TABLE page_randomizer (
 	 *   means the epoch.
 	 */
 	private static function processArticles($from) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$articles = self::loadArticles($dbr, $from);
 		foreach ($articles as &$article) {
@@ -375,12 +375,9 @@ CREATE TABLE page_randomizer (
 	 * @return Title the title object result
 	 */
 	public static function getRandomTitle() {
-		$fname = __METHOD__;
-		wfProfileIn($fname);
-
 		$NUM_TRIES = 5;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		for ($i = 0; $i < $NUM_TRIES; $i++) {
 			// $randstr = wfRandom(); // Alberto - 2018-06-27
 			$randstr = random_int(0, PHP_INT_MAX - 1) / PHP_INT_MAX;
@@ -390,15 +387,14 @@ CREATE TABLE page_randomizer (
 				ORDER BY pr_random";
 			$sql = $dbr->limitResult($sql, 1, 0);
 
-			$res = $dbr->query($sql, $fname);
+			$res = $dbr->query($sql, __METHOD__);
 			$row = $dbr->fetchObject($res);
 			$title = Title::newFromDBkey($row->pr_title);
 			if ($title && $title->exists()) break;
 		}
 
-		wfRunHooks( 'RandomizerGetRandomTitle', array( &$title ) );
+		Hooks::run( 'RandomizerGetRandomTitle', array( &$title ) );
 
-		wfProfileOut($fname);
 		return $title;
 	}
 
@@ -407,7 +403,6 @@ CREATE TABLE page_randomizer (
 	 * we've defined.
 	 */
 	public function execute($par) {
-		$section = new ProfileSection( __METHOD__ );
 
 		if ($this->getLanguage()->getCode() != 'en') {
 			$rp = new RandomPage();

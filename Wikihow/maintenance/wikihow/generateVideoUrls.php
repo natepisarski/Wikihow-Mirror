@@ -4,7 +4,7 @@ require_once __DIR__ . '/../commandLine.inc';
 global $IP;
 require_once("$IP/extensions/wikihow/DatabaseHelper.class.php");
 
-$dbr = wfGetDB( DB_SLAVE );
+$dbr = wfGetDB( DB_REPLICA );
 
 // Get a list of alt-domain page IDs
 $domainIds = [];

@@ -31,17 +31,17 @@ class VideoJugSourceRemoval extends Maintenance {
             $limit = $this->getOption('limit');
         }
 
-        // track number of articles we change so we don't go over the limit`
+        // track number of titles we change so we don't go over the limit`
 
         $this->output("Fetching articles...\n");
-        $articles = $this->fetchArticles();
+        $titles = $this->fetchArticles();
 
-        foreach ($articles as $article) {
-            $replacements = $this->updateSources($article);
+        foreach ($titles as $title) {
+            $replacements = $this->updateSources($title);
 
             if ($replacements > 0) {
                 $done++;
-                $this->output("*** Published changes to " . $article->getText() . "\n");
+                $this->output("*** Published changes to " . $title->getText() . "\n");
             }
 
             if ($done >= $limit && $limit !== 0)
@@ -111,7 +111,7 @@ class VideoJugSourceRemoval extends Maintenance {
      * @return array of Title objects
      */
     private function fetchArticles() {
-        $dbr      = wfGetDB(DB_SLAVE);
+        $dbr      = wfGetDB(DB_REPLICA);
         $articles = array();
         $results  = $dbr->select(array(
             'page'

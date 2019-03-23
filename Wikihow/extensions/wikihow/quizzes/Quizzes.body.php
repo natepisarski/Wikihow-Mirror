@@ -96,7 +96,7 @@ class Quizzes extends UnlistedSpecialPage {
 		$quiz_blob = $wgMemc->get($memkey);
 
 		if (!is_string($quiz_blob)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$quiz_blob = $dbr->selectField('quizzes', 'quiz_data', array('quiz_name' => $quiz_name), __METHOD__);
 
 			//blob it into memcache
@@ -190,7 +190,7 @@ class Quizzes extends UnlistedSpecialPage {
 	private static function getFoundInArticles($quiz_name) {
 		$html = '';
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('quiz_links', 'ql_page', array('ql_name' => $quiz_name), __METHOD__);
 
 		foreach ($res as $row) {
@@ -252,7 +252,7 @@ class Quizzes extends UnlistedSpecialPage {
 	 * deal with the link table
 	 */
 	public static function updateLinkTable($article, $quiz_name, $bAdd = true) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		//assemble our db array for docs
@@ -327,7 +327,7 @@ class Quizzes extends UnlistedSpecialPage {
 	}
 
 	private static function getOtherQuizzes($quiz) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$others = array();
 
 		//grab 3 other quizzes that aren't this quiz

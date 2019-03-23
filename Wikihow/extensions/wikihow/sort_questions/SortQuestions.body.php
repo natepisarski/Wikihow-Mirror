@@ -233,7 +233,7 @@ class SortQuestions extends UnlistedSpecialPage {
 	}
 
 	private function getQuestionHTML() {
-		$dbr = wfGetDb(DB_SLAVE);
+		$dbr = wfGetDb(DB_REPLICA);
 
 		//grab the next article(s)
 		$aids = $this->getNextArticle($dbr);

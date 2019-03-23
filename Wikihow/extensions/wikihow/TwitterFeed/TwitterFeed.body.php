@@ -9,7 +9,7 @@ class MyTwitter extends SpecialPage {
 	private static function tweet($msg, $user) {
 		global $wgCanonicalServer;
 		// set up the API and post the message
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$account = $dbr->selectRow('twitterfeedusers', array('*'), array('tfu_user'=>$user->getID()));
 		$callback = $wgCanonicalServer . '/Special:TwitterAccounts/'. urlencode($user->getName());
 		$twitter = new Twitter(WH_TWITTER_FEED_CONSUMER_KEY, WH_TWITTER_FEED_CONSUMER_SECRET);
@@ -62,7 +62,7 @@ class MyTwitter extends SpecialPage {
 
 	// used in hooks
 	public static function userHasOption($user, $option) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$account = $dbr->selectRow('twitterfeedusers', array('*'), array('tfu_user'=>$user->getID()));
 		if ($account) {
 			$options = explode(",", $account->tfu_settings);
@@ -120,7 +120,7 @@ class MyTwitter extends SpecialPage {
 			$wgOut->addHTML("<b>You have successfully linked your Twitter account. </b><br/><br/>");
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$account = $dbr->selectRow('twitterfeedusers', array('*'), array('tfu_user'=>$wgUser->getID()));
 		if (!$account) {
 			$wgOut->addHTML("You have yet to link your twitter account, click <a href='/Special:MyTwitter?link=1'>here</a> to do so.");
@@ -290,7 +290,7 @@ EOSCRIPT
 		}
 
 		// show all of the active accounts
-		$dbr = wfGetDB(DB_MASTER);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(array('twitterfeedaccounts','twitterfeedcatgories'), array('*'), array('tfc_username=tws_username'));
 
 		$wgOut->addHTML("<table style='margin-left: auto; margin-right: auto;' width='70%'>

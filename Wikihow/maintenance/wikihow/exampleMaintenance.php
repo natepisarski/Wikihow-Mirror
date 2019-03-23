@@ -19,7 +19,7 @@ class ExampleMaintenance extends Maintenance {
 	 * 
 	 */
 	public function execute() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 	}
 }
 

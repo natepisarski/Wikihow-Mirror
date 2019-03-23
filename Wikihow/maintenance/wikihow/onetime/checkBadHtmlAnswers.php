@@ -2,7 +2,19 @@
 
 require_once __DIR__ . '/../../commandLine.inc';
 
-$db = wfGetDB(DB_SLAVE);
+// TODO: upgrade this method to not rely on calling MWTidy::checkErrors().
+// Not doing this now since it's a "onetime" script.
+//
+// There is a MW 1.31 release note that states:
+//   * As part of work to modernise user-generated content clean-up, a config option
+//    and some methods related to HTML validity were removed without deprecation.
+//    The public methods MWTidy::checkErrors() and the path through which it was
+//    called, TidyDriverBase::validate(), are removed, as are the testing methods
+//    MediaWikiTestCase::assertValidHtmlSnippet() and ::assertValidHtmlDocument().
+//    The $wgValidateAllHtml configuration option is removed and will be ignored.
+die("Needs upgrade to newer Mediawiki");
+
+$db = wfGetDB(DB_REPLICA);
 
 $res = $db->select(
 	[

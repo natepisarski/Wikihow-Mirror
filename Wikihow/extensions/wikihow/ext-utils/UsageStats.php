@@ -14,7 +14,7 @@ class UsageStats {
 		// !!!do not remove this check as most logging queries are very expensive
 		$this->enabled = $this->userIsAllowed();
 
-		$this->dbr = wfGetDB(DB_SLAVE);
+		$this->dbr = wfGetDB(DB_REPLICA);
 		$this->logKey = $logKey;
 
 		$this->viewVars = array(

@@ -7,7 +7,7 @@
 
 require_once("commandLine.inc");
 
-$dbr = wfGetDB(DB_SLAVE); 
+$dbr = wfGetDB(DB_REPLICA); 
 $sql = "SELECT page_title, page_id FROM page WHERE page_is_redirect=0 AND page_namespace=" . NS_MAIN;
 $res = $dbr->query($sql, __FILE__); 
 

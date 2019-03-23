@@ -141,7 +141,7 @@ class Spellchecker extends UnlistedSpecialPage {
 				$wgMemc->set($lastCheckedKey, $lastChecked);
 
 				MWDebug::log("Getting new spellchecker ids since last check was : " . date($lastChecked));
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$expired = wfTimestamp(TS_MW, time() - Spellchecker::SPELLCHECKER_EXPIRED);
 				$res = $dbr->select('spellchecker',
 					'sc_page',
@@ -219,7 +219,7 @@ class Spellchecker extends UnlistedSpecialPage {
 	private function getNextArticle($articleName = '') {
 		global $wgOut;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		if (class_exists('Plants') && Plants::usesPlants('Spellchecker') ) {
 			$plants = new SpellingPlants();
@@ -346,7 +346,7 @@ class Spellchecker extends UnlistedSpecialPage {
 					$summary = wfMessage($summaryMessage)->text();
 					$content = ContentHandler::makeContent( $text, $t );
 					$a->doEditContent($content, $summary, EDIT_UPDATE);
-					wfRunHooks("Spellchecked", array($wgUser, $t, '0'));
+					Hooks::run("Spellchecked", array($wgUser, $t, '0'));
 				}
 
 				// Remove article from spellchecker queue if the user
@@ -520,7 +520,7 @@ class Spellcheckerwhitelist extends UnlistedSpecialPage {
 		}
 
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$wgOut->addWikiText(wfMessage('spch-whitelist-inst'));
 
@@ -601,7 +601,7 @@ class SpellcheckerArticleWhitelist extends UnlistedSpecialPage {
 
 		$wgOut->addHTML($tmpl->execute('ArticleWhitelist.tmpl.php'));
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select("spellchecker", "sc_page", array("sc_exempt" => 1));
 
 		$wgOut->addHTML("<ol>");
@@ -848,7 +848,7 @@ class wikiHowDictionary {
 		$wordArray = $wgMemc->get($key);
 
 		if (!is_array($wordArray)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select(self::WHITELIST_TABLE,
 				'*', array('sw_votes > '. self::MIN_VOTES), __METHOD__);
 
@@ -873,7 +873,7 @@ class wikiHowDictionary {
 	 */
 /* seems to be unused, 4/2016:
 	public static function getCaps() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(self::CAPS_TABLE, "*", '', __METHOD__);
 

@@ -4,7 +4,7 @@
 require_once('commandLine.inc');
 
 global $wgLanguageCode;
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 if($wgLanguageCode != 'en') {
 	$res = $dbr->query("select * from wikidb_112.translation_link LEFT JOIN page on page_id=tl_to_aid where tl_to_lang='$wgLanguageCode' AND (page_title is NULL or page_is_redirect=1)", __METHOD__);
 

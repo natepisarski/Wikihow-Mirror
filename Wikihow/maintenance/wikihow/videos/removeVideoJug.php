@@ -34,7 +34,7 @@ class RemoveVideoJug extends Maintenance {
 	public function getVideos() {
 		$videos = array();
 		
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		
 		$res = $dbr->select( 'page', array( 
 			'page_id' 

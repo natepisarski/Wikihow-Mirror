@@ -24,7 +24,7 @@ class CountZeroStu extends Maintenance {
 
 	// the main function of this class
 	private function getArticles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// we have to select 1day views >= 0 because negative numbers can appear
 		// after a stu reset
@@ -104,7 +104,7 @@ class CountZeroStu extends Maintenance {
 
 	// removes rows for which the traffic drop was more than a day ago
 	private function filterPVRows( $rows ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = "titusdb2.titus_historical_intl";
 		$var = "ti_daily_views";
 		$cond = array( "ti_language_code" => "en" );

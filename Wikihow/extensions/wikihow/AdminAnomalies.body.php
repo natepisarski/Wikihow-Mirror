@@ -58,7 +58,7 @@ EOHTML;
 		$html = '';
 		$html .= '<style>tr:nth-child(even) {background: #EEE}</style>';
 		$html .= '<table>';
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$terms = trim(strip_tags($terms));
 		$terms = '%' . join('%', preg_split('@\s+@', $terms)) . '%';
 		$res = $dbr->select(

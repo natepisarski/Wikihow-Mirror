@@ -251,7 +251,7 @@ class RelatedWikihows {
 		// displaying the featured articles first
 		$data = [];
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		$pageId = $title->getArticleID();
 
@@ -397,7 +397,7 @@ class RelatedWikihows {
 
 
 	private function isIndexed( $pageId ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$count = $dbr->selectField(
 			'index_info',
 			'count(*)',
@@ -419,7 +419,7 @@ class RelatedWikihows {
 			$relatedArticles = self::getRelatedArticlesFromWikitext( $relatedSection );
 		}
 
-		wfRunHooks( 'RelatedWikihowsBeforeLoadRelatedArticles', array( $title, &$relatedArticles ) );
+		Hooks::run( 'RelatedWikihowsBeforeLoadRelatedArticles', array( $title, &$relatedArticles ) );
 
 		// minimum number to always show
 		$minNumber = self::MIN_TO_SHOW_DESKTOP;
@@ -443,7 +443,7 @@ class RelatedWikihows {
 			$relatedArticles = array_slice( $relatedArticles, 0, self::MIN_TO_SHOW_DESKTOP, true );
 		}
 
-		wfRunHooks( 'RelatedWikihowsAfterLoadRelatedArticles', array( $title, &$relatedArticles ) );
+		Hooks::run( 'RelatedWikihowsAfterLoadRelatedArticles', array( $title, &$relatedArticles ) );
 
 		// pull out the needed data from the related articles and create thumbnail urls
 		$this->mRelatedWikihows = self::makeRelatedArticlesData( $relatedArticles );
@@ -485,11 +485,11 @@ class RelatedWikihows {
 			$sectionTitle = wfMessage( 'relatedwikihows' )->text();
 		}
 
-		wfRunHooks( 'RelatedWikihowsBeforeGetSectionHtml', array( &$sectionTitle ) );
+		Hooks::run( 'RelatedWikihowsBeforeGetSectionHtml', array( &$sectionTitle ) );
 
 		$span = Html::element( "span", array( 'class'=>'mw-headline', 'id'=>'Related_wikiHows' ), $sectionTitle );
 		$editLink = $this->mEditLink;
-		if ( !$editLink && $this->mShowEdit && wfRunHooks( 'RelatedWikihowsShowEditLink', array() ) ) {
+		if ( !$editLink && $this->mShowEdit && Hooks::run( 'RelatedWikihowsShowEditLink', array() ) ) {
 			$editLink = $this->createEditLink();
 		}
 		$heading = Html::rawElement( "h2", array(), $editLink . $span );
@@ -879,7 +879,7 @@ class SensitiveRelatedWikihows {
 			return false;
 		}
 		$pageId = $title->getArticleID();
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = self::SENSITIVE_RELATED_REMOVE_PAGE_TABLE;
 		$var = 'count(*)';
 		$conds = array(
@@ -896,7 +896,7 @@ class SensitiveRelatedWikihows {
 
 	public static function isSensitiveRelatedPage( $pageId ) {
 		global $wgLanguageCode;
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = self::SENSITIVE_RELATED_PAGE_TABLE;
 		$var = 'count(*)';
 		$conds = array(

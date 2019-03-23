@@ -126,7 +126,7 @@ class ProposedRedirects extends SpecialPage {
 		if ($wgRequest->getInt("tool") == 1) {
 			$conditions['pr_user_text'] = DuplicateTitles::BOT_NAME;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('proposedredirects',
 			array('pr_from', 'pr_to', 'pr_user_text'),
 			$conditions,

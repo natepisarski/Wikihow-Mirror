@@ -341,7 +341,7 @@ class Leaderboard extends SpecialPage {
 
 		$wgHooks["pageTabs"][] = "wfLeaderboardTabs";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$me = Title::makeTitle(NS_SPECIAL, "Leaderboard");
 

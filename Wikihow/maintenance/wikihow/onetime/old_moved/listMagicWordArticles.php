@@ -4,7 +4,7 @@ require_once('commandLine.inc');
 
 $magicword = 'parts';
 
-$db = wfGetDB(DB_SLAVE);
+$db = wfGetDB(DB_REPLICA);
 $res = DatabaseHelper::batchSelect('page', array('page_title'), array('page_namespace' => NS_MAIN, 'page_is_redirect' => 0 ));
 
 foreach ($res as $row) {	

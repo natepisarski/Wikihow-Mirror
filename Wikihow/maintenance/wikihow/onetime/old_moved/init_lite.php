@@ -42,7 +42,7 @@ cp -r \"./images/{$thumb}/\" \"$destdir/{$thumb_dest}\"
 	$wgDBservers[0]['dbname'] = $sourceDB;
 	$wgLoadBalancer = new StubObject( 'wgLoadBalancer', 'LoadBalancer', array( $wgDBservers, false, $wgMasterWaitTimeout, true ) );
 
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$mw = array();
 	$images = array();
 

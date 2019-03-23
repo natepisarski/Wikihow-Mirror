@@ -9,7 +9,7 @@ class SqlSuper {
 	static $queries = [];
 
 	function __construct() {
-		$this->dbr = wfGetDB(DB_SLAVE);
+		$this->dbr = wfGetDB(DB_REPLICA);
 		$this->dbw = wfGetDB(DB_MASTER);
 	}
 

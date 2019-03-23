@@ -412,9 +412,9 @@ class EmailLink extends SpecialPage {
 	//because it's the only place we use it and fewer tweaks
 	//to core code is better
 	function addLinksEmailed($num) {
-		$dbw =& wfGetDB( DB_MASTER );
-		$sql = "UPDATE site_stats SET ss_links_emailed = ss_links_emailed + $num";
-		$dbw->query( $sql );
+		$dbw = wfGetDB( DB_MASTER );
+		$sql = "UPDATE site_stats SET ss_links_emailed = ss_links_emailed + " + (int)$num;
+		$dbw->query( $sql, __METHOD__ );
 	}
 }
 

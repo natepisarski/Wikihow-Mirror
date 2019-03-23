@@ -272,7 +272,10 @@ function wfLoadExtensionMessages($module) {
 }
 
 function decho( $name, $value = "", $html = true, $showPrefix = true ) {
-	global $wgCommandLineMode;
+	global $wgCommandLineMode, $wgIsDevServer;
+	if ( !$wgIsDevServer ) {
+		return;
+	}
 
 	$lineEnd = "\n";
 	if ( !$wgCommandLineMode && $html ) {

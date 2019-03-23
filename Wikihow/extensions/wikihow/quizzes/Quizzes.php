@@ -79,7 +79,7 @@ function wfConnectQuiz(&$article, &$user, $text, $summary, $minoredit, $watchthi
 		}
 
 		//make sure we didn't lose any
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('quiz_links', 'ql_name', array('ql_page' => $article->getID()), __METHOD__);
 
 		foreach ($res as $row) {

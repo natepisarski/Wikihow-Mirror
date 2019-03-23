@@ -119,7 +119,7 @@ class Misc {
 		$req = RequestContext::getMain()->getRequest();
 		$out = RequestContext::getMain()->getOutput();
 		$out->disable();
-		$req->response()->header('Content-type: ' . $mimeType);
+		$req->response()->header('Content-Type: ' . $mimeType);
 		$req->response()->header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"');
 		print $output;
 	}
@@ -231,7 +231,7 @@ class Misc {
 		foreach($langIds as $li) {
 			$ll[$li['lang']][] = $li['id'];
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$pages = array();
 		foreach ($ll as $l => $ids) {
@@ -264,7 +264,7 @@ class Misc {
 	public static function getPagesFromURLs($urls, $cols=array(), $includeRedirects=false) {
 		global $wgActiveLanguages;
 		$urlsByLang = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		foreach ($urls as $url) {
 			list($lang, $partial) = self::getLangFromFullURL($url);
@@ -754,7 +754,7 @@ class Misc {
 			$codes[QADomain::getGACode()] = 'qa';
 		}
 
-		wfRunHooks('MiscGetExtraGoogleAnalyticsCodes', array(&$codes));
+		Hooks::run('MiscGetExtraGoogleAnalyticsCodes', array(&$codes));
 
 		// Adjusted bounce rate (https://moz.com/blog/adjusted-bounce-rate)
 
@@ -779,12 +779,15 @@ class Misc {
 	 * @param array   $data      To be serialized and rendered in the response body
 	 * @param int     $code      HTTP status code
 	 * @param string  $callback  An optional function name for JSONP
+	 *
+	 * NOTE: This method does not observe caching parameters set in OutputPage. If
+	 *       you need these responses to be cached, consider using OutputPage directly.
 	 */
 	public static function jsonResponse(array $data, int $code=200, string $callback='') {
 		$contentType = empty($callback) ? 'application/json' : 'application/javascript';
 
 		$req = RequestContext::getMain()->getRequest();
-		$req->response()->header("Content-type: $contentType");
+		$req->response()->header("Content-Type: $contentType");
 
 		$out = RequestContext::getMain()->getOutput();
 		// NOTE: cannot use setArticleBodyOnly(true) here because it sets content-type
@@ -929,7 +932,7 @@ class Misc {
 		if ($title && $title->inNamespace(NS_MAIN)
 			&& $req && $req->getVal('redirect') !== 'no'
 		) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$text = Misc::redirectGetFolded( $title->getText() );
 			$redirPageID = $dbr->selectField('redirect_page', 'rp_page_id', array('rp_folded' => $text), __METHOD__);
 			$redirTitle = Title::newFromID($redirPageID);
@@ -1020,7 +1023,7 @@ class Misc {
 		$page_id = $title->getArticleId();
 		if (!$page_id) return 0;
 
-		$count = wfGetDB(DB_SLAVE)->selectField(
+		$count = wfGetDB(DB_REPLICA)->selectField(
 			WH_DATABASE_NAME_EN . '.titus_copy',
 			'ti_num_sources_cites',
 			[

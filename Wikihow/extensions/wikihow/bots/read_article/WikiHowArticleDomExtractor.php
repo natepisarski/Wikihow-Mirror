@@ -262,8 +262,6 @@ class WikiHowArticleDomExtractor {
 		$opts['ns'] = NS_MAIN;
 		$opts['list-page'] = false;
 
-		wfProfileOut( __METHOD__ . "-start" );
-		wfProfileIn( __METHOD__ . "-subsections" );
 
 		// Contains elements with the raw titles of methods (i.e. non-parts)
 		$nonAltMethodElements = array();
@@ -439,7 +437,7 @@ class WikiHowArticleDomExtractor {
 //					}
 
 					// A hook to add anchors to the TOC.
-//					wfRunHooks('AddDesktopTOCItems', array($wgTitle, &$anchorList, &$maxCount));
+//					Hooks::run('AddDesktopTOCItems', array($wgTitle, &$anchorList, &$maxCount));
 
 					//add our little list header
 //					if ($hasParts) {//ucwords
@@ -452,7 +450,7 @@ class WikiHowArticleDomExtractor {
 
 					//chance to reformat the alt method_toc before output
 					//using for running tests
-//					wfRunHooks('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
+//					Hooks::run('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
 //					pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}{$hiddenText}</p>");
 				}
 				else {
@@ -513,8 +511,6 @@ class WikiHowArticleDomExtractor {
 		// Remove refs
 		pq('.reference')->remove();
 
-		wfProfileOut( __METHOD__ . "-subsections" );
-		wfProfileIn( __METHOD__ . "-extras" );
 
 		return $this->getPhpQueryDoc()->htmlOuter();
 	}

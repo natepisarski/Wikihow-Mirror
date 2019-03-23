@@ -59,7 +59,7 @@ class QABoxUpdater extends Maintenance {
 	public function getQuestions() {
 		$articleIds = explode("\n", ConfigStorage::dbGetConfig(self::STORAGE_QABOX_ARTICLES));
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'qa_submitted_questions',
 			'*',

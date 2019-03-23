@@ -91,7 +91,7 @@ class DashboardData {
 	 */
 	private function dbHandle() {
 		if (!$this->dbh) {
-			$db_select = $this->fetchOnFirstCallOnly ? DB_MASTER : DB_SLAVE;
+			$db_select = $this->fetchOnFirstCallOnly ? DB_MASTER : DB_REPLICA;
 			$this->dbh = wfGetDB($db_select);
 		}
 		return $this->dbh;

@@ -85,7 +85,7 @@ class ListRatings extends QueryPage {
 
 		$this->getOutput()->disable();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'ratesample',
 			[

@@ -137,7 +137,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 	protected function getNext() {
 		$result = array();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$next = null;
 

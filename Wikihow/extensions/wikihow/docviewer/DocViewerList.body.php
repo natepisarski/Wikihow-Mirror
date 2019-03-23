@@ -8,7 +8,7 @@ class DocViewerList extends UnlistedSpecialPage {
 
 	private static function getSamplesList() {
 		global $wgServer;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select('dv_sampledocs', array('dvs_doc'), array(), __METHOD__, array('GROUP BY' => 'dvs_doc','ORDER BY' => 'dvs_doc'));
 

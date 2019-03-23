@@ -106,7 +106,6 @@ class WatermarkSupport {
 		$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 		$currentDate = `date`;
 		wfErrorLog(trim($currentDate) . " $cmd b:$before a:$after\n", '/tmp/watermark.log');
-		wfProfileOut( 'watermark' );
 	}
 
 	public static function addWatermark($srcPath, $dstPath, $width, $height) {
@@ -153,7 +152,6 @@ class WatermarkSupport {
 		$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 		$currentDate = `date`;
 		wfErrorLog(trim($currentDate) . " $cmd b:$before a:$after\n", '/tmp/watermark.log');
-		wfProfileOut( 'watermark' );
 	}
 
 	// adds version 3 watermark to the image
@@ -200,7 +198,6 @@ class WatermarkSupport {
 		$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 		$currentDate = `date`;
 		wfErrorLog(trim($currentDate) . " $cmd b:$before a:$after\n", '/tmp/watermark.log');
-		wfProfileOut( 'watermark' );
 	}
 
 

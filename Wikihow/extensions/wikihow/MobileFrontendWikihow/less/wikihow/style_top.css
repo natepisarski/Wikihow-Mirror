@@ -786,28 +786,19 @@ h4.steps_text::before {
 }
 
 /*** ADS ***/
-.has_scrolltoad .addTipElement {
-	margin-bottom: 20px;
+#wh_ad_tips, #pagebottom {
+	margin-top: 12px;
 }
 .wh_ad_inner {
 	float:left;
 }
-.ad_label_method, .ad_label_related, .ad_label_scrollto {
+.ad_label_method, .ad_label_related {
 	text-align: center;
 	font-size: 12px;
 	color: #999;
 }
-.ad_label_scrollto {
-	line-height: 11px;
-}
 #references_first ins {
 	margin-top: 10px;
-}
-.steps_list_2 .scrollto_wrap {
-	margin-top: 5px;
-}
-.article_rating .scrollto_wrap {
-	background:none;
 }
 .method_ad {
 	margin-top: 17px;
@@ -987,79 +978,43 @@ body.action-view #fa_container p {
 }
 /***** MOBILE TAB TESTS ******/
 
-.tab_0 {
-	display: block;
-}
-
-#mobile_tab_outer {
-	margin: 10px -10px 0;
-	padding: 10px;
-	background-color: #FFF;
-}
-
 #mobile_tab_container {
 	display: table;
 	width: 100%;
-	border-spacing: 5px 0;
-}
-
-#mobile_tab_cta {
-	line-height: normal;
-	margin-left: 5px;
-	font-weight: bold;
-	display: none;
+	border-top: 1px solid #dddddd;
+	border-bottom: 1px solid #dddddd;
 }
 
 .mobile_tab {
 	display: table-cell;
 	text-align: center;
 	padding: 10px 0;
-	margin-top: 5px;
-	margin-right: 5px;
-	border-radius: 5px;
 	font-weight: bold;
-	border: 2px solid;
-}
-
-.mobile_tab.tabs3 {
-	font-size: 12px;
-}
-
-.mobile_tab span {
-	border-radius: 11px;
-	display: inline-block;
-	width: 22px;
-	line-height: 22px;
-	text-align: center;
-	font-weight: normal;
-	font-size: 11px;
-	margin-left: 3px;
+	letter-spacing: 1px;
+	color: #A1BE88;
+	font-size: 16px;
+	width: 50%;
 }
 
 .mobile_tab.active {
-	color: #FFF;
-	background-color: #93b874;
+	border-bottom: 3px solid #93b874;
 	position: relative;
+	color: #79A355;
 }
 
-.mobile_tab.active span {
-	background-color: #eef7e9;
-	color: #93b874;
+#mobile_tab_1::before {
+	background-image: url(/skins/owl/images/Video-Play-Icon.png);
+	background-size: 21px;
+	content: " ";
+	height: 18px;
+	width: 21px;
+	position: absolute;
+	background-repeat: no-repeat;
+	margin-left: -25px;
+	margin-top: 2px;
 }
 
-.mobile_tab.inactive {
-	color: #93b874;
-	background-color: #fff;
-}
 
-.mobile_tab.inactive span {
-	background-color: #93b874;
-	color: #eef7e9;
-}
-
-.mobile_tab.last {
-	margin-right: 0;
-}
 
 .summarysection.mwimg, .summarysection .mwimg {
 	margin-left: -15px;
@@ -1319,13 +1274,6 @@ a.related-title,a.related-title:active, a.related-title:visited {
 
 	.content .sticking .edit-page {
 		margin-right: 50px;
-	}
-
-	#mobile_tab_outer {
-		margin-left: -25px;
-		margin-right: -25px;
-		padding-left: 25px;
-		padding-right: 25px;
 	}
 }
 

@@ -75,7 +75,7 @@ EOHTML;
 
 	private function getStatsByUser($u,$past30days) {
 		$html = '';
-     	$dbr = wfGetDB(DB_SLAVE);
+     	$dbr = wfGetDB(DB_REPLICA);
 
 		if ($past30days) {
 			//cutoff = past 30 days

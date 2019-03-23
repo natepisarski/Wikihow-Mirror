@@ -18,7 +18,7 @@ CREATE TABLE `page_ban` (
 // more, we send an error email with lots of capital letters.
 $max_deletes = 100;
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $deleted = array();
 $wgUser = User::newFromName("EmilyPostBot");

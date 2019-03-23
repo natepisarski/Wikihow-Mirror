@@ -4,11 +4,7 @@ class ImageHelper extends UnlistedSpecialPage {
 
 	const IMAGES_ON = true;
 
-	/***************************
-	 **
-	 **
-	 ***************************/
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'ImageHelper' );
 	}
 
@@ -137,7 +133,7 @@ class ImageHelper extends UnlistedSpecialPage {
 					}
 				}
 				if ($cat1) {
-					$dbr = wfGetDB( DB_SLAVE );
+					$dbr = wfGetDB( DB_REPLICA );
 					$num = (int)wfMessage('num_related_articles_to_display')->inContentLanguage()->text();
 					$res = $dbr->select('categorylinks', 'cl_from', array ('cl_to' => $cat1),
 						__METHOD__,
@@ -173,11 +169,9 @@ class ImageHelper extends UnlistedSpecialPage {
 	}
 
 	/**
-	 *
 	 * Returns an array of titles that have links to the given
 	 * title (presumably an image). All returned articles will be in the
 	 * NS_MAIN namespace and will also not be in a excluded category.
-	 *
 	 */
 	public static function getLinkedArticles($title) {
 		global $wgMemc;
@@ -189,7 +183,7 @@ class ImageHelper extends UnlistedSpecialPage {
 		}
 
 		$imageTitle = $title->getDBkey();
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$page = $dbr->tableName( 'page' );
 		$imagelinks = $dbr->tableName( 'imagelinks' );
 
@@ -238,29 +232,6 @@ class ImageHelper extends UnlistedSpecialPage {
 		return $articles;
 	}
 
-	/*
-	 * NO LONGER USED?
-	 *
-	function getSummaryInfo($image) {
-		global $wgOut, $wgTitle;
-
-		$sizes = self::getDisplaySize($image);
-
-		$tmpl = new EasyTemplate( __DIR__ );
-		$tmpl->set_vars(array(
-			'preview' => $sizes['width'] . "x" . $sizes['height'] . "px",
-			'full' => ($sizes['full'] == 0 ? "<a href='" . $image->getFullUrl() . "'>" . $image->getWidth() . "x" . $image->getHeight() . " px </a>" : wfMessage( 'file-nohires')),
-			'file' => Linker::formatSize($image->getSize()),
-			'mime' => $image->getMimeType(),
-			'imageCode' => "[[" . $wgTitle->getFullText() . "|thumb|description]]"
-		));
-		var_dump($tmpl);exit;
-
-		$wgOut->addHTML($tmpl->execute('fileInfo.tmpl.php'));
-
-	}
-	 */
-
 	private static function getImages($articleId) {
 		global $wgMemc;
 
@@ -270,7 +241,7 @@ class ImageHelper extends UnlistedSpecialPage {
 			return $result;
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$results = array();
 		$res = $dbr->select('imagelinks', '*', array('il_from' => $articleId));
 		foreach ($res as $row) {
@@ -282,42 +253,12 @@ class ImageHelper extends UnlistedSpecialPage {
 		return $results;
 	}
 
-	/*
-	 * NO LONGER USED? - Reuben 2015/09/15
-	 *
-	function getLinksTo($articles) {
-		global $wgOut;
-
-		$section = '';
-
-		$count = 0;
-		$images = '';
-		foreach ($articles as $t) {
-			if ($t && $t->exists()) {
-				$images .= self::getArticleThumb($t, 150, 120);
-
-				if (++$count == 5) break;
-			}
-		}
-
-		if ($count > 0) {
-			$section .= "<h4>" . wfMessage('Linkstoimage') . "</h4>";
-			$section .= "<table class='featuredArticle_Table'>";
-			$section .= $images;
-			$section .= "</table>";
-		}
-
-		$wgOut->addHTML($section);
-	}
-	 */
-
-
 	/**
 	 *
 	 * This function takes an array of titles and finds other images
 	 * that are in those articles.
+	 * NOTE: Used in WikihowImagePage
 	 */
-	// Used in WikihowImagePage
 	public function getConnectedImages($articles, $title) {
 		global $wgOut, $wgMemc;
 
@@ -412,116 +353,6 @@ class ImageHelper extends UnlistedSpecialPage {
 
 		$wgOut->addHTML($html);
 	}
-
-	/*
-	 * NO LONGER USED? - Reuben 2015/09/15
-
-	function displayBottomAds() {
-		global $wgOut, $wgUser;
-
-		if ($wgUser->getID() == 0) {
-			$channels = wikihowAds::getCustomGoogleChannels('imagead2', false);
-			$embed_ads = wfMessage('imagead2', $channels[0], $channels[1] );
-			$embed_ads = preg_replace('/\<[\/]?pre\>/', '', $embed_ads);
-			$wgOut->addHTML($embed_ads);
-		}
-	}
-	 */
-
-	/*
-	 * All this code is taken from ImagePage.php in includes
-	 *
-	 * NO LONGER USED? - Reuben 2015/09/15
-	function getDisplaySize($img) {
-		global $wgOut, $wgUser, $wgImageLimits, $wgRequest, $wgLang, $wgContLang;
-
-		$sizeSel = (int)$wgUser->getOption('imagesize');
-		if ( !isset( $wgImageLimits[$sizeSel] ) ) {
-			$sizeSel = User::getDefaultOption( 'imagesize' );
-
-			// The user offset might still be incorrect, specially if
-			// $wgImageLimits got changed (see bug #8858).
-			if ( !isset( $wgImageLimits[$sizeSel] ) ) {
-				// Default to the first offset in $wgImageLimits
-				$sizeSel = 0;
-			}
-		}
-		$max = $wgImageLimits[$sizeSel];
-		$maxWidth = $max[0];
-		//XXMOD for fixed width new layout.  eventhough 800x600 is default 679 is max article width
-		if ($maxWidth > 679)
-			$maxWidth = 629;
-		$maxHeight = $max[1];
-
-		if ( $img->exists() ) {
-			# image
-			$page = $wgRequest->getIntOrNull( 'page' );
-			if ( is_null( $page ) ) {
-				$params = array();
-				$page = 1;
-			} else {
-				$params = array( 'page' => $page );
-			}
-			$width_orig = $img->getWidth();
-			$width = $width_orig;
-			$height_orig = $img->getHeight();
-			$height = $height_orig;
-
-			if ( $img->allowInlineDisplay() ) {
-				# image
-
-				# We'll show a thumbnail of this image
-				if ( $width > $maxWidth || $height > $maxHeight ) {
-					# Calculate the thumbnail size.
-					# First case, the limiting factor is the width, not the height.
-					if ( $width / $height >= $maxWidth / $maxHeight ) {
-						$height = round( $height * $maxWidth / $width);
-						$width = $maxWidth;
-						# Note that $height <= $maxHeight now.
-					} else {
-						$newwidth = floor( $width * $maxHeight / $height);
-						$height = round( $height * $newwidth / $width );
-						$width = $newwidth;
-						# Note that $height <= $maxHeight now, but might not be identical
-						# because of rounding.
-					}
-					$size['width'] = $width;
-					$size['height'] = $height;
-					$size['full'] = 0;
-					return $size;
-				} else {
-					# Image is small enough to show full size on image page
-					$size['width'] = $width;
-					$size['height'] = $height;
-					$size['full'] = 1;
-					return $size;
-				}
-
-			} else {
-				#if direct link is allowed but it's not a renderable image, show an icon.
-				if ($img->isSafeFile()) {
-					$icon= $img->iconThumb();
-
-					$wgOut->addHTML( '<div class="fullImageLink minor_section" id="file">' .
-					$icon->toHtml( array( 'desc-link' => true ) ) .
-					'</div>' );
-				}
-
-				$showLink = true;
-			}
-
-			# this works if $this is subclassed from ImagePage
-			if (!$this->img->isLocal()) {
-				$this->printSharedImageText();
-			}
-		} else {
-			# Image does not exist
-			$size['width'] = -1;
-			$size['height'] = -1;
-			return $size;
-		}
-	}
-	 */
 
 	// Used in WikihowImagePage. NOTE: Should be static
 	public function calcResize($width, $height, $maxWidth, $maxHeight) {
@@ -990,4 +821,3 @@ EOT;
 	}
 
 }
-

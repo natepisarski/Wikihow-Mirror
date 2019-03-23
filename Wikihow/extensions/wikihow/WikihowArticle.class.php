@@ -43,15 +43,12 @@ class WikihowArticleHTML {
 		$title = $ctx->getTitle();
 		$langCode = $ctx->getLanguage()->getCode();
 
-		wfProfileIn( __METHOD__ . "-pqparse" );
 
 		$doc = phpQuery::newDocument($body);
 		$context = RequestContext::getMain();
 
-		wfProfileOut( __METHOD__ . "-pqparse" );
-		wfProfileIn( __METHOD__ . "-start" );
 
-		wfRunHooks('WikihowArticleBeforeProcessBody', array( $title ) );
+		Hooks::run('WikihowArticleBeforeProcessBody', array( $title ) );
 
 		$featurestar = pq("div#featurestar");
 		if ($featurestar) {
@@ -150,8 +147,6 @@ class WikihowArticleHTML {
 		//add the pimpedheader to our h3s!
 		pq('h3')->prepend('<div class="altblock"></div>');
 
-		wfProfileOut( __METHOD__ . "-start" );
-		wfProfileIn( __METHOD__ . "-subsections" );
 
 		// Contains elements with the raw titles of methods (i.e. non-parts)
 		$nonAltMethodElements = array();
@@ -331,7 +326,7 @@ class WikihowArticleHTML {
 					} else {
 						//chance to reformat the alt method_toc before output
 						//using for running tests
-						wfRunHooks('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
+						Hooks::run('BeforeOutputAltMethodTOC', array($wgTitle, &$anchorList));
 						pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$anchorList}</p>");
 					}
 				}
@@ -409,14 +404,12 @@ class WikihowArticleHTML {
 			}
 		}
 
-		wfProfileOut( __METHOD__ . "-subsections" );
-		wfProfileIn( __METHOD__ . "-extras" );
 
 		//add a clear to the end of each section_text to make sure
 		//images don't bleed across the bottom
 		pq(".section_text")->append("<div class='clearall'></div>");
 
-		wfRunHooks('AtAGlanceTest', array( $title ) );
+		Hooks::run('AtAGlanceTest', array( $title ) );
 
 		// Add checkboxes to Ingredients and 'Things You Need' sections, but only to the top-most li
 		$lis = pq('#ingredients > ul > li, #thingsyoullneed > ul > li');
@@ -442,8 +435,6 @@ class WikihowArticleHTML {
 			pq('.template_top')->insertAfter('#intro');
 		}
 
-		wfProfileOut( __METHOD__ . "-extras" );
-		wfProfileIn( __METHOD__ . "-steps1" );
 
 		if (class_exists("StepEditorParser")) {
 			$stepEditorHelper = new StepEditorParser($title, 0, $out);
@@ -483,8 +474,6 @@ class WikihowArticleHTML {
 			pq($step)->addClass("final_li");
 		}
 
-		wfProfileOut( __METHOD__ . "-steps1" );
-		wfProfileIn( __METHOD__ . "-images" );
 
 		// if we find videos, then replace the images with videos
 		$videoCount = 0;
@@ -591,7 +580,7 @@ class WikihowArticleHTML {
 						//if there's no TOC, make one now
 						if (pq("#method_toc")->length <= 0) {
 							$specialAnchorArray = [Html::element( 'span', [], wfMessage('toc_title') )];
-							wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$specialAnchorArray ) );
+							Hooks::run('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$specialAnchorArray ) );
 							$specialAnchorList = implode( "" , $specialAnchorArray );
 							pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$specialAnchorList}</p>");
 						}
@@ -668,8 +657,6 @@ class WikihowArticleHTML {
 			}
 		}
 
-		wfProfileOut( __METHOD__ . "-images" );
-		wfProfileIn( __METHOD__ . "-relateds" );
 
 		//Made Recently section
 		if (class_exists('UserCompletedImages') && $showCurrentTitle) UserCompletedImages::addDesktopSection($context);
@@ -683,8 +670,6 @@ class WikihowArticleHTML {
 		//marked with the class "introimage"
 		pq("#intro .mwimg:not(.introimage)")->remove();
 
-		wfProfileOut( __METHOD__ . "-relateds" );
-		wfProfileIn( __METHOD__ . "-steps2" );
 
 		//let's mark all the <p> tags that aren't inside a step.
 		//they need special padding
@@ -699,8 +684,6 @@ class WikihowArticleHTML {
 			}
 		}
 
-		wfProfileOut( __METHOD__ . "-steps2" );
-		wfProfileIn( __METHOD__ . "-paragraphs" );
 
 		//add line breaks between the p tags
 		foreach (pq("p") as $paragraph) {
@@ -716,7 +699,6 @@ class WikihowArticleHTML {
 			pq($paragraph)->after("<br />");
 		}
 
-		wfProfileOut( __METHOD__ . "-paragraphs" );
 
 		// 2018-12-13 - Remove entire video section as a test to see if it improves lighthouse performance reports
 		$isVideoSectionRemovalTarget = $langCode == 'en' &&
@@ -762,7 +744,6 @@ class WikihowArticleHTML {
 
 		DOMUtil::hideLinksInArticle();
 
-		wfProfileIn( __METHOD__ . "-ads" );
 
 		if (class_exists('ArticleQuizzes')) {
 			$articleQuizzes = new ArticleQuizzes($title->getArticleID());
@@ -814,10 +795,8 @@ class WikihowArticleHTML {
 
 		SchemaMarkup::calcHowToSchema( $out );
 
-		wfRunHooks('ProcessArticleHTMLAfter', array( $out ) );
+		Hooks::run('ProcessArticleHTMLAfter', array( $out ) );
 
-		wfProfileOut( __METHOD__ . "-ads" );
-		wfProfileIn( __METHOD__ . "-gethtml" );
 
 		UserTiming::modifyDOM($canonicalSteps);
 		PinterestMod::modifyDOM();
@@ -909,13 +888,12 @@ class WikihowArticleHTML {
 
 		$scripts = [];
 		$snippets = [];
-		wfRunHooks( 'AddTopEmbedJavascript', [&$scripts] );
+		Hooks::run( 'AddTopEmbedJavascript', [&$scripts] );
 		$html = $doc->htmlOuter();
 		if ($scripts) {
 			$html = Html::inlineScript(Misc::getEmbedFiles('js', $scripts)) . $html;
 		}
 
-		wfProfileOut( __METHOD__ . "-gethtml" );
 
 		return $html;
 	}
@@ -1014,7 +992,7 @@ class WikihowArticleHTML {
 
 		$processHTML = true;
 		// $title isn't used in the hook below
-		wfRunHooks('PreWikihowProcessHTML', array($title, &$processHTML));
+		Hooks::run('PreWikihowProcessHTML', array($title, &$processHTML));
 		if (!$processHTML) {
 			return $body;
 		}
@@ -1574,7 +1552,7 @@ class WikihowArticleHTML {
 	}
 
 	public static function getLinkInfo( $url ) {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = 'link_info';
         $var = 'li_title';
 		$cond = array( 'li_url' => $url );
@@ -1641,7 +1619,7 @@ class WikihowArticleHTML {
 		}
 
 		// A hook to add anchors to the TOC.
-		wfRunHooks('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$anchorList ) );
+		Hooks::run('AddDesktopTOCItems', array( RequestContext::getMain()->getTitle(), &$anchorList ) );
 
 		$result = Html::element( 'span', [], wfMessage('toc_title') );
 		$result .= implode( "" , $anchorList );

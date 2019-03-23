@@ -322,11 +322,14 @@ class WikihowArticleEditor {
 		}
 
 		$text .= $this->mLangLinks;
+		$text = str_replace("*{{reflist}}", "{{reflist}}", $text);
 
+		$sources = $this->getSection("sources");
 		// add the references div if necessary
-		if (strpos($text, "<ref>") !== false) {
+		if (strpos($text, "<ref>") !== false && strpos($sources, "{{reflist}}" === false)) {
 			$rdiv = '{{reflist}}';
 			$headline = "== "  . wfMessage('sources')->text() .  " ==";
+
 			if (strpos($text, $headline) !== false) {
 				$text = trim($text) . "\n$rdiv\n";
 			} else {
@@ -814,7 +817,7 @@ class WikihowArticleEditor {
 	static function resolveRedirects($title) {
 		$res = null;
 		$i = 5; // max redirects
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		while ($i > 0 && $title && $title->exists()) {
 			$titleKey = $dbr->selectField('redirect',

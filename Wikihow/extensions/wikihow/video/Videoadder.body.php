@@ -121,7 +121,7 @@ class VideoAdder extends SpecialPage {
 		$req = $this->getRequest();
 		$iv = new ImportVideoYoutube();
 		$dbw = wfGetDB(DB_MASTER);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$cat = $req->getVal('va_cat') ? Title::makeTitleSafe(NS_CATEGORY, $req->getVal('va_cat')) : null;
 
 		// get a list
@@ -196,7 +196,7 @@ class VideoAdder extends SpecialPage {
 			$rankings = $wgMemc->get($key);
 		}
 		if (!$rankings) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$ts 	= substr(wfTimestamp(TS_MW, time() - 7 * 24 * 3600), 0, 8) . "000000";
 			$res = $dbr->query("SELECT va_user, count(*) as C from videoadder where va_timestamp >= '{$ts}' AND (va_skipped_accepted = '0' OR va_skipped_accepted = '1') group by va_user ORDER BY C desc;");
 			foreach ($res as $row) {
@@ -337,12 +337,12 @@ class VideoAdder extends SpecialPage {
 						ImportVideo::updateVideoArticle($vid, $text, wfMessage('va_addingvideo')->text());
 						ImportVideo::updateMainArticle($tx, wfMessage('va_addingvideo')->text());
 					}
-					wfRunHooks("VAdone", array());
+					Hooks::run("VAdone", array());
 					$out->redirect('');
 				} elseif ($req->getVal('va_skip') == 2) {
 					// the user has skipped it and not rejected this one, don't show it to them again
 					self::skipArticle($req->getVal('va_page_id'));
-					wfRunHooks("VAskipped", array());
+					Hooks::run("VAskipped", array());
 				}
 			}
 			$results = $this->getNext();

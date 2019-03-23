@@ -326,7 +326,7 @@ class FinnerHooks {
 			}
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			'titusdb2.titus_intl',

@@ -10,7 +10,7 @@
 		$urls[] = urldecode(chop($row));
 	}
 	$pages = Misc::getPagesFromURLs($urls, array('page_id'));
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	foreach($urls as $url) {
 		{
 			$fellows = explode("\n", trim(wfMessage('wikifellows')));

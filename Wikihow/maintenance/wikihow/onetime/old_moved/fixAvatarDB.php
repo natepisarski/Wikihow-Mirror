@@ -5,7 +5,7 @@
 
 require_once('commandLine.inc');
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $sql = "select av_user from avatar where av_dateAdded is NOT NULL AND av_patrol=0";
 $res = $dbr->query($sql, __METHOD__);
 $ids = array();

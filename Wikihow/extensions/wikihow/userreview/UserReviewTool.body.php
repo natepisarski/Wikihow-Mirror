@@ -169,13 +169,13 @@ class UserReviewTool extends UnlistedSpecialPage {
 	}
 
 	private function getUncuratedCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectField(UserReview::TABLE_SUBMITTED, "count('us_id') as count", array("us_status IN (" . self::STATUS_AVAILABLE . ", " . self::STATUS_SKIPPED . ")" ), __METHOD__ );
 	}
 
 	private function getPositiveUncuratedCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectField(UserReview::TABLE_SUBMITTED, "count('us_id') as count", array("us_status IN (" . self::STATUS_AVAILABLE . ", " . self::STATUS_SKIPPED . ")", "us_positive" => 1 ), __METHOD__ );
 	}
@@ -195,7 +195,7 @@ class UserReviewTool extends UnlistedSpecialPage {
 	}
 
 	private function getReviewData($aid = null, $isStaff = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$review = $this->getNextSingleReview($aid);
 		//now get all the others for that article, but only the "positive" ones
@@ -279,7 +279,7 @@ class UserReviewTool extends UnlistedSpecialPage {
 	}
 
 	private function getNextSingleReview($aid = null) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$expired = wfTimestamp(TS_MW, time() - 2*24*60*60); //expires in 2 days
 		$whereDefault = array('us_status' => self::STATUS_AVAILABLE, 'us_positive' => 1, "us_checkout < $expired"); //available and positive

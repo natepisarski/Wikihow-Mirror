@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../commandLine.inc';
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 # refresh images on the CDN that have been recently 
 # uploaded or changed, just in case. images that have been reuploaded

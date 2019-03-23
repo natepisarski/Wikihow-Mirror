@@ -66,7 +66,7 @@ class AdminDedupTool extends UnlistedSpecialPage {
 
 	private function getData() {
 		$data =[];
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			DedupTool::TABLE_NAME,
 			['*', 'count(*) as count', 'sum(case when ddt_final = 0 then 1 else 0 end) as remaining'],
@@ -91,7 +91,7 @@ class AdminDedupTool extends UnlistedSpecialPage {
 		header("Content-Type: text/tsv");
 		header('Content-Disposition: attachment; filename="Dedup_'.$timestamp.'.xls"');
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			DedupTool::TABLE_NAME,
 			'*',

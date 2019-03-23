@@ -66,7 +66,7 @@ class ThumbRank {
                    (tr_up + tr_down)) / (1 + 3.8416 / (tr_up + tr_down))
        				AS rank, tr_type FROM thumb_ratings WHERE tr_page_id = $id
        				ORDER BY tr_type,rank DESC;";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$rank = array(wfMessage('tips')->text() => array(), wfMessage('warnings')->text() => array());
 		foreach ($res as $row) {

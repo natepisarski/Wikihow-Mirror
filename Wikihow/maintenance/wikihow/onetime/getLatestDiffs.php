@@ -19,7 +19,7 @@ class getLatestDiffs extends Maintenance {
 		$csv_rows = [];
 
 		//get all the pages that have been edited recently
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'page',
 			[

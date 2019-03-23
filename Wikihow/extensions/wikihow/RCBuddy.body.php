@@ -11,14 +11,13 @@ class RCBuddy extends UnlistedSpecialPage {
 	private function getFeaturedUnpatrolCount($delay, $skip) {
 		global $wgMemc;
 
-		$section = new ProfileSection(__METHOD__);
 		$user = $this->getUser();
 		$key = wfMemcKey('rcbuddy_unp_count', $delay, $user->getID());
 		$count = $wgMemc->get($key);
 		if (is_string($count)) {
 			return $count;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row = $dbr->selectRow(array('recentchanges', 'page'),
 			array('count(*) as c'),
 			array('rc_cur_id=page_id',
@@ -38,7 +37,6 @@ class RCBuddy extends UnlistedSpecialPage {
 	// specific
 	private function getPageWideStats($results) {
 		global $wgMemc;
-		$section = new ProfileSection(__METHOD__);
 
 		$key = wfMemcKey("rcbuddy_pagewidestats");
 		$result = $wgMemc->get($key);
@@ -46,7 +44,7 @@ class RCBuddy extends UnlistedSpecialPage {
 			return array_merge($results, $result);
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$newstuff = array();
 		$count = $dbr->selectField(array ('recentchanges'),
 			array('count(*) as c'),
@@ -75,7 +73,6 @@ class RCBuddy extends UnlistedSpecialPage {
 	public function execute($par) {
 		global $wgCookiePrefix;
 
-		$section = new ProfileSection(__METHOD__);
 
 		$out = $this->getOutput();
 		$user = $this->getUser();
@@ -107,7 +104,7 @@ class RCBuddy extends UnlistedSpecialPage {
 		}
 
 		$window = PatrolCount::getPatrolcountWindow();
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$count = $dbr->selectField('logging',
 			array('count(*)'),
 			array("log_user" => $user->getId(),

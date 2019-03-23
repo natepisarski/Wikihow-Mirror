@@ -67,7 +67,7 @@ class SensitiveArticle
 			$result = static::getDao()->insertSensitiveArticleData($this);
 		}
 
-		wfRunHooks( "SensitiveArticleEdited" , [$this->pageId, $this->reasonIds]);
+		Hooks::run( "SensitiveArticleEdited" , [$this->pageId, $this->reasonIds]);
 
 		return $result;
 	}

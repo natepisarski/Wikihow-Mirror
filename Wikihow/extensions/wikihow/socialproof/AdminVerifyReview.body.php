@@ -162,9 +162,6 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 	}
 
 	private function email( $pageId, $revIdOld, $revIdNew ) {
-		// todo check to make sure user has an email address?
-		//$email = $this->getUser()->getEmail();
-
 		// link to full diff mostly for sanity checking purposes
 		$title = Title::newFromID( $pageId );
 		$url = $title->getFullURL( array( 'oldid' => $revIdOld , 'diff'=> $revIdNew ) );
@@ -177,8 +174,14 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 
 		$name = $verifyData->name;
 
-		$to = new MailAddress( $this->getUser() );
-		$from = new MailAddress( $this->getUser() );
+		$email = $this->getUser()->getEmail();
+		if ( !$email ) {
+			decho("User doesn't have email address: " . $this->getUser()->getName());
+			return false;
+		}
+
+		$to = new MailAddress( $email );
+		$from = new MailAddress( $email );
 		$subject = wfMessage( 'admin_verify_email_subject' )->text();
 		$text = wfMessage( 'admin_verify_email', $url, $title, $date, $name )->text();
 		$replyTo = $from;

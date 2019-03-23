@@ -9,7 +9,7 @@
 
 require_once('commandLine.inc');
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $dbw = wfGetDB(DB_MASTER);
 
 $res = DatabaseHelper::batchSelect(ArticleAdExclusions::TABLE, "*", array());

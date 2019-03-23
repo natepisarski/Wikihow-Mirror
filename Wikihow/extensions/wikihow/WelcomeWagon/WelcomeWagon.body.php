@@ -8,7 +8,6 @@ class WelcomeWagonContribsPager extends ContribsPager {
 	function formatRow( $row ) {
 		global $wgContLang;
 
-		$profiler = new ProfileSection(__METHOD__);
 		$rev = new Revision( $row );
 
 		$page = Title::makeTitle( $row->page_namespace, $row->page_title );
@@ -200,7 +199,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		$out->addHTML("<div id='content-contributions' class='wh_block'>");
 
 		$target = $targetUser->getName();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$this->writeDiff($dbr, $target);
 
 		$out->addHTML("</div>");
@@ -228,7 +227,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		if (count($userIds) < 1) {
 			return array();
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$result = $dbr->query("SELECT user_id, count(ww_to_user_id) as ww_messages
 								FROM $wgSharedDB.user
 								LEFT OUTER JOIN welcome_wagon_messages ON user_id = ww_to_user_id
@@ -248,7 +247,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		if (count($userIds) < 1) {
 			return array();
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$result = $dbr->query("SELECT user_id, count(wws_to_user_id) as skips
 								FROM $wgSharedDB.user
 								LEFT OUTER JOIN welcome_wagon_skips ON user_id = wws_to_user_id
@@ -265,7 +264,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 	private function getUserIds() {
 		global $wgSharedDB;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$beginTime = wfTimestamp( TS_MW, time() - 60 * 60 * 24 * 7 );
 
 		$initialUserIds = array();
@@ -390,7 +389,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 
 	private function isMessaged($userId) {
 		$user = $this->getUser();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField("welcome_wagon_messages",
 									array('count(*)'),
 									array('ww_from_user_id'=>$user->getId(), 'ww_to_user_id'=>$userId),
@@ -405,7 +404,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 	private function isSkipped($userId) {
 		$user = $this->getUser();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField("welcome_wagon_skips",
 									array('count(*)'),
 									array('wws_from_user_id'=>$user->getId(), 'wws_to_user_id'=>$userId),
@@ -596,7 +595,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 							$message )->text();
 			$log->addEntry('message', $rev->getTitle(), $msg, array("fromId"=>$fromId, "toId"=>$toId, "revId"=>$revId));
 
-			wfRunHooks( 'WelcomeWagonMessageSent' );
+			Hooks::run( 'WelcomeWagonMessageSent' );
 		}
 	}
 

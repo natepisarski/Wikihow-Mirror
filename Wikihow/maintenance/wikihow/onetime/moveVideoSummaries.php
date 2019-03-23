@@ -91,7 +91,7 @@ class moveVideoSummaries extends Maintenance {
 			$status = $page->doEditContent($content, self::COMMENT);
 
 			if ($status->isOK()) {
-				wfRunHooks('QuickSummaryEditComplete', [ $summary, $title ] );
+				Hooks::run('QuickSummaryEditComplete', [ $summary, $title ] );
 				$result = !empty( $status->value['revision'] );
 			}
 		}

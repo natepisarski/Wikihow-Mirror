@@ -78,13 +78,13 @@ class RisingStar {
 	}
 
 	public static function isRisingStar($pageid, $dbr=null) {
-		if (!$dbr) $dbr = wfGetDB(DB_SLAVE);
+		if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
 		$result = $dbr->selectField('pagelist', 'count(*)', array('pl_page'=>$pageid, 'pl_list'=>'risingstar'), __METHOD__) > 0;
 		return $result;
 	}
 
 	public static function getRisingStarList($limit, $dbr=null) {
-		if (!$dbr) $dbr = wfGetDB(DB_SLAVE);
+		if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
 		$ids = array();
 		$res = $dbr->select('pagelist',
 			'pl_page',

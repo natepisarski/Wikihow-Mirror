@@ -13,7 +13,7 @@ class ThumbsEmailNotifications extends UnlistedSpecialPage {
 
 	// Called via maintenance script sendThumbsEmails.php
 	public static function sendNotifications() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$lookBackSecs = wfTimestamp() - 12 * 60 * 60;
 		$lookBack = wfTimestamp(TS_DB, $lookBackSecs);
@@ -69,13 +69,13 @@ $html_text";
 				wfDebug("AuthorEmailNotification in dev not notifying: TO: ".  $userText .",FROM: $from_name\n");
 			}
 
-			$to = new MailAddress ($email);
+			$to = new MailAddress($email);
 			UserMailer::send($to, $from, $subject, $body, null, "multipart/alternative;\n" .
 							"     boundary=" . $mime_boundary_header, "thumbs_up") ;
 
 			// send one to our test email account for debugging
 			/*
-			$to = new MailAddress ('elizabethwikihowtest@gmail.com');
+			$to = new MailAddress('elizabethwikihowtest@gmail.com');
 			UserMailer::send($to, $from, $subject, $body, null, "multipart/alternative;\n" .
 							"     boundary=" . $mime_boundary_header, "thumbs_up") ;
 			*/
@@ -89,7 +89,7 @@ $html_text";
 	}
 
 	private static function getNotifications($userText, $lookBack) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$userText = $dbr->strencode($userText);
 
 		$sql = "

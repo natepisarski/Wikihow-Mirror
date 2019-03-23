@@ -351,7 +351,7 @@ class WikiVisualTranscoder {
 		static $dbw = null;
 		static $dbr = null;
 		if ('read' == $type) {
-			if (!$dbr) $dbr = wfGetDB(DB_SLAVE);
+			if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
 			return $dbr;
 		} elseif ('write' == $type) {
 			if (!$dbw) $dbw = wfGetDB(DB_MASTER);

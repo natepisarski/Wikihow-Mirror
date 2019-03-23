@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../commandLine.inc';
 
 $categoryQuestions = new CategoryQuestions();
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $maxTime = 600; //10 minutes
 

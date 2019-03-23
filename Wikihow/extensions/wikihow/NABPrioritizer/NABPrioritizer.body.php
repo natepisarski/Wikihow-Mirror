@@ -16,7 +16,7 @@ class NABPrioritizer extends UnlistedSpecialPage {
 			return;
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$algorithm = $wgRequest->getVal( 'algorithm' );
 		if ( $algorithm == NULL ) {
 			$algorithm = $dbr->selectField( 'auto_nfd','max(an_algorithm)',array(), __METHOD__,array() );

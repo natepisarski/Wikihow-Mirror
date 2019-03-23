@@ -30,7 +30,7 @@ class ApiHypothesisTest extends ApiBase {
 
 		$params = $this->extractRequestParams();
 		$dbw = wfGetDB( DB_MASTER );
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		$id = $params['hypt_id'];
 		if ( $params['remove'] ) {

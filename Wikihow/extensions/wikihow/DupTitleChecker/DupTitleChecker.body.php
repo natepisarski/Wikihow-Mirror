@@ -220,7 +220,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 
 	// this searches previously saved results from bing search
 	private function findInWebSearches() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$queryDB = [];
 
 		$queryChunks = array_chunk( $this->queries, 400 );
@@ -335,7 +335,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 
 	// this searches previously resolved results from DedupTool
 	private function findInDedupResolved( $timeStamp ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$queryDB = [];
 
 		$queryChunks = array_chunk( $this->queries, 400 );
@@ -362,7 +362,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 
 	// this searches previously caches results from bing search
 	private function findInCache( $timeStamp ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$queryDB = [];
 
 		$queryChunks = array_chunk( $this->queries, 400 );

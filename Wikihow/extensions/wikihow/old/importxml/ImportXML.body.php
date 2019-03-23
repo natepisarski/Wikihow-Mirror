@@ -139,7 +139,7 @@ class ImportXML extends UnlistedSpecialPage {
 
 		$oldUser = $wgUser;
 		$wgUser = User::newFromName('WRM');
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 		foreach ($req->getValues() as $key=>$val) {
 			if (!preg_match("@publish_[0-9]+@", $key)) continue;
@@ -164,7 +164,7 @@ class ImportXML extends UnlistedSpecialPage {
 			$dbw->update('import_articles', array('ia_published' => 1, 'ia_published_timestamp' => wfTimestampNow(TS_MW)), array('ia_id'=>$id));
 			$dbw->update('newarticlepatrol', array('nap_patrolled' => 1), array('nap_page'=>$title->getArticleID()));
 			$dbw->update('recentchanges', array('rc_patrolled' => 1), array('rc_cur_id'=>$title->getArticleID()));
-			wfRunHooks("WRMArticlePublished", array($title->getArticleID()));
+			Hooks::run("WRMArticlePublished", array($title->getArticleID()));
 		}
 		$wgUser = $oldUser;
 	}
@@ -190,7 +190,7 @@ class ImportXML extends UnlistedSpecialPage {
 		if ($req->getVal('publishedcsv')) {
 			$out->disable();
 			header("Content-type: text/plain");
-			$dbr = wfGetDB(DB_MASTER);
+			$dbr = wfGetDB(DB_REPLICA);
 			if ($req->getVal('errs')) {
 				$opts = array('ia_publish_err'=>1);
 			} else {
@@ -211,8 +211,11 @@ class ImportXML extends UnlistedSpecialPage {
 		// used through ajax
 		if ($req->getVal('view')) {
 			$out->setArticleBodyOnly(true);
-			$dbr = wfGetDB(DB_MASTER);
-			$text = $dbr->selectField('import_articles', array('ia_text'), array('ia_id'=>$req->getVal('view')));
+			$dbr = wfGetDB(DB_REPLICA);
+			$text = $dbr->selectField('import_articles',
+				'ia_text',
+				array('ia_id' => $req->getVal('view')),
+				__METHOD__);
 			$out->addHTML("<textarea class='xml_edit' id='xml_input'>$text</textarea><br/>" .
 				'<a onclick="save_xml(' . $req->getVal('view') . ');" class="button button136" style="float: left;" ' .
 				'  onmouseover="button_swap(this);" onmouseout="button_unswap(this);">Save</a>');
@@ -230,7 +233,7 @@ class ImportXML extends UnlistedSpecialPage {
 			return;
 		}
 		if ($req->getVal('preview')) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$row = $dbr->selectRow('import_articles',
 				['ia_text', 'ia_title'],
 				array('ia_id' => $req->getInt('preview')),
@@ -296,7 +299,7 @@ class ImportXML extends UnlistedSpecialPage {
 			<td>Edit</td><td>Delete?</td>
 			<td>Publish</td>
 			</tr>");
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('import_articles', array('ia_published', 'ia_title', 'ia_id', 'ia_timestamp'), array(), "ImportXML", array("ORDER BY"=>"ia_id"));
 		foreach ($res as $row) {
 			$t = Title::newFromText($row->ia_title);
@@ -480,7 +483,7 @@ END
 			);
 			return;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$urls = explode("\n", $req->getVal('xml'));
 		$valid_sections = array("steps", "tips", "warnings", "things", "sources", "videos");
 

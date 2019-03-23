@@ -62,7 +62,7 @@ class CategorizerUtil {
 		$fields = ['page_id'];
 		$opts = ['ORDER BY' => 'page_touched', 'LIMIT' => 500];
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select($q['tables'], $fields, $q['conds'], __METHOD__, $opts, $q['join_conds']);
 		$pageIds = [];
 
@@ -77,7 +77,7 @@ class CategorizerUtil {
 		$fields = ['count' => 'count(*)'];
 		$opts = [];
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select($q['tables'], $fields, $q['conds'], __METHOD__, $opts, $q['join_conds']);
 		return $dbr->fetchObject($res)->count;
 	}

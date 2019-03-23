@@ -24,7 +24,7 @@ class UpdateTechFeedbackSheet extends Maintenance {
 	private function updateSheet() {
         //get the data
         //$sql = 'select stfi_page_id, p.page_title, rr.ratr_text, stfi_rating_reason_id, stfi_timestamp from special_tech_feedback_item, rating_reason as rr, page as p where stfi_feedback_status < 1 and p.page_id = stfi_page_id and rr.ratr_id = stfi_rating_reason_id and stfi_user_id <> "" group by stfi_rating_reason_id having sum(stfi_vote) > 1 limit 1;';
-        $dbr = wfGetDB( DB_SLAVE );
+        $dbr = wfGetDB( DB_REPLICA );
         $table = 'special_tech_feedback_item, rating_reason as rr';
         $vars = array( 'stfi_page_id', 'stfi_rating_reason_id', 'stfi_timestamp', 'rr.ratr_text as comment' );
         $conds = array( 'stfi_rating_reason_id = rr.ratr_id', 'stfi_feedback_status < 1', 'stfi_user_id <> ""' );

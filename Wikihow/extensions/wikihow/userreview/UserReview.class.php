@@ -127,7 +127,7 @@ class UserReview {
 		} else {
 			$helpful = self::getHelpfulnessScore($articleId);
 			if ($helpful > 0) {
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$res = $dbr->select('titus_copy',
 					array('ti_page_id', 'ti_helpful_total_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage', 'ti_last_fellow_edit_timestamp', 'ti_stu_views_www', 'ti_stu_10s_percentage_www', 'ti_stu_3min_percentage_www'),
 					array('ti_language_code' => "en", 'ti_page_id' => $articleId),
@@ -164,7 +164,7 @@ class UserReview {
 		$helpful = $wgMemc->get($helpfulKey);
 
 		if (!is_numeric($helpful)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select('titus_copy',
 				array('ti_page_id', 'ti_helpful_total_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage_including_deleted', 'ti_helpful_total', 'ti_helpful_percentage', 'ti_last_fellow_edit_timestamp', 'ti_stu_views_www', 'ti_stu_10s_percentage_www', 'ti_stu_3min_percentage_www'),
 				array('ti_language_code' => "en", 'ti_page_id' => $articleId),
@@ -249,7 +249,7 @@ class UserReview {
 			return $value;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(self::TABLE_CURATED, array('*'), array('uc_article_id' => $articleId, 'uc_eligible > 0'), __METHOD__, array("ORDER BY" => "uc_timestamp DESC"));
 
@@ -331,7 +331,7 @@ class UserReview {
 		$value = $wgMemc->get($key);
 
 		if (!$value) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$value = $dbr->selectField(self::TABLE_CURATED, 'count(*)', array('uc_article_id' => $articleId, 'uc_eligible > 0'), __METHOD__);
 			$wgMemc->set($key, $value);
 		}
@@ -346,7 +346,7 @@ class UserReview {
 		$value = $wgMemc->get($key);
 
 		if (!$value) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$value = $dbr->selectField(self::TABLE_CURATED, 'count(*)', array('uc_article_id' => $articleId), __METHOD__);
 			$wgMemc->set($key, $value);
 		}
@@ -635,7 +635,7 @@ class UserReview {
 			$submittedIds = [$submittedIds];
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$ids = $dbr->makeList($submittedIds);
 		$res = $dbr->select(
 			self::TABLE_CURATED,

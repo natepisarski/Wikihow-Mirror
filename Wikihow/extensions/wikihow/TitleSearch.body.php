@@ -25,7 +25,7 @@ class TitleSearch extends UnlistedSpecialPage {
 		$text = preg_replace( "/^" . $howto . "/i", "", $text );
 		$searchResults = $this->getSearchResults($text, $limit);
 		$results = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		foreach ($searchResults as $title) {
 			$page = WikiPage::factory($title);
@@ -65,7 +65,7 @@ class TitleSearch extends UnlistedSpecialPage {
 		$search->setNamespaces( array( NS_MAIN ) );
 		$term = $search->transformSearchTerm( $term );
 
-		wfRunHooks( 'SpecialSearchSetupEngine', array( $ss, 'default', $search ) );
+		Hooks::run( 'SpecialSearchSetupEngine', array( $ss, 'default', $search ) );
 		$titleMatches = $search->searchText( $term );
 		$results = array();
 

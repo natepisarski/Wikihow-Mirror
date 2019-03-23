@@ -196,7 +196,7 @@ class SummaryEditTool extends UnlistedSpecialPage {
 				$success = $this->addSummaryTemplateToWikiTextIfNeeded();
 
 				$main_title = Title::newFromText($this->page_title, NS_MAIN);
-				wfRunHooks('QuickSummaryEditComplete', [ $summary, $main_title ] );
+				Hooks::run('QuickSummaryEditComplete', [ $summary, $main_title ] );
 
 				if (empty( $status->value['revision'] ))
 					$result_text = wfMessage('summary_edit_nochange')->text();

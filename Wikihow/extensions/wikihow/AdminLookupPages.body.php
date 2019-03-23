@@ -19,7 +19,7 @@ class AdminLookupNab extends UnlistedSpecialPage {
 		}
 
 		if ($req->wasPosted()) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$pageList = $req->getVal('pages-list', '');
 			$out->setArticleBodyOnly(true);
@@ -99,7 +99,7 @@ class AdminLookupPages extends UnlistedSpecialPage {
 		}
 
 		if ($req->wasPosted()) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$pageList = $req->getVal('pages-list', '');
 			$out->setArticleBodyOnly(true);

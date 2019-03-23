@@ -78,7 +78,7 @@ class CategoryListing extends SpecialPage {
 	}
 
 	private function getCategoryListingData(&$data) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			self::LISTING_TABLE,
 			'*',

@@ -7,7 +7,6 @@ class CatSearchUI extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		$profiler = new ProfileSection(__METHOD__);
 
 		$out = $this->getOutput();
 		$request = $this->getRequest();

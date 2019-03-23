@@ -1668,7 +1668,7 @@ class TitleFilters {
 		}
 
 		// Get the catinfo bitmasks for all the titles
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$rows = $dbr->select(
 			['page'],
 			['page_id', 'page_catinfo', 'page_title'],

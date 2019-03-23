@@ -11,7 +11,7 @@ global $wgLanguageCode;
 
 echo "$wgLanguageCode\n";
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->select('page', ['page_id', 'page_title'], ['page_namespace' => NS_CATEGORY, 'page_is_redirect' => 0]);
 foreach ($res as $row) {
 	$title = Title::makeTitle(NS_CATEGORY, $row->page_title);

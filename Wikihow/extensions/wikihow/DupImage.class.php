@@ -19,7 +19,7 @@ class DupImage {
 	private static function getDB($type) {
 		static $dbw = null, $dbr = null;
 		if ('read' == $type) {
-			if (!$dbr) $dbr = wfGetDB(DB_SLAVE);
+			if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
 			return $dbr;
 		} elseif ('write' == $type) {
 			if (!$dbw) $dbw = wfGetDB(DB_MASTER);

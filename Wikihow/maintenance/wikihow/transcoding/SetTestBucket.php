@@ -102,7 +102,7 @@ class SetTestBucket extends Maintenance {
 
 		// first look for the uploader name in the db....
 		if ( true || !$dev ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$table = "wikivisual_article_status";
 			$vars = array("creator");
 			$conds = array( "article_id" => $pageId );

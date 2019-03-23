@@ -33,7 +33,7 @@ class SpellingPlants extends Plants {
 			return null;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$lastPlant = $this->getLastPlantUsed($usedPlants);
 		if ( $lastPlant ) {
@@ -67,13 +67,13 @@ class SpellingPlants extends Plants {
 	}
 
 	function getCorrectAnswer($plantId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectField($this->questionTable, 'pqs_answer', array('pqs_id' => $plantId), __METHOD__);
 	}
 
 	function getAllPlantsForAdmin() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select($this->questionTable, "*", array(), __METHOD__, array("ORDER BY" => 'pqs_display ASC'));
 

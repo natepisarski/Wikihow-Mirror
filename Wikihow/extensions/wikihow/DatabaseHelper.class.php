@@ -20,7 +20,7 @@ class DatabaseHelper {
 	 */
 	public static function batchSelect($table, $fields, $conditions = '', $fname = __METHOD__, $options = array(), $batchSize = self::DEFAULT_BATCH_SIZE, $dbr = null) {
 		if (is_null($dbr)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 		}
 
 		if ( !is_array( $options ) ) {

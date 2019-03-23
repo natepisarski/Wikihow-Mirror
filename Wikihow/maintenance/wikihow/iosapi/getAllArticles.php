@@ -12,7 +12,7 @@ decho("will process pages greater than", $lastPage, false);
 
 //process
 $limit = 15000;
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->select("page", "page_id", array("page_id > $lastPage", "page_namespace = 0", "page_is_redirect = 0"), __FILE__, array("ORDER BY"=>"page_id", "LIMIT"=>$limit));
 
 $ch = curl_init();

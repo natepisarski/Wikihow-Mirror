@@ -89,7 +89,7 @@ class SocialProof extends UnlistedSpecialPage {
         return $text;
     }
     private function getStats($sortby) {
-        $dbr = wfGetDB( DB_SLAVE );
+        $dbr = wfGetDB( DB_REPLICA );
         if ( $sortby == 'action_sort' ) {
             $res = $dbr->select('socialproof_stats', array('sps_page_id', 'sps_action', 'sps_expert_name', 'sps_click_count'), array(), __METHOD__, array( 'ORDER BY' => 'sps_action, sps_click_count DESC' ));
         } else {

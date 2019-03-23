@@ -16,7 +16,7 @@ $dbw->query('SET SESSION net_read_timeout=3600', __FILE__);
 $dbw->query('SET SESSION net_write_timeout=3600', __FILE__);
 $dbw->query('SET SESSION interactive_timeout=3600', __FILE__);
 
-$dbr = wfGetDB( DB_SLAVE );
+$dbr = wfGetDB( DB_REPLICA );
 $avg = wfMessage('list_bottom_rated_pages_avg');
 $minvotes = wfMessage('list_bottom_rated_pages_min_votes');
 $cleardays = wfMessage('list_bottom_rated_pages_clear_limit_days');

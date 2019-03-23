@@ -69,7 +69,7 @@ if ($removeWatermarks == true) {
 	$verb = "removing";
 }
 echo "$verb watermarks from articleids...\n";
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $selectBy = "waw_version < $version";
 
 // if removewatermarks is true, we want to select every watermarked image

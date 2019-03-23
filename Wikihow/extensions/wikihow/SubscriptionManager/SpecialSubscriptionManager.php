@@ -139,7 +139,7 @@ EOHTML;
 			$this->unsubscribeUser( $userId );
 		} elseif ( $userType === SubscriptionFormValidator::TYPE_EMAIL ) {
 			// lookup users with this email address
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$res = $dbr->select(
 				'user',
 				array( 'user_id' ),

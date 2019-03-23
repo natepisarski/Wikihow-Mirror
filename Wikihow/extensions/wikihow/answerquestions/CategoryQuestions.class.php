@@ -25,7 +25,7 @@ class CategoryQuestions {
 		$subtree = $this->getSubTree($category);
 		if ( count($subtree) > 0 ) {
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$table = array(WH_DATABASE_NAME_EN . '.titus_copy', 'categorylinks');
 			$vars = array('ti_page_id', 'ti_qa_questions_answered', 'ti_qa_questions_unanswered');
@@ -211,7 +211,7 @@ class CategoryQuestions {
 	}
 
 	private function getTitusDataForCategory($category) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = array(WH_DATABASE_NAME_EN . '.titus_copy');
 		$vars = array('sum(ti_qa_questions_answered) as qa_answered', 'sum(ti_qa_questions_unanswered) as qa_unanswered', 'sum(case when ti_qa_questions_unanswered > 0 then 1 else 0 end) as qa_count');
 		$conds = array(

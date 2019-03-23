@@ -68,7 +68,7 @@ class QADB {
 	}
 
 	public function isDuplicate($aid, $submittedQuestionId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			[
 				self::TABLE_ARTICLES_QUESTIONS,
@@ -162,7 +162,7 @@ class QADB {
 					}
 				}
 
-				wfRunHooks('InsertArticleQuestion', [$data['aid'], $status->getAqid(), $isNew]);
+				Hooks::run('InsertArticleQuestion', [$data['aid'], $status->getAqid(), $isNew]);
 			}
 		} catch(Exception $e) {
 			$status = new QADBResult(false, $e->getMessage());
@@ -383,7 +383,7 @@ class QADB {
 			return null;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$aidsList = implode(',', $aids);
 		$fieldsList = "qa_article_id,
 			qs_article_id,
@@ -440,7 +440,7 @@ class QADB {
 				__METHOD__
 			);
 
-			wfRunHooks('QAHelpfulnessVote', [$aq->getArticleId(), $aqid]);
+			Hooks::run('QAHelpfulnessVote', [$aq->getArticleId(), $aqid]);
 		}
 	}
 
@@ -541,7 +541,7 @@ class QADB {
 	}
 
 	function getUnpatrolledQuestions($aid, $limit = 0, $offset = 0) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$where = [
 			'qap_aqid IS NULL',
 			'qap_copycheck' => 1,
@@ -594,7 +594,7 @@ class QADB {
 	 * @return array
 	 */
 	public function getSubmittedQuestions($aid, $lastSubmittedId = 0, $limit = 5, $curated = false, $proposed = false, $approvedOnly = false, $unsortedOnly = false, $newestFirst = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$where = [
 			'qs_article_id' => $aid,
 			'qs_ignore' => 0,
@@ -652,7 +652,7 @@ class QADB {
 	 * @return array
 	 */
 	public function getSubmittedQuestionsCount($aid, $lastSubmittedId = 0, $curated = false, $proposed = false, $approvedOnly = false, $unsortedOnly = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$where = [
 			'qs_article_id' => $aid,
 			"qs_id > $lastSubmittedId",
@@ -700,7 +700,7 @@ class QADB {
 		$sorted = false,
 		$ascending = false
 	) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// We're using the >= and < operators for the timestamp instead of BETWEEN
 		// to ensure a half-closed interval that excludes the upper bound endpoint.
@@ -752,8 +752,8 @@ class QADB {
 	}
 
 	protected function getSubmittedQuestionRow($sqid) {
-		$dbw = wfGetDB(DB_SLAVE);
-		$row = $dbw->selectRow(
+		$dbr = wfGetDB(DB_REPLICA);
+		$row = $dbr->selectRow(
 			[
 				self::TABLE_SUBMITTED_QUESTIONS,
 			],
@@ -782,7 +782,7 @@ class QADB {
 
 		$startId = mt_rand(1, $lastId - $numOfQs);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			self::TABLE_SUBMITTED_QUESTIONS,
 			'*',
@@ -869,7 +869,7 @@ class QADB {
 	 * @return array
 	 */
 	public function getImportDocs($status) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			self::TABLE_IMPORT,
 			'*',
@@ -979,7 +979,7 @@ class QADB {
 			}
 
 			$dbw->commit(__METHOD__);
-			wfRunHooks('DeleteArticleQuestion', [$data['aid'], $data['aqid']]);
+			Hooks::run('DeleteArticleQuestion', [$data['aid'], $data['aqid']]);
 			$status = new QADBResult(true);
 		} catch(Exception $e) {
 			$status = new QADBResult(false, $e->getMessage());
@@ -1122,7 +1122,7 @@ class QADB {
 	}
 
 	private static function getLatestApprovedQuestionId() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$id = $dbr->selectField(
 			self::TABLE_SUBMITTED_QUESTIONS,
@@ -1145,7 +1145,7 @@ class QADB {
 
 //	public function removeVerifierIdFromArticleQuestions($verifierId) {
 //		if (!empty($verifierId)) {
-//			$dbr = wfGetDB(DB_SLAVE);
+//			$dbr = wfGetDB(DB_REPLICA);
 //			$res = $dbr->select(
 //				self::TABLE_ARTICLES_QUESTIONS,
 //				['qa_id'],
@@ -1185,7 +1185,7 @@ class QADB {
 		$staff_editor_ids = $wgMemc->get($cachekey);
 
 		if (empty($staff_editor_ids)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select(
 				'user_groups',
 				'ug_user',
@@ -1208,16 +1208,17 @@ class QADB {
 		return $staff_editor_ids;
 	}
 
-	public function removeVerifierIdFromArticleQuestions($verifierId) {
-		if (!empty($verifierId) && $verifierId != 0) {
-			$dbw = wfGetDB(DB_MASTER);
-			$dbw->update(
-				self::TABLE_ARTICLES_QUESTIONS,
-				['qa_verifier_id' => 0],
-				['qa_verifier_id' => $verifierId],
-				__METHOD__
-			);
+	public function removeVerifierIdsFromArticleQuestions(array $verifierIds) {
+		if (!$verifierIds) {
+			return;
 		}
+		$dbw = wfGetDB(DB_MASTER);
+		$dbw->update(
+			self::TABLE_ARTICLES_QUESTIONS,
+			['qa_verifier_id' => 0],
+			['qa_verifier_id' => $verifierIds]
+		);
+		return $dbw->affectedRows();
 	}
 
 	/* returns true/false
@@ -1226,7 +1227,7 @@ class QADB {
 	 */
 	public static function alredyExpertAnswered($aid, $expertId, $limit = 1) {
 		$expertId = (int)$expertId;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		//check the answers in Q&A Patrol (only submitted)
 		$qap_count = $dbr->selectField(
@@ -1299,7 +1300,7 @@ class QADB {
 	}
 
 	public function getRandomQAInCategory($catMask, $num = 5) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			[self::TABLE_ARTICLES_QUESTIONS, 'page'],

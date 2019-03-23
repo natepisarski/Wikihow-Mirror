@@ -52,7 +52,7 @@ class YourArticles extends SpecialPage {
 
 		if ($user->getID() > 0) {
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->query("select * from firstedit
 				 left join page on fe_page = page_id
 				 left join suggested_titles
@@ -144,7 +144,7 @@ class YourArticles extends SpecialPage {
 	}
 
 	private static function getAuthors($t) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$authors = [];
 		$res = $dbr->select('revision',
 			['rev_user', 'rev_user_text'],

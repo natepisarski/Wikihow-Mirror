@@ -45,7 +45,7 @@ class RCTestAdmin extends UnlistedSpecialPage {
 	}
 
 	private function printDetail() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$uid = $this->getRequest()->getInt("uid");
 		$res = $dbr->select(array('rctest_scores', 'rctest_quizzes'),
 			array('rs_timestamp', 'rq_difficulty', 'rs_quiz_id', 'rs_correct', 'rs_response'),
@@ -69,7 +69,7 @@ class RCTestAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getScores() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('rctest_scores',
 			array('rs_user_id', 'rs_user_name', 'count(rs_user_name) as total', 'sum(rs_correct) as correct'),
 			array("rs_timestamp >= '{$this->ts}'"),
@@ -92,7 +92,7 @@ class RCTestAdmin extends UnlistedSpecialPage {
 	}
 
 	private function addOtherScores(&$scores) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(array('rctest_scores','rctest_quizzes'), array('rs_user_name', 'rs_user_id', 'rq_difficulty', 'count(*) as total', 'sum(rs_correct) as correct'),
 			array("rs_timestamp >= '{$this->ts}'", "rs_quiz_id = rq_id"),
 			__METHOD__,

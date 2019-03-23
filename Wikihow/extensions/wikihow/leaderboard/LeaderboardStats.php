@@ -24,7 +24,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		// DB query new articles
@@ -95,7 +95,7 @@ class LeaderboardStats {
 			return $cache;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$starttimestamp = $dbr->strencode($starttimestamp);
 		$sql = "
 			SELECT
@@ -142,7 +142,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -195,7 +195,7 @@ class LeaderboardStats {
 		   return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -260,7 +260,7 @@ class LeaderboardStats {
 		if (is_array($val)) {
 			return $val;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -309,7 +309,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$starttimestamp = $dbr->strencode($starttimestamp);
@@ -365,7 +365,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -427,7 +427,7 @@ class LeaderboardStats {
 		}
 
 		$logKey = CategoryGuardian::LOG_TYPE;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$starttimestamp = $dbr->strencode($starttimestamp);
@@ -461,7 +461,7 @@ class LeaderboardStats {
 		}
 
 		$logKey = 'sort_questions_tool';
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -501,7 +501,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -569,7 +569,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -637,7 +637,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -705,7 +705,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -773,7 +773,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		if ($getArticles) {
@@ -840,7 +840,7 @@ class LeaderboardStats {
 			// return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		if ($getArticles) {
@@ -928,7 +928,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -996,7 +996,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 
@@ -1063,7 +1063,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$sql = '';
@@ -1123,7 +1123,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1168,7 +1168,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1221,7 +1221,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1277,7 +1277,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1324,7 +1324,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1370,7 +1370,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1421,7 +1421,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1469,7 +1469,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1525,7 +1525,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1582,7 +1582,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
@@ -1637,7 +1637,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 
 		$bot = "";
@@ -1697,7 +1697,7 @@ class LeaderboardStats {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$data = array();
 		$starttimestamp = $dbr->strencode($starttimestamp);
 

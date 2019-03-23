@@ -195,7 +195,7 @@ class QAOrderArticleQuestions extends Maintenance {
 	 */
 	protected function getArticleIds($lastUpdatedAid) {
 		$aids = [];
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			QADB::TABLE_ARTICLES_QUESTIONS,
 			['distinct(qa_article_id)'],

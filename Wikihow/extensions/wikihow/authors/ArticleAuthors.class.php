@@ -35,7 +35,7 @@ class ArticleAuthors {
 		if (is_array($authors)) return $authors;
 
 		$authors = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		// filter out bots
 		$bad = WikihowUser::getBotIDs();
 		$bad[] = 0;  // filter out anons too, as per Jack

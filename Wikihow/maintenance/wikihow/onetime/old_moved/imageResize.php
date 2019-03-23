@@ -27,7 +27,7 @@ class ImageResize {
 	const ERROR_LOG = '/usr/local/wikihow/log/image_resize_error.log';
 
 	private function getArticles($start_limit,$limit) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		
 		$articles = array();
 		

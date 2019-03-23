@@ -14,7 +14,7 @@ class SpecialTester extends UnlistedSpecialPage {
 		$out = $this->getOutput();
 		$out->setArticleBodyOnly(true);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		for ($i = 0; $i < 100; $i++) {
 			usleep(5000);
 			$dbr->selectField('page',

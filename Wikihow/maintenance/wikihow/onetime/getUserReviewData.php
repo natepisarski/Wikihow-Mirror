@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../commandLine.inc';
 $file = '/tmp/reviewsdata.csv';
 echo "getting data...\n";
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->select(
 	'userreview_curated',
 	'*',

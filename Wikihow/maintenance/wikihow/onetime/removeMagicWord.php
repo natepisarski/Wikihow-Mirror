@@ -31,7 +31,7 @@ class removeMagicWord {
 	var $limit = 0;
 
 	public function __construct($limit) {
-		$this->dbr = wfGetDB(DB_SLAVE);
+		$this->dbr = wfGetDB(DB_REPLICA);
 		$this->limit = $limit;
 	}
 

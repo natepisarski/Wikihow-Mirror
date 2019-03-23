@@ -32,7 +32,6 @@ class Categorizer extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 
-		$section = new ProfileSection(__METHOD__);
 
 		$out->setRobotPolicy( 'noindex,nofollow' );
 		$user = $this->getUser();
@@ -376,8 +375,8 @@ class Categorizer extends UnlistedSpecialPage {
 
 		$t = Title::newFromId($aid);
 		if ($t && $t->exists()) {
-			$dbr = wfGetDB(DB_MASTER);
-			$wikitext = Wikitext::getWikitext($dbr, $t);
+			$dbw = wfGetDB(DB_MASTER);
+			$wikitext = Wikitext::getWikitext($dbw, $t);
 
 			$intro = Wikitext::getIntro($wikitext);
 			$intro = $this->stripCats($intro);
@@ -392,7 +391,7 @@ class Categorizer extends UnlistedSpecialPage {
 
 			// Article saved successfully
 			if ($result === '') {
-				wfRunHooks("CategoryHelperSuccess", array());
+				Hooks::run("CategoryHelperSuccess", array());
 			}
 		}
 	}

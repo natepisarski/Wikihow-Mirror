@@ -562,7 +562,7 @@ class Minify {
         // To do that, we define $wgServer here.
         global $wgServer;
         $serverName = @$_SERVER['SERVER_NAME'];
-        $wgServer = '//' . $serverName;
+        $wgServer = 'https://' . $serverName;
         define('MEDIAWIKI', true);
         require_once('../../extensions/wikihow/Misc.php');
         @include('../../env.php');

@@ -14,16 +14,16 @@ class ProxyConnect extends UnlistedSpecialPage {
 		}
 
 		// new user?
-		$dbr = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
 		if ($user->getID() > 0) {
-			$ip = $dbr->selectField('recentchanges',
+			$ip = $dbw->selectField('recentchanges',
 				'rc_ip',
 				['rc_user' => $user->getID(), 'rc_title' => "Log/newusers"],
 				__METHOD__);
 			if ($ip) {
-				$block = $dbr->selectField('ipblocks',
+				$block = $dbw->selectField('ipblocks',
 					'count(*)',
-					['ipb_address' => $ip, "ipb_timestamp > " . $dbr->addQuotes(wfTimestampNow())],
+					['ipb_address' => $ip, "ipb_timestamp > " . $dbw->addQuotes(wfTimestampNow())],
 					__METHOD__);
 				if ($block) {
 					return true;

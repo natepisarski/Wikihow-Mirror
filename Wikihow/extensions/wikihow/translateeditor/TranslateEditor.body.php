@@ -227,7 +227,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 	 * If so, return true otherwise return false
 	 */
 	static function isLink($langA, $aidA, $langB, $aidB) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select count(*) as ct from language_links where (ll_from_lang=" . $dbr->addQuotes($langA) . " AND ll_from_aid=" . $dbr->addQuotes($aidA) . " AND " . "ll_to_lang=" . $dbr->addQuotes($langB) . " AND ll_to_aid=" . $dbr->addQuotes($aidB) . ") OR "
 		. "(ll_from_lang=" . $dbr->addQuotes($langB) . " AND ll_from_aid=" . $dbr->addQuotes($aidB) . " AND " . "ll_to_lang=" . $dbr->addQuotes($langA) . " AND ll_to_aid=" . $dbr->addQuotes($aidA) . ")";
 
@@ -286,7 +286,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 
 		// Fetch the English page IDs from the database
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$tables = Misc::getLangDB('en') . '.page';
 		$fields = ['page_id', 'page_title'];
 		$where = ['page_namespace' => NS_MAIN, 'page_title' => array_keys($linksByTitle)];

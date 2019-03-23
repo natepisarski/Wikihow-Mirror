@@ -62,7 +62,7 @@ class AdminInstantArticles extends UnlistedSpecialPage {
     }
 
 	public static function getSubmittedQuestions( $title, $approved, $limit ) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table =  QADB::TABLE_SUBMITTED_QUESTIONS;
 		$vars = array('qs_question');
 		$conds = [

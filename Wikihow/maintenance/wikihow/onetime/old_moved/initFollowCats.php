@@ -3,7 +3,7 @@
 
 	$ignore_cats = array("Featured Articles", "Merge", "Cleanup", "Stub");
 	$pages = array();
-	$dbr = wfGetDB(DB_SLAVE); 
+	$dbr = wfGetDB(DB_REPLICA); 
 	$res = $dbr->select(array('firstedit','page'), array('fe_user', 'fe_user_text', 'fe_page'), 
 			array('fe_page=page_id', 'page_namespace'=>NS_MAIN,'fe_user > 0')
 		, "init_followcats"

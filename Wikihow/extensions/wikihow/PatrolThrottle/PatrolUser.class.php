@@ -122,7 +122,7 @@ class PatrolUser {
 	 *        	- latest date to search to
 	 */
 	private function getPatrolCount( $fromTimestamp = false, $maxTimestamp = false ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$conds = array(
 			'log_type' => 'patrol',
 			'log_user' => $this->mUser->getId()
@@ -205,7 +205,7 @@ class PatrolUser {
 		if ( !is_array( $userInfo ) ) {
 			wfDebug( __METHOD__ . " cache miss for $userId\n" );
 			$userInfo = array();
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$result = $dbr->select( array(
 				self::LIMITS_TABLE
 			), array(
@@ -323,7 +323,7 @@ class PatrolUser {
 		$earliestTime = wfTimestamp( TS_MW, time() - $maxTTL );
 		$language = wfGetLangObj( true );
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$result = $dbr->select( array(
 			self::LIMITS_TABLE
 		), array(
@@ -382,7 +382,7 @@ class PatrolUser {
 
 	/**
 	 * Hook for MarkPatrolledBatchComplete
-	 * RC patrol app should call wfRunHooks('MarkPatrolledBatchComplete', ...)
+	 * RC patrol app should call Hooks::run('MarkPatrolledBatchComplete', ...)
 	 */
 	public static function onMarkPatrolledBatchComplete(&$article, &$rcids, &$user) {
 		if ( $user instanceof User ) {

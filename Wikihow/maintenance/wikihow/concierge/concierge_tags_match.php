@@ -28,7 +28,7 @@ foreach ($tags as $tag) {
 
 
 function getArticleFields() {
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$row = $dbr->selectRow('concierge_articles', '*', array(), __METHOD__, array("LIMIT" => 1));
 	return implode("\t", array_keys(get_object_vars($row)));
 	

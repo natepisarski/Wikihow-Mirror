@@ -59,7 +59,7 @@ abstract class Plants {
 	 * a button was clicked.
 	 ***************/
 	function getAllPlantsUsed() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		if ($this->user->isLoggedIn()) {
 			$res = $dbr->select(array(Plants::SCORE_TABLE, $this->questionTable), array('ps_plant_id', 'ps_answer', "{$this->tablePrefix}_display"), array('ps_type' => $this->plantType, 'ps_user_id' => $this->user->getID(), "ps_plant_id = {$this->tablePrefix}_id"), __METHOD__, array('ORDER BY' => 'ps_id DESC'));
@@ -126,7 +126,7 @@ abstract class Plants {
 	}
 
 	function gradeUser() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$vId = WikihowUser::getVisitorId();
 
 		$grades = $dbr->query("SELECT

@@ -12,7 +12,7 @@ class PopulateFoldedRedirects extends Maintenance {
 
 		$this->output(basename(__FILE__) . " running for '$wgLanguageCode'\n");
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$where = [ 'page_namespace' => NS_MAIN, 'page_is_redirect' => 0 ];
 		$total = $dbr->selectField('page', 'count(*)', $where);
 		$count = 0;

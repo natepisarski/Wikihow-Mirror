@@ -152,7 +152,7 @@ class FBLogin extends UnlistedSpecialPage {
 		$user->setCookies();
 
 		if ($user->isEmailConfirmed()) {
-			wfRunHooks('ConfirmEmailComplete', array($user));
+			Hooks::run('ConfirmEmailComplete', array($user));
 		}
 
 		// All registered. Send them along their merry way

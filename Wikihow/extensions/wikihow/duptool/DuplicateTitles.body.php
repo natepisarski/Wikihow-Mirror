@@ -87,7 +87,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
      * get the next article to vote on
 	 */
 	private function getNextItem() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 
 		$options = [
 			"SQL_CALC_FOUND_ROWS",
@@ -178,7 +178,7 @@ class DuplicateTitles extends UnlistedSpecialPage {
 	}
 
 	public static function getRemainingCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField(
 			self::REDIRECT_TABLE,
 			"count(*)",

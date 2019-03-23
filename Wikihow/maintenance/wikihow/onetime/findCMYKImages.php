@@ -47,7 +47,7 @@ if ($offset > 0) {
 	$options['OFFSET'] = $offset;
 }
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->select('wikiphoto_article_watermark',
 					'waw_article_id',
 					array($selectBy),

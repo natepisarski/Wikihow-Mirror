@@ -45,7 +45,7 @@ class TranslatorEditMapper extends EditMapper {
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			'pre_translation_link',
 			[ 'ptl_english_aid', 'ptl_translator', 'ptl_to_title' ],

@@ -138,7 +138,7 @@ class UnpatrolTips extends UnlistedSpecialPage {
 			}
 		}
 
-		wfRunHooks('UnpatrolTips', array(&$tipIds));
+		Hooks::run('UnpatrolTips', array(&$tipIds));
 
 		$count = sizeof($tipIds);
 		if ($print) {
@@ -283,7 +283,7 @@ class Unpatrol extends UnlistedSpecialPage {
 			if (!empty($unpatrol_limit)) $sql .= " LIMIT " . $unpatrol_limit;
 			$res = $dbw->query($sql,__METHOD__);
 
-			wfRunHooks('Unpatrol', array(&$oldids));
+			Hooks::run('Unpatrol', array(&$oldids));
 
 			if ($res) {
 				// set logs to deleted

@@ -25,7 +25,6 @@ class CategoryInterests extends UnlistedSpecialPage {
 		$request = $out->getRequest();
 		$user = $this->getUser();
 
-		$section = new ProfileSection(__METHOD__);
 
 		$out->setRobotPolicy( 'noindex,nofollow' );
 
@@ -90,7 +89,7 @@ class CategoryInterests extends UnlistedSpecialPage {
 			if ($cond['ci_visitor_id'] == '') return array();
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('category_interests', array('ci_category',), $cond,__METHOD__);
 		foreach ($res as $row) {
 			$catInterests[] = str_replace('-', ' ', stripslashes($row->ci_category));
@@ -314,7 +313,7 @@ class CategoryInterests extends UnlistedSpecialPage {
 			return $interests;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = ProfileBox::fetchEditedData($user->getName(), 10);
 		foreach ($res as $row) {
 			$t = Title::newFromId($row->page_id);

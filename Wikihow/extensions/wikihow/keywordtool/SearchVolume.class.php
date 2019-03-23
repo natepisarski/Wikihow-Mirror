@@ -58,13 +58,13 @@ class SearchVolume {
 	}
 
 	public static function getVolume($pageId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectField(self::TABLE_NAME, "sv_volume", ["sv_page_id" => $pageId], __METHOD__);
 	}
 
 	public static function getNewPageIds() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select([self::TABLE_NAME, "page"], ['sv_page_id', 'page_title'], ['sv_volume' => -1, 'sv_page_id = page_id'], __METHOD__);
 
 		$titles = [];

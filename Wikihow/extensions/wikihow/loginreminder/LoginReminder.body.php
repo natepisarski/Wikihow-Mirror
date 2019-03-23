@@ -25,7 +25,7 @@ class LoginReminder extends UnlistedSpecialPage {
 		} else {
 			$template = new QuickTemplateWrapper();
 			$template->set('header', '');
-			wfRunHooks( 'UserCreateForm', array( &$template ) );
+			Hooks::run( 'UserCreateForm', array( &$template ) );
 			$this->displayForm($template);
 		}
 	}
@@ -172,7 +172,7 @@ class LoginReminder extends UnlistedSpecialPage {
 		}
 
 		$abortError = '';
-		if ( !wfRunHooks( 'AbortAccountReminder', array( $u, &$abortError ) ) ) {
+		if ( !Hooks::run( 'AbortAccountReminder', array( $u, &$abortError ) ) ) {
 			// Hook point to add extra creation throttles and blocks
 			wfDebug( "LoginForm::addNewAccountInternal: a hook blocked creation\n" );
 			$result['error_captcha'] = $abortError;
@@ -180,7 +180,7 @@ class LoginReminder extends UnlistedSpecialPage {
 			//had a problem with the captcha, need to load a new one
 			$template = new QuickTemplateWrapper();
 			$template->set('header', '');
-			wfRunHooks('AccountReminderNewCaptcha', array( &$template ));
+			Hooks::run('AccountReminderNewCaptcha', array( &$template ));
 
 			//hack since templates ECHO the data you want
 			ob_start();
@@ -267,7 +267,7 @@ class LoginFacebook extends UnlistedSpecialPage {
 
 		</div>";
 		$this->getOutput()->addHTML($form);
-		wfRunHooks( 'FBLoginForm', array() );
+		Hooks::run( 'FBLoginForm', array() );
 	}
 
 	// hooks into BeforeTabsLine
@@ -300,7 +300,7 @@ class LoginCheck extends UnlistedSpecialPage {
 	}
 
 	private static function checkUsername($username) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		if (WikihowUser::usernameTaken($dbr, $username)) {
 			$pad = function($text) {
 				return "<a class='username-suggestion'>$text</a>";

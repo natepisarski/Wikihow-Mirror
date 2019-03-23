@@ -79,7 +79,7 @@ class SensitiveReason
 	public function delete(): bool
 	{
 		$res = static::getDao()->deleteReason($this);
-		wfRunHooks( "SensitiveReasonDeleted" , [$this->id]);
+		Hooks::run( "SensitiveReasonDeleted" , [$this->id]);
 		return $res;
 	}
 

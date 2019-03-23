@@ -22,7 +22,6 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 	private function prepareAmpTemplate() {
 		global $wgAppleTouchIcon, $wgMFNoindexPages;
 
-		wfProfileIn( __METHOD__ );
 		$out = $this->getOutput();
 		// add head items
 		if ( $wgAppleTouchIcon !== false ) {
@@ -108,7 +107,6 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 			$tpl->set( 'bodytext', $html );
 			$this->prepareMobileFooterLinks( $tpl );
 		}
-		wfProfileOut( __METHOD__ );
 		return $tpl;
 	}
 

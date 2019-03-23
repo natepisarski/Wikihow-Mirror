@@ -2204,7 +2204,7 @@ x
 
 $ids = explode("\n", $ids);
 
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 foreach ($ids as $id) {
 	if ($id == "") continue;
 	$id = trim($id);

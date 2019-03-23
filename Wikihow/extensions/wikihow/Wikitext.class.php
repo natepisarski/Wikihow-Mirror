@@ -167,7 +167,6 @@ class Wikitext {
 	 */
 	public static function getSummarizedSection($wikitext) {
 		global $wgParser;
-		$profiler = new ProfileSection(__METHOD__);
 		$content = '';
 		$headings = explode("\n", ConfigStorage::dbGetConfig(self::SUMMARIZED_HEADINGS_KEY));
 		for ($i = 1; $i < 100; $i++) {
@@ -303,6 +302,11 @@ class Wikitext {
 		return $num_videos;
 	}
 
+	public static function countSummaryVideos($wikitext) {
+		$num_videos = preg_match_all('/\{\{whvid\|.*Step 0/im', $wikitext, $m);
+		return $num_videos;
+	}
+
 	/**
 	 * Extract a particular section from the wikitext of an article.
 	 *
@@ -314,7 +318,6 @@ class Wikitext {
 	public static function getSection($wikitext, $sectionMsg, $withHeader) {
 		global $wgParser;
 		if (empty($sectionMsg)) throw new Exception('Must provide the section message');
-		wfProfileIn(__METHOD__);
 		$content = '';
 		$id = 0;
 		for ($i = 1; $i < 100; $i++) {
@@ -332,7 +335,6 @@ class Wikitext {
 				}
 			}
 		}
-		wfProfileOut(__METHOD__);
 		return array($content, $id);
 	}
 
@@ -736,11 +738,9 @@ class Wikitext {
 	public static function getTitleImage($title, $skip_parser = false) {
 		global $wgContLang, $wgLanguageCode;
 
-		wfProfileIn(__METHOD__);
 		//resolve redirects
 		$r = Revision::newFromTitle($title);
 		if (!$r) {
-			wfProfileOut(__METHOD__);
 			return "";
 		}
 		$text = $r->getText();
@@ -751,7 +751,6 @@ class Wikitext {
 			if ($matches[1]) {
 				$title = Title::newFromText($matches[1]);
 				if (!$title || !$title->exists()) {
-					wfProfileOut(__METHOD__);
 					return '';
 				}
 
@@ -777,25 +776,19 @@ class Wikitext {
 			$steps = self::getStepsSection($text, true);
 		}
 
-		wfProfileIn(__METHOD__.'-imagematch');
 		//[[Image:...]]
 		preg_match_all("@\[\[" . $nsTxt . ":([^\|]+)[^\]]*\]\]@im", $steps[0], $matches_img);
-		wfProfileOut(__METHOD__.'-imagematch');
 		if (!empty($matches_img[2])) {
 			$matches = $matches_img[2];
 		}
 		else {
 			//{{largeimage|...}}
-			wfProfileIn(__METHOD__.'-largeimagematch');
 			preg_match_all("@\{\{largeimage\|([^\||\}]+)\}\}@im", $steps[0], $matches_lgimg);
-			wfProfileOut(__METHOD__.'-largeimagematch');
 			if (!empty($matches_lgimg[1])) $matches = $matches_lgimg[1];
 		}
 
 		if (empty($matches)) {
-			wfProfileIn(__METHOD__.'-whvidmatch');
 			preg_match_all("@(\{\{whvid\|[^\}]*\}\})@im", $steps[0], $matches_whvid);
-			wfProfileOut(__METHOD__.'-whvidmatch');
 			$whvid = array();
 			if (!empty($matches_whvid[1])) {
 				$matches = array();
@@ -828,17 +821,14 @@ class Wikitext {
 			$file = wfFindFile(str_replace(" ", "-", end($matches)));
 
 			if ($file && isset($file)) {
-				wfProfileOut(__METHOD__);
 				return $file;
 			}
 		}
-		wfProfileOut(__METHOD__);
 	}
 
 	public static function getDefaultTitleImage($title = null, $wide = false) {
 		global $wgLanguageCode;
 
-		wfProfileIn(__METHOD__);
 
 		$intlSuffix = "";
 		if ($wgLanguageCode != "en") {
@@ -856,7 +846,6 @@ class Wikitext {
 			$file = wfFindFile("Default_wikihow.jpg");
 		}
 
-		wfProfileOut(__METHOD__);
 		if ($file) {
 			return $file;
 		} else {
@@ -868,7 +857,6 @@ class Wikitext {
 	 * currently only used by getTitleImage.  Runs way faster than using parser
 	 */
 	private static function getStepsNoParser($text) {
-		wfProfileIn(__METHOD__);
 		$stepsName = strtolower(wfMessage("steps")->inContentLanguage()->text());
 		$parts = preg_split('@^\s*==\s*([^=\s]+)\s*==\s*$@m', $text, 0, PREG_SPLIT_DELIM_CAPTURE);
 		for ($i = 0; $i < sizeof($parts); $i++) {
@@ -877,7 +865,6 @@ class Wikitext {
 				break;
 			}
 		}
-		wfProfileOut(__METHOD__);
 		return $result;
 	}
 

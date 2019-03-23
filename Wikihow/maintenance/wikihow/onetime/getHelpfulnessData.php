@@ -10,7 +10,7 @@ class GetHelpfulnessData extends Maintenance {
     }
 
 	public function execute() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = "rating_reason";
 		$vars = array('ratr_rating', 'ratr_text');
 

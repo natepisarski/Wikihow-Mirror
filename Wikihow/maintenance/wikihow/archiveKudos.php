@@ -3,7 +3,7 @@ require_once( __DIR__ . "/../commandLine.inc" );
 
 $wgUser = new User();
 $wgUser->setName('KudosArchiver');
-$dbr = wfGetDB( DB_SLAVE );
+$dbr = wfGetDB( DB_REPLICA );
 $res = $dbr->select(
 	array('page', 'user'),
 	array( 'page_title', 'page_namespace', 'user_name'),

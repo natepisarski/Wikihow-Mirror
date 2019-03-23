@@ -25,7 +25,7 @@ class ManageSuggestedTopics extends SpecialPage {
 		//$out->addModules( ['ext.wikihow.winpop'] );
 		$out->setRobotPolicy('noindex,nofollow');
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$out->addModules( ['ext.wikihow.ManageSuggestedTopics'] );
 
 		if ($req->wasPosted()) {
@@ -142,7 +142,7 @@ class ManageSuggestedTopics extends SpecialPage {
 
 		if (!$suggestion) {
 			//not new, let's dive for it
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$suggestion = $dbr->selectField('suggested_titles', 'st_title', ['st_id' => $suggest_id]);
 		}
 		$page_title = Title::newFromText($suggestion);

@@ -53,7 +53,7 @@ class ImageTranscoder extends AbsTranscoder {
 	}
 	
     private static function getPhotoLicense( $pageId ) {
-        $dbr = wfGetDb( DB_SLAVE );
+        $dbr = wfGetDb( DB_REPLICA );
         $license = '{{' . WikiVisualTranscoder::PHOTO_LICENSE . '}}';
 
         $table = 'concierge_articles';

@@ -9,7 +9,7 @@ $wgExtensionMessagesFiles['Tabs'] = __DIR__ .'/tabs.i18n.php';
 
 $wgHooks['BeforePageDisplay'][] = 'MobileTabs::onBeforePageDisplay'; //add mobile js
 $wgHooks['DesktopTopStyles'][] = ['DesktopTabs::addDesktopCSS']; //embed desktop css
-$wgHooks['MobileEmbedStyles'][] = 'MobileTabs::addMobileCSS'; //embed mobile css
+$wgHooks['MinvervaTemplateBeforeRender'][] = ['MobileTabs::addTabsToArticle']; //add the tabs on mobile
 
 $wgResourceModules['ext.wikihow.tabs'] = array(
 	'scripts' => array('tabs.js'),
@@ -19,10 +19,11 @@ $wgResourceModules['ext.wikihow.tabs'] = array(
 	'targets' => array( 'mobile', 'desktop' ),
 );
 
-$wgResourceModules['ext.wikihow.mobile_tag_4'] = array(
-	'scripts' => array('mobile_tag_4.js'),
+$wgResourceModules['ext.wikihow.mobile_tabs'] = array(
+	'scripts' => array('mobile_tabs.js'),
 	'localBasePath' => __DIR__ . '/scripts/',
 	'remoteExtPath' => 'wikihow/tabs/scripts',
 	'position' => 'top',
 	'targets' => array( 'mobile' ),
 );
+

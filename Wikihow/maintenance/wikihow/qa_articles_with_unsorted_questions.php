@@ -32,7 +32,7 @@ class ArticlesWithUnsortedQuestions extends Maintenance {
 	}
 
 	private function getArticleIDs() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$rows = [];
 
 		$res = $dbr->select(

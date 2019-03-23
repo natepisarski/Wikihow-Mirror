@@ -34,65 +34,93 @@ CREATE TABLE `item_rating` (
 */
 class ImportFastlyEventLog extends Maintenance {
 
+	protected static $allowedActions = [ 'svideoplay', 'svideoview' ];
+
 	public function __construct() {
 		parent::__construct();
 		$this->addOption( 'file', 'input file', true, true, 'f' );
 	}
 
 	public function execute() {
-		$dbw = wfGetDB(DB_MASTER);
-		$table = 'event_log';
 		$file = $this->getOption( 'file' );
 		decho( "file is", $file, false );
+
+		// Each line in the file contains:
+		// 
+		// RFC1123 date
+		// Encoded URL of the endpoint hit to log action with required action and optional page params
+		// Encoded URL of the page the action occured on (can be used in lieu of a page param)
+		// 
+		// The format is 3 quoted strings, it looks like:
+		// 
+		// "Tue, 19 Mar 2019 23:03:37 GMT" "m.wikihow.com%2Fx%2Fevent%3Faction%3Dsvideoplay%26page%3D1098893" "https%3A%2F%2Fm.wikihow.com%2FVideo%2FGet-Rid-of-Skunks"
+
 		$handle = fopen( $file, "r" );
+		$events = [];
+		if ( $handle ) {
+			while ( ( $row = fgetcsv( $handle, 0, ' ' ) ) ) {
+				$eventUrl = parse_url( 'https://' . urldecode( $row[1] ) );
+				if ( $eventUrl ) {
+					parse_str( $eventUrl['query'], $params );
+					if ( isset( $params['page'] ) ) {
+						// Lookup by page ID
+						$title = Title::newFromID( $params['page'] );
+					} else {
+						// Extract title from referrer
+						$referrerUrl = parse_url( urldecode( $row[2] ) );
+						if ( $referrerUrl && strlen( $referrerUrl['path'] ) ) {
+							$title = Title::newFromText( ltrim( $referrerUrl['path'] , '/' ) );
+						}
+					}
+				}
 
-		if ($handle) {
-			while (($line = fgets($handle)) !== false) {
-				$data = preg_split('/\s+/', trim( $line ) );
-				$count = $data[0];
-				$url = trim( $data[1], ' "' );
-				$domain = strstr( $url, '/', true );
-				$title = Misc::getTitleFromText( $url );
+				// Verify we have a valid title
 				if ( !$title ) {
-					decho( 'no title found for', $url, false );
+					decho( 'invalid event row', implode( ' ', $row ) );
 					continue;
 				}
+
+				// Extract useful information from log line
+				$domain = $eventUrl['host'];
 				$pageId = $title->getArticleID();
-				$insertData = array(
-					'el_page_id' => $pageId,
-					'el_domain' => $domain,
-					'el_count' => $count,
-				);
+				$action = $params['action'];
+				$dateTime = DateTime::createFromFormat( DateTime::RFC1123, $row[0] );
+				$dateString = $dateTime->format( 'Y-m-d H:i:s' );
 
-				// get action and timestamp
-				$queryParams = explode( '&', trim( $data[2], ' "' ) );
-				if ( count( $queryParams ) != 2 ) {
-					decho("did not find required two query params");
+				// Filter out bad actions
+				if ( !in_array( $action, self::$allowedActions ) ) {
+					decho( "action invalid", $key, false );
 					continue;
 				}
 
-				$action = $queryParams[0];
-				$date = $queryParams[1];
-				//decho("action", $action);
-				if ( !substr( $action, 0, 6 ) === "action=" ) {
-					decho( "action invalid for row", $insertData, false );
-					continue;
-				}
-
-				// TODO restrict action to a list of actions
-				$insertData['el_action'] = substr( $action, 7 );
-				$date = substr( $date, 2 );
-				$date = gmdate("Y-m-d H:i:s", $date);
-				$insertData['el_date'] = $date;
-
-				$options = array( 'IGNORE' );
-				$dbw->insert( $table, $insertData, __METHOD__, $options );
-				//decho('inserted row', $insertData, false );
+				// Build list of row insertions, summing counts for duplicate domain/pageID/action
+				$key = "{$domain} {$pageId} {$action}";
+				if ( !isset( $events[$key] ) ) {
+					$events[$key] = [
+						'el_domain' => $domain,
+						'el_page_id' => $pageId,
+						'el_action' => $action,
+						'el_count' => 1,
+						'el_date' => $dateString,
+					];
+				} else {
+					$events[$key]['el_count']++;
+					if ( $dateString > $events[$key]['el_date'] ) {
+						$events[$key]['el_date'] = $dateString;
+					}
+				}	
 			}
 
 			fclose($handle);
+
+			decho( 'inserting events', count( $events ) . ' events', false );
+
+			$dbw = wfGetDB( DB_MASTER );
+			foreach ( $events as $key => $event ) {
+				$dbw->insert( 'event_log', $event, __METHOD__, [ 'IGNORE' ] );
+			}
 		} else {
-			// error opening the file.
+			decho( 'error opening file', $file, false );
 		}
 	}
 }

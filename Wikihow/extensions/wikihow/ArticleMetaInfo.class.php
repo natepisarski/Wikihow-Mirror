@@ -257,7 +257,7 @@ class ArticleMetaInfo {
 
 		$value = $wgMemc->get( self::SUMMARY_VIDEO_UPDATED_KEY );
 		if ( $value === false ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$sql = 'SELECT MAX(ami_summary_video_updated) as latest_update FROM article_meta_info;';
 			$res = $dbr->query( $sql, __METHOD__ );
 			$row = $dbr->fetchRow( $res );
@@ -725,7 +725,7 @@ class ArticleMetaInfo {
 			if (self::$dbw == null) self::$dbw = wfGetDB(DB_MASTER);
 			return self::$dbw;
 		} elseif ($type == 'read') {
-			if (self::$dbr == null) self::$dbr = wfGetDB(DB_SLAVE);
+			if (self::$dbr == null) self::$dbr = wfGetDB(DB_REPLICA);
 			return self::$dbr;
 		} else {
 			throw new Exception('unknown DB handle type');
@@ -834,7 +834,7 @@ class ArticleMetaInfo {
 
 	private static function getMetaSubcategories($title, $limit = 3) {
 		$results = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			array('categorylinks', 'page'),
 			array('page_namespace', 'page_title'),
@@ -868,7 +868,7 @@ class ArticleMetaInfo {
 			return;
 		}
 
-		if ( !wfRunHooks( 'ArticleMetaInfoAddFacebookMetaProperties', array() ) ) {
+		if ( !Hooks::run( 'ArticleMetaInfoAddFacebookMetaProperties', array() ) ) {
 			return;
 		}
 		$url = $wgTitle->getFullURL('', false, PROTO_CANONICAL);
@@ -1010,7 +1010,7 @@ class ArticleMetaInfo {
 			return;
 		}
 
-		if ( !wfRunHooks( 'ArticleMetaInfoShowTwitterMetaProperties', array() ) ) {
+		if ( !Hooks::run( 'ArticleMetaInfoShowTwitterMetaProperties', array() ) ) {
 			return;
 		}
 
@@ -1117,7 +1117,7 @@ class ArticleMetaInfo {
 
 		if ( !$usingWgTitle ) {
 			// load from ami db table
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$table = 'article_meta_info';
 			$var = 'ami_img';
 			$cond = array( 'ami_id'  => $title->getArticleID() );

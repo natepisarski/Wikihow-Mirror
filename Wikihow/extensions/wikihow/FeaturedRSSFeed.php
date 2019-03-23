@@ -7,12 +7,12 @@ class FeaturedRSSFeed extends RSSFeed {
          * Original implementation in parent class: Feed.php#ChannelFeed
          */
         function outXmlHeader() {
-            global $wgStylePath, $wgStyleVersion;
+            global $wgStylePath;
 
             $this->httpHeaders();
             echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
             echo '<?xml-stylesheet type="text/css" href="' .
-                htmlspecialchars( wfExpandUrl( "$wgStylePath/common/feed.css?$wgStyleVersion", PROTO_CURRENT ) ) .
+                htmlspecialchars( wfExpandUrl( "$wgStylePath/common/feed.css", PROTO_CURRENT ) ) .
                 '"?' . ">\n";
         }
 

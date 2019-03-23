@@ -158,7 +158,7 @@ class CategoryData {
 	}
 
 	private function getCategoryListingInfo() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbr->select(
 			self::LISTING_TABLE,
 			'*',

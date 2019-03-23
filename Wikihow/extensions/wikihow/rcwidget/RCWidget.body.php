@@ -371,7 +371,7 @@ class RCWidget extends UnlistedSpecialPage {
 	public static function getNabCount() {
 		global $wgMemc;
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$nabCount = null;
 
 		//check the cache for nabcount and cache if doesn't exist
@@ -389,7 +389,7 @@ class RCWidget extends UnlistedSpecialPage {
 	public static function pullData(int $user = 0) {
 		global $wgMemc;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$cachekey = wfMemcKey('rcwidget', $user);
 
 		// for logged in users whose requests bypass varnish, this data is
@@ -441,7 +441,7 @@ class RCWidget extends UnlistedSpecialPage {
 	}
 
 	private function processDataUserActivity($logsql, $sql, $currenttime) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$sql = $dbr->limitResult($sql, 200, 0);
 		$res = $dbr->query($sql, __METHOD__);
@@ -519,7 +519,7 @@ class RCWidget extends UnlistedSpecialPage {
 	}
 
 	private function processDataRCWidget($logsql, $sql, $currenttime) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$sql = $dbr->limitResult($sql, 200, 0);
 		$res = $dbr->query( $sql, __METHOD__ );

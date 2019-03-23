@@ -29,7 +29,7 @@ if(sizeof($rows) > 0) {
 	if($msg != "") {
 		$msg = "<p>The following pages on $wgLanguageCode have been modified over 24 hours ago, but aren't showing up in Titus</p>\n" . $msg;
 		print $msg;
-		$to = new MailAddress("gershon@wikihow.com");
+		$to = new MailAddress("eng@wikihow.com");
 		$from = new MailAddress("alerts@wikihow.com");
 		$subject = "Out of date fields in titus:\n";
 	        $content_type = "text/html; charset=UTF-8";

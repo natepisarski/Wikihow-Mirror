@@ -4,7 +4,7 @@ require_once __DIR__ . '/../commandLine.inc';
 global $IP;
 require_once("$IP/extensions/wikihow/DatabaseHelper.class.php");
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $res = $dbr->select('quizzes','quiz_name', array('quiz_active' => true), __FILE__, array('GROUP BY' => 'quiz_name'));
 

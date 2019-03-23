@@ -7,9 +7,6 @@ class CatSearch extends UnlistedSpecialPage {
 	}
 
 	function execute($par) {
-		$fname = 'CatSearch::execute';
-		wfProfileIn( $fname );
-
 		$out = $this->getOutput();
 		$out->setRobotPolicy( 'noindex,nofollow' );
 
@@ -25,13 +22,12 @@ class CatSearch extends UnlistedSpecialPage {
 			echo json_encode(array("results" => $this->formatResults($this->catToolSearch($q))));
 		}
 
-		wfProfileOut( $fname );
 	}
 
 	function catSearch($q) {
 		global $wgRequest;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$prefix = "Category ";
 		$query = $dbr->strencode($prefix . $q);
 		$suggestions = array();

@@ -8,11 +8,17 @@ class ThumbsNotifications extends UnlistedSpecialPage {
 
 	public function execute($par) {
 		$dbw = wfGetDB(DB_MASTER);
+		// TODO, fix: you can arbitrarily mark-as-read any thumbs up from anyone
+		// using this method. (But it's better than the sql injection that was
+		// here before.)
 		$revId = $this->getRequest()->getInt('rev');
-		// REDALERT
-		$giverIds = $dbw->strencode($this->getRequest()->getVal('givers'));
-		$sql = "UPDATE thumbs SET thumb_notified = 1 WHERE thumb_rev_id = $revId and thumb_giver_id IN ($giverIds)";
-		$result = $dbw->query($sql, __METHOD__);
+		$giverIds = $this->getRequest()->getVal('givers');
+		$giversList = array_map(intval, explode(',', $giverIds));
+		$result = $dbw->update( 'thumbs',
+			[ 'thumb_notified' => 1 ],
+			[ 'thumb_rev_id' => $revId,
+			  'thumb_giver_id' => $giversList ],
+			__METHOD__ );
 
 		if ($result) {
 			// updated. clear the memcache key
@@ -38,7 +44,7 @@ class ThumbsNotifications extends UnlistedSpecialPage {
 	}
 
 	private static function getNotifications($userText) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$currentTime = wfTimestamp(TS_DB);
 		$oldTime = wfTimestamp() - 30 * 24 * 60 * 60;
 		$oldTime = wfTimestamp(TS_DB, $oldTime);
@@ -104,21 +110,19 @@ class ThumbsNotifications extends UnlistedSpecialPage {
 	}
 
 	private static function formatDiffLink($pageId, $revId, $label='edit') {
-		$sk = RequestContext::getMain()->getUser()->getSkin();
 		$t = Title::newFromID($pageId);
 		$diff = "";
 		if ($t->getArticleId() > 0) {
-			$diff = $sk->makeKnownLinkObj($t, $label, 'diff=' . $revId . '&oldid=PREV');
+			$diff = Linker::linkKnown($t, $label, [], ['diff' => $revId, 'oldid' => 'PREV']);
 		}
 		return $diff;
 	}
 
 	private static function formatPageLink($pageId) {
-		$sk = RequestContext::getMain()->getUser()->getSkin();
 		$t = Title::newFromID($pageId);
 		$page = "";
 		if ($t->getArticleId() > 0) {
-			$page = $sk->makeKnownLinkObj($t, $t->getFullText(), '', '', '', 'class="th_t_url" ');
+			$page = Linker::linkKnown($t, $t->getFullText(), ['class' => 'th_t_url']);
 		}
 		return $page;
 	}
@@ -154,10 +158,9 @@ class ThumbsNotifications extends UnlistedSpecialPage {
 		if ($u) {
 			$t = $u->getTalkPage();
 			if ($t) {
-				$sk = RequestContext::getMain()->getUser()->getSkin();
-				$uTalkPage = $sk->makeKnownLinkObj($t, $uTalkPage, '#post', '', '', 'class="tooltip" title=""', ' ');
+				$uTalkPage = Linker::linkKnown($t, $uTalkPage, ['class' => 'tooltip']);
 				if ($showText) {
-					$uTalkPage .= " " . $sk->makeKnownLinkObj($t, $userText, '#post', '', '', 'title=""', ' ');
+					$uTalkPage .= " " . Linker::linkKnown($t, $userText, ['title' => '']);
 				}
 			}
 		}

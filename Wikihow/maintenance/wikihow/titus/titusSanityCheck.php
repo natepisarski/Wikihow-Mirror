@@ -19,7 +19,7 @@ try {
 		$found = false;
 		foreach ( $res as $row ) {
 			if ( $row->ct > 30 ) {
-				$found = true;	
+				$found = true;
 			}
 		}
 		if ( !$found ) {
@@ -37,7 +37,7 @@ try {
 	$error = print_r($e, true);
 }
 if ( $issueLangs || $editedArticles < 100 || $error ) {
-	$to = new MailAddress("gershon@wikihow.com");                                                                   
+	$to = new MailAddress("eng@wikihow.com");
 	$from = new MailAddress("alerts@wikihow.com");
 	$subject = "Errors with most recent Titus run";
 	$msg = "titusSanityCheck.php has detected the following issues with Titus:";
@@ -49,7 +49,7 @@ if ( $issueLangs || $editedArticles < 100 || $error ) {
 		$msg .= "\nLess than 100 articles have been edited in the last two days according to Titus. " . $editedArticles . " have been edited";
 	}
 	if ( $error ) {
-		$msg .= "\nException while running script titusSanityCheck.php " . $error;	
+		$msg .= "\nException while running script titusSanityCheck.php " . $error;
 	}
 	UserMailer::send($to,$from, $subject, $msg);
 	print wfTimestampNow() . $msg;

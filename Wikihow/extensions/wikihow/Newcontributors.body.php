@@ -18,7 +18,7 @@ class NewContributors extends QueryPage {
 	function isSyndicated() { return false; }
 
 	function getSQL() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$usertable = $dbr->tableName('user');
 		$sql = "SELECT rev_user, COUNT(rev_user) AS numedits, rev_timestamp FROM revision, $usertable WHERE rev_user = user_id AND user_registration is not null GROUP BY rev_user HAVING COUNT(numedits) > 0";
 		return $sql;

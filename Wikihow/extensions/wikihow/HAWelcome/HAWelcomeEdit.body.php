@@ -12,7 +12,6 @@ class HAWelcomeEdit extends UnlistedSpecialPage {
 		$user = $this->getUser();
 		$req = $this->getRequest();
 
-		wfProfileIn( __METHOD__ );
 
 		$this->setHeaders();
 		$this->mTitle = SpecialPage::getTitleFor( 'HAWelcomeEdit' );
@@ -29,7 +28,6 @@ class HAWelcomeEdit extends UnlistedSpecialPage {
 		$this->showCurrent();
 		$this->showChange();
 
-		wfProfileOut( __METHOD__ );
 	}
 
 	private function showCurrent(){

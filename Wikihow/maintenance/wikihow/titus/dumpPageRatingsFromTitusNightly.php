@@ -41,7 +41,7 @@ class DumpPageRatingsFromWikiLogNightlyMaintenance extends Maintenance {
 			exit();
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		foreach ($res as $row) {
 			$allTimeVotes = $dbr->selectField('rating', 'count(*)', array('rat_page' => $row->pageid));

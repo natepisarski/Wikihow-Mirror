@@ -18,7 +18,7 @@ function textFromPage($page) {
 	}
 }
 
-$dbh = wfGetDB(DB_SLAVE);
+$dbh = wfGetDB(DB_REPLICA);
 $today = date('Ymd');
 $oneDayAgo = strtotime( "-1 day", strtotime($today) );
 $lowDate = wfTimestamp(TS_MW, $oneDayAgo);

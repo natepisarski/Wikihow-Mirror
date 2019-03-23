@@ -60,7 +60,7 @@ class ReportBrokenInternationalWikitext extends Maintenance {
 		global $wgLanguageCode;
 		$lang = $wgLanguageCode;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$lang_errors = array();
 

@@ -31,7 +31,7 @@ class Recommendations
 	*/
 	public function excludeWorstRelated($n = 250) {
 		$sql = "select page_id,page_title, count(r.rev_len),sum(gr.rev_len * r.rev_len) as bad from page join revision r on r.rev_page=page_id join good_revision on gr_page=page_id join revision gr on gr.rev_id=gr_rev where page_namespace=0 group by page_id order by bad desc limit " . intval($n);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$ct = 0;
 		foreach ($res as $row) {
@@ -46,7 +46,7 @@ class Recommendations
 	 * Get the titles of stub articles
 	 */
 	static function findStubs($limit = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$options = array();
 		if ($limit) {
 			$options['LIMIT'] = $limit;
@@ -160,7 +160,7 @@ class Recommendations
 		}
 		$u = User::newFromName($username);
 		if ($u && $u->getId() > 0 && !in_array('bot',$u->getGroups()) && !in_array('staff',$u->getGroups()) && !in_array('staff_widget',$u->getGroups()) && !in_array('editfish',$u->getGroups()) ) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$sql = "select max(rev_timestamp) as lt from revision where rev_user=" . $dbr->addQuotes($u->getId());
 			$res = $dbr->query($sql, __METHOD__);
 			$lastTouched = false;

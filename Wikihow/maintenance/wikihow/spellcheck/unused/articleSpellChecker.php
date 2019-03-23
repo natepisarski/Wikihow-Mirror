@@ -15,7 +15,7 @@ class WikiHowSpellChecker {
 	}
 
 	public function spellCheckAllArticles() {
-		$dbr = wfGetDB(DB_SLAVE);;
+		$dbr = wfGetDB(DB_REPLICA);;
 		$res = $dbr->select('page', array('page_id'), array('page_namespace' => 0, 'page_is_redirect' => 0), 
 			'WikiHowSpellChecker::spellCheckAllArticles');
 		$titles = array();

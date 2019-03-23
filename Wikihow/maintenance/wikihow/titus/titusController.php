@@ -190,7 +190,7 @@ class TitusMaintenance extends Maintenance {
 
 	private function removeDeletedPages() {
 		global $wgLanguageCode;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$lowDate = wfTimestamp(TS_MW, strtotime("-10 day", strtotime(date('Ymd', time()))));
 
 		$sql = "SELECT de_page_id FROM daily_edits WHERE de_timestamp >= '$lowDate' AND de_edit_type = " . DailyEdits::DELETE_TYPE;
@@ -208,7 +208,7 @@ class TitusMaintenance extends Maintenance {
 
 	private function removeRedirects() {
 		global $wgLanguageCode;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$lowDate = wfTimestamp(TS_MW, strtotime("-1 day", strtotime(date('Ymd', time()))));
 
 		$sql = "SELECT de_page_id FROM daily_edits WHERE de_timestamp >= '$lowDate' AND de_edit_type = " . DailyEdits::EDIT_TYPE;

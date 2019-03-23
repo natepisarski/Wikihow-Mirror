@@ -72,7 +72,7 @@ class Nightly extends CLI {
 		$from = new MailAddress('noreply@wikihow.com');
 		$users = User::all(['conditions' => ['send_mail' => true]]);
 		$recips = __::map($users, function ($user) {
-			return new MailAddress($user->whUser());
+			return new MailAddress( $user->whUser()->getEmail() );
 		});
 
 		if (empty($recips)) {

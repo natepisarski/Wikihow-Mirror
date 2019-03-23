@@ -80,7 +80,7 @@ class ArticleVerifyReview {
 
 	// get the latest cleared revision that has no uncleared revisions after it
 	public static function getLatestClearedRevision( $pageId ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$res = $dbr->select(
 			'article_verify_review',
 			array( 'avr_rev_id', 'avr_cleared' ),
@@ -104,7 +104,7 @@ class ArticleVerifyReview {
 	}
 
 	public static function getUnclearedItemsCount() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$count = $dbr->selectField(
 			'article_verify_review',
 			'count(distinct avr_page_id)',
@@ -117,7 +117,7 @@ class ArticleVerifyReview {
 	// offset is also to the number of distinct page id results
 	public static function getUnclearedItemsDB( $limit = null, $offset = null ) {
 		$results = array();
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		/*
 		$options = array( "DISTINCT", "ORDER BY" => "avr_rev_id ASC" );
 		if ( $limit ) {

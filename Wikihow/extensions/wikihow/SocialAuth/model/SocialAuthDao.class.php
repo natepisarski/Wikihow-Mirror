@@ -22,7 +22,7 @@ class SocialAuthDao {
 		if (empty($whId) || empty($type)) {
 			return false;
 		}
-		$db = $useMasterDB ? wfGetDB(DB_MASTER) : wfGetDB(DB_SLAVE);
+		$db = $useMasterDB ? wfGetDB(DB_MASTER) : wfGetDB(DB_REPLICA);
 		return $db->selectRow(
 			static::TABLE,
 			static::FIELDS,
@@ -41,7 +41,7 @@ class SocialAuthDao {
 		if (empty($exId) || empty($type)) {
 			return false;
 		}
-		return wfGetDB(DB_SLAVE)->selectRow(
+		return wfGetDB(DB_REPLICA)->selectRow(
 			static::TABLE,
 			static::FIELDS,
 			['sa_external_id' => $exId, 'sa_type' => $type, 'sa_wh_user_id != 0']

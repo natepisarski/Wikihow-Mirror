@@ -333,10 +333,10 @@ class UCIPatrol extends SpecialPage {
 			UserCompletedImages::addImageToPage($pageId, $row->uci_article_name, UserCompletedImages::fileFromRow($row));
 			self::logUCIAdded($title, $pageId);
 
-			wfRunHooks( "PicturePatrolResolved" , [$row->uci_image_name, true]);
+			Hooks::run( "PicturePatrolResolved" , [$row->uci_image_name, true]);
 		}
 
-		wfRunHooks( 'PicturePatrolled' );
+		Hooks::run( 'PicturePatrolled' );
 		$this->skip();
 	}
 
@@ -473,7 +473,7 @@ class UCIPatrol extends SpecialPage {
 		$this->recordImageVote($this->getUser(), $pageId, -1);
 
 		// check if the image has enough votes that it will be removed from queue
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row = $dbr->selectRow(
 			self::TABLE_NAME,
 			array("uci_image_name", "uci_article_name", "uci_downvotes"),
@@ -494,10 +494,10 @@ class UCIPatrol extends SpecialPage {
 					// 'article_id' => $pageId
 				// )
 			// );
-			wfRunHooks( "PicturePatrolResolved" , [$row->uci_image_name, false]);
+			Hooks::run( "PicturePatrolResolved" , [$row->uci_image_name, false]);
 		}
 
-		wfRunHooks( 'PicturePatrolled' );
+		Hooks::run( 'PicturePatrolled' );
 		$this->skip();
 	}
 
@@ -554,7 +554,7 @@ class UCIPatrol extends SpecialPage {
 
 				//this effectively remotes it from the page but keeps the down votes so it won't go back into the queue
 				$dbw->update( self::TABLE_NAME, ['uci_upvotes' => 0], ['uci_article_id' => $id], __METHOD__ );
-				wfRunHooks( "PicturePatrolResolved" , [$row->uci_image_name, false]);
+				Hooks::run( "PicturePatrolResolved" , [$row->uci_image_name, false]);
 			}
 			self::logUCIFlagRemoved($title, $id);
 		}
@@ -639,7 +639,7 @@ class UCIPatrol extends SpecialPage {
 		$newSkipped = array();
 		foreach ($oldSkipped as $skippedId) {
 			$where["uci_article_id"] = $skippedId;
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$count = $dbr->selectField(self::TABLE_NAME, 'count(*)', $where, __METHOD__);
 			if ($count == 0) {
 				continue;
@@ -673,7 +673,7 @@ class UCIPatrol extends SpecialPage {
 		$key = wfMemcKey('ucistats', 'uploads');
 		$uploads = $wgMemc->get($key);
 		if (!$uploads) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$uploads = array();
 
 			$day = wfTimestamp(TS_MW, time() - 1 * 24 * 3600);
@@ -727,7 +727,7 @@ class UCIPatrol extends SpecialPage {
 		$key = wfMemcKey('ucistats', 'titles', $rev);
 		$titles = $wgMemc->get($key);
 		if (!$titles) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$where = array("uci_upvotes > 2 and uci_downvotes < 2");
 			$options = array("GROUP BY" => "uci_article_name");
 
@@ -753,7 +753,7 @@ class UCIPatrol extends SpecialPage {
 		}
 
 		$result = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$anonupvotes = $dbr->selectField('logging', 'count(*)', array("log_type = 'ucipatrol'", "log_comment like 'Anon Upvoted%'"));
 		$anondownvotes = $dbr->selectField('logging', 'count(*)', array("log_type = 'ucipatrol'", "log_comment like 'Anon Downvoted%'"));
 		$anon = array("Anonymous Upvotes"=>$anonupvotes, "Anonymous Downvotes" => $anondownvotes);
@@ -839,7 +839,7 @@ class UCIPatrol extends SpecialPage {
 
 			$options = array("ORDER BY" => "uci_article_id", "LIMIT" => 1);
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$row = $dbr->selectRow(self::TABLE_NAME, array('*'), $where, __METHOD__, $options);
 		}
 
@@ -972,7 +972,7 @@ class UCIPatrol extends SpecialPage {
 	private function getVoters($pageId) {
 		$result = array();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = "image_votes";
 		$vars = array("iv_userid", "iv_vote");
 		$where = array("iv_pageid"=>$pageId);
@@ -1002,7 +1002,7 @@ class UCIPatrol extends SpecialPage {
 
 	// NOTE: used in UCIPatrolWidget
 	public static function getCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$where = array();
 		$where[] = "uci_downvotes < ".UserCompletedImages::DOWNVOTES;
 		$where[] = "uci_upvotes < ".UserCompletedImages::UPVOTES;
@@ -1031,7 +1031,7 @@ class UCIPatrol extends SpecialPage {
 		}
 		$pageTitle = str_replace( ' ', '-', $pageTitle );
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			self::TABLE_NAME,
@@ -1051,7 +1051,7 @@ class UCIPatrol extends SpecialPage {
 
 	// NOTE: used in removeUnlicensedImages.php
 	public static function getImagesToBeCopyrightChecked($limit = null) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$options = [];
 		if ($limit) {
 			$options['LIMIT'] = $limit;
@@ -1076,10 +1076,10 @@ class UCIPatrol extends SpecialPage {
 		);
 		if ($violates == 1) {
 			//first get the image name
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$imageName = $dbr->selectField(self::TABLE_NAME, 'uci_image_name', ['uci_article_id' => $pageId], __METHOD__);
 			if ($imageName !== false) {
-				wfRunHooks("PicturePatrolResolved", [$imageName, false]);
+				Hooks::run("PicturePatrolResolved", [$imageName, false]);
 			}
 		}
 	}

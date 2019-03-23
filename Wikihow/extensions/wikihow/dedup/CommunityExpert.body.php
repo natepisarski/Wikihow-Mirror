@@ -33,9 +33,9 @@ class CommunityExpert extends UnlistedSpecialPage {
 				dedupQuery::addQuery($query);
 				dedupQuery::matchQueries(array($query));
 
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$sql = "select user_name,tq.tq_title as title, sum(ct) as score from firstedit join dedup.title_query tq on tq.tq_page_id=fe_page join dedup.query_match on tq.tq_query=query2 join wiki_shared.user on fe_user=user_id where query1=" . $dbr->addQuotes($query) . " group by fe_user order by score desc";
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$res = $dbr->query($sql, __METHOD__);
 		        header("Content-Type: text/tsv");
 		        header('Content-Disposition: attachment; filename="Dedup.xls"');

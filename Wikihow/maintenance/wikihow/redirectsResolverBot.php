@@ -107,7 +107,7 @@ class UpdateLinks extends Maintenance {
 	 * @return array of Title objects
 	 */
 	private function fetchArticles() {
-		$dbr      = wfGetDB(DB_SLAVE);
+		$dbr      = wfGetDB(DB_REPLICA);
 		$articles = array();
 		$where = [ 'page_namespace' => NS_MAIN, 'page_is_redirect' => 0 ];
 		$opts = [ 'ORDER BY' => 'page_title' ];
@@ -128,7 +128,7 @@ class UpdateLinks extends Maintenance {
 	 *          - new_link - text form of a title that the redirects points to
 	 */
 	private function getRedirectLinks($article) {
-		$dbr   = wfGetDB(DB_SLAVE);
+		$dbr   = wfGetDB(DB_REPLICA);
 		$links = array();
 
 		// SELECT  pl_title  FROM `pagelinks`,`page`   WHERE

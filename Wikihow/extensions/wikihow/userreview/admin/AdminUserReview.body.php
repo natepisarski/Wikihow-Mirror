@@ -50,7 +50,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 	function getPageData($startDate = null, $endDate = null) {
 		$data = [];
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$count = $dbr->selectField(UserReview::TABLE_CURATED, "count(*) as count", ['uc_eligible > 1'], __METHOD__);
 		$data['curatedEligible'] = number_format($count);
@@ -86,7 +86,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 
 		print("Curated timestamp\tUser name\tArticle name\tOriginal text\tApproved text\tStatus\n");
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$where = ['us_curated_user' => $userId, 'us_curated_timestamp >= ' . $from];
 		if ($to != "") {
 			$where = 'us_curated_timestamp <= ' . $to;
@@ -119,7 +119,7 @@ class AdminUserReview extends UnlistedSpecialPage {
 	}
 
 	private function getReviewerTableData($startDate, $endDate) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$where = ['us_status = ' . UserReviewTool::STATUS_CURATED . ' OR us_status = ' . UserReviewTool::STATUS_DELETED];
 		if ($startDate == null) {

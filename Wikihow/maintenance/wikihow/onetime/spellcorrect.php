@@ -25,7 +25,7 @@ $table = 'spellsheet2';
 
 print "BEGIN.\n\n";
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = DatabaseHelper::batchSelect($table, array('URL','MisusedPhrase','ReplacementPhrase'), array(), __METHOD__);
 // $res = DatabaseHelper::batchSelect($table, array('URL','MisusedPhrase','ReplacementPhrase'), array(), __METHOD__, array('LIMIT' => 50000));
 print count($res)." articles grabbed at ".microtime(true)."\n";

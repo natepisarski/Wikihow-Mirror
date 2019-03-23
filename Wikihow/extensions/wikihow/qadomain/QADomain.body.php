@@ -158,7 +158,7 @@ class QADomain extends UnlistedSpecialPage {
 		}
 
 		//check to see if the page exists
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$qaid = $dbr->selectField(self::TABLE_URLS, 'wa_qaid', ['wa_title' => $par], __METHOD__);
 		if ($qaid === false) {
@@ -262,7 +262,7 @@ class QADomain extends UnlistedSpecialPage {
 	 * Get a quickAnswers url given a qa_id
 	 ****/
 	public function getUrlFromDb($id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$url = $dbr->selectField(self::TABLE_URLS, 'wa_title', ['wa_qaid' => $id], __METHOD__);
 		return $url;
@@ -324,7 +324,7 @@ class QADomain extends UnlistedSpecialPage {
 	public static function getUrlsFromDb($ids) {
 		$urls = [];
 		if (count($ids) > 0) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select(self::TABLE_URLS, 'wa_title', ['wa_qaid IN (' . $dbr->makeList($ids) . ')'], __METHOD__);
 			foreach($res as $row) {
 				$urls[] = $row->wa_title;
@@ -352,7 +352,7 @@ class QADomain extends UnlistedSpecialPage {
 	 * Only used on admin page and sitemap
 	 */
 	public function getAltDomainInfo($domainName, $limit = 0) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$options = [];
 		if ($limit > 0) {
@@ -374,7 +374,7 @@ class QADomain extends UnlistedSpecialPage {
 	}
 
 	public static function getTotalUrls() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$count = $dbr->selectField(QADB::TABLE_ARTICLES_QUESTIONS, 'count(*) as C', ['qa_alt_site' => 1], __METHOD__);
 
@@ -462,7 +462,7 @@ class QADomain extends UnlistedSpecialPage {
 	}
 
 	private function getUrlsOnQADomain($aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select([QADB::TABLE_ARTICLES_QUESTIONS, self::TABLE_URLS], ['qa_id', 'qa_article_id', 'wa_title'], ['qa_alt_site' => 1, "qa_article_id" => $aid, "qa_id = wa_qaid"], __METHOD__);
 
 		$qas = [];

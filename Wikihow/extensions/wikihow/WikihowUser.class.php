@@ -36,7 +36,7 @@ class WikihowUser extends User {
 			return array(0, '');
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$row = $dbr->selectRow(
 			'user',
 			array('count(*) as count', 'user_name', 'user_id'),
@@ -110,7 +110,7 @@ class WikihowUser extends User {
 		$bots = $wgMemc->get($key);
 		if (!is_array($bots)) {
 			$bots = array();
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select('user_groups', array('ug_user'), array('ug_group'=>'bot'), __METHOD__);
 			foreach ($res as $row) {
 				$bots[] = $row->ug_user;
@@ -130,7 +130,7 @@ class WikihowUser extends User {
 		$ids = $wgMemc->get($key);
 		if (!is_array($ids)) {
 			$ids = [];
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select('user_groups', ['ug_user'], ['ug_group'=> $user_group], __METHOD__);
 			foreach ($res as $row) {
 				$ids[] = $row->ug_user;

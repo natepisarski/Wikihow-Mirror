@@ -28,7 +28,7 @@ class ConfigStorage {
 	 * List all current config keys.
 	 */
 	public static function dbListConfigKeys() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('config_storage', 'cs_key', '', __METHOD__);
 		$keys = array();
 		foreach ($res as $row) {
@@ -42,7 +42,7 @@ class ConfigStorage {
 	 *
 	 */
 	private static function dbGetConfigFromDatabase($key, $useEnDB = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = 'config_storage';
 		if ( $useEnDB ) {
 			$table = WH_DATABASE_NAME_EN . '.' . $table;
@@ -74,7 +74,7 @@ class ConfigStorage {
 	// and should probably be refactored to combine the information fetch if it
 	// is going to be called often.
 	public static function dbGetIsArticleList($key) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->selectField('config_storage', 'cs_article_list', array('cs_key' => $key), __METHOD__);
 		return $res == "1";
 	}
@@ -105,7 +105,7 @@ class ConfigStorage {
 			if (!$allowArticleErrors && $error) {
 				return false;
 			}
-			wfRunHooks( 'ConfigStorageStoreConfig', array( $key, $pages, $newTagProb, &$error) );
+			Hooks::run( 'ConfigStorageStoreConfig', array( $key, $pages, $newTagProb, &$error) );
 		}
 
 		$cachekey = self::getMemcKey($key);
@@ -128,7 +128,7 @@ class ConfigStorage {
 			],
 			__METHOD__);
 
-		wfRunHooks( 'ConfigStorageAfterStoreConfig', array( $key, $config) );
+		Hooks::run( 'ConfigStorageAfterStoreConfig', array( $key, $config) );
 
 		if ($logIt) {
 			ConfigStorageHistory::dbChangeConfigStorage($key, $old_config, $config);

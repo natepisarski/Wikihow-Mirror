@@ -13,7 +13,7 @@ class StoreTitusQuery extends Maintenance {
 		global $IP;
 		require_once( "$IP/extensions/wikihow/titus/Titus.class.php" );
 		$query = $this->getOption('query');
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query("select uuid() as uuid");
 		$row = $dbr->fetchObject($res);
 		$uuid = $row->uuid;

@@ -329,7 +329,7 @@ abstract class SubmissionHandler {
 	}
 
 	protected static function hasVotedMethodRecently(&$eventData, $method) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$yesterday = wfTimestamp(
 			TS_MW,

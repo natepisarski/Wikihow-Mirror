@@ -247,7 +247,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function isApproved( $pageId, $batchName ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
         $table =  self::STV_TABLE;
 		$var = array(
 			'SUM(if(stvi_vote > 0, 1, 0)) as yes',
@@ -273,7 +273,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function isRejected( $pageId, $batchName ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
         $table =  self::STV_TABLE;
 		$var = array(
 			'SUM(if(stvi_vote > 0, 1, 0)) as yes',
@@ -313,7 +313,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getUnresolvedCount( $batchName ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
         $table = self::STV_TABLE;
         $var = 'count(*)';
         $cond = array(
@@ -326,7 +326,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 
 	private function getCurrentJobs() {
 		$result = array();
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
         $table = self::STV_TABLE;
         $var = '*';
         $cond = array();
@@ -419,7 +419,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 		if ( !$lastId ) {
 			$lastId = 0;
 		}
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = 'special_tech_verify_item';
 		$var = '*';
 		$cond = array(
@@ -503,7 +503,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getDataForBatch( $batchName ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = 'special_tech_verify_item';
 		$var = '*';
 		$cond = array(
@@ -521,7 +521,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getAllPagesForBatch( $batchName ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = 'special_tech_verify_item';
 		$var = 'distinct stvi_page_id';
 		$cond = array(
@@ -536,7 +536,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 		return $pageIds;
 	}
 	private function getPlatform( $batchName ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
         $table = self::STV_TABLE;
         $var = 'stvi_platform';
         $cond = array(
@@ -547,7 +547,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getVoteCount( $batchName, $pageId, $voteValue ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
         $table = self::STV_TABLE;
         $var = 'count(*)';
         $cond = array(
@@ -561,7 +561,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	private function isResolved( $pageId, $batchName ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
         $table = self::STV_TABLE;
         $var = 'count(*)';
         $cond = array(

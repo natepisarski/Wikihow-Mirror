@@ -66,7 +66,7 @@ class TalkPageConverter extends Maintenance {
 	}
 
 	public function getPages( $last ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$pages = array();
 		$result = $dbr->select( array(
 			'page'

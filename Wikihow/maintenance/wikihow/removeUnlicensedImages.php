@@ -208,7 +208,7 @@ class RemoveUnlicensedImages extends Maintenance {
 
 	// check for images that are in the unlicensed image category
 	public function getUnlicensedImages($limit = null) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = array('page', 'categorylinks');
 		$vars = array('page_id');
 		$conds = array('page_id=cl_from', 'page_namespace' => 6, 'cl_to' => "Unlicensed-Images");

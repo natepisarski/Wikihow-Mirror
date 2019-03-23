@@ -28,7 +28,7 @@
 // 		$staff = StaffReviewed::staffReviewers();
 // 		if (empty($staff)) return $article_ids;
 
-// 		$dbr = wfGetDB(DB_SLAVE);
+// 		$dbr = wfGetDB(DB_REPLICA);
 // 		$res = $dbr->select(
 // 			'titus_copy',
 // 			[

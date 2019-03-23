@@ -137,7 +137,7 @@ class SendLangLinksChangedReport extends Maintenance {
 	 * translation links.
 	 */
 	public function getRedirectedReport($lowDate) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$srcLang = 'en';
 		$langData = array();
 
@@ -188,7 +188,7 @@ class SendLangLinksChangedReport extends Maintenance {
 	 * getMovedReport() and getDeletedReport().
 	 */
 	private function getMovedDeletedReport($lowDate, $editType) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$srcLang = 'en';
 		$langData = array();
 		$typeName = self::getEditTypeName($editType);
@@ -440,7 +440,7 @@ BODY;
 		$subject = 'Translation Links: Changed articles report (generated ' . date('jS F, Y', strtotime('today')) . ')';
 		$from = new MailAddress('reports@wikihow.com');
 		$to = new MailAddress(implode(',', $this->getRecipientEmailAddresses()));
-		$replyTo = new MailAddress('george@wikihow.com');
+		$replyTo = new MailAddress('reuben@wikihow.com');
 		$contentType = 'multipart/mixed; boundary="PHP-mixed-' . $boundaryHash . '"';
 
 		UserMailer::send(
@@ -487,7 +487,7 @@ BODY;
 	 * are mandatory (i.e. inner joined).
 	 */
 	private function getRedirectedQuery($srcLang, $lang, $lowDate) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$editType = DailyEdits::EDIT_TYPE;
 
@@ -632,7 +632,7 @@ BODY;
 	 * The source language is typically English.
 	 */
 	private function getMovedDeletedQuery($srcLang, $lang, $lowDate, $editType) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$srcLangDB = Misc::getLangDB($srcLang);
 		$destLangDB = Misc::getLangDB($lang);

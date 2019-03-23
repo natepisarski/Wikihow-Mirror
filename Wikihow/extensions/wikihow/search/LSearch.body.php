@@ -85,9 +85,9 @@ class LSearch extends SpecialPage {
 		// Track requests in statds/grafana
 		WikihowStatsd::increment('search.request');
 
-		// Enable beta search for the main site on desktop only
+		// Enable beta search for the main site only, alt-domains aren't indexed right now
 		// Temporary while we are transitioning to the new search service
-		$this->mEnableBeta = !Misc::isAltDomain() && !Misc::isMobileMode();
+		$this->mEnableBeta = !Misc::isAltDomain();
 
 		if ($req->getBool('internal')) {
 			$this->regularSearch(true);
@@ -258,7 +258,7 @@ class LSearch extends SpecialPage {
 		$results = $this->supplementResults($results);
 		$results = $this->removeDeIndexedResults($results);
 
-		wfRunHooks( 'LSearchRegularSearch', array( &$results ) );
+		Hooks::run( 'LSearchRegularSearch', array( &$results ) );
 
 		$enc_q = htmlspecialchars($this->mQ);
 		$searchId = $this->sherlockSearch();	// initialize/check Sherlock cookie
@@ -569,7 +569,7 @@ class LSearch extends SpecialPage {
 
 		$key = wfMemcKey("YPAResults4", str_replace(" ", "-", $q), $start, $limit);
 
-		wfRunHooks( 'LSearchYahooAfterGetCacheKey', array( &$key ) );
+		Hooks::run( 'LSearchYahooAfterGetCacheKey', array( &$key ) );
 
 		$q = trim($q);
 		if ($this->isBadQuery($q)) {
@@ -586,7 +586,7 @@ class LSearch extends SpecialPage {
 			$siteKeyword = wfCanonicalDomain();
 			$surl = $this->getSurl();
 
-			wfRunHooks( 'LSearchBeforeYahooSearch', array( &$siteKeyword, &$surl ) );
+			Hooks::run( 'LSearchBeforeYahooSearch', array( &$siteKeyword, &$surl ) );
 
 			$args = [
 				'ua' => $_SERVER['HTTP_USER_AGENT'],
@@ -792,7 +792,7 @@ class LSearch extends SpecialPage {
 			$term = str_replace("\n", ' ', $q);
 			$term = $engine->transformSearchTerm($term);
 
-			wfRunHooks('SpecialSearchSetupEngine', [$specialSearch, 'default', $engine]);
+			Hooks::run('SpecialSearchSetupEngine', [$specialSearch, 'default', $engine]);
 
 			$rewritten = $engine->replacePrefixes($term);
 			$titleMatches = $engine->searchTitle($rewritten);
@@ -979,7 +979,7 @@ class LSearch extends SpecialPage {
 
 		// a chance for a hook (like alternate domains) to localize the url
 		// specific to their domain
-		wfRunHooks( 'LSearchAfterLocalizeUrl', array( &$localizedUrl, $url ) );
+		Hooks::run( 'LSearchAfterLocalizeUrl', array( &$localizedUrl, $url ) );
 
 		return $localizedUrl;
 	}
@@ -1057,7 +1057,7 @@ class LSearch extends SpecialPage {
 				$ids[] = $title['id'];
 			}
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select('search_results', '*', array('sr_id' => $ids), __METHOD__);
 			$rows = [];
 			foreach ($res as $row) {

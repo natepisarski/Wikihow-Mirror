@@ -13,7 +13,7 @@
 	
 	$ids = array();
 
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 
 	$res = $dbr->select('page', 'page_id', array('page_namespace' => 0, 'page_is_redirect' => 0));
 	while($obj = $dbr->fetchObject($res)) {

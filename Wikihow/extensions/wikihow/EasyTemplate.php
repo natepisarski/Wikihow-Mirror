@@ -90,7 +90,6 @@ class EasyTemplate {
 	 */
 	public function execute($file) {
 
-		wfProfileIn(__METHOD__);
 		if ( !strstr($file, ".tmpl.php") ) {
 			$file .= ".tmpl.php";
 		}
@@ -110,7 +109,6 @@ class EasyTemplate {
 		include($path);
 		$contents = ob_get_clean();
 
-		wfProfileOut(__METHOD__);
 		return $contents;
 	}
 

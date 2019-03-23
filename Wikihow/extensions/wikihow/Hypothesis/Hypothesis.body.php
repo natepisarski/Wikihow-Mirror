@@ -97,7 +97,7 @@ class Hypothesis {
 
 		// Use general resitrcitons, plus disable when oldid param is provided
 		if ( static::isEnabled( $context ) && !$context->getRequest()->getCheck( 'oldid' ) ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			// Perform a quick query for any test associated with this page
 			// Doesn't gaurantee there's an active experiment for this page, as it's just a
 			// lightweight way to reduce the amount of work for majority of anon article requests.

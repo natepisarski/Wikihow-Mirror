@@ -58,7 +58,7 @@ class RestoreVideos extends Maintenance {
 			
 			// Try to find our revision id
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$res = $dbr->select( 'revision', array( '*' ), array( 'rev_user' => $wgUser->getId(),
 																	'rev_page' => $article->getArticleID(),

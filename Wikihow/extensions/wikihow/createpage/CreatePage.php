@@ -81,7 +81,7 @@ function wfGetSuggTitlesMemcKey($articleID) {
 function wfClearSuggestionsCache($t) {
 	global $wgMemc;
 
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$res = $dbr->select(['suggested_links', 'suggested_titles'],
 		['sl_page'],
 		['st_title' => $t->getDBKey(), 'sl_sugg = st_id'] );
@@ -124,7 +124,7 @@ function wfCheckSuggestionOnMove( &$ot, &$nt, &$wgUser, $pageid, $redirid) {
 // When a new article is created, mark the suggsted as used in the DB
 function wfCheckSuggestionOnSave($article, $user, $text, $summary, $p5, $p6, $p7) {
 	try {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$t = $article->getTitle();
 		if (!$t || !$t->inNamespace(NS_MAIN)) {
 			return true;
@@ -286,7 +286,7 @@ function wfShowFollowUpOnCreation() {
 
 		$article = new Article($t);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$num_revisions = $dbr->selectField('revision',
 			'count(*)',
 			['rev_page' => $article->getId()],

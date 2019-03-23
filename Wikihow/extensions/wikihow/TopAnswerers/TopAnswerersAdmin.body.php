@@ -348,7 +348,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 		$qa_data = [];
 		$seven_days_ago = date('YmdHis', strtotime('today - 7 days'));
 
-		$res = wfGetDB(DB_SLAVE)->select(
+		$res = wfGetDB(DB_REPLICA)->select(
 			[
 				QADB::TABLE_ARTICLES_QUESTIONS,
 				QADB::TABLE_CURATED_ANSWERS
@@ -400,7 +400,7 @@ class TopAnswerersAdmin extends UnlistedSpecialPage {
 	}
 
 	private function getTotalQAAnswerCount(int $user_id): int {
-		$res = wfGetDB(DB_SLAVE)->selectField(
+		$res = wfGetDB(DB_REPLICA)->selectField(
 			QADB::TABLE_ARTICLES_QUESTIONS,
 			'COUNT(qa_id)',
 			[

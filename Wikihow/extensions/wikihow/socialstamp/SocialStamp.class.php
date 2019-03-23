@@ -41,7 +41,7 @@ class SocialStamp {
 		$isAmp = GoogleAmp::isAmpMode($out);
 		$isMobile = Misc::isMobileMode();
 		$articleId = $out->getTitle()->getArticleId();
-		wfRunHooks( 'BylineStamp', [ &self::$verifiers, $articleId ] );
+		Hooks::run( 'BylineStamp', [ &self::$verifiers, $articleId ] );
 
 		$params = self::setBylineData(self::$verifiers, $articleId, $isMobile, $isAmp, AlternateDomain::onAlternateDomain());
 		$html = self::getHtmlFromTemplate('mobile_byline', $params);
@@ -69,7 +69,7 @@ class SocialStamp {
 	public static function addMobileByline(&$data){
 		if (!self::isEligibleForByline()) return;
 
-		wfRunHooks( 'BylineStamp', [ &self::$verifiers, $data['articleid'] ] );
+		Hooks::run( 'BylineStamp', [ &self::$verifiers, $data['articleid'] ] );
 
 		$html = self::getBylineHtml();
 

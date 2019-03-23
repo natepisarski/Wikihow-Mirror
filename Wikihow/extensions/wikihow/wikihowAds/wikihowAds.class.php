@@ -214,7 +214,7 @@ class wikihowAds {
 
 		// allow hooks to override the ad
 		$result = "";
-		wfRunHooks( "WikihowAdsBeforeGetDesktopDfpUnit", array( $num, &$result ) );
+		Hooks::run( "WikihowAdsBeforeGetDesktopDfpUnit", array( $num, &$result ) );
 		if ( $result ) {
 			return $result;
 		}
@@ -370,7 +370,7 @@ class wikihowAds {
 		if (!$excludeList || !is_array($excludeList)) {
 			$excludeList = array();
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select(ArticleAdExclusions::TABLE, "ae_page", array(), __METHOD__);
 			foreach ($res as $row) {
 				$excludeList[] = $row->ae_page;
@@ -384,7 +384,7 @@ class wikihowAds {
 	function resetAllAdExclusionCaches() {
 		global $wgActiveLanguages, $wgDBname;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		//first do english
 		self::resetAdExclusionCache($dbr, "en");
@@ -524,9 +524,9 @@ class wikihowAds {
 		// but not if they're included in the
 		// tech buckets above
         if ($wgTitle->inNamespace(NS_MAIN)) {
-            $dbr = wfGetDB(DB_MASTER);
-            $minrev = $dbr->selectField('revision', 'min(rev_id)', array('rev_page'=>$wgTitle->getArticleID()), __METHOD__);
-			$details = $dbr->selectRow('revision', array('rev_user_text', 'rev_timestamp'), array('rev_id'=>$minrev), __METHOD__);
+            $dbw = wfGetDB(DB_MASTER);
+            $minrev = $dbw->selectField('revision', 'min(rev_id)', array('rev_page'=>$wgTitle->getArticleID()), __METHOD__);
+			$details = $dbw->selectRow('revision', array('rev_user_text', 'rev_timestamp'), array('rev_id'=>$minrev), __METHOD__);
 			$fe = $details->rev_user_text;
 
 			//Tech buckets (no longer only WRM)
@@ -979,9 +979,9 @@ class wikihowAds {
 		$channels = array();
 
 		if ($wgTitle->inNamespace(NS_MAIN)) {
-            $dbr = wfGetDB(DB_MASTER);
-            $minrev = $dbr->selectField('revision', 'min(rev_id)', array('rev_page'=>$wgTitle->getArticleID()), __METHOD__);
-			$details = $dbr->selectRow('revision', array('rev_user_text', 'rev_timestamp'), array('rev_id'=>$minrev), __METHOD__);
+            $dbw = wfGetDB(DB_MASTER);
+            $minrev = $dbw->selectField('revision', 'min(rev_id)', array('rev_page'=>$wgTitle->getArticleID()), __METHOD__);
+			$details = $dbw->selectRow('revision', array('rev_user_text', 'rev_timestamp'), array('rev_id'=>$minrev), __METHOD__);
 			$fe = $details->rev_user_text;
 
 			$ts = $details->rev_timestamp;
@@ -1331,8 +1331,8 @@ class wikihowAds {
 		$query = LSearch::formatSearchQuery($query);
 
 		$channels = [
-			'en' => [ 'desktop' => 7697547843, 'mobile' => 3758302834 ],
-			'intl' => [ 'desktop' => 6743558826, 'mobile' => 8098316172 ]
+			'en' => [ 'desktop' => 2304462817, 'mobile' => 5227630311 ],
+			'intl' => [ 'desktop' => 9166875328, 'mobile' => 2932639465 ]
 		];
 		if ( array_key_exists( $wgLanguageCode, $channels ) ) {
 			$channel = $channels[$wgLanguageCode];
@@ -1370,7 +1370,7 @@ class wikihowAds {
 
 		$typeTag = self::getTypeTag();
 
-        wfRunHooks( 'WikihowAdsAfterGetTypeTag', array( &$typeTag ) );
+        Hooks::run( 'WikihowAdsAfterGetTypeTag', array( &$typeTag ) );
 
 		$vars['adTypeTag'] = $typeTag;
 
@@ -1670,6 +1670,11 @@ class wikihowAds {
 		$methodChannel = wikihowAds::getMobileChannels( $method );
 		$relatedChannel = wikihowAds::getMobileChannels( $related );
 		$footerChannel = wikihowAds::getMobileChannels( $footer );
+		$middleRelatedChannel = '';
+		$qaChannel = '';
+		$tipsChannel = '';
+		$warningsChannel = '';
+		$pageBottomChannel = '';
 
 		$largeIntroChannel = '';
 		$baseLargeChannels = '';
@@ -1690,13 +1695,9 @@ class wikihowAds {
 			}
 		}
 
-		if ( self::isScrollToAdPage() ) {
-			$baseChannels = $baseChannels . "+7937344705";
-			$baseLargeChannels = $baseLargeChannels . "+7937344705";
-		} else {
-			$baseChannels = $baseChannels . "+6648313767";
-			$baseLargeChannels = $baseLargeChannels . "+6648313767";
-		}
+		$extraTestChannels = self::getAdTestChannels();
+		$baseChannels = $baseChannels . $extraTestChannels;
+		$baseLargeChannels = $baseLargeChannels . $extraTestChannels;
 
 		$data = [
 			"channels" => [
@@ -1707,6 +1708,11 @@ class wikihowAds {
 					'method' => $methodChannel,
 					'related' => $relatedChannel,
 					'footer' => $footerChannel,
+					'middlerelated' => $middleRelatedChannel,
+					'qa' => $qaChannel,
+					'tips' => $tipsChannel,
+					'warnings' => $warningsChannel,
+					'pagebottom' => $pageBottomChannel,
 				],
 				'medium' => [
 				],
@@ -1715,6 +1721,11 @@ class wikihowAds {
 					'method' => '',
 					'related' => '',
 					'footer' => '',
+					'qa' => '',
+					'middlerelated' => '',
+					'tips' => '',
+					'warnings' => '',
+					'pagebottom' => '',
 				]
 			],
 			"slots" => [
@@ -1723,7 +1734,11 @@ class wikihowAds {
 					'method' => "7710650179",
 					'related' => "9047782573",
 					'footer' => "8862180975",
-					'scrollto' => "8152310587",
+					'middlerelated' => "3859396687",
+					'qa' => "1240030252",
+					'tips' => "8787347780",
+					'warnings' => "3674621907",
+					'pagebottom' => "3788982605",
 				],
 				'medium' => [
 				],
@@ -1731,8 +1746,12 @@ class wikihowAds {
 					'intro' => "5867332578",
 					'method' => "4377789372",
 					'related' => "5854522578",
+					'middlerelated' => "3859396687",
+					'qa' => "1240030252",
+					'tips' => "8787347780",
+					'warnings' => "3674621907",
+					'pagebottom' => "3788982605",
 					'footer' => "8862180975",
-					'scrollto' => "2437606015",
 				]
 
 			]
@@ -1740,7 +1759,7 @@ class wikihowAds {
 
 		$script = Html::element( 'script', [ 'id' => 'wh_ad_data', 'type'=>'application/json' ], json_encode( $data ) );
 
-		wfRunHooks( "WikihowAdsAfterGetMobileAdData", array( &$script ) );
+		Hooks::run( "WikihowAdsAfterGetMobileAdData", array( &$script ) );
 
 		return $script;
 	}
@@ -1823,31 +1842,9 @@ class wikihowAds {
 
 	}
 
-	private static function isScrollToAdPage() {
-		global $wgOut;
-
-		$pageId = 0;
-		if ( $wgOut && $wgOut->getTitle() ) {
-			$pageId = $wgOut->getTitle()->getArticleID();
-		}
-		if ( !$pageId ) {
-			return false;
-		}
-
-		if ( $pageId % 4 == 0 ) {
-			return true;
-		}
-
-		return false;
-	}
-
 	private static function insertMobileAdScrollTo() {
 		global $wgTitle;
 		if ( !self::isEligibleForAds() ) {
-			return "";
-		}
-
-		if ( !self::isScrollToAdPage() ) {
 			return "";
 		}
 
@@ -1871,10 +1868,6 @@ class wikihowAds {
 	private static function insertMobileAdRelated() {
         global $wgTitle;
 
-		if ( self::isScrollToAdPage() ) {
-			return "";
-		}
-
         $pageId = $wgTitle->getArticleID();
 
 		$id = 'wh_ad_related';
@@ -1891,10 +1884,8 @@ class wikihowAds {
 		$script = Html::inlineScript("WH.mobileads.add('$id');");
 		$relatedsname = RelatedWikihows::getSectionName();
 		if ( pq("#{$relatedsname}")->length ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
 			pq("#{$relatedsname}")->append( $html.$script );
 		} elseif ( pq("#relatedwikihows")->length ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
 			pq("#relatedwikihows")->append( $html.$script );
 		}
 	}
@@ -1946,8 +1937,9 @@ class wikihowAds {
 		}
 
 		wikihowAds::insertMobileAdRelated();
-		wikihowAds::insertMobileAdScrollTo();
-
+		if ( self::isExtraAdsTestPage() ) {
+			wikihowAds::insertExtraTestAds();
+		}
 	}
 
 	public static function getMobileFooterAd() {
@@ -2029,6 +2021,115 @@ class wikihowAds {
 
 		return $isM ? '__alt__ddc_mobile_wikihow_com' : '__alt__ddc_wikihow_com';
 
+	}
+
+	private static function isExtraAdsTestPage() {
+		global $wgOut, $wgLanguageCode;
+
+		if ($wgLanguageCode != "en") {
+			return false;
+		}
+
+		$pageId = 0;
+		if ( $wgOut && $wgOut->getTitle() ) {
+			$pageId = $wgOut->getTitle()->getArticleID();
+		}
+		if ( !$pageId ) {
+			return false;
+		}
+
+		// current ad test is on 25% of pages
+	   if ( $pageId % 4 <= 1 ) {
+			return true;
+		}
+
+		return false;
+	}
+
+   private static function insertExtraTestAds() {
+		wikihowAds::insertMobileAdMiddleRelated();
+		wikihowAds::insertMobileAdAtTarget('qa');
+		wikihowAds::insertMobileAdAtTarget('tips');
+		wikihowAds::insertMobileAdAtTarget('warnings');
+		$bottomAdContainer = Html::element( 'div', ['id' => 'pagebottom'] );
+		pq('#article_rating_mobile')->after( $bottomAdContainer );
+		wikihowAds::insertMobileAdAtTarget('pagebottom');
+   }
+
+   private static function getAdTestChannels() {
+	   global $wgOut, $wgLanguageCode;
+
+	   $channels = '';
+	   if ($wgLanguageCode != "en") {
+		   return $channels;
+	   }
+
+	   $pageId = 0;
+	   if ( $wgOut && $wgOut->getTitle() ) {
+		   $pageId = $wgOut->getTitle()->getArticleID();
+	   }
+	   if ( !$pageId ) {
+		   return $channels;
+	   }
+
+	   // extra ads test
+	   if ( $pageId % 4 <= 1 ) {
+		   $channels .= "+3523999546";
+	   } else {
+		   $channels .= "+8776326224";
+	   }
+
+	   return $channels;
+   }
+
+	private static function insertMobileAdAtTarget( $target ) {
+        global $wgTitle;
+
+        $pageId = $wgTitle->getArticleID();
+
+		$id = 'wh_ad_'.$target;
+		$attributes = array(
+			'id' => $id ,
+			'class' => 'wh_ad',
+			'data-type' => $target,
+		);
+
+		$attributes['data-scroll-load'] = true;
+		$html = Html::rawElement( 'div', $attributes );
+		$html .= Html::rawElement( 'div', [ 'class' => 'ad_label_method' ], 'Advertisement' );
+
+		$script = Html::inlineScript("WH.mobileads.add('$id');");
+		$target = "#".$target;
+		if ( pq( $target )->length > 0 ) {
+			pq( $target )->append( $html.$script );
+		}
+	}
+
+	private static function insertMobileAdMiddleRelated() {
+        global $wgTitle;
+
+        $pageId = $wgTitle->getArticleID();
+
+		$id = 'wh_ad_middle_related';
+		$attributes = array(
+			'id' => $id ,
+			'class' => 'wh_ad',
+			'data-type' => 'middlerelated',
+		);
+
+		$attributes['data-scroll-load'] = true;
+		$html = Html::rawElement( 'div', $attributes );
+
+		$script = Html::inlineScript("WH.mobileads.add('$id');");
+
+		$target = "#relatedwikihows";
+		if ( pq( $target )->length < 1 ) {
+			$relatedsname = RelatedWikihows::getSectionName();
+			$target = "#".$relatedsname;
+		}
+		if ( pq( $target )->length > 0 ) {
+			pq( $target )->find( '.related-article:eq(1)' )->after( $html.$script );
+		}
 	}
 
 }

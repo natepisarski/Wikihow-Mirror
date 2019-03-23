@@ -106,7 +106,6 @@ class HAWelcomeJob extends Job {
 	public function runEditThanks($Title) {
 		global $wgUser, $wgTitle, $wgErrorLog;
 
-		wfProfileIn( __METHOD__ );
 
 		//set the variables (used to be in __construct() )
 		$mUserId   = $wgUser->getID();
@@ -263,7 +262,6 @@ class HAWelcomeJob extends Job {
 			$wgErrorLog = $oldValue;
 		}
 
-		wfProfileOut( __METHOD__ );
 
 		return true;
 	}
@@ -271,7 +269,6 @@ class HAWelcomeJob extends Job {
 	public function runWelcome() {
 		global $wgUser;
 
-		wfProfileIn( __METHOD__ );
 
 		//set the variables (used to be in __construct() )
 		$mUserId   = $wgUser->getID();
@@ -390,7 +387,6 @@ class HAWelcomeJob extends Job {
 			$wgErrorLog = $oldValue;
 		}
 
-		wfProfileOut( __METHOD__ );
 
 		return true;
 	}
@@ -430,7 +426,6 @@ class HAWelcomeJob extends Job {
 	public function getLastSysop() {
 		global $wgCityId, $wgMemc, $wgLanguageCode;
 
-		wfProfileIn( __METHOD__ );
 
 		// if (rand(1, 10) <= 4) {
 			// //40% of the time grab the user from our custom list
@@ -462,7 +457,7 @@ class HAWelcomeJob extends Job {
 						/**
 						 * second: check database, could be expensive for database
 						 */
-						$dbr = wfGetDB( DB_SLAVE );
+						$dbr = wfGetDB( DB_REPLICA );
 
 						/**
 						 * get all users which are sysops/sysops or staff or helpers
@@ -527,7 +522,6 @@ class HAWelcomeJob extends Job {
 				}
 			}
 		}
-		wfProfileOut( __METHOD__ );
 
 		return $mSysop;
 	}
@@ -555,7 +549,6 @@ class HAWelcomeJob extends Job {
 			return true;
 		}
 
-		wfProfileIn( __METHOD__ );
 
 		/* first edit? */
 		//if (User::edits($wgUser->getID()) == 1) {
@@ -629,7 +622,6 @@ class HAWelcomeJob extends Job {
 			}
 		//}
 		$wgErrorLog = $oldValue;
-		wfProfileOut( __METHOD__ );
 
 		return true;
 	}
@@ -653,7 +645,6 @@ class HAWelcomeJob extends Job {
 		global $wgUser, $wgCityId, $wgCommandLineMode, $wgSharedDB,
 			$wgErrorLog, $wgMemc;
 
-		wfProfileIn( __METHOD__ );
 
 
 		/**
@@ -715,7 +706,6 @@ class HAWelcomeJob extends Job {
 			}
 		}
 		$wgErrorLog = $oldValue;
-		wfProfileOut( __METHOD__ );
 
 		return true;
 	}
@@ -731,7 +721,6 @@ class HAWelcomeJob extends Job {
 
 		global $wgContLang, $wgUser;
 
-		wfProfileIn( __METHOD__ );
 
 		// get the welcomer
 		$mSysop = self::getLastSysop();
@@ -774,7 +763,6 @@ class HAWelcomeJob extends Job {
 		// restore from backup
 		$wgUser = $tmpUser;
 
-		wfProfileOut( __METHOD__ );
 
 		return $signature;
 	}
@@ -797,7 +785,7 @@ class HAWelcomeJob extends Job {
 
 		$prefixedText = $title->getPrefixedText();
 
-		wfRunHooks( 'HAWelcomeGetPrefixText' , array( &$prefixedText, $title ) ); //
+		Hooks::run( 'HAWelcomeGetPrefixText' , array( &$prefixedText, $title ) ); //
 
 		return $prefixedText;
 	}
@@ -816,7 +804,6 @@ class HAWelcomeJob extends Job {
 	 */
 	public function isEnabled( $what ) {
 
-		wfProfileIn( __METHOD__ );
 
 		$return = false;
 		$message = wfMessage( "welcome-enabled" )->inContentLanguage()->text();
@@ -826,7 +813,6 @@ class HAWelcomeJob extends Job {
 			$return	= true;
 		}
 
-		wfProfileOut( __METHOD__ );
 
 		return $return;
 	}
@@ -843,7 +829,6 @@ class HAWelcomeJob extends Job {
 	 */
 	static public function isWelcomer( &$User ) {
 
-		wfProfileIn( __METHOD__ );
 
 		$sysop  = trim( wfMessage( "welcome-user" )->inContentLanguage()->text() );
 		$groups = $User->getEffectiveGroups();
@@ -863,7 +848,6 @@ class HAWelcomeJob extends Job {
 						? true : false;
 			}
 		}
-		wfProfileOut( __METHOD__ );
 
 		return $result;
 	}

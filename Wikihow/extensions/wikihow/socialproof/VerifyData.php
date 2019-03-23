@@ -8,55 +8,136 @@
  */
 
 class VerifyData {
-	const VERIFIED_ARTICLES_KEY = "verified_articles";
-	const VERIFIER_TABLE = "verifier_info";
-	const VERIFIER_INFO_CACHE_KEY = "verifier_info_4";
+	const VERIFIED_ARTICLES_KEY = 'verified_articles';
+	const VERIFIER_TABLE = 'verifier_info';
+	const ARTICLE_TABLE = 'article_verifier';
+	const BLURB_TABLE = 'coauthor_blurbs';
+	const VERIFIER_INFO_CACHE_KEY = 'verifier_info_4';
 
-	var $date, $verifierId, $whUserName, $name, $blurb, $hoverBlurb, $nameLink, $mainNameLink, $blurbLink, $category, $image, $initials, $revisionId, $worksheetName, $aid;
+	// Both
+	public $blurb; 		// byline
+	public $hoverBlurb;	// blurb
+	public $name;		// verifier name
+	public $nameLink;
+	public $verifierId;
 
-	// check the db for page existence
-	public static function isInDB( $pageId ) {
-		$dbr = wfGetDB(DB_SLAVE);
-		$count = $dbr->selectField( 'article_verifier',
-			'count(av_id)',
-			array( 'av_id' => $pageId ),
-			__METHOD__
-		);
-		return $count > 0;
+	// Article
+	public $aid;
+	public $blurbId;		// new
+	public $date;			// verification date
+	public $revisionId;
+	public $worksheetName;
+
+	// Coauthor
+	public $category;
+	public $image;
+	public $initials;
+	public $whUserName;
+	// public $whUserId;	// TODO
+
+	// Always empty
+	public $mainNameLink;
+
+	public static function newArticleFromRow( $row ) {
+		$vd = new VerifyData;
+		$vd->aid = $row->av_id;
+
+		// Always pull the last one in the spreadsheet (if there are multiple).  Eliz et all know the highest
+		// row will be consumed
+		$info = json_decode( $row->av_info );
+		$info = array_pop($info);
+
+		$vd->date = $info->date;
+		$vd->verifierId = $info->verifierId;
+		$vd->name = $info->name;
+		$vd->blurbId = $blurbId;
+		$vd->blurb = $info->blurb;
+		$vd->hoverBlurb = $info->hoverBlurb;
+		$vd->nameLink = $info->nameLink;
+		$vd->mainNameLink = $info->mainNameLink;
+		$vd->revisionId = $info->revisionId;
+		$vd->worksheetName = $info->worksheetName;
+
+		return $vd;
 	}
 
-	// get the number of articles that have expert verification
-	public static function getVerifiedArticlesCount() {
-		$dbr = wfGetDB(DB_SLAVE);
-		$count = $dbr->selectField( 'article_verifier',
-			'count(distinct av_id)',
-			'',
-			__METHOD__
-		);
-		return $count;
+	public static function newArticle( $aid, $verifierId, $date, $name, $blurbId, $blurb, $hoverBlurb, $nameLink, $mainNameLink, $revId, $worksheetName ) {
+		$vd = new VerifyData;
+		$vd->aid = $aid;
+		$vd->date = $date;
+		$vd->verifierId = $verifierId;
+		$vd->name = $name;
+		$vd->blurbId = $blurbId;
+		$vd->blurb = $blurb;
+		$vd->hoverBlurb = $hoverBlurb;
+		$vd->nameLink = $nameLink;
+		$vd->mainNameLink = $mainNameLink;
+		$vd->revisionId = $revId;
+		$vd->worksheetName = $worksheetName;
+
+		return $vd;
 	}
 
-	// get the number of articles that have expert verification
-	public static function getAllVerifiersFromDB() {
+	/**
+	 * if we want a verify data object but only care about the worksheet name
+	 * for example in the case of the chef verified data
+	 *
+	 * @param string $worksheetName worksheet this was found on
+	 * @return VerifyData object
+	 */
+	public static function newChefArticle( $worksheetName, $aid ) {
+		$vd = new VerifyData;
+		$vd->aid = $aid;
+		$vd->worksheetName = $worksheetName;
+		return $vd;
+	}
+
+	public static function newVideoTeamArticle( $worksheetName, $aid, $revId, $date ) {
+		$vd = new VerifyData;
+		$vd->worksheetName = $worksheetName;
+		$vd->aid = $aid;
+		$vd->revisionId = $revId;
+		$vd->date = $date;
+		return $vd;
+	}
+
+	public static function newVerifierFromAll( $verifierId, $name, $blurb, $hoverBlurb, $nameLink, $category, $image, $initials, $userName ) {
+		$vd = new VerifyData;
+		$vd->verifierId = $verifierId;
+		$vd->name = $name;
+		$vd->blurb = $blurb;
+		$vd->hoverBlurb = $hoverBlurb;
+		$vd->nameLink = $nameLink;
+		$vd->category = $category;
+		$vd->image = $image;
+		$vd->initials = $initials;
+		$vd->whUserName = $userName;
+
+		return $vd;
+	}
+
+	public static function newVerifierFromRow($row) {
+		$verifier = json_decode($row['vi_info']);
+		$vd = new VerifyData();
+		$vd->verifierId = $verifier->verifierId;
+		$vd->name = $verifier->name;
+		$vd->blurb = $verifier->blurb;
+		$vd->hoverBlurb = $verifier->hoverBlurb;
+		$vd->nameLink = $verifier->nameLink;
+		$vd->category = $verifier->category;
+		$vd->image = $verifier->image;
+		$vd->imagePath = self::getExpertImagePath($vd);
+		$vd->initials = $verifier->initials;
+		$vd->id = $row['vi_id'];
+
+		return $vd;
+	}
+
+	public static function getAllArticlesFromDB() {
 		$results = array();
-		$dbr = wfGetDB(DB_SLAVE);
-		$res = $dbr->select( 'article_verifier',
-			'av_info',
-			'',
-			__METHOD__
-		);
-		foreach ( $res as $row ) {
-			$results[] = $row->av_info;
-		}
 
-		return $results;
-	}
-
-	public static function getAllVerifierArticlesFromDB() {
-		$results = array();
-
-		$dbr = wfGetDB(DB_SLAVE);
-		$res = $dbr->select( 'article_verifier',
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select( self::ARTICLE_TABLE,
 			'av_info',
 			'',
 			__METHOD__
@@ -70,12 +151,11 @@ class VerifyData {
 				$vd->date = $verifier->date;
 				$vd->verifierId = $verifier->verifierId;
 				$vd->name = $verifier->name;
+				$vd->blurbId = $verifier->blurbId;
 				$vd->blurb = $verifier->blurb;
 				$vd->hoverBlurb = $verifier->hoverBlurb;
-				$vd->whUserName = $verifier->whUserName;
 				$vd->nameLink = $verifier->nameLink;
 				$vd->mainNameLink = $verifier->mainNameLink;
-				$vd->blurbLink = $verifier->blurbLink;
 				$vd->revisionId = $verifier->revisionId;
 				$vd->worksheetName = $verifier->worksheetName;
 				$results[] = $vd;
@@ -125,7 +205,7 @@ class VerifyData {
 	public static function getAllVerifierInfoFromDB() {
 		$results = array();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select( self::VERIFIER_TABLE,
 			'*',
 			'',
@@ -133,247 +213,62 @@ class VerifyData {
 		);
 
 		foreach ($res as $row) {
-			$vd = VerifyData::newVerifierFromRow(get_object_vars($row));
+			$vd = self::newVerifierFromRow(get_object_vars($row));
 			$results[$vd->name] = $vd;
 		}
 
 		return $results;
 	}
 
-	public static function newVerifierFromRow($row) {
-		$verifier = json_decode($row['vi_info']);
-		$vd = new VerifyData();
-		$vd->verifierId = $verifier->verifierId;
-		$vd->name = $verifier->name;
-		$vd->blurb = $verifier->blurb;
-		$vd->hoverBlurb = $verifier->hoverBlurb;
-		$vd->nameLink = $verifier->nameLink;
-		$vd->category = $verifier->category;
-		$vd->image = $verifier->image;
-		$vd->imagePath = self::getExpertImagePath($vd);
-		$vd->initials = $verifier->initials;
-		$vd->id = $row['vi_id'];
-
-		return $vd;
-	}
-
-	public static function getVerifiersFromDB( $pageId ) {
+	// get the number of articles that have expert verification
+	public static function getAllVerifiersFromDB() {
 		$results = array();
-
-		$dbr = wfGetDB(DB_SLAVE);
-		$verifiers = $dbr->selectField( 'article_verifier',
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select( self::ARTICLE_TABLE,
 			'av_info',
-			array( 'av_id' => $pageId),
+			'',
 			__METHOD__
 		);
-
-		if ( !$verifiers ) {
-			return $results;
-		}
-
-		$verifiers = json_decode( $verifiers );
-		foreach( $verifiers as $verifier ) {
-			$vd = new VerifyData;
-			$vd->date = $verifier->date;
-			$vd->verifierId = $verifier->verifierId;
-			$vd->name = $verifier->name;
-			$vd->blurb = $verifier->blurb;
-			$vd->hoverBlurb = $verifier->hoverBlurb;
-			$vd->whUserName = $verifier->whUserName;
-			$vd->nameLink = $verifier->nameLink;
-			$vd->mainNameLink = $verifier->mainNameLink;
-			$vd->blurbLink = $verifier->blurbLink;
-			$vd->revisionId = $verifier->revisionId;
-			$vd->worksheetName = $verifier->worksheetName;
-			$vd->image = $verifier->image;
-			$vd->imagePath = self::getExpertImagePath($vd);
-			$results[] = $vd;
+		foreach ( $res as $row ) {
+			$results[] = $row->av_info;
 		}
 
 		return $results;
 	}
-
-	public static function newFromDBKeys( $avId ) {
-		$vd = new VerifyData;
-		$vd->mId = $avId;
-
-		$dbr = wfGetDB(DB_SLAVE);
-		$info = $dbr->selectField( 'article_verifier',
-			'av_info',
-			array( 'av_id' => $avId),
-			__METHOD__
-		);
-
-		$info = json_decode( $info );
-		$vd->date = $info->date;
-		$vd->verifierId = $info->verifierId;
-		$vd->name = $info->name;
-		$vd->blurb = $info->blurb;
-		$vd->hoverBlurb = $info->hoverBlurb;
-		$vd->whUserName = $info->whUserName;
-		$vd->nameLink = $info->nameLink;
-		$vd->mainNameLink = $info->mainNameLink;
-		$vd->blurbLink = $info->blurbLink;
-		$vd->revisionId = $info->revisionId;
-		$vd->worksheetName = $info->worksheetName;
-
-		return $vd;
-	}
-
-
-	public static function newFromRow( $row ) {
-		$vd = new VerifyData;
-		$vd->aid = $row->av_id;
-
-		// Always pull the last one in the spreadsheet (if there are multiple).  Eliz et all know the highest
-		// row will be consumed
-		$info = json_decode( $row->av_info );
-		$info = array_pop($info);
-
-		$vd->date = $info->date;
-		$vd->verifierId = $info->verifierId;
-		$vd->name = $info->name;
-		$vd->blurb = $info->blurb;
-		$vd->hoverBlurb = $info->hoverBlurb;
-		$vd->whUserName = $info->whUserName;
-		$vd->nameLink = $info->nameLink;
-		$vd->mainNameLink = $info->mainNameLink;
-		$vd->blurbLink = $info->blurbLink;
-		$vd->revisionId = $info->revisionId;
-		$vd->worksheetName = $info->worksheetName;
-
-		return $vd;
-	}
-
-	/* Not used (Alberto, 2019-01)
-	private	function getWhUserName( $profileUrl ) {
-		if ( $profileUrl ) {
-			$pieces = explode( "User:", $profileUrl );
-			if ( count( $pieces ) > 1 ) {
-				return $pieces[1];
-			}
-		}
-		return "";
-	}
-	*/
 
 	/**
-	 * if we want a verify data object but only care about the worksheet name
-	 * for example in the case of the chef verified data
+	 * Get verify data for a page.  will look in memcached first.
 	 *
-	 * @param string $worksheetName worksheet this was found on
-	 * @return VerifyData object
+	 * @param int $pageId page id for the title to get info for
+	 * @return array|null the array of verify data for the page. there may be multiple
 	 */
-	public static function newFromWorksheetName( $worksheetName ) {
-		$vd = new VerifyData;
-		$vd->worksheetName = $worksheetName;
-		return $vd;
-	}
-
-	public static function newFromAll( $verifierId, $date, $name, $blurb, $hoverBlurb, $whUserName, $nameLink, $mainNameLink, $blurbLink, $revId, $worksheetName ) {
-		$vd = new VerifyData;
-		$vd->date = $date;
-		$vd->verifierId = $verifierId;
-		$vd->name = $name;
-		$vd->blurb = $blurb;
-		$vd->hoverBlurb = $hoverBlurb;
-		$vd->whUserName = $whUserName;
-		$vd->nameLink = $nameLink;
-		$vd->mainNameLink = $mainNameLink;
-		$vd->blurbLink = $blurbLink;
-		$vd->revisionId = $revId;
-		$vd->worksheetName = $worksheetName;
-
-		return $vd;
-	}
-
-	public static function newVerifierFromAll( $verifierId, $name, $blurb, $hoverBlurb, $nameLink, $category, $image, $initials, $userName ) {
-		$vd = new VerifyData;
-		$vd->verifierId = $verifierId;
-		$vd->name = $name;
-		$vd->blurb = $blurb;
-		$vd->hoverBlurb = $hoverBlurb;
-		$vd->nameLink = $nameLink;
-		$vd->category = $category;
-		$vd->image = $image;
-		$vd->initials = $initials;
-		$vd->whUserName = $userName;
-
-		return $vd;
-	}
-
-	public static function getPageIdsFromDB() {
-		$results = array();
-		$dbr = wfGetDB(DB_SLAVE);
-		$res = $dbr->select( 'article_verifier',
-			'av_id',
-			array(),
-			__METHOD__
-		);
-
-		if ( !$res ) {
-			return $results;
-		}
-
-		foreach ( $res as $row ) {
-			$results[$row->av_id] = true;
-		}
-
-		return $results;
-	}
-
-	private static function setVerifyList( $pageIds ) {
+	public static function getByPageId( $pageId ) {
 		global $wgMemc;
-		$cacheKey = wfMemcKey( 'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
-		$expirationTime = 30 * 24 * 60 * 60; //30 days
-		$wgMemc->set( $cacheKey, $pageIds, $expirationTime );
-	}
-
-	/*
-	 * if it is ok to add this page to expert rc patrol or not
-	 */
-	public static function okToPatrol( $pageId ) {
-		$verifiers = self::getByPageId( $pageId );
-
-		$allowed = false;
-		foreach ( $verifiers as $verifier ) {
-			$verifierInfo = self::getVerifierInfoById( $verifier->verifierId );
-			if ( $verifierInfo ) {
-				$allowed = true;
-				break;
-			}
+		if ( !$pageId ) {
+			return null;
 		}
 
-		return $allowed;
-	}
-
-	public static function inVerifyList( $pageId ) {
-		global $wgMemc;
-		$cacheKey = wfMemcKey( 'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
-		$pageIds = $wgMemc->get( $cacheKey );
-		if ( $pageIds === FALSE ) {
-			MWDebug::log("loading article verifier list from db");
-			$pageIds = VerifyData::getPageIdsFromDB();
-			self::setVerifyList( $pageIds );
+		if ( !self::isVerified( $pageId ) ) {
+			return null;
 		}
 
-		$result = null;
-
-		if ( isset( $pageIds[$pageId] ) ) {
-			$result = $pageIds[$pageId];
+		$cacheKey = wfMemcKey( 'article_verifier_data', $pageId );
+		$verifiers = $wgMemc->get( $cacheKey );
+		if ( $verifiers === FALSE ) {
+			$verifiers = self::getVerifiersFromDB( $pageId );
+			$expirationTime = 30 * 24 * 60 * 60; //30 days
+			$wgMemc->set( $cacheKey, $verifiers, $expirationTime );
 		}
-
-		return $result;
+		return $verifiers;
 	}
 
-        /**
-         * Get verify data for a specific revision of a  page.
+	/**
+	 * Get verify data for a specific revision of a  page.
 	 * Since we store verifier data by pageId,
-         *
-         * @param int $pageId page id for the title to get info for
-         * @return array|null the array of verify data for the page. there may be multiple
-         */
-
+	 *
+	 * @param int $pageId page id for the title to get info for
+	 * @return array|null the array of verify data for the page. there may be multiple
+	 */
 	public static function getByRevisionId( $pageId, $revisionId ) {
 		$results = array();
 		$verifiers = self::getByPageId( $pageId );
@@ -393,234 +288,226 @@ class VerifyData {
 		}
 	}
 
-	public static function isExpertVerified(int $articleId): bool {
-		$expertInfo = self::getByPageId($articleId);
-		return $expertInfo && count($expertInfo) > 0;
+	public static function getPageIdsFromDB() {
+		$results = array();
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select( self::ARTICLE_TABLE,
+			'av_id',
+			array(),
+			__METHOD__
+		);
+
+		if ( !$res ) {
+			return $results;
+		}
+
+		foreach ( $res as $row ) {
+			$results[$row->av_id] = true;
+		}
+
+		return $results;
 	}
 
-	/**
-	 * Get verify data for a page.  will look in memcached first.
-	 *
-	 * @param int $pageId page id for the title to get info for
-	 * @return array|null the array of verify data for the page. there may be multiple
+	public static function getVerifiersFromDB( $pageId ) {
+		$results = array();
+
+		$dbr = wfGetDB(DB_REPLICA);
+		$verifiers = $dbr->selectField( self::ARTICLE_TABLE,
+			'av_info',
+			array( 'av_id' => $pageId),
+			__METHOD__
+		);
+
+		if ( !$verifiers ) {
+			return $results;
+		}
+
+		$verifiers = json_decode( $verifiers );
+		foreach( $verifiers as $verifier ) {
+			$vd = new VerifyData;
+			$vd->date = $verifier->date;
+			$vd->verifierId = $verifier->verifierId;
+			$vd->name = $verifier->name;
+			$vd->blurbId = $verifier->blurbId;
+			$vd->blurb = $verifier->blurb;
+			$vd->hoverBlurb = $verifier->hoverBlurb;
+			$vd->nameLink = $verifier->nameLink;
+			$vd->mainNameLink = $verifier->mainNameLink;
+			$vd->revisionId = $verifier->revisionId;
+			$vd->worksheetName = $verifier->worksheetName;
+			$vd->image = $verifier->image;
+			$vd->imagePath = self::getExpertImagePath($vd);
+			$results[] = $vd;
+		}
+
+		return $results;
+	}
+
+	// check the db for page existence
+	public static function isInDB( $pageId ) {
+		$dbr = wfGetDB(DB_REPLICA);
+		$count = $dbr->selectField( self::ARTICLE_TABLE,
+			'count(av_id)',
+			array( 'av_id' => $pageId ),
+			__METHOD__
+		);
+		return $count > 0;
+	}
+
+	public static function isVerified( $pageId ) {
+		global $wgMemc;
+		$cacheKey = wfMemcKey( 'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
+		$pageIds = $wgMemc->get( $cacheKey );
+		if ( $pageIds === FALSE ) {
+			MWDebug::log("loading article verifier list from db");
+			$pageIds = self::getPageIdsFromDB();
+			self::cachePageIds( $pageIds );
+		}
+		return isset( $pageIds[$pageId] );
+	}
+
+	/*
+	 * if it is ok to add this page to expert rc patrol or not
 	 */
-	public static function getByPageId( $pageId ) {
-		global $wgMemc;
-		if ( !$pageId ) {
-			return null;
+	public static function isOKToPatrol( $pageId ) {
+		$verifiers = self::getByPageId( $pageId );
+
+		$allowed = false;
+		foreach ( $verifiers as $verifier ) {
+			$verifierInfo = self::getVerifierInfoById( $verifier->verifierId );
+			if ( $verifierInfo ) {
+				$allowed = true;
+				break;
+			}
 		}
 
-		if ( !self::inVerifyList( $pageId ) ) {
-			return null;
-		}
-
-		$cacheKey = wfMemcKey( 'article_verifier_data', $pageId );
-		$verifiers = $wgMemc->get( $cacheKey );
-		if ( $verifiers === FALSE ) {
-			$verifiers = VerifyData::getVerifiersFromDB( $pageId );
-			$expirationTime = 30 * 24 * 60 * 60; //30 days
-			$wgMemc->set( $cacheKey, $verifiers, $expirationTime );
-		}
-		return $verifiers;
+		return $allowed;
 	}
 
-	public static function replaceVerifierData ($data) {
+	public static function replaceAllData(array $coauthors, array $blurbs, array $articles) {
 		global $wgMemc;
 
-		if ( !$data || empty( $data ) ) {
+		if ( !$coauthors || !$blurbs || !$articles ) {
 			return;
 		}
 
-		//clear out old data no longer used
-		VerifyData::removeClearedVerifierPages( $data );
+		$dbw = wfGetDB( DB_MASTER );
 
-		foreach ( $data as $verifierData ) {
-			VerifyData::replaceVerifierRow( $verifierData );
+		### Coauthors
+
+		// Delete coauthors that were removed from the spreadsheet
+
+		$coauthorIDstoDelete = [];
+		$coauthorIDsToInsert = $dbw->makeList( array_keys($coauthors) );
+		$res = $dbw->select( self::VERIFIER_TABLE, 'vi_id', "vi_id NOT IN ($coauthorIDsToInsert)" );
+		foreach ($res as $row) {
+			$coauthorIDstoDelete[] = $row->vi_id;
+		}
+		if ($coauthorIDstoDelete) {
+			$qadb = QADB::newInstance();
+			$qadb->removeVerifierIdsFromArticleQuestions($coauthorIDstoDelete);
+			$res = $dbw->delete( self::VERIFIER_TABLE, [ 'vi_id' => $coauthorIDstoDelete ] );
 		}
 
-		// clear memcached
+		// Upsert the coauthors
+
+		$coauthorRowsToUpsert = [];
+		foreach ($coauthors as $verifyData) {
+			$coauthorRowsToUpsert[] = [
+				'vi_id' => $verifyData->verifierId,
+				'vi_name' => $verifyData->name,
+				'vi_user_name' => $verifyData->whUserName,
+				'vi_info' => json_encode($verifyData),
+			];
+		}
+		$dbw->upsert(self::VERIFIER_TABLE, $coauthorRowsToUpsert, [], [
+			'vi_name = VALUES(vi_name)',
+			'vi_user_name = VALUES(vi_user_name)',
+			'vi_info = VALUES(vi_info)',
+		]);
+
+		// Clear the coauthor cache
+
 		$cacheKey = wfMemcKey( self::VERIFIER_INFO_CACHE_KEY );
 		$wgMemc->delete( $cacheKey );
-	}
 
-	public static function replaceData( $pageIds ) {
-		global $wgMemc;
+		### Blurbs
 
-		if ( !$pageIds || empty( $pageIds ) ) {
-			return;
+		// Delete blurbs that were removed from the spreadsheet
+
+		$blurbIDsToInsert = $dbw->makeList( array_keys($blurbs) );
+		$res = $dbw->delete( self::BLURB_TABLE, "cab_blurb_id NOT IN ($blurbIDsToInsert)" );
+
+		// Upsert the blurbs
+
+		$blurbRowsToUpsert = [];
+		foreach ($blurbs as $blurb) {
+			$blurbRowsToUpsert[] = [
+				'cab_blurb_id' => $blurb['blurbId'],
+				'cab_coauthor_id' => $blurb['coauthorId'],
+				'cab_blurb_num' => $blurb['blurbNum'],
+				'cab_byline' => $blurb['byline'],
+				'cab_blurb' => $blurb['blurb'],
+			];
 		}
+		$dbw->upsert(self::BLURB_TABLE, $blurbRowsToUpsert, [], [
+			'cab_byline = VALUES(cab_byline)',
+			'cab_blurb = VALUES(cab_blurb)',
+		]);
 
-		$pageIdKeys = array();
-		$rows = array();
-		foreach ( $pageIds as $pageId => $verifyData ) {
-			// construct the rows for batch mysql replace
-			$rows[] = array( "av_id" => $pageId, "av_info" => json_encode( $verifyData ) );
+		### Articles
+
+		$pageIds = [];
+		$rows = [];
+		foreach ( $articles as $pageId => $verifyData ) {
+			// Construct the rows for batch mysql replace.
+			// Taking the verifierId and blurbId from $verifyData[0] is okay because
+			// articles can only have 1 verifier (as per ExpertVerifyImporter.php)
+			$rows[] = [
+				'av_id' => $pageId,
+				'av_coauthor_id' => $verifyData[0]->verifierId,
+				'av_blurb_id' => $verifyData[0]->blurbId,
+				'av_info' => json_encode($verifyData),
+			];
 
 			// save the keys for a faster memcached lookup
-			$pageIdKeys[$pageId] = true;
+			$pageIds[$pageId] = true;
 
 			// set in memcached
 			$cacheKey = wfMemcKey( 'article_verifier_data', $pageId );
 			$wgMemc->set( $cacheKey, $verifyData );
 		}
 
-		VerifyData::replaceRows( $rows );
+		// adds lists of verify data to the database and overwrites existing data in those rows
+		// works using replace into as a batch call..
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->replace( self::ARTICLE_TABLE, [ 'av_id' ], $rows );
 
-		self::removeClearedPages( $pageIds );
-		self::setVerifyList( $pageIdKeys );
-		wfRunHooks( 'VerifyImportComplete', array( array_keys($pageIdKeys) ) );
-	}
+		// looks at all the page ids in the verify data table
+		// and deletes any that are no in the given $articles array passed in
 
-
-	// looks at all the page ids in the verify data table
-	// and deletes any that are no in the given $pageIds array passed in
-	public static function removeClearedPages( $pageIds ) {
-		global $wgMemc;
-
-		if ( $pageIds == null || count($pageIds) < 1 ) {
-			return;
-		}
-
-		$table = "article_verifier";
-
-
-		$dbr = wfGetDB( DB_SLAVE );
-		$res = $dbr->select( $table, array( 'av_id' ), array(), __METHOD__ );
-		$toDelete = array();
+		$dbr = wfGetDB( DB_REPLICA );
+		$res = $dbr->select( self::ARTICLE_TABLE, [ 'av_id' ], [] );
+		$toDelete = [];
 		foreach ( $res as $row ) {
-			if ( !$pageIds[$row->av_id] ) {
+			if ( !$articles[$row->av_id] ) {
 				$toDelete[] = $row->av_id;
 			}
 		}
 
 		foreach ( $toDelete as $deleteId ) {
 			$dbw = wfGetDB( DB_MASTER );
-			// TODO: we can delete from 'article_verifier' with a single query
-			$res = $dbw->delete( $table, array( "av_id"=> $deleteId ), __METHOD__ );
+			$res = $dbw->delete( self::ARTICLE_TABLE, [ "av_id"=> $deleteId ] );
 			$cacheKey = wfMemcKey( 'article_verifier_data', $deleteId );
 			$wgMemc->delete( $cacheKey );
 		}
+
+		self::cachePageIds( $pageIds );
+
+		Hooks::run( 'VerifyImportComplete', [ array_keys($pageIds) ] );
 	}
 
-	public static function removeClearedVerifierPages( $data ) {
-
-		if ( $data == null || count($data) < 1 ) {
-			return;
-		}
-
-		$dbw = wfGetDB( DB_MASTER );
-
-		$res = $dbw->select( VerifyData::VERIFIER_TABLE, array( 'vi_id', 'vi_name' ), '', __METHOD__ );
-		$toDelete = array();
-		foreach ( $res as $row ) {
-			if ( !$data[$row->vi_id] ) {
-				$toDelete[] = $row->vi_id;
-			}
-		}
-
-		$qadb = QADB::newInstance();
-		foreach ( $toDelete as $deleteId ) {
-			// TODO: we can delete from 'verifier_info' with a single query
-			$res = $dbw->delete( VerifyData::VERIFIER_TABLE, array( "vi_id" => $deleteId ), __METHOD__ );
-			$qadb->removeVerifierIdFromArticleQuestions($deleteId);
-		}
-	}
-
-	public static function replaceVerifierRow( $verifyData ) {
-		$jsonData = json_encode( $verifyData );
-		$dbw = wfGetDB( DB_MASTER );
-//		$row = $dbw->replace(
-//			VerifyData::VERIFIER_TABLE,
-//			array( 'vi_name'=> $verifyData->name ),
-//			array( 'vi_name'=> $verifyData->name, 'vi_info' => $jsonData ),
-//			__METHOD__
-//		);
-
-		$dbw->upsert(
-			VerifyData::VERIFIER_TABLE,
-			[
-				'vi_id' => $verifyData->verifierId,
-				'vi_name' => $verifyData->name,
-				'vi_user_name' => $verifyData->whUserName,
-				'vi_info' => $jsonData,
-			],
-			['vi_id'],
-			[
-				'vi_name = VALUES(vi_name)',
-				'vi_user_name = VALUES(vi_user_name)',
-				'vi_info = VALUES(vi_info)',
-			],
-			__METHOD__
-		);
-	}
-
-	// adds lists of verify data to the database
-	// and overwrites existing data in those rows
-	// works using replace into as a batch call..
-	public static function replaceRows( $rows ) {
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->replace(
-			'article_verifier',
-			array( 'av_id' ),
-			$rows,
-			__METHOD__
-		);
-	}
-
-	/* Not used (Alberto, 2019-01)
-
-	// adds a single piece of verify data to the db
-	public static function insertOrUpdate($pageId, $verifyData) {
-		global $wgMemc;
-		$cacheKey = wfMemcKey( 'article_verifier_data', $pageId );
-
-		$dbw = wfGetDB( DB_MASTER );
-
-		$existingVerifiers = $dbw->selectField( 'article_verifier',
-			'av_info',
-			array( 'av_id' => $pageId),
-			__METHOD__
-		);
-
-		if ( $existingVerifiers ) {
-			$newVerifiers = array($verifyData);
-			$oldVerifiers = json_decode( $existingVerifiers );
-
-			// make sure it's an array
-			if ( !is_array( $oldVerifiers ) ) {
-				$oldVerifiers = array( $oldVerifiers );
-			}
-
-			foreach ( $oldVerifiers as $existing ) {
-				if ( json_encode( $existing ) != json_encode( $verifyData ) ) {
-					$newVerifiers[] = $existing;
-				}
-			}
-
-			$newVerifiersJSON = json_encode( $newVerifiers );
-
-			if ( $newVerifiers != $existingVerifiers ) {
-				$row = $dbw->update(
-					'article_verifier',
-					array( 'av_info' => $newVerifiersJSON ),
-					array( 'av_id'=>$pageId ),
-					__METHOD__
-				);
-				$wgMemc->set( $cacheKey, $newVerifiers );
-			}
-		} else {
-			$jsonData = json_encode( array( $verifyData ) );
-			$row = $dbw->insert(
-				'article_verifier',
-				array( 'av_id'=>$pageId, 'av_info'=>$jsonData ),
-				__METHOD__
-			);
-			$wgMemc->set( $cacheKey, $verifyData );
-		}
-	}
-	*/
-
-	public static function getExpertImagePath( $vd ) {
+	private static function getExpertImagePath( $vd ) {
 		if ( !$vd || !$vd->image ) {
 			return "";
 		}
@@ -636,18 +523,11 @@ class VerifyData {
 		return $thumb->getUrl();
 	}
 
-	/*
-	 * gets the first verifier for this page including the image path
-	 * @param int page id
-	 * @return the verifier info object or null if not found for this page
-	 */
-	public static function getFirstVerifierByPageId( $pageId ) {
-		$verifyData = self::getByPageId( $pageId );
-		if ( !count( $verifyData ) ) {
-			return null;
-		}
-		$verifyData = $verifyData[0];
-		$verifyData->imagePath = self::getExpertImagePath( $verifyData );
-		return $verifyData;
+	private static function cachePageIds( $pageIds ) {
+		global $wgMemc;
+		$cacheKey = wfMemcKey( 'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
+		$expirationTime = 30 * 24 * 60 * 60; //30 days
+		$wgMemc->set( $cacheKey, $pageIds, $expirationTime );
 	}
+
 }

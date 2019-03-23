@@ -7,7 +7,7 @@
 require_once('commandLine.inc');
 define('BASE_URL', 'http://www.wikihow.com/');
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->select('page', 'page_title',
 	array('page_namespace' => NS_MAIN,
 		'page_is_redirect' => 0),

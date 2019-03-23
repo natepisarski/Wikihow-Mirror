@@ -86,7 +86,7 @@ class MWMessages extends UnlistedSpecialPage {
 					}
 				}
 
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$res = $dbr->select('page', array('page_title', 'page_namespace'), array('page_namespace'=>NS_MEDIAWIKI));
 				foreach ($res as $row) {
 					$t = Title::makeTitle($row->page_namespace, $row->page_title);

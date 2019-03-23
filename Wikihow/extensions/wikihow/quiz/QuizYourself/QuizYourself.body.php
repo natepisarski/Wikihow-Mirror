@@ -91,7 +91,7 @@ class QuizYourself extends SpecialPage {
 	}
 
 	private function randomTitleFromCategory(string $category) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$aid = $dbr->selectField(
 			[
 				'quiz',
@@ -126,7 +126,7 @@ class QuizYourself extends SpecialPage {
 	private function getCategories(): array {
 		global $wgCategoryNames;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			[
 				'quiz',

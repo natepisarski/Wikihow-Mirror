@@ -50,7 +50,7 @@ class DOMHelper
 
 		// Find out which pages are indexed articles
 
-		$res = wfGetDB(DB_SLAVE)->select(
+		$res = wfGetDB(DB_REPLICA)->select(
 			['page', 'index_info'],
 			['page_title'],
 			[

@@ -51,7 +51,7 @@ class NewArticleBoost extends SpecialPage {
 			$text = $revision->getText();
 			if (stripos($text, "{{merge") !== false) return false;
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$eighteenMonths = wfTimestamp(TS_MW, strtotime("-18 months")); //18 months ago
 			$sixMonths = wfTimestamp(TS_MW, strtotime("-6 months")); //6 months ago
@@ -126,7 +126,7 @@ class NewArticleBoost extends SpecialPage {
 	}
 
 	public function getNABCountOld() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$one_hour_ago = wfTimestamp(TS_MW, time() - 60 * 60);
 		$sql = "SELECT count(*) as C
@@ -191,7 +191,7 @@ class NewArticleBoost extends SpecialPage {
 	}
 
 	public static function isNABbedNoDb($page) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		return self::isNABbed($dbr, $page);
 	}
 
@@ -230,7 +230,7 @@ class NewArticleBoost extends SpecialPage {
 
 
 	public static function isDemotedNoDb($page) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		return self::isDemoted($dbr, $page);
 	}
 
@@ -401,7 +401,7 @@ class NewArticleBoost extends SpecialPage {
 				$title = $newTitle;
 			}
 
-			wfRunHooks("NABArticleFinished", array($aid));
+			Hooks::run("NABArticleFinished", array($aid));
 		}
 
 		// GET NEXT UNPATROLLED ARTICLE
@@ -432,7 +432,7 @@ class NewArticleBoost extends SpecialPage {
 	}
 
 	public static function markPreviousEditsPatrolled($aid, $maxrcid = false) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$user = RequestContext::getMain()->getUser();
 
 		if (!$maxrcid) {
@@ -461,7 +461,7 @@ class NewArticleBoost extends SpecialPage {
 		global $wgContLang;
 
 		//remove the demoted category if it exists on this page
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$cats = $dbr->select('categorylinks', array('cl_to'), array('cl_from' => $aid), __METHOD__);
 		$dbCat = str_replace(" ", "-", self::DEMOTE_CATEGORY);
 		$found = false;
@@ -528,7 +528,7 @@ class NewArticleBoost extends SpecialPage {
 			self::markPreviousEditsPatrolled($aid);
 		}
 
-		wfRunHooks('NABMarkPatrolled', array($aid));
+		Hooks::run('NABMarkPatrolled', array($aid));
 
 		//send message
 		if ($langCode == "en") {
@@ -585,8 +585,8 @@ class NewArticleBoost extends SpecialPage {
 		//add demote cat
 		$t = Title::newFromId($aid);
 		if ($t && $t->exists()) {
-			$dbr = wfGetDB(DB_MASTER);
-			$wikitext = Wikitext::getWikitext($dbr, $t);
+			$dbw = wfGetDB(DB_MASTER);
+			$wikitext = Wikitext::getWikitext($dbw, $t);
 			$intro = Wikitext::getIntro($wikitext);
 			$cat = "\n[[" . $wgContLang->getNSText(NS_CATEGORY) . ":" . self::DEMOTE_CATEGORY . "]]";
 			$intro .= $cat;
@@ -602,7 +602,7 @@ class NewArticleBoost extends SpecialPage {
 		}
 
 		self::markPreviousEditsPatrolled($aid);
-		wfRunHooks( 'NABArticleDemoted', array($aid) );
+		Hooks::run( 'NABArticleDemoted', array($aid) );
 	}
 
 	private function getNabUrl($title) {
@@ -781,7 +781,7 @@ class NewArticleBoost extends SpecialPage {
 		$comment = '{{Rising-star-discussion-msg-2|[['.$contribUserPage.'|'.$contribUserName.']]|[['.$patrolUserPage.'|'.$patrolUserName.']]}}' . "\n";
 		$formattedComment = TalkPageFormatter::createComment( $this->getUser(), $comment );
 
-		wfRunHooks("MarkTitleAsRisingStar", array($title));
+		Hooks::run("MarkTitleAsRisingStar", array($title));
 
 		if ($talkPage->getArticleId() > 0) {
 			$rev = Revision::newFromTitle($talkPage);
@@ -1107,7 +1107,7 @@ class NewArticleBoost extends SpecialPage {
 		}
 
 		$dbw = wfGetDB(DB_MASTER);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$this->me = Title::makeTitle(NS_SPECIAL, "NewArticleBoost");
 		$this->can_newbie = in_array( 'newbienap', $user->getRights() );
 		$this->do_newbie = $req->getVal("newbie") == 1
@@ -1184,7 +1184,7 @@ class NewArticleBoost extends SpecialPage {
 	}
 
 	public function existsInNab($article_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField(self::NAB_TABLE,array('count(*)'),array('nap_page' => $article_id), __METHOD__);
 		$result = ((int)$count > 0) ? true : false;
 		return $result;
@@ -1278,7 +1278,7 @@ class NABStatus extends SpecialPage {
 		$out->setHTMLTitle('New Article Boost Status - wikiHow');
 
 		$sk = $user->getSkin();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$out->addHTML('<style type="text/css" media="all">/*<![CDATA[*/ @import "' . wfGetPad('/extensions/min/f/extensions/wikihow/nab/newarticleboost.css&' . NewArticleBoost::REVISION) . '"; /*]]>*/</style>');
 		$out->addHTML(wfMessage('nap_statusinfo'));
@@ -1637,7 +1637,7 @@ class NABPatrol extends UnlistedSpecialPage {
 				}
 				Common::log(__METHOD__ . ' - promote', $aid, Title::newFromID($aid));
 				NewArticleBoost::markNabbed($dbw, $aid, $user->getId(), false);
-				wfRunHooks("NABArticleFinished", array($aid));
+				Hooks::run("NABArticleFinished", array($aid));
 
 				$result['msg'] = wfMessage('Nab_warning_done')->text();
 

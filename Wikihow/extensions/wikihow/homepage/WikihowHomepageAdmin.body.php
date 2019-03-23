@@ -115,7 +115,7 @@ wgAjaxLicensePreview = {$alp};
 	}
 
 	private function getHomepageData() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(self::HP_TABLE, '*', '', __METHOD__, array('ORDER BY' => 'hp_active DESC,hp_order'));
 

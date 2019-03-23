@@ -31,7 +31,7 @@ class KeywordSearch extends UnlistedSpecialPage {
 			EasyTemplate::set_path(__DIR__.'/');
 			$out->addHTML(EasyTemplate::html('KeywordSearch.tmpl.php',array()));
 		} else {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			// Find keywords, which match keyword database
 			$sql = 'select keywords.* from dedup.keywords where match(title) against (' . $dbr->addQuotes($keywords) . ")";

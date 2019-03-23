@@ -26,7 +26,7 @@ class ArticleStats extends SpecialPage {
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$related = $dbr->selectField(
 					"pagelinks",
@@ -161,7 +161,7 @@ class ArticleStats extends SpecialPage {
 	}
 
 	public static function getInboundLinkCount(Title $title): int {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$tables = ['pagelinks', 'page'];
 		$fields = 'count(*)';
 		$where = [

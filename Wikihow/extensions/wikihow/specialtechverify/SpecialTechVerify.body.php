@@ -48,7 +48,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 
     private static function getPlatforms() {
 		$result = array();
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = self::STV_TABLE;
 		$var = "DISTINCT(stvi_platform)";
 		$cond = array(
@@ -155,7 +155,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
      * get the next article to vote on
 	 */
 	private function getNextItem( $platform ) {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		$result = [];
         $conds = [];
         $userId = $this->getUserId();
@@ -307,7 +307,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 	}
 
     public static function getRemainingCount() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = self::STV_TABLE;
         $vars = "count('*')";
         $conds = array( "stvi_user_id" => '' );
@@ -460,7 +460,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
             );
             $dbw->delete( $table, $conds, __METHOD__ );
             $title = Title::newFromID( $pageId );
-            wfRunHooks("SpecialTechVerifyItemCompleted", array($wgUser, $title, '0'));
+            Hooks::run("SpecialTechVerifyItemCompleted", array($wgUser, $title, '0'));
         }
 
         // log the actions

@@ -18,7 +18,7 @@ $file = isset($argv[0]) ? $argv[0] : 'out.csv';
 $useCustomTitleTitle = !isset($argv[0]) || !$argv[1] || $argv[1] != "1";
 
 print "querying database...\n";
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $titles = array();
 $sql = 'SELECT page_title FROM page WHERE page_namespace=' . NS_MAIN . ' AND page_is_redirect=0 ORDER BY page_id';
 $res = $dbr->query($sql, __FILE__);

@@ -102,7 +102,7 @@ class ThumbRatingsMaintenance {
 	}
 
 	private function getDailyEditPageIds($lookback = 1) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$lowDate = wfTimestamp(TS_MW, strtotime("-$lookback day", strtotime(date('Ymd', time()))));
 
 		$sql = "SELECT de_page_id FROM daily_edits WHERE de_timestamp >= '$lowDate'";

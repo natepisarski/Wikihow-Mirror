@@ -24,7 +24,7 @@ class LookForVideo extends Maintenance {
 	public function execute() {
 		global $IP;
 		require_once("$IP/extensions/wikihow/api/ApiApp.body.php");
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		$table = "titus_copy";
 		$vars = array( 'ti_page_id' );
 		$conds = array(

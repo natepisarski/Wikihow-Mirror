@@ -140,7 +140,6 @@ class CreatepageEmailFriend extends UnlistedSpecialPage {
 		} else {
 			$from = new MailAddress($user->getEmail());
 		}
-		$from = new MailAddress($from);
 		foreach ($friends as $f) {
 			$to = new MailAddress($f);
 			UserMailer::send($to, $from, $subject, $body);

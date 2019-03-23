@@ -64,7 +64,7 @@ class Quiz {
 		if (is_array($val)) {
 			return $val;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$quizzes = [];
 
 		$res = $dbr->select(self::TABLE_NAME, ['*'], ['qz_aid' => $aid], __METHOD__);
@@ -78,7 +78,7 @@ class Quiz {
 	}
 
 	public static function loadAllQuizzes() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$quizzes = [];
 
 		$res = $dbr->select(self::TABLE_NAME, ['*'], [], __METHOD__);

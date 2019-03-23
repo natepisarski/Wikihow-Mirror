@@ -25,7 +25,7 @@ class Interests extends SpecialPage {
 				Title::newFromText('Ollie-off-a-Kicker')
 			);
 			foreach ($hits as $t) {
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				$x = array();
 				$x['url']  = $t->getFullURL();
 				$x['title'] = $t->getText();

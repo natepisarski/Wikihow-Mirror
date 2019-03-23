@@ -78,7 +78,7 @@ class RemoveUnsupportedVideos extends Maintenance {
 		// once per period. increase the number of nightly videos
 		// if you want a shorter period (time between checks)
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$totalVideos = $dbr->selectField( array(
 			'page'
 		), array(
@@ -97,7 +97,7 @@ class RemoveUnsupportedVideos extends Maintenance {
 	public function getVideos() {
 		$videos = array();
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$offset = $this->getOffset();
 
 		$res = $dbr->select( 'page', array(

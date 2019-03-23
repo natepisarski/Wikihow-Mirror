@@ -1,7 +1,7 @@
 <?
 require_once('commandLine.inc');
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $res = $dbr->select('rctest_users', array('ru_user_id', 'ru_base_patrol_count'), array('ru_next_test_patrol_count' => 2, 'ru_base_patrol_count > 0'));
 while ($row = $dbr->fetchObject($res)) {

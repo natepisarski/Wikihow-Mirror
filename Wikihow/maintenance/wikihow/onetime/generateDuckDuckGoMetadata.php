@@ -1,4 +1,4 @@
-<?
+<?php
 //
 // Generate tabular data dump for the Duck Duck Go search engine to show zero-click 
 // inline results for how-to queries.
@@ -9,7 +9,7 @@
 // https://github.com/duckduckgo/zeroclickinfo-fathead#general-data-file-format
 //
 
-require_once dirname(__FILE__) '/../commandLine.inc';
+require_once __DIR__ . '/../../commandLine.inc';
 
 global $IP;
 require_once "$IP/extensions/wikihow/RobotPolicy.class.php";
@@ -92,7 +92,7 @@ function synthesizeSummary($wikitext, $maxSteps, $fullURL) {
 // Load the selected titles from the database
 function loadTitles() {
 	global $baseMemory;
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 
 	$res = $dbr->select('page',
 		array('page_namespace', 'page_title'),

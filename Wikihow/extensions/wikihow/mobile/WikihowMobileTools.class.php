@@ -246,16 +246,13 @@ class WikihowMobileTools {
 				$showTOC = !$amp
 					&& !self::isInternetOrgRequest()
 					&& !AndroidHelper::isAndroidRequest()
-					&& !$wgContLang->isRTL()
-					&& (Misc::isIntl() || (
-						class_exists("MobileTabs") && !MobileTabs::isTabArticle($wgTitle, $skin->getOutput())
-					));
+					&& !$wgContLang->isRTL();
 
 				if ($h3Count > 0) {
 					//chance to reformat the alt method_toc before output
 					//using for running tests
 					$bAfter = false;
-					wfRunHooks('BeforeOutputAltMethodTOC', array($docTitle, &$anchorList, &$bAfter));
+					Hooks::run('BeforeOutputAltMethodTOC', array($docTitle, &$anchorList, &$bAfter));
 				} else {
 					if ($set) {
 						try {
@@ -339,7 +336,7 @@ class WikihowMobileTools {
 			}
 		}
 
-		wfRunHooks('AtAGlanceTest', array( $wgTitle ) );
+		Hooks::run('AtAGlanceTest', array( $wgTitle ) );
 
 		//now put the step numbers in
 		$methodNum = 1;
@@ -811,14 +808,6 @@ class WikihowMobileTools {
 			pq(".video")->remove();
 		}
 
-		if ($config['show-ads'] && wikihowAds::isEligibleForAds() && !wikihowAds::isExcluded($docTitle)) {
-			wikihowAds::insertMobileAds();
-
-			if (class_exists('AdblockNotice')) {
-				AdblockNotice::insertMobileNotice();
-			}
-		}
-
 		// Remove quizzes
 		pq(".testyourknowledge")->remove();
 
@@ -826,6 +815,14 @@ class WikihowMobileTools {
 		if (class_exists('QAWidget') && $config['show-qa'] && QAWidget::isTargetPage()) {
 			$qaWidget = new QAWidget();
 			$qaWidget->addWidget();
+		}
+
+		if ($config['show-ads'] && wikihowAds::isEligibleForAds() && !wikihowAds::isExcluded($docTitle)) {
+			wikihowAds::insertMobileAds();
+
+			if (class_exists('AdblockNotice')) {
+				AdblockNotice::insertMobileNotice();
+			}
 		}
 
 		if ($showTOC) {
@@ -890,7 +887,7 @@ class WikihowMobileTools {
 			}
 		}
 
-		wfRunHooks('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
+		Hooks::run('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
 
 		UserTiming::modifyDOM($canonicalSteps);
 		PinterestMod::modifyDOM();
@@ -911,11 +908,6 @@ class WikihowMobileTools {
 			Donate::addDonateSectionToArticle();
 		}
 
-		//tabs should really be last so it has access to all the content on the page
-		if ( class_exists( 'MobileTabs' ) ) {
-			MobileTabs::modifyDOM();
-		}
-
 		$html = $doc->documentWrapper->markup();
 		if ($isUnnabbed) {
 			$html = "<div class='unnabbed'>{$html}</div>";
@@ -923,7 +915,7 @@ class WikihowMobileTools {
 
 		if ( !$amp ) {
 			$scripts = [];
-			wfRunHooks( 'AddTopEmbedJavascript', [&$scripts] );
+			Hooks::run( 'AddTopEmbedJavascript', [&$scripts] );
 			if ($scripts) {
 				$html = Html::inlineScript(Misc::getEmbedFiles('js', $scripts)) . $html;
 			}
@@ -994,7 +986,7 @@ class WikihowMobileTools {
 		$formatter = MobileFormatter::newFromContext($context, $html);
 
 
-		wfRunHooks('MobileFrontendBeforeDOM', array($context, $formatter));
+		Hooks::run('MobileFrontendBeforeDOM', array($context, $formatter));
 
 		$specialPage = false;
 		if ($context->getContentTransformations()) {
@@ -1088,12 +1080,14 @@ class WikihowMobileTools {
 				}
 				break;
 			case $videoAnchor:
-				$extraTOCPostData[] = [
-					'anchor' => $videoAnchor,
-					'name' => wfMessage('video')->text(),
-					'priority' => 1100,
-					'selector' => '#' . Misc::escapeJQuerySelector($videoAnchor),
-				];
+				if(!WHVid::hasSummaryVideo($wgTitle)) {
+					$extraTOCPostData[] = [
+						'anchor' => $videoAnchor,
+						'name' => wfMessage('video')->text(),
+						'priority' => 1100,
+						'selector' => '#' . Misc::escapeJQuerySelector($videoAnchor),
+					];
+				}
 				break;
 			case $tipsAnchor:
 				$extraTOCPostData[] = [
@@ -1140,7 +1134,7 @@ class WikihowMobileTools {
 			}
 		}
 
-		wfRunHooks('AddMobileTOCItemData', array($wgTitle, &$extraTOCPreData, &$extraTOCPostData));
+		Hooks::run('AddMobileTOCItemData', array($wgTitle, &$extraTOCPreData, &$extraTOCPostData));
 
 		return [$extraTOCPreData, $extraTOCPostData];
 	}

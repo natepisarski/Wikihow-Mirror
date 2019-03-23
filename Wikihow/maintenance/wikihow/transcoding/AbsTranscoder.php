@@ -56,7 +56,7 @@ abstract class AbsTranscoder implements Transcodable {
 	 * Load wikitext from latest revision
 	 */
 	public function getLatestRevisionText( $pageId ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$rev = Revision::loadFromPageId($dbr, $pageId);
 		if ( !$rev ) {
 			return null;
@@ -870,7 +870,7 @@ abstract class AbsTranscoder implements Transcodable {
 			}
 
 			if ($videosAdded) {
-				wfRunHooks('WikiVisualS3VideosAdded', array(
+				Hooks::run('WikiVisualS3VideosAdded', array(
 					$pageId,
 					$creator,
 					$videosAdded
@@ -888,7 +888,7 @@ abstract class AbsTranscoder implements Transcodable {
 				$err = ImageTranscoder::addAllMediaWikiImages($pageId, $images);
 
 				if ($images && count($images) > 0) {
-					wfRunHooks('WikiVisualS3ImagesAdded', array(
+					Hooks::run('WikiVisualS3ImagesAdded', array(
 						$pageId,
 						$creator,
 						$images

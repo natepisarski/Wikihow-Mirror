@@ -34,7 +34,7 @@
 
 require_once __DIR__ . '/../commandLine.inc';
 $wgUser = User::newFromName('MiscBot');
-$db = wfGetDB(DB_SLAVE);
+$db = wfGetDB(DB_REPLICA);
 $articles = array();
 $articles_skipped = array();
 $skipcheck = ($options['skipped']) ? true : false;
@@ -568,4 +568,3 @@ foreach ($output2 as $out){
 	
 }
 //print_r($output2);
-?>

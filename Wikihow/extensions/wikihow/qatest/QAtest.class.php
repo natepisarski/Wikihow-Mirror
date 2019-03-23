@@ -41,7 +41,7 @@ class QAtest {
 	function getQAdata($title) {
 		$this_article = urldecode($title->getDBKey());
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('qa_test', '*', array('qat_title' => $this_article), __METHOD__);
 
 		foreach ($res as $qa) {

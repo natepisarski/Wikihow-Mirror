@@ -5,7 +5,7 @@
 		# titles to existing pages and sets any suggested titles to used
 		# if they match a page that exists
 
-        $dbr = wfGetDB(DB_SLAVE);
+        $dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('page', array('page_title'), 
 			array('page_namespace'=>0, 'page_is_redirect' => 0));
 		

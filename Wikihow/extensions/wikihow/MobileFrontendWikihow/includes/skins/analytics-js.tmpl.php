@@ -1,1 +1,1 @@
-WH.ga.loadGoogleAnalytics("mobile", "<?=$propertyId?>", <?=$gaConfig?>);
+WH.ga.loadGoogleAnalytics("mobile", "<?=$propertyId?>", <?=$gaConfig?>);

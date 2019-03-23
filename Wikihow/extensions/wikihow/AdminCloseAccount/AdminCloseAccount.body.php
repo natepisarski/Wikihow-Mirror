@@ -287,7 +287,7 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 	 *     - url: User page link, always null if anon
 	 */
 	private function query( $query, $fuzzy ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		// Lookup users that match either name (with spaces or hyphens) or email
 		$querySpacesForHyphens = str_replace( '-', ' ', $query );
@@ -444,7 +444,7 @@ class AnonymizeQAAdminCloseAccountAction extends AdminCloseAccountAction {
 	 * @ineheritDoc
 	 */
 	public function describe( &$changes, &$warnings ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		if ( !$this->user->isAnon() ) {
 			// Count items matching user ID
@@ -595,7 +595,7 @@ class AnonymizeURAdminCloseAccountAction extends AdminCloseAccountAction {
 	 * @ineheritDoc
 	 */
 	public function describe( &$changes, &$warnings ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		if ( !$this->user->isAnon() ) {
 			// Count items matching user ID
@@ -684,7 +684,7 @@ class AnonymizeURAdminCloseAccountAction extends AdminCloseAccountAction {
 			$name = $this->user->getName();
 
 			// Gather article IDs of user reviews about to be anonymized
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$rows = $dbr->select(
 				UserReview::TABLE_CURATED,
 				[ 'uc_article_id' ],
@@ -879,7 +879,7 @@ class RemoveAvatarAdminCloseAccountAction extends AdminCloseAccountAction {
 	 * @return boolean User has an avatar
 	 */
 	private function hasAvatar() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$row = $dbr->selectRow(
 			'avatar', [ 'count(*) as count' ], [ 'av_user' => $this->user->getID() ], __METHOD__
 		);

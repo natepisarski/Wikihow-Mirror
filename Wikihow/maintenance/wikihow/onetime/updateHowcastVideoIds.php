@@ -22,7 +22,7 @@ global $wgUser;
 $u = User::newFromName('MiscBot');
 
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $articles = DatabaseHelper::batchSelect('page', array('page_id', 'page_title'), array('page_namespace' => NS_VIDEO, 'page_is_redirect' => 0));
 foreach ($articles as $row) {
 	$r = Revision::loadFromPageId($dbr, $row->page_id);
@@ -75,7 +75,7 @@ function updateId($oldId, $r, &$wikitext, $u) {
 }
 
 function getNewId($vidId) {
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	return $dbr->selectField('howcast_mapping', 'new_id', array('old_id' => $vidId), __METHOD__);
 }
 

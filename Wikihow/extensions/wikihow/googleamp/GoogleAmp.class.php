@@ -465,7 +465,7 @@ class GoogleAmp {
 		$related = 5;
 		$testStep = 6;
 
-		$hasIntroAd = false;
+		$hasIntroAd = true;
 
 		if ( $hasIntroAd == true ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
@@ -525,7 +525,7 @@ class GoogleAmp {
         );
 
         // now let hooks alter it
-		wfRunHooks( 'GoogleAmpAfterGetSlotData', array( &$slotData ) );
+		Hooks::run( 'GoogleAmpAfterGetSlotData', array( &$slotData ) );
 
         return $slotData;
     }
@@ -1003,10 +1003,20 @@ class GoogleAmp {
 
 		self::changeGDPRInfoLabel();
 		self::addFastlyPing();
+		self::addNewAnchortags();
 
 		// do this last to make sure we don't add any inline styles or js, and that the doc is as
 		// small as possible when we iterate over everything
 		pq( '*' )->removeAttr( 'style' )->removeAttr('onload')->removeAttr('clear');
+	}
+
+	static function addNewAnchortags() {
+		if( pq(".summarysection .summary-video")->length > 0) {
+			//add a new anchor tag so it will jump to the right place
+			$anchor = MobileTabs::getSummarySectionAnchorName();
+			pq('.summarysection')->prepend("<div id='$anchor'></div>");
+			pq("#mobile_tab_1")->attr("href", "#$anchor");
+		}
 	}
 
 	static function changeGDPRInfoLabel() {

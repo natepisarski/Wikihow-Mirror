@@ -22,7 +22,7 @@ if (!$in || !$out) {
 	exit;
 }
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 while (($data = fgetcsv($in)) !== false) {
 	$id = WikiPhoto::getArticleID($data[0]);

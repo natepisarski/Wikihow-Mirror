@@ -23,8 +23,8 @@ class ReverificationMaintenance {
 	}
 
 	protected function getVerifyData() {
-		$dbr = wfGetDB(DB_SLAVE);
-		$res = $dbr->select( 'article_verifier',
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select( VerifyData::ARTICLE_TABLE,
 			'*',
 			array(),
 			__METHOD__
@@ -32,7 +32,7 @@ class ReverificationMaintenance {
 
 		$vds = [];
 		foreach ($res as $row) {
-			$vd = VerifyData::newFromRow($row);
+			$vd = VerifyData::newArticleFromRow($row);
 			if ($vd->worksheetName == self::WORKSHEET_EXPERT
 				|| $vd->worksheetName == self::WORKSHEET_ACADEMIC) {
 				$vds []= $vd;

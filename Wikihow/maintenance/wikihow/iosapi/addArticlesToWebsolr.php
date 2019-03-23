@@ -126,7 +126,7 @@ class AddArticlesToWebsolr extends Maintenance {
 		$time = microtime(true);
 
 		// reuse the handle to the db
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$url = "http://ec2-west.websolr.com/solr/d4901f648d5/update";
 

@@ -38,7 +38,7 @@ class ApiHypothesisExperiments extends ApiQueryBase {
 		$this->getMain()->getVal( '_' );
 
 		$params = $this->extractRequestParams();
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$tables = [ 'hyp_experiment', 'hyp_test', 'user', 'page' ];
 		$fields = [
 			'hyp_experiment.*',

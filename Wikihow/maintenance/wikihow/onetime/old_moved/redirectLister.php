@@ -7,7 +7,7 @@
 require_once('commandLine.inc');
 
 function main($out_csv) {
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 
 	# List all articles in main namespace who redirect elsewhere
 	$articles = array();

@@ -14,7 +14,7 @@ class SuccessfulEdit {
 	// was reverted or overridden with other people's edit. Bold edits are the edits that had
 	// a large contribution to the final article.
 	public static function getEdits($articleId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$gr = 0;
 		$gr = $dbr->selectField('good_revision',array('gr_rev'),array('gr_page' => $articleId));
 		$edits = self::getSigEdits($gr);
@@ -108,7 +108,7 @@ class SuccessfulEdit {
 	 * Fetch cached data on the significant edits for a good revision
 	 */
 	private static function getSigEdits($gr) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select ec_rev,ec_bytes,page_id,page_title,rev_user,rev_user_text from dedup.edit_contributions join revision on rev_id=ec_rev join page on rev_page=page_id where ec_gr=" . $dbr->addQuotes($gr);
 		$res = $dbr->query($sql, __METHOD__);
 		$added = array();

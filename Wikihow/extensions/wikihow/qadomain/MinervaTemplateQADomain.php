@@ -29,7 +29,7 @@ class MinervaTemplateQADomain extends MinervaTemplate {
 		echo $data['reporttime'];
 
 		// Reuben: using this hook to post-load the ResourceLoader startup
-		wfRunHooks( 'MobileEndOfPage', array( $data ) );
+		Hooks::run( 'MobileEndOfPage', array( $data ) );
 		?>
 		</body>
 		</html>

@@ -434,7 +434,7 @@ EOHTML;
 			ignore_user_abort(true);
 
 			$out->setArticleBodyOnly(true);
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$action = $req->getVal('action', '');
 			self::$discardThreshold = $req->getInt('discard-threshold', 0);

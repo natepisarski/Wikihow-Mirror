@@ -1862,6 +1862,7 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 			$this->mAdsenseChannels[] = 7466415884;
 		}
 	}
+
 	protected function setDFPAdUnitPaths() {
 		$this->mDFPData = array(
 			'method' => array(

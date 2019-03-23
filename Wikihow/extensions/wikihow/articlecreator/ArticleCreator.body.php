@@ -179,7 +179,7 @@ class ArticleCreator extends SpecialPage {
 		$contentFormat = $handler->getDefaultFormat();
 		$content = ContentHandler::makeContent( $text, $t, $contentModel, $contentFormat );
 		$status = Status::newGood();
-		if (!wfRunHooks('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $user, false))) {
+		if (!Hooks::run('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $user, false))) {
 			$response['error'] = wfMessage('ac-error-editfilter')->text();
 			return $response;
 		}

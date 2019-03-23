@@ -214,7 +214,6 @@ class SchemaMarkup {
 	}
 
 	public static function getRecipeInstructions( $title, $text ) {
-		wfProfileIn( __METHOD__ );
 		$parsed = MessageCache::singleton()->parse( $text, null, false, false )->getText();
 		$doc = phpQuery::newDocument( $parsed );
 		$stepsId = '#'.wfMessage('steps')->text();
@@ -232,7 +231,6 @@ class SchemaMarkup {
 			];
 			$steps[] = $stepData;
 		}
-		wfProfileOut( __METHOD__ );
 		return $steps;
 	}
 
@@ -283,7 +281,6 @@ class SchemaMarkup {
 	 * @return string script tag with json data or empty string if we can't create one
 	 */
 	public static function getRecipeSchema( $title, $revisionId ) {
-		wfProfileIn( __METHOD__ );
 		global $wgMemc;
 
 		if ( !$title ) {
@@ -297,7 +294,6 @@ class SchemaMarkup {
 		$cacheKey = wfMemcKey( self::RECIPE_SCHEMA_CACHE_KEY, $title->getArticleID(), $revisionId );
 		$val = $wgMemc->get( $cacheKey );
 		if ( $val !== false ) {
-			wfProfileOut( __METHOD__ );
 			return $val;
 		}
 
@@ -317,28 +313,23 @@ class SchemaMarkup {
 		// set in memcached
 		$wgMemc->set( $cacheKey, $schema);
 
-		wfProfileOut( __METHOD__ );
 		return $schema;
 	}
 
 	public static function calculateRecipeSchema( $title ) {
-		wfProfileIn( __METHOD__ );
 		global $wgMemc;
 
 		if ( !$title ) {
-			wfProfileOut( __METHOD__ );
 			return "";
 		}
 		$pageId = $title->getArticleID();
 		if ( !$pageId ) {
-			wfProfileOut( __METHOD__ );
 			return "";
 		}
 
 		$latestGoodText = self::getLatestGoodRevisionText( $title );
 		$ingredients = self::getIngredients( $title, $latestGoodText );
 		if ( !$ingredients ) {
-			wfProfileOut( __METHOD__ );
 			return '';
 		}
 
@@ -374,7 +365,6 @@ class SchemaMarkup {
 
 		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 
-		wfProfileOut( __METHOD__ );
 		return $schema;
 	}
 
@@ -412,7 +402,7 @@ class SchemaMarkup {
 
 		$data['description'] = ArticleMetaInfo::getCurrentTitleMetaDescription();
 
-		wfRunHooks( 'SchemaMarkupAfterGetData', array( &$data ) );
+		Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
 
 		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 
@@ -641,10 +631,8 @@ class SchemaMarkup {
 	}
 
 	public static function getIngredients( $title, $latestGoodText ) {
-		wfProfileIn( __METHOD__ );
 		$text = self::getIngredientsText( $title, $latestGoodText );
 		$ingredients = self::getIngredientsFromText( $text );
-		wfProfileOut( __METHOD__ );
 		return $ingredients;
 	}
 
@@ -753,9 +741,7 @@ class SchemaMarkup {
 	// get the json schema to put on the page if applicable
 	// uses $out to get title and wikipage but does not write to $out
 	public static function getSchema( $out ) {
-		wfProfileIn( __METHOD__ );
 		if ( !self::okToShowSchema( $out ) ) {
-			wfProfileOut( __METHOD__ );
 			return '';
 		}
 
@@ -785,7 +771,6 @@ class SchemaMarkup {
 			}
 		}
 
-		wfProfileOut( __METHOD__ );
 		return $schema;
 	}
 
@@ -946,7 +931,7 @@ class SchemaMarkup {
 
 		$data['description'] = ArticleMetaInfo::getCurrentTitleMetaDescription();
 
-		wfRunHooks( 'SchemaMarkupAfterGetData', array( &$data ) );
+		Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
 
 		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 		return $schema;
@@ -1044,7 +1029,7 @@ class SchemaMarkup {
 			return true;
 		}
 		// do not process this if the recipe schema table does not exist
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		if ( !$dbr->tableExists( 'recipe_schema' ) ) {
 			return '';
 		}

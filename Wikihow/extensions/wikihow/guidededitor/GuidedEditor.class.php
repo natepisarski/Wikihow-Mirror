@@ -160,7 +160,7 @@ class GuidedEditor extends EditPage {
 		$out->addModules( ['ext.wikihow.editor_script', 'ext.wikihow.guided_editor']);
 		$out->addModules( ['ext.wikihow.popbox', 'ext.wikihow.createpage'] );
 
-		wfRunHooks( 'EditPage::showEditForm:initial', [ &$this, $out ] ) ;
+		Hooks::run( 'EditPage::showEditForm:initial', [ &$this, $out ] ) ;
 
 		// are we called with just action=edit and no title?
 		$create_article = false;
@@ -423,7 +423,6 @@ class GuidedEditor extends EditPage {
 		$sources_checked = '';
 		$section = $whow->getSection(wfMessage("sources"));
 		$section = str_replace('<div class="references-small"><references/></div>', '', $section);
-		$section = str_replace('{{reflist}}', '', $section);
 		if ($section) {
 			$sources_vis = "show";
 			$sources_checked = " checked='checked' ";
@@ -513,7 +512,7 @@ class GuidedEditor extends EditPage {
 			'show_watch_html' => $user->isLoggedIn(),
 			'show_video_button' => $show_video_button,
 
-			'edit_token' => ($user->isLoggedIn() ? $user->editToken() : EDIT_TOKEN_SUFFIX),
+			'edit_token' => ($user->isLoggedIn() ? $user->getEditToken() : EDIT_TOKEN_SUFFIX),
 			'edit_token_track' => md5($user->getName() . $this->mTitle->getArticleID() . time()),
 			'copyright_warning' => $copyright_warning,
 
@@ -655,7 +654,7 @@ class GuidedEditor extends EditPage {
 		];
 		$buttons['diff'] = XML::element('input', $attrs, '');
 
-		wfRunHooks( 'EditPageBeforeEditButtons', [ &$this, &$buttons, &$tabindex ] );
+		Hooks::run( 'EditPageBeforeEditButtons', [ &$this, &$buttons, &$tabindex ] );
 
 		return $buttons;
 	}

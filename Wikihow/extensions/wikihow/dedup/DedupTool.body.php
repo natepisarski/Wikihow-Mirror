@@ -72,7 +72,7 @@ class DedupTool extends UnlistedSpecialPage {
      * get the next article to vote on
 	 */
 	private function getNext() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 
 		$options = [
 			"SQL_CALC_FOUND_ROWS",
@@ -165,7 +165,7 @@ class DedupTool extends UnlistedSpecialPage {
 	}
 
 	public static function getRemainingCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$expirytimestamp = wfTimestamp( TS_MW, time() - self::CHECKOUT_EXPIRY );
 		$where = [
 			"ddt_final" => 0,

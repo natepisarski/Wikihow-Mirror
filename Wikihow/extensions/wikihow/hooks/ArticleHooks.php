@@ -10,8 +10,8 @@ class ArticleHooks {
 		$oldid = $wgRequest->getInt('wpUndoEdit');
 		if ($oldid) {
 			// using db master to avoid db replication lag
-			$dbr = wfGetDB(DB_MASTER);
-			$rcid = $dbr->selectField('recentchanges', 'rc_id', array('rc_this_oldid' => $oldid), __METHOD__);
+			$dbw = wfGetDB(DB_MASTER);
+			$rcid = $dbw->selectField('recentchanges', 'rc_id', array('rc_this_oldid' => $oldid), __METHOD__);
 			RecentChange::markPatrolled($rcid);
 			PatrolLog::record($rcid, false);
 		}
@@ -192,7 +192,7 @@ class ArticleHooks {
 		if (!$first_edit) return true;
 
 		// it must have at least two revisions to show popup
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$rev_count = $dbr->selectField('revision', 'count(*)', array('rev_page' => $page->getID()), __METHOD__);
 		if ($rev_count < 2) return true;
 
@@ -235,12 +235,12 @@ class ArticleHooks {
 
 	// hook run when the good revision for an article has been updated
 	public static function updateExpertVerifiedRevision( $pageId, $revisionId ) {
-		if ( class_exists( 'ArticleVerifyReview' ) && class_exists( 'VerifyData' ) ) {
-			if ( VerifyData::inVerifyList( $pageId ) ) {
-				if ( VerifyData::okToPatrol( $pageId ) ) {
-					ArticleVerifyReview::addItem( $pageId, $revisionId );
-				}
-			}
+		$ok =  class_exists( 'ArticleVerifyReview' )
+			&& class_exists( 'VerifyData' )
+			&& VerifyData::isVerified( $pageId )
+			&& VerifyData::isOKToPatrol( $pageId );
+		if ($ok) {
+			ArticleVerifyReview::addItem( $pageId, $revisionId );
 		}
 		return true;
 	}

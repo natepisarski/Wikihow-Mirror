@@ -6,7 +6,7 @@ echo "Article,Sample\n";
 
 $prefix = 'http://www.wikihow.com';
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->select('dv_links', '*', '', __METHOD__);
 
 foreach ($res as $row) {

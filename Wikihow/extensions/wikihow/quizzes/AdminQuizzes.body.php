@@ -12,7 +12,7 @@ class AdminQuizzes extends UnlistedSpecialPage {
 	private static function parseURLlist($pageList) {
 		$pageList = preg_split('@[\r\n]+@', $pageList);
 		$urls = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($pageList as $url) {
 			$url = trim($url);
 			if (!empty($url)) {

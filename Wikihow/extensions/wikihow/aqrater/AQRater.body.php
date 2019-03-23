@@ -32,7 +32,7 @@ class AQRater extends UnlistedSpecialPage {
 			$allData = True;
 		} elseif (isset($posted_values['lastbatch'])) {
 			// find the last batch id
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$row = $dbr->selectRow('aqrater.aqjobs',
 				array('aq_id'),
 				array('aq_status=2'),
@@ -51,7 +51,7 @@ class AQRater extends UnlistedSpecialPage {
 
 	private function getResults($batchid,$allData) {
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		if (!$allData) {
 			$conds = array("aq_dataset" => $batchid);
 		}else{
@@ -87,7 +87,7 @@ class AQRater extends UnlistedSpecialPage {
 	}
 
 	private function getJobStatus() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 		$html = '';
 		$conds = array();

@@ -22,7 +22,7 @@ class Alien extends UnlistedSpecialPage {
 	}
 
 	private function quickTestBackend() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		try {
 			$res = $dbr->selectField('page', 'page_id',
 				array('page_is_redirect' => 0,

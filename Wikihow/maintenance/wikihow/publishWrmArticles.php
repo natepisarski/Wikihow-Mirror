@@ -3,7 +3,7 @@
 require_once dirname(__FILE__) . '/../commandLine.inc';
 
 $wgUser = User::newFromName('WRM');
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $dbw = wfGetDB(DB_MASTER);
 
 $limit = preg_replace("@[^0-9]@", "", wfMessage("wrm_hourly_limit"));
@@ -40,6 +40,6 @@ while ($row = $dbr->fetchObject($res)) {
 	}
 	$dbw->update('import_articles', array('ia_published' => 1, 'ia_published_timestamp' => wfTimestampNow(TS_MW)), array('ia_id'=>$id));
 	$dbw->update('recentchanges', array('rc_patrolled' => 1), array('rc_user_text'=>'WRM'));
-	wfRunHooks("WRMArticlePublished", array($title->getArticleID()));
+	Hooks::run("WRMArticlePublished", array($title->getArticleID()));
 }
 echo "Finished: " . date("r") . "\n";

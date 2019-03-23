@@ -441,7 +441,7 @@ class WAPDB {
 	*  of all articles with corresponding tags without having to query the tagdb for each row
 	*/
 	private function processTagsOnWAPArticles(&$aids, $langCode, $tags, $add = true) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$aids = array_unique($aids);
@@ -703,7 +703,7 @@ class WAPDB {
 	}
 
 	public function getArticles(&$aids, $langCode) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$articles = array();
 		if (sizeof($aids)) {
 			$table = $this->getWAPConfig()->getArticleTableName();
@@ -720,7 +720,7 @@ class WAPDB {
 	}
 
 	public function getArticlesByUser($uid, $offset, $limit, $articleState) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$options = array('OFFSET' => $offset, 'LIMIT' => $limit);
 		$conds['ct_user_id'] = $uid;
 		if (WAPUser::ARTICLE_ASSIGNED == $articleState) {
@@ -780,7 +780,7 @@ class WAPDB {
 			$orderBy
 			$limitSql
 			";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$articles = array();
 		$articleClass = $this->getWAPConfig()->getArticleClassName();
@@ -803,7 +803,7 @@ class WAPDB {
 		$articleTagTable = $this->getWAPConfig()->getArticleTagTableName();
 		$articleTable = $this->getWAPConfig()->getArticleTableName();
 		$sql = "SELECT COUNT(*) AS count FROM $articleTagTable WHERE ca_tag_id = $tagId";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$row = $res->fetchRow();
 		return $row['count'];
@@ -818,7 +818,7 @@ class WAPDB {
 	}
 
 	public function getUsers() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$groupName = $this->wapConfig->getWikiHowGroupName();
 		$res = $dbr->select(array('user_groups'), array('ug_user'), array('ug_group' => $groupName), __METHOD__);
 		$users = array();

@@ -49,7 +49,7 @@ class UpdateRelatedWikihows extends Maintenance {
 			return true;
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$count = $dbr->selectField(
 			'index_info', 
 			'count(*)',
@@ -235,7 +235,7 @@ class UpdateRelatedWikihows extends Maintenance {
 	}
 
 	private function updateArticles() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		// select the articles from the index info table so we only choose indexed articles
 		$conditions = array( 

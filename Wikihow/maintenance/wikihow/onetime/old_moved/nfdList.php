@@ -10,7 +10,7 @@
 require_once('commandLine.inc'); 
 
 
-$dbr = wfGetDB(DB_SLAVE); 
+$dbr = wfGetDB(DB_REPLICA); 
 
 $res = $dbr->select('logging', 'log_title', array('log_type' => 'nfd', 'log_action' => 'delete'));
 

@@ -25,7 +25,7 @@ class AmazonAffiliates {
 		$page_id = !empty($title) ? $title->getArticleId() : null;
 		if (empty($page_id)) return;
 
-		$res = wfGetDB(DB_SLAVE)->select(
+		$res = wfGetDB(DB_REPLICA)->select(
 			self::AMAZON_AFFILIATES_TABLE,
 			[
 				'aa_keywords',

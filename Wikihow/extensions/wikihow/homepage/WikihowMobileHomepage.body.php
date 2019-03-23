@@ -62,7 +62,7 @@ class WikihowMobileHomepage extends Article {
 		$html2 = "";
 		$html3 = "";
 
-		wfRunHooks( 'WikihowHomepageFAContainerHtml', array( &$html, &$html2, &$html3 ) );
+		Hooks::run( 'WikihowHomepageFAContainerHtml', array( &$html, &$html2, &$html3 ) );
 
 		$wgOut->addHTML( $html );
 		$wgOut->addHTML( $html2 );
@@ -108,7 +108,7 @@ class WikihowMobileHomepage extends Article {
 
 		$items = array();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(WikihowHomepageAdmin::HP_TABLE, array('*'), array('hp_active' => 1), __METHOD__, array('ORDER BY' => 'hp_order'));
 
 		$i = 0;
@@ -129,7 +129,7 @@ class WikihowMobileHomepage extends Article {
 			}
 		}
 
-		wfRunHooks( 'WikihowHomepageAfterGetTopItems', array( &$items ) );
+		Hooks::run( 'WikihowHomepageAfterGetTopItems', array( &$items ) );
 
 		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(

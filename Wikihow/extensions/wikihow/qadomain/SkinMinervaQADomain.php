@@ -20,7 +20,6 @@ class SkinMinervaQADomain extends SkinMinerva {
 	}
 
 	private function prepareAmpTemplate() {
-		wfProfileIn( __METHOD__ );
 		$out = $this->getOutput();
 		// add head items
 		$out->addHeadItem( 'viewport',

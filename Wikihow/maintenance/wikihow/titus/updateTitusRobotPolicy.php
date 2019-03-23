@@ -51,7 +51,7 @@ class CheckRobotPolicy extends Maintenance {
 	}
 
 	private function getUrl($lang, $pageId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT * FROM " . Misc::getLangDB($lang) . ".page WHERE page_id=" . $dbr->addQuotes($pageId) . " AND page_namespace=0 AND page_is_redirect=0";
 		$res = $dbr->query($sql, __METHOD__);
 		$url = "";
@@ -112,7 +112,7 @@ class CheckRobotPolicy extends Maintenance {
 		if ( $this->hasOption( 'spider' ) ) {
 			$date = date('Y/m/d H:i');
 			print "$date Beginning spidering\n";
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$lastCheckedMin = wfTimestamp(TS_MW, strtotime("-1 hour", strtotime(date('YmdHis', time()))));
 			$sql = 'select rp_language_code, rp_page_id from ' . TitusDB::getDBName() . '.robot_policy where (rp_last_checked is NULL or rp_last_checked < ' . $dbr->addQuotes($lastCheckedMin) . ') order by rp_last_updated asc, rand() limit 50000';
 			$res = $dbr->query($sql, __METHOD__);
@@ -135,7 +135,7 @@ class CheckRobotPolicy extends Maintenance {
 			}
 		} elseif ($this->hasOption('testspider')) {
 			$this->testServer = $this->getOption('testspider');
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$lastCheckedMin = wfTimestamp(TS_MW, strtotime("-1 hour", strtotime(date('YmdHis', time()))));
 			$sql = 'select rp_language_code, rp_page_id from ' . TitusDB::getDBName() . '.robot_policy where (rp_last_checked is NULL or rp_last_checked < ' . $dbr->addQuotes($lastCheckedMin) . ') order by rp_last_updated asc, rand() limit 50000';
 			$res = $dbr->query($sql, __METHOD__);

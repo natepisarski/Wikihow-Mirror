@@ -16,7 +16,6 @@ abstract class StandingsIndividual {
 	 *
 	 */
 	function getStandingsTable() {
-		$section = new ProfileSection(__METHOD__);
 		$this->fetchStats();
 
 		$rank = $this->mStats['standing'];
@@ -65,7 +64,6 @@ abstract class StandingsIndividual {
 	 * add stats widget to right rail
 	 **/
 	function addStatsWidget() {
-		$section = new ProfileSection(__METHOD__);
 
 		if (!$this->mContext) {
 			wfDeprecated( __METHOD__ . ' without setting context (will fallback to globals)');
@@ -90,8 +88,7 @@ abstract class StandingsIndividual {
 	function fetchStats() {
 		global $wgUser, $wgMemc, $wgLang;
 
-		$section = new ProfileSection(__METHOD__);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$ts_today = date('Ymd',strtotime('today')) . '000000';
 		$ts_week = date('Ymd',strtotime('7 days ago')) . '000000';
@@ -158,7 +155,6 @@ abstract class StandingsGroup {
 	function getStandingsTable() {
 		global $wgUser;
 
-		$section = new ProfileSection(__METHOD__);
 
 		$display = "<table>";
 
@@ -200,10 +196,9 @@ abstract class StandingsGroup {
 	 */
 	function getStandingsFromCache() {
 		global $wgMemc;
-		$section = new ProfileSection(__METHOD__);
 		$standings = $wgMemc->get($this->mCacheKey);
 		if (!is_array($standings)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$ts = wfTimestamp(TS_MW, time() - 7 * 24 * 3600);
 			$sql = $this->getSQL($ts);
 			$res = $dbr->query($sql, __METHOD__);
@@ -226,7 +221,6 @@ abstract class StandingsGroup {
 	 *
 	 */
 	function getStanding($user) {
-		$section = new ProfileSection(__METHOD__);
 		$standings = $this->getStandingsFromCache();
 		$index = 1;
 		foreach ($standings as $s => $c) {
@@ -244,7 +238,6 @@ abstract class StandingsGroup {
 	 *
 	 **/
 	function addStandingsWidget() {
-		$section = new ProfileSection(__METHOD__);
 
 		if (!$this->mContext) {
 			wfDeprecated( __METHOD__ . ' without setting context (will fallback to globals)');
@@ -341,7 +334,7 @@ class RequestsAnsweredStandingsGroup extends StandingsGroup {
 		$bot = "";
 
 		if (sizeof($bots) > 0) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$bot = " AND fe_user NOT IN (" . $dbr->makeList($bots) . ", '0') ";
 		}
 
@@ -1360,8 +1353,7 @@ class QCStandingsIndividual extends StandingsIndividual {
 	function fetchStats() {
 		global $wgUser, $wgMemc, $wgLang;
 
-		$section = new ProfileSection(__METHOD__);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$ts_today = $dbr->timestamp(strtotime('today'));
 		$ts_week = $dbr->timestamp(strtotime('7 days ago'));

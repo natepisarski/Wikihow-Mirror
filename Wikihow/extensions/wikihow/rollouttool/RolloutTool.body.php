@@ -52,7 +52,7 @@ class RolloutTool extends UnlistedSpecialPage {
 					$langs[] = $lang;
 				}
 			}
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$pages = array();
 			foreach ($langs as $lang) {
 				$sql = "select page_title from " . Misc::getLangDB($lang) . ".page where page_namespace=0 and page_is_redirect=0 group by page_title";

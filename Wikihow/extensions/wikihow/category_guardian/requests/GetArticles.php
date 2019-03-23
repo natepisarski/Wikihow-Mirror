@@ -63,7 +63,7 @@ class GetArticles {
 	}
 
 	private function articlesForCategory( $categoryKey ) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = [ self::TABLE, 'page' ];
 		$vars = '*';
 		$cond = ['cat_slug' => $categoryKey, 'resolved = 0', 'page.page_id = category_article_votes.page_id'];
@@ -84,7 +84,7 @@ class GetArticles {
 	}
 
 	private function getExtraArticlesInCategory( $articles, $categoryKey ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$numNeeded = self::ARTICLES_PER_REQUEST - count($articles);
 		$conditions = [
 			'categorylinks.cl_to' => $categoryKey,
@@ -119,7 +119,7 @@ class GetArticles {
 	}
 
 	protected function getUnresolvedCategory() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = [ self::TABLE, 'page' ];
 
 		$cond = ['resolved = 0', 'page.page_id = category_article_votes.page_id'];
@@ -135,7 +135,7 @@ class GetArticles {
 	}
 
 	public function getRemainingCount() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$tables = [ self::TABLE, 'page' ];
 
 		$cond = [

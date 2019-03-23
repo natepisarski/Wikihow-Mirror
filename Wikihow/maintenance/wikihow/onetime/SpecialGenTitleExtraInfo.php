@@ -27,7 +27,7 @@ class GenTitleExtraInfo extends UnlistedSpecialPage {
 		set_time_limit(0);
 
 		print "querying database...<br>\n";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$titles = array();
 		$sql = 'SELECT page_title FROM page WHERE page_namespace=' . NS_MAIN . ' AND page_is_redirect=0';
 		$res = $dbr->query($sql);

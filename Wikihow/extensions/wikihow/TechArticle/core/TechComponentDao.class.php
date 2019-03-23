@@ -26,7 +26,7 @@ class TechComponentDao {
 	 */
 	public function getAllComponents(string $table, array $fields): Iterator {
 		$options = [ 'ORDER BY' => [$fields['enabled'] . ' DESC', $fields['name']] ];
-		$res = wfGetDB(DB_SLAVE)->select($table, $fields, [], __METHOD__, $options);
+		$res = wfGetDB(DB_REPLICA)->select($table, $fields, [], __METHOD__, $options);
 		return $res ?? new EmptyIterator();
 	}
 
@@ -36,7 +36,7 @@ class TechComponentDao {
 	 */
 	public function getByID( string $table, array $fields, int $id ) {
         $cond = [$fields['id'] => $id];
-		return wfGetDB(DB_SLAVE)->selectRow( $table, $fields, $cond, __METHOD__ );
+		return wfGetDB(DB_REPLICA)->selectRow( $table, $fields, $cond, __METHOD__ );
 	}
 
 	public function upsertComponent(TechComponent $tc): bool {

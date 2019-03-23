@@ -1,0 +1,144 @@
+<div id="wh-game">
+	<img id="wh-game-picture" src="/extensions/wikihow/Honeypot/campaigns/game/box_large.png">
+	<div id="wh-game-form">
+		<p>The official wikiHow illustration game is coming soon! <em>wikiHow to Meme</em> is a social card game made up of the most hilarious wikiHow illustrations produced over the years. </p>
+
+		<p>Join the waitlist while we add finishing touches to this epic collection of absurd, out of context, historical wikiHow images.</p>
+		<p>Leave your email and we will notify you when it is ready for purchase. </p>
+
+		<p>
+			<input id="wh-game-email" type="text" name="email" class="input_med" placeholder="Enter email" required>
+			<button id="wh-game-submit" class="button primary">Notify Me</button>
+		</p>
+	</div>
+	<div id="wh-game-response">
+		<p>Thank you for letting us know you're interested in the <em>wikiHow to Meme</em> game.</p>
+		<p>We will notify you when it is ready for purchase!</p>
+		<p><a href="" class="button primary" id="wh-game-back">Back to Article</a></p>
+	</div>
+</div>
+<style>
+.wh_block {
+	margin-bottom: 0;
+	border-radius: 4px 4px 0 0;
+}
+
+#bodycontents {
+	padding: 0;
+	min-height: 360px;
+}
+
+#wh-game {
+	font-size: 18px;
+	border-radius: 4px;
+}
+
+#wh-game p {
+	padding: 8px 32px 8px 264px;
+	margin: 0;
+	line-height: 1.25em;
+}
+
+#wh-game p:first-child {
+	background-color: #475347;
+	color: white;
+	font-weight: bold;
+	padding: 16px 32px 16px 264px;
+}
+
+#wh-game img {
+	width: 200px;
+}
+
+#wh-game .input_med {
+	font-size: 18px;
+	margin: 0;
+}
+
+#wh-game .button {
+	font-size: 16px;
+	margin: 0 0 0 5px;
+}
+
+#wh-game-picture {
+	position: absolute;
+	left: 32px;
+	top: 32px;
+}
+
+#wh-game-response {
+	display: none;
+}
+
+#wh-game-back {
+	display: none;
+}
+</style>
+<script>
+/* global WH */
+document.addEventListener( 'DOMContentLoaded', function ( event ) {
+	var form = document.getElementById( 'wh-game-form' );
+	var response = document.getElementById( 'wh-game-response' );
+	var back = document.getElementById( 'wh-game-back' );
+	var urlParams = new URLSearchParams( location.search );
+
+	function setCookie( name, value ) {
+		document.cookie = name + '=' + value + '; path=/';
+	}
+
+	function getCookie( name ) {
+		var nameEQ = name + '=';
+		var ca = document.cookie.split(';');
+		for ( var i = 0; i < ca.length; i++ ) {
+			var c = ca[i];
+			while ( c.charAt(0)==' ') {
+				c = c.substring( 1, c.length );
+			}
+			if ( c.indexOf( nameEQ ) == 0 ) {
+				return c.substring( nameEQ.length, c.length );
+			}
+		}
+		return null;
+	}
+
+	function validateEmail( email ) {
+		var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(String(email).toLowerCase());
+	}
+
+	if ( getCookie( 'wh-game' ) === 'submitted' ) {
+		form.style.display = 'none';
+		response.style.display = 'block';
+		if ( urlParams.has( 'origin' ) ) {
+			back.style.display = 'inline-block';
+			back.setAttribute( 'href', urlParams.get( 'origin' ) );
+		}
+		return;
+	}
+
+	var email = document.getElementById( 'wh-game-email' );
+	var submit = document.getElementById( 'wh-game-submit' );
+	if ( email && submit ) {
+		submit.onclick = function () {
+			var ref = urlParams.get( 'ref' ) || '';
+			var origin = urlParams.get( 'origin' );
+			// Track submission
+			WH.maEvent(
+				'game_ad_submit',
+				{
+					origin: location.hostname,
+					ref: ref,
+					email: email.value,
+					emailIsValid: validateEmail( email.value )
+				},
+				function () {
+					setCookie( 'wh-game', 'submitted' );
+					window.location = location.pathname + ( origin ?
+						'?origin=' + encodeURIComponent( urlParams.get( 'origin' ) ) : ''
+					);
+				}
+			);
+		};
+	}
+} );
+</script>

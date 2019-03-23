@@ -17,7 +17,7 @@ class RandomizerUpdate extends Maintenance {
 
 	public function execute() {
 		$filePath = $this->getOption('file');
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 		$pagesFromFs = $this->getPagesFromFs($filePath);
 		$pagesFromDb = $this->getPagesFromDb($dbr);

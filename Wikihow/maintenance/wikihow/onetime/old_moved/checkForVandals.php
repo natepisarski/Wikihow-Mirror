@@ -1,6 +1,6 @@
 <?
 	require_once('commandLine.inc');
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$sql = "Select page_id, page_title, page_len, max(rev_len) as rev_len from page left join revision on page_id = rev_page where page_namespace=0 and page_is_redirect=0 group by rev_page";
 #echo $sql; exit;
 	$res = $dbr->query($sql);

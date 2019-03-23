@@ -19,7 +19,7 @@ class ImportVideo extends SpecialPage {
 		global $wgCookiePrefix, $wgCookiePath, $wgCookieDomain, $wgCookieSecure;
 		$req = $this->getRequest();
 		$t = null;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$vidns = NS_VIDEO;
 		$skip_sql = "";
 		$skipVal = $req->getInt('skip');
@@ -49,16 +49,16 @@ class ImportVideo extends SpecialPage {
 	private function getTitleFromCategory($category) {
 		$cat = Title::makeTitle(NS_CATEGORY, $category);
 		$t	 = null;
-		$dbr = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
 		$sql = "SELECT page_title
 				FROM page
 				LEFT JOIN templatelinks ON tl_from=page_id AND tl_namespace=" . NS_VIDEO . "
 				LEFT JOIN categorylinks ON cl_from = page_id
 				WHERE tl_title is NULL
-					AND	cl_to = " . $dbr->addQuotes($cat->getDBKey()) . "
+					AND	cl_to = " . $dbw->addQuotes($cat->getDBKey()) . "
 				ORDER BY rand() LIMIT 1;";
-		$res = $dbr->query($sql, __METHOD__);
-		if ($row = $dbr->fetchObject($res))
+		$res = $dbw->query($sql, __METHOD__);
+		if ($row = $dbw->fetchObject($res))
 			$t = Title::newFromText($row->page_title);
 		return $t;
 	}
@@ -627,7 +627,7 @@ class NewVideoBoard extends SpecialPage {
 
 		$target = !empty($par) ? $par : $req->getVal( 'target' );
 		$sk = $user->getSkin();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$this->setHeaders();
 

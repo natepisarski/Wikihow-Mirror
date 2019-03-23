@@ -21,7 +21,7 @@ class ArticleReviewers extends UnlistedSpecialPage {
 
 		$out->setHTMLTitle(wfMessage('ar_page_title')->text());
 
-		$expertArticles = VerifyData::getAllVerifierArticlesFromDB();
+		$expertArticles = VerifyData::getAllArticlesFromDB();
 		$experts = VerifyData::getAllVerifierInfoFromDB();
 
 		$expertCategories = array();

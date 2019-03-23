@@ -14,7 +14,7 @@ class UpdateTopAnswerers extends Maintenance {
 	}
 
 	public function execute() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			[
 				TopAnswerers::TABLE_ANSWERER_APP_RATINGS,

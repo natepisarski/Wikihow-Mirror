@@ -192,13 +192,13 @@ function wfMarkCompletedEF($article, $text, $summary, $user, $type) {
 
 function wfMarkCompletedWrite($article, $user, $text, $summary, $p5, $p6, $p7) {
 	try {
-		$dbr = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
 		$t = $article->getTitle();
 		if (!$t || !$t->inNamespace(NS_MAIN))  {
 			return true;
 		}
 
-		$num_revisions = $dbr->selectField('revision', 'count(*)', array('rev_page=' . $article->getId()));
+		$num_revisions = $dbw->selectField('revision', 'count(*)', array('rev_page=' . $article->getId()));
 
 		if ($num_revisions == 1)
 			wfMarkCompleted("WriteAppWidget");

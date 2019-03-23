@@ -31,7 +31,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		global $wgLanguageCode, $wgUser;
 
 		//Scott - use this hook to tweak display title
-		wfRunHooks( 'MobilePreRenderPreContent', array( &$data ) );
+		Hooks::run( 'MobilePreRenderPreContent', array( &$data ) );
 
 		$internalBanner = $data[ 'internalBanner' ];
 		$isSpecialPage = $this->isSpecialPage;
@@ -142,7 +142,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 		$footerPlaceholder = wfMessage('footer-search-placeholder')->text();
 
-		wfRunHooks( 'MobileTemplateBeforeRenderFooter', array( &$footerPlaceholder ) );
+		Hooks::run( 'MobileTemplateBeforeRenderFooter', array( &$footerPlaceholder ) );
 
 		if ( !$data['disableSearchAndFooter'] ) {
 			//get random random icon
@@ -218,7 +218,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	}
 
 	protected function renderPageActions( $data ) {
-		wfRunHooks('BeforeRenderPageActionsMobile', array(&$data));
+		Hooks::run('BeforeRenderPageActionsMobile', array(&$data));
 		?><ul id="page-actions" class="hlist"><?php
 		foreach( $this->getPageActions() as $key => $val ):
 			echo $this->makeListItem( $key, $val );
@@ -270,7 +270,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 	protected function render( $data ) { // FIXME: replace with template engines
 		global $wgLanguageCode;
-		wfRunHooks( "MinvervaTemplateBeforeRender", array( &$data ) );
+		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 
 		// begin rendering
 		echo $data[ 'headelement' ];
@@ -287,7 +287,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 
 		$headerClass = '';
-		wfRunHooks( 'MinervaTemplateWikihowBeforeCreateHeaderLogo', array( &$headerClass ) );
+		Hooks::run( 'MinervaTemplateWikihowBeforeCreateHeaderLogo', array( &$headerClass ) );
 		?>
 		<a href="<?= Title::newMainPage()->getLocalURL() ?>" id="header_logo" class="<?= $headerClass ?>"></a>
 		<?php
@@ -328,7 +328,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		// JRS 06/23/14 Add a hook to add classes to the top-level viewport object
 		// to make it easier to customize css based on classes
 		$classes = array();
-		wfRunHooks('MinervaViewportClasses', array(&$classes));
+		Hooks::run('MinervaViewportClasses', array(&$classes));
 		$classes = empty($classes) ? '' : implode(" ", $classes);
 		$pageCenterClasses = wikihowAds::getMobilePageCenterClass();
 		?>
@@ -381,7 +381,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		echo $data['bottomscripts'];
 
 		// Reuben: using this hook to post-load the ResourceLoader startup
-		wfRunHooks( 'MobileEndOfPage', array( $data ) );
+		Hooks::run( 'MobileEndOfPage', array( $data ) );
 		?>
 		</body>
 		</html>

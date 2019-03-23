@@ -135,7 +135,7 @@ class QuizImport {
 					'quiz_stamp' => wfTimestampNow()
 					);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		//is that quiz already in there?

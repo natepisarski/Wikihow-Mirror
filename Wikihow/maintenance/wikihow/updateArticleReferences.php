@@ -257,7 +257,7 @@ class updateArticleReferences extends Maintenance {
 	private static function getUrlList( $pageId ) {
 		$urlList = array();
 
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = 'externallinks';
         $var = 'el_to';
 		$cond = array( 'el_from' => $pageId );
@@ -327,7 +327,7 @@ class updateArticleReferences extends Maintenance {
 	}
 
 	private function processItems() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = array(
 			'externallinks',
 			'page'
@@ -354,7 +354,7 @@ class updateArticleReferences extends Maintenance {
 
 	private function showCount() {
 		global $wgLanguageCode;
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		$table = array(
 				'externallinks',
 				'page'
@@ -453,7 +453,7 @@ class updateArticleReferences extends Maintenance {
 			return null;
 		}
 
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = 'wikidb_112.link_info';
         $var = '*';
 		$cond = array( 'li_url' => $url );
@@ -463,7 +463,7 @@ class updateArticleReferences extends Maintenance {
 	}
 
 	private static function getLinkInfoId( $url ) {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = 'link_info';
         $var = 'li_id';
 		$cond = array( 'li_url' => $url );

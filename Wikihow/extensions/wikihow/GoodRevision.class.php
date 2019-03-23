@@ -84,7 +84,7 @@ class GoodRevision {
 				$goodRev->updateRev($rev);
 				// Refresh the article meta info once a good revision is updated
 				ArticleMetaInfo::refreshMetaDataCallback($article);
-				wfRunHooks( 'AfterGoodRevisionUpdated', array( $title, $goodRev ) );
+				Hooks::run( 'AfterGoodRevisionUpdated', array( $title, $goodRev ) );
 				$title->purgeSquid();
 			}
 		}
@@ -115,7 +115,7 @@ class GoodRevision {
 				$dbw->query($sql, __METHOD__);
 				$wgMemc->set($this->cachekey, $rev);
 
-				wfRunHooks( 'GoodRevisionUpdated', array( $this->articleID, $rev ) );
+				Hooks::run( 'GoodRevisionUpdated', array( $this->articleID, $rev ) );
 
 				return true;
 			}
@@ -313,7 +313,7 @@ class GoodRevision {
 			if (!$dbw) $dbw = wfGetDB(DB_MASTER);
 			return $dbw;
 		} else {
-			if (!$dbr) $dbr = wfGetDB(DB_SLAVE);
+			if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
 			return $dbr;
 		}
 	}

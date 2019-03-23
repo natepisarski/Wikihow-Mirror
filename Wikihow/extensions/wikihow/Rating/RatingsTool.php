@@ -40,7 +40,7 @@ abstract class RatingsTool {
 	}
 
 	public function getUnrestoredCount($itemId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$pf = $this->tablePrefix;
 		$count = $dbr->selectField($this->tableName,
 			'count(*)',
@@ -51,7 +51,7 @@ abstract class RatingsTool {
 	}
 
 	public function getAllRatedItems() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$pf = $this->tablePrefix;
 		$res = $dbr->select($this->tableName,
@@ -97,7 +97,7 @@ abstract class RatingsTool {
 		if ($this->ratingType == 'article') {
 			$this->keepHistory($itemId, 'rating');
 
-			wfRunHooks("RatingsCleared", array($this->ratingType, $itemId));
+			Hooks::run("RatingsCleared", array($this->ratingType, $itemId));
 		}
 
 		$wgEnotifWatchlist = false; // We don't want watchers to receive emails about this
@@ -132,7 +132,7 @@ abstract class RatingsTool {
 		$newer = strtotime($humanTime);
 		if (!$newer) return [];
 		$newerThan = wfTimestamp( TS_MW, $newer );
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$pf = $this->tablePrefix;
 		$res = $dbr->select( 'rating_history',
 			['rh_pageid AS pageid', 'MAX(rh_timestamp) AS reset_time'],
@@ -213,7 +213,7 @@ abstract class RatingsTool {
 			}
 		}
 
-		wfRunHooks( 'RatingsToolRatingReasonAdded', array( $insertId, $a ) );
+		Hooks::run( 'RatingsToolRatingReasonAdded', array( $insertId, $a ) );
 
 		return $this->getRatingReasonResponse($ratrRating);
 	}
@@ -248,14 +248,14 @@ abstract class RatingsTool {
 		$dbw->upsert($table, $rows, array(), $set, __METHOD__);
 		$ratingId = $dbw->insertId();
 
-		wfRunHooks("RatingAdded", array($this->ratingType, $itemId));
+		Hooks::run("RatingAdded", array($this->ratingType, $itemId));
 
 		return $this->getRatingResponse($itemId, $rating, $source, $ratingId);
 	}
 
 	// Used in Special:ClearRatings
 	public function showClearingInfo($title, $id, $selfUrl, $target) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		$out = RequestContext::getMain()->getOutput();
 		$out->addHTML(wfMessage('clearratings_previous_clearings') . "<ul>");
@@ -322,7 +322,7 @@ abstract class RatingsTool {
 
 	/* unused - 3/2019
 	function getRatings() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$pf = $this->tablePrefix;
 		$res = $dbr->select($this->tableName,
 			["{$pf}page", "AVG({$pf}rating) as R", 'count(*) as C'],
@@ -400,7 +400,7 @@ abstract class RatingsTool {
 
 		$msg = '';
 		$basesite = WikihowMobileTools::getNonMobileSite();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// only for English
 		if (RequestContext::getMain()->getLanguage()->getCode() != 'en') return true;

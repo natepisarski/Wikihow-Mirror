@@ -69,7 +69,7 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 
 	private static function getExpertiseModal2($cat) {
 		//Not showing suggested articles any more
-		// $dbr = wfGetDB(DB_SLAVE);
+		// $dbr = wfGetDB(DB_REPLICA);
 
 		// $sql = "SELECT cl_sortkey, page_id, page_title, page_namespace, page_is_featured
 			// FROM (page, categorylinks )

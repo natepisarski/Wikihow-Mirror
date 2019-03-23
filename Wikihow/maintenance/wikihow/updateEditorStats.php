@@ -35,7 +35,7 @@ global $table;
 $table = 'editor_stats';
 
 $dbw = wfGetDB(DB_MASTER);
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $editLevels = array(10, 25, 50, 100, 1000, 5000, 10000, 50000, 100000, 300000, 500000);
 $createdLevels = array(1, 5, 10, 50, 100, 300, 500, 1000, 5000, 10000);

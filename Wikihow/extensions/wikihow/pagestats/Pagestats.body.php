@@ -10,7 +10,7 @@ class PageStats extends UnlistedSpecialPage {
 		$context = RequestContext::getMain();
 		$lang = $context->getLanguage()->getCode();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = Misc::getLangDB('en') . '.titus_copy';
 		$where = ['ti_page_id' => $pageId, 'ti_language_code' => $lang];
 		$row = $dbr->selectRow($table, '*', $where);
@@ -74,7 +74,7 @@ class PageStats extends UnlistedSpecialPage {
 
 	private function getPagestatData($pageId) {
 		$t = Title::newFromID($pageId);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$html = "<h3 style='margin-bottom:5px'>Staff-only data</h3>";
 
@@ -334,7 +334,7 @@ class PageStats extends UnlistedSpecialPage {
 	public static function getSampleStatData($sampleTitle) {
 		$html = "";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$data = self::getRatingData($sampleTitle, 'ratesample', 'rats', $dbr);
 		$html .= "<hr style='margin:5px 0;' />";

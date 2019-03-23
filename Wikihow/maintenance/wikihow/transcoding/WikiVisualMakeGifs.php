@@ -50,7 +50,7 @@ class WikiVisualMakeGifs extends Maintenance {
 			return false;
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = "wikivisual_article_status";
 		$var = "count(*)";
 		$conds = [ 'article_id = ' . $title->getArticleID(),
@@ -63,7 +63,7 @@ class WikiVisualMakeGifs extends Maintenance {
 	}
 
 	private function getTitleForGifCreation() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = "wikivisual_article_status";
 		$vars = "article_id";
 		$conds = [ 'status = 40',

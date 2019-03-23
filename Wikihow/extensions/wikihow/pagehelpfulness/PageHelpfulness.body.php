@@ -8,7 +8,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 	}
 
 	public static function getRatingReasonFeedback($item, $type, $limit=10) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$table = 'rating_reason';
 		$var = array(
@@ -49,7 +49,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 	}
 
 	public static function getCombinedRatingFeedback($t) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$limit = 10;
 
 		$item = $t->getText();
@@ -113,7 +113,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 	}
 
 	public static function getRatingsDetail($pageId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = "rating";
 		$vars = array("rat_detail as D", "count(*) as C");
 		$conds = array("rat_page = $pageId", "rat_detail > 0", "rat_isdeleted = 0");
@@ -139,7 +139,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		}
 
 		// now add the star ratings info
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$table = "rating_star";
 		$var = array( "sum(rs_rating)/5 as yesVotes", "count(*) as count" );
 		$cond = array( "rs_page" => $pageId, "rs_isdeleted" => 0 );
@@ -162,7 +162,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 	}
 
 	public static function getRatingData($pageId, $type) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$ri = new RateItem();
 		$rt = $ri->getRatingTool($type);
 		$table = $rt->getTableName();
@@ -206,7 +206,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 
 	public static function getClearEventDate( $pageId, $domain, $type, $dbr = null ) {
 		if ( $dbr == null ) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 		}
 
 		$table = 'clear_event';
@@ -230,7 +230,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		if ( $wgLanguageCode != 'en' ) {
 			return '';
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// see if the article has a summary video or text section
 		$table = array( WH_DATABASE_NAME_EN.'.titus_copy' );
@@ -267,7 +267,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		if ( $wgLanguageCode != 'en' ) {
 			return '';
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// see if the article has a summary video or text section
 		$table = array( WH_DATABASE_NAME_EN.'.titus_copy' );

@@ -62,7 +62,7 @@ class AddGifsToVidTag extends Maintenance {
 				exit(1);
 			}
 			$ids = array();
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select( 'templatelinks', 'tl_from', array('tl_title' => array( 'whvid', 'Whvid' ) ) );
 			foreach ( $res as $row ) {
 				$ids[] = $row->tl_from;

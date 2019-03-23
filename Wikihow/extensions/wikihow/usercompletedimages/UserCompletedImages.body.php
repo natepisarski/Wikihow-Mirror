@@ -217,7 +217,7 @@ class UserCompletedImages extends UnlistedSpecialPage {
 			$userDBKey = $userID > 0 ? 'uci_user_id' : 'uci_user_text';
 			$userDBVal = $userID > 0 ? $userID : $user->getName();
 
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select(
 				'user_completed_images',
 				array('uci_user_id', 'uci_user_text'),
@@ -468,7 +468,7 @@ class UserCompletedImages extends UnlistedSpecialPage {
 
 		$pageTitle = str_replace( ' ', '-', $pageTitle );
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			'user_completed_images',

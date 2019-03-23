@@ -16,8 +16,8 @@ class TwitterFeedHooks {
 		}
 
 		// is it in nab? is it patrolled? If unpatrolled, skip this.
-		$dbr = wfGetDB(DB_MASTER);
-		if ( ! NewArticleBoost::isNABbed( $dbr, $article->getID() ) ) {
+		$dbw = wfGetDB(DB_MASTER);
+		if ( ! NewArticleBoost::isNABbed( $dbw, $article->getID() ) ) {
 			return true;
 		}
 
@@ -71,7 +71,7 @@ class TwitterFeedHooks {
 			return true;
 		}
 		try {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			// special case for rising star
 			$account = $dbr->selectRow(
 				array('twitterfeedaccounts','twitterfeedcatgories'),

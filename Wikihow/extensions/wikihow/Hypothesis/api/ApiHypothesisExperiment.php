@@ -37,7 +37,7 @@ class ApiHypothesisExperiment extends ApiBase {
 		$params = $this->extractRequestParams();
 		$now = wfTimestampNow();
 		$dbw = wfGetDB( DB_MASTER );
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		wfDebugLog( 'hypothesis', 'PARAMS ' . var_export( $params, true ) . "\n" );
 

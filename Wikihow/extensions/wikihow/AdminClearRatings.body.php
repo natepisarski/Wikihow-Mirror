@@ -138,7 +138,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 		$articleRatingTool = new RatingArticle();
 		$sampleRatingTool = new RatingSample();
 		$starRatingTool = new RatingStar();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$samplePrefix = 'Sample/';
 
 		$user = $this->getUser();
@@ -279,7 +279,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 
 	public static function resetSummaryData( $pageId ) {
 		global $wgLanguageCode;
-		$dbr = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_MASTER );
 
 		$table = 'event_log';
 		$var = '*';
@@ -288,7 +288,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 			'el_page_id' => $pageId,
 			'el_action' => $summaryVideoActions
 		);
-		$hasData = $dbr->selectRow( $table, $var, $cond, __METHOD__ );
+		$hasData = $dbw->selectRow( $table, $var, $cond, __METHOD__ );
 		if ( $hasData ) {
 			$domains = array( wfCanonicalDomain( $wgLanguageCode ), wfCanonicalDomain( $wgLanguageCode, true ) );
 			foreach ( $domains as $domain ) {
@@ -304,7 +304,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 				'ir_page_id' => $pageId,
 				'ir_type' => $type
 			);
-			$hasData = $dbr->selectRow( $table, $var, $cond, __METHOD__ );
+			$hasData = $dbw->selectRow( $table, $var, $cond, __METHOD__ );
 			if ( $hasData ) {
 				self::recordClearEvent( $pageId, $type );
 			}

@@ -24,7 +24,7 @@ class RCTest {
 	}
 
 	public function getTotalPatrols() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$total = $dbr->selectField('logging', 'count(*)', RCPatrolStandingsIndividual::getOpts());
 		return $total;
 	}
@@ -71,7 +71,7 @@ class RCTest {
 
 	private function userExists() {
 		global $wgUser;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$exists = $dbr->selectField('rctest_users', array('count(*) as C'), array('ru_user_id' => $wgUser->getId()));
 		return $exists > 0;
 	}
@@ -132,7 +132,7 @@ class RCTest {
 
 		$difficulty = (int) $this->getTestDifficulty();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT * FROM rctest_quizzes WHERE rq_deleted = 0 AND rq_difficulty <= $difficulty ";
 		// Exclude any quizzes already taken
 		if (!empty($userInfo['ru_quiz_ids'])) {
@@ -352,7 +352,7 @@ class RCTest {
 	private function getGoodStartDate() {
 		global $wgUser;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		//get the date of the last successful easy test
 		$last_easy_test = $dbr->selectField(
@@ -392,7 +392,7 @@ class RCTest {
 	* Loads a specific test given a test id
 	*/
 	private function fetchSpecificTestInfo($testId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$testId = $dbr->strencode($testId);
 		$row = $dbr->selectRow("rctest_quizzes", array("*"), array("rq_id" => $testId));
 		$this->testInfo = get_object_vars($row);
@@ -401,7 +401,7 @@ class RCTest {
 	private function fetchGuidedTourTestInfo() {
 		global $wgRequest;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$id = $wgRequest->getVal('rct_id');
 		$this->fetchSpecificTestInfo($id);
 	}
@@ -409,7 +409,7 @@ class RCTest {
 	private function fetchDebugTestInfo() {
 		global $wgRequest;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$mode = $wgRequest->getVal('rct_mode');
 		$id = $wgRequest->getVal('rct_id');
 		// Dev server doesn't have rc test revisions in database yet.  Fake it
@@ -503,7 +503,7 @@ class RCTest {
 
 	private function isMoreTests() {
 		if (is_null($this->moreTests)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$difficulty = (int) $this->getTestDifficulty();
 			$sql = "SELECT count(*) as C FROM rctest_quizzes WHERE rq_deleted = 0 AND rq_difficulty <= $difficulty";
 			// Exclude any quizzes already taken

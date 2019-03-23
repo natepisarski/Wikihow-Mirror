@@ -67,7 +67,7 @@ class AddRelatedLinks extends UnlistedSpecialPage {
 				continue;
 			}
 			#echo "using cat {$cat->getText()} for {$t->getFullText()}\n";
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$id  = $dbr->selectField(array('categorylinks', 'page'),
 					array('cl_from'),
 					array('cl_to'=>$cat->getDBKey(), 'page_id = cl_from', 'page_namespace'=>NS_MAIN, 'page_is_redirect'=>0),
@@ -96,7 +96,6 @@ class AddRelatedLinks extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 		$user = $this->getUser();
 
-		wfProfileIn(__METHOD__);
 		if (!in_array('staff', $user->getGroups())) {
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
@@ -110,13 +109,12 @@ END
 		);
 
 		if (!$req->wasPosted()) {
-			wfProfileOut(__METHOD__);
 			return;
 		}
 
 		set_time_limit(3000);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$urls = array_unique(explode("\n", $req->getVal('xml')));
 
 		$user = null;
@@ -167,6 +165,5 @@ END
 			}
 		}
 		$out->addHTML("</ul>Finished at " . date("r") );
-		wfProfileOut(__METHOD__);
 	}
 }

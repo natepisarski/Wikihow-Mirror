@@ -32,7 +32,7 @@ class KnowledgePlants extends Plants {
 			return null;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$lastPlant = $this->getLastPlantUsed($usedPlants);
 		if ($lastPlant) {
@@ -65,13 +65,13 @@ class KnowledgePlants extends Plants {
 	}
 
 	function getCorrectAnswer($plantId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectField($this->questionTable, 'pqk_answer', array('pqk_id' => $plantId), __METHOD__);
 	}
 
 	function getAllPlantsForAdmin() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select($this->questionTable, "*", array(), __METHOD__, array("ORDER BY" => 'pqk_display ASC'));
 

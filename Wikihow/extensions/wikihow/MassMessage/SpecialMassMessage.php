@@ -300,7 +300,7 @@ class SpecialMassMessage extends SpecialPage {
 		$parserOptions->setIsSectionPreview( false );
 		//$content = $content->addSectionHeader( $subject );
 
-		// Hooks not being run: EditPageGetPreviewContent, EditPageGetPreviewText
+		// Hooks not being run: EditPageGetPreviewContent
 
 		$content = $content->preSaveTransform( $firstTarget, MassMessage::getMessengerUser(), $parserOptions );
 		$parserOutput = $content->getParserOutput( $firstTarget, null, $parserOptions );

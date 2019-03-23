@@ -9,7 +9,7 @@ exe
 $misspelled = explode("\n", trim($txt));
 
 $wgUser = User::newFromName("MiscBot");
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $sql = "SELECT sa_page_id FROM spellcheck_articles WHERE ";
 

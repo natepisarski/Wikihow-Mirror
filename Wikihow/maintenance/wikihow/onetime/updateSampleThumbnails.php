@@ -17,7 +17,7 @@ class UpdateSampleThumbnails extends Maintenance {
 	}
 
 	private function resizeSamples() {
-		$dbr = wfGetDb(DB_SLAVE);
+		$dbr = wfGetDb(DB_REPLICA);
 		$res = $dbr->select(
 			'dv_links',
 			'*',

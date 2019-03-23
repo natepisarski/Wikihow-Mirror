@@ -604,12 +604,12 @@ class PageHooks {
 		global $wgServer, $wgIsAppServer, $wgIsDevServer, $wgIsToolsServer, $wgIsTitusServer;
 
 		if (($wgIsAppServer || $wgIsDevServer)
-			&& $wgServer != '//' . $httpHost
+			&& $wgServer != 'https://' . $httpHost
 			&& !preg_match("@[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+@", $httpHost) // check that Host is not an IP
 			&& !$wgIsToolsServer
 			&& !$wgIsTitusServer
 		) {
-			$debugtext = "maybeRedirectToCanonical: wgIsAppServer: $wgIsAppServer, wgIsDevServer: $wgIsDevServer, wgServer != // . httpHost: " . var_export(($wgServer != '//' . $httpHost), true). " , hostIsIp " . var_export(preg_match("@[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+@", $httpHost), true) . " , wgIsToolsServer: $wgIsToolsServer, wgIsTitusServer: $wgIsTitusServer";
+			$debugtext = "maybeRedirectToCanonical: wgIsAppServer: $wgIsAppServer, wgIsDevServer: $wgIsDevServer, wgServer != https:// . httpHost: " . var_export(($wgServer != 'https://' . $httpHost), true). " , hostIsIp " . var_export(preg_match("@[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+@", $httpHost), true) . " , wgIsToolsServer: $wgIsToolsServer, wgIsTitusServer: $wgIsTitusServer";
 			wfDebugLog('redirects', $debugtext);
 			$output->redirect( $wgServer . $request->getRequestURL(), 301 );
 		}

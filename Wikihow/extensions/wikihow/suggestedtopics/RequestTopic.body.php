@@ -27,7 +27,7 @@ class RequestTopic extends SpecialPage {
 		$passCaptcha = !$req->wasPosted() || $fancyCaptcha->passCaptcha();
 
 		if ($req->wasPosted() && $passCaptcha) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$titleTxt = GuidedEditorHelper::formatTitle($req->getVal('suggest_topic'));
 			$title = Title::newFromText($titleTxt);

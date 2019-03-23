@@ -23,7 +23,7 @@ function checkForEmpty($t){
 	return false;
 }
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->select('user', 'user_id', array('user_registration >= 20110501000000'), 'removeEmptyProfilePages');
 
 $users = array();

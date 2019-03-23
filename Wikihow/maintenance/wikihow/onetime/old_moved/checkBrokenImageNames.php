@@ -1,7 +1,7 @@
 <?
 	require_once('commandLine.inc');
 
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$bad = array(); 
 	$wgUser = User::newFromName('Tderouin');
 	$res = $dbr->select('page', array('page_title', 'page_namespace'), array('page_namespace' => NS_IMAGE));

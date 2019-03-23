@@ -32,7 +32,7 @@ function exemptExcludedCategories() {
 	$chunkSize = 200;
 	$ts = wfTimestampNow();
 
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$excludeCategories = ConfigStorage::dbGetConfig($configKey);
 	$excludeCategories = explode("\n", trim($excludeCategories));
 
@@ -106,7 +106,7 @@ function checkDirtyArticles() {
 
 	echo "Checking dirty articles for spelling mistakes at " . microtime(true) . "\n";
 	
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$dbw = wfGetDB(DB_MASTER);
 
 	$options = array();
@@ -371,7 +371,7 @@ function removeWordFile($fileName) {
 
 // Unused function?
 function moveCaps() {
-	$dbr = wfGetDB(DB_SLAVE);
+	$dbr = wfGetDB(DB_REPLICA);
 	$dbw = wfGetDB(DB_MASTER);
 	
 	$words = DatabaseHelper::batchSelect(wikiHowDictionary::CAPS_TABLE, array('*'));

@@ -12,7 +12,7 @@ class SendDemotedArticleEmail extends Maintenance {
     }
 
 	private function getDemotedArticles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$pageIds = array();
 		//$res = $dbr->select( 'newarticlepatrol', array( 'nap_page' ), array( 'nap_patrolled' => 0 ), __METHOD__ );
 		$sql = "select nap_page FROM newarticlepatrol JOIN page on page_id = nap_page WHERE page_is_redirect = 0 AND nap_patrolled = 0";
@@ -25,8 +25,6 @@ class SendDemotedArticleEmail extends Maintenance {
 
 	// get list of revision id and length for revisions since the cutoff time for a given pageid
 	public static function filterRevision( $db, $pageId, $cutoffTime, $cutoffSizeBytes ) {
-		wfProfileIn( __METHOD__ );
-
 		$result = null;
 		$res = $db->select( 'revision',  array( 'rev_id', 'rev_len', 'rev_parent_id' ), array( "rev_page = $pageId", "rev_timestamp > $cutoffTime"  ), __METHOD__ );
 
@@ -56,12 +54,11 @@ class SendDemotedArticleEmail extends Maintenance {
 			$result = new stdClass();
 			$result->pageId = $pageId;
 		}
-		wfProfileOut( __METHOD__ );
 		return $result;
 	}
 
 	private function filterEdits( $pageIds, $cutoffTime, $cutoffSize ) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$result = array();
 

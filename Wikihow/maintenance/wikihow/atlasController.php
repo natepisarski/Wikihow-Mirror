@@ -83,7 +83,7 @@ class TitanController {
 	}
 
 	function calcForRevision(&$stat, &$rev) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$t = $rev->getTitle();
 		$page = new stdClass();
 		$page->page_id = $rev->getTitle()->getArticleId();
@@ -109,7 +109,7 @@ class TitanController {
 
 	function calcForArchiveRevIds(&$stats, $revIds) {
 		$ret = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select * from titusdb2.archive where ar_rev_id in (" . implode(',',$revIds) . ")";
 		$res = $dbr->query($sql, __METHOD__);
 		foreach($res as $row) {
@@ -131,7 +131,7 @@ class TitanController {
 	}
 	function calcForArchiveIds(&$stats, $archiveIds) {
 		$ret = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select * from archive where ar_id in (" . implode(',',$archiveIds) . ")";
 		$res = $dbr->query($sql, __METHOD__);
 		foreach($res as $row) {
@@ -153,7 +153,7 @@ class TitanController {
 
 	function calcForOldRevisions(&$stats, $revisionIds) {
 		$ret = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		if(!$revisionIds || sizeof($revisionIds) == 0 || !is_array($revisionIds)) {
 			return($ret);	
 		}
@@ -176,7 +176,7 @@ class TitanController {
 		return($ret);
 	}
 	function getLastDeletedRevisions() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		
 		$sql = "select max(a2.ar_rev_id) as ar_id from nfd join titusdb2.archive a2 on a2.ar_rev_id=nfd_rev_id where nfd_reason not in ('dup','pol') group by a2.ar_title";
 		$res = $dbr->query($sql, __METHOD__);
@@ -187,7 +187,7 @@ class TitanController {
 
 	}
 	function getDeletedFirstRevisions() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		
 		$sql = "select min(a2.ar_rev_id) as ar_id from nfd join titusdb2.archive a join titusdb2.archive a2 on a.ar_page_id=a2.ar_page_id and a.ar_rev_id=nfd_old_rev_id where nfd_reason not in ('dup','pol') group by a.ar_page_id";
 		$res = $dbr->query($sql, __METHOD__);
@@ -207,7 +207,7 @@ class TitanController {
 		return($shiftedIds);
 	}
 	function getTemplateArticles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select rev_id from revision group by rev_page, rev_id order by rev_page desc, rev_id asc";
 		$res = $dbr->query($sql, __METHOD__);
 		$stubIds = array();
@@ -261,7 +261,7 @@ class TitanController {
 	}
 
 	function getDeletedRevisions() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select max(nr.ar_id) as ar_id, r.ar_rev_id as rev_id from titusdb2.archive r join titusdb2.archive nr on nr.ar_page_id=r.ar_page_id and timestamp(nr.ar_timestamp) < date_add(r.ar_timestamp, interval 1 week) group by r.ar_rev_id";
 		$res = $dbr->query($sql, __METHOD__);
 		$ids = array();
@@ -272,7 +272,7 @@ class TitanController {
 	}
 	
 	function getDeletedFinalRevisions() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select max(ar_id) as ar_id, ar_rev_id from titusdb2.archive where ar_namespace=0 and ar_len>0 group by ar_page_id";
 		$res = $dbr->query($sql, __METHOD__);
 		$ids = array();
@@ -285,7 +285,7 @@ class TitanController {
 
 	}
 	function getNABRevisions() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select rev_page, max(rev_id) as rev_id from newarticlepatrol join revision on rev_page=nap_page and rev_timestamp < nap_timestamp_ci where nap_patrolled=1 group by rev_page";
 		$res = $dbr->query($sql, __METHOD__);
 
@@ -296,7 +296,7 @@ class TitanController {
 		return($ids);
 	}
 	function getRisingStarFirstRevisions() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select min(rev_id) as rev_id from categorylinks join page p on cl_from=p.page_id join page p2 on p.page_title=p2.page_title join revision on p2.page_id=rev_page where cl_to='Rising-Stars' and p2.page_namespace=0 group by p2.page_id";
 		$res = $dbr->query($sql, __METHOD__);
 		foreach($res as $row) {
@@ -313,7 +313,7 @@ class TitanController {
 	}
 	function getCurrentRevisions() {
 		$sql = "select gr_rev from good_revision";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$ids = array();
 		foreach($res as $row) {
@@ -324,7 +324,7 @@ class TitanController {
 	}
 	function getGoodArticles() {
 		$sql = "select gr_rev from good_revision";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$ids = array();
 		foreach($res as $row) {
@@ -362,7 +362,7 @@ class TitanController {
 	}
 	function getStubs() {
 		$sql = "select max(rev_id) as rev_id from categorylinks join page on cl_from=page_id and page_namespace=0 join revision on cl_from=rev_page where cl_to='Stub' group by rev_page";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$revs = array();
 		foreach($res as $row) {
@@ -372,7 +372,7 @@ class TitanController {
 	}
 	function getCopyedit() {
 		$sql = "select max(rev_id) as rev_id from categorylinks join page on cl_from=page_id and page_namespace=0 join revision on cl_from=rev_page where cl_to='Copyedit' group by rev_page";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$revs = array();
 		foreach($res as $row) {
@@ -382,7 +382,7 @@ class TitanController {
 	}
 	function getCleanup() {
 		$sql = "select max(rev_id) as rev_id from categorylinks join page on cl_from=page_id and page_namespace=0 join revision on cl_from=rev_page where cl_to='Cleanup' group by rev_page";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$revs = array();
 		foreach($res as $row) {
@@ -394,7 +394,7 @@ class TitanController {
 
 	function getFormatting() {
 		$sql = "select max(rev_id) as rev_id from categorylinks join page on cl_from=page_id and page_namespace=0 join revision on cl_from=rev_page where cl_to='Format' group by rev_page";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$revs = array();
 		foreach($res as $row) {
@@ -538,7 +538,7 @@ class TitanController {
 	}
 	function getNabArticles() {
 		$sql = "select max(rev_id) as rev_id from newarticlepatrol join page on page_id =nap_page join revision on nap_page=rev_page where  nap_patrolled=0 and page_is_redirect=0 group by nap_page";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$revisions = array();
 		foreach ($res as $row) {
@@ -550,7 +550,7 @@ class TitanController {
 
 	}
 	function getFellowArticles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select ti_page_id from titusdb2.titus_intl where ti_rating >= 3";
 		$res = $dbr->query($sql, __METHOD__);
 		$pageIds = array();
@@ -566,7 +566,7 @@ class TitanController {
 		return($revs);
 	}
 	function getFeaturedArticles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select cl_from from categorylinks where cl_to ='Featured-Articles'";	
 		$res = $dbr->query($sql, __METHOD__);
 		$pageIds = array();
@@ -885,7 +885,7 @@ class TitanController {
 	 */
 	function getRecentDeletedRevIds() {
 		$sql = "select max(ar_rev_id) as rev_id from logging join archive on log_title=ar_title and log_namespace=ar_namespace   where log_type='delete' and log_timestamp > '20140101' and log_namespace=0 and log_comment not like '%Merge%' and log_comment not like \"%'not'%\" and log_comment not like '%copyvio%' and log_comment not like \"%'pol'%\" and ar_len < 30000 group by ar_page_id, ar_namespace";
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$revIds = array();
 		foreach($res as $row) {
@@ -897,7 +897,7 @@ class TitanController {
 	 * Generate atlas from list generated by database
 	 */
 	function getListIds($listName) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 	
 		$sql = 'select ul_revision_id from url_list_name join url_list on uln_id=ul_uln where uln_name=' . $dbr->addQuotes($listName);	
 		$res = $dbr->query($sql);

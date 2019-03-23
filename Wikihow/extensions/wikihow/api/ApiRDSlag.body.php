@@ -17,7 +17,7 @@ class ApiRDSlag extends ApiBase {
 
 		if ($wgIsImageScaler) {
 			$cachekey = wfMemcKey('apirdslag');
-			$db = wfGetDB(DB_SLAVE);
+			$db = wfGetDB(DB_REPLICA);
 			$lag = $db->getLag();
 			$note = 'fromdb';
 			if ($lag === false) {

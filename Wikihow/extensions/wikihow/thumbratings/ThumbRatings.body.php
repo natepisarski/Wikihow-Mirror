@@ -56,7 +56,7 @@ class ThumbRatings extends UnlistedSpecialPage {
 	private function addThumbRating($hash) {
 		$ratings = $this->getThumbRatings();
 		$ratings[] = $hash;
-		setCookie($this->cookieName, implode(",", $ratings));
+		setcookie($this->cookieName, implode(",", $ratings));
 	}
 
 	public static function addMobileThumbRatingsHtml(&$doc, &$t) {
@@ -184,7 +184,7 @@ class ThumbRatings extends UnlistedSpecialPage {
 	}
 
 	public static function getTipsWarningsMap(&$t) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('thumb_ratings', '*', array('tr_page_id' => $t->getArticleId()), __METHOD__);
 		$tipsWarnings = array();
 		foreach ($res as $row) {

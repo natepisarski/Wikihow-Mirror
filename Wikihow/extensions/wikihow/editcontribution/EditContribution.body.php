@@ -21,7 +21,7 @@ class EditContribution extends UnlistedSpecialPage {
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$pageId = $req->getVal('page_id','');
 		if (!is_int($pageId)) {
 			$t = Title::newFromText($pageId);

@@ -65,7 +65,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 		$data = $wgMemc->get( $key );
 
 		if ( !is_array( $data ) ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 
 			$tables = [ 'article_meta_info', 'page', 'wikivisual_article_status', 'titus_copy' ];
 			$fields = [ 'ami_id', 'ami_video', 'ami_summary_video',

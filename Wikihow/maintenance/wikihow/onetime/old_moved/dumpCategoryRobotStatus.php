@@ -51,7 +51,7 @@ unset($mainCatTreeArray['WikiHow']);
 
 var_dump($mainCatTreeArray);
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $res = $dbr->select(
 	'category',

@@ -147,7 +147,7 @@ class UpdateArticleMethodHelpfulnessStats extends Maintenance {
 		}
 
 		if ($this->dry_run) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			if ($doMethods) {
 				print "Method upsert query:\n$methodUpsertQuery\n";
@@ -192,7 +192,7 @@ class UpdateArticleMethodHelpfulnessStats extends Maintenance {
 	}
 
 	protected function getSummarizedQuery() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		return $dbr->selectSQLText(
 			array(
@@ -238,7 +238,7 @@ SQL;
 	}
 
 	protected function getFullHelpfulnessStatsQuery($upperTS=false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$query = $dbr->selectSQLText(
 			$this->getHelpfulnessStatsTables(),
@@ -258,7 +258,7 @@ SQL;
 	}
 
 	protected function getTSBoundHelpfulnessStatsQuery($lowerTS, $upperTS) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$query = $dbr->selectSQLText(
 			$this->getHelpfulnessStatsTables(),

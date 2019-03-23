@@ -24,7 +24,7 @@ $stuffToCheck = [
 ];
 $regex = "/(" . implode("|", $stuffToCheck) . ")/";
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 foreach($idArray as $id) {
 	$res = $dbr->select(
 		[QADB::TABLE_ARTICLES_QUESTIONS, QADB::TABLE_CURATED_ANSWERS],

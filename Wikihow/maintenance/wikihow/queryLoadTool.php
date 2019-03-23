@@ -42,7 +42,7 @@ class QueryLoadTool extends Maintenance {
 			$dbw->query($sql, __METHOD__);
 		}
 		elseif($this->hasOption('getkwtitlematches')) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$sql = "select sq_query, tq_title, ct as score from dedup.special_query left join dedup.query_match on query1=sq_query left join dedup.title_query on query2=tq_query group by sq_query, tq_title order by sq_query, score desc ";
 			$res = $dbr->query($sql, __METHOD__);
 			$query = false;
@@ -57,7 +57,7 @@ class QueryLoadTool extends Maintenance {
 			}	
 		}
 		elseif($this->hasOption('gettitlematches')) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$sql = "select tq1.tq_title as title1, tq2.tq_title as title2, ct as score from dedup.title_query as tq1 join dedup.query_match on query1=tq1.tq_query join dedup.title_query tq2 on query2=tq2.tq_query group by tq1.tq_title, tq2.tq_title order by score desc ";
 			$res = $dbr->query($sql, __METHOD__);
 			foreach($res as $row) {

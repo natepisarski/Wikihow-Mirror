@@ -305,7 +305,7 @@ class removeBadReferences extends Maintenance {
 		}
 
 		$items = array();
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		$query = "SELECT page_title, el_from, el_to FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked > 0)) LIMIT " . $limit;
 
 		// the test query ignoring user checked
@@ -326,7 +326,7 @@ class removeBadReferences extends Maintenance {
 	}
 	private function showCount() {
 		global $wgLanguageCode;
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		decho("will query count for lang", $wgLanguageCode );
 
 		$query = "SELECT count(page_title) as count FROM `externallinks`,`page` WHERE (el_from = page_id) AND (el_id IN (select eli_el_id from externallinks_link_info, link_info where eli_li_id = li_id and li_code >= 400 && li_user_checked > 0))";

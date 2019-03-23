@@ -25,7 +25,7 @@ class DbUtils {
 	}
 
 	public static function getDbr() {
-		return wfGetDB(DB_SLAVE);
+		return wfGetDB(DB_REPLICA);
 	}
 
 	public static function getDbw() {

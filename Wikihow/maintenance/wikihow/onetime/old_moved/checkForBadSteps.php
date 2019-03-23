@@ -2,7 +2,7 @@
 // Get all alfredo articles, that have an extra newline between steps
 require_once("commandLine.inc");
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $sql = "select distinct itj_to_aid from wikidb_112.image_transfer_job where itj_to_lang=" . $dbr->addQuotes($wgLanguageCode);
 $res = $dbr->query($sql, __METHOD__);
 $ids = array();

@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../commandLine.inc';
 
 
 $categoryQuestions = new CategoryQuestions();
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $conds = [];
 $conds['GROUP BY'] = 'aqq_category';

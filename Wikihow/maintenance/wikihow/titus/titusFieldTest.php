@@ -10,7 +10,7 @@ $ids = $titus->getPagesToCalcByStat($stats, wfTimestampNow());
 print "Got pages to calc for various stats\n";
 $idsToCalc = array();
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 print "Getting random ids to calc\n";
 $sql = "select page_id from page where page_namespace=0 and page_is_redirect=0 order by rand() limit 5";
 $res = $dbr->query($sql, __METHOD__);
@@ -47,7 +47,7 @@ print "Got ids to calc.\n";
 
 $sql = "select * from page where page_id in (" . implode(',', $idsToCalc) . ")";
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $res = $dbr->query($sql, __METHOD__);
 print "Calculating for all stats\n";
 print_r($stat);

@@ -79,34 +79,6 @@ function setUserTalkOption( $user ) {
 	return true;
 }
 
-/*
-// Not used since at least 2013 - Alberto
-function addFirstEdit($article, $details) {
-	global $wgTitle, $wgRequest, $wgOut, $wgUser;
-
-	try {
-		$t = $article->getTitle();
-		if (!$t || !$t->inNamespace(NS_MAIN))
-			return true;
-		$dbr = wfGetDB(DB_MASTER);
-		$num_revisions = $dbr->selectField('revision', 'count(*)', array('rev_page=' . $article->getId()));
-		if ($num_revisions > 1) return true;
-		$user_name  = $dbr->selectField('revision', 'rev_user_text', array('rev_page=' . $article->getId()));
-		if (
-			(strpos($_SERVER['HTTP_REFERER'], "action=edit") !== false || strpos($_SERVER['HTTP_REFERER'], "action=submit2"))
-			&& $wgUser->getName() == $user_name) {
-
-		  $dbw = &wfGetDB(DB_MASTER);
-			$sql = "insert ignore into firstedit select rev_page, rev_user, rev_user_text, min(rev_timestamp) from page, revision where page_id=rev_page and page_namespace=0 and page_is_redirect=0 and page_id=". $article->getId() ." group by rev_page";
-			$ret = $dbw->query($sql);
-
-		}
-	} catch (Exception $e) {
-	}
-	return true;
-}
-*/
-
 //for when a user adds (and confirms) an email to their account
 //flip all their started article notifications on
 function setUserWatchToWatchAll($user) {

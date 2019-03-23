@@ -11,7 +11,7 @@
 require_once('commandLine.inc');
 require_once('../extensions/wikihow/DatabaseHelper.class.php');
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $users = DatabaseHelper::batchSelect('user', 'user_id');
 

@@ -66,7 +66,7 @@ class AdminLatestRevision extends UnlistedSpecialPage {
 					}
 				}
 				$chocoUsers = "(" . implode(", ", $userIds) . ")";
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 			} elseif ($username != "") {
 				$username = preg_replace('@http(s)*:\/\/www.wikihow.com\/User:@', '', $username);
 				$user = User::newFromName($username);
@@ -75,7 +75,7 @@ class AdminLatestRevision extends UnlistedSpecialPage {
 					return;
 				}
 			}
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			foreach ($urls as $url) {
 				$url = trim($url);
 				$title = Misc::getTitleFromText(urldecode(trim($url)));

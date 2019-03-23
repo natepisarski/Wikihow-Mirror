@@ -339,7 +339,7 @@ class DesktopAds {
 		} else {
 			$adCreator = new MixedAdCreatorVersion5();
 			$adCreator->mAdServices['step'] = '';
-			if ( $pageId % 10 == 3 ) {
+			if ( $pageId % 4 < 3) {
 				$adCreator = new MixedAdCreatorScrollTo();
 				$adCreator->mAdServices['step'] = '';
 			}

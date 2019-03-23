@@ -5,7 +5,7 @@ require_once __DIR__ . '/../commandLine.inc';
 // turn off batching by default
 $batch = '-';
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 // Get the list of titles
 $opts = array(

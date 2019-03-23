@@ -20,7 +20,7 @@ function purgeTitles($titles) {
 	}
 }
 
-$dbr = wfGetDB( DB_SLAVE );
+$dbr = wfGetDB( DB_REPLICA );
 
 // get all pages
 $pages = WikiPhoto::getAllPages( $dbr );

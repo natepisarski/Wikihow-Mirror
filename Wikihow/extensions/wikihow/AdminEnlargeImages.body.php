@@ -71,7 +71,7 @@ class AdminEnlargeImages extends UnlistedSpecialPage {
 
 		if ($req->wasPosted()) {
 			$out->setArticleBodyOnly(true);
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$center = $req->getVal('pages-resize', '') == 'enlarge-center';
 			$px = $req->getVal('pages-pixels', '0');

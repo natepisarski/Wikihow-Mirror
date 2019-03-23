@@ -52,7 +52,7 @@ class AdminRCMobile extends SpecialPage {
 		$patrollers = array();
 
 		// Get patrollers since given time
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT log_user, count(*) as cnt FROM logging FORCE INDEX (times) WHERE log_type='patrol' and log_timestamp >= '$ts' and log_params NOT LIKE '%\"6::auto\";i:1;%' GROUP BY log_user having cnt > 5 ORDER BY cnt DESC";
 		$res = $dbr->query($sql, __METHOD__);
 		foreach ($res as $row) {

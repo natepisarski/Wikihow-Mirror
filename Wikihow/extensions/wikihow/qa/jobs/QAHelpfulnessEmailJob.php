@@ -136,7 +136,7 @@ class QAHelpfulnessEmailJob extends Job {
 		if (empty($span)) return false;
 
 		//grab the last emailed date
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$lastEmailed = $dbr->selectField(
 			self::THIS_TABLE,
 			'qah_last_emailed',

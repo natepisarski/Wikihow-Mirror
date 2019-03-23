@@ -4,10 +4,15 @@
  * that store and retreive data from the db
  */
 
+// TODO: in this class, there are a TON of database queries that don't use
+// the standard Mediawiki database interface. This should be fixed in all
+// cases where it's possible.
+
 if ( !defined('MEDIAWIKI') ) die();
 
 require_once __DIR__ . "/../DatabaseHelper.class.php";
 require_once __DIR__ . "/../TranslationLink.php";
+require_once __DIR__ . '/GoogleSpreadsheet.class.php';
 
 class TitusDB {
 	var $db = [];
@@ -130,9 +135,9 @@ class TitusDB {
 
 
 	/*
-	* This function gets a list of pageIds use for calculating the latest edits
-	*
-	*/
+	 * This function gets a list of pageIds use for calculating the latest edits
+	 *
+	 */
 	private function getDailyEditIds( $lookBack = 1 ) {
 		$dbr = $this->getWikiDB();
 		// Offset to convert times to Pacific Time DST
@@ -161,8 +166,8 @@ class TitusDB {
 	}
 
 	/*
-	* This function calcs Titus stats for pages that have been most recently edited on wikiHow.
-	* See DailyEdits.class.php for more details
+	 * This function calcs Titus stats for pages that have been most recently edited on wikiHow.
+	 * See DailyEdits.class.php for more details
 	 */
 	public function calcLatestEdits( $statsToCalc, $pageIds = null ) {
 		if ( $pageIds == null ) {
@@ -180,9 +185,7 @@ class TitusDB {
 	}
 
 	/*
-	* Get page ids to calculate stats
-	*/
-	/*
+	 * Get page ids to calculate stats.
 	 * Calc Titus stats for an array of $pageIds
 	 */
 	public function calcStatsForPageIds( $statsToCalc,  $pageIds ) {
@@ -220,11 +223,11 @@ class TitusDB {
 	}
 
 	/*
-	* Calc Titus stats for all pages in the page table that are NS_MAIN and non-redirect.
-	* WARNING:  Use this with caution as calculating all Titus stats takes many hours
-	* $statsToCalc - an array of stats which will be calculated which correspond to a TitusStat class
-	* $pageIds - optional argument to force the code to run on a specific list of page ids
-	*/
+	 * Calc Titus stats for all pages in the page table that are NS_MAIN and non-redirect.
+	 * WARNING:  Use this with caution as calculating all Titus stats takes many hours
+	 * $statsToCalc - an array of stats which will be calculated which correspond to a TitusStat class
+	 * $pageIds - optional argument to force the code to run on a specific list of page ids
+	 */
 	public function calcStatsForAllPages( $statsToCalc, $pageIds = null ) {
 		$dbr = $this->getWikiDB();
 		if ( $statsToCalc == TitusConfig::getBasicStats() ) {
@@ -266,11 +269,11 @@ class TitusDB {
 	}
 
 	/*
-	** FOR TESTING PURPOSES **
-	* Calc Titus stats for all pages in the page table that are NS_MAIN and non-redirect.
-	* WARNING:  Use this with caution as calculating all Titus stats takes many hours
-	*/
-	public function calcStatsForAllPagesWithOutput(&$statsToCalc, $limit = array()) {
+	 ** FOR TESTING PURPOSES **
+	 * Calc Titus stats for all pages in the page table that are NS_MAIN and non-redirect.
+	 * WARNING:  Use this with caution as calculating all Titus stats takes many hours
+	 */
+	public function calcStatsForAllPagesWithOutput($statsToCalc, $limit = array()) {
 		$dbr = $this->getWikiDB();
 
 		$rows = DatabaseHelper::batchSelect('page',
@@ -316,9 +319,9 @@ class TitusDB {
 	}
 
 	/*
-	* Calc stats for a given article.  An article is represented by a subset of its page data from the page table,
-	* but this should probably be abstracted in the future to something like TitusArticle with the appropriate fields
-	*/
+	 * Calc stats for a given article.  An article is represented by a subset of its page data from the page table,
+	 * but this should probably be abstracted in the future to something like TitusArticle with the appropriate fields
+	 */
 	public function calcPageStats( $statsToCalc, $row ) {
 		$dbr = $this->getWikiDB();
 
@@ -372,10 +375,10 @@ class TitusDB {
 	}
 
 	/*
-	* Stores records in batches sized as specified by the $batchSize parameter
-	* NOTE:  This method buffers the data and only stores data once $batchSize threshold has been
-	* met.  To immediately store the bufffered data call flushDataBatch()
-	*/
+	 * Stores records in batches sized as specified by the $batchSize parameter
+	 * NOTE:  This method buffers the data and only stores data once $batchSize threshold has been
+	 * met.  To immediately store the bufffered data call flushDataBatch()
+	 */
 	public function batchStoreRecord( $data, $batchSize = 1000 ) {
 		if ( empty( $data ) ) {
 			return;
@@ -388,10 +391,10 @@ class TitusDB {
 	}
 
 	/*
-	* Stores records in batches sized as specified by the $batchSize parameter
-	* NOTE:  This method buffers the data and only stores data once $batchSize threshold has been
-	* met.  To immediately store the bufffered data call flushDataBatch()
-	*/
+	 * Stores records in batches sized as specified by the $batchSize parameter
+	 * NOTE:  This method buffers the data and only stores data once $batchSize threshold has been
+	 * met.  To immediately store the bufffered data call flushDataBatch()
+	 */
 	public function batchStoreRecordWithError( $data, $batchSize = 1000 ) {
 		$error = $data['error'];
 		unset( $data['error'] );
@@ -453,8 +456,8 @@ class TitusDB {
 	}
 
 	/*
-	* Stores multiple records of data.  IMPORTANT:  All data records must contain identical fields of data to insert
-	*/
+	 * Stores multiple records of data.  IMPORTANT:  All data records must contain identical fields of data to insert
+	 */
 	public function storeRecords( $dataBatch ) {
 		if ( !sizeof( $dataBatch ) ) {
 			return;
@@ -494,8 +497,8 @@ class TitusDB {
 	}
 
 	/*
-	* Get the connection for titus db
-	*/
+	 * Get the connection for titus db
+	 */
 	public function getTitusDB($type = 'write') {
 		$handleType = 'titus' . $type;
 		$user = $type == 'write' ? WH_DATABASE_MAINTENANCE_USER : WH_DATABASE_USER;
@@ -525,8 +528,8 @@ class TitusDB {
 	}
 
 	/**
-	* Get connection to the current wiki database. Wiki-db connections are always read-only
-	*/
+	 * Get connection to the current wiki database. Wiki-db connections are always read-only
+	 */
 	private function getWikiDB() {
 		global $wgDBname;
 		$handleType = 'wikiread';
@@ -542,8 +545,8 @@ class TitusDB {
 	}
 
 	/*
-	* Store records currently queued in $this->dataBatchMulti
-	*/
+	 * Store records currently queued in $this->dataBatchMulti
+	 */
 	private function flushDataBatchMulti() {
 		while ( sizeof( $this->dataBatchMulti ) ) {
 			$dataBatch = array_pop( $this->dataBatchMulti );
@@ -552,8 +555,8 @@ class TitusDB {
 	}
 
 	/*
-	* Store records currently queued in $this->dataBatch
-	*/
+	 * Store records currently queued in $this->dataBatch
+	 */
 	private function flushDataBatch() {
 		if ( !sizeof( $this->dataBatch ) ) {
 			return;
@@ -566,14 +569,14 @@ class TitusDB {
 }
 
 /*
-* Returns configuration for TitusController represented by an associative array.   of stats available in the TitusDB that can be calculated
-* The key of each row represents a TitusStat that can be calculated and the value represents whether to calculate (1 for calc, 0 for don't calc)
-*/
+ * Returns configuration for TitusController represented by an associative array.   of stats available in the TitusDB that can be calculated
+ * The key of each row represents a TitusStat that can be calculated and the value represents whether to calculate (1 for calc, 0 for don't calc)
+ */
 class TitusConfig {
 
 	/*
-	* Get config for stats that we want to calculate on a nightly basis
-	*/
+	 * Get config for stats that we want to calculate on a nightly basis
+	 */
 	public static function getDailyEditStats() {
 		$stats = self::getAllStats();
 		// Social stats are slow to calc, so remove them from the calcs
@@ -700,8 +703,8 @@ class TitusConfig {
 }
 
 /*
-* Abstract class representing a stat to be calculated by TitusDB
-*/
+ * Abstract class representing a stat to be calculated by TitusDB
+ */
 abstract class TitusStat {
 	// Abstract function that gets a list of page ids we want to calculate for this stat
 	// @return Either an array of page ids, "all" to run through all pages, or "dailyedits"
@@ -738,10 +741,10 @@ abstract class TitusStat {
 	}
 
 	public function getErrors() {
-		return($this->_error);
+		return $this->_error;
 	}
 
-	function checkForRedirects(&$dbr, $ids) {
+	function checkForRedirects($dbr, $ids) {
 		global $wgLanguageCode;
 
 		if (!$ids) {
@@ -750,7 +753,7 @@ abstract class TitusStat {
 		}
 
 		// TODO: we should be using the MW Database wrapper for this
-		$query = "select page_id,page_title  from " . Misc::getLangDB($wgLanguageCode) . ".page where page_is_redirect=1 AND page_id in (" . implode($ids,",") . ")";
+		$query = "SELECT page_id,page_title FROM " . Misc::getLangDB($wgLanguageCode) . ".page WHERE page_is_redirect=1 AND page_id IN (" . implode($ids,",") . ")";
 		$res = $dbr->query($query,__METHOD__);
 		$redirects = "";
 		foreach ($res as $row) {
@@ -764,7 +767,7 @@ abstract class TitusStat {
 		}
 	}
 
-	function checkForMissing(&$dbr, $ids) {
+	function checkForMissing($dbr, $ids) {
 		global $wgLanguageCode;
 
 		if (!$ids) {
@@ -773,7 +776,7 @@ abstract class TitusStat {
 		}
 
 		// TODO: we should be using the MW Database wrapper for this
-		$query = "select page_id  from " . Misc::getLangDB($wgLanguageCode) . ".page where page_id in (" . implode($ids,",") . ")";
+		$query = "SELECT page_id FROM " . Misc::getLangDB($wgLanguageCode) . ".page WHERE page_id IN (" . implode($ids,",") . ")";
 		$res = $dbr->query($query,__METHOD__);
 		$foundIds = array();
 		foreach ($res as $row) {
@@ -793,17 +796,17 @@ abstract class TitusStat {
 	function getBaseUrl() {
 		global $wgLanguageCode;
 		if ($wgLanguageCode == "en") {
-			return("http://www.wikihow.com");
+			return "http://www.wikihow.com";
 		}
 		else {
-			return(Misc::getLangBaseURL($wgLanguageCode));
+			return Misc::getLangBaseURL($wgLanguageCode);
 		}
 	}
 	/**
 	 * Remove the templates
 	 */
 	function removeTemplates() {
-		return(true);
+		return true;
 	}
 
 	public function cleanText($txt) {
@@ -818,12 +821,12 @@ abstract class TitusStat {
 		$txt = preg_replace( "@\[[^\]]+\]+@", "", $txt);
 		$txt = preg_replace( "@<[^>]+>@", "", $txt);
 		$txt = htmlspecialchars_decode($txt);
-		return($txt);
+		return $txt;
 	}
 
 	protected function fixDatePart( $part ) {
 		if ( $part < 10 ) {
-			return('0' . $part);
+			return '0' . $part;
 		} else {
 			return $part;
 		}
@@ -841,13 +844,13 @@ abstract class TitusStat {
 			}
 		}
 	}
-
 }
+
 /*
-* Determines whether or not it is an EditFish article
-* alter table titus_intl add column ti_is_editfish_complete varchar(255) NOT NULL default '';
-* TODO combine this with ti_editing_status since they both query from editfish_articles table
-*/
+ * Determines whether or not it is an EditFish article
+ * alter table titus_intl add column ti_is_editfish_complete varchar(255) NOT NULL default '';
+ * TODO combine this with ti_editing_status since they both query from editfish_articles table
+ */
 class TSEditFish extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
@@ -918,9 +921,9 @@ class TSEditFish extends TitusStat {
 }
 
 /*
-* Determines whether or not it is an ChocoFish article
-* alter table titus_intl add column ti_is_chocofish_complete varchar(255) NOT NULL default '';
-*/
+ * Determines whether or not it is an ChocoFish article
+ * alter table titus_intl add column ti_is_chocofish_complete varchar(255) NOT NULL default '';
+ */
 class TSChocoFish extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
@@ -991,9 +994,9 @@ class TSChocoFish extends TitusStat {
 }
 
 /*
-* Determines whether or not it is a Concierge article
-* alter table titus_intl add column ti_is_concierge_complete varchar(255) NOT NULL default '';
-*/
+ * Determines whether or not it is a Concierge article
+ * alter table titus_intl add column ti_is_concierge_complete varchar(255) NOT NULL default '';
+ */
 class TSConcierge extends TitusStat {
 	// for this stat we want to run on all page ids unless the table it uses does not exist
 	// in which case we just return an empty array
@@ -1064,11 +1067,11 @@ class TSConcierge extends TitusStat {
 }
 
 /*
-* Provides stats on whether es, pt or de articles have been created for this article
-*/
+ * Provides stats on whether es, pt or de articles have been created for this article
+ */
 class TSIntl extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1085,8 +1088,8 @@ class TSIntl extends TitusStat {
 }
 
 /*
-* Provides top level category for Article
-*/
+ * Provides top level category for Article
+ */
 class TSTopLevelCat extends TitusStat {
 
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -1120,11 +1123,11 @@ class TSTopLevelCat extends TitusStat {
 }
 
 /*
-* Provides parent category for article
-*/
+ * Provides parent category for article
+ */
 class TSParentCat extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1138,11 +1141,11 @@ class TSParentCat extends TitusStat {
 	}
 }
 /*
-* Language of this wiki
-*/
+ * Language of this wiki
+ */
 class TSLanguageCode extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1152,11 +1155,11 @@ class TSLanguageCode extends TitusStat {
 }
 
 /*
-* Number of views for an article
-*/
+ * Number of views for an article
+ */
 class TSViews extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1165,11 +1168,11 @@ class TSViews extends TitusStat {
 }
 
 /*
-* Title of an article
-*/
+ * Title of an article
+ */
 class TSTitle extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1178,11 +1181,11 @@ class TSTitle extends TitusStat {
 }
 
 /*
-* Page id of an article
-*/
+ * Page id of an article
+ */
 class TSPageId extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1192,11 +1195,11 @@ class TSPageId extends TitusStat {
 
 
 /*
-* Number of bytes in in an article
-*/
+ * Number of bytes in in an article
+ */
 class TSByteSize extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1209,8 +1212,8 @@ class TSByteSize extends TitusStat {
 }
 
 /*
-* Date of first edit
-*/
+ * Date of first edit
+ */
 class TSFirstEdit extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
@@ -1269,11 +1272,11 @@ class TSFirstEdit extends TitusStat {
 }
 
 /*
-* Total number of edits to an article
-*/
+ * Total number of edits to an article
+ */
 class TSNumEdits extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		return array("ti_num_edits" =>
@@ -1392,7 +1395,7 @@ class TSRetranslationComplete extends TitusStat {
 	}
 
 	// Used to ensure that Retranslatefish completions don't regress
-	public static function getLastRetranslation(&$dbr, &$pageRow) {
+	public static function getLastRetranslation($dbr, $pageRow) {
 		global $wgLanguageCode;
 
 		$lastRetranslation = $dbr->selectField(
@@ -1413,11 +1416,11 @@ class TSRetranslationComplete extends TitusStat {
 }
 
 /*
-* Date of last edit to this article
-*/
+ * Date of last edit to this article
+ */
 class TSLastEdit extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1432,8 +1435,8 @@ class TSLastEdit extends TitusStat {
 }
 
 /*
-* Number of alternate methods in the article
-*/
+ * Number of alternate methods in the article
+ */
 class TSAltMethods extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		$ret =	array(TitusDB::DAILY_EDIT_IDS => 1);
@@ -1452,20 +1455,19 @@ class TSAltMethods extends TitusStat {
 }
 
 /*
-* Whether the article has a video
-*/
+ * Whether the article has a video
+ */
 class TSVideo extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		if (get_class($r) == "RevisionNoTemplateWrapper") {
-						$txt = $r->getOrigText();
-				}
-				else {
-						$txt = $r->getText();
-				}
+			$txt = $r->getOrigText();
+		} else {
+			$txt = $r->getText();
+		}
 
 		$video = strpos($txt, "{{Video") ? 1 : 0;
 		return array("ti_video" => $video);
@@ -1473,13 +1475,13 @@ class TSVideo extends TitusStat {
 }
 
 /*
-* Whether the article has a summary video or summary section of any kind
-* ALTER TABLE titus_intl add column `ti_summary_video` tinyint(1) unsigned NOT NULL DEFAULT '0' after ti_video;
-* ALTER TABLE titus_intl add column `ti_summarized` tinyint(1) unsigned NOT NULL DEFAULT '0' after ti_templates;
-*/
+ * Whether the article has a summary video or summary section of any kind
+ * ALTER TABLE titus_intl add column `ti_summary_video` tinyint(1) unsigned NOT NULL DEFAULT '0' after ti_video;
+ * ALTER TABLE titus_intl add column `ti_summarized` tinyint(1) unsigned NOT NULL DEFAULT '0' after ti_templates;
+ */
 class TSSummarized extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1510,14 +1512,14 @@ class TSSummarized extends TitusStat {
 }
 
 /*
-* data from the event_log table
-* ALTER TABLE titus_intl add column `ti_summary_video_views` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video;
-* ALTER TABLE titus_intl add column `ti_summary_video_play` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_views;
-* ALTER TABLE titus_intl add column `ti_summary_video_ctr` tinyint(3) unsigned NOT NULL DEFAULT '0' after ti_summary_video_play;
-* ALTER TABLE titus_intl add column `ti_summary_video_views_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_ctr;
-* ALTER TABLE titus_intl add column `ti_summary_video_play_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_views_mobile;
-* ALTER TABLE titus_intl add column `ti_summary_video_ctr_mobile` tinyint(3) unsigned NOT NULL DEFAULT '0' after ti_summary_video_play_mobile;
-*/
+ * data from the event_log table
+ * ALTER TABLE titus_intl add column `ti_summary_video_views` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video;
+ * ALTER TABLE titus_intl add column `ti_summary_video_play` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_views;
+ * ALTER TABLE titus_intl add column `ti_summary_video_ctr` tinyint(3) unsigned NOT NULL DEFAULT '0' after ti_summary_video_play;
+ * ALTER TABLE titus_intl add column `ti_summary_video_views_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_ctr;
+ * ALTER TABLE titus_intl add column `ti_summary_video_play_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_views_mobile;
+ * ALTER TABLE titus_intl add column `ti_summary_video_ctr_mobile` tinyint(3) unsigned NOT NULL DEFAULT '0' after ti_summary_video_play_mobile;
+ */
 class TSEventLog extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
@@ -1624,11 +1626,11 @@ class TSEventLog extends TitusStat {
 }
 
 /*
-* Whether the article has been featured and when
-*/
+ * Whether the article has been featured and when
+ */
 class TSFeatured extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1666,11 +1668,11 @@ class TSFeatured extends TitusStat {
 }
 
 /*
-*  Whether the article has a bad template
-*/
+ *  Whether the article has a bad template
+ */
 class TSTemplates extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1700,10 +1702,10 @@ class TSTemplates extends TitusStat {
  * It uses these 2 columns:
  * ALTER TABLE titus_intl add column `ti_parts` tinyint(1) unsigned NOT NULL DEFAULT '0' after ti_templates;
  * ALTER TABLE titus_intl add column `ti_methods` tinyint(1) unsigned NOT NULL DEFAULT '0' after ti_templates;
-*/
+ */
 class TSMagicWords extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1719,11 +1721,11 @@ class TSMagicWords extends TitusStat {
 }
 
 /*
-* Number of steps (including alt methods) in the article
-*/
+ * Number of steps (including alt methods) in the article
+ */
 class TSNumSteps extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1738,11 +1740,11 @@ class TSNumSteps extends TitusStat {
 }
 
 /*
-*  Number of tips in the article
-*/
+ *  Number of tips in the article
+ */
 class TSNumTips extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1759,11 +1761,11 @@ class TSNumTips extends TitusStat {
 }
 
 /*
-* Number of warnings in the article
-*/
+ * Number of warnings in the article
+ */
 class TSNumWarnings extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1778,11 +1780,11 @@ class TSNumWarnings extends TitusStat {
 }
 
 /*
-* Number of references in the article
-*/
+ * Number of references in the article
+ */
 class TSNumSourcesCites extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1804,24 +1806,24 @@ class TSNumSourcesCites extends TitusStat {
 }
 
 /*
-*  Helpful percentage, number of votes, and last reset date to accuracy
-*
-* additional rows added to track the all time helpfulness - including deleted ratings
-* alter table titus_intl add column `ti_helpful_percentage_including_deleted` tinyint(3) unsigned DEFAULT NULL after `ti_templates`;
-* alter table titus_intl add column `ti_helpful_total_including_deleted` int(10) unsigned DEFAULT NULL after `ti_templates`;
-* alter table titus_intl add column `ti_helpful_percentage_display_all_time` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_total_including_deleted`;
-* alter table titus_intl add column `ti_helpful_percentage_display_soft_reset` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_percentage_display_all_time`;
-* alter table titus_intl add column `ti_helpful_total_display_all_time` int(10) unsigned DEFAULT NULL after `ti_helpful_percentage_display_soft_reset`;
-* alter table titus_intl add column `ti_helpful_1_star` int(10) unsigned DEFAULT NULL after `ti_templates`;
-* alter table titus_intl add column `ti_helpful_2_star` int(10) unsigned DEFAULT NULL after `ti_helpful_1_star`;
-* alter table titus_intl add column `ti_helpful_3_star` int(10) unsigned DEFAULT NULL after `ti_helpful_2_star`;
-* alter table titus_intl add column `ti_helpful_4_star` int(10) unsigned DEFAULT NULL after `ti_helpful_3_star`;
-* alter table titus_intl add column `ti_helpful_5_star` int(10) unsigned DEFAULT NULL after `ti_helpful_4_star`;
-* alter table titus_intl add column `ti_display_stars` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_5_star`;
-*/
+ * Helpful percentage, number of votes, and last reset date to accuracy
+ *
+ * additional rows added to track the all time helpfulness - including deleted ratings
+ * alter table titus_intl add column `ti_helpful_percentage_including_deleted` tinyint(3) unsigned DEFAULT NULL after `ti_templates`;
+ * alter table titus_intl add column `ti_helpful_total_including_deleted` int(10) unsigned DEFAULT NULL after `ti_templates`;
+ * alter table titus_intl add column `ti_helpful_percentage_display_all_time` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_total_including_deleted`;
+ * alter table titus_intl add column `ti_helpful_percentage_display_soft_reset` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_percentage_display_all_time`;
+ * alter table titus_intl add column `ti_helpful_total_display_all_time` int(10) unsigned DEFAULT NULL after `ti_helpful_percentage_display_soft_reset`;
+ * alter table titus_intl add column `ti_helpful_1_star` int(10) unsigned DEFAULT NULL after `ti_templates`;
+ * alter table titus_intl add column `ti_helpful_2_star` int(10) unsigned DEFAULT NULL after `ti_helpful_1_star`;
+ * alter table titus_intl add column `ti_helpful_3_star` int(10) unsigned DEFAULT NULL after `ti_helpful_2_star`;
+ * alter table titus_intl add column `ti_helpful_4_star` int(10) unsigned DEFAULT NULL after `ti_helpful_3_star`;
+ * alter table titus_intl add column `ti_helpful_5_star` int(10) unsigned DEFAULT NULL after `ti_helpful_4_star`;
+ * alter table titus_intl add column `ti_display_stars` tinyint(3) unsigned DEFAULT NULL after `ti_helpful_5_star`;
+ */
 class TSHelpful extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -1986,10 +1988,10 @@ class TSHelpful extends TitusStat {
 }
 
 /*
-* alter table titus_intl add column `ti_summary_video_helpful_total` int(10) unsigned DEFAULT NULL after `ti_summary_video_ctr`;
-* alter table titus_intl add column `ti_summary_video_helpful_percentage` tinyint(3) unsigned DEFAULT NULL after `ti_summary_video_helpful_total`;
-* alter table titus_intl add column `ti_summary_text_helpful_total` int(10) unsigned DEFAULT NULL after `ti_summary_video_helpful_percentage`;
-* alter table titus_intl add column `ti_summary_text_helpful_percentage` tinyint(3) unsigned DEFAULT NULL after `ti_summary_text_helpful_total`;
+ * alter table titus_intl add column `ti_summary_video_helpful_total` int(10) unsigned DEFAULT NULL after `ti_summary_video_ctr`;
+ * alter table titus_intl add column `ti_summary_video_helpful_percentage` tinyint(3) unsigned DEFAULT NULL after `ti_summary_video_helpful_total`;
+ * alter table titus_intl add column `ti_summary_text_helpful_total` int(10) unsigned DEFAULT NULL after `ti_summary_video_helpful_percentage`;
+ * alter table titus_intl add column `ti_summary_text_helpful_percentage` tinyint(3) unsigned DEFAULT NULL after `ti_summary_text_helpful_total`;
  */
 class TSItemRatings extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -2076,11 +2078,11 @@ class TSItemRatings extends TitusStat {
 }
 
 /*
-*  Date of last update to Titus record
-*/
+ * Date of last update to Titus record
+ */
 class TSTimestamp extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2089,11 +2091,11 @@ class TSTimestamp extends TitusStat {
 }
 
 /*
-* Whether the article is a rising star
-*/
+ * Whether the article is a rising star
+ */
 class TSRisingStar extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2102,11 +2104,11 @@ class TSRisingStar extends TitusStat {
 }
 
 /*
-* Number of wikiphotos, community photos and if the article has enlarged (> 499 px photos)
-*/
+ * Number of wikiphotos, community photos and if the article has enlarged (> 499 px photos)
+ */
 class TSPhotos extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2135,7 +2137,7 @@ class TSPhotos extends TitusStat {
 		return $stats;
 	}
 
-	private function hasEnlargedWikiPhotos(&$r) {
+	private function hasEnlargedWikiPhotos($r) {
 		$enlargedWikiPhoto = 0;
 		$text = Wikitext::getStepsSection($r->getText(), true);
 		$text = $text[0];
@@ -2146,14 +2148,13 @@ class TSPhotos extends TitusStat {
 		return $enlargedWikiPhoto;
 	}
 
-	private function getIntroPhotoStats(&$r) {
+	private function getIntroPhotoStats($r) {
 		$text = Wikitext::getIntro($r->getText());
 		$stats['ti_intro_photo'] = intVal(preg_match('/\[\[Image:/im', $text));
 		// Photo is enlarged if it is great than 500px (and less than 9999px)
 		$stats['ti_enlarged_intro_photo'] = intVal(preg_match('/\|[5-9][\d]{2,3}px\]\]/im', $text));
 		return $stats;
 	}
-
 }
 
 /**
@@ -2161,7 +2162,7 @@ class TSPhotos extends TitusStat {
  */
 class TSWikiVideo extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2170,9 +2171,8 @@ class TSWikiVideo extends TitusStat {
 		$text = $text[0];
 		$num = preg_match_all("@\{\{ *whvid\|[^\}]+ *\}\}@",$text, $matches);
 		$stats['ti_num_wikivideos'] = $num;
-		return($stats);
+		return $stats;
 	}
-
 }
 
 /*
@@ -2182,7 +2182,7 @@ class TSWikiVideo extends TitusStat {
  */
 class TSStu extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2258,7 +2258,7 @@ class TSStu extends TitusStat {
 		return $result;
 	}
 
-	protected function makeQuery(&$t, $domain = 'bt') {
+	protected function makeQuery($t, $domain = 'bt') {
 		return array(
 			'select' => '*',
 			'from' => $domain,
@@ -2266,7 +2266,7 @@ class TSStu extends TitusStat {
 		);
 	}
 
-	private function extractStats(&$data, $label) {
+	private function extractStats($data, $label) {
 		$headers = array('0-10s', '3+m');
 		$stats = array();
 		foreach ($data as $page => $datum) {
@@ -2314,7 +2314,7 @@ class TSStu2 extends TitusStat {
 	}
 
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2440,9 +2440,9 @@ class TSStu2 extends TitusStat {
 }
 
 /*
-* a stat used for testing that will throw a db exception on even numbered articles
-* by referencing a non existent table
-*/
+ * A stat used for testing that will throw a db exception on even numbered articles
+ * by referencing a non existent table
+ */
 class TSFailEvenNumbers extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		// just return two random ids for testing
@@ -2463,17 +2463,17 @@ class TSFailEvenNumbers extends TitusStat {
 }
 
 /*
-* Article page views
-*
-* alter table titus_intl
-* add column `ti_daily_views_unique` int(10) unsigned NOT NULL DEFAULT '0' after ti_daily_views,
-* add column `ti_30day_views_unique` int(10) unsigned NOT NULL DEFAULT '0' after ti_30day_views;
-* alter table titus_intl add column `ti_daily_views_unique_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_30day_views_unique;
-* alter table titus_intl add column `ti_30day_views_unique_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_daily_views_unique_mobile;
-*/
+ * Article page views
+ *
+ * alter table titus_intl
+ * add column `ti_daily_views_unique` int(10) unsigned NOT NULL DEFAULT '0' after ti_daily_views,
+ * add column `ti_30day_views_unique` int(10) unsigned NOT NULL DEFAULT '0' after ti_30day_views;
+ * alter table titus_intl add column `ti_daily_views_unique_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_30day_views_unique;
+ * alter table titus_intl add column `ti_30day_views_unique_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_daily_views_unique_mobile;
+ */
 class TSPageViews extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2563,7 +2563,7 @@ alter table titus_intl add column `ti_googlebot_7day_views_mobile` int(10) unsig
 					   add column `ti_googlebot_7day_last_amp` varchar(14) NOT NULL DEFAULT '' after ti_googlebot_7day_last_mobile,
 					   add column `ti_googlebot_7day_last_desktop` varchar(14) NOT NULL DEFAULT '' after ti_googlebot_7day_last_amp
 					   ;
-*/
+ */
 class TSGooglebotViews extends TitusStat {
 
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -2608,28 +2608,25 @@ class TSGooglebotViews extends TitusStat {
 }
 
 /*
-* Meta robot policy for article
-*/
+ * Meta robot policy for article
+ */
 class TSRobotPolicy extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		global $wgLanguageCode;
-
 		$stats = array('ti_robot_policy' => '', 'ti_robot_policy_last_updated' => '');
 
 		list($stats['ti_robot_policy'], $stats['ti_robot_policy_last_updated']) = RobotPolicy::getTitusPolicy($t);
 
 		return $stats;
 	}
-
 }
 
 /*
-* SEM Rush data for article
-*/
+ * SEM Rush data for article
+ */
 class TSRushData extends TitusStat {
 	/* schema:
 CREATE TABLE `rush_data` (
@@ -2644,7 +2641,7 @@ CREATE TABLE `rush_data` (
 	 */
 
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2665,11 +2662,11 @@ CREATE TABLE `rush_data` (
 }
 
 /*
-* Number of likes, plus ones and tweets
-*/
+ * Number of likes, plus ones and tweets
+ */
 class TSSocial extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2721,6 +2718,7 @@ class TSSocial extends TitusStat {
 		return intval($json[0]['result']['metadata']['globalCounts']['count']);
 	}
 }
+
 class TSTranslations extends TitusStat {
 
 	public function getPageIdsToCalc( $dbr,  $date ) {
@@ -2754,16 +2752,18 @@ class TSTranslations extends TitusStat {
 
 		$ids = array_unique($ids);
 
-		return($ids);
+		return $ids;
 	}
+
 	private function fixURL($url) {
 		if (preg_match("@(http://[a-z]+\.wikihow\.com/)(.+)@",$url,$matches)) {
-			return($matches[1] . urlencode($matches[2]));
+			return $matches[1] . urlencode($matches[2]);
 		}
 		else {
-			return($url);
+			return $url;
 		}
 	}
+
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
 		global $wgActiveLanguages;
@@ -2798,14 +2798,14 @@ class TSTranslations extends TitusStat {
 		}
 		return $ret;
 	}
-
 }
+
 /**
  * Does the page have a sample in Titus
  */
 class TSSample extends TitusStat {
   public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
   public function calc( $dbr, $r, $t, $pageRow ) {
 		$txt = $r->getText();
@@ -2843,7 +2843,7 @@ CREATE TABLE `wikiphoto_article_status` (
 	 */
 
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -2867,23 +2867,24 @@ CREATE TABLE `wikiphoto_article_status` (
 
 			}
 		}
-		return($ret);
+		return $ret;
 	}
 }
+
 /**
  * Update list of top 10k
  */
-require_once('GoogleSpreadsheet.class.php');
 class TSTop10k extends TitusStat {
 	private $_kwl = array();
 	private $_ln = array();
 	private $_ids = array();
 	private $_gotSpreadsheet = false;
 	private $_badSpreadsheet = false;
+
 	/**
 	 * Get the spreadsheet to feed the calculations
 	 */
-	private function getSpreadsheet(&$dbr) {
+	private function getSpreadsheet($dbr) {
 		global $wgLanguageCode;
 		print "Getting Top10K spreadsheet\n";
 		try {
@@ -2950,6 +2951,7 @@ class TSTop10k extends TitusStat {
 			$this->reportError("Top10k problem fetching spreadsheet :" . $e->getMessage());
 		}
 	}
+
 	/**
 	 * Get the page ids to calculate
 	 */
@@ -2958,14 +2960,15 @@ class TSTop10k extends TitusStat {
 			$this->getSpreadsheet($dbr);
 		}
 		if ($this->_badSpreadsheet) {
-			return(array());
+			return array();
 		}
-		return($this->_ids);
+		return $this->_ids;
 	}
+
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
 		if ($this->_badSpreadsheet) {
-			return(array());
+			return array();
 		}
 		$ret =array('ti_top10k'=>'', 'ti_is_top10k'=>0, 'ti_top_list' => '');
 		if (isset($this->_kwl[$pageRow->page_id])) {
@@ -2979,9 +2982,10 @@ class TSTop10k extends TitusStat {
 				$ret['ti_top_list'] = $this->_ln[$pageRow->page_id];
 			}
 		}
-		return($ret);
+		return $ret;
 	}
 }
+
 class TSRatings extends TitusStat {
 	private $_kwl = array();
 	private $_ids = array();
@@ -2989,7 +2993,7 @@ class TSRatings extends TitusStat {
 	private $_badSpreadsheet = false;
 	private $_gotMMKRatings = false;
 
-	private function getSpreadsheet(&$dbr) {
+	private function getSpreadsheet($dbr) {
 		global $wgLanguageCode;
 		print "Getting ratings spreadsheet\n";
 		try {
@@ -3057,7 +3061,8 @@ class TSRatings extends TitusStat {
 			$this->reportError("Problem fetching spreadsheet :" . $e->getMessage());
 		}
 	}
-	private function getRatingsFromMMK(&$dbr) {
+
+	private function getRatingsFromMMK($dbr) {
 		global $wgLanguageCode;
 		print "Getting ratings from MMK Manager\n";
 		try {
@@ -3103,15 +3108,17 @@ class TSRatings extends TitusStat {
 			$this->reportError("Problem fetching data from MMK Manager :" . $e->getMessage());
 		}
 	}
+
 	protected function fixDate($date) {
 		$d=date_parse($date);
 		if ($d) {
-			return($d['year'] . $this->fixDatePart($d['month']) . $this->fixDatePart($d['day']) );
+			return $d['year'] . $this->fixDatePart($d['month']) . $this->fixDatePart($d['day']) ;
 		}
 		else {
-			return(NULL);
+			return NULL;
 		}
 	}
+
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
 
@@ -3120,16 +3127,17 @@ class TSRatings extends TitusStat {
 		// }
 		if (isset($this->_kwl[$pageRow->page_id]) && $wgLanguageCode == "en") {
 			$a = $this->_kwl[$pageRow->page_id];
-			return(array("ti_rating"=> $a[0],"ti_rating_date"=> $a[1]));
+			return array("ti_rating"=> $a[0],"ti_rating_date"=> $a[1]);
 		}
 		else {
-			return(array("ti_rating"=>"","ti_rating_date"=>""));
+			return array("ti_rating"=>"","ti_rating_date"=>"");
 		}
 	}
+
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
 		if ($wgLanguageCode != "en") {
-			return(array());
+			return array();
 		}
 		if (!$this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
@@ -3139,7 +3147,7 @@ class TSRatings extends TitusStat {
 			// $this->getRatingsFromMMK($dbr);
 		// }
 
-		return($this->_ids);
+		return $this->_ids;
 	}
 }
 
@@ -3240,8 +3248,8 @@ class TSLibrarian extends TitusStat {
 
 		return $this->_ids;
 	}
-
 }
+
 /**
  * Get last fellow stub edit from a spreadsheet
  * this is called "super titus" since it is the name of the project to get
@@ -3271,7 +3279,7 @@ class TSLastFellowStubEdit extends TitusStat {
 	private $_gotSpreadsheet = false;
 	private $_badSpreadsheet = false;
 
-	private function getSpreadsheet(&$dbr) {
+	private function getSpreadsheet($dbr) {
 		global $wgLanguageCode;
 		print "Getting stub editor spreadsheet\n";
 		try {
@@ -3336,37 +3344,39 @@ class TSLastFellowStubEdit extends TitusStat {
 			$this->reportError("Problem fetching spreadsheet :" . $e->getMessage());
 		}
 	}
+
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
 
 		if (isset($this->_kwl[$pageRow->page_id]) && $wgLanguageCode == "en") {
 			$a = $this->_kwl[$pageRow->page_id];
-			return(array("ti_last_fellow_stub_edit_timestamp"=> $a[0],"ti_last_fellow_stub_edit"=> $a[1]));
+			return array("ti_last_fellow_stub_edit_timestamp"=> $a[0],"ti_last_fellow_stub_edit"=> $a[1]);
 		}
 		else {
-			return(array("ti_last_fellow_stub_edit_timestamp"=>"","ti_last_fellow_stub_edit"=>""));
+			return array("ti_last_fellow_stub_edit_timestamp"=>"","ti_last_fellow_stub_edit"=>"");
 		}
 	}
+
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
 		if ($wgLanguageCode != "en") {
-			return(array());
+			return array();
 		}
 		if (!$this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
 		}
 
-		return($this->_ids);
+		return $this->_ids;
 	}
-
 }
+
 class TSLastFellowEdit extends TitusStat {
 	private $_kwl = array();
 	private $_ids = array();
 	private $_gotSpreadsheet = false;
 	private $_badSpreadsheet = false;
 
-	private function getSpreadsheet(&$dbr) {
+	private function getSpreadsheet($dbr) {
 		global $wgLanguageCode;
 		print "Getting editor spreadsheet\n";
 		try {
@@ -3459,16 +3469,16 @@ class TSLastFellowEdit extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
 		if ($wgLanguageCode != "en") {
-			return(array());
+			return array();
 		}
 		if (!$this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
 		}
 
-		return($this->_ids);
+		return $this->_ids;
 	}
-
 }
+
 class TSEditingStatus extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
@@ -3534,25 +3544,27 @@ class TSEditingStatus extends TitusStat {
 	}
 
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 }
+
 class TSLastPatrolledEditTimestamp extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		return(array('ti_last_patrolled_edit_timestamp' => $r->getTimestamp() ));
+		return array('ti_last_patrolled_edit_timestamp' => $r->getTimestamp() );
 	}
 }
+
 /**
  * Load Babelfish score and rank into Titus
  */
 class TSBabelfishData extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -3579,9 +3591,10 @@ class TSBabelfishData extends TitusStat {
 			}
 		}
 
-		return($ret);
+		return $ret;
 	}
 }
+
 /**
  * When Titus article was new article boosted
  */
@@ -3606,15 +3619,16 @@ class TSNABPromoted extends TitusStat {
 		}
 		$ids = array_keys($pr);
 
-		return($ids);
+		return $ids;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$nab = NewArticleBoost::getNABbedDate($dbr, $pageRow->page_id);
 		$ret = array('ti_nab_promoted' => $nab);
-		return($ret);
+		return $ret;
 	}
 }
+
 /**
  * When Titus article was new article boosted
  */
@@ -3639,13 +3653,13 @@ class TSNABDemoted extends TitusStat {
 		}
 		$ids = array_keys($pr);
 
-		return($ids);
+		return $ids;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$nad = NewArticleBoost::getDemotedDate($dbr, $pageRow->page_id);
 		$ret = array('ti_nab_demoted' => $nad);
-		return($ret);
+		return $ret;
 	}
 }
 
@@ -3670,15 +3684,16 @@ class TSNABScore extends TitusStat {
 		}
 		$ids = array_keys($pr);
 
-		return($ids);
+		return $ids;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$score = $dbr->selectField(NewArticleBoost::NAB_TABLE, 'nap_atlas_score', array('nap_page' => $pageRow->page_id), __METHOD__);
 		$ret = array('ti_nab_score' => $score);
-		return($ret);
+		return $ret;
 	}
 }
+
 /**
  * Load data into Titus from Petametrics API
  */
@@ -3719,19 +3734,20 @@ class TSPetaMetrics extends TitusStat {
 			}
 		}
 	}
+
 	// Some Petametrics data returns -1 on NULL. We want to convert this to NULL
 	private function nullOrVal($val) {
 		$nv = floatval($val);
 		if (!is_numeric($val) || $nv < 0.0) {
 			$this->_hasError = true;
-			return(NULL);
+			return NULL;
 		}
-		return($nv);
+		return $nv;
 	}
 
 	// We are loading for pages, everynight
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -3743,7 +3759,23 @@ class TSPetaMetrics extends TitusStat {
 		if (isset($this->_stats[$articleId])) {
 			$statsForPage = $this->_stats[$articleId];
 			$this->_hasError = false;
-			$ret = array('ti_pm_desktop_30day_views' => $statsForPage['desktop:30days:views'], 'ti_pm_mobile_30day_views' => $statsForPage['mobile:30days:views'], 'ti_pm_tablet_30day_views' => $statsForPage['tablet:30days:views'], 'ti_pm_desktop_10s' => $this->nullOrVal($statsForPage['desktop:bounce10s'])*100.0, 'ti_pm_mobile_10s' => $this->nullOrVal($statsForPage['mobile:bounce10s']) * 100, 'ti_pm_tablet_10s' => $this->nullOrVal($statsForPage['tablet:bounce10s']) * 100, 'ti_pm_desktop_3m' => $this->nullOrVal($statsForPage['desktop:stay3mRate']) * 100, 'ti_pm_mobile_3m' => $this->nullOrVal($statsForPage['mobile:stay3mRate']) * 100, 'ti_pm_tablet_3m' => $this->nullOrVal($statsForPage['tablet:stay3mRate']) * 100, 'ti_pm_desktop_scroll_px' => $this->nullOrVal($statsForPage['desktop:avgSpx']), 'ti_pm_mobile_scroll_px' => $this->nullOrVal($statsForPage['mobile:avgSpx']), 'ti_pm_tablet_scroll_px' => $this->nullOrVal($statsForPage['tablet:avgSpx']), 'ti_pm_desktop_scroll_pct' => $this->nullOrVal($statsForPage['desktop:avgSpct']), 'ti_pm_mobile_scroll_pct' => $this->nullOrVal($statsForPage['mobile:avgSpct']), 'ti_pm_tablet_scroll_pct' => $this->nullOrVal($statsForPage['tablet:avgSpct']) );
+			$ret = array(
+				'ti_pm_desktop_30day_views' => $statsForPage['desktop:30days:views'],
+				'ti_pm_mobile_30day_views' => $statsForPage['mobile:30days:views'],
+				'ti_pm_tablet_30day_views' => $statsForPage['tablet:30days:views'],
+				'ti_pm_desktop_10s' => $this->nullOrVal($statsForPage['desktop:bounce10s'])*100.0,
+				'ti_pm_mobile_10s' => $this->nullOrVal($statsForPage['mobile:bounce10s']) * 100,
+				'ti_pm_tablet_10s' => $this->nullOrVal($statsForPage['tablet:bounce10s']) * 100,
+				'ti_pm_desktop_3m' => $this->nullOrVal($statsForPage['desktop:stay3mRate']) * 100,
+				'ti_pm_mobile_3m' => $this->nullOrVal($statsForPage['mobile:stay3mRate']) * 100,
+				'ti_pm_tablet_3m' => $this->nullOrVal($statsForPage['tablet:stay3mRate']) * 100,
+				'ti_pm_desktop_scroll_px' => $this->nullOrVal($statsForPage['desktop:avgSpx']),
+				'ti_pm_mobile_scroll_px' => $this->nullOrVal($statsForPage['mobile:avgSpx']),
+				'ti_pm_tablet_scroll_px' => $this->nullOrVal($statsForPage['tablet:avgSpx']),
+				'ti_pm_desktop_scroll_pct' => $this->nullOrVal($statsForPage['desktop:avgSpct']),
+				'ti_pm_mobile_scroll_pct' => $this->nullOrVal($statsForPage['mobile:avgSpct']),
+				'ti_pm_tablet_scroll_pct' => $this->nullOrVal($statsForPage['tablet:avgSpct'])
+			);
 			if ($this->_hasError) {
 				if ($this->_errors < 50) {
 					$this->reportError("Null or bad values for article " . $t->getArticleID());
@@ -3755,9 +3787,25 @@ class TSPetaMetrics extends TitusStat {
 			}
 		}
 		else {
-			$ret = array('ti_pm_desktop_30day_views' => '', 'ti_pm_tablet_30day_views' => '', 'ti_pm_mobile_30day_views' => '', 'ti_pm_desktop_10s' => '','ti_pm_mobile_10s' => '', 'ti_pm_tablet_10s' => '', 'ti_pm_desktop_3m' => '', 'ti_pm_mobile_3m' => '', 'ti_pm_tablet_3m' => '', 'ti_pm_desktop_scroll_px' => '', 'ti_pm_mobile_scroll_px' => '', 'ti_pm_tablet_scroll_px' => '', 'ti_pm_desktop_scroll_pct' => '', 'ti_pm_mobile_scroll_pct' => '', 'ti_pm_tablet_scroll_pct' => '');
+			$ret = array(
+				'ti_pm_desktop_30day_views' => '',
+				'ti_pm_tablet_30day_views' => '',
+				'ti_pm_mobile_30day_views' => '',
+				'ti_pm_desktop_10s' => '',
+				'ti_pm_mobile_10s' => '',
+				'ti_pm_tablet_10s' => '',
+				'ti_pm_desktop_3m' => '',
+				'ti_pm_mobile_3m' => '',
+				'ti_pm_tablet_3m' => '',
+				'ti_pm_desktop_scroll_px' => '',
+				'ti_pm_mobile_scroll_px' => '',
+				'ti_pm_tablet_scroll_px' => '',
+				'ti_pm_desktop_scroll_pct' => '',
+				'ti_pm_mobile_scroll_pct' => '',
+				'ti_pm_tablet_scroll_pct' => ''
+			);
 		}
-		return($ret);
+		return $ret;
 	}
 }
 
@@ -3801,13 +3849,22 @@ class TSCaps extends TitusStat {
 				$introRatio = $introCaps / ($introCaps + $introLower);
 			}
 		}
-		return(array("ti_lower" => $lower, "ti_upper" => $caps, 'ti_capsratio' => $ratio, 'ti_steps_lower' => $stepsLower, 'ti_steps_caps' => $stepsCaps, 'ti_steps_ratio' => $stepsRatio, 'ti_intro_lower' => $introLower, 'ti_intro_caps' => $introCaps, 'ti_intro_ratio' => $introRatio));
+		return array(
+			"ti_lower" => $lower,
+			"ti_upper" => $caps,
+			'ti_capsratio' => $ratio,
+			'ti_steps_lower' => $stepsLower,
+			'ti_steps_caps' => $stepsCaps,
+			'ti_steps_ratio' => $stepsRatio,
+			'ti_intro_lower' => $introLower,
+			'ti_intro_caps' => $introCaps,
+			'ti_intro_ratio' => $introRatio
+		);
 	}
 
-		public function getPageIdsToCalc( $dbr, $date ) {
-				return(TitusDB::DAILY_EDIT_IDS);
-		}
-
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::DAILY_EDIT_IDS;
+	}
 }
 
 class TSStepLength extends TitusStat {
@@ -3841,13 +3898,14 @@ class TSStepLength extends TitusStat {
 		else {
 			$avg = 0;
 		}
-		return(array('ti_step_length_min' => $min, 'ti_step_length_max' => $max, 'ti_step_length_avg' => $avg));
+		return array('ti_step_length_min' => $min, 'ti_step_length_max' => $max, 'ti_step_length_avg' => $avg);
 	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-				return(TitusDB::DAILY_EDIT_IDS);
-		}
 
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::DAILY_EDIT_IDS;
+	}
 }
+
 /**
  * Number of links in the document
  */
@@ -3865,48 +3923,50 @@ class TSNumLinks extends TitusStat {
 		}
 		$sites = preg_match_all("@www\.[a-zA-Z0-9-_]*\.[a-z]+@", $txt, $matches);
 
-		return(array('ti_num_links' => $links, 'ti_max_link_repeats' => $maxRepeats,'ti_num_base_links' => $baseLinks, 'ti_num_urls' => $sites));
+		return array('ti_num_links' => $links, 'ti_max_link_repeats' => $maxRepeats,'ti_num_base_links' => $baseLinks, 'ti_num_urls' => $sites);
 	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-				return(TitusDB::DAILY_EDIT_IDS);
-		}
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::DAILY_EDIT_IDS;
+	}
 }
+
 /**
  * Check for template to see if the article is inuse
  */
 class TSInUse extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-				if (get_class($r) == "RevisionNoTemplateWrapper") {
-						$txt = $r->getOrigText();
-				}
-				else {
-						$txt = $r->getText();
-				}
-
-		return(array('ti_inuse' => preg_match("@{{ *(inuse|construction)@i",$txt,$matches) ? '1' : '0'));
-	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-				return(TitusDB::DAILY_EDIT_IDS);
+		if (get_class($r) == "RevisionNoTemplateWrapper") {
+			$txt = $r->getOrigText();
+		} else {
+			$txt = $r->getText();
 		}
 
+		return array('ti_inuse' => preg_match("@{{ *(inuse|construction)@i",$txt,$matches) ? '1' : '0');
+	}
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::DAILY_EDIT_IDS;
+	}
 }
+
 /**
  * Grab the Flesch Kincaid Reading Ease score
  * alter table titus_historical_intl add column `ti_fk_reading_ease` decimal(4,1) NOT NULL DEFAULT '0.0';
  */
 class TSFKReadingEase extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$fkre = AdminReadabilityScore::getFKReadingEase($r->getText());
 		$ret = array('ti_fk_reading_ease' => $fkre);
-		return($ret);
+		return $ret;
 	}
 }
 
-class TSWordLength extends TitusStat{
+class TSWordLength extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$txt = $r->getText();
 		$numWords = preg_match_all("@\b[a-zA-Z]+\b@",$txt,$matches);
@@ -3932,6 +3992,7 @@ class TSWordLength extends TitusStat{
 				$maxWordCt = $ct;
 			}
 		}
+
 		$len = strlen($txt);
 		if ($len == 0) {
 			$len = 1;
@@ -3943,17 +4004,24 @@ class TSWordLength extends TitusStat{
 		// ti_avg_uniq_word_len Average length of unique words
 		// ti_words_pct_text Percent of text that is words
 
-		return(array("ti_num_words" => $numWords, "ti_num_uniq_words" => $numUniqWords, "ti_max_word_count" => $maxWordCt, "ti_avg_word_len" => ($wordTextSize / ($numWords?$numWords:1)), "ti_avg_uniq_word_len" => $totalUniqWordLen/($numUniqWords==0?1:$numUniqWords), "ti_words_pct_text" => $wordTextSize/$len));
+		return [
+			"ti_num_words" => $numWords,
+			"ti_num_uniq_words" => $numUniqWords,
+			"ti_max_word_count" => $maxWordCt,
+			"ti_avg_word_len" => ($wordTextSize / ($numWords?$numWords:1)),
+			"ti_avg_uniq_word_len" => $totalUniqWordLen/($numUniqWords==0?1:$numUniqWords),
+			"ti_words_pct_text" => $wordTextSize/$len
+		];
 	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(TitusDB::DAILY_EDIT_IDS);
-		}
 
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::DAILY_EDIT_IDS;
+	}
 }
+
 class TSCharTypes extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$txt = $r->getText();
-		$len = strlen($txt);
 		$op = preg_match_all("@\(@",$txt, $matches);
 		$cp = preg_match_all("@\)@",$txt, $matches);
 		$colon = preg_match_all("@:@",$txt, $matches);
@@ -3970,27 +4038,58 @@ class TSCharTypes extends TitusStat {
 		$ob = preg_match_all("@\[@",$txt,$matches);
 		$cb = preg_match_all("@\]@",$txt,$matches);
 		$numPeriods = preg_match_all("@\.@",$txt,$matches);
+
+		$len = strlen($txt);
 		if ($len == 0) {
 			$len = 1;
 		}
-		return(array("ti_num_oparen" => $op, "ti_pct_oparen" => $op/$len, "ti_pct_cparen" => $cp/$len, "ti_pct_colon" => $colon/$len, "ti_num_semicolon" => $semicolons,  "ti_pct_semicolon" => $semicolons/$len, 'ti_num_dashes' => $dashes, 'ti_pct_dashes' => $dashes/$len, 'ti_num_pluses' => $pluses, 'ti_pct_pluses' => $pluses/$len, 'ti_num_vowels' => $vowels, 'ti_pct_vowels' => $vowels/ ($letters ? $letters : 1), 'ti_num_numbers' => $numbers, 'ti_pct_numbers' => $numbers/$len, 'ti_pc_ob' => $ob/$len, 'ti_num_ob' => $ob, 'ti_num_cb' => $cb, 'ti_pct_cb' => $cb/$len, 'ti_num_periods' => $numPeriods, 'ti_pct_periods' => $numPeriods/$len, 'ti_num_ats' => $ats, 'ti_num_tabs' => $tabs, 'ti_num_spaces' => $spaces, 'ti_pct_spaces' => $spaces/$len));
+
+		return [
+			"ti_num_oparen" => $op,
+			"ti_pct_oparen" => $op/$len,
+			"ti_pct_cparen" => $cp/$len,
+			"ti_pct_colon" => $colon/$len,
+			"ti_num_semicolon" => $semicolons,
+			"ti_pct_semicolon" => $semicolons/$len,
+			'ti_num_dashes' => $dashes,
+			'ti_pct_dashes' => $dashes/$len,
+			'ti_num_pluses' => $pluses,
+			'ti_pct_pluses' => $pluses/$len,
+			'ti_num_vowels' => $vowels,
+			'ti_pct_vowels' => $vowels / ($letters ? $letters : 1),
+			'ti_num_numbers' => $numbers,
+			'ti_pct_numbers' => $numbers/$len,
+			'ti_pc_ob' => $ob/$len,
+			'ti_num_ob' => $ob,
+			'ti_num_cb' => $cb,
+			'ti_pct_cb' => $cb/$len,
+			'ti_num_periods' => $numPeriods,
+			'ti_pct_periods' => $numPeriods/$len,
+			'ti_num_ats' => $ats,
+			'ti_num_tabs' => $tabs,
+			'ti_num_spaces' => $spaces,
+			'ti_pct_spaces' => $spaces/$len ];
 	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(TitusDB::DAILY_EDIT_IDS);
-		}
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::DAILY_EDIT_IDS;
+	}
 
 }
+
 class TSWikiText extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		return(array('wikitext' => $r->getText(), 'article_id' => $t->getArticleId()));
+		return array('wikitext' => $r->getText(), 'article_id' => $t->getArticleId());
 	}
+
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return array();
 	}
 }
+
 /**
  * See how many html list elements we have of various sorts
-*/
+ */
 class TSHtmlList extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$txt = $r->getText();
@@ -3999,18 +4098,19 @@ class TSHtmlList extends TitusStat {
 		$lio = preg_match_all("@< *li *>@i",$txt, $matches);
 		$lic = preg_match_all("@</ *li *>@i",$txt, $matches);
 
-		return(array('ti_html_ulo' => $ulo, 'ti_html_ulc' => $ulc, 'ti_html_lio' => $lio, 'ti_html_lic' => $lic));
+		return array('ti_html_ulo' => $ulo, 'ti_html_ulc' => $ulc, 'ti_html_lio' => $lio, 'ti_html_lic' => $lic);
 	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-				return(array());
-		}
 
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
+
 class TSSubSteps extends TitusStat {
 	private $_verbList;
+
 	public function __construct() {
-		global $IP;
-		$f = fopen("$IP/extensions/wikihow/titus/verbs.txt","r");
+		$f = fopen(__DIR__ . "/verbs.txt","r");
 		$this->_verbList = array();
 		while (!feof($f)) {
 			$l = fgets($f);
@@ -4019,8 +4119,9 @@ class TSSubSteps extends TitusStat {
 			$this->_verbList[$l] = 1;
 		}
 	}
+
 	public function calc( $dbr, $r, $t, $pageRow ) {
-				$text = $r->getText();
+		$text = $r->getText();
 
 		$fwc = array();
 		$numSteps = 0;
@@ -4035,9 +4136,9 @@ class TSSubSteps extends TitusStat {
 		$stepsWithVerbs = 0;
 		$numSectionSteps = 0;
 
-				if ($text) {
+		if ($text) {
 			$numSteps = preg_match_all('/(?:^|\n)\#[^*]/im', $text, $matches);
-						$numSubSteps = preg_match_all('/(?:^|\n)\#\*/im', $text, $matches);
+			$numSubSteps = preg_match_all('/(?:^|\n)\#\*/im', $text, $matches);
 			$virtualSteps = preg_match_all('/\#\*/im', $text, $matches);
 			$numNumericSteps = preg_match_all("/[0-9](\.|\))/",$text, $matches);
 			$numBullets = preg_match_all("/(?:^|\n)\*/im", $text, $matches);
@@ -4084,20 +4185,36 @@ class TSSubSteps extends TitusStat {
 					}
 				}
 			}
-				}
+		}
+
 		if ($firstWords) {
 			$fwVerbRatio = $verbFirstWord/$firstWords;
 		}
 		else {
 			$fwVerbRatio = 0;
 		}
-		return(array('ti_num_virtual_steps' => $numSteps, 'ti_num_virtual_substeps' => $numSubSteps, 'ti_num_numeric_steps' => $numNumericSteps, 'ti_virtual_steps' => $virtualSteps, 'ti_distinct_step_fws' => sizeof(array_keys($fwc)), 'ti_num_fws' => $firstWords, 'ti_num_verb_fws' => $verbFirstWord, 'ti_fw_verbratio' => $fwVerbRatio, 'ti_step_verbs' => $stepVerbs, 'ti_steps_with_verbs' => $stepsWithVerbs, 'ti_num_section_steps' => $numSectionSteps, 'ti_num_sections' => $numSections));
 
+		return array(
+			'ti_num_virtual_steps' => $numSteps,
+			'ti_num_virtual_substeps' => $numSubSteps,
+			'ti_num_numeric_steps' => $numNumericSteps,
+			'ti_virtual_steps' => $virtualSteps,
+			'ti_distinct_step_fws' => sizeof(array_keys($fwc)),
+			'ti_num_fws' => $firstWords,
+			'ti_num_verb_fws' => $verbFirstWord,
+			'ti_fw_verbratio' => $fwVerbRatio,
+			'ti_step_verbs' => $stepVerbs,
+			'ti_steps_with_verbs' => $stepsWithVerbs,
+			'ti_num_section_steps' => $numSectionSteps,
+			'ti_num_sections' => $numSections
+		);
 	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(array());
-		}
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
+
 class TSCopyVio extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		if (get_class($r) == "RevisionNoTemplateWrapper") {
@@ -4107,17 +4224,18 @@ class TSCopyVio extends TitusStat {
 			$text = $r->getText();
 		}
 		if (preg_match("@{{[^}]*copyvio@i", $text, $matches)) {
-			return(array("ti_copyvio" => 1));
+			return array("ti_copyvio" => 1);
 		}
 		else {
-			return(array("ti_copyvio" => 0));
+			return array("ti_copyvio" => 0);
 		}
-		}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(array());
-		}
+	}
 
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
+
 class TSNFD extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		if (get_class($r) == "RevisionNoTemplateWrapper") {
@@ -4127,16 +4245,16 @@ class TSNFD extends TitusStat {
 			$text = $r->getText();
 		}
 		if (preg_match("@{{[^}]*nfd\|([a-zA-Z]+)@", $text, $matches)) {
-			return(array("ti_nfd" => 1, "ti_nfd_type" => $matches[1]));
+			return array("ti_nfd" => 1, "ti_nfd_type" => $matches[1]);
 		}
 		else {
-			return(array("ti_nfd" => 0, "ti_nfd_type" => ""));
+			return array("ti_nfd" => 0, "ti_nfd_type" => "");
 		}
-		}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(array());
-		}
+	}
 
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
 
 class TSRecipeStuff extends TitusStat {
@@ -4146,12 +4264,14 @@ class TSRecipeStuff extends TitusStat {
 		$recipeWords = preg_match_all("@cook|bake|measure|stir|mix|spicy|whisk|microwave|broil|boil|grill|fry|simmer|heat|fried@", $text, $matches);
 		$foodWords = preg_match_all("@seasoning|oil|eggs|juice|lemon|salt|pepper|sauce|mustard|wine|beer|teriyaki|scallion|sauce|sugar|fish|sesame|seed@", $text, $matches);
 		$ingredientsSection = preg_match("@== *ingredients *==@", $text, $matches);
-		return(array('ti_food_measurements' => $foodMeasurements, 'ti_recipe_words' => $recipeWords, 'ti_food_words' => $foodWords));
+		return array('ti_food_measurements' => $foodMeasurements, 'ti_recipe_words' => $recipeWords, 'ti_food_words' => $foodWords);
 	}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(array());
-		}
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
+
 class TSBadWords extends TitusStat {
 	private $regex;
 
@@ -4178,12 +4298,13 @@ class TSBadWords extends TitusStat {
 		if (!$this->regex) throw new Exception('Could not load bad words list');
 		$text = $r->getText();
 		$numBadWords = preg_match_all($this->regex, $text, $matches);
-		return(array('ti_bad_words' => $numBadWords));
+		return array('ti_bad_words' => $numBadWords);
 	}
 	public function getPageIdsToCalc( $dbr, $date) {
-		return(array());
+		return array();
 	}
 }
+
 class TSTitleAttrs extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$text = $t->getText();
@@ -4199,15 +4320,28 @@ class TSTitleAttrs extends TitusStat {
 		$become = preg_match_all("@become@i", $text, $matches);
 		$pronounce = preg_match_all("@pronounce@i", $text, $matches);
 
-		return(array('ti_title_syms' => $syms, 'ti_title_caps' => $caps, 'ti_title_lcase' => $lcase, 'ti_title_nums' => $nums, 'ti_title_say' => $say, 'ti_title_make' => $make, 'ti_title_create' => $create, 'ti_title_do' => $do, 'ti_title_be' => $be, 'ti_title_become' => $become, 'ti_title_pronounce' => $pronounce));
+		return array(
+			'ti_title_syms' => $syms,
+			'ti_title_caps' => $caps,
+			'ti_title_lcase' => $lcase,
+			'ti_title_nums' => $nums,
+			'ti_title_say' => $say,
+			'ti_title_make' => $make,
+			'ti_title_create' => $create,
+			'ti_title_do' => $do,
+			'ti_title_be' => $be,
+			'ti_title_become' => $become,
+			'ti_title_pronounce' => $pronounce
+		);
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return array();
 	}
 }
+
 /**
-  Look at the counts of certain keywords that signal certain types of articles
-*/
+ * Look at the counts of certain keywords that signal certain types of articles
+ */
 class TSWords extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$text = $t->getText();
@@ -4243,89 +4377,134 @@ class TSWords extends TitusStat {
 		$wordJava = preg_match_all("@\bjava\b@i",$text, $matches);
 		$wordEnter = preg_match_all("@\benter\b@i",$text, $matches);
 		$wordI = preg_match_all("@\bI\b@", $text, $matches);
-		return(array("ti_word_copy" => $copy, "ti_word_paste" => $paste, "ti_word_copyandpaste" => $copyAndPaste, "ti_word_with_dot" => $wordWithDot, "ti_word_code" => $code, "ti_word_website" => $website, "ti_word_say" => $say, 'ti_word_pronounce' => $pronounce, "ti_word_free" => $free, "ti_word_call" => $call, "ti_word_dial" => $dial, "ti_word_type" => $wordType, "ti_word_file" => $wordFile, "ti_word_save" => $wordSave, "ti_word_open" => $wordOpen, "ti_word_click" => $wordClick, "ti_word_on" => $wordOn, "ti_word_windows" => $wordWindows, "ti_word_touch" => $wordTouch, "ti_word_program" => $wordProgram, "ti_word_button" => $wordButton, "ti_word_internet" => $wordInternet, "ti_word_virus" => $wordVirus, "ti_word_update" => $wordUpdate, "ti_word_block" => $wordBlock, "ti_word_iphone" => $wordIphone, "ti_word_android" => $wordAndroid, "ti_word_cmd" => $wordCMD, "ti_word_command" => $wordCommand, "ti_word_java" => $wordJava, "ti_word_enter" => $wordEnter, "ti_word_i" => $wordI));
+
+		return array(
+			"ti_word_copy" => $copy,
+			"ti_word_paste" => $paste,
+			"ti_word_copyandpaste" => $copyAndPaste,
+			"ti_word_with_dot" => $wordWithDot,
+			"ti_word_code" => $code,
+			"ti_word_website" => $website,
+			"ti_word_say" => $say,
+			'ti_word_pronounce' => $pronounce,
+			"ti_word_free" => $free,
+			"ti_word_call" => $call,
+			"ti_word_dial" => $dial,
+			"ti_word_type" => $wordType,
+			"ti_word_file" => $wordFile,
+			"ti_word_save" => $wordSave,
+			"ti_word_open" => $wordOpen,
+			"ti_word_click" => $wordClick,
+			"ti_word_on" => $wordOn,
+			"ti_word_windows" => $wordWindows,
+			"ti_word_touch" => $wordTouch,
+			"ti_word_program" => $wordProgram,
+			"ti_word_button" => $wordButton,
+			"ti_word_internet" => $wordInternet,
+			"ti_word_virus" => $wordVirus,
+			"ti_word_update" => $wordUpdate,
+			"ti_word_block" => $wordBlock,
+			"ti_word_iphone" => $wordIphone,
+			"ti_word_android" => $wordAndroid,
+			"ti_word_cmd" => $wordCMD,
+			"ti_word_command" => $wordCommand,
+			"ti_word_java" => $wordJava,
+			"ti_word_enter" => $wordEnter,
+			"ti_word_i" => $wordI
+		);
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return array();
 	}
 }
+
 /**
  * There is a common formatting error where the steps are done in the form
-   #1 or #2
-*/
+ * #1 or #2
+ */
 class TSDoubleSteps extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$text = $r->getText();
 		$doubleSteps = preg_match_all("@\# *[0-9]@", $text, $matches);
-		return(array("ti_double_steps" => $doubleSteps));
+		return array("ti_double_steps" => $doubleSteps);
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return array();
 	}
-
 }
+
 class TSSymbolism extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$text = $r->getText();
 		$smilies = preg_match_all("@:-*[()]@",$text, $matches);
 		$explanations = preg_match_all("@!@", $text, $matches);
-		return(array("ti_smilies" => $smilies, "ti_explanations" => $explanations));
+		return array("ti_smilies" => $smilies, "ti_explanations" => $explanations);
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return array();
 	}
 }
+
 class TSTransitions extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$txt = $r->getText();
 		$numericTransitions = preg_match_all("@first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh@", $txt, $matches);
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return array();
 	}
-
 }
+
 class TSSpamKeywords extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-				$txt = $r->getText();
-				$keywords = preg_match_all("@moving|packing|seo|backlinks|casino|poker|pharmacy|nutritional suplement|escort|visa|cleaning service|love spell|love potion|abney associates|forex|limousine|watch online for free|nintendo 3ds flash card|purse|watch|penis enlargement|black magic|payday loan|pest control|dubai@", $txt, $matches);
-				$authorIs = preg_match("@The author is a@", $txt, $matches);
-				return(array('ti_spam_keywords' => $keywords, 'ti_spam_author_is' => $authorIs));
-		}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(array());
-		}
+		$txt = $r->getText();
+		$keywords = preg_match_all("@moving|packing|seo|backlinks|casino|poker|pharmacy|nutritional suplement|escort|visa|cleaning service|love spell|love potion|abney associates|forex|limousine|watch online for free|nintendo 3ds flash card|purse|watch|penis enlargement|black magic|payday loan|pest control|dubai@", $txt, $matches);
+		$authorIs = preg_match("@The author is a@", $txt, $matches);
+		return array('ti_spam_keywords' => $keywords, 'ti_spam_author_is' => $authorIs);
+	}
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
 
 /**
  * Get how many spelling errors there are in an articles
  */
 class TSSpellCheck extends TitusStat {
-		public $pspell;
+	public $pspell;
 	public $wl;
 
-		public function __construct() {
-				$this->pspell = wikiHowDictionary::getLibrary();
+	public function __construct() {
+		$this->pspell = wikiHowDictionary::getLibrary();
 		$this->wl = wikihowDictionary::getWhiteListArray();
-		}
-		public function calc( $dbr, $r, $t, $pageRow ) {
-				$txt = $r->getText();
-				$t = $this;
-				$n = 0;
-				$badWords = array();
-				$newText = WikihowArticleEditor::textify($txt, array('remove_ext_links' => 1));
-				preg_replace_callback('/\b(\w|\')+\b/',function($word) use(&$badWords,&$n,&$t) {
-			$word = $word[0];
-						if (!isset($t->wl[$word]) && !isset($t->wl[$word]) && !preg_match("@[0-9]@",$word, $matches) && !pspell_check($t->pspell, $word)) {
-				$badWords[$word] = 1;
-								$n++;
-						}
-				}, $newText);
-				return( array('ti_mispelled' => $n, 'ti_mispelled_words' => count(array_keys($badWords))));
-		}
-		public function getPageIdsToCalc( $dbr, $date ) {
-			return(array());
-		}
+	}
+
+	public function calc( $dbr, $r, $t, $pageRow ) {
+		$txt = $r->getText();
+		$t = $this;
+		$n = 0;
+		$badWords = array();
+		$newText = WikihowArticleEditor::textify($txt, array('remove_ext_links' => 1));
+		preg_replace_callback('/\b(\w|\')+\b/',
+			function($word) use(&$badWords, &$n, &$t) {
+				$word = $word[0];
+				if (!isset($t->wl[$word])
+					&& !isset($t->wl[$word])
+					&& !preg_match("@[0-9]@",$word, $matches)
+					&& !pspell_check($t->pspell, $word)
+				) {
+					$badWords[$word] = 1;
+					$n++;
+				}
+			},
+			$newText);
+		return  array('ti_mispelled' => $n, 'ti_mispelled_words' => count(array_keys($badWords)));
+	}
+
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
 
 /**
@@ -4333,13 +4512,14 @@ class TSSpellCheck extends TitusStat {
  */
 class TSGrammar extends TitusStat {
 
-		public function __construct() {
+	public function __construct() {
 	}
+
 	public function checkGrammar($txt) {
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_POST, true );
 		curl_setopt( $ch, CURLOPT_URL, "http://localhost:8081/" );
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, 'language=' . urlencode( 'en-US') . '&text=' . urlencode($txt) );
 		$str =curl_exec($ch);
 		curl_close($ch);
@@ -4353,22 +4533,36 @@ class TSGrammar extends TitusStat {
 			}
 			$ret[$cat] ++;
 		}
-		return($ret);
+		return $ret;
 	}
+
 	public function cleanText($txt) {
 		// Remove wikilinks
 		$txt = preg_replace( "@\[\[[^|\]]+\|([^\]]+)\]\]@", "$1", $txt);
 		$txt = preg_replace( "@\[[^\]]+\]+@", "", $txt);
 		$txt = preg_replace( "@<[^>]+>@", "", $txt);
 		$txt = htmlspecialchars_decode($txt);
-		return($txt);
+		return $txt;
 	}
+
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$rawTxt = $r->getText();
 		$text = Wikitext::getStepsSection($rawTxt, true);
 		$text = $text[0];
 		$steps = preg_split("@#\*?@", $text);
-		$ret = array("ti_lt_Bad_style" => 0,"ti_lt_Capitalization" => 0,"ti_lt_Collocations" => 0,"ti_lt_Commonly_Confused_Words" => 0,"ti_lt_Grammar" => 0,"ti_lt_Miscellaneous" => 0,"ti_lt_Nonstandard_Phrases" => 0,"ti_lt_Possible_Typo" => 0,"ti_lt_Punctuation_Errors" => 0,"ti_lt_Redundant_Phrases" => 0,"ti_lt_Slang" => 0);
+		$ret = array(
+			"ti_lt_Bad_style" => 0,
+			"ti_lt_Capitalization" => 0,
+			"ti_lt_Collocations" => 0,
+			"ti_lt_Commonly_Confused_Words" => 0,
+			"ti_lt_Grammar" => 0,
+			"ti_lt_Miscellaneous" => 0,
+			"ti_lt_Nonstandard_Phrases" => 0,
+			"ti_lt_Possible_Typo" => 0,
+			"ti_lt_Punctuation_Errors" => 0,
+			"ti_lt_Redundant_Phrases" => 0,
+			"ti_lt_Slang" => 0
+		);
 		foreach ($steps as $step) {
 			$txt = $this->cleanText($step);
 			$subRet = $this->checkGrammar($txt);
@@ -4383,13 +4577,14 @@ class TSGrammar extends TitusStat {
 			$ret[$k] += $v;
 		}
 
-		return($ret);
-	}
-	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return $ret;
 	}
 
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return array();
+	}
 }
+
 /**
  * Get info about expert verified articles
  * it uses the following 3 (soon to be 4) additional columns
@@ -4410,7 +4605,7 @@ class TSGrammar extends TitusStat {
 class TSExpertVerified extends TitusStat {
 
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return( TitusDB::ALL_IDS );
+		return  TitusDB::ALL_IDS ;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -4452,10 +4647,10 @@ class TSExpertVerified extends TitusStat {
 	 * It sets the dedicated TechArticle fields (ti_tech_X). If the article has tested
 	 * platforms, it may also set shared ExpertVerified fields (ti_expert_verified_X),
 	 *
-	alter table titus_intl
-	add column ti_tech_product varchar(500) DEFAULT '' after ti_userreview_stamp,
-	add column ti_tech_platforms varchar(1000) DEFAULT '' after ti_tech_product,
-	add column ti_tech_tested varchar(100) DEFAULT '' after ti_tech_platforms;
+		alter table titus_intl
+		add column ti_tech_product varchar(500) DEFAULT '' after ti_userreview_stamp,
+		add column ti_tech_platforms varchar(1000) DEFAULT '' after ti_tech_product,
+		add column ti_tech_tested varchar(100) DEFAULT '' after ti_tech_platforms;
 	 */
 	private function getTechReviewed($dbr, $pageRow, $overwriteExpert) {
 		global $wgLanguageCode;
@@ -4530,9 +4725,8 @@ class TSExpertVerified extends TitusStat {
  * alter table titus_intl add column `ti_staff_byline_eligible` tinyint(1) NOT NULL default 0 after `ti_expert_verified_source`;
  */
 class TSStaffReviewed extends TitusStat {
-
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return( TitusDB::ALL_IDS );
+		return  TitusDB::ALL_IDS ;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -4547,32 +4741,35 @@ class TSStaffReviewed extends TitusStat {
 class TSUCIImages extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		$ts = wfTimestamp(TS_UNIX, $date);
-		$dbr2 = wfGetDB(DB_SLAVE);
 		$start = wfTimestamp(TS_MW, strtotime("-2 day", strtotime(date('Ymd',$ts))));
-		$sql = "select distinct page_id from user_completed_images join page on page_title=uci_article_name and page_namespace=0 where uci_timestamp  > " . $dbr->addQuotes($start);
-		$res = $dbr2->query($sql, __METHOD__);
+		$sql = "SELECT DISTINCT page_id " .
+			   "FROM " . WH_DATABASE_NAME_EN . ".user_completed_images " .
+			   "JOIN " . WH_DATABASE_NAME_EN . ".page ON page_title = uci_article_name " .
+			   "  AND page_namespace = " . NS_MAIN . " " .
+			   "WHERE uci_timestamp  > " . $dbr->addQuotes($start);
+		$res = $dbr->query($sql, __METHOD__);
 		$ids = array();
 		foreach ( $res as $row ) {
 			$ids[] = $row->page_id;
 		}
-		return($ids);
+		return $ids;
 	}
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$ret = array('ti_pp_images' => UCIPatrol::getNumUCIForPage($t->getText()));
 
-		return($ret);
+		return $ret;
 	}
 }
 
 /*
-* Info on ratings for an article through rating tool
+ * Info on ratings for an article through rating tool
  *
  * ALTER TABLE titus_intl ADD COLUMN ti_ratetool_total int(4) unsigned AFTER ti_helpful_last_reset_timestamp;
  * ALTER TABLE titus_intl ADD COLUMN ti_ratetool_percentage decimal(4, 2) unsigned AFTER ti_ratetool_total;
-*/
+ */
 class TSRateTool extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -4694,13 +4891,13 @@ class TSQA extends TitusStat {
 	}
 
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(TitusDB::ALL_IDS);
+		return TitusDB::ALL_IDS;
 	}
 }
 
 class TSKeywordRank extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date)  {
-		return(TitusDB::DAILY_EDIT_IDS);
+		return TitusDB::DAILY_EDIT_IDS;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
@@ -4736,13 +4933,12 @@ class TSStepsText extends TitusStat {
 				}
 			}
 		}
-		return(array('steps' => $realSteps, 'substeps' => $subSteps));
+		return array('steps' => $realSteps, 'substeps' => $subSteps);
 	}
 
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return(array());
+		return array();
 	}
-
 }
 
 /**
@@ -4757,7 +4953,7 @@ class TSStepsText extends TitusStat {
  */
 class TSUserReview extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return( TitusDB::ALL_IDS );
+		return  TitusDB::ALL_IDS ;
 	}
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$stats = array();
@@ -4836,10 +5032,10 @@ class TSSensitiveArticle extends TitusStat {
 }
 
 /*
-* ti_search_volume
+ * ti_search_volume
  * alter table titus_intl add column ti_search_volume int(10) NOT NULL default 0;
  * alter table titus_intl add column ti_search_volume_label varchar(255) NOT NULL default '' after ti_search_volume;
-*/
+ */
 class TSSearchVolume extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		$ids = SearchVolume::getNewPageIds();
@@ -4856,9 +5052,9 @@ class TSSearchVolume extends TitusStat {
 }
 
 /*
-* ti_inbound_links
-* alter table titus_intl add column ti_inbound_links int(10) unsigned DEFAULT NULL;
-*/
+ * ti_inbound_links
+ * alter table titus_intl add column ti_inbound_links int(10) unsigned DEFAULT NULL;
+ */
 class TSInboundLinks extends TitusStat
 {
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -5017,5 +5213,4 @@ class TSQuickSummaryCreated extends TitusStat {
 		$this->checkForRedirects($dbr, $ids);
 		$this->checkForMissing($dbr, $ids);
 	}
-
 }

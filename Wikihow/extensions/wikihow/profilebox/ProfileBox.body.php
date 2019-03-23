@@ -172,7 +172,7 @@ $wgOut->addHTML("
 	function pbConfig() {
 		global $wgUser, $wgRequest, $wgOut;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$live = $dbr->strencode(strip_tags($wgRequest->getVal('live'), '<p><br><b><i>'));
 		$occupation = $dbr->strencode(strip_tags($wgRequest->getVal('occupation'), '<p><br><b><i>'));
 		$aboutme = $dbr->strencode(strip_tags($wgRequest->getVal('aboutme'), '<p><br><b><i>'));
@@ -321,7 +321,7 @@ $wgOut->addHTML("
 	function fetchStats($pagename) {
 		global $wgUser, $wgReadOnly;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$t = Title::newFromText($pagename);
 		$u = User::newFromName($t->getText());
 		if (!$u || $u->getID() == 0) {
@@ -431,7 +431,7 @@ $wgOut->addHTML("
 
 		if (!self::$featuredArticles) {
 			// LIST ALL FEATURED ARTICLES
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$res = $dbr->select(
 				array('templatelinks', 'page'),
@@ -448,7 +448,7 @@ $wgOut->addHTML("
 	}
 
 	function fetchEditedData($username, $limit){
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$u = User::newFromName(stripslashes($username));
 
@@ -497,7 +497,7 @@ $wgOut->addHTML("
 
 	function favsTitleSelector() {
 		global $wgRequest;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$name = preg_replace('/ /','-', strtoupper($wgRequest->getVal('pbTitle')));
 
 		$order = array();
@@ -550,7 +550,7 @@ $wgOut->addHTML("
 		} elseif ($type == 'ajax') {
 			$out->setArticleBodyOnly(true);
 			$element = $request->getVal('element');
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$pagename = $dbr->strencode($request->getVal('pagename'));
 			if (($element != '') && ($pagename != '')) {
 
@@ -864,7 +864,7 @@ class ProfileStats {
 		if (empty($limit)) $limit = self::MIN_RECORDS;
 		if ($limit > self::MAX_RECORDS) $limit = self::MAX_RECORDS;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			['firstedit','page'],
@@ -915,7 +915,7 @@ class ProfileStats {
 		if (empty($limit)) $limit = self::MIN_RECORDS;
 		if ($limit > self::MAX_RECORDS) $limit = self::MAX_RECORDS;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			['thumbs','page', 'revision'],
@@ -971,7 +971,7 @@ class ProfileStats {
 		if (empty($limit)) $limit = self::MIN_RECORDS;
 		if ($limit > self::MAX_RECORDS) $limit = self::MAX_RECORDS;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			TopAnswerers::TABLE_ANSWERER_CATEGORIES,
@@ -1010,7 +1010,7 @@ class ProfileStats {
 		//no badges for anons
 		if ($this->user->isAnon()) return;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		return self::genBadges($dbr, $this->user);
 	}
 

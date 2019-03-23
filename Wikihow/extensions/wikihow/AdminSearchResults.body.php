@@ -80,7 +80,7 @@ class AdminSearchResults extends UnlistedSpecialPage {
 			ini_set('memory_limit', '512M');
 
 			$out->setArticleBodyOnly(true);
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 
 			$action = $req->getVal('action', '');
 

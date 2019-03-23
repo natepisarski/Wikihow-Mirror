@@ -15,7 +15,7 @@ class getIndexStatus extends Maintenance {
 
 		$host = Misc::getLangBaseURL($wgLanguageCode, false);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('page', 'page_id', ['page_namespace' => NS_CATEGORY, 'page_is_redirect' => 0], __METHOD__);
 		$ids = [];
 		foreach($res as $row) {

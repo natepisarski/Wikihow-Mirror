@@ -28,7 +28,7 @@ class PurgeThumbnailsFromMovedTitles extends Maintenance {
 	 * returns an array with key of pageId and val is an array of image names on that page
 	 */
     private function getPagesWithImages() {
-        $dbr = wfGetDB( DB_SLAVE );
+        $dbr = wfGetDB( DB_REPLICA );
         $table = array( 'moved_title_images' );
         $var = array( 'mti_page_id' );
         $cond = array( 'mti_processed' => 0 );

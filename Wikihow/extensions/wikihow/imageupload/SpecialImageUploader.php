@@ -235,7 +235,7 @@ class ImageUploader extends UnlistedSpecialPage {
 		}
 
 		$file = $upload->stashFile();
-		$fileKey = $upload->stashFileGetKey();
+		$fileKey = $file->getFileKey();
 		$origname = $upload->getTitle()->getText();
 		$mwname = self::legalizeImageName($origname);
 		list($first, $ext) = self::splitFilenameExt($mwname);

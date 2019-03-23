@@ -179,22 +179,6 @@
 			});
 		}
 
-		if ($('.sp_blurblink').length) {
-			$('.sp_blurblink').click(function(e) {
-				//e.preventDefault();
-				var target = $(this).attr('href');
-				if (WH && WH.ga) {
-					var action = 'blurb_click';
-					var val = $('.sp_blurblink').text();
-					WH.ga.sendEvent('socialproof', action, val, null, 0);
-					WH.sp.sendEvent(action, val, target, function() {
-						//document.location = target;
-					});
-					return true;
-				}
-			});
-		}
-
 		if ($('.sp_namelink').length) {
 			$('.sp_namelink').click(function(e) {
 				var target = $(this).attr('href');

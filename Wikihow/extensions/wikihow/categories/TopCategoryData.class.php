@@ -8,7 +8,7 @@ class TopCategoryData {
 	const EARLIEST_FEATURED_DATE = "";
 
 	static function getPagesForCategory($categoryName, $type, $maxPages = 100) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(self::TABLE, ['tcd_page_id'], ['tcd_category' => $categoryName, 'tcd_type' => $type], __METHOD__, ['LIMIT' => $maxPages, 'ORDER BY' => 'tcd_id DESC']);
 		$pageIds = [];
 		foreach ($res as $row) {
@@ -21,7 +21,7 @@ class TopCategoryData {
 
 	static function setPagesForCategory($categoryName, $pageCount = 100) {
 		//first do the high traffic pages
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$oldPages = [];
 		$res = $dbr->select(self::TABLE, ['tcd_id'], ['tcd_category' => $categoryName], __METHOD__);
 		foreach ($res as $row) {
@@ -71,7 +71,7 @@ class TopCategoryData {
 	}
 
 	static function setFeaturedArticlePages() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$featuredArticles = [];
 		$res = $dbr->select('categorylinks', 'cl_from', ['cl_to' => 'Featured-Articles'], __METHOD__);
 		foreach ($res as $row) {
@@ -120,7 +120,7 @@ class TopCategoryData {
 	static function getPagesForCategoryArray($catArray, $pageCount) {
 		global $wgLanguageCode;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$pages = [];
 		$titus_copy = WH_DATABASE_NAME_EN . '.titus_copy';
 		$res = $dbr->select(
@@ -150,7 +150,7 @@ class TopCategoryData {
 		if (array_key_exists($categoryName, $subcats)) {
 			return [];
 		}
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$res = $dbr->select (
 			['categorylinks', 'page', 'index_info'],
 			['page_title', 'page_id'],

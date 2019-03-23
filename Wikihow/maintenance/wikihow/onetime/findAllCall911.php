@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../commandLine.inc';
 
 $res = DatabaseHelper::batchSelect('page', array('page_id'), array('page_namespace' => NS_MAIN, 'page_is_redirect' => '0'), __FILE__);
 
-//$dbr = wfGetDB(DB_SLAVE);
+//$dbr = wfGetDB(DB_REPLICA);
 //$res = $dbr->select('page', array('page_id'), array('page_id' => '3537'), __FILE__);
 
 $articleCount = 0;

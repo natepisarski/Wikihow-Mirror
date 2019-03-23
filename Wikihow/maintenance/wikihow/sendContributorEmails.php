@@ -73,7 +73,7 @@ SQL;
 			die();
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// Fetch e-mails and their entries per tool.
 		// An e-mail's submission will be included if:
@@ -410,7 +410,7 @@ SQL;
 	 * Send the actual e-mails
 	 */
 	protected function sendEmails($emails) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$types_encountered = array(

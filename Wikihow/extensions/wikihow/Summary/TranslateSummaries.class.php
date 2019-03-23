@@ -21,7 +21,7 @@ class TranslateSummaries {
 	}
 
 	public function loadFromEnArticleId($article_id): TranslateSummaries {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbName = $dbr->getDBname();
 		$on_EN_DB = $dbName == 'wikidb_112';
 
@@ -36,7 +36,7 @@ class TranslateSummaries {
 	}
 
 	public function loadFromIntlArticleId($article_id): TranslateSummaries {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbName = $dbr->getDBname();
 		$on_EN_DB = $dbName == 'wikidb_112';
 
@@ -52,7 +52,7 @@ class TranslateSummaries {
 
 	//used by TranslateSummariesTool
 	public function getNextToTranslate(array $skipped): TranslateSummaries {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$expired_time = wfTimestamp(TS_MW, time() - 3600); //expires in 1 hour
 

@@ -22,7 +22,7 @@ class ListRequestedTopics extends SpecialPage {
 		self::getNewArticlesWidget();
 
 		list( $limit, $offset ) = wfCheckLimits();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$out->addModules( ['ext.wikihow.SuggestedTopics'] );
 		$out->addModules( ['ext.wikihow.leaderboard'] );
@@ -423,7 +423,7 @@ class ListRequestedTopics extends SpecialPage {
 	}
 
 	private static function getNewArticlesBox() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$ids = RisingStar::getRisingStarList(5, $dbr);
 		$html = "<div id='side_new_articles'><h3>" . wfMessage('newarticles')->escaped() . "</h3>\n<table>";
 		if ($ids) {
@@ -452,14 +452,14 @@ class ListRequestedTopics extends SpecialPage {
 
 	// Used in community dashboard
 	public static function getUnwrittenTopics() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField('suggested_titles', 'count(*)', ['st_used' => 0]);
 		return $count;
 	}
 
 	private static function getArticlesWritten($alltime) {
 		global $wgUser;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$conds = array('fe_user' => $wgUser->getID(), 'page_id = fe_page', 'page_namespace=0');
 		if (!$alltime) {
 			// just today
@@ -472,7 +472,7 @@ class ListRequestedTopics extends SpecialPage {
 
 	private static function getTopicsSuggested($alltime) {
 		global $wgUser;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$conds = array('fe_user' => $wgUser->getID(), 'fe_page=page_id', 'page_title=st_title', 'page_namespace=0');
 		if (!$alltime) {
 			// just today

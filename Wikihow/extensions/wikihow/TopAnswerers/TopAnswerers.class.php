@@ -110,7 +110,7 @@ class TopAnswerers {
 	public function loadById($id) {
 		if (!is_int($id)) return false;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			self::TABLE_TOP_ANSWERERS,
 			'*',
@@ -140,7 +140,7 @@ class TopAnswerers {
 	public function loadByUserId($user_id) {
 		if (empty($user_id)) return false;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			self::TABLE_TOP_ANSWERERS,
 			'*',
@@ -243,7 +243,7 @@ class TopAnswerers {
 	 * @return array of category links, category names, # of answers in that cat
 	 */
 	public function getTopCatsData() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$cats = [];
 
 		$where = [
@@ -284,7 +284,7 @@ class TopAnswerers {
 
 	public static function countLiveAnswersByUserId($user_id) {
 		if (empty($user_id)) return 0;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$answer_count = $dbr->selectField(
 			QADB::TABLE_ARTICLES_QUESTIONS,
@@ -301,7 +301,7 @@ class TopAnswerers {
 
 	public static function countCalculatedAnswersByUserId($user_id) {
 		if (empty($user_id)) return 0;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$answer_count = $dbr->selectField(
 			self::TABLE_ANSWERER_APP_RATINGS,
@@ -315,7 +315,7 @@ class TopAnswerers {
 
 	public static function averageSimilarityScore($user_id) {
 		if (empty($user_id)) return null;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			self::TABLE_ANSWERER_SIM_SCORES,
@@ -333,7 +333,7 @@ class TopAnswerers {
 
 	public static function averageApprovalRating($user_id) {
 		if (empty($user_id)) return null;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			self::TABLE_ANSWERER_APP_RATINGS,
@@ -396,7 +396,7 @@ class TopAnswerers {
 	 * @return integer of the number of top answerers who have been removed
 	 */
 	private static function getCount($blocked) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->selectField(
 			self::TABLE_TOP_ANSWERERS,
 			'count(*)',
@@ -412,7 +412,7 @@ class TopAnswerers {
 	 * @return integer of the number of total answers top answerers have answered
 	 */
 	public static function getTAAnswerCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->selectField(
 			[
 				QADB::TABLE_ARTICLES_QUESTIONS,
@@ -437,7 +437,7 @@ class TopAnswerers {
 	public static function getTAs($order_by = '') {
 		$ta_results = [];
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			[
 				self::TABLE_TOP_ANSWERERS,
@@ -471,7 +471,7 @@ class TopAnswerers {
 	public static function getBlockedUsers() {
 		$ta_results = [];
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			[
 				self::TABLE_TOP_ANSWERERS,
@@ -612,7 +612,7 @@ class TopAnswerers {
 		$tas = $wgMemc->get($key);
 
 		if (empty($tas)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select(
 				self::TABLE_TOP_ANSWERERS,
 				'ta_user_id',

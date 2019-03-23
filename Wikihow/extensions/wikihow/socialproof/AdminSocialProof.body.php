@@ -16,12 +16,12 @@ class AdminSocialProof extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 
 		if ( $user->isBlocked() || !in_array('staff', $userGroups) ) {
-			$devReq = $wgIsDevServer && $request->wasPosted() && $request->getVal('action') == 'import' && $request->getBool('dev');
-			if (!$devReq) {
-				$out->setRobotPolicy( 'noindex,nofollow' );
-				$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
-				return;
-			}
+			// $devReq = $wgIsDevServer && $request->wasPosted() && $request->getVal('action') == 'import' && $request->getBool('dev');
+			// if (!$devReq) {
+			$out->setRobotpolicy( 'noindex,nofollow' );
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+			return;
+			// }
 		}
 
 		if ( !$request->wasPosted() ) {
@@ -43,10 +43,12 @@ class AdminSocialProof extends UnlistedSpecialPage {
 			// only do this if not already running..
 			$running = MasterExpertSheetUpdate::getCurrentStatus();
 			if ( !$running ) {
-				DeferredUpdates::addUpdate( new MasterExpertSheetUpdate() );
-				// this is commented out, but if you would like to test this script without using a deferred update
-				// then use this instead of the line above it
-				//MasterExpertSheetUpdate::doSheetUpdate();
+				if ($wgIsDevServer && $user->getName() == 'Albur') {
+					set_time_limit(0);
+					MasterExpertSheetUpdate::doSheetUpdate();
+				} else {
+					DeferredUpdates::addUpdate( new MasterExpertSheetUpdate() );
+				}
 			}
 		}
 

@@ -197,7 +197,7 @@ class CustomTitleChanges extends CustomMetaChanges {
 
 	// list custom titles from CustomTitle class
 	public function getCustomList($labelledData) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$titles = CustomTitle::dbListCustomTitles($dbr);
 		$output = array();
 		foreach ($titles as $row) {
@@ -413,7 +413,7 @@ CREATE TABLE meta_custom_change_log (
 class CustomMetaChangesLog {
 
 	public static function dbGetRecentChanges($numChanges) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('meta_custom_change_log',
 			'*',
 			array(),

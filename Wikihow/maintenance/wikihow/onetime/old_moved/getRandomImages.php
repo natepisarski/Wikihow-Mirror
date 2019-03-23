@@ -7,7 +7,7 @@ $url = array();
 $other = array();
 
 $sql = "SELECT page_id from page where page_namespace = " . NS_IMAGE . " and page_is_redirect = 0 order by page_random";
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $result = $dbr->query($sql);
 while ($row = $dbr->fetchObject($result)) {
 		$r = Revision::loadFromPageId($dbr, $row->page_id);

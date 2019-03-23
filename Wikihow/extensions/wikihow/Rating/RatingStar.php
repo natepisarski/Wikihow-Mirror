@@ -44,7 +44,7 @@ class RatingStar extends RatingsTool {
 	function getLoggingInfo($title) {
 		global $wgLang, $wgOut;
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		// get log
 		$res = $dbr->select ('logging',

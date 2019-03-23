@@ -254,7 +254,7 @@ class PostComment extends UnlistedSpecialPage {
 		$contentFormat = $handler->getDefaultFormat();
 		$content = ContentHandler::makeContent( $text, $t, $contentModel, $contentFormat );
 		$status = Status::newGood();
-		if (!wfRunHooks('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $user, false))) {
+		if (!Hooks::run('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $user, false))) {
 			return;
 		}
 		if (!$status->isGood()) {

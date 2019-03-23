@@ -68,7 +68,7 @@ class MMKManager extends UnlistedSpecialPage {
 
 		if (empty($limit)) $limit = 1000;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$kws = ($keywords) ? ' and match(title) against (' . $dbr->addQuotes($keywords) . ') ' : '';
 
 		//status queries need a little help
@@ -317,7 +317,7 @@ class MMKManager extends UnlistedSpecialPage {
 	}
 
 	private function getRecentActivity() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$html = '';
 
 		$res = $dbr->select('mmk.mmk_manager_log', array('*'), array(), __METHOD__, array('ORDER BY' => 'mml_uploaded DESC', 'LIMIT' => 10));

@@ -63,13 +63,17 @@ class VideoPage extends Article {
 		$this->videoHistory();
 
 		if ( $showmeta ) {
-			global $wgStylePath, $wgStyleVersion;
+			global $wgStylePath;
 			$expand = htmlspecialchars( wfEscapeJsString( wfMessage( 'metadata-expand' )->text() ) );
 			$collapse = htmlspecialchars( wfEscapeJsString( wfMessage( 'metadata-collapse' )->text() ) );
 			$out->addHTML( Xml::element( 'h2', array( 'id' => 'metadata' ), wfMessage( 'metadata' )->text() ). "\n" );
 			$out->addWikiText( $this->makeMetadataTable( $formattedMetadata ) );
+			// MWUP: in MW 1.29+, attachMetadataToggle will not work because it uses a removed wikibits.js
+			// method: changeText. I don't know if this is at all important ... Below is the only place
+			// that metadata.js is referenced.
+			// See https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/core/+/REL1_29/RELEASE-NOTES-1.29
 			$out->addHTML(
-				"<script type=\"text/javascript\" src=\"$wgStylePath/common/metadata.js?$wgStyleVersion\"></script>\n" .
+				"<script type=\"text/javascript\" src=\"$wgStylePath/common/metadata.js\"></script>\n" .
 				"<script type=\"text/javascript\">attachMetadataToggle('mw_metadata', '$expand', '$collapse');</script>\n" );
 		}
 	}
@@ -174,7 +178,7 @@ class VideoPage extends Article {
 	 */
 	function videoHistory() {
 		$out = RequestContext::getMain()->getOutput();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$out->addHTML( Xml::element( 'h2', array( 'id' => 'filehistory' ), wfMessage( 'filehist' ) ));
 		$out->addHTML("<table width='100%'>
@@ -212,7 +216,7 @@ class VideoPage extends Article {
 		$out = RequestContext::getMain()->getOutput();
 		$out->addHTML( Xml::element( 'h2', array( 'id' => 'filelinks' ), wfMessage( 'imagelinks' ) ) . "\n" );
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$page = $dbr->tableName( 'page' );
 		$templatelinks = $dbr->tableName( 'templatelinks' );
 

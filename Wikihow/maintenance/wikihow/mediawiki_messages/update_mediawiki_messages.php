@@ -23,7 +23,7 @@ if (defined('UPDATE_WIKI_PASSWORD') && !$password) {
 //* GET THE LOCAL MESSAGES
 $days = !empty($argv[0]) ? $argv[0] : 7;
 $msgs = array();
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $ts = wfTimestamp(TS_MW, time() - ($days * 24 * 60 * 60));
 echo "getting mediawiki messages that have been updated since $ts\n";
 $sql = "select rc_title, max(rc_timestamp) as ts from recentchanges where rc_namespace=" . NS_MEDIAWIKI . " and rc_timestamp > '{$ts}' and rc_user_text ='{$username}' group by rc_title";

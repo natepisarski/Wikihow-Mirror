@@ -80,7 +80,7 @@ class PagePolicy {
 			} else {
 				$showCurrentTitle = true;
 			}
-			wfRunHooks( 'PagePolicyShowCurrentTitle', array( $title, &$showCurrentTitle ) );
+			Hooks::run( 'PagePolicyShowCurrentTitle', array( $title, &$showCurrentTitle ) );
 		}
 		return $showCurrentTitle;
 	}

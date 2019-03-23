@@ -44,7 +44,7 @@ class QAPatrolStats {
 	}
 
 	private function getStatsSummary(): array {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$stats = [];
 
 		$day = wfTimestamp(TS_MW, time() - 1 * 24 * 3600);
@@ -74,7 +74,7 @@ class QAPatrolStats {
 	}
 
 	private function getRecentQAs(): array {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$recents = [];
 
 		$tables = [
@@ -168,7 +168,7 @@ class QAPatrolStats {
 	}
 
 	public function recentPatrollerStatsForExport($from, $to) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$recents = [];
 
 		$from_date = wfTimestamp(TS_MW, strtotime($from));

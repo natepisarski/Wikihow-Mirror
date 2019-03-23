@@ -142,7 +142,7 @@ class AwsCloudsearchMetadata extends Maintenance {
 
 	// Load the selected titles from the database
 	private function loadTitles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select( ['page', 'index_info'],
 			['page_namespace', 'page_title', 'page_id'],

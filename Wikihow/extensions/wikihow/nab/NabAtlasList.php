@@ -22,7 +22,7 @@ class NabAtlasList {
 	 *     $page1 = array('page_id' => integer page ID, 'tlas_revision' => integer revision ID)
 	 */
 	public static function getNewRevisions($sinceSeconds = 86400) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$timeSecs = $sinceSeconds > 0 ? time() - $sinceSeconds : 0;
 		$sql = 'SELECT page_id, page_latest FROM nab_atlas, page
 				WHERE page_id = na_page_id AND

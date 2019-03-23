@@ -42,7 +42,7 @@ class FlaggedAnswers {
 	}
 
 	public function loadById($qfa_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			self::TABLE,
@@ -101,7 +101,7 @@ class FlaggedAnswers {
 	}
 
 	public static function remaining($include_experts = false) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$count = $dbr->selectField(
 			self::TABLE,

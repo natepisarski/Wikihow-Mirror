@@ -70,7 +70,7 @@ class ArticleData extends UnlistedSpecialPage {
 			$cats
 		);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$cats = $dbr->makeList($cats);
 		$sql = 'SELECT
 					page_id, page_title, page_counter
@@ -179,7 +179,7 @@ class ArticleData extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 
 		$urls = explode("\n", trim(Misc::getUrlDecodedData($req->getVal('data'))));
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$articles = array();
 		foreach ($urls as $url) {
 			$t = Misc::getTitleFromText($url);
@@ -207,7 +207,7 @@ class ArticleData extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 
 		$ids = explode("\n", trim(Misc::getUrlDecodedData($req->getVal('data'))));
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$articles = array();
 		foreach ($ids as $id) {
 			$id = trim($id);
@@ -226,7 +226,7 @@ class ArticleData extends UnlistedSpecialPage {
 	}
 
 	private function addPageCounts(&$articles) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$aids = join(",", array_keys($articles));
 		$res = $dbr->select('page', array('page_counter', 'page_id'), array("page_id IN ($aids)"));
 		foreach ($res as $row) {

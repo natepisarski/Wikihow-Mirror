@@ -26,7 +26,7 @@ class RecalcCategPolicies extends WHMaintenance {
 
 		# Get all category pages
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$tables = ['page', 'index_info'];
 		$fields = ['page_id', 'page_title', 'ii_policy'];
 		$where = [ 'page_namespace' => NS_CATEGORY ];

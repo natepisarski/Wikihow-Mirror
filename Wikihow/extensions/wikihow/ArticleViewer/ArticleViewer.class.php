@@ -146,7 +146,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 	}
 
 	function doQuery($getSubcats = true) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// Show only indexable articles to anons
 		$indexConds = $this->getUser()->isAnon() ? 'ii_policy IN (1, 4)' : '1=1';
@@ -173,7 +173,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$count = 0;
 		$this->nextPage = null;
 		foreach ($res as $row) {
-			if ( !wfRunHooks( "WikihowCategoryViewerQueryBeforeProcessTitle", array( $row->pageid ) ) ) {
+			if ( !Hooks::run( "WikihowCategoryViewerQueryBeforeProcessTitle", array( $row->pageid ) ) ) {
 				continue;
 			}
 
@@ -250,7 +250,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 
 	public function getSubcategories($title) {
 		$onlyIndexed = $this->getUser()->isAnon() || Misc::isMobileMode();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$tables = ['categorylinks', 'page', 'index_info'];
 		$fields = ['page_title', 'page_namespace'];
 		$where = [

@@ -375,7 +375,7 @@ class StepEditorParser {
 
 		$context->setTitle($this->title);
 
-		if (!wfRunHooks('EditFilterMergedContent', array($context, $content, &$status, '', $wgUser, false))) {
+		if (!Hooks::run('EditFilterMergedContent', array($context, $content, &$status, '', $wgUser, false))) {
 			return array(-1);
 		}
 		if (!$status->isGood()) {

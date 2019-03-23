@@ -237,7 +237,7 @@ class QAPatrol extends UnlistedSpecialPage {
 	 */
 	private function getNextQA() {
 		$nextQA = [];
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row = '';
 		$submitter_name = '';
 		$submitter_link = '';
@@ -392,7 +392,7 @@ class QAPatrol extends UnlistedSpecialPage {
 
 	//get the count of Q&As left on which to vote
 	public static function getRemaining($dbr = '', $expert_mode = false, $top_answerer_mode = false) {
-		$dbr = $dbr ?: wfGetDB(DB_SLAVE);
+		$dbr = $dbr ?: wfGetDB(DB_REPLICA);
 
 		$tables = [ QADB::TABLE_QA_PATROL ];
 
@@ -754,7 +754,7 @@ class QAPatrol extends UnlistedSpecialPage {
 
 		$this->skipTool->skipItem($qap_id);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$page_id = $dbr->selectField(
 			QADB::TABLE_QA_PATROL,
 			'qap_page_id',
@@ -807,7 +807,7 @@ class QAPatrol extends UnlistedSpecialPage {
 	//could be considered a rational thought. Everyone in this room is now dumber for having
 	//listened to it. I award you no points, and may God have mercy on your soul.
 	private function deleteQuestion($qap_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			QADB::TABLE_QA_PATROL,
 			[

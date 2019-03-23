@@ -10,7 +10,7 @@ class TitleReconcile
 		global $wgLanguageCode;
 
 		//Deal with titles turned into deletes, redirects, or re-named
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select tq_title from dedup.title_query left join page on tq_page_id=page_id and replace(page_title,'-',' ')=tq_title and page_namespace=0 and page_is_redirect=0 where page_title is NULL";
 		$res = $dbr->query($sql, __METHOD__);
 		$deletedTitles = array();
@@ -23,7 +23,7 @@ class TitleReconcile
 		}
 
 		// Add titles missing from our system with associated keywords
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select page.* from page left join dedup.title_query on tq_page_id=page_id AND tq_lang=" . $dbr->addQuotes($wgLanguageCode) . " where page_namespace=0 and page_is_redirect=0 and tq_title is NULL group by page.page_id";
 		$res = $dbr->query($sql, __METHOD__);
 		$missingTitles = array();

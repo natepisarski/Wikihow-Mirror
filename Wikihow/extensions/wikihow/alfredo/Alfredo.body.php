@@ -246,7 +246,7 @@ class Alfredo extends UnlistedSpecialPage {
 		$articleIds = $wgRequest->getVal("articleIds");
 		$articleIds = preg_split("@,@", $articleIds);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$wgOut->setArticleBodyOnly(true);
 
 		$articles = array();

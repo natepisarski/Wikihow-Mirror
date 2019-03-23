@@ -77,7 +77,7 @@ class DocViewer extends UnlistedSpecialPage {
 		$name = $wgMemc->get($memkey);
 
 		if (!is_string($name)) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$name = $dbr->selectField('dv_display_names','dvdn_display_name',
 					array('dvdn_doc' => $sample),__METHOD__);
 
@@ -120,7 +120,7 @@ class DocViewer extends UnlistedSpecialPage {
 
 		if ($doc_name) {
 			//grab data from the db
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->select('dv_sampledocs','*',array('dvs_doc' => $doc_name), __METHOD__);
 
 			//did we find a sample?
@@ -326,7 +326,7 @@ class DocViewer extends UnlistedSpecialPage {
 	private static function getFoundInArticles($doc_name) {
 		$html = '';
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('dv_links', 'dvl_page', array('dvl_doc' => $doc_name), __METHOD__);
 
 		foreach ($res as $row) {
@@ -377,7 +377,7 @@ class DocViewer extends UnlistedSpecialPage {
 	 * deal with the link table
 	 */
 	public static function updateLinkTable($article, $doc_name, $bAdd = true) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$samples = array();

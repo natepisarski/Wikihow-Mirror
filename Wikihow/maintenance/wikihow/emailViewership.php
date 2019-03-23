@@ -13,7 +13,7 @@ if ($day < 1 || $day > 6) {
 
 $startTime = microtime(true);
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $todayUnix = wfTimestamp(TS_UNIX);
 $minUnix = strtotime("-1 month", $todayUnix);

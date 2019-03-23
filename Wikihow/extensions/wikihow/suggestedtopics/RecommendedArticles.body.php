@@ -22,7 +22,7 @@ class RecommendedArticles extends SpecialPage {
 
 		$map = SuggestCategories::getCatMap(true);
 		$cats = SuggestCategories::getSubscribedCats();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$out->setRobotPolicy('noindex,nofollow');
 		$out->setHTMLTitle('Manage Suggested Topics - wikiHow');
 
@@ -176,7 +176,7 @@ class RecommendedArticles extends SpecialPage {
 	}
 
 	private static function dbTopLevelSuggestions($map, $cats, &$suggests, &$users, &$userids, &$catresults) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$suggests = [];
 		$users = [];
 		$userids = [];

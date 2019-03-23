@@ -173,7 +173,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 		$headers = ["category_url", "custom_description", "custom_note"];
 		print join("\t", $headers) . "\n";
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$res = $dbr->select( self::CATEGORY_DESCRIPTIONS, ['*'], '', __METHOD__ );
 		foreach ($res as $row) {
 			$title = Title::newFromId($row->cd_page_id);
@@ -203,7 +203,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 			return $val;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$description = $dbr->selectField(AdminCategoryDescriptions::CATEGORY_DESCRIPTIONS, "cd_description", ['cd_page_id' => $title->getArticleID()], __METHOD__);
 		if ($description !== false && $description != "") {
 			$options = new ParserOptions;

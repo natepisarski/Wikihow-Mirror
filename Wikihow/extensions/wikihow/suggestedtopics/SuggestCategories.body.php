@@ -19,7 +19,7 @@ class SuggestCategories extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 		$user = $this->getUser();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// just getting cats?
 		if ($req->getVal('getusercats')) {
@@ -167,7 +167,7 @@ class SuggestCategories extends UnlistedSpecialPage {
 
 	public static function getSubscribedCats() {
 		global $wgUser;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row = $dbr->selectRow('suggest_cats', '*', ['sc_user' => $wgUser->getID()]);
 		if ($row) {
 			$field = $row->sc_cats;

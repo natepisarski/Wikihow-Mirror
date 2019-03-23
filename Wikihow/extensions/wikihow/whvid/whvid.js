@@ -1,3 +1,4 @@
+/*global WH, mw*/
 WH.video = (function () {
 	'use strict';
 	var videos = [];
@@ -12,10 +13,11 @@ WH.video = (function () {
 
 	function logAction(action) {
 		var xmlHttp = new XMLHttpRequest();
-		var time = Math.round(new Date().getTime() / 60000) * 60;
-		var url = '/x/event?action=' + action + "&t=" + time;
-		xmlHttp.open("GET", url, true);
-		xmlHttp.send(null);
+		var url = '/x/event' +
+			'?action=' + encodeURIComponent( action ) +
+			'&page=' + encodeURIComponent( mw.config.get( 'wgArticleId' ) );
+		xmlHttp.open( 'GET', url, true );
+		xmlHttp.send( null );
 	}
 
 	function visibilityChanged(video) {

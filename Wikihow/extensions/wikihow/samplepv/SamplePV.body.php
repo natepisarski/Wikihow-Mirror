@@ -6,7 +6,7 @@ class SamplePV extends UnlistedSpecialPage {
 	}
 
 	private function getPVs($name, $interval) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT sum(pv_t) AS pvs " .
 			   "FROM wiki_log.page_views " .
 			   "WHERE (domain='www.wikihow.com' OR domain='m.wikihow.com') " .
@@ -31,7 +31,7 @@ class SamplePV extends UnlistedSpecialPage {
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('dv_sampledocs', array('distinct dvs_doc'),array(), __METHOD__);
 		$sampleNames = array();
 		foreach ($res as $row) {

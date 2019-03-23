@@ -36,14 +36,14 @@ class UpdateRelatedWikihows extends Maintenance {
         // track number of articles we change so we don't go over the limit
 
         $this->output("Fetching articles...\n");
-        $articles = $this->fetchArticles();
+        $titles = $this->fetchArticles();
 
-        foreach ($articles as $article) {
-            $replacements = $this->updateRelateds($article);
+        foreach ($titles as $title) {
+            $replacements = $this->updateRelateds($title);
 
             if ($replacements > 0) {
                 $done++;
-                $this->output("*** Published changes to " . $article->getText() . "\n");
+                $this->output("*** Published changes to " . $title->getText() . "\n");
             }
 
             if ($done >= $limit && $limit !== 0)
@@ -79,12 +79,12 @@ class UpdateRelatedWikihows extends Maintenance {
 
     /**
      * Removes the display text from links in the Related wikiHows section
-     * @param Title $article - current article being worked on
+     * @param Title $title - current article being worked on
      * @return int $count, number of replacements made to the article (if any)
      */
-    private function updateRelateds($article) {
+    private function updateRelateds($title) {
         global $wgParser;
-        $oldText    = $this->getArticleText($article);
+        $oldText    = $this->getArticleText($title);
         $section = Wikitext::getSection($oldText, 'Related wikiHows', true);
 
         if (!empty($section[0])) {
@@ -95,13 +95,13 @@ class UpdateRelatedWikihows extends Maintenance {
 
             if ( $this->strip_newlines($text) == $this->strip_newlines($oldText) ) return 0;
             if ( abs( strlen($text) - strlen($oldText) ) > 500 ) {
-                $this->error( "*** Warning: Size change in excess of 500b on " . $article->getText() . "\n" );
+                $this->error( "*** Warning: Size change in excess of 500b on " . $title->getText() . "\n" );
             }
 
-            $status     = $this->publish($article, $text, 'Removing redundant wikitext from Related wikiHows section');
+            $status     = $this->publish($title, $text, 'Removing redundant wikitext from Related wikiHows section');
 
             if (!$status->isGood()) {
-                $this->output("[Problem] on " . $article->getText() . ":" . $status->getWikitext() . "\n");
+                $this->output("[Problem] on " . $title->getText() . ":" . $status->getWikitext() . "\n");
                 return 0; // error saving, so nothing changed
             }
 
@@ -121,8 +121,8 @@ class UpdateRelatedWikihows extends Maintenance {
      * @return array of Title objects
      */
     private function fetchArticles() {
-        $dbr      = wfGetDB(DB_SLAVE);
-        $articles = array();
+        $dbr      = wfGetDB(DB_REPLICA);
+        $titles = array();
         $results  = $dbr->select(array(
             'page',
             'pagelinks'
@@ -136,21 +136,21 @@ class UpdateRelatedWikihows extends Maintenance {
         ), __METHOD__);
 
         foreach ($results as $row) {
-            $articles[] = Title::newFromDBkey($row->page_title);
+            $titles[] = Title::newFromDBkey($row->page_title);
         }
 
-        return $articles;
+        return $titles;
     }
 
     /**
      * Saves the changes to the article in the database.
-     * @param Title $article - Title object representing the page that has been changed
+     * @param Title $title - Title object representing the page that has been changed
      * @param string $text - plain text form of the page's new contents
      * @param string $summary - edit summary to be used when committing the edit
      *
      * @return Status object indicating whether the publish was successful
      */
-    private function publish($article, $text, $summary) {
+    private function publish($title, $text, $summary) {
 
         $status = Status::newGood();
 
@@ -159,8 +159,8 @@ class UpdateRelatedWikihows extends Maintenance {
             return $status;
         }
 
-        $revision = Revision::newFromPageId($article->getArticleID());
-        $page     = WikiPage::newFromID($article->getArticleID());
+        $revision = Revision::newFromPageId($title->getArticleID());
+        $page     = WikiPage::newFromID($title->getArticleID());
         $content  = ContentHandler::makeContent($text, $revision->getTitle());
         $status   = $page->doEditContent($content, $summary, EDIT_UPDATE | EDIT_FORCE_BOT | EDIT_MINOR, false, $this->bot);
 
@@ -168,11 +168,11 @@ class UpdateRelatedWikihows extends Maintenance {
     }
 
     /**
-     * @param Title $article - Title object representing page to extract text from
+     * @param Title $title - Title object representing page to extract text from
      * @return string containing the raw text content of the page, or empty if unsuccessful
      */
-    private function getArticleText($article) {
-        $revision = Revision::newFromPageId($article->getArticleID());
+    private function getArticleText($title) {
+        $revision = Revision::newFromPageId($title->getArticleID());
 
         if (!$revision || !$revision instanceof Revision) {
             return '';

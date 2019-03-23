@@ -152,7 +152,7 @@ class ArticleAdExclusions {
 	public function getAllExclusions() {
 		global $wgActiveLanguages;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$ids = array();
 		$this->getPageIdsForLanguage($dbr, $ids, 'en');
 
@@ -279,7 +279,7 @@ class ArticleAdExclusions {
 	 * Updates all ad exclusion translations based on the article IDs from the English DB
 	 */
 	public static function updateEnglishArticles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(self::TABLE, array('ae_page'));
 
 		$dbw = wfGetDB(DB_MASTER);
@@ -388,7 +388,7 @@ class SearchAdExclusions {
 		// Load from DB
 		$fields = ['aes_lang', 'aes_query'];
 		$opts = ['ORDER BY' => 'aes_lang, aes_query'];
-		$res = wfGetDB(DB_SLAVE)->select(self::getTable(), $fields, [], __METHOD__, $opts);
+		$res = wfGetDB(DB_REPLICA)->select(self::getTable(), $fields, [], __METHOD__, $opts);
 		$queries = [];
 		foreach ($res as $row) {
 			$queries[$row->aes_lang][$row->aes_query] = 1;

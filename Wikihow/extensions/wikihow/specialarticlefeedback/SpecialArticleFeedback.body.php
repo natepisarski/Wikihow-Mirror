@@ -249,7 +249,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
      * get the next article to vote on
 	 */
 	private function getNextItem() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		$result = [];
         $conds = [];
         $userId = $this->getUserId();
@@ -279,7 +279,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
 	}
 
     private function getRatingReason( $pageId, $ratingReasonId ) {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 
         $table = 'rating_reason';
         $vars = 'ratr_id, ratr_text';
@@ -378,7 +378,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
 	}
 
     public static function getRemainingCount() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
         $table = self::SAF_TABLE;
         $vars = "count('*')";
         $conds = array( "safi_user_id" => '' );
@@ -461,7 +461,7 @@ class SpecialArticleFeedback extends UnlistedSpecialPage {
             $dbw->delete( $table, $conds, __METHOD__ );
 
             $title = Title::newFromID( $pageId );
-            wfRunHooks("SpecialArticleFeedbackItemCompleted", array($wgUser, $title, '0'));
+            Hooks::run("SpecialArticleFeedbackItemCompleted", array($wgUser, $title, '0'));
         }
 
         // log the actions

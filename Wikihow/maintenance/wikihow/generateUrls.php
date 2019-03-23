@@ -20,7 +20,7 @@ class GenerateURLsMaintenance {
 
 	static function listArticles($titlesOnly, $touchedSince, $relativeURLs=false, $forSitemap=false, $randomPercentage=0) {
 		$PAGE_SIZE = 2000;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$domainIds = array();
 		// keep track of any pages in test domain

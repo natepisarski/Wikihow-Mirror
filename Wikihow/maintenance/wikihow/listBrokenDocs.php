@@ -11,7 +11,7 @@ require_once __DIR__ . "/../Maintenance.php";
 class ListBrokenDocs extends Maintenance {
 
 	public function execute() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		// Iterate over every article page
 		$pageRows = $dbr->select('page', 'page_id', ['page_namespace' => 0]);
 		foreach ($pageRows as $pageRow) {

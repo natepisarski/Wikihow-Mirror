@@ -7,7 +7,7 @@
 
 require_once('commandLine.inc');
 
-$db = wfGetDB(DB_SLAVE);
+$db = wfGetDB(DB_REPLICA);
 $res = $db->query("SELECT page_id FROM page, templatelinks WHERE tl_from=page_id AND page_namespace=0 AND tl_title='Nfd'", __METHOD__);
 $titles = array();
 while ($row = $res->fetchObject()) {

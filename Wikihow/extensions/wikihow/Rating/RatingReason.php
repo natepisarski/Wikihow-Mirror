@@ -58,7 +58,7 @@ class RatingReason extends UnlistedSpecialPage {
 
 		$result = $ratingTool->getRatingReasonResponse($ratrRating, $ratrItem);
 
-		wfRunHooks( 'RatingReasonAfterGetRatingReasonResponse', array( $ratrRating, $ratrPageId, &$result ) );
+		Hooks::run( 'RatingReasonAfterGetRatingReasonResponse', array( $ratrRating, $ratrPageId, &$result ) );
 
 		print $result;
 

@@ -36,7 +36,7 @@ class EmailBounceHooks {
 			$oemailEmailMap[$oEmailAddr] = $emailAddr;
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		$res = $dbr->select( 'suppress_emails', array(
 			'email'

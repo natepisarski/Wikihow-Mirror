@@ -32,7 +32,7 @@ else {
 }
 global $wgUser;
 $wgUser = User::newFromName("AlfredoBot");
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $its = ImageTransfer::getUpdatesForLang($wgLanguageCode);
 $errors = array();

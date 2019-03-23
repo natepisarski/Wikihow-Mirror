@@ -77,7 +77,7 @@ class QABox extends UnlistedSpecialPage {
 		//anon only
 		if (!$ctx->getUser()->isAnon()) return;
 
-		if ( !wfRunHooks( 'QABoxAddToArticle', array() ) ) {
+		if ( !Hooks::run( 'QABoxAddToArticle', array() ) ) {
 			return;
 		}
 
@@ -131,7 +131,7 @@ class QABox extends UnlistedSpecialPage {
 	private static function getQuestions($answered_sqid) {
 		$cats = array();
 		$res = false;
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		//first, let's try to get a similar question if the user
 		//has already answered one

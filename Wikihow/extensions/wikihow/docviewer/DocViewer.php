@@ -84,7 +84,7 @@ function wfConnectDoc(&$article, &$user, $text, $summary, $minoredit, $watchthis
 		}
 
 		//make sure we didn't lose any
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('dv_links', 'dvl_doc', array('dvl_page' => $article->getID()), __METHOD__);
 
 		foreach ($res as $row) {

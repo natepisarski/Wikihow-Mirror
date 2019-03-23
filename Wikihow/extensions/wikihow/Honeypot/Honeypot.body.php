@@ -1,6 +1,6 @@
 <?php
 
-class Game {
+class Honeypot {
 
 	static $mustache = false;
 
@@ -16,6 +16,15 @@ class Game {
 	}
 
 	public static function showDesktopWidget( $context ) {
-		echo self::renderTemplate( 'desktop-widget.mustache', [] );
+		global $wgHoneypotCampaigns, $wgHoneypotActiveCampaign;
+
+		$campaign = $wgHoneypotCampaigns[$wgHoneypotActiveCampaign];
+		$target = isset( $campaign['target'] ) ?
+			$campaign['target'] : "/Special:Campaign/{$wgHoneypotActiveCampaign}";
+
+		echo self::renderTemplate(
+			'desktop-widget.mustache',
+			[ 'campaign' => $wgHoneypotActiveCampaign, 'target' => $target ]
+		);
 	}
 }

@@ -58,7 +58,7 @@ class TipsPatrol extends SpecialPage {
 					$this->logTip($tipId, self::TIP_ACTION_DELETE, $tip);
 					$articleId = $req->getVal('articleId');
 					$this->deleteTip($tipId, $articleId, $tip);
-					wfRunHooks('TipsPatrolled');
+					Hooks::run('TipsPatrolled');
 				} elseif ($req->getVal('keepTip')) {
 					$articleId = $req->getVal('articleId');
 					$tip = $req->getVal('tip');
@@ -68,7 +68,7 @@ class TipsPatrol extends SpecialPage {
 					//$this->logTip($tipId, self::TIP_ACTION_KEEP, $tip, $qcId);
 					$dbw = wfGetDB(DB_MASTER);
 					$dbw->delete('tipsandwarnings', array('tw_id' => $tipId));
-					wfRunHooks('TipsPatrolled');
+					Hooks::run('TipsPatrolled');
 				}
 
 				$this->getNextTip($result);
@@ -148,7 +148,7 @@ CREATE TABLE `tipspatrol_views` (
 
 */
 	private function isBlockedFromTipsPatrol($user) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$blocked = $dbr->selectField('tipspatrol_views', 'tpv_user_blocked', 'tpv_user_id = ' . intval($user->getID())) ?: false;
 		return $blocked;
 	}
@@ -171,7 +171,7 @@ CREATE TABLE `tipspatrol_views` (
 		}
 
 		$userId = $user->getID();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$patrolledCount = $dbr->selectField('tipspatrol_views', 'tpv_count', 'tpv_user_id = ' . intval($userId)) ?: 0;
 
 		// do not show a coach tip for your first one
@@ -235,7 +235,7 @@ CREATE TABLE `tipspatrol_views` (
 		$userId = $user->getID();
 		$where = array("tpt_id != 1 AND tpt_id NOT IN (SELECT tpc_test_id from tipspatrol_completed_test where tpc_user_id = $userId)");
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('tipspatrol_test', array('*'), $where, __METHOD__);
 
 		$numRows = $res->numRows();
@@ -304,10 +304,10 @@ CREATE TABLE `tipspatrol_views` (
 		$user = $this->getUser();
 		$req = $this->getRequest();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$where = array("tpt_id" => $tipId);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row = $dbr->selectRow('tipspatrol_test', '*', $where, __METHOD__);
 		$answer = $row->tpt_answer;
 		$score = -1;
@@ -467,7 +467,7 @@ CREATE TABLE `tipspatrol_views` (
 				$title = Title::newFromID($row->tw_page);
 				$isRedirect = false;
 				if ($title) {
-					$dbr = wfGetDB(DB_SLAVE);
+					$dbr = wfGetDB(DB_REPLICA);
 					$isRedirect = (int)$dbr->selectField('page', 'page_is_redirect',
 						array('page_id' => $row->tw_page), __METHOD__, array("LIMIT" => 1));
 					if ($isRedirect) {
@@ -511,7 +511,7 @@ CREATE TABLE `tipspatrol_views` (
 	}
 
 	public static function getCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		// tw_guarded means it went through Quality Guardian (QG)
 		$count = $dbr->selectField('tipsandwarnings', 'COUNT(*)', array( 'tw_guarded' => '1' ), __METHOD__);
 		return $count;
@@ -735,7 +735,7 @@ CREATE TABLE `tipspatrol_views` (
 		// mark the recent change as patrolled
 		if ($success) {
 			// should be ok to read from slave here because the change has been done earlier.
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$rcid = $dbr->selectField('recentchanges', 'rc_id', array("rc_this_oldid=$revId") );
 			RecentChange::markPatrolled($rcid);
 			PatrolLog::record($rcid, false);
@@ -787,7 +787,7 @@ CREATE TABLE `tipspatrol_views` (
 	// it will get it by user if it can, but if there is no data
 	// with this username it will look for any tip text associated with this tipid
 	static function getTipData($tipId, $userId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$row = $dbr->selectRow('tipsandwarnings_log', array('tw_tip', 'tw_page'), array('tw_id' => $tipId, 'tw_user'=>$userId), __METHOD__);
 		if ($row) {
@@ -807,7 +807,7 @@ CREATE TABLE `tipspatrol_views` (
 	}
 
 	static function getTipLogRow($tipId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		if ($row = $dbr->selectRow('tipsandwarnings_log', '*', array('tw_id' => $tipId), __METHOD__)) {
 			$row = get_object_vars($row);
 		} else {
@@ -817,7 +817,7 @@ CREATE TABLE `tipspatrol_views` (
 	}
 
 	function getTipRow($tipId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		if ($row = $dbr->selectRow('tipsandwarnings', '*', array('tw_id' => $tipId), __METHOD__)) {
 			$row = get_object_vars($row);
 		} else {

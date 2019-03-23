@@ -16,7 +16,7 @@ class WikitextDownloader extends UnlistedSpecialPage {
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$r = Revision::loadFromPageId($dbr, $req->getVal('pageid'));
 		if ($r) {
 			$title = $r->getTitle()->getText();

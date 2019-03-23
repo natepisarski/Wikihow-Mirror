@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../commandLine.inc';
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 $dbw = wfGetDB(DB_MASTER);
 
 // PROCESS FA articles

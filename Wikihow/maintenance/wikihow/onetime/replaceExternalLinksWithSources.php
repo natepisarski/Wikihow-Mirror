@@ -2,8 +2,8 @@
 require_once( "commandLine.inc" );
 
 $wgUser->setID(1236204);
-$dbr =& wfGetDB( DB_SLAVE );
-$dbw =& wfGetDB( DB_MASTER );
+$dbr = wfGetDB( DB_REPLICA );
+$dbw = wfGetDB( DB_MASTER );
 $res = $dbr->select('page',
 		array( 'page_title', 'page_namespace'),
 		array ('page_is_redirect' => 0

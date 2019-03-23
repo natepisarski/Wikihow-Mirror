@@ -157,7 +157,7 @@ class ImageTransfer {
 	 * Get list of articles to update for a language
 	 */
 	public static function getUpdatesForLang($lang) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select * from " . self::DB_NAME . "." . self::TABLE_NAME . " where itj_to_lang=" . $dbr->addQuotes($lang) . " AND itj_error IS NULL AND itj_time_finished is NULL";
 
 		$res = $dbr->query($sql, __METHOD__);
@@ -597,7 +597,7 @@ class ImageTransfer {
 		* If not a dry run, we will update this to only email once
 		*/
 	public static function getErrorURLsByCreator($language, $dryRun) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = 'select iti_from_url, iti_creator from ' . self::DB_NAME . '.image_transfer_invalids where iti_to_lang=' . $dbr->addQuotes($language) . ' AND iti_time_finished is null';
 
 		$urls = array();

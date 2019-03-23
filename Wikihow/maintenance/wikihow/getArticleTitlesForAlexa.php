@@ -14,7 +14,7 @@ class GetArticleTitlesForAlexa extends Maintenance {
     public function execute() {
     	global $wgLanguageCode;
 
-	    $dbr = wfGetDB(DB_SLAVE);
+	    $dbr = wfGetDB(DB_REPLICA);
 	    $res = $dbr->select(
 	    	'page',
 		    ['page_id', 'page_title'],

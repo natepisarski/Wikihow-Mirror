@@ -21,7 +21,7 @@ $wgUser = User::newFromName("MiscBot");
 
 $maxAge = 60*60*24*31*6; //6 months measured in seconds
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 echo "Checking talk pages from anonymous users on " . date("F j, Y") . "\n";
 

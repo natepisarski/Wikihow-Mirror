@@ -131,7 +131,7 @@ class GetCustomTitlesTest extends Maintenance {
 	}
 
 	private static function getWikitext(Title $title): array {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$wikitext = self::getWikitextFromTitle($title);
 		$stepsText = '';
 		if ($wikitext) {

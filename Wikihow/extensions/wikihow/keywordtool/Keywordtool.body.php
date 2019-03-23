@@ -33,7 +33,7 @@ class Keywordtool extends UnlistedSpecialPage {
 		$questionType = 0;
 		$colHeader = [];
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		// get all data
 		if ( isset( $postedValues[ 'alldata' ] ) ) {
 			$allData = True;
@@ -64,7 +64,7 @@ class Keywordtool extends UnlistedSpecialPage {
 	//Used to fetch results from the dedup table
 	private function getDedupResults( $batchId, $colHeader ) {
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$conds= [ "kwt_batchid" => $batchId ];
 		$colms = [ 'kwt_query', 'kwt_volume', 'kwt_query_dup',  'kwt_total_volume'];
 		$opts = ['ORDER BY' => " kwt_query_dup ='', kwt_volume Desc " ];
@@ -98,7 +98,7 @@ class Keywordtool extends UnlistedSpecialPage {
 	//Used to fetch results from the db
 	private function getResults( $batchId, $allData, $colHeader ) {
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		if ( !$allData ) {
 			$conds= [ "kwt_batchid" => $batchId ];
 		} else {
@@ -139,7 +139,7 @@ class Keywordtool extends UnlistedSpecialPage {
 
 	// Displays existing job status at page load
 	private function getJobStatus() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$dbw = wfGetDB( DB_MASTER );
 		$html = '';
 		$conds = [ "kwt_newjobs" => 1 ] ;

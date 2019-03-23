@@ -61,7 +61,7 @@ class BunchPatrol extends SpecialPage {
 		}
 
 		$out->setHTMLTitle('Bunch Patrol - wikiHow');
-		$dbr =& wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$me = Title::makeTitle(NS_SPECIAL, "BunchPatrol");
 
 		$unpatrolled = $dbr->selectField('recentchanges', array('count(*)'), array('rc_patrolled=0'), __METHOD__);

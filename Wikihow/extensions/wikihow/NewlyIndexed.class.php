@@ -21,7 +21,7 @@ class NewlyIndexed {
 	const PAGE_FIELD	= "gnp_page";
 
 	public static function onMarkIndexed($title, $status) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		if (!$title) {

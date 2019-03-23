@@ -82,7 +82,7 @@ class Model {
 	 * @see WVL\Model::getOrphanedAssetsCount()
 	 */
 	public static function getAllCreators() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			[Util::DB_TABLE_ASSETS, Util::DB_TABLE_CREATORS],
@@ -115,7 +115,7 @@ class Model {
 	}
 
 	public static function getActiveCreators() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			Util::DB_TABLE_CREATORS,
@@ -168,7 +168,7 @@ class Model {
 	 * @return array an associative array of asset types mapped to counts.
 	 */
 	public static function getAssetCounts($aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			['wvla' => Util::DB_TABLE_ASSETS],
@@ -290,7 +290,7 @@ class Model {
 	 * @see WVL\Model::getOrphanedAssetsCount()
 	 */
 	public static function getAssignedAssetsCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			[Util::DB_TABLE_ASSETS],
@@ -339,7 +339,7 @@ class Model {
 	 * @see WVL\Model::getAssignedAssetsCount()
 	 */
 	public static function getOrphanedAssetsCount() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			[Util::DB_TABLE_ASSETS],
@@ -433,7 +433,7 @@ class Model {
 		$opts = array_merge(self::getDefaultSelectOpts(), $partialOpts);
 		$joins = array_merge(self::getDefaultSelectJoins(), $partialJoins);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$sqlText = $dbr->selectSQLText(
 			$tables,
@@ -739,7 +739,7 @@ class Model {
 		if (!$keyword) {
 			return false;
 		} else {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$keyword = mb_strtolower($keyword);
 			return [
 				'sql_conds' => [
@@ -847,7 +847,7 @@ class Model {
 		if (!$partialUrl) {
 			return false;
 		} else {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			return [
 				'sql_conds' => [
 					'wvlp_page_title' => $partialUrl
@@ -932,7 +932,7 @@ class Model {
 			break;
 		case 'random': // FIXME: Kind of broken
 			if ($randSeed) {
-				$dbr = wfGetDB(DB_SLAVE);
+				$dbr = wfGetDB(DB_REPLICA);
 				return [
 					'sql_opts' => [
 						'ORDER BY RAND(' . $dbr->addQuotes($randSeed) . ')'
@@ -975,7 +975,7 @@ class Model {
 			return false;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		if ($timestampLower && !$timestampUpper) {
 			return [
@@ -1015,7 +1015,7 @@ class Model {
 		$topcatValue = $topcat ? self::getTopcatValue($topcat) : false;
 
 		if ($topcatValue) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			return [
 				'sql_conds' => [
 					'wvlp_catinfo & ' . $dbr->addQuotes($topcatValue) . ' <> 0'
@@ -1039,7 +1039,7 @@ class Model {
 	}
 
 	public static function getCreatorId($creator) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		return $dbr->selectField(Util::DB_TABLE_CREATORS, "wvlc_id", ['wvlc_name' => $creator], __METHOD__);
 	}
 }

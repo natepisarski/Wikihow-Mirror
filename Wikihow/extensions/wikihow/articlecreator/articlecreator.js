@@ -484,7 +484,7 @@ WH.ArticleCreator = function() {
 				var wikitext = builder.buildArticle(a);
 				
 				var postData = {t: mw.util.getParamValue('t'), wikitext: wikitext, ac_token: $('#ac_token').text(), overwrite: $("#overwrite").val()};
-				$.post(mw.util.wikiGetlink(), postData, function(data) {
+				$.post(mw.util.getUrl(), postData, function(data) {
 					var result = $.parseJSON(data);
 					if (result.error) {
 						var dialogHtml = $('#ac_publish_error_tmpl').html()

@@ -140,7 +140,7 @@ class PatrolCount extends SpecialPage {
 			return $cachedUsers;
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$res = $dbr->select( array( 'logging' ),
 			array( 'log_user_text AS username', 'COUNT(*) AS patrols' ),
 			array(  'log_type' => 'patrol',
@@ -212,7 +212,7 @@ class PatrolCount extends SpecialPage {
 			return;
 		}
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$total = $dbr->selectField( 'logging', 'COUNT(*)',
 			array(
 					'log_type' => 'patrol',

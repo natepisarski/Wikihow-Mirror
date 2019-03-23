@@ -119,13 +119,6 @@ $wgHooks['WantedPages::getQueryInfo'][] = array('SpecialPagesHooks::onWantedPage
 $wgHooks['UserLogoutComplete'][] = array('SpecialPagesHooks::onUserLogoutComplete');
 $wgHooks['WebRequestPathInfoRouter'][] = array('SpecialPagesHooks::onWebRequestPathInfoRouter');
 
-// Reuben, 1/9/14 - I commented out use of this hook below because it stopped
-// our own Special:LSearch page from loading (Mediawiki's Special:Search page
-// would load instead). I can't figure out how the hook below is supposed to work
-// with our LSearch page, so I'm disabling it (to fix bugs) until I can ask
-// Jordan.
-//$wgHooks['LanguageGetSpecialPageAliases'][] = array('SpecialPagesHooks::onLanguageGetSpecialPageAliases');
-
 
 //
 // DiffHooks - used to modify the Difference Engine, or in diff processing

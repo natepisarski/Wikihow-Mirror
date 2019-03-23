@@ -129,7 +129,7 @@ class RobotPolicy {
 		$policyString = "";
 		$timestamp = "";
 		if ($title) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$row = $dbr->selectRow(
 				RobotPolicy::TABLE_NAME,
 				['ii_policy', 'ii_timestamp'],
@@ -218,7 +218,7 @@ class RobotPolicy {
 			// Not an article or category page, so index info is not stored in the DB
 			list($policy, $policyText) = $this->generateRobotPolicyBasedOnTitle();
 		} else {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$row = $dbr->selectRow(
 				RobotPolicy::TABLE_NAME,
 				['ii_policy', 'ii_reason'],
@@ -296,7 +296,7 @@ class RobotPolicy {
 	 */
 	private static function getDB() {
 		static $dbr = null;
-		if (!$dbr) $dbr = wfGetDB(DB_SLAVE);
+		if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
 		return $dbr;
 	}
 
@@ -588,7 +588,7 @@ class RobotPolicy {
 			return false;
 		}
 		// Count indexable articles in the category
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$tables = ['page', 'categorylinks', 'index_info'];
 		$fields = 'count(*)';
 		$where = [

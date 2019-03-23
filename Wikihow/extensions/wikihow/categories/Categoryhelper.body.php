@@ -729,7 +729,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 
 					// update the article here
 					if ( $a->doEdit( $textnew, $summary, $minoredit, $watchthis ) ) {
-						wfRunHooks("CategoryHelperSuccess", array());
+						Hooks::run("CategoryHelperSuccess", array());
 						print "Category Successfully Saved.\n";
 						return true;
 					} else {

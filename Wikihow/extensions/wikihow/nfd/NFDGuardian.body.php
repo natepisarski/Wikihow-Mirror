@@ -76,7 +76,7 @@ class NFDProcessor {
 
 	/* unused in 3/2019 - Reuben
 	function availableInTool() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$entries = $dbr->selectField('nfd',
 			'count(*)',
@@ -111,7 +111,7 @@ class NFDProcessor {
 	}
 
 	private function hasBeenPatrolled($page_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$count = $dbr->selectField('nfd', 'count(*)', array('nfd_page' => $page_id, 'nfd_patrolled' => "1"));
 
@@ -133,15 +133,15 @@ class NFDProcessor {
 	}
 
 	private function existsInTool() {
-		$dbr = wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
 
 		$articleId = $this->mArticle->getID();
-		$count = $dbr->selectField('nfd', 'count(*)', ['nfd_page'=> $articleId], __METHOD__);
+		$count = $dbw->selectField('nfd', 'count(*)', ['nfd_page'=> $articleId], __METHOD__);
 		return $count > 0;
 	}
 
 	private function availableOrAdvancedInTool($pageId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$count = $dbr->selectField('nfd',
 			'count(*)',
@@ -184,7 +184,7 @@ class NFDProcessor {
 		if ($this->mTemplate != null) {
 			return $this->mTemplate;
 		} else {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$template = $dbr->selectField('nfd', 'nfd_template', ['nfd_id' => $nfdid], __METHOD__);
 			return $template;
 		}
@@ -206,8 +206,8 @@ class NFDProcessor {
 
 	// Used in NFDGuardian
 	public static function getTitleFromNFDID($nfdid) {
-		$dbr = wfGetDB(DB_MASTER);
-		$page_id = $dbr->selectField('nfd', 'nfd_page', ['nfd_id' => $nfdid], __METHOD__);
+		$dbw = wfGetDB(DB_MASTER);
+		$page_id = $dbw->selectField('nfd', 'nfd_page', ['nfd_id' => $nfdid], __METHOD__);
 		$t = Title::newFromID($page_id);
 		return $t;
 	}
@@ -536,7 +536,7 @@ class NFDProcessor {
 
 			$msg = wfMessage("nfdrule_log_{$vote_param}")->rawParams("[[{$title->getText()}]]")->escaped();
 			$log->addEntry('vote', $title, $msg, array($vote));
-			wfRunHooks("NFDVoted", array($user, $title, '0'));
+			Hooks::run("NFDVoted", array($user, $title, '0'));
 		}
 	}
 
@@ -593,7 +593,7 @@ class NFDProcessor {
 
 			$msg = wfMessage("nfdrule_log_{$vote_param}")->rawParams("[[{$title->getText()}]]")->escaped();
 			$log->addEntry('vote', $title, $msg, array($vote));
-			wfRunHooks("NFDVoted", array($user, $title, $vote));
+			Hooks::run("NFDVoted", array($user, $title, $vote));
 		}
 
 		// check, do we have to mark it as patrolled, or roll the change back?
@@ -636,7 +636,7 @@ class NFDProcessor {
 	}
 
 	private function setFirstEdit() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$this->mFirstEdit = $dbr->selectField('firstedit',
 			'fe_timestamp',
 			['fe_page'=> $this->mArticle->getID()],
@@ -772,7 +772,7 @@ class NFDProcessor {
 	 * in the info section.
 	 */
 	private function getTotalVotes($nfd_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$keeps = array();
 		$deletes = array();
@@ -817,7 +817,7 @@ class NFDProcessor {
 	}
 
 	private function getArticleInfo() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$row = $dbr->selectRow(array('page', 'firstedit'), '*', array('fe_page=page_id', 'page_id' => $this->mResult->nfd_page), __METHOD__);
 		return $row;
@@ -832,7 +832,7 @@ class NFDProcessor {
 		$nfdUser->setName( 'NFD Voter Tool' );
 
 		// keep the article
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		// load the revision text
 		$pageid = $dbr->selectField('nfd', array('nfd_page'), array('nfd_id'=> $nfdid), __METHOD__);
@@ -964,7 +964,7 @@ class NFDProcessor {
 	// NOTE: used in NFDGuardian.
 	public function keepArticle($nfdid) {
 		// keep the article
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$pageid = $dbr->selectField('nfd', 'nfd_page', ['nfd_id' => $nfdid], __METHOD__);
 
@@ -1285,7 +1285,7 @@ class NFDGuardian extends SpecialPage {
 	 * NFD Id.
 	 */
 	private static function getVoteBlock($nfd_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row = $dbr->selectRow('nfd', '*', ['nfd_id' => $nfd_id], __METHOD__);
 
 		$html .= self::getDeleteKeepVotes($nfd_id, $row->nfd_delete_votes, $row->nfd_keep_votes, $row->nfd_admin_delete_votes, $row->nfd_admin_keep_votes, $row->nfd_page);
@@ -1352,7 +1352,7 @@ class NFDGuardian extends SpecialPage {
 		$req_k = NFDProcessor::getKeepVotesRequired();
 		$req_k_a = NFDProcessor::getAdminKeepVotesRequired();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		if ($t) {
 			$link = "<a href='{$t->getFullURL()}' target='new'>" . wfMessage('howto', $t->getText()) . "</a>";
@@ -1436,7 +1436,7 @@ class NFDGuardian extends SpecialPage {
 	 * NOTE: called by NFDProcessor
 	 */
 	public static function getDeleteKeep(&$delete, &$keep, $nfd_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select( 'nfd_vote',
 			['nfdv_user','nfdv_vote', 'nfdv_timestamp'],
@@ -1600,7 +1600,7 @@ class NFDGuardian extends SpecialPage {
 	 * to import all NFD articles into the NFD tables.
 	 */
 	public static function importNFDArticles() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = 0;
 		$resultsNFD = array();
 
@@ -1638,7 +1638,7 @@ class NFDGuardian extends SpecialPage {
 
 	// Used in importNfdArticles.php
 	public static function checkArticlesInNfdTable() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$count = 0;
 
@@ -1698,10 +1698,15 @@ class NFDDup extends QueryPage {
 		# page_counter is not indexed
 		return false;
 	}
+
 	function isSyndicated() { return false; }
 
 	function getSQL() {
-		return "SELECT nfd_page, nfd_fe_timestamp, page_touched as value FROM nfd LEFT JOIN page ON nfd_page = page_id WHERE nfd_status = " . NFDGuardian::NFD_DUP . " GROUP BY nfd_page";
+		return "SELECT nfd_page, nfd_fe_timestamp, page_touched AS value " .
+			   "FROM nfd " .
+			   "LEFT JOIN page ON nfd_page = page_id " .
+			   "WHERE nfd_status = " . NFDGuardian::NFD_DUP . " " .
+			   "GROUP BY nfd_page";
 	}
 
 	function formatResult( $skin, $result ) {
@@ -1713,10 +1718,17 @@ class NFDDup extends QueryPage {
 			$previsionRevision = $revision->getPrevious();
 			$article = new Article($title);
 			if ($revision != null) {
-				$link = $lang->date( $revision->getTimestamp() ) . " " . $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ), 'redirect=no', " (" . number_format($previsionRevision->getSize(), 0, "", ",") . " bytes, " . number_format($article->getCount(), 0, "", ",") . " Views) " );
+				$link = $lang->date( $revision->getTimestamp() ) . " "
+					. Linker::linkKnown( $title,
+						htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ),
+						[],
+						['redirect' => 'no'] )
+					. " (" . number_format($previsionRevision->getSize(), 0, "", ",") . " bytes, " . number_format($article->getCount(), 0, "", ",") . " Views) ";
 				$redirectTitle = Title::newFromRedirect($revision->getText());
 				if ($redirectTitle) {
-					$link .= " => " . $skin->makeKnownLinkObj( $redirectTitle, htmlspecialchars( $wgContLang->convert( $redirectTitle->getPrefixedText() ) ) );
+					$link .= " => " .
+						Linker::linkKnown( $redirectTitle,
+							htmlspecialchars( $wgContLang->convert( $redirectTitle->getPrefixedText() ) ) );
 				}
 			}
 		}
@@ -1748,14 +1760,18 @@ class NFDAdvanced extends QueryPage {
 	function isSyndicated() { return false; }
 
 	function getSQL() {
-		return "SELECT nfd_page as title, " . NS_MAIN . " as namespace, nfd_fe_timestamp as value FROM nfd WHERE nfd_status = " . NFDGuardian::NFD_ADVANCED . " GROUP BY nfd_page";
+		return "SELECT nfd_page AS title, " . NS_MAIN . " AS namespace, nfd_fe_timestamp AS value " .
+			   "FROM nfd " .
+			   "WHERE nfd_status = " . NFDGuardian::NFD_ADVANCED . " " .
+			   "GROUP BY nfd_page";
 	}
 
 	function formatResult( $skin, $result ) {
 		global $wgContLang;
 		$title = Title::newFromID($result->title);
 		if ($title) {
-			$link = $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ) );
+			$link = Linker::linkKnown( $title,
+				htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ) );
 		}
 		return $link;
 	}

@@ -91,11 +91,12 @@ class EmbeddedVideo {
 	private function delete($deleteSummary) {
 		$page = WikiPage::newFromId( $this->pageId );
 		$errors = array();
+		// 2nd and 3rd params to this call are ignored after MW 1.27
 		$page->doDeleteArticle(  $deleteSummary, false, 0, true, $errors, $this->bot );
 	}
 
 	private function removeLinkedSections($editSummary) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		// get all transclusions of this video page
 		// normally there is only 1, so we can limit the rows to 500

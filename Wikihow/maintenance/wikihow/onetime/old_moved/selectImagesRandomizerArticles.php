@@ -14,7 +14,7 @@ define('SELECT_MIN_IMAGES', 2);
 class SelectRandomizer extends Randomizer {
 	public static function getSelection($maxUrls, $minImages) {
 		$output = array();
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = 'SELECT pr_title FROM page_randomizer';
 		$rows = parent::loadRows($dbr, $sql, '', __METHOD__);
 		shuffle($rows);

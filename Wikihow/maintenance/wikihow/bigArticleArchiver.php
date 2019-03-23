@@ -28,7 +28,7 @@ class SplitBigArticleMaintenance extends Maintenance {
 
 		$splitOldMode = $this->getOption('split-old');
 		if ($splitOldMode) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$res = $dbr->query("SELECT page_namespace, page_title FROM page WHERE page_title LIKE '" . $article . "/%'", __FILE__);
 			foreach ($res as $row) {
 				$title = Title::makeTitle( $row->page_namespace, $row->page_title );
@@ -36,7 +36,7 @@ class SplitBigArticleMaintenance extends Maintenance {
 				self::maybeSplitAndArchiveOld($title);
 			}
 		} else {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$title = Title::newFromUrl( $article );
 			if ($title->exists()) {
 				print "Found title: " . $title . "\n";

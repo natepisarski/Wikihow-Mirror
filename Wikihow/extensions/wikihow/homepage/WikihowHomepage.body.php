@@ -55,7 +55,7 @@ class WikihowHomepage extends Article {
 		$this->faStream = new WikihowArticleStream($faViewer, $this->getContext(), $this->faStream->getStreamPosition() + 1);
 		$html3 = $this->faStream->getChunks(WikihowHomepage::FA_ENDING_CHUNKS, WikihowHomepage::SINGLE_WIDTH, WikihowHomepage::SINGLE_SPACING, WikihowHomepage::SINGLE_HEIGHT);
 
-		wfRunHooks( 'WikihowHomepageFAContainerHtml', array( &$html, &$html2, &$html3 ) );
+		Hooks::run( 'WikihowHomepageFAContainerHtml', array( &$html, &$html2, &$html3 ) );
 
         $totalHtml = $html . $html2 . $html3;
 
@@ -149,7 +149,7 @@ class WikihowHomepage extends Article {
 
 		$items = array();
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(WikihowHomepageAdmin::HP_TABLE, array('*'), array('hp_active' => 1), __METHOD__, array('ORDER BY' => 'hp_order'));
 
 		$i = 0;
@@ -169,7 +169,7 @@ class WikihowHomepage extends Article {
 				}
 			}
 		}
-		wfRunHooks( 'WikihowHomepageAfterGetTopItems', array( &$items ) );
+		Hooks::run( 'WikihowHomepageAfterGetTopItems', array( &$items ) );
 
 		$searchTitle = Title::makeTitle(NS_SPECIAL, "LSearch");
 		$search = '

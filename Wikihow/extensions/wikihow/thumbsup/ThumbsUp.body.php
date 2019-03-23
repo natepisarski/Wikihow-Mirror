@@ -7,9 +7,6 @@ class ThumbsUp extends UnlistedSpecialPage {
 	}
 
 	function execute($par) {
-		$fname = 'ThumbsUp::execute';
-		wfProfileIn( $fname );
-
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$req = $this->getRequest();
@@ -26,18 +23,13 @@ class ThumbsUp extends UnlistedSpecialPage {
 
 		$out->setArticleBodyOnly(true);
 		print json_encode($retVal);
-
-		wfProfileOut( $fname );
 	}
 
 	static function quickNoteThumb($revOld, $revNew, $pageId, $recipientText) {
-		$fname = 'ThumbsUp::quickNoteThumb';
-		wfProfileIn( $fname );
-
 		$u = User::newFromName($recipientText);
 		$recipientId = (is_object($u)) ? $u->getId() : 0;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('revision',
 			array('rev_id, rev_user, rev_user_text'),
 			array("rev_id>" . $revOld, "rev_id<=" . $revNew, "rev_page" => $pageId, "rev_user" => $recipientId, "rev_user_text" => $recipientText));
@@ -46,15 +38,10 @@ class ThumbsUp extends UnlistedSpecialPage {
 		if ($row = $dbr->fetchObject($res)) {
 			self::thumb($row->rev_id, $row->rev_user, $row->rev_user_text, $pageId, false);
 		}
-
-		wfProfileOut( $fname );
 	}
 
 	function thumbMultiple($revOld, $revNew, $pageId) {
-		$fname = 'ThumbsUp::thumbMultiple';
-		wfProfileIn( $fname );
-
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('revision',
 			array('rev_user, rev_user_text'),
 			array('rev_id' => $revNew, 'rev_page' => $pageId),
@@ -69,8 +56,6 @@ class ThumbsUp extends UnlistedSpecialPage {
 			}
 			$recipients[] = $recipient;
 		}
-
-		wfProfileOut( $fname );
 	}
 
 	/*
@@ -78,23 +63,13 @@ class ThumbsUp extends UnlistedSpecialPage {
 	* ie the edit that created the article
 	*/
 	function thumbNAB($revOld, $revNew, $pageId) {
-		$fname = 'ThumbsUp::thumbNAB';
-		wfProfileIn( $fname );
-
 		$minRev = self::getFirstArticleRevision($pageId);
 		self::thumbMultiple(-1, $minRev, $pageId);
-
-		wfProfileOut( $fname );
 	}
 
 	function getFirstArticleRevision($pageId) {
-		$fname = 'ThumbsUp::getFirstArticleRevision';
-		wfProfileIn( $fname );
-
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$minRev = $dbr->selectField('revision', array('min(rev_id)'), array("rev_page" => $pageId), __METHOD__);
-
-		wfProfileOut( $fname );
 
 		return $minRev;
 	}
@@ -102,18 +77,13 @@ class ThumbsUp extends UnlistedSpecialPage {
 	function thumb($revisionId, $thumbRecipientId, $thumbRecipientText, $pageId, $sendNotification = false) {
 		global $wgUser;
 
-		$fname = 'ThumbsUp::thumb';
-		wfProfileIn( $fname );
+		$dbr = wfGetDB(DB_REPLICA);
 
-		$dbr = wfGetDB(DB_SLAVE);
-
-		/*
-		Thumb for:
-		- revision authors who have accounts (not anons)
-		- thumb givers that are logged in
-		- revisions that are not already thumbed by the current giver/user
-		- revisions that aren't authored by the giver/user
-		*/
+		// Thumb for:
+		// - revision authors who have accounts (not anons)
+		// - thumb givers that are logged in
+		// - revisions that are not already thumbed by the current giver/user
+		// - revisions that aren't authored by the giver/user
 		if ($wgUser->isLoggedIn() && !self::isThumbedByCurrentUser($revisionId) && $wgUser->getID() != $thumbRecipientId && self::isThumbableTitle($pageId)) {
 			$userName = $wgUser->getName();
 			$dbw = wfGetDB(DB_MASTER);
@@ -156,7 +126,6 @@ class ThumbsUp extends UnlistedSpecialPage {
 				$wgMemc->delete($memkey);
 			}
 		}
-		wfProfileOut( $fname );
 	}
 
 	// Returns 0 if preference is set, 1 if preference isn't set
@@ -200,23 +169,14 @@ class ThumbsUp extends UnlistedSpecialPage {
 	function isThumbedByCurrentUser($revisionId) {
 		global $wgUser;
 
-		$fname = 'ThumbsUp::isThumbedByCurrentUser';
-		wfProfileIn( $fname );
-
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$thumb_rev_id = $dbr->selectField("thumbs", array("thumb_rev_id"), array("thumb_rev_id" => $revisionId, "thumb_giver_id" => $wgUser->getID()));
-
-		wfProfileOut( $fname );
 
 		return $thumb_rev_id > 0;
 	}
 
-
 	function notifyUserOfThumbsUp($t, $recipientId, $diffUrl, $revisionId, $recipientText) {
 		global $wgUser, $wgLang;
-
-		$fname = 'ThumbsUp::notifyUserOfThumbsUp';
-		wfProfileIn( $fname );
 
 		$user = $wgUser->getName();
 		$real_name = User::whoIsReal($wgUser->getID());
@@ -308,16 +268,10 @@ class ThumbsUp extends UnlistedSpecialPage {
 				) );
 			}
 		}
-
-		wfProfileOut( $fname );
 	}
 
 	function autoPatrolTalkMessage($talkPageArticleId) {
 		global $wgUser;
-
-		$fname = 'ThumbsUp::autoPatrolTalkMessage';
-		wfProfileIn( $fname );
-
 
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->update('recentchanges',
@@ -325,8 +279,6 @@ class ThumbsUp extends UnlistedSpecialPage {
 			array( 'rc_user'=>$wgUser->getID(), 'rc_cur_id'=>$talkPageArticleId, 'rc_comment'=>wfMessage('thumbs-up-usertalk-editsummary')->text() ),
 			"autoPatrolTalkMessage",
 			array("ORDER BY" => "rc_id DESC", "LIMIT"=>1));
-
-		wfProfileOut( $fname );
 	}
 
 	function isThumbableTitle($articleId) {

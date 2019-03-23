@@ -21,7 +21,7 @@ class ConfigStorageHistory {
 	 * List all recent history items
 	 */
 	public static function dbListHistory(int $items = 20) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select( 'config_storage_history',
 			['csh_id', 'csh_modified', 'csh_username', 'csh_key', 'csh_log_short' ],
 			'',
@@ -38,7 +38,7 @@ class ConfigStorageHistory {
 	 * Get details of a history entry
 	 */
 	public static function dbGetDetails(int $csh_id) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$row = (array)$dbr->selectRow( 'config_storage_history',
 			['csh_key', 'csh_log_short', 'csh_log_full'],
 			['csh_id' => (int)$csh_id],

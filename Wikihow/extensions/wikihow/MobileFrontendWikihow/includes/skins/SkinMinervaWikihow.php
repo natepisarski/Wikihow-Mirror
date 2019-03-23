@@ -168,7 +168,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		unset($items['uploads']);
 		unset($items['settings']);
 		unset($items['preferences']);
-		wfRunHooks( 'WikihowMobileSkinAfterPreparePersonalTools', array( &$items ) );
+		Hooks::run( 'WikihowMobileSkinAfterPreparePersonalTools', array( &$items ) );
 		$tpl->set('personal_urls', $items);
 	}
 
@@ -390,7 +390,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		$tpl->set('historyLink', null);
 		unset($items['nearby']);
 		$items['random']['href'] = SpecialPage::getTitleFor( 'Randomizer' )->getLocalUrl();
-		wfRunHooks( 'WikihowMobileSkinAfterPrepareDiscoveryTools', array( &$items ) );
+		Hooks::run( 'WikihowMobileSkinAfterPrepareDiscoveryTools', array( &$items ) );
 		$tpl->set('discovery_urls', $items);
 	}
 
@@ -445,7 +445,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 			$tpl->set('specialPageHeader', '');
 
 			$isTool = false;
-			wfRunHooks( 'getMobileToolStatus', array( &$isTool ) );
+			Hooks::run( 'getMobileToolStatus', array( &$isTool ) );
 
 			if ($pageHeading && !$isTool) {
 				$preBodyText = Html::rawElement( 'h1', array( 'id' => 'section_0', 'class' => 'special_title'), $pageHeading );

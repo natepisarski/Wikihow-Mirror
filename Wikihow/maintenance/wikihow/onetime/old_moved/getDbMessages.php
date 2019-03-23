@@ -2,7 +2,7 @@
 // Get all the messages in the database
 require_once('commandLine.inc');
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 
 $sql = "select page_title from page where page_namespace=" . NS_MEDIAWIKI;
 $res = $dbr->query($sql);

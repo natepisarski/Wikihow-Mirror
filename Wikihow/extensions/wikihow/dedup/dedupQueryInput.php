@@ -24,7 +24,7 @@ class DedupQueryInput {
 	 */
 	public static function addTopKeywords($min, $max) {
 		$sql = "select title from dedup.keywords where position >= " . intVal($min) .  " and position <= " . intVal($max);
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($sql, __METHOD__);
 		$keywords = array();
 		foreach ( $res as $row ) {

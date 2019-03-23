@@ -14,7 +14,7 @@ class MobileFrontendWikiHowHooks {
 				$mobileAllowed = true;
 			}
 
-			wfRunHooks( 'IsEligibleForMobileSpecial', array( &$mobileAllowed ) );
+			Hooks::run( 'IsEligibleForMobileSpecial', array( &$mobileAllowed ) );
 
 			if (!$mobileAllowed && !$wgIsAnswersDomain) {
 				$context = MobileContext::singleton();
@@ -92,7 +92,7 @@ class MobileFrontendWikiHowHooks {
 				}
 			}
 
-			wfRunHooks( 'IsEligibleForMobile', array( &$mobileAllowed ) );
+			Hooks::run( 'IsEligibleForMobile', array( &$mobileAllowed ) );
 
 			if (!$mobileAllowed) {
 				$context = MobileContext::singleton();
@@ -120,7 +120,7 @@ class MobileFrontendWikiHowHooks {
 			$stylePaths[] = __DIR__ . '/less/wikihow/iorg.css';
 		}
 
-		wfRunHooks("MobileEmbedStyles", [&$stylePaths, $context->getTitle()]);
+		Hooks::run("MobileEmbedStyles", [&$stylePaths, $context->getTitle()]);
 
 		// the amp css was getting so large we now have a separate css file
 		// which contains css that will NOT be used on amp

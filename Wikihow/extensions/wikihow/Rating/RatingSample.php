@@ -37,7 +37,7 @@ class RatingSample extends RatingsTool {
 	function getLoggingInfo($title) {
 		global $wgLang, $wgOut;
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		//  get log
 		$res = $dbr->select ('logging',
@@ -83,7 +83,7 @@ class RatingSample extends RatingsTool {
 		$dbKey = $title->getDBKey();
 		$name = substr($dbKey, strlen($this->titlePrefix));
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->selectField('dv_sampledocs', 'dvs_doc', array('dvs_doc' => $name));
 
 		if ($res === false)

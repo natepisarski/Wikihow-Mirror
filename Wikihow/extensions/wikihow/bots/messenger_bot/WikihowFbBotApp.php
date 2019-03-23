@@ -6,6 +6,11 @@ class WikihowFbBotApp extends FbBotApp {
 
 	public function __construct($token) {
 		parent::__construct($token);
+
+		// Set the new API version to 3.2 in our subclass of FbBotApp since it looks like
+		// this project is no longer being updated.  For the few API calls this bot makes
+		// there should be no further updates required to the fb-messenger-php project
+		$this->apiUrl = 'https://graph.facebook.com/v3.2/';
 	}
 
 	/**

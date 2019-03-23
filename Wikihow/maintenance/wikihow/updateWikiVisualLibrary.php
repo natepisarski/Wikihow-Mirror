@@ -239,7 +239,7 @@ class UpdateWikiVisualLibrary extends Maintenance {
 
 	protected function processBrokenPageLinks() {
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			[
@@ -287,7 +287,7 @@ class UpdateWikiVisualLibrary extends Maintenance {
 	}
 	
 	protected function insertPage($aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$pageInfoQuery = $dbr->selectSQLText(
@@ -330,7 +330,7 @@ SQL;
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$livePageSelectQuery = $dbr->selectSQLText(
@@ -382,7 +382,7 @@ SQL;
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$liveAssetSelectQuery = $dbr->selectSQLText(
@@ -457,7 +457,7 @@ SQL;
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$fredAssetSelectQuery = $dbr->selectSQLText(
@@ -509,7 +509,7 @@ SQL;
 			return;
 		}
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$wikiVisualAssetSelectQuery = $dbr->selectSQLText(
@@ -558,7 +558,7 @@ SQL;
 	protected function printQuery($q) {
 		print "Running query:\n$q\n";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query($q, __METHOD__);
 
 		foreach ($res as $row) {
@@ -585,7 +585,7 @@ SQL;
 
 		print count($articles) . " articles\n";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$i = 0;
@@ -810,7 +810,7 @@ SQL;
 	}
 
 	protected function runS3ImageUpdate($id, $details, $photoList) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$sha1s = [];
@@ -934,7 +934,7 @@ SQL;
 	}
 
 	protected function runS3VideoUpdate($id, $details) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$wvArticleStatusRes = $dbr->selectRow(
@@ -1108,7 +1108,7 @@ SQL;
 	}
 
 	protected function runImageUpdateFromTmpTable() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$res = $dbr->select(
@@ -1232,7 +1232,7 @@ SQL;
 	}
 
 	protected function runVideoUpdateFromTmpTable() {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 
 		$res = $dbr->select(
 			'wvl_s3_vids',
@@ -1318,7 +1318,7 @@ SQL;
 	}
 
 	protected function addVideoInfoFromS3($aid, $s3info, $wikinames) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$pageRes = $dbr->selectRow(

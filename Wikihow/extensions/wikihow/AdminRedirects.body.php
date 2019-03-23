@@ -8,7 +8,7 @@ class AdminRedirects extends UnlistedSpecialPage {
 
 	function getIntlRedirect($lang, $pageid) {
 		static $dbr = null;
-		if (!$dbr) $dbr = wfGetDB(DB_SLAVE);
+		if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
 
 		$tables = Misc::getLangDB($lang) . '.redirect';
 		$fields = 'rd_title';

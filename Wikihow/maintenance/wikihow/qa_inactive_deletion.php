@@ -16,7 +16,7 @@ class QAInactiveDeletion extends Maintenance {
 	 * Called command line.
 	 */
 	public function execute() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$res = $dbr->select(
 			QADB::TABLE_ARTICLES_QUESTIONS,
 			'qa_id',

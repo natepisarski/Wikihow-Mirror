@@ -35,7 +35,6 @@ class WikihowArticleStream extends ContextSource {
 	// Each article has a title object, a representative image, and dimensions of
 	// that image.
 	private function peekNext() {
-		wfProfileIn(__METHOD__);
 		// Fill more articles into cache
 		for ($i = $this->current + count($this->cache);
 			 $i < count($this->articles)
@@ -60,23 +59,19 @@ class WikihowArticleStream extends ContextSource {
 				}
 			}
 		}
-		wfProfileOut(__METHOD__);
 		return $this->cache;
 	}
 
 	// Consume n articles from the stream
 	private function consume($consumed) {
-		wfProfileIn(__METHOD__);
 		$n = count($consumed);
 		$this->current += $n;
 		if ($this->cache) {
 			$this->cache = array_slice($this->cache, $n);
 		}
-		wfProfileOut(__METHOD__);
 	}
 
 	public function getChunks($numChunks, $singleWidth, $singleSpacing, $singleHeight, $device = WikihowArticleStream::DESKTOP) {
-		wfProfileIn(__METHOD__);
 		$html = '';
 
 		switch ($device) {
@@ -130,12 +125,10 @@ class WikihowArticleStream extends ContextSource {
 			}
 		}
 		if ($html) $html .= '<script>gScrollContext = ' . $this->current . ';</script>';
-		wfProfileOut(__METHOD__);
 		return $html;
 	}
 
 	public function getFlatChunk($numChunks, $singleWidth, $singleSpacing, $singleHeight, $device = WikihowArticleStream::DESKTOP) {
-		wfProfileIn(__METHOD__);
 		$html = '';
 
 		switch ($device) {
@@ -189,7 +182,6 @@ class WikihowArticleStream extends ContextSource {
 			}
 		}
 		//if ($html) $html .= '<script>gScrollContext = ' . $this->current . ';</script>';
-		wfProfileOut(__METHOD__);
 		return $html;
 	}
 

@@ -84,7 +84,7 @@ function articlesstarted($parser, $part1 = '', $part2 = '', $part3 = 'time', $pa
 			if ($part4 != '') $msg = $part4;
 			$ret = "<div style='$part5'>$msg<br/>\n";
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$order = array();
 		switch ($part3) {
 			case 'popular':
@@ -137,7 +137,7 @@ function patrolcount($parser, $date1 = '', $date2  = '') {
 		if ($date1 != "") $options[] = "log_timestamp > '{$date1}000000'";
 		if ($date2 != "") $options[] = "log_timestamp < '{$date2}235959'";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField('logging', 'count(*)', $options, "patrolcount");
 		$count = number_format($count, 0, "", ",");
 
@@ -165,7 +165,7 @@ function nabcount($parser, $date1 = '', $date2  = '') {
 		if ($date1 != "") $options[] = "log_timestamp > '{$date1}000000'";
 		if ($date2 != "") $options[] = "log_timestamp < '{$date2}235959'";
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$count = $dbr->selectField('logging', 'count(*)', $options, "nabcount");
 		$count = number_format($count, 0, "", ",");
 
@@ -182,7 +182,7 @@ function wfWikiHowMagicAssignAValue(&$parser, &$cache, &$magicWordId, &$ret) {
 	}
 
 	if ('VIEWERSHIP' === $magicWordId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$u = User::newFromName($title->getText());
 		if (!$u || $u->getID() == 0) {
 			$ret = "No such user \"{$title->getText()}\"";
@@ -193,7 +193,7 @@ function wfWikiHowMagicAssignAValue(&$parser, &$cache, &$magicWordId, &$ret) {
 		$ret = number_format($count, 0, "", ",");
 		return true;
 	} else  if ('NUMBEROFARTICLESSTARTED' === $magicWordId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$u = User::newFromName($title->getText());
 		if (!$u || $u->getID() == 0) {
 			$ret = "No such user \"{$title->getText()}\"";

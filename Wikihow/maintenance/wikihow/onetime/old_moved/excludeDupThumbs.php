@@ -1,7 +1,7 @@
 <?
 require_once( 'commandLine.inc' );
 $dbw = wfGetDB( DB_MASTER );
-$dbr = wfGetDB( DB_SLAVE );
+$dbr = wfGetDB( DB_REPLICA );
 
 $sql = "SELECT  thumb_giver_id, thumb_recipient_text, thumb_timestamp, thumb_rev_id, thumb_page_id, page_id, page_title  FROM thumbs, page WHERE thumb_page_id=page_id ORDER BY thumb_page_id, thumb_recipient_text, thumb_timestamp";
 $res = $dbr->query($sql);

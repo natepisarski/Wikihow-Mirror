@@ -102,7 +102,7 @@ class Dedup extends UnlistedSpecialPage {
 		dedupQuery::matchQueries($this->queriesR);
 
 		wfDebugLog('dedup', "getTopMatchBatch: fetching results from mysql");
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT query1, query2, ct " .
 			   "FROM dedup.query_match " .
 			   "WHERE query1 <> query2 " .
@@ -188,7 +188,7 @@ class Dedup extends UnlistedSpecialPage {
 		dedupQuery::matchQueries($this->queriesR);
 
 		wfDebugLog('dedup', "getTopMatchBatchScores: fetching results from mysql");
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT query1, query2, ct " .
 			   "FROM dedup.query_match " .
 			   "WHERE ct >= 20 " .
@@ -238,7 +238,7 @@ class Dedup extends UnlistedSpecialPage {
 		dedupQuery::matchQueries($this->queriesR);
 
 		wfDebugLog('dedup', "getBatch: fetching results from mysql");
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT query1, query2, ct, tq_title " .
 			   "FROM dedup.query_match " .
 			   "LEFT JOIN dedup.title_query ON tq_query=query2 " .
@@ -294,7 +294,7 @@ class Dedup extends UnlistedSpecialPage {
 		}
 		dedupQuery::matchQueries($this->queriesR);
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "SELECT query1, query2, ct, tq_title, tq_page_id " .
 			   "FROM dedup.query_match " .
 			   "LEFT JOIN dedup.title_query ON tq_query=query2 " .

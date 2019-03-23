@@ -3,6 +3,7 @@
 class WHVid {
 
 	const NUM_DIR_LEVELS = 2;
+	static $titleHasSummaryVideo = null;
 
 	public static function setParserFunction () {
 		# Setup parser hook
@@ -451,4 +452,29 @@ class WHVid {
 
 		return true;
 	}
+
+	public static function onAddMobileTOCItemData($wgTitle, &$extraTOCPreData, &$extraTOCPostData) {
+		if (self::hasSummaryVideo($wgTitle)) {
+			$extraTOCPostData[] = [
+				'anchor' => 'Quick_Summary',
+				'name' => 'Video',
+				'priority' => 1050,
+				'selector' => '#Quick_Summary',
+			];
+		}
+		return true;
+	}
+
+	public static function hasSummaryVideo($title) {
+		if(!$title || !$title->exists()) return false;
+
+		if(is_null(self::$titleHasSummaryVideo)) {
+			$wikiText = wikiText::getWikitext(wfGetDB(DB_SLAVE), $title);
+			self::$titleHasSummaryVideo = wikiText::countSummaryVideos($wikiText) > 0;
+		}
+
+		return self::$titleHasSummaryVideo;
+	}
+
+
 }

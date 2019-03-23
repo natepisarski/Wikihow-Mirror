@@ -81,7 +81,7 @@ class Indexer {
 	 * TODO: funcdoc
 	 */
 	protected static function insertPage($aid) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$pageInfoQuery = $dbr->selectSQLText(
@@ -120,7 +120,7 @@ SQL;
 	}
 
 	protected static function insertAssets($aid, $creator, $type, $imageInfo, $creatorId) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$dbw = wfGetDB(DB_MASTER);
 
 		$safeAid = $dbr->addQuotes($aid);

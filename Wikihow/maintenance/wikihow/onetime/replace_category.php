@@ -8,7 +8,7 @@ $wgUser = User::newFromName('MiscBot');
 $old_cat = 'In progress articles removed from NAB';
 $new_cat = 'Articles in Quality Review';
 
-$dbr = wfGetDB(DB_SLAVE);
+$dbr = wfGetDB(DB_REPLICA);
 // $sql = "SELECT page_title, page_id 
 			// FROM (page, categorylinks cl1)
 			// WHERE cl1.cl_from = page_id 

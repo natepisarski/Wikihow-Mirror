@@ -174,7 +174,7 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 	 * get the next article to vote on
 	 */
 	private function getNextItem() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		$result = [];
 		$conds = [];
 		$userId = $this->getUserId();
@@ -204,7 +204,7 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 	}
 
 	private function getRatingReason( $pageId, $ratingReasonId ) {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 
 		$table = 'rating_reason';
 		$vars = 'ratr_id, ratr_text';
@@ -302,7 +302,7 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 	}
 
 	public static function getRemainingCount() {
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDb( DB_REPLICA );
 		$table = self::STF_TABLE;
 		$vars = "count('*')";
 		$conds = array( "stfi_user_id" => '' );
@@ -392,7 +392,7 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 			$dbw->delete( $table, $conds, __METHOD__ );
 
 			$title = Title::newFromID( $pageId );
-			wfRunHooks("SpecialTechFeedbackItemCompleted", array($wgUser, $title, '0'));
+			Hooks::run("SpecialTechFeedbackItemCompleted", array($wgUser, $title, '0'));
 		}
 
 		// log the actions
@@ -451,7 +451,7 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 	 */
 	private static function getVoteSpreadsheetData( $pageId, $date, $comment ) {
 		global $wgLanguageCode;
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$table = array( 'titus_copy' );
 		$vars = array( 'ti_page_title', 'ti_30day_views_unique', 'ti_helpful_percentage', 'ti_helpful_total' );
 		$conds = array(

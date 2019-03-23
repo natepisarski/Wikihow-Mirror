@@ -25,7 +25,7 @@ class DedupQuery {
 		if (!$query) {
 			return;
 		}
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select min(ql_time_fetched) as ts from dedup.query_lookup where ql_query=" . $dbr->addQuotes($query);
 		$res = $dbr->query($sql, __METHOD__);
 		foreach ($res as $row) {
@@ -122,7 +122,7 @@ class DedupQuery {
 			return("");
 		}
 		self::fetchQuery($query, wfTimestamp(TS_MW, time() - self::SEARCH_REFRESH_INTERVAL));
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select count(*) as ct from dedup.title_query where tq_title=" . $dbr->addQuotes($titleText);
 		$res = $dbr->query($sql, __METHOD__);
 		$ct = 0;
@@ -149,7 +149,7 @@ class DedupQuery {
 	 * @param lang Langauge of the title to remove
 	 */
 	public static function removeTitle($titleText, $lang) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$sql = "select * from dedup.title_query where tq_title=" . $dbr->addQuotes($titleText);
 		$pageId = 0;
 		$pageLang = "en";
@@ -178,7 +178,7 @@ class DedupQuery {
 	 * Find matches for the designated queries
 	 */
 	public static function matchQueries($queries) {
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$queriesN = array();
 		foreach ($queries as $query) {
 			$queriesN[] = $dbr->addQuotes($query);
@@ -193,7 +193,7 @@ class DedupQuery {
 	 * Find categories
 	 */
 	public static function getCategories($query) {
-			$dbr = wfGetDB(DB_SLAVE);
+			$dbr = wfGetDB(DB_REPLICA);
 			$sql = "select cl_to, sum(ct) as score from categorylinks join dedup.title_query on tq_page_id=cl_from and tq_lang='en' join dedup.query_match on tq_query=query2 and tq_query<>query1 where query1=" . $dbr->addQuotes($query) . " group by cl_to order by score desc";
 			$res = $dbr->query($sql, __METHOD__);
 			$cats = array();
@@ -209,7 +209,7 @@ class DedupQuery {
 	public static function getRelated($title, $minScore = 1) {
 		global $wgLanguageCode;
 
-		$dbr = wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_REPLICA);
 		$query = DedupQuery::addTitle($title, $wgLanguageCode);
 		if (!$query) {
 			return(array());
