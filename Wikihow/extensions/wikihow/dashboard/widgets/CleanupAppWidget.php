@@ -1,4 +1,4 @@
-<?
+<?php
 
 class CleanupAppWidget extends DashboardWidget {
 

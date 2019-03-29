@@ -22,8 +22,7 @@ class TopicTagging extends \UnlistedSpecialPage {
 		$out->setRobotPolicy('noindex, nofollow');
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		$this->isMobile = \Misc::isMobileMode();

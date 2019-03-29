@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use Curl\Curl;
 class Auth {

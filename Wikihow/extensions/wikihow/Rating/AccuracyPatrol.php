@@ -17,7 +17,7 @@ class AccuracyPatrol extends QueryPage {
 		//is this for articles or samples?
 		$this->forSamples = (strpos(strtolower($_SERVER['REQUEST_URI']),'sample')) ? true : false;
 
-		list( $limit, $offset ) = wfCheckLimits();
+		list( $limit, $offset ) = RequestContext::getMain()->getRequest()->getLimitOffset(50, 'rclimit');
 		$this->limit = $limit;
 		$this->offset = $offset;
 	}

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use MVC\Paginator;
 

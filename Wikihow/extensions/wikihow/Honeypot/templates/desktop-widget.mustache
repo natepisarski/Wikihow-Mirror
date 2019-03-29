@@ -10,7 +10,7 @@
 document.addEventListener( 'DOMContentLoaded', function () {
 	var banner = document.getElementById( 'campaign-adBanner' );
 	var widget = document.getElementById( 'campaign-desktopWidget' );
-	if ( mw.user.anonymous() && !window._ads || ( banner && widget && banner.offsetHeight == 0 ) ) {
+	if ( mw.user.isAnon() && !window._ads || ( banner && widget && banner.offsetHeight == 0 ) ) {
 		var root = '/extensions/wikihow/Honeypot/campaigns/{{campaign}}/';
 		var sources = [
 			{ ref: 'small', srcset: [ root + 'small@1x.png 300w', root + 'small@2x.png 600w', root + 'small@3x.png 900w' ] },

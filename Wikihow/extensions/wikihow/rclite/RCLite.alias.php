@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Aliases for special pages
  *

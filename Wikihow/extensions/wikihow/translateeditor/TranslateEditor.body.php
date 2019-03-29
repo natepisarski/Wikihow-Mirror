@@ -82,12 +82,12 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$save = $wgRequest->getVal('wpSave',null);
 		$title = Title::newFromURL($target);
 		// We have the dialog to enter the URL when we are adding a new article, and have no existing draft.
-		if ($title->inNamespace(NS_MAIN) && self::isTranslatorUser()) {
+		if ($title && $title->inNamespace(NS_MAIN) && self::isTranslatorUser()) {
 
 			if ($draft == null
-			&& !$title->exists()
-			&& $action=='edit') {
-
+				&& !$title->exists()
+				&& $action=='edit'
+			) {
 				EasyTemplate::set_path(__DIR__.'/');
 
 				// Templates to remove from translation
@@ -108,13 +108,13 @@ class TranslateEditor extends UnlistedSpecialPage {
 				QuickEdit::showEditForm($title);
 				return false;
 			}
-			elseif($section == null && $save == null) {
+			elseif ($section == null && $save == null) {
 				EasyTemplate::set_path(__DIR__.'/');
 				$vars = array('title' => $target, 'checkForLL' => true, 'translateURL'=>false);
 				$html = EasyTemplate::html('TranslateEditor.tmpl.php', $vars);
 				$wgOut->addHTML($html);
 				QuickEdit::showEditForm($title);
-				return(false);
+				return false;
 			}
 		}
 		return true;
@@ -124,11 +124,11 @@ class TranslateEditor extends UnlistedSpecialPage {
 	 **/
 	function execute ($par) {
 		global $wgRequest, $wgOut, $wgUser, $wgLang;
-		if ($wgUser->isBlocked()) {
-			$wgOut->blockedPage();
-			return;
+		$user = $this->getUser();
+		if ($user->isBlocked()) {
+			throw new UserBlockedError( $user->getBlock() );
 		}
-		$userGroups = $wgUser->getGroups();
+		$userGroups = $user->getGroups();
 
 		if (!self::isTranslatorUser()) {
 			$wgOut->setRobotPolicy( 'noindex,nofollow' );

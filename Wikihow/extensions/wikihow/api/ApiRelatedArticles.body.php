@@ -42,10 +42,11 @@ class ApiRelatedArticles extends ApiQueryBase {
 				);
 				$relatedArticles = [];
 				foreach ( $relatedTitles as $relatedTitle ) {
+					$thumbImage = ArticleMetaInfo::getRelatedThumb( $relatedTitle, 320, -1 );
 					$relatedArticles[] = [
 						'id' => $relatedTitle->getArticleId(),
 						'title' => $relatedTitle->getText(),
-						'image' => ArticleMetaInfo::getRelatedThumb( $relatedTitle, 320, -1 )->getUrl(),
+						'image' => $thumbImage ? $thumbImage->getUrl() : '',
 						'url' => $relatedTitle->getCanonicalURL()
 					];
 				}

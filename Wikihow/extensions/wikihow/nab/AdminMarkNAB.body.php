@@ -52,14 +52,13 @@ class AdminMarkPromoted extends UnlistedSpecialPage {
 			if (!empty($failedPages)) {
 				$html .= '<br/><p>Unable to parse the following URLs:</p>';
 				$html .= '<p>';
-				foreach($failedPages as $p) {
+				foreach ($failedPages as $p) {
 					$html .= '<b>' . $p . '</b><br />';
 				}
 				$html .= '</p>';
 			}
 			$result = array('result' => $html);
 			print json_encode($result);
-			return;
 		} else {
 			$tmpl = self::getGuts('AdminMarkPromoted');
 			$out->setRobotPolicy('noindex,nofollow');
@@ -113,7 +112,6 @@ class AdminMarkPromoted extends UnlistedSpecialPage {
 
 	private function userAllowed() {
 		$user = $this->getUser();
-
 		$userGroups = $user->getGroups();
 		$hasNABrights = in_array('staff', $userGroups);
 

@@ -1,4 +1,4 @@
-<?
+<?php
 
 function allButAdminRoles() {
 	return ContentPortal\Role::allButAdmin();

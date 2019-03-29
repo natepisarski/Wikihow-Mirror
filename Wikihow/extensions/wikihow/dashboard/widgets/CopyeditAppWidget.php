@@ -1,4 +1,4 @@
-<?
+<?php
 
 class CopyeditAppWidget extends DashboardWidget {
 

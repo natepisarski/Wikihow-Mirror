@@ -446,6 +446,8 @@ abstract class QCRule {
 
 	private static function log($row, $voteParam) {
 		$title = Title::newFromID($row->qc_page);
+		if (!$title || !$title->exists()) return;
+
 		# Generate a diff link
 		$bits[] = 'oldid=' . urlencode( $row->qc_rev_id );
 		$bits[] = 'diff=prev';
@@ -626,6 +628,7 @@ class QCRuleIntroImage extends QCRuleTextChange {
 	}
 
 	protected function flagAction() {
+		global $wgParser;
 
 		// check for a revision
 		if (!$this->mRevision) {
@@ -638,9 +641,9 @@ class QCRuleIntroImage extends QCRuleTextChange {
 			return false;
 		}
 
-		$part	  = $this->getPart();
-		$oldtext = Article::getSection($this->getLastRevisionText(), 0);
-		$newtext = Article::getSection($this->mRevision->getText(), 0);
+		$part    = $this->getPart();
+		$oldtext = $wgParser->getSection($this->getLastRevisionText(), 0);
+		$newtext = $wgParser->getSection($this->mRevision->getText(), 0);
 
 		//make sure it doesn't have a nointroimg template in it
 		if (preg_match('@{{nointroimg}}@im',$newtext)) return false;
@@ -665,6 +668,8 @@ class QCRuleIntroImage extends QCRuleTextChange {
 	}
 
 	public function rollbackChange($qcid) {
+		global $wgParser;
+
 		// remove the intro image from this article
 		$t = self::getTitleFromQCID($qcid);
 		$r = Revision::newFromTitle($t);
@@ -673,14 +678,14 @@ class QCRuleIntroImage extends QCRuleTextChange {
 		}
 
 		$text = $r->getText();
-		$intro = Article::getSection($text, 0);
+		$intro = $wgParser->getSection($text, 0);
 
 		//make sure the image is still in there
 		preg_match("@\[\[Image:[^\]]*\]\]@im", $intro, $matches);
 
 		if (sizeof($matches) > 0) {
 			$old_rev = self::getRevFromQCID($qcid);
-			$old_intro = Article::getSection($old_rev->getText(), 0);
+			$old_intro = $wgParser->getSection($old_rev->getText(), 0);
 
 			//make sure the it's not a different image
 			if (stripos($old_intro,$matches[0]) === false) {
@@ -689,9 +694,10 @@ class QCRuleIntroImage extends QCRuleTextChange {
 
 			$newintro = preg_replace("@\[\[Image:[^\]]*\]\]@", "", $intro);
 
-			$a = new Article($t);
-			$newtext = $a->replaceSection($intro, $newintro);
-			if ( $a->doEdit( $newtext, wfMessage('qc_editsummary_introimage')->text() ) ) {
+			$wikiPage = WikiPage::factory($t);
+			$newtext = $wgParser->replaceSection($text, 0, $newintro);
+			$content = ContentHandler::makeContent( $newtext, $t );
+			if ( $wikiPage->doEditContent( $content, wfMessage('qc_editsummary_introimage')->text() ) ) {
 				return true;
 			}
 		}
@@ -713,6 +719,8 @@ class QCRuleIntroImage extends QCRuleTextChange {
 	}
 
 	public function getNextToPatrolHTML() {
+		global $wgParser;
+
 		if (!$this->mResult) {
 			// nothing to patrol
 			return null;
@@ -734,7 +742,7 @@ class QCRuleIntroImage extends QCRuleTextChange {
 
 		// grab the intro image
 		$text = $r->getText();
-		$intro = Article::getSection($text, 0);
+		$intro = $wgParser->getSection($text, 0);
 
 		//ignore if we have a {{nointroimg}} template in there
 		$a = new Article($t);
@@ -880,9 +888,10 @@ class QCRuleVideoChange extends QCRuleTextChange {
 
 	// returns array with title text and video wikitext
 	private function getVideoSection($text) {
+		global $wgParser;
 		$index = 0;
 		$vidsection = null;
-		while ($section = Article::getSection($text, $index)) {
+		while ($section = $wgParser->getSection($text, $index)) {
 			if (preg_match("@^==\s*" . wfMessage('video')->text() . "@", $section)) {
 				$vidsection = $section;
 				$vidname = preg_replace("@^==\s".wfMessage('video')->text()."\s==\s{{([^}]*)\}}@", "$1", $section);
@@ -1814,20 +1823,18 @@ class QG extends SpecialPage {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 
-		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
-		}
-
 		$ctx = MobileContext::singleton();
 		$isMobile = $ctx->shouldDisplayMobileView();
 
-		if ($user->getID() == 0 && !$isMobile) {
+		if (!$user || ($user->getID() == 0 && !$isMobile)) {
 			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
+		if ($user->isBlocked()) {
+			throw new UserBlockedError( $user->getBlock() );
+		}
 
 		if ($req->getVal('fetchInnards')) {
 			$out->setArticleBodyOnly(true);

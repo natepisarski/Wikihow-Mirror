@@ -1,4 +1,4 @@
-<?
+<?php
 class WAPArticlePager {
 	const NUM_ROWS = 500;
 	protected $dbType = null;

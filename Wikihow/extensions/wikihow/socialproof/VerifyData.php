@@ -18,12 +18,11 @@ class VerifyData {
 	public $blurb; 		// byline
 	public $hoverBlurb;	// blurb
 	public $name;		// verifier name
-	public $nameLink;
 	public $verifierId;
 
 	// Article
 	public $aid;
-	public $blurbId;		// new
+	public $blurbId;
 	public $date;			// verification date
 	public $revisionId;
 	public $worksheetName;
@@ -32,11 +31,9 @@ class VerifyData {
 	public $category;
 	public $image;
 	public $initials;
+	public $nameLink;
 	public $whUserName;
 	// public $whUserId;	// TODO
-
-	// Always empty
-	public $mainNameLink;
 
 	public static function newArticleFromRow( $row ) {
 		$vd = new VerifyData;
@@ -53,15 +50,13 @@ class VerifyData {
 		$vd->blurbId = $blurbId;
 		$vd->blurb = $info->blurb;
 		$vd->hoverBlurb = $info->hoverBlurb;
-		$vd->nameLink = $info->nameLink;
-		$vd->mainNameLink = $info->mainNameLink;
 		$vd->revisionId = $info->revisionId;
 		$vd->worksheetName = $info->worksheetName;
 
 		return $vd;
 	}
 
-	public static function newArticle( $aid, $verifierId, $date, $name, $blurbId, $blurb, $hoverBlurb, $nameLink, $mainNameLink, $revId, $worksheetName ) {
+	public static function newArticle( $aid, $verifierId, $date, $name, $blurbId, $blurb, $hoverBlurb, $revId, $worksheetName ) {
 		$vd = new VerifyData;
 		$vd->aid = $aid;
 		$vd->date = $date;
@@ -70,8 +65,6 @@ class VerifyData {
 		$vd->blurbId = $blurbId;
 		$vd->blurb = $blurb;
 		$vd->hoverBlurb = $hoverBlurb;
-		$vd->nameLink = $nameLink;
-		$vd->mainNameLink = $mainNameLink;
 		$vd->revisionId = $revId;
 		$vd->worksheetName = $worksheetName;
 
@@ -154,8 +147,6 @@ class VerifyData {
 				$vd->blurbId = $verifier->blurbId;
 				$vd->blurb = $verifier->blurb;
 				$vd->hoverBlurb = $verifier->hoverBlurb;
-				$vd->nameLink = $verifier->nameLink;
-				$vd->mainNameLink = $verifier->mainNameLink;
 				$vd->revisionId = $verifier->revisionId;
 				$vd->worksheetName = $verifier->worksheetName;
 				$results[] = $vd;
@@ -331,8 +322,6 @@ class VerifyData {
 			$vd->blurbId = $verifier->blurbId;
 			$vd->blurb = $verifier->blurb;
 			$vd->hoverBlurb = $verifier->hoverBlurb;
-			$vd->nameLink = $verifier->nameLink;
-			$vd->mainNameLink = $verifier->mainNameLink;
 			$vd->revisionId = $verifier->revisionId;
 			$vd->worksheetName = $verifier->worksheetName;
 			$vd->image = $verifier->image;

@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * API for related articles videos
  *

@@ -1,4 +1,4 @@
-<?
+<?php
 require __DIR__ . "./../../ext-utils/mvc/tests/bootstrap.php";
 require __DIR__ . '/Helpers.php';
 require 'Stubs.php';

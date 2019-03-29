@@ -136,9 +136,6 @@ function share_article(who) {
 
 	switch (who) {
 
-		case 'email':
-			window.location='http://' + window.location.hostname + '/Special:EmailLink/' + window.location.pathname;
-			break;
 		case 'facebook':
 			var d=document,f='http://www.facebook.com/share',
 				l=d.location,e=encodeURIComponent,p='.php?src=bm&v=4&i=1178291210&u='+e(l.href)+'&t='+e(d.title);1; try{ if(!/^(.*\.)?facebook\.[^.]*$/.test(l.host))throw(0);share_internal_bookmarklet(p)}catch(z){a=function(){if(!window.open(f+'r'+p,'sharer','toolbar=0,status=0,resizable=0,width=626,height=436'))l.href=f+p};if(/Firefox/.test(navigator.userAgent))setTimeout(a,0);else{a()}}void(0);

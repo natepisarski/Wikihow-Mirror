@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC;
 use ActiveRecord\Connection;
 use ActiveRecord\Config as ArConfig;

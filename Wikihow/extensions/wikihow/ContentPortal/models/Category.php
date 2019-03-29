@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use ActiveRecord\Cache;
 class Category extends AppModel {

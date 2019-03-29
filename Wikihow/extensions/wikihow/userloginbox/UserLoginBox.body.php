@@ -17,7 +17,7 @@ class UserLoginBox extends UnlistedSpecialPage {
 	 *			false = assumes user needs to create an account (alt link for log in w/ acct)
 	 * - $returnto (string) = page to which to return the user after login/signup
 	 */
-	public function getLogin($isHead = false, $isLogin = true, $returnto = '') {
+	public static function getLogin($isHead = false, $isLogin = true, $returnto = '') {
 		global $wgSecureLogin;
 		$ctx = RequestContext::getMain();
 

@@ -287,7 +287,7 @@ class RCWidget extends UnlistedSpecialPage {
 		});
 		$(window).load(WH.RCWidget.rcwLoad);
 	</script>
-<?
+<?php
 	}
 
 	public function execute($par) {

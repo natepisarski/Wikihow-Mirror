@@ -74,11 +74,7 @@ class AtAGlance {
 					pq( '.ataglance' )->addClass( "aag_slideshow" );
 				}
 			} else {
-				if ( $mobile ) {
-					pq( '.ataglance' )->insertAfter( pq( '.sourcesandcitations' ) );
-				} else {
-					pq( '.ataglance' )->addClass( "hidden" );
-				}
+				pq( '.ataglance' )->addClass( "hidden" );
 			}
 		}
 	}

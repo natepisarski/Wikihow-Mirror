@@ -94,7 +94,7 @@ class ExpertVerifyImporter {
 			} elseif ( strlen($coauthorName) > 120 ) {
 				$result['errors'][] = "$rowInfo Coauthor name too long: $coauthorName";
 			} elseif ( isset($names[$coauthorName]) ) {
-				$result['warnings'][] = "$rowInfo Duplicate coauthor name: $coauthorName";
+				$result['errors'][] = "$rowInfo Duplicate coauthor name: $coauthorName";
 			}
 
 			if ( !$initials ) {
@@ -336,12 +336,10 @@ class ExpertVerifyImporter {
 				$primaryBlurb = $blurbs[$blurbId]['byline'];
 				$hoverBlurb = $blurbs[$blurbId]['blurb'];
 
-				$nameLink = $row->{'gsx$namelinkoptional'}->{'$t'};
-				$mainNameLink = $row->{'gsx$mainnamelinkoptional'}->{'$t'};
 				$coauthorName = $coauthors[$coauthorId]->name;
 
 				$verifyData = VerifyData::newArticle( $pageId, $coauthorId, $date, $coauthorName, $blurbId, $primaryBlurb,
-					$hoverBlurb, $nameLink, $mainNameLink, $revId, $worksheetName );
+					$hoverBlurb, $revId, $worksheetName );
 			}
 			$articles[$pageId][] = $verifyData;
 			$result['imported'][] = [ $pageId => $verifyData ];

@@ -1,4 +1,4 @@
-<?
+<?php
 
 function paginate() {
 	$mvcRouter = MVC\Router::getInstance();

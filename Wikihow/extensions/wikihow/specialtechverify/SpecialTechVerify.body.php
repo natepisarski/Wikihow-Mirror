@@ -213,6 +213,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 		pq('.warnings')->remove();
 		pq('.tips')->remove();
 		pq('.sourcesandcitations')->remove();
+		pq('.references')->remove();
 		pq('.testyourknowledge')->remove();
 		$html = $doc->documentWrapper->markup();
         return $html;

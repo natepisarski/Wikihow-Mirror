@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC;
 use PHPUnit_Framework_TestCase;
 use MVC\Output;

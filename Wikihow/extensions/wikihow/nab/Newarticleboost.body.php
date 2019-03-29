@@ -722,10 +722,11 @@ class NewArticleBoost extends SpecialPage {
 			// a back button situation?
 			if (strpos($wikitext, $newTemplates) === false) {
 				$wikitext = "$newTemplates\n$wikitext";
-				$watch = $title->userIsWatching(); // preserve watching just in case
+				$watch = RequestContext::getMain()->getUser()->isWatched($title); // preserve watching just in case
 				$updateResult = $article->updateArticle($wikitext,
 					wfMessage('nap_applyingtemplatessummary', implode(', ', $templatesArray))->text(),
-					false, $watch);
+					false,
+					$watch);
 				if ($updateResult) {
 					$out->redirect('');
 				}
@@ -1081,8 +1082,7 @@ class NewArticleBoost extends SpecialPage {
 		$langCode = $this->getLanguage()->getCode();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		// set tidy on to avoid IE8 complaining about browser compatibility
@@ -1120,7 +1120,7 @@ class NewArticleBoost extends SpecialPage {
 		// We don't care about atlas score on int'l
 		$this->do_score = $langCode === 'en';
 
-		$this->skin = $user->getSkin();
+		$this->skin = $this->getSkin(); // TODO: remove this? is it used anywhere?
 		$out->addModuleStyles('ext.wikihow.nab.styles');
 		$out->addModules('ext.wikihow.nab');
 		$out->addModules('ext.wikihow.UsageLogs');
@@ -1277,7 +1277,6 @@ class NABStatus extends SpecialPage {
 
 		$out->setHTMLTitle('New Article Boost Status - wikiHow');
 
-		$sk = $user->getSkin();
 		$dbr = wfGetDB(DB_REPLICA);
 
 		$out->addHTML('<style type="text/css" media="all">/*<![CDATA[*/ @import "' . wfGetPad('/extensions/min/f/extensions/wikihow/nab/newarticleboost.css&' . NewArticleBoost::REVISION) . '"; /*]]>*/</style>');
@@ -1480,6 +1479,7 @@ class MarkRelated extends UnlistedSpecialPage {
 
 	// adds a related wikihow to the article t1 to t2
 	public function addRelated($t1, $t2, $summary = "Adding related wikihow from NAB", $top = false, $linkedtext = null) {
+		global $wgParser;
 
 		if (!$t1 || !$t1->exists()
 			|| !$t2 || !$t2->exists()
@@ -1492,12 +1492,12 @@ class MarkRelated extends UnlistedSpecialPage {
 			$link = "*[[{$t2->getText()}|" . wfMessage('howto', $linkedtext) . "]]";
 		else
 			$link = "*[[{$t2->getText()}|" . wfMessage('howto', $t2->getText()) . "]]";
-		$article = new Article($t1);
-		$wikitext = $article->getContent(true);
+		$wikiPage = WikiPage::factory($t1);
+		$wikitext = $wikiPage->getContent(Revision::RAW);
 		for ($i = 0; $i < 30; $i++) {
-			$s = $article->getSection($wikitext, $i);
+			$s = $wgParser->getSection($wikitext, $i);
 			if (preg_match("@^==[ ]*" . wfMessage('relatedwikihows') . "@m", $s)) {
-				if (preg_match("@{$t2->getText()}@m", $s)) {
+				if (preg_match('@' . preg_quote($t2->getText(), '@') . '@m', $s)) {
 					$found = true;
 					break;
 				}
@@ -1505,13 +1505,13 @@ class MarkRelated extends UnlistedSpecialPage {
 					$s = preg_replace("@==\n@", "==\n$link\n", $s);
 				else
 					$s .= "\n{$link}\n";
-				$wikitext = $article->replaceSection($i, $s);
+				$wikitext = $wgParser->replaceSection($wikitext, $i, $s);
 				$found = true;
 				break;
 			} elseif (preg_match("@^==[ ]*(" . wfMessage('sources') . ")@m", $s)) {
 				// we have gone too far
 				$s = "\n== " . wfMessage('relatedwikihows') . " ==\n{$link}\n\n" . $s;
-				$wikitext = $article->replaceSection($i, $s);
+				$wikitext = $wgParser->replaceSection($wikitext, $i, $s);
 				$found = true;
 				break;
 			}
@@ -1519,7 +1519,8 @@ class MarkRelated extends UnlistedSpecialPage {
 		if (!$found) {
 			$wikitext .= "\n\n== " . wfMessage('relatedwikihows') . " ==\n{$link}\n";
 		}
-		if (!$article->doEdit($wikitext, $summary)) {
+		$content = ContentHandler::makeContent( $wikitext, $t1 );
+		if (!$wikiPage->doEditContent($content, $summary)) {
 			$this->getOutput()->addHTML( "Didn't save\n" );
 		}
 	}
@@ -1802,7 +1803,7 @@ class NabQueryPage extends QueryPage {
 	}
 
 	function getList() {
-		list( $limit, $offset ) = wfCheckLimits();
+		list( $limit, $offset ) = RequestContext::getMain()->getRequest()->getLimitOffset(50, 'rclimit');
 		$this->limit = $limit;
 		$this->offset = $offset;
 		$out = $this->getOutput();

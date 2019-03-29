@@ -19,7 +19,7 @@ class WinterSurvivalGuide {
 		return $html;
 	}
 
-	public function onBeforePageDisplay($out, $skin) {
+	public static function onBeforePageDisplay($out, $skin) {
 		$title = $out->getTitle();
 		if ($title && $title->inNamespace(NS_PROJECT) && $title->getText() == 'Winter Survival Guide') {
 			$out->addModules('ext.wikihow.winter_survival_guide');

@@ -389,12 +389,12 @@ function findSentenceContaining(key) {
 	// caught by less precise selectors.
 	var selectors = [
 		'#intro p:containsIgnoreBreaks(' + key + ')',
-		'.section:not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul ul ul li:containsIgnoreBreaks(' + key + ')',
-		'.section:not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul ul li:containsIgnoreBreaks(' + key + ')',
-		'.section:not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul li:containsIgnoreBreaks(' + key + ')',
-		'.section:not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text li:containsIgnoreBreaks(' + key + ')',
-		'.section:not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul p:containsIgnoreBreaks(' + key + ')',
-		'.section:not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text p:containsIgnoreBreaks(' + key + ')'
+		'.section:not(.references):not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul ul ul li:containsIgnoreBreaks(' + key + ')',
+		'.section:not(.references):not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul ul li:containsIgnoreBreaks(' + key + ')',
+		'.section:not(.references):not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul li:containsIgnoreBreaks(' + key + ')',
+		'.section:not(.references):not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text li:containsIgnoreBreaks(' + key + ')',
+		'.section:not(.references):not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text ul p:containsIgnoreBreaks(' + key + ')',
+		'.section:not(.references):not(.sourcesandcitations):not(.relatedwikihows):not(.video) div.section_text p:containsIgnoreBreaks(' + key + ')'
 	];
 
 	for (var i = 0; i < selectors.length; i++) {

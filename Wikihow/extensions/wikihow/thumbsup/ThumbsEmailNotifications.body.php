@@ -139,8 +139,6 @@ $html_text";
 	}
 
 	private static function formatDiffLink($pageId, $revId, $label='edit') {
-		$user = RequestContext::getMain()->getUser();
-		$sk = $wgUser->getSkin();
 		$t = Title::newFromID($pageId);
 		$diff = "";
 		if ($t->getArticleId() > 0) {
@@ -150,8 +148,6 @@ $html_text";
 	}
 
 	private static function formatPageLink($pageId) {
-		$user = RequestContext::getMain()->getUser();
-		$sk = $wgUser->getSkin();
 		$t = Title::newFromID($pageId);
 		$page = "";
 		if ($t->getArticleId() > 0) {

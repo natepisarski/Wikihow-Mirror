@@ -5342,7 +5342,7 @@ This page contains statistics gathered by a machine, which may \'\'or may not\'\
 \'\'\'wikiHow does not yet have an article with this exact name.\'\'\'
 *\'\'\'[$2 Write the $1 article.]\'\'\'
 *\'\'\'wikiHow is a collaborative writing project to build the world\'s largest how-to manual.\'\'\'  To learn more, visit the [[Main Page]] or [[About wikiHow]].  You can help others learn \'\'\'How to $1\'\'\' by  [http://www.wikihow.com/index.php?action=easy&title=$2 writing the article now].
-*\'\'\'[[Special:EmailLink?target=$1&returnto=$2|Forward this page]]\'\'\' to a friend who knows \'\'\'"How to $1"\'\'\' and can write this article.
+*\'\'\'Forward this page\'\'\' to a friend who knows \'\'\'"How to $1"\'\'\' and can write this article.
 *[[Special:LSearch/?search=$1|Search for $1]] in other wikiHow articles.
 *If you previously created article under this title, the title may have been changed. Be sure to [[Special:LSearch/?search=$1|Search wikiHow]] for words that might be in the text of the article.
 *Alternatively, the page may have been deleted because it didn\'t follow the wikiHow community guidelines.  See our [[Terms of Use]] for possible reasons why the article may have been deleted.
@@ -6993,7 +6993,7 @@ You may enter a user name (not real name) to see if that user name has been crea
 \'\'\'wikiHow does not yet have an article with this exact name.\'\'\'
 *\'\'\'[$2 Write the $1 article.]\'\'\'
 *\'\'\'wikiHow is a collaborative writing project to build the world\'s largest how-to manual.\'\'\'  To learn more, visit the [[Main Page]] or [[About wikiHow]].  You can help others learn \'\'\'How to $1\'\'\' by  [http://www.wikihow.com/index.php?action=easy&title=$2 writing the article now].
-*\'\'\'[[Special:EmailLink?target=$1&returnto=$2|Forward this page]]\'\'\' to a friend who knows \'\'\'"How to $1"\'\'\' and can write this article.
+*\'\'\'Forward this page\'\'\' to a friend who knows \'\'\'"How to $1"\'\'\' and can write this article.
 *[[Special:LSearch/?search=$1|Search for $1]] in other wikiHow articles.
 *If you previously created article under this title, the title may have been changed. Be sure to [[Special:LSearch/?search=$1|Search wikiHow]] for words that might be in the text of the article.
 *Alternatively, the page may have been deleted because it didn\'t follow the wikiHow community guidelines.  See our [[Terms of Use]] for possible reasons why the article may have been deleted.
@@ -7003,7 +7003,7 @@ You may enter a user name (not real name) to see if that user name has been crea
 \'\'\'wikiHow does not yet have an article with this exact name.\'\'\'
 *\'\'\'[$2 Write the $1 article.]\'\'\'
 *\'\'\'wikiHow is a collaborative writing project to build the world\'s largest how-to manual.\'\'\'  To learn more, visit the [[Main Page]] or [[About wikiHow]].  You can help others learn \'\'\'How to $1\'\'\' by  [http://www.wikihow.com/index.php?action=easy&title=$2 writing the article now].
-*\'\'\'[[Special:EmailLink?target=$1&returnto=$2|Forward this page]]\'\'\' to a friend who knows \'\'\'"How to $1"\'\'\' and can write this article.
+*\'\'\'Forward this page\'\'\' to a friend who knows \'\'\'"How to $1"\'\'\' and can write this article.
 *[[Special:LSearch/?search=$1|Search for $1]] in other wikiHow articles.
 *If you previously created article under this title, the title may have been changed. Be sure to [[Special:LSearch/?search=$1|Search wikiHow]] for words that might be in the text of the article.
 *Alternatively, the page may have been deleted because it didn\'t follow the wikiHow community guidelines.  See our [[Terms of Use]] for possible reasons why the article may have been deleted.

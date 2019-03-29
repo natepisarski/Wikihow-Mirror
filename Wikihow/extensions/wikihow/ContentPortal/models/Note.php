@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 
 class Note extends AppModel {

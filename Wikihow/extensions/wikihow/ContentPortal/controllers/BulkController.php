@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 
 class BulkController extends AppController {

@@ -1,4 +1,4 @@
-<?
+<?php
 
 function pluralize($str) {
 	return ActiveRecord\Utils::pluralize($str);

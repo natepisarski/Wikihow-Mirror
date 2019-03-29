@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use MVC\Controller;
 use __;
@@ -89,7 +89,9 @@ class AppController extends Controller {
 	}
 
 	public function info() {
-		phpinfo();
+		// Reuben, 3/2019: dumping out this phpinfo() is a terrible idea for security. it
+		// can include server-side passwords, etc
+		print "No info here! " . __METHOD__;
 		exit();
 	}
 

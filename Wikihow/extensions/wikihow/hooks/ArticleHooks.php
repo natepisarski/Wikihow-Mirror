@@ -265,11 +265,19 @@ class ArticleHooks {
 	public static function addDesktopTOCItems($wgTitle, &$anchorList) {
 		global $wgLanguageCode;
 		if (!Misc::isMobileMode() && $wgLanguageCode == "en") {
+			$referenceTarget = '#sourcesandcitations';
+			// sanity check that php query is active
+			if ( phpQuery::$defaultDocumentID ) {
+				// use capital R here because the section name has not been canonicalized yet
+				if ( pq( '#References' )->length > 0 || pq( '#references' )->length > 0 ) {
+					$referenceTarget = '#references';
+				}
+			}
 			$refCount = Misc::getReferencesCount();
 			if ($refCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$anchorList[] = Html::rawElement('a', ['href' => '#sourcesandcitations'], $refCount . " References");
+				$anchorList[] = Html::rawElement('a', ['href' => $referenceTarget], $refCount . " References");
 			} elseif( $refCount > 0 ) {
-				$anchorList[] = Html::rawElement('a', ['href' => '#sourcesandcitations'], "References");
+				$anchorList[] = Html::rawElement('a', ['href' => $referenceTarget], "References");
 			}
 		}
 		return true;

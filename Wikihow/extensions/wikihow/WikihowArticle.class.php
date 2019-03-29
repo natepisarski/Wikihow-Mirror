@@ -730,6 +730,13 @@ class WikihowArticleHTML {
 		$sourcesId = str_replace( [' ','(',')'], "", mb_strtolower($sourcestext));
 		$sources = pq("#{$sourcesId}");
 
+		// if there is no sources section try references instead
+		if ( pq( $sources )->length < 1 ) {
+			$referencesText = wfMessage( 'references' )->text();
+			$referencesId = str_replace( [' ','(',')'], "", mb_strtolower( $referencesText ) );
+			$sources = pq("#{$referencesId}");
+		}
+
 		if ( pq( $sources )->find( '.references' )->length ) {
 			$extraItems = pq( $sources )->find( 'ul' )->remove()->html();
 			pq( $sources )->find( '.references' )->append( $extraItems );
@@ -1437,7 +1444,7 @@ class WikihowArticleHTML {
 	/*
 	 * look for some key magic words we'll use in processArticleHTML()
 	 */
-	public function grabTheMagic($wikitext) {
+	public static function grabTheMagic($wikitext) {
 
 		//has parts?
 		$mw = MagicWord::get('parts');

@@ -1,4 +1,4 @@
-<?
+<?php
 $messages = array();
 $messages['en'] = array (
 	'urf_header' => 'Thanks for sharing your story!',

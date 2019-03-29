@@ -1,4 +1,4 @@
-<?
+<?php
 abstract class WAPMaintenance {
 
 	// DB-specific configuration (table names, etc)

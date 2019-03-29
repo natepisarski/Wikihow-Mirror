@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use PHPUnit_Framework_TestCase;
 use Title;

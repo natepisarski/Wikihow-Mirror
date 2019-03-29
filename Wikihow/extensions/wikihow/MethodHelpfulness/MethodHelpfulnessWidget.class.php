@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MethodHelpfulness;
 use MethodHelpfulness\ArticleMethod;
 use EasyTemplate;
@@ -28,7 +28,7 @@ if (window.mw && $('#method-title-info').length && $('#method_helpfulness_box').
 		'json'
 	);
 }
-<?
+<?php
 	}
 	public static function getWidget($aid, $widgetSectionTypes) {
 		global $IP;

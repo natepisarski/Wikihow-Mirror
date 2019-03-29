@@ -1,4 +1,4 @@
-<?
+<?php
 class WAPUtil {
 	/**
 	 * @param $data

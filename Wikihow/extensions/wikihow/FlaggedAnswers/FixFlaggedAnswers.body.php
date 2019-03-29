@@ -16,13 +16,12 @@ class FixFlaggedAnswers extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$user = $this->getUser();
 
-		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+		if ($user && $user->isBlocked()) {
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		//logged in and desktop only
-		if ($user->isAnon() || Misc::isMobileMode() || !self::approvedUser($user)) {
+		if (!$user || $user->isAnon() || Misc::isMobileMode() || !self::approvedUser($user)) {
 			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;

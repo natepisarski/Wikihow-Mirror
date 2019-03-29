@@ -22,23 +22,22 @@ class DOMUtil
 	*/
 }
 
-class DOMHelper
-{
+class DOMHelper {
 
 	private function shouldHideLinks(): bool {
-		global $wgTitle, $wgUser;
+		$title = RequestContext::getMain()->getTitle();
+		$user = RequestContext::getMain()->getUser();
 
 		return
 			// Replace links only for anons...
-			$wgUser->isAnon() &&
+			$user->isAnon() &&
 			// in indexable pages...
-			RobotPolicy::isIndexable($wgTitle) &&
+			RobotPolicy::isIndexable($title) &&
 			// that haven't been whitelisted
-			!ArticleTagList::hasTag('deindexed_link_removal_whitelist', $wgTitle->getArticleID());
+			!ArticleTagList::hasTag('deindexed_link_removal_whitelist', $title->getArticleID());
 	}
 
-	public function hideLinks(string $query)
-	{
+	public function hideLinks(string $query) {
 		if (!$this->shouldHideLinks()) {
 			return;
 		}
@@ -80,8 +79,7 @@ class DOMHelper
 	/**
 	 * Find all links to other pages
 	 */
-	private function findLinks(string $query): array
-	{
+	private function findLinks(string $query): array {
 		$hrefs = []; // [string]      Relative URLs without the leading '/'
 		$links = []; // [DOMElement]  <a> elements
 
@@ -104,8 +102,7 @@ class DOMHelper
 	/**
 	 * Replace an HTML link with its anchor text
 	 */
-	private function hideLink(DOMElement $link)
-	{
+	private function hideLink(DOMElement $link) {
 		$pqObject = pq($link);
 		$pqObject->replaceWith($pqObject->text());
 	}

@@ -127,12 +127,7 @@ WH.mobileads = (function () {
 			return width;
 		}
 
-		if (window.isBig) {
-			width = width - 95;
-		} else {
-			width = width - 30;
-		}
-
+		width = width - 30;
 		return width;
 	}
 

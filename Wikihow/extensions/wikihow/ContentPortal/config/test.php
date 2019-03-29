@@ -1,4 +1,4 @@
-<?
+<?php
 $this->db = [
 	'user'     => 'root',
 	'password' => '',

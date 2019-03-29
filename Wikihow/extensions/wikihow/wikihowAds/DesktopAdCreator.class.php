@@ -5,6 +5,7 @@ class Ad {
 	var $mType;
 	var $mBodyAd;
 	var $mLabel;
+	var $service = '';
 
 	public function __construct( $type, $showRightRailLabel = false, $labelExtra = '' ) {
 		$this->mType = $type;
@@ -310,7 +311,9 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 		}
 
 		$scrollToHtml = $this->mAds['scrollto']->mHtml;
-		pq( "#intro" )->after( $scrollToHtml );
+		if ($scrollToHtml) {
+			pq( "#intro" )->after( $scrollToHtml );
+		}
 
 	}
 }
@@ -367,6 +370,12 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 * @return int the adsense slot for this ad
 	 */
 	protected function getAdsenseSlot( $ad ) {
+		if ( !isset( $this->mAdsenseSlots ) ) {
+			return '';
+		}
+		if ( !isset( $this->mAdsenseSlots[$ad->mType] ) ) {
+			return '';
+		}
 		return $this->mAdsenseSlots[$ad->mType];
 	}
 
@@ -375,6 +384,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 * @return string the dfp light path for this ad
 	 */
 	protected function getDFPLightAdUnitPath( $ad ) {
+		if ( !isset( $this->mDFPAdUnitPaths ) ) {
+			return '';
+		}
 		return $this->mDFPAdUnitPaths[$ad->mType];
 	}
 
@@ -605,6 +617,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 */
 	public function getMethod3Ad() {
 		$ad = $this->getNewAd( 'method3' );
+		if ( !isset( $this->mAdServices['method3'] ) ) {
+			return $ad;
+		}
 		if ( $this->mAdServices['method3'] == "adsense" ) {
 			$ad = $this->getMethodAdAdsense();
 		} elseif ( $this->mAdServices['method3'] == "dfp" ) {
@@ -750,9 +765,12 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	protected function getAdsenseInnerHtml( $ad ) {
 		// only get the inner html if initial load is true
 		if ( $ad->initialLoad == false ) {
+			if ($ad->targetId != "tocad") {
+				return "";
+			}
 			$attributes = array(
 				'id' => $ad->targetId,
-				'class' => $class
+				'class' => $ad->adClass
 			);
 			$adTargetDiv = Html::element( "div", $attributes );
 			return $adTargetDiv;
@@ -763,7 +781,6 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		}
 
 		$attributes = array(
-			'id' => $ad->targetId,
 			'class' => $class,
 			'style' => "display:inline-block;width:".$ad->width."px;height:".$ad->height."px;",
 			'data-ad-client' => $this->getAdClient( $ad ),
@@ -812,27 +829,29 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			'data-viewablerefresh' => $this->getViewableRefresh( $ad ),
 			'data-apsload' => $this->getApsLoad( $ad ),
 			'data-aps-timeout' => 2000,
-			'id' => $ad->outerId,
 		);
-		$extras = $this->mAdSetupData[$ad->mType];
-		if ( $extras ) {
-			foreach ( $extras as $key => $val ) {
-				$adKey = 'data-'.$key;
-				$attributes[$adKey] = $val;
+		if ( isset( $ad->outerId ) ) {
+			$attributes['id'] = $ad->outerId;
+		}
+		if ( isset ($this->mAdSetupData[$ad->mType] ) ) {
+			$extras = $this->mAdSetupData[$ad->mType];
+			if ( $extras ) {
+				foreach ( $extras as $key => $val ) {
+					$adKey = 'data-'.$key;
+					$attributes[$adKey] = $val;
+				}
 			}
 		}
-		if ( $ad->adClass ) {
+		if ( isset( $ad->adClass ) && $ad->adClass ) {
 			$attributes['class'][] = $ad->adClass;
 		}
 		$elem = 'div';
-		if ($ad->wrapElement) {
+		if ( isset( $ad->wrapElement ) && $ad->wrapElement ) {
 			$elem = $ad->wrapElement;
 		}
 		$html = Html::rawElement( $elem, $attributes, $innerAdHtml );
-		if ( !( $ad->noClearAll === true ) ) {
-			if ( $elem == 'div' ) {
-				$html .= Html::element( 'div', ['class' => 'clearall adclear'] );
-			}
+		if ( $elem == 'div' ) {
+			$html .= Html::element( 'div', ['class' => 'clearall adclear'] );
 		}
 		return $html;
 	}
@@ -867,13 +886,16 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 
 
 		// add any extra data attributes defined for this adCreator instance
-		$extras = $this->mAdSetupData[$ad->mType];
-		if ( $extras ) {
-			foreach ( $extras as $key => $val ) {
-				$adKey = 'data-'.$key;
-				$attributes[$adKey] = $val;
+		if ( isset( $this->mAdSetupData ) && isset( $this->mAdSetupData[$ad->mType] ) ) {
+			$extras = $this->mAdSetupData[$ad->mType];
+			if ( $extras ) {
+				foreach ( $extras as $key => $val ) {
+					$adKey = 'data-'.$key;
+					$attributes[$adKey] = $val;
+				}
 			}
 		}
+
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
 		$containerAttributes = array(
@@ -929,6 +951,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 */
 	public function getRightRailTop() {
 		$ad = $this->getNewAd( 'rightrail3' );
+		if ( !isset( $this->mAdServices ) || !isset( $this->mAdServices['rightrail3'] ) ) {
+			return $ad;
+		}
 		if ( $this->mAdServices['rightrail3'] == "adsense" ) {
 			$ad = $this->getRightRailTopAdsense();
 		}
@@ -1010,6 +1035,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		//get initial ad refresh slots snippet to request them both in one call
 		$refreshSlots = array();
 		foreach ( $this->mAds as $type => $ad ) {
+			if (  !( $ad ) ) {
+				continue;
+			}
 			if ( $ad->service != 'dfp' ) {
 				continue;
 			}
@@ -1061,6 +1089,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$slotIds = array();
 		$apsSlots = array();
 		foreach ( $this->mAds as $type => $ad ) {
+			if ( !$ad ) {
+				continue;
+			}
 			if ( $ad->service != 'dfp' ) {
 				continue;
 			}
@@ -1117,6 +1148,10 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$addAdsense = false;
 		$addDFP = false;
 		foreach ( $this->mAds as $ad ) {
+			if ( !$ad ) {
+				continue;
+			}
+
 			if ( $ad->service == "adsense" ) {
 				$addAdsense = true;
 			}
@@ -1183,10 +1218,13 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 
 		// define all the slots up front
 		foreach ( $this->mAds as $type => $ad ) {
+			if ( !$ad ) {
+				continue;
+			}
 			if ( $ad->service != 'dfp' ) {
 				continue;
 			}
-			if ( $ad->notInBody ) {
+			if ( isset( $ad->notInBody ) && $ad->notInBody ) {
 				continue;
 			}
 			$adUnitPath = $this->getGPTAdSlot( $ad );
@@ -1496,7 +1534,6 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		if ( $wgTitle ) {
 		        $pageId = $wgTitle->getArticleID();
 		}
-		$this->mAdsenseChannels[] = 7467367570;
 		// right now this data will be added to each ad as data attributes
 		// however we can use it in the future to define almost everything about each ad
 		$this->mAdSetupData = array(
@@ -1514,7 +1551,7 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 				'maxnonsteps' => 0,
 				'adsensewidth' => 728,
 				'adsenseheight' => 90,
-				'channels' => implode( ',', $this->mAdsenseChannels )
+				//'channels' => implode( ',', $this->mAdsenseChannels )
 			)
 		);
 
@@ -1861,6 +1898,7 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 		} else {
 			$this->mAdsenseChannels[] = 7466415884;
 		}
+		$this->mAdsenseChannels[] = 4819709854;
 	}
 
 	protected function setDFPAdUnitPaths() {
@@ -1881,6 +1919,37 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 				'apsLoad' => false
 			),
 		);
+	}
+	public function getQuizAd( $num ) {
+		return "";
+	}
+}
+
+class InternationalAdCreatorAllAdsense extends MixedAdCreatorVersion2 {
+	public function __construct() {
+		$this->mAdsenseSlots = array(
+			'intro' => 2583804979,
+			'method' => 3315713030,
+			'rightrail0' => 4060538172,
+			'rightrail1' => 7854380386,
+			'rightrail2' => 8731034705,
+		);
+		$this->mAdServices = array(
+			'intro' => 'adsense',
+			'method' => 'adsense',
+			'rightrail0' => 'adsense',
+			'rightrail1' => 'adsense',
+			'rightrail2' => 'adsense'
+		);
+
+		if ( WikihowToc::isNewArticle() ) {
+			$this->mAdsenseSlots['method2'] = 8388669218;
+			$this->mAdServices['method2'] = 'adsense';
+			$this->mAdsenseChannels[] = 1412197323;
+		} else {
+			$this->mAdsenseChannels[] = 7466415884;
+		}
+		$this->mAdsenseChannels[] = 2193546513;
 	}
 	public function getQuizAd( $num ) {
 		return "";

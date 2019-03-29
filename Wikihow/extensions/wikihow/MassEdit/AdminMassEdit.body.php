@@ -374,7 +374,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 			});
 		})(jQuery);
 		</script>
-<?
+<?php
 		$html = ob_get_contents();
 		ob_end_clean();
 		return $html;

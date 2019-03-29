@@ -1,4 +1,4 @@
-<?
+<?php
 use MVC\Debugger;
 use MVC\CLI;
 

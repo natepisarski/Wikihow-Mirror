@@ -1,4 +1,4 @@
-<?
+<?php
 	$messages['en'] = array(
 		'mytwitter' => "My Twitter Settings",
 		'mytwitter_createpage' => "When I create a new article",

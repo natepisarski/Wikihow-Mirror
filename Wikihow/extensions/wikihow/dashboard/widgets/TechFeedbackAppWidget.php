@@ -1,4 +1,4 @@
-<?
+<?php
 
 class TechFeedbackAppWidget extends DashboardWidget {
 

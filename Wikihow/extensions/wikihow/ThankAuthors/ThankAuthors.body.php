@@ -126,8 +126,7 @@ EOHTML
 
 			if ( $user->pingLimiter('userkudos') ) {
 				wfDebugLog( "ThankAuthors", "Not sending kudos, rate limited");
-				$out->rateLimited();
-				return;
+				throw new ThrottledError;
 			}
 
 

@@ -37,7 +37,7 @@
 		},
 
 		addAd: function(html, version) {
-			$('#article_rating_mobile').before(html);
+			$('.steps:last').after(html);
 
 			//track those clicks
 			$(document).on('click', '#instagram_article_block', function() {

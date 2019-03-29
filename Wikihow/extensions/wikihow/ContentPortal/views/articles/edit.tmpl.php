@@ -4,7 +4,7 @@
 	<li class="active">Edit Article</li>
 </ol>
 
-<?
+<?php
 if ($article->is_redirect) {
 	echo alert('This article is a redirect and needs addressed.');
 }

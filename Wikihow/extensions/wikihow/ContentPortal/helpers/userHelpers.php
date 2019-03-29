@@ -1,4 +1,4 @@
-<?
+<?php
 use ContentPortal\Role;
 
 function userArticleCategories($articles, $toString=true) {

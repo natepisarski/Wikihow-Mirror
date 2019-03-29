@@ -88,8 +88,7 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 		$user = $this->getUser();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 		$userGroups = $user->getGroups();
 

@@ -1,4 +1,4 @@
-<?
+<?php
 class ThumbRank {
 	const EXCEPTION_MALFORMED_WIKITEXT = "Malformed wikitext in section exception";
 	const EXCEPTION_UNMATCHED_WIKITEXT = "Unable to match wikitext to html exception";

@@ -5,7 +5,7 @@ class NewContributors extends QueryPage {
 	function __construct($name='NewContributors') {
 		parent::__construct($name);
 
-		list( $limit, $offset ) = wfCheckLimits();
+		list( $limit, $offset ) = RequestContext::getMain()->getRequest()->getLimitOffset(50, 'rclimit');
 		$this->limit = $limit;
 		$this->offset = $offset;
 	}

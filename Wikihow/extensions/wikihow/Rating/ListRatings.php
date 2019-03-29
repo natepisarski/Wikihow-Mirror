@@ -19,7 +19,7 @@ class ListRatings extends QueryPage {
 			$this->tablePrefix = 'rat_';
 			$this->tableName = 'rating';
 		}
-		list( $limit, $offset ) = wfCheckLimits();
+		list( $limit, $offset ) = RequestContext::getMain()->getRequest()->getLimitOffset(50, 'rclimit');
 		$this->limit = $limit;
 		$this->offset = $offset;
 	}

@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Specialized version of the MinervaTemplate with wikiHowAnswers customizations
  */

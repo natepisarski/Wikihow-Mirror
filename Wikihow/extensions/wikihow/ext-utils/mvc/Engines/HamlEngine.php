@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC\Engines;
 use MtHaml\Environment;
 use MtHaml\Support\Php\Executor;

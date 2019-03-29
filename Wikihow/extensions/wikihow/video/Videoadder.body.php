@@ -279,8 +279,7 @@ class VideoAdder extends SpecialPage {
 		$user = $this->getUser();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		if ($user->getID() == 0) {

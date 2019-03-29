@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC;
 class Output {
 	static $instance = null;

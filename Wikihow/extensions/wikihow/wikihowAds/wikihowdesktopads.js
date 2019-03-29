@@ -360,7 +360,11 @@ WH.desktopAds = (function () {
 		var target = null
 		if (ad.adTargetId) {
 			target = ad.adTargetId;
-			window.document.getElementById(target).appendChild(i);
+			if (target == 'tocad') {
+				window.document.getElementById(target).appendChild(i);
+			} else {
+				window.document.getElementById(target).firstElementChild.appendChild(i);
+			}
 		} else {
 			ad.target.appendChild(i);
 		}

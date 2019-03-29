@@ -1,4 +1,4 @@
-<?
+<?php
 use MVC\Router;
 use MVC\Config;
 use MVC\Controller;

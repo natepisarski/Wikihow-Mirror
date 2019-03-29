@@ -26,21 +26,22 @@ class ProfileBox extends UnlistedSpecialPage {
 	}
 
 	private function getPBTitle() {
-		global $wgUser, $wgOut, $wgLang, $wgTitle, $wgScriptPath, $wgStylePath;
-
+		$user = $this->getUser();
 
 		$name = "";
 
 		$name .= wfMessage('profilebox-name')->text();
-		$name .= " for ". $wgUser->getName();
-		$avatar = Avatar::getPicture($wgUser->getName());
+		$name .= " for ". $user->getName();
+		$avatar = Avatar::getPicture($user->getName());
 
-		if ($wgUser->getID() > 0) {
-			if ($wgUser->getRegistration() != '') {
-				$pbDate = ProfileBox::getMemberLength(wfTimestamp(TS_UNIX,$wgUser->getRegistration()));
+		if ($user->getID() > 0) {
+			$userReg = $user->getRegistration();
+			if ($userReg) {
+				$ts = wfTimestamp(TS_UNIX, $userReg);
 			} else {
-				$pbDate = ProfileBox::getMemberLength(wfTimestamp(TS_UNIX,'20060725043938'));
+				$ts = wfTimestamp(TS_UNIX, '20060725043938');
 			}
+			$pbDate = self::getMemberSince($ts);
 		}
 		$heading = $avatar . "<div id='avatarNameWrap'><h1 class=\"firstHeading\">" . $name . "</h1><div id='regdate'>" . wfMessage('pb-joinedwikihow', $pbDate)->text() . "</div></div><div style='clear: both;'> </div>";
 
@@ -48,27 +49,29 @@ class ProfileBox extends UnlistedSpecialPage {
 	}
 
 	private function displayForm() {
-		global $wgUser, $wgOut, $wgLang, $wgTitle, $wgScriptPath, $wgStylePath, $wgLanguageCode;
+		$out = $this->getOutput();
+		$user = $this->getUser();
+		$langCode = $this->getLanguage()->getCode();
 
-		$wgOut->addHTML('<div class="section_text">');
-		$wgOut->addHTML($this->getPBTitle());
-		$wgOut->addHTML('</div>');
+		$out->addHTML('<div class="section_text">');
+		$out->addHTML($this->getPBTitle());
+		$out->addHTML('</div>');
 
 		$live = '';
 		$occupation = '';
 		$aboutme = '';
-		if ($wgUser->getOption('profilebox_display') == 1) {
-			$t = Title::newFromText($wgUser->getUserPage() . '/profilebox-live');
+		if ($user->getOption('profilebox_display') == 1) {
+			$t = Title::newFromText($user->getUserPage() . '/profilebox-live');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
 				$live = $r->getText();
 			}
-			$t = Title::newFromText($wgUser->getUserPage() . '/profilebox-occupation');
+			$t = Title::newFromText($user->getUserPage() . '/profilebox-occupation');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
 				$occupation = $r->getText();
 			}
-			$t = Title::newFromText($wgUser->getUserPage() . '/profilebox-aboutme');
+			$t = Title::newFromText($user->getUserPage() . '/profilebox-aboutme');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
 				$aboutme = $r->getText();
@@ -76,24 +79,24 @@ class ProfileBox extends UnlistedSpecialPage {
 				$aboutme = stripslashes($aboutme);
 			}
 
-			if ($wgUser->getOption('profilebox_stats') == 1) { $checkStats = 'CHECKED'; }
-			if ($wgUser->getOption('profilebox_startedEdited') == 1) { $checkStartedEdited = 'CHECKED'; }
-			if ($wgUser->getOption('profilebox_questions_answered',1) == 1) { $checkQuestionsAnswered = 'CHECKED'; }
-			if ($wgUser->getOption('profilebox_favs') == 1) { $checkFavs = 'CHECKED'; }
+			if ($user->getOption('profilebox_stats') == 1) { $checkStats = 'CHECKED'; }
+			if ($user->getOption('profilebox_startedEdited') == 1) { $checkStartedEdited = 'CHECKED'; }
+			if ($user->getOption('profilebox_questions_answered',1) == 1) { $checkQuestionsAnswered = 'CHECKED'; }
+			if ($user->getOption('profilebox_favs') == 1) { $checkFavs = 'CHECKED'; }
 
-			if ($t = Title::newFromID($wgUser->getOption('profilebox_fav1'))) {
+			if ($t = Title::newFromID($user->getOption('profilebox_fav1'))) {
 				if ($t->getArticleId() > 0) {
 					$fav1 = $t->getText();
 					$fav1id = $t->getArticleId();
 				}
 			}
-			if ($t = Title::newFromID($wgUser->getOption('profilebox_fav2'))) {
+			if ($t = Title::newFromID($user->getOption('profilebox_fav2'))) {
 				if ($t->getArticleId() > 0) {
 					$fav2 = $t->getText();
 					$fav2id = $t->getArticleId();
 				}
 			}
-			if ($t = Title::newFromID($wgUser->getOption('profilebox_fav3'))) {
+			if ($t = Title::newFromID($user->getOption('profilebox_fav3'))) {
 				if ($t->getArticleId() > 0) {
 					$fav3 = $t->getText();
 					$fav3id = $t->getArticleId();
@@ -108,7 +111,7 @@ class ProfileBox extends UnlistedSpecialPage {
 		}
 
 
-		$wgOut->addHTML("
+		$out->addHTML("
 <script language='javascript' src='" . wfGetPad('/extensions/wikihow/profilebox/profilebox.js?') . WH_SITEREV . "'></script>
 <link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/profilebox/profilebox.css?') . WH_SITEREV . "' type='text/css' />
 
@@ -120,7 +123,7 @@ class ProfileBox extends UnlistedSpecialPage {
 </div>
 
 <div class='pb_block'>" .
-($wgLanguageCode == "en" ? wfMessage('pb-website-entry')->text() : wfMessage('pb-website')->text()) . "<br />
+($langCode == "en" ? wfMessage('pb-website-entry')->text() : wfMessage('pb-website')->text()) . "<br />
 <input class='input_med' type='text' name='occupation' value='".$occupation."' placeholder='" .wfMessage('pb-website-ph')->text() . "'>
 </div>
 
@@ -138,13 +141,13 @@ wfMessage('pb-displayinfo')->text() . "<br /><br />
 <input type='checkbox' name='questionsAnswered' id='questionsAnswered' ".$checkQuestionsAnswered."> <label for='questionsAnswered'>".wfMessage('pb-checkbox-questionsanswered')->text()."</label><br />
 ");
 
-$wgOut->addHTML("
+$out->addHTML("
 <!-- <input type='checkbox' name='recentTalkpage'> Most recent talk page messages<br /> -->
 </div>
 <br />
 
 <div class='profileboxform_btns'>
-	<a href='/".$wgUser->getUserPage()."' class='button secondary'>" . wfMessage('cancel')->text() . "</a>
+	<a href='/".$user->getUserPage()."' class='button secondary'>" . wfMessage('cancel')->text() . "</a>
 	<input class='button primary' type='submit' id='gatProfileSaveButton' name='save' value='" . wfMessage('pb-save')->text() . "' />
 </div>
 
@@ -169,39 +172,40 @@ $wgOut->addHTML("
 		return true;
 	}
 
-	function pbConfig() {
-		global $wgUser, $wgRequest, $wgOut;
+	private function pbConfig() {
+		$req = $this->getRequest();
+		$user = $this->getUser();
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$live = $dbr->strencode(strip_tags($wgRequest->getVal('live'), '<p><br><b><i>'));
-		$occupation = $dbr->strencode(strip_tags($wgRequest->getVal('occupation'), '<p><br><b><i>'));
-		$aboutme = $dbr->strencode(strip_tags($wgRequest->getVal('aboutme'), '<p><br><b><i>'));
+		$live = $dbr->strencode(strip_tags($req->getVal('live'), '<p><br><b><i>'));
+		$occupation = $dbr->strencode(strip_tags($req->getVal('occupation'), '<p><br><b><i>'));
+		$aboutme = $dbr->strencode(strip_tags($req->getVal('aboutme'), '<p><br><b><i>'));
 
-		$t = Title::newFromText($wgUser->getUserPage() . '/profilebox-live');
+		$t = Title::newFromText($user->getUserPage() . '/profilebox-live');
 		$article = new Article($t);
 		if ($t->getArticleId() > 0) {
 			$article->updateArticle($live, 'profilebox-live-update', true, $watch);
-		} elseif ($live != ''){
+		} elseif ($live) {
 			$article->insertNewArticle($live, 'profilebox-live-update', true, $watch, false, false, true);
 		}
 
-		$t = Title::newFromText($wgUser->getUserPage() . '/profilebox-occupation');
+		$t = Title::newFromText($user->getUserPage() . '/profilebox-occupation');
 		$article = new Article($t);
 		if ($t->getArticleId() > 0) {
 			$article->updateArticle($occupation, 'profilebox-occupation-update', true, $watch);
-		} elseif ($occupation != ''){
+		} elseif ($occupation) {
 			$article->insertNewArticle($occupation, 'profilebox-occupation-update', true, $watch, false, false, true);
 		}
 
-		$t = Title::newFromText($wgUser->getUserPage() . '/profilebox-aboutme');
+		$t = Title::newFromText($user->getUserPage() . '/profilebox-aboutme');
 		$article = new Article($t);
 		if ($t->getArticleId() > 0) {
 			$article->updateArticle($aboutme, 'profilebox-aboutme-update', true, $watch);
-		} elseif ($aboutme != ''){
+		} elseif ($aboutme) {
 			$article->insertNewArticle($aboutme, 'profilebox-aboutme-update', true, $watch, false, false, true);
 		}
 
-		$userpageurl = $wgUser->getUserPage() . '';
+		$userpageurl = $user->getUserPage() . '';
 		$t = Title::newFromText( $userpageurl, NS_USER );
 		$article = new Article($t);
 		$userpage = " \n";
@@ -219,41 +223,41 @@ $wgOut->addHTML("
 			$article->insertNewArticle($userpage, 'profilebox-userpage-update', true, $watch, false, false, true);
 		}
 
-		$wgUser->setOption('profilebox_fav1', $wgRequest->getVal('fav1'));
-		$wgUser->setOption('profilebox_fav2', $wgRequest->getVal('fav2'));
-		$wgUser->setOption('profilebox_fav3', $wgRequest->getVal('fav3'));
+		$user->setOption('profilebox_fav1', $req->getVal('fav1'));
+		$user->setOption('profilebox_fav2', $req->getVal('fav2'));
+		$user->setOption('profilebox_fav3', $req->getVal('fav3'));
 
-		if ($wgRequest->getVal('articleStats') == 'on') {
-			$wgUser->setOption('profilebox_stats', 1);
+		if ($req->getVal('articleStats') == 'on') {
+			$user->setOption('profilebox_stats', 1);
 		} else {
-			$wgUser->setOption('profilebox_stats', 0);
+			$user->setOption('profilebox_stats', 0);
 		}
 
-		if ($wgRequest->getVal('articleStartedEdited') == 'on') {
-			$wgUser->setOption('profilebox_startedEdited', 1);
+		if ($req->getVal('articleStartedEdited') == 'on') {
+			$user->setOption('profilebox_startedEdited', 1);
 		} else {
-			$wgUser->setOption('profilebox_startedEdited', 0);
+			$user->setOption('profilebox_startedEdited', 0);
 		}
 
-		if ($wgRequest->getVal('questionsAnswered') == 'on') {
-			$wgUser->setOption('profilebox_questions_answered', 1);
+		if ($req->getVal('questionsAnswered') == 'on') {
+			$user->setOption('profilebox_questions_answered', 1);
 		} else {
-			$wgUser->setOption('profilebox_questions_answered', 0);
+			$user->setOption('profilebox_questions_answered', 0);
 		}
 
 /*
-		if ( ($wgRequest->getVal('articleFavs') == 'on') &&
-				($wgRequest->getVal('fav1') || $wgRequest->getVal('fav2') || $wgRequest->getVal('fav3')) )
+		if ( ($req->getVal('articleFavs') == 'on') &&
+				($req->getVal('fav1') || $req->getVal('fav2') || $req->getVal('fav3')) )
 		{
-			$wgUser->setOption('profilebox_favs', 1);
+			$user->setOption('profilebox_favs', 1);
 		} else {
-			$wgUser->setOption('profilebox_favs', 0);
+			$user->setOption('profilebox_favs', 0);
 		}
 */
 
-		$wgUser->setOption('profilebox_display', 1);
+		$user->setOption('profilebox_display', 1);
 
-		$wgUser->saveSettings();
+		$user->saveSettings();
 
 	}
 
@@ -310,16 +314,13 @@ $wgOut->addHTML("
 		return($removed);
 	}
 
-	function removeData() {
-		global $wgUser, $wgRequest;
-
-		self::removeUserData($wgUser);
-
+	private function removeData() {
+		self::removeUserData($this->getUser());
 		return "SUCCESS";
 	}
 
-	function fetchStats($pagename) {
-		global $wgUser, $wgReadOnly;
+	public static function fetchStats($pagename) {
+		global $wgReadOnly;
 
 		$dbr = wfGetDB(DB_REPLICA);
 		$t = Title::newFromText($pagename);
@@ -330,7 +331,7 @@ $wgOut->addHTML("
 		}
 
 		$cachetime = 24 * 60 * 60; // 1 day
-		if ($wgUser->getID() == $u->getID()) {
+		if (RequestContext::getMain()->getUser()->getID() == $u->getID()) {
 			$cachetime = 60;
 		}
 
@@ -396,7 +397,7 @@ $wgOut->addHTML("
 				'pb_lastUpdated' => wfTimestampNow()
 			];
 			$row = array_merge(['pb_user' => $u->getID()], $set);
-			$dbw->upsert('profilebox', $row, [], $set);
+			$dbw->upsert('profilebox', $row, [], $set, __METHOD__);
 
 			$response['created'] = number_format($created, 0, "", ",");
 			$response['edited'] = number_format($edited, 0, "", ",");
@@ -421,7 +422,7 @@ $wgOut->addHTML("
 		return $response;
 	}
 
-	function getFeaturedArticles() {
+	public static function getFeaturedArticles() {
 		global $wgMemc;
 		$cachekey = wfMemckey('pb-fa-list');
 		$fas = $wgMemc->get($cachekey);
@@ -447,7 +448,8 @@ $wgOut->addHTML("
 		return self::$featuredArticles;
 	}
 
-	function fetchEditedData($username, $limit){
+	// Used in WelcomeWagon and CategoryInterests
+	public static function fetchEditedData($username, $limit){
 		$dbr = wfGetDB(DB_REPLICA);
 
 		$u = User::newFromName(stripslashes($username));
@@ -468,7 +470,7 @@ $wgOut->addHTML("
 		return $res;
 	}
 
-	function fetchFavs($pagename) {
+	private function fetchFavs($pagename) {
 		$t = Title::newFromText($pagename);
 		$u = User::newFromName($t->getText());
 		if (!$u || $u->getID() == 0) {
@@ -478,7 +480,7 @@ $wgOut->addHTML("
 
 		$display = "";
 
-		for ($i=1;$i<=3;$i++) {
+		for ($i = 1; $i <= 3; $i++) {
 			$fav = 'profilebox_fav'.$i;
 			$page_id = '';
 			$page_id = $u->getOption($fav);
@@ -491,14 +493,12 @@ $wgOut->addHTML("
 			}
 		}
 
-		echo $display;
-		return;
+		return $display;
 	}
 
-	function favsTitleSelector() {
-		global $wgRequest;
+	private function favsTitleSelector() {
 		$dbr = wfGetDB(DB_REPLICA);
-		$name = preg_replace('/ /','-', strtoupper($wgRequest->getVal('pbTitle')));
+		$name = preg_replace('/ /','-', strtoupper($this->getRequest()->getVal('pbTitle')));
 
 		$order = array();
 		$order['LIMIT'] = '6';
@@ -519,33 +519,29 @@ $wgOut->addHTML("
 		$display .= "</ul>\n";
 		$res->free();
 
-		echo $display;
-		return;
+		return $display;
 	}
 
 	public function execute($par) {
-		global $wgCookiePrefix, $wgCookiePath, $wgCookieDomain, $wgLanguageCode;
-
 		$out = $this->getOutput();
 		$request = $this->getRequest();
 		$user = $this->getContext()->getUser();
 
-		if (!$user || $user->isBlocked()) {
-			$out->blockedPage();
+		$type = $request->getVal('type');
+		if (!$user || $user->getID() == 0 && $type != 'ajax') {
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
-		$type = $request->getVal('type');
-		if ($user->getID() == 0 && $type != 'ajax') {
-			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
-			return;
+		if ($user->isBlocked()) {
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		$out->setArticleBodyOnly(true);
 
 		if ($type == 'favsselector') {
 			$out->setArticleBodyOnly(true);
-			$this->favsTitleSelector();
+			print $this->favsTitleSelector();
 			return;
 		} elseif ($type == 'ajax') {
 			$out->setArticleBodyOnly(true);
@@ -560,37 +556,36 @@ $wgOut->addHTML("
 
 				switch ($element) {
 					case 'thumbed_less':
-						echo json_encode($stats->fetchThumbsData(5));
+						print json_encode($stats->fetchThumbsData(5));
 						break;
 					case 'thumbed_more':
-						echo json_encode($stats->fetchThumbsData(100));
+						print json_encode($stats->fetchThumbsData(100));
 						break;
 					case 'stats':
-						echo $this->fetchStats($pagename);
+						print self::fetchStats($pagename);
 						break;
 					case 'created_less':
-						echo json_encode($stats->fetchCreatedData(5));
+						print json_encode($stats->fetchCreatedData(5));
 						break;
 					case 'created_more':
-						echo json_encode($stats->fetchCreatedData(100));
+						print json_encode($stats->fetchCreatedData(100));
 						break;
 					case 'answered_less':
-						echo json_encode($stats->fetchAnsweredData(5));
+						print json_encode($stats->fetchAnsweredData(5));
 						break;
 					case 'answered_more':
-						echo json_encode($stats->fetchAnsweredData(100));
+						print json_encode($stats->fetchAnsweredData(100));
 						break;
 					case 'favs':
-						echo $this->fetchFavs($pagename);
+						print $this->fetchFavs($pagename);
 						break;
 					default:
 						wfDebug("ProfileBox ajax requesting  unknown element: $element \n");
+						break;
 				}
 			}
 			return;
 		}
-
-		$out->setArticleBodyOnly(true);
 
 		if ($request->wasPosted()) {
 			$out->setArticleBodyOnly(true);
@@ -608,14 +603,13 @@ $wgOut->addHTML("
 		}
 	}
 
-	static function getPageTop($u, $isMobile = false){
-		global $wgUser, $wgRequest, $wgLang, $wgOut;
-
+	// Used in WikihowUserPage
+	public static function getPageTop($u, $isMobile = false){
 		$realName = User::whoIsReal($u->getId());
 		if ($u->getRegistration() != '') {
-			$pb_regdate = ProfileBox::getMemberLength(wfTimestamp(TS_UNIX,$u->getRegistration()));
+			$pb_regdate = self::getMemberSince(wfTimestamp(TS_UNIX,$u->getRegistration()));
 		} else {
-			$pb_regdate = ProfileBox::getMemberLength(wfTimestamp(TS_UNIX,'20060725043938'));
+			$pb_regdate = self::getMemberSince(wfTimestamp(TS_UNIX,'20060725043938'));
 		}
 
 		$pb_showlive = false;
@@ -661,7 +655,7 @@ $wgOut->addHTML("
 			'pb_work' => $pb_work,
 			'pb_aboutme' => $pb_aboutme,
 			'pb_social' => $social,
-			'pb_email_url' => "/" . $wgLang->specialPage('Emailuser') ."?target=" . $u->getName(),
+			'pb_email_url' => "/" . SpecialPage::getTitleFor('Emailuser')->getPrefixedText() ."?target=" . $u->getName(),
 		);
 
 		$tmpl = new EasyTemplate( __DIR__ );
@@ -669,14 +663,15 @@ $wgOut->addHTML("
 
 		$tmpl_file = ($isMobile) ? 'header_mobile.tmpl.php' : 'header.tmpl.php';
 
-		$wgOut->addModules('jquery.ui.dialog');
+		RequestContext::getMain()->getOutput()->addModules('jquery.ui.dialog');
 
 		return $tmpl->execute($tmpl_file);
 	}
 
-	static function getMemberLength($joinDate){
-
-		if ($joinDate == '') return wfMessage('since-unknown')->text();
+	private static function getMemberSince($joinDate) {
+		if (!$joinDate) {
+			return wfMessage('since-unknown')->text();
+		}
 
 		$now = time();
 		$over = wfMessage('over','')->text();
@@ -689,14 +684,11 @@ $wgOut->addHTML("
 
 		if ($interval->y > 0) {
 			return $over . $interval->y .' '. ($interval->y==1?$period[3]:$periods[3]);
-		}
-		elseif ($interval->m > 0) {
+		} elseif ($interval->m > 0) {
 			return $over . $interval->m .' '. ($interval->m==1?$period[2]:$periods[2]);
-		}
-		elseif ($interval->w > 0) {
+		} elseif ($interval->w > 0) {
 			return $over . $interval->w .' '. ($interval->w==1?$period[1]:$periods[1]);
-		}
-		elseif ($interval->d > 0) {
+		} elseif ($interval->d > 0) {
 			return $over . $interval->d .' '. ($interval->d==1?$period[0]:$periods[0]);
 		}
 		else {
@@ -704,15 +696,14 @@ $wgOut->addHTML("
 		}
 	}
 
+	// Used in ArticleMetaInfo.class.php
 	public static function getMetaDesc() {
-		global $wgTitle;
-		$user = $wgTitle->getText();
-
-		$stats = self::fetchStats('User:'.$user);
+		$urlUser = RequestContext::getMain()->getTitle()->getText();
+		$stats = self::fetchStats('User:'.$urlUser);
 
 		if ($stats && is_array($stats)) {
 			$desc = wfMessage('user_meta_description_extended',
-					$user,
+					$urlUser,
 					$stats['created'],
 					$stats['edited'],
 					$stats['viewership'],
@@ -722,25 +713,14 @@ $wgOut->addHTML("
 		return $desc;
 	}
 
-	/* Not used since at least October 2017 - Alberto
-	function getRecentHistory($userId) {
-		$html = '<div class="sidebox" id="rcwidget_profile">';
-		$html .= RCWidget::getProfileWidget();
-		$html .= "</div>";
-		$html .= "<script type='text/javascript'>rcUser = {$userId}</script>";
-
-		return $html;
-	}
-	*/
-
-	static function getDisplayBadge($data) {
-		global $wgUser, $wgLanguageCode;
-
-		$isLoggedIn = $wgUser->getID() != 0;
+	// Used in WikihowUserPage
+	public static function getDisplayBadge($data) {
+		$isLoggedIn = !RequestContext::getMain()->getUser()->isAnon();
 		$display = "";
 
 		$side = 'right';
-		if (in_array($wgLanguageCode, array('ar'))) {
+		// Arabic is right-to-left
+		if ( RequestContext::getMain()->getLanguage()->isRTL() ) {
 			$side = 'left';
 		}
 		$distance = 15;
@@ -755,12 +735,12 @@ $wgOut->addHTML("
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
 		}
-		if ($data['admin'] == 1){
+		if ($data['admin'] == 1) {
 			$inner = "<div class='pb-admin pb-badge' style='{$side}:{$distance}px'></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
 		}
-		if ($data['fa'] == 1){
+		if ($data['fa'] == 1) {
 			$inner = "<div class='pb-fa pb-badge' style='{$side}:{$distance}px'></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
@@ -769,11 +749,10 @@ $wgOut->addHTML("
 		return $display;
 	}
 
-	static function getDisplayBadgeMobile($data) {
-		global $wgUser;
-
+	// Used in WikihowUserPage
+	public static function getDisplayBadgeMobile($data) {
 		$display = '';
-		$isLoggedIn = $wgUser->getID() != 0;
+		$isLoggedIn = !RequestContext::getMain()->getUser()->isAnon();
 
 		if ($data['nab'] == 1) {
 			$inner = "<div class='pb-nab pb-badge'><div><p>".wfMessage('pb-badge-nab')->text()."</p></div></div>";
@@ -801,33 +780,39 @@ $wgOut->addHTML("
 		return $display;
 	}
 
-	function getFinalStats($contributions, $views) {
+	// Used in WikihowUserPage
+	public static function getFinalStats($contributions, $views) {
 		$html = '<div class="minor_section" id="pb_finalstats">'.
 				$contributions.$views.
 				'</div>';
 		return $html;
 	}
 
-	function getPageViews() {
-		global $wgLang, $wgTitle;
-		$a = new Article($wgTitle);
+	// Used in WikihowUserPage
+	public static function getPageViews() {
+		$a = new Article( RequestContext::getMain()->getTitle() );
 		$count = $a ? (int)$a->getCount() : 0;
-		$countFormatted = $wgLang->formatNum( $count );
+		$countFormatted = RequestContext::getMain()->getLanguage()->formatNum( $count );
 		$s = wfMessage( 'viewcountuser', $countFormatted )->text();
 		return $s;
 	}
 
-	function getSocialLinks() {
-		global $wgTitle, $wgUser;
+	private static function getSocialLinks() {
+		$title = RequestContext::getMain()->getTitle();
+		$user = RequestContext::getMain()->getUser();
 		$socialLinked = "";
-		if ($u = User::newFromName($wgTitle->getDBKey())) {
-			if (UserPagePolicy::isGoodUserPage($wgTitle->getDBKey())) {
-				if (class_exists('FBLogin') && class_exists('FBLink') && $u->getID() == $wgUser->getId() && !$wgUser->isGPlusUser() && !$wgUser->isCivicUser()) {
+		if ($u = User::newFromName($title->getDBKey())) {
+			if (UserPagePolicy::isGoodUserPage($title->getDBKey())) {
+				if (class_exists('FBLogin')
+					&& class_exists('FBLink')
+					&& $u->getID() == $user->getId()
+					&& !$user->isGPlusUser()
+					&& !$user->isCivicUser()
+				) {
 					//show or offer FB link
-					$socialLinked = !$wgUser->isFacebookUser() ? FBLink::showCTAHtml() : FBLink::showCTAHtml('FBLink_linked');
-				}
-				elseif ($u->isGPlusUser()) {
-					if ($u->getID() == $wgUser->getId()) {
+					$socialLinked = !$user->isFacebookUser() ? FBLink::showCTAHtml() : FBLink::showCTAHtml('FBLink_linked');
+				} elseif ($u->isGPlusUser()) {
+					if ($u->getID() == $user->getId()) {
 						// Show link to disconnect Google account
 						$loginEnabledMsg = wfMessage('pb-google-login-enabled');
 						$unlinkMsg = wfMessage('pb-unlink-google-account');
@@ -842,16 +827,16 @@ $wgOut->addHTML("
 
 class ProfileStats {
 
-	var $user;
-	var $isOwnPage;
 	const CACHE_PREFIX = "pb";
 	const MIN_RECORDS = 1;
 	const MAX_RECORDS = 200;
 
+	var $user;
+	var $isOwnPage;
+
 	public function __construct($user) {
-		global $wgUser;
 		$this->user = $user;
-		$this->isOwnPage = $wgUser->getID() == $this->user->getID();
+		$this->isOwnPage = RequestContext::getMain()->getUser()->getID() == $this->user->getID();
 	}
 
 	public function fetchCreatedData($limit) {
@@ -905,7 +890,7 @@ class ProfileStats {
 		return $results;
 	}
 
-	function fetchThumbsData($limit) {
+	public function fetchThumbsData($limit) {
 		global $wgMemc;
 
 		$cacheKey = wfMemcKey(ProfileStats::CACHE_PREFIX, 'thumbs', $this->user->getID(), $limit);
@@ -998,7 +983,6 @@ class ProfileStats {
 				$cat['url'] = '/Category:'.str_replace(' ','-',$row->qac_category);
 				$results[] = $cat;
 			}
-			$res->free();
 		}
 
 		$wgMemc->set($cacheKey, $results, 60*10);
@@ -1006,7 +990,8 @@ class ProfileStats {
 		return $results;
 	}
 
-	function getBadges() {
+	// Used in WikihowUserPage
+	public function getBadges() {
 		//no badges for anons
 		if ($this->user->isAnon()) return;
 
@@ -1014,7 +999,7 @@ class ProfileStats {
 		return self::genBadges($dbr, $this->user);
 	}
 
-	static function genBadges($dbr, $user) {
+	public static function genBadges($dbr, $user) {
 		static $badgeCache = array();
 
 		if (!$user) return array();
@@ -1071,9 +1056,8 @@ class ProfileStats {
 		return $response;
 	}
 
-	function getContributions() {
-		global $wgTitle, $wgUser;
-
+	// Used in WikihowUserPage
+	public function getContributions() {
 		$user = $this->user;
 		$username = $user->getName();
 		$real_name = User::whoIsReal($user->getId());
@@ -1082,7 +1066,7 @@ class ProfileStats {
 		$contribsPage = SpecialPage::getTitleFor( 'Contributions', $username );
 
 		// check if viewing user is logged in
-		$isLoggedIn = $wgUser && $wgUser->getID() > 0;
+		$isLoggedIn = !RequestContext::getMain()->getUser()->isAnon();
 
 		$userstats = "<div id='userstats'>";
 		if ($user && $user->getID() > 0) {
@@ -1094,7 +1078,8 @@ class ProfileStats {
 			}
 		} else { // showing an anon user page
 			if ($isLoggedIn) {
-				$link = '<a href="' . $contribsPage->getFullURL() . '">' . $wgTitle->getText() . '</a>';
+				$link = '<a href="' . $contribsPage->getFullURL() . '">' .
+					RequestContext::getMain()->getTitle()->getText() . '</a>';
 				$userstats .= wfMessage('contributions-link', $link)->text();
 			}
 		}
@@ -1104,4 +1089,3 @@ class ProfileStats {
 	}
 
 }
-

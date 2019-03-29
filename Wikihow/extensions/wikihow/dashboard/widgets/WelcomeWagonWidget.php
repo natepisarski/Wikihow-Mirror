@@ -1,4 +1,4 @@
-<?
+<?php
 
 class WelcomeWagonWidget extends DashboardWidget {
 

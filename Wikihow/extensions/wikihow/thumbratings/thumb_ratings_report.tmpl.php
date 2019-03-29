@@ -34,7 +34,7 @@ table.thr tbody tr:hover {
 	<th>Down</th>
 </thead>
 <tbody>
-<?
+<?php
 foreach ($top100 as $datum) {
 	$link = "<a href='http://m.wikihow.com/" . urlencode($datum['page_title']) . "'>{$datum['page_title']}</a> " . 
 		"(<a target='_blank' href='/Special:ThumbRatings?a=rank&id=" . $datum['page_id'] . "'>rank</a>)";
@@ -45,7 +45,7 @@ foreach ($top100 as $datum) {
 		<td><?=$datum['up']?></td>
 		<td><?=$datum['down']?></td>
 	</tr>
-<?
+<?php
 }
 ?>
 </tbody>

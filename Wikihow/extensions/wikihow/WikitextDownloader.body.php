@@ -17,7 +17,7 @@ class WikitextDownloader extends UnlistedSpecialPage {
 		}
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$r = Revision::loadFromPageId($dbr, $req->getVal('pageid'));
+		$r = Revision::loadFromPageId($dbr, $req->getInt('pageid'));
 		if ($r) {
 			$title = $r->getTitle()->getText();
 			Misc::outputFile("$title.txt", $r->getText(), "application/force-download");

@@ -1,4 +1,4 @@
-<?
+<?php
 
 class CategorizerAppWidget extends DashboardWidget {
 

@@ -101,6 +101,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	require_once("$IP/extensions/wikihow/BibleCitation/BibleCitation.php");
 	require_once("$IP/extensions/wikihow/InstagramArticleAds/InstagramArticleAds.php");
+	require_once("$IP/extensions/wikihow/contribute/Contribute.php");
 }
 
 if ($wgLanguageCode == "zh") {
@@ -182,7 +183,6 @@ require_once("$IP/extensions/wikihow/Randomizer.php");
 require_once("$IP/extensions/wikihow/Generatefeed.php");
 require_once("$IP/extensions/wikihow/ToolbarHelper.php");
 require_once("$IP/extensions/wikihow/Sitemap.php");
-require_once("$IP/extensions/wikihow/EmailLink/EmailLink.php");
 require_once("$IP/extensions/wikihow/suggestedtopics/SuggestedTopics.php");
 require_once("$IP/extensions/wikihow/MWMessages.php");
 require_once("$IP/extensions/wikihow/Rating/Rating.php");

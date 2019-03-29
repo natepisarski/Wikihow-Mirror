@@ -4,7 +4,7 @@
 TODO (Added by Alberto on Nov 9, 2016):
 
 There are "index_info.ii_page" values which are missing from the "page" table:
-select * from index_info where ii_page not in (select page_id from page);
+select count(*) from index_info where ii_page not in (select page_id from page);
 
 One reason for this has to do with pages being moved. We could create a hook that removes
 expired entries from the "index_info" table.
@@ -33,12 +33,18 @@ class RobotPolicy {
 
 	const TABLE_NAME = "index_info";
 
+	/**
+	 * IMPORTANT: use lowercase when adding page names and language codes
+	 * 'lang' can be: '*', 'intl', or 'en|fr|de|ko|...'
+	 */
 	private static $overrides = [
-		// Lowercase, please
 		NS_MAIN => [],
 		NS_CATEGORY => [
-			'wikihow'           => [ 'langs' => ['en'], 'policy' => self::POLICY_NOINDEX_FOLLOW ],
-			'featured articles' => [ 'langs' => ['en'], 'policy' => self::POLICY_INDEX_FOLLOW ],
+			'wikihow'           => [ 'lang' => 'en', 'policy' => self::POLICY_NOINDEX_FOLLOW ],
+			'featured articles' => [ 'lang' => 'en', 'policy' => self::POLICY_INDEX_FOLLOW ],
+		],
+		NS_SPECIAL => [
+			'profilebadges'     => [ 'lang' => 'intl', 'policy' => self::POLICY_NOINDEX_NOFOLLOW ],
 		]
 	];
 
@@ -606,15 +612,13 @@ class RobotPolicy {
 		global $wgLanguageCode;
 		$policy = -1;
 
-		if ($this->title->inNamespaces(NS_MAIN, NS_CATEGORY)) {
-			$ns = $this->title->getNamespace();
-			$txt = strtolower($this->title->getText());
-			$cnf = self::$overrides[$ns][$txt] ?? null;
-			if (isset($cnf)) {
-				$langs = $cnf['langs'];
-				if (empty($langs) || in_array($wgLanguageCode, $langs)) {
-					$policy = $cnf['policy'];
-				}
+		$ns = $this->title->getNamespace();
+		$txt = strtolower($this->title->getText());
+		$cnf = self::$overrides[$ns][$txt] ?? null;
+		if ($cnf) {
+			$lang = $cnf['lang'];
+			if ( $lang == '*' || $wgLanguageCode == $lang || ($lang == 'intl' && Misc::isIntl()) ) {
+				$policy = $cnf['policy'];
 			}
 		}
 

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 
 class UserRole extends AppModel {

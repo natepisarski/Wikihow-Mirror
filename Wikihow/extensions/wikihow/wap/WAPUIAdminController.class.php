@@ -1,4 +1,4 @@
-<?
+<?php
 abstract class WAPUIAdminController extends WAPUIController {
 
 	protected function handleRequest($par) {

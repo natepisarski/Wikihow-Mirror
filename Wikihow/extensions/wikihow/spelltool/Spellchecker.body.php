@@ -25,8 +25,7 @@ class Spellchecker extends UnlistedSpecialPage {
 		$out = $this->getContext()->getOutput();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		$maintenanceMode = false;
@@ -504,25 +503,26 @@ class Spellcheckerwhitelist extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgOut, $wgUser;
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		if ($wgUser->isBlocked()) {
-			$wgOut->blockedPage();
+		if ($user->isBlocked()) {
+			throw new UserBlockedError( $user->getBlock() );
 			return;
 		}
 
-		$isStaff = in_array('staff', $wgUser->getGroups());
+		$isStaff = in_array('staff', $user->getGroups());
 
 		if (!$isStaff) {
-			$wgOut->setRobotPolicy( 'noindex,nofollow' );
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+			$out->setRobotPolicy( 'noindex,nofollow' );
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
 
 		$dbr = wfGetDB(DB_REPLICA);
 
-		$wgOut->addWikiText(wfMessage('spch-whitelist-inst'));
+		$out->addWikiText(wfMessage('spch-whitelist-inst'));
 
 		$words = array();
 		$res = $dbr->select(wikiHowDictionary::WHITELIST_TABLE, "*", '', __METHOD__);
@@ -539,26 +539,26 @@ class Spellcheckerwhitelist extends UnlistedSpecialPage {
 		}
 		asort($caps);
 
-		$wgOut->addHTML("<ul>");
+		$out->addHTML("<ul>");
 		foreach ($words as $word) {
 			if ($word->{wikiHowDictionary::WORD_FIELD} != "")
-				$wgOut->addHTML("<li>" . $word->{wikiHowDictionary::WORD_FIELD} );
+				$out->addHTML("<li>" . $word->{wikiHowDictionary::WORD_FIELD} );
 			if ($isStaff && $word->{wikiHowDictionary::USER_FIELD} > 0) {
 				$user = User::newFromId($word->{wikiHowDictionary::USER_FIELD});
-				$wgOut->addHTML(" (" . $user->getName() . ")");
+				$out->addHTML(" (" . $user->getName() . ")");
 			}
-			$wgOut->addHTML("</li>");
+			$out->addHTML("</li>");
 		}
 
 		foreach ($caps as $word) {
 			if ($word != "")
-				$wgOut->addHTML("<li>" . $word . "</li>");
+				$out->addHTML("<li>" . $word . "</li>");
 		}
 
-		$wgOut->addHTML("</ul>");
+		$out->addHTML("</ul>");
 
-		$wgOut->setHTMLTitle(wfMessage('spch-whitelist'));
-		$wgOut->setPageTitle(wfMessage('spch-whitelist'));
+		$out->setHTMLTitle(wfMessage('spch-whitelist'));
+		$out->setPageTitle(wfMessage('spch-whitelist'));
 	}
 }
 

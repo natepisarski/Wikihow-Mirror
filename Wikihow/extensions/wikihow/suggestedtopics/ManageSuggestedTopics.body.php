@@ -18,7 +18,7 @@ class ManageSuggestedTopics extends SpecialPage {
 			return;
         }
 
-		list( $limit, $offset ) = wfCheckLimits();
+		list( $limit, $offset ) = $req->getLimitOffset(50, 'rclimit');
 
 		$out->setPageTitle('Manage Suggested Topics');
 		$out->setHTMLTitle('Manage Suggested Topics - wikiHow');

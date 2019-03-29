@@ -27,8 +27,7 @@ class TipsPatrol extends SpecialPage {
 		$req = $this->getRequest();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		if ($user->isAnon() || self::isBlockedFromTipsPatrol($user)) {

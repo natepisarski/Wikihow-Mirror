@@ -236,7 +236,11 @@ class ImageUploader extends UnlistedSpecialPage {
 
 		$file = $upload->stashFile();
 		$fileKey = $file->getFileKey();
-		$origname = $upload->getTitle()->getText();
+		$origTitle = $upload->getTitle();
+		if (!$origTitle) {
+			return ['error' => "File has null title"];
+		}
+		$origname = $origTitle->getText();
 		$mwname = self::legalizeImageName($origname);
 		list($first, $ext) = self::splitFilenameExt($mwname);
 		$isImage = !$error && $file && in_array($file->getMediaType(), ['BITMAP', 'DRAWING', 'UNKNOWN']);
@@ -390,8 +394,7 @@ class ImageUploader extends UnlistedSpecialPage {
 		$user = $this->getUser();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		$action = $req->getVal('action');

@@ -1,4 +1,4 @@
-<?
+<?php
 class MotionToStatic {
 	public static function handlePageStatsPost( $request, $user ) {
 		$textBox = $request->getVal( 'textbox' );

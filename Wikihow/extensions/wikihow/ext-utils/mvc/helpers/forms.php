@@ -1,4 +1,4 @@
-<?
+<?php
 
 function isChecked($id, $children) {
 	return hasModel($id, $children) ? "checked='true'" : '';

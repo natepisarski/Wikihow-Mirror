@@ -30,7 +30,7 @@ class UserPagePolicy {
 	 * @return True to display, or false to 404
 	 */
 	public static function isGoodUserPage($name, $checkLoggedIn = true) {
-		global $wgUser, $wgOut;
+		$reqUser = RequestContext::getMain()->getUser();
 
 		if (isset(self::$goodUserCache[$name])) {
 			return self::$goodUserCache[$name];
@@ -44,13 +44,13 @@ class UserPagePolicy {
 
 		// Hide user pages belonging to users who've been inactive for 1+ years
 		$lastYear = wfTimestamp( TS_MW, strtotime( '-1 year' ) );
-		if ( $wgUser->isAnon() && $user->getTouched() < $lastYear ) {
+		if ( $reqUser->isAnon() && $user->getTouched() < $lastYear ) {
 			self::$goodUserCache[$name] = false;
 			return false;
 		}
 
 		// All user pages are viewable for logged in users that view
-		if ($checkLoggedIn && $wgUser && $wgUser->getID() > 0) {
+		if ($checkLoggedIn && $reqUser->getID() > 0) {
 			self::$goodUserCache[$name] = true;
 			return true;
 		}

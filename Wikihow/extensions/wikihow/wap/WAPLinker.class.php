@@ -1,4 +1,4 @@
-<?
+<?php
 class WAPLinker {
 	private $dbType = null;
 	private $config = null;

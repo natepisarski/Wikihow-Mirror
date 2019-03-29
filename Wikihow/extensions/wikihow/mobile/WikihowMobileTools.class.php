@@ -1633,6 +1633,12 @@ class WikihowMobileTools {
 		$sourcesSectionClass = ".".Misc::getSectionName( (wfMessage('sources')->text()));
 		$sourcesSection = pq( $sourcesSectionClass );
 
+		// if there is no sources section try references instead
+		if ( pq( $sourcesSection )->length < 1 ) {
+			$referencesSectionClass = ".section.".Misc::getSectionName( (wfMessage('references')->text()));
+			$sourcesSection = pq( $referencesSectionClass );
+		}
+
 		pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="firstref references">' );
 
 		// take out all li items and move them in to an ol

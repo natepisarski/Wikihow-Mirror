@@ -1,4 +1,4 @@
-<?
+<?php
 // MVC required constants
 define('APP_NS', 'ContentPortal');
 define('APP_DIR', realpath(__DIR__ . '/../'));

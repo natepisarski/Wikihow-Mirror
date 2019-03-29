@@ -1,4 +1,4 @@
-<?
+<?php
 	$messages['en'] = array(
 		'suggest_header'		=> 'Suggest a Topic for an Article',
 		'suggest_sub_header'	=> '<h2 class="subheader">Request an article using the form below</h2>',

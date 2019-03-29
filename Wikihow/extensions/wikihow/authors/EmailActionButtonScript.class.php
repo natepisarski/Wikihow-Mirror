@@ -1,4 +1,4 @@
-<?
+<?php
 /********************************************
  * Class that returns the script txt for 	*
  * Google action buttons. Requires the $url	*

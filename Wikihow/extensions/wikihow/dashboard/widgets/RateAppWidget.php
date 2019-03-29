@@ -1,4 +1,4 @@
-<?
+<?php
 
 class RateAppWidget extends DashboardWidget {
 

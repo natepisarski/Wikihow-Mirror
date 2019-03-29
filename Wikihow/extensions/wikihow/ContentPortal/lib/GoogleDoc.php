@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 global $IP;
 require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyImporter.php");

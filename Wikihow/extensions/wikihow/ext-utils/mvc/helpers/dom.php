@@ -1,4 +1,4 @@
-<?
+<?php
 
 function dataAttr($items) {
 	$str = "";

@@ -1,4 +1,4 @@
-<?
+<?php
 interface WAPConfig {
 	// Specifies which datasource for WAP to use
 	public function getDBType();

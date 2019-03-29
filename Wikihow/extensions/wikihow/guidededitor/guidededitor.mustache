@@ -140,6 +140,13 @@
 	</h2>
 	<textarea name='sources' rows='3' cols='100' wrap='virtual' id='sources' tabindex='9'>{{sources_section}}</textarea>
 </div>
+<div id='references' class='{{references_vis}} minor_section'>
+	<h2>{{references_msg}}
+		<div class='head_details'>{{linkstosites_msg}}</div>
+		<a href="/{{writers_guide_url}}?section=2#{{references_url_msg}}" target='new'>{{moreinfo_msg}}</a>
+	</h2>
+	<textarea name='references' rows='3' cols='100' wrap='virtual' id='references_text' tabindex='9'>{{references_section}}</textarea>
+</div>
 
 <div class='minor_section'>
 	<h2>{{optional_options_msg}}</h2>
@@ -164,7 +171,7 @@
 		<ul>
 			<li><input type='checkbox' id='thingsyoullneed_checkbox' name='thingsyoullneed_checkbox' {{thingsyoullneed_checked}} /> <label for='thingsyoullneed_checkbox'>{{thingsyoullneed_msg}}</label></li>
 			<li><input type='checkbox' id='relatedwikihows_checkbox' name='relatedwikihows_checkbox' {{relatedwikihows_checked}} /> <label for='relatedwikihows_checkbox'>{{relatedwikihows_msg}}</label></li>
-			<li><input type='checkbox' id='sources_checkbox' name='sources_checkbox' {{sources_checked}} /> <label for='sources_checkbox'>{{sources_msg}}</label></li>
+			<li><input type='checkbox' id='references_checkbox' name='references_checkbox' {{references_checked}} /> <label for='references_checkbox'>{{references_msg}}</label></li>
 			<li><input type='checkbox' id='ingredients_checkbox' name='ingredients_checkbox' {{ingredients_checked}} /> <label for='ingredients_checkbox'>{{ingredients_checkbox_msg}}</label></li>
 		</ul>
 	</div>

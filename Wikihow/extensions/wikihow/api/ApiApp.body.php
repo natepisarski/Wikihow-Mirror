@@ -535,8 +535,7 @@ class AppDataFormatter {
 		$article = new Article($title, $revid);
 		if (!$article) return null;
 
-		$article->loadContent();
-		$rev = $article->mRevision;
+		$rev = $article->getRevisionFetched();
 		return $rev ? $rev : null;
 	}
 

@@ -1,4 +1,4 @@
-<?
+<?php
 global $IP;
 require_once "$IP/extensions/wikihow/EasyTemplate.php";
 

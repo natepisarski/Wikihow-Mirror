@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use Mustache_Engine;
 

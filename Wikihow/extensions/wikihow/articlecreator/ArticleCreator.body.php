@@ -47,8 +47,8 @@ class ArticleCreator extends SpecialPage {
 		if ($request->wasPosted()) {
 			$out->setArticleBodyOnly(true);
 			$response = array();
-			$token = $context->getUser()->getEditToken();
-			if ($request->getVal('ac_token') != $token) {
+			$token = $request->getVal('ac_token');
+			if ( ! $context->getUser()->matchEditToken( $token ) ) {
 				$response['error'] = wfMessage('ac-invalid-edit-token');
 			} elseif ($this->onlyEditNewArticles && $t->exists() && !$overwriteAllowed) {
 				$response['error'] = wfMessage('ac-title-exists', $t->getEditUrl());
@@ -108,10 +108,10 @@ class ArticleCreator extends SpecialPage {
 					'buttonTxt' => wfMessage('ac-section-warnings-button-txt')->text(),
 					'placeholder' => wfMessage('ac-section-warnings-placeholder')->text(),
 			),
-			array('name' => wfMessage('ac-section-sources-name')->text(),
-					'desc' => wfMessage('ac-section-sources-desc')->text(),
-					'buttonTxt' => wfMessage('ac-section-sources-button-txt')->text(),
-					'placeholder' => wfMessage('ac-section-sources-placeholder')->text(),
+			array('name' => wfMessage('ac-section-references-name')->text(),
+					'desc' => wfMessage('ac-section-references-desc')->text(),
+					'buttonTxt' => wfMessage('ac-section-references-button-txt')->text(),
+					'placeholder' => wfMessage('ac-section-references-placeholder')->text(),
 			),
 		);
 

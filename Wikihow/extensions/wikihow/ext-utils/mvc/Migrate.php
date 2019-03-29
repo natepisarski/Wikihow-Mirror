@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC;
 require_once __DIR__ . "/CLI.php";
 

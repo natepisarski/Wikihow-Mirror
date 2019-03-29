@@ -207,8 +207,7 @@ class DocViewer extends UnlistedSpecialPage {
 	}
 
 	private static function addWidgets(&$tmpl) {
-		global $wgUser, $wgTitle;
-		$sk = $wgUser->getSkin();
+		$sk = RequestContext::getMain()->getSkin();
 
 		// Staff stats
 		$html = $tmpl->execute('widget_staff.tmpl.php');

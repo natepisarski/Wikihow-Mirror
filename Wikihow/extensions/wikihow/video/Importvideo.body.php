@@ -120,8 +120,7 @@ class ImportVideo extends SpecialPage {
 		$user = $this->getUser();
 
 		if ( $user->isBlocked() ) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		if ($req->getVal('popup') == 'true') {
@@ -440,7 +439,7 @@ class ImportVideo extends SpecialPage {
 		if ($newtext == "") {
 			$newtext = $newsection;
 		}
-		$watch = $title->userIsWatching();
+		$watch = $ctx->getUser()->isWatched($title);
 		if ($update) {
 			$a->updateArticle($newtext, $editSummary, false, $watch);
 		} else {
@@ -626,7 +625,6 @@ class NewVideoBoard extends SpecialPage {
 		$user = $this->getUser();
 
 		$target = !empty($par) ? $par : $req->getVal( 'target' );
-		$sk = $user->getSkin();
 		$dbr = wfGetDB(DB_REPLICA);
 
 		$this->setHeaders();

@@ -47,7 +47,8 @@ class Avatar extends UnlistedSpecialPage {
 		$up = $u->getUserPage();
 		$a = new Article($up, 0); //need to put 0 as the oldID b/c Article gets the old id out of the URL
 		if ($a->isRedirect()) {
-			$t = Title::newFromRedirect( $a->fetchContent() );
+			$wp = new WikiPage( $a->getTitle() );
+			$t = $wp->getRedirectTarget();
 			$u = User::newFromName($t->getText());
 			if (!$u) {
 				return $default;

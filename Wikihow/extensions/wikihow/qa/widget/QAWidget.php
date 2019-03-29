@@ -496,7 +496,9 @@ class QAWidget {
 		$display_data = $dc->getData();
 
 		foreach ($aqs as $q) {
-			$q->setProfileDisplayData($display_data[$q->getSubmitterUserId()]);
+			if ( isset( $display_data[$q->getSubmitterUserId()] ) ) {
+				$q->setProfileDisplayData($display_data[$q->getSubmitterUserId()]);
+			}
 			$q->show_editor_tools = self::showEditorTools($q, $isEditor, $isAdmin);
 			$q->qa_answerer_class = self::getAnswererClass($q);
 			$q->qa_answerer_label = self::getAnswererLabel($q);

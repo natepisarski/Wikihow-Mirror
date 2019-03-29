@@ -1,4 +1,4 @@
-<?
+<?php
 class FixFlaggedAnswersAppWidget extends DashboardWidget {
 
 	public function __construct($name) {

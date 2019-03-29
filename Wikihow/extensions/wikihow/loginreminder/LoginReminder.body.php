@@ -126,7 +126,7 @@ class LoginReminder extends UnlistedSpecialPage {
 			// Commented out By Gershon Bialer on 12/9/2013
 			// because they prevented error from showing in the upgrade
 			//$out->disable();
-			//$out->rateLimited();
+			//throw new ThrottledError;
 			$result['error_general'] = "<h4>" . wfMessage('actionthrottled')->text() . "</h4>";
 			$result['error_general'] .= wfMessage('actionthrottledtext')->text();
 			return $result;
@@ -226,7 +226,7 @@ class LoginReminder extends UnlistedSpecialPage {
 
 		$u->saveSettings();
 
-		$ip = wfGetIP();
+		$ip = RequestContext::getMain()->getRequest()->getIP();
 		if ( '' == $ip ) { $ip = '(Unknown)'; }
 
 		$m = wfMessage( $emailText, $ip, $u->getName(), $np, $wgCanonicalServer . $wgScript )->text();

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 require '../../ext-utils/mvc/CLI.php';
 require '../vendor/autoload.php';

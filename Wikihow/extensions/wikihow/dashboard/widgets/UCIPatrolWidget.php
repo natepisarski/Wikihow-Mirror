@@ -1,4 +1,4 @@
-<?
+<?php
 
 class UCIPatrolWidget  extends DashboardWidget {
 

@@ -91,7 +91,7 @@
 	<div id="search_adblock_bottom" class="search_adblock"></div>
 </div>
 
-<?
+<?php
 if (($total > $start + $max_results
 		&& $last == $start + $max_results)
 	|| $start >= $max_results): ?>

@@ -15,7 +15,9 @@ class Sitemap extends SpecialPage {
 
 		// INTL: If there is a redirect to a localized page name, follow it
 		if (strpos($revision->getText(), "#REDIRECT") !== false) {
-			$revision = Revision::newFromTitle( Title::newFromRedirect($revision->getText()));
+			$wikiPage = WikiPage::factory($title);
+			$newTitle = $wikiPage->getRedirectTarget();
+			$revision = Revision::newFromTitle( $newTitle );
 		}
 
 		$lines = explode("\n", $revision->getText() );

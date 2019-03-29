@@ -1,11 +1,9 @@
 <?php
 
 /**
- * Tells when things are going to rollout with the rollout functionalit
+ * Tells when things are going to rollout with the rollout functionality
  */
 class RolloutTool extends UnlistedSpecialPage {
-
-	private $_languageInfo;
 
 	public function __construct() {
 		parent::__construct('RolloutTool');
@@ -14,7 +12,6 @@ class RolloutTool extends UnlistedSpecialPage {
 	/**
 	 * Get rollout time of rollout for percentileRollout
 	 * @return Timestamp when article will be rolled out
-	 *
 	 */
 	private static function getRolloutDate($startTime, $duration, $titleText) {
 		$titleText = str_replace('-', ' ', $titleText);
@@ -35,13 +32,13 @@ class RolloutTool extends UnlistedSpecialPage {
 			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
-        }
+		}
 
 		$startDate = $req->getVal('startDate');
 		$duration = $req->getVal('duration');
 
 		if ($startDate) {
-			ini_set('memory_limit', '1024m');
+			ini_set('memory_limit', '1024M');
 			$startDate = strtotime($startDate);
 
 			$langs = array();
@@ -72,14 +69,13 @@ class RolloutTool extends UnlistedSpecialPage {
 				print $url . "\t" . $ts . "\n";
 			}
 		} else {
-            EasyTemplate::set_path(__DIR__.'/');
+			EasyTemplate::set_path(__DIR__.'/');
 
-            $vars = array('languages' => Misc::getActiveLanguageNames() );
+			$vars = array('languages' => Misc::getActiveLanguageNames() );
 
-            $html = EasyTemplate::html('RolloutTool.tmpl.php', $vars);
-            $out->addHTML($html);
+			$html = EasyTemplate::html('RolloutTool.tmpl.php', $vars);
+			$out->addHTML($html);
 		}
 	}
 
 }
-

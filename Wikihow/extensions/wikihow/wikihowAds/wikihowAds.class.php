@@ -1399,7 +1399,7 @@ class wikihowAds {
 	 * function.
 	 *
 	 ******/
-	function isEligibleForAds() {
+	public static function isEligibleForAds() {
 		global $wgUser, $wgTitle, $wgRequest, $wgOut;
 
 		if (!$wgTitle) //don't want to check if it exists, b/c there are a few special pages that should show ads, and they don't "exist"
@@ -1465,7 +1465,7 @@ class wikihowAds {
 
 	}
 
-	function setCategories($title = null) {
+	public static function setCategories($title = null) {
 		global $wgTitle;
 
 		if (self::$mCategoriesSet) {
@@ -2030,6 +2030,10 @@ class wikihowAds {
 			return false;
 		}
 
+		if ( class_exists( 'AlternateDomain' ) && AlternateDomain::onAlternateDomain() ) {
+			return false;
+		}
+
 		$pageId = 0;
 		if ( $wgOut && $wgOut->getTitle() ) {
 			$pageId = $wgOut->getTitle()->getArticleID();
@@ -2038,12 +2042,8 @@ class wikihowAds {
 			return false;
 		}
 
-		// current ad test is on 25% of pages
-	   if ( $pageId % 4 <= 1 ) {
-			return true;
-		}
-
-		return false;
+		// current ad test is on all pages
+		return true;
 	}
 
    private static function insertExtraTestAds() {
@@ -2070,13 +2070,6 @@ class wikihowAds {
 	   }
 	   if ( !$pageId ) {
 		   return $channels;
-	   }
-
-	   // extra ads test
-	   if ( $pageId % 4 <= 1 ) {
-		   $channels .= "+3523999546";
-	   } else {
-		   $channels .= "+8776326224";
 	   }
 
 	   return $channels;

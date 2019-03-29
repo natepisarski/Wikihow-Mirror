@@ -47,9 +47,9 @@ $wgHoneypotCampaigns = [
 	'game' => [
 		'title' => 'Buy the wikiHow Card Game'
 	],
-	// 'example' => [
-	// 	'target' => '/WikiHow:Example'
-	// ]
+	'support' => [
+		'target' => '/wikiHow:Contribute'
+	]
 ];
 
 /**
@@ -57,7 +57,7 @@ $wgHoneypotCampaigns = [
  * 
  * Which campaign to show in the right-rail of articles for users with ad-blockers.
  */
-$wgHoneypotActiveCampaign = 'game';
+$wgHoneypotActiveCampaign = 'support';
 
 /**
  * Default campaign

@@ -39,17 +39,16 @@ class UserStaffWidget extends UnlistedSpecialPage {
 	}
 
 	public static function formatUserData($row) {
-		global $wgLang;
-
+		$lang = RequestContext::getMain()->getLanguage();
 		$txt = "<b>User: </b>" . $row->fe_username . "<br/>\n";
-		$txt .= "<b>Joined: </b>" . ($row->fe_date_joined ? $wgLang->date($row->fe_date_joined):"Before 2009") . "<br/>\n";
-		$txt .= "<b>Last edit: </b>" . ($row->fe_last_edit_date ? $wgLang->date($row->fe_last_edit_date) : "")  . "<br/>\n";
-		$txt .= "<b>Last touch: </b>" . ($row->fe_last_touched ? $wgLang->date($row->fe_last_touched) : "") . "<br/>\n";
+		$txt .= "<b>Joined: </b>" . ($row->fe_date_joined ? $lang->date($row->fe_date_joined):"Before 2009") . "<br/>\n";
+		$txt .= "<b>Last edit: </b>" . ($row->fe_last_edit_date ? $lang->date($row->fe_last_edit_date) : "")  . "<br/>\n";
+		$txt .= "<b>Last touch: </b>" . ($row->fe_last_touched ? $lang->date($row->fe_last_touched) : "") . "<br/>\n";
 		$txt .= "<b>Contributions: </b>" . $row->contribution_edit_count_all . "<br/>\n";
 		$txt .= "<b>Articles started: </b>" . $row->articles_started_all . "<br/>\n";
 		$txt .= "<b>Edits Patrolled: </b>" . $row->patrol_count_all . "<br/>\n";
 		$txt .= "<b>Talk messages sent: </b>" . $row->talk_pages_sent_all . "<br/>\n";
-		$txt .= "<b>First contact: </b>" . ($row->fe_first_human_talk_date ? $wgLang->date($row->fe_first_human_talk_date) : "") . "<br/>\n";
+		$txt .= "<b>First contact: </b>" . ($row->fe_first_human_talk_date ? $lang->date($row->fe_first_human_talk_date) : "") . "<br/>\n";
 		return($txt);
 
 	}
@@ -75,26 +74,27 @@ class UserStaffWidget extends UnlistedSpecialPage {
 	}
 
 	public static function beforeHeaderDisplay() {
-		global $wgUser, $wgTitle, $wgLang;
-
 		if (!self::isAllowed()) {
 			return true;
 		}
-		if ($wgTitle->inNamespace(NS_USER) ) {
-			if (preg_match("@^([^/]+)(/|$)@",$wgTitle->getText(),$matches)) {
+
+		$title = RequestContext::getMain()->getTitle();
+		if ($title->inNamespace(NS_USER) ) {
+			if (preg_match("@^([^/]+)(/|$)@", $title->getText(), $matches)) {
 				$u = User::newFromName($matches[1]);
 				if ($u) {
 					$row = self::getStaffWidgetData($u->getId());
-					$sk = $wgUser->getSkin();
+					$sk = RequestContext::getMain()->getSkin();
+					$lang = RequestContext::getMain()->getLanguage();
 					$txt = "<b>User: </b>" . $row->fe_username . "<br/>\n";
-					$txt .= "<b>Joined: </b>" . ($row->fe_date_joined ? $wgLang->date($row->fe_date_joined):"") . "<br/>\n";
-					$txt .= "<b>Last edit: </b>" . ($row->fe_last_edit_date ? $wgLang->date($row->fe_last_edit_date) : "")  . "<br/>\n";
-					$txt .= "<b>Last touch: </b>" . ($row->fe_last_touched ? $wgLang->date($row->fe_last_touched) : "") . "<br/>\n";
+					$txt .= "<b>Joined: </b>" . ($row->fe_date_joined ? $lang->date($row->fe_date_joined):"") . "<br/>\n";
+					$txt .= "<b>Last edit: </b>" . ($row->fe_last_edit_date ? $lang->date($row->fe_last_edit_date) : "")  . "<br/>\n";
+					$txt .= "<b>Last touch: </b>" . ($row->fe_last_touched ? $lang->date($row->fe_last_touched) : "") . "<br/>\n";
 					$txt .= "<b>Contributions: </b>" . $row->contribution_edit_count_all . "<br/>\n";
 					$txt .= "<b>Articles started: </b>" . $row->articles_started_all . "<br/>\n";
 					$txt .= "<b>Edits Patrolled: </b>" . $row->patrol_count_all . "<br/>\n";
 					$txt .= "<b>Talk messages sent: </b>" . $row->talk_pages_sent_all . "<br/>\n";
-					$txt .= "<b>First contact: </b>" . ($row->fe_first_human_talk_date ? $wgLang->date($row->fe_first_human_talk_date) : "") . "<br/>\n";
+					$txt .= "<b>First contact: </b>" . ($row->fe_first_human_talk_date ? $lang->date($row->fe_first_human_talk_date) : "") . "<br/>\n";
 					$txt .= "<script type=\"text/javascript\">";
 					$txt .= "$(document).ready(function() {\n";
 					$txt .= "$(\"#sidebar\").prepend($(\".user_widget\"));\n";
@@ -103,9 +103,8 @@ class UserStaffWidget extends UnlistedSpecialPage {
 					$sk->addWidget($txt, 'user_widget');
 				}
 			}
-		}
-		elseif($wgTitle->inNamespace(NS_USER_TALK)) {
-			$sk = $wgUser->getSkin();
+		} elseif ($title->inNamespace(NS_USER_TALK)) {
+			$sk = RequestContext::getMain()->getSkin();
 			$txt = "<script type\"text/javascript\">\n";
 			$txt .= "$(document).ready(function() {\n";
 			$txt .= "$(\".user_widget\").hide();\n";

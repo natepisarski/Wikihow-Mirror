@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 
 class NotesController extends AppController {

@@ -416,11 +416,11 @@ div[id^="ac_error_guider"] .guider_title {
 }
 
 
-#ac_add_sources a {
+#ac_add_references a {
 	cursor: pointer;
 }
 
-#sourcesandcitations {
+#references {
 	display: none;
 }
 
@@ -436,7 +436,7 @@ div[id^="ac_error_guider"] .guider_title {
 	margin-right: 0px;
 }
 
-.add_sources_section {
+.add_references_section {
 	margin-bottom: 0px;
 }
 
@@ -490,7 +490,7 @@ div[id^="ac_error_guider"] .guider_title {
 	border: 0px  !important;
 }
 
-#ac_add_sources {
+#ac_add_references {
 	background: url(/skins/owl/images/plus-button.png) no-repeat;
 	background-size: 25px 25px;
 	padding: 4px 35px !important;

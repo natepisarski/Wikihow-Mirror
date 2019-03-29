@@ -78,16 +78,15 @@ class QAPatrol extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$user = $this->getUser();
 
-		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
-		}
-
 		//logged in and desktop only
-		if ($user->isAnon() || Misc::isMobileMode() || !self::isAllowed($user)) {
+		if (!$user || $user->isAnon() || Misc::isMobileMode() || !self::isAllowed($user)) {
 			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
+		}
+
+		if ($user->isBlocked()) {
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		$this->skipTool = new ToolSkip("QAPatrol");

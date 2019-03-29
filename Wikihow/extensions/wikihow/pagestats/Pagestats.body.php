@@ -821,7 +821,7 @@ class PageStats extends UnlistedSpecialPage {
 	?>
 
 </script>
-<?
+<?php
 	}
 
 }

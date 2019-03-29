@@ -56,7 +56,7 @@ class QABox extends UnlistedSpecialPage {
 		}
 
 		//nothing normally
-		$out->blockedPage();
+		$out->addHTML("No entry point here");
 		return;
 	}
 

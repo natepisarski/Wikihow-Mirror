@@ -273,7 +273,7 @@ function wfLoadExtensionMessages($module) {
 
 function decho( $name, $value = "", $html = true, $showPrefix = true ) {
 	global $wgCommandLineMode, $wgIsDevServer;
-	if ( !$wgIsDevServer ) {
+	if ( !$wgIsDevServer && !$wgCommandLineMode ) {
 		return;
 	}
 

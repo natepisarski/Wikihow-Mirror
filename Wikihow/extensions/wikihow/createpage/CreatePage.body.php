@@ -172,13 +172,10 @@ class CreatePage extends SpecialPage {
 
 					// redirect check
 					if ($t->isRedirect()) {
-						$r = Revision::newFromTitle($t);
-						$text =  $r->getText();
-						$redirect = Title::newFromRedirect( $text );
-						if ($redirect != null) $t = $redirect;
+						$wikiPage = WikiPage::factory($t);
+						$t = $wikiPage->getRedirectTarget();
 						$redir = true;
-					}
-					else {
+					} else {
 						$redir = false;
 					}
 
@@ -212,7 +209,7 @@ class CreatePage extends SpecialPage {
 		}
 
 		$me = Title::newFromText("CreatePage", NS_SPECIAL);
-		$sk = $wgUser->getSkin();
+		$sk = $this->getSkin();
 		$this->setHeaders();
 		$wgOut->addModules('ext.wikihow.createpage');
 

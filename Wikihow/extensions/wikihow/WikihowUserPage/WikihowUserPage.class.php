@@ -58,8 +58,7 @@ class WikihowUserPage extends Article {
 			$this->isPageOwner = $user->getName() == $this->user->getName();
 		}
 		if ( $this->user->isBlocked() && $this->isPageOwner ) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $this->user->getBlock() );
 		}
 
 		//hack in the <title> because it disappears for some reason [sc]
@@ -76,8 +75,6 @@ class WikihowUserPage extends Article {
 	}
 
 	private function getDesktopView() {
-		global $wgUser;
-
 		$out = $this->getContext()->getOutput();
 		$title = $this->getContext()->getTitle();
 
@@ -96,10 +93,9 @@ class WikihowUserPage extends Article {
 		$badgeData = $profileStats->getBadges();
 		$out->addHTML(ProfileBox::getDisplayBadge($badgeData));
 
-		if ($wgUser->isLoggedIn()) {
+		if ($this->getContext()->getUser()->isLoggedIn()) {
 			$skin->addWidget($this->getRCUserWidget()); // fix for WelcomeWagon
 		}
-
 
 		if ($checkStats || $checkStartedEdited) {
 			$stats = ProfileBox::fetchStats("User:" . $this->user->getName());
@@ -464,9 +460,7 @@ class WikihowUserPage extends Article {
 	 * We don't want anons to see links to deindexed articles.
 	 */
 	private function flagDeindexedArticles(&$data) {
-		global $wgUser;
-
-		if (!$data || $wgUser->isLoggedIn())
+		if (!$data || $this->getContext()->getUser()->isLoggedIn())
 			return;
 
 		foreach ($data as &$article) {

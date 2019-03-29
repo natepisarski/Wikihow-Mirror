@@ -67,6 +67,12 @@ class removeBadReferences extends Maintenance {
 
 		$sourcesText = stristr( $text, "== sources and citations ==" );
 		if ( !$sourcesText ) {
+			$sourcesText = stristr( $text, "==references==" );
+		}
+		if ( !$sourcesText ) {
+			$sourcesText = stristr( $text, "== references ==" );
+		}
+		if ( !$sourcesText ) {
 			$sourcesText = stristr( $text, "==sources and citations==" );
 		}
 		$sourcesSectionCount = substr_count( $sourcesText, $url );
@@ -124,12 +130,19 @@ class removeBadReferences extends Maintenance {
 		// check the sources and citations section too
 		$sectionText = stristr( $text, "== sources and citations ==" );
 		if ( !$sectionText ) {
+			$sectionText = stristr( $text, "==references==" );
+		}
+		if ( !$sectionText ) {
+			$sectionText = stristr( $text, "== references ==" );
+		}
+		if ( !$sectionText ) {
 			$sectionText = stristr( $text, "==sources and citations==" );
-			// this should never happen so quit completely if it does
-			if ( !$sectionText ) {
-				decho("Error: could not find section!");
-				exit();
-			}
+		}
+
+		// this should never happen so quit completely if it does
+		if ( !$sectionText ) {
+			decho("Error: could not find section!");
+			exit();
 		}
 
 		$sectionLines = explode( PHP_EOL, $sectionText );

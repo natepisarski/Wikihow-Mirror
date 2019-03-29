@@ -1,4 +1,4 @@
-<?
+<?php
 class WAPReport {
 	const MIME_TYPE = 'application/vnd.ms-excel';
 	const FILE_EXT = '.xls';

@@ -1,4 +1,4 @@
-<?
+<?php
 
 function hasFlash() {
 	return isset($_SESSION['flash']);

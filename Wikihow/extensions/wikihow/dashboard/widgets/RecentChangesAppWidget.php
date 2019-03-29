@@ -1,4 +1,4 @@
-<?
+<?php
 
 class RecentChangesAppWidget extends DashboardWidget {
 

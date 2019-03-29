@@ -263,7 +263,7 @@ class GuidedEditor extends EditPage {
 		if ($nab_overwrite) {
 			$query_string .= '&overwrite=yes';
 		}
-		$action = $this->mTitle->escapeLocalURL( $query_string );
+		$action = htmlspecialchars( $this->mTitle->getLocalURL( $query_string ) );
 		if ($create_article) {
 			$mainpage = str_replace(' ', '-', wfMessage('mainpage'));
 			$action = str_replace("&title=$mainpage", '', $action);
@@ -429,6 +429,21 @@ class GuidedEditor extends EditPage {
 			$sources_section = $section;
 		}
 
+		// references section (maybe hidden)
+		$references_vis = "hide";
+		$references_section = "*  ";
+		$references_checked = '';
+
+		$references = wfMessage("references");
+		$section = $whow->getSection( $references );
+		$section = str_replace('<div class="references-small"><references/></div>', '', $section);
+		if ($section) {
+			$references_vis = "show";
+			$references_checked = " checked='checked' ";
+			$references_section = $section;
+		}
+		//decho('not found', $section); exit;
+
 		$lang_links = htmlspecialchars($whow->getLangLinks());
 
 		$show_weave = false;
@@ -488,6 +503,7 @@ class GuidedEditor extends EditPage {
 			'warnings_section' => $warnings_section,
 			'thingsyoullneed_section' => $thingsyoullneed_section,
 			'sources_section' => $sources_section,
+			'references_section' => $references_section,
 
 			'relatedHTML' => $relatedHTML,
 			'all_buttons' => $all_buttons,
@@ -497,6 +513,7 @@ class GuidedEditor extends EditPage {
 			'things_vis' => $things_vis,
 			'related_vis' => $related_vis,
 			'sources_vis' => $sources_vis,
+			'references_vis' => $references_vis,
 			'vidpreview_vis' => $vidpreview_vis,
 			'video_disabled' => $video_disabled,
 			'vidpreview' => $vidpreview,
@@ -532,6 +549,7 @@ class GuidedEditor extends EditPage {
 			'thingsyoullneed_msg' => wfMessage('thingsyoullneed'),
 			'relatedarticlestext_msg' => wfMessage('relatedarticlestext'),
 			'sources_msg' => wfMessage('sources'),
+			'references_msg' => wfMessage('references'),
 			'relatedwikihows_msg' => wfMessage('relatedwikihows'),
 			'subject_msg' => wfMessage('subject'),
 
@@ -557,7 +575,9 @@ class GuidedEditor extends EditPage {
 			'items_msg' => wfMessage('items'),
 			'relatedlist_msg' => wfMessage('relatedlist'),
 			'relatedwikihows_url_msg' => wfMessage('related-wikihows-url'),
+			// TODO update this when we fix the destination link page (writers guide)
 			'sources_url_msg' => wfMessage('sources-links-url'),
+			'references_url_msg' => wfMessage('sources-links-url'),
 			'epw_move_up_msg' => wfMessage('epw_move_up'),
 			'epw_move_down_msg' => wfMessage('epw_move_down'),
 			'epw_remove_msg' => wfMessage('epw_remove'),
@@ -584,6 +604,7 @@ class GuidedEditor extends EditPage {
 			'thingsyoullneed_checked' => $thingsyoullneed_checked,
 			'relatedwikihows_checked' => $relatedwikihows_checked,
 			'sources_checked' => $sources_checked,
+			'references_checked' => $references_checked,
 			'ingredients_checked' => $ingredients_checked,
 			'minor_edit_checked' => ($this->minoredit ? " checked='checked'" : ''),
 			'watchthis_checked' => ($this->watchthis ? " checked='checked'" : ''),

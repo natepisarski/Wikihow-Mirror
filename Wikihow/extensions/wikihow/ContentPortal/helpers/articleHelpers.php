@@ -1,4 +1,4 @@
-<?
+<?php
 use ContentPortal\Article;
 use ContentPortal\Role;
 

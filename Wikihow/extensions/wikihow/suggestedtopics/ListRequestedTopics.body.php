@@ -21,7 +21,7 @@ class ListRequestedTopics extends SpecialPage {
 		self::setTopAuthorWidget($par);
 		self::getNewArticlesWidget();
 
-		list( $limit, $offset ) = wfCheckLimits();
+		list( $limit, $offset ) = $req->getLimitOffset(50, 'rclimit');
 		$dbr = wfGetDB(DB_REPLICA);
 
 		$out->addModules( ['ext.wikihow.SuggestedTopics'] );
@@ -314,11 +314,9 @@ class ListRequestedTopics extends SpecialPage {
 	}
 
 	public static function setActiveWidget() {
-		global $wgUser;
-
 		$unw = number_format(self::getUnwrittenTopics(), 0, ".", ", ");
 
-		if ($wgUser->getID() != 0) {
+		if (RequestContext::getMain()->getUser()->getID() != 0) {
 			$today = self::getArticlesWritten(false);
 			$topicsToday = self::getTopicsSuggested(false);
 			$alltime = self::getArticlesWritten(true);
@@ -378,13 +376,11 @@ class ListRequestedTopics extends SpecialPage {
 
 		Html::closeElement('div');
 
-		$skin = $wgUser->getSkin();
+		$skin = RequestContext::getMain()->getSkin();
 		$skin->addWidget($html);
 	}
 
 	public static function setTopAuthorWidget($target) {
-		global $wgUser;
-
 		$startdate = strtotime('7 days ago');
 		$starttimestamp = date('Ymd-G', $startdate) . '!' . floor(date('i',$startdate)/10) . '00000';
 		$data = LeaderboardStats::getArticlesWritten($starttimestamp);
@@ -418,7 +414,7 @@ class ListRequestedTopics extends SpecialPage {
 		}
 		$topAuthorWidget .= "</table>";
 
-		$skin = $wgUser->getSkin();
+		$skin = RequestContext::getMain()->getSkin();
 		$skin->addWidget('<div>' . $topAuthorWidget . '</div>');
 	}
 
@@ -443,8 +439,6 @@ class ListRequestedTopics extends SpecialPage {
 	}
 
 	public static function getNewArticlesWidget() {
-		global $wgUser;
-
 		$skin = RequestContext::getMain()->getSkin();
 		$html = self::getNewArticlesBox();
 		$skin->addWidget($html);
@@ -458,9 +452,8 @@ class ListRequestedTopics extends SpecialPage {
 	}
 
 	private static function getArticlesWritten($alltime) {
-		global $wgUser;
 		$dbr = wfGetDB(DB_REPLICA);
-		$conds = array('fe_user' => $wgUser->getID(), 'page_id = fe_page', 'page_namespace=0');
+		$conds = array('fe_user' => RequestContext::getMain()->getUser()->getID(), 'page_id = fe_page', 'page_namespace=0');
 		if (!$alltime) {
 			// just today
 			$cutoff = wfTimestamp(TS_MW, time() - 24 * 3600);
@@ -471,9 +464,8 @@ class ListRequestedTopics extends SpecialPage {
 	}
 
 	private static function getTopicsSuggested($alltime) {
-		global $wgUser;
 		$dbr = wfGetDB(DB_REPLICA);
-		$conds = array('fe_user' => $wgUser->getID(), 'fe_page=page_id', 'page_title=st_title', 'page_namespace=0');
+		$conds = array('fe_user' => RequestContext::getMain()->getUser()->getID(), 'fe_page=page_id', 'page_title=st_title', 'page_namespace=0');
 		if (!$alltime) {
 			// just today
 			$cutoff = wfTimestamp(TS_MW, time() - 24 * 3600);

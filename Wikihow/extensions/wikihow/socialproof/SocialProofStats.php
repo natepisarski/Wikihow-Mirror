@@ -110,7 +110,11 @@ class SocialProofStats extends ContextSource {
 		$value = $data->rating;
 
 		$helpful['value'] = $value;
-		$helpful['alltime'] = $data->ratingCountAllTime;
+		if ( isset( $data->ratingCountAllTime ) ) {
+			$helpful['alltime'] = $data->ratingCountAllTime;
+		} else {
+			$helpful['alltime'] = 0;
+		}
 		$helpful['count'] = number_format( $data->ratingCount );
 		$helpful['ratingDisplay'] = wfMessage( 'sp_helpful_rating', $value, $helpful['count'] )->text();
 		$helpful['ratingDisplayAmp'] = wfMessage( 'sp_helpful_rating_amp', $value, $helpful['count'] )->text();
@@ -193,9 +197,8 @@ class SocialProofStats extends ContextSource {
 			case self::VERIFIER_TYPE_EXPERT:
 			case self::VERIFIER_TYPE_ACADEMIC:
 			case self::VERIFIER_TYPE_YOUTUBER:
-				list($nameLink, $subNameLink, $hoverBlurb) = $this->formatExpertDetails($data, $title);
+				list($nameLink, $subNameLink) = $this->formatExpertDetails($data, $title);
 
-				$desc = wfMessage('sp_expert_desc', $data->name)->text().' '.$data->hoverBlurb;
 
 				$learn_more_link = ' '.Html::rawElement(
 					'a',
@@ -208,8 +211,6 @@ class SocialProofStats extends ContextSource {
 					'is_verifier' => true,
 					'name_link' => $nameLink,
 					'subname_blurb' => $subNameLink,
-					'hover_blurb' => $hoverBlurb.$learn_more_link,
-					'desc' => $desc,
 					'avatar_image_html' => $this->getAvatarImageHtml( $this->verifierInfo ),
 					'initials' => $this->verifierInfo->initials,
 				];
@@ -219,7 +220,6 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_chef_verified')->text(),
 					'team_label' => wfMessage('sp_team_label_tested')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => wfMessage('sp_chef_verified_hover')->text().$learn_more_link
 				];
 
 			case self::VERIFIER_TYPE_VIDEO:
@@ -227,28 +227,33 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_videov_verified')->text(),
 					'team_label' => wfMessage('sp_team_label_tested')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => wfMessage('sp_videov_verified_hover')->text().$learn_more_link
 				];
 
 			case self::VERIFIER_TYPE_COMMUNITY:
 				$key = $this->verifierType;
 				$is_verifier = true;
 
-				list($nameLink, $subNameLink, $hoverBlurb) = $this->formatExpertDetails($data, $title);
+				list($nameLink, $subNameLink) = $this->formatExpertDetails($data, $title);
 
 				if ($subNameLink == 'wikiHow Test Kitchen') {
 					$key = self::VERIFIER_TYPE_CHEF;
 					$is_verifier = false;
 				}
 
-				return [
+				$data = [
 					'key' => $key,
 					'is_verifier' => $is_verifier,
 					'name_link' => $nameLink,
 					'subname_blurb' => $subNameLink,
-					'hover_blurb' => $hoverBlurb.$learn_more_link,
-					'wh_initials' => 'ar_initials_wh'
 				];
+
+				$avatarHtml = $this->getAvatarImageHtml( $this->verifierInfo );
+				if ($avatarHtml) {
+					$data['avatar_image_html'] = $avatarHtml;
+				} else {
+					$data['wh_initials'] = 'ar_initials_wh';
+				}
+				return $data;
 
 			case self::VERIFIER_TYPE_TECH:
 				$tech_html = $this->getTechHoverHtml();
@@ -257,7 +262,6 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_tech_reviewed')->text(),
 					'team_label' => wfMessage('sp_team_label_tested')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => $tech_html.$learn_more_link
 				];
 
 			case self::VERIFIER_TYPE_STAFF:
@@ -265,7 +269,6 @@ class SocialProofStats extends ContextSource {
 					'team' => wfMessage('sp_staff_reviewed')->text(),
 					'team_label' => wfMessage('sp_team_label_reviewed')->text(),
 					'key' => $this->verifierType,
-					'hover_blurb' => wfMessage('sp_staff_reviewed_hover')->text().$learn_more_link
 				];
 		}
 
@@ -328,12 +331,7 @@ class SocialProofStats extends ContextSource {
 	private function formatExpertDetails($data, $title) {
 		$verifierpage = ArticleReviewers::getLinkByVerifierName($data->name);
 
-		$nameLink = $data->mainNameLink;
-		if ( $nameLink ) {
-			$nameLink = Html::rawElement( "a",
-				array( "href"=>$nameLink, "class"=>"sp_namelink", "target"=>"_blank" ),
-				$data->name );
-		} elseif ($data->worksheetName == "community") {
+		if ($data->worksheetName == "community") {
 			$nameLink = $data->name;
 		} else {
 			$nameLink = Html::rawElement( "a",
@@ -341,40 +339,7 @@ class SocialProofStats extends ContextSource {
 				$data->name );
 		}
 
-		//hover text
-		$revLink = "";
-		if ( $data->revisionId ) {
-			$revLink = Linker::link( $title, "This version", array( 'rel' => 'nofollow' ), array( 'oldid' => $data->revisionId ) ). " of ";
-		}
-
-		$hoverNameLink = $data->nameLink;
-		if ( $hoverNameLink ) {
-			$hoverNameLink = Html::rawElement( "a",
-				array( "href"=>$hoverNameLink, "class"=>"sp_namelink", "target"=>"_blank" ),
-				$data->name );
-		} elseif ($data->worksheetName == "community" ) {
-			$hoverNameLink = $data->name;
-		} else {
-			$hoverNameLink = Html::rawElement( "a",
-				array( "href"=>$verifierpage, "class"=>"sp_namelink", "target"=>"_blank" ),
-				$data->name );
-		}
-
-		$hoverBlurb = $revLink .
-			wfMessage( "howto", $title )->text() .
-			wfMessage('sp_hover_reviewed_label')->text().
-			$hoverNameLink;
-
-		$date = $data->date;
-		if ( $date ) {
-			$newDate = date_create( $date );
-			if ( $newDate ) $date = $newDate->format( 'F j, Y' );
-			$hoverBlurb .=" on ". $date . ". ";
-		} else {
-			$hoverBlurb .=". ";
-		}
-
-		return [$nameLink, $data->blurb, $hoverBlurb];
+		return [$nameLink, $data->blurb];
 	}
 
 	/**
@@ -431,7 +396,7 @@ class SocialProofStats extends ContextSource {
 		$result = [
 			'mobile' 		=> $is_mobile,
 			'views' 		=> number_format($this->wikiPage->getCount()),
-			'modified' 	=> wfTimestamp( TS_ISO_8601, $this->wikiPage->getTimestamp() ),
+			'modified' 	=> date_create( $this->wikiPage->getTimestamp() )->format( 'F j, Y' ), //Same methodology that schema markup uses
 			'authors' 	=> ArticleAuthors::getAuthorHeaderSidebar(),
 			'expert' 		=> $this->getExpertVerified($is_mobile)
 		];
@@ -521,7 +486,7 @@ class SocialProofStats extends ContextSource {
 	 * @param goodRev ID of the good revision of the page being requested
          * @return the id of the revision to get verification data for.
          **/
-	private function getVerification( $mobile, $pageId, $requestedRev = 0, $latestRev = 0, $goodRev = 0) {
+	private static function getVerification( $mobile, $pageId, $requestedRev = 0, $latestRev = 0, $goodRev = 0) {
 		$result = array();
 		if ($mobile || $requestedRev == $latestRev  || $requestedRev == $goodRev ) {
 			return VerifyData::getByPageId( $pageId );

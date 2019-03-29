@@ -1,4 +1,4 @@
-<?
+<?php
 $messages = array();
 $messages['en'] = array(
     'unlinksocial-page-title' => "Admin Unlink Social",

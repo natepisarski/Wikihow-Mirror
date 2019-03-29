@@ -1,4 +1,4 @@
-<?
+<?php
 define('ENV', 'test');
 $GLOBALS['IP'] = realpath(__DIR__ . "/../../../../../");
 global $IP;

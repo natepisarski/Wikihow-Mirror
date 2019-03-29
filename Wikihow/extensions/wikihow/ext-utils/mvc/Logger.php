@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC;
 class Logger {
 	use traits\Utils;

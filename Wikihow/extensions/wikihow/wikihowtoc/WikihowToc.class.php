@@ -58,8 +58,15 @@ class WikihowToc {
 	public static function setReferences() {
 		if (!Misc::isMobileMode()) {
 			$refCount = Misc::getReferencesCount();
-			if ($refCount > 0) {
-				self::$references = ['url' => '#' . Misc::getSectionName( wfMessage('sources')->text() ), 'class' => 'toc_ref', 'text' => wfMessage("references_toc")->text()];
+			$refTarget = '#' . Misc::getSectionName( wfMessage('sources')->text() );
+			if ( phpQuery::$defaultDocumentID ) {
+				$references = '#' . Misc::getSectionName( wfMessage('references')->text() );
+				if ( pq( $references )->length > 0 ) {
+					$refTarget = $references;
+				}
+			}
+			if($refCount > 0) {
+				self::$references = ['url' => $refTarget, 'class' => 'toc_ref', 'text' => wfMessage("references_toc")->text()];
 			}
 		}
 	}

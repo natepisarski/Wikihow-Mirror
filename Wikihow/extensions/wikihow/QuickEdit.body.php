@@ -13,8 +13,7 @@ class QuickEdit extends UnlistedSpecialPage {
 		$user = $this->getUser();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		$type = $req->getVal('type', null);

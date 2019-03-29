@@ -11,7 +11,7 @@
 
 class Notifications {
 
-	public function loadNotifications() {
+	public static function loadNotifications() {
 		global $wgUser;
 		if (!$wgUser->hasCookies()) return '';
 

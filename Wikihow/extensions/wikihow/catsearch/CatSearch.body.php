@@ -12,13 +12,6 @@ class CatSearch extends UnlistedSpecialPage {
 
 		$out->setArticleBodyOnly(true);
 		if ($q = $this->getRequest()->getVal('q')) {
-			/*
-			if ($t = $wgRequest->getVal('t', 0)) {
-				echo json_encode(array("results" => $this->formatResults($this->catToolSearch($q))));
-			} else {
-				echo json_encode(array("results" => $this->formatResults($this->catSearch($q))));
-			}
-			*/
 			echo json_encode(array("results" => $this->formatResults($this->catToolSearch($q))));
 		}
 
@@ -77,7 +70,7 @@ class CatSearch extends UnlistedSpecialPage {
 
 	public static function getParentCats(&$t) {
 		global $wgContLang;
-		$catNsText = $wgContLang->getNSText (NS_CATEGORY);
+		$catNsText = $wgContLang->getNSText(NS_CATEGORY);
 		$cats = str_replace("$catNsText:", "", array_keys($t->getParentCategories()));
 		foreach ($cats as $key => $cat) {
 			if (self::ignoreCategory($cat)) {
@@ -89,11 +82,16 @@ class CatSearch extends UnlistedSpecialPage {
 
 	public static function ignoreCategory($cat) {
 		$cat = str_replace("-", " ", $cat);
-		$ignoreCats = wfMsgForContent("categories_to_ignore");
+		$ignoreCats = wfMessage('categories_to_ignore')->inContentLanguage()->text();
 		$ignoreCats = explode("\n", $ignoreCats);
 		$ignoreCats = str_replace("http://www.wikihow.com/Category:", "", $ignoreCats);
 		$ignoreCats = str_replace("-", " ", $ignoreCats);
-		return array_search($cat, $ignoreCats) !== false ? true : false || $cat == 'WikiHow' || $cat == 'Wikihow' || $cat == 'Honors' || $cat == 'Answered Requests' || $cat == 'Patrolling';
+		return (array_search($cat, $ignoreCats) !== false)
+			|| $cat == 'WikiHow'
+			|| $cat == 'Wikihow'
+			|| $cat == 'Honors'
+			|| $cat == 'Answered Requests'
+			|| $cat == 'Patrolling';
 	}
 
 	function catToolSearch($q) {

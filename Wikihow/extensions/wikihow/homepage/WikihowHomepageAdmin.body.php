@@ -20,8 +20,7 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 		$user = $this->getUser();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		if ($user->getID() == 0) {
@@ -79,11 +78,12 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 						$dbw = wfGetDB(DB_MASTER);
 						$dbw->insert(self::HP_TABLE, array('hp_page' => $title->getArticleID(), 'hp_image' => $imageTitle->getArticleID()));
 
-						$article = new Article($imageTitle);
+						$wikiPage = WikiPage::factory($imageTitle);
 						$limit = array();
 						$limit['move'] = "sysop";
 						$limit['edit'] = "sysop";
-						$protectResult = $article->updateRestrictions($limit, "Used on homepage");
+						$cascade = false;
+						$protectResult = $wikiPage->doUpdateRestrictions($limit, [], $cascade, "Used on homepage", $user)->isOK();
 					} else {
 						$this->postSuccessful = false;
 						$this->errorFile = "* We encountered an error uploading that file.";

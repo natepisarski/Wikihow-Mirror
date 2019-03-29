@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use MVC\Controller;
 use Mustache_Engine;

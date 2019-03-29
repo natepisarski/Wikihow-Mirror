@@ -85,29 +85,29 @@ function articlesstarted($parser, $part1 = '', $part2 = '', $part3 = 'time', $pa
 			$ret = "<div style='$part5'>$msg<br/>\n";
 		}
 		$dbr = wfGetDB(DB_REPLICA);
-		$order = array();
+		$opts = array();
 		switch ($part3) {
 			case 'popular':
-				$order['ORDER BY'] = 'page_counter DESC ';
+				$opts['ORDER BY'] = 'page_counter DESC ';
 				break;
 			case 'time_asc':
-				$order['ORDER BY'] = 'fe_timestamp ASC ';
+				$opts['ORDER BY'] = 'fe_timestamp ASC ';
 				break;
 			default:
-				$order['ORDER BY'] = 'fe_timestamp DESC ';
+				$opts['ORDER BY'] = 'fe_timestamp DESC ';
 		}
-		if ( intval( $part1 ) || $part1 != "0" ) {
+		if ( (int)$part1 > 0 ) {
 			if ($part1 > PHP_INT_MAX) {
 				$part1 = PHP_INT_MAX;
 			}
-			$order['LIMIT'] = $part1;
+			$opts['LIMIT'] = (int)$part1;
 		}
 		$res = $dbr->select(
 			array('firstedit','page'),
 			array ('page_title', 'page_namespace', 'fe_timestamp'),
 			array ('fe_page=page_id', 'fe_user_text' => $title->getText()),
 			__METHOD__,
-			$order
+			$opts
 		);
 		foreach ($res as $row) {
 			$t = Title::makeTitle($row->page_namespace, $row->page_title);

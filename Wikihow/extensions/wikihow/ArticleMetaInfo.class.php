@@ -1170,7 +1170,8 @@ class ArticleMetaInfo {
 		}
 
 		// get the final part of the image path which is it's name
-		$imageName = end( explode( '/', $imageName ) );
+		$exploded = explode( '/', $imageName );
+		$imageName = end( $exploded );
 		if ( !$imageName ) {
 			return null;
 		}

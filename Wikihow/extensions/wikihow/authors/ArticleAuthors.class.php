@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*
  * Gather info about the authors of an article

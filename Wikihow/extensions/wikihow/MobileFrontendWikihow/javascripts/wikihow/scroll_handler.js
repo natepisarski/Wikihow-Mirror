@@ -10,6 +10,8 @@ var EXTRA_TOP_STICKY_OFFSET = 104;
 var INTRO_SCROLL_THRESHOLD_OFFSET = 16;
 var METHOD_TOC_DEFAULT_OUTER_HEIGHT = 40;
 
+window.HEADER_OFFSET = 40;
+
 // Size of buffer zone for detaching/attaching ToC to prevent jerkiness
 var STICKINESS_BUFFER = 64;
 
@@ -171,7 +173,7 @@ function initialize() {
 
 	adjustTocListMargin();
 
-	var tocTopOffset = WH.isAndroidAppRequest ? 0 : 40;
+	var tocTopOffset = WH.isAndroidAppRequest ? 0 : window.HEADER_OFFSET; //using this variable so optimizely can access it
 
 	$methodToc.css({
 		top: tocTopOffset

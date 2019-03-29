@@ -1,4 +1,4 @@
-<?
+<?php
 global $wgSpecialPages, $IP;
 if (!defined('MEDIAWIKI')) {
 	die();

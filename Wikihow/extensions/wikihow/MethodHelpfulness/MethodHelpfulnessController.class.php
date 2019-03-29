@@ -276,7 +276,7 @@ abstract class SubmissionHandler {
 	}
 
 	protected static function prepareEventData($aid, $type, $platform, $label) {
-		global $wgUser;
+		$user = RequestContext::getMain()->getUser();
 
 		$data = array(
 			'mhe_aid' => $aid,
@@ -285,12 +285,12 @@ abstract class SubmissionHandler {
 			'mhe_label' => $label
 		);
 
-		$data['mhe_user'] = $wgUser->getId();
+		$data['mhe_user'] = $user->getId();
 
-		if ($wgUser->isAnon()) {
+		if ($user->isAnon()) {
 			$data['mhe_user_repr'] = WikihowUser::getVisitorId();
 		} else {
-			$data['mhe_user_repr'] = $wgUser->getName();
+			$data['mhe_user_repr'] = $user->getName();
 		}
 
 		$data['mhe_timestamp'] = wfTimestampNow();
@@ -469,8 +469,6 @@ class MethodThumbsSubmissionHandler extends SubmissionHandler {
 
 class DetailsFormSubmissionHandler extends SubmissionHandler {
 	public static function submitRequest(&$req, $aid, $platform, $label) {
-		global $wgUser;
-
 		$eventId = $req->getVal('eventId', false);
 
 		if ($eventId === false) {
@@ -501,7 +499,7 @@ class DetailsFormSubmissionHandler extends SubmissionHandler {
 				$lastname,
 				$details,
 				$email,
-				$wgUser->getId(),
+				RequestContext::getMain()->getUser()->getId(),
 				WikihowUser::getVisitorId()
 			);
 			if ( $sur->isQualified()) {

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use ActiveRecord\DateTime;
 use MVC\Debugger;

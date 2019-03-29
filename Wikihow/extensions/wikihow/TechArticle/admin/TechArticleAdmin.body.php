@@ -38,7 +38,7 @@ class TechArticleAdmin extends UnlistedSpecialPage {
 		if ($req->wasPosted()) {
 			$out->setArticleBodyOnly(true);
 			$errors = $this->processAction($req);
-			$this->addHTML( $errors ?: $this->getPageHtml($out) );
+			$out->addHTML( $errors ?: $this->getPageHtml($out) );
 		} else {
 			$out->setPageTitle(wfMessage('twa_page_title')->text());
 			$out->addModules('ext.wikihow.TechArticle.admin');

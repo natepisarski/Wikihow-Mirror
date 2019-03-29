@@ -81,7 +81,8 @@ class QuizYourself extends SpecialPage {
 			'next' => wfMessage('quiz_yourself_next_quiz')->text(),
 			'quizzes' => $quizzes,
 			'quiz_of_count' => wfMessage('quiz_yourself_of_count', $question_count)->text(),
-			'question_label' => wfMessage('quiz_yourself_question_header')->text()
+			'question_label' => wfMessage('quiz_yourself_question_header')->text(),
+			'showAds' => !$this->getUser()->isLoggedIn()
 		];
 
 		return [

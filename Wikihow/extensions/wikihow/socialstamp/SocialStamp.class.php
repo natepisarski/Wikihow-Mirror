@@ -92,12 +92,19 @@ class SocialStamp {
 		return true;
 	}
 
-	private function setBylineData($verifiers, $articleId, $isMobile, $isAmp, $isAlternateDomain) {
+	private static function setBylineData($verifiers, $articleId, $isMobile, $isAmp, $isAlternateDomain) {
 		$params = [];
 		$hasExpert = $hasStaff = $hasCommunity = $isTested = $hasReaders = false;
 		$isDefault = false;
 		$hoverText = "";
-		$referenceLink = $isMobile ? "#references_first" : "#sourcesandcitations";
+
+		$referenceLink = "#sourcesandcitations";
+		if ( $isMobile ) {
+			$referenceLink = "#references_first";
+		} else if ( pq( '#references' )->length > 0 ) {
+			$referenceLink = "#references";
+		}
+
 		//first part
 		$params["coauthor"] = wfMessage('ss_coauthor')->text();
 		$params["connector"] = "<span class='ss_pipe'>|</span>";
@@ -255,7 +262,7 @@ class SocialStamp {
 		return $params;
 	}
 
-	private function getHtmlFromTemplate($template, $data) {
+	private static function getHtmlFromTemplate($template, $data) {
 		$loader = new Mustache_Loader_CascadingLoader([
 			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
 		]);

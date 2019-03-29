@@ -1,4 +1,4 @@
-<?
+<?php
 return [
 	'csv'    =>  [
 		'name'      =>  'import.csv',

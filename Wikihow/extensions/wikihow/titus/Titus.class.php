@@ -1792,6 +1792,12 @@ class TSNumSourcesCites extends TitusStat {
 		$text = $text[0];
 		$num_sac = 0;
 		$num_sources = 0;
+
+		// support a References section
+		if ( !$text ) {
+			$text = Wikitext::getSection($r->getText(), wfMessage( 'references' ), true);
+			$text = $text[0];
+		}
 		if ($text) {
 			//sources
 			$num_sources = preg_match_all('/^\*[^\*]/im', $text, $matches);

@@ -39,8 +39,7 @@ class RCPatrol extends SpecialPage {
 		$this->setHeaders();
 
 		if ( $this->getUser()->isBlocked() ) {
-			$this->getOutput()->blockedPage();
-			return;
+			throw new UserBlockedError( $this->getUser()->getBlock() );
 		}
 
 		if ( $wgReadOnly ) {

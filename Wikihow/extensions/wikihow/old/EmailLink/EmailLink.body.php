@@ -226,8 +226,7 @@ class EmailLink extends SpecialPage {
 		} else {
 
 			if ( $wgUser->pingLimiter('emailfriend') ) {
-				$wgOut->rateLimited();
-				return false;
+				throw new ThrottledError;
 			}
 
 			$usertoken = $wgRequest->getVal('token');
@@ -237,7 +236,6 @@ class EmailLink extends SpecialPage {
 				$this->reject();
 				echo "token $usertoken $token1 $token2\n";
 				exit;
-				return;
 			}
 
 			// check referrer

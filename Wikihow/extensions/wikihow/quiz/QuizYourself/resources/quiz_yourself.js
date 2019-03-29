@@ -160,6 +160,22 @@
 			}
 		},
 
+		loadAd: function(adId) {
+			var client = "ca-pub-9543332082073187";
+			var i = window.document.createElement('ins');
+			i.setAttribute('data-ad-client', client);
+			i.setAttribute('data-ad-slot', '9589201673');
+			i.setAttribute('class', 'adsbygoogle');
+			//var css = "display:block;width:320px;height:50px;margin:-5px auto 10px auto;";;
+			if(window.isBig) {
+				i.style.cssText = "display:block;width:500px;height:50px;margin:-5px auto 10px auto;";
+			} else {
+				i.style.cssText = "display:block;width:320px;height:50px;margin:-5px auto 10px auto;";
+			}
+			document.getElementById(adId).appendChild(i);
+			(adsbygoogle = window.adsbygoogle || []).push({});
+		},
+
 		answerTap: function(obj) {
 			var result_class = $(obj).hasClass('correct') ? 'quiz_success' : 'quiz_error';
 			var question = $(obj).parent();

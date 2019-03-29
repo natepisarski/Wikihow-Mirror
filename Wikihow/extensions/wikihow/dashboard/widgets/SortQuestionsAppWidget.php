@@ -1,4 +1,4 @@
-<?
+<?php
 
 class SortQuestionsAppWidget extends DashboardWidget {
 

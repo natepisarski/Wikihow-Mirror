@@ -1,4 +1,4 @@
-<?
+<?php
 namespace ContentPortal;
 use __;
 

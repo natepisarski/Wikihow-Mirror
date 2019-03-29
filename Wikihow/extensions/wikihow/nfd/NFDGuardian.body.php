@@ -357,13 +357,10 @@ class NFDProcessor {
 		$key = wfMemcKey("nfduserlog");
 
 		$log = $wgMemc->get($key);
+		if (!$log || !isset($log[$userid])) {
+			return "";
+		}
 
-		if (!$log) {
-			return "";
-		}
-		if (!isset($log[$userid])) {
-			return "";
-		}
 		$good = array();
 		foreach ($log[$userid] as $u) {
 			if (!preg_match("@[^0-9]@", $u) && $u != "") {
@@ -383,7 +380,6 @@ class NFDProcessor {
 		$dbw = wfGetDB(DB_MASTER);
 		$expired = wfTimestamp(TS_MW, time() - NFDGuardian::NFD_EXPIRED);
 		$eligible = wfTimestamp(TS_MW, time() - NFDGuardian::NFD_WAITING);
-
 
 		$sql = "SELECT * from nfd left join nfd_vote ON nfd_id=nfdv_nfdid AND nfdv_user = {$user->getID()} "
 			. " WHERE ( nfd_checkout_time < '{$expired}' OR nfd_checkout_time = '')
@@ -443,7 +439,7 @@ class NFDProcessor {
 		return true;
 	}
 
-	function markNFDPatrolled($nfdid) {
+	private static function markNFDPatrolled($nfdid) {
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->update('nfd',
 			['nfd_patrolled' => 1],
@@ -455,6 +451,7 @@ class NFDProcessor {
 	public static function save($nfdid, &$t) {
 		$user = RequestContext::getMain()->getUser();
 		$dbw = wfGetDB(DB_MASTER);
+
 		$nfdUser = new User();
 		$nfdUser->setName( 'NFD Voter Tool' );
 		// have they already voted on this?  if so, forget about it, release the current one back to the queue and get out of here
@@ -543,9 +540,10 @@ class NFDProcessor {
 	public static function vote($nfdid, $vote) {
 		$user = RequestContext::getMain()->getUser();
 		$dbw = wfGetDB(DB_MASTER);
+
 		// have they already voted on this?  if so, forget about it, release the current one back to the queue and get out of here
 		$count = $dbw->selectField('nfd_vote',
-			array('count(*)'),
+			'count(*)',
 			array('nfdv_user' => $user->getID(),
 				  'nfdv_nfdid' => $nfdid),
 			__METHOD__);
@@ -584,28 +582,32 @@ class NFDProcessor {
 		}
 
 		$row = $dbw->selectRow('nfd', '*', array('nfd_id'=>$nfdid), __METHOD__);
+
 		// log the vote
 		$title = Title::newFromID($row->nfd_page);
 		if ($title) {
-			$log = new LogPage( 'nfd', false );
-
 			$vote_param = $vote > 0 ? "deletevote" : "keepvote";
-
 			$msg = wfMessage("nfdrule_log_{$vote_param}")->rawParams("[[{$title->getText()}]]")->escaped();
+
+			$log = new LogPage( 'nfd', false );
 			$log->addEntry('vote', $title, $msg, array($vote));
 			Hooks::run("NFDVoted", array($user, $title, $vote));
 		}
 
 		// check, do we have to mark it as patrolled, or roll the change back?
 		if ($vote) {
-			if ($row->nfd_admin_delete_votes >= NFDProcessor::getAdminDeleteVotesRequired() && $row->nfd_delete_votes >= NFDProcessor::getDeleteVotesRequired($row->nfd_keep_votes)) {
+			if ($row->nfd_admin_delete_votes >= NFDProcessor::getAdminDeleteVotesRequired()
+				&& $row->nfd_delete_votes >= NFDProcessor::getDeleteVotesRequired($row->nfd_keep_votes)
+			) {
 				self::markNFDPatrolled($nfdid);
 				$c = new NFDProcessor();
 				$nfdReason = self::extractReason($row->nfd_template);
 				$c->deleteArticle($nfdid, $nfdReason);
 			}
 		} else {
-			if ($row->nfd_admin_keep_votes >= NFDProcessor::getAdminKeepVotesRequired() && $row->nfd_keep_votes >= NFDProcessor::getKeepVotesRequired()) {
+			if ($row->nfd_admin_keep_votes >= NFDProcessor::getAdminKeepVotesRequired()
+				&& $row->nfd_keep_votes >= NFDProcessor::getKeepVotesRequired()
+			) {
 				// what kind of rule are we ? figure it out so we can roll it back
 				$c = new NFDProcessor();
 				$c->keepArticle($nfdid);
@@ -1074,15 +1076,12 @@ class NFDGuardian extends SpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgTitle;
-
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		if ( !$user->isSysop() && !in_array( 'nfd', $user->getGroups()) ) {
@@ -1140,12 +1139,12 @@ class NFDGuardian extends SpecialPage {
 				if ($tDiscussion) {
 					$a = new Article($tDiscussion);
 					$content = $a->getContent();
-					$wgOldTitle = $wgTitle;
-					$wgTitle = $tDiscussion;
+					$oldTitle = RequestContext::getMain()->getTitle();
+					RequestContext::getMain()->setTitle( $tDiscussion );
 					$out->addHTML($out->parse($content));
 					$postComment = new PostComment;
 					$out->addHTML($postComment->getForm(true, $tDiscussion, true));
-					$wgTitle = $wgOldTitle;
+					RequestContext::getMain()->setTitle( $oldTitle );
 				}
 			}
 			return;
@@ -1308,6 +1307,7 @@ class NFDGuardian extends SpecialPage {
 			$msg = wfMessage('nfd_edit_log_message')->rawParams("[[{$t->getText()}]]")->escaped();
 			$log->addEntry('edit', $t, $msg, $params);
 
+			// TODO: We should probably validate a CSRF token here
 			$text = $req->getVal('wpTextbox1');
 			$summary = $req->getVal('wpSummary');
 
@@ -1724,7 +1724,8 @@ class NFDDup extends QueryPage {
 						[],
 						['redirect' => 'no'] )
 					. " (" . number_format($previsionRevision->getSize(), 0, "", ",") . " bytes, " . number_format($article->getCount(), 0, "", ",") . " Views) ";
-				$redirectTitle = Title::newFromRedirect($revision->getText());
+				$wikiPage = WikiPage::factory($title);
+				$redirectTitle = $wikiPage->getRedirectTarget();
 				if ($redirectTitle) {
 					$link .= " => " .
 						Linker::linkKnown( $redirectTitle,

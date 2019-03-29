@@ -247,12 +247,10 @@ class Categorizer extends UnlistedSpecialPage {
 	}
 
 	private function getHeadHtml(&$t, &$vars = array()) {
-		$user = $this->getUser();
-
 		if ($t && $t->exists()) {
 			$vars['cats'] = $this->getCategoriesHtml($t);
 			$vars['pageId'] = $t->getArticleId();
-			$sk = $user->getSkin();
+			$sk = $this->getSkin();
 			$vars['title'] = $t->getText();
 			$vars['titleUrl'] = "/" . urlencode(htmlspecialchars_decode(urldecode($t->getPartialUrl())));
 			$vars['intro'] = $this->getIntroText($t);

@@ -646,7 +646,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 			}, 'json');
 	}
 </script>
-<?
+<?php
 	}
 
 }

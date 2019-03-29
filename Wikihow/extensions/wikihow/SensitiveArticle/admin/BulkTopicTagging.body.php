@@ -34,8 +34,7 @@ class BulkTopicTagging extends \UnlistedSpecialPage {
 		$out->setRobotPolicy('noindex, nofollow');
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		if (\Misc::isMobileMode() || !$this->isUserAllowed($user)) {

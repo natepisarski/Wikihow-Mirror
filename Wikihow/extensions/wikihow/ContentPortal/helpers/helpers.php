@@ -1,4 +1,4 @@
-<?
+<?php
 
 function containerClass() {
 	$full = array_key_exists('fullScreen', controller()->viewVars) && controller()->viewVars['fullScreen'] == true;

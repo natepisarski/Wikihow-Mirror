@@ -15,12 +15,11 @@ class AdminArticleReviewers extends UnlistedSpecialPage {
 
 		$out->setRobotPolicy( 'noindex,nofollow' );
 
-		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+		if ($user && $user->isBlocked()) {
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
-		if ($user->getID() == 0 || !in_array('staff', $user->getGroups())) {
+		if (!$user || $user->getID() == 0 || !in_array('staff', $user->getGroups())) {
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
@@ -50,8 +49,9 @@ class AdminArticleReviewers extends UnlistedSpecialPage {
 						$limit = array();
 						$limit['move'] = "sysop";
 						$limit['edit'] = "sysop";
-						$article = new Article($imageTitle);
-						$protectResult = $article->updateRestrictions($limit, "Used for Article Reviewers");
+						$wikiPage = WikiPage::factory($imageTitle);
+						$cascade = false;
+						$protectResult = $wikiPage->doUpdateRestrictions($limit, [], $cascade, "Used for Article Reviewers", $user)->isOK();
 						$result['url'] = $wgCanonicalServer . $imageTitle->getLocalURL();
 						$result['success'] = true;
 					} else {

@@ -1,4 +1,4 @@
-<?
+<?php
 
 class CategoryGuardianAppWidget extends DashboardWidget {
 

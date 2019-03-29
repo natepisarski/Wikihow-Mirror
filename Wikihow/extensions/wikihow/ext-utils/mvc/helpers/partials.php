@@ -1,4 +1,4 @@
-<?
+<?php
 
 function partial($path, $locals=[]) {
 	return MVC\Controller::getInstance()->render($path, false, true, $locals);

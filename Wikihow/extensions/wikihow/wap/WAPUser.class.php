@@ -1,4 +1,4 @@
-<?
+<?php
 abstract class WAPUser {
 	var $dbType = null;
 	var $u = null;

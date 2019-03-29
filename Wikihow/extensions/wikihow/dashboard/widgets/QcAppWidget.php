@@ -1,4 +1,4 @@
-<?
+<?php
 
 class QcAppWidget extends DashboardWidget {
 

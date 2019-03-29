@@ -313,23 +313,29 @@ class WikihowArticleEditor {
 		  $text .= "\n== " . wfMessage('video')->text() . " ==\n" . trim($tmp) . "\n";
 
 		// do the bullet sections
-		$bullet_lists = array("tips", "warnings", "thingsyoullneed", "related", "sources");
+		$hasReferences = false;
+		$bullet_lists = array("tips", "warnings", "thingsyoullneed", "related", "references", "sources");
 		foreach ($bullet_lists as $b) {
 			$tmp = self::formatBulletList($this->getSection($b));
 			if ($tmp != "") {
-				$text .= "\n== " . wfMessage($b)->text() . " ==\n" . $tmp;
+				if ($b == "references") {
+					$hasReferences = true;
+				}
+				if ($b == "sources" && $hasReferences == true) {
+					$text .= $tmp;
+				} else {
+					$text .= "\n== " . wfMessage($b)->text() . " ==\n" . $tmp;
+				}
 			}
 		}
 
 		$text .= $this->mLangLinks;
 		$text = str_replace("*{{reflist}}", "{{reflist}}", $text);
 
-		$sources = $this->getSection("sources");
 		// add the references div if necessary
-		if (strpos($text, "<ref>") !== false && strpos($sources, "{{reflist}}" === false)) {
+		if (strpos($text, "<ref>") !== false && strpos($text, "{{reflist}}" === false)) {
 			$rdiv = '{{reflist}}';
 			$headline = "== "  . wfMessage('sources')->text() .  " ==";
-
 			if (strpos($text, $headline) !== false) {
 				$text = trim($text) . "\n$rdiv\n";
 			} else {
@@ -527,6 +533,7 @@ class WikihowArticleEditor {
 			$whow->setRelatedString($request->getVal("related_list"));
 		}
 		$whow->setSection("sources", $request->getVal("sources"));
+		$whow->setSection("references", $request->getVal("references"));
 		$whow->setSection("video", $request->getVal("video"));
 		$whow->setCategoryString($categories);
 		return $whow;
@@ -745,7 +752,7 @@ class WikihowArticleEditor {
 	static function setImageSections($articleText) {
 		global $wgContLang;
 
-		$sectionArray = array("summary", "steps", "video", "tips", "warnings", "things you'll need", "related wikihows", "ingredients", "sources and citations");
+		$sectionArray = array("summary", "steps", "video", "tips", "warnings", "things you'll need", "related wikihows", "ingredients", "sources and citations", "references");
 
 		self::$imageArray = array();
 

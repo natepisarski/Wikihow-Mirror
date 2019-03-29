@@ -14,9 +14,13 @@
 	<a href="{{article_link}}" id="quiz_article" data-id="{{article_id}}">{{article_title}}</a>
 </div>
 
-
 {{#quizzes}}
-<div class="quiz">
+{{#showAds}}
+	<!-- Adsense Quiz App Mobile Not Responsive -->
+	<div id="quiz_{{quizNum}}"></div>
+	<script>WH.QuizYourself.loadAd('quiz_{{quizNum}}');</script>
+{{/showAds}}
+<div class="quiz {{#showAds}}withAds{{/showAds}}">
 	<div class="question_label">{{question_label}} {{quizNum}} {{quiz_of_count}}</div>
 	<h2>{{question}}</h2>
 

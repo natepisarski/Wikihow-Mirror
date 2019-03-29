@@ -1,4 +1,4 @@
-<?
+<?php
 abstract class WAPArticle {
 	var $dbType = null;
 	var $page_id = null;

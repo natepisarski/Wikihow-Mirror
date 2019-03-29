@@ -225,7 +225,7 @@ class DesktopAds {
 	 */
 	public function getRelatedAdHtml() {
 		$html = '';
-		if ( isset( $this->mAdCreator->mAds['related'] ) ) {
+		if ( isset( $this->mAdCreator->mAds['related'] ) && $this->mAdCreator->mAds['related'] ) {
 			$html = $this->mAdCreator->mAds['related']->mHtml;
 		}
 		return $html;
@@ -337,12 +337,8 @@ class DesktopAds {
 			$adCreator->setAdLabelVersion( 2 );
 			$adCreator->setRightRailAdLabelVersion( 2 );
 		} else {
-			$adCreator = new MixedAdCreatorVersion5();
+			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
-			if ( $pageId % 4 < 3) {
-				$adCreator = new MixedAdCreatorScrollTo();
-				$adCreator->mAdServices['step'] = '';
-			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
@@ -355,7 +351,11 @@ class DesktopAds {
 			}
 
 			if ( !$this->mEnglishSite ) {
-				$adCreator = new InternationalAdCreator();
+				if ( $pageId % 10 == 1 ) {
+					$adCreator = new InternationalAdCreatorAllAdsense();
+				} else {
+					$adCreator = new InternationalAdCreator();
+				}
 				$adCreator->mAdServices['step'] = '';
 			}
 			// some settings that have become default over time

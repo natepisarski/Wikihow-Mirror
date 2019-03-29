@@ -1,4 +1,4 @@
-<?
+<?php
 class WAPDB {
 	// DB Types
 	const DB_CONCIERGE = 1;

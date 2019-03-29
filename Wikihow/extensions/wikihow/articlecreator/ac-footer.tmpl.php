@@ -1,5 +1,5 @@
-<div class="section add_sources_section">
-	<h2 id='ac_add_sources'><a id='ac_add_sources_link'>Add Sources and Citations</a></h2>
+<div class="section add_references_section">
+	<h2 id='ac_add_references'><a id='ac_add_references_link'>Add References</a></h2>
 </div>
 
 <div id="ac_footer">				

@@ -1,34 +1,5 @@
 ( function ( mw, $ ) {
 
-	WH.convertSocialProofDates = (function() {
-		// TODO why would there be more than one of something with an ID?
-		$('#sp_modified').each( function() {
-			if ( $(this).attr('data-datestamp') ) {
-				if ($(this).attr('data-datestamp').length < 1 ) {
-					$(this).html("");
-					return;
-				}
-				var d = $.format.prettyDateSP($(this).attr('data-datestamp'));
-				if (!d) {
-					$(this).html("");
-					return;
-				}
-				var text = d.text();
-
-				if (text.length < 1) {
-					$(this).html("");
-					return;
-				}
-				var len = text.length;
-				var text = '<span class="sp_text_data">' + text + "</span>";
-				if (len > 12) {
-					$(this).parent('#sp_updated_text').css("font-size", 12);
-				}
-				$(this).html($(this).html() + text);
-			}
-		});
-	});
-
 	var toolUrl = '/Special:SocialProof';
 
 	WH.sp = (function() {
@@ -137,8 +108,6 @@
 		for (k = 1; k <= 5; k++) {
 			starBehavior(k);
 		}
-
-		WH.convertSocialProofDates();
 
 		if ($("#sp_helpful_box").length > 0) {
 			$('.sp_popup_container').css("top", $("#sp_star_section_upper").position().top - $(".sp_popup_container").height() + 5);

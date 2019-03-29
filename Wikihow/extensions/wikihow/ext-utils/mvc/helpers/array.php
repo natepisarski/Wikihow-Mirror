@@ -1,4 +1,4 @@
-<?
+<?php
 
 function ensureArray($arr) {
 	return is_array($arr) ? $arr : [$arr];

@@ -171,6 +171,8 @@ $wgEmbedVideoServiceList = array(
 		}
 		$height = round($width / $ratio);
 
+		// TODO: test with this instead
+		// $url = RawMessage( $service['url'] )->params( [$id, $width, $height] )->plain();
 		$url = wfMsgReplaceArgs($service['url'], array($id, $width, $height));
 
 		if ($params['service'] == 'youtube' || $params['service'] == 'whyoutube') {

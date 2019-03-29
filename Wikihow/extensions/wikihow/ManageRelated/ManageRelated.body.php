@@ -7,41 +7,49 @@ class ManageRelated extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgRequest, $wgOut, $wgUser;
+		global $wgParser;
 
-		$this->setHeaders();
+		$req = $this->getRequest();
+		$out = $this->getOutput();
+		$user = $this->getUser();
 
-		if ( $wgUser->isBlocked() ) {
-			$wgOut->blockedPage();
+		if ( $user && $user->isBlocked() ) {
+			throw new UserBlockedError( $user->getBlock() );
+		}
+
+		if ( !$user || $user->isAnon() ) {
+			$out->addHTML('Use this page logged in');
 			return;
 		}
 
-		$target = isset($par) ? $par : $wgRequest->getVal('target');
+		$target = isset($par) ? $par : $req->getVal('target');
 		if (!$target) {
-			$wgOut->addHTML(wfMessage('notarget'));
+			$out->addHTML(wfMessage('notarget'));
 			return;
 		}
 
 		$titleObj = Title::newFromUrl(urldecode($target));
 		if (!$titleObj || !$titleObj->exists()) {
-			$wgOut->addHTML('Error: bad target');
+			$out->addHTML('Error: bad target');
 			return;
 		}
+
+		$this->setHeaders();
 
 		$whow = WikihowArticleEditor::newFromTitle($titleObj);
 		$rev = Revision::newFromTitle($titleObj);
 		$article = Article::newFromTitle($titleObj, $this->getContext());
 		$text = $rev->getText();
 
-		if ($wgRequest->wasPosted()) {
+		if ($req->wasPosted()) {
 			// protect from users who can't edit
 			if ( ! $titleObj->userCan('edit') ) {
-				$wgOut->readOnlyPage( $article->getContent(), true );
+				$out->readOnlyPage( $article->getContent(), true );
 				return;
 			}
 
 			// construct the related wikihow section
-			$rel_array = explode('|', $wgRequest->getVal('related_list'));
+			$rel_array = explode('|', $req->getVal('related_list'));
 			$result = "";
 			foreach ($rel_array as $rel) {
 				$rel = urldecode(trim($rel));
@@ -118,9 +126,8 @@ class ManageRelated extends UnlistedSpecialPage {
 
 			$result .= $tail;
 
-			$summary = '';
 			if (!$just_append) {
-				$text = $article->replaceSection($section, $result, $summary);
+				$text = $wgParser->replaceSection($text, $section, $result);
 			} else {
 				$text = $text . $result;
 			}
@@ -128,8 +135,8 @@ class ManageRelated extends UnlistedSpecialPage {
 			$watch = false;
 			$minor = false;
 			$forceBot = false;
-			if ($wgUser->getID() > 0) {
-				$watch = $wgUser->isWatched($titleObj);
+			if ($user->getID() > 0) {
+				$watch = $user->isWatched($titleObj);
 			}
 			$summary = wfMessage('relatedwikihows'); // summary for the edit
 
@@ -145,7 +152,7 @@ class ManageRelated extends UnlistedSpecialPage {
 			} else {
 				$notice = wfMessage( 'protectedpagewarning' );
 			}
-			$wgOut->addWikiText( $notice );
+			$out->addWikiText( $notice );
 		}
 
 		$relatedHTML = "";
@@ -171,11 +178,11 @@ class ManageRelated extends UnlistedSpecialPage {
 		}
 
 		$me = Title::makeTitle(NS_SPECIAL, "ManageRelated");
-		$wgOut->addModules(['ext.wikihow.ManageRelated']);
+		$out->addModules(['ext.wikihow.ManageRelated']);
 
 		$targetEnc = htmlspecialchars($target, ENT_QUOTES);
 
-		$wgOut->addHTML(<<<EOHTML
+		$out->addHTML(<<<EOHTML
 	<style type='text/css' media='all'>/*<![CDATA[*/ @import '{$cssFile}'; /*]]>*/</style>
 	<script type='text/javascript' src='{$jsFile}'></script>
 
@@ -233,15 +240,16 @@ class PreviewPage extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgRequest, $wgOut;
+		$req = $this->getRequest();
+		$out = $this->getOutput();
 
-		$wgOut->setArticleBodyOnly(true);
-		$wgOut->clearHTML();
+		$out->setArticleBodyOnly(true);
+		$out->clearHTML();
 
-		$target = isset($par) ? $par : $wgRequest->getVal('target');
+		$target = isset($par) ? $par : $req->getVal('target');
 		$title = Title::newFromUrl($target);
 		if (!$title || !$title->exists()) {
-			$wgOut->addHTML('Title no longer exists: ' . $target);
+			$out->addHTML('Title no longer exists: ' . $target);
 			return;
 		}
 
@@ -249,10 +257,9 @@ class PreviewPage extends UnlistedSpecialPage {
 		$text = $article->getContent(true);
 		$snippet = $article->getSection($text, 0) . "\n"
 			. $article->getSection($text, 1);
-		$html = $wgOut->parse($snippet);
+		$html = $out->parse($snippet);
 
-		$wgOut->addHTML($html);
+		$out->addHTML($html);
 	}
 
 }
-

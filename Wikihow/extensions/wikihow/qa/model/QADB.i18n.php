@@ -1,4 +1,4 @@
-<?
+<?php
 
 $messages = array(
 	'en' => array(

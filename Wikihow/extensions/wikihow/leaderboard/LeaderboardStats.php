@@ -162,7 +162,8 @@ class LeaderboardStats {
 			$t = Title::newFromText($row->rc_title);
 			$a = new Article($t);
 			if ($a->isRedirect()) {
-				$t = Title::newFromRedirect( $a->fetchContent() );
+				$wp = new WikiPage($t);
+				$t = $wp->getRedirectTarget();
 				$a = new Article($t);
 			}
 			$author = $a->getContributors()->current();

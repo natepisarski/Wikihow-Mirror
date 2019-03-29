@@ -66,9 +66,7 @@ abstract class StandingsIndividual {
 	function addStatsWidget() {
 
 		if (!$this->mContext) {
-			wfDeprecated( __METHOD__ . ' without setting context (will fallback to globals)');
-			global $wgUser;
-			$sk = $wgUser->getSkin();
+			$sk = RequestContext::getMain()->getSkin();
 		} else {
 			$sk = $this->mContext->getSkin();
 		}
@@ -240,15 +238,12 @@ abstract class StandingsGroup {
 	function addStandingsWidget() {
 
 		if (!$this->mContext) {
-			wfDeprecated( __METHOD__ . ' without setting context (will fallback to globals)');
-			global $wgUser, $wgOut;
-			$sk = $wgUser->getSkin();
-			$wgOut->addModules('ext.wikihow.leaderboard');
+			$ctx = RequestContext::getMain();
 		} else {
-			$sk = $this->mContext->getSkin();
-			$this->mContext->getOutput()->addModules('ext.wikihow.leaderboard');
+			$ctx = $this->mContext;
 		}
-
+		$sk = $ctx->getSkin();
+		$ctx->getOutput()->addModules('ext.wikihow.leaderboard');
 
 		$display = "
 		<div class='iia_stats'>

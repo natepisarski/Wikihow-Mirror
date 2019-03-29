@@ -478,7 +478,6 @@ class AlternateDomain {
 			'RatingReason',
 			'MethodHelpfulness',
 			'QA',
-			'EmailLink',
 			'UserCompletedImages',
 			'LSearch',
 			'Sitemap',
@@ -779,6 +778,7 @@ class AlternateDomain {
 		$pages = self::getAlternateDomainPagesForCurrentDomain();
 		foreach ( $pages as $pageId ) {
 			$title = Title::newFromID( $pageId );
+			if (!$title || !$title->exists()) continue;
 			$titlesHtml .= Html::rawElement( "li", array(), Linker::link( $title, $title->getText() ) );
 		}
 		$html = Html::rawElement( 'ul', array(), $titlesHtml );
@@ -1303,6 +1303,7 @@ class AlternateDomain {
 			}
 			pq( '#sd_container' )->parents( '.section:first' )->remove();
 			pq( '#sourcesandcitations .internal' )->remove();
+			pq( '#references .internal' )->remove();
 			pq( '.sp_fullbox' )->remove();
 		} else {
 			foreach(pq('a.interwiki_otherdomain') as $link) {

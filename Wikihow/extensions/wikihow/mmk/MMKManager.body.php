@@ -37,8 +37,8 @@ class MMKManager extends UnlistedSpecialPage {
 
 	public function __construct() {
 		global $wgHooks;
+		$this->action = RequestContext::getMain()->getTitle()->getPartialUrl();
 		parent::__construct($this->action);
-		$this->action = $this->getTitle()->getPartialUrl();
 		$wgHooks['ShowSideBar'][] = array('MMKManager::removeSideBarCallback');
 	}
 

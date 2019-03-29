@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * DashboardWidget should be subclassed by all widgets in the widgets/ dir

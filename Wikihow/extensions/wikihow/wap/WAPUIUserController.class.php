@@ -1,4 +1,4 @@
-<?
+<?php
 abstract class WAPUIUserController extends WAPUIController {
 
 	public function execute($par) {

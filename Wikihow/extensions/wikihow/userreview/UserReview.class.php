@@ -375,7 +375,7 @@ class UserReview {
 		return $ret;
 	}
 
-	public function getSidebarReviews($articleId) {
+	public static function getSidebarReviews($articleId) {
 		return self::getUserReviews($articleId);
 	}
 
@@ -394,7 +394,7 @@ class UserReview {
 		return self::getUserReviews($articleId, $isMobile);
 	}
 
-	private function getUserReviews($articleId, $isMobile = false) {
+	private static function getUserReviews($articleId, $isMobile = false) {
 		global $wgOut, $wgUser;
 
 		if ($articleId > 0) {
@@ -405,10 +405,10 @@ class UserReview {
 				$oldReviews = [];
 				$cutoffDate = wfTimestamp(TS_MW, strtotime("6 months ago"));
 				foreach ($reviews['reviews'] as $index => $review ) {
-					if ($review['avatarUrl'] != "") {
+					if (isset($review['avatarUrl']) && $review['avatarUrl'] != "") {
 						$newReviews[] = $review;
 					}
-					elseif($review['uc_timestamp'] > $cutoffDate) {
+					elseif(isset($review['uc_timestamp']) && $review['uc_timestamp'] > $cutoffDate) {
 						$newReviews[] = $review;
 					} else {
 						$oldReviews[] = $review;
@@ -433,11 +433,15 @@ class UserReview {
 					$review['uc_review']  = self::formatReview($review['uc_review']);
 					$review['uc_firstname'] = trim($review['uc_firstname']);
 					$review['uc_lastname'] = trim($review['uc_lastname']);
-					$review['initials'] = $review['uc_firstname'][0] . $review['uc_lastname'][0];
+					$firstName = $review['uc_firstname'];
+					$lastName = $review['uc_lastname'];
+					$firstInitial = $firstName ? $firstName[0] : '';
+					$lastInitial = $lastName ? $lastName[0] : '';
+					$review['initials'] = $firstInitial . $lastInitial;
 					$review['index'] = $index;
 					$review['date'] = self::getFormattedDate($review['uc_timestamp']);
 					if (self::shouldTruncate($articleId)) {
-						$review['uc_lastname'] = $review['uc_lastname'][0].".";
+						$review['uc_lastname'] = $lastInitial.".";
 					}
 					$userId = $review['uc_user_id'];
 					if (array_key_exists($userId, $display_data)) {
@@ -517,7 +521,7 @@ class UserReview {
 	 * Formats the review in case it's too long to include
 	 * a "show more" link.
 	 */
-	private function formatReview($review) {
+	private static function formatReview($review) {
 		$review = htmlspecialchars($review);
 		if (strlen($review) > self::MAX_REVIEW_LENGTH) {
 			$char = $review[self::MAX_REVIEW_LENGTH];

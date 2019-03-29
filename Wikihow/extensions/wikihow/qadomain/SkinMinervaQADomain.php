@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * Extension of the SkinMinerva skin for wikiHowAnswers customization.
  */

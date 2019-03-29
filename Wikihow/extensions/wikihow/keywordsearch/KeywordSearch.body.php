@@ -45,7 +45,7 @@ class KeywordSearch extends UnlistedSpecialPage {
 			header("Content-Type: text/tsv");
 			header("Content-Disposition: attachment; filename=\"keyword.xls\"");
 
-			print ("Keyword\tPosition\tTitle\tti_is_top10k\tti_top10k\tFellow Edit\n" );
+			print "Keyword\tPosition\tTitle\tti_is_top10k\tti_top10k\tFellow Edit\n";
 			foreach ( $queryInfo as $qi ) {
 				$altKeywords = array($dbr->addQuotes($qi['title']));
 				// Dedup using verified query database
@@ -55,7 +55,11 @@ class KeywordSearch extends UnlistedSpecialPage {
 					$altKeywords[] = $dbr->addQuotes($row->vqm_query2);
 				}
 				// Load Titus fields
-				$sql = 'select ti_page_title, ti_is_top10k, ti_top10k, ti_last_fellow_edit from dedup.title_query join ' . TitusDB::getDBname() . '.titus_intl ti on ti_page_id=tq_page_id and ti_language_code=tq_lang where tq_query in (' . implode(',', $altKeywords) . ')';
+				$sql = 'SELECT ' .
+						'  ti_page_title, ti_is_top10k, ti_top10k, ti_last_fellow_edit ' .
+						'FROM dedup.title_query ' .
+						'JOIN ' . TitusDB::getDBname() . '.titus_intl ti ON ti_page_id=tq_page_id AND ti_language_code=tq_lang ' .
+						'WHERE tq_query IN (' . implode(',', $altKeywords) . ')';
 				$res = $dbr->query($sql, __METHOD__);
 				$titusRow = false;
 				foreach ( $res as $row ) {

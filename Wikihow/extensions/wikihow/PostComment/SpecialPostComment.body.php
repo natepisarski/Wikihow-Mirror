@@ -225,13 +225,12 @@ class PostComment extends UnlistedSpecialPage {
 		$this->getOutput()->setStatusCode(409);
 
 		$tmp = "";
-		if ( $this->getUser()->isBlocked() ) {
-			$this->getOutput()->blockedPage();
-			return;
-		}
 		if ( !$this->getUser()->getID() && $wgWhitelistEdit ) {
 			$this->userNotLoggedInPage();
 			return;
+		}
+		if ( $this->getUser()->isBlocked() ) {
+			throw new UserBlockedError( $this->getUser()->getBlock() );
 		}
 		if ( wfReadOnly() ) {
 			$this->getOutput()->readOnlyPage();
@@ -244,8 +243,7 @@ class PostComment extends UnlistedSpecialPage {
 		}
 
 		if ( $this->getUser()->pingLimiter() ) {
-			$this->getOutput()->rateLimited();
-			return;
+			throw new ThrottledError;
 		}
 
 		$editPage = new EditPage($article);

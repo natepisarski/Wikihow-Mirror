@@ -154,7 +154,11 @@ class EditFinder extends UnlistedSpecialPage {
 			$t = is_int($skip_article) ?
 				Title::newFromID($skip_article) : Title::newFromText($skip_article);
 
-			$id = $t->getArticleID();
+			if (!$t || !$t->exists()) {
+				$id = null;
+			} else {
+				$id = $t->getArticleID();
+			}
 
 			//mark the db for this user
 			if (!empty($id)) {
@@ -437,8 +441,7 @@ class EditFinder extends UnlistedSpecialPage {
 		self::setTemplatePath();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 
 		$this->topicMode = strtolower($target) == 'topic' || strtolower($req->getVal('edittype')) == 'topic';
@@ -523,7 +526,6 @@ class EditFinder extends UnlistedSpecialPage {
 			return;
 
 		} else { //default view (same as most of the views)
-			$sk = $user->getSkin();
 			$out->setArticleBodyOnly(false);
 
 			//custom topic from querystring

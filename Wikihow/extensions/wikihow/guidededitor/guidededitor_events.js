@@ -141,8 +141,8 @@ $(document).ready( function() {
 		WH.Editor.addStars(event, document.editform.thingsyoullneed);
 	} );
 
-	$('#sources').keyup( function() {
-		WH.Editor.addStars(event, document.editform.sources);
+	$('#references_text').keyup( function() {
+		WH.Editor.addStars(event, document.editform.references);
 	} );
 
 	$('#relateds_move_up').click( function() {

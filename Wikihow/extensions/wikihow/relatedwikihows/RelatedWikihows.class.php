@@ -1,4 +1,4 @@
-<?
+<?php
 $wgHooks['PageContentSaveComplete'][] = array('RelatedWikihows::clearArticleMemc');
 class RelatedWikihow {
 	var $mThumbUrl = '';
@@ -29,7 +29,7 @@ class RelatedWikihow {
 			$videoSrc = "";
 		} else {
 			$imgSrc = $this->mThumbUrl;
-			if ( $this->mGifUrl ) {
+			if ( isset( $this->mGifUrl ) ) {
 				$imgSrc = $this->mGifUrl;
 			}
 		}
@@ -49,7 +49,7 @@ class RelatedWikihow {
 
 		// create the fallback noscript img tag
 		$noscript = Html::openElement('noscript')
-			. Html::element('img', ['src' => $imageAttrs['src']])
+			. Html::element('img', ['src' => $imgAttributes['src']])
 			. Html::closeElement('noscript');
 
 		$imgAttributes['data-src'] = $imgAttributes['src'];
@@ -57,6 +57,7 @@ class RelatedWikihow {
 		$img = Html::rawElement( 'img', $imgAttributes );
 
 		// now create the video if we have it
+		$videoElement = '';
 		if ( $videoSrc ) {
 			$videoAttributes = [
 				'id' => $id,
@@ -382,7 +383,7 @@ class RelatedWikihows {
 				}
 			}
 			$item = new RelatedWikihow();
-			$item->mGifUrl = $gifUrl;
+			//$item->mGifUrl = $gifUrl;
 			$item->mVideoUrl = $videoUrl;
 			$item->mThumbUrl = $thumbnailImage->getUrl();
 			$item->mThumbUrlSide = $thumbnailImageSide->getUrl();
@@ -396,7 +397,7 @@ class RelatedWikihows {
 	}
 
 
-	private function isIndexed( $pageId ) {
+	private static function isIndexed( $pageId ) {
 		$dbr = wfGetDB( DB_REPLICA );
 		$count = $dbr->selectField(
 			'index_info',
@@ -572,7 +573,9 @@ class RelatedWikihows {
 			pq( $prevSection )->after( $relatedHtml );
 		} elseif (!$this->mMobile && pq( ".section.sourcesandcitations" )->length > 0 ) {
 			pq( ".section.sourcesandcitations" )->before( $relatedHtml );
-		} elseif ( pq( "#sp_h2" )->length > 0 ) {
+		} else if (!$this->mMobile && pq( ".section.references" )->length > 0 ) {
+			pq( ".section.references" )->before( $relatedHtml );
+		} else if ( pq( "#sp_h2" )->length > 0 ) {
 			pq( "#sp_h2" )->before( $relatedHtml );
 		} else {
 			pq( ".section:last" )->after( $relatedHtml );
@@ -668,7 +671,7 @@ class SensitiveRelatedWikihows {
 	const SENSITIVE_RELATED_REMOVE_PAGE_TABLE = "sensitive_related_remove_page";
 
 	public static function saveSensitiveRelatedArticles() {
-		global $IP;
+		global $IP, $wgIsDevServer;
 
 		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
 
@@ -685,20 +688,26 @@ class SensitiveRelatedWikihows {
 
 		$removeListWorksheetId = "ojdakpw";
 		$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.$removeListWorksheetId . self::FEED_LINK_2;
+		//if ( $wgIsDevServer ) {
+			//$feedLink = self::FEED_LINK . '1F7z21I1ePX43Rh9lj2ojMcvoD1rHlw-oxHWhGnf9Y0A'.'/'.$removeListWorksheetId . self::FEED_LINK_2;
+		//}
 		$sheetData = file_get_contents( $feedLink . $token );
 		$sheetData = json_decode( $sheetData );
 		//decho('sheetData', $sheetData->{'feed'});exit;
 		$sheetData = $sheetData->{'feed'}->{'entry'};
 		$removeList = self::parseRemoveList( $sheetData );
-		self::saveRemoveList( $removeList );
+		$result = self::saveRemoveList( $removeList );
 
 		$sensitiveMasterWorksheetId = "od6";
 		$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.$sensitiveMasterWorksheetId . self::FEED_LINK_2;
+		//if ( $wgIsDevServer ) {
+			//$feedLink = self::FEED_LINK . '1F7z21I1ePX43Rh9lj2ojMcvoD1rHlw-oxHWhGnf9Y0A'.'/'.$sensitiveMasterWorksheetId . self::FEED_LINK_2;
+		//}
 		$sheetData = file_get_contents( $feedLink . $token );
 		$sheetData = json_decode( $sheetData );
 		$sheetData = $sheetData->{'feed'}->{'entry'};
 		$sensitiveMasterList = self::parseSensitiveMaster( $sheetData );
-		$result = self::saveSensitiveMasterList( $sensitiveMasterList );
+		$result .= self::saveSensitiveMasterList( $sensitiveMasterList );
 		return $result;
 	}
 
@@ -860,11 +869,24 @@ class SensitiveRelatedWikihows {
 			}
 
 			$dbw->insert( $table, $insertData, __METHOD__ );
-			$message .= "updated $table for $lang\n";
+			$removeCount = count( $removeIds );
+			$insertCount = count( $insertIds );
+			$message .= "updated $table for $lang. $removeCount items removed. $insertCount items added.\n";
 		}
 		if ( !$message ) {
-			$message = "no updates for $table for $lang";
+			$message = "no updates for $table for $lang\n";
 		}
+
+
+		$var = "count(*)";
+		$removeCount = $dbw->selectField( $table, $var, $cond );
+		if ( $fieldName == 'srrp_page_id' ) {
+			$type = "remove pages";
+		} else {
+			$type = "master pages";
+		}
+
+		$message .= "number of $type for $lang is: $removeCount\n";
 		return $message;
 	}
 

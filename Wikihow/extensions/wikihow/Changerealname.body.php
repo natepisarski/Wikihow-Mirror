@@ -12,7 +12,7 @@ class ChangeRealName extends SpecialPage {
 		$user = $this->getUser();
 
 		if ( !$user->isAllowed( 'changerealname' ) ) {
-			$out->permissionRequired( 'changerealname' );
+			throw new PermissionsError( 'changerealname' );
 			return;
 		}
 

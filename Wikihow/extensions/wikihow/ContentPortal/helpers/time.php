@@ -1,4 +1,4 @@
-<?
+<?php
 function humanTime($stamp) {
 	return (new DateTime($stamp))->format('m/d/y h:ia ');
 }

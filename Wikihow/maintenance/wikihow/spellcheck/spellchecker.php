@@ -166,6 +166,7 @@ function spellCheckArticle(&$dbw, $articleId, &$pspell, &$whitelistArray) {
 
 		//now need to remove the sections we're not going to check
 		$newtext = Wikitext::removeSection($text, wfMessage('sources')->text());
+		$newtext = Wikitext::removeSection($text, wfMessage('references')->text());
 		$newtext = Wikitext::removeSection($newtext, wfMessage('related')->text());
 
 		//remove reference tags

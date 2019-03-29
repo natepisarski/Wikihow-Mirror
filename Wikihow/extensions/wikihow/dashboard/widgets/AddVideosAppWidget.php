@@ -37,8 +37,7 @@ class AddVideosAppWidget extends DashboardWidget {
 	 * for the last contributor to this widget
 	 */
 	public function getLastContributor(&$dbr) {
-		global $wgUser;
-		$sk = $wgUser->getSkin();
+		$sk = RequestContext::getMain()->getSkin();
 
 		$user = VideoAdder::getLastVA($dbr);
 
@@ -51,8 +50,7 @@ class AddVideosAppWidget extends DashboardWidget {
 	 * for the top contributor to this widget
 	 */
 	public function getTopContributor(&$dbr) {
-		global $wgUser;
-		$sk = $wgUser->getSkin();
+		$sk = RequestContext::getMain()->getSkin();
 
 		$user = VideoAdder::getHighestVA($dbr);
 		return $this->populateUserObject($user['id'], $user['date']);

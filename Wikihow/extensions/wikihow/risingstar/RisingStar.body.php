@@ -55,14 +55,8 @@ class RisingStar {
 				if (!$t) continue;
 
 				if ($t->isRedirect()) {
-					$a = new Article($t);
-					$t = null;
-					if ($a) {
-						$content = $a->getContent();
-						if ($content) {
-							$t = Title::newFromRedirect( $content );
-						}
-					}
+					$wikiPage = WikiPage::factory($t);
+					$t = $wikiPage->getRedirectTarget();
 				}
 
 				if ($t) {

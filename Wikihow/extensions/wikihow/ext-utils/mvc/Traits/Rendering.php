@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC\Traits;
 
 use mnshankar\CSV\CSV;

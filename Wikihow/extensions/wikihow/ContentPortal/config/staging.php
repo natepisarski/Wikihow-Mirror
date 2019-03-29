@@ -1,4 +1,4 @@
-<?
+<?php
 $this->db = [
 	'user'     => WH_DATABASE_CF_USER,
 	'password' => WH_DATABASE_CF_PASSWORD,

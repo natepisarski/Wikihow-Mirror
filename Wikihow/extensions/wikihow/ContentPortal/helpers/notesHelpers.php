@@ -1,4 +1,4 @@
-<?
+<?php
 function rolesFromNotes($notes) {
 	return __::chain($notes)->pluck('role')->reject('is_null')->uniq('id')->sortBy('step')->value();
 }

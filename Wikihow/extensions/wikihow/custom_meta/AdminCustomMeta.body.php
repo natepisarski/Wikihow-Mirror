@@ -10,8 +10,8 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 
 	public function __construct() {
 		global $wgHooks;
+		$this->action = RequestContext::getMain()->getTitle()->getText();
 		parent::__construct($this->action);
-		$this->action = $this->getTitle()->getPartialUrl();
 		$wgHooks['ShowSideBar'][] = array('AdminCustomMeta::removeSideBarCallback');
 	}
 

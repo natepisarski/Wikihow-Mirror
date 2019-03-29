@@ -1,4 +1,4 @@
-<?
+<?php
 
 class TipsGuardianAppWidget extends DashboardWidget {
 

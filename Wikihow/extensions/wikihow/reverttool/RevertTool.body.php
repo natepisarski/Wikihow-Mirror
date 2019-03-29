@@ -46,8 +46,7 @@ class RevertTool extends UnlistedSpecialPage {
 		$langCode = $this->getLanguage()->getCode();
 
 		if ($user->isBlocked()) {
-			$out->blockedPage();
-			return;
+			throw new UserBlockedError( $user->getBlock() );
 		}
 		$userGroups = $user->getGroups();
 		if ($user->getID() == 0 || !(in_array('sysop', $userGroups) || in_array('staff', $userGroups)) ) {

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MethodHelpfulness;
 use MethodHelpfulness\ArticleMethod;
 use EasyTemplate;

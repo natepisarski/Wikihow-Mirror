@@ -829,19 +829,6 @@ class GoogleAmp {
 		}
 	}
 
-	private static function getUpdated() {
-		//do we have multiple # ids on a page? Why? (using logic from js)
-		foreach (pq('#sp_modified') as $section) {
-			$datestamp = pq($section)->attr('data-datestamp');
-
-			if ($datestamp) {
-				$updated = new DateTime($datestamp);
-				$updated = '<span class="sp_text_data">'.$updated->format('F j, Y').'</span>';
-				pq('#sp_modified')->append($updated);
-			}
-		}
-	}
-
 	private static function modifyVideoSection() {
 		$videoSelector = "#video";
 		if ( !pq( $videoSelector )->length ) {
@@ -933,7 +920,7 @@ class GoogleAmp {
 		pq( '#social_proof_mobile .sp_box' )->addClass('sp_fullbox');
 
 		//get "Updated:" date (we usually do this via js)
-		self::getUpdated();
+		//self::getUpdated();
 
 		//star ratings
 		pq( '#sp_helpful_box' )->remove();

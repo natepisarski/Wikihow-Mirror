@@ -1,4 +1,4 @@
-<?
+<?php
 
 class ApiGraphs extends ApiBase {
 	function __construct($main, $action) {

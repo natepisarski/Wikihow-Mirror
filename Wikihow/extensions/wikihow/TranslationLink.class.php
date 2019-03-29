@@ -169,11 +169,13 @@ class TranslationLink {
 	public function insert() {
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->insert(WH_DATABASE_NAME . ".translation_link",
-			[ $this->fromLang,
-			  (int)$this->fromAID,
-			  $this->toLang,
-			  (int)$this->toAID,
-			  wfTimestampNow(TS_MW) ],
+			[
+				'tl_from_lang' => $this->fromLang,
+				'tl_from_aid' => (int)$this->fromAID,
+				'tl_to_lang' => $this->toLang,
+				'tl_to_aid' => (int)$this->toAID,
+				'tl_timestamp' => wfTimestampNow(TS_MW)
+			],
 			__METHOD__,
 			[ 'IGNORE' ]);
 		$this->setTlStatus(self::TL_STATUS_SAVED);
@@ -763,17 +765,19 @@ class TranslationLink {
 
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->insert( WH_DATABASE_NAME . ".translation_link_log",
-			[ $fromLang,
-			  $fromAID,
-			  $fromTitleName,
-			  $fromRevisionId,
-			  $toLang,
-			  $toAID,
-			  $toTitleName,
-			  $user->getName(),
-			  $toolName,
-			  $action,
-			  wfTimestampNow(TS_MW) ],
+			[
+				'tll_from_lang' => $fromLang,
+				'tll_from_aid' => $fromAID,
+				'tll_from_title' => $fromTitleName,
+				'tll_from_revision_id' => $fromRevisionId,
+				'tll_to_lang' => $toLang,
+				'tll_to_aid' => $toAID,
+				'tll_to_title' => $toTitleName,
+				'tll_user' => $user->getName(),
+				'tll_tool' => $toolName,
+				'tll_action' => $action,
+				'tll_timestamp' => wfTimestampNow(TS_MW)
+			],
 			__METHOD__ );
 	}
 

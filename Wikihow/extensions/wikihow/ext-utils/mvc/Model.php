@@ -1,4 +1,4 @@
-<?
+<?php
 namespace MVC;
 use ActiveRecord\Model as ArModel;
 use MVC\Debugger;
