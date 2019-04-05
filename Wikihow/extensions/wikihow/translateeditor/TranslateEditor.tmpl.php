@@ -17,8 +17,11 @@ function checkForCite() {
 	var sources = "<?= addslashes(wfMessage('Sources')) ?>";
 	var txt = $("#wpTextbox1").val();
 	if (txt.match(/<ref>/)) {
-		if (!txt.match(/{{reflist}}/) || !txt.match(new RegExp("== *" + sources + " *=="))) {
-			alert("ERROR: Article contains '<ref>', so there must be a '" + sources + "' section with template {{reflist}} before saving or previewing");
+		var sourcesMatch =txt.match(new RegExp("== *" + sources + " *=="));
+		var refs = "<?= addslashes(wfMessage('references')) ?>";
+		var refsMatch =txt.match(new RegExp("== *" + refs + " *=="));
+		if (!txt.match(/{{reflist}}/) || !(sourcesMatch || refsMatch)) {
+			alert("ERROR: Article contains '<ref>', so there must be a '" + sources + "' or '" + refs + "' section with template {{reflist}} before saving or previewing");
 			return(false);
 		}
 		else if (!txt.match(/<\/ref>/)) {
@@ -86,13 +89,15 @@ $(document).ready(function() {
 
 	function fixCite(revision) {
 		var sources = "<?= addslashes(wfMessage('Sources')) ?>";
+		var refs = "<?= addslashes(wfMessage('references')) ?>";
 		if (revision.match(/<ref>/)) {
 			if (!revision.match(/{{reflist}}/)) {
 				if (revision.match("== "  + sources + " ==")) {
 					revision = revision.replace(new RegExp("== *" + sources + " *=="), "== " + sources + " ==\n{{reflist}}");
-				}
-				else {
-					revision += revision + "== " + sources + " ==\n{{reflist}}";
+				} else if(revision.match("== "  + refs + " ==")) {
+					revision = revision.replace(new RegExp("== *" + refs + " *=="), "== " + refs + " ==\n{{reflist}}");
+				} else {
+					revision += revision + "== " + refs + " ==\n{{reflist}}";
 				}
 			}
 		}
@@ -103,6 +108,7 @@ $(document).ready(function() {
 		var rLen;
 		do {
 			rLen = revision.length;
+
 			revision = revision.replace("\n\n#","\n#");
 		} while (revision.length != rLen);
 

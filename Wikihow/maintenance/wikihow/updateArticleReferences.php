@@ -251,7 +251,7 @@ class updateArticleReferences extends Maintenance {
 		if ( !$r ) {
 			return "";
 		}
-		return $r->getText();
+		return ContentHandler::getContentText( $r->getContent() );
 	}
 
 	private static function getUrlList( $pageId ) {

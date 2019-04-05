@@ -195,7 +195,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 	}
 
 	protected function getArticleStuff($title, $revision, $originalText) {
-		$revisionText = $revision->getText();
+		$revisionText = ContentHandler::getContentText( $revision->getContent() );
 		$quotedOriginal = preg_quote($originalText);
 		preg_match("@(\p{Lu}|[^{$this->previousSentenceEnd}])*{$quotedOriginal}.*?({$this->sentenceEnd})($|\s|\W|\D)@um", $revisionText, $matches);
 		//var_dump("@(\p{Lu}|[^{$this->previousSentenceEnd}])*{$quotedOriginal}.*?({$this->sentenceEnd})($|\s|\W|\D)@u");
@@ -226,7 +226,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 			$popts = $out->parserOptions();
 			$popts->setTidy(true);
 			$parserOutput = $out->parse($revisionText, $title, $popts);
-			$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+			$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 			$html = WikihowArticleHTML::processArticleHTML(
 				$parserOutput,
 				array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));

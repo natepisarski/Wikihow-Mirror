@@ -23,7 +23,8 @@ class VideoPage extends Article {
 	function render() {
 		$out = RequestContext::getMain()->getOutput();
 		$out->setArticleBodyOnly( true );
-		$out->addSecondaryWikitext( $this->getContent() );
+		$wikitext = ContentHandler::getContentText( $this->getPage()->getContent() );
+		$out->addSecondaryWikitext( $wikitext );
 	}
 
 	function view() {
@@ -204,7 +205,7 @@ class VideoPage extends Article {
 			}
 			$ts = RequestContext::getMain()->getLanguage()->timeanddate($row->rev_timestamp, true, true);
 			$out->addHTML("<tr>"
-					. "<td valign='top'>" . $out->parse($r->getText())  . "</td>\n"
+					. "<td valign='top'>" . $out->parse(ContentHandler::getContentText( $r->getContent() ))  . "</td>\n"
 					. "<td valign='top'><a href='{$uurl}'>{$name}</a></td>"
 					. "<td valign='top'> {$ts} </td>\n"
 					. "</tr>");

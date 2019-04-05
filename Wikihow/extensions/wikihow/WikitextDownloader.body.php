@@ -20,7 +20,8 @@ class WikitextDownloader extends UnlistedSpecialPage {
 		$r = Revision::loadFromPageId($dbr, $req->getInt('pageid'));
 		if ($r) {
 			$title = $r->getTitle()->getText();
-			Misc::outputFile("$title.txt", $r->getText(), "application/force-download");
+			$wikitext = ContentHandler::getContentText( $r->getContent() );
+			Misc::outputFile("$title.txt", $wikitext, "application/force-download");
 		}
 	}
 

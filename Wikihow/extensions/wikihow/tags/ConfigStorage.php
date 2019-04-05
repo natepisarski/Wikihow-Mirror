@@ -114,11 +114,7 @@ class ConfigStorage {
 		$dbw = wfGetDB(DB_MASTER);
 
 		if ($logIt) {
-			$old_config = $dbw->selectField(
-				'config_storage',
-				'cs_config',
-				[ 'cs_key' => $key ],
-				__METHOD__ );
+			$old_config = self::dbGetConfigFromDatabase($key);
 		}
 
 		$dbw->replace('config_storage', 'cs_key',
@@ -139,12 +135,19 @@ class ConfigStorage {
 
 	public static function dbDeleteConfig($key) {
 		global $wgMemc;
+
+		$old_config = self::dbGetConfigFromDatabase($key);
+
 		$cachekey = self::getMemcKey($key);
 		$wgMemc->delete($cachekey);
 
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->delete('config_storage', ['cs_key' => $key], __METHOD__);
-		return $dbw->affectedRows() > 0;
+		$success = $dbw->affectedRows() > 0;
+
+		ConfigStorageHistory::dbDeleteConfigStorage($key, $old_config);
+
+		return $success;
 	}
 
 	// consistently generate a memcache key

@@ -115,7 +115,7 @@ class TitanController {
 		foreach($res as $row) {
 			$rev = Revision::newFromArchiveRow($row);
 			$rev = new RevisionNoTemplateWrapper($rev);
-			if(!$rev->getText() || !$rev->getTitle()) {
+			if(!ContentHandler::getContentText( $rev->getContent() ) || !$rev->getTitle()) {
 				continue;
 			}
 			$id = $rev->getId();
@@ -137,7 +137,7 @@ class TitanController {
 		foreach($res as $row) {
 			$rev = Revision::newFromArchiveRow($row);
 			$rev = new RevisionNoTemplateWrapper($rev);
-			if(!$rev->getText() || !$rev->getTitle()) {
+			if(!ContentHandler::getContentText( $rev->getContent() ) || !$rev->getTitle()) {
 				continue;
 			}
 			$id = $rev->getId();
@@ -232,7 +232,7 @@ class TitanController {
 			if(!$r) {
 				continue;
 			}
-			$txt = $r->getText();
+			$txt = ContentHandler::getContentText( $r->getContent() );
 			if(preg_match("@{{ *stub@i", $txt, $matches)) {
 				if(!$stub) {
 					$ids[] = array('id' => $id, 'type' => 'stub');

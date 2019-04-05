@@ -84,7 +84,7 @@ class ConvertSummariesToTemplate extends Maintenance {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return false;
 
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		if ($this->summaryTemplateExistsInArticle($title, $wikitext)) {
 			$this->already_converted = true;
@@ -151,7 +151,7 @@ class ConvertSummariesToTemplate extends Maintenance {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return false;
 
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		$namespace = MWNamespace::getCanonicalName(NS_SUMMARY);
 		$title_regex = '('.preg_quote($title->getText()).'|'.preg_quote($title->getDBKey()).')';

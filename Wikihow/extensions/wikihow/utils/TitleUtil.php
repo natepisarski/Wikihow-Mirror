@@ -11,7 +11,7 @@ class TitleUtil
 		if (!$revision)
 			return [];
 
-		$res = preg_match_all('/{{([^}]+)}}/', $revision->getText(), $matches);
+		$res = preg_match_all('/{{([^}]+)}}/', ContentHandler::getContentText( $revision->getContent() ), $matches);
 		if (!$res)
 			return [];
 

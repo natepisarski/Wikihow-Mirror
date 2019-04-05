@@ -7,17 +7,18 @@
  ***********************/
 class NFDProcessor {
 
-	var	$mArticle	= null; // current article we are processing
-	var $mResult	= null; // result row from the db
-	var $mTitle		= null; // title of the article we are processing
-	var $mTemplate	= null; // full template on the article (eg: {{nfd|acc|date}}
-	var $mReason	= null; // they type of nfd in the form of an array('type':dup,'article':articleTitle)
-	var	$mTemplatePart = "nfd";
-	var $mRevision	= null; // current revision of the current article we are processing
+	var $mTitle     = null; // Title object of article we are processing
+	var $mPageID    = 0;    // Page ID of the article we are processing
+	var $mResult    = null; // result row from the db
+	var $mTemplate  = null; // full template on the article (eg: {{nfd|acc|date}}
+	var $mReason    = null; // they type of nfd in the form of an array('type':dup,'article':articleTitle)
+	var $mTemplatePart = "nfd";
+	var $mRevision  = null; // current revision of the current article we are processing
 
-	public function __construct($revision = null, $article = null) {
-		$this->mRevision	= $revision;
-		$this->mArticle		= $article;
+	public function __construct($revision = null, $wikiPage = null) {
+		$this->mRevision    = $revision;
+		$this->mTitle       = $wikiPage ? $wikiPage->getTitle() : null;
+		$this->mPageID      = $wikiPage ? $wikiPage->getID() : 0;
 	}
 
 	/**
@@ -26,42 +27,43 @@ class NFDProcessor {
 	 * NOTE: called by hooks in NFDGuardian.php
 	 */
 	public function process($echoInfo = false) {
-		if (self::hasNFD($this->mRevision->getText())) { //currently has NFD tag
+		$wikitext = ContentHandler::getContentText( $this->mRevision->getContent() );
+		if (self::hasNFD($wikitext)) { //currently has NFD tag
 			//now grab all the relevant information from this tag
-			$this->mTemplate = $this->getFullTemplateFromText($this->mRevision->getText());
+			$this->mTemplate = $this->getFullTemplateFromText($wikitext);
 			$this->mReason = self::extractReason($this->mTemplate);
 			$this->setFirstEdit();
 
 			//now check to see if we actually need to add it in to the db
 			/*if ($this->mReason['type'] == "dup") {
 				//we don't use duplicates in this tool
-				self::markPreviousAsInactive($this->mArticle->getID());
-			} else*/ if ($this->hasInuseTemplate()) {
+				self::markPreviousAsInactive($this->mPageID);
+			} else*/ if (self::hasInuseTemplate($wikitext)) {
 				//we don't put articles with inuse tags in the tool
 				//remove if already in tool
-				self::markPreviousAsInactive($this->mArticle->getID());
+				self::markPreviousAsInactive($this->mPageID);
 				if ($echoInfo) {
-					print "Removing from tool: " . $this->mArticle->getTitle()->getText() . "\n";
+					print "Removing from tool: " . $this->mTitle->getText() . "\n";
 				}
 			} elseif ($this->hasBeenDecided()) {
 				//its already been decided at another point in time (either in NFDGuardian or in regular discussions
 				//now make it advanced
-				$this->markAsAdvanced($this->mArticle->getID());
+				$this->markAsAdvanced($this->mPageID);
 				if ($echoInfo) {
-					print "Marking as Advanced: " . $this->mArticle->getTitle()->getText() . "\n";
+					print "Marking as Advanced: " . $this->mTitle->getText() . "\n";
 				}
-			} elseif (!$this->availableOrAdvancedInTool($this->mArticle->getID())) {
+			} elseif (!$this->availableOrAdvancedInTool($this->mPageID)) {
 				$this->logEntry(NFDGuardian::NFD_AVAILABLE);
 				if ($echoInfo) {
-					print "Adding: " . $this->mArticle->getTitle()->getText() . "\n";
+					print "Adding: " . $this->mTitle->getText() . "\n";
 				}
 			} else {
 				//already in tool, so no need to do anything
 			}
 		} else { //currently doesn't have NFD tag
-			self::markPreviousAsInactive($this->mArticle->getID());
+			self::markPreviousAsInactive($this->mPageID);
 			if ($echoInfo) {
-				print "Removing from tool: " . $this->mArticle->getTitle()->getText() . "\n";
+				print "Removing from tool: " . $this->mTitle->getText() . "\n";
 			}
 		}
 	}
@@ -70,8 +72,8 @@ class NFDProcessor {
 		return preg_match("@{{nfd@i", $text);
 	}
 
-	private function hasInuseTemplate() {
-		return preg_match("@{{inuse@i", $this->mRevision->getText());
+	private static function hasInuseTemplate($wikitext) {
+		return preg_match("@{{inuse@i", $wikitext);
 	}
 
 	/* unused in 3/2019 - Reuben
@@ -80,7 +82,7 @@ class NFDProcessor {
 
 		$entries = $dbr->selectField('nfd',
 			'count(*)',
-			['nfd_page' => $this->mArticle->getID(),
+			['nfd_page' => $this->mPageID,
 				'nfd_patrolled' => 0,
 				'nfd_status' => NFDGuardian::NFD_AVAILABLE],
 			__METHOD__);
@@ -93,10 +95,10 @@ class NFDProcessor {
 		if ($title) {
 			$discussionTitle = Title::newFromText($title->getText(), NS_TALK);
 			if ($discussionTitle) {
-				$discussionArticle = new Article($discussionTitle);
-				$content = $discussionArticle->getContent();
+				$discussionPage = WikiPage::factory($discussionTitle);
+				$wikitext = ContentHandler::getContentText( $discussionPage->getContent() );
 				$matches = array();
-				$count = preg_match('/{{nfd.*[^{{]}}/i', $content, $matches);
+				$count = preg_match('/{{nfd.*[^{{]}}/i', $wikitext, $matches);
 				if ($count > 0) {
 					if (stristr($matches[0], "result=keep") === false) {
 						return false;
@@ -119,7 +121,7 @@ class NFDProcessor {
 	}
 
 	private function hasBeenDecided() {
-		return $this->hasBeenDiscussed($this->mArticle->getTitle()) || $this->hasBeenPatrolled($this->mArticle->getID());
+		return $this->hasBeenDiscussed($this->mTitle) || $this->hasBeenPatrolled($this->mPageID);
 	}
 
 	private function markAsAdvanced($articleId) {
@@ -135,7 +137,7 @@ class NFDProcessor {
 	private function existsInTool() {
 		$dbw = wfGetDB(DB_MASTER);
 
-		$articleId = $this->mArticle->getID();
+		$articleId = $this->mPageID;
 		$count = $dbw->selectField('nfd', 'count(*)', ['nfd_page'=> $articleId], __METHOD__);
 		return $count > 0;
 	}
@@ -268,11 +270,11 @@ class NFDProcessor {
 						"nfd_fe_timestamp" => $this->mFirstEdit,
 						"nfd_user" => $user->getID(),
 						"nfd_user_text" => $user->getName(),
-						"nfd_page" => $this->mArticle->getID(),
+						"nfd_page" => $this->mPageID,
 						"nfd_status" => $status
 				);
 
-		self::markPreviousAsInactive($this->mArticle->getID());
+		self::markPreviousAsInactive($this->mPageID);
 
 		$dbw = wfGetDB(DB_MASTER);
 		$dbw->insert('nfd', $opts, __METHOD__);
@@ -289,7 +291,7 @@ class NFDProcessor {
 
 		// Get the page title
 		$title = Title::newFromID( $this->mResult->nfd_page );
-		if ( !$title ) {
+		if ( !$title || !$title->exists() ) {
 			self::markPreviousAsInactive( $this->mResult->nfd_page );
 			return "<!--{$this->mResult->nfd_page}-->" .
 				"error creating title (id# {$this->mResult->nfd_page}) , oops, please " .
@@ -299,13 +301,13 @@ class NFDProcessor {
 		// Get current page revsion
 		$revision = Revision::newFromTitle( $title );
 		if ( !$revision ) {
-			return "Error creating revision";
+			return "Error creating revision for page ID: " . $this->mResult->nfd_page;
 		}
 
 		// Generate article preview
 		$popts = RequestContext::getMain()->getOutput()->parserOptions();
 		$popts->setTidy( true );
-		$text = $revision->getText();
+		$text = ContentHandler::getContentText( $revision->getContent() );
 		$output = $wgParser->parse( $text, $title, $popts );
 		$parserOutput = $output->getText();
 		$magic = WikihowArticleHTML::grabTheMagic( $text );
@@ -513,12 +515,13 @@ class NFDProcessor {
 
 			if ($discussionTitle->getArticleId() > 0) {
 				$r = Revision::newFromTitle($discussionTitle);
-				$text = $r->getText();
+				$text = ContentHandler::getContentText( $r->getContent() );
 			}
 
-			$article = new Article($discussionTitle);
 			$text .= "\n\n$formattedComment\n\n";
-			$article->doEdit($text, "");
+			$wikiPage = WikiPage::factory($discussionTitle);
+			$content = ContentHandler::makeContent($text, $discussionTitle);
+			$wikiPage->doEditContent($content, "");
 		}
 
 		self::markNFDAsViewed($nfdid);
@@ -641,7 +644,7 @@ class NFDProcessor {
 		$dbr = wfGetDB(DB_REPLICA);
 		$this->mFirstEdit = $dbr->selectField('firstedit',
 			'fe_timestamp',
-			['fe_page'=> $this->mArticle->getID()],
+			['fe_page'=> $this->mPageID],
 			__METHOD__);
 	}
 
@@ -715,11 +718,8 @@ class NFDProcessor {
 		//with a lot of discussion items.
 		$t = Title::newFromID($this->mResult->nfd_page);
 		if ($t) {
-			$a = new Article($t);
-			// $pageHistory = new PageHistory($a);
-			// $pager = new PageHistoryPager( $pageHistory );
-			// $edits = $pager->getNumRows();
-			$pageHistory = new HistoryPage($a);
+			$wikiPage = WikiPage::factory($t);
+			$pageHistory = new HistoryPage($wikiPage);
 			$items = $pageHistory->fetchRevisions(100000,0,1);
 			$edits = $items->numRows();
 
@@ -727,11 +727,8 @@ class NFDProcessor {
 
 			if ($discussionTitle) {
 
-				$discussionArticle = new Article($discussionTitle);
-				// $pageHistory = new PageHistory($discussionArticle);
-				// $pager = new PageHistoryPager( $pageHistory );
-				// $discussion = $pager->getNumRows();
-				$pageHistory = new HistoryPage($discussionArticle);
+				$discussionPage = WikiPage::factory($discussionTitle);
+				$pageHistory = new HistoryPage($discussionPage);
 				$items = $pageHistory->fetchRevisions(100000,0,1);
 				$discussion = $items->numRows();
 			} else {
@@ -848,14 +845,14 @@ class NFDProcessor {
 			return false;
 		}
 
-		$article = new Article($t);
-		if (!$article) {
+		$wikiPage = WikiPage::factory($t);
+		if (!$wikiPage) {
 			return false;
 		}
 
 		$dateStr = gmdate('n/j/Y', time());
 		$votes = $this->getVotes($nfdid, $dbr);
-		$comment = wfMessage('nfd_delete_message')->rawParams($dateStr, $nfdReason['type'], $votes['deleteUsers'], $votes['keepUsers'], "[[".$t->getText()."]]", number_format($article->getCount(), 0, "", ","))->escaped();
+		$comment = wfMessage('nfd_delete_message')->rawParams($dateStr, $nfdReason['type'], $votes['deleteUsers'], $votes['keepUsers'], "[[".$t->getText()."]]", number_format($wikiPage->getCount(), 0, "", ","))->escaped();
 
 		$foundDup = false;
 		if ($nfdReason['type'] == "dup") {
@@ -870,7 +867,9 @@ class NFDProcessor {
 				$dupRev = Revision::newFromTitle($dupTitle);
 				if ($dupRev) {
 					//the duplicate title exists, so turn the current article into a redirct
-					$editSuccess = $article->doEdit("#REDIRECT [[" . $dupTitle->getPrefixedURL() . "]]", $comment);
+					$redirectText = "#REDIRECT [[" . $dupTitle->getPrefixedURL() . "]]";
+					$content = ContentHandler::makeContent($redirectText, $t);
+					$wikiPage->doEditContent($content, $comment);
 					$foundDup = true;
 					self::markAsDup($nfdid, $pageid);
 
@@ -878,20 +877,20 @@ class NFDProcessor {
 					$log = new LogPage('nfd', false);
 					$log->addEntry('redirect', $t, $comment);
 
-					$commentDup = wfMessage('nfd_dup_message')->rawParams($dateStr, $nfdReason['type'], $votes['deleteUsers'], $votes['keepUsers'], "[[".$t->getText()."]]", number_format($article->getCount(), 0, "", ","), "[[".$dupTitle->getText()."]]")->escaped();
+					$commentDup = wfMessage('nfd_dup_message')->rawParams($dateStr, $nfdReason['type'], $votes['deleteUsers'], $votes['keepUsers'], "[[".$t->getText()."]]", number_format($wikiPage->getCount(), 0, "", ","), "[[".$dupTitle->getText()."]]")->escaped();
 					$formattedComment = TalkPageFormatter::createComment( $nfdUser, $commentDup );
 					$discussionTitle = $t->getTalkPage();
 					$text = "";
 					if ($discussionTitle->getArticleId() > 0) {
 						$r = Revision::newFromTitle($discussionTitle);
-						$text = $r->getText();
+						$text = ContentHandler::getContentText( $r->getContent() );
 					}
 
 					//add a comment to the discussion page
-					$articleDiscussion = new Article($discussionTitle);
+					$discussionPage = WikiPage::factory($discussionTitle);
 					$text .= "\n\n$formattedComment\n\n";
-					$articleDiscussion->doEdit($text, "");
-
+					$content = ContentHandler::makeContent($text, $discussionTitle);
+					$discussionPage->doEditContent($content, "");
 				}
 			}
 		}
@@ -904,17 +903,17 @@ class NFDProcessor {
 			$text = "";
 			if ($discussionTitle->getArticleId() > 0) {
 				$r = Revision::newFromTitle($discussionTitle);
-				$text = $r->getText();
+				$text = ContentHandler::getContentText( $r->getContent() );
 			}
 
 			//add a comment to the discussion page
-			$articleDiscussion = new Article($discussionTitle);
+			$discussionPage = WikiPage::factory($discussionTitle);
 			$text .= "\n\n$formattedComment\n\n";
-			$articleDiscussion->doEdit($text, "");
+			$content = ContentHandler::makeContent($text, $discussionTitle);
+			$discussionPage->doEditContent($content, "");
 
 			//now delete the article
-			$editSuccess = $article->doDeleteArticle($comment);
-
+			$wikiPage->doDeleteArticle($comment);
 
 			//no need to log in the deletion table b/c doDeleteArticle does it for you
 
@@ -979,20 +978,21 @@ class NFDProcessor {
 		if (!$r) {
 			return false;
 		}
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 
 		//remove the template
 		$text = preg_replace("@\{\{" . $this->mTemplatePart . "[^\}]*\}\}@i", "", $text);
 
-		$a = new Article($t);
-		$editSuccess = $a->doEdit( $text, wfMessage('nfd_keep_summary_template', $this->mTemplatePart)->text() );
+		$wikiPage = WikiPage::factory($t);
+		$content = ContentHandler::makeContent($text, $t);
+		$summary = wfMessage('nfd_keep_summary_template', $this->mTemplatePart)->text();
+		$editSuccess = $wikiPage->doEditContent( $content, $summary )->isOK();
 
 		//now add a discussion message
 		if ($editSuccess) {
 			$nfdUser = new User();
 			$nfdUser->setName( 'NFD Voter Tool' );
 			$text = "";
-			$article = "";
 			$discussionTitle = $t->getTalkPage();
 
 			$votes = $this->getVotes($nfdid, $dbr);
@@ -1008,13 +1008,14 @@ class NFDProcessor {
 
 			if ($discussionTitle->getArticleId() > 0) {
 				$r = Revision::newFromTitle($discussionTitle);
-				$text = $r->getText();
+				$text = ContentHandler::getContentText( $r->getContent() );
 			}
 
 			//add a discussion item
-			$article = new Article($discussionTitle);
+			$discussionPage = WikiPage::factory($discussionTitle);
 			$text .= $formattedComment;
-			$article->doEdit($text, "");
+			$content = ContentHandler::makeContent($text, $discussionTitle);
+			$discussionPage->doEditContent($content, "");
 
 			//log keep
 			$keepLogComment = wfMessage('nfd_keep_log_message')->rawParams($dateStr, $votes['keepUsers'], $votes['deleteUsers'], "[[".$t->getText()."]]")->escaped();
@@ -1124,7 +1125,7 @@ class NFDGuardian extends SpecialPage {
 				//then take out the template
 				$c = new NFDProcessor();
 				$template = $c->getFullTemplate($req->getVal('nfd_id'));
-				$articleContent = $a->getContent();
+				$articleContent = ContentHandler::getContentText( $a->getPage()->getContent() );
 				$articleContent = str_replace($template, "", $articleContent);
 				$data['newContent'] = $articleContent;
 				print(json_encode($data));*/
@@ -1137,11 +1138,11 @@ class NFDGuardian extends SpecialPage {
 			if ($t) {
 				$tDiscussion = $t->getTalkPage();
 				if ($tDiscussion) {
-					$a = new Article($tDiscussion);
-					$content = $a->getContent();
+					$wikiPage = WikiPage::factory($tDiscussion);
+					$wikitext = ContentHandler::getContentText( $wikiPage->getContent() );
 					$oldTitle = RequestContext::getMain()->getTitle();
 					RequestContext::getMain()->setTitle( $tDiscussion );
-					$out->addHTML($out->parse($content));
+					$out->addHTML($out->parse($wikitext));
 					$postComment = new PostComment;
 					$out->addHTML($postComment->getForm(true, $tDiscussion, true));
 					RequestContext::getMain()->setTitle( $oldTitle );
@@ -1196,7 +1197,7 @@ class NFDGuardian extends SpecialPage {
 				if ($r) {
 					$popts = $out->parserOptions();
 					$popts->setTidy(true);
-					print WikihowArticleHTML::processArticleHTML($out->parse($r->getText(), $t, $popts), array('no-ads'=> true, 'ns' => $t->getNamespace()));
+					print WikihowArticleHTML::processArticleHTML($out->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts), array('no-ads'=> true, 'ns' => $t->getNamespace()));
 				}
 			}
 			return;
@@ -1300,7 +1301,6 @@ class NFDGuardian extends SpecialPage {
 		$nfd_id = $req->getVal('nfd_id');
 		$t = Title::newFromID($req->getVal('articleId'));
 		if ($t) {
-			$a = new Article($t);
 			//log the edit
 			$params = array();
 			$log = new LogPage( 'nfd', true ); // false - dont show in recentchanges
@@ -1326,9 +1326,11 @@ class NFDGuardian extends SpecialPage {
 				}
 			}
 
-			if ($a) {
-				//save the edit
-				$a->doEdit($text, $summary);
+			$wikiPage = WikiPage::factory($t);
+			if ($wikiPage) {
+				// save the edit
+				$content = ContentHandler::makeContent($text, $t);
+				$wikiPage->doEditContent($content, $summary);
 			}
 
 			if ($req->getval('removeTemplate') == 'true') {
@@ -1524,8 +1526,9 @@ class NFDGuardian extends SpecialPage {
 		if ($t) {
 			$dt = Title::newFromText($t->getText(), NS_TALK);
 			if ($dt) {
-				$article = new Article($dt);
-				return substr_count($article->getContent(), "de_user");
+				$wikiPage = WikiPage::factory($dt);
+				$wikitext = ContentHandler::getContentText( $wikiPage->getContent() );
+				return substr_count($wikitext, "de_user");
 			}
 		}
 		return 0;
@@ -1575,7 +1578,7 @@ class NFDGuardian extends SpecialPage {
 		$reasons = array();
 		$t = Title::makeTitle(NS_TEMPLATE, "Nfd");
 		$r = Revision::newFromTitle($t);
-		preg_match_all("@\| [a-z]+ = .*@m", $r->getText(), $matches);
+		preg_match_all("@\| [a-z]+ = .*@m", ContentHandler::getContentText( $r->getContent() ), $matches);
 		$reasons = array();
 		foreach ($matches[0] as $match) {
 			preg_match_all('@^| ([a-z]+[^\[]) = \[\[[^\]]*\]\](.*)$@', $match, $m);
@@ -1624,10 +1627,10 @@ class NFDGuardian extends SpecialPage {
 			if ($entries == 0) {
 				$t = Title::newFromID($pageid);
 				if ($t && $t->exists()) {
-					$article = new Article($t);
+					$wikiPage = WikiPage::factory($t);
 					$revision = Revision::newFromTitle($t);
-					if ($article && $revision) {
-						$l = new NFDProcessor($revision, $article);
+					if ($wikiPage && $revision) {
+						$l = new NFDProcessor($revision, $wikiPage);
 						$l->process(true);
 					}
 				}
@@ -1654,26 +1657,26 @@ class NFDGuardian extends SpecialPage {
 		foreach ($results as $result) {
 			$t = Title::newFromID($result->nfd_page);
 			if ($t) {
-				$a = new Article($t);
+				$wikiPage = WikiPage::factory($t);
 				/*if ($result->nfd_reason == "dup") {
 					NFDProcessor::markPreviousAsInactive($result->nfd_page);
 					print "Removing Dup: " . $t->getText() . "\n";
 					$count++;
-				} else*/ if ($a->isRedirect()) {
-					//check if its a redirect
+				} else*/ if ($wikiPage->isRedirect()) {
+					// check if it's a redirect
 					NFDProcessor::markPreviousAsInactive($result->nfd_page);
 					print "Removing Redirect: " . $t->getText() . "\n";
 					$count++;
 				} else {
-					//check to see if it still has an NFD tag
+					// check to see if it still has an NFD tag
 					$revision = Revision::newFromTitle($t);
-					if ($a && $revision) {
-						$l = new NFDProcessor($revision, $a);
+					if ($wikiPage && $revision) {
+						$l = new NFDProcessor($revision, $wikiPage);
 						$l->process(true);
 					}
 				}
 			} else {
-				//title doesn't exist, so remove it from the db
+				// title doesn't exist, so remove it from the db
 				NFDProcessor::markPreviousAsInactive($result->nfd_page);
 				print "Title no longer exists: " . $result->nfd_page . "\n";
 				$count++;
@@ -1716,14 +1719,14 @@ class NFDDup extends QueryPage {
 		if ($title) {
 			$revision = Revision::newFromTitle($title);
 			$previsionRevision = $revision->getPrevious();
-			$article = new Article($title);
+			$wikiPage = WikiPage::factory($title);
 			if ($revision != null) {
 				$link = $lang->date( $revision->getTimestamp() ) . " "
 					. Linker::linkKnown( $title,
 						htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) ),
 						[],
 						['redirect' => 'no'] )
-					. " (" . number_format($previsionRevision->getSize(), 0, "", ",") . " bytes, " . number_format($article->getCount(), 0, "", ",") . " Views) ";
+					. " (" . number_format($previsionRevision->getSize(), 0, "", ",") . " bytes, " . number_format($wikiPage->getCount(), 0, "", ",") . " Views) ";
 				$wikiPage = WikiPage::factory($title);
 				$redirectTitle = $wikiPage->getRedirectTarget();
 				if ($redirectTitle) {

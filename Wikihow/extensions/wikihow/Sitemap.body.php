@@ -14,13 +14,13 @@ class Sitemap extends SpecialPage {
 		if (!$revision) return $results;
 
 		// INTL: If there is a redirect to a localized page name, follow it
-		if (strpos($revision->getText(), "#REDIRECT") !== false) {
+		if (strpos(ContentHandler::getContentText( $revision->getContent() ), "#REDIRECT") !== false) {
 			$wikiPage = WikiPage::factory($title);
 			$newTitle = $wikiPage->getRedirectTarget();
 			$revision = Revision::newFromTitle( $newTitle );
 		}
 
-		$lines = explode("\n", $revision->getText() );
+		$lines = explode("\n", ContentHandler::getContentText( $revision->getContent() ) );
 		foreach ($lines as $line) {
 			if (preg_match ('/^\*[^\*]/', $line)) {
 				$line = trim(substr($line, 1)) ;

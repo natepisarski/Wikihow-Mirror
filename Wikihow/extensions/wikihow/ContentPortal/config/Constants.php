@@ -15,8 +15,8 @@ define('LOGIN_PATH', 'session/new');
 define('REDIRECT_URL', 'redirect_url');
 define('PORTAL_CONTACT', 'support@wikihow.com');
 
-define('URL_PREFIX', 'http://www.wikihow.com/');
-define('LOGIN_API', 'http://wikihow.com/api.php?action=login&format=json');
+define('URL_PREFIX', 'https://www.wikihow.com/');
+define('LOGIN_API', 'https://' . WH_DEV_ACCESS_AUTH . '@daikon.wikiknowhow.com/api.php?action=login&format=json');
 
 define('CARRIE', 'Dr. Carrie');
 define('DANIEL', 'Daniel');

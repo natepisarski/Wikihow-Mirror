@@ -50,7 +50,7 @@ class GPlusLogin extends UnlistedSpecialPage {
 
 		$action = $req->getVal('action');
 		if ($action == 'login') {
-			$res = SocialLoginUtil::doSocialLogin('google', $this->prof['id'], $this->prof['name'],
+			$res = SocialLoginUtil::doSocialLogin('google', $this->prof['id'], $this->prof['name'] ?? '',
 				$this->prof['email'], $this->prof['picture']);
 			$isSignup = ($res == 'signup');
 			if ($res == 'error') {

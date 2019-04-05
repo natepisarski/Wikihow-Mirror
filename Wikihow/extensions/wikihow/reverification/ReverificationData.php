@@ -8,7 +8,7 @@
  */
 class ReverificationData {
 
-	var $id, $aid, $oldDate, $oldRevId, $sheetName, $verifierName, $newDate, $reverified, $newRevId, $feedback,
+	var $id, $aid, $oldDate, $oldRevId, $sheetName, $verifierId, $verifierName, $newDate, $reverified, $newRevId, $feedback,
 		$extensiveFeedback, $extensiveDoc, $exportTimestamp, $scriptExportTimestamp, $flag, $skipTimestamp, $feedbackEditor;
 
 	/**
@@ -135,6 +135,7 @@ class ReverificationData {
 		$this->setOldDate($row->rv_old_date);
 		$this->setOldRevId($row->rv_old_revision);
 		$this->setSheetName($row->rv_sheet);
+		$this->setVerifierId($row->rv_verifier_id);
 		$this->setVerifierName($row->rv_verifier_name);
 		$this->setNewDate($row->rv_new_date);
 		$this->setReverified($row->rv_reverified);
@@ -156,6 +157,7 @@ class ReverificationData {
 			'rv_old_date' => $this->getOldDate(),
 			'rv_old_revision' => $this->getOldRevId(),
 			'rv_sheet' => $this->getSheetName(),
+			'rv_verifier_id' => $this->getVerifierId(),
 			'rv_verifier_name' => $this->getVerifierName(),
 			'rv_new_date' => $this->getNewDate(),
 			'rv_reverified' => $this->getReverified(),
@@ -188,11 +190,12 @@ class ReverificationData {
 	/**
 	 * @param VerifyData $data
 	 */
-	public function loadFromVerifyData($data) {
+	private function loadFromVerifyData($data) {
 		$this->setAid($data->aid);
 		$this->setOldDate($this->formatDate($data->date));
 		$this->setOldRevId($data->revisionId);
 		$this->setSheetName($data->worksheetName);
+		$this->setVerifierId($data->verifierId);
 		$this->setVerifierName($data->name);
 	}
 
@@ -245,6 +248,20 @@ class ReverificationData {
 	 */
 	public function setOldRevId($oldRevId) {
 		$this->oldRevId = $oldRevId;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getVerifierId() {
+		return $this->verifierId;
+	}
+
+	/**
+	 * @param mixed $verifierId
+	 */
+	public function setVerifierId($verifierId) {
+		$this->verifierId = $verifierId;
 	}
 
 	/**

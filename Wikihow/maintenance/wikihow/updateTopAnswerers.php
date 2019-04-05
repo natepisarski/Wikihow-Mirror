@@ -70,13 +70,14 @@ class UpdateTopAnswerers extends Maintenance {
 			$categories_answered_by_user[] = TopAnswerers::getCat($row->qa_article_id);
 		}
 
-		$cats = array_count_values($categories_answered_by_user);
+		$cat_counts = array_count_values($categories_answered_by_user);
+		$unique_cats = array_unique($categories_answered_by_user);
 
-		foreach ($cats as $category => $count) {
+		foreach ($cat_counts as $category => $count) {
 			TopAnswerers::addCat($user_id, $category, $count);
 		}
 
-		TopAnswerers::deleteOldCats($user_id, array_flip($cats));
+		TopAnswerers::deleteOldCats($user_id, $unique_cats);
 	}
 }
 

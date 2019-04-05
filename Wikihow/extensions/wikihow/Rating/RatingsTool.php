@@ -413,7 +413,7 @@ abstract class RatingsTool {
 
 		// not for articles with bad templates
 		$badTemplates = implode("|", explode("\n", trim(wfMessage('ratings_bad_templates'))));
-		$hasBadTemp = preg_match("@{{($badTemplates)[}|]@mi", $r->getText()) == 1 ? 1 : 0;
+		$hasBadTemp = preg_match("@{{($badTemplates)[}|]@mi", ContentHandler::getContentText( $r->getContent() )) == 1 ? 1 : 0;
 		if ($hasBadTemp) return true;
 
 		// gotta be promoted

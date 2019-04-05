@@ -232,7 +232,7 @@ function getProfileBoxLink(&$u) {
 	$t = Title::newFromText($u->getUserPage() . '/profilebox-occupation');
 	if ($t->getArticleId() > 0) {
 		$r = Revision::newFromTitle($t);
-		$pbLink = trim($r->getText());
+		$pbLink = trim(ContentHandler::getContentText( $r->getContent() ));
 		$parsedUrl = parse_url($pbLink);
 		if ($parsedUrl['host']) {
 			$link = $pbLink;

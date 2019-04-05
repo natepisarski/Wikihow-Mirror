@@ -588,34 +588,40 @@ class LoginForm extends SpecialPage {
 		// token-less login attempts don't count towards the throttle
 		// but wrong-token attempts do.
 
-
-		// Upgrade hack by Gershon Bialer
-		// Removed token verification to get static header login working
-		// XXXXX
+		// We tried to make the site more secure by re-enabling login tokens.
+		// But it broke login via API for the ContentPortal, and the people
+		// who use that system quickly started getting angry. We weren't able
+		// to debug why logging in with tokens and setting session cookies
+		// (via the API) didn't work, but getting this working again forced
+		// our hand on it. The hack is more secure than the one previously
+		// done because it only applies to the ContentPortal host 'daikon'.
+		//
+		// Ask Scott and Reuben about this woe before porting this hack to
+		// the Mediawiki upgrade. Ideally we'd be able to get API login working
+		// with token authentication instead.
+		$doTheHack = @$_SERVER['HTTP_HOST'] == 'daikon.wikiknowhow.com';
 
 		// If the user doesn't have a login token yet, set one.
-		/*if ( !self::getLoginToken() ) {
-			self::setLoginToken();
-			return self::NEED_TOKEN;
+		if (!$doTheHack) {
+			if ( !self::getLoginToken() ) {
+				self::setLoginToken();
+				return self::NEED_TOKEN;
+			}
+			// If the user didn't pass a login token, tell them we need one
+			if ( !$this->mToken ) {
+				return self::NEED_TOKEN;
+			}
+
+			$throttleCount = self::incLoginThrottle( $this->mUsername );
+			if ( $throttleCount === true ) {
+				return self::THROTTLED;
+			}
+
+			// Validate the login token
+			if ( $this->mToken !== self::getLoginToken() ) {
+				return self::WRONG_TOKEN;
+			}
 		}
-		// If the user didn't pass a login token, tell them we need one
-		if ( !$this->mToken ) {
-			return self::NEED_TOKEN;
-		}*/
-
-		$throttleCount = self::incLoginThrottle( $this->mUsername );
-		if ( $throttleCount === true ) {
-			return self::THROTTLED;
-		}
-
-		// Upgrade hack by Gershon Bialer
-		// Removed token verification to get static header login working
-		// XXXXX
-
-		// Validate the login token
-		//if ( $this->mToken !== self::getLoginToken() ) {
-		//	return self::WRONG_TOKEN;
-		//}
 
 		// Load the current user now, and check to see if we're logging in as
 		// the same name. This is necessary because loading the current user

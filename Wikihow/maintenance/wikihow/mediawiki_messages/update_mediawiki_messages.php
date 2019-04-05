@@ -58,7 +58,7 @@ foreach ($msgs as $title=>$update) {
 	if ($line == "y") {
 		$title = Title::makeTitle(NS_MEDIAWIKI, $title);
 		$rev = Revision::newFromTitle($title);
-		if ($sx->putPage($page,"Updating production message",$rev->getText())){
+		if ($sx->putPage($page,"Updating production message",ContentHandler::getContentText( $rev->getContent() ))){
 			echo "$page has been updated\n";
 		} else {
 			print_r($sx);

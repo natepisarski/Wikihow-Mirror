@@ -184,7 +184,7 @@ class TalkPageConverter extends Maintenance {
 			$type = 'user talk';
 		}
 
-		$text = $rev->getText();
+		$text = ContentHandler::getContentText( $rev->getContent() );
 		$fixed = $this->convert( $text );
 
 		if ( $fixed ) {

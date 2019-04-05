@@ -18,7 +18,7 @@ class ApiMobileViewWikihow extends ApiMobileView {
 
 		$contentHandler = new WikitextContentHandler();
 		$revision = Revision::newFromTitle($title);
-		$content = $contentHandler->unserializeContent($revision->getText());
+		$content = $revision->getContent();
 
 		$edit = (object)array();
 

@@ -37,7 +37,7 @@ foreach ($res as $row) {
 		fwrite($error_log, $row->ti_page_id." - bad revision\n");
 		continue;
 	}
-	$res = AdminReadabilityScore::cleanUpText($t, $r->getText());
+	$res = AdminReadabilityScore::cleanUpText($t, ContentHandler::getContentText( $r->getContent() ));
 	if (!$res) {
 		fwrite($error_log, $row->ti_page_id." - error with cleanUpText\n");
 		continue;

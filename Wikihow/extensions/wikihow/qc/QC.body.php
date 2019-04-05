@@ -423,13 +423,19 @@ abstract class QCRule {
 			if (self::isResolved($row, 'up')) {
 				self::markQCPatrolled($qcid);
 				$c = self::newRuleFromKey($key);
-				$c->applyChange($qcid);
+				// TODO: we should report somewhere if $c is null
+				if ($c) {
+					$c->applyChange($qcid);
+				}
 			}
 		} else {
 			if (self::isResolved($row, 'down')) {
 				// what kind of rule are we ? figure it out so we can roll it back
 				$c = self::newRuleFromKey($key);
-				$c->rollbackChange($qcid);
+				// TODO: we should report somewhere if $c is null
+				if ($c) {
+					$c->rollbackChange($qcid);
+				}
 				self::markQCPatrolled($qcid);
 			}
 		}
@@ -586,7 +592,7 @@ abstract class QCRuleTextChange extends QCRule {
 		$lastrev = $this->getLastRevID();
 		$r = Revision::newFromID($lastrev);
 		if (!$r) return null;
-		return $r->getText();
+		return ContentHandler::getContentText( $r->getContent() );
 	}
 
 	protected function getEntryOptions() {
@@ -643,7 +649,8 @@ class QCRuleIntroImage extends QCRuleTextChange {
 
 		$part    = $this->getPart();
 		$oldtext = $wgParser->getSection($this->getLastRevisionText(), 0);
-		$newtext = $wgParser->getSection($this->mRevision->getText(), 0);
+		$wikitext = ContentHandler::getContentText( $this->mRevision->getContent() );
+		$newtext = $wgParser->getSection($wikitext, 0);
 
 		//make sure it doesn't have a nointroimg template in it
 		if (preg_match('@{{nointroimg}}@im',$newtext)) return false;
@@ -677,7 +684,7 @@ class QCRuleIntroImage extends QCRuleTextChange {
 			return false;
 		}
 
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$intro = $wgParser->getSection($text, 0);
 
 		//make sure the image is still in there
@@ -685,7 +692,8 @@ class QCRuleIntroImage extends QCRuleTextChange {
 
 		if (sizeof($matches) > 0) {
 			$old_rev = self::getRevFromQCID($qcid);
-			$old_intro = $wgParser->getSection($old_rev->getText(), 0);
+			$wikitext = ContentHandler::getContentText( $old_rev->getContent() );
+			$old_intro = $wgParser->getSection($wikitext, 0);
 
 			//make sure the it's not a different image
 			if (stripos($old_intro,$matches[0]) === false) {
@@ -741,7 +749,7 @@ class QCRuleIntroImage extends QCRuleTextChange {
 		}
 
 		// grab the intro image
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$intro = $wgParser->getSection($text, 0);
 
 		//ignore if we have a {{nointroimg}} template in there
@@ -865,7 +873,7 @@ class QCRuleVideoChange extends QCRuleTextChange {
 		// deal with the situation where the main namespace video has been changed
 		$part	  = $this->getPart();
 		$oldtext = $this->getLastRevisionText();
-		$newtext = $this->mRevision->getText();
+		$newtext = ContentHandler::getContentText( $this->mRevision->getContent() );
 
 		$ret = false;
 		if ($newtext == null && $this->hasText($part, $newtext)) {
@@ -921,9 +929,8 @@ class QCRuleVideoChange extends QCRuleTextChange {
 		$t = Title::newFromText($text);
 		if ($t) {
 			$vidrev = Revision::newFromTitle($t);
-
 			if ($vidrev) {
-				$vidtext = $vidrev->getText();
+				$vidtext = ContentHandler::getContentText( $vidrev->getContent() );
 				$parts = explode('|', $vidtext);
 
 				if (!empty($parts[3])) {
@@ -943,7 +950,7 @@ class QCRuleVideoChange extends QCRuleTextChange {
 			return false;
 		}
 
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$vidsection = $this->getVideoSection($text);
 		if (!$vidsection) {
 			return true;
@@ -954,7 +961,9 @@ class QCRuleVideoChange extends QCRuleTextChange {
 		# replace section doesn't work for some reason for the Video section
 		$newtext = str_replace($vidsection['vidsection'], "", $text);
 
-		if ( $a->doEdit( $newtext, wfMessage('qc_editsummary_video')->text() ) ) {
+		$wikiPage = WikiPage::factory($t);
+		$content = ContentHandler::makeContent($newtext, $t);
+		if ( $wikiPage->doEditContent( $content, wfMessage('qc_editsummary_video')->text() )->isOK() ) {
 			return true;
 		}
 
@@ -982,7 +991,7 @@ class QCRuleVideoChange extends QCRuleTextChange {
 			return "Error creating revision";
 		}
 
-		$vidsection = $this->getVideoSection($r->getText());
+		$vidsection = $this->getVideoSection(ContentHandler::getContentText( $r->getContent() ));
 
 		$html = "";
 		$changedby = $this->getChangedBy("Video added by: ");
@@ -1000,8 +1009,8 @@ class QCRuleVideoChange extends QCRuleTextChange {
 		$html .= "<div id='quickeditlink'></div>";
 		$popts = RequestContext::getMain()->getOutput()->parserOptions();
 		$popts->setTidy(true);
-		$magic = WikihowArticleHTML::grabTheMagic($r->getText());
-		$parsed = RequestContext::getMain()->getOutput()->parse($r->getText(), $t, $popts);
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
+		$parsed = RequestContext::getMain()->getOutput()->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1085,8 +1094,8 @@ class QCRuleRollback extends QCRule {
 		$html .= "<div id='quickeditlink'></div>";
 		$popts = $out->parserOptions();
 		$popts->setTidy(true);
-		$magic = WikihowArticleHTML::grabTheMagic($r->getText());
-		$parsed = $out->parse($r->getText(), $t, $popts);
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
+		$parsed = $out->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1246,8 +1255,8 @@ class QCRCPatrol extends QCRule {
 		$html .= "<div id='quickeditlink'></div>";
 		$popts = $out->parserOptions();
 		$popts->setTidy(true);
-		$magic = WikihowArticleHTML::grabTheMagic($r->getText());
-		$parsed = $out->parse($r->getText(), $t, $popts);
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
+		$parsed = $out->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1337,8 +1346,8 @@ class QCRuleTemplateChange extends QCRuleTextChange {
 		$html .= "<div id='qc_box'>".$changedby.$html."</div>";
 		$popts = RequestContext::getMain()->getOutput()->parserOptions();
 		$popts->setTidy(true);
-		$magic = WikihowArticleHTML::grabTheMagic($r->getText());
-		$parsed = RequestContext::getMain()->getOutput()->parse($r->getText(), $t, $popts);
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
+		$parsed = RequestContext::getMain()->getOutput()->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1365,15 +1374,16 @@ class QCRuleTemplateChange extends QCRuleTextChange {
 			return false;
 		}
 
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		if (preg_match("@\{\{" . $this->mTemplate . "@", $text)) {
 			return true;
 		}
 
 		// add the template  since it doesn't already have it
-		$a = new Article($t);
 		$text = "{{{$this->mTemplate}}}" . $text;
-		return $a->doEdit( $text, wfMessage('qc_editsummary_template_add', $this->mTemplate)->text() );
+		$wikiPage = WikiPage::factory($t);
+		$content = ContentHandler::makeContent($text, $t);
+		return $wikiPage->doEditContent( $content, wfMessage('qc_editsummary_template_add', $this->mTemplate)->text() );
 	}
 
 	public function rollbackChange($qcid) {
@@ -1392,11 +1402,12 @@ class QCRuleTemplateChange extends QCRuleTextChange {
 			return false;
 		}
 
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$text = preg_replace("@\{\{" . $this->mTemplate . "[^\}]*\}\}@U", "", $text);
 
-		$a = new Article($t);
-		return $a->doEdit( $text, wfMessage('qc_editsummary_template', $this->mTemplate)->text() );
+		$wikiPage = WikiPage::factory($t);
+		$content = ContentHandler::makeContent($text, $t);
+		return $wikiPage->doEditContent( $content, wfMessage('qc_editsummary_template', $this->mTemplate)->text() );
 	}
 }
 
@@ -1532,8 +1543,8 @@ class QCRuleTip extends QCRule {
 			$html = "<div id='quickeditlink'></div>";
 			$popts = $out->parserOptions();
 			$popts->setTidy(true);
-			$magic = WikihowArticleHTML::grabTheMagic($r->getText());
-			$parsed = $out->parse($r->getText(), $t, $popts);
+			$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
+			$parsed = $out->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
 			$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 			$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 			$html .= "<div id='numqcusers'>{$this->mUsers}</div>";

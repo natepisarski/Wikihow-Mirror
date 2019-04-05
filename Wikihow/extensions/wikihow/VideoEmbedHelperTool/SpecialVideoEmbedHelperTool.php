@@ -46,9 +46,10 @@ class VideoEmbedHelperTool extends UnlistedSpecialPage {
 			return false;
 		}
 		$editSummary = $this->msg('evht_addingvideo_summary');
-		$a = new Article($videoTitle);
-		$a->doEdit($videoWikiText, $editSummary);
-		ImportVideo::markVideoAsPatrolled($a->getId());
+		$wikiPage = WikiPage::factory($videoTitle);
+		$content = ContentHandler::makeContent($videoWikiText, $videoTitle);
+		$wikiPage->doEditContent($content, $editSummary);
+		ImportVideo::markVideoAsPatrolled($wikiPage->getId());
 		return true;
 	}
 
@@ -58,7 +59,7 @@ class VideoEmbedHelperTool extends UnlistedSpecialPage {
 		if (!$r) {
 			return false;
 		}
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 
 		$tag = "{{" . $videoTitle->getFullText() . "|}}";
 		$newsection .= "\n\n== " . wfMessage('video') . " ==\n{$tag}\n\n";

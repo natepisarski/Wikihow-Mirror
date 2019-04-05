@@ -378,15 +378,15 @@ class WikihowArticleEditor {
 	 * Iterates over the article's sections and makes sure it contains
 	 * all the normal sections.
 	 *
-	 * DEPRECATED -- used only in includes/Wiki.php to determine if we
-	 * can load the article in the guided editor.
+	 * DEPRECATED -- used only in extensions/wikihow/guidededitor/GuidedEditor.class.php
+	 * to determine if we can load the article in the guided editor.
 	 */
-	static function useWrapperForEdit($article) {
-		global $wgWikiHowSections;
+	public static function useWrapperForEdit($article) {
+		global $wgWikiHowSections, $wgParser;
 
 		$index = 0;
 		$foundSteps = 0;
-		$text = $article->getContent(true);
+		$text = ContentHandler::getContentText( $article->getPage()->getContent() );
 
 		$mw = MagicWord::get( 'forceadv' );
 		if ($mw->match( $text ) ) {
@@ -402,7 +402,7 @@ class WikihowArticleEditor {
 		}
 
 		while ($index < $count) {
-			$section = $article->getSection($text, $index);
+			$section = $wgParser->getSection($text, $index);
 			$title = self::getSectionTitle($section);
 
 			if ($title == wfMessage('steps')->text()) {

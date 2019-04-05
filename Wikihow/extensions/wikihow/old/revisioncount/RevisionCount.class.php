@@ -1,8 +1,5 @@
 <?php
 
-/*
- *
- */
 class RevisionCount {
 
 	public static function getArticleRevisionCountCacheKey($articleID) {
@@ -29,12 +26,12 @@ class RevisionCount {
 		$wgMemc->incr($cachekey,1);
 	}
 
-	public static function onArticleSaveComplete(&$article, &$user, $text, $summary,
+	public static function onPageContentSaveComplete(&$wikiPage, &$user, $content, $summary,
 		$minoredit, $watchthis, $sectionanchor, &$flags, $revision)
 	{
 		global $wgMemc;
 
-		$cachekey = self::getArticleRevisionCountCacheKey($article->getId());
+		$cachekey = self::getArticleRevisionCountCacheKey($wikiPage->getId());
 		$wgMemc->incr($cachekey,1);
 		return true;
 	}

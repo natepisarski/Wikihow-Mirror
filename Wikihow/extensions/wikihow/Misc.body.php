@@ -29,16 +29,17 @@ class Misc {
 
 		if ($talkPage->getArticleId() > 0) {
 			$r = Revision::newFromTitle($talkPage);
-			$existing_talk = $r->getText() . "\n\n";
+			$existing_talk = ContentHandler::getContentText( $r->getContent() ) . "\n\n";
 		}
 		$text = $existing_talk . $formattedComment ."\n\n";
 
 		$flags = EDIT_FORCE_BOT | EDIT_SUPPRESS_RC;
 
-		$article = new Article($talkPage);
-		$result = $article->doEdit($text, "", $flags);
+		$wikiPage = WikiPage::factory($talkPage);
+		$content = ContentHandler::makeContent($text, $talkPage);
+		$result = $wikiPage->doEditContent($content, "", $flags);
 
-		return $result;
+		return $result->isOK();
 	}
 
 	public static function getDTDifferenceString($date, $isUnixTimestamp = false) {

@@ -113,7 +113,7 @@ class RequestTopic extends SpecialPage {
 			return '';
 		}
 
-		$categs = explode("\n", $revision->getText());
+		$categs = explode("\n", ContentHandler::getContentText( $revision->getContent() ));
 		$opts = '';
 		foreach ($categs as $line) {
 			$line = trim($line);

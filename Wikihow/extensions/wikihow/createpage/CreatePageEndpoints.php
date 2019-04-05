@@ -110,6 +110,7 @@ class CreatepageEmailFriend extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
+		global $wgParser;
 		$out = $this->getOutput();
 		$req = $this->getRequest();
 		$user = $this->getUser();
@@ -128,7 +129,7 @@ class CreatepageEmailFriend extends UnlistedSpecialPage {
 		if (!$rev) {
 			return;
 		}
-		$summary = Article::getSection($rev->getText(), 0);
+		$summary = $wgParser->getSection(ContentHandler::getContentText( $rev->getContent() ), 0);
 		$summary = preg_replace('@<[^>]*>@', '', $summary);
 		$summary = preg_replace('@\[\[[^\]]*\]\]@', '', $summary);
 		$summary = preg_replace('@\{\{[^}]*\}\}@', '', $summary);

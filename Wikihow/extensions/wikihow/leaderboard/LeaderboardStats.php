@@ -216,7 +216,7 @@ class LeaderboardStats {
 				if ($r) {
 					$t = $r->getTitle();
 					if ($r->getPrevious()) {
-						$data["User_talk:".$t->getPartialUrl()."#".$r->getId()] = str_replace($r->getPrevious()->getText(), '', $r->getText());
+						$data["User_talk:".$t->getPartialUrl()."#".$r->getId()] = str_replace($r->getPrevious()->getText(), '', ContentHandler::getContentText( $r->getContent() ));
 					}
 				}
 			}

@@ -35,8 +35,9 @@ $wgResourceModules['ext.wikihow.quizzes'] = [
 // mobile-friendly on Oct 1, 2018. See LH #2541.
 //$wgHooks['WebRequestPathInfoRouter'][] = array('wfGetQuizPage');
 //$wgHooks["BeforeParserFetchFileAndTitle2"][] = array("wfGrabQuizCTA");
-//$wgHooks["ArticleSaveComplete"][] = array("wfConnectQuiz");
+//$wgHooks["PageContentSaveComplete"][] = array("wfConnectQuiz");
 
+/* disabled unused code
 function wfGrabQuizCTA(&$parser, &$nt, &$ret, $ns) {
 	global $wgCanonicalNamespaceNames;
 	if (!$nt) return true;
@@ -48,10 +49,12 @@ function wfGrabQuizCTA(&$parser, &$nt, &$ret, $ns) {
 	}
 	return true;
 }
+*/
 
 /*
  * If someone added a [[Quiz:foo]] then add it to the link table
  */
+/* disabled unused hook. NOTE: this code needs to be upgraded to use the PageContentSaveComplete (rather than ArticleSaveComplete)
 function wfConnectQuiz(&$article, &$user, $text, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
 	if (!$article || !$text) return true;
 	if ($article->getID() == 0) return true;
@@ -97,9 +100,12 @@ function wfConnectQuiz(&$article, &$user, $text, $summary, $minoredit, $watchthi
 
 	return true;
 }
+*/
 
 // Display "/Quiz/[sample name]" but load "/Special:Quizzes/[sample name]"
+/* disabled unused hook
 function wfGetQuizPage( $router ) {
 	$router->add( '/Quiz/$1', array( 'title' => 'Special:Quizzes/$1' ) );
 	return true;
 }
+*/

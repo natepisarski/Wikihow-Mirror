@@ -98,7 +98,7 @@ class ImportIntlSummaries extends Maintenance {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return false;
 
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		$namespace = MWNamespace::getCanonicalName(NS_SUMMARY);
 		$title_regex = '('.preg_quote($title->getText()).'|'.preg_quote($title->getDBKey()).')';

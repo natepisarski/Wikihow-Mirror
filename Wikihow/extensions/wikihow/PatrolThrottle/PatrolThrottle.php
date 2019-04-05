@@ -35,7 +35,6 @@ $wgAutoloadClasses['SpecialPatrolThrottle'] = __DIR__ . '/SpecialPatrolThrottle.
 $wgAutoloadClasses['PatrolUser'] = __DIR__ . '/PatrolUser.class.php';
 $wgAutoloadClasses['PatrolThrottleUITemplate'] = __DIR__ . '/PatrolThrottleForm.tmpl.php';
 $wgSpecialPages['PatrolThrottle'] = 'SpecialPatrolThrottle';
-$wgSpecialPageGroups['PatrolThrottle'] = 'users';
 
 $wgLogTypes[] = 'throttle';
 $wgLogActionsHandlers['throttle/added'] = 'LogFormatter';

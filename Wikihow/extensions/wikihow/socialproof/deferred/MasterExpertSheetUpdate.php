@@ -103,7 +103,16 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		$dbw->update( 'master_expert_sheet_update', $updateData, array(), __METHOD__ );
 
 		$importer = new ExpertVerifyImporter();
-		$result = $importer->doImport();
+		try {
+			$result = $importer->doImport();
+		} catch (Exception $e) {
+			$msg = (string) $e;
+			$result = [
+				'errors' => [ "<b>ExpertVerifyImporter threw an exception</b>:<br><pre>$msg</pre>" ],
+				'warnings' => [],
+				'imported' => []
+			];
+		}
 
 		$errors = count($result['errors']);
 		$warnings = count($result['warnings']);

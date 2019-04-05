@@ -178,9 +178,9 @@ class ReverificationQuickFeedback extends UnlistedSpecialPage {
 		$wikitext = $r->getVal('wikitext');
 		$editSummary = $r->getVal('edit_summary');
 
-		$a = new Article($t);
+		$wikiPage = WikiPage::factory($t);
 		$content = ContentHandler::makeContent( $wikitext, $t );
-		$result = $a->doEditContent($content, $editSummary, EDIT_UPDATE);
+		$result = $wikiPage->doEditContent($content, $editSummary, EDIT_UPDATE);
 
 		// Reverify if the edit is good or always in the case where it's a reverify by id and there
 		// isn't a wikitext change
@@ -266,6 +266,7 @@ class ReverificationQuickFeedback extends UnlistedSpecialPage {
 		$data['rid_old'] = 0;
 		$data['rid_new'] = 0;
 		$data['html'] = '';
+		$data['verifier_id'] = 0;
 		$data['verifier_name'] = '';
 		$data['error_msg'] = $errorMsg;
 		$data['status_msg'] = $statusMsg;

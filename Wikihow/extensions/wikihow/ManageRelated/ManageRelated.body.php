@@ -39,12 +39,13 @@ class ManageRelated extends UnlistedSpecialPage {
 		$whow = WikihowArticleEditor::newFromTitle($titleObj);
 		$rev = Revision::newFromTitle($titleObj);
 		$article = Article::newFromTitle($titleObj, $this->getContext());
-		$text = $rev->getText();
+		$text = ContentHandler::getContentText( $rev->getContent() );
+		$origText = ContentHandler::getContentText( $article->getPage()->getContent() );
 
 		if ($req->wasPosted()) {
 			// protect from users who can't edit
 			if ( ! $titleObj->userCan('edit') ) {
-				$out->readOnlyPage( $article->getContent(), true );
+				$out->readOnlyPage($origText, true);
 				return;
 			}
 
@@ -66,18 +67,18 @@ class ManageRelated extends UnlistedSpecialPage {
 
 			$text = "";
 			$index = 0;
-			$content = $article->getContent();
+			$content = $origText;
 			$last_heading = "";
 			$inserted = false;
 
 			$section = -1;
 			$ext_links_section = -1;
 
-			if ($article->getSection($content, $index) == null) {
+			if ($wgParser->getSection($content, $index) == null) {
 				$index++; // weird where there's no summary
 			}
 
-			while ( ($sectiontext = $article->getSection($content, $index)) != null) {
+			while ( ($sectiontext = $wgParser->getSection($content, $index)) != null) {
 				$i = strpos($sectiontext, "\n");
 				if ($i > 0) {
 					$heading = substr($sectiontext, 0, $i);
@@ -95,7 +96,7 @@ class ManageRelated extends UnlistedSpecialPage {
 
 			$text = $result;
 			$tail = '';
-			$text = $article->getContent();
+			$text = $origText;
 
 			// figure out which section to replace if related wikihows
 			// don't exist
@@ -106,14 +107,14 @@ class ManageRelated extends UnlistedSpecialPage {
 					$section = $ext_links_section;
 					// glue external links and related wikihows together
 					// and replace external links
-					$result = $result . "\n" . $article->getSection($content, $section);
+					$result = $result . "\n" . $wgParser->getSection($content, $section);
 				} else {
 					$section = $index;
 					$result = "\n" . $result; // make it a bit prettier
 					$just_append = true;
 				}
 			} else {
-				$s = $article->getSection($content, $section);
+				$s = $wgParser->getSection($content, $section);
 				$lines = explode("\n", $s);
 				for ($i = 1; $i < sizeof($lines); $i++) {
 					$line = $lines[$i];
@@ -156,7 +157,7 @@ class ManageRelated extends UnlistedSpecialPage {
 		}
 
 		$relatedHTML = "";
-		$text = $article->getContent();
+		$text = $origText;
 
 		$relwh = $whow->getSection("related wikihows");
 
@@ -240,6 +241,8 @@ class PreviewPage extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
+		global $wgParser;
+
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 
@@ -253,10 +256,10 @@ class PreviewPage extends UnlistedSpecialPage {
 			return;
 		}
 
-		$article = new Article($title);
-		$text = $article->getContent(true);
-		$snippet = $article->getSection($text, 0) . "\n"
-			. $article->getSection($text, 1);
+		$wikiPage = WikiPage::factory($title);
+		$wikitext = ContentHandler::getContentText( $wikiPage->getContent() );
+		$snippet = $wgParser->getSection($wikitext, 0) . "\n"
+			. $wgParser->getSection($wikitext, 1);
 		$html = $out->parse($snippet);
 
 		$out->addHTML($html);

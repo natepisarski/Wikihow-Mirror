@@ -388,11 +388,11 @@ class PageHooks {
 		return true;
 	}
 
-	public static function fix404AfterInsert($article) {
-		if ($article) {
-			$title = $article->getTitle();
+	public static function fix404AfterInsert($wikiPage) {
+		if ($wikiPage) {
+			$title = $wikiPage->getTitle();
 			if ($title) {
-				self::modify404Redirect($article->getID(), $title);
+				self::modify404Redirect($wikiPage->getID(), $title);
 			}
 		}
 		return true;

@@ -4,7 +4,7 @@ if ( !defined('MEDIAWIKI') ) die();
 
 $wgAutoloadClasses['FeaturedArticles'] = __DIR__ . '/FeaturedArticles.class.php';
 
-$wgHooks['ArticleSaveComplete'][] = array('wfMarkFeaturedSaved');
+$wgHooks['PageContentSaveComplete'][] = array('wfMarkFeaturedSaved');
 
 /*
  * When an article is saved, this hook is called to save whether or not
@@ -13,9 +13,9 @@ $wgHooks['ArticleSaveComplete'][] = array('wfMarkFeaturedSaved');
  *
  * update page set page_is_featured=1 where page_id in (select tl_from from templatelinks where tl_title='Fa');
  */
-function wfMarkFeaturedSaved(&$article, &$user, $text, $summary, $minoredit, $watchthis, $sectionanchor) {
+function wfMarkFeaturedSaved(&$wikiPage, &$user, $content, $summary, $minoredit, $watchthis, $sectionanchor) {
 	global $wgServer, $wgCanonicalServer;
-	$t = $article->getTitle();
+	$t = $wikiPage->getTitle();
 
 	if ($t == null || !$t->inNamespace(NS_PROJECT) || $t->getDBKey() != "RSS-feed")
 		return true;
@@ -32,7 +32,8 @@ function wfMarkFeaturedSaved(&$article, &$user, $text, $summary, $minoredit, $wa
 	// clear everything from before
     //$success = $dbw->update( 'page',  array( /* SET */ 'page_is_featured' => 0) , array('1' => '1'));
 
-	$lines = explode("\n", $text);
+	$wikitext = ContentHandler::getContentText($content);
+	$lines = explode("\n", $wikitext);
 	foreach ($lines as $line) {
 		if (preg_match('@^https?://@', $line)) {
 			$tokens = explode(" ", $line);

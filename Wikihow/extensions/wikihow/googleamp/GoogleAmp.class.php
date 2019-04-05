@@ -532,10 +532,15 @@ class GoogleAmp {
 
 	//given the language code, ad number and page id, determine ad type
 	private static function getAdType( $num, $pageId, $intl ) {
+		// special case for a single article to have DFP on it
+		if ( !$intl && $num > 1 && $pageId == 2053 ) {
+			return 'gpt';
+		}
+
 		// setup by language, then by ad number (0 is default) then by ad type (adsense or gpt)
 		$testSetup = [
 			'en' => [
-				0 => ['adsense' => 10, 'gpt' => 90],
+				0 => ['adsense' => 100],
 				1 => ['adsense' => 100],
 			],
 			'intl' => [
@@ -774,8 +779,8 @@ class GoogleAmp {
 				$license = 'cc-by-sa-nc-3.0-self';
 			} else {
 				//look up license in the longer way
-				$article = new Article($image);
-				$wikitext = $article->getContent();
+				$wikiPage = WikiPage::factory($image);
+				$wikitext = ContentHandler::getContentText( $wikiPage->getContent() );
 				if (preg_match('@{{(cc-by[^}]+)}}@', $wikitext, $m)) {
 					$license = $m[1];
 					// From http://creativecommons.org/licenses/

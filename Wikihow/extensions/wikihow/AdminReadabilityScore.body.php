@@ -85,7 +85,7 @@ class AdminReadabilityScore extends UnlistedSpecialPage {
 		$r = Revision::newFromTitle($t);
 		if (!$r) return 'No such article';
 
-		$res = self::readabilityCheck($t, $r->getText());
+		$res = self::readabilityCheck($t, ContentHandler::getContentText( $r->getContent() ));
 		if ($res) return $res;
 
 		//still here?

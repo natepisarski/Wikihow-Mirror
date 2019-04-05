@@ -218,7 +218,7 @@ class PostComment extends UnlistedSpecialPage {
 		$text = "";
 		$r = Revision::newFromTitle($t);
 		if ($r) {
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $r->getContent() );
 		}
 
 		$text .= $formattedComment;
@@ -304,7 +304,9 @@ class PostComment extends UnlistedSpecialPage {
 			return;
 		}
 
-		$article->doEdit($text, "");
+		$wikiPage = WikiPage::factory($t);
+		$content = ContentHandler::makeContent($text, $t);
+		$wikiPage->doEditContent($content, "");
 
 		if ($this->getRequest()->getVal('jsonresponse') == 'true') {
 			$this->revId = $article->getRevIdFetched();

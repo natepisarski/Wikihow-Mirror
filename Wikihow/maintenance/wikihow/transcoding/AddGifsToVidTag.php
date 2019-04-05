@@ -93,7 +93,7 @@ class AddGifsToVidTag extends Maintenance {
 			//$this->output( "no latest good revision on $page\n" );
 			return 1;
 		}
-		$oText = $rev->getText();
+		$oText = ContentHandler::getContentText( $rev->getContent() );
 		if ( strpos( $oText, 'whvid' ) === false ) {
 			//$this->output("no whvid template in title\n" );
 			return 1;

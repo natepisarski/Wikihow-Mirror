@@ -2,11 +2,11 @@
 
 class ThumbsUp extends UnlistedSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'ThumbsUp' );
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$req = $this->getRequest();
@@ -205,7 +205,7 @@ class ThumbsUp extends UnlistedSpecialPage {
 
 		// if ($user_talk->getArticleId() > 0) {
 			// $r = Revision::newFromTitle($user_talk);
-			// $text = $r->getText();
+			// $text = ContentHandler::getContentText( $r->getContent() );
 		// }
 
 		// $article = new Article($user_talk);

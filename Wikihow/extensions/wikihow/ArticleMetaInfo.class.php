@@ -418,7 +418,7 @@ class ArticleMetaInfo {
 			return '';
 		}
 
-		$this->wikitext = $rev->getText();
+		$this->wikitext = ContentHandler::getContentText( $rev->getContent() );
 		return $this->wikitext;
 	}
 

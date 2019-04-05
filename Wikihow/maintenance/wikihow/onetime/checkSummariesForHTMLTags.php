@@ -49,7 +49,7 @@ class checkSummariesForHTMLTags extends Maintenance {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return false;
 
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		if ($this->summaryTemplateExistsInArticle($title, $wikitext)) return false;
 

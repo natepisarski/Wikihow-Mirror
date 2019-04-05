@@ -130,7 +130,7 @@ class RemoveUnlicensedImages extends Maintenance {
 	// updates the template on an image that was checked and not a copyright violation
 	public function markCheckedImage($fromTitle, $scriptUser) {
 		$revision = Revision::newFromTitle($fromTitle);
-		$text = $revision->getText();
+		$text = ContentHandler::getContentText( $revision->getContent() );
 
 		$text = preg_replace(
 				'@\{\{No License\}\}@im',

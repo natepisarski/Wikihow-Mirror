@@ -14,7 +14,7 @@ class FeaturedArticles {
 		if (!$t) return $default;
 		$r = Revision::newFromTitle($t);
 		if (!$r) return $default;
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		if (!$text) return $default;
 		$x = strpos($text, $header);
 		if ($x === false) return $default;
@@ -125,7 +125,7 @@ class FeaturedArticles {
 			$rev = Revision::newFromTitle($title);
 			if (!$rev) return array();
 
-			$texts[$titleHash] = $rev->getText();
+			$texts[$titleHash] = ContentHandler::getContentText( $rev->getContent() );
 		}
 		$text = $texts[$titleHash];
 

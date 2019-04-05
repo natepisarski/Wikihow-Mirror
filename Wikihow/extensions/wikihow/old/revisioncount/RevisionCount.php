@@ -8,6 +8,5 @@ $wgExtensionCredits['specialpage'][] = array(
 	'description' => 'An extension that calculates article editing information',
 );
 
-$wgHooks['ArticleSaveComplete'][] = 'RevisionCount::onArticleSaveComplete';
+$wgHooks['PageContentSaveComplete'][] = 'RevisionCount::onPageContentSaveComplete';
 $wgAutoloadClasses['RevisionCount'] = __DIR__ . '/RevisionCount.class.php';
-

@@ -15,7 +15,7 @@ class CategoryHelper extends UnlistedSpecialPage {
 			$t = Title::makeTitle(NS_PROJECT, wfMessage('categories')->text());
 			$r = Revision::newFromTitle($t);
 			if (!$r) return array();
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $r->getContent() );
 
 			$lines = explode("\n", $text);
 			$bucket = array();
@@ -42,17 +42,17 @@ class CategoryHelper extends UnlistedSpecialPage {
 	public static function decategorize($pageId, $categorySlug, $summary, $flags=null, $user=null) {
 		global $wgContLang;
 
-		$article = Article::newFromId($pageId);
+		$wikiPage = WikiPage::newFromID($pageId);
 
 		$cat = "[[" . $wgContLang->getNSText(NS_CATEGORY) . ":$categorySlug]]";
 		$spaceCat = str_replace('-', ' ', $cat);
 
-		if ($article && $article->exists()) {
-			$text = $article->getContent();
+		if ($wikiPage && $wikiPage->exists()) {
+			$text = ContentHandler::getContentText( $wikiPage->getContent() );
 
 			$text = str_replace(array($cat, $spaceCat), '', $text);
-			$content = ContentHandler::makeContent($text, $article->getTitle());
-			$article->doEditContent($content, $summary, $flags, false, $user);
+			$content = ContentHandler::makeContent($text, $wikiPage->getTitle());
+			$wikiPage->doEditContent($content, $summary, $flags, false, $user);
 		}
 	}
 
@@ -140,7 +140,7 @@ class CategoryHelper extends UnlistedSpecialPage {
 			return [];
 		}
 
-		$text = $rev->getText();
+		$text = ContentHandler::getContentText( $rev->getContent() );
 		$text = preg_replace('/^\n/m', '', $text);
 
 		$lines = explode("\n", $text);
@@ -712,8 +712,8 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 
 			if ($title->getArticleID() > 0) {
 				// we want the most recent version, don't want to overwrite changes
-				$a = new Article($title);
-				$text = $a->getContent();
+				$wikiPage = WikiPage::factory($title);
+				$text = ContentHandler::getContentText( $wikiPage->getContent() );
 
 				$pattern = '/== .*? ==/';
 				if (preg_match($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
@@ -728,7 +728,8 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
 					$bot = true;
 
 					// update the article here
-					if ( $a->doEdit( $textnew, $summary, $minoredit, $watchthis ) ) {
+					$contentnew = ContentHandler::makeContent($textnew, $title);
+					if ( $wikiPage->doEditContent( $contentnew, $summary, $minoredit, $watchthis ) ) {
 						Hooks::run("CategoryHelperSuccess", array());
 						print "Category Successfully Saved.\n";
 						return true;

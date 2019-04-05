@@ -41,6 +41,7 @@ class ProxyConnect extends UnlistedSpecialPage {
 
 			$db = DatabaseBase::factory('mysql');
 			$db->open($wgVanillaDB['host'], $wgVanillaDB['user'], $wgVanillaDB['password'], $wgVanillaDB['dbname']);
+			// TODO: remove this call after MW Upgrade 2019
 			$oldignore = $db->ignoreErrors(true);
 
 			// get vanilla user id
@@ -80,6 +81,7 @@ class ProxyConnect extends UnlistedSpecialPage {
 				$db->update('GDN_UserRole', array('RoleID = 8'), $conds, __METHOD__);
 				print $db->lastQuery();
 			}
+			// TODO: remove this call after MW Upgrade 2019
 			$db->ignoreErrors($oldignore);
 		} catch (Exception $e) {
 			print "oops {$e->getMessage()}\n";

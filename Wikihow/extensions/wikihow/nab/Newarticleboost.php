@@ -61,7 +61,7 @@ $wgAutoloadClasses['AdminNAD'] = __DIR__ . '/AdminNAD.body.php';
 $wgExtensionMessagesFiles['NewArticleBoostAlias'] = __DIR__ . '/Newarticleboost.alias.php';
 
 $wgHooks['ArticleDelete'][] = array("wfNewArticlePatrolClearOnDelete");
-$wgHooks['ArticleSaveComplete'][] = array("wfNewArticlePatrolAddOnCreation");
+$wgHooks['PageContentSaveComplete'][] = array("wfNewArticlePatrolAddOnCreation");
 
 $wgAvailableRights[] = 'newarticlepatrol';
 $wgGroupPermissions['newarticlepatrol']['newarticlepatrol'] = true;
@@ -80,9 +80,9 @@ function wfNewArticlePatrolClearOnDelete($article, $user, $reason) {
 	return true;
 }
 
-function wfNewArticlePatrolAddOnCreation($article, $napUser, $text, $summary, $p5, $p6, $p7) {
+function wfNewArticlePatrolAddOnCreation($wikiPage, $napUser, $content, $summary, $p5, $p6, $p7) {
 	$db = wfGetDB(DB_MASTER);
-	$t = $article->getTitle();
+	$t = $wikiPage->getTitle();
 	if (!$t || !$t->inNamespace(NS_MAIN))  {
 		return true;
 	}
@@ -96,7 +96,7 @@ function wfNewArticlePatrolAddOnCreation($article, $napUser, $text, $summary, $p
 		array('count(*) as count',
 			'min(rev_id) as min_rev',
 			'min(rev_timestamp) as min_ts'),
-		array('rev_page' => $article->getId()),
+		array('rev_page' => $wikiPage->getId()),
 		__METHOD__);
 	$num_revisions = $row->count;
 	$min_rev = $row->min_rev;
@@ -111,7 +111,7 @@ function wfNewArticlePatrolAddOnCreation($article, $napUser, $text, $summary, $p
 
 	$nab_count = $db->selectField(NewArticleBoost::NAB_TABLE,
 		'count(*)',
-		array('nap_page' => $article->getId()),
+		array('nap_page' => $wikiPage->getId()),
 		__METHOD__);
 
 	$langCode = RequestContext::getMain()->getLanguage()->getCode();
@@ -137,7 +137,7 @@ function wfNewArticlePatrolAddOnCreation($article, $napUser, $text, $summary, $p
 	}
 
 	$oldRevID = 0;
-	$rev = $article->getRevision();
+	$rev = $wikiPage->getRevision();
 	if ($rev) {
 		$oldRevID = $rev->getId();
 	}
@@ -193,13 +193,13 @@ function wfNewArticlePatrolAddOnCreation($article, $napUser, $text, $summary, $p
 
 		$db->insert(NewArticleBoost::NAB_TABLE,
 			array(
-				'nap_page' => $article->getId(),
+				'nap_page' => $wikiPage->getId(),
 				'nap_timestamp' => $min_ts,
 				'nap_newbie' => $nab_newbie),
 			__METHOD__);
 
 		if ($langCode == 'en') {
-			$db->insert('nab_atlas', array('na_page_id' => $article->getId()), __METHOD__, array('IGNORE'));
+			$db->insert('nab_atlas', array('na_page_id' => $wikiPage->getId()), __METHOD__, array('IGNORE'));
 		}
 	}
 

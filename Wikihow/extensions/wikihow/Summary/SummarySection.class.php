@@ -43,7 +43,7 @@ class SummarySection {
 		if ($summary && $summary->exists()) {
 			$rev = Revision::newFromTitle($summary);
 			if ($rev) {
-				$wikitext = $rev->getText();
+				$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 				$param = "((?:.|\n)*)";
 				$regex = '{{'.self::QUICKSUMMARY_TEMPLATE_PREFIX.$param.'\|'.$param.'\|'.$param.'}}$';
@@ -68,11 +68,12 @@ class SummarySection {
 
 	//this uses the phpQuery object already started in WikihowArticleHTML::processArticleHTML()
 	public static function onProcessArticleHTMLAfter($out) {
+		global $wgIsDevServer;
 		$context = RequestContext::getMain();
 
 		//remove the section for INTL
 		//so we can grab it in the API, but not display it on the article
-		if ($context->getLanguage()->getCode() != 'en') {
+		if ($context->getLanguage()->getCode() != 'en' && !$wgIsDevServer) {
 			pq('.section.quicksummary')->remove();
 			return;
 		}
@@ -137,7 +138,7 @@ class SummarySection {
 
 			$newRev = Revision::newFromTitle($newTitle);
 			if ($newRev) {
-				$wikitext = $newRev->getText();
+				$wikitext = ContentHandler::getContentText( $newRev->getContent() );
 
 				$ns = MWNamespace::getCanonicalName(NS_SUMMARY);
 				$title_regex = '('.preg_quote($oldTitle->getText()).'|'.preg_quote($oldTitle->getDBKey()).')';

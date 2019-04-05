@@ -63,7 +63,7 @@ $wgHooks['OutputPageBeforeHTML'][] = array('PageHooks::enforceCountryPageViewBan
 $wgHooks['OutputPageBeforeHTML'][] = array('PageHooks::setPage404IfNotExists');
 $wgHooks['TitleMoveComplete'][] = array('PageHooks::fix404AfterMove');
 $wgHooks['ArticleDelete'][] = array('PageHooks::fix404AfterDelete');
-$wgHooks['ArticleInsertComplete'][] = array('PageHooks::fix404AfterInsert');
+$wgHooks['PageContentInsertComplete'][] = array('PageHooks::fix404AfterInsert');
 $wgHooks['ArticleUndelete'][] = array('PageHooks::fix404AfterUndelete');
 $wgHooks['ArticlePurge'][] = array('PageHooks::beforeArticlePurge');
 $wgHooks['TitleMoveComplete'][] = array('PageHooks::onTitleMoveCompletePurgeThumbnails');
@@ -81,8 +81,8 @@ $wgHooks['MaybeAutoPatrol'][] = array('PageHooks::onMaybeAutoPatrol');
 //
 // ArticleHooks - used in processing article content or metadata
 //
-$wgHooks['ArticleSaveComplete'][] = array('ArticleHooks::onArticleSaveUndoEditMarkPatrolled');
-$wgHooks['ArticleSaveComplete'][] = array('ArticleHooks::updatePageFeaturedFurtherEditing');
+$wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::onPageContentSaveUndoEditMarkPatrolled');
+$wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::updatePageFeaturedFurtherEditing');
 $wgHooks['EditPageBeforeEditToolbar'][] = array('ArticleHooks::editPageBeforeEditToolbar');
 $wgHooks['DoEditSectionLink'][] = array('ArticleHooks::onDoEditSectionLink');
 $wgHooks['MakeGlobalVariablesScript'][] = array('ArticleHooks::addGlobalVariables');

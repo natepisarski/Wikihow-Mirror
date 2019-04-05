@@ -254,7 +254,7 @@ class Alfredo extends UnlistedSpecialPage {
 			if (is_numeric($articleId)) {
 				$r = Revision::loadFromPageId($dbr, $articleId);
 				if ($r) {
-					$txt = $r->getText();
+					$txt = ContentHandler::getContentText( $r->getContent() );
 					$intro = Wikitext::getIntro($txt);
 					$text = Wikitext::getStepsSection($txt, true);
 					$lines = preg_split("@\n@",$text[0]);

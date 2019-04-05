@@ -104,7 +104,7 @@ class SummaryEditTool extends UnlistedSpecialPage {
 			$title = Title::newFromText($this->page_title);
 			$rev = Revision::newFromTitle($title);
 			if (!$rev) return [];
-			$summary_data = self::oldSummaryData($rev->getText());
+			$summary_data = self::oldSummaryData(ContentHandler::getContentText( $rev->getContent() ));
 		}
 
 		return $summary_data;
@@ -224,7 +224,7 @@ class SummaryEditTool extends UnlistedSpecialPage {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return false;
 
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		$namespace = MWNamespace::getCanonicalName(NS_SUMMARY);
 		$title_regex = '('.preg_quote($title->getText()).'|'.preg_quote($title->getDBKey()).')';

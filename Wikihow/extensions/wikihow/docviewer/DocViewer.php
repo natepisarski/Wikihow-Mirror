@@ -21,7 +21,7 @@ $wgAutoloadClasses['GetSamples'] = __DIR__ . '/GetSamples.body.php';
 
 $wgHooks['WebRequestPathInfoRouter'][] = array('wfGetSamplePage');
 $wgHooks["BeforeParserFetchFileAndTitle2"][] = array("wfGrabDocThumb");
-$wgHooks["ArticleSaveComplete"][] = array("wfConnectDoc");
+$wgHooks["PageContentSaveComplete"][] = array("wfConnectDoc");
 $wgHooks["IsEligibleForMobileSpecial"][] = array("wfDocIsEligibleForMobile");
 
 $wgResourceModules['ext.wikihow.samples'] = array(
@@ -57,47 +57,48 @@ function wfGrabDocThumb(&$parser, &$nt, &$ret, $ns) {
 /*
  * If someone added a [[Doc:foo]] then add it to the link table
  */
-function wfConnectDoc(&$article, &$user, $text, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
-	if (!$article || !$text) return true;
-	if ($article->getID() == 0) return true;
+function wfConnectDoc(&$wikiPage, &$user, $content, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
+	if (!$wikiPage || !$content) return true;
+	if ($wikiPage->getID() == 0) return true;
 
-	//first check to see if there's a [[Doc:foo]] in the article
-	$count = preg_match_all('@\[\[Doc:([^\]]*)\]\]@i', $text, $matches, PREG_SET_ORDER);
+	// first check to see if there's a [[Doc:foo]] in the article
+	$wikitext = ContentHandler::getContentText($content);
+	$count = preg_match_all('@\[\[Doc:([^\]]*)\]\]@i', $wikitext, $matches, PREG_SET_ORDER);
 
 	if ($count) {
 		$doc_array = array();
 
-		//cycle through and clean up the samples, check for multiples, etc.
+		// cycle through and clean up the samples, check for multiples, etc.
 		foreach ($matches as $match) {
 			$doc = preg_replace('@ @','-',$match[1]);
 
-			//check for multiple
+			// check for multiple
 			$sample_array = explode(',',$doc);
 			foreach ($sample_array as $doc) {
 				$doc_array[] = $doc;
 			}
 		}
 
-		//update that link table
+		// update that link table
 		foreach ($doc_array as $doc) {
-			DocViewer::updateLinkTable($article,$doc);
+			DocViewer::updateLinkTable($wikiPage,$doc);
 		}
 
-		//make sure we didn't lose any
+		// make sure we didn't lose any
 		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select('dv_links', 'dvl_doc', array('dvl_page' => $article->getID()), __METHOD__);
+		$res = $dbr->select('dv_links', 'dvl_doc', array('dvl_page' => $wikiPage->getID()), __METHOD__);
 
 		foreach ($res as $row) {
 			if (!in_array($row->dvl_doc, $doc_array)) {
-				//no longer on the page; remove it
-				DocViewer::updateLinkTable($article, $row->dvl_doc, false);
+				// no longer on the page; remove it
+				DocViewer::updateLinkTable($wikiPage, $row->dvl_doc, false);
 			}
 		}
 	}
 	else {
-		//nothing in the article?
-		//remove anything in the link table if there are mentions
-		DocViewer::updateLinkTable($article,'',false);
+		// nothing in the article?
+		// remove anything in the link table if there are mentions
+		DocViewer::updateLinkTable($wikiPage,'',false);
 	}
 
 	return true;

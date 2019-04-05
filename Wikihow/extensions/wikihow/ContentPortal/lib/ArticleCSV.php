@@ -22,6 +22,7 @@ class ArticleCSV extends ExportCSV {
 		"editor_name",
 		"reviewer_name",
 		"review_return_count",
+		"verifier_id",
 		"verifier_name",
 
 		"editor_established",

@@ -43,7 +43,7 @@ abstract class AbsTranscoder implements Transcodable {
 		$dbr = WikiVisualTranscoder::getDB('read');
 		$rev = Revision::loadFromPageId($dbr, $id);
 		if ($rev) {
-			$text = $rev->getText();
+			$text = ContentHandler::getContentText( $rev->getContent() );
 			$title = $rev->getTitle();
 			$url = WikiVisualTranscoder::makeWikihowURL($title);
 			return array($text, $url, $title);
@@ -62,7 +62,7 @@ abstract class AbsTranscoder implements Transcodable {
 			return null;
 		}
 
-		return $rev->getText();
+		return ContentHandler::getContentText( $rev->getContent() );
 	}
 	
 	public function cutStepsSection( $articleText ) {
@@ -129,10 +129,11 @@ abstract class AbsTranscoder implements Transcodable {
 		$saved = false;
 		$title = Title::newFromID($id);
 		if ($title) {
-			$article = new Article($title);
-			$saved = $article->doEdit($wikitext, 'Saving new step-by-step photos');
+			$wikiPage = WikiPage::factory($title);
+			$content = ContentHandler::makeContent($wikitext, $title);
+			$saved = $wikiPage->doEditContent($content, 'Saving new step-by-step photos');
 		}
-		if (!$saved) {
+		if (!$saved->isOK()) {
 			return 'Unable to save wikitext for article ID: ' . $id;
 		} else {
 			return '';
@@ -155,6 +156,7 @@ abstract class AbsTranscoder implements Transcodable {
 	}
 
 	public function processHybridMedia( $pageId, $creator, $videoList, $photoList, $leaveOldMedia = false, $titleChange = false ) {
+		global $wgIsDevServer;
 		$err = '';
 		$warning = '';
 		$replaced = 0;
@@ -319,7 +321,8 @@ abstract class AbsTranscoder implements Transcodable {
 			$text = $this->removeTemplates($text, $templates);
 		}
 
-		if ( !$err && $videoList && count( $videoList ) ) {
+		// not working on dev right now
+		if ( !$wgIsDevServer && !$err && $videoList && count( $videoList ) ) {
 			self::d("will convert mp4 to gifs");
 			// add the gifs now.. the videos have been downloaded already
 			$gifsError = $this->createGifsFromVideos( $pageId );
@@ -607,7 +610,17 @@ abstract class AbsTranscoder implements Transcodable {
 
 		$summarySectionText = Wikitext::getSummarizedSection( $text );
 		if ( !$summarySectionText ) {
-			return $result;
+			$heading  =  Wikitext::getFirstSummarizedSectionHeading();
+			if ( !$heading ) {
+				self::i("article has no summary section and no summarized headings found for this lang. will not add summary section");
+				return $result;
+			}
+			$heading = "== " . $heading . " ==";
+			// add the heading to be used later for finde/replacing the video
+			$summarySectionText = $heading;
+
+			// add the summary section to the text
+			$text .= PHP_EOL . PHP_EOL . $heading;
 		}
 		$lines = explode( PHP_EOL, $summarySectionText );
 		$sectionHeader = $lines[0];
@@ -620,6 +633,7 @@ abstract class AbsTranscoder implements Transcodable {
 			}
 		}
 		if ( strpos( $text, $summarySectionText ) === false ) {
+			self:i("summary section not found!");
 			return $result;
 		}
 

@@ -84,7 +84,7 @@ class ArticleData extends UnlistedSpecialPage {
 			$altsData = "";
 			if ($this->slowQuery) {
 				$r = Revision::loadFromPageId($dbr, $row->page_id);
-				$wikitext = $r->getText();
+				$wikitext = ContentHandler::getContentText( $r->getContent() );
 				//$imgs = $this->hasImages($wikitext);
 				$altsData = $this->hasAlternateMethods($wikitext) ? "Yes" : "No";
 				$sizeData = $this->getArticleSize($r);

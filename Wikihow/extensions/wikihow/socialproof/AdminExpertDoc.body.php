@@ -9,7 +9,7 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 
     public function execute( $subPage ) {
 		global $wgDebugToolbar, $IP;
-		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyImporter.php");
+		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyTools.php");
 
 		$request = $this->getRequest();
 		$out = $this->getOutput();
@@ -34,20 +34,20 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 
 		$out->setArticleBodyOnly(true);
 
-		$importer = new ExpertVerifyImporter();
+		$tools = new ExpertVerifyTools();
 		$context = $this->getContext();
 
 		if ( $request->getVal( 'action' ) == "ed_permission" ) {
-			$result['data'] = $importer->updatePermissions( $context );
+			$result['data'] = $tools->updatePermissions( $context );
 		}
 		if ( $request->getVal( 'action' ) == "ed_create" ) {
-			$result['data'] = $importer->createExpertDocs( $context );
+			$result['data'] = $tools->createExpertDocs( $context );
 		}
 		if ( $request->getVal( 'action' ) == "ed_list" ) {
-			$result['data'] = $importer->listExpertDocs( $context );
+			$result['data'] = $tools->listExpertDocs( $context );
 		}
 		if ( $request->getVal( 'action' ) == "ed_parents" ) {
-			$result['data'] = $importer->listExpertDocParents( $context );
+			$result['data'] = $tools->listExpertDocParents( $context );
 		}
 		if ( $request->getVal( 'action' ) == "ed_move" ) {
 			ini_set('memory_limit', '512M');
@@ -58,10 +58,10 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 				ignore_user_abort(true);
 			}
 
-			$result['data'] = $importer->moveFiles( $context );
+			$result['data'] = $tools->moveFiles( $context );
 		}
 		if ( $request->getVal( 'action' ) == "ed_delete" ) {
-			$result['data'] = $importer->deleteExpertDocs( $context );
+			$result['data'] = $tools->deleteExpertDocs( $context );
 		}
 
 		if ($wgDebugToolbar) {

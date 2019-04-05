@@ -240,7 +240,7 @@ EOHTML;
 				// Truncate for whole multibyte characters.
 				$summary = $wgContLang->truncateForDatabase( $summary, 255 );
 
-				$a = new Article($t);
+				$wikiPage = WikiPage::factory($t);
 				$newRev = Revision::newFromTitle( $t );
 				$old = Linker::revUserTools( Revision::newFromId( $oldid ) );
 				$new = Linker::revUserTools( $newRev );
@@ -248,7 +248,7 @@ EOHTML;
             	$revlink = Linker::link( $t, $revision, array(), array('oldid' => $oldid, 'diff' => 'prev') );
 				$response = WfMessage( 'rcp-rollback-success' )->rawParams( $new, $old, $revlink );
 
-				$aTitle = $a->getTitle()->getPrefixedText();
+				$aTitle = $wikiPage->getTitle()->getPrefixedText();
 				$rTitle = $r->getTitle()->getPrefixedText();
 
 				if ( $aTitle != $rTitle ) {
@@ -256,7 +256,7 @@ EOHTML;
 						return;
 				}
 
-				$status = $a->doEditContent($r->getContent(), $summary);
+				$status = $wikiPage->doEditContent($r->getContent(), $summary);
 
 				if ( !$status->isOK() ) {
 					$response = $status->getErrorsArray();

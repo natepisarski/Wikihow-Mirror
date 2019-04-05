@@ -129,12 +129,14 @@ class ImageTransfer {
 			print($sql . "\n");
 		}
 	}
+
 	/**
 	 * Report a warning
 	 */
 	public function reportWarning($warning) {
 		$this->warnings[] = $warning;
 	}
+
 	/**
 	 * Create the class from a database row
 	 */
@@ -168,10 +170,10 @@ class ImageTransfer {
 		return($its);
 	}
 
- /**
-	* Transfer the images adding them to the article in $this->toLang with $this->toAID
-	* @param dryRun Is this a dry run? If so, we won't actually save the outputed article
-	*/
+	/**
+	 * Transfer the images adding them to the article in $this->toLang with $this->toAID
+	 * @param dryRun Is this a dry run? If so, we won't actually save the outputed article
+	 */
 	public function addImages($dryRun = true) {
 		global $wgLanguageCode;
 
@@ -250,9 +252,8 @@ class ImageTransfer {
 			return false;
 		}
 		$r = Revision::newFromTitle($t);
-		$article = new Article($t);
-		$intialText = $r->getText();
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
+		$initialText = $text;
 		if (preg_match("@" . preg_quote($to['steps'],"@") .  "@", $text)) {
 			$text = preg_replace_callback("@\s*" . preg_quote($to['steps'],  '@') . "\s*@",function($matches) use($newToSteps)
 			{
@@ -270,10 +271,12 @@ class ImageTransfer {
 				return false;
 			}
 			if ($text) {
-				print("Article from http://" . $wgLanguageCode . ".wikihow.com/" . $t->getPartialURL() . " was edited to:\n\n" . $text);
+				print("Article from https://" . $wgLanguageCode . ".wikihow.com/" . $t->getPartialURL() . " was edited to:\n\n" . $text);
 
+				$wikiPage = WikiPage::factory($t);
+				$content = ContentHandler::makeContent($text, $t);
 				if (!$dryRun) {
-					$article->doEdit($text, wfMessage('alfredo-editsummary'));
+					$wikiPage->doEditContent($content, wfMessage('alfredo-editsummary'));
 					print("\n\nMade edit");
 				}
 				$this->reportSuccess($dryRun);

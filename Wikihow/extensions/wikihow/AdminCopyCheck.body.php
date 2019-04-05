@@ -53,7 +53,7 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 		$r = Revision::newFromTitle($t);
 		if (!$r) return 'No such article';
 
-		$text = Wikitext::flatten($r->getText());
+		$text = Wikitext::flatten(ContentHandler::getContentText( $r->getContent() ));
 		$text = Wikitext::stripLinkUrls($text);
 
 		$start = microtime(true);

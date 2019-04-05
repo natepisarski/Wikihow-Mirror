@@ -335,16 +335,16 @@ class Spellchecker extends UnlistedSpecialPage {
 			if ($wgRequest->getVal('error', 0)) {
 				self::onArticleDemoted($t->getArticleID());
 			}
-			$a = WikiPage::factory($t);
-			if ($a && $a->exists()) {
-				$text = ContentHandler::getContentText($a->getContent());
+			$wp = WikiPage::factory($t);
+			if ($wp && $wp->exists()) {
+				$text = ContentHandler::getContentText($wp->getContent());
 				$result = $this->replaceMisspelledWords($text);
 				if ($result['replaced']) {
 					//save the edit
 					$summaryMessage = $user->isAnon() ? 'spch-edit-summary-anon' : 'spch-edit-summary';
 					$summary = wfMessage($summaryMessage)->text();
 					$content = ContentHandler::makeContent( $text, $t );
-					$a->doEditContent($content, $summary, EDIT_UPDATE);
+					$wp->doEditContent($content, $summary, EDIT_UPDATE);
 					Hooks::run("Spellchecked", array($wgUser, $t, '0'));
 				}
 
@@ -362,7 +362,7 @@ class Spellchecker extends UnlistedSpecialPage {
 					$log->addEntry($entryType, $t, $msg, null);
 					$incrementStats = true;
 				}
-				$this->skipTool->unUseItem($a->getID());
+				$this->skipTool->unUseItem($wp->getID());
 			}
 		}
 
@@ -453,8 +453,8 @@ class Spellchecker extends UnlistedSpecialPage {
 		$popts = $out->parserOptions();
 		$popts->setTidy(true);
 		$out->setPageTitle($title->getFullText());
-		$parserOutput = $out->parse($revision->getText(), $title, $popts);
-		$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+		$parserOutput = $out->parse(ContentHandler::getContentText( $revision->getContent() ), $title, $popts);
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 		$html = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));
 		return $html;
 	}

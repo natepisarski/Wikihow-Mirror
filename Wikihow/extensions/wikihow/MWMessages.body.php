@@ -93,7 +93,7 @@ class MWMessages extends UnlistedSpecialPage {
 					if (!$t) continue;
 					$r = Revision::newFromTitle($t);
 					if (!$r) continue;
-					$val = $r->getText();
+					$val = ContentHandler::getContentText( $r->getContent() );
 					if (stripos($val, $search) !== false) {
 						$qe_url = '<a href="/' . htmlspecialchars( $t->getPrefixedURL() ) . '?action=edit" target="_blank">' . $row->page_title .'</a>';
 						$out->addHTML("<tr><td class='mw_lang'>{$lang}</td><td class='mw_key'>{$qe_url}</td><td class='mw_val'>" . htmlspecialchars($val) ."</td></tr>");

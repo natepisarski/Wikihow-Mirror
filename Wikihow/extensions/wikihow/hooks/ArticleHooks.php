@@ -4,7 +4,7 @@ if (!defined('MEDIAWIKI')) die();
 
 class ArticleHooks {
 
-	public static function onArticleSaveUndoEditMarkPatrolled($article, $user, $p2, $p3, $p5, $p6, $p7) {
+	public static function onPageContentSaveUndoEditMarkPatrolled($wikiPage, $user, $content, $p4, $p5, $p6, $p7) {
 		global $wgMemc, $wgRequest;
 
 		$oldid = $wgRequest->getInt('wpUndoEdit');
@@ -18,17 +18,17 @@ class ArticleHooks {
 
 		// In WikiHowSkin.php we cache the info for the author line. we want to
 		// remove this if that article was edited so that old info isn't cached.
-		if ($article && class_exists('SkinWikihowskin')) {
-			$cachekey = ArticleAuthors::getLoadAuthorsCachekey($article->getID());
+		if ($wikiPage && class_exists('SkinWikihowskin')) {
+			$cachekey = ArticleAuthors::getLoadAuthorsCachekey($wikiPage->getID());
 			$wgMemc->delete($cachekey);
 		}
 
 		return true;
 	}
 
-	public static function updatePageFeaturedFurtherEditing($article, $user, $text, $summary, $flags) {
-		if ($article) {
-			$t = $article->getTitle();
+	public static function updatePageFeaturedFurtherEditing($wikiPage, $user, $content, $summary, $flags) {
+		if ($wikiPage) {
+			$t = $wikiPage->getTitle();
 			if (!$t || !$t->inNamespace(NS_MAIN)) {
 				return true;
 			}
@@ -43,14 +43,15 @@ class ArticleHooks {
 		}
 		$re = "@" . implode("|", $regexps) . "@i";
 
+		$wikitext = ContentHandler::getContentText($content);
 		$updates = array();
-		if (preg_match_all($re, $text, $matches)) {
+		if (preg_match_all($re, $wikitext, $matches)) {
 			$updates['page_further_editing'] = 1;
 		}
 		else{
 			$updates['page_further_editing'] = 0; //added this to remove the further_editing tag if its no longer needed
 		}
-		if (preg_match("@\{\{fa\}\}@i", $text)) {
+		if (preg_match("@\{\{fa\}\}@i", $wikitext)) {
 			$updates['page_is_featured'] = 1;
 		}
 		if (sizeof($updates) > 0) {

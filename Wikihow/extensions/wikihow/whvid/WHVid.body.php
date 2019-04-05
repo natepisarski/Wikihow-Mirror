@@ -283,9 +283,7 @@ class WHVid {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
-		// TODO: needs to be refactored to only add this module when wikivideo is present on page
-		$out->addModules(array('ext.wikihow.wikivid'));
-		return true;
+		if (self::hasSummaryVideo($out->getTitle())) $out->addModules(array('ext.wikihow.wikivid'));
 	}
 
 	/**
@@ -476,5 +474,18 @@ class WHVid {
 		return self::$titleHasSummaryVideo;
 	}
 
+	//this uses the phpQuery object
+	public static function onProcessArticleHTMLAfter(OutputPage $out) {
+		$title = $out->getTitle();
+		$user = $out->getUser();
+
+		$remove_video_section = $title && $title->exists() &&
+														$title->inNamespace(NS_MAIN) &&
+														$user && $user->isAnon() &&
+														self::hasSummaryVideo($title) &&
+														pq('.section.video')->length;
+
+		if ($remove_video_section) pq('.section.video')->remove();
+	}
 
 }

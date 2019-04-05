@@ -62,7 +62,7 @@ class TitleFromPageId extends Maintenance {
 					decho("revision not found for $link", $link->getArticleID());
 					decho("revision not found for $link", $gr->latestGood());exit;
 				}
-				$text = $r->getText();
+				$text = ContentHandler::getContentText( $r->getContent() );
 
 				$beforeText = strstr( $text, "== Related ", true );
 

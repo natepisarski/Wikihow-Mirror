@@ -105,6 +105,7 @@ class TitusDB {
 					// it will be fixed in mw 1.25. you are not advised to call this function from outside the
 					// Database.php class but this is done on purpose here
 					// the mediawiki changeid for this is I41508127f74e1bbee4c020546fed85ab53318ab7
+					// TODO: remove this call after MW Upgrade 2019
 					$dbr->ignoreErrors( false );
 				}
 
@@ -352,6 +353,7 @@ class TitusDB {
 						// it will be fixed in mw 1.25. you are not advised to call this function from outside the
 						// Database.php class but this is done on purpose here
 						// the mediawiki changeid for this is I41508127f74e1bbee4c020546fed85ab53318ab7
+						// TODO: remove this call after MW Upgrade 2019
 						$dbr->ignoreErrors( false );
 					}
 					if ( $statResult && is_array( $statResult ) ) {
@@ -1075,7 +1077,7 @@ class TSIntl extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$stats = array("ti_langs" => "");
 		$langs = implode("|", explode("\n", trim(wfMessage('titus_langs'))));
 		if (preg_match_all("@\[\[($langs):@i", $txt, $matches)) {
@@ -1132,7 +1134,7 @@ class TSParentCat extends TitusStat {
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgContLang;
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$parentCat = "";
 		if (preg_match("/\[\[(?:" . $wgContLang->getNSText(NS_CATEGORY) . "|Category):([^\]]*)\]\]/im", $text, $matches)) {
 			$parentCat = $dbr->strencode(trim($matches[1]));
@@ -1205,7 +1207,7 @@ class TSByteSize extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$byteSize = $r->getSize();
 		if (is_null($byteSize)) {
-			$byteSize = strlen($r->getText());
+			$byteSize = strlen(ContentHandler::getContentText( $r->getContent() ));
 		}
 		return array("ti_bytes" => $byteSize);
 	}
@@ -1446,7 +1448,7 @@ class TSAltMethods extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		// first remove any ingredients section since this will mess up the count..
 		// remove between ingredients and steps
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$stepsSection = Wikitext::getStepsSection( $txt, true );
 		$altMethods = intVal(preg_match_all("@^===@m", trim( $stepsSection[0] ), $matches));
 
@@ -1466,7 +1468,7 @@ class TSVideo extends TitusStat {
 		if (get_class($r) == "RevisionNoTemplateWrapper") {
 			$txt = $r->getOrigText();
 		} else {
-			$txt = $r->getText();
+			$txt = ContentHandler::getContentText( $r->getContent() );
 		}
 
 		$video = strpos($txt, "{{Video") ? 1 : 0;
@@ -1488,7 +1490,7 @@ class TSSummarized extends TitusStat {
 		$video = false;
 		$summary_position = '';
 
-		$text = Wikitext::getSummarizedSection( $r->getText() );
+		$text = Wikitext::getSummarizedSection( ContentHandler::getContentText( $r->getContent() ) );
 
 		if (!empty($text)) {
 			if ( strpos( $text, '{{whvid' ) !== false ) {
@@ -1676,7 +1678,7 @@ class TSTemplates extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 
 		$badTemplates = implode("|", explode("\n", trim(wfMessage('titus_bad_templates'))));
 		$hasBadTemp = preg_match("@{{($badTemplates)[}|]@mi", $txt) == 1 ? 1 : 0;
@@ -1711,7 +1713,7 @@ class TSMagicWords extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$result = array();
 
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 
 		$result['ti_parts'] = preg_match( "@__parts?__@mi", $text ) ? 1 : 0;
 		$result['ti_methods'] = preg_match( "@__methods?__@mi", $text ) ? 1 : 0;
@@ -1729,7 +1731,7 @@ class TSNumSteps extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = Wikitext::getStepsSection($r->getText(), true);
+		$text = Wikitext::getStepsSection(ContentHandler::getContentText( $r->getContent() ), true);
 		$text = $text[0];
 		$num_steps = 0;
 		if ($text) {
@@ -1748,7 +1750,7 @@ class TSNumTips extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = Wikitext::getSection($r->getText(), wfMessage('tips'), true);
+		$text = Wikitext::getSection(ContentHandler::getContentText( $r->getContent() ), wfMessage('tips'), true);
 		$text = $text[0];
 		if ($text) {
 			$num_tips = preg_match_all('/^\*[^\*]/im', $text, $matches);
@@ -1769,7 +1771,7 @@ class TSNumWarnings extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = Wikitext::getSection($r->getText(), wfMessage('warnings'), true);
+		$text = Wikitext::getSection(ContentHandler::getContentText( $r->getContent() ), wfMessage('warnings'), true);
 		$text = $text[0];
 		$num_warnings = 0;
 		if ($text) {
@@ -1788,14 +1790,14 @@ class TSNumSourcesCites extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = Wikitext::getSection($r->getText(), wfMessage('sources'), true);
+		$text = Wikitext::getSection(ContentHandler::getContentText( $r->getContent() ), wfMessage('sources'), true);
 		$text = $text[0];
 		$num_sac = 0;
 		$num_sources = 0;
 
 		// support a References section
 		if ( !$text ) {
-			$text = Wikitext::getSection($r->getText(), wfMessage( 'references' ), true);
+			$text = Wikitext::getSection(ContentHandler::getContentText( $r->getContent() ), wfMessage( 'references' ), true);
 			$text = $text[0];
 		}
 		if ($text) {
@@ -1803,7 +1805,7 @@ class TSNumSourcesCites extends TitusStat {
 			$num_sources = preg_match_all('/^\*[^\*]/im', $text, $matches);
 		}
 		//citations
-		$num_cites = preg_match_all('/<ref>/im', $r->getText(), $matches);
+		$num_cites = preg_match_all('/<ref>/im', ContentHandler::getContentText( $r->getContent() ), $matches);
 
 		//combine to form Voltron! ...I mean sources and citations
 		$num_sac = $num_sources + $num_cites;
@@ -2120,7 +2122,7 @@ class TSPhotos extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode, $wgContLang;
 
-		$text = Wikitext::getSection($r->getText(), wfMessage('steps'), true);
+		$text = Wikitext::getSection(ContentHandler::getContentText( $r->getContent() ), wfMessage('steps'), true);
 		$text = $text[0];
 		$numPhotos = preg_match_all('/(?:\[\[ *Image|\{\{largeimage|\[\[' . $wgContLang->getNSText(NS_IMAGE) . ')/im', $text, $matches);
 
@@ -2145,7 +2147,7 @@ class TSPhotos extends TitusStat {
 
 	private function hasEnlargedWikiPhotos($r) {
 		$enlargedWikiPhoto = 0;
-		$text = Wikitext::getStepsSection($r->getText(), true);
+		$text = Wikitext::getStepsSection(ContentHandler::getContentText( $r->getContent() ), true);
 		$text = $text[0];
 		if ($text) {
 			// Photo is enlarged if it is great than 500px (and less than 9999px)
@@ -2155,7 +2157,7 @@ class TSPhotos extends TitusStat {
 	}
 
 	private function getIntroPhotoStats($r) {
-		$text = Wikitext::getIntro($r->getText());
+		$text = Wikitext::getIntro(ContentHandler::getContentText( $r->getContent() ));
 		$stats['ti_intro_photo'] = intVal(preg_match('/\[\[Image:/im', $text));
 		// Photo is enlarged if it is great than 500px (and less than 9999px)
 		$stats['ti_enlarged_intro_photo'] = intVal(preg_match('/\|[5-9][\d]{2,3}px\]\]/im', $text));
@@ -2173,7 +2175,7 @@ class TSWikiVideo extends TitusStat {
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$stats = array();
-		$text = Wikitext::getSection($r->getText(), wfMessage('steps'), true);
+		$text = Wikitext::getSection(ContentHandler::getContentText( $r->getContent() ), wfMessage('steps'), true);
 		$text = $text[0];
 		$num = preg_match_all("@\{\{ *whvid\|[^\}]+ *\}\}@",$text, $matches);
 		$stats['ti_num_wikivideos'] = $num;
@@ -2814,7 +2816,7 @@ class TSSample extends TitusStat {
 		return TitusDB::DAILY_EDIT_IDS;
 	}
   public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$samples = 0;
 		preg_match_all("/\[\[Doc:[^\]]*\]\]/", $txt, $matches);
 		foreach ($matches[0] as $match) {
@@ -3817,7 +3819,7 @@ class TSPetaMetrics extends TitusStat {
 
 class TSCaps extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$caps = preg_match_all("@[A-Z]@", $txt, $matches);
 		$lower = preg_match_all("@[a-z]@", $txt, $matches);
 		if ($lower + $caps == 0) {
@@ -3875,7 +3877,7 @@ class TSCaps extends TitusStat {
 
 class TSStepLength extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$stepsSection = Wikitext::getStepsSection($txt);
 		$steps = Wikitext::splitSteps($stepsSection[0]);
 		$min = 0;
@@ -3917,7 +3919,7 @@ class TSStepLength extends TitusStat {
  */
 class TSNumLinks extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$links = preg_match_all("@(http://[^\"\b'>]+)@",$txt, $matches);
 		$baseLinks = preg_match_all("@(http://[^\"/\b'>]+/?)@", $txt, $matches);
 		$maxRepeats = 0;
@@ -3945,7 +3947,7 @@ class TSInUse extends TitusStat {
 		if (get_class($r) == "RevisionNoTemplateWrapper") {
 			$txt = $r->getOrigText();
 		} else {
-			$txt = $r->getText();
+			$txt = ContentHandler::getContentText( $r->getContent() );
 		}
 
 		return array('ti_inuse' => preg_match("@{{ *(inuse|construction)@i",$txt,$matches) ? '1' : '0');
@@ -3966,7 +3968,7 @@ class TSFKReadingEase extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$fkre = AdminReadabilityScore::getFKReadingEase($r->getText());
+		$fkre = AdminReadabilityScore::getFKReadingEase(ContentHandler::getContentText( $r->getContent() ));
 		$ret = array('ti_fk_reading_ease' => $fkre);
 		return $ret;
 	}
@@ -3974,7 +3976,7 @@ class TSFKReadingEase extends TitusStat {
 
 class TSWordLength extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$numWords = preg_match_all("@\b[a-zA-Z]+\b@",$txt,$matches);
 		$wc = array();
 		$numWords = 0;
@@ -4027,7 +4029,7 @@ class TSWordLength extends TitusStat {
 
 class TSCharTypes extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$op = preg_match_all("@\(@",$txt, $matches);
 		$cp = preg_match_all("@\)@",$txt, $matches);
 		$colon = preg_match_all("@:@",$txt, $matches);
@@ -4085,7 +4087,7 @@ class TSCharTypes extends TitusStat {
 
 class TSWikiText extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		return array('wikitext' => $r->getText(), 'article_id' => $t->getArticleId());
+		return array('wikitext' => ContentHandler::getContentText( $r->getContent() ), 'article_id' => $t->getArticleId());
 	}
 
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -4098,7 +4100,7 @@ class TSWikiText extends TitusStat {
  */
 class TSHtmlList extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$ulo = preg_match_all("@< *ul *>@i",$txt,$matches);
 		$ulc = preg_match_all("@</ *ul *>@i",$txt, $matches);
 		$lio = preg_match_all("@< *li *>@i",$txt, $matches);
@@ -4127,7 +4129,7 @@ class TSSubSteps extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 
 		$fwc = array();
 		$numSteps = 0;
@@ -4227,7 +4229,7 @@ class TSCopyVio extends TitusStat {
 			$text = $r->getOrigText();
 		}
 		else {
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $r->getContent() );
 		}
 		if (preg_match("@{{[^}]*copyvio@i", $text, $matches)) {
 			return array("ti_copyvio" => 1);
@@ -4248,7 +4250,7 @@ class TSNFD extends TitusStat {
 			$text = $r->getOrigText();
 		}
 		else {
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $r->getContent() );
 		}
 		if (preg_match("@{{[^}]*nfd\|([a-zA-Z]+)@", $text, $matches)) {
 			return array("ti_nfd" => 1, "ti_nfd_type" => $matches[1]);
@@ -4265,7 +4267,7 @@ class TSNFD extends TitusStat {
 
 class TSRecipeStuff extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$foodMeasurements = preg_match_all("@(?:[0-9]|a|one|two|three|four|five|six|seven|eight|nine|ten) (?:cup|tsp|tbsp|pinch|g.|teaspoon|tablespoon|gram|ounce|oz|liter|ml)@i", $text, $matches);
 		$recipeWords = preg_match_all("@cook|bake|measure|stir|mix|spicy|whisk|microwave|broil|boil|grill|fry|simmer|heat|fried@", $text, $matches);
 		$foodWords = preg_match_all("@seasoning|oil|eggs|juice|lemon|salt|pepper|sauce|mustard|wine|beer|teriyaki|scallion|sauce|sugar|fish|sesame|seed@", $text, $matches);
@@ -4302,7 +4304,7 @@ class TSBadWords extends TitusStat {
 	}
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		if (!$this->regex) throw new Exception('Could not load bad words list');
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$numBadWords = preg_match_all($this->regex, $text, $matches);
 		return array('ti_bad_words' => $numBadWords);
 	}
@@ -4430,7 +4432,7 @@ class TSWords extends TitusStat {
  */
 class TSDoubleSteps extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$doubleSteps = preg_match_all("@\# *[0-9]@", $text, $matches);
 		return array("ti_double_steps" => $doubleSteps);
 	}
@@ -4441,7 +4443,7 @@ class TSDoubleSteps extends TitusStat {
 
 class TSSymbolism extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$smilies = preg_match_all("@:-*[()]@",$text, $matches);
 		$explanations = preg_match_all("@!@", $text, $matches);
 		return array("ti_smilies" => $smilies, "ti_explanations" => $explanations);
@@ -4453,7 +4455,7 @@ class TSSymbolism extends TitusStat {
 
 class TSTransitions extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$numericTransitions = preg_match_all("@first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh@", $txt, $matches);
 	}
 	public function getPageIdsToCalc( $dbr, $date ) {
@@ -4463,7 +4465,7 @@ class TSTransitions extends TitusStat {
 
 class TSSpamKeywords extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$keywords = preg_match_all("@moving|packing|seo|backlinks|casino|poker|pharmacy|nutritional suplement|escort|visa|cleaning service|love spell|love potion|abney associates|forex|limousine|watch online for free|nintendo 3ds flash card|purse|watch|penis enlargement|black magic|payday loan|pest control|dubai@", $txt, $matches);
 		$authorIs = preg_match("@The author is a@", $txt, $matches);
 		return array('ti_spam_keywords' => $keywords, 'ti_spam_author_is' => $authorIs);
@@ -4487,7 +4489,7 @@ class TSSpellCheck extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$t = $this;
 		$n = 0;
 		$badWords = array();
@@ -4552,7 +4554,7 @@ class TSGrammar extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$rawTxt = $r->getText();
+		$rawTxt = ContentHandler::getContentText( $r->getContent() );
 		$text = Wikitext::getStepsSection($rawTxt, true);
 		$text = $text[0];
 		$steps = preg_split("@#\*?@", $text);
@@ -4920,7 +4922,7 @@ class TSKeywordRank extends TitusStat {
  */
 class TSStepsText extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$rawTxt = $r->getText();
+		$rawTxt = ContentHandler::getContentText( $r->getContent() );
 		$text = Wikitext::getStepsSection($rawTxt, true);
 		$text = $text[0];
 		$steps = preg_split("@#@", $text);

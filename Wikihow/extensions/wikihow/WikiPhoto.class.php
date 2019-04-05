@@ -132,7 +132,7 @@ class WikiPhoto {
 	 */
 	public static function articleBodyHasNoImages(&$dbr, $id) {
 		$rev = Revision::loadFromPageId($dbr, $id);
-		$text = $rev->getText();
+		$text = ContentHandler::getContentText( $rev->getContent() );
 		$steps = self::getStepsSection($text);
 		$len = strlen($steps);
 		$imgs = preg_match('@\[\[Image:@', $steps);
@@ -144,7 +144,7 @@ class WikiPhoto {
 	 */
 	public static function articleHasVideo(&$dbr, $id) {
 		$rev = Revision::loadFromPageId($dbr, $id);
-		$text = $rev->getText();
+		$text = ContentHandler::getContentText( $rev->getContent() );
 		$hasVideo = preg_match('@\{\{video@i', $text) > 0;
 		return $hasVideo;
 	}

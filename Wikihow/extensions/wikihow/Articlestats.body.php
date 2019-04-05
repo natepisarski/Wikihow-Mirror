@@ -7,6 +7,8 @@ class ArticleStats extends SpecialPage {
 	}
 
 	public function execute($par) {
+		global $wgParser;
+
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 
@@ -62,8 +64,8 @@ class ArticleStats extends SpecialPage {
 
 		$fadate = "";
 		if ($featured > 0) {
-			$rev = Revision::newFromTitle($tp );
-			$text = $rev->getText();
+			$rev = Revision::newFromTitle($tp);
+			$text = ContentHandler::getContentText( $rev->getContent() );
 			$matches = array();
 			preg_match('/{{(Featured|fa)[^a-z}]*}}/i', $text, $matches);
 			$fadate = $matches[0];
@@ -75,14 +77,15 @@ class ArticleStats extends SpecialPage {
 			$featured = wfMessage('articlestats_no');
 		}
 
-		$rev = Revision::newFromTitle($t );
-		$section = Article::getSection($rev->getText(), 0);
+		$rev = Revision::newFromTitle($t);
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
+		$section = $wgParser->getSection($wikitext, 0);
 		$intro_photo = preg_match('/\[\[Image:/', $section) == 1 ? wfMessage('articlestats_yes') : wfMessage('articlestats_no');
 
-		$section = Article::getSection($rev->getText(), 1);
+		$section = $wgParser->getSection($wikitext, 1);
 		preg_match("/==[ ]*" . wfMessage('steps') . "/", $section, $matches, PREG_OFFSET_CAPTURE);
 		if (sizeof($matches) == 0 || $matches[0][1] != 0) {
-			$section = Article::getSection($rev->getText(), 2);
+			$section = $wgParser->getSection($wikitext, 2);
 		}
 
 		$num_steps = preg_match_all('/^#/im', $section, $matches);

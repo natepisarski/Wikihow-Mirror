@@ -32,7 +32,7 @@ class PatrolCount extends SpecialPage {
 	}
 
 	// Set the section in Special:SpecialPages
-	public function getGroupName() {
+	protected function getGroupName() {
 		return 'changes';
 	}
 

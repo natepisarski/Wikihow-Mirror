@@ -150,20 +150,12 @@ use Guzzle\Http\EntityBody;
 *  TODO you can just fake the transcoding part if you already have the converted files (how?)
 */
 
-global $wgIsDevServer;
-if ( $wgIsDevServer ) {
-	define( 'AWS_BUCKET_TMP', 'wikivisual-upload-test' );
-} else {
-	define( 'AWS_BUCKET_TMP', 'wikivisual-upload' );
-}
-
 class WVFileException extends Exception { }
 
 class WikiVisualTranscoder {
 
-	//const AWS_BUCKET = 'wikivisual-upload';
-	//const AWS_BUCKET = 'wikivisual-upload-test';
-	const AWS_BUCKET = AWS_BUCKET_TMP;
+	var $mAwsBucket = '';
+	var $mAwsBucketPrefix = null;
 	
 	const DEFAULT_STAGING_DIR = '/data/wikivisual';
 	const MEDIA_USER = 'wikivisual'; 
@@ -188,7 +180,7 @@ class WikiVisualTranscoder {
 	const ERROR_MIN_WIDTH_VIDEO_COMPANION = 1920;
 	const ERROR_MAX_IMG_DIMEN = 10000;
 	
-	const PHOTO_LICENSE = 'cc-by-sa-nc-3.0-self';
+	const PHOTO_LICENSE = 'WikiVisual';
 	const SCREENSHOT_LICENSE = 'Screenshot';
 
 	// Fri Feb  1 14:19:26 PST 2013
@@ -618,12 +610,22 @@ class WikiVisualTranscoder {
 	/**
 	 * List articles on S3
 	 */
-	private function getS3Articles(&$s3, $bucket) {
-		$list = $s3->getBucket($bucket);
+	private function getS3Articles(&$s3, $bucket, $prefix = null) {
+		$list = $s3->getBucket($bucket, $prefix);
 	
+		if ($prefix) {
+			self::d('list', $list);
+		}
 		// compile all the articles into a list of files/zips from s3
 		$articles = array();
 		foreach ($list as $path => $details) {
+			// remove prefix from path
+			if ($prefix && substr($path, 0, strlen($prefix)) == $prefix) {
+				$path = substr($path, strlen($prefix) + 1);
+			}
+			if ($prefix) {
+				self::d('path', $path);
+			}
 
 			$leaveOldMedia = false;
 			// match string: username/1234.zip
@@ -647,6 +649,10 @@ class WikiVisualTranscoder {
 	
 			if ( $user === 'replace' ) {
 				$leaveOldMedia = true;
+			}
+
+			if ( $prefix ) {
+				$user =  $prefix . "/" . $user;
 			}
 
 			// process the list of media files into a list of articles
@@ -801,9 +807,9 @@ class WikiVisualTranscoder {
 			$aws_file = $prefix . $file;
 			$file = preg_replace('@/@', '-', $file);
 			$local_file = $dir . '/' . $file;
-			$ret = $s3->getObject(self::AWS_BUCKET, $aws_file, $local_file);
+			$ret = $s3->getObject($this->mAwsBucket, $aws_file, $local_file);
 			if (!$ret || $ret->error) {
-				$err = "problem retrieving file from S3: s3://" . self::AWS_BUCKET . "/$aws_file";
+				$err = "problem retrieving file from S3: s3://" . $this->mAwsBucket . "/$aws_file";
 				break;
 			}
 		}
@@ -829,7 +835,7 @@ class WikiVisualTranscoder {
 	 */
 	private function doS3Cleanup() { 
 		$s3 = new S3 ( WH_AWS_WIKIVISUAL_UPLOAD_ACCESS_KEY, WH_AWS_WIKIVISUAL_UPLOAD_SECRET_KEY );
-		$src = $this->getS3Articles ( $s3, self::AWS_BUCKET );
+		$src = $this->getS3Articles ( $s3, $this->mAwsBucket, $this->mAwsBucketPrefix );
 		foreach ( $src as $id => $details ) {
 			if ($details ['zip'] && $details ['files']) {
 				if ( $details['leave_old_media'] == true && $user != 'replace' ) {
@@ -843,7 +849,7 @@ class WikiVisualTranscoder {
 					self::i("not enough files ($count) to delete $uri: $files");
 				} else {
 					self::i("deleting $uri");
-					$s3->deleteObject ( self::AWS_BUCKET, $uri );
+					$s3->deleteObject ( $this->mAwsBucket, $uri );
 				}
 			}
 		}
@@ -957,7 +963,7 @@ class WikiVisualTranscoder {
 	private function processS3Media() {
 		// get list of the articles in the s3 bucket
 		$s3 = new S3( WH_AWS_WIKIVISUAL_ACCESS_KEY, WH_AWS_WIKIVISUAL_SECRET_KEY );
-		$articles = $this->getS3Articles( $s3, self::AWS_BUCKET );
+		$articles = $this->getS3Articles( $s3, $this->mAwsBucket, $this->mAwsBucketPrefix );
 
 		// also get processed articles from DB to see if we need to retry or flag them
 		$processed = $this->getProcessedArticles();
@@ -1137,8 +1143,20 @@ class WikiVisualTranscoder {
 	}
 	
 	public function main() {
+		global $wgLanguageCode, $wgIsDevServer;
 		date_default_timezone_set('America/Los_Angeles');
 		
+
+		if ( $wgIsDevServer ) {
+			$this->mAwsBucket = 'wikivisual-upload-test';
+		} else {
+			$this->mAwsBucket = 'wikivisual-upload';
+		}
+
+		if ( $wgLanguageCode != 'en' ) {
+			$this->mAwsBucketPrefix = $wgLanguageCode;
+		}
+
 		if ( !self::$assocVideoExts ) {
 			self::$assocVideoExts = Utils::arrToAssoArr(self::$videoExts);
 			self::$assocImgExts = Utils::arrToAssoArr(self::$imgExts);
@@ -1162,12 +1180,20 @@ class WikiVisualTranscoder {
 		if ( empty( self::$stagingDir ) )
 			self::$stagingDir = self::DEFAULT_STAGING_DIR;
 		
-		self::$debugArticleID = @$opts ['f'] ? @$opts ['f'] : @$opts ['force'];
 		if ( array_key_exists( 'v', $opts ) ) {
-			self::d( "running script in debug mode" );
 			self::$DEBUG = true;
+			self::d( "running script in debug mode" );
 		}
 
+		self::d( "using aws bucket", $this->mAwsBucket);
+		if ( $this->mAwsBucketPrefix ) {
+			self::d( "using aws bucket prefix", $this->mAwsBucketPrefix);
+		}
+
+		self::$debugArticleID = @$opts ['f'] ? @$opts ['f'] : @$opts ['force'];
+		if (self::$debugArticleID) {
+			self::d( "running on article id", self::$debugArticleID);
+		}
 		$processTranscodingOnly = false;
 		if ( array_key_exists( 't', $opts ) ) {
 			self::d( "skipping new articles, will only process transcoding jobs" );
@@ -1182,6 +1208,8 @@ class WikiVisualTranscoder {
 			self::e( "script must be run as part of wikivisual-process-media.sh" );
 			exit();
 		}
+
+		self::d( "running in lang", $wgLanguageCode );
 		
 		Misc::loginAsUser ( self::MEDIA_USER );
 		

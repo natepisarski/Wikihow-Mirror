@@ -362,6 +362,7 @@ class StepEditorParser {
 		$editpage = new EditPage(new Article($this->title));
 		$hookerror = "";
 		StepEditorParser::$isActive = true;
+		// TODO: remove this block of code after upgrade - Reuben, 3/2019
 		if (!ContentHandler::runLegacyHooks( 'EditFilterMerged',
 			array( $editpage, $content, &$hookerror, "something" ) ) ) {
 			//something failed, so let's check the captcha stuff

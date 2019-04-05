@@ -241,7 +241,7 @@ class removeBadReferences extends Maintenance {
 		if ( !$r ) {
 			return "";
 		}
-		return $r->getText();
+		return ContentHandler::getContentText( $r->getContent() );
 	}
 
 

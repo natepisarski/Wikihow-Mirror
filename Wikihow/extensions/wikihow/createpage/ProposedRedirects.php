@@ -118,7 +118,7 @@ class ProposedRedirects extends SpecialPage {
 		$r = Revision::newFromTitle($t);
 		$text = "";
 		if ($r) {
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $r->getContent() );
 		}
 		$lines = explode("\n", $text);
 		$s = "";

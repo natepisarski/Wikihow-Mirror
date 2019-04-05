@@ -113,7 +113,7 @@ class ImportVideo extends SpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgImportVideoSources;
+		global $wgImportVideoSources, $wgParser;
 
 		$req = $this->getRequest();
 		$out = $this->getOutput();
@@ -141,9 +141,8 @@ class ImportVideo extends SpecialPage {
 				$out->addHTML("Error: target article does not exist.");
 				return;
 			} else {
-				$article = new Article($title);
-				$article->loadPageData();
-				if ($article->mIsRedirect) {
+				$wikiPage = WikiPage::factory($title);
+				if ($wikiPage->isRedirect()) {
 					$out->addHTML("Error: target article is a redirect.");
 					return;
 				}
@@ -197,13 +196,13 @@ class ImportVideo extends SpecialPage {
 		//get the steps and intro to show to the user
 		$r = Revision::newFromTitle($title);
 		$text = "";
-		if ($r)
-			$text = $r->getText();
-		$article = new Article($title);
-		$extra  = $article->getSection($text, 0);
+		if ($r) {
+			$text = ContentHandler::getContentText( $r->getContent() );
+		}
+		$extra  = $wgParser->getSection($text, 0);
 		$steps = "";
 		for ($i = 1; $i < 3; $i++) {
-			$xx = $article->getSection($text, $i);
+			$xx = $wgParser->getSection($text, $i);
 			if (preg_match("/^==[ ]+" . wfMessage('steps') . "/", $xx)) {
 				$steps = $xx;
 				break;
@@ -342,9 +341,10 @@ class ImportVideo extends SpecialPage {
 
 	// Called by VideoAdder
 	public static function updateVideoArticle($title, $text, $editSummary) {
-		$a = new Article($title);
-		$a->doEdit($text, $editSummary);
-		self::markVideoAsPatrolled($a->getId());
+		$wikiPage = WikiPage::factory($title);
+		$content = ContentHandler::makeContent($text, $title);
+		$wikiPage->doEditContent($content, $editSummary);
+		self::markVideoAsPatrolled($wikiPage->getId());
 	}
 
 	// Called externally from video embed helper
@@ -383,7 +383,7 @@ class ImportVideo extends SpecialPage {
 			$update = false;
 			$text = "";
 		} else {
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $r->getContent() );
 		}
 
 		$tag = "{{" . $vid->getFullText() . "|}}";
@@ -592,7 +592,7 @@ class PreviewVideo extends UnlistedSpecialPage {
 		# can we parse from the main naemspace article to include the comment?
 		$r = Revision::newFromTitle($t);
 		if (!$r) return;
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 
 		preg_match("/{{Video:[^}]*}}/", $text, $matches);
 		if (sizeof($matches) > 0) {
@@ -600,9 +600,9 @@ class PreviewVideo extends UnlistedSpecialPage {
 			$comment = preg_replace("/}}/", "", $comment);
 		}
 
-		$rv = Revision::newFromTitle($vt);
-		if (!$rv) return;
-		$text = $rv->getText();
+		$rev = Revision::newFromTitle($vt);
+		if (!$rev) return;
+		$text = ContentHandler::getContentText( $rev->getContent() );
 		$text = str_replace("{{{1}}}", $comment, $text);
 		$html = $out->parse($text, true, true) ;
 		echo $html;

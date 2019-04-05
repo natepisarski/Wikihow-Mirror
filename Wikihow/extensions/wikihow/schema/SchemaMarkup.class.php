@@ -546,7 +546,7 @@ class SchemaMarkup {
 		if ( !$r ) {
 			return "";
 		}
-		return $r->getText();
+		return ContentHandler::getContentText( $r->getContent() );
 	}
 
 	public static function getVideo( $title ) {

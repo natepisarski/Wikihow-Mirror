@@ -148,7 +148,7 @@ class SuggestCategories extends UnlistedSpecialPage {
 		// get it? cat-map? instead of cat-nap? hahah.
 		$cat_title = Title::makeTitle(NS_PROJECT, "Categories");
 		$rev = Revision::newFromTitle($cat_title);
-		$text = preg_replace("@\*\*.*@im", "", $rev->getText());
+		$text = preg_replace("@\*\*.*@im", "", ContentHandler::getContentText( $rev->getContent() ));
 		$text = preg_replace("@\n[\n]*@im", "\n", $text);
 		$lines = explode("\n", $text);
 		$map = [];

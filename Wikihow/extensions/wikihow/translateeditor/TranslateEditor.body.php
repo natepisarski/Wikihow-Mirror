@@ -99,6 +99,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 															array('from'=>self::getSectionRegex('Ingredients'),'to'=>self::getSectionWikitext(wfMessage('Ingredients'))),
 															array('from'=>self::getSectionRegex("Things You'll need"),'to'=>self::getSectionWikitext(wfMessage('Thingsyoullneed'))),
 															array('from'=>self::getSectionRegex("Sources and Citations"),'to'=>self::getSectionWikitext(wfMessage('Sources'))),
+															array('from'=>self::getSectionRegex("References"),'to'=>self::getSectionWikitext(wfMessage('References'))),
 															array('from'=>'\[\[Category:[^\]]+\]\]', 'to' => "")
 															);
 				$remove_sections = self::getMsgArray('remove_sections');
@@ -190,9 +191,15 @@ class TranslateEditor extends UnlistedSpecialPage {
 					$output['success'] = false;
 				}
 				else {
+					$txt = self::replaceInternalLinks($txt);
+
+					$page_title = $json['query']['pages'][$fromAID]['title'];
+					$txt = self::removeSummary($txt, $page_title);
+
 					$output['success'] = true;
 					$output['aid'] = $fromAID;
-					$output['text'] = self::replaceInternalLinks($txt);
+					$output['text'] = $txt;
+
 					$dbw = wfGetDB(DB_MASTER);
 					$sql = 'insert into pre_translation_link(ptl_translator, ptl_english_aid, ptl_to_title, ptl_timestamp) values(' . $dbw->addQuotes($wgUser->getId()) . ',' . $dbw->addQuotes($fromAID) . ',' . $dbw->addQuotes($toTarget) . ',' . $dbw->addQuotes(wfTimestampNow()) .  ') on duplicate key update ptl_english_aid=' . $dbw->addQuotes($fromAID) . ', ptl_timestamp=' . $dbw->addQuotes(wfTimestampNow());
 					$dbw->query($sql, __METHOD__);
@@ -333,5 +340,20 @@ class TranslateEditor extends UnlistedSpecialPage {
 			}
 		}
 		return $wikitext;
+	}
+
+	private static function removeSummary(string $wikitext, string $page_title): string {
+		$namespace = MWNamespace::getCanonicalName(NS_SUMMARY);
+
+		$page_dbkey = str_replace(' ','-',$page_title);
+		$title_regex = '('.preg_quote($page_title).'|'.preg_quote($page_dbkey).')';
+
+		$regex = 	'\<!--.*--\>\n'.	//comment
+							'==.*==\n'.	//header
+							'({{whvid.*}}\n)?'.	//optional video summary
+							'{{'.$namespace.':'.$title_regex.'}}';	//summary
+
+		$wikitext = preg_replace('/'.$regex.'/i', '', $wikitext);
+		return trim($wikitext);
 	}
 }

@@ -145,7 +145,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		return $thumbUrl;
 	}
 
-	function doQuery($getSubcats = true) {
+	public function doQuery($getSubcats = true, $calledFromCategoryPage = true) {
 		$dbr = wfGetDB(DB_REPLICA);
 
 		// Show only indexable articles to anons
@@ -182,7 +182,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 			}
 		}
 
-		if ($count == 0 && Misc::isAltDomain()) {
+		if ($calledFromCategoryPage && $count == 0 && Misc::isAltDomain()) {
 			Misc::exitWith404();
 		}
 

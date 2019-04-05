@@ -71,7 +71,7 @@ class MotionToStatic {
 		if ( !$r ) {
 			return "";
 		}
-		return $r->getText();
+		return ContentHandler::getContentText( $r->getContent() );
 	}
 
 	/*

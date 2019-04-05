@@ -4,25 +4,26 @@ if (!defined('MEDIAWIKI')) die();
 
 class TwitterFeedHooks {
 
-	public static function notifyTwitterOnSave(&$article, &$user, $text, $summary) {
+	public static function notifyTwitterOnSave(&$wikiPage, &$user, $content, $summary) {
 
 		// ignore rollbacks
 		if (preg_match("@Reverted @", $summary)) {
 			return true;
 		}
 
-		if (MyTwitter::hasBadTemplate($text)) {
+		$wikitext = ContentHandler::getContentText($content);
+		if (MyTwitter::hasBadTemplate($wikitext)) {
 			return true;
 		}
 
 		// is it in nab? is it patrolled? If unpatrolled, skip this.
 		$dbw = wfGetDB(DB_MASTER);
-		if ( ! NewArticleBoost::isNABbed( $dbw, $article->getID() ) ) {
+		if ( ! NewArticleBoost::isNABbed( $dbw, $wikiPage->getID() ) ) {
 			return true;
 		}
 
 		// old categories
-		$oldtext = $article->mPreparedEdit->oldText;
+		$oldtext = $wikiPage->mPreparedEdit->oldText;
 		preg_match_all("@\[\[Category:[^\]]*\]\]@", $oldtext, $matches);
 		$oldcats = array();
 		if (sizeof($matches[0]) > 0) {
@@ -31,7 +32,7 @@ class TwitterFeedHooks {
 
 		// find new cats - like kittens!
 		$newcats = array();
-		preg_match_all("@\[\[Category:[^\]]*\]\]@", $text, $matches);
+		preg_match_all("@\[\[Category:[^\]]*\]\]@", $wikitext, $matches);
 		$newcats = array();
 		if (sizeof($matches[0]) > 0) {
 			$newcats = $matches[0];
@@ -56,7 +57,7 @@ class TwitterFeedHooks {
 			}
 		}
 
-		$t = $article->getTitle();
+		$t = $wikiPage->getTitle();
 		foreach ($tocheck as $cat) {
 			self::notifyTwitter($cat, $t);
 		}
@@ -138,7 +139,7 @@ class TwitterFeedHooks {
 		if (!$r) {
 			return true;
 		}
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		if (MyTwitter::hasBadTemplate($text)) {
 			return true;
 		}
@@ -164,24 +165,24 @@ class TwitterFeedHooks {
 		return true;
 	}
 
-	public static function myTwitterOnSave(&$article, &$user, $text, $summary) {
+	public static function myTwitterOnSave(&$wikiPage, &$user, $content, $summary) {
 		if (preg_match("@Quick edit while patrolling@", $summary) && MyTwitter::userHasOption($user, "quickedit")) {
-			MyTwitter::tweetQuickEdit($article->getTitle(), $user);
+			MyTwitter::tweetQuickEdit($wikiPage->getTitle(), $user);
 		}
 		return true;
 	}
 
-	public static function myTwitterEditFinder($a, $text, $sum, $user, $efType) {
+	public static function myTwitterEditFinder($wikiPage, $text, $sum, $user, $efType) {
 		if ($user && $user->isAnon()) return true;
-		$t = $a->getTitle();
+		$t = $wikiPage->getTitle();
 		if ($t->inNamespace(NS_MAIN) && MyTwitter::userHasOption($user, "editfinder")) {
 			MyTwitter::tweetEditFinder($t, $user);
 		}
 		return true;
 	}
 
-	public static function myTwitterInsertComplete(&$a, &$user, $text) {
-		$t = $a->getTitle();
+	public static function myTwitterInsertComplete(&$wikiPage, &$user, $content) {
+		$t = $wikiPage->getTitle();
 		if ($t->inNamespace(NS_MAIN) && MyTwitter::userHasOption($user, "createpage")) {
 			MyTwitter::tweetNewArticle($t, $user);
 		}

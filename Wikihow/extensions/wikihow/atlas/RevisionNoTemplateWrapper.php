@@ -13,25 +13,25 @@ class RevisionNoTemplateWrapper {
 		$this->text = false;
 	}
 	/**
-          * Remove text with templates gone, caching the replace
-	  */
+     * Remove text with templates gone, caching the replace
+	 */
 	public function getText() {
 		if (!$this->text) {
-			$this->text = $this->revision->getText();
+			$this->text = ContentHandler::getContentText( $this->revision->getContent() );
 			$this->text = preg_replace("@\{\{[^}]+\}\}@","",$this->text);
 		}
 		return($this->text);
 	}
 	public function getOrigText() {
-		return($this->revision->getText());
+		return ContentHandler::getContentText( $this->revision->getContent() );
 	}
 	public function getId() {
-		return($this->revision->getId());
+		return $this->revision->getId();
 	}
 	public function getTitle() {
-		return($this->revision->getTitle());
+		return $this->revision->getTitle();
 	}
 	public function getSize() {
-		return($this->revision->getSize());
+		return $this->revision->getSize();
 	}
 }

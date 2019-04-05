@@ -46,11 +46,11 @@ $wgAutoloadClasses['SuggestionSearch'] = __DIR__ . '/SuggestionSearch.php';
 $wgAutoloadClasses['ManageSuggestions'] = __DIR__ . '/ManageSuggestions.php';
 
 $wgHooks['ArticleDelete'][] = array("wfCheckSuggestionOnDelete");
-$wgHooks['ArticleSaveComplete'][] = array("wfCheckSuggestionOnSave");
-$wgHooks['ArticleSave'][] = array("wfCheckForCashSpammer");
+$wgHooks['PageContentSaveComplete'][] = array("wfCheckSuggestionOnSave");
+$wgHooks['PageContentSave'][] = array("wfCheckForCashSpammer");
 $wgHooks['TitleMoveComplete'][] = array("wfCheckSuggestionOnMove");
 $wgHooks['ArticleJustBeforeBodyClose'][] = array("wfShowFollowUpOnCreation");
-$wgHooks['ArticleInsertComplete'][] = array("wfProcessNewArticle");
+$wgHooks['PageContentInsertComplete'][] = array("wfProcessNewArticle");
 $wgHooks['ArticleDeleteComplete'][] = array("wfRemoveFromFirstEdit");
 $wgHooks['ArticleUndelete'][] = array('wfRestoreFirstEdit');
 $wgHooks['ShowGrayContainer'][] = array('wfRemoveGrayContainerCallback');
@@ -122,16 +122,16 @@ function wfCheckSuggestionOnMove( &$ot, &$nt, &$wgUser, $pageid, $redirid) {
 }
 
 // When a new article is created, mark the suggsted as used in the DB
-function wfCheckSuggestionOnSave($article, $user, $text, $summary, $p5, $p6, $p7) {
+function wfCheckSuggestionOnSave(&$wikiPage, &$user, $content, $summary, $p5, $p6, $p7) {
 	try {
 		$dbr = wfGetDB(DB_REPLICA);
-		$t = $article->getTitle();
+		$t = $wikiPage->getTitle();
 		if (!$t || !$t->inNamespace(NS_MAIN)) {
 			return true;
 		}
 		$num_revisions = $dbr->selectField('revision',
 			'count(*)',
-			['rev_page=' . $article->getId()],
+			['rev_page' => $wikiPage->getId()],
 			__METHOD__);
 		// < 2 for race conditions
 		if ($num_revisions < 2) {
@@ -150,7 +150,7 @@ function wfCheckSuggestionOnSave($article, $user, $text, $summary, $p5, $p6, $p7
 				__METHOD__);
 			if ($email) {
 				$dbw->insert('suggested_notify',
-					   ['sn_page' => $article->getId(),
+					   ['sn_page' => $wikiPage->getId(),
 						'sn_notify' => $email,
 						'sn_timestamp' => wfTimestampNow(TS_MW)],
 					__METHOD__);
@@ -164,10 +164,10 @@ function wfCheckSuggestionOnSave($article, $user, $text, $summary, $p5, $p6, $p7
 
 // update the first edit table and set the cookie that will show the
 // follow up dialog for the user
-function wfProcessNewArticle(&$article, &$user, $text) {
+function wfProcessNewArticle(&$wikiPage, &$user, $content) {
 	global $wgCookiePath, $wgCookieDomain, $wgCookieSecure, $wgCookiePrefix, $wgLanguageCode;
 
-	$title = $article->getTitle();
+	$title = $wikiPage->getTitle();
 	if (!$title || !$title->inNamespace(NS_MAIN)) {
 		return true;
 	}
@@ -182,7 +182,7 @@ function wfProcessNewArticle(&$article, &$user, $text) {
 		setcookie( $cookieName, '1', $expiry, $wgCookiePath, $wgCookieDomain, $wgCookieSecure );
 	}
 
-	if (preg_match("@#REDIRECT@", $text)) {
+	if ($content->isRedirect()) {
 		return true;
 	}
 
@@ -324,10 +324,11 @@ function wfShowFollowUpOnCreation() {
 	return true;
 }
 
-function wfCheckForCashSpammer($article, $user, $text, $summary, $flags, $p1, $p2, $flags2) {
-	if ($text) {
-		if ($article->getTitle()->getText() == "Yrt291x"
-			|| $article->getTitle()->getText() == "Spam Blacklist"
+function wfCheckForCashSpammer(&$wikiPage, &$user, $content, $summary, $flags, $p1, $p2, $flags2) {
+	$wikitext = ContentHandler::getContentText($content);
+	if ($wikitext) {
+		if ($wikiPage->getTitle()->getText() == "Yrt291x"
+			|| $wikiPage->getTitle()->getText() == "Spam Blacklist"
 		) {
 			return true;
 		}
@@ -336,7 +337,7 @@ function wfCheckForCashSpammer($article, $user, $text, $summary, $flags, $p1, $p
 		foreach ($msgs as $m) {
 			$m = trim($m);
 			if ($m == "") continue;
-			if (stripos($text, $m) !== false) {
+			if (stripos($wikitext, $m) !== false) {
 				return false;
 			}
 		}

@@ -92,8 +92,8 @@ class UCIPatrol extends SpecialPage {
 	protected function getArticleHtml($revision, $title) {
 		$popts = $this->getOutput()->parserOptions();
 		$popts->setTidy(true);
-		$parserOutput = $this->getOutput()->parse($revision->getText(), $title, $popts);
-		$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+		$parserOutput = $this->getOutput()->parse(ContentHandler::getContentText( $revision->getContent() ), $title, $popts);
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 		$result = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));
 		return $result;
 	}

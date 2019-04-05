@@ -57,7 +57,7 @@ class QuickEdit extends UnlistedSpecialPage {
 		if ($out->mRedirect && $req->wasPosted()) {
 			$out->redirect('');
 			$rev = Revision::newFromTitle($title);
-			$out->addHTML( $out->parse( $rev->getText() ) );
+			$out->addHTML( $out->parse( ContentHandler::getContentText( $rev->getContent() ) ) );
 		}
 	}
 

@@ -308,7 +308,7 @@ class EditFinder extends UnlistedSpecialPage {
 		$dbr = wfGetDB(DB_REPLICA);
 		$r = Revision::loadFromPageId( $dbr, $aid );
 
-		if (strpos($r->getText(),'{{inuse') === false) {
+		if (strpos(ContentHandler::getContentText( $r->getContent() ),'{{inuse') === false) {
 			$result = false;
 		} else {
 			$result = true;
@@ -476,10 +476,10 @@ class EditFinder extends UnlistedSpecialPage {
 			$popts = $out->parserOptions();
 			$popts->setTidy(true);
 			$popts->enableLimitReport();
-			$parserOutput = $wgParser->parse( $r->getText(), $t, $popts, true, true, $a->getRevIdFetched() );
+			$parserOutput = $wgParser->parse( ContentHandler::getContentText( $r->getContent() ), $t, $popts, true, true, $a->getRevIdFetched() );
 			$popts->setTidy(false);
 			$popts->enableLimitReport( false );
-			$magic = WikihowArticleHTML::grabTheMagic($r->getText());
+			$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
 			$html = WikihowArticleHTML::processArticleHTML($parserOutput->getText(), array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));
 			$out->addHTML($html);
 			return;
@@ -499,7 +499,6 @@ class EditFinder extends UnlistedSpecialPage {
 			$efType = strtolower($req->getVal('type'));
 
 			$t = Title::newFromID($req->getInt('aid'));
-			$a = new Article($t);
 
 			//log it
 			$params = array($efType);
@@ -511,8 +510,10 @@ class EditFinder extends UnlistedSpecialPage {
 			$sum = $req->getVal('wpSummary');
 
 			//save the edit
-			$a->doEdit($text,$sum,EDIT_UPDATE);
-			Hooks::run("EditFinderArticleSaveComplete", array($a, $text, $sum, $user, $efType));
+			$wikiPage = WikiPage::factory($t);
+			$content = ContentHandler::makeContent($text, $t);
+			$wikiPage->doEditContent($content, $sum, EDIT_UPDATE);
+			Hooks::run("EditFinderArticleSaveComplete", array($wikiPage, $text, $sum, $user, $efType));
 			return;
 
 		} elseif ($req->getVal( 'confirmation' )) {

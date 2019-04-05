@@ -13,10 +13,14 @@ if ($limit == 0) {
 	exit;
 }
 
-$res = $dbr->select('import_articles', array('ia_id', 'ia_text', 'ia_title'), array('ia_published'=>0), __FILE__, array("ORDER BY"=>"rand()", "LIMIT"=>$limit));
+$res = $dbr->select( 'import_articles',
+	array('ia_id', 'ia_text', 'ia_title'),
+	array('ia_published' => 0),
+	__FILE__,
+	array("ORDER BY"=>"rand()", "LIMIT"=>$limit) );
 
-echo "Starting: " . date("r") . ", doing $limit \n";
-while ($row = $dbr->fetchObject($res)) {
+echo "Starting: " . date("r") . ", doing $limit\n";
+foreach ($res as $row) {
 	$id = $row->ia_id;
 	$title = Title::makeTitle(NS_MAIN, $row->ia_title);
 	if (!$title) {
@@ -24,13 +28,14 @@ while ($row = $dbr->fetchObject($res)) {
 		$dbw->update('import_articles', array('ia_publish_err'=>1), array('ia_id'=>$row->ia_id));
 		continue;
 	}
-	$a = new Article($title);
-	if ($title->getArticleID() && !$a->mIsRedirect) {
+	$wikiPage = WikiPage::factory($title);
+	if ($title->getArticleID() && !$wikiPage->isRedirect()) {
 		echo "Can't overwrite non-redirect article {$title->getText()}\n";
 		$dbw->update('import_articles', array('ia_publish_err'=>1), array('ia_id'=>$row->ia_id));
 		continue;
 	}
-	if ($a->doEdit($row->ia_text, "Creating new article", EDIT_FORCE_BOT)) {
+	$content = ContentHandler::makeContent($row->ia_text, $title);
+	if ($wikiPage->doEditContent($content, "Creating new article", EDIT_FORCE_BOT)) {
 		// success
 		echo "Published {$title->getText()}\n";
 	} else {

@@ -13,17 +13,9 @@ class ThumbRatingsMaintenance {
 	* and slow down after reordering appox 1k articles.
 	*/
 	public function rankArticles($num = 1000, $lowDate) {
-		global $wgUseSquid, $wgHooks;
+		global $wgUseSquid;
 		$this->output("rankArticles() start: " . date("Y-m-d H:i:s"));
 
-		// Temp disable a few costly operations that happen on article edit
-		$oldArticleSaveCompleteHooks = $wgHooks['ArticleSaveComplete'];
-		foreach ($wgHooks['ArticleSaveComplete'] as $k => $hook) {
-			$needle = 'ArticleMetaInfo::refreshMetaDataCallback';
-			if ($hook[0] == $needle) {
-				unset($wgHooks['ArticleSaveComplete'][$k]);break;
-			}
-		}
 		$oldWgUseSquid = $wgUseSquid;
 		$wgUseSquid = false;
 
@@ -45,9 +37,9 @@ class ThumbRatingsMaintenance {
 				try {
 					$ranker = new ThumbRank($r);
 					$ranker->reorder(true);
-					$this->output("RANKED: page_id: {$t->getArticleId()}, url: http://www.wikihow.com/{$t->getDBKey()}");
+					$this->output("RANKED: page_id: {$t->getArticleId()}, url: https://www.wikihow.com/{$t->getDBKey()}");
 				} catch(Exception $e) {
-					$this->output("ERROR: page_id: {$t->getArticleId()}, url: http://www.wikihow.com/{$t->getDBKey()}\nmsg:\n$e");
+					$this->output("ERROR: page_id: {$t->getArticleId()}, url: https://www.wikihow.com/{$t->getDBKey()}\nmsg:\n$e");
 				}
 			}
 			$this->markRanked($id);
@@ -55,7 +47,6 @@ class ThumbRatingsMaintenance {
 
 		// Reset appropriate vars to original state
 		$wgUseSquid = $oldWgUseSquid;
-		$wgHooks['ArticleSaveComplete'] = $oldArticleSaveCompleteHooks;
 
 		$this->output("rankArticles() finish: " . date("Y-m-d H:i:s"));
 	}

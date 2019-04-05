@@ -50,7 +50,7 @@ class CheckSummaryTemplatesForHTMLTags extends Maintenance {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return false;
 
-		return $this->tagsExistInSummary($rev->getText());
+		return $this->tagsExistInSummary(ContentHandler::getContentText( $rev->getContent() ));
 	}
 
 	private function tagsExistInSummary(string $summary): bool {

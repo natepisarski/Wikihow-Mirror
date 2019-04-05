@@ -64,17 +64,17 @@ class ProfileBox extends UnlistedSpecialPage {
 			$t = Title::newFromText($user->getUserPage() . '/profilebox-live');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
-				$live = $r->getText();
+				$live = ContentHandler::getContentText( $r->getContent() );
 			}
 			$t = Title::newFromText($user->getUserPage() . '/profilebox-occupation');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
-				$occupation = $r->getText();
+				$occupation = ContentHandler::getContentText( $r->getContent() );
 			}
 			$t = Title::newFromText($user->getUserPage() . '/profilebox-aboutme');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
-				$aboutme = $r->getText();
+				$aboutme = ContentHandler::getContentText( $r->getContent() );
 				$aboutme = preg_replace('/\\\\r\\\\n/s',"\n",$aboutme);
 				$aboutme = stripslashes($aboutme);
 			}
@@ -212,7 +212,7 @@ $out->addHTML("
 		if ($t->getArticleId() > 0) {
 			/*
 			$r = Revision::newFromTitle($t);
-			$curtext .= $r->getText();
+			$curtext .= ContentHandler::getContentText( $r->getContent() );
 
 			if (!preg_match('/<!-- blank -->/',$curtext)) {
 				$userpage .= $curtext;
@@ -269,10 +269,11 @@ $out->addHTML("
 		$t = Title::newFromText($user->getUserPage() . '/profilebox-live');
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			$txt = $r->getText();
+			$txt = ContentHandler::getContentText( $r->getContent() );
 			if ($txt != '') {
-				$a = new Article($t);
-				$a->doEdit('', 'profilebox-live-empty' );
+				$wikiPage = WikiPage::factory($t);
+				$content = ContentHandler::makeContent('', $t);
+				$wikiPage->doEditContent($content, 'profilebox-live-empty' );
 				$removed = true;
 			}
 		}
@@ -280,10 +281,11 @@ $out->addHTML("
 		$t = Title::newFromText($user->getUserPage() . '/profilebox-occupation');
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			$txt = $r->getText();
+			$txt = ContentHandler::getContentText( $r->getContent() );
 			if ($txt != '') {
-				$a = new Article($t);
-				$a->doEdit('', 'profilebox-occupation-empty');
+				$wikiPage = WikiPage::factory($t);
+				$content = ContentHandler::makeContent('', $t);
+				$wikiPage->doEditContent($content, 'profilebox-occupation-empty');
 				$removed = true;
 			}
 		}
@@ -291,10 +293,11 @@ $out->addHTML("
 		$t = Title::newFromText($user->getUserPage() . '/profilebox-aboutme');
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			$txt = $r->getText();
+			$txt = ContentHandler::getContentText( $r->getContent() );
 			if ($txt != '') {
-				$a = new Article($t);
-				$a->doEdit('', 'profilebox-aboutme-empty');
+				$wikiPage = WikiPage::factory($t);
+				$content = ContentHandler::makeContent('', $t);
+				$wikiPage->doEditContent($content, 'profilebox-aboutme-empty');
 				$removed = true;
 			}
 		}
@@ -617,7 +620,7 @@ $out->addHTML("
 		$t = Title::newFromText($u->getUserPage() . '/profilebox-live');
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			if ($r) $pb_live = $r->getText();
+			if ($r) $pb_live = ContentHandler::getContentText( $r->getContent() );
 			if ($pb_live) $pb_showlive = true;
 		}
 
@@ -626,7 +629,7 @@ $out->addHTML("
 		$t = Title::newFromText($u->getUserPage() . '/profilebox-occupation');
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			if ($r) $pb_work = $r->getText();
+			if ($r) $pb_work = ContentHandler::getContentText( $r->getContent() );
 			if ($pb_work) $pb_showwork = true;
 		}
 
@@ -635,7 +638,7 @@ $out->addHTML("
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
 			if ($r) {
-				$pb_aboutme = $r->getText();
+				$pb_aboutme = ContentHandler::getContentText( $r->getContent() );
 				$pb_aboutme = strip_tags($pb_aboutme, '<p><br><b><i>');
 				$pb_aboutme = preg_replace('/\\\\r\\\\n/s',"\n",$pb_aboutme);
 				$pb_aboutme = stripslashes($pb_aboutme);

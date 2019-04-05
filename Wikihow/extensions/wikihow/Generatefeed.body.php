@@ -15,9 +15,10 @@ class GenerateFeed extends UnlistedSpecialPage {
 		return $source;
 	}
 
-	public static function getArticleSummary(&$article, &$title) {
+	private static function getArticleSummary($wikiPage, $title) {
 		global $wgParser;
-		$summary = Article::getSection($article->getContent(true), 0);
+		$wikitext = ContentHandler::getContentText( $wikiPage->getContent() );
+		$summary = $wgParser->getSection($wikitext, 0);
 		// remove templates from intro
 		$summary = preg_replace('@\{\{[^}]*\}\}@', '', $summary);
 		$summary = preg_replace('@\[\[Image:[^\]]*\]\]@', '', $summary);
@@ -29,14 +30,13 @@ class GenerateFeed extends UnlistedSpecialPage {
 		return $summary;
 	}
 
-	public function getImages(&$article, &$title) {
-		$content = $article->getContent(true);
+	private static function getImages($wikiPage, $title) {
+		$wikitext = ContentHandler::getContentText( $wikiPage->getContent() );
 
 		$images = array();
-
 		$count = 0;
-		preg_match_all("@\[\[Image[^\]]*\]\]@im", $content, $matches);
-		foreach($matches[0] as $i) {
+		preg_match_all("@\[\[Image[^\]]*\]\]@im", $wikitext, $matches);
+		foreach ($matches[0] as $i) {
 			$i = preg_replace("@\|.*@", "", $i);
 			$i = preg_replace("@^\[\[@", "", $i);
 			$i = preg_replace("@\]\]$@", "", $i);
@@ -116,7 +116,7 @@ class GenerateFeed extends UnlistedSpecialPage {
 			$url = preg_replace('@^(https?:)?//[^/]+/@', '', $url);
 			$title = Title::newFromURL(urldecode($url));
 			$summary = '';
-			$content = '';
+			$wikitext = '';
 			if ($title == null) { // skip if article not found
 				continue;
 			}
@@ -124,20 +124,21 @@ class GenerateFeed extends UnlistedSpecialPage {
 			// from the Featured Articles
 			if ($title->getArticleID() > 0) {
 				$article = GoodRevision::newArticleFromLatest($title);
-				$summary = self::getArticleSummary($article, $title);
-				$images = self::getImages($article, $title);
+				$wikiPage = $article->getPage();
+				$summary = self::getArticleSummary($wikiPage, $title);
+				$images = self::getImages($wikiPage, $title);
 
 				//XXFULL FEED
 				if (!$mrss) {
-					$content = $article->getContent(true);
-					$content = preg_replace('/\{\{[^}]*\}\}/', '', $content);
-					$output = $wgParser->parse($content, $title, new ParserOptions());
-					$content = self::addTargetBlank($output->getText());
-					$content = preg_replace('@href="/@', 'href="'.$wgCanonicalServer.'/', $content);
-					$content = preg_replace('@src="/@', 'src="'.$wgCanonicalServer.'/', $content);
-					$content = preg_replace("@<a target='_blank' href='([^']*)'>Edit</a>@",'',$content);
-					$content = preg_replace('@(<h[2-4]>)<a target="_blank" href="([^"]*)" title="([^"]*)" class="editsection" onclick="([^"]*)">Edit</a>@', '$1', $content);
-					$content = preg_replace('@<img src="([^"]*)/skins/common/images/magnify-clip.png"([^/]*)/>@', '', $content);
+					$wikitext = ContentHandler::getContentText( $wikiPage->getContent() );
+					$wikitext = preg_replace('/\{\{[^}]*\}\}/', '', $wikitext);
+					$output = $wgParser->parse($wikitext, $title, new ParserOptions());
+					$wikitext = self::addTargetBlank($output->getText());
+					$wikitext = preg_replace('@href="/@', 'href="'.$wgCanonicalServer.'/', $wikitext);
+					$wikitext = preg_replace('@src="/@', 'src="'.$wgCanonicalServer.'/', $wikitext);
+					$wikitext = preg_replace("@<a target='_blank' href='([^']*)'>Edit</a>@",'',$wikitext);
+					$wikitext = preg_replace('@(<h[2-4]>)<a target="_blank" href="([^"]*)" title="([^"]*)" class="editsection" onclick="([^"]*)">Edit</a>@', '$1', $wikitext);
+					$wikitext = preg_replace('@<img src="([^"]*)/skins/common/images/magnify-clip.png"([^/]*)/>@', '', $wikitext);
 				}
 			} else {
 				continue;
@@ -148,8 +149,8 @@ class GenerateFeed extends UnlistedSpecialPage {
 			$title_text = $title->getPrefixedText();
 			if (isset($f[2])
 				&& $f[2] != null
-				&& trim($f[2]) != '')
-			{
+				&& trim($f[2]) != ''
+			) {
 				$title_text = $f[2];
 			} else {
 				$title_text = wfMessage('howto', $title_text);
@@ -168,7 +169,7 @@ class GenerateFeed extends UnlistedSpecialPage {
 				$feed->outItemMRSS($item, $images);
 			} else {
 				// Replace to get back to raw feed (not full and without mrss)
-				$feed->outItemFullFeed($item, $content, $images);
+				$feed->outItemFullFeed($item, $wikitext, $images);
 			}
 			$itemcount++;
 

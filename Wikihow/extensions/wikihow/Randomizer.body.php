@@ -72,7 +72,7 @@ class Randomizer extends SpecialPage {
 		if (!$rev) {
 			return false;
 		}
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 		return $wikitext;
 	}
 

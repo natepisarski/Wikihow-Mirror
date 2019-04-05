@@ -48,12 +48,12 @@ function updateId($oldId, $r, &$wikitext, $u) {
 		} elseif ($newWikitext == $wikitext) {
 			printError($t, "Nothing replaced. old id: $oldId, oldid: $oldId, newid: $newId");
 		} else {
-			$a = WikiPage::factory($t);
-			if ($a && $a->exists()) {
+			$wikiPage = WikiPage::factory($t);
+			if ($wikiPage && $wikiPage->exists()) {
 				$summary = "Updating howcast id. old: $oldId, new: $newId";
 				$content = ContentHandler::makeContent( $newWikitext, $t );
 				if (!$scriptDebug) {
-					$result = $a->doEditContent($content, $summary, EDIT_UPDATE, false, $u);
+					$result = $wikiPage->doEditContent($content, $summary, EDIT_UPDATE, false, $u);
 				} else {
 					$result = (object) array("value" => array("revision" => 1));
 				}

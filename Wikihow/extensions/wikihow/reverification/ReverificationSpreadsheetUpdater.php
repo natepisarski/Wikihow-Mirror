@@ -43,7 +43,8 @@ class ReverificationSpreadsheetUpdater {
 		}
 
 		$this->processRemaining();
-		$this->sendReport();
+		// not sending anything right now since this project is on hold
+		// $this->sendReport();
 	}
 
 	protected function processSheet(Google_Spreadsheet_Sheet $sheet) {
@@ -59,21 +60,22 @@ class ReverificationSpreadsheetUpdater {
 				$reverificationDate = $rever->getNewDate(ReverificationData::FORMAT_SPREADSHEET);
 				$spreadsheetVerifiedDate = $data["Verified Date"];
 
+				$verifierId = (int) $data["Coauthor ID"];
 				$verifierName = $data["Verifier Name"];
-				if (!isset($this->verifierCount[$verifierName])) {
-					$this->verifierCount[$verifierName] = 0;
-					$this->verifierSkipCount[$verifierName] = 0;
+				if (!isset($this->verifierCount[$verifierId])) {
+					$this->verifierCount[$verifierId] = 0;
+					$this->verifierSkipCount[$verifierId] = 0;
 				}
-				if ($this->verifierCount[$verifierName] >= Self::MAX_PER_DAY) {
+				if ($this->verifierCount[$verifierId] >= Self::MAX_PER_DAY) {
 					$skipCount++;
-					$this->verifierSkipCount[$verifierName]++;
+					$this->verifierSkipCount[$verifierId]++;
 					$this->totalSkipped++;
 					$shouldUpdateRow = false; //we don't want to update the row in the db, b/c we're saving it for another day
-					$this->log("-Skipping. Already processed " . $this->verifierCount[$verifierName] . " by " . $verifierName);
+					$this->log("-Skipping. Already processed " . $this->verifierCount[$verifierId] . " by " . $verifierName);
 				} elseif (strtotime($reverificationDate) <= strtotime($spreadsheetVerifiedDate)) {
 					$skipCount++;
 					$this->totalSkipped++;
-					$this->verifierSkipCount[$verifierName]++;
+					$this->verifierSkipCount[$verifierId]++;
 					$this->log("-Skipping.  Reverified date less than or equal to current spreadsheet date " .
 						"$spreadsheetVerifiedDate.");
 					$this->emailLog("Article ID: $rowAid, Reverification Date: $reverificationDate - Skipping " .
@@ -90,12 +92,12 @@ class ReverificationSpreadsheetUpdater {
 						$sheet->update($row, "Verified Date",
 							ReverificationData::formatDate(date(ReverificationData::FORMAT_DB), ReverificationData::FORMAT_SPREADSHEET));
 
-						if ($rever->getVerifierName() != $data["Verifier Name"]) {
-							$this->log("-Updating spreadsheet 'Verifier Name' fields. Replacing " .
-								"{$data["Verifier Name"]} with {$rever->getVerifierName()}");
+						if ($rever->getVerifierId() && ($rever->getVerifierId() != $verifierId) ) {
+							$this->log("-Updating spreadsheet 'Coauthor ID' field. Replacing " .
+							"{$data["Coauthor ID"]} with {$rever->getVerifierId()}");
 							$sheet->update($row, 'Verifier Name', $rever->getVerifierName());
 						}
-						$this->verifierCount[$verifierName]++;
+						$this->verifierCount[$verifierId]++;
 					} else {
 						$this->log("-Skipping. Title doesn't exist for Article ID $rowAid");
 						$this->emailLog("Article ID: $rowAid, Reverification Date: $reverificationDate - Title " .
@@ -154,7 +156,7 @@ class ReverificationSpreadsheetUpdater {
 			"Duration: $duration";
 
 		UserMailer::send(
-			new MailAddress('jordan@wikihow.com, elizabeth@wikihow.com, connor@wikihow.com , bebeth@wikihow.com'),
+			new MailAddress('jordan@wikihow.com, elizabeth@wikihow.com, connor@wikihow.com, bebeth@wikihow.com'),
 			new MailAddress('ops@wikihow.com'),
 			"Reverifications: Master Expert Verified Update Report - " . $this->convertoLocalTime(wfTimestampNow()),
 			$reportBody

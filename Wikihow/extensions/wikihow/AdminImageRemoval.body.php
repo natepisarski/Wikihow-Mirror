@@ -64,7 +64,7 @@ class AdminImageRemoval extends UnlistedSpecialPage {
 		$out->addModules('ext.wikihow.image_removal');
 
 		$s = Html::openElement( 'form', array( 'action' => '', 'id' => 'imageremoval' ) ) . "\n";
-		$s .= Html::element('p', array(''), 'Input full URLs (e.g. http://www.wikihow.com/Kiss) for articles that should have images removed from them.');
+		$s .= Html::element('p', array(''), 'Input full URLs (e.g. https://www.wikihow.com/Kiss) for articles that should have images removed from them.');
 		$s .= Html::element('br');
 		$s .= Html::element( 'textarea', array('id' => 'urls', 'cols' => 55, 'rows' => 5) ) . "\n";
 		$s .= Html::element('br');
@@ -83,7 +83,7 @@ class AdminImageRemoval extends UnlistedSpecialPage {
 		if ($title) {
 			$revision = Revision::newFromTitle($title);
 
-			$text = $revision->getText();
+			$text = ContentHandler::getContentText( $revision->getContent() );
 
 			//regular expressions copied out of maintenance/wikiphotoProcessImages.php
 			//but modified to remove the leading BR tags if they exist
@@ -112,8 +112,9 @@ class AdminImageRemoval extends UnlistedSpecialPage {
 			);
 			$text = preg_replace('@(<\s*br\s*[\/]?>)*\s*\{\{largeimage\|[^\}]*\}\}@im', '', $text);
 
-			$article = new Article($title);
-			$saved = $article->doEdit($text, 'Removing all images from article');
+			$wikiPage = WikiPage::factory($title);
+			$content = ContentHandler::makeContent($text, $title);
+			$wikiPage->doEditContent($content, 'Removing all images from article');
 		}
 	}
 }

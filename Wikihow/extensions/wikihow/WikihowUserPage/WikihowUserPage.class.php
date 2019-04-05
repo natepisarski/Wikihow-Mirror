@@ -205,8 +205,8 @@ class WikihowUserPage extends Article {
 		$user = $this->getContext()->getUser();
 
 		//get the guts
-		$content = $this->getContent();
-		$html = $out->parse($content);
+		$wikitext = ContentHandler::getContentText( $this->getPage()->getContent() );
+		$html = $out->parse($wikitext);
 		$html = WikihowArticleHTML::processHTML($html);
 		$html = Avatar::insertAvatarIntoDiscussion($html);
 

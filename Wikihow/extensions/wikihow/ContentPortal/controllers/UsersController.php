@@ -103,7 +103,7 @@ class UsersController extends AppController {
 		}
 
 		$user = User::find($_GET['id']);
-		$user->setArticleBodyOnly(true);
+		$user->disable();
 		$this->updateMediaWikiUser($user);
 
 		$this->redirectTo("users");

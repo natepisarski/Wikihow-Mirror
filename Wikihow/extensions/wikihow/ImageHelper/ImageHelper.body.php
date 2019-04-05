@@ -79,7 +79,7 @@ class ImageHelper extends UnlistedSpecialPage {
 		$r = Revision::newFromTitle($title);
 		$relatedTitles = array();
 		if ($r) {
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $r->getContent() );
 			$whow = WikihowArticleEditor::newFromText($text);
 			$related = preg_replace("@^==.*@m", "", $whow->getSection('related wikihows'));
 
@@ -390,7 +390,7 @@ class ImageHelper extends UnlistedSpecialPage {
 		$t = Title::newFromText('Image:' . $imageTitle->getPartialURL() . '/description');
 		if ($t && $t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			$description = $r->getText();
+			$description = ContentHandler::getContentText( $r->getContent() );
 			$wgOut->addHTML("<div style='margin-top:10px;' class='im-images'>");
 			$wgOut->addHTML("<strong>Description: </strong>");
 			$wgOut->addHTML($description);
@@ -412,12 +412,14 @@ class ImageHelper extends UnlistedSpecialPage {
 		}
 		// first add image info
 		$html = $this->getImageInfoWidget($imagePage, $title, $image);
-		if ($html != "")
+		if ($html) {
 			$skin->addWidget($html);
+		}
 		if (self::IMAGES_ON) {
 			$html = self::getRelatedWikiHowsWidget($title);
-			if ($html != "")
+			if ($html) {
 				$skin->addWidget($html);
+			}
 		}
 	}
 
@@ -463,7 +465,7 @@ class ImageHelper extends UnlistedSpecialPage {
 		if ($t) {
 			$cv = new WikihowCategoryViewer($t, $this->getContext());
 			$cv->clearCategoryState();
-			$cv->doQuery();
+			$cv->doQuery(/*$getSubcats*/ true, /*$calledFromCategoryPage*/ false);
 
 			$templates = array();
 			foreach ($cv->articles as $article) {

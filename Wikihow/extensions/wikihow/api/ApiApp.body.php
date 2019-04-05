@@ -66,6 +66,8 @@ class ApiApp extends ApiBase {
 			}
 			if (!$title || !$title->exists()) {
 				$error = 'Title not found';
+			} elseif ( !$title->inNamespace(NS_MAIN) ) {
+				$error = 'We can only display regular articles.  URL: ' . $title->getFullURL();
 			} else {
 				$revid = !$random ? $params['oldid'] : 0;
 				if (!$revid) {
@@ -310,8 +312,9 @@ class AppDataFormatter {
 	}
 
 	private static function getAbstract($title) {
-		$abstract = '';
+		global $wgParser;
 
+		$abstract = '';
 		$ami = new ArticleMetaInfo($title);
 		if ($ami) {
 			// meta description
@@ -321,8 +324,8 @@ class AppDataFormatter {
 		if (!$abstract) {
 			$rev = Revision::newFromTitle($title);
 			if ($rev) {
-				$wikitext = $rev->getText();
-				$abstract = Article::getSection($wikitext, 0);
+				$wikitext = ContentHandler::getContentText( $rev->getContent() );
+				$abstract = $wgParser->getSection($wikitext, 0);
 			}
 		}
 
@@ -499,7 +502,7 @@ class AppDataFormatter {
 					if ($article) {
 						$user = $article->getUserText();
 						if ($user) $user .= ' (wikiHow)';
-						$wikitext = $article->getContent();
+						$wikitext = ContentHandler::getContentText( $article->getPage()->getContent() );
 						if (preg_match('@{{(cc-by[^}]+)}}@', $wikitext, $m)) {
 							$license = $m[1];
 							// From http://creativecommons.org/licenses/
@@ -664,14 +667,18 @@ class AppDataFormatter {
 	static function parseArticle($title, $revid) {
 		$rev = self::loadTitleRevision($title, $revid);
 
-		$sectionParser = new ApiSectionParser($title, $rev);
-		$sections = $sectionParser->parse();
+		if ($rev) {
+			$sectionParser = new ApiSectionParser($title, $rev);
+			$sections = $sectionParser->parse();
+		} else {
+			$sections = [];
+		}
 
 		$abstract = self::getAbstract($title);
 
 		$result = array(
 			'id' => intval($title->getArticleID()),
-			'revision_id' => self::getRevId( $rev->getId() ),
+			'revision_id' => $rev ? self::getRevId( $rev->getId() ) : -1,
 			'title' => $title->getText(),
 			'fulltitle' => wfMessage('howto', $title->getText())->text(),
 			'url' => self::makeFullURL( $title->getPartialUrl() ),
@@ -721,7 +728,8 @@ class ApiSectionParser {
 
 		$pOpts = $wgOut->parserOptions();
 		$pOpts->setTidy(true);
-		$pOut = $wgParser->parse($this->rev->getText(), $this->title, $pOpts, true, true, $this->rev->getId());
+		$wikitext = ContentHandler::getContentText( $this->rev->getContent() );
+		$pOut = $wgParser->parse($wikitext, $this->title, $pOpts, true, true, $this->rev->getId());
 		$html = $pOut->mText;
 		$pOpts->setTidy(false);
 

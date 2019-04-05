@@ -15,6 +15,7 @@ class ReverificationExporter {
 		'Article Title',
 		'Article Url',
 		'Date action taken',
+		'Coauthor ID',
 		'Verifier Name',
 		'Reverified',
 		'Date Reverified',
@@ -79,6 +80,7 @@ class ReverificationExporter {
 			$row['Article Title'] = $t->getText();
 			$row['Article Url'] = Misc::getLangBaseURL('en') . $t->getLocalURL();
 			$row['Date action taken'] = $rever->getNewDate(ReverificationData::FORMAT_SPREADSHEET);
+			$row['Coauthor ID'] = $rever->getVerifierId();
 			$row['Verifier Name'] = $rever->getVerifierName();
 			$row['Reverified'] = $rever->getReverified() ? 'Y' : 'N';
 

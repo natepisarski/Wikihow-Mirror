@@ -315,10 +315,10 @@ class InstantArticles extends Maintenance {
 		$popts = $output->parserOptions();
 		$popts->setTidy( true );
 		$popts->setEditSection( false );
-		$parserOutput = $output->parse( $revision->getText(), $title, $popts );
+		$parserOutput = $output->parse( ContentHandler::getContentText( $revision->getContent() ), $title, $popts );
 
 		// process the html
-		$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 
 		// gets the desktop version of the html
 		$parserOutput = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));

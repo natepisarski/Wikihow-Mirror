@@ -120,7 +120,7 @@ function loadTitles() {
 
 // Generate and dump the DDG data to stdout
 function printDDGdata(&$titles) {
-	global $baseMemory;
+	global $baseMemory, $wgParser;
 
 	foreach ($titles as $title) {
 
@@ -128,10 +128,10 @@ function printDDGdata(&$titles) {
 		if (!$rev) continue;
 
 		$full_url = $title->getFullURL();
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		// pull out intro
-		$intro = Article::getSection($wikitext, 0);
+		$intro = $wgParser->getSection($wikitext, 0);
 
 		// try to generate the abstract using a couple different ways
 		$abstract = synthesizeSummary($wikitext, 3, $full_url);

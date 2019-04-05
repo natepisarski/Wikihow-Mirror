@@ -1627,7 +1627,10 @@ class wikihowAds {
 				'small' => [
 					'intro' => $introChannel,
 					'method' => $methodChannel,
-					'related' => $relatedChannel
+					'related' => $relatedChannel,
+					'tips' => '',
+					'warnings' => '',
+					'pagebottom' => '',
 				],
 				'medium' => [
 				],
@@ -1639,6 +1642,9 @@ class wikihowAds {
 					'intro' => "2831688978",
 					'method' => "6771527778",
 					'related' => "9724994176",
+					'tips' => "5426475249",
+					'warnings' => "7478278737",
+					'pagebottom' => "1160282390",
 				],
 				'medium' => [
 
@@ -1646,7 +1652,10 @@ class wikihowAds {
 				'large' => [
 					'intro' => "9046346177",
 					'method' => "8248260977",
-					'related' => "9724994176"
+					'related' => "9724994176",
+					'tips' => "5426475249",
+					'warnings' => "7478278737",
+					'pagebottom' => "1160282390",
 				]
 
 			]
@@ -2026,10 +2035,6 @@ class wikihowAds {
 	private static function isExtraAdsTestPage() {
 		global $wgOut, $wgLanguageCode;
 
-		if ($wgLanguageCode != "en") {
-			return false;
-		}
-
 		if ( class_exists( 'AlternateDomain' ) && AlternateDomain::onAlternateDomain() ) {
 			return false;
 		}
@@ -2046,18 +2051,28 @@ class wikihowAds {
 		return true;
 	}
 
-   private static function insertExtraTestAds() {
-		wikihowAds::insertMobileAdMiddleRelated();
-		wikihowAds::insertMobileAdAtTarget('qa');
-		wikihowAds::insertMobileAdAtTarget('tips');
-		wikihowAds::insertMobileAdAtTarget('warnings');
+	private static function insertExtraTestAds() {
+		global $wgLanguageCode;
+		// TODO in the future we can check the mobile ad setup to see if there is an ad for this position instead of doing this lang check
+		$tips = 'tips';
+		$warnings = 'warnings';
+		if ($wgLanguageCode == "en") {
+			wikihowAds::insertMobileAdMiddleRelated();
+			wikihowAds::insertMobileAdAtTarget('qa', 'qa' );
+		} else {
+			$tips = strtolower( wfMessage( $tips )->text() );
+			$warnings = strtolower( wfMessage( $warnings )->text() );
+		}
+
+		wikihowAds::insertMobileAdAtTarget( 'tips', $tips );
+		wikihowAds::insertMobileAdAtTarget( 'warnings', $warnings );
 		$bottomAdContainer = Html::element( 'div', ['id' => 'pagebottom'] );
 		pq('#article_rating_mobile')->after( $bottomAdContainer );
-		wikihowAds::insertMobileAdAtTarget('pagebottom');
-   }
+		wikihowAds::insertMobileAdAtTarget( 'pagebottom', 'pagebottom' );
+	}
 
    private static function getAdTestChannels() {
-	   global $wgOut, $wgLanguageCode;
+	   global $wgOut, $wgLanguageCode, $wgRequest;
 
 	   $channels = '';
 	   if ($wgLanguageCode != "en") {
@@ -2072,19 +2087,25 @@ class wikihowAds {
 		   return $channels;
 	   }
 
+		if ( $pageId == 223933 ) {
+			$val = $wgRequest->getVal('utm_source');
+			if ( isset( $val ) && $val == 'quora' ) {
+				$channels = '+6747118168';
+			}
+		}
 	   return $channels;
    }
 
-	private static function insertMobileAdAtTarget( $target ) {
+	private static function insertMobileAdAtTarget( $adName, $target ) {
         global $wgTitle;
 
         $pageId = $wgTitle->getArticleID();
 
-		$id = 'wh_ad_'.$target;
+		$id = 'wh_ad_'.$adName;
 		$attributes = array(
 			'id' => $id ,
 			'class' => 'wh_ad',
-			'data-type' => $target,
+			'data-type' => $adName,
 		);
 
 		$attributes['data-scroll-load'] = true;

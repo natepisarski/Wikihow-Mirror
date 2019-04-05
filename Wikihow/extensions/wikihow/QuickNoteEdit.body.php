@@ -52,7 +52,7 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 		$template = Title::makeTitle(NS_TEMPLATE, $tp1);
 
 		$r = Revision::newFromTitle($template);
-		$tb1_message = $r->getText();
+		$tb1_message = ContentHandler::getContentText( $r->getContent() );
 		$tb1_message = preg_replace('/<noinclude>(.*?)<\/noinclude>/is', '', $tb1_message);
 		$tb1_message = str_replace("\n", "\\n", $tb1_message);
 		$tb1_message = str_replace("'", "\'", $tb1_message);
@@ -61,7 +61,7 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 		$tp3 = substr($tb3, $start3, $end3);
 		$template = Title::makeTitle(NS_TEMPLATE, $tp3);
 		$r = Revision::newFromTitle($template);
-		$tb3_message = $r->getText();
+		$tb3_message = ContentHandler::getContentText( $r->getContent() );
 		$tb3_message = preg_replace('/<noinclude>(.*?)<\/noinclude>/is', '', $tb3_message);
 		$tb3_message = str_replace("\n", "\\n", $tb3_message);
 		$tb3_message = str_replace("'", "\'", $tb3_message);

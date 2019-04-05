@@ -442,7 +442,7 @@ class TranslationLink {
 		if (!$r) {
 			return $ret;
 		}
-		$txt = $r->getText();
+		$txt = ContentHandler::getContentText( $r->getContent() );
 		$txt = preg_replace("@\[\[[a-zA-Z][a-z-A-Z]:[^\]]+\]\]@","",$txt, -1, $count);
 		$ret['status'] = 1;
 		$ret['linksRemoved'] = $count;
@@ -450,9 +450,10 @@ class TranslationLink {
 			return $ret;
 		}
 		$ret['status'] = 2;
-		$article = new Article($title);
+		$wikiPage = WikiPage::factory($title);
+		$content = ContentHandler::makeContent($txt, $title);
 		if (!$dryRun) {
-			$article->doEdit($txt, wfMessage('removeiw-editsummary')->plain());
+			$wikiPage->doEditContent($content, wfMessage('removeiw-editsummary')->plain());
 		}
 		return $ret;
 	}
@@ -506,7 +507,7 @@ class TranslationLink {
 		if (!$r) {
 			return $ret;
 		}
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$linkText="\n[[" . $toLang . ":" . str_replace("-"," ",$toPage) . "]]";
 		$linkTextRE="\[\[" . $toLang . ":(?:" . preg_quote($toPage,"/") . "|" . preg_quote(urlencode($toPage),"/") . ")\]\]";
 		$linkTextRE=str_replace("\-","[ -]",$linkTextRE);
@@ -528,10 +529,10 @@ class TranslationLink {
 			$ret['status'] = 3;
 		}
 		$text .= $linkText;
-		$article = new Article($fromTitle);
-
+		$wikiPage = WikiPage::factory($fromTitle);
+		$content = ContentHandler::makeContent($text, $fromTitle);
 		if (!$dryRun) {
-			$article->doEdit($text, wfMessage('addll-editsummary'));
+			$wikiPage->doEditContent($content, wfMessage('addll-editsummary'));
 			self::writeLog(self::ACTION_SAVE, $fromLang, $r->getId(), $fromAID, $fromPage,$toLang,$toPage,$toAID,"interwiki");
 		}
 		return $ret;
@@ -581,8 +582,8 @@ class TranslationLink {
 		if (!$r) {
 			return false;
 		}
-		$article =new Article($fromTitle);
-		$text = $r->getText();
+		$wikiPage = WikiPage::factory($fromTitle);
+		$text = ContentHandler::getContentText( $r->getContent() );
 		$linkText="[[" . $toLang . ":" . $toPage . "]]";
 		$linkTextRE="\[\[" . $toLang . ":(?:" . preg_quote($toPage,"/") . "|" . preg_quote(urlencode($toPage),"/") . ")\]\]";
 		$linkTextRE=str_replace("\-","[ -]",$linkTextRE);
@@ -596,7 +597,8 @@ class TranslationLink {
 				$text = str_replace($match,"",$text);
 			}
 			if (!$dryRun) {
-				$article->doEdit($text, wfMessage('removell-editsummary'));
+				$content = ContentHandler::makeContent($text, $fromTitle);
+				$wikiPage->doEditContent($content, wfMessage('removell-editsummary'));
 				self::writeLog(self::ACTION_INTERWIKI_DELETE, $fromLang, $r->getId(), $fromAID, $fromPage,$toLang,$toPage,$toAID,"interwiki");
 			}
 		}

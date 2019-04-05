@@ -150,18 +150,13 @@ class CategoryGuardian extends UnlistedSpecialPage {
 	  }
 	}
 
-	public static function onArticleChange($article) {
-		if ($article) {
+	public static function onArticleChange($wikiPage) {
+		if ($wikiPage) {
 			$sql = new SqlSuper();
-/* Note from Reuben: I'm commenting this fixed code since $article->mArticleID didn't
- exist and was generating an error on doh. I didn't want to publish the 4 line fix
- below on Friday without Dave around though.
-
-			$articleID = $article->getTitle()->getArticleID();
+			$articleID = $wikiPage->getID();
 			if ($articleID) {
-				$sql->delete('category_article_votes', array('page_id' => $articleID));
+				$sql->delete('category_article_votes', array('page_id' => $articleID), __METHOD__);
 			}
- */
 		}
 
 		return true;

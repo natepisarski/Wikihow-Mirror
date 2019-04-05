@@ -176,7 +176,7 @@ class AnswerResponse extends UnlistedSpecialPage {
 
 		if ($talkPage->getArticleId() > 0) {
 			$rev = Revision::newFromTitle($talkPage);
-			$wikitext = $rev->getText();
+			$wikitext = ContentHandler::getContentText( $rev->getContent() );
 		}
 		$wikitext .= "\n\n$formattedComment\n\n";
 

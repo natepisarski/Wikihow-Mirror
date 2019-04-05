@@ -22,7 +22,7 @@ $wgLogTypes[] = 'category_guardian';
 $wgLogNames['category_guardian'] = 'category-guardian';
 $wgLogHeaders['category_guardian'] = 'category-guardian-log-description';
 
-$wgHooks["ArticleSaveComplete"][] = "CategoryGuardian::onArticleChange";
+$wgHooks["PageContentSaveComplete"][] = "CategoryGuardian::onArticleChange";
 $wgHooks['ArticleDelete'][] = 'CategoryGuardian::onArticleChange';
 
 $wgResourceModules['ext.wikihow.CategoryGuardian'] = array(

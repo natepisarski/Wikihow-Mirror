@@ -49,14 +49,8 @@ class ConfigStorageHistory {
 	/**
 	 * Add new history entry based on item edit
 	 */
-	public static function dbChangeConfigStorage($key, $old_config, $config) {
-		global $wgUser;
-
-		$modified = wfTimestampNow();
-		$userID = $wgUser->getID();
-		$userName = $wgUser->getName();
-
-		$orig = explode("\n", $old_config);
+	public static function dbChangeConfigStorage($key, $oldConfig, $config) {
+		$orig = explode("\n", $oldConfig);
 		$new = explode("\n", $config);
 		$diff = new Diff($orig, $new);
 		$formatter = new TableDiffFormatter();
@@ -65,16 +59,7 @@ class ConfigStorageHistory {
 		$summary = "{$userName} changed tag '{$key}': " . self::diffSummary($diff);
 		$full = $formatted;
 
-		$dbw = wfGetDB(DB_MASTER);
-		$dbw->insert( 'config_storage_history',
-			[ 'csh_modified' => wfTimestampNow(),
-			  'csh_user_id' => $userID,
-			  'csh_username' => $userName,
-			  'csh_key' => $key,
-			  'csh_log_short' => $summary,
-			  'csh_log_full' => $full,
-			],
-			__METHOD__ );
+		self::dbAddRow($key, $summary, $full);
 	}
 
 	private static function diffSummary($diff) {
@@ -101,5 +86,30 @@ class ConfigStorageHistory {
 		}
 		$summary = "$add line(s) added; $change line(s) changed; $delete line(s) deleted";
 		return $summary;
+	}
+
+	public static function dbDeleteConfigStorage($key, $oldConfig) {
+		$summary = "{$userName} deleted tag '{$key}'";
+		$full = $summary . ". The contents before being deleted were:\n" . $oldConfig;
+
+		self::dbAddRow($key, $summary, $full);
+	}
+
+	private static function dbAddRow($key, $summary, $full) {
+		$dbw = wfGetDB(DB_MASTER);
+
+		$user = RequestContext::getMain()->getUser();
+		$userID = $user->getID();
+		$userName = $user->getName();
+
+		$dbw->insert( 'config_storage_history',
+			[ 'csh_modified' => wfTimestampNow(),
+			  'csh_user_id' => $userID,
+			  'csh_username' => $userName,
+			  'csh_key' => $key,
+			  'csh_log_short' => $summary,
+			  'csh_log_full' => $full,
+			],
+			__METHOD__ );
 	}
 }

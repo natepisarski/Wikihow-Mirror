@@ -8,7 +8,7 @@ class ThumbRank {
 
 	function __construct(&$r) {
 		$this->r = $r;
-		$this->wikitext = $r->getText();
+		$this->wikitext = ContentHandler::getContentText( $r->getContent() );
 	}
 
 	public function reorder($saveWikitext = false) {
@@ -53,8 +53,9 @@ class ThumbRank {
 
 	private function saveArticle() {
 		$t = $this->r->getTitle();
-		$a = new Article($t);
-		$a->doEdit($this->wikitext, 'reordering tips and warnings based on votes', EDIT_UPDATE | EDIT_MINOR);
+		$wikiPage = WikiPage::factory($t);
+		$content = ContentHandler::makeContent($this->wikitext, $t);
+		$wikiPage->doEditContent($content, 'reordering tips and warnings based on votes', EDIT_UPDATE | EDIT_MINOR);
 	}
 
 	// Algorithm from modified Wilson score, used on Reddit:
@@ -153,7 +154,7 @@ class ThumbRank {
 		$popts->setTidy(true);
 		$t = $r->getTitle();
 		$parser = new Parser;
-		$html = $parser->parse($r->getText(), $t, $popts, true, true, $r->getId());
+		$html = $parser->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts, true, true, $r->getId());
 		$popts->setTidy(false);
 
 		$wgTitle = $oldTitle;

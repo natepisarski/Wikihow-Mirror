@@ -130,23 +130,23 @@ END
 				$out->addHTML("<li>Can't make title out of {$url}</li>\n");
 				continue;
 			}
-			$r = Revision::newFromTitle($t);
-			if (!$r) {
+			$rev = Revision::newFromTitle($t);
+			if (!$rev) {
 				$out->addHTML("<li>Can't make revision out of {$url}</li>\n");
 				continue;
 			}
-			$text = $r->getText();
+			$text = ContentHandler::getContentText( $rev->getContent() );
 			$search = new LSearch();
 			$results = $search->externalSearchResultTitles($t->getText(), 0, 30, 7);
 			$good = array();
-			foreach ($results as $r) {
-				if ($r->getText() == $t->getText())
+			foreach ($results as $res) {
+				if ($res->getText() == $t->getText())
 					continue;
-				if (!$r->inNamespace(NS_MAIN))
+				if (!$res->inNamespace(NS_MAIN))
 					continue;
 				if (preg_match("@\[\[{$t->getText()}@", $text))
 					continue;
-				$good[] = $r;
+				$good[] = $res;
 				if (sizeof($good) >= 4) break;
 			}
 

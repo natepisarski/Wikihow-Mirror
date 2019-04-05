@@ -14,13 +14,37 @@ class Auth {
 	public $errors;
 
 	function fromUserPass($username, $password) {
+		$msg = '';
 		$curl = new Curl();
+
+		// \LoginForm::setLoginToken();
+		// $token = \LoginForm::getLoginToken();
+
+		//get token
 		$curl->post(LOGIN_API, ["lgname" => $username, "lgpassword" => $password]);
-
 		$result = json_decode($curl->response);
-		$msg = strtolower($result->login->result);
+		$msg = $result->login->result;
+		$token = isset($result->login->token) ? $result->login->token : '';
+		$sessionid = isset($result->login->sessionid) ? $result->login->sessionid : '';
+		$cookieprefix = isset($result->login->cookieprefix) ? $result->login->cookieprefix : '';
 
-		if ($msg == 'success') {
+		// NOTE: this next block of code isn't right now.
+		//
+		// We disabled token authentication just for daikon.wikiknowhow.com in
+		// SpecialUserlogin.php. We did this because we had a hard time getting
+		// sessions to work with the API. But we think that the MW upgrade will
+		// change this, so that we can undo the core hack for daikon and magically
+		// this next bit of code will be used and work, and this comment can be
+		// deleted. -Reuben, April 2019
+		if ($msg == 'NeedToken' && $token) {
+			//use token
+			$curl->setCookie('sessionid', $sessionid);
+			$curl->setCookie('cookieprefix', $cookieprefix);
+			$curl->post(LOGIN_API, ["lgname" => $username, "lgpassword" => $password, "lgtoken" => $token]);
+			$result = json_decode($curl->response);
+			$msg = $result->login->result;
+		}
+		if ($msg == 'Success') {
 			$user = User::find_by_username($username);
 			Session::build($user);
 			return $user;

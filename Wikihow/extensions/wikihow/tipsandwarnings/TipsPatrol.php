@@ -27,8 +27,6 @@ $wgResourceModules['ext.wikihow.tips_patrol'] = [
     'dependencies' => ['ext.wikihow.common_top'],
 ];
 
-//$wgHooks["ArticleSaveComplete"][] = array("TipsPatrol::articleSaved");
-
 /*****
 
  CREATE TABLE IF NOT EXISTS `tipsandwarnings` (

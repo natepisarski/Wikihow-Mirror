@@ -158,7 +158,7 @@ function spellCheckArticle(&$dbw, $articleId, &$pspell, &$whitelistArray) {
 			return;
 		}
 
-		$text = $revision->getText();
+		$text = ContentHandler::getContentText( $revision->getContent() );
 		// Don't spellcheck nfd articles
 		if (preg_match("@{{ *(nfd|notinenglish)@i", $text, $matches)) {
 			return;

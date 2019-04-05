@@ -250,14 +250,14 @@ class Reverification extends UnlistedSpecialPage {
 	 */
 	protected function getExtensiveFeedbackDocUrl($reverification) {
 		global $wgIsDevServer, $IP;
-		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyImporter.php");
+		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyTools.php");
 
-		$exporter = new ExpertVerifyImporter();
+		$tools = new ExpertVerifyTools();
 		$title = Title::newFromId($reverification->getAid());
 		$folderId = $wgIsDevServer ?
-			ExpertVerifyImporter::CPORTAL_DOH_FOLDER : ExpertVerifyImporter::CPORTAL_PROD_FOLDER;
+			ExpertVerifyTools::CPORTAL_DOH_FOLDER : ExpertVerifyTools::CPORTAL_PROD_FOLDER;
 
-		$doc = $exporter->createExpertDoc(null, $title->getText(), null, $this->getContext(), $folderId);
+		$doc = $tools->createExpertDoc(null, $title->getText(), null, $this->getContext(), $folderId);
 		return $doc ? $doc->alternateLink : null;
 	}
 
@@ -323,9 +323,11 @@ class Reverification extends UnlistedSpecialPage {
 				$username = $this->getUser()->getName();
 			}
 
-			$name = ReverificationDB::getInstance()->getVerifierName($username);
-			if ($name) {
-				$reverification->setVerifierName($name);
+			$dbr = wfGetDB(DB_REPLICA);
+			$row = $dbr->selectRow(VerifyData::VERIFIER_TABLE, ['vi_id', 'vi_name'], ['vi_user_name' => $username]);
+			if ($row) {
+				$reverification->setVerifierId($row->vi_id);
+				$reverification->setVerifierName($row->vi_name);
 			}
 		}
 
@@ -339,6 +341,7 @@ class Reverification extends UnlistedSpecialPage {
 		$data['rid_old'] = 0;
 		$data['rid_new'] = 0;
 		$data['html'] = '';
+		$data['verifier_id'] = 0;
 		$data['verifier_name'] = '';
 		$data['token_count'] = $this->throttler->getTokenCount();
 
@@ -349,6 +352,7 @@ class Reverification extends UnlistedSpecialPage {
 			$data['rid_old'] = $reverfication->getOldRevId();
 			$data['rid_new'] = $r->getId();
 			$data['html'] = $this->getArticleHtml($r);
+			$data['verifier_id'] = $reverfication->getVerifierId();
 			$data['verifier_name'] = $reverfication->getVerifierName();
 
 		}
@@ -362,6 +366,7 @@ class Reverification extends UnlistedSpecialPage {
 		$data['rid_old'] = 0;
 		$data['rid_new'] = 0;
 		$data['html'] = '';
+		$data['verifier_id'] = 0;
 		$data['verifier_name'] = '';
 		$data['error_msg'] = $errorMsg;
 		$data['status_msg'] = $statusMsg;
@@ -457,14 +462,6 @@ class Reverification extends UnlistedSpecialPage {
 	}
 
 	/**
-	 * Permissions to be able to override the verifier name when reverifying an article.
-	 * @return bool
-	 */
-	protected function hasOverridePermissions() {
-		return $this->isAllowedOverride();
-	}
-
-	/**
 	 * Permissions to be able to override the verifier name with a name other than name mapped to the $wgUser username
 	 * when reverifying an article.
 	 * @return bool
@@ -489,7 +486,7 @@ class Reverification extends UnlistedSpecialPage {
 	 * A list of users that are allowed to override items with different verifier names than their own
 	 * @return bool
 	 */
-	protected function isAllowedOverride() {
+	protected function hasOverridePermissions() {
 		$username = $this->getUser()->getName();
 		$usernames = preg_split("@\n@", ConfigStorage::dbGetConfig('reverification_override_list'));
 

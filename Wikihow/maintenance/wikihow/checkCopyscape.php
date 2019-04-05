@@ -61,7 +61,7 @@ foreach ($res as $row) {
 	}
 
 	// build the text to send to copyscape
-	$text = $r->getText();
+	$text = ContentHandler::getContentText( $r->getContent() );
 
 	// skip redirects, we'll get them anyway
 	if (preg_match("@^#REDIRECT@m", $text)) {
@@ -111,8 +111,8 @@ foreach ($res as $row) {
 	if (isset($results['count']) && $results['count']) {
 		$words = $results['querywords'];
 		$index = 0;
-		foreach($results['result'] as $r) {
-			if (!preg_match("@^http://[a-z0-9]*.(wikihow|whstatic|youtube).com@i", $r['url'])) {
+		foreach ($results['result'] as $r) {
+			if (!preg_match("@^https?://[a-z0-9]*.(wikihow|whstatic|youtube).com@i", $r['url'])) {
 				if ($r['minwordsmatched'] / $words > $threshold) {
 					// can we find a reference to us?
 					$f = file_get_contents($r['url']);
@@ -133,9 +133,10 @@ foreach ($res as $row) {
 	if ($copyviourl) {
 		// grab a fresh one from the fridge in case that the api is slow
 		$r = Revision::newFromTitle($t);
-		$text = "{{copyviobot|" . preg_replace("@=@", "%3F", $copyviourl) . "|date=" . date("Y-m-d") . "|match={$match}}}\n" . $r->getText();
-		$a = new Article($t);
-		$a->doEdit($text, "The Copyviocheckbot has found a potential copyright violation");
+		$text = "{{copyviobot|" . preg_replace("@=@", "%3F", $copyviourl) . "|date=" . date("Y-m-d") . "|match={$match}}}\n" . ContentHandler::getContentText( $r->getContent() );
+		$wikiPage = WikiPage::factory($t);
+		$content = ContentHandler::makeContent($text, $title);
+		$wikiPage->doEditContent($content, "The Copyviocheckbot has found a potential copyright violation");
 		$found++;
 	}
 

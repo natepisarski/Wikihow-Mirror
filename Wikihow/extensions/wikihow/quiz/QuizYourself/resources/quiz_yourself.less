@@ -2,12 +2,18 @@
 @red: #ff5254;
 @grey_text: #ABABAB;
 
+@tablet = ~"only screen and (min-width: 500px) and (max-aspect-ratio: 13/9), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9)";
+
 #content {
 	margin: 0 0 1.5em;
 }
 
 #quiz_yourself_app {
 	color: #222;
+
+	@media @tablet {
+		font-size: 1.2em;
+	}
 
 	&.categories {
 		.head {

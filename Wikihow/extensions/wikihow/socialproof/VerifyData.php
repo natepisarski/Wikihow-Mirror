@@ -32,8 +32,8 @@ class VerifyData {
 	public $image;
 	public $initials;
 	public $nameLink;
+	public $whUserId;
 	public $whUserName;
-	// public $whUserId;	// TODO
 
 	public static function newArticleFromRow( $row ) {
 		$vd = new VerifyData;
@@ -47,7 +47,7 @@ class VerifyData {
 		$vd->date = $info->date;
 		$vd->verifierId = $info->verifierId;
 		$vd->name = $info->name;
-		$vd->blurbId = $blurbId;
+		$vd->blurbId = $info->blurbId;
 		$vd->blurb = $info->blurb;
 		$vd->hoverBlurb = $info->hoverBlurb;
 		$vd->revisionId = $info->revisionId;
@@ -94,7 +94,8 @@ class VerifyData {
 		return $vd;
 	}
 
-	public static function newVerifierFromAll( $verifierId, $name, $blurb, $hoverBlurb, $nameLink, $category, $image, $initials, $userName ) {
+	public static function newVerifierFromAll( $verifierId, $name, $blurb, $hoverBlurb,
+			$nameLink, $category, $image, $initials, $whUserId, $whUserName ) {
 		$vd = new VerifyData;
 		$vd->verifierId = $verifierId;
 		$vd->name = $name;
@@ -104,7 +105,8 @@ class VerifyData {
 		$vd->category = $category;
 		$vd->image = $image;
 		$vd->initials = $initials;
-		$vd->whUserName = $userName;
+		$vd->whUserId = $whUserId;
+		$vd->whUserName = $whUserName;
 
 		return $vd;
 	}
@@ -119,8 +121,11 @@ class VerifyData {
 		$vd->nameLink = $verifier->nameLink;
 		$vd->category = $verifier->category;
 		$vd->image = $verifier->image;
-		$vd->imagePath = self::getExpertImagePath($vd);
 		$vd->initials = $verifier->initials;
+		$vd->whUserId = $verifier->whUserId;
+		$vd->whUserName = $verifier->whUserName;
+
+		$vd->imagePath = self::getExpertImagePath($vd);
 		$vd->id = $row['vi_id'];
 
 		return $vd;
@@ -405,12 +410,14 @@ class VerifyData {
 			$coauthorRowsToUpsert[] = [
 				'vi_id' => $verifyData->verifierId,
 				'vi_name' => $verifyData->name,
-				'vi_user_name' => $verifyData->whUserName,
+				'vi_wh_id' => $verifyData->whUserId,
+				'vi_user_name' => $verifyData->whUserName, // TODO: rename to vi_wh_name
 				'vi_info' => json_encode($verifyData),
 			];
 		}
 		$dbw->upsert(self::VERIFIER_TABLE, $coauthorRowsToUpsert, [], [
 			'vi_name = VALUES(vi_name)',
+			'vi_wh_id = VALUES(vi_wh_id)',
 			'vi_user_name = VALUES(vi_user_name)',
 			'vi_info = VALUES(vi_info)',
 		]);

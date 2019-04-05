@@ -119,7 +119,7 @@ function addSearchResultsArticle(&$dbw, &$dbr, &$row, $startProcessing) {
 		$revTitleObj = $rev->getTitle();
 		$revTitle = $revTitleObj->getDBkey();
 		$urlTitle = $revTitleObj->getPartialURL();
-		$text = $rev->getText();
+		$text = ContentHandler::getContentText( $rev->getContent() );
 		$textEnc = $dbr->strencode($text);
 		$titleEnc = $dbr->strencode($revTitle);
 		//$urlTitleEnc = $dbr->strencode($urlTitle);

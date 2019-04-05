@@ -48,7 +48,7 @@ class NewArticleBoost extends SpecialPage {
 			//first make sure it doesn't have a merge template
 			$revision = Revision::newFromTitle($title);
 			if (!$revision || $revision->getId() <= 0) return false;
-			$text = $revision->getText();
+			$text = ContentHandler::getContentText( $revision->getContent() );
 			if (stripos($text, "{{merge") !== false) return false;
 
 			$dbr = wfGetDB(DB_REPLICA);
@@ -717,7 +717,7 @@ class NewArticleBoost extends SpecialPage {
 		if ($newTemplates) {
 			$rev = Revision::newFromTitle($title);
 			$article = new Article($title);
-			$wikitext = $rev->getText();
+			$wikitext = ContentHandler::getContentText( $rev->getContent() );
 			// were these templates were already added, maybe
 			// a back button situation?
 			if (strpos($wikitext, $newTemplates) === false) {
@@ -786,7 +786,7 @@ class NewArticleBoost extends SpecialPage {
 
 		if ($talkPage->getArticleId() > 0) {
 			$rev = Revision::newFromTitle($talkPage);
-			$wikitext = $rev->getText();
+			$wikitext = ContentHandler::getContentText( $rev->getContent() );
 		}
 		$article = new Article($talkPage);
 
@@ -808,7 +808,7 @@ class NewArticleBoost extends SpecialPage {
 		$fsfeed = Title::newFromURL('wikiHow:Rising-star-feed');
 		$rev = Revision::newFromTitle($fsfeed);
 		$article = new Article($fsfeed);
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		$watch = false;
 		if ($user->getID() > 0) {
@@ -975,9 +975,9 @@ class NewArticleBoost extends SpecialPage {
 		/// ARTICLE PREVIEW
 		$popts = $out->parserOptions();
 		$popts->setTidy(true);
-		$output = $wgParser->parse($rev->getText(), $title, $popts);
+		$output = $wgParser->parse(ContentHandler::getContentText( $rev->getContent() ), $title, $popts);
 		$parserOutput = $output->getText();
-		$magic = WikihowArticleHTML::grabTheMagic($rev->getText());
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $rev->getContent() ));
 		$html = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => $title->getNamespace(), 'magic-word' => $magic));
 
 		$vars['externalLinkImg'] = $externalLinkImg;
@@ -991,9 +991,9 @@ class NewArticleBoost extends SpecialPage {
 		$discText = '';
 		$talkPage = $title->getTalkPage();
 		if ($talkPage->getArticleID() > 0) {
-			$rp = Revision::newFromTitle($talkPage);
-			if ($rp) {
-				$discText = $out->parse($rp->getText());
+			$revTalk = Revision::newFromTitle($talkPage);
+			if ($revTalk) {
+				$discText = $out->parse( ContentHandler::getContentText( $revTalk->getContent() ) );
 				$discText = Avatar::insertAvatarIntoDiscussion($discText);
 			}
 		}
@@ -1032,11 +1032,12 @@ class NewArticleBoost extends SpecialPage {
 			if ($user_talk->getArticleId() == 0) {
 				$out->addHTML(wfMessage('nap_newwithouttalkpage'));
 			} else {
-				$rp = Revision::newFromTitle($user_talk);
+				$revTalk = Revision::newFromTitle($user_talk);
 				$xtra = "";
-				if (strpos($_SERVER['HTTP_USER_AGENT'], "MSIE 8.0") === false)
+				if (strpos($_SERVER['HTTP_USER_AGENT'], "MSIE 8.0") === false) {
 					$xtra = "max-height: 300px; overflow: scroll;";
-				$output = $wgParser->parse($rp->getText(), $user_talk, $popts);
+				}
+				$output = $wgParser->parse( ContentHandler::getContentText( $revTalk->getContent() ), $user_talk, $popts );
 				$parserOutput = $output->getText();
 				$userMsg = "<div style='border: 1px solid #eee; {$xtra}' id='nap_talk'>" . $parserOutput . "</div>";
 			}
@@ -1171,13 +1172,14 @@ class NewArticleBoost extends SpecialPage {
 
 		if ($user_talk->getArticleId() > 0) {
 			$rev = Revision::newFromTitle($user_talk);
-			$wikitext = $rev->getText();
+			$wikitext = ContentHandler::getContentText( $rev->getContent() );
 		}
-		$article = new Article($user_talk);
 
 		$wikitext .= "\n\n$formattedComment\n\n";
 
-		$article->doEdit( $wikitext, wfMessage('nab-rs-usertalk-editsummary')->text() );
+		$wikiPage = WikiPage::factory($user_talk);
+		$content = ContentHandler::makeContent($wikitext, $user_talk);
+		$wikiPage->doEditContent( $content, wfMessage('nab-rs-usertalk-editsummary')->text() );
 
 		// Send author email notification
 		AuthorEmailNotification::notifyRisingStar($title->getText(), $name, $real_name, $userName);
@@ -1409,7 +1411,7 @@ class CopyrightChecker extends UnlistedSpecialPage {
 				echo "Revision for article not found by copyright check";
 				return;
 			}
-			$wikitext = $rev->getText();
+			$wikitext = ContentHandler::getContentText( $rev->getContent() );
 			$wikitext = preg_replace("/^==[ ]+" . wfMessage('steps') . "[ ]+==/mix", "", $wikitext);
 			$wikitext = preg_replace("/{{[^}]*}}/im", "", $wikitext);
 			$wikitext = WikihowArticleEditor::textify($wikitext);
@@ -1716,7 +1718,7 @@ class NabQueryPage extends QueryPage {
 		if ($req && $req->getVal('scored')) {
 			$score_opt = $this->doAtlasScore ? "AND nap_atlas_score >= 0" : '';
 		} else {
-			$six_hours_ago = wfTimestamp(TS_MW, time() - 6 * 60 * 60);
+			$six_hours_ago = wfTimestamp(TS_MW, time() - 1 * 60 * 60);
 			$score_opt = $this->doAtlasScore ? "AND (nap_atlas_score >= 0 OR nap_timestamp < '$six_hours_ago')" : '';
 		}
 		$newbie_opt = $this->doNewbie ? 'AND nap_newbie = 1' : '';

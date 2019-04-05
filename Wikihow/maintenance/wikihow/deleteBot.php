@@ -62,7 +62,7 @@ class DeleteBot extends Maintenance {
 				$feUserId = $dbr->selectField( 'firstedit', 'fe_user', array('fe_page' => $t->getArticleId()) );
 				$r = Revision::newFromTitle( $t );
 
-				if ( !preg_match( "@{{inuse@i", $r->getText(), $matches ) 
+				if ( !preg_match( "@{{inuse@i", ContentHandler::getContentText( $r->getContent() ), $matches ) 
 					&& !in_array( $feUserId, $userIdExcludeList ) ) {
 					$p = WikiPage::factory( $t );
 					print( "Deleting article: " . $t->getText() . "\n" ); 

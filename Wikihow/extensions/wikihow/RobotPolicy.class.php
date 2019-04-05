@@ -685,7 +685,7 @@ class RobotPolicy {
 		}
 
 		// Recalculate the policies of the categories to which the article belongs
-		if (!$dry && $title->inNamespace(NS_MAIN)) {
+		if ( !$dry && $title->exists() && $title->inNamespace(NS_MAIN) ) {
 			$categories = WikiPage::newFromID($title->getArticleID())->getCategories();
 			foreach ($categories as $category) {
 				self::recalcArticlePolicyBasedOnTitle($category);

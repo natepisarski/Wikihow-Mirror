@@ -211,7 +211,7 @@ class GuidedEditor extends EditPage {
 
 			$this->textbox2 = $this->textbox1;
 			$conflictWikiHow = WikihowArticleEditor::newFromText($this->textbox1);
-			$this->textbox1 = $this->mArticle->getContent( true, true );
+			$this->textbox1 = ContentHandler::getContentText( $this->mArticle->getPage()->getContent() );
 			$this->edittime = $this->mArticle->getTimestamp();
 		} else {
 			$quotedTitle = '"' . wfMessage('howto', $this->mTitle->getPrefixedText()) . '"';
@@ -237,7 +237,10 @@ class GuidedEditor extends EditPage {
 			}
 			$out->setPageTitle( $pageHeading );
 			if ( $this->oldid ) {
-				$this->mArticle->setOldSubtitle($this->oldid);
+				$rev = $this->mArticle->getRevisionFetched();
+				if ($rev) {
+					$this->mArticle->setOldSubtitle($this->oldid);
+				}
 			}
 		}
 

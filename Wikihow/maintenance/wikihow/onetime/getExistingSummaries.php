@@ -54,7 +54,7 @@ class GetExistingSummaries extends Maintenance {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return [];
 
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		if ($this->summaryTemplateExistsInArticle($title, $wikitext)) return [];
 

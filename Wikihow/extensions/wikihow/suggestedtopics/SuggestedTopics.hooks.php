@@ -38,7 +38,7 @@ class SuggestedTopicsHooks {
 		// Only send an email if the article doesn't suck (bug 557)
 		$templateRegExp = "@{{(Copyvio|Copyviobot|accuracy|nfd|stub){1}@im";
 		$r = Revision::loadFromPageId($dbw, $article_id);
-		if (!is_null($r) && preg_match($templateRegExp, $r->getText()) === 0) {
+		if (!is_null($r) && preg_match($templateRegExp, ContentHandler::getContentText( $r->getContent() )) === 0) {
 			$emails = array();
 			foreach ($res as $row) {
 				$title = Title::makeTitle($row->page_namespace, $row->page_title);

@@ -16,7 +16,9 @@ $wgHooks['BeforePageDisplay'][] = 'WHVid::onBeforePageDisplay';
 $wgHooks['AddTopEmbedJavascript'][] = 'WHVid::onAddTopEmbedJavascript';
 $wgHooks['DesktopTopStyles'][] = ['WHVid::addCSS'];
 $wgHooks['MobileEmbedStyles'][] = ['WHVid::addCSS'];
-$wgHooks['AddMobileTOCItemData'][] = array('WHVid::onAddMobileTOCItemData');
+$wgHooks['AddMobileTOCItemData'][] = ['WHVid::onAddMobileTOCItemData'];
+$wgHooks['ProcessArticleHTMLAfter'][] = ['WHVid::onProcessArticleHTMLAfter'];
+$wgHooks['MobileProcessArticleHTMLAfter'][] = ['WHVid::onProcessArticleHTMLAfter'];
 
 if (defined('MW_SUPPORTS_PARSERFIRSTCALLINIT')) {
     $wgHooks['ParserFirstCallInit'][] = 'WHVid::setParserFunction';

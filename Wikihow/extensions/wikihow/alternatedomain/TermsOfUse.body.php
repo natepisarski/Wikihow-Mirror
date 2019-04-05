@@ -27,8 +27,8 @@ class TermsOfUse extends SpecialPage {
 
 		$popts = $this->getOutput()->parserOptions();
 		$revision = Revision::newFromTitle( $title );
-		$parserOutput = $out->parse($revision->getText(), $title, $popts);
-		$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+		$parserOutput = $out->parse(ContentHandler::getContentText( $revision->getContent() ), $title, $popts);
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 		$result = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));
         $out->setPageTitle( "Terms Of Use" );
         $out->addHtml( $result );

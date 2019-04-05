@@ -30,9 +30,8 @@ $wgExtensionCredits['other'][] = array(
 /**
  * used hooks
  */
-//$wgHooks[ "ArticleSaveComplete" ][]	= "HAWelcomeJob::revisionInsertComplete";
-$wgHooks[ "ArticleSaveComplete" ][]	= "HAWelcomeJob::revisionInsertComplete";
-$wgHooks[ "UserLoginComplete" ][]	= "HAWelcomeJob::signUpComplete";
+$wgHooks[ "PageContentSaveComplete" ][] = "HAWelcomeJob::revisionInsertComplete";
+$wgHooks[ "UserLoginComplete" ][] = "HAWelcomeJob::signUpComplete";
 $wgHooks[ "FacebookSignupComplete" ][] = "HAWelcomeJob::signUpComplete";
 $wgHooks[ "GoogleSignupComplete" ][] = "HAWelcomeJob::signUpComplete";
 $wgHooks[ "CivicSignupComplete" ][] = "HAWelcomeJob::signUpComplete";
@@ -177,9 +176,9 @@ class HAWelcomeJob extends Job {
 
 					$wgTitle     = $talkPage;
 					$welcomeMsg  = false;
-					$talkArticle = new Article( $talkPage, 0 );
+					$talkWikiPage = WikiPage::factory( $talkPage );
 
-//					if ( ! $talkArticle->exists() ) {
+//					if ( ! $talkWikiPage->exists() ) {
 						if ( $mAnon ) {
 							if ( self::isEnabled( "message-anon" ) ) {
 								if ( $isStaff && !$isSysop ) {
@@ -206,10 +205,11 @@ class HAWelcomeJob extends Job {
 
 								if ( $userPage ) {
 									$wgTitle = $userPage;
-									$userArticle = new Article( $userPage, 0 );
-									if ( ! $userArticle->exists() ) {
+									$userWikiPage = WikiPage::factory($userPage);
+									if ( ! $userWikiPage->exists() ) {
 										$pageMsg = wfMessage( "welcome-user-page" )->inContentLanguage()->text();
-										$userArticle->doEdit( $pageMsg, false, $flags );
+										$content = ContentHandler::makeContent($pageMsg, $userPage);
+										$userWikiPage->doEditContent( $content, false, $flags );
 									}
 								}
 							}
@@ -241,8 +241,9 @@ class HAWelcomeJob extends Job {
 							$comment .= '<!--welcomeuser-->';
 
 							$formattedComment = TalkPageFormatter::createComment( $mSysop, $comment );
+							$content = ContentHandler::makeContent($formattedComment, $talkPage);
 
-							$talkArticle->doEdit( $formattedComment, wfMessage( "welcome-message-log" )->inContentLanguage()->text(), $flags );
+							$talkWikiPage->doEditContent( $content, wfMessage( "welcome-message-log" )->inContentLanguage()->text(), $flags );
 
 							//notify via the echo notification system
 							if (class_exists('EchoEvent')) {
@@ -328,9 +329,9 @@ class HAWelcomeJob extends Job {
 					$sysopPage    = $mSysop->getUserPage()->getTalkPage();
 					$signature    = self::expandSig();
 					$welcomeMsg  = false;
-					$talkArticle = new Article( $talkPage, 0 );
+					$talkWikiPage = WikiPage::factory($talkPage);
 
-					if ( ! $talkArticle->exists() ) {
+					if ( ! $talkWikiPage->exists() ) {
 						/**
 						 * now create user page (if not exists of course)
 						 */
@@ -339,10 +340,11 @@ class HAWelcomeJob extends Job {
 							$userPage = $mUser->getUserPage();
 
 							if ( $userPage ) {
-								$userArticle = new Article( $userPage, 0 );
-								if ( ! $userArticle->exists() ) {
+								$userWikiPage = WikiPage::factory($userPage);
+								if ( ! $userWikiPage->exists() ) {
 									$pageMsg = wfMessage( "welcome-user-page" )->inContentLanguage()->text();
-									$userArticle->doEdit( $pageMsg, false, $flags );
+									$content = ContentHandler::makeContent($pageMsg, $userPage);
+									$userWikiPage->doEditContent( $content, false, $flags );
 								}
 							}
 						}
@@ -367,8 +369,9 @@ class HAWelcomeJob extends Job {
 							$comment .= '<!--welcomeuser-->';
 
 							$formattedComment = TalkPageFormatter::createComment( $mSysop, $comment );
+							$content = ContentHandler::makeContent( $formattedComment, $talkPage );
 
-							$talkArticle->doEdit( $formattedComment, wfMessage( "welcome-message-log" )->inContentLanguage()->text(), $flags );
+							$talkWikiPage->doEditContent( $content, wfMessage( "welcome-message-log" )->inContentLanguage()->text(), $flags );
 
 							//notify via the echo notification system
 							if (class_exists('EchoEvent')) {
@@ -540,7 +543,7 @@ class HAWelcomeJob extends Job {
 	 *
 	 * @return true means process other hooks
 	 */
-	public static function revisionInsertComplete( &$revision, $url, $flags ) {
+	public static function revisionInsertComplete( $wikiPage, $user, $content ) {
 		global $wgUser, $wgCityId, $wgCommandLineMode, $wgSharedDB,
 			$wgErrorLog, $wgMemc, $wgRequest;
 
@@ -561,13 +564,10 @@ class HAWelcomeJob extends Job {
 			$wgErrorLog = true;
 			if ( !wfReadOnly() && ! $wgCommandLineMode ) {
 
-				/**
-				 * Revision has valid Title field but sometimes not filled
-				 */
-				$Title = $revision->getTitle();
+				$Title = $wikiPage->getTitle();
 				if ( !$Title ) {
-					$Title = Title::newFromId( $revision->getPage(), GAID_FOR_UPDATE );
-					$revision->setTitle( $Title );
+					$Title = Title::newFromId( $wikiPage->getId(), GAID_FOR_UPDATE );
+					//$wikiPage->setTitle( $Title );
 				}
 
 				/**
@@ -611,8 +611,8 @@ class HAWelcomeJob extends Job {
 						 */
 						$talkPage = $wgUser->getUserPage()->getTalkPage();
 						if ( $talkPage ) {
-							$talkArticle = new Article( $talkPage, 0 );
-							if ( !$talkArticle->exists() ) {
+							$talkWikiPage = WikiPage::factory( $talkPage );
+							if ( !$talkWikiPage->exists() ) {
 								//run the talk page stuff
 								self::runEditThanks($Title);
 							}
@@ -696,8 +696,8 @@ class HAWelcomeJob extends Job {
 					 */
 					$talkPage = $wgUser->getUserPage()->getTalkPage();
 					if ( $talkPage ) {
-						$talkArticle = new Article( $talkPage, 0 );
-						if ( !$talkArticle->exists() ) {
+						$talkWikiPage = WikiPage::factory( $talkPage );
+						if ( !$talkWikiPage->exists() ) {
 							//run the talk page stuff
 							self::runWelcome();
 						}
@@ -855,7 +855,6 @@ class HAWelcomeJob extends Job {
 
 
 $wgSpecialPages['HAWelcomeEdit'] = 'HAWelcomeEdit';
-$wgSpecialPageGroups['HAWelcomeEdit'] = 'wiki';
 
 $wgAvailableRights[] = 'HAWelcomeEdit';
 $wgGroupPermissions['*']['HAWelcomeEdit'] = false;

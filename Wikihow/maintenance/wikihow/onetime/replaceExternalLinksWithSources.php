@@ -16,7 +16,7 @@ foreach ($res as $row) {
 	$title = Title::makeTitle( $row->page_namespace, $row->page_title );
 	$wgTitle = $title;
 	$revision = Revision::newFromTitle($title);
-	$text = $revision->getText();
+	$text = ContentHandler::getContentText( $revision->getContent() );
 	if (preg_match('/^==[ ]*' . wfMessage('externallinks') . '[ ]*==/im', $text) ) {
 		$text = preg_replace('/^==[ ]*' . wfMessage('externallinks') . '[ ]*==/im', '== ' . wfMessage('sources') . ' ==', $text);
 		$a = new Article($title);

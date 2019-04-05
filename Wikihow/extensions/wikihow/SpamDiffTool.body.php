@@ -33,8 +33,8 @@ class SpamDiffTool extends SpecialPage {
 
 			if ( $req->getVal('confirm') ) {
 				$t = Title::newFromDBKey($wgSpamBlacklistArticle);
-				$a = new Article($t);
-				$text = $a->getContent();
+				$article = new Article($t);
+				$text = ContentHandler::getContentText( $article->getPage()->getContent() );
 
 				// insert the before the <pre> at the bottom  if there is one
 				$i = strrpos($text, "</pre>");
@@ -49,7 +49,7 @@ class SpamDiffTool extends SpecialPage {
 				if ($user->getID() > 0) {
 					$watch = $user->isWatched($t);
 				}
-				$a->updateArticle($text, wfMessage('spamdifftool_summary'), false, $watch);
+				$article->updateArticle($text, wfMessage('spamdifftool_summary'), false, $watch);
 				$returnto = $req->getVal('returnto');
 				if ($returnto) {
 					$out->redirect($wgScript . "?" . urldecode($returnto) ); // clear the redirect set by updateArticle
@@ -148,11 +148,9 @@ class SpamDiffTool extends SpecialPage {
 					$text .= implode("\n", $edit->closing) . "\n";
 				}
 			}
-		} else {
-			if ($title != "") {
-				$a = new Article($title);
-				$text = $a->getContent(true);
-			}
+		} elseif ($title) {
+			$wikiPage = WikiPage::factory($title);
+			$text = ContentHandler::getContentText( $wikiPage->getContent() );
 		}
 
 		$matches = array();

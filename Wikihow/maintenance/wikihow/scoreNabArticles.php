@@ -9,10 +9,21 @@ require_once __DIR__ . '/../Maintenance.php';
 class GetNabArticlesToScore extends Maintenance {
 
 	const FILE_PATH = "/data/nab-scoring";
+	const DEBUG_FILE = "/data/nab-scoring/php_debug_log";
+
+	private $debug = false;
 
 	public function __construct() {
 		parent::__construct();
 		$this->addOption('cmd', 'The location of the script to run that does the scoring', false, true);
+		$this->addOption('debug', 'Produce some extra debug output', false, false);
+	}
+
+	private function decho(string $str) {
+		if ($this->debug) {
+			$logStr = date('r') . ": " . $str . "\n";
+			file_put_contents( self::DEBUG_FILE, $logStr, FILE_APPEND );
+		}
 	}
 
 	public function execute() {
@@ -22,15 +33,23 @@ class GetNabArticlesToScore extends Maintenance {
 			$cmd = $this->getOption('cmd');
 		}
 
+		if ( $this->hasOption('debug') ) {
+			$this->debug = true;
+		}
+
 		// Produces an array of articles that need scoring
 		$toScore = $this->getNabArticles();
 
+		$this->decho( ($toScore ? "toScore: " . print_r($toScore, true) : "Nothing returned from getNabArticles") );
+
+		$ts = wfTimestampNow();
 		$pid = getmypid();
-		$errorFile = self::FILE_PATH . "/nab-scoring-error-output-$pid.txt";
+		$fileUnique = "$ts-$pid";
+		$errorFile = self::FILE_PATH . "/nab-scoring-error-output-$fileUnique.txt";
 		$output = '';
 		if ($toScore) {
 			// We execute the python process, passing in the list of articles to score
-			$output = $this->executePythonProcess($cmd, $toScore, $errorFile, $pid);
+			$output = $this->executePythonProcess($cmd, $toScore, $errorFile, $fileUnique);
 		}
 		if ($output == '') {
 			print "No articles to score\n";
@@ -63,15 +82,16 @@ class GetNabArticlesToScore extends Maintenance {
 		return $toScore;
 	}
 
-	private function executePythonProcess($cmdToExecute, $input, $errorFile, $pid) {
+	private function executePythonProcess($cmdToExecute, $input, $errorFile, $fileUnique) {
 		$cwd = self::FILE_PATH;
-		$fileInput = self::FILE_PATH . "/input-$pid.json";
+		$fileInput = self::FILE_PATH . "/input-$fileUnique.json";
 		$jsonEncodedInput = json_encode($input);
 		file_put_contents($fileInput, $jsonEncodedInput);
-		$fileOutput = self::FILE_PATH . "/output-$pid.json";
+		$fileOutput = self::FILE_PATH . "/output-$fileUnique.json";
 
 		$return_value = -1;
 		$output = '';
+		$this->decho( "Attempting to run: (cd $cwd; $cmdToExecute < $fileInput > $fileOutput 2> $errorFile)" );
 		system("(cd $cwd; $cmdToExecute < $fileInput > $fileOutput 2> $errorFile)", $return_value);
 		if (file_exists($fileOutput)) {
 			$output = file_get_contents($fileOutput);

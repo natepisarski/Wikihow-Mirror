@@ -234,8 +234,8 @@ class Categorizer extends UnlistedSpecialPage {
 			$popts->setTidy(true);
 			$revision = Revision::newFromTitle($t);
 			if ($revision) {
-				$parserOutput = $out->parse($revision->getText(), $t, $popts);
-				$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+				$parserOutput = $out->parse(ContentHandler::getContentText( $revision->getContent() ), $t, $popts);
+				$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 				return WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));
 			}
 		}
@@ -265,9 +265,10 @@ class Categorizer extends UnlistedSpecialPage {
 	}
 
 	private function getIntroText($t) {
+		global $wgParser;
 		$r = Revision::newFromTitle($t);
 		if ($r) {
-			$intro = Article::getSection($r->getText(), 0);
+			$intro = $wgParser->getSection(ContentHandler::getContentText( $r->getContent() ), 0);
 			return Wikitext::flatten($intro);
 		} else {
 			return '';

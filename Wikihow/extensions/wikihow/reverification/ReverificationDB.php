@@ -85,7 +85,7 @@ class ReverificationDB {
 				'ORDER BY' => 'rv_old_date',
 				'LIMIT' => 1
 			],
-			[self::TABLE_REVERIFICATIONS => ['LEFT JOIN', 'vi_name = rv_verifier_name']]
+			[self::TABLE_REVERIFICATIONS => ['LEFT JOIN', 'rv_verifier_id = vi_id']]
 		);
 
 		$verifification = null;

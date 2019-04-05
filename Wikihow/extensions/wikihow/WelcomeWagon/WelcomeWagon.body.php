@@ -206,7 +206,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 	}
 
 	private function addContentProfileHTML($targetUser) {
-		$userArticle = new Article($targetUser->getUserPage());
+		$userWikiPage = WikiPage::factory($targetUser->getUserPage());
 
 		$out = $this->getOutput();
 		$out->addHTML("<div id='content-profile' class='ww_content wh_block'>");
@@ -214,8 +214,9 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		$userPage = WikihowUserPage::newFromTitle( $targetUser->getUserPage(), $this->getContext() );
 		$userPage->view($targetUser);
 
-		if ($userArticle->getId() > 0) {
-			$out->addHTML($userArticle->getContent());
+		if ($userWikiPage->getId() > 0) {
+			$wikitext = ContentHandler::getContentText( $userWikiPage->getContent() );
+			$out->addHTML($wikitext);
 		}
 
 		$out->addHTML("</div>");

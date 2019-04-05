@@ -250,9 +250,9 @@ CREATE TABLE `tipspatrol_views` (
 		$revision = Revision::newFromTitle($title);
 		$popts = $out->parserOptions();
 		$popts->setTidy(true);
-		$parserOutput = $out->parse($revision->getText(), $title, $popts);
+		$parserOutput = $out->parse(ContentHandler::getContentText( $revision->getContent() ), $title, $popts);
 
-		$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 
 		$content['article'] = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads', 'ns' => NS_MAIN, 'magic-word' => $magic));
 		$content['tip'] = $row->tpt_tip;
@@ -481,8 +481,8 @@ CREATE TABLE `tipspatrol_views` (
 					$revision = Revision::newFromTitle($title);
 					$popts = $out->parserOptions();
 					$popts->setTidy(true);
-					$parserOutput = $out->parse($revision->getText(), $title, $popts);
-					$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+					$parserOutput = $out->parse(ContentHandler::getContentText( $revision->getContent() ), $title, $popts);
+					$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 					$content['article'] = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads', 'ns' => NS_MAIN, 'magic-word' => $magic));
 					$content['tip'] = $row->tw_tip;
 					$content['tipId'] = $row->tw_id;
@@ -567,9 +567,9 @@ CREATE TABLE `tipspatrol_views` (
 
 		if ($title) {
 			$revision = Revision::newFromTitle($title);
-			$article = new Article($title);
-			if ($revision && $article) {
-				$wikitext = $revision->getText();
+			$wikiPage = WikiPage::factory($title);
+			if ($revision && $wikiPage) {
+				$wikitext = ContentHandler::getContentText( $revision->getContent() );
 				$section = Wikitext::getSection($wikitext, "Tips", true);
 
 				// do not add the tip if the tips section does not exist.
@@ -593,7 +593,8 @@ CREATE TABLE `tipspatrol_views` (
 				$newText = $wgParser->replaceSection($wikitext, $section[1], $newSection);
 
 				// the save hook will log this tip being approved
-				$success = $article->doEdit($newText, wfMessage('newtips-article-edit-entry_tp')->text());
+				$content = ContentHandler::makeContent($newText, $title);
+				$success = $wikiPage->doEditContent($content, wfMessage('newtips-article-edit-entry_tp')->text());
 
 				return $success;
 			}
@@ -693,18 +694,23 @@ CREATE TABLE `tipspatrol_views` (
 		$previousRevision = $undoRevision ? $undoRevision->getPrevious() : null;
 
 		// do not revert if the page is wrong or changed..
-		if ( is_null($undoRevision) || is_null($previousRevision) || $undoRevision->getPage()!=$previousRevision->getPage() || $undoRevision->getPage()!=$pageId ) {
+		if ( is_null($undoRevision)
+			|| is_null($previousRevision)
+			|| $undoRevision->getPage() != $previousRevision->getPage()
+			|| $undoRevision->getPage() != $pageId
+		) {
 			return false;
 		}
 
 		$title = Title::newFromID($pageId);
-		$article = new Article($title);
+		$wikiPage = WikiPage::factory($title);
 
-		$undoRevisionText = $undoRevision->getText();
-		$currentText = $article->getContent();
+		$undoRevisionText = ContentHandler::getContentText( $undoRevision->getContent() );
+		$currentText = $wikiPage->getContent();
 
 		$undoTips = Wikitext::splitTips(reset(Wikitext::getSection($undoRevisionText, "Tips", true)));
-		$prevTips = Wikitext::splitTips(reset(Wikitext::getSection($previousRevision->getText(), "Tips", true)));
+		$previousRevisionText = ContentHandler::getContentText( $previousRevision->getContent() );
+		$prevTips = Wikitext::splitTips(reset(Wikitext::getSection($previousRevisionText, "Tips", true)));
 		$currentTipsSection = Wikitext::getSection($currentText, "Tips", true);
 		$currentTips = Wikitext::splitTips($currentTipsSection[0]);
 		$section = $currentTipsSection[1];
@@ -729,7 +735,8 @@ CREATE TABLE `tipspatrol_views` (
 			$resultTips .= "\n".$currentTip;
 		}
 		$newText = $wgParser->replaceSection($currentText, $section, $resultTips);
-		$success = $article->doEdit($newText, 'reverting tip from revision '.$revId, EDIT_UPDATE | EDIT_MINOR );
+		$content = ContentHandler::makeContent($newText, $title);
+		$success = $wikiPage->doEditContent($content, 'reverting tip from revision '.$revId, EDIT_UPDATE | EDIT_MINOR );
 
 		// mark the recent change as patrolled
 		if ($success) {

@@ -1,20 +1,20 @@
 <?php
 
 /*
-* A visual tool to create new wikiHow articles
-*/
+ * A visual tool to create new wikiHow articles
+ */
 class ArticleCreator extends SpecialPage {
 	// You can set this to false for debugging purposes
 	// but it should be set true in production
 	var $onlyEditNewArticles = true;
 
-	function __construct() {
+	public function __construct() {
 		global $wgHooks;
 		parent::__construct('ArticleCreator');
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
-	function execute($par) {
+	public function execute($par) {
 		$context = $this->getContext();
 		$request = $context->getRequest();
 		$out = $context->getOutput();
@@ -217,12 +217,14 @@ class ArticleCreator extends SpecialPage {
 			}
 		}
 
-		$a = new Article($t);
-		$a->doEdit($request->getVal('wikitext'), wfMessage('ac-edit-summary'));
+		$wikiPage = WikiPage::factory($t);
+		$wikitext = $request->getVal('wikitext');
+		$content = ContentHandler::makeContent($wikitext, $t);
+		$wikiPage->doEditContent($content, wfMessage('ac-edit-summary'));
 		if ($request->getVal("overwrite") == "yes") {
 			//put the article back into nab
 			// NewArticleBoost::redoNabStatus($t);
-			ChangeTags::addTags('article rewrite', null, $a->getLatest());
+			ChangeTags::addTags('article rewrite', null, $wikiPage->getLatest());
 		}
 		// Add an author email notification
 		$aen = new AuthorEmailNotification();
@@ -255,19 +257,18 @@ class ArticleCreator extends SpecialPage {
 	}
 
 	private function getCreatedDialogHtml() {
-		global $wgUser;
+		$user = $this->getUser();
 		EasyTemplate::set_path(__DIR__.'/');
 		$vars['dialogStyle'] = "<link type='text/css' rel='stylesheet' href='" .
 			wfGetPad('/extensions/wikihow/articlecreator/ac_modal.css?rev=' . WH_SITEREV) . "' />\n" .
 			"<link type='text/css' rel='stylesheet' href='/extensions/wikihow/common/font-awesome-4.2.0/css/font-awesome.min.css?rev='".WH_SITEREV."' />\n";
-		$vars['anon'] = $wgUser->isAnon();
-		$vars['email'] = $wgUser->getEmail();
+		$vars['anon'] = $user->isAnon();
+		$vars['email'] = $user->getEmail();
 		$vars['on_off'] = !$vars['anon'] && !$vars['email'] ? 'off' : 'on';
 		return EasyTemplate::html('ac-created-dialog.tmpl.php', $vars);
 	}
 
 	public static function printArticleCreatedScript($t) {
-		global $wgUser;
 		$aid = $t->getArticleId();
 
 		// deprecated cookie?
@@ -299,8 +300,9 @@ class ArticleCreator extends SpecialPage {
 	}
 
 	public static function onEditFormPreloadText( &$text, &$title ) {
-		global $wgRequest;
-		if ($wikitext = $wgRequest->getVal('ac_wikitext')) {
+		$req = RequestContext::getMain()->getRequest();
+		$wikitext = $req->getVal('ac_wikitext');
+		if ($wikitext) {
 			$text = $wikitext;
 		}
 		return true;

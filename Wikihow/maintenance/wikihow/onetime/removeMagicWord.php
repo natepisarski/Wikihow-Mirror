@@ -17,10 +17,10 @@ if (isset($options['limit'])) {
 	$limit = round($options['limit'] / 2);
 }
 
-$rmw = new removeMagicWord($limit);
+$rmw = new RemoveMagicWord($limit);
 $rmw->execute();
 
-class removeMagicWord {
+class RemoveMagicWord {
 
 	const SLEEPTIME = 500000;	//measured in microseconds = .5 seconds
 	const THE_LOG_FILE = '/tmp/summarized_removed.log';
@@ -84,7 +84,7 @@ class removeMagicWord {
 	private function removeMagicWord($title) {
 		$rev = Revision::loadFromTitle($this->dbr, $title);
 		if (!$rev) return false;
-		$wikitext = $og_wikitext = $rev->getText();
+		$wikitext = $og_wikitext = ContentHandler::getContentText( $rev->getContent() );
 
 		if ($wikitext) {
 			$mw = MagicWord::get( $this->magic_word );
@@ -106,13 +106,13 @@ class removeMagicWord {
 
 	private function saveChanges($title, $wikitext) {
 		$saved = false;
-		$article = new Article($title);
+		$wikiPage = WikiPage::factory($title);
 		$edit_flags = EDIT_UPDATE | EDIT_MINOR | EDIT_FORCE_BOT;
 
 		$content = ContentHandler::makeContent( $wikitext, $title );
-		$saved = $article->doEditContent($content, $this->comment, $edit_flags);
+		$saved = $wikiPage->doEditContent($content, $this->comment, $edit_flags);
 
-		$url = 'http://www.wikihow.com/'.$title->getDBKey();
+		$url = 'https://www.wikihow.com/'.$title->getDBKey();
 
 		if (!$saved) {
 			return 'Unable to save wikitext for article: ' . $url;

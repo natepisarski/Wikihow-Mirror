@@ -279,8 +279,9 @@ class SplitBigArticleMaintenance extends Maintenance {
 	}
 
 	private static function saveWikitextToTitle($title, $wikitext, $commitMsg) {
-		$article = new Article($title);
-		$saved = $article->doEdit($wikitext, $commitMsg, EDIT_FORCE_BOT);
+		$wikiPage = WikiPage::factory($title);
+		$content = ContentHandler::makeContent($wikitext, $title);
+		$wikiPage->doEditContent($content, $commitMsg, EDIT_FORCE_BOT);
 	}
 
 	private static function loginAsBot($userName) {

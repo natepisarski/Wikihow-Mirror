@@ -131,7 +131,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 				continue;
 			}
 
-			$text = $revision->getText();
+			$text = ContentHandler::getContentText( $revision->getContent() );
 			// check if the template already exists
 			if (strpos($text, "{{stub") === FALSE) {
 				$results[] = "will not edit $title because it does not have the template we are removing";
@@ -181,7 +181,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 				continue;
 			}
 
-			$text = $revision->getText();
+			$text = ContentHandler::getContentText( $revision->getContent() );
 			// check if the template already exists
 			if (strpos($toAdd, "{{stub") !== false && strpos($text, "{{stub") !== false) {
 				$results[] = "will not edit $title because it already has the template we are adding";

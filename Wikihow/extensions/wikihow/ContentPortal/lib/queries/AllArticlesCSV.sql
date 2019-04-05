@@ -39,6 +39,14 @@ DATE_FORMAT(created_at, '{{sql_date_format}}') AS created,
 	WHERE role_id = {{edit_id}} AND `type` = 'info' AND article_id = cf_articles.id
 ) AS review_return_count,
 
+-- Verifier ID
+(
+	SELECT vi_id FROM wikidb_112.verifier_info
+	RIGHT JOIN cf_users u ON u.wh_user_id = vi_wh_id
+	RIGHT JOIN cf_user_articles ua ON ua.user_id = u.id
+	WHERE ua.role_id = 10 AND ua.article_id = cf_articles.id LIMIT 1
+) AS verifier_id,
+
 -- verifier name
 (
 	SELECT username FROM cf_user_articles

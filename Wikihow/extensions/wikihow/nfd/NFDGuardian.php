@@ -31,7 +31,7 @@ $wgGroupPermissions['nfd']['nfd'] = true;
 $wgNfdVotesRequired = array("delete"=>3, "keep"=>3, "admin_delete" => 1, "admin_keep" => 0, "advanced_delete" => 6);
 //advanced_delete is number required to delete once a keep vote has been logged
 
-$wgHooks["ArticleSaveComplete"][] = "wfCheckNFD";
+$wgHooks["PageContentSaveComplete"][] = "wfCheckNFD";
 $wgHooks["ArticleDelete"][] = "wfRemoveNFD";
 $wgHooks["ArticleUndelete"][] = "wfUndeleteNFD";
 $wgHooks['wgQueryPages'][] = 'wfNFDAddQueryPages';
@@ -53,15 +53,15 @@ function wfNFDAddQueryPages(&$wgQueryPages) {
 	return true;
 }
 
-function wfCheckNFD(&$article, &$user, $text, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
+function wfCheckNFD($wikiPage, $user, $content, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
 	//we only do NFD Guardian for articles
-	if (!$article->getTitle()->inNamespace(NS_MAIN)) {
+	if (!$wikiPage->getTitle()->inNamespace(NS_MAIN)) {
 		return true;
 	}
 
 	// if an article becomes a redirect, vanquish all previous nfd entries
-	if (preg_match("@^#REDIRECT@", $text)) {
-		NFDProcessor::markPreviousAsInactive($article->getID());
+	if ($content->isRedirect()) {
+		NFDProcessor::markPreviousAsInactive($wikiPage->getID());
 		return true;
 	}
 
@@ -71,10 +71,10 @@ function wfCheckNFD(&$article, &$user, $text, $summary, $minoredit, $watchthis, 
 		return true;
 	}
 
-	if ($revision && $article) {
+	if ($revision) {
 		// do the templates
 		wfDebug("NFD: Looking for NFD templates\n");
-		$l = new NFDProcessor($revision, $article);
+		$l = new NFDProcessor($revision, $wikiPage);
 		$l->process();
 	}
 
@@ -91,7 +91,7 @@ function wfUndeleteNFD(&$title, $create) {
 	$revision = Revision::newFromTitle($title);
 
 	// if an article becomes a redirect, vanquish all previous nfd entries
-	if (preg_match("@^#REDIRECT@", $revision->getText())) {
+	if (preg_match("@^#REDIRECT@", ContentHandler::getContentText( $revision->getContent() ))) {
 		NFDProcessor::markPreviousAsInactive($article->getID());
 		return true;
 	}

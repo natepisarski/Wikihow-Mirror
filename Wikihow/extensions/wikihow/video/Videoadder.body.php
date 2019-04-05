@@ -248,9 +248,10 @@ class VideoAdder extends SpecialPage {
 	 * - Makes sure last edit has been patrolled
 	 **/
 	private static function hasProblems($t, $dbr) {
+		global $wgParser;
 		$r = Revision::newFromTitle($t);
 		if ($r) {
-			$intro = Article::getSection($r->getText(), 0);
+			$intro = $wgParser->getSection(ContentHandler::getContentText( $r->getContent() ), 0);
 
 			//check for {{nfd}} template
 			if (preg_match('/{{nfd/', $intro)) return true;
@@ -363,8 +364,8 @@ class VideoAdder extends SpecialPage {
 			$revision = Revision::newFromTitle($title);
 			$popts = $out->parserOptions();
 			$popts->setTidy(true);
-			$parserOutput = $out->parse($revision->getText(), $title, $popts);
-			$magic = WikihowArticleHTML::grabTheMagic($revision->getText());
+			$parserOutput = $out->parse(ContentHandler::getContentText( $revision->getContent() ), $title, $popts);
+			$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $revision->getContent() ));
 			$html = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic));
 
 

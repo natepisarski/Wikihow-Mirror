@@ -145,7 +145,7 @@ define('COMDASH_DEBUG', false);
  */
 $wgHooks['MarkPatrolled'][] = array("wfMarkCompleted", "RecentChangesAppWidget"); //recent changes
 $wgHooks['NABArticleFinished'][] = array("wfMarkCompleted", "NabAppWidget"); //nab
-$wgHooks['ArticleSaveComplete'][] = array("wfMarkCompletedWrite"); //write articles
+$wgHooks['PageContentSaveComplete'][] = array("wfMarkCompletedWrite"); //write articles
 $wgHooks['EditFinderArticleSaveComplete'][] = array("wfMarkCompletedEF"); //stub, format, cleanup, copyedit
 $wgHooks['CategoryHelperSuccess'][] = array("wfMarkCompleted", "CategorizerAppWidget"); //categorizer
 $wgHooks['VAdone'][] = array("wfMarkCompleted", "AddVideosAppWidget"); //add videos
@@ -167,7 +167,7 @@ function wfMarkCompleted($appName) {
 	return true;
 }
 
-function wfMarkCompletedEF($article, $text, $summary, $user, $type) {
+function wfMarkCompletedEF($wikiPage, $text, $summary, $user, $type) {
 	switch (strtolower($type)) {
 		case 'copyedit':
 			wfMarkCompleted("CopyeditAppWidget");
@@ -190,15 +190,15 @@ function wfMarkCompletedEF($article, $text, $summary, $user, $type) {
 	return true;
 }
 
-function wfMarkCompletedWrite($article, $user, $text, $summary, $p5, $p6, $p7) {
+function wfMarkCompletedWrite(&$wikiPage, &$user, $content, $summary, $p5, $p6, $p7) {
 	try {
 		$dbw = wfGetDB(DB_MASTER);
-		$t = $article->getTitle();
+		$t = $wikiPage->getTitle();
 		if (!$t || !$t->inNamespace(NS_MAIN))  {
 			return true;
 		}
 
-		$num_revisions = $dbw->selectField('revision', 'count(*)', array('rev_page=' . $article->getId()));
+		$num_revisions = $dbw->selectField('revision', 'count(*)', array('rev_page' => $wikiPage->getId()), __METHOD__);
 
 		if ($num_revisions == 1)
 			wfMarkCompleted("WriteAppWidget");

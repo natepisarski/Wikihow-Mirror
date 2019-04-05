@@ -14,7 +14,7 @@ if ( ! defined( 'MEDIAWIKI' ) ) die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
-$wgHooks['ArticleSave'][] = array("wfAutotimestamp");
+$wgHooks['PageContentSave'][] = array("wfAutotimestamp");
 
 $wgExtensionCredits['other'][] = array(
 	'name' => 'AutotimestampTemplate',
@@ -22,7 +22,9 @@ $wgExtensionCredits['other'][] = array(
 	'description' => 'Provides a way of automatically adding a timestamp to a template.',
 );
 
-function wfAutotimestamp(&$article, &$user, &$text, &$summary, $minor, $watch, $sectionanchor, &$flags) {
+function wfAutotimestamp(&$wikiPage, &$user, &$content, $summary, $minor, $watch, $sectionanchor, $flags) {
+	$text = ContentHandler::getContentText( $content );
+	$oldtext = $text;
 	if (strpos($text, "{{") !== false) {
 		$t1 = preg_replace('/\<nowiki\>.*<\/nowiki>/', '', $text);
 		preg_match_all('/{{[^}]*}}/im', $t1, $matches);
@@ -39,12 +41,15 @@ function wfAutotimestamp(&$article, &$user, &$text, &$summary, $minor, $watch, $
 					preg_match('/date=(.*)}}/',$m,$mmatches);
 					$mmm = $mmatches[1];
 					if ($mmm !== date('Y-m-d',strtotime($mmm)))
-						$text=str_replace($mmm,date('Y-m-d',strtotime($mmm)),$text);
+						$text = str_replace($mmm,date('Y-m-d',strtotime($mmm)),$text);
 				}
 			} else {
 				//echo "wouldn't substitute on $m<br/>";
 			}
 		}
+	}
+	if ($text != $oldtext) {
+		$content = ContentHandler::makeContent( $text, $wikiPage->getTitle() );
 	}
 	return true;
 }

@@ -163,6 +163,18 @@ class Wikitext {
 	}
 
 	/**
+	 * Get the first summary section heading from admin tags or return null
+	 */
+	public static function getFirstSummarizedSectionHeading() {
+		$result = null;
+
+		$headings = explode("\n", ConfigStorage::dbGetConfig(self::SUMMARIZED_HEADINGS_KEY));
+		if ( !$headings || count( $headings ) < 1 ) {
+			return $result;
+		}
+		return $headings[0];
+	}
+	/**
 	 * Get the summarized section wikitext if exists. Return empty string otherwise.
 	 */
 	public static function getSummarizedSection($wikitext) {
@@ -596,7 +608,7 @@ class Wikitext {
 			if (!$rev) {
 				return false;
 			}
-			$wikitext = $rev->getText();
+			$wikitext = ContentHandler::getContentText( $rev->getContent() );
 		}
 		return $wikitext;
 	}
@@ -605,13 +617,12 @@ class Wikitext {
 	 * Utility method to save wikitext of an article
 	 */
 	public static function saveWikitext($title, $wikitext, $comment) {
-		$saved = false;
-		$article = new Article($title);
+		$wikiPage = WikiPage::factory($title);
+		$content = ContentHandler::makeContent($wikitext, $title);
 
-		$content = ContentHandler::makeContent( $wikitext, $title );
-		$saved = $article->doEditContent($content, $comment);
+		$saved = $wikiPage->doEditContent($content, $comment);
 
-		if (!$saved) {
+		if ( !$saved->isOK() ) {
 			return 'Unable to save wikitext for article: ' . $title->getText();
 		} else {
 			return '';
@@ -635,7 +646,7 @@ class Wikitext {
 //debugging
 //$t = Title::newFromText('Assess Your Relationship Stage');
 //$r = Revision::loadFromTitle($dbw, $t, 7607372);
-//$wikitext = $r->getText();
+//$wikitext = ContentHandler::getContentText( $r->getContent() );
 		if ($wikitext) {
 			list($stepsText, $sectionID) =
 				self::getStepsSection($wikitext, true);
@@ -743,7 +754,7 @@ class Wikitext {
 		if (!$r) {
 			return "";
 		}
-		$text = $r->getText();
+		$text = ContentHandler::getContentText( $r->getContent() );
 		if ($wgLanguageCode == "zh") {
 			$text = $wgContLang->convert($text);
 		}
@@ -759,7 +770,7 @@ class Wikitext {
 				$rev = $revId ? Revision::newFromId($revId) : Revision::newFromTitle($title);
 				if (!$rev) return '';
 
-				$text = $rev->getText();
+				$text = ContentHandler::getContentText( $rev->getContent() );
 			}
 		}
 
@@ -884,7 +895,7 @@ class Wikitext {
 		if (!$fromTitle || !$fromTitle->exists()) return false;
 		$revision = Revision::newFromTitle($fromTitle);
 		if (!$revision) return false;
-		$text = $revision->getText();
+		$text = ContentHandler::getContentText( $revision->getContent() );
 		foreach ($imageTitles as $imageTitle) {
 			$text = preg_replace(
 					'@(<\s*br\s*[\/]?>)*\s*\[\['.

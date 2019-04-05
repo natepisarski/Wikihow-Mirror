@@ -144,7 +144,7 @@ class GetCustomTitlesTest extends Maintenance {
 		if (!$title) return false;
 		$rev = $title->getFirstRevision();
 		if (!$rev) return false;
-		$wikitext = $rev->getText();
+		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 		return $wikitext;
 	}
 

@@ -25,16 +25,16 @@ $wgLogNames['whitelist'] = 'spellchecker whitelist';
 $wgLogHeaders['spellcheck'] = 'spellcheck_log';
 $wgLogHeaders['whitelist'] = 'whitelist_log';
 
-$wgHooks["ArticleSaveComplete"][] = "wfCheckspelling";
+$wgHooks["PageContentSaveComplete"][] = "wfCheckspelling";
 $wgHooks["ArticleDelete"][] = "wfRemoveCheckspelling";
 $wgHooks["ArticleUndelete"][] = "wfUndeleteCheckpelling";
 $wgHooks["IsEligibleForMobileSpecial"][] = array("MobileSpellchecker::onIsEligibleForMobileSpecial");
 $wgHooks['NABMarkPatrolled'][] = 'Spellchecker::onMarkNabbed';
 $wgHooks['NABArticleDemoted'][] = 'Spellchecker::onArticleDemoted';
 
-function wfCheckspelling(&$article, &$user, $text, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
-	if ($article->mTitle->inNamespace(NS_MAIN))
-		Spellchecker::markAsDirty($article->getID());
+function wfCheckspelling(&$wikiPage, &$user, $content, $summary, $minoredit, $watchthis, $sectionanchor, &$flags, $revision) {
+	if ($wikiPage->mTitle->inNamespace(NS_MAIN))
+		Spellchecker::markAsDirty($wikiPage->getID());
 
 	return true;
 }

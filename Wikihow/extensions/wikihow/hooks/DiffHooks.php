@@ -217,7 +217,8 @@ class DiffHooks {
 	}
 
 	public static function onDifferenceEngineRenderRevisionAddParserOutput($differenceEngine, &$out, $parserOutput, $wikiPage) {
-		$magic = WikihowArticleHTML::grabTheMagic($differenceEngine->mNewRev->getText());
+		$wikitext = ContentHandler::getContentText( $differenceEngine->mNewRev->getContent() );
+		$magic = WikihowArticleHTML::grabTheMagic($wikitext);
 		$html = WikihowArticleHTML::processArticleHTML($parserOutput->getText(), array('ns' => $wikiPage->mTitle->getNamespace(), 'magic-word' => $magic));
 		$out->addHTML( $html );
 		return true;

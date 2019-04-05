@@ -59,7 +59,7 @@ class moveVideoSummaries extends Maintenance {
 		$rev = Revision::newFromTitle($title);
 		if (!$rev) return false;
 
-		$wikitext_summary = Wikitext::getSummarizedSection( $rev->getText() );
+		$wikitext_summary = Wikitext::getSummarizedSection( ContentHandler::getContentText( $rev->getContent() ) );
 		if ( strpos( $wikitext_summary, '{{whvid' ) === false ) return false;
 
 		$result = $this->updateSummaryPosition($title);

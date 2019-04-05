@@ -339,6 +339,10 @@ class DesktopAds {
 		} else {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
+			if ( $pageId % 2 == 1 ) {
+				$adCreator = new MixedAdCreatorEndOfMethods();
+				$adCreator->mAdServices['step'] = '';
+			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
@@ -351,7 +355,7 @@ class DesktopAds {
 			}
 
 			if ( !$this->mEnglishSite ) {
-				if ( $pageId % 10 == 1 ) {
+				if ( $pageId % 4 == 1 ) {
 					$adCreator = new InternationalAdCreatorAllAdsense();
 				} else {
 					$adCreator = new InternationalAdCreator();
