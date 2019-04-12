@@ -83,22 +83,6 @@ class UserReview {
 		}
 	}
 
-	/*** NOT IN USE RIGHT NOW ***/
-	public static function handleNewExpertImport($articleIds) {
-		if (!$articleIds || count($articleIds) <= 0) {
-			return true;
-		}
-
-		$dbw = wfGetDB(DB_MASTER);
-		$dbw->update(UserReview::TABLE_CURATED, array('uc_eligible' => 0), array("uc_article_id IN (" . $dbw->makeList($articleIds) . ")"), __METHOD__);
-
-		foreach ($articleIds as $id) {
-			self::clearReviews($id);
-		}
-
-		return true;
-	}
-
 	public static function setArticleEligibleForReviews($articleId) {
 		global $wgMemc, $wgLanguageCode;
 

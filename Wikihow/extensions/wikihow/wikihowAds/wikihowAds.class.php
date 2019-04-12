@@ -1708,7 +1708,10 @@ class wikihowAds {
 		$baseChannels = $baseChannels . $extraTestChannels;
 		$baseLargeChannels = $baseLargeChannels . $extraTestChannels;
 
+		$noWidthAdGroup = $pageId % 2 == 1;
+
 		$data = [
+			"nowidthgroup" => $noWidthAdGroup,
 			"channels" => [
 				"base" => $baseChannels,
 				"baselarge" => $baseLargeChannels,
@@ -2071,30 +2074,34 @@ class wikihowAds {
 		wikihowAds::insertMobileAdAtTarget( 'pagebottom', 'pagebottom' );
 	}
 
-   private static function getAdTestChannels() {
-	   global $wgOut, $wgLanguageCode, $wgRequest;
+	private static function getAdTestChannels() {
+		global $wgOut, $wgLanguageCode, $wgRequest;
 
-	   $channels = '';
-	   if ($wgLanguageCode != "en") {
-		   return $channels;
-	   }
+		$channels = '';
+		if ($wgLanguageCode != "en") {
+			return $channels;
+		}
 
-	   $pageId = 0;
-	   if ( $wgOut && $wgOut->getTitle() ) {
-		   $pageId = $wgOut->getTitle()->getArticleID();
-	   }
-	   if ( !$pageId ) {
-		   return $channels;
-	   }
+		$pageId = 0;
+		if ( $wgOut && $wgOut->getTitle() ) {
+			$pageId = $wgOut->getTitle()->getArticleID();
+		}
+		if ( !$pageId ) {
+			return $channels;
+		}
 
 		if ( $pageId == 223933 ) {
-			$val = $wgRequest->getVal('utm_source');
-			if ( isset( $val ) && $val == 'quora' ) {
-				$channels = '+6747118168';
-			}
+			$channels .= '+6747118168';
 		}
-	   return $channels;
-   }
+
+		// no width ad AB test
+		if ( $pageId % 2 == 1 ) {
+			$channels .= '+5941219836';
+		} else {
+			$channels .= '+8567383174';
+		}
+		return $channels;
+	}
 
 	private static function insertMobileAdAtTarget( $adName, $target ) {
         global $wgTitle;

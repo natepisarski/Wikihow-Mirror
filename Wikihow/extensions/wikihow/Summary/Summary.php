@@ -77,3 +77,11 @@ $wgResourceModules['ext.wikihow.translate_summaries_admin'] = [
 		'jquery.ui.datepicker'
 	]
 ];
+
+$wgResourceModules['ext.wikihow.summary_ns_hide'] = [
+	'styles' => [ 'summary_namespace_hide.css' ],
+	'localBasePath' => __DIR__.'/assets',
+	'remoteExtPath' => 'wikihow/Summary/assets',
+	'targets' => [ 'desktop' ],
+	'position' => 'top'
+];

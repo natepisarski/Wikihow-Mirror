@@ -235,25 +235,46 @@ class RCWidget extends UnlistedSpecialPage {
 		return $obj;
 	}
 
-	public static function showWidget() {
+	public static function getWidgetHtml() {
 		$user = RequestContext::getMain()->getUser();
-?>
-	<div id='rcwidget_divid'>
-		<a class="rc_help rcw-help-icon" title="<?php echo wfMessage('rc_help')->text();?>" href="/<?= wfMessage('rcchange-patrol-article')->text() ?>"></a>
-		<h3><span class="weather" id="rcwweather" onclick="location='/index.php?title=Special:RecentChanges&hidepatrolled=1';" style="cursor:pointer;"><span class='weather_unpatrolled'></span></span><span onclick="location='/Special:RecentChanges';" style="cursor:pointer;"><?= wfMessage('changes_to_patrol')->text();?></span></h3>
-		<?php if (NewArticleBoost::isNewArticlePatrol($user)): ?>
-			<h3 id="nabheader"><span class="weather" id="nabweather" onclick="location='/index.php?title=Special:NewArticleBoost&hidepatrolled=1';" style="cursor:pointer;"><span class='weather_nab'></span></span><span onclick="location='/Special:NewArticleBoost';" style="cursor:pointer;"><?= wfMessage('articles_to_boost')->text();?></span></h3>
-		<? endif; ?>
-		<div id='rcElement_list' class='widgetbox'>
-			<div id='IEdummy'></div>
-		</div>
-		<div id='rcwDebug' style='display:none'>
-			<input id='testbutton' type='button' onclick='rcTest();' value='test'>
-			<input id='stopbutton' type='button' onclick='WH.RCWidget.rcTransport();' value='stop'>
-			<span id='teststatus' ></span>
-		</div>
+		$isNewArticlePatrol = NewArticleBoost::isNewArticlePatrol( $user );
+		$nabHeader = '';
+		if ( $isNewArticlePatrol ) {
+			$articlesToBoost = wfMessage('articles_to_boost')->text();
+			$nabHeader = <<<HTML
+<h3 id="nabheader">
+	<span class="weather" id="nabweather" onclick="location='/index.php?title=Special:NewArticleBoost&hidepatrolled=1';" style="cursor:pointer;">
+		<span class='weather_nab'></span>
+	</span>
+	<span onclick="location='/Special:NewArticleBoost';" style="cursor:pointer;">{$articlesToBoost}</span>
+</h3>
+HTML;
+		}
+
+		$rcHelp = wfMessage('rc_help')->text();
+		$patrolArticle = wfMessage('rcchange-patrol-article')->text();
+		$changesToPatrol = wfMessage('changes_to_patrol')->text();
+		$html = <<<HTML
+<div id='rcwidget_divid'>
+	<a class="rc_help rcw-help-icon" title="{$rcHelp}" href="/{$patrolArticle}"></a>
+	<h3>
+		<span class="weather" id="rcwweather" onclick="location='/index.php?title=Special:RecentChanges&hidepatrolled=1';" style="cursor:pointer;">
+			<span class='weather_unpatrolled'></span>
+		</span>
+		<span onclick="location='/Special:RecentChanges';" style="cursor:pointer;">{$changesToPatrol}</span>
+	</h3>
+	{$nabHeader}
+	<div id='rcElement_list' class='widgetbox'>
+		<div id='IEdummy'></div>
 	</div>
-<?php
+	<div id='rcwDebug' style='display:none'>
+		<input id='testbutton' type='button' onclick='rcTest();' value='test'>
+		<input id='stopbutton' type='button' onclick='WH.RCWidget.rcTransport();' value='stop'>
+		<span id='teststatus'></span>
+	</div>
+</div>
+HTML;
+		return $html;
 	}
 
 	/* Not used since at least October 2017 - Alberto

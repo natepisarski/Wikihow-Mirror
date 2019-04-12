@@ -415,7 +415,7 @@ class PageStats extends UnlistedSpecialPage {
 			$pageId = $request->getVal( 'pageid' );
 			$title  = Title::newFromID( $pageId );
 			if ( $title && $title->exists() ) {
-				$title = 'http:' . $title->getFullURL();
+				$title = $title->getFullURL();
 			} else {
 				$title = "unknown";
 			}

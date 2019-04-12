@@ -532,15 +532,10 @@ class GoogleAmp {
 
 	//given the language code, ad number and page id, determine ad type
 	private static function getAdType( $num, $pageId, $intl ) {
-		// special case for a single article to have DFP on it
-		if ( !$intl && $num > 1 && $pageId == 2053 ) {
-			return 'gpt';
-		}
-
 		// setup by language, then by ad number (0 is default) then by ad type (adsense or gpt)
 		$testSetup = [
 			'en' => [
-				0 => ['adsense' => 100],
+				0 => ['adsense' => 50, 'gpt' => 50],
 				1 => ['adsense' => 100],
 			],
 			'intl' => [
@@ -616,8 +611,10 @@ class GoogleAmp {
 			'layout' => 'responsive',
 			'type' => 'doubleclick',
 			'data-slot' => $slot,
-			'rtc-config' => '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}',
 		);
+		if ( $pageId == 2053 ) {
+			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		}
 
 		// this is a layout we never got working but
 		// it has some interesting media queries worth remembering

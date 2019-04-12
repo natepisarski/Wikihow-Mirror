@@ -255,18 +255,6 @@ class WikiVisualTranscoder {
 		}
 	}
 
-	public static function urlFromTitleText( $text ) {
-		return 'http://www.wikihow.com/' . $text;
-	}
-		
-	// using this form so the links look right in fred
-	public static function makeWikihowURL( $title ) {
-		if ( !$title ) {
-			return "";
-		}
-		return 'http://www.wikihow.com/' . $title->getDBkey();
-	}
-	
 	public static function getAws() {
 		global $IP;
 		if (is_null(self::$aws)) {
@@ -509,7 +497,8 @@ class WikiVisualTranscoder {
 	}
 	
 	private function updateArticleStatusHybridMediaProcessed( $pageId, $err, $warning, $photoCnt, $videoCnt, $replaced, $gifsAdded, $updateProcessed = FALSE ) {
-		$url = self::urlFromTitleText( Title::nameOf( $pageId ) );
+		$title = Title::newFromID( $pageId );
+		$url = $title->getFullURL();
 		$ts = wfTimestampNow(TS_MW);
 		$values = array(
 			'photo_processed' => $photoCnt && $photoCnt > 0 ? $ts : '',
@@ -614,17 +603,17 @@ class WikiVisualTranscoder {
 		$list = $s3->getBucket($bucket, $prefix);
 	
 		if ($prefix) {
-			self::d('list', $list);
+			$prefix = $prefix . '/';
 		}
 		// compile all the articles into a list of files/zips from s3
 		$articles = array();
 		foreach ($list as $path => $details) {
 			// remove prefix from path
-			if ($prefix && substr($path, 0, strlen($prefix)) == $prefix) {
-				$path = substr($path, strlen($prefix) + 1);
-			}
-			if ($prefix) {
-				self::d('path', $path);
+			if ( $prefix && substr( $path, 0, strlen( $prefix ) ) == $prefix ) {
+				$path = substr( $path, strlen( $prefix ) );
+			} else if ( $prefix ) {
+				// if we have a prefix but no prefix path then skip
+				continue;
 			}
 
 			$leaveOldMedia = false;
@@ -652,7 +641,7 @@ class WikiVisualTranscoder {
 			}
 
 			if ( $prefix ) {
-				$user =  $prefix . "/" . $user;
+				$user =  $prefix . $user;
 			}
 
 			// process the list of media files into a list of articles
@@ -683,9 +672,8 @@ class WikiVisualTranscoder {
 				$articles[$id]['time'] = $details['time'];
 				$articles[$id]['leave_old_media'] = $leaveOldMedia;
 			}
-	
 		}
-	
+
 		return $articles;
 	}
 	
@@ -1082,7 +1070,7 @@ class WikiVisualTranscoder {
 				$isHybridMedia = $photoCnt > 0 && $vidCnt > 0;
                 self::d( "isHybridMedia", var_export( $isHybridMedia, true ) );
 				//start processing uploads
-				$url = WikiVisualTranscoder::makeWikihowURL( $title );
+				$url = $title->getFullURL();
 				if ($photoCnt > 0 && $vidCnt <= 0) {
 					list( $err, $warning, $replaced ) = 
 						$this->imageTranscoder->processMedia( $id, $details ['user'], $photoList, $warning, $isHybridMedia, $leaveOldMedia, $titleChange );

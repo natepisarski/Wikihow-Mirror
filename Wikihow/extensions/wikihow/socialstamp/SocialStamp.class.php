@@ -44,7 +44,7 @@ class SocialStamp {
 		Hooks::run( 'BylineStamp', [ &self::$verifiers, $articleId ] );
 
 		$params = self::setBylineData(self::$verifiers, $articleId, $isMobile, $isAmp, AlternateDomain::onAlternateDomain());
-		$html = self::getHtmlFromTemplate('mobile_byline', $params);
+		$html = self::getHtmlFromTemplate('mobile_byline.mustache', $params);
 
 		self::$hoverText = $params['body'];
 		self::$byLineHtml = $html;

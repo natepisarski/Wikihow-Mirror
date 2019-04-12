@@ -44,6 +44,10 @@ WH.mobileads = (function () {
 		return data;
 	}
 
+	function isNoWidthAdGroup() {
+		var result = adData.nowidthgroup == true;
+		return result == true;
+	}
 	/**
 	 * calculates the ad slot based on ad position and ad size
 	 * @param {string} adPosition - either intro, method, related or footer
@@ -181,7 +185,11 @@ WH.mobileads = (function () {
 	function getAdCss(type) {
 		var width = getAdWidth(type);
 		var height = getAdHeight(type);
-		var css = 'display:inline-block;width:'+width+'px;max-width:'+width+'px;height:'+height+'px;';
+		var css = 'display:inline-block;width:'+width+'px;height:'+height+'px;';
+		var noWidthTypes = ["qa", "tips", "warnings"];
+		if (isNoWidthAdGroup() && noWidthTypes.includes(type)) {
+			css = 'display:block;height:'+height+'px;';
+		}
 		return css;
 	}
 

@@ -3,6 +3,7 @@
 class ArticleReviewers extends UnlistedSpecialPage {
 
 	const REVIEWER_ROWS = 2;
+	const MEDICAL_EXCLUSION_LIST = "medical_exclusions";
 
 	public function __construct() {
 		global $wgHooks;
@@ -43,6 +44,7 @@ class ArticleReviewers extends UnlistedSpecialPage {
 			}
 		}
 
+		$medicalExceptions = explode("\n", ConfigStorage::dbGetConfig(self::MEDICAL_EXCLUSION_LIST, true));
 		$requestedName = $req->getText('name');
 		$expert_count = 0;
 		foreach ($experts as $expert) {
@@ -66,7 +68,7 @@ class ArticleReviewers extends UnlistedSpecialPage {
 			// Filter out experts with no recent reviews
 			$anchorName = ArticleReviewers::getAnchorName($expert->name);
 			if ($expert->category == 'Medical Review Board'
-					&& !isset($activeUsers[$expert->name])
+					&& in_array($expert->id, $medicalExceptions)
 					&& $anchorName !== $requestedName) {
 				continue;
 			}

@@ -111,9 +111,15 @@ class SummarySection {
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		$title = $out->getTitle();
 		if ($title && $title->inNamespace( NS_SUMMARY ) && $out->getLanguage()->getCode() == 'en') {
+			//add instruction message
 			$page_url = $out->getTitle()->getText();
 			$html = '<b>'.wfMessage('summary_namespace_instructions', $page_url)->parse().'</b><br /><br />';
 			$out->prependHTML($html);
+
+			//hide last sentence if querystring tells us to
+			if (RequestContext::getMain()->getRequest()->getInt('hide_last_sentence',0)) {
+				$out->addModules('ext.wikihow.summary_ns_hide');
+			}
 		}
 	}
 

@@ -1457,118 +1457,6 @@ class MixedAdCreatorVersion3 extends MixedAdCreatorVersion2 {
 	}
 }
 
-class MixedAdCreatorEndOfMethods extends MixedAdCreatorVersion2 {
-	public function __construct() {
-		global $wgTitle, $wgRequest;
-		$pageId = 0;
-		if ( $wgTitle ) {
-			$pageId = $wgTitle->getArticleID();
-		}
-		if ( $pageId == 223933 ) {
-			$val = $wgRequest->getVal('utm_source');
-			if ( isset( $val ) && $val == 'quora' ) {
-				$this->mAdsenseChannels[] = 9756424883;
-			}
-		}
-		// right now this data will be added to each ad as data attributes
-		// however we can use it in the future to define almost everything about each ad
-		$this->mAdSetupData = array(
-			'rightrail2' => array(
-				'refreshable' => 1,
-				'first-refresh-time' => 35000,
-				'refresh-time' => 28000,
-				'aps-timeout' => 800
-			)
-		);
-
-		$this->mAdsenseSlots = array(
-			'intro' => 7862589374,
-			'step' => 1652132604,
-			'rightrail0' => 4769522171,
-			'method' => 7750426266,
-		);
-
-		$this->mAdServices = array(
-			'intro' => 'adsense',
-			'step' => 'adsense',
-			'method' => 'adsense',
-			'rightrail0' => 'adsense',
-			'rightrail1' => 'dfp',
-			'rightrail2' => 'dfp',
-			'quiz' => 'dfp'
-		);
-
-		$this->mAdsenseChannels[] = 8161489800;
-	}
-
-	protected function setDFPAdUnitPaths() {
-		$this->mDFPData = array(
-			'method' => array(
-				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
-				'size' => '[728, 90]',
-				'apsLoad' => true
-			),
-			'rightrail1' => array(
-				'adUnitPath' => '/10095428/RR2_Test_32',
-				'size' => '[[300, 250],[300, 600]]',
-				'apsLoad' => true
-			),
-			'rightrail2' => array(
-				'adUnitPath' => '/10095428/RR3_Test_32',
-				'size' => '[[300, 250],[300, 600]]',
-				'apsLoad' => true
-			),
-			'quiz' => array(
-				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
-				'size' => '[728, 90]',
-				'apsLoad' => true
-			)
-		);
-	}
-
-	/*
-	 * uses php query to put the ad html into the body of the page
-	 */
-	public function insertAdsInBody() {
-		// make sure we have php query object
-		if ( !phpQuery::$defaultDocumentID )  {
-			return;
-		}
-
-		$stepAd = $this->mAds['step']->mHtml;
-		if ( $stepAd && pq( ".steps_list_2 > li:eq(0)" )->length() ) {
-			pq( ".steps_list_2 > li:eq(0)" )->append( $stepAd );
-		}
-
-		$methodAd = $this->mAds['method']->mHtml;
-		if ( $methodAd ) {
-			$count = pq( ".steps_list_2" )->length;
-			$bodyAd = false;
-			for ( $i = 0; $i < $count; $i++ ) {
-				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:last-child)" )->length() ) {
-					pq( ".steps_list_2:eq($i) > li:last-child" )->append( $methodAd );
-					$bodyAd = true;
-				}
-			}
-			if ( !$bodyAd ) {
-				$this->mAds['method']->notInBody = true;
-			}
-		}
-
-		$introHtml = $this->mAds['intro']->mHtml;
-		if ( $introHtml ) {
-			pq( "#intro" )->append( $introHtml )->addClass( "hasad" );
-		}
-
-		for ( $i = 0; $i < pq( '.qz_container' )->length; $i++ ) {
-			$quizHtml = $this->mAds['quiz'.$i]->mHtml;
-			if ( $quizHtml ) {
-				pq( '.qz_container' )->eq($i)->append( $quizHtml );
-			}
-		}
-	}
-}
-
 class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 	public function __construct() {
 		global $wgTitle, $wgRequest;
@@ -1580,10 +1468,7 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		// however we can use it in the future to define almost everything about each ad
 		$this->mAdsenseChannels[] = 6381149051;
 		if ( $pageId == 223933 ) {
-			$val = $wgRequest->getVal('utm_source');
-			if ( isset( $val ) && $val == 'quora' ) {
-				$this->mAdsenseChannels[] = 9756424883;
-			}
+			$this->mAdsenseChannels[] = 9756424883;
 		}
 		$this->mAdSetupData = array(
 			'rightrail2' => array(

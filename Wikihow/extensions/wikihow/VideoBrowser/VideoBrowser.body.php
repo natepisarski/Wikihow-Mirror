@@ -114,8 +114,8 @@ class VideoBrowser {
 		}
 	}
 
-	function showDesktopWidget( $context ) {
-		echo static::render( 'desktop-widget.mustache', [
+	function getDesktopWidgetHtml( $context ) {
+		return static::render( 'desktop-widget.mustache', [
 			'title' => 'wikiHow Videos',
 			'howto' => 'How to',
 			'videos' => static::queryVideos( [

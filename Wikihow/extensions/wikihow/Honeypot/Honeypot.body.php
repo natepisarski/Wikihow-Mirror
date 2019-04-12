@@ -15,14 +15,14 @@ class Honeypot {
 		return self::$mustache->render( $path, $data );
 	}
 
-	public static function showDesktopWidget( $context ) {
+	public static function getDesktopWidgetHtml( $context ) {
 		global $wgHoneypotCampaigns, $wgHoneypotActiveCampaign;
 
 		$campaign = $wgHoneypotCampaigns[$wgHoneypotActiveCampaign];
 		$target = isset( $campaign['target'] ) ?
 			$campaign['target'] : "/Special:Campaign/{$wgHoneypotActiveCampaign}";
 
-		echo self::renderTemplate(
+		return self::renderTemplate(
 			'desktop-widget.mustache',
 			[ 'campaign' => $wgHoneypotActiveCampaign, 'target' => $target ]
 		);

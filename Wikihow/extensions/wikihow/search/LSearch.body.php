@@ -46,7 +46,7 @@ class LSearch extends SpecialPage {
 	var $showSuicideHotline = false;
 	var $mResultsSource = '';
 
-	var $mEnableBeta = false;
+	var $mEnableBeta = true;
 
 	public function __construct() {
 		global $wgHooks;
@@ -84,10 +84,6 @@ class LSearch extends SpecialPage {
 
 		// Track requests in statds/grafana
 		WikihowStatsd::increment('search.request');
-
-		// Enable beta search for the main site only, alt-domains aren't indexed right now
-		// Temporary while we are transitioning to the new search service
-		$this->mEnableBeta = !Misc::isAltDomain();
 
 		if ($req->getBool('internal')) {
 			$this->regularSearch(true);
@@ -283,10 +279,12 @@ class LSearch extends SpecialPage {
 					$count = $this->externalSearchResultsYahoo( $q, $start, $limit, $searchType );
 				}
 			}
+
 			if ( $count > 0 ) {
 				return $count;
 			}
 		}
+
 		// Fallback to internal search results (extracts results from MediaWiki Special:Search) for
 		// English only
 		if ( $this->getLanguage()->getCode() == 'en' ) {
@@ -312,9 +310,10 @@ class LSearch extends SpecialPage {
 		if ( substr( $q, 0, 7 ) === 'how to ' ) {
 			// Use the normalization but not the "how to " since Solr does that on its own
 			$q = substr( $q, 7 );
-		}
+		} 
 
-		$key = wfMemcKey('SolrSearchResultsV1', str_replace(' ', '-', $q), $start, $limit);
+		$domain = Misc::getCanonicalDomain();
+		$key = wfMemcKey('SolrSearchResultsV1', str_replace(' ', '-', $q), $start, $limit, $domain);
 		$data = $wgMemc->get($key);
 
 		if ( !is_array( $data ) ) {
@@ -323,6 +322,7 @@ class LSearch extends SpecialPage {
 				'count' => $limit,
 				'start' => $start,
 				'q' => $q,
+				'domain' => preg_replace( '/^(www\.|m\.)/', '', $domain ),
 			];
 
 			$langCode = $this->getLanguage()->getCode();
@@ -409,7 +409,7 @@ class LSearch extends SpecialPage {
 					$data['results'][] = [
 						'title' => $formattedTitle,
 						'description' => '...',
-						'url' => 'https://' . wfCanonicalDomain() . '/' . urlencode( $url )
+						'url' => 'https://' . $domain . '/' . urlencode( $url )
 					];
 				}
 			}

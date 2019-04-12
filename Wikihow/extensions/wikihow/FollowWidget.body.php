@@ -21,36 +21,43 @@ class FollowWidget extends UnlistedSpecialPage {
 		return false;
 	}
 
-	function showWidget( $isMainPage, $title ) {
+	private static function getFollowTableHtml() {
+		$html = <<<HTML
+<div id="follow_table">
+	<a href="https://www.facebook.com/wikiHow" target="_blank" id="gatFollowFacebook" class='fw_cell' role="button" aria-label="Facebook"></a>
+	<a href="https://www.twitter.com/wikihow" target="_blank" id="gatFollowTwitter" class='fw_cell' role="button" aria-label="Twitter"></a>
+	<a href="https://www.wikihow.com/feed.rss" target="_blank" id="gatFollowRss" class='fw_cell' role="button" aria-label="RSS"></a>
+	<a href="https://wikihow.us13.list-manage.com/subscribe?u=7d3ca675de04729b75ecca92b&id=2e1c5aad27" target="_blank" id="gatFollowNewsletter" class='fw_cell' role="button" aria-label="Newsletter Sign-up"></a>
+	<a href="https://market.android.com/details?id=com.wikihow.wikihowapp" target="_blank" id="gatFollowAndroid" class='fw_cell' role="button" aria-label="Android App"></a>
+	<a href="https://pinterest.com/wikihow/" target="_blank" id="gatFollowPinterest" class='fw_cell' role="button" aria-label="Pinterest"></a>
+	<a href="https://wikihow.tumblr.com/" target="_blank" id="gatFollowTumblr" class='fw_cell' role="button" aria-label="Tumblr"></a>
+	<a href="https://instagram.com/wikihow/" target="_blank" id="gatFollowInstagram" class='fw_cell' role="button" aria-label="Instagram"></a>
+	<a href="http://itunes.apple.com/us/app/wikihow-how-to-diy-survival/id309209200?mt=8" target="_blank" id="gatFollowApp" class='fw_cell' role="button" aria-label="Apple App Store"></a>
+</div>
+HTML;
+		return $html;
+	}
+
+	public static function getWidgetHtml( $isMainPage, $title ) {
 		global $wgLanguageCode;
 		$showAppleCTA = self::showAppleCTA( $isMainPage, $title );
 		$fwTable = wfMessage('fw-table', wfGetPad())->text();
-?>
-	<h3><?= wfMessage('fw-header')->text() ?></h3>
-	<? if ($wgLanguageCode == 'en' || !$fwTable): ?>
-		<? if ($showAppleCTA): ?>
-			<div id="follow_table_cta">
-		<? endif; ?>
 
-			<div id="follow_table">
-				<a href="https://www.facebook.com/wikiHow" target="_blank" id="gatFollowFacebook" class='fw_cell' role="button" aria-label="Facebook"></a>
-				<a href="https://www.twitter.com/wikihow" target="_blank" id="gatFollowTwitter" class='fw_cell' role="button" aria-label="Twitter"></a>
-				<a href="https://www.wikihow.com/feed.rss" target="_blank" id="gatFollowRss" class='fw_cell' role="button" aria-label="RSS"></a>
-				<a href="https://wikihow.us13.list-manage.com/subscribe?u=7d3ca675de04729b75ecca92b&id=2e1c5aad27" target="_blank" id="gatFollowNewsletter" class='fw_cell' role="button" aria-label="Newsletter Sign-up"></a>
-				<a href="https://market.android.com/details?id=com.wikihow.wikihowapp" target="_blank" id="gatFollowAndroid" class='fw_cell' role="button" aria-label="Android App"></a>
-				<a href="https://pinterest.com/wikihow/" target="_blank" id="gatFollowPinterest" class='fw_cell' role="button" aria-label="Pinterest"></a>
-				<a href="https://wikihow.tumblr.com/" target="_blank" id="gatFollowTumblr" class='fw_cell' role="button" aria-label="Tumblr"></a>
-				<a href="https://instagram.com/wikihow/" target="_blank" id="gatFollowInstagram" class='fw_cell' role="button" aria-label="Instagram"></a>
-				<a href="http://itunes.apple.com/us/app/wikihow-how-to-diy-survival/id309209200?mt=8" target="_blank" id="gatFollowApp" class='fw_cell' role="button" aria-label="Apple App Store"></a>
-			</div>
+		$headerMessage = wfMessage('fw-header')->text();
+		$headerHtml = Html::element( 'h3', array(), $headerMessage );
 
-		<? if ($showAppleCTA): ?>
-			</div>
-		<? endif; ?>
-	<? else: ?>
-		<?= $fwTable ?>
-	<? endif; ?>
-<?php
+		if ( $wgLanguageCode == 'en' || !$fwTable ) {
+			$followTableHtml = self::getFollowTableHtml();
+			if ( $showAppleCTA ) {
+				$followTableHtml = Html::rawElement( 'div', ['id' => 'follow_table_cta'], $followTableHtml );
+			}
+		} else {
+			$followTableHtml = $fwTable;
+		}
+
+		$html = $headerHtml . $followTableHtml;
+
+		return $html;
 	}
 
 	public function getForm() {

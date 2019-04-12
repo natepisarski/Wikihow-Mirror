@@ -4,6 +4,7 @@ class SchemaMarkup {
 	private static $mHowToSchema = '';
 	const HOWTO_SCHEMA_CACHE_KEY = "howto_schema";
 	const RECIPE_SCHEMA_CACHE_KEY = "recipe_schema";
+	const ARTICLE_IMAGE_WIDTH = 1200;
 
 	const SOCIAL_DATA = [
 		'ar' => [
@@ -671,10 +672,9 @@ class SchemaMarkup {
 			ArticleMetaInfo::$wgTitleAmiImageName = null;
 			ArticleMetaInfo::$wgTitleAMIcache = null;
 		}
-		$thumb = ArticleMetaInfo::getTitleImageThumb( $title, 1200 );
-		if ( !$thumb ) {
-			$thumb = Wikitext::getDefaultTitleImage();
-		}
+		$thumb = ArticleMetaInfo::getTitleImageThumb( $title, self::ARTICLE_IMAGE_WIDTH );
+		if ( !$thumb ) $thumb = self::getDefaultArticleImage();
+		if ( !$thumb ) return $result;
 
 		$url = wfGetPad( $thumb->getUrl() );
 		if ( !$url ) {
@@ -707,6 +707,19 @@ class SchemaMarkup {
 
 		$result = [ 'image' => $image ];
 		return $result;
+	}
+
+	private static function getDefaultArticleImage() {
+		global $wgDefaultImage;
+
+		if (RequestContext::getMain()->getLanguage()->getCode() == 'en')
+			$image_name = $wgDefaultImage;
+		else
+			$image_name = 'Default_wikihow_green_large_intl.png';
+
+		$file = wfFindFile($image_name);
+
+		return $file ? $file->getThumbnail(self::ARTICLE_IMAGE_WIDTH) : null;
 	}
 
 	private static function okToShowSchema( $out ) {

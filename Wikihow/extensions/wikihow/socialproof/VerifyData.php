@@ -499,8 +499,6 @@ class VerifyData {
 		}
 
 		self::cachePageIds( $pageIds );
-
-		Hooks::run( 'VerifyImportComplete', [ array_keys($pageIds) ] );
 	}
 
 	private static function getExpertImagePath( $vd ) {

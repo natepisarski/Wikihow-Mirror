@@ -14,7 +14,6 @@ $wgSpecialPages['UserReviewImporter'] = 'UserReviewImporter';
 $wgSpecialPages['AdminUserReview'] = 'AdminUserReview';
 
 $wgHooks['BeforePageDisplay'][] = 'UserReview::onBeforePageDisplay';
-//$wgHooks['VerifyImportComplete'][] = 'UserReview::handleNewExpertImport';
 $wgHooks['PicturePatrolResolved'][] = 'UserReview::handlePicturePatrol';
 $wgHooks['SensitiveArticleEdited'][] = 'UserReview::handSensitiveArticleEdit';
 

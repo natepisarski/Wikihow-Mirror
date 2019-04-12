@@ -126,47 +126,50 @@ class VideoAdder extends SpecialPage {
 
 		// get a list
 		$cookiename = $wgCookiePrefix."VAskip";
-		$skipids = "";
+		$skipids = [];
 		if (isset($_COOKIE[$cookiename])) {
 			$ids = array_unique(explode(",", $_COOKIE[$cookiename]));
-			$good = array(); //safety first
 			foreach ($ids as $id) {
 				if (preg_match("@[^0-9]@", $id))
 					continue;
-				$good[] = $id;
+				$skipids[] = $id;
 			}
-			$skipids = " AND va_page NOT IN (" . implode(",", $good) . ") ";
 		}
+
 		for ($i = 0; $i < 30; $i++) {
-			$r = rand(0, 2);
+			if (rand(0, 2) < 2)
+				$order_by = 'va_page_counter DESC'; //most popular page that has no video
+			else
+				$order_by = 'va_page_touched DESC'; //most recently edited page that has no video
+
 			// if it's been in use for more than x minutes, forget 'em
 			$ts = wfTimestamp(TS_MW, time() - 10 * 60);
-			$sql = "SELECT va_page, va_id
-					FROM videoadder ";
-			if ($cat) {
-					// TODO: to avoid join should we just put catinfo in the page table?
-					$sql .= " LEFT JOIN page ON va_page = page_id ";
-			}
-			$sql .= "
-					WHERE va_page NOT IN (5, 5791) AND
-					va_template_ns is NULL and va_skipped_accepted is NULL
-					AND (va_inuse is NULL or va_inuse < '{$ts}')
-			";
-			if ($cat) {
+
+			$from = ['videoadder'];
+			$values = ['va_page', 'va_id'];
+			$where = [
+				'va_template_ns' => NULL,
+				'va_skipped_accepted' => NULL,
+				"(va_inuse is NULL or va_inuse < '{$ts}')"
+			];
+			$options = [
+				'ORDER BY' => $order_by,
+				'LIMIT' => 1
+			];
+			$joins = [];
+
+			if (!empty($skipids)) $where[] = 'va_page NOT IN ('.$dbr->makeList($skipids).')';
+
+			if (!empty($cat)) {
+				$from[] = 'page';
 				$cats = array_flip($wgCategoryNames);
 				$mask = $cats[$cat->getText()];
-				$sql .= " AND page_catinfo & {$mask} = {$mask} ";
+				$where[] = "page_catinfo & {$mask} = {$mask}";
+				$joins = ['page' => ['LEFT JOIN', 'va_page = page_id']];
 			}
 
-			$sql .= " $skipids ";
-			if ($r < 2) {
-				// get the most popular page that has no video
-				$sql .= " ORDER BY va_page_counter DESC LIMIT 1";
-			} else {
-				// get the mostly recently edited page that has no video
-				$sql .= " ORDER BY va_page_touched DESC LIMIT 1";
-			}
-			$res = $dbr->query($sql, __METHOD__);
+			$res = $dbr->select($from, $values, $where, __METHOD__, $options, $joins);
+
 			if ($row = $dbr->fetchObject($res)) {
 				$title = Title::newFromID($row->va_page);
 				if ($title && !self::hasProblems( $title, $dbr )) {
@@ -307,24 +310,19 @@ class VideoAdder extends SpecialPage {
 			if ($req->getVal('va_page_id') && !preg_match("@[^0-9]@",$req->getVal('va_page_id'))) {
 				$dbw = wfGetDB(DB_MASTER);
 
-				$vals = array(
-					'va_vid_id'		=> $req->getVal('va_vid_id'),
-					'va_user'		=> $user->getID(),
+				$vals = [
+					'va_vid_id'			=> $req->getVal('va_vid_id'),
+					'va_user'				=> $user->getID(),
 					'va_user_text'	=> $user->getName(),
 					'va_timestamp'	=> wfTimestampNow(),
-					'va_inuse'		=> null,
-					'va_src'		=> 'youtube',
-				);
+					'va_inuse'			=> NULL,
+					'va_src'				=> 'youtube'
+				];
 
 				$va_skip = $req->getVal('va_skip');
-				if ($va_skip < 2)
-					$vals['va_skipped_accepted']	= $va_skip;
+				if ($va_skip < 2) $vals['va_skipped_accepted'] = $va_skip;
 
-				$dbw->update('videoadder', $vals,
-					array(
-						'va_page' => $req->getVal('va_page_id'),
-					)
-				);
+				$dbw->update('videoadder', $vals, ['va_page' => $req->getVal('va_page_id')], __METHOD__);
 
 				if ($req->getVal('va_skip') == 0 ) {
 					// import the video

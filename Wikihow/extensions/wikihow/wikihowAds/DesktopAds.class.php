@@ -50,6 +50,10 @@ class DesktopAds {
 		$this->mShowExtraRightRailElements = isset( $this->mAdCreator->mAdServices['rightrail1'] );
 	}
 
+	public function isActive() {
+		return $this->mActive;
+	}
+
 	public function getShowExtraRightRailElements() {
 		if ( !$this->mActive ) {
 			return true;
@@ -199,6 +203,13 @@ class DesktopAds {
 		return "";
 	}
 
+	public function isHealthlineRRTest() {
+		if ( isset( $this->mAdCreator->mExtendedRightRail ) ) {
+			return true;
+		}
+		return false;
+	}
+
 	public function insertSocialProofSidebarRightRail( $socialProofSidebar ) {
 
 		if ( !isset( $this->mAdCreator->mAds['rightrail3'] ) ) {
@@ -210,7 +221,7 @@ class DesktopAds {
 		}
 		$spDoc = phpQuery::newDocument( $socialProofSidebar );
 		if ( pq( '.sp_top_box' )->length > 0 ) {
-			pq( '.sp_top_box:first' )->addClass( 'ad_rr3_expert' );
+			pq( '.sp_top_box:first' )->addClass( 'ad_rr0_expert' );
 			pq( '.sp_top_box:first' )->after( $adHtml );
 		} else {
 			pq( '.social_sidebox:first' )->before( $adHtml );
@@ -339,10 +350,6 @@ class DesktopAds {
 		} else {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
-			if ( $pageId % 2 == 1 ) {
-				$adCreator = new MixedAdCreatorEndOfMethods();
-				$adCreator->mAdServices['step'] = '';
-			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';

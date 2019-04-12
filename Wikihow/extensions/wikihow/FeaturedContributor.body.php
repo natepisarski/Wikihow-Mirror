@@ -17,7 +17,7 @@ class FeaturedContributor {
 		}
 	}
 
-	public static function showWidget($top = false) {
+	public static function getWidgetHtml($top = false) {
 		global $wgLanguageCode, $wgParser;
 
 		$rec = self::getFCList($top);
@@ -42,21 +42,26 @@ class FeaturedContributor {
 		$fc_blurb = str_replace("$1", $u->getName(), $fc_blurb);
 		$regYear = gmdate('Y', wfTimestamp(TS_UNIX, $u->getRegistration()));
 		$fc_blurb = str_replace("$2", $regYear, $fc_blurb);
+		$fcTitleMessage = wfMessage('fc_title')->text();
 
-?>
-	<div>
-		<h3><?php echo wfMessage('fc_title')->text();?></h3>
-		<div class='featuredContrib_id'>
-		<?php if ($avatar != ''): ?>
-			<span id='fc_id_img' class='fc_id_img'><a href='/<?php echo $u->getUserPage(); ?>' onclick='gatTrack("Browsing","Feat_contrib_img","Feat_contrib_wgt");'><?php echo $avatar ?></a></span>
-		<? endif; ?>
-		<span id='fc_id' class='fc_id' onclick='gatTrack("Browsing","Feat_contrib_blurb","Feat_contrib_wgt");'><?php echo $fc_blurb ?></span>
-		</div>
-        <div class="clearall"></div>
+		$avatarHtml = '';
+		if ( $avatar != '' ) {
+			$userPage = $u->getUserPage();
+			$avatarHtml = <<<HTML
+<span id='fc_id_img' class='fc_id_img'><a href='/{$userPage}' onclick='gatTrack("Browsing","Feat_contrib_img","Feat_contrib_wgt");'>{$avatar}</a></span>
+HTML;
+		}
+
+		$html = <<<HTML
+<div>
+	<h3>{$fcTitleMessage}</h3>
+	<div class='featuredContrib_id'>
+		{$avatarHtml}
+		<span id='fc_id' class='fc_id' onclick='gatTrack("Browsing","Feat_contrib_blurb","Feat_contrib_wgt");'>{$fc_blurb}</span>
 	</div>
-
-<?php
-
-		return;
+	<div class="clearall"></div>
+</div>
+HTML;
+		return $html;
 	}
 }

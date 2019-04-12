@@ -45,7 +45,7 @@ abstract class AbsTranscoder implements Transcodable {
 		if ($rev) {
 			$text = ContentHandler::getContentText( $rev->getContent() );
 			$title = $rev->getTitle();
-			$url = WikiVisualTranscoder::makeWikihowURL($title);
+			$url = $title->getFullURL();
 			return array($text, $url, $title);
 		} else {
 			return array('', '', null);
@@ -349,7 +349,8 @@ abstract class AbsTranscoder implements Transcodable {
 		if ( !$err ) {
 			$numPhotos = $photoList ? count($photoList) : 0;
 			$numVideos = $photoList ? count($videoList) : 0;
-			$url = WikiVisualTranscoder::urlFromTitleText( Title::nameOf( $pageId ) );
+			$title = Title::newFromID( $pageId );
+			$url = $title->getFullURL();
 			self::i("processed wikitext: $creator $pageId $url ".
 				"photos=" . $numPhotos . ", ".
 				"videos=" . $numVideos . " $err");

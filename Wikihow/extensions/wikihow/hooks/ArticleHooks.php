@@ -106,7 +106,7 @@ class ArticleHooks {
 		return true;
 	}
 
-	function onDoEditSectionLink($skin, $nt, $section, $tooltip, &$result, $lang) {
+	public static function onDoEditSectionLink($skin, $nt, $section, $tooltip, &$result, $lang) {
 		$query = array();
 		$query['action'] = "edit";
 		$query['section'] = $section;
