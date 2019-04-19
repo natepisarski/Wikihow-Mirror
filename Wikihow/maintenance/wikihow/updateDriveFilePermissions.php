@@ -17,12 +17,12 @@ class UpdateDriveFilePermissions extends Maintenance {
 
 	public function execute() {
 		global $IP;
-		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyTools.php");
+		require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheetTools.php");
 		$this->updatePermissions();
 	}
 
 	private function updatePermissions() {
-		$tools = new ExpertVerifyTools();
+		$tools = new CoauthorSheetTools();
 		$done = false;
 		$oneTime = true;
 		while ( $done == false ) {

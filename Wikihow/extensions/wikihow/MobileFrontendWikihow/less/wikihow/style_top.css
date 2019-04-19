@@ -607,6 +607,11 @@ h4.steps_text::before {
 	font-size: 16px;
 }
 
+#quicksummary {
+    padding-bottom: 0px;
+    margin-bottom: -15px;
+}
+
 #video.section_text {
 	padding: 0;
 }
@@ -1003,13 +1008,13 @@ body.action-view #fa_container p {
 }
 
 #mobile_tab_1::before {
-	background-image: url(/skins/owl/images/Video-Play-Icon.png);
-	background-size: 21px;
+	background: url(/skins/owl/images/video_play_icon.png) 0 0 / 21px no-repeat;
+	/*@embed*/
+	background-image: url(/skins/owl/images/video_play_icon.svg);
 	content: " ";
 	height: 18px;
 	width: 21px;
 	position: absolute;
-	background-repeat: no-repeat;
 	margin-left: -25px;
 	margin-top: 2px;
 }

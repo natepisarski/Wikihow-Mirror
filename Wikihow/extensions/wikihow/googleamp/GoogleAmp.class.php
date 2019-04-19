@@ -464,6 +464,9 @@ class GoogleAmp {
 		$method = 4;
 		$related = 5;
 		$testStep = 6;
+		$tips = 7;
+		$warnings = 8;
+		$bottomOfPage = 9;
 
 		$hasIntroAd = true;
 
@@ -503,6 +506,32 @@ class GoogleAmp {
 			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
 			pq("#relatedwikihows")->append($adhtml);
 		}
+
+		// tips
+		$tipsTarget = '#' . strtolower( wfMessage( 'tips' )->text() );
+		if ( pq( $tipsTarget )->length ) {
+			$adHtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $tips, $pageId, $intlSite ) );
+			if ( $adHtml ) {
+				pq( $tipsTarget )->append( $adHtml );
+			}
+		}
+
+		// warnings
+		$warningsTarget = '#' . strtolower( wfMessage( 'warnings' )->text() );
+		if ( pq( $warningsTarget )->length ) {
+			$adHtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $warnings, $pageId, $intlSite ) );
+			if ( $adHtml ) {
+				pq( $warningsTarget )->append( $adHtml );
+			}
+		}
+
+		// page bottom
+		$adHtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $bottomOfPage, $pageId, $intlSite ) );
+		if ( $adHtml && pq( '#article_rating_mobile' )->length > 0 ) {
+			$bottomAdContainer = Html::element( 'div', ['id' => 'pagebottom'] );
+			pq( '#article_rating_mobile' )->after( $bottomAdContainer );
+			pq( '#pagebottom' )->append( $adHtml );
+		}
 	}
 
     private static function getAdSlotData() {
@@ -514,6 +543,9 @@ class GoogleAmp {
                 4 => 4606524976,
                 5 => 7559991377,
                 6 => 6593572945,
+                7 => 4795821799,
+                8 => 1978086769,
+                9 => 7093847927,
             ),
             'intl' => array(
                 1 => 9341199379,
@@ -535,7 +567,7 @@ class GoogleAmp {
 		// setup by language, then by ad number (0 is default) then by ad type (adsense or gpt)
 		$testSetup = [
 			'en' => [
-				0 => ['adsense' => 50, 'gpt' => 50],
+				0 => ['adsense' => 10, 'gpt' => 90],
 				1 => ['adsense' => 100],
 			],
 			'intl' => [
@@ -597,6 +629,16 @@ class GoogleAmp {
 		// no intro ad for GPT for now
 		if ( $num == 1 ) {
 			return '';
+		}
+		// tips
+		if ( $num == 7 ) {
+			$slot = '/10095428/AMP_DFP_Ad_for_Tips';
+		}
+		if ( $num == 8 ) {
+			$slot = '/10095428/AMP_DFP_Ad_for_Warnings';
+		}
+		if ( $num == 9 ) {
+			$slot = '/10095428/AMP_DFP_Ad_for_Bottom_of_Page';
 		}
 
 		$whAdLabelBottom = Html::element( 'div', [ 'class' => 'ad_label_bottom' ], "Advertisement" );

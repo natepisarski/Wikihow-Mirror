@@ -71,13 +71,6 @@ class SummarySection {
 		global $wgIsDevServer;
 		$context = RequestContext::getMain();
 
-		//remove the section for INTL
-		//so we can grab it in the API, but not display it on the article
-		if ($context->getLanguage()->getCode() != 'en' && !$wgIsDevServer) {
-			pq('.section.quicksummary')->remove();
-			return;
-		}
-
 		$context->getOutput()->addModules('ext.wikihow.summary_section_edit_link');
 
 		//Summary placement on the page
@@ -163,6 +156,29 @@ class SummarySection {
 
 	public static function addDesktopTOCItems() {
 		$tocText = wfMessage('summary_toc')->text();
-		pq("<a id='summary_toc' href='#'>$tocText</a>")->insertAfter("#method_toc > span");
+		if ( Misc::isIntl() ) {
+			pq("<a id='summary_toc' href='#'>$tocText</a>")->appendTo("#method_toc");
+		} else {
+			pq("<a id='summary_toc' href='#'>$tocText</a>")->insertAfter("#method_toc > span");
+		}
+	}
+
+	public static function addIntlDesktopVideoTOCItem() {
+		if ( !Misc::isIntl() ) {
+			return;
+		}
+
+		if ( pq( "#method_toc" )->length == 0 ) {
+			return;
+		}
+
+		if ( pq( '#quick_summary_section' )->length == 0) {
+			return;
+		}
+
+		$linkText = wfMessage('summaryvideo_toc')->text();
+		$attr = ['href'=>'#quick_summary_section','id'=>'summaryvideo_toc'];
+		$videoSummaryLink = Html::element( 'a', $attr, $linkText );
+		pq("#method_toc")->append( $videoSummaryLink );
 	}
 }

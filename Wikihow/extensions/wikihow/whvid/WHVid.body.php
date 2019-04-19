@@ -344,7 +344,9 @@ class WHVid {
 	}
 
 	public static function getSummaryIntroOverlayHtml( $sectionName, $title ) {
-		$playButtonInner = Html::element('div', ['class' => 'm-video-play-count-triangle']) . " Watch";
+		$watch = wfMessage( 'summary_video_watch' )->text();
+		$watch = Html::element( 'span', ['class' => 'm-video-play-text'], $watch );
+		$playButtonInner = Html::element('div', ['class' => 'm-video-play-count-triangle']) . " ". $watch;
 
 		$playButtonAttributes = array(
 			'class' => 'm-video-play',
@@ -386,7 +388,9 @@ class WHVid {
 		$icon = Html::element( "div", ['class' => 's-video-replay-inner'] );
 		$icon .= Html::element( "div", ['class' => 's-video-replay-inner-t-right'] );
 		$icon .= Html::element( "div", ['class' => 's-video-replay-inner-t-down'] );
-		$html = Html::rawElement( 'div', ['class' => 's-video-replay'], $icon . $replayText );
+		$replayClass = ['s-video-replay'];
+
+		$html = Html::rawElement( 'div', ['class' => $replayClass], $icon . $replayText );
 		$html .= Html::rawElement( 'div', ['class' => 's-video-replay-overlay'] );
 		return $html;
 	}

@@ -402,7 +402,7 @@ class QA extends UnlistedSpecialPage {
 
 		$verifierData = VerifyData::getAllVerifierInfo();
 		foreach ($verifierData as $datum) {
-			$verifiers []= ['id' => $datum->id, 'name' => $datum->name];
+			$verifiers []= ['id' => $datum->verifierId, 'name' => $datum->name];
 		}
 
 		$buildSorter = function($key) {

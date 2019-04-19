@@ -10,7 +10,7 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'review pages that have been expert verified that have since had edits',
 );
 
-$wgExtensionMessagesFiles['AdminVerifyReview'] = __DIR__ . '/SocialProof.i18n.php';
+$wgExtensionMessagesFiles['AdminVerifyReview'] = __DIR__ . '/AdminVerifyReview.i18n.php';
 $wgExtensionMessagesFiles['AdminVerifyRewviewAliases'] = __DIR__ . '/AdminVerifyReview.alias.php';
 $wgSpecialPages['AdminVerifyReview'] = 'AdminVerifyReview';
 $wgAutoloadClasses['AdminVerifyReview'] = __DIR__ . '/AdminVerifyReview.body.php';
@@ -21,7 +21,7 @@ $wgResourceModules['ext.wikihow.adminverifyreview'] = array(
 	'position' => 'top',
 	'targets' => array( 'desktop' ),
 	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/socialproof',
+	'remoteExtPath' => 'wikihow/socialproof/AdminVerifyReview',
 	'dependencies' => array('mediawiki.page.startup', 'jquery.spinner'),
 );
 

@@ -9,7 +9,7 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 
     public function execute( $subPage ) {
 		global $wgDebugToolbar, $IP;
-		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyTools.php");
+		require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheetTools.php");
 
 		$request = $this->getRequest();
 		$out = $this->getOutput();
@@ -34,7 +34,7 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 
 		$out->setArticleBodyOnly(true);
 
-		$tools = new ExpertVerifyTools();
+		$tools = new CoauthorSheetTools();
 		$context = $this->getContext();
 
 		if ( $request->getVal( 'action' ) == "ed_permission" ) {

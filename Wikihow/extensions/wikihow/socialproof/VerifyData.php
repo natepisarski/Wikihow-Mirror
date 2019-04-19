@@ -1,7 +1,7 @@
 <?php
 
 /*
-	This class holds data about experts who verfiy articles.
+	This class holds data about experts (coauthors) who verify articles.
 
 	It can store it's data in the database. it is designed to be used
 	with data imported from a spreadsheet.
@@ -20,14 +20,14 @@ class VerifyData {
 	public $name;		// verifier name
 	public $verifierId;
 
-	// Article
+	// Articles only
 	public $aid;
 	public $blurbId;
 	public $date;			// verification date
 	public $revisionId;
 	public $worksheetName;
 
-	// Coauthor
+	// Coauthors only
 	public $category;
 	public $image;
 	public $initials;
@@ -35,40 +35,36 @@ class VerifyData {
 	public $whUserId;
 	public $whUserName;
 
-	public static function newArticleFromRow( $row ) {
+	# ARTICLES
+
+	public static function newArticle( $aid, $verifierId, $date, $name, $blurbId, $blurb, $hoverBlurb, $revId, $worksheetName ) {
 		$vd = new VerifyData;
-		$vd->aid = $row->av_id;
 
-		// Always pull the last one in the spreadsheet (if there are multiple).  Eliz et all know the highest
-		// row will be consumed
-		$info = json_decode( $row->av_info );
-		$info = array_pop($info);
+		$vd->blurb = $blurb;
+		$vd->hoverBlurb = $hoverBlurb;
+		$vd->name = $name;
+		$vd->verifierId = (int) $verifierId;
 
-		$vd->date = $info->date;
-		$vd->verifierId = $info->verifierId;
-		$vd->name = $info->name;
-		$vd->blurbId = $info->blurbId;
-		$vd->blurb = $info->blurb;
-		$vd->hoverBlurb = $info->hoverBlurb;
-		$vd->revisionId = $info->revisionId;
-		$vd->worksheetName = $info->worksheetName;
+		$vd->aid = (int) $aid;
+		$vd->blurbId = $blurbId;
+		$vd->date = $date;
+		$vd->revisionId = (int) $revId;
+		$vd->worksheetName = $worksheetName;
+
+		$vd->category = null;
+		$vd->image = null;
+		$vd->initials = null;
+		$vd->nameLink = null;
+		$vd->whUserId = null;
+		$vd->whUserName = null;
 
 		return $vd;
 	}
 
-	public static function newArticle( $aid, $verifierId, $date, $name, $blurbId, $blurb, $hoverBlurb, $revId, $worksheetName ) {
-		$vd = new VerifyData;
-		$vd->aid = $aid;
-		$vd->date = $date;
-		$vd->verifierId = $verifierId;
-		$vd->name = $name;
-		$vd->blurbId = $blurbId;
-		$vd->blurb = $blurb;
-		$vd->hoverBlurb = $hoverBlurb;
-		$vd->revisionId = $revId;
-		$vd->worksheetName = $worksheetName;
-
-		return $vd;
+	public static function newArticleFromRow( $row ) {
+		$d = json_decode($row->av_info)[0];
+		return self::newArticle($row->av_id, $d->verifierId, $d->date, $d->name, $d->blurbId,
+			$d->blurb, $d->hoverBlurb, $d->revisionId, $d->worksheetName);
 	}
 
 	/**
@@ -80,7 +76,7 @@ class VerifyData {
 	 */
 	public static function newChefArticle( $worksheetName, $aid ) {
 		$vd = new VerifyData;
-		$vd->aid = $aid;
+		$vd->aid = (int) $aid;
 		$vd->worksheetName = $worksheetName;
 		return $vd;
 	}
@@ -88,145 +84,20 @@ class VerifyData {
 	public static function newVideoTeamArticle( $worksheetName, $aid, $revId, $date ) {
 		$vd = new VerifyData;
 		$vd->worksheetName = $worksheetName;
-		$vd->aid = $aid;
-		$vd->revisionId = $revId;
+		$vd->aid = (int) $aid;
+		$vd->revisionId = (int) $revId;
 		$vd->date = $date;
 		return $vd;
 	}
 
-	public static function newVerifierFromAll( $verifierId, $name, $blurb, $hoverBlurb,
-			$nameLink, $category, $image, $initials, $whUserId, $whUserName ) {
-		$vd = new VerifyData;
-		$vd->verifierId = $verifierId;
-		$vd->name = $name;
-		$vd->blurb = $blurb;
-		$vd->hoverBlurb = $hoverBlurb;
-		$vd->nameLink = $nameLink;
-		$vd->category = $category;
-		$vd->image = $image;
-		$vd->initials = $initials;
-		$vd->whUserId = $whUserId;
-		$vd->whUserName = $whUserName;
-
-		return $vd;
-	}
-
-	public static function newVerifierFromRow($row) {
-		$verifier = json_decode($row['vi_info']);
-		$vd = new VerifyData();
-		$vd->verifierId = $verifier->verifierId;
-		$vd->name = $verifier->name;
-		$vd->blurb = $verifier->blurb;
-		$vd->hoverBlurb = $verifier->hoverBlurb;
-		$vd->nameLink = $verifier->nameLink;
-		$vd->category = $verifier->category;
-		$vd->image = $verifier->image;
-		$vd->initials = $verifier->initials;
-		$vd->whUserId = $verifier->whUserId;
-		$vd->whUserName = $verifier->whUserName;
-
-		$vd->imagePath = self::getExpertImagePath($vd);
-		$vd->id = $row['vi_id'];
-
-		return $vd;
-	}
-
 	public static function getAllArticlesFromDB() {
-		$results = array();
+		$results = [];
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select( self::ARTICLE_TABLE,
-			'av_info',
-			'',
-			__METHOD__
-		);
-
+		$res = $dbr->select( self::ARTICLE_TABLE, '*' );
 		foreach ($res as $row) {
-			$verifiers = json_decode( $row->av_info );
-
-			foreach( $verifiers as $verifier ) {
-				$vd = new VerifyData;
-				$vd->date = $verifier->date;
-				$vd->verifierId = $verifier->verifierId;
-				$vd->name = $verifier->name;
-				$vd->blurbId = $verifier->blurbId;
-				$vd->blurb = $verifier->blurb;
-				$vd->hoverBlurb = $verifier->hoverBlurb;
-				$vd->revisionId = $verifier->revisionId;
-				$vd->worksheetName = $verifier->worksheetName;
-				$results[] = $vd;
-			}
-		}
-
-		return $results;
-	}
-
-	public static function getVerifierInfoById( $id ) {
-		$result = array();
-		$vInfo = self::getAllVerifierInfo();
-
-		foreach ($vInfo as $vi) {
-			if ($vi->id == $id) {
-				$result = $vi;
-				break;
-			}
-		}
-
-		return $result;
-	}
-
-	// gets all the verifier_info from memcached with db as a backup
-	public static function getAllVerifierInfo() {
-		global $wgMemc;
-
-		$cacheKey = wfMemcKey( self::VERIFIER_INFO_CACHE_KEY );
-		$vInfo = $wgMemc->get( $cacheKey );
-
-		// if found in cache just return it
-		if ( $vInfo !== FALSE ) {
-			return $vInfo;
-		}
-
-		// it's not in memcache get it from the db
-		$vInfo = self::getAllVerifierInfoFromDB();
-
-		$expirationTime = 30 * 24 * 60 * 60; //30 days
-		$wgMemc->set( $cacheKey, $vInfo, $expirationTime );
-		return $vInfo;
-	}
-
-	// gets all the verifier_info from the db
-	// also gets the image path to their profile image
-	// which is stored in the db as a file in the Image: namespace
-	public static function getAllVerifierInfoFromDB() {
-		$results = array();
-
-		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select( self::VERIFIER_TABLE,
-			'*',
-			'',
-			__METHOD__
-		);
-
-		foreach ($res as $row) {
-			$vd = self::newVerifierFromRow(get_object_vars($row));
-			$results[$vd->name] = $vd;
-		}
-
-		return $results;
-	}
-
-	// get the number of articles that have expert verification
-	public static function getAllVerifiersFromDB() {
-		$results = array();
-		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select( self::ARTICLE_TABLE,
-			'av_info',
-			'',
-			__METHOD__
-		);
-		foreach ( $res as $row ) {
-			$results[] = $row->av_info;
+			$vd = self::newArticleFromRow($row);
+			$results[$vd->aid] = $vd;
 		}
 
 		return $results;
@@ -251,11 +122,21 @@ class VerifyData {
 		$cacheKey = wfMemcKey( 'article_verifier_data', $pageId );
 		$verifiers = $wgMemc->get( $cacheKey );
 		if ( $verifiers === FALSE ) {
-			$verifiers = self::getVerifiersFromDB( $pageId );
+			$verifiers = self::getByPageIdFromDB( $pageId );
 			$expirationTime = 30 * 24 * 60 * 60; //30 days
 			$wgMemc->set( $cacheKey, $verifiers, $expirationTime );
 		}
 		return $verifiers;
+	}
+
+	public static function getByPageIdFromDB( $pageId ): array {
+		$result = [];
+		$dbr = wfGetDB(DB_REPLICA);
+		$row = $dbr->selectRow( self::ARTICLE_TABLE, '*', ['av_id' => $pageId] );
+		if ($row) {
+			$result[] = self::newArticleFromRow($row);
+		}
+		return $result;
 	}
 
 	/**
@@ -266,7 +147,7 @@ class VerifyData {
 	 * @return array|null the array of verify data for the page. there may be multiple
 	 */
 	public static function getByRevisionId( $pageId, $revisionId ) {
-		$results = array();
+		$results = [];
 		$verifiers = self::getByPageId( $pageId );
 		if ( !$verifiers ) {
 			return null;
@@ -285,13 +166,9 @@ class VerifyData {
 	}
 
 	public static function getPageIdsFromDB() {
-		$results = array();
+		$results = [];
 		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select( self::ARTICLE_TABLE,
-			'av_id',
-			array(),
-			__METHOD__
-		);
+		$res = $dbr->select( self::ARTICLE_TABLE, 'av_id' );
 
 		if ( !$res ) {
 			return $results;
@@ -304,47 +181,10 @@ class VerifyData {
 		return $results;
 	}
 
-	public static function getVerifiersFromDB( $pageId ) {
-		$results = array();
-
-		$dbr = wfGetDB(DB_REPLICA);
-		$verifiers = $dbr->selectField( self::ARTICLE_TABLE,
-			'av_info',
-			array( 'av_id' => $pageId),
-			__METHOD__
-		);
-
-		if ( !$verifiers ) {
-			return $results;
-		}
-
-		$verifiers = json_decode( $verifiers );
-		foreach( $verifiers as $verifier ) {
-			$vd = new VerifyData;
-			$vd->date = $verifier->date;
-			$vd->verifierId = $verifier->verifierId;
-			$vd->name = $verifier->name;
-			$vd->blurbId = $verifier->blurbId;
-			$vd->blurb = $verifier->blurb;
-			$vd->hoverBlurb = $verifier->hoverBlurb;
-			$vd->revisionId = $verifier->revisionId;
-			$vd->worksheetName = $verifier->worksheetName;
-			$vd->image = $verifier->image;
-			$vd->imagePath = self::getExpertImagePath($vd);
-			$results[] = $vd;
-		}
-
-		return $results;
-	}
-
 	// check the db for page existence
 	public static function isInDB( $pageId ) {
 		$dbr = wfGetDB(DB_REPLICA);
-		$count = $dbr->selectField( self::ARTICLE_TABLE,
-			'count(av_id)',
-			array( 'av_id' => $pageId ),
-			__METHOD__
-		);
+		$count = $dbr->selectField( self::ARTICLE_TABLE, 'count(av_id)', ['av_id' => $pageId] );
 		return $count > 0;
 	}
 
@@ -377,6 +217,92 @@ class VerifyData {
 
 		return $allowed;
 	}
+
+	# COAUTHORS
+
+	public static function newVerifier( $verifierId, $name, $blurb, $hoverBlurb,
+			$nameLink, $category, $image, $initials, $whUserId, $whUserName ) {
+		$vd = new VerifyData;
+
+		$vd->blurb = $blurb;
+		$vd->hoverBlurb = $hoverBlurb;
+		$vd->name = $name;
+		$vd->verifierId = (int) $verifierId;
+
+		$vd->aid = null;
+		$vd->blurbId = null;
+		$vd->date = null;
+		$vd->revisionId = null;
+		$vd->worksheetName = null;
+
+		$vd->category = $category;
+		$vd->image = $image;
+		$vd->initials = $initials;
+		$vd->nameLink = $nameLink;
+		$vd->whUserId = (int) $whUserId;
+		$vd->whUserName = $whUserName;
+
+		return $vd;
+	}
+
+	public static function newVerifierFromRow($row) {
+		$d = json_decode($row['vi_info']);
+		$vd = self::newVerifier($d->verifierId, $d->name, $d->blurb, $d->hoverBlurb,
+			$d->nameLink, $d->category, $d->image, $d->initials, $d->whUserId, $d->whUserName);
+
+		$vd->imagePath = self::getExpertImagePath($vd);
+
+		return $vd;
+	}
+
+	public static function getVerifierInfoById( $id ) {
+		$result = [];
+		$vInfo = self::getAllVerifierInfo();
+
+		foreach ($vInfo as $vi) {
+			if ($vi->verifierId == $id) {
+				$result = $vi;
+				break;
+			}
+		}
+
+		return $result;
+	}
+
+	// gets all the verifier_info from memcached with db as a backup
+	public static function getAllVerifierInfo() {
+		global $wgMemc;
+
+		$cacheKey = wfMemcKey( self::VERIFIER_INFO_CACHE_KEY );
+		$vInfo = $wgMemc->get( $cacheKey );
+
+		// if found in cache just return it
+		if ( $vInfo !== FALSE ) {
+			return $vInfo;
+		}
+
+		// it's not in memcache get it from the db
+		$vInfo = self::getAllVerifierInfoFromDB();
+
+		$expirationTime = 30 * 24 * 60 * 60; //30 days
+		$wgMemc->set( $cacheKey, $vInfo, $expirationTime );
+		return $vInfo;
+	}
+
+	public static function getAllVerifierInfoFromDB() {
+		$results = [];
+
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select(self::VERIFIER_TABLE, '*');
+		foreach ($res as $row) {
+			$vd = self::newVerifierFromRow(get_object_vars($row));
+			$results[$vd->verifierId] = $vd;
+		}
+
+		return $results;
+	}
+
+	# IMPORT TOOL
 
 	public static function replaceAllData(array $coauthors, array $blurbs, array $articles) {
 		global $wgMemc;
@@ -458,7 +384,7 @@ class VerifyData {
 		foreach ( $articles as $pageId => $verifyData ) {
 			// Construct the rows for batch mysql replace.
 			// Taking the verifierId and blurbId from $verifyData[0] is okay because
-			// articles can only have 1 verifier (as per ExpertVerifyImporter.php)
+			// articles can only have 1 verifier (as per CoauthorSheetMaster.php)
 			$rows[] = [
 				'av_id' => $pageId,
 				'av_coauthor_id' => $verifyData[0]->verifierId,
@@ -500,6 +426,8 @@ class VerifyData {
 
 		self::cachePageIds( $pageIds );
 	}
+
+	# MISC
 
 	private static function getExpertImagePath( $vd ) {
 		if ( !$vd || !$vd->image ) {

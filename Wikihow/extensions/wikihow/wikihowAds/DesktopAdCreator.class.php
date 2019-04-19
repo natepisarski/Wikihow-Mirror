@@ -1621,6 +1621,10 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 			$this->mAdsenseSlots = array(
 				'intro' => 1099629495,
 			);
+		} else if ( strstr( $domainName, "wikihow-fun.com" ) ) {
+			$this->mAdsenseSlots = array(
+				'intro' => 7741774671,
+			);
 		}
 		$this->mAdServices = array(
 			'intro' => 'adsense',
@@ -1647,6 +1651,8 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 			$adUnitPath = 'AllPages_RR_1_wikiHowHealth_Desktop_All';
 		} elseif ( strstr( $domainName, "wikihow.mom" ) ) {
 			$adUnitPath = 'AllPages_RR_1_wikiHowMom_Desktop_All';
+		} else if ( strstr( $domainName, "wikihow-fun.com" ) ) {
+			$adUnitPath = 'WH-Fun-RR';
 		}
 		$this->mDFPData = array(
 			'method' => array(

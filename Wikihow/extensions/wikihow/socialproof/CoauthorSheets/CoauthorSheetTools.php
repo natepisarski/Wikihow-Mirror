@@ -1,6 +1,6 @@
 <?php
 
-class ExpertVerifyTools {
+class CoauthorSheetTools {
 	const DRIVE_ROOT_FOLDER = '0ANxdFk4C7ABLUk9PVA';
 	const EXPERT_FEEDBACK_FOLDER_ID = '0B9xdFk4C7ABLakZJdm8zUGFCa1k';
 	const COMMUNITY_VERIFY_SHEET_ID = '1uND-YYtRij_XmY5bSAce2VtXP4Lgsl7X8UICuRvzmVw';
@@ -265,7 +265,7 @@ class ExpertVerifyTools {
 				continue;
 			}
 			// can't delete special sheets
-			if ( $id == ExpertVerifyImporter::getSheetId() ) {
+			if ( $id == CoauthorSheetMaster::getSheetId() ) {
 				continue;
 			}
 			if ( $id == self::EXPERT_FEEDBACK_FOLDER_ID ) {

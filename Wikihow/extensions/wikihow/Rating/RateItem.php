@@ -314,6 +314,9 @@ class RateItem extends UnlistedSpecialPage {
 	}
 
 	public static function getSummarySectionRatingHtml($summary_at_top) {
+		if ( Misc::isIntl() ) {
+			return '';
+		}
 		$type = 'summarytexthelp';
 		$textFeedback = false;
 		$buttonClass = null;

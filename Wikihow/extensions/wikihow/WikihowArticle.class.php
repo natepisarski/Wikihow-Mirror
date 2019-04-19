@@ -510,6 +510,9 @@ class WikihowArticleHTML {
 			$videoContainer = $mVideo->parent();
 			$videoContainer->wrap( '<div class="video-player">' );
 			$videoPlayer = $videoContainer->parent();
+			if ( Misc::isIntl() ) {
+				$videoPlayer->addClass( 'intl' );
+			}
 			$videoPlayer->wrap('<div class="content-spacer" style="padding-top: 56.25%;">');
 			$videoContainer->addClass('content-fill');
 			$mVideo->addClass('content-fill');
@@ -544,7 +547,10 @@ class WikihowArticleHTML {
 			$summary_at_top = pq('#summary_position')->hasClass(SummarySection::SUMMARY_POSITION_TOP_CLASS);
 		}
 
-		$headings = Misc::isIntl() ? [] : explode("\n", ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY));
+		$headings = explode("\n", ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY));
+		if ( !$headings ) {
+			$headings = array();
+		}
 		foreach ( $headings as $heading ) {
 			$canonicalSummaryName = self::canonicalizeHTMLSectionName( Misc::getSectionName( $heading ) );
 			$headingId = '#' . $canonicalSummaryName;
@@ -561,6 +567,12 @@ class WikihowArticleHTML {
 				//wrap the text part in a div
 				$textSummary = pq( $headingId )->find("p");
 				if ($textSummary->length > 0) {
+					// if there is a mwimg, then make sure to put the text summary after the script tag which follows it
+					// or else the wrapping will not work correctly
+					if ( pq('#quick_summary_section')->find('.mwimg')->prev()->length ) {
+						$textSummary->insertAfter( pq('#quick_summary_section')->find('.mwimg')->next() );
+					}
+
 					$textSummary->add($textSummary->nextAll())->wrapAll("<div id='summary_wrapper'><div id='summary_text'></div></div>");
 					pq("#summary_text")->prepend("<h2>" . wfMessage('summary_toc')->text() . "<a href='#' id='summary_close'>X</a></h2>");
 
@@ -603,6 +615,11 @@ class WikihowArticleHTML {
 			pq('.firstHeading')->addClass('no_toc');
 		}
 
+		// if there is a summary video but no text
+		if ( class_exists( 'SummarySection' ) ) {
+			SummarySection::addIntlDesktopVideoTOCItem();
+		}
+
 		// On INTL, move #expert_coauthor between .firstHeading and #method_toc
 		// NOTE: Similar to SocialProofStats::onProcessArticleHTMLAfter() on EN
 		if (Misc::isIntl() && pq('#expert_coauthor')->length && pq('#method_toc')->length) {
@@ -622,6 +639,10 @@ class WikihowArticleHTML {
 			}
 			pq("#quick_summary_section h2 span")->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
 			pq( "#quick_summary_section")->addClass("summary_with_video");
+
+			if ( Misc::isIntl() ) {
+				pq( "#quick_summary_section")->addClass("intl");
+			}
 			WikihowToc::setSummaryVideo();
 		}
 

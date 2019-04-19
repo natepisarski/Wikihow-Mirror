@@ -10,7 +10,6 @@ $wgExtensionCredits['specialpage'][] = array(
     'description' => 'create shared google doc from an article',
 );
 
-$wgExtensionMessagesFiles['AdminExpertDoc'] = __DIR__ . '/SocialProof.i18n.php';
 $wgSpecialPages['AdminExpertDoc'] = 'AdminExpertDoc';
 $wgAutoloadClasses['AdminExpertDoc'] = __DIR__ . '/AdminExpertDoc.body.php';
 
@@ -20,6 +19,6 @@ $wgResourceModules['ext.wikihow.adminexpertdoc'] = array(
 	'position' => 'top',
 	'targets' => array( 'desktop' ),
 	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/socialproof',
+	'remoteExtPath' => 'wikihow/socialproof/AdminExpertDoc',
 	'dependencies' => array('mediawiki.page.startup', 'jquery.spinner'),
 );

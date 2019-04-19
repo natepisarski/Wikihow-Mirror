@@ -1,5 +1,6 @@
 <?php
 
+
 /**********************
  *
  *  Here are all the ad units we have currently:
@@ -1708,10 +1709,7 @@ class wikihowAds {
 		$baseChannels = $baseChannels . $extraTestChannels;
 		$baseLargeChannels = $baseLargeChannels . $extraTestChannels;
 
-		$noWidthAdGroup = $pageId % 2 == 1;
-
 		$data = [
-			"nowidthgroup" => $noWidthAdGroup,
 			"channels" => [
 				"base" => $baseChannels,
 				"baselarge" => $baseLargeChannels,
@@ -2094,12 +2092,6 @@ class wikihowAds {
 			$channels .= '+6747118168';
 		}
 
-		// no width ad AB test
-		if ( $pageId % 2 == 1 ) {
-			$channels .= '+5941219836';
-		} else {
-			$channels .= '+8567383174';
-		}
 		return $channels;
 	}
 

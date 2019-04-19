@@ -100,6 +100,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/HighSchoolHacks/HighSchoolHacks.php");
 	require_once("$IP/extensions/wikihow/BibleCitation/BibleCitation.php");
 	require_once("$IP/extensions/wikihow/contribute/Contribute.php");
+	require_once("$IP/extensions/wikihow/admintools/AdminImageLists.php");
 }
 
 if ($wgLanguageCode == "zh") {
@@ -377,10 +378,15 @@ require_once("$IP/extensions/wikihow/PatrolThrottle/PatrolThrottle.php");
 require_once("$IP/extensions/wikihow/common/ExternalModules.php");
 require_once("$IP/extensions/wikihow/talkpages/Talkpage.php");
 require_once("$IP/extensions/wikihow/ExternalRecommendedArticles/ExternalRecommendedArticles.php");
-require_once("$IP/extensions/wikihow/socialproof/AdminSocialProof.php");
-require_once("$IP/extensions/wikihow/socialproof/AdminExpertDoc.php");
 require_once("$IP/extensions/wikihow/instantarticles/AdminInstantArticles.php");
-require_once("$IP/extensions/wikihow/socialproof/AdminVerifyReview.php");
+
+require_once("$IP/extensions/wikihow/socialproof/ArticleVerifyReview.php");
+require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheets.php");
+require_once("$IP/extensions/wikihow/socialproof/VerifyData.php");
+require_once("$IP/extensions/wikihow/socialproof/AdminExpertDoc/AdminExpertDoc.php");
+require_once("$IP/extensions/wikihow/socialproof/AdminExpertNameChange/AdminExpertNameChange.php");
+require_once("$IP/extensions/wikihow/socialproof/AdminSocialProof/AdminSocialProof.php");
+require_once("$IP/extensions/wikihow/socialproof/AdminVerifyReview/AdminVerifyReview.php");
 
 # Elastic search requirements
 require_once "$IP/extensions/Elastica/Elastica.php";
@@ -389,8 +395,6 @@ require_once("$IP/extensions/wikihow/finner/Finner.php");
 
 require_once("$IP/extensions/wikihow/ArticleReviewers/ArticleReviewers.php");
 require_once("$IP/extensions/wikihow/pagehelpfulness/PageHelpfulness.php");
-require_once("$IP/extensions/wikihow/socialproof/VerifyData.php");
-require_once("$IP/extensions/wikihow/socialproof/ArticleVerifyReview.php");
 require_once("$IP/extensions/wikihow/nab/AdminNabAtlasList.php");
 require_once("$IP/extensions/Nuke/Nuke.php");
 
@@ -421,6 +425,7 @@ require_once("$IP/extensions/wikihow/specialtechfeedback/SpecialTechFeedback.php
 require_once("$IP/extensions/wikihow/specialarticlefeedback/SpecialArticleFeedback.php");
 require_once("$IP/extensions/wikihow/specialtechverify/SpecialTechVerify.php");
 require_once("$IP/extensions/wikihow/specialtechverify/SpecialTechVerifyAdmin.php");
+require_once("$IP/extensions/wikihow/specialfred/SpecialFred.php");
 require_once("$IP/extensions/wikihow/UserDisplayCache.class.php");
 require_once("$IP/extensions/wikihow/userreview/UserReview.php");
 require_once("$IP/extensions/wikihow/userreview/UserReviewForm/UserReviewForm.php");

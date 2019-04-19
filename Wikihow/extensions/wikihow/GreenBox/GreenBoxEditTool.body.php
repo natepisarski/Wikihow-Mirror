@@ -94,7 +94,7 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 
 		$verifierData = VerifyData::getAllVerifierInfo();
 		foreach ($verifierData as $datum) {
-			$experts[]= ['id' => $datum->id, 'name' => $datum->name];
+			$experts[]= ['id' => $datum->verifierId, 'name' => $datum->name];
 		}
 
 		$buildSorter = function($key) {

@@ -1,0 +1,28 @@
+<div id='tooltitle'>
+	<div id='settings'>
+		<span class='settingstext'>Select Language</span>
+		<select id='lang'>
+			{{#langs}}
+				<option value="{{.}}">{{.}}</option>
+			{{/langs}}
+		</select>
+		<span class='settingstext'>Number To Show</span>
+		<select id='shownum'>
+				<option value="100">100</option>
+				<option value="200">200</option>
+		</select>
+	</div>
+	<span>
+		<a href={{original_fred_url}} target="_blank" id='original_fred' class='toplink'>{{originalFred}}</a>
+	</span>
+	<span>
+		<a href=# id='setallreviewed' class='toplink'>{{setAllReviewed}}</a>
+	</span>
+	<span>
+		<a href=# id='remove_last_week' class='toplink'>{{remove20or30lastWeek}}</a>
+	</span>
+	<button id='downloadcsv' class='button primary'>{{downloadCSV}}</button>
+
+	<div id="data"></div>
+</div>
+<div class="spinner"></div>

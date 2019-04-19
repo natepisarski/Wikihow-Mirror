@@ -68,7 +68,7 @@ class ArticleReviewers extends UnlistedSpecialPage {
 			// Filter out experts with no recent reviews
 			$anchorName = ArticleReviewers::getAnchorName($expert->name);
 			if ($expert->category == 'Medical Review Board'
-					&& in_array($expert->id, $medicalExceptions)
+					&& in_array($expert->verifierId, $medicalExceptions)
 					&& $anchorName !== $requestedName) {
 				continue;
 			}

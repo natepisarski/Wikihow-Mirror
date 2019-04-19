@@ -24,8 +24,7 @@ class GreenBox {
 		$m = new Mustache_Engine(['loader' => $loader]);
 
 		$vars = [
-			'content' => self::formatBoxContents($parser, $wikitext),
-			'mobile_class' => Misc::isMobileMode() ? 'mobile' : ''
+			'content' => self::formatBoxContents($parser, $wikitext)
 		];
 
 		$output = $m->render('green_box', $vars);
@@ -65,8 +64,7 @@ class GreenBox {
 			// 'expert_dialog' => self::expertDialog($expert_data),
 			'expert_name' => $expert_data->name,
 			'expert_title' => $expert_data->blurb,
-			'questioner' => wfMessage('green_box_questioner')->text(),
-			'mobile_class' => Misc::isMobileMode() ? 'mobile' : ''
+			'questioner' => wfMessage('green_box_questioner')->text()
 		];
 
 		if (empty($wikitext_2))
@@ -176,11 +174,19 @@ class GreenBox {
 
 	//this uses the phpQuery object
 	public static function onProcessArticleHTMLAfter(OutputPage $out) {
-		$amp = GoogleAmp::isAmpMode($out);
+		//gotta do all mobile logic here
+		//because the parser serves up the last-cached version
+		//regardless if it was cached on mobile or desktop
+		$mobile = Misc::isMobileMode();
+		$amp = $mobile ? GoogleAmp::isAmpMode($out) : false;
 
 		//move greenboxes to their proper places
 		//--------------------------------
 		if (pq('.green_box')->length) {
+			//add mobile class to mobile green boxes
+			if ($mobile) pq('.green_box')->addClass('mobile');
+
+			//use amp-img for AMP articles
 			foreach(pq('.green_box') as $green_box) {
 				$step = pq($green_box)->parents('.step');
 				pq($step)->after(pq($green_box));
@@ -201,6 +207,9 @@ class GreenBox {
 					pq($gb_img)->replaceWith($amp_img);
 				}
 			}
+
+			//add tips class for our tip icon test
+			if (self::showTipIcon($out)) pq('.green_box')->addClass('green_tip');
 		}
 
 		//add the green box edit links (for authorized users)
@@ -242,5 +251,13 @@ class GreenBox {
 			$status->fatal('green_box_article_edit_expert');
 			return false;
 		}
+	}
+
+	private function showTipIcon(OutputPage $out): bool {
+		if (Misc::isMobileMode()) return false;
+
+		$title = $out->getTitle();
+		$aid = $title ? $title->getArticleId() : 0;
+		return $aid ? ArticleTagList::hasTag( 'green_box_tips_icon_articles', $aid ) : false;
 	}
 }

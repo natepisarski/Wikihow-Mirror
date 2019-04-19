@@ -155,7 +155,7 @@ class QAWidget {
 		$offset = $fresh_qa ? $limit : 0;
 		$articleQuestions = self::getArticleQuestions($aid, $isEditor, $limit, $offset);
 		if (class_exists('WikihowToc')) {
-			WikihowToc::setQandA(count($articleQuestions) > 0);
+			WikihowToc::setQandA( $articleQuestions );
 		}
 		if (count($articleQuestions) >= $limit) {
 			$vars['qa_show_more_answered'] = wfMessage('qa_show_more_answered')->text();

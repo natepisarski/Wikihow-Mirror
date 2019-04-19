@@ -11,11 +11,11 @@ class WikihowToc {
 
 	const MAX_ITEMS = 8;
 	const MAX_METHODS = 3;
+	const QA_EXPERT_MINIMUM = 2;
 
 	const CONFIG_LIST_NAME = "new_toc";
 
 	public static function setMethods($methodAnchors, $methodNames) {
-
 		self::$methodAnchors = $methodAnchors;
 		self::$methodNames = $methodNames;
 	}
@@ -25,7 +25,12 @@ class WikihowToc {
 	}
 
 	public static function setSummaryVideo() {
-		self::$videoSummary = ['url' => '#quick_summary_section', 'id' => 'summaryvideo_toc', 'text' => wfMessage('summaryvideo_toc')->text()];
+		self::$videoSummary = [
+			'url' => '#quick_summary_section',
+			'id' => 'summaryvideo_toc',
+			'icon' => 'summaryvideo_icon',
+			'text' => wfMessage('summaryvideo_toc')->text()
+		];
 	}
 
 	public static function isNewArticle() {
@@ -41,12 +46,21 @@ class WikihowToc {
 		if ($languageCode == "en" || $languageCode == "qqx") {
 			return true;
 		} else {
-			return $title->getArticleID() % 2 == 0;
+			return false;
 		}
 	}
 
-	public static function setQandA($hasAnsweredQuestions) {
-		if ($hasAnsweredQuestions) {
+	public static function setQandA(array $articleQuestions) {
+		$expertAnswers = 0;
+		foreach ($articleQuestions as $aq) {
+			if ($aq->getVerifierId()) $expertAnswers++;
+		}
+
+		if ($expertAnswers > self::QA_EXPERT_MINIMUM) {
+			$tocText = wfMessage('qa_expert_toc')->text();
+			self::$hasAnswers = true;
+		}
+		elseif (count($articleQuestions) > 0) {
 			$tocText = wfMessage('qa_toc')->text();
 			self::$hasAnswers = true;
 		} else {

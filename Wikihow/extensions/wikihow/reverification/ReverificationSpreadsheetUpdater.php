@@ -2,7 +2,7 @@
 
 /**
  * Updates the Master Expert Verified spreadsheet with the latest reverifications.
- * Spreadsheet ID: ExpertVerifyImporter::getSheetId()
+ * Spreadsheet ID: CoauthorSheetMaster::getSheetId()
  */
 class ReverificationSpreadsheetUpdater {
 
@@ -217,7 +217,7 @@ class ReverificationSpreadsheetUpdater {
 		];
 		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
 
-		$fileId = ExpertVerifyImporter::getSheetId();
+		$fileId = CoauthorSheetMaster::getSheetId();
 		$file = $client->file($fileId);
 
 		return $file;

@@ -1,10 +1,10 @@
 <?php
 namespace ContentPortal;
 global $IP;
-require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyTools.php");
+require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheetTools.php");
 require_once("$IP/extensions/wikihow/titus/GoogleSpreadsheet.class.php");
 
-use Title, GoogleSpreadsheet, Google_Service_Drive_Permission, ExpertVerifyTools,
+use Title, GoogleSpreadsheet, Google_Service_Drive_Permission, CoauthorSheetTools,
 	Google_Service_Drive_ParentReference, Google_Service_Drive_DriveFile, Google_Service_Drive_Permissions_Resource;
 
 class GoogleDoc {
@@ -45,7 +45,7 @@ class GoogleDoc {
 	}
 
 	public function createVerificationDoc() {
-		$tools = new ExpertVerifyTools();
+		$tools = new CoauthorSheetTools();
 		$title = Title::newFromId($this->article->wh_article_id);
 		$slug = $title->getText();
 		return $tools->createExpertDoc($this->service, $slug, null, Router::getInstance()->getContext(), $this->folderId );

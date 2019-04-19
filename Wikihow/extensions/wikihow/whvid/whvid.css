@@ -7,7 +7,6 @@
 	background: rgba(0, 0, 0, .3);
 	height: 100%;
 }
-
 .summary_with_video h2 {
 	background-color: #93b874;
 	color: #fff;
@@ -27,7 +26,6 @@
 }
 
 .m-video-intro-over .m-video-play {
-	background-color: #91b673;
 	border: none !important;
 	width: 74px !important;
 	height: 60px !important;
@@ -35,7 +33,6 @@
 	line-height: 60px;
 	color: #fff;
 	font-size: 18px;
-	border-radius: 10px;
 	top: 0;
 	bottom: 0;
 	font-weight: bold;
@@ -44,6 +41,16 @@
 	left: 0;
 	right: 0;
 	text-align: left;
+}
+.m-video-intro-over .m-video-play-text {
+	background-color: #91b673;
+	border-radius: 10px;
+	padding-top: 21px;
+	padding-right: 21px;
+	padding-bottom: 21px;
+	padding-left: 47px;
+	margin-left: -47px;
+	overflow-wrap: normal;
 }
 
 .m-video::-webkit-media-controls-overlay-play-button {

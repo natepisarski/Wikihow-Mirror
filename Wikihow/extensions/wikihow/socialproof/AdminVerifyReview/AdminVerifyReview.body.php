@@ -42,7 +42,6 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 
     public function execute( $subPage ) {
 		global $wgDebugToolbar, $IP;
-		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyImporter.php");
 
 		$request = $this->getRequest();
 		$out = $this->getOutput();
@@ -64,7 +63,6 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 
 		$out->setArticleBodyOnly(true);
 
-		$importer = new ExpertVerifyImporter();
 		$context = $this->getContext();
 
 		if ( $request->getVal( 'action' ) == "avr_uh" ) {

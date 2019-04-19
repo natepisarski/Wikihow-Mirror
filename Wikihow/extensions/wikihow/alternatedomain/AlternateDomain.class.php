@@ -34,7 +34,7 @@ class AlternateDomain {
 			return $result;
 		}
 
-		$brandedAlternateDomains = array ( 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health' );
+		$brandedAlternateDomains = array ( 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com' );
 		foreach ( $brandedAlternateDomains as $domain ) {
 			if ( ArticleTagList::hasTag( $domain, $pageId ) ) {
 				$result = $domain;
@@ -47,7 +47,7 @@ class AlternateDomain {
 	 * get list of all alternate domains
 	 */
 	public static function getAlternateDomains() {
-		return array( 'howyougetfit.com', 'howyoulivelife.com', 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health' );
+		return array( 'howyougetfit.com', 'howyoulivelife.com', 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com' );
 	}
 
 	/*
@@ -940,6 +940,22 @@ class AlternateDomain {
 					'related' => '0'
 				]
 			];
+		} else if ( strstr( $domainName, "wikihow-fun.com" ) ) {
+			$data['slots'] = [
+				'small' => [
+					'intro' => '7550202981',
+					'method' => '8138372250',
+					'related' => '4199127249'
+				],
+				'medium' => [
+
+				],
+				'large' => [
+					'intro' => '7550202981',
+					'method' => '8138372250',
+					'related' => '4199127249'
+				]
+			];
 		}
 
 		$script = Html::element( 'script', [ 'id' => 'wh_ad_data', 'type'=>'application/json' ], json_encode( $data ) );
@@ -971,6 +987,8 @@ class AlternateDomain {
 			$codes['UA-2375655-26'] = 'wikihowfitness';
 		} elseif ( strstr( $domainName, "wikihow.health") ) {
 			$codes['UA-2375655-31'] = 'wikihowhealth';
+		} else if ( strstr( $domainName, "wikihow-fun.com") ) {
+			$codes['UA-2375655-32'] = 'wikihowfun';
 		}
 	}
 
@@ -1673,6 +1691,9 @@ class AlternateDomain {
 		} elseif ( strstr( $domainName, "wikihow.health") ) {
 			$firstAd = 0;
 			$regularAd = 0;
+		} else if ( strstr( $domainName, "wikihow-fun.com") ) {
+			$firstAd = 4732467955;
+			$regularAd = 6442147207;
 		}
 
 		$slotData['en'] = array(

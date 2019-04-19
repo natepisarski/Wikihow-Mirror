@@ -72,12 +72,11 @@ class AdminSocialProof extends UnlistedSpecialPage {
 
     function outputAdminPageHtml() {
         global $IP;
-        $path = "$IP/extensions/wikihow/socialproof";
 		$out = $this->getOutput();
         $out->setPageTitle( "Social Proof Admin" );
         $vars = array();
-		$vars['sheetLink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/' . ExpertVerifyImporter::getSheetId();
-        EasyTemplate::set_path( $path );
+		$vars['sheetLink'] = 'https://docs.google.com/a/wikihow.com/spreadsheets/d/' . CoauthorSheetMaster::getSheetId();
+        EasyTemplate::set_path( __DIR__ );
         $html = EasyTemplate::html( 'AdminSocialProof.tmpl.php', $vars );
 
         $out->addHtml( $html );

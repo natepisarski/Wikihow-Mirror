@@ -102,13 +102,13 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		);
 		$dbw->update( 'master_expert_sheet_update', $updateData, array(), __METHOD__ );
 
-		$importer = new ExpertVerifyImporter();
+		$coauthorSheet = new CoauthorSheetMaster();
 		try {
-			$result = $importer->doImport();
+			$result = $coauthorSheet->doImport();
 		} catch (Exception $e) {
 			$msg = (string) $e;
 			$result = [
-				'errors' => [ "<b>ExpertVerifyImporter threw an exception</b>:<br><pre>$msg</pre>" ],
+				'errors' => [ "<b>CoauthorSheetMaster threw an exception</b>:<br><pre>$msg</pre>" ],
 				'warnings' => [],
 				'imported' => []
 			];
@@ -143,27 +143,18 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 
 	private static function getVerifierStats() {
 		// get the verify data for all pages that have it
-		$pages = VerifyData::getAllVerifiersFromDB();
+		$pages = VerifyData::getAllArticlesFromDB();
 
 		// get the total count
 		$total = count( $pages );
 
 		// set up result array
-		$counts = array_flip( ExpertVerifyImporter::getWorksheetIds() );
+		$counts = array_flip( CoauthorSheetMaster::getWorksheetIds() );
 		$counts = array_map( function() { return 0; }, $counts );
 		$counts['total'] = $total;
 
-		// now count the specific worksheet values
-		foreach ( $pages as $page ) {
-			// decode the json array of article verify info
-			$pageInfo = json_decode( $page );
-
-			// we only will display the last element of this array of page info
-			// so therefore we will also only count the last element of this array
-			$expert = array_pop( $pageInfo );
-
-			// increment our result array
-			$counts[$expert->worksheetName]++;
+		foreach ( $pages as $verifyData ) {
+			$counts[$verifyData->worksheetName]++;
 		}
 		$text = "";
 		foreach ( $counts as $name => $count ) {

@@ -184,6 +184,11 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	left: 24px;
 }
 
+.green_box.green_tip {
+	background: url(tip_icon.png) .7em .7em / 30px #f0f6ec no-repeat;
+	padding-left: 3.1em;
+}
+
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
 only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 

@@ -17,7 +17,7 @@ class UpdateTechFeedbackSheet extends Maintenance {
 
 	public function execute() {
 		global $IP;
-		require_once("$IP/extensions/wikihow/socialproof/ExpertVerifyImporter.php");
+		require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheetMaster.php");
 		$this->updateSheet();
 	}
 

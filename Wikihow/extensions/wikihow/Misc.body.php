@@ -784,7 +784,7 @@ class Misc {
 	 * NOTE: This method does not observe caching parameters set in OutputPage. If
 	 *       you need these responses to be cached, consider using OutputPage directly.
 	 */
-	public static function jsonResponse(array $data, int $code=200, string $callback='') {
+	public static function jsonResponse($data, int $code=200, string $callback='') {
 		$contentType = empty($callback) ? 'application/json' : 'application/javascript';
 
 		$req = RequestContext::getMain()->getRequest();

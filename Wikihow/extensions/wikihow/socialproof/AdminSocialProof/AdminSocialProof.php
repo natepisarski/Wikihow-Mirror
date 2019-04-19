@@ -12,9 +12,8 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['AdminSocialProof'] = 'AdminSocialProof';
 $wgAutoloadClasses['AdminSocialProof'] = __DIR__ . '/AdminSocialProof.body.php';
-$wgAutoloadClasses['MasterExpertSheetUpdate'] = __DIR__ . '/deferred/MasterExpertSheetUpdate.php';
-$wgAutoloadClasses['ExpertVerifyImporter'] = __DIR__ . '/ExpertVerifyImporter.php';
-$wgAutoloadClasses['ExpertVerifyTools'] = __DIR__ . '/ExpertVerifyTools.php';
+$wgAutoloadClasses['MasterExpertSheetUpdate'] = __DIR__ . '/MasterExpertSheetUpdate.php';
+
 $wgExtensionMessagesFiles['AdminSocialProof'] = __DIR__ . '/AdminSocialProof.i18n.php';
 $wgResourceModules['ext.wikihow.adminsocialproof'] = array(
 	'scripts' => array( 'adminsocialproof.js', ),
@@ -22,19 +21,7 @@ $wgResourceModules['ext.wikihow.adminsocialproof'] = array(
 	'position' => 'top',
 	'targets' => array( 'desktop' ),
 	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/socialproof',
-	'dependencies' => array('mediawiki.page.startup', 'jquery.spinner'),
-);
-
-
-$wgSpecialPages['AdminExpertNameChange'] = 'AdminExpertNameChange';
-$wgAutoloadClasses['AdminExpertNameChange'] = __DIR__ . '/AdminExpertNameChange.body.php';
-$wgResourceModules['ext.wikihow.adminexpertnamechange'] = array(
-	'scripts' => array( 'adminexpertnamechange.js', ),
-	'position' => 'top',
-	'targets' => array( 'desktop' ),
-	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/socialproof',
+	'remoteExtPath' => 'wikihow/socialproof/AdminSocialProof',
 	'dependencies' => array('mediawiki.page.startup', 'jquery.spinner'),
 );
 

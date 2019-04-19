@@ -4620,7 +4620,7 @@ class TSExpertVerified extends TitusStat {
 		$stats = array();
 
 		$pageId = $pageRow->page_id;
-		$verifiers = VerifyData::getVerifiersFromDB( $pageId );
+		$verifiers = VerifyData::getByPageIdFromDB( $pageId );
 
 		$verifierNames = array();
 		$verifierDates = array();
