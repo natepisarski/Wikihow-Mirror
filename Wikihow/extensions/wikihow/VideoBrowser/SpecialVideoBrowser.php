@@ -45,6 +45,7 @@ class SpecialVideoBrowser extends SpecialPage {
 		$videos = ApiSummaryVideos::query();
 		$viewing = null;
 		$missing = false;
+
 		if ( !empty( $sub ) ) {
 			if ( strpos( $sub, 'Category:' ) === 0 ) {
 				// Special category index
@@ -106,6 +107,41 @@ class SpecialVideoBrowser extends SpecialPage {
 						'link' => '/Video/Category:' . str_replace( ' ', '-', $top )
 					];
 				}
+
+				$youtubeIds = [
+					5775245 => 'pPYmcaPwwVU',
+					8570867 => 'ogKBevxvdr8',
+					8326974 => 'JQ0K--cv5Y4',
+					13268 => 'b-F7OtrLaoc',
+					66809 => '0c9PExGc9WE',
+					663332 => 'EHkZuTkfsms',
+					41306 => '469JJk1Wf1c',
+					1800408 => 'CODnVX7VAZ8',
+					155200 => 'emvdufe6t-8',
+					316096 => 'jVFV_1pOqDY',
+					3399 => 'Mcx1Q4uIjkY',
+					3630441 => 'paAKkQUYqjs',
+					149992 => 'iiyMR0LhipA',
+					3743929 => 'P7fWu3yEw-Y',
+					154200 => '6jHI-95fSTY',
+					14904 => 'sSV6ZwxVR1U',
+					2344358 => 'VPNjnNbzZxA',
+					563462 => '2StTVY6y9xg',
+					138597 => 'Rg1XZfF-ybc',
+					3823 => 'zSv-RzesjYo',
+					4420660 => 'Tirwu-YE_3I',
+					19549 => 'n9zwdJh7LMA',
+					8002860 => 'UvGe6A04bJc',
+					482185 => 'YjHVnlOEFc8',
+					375502 => 'R0qkRne1_jQ',
+					134856 => 'R-QBlNYpl6c',
+					2448869 => '23yM30uH-Wo',
+					9426953 => 'hhfkNrFxkcM',
+					1412189 => 'maCNg8DJ0s4',
+					9431347 => 'kYZJKvZaCG4',
+					842696 => 'U7Poo8AAIas'
+				];
+
 				$prerender = VideoBrowser::render( 'viewer-prerender.mustache', [
 					'url' => $url,
 					'read-more' => wfMessage( 'videobrowser-read-more' )->text(),
@@ -116,6 +152,7 @@ class SpecialVideoBrowser extends SpecialPage {
 					'howToTitle' => wfMessage( 'videobrowser-how-to', $viewing['title'] )->text(),
 					'video' => $viewing,
 					'breadcrumbs' => $list,
+					'youtube' => $youtubeIds[$viewing['id']]
 				] );
 			} else {
 				// Index
@@ -128,7 +165,7 @@ class SpecialVideoBrowser extends SpecialPage {
 			$output->addHtml( $prerender );
 
 			$root = FormatJson::encode(
-				preg_replace( "/(\\/" . preg_quote( $sub, '/' ) . ")?\$/", '', $parsedUrl['path'] )
+				preg_replace( "/(\\/" . preg_quote( $sub, '/' ) . ")?\$/", '', urldecode( $parsedUrl['path'] ) )
 			);
 			$data = FormatJson::encode( $videos );
 

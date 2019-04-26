@@ -387,6 +387,7 @@ require_once("$IP/extensions/wikihow/socialproof/AdminExpertDoc/AdminExpertDoc.p
 require_once("$IP/extensions/wikihow/socialproof/AdminExpertNameChange/AdminExpertNameChange.php");
 require_once("$IP/extensions/wikihow/socialproof/AdminSocialProof/AdminSocialProof.php");
 require_once("$IP/extensions/wikihow/socialproof/AdminVerifyReview/AdminVerifyReview.php");
+require_once("$IP/extensions/wikihow/socialproof/AdminCoauthorIntl/AdminCoauthorIntl.php");
 
 # Elastic search requirements
 require_once "$IP/extensions/Elastica/Elastica.php";

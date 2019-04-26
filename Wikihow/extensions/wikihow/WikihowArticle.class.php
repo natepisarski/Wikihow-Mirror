@@ -880,7 +880,7 @@ class WikihowArticleHTML {
 		// Trevor, 3/1/19 - Check article being on alt-domain, not just which domain we are on, logged in
 		// users can see alt-domain articles on the main site
 		if ( $langCode == 'en' && !AlternateDomain::getAlternateDomainForPage( $title->getArticleID() ) ) {
-			$videoPlayer = pq( '#quicksummary .video-player' );
+			$videoPlayer = pq( '#quick_summary_section .video-player' );
 			if ( $videoPlayer ) {
 				$link = pq( '<a id="summary_video_link">' )->attr(
 					'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )

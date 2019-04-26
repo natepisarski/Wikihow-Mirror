@@ -1,0 +1,47 @@
+<div id='aci_container'>
+
+<div class='spa_sectioncontents'>
+
+	<h2 class='spa_left'>Import Blurb Translations from Sheet</h2>
+	<label id='spa_go_to_sheet'>Go to <a target='_blank' href='{{sheetLink}}'>sheet</a></label>
+	<div class='clearall'></div>
+
+	<form id='aci_form'>
+		<input type='hidden' name='action' value='import'>
+		<input type='hidden' name='token' value='{{token}}'>
+		<button type='submit' class='button primary'>Import</button>
+	</form>
+
+	<hr>
+
+</div>
+
+<div id='spa_details_container'>
+
+	{{! TODO iterate by language }}
+
+	{{#errors.0}}
+	<div>
+		<h5 class='spa_error'>Errors</h5>
+		<div id='spa_errors' class='spa_results_list'>
+			<ul>
+				{{#errors}} <li>{{{.}}}</li> {{/errors}}
+			</ul>
+		</div>
+	</div>
+	{{/errors.0}}
+
+	{{#warnings.0}}
+	<div>
+		<h5 class='spa_warn'>Warnings</h5>
+		<div id='spa_warnings' class='spa_results_list'>
+			<ul>
+				{{#warnings}} <li>{{{.}}}</li> {{/warnings}}
+			</ul>
+		</div>
+	</div>
+	{{/warnings.0}}
+
+</div>
+
+</div>

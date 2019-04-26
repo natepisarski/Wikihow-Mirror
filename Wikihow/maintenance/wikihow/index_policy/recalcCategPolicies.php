@@ -7,7 +7,7 @@ require_once __DIR__ . '/../WHMaintenance.php';
  */
 class RecalcCategPolicies extends WHMaintenance {
 
-	protected $emailRecepients = 'alberto@wikihow.com, reuben@wikihow.com, adriana@wikihow.com';
+	protected $emailRecipients = 'alberto@wikihow.com, reuben@wikihow.com, adriana@wikihow.com';
 
 	public function __construct() {
 		parent::__construct();
@@ -21,7 +21,7 @@ class RecalcCategPolicies extends WHMaintenance {
 		parent::execute();
 
 		if ($wgIsDevServer) {
-			$this->emailRecepients = 'alberto@wikihow.com';
+			$this->emailRecipients = 'alberto@wikihow.com';
 		}
 
 		# Get all category pages

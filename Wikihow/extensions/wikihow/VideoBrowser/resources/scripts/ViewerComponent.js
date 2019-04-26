@@ -33,6 +33,41 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		this.touched = false;
 		this.progress = 0;
 		this.played = false;
+
+		// Temporary hack
+		this.youtubeIds = {
+			5775245: 'pPYmcaPwwVU',
+			8570867: 'ogKBevxvdr8',
+			8326974: 'JQ0K--cv5Y4',
+			13268: 'b-F7OtrLaoc',
+			66809: '0c9PExGc9WE',
+			663332: 'EHkZuTkfsms',
+			41306: '469JJk1Wf1c',
+			1800408: 'CODnVX7VAZ8',
+			155200: 'emvdufe6t-8',
+			316096: 'jVFV_1pOqDY',
+			3399: 'Mcx1Q4uIjkY',
+			3630441: 'paAKkQUYqjs',
+			149992: 'iiyMR0LhipA',
+			3743929: 'P7fWu3yEw-Y',
+			154200: '6jHI-95fSTY',
+			14904: 'sSV6ZwxVR1U',
+			2344358: 'VPNjnNbzZxA',
+			563462: '2StTVY6y9xg',
+			138597: 'Rg1XZfF-ybc',
+			3823: 'zSv-RzesjYo',
+			4420660: 'Tirwu-YE_3I',
+			19549: 'n9zwdJh7LMA',
+			8002860: 'UvGe6A04bJc',
+			482185: 'YjHVnlOEFc8',
+			375502: 'R0qkRne1_jQ',
+			134856: 'R-QBlNYpl6c',
+			2448869: '23yM30uH-Wo',
+			9426953: 'hhfkNrFxkcM',
+			1412189: 'maCNg8DJ0s4',
+			9431347: 'kYZJKvZaCG4',
+			842696: 'U7Poo8AAIas'
+		};
 	},
 	render: function () {
 		var viewer = this;
@@ -51,6 +86,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			this.title.change( { slug: state.slug } );
 
 			this.cancelCountdown();
+
 			video = this.video = WH.VideoBrowser.catalog.videos()
 				.filter( { slug: state.slug } ).first();
 
@@ -100,54 +136,67 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		var autoPlayNextUp = WH.VideoBrowser.preferences.autoPlayNextUp;
 		if ( video ) {
 			return [ 'div.videoBrowser-viewer' + ( state.playing ? '.videoBrowser-viewer-playing' : '' ),
-				[ 'div.videoBrowser-viewer-player',
-					[ 'video',
-						{
-							key: video.id,
-							width: 728,
-							height: 410,
-							controls: '',
-							controlsList: 'nodownload',
-							poster: video.poster || WH.VideoBrowser.missingPosterUrl,
-							playsinline: '',
-							autoplay: '',
-							onended: 'onEnded',
-							onplay: 'onPlay',
-							onpause: 'onPause',
-							oncanplay: 'onCanPlay',
-							onvolumechange: 'onVolumeChange',
-							onseeking: 'onSeeking',
-							ontimeupdate: 'onTimeUpdate'
-						},
-						[ 'source', { src: video.video, type: 'video/mp4' } ],
-						function ( element ) {
-							viewer.element = element;
-						}
+				video.id in this.youtubeIds ?
+					[ 'div.videoBrowser-viewer-player',
+						[ 'iframe',
+							{
+								width: '100%',
+								height: '100%',
+								src: 'https://www.youtube.com/embed/' + this.youtubeIds[video.id] + '?rel=0&modestbranding=1',
+								frameborder: 0,
+								allow: 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture',
+								allowfullscreen: true
+							}
+						]
+					] :
+					[ 'div.videoBrowser-viewer-player',
+						[ 'video',
+							{
+								key: video.id,
+								width: 728,
+								height: 410,
+								controls: '',
+								controlsList: 'nodownload',
+								poster: video.poster || WH.VideoBrowser.missingPosterUrl,
+								playsinline: '',
+								autoplay: '',
+								onended: 'onEnded',
+								onplay: 'onPlay',
+								onpause: 'onPause',
+								oncanplay: 'onCanPlay',
+								onvolumechange: 'onVolumeChange',
+								onseeking: 'onSeeking',
+								ontimeupdate: 'onTimeUpdate'
+							},
+							[ 'source', { src: video.video, type: 'video/mp4' } ],
+							function ( element ) {
+								viewer.element = element;
+							}
+						],
+						state.bumper && !isMobile ? [ 'div.videoBrowser-viewer-bumper',
+							state.currentVideoId ? [ 'div.videoBrowser-viewer-bumperOption',
+								[ 'p.videoBrowser-viewer-bumperTitle', mw.msg( 'videobrowser-replay' ) ],
+								[ 'div.videoBrowser-viewer-bumperVideo',
+									{ onclick: 'onReplayClick' },
+									this.currentVideo.using( { id: state.currentVideoId, icon: 'replay' } )
+								],
+							] : undefined,
+							state.nextVideoId ? [ 'div.videoBrowser-viewer-bumperOption',
+								[ 'p.videoBrowser-viewer-bumperTitle', mw.msg( 'videobrowser-next' ) ],
+								[ 'div.videoBrowser-viewer-bumperVideo',
+									{ onclick: 'onNextClick' },
+									this.nextVideo.using( { id: state.nextVideoId, icon: 'next' } ),
+								],
+								[ 'p.videoBrowser-viewer-bumperClock',
+									mw.msg( 'videobrowser-countdown', state.countdown )
+								],
+								[ 'div.videoBrowser-viewer-bumperCancel.button',
+									{ onclick: 'onCancelClick' }, mw.msg( 'videobrowser-cancel' )
+								]
+							] : undefined,
+						] : undefined,
+						[ 'div.videoBrowser-viewer-playButton', { onclick: 'onPlayButtonClick' } ]
 					],
-					state.bumper && !isMobile ? [ 'div.videoBrowser-viewer-bumper',
-						state.currentVideoId ? [ 'div.videoBrowser-viewer-bumperOption',
-							[ 'p.videoBrowser-viewer-bumperTitle', mw.msg( 'videobrowser-replay' ) ],
-							[ 'div.videoBrowser-viewer-bumperVideo',
-								{ onclick: 'onReplayClick' },
-								this.currentVideo.using( { id: state.currentVideoId, icon: 'replay' } )
-							],
-						] : undefined,
-						state.nextVideoId ? [ 'div.videoBrowser-viewer-bumperOption',
-							[ 'p.videoBrowser-viewer-bumperTitle', mw.msg( 'videobrowser-next' ) ],
-							[ 'div.videoBrowser-viewer-bumperVideo',
-								{ onclick: 'onNextClick' },
-								this.nextVideo.using( { id: state.nextVideoId, icon: 'next' } ),
-							],
-							[ 'p.videoBrowser-viewer-bumperClock',
-								mw.msg( 'videobrowser-countdown', state.countdown )
-							],
-							[ 'div.videoBrowser-viewer-bumperCancel.button',
-								{ onclick: 'onCancelClick' }, mw.msg( 'videobrowser-cancel' )
-							]
-						] : undefined,
-					] : undefined,
-					[ 'div.videoBrowser-viewer-playButton', { onclick: 'onPlayButtonClick' } ]
-				],
 				[ 'div.section_text',
 					this.actionBar,
 					[ 'p.videoBrowser-viewer-context', mw.msg( 'videobrowser-context' ) ],
@@ -177,11 +226,15 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 						'name': mw.msg( 'videobrowser-meta-title', video.title ),
 						'description': state.summaryText || undefined,
 						'thumbnailUrl': [ video.poster, video['poster@4:3'], video['poster@1:1'] ],
-						'uploadDate': video.updated,
+						'contentUrl': video.id in this.youtubeIds ?
+							'https://www.youtube.com/watch?v=' + this.youtubeIds[video.id] :
+							String( window.location ),
+						'embedUrl': video.id in this.youtubeIds ?
+							'https://www.youtube.com/embed/' + this.youtubeIds[video.id] :
+							video.video,
+						'uploadDate': video.id in this.youtubeIds ? undefined : video.updated,
+						'interactionCount': video.id in this.youtubeIds ? undefined : video.plays
 						//'duration': 'PT1M33S', // TODO: Actual duration
-						'contentUrl': String( window.location ),
-						'embedUrl': video.video,
-						'interactionCount': video.plays
 					} ) ],
 					[ 'div.videoBrowser-viewer-related',
 						[ 'h2.videoBrowser-viewer-related-title',

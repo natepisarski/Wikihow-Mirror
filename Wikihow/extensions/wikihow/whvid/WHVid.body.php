@@ -458,10 +458,10 @@ class WHVid {
 	public static function onAddMobileTOCItemData($wgTitle, &$extraTOCPreData, &$extraTOCPostData) {
 		if (self::hasSummaryVideo($wgTitle)) {
 			$extraTOCPostData[] = [
-				'anchor' => 'Quick_Summary',
+				'anchor' => 'quick_summary_section',
 				'name' => 'Video',
 				'priority' => 1050,
-				'selector' => '#Quick_Summary',
+				'selector' => '#quick_summary_section',
 			];
 		}
 		return true;

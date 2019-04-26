@@ -439,6 +439,9 @@ class WikihowMobileTools {
 		// add the controls
 		pq( '.summarysection video' )->addClass( 'summary-m-video' )->parent()->after( WHVid::getVideoControlsSummaryHtml( $summaryIntroHeadingText ) );
 
+		//give the whole section a consistent id
+		pq( '.summarysection .video-player' )->parents( '.summarysection' )->eq( 0 )->attr( 'id','quick_summary_section');
+
 		pq( 'video:not(.summary-m-video)' )->parent()->after( WHVid::getVideoControlsHtmlMobile() );
 
 		//move each of the large images to the top

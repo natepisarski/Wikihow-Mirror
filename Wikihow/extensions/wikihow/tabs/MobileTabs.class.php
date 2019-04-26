@@ -27,7 +27,7 @@ class MobileTabs extends Tabs {
 		if(GoogleAmp::isAmpMode($wgOut)) {
 			return "summarysection_anchor";
 		} else {
-			return "Quick_Summary";
+			return "quick_summary_section";
 		}
 	}
 

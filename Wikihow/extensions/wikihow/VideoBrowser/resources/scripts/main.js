@@ -99,7 +99,7 @@ $( function () {
 				} )
 				.mount( '/(:slug)', function ( params ) {
 					var slug = params.slug;
-					app.setView( 'viewer', { slug: slug, category: null } );
+					app.setView( 'viewer', { slug: decodeURIComponent( slug ), category: null } );
 					requestAnimationFrame( trackPageView, 0 );
 				} );
 

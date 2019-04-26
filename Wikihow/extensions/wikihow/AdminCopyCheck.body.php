@@ -16,7 +16,7 @@ class AdminCopyCheck extends UnlistedSpecialPage {
 		foreach ($pageList as $url) {
 			$url = trim($url);
 			if (!empty($url)) {
-				$article = preg_replace('@http://www.wikihow.com/@','',$url);
+				$article = preg_replace('@https?://www.wikihow.com/@','',$url);
 				$article = urldecode($article);
 				$err = self::checkArticle($article);
 				if ($err != '') {

@@ -2,7 +2,7 @@
 
 class CoauthorSheetMaster extends CoauthorSheet {
 	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1EYL2mMI2CEUxLAUMMCyA-J2RabyKHkNQdhopVzefwCc';
+	const SHEET_ID_DEV = '1t-AnjvnU9b_1f-MAWm8rQchAh9p6vNNv9sN9QXu5tJU';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
@@ -12,7 +12,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 	 */
 	public function doImport() {
 		$token = self::getApiAccessToken();
-		$dbVerifiers = self::getVerifiersFromDB();
+		$dbVerifiers = self::getVerifiersFromDB(); // TODO use VerifyData::getAllVerifierInfoFromDB()
 		$result = ['errors' => [], 'warnings' => [], 'imported' => []];
 
 		$coauthors = self::fetchSheetCoauthors($token, $dbVerifiers, $result);
@@ -20,7 +20,9 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		$articles = self::fetchSheetArticles($token, $coauthors, $blurbs, $result);
 
 		if (!$result['errors']) {
-			VerifyData::replaceAllData($coauthors, $blurbs, $articles);
+			VerifyData::replaceCoauthors('en', $coauthors);
+			VerifyData::replaceBlurbs('en', $blurbs);
+			VerifyData::replaceArticles('en', $articles);
 			// Schedule the maintenance for the Reverification tool. Use the Main-page title because we need a title
 			// in order for the job to work properly
 			$title = Title::newFromText('Main-Page');
@@ -198,7 +200,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 				$result['errors'][] = "$rowInfo Blurb too long: $blurb";
 			}
 
-			$blurbs[$blurbId] = compact('blurbId', 'coauthorId', 'blurbNum', 'byline', 'blurb');
+			$blurbs[$blurbId] = CoauthorBlurb::newFromAll($blurbId, $coauthorId, $blurbNum, $byline, $blurb);
 
 			// Set the default blurb
 			if ( $blurbNum === 1 && isset($coauthors[$coauthorId]) ) {
@@ -342,8 +344,8 @@ class CoauthorSheetMaster extends CoauthorSheet {
 				$verifyData = VerifyData::newVideoTeamArticle( $worksheetName, $pageId, $revId, $date );
 			}
 			else {
-				$primaryBlurb = $blurbs[$blurbId]['byline'];
-				$hoverBlurb = $blurbs[$blurbId]['blurb'];
+				$primaryBlurb = $blurbs[$blurbId]->byline;
+				$hoverBlurb = $blurbs[$blurbId]->blurb;
 
 				$coauthorName = $coauthors[$coauthorId]->name;
 
@@ -392,6 +394,17 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		$output = array();
 		parse_str( $revisionLink, $output );
 		return $output['oldid'];
+	}
+
+	// TODO remove this method
+	private static function getVerifiersFromDB(): array {
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select(VerifyData::VERIFIER_TABLE, ['vi_id', 'vi_name']);
+		$dbVerifiers = [];
+		foreach ($res as $row) {
+			$dbVerifiers[ (int) $row->vi_id ] = $row->vi_name;
+		}
+		return $dbVerifiers;
 	}
 
 }

@@ -90,11 +90,12 @@ class VerifyData {
 		return $vd;
 	}
 
-	public static function getAllArticlesFromDB() {
+	public static function getAllArticlesFromDB($lang='en') {
 		$results = [];
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select( self::ARTICLE_TABLE, '*' );
+		$articleTable = Misc::getLangDB($lang) . '.' . self::ARTICLE_TABLE;
+		$res = $dbr->select( $articleTable, '*' );
 		foreach ($res as $row) {
 			$vd = self::newArticleFromRow($row);
 			$results[$vd->aid] = $vd;
@@ -289,11 +290,12 @@ class VerifyData {
 		return $vInfo;
 	}
 
-	public static function getAllVerifierInfoFromDB() {
+	public static function getAllVerifierInfoFromDB($lang='en') {
 		$results = [];
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select(self::VERIFIER_TABLE, '*');
+		$verifierTable = Misc::getLangDB($lang) . '.' . self::VERIFIER_TABLE;
+		$res = $dbr->select($verifierTable, '*');
 		foreach ($res as $row) {
 			$vd = self::newVerifierFromRow(get_object_vars($row));
 			$results[$vd->verifierId] = $vd;
@@ -302,31 +304,72 @@ class VerifyData {
 		return $results;
 	}
 
+	# BLURBS
+	public static function getAllBlurbsFromDB($lang='en'): array {
+		$blurbs = [];
+		$dbr = wfGetDB(DB_REPLICA);
+		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
+		$res = $dbr->select($blurbTable, '*');
+		foreach ($res as $row) {
+			$blurbs[$row->cab_blurb_id] = CoauthorBlurb::newFromRow($row);
+		}
+		return $blurbs;
+	}
+
 	# IMPORT TOOL
 
-	public static function replaceAllData(array $coauthors, array $blurbs, array $articles) {
-		global $wgMemc;
-
-		if ( !$coauthors || !$blurbs || !$articles ) {
+	public static function replaceBlurbs(string $lang, array $blurbs) {
+		if ( !$blurbs ) {
 			return;
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
+		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
 
-		### Coauthors
+		// Delete blurbs that were removed from the spreadsheet
 
-		// Delete coauthors that were removed from the spreadsheet
+		$blurbIDsToInsert = $dbw->makeList( array_keys($blurbs) );
+		$res = $dbw->delete( $blurbTable, "cab_blurb_id NOT IN ($blurbIDsToInsert)" );
+
+		// Upsert the blurbs
+
+		$blurbRowsToUpsert = [];
+		foreach ($blurbs as $blurb) {
+			$blurbRowsToUpsert[] = CoauthorBlurb::makeDBRow($blurb);
+		}
+		$dbw->upsert($blurbTable, $blurbRowsToUpsert, [], [
+			'cab_byline = VALUES(cab_byline)',
+			'cab_blurb = VALUES(cab_blurb)',
+		]);
+	}
+
+	public static function replaceCoauthors(string $lang, array $coauthors) {
+		global $wgMemc, $wgCachePrefix;
+
+		if ( !$coauthors ) {
+			return;
+		}
+
+		$dbr = wfGetDB( DB_REPLICA );
+		$dbw = wfGetDB( DB_MASTER );
+		$dbName = Misc::getLangDB($lang);
+		$verifierTable = $dbName . '.' . self::VERIFIER_TABLE;
+
+		// Delete coauthors that were removed from the spreadsheet.
+		// But as of 2019-04 coauthor removals are not allowed: (CoauthorSheetMaster.php).
 
 		$coauthorIDstoDelete = [];
-		$coauthorIDsToInsert = $dbw->makeList( array_keys($coauthors) );
-		$res = $dbw->select( self::VERIFIER_TABLE, 'vi_id', "vi_id NOT IN ($coauthorIDsToInsert)" );
+		$coauthorIDsToInsert = $dbr->makeList( array_keys($coauthors) );
+		$res = $dbr->select( $verifierTable, 'vi_id', "vi_id NOT IN ($coauthorIDsToInsert)" );
 		foreach ($res as $row) {
 			$coauthorIDstoDelete[] = $row->vi_id;
 		}
 		if ($coauthorIDstoDelete) {
-			$qadb = QADB::newInstance();
-			$qadb->removeVerifierIdsFromArticleQuestions($coauthorIDstoDelete);
-			$res = $dbw->delete( self::VERIFIER_TABLE, [ 'vi_id' => $coauthorIDstoDelete ] );
+			if ($lang == 'en') {
+				$qadb = QADB::newInstance();
+				$qadb->removeVerifierIdsFromArticleQuestions($coauthorIDstoDelete);
+			}
+			$res = $dbw->delete( $verifierTable, [ 'vi_id' => $coauthorIDstoDelete ] );
 		}
 
 		// Upsert the coauthors
@@ -341,7 +384,7 @@ class VerifyData {
 				'vi_info' => json_encode($verifyData),
 			];
 		}
-		$dbw->upsert(self::VERIFIER_TABLE, $coauthorRowsToUpsert, [], [
+		$dbw->upsert($verifierTable, $coauthorRowsToUpsert, [], [
 			'vi_name = VALUES(vi_name)',
 			'vi_wh_id = VALUES(vi_wh_id)',
 			'vi_user_name = VALUES(vi_user_name)',
@@ -350,34 +393,19 @@ class VerifyData {
 
 		// Clear the coauthor cache
 
-		$cacheKey = wfMemcKey( self::VERIFIER_INFO_CACHE_KEY );
+		$cacheKey = wfForeignMemcKey( $dbName, $wgCachePrefix, self::VERIFIER_INFO_CACHE_KEY );
 		$wgMemc->delete( $cacheKey );
+	}
 
-		### Blurbs
+	public static function replaceArticles(string $lang, array $articles) {
+		global $wgMemc, $wgCachePrefix;
 
-		// Delete blurbs that were removed from the spreadsheet
-
-		$blurbIDsToInsert = $dbw->makeList( array_keys($blurbs) );
-		$res = $dbw->delete( self::BLURB_TABLE, "cab_blurb_id NOT IN ($blurbIDsToInsert)" );
-
-		// Upsert the blurbs
-
-		$blurbRowsToUpsert = [];
-		foreach ($blurbs as $blurb) {
-			$blurbRowsToUpsert[] = [
-				'cab_blurb_id' => $blurb['blurbId'],
-				'cab_coauthor_id' => $blurb['coauthorId'],
-				'cab_blurb_num' => $blurb['blurbNum'],
-				'cab_byline' => $blurb['byline'],
-				'cab_blurb' => $blurb['blurb'],
-			];
+		if (!$articles ) {
+			return;
 		}
-		$dbw->upsert(self::BLURB_TABLE, $blurbRowsToUpsert, [], [
-			'cab_byline = VALUES(cab_byline)',
-			'cab_blurb = VALUES(cab_blurb)',
-		]);
 
-		### Articles
+		$dbName = Misc::getLangDB($lang);
+		$articleTable = $dbName . '.' . self::ARTICLE_TABLE;
 
 		$pageIds = [];
 		$rows = [];
@@ -396,20 +424,20 @@ class VerifyData {
 			$pageIds[$pageId] = true;
 
 			// set in memcached
-			$cacheKey = wfMemcKey( 'article_verifier_data', $pageId );
+			$cacheKey = wfForeignMemcKey( $dbName, $wgCachePrefix, 'article_verifier_data', $pageId );
 			$wgMemc->set( $cacheKey, $verifyData );
 		}
 
 		// adds lists of verify data to the database and overwrites existing data in those rows
 		// works using replace into as a batch call..
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->replace( self::ARTICLE_TABLE, [ 'av_id' ], $rows );
+		$dbw->replace( $articleTable, [ 'av_id' ], $rows );
 
 		// looks at all the page ids in the verify data table
 		// and deletes any that are no in the given $articles array passed in
 
 		$dbr = wfGetDB( DB_REPLICA );
-		$res = $dbr->select( self::ARTICLE_TABLE, [ 'av_id' ], [] );
+		$res = $dbr->select( $articleTable, 'av_id');
 		$toDelete = [];
 		foreach ( $res as $row ) {
 			if ( !$articles[$row->av_id] ) {
@@ -418,13 +446,12 @@ class VerifyData {
 		}
 
 		foreach ( $toDelete as $deleteId ) {
-			$dbw = wfGetDB( DB_MASTER );
-			$res = $dbw->delete( self::ARTICLE_TABLE, [ "av_id"=> $deleteId ] );
-			$cacheKey = wfMemcKey( 'article_verifier_data', $deleteId );
+			$res = $dbw->delete( $articleTable, [ "av_id"=> $deleteId ] );
+			$cacheKey = wfForeignMemcKey( $dbName, $wgCachePrefix, 'article_verifier_data', $deleteId );
 			$wgMemc->delete( $cacheKey );
 		}
 
-		self::cachePageIds( $pageIds );
+		self::cachePageIds( $pageIds, $lang );
 	}
 
 	# MISC
@@ -445,11 +472,55 @@ class VerifyData {
 		return $thumb->getUrl();
 	}
 
-	private static function cachePageIds( $pageIds ) {
-		global $wgMemc;
-		$cacheKey = wfMemcKey( 'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
+	private static function cachePageIds( $pageIds, $lang='en' ) {
+		global $wgMemc, $wgCachePrefix;
+		$cacheKey = wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix,
+			'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
 		$expirationTime = 30 * 24 * 60 * 60; //30 days
 		$wgMemc->set( $cacheKey, $pageIds, $expirationTime );
 	}
 
+}
+
+class CoauthorBlurb
+{
+	public $blurbId;
+	public $coauthorId;
+	public $blurbNum;
+	public $byline;
+	public $blurb;
+
+	private function __construct() {}
+
+	public static function newFromAll(string $blurbId, int $coauthorId, int $blurbNum,
+			string $byline, string $blurb): CoauthorBlurb {
+		$cb = new CoauthorBlurb();
+		$cb->blurbId = $blurbId;
+		$cb->coauthorId = $coauthorId;
+		$cb->blurbNum = $blurbNum;
+		$cb->byline = $byline;
+		$cb->blurb = $blurb;
+		return $cb;
+	}
+
+	public static function newFromRow($row): CoauthorBlurb {
+		return self::newFromAll(
+			$row->cab_blurb_id,
+			(int) $row->cab_coauthor_id,
+			(int) $row->cab_blurb_num,
+			$row->cab_byline,
+			$row->cab_blurb
+		);
+	}
+
+	public static function makeDBRow(CoauthorBlurb $blurb): array {
+		return [
+			'cab_blurb_id' => $blurb->blurbId,
+			'cab_coauthor_id' => $blurb->coauthorId,
+			'cab_blurb_num' => $blurb->blurbNum,
+			'cab_byline' => $blurb->byline,
+			'cab_blurb' => $blurb->blurb,
+		];
+
+	}
 }

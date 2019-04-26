@@ -7,6 +7,8 @@ class ArticleQuizzes {
 
 	const FIRST_TAG = "quiz_test_top";
 
+	const EXCLUDE_TAG = "quiz_exclude_list";
+
 	function __construct($aid) {
 		if (self::$quizzes == null || self::$articleId != $aid) {
 			self::$articleId = $aid;
@@ -15,10 +17,15 @@ class ArticleQuizzes {
 		}
 	}
 
+	//Get quiz to display on an article specifically
 	public function getQuiz($methodName, $methodType) {
-		$methodHash = md5($methodName);
-		if (array_key_exists($methodHash, self::$quizzes)) {
-			return self::$quizzes[$methodHash]->getQuizHtml($methodType, self::$showFirstAtTop);
+		if(!ArticleTagList::hasTag(self::EXCLUDE_TAG, self::$articleId)) {
+			$methodHash = md5($methodName);
+			if (array_key_exists($methodHash, self::$quizzes)) {
+				return self::$quizzes[$methodHash]->getQuizHtml($methodType, self::$showFirstAtTop);
+			} else {
+				return "";
+			}
 		} else {
 			return "";
 		}
@@ -33,7 +40,8 @@ class ArticleQuizzes {
 			&& $title->exists()
 			&& $title->inNamespace(NS_MAIN)
 			&& $title->getText() != wfMessage('mainpage')->inContentLanguage()->text()
-			&& $action == 'view') {
+			&& $action == 'view'
+			&& !ArticleTagList::hasTag(self::EXCLUDE_TAG, $title->getArticleID())) {
 			$articleQuizzes = new ArticleQuizzes($title->getArticleID());
 			if (count($articleQuizzes::$quizzes) > 0) {
 				$out->addModules("ext.wikihow.quiz_js");

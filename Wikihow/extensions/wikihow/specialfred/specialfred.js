@@ -14,11 +14,11 @@
 
 		createRow: function(line) {
 			//console.log("line", line);
-			var res = jQuery('<div/>', {
+			var res = jQuery('<tr/>', {
 				class: 'data-line',
 			});
 			for (var key in line) {
-				var column = jQuery('<div/>', {
+				var column = jQuery('<td/>', {
 					class: key,
 				});
 				column.addClass('data-element');

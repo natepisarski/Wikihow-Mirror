@@ -11,7 +11,7 @@ class FindMissingInternalLinks extends WHMaintenance {
 
 	const OUTPUT_DIR = '/data/missing_internal_links';
 
-	protected $emailRecepients = 'alberto@wikihow.comm';
+	protected $emailRecipients = 'alberto@wikihow.com';
 	private $wikiTexts = []; // EN articles wikiText excluding the 'Related wikiHows' section
 
 	public function __construct()

@@ -42,9 +42,9 @@ class StaffReviewed {
 	public static function sensitiveArticle(int $articleId): bool {
 		return class_exists('SensitiveArticle\SensitiveArticle') &&
 			SensitiveArticle\SensitiveArticle::hasReasons(
-			$articleId,
-			self::staffReviewedSensistiveReasonIds()
-		);
+				$articleId,
+				self::staffReviewedSensistiveReasonIds()
+			);
 	}
 
 	private static function staffReviewedSensistiveReasonIds(): array {

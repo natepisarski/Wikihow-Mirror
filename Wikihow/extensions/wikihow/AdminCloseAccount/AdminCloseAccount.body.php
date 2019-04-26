@@ -202,6 +202,8 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 	 * @return User Queried user, null and API error called if parameters are invalid
 	 */
 	private function getQueriedUser() {
+		$dbr = wfGetDB( DB_REPLICA );
+
 		$req = $this->getRequest();
 		$email = $req->getCheck( 'email' );
 		$name = $req->getCheck( 'name' );
@@ -216,9 +218,11 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 
 		if ( $name ) {
 			$name = $req->getText( 'name' );
-			$user = User::newFromName( $name );
+			// Must access directly to handle irregular usernames created using social login
+			$row = $dbr->selectRow( 'user', '*', [ 'user_name' => $name ], __METHOD__ );
+			$user = User::newFromRow( $row );
 			if ( !$user->getId() ) {
-				$this->apiError( "User name 'name' not found." );
+				$this->apiError( "User name '$name' not found." );
 				return null;
 			}
 		} elseif ( $email ) {

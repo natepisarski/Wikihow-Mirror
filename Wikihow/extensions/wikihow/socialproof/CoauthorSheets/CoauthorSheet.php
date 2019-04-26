@@ -34,7 +34,7 @@ abstract class CoauthorSheet
 	 * @param string $token the access token obtained by created the API client
 	 * @return Array the data which is read from the sheet line by line and put in an array
 	 */
-	protected static function getWorksheetData( $feedLink, $sheetId, $worksheetId, $feedLinkSecond, $token ) {
+	protected static function getWorksheetData($feedLink, $sheetId, $worksheetId, $feedLinkSecond, $token) {
 		$feedLink = $feedLink . $sheetId . '/' . $worksheetId . $feedLinkSecond;
 
 		$sheetData = file_get_contents( $feedLink . $token );
@@ -42,6 +42,36 @@ abstract class CoauthorSheet
 		$sheetData = $sheetData->{'feed'}->{'entry'};
 
 		return $sheetData;
+	}
+
+	protected static function getWorksheetDataV4(string $sheetId, string $worksheetName, string $token): Generator {
+		$url = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetId}/values/{$worksheetName}?access_token={$token}";
+
+		$json = @file_get_contents($url);
+		if ( !$json ) {
+			return "Can't access worksheet: $worksheetName (sheet ID = $sheetId)";
+		}
+
+		$data = json_decode($json);
+		if ( !is_array($data->values ?? null) ) {
+			return "Can't parse JSON from worksheet: $worksheetName (sheet ID = $sheetId)";
+		}
+
+		$rows = $data->values;
+		$headers = array_shift($rows);
+		$size = count($headers);
+		$rowNum = 1;
+		foreach ($rows as $values) {
+			if ( count($values) > $size ) {
+				$values = array_slice($values, 0, $size);
+			} elseif ( count($values) < $size ) {
+				$values = array_pad($values, $size, '');
+
+			}
+			yield ++$rowNum => array_combine($headers, $values);
+		}
+
+		return ''; // no error message
 	}
 
 	/**
@@ -113,6 +143,7 @@ abstract class CoauthorSheet
 
 	protected static function makeRowInfoHtml(int $rowNo, string $sheetId, string $sheetName): string {
 		$worksheets = [
+			// Master Expert Verified
 			'coauthors' => '1516230615',
 			'blurbs' => '493402436',
 			'expert' => '0',
@@ -121,6 +152,8 @@ abstract class CoauthorSheet
 			'community' => '767097190',
 			'videoverified' => '1410489847',
 			'chefverified' => '2067227246',
+			// Coauthor Localization
+			'ES' => '1501876960', // TODO: add the rest
 		];
 
 		$worksheetId = $worksheets[$sheetName];
@@ -133,16 +166,6 @@ abstract class CoauthorSheet
 		$rowLink = Html::rawElement('a', [ 'href'=>$linkHref, 'target'=>'_blank' ], $linkText);
 
 		return "<span class='spa_location'>$rowLink</span>";
-	}
-
-	protected static function getVerifiersFromDB(): array {
-		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select(VerifyData::VERIFIER_TABLE, ['vi_id', 'vi_name']);
-		$dbVerifiers = [];
-		foreach ($res as $row) {
-			$dbVerifiers[ (int) $row->vi_id ] = $row->vi_name;
-		}
-		return $dbVerifiers;
 	}
 
 }

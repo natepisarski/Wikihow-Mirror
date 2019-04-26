@@ -9,7 +9,7 @@ abstract class WHMaintenance extends Maintenance {
 
 	protected $debug = false;
 	protected $emailSender = 'alerts@wikihow.com';
-	protected $emailRecepients = null;
+	protected $emailRecipients = null;
 
 	public function __construct() {
 		parent::__construct();
@@ -39,12 +39,12 @@ abstract class WHMaintenance extends Maintenance {
 		if ($this->debug) {
 			$this->output("\n--- Email ---\n");
 			$this->output("   From: " . $this->emailSender . "\n");
-			$this->output("     To: " . ($this->emailRecepients ?? '<NOBODY>') . "\n");
+			$this->output("     To: " . ($this->emailRecipients ?? '<NOBODY>') . "\n");
 			$this->output("Subject: " . $subject . "\n");
 			$this->output("   Body:\n\n" . $body . "\n");
 			$this->output("-------------\n\n");
-		} elseif ($this->emailRecepients) {
-			$to = new MailAddress($this->emailRecepients);
+		} elseif ($this->emailRecipients) {
+			$to = new MailAddress($this->emailRecipients);
 			$from = new MailAddress($this->emailSender);
 			UserMailer::send($to, $from, $subject, $body);
 		}

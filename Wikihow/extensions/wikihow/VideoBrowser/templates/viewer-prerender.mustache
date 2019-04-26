@@ -24,10 +24,18 @@
 						<a href="{{article}}">{{read-more}}</a>
 					</p>
 				</div>
+				{{#youtube}}
+				<div class="videoBrowser-viewer-player">
+					<iframe width="1045" height="588" src="https://www.youtube.com/embed/{{youtube}}?rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
+					<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{titleText}}","description":"{{summaryText}}","thumbnailUrl":["{{poster}}","{{poster@4:3}}","{{poster@1:1}}"],"contentUrl":"https://www.youtube.com/watch?v={{youtube}}","embedUrl":"https://www.youtube.com/embed/{{youtube}}"}</script>
+				</div>
+				{{/youtube}}
+				{{^youtube}}
 				<div class="videoBrowser-viewer-player">
 					<video key="{{id}}" width="728" height="410" playsinline="" controls="" controlslist="nodownload" poster="{{poster}}"><source src="{{video}}" type="video/mp4"></video>
 				</div>
 				<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{titleText}}","description":"{{summaryText}}","thumbnailUrl":["{{poster}}","{{poster@4:3}}","{{poster@1:1}}"],"uploadDate":"{{updated}}","contentUrl":"{{url}}","embedUrl":"{{video}}","interactionCount":"{{plays}}"}</script>
+				{{/youtube}}
 			</div>
 		</div>
 		{{/video}}
