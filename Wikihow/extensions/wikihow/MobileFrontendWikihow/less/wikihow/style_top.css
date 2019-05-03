@@ -548,6 +548,10 @@ h4.steps_text::before {
 	text-align: center;
 }
 
+#quick_summary_section .mwimg {
+	margin-bottom: 0px;
+}
+
 .mwimg a img {
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
@@ -614,6 +618,10 @@ h4.steps_text::before {
 
 #video.section_text {
 	padding: 0;
+}
+
+#quick_summary_section.section_text {
+	padding-bottom: 0;
 }
 
 #video .embedvideocontainer {

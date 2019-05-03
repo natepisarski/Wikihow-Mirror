@@ -109,8 +109,50 @@ class GoogleAmp {
 	private static function getAmpSummaryVideo( $video, $width, $height, $sectionName )  {
 		global $wgTitle, $wgCanonicalServer;
 
-		$href = "{$wgCanonicalServer}/Video/" . str_replace( ' ', '-', $wgTitle->getText() );
+		if ( Misc::isAltDomain() ) {
+			// Use original inline video
+			$src = $video->attr( 'data-src' );
+			$poster = $video->attr( 'data-poster' );
+			$id = $video->attr( 'id' );
+			$overlayId = $id . '-overlay';
+			$src = WH_CDN_VIDEO_ROOT . $src;
+			// this is the dev url but we only need it if the video was also run on fred
+			//$src  = 'https://d2mnwthlgvr25v.cloudfront.net'.$src;
+			$attr = [
+				'id' => $id,
+				'src' => $src,
+				'width' => $width,
+				'height' => $height,
+				'layout' => 'responsive',
+				'class' => 'm-video',
+				'poster' => $poster,
+				'controls',
+			];
+			$ampVideo = Html::element( "amp-video", $attr );
+			$overlayContents = WHVid::getSummaryIntroOverlayHtml( $sectionName, $wgTitle );
+			$posterAttributes = array(
+				'class' => 'video-poster-image',
+				'layout' => 'fill',
+				'src' => $poster,
+			);
+			$poster = Html::element( 'amp-img', $posterAttributes );
+			$overlayContents = $overlayContents . $poster;
+			$overlay = Html::rawElement(
+				'div',
+				[
+					'id' => $overlayId,
+					'role' => 'button',
+					'on' => "tap:$overlayId.hide, $id.play",
+					'tabindex' => 0
+				],
+				$overlayContents
+			);
+			$videoPlayer = Html::rawElement( 'div', [ 'class' => 'summary-video' ], $ampVideo . $overlay );
+			return $videoPlayer;
+		}
 
+		// Trevor - use link to VideoBrowser
+		$href = "{$wgCanonicalServer}/Video/" . str_replace( ' ', '-', $wgTitle->getText() );
 		return Html::rawElement( 'div',
 			[ 'class' => 'summary-video' ],
 			Html::rawElement( 'a',
@@ -1045,7 +1087,7 @@ class GoogleAmp {
 		if( pq(".summarysection .summary-video")->length > 0) {
 			//add a new anchor tag so it will jump to the right place
 			$anchor = MobileTabs::getSummarySectionAnchorName();
-			pq('.summarysection')->prepend("<div id='$anchor'></div>");
+			pq('.summarysection')->attr("id",'')->parent()->attr("id", $anchor);
 			pq("#mobile_tab_1")->attr("href", "#$anchor");
 		}
 	}

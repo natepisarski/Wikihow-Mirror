@@ -9,7 +9,8 @@
 	<form id='aci_form'>
 		<input type='hidden' name='action' value='import'>
 		<input type='hidden' name='token' value='{{token}}'>
-		<button type='submit' class='button primary'>Import</button>
+		<button type='submit' id='aci_submit_btn' class='button primary'>Import</button>
+		<label id='aci_progress_label' class='hidden'>Import in progress...</label>
 	</form>
 
 	<hr>
@@ -18,12 +19,21 @@
 
 <div id='spa_details_container'>
 
-	{{! TODO iterate by language }}
+	{{#imported.0}}
+	<div>
+		<h5 class='aci_imported'>Imported</h5>
+		<div class='spa_results_list'>
+			<ul>
+				{{#imported}} <li>{{{.}}}</li> {{/imported}}
+			</ul>
+		</div>
+	</div>
+	{{/imported.0}}
 
 	{{#errors.0}}
 	<div>
 		<h5 class='spa_error'>Errors</h5>
-		<div id='spa_errors' class='spa_results_list'>
+		<div class='spa_results_list'>
 			<ul>
 				{{#errors}} <li>{{{.}}}</li> {{/errors}}
 			</ul>
@@ -34,7 +44,7 @@
 	{{#warnings.0}}
 	<div>
 		<h5 class='spa_warn'>Warnings</h5>
-		<div id='spa_warnings' class='spa_results_list'>
+		<div class='spa_results_list'>
 			<ul>
 				{{#warnings}} <li>{{{.}}}</li> {{/warnings}}
 			</ul>

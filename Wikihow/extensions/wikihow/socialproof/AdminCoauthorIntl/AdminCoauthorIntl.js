@@ -3,6 +3,10 @@
 
 	$(document).on('submit', '#aci_form', function(e) {
 		e.preventDefault();
+
+		$('#aci_submit_btn').hide();
+		$('#aci_progress_label').css('display', 'inline-block');
+
 		$.ajax({
 			type: 'POST',
 			data: $(this).serialize()

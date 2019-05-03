@@ -664,7 +664,8 @@ class TitusConfig {
 			"Quizzes" => 1,
 			"SensitiveArticle" => 1,
 			"SearchVolume" => 1,
-			"InboundLinks" => 1
+			"InboundLinks" => 1,
+			"GreenBox" => 1
 		);
 
 		if ( $wgLanguageCode != "en" ) {
@@ -5135,6 +5136,7 @@ class TSExpertVerifiedSince extends TitusStat {
 	}
 
 }
+
 /**
  *  Quick Summary Created dates and authors for English articles from a Google Sheet.
  *
@@ -5220,5 +5222,34 @@ class TSQuickSummaryCreated extends TitusStat {
 		$ids = array_keys($this->dates);
 		$this->checkForRedirects($dbr, $ids);
 		$this->checkForMissing($dbr, $ids);
+	}
+}
+
+/**
+ * Get info about greenboxes
+ *
+ * How many regular and how many expert greenboxes on each article
+ *
+ * alter table titus_intl add column `ti_num_greenbox_not_expert` int(10) NOT NULL default 0 after `ti_inbound_links`;
+ * alter table titus_intl add column `ti_num_greenbox_expert` int(10) NOT NULL default 0 after `ti_num_greenbox_not_expert`;
+ *
+ */
+class TSGreenBox extends TitusStat {
+
+	public function getPageIdsToCalc($dbr, $date) {
+		return (TitusDB::ALL_IDS);
+	}
+
+	public function calc($dbr, $r, $t, $pageRow) {
+		$text = Wikitext::getSection(ContentHandler::getContentText( $r->getContent() ), wfMessage('steps'), true);
+		$text = $text[0];
+
+		$regex_gb = '/{{'.GreenBox::GREENBOX_TEMPLATE_PREFIX.'.*?}}/is';
+		$regex_gbe = '/{{'.GreenBox::GREENBOX_EXPERT_TEMPLATE_PREFIX.'.*?}}/is';
+
+		$stats['ti_num_greenbox_not_expert'] = preg_match_all($regex_gb, $text, $matches);
+		$stats['ti_num_greenbox_expert'] =preg_match_all($regex_gbe, $text, $matches);
+
+		return $stats;
 	}
 }

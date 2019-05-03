@@ -2,7 +2,7 @@
 
 class CoauthorSheetMaster extends CoauthorSheet {
 	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1t-AnjvnU9b_1f-MAWm8rQchAh9p6vNNv9sN9QXu5tJU';
+	const SHEET_ID_DEV = '1cryKHhcrHL-HiSLLyVrMyfER82PV25XjOcFEb4ZY8lc';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
@@ -10,7 +10,8 @@ class CoauthorSheetMaster extends CoauthorSheet {
 	 * Imports the 'Master Expert Verified' sheet into the DB.
 	 * Called by MasterExpertSheetUpdate via the AdminSocialProof special page.
 	 */
-	public function doImport() {
+	public function doImport()
+	{
 		$token = self::getApiAccessToken();
 		$dbVerifiers = self::getVerifiersFromDB(); // TODO use VerifyData::getAllVerifierInfoFromDB()
 		$result = ['errors' => [], 'warnings' => [], 'imported' => []];
@@ -20,6 +21,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		$articles = self::fetchSheetArticles($token, $coauthors, $blurbs, $result);
 
 		if (!$result['errors']) {
+			self::reportBlurbChanges($blurbs);
 			VerifyData::replaceCoauthors('en', $coauthors);
 			VerifyData::replaceBlurbs('en', $blurbs);
 			VerifyData::replaceArticles('en', $articles);
@@ -142,7 +144,6 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), 'coauthors');
 		foreach ($dbCoauthors as $vID => $vName) {
 			if ( !isset($coauthors[$vID]) ) {
-				// TODO - ask user for confirmation, and then allow removals
 				$result['errors'][] = "$rowInfo Verifier was removed: id=$vID, name='$vName'";
 			}
 		}
@@ -235,6 +236,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 	private static function fetchSheetArticles( string $token, array $coauthors, array $blurbs, array &$result ): array {
 		$allRows = []; // every row in every worksheet
 		$aids = [];    // article IDs every worksheet: [ aid => count ] (to detect duplicates)
+		$dups = [];
 
 		foreach ( self::getWorksheetIds() as $worksheetId => $worksheetName ) {
 
@@ -281,7 +283,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			} elseif ( $pageId <= 0 ) {
 				$errors[] = "$rowInfo Invalid article ID: $pageIdStr";
 			} elseif ( $aids[$pageId] > 1 ) {
-				$errors[] = "$rowInfo Duplicate Article ID: $pageIdStr";
+				$dups[$pageId][] = self::makeRowLink($row->num, self::getSheetId(), $worksheetName);
 			} elseif ( !$title ) {
 				$errors[] = "$rowInfo Article ID not found in DB: $pageIdStr";
 			} elseif ( !$title->inNamespace(NS_MAIN) ) {
@@ -356,7 +358,43 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			$result['imported'][] = [ $pageId => $verifyData ];
 		}
 
+		foreach ($dups as $aid => $links) {
+			$locations = implode(',<br>', $links);
+			$result['errors'][] = "<span class='spa_location'>{$locations}</span> Duplicate Article ID: {$aid}";
+		}
+
 		return $articles;
+	}
+
+	/**
+	 * Send an email notification
+	 */
+	private static function reportBlurbChanges(array $newBlurbs)
+	{
+		global $wgIsDevServer;
+
+		$oldBlurbs = VerifyData::getAllBlurbsFromDB();
+		$added = array_diff_key($newBlurbs, $oldBlurbs);
+		$removed = array_diff_key($oldBlurbs, $newBlurbs);
+		$changed = [];
+		foreach ($oldBlurbs as $blurbId => $old) {
+			$new = $newBlurbs[$blurbId] ?? null;
+			if ( $new && ($new->byline != $old->byline || $new->blurb != $old->blurb) ) {
+				$changed[$blurbId] = $new;
+			}
+		}
+
+		$from = new MailAddress('alerts@wikihow.com');
+		$to = new MailAddress( $wgIsDevServer ? 'alberto@wikihow.com' : 'adriana@wikihow.com, vanna@wikihow.com' );
+		$subject = "Coauthor Blurb Updates";
+		$body = '';
+		if ($added)   { $body .= "New: "      . implode(', ', array_keys($added))   . "\n"; }
+		if ($changed) { $body .= "Modified: " . implode(', ', array_keys($changed)) . "\n"; }
+		if ($removed) { $body .= "Removed: "  . implode(', ', array_keys($removed)) . "\n"; }
+
+		if ($body) {
+			UserMailer::send($to, $from, $subject, rtrim($body));
+		}
 	}
 
 	/**

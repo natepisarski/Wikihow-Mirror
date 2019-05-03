@@ -168,7 +168,7 @@ class SocialProofStats extends ContextSource {
 	 * - Tech
 	 * - Staff Reviewer
 	 */
-	function getExpertVerified( $is_mobile = false ) {
+	private function getExpertVerified( $is_mobile = false ) {
 		$ctx = $this->getContext();
 		$title = $ctx->getTitle();
 
@@ -467,11 +467,6 @@ class SocialProofStats extends ContextSource {
 		return $message->exists() ? $message->text() : '';
 	}
 
-	public static function getAttributionMessage(string $vType, bool $mobile): string {
-		$msg = $mobile ? 'sp_expert_attribution_mobile' : 'sp_expert_attribution';
-		return self::isExpertType($vType) ? wfMessage($msg)->text().' ' : '';
-	}
-
 	/**
 	 * Here, we choose which revision's verification info to render.
          * If we are rendering the latest revision or the good revision,
@@ -603,16 +598,6 @@ class SocialProofStats extends ContextSource {
 		$pageId = $context->getTitle()->getArticleId();
 		self::$mSpecialInline = $context->getUser()->isAnon() && ArticleTagList::hasTag(self::EXPERT_INLINE_ARTICLES_TAG, $pageId);
 		return self::$mSpecialInline;
-	}
-
-	private static function isExpertType(string $vType): bool {
-		$expert_types = [
-			self::VERIFIER_TYPE_EXPERT,
-			self::VERIFIER_TYPE_ACADEMIC,
-			self::VERIFIER_TYPE_YOUTUBER
-		];
-
-		return in_array($vType, $expert_types);
 	}
 
 	public static function setBylineInfo(&$verifiers, $pageId) {

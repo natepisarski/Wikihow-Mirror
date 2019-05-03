@@ -32,20 +32,21 @@ class AdminCoauthorIntl extends UnlistedSpecialPage
 				Misc::jsonResponse( 'Action not supported.', 400 );
 			}
 			else {
-				$results = (new CoauthorSheetIntl)->doImport();
-				Misc::jsonResponse( $this->getHtml($results) );
+				ini_set('memory_limit', '1024M');
+				$stats = (new CoauthorSheetIntl)->doImport();
+				Misc::jsonResponse( $this->getHtml($stats) );
 			}
 		}
 	}
 
-	private function getHtml($results = []): string {
+	private function getHtml($stats = []): string {
 		$m = new Mustache_Engine(['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)]);
 		return $m->render('AdminCoauthorIntl.mustache', [
 			'token' => $this->getUser()->getEditToken(),
 			'sheetLink' => 'https://docs.google.com/spreadsheets/d/' . CoauthorSheetIntl::getSheetId(),
-			'imported' => $results['imported'] ?? [],
-			'errors' => $results['errors'] ?? [],
-			'warnings' => $results['warnings'] ?? [],
+			'imported' => $stats['imported'] ?? [],
+			'errors' => $stats['errors'] ?? [],
+			'warnings' => $stats['warnings'] ?? [],
 		]);
 	}
 

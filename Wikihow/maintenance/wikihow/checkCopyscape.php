@@ -135,7 +135,7 @@ foreach ($res as $row) {
 		$r = Revision::newFromTitle($t);
 		$text = "{{copyviobot|" . preg_replace("@=@", "%3F", $copyviourl) . "|date=" . date("Y-m-d") . "|match={$match}}}\n" . ContentHandler::getContentText( $r->getContent() );
 		$wikiPage = WikiPage::factory($t);
-		$content = ContentHandler::makeContent($text, $title);
+		$content = ContentHandler::makeContent($text, $t);
 		$wikiPage->doEditContent($content, "The Copyviocheckbot has found a potential copyright violation");
 		$found++;
 	}

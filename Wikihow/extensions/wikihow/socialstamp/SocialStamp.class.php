@@ -94,63 +94,79 @@ class SocialStamp {
 
 	private static function setBylineData($verifiers, $articleId, $isMobile, $isAmp, $isAlternateDomain) {
 		$params = [];
-		$hasExpert = $hasStaff = $hasCommunity = $isTested = $hasReaders = false;
+
+		$isExpert = false; // expert | academic | youtuber
+		$isStaff = false;
+		$isCommunity = false;
+		$isTested = false; // tech | video | chef
+		$isUserReview = false;
 		$isDefault = false;
+
 		$hoverText = "";
 
-		$referenceLink = "#sourcesandcitations";
+		$refsUrl = "#sourcesandcitations";
 		if ( $isMobile ) {
-			$referenceLink = "#references_first";
+			$refsUrl = "#references_first";
 		} else if ( pq( '#references' )->length > 0 ) {
-			$referenceLink = "#references";
+			$refsUrl = "#references";
 		}
 
-		//first part
-		$params["coauthor"] = wfMessage('ss_coauthor')->text();
+		# First part (slot1)
+
+		$params["coauthor"] = wfMessage('sp_expert_attribution')->text();
 		$params["connector"] = "<span class='ss_pipe'>|</span>";
 		$params['check'] = "ss_check";
 		$params['oldToc'] = (class_exists('WikihowToc') && WikihowToc::isNewArticle()) ? "" : "old_toc";
-		$numCitations = Misc::getReferencesCount();
-		$referencesEligible = false;
-		if ($numCitations >= SocialProofStats::DISPLAY_CITATIONS_LIMIT) {
-			$referencesEligible = true;
-		}
-		$params['references'] = $numCitations;
-		$params['referencesUrl'] = $referenceLink;
-		$params['linkUrl'] = $isMobile ? "social_proof_anchor" : "article_info_section";
 
+		$refsCount = Misc::getReferencesCount();
+		$params['refsCount'] = $refsCount;
+		$params['refsUrl'] = $refsUrl;
+		$params['linkUrl'] = $isMobile ? "social_proof_anchor" : "article_info_section";
+		$hasEnoughRefsForByline = ($refsCount >= SocialProofStats::DISPLAY_CITATIONS_LIMIT);
+
+		// expert
 		if ( array_key_exists(SocialProofStats::VERIFIER_TYPE_EXPERT, $verifiers)) {
 			$key = SocialProofStats::VERIFIER_TYPE_EXPERT;
-			$hasExpert = true;
-		} elseif ( array_key_exists(SocialProofStats::VERIFIER_TYPE_ACADEMIC, $verifiers)) {
+			$isExpert = true;
+		}
+		// academic
+		elseif ( array_key_exists(SocialProofStats::VERIFIER_TYPE_ACADEMIC, $verifiers)) {
 			$key = SocialProofStats::VERIFIER_TYPE_ACADEMIC;
-			$hasExpert = true;
-		} elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_YOUTUBER, $verifiers)) {
+			$isExpert = true;
+		}
+		// youtuber
+		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_YOUTUBER, $verifiers)) {
 			$key = SocialProofStats::VERIFIER_TYPE_YOUTUBER;
-			$hasExpert = true;
-		} elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_COMMUNITY, $verifiers)) {
+			$isExpert = true;
+		}
+		// community
+		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_COMMUNITY, $verifiers)) {
 			$key = SocialProofStats::VERIFIER_TYPE_COMMUNITY;
-			$hasCommunity = true;
-		} elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_STAFF, $verifiers)) {
+			$isCommunity = true;
+		}
+		// staff
+		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_STAFF, $verifiers)) {
 			$key = SocialProofStats::VERIFIER_TYPE_STAFF;
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "staff_icon";
-			if ($referencesEligible) {
-				$params['hasReferences'] = true;
+			if ($hasEnoughRefsForByline) {
+				$params['showBylineRefs'] = true;
 			}
-			$hasStaff = true;
-		} else {
+			$isStaff = true;
+		}
+		// default
+		else {
 			$params['slot1'] = self::GetIntroInfo(SocialProofStats::VERIFIER_TYPE_AUTHORS);
 			unset($params["coauthor"]);
 			$params['slot1class'] = "author_icon";
 			$params["check"] = "ss_info";
-			if ($referencesEligible) {
-				$params['hasReferences'] = true;
+			if ($hasEnoughRefsForByline) {
+				$params['showBylineRefs'] = true;
 			}
 			$isDefault = true;
 		}
 
-		if ($hasExpert || $hasCommunity) {
+		if ($isExpert || $isCommunity) {
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "expert_icon";
 			if (SocialProofStats::isSpecialInline()) {
@@ -159,8 +175,11 @@ class SocialStamp {
 			if (SocialStamp::isNotable()) {
 				$params['coauthor'] = wfMessage("ss_notable")->text();
 			}
-		} else {
-			//second part, only if no expert
+		}
+
+		# Second part (slot2), only if no expert
+		else {
+			// tech
 			if (array_key_exists(SocialProofStats::VERIFIER_TYPE_TECH, $verifiers)) {
 				$testKey = SocialProofStats::VERIFIER_TYPE_TECH;
 				$params['hasSlot2'] = true;
@@ -168,75 +187,81 @@ class SocialStamp {
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_TECH);
 				$params['slot2class'] = 'ss_tech';
 				$isTested = true;
-			} elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_VIDEO, $verifiers)) {
+			}
+			// video
+			elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_VIDEO, $verifiers)) {
 				$testKey = SocialProofStats::VERIFIER_TYPE_VIDEO;
 				$params['hasSlot2'] = true;
 				$params['slot2_intro'] = wfMessage('ss_tested')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_VIDEO);
 				$params['slot2class'] = 'ss_video';
 				$isTested = true;
-			} elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_CHEF, $verifiers)) {
+			}
+			// chef
+			elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_CHEF, $verifiers)) {
 				$testKey = SocialProofStats::VERIFIER_TYPE_CHEF;
 				$params['hasSlot2'] = true;
 				$params['slot2_intro'] = wfMessage('ss_tested')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_CHEF);
 				$params['slot2class'] = 'ss_video';
 				$isTested = true;
-			} elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_READER, $verifiers)) {
+			}
+			// user_review
+			elseif (array_key_exists(SocialProofStats::VERIFIER_TYPE_READER, $verifiers)) {
 				$params['hasSlot2'] = true;
 				$params['slot2_intro'] = wfMessage('ss_approved')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_READER);
 				$params['slot2class'] = 'ss_review';
 				$hoverText .= UserReview::getIconHoverText($articleId);
-				$hasReaders = true;
+				$isUserReview = true;
 			}
 			if ($isDefault) {
 				$params['slot2_intro'] = ucfirst($params['slot2_intro']);
 			}
 
 			if (isset($params['hasSlot2']) && $isMobile) {
-				unset($params['hasReferences']);
+				unset($params['showBylineRefs']);
 			}
 		}
 
-		if (class_exists('WikihowToc') && !isset($params['hasReferences'])) {
+		if (class_exists('WikihowToc') && !isset($params['showBylineRefs'])) {
 			WikihowToc::setReferences();
 		}
 
-		//now get the hovers
-		if ($hasExpert) {
+		# Hover text
+
+		if ($isExpert) {
 			$vData = $verifiers[$key];
 			$link = ArticleReviewers::getLinkByVerifierName($vData->name);
 
-			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_expert_citations', $numCitations, $referenceLink)->text();
+			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+				$citations = wfMessage('ss_expert_citations', $refsCount, $refsUrl)->text();
 			}
-			$coauthor = lcfirst(wfMessage("ss_coauthor")->text());
+			$coauthor = lcfirst(wfMessage("sp_expert_attribution")->text());
 			if (SocialProofStats::isSpecialInline()) {
 				$coauthor = lcfirst(wfMessage("ss_special_author")->text());
 			}
-
 			$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthor )->text();
-		} elseif($hasCommunity) {
-			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_expert_citations', $numCitations, $referenceLink)->text();
+		} elseif ($isCommunity) {
+			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+				$citations = wfMessage('ss_expert_citations', $refsCount, $refsUrl)->text();
 			}
 			$hoverText = wfMessage("ss_community", $verifiers[$key]->name, $verifiers[$key]->hoverBlurb, $citations)->text();
-		} elseif ($hasStaff) {
-			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_staff_citations', $numCitations, $referenceLink)->text();
+		} elseif ($isStaff) {
+			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+				$citations = wfMessage('ss_staff_citations', $refsCount, $refsUrl)->text();
 			}
 
 			if ($isTested) {
 				$hoverText = wfMessage('ss_staff_tested', $citations, self::getHoverInfo($testKey))->text();
-			} elseif ($hasReaders) {
+			} elseif ($isUserReview) {
 				$hoverText = wfMessage('ss_staff_readers', $citations, UserReview::getIconHoverText($articleId))->text();
 			} else {
 				$hoverText = wfMessage('ss_staff', $citations)->text();
 			}
 		} elseif ($isDefault) {
-			if ($numCitations >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_default_citations', $numCitations, $referenceLink)->text();
+			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+				$citations = wfMessage('ss_default_citations', $refsCount, $refsUrl)->text();
 			}
 			$numEditors = count(ArticleAuthors::getAuthors($articleId));
 			if ($numEditors >= self::MIN_AUTHOR) {
@@ -247,7 +272,7 @@ class SocialStamp {
 			$views = RequestContext::getMain()->getWikiPage()->getCount();
 			if ($isTested) {
 				$hoverText = wfMessage("ss_default_tested", $editorBlurb, $citations, self::getHoverInfo($testKey) )->text();
-			} elseif($hasReaders) {
+			} elseif ($isUserReview) {
 				$hoverText = wfMessage("ss_default_readers", $editorBlurb, $citations, UserReview::getIconHoverText($articleId) )->text();
 			} else {
 				if ($views > self::MIN_VIEWS) {
@@ -257,7 +282,7 @@ class SocialStamp {
 			}
 		}
 
-		$params = array_merge($params, self::getIconHoverVars($hoverText, $isMobile, $isAmp, $hasExpert, $isAlternateDomain));
+		$params = array_merge($params, self::getIconHoverVars($hoverText, $isMobile, $isAmp, $isExpert, $isAlternateDomain));
 
 		return $params;
 	}
@@ -295,7 +320,7 @@ class SocialStamp {
 		return $message->exists() ? $message->text() : '';
 	}
 
-	public static function getIntroInfo($vType, $vData = null) {
+	private static function getIntroInfo($vType, $vData = null) {
 		if (in_array($vType, [SocialProofStats::VERIFIER_TYPE_YOUTUBER, SocialProofStats::VERIFIER_TYPE_ACADEMIC, SocialProofStats::VERIFIER_TYPE_EXPERT])) {
 			return $vData->name;
 		} elseif ( $vType == SocialProofStats::VERIFIER_TYPE_TECH) {
@@ -315,7 +340,7 @@ class SocialStamp {
 		}
 	}
 
-	public static function getHoverInfo($vType, $Data = null) {
+	private static function getHoverInfo($vType, $Data = null) {
 		if ( $vType == SocialProofStats::VERIFIER_TYPE_TECH) {
 			return wfMessage("ss_tech_name_hover")->text();
 		} elseif ( $vType == SocialProofStats::VERIFIER_TYPE_VIDEO) {

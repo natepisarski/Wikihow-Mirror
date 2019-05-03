@@ -5,62 +5,56 @@ class CoauthorSheetIntl extends CoauthorSheet
 	private $enBlurbs;
 	private $enCoauthors;
 	private $enArticles;
-	private $stats;
 
 	public function doImport() {
 		global $wgActiveLanguages;
 
-		$this->stats = array_fill_keys($wgActiveLanguages, ['imported'=>[], 'errors'=>[], 'warnings'=>[]] );
 		$this->enBlurbs = VerifyData::getAllBlurbsFromDB();
 		$this->enCoauthors = VerifyData::getAllVerifierInfoFromDB();
 		$this->enArticles = VerifyData::getAllArticlesFromDB();
 		$apiToken = self::getApiAccessToken();
+		$stats = [ 'imported'=>[], 'errors'=>[], 'warnings'=>[] ];
 
 		foreach ($wgActiveLanguages as $lang) {
-			$stats = &$this->stats[$lang];
-			$translations = $this->fetchBlurbTranslationsFromSheet($lang, $apiToken);
-			if ( !$stats['errors'] ) {
+			list($translations, $errors, $warnings) = $this->fetchBlurbTranslationsFromSheet($lang, $apiToken);
+			$stats['errors'] = array_merge( $stats['errors'], $errors );
+			$stats['warnings'] = array_merge( $stats['warnings'], $warnings );
+			if ( !$errors ) {
 				$intlBlurbs = $this->updateIntlBlurbs( $lang, $translations );
 				$intlCoauthors = $this->updateIntlCoauthors( $lang, $intlBlurbs );
 				$intlArticles = $this->updateIntlArticles( $lang, $intlBlurbs );
-				$stats['imported'] = $translations;
+
+				$worksheetName = strtoupper($lang);
+				$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), $worksheetName);
+				$stats['imported'][] = $rowInfo . count($translations);
 			}
 		}
 
-		return $this->stats;
+		return $stats;
 	}
 
 	public static function getSheetId(): string {
 		global $wgIsDevServer;
 		if ($wgIsDevServer) {
-			return '1wXloPN4fEahP4LEFeG_JMyyZALbK03URnP_uW3un2eg';
+			return '1sFcNapOXQemTD0tbYbi3RYY1vSFy0TaolHcJYXhKXTY';
 		} else {
-			return 'coming soon'; // TODO add production ID
+			return '1wXloPN4fEahP4LEFeG_JMyyZALbK03URnP_uW3un2eg';
 		}
 	}
 
-	/**
-	 * Get all translations with status = import
-	 */
 	private function fetchBlurbTranslationsFromSheet(string $lang, string $apiToken): array
 	{
 		$translations = [];
-		$errors = &$this->stats[$lang]['errors'];
-		$warnings = &$this->stats[$lang]['warnings'];
+		$errors = [];
+		$warnings = [];
 
 		$sheetId = self::getSheetId();
 		$worksheetName = strtoupper($lang);
 		$rowGenerator = self::getWorksheetDataV4($sheetId, $worksheetName, $apiToken);
 
-		foreach ($rowGenerator as $num => $row) {
-			$status = strtolower( trim($row['Status']) );
-			// TODO collect "live" rows and report if missing from INTL DB
-			if ( $status != 'import' ) {
-				continue;
-			}
-
+		foreach ($rowGenerator as $num => $row)
+		{
 			$rowInfo = self::makeRowInfoHtml($num, $sheetId, $worksheetName);
-
 			$blurbId = trim($row['Blurb ID']);
 			$byline = trim($row['Byline Translation']);
 			$blurb = trim($row['Blurb Translation']);
@@ -92,41 +86,31 @@ class CoauthorSheetIntl extends CoauthorSheet
 			}
 
 			$translations[$blurbId] = compact(
-				'byline', 'blurb', 'blurbId', 'coauthorId', 'blurbNum', 'status'
+				'byline', 'blurb', 'blurbId', 'coauthorId', 'blurbNum'
 			);
 		}
 
 		$errMsg = $rowGenerator->getReturn();
 		if ($errMsg) {
-			$errors[] = $errMsg;
+			$rowInfo = self::makeRowInfoHtml(0, $sheetId, $worksheetName);
+			$errors[] = "$rowInfo $errMsg";
 		}
 
-		return $translations;
+		return [ $translations, $errors, $warnings ];
 	}
 
 	private function updateIntlBlurbs(string $lang, array $translations): array
 	{
 		$blurbs = [];
-		$dbBlurbs = VerifyData::getAllBlurbsFromDB($lang);
 		foreach ($this->enBlurbs as $blurbId => $enBlurb)
 		{
-			if ( isset($translations[$blurbId]) ) {	// use new translation from sheet
-				$bylineTxt = $translations[$blurbId]['byline'];
-				$blurbTxt = $translations[$blurbId]['blurb'];
+			$translation = $translations[$blurbId] ?? null;
+			if ( $translation ) {
+				$cb = clone $enBlurb; // CoauthorBlurb
+				$cb->byline = $translation['byline'];
+				$cb->blurb = $translation['blurb'];
+				$blurbs[$blurbId] = $cb;
 			}
-			elseif ( isset($dbBlurbs[$blurbId]) ) {	// use existing translation from DB
-				$bylineTxt = $dbBlurbs[$blurbId]->byline;
-				$blurbTxt = $dbBlurbs[$blurbId]->blurb;
-			}
-			else {
-				continue;
-			}
-
-			$cb = clone $enBlurb; // CoauthorBlurb
-			$cb->byline = $bylineTxt;
-			$cb->blurb = $blurbTxt;
-
-			$blurbs[$blurbId] = $cb;
 		}
 
 		VerifyData::replaceBlurbs($lang, $blurbs);
@@ -138,13 +122,12 @@ class CoauthorSheetIntl extends CoauthorSheet
 	{
 		$coauthors = [];
 		foreach ($this->enCoauthors as $coauthorId => $enCoauthor) {
-			$blurbId = "v{$coauthorId}_b01"; // TODO getBlurbId(int $coauthorId, $blurbNum=1)
+			$blurbId = "v{$coauthorId}_b01"; // default blurb
 			$intlBlurb = $intlBlurbs[$blurbId] ?? null;
 			if ( $intlBlurb ) {
 				$vd = clone $enCoauthor; // VerifyData
 				$vd->blurb = $intlBlurb->byline;
 				$vd->hoverBlurb = $intlBlurb->blurb;
-				// $vd->category = wfMessage('...')->text(); // TODO (maybe)
 				$coauthors[$coauthorId] = $vd;
 			}
 		}

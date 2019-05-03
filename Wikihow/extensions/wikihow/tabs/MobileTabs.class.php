@@ -22,13 +22,7 @@ class MobileTabs extends Tabs {
 	}
 
 	public static function getSummarySectionAnchorName() {
-		global $wgOut;
-
-		if(GoogleAmp::isAmpMode($wgOut)) {
-			return "summarysection_anchor";
-		} else {
-			return "quick_summary_section";
-		}
+		return "quick_summary_section";
 	}
 
 	protected static function initConfigLists() {

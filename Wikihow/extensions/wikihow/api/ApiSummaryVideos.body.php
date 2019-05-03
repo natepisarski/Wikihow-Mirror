@@ -147,9 +147,9 @@ class ApiSummaryVideos extends ApiQueryBase {
 					//'article_test' => 'https:' . $title->getFullURL(),
 					'updated' => wfTimestamp(  TS_ISO_8601, $row->vid_processed ),
 					'video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
-					'poster' => static::getPosterUrlFromVideo( $row->ami_summary_video ),
-					'poster@1:1' => static::getPosterUrlFromVideo( $row->ami_summary_video, 1 / 1 ),
-					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, 4 / 3 ),
+					'poster' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title ),
+					'poster@1:1' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title, 1 / 1 ),
+					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title, 4 / 3 ),
 					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
 					'categories' => implode( $rowCategories, ',' ),
 					'breadcrumbs' => implode( (array)CategoryHelper::getBreadcrumbCategories( $title ), ',' ),
@@ -240,7 +240,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 	 * @param number $aspect Aspect ratio
 	 * @return string Absolute URL of poster
 	 */
-	protected static function getPosterUrlFromVideo( $video, $aspect = null ) {
+	protected static function getPosterUrlFromVideo( $video, $title, $aspect = null ) {
 		global $wgCanonicalServer;
 
 		// Hardcoded for now
@@ -255,10 +255,15 @@ class ApiSummaryVideos extends ApiQueryBase {
 			[ 'Step 0 preview', '.jpg' ], // With anchor + 'preview' and image extension
 			substr( $video, 6 ) // Remove leading directory hashing
 		);
-
-		// Get an image from a name
 		$image = Title::newFromText( $name, NS_IMAGE );
-		if ( $image ) {
+
+		// Fallback to trying to generate a poster image from the video name
+		if ( !$image || !$image->exists() ) {
+			// Try to generate a poster image from the page title
+			$image = Title::newFromText( $title->getText() . ' Step 0 preview.jpg', NS_IMAGE );
+		}
+
+		if ( $image && $image->exists() ) {
 			// Get a file from an image
 			$file = RepoGroup::singleton()->findFile( $image );
 			if ( $file ) {

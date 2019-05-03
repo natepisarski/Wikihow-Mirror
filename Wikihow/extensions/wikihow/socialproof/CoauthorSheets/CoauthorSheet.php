@@ -44,17 +44,20 @@ abstract class CoauthorSheet
 		return $sheetData;
 	}
 
+	/**
+	 * @see https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
+	 */
 	protected static function getWorksheetDataV4(string $sheetId, string $worksheetName, string $token): Generator {
 		$url = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetId}/values/{$worksheetName}?access_token={$token}";
 
 		$json = @file_get_contents($url);
 		if ( !$json ) {
-			return "Can't access worksheet: $worksheetName (sheet ID = $sheetId)";
+			return "Can't access worksheet '$worksheetName' (sheet ID = $sheetId)";
 		}
 
-		$data = json_decode($json);
+		$data = @json_decode($json);
 		if ( !is_array($data->values ?? null) ) {
-			return "Can't parse JSON from worksheet: $worksheetName (sheet ID = $sheetId)";
+			return "Can't parse JSON from worksheet '$worksheetName' (sheet ID = $sheetId)";
 		}
 
 		$rows = $data->values;
@@ -142,6 +145,11 @@ abstract class CoauthorSheet
 	}
 
 	protected static function makeRowInfoHtml(int $rowNo, string $sheetId, string $sheetName): string {
+		$rowLink = self::makeRowLink($rowNo, $sheetId, $sheetName);
+		return "<span class='spa_location'>$rowLink</span>";
+	}
+
+	protected static function makeRowLink(int $rowNo, string $sheetId, string $sheetName): string {
 		$worksheets = [
 			// Master Expert Verified
 			'coauthors' => '1516230615',
@@ -153,7 +161,23 @@ abstract class CoauthorSheet
 			'videoverified' => '1410489847',
 			'chefverified' => '2067227246',
 			// Coauthor Localization
-			'ES' => '1501876960', // TODO: add the rest
+			'AR' => '1483416064',
+			'CS' => '605737712',
+			'DE' => '1748546274',
+			'ES' => '1501876960',
+			'FR' => '368117995',
+			'HI' => '193367141',
+			'ID' => '1937719486',
+			'IT' => '96087586',
+			'JA' => '586685789',
+			'KO' => '1959273612',
+			'NL' => '161402666',
+			'PT' => '152528290',
+			'RU' => '1243258189',
+			'TH' => '865321898',
+			'TR' => '1817984306',
+			'VI' => '457551658',
+			'ZH' => '290031945',
 		];
 
 		$worksheetId = $worksheets[$sheetName];
@@ -163,9 +187,56 @@ abstract class CoauthorSheet
 			$linkText .= ": $rowNo";
 			$linkHref .= "&range=A{$rowNo}";
 		}
-		$rowLink = Html::rawElement('a', [ 'href'=>$linkHref, 'target'=>'_blank' ], $linkText);
 
-		return "<span class='spa_location'>$rowLink</span>";
+		return Html::rawElement('a', [ 'href'=>$linkHref, 'target'=>'_blank' ], $linkText);
 	}
 
+
+	/*
+	 * @see https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
+	 *
+	protected static function appendRows(string $token, string $sheetId, string $range, array $rows): int
+	{
+		$url = "https://sheets.googleapis.com/v4/spreadsheets/{$sheetId}/values/{$range}:append?valueInputOption=USER_ENTERED&access_token={$token}";
+		$payload = [
+			'majorDimension' => 'ROWS',
+			'range' => $range,
+			'values' => $rows,
+		];
+
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+
+		$respBody = curl_exec($ch);
+		$errorNum = curl_errno($ch);
+		$errorStr = curl_error($ch);
+		$respCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+
+		if ( $errorNum || $respCode != 200 ) {
+			$extra = $errorNum ? " (errorNum=$errorNum, errorStr=$errorStr)" : '';
+			throw new Exception("Sheets API: {$respCode} response code{$extra}. Response body:<pre>$respBody</pre>");
+		}
+
+		$resp = @json_decode($respBody);
+		if ( !is_object($resp) ) {
+			throw new Exception("Sheets API: Can't parse response:<pre>$respBody</pre>");
+		}
+
+		if ( !isset($resp->updates->updatedRows) ) {
+			throw new Exception("Sheets API: Unexpected response:<pre>$respBody</pre>");
+		}
+
+		$appended = (int) $resp->updates->updatedRows;
+		$expected = count($rows);
+		if ($appended != $expected) {
+			throw new Exception("Sheets API: Tried to add $expected rows but only $appended were added.");
+		}
+
+		return $appended;
+	}
+	*/
 }

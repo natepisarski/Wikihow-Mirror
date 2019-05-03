@@ -798,14 +798,6 @@ class WikihowMobileTools {
 			}
 		}
 
-		// 2018-12-13 - Remove entire video section as a test to see if it improves lighthouse performance reports
-		$isVideoSectionRemovalTarget = $wgLanguageCode == 'en' &&
-			$wgTitle->inNamespace(NS_MAIN) &&
-			ArticleTagList::hasTag( 'video_section_removal_test', $wgTitle->getArticleID());
-		if ($isVideoSectionRemovalTarget) {
-			pq(".video")->remove();
-		}
-
 		// remove video section if it has no iframe (which means it has no video)
 		if ( pq("#video")->find('iframe')->length < 1 ) {
 			pq(".video")->remove();

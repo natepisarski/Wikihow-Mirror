@@ -2,7 +2,6 @@
 	"@metadata": {
 		"authors": []
 	},
-	"ss_coauthor": "Co-authored by",
 	"ss_tested": "Tested by",
 	"ss_approved": "Approved by",
 	"ss_expert": "This article was $5 <a href='$3'>$1</a>. $2$4",
