@@ -57,6 +57,13 @@ class TranslationLink {
 	// Other interwiki link on to page
 	const IW_STATUS_OTHER_TO = 8;
 
+	//Whether or not the article has actually been translated yet (or just stubbed)
+	public $isTranslated;
+
+	// Status on the site (some articles are created and stubbed, so we don't really consider them to be translated
+	const TL_STUBBED = 0;
+	const TL_TRANSLATED = 1;
+
 	public $iwStatus;
 
 	public function  __construct() {
@@ -67,6 +74,7 @@ class TranslationLink {
 		$this->toLang = NULL;
 		$this->toAID = NULL;
 		$this->fromAID = NULL;
+		$this->isTranslated = self::TL_TRANSLATED;
 	}
 
 	/**
@@ -168,16 +176,19 @@ class TranslationLink {
 
 	public function insert() {
 		$dbw = wfGetDB(DB_MASTER);
-		$dbw->insert(WH_DATABASE_NAME . ".translation_link",
+		$dbw->upsert(WH_DATABASE_NAME . ".translation_link",
 			[
 				'tl_from_lang' => $this->fromLang,
 				'tl_from_aid' => (int)$this->fromAID,
 				'tl_to_lang' => $this->toLang,
 				'tl_to_aid' => (int)$this->toAID,
-				'tl_timestamp' => wfTimestampNow(TS_MW)
+				'tl_timestamp' => wfTimestampNow(TS_MW),
+				'tl_translated' => $this->isTranslated
 			],
-			__METHOD__,
-			[ 'IGNORE' ]);
+			[],
+			['tl_translated' => $this->isTranslated],
+			__METHOD__
+		);
 		$this->setTlStatus(self::TL_STATUS_SAVED);
 		return true;
 	}
@@ -618,7 +629,7 @@ class TranslationLink {
 		$sql = "";
 		if ( $fromLang == "en"  || $toLang == "en" ) {
 			$sql = "SELECT " .
-					"  tl_from_aid, tl_to_aid, fd.page_title AS to_title, d.page_title AS from_title " .
+					"  tl_translated, tl_from_aid, tl_to_aid, fd.page_title AS to_title, d.page_title AS from_title " .
 					"FROM " . WH_DATABASE_NAME_EN . ".translation_link tl " .
 					"LEFT JOIN " . $fromPageTable . " d ON tl_from_aid = d.page_id " .
 					"LEFT JOIN " . $toPageTable . " AS fd ON tl_to_aid = fd.page_id " .
@@ -626,7 +637,7 @@ class TranslationLink {
 					"  AND tl_to_lang=" . $dbr->addQuotes($toLang);
 		} else {
 			$sql = "SELECT " .
-					"  tl.tl_to_aid AS tl_from_aid, tl2.tl_to_aid, fd.page_title AS to_title, " .
+					"  tl.tl_to_aid AS tl_from_aid, tl.tl_translated as tl_translated, tl2.tl_to_aid, fd.page_title AS to_title, " .
 					"  d.page_title as from_title " .
 					"FROM " . WH_DATABASE_NAME_EN . ".translation_link tl " .
 					"JOIN " . WH_DATABASE_NAME_EN . ".translation_link tl2 " .
@@ -662,6 +673,7 @@ class TranslationLink {
 			}
 			$tl->toAID = $row->tl_to_aid;
 			$tl->toLang = $toLang;
+			$tl->isTranslated = $row->tl_translated;
 
 			$tls[] = $tl;
 		}
@@ -683,7 +695,7 @@ class TranslationLink {
 
 		// TODO: convert this to Mediawiki Database interface
 		$sql = "
-		SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid
+		SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid, tl_translated
 		  FROM {$enTrLinkTable}
 		 WHERE (tl_from_lang = {$safeFromLang} AND tl_from_aid = {$fromPageId})
 		    OR (tl_to_lang   = {$safeFromLang} AND tl_to_aid   = {$fromPageId})";
@@ -699,6 +711,7 @@ class TranslationLink {
 			$tl->fromAID = $row->tl_from_aid;
 			$tl->toLang = $row->tl_to_lang;
 			$tl->toAID = $row->tl_to_aid;
+			$tl->isTranslated = $row->tl_translated;
 			$tls[] = $tl;
 		}
 
@@ -862,3 +875,7 @@ class TranslationLink {
 		return true;
 	}
 }
+
+/*******
+ ALTER TABLE `translation_link` ADD COLUMN `tl_translated` tinyint default 1;
+ ******/

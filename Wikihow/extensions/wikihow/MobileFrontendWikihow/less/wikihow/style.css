@@ -146,7 +146,7 @@ a.addtip {
 .tips li div.trvote_box, .warnings li div.trvote_box { display: block; }
 
 /* for those sticky headers */
-.section h2.sticking, .section h3.sticking, .tool div.sticking, #method_toc {
+.section h2.sticking, .section h3.sticking, .tool div.sticking {
 	position: fixed;
 	top: 40px;
 	z-index: 5;

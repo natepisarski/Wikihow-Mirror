@@ -29,8 +29,9 @@ class SocialProofStats extends ContextSource {
 
 	const LEARN_MORE_LINK = '/wikiHow:About-wikiHow#Why_should_you_choose_wikiHow_first.3F_sub';
 
-	const MESSAGE_CITATIONS_LIMIT = 5; 	//the threshold for some message logic
-	const DISPLAY_CITATIONS_LIMIT = 10; //the threshold for displaying the citations on the page
+	const MESSAGE_CITATIONS_LIMIT 				= 5; 	//the threshold for some message logic
+	const DISPLAY_CITATIONS_LIMIT 				= 10; //the threshold for displaying the citations on the page
+	const DISPLAY_CITATIONS_LIMIT_MOBILE 	= 1; 	//the threshold for displaying the citations on a mobile page
 
 	public static function getPageRatingData( $pageId ) {
 		global $wgMemc;

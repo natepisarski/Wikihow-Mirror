@@ -170,6 +170,8 @@ class Leaderboard extends SpecialPage {
 	}
 
 	private function showArticlesPage($page, $period, $starttimestamp, $user) {
+		$out = $this->getOutput();
+
 		$out->addHTML("
 			<script>
 				var lb_page = '$target';
@@ -294,7 +296,7 @@ class Leaderboard extends SpecialPage {
 
 		$out->addHTML("\n<div id='Leaderboard'>\n");
 		$out->addHTML("<br />$subtitle<br/>" .
-			wfMessage('leaderboard_articlespage_msg', $userlink, $regdate, $contributions, $otherlinks) ."<br/>\n");
+			wfMessage('leaderboard_articlespage_msg', $userlink, $regdate, $contributions, $otherlinks)->text() ."<br/>\n");
 
 		$out->addHTML("<table class='leader_table' style='width:475px; margin:0 auto;'>" );
 
@@ -614,7 +616,7 @@ class Leaderboard extends SpecialPage {
 			if (isset($u)) {
 				$this->showArticlesPage( $target, $period, $starttimestamp, $u->getName() );
 			} else {
-				print wfMessage('leaderboard-invalid-user');
+				$out->addHTML( wfMessage('leaderboard-invalid-user') );
 			}
 			return;
 		}

@@ -246,7 +246,8 @@ class WikihowMobileTools {
 				$showTOC = !$amp
 					&& !self::isInternetOrgRequest()
 					&& !AndroidHelper::isAndroidRequest()
-					&& !$wgContLang->isRTL();
+					&& !$wgContLang->isRTL()
+					&& class_exists('WikihowToc');
 
 				if ($h3Count > 0) {
 					//chance to reformat the alt method_toc before output
@@ -823,16 +824,13 @@ class WikihowMobileTools {
 		if ($showTOC) {
 			//we should have all the alt methods from further up,
 			//let's create the links to them under the headline
-			$anchorList = implode(
-				'',
-				self::makeTableOfContentsAnchors($altMethodAnchors, $altMethodNames, $isSample)
-			);
-
-			$tocWrapperHtml = "<nav role='navigation' id='method_toc'><ul id='method_toc_list'>{$anchorList}</ul></nav>";
+			$vars = [
+				'toc' => self::makeTableOfContentsAnchors($altMethodAnchors, $altMethodNames, $isSample)
+			];
 
 			// Instead of appending the TOC to the DOM here, just store it in a static
 			// variable so it can be inserted outside the '.content' div
-			self::$tableOfContentsHtml = $tocWrapperHtml;
+			self::$tableOfContentsHtml = WikihowToc::mobileToc($vars);
 		}
 
 		foreach ( pq( ".embedvideo_gdpr:first" ) as $node ) {
@@ -1158,14 +1156,16 @@ class WikihowMobileTools {
 
 			// Remove any reference notes
 			$methodName = preg_replace("@\[\d{1,3}\]$@", "", $methodName);
-			$class = "method_toc_section_link";
 
 			if (!$methodName) {
 				continue;
 			}
 
-			$anchorItem =
-				"<li class='$tocListMethodClass'><a href='#{$altMethodAnchors[$i]}' class='{$class}'>{$methodName}</a></li>";
+			$anchorItem = [
+				'method_class' => $tocListMethodClass,
+				'anchor_link' => $altMethodAnchors[$i],
+				'text' => $methodName
+			];
 
 			if ($isSampleNormalized && $isSampleNormalized[$i]) {
 				$samplesList[] = $anchorItem;
@@ -1220,8 +1220,12 @@ class WikihowMobileTools {
 
 			$classes = implode(' ', $classList);
 
-			$extraAnchors[] =
-				"<li class='$classes' data-section='{$extraTOCData[$i]['selector']}'><a href='#{$extraTOCData[$i]['anchor']}' class='method_toc_extra'>{$extraTOCData[$i]['name']}</a>";
+			$extraAnchors[] = [
+				'method_class' => $classes,
+				'section' => $extraTOCData[$i]['selector'],
+				'anchor_link' => $extraTOCData[$i]['anchor'],
+				'text' => $extraTOCData[$i]['name']
+			];
 		}
 
 		return $extraAnchors;

@@ -5,7 +5,9 @@
 
 $messages = array();
 $messages['en'] = array(
-	'videobrowser' => 'Quick How-To Videos',
+	'videobrowser' => 'Quick How-To Videos', 
+	'videobrowser-breadcrumb-mainpage' => 'Home',
+	'videobrowser-breadcrumb-video' => 'Video',
 	'videobrowser-auto-play' => 'Autoplay next',
 	'videobrowser-back' => 'Back to videos',
 	'videobrowser-cancel' => 'Cancel',

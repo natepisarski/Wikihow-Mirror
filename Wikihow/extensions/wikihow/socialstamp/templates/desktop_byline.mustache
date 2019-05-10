@@ -1,0 +1,24 @@
+<div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}} {{oldToc}}">
+
+	{{coauthor}}
+
+	<a href="#{{linkUrl}}" class="{{slot1class}} expert_coauthor_link"
+	>{{slot1}}</a>
+
+	{{#hasSlot2}}
+		{{{connector}}} {{slot2_intro}}
+		<a href="#{{linkUrl}}" class="expert_coauthor_link {{slot2class}}"
+		>{{slot2}}</a>
+	{{/hasSlot2}}
+
+	{{#showBylineRefs}}
+		{{{connector}}} <a href="{{{refsUrl}}}">{{refsCount}} {{references_label}}</a>
+	{{/showBylineRefs}}
+
+	{{#lastUpdatedDate}}
+		<p>{{lastUpdatedMsg}} {{lastUpdatedDate}}</p>
+	{{/lastUpdatedDate}}
+
+</div>
+
+{{> info_icon }}

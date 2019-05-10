@@ -21,7 +21,10 @@ class TranslatorEditMapper extends EditMapper {
 	 * True for new articles if the user in in the "translator" user group
 	 */
 	public function shouldMapEdit($title, $user, bool $isNew, string $comment): bool {
-		return $isNew && TranslateEditor::isTranslatorUser();
+		$main = RequestContext::getMain();
+		$langCode = $main->getLanguage()->getCode();
+		$requestTitle = $main->getTitle();
+		return \CreateEmptyIntlArticle::isEligibleToTranslate($title, $langCode, $user) && TranslateEditor::isTranslatorUser()&& $requestTitle->inNamespace(NS_MAIN);
 	}
 
 	public function getDestUser($title, bool $isNew) {
@@ -57,10 +60,16 @@ class TranslatorEditMapper extends EditMapper {
 			$tl->fromLang = 'en';
 			$tl->toLang = $langCode;
 			$tl->toAID = $toTitle->getArticleId();
+			$tl->isTranslated = true;
 			$tl->insert();
 
 			TranslationLink::writeLog(TranslationLink::ACTION_SAVE, 'en', NULL, $tl->fromAID,
 				NULL, $langCode, $toTitle->getText(), $toTitle->getArticleId());
+
+			//also need to unprotect the article now
+			$page = new WikiPage($toTitle);
+			$cascade = false;
+			$protectResult = $page->doUpdateRestrictions([], [], $cascade, "Doing translation", $user)->isOK();
 		}
 	}
 

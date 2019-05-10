@@ -15,7 +15,7 @@ class SpecialVideoBrowser extends SpecialPage {
 	}
 
 	public function execute( $sub ) {
-		global $wgHooks, $wgSquidMaxage, $wgParser, $wgCanonicalServer, $wgSitename;
+		global $wgHooks, $wgSquidMaxage, $wgMemc, $wgParser, $wgCanonicalServer, $wgSitename;
 
 		$output = $this->getOutput();
 
@@ -81,6 +81,7 @@ class SpecialVideoBrowser extends SpecialPage {
 				$summaryText = trim( strip_tags( $summaryHtml ) );
 				$titleText = wfMessage( 'videobrowser-meta-title', $viewing['title'] )->text();
 				$descriptionText = wfMessage( 'videobrowser-meta-description', $viewing['title'], $summaryText )->text();
+				$howToTitle = wfMessage( 'videobrowser-how-to', $viewing['title'] )->text();
 
 				$meta = [
 					'meta-title' => [ 'name' => 'title', 'content' => $titleText ],
@@ -94,18 +95,40 @@ class SpecialVideoBrowser extends SpecialPage {
 					'og-video' => [ 'property' => 'og:video', 'content' => $viewing['video'] ],
 				];
 
-				$items = [];
+				// Breadcrumbs
+				$pre = [
+					[
+						'label' => wfMessage( 'videobrowser-breadcrumb-mainpage' )->text(),
+						'link' => $wgCanonicalServer . '/Main-Page'
+					],
+					[
+						'label' => wfMessage( 'videobrowser-breadcrumb-video' )->text(),
+						'link' => $wgCanonicalServer . '/Video'
+					],
+				];
 				foreach ( $meta as $name => $attributes ) {
 					$output->addHeadItem( $name, Html::element( 'meta', $attributes ) );
 				}
 				$breadcrumbs = explode( ',', $viewing['breadcrumbs'] );
-				$list = array_reverse( array_slice( $breadcrumbs, 0, 1 ) );
+				$categories = array_reverse( array_slice( $breadcrumbs, 0, 1 ) );
 				$top = array_pop( array_slice( $breadcrumbs, -1 ) );
-				foreach ($list as $index => $breadcrumb ) {
-					$list[$index] = [
+				foreach ( $categories as $index => $breadcrumb ) {
+					$categories[$index] = [
 						'label' => $breadcrumb,
-						'link' => '/Video/Category:' . str_replace( ' ', '-', $top )
+						'link' => $wgCanonicalServer . '/Video/Category:' . str_replace( ' ', '-', $top )
 					];
+				}
+				$post = [
+					[
+						'label' => $howToTitle,
+						'link' => $wgCanonicalServer . $url
+					]
+				];
+				$list = array_merge( $pre, $categories, $post );
+				foreach ( $list as $index => $item ) {
+					$list[$index]['position'] = (int)$index;
+					$list[$index]['first'] = $index === 0;
+					$list[$index]['last'] = $index === count( $list ) - 1;
 				}
 
 				$youtubeIds = [
@@ -142,6 +165,27 @@ class SpecialVideoBrowser extends SpecialPage {
 					842696 => 'U7Poo8AAIas'
 				];
 
+				if ( $youtubeIds[$viewing['id']] ) {
+					$key = wfMemcKey( "SpecialVideoBrowser/YouTubeInfo/{$viewing['id']}" );
+					$info = $wgMemc->get( $key );
+					if ( $info === false ) {
+						$data = json_decode( file_get_contents( wfAppendQuery(
+							'https://www.googleapis.com/youtube/v3/videos',
+							[
+								'part' => 'statistics,snippet',
+								'id' => $youtubeIds[$viewing['id']],
+								'key' => WH_YOUTUBE_API_KEY
+							]
+						) ) );
+						$info = [
+							'plays' => $data->items[0]->statistics->viewCount,
+							'updated' => $data->items[0]->snippet->publishedAt
+						];
+						$wgMemc->set( $key, $info );
+					}
+					$viewing = array_merge( $viewing, $info );
+				}
+
 				$prerender = VideoBrowser::render( 'viewer-prerender.mustache', [
 					'url' => $url,
 					'read-more' => wfMessage( 'videobrowser-read-more' )->text(),
@@ -149,7 +193,7 @@ class SpecialVideoBrowser extends SpecialPage {
 					'summary' => "<p>{$summaryHtml}</p>",
 					'summaryText' => $summaryText,
 					'titleText' => $titleText,
-					'howToTitle' => wfMessage( 'videobrowser-how-to', $viewing['title'] )->text(),
+					'howToTitle' => $howToTitle,
 					'video' => $viewing,
 					'breadcrumbs' => $list,
 					'youtube' => $youtubeIds[$viewing['id']]

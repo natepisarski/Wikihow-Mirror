@@ -67,14 +67,25 @@ class ApiSummaryVideos extends ApiQueryBase {
 		if ( !is_array( $data ) ) {
 			$dbr = wfGetDB( DB_REPLICA );
 
-			$tables = [ 'article_meta_info', 'page', 'wikivisual_article_status', 'titus_copy' ];
-			$fields = [ 'ami_id', 'ami_video', 'ami_summary_video',
-				'page_catinfo', 'vid_processed', 'ti_featured', 'ti_30day_views_unique',
-				'ti_summary_video_play'
+			$tables = [
+				'article_meta_info',
+				'page',
+				'wikivisual_article_status',
+				'titus_copy'
+			];
+			$fields = [
+				'ami_id',
+				'ami_video',
+				'ami_summary_video',
+				'page_catinfo',
+				'vid_processed',
+				'ti_featured',
+				'ti_30day_views_unique',
+				'plays' => '(ti_summary_video_play + ti_summary_video_play_mobile)'
 			];
 			$where = [ 'ami_summary_video != \'\'' ];
 			$options = [ 'ORDER BY' =>
-				'ti_featured DESC, ti_30day_views_unique DESC, ti_summary_video_play DESC'
+				'ti_featured DESC, ti_30day_views_unique DESC, plays DESC'
 			];
 			$joins = [
 				'page' => [ 'INNER JOIN', [ 'ami_id=page_id' ] ],
@@ -144,8 +155,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 					'id' => $row->ami_id,
 					'title' => $title->getText(),
 					'article' => $title->getCanonicalURL(),
-					//'article_test' => 'https:' . $title->getFullURL(),
-					'updated' => wfTimestamp(  TS_ISO_8601, $row->vid_processed ),
+					'updated' => wfTimestamp( TS_ISO_8601, $row->vid_processed ),
 					'video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
 					'poster' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title ),
 					'poster@1:1' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title, 1 / 1 ),
@@ -155,7 +165,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 					'breadcrumbs' => implode( (array)CategoryHelper::getBreadcrumbCategories( $title ), ',' ),
 					'popularity' => $row->ti_30day_views_unique,
 					'featured' => $row->ti_featured,
-					'plays' => $row->ti_summary_video_play,
+					'plays' => $row->plays,
 				];
 
 				if ( isset( $limit ) && count( $videos ) >= $limit ) {

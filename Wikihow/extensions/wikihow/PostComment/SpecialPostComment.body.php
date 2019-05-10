@@ -80,7 +80,7 @@ class PostComment extends UnlistedSpecialPage {
 				var gNewpage = {$newpage};
 			</script>
 			<script type='text/javascript' src='" . wfGetPad('/extensions/min/f/extensions/wikihow/PostComment/postcomment.js?') . WH_SITEREV . "'></script>
-			<div id='postcomment_progress_$id' style='display:none;'><center><img src='" . wfGetPad('/skins/owl/images/wh_loading70x70.gif') . "' alt='Sending...'/></center></div>
+			<div id='postcomment_progress_$id' style='display: none;'><center><img src='" . wfGetPad('/skins/owl/images/wh_loading70x70.gif') . "' style='width:auto; height:auto' /></center></div>
 			";
 
 		// Include google analytics tracking (gat)

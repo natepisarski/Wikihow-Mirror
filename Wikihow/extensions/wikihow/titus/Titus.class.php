@@ -1574,16 +1574,7 @@ class TSEventLog extends TitusStat {
 
 		foreach ( $domains as $domainKey => $domain ) {
 			$columnNameSuffix = '';
-			// use blank AND desktop domain to get the date cleared since originally the
-			// domain was not recorded when we cleared the events .. now it is but for
-			// backwards compatibility use blank as well
-			$clearDateDomain = array( $domain, '' );
-			if ( $domainKey == 'mobile' ) {
-				$columnNameSuffix = '_mobile';
-				$clearDateDomain = $domain;
-			}
 			$result += array( 'ti_summary_video_views'.$columnNameSuffix => 0, 'ti_summary_video_play'.$columnNameSuffix => 0, 'ti_summary_video_ctr'.$columnNameSuffix => 0 );
-			$date = $this->getSummaryVideoClearDate( $dbr, $pageId, $clearDateDomain );
 
 			$table = 'event_log';
 			$var = array( 'el_count', 'el_action' );
@@ -1592,9 +1583,6 @@ class TSEventLog extends TitusStat {
 			);
 			if ( $domain ) {
 				$cond['el_domain'] = $domain;
-			}
-			if ( $date ) {
-				$cond[] = "el_date > '$date'";
 			}
 			$res = $dbr->select( $table, $var, $cond, __METHOD__ );
 			foreach ( $res as $row ) {
@@ -1609,22 +1597,6 @@ class TSEventLog extends TitusStat {
 			}
 		}
 		return $result;
-	}
-
-	private function getSummaryVideoClearDate( $dbr, $pageId, $domain ) {
-		$table = 'clear_event';
-		$var = array( 'ce_date' );
-		$cond = array(
-			'ce_page_id' => $pageId,
-			'ce_action' => 'summaryvideoevents',
-		);
-		if ( $domain ) {
-			$cond['ce_domain'] = $domain;
-		}
-		$options = array( 'ORDER BY' => 'ce_date DESC' );
-
-		$date = $dbr->selectField( $table, $var, $cond, __METHOD__, $options );
-		return $date;
 	}
 }
 
@@ -2788,6 +2760,7 @@ class TSTranslations extends TitusStat {
 
 			$ret["ti_tl_" . $l] =  "";
 			$ret["ti_tl_" . $l . "_id"] = "";
+			$ret["ti_tl_" . $l . "_status"] = "";
 		}
 		$links = array_merge($links,TranslationLink::getLinksTo($wgLanguageCode,$pageRow->page_id));
 
@@ -2797,12 +2770,14 @@ class TSTranslations extends TitusStat {
 					$ret["ti_tl_" . $l->toLang ] = $dbr->strencode($this->fixURL($l->toURL));
 				}
 				$ret["ti_tl_" . $l->toLang . "_id"] = intVal($l->toAID);
+				$ret["ti_tl_" . $l->toLang . "_status"] = intVal($l->isTranslated) == 1 ? "active" : "inactive";
 			}
 			elseif($l->toAID == $pageRow->page_id && $wgLanguageCode == $l->toLang && in_array($l->fromLang, $langs)) {
 				if (isset($l->fromURL)) {
 					$ret["ti_tl_" . $l->fromLang] = $dbr->strencode($this->fixURL($l->fromURL));
 				}
 				$ret["ti_tl_" . $l->fromLang . "_id"] = intVal($l->fromAID);
+				$ret["ti_tl_" . $l->fromLang . "_status"] = intVal($l->isTranslated) == 1 ? "active" : "inactive";
 			}
 		}
 		return $ret;

@@ -179,7 +179,7 @@ class CreatePage extends SpecialPage {
 						$redir = false;
 					}
 
-					if ($t->getArticleID() > 0 && !NewArticleBoost::isOverwriteAllowed($t)) {
+					if ($t->getArticleID() > 0 && !NewArticleBoost::isOverwriteAllowed($t) && !CreateEmptyIntlArticle::isEligibleToTranslate($t, $wgLanguageCode, $wgUser)) {
 						// existing title -> error
 						$result = [
 							'target' => $target,

@@ -82,7 +82,6 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 	'zzz.mobile.wikihow.styles_late_load' => $wgMFMobileResourceBoilerplateWikihow + array(
 			'styles' => array(
 				'less/wikihow/style.css',
-				'less/wikihow/tableofcontents.css',
 				'../thumbratings/thumbratings.css',
 			),
 			'scripts' => array(

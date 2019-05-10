@@ -1088,7 +1088,6 @@ class GoogleAmp {
 			//add a new anchor tag so it will jump to the right place
 			$anchor = MobileTabs::getSummarySectionAnchorName();
 			pq('.summarysection')->attr("id",'')->parent()->attr("id", $anchor);
-			pq("#mobile_tab_1")->attr("href", "#$anchor");
 		}
 	}
 

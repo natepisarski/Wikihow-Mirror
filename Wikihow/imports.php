@@ -162,6 +162,7 @@ require_once("$IP/extensions/wikihow/Standings.php");
 require_once("$IP/extensions/wikihow/qc/QC.php");
 require_once("$IP/extensions/wikihow/Unguard.php");
 require_once("$IP/extensions/wikihow/wikihowtoc/WikihowToc.php");
+require_once("$IP/extensions/wikihow/CreateEmptyIntlArticle/CreateEmptyIntlArticle.php");
 if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/Vanilla/Vanilla.php");
 }

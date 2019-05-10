@@ -34,15 +34,6 @@ var sectionElements;
 // used as a lock inside setTocStickiness()
 var slideLock = false;
 
-function adjustTocListMargin() {
-	var minMargin = Math.max(getContentPaddingMargin(), defaultTocListMargin);
-
-	$('#method_toc_list').css({
-		'margin-left': minMargin + 'px',
-		'margin-right': minMargin + 'px'
-	});
-}
-
 // To make sure we can handle hashes with weird characters
 function escapeSelector(id) {
 	return id.replace(/(:|\.|\[|\]|,)/g, '\\$1');
@@ -116,10 +107,7 @@ function handleMobileScroll() {
 		}
 
 		stickied = stickied || makeSticky($this, currentHeader, stickyIndex, scrollTop);
-
-		if (stickied) {
-			return;
-		}
+		if (stickied) return;
 
 		stickyIndex -= 1;
 	});
@@ -128,7 +116,7 @@ function handleMobileScroll() {
 		!stickied && $('.method_toc_item.active').length > 0
 	) {
 		curTocScrollIndex = -1;
-		$methodItems.removeClass('active').removeClass('inactive');
+		$methodItems.removeClass('active');
 	}
 }
 
@@ -171,8 +159,6 @@ function initialize() {
 		defaultTocListMargin = tocListMargin;
 	}
 
-	adjustTocListMargin();
-
 	var tocTopOffset = WH.isAndroidAppRequest ? 0 : window.HEADER_OFFSET; //using this variable so optimizely can access it
 
 	$methodToc.css({
@@ -185,6 +171,8 @@ function initialize() {
 	}
 
 	$jqWindow.on('hashchange', offsetHashAnchor);
+	$jqWindow.on('orientationchange',offsetHashAnchor);
+
 	$('.method_toc_item a').click(hashAnchorClick);
 
 	// Make sure the hash and scroll handling is initiated on load.
@@ -220,20 +208,16 @@ function makeSticky(container, element, stickyIndex, scrollTop) {
 
 		var scrollOffsetAdjust = Math.max(getContentPaddingMargin(), 6);
 
-		adjustTocListMargin();
-
 		curTocScrollIndex = stickyIndex;
-		tocItems.removeClass('active').addClass('inactive');
-		$(tocItems[stickyIndex]).removeClass('inactive').addClass('active');
+		tocItems.removeClass('active');
+		$(tocItems[stickyIndex]).addClass('active');
 
 		var scroll = tocItems[stickyIndex].offsetLeft - scrollOffsetAdjust;
 
-		if (!slideLock) {
-			$methodToc.stop();
-		}
-		$methodToc.animate({
-			scrollLeft: scroll
-		}, 500);
+		if (!slideLock) $methodToc.stop();
+
+		underlineSelection(tocItems[stickyIndex]);
+		$methodToc.animate({ scrollLeft: scroll }, 500);
 
 		return true;
 	}
@@ -298,10 +282,26 @@ function setTocStickiness(scrollTop) {
 				.slideDown('fast', function () {
 					slideLock = false;
 				});
-
-			adjustTocListMargin();
 		}
 	}
+}
+
+function underlineSelection(selection) {
+	if (!$(selection).hasClass('method_toc_item')) return;
+
+	var selectionWidth = $(selection).width();
+
+	//want the underline to be 90% of the selection
+	var underlineWidth = selectionWidth * .9;
+	var underlineOffset = selectionWidth * .05;
+	var underlineLeft = selection.offsetLeft + underlineOffset;
+
+	$('#toc_line').animate({
+		'left': underlineLeft +'px',
+		'width': underlineWidth +'px'
+		},
+		200
+	);
 }
 
 $(document).ready( function() {

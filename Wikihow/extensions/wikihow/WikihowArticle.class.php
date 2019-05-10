@@ -474,7 +474,6 @@ class WikihowArticleHTML {
 			pq($step)->addClass("final_li");
 		}
 
-
 		// if we find videos, then replace the images with videos
 		$videoCount = 0;
 		foreach ( pq( '.m-video' ) as $node ) {
@@ -551,6 +550,7 @@ class WikihowArticleHTML {
 		if ( !$headings ) {
 			$headings = array();
 		}
+
 		foreach ( $headings as $heading ) {
 			$canonicalSummaryName = self::canonicalizeHTMLSectionName( Misc::getSectionName( $heading ) );
 			$headingId = '#' . $canonicalSummaryName;
@@ -558,22 +558,25 @@ class WikihowArticleHTML {
 				$headingText = $heading;
 				// add helpful feedback section
 
-				if ( pq( $headingId . ' p' )->length != 0 ) {
+				if ( pq( $headingId . ' .text_summary_wrapper' )->length != 0 ) {
 					$html = RateItem::getSummarySectionRatingHtml( $summary_at_top );
 					pq( $headingId )->append( $html );
 				}
 				//give the whole section a consistent id
 				pq('.'.$canonicalSummaryName)->attr('id','quick_summary_section');
 				//wrap the text part in a div
-				$textSummary = pq( $headingId )->find("p");
+				$textSummary = pq( $headingId )->find(".text_summary_wrapper");
+
 				if ($textSummary->length > 0) {
 					// if there is a mwimg, then make sure to put the text summary after the script tag which follows it
 					// or else the wrapping will not work correctly
 					if ( pq('#quick_summary_section')->find('.mwimg')->prev()->length ) {
-						$textSummary->insertAfter( pq('#quick_summary_section')->find('.mwimg')->next() );
+						$textSummary->insertBefore( pq('#quick_summary_section')->find('.s-help-wrap') );
 					}
 
-					$textSummary->add($textSummary->nextAll())->wrapAll("<div id='summary_wrapper'><div id='summary_text'></div></div>");
+
+					$textSummary->add($textSummary->siblings('.s-help-wrap'))->wrapAll("<div id='summary_wrapper'><div id='summary_text'></div></div>");
+
 					pq("#summary_text")->prepend("<h2>" . wfMessage('summary_toc')->text() . "<a href='#' id='summary_close'>X</a></h2>");
 
 					//if there's no video, hide the section

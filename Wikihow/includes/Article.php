@@ -1515,7 +1515,7 @@ class Article implements Page {
 		$alt = $lang->isRTL() ? '←' : '→';
 		// Automatically append redirect=no to each link, since most of them are redirect pages themselves.
 		foreach ( $target as $rt ) {
-			$link .= Html::element( 'img', array( 'src' => $nextRedirect, 'alt' => $alt ) );
+			$link .= Html::element( 'img', array( 'src' => $nextRedirect, 'alt' => $alt, 'style' => 'width: auto;' ) );
 			if ( $forceKnown ) {
 				$link .= Linker::linkKnown( $rt, htmlspecialchars( $rt->getFullText(), array(), array( 'redirect' => 'no' ) ) );
 			} else {
@@ -1525,7 +1525,7 @@ class Article implements Page {
 
 		$imageUrl = $wgStylePath . '/common/images/redirect' . $imageDir . '.png';
 		return '<div class="redirectMsg">' .
-			Html::element( 'img', array( 'src' => $imageUrl, 'alt' => '#REDIRECT' ) ) .
+			Html::element( 'img', array( 'src' => $imageUrl, 'alt' => '#REDIRECT', 'style' => 'width: auto;' ) ) .
 			'<span class="redirectText">' . $link . '</span></div>';
 	}
 

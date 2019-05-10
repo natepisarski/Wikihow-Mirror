@@ -176,13 +176,7 @@ class WikihowToc {
 
 		$data['title'] = wfMessage('title_toc')->text();
 
-		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(__DIR__)
-		]);
-		$options = array('loader' => $loader);
-		$m = new Mustache_Engine($options);
-
-		$html = $m->render('toc', $data);
+		$html = self::renderTemplate('toc.mustache', $data);
 
 		if (pq('#expert_coauthor')->length > 0) {
 			pq('#expert_coauthor')->after($html);
@@ -212,5 +206,25 @@ class WikihowToc {
 
 		self::$methodAnchors = $newMethodAnchors;
 		self::$methodNames = $newMethodNames;
+	}
+
+	private static function renderTemplate(string $template, array $vars): string {
+		$loader = new Mustache_Loader_CascadingLoader([
+			new Mustache_Loader_FilesystemLoader(__DIR__ . '/templates')
+		]);
+		$options = array('loader' => $loader);
+		$m = new Mustache_Engine($options);
+
+		return $m->render($template, $vars);
+	}
+
+	public static function mobileToc(array $vars): string {
+		return self::renderTemplate('mobile_toc.mustache', $vars);
+	}
+
+	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		if (Misc::isMobileMode()) {
+			$out->addModules(['ext.wikihow.mobile_toc']);
+		}
 	}
 }

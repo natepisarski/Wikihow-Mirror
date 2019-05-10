@@ -6,7 +6,7 @@
  * it is loaded before the javascript in whjs (groups config)
  */
 window.WH = window.WH || {};
-WH.isMobileDomain = window.location.hostname.match(/\bm\./) !== null;
+WH.isMobileDomain = window.location.hostname.match(/\bm(-|\.)/) !== null;
 WH.isAndroidAppRequest = window.location.search.match(/wh_an=1/) !== null;
 
 WH.ga = {};

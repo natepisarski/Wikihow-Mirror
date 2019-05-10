@@ -164,13 +164,10 @@ class PageStats extends UnlistedSpecialPage {
 			// summary video data
 			$hasSummaryVideo = $titusData->ti_summary_video;
 			if ( $hasSummaryVideo ) {
+				// $views = $titusData->ti_summary_video_views + $titusData->ti_summary_video_views_mobile;
+				$plays = $titusData->ti_summary_video_play + $titusData->ti_summary_video_play_mobile;
 				$html .= "<hr style='margin:5px 0; '/>";
-				$html .= "<p>" . 'In a Hurry Views: ' . "{$titusData->ti_summary_video_views}</p>";
-				$html .= "<p>" . 'In a Hurry Plays: ' . "{$titusData->ti_summary_video_play}</p>";
-				$html .= "<p>" . 'In a Hurry CTR: ' . "{$titusData->ti_summary_video_ctr}%</p>";
-				$html .= "<p>" . 'In a Hurry Views Mobile: ' . "{$titusData->ti_summary_video_views_mobile}</p>";
-				$html .= "<p>" . 'In a Hurry Plays Mobile: ' . "{$titusData->ti_summary_video_play_mobile}</p>";
-				$html .= "<p>" . 'In a Hurry CTR Mobile: ' . "{$titusData->ti_summary_video_ctr_mobile}%</p>";
+				$html .= "<p>Summary Video Plays: {$plays}</p>";
 			}
 		}
 

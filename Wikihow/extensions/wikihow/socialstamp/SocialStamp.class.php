@@ -44,7 +44,8 @@ class SocialStamp {
 		Hooks::run( 'BylineStamp', [ &self::$verifiers, $articleId ] );
 
 		$params = self::setBylineData(self::$verifiers, $articleId, $isMobile, $isAmp, AlternateDomain::onAlternateDomain());
-		$html = self::getHtmlFromTemplate('mobile_byline.mustache', $params);
+		$template = $isMobile ? 'mobile_byline.mustache' : 'desktop_byline.mustache';
+		$html = self::getHtmlFromTemplate($template, $params);
 
 		self::$hoverText = $params['body'];
 		self::$byLineHtml = $html;
@@ -116,13 +117,27 @@ class SocialStamp {
 		$params["coauthor"] = wfMessage('sp_expert_attribution')->text();
 		$params["connector"] = "<span class='ss_pipe'>|</span>";
 		$params['check'] = "ss_check";
-		$params['oldToc'] = (class_exists('WikihowToc') && WikihowToc::isNewArticle()) ? "" : "old_toc";
+
+		if (!$isMobile) {
+			$params['oldToc'] = class_exists('WikihowToc') && WikihowToc::isNewArticle() ? "" : "old_toc";
+		}
 
 		$refsCount = Misc::getReferencesCount();
+		$minCitations = $isMobile ? SocialProofStats::DISPLAY_CITATIONS_LIMIT_MOBILE : SocialProofStats::DISPLAY_CITATIONS_LIMIT;
+		$hasEnoughRefsForByline = $refsCount >= $minCitations;
+
+		$params['references_label'] = wfMessage('references')->text();
 		$params['refsCount'] = $refsCount;
 		$params['refsUrl'] = $refsUrl;
 		$params['linkUrl'] = $isMobile ? "social_proof_anchor" : "article_info_section";
-		$hasEnoughRefsForByline = ($refsCount >= SocialProofStats::DISPLAY_CITATIONS_LIMIT);
+
+		$params['lastUpdatedMsg'] = wfMessage('ss_last_updated')->text();
+		$params['lastUpdatedDate'] = self::lastUpdatedDate();
+
+		if ($isMobile) {
+			$articleWithTabs = class_exists('MobileTabs') && MobileTabs::isTabArticle( RequestContext::getMain()->getTitle() );
+			$params['noTabs'] = $articleWithTabs ? '' : 'no_tabs';
+		}
 
 		// expert
 		if ( array_key_exists(SocialProofStats::VERIFIER_TYPE_EXPERT, $verifiers)) {
@@ -149,9 +164,7 @@ class SocialStamp {
 			$key = SocialProofStats::VERIFIER_TYPE_STAFF;
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "staff_icon";
-			if ($hasEnoughRefsForByline) {
-				$params['showBylineRefs'] = true;
-			}
+			$params['showBylineRefs'] = $hasEnoughRefsForByline;
 			$isStaff = true;
 		}
 		// default
@@ -160,9 +173,7 @@ class SocialStamp {
 			unset($params["coauthor"]);
 			$params['slot1class'] = "author_icon";
 			$params["check"] = "ss_info";
-			if ($hasEnoughRefsForByline) {
-				$params['showBylineRefs'] = true;
-			}
+			$params['showBylineRefs'] = $hasEnoughRefsForByline;
 			$isDefault = true;
 		}
 
@@ -186,6 +197,7 @@ class SocialStamp {
 				$params['slot2_intro'] = wfMessage('ss_tested')->text();
 				$params['slot2'] = self::getIntroInfo(SocialProofStats::VERIFIER_TYPE_TECH);
 				$params['slot2class'] = 'ss_tech';
+				if ($isMobile) $params['showBylineRefs'] = false; //tech never shows references on mobile
 				$isTested = true;
 			}
 			// video
@@ -217,14 +229,20 @@ class SocialStamp {
 			}
 			if ($isDefault) {
 				$params['slot2_intro'] = ucfirst($params['slot2_intro']);
+
+				if ($isMobile) {
+					//mobile uses slot 2 on line 1, so move it there
+					$params['hasEarlySlot2'] = $params['hasSlot2'];
+					$params['hasSlot2'] = false;
+				}
 			}
 
-			if (isset($params['hasSlot2']) && $isMobile) {
-				unset($params['showBylineRefs']);
+			if (!empty($params['showBylineRefs']) && $isMobile) {
+				$params['hasSlot2'] = false;
 			}
 		}
 
-		if (class_exists('WikihowToc') && !isset($params['showBylineRefs'])) {
+		if (class_exists('WikihowToc') && empty($params['showBylineRefs'])) {
 			WikihowToc::setReferences();
 		}
 
@@ -357,4 +375,18 @@ class SocialStamp {
 		self::$isNotable = ArticleTagList::hasTag(self::NOTABLE_TAG, $pageId);
 		return self::$isNotable;
 	}
+
+	private static function lastUpdatedDate(): string {
+		$context = RequestContext::getMain();
+		$last_updated = '';
+
+		$last_edit = $context->getWikiPage()->getTimestamp();
+		if (!empty($last_edit)) {
+			$ts = wfTimestamp( TS_MW, strtotime($last_edit) );
+			$last_updated = $context->getLanguage()->sprintfDate('F j, Y', $ts);
+		}
+
+		return $last_updated;
+	}
+
 }

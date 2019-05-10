@@ -3,7 +3,7 @@
 		"authors": []
 	},
 	"summary_section_default_header": "Quick Summary",
-	"summary_section": "$1 <span id='summary_last_sentence'>$2</span><span id='summary_position' class='$3'></span>",
+	"summary_section": "<p class='text_summary_wrapper'>$1 <span id='summary_last_sentence'>$2</span><span id='summary_position' class='$3'></span></p>",
 	"summary_edit_text": "Edit Quick Summary",
 	"summary_edit_log": "Updated the Summary template for this article",
 	"summary_add_log": "Added the Summary template to this article",

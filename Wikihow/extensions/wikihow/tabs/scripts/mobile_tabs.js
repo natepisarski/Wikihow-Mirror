@@ -4,7 +4,7 @@
 	window.WH.MobileTabs = {
 
 		init: function() {
-			$(document).on("click", ".mobile_tab", function(e) {
+			$(document).on("click", ".mobile_tab a", function(e) {
 				WH.maEvent("tab_click",
 					{
 						articleId: mw.config.get('wgArticleId'),

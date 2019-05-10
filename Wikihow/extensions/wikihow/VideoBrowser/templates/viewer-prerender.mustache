@@ -3,15 +3,13 @@
 		<div class="videoBrowser-actionBar" role="navigation">
 			<div id="gatBreadCrumb">
 				<ul id="breadcrumb" class="Breadcrumbs" aria-label="Video breadcrumbs">
-					<li class="home"><a href="/Main-Page" title="Main Page">Home</a></li>
-					<li> » <a href="/Video" title="Video">Video</a></li>
 					{{#breadcrumbs}}
-					<li> » <a href="{{link}}" title="{{label}}">{{label}}</a></li>
+					{{^last}}<li>{{^first}} » {{/first}}<a href="{{link}}" title="{{label}}">{{label}}</a></li>{{/last}}
 					{{/breadcrumbs}}
-					<li> » <a href="{{url}}" title="{{howToTitle}}">{{howToTitle}}</a></li>
 				</ul>
 			</div>
 		</div>
+		<script type="application/ld+json">{"@context": "https://schema.org","@type": "BreadcrumbList","itemListElement": [{{#breadcrumbs}}{"@type": "ListItem","position": {{position}},"name": "{{label}}","item": "{{link}}"}{{^last}},{{/last}}{{/breadcrumbs}}]}</script>
 		{{#video}}
 		<div class="videoBrowser-viewer section_text">
 			<div>
@@ -27,14 +25,14 @@
 				{{#youtube}}
 				<div class="videoBrowser-viewer-player">
 					<iframe width="1045" height="588" src="https://www.youtube.com/embed/{{youtube}}?rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
-					<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{titleText}}","description":"{{summaryText}}","thumbnailUrl":["{{poster}}","{{poster@4:3}}","{{poster@1:1}}"],"contentUrl":"https://www.youtube.com/watch?v={{youtube}}","embedUrl":"https://www.youtube.com/embed/{{youtube}}"}</script>
+					<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{titleText}}","description":"{{summaryText}}","thumbnailUrl":["{{poster}}","{{poster@4:3}}","{{poster@1:1}}"],"contentUrl":"https://www.youtube.com/watch?v={{youtube}}","embedUrl":"https://www.youtube.com/embed/{{youtube}}","interactionCount":"{{plays}}","uploadDate":"{{updated}}"}</script>
 				</div>
 				{{/youtube}}
 				{{^youtube}}
 				<div class="videoBrowser-viewer-player">
 					<video key="{{id}}" width="728" height="410" playsinline="" controls="" controlslist="nodownload" poster="{{poster}}"><source src="{{video}}" type="video/mp4"></video>
 				</div>
-				<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{titleText}}","description":"{{summaryText}}","thumbnailUrl":["{{poster}}","{{poster@4:3}}","{{poster@1:1}}"],"uploadDate":"{{updated}}","contentUrl":"{{url}}","embedUrl":"{{video}}","interactionCount":"{{plays}}"}</script>
+				<script type="application/ld+json">{"@context":"http://schema.org","@type":"VideoObject","name":"{{titleText}}","description":"{{summaryText}}","thumbnailUrl":["{{poster}}","{{poster@4:3}}","{{poster@1:1}}"],"contentUrl":"{{url}}","embedUrl":"{{video}}","interactionCount":"{{plays}}","uploadDate":"{{updated}}"}</script>
 				{{/youtube}}
 			</div>
 		</div>
