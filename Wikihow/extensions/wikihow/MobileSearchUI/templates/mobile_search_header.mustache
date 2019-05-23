@@ -1,0 +1,20 @@
+<div id="mobile_header_right">
+<div id="hs" class="{{classes}}">
+	<form action="/wikiHowTo" class="search" target="_top">
+		<input
+			type="text" id="hs_query" role="textbox" tabindex="0"
+			{{#amp}} on="tap:hs.toggleClass(class='hs_active',force=true)" {{/amp}}
+			name="search" value="{{query}}"
+			required
+			placeholder="{{placeholder_text}}"
+			{{^amp}}x-webkit-speech{{/amp}}
+			aria-label="{{aria_label}}"
+		/>
+		<button type="submit" id="hs_submit" class="hs_action"></button>
+		<div
+			id="hs_close" role="button" tabindex="0" class="hs_action"
+			{{#amp}} on="tap:hs.toggleClass(class='hs_active',force=false)" {{/amp}}
+		></div>
+	</form>
+</div>
+</div>

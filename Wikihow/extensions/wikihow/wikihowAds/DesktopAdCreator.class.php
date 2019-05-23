@@ -1829,6 +1829,19 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 			'rightrail2' => 'dfp'
 		);
 
+		$this->mAdSetupData = array(
+			'scrollto' => array(
+				'id' => 'scrolltoad',
+				'type' => 'scrollto',
+				'slot' => 5411724845,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'adsensewidth' => 728,
+				'adsenseheight' => 90,
+				'channels' => implode( ',', $this->mAdsenseChannels )
+			)
+		);
+
 		if ( WikihowToc::isNewArticle() ) {
 			$this->mAdsenseSlots['method2'] = 8388669218;
 			$this->mAdServices['method2'] = 'adsense';
@@ -1837,6 +1850,24 @@ class InternationalAdCreator extends MixedAdCreatorVersion2 {
 			$this->mAdsenseChannels[] = 7466415884;
 		}
 		$this->mAdsenseChannels[] = 4819709854;
+	}
+
+	/*
+	 * creates the scroll to Ad
+	 */
+	public function getScrollToAd() {
+		$ad = $this->getNewAd( 'scrollto' );
+		$setupData = $this->mAdSetupData[$ad->mType];
+		$attributes = array(
+			'id' => $setupData['id']
+		);
+		foreach ( $setupData as $key => $val ) {
+			$adKey = 'data-'.$key;
+			$attributes[$adKey] = $val;
+		}
+		$ad->mHtml = Html::element( 'div', $attributes );
+		$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addScrollToAd('{$attributes['id']}');" );
+		return $ad;
 	}
 
 	protected function setDFPAdUnitPaths() {
@@ -1880,6 +1911,19 @@ class InternationalAdCreatorAllAdsense extends MixedAdCreatorVersion2 {
 			'rightrail2' => 'adsense'
 		);
 
+		$this->mAdSetupData = array(
+			'scrollto' => array(
+				'id' => 'scrolltoad',
+				'type' => 'scrollto',
+				'slot' => 5411724845,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'adsensewidth' => 728,
+				'adsenseheight' => 90,
+				'channels' => implode( ',', $this->mAdsenseChannels )
+			)
+		);
+
 		if ( WikihowToc::isNewArticle() ) {
 			$this->mAdsenseSlots['method2'] = 8388669218;
 			$this->mAdServices['method2'] = 'adsense';
@@ -1889,6 +1933,24 @@ class InternationalAdCreatorAllAdsense extends MixedAdCreatorVersion2 {
 		}
 		$this->mAdsenseChannels[] = 2193546513;
 	}
+	/*
+	 * creates the scroll to Ad
+	 */
+	public function getScrollToAd() {
+		$ad = $this->getNewAd( 'scrollto' );
+		$setupData = $this->mAdSetupData[$ad->mType];
+		$attributes = array(
+			'id' => $setupData['id']
+		);
+		foreach ( $setupData as $key => $val ) {
+			$adKey = 'data-'.$key;
+			$attributes[$adKey] = $val;
+		}
+		$ad->mHtml = Html::element( 'div', $attributes );
+		$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addScrollToAd('{$attributes['id']}');" );
+		return $ad;
+	}
+
 	public function getQuizAd( $num ) {
 		return "";
 	}

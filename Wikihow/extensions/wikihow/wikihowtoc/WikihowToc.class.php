@@ -24,9 +24,19 @@ class WikihowToc {
 		self::$summary = ['url' => '#', 'id' => 'summary_toc', 'text' => wfMessage('summary_toc')->text()];
 	}
 
-	public static function setSummaryVideo() {
+	public static function setSummaryVideo($isYoutube = false) {
+		global $wgTitle;
+
+		if($isYoutube && WHVid::isYtSummaryArticle($wgTitle)) {
+			$url = "#Video";
+		} elseif (!$isYoutube) {
+			$url = '#quick_summary_section';
+		} else {
+			return;
+		}
+
 		self::$videoSummary = [
-			'url' => '#quick_summary_section',
+			'url' => $url,
 			'id' => 'summaryvideo_toc',
 			'icon' => 'summaryvideo_icon',
 			'text' => wfMessage('summaryvideo_toc')->text()

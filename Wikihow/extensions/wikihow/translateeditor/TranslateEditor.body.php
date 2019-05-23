@@ -111,9 +111,9 @@ class TranslateEditor extends UnlistedSpecialPage {
 					'translations' => json_encode($translations),
 					'remove_templates' => json_encode(array_map(preg_quote, $remove_templates)),
 					'remove_sections' => json_encode(array_map(preg_quote, $remove_sections)),
-					'sources_name' => addslashes(wfMessage('Sources')->text()),
-					'steps_name' => addslashes(wfMessage('Steps')->text()),
-					'references_name' => addslashes(wfMessage('references')->text())
+					'sources_name' => json_encode(wfMessage('Sources')->text()),
+					'steps_name' => json_encode(wfMessage('Steps')->text()),
+					'references_name' => json_encode(wfMessage('references')->text())
 				];
 				if($title->exists()) {
 					$dbr = wfGetDB(DB_REPLICA);
@@ -129,7 +129,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 				$options =  ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];
 				$m = new Mustache_Engine($options);
 
-				$html = $m->render('TranslateEditor', $vars);
+				$html = $m->render('TranslateEditor.mustache', $vars);
 				$wgOut->addHTML($html);
 				QuickEdit::showEditForm($title);
 				return false;

@@ -4,6 +4,9 @@ class WHVid {
 
 	const NUM_DIR_LEVELS = 2;
 	static $titleHasSummaryVideo = null;
+	static $titleHasYTVideo = null;
+
+	const YT_VIDEOS_LIKE_SUMMARY_LIST = "youtube_wikihow_videos";
 
 	public static function setParserFunction () {
 		# Setup parser hook
@@ -455,8 +458,8 @@ class WHVid {
 		return true;
 	}
 
-	public static function onAddMobileTOCItemData($wgTitle, &$extraTOCPreData, &$extraTOCPostData) {
-		if (self::hasSummaryVideo($wgTitle)) {
+	public static function onAddMobileTOCItemData($title, &$extraTOCPreData, &$extraTOCPostData) {
+		if (self::hasSummaryVideo($title) && !(WHVid::isYtSummaryArticle($title) && WHVid::hasYTVideo($title))) {
 			$extraTOCPostData[] = [
 				'anchor' => 'quick_summary_section',
 				'name' => 'Video',
@@ -478,18 +481,41 @@ class WHVid {
 		return self::$titleHasSummaryVideo;
 	}
 
+	public static function hasYTVideo($title) {
+		if(!$title || !$title->exists()) return false;
+
+		if(is_null(self::$titleHasYTVideo)) {
+			$wikiText = wikiText::getWikitext(wfGetDB(DB_SLAVE), $title);
+			self::$titleHasYTVideo = strlen(wikiText::getVideoSection($wikiText)[0]) > 0;
+		}
+
+		return self::$titleHasYTVideo;
+	}
+
 	//this uses the phpQuery object
 	public static function onProcessArticleHTMLAfter(OutputPage $out) {
 		$title = $out->getTitle();
 		$user = $out->getUser();
+		$isMobile = Misc::isMobileMode();
+		$hasYTVideo = self::hasYTVideo($title);
+		$isYTSummaryArticle = self::isYtSummaryArticle($title);
 
 		$remove_video_section = $title && $title->exists() &&
 														$title->inNamespace(NS_MAIN) &&
 														$user && $user->isAnon() &&
 														self::hasSummaryVideo($title) &&
+														!$isYTSummaryArticle &&
 														pq('.section.video')->length;
 
 		if ($remove_video_section) pq('.section.video')->remove();
+
+		//only do this on mobile. This happens for desktopp in WikihowArticle.class.php
+		if($hasYTVideo && $isYTSummaryArticle && $isMobile) {
+			pq( '.quicksummary')->remove();
+		}
 	}
 
+	public static function isYtSummaryArticle($title) {
+		return ArticleTagList::hasTag(WHVid::YT_VIDEOS_LIKE_SUMMARY_LIST, $title->getArticleID());
+	}
 }

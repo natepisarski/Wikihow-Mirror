@@ -18,6 +18,7 @@
 			<option VALUE='dru'>Recreational drug based</option>
 			<option VALUE='hat'>Hate based or racist content</option>
 			<option VALUE='imp'>Impossible instructions</option>
+			<option VALUE='inc'>Incomplete</option>
 			<option VALUE='jok'>Joke topic</option>
 			<option VALUE='mea'>Mean spirited activity</option>
 			<option VALUE='not'>Not a how-to</option>
@@ -31,6 +32,7 @@
 		</select>
 		<input type="hidden" name="nap_submit" id="nap_submit" value="" />
 		<input type="hidden" name="template1_nfd" id="template1_nfd" value="" />
+		<input type="hidden" name="wikitext_template" id="wikitext_template" value="" />
 		<input type="hidden" name="template3_merge" id="template3_merge" />
 		<input type="hidden" name="param3_param1" id="param3_param1" />
 		<input type='hidden' name='cb_risingstar' id="cb_risingstar" />
@@ -68,7 +70,7 @@
 					<tr class=" <?= $match['count']%2?'even':'odd'; ?>">
 						<td style="width:473px;"><?= $match['relatedLink'] ?></td>
 						<td class="nap_duplicates_actions">
-							<a href='#' onclick='window.WH.nab.merge("<?= $match['safeTitle'] ?>"); return false;' class="button secondary top_link" data-event_action='merge' data-assoc_id='<?=$match['relatedId']?>'><?= wfMessage('nap_merge') ?></a>
+							<a href='#' onclick='window.WH.nab.addTemplateNfdDup("<?= $match['safeTitle'] ?>"); return false;' class="button secondary top_link" data-event_action='nfd' data-assoc_id='<?=$match['relatedId']?>'><?= wfMessage('nap_deleteduplicate') ?></a>
 						</td>
 					</tr>
 				<? endforeach ?>

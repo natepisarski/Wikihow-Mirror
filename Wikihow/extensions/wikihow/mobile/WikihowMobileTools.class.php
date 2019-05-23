@@ -872,10 +872,10 @@ class WikihowMobileTools {
 				$poster->addClass( 'm-video' );
 				$poster->addClass( 'content-fill placeholder' );
 				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $wgTitle ) );
-				$controls->attr( 'style', 'visibility:visible' );
 				$videoPlayer->empty()->append( $link );
 				$link->append( $poster );
 				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
+				$link->append( Html::inlineScript( "WH.shared.addLoadedCallback('summary_video_poster', function(){WH.shared.showVideoPlay(this);})" ) );
 				$link->append( $controls );
 			}
 		}
@@ -1073,7 +1073,7 @@ class WikihowMobileTools {
 				}
 				break;
 			case $videoAnchor:
-				if(!WHVid::hasSummaryVideo($wgTitle)) {
+				if(!(WHVid::hasSummaryVideo($wgTitle) && !(WHVid::isYtSummaryArticle($wgTitle) && WHVid::hasYTVideo($wgTitle)))) {
 					$extraTOCPostData[] = [
 						'anchor' => $videoAnchor,
 						'name' => wfMessage('video')->text(),

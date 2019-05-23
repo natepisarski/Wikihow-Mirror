@@ -1643,9 +1643,9 @@ class wikihowAds {
 					'intro' => "2831688978",
 					'method' => "6771527778",
 					'related' => "9724994176",
-					'tips' => "5426475249",
-					'warnings' => "7478278737",
-					'pagebottom' => "1160282390",
+					'tips' => "8125162876",
+					'warnings' => "4621387358",
+					'pagebottom' => "3373074232",
 				],
 				'medium' => [
 
@@ -1654,9 +1654,9 @@ class wikihowAds {
 					'intro' => "9046346177",
 					'method' => "8248260977",
 					'related' => "9724994176",
-					'tips' => "5426475249",
-					'warnings' => "7478278737",
-					'pagebottom' => "1160282390",
+					'tips' => "8125162876",
+					'warnings' => "4621387358",
+					'pagebottom' => "3373074232",
 				]
 
 			]
@@ -2057,7 +2057,7 @@ class wikihowAds {
 		// TODO in the future we can check the mobile ad setup to see if there is an ad for this position instead of doing this lang check
 		$tips = 'tips';
 		$warnings = 'warnings';
-		if ($wgLanguageCode == "en") {
+		if ( $wgLanguageCode == "en" ) {
 			wikihowAds::insertMobileAdMiddleRelated();
 			wikihowAds::insertMobileAdAtTarget('qa', 'qa' );
 		} else {

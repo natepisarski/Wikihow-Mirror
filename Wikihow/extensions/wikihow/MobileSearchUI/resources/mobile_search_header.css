@@ -1,0 +1,202 @@
+#mobile_header_right {
+	width: 72px;
+}
+
+#hs {
+	width: 45px;
+	height: 40px;
+	top: 0;
+	right: 0;
+	position: absolute;
+	border-radius: 25px 0 0 25px;
+	background: url(extensions/wikihow/MobileSearchUI/assets/magnifying_glass.png) 15px 11px / 20px no-repeat #445045;
+	/* @embed */
+	background-image: url(extensions/wikihow/MobileSearchUI/assets/magnifying_glass.svg);
+}
+
+#hs.hs_notif {
+	padding-right: 30px;
+}
+
+.header .search {
+	height: initial;
+	margin: 0;
+}
+
+#hs_query {
+	display: none;
+	margin: 5px 5px 5px 45px;
+	box-sizing: border-box;
+	height: 30px;
+	width: 100%;
+	font-size: 16px;
+	padding: 0 28px 0 .5em;
+}
+
+.hs_active #hs_query {
+	display: block;
+}
+
+#hs.hs_active {
+	width: 88%;
+	position: absolute;
+	top: 0;
+	right: 0;
+	transition: width 100ms ease-in-out;
+	padding: 0;
+	z-index: 1;
+}
+
+.header #secondary-button.user-button {
+	background-color: #445045;
+	padding: 0 .3em 2px 0;
+	width: 1em;
+	position: absolute;
+	top: 8px;
+	right: 8px;
+}
+
+.header #secondary-button.user-button span {
+	border-radius: 50%;
+	font-size: .9em;
+	width: 1.5em;
+	height: 1.5em;
+	line-height: 1.55em;
+	background-color: #ff4049;
+}
+
+.header .hs_active .search {
+	display: block;
+}
+
+.hs_action {
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 40px;
+	height: 40px;
+}
+
+#hs_close {
+	background: url(extensions/wikihow/MobileSearchUI/assets/x.png) center center / 15px no-repeat;
+	/* @embed */
+	background-image: url(extensions/wikihow/MobileSearchUI/assets/x.svg);
+}
+
+#hs_submit {
+	border: none;
+	padding: 0;
+	background: url(extensions/wikihow/MobileSearchUI/assets/arrow.png) center center / 15px no-repeat;
+	/* @embed */
+	background-image: url(extensions/wikihow/MobileSearchUI/assets/arrow.svg);
+}
+
+
+/*
+TODO: \/ remove all CSS below this if this test is the new normal \/
+(it's just here to counter the current styles in style_top.css)
+*/
+
+#hs_close, #hs_submit {
+	display: none;
+}
+
+.hs_active #hs_query {
+	border: none;
+	background: none;
+	position: relative;
+	border-radius: 5px;
+	background-color: #FFF;
+	padding: 0 28px 0 .5em;
+	background-position: 15px center;
+	color: initial;
+}
+
+.hs_active #hs_close, .hs_active #hs_query:valid ~ #hs_submit {
+	top: 0;
+	right: 0;
+	left: initial;
+}
+
+.hs_active #hs_close, #hs_submit {
+	width: 40px;
+}
+
+
+
+/* WE ARE NOT CHANGING THE UI FOR TABLET :/ */
+@media only screen and (min-width:600px) {
+
+	#hs, #hs.hs_active {
+		width: 28%;
+		background: none;
+		right: 5px;
+	}
+
+	#hs.hs_notif {
+		right: 40px;
+	}
+
+	.header .hs_active .search {
+		display: table-cell;
+	}
+
+	#hs_query, .hs_active #hs_query {
+		border: none;
+		border-radius: 5px;
+		background-color: #B3CE9C;
+		color: #fff;
+		width: 100%;
+		padding-left: 10px;
+		display: block;
+		height: 30px;
+		margin-top: 5px;
+		font-size: 16px;
+		position: absolute;
+
+	}
+
+	.hs_notif #hs_query {
+		margin-right: 1px;
+	}
+
+	#hs_query, .hs_active #hs_query, #hs_submit {
+		position: absolute;
+		background: url(/extensions/wikihow/mobile/images/search_white.svg) right 4px center / 20px no-repeat #B3CE9C;
+	}
+
+	#hs_submit {
+		display: none;
+		background-size: 20px;
+		background-color: transparent;
+	}
+
+	.hs_active #hs_query:valid ~ #hs_submit {
+		height: 40px;
+		width: 30px;
+		top: 0;
+		right: 0;
+	}
+
+	#hs_query::-webkit-input-placeholder {
+		color: #E3F8D1;
+	}
+
+	.header #secondary-button.user-button {
+		background-color: transparent;
+	}
+
+	.header #secondary-button.user-button span {
+		display: inline-block;
+		width: 24px;
+		height: 24px;
+		font-weight: bold;
+		color: #fff;
+		line-height: 24px;
+		background: #c91f2c;
+		border-radius: 2px;
+	}
+
+
+}

@@ -2,9 +2,18 @@
 
 require_once __DIR__ . '/../../commandLine.inc';
 
+$maxRows = 8;
 $conds = [];
-if(!$argv || $argv[0] != "all") {
+if(!$argv || !is_numeric($argv[0])) {
 	$conds['LIMIT'] = 10;
+} else {
+	$conds['LIMIT'] = intval($argv[0]);
+}
+
+if(!$argv || !is_numeric($argv[1])) {
+	$conds['OFFSET'] = 0;
+} else {
+	$conds['OFFSET'] = intval($argv[1])*$conds['LIMIT'];
 }
 
 $res = DatabaseHelper::batchSelect("page", ["page_id", "page_title"], ["page_namespace" => NS_MAIN, "page_is_redirect" => 0 ], __METHOD__, $conds);
@@ -12,6 +21,7 @@ $res = DatabaseHelper::batchSelect("page", ["page_id", "page_title"], ["page_nam
 $titles = [];
 $keywords = [];
 $count = 1;
+$totalTitles = count($res);
 foreach($res as $row) {
 	$keyword = wfMessage("howto", $row->page_title)->text();
 	if(strlen($keyword) > 80) {
@@ -42,3 +52,5 @@ if(count($keywords) > 0) {
 	}
 	SearchVolume::addNewTitles($values);
 }
+
+echo "Processed {$totalTitles} titles\n";

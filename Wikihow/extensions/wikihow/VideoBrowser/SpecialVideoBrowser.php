@@ -137,7 +137,7 @@ class SpecialVideoBrowser extends SpecialPage {
 					8326974 => 'JQ0K--cv5Y4',
 					13268 => 'b-F7OtrLaoc',
 					66809 => '0c9PExGc9WE',
-					663332 => 'EHkZuTkfsms',
+					663332 => 'I4WHOEsq1Ko',
 					41306 => '469JJk1Wf1c',
 					1800408 => 'CODnVX7VAZ8',
 					155200 => 'emvdufe6t-8',

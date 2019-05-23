@@ -93,6 +93,24 @@ WH.shared = (function () {
 		return result;
 	}
 
+	function showVideoPlay(item) {
+		var overlay = item.element.parentElement.getElementsByClassName('m-video-intro-over');
+		if (typeof overlay !== "undefined") {
+			overlay = overlay[0];
+		}
+		if (overlay) {
+			overlay.style.visibility = 'visible';
+		}
+	}
+
+	function addLoadedCallback(id, callback) {
+		for (var i = 0; i < scrollLoadItems.length; i++) {
+			var item = scrollLoadItems[i];
+			if (item.element.id == id) {
+				item.loadedCallback = callback;
+			}
+		}
+	}
 	// loads all scroll load items. will be called if the user prints the page
 	function loadAllImages() {
 		for (var i = 0; i < scrollLoadItems.length; i++) {
@@ -185,6 +203,9 @@ WH.shared = (function () {
 			loadingContainer.appendChild(loader);
 			item.element.parentElement.appendChild(loadingContainer);
 			item.element.addEventListener(item.finishedLoadingEvent, function() {
+				if (item.loadedCallback) {
+					item.loadedCallback();
+				}
 				if (item.loaderRemoved == false ) {
 					this.parentElement.removeChild(loadingContainer);
 					item.loaderRemoved = true;
@@ -225,6 +246,15 @@ WH.shared = (function () {
 			src = src + '.webp';
 		}
 		return src;
+	}
+
+	function ScrollLoadIframe( element ) {
+		ScrollLoadElement.call( this, element );
+		this.src = element.getAttribute( 'data-src' );
+		this.load = function () {
+			this.element.setAttribute( 'src', this.src );
+			this.isLoaded = true;
+		};
 	}
 
 	function ScrollLoadImage( element ) {
@@ -286,6 +316,11 @@ WH.shared = (function () {
 			item = new ScrollLoadImage(el);
 		} else if (el.nodeName.toLowerCase() === 'video') {
 			item = new ScrollLoadVideo(el);
+		} else if (el.nodeName.toLowerCase() === 'iframe') {
+			item = new ScrollLoadIframe(el);
+		} else {
+			// unknown type of item
+			return;
 		}
 		if (item) {
 			scrollLoadItems.push(item);
@@ -309,6 +344,15 @@ WH.shared = (function () {
 		}
 	}
 
+	function addScrollLoadItemByElement(element) {
+		var id = element.id;
+		if (!id) {
+			id = 'id-' + Math.random().toString(36).substr(2, 16);
+		}
+		element.id = id;
+		addScrollLoadItem(id);
+	}
+
 	autoPlayVideo = supportsAutoplay();
 	scrollLoadingHandler = throttle(updateVisibility, 500);
 	if (window.addEventListener) {
@@ -323,10 +367,13 @@ WH.shared = (function () {
 		'autoPlayVideo' : autoPlayVideo,
 		'webpSupport' : webpSupport,
 		'addScrollLoadItem' : addScrollLoadItem,
+		'addScrollLoadItemByElement' : addScrollLoadItemByElement,
 		'videoRoot' : videoRoot,
 		'setupLoader' : setupLoader,
 		'addResizeFunction' : addResizeFunction,
 		'loadAllImages' : loadAllImages,
+		'addLoadedCallback' : addLoadedCallback,
+		'showVideoPlay' : showVideoPlay,
 		'getCompressedImageSrc' : getCompressedImageSrc
 	};
 

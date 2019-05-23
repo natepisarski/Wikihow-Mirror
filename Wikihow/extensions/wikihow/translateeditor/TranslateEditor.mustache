@@ -14,11 +14,11 @@ var llText="";
 		}
 	}
 	function checkForCite() {
-		var sources = "{{{sources_name}}}";
+		var sources = {{{sources_name}}};
 		var txt = $("#wpTextbox1").val();
 		if (txt.match(/<ref>/)) {
 			var sourcesMatch =txt.match(new RegExp("== *" + sources + " *=="));
-			var refs = "{{{references_name}}}";
+			var refs = {{{references_name}}};
 			var refsMatch =txt.match(new RegExp("== *" + refs + " *=="));
 			if (!txt.match(/\{\{reflist\}\}/) || !(sourcesMatch || refsMatch)) {
 				alert("ERROR: Article contains '<ref>', so there must be a '" + sources + "' or '" + refs + "' section with template {{reflist}} before saving or previewing");
@@ -88,8 +88,8 @@ $(document).ready(function() {
 		}
 
 		function fixCite(revision) {
-			var sources = "{{{sources_name}}}";
-			var refs = "{{{references_name}}}";
+			var sources = {{{sources_name}}};
+			var refs = {{{references_name}}};
 			if (revision.match(/<ref>/)) {
 				if (!revision.match(/\{\{reflist\}\}/)) {
 					if (revision.match("== "  + sources + " ==")) {

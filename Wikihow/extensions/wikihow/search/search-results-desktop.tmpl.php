@@ -68,7 +68,7 @@
 					<li class="sr_view"><span class="sp_circle sp_views_icon"></span>
 						<?=wfMessage('lsearch_views', number_format($result['popularity']))->text();?>
 					</li>
-					<? if ($result['verified']): ?>
+					<? if (class_exists('SocialProofStats') && $result['verified']): ?>
 						<li class="sr_verif"><span class="sp_verif_icon"></span>
 							<?= SocialProofStats::getIntroMessage($result['verified']) ?>
 						</li>

@@ -64,7 +64,7 @@
 						<li class="sr_updated"><span class="sp_circle sp_updated_icon"></span>
 							<?=wfTimeAgo(wfTimestamp(TS_UNIX, $result['timestamp']), true);?>
 						</li>
-						<? if ($result['verified']): ?>
+						<? if (class_exists('SocialProofStats') && $result['verified']): ?>
 							<li class="sp_verif">
 								<span class="sp_circle sp_verif_icon"></span>
 								<span class="sp_search_verified"><?= SocialProofStats::getIntroMessage($result['verified']) ?></span>

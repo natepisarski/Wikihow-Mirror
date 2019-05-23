@@ -595,6 +595,9 @@ class GoogleAmp {
                 3 => 2652729373,
                 4 => 1817932573,
                 5 => 3294665778,
+                7 => 1995224010,
+                8 => 8549379291,
+                9 => 8433829222,
             ),
         );
 
@@ -1084,7 +1087,7 @@ class GoogleAmp {
 	}
 
 	static function addNewAnchortags() {
-		if( pq(".summarysection .summary-video")->length > 0) {
+		if ( class_exists('MobileTabs') && pq(".summarysection .summary-video")->length > 0 ) {
 			//add a new anchor tag so it will jump to the right place
 			$anchor = MobileTabs::getSummarySectionAnchorName();
 			pq('.summarysection')->attr("id",'')->parent()->attr("id", $anchor);

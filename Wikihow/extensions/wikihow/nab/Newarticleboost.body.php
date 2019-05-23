@@ -694,6 +694,7 @@ class NewArticleBoost extends SpecialPage {
 		$newTemplates = '';
 		$templatesArray = array();
 		foreach ($formVars as $key => $value) {
+			// $key = 'template1_nfd' is an example input here
 			if (strpos($key, 'template') === 0 && $value == 'on') {
 				$len = strlen('template');
 				$i = substr($key, $len, 1);
@@ -711,6 +712,15 @@ class NewArticleBoost extends SpecialPage {
 				$newTemplates .= '{{' . $template . $params . '}}';
 				$templatesArray[] = $template;
 			}
+		}
+
+		// Short-circuit the above functionality since we're providing the
+		// wikitext template in Javascript
+		$wikitextTemplate = $req->getVal('wikitext_template');
+		if ($wikitextTemplate) {
+			$newTemplates = $wikitextTemplate;
+			$template = 'nfd|dup';
+			$templatesArray[] = $template;
 		}
 
 		// Add templates if there were some to add

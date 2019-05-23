@@ -21,6 +21,7 @@ $messages['en']  = array(
 				'nap_markaspatrolled' => 'Mark as boosted',
 				'nap_skip'			=>   'Skip',
 				'nap_merge'			=>	'Merge and Demote',
+				'nap_deleteduplicate'		=> 'NFD duplicate',
 				'nap_usercheckedout2'	=> '<span id="nap_checkout">[[User:$1|$1]] is currently boosting this article.</span>',
 				'nap_already_demoted' => '<span id="nap_patrolled">This article has been demoted</span>',
 				'nap_patrolled'	=> '<span id="nap_patrolled">This article has already been boosted.</span>',

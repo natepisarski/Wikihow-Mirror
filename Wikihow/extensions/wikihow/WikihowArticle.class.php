@@ -649,6 +649,14 @@ class WikihowArticleHTML {
 			WikihowToc::setSummaryVideo();
 		}
 
+		//check the yt vidoes
+		if( pq('.embedvideocontainer')->length > 0 && WHVid::isYtSummaryArticle($title)) {
+			wikihowToc::setSummaryVideo(true);
+			if(pq('.summary_with_video')->length) {
+				pq('.summary_with_video')->replaceWith(pq('#summary_wrapper'));
+			}
+		}
+
 		//move each of the large images to the top
 		foreach (pq(".steps_list_2 li .mwimg.largeimage") as $image) {
 			//delete any previous <br>
@@ -805,10 +813,6 @@ class WikihowArticleHTML {
 			$widget->addWidget();
 		}
 
-		 if (class_exists('QABox')) {
-			 QABox::addQABoxToArticle();
-		 }
-
 		//special querystring for loading pages faster by removing step images
 		//STAFF ONLY
 		if ($user && in_array('staff', $user->getGroups()) && $req && $req->getVal('display_images') == 'false') {
@@ -883,10 +887,10 @@ class WikihowArticleHTML {
 				$poster->addClass( 'm-video' );
 				$poster->addClass( 'content-fill placeholder' );
 				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $title ) );
-				$controls->attr( 'style', 'visibility:visible' );
 				$videoPlayer->empty()->append( $link );
 				$link->append( $poster );
 				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
+				$link->append( Html::inlineScript( "WH.shared.addLoadedCallback('summary_video_poster', function(){WH.shared.showVideoPlay(this);})" ) );
 				$link->append( $controls );
 			}
 		}

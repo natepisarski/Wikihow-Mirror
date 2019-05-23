@@ -92,10 +92,22 @@ class MotionToStatic {
 			function ($matches) {
 				$result = $matches[0];
 				$templateArgs = explode( "|", $matches[0] );
+				$staticImage = '';
+				$previewImage = '';
 				foreach( $templateArgs as $arg ) {
 					if ( substr_count( $arg, '.jpg' ) && !substr_count( $arg, 'preview' ) ) {
-						$result = '[[Image:'.$arg."|center]]";
+						$staticImage = '[[Image:'.$arg."|center]]";
+					} elseif ( substr_count( $arg, '.jpg' ) && substr_count( $arg, 'preview' ) ) {
+						$previewImage = '[[Image:'.$arg."|center]]";
 					}
+				}
+				// fallback to the preview image
+				if ( $previewImage ) {
+					$result = $previewImage;
+				}
+				// but use the static image if we have it
+				if ( $staticImage ) {
+					$result = $staticImage;
 				}
 				return $result;
 			},
@@ -149,19 +161,34 @@ class MotionToStatic {
 			"@\{\{ *whvid\|[^\}]+ *\}\}@",
 			function ($matches) use ($steps) {
 				$result = $matches[0];
-				//decho('result', $result);
 				foreach( $steps as $step ) {
 					$stepString = 'Step ' . $step .' ';
 					$stepStringDot = 'Step ' . $step .'.';
 					if ( substr_count( $matches[0], $stepString ) || substr_count( $matches[0], $stepStringDot ) ) {
 						$templateArgs = explode( "|", $matches[0] );
+						$staticImage = '';
+						$previewImage = '';
 						foreach( $templateArgs as $arg ) {
 							if ( substr_count( $arg, '.jpg' ) && !substr_count( $arg, 'preview' ) ) {
-								$result = '[[Image:'.$arg."|center]]";
+								$staticImage = '[[Image:'.$arg."|center]]";
 								//decho("replacing {$matches[0]} with", $result);
+							} elseif ( substr_count( $arg, '.jpg' ) && substr_count( $arg, 'preview' ) ) {
+								$previewImage = '[[Image:'.$arg."|center]]";
 							}
 						}
+						// fallback to the preview image
+						if ( $previewImage ) {
+							$result = $previewImage;
+						}
+						// but use the static image if we have it
+						if ( $staticImage ) {
+							$result = $staticImage;
+						}
 					}
+				}
+				// if we found a preview image but no regular image then use the preview image
+				if ( $previewResult && !$result ) {
+					$result = $previewResult;
 				}
 				return $result;
 			},

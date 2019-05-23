@@ -33,11 +33,13 @@ class DatabaseHelper {
 			$options['LIMIT'] = $batchSize;
 		}
 
+		$customOffset = isset($options['OFFSET']) ? $options['OFFSET'] : 0;
+
 		$rows = array();
 		$batchNum = 0;
 
 		while (true) {
-			$options['OFFSET'] = $batchNum*$batchSize;
+			$options['OFFSET'] = $customOffset + $batchNum*$batchSize;
 			$res = $dbr->select($table, $fields, $conditions, $fname, $options);
 
 			if (!$res || $res->numRows() == 0) break;
@@ -46,7 +48,7 @@ class DatabaseHelper {
 				$rows[] = $row;
 			}
 
-			if ($customLimit && count($rows) > $customLimit) break;
+			if ($customLimit && count($rows) >= $customLimit) break;
 
 			$res->free();
 

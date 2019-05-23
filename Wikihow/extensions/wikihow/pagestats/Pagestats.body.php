@@ -315,7 +315,7 @@ class PageStats extends UnlistedSpecialPage {
 		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'stub' ), 'Send note to future editor' );
 		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'removal' ), 'Request removal from Editfish' );
 		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'stub' ), 'Request Stub (low quality/low PV/bad title)' );
-		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'summaryvideo' ), 'Edit In A Hurry' );
+		$options .= Html::rawElement( 'a', array( 'href' => '#', 'role' => 'menuitem', 'data-type' => 'summaryvideo' ), 'Edit Quick Summary' );
 		$menuContent = Html::rawElement( 'div', array( 'id'=> 'staff-editing-menu-content', 'class' => 'menu' ), $options );
 		$textArea = Html::rawElement( 'textarea', array( 'id'=> 'sem-textarea', 'class' => 'sem-h', 'placeholder' => 'add any extra comments here' ) );
 

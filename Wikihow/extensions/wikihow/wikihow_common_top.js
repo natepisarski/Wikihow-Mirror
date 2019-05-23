@@ -1,4 +1,5 @@
 (function(mw, $) {
+
 'use strict';
 
 /* Common js for both our desktop and mobile sites
@@ -346,11 +347,15 @@ if (isIOS) {
 WH.showEmbedVideos = function() {
     $('iframe.embedvideo').each( function() {
         var $vid = $(this);
-        var dataSrc = $vid.attr('data-src');
-        if (dataSrc) {
-            $vid.attr('src', dataSrc);
-        }
-    } );
+		if ( wgArticleId % 2 == 0 ) {
+			WH.shared.addScrollLoadItemByElement($vid.get(0));
+		} else {
+			var dataSrc = $vid.attr('data-src');
+			if (dataSrc) {
+				$vid.attr('src', dataSrc);
+			}
+		}
+    });
 };
 
 $(window).load(WH.showEmbedVideos);

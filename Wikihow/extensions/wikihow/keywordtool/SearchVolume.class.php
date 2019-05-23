@@ -26,7 +26,8 @@ class SearchVolume {
 		if (strlen($response)) {
 			$response = json_decode($response);
 			foreach ($keywords as $keyword) {
-				$results[$keyword] = is_null($response->results->{$keyword}->volume)?0:$response->results->{$keyword}->volume;
+				$lowercasekeyword = strtolower($keyword);
+				$results[$keyword] = is_null($response->results->{$lowercasekeyword}->volume)?0:$response->results->{$lowercasekeyword}->volume;
 			}
 		}
 

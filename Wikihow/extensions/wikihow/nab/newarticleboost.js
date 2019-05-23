@@ -140,11 +140,11 @@ window.WH.nab.loadNextArticle = function() {
 	});
 }
 
-window.WH.nab.merge = function(title) {
+window.WH.nab.addTemplateNfdDup = function(title) {
 	if( !$(this).hasClass("clickfail") ) {
 		$("#nap_demote").val("nap_demote");
-		$("#template3_merge").val("on");
-		$("#param3_param1").val(title.replace(/&#39;/, "'"));
+		var template_str = '{{nfd|dup|' + title.replace(/&#39;/, "'") + '}}'; //Adding NFD|dup|title directly from JavaScript
+		$("#wikitext_template").val(template_str); 
 		window.WH.nab.submitNabForm();
 		window.WH.nab.disableButtons();
 	}

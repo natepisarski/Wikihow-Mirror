@@ -8,19 +8,6 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		parent::__construct("AdminMassEdit");
 	}
 
-	private static function parseURLlist($pageList) {
-		$pageList = preg_split('@[\r\n]+@', $pageList);
-		$urls = array();
-		foreach ($pageList as $url) {
-			$url = trim($url);
-			if (!empty($url)) {
-				$title = WikiPhoto::getArticleTitleNoCheck(urldecode($url));
-				$urls[] = array('url' => $url, 'title' => $title);
-			}
-		}
-		return $urls;
-	}
-
 	private function getDefaultSummary() {
 		return wfMessage("mass-edit-summary");
 	}
@@ -52,32 +39,17 @@ class AdminMassEdit extends UnlistedSpecialPage {
 
 	private function getTitles($input) {
 		if ($input == "") {
-			return array();
+			return [];
 		}
 
 		$input = preg_split('@[\r\n]+@', $input);
 
-		$titles = array();
-		$bad = array();
+		$titles = [];
+		$bad = [];
 		foreach ($input as $line) {
 			$line = trim($line);
-			if (is_numeric($line)) {
-				$title = Title::newFromID($line);
-				if (!$title) {
-					$bad[] = "no title for id: $line.  will not process";
-					continue;
-				}
-				$titles[$title->getText()] = $line;
-			} elseif (strpos($line, "http") !== false) {
-				$partialUrl = preg_replace('@^(http://[^/]+/|/)@', '', $line);
-				$title = Title::newFromText($partialUrl);
-				if (!$title) {
-					$title = Title::newFromText( urldecode($partialUrl ) );
-					if ( !$title ) {
-						$bad[] = "no title for: $line.  will not process";
-						continue;
-					}
-				}
+			$title = Misc::getTitleFromText($line);
+			if ($title) {
 				$titles[$title->getText()] = $title->getArticleID();
 			} else {
 				$title = Title::newFromText($line);
@@ -107,7 +79,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 	public function removeTemplateIfExists($toAdd, $summary, $titles) {
 		global $wgLanguageCode;
 		$user = $this->getBotUser();
-		$results = array();
+		$results = [];
 
 		foreach($titles as $titleText=>$pageId) {
 			if ($pageId < 1) {
@@ -157,7 +129,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 	public function addToBeginning($toAdd, $summary, $titles) {
 		global $wgLanguageCode;
 		$user = $this->getBotUser();
-		$results = array();
+		$results = [];
 
 		foreach($titles as $titleText=>$pageId) {
 			if ($pageId < 1) {
@@ -222,12 +194,14 @@ class AdminMassEdit extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
-		global $wgLanguageCode;
+		global $wgLanguageCode, $wgIsDevServer;
 
-		$uname = $this->getUser()->getName();
+		$user = $this->getUser();
+		$uname = $user->getName();
 		$allLangs = [ 'Chris H', 'ElizabethD' ];
 		$intlOnly = [ 'Bridget8', 'AdrianaBaird' ];
-		$allowed = in_array($uname, $allLangs) || ( Misc::isIntl() && in_array($uname, $intlOnly) );
+
+		$allowed = in_array($uname, $allLangs) || ( Misc::isIntl() && in_array($uname, $intlOnly) ) || ($wgIsDevServer && $user->hasGroup('staff'));
 		if (!$allowed) {
 			$this->displayRestrictionError();
 			return;

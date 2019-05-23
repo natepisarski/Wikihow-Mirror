@@ -2,6 +2,11 @@
 
 class MobileTabs {
 
+	public static $hasYTVideo = null;
+	public static $isYTListVideo = null;
+	public static $hasSummaryVideo = null;
+	public static $isTabArticle = null;
+
 	public static function addTabsToArticle(&$data) {
 		$title = RequestContext::getMain()->getTitle();
 		if(!self::isTabArticle($title)) return;
@@ -30,11 +35,48 @@ class MobileTabs {
 	}
 
 	public static function getSummarySectionAnchorName() {
-		return "quick_summary_section";
+		if(self::$hasYTVideo && self::$isYTListVideo) {
+			$anchorName = "Video";
+		} else {
+			$anchorName = 'quick_summary_section';
+		}
+
+		return $anchorName;
 	}
 
 	public static function isTabArticle($title) {
-		return $title ? WHVid::hasSummaryVideo($title) : false;
+		if(!is_null(self::$isTabArticle)) {
+			return self::$isTabArticle;
+		}
+
+		if(!$title) {
+			self::$isTabArticle = false;
+			return self::$isTabArticle;
+		}
+
+		self::$hasSummaryVideo = WHVid::hasSummaryVideo($title);
+		self::$isYTListVideo = WHVid::isYtSummaryArticle($title);
+		if(!self::$hasSummaryVideo && !self::$isYTListVideo) {
+			self::$isTabArticle = false;
+			return self::$isTabArticle;
+		}
+
+		if(self::$isYTListVideo) {
+			self::$hasYTVideo = WHVid::hasYTVideo($title);
+		}
+
+		if(self::$hasSummaryVideo) {
+			self::$isTabArticle = true;
+			return self::$isTabArticle;
+		}
+
+		if(self::$isYTListVideo && self::$hasYTVideo) {
+			self::$isTabArticle = true;
+			return self::$isTabArticle;
+		}
+
+		self::$isTabArticle = false;
+		return self::$isTabArticle;
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {

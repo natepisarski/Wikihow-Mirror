@@ -299,25 +299,30 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if ( $data['disableSearchAndFooter'] ) {
 			echo $data['specialPageHeader'];
 		} else {
-			$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
-			$expand = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=true)"' : '';
-			$collapse = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=false)"' : '';
-			$classes = [];
-			if ( $this->isSearchPage ) {
-				$classes[] = 'hs_active';
+			if (class_exists('MobileSearchUI') && MobileSearchUI::showNewHeaderSearch()) {
+				echo MobileSearchUI::headerSearch( $data, $this->isSearchPage );
 			}
-			if ( $data['secondaryButton'] ) {
-				$classes[] = 'hs_notif';
+			else {
+				$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
+				$expand = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=true)"' : '';
+				$collapse = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=false)"' : '';
+				$classes = [];
+				if ( $this->isSearchPage ) {
+					$classes[] = 'hs_active';
+				}
+				if ( $data['secondaryButton'] ) {
+					$classes[] = 'hs_notif';
+				}
+				?>
+				<div id="hs" class="<?= implode( $classes, ' ' ) ?>">
+					<form action="/wikiHowTo" class="search" target="_top">
+						<input type="text" id="hs_query" role="textbox" tabindex="0" <?= $expand ?> name="search" value="<?= $query ?>" required placeholder="<?= wfMessage( 'header-search-placeholder' )->text() ?>" <?= !$data['amp'] ? 'x-webkit-speech' : '' ?> aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
+						<button type="submit" id="hs_submit"></button>
+						<div id="hs_close" role="button" tabindex="0" <?= $collapse ?> ></div>
+					</form>
+				</div>
+				<?php
 			}
-			?>
-			<div id="hs" class="<?= implode( $classes, ' ' ) ?>">
-				<form action="/wikiHowTo" class="search" target="_top">
-					<input type="text" id="hs_query" role="textbox" tabindex="0" <?= $expand ?> name="search" value="<?= $query ?>" required placeholder="<?= wfMessage( 'header-search-placeholder' )->text() ?>" <?= !$data['amp'] ? 'x-webkit-speech' : '' ?> aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
-					<button type="submit" id="hs_submit"></button>
-					<div id="hs_close" role="button" tabindex="0" <?= $collapse ?> ></div>
-				</form>
-			</div>
-			<?php
 		}
 		?>
 		<?php
