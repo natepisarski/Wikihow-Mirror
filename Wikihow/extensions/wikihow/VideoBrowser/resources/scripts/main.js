@@ -103,8 +103,11 @@ $( function () {
 					requestAnimationFrame( trackPageView, 0 );
 				} );
 
-			WH.VideoBrowser.router.start();
-			WH.Render( app, document.getElementById( 'videoBrowser' ) );
+			mw.loader.using( 'ext.wikihow.videoBrowser', function () {
+				WH.VideoBrowser.router.start();
+				WH.Render( app, document.getElementById( 'videoBrowser' ) );
+				$( '#videoBrowser' ).removeClass( 'loading' );
+			} );
 		}
 	} catch ( error ) {
 		if ( console.log ) {

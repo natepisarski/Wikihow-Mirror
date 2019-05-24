@@ -155,7 +155,9 @@ WH.desktopAds = (function () {
         } else if (ad.extraChild) {
             ad.extraChild.style.visibility = "hidden";
         }
-		updateFixedPositioning(ad, viewportHeight, ad.last);
+		if (!ad.notfixedposition) {
+			updateFixedPositioning(ad, viewportHeight);
+		}
 
 		if (ad.refreshable && ad.renderrefresh) {
 			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
@@ -973,10 +975,10 @@ WH.desktopAds = (function () {
 		var adHeights = [];
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var ad = rightRailElements[i];
+			updateAdLoading(ad, viewportHeight);
 			if (ad.notfixedposition) {
 				continue;
 			}
-			updateAdLoading(ad, viewportHeight);
 			adHeights[i] = updateFixedPositioning(ad, viewportHeight);
 		}
 		for (var i = 0; i < bodyAds.length; i++) {

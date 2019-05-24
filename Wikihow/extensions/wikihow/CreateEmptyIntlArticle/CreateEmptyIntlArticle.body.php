@@ -97,15 +97,18 @@ class CreateEmptyIntlArticle extends UnlistedSpecialPage {
 		}
 
 		//check to make sure that the english article id is good
-		$dbr = wfGetDB(DB_REPLICA);
-		$dbr->selectDB(Misc::getLangDB("en"));
-		$fromTitle = Title::newFromID($data[$this->rowPos['en_id']]);
-		if(!$fromTitle || !$fromTitle->exists() || !$fromTitle->inNamespace(NS_MAIN) || $fromTitle->isRedirect()) {
+		$json = file_get_contents("https://www.wikihow.com/api.php?action=articletext&format=json&aid=" . $data[$this->rowPos['en_id']]);
+		if (empty($json)) {
 			$result['result'] = "English id not good (" . $data[$this->rowPos['en_id']] . ")";
 			return $result;
 		}
-		$dbr->selectDB(Misc::getLangDB($languageCode));
-		$result['en_url'] = "https://" . Misc::getCanonicalDomain("en") . $fromTitle->getLocalUrl();
+		$decodeJson = json_decode($json);
+		if($decodeJson->error) {
+			$result['result'] = "English id not good (" . $data[$this->rowPos['en_id']] . ")";
+			return $result;
+		}
+
+		$result['en_url'] = $decodeJson->data->articleUrl;
 
 		//check to make sure there isn't a link in the translation link table yet.
 		$where = [

@@ -81,6 +81,18 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$section = $wgRequest->getVal('section',$wgRequest->getVal('wpSection',null));
 		$save = $wgRequest->getVal('wpSave',null);
 		$title = Title::newFromURL($target);
+
+		Mustache_Autoloader::register();
+		$options =  ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];
+		$m = new Mustache_Engine($options);
+		$vars = [
+			'remove_templates' => json_encode( array_map(preg_quote, self::getMsgArray('remove_templates')) ),
+			'remove_sections'  => json_encode( array_map(preg_quote, self::getMsgArray('remove_sections')) ),
+			'sources_name' => json_encode(wfMessage('Sources')->text()),
+			'steps_name' => json_encode(wfMessage('Steps')->text()),
+			'references_name' => json_encode(wfMessage('references')->text())
+		];
+
 		// We have the dialog to enter the URL when we are adding a new article, and have no existing draft.
 		if ($title && $title->inNamespace(NS_MAIN) && self::isTranslatorUser()) {
 
@@ -89,10 +101,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 				&& $action=='edit'
 			) {
 
-				EasyTemplate::set_path(__DIR__ . '/');
-
 				// Templates to remove from translation
-				$remove_templates = self::getMsgArray('remove_templates');
 				// Words or things to automatically translate
 				$translations = array(array('from' => self::getSectionRegex('Steps'), 'to' => self::getSectionWikitext(wfMessage('Steps'))),
 					array('from' => self::getSectionRegex('Tips'), 'to' => self::getSectionWikitext(wfMessage('Tips'))),
@@ -103,18 +112,12 @@ class TranslateEditor extends UnlistedSpecialPage {
 					array('from' => self::getSectionRegex("References"), 'to' => self::getSectionWikitext(wfMessage('References'))),
 					array('from' => '\[\[Category:[^\]]+\]\]', 'to' => "")
 				);
-				$remove_sections = self::getMsgArray('remove_sections');
-				$vars = [
+				$vars = array_merge( $vars, [
 					'title' => $target,
 					'checkForLL' => true,
 					'translateURL' => true,
 					'translations' => json_encode($translations),
-					'remove_templates' => json_encode(array_map(preg_quote, $remove_templates)),
-					'remove_sections' => json_encode(array_map(preg_quote, $remove_sections)),
-					'sources_name' => json_encode(wfMessage('Sources')->text()),
-					'steps_name' => json_encode(wfMessage('Steps')->text()),
-					'references_name' => json_encode(wfMessage('references')->text())
-				];
+				]);
 				if($title->exists()) {
 					$dbr = wfGetDB(DB_REPLICA);
 					$wikiText = Wikitext::getWikitext($dbr, $title);
@@ -125,19 +128,14 @@ class TranslateEditor extends UnlistedSpecialPage {
 					}
 				}
 
-				Mustache_Autoloader::register();
-				$options =  ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];
-				$m = new Mustache_Engine($options);
-
 				$html = $m->render('TranslateEditor.mustache', $vars);
 				$wgOut->addHTML($html);
 				QuickEdit::showEditForm($title);
 				return false;
 			}
 			elseif ($section == null && $save == null) {
-				EasyTemplate::set_path(__DIR__.'/');
-				$vars = array('title' => $target, 'checkForLL' => true, 'translateURL'=>false);
-				$html = EasyTemplate::html('TranslateEditor.tmpl.php', $vars);
+				$vars = array_merge( $vars, ['title'=>$target, 'checkForLL'=>true, 'translateURL'=>false] );
+				$html = $m->render('TranslateEditor.mustache', $vars);
 				$wgOut->addHTML($html);
 				QuickEdit::showEditForm($title);
 				return false;

@@ -82,7 +82,12 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			this.touched = false;
 			this.progress = 0;
 			this.played = false;
-			this.change( { summary: null, relatedVideos: null, relatedArticles: null } );
+
+			// Use the existing summary text
+			var summary = document.getElementsByClassName( 'videoBrowser-viewer-summary' )[0];
+			var summaryHtml = summary ? summary.innerHTML : null;
+
+			this.change( { summary: summaryHtml, relatedVideos: null, relatedArticles: null } );
 			this.title.change( { slug: state.slug } );
 
 			this.cancelCountdown();

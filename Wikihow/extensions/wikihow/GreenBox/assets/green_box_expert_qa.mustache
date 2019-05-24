@@ -8,7 +8,20 @@
 	</div>
 	<div class="green_box_row">
 		<div class="green_box_person expert">
-			{{#expert_dialog}}<div class="green_box_expert_dialog">{{{expert_dialog}}}</div>{{/expert_dialog}}
+
+			{{#expert_dialog_text}}
+				<div class="green_box_expert_dialog">
+
+					<div class="green_box_expert_dialog_upper">
+						<div class="green_box_person_circle">{{{expert_display}}}</div>
+						<p>{{{expert_name}}}</p>
+						{{{expert_title}}}
+					</div>
+
+					{{{expert_dialog_text}}}
+				</div>
+			{{/expert_dialog_text}}
+
 			<div class="green_box_person_circle">{{{expert_display}}}</div>
 			<div class="green_box_expert_label">{{expert_label}}</div>
 		</div>

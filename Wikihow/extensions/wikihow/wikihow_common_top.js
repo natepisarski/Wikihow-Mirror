@@ -217,6 +217,9 @@ WH.maEvent = function(eventName, eventProps, callback) {
 	u = u || ''; // user name
 	if (u) eventProps.username = u;
 
+	//add language code
+	eventProps.language = mw.config.get('wgContentLanguage');
+
 	if (isDev) {
 		console.log(eventName);
 		console.log(eventProps);
@@ -347,17 +350,83 @@ if (isIOS) {
 WH.showEmbedVideos = function() {
     $('iframe.embedvideo').each( function() {
         var $vid = $(this);
-		if ( wgArticleId % 2 == 0 ) {
-			WH.shared.addScrollLoadItemByElement($vid.get(0));
-		} else {
-			var dataSrc = $vid.attr('data-src');
-			if (dataSrc) {
-				$vid.attr('src', dataSrc);
-			}
-		}
+		WH.shared.addScrollLoadItemByElement($vid.get(0));
     });
 };
 
+WH.alignRRAd = function(sidebarTop, adNumber) {
+	// do not align the first ad
+	if (adNumber == 0) {
+		return;
+	}
+	var currentAdId = "#rightrail"+adNumber;
+	if ($(currentAdId).length == 0) {
+		return;
+	}
+	if (!$(currentAdId).hasClass('nofixed')) {
+		return;
+	}
+
+	adNumber = adNumber - 1;
+	var prevAdId = "#rightrail"+adNumber;
+	if ($(prevAdId).length == 0) {
+		$(currentAdId).remove();
+		return;
+	}
+	var prevAdOffset = $(prevAdId).offset();
+	var prevAdBottom = prevAdOffset.top + $(prevAdId).outerHeight(true);
+
+	//find the first step whose top is lower than the prev ads bottom
+	var done = false;
+	$('.steps_list_2:first > li').each(function() {
+		if (done) {
+			return true;
+		}
+		var stepTop = $(this).offset().top;
+		if (stepTop > prevAdBottom) {
+			// set the next ad to this
+			stepTop = stepTop - sidebarTop - 10;
+			$(currentAdId).css('position', 'absolute');
+			$(currentAdId).css('top', stepTop + 'px');
+			done = true;
+		}
+	});
+	if (done == false) {
+		$(currentAdId).remove();
+	}
+};
+
+WH.RRPosition = function() {
+	if (!$('#sidebar').length) {
+		return;
+	}
+	var sidebarTop = $('#sidebar').offset().top;
+	var i = 0;
+
+    $('.rr_container.nofixed').each(function() {
+		var currentRightRail = this;
+
+		// each ad has a section number it is assigned to
+		var sectionNumber = $(this).find('.whad:first').data('section');
+		if (sectionNumber > 0) {
+			// move the ads to align with the top of the section
+			var sectionTop = $('.section.steps').eq(sectionNumber).offset().top;
+			var adTop = sectionTop - sidebarTop;
+			$(this).css('position', 'absolute');
+			$(this).css('top', adTop + 'px');
+			return true;
+		}
+	});
+
+	for(i = 0; i < 4; i++) {
+		WH.alignRRAd(sidebarTop, i);
+	}
+};
+
 $(window).load(WH.showEmbedVideos);
+$(document).ready(WH.RRPosition);
+if (WH.shared) {
+	window.addEventListener('scroll', WH.shared.throttle(WH.RRPosition, 2000));
+}
 
 }(mediaWiki, jQuery));

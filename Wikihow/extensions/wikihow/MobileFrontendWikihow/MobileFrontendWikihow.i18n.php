@@ -9,7 +9,7 @@ $messages['en'] = array (
 	'mobile-frontend-view-other' => 'Other',
 	'mobile-frontend-footer-edit-wh' => 'Edit',
 	'footer-search-placeholder' => 'Search How to...',
-	'header-search-placeholder' => 'How to...',
+	'header-search-placeholder' => 'Search wikiHow...',
 	'surprise-me-footer' => 'Surprise Me!',
 	//login page
 	'mobile-frontend-login-title' => 'Welcome to wikiHow',

@@ -282,6 +282,19 @@ class HistoryBlobStub {
 	function getHash() {
 		return $this->mHash;
 	}
+
+	// Do nothing. Added by wikihow because of an exception when running maintenance script populateRevisionLength.php
+	function uncompress() {
+		print("Got unexpect uncompress call:\n");
+		var_dump($this);
+	}
+
+	// Do nothing. Added by wikihow because of an exception when running maintenance script populateRevisionLength.php
+	function getItem( $str ) {
+		print("Got unexpect uncompress call:\n");
+		var_dump($this);
+		return false;
+	}
 }
 
 /**

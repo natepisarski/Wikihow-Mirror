@@ -13,8 +13,8 @@ class ComposerStaticInit5ebe2c0c362600ea18ce0328f102400a
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
-        '6cd1b2ed23918617fbcfa51009d38237' => __DIR__ . '/..' . '/upwork/php-upwork/src/Upwork/API/constants.php',
         'c65d09b6820da036953a371c8c73a9b1' => __DIR__ . '/..' . '/facebook/graph-sdk/src/Facebook/polyfills.php',
+        '6cd1b2ed23918617fbcfa51009d38237' => __DIR__ . '/..' . '/upwork/php-upwork/src/Upwork/API/constants.php',
     );
 
     public static $prefixLengthsPsr4 = array (

@@ -106,7 +106,8 @@ class YourArticles extends SpecialPage {
 
 				foreach ($article_array as $row) {
 					$t = Title::makeTitle(NS_MAIN, $row->page_title);
-					$ago = wfTimeAgo($row->page_touched);
+					$wp = WikiPage::factory($t);
+					$ago = wfTimeAgo($wp->getTimestamp());
 					$authors = array_keys(self::getAuthors($t));
 					$authorsHtml = [];
 					for ($i = 0; $i < 2 && sizeof($authors) > 0; $i++) {

@@ -210,27 +210,52 @@ class DesktopAds {
 		return false;
 	}
 
-	public function insertSocialProofSidebarRightRail( $socialProofSidebar ) {
+	public function modifyForHealthlineTest( $html, $relatedWikihows ) {
+		// first two rr elements are already in the html
+		$rr3 = $this->getRightRailAdHtml( 3 );
+		$html .= $rr3;
 
-		if ( !isset( $this->mAdCreator->mAds['rightrail3'] ) ) {
-			return $socialProofSidebar;
+		//  add the rr that goes on the top of each method
+		for ( $i = 4; $i < 10; $i++ ) {
+			$rr = $this->getRightRailAdHtml( $i );
+			if ( $rr ) {
+				$html .= $rr;
+			}
 		}
-		$adHtml = $this->mAdCreator->mAds['rightrail3']->mHtml;
-		if ( !$adHtml ) {
-			return $socialProofSidebar;
+
+		$doc = phpQuery::newDocument( $html );
+
+		if ( pq( '#sp_stats_sidebox' )->length ) {
+			pq( '#sp_stats_sidebox' )->after( pq( '#rightrail0' ) );
+		} else if ( pq( '#social_proof_sidebox' )->length ) {
+			pq( '#social_proof_sidebox' )->after( pq( '#rightrail0' ) );
 		}
-		$spDoc = phpQuery::newDocument( $socialProofSidebar );
-		if ( pq( '.sp_top_box' )->length > 0 ) {
-			pq( '.sp_top_box:first' )->addClass( 'ad_rr0_expert' );
-			pq( '.sp_top_box:first' )->after( $adHtml );
-		} else {
-			pq( '.social_sidebox:first' )->before( $adHtml );
-			pq( '#rightrail3' )->addClass('ad_rr3_no_top_box');
-		}
-		pq( '#rightrail3' )->addClass('ad_rr3_separator');
-		$socialProofSidebar = $spDoc->htmlOuter();
-		return $socialProofSidebar;
+
+		pq( '#rightrail0' )->next()->prependTo( pq( '#rightrail1 .whad' ) );
+		pq( '#rightrail0' )->after( pq( '#rightrail1' ) );
+
+		pq( '#side_related_articles' )->prependTo( pq( '#rightrail2 .whad' ) );
+		pq( '#rightrail1' )->after( pq( '#rightrail2' ) );
+
+		pq( '#ratearticle_sidebar' )->prependTo( pq( '#rightrail3 .whad' ) );
+		pq( '#rightrail2' )->after( pq( '#rightrail3' ) );
+
+		$relatedWikihowsLarger = $relatedWikihows->getSideDataLarger();
+		$attr = ['id' => 'side_related_articles_larger', 'class' => 'sidebox related_articles'];
+		$relatedWikihowsLarger = Html::rawElement( 'div', $attr, $relatedWikihowsLarger );
+		pq( $relatedWikihowsLarger )->prependTo( pq( '#rightrail4 .whad' ) );
+
+		// now add spacing on the right rail ads
+		pq( '.rr_container' )->addClass( 'nofixed' );
+		
+		// clear the heights
+		pq( '.rr_container' )->attr( 'style', '' );
+
+		$rightRailHtml = $doc->htmlOuter();
+
+		return $rightRailHtml;
 	}
+
 	/*
 	 * @return the html for related section ad
 	 */
@@ -350,6 +375,11 @@ class DesktopAds {
 		} else {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
+
+			if ( $pageId % 10 == 10 ) {
+				$adCreator = new MixedAdCreatorExtraRightRail();
+				$adCreator->mAdServices['step'] = '';
+			}
 
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';

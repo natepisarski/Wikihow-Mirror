@@ -10,7 +10,9 @@
 			$counters.each(function (index, elem) {
 				var duration = index * 400,
 					$stat = $(elem),
-					newVal = parseInt($stat.text(), null) + numEdits;
+					statValuesString = $stat.text().replace(/,/g,""), // Getting all stat values as String and removing all commas (since parseInt doesn't handle commas)
+					newVal = parseInt(statValuesString, 10) + numEdits; // Parsing stat values to int and adding number of new votes
+				newVal = newVal.toLocaleString(); // toLocaleString adds thousand-separator commas to improve readability
 
 				$stat.fadeOut(duration, function () {
 					$stat.html(newVal).fadeIn();

@@ -79,6 +79,7 @@ class TranslateSummariesTool extends UnlistedSpecialPage {
 		$forced_intl_page_id = $this->getRequest()->getInt('forced_page_id', 0);
 		if ($forced_intl_page_id) {
 			$ts->loadFromIntlArticleId($forced_intl_page_id);
+			if (!$ts->exists() || $ts->translated) return $this->eoq();
 		}
 		else {
 			$skippedIds = $this->skipTool->getSkipped();

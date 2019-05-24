@@ -12,7 +12,7 @@ class VerifyData {
 	const VERIFIER_TABLE = 'verifier_info';
 	const ARTICLE_TABLE = 'article_verifier';
 	const BLURB_TABLE = 'coauthor_blurbs';
-	const VERIFIER_INFO_CACHE_KEY = 'verifier_info_4';
+	const VERIFIER_INFO_CACHE_KEY = 'verifier_info_5';
 
 	// Both
 	public $blurb; 		// byline
@@ -190,13 +190,17 @@ class VerifyData {
 	}
 
 	public static function isVerified( $pageId ) {
-		global $wgMemc;
+		global $wgMemc, $wgLanguageCode;
+
+
 		$cacheKey = wfMemcKey( 'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
+
 		$pageIds = $wgMemc->get( $cacheKey );
+
 		if ( $pageIds === FALSE ) {
 			MWDebug::log("loading article verifier list from db");
 			$pageIds = self::getPageIdsFromDB();
-			self::cachePageIds( $pageIds );
+			self::cachePageIds( $pageIds, $wgLanguageCode );
 		}
 		return isset( $pageIds[$pageId] );
 	}
@@ -252,6 +256,7 @@ class VerifyData {
 			$d->nameLink, $d->category, $d->image, $d->initials, $d->whUserId, $d->whUserName);
 
 		$vd->imagePath = self::getExpertImagePath($vd);
+		$vd->blurbCount = self::getBlurbCountByIdFromDB($vd->verifierId);
 
 		return $vd;
 	}
@@ -302,6 +307,12 @@ class VerifyData {
 		}
 
 		return $results;
+	}
+
+	private static function getBlurbCountByIdFromDB(int $id, string $lang = 'en' ): int {
+		$dbr = wfGetDB(DB_REPLICA);
+		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
+		return $dbr->selectField($blurbTable, 'count(*)', ['cab_coauthor_id' => $id]);
 	}
 
 	# BLURBS
@@ -472,7 +483,7 @@ class VerifyData {
 		return $thumb->getUrl();
 	}
 
-	private static function cachePageIds( $pageIds, $lang='en' ) {
+	private static function cachePageIds( $pageIds, $lang ) {
 		global $wgMemc, $wgCachePrefix;
 		$cacheKey = wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix,
 			'article_verifier_data', self::VERIFIED_ARTICLES_KEY );

@@ -9,6 +9,10 @@ class RelatedWikihow {
 		return $this->createHtml( RelatedWikihows::SIDEBAR_IMG_WIDTH, RelatedWikihows::SIDEBAR_IMG_HEIGHT, true );
 	}
 
+	public function createSidebarLargerHtml() {
+		return $this->createHtml( RelatedWikihows::SIDEBAR_LARGER_IMG_WIDTH, RelatedWikihows::SIDEBAR_LARGER_IMG_HEIGHT, false, false, true );
+	}
+
 	public function createDesktopHtml() {
 		return $this->createHtml( RelatedWikihows::RELATED_IMG_WIDTH, RelatedWikihows::RELATED_IMG_HEIGHT, false );
 	}
@@ -21,11 +25,14 @@ class RelatedWikihow {
 		return $this->createHtml( RelatedWikihows::RELATED_IMG_WIDTH, RelatedWikihows::RELATED_IMG_HEIGHT, false, true );
 	}
 
-	private function createHtml( $width, $height, $isSidebar = false, $ampMode = false ) {
+	private function createHtml( $width, $height, $isSidebar = false, $ampMode = false, $largeSidebar = false ) {
 		$imgSrc = '';
 		$videoSrc = $this->mVideoUrl;
 		if ( $isSidebar ) {
 			$imgSrc = $this->mThumbUrlSide;
+			$videoSrc = "";
+		} elseif ( $largeSidebar ) {
+			$imgSrc = $this->mThumbUrlSideLarger;
 			$videoSrc = "";
 		} else {
 			$imgSrc = $this->mThumbUrl;
@@ -139,6 +146,8 @@ class RelatedWikihows {
 	const MOBILE_IMG_HEIGHT = 231;
 	const SIDEBAR_IMG_WIDTH = 127;
 	const SIDEBAR_IMG_HEIGHT = 140;
+	const SIDEBAR_LARGER_IMG_WIDTH = 290;
+	const SIDEBAR_LARGER_IMG_HEIGHT = 156;
 	const MIN_TO_SHOW_DESKTOP = 14;
 	const QUERY_STRING_PARAM = "newrelateds";
 	const MEMCACHED_KEY = "relarticles_data";
@@ -354,6 +363,8 @@ class RelatedWikihows {
 		$height = self::RELATED_IMG_HEIGHT;
 		$sideWidth = self::SIDEBAR_IMG_WIDTH;
 		$sideHeight = self::SIDEBAR_IMG_HEIGHT;
+		$sideWidthLarger = self::SIDEBAR_LARGER_IMG_WIDTH;
+		$sideHeightLarger = self::SIDEBAR_LARGER_IMG_HEIGHT;
 		$mobileWidth = self::MOBILE_IMG_WIDTH;
 		$mobileHeight = self::MOBILE_IMG_HEIGHT;
 		$related = array();
@@ -368,6 +379,7 @@ class RelatedWikihows {
 			$videoUrl = ArticleMetaInfo::getVideoSrc( $title );
 			$thumbnailImage = ArticleMetaInfo::getRelatedThumb( $title, $width, $height );
 			$thumbnailImageSide = ArticleMetaInfo::getRelatedThumb( $title, $sideWidth, $sideHeight );
+			$thumbnailImageSideLarger = ArticleMetaInfo::getRelatedThumb( $title, $sideWidthLarger, $sideHeightLarger );
 			$thumbnailImageMobile = ArticleMetaInfo::getRelatedThumb( $title, $mobileWidth, $mobileHeight );
 
 			if ( !$thumbnailImage ) {
@@ -387,6 +399,7 @@ class RelatedWikihows {
 			$item->mVideoUrl = $videoUrl;
 			$item->mThumbUrl = $thumbnailImage->getUrl();
 			$item->mThumbUrlSide = $thumbnailImageSide->getUrl();
+			$item->mThumbUrlSideLarger = $thumbnailImageSideLarger->getUrl();
 			$item->mThumbUrlMobile = $thumbnailImageMobile->getUrl();
 			$item->mText = $title->getText();
 			$item->mUrl = $title->getLocalURL();
@@ -582,6 +595,28 @@ class RelatedWikihows {
 		}
 	}
 
+	// get 4 related wikihows to show in the side bar for an ad test
+	public function getSideDataLarger() {
+		$header = Html::element( 'h3', array(), wfMessage('relatedarticles')->text() );
+
+		$relatedWikihows = $this->mRelatedWikihows;
+
+		if ( count( $relatedWikihows ) == 0 ) {
+			return "";
+		}
+
+		$relatedWikihows = array_slice( $relatedWikihows, 0, 4 );
+
+		$thumbs = "";
+		foreach ( $relatedWikihows as $relatedWikihow ) {
+			$thumbs .= $relatedWikihow->createSidebarLargerHtml();
+		}
+
+		$clear = Html::rawElement( "div", array( 'class' => 'clearall' ) );
+
+		$html = $header.$thumbs.$clear;
+		return $html;
+	}
 	// get 4 related wikihows to show in the side bar
 	public function getSideData() {
 		$header = Html::element( 'h3', array(), wfMessage('relatedarticles')->text() );

@@ -10,7 +10,7 @@
         "iboldurev/api-ai-php": "^0.2.5",
         "google/apiclient": "1.1.3",
         "mach3/google-spreadsheet": "^0.1.6",
-        "facebook/graph-sdk": "^5.6",
+        "facebook/graph-sdk": "^5.7",
         "kelvinmo/simplejwt": "0.1.4",
         "fustundag/tokenbucket": "^1.0",
         "froodley/amazon-alexa-php": "0.5.2.4",

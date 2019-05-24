@@ -5,7 +5,7 @@
 	<a href="{{#amp}}#{{/amp}}{{^amp}}#{{linkUrl}}{{/amp}}"
 		class="{{slot1class}} expert_coauthor_link"
 		{{#amp}} on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1" {{/amp}}
-	>{{slot1}}</a>
+	>{{slot1}}{{#slot1_desc}}, {{slot1_desc}}{{/slot1_desc}}</a>
 
 	{{#hasEarlySlot2}}
 		{{{connector}}} {{slot2_intro}}

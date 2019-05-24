@@ -215,7 +215,7 @@
 					appId: mw.config.get( 'wgFBAppId' ),
 					xfbml: true,
 					status: true,
-					version: 'v3.1'
+					version: 'v3.3'
 				} );
 				initializing.resolve( new FBLogin() );
 			};

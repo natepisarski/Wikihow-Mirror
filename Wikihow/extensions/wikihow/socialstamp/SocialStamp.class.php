@@ -186,6 +186,12 @@ class SocialStamp {
 			if (SocialStamp::isNotable()) {
 				$params['coauthor'] = wfMessage("ss_notable")->text();
 			}
+
+			if (self::isEnhancedBylineArticle($articleId)) {
+				//HACK - remove any leading PhD because it's at the end of 2 people's names
+				$desc = preg_replace('/^PhD,\s/', '', $verifiers[$key]->blurb);
+				$params['slot1_desc'] = $desc;
+			}
 		}
 
 		# Second part (slot2), only if no expert
@@ -387,6 +393,10 @@ class SocialStamp {
 		}
 
 		return $last_updated;
+	}
+
+	private static function isEnhancedBylineArticle(int $pageId): bool {
+		return ArticleTagList::hasTag('enhanced_byline_test', $pageId);
 	}
 
 }

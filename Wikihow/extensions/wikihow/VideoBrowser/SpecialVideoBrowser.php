@@ -196,7 +196,8 @@ class SpecialVideoBrowser extends SpecialPage {
 					'howToTitle' => $howToTitle,
 					'video' => $viewing,
 					'breadcrumbs' => $list,
-					'youtube' => $youtubeIds[$viewing['id']]
+					'youtube' => $youtubeIds[$viewing['id']],
+					'publisher' => json_encode( SchemaMarkup::getWikihowOrganization() )
 				] );
 			} else {
 				// Index
@@ -204,7 +205,7 @@ class SpecialVideoBrowser extends SpecialPage {
 				$htmlTitle = wfMessage( 'videobrowser-index-title', $pageTitle )->text();
 				$prerender = VideoBrowser::render( 'index-prerender.mustache', [] );
 			}
-			$output->setPageTitle( $pageTitle );
+			$output->setPageTitle( null );
 			$output->setHtmlTitle( $htmlTitle );
 			$output->addHtml( $prerender );
 

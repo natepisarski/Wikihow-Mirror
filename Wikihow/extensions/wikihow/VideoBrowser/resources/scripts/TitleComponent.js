@@ -15,6 +15,6 @@ WH.VideoBrowser.TitleComponent = WH.Render.createComponent( {
 				text = mw.msg( 'videobrowser-how-to', video.title );
 			}
 		}
-		return [ 'h2.videoBrowser-title', [ 'span.videoBrowser-title-text', text ] ];
+		return [ 'h1.videoBrowser-title', [ 'span.videoBrowser-title-text', text ] ];
 	}
 } );

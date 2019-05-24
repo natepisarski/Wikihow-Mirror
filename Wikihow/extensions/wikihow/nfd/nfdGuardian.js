@@ -446,7 +446,14 @@ function getHelpfulness(articleId) {
 function incCounters() {
 	$("#iia_stats_week_nfd, #iia_stats_today_nfd, #iia_stats_all_nfd, #iia_stats_group").each(function (index, elem) {
 			$(this).fadeOut(function () {
-				val = parseInt($(this).html()) + 1;
+				var statValues_string = $(this).html();
+
+				// Removing commas since parseInt doesn't handle them inherently
+				var statValues_withoutCommas = statValues_string.replace(/,/g,"");
+				var val = parseInt(statValues_withoutCommas, 10) + 1;
+
+				// Adding thousand-separator commas to improve readability
+				val = val.toLocaleString();
 				$(this).html(val);
 				$(this).fadeIn(); 
 			});

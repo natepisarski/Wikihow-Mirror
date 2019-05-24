@@ -3,7 +3,7 @@ google.com, pub-5462137703643346, DIRECT, f08c47fec0942fa0
 indexexchange.com, 186325, DIRECT
 rubiconproject.com, 18654, DIRECT, 0bfd66d529a55807
 rubiconproject.com, 15274, DIRECT, 0bfd66d529a55807
-adtech.com, 11484, DIRECT
+adtech.com, 11484, DIRECT, e1a5b5b6e3255540
 appnexus.com, 9929, DIRECT
 districtm.io, 100369, DIRECT, 3fd707be9c4527c3
 appnexus.com, 1908, RESELLER, f5ab79cb980f11d1

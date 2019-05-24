@@ -78,7 +78,8 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	padding: 0 0 .5em 0;
 }
 
-.green_box.expert_short p, .stable .content .green_box.expert_short p {
+.green_box.expert_short .green_box_content p,
+.stable .content .green_box.expert_short .green_box_content p {
 	font-family: Georgia, 'Times New Roman', serif;
 	color: #75A24E;
 	font-size: 24px;
@@ -92,6 +93,13 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	text-align: center;
 	width: 45px;
 	padding: .5em .3em;
+}
+
+.green_box.expert_short .green_box_person {
+	display: block;
+	text-align: left;
+	width: auto;
+	padding: 0;
 }
 
 .green_box_expert_info {
@@ -153,14 +161,15 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	display: none;
 	position: absolute;
 	background: #FFF;
-	padding: .5em;
-	border: 3px solid #92B873;
-	width: 200px;
+	padding: .6em 1.5em 1.5em;
+	border: 3px solid #CCC;
+	border-radius: 4px;
+	width: 250px;
 	bottom: 100%;
 	left: -11px;
-	font-size: .8em;
-	line-height: 1.1em;
-	color: #434343;
+	font-size: .9em;
+	line-height: 1.3em;
+	color: #545454;
 	text-align: left;
 }
 .green_box_expert_dialog:after, .green_box_expert_dialog:before {
@@ -179,9 +188,34 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	left: 28px;
 }
 .green_box_expert_dialog:before {
-	border-top-color: #92B873;
+	border-top-color: #CCC;
 	border-width: 14px;
 	left: 24px;
+}
+
+.green_box.expert_short .green_box_expert_dialog {
+	left: -18px;
+	margin-bottom: 7px;
+}
+
+.green_box_expert_dialog_upper {
+	padding: 5px 0 15px;
+	border-bottom: 1px solid rgba(0,0,0,0.13);
+	margin-bottom: 10px;
+	min-height: 40px;
+}
+
+.green_box_expert_dialog_upper .green_box_person_circle {
+	margin: 0 10px 0 0;
+	float: left;
+}
+
+.green_box_expert_dialog_upper p,
+.stable .content .green_box_expert_dialog_upper p {
+	font-weight: bold;
+	font-size: 1.1em;
+	margin-top: 0;
+	line-height: 1.1em;
 }
 
 .green_box.green_tip {

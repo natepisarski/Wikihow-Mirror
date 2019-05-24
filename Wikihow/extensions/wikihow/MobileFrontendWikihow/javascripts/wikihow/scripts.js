@@ -232,44 +232,30 @@ function addClickHandlers() {
 			pageType = 'main';
 		}
 
-		//don't track for our new style test
-		if (!$('#hs').hasClass('hs_new_style')) {
-			var isTabletSearch = $(window).width() >= 600;
+		$('#hs_query').on( 'click', function ( e ) {
+			if ( !open ) {
+				openCount++;
+				open = true;
+				WH.maEvent( 'mobile_search_open', { count: openCount, pageType: pageType } );
+			}
+		} );
+		$('#hs_close').on( 'click', function ( e ) {
+			closeCount++;
+			open = false;
+			WH.maEvent( 'mobile_search_close', { count: closeCount, pageType: pageType } );
+		} );
+		var hsFormSubmitLogged = false;
+		$('#hs form').on( 'submit', function ( e ) {
+			if ( !hsFormSubmitLogged ) {
+				WH.maEvent( 'mobile_search_submit', { pageType: pageType }, function () {
+					hsFormSubmitLogged = true;
+					$('#hs form').submit();
+				} );
+				e.preventDefault();
+				return false;
+			}
+		} );
 
-			$('#hs_query').on( 'click', function ( e ) {
-				if ( !open ) {
-					openCount++;
-					open = true;
-					WH.maEvent( 'mobile_search_open', {
-						count: openCount,
-						pageType: pageType,
-						isTablet: isTabletSearch,
-						language: mw.config.get('wgContentLanguage')
-					} );
-				}
-			} );
-			$('#hs_close').on( 'click', function ( e ) {
-				closeCount++;
-				open = false;
-				WH.maEvent( 'mobile_search_close', { count: closeCount, pageType: pageType } );
-			} );
-			var hsFormSubmitLogged = false;
-			$('#hs form').on( 'submit', function ( e ) {
-				if ( !hsFormSubmitLogged ) {
-					WH.maEvent( 'mobile_search_submit', {
-						pageType: pageType,
-						isTablet: isTabletSearch,
-						language: mw.config.get('wgContentLanguage')
-					}, function () {
-						hsFormSubmitLogged = true;
-						$('#hs form').submit();
-					} );
-					e.preventDefault();
-					return false;
-				}
-			} );
-
-		}
 }
 
 $(document).ready(function() {

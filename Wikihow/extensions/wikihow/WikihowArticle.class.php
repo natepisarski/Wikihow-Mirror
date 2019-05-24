@@ -43,6 +43,8 @@ class WikihowArticleHTML {
 		$title = $ctx->getTitle();
 		$langCode = $ctx->getLanguage()->getCode();
 
+		// Used later on to add structred data to inline summary videos
+		$videoData = SchemaMarkup::getVideo( $title );
 
 		$doc = phpQuery::newDocument($body);
 		$context = RequestContext::getMain();
@@ -643,6 +645,16 @@ class WikihowArticleHTML {
 			pq("#quick_summary_section h2 span")->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
 			pq( "#quick_summary_section")->addClass("summary_with_video");
 
+			// Structured data
+			if ( $videoData ) {
+				$videoSchema = Html::rawElement(
+					'script',
+					[ 'type'=>'application/ld+json' ],
+					json_encode( $videoData, JSON_PRETTY_PRINT )
+				);
+				pq( '#quick_summary_section' )->append( $videoSchema );
+			}
+
 			if ( Misc::isIntl() ) {
 				pq( "#quick_summary_section")->addClass("intl");
 			}
@@ -656,6 +668,7 @@ class WikihowArticleHTML {
 				pq('.summary_with_video')->replaceWith(pq('#summary_wrapper'));
 			}
 		}
+
 
 		//move each of the large images to the top
 		foreach (pq(".steps_list_2 li .mwimg.largeimage") as $image) {

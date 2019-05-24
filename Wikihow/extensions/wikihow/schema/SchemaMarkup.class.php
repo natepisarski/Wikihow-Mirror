@@ -172,12 +172,12 @@ class SchemaMarkup {
 		return $result;
 	}
 
-	private static function getWikihowOrganization() {
+	public static function getWikihowOrganization() {
 		global $wgLanguageCode;
 
 		$logo = [
 			'@type' => 'ImageObject',
-			'url' => 'https://www.wikihow.com/skins/owl/images/wikihow_logo_name_green_60.png',
+			'url' => 'https://www.wikihow.com/skins/owl/images/wikihow_logo_nobg_60.png',
 			'width' => 326,
 			'height' => 60,
 		];
@@ -235,16 +235,48 @@ class SchemaMarkup {
 		return $steps;
 	}
 
+	private static function getHowToStepImageFromStep( $step ) {
+		global $wgIsDevServer;
+		$result = '';
+		$img = pq( $step )->find( 'img:not(.m-video-wm-img):first' );
+		if ( $img->length > 0 ) {
+			$url = $img->attr( 'src' );
+		} else {
+			$video = pq( $step )->find( 'video.m-video:first' );
+			if ( $video->length > 0 ) {
+				$url = $video->attr( 'data-poster' );
+			}
+		}
+
+		if ( $url && $wgIsDevServer && !preg_match('@^https?:@', $url) ) {
+			// just use a valid url for testing purposes
+			$url = "https://www.wikihow.com" . $url;
+		}
+
+		return $url;
+	}
+
 	private static function getHowToSteps() {
+		global $wgTitle;
 		$sections = array();
 		$sectionNumber = 1;
 		foreach ( pq( '.section.steps' ) as $section ) {
+			if ( pq( $section )->hasClass( '.sample' ) ) {
+				continue;
+			}
 			$name = pq($section)->find('.mw-headline:first')->text();
+			if ( !$name ) {
+				$name = "Method " . $sectionNumber;
+			}
 			$steps = array();
 			$i = 0;
-			foreach ( pq( $section )->find( '.step' ) as $step ) {
+			foreach ( pq( $section )->find( '.steps_list_2 > li' ) as $stepItem ) {
+				$step = pq( $stepItem )->find( '.step' );
 				$i++;
 				$text = pq( $step)->text();
+				if ( !trim( $text ) ) {
+					continue;
+				}
 				$directionData = [
 					"@type" => "HowToDirection",
 					"position" => 1,
@@ -255,7 +287,14 @@ class SchemaMarkup {
 					"position" => $i,
 					"itemListElement" => $directionData
 				];
+				$stepImage = self::getHowToStepImageFromStep( $stepItem );
+				if ( $stepImage ) {
+					$stepData['image'] = $stepImage;
+				}
 				$steps[] = $stepData;
+			}
+			if ( empty( $steps ) ) {
+				continue;
 			}
 			$data = [
 				"@type" => "HowToSection",
@@ -267,6 +306,10 @@ class SchemaMarkup {
 			$sectionNumber++;
 
 			$sections[] = $data;
+		}
+
+		if ( empty( $sections ) ) {
+			return array();
 		}
 
 		$result = [ 'step' => $sections ];
@@ -397,15 +440,19 @@ class SchemaMarkup {
 		$data += self::getPublisher();
 		$data += self::getContributors( $title );
 		$steps = self::getHowToSteps();
-		if ( is_array( $steps ) ) {
-			$data = array_merge( $data, self::getHowToSteps() );
+
+		$schema = '';
+		if ( !empty( $steps ) ) {
+			if ( is_array( $steps ) ) {
+				$data = array_merge( $data, self::getHowToSteps() );
+			}
+
+			$data['description'] = ArticleMetaInfo::getCurrentTitleMetaDescription();
+
+			Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
+
+			$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 		}
-
-		$data['description'] = ArticleMetaInfo::getCurrentTitleMetaDescription();
-
-		Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
-
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 
 		// set in memcached
 		$cacheKey = wfMemcKey( self::HOWTO_SCHEMA_CACHE_KEY, $title->getArticleID() );
@@ -520,7 +567,7 @@ class SchemaMarkup {
 			$contentUrl = WH_CDN_VIDEO_ROOT . wfUrlencode( $contentUrl );
 		}
 
-		$thumbnailUrl = 'https:' . $wgServer . pq('.m-video')->attr('data-poster');
+		$thumbnailUrl = $wgServer . pq('.m-video')->attr('data-poster');
 		$data = [
 			"@context"=> "http://schema.org",
 			"@type" => "VideoObject",
@@ -528,7 +575,8 @@ class SchemaMarkup {
 			"description" => $description,
 			"thumbnailUrl" => $thumbnailUrl,
 			"uploadDate" => $uploadDate,
-			"contentUrl" => $contentUrl
+			"contentUrl" => $contentUrl,
+			"publisher" => self::getWikihowOrganization()
 		];
 		return $data;
 	}

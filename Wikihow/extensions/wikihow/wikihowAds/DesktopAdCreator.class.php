@@ -211,8 +211,11 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			return;
 		}
 		$this->mAds['intro'] = $this->getIntroAd();
-		for ( $i = 0; $i < 4; $i++ ) {
-			$this->mAds['rightrail'.$i] = $this->getRightRailAd( $i );
+		// todo iterate over mAdSetupData here instead of for loop
+		for ( $i = 0; $i < 10; $i++ ) {
+			if ( $i <= 2 || isset( $this->mAdSetupData['rightrail'.$i] ) ) {
+				$this->mAds['rightrail'.$i] = $this->getRightRailAd( $i );
+			}
 		}
 		$this->mAds['step'] = $this->getStepAd();
 		$this->mAds['method'] = $this->getMethodAd();
@@ -286,13 +289,22 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			if ( $count < 2 ) {
 				$this->mAds['method2']->notInBody = true;
 			} else {
-				// only put this on the second method
 				$count = 2;
 			}
 			for ( $i = 1; $i < $count; $i++ ) {
 				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:last-child)" )->length() ) {
 					$method2Ad = "<div id='tocad_wrap'>".$method2Ad."</div>";
 					pq( ".steps_list_2:eq($i) > li:last-child" )->append( $method2Ad );
+				}
+			}
+		}
+		$method3Ad = $this->mAds['method3']->mHtml;
+		if ( $method3Ad ) {
+			$count = pq( ".steps_list_2" )->length;
+			for ( $i = 0; $i < $count; $i++ ) {
+				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:first-child)" )->length() ) {
+					pq( ".steps_list_2:eq($i) > li:first-child" )->append( $method3Ad );
+
 				}
 			}
 		}
@@ -743,6 +755,22 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		return $ad;
 	}
 
+	/*
+	 * @return Ad an ad for the third right rail
+	 */
+	protected function getRightRailNumDFP( $num ) {
+		$ad = $this->getNewAd( 'rightrail'.$num );
+		$ad->service = "dfp";
+		$ad->targetId = 'rightrail-ad-target'.$num;
+		$ad->containerHeight = 2000;
+		$ad->initialLoad = false;
+		$ad->lateLoad = false;
+		$ad->width = 300;
+		$ad->height = 600;
+		$ad->mHtml = $this->getRightRailAdHtml( $ad );
+		return $ad;
+	}
+
 	protected function getDFPInnerHtml( $ad ) {
 		$script = "";
 		if ( $ad->lateLoad == false ) {
@@ -945,6 +973,17 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		}
 		return $ad;
 	}
+
+	public function getRightRailNum( $num ) {
+		$ad = $this->getNewAd( 'rightrail'.$num );
+		if ( $this->mAdServices['rightrail'.$num] == "adsense" ) {
+			$ad = $this->getRightRailThirdAdsense();
+		} elseif ( $this->mAdServices['rightrail'.$num] == "dfp" ) {
+			$ad = $this->getRightRailNumDFP( $num );
+		}
+		return $ad;
+	}
+
 	/*
 	 * @return Ad an ad for the top right rail
 	 */
@@ -973,8 +1012,8 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			$ad = $this->getRightRailSecond();
 		} elseif ( $num == 2 ) {
 			$ad = $this->getRightRailThird();
-		} elseif ( $num == 3 ) {
-			$ad = $this->getRightRailTop();
+		} elseif ( $num >= 3 ) {
+			$ad = $this->getRightRailNum( $num );
 		}
 		// now ad the js snippet to add the ad to the js sroll handler
 		if ( $ad && $ad->mHtml ) {
@@ -1466,7 +1505,7 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		}
 		// right now this data will be added to each ad as data attributes
 		// however we can use it in the future to define almost everything about each ad
-		$this->mAdsenseChannels[] = 6381149051;
+		$this->mAdsenseChannels[] = 8837922476;
 		if ( $pageId == 223933 ) {
 			$this->mAdsenseChannels[] = 9756424883;
 		}
@@ -1538,12 +1577,12 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 			),
 			'rightrail1' => array(
 				'adUnitPath' => '/10095428/RR2_Test_32',
-				'size' => '[[300, 250],[300, 600]]',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
 				'apsLoad' => true
 			),
 			'rightrail2' => array(
 				'adUnitPath' => '/10095428/RR3_Test_32',
-				'size' => '[[300, 250],[300, 600]]',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
 				'apsLoad' => true
 			),
 			'quiz' => array(
@@ -1552,6 +1591,131 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 				'apsLoad' => true
 			)
 		);
+	}
+}
+
+class MixedAdCreatorExtraRightRail extends MixedAdCreatorScrollTo {
+	public function __construct() {
+		global $wgTitle, $wgRequest;
+		$pageId = 0;
+		if ( $wgTitle ) {
+			$pageId = $wgTitle->getArticleID();
+		}
+		$this->numMethods = pq( '.section.steps' )->length;
+
+		$this->mExtendedRightRail = true;
+		// right now this data will be added to each ad as data attributes
+		// however we can use it in the future to define almost everything about each ad
+		$this->mAdsenseChannels[] = 2464085811;
+		if ( $pageId == 223933 ) {
+			$this->mAdsenseChannels[] = 9756424883;
+		}
+		$this->mAdSetupData = array(
+			'rightrail0' => array(
+				'notfixedposition' => 1,
+				'section' => 0,
+			),
+			'rightrail1' => array(
+				'notfixedposition' => 1,
+				'section' => 0,
+			),
+			'rightrail2' => array(
+				'refreshable' => 1,
+				'first-refresh-time' => 35000,
+				'refresh-time' => 28000,
+				'aps-timeout' => 800,
+				'notfixedposition' => 1,
+				'section' => 0,
+			),
+			'rightrail3' => array(
+				'notfixedposition' => 1,
+				'section' => 0,
+			),
+			'scrollto' => array(
+				'id' => 'scrolltoad',
+				'type' => 'scrollto',
+				'slot' => 6515934903,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'adsensewidth' => 728,
+				'adsenseheight' => 90,
+				'channels' => implode( ',', $this->mAdsenseChannels )
+			)
+		);
+
+		$this->mAdsenseSlots = array(
+			'intro' => 7862589374,
+			'step' => 1652132604,
+			'rightrail0' => 4769522171,
+		);
+
+		$this->mAdServices = array(
+			'intro' => 'adsense',
+			'step' => 'adsense',
+			'method' => 'dfp',
+			'rightrail0' => 'adsense',
+			'rightrail1' => 'dfp',
+			'rightrail2' => 'dfp',
+			'rightrail3' => 'dfp',
+			'quiz' => 'dfp'
+		);
+		for ( $i = 0; $i < $this->numMethods - 1; $i++ ) {
+			$num = 4 + $i;
+			$rrName = "rightrail".$num;
+			$this->mAdSetupData[$rrName] = [ 'notfixedposition' => 1, 'section' => $i+1 ];
+			$this->mAdServices[$rrName] = 'dfp';
+		}
+
+		if ( ( class_exists("WikihowToc") && WikihowToc::isNewArticle() ) ) {
+			$this->mAdsenseSlots['method2'] = 3356467874;
+			$this->mAdServices['method2'] = 'adsense';
+		}
+	}
+
+	protected function setDFPAdUnitPaths() {
+		$this->mDFPData = array(
+			'method' => array(
+				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'rightrail1' => array(
+				'adUnitPath' => '/10095428/HL_RR_Test',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true
+			),
+			'rightrail2' => array(
+				'adUnitPath' => '/10095428/HL_RR_Test',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true
+			),
+			'rightrail3' => array(
+				'adUnitPath' => '/10095428/HL_RR_Test',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true
+			),
+			'quiz' => array(
+				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			)
+		);
+		for ( $i = 0; $i < $this->numMethods - 1; $i++ ) {
+			$num = 4 + $i;
+			$rrName = "rightrail".$num;
+			$this->mDFPData[$rrName] = array(
+					'adUnitPath' => '/10095428/HL_RR_Test',
+					'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+					'apsLoad' => true
+					);
+		}
+	}
+
+	public function getIsLastAd( $ad ) {
+		if ( $ad->mType == "rightrail3" ) {
+			return true;
+		}
+		return false;
 	}
 }
 
