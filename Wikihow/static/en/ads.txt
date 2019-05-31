@@ -7,3 +7,7 @@ adtech.com, 11484, DIRECT, e1a5b5b6e3255540
 appnexus.com, 9929, DIRECT
 districtm.io, 100369, DIRECT, 3fd707be9c4527c3
 appnexus.com, 1908, RESELLER, f5ab79cb980f11d1
+conversantmedia.com, 42030, DIRECT, 03113cd04947736d
+appnexus.com, 4052, RESELLER
+contextweb.com, 561998, RESELLER, 89ff185a4c4e857c
+openx.com, 540031703, RESELLER, 6a698e2ec38604c6

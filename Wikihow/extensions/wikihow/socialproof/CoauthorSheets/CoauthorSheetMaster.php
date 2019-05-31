@@ -2,7 +2,7 @@
 
 class CoauthorSheetMaster extends CoauthorSheet {
 	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1cryKHhcrHL-HiSLLyVrMyfER82PV25XjOcFEb4ZY8lc';
+	const SHEET_ID_DEV = '1IBn8-bcVHM0g_R8u5a0cjQK3YK_2_PN1NsDfRN6-g1U';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
@@ -25,6 +25,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			VerifyData::replaceCoauthors('en', $coauthors);
 			VerifyData::replaceBlurbs('en', $blurbs);
 			VerifyData::replaceArticles('en', $articles);
+			CoauthorSheetIntl::recalculateIntlArticles();
 			// Schedule the maintenance for the Reverification tool. Use the Main-page title because we need a title
 			// in order for the job to work properly
 			$title = Title::newFromText('Main-Page');

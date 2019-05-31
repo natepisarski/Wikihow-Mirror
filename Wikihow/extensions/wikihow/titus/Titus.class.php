@@ -1498,10 +1498,8 @@ class TSSummarized extends TitusStat {
 				$video = true;
 			}
 
-			if (class_exists('SummarySection')) {
-				$summary_data = SummarySection::summaryData($t->getText());
-				$summary_position = $summary_data['at_top'] ? 'top' : 'bottom';
-			}
+			$summary_data = SummarySection::summaryData($t->getText());
+			$summary_position = $summary_data['at_top'] ? 'top' : 'bottom';
 		}
 
 		$result = array(
@@ -5208,6 +5206,9 @@ class TSQuickSummaryCreated extends TitusStat {
  * alter table titus_intl add column `ti_num_greenbox_not_expert` int(10) NOT NULL default 0 after `ti_inbound_links`;
  * alter table titus_intl add column `ti_num_greenbox_expert` int(10) NOT NULL default 0 after `ti_num_greenbox_not_expert`;
  *
+ * TODO: Reuben notes that after this code was put live (Apr 29, 2019), the nightly
+ * Titus run slowed down by 1 hour. It now consistently takes 8h to run Titus in all
+ * languages, and it took 7 hours before adding this TSGreenBox stat.
  */
 class TSGreenBox extends TitusStat {
 

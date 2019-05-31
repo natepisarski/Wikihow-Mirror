@@ -78,7 +78,7 @@ class PageStats extends UnlistedSpecialPage {
 
 		$html = "<h3 style='margin-bottom:5px'>Staff-only data</h3>";
 
-		if (class_exists('SummaryEditTool') && SummaryEditTool::authorizedUser($this->getUser())) {
+		if ( SummaryEditTool::authorizedUser( $this->getUser() ) ) {
 			$html =  SummaryEditTool::editCTAforArticlePage() . $html;
 		}
 

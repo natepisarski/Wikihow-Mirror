@@ -100,7 +100,7 @@ class UserReview {
 		}
 
 		$key = wfMemcKey(self::ELIGIBLE_KEY, $articleId);
-		$isVerified = class_exists('SocialProofStats') && SocialProofStats::articleVerified($articleId);
+		$isVerified = !Misc::isIntl() && SocialProofStats::articleVerified($articleId);
 		$inWhitelist = ArticleTagList::hasTag(self::WHITELIST, $articleId);
 
 		$eligible = 0;
@@ -175,7 +175,7 @@ class UserReview {
 	public static function getIconHoverText(int $articleId): string {
 		if (empty($articleId)) return '';
 		$views = RequestContext::getMain()->getWikiPage()->getCount();
-		$helpfulness = class_exists('SocialProofStats') ? SocialProofStats::getPageRatingData($articleId)->rating : 0;
+		$helpfulness = !Misc::isIntl() ? SocialProofStats::getPageRatingData($articleId)->rating : 0;
 		$numReviews = self::getEligibleNumCuratedReviews($articleId);
 
 		//second paragraph

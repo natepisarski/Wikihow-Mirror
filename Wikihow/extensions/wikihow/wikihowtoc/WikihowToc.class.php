@@ -82,27 +82,18 @@ class WikihowToc {
 	public static function setReferences() {
 		if (!Misc::isMobileMode()) {
 			$refCount = Misc::getReferencesCount();
-			$refTarget = '#' . Misc::getSectionName( wfMessage('sources')->text() );
-			if ( phpQuery::$defaultDocumentID ) {
-				$references = '#' . Misc::getSectionName( wfMessage('references')->text() );
-				if ( pq( $references )->length > 0 ) {
-					$refTarget = $references;
+			if ($refCount > 0) {
+				$refTarget = Misc::getReferencesID();
+				self::$references = ['url' => $refTarget, 'id' => 'toc_ref', 'text' => wfMessage("references_toc")->text()];
+				if ( pq('#toc_ref')->length ) {
+					pq('#toc_ref')->attr('href', $refTarget);
 				}
-			}
-			if($refCount > 0) {
-				self::$references = ['url' => $refTarget, 'class' => 'toc_ref', 'text' => wfMessage("references_toc")->text()];
 			}
 		}
 	}
 
 	public static function addToc() {
 		self::processMethodNames();
-
-		//remove this later, but for now we need it
-		global $wgLanguageCode;
-		if ($wgLanguageCode != "en") {
-			self::setReferences();
-		}
 
 		$methodsShown = $primaryCount = min(self::MAX_METHODS, count(self::$methodNames));
 

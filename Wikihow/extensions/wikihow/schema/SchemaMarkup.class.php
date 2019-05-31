@@ -274,6 +274,8 @@ class SchemaMarkup {
 				$step = pq( $stepItem )->find( '.step' );
 				$i++;
 				$text = pq( $step)->text();
+				// use this to change nbsp to regular space
+				$text = preg_replace('~\x{00a0}~siu',' ',$text);
 				if ( !trim( $text ) ) {
 					continue;
 				}

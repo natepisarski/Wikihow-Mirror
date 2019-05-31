@@ -490,7 +490,6 @@ class PageHooks {
 
 		//every page edit that adds a quick summary
 		if ($page->mTitle->inNamespace(NS_MAIN) &&
-			class_exists('SummaryEditTool') &&
 			SummaryEditTool::authorizedUser($user) &&
 			$page->getComment() == wfMessage('summary_add_log')->text())
 		{

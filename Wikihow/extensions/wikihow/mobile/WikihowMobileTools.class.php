@@ -246,8 +246,7 @@ class WikihowMobileTools {
 				$showTOC = !$amp
 					&& !self::isInternetOrgRequest()
 					&& !AndroidHelper::isAndroidRequest()
-					&& !$wgContLang->isRTL()
-					&& class_exists('WikihowToc');
+					&& !$wgContLang->isRTL();
 
 				if ($h3Count > 0) {
 					//chance to reformat the alt method_toc before output
@@ -649,7 +648,7 @@ class WikihowMobileTools {
 
 		if ( $wgTitle->inNamespace(NS_MAIN) && PagePolicy::showCurrentTitle($context) ) {
 
-			if (class_exists('SocialProofStats') && $wgTitle->exists()) {
+			if ( $wgTitle->exists() ) {
 				$parenttree = CategoryHelper::getCurrentParentCategoryTree();
 				$fullCategoryTree = CategoryHelper::cleanCurrentParentCategoryTree($parenttree);
 

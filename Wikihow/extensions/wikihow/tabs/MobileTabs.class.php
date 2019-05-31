@@ -20,12 +20,12 @@ class MobileTabs {
 		$vars = [
 			'tabs' => [
 				[
-					'text' => strtoupper(wfMessage('article')->text()),
+					'text' => mb_strtoupper(wfMessage('article')->text()),
 					'anchor' => 'steps_1',
 					'selected' => true
 				],
 				[
-					'text' => strtoupper(wfMessage('video')->text()),
+					'text' => mb_strtoupper(wfMessage('video')->text()),
 					'anchor' => self::getSummarySectionAnchorName()
 				]
 			]

@@ -68,13 +68,13 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	margin-left: -.6em;
 }
 
-.green_box_person, .green_box_content {
+.green_box.expert_qa .green_box_person,
+.green_box.expert_qa .green_box_content {
 	display: table-cell;
 	vertical-align: top;
 }
 
 .green_box.expert_short .green_box_content {
-	display: block;
 	padding: 0 0 .5em 0;
 }
 
@@ -88,29 +88,44 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 
 .green_box_person {
 	position: relative;
-	vertical-align: top;
 	color: #6F8460;
+}
+
+.green_box.expert .green_box_person {
+	padding: 0 .3em .5em .3em;
+}
+
+.green_box.expert_qa .green_box_person {
+	vertical-align: top;
 	text-align: center;
 	width: 45px;
 	padding: .5em .3em;
 }
 
-.green_box.expert_short .green_box_person {
-	display: block;
-	text-align: left;
-	width: auto;
-	padding: 0;
-}
-
 .green_box_expert_info {
-	font-size: 12px;
-	color: #9B9B9B;
-	line-height: 1.4em;
+	font-size: .8em;
+	color: #434343;
+	line-height: 1.2em;
 	padding-top: 10px;
+	font-weight: bold;
 }
 .green_box_expert_info b {
 	font-size: 14px;
 	color: #434343;
+}
+.green_box_expert_info span {
+	text-transform: uppercase;
+	color: #4E6C34;
+	font-size: .9em;
+}
+.green_box.mobile .green_box_expert_info a {
+	font-size: .85em;
+}
+
+.green_box.expert_short .green_box_expert_info {
+	font-size: 12px;
+	color: #9B9B9B;
+	font-weight: normal;
 }
 
 .green_box_content {
@@ -127,34 +142,33 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 .green_box_person_circle {
 	width: 45px;
 	height: 45px;
+	float: left;
 	background-color: #ced9be;
 	color: #FFF;
 	font-size: 1.3em;
-	line-height: 42px;
-	border: 2px solid #6F8460;
+	line-height: 43px;
 	border-radius: 50%;
 	box-sizing: border-box;
 	overflow: hidden;
-	margin-top: 4px;
+	margin: 4px .5em 0 0;
+	text-align: center;
+}
+
+.green_box.expert_qa .green_box_person_circle {
+	border: 2px solid #6F8460;
+	float: none;
+	margin-right: 0;
 }
 
 .green_box_person_circle img {
 	width: 100%;
 }
 
-.green_box_person_circle.questioner {
+.green_box.expert_qa .green_box_person_circle.questioner {
 	background-color: #93b873;
 	border-color: #93b873;
 	text-align: center;
 	font-size: 1.6em;
-}
-
-.green_box.expert_short .green_box_person_circle {
-	border: none;
-	float: left;
-	margin-right: .5em;
-	line-height: 45px;
-	text-align: center;
 }
 
 .green_box_expert_dialog {
@@ -162,6 +176,7 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	position: absolute;
 	background: #FFF;
 	padding: .6em 1.5em 1.5em;
+	margin-bottom: 7px;
 	border: 3px solid #CCC;
 	border-radius: 4px;
 	width: 250px;
@@ -195,7 +210,9 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 
 .green_box.expert_short .green_box_expert_dialog {
 	left: -18px;
-	margin-bottom: 7px;
+}
+.green_box.expert_qa .green_box_expert_dialog {
+	margin-bottom: 0;
 }
 
 .green_box_expert_dialog_upper {
@@ -218,11 +235,6 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	line-height: 1.1em;
 }
 
-.green_box.green_tip {
-	background: url(tip_icon.png) .7em .7em / 30px #f0f6ec no-repeat;
-	padding-left: 3.1em;
-}
-
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
 only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 
@@ -230,7 +242,7 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 		font-size: .45em;
 	}
 
-	.green_box_person_circle.questioner {
+	.green_box.expert_qa .green_box_person_circle.questioner {
 		font-size: 1.3em;
 	}
 

@@ -68,6 +68,8 @@ class WikihowHomepage extends Article {
         for ( $i = 0; $i < pq( 'video' )->length - $targetCount; $i++ ) {
             $video = pq('video')->eq( $indices[$i] );
             $image = Misc::getMediaScrollLoadHtml( 'img', ['src' => $video->attr( 'data-poster' )] );
+			$video->next('script')->remove();
+			$video->next('noscript')->remove();
             $video->replaceWith( $image );
         }
         $totalHtml = $tempDoc->documentWrapper->markup();

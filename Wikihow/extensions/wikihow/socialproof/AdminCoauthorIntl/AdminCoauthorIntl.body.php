@@ -33,7 +33,7 @@ class AdminCoauthorIntl extends UnlistedSpecialPage
 			}
 			else {
 				ini_set('memory_limit', '1024M');
-				$stats = (new CoauthorSheetIntl)->doImport();
+				$stats = CoauthorSheetIntl::doImport();
 				Misc::jsonResponse( $this->getHtml($stats) );
 			}
 		}

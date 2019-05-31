@@ -103,24 +103,30 @@ class SocialStamp {
 		$isUserReview = false;
 		$isDefault = false;
 
+		$isIntl = Misc::isIntl();
+
 		$hoverText = "";
 
-		$refsUrl = "#sourcesandcitations";
-		if ( $isMobile ) {
-			$refsUrl = "#references_first";
-		} else if ( pq( '#references' )->length > 0 ) {
-			$refsUrl = "#references";
+		if(ArticleTagList::hasTag("expert_test", $articleId) && !RequestContext::getMain()->getUser()->isLoggedIn()) {
+			$vd = VerifyData::getVerifierInfoById($verifiers['expert']->verifierId);
+			$params['coauthor_image'] = $vd->imagePath;
 		}
 
-		# First part (slot1)
+		$refsUrl = "#sourcesandcitations";
+		$sourcesAnchor = '#' . Misc::getSectionName( wfMessage('sources')->text() );
+		$refsAnchor = '#' . Misc::getSectionName( wfMessage('references')->text() );
+
+		if ( $isMobile ) {
+			$refsUrl = "#references_first";
+		} else if ( pq( $refsAnchor )->length > 0 ) {
+			$refsUrl = $refsAnchor;
+		} else {
+			$refsUrl = $sourcesAnchor;
+		}
 
 		$params["coauthor"] = wfMessage('sp_expert_attribution')->text();
 		$params["connector"] = "<span class='ss_pipe'>|</span>";
 		$params['check'] = "ss_check";
-
-		if (!$isMobile) {
-			$params['oldToc'] = class_exists('WikihowToc') && WikihowToc::isNewArticle() ? "" : "old_toc";
-		}
 
 		$refsCount = Misc::getReferencesCount();
 		$minCitations = $isMobile ? SocialProofStats::DISPLAY_CITATIONS_LIMIT_MOBILE : SocialProofStats::DISPLAY_CITATIONS_LIMIT;
@@ -131,8 +137,10 @@ class SocialStamp {
 		$params['refsUrl'] = $refsUrl;
 		$params['linkUrl'] = $isMobile ? "social_proof_anchor" : "article_info_section";
 
-		$params['lastUpdatedMsg'] = wfMessage('ss_last_updated')->text();
-		$params['lastUpdatedDate'] = self::lastUpdatedDate();
+		if ( !$isIntl ) {
+			$params['lastUpdatedMsg'] = wfMessage('ss_last_updated')->text();
+			$params['lastUpdatedDate'] = self::lastUpdatedDate();
+		}
 
 		if ($isMobile) {
 			$articleWithTabs = class_exists('MobileTabs') && MobileTabs::isTabArticle( RequestContext::getMain()->getTitle() );
@@ -159,7 +167,6 @@ class SocialStamp {
 			$key = SocialProofStats::VERIFIER_TYPE_COMMUNITY;
 			$isCommunity = true;
 		}
-		// staff
 		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_STAFF, $verifiers)) {
 			$key = SocialProofStats::VERIFIER_TYPE_STAFF;
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
@@ -173,10 +180,12 @@ class SocialStamp {
 			unset($params["coauthor"]);
 			$params['slot1class'] = "author_icon";
 			$params["check"] = "ss_info";
-			$params['showBylineRefs'] = $hasEnoughRefsForByline;
+			$key = $isIntl && $isMobile ? 'showBylineRefsNextToAuthor' : 'showBylineRefs';
+			$params[$key] = $hasEnoughRefsForByline;
 			$isDefault = true;
 		}
 
+		# First part (left) (slot1)
 		if ($isExpert || $isCommunity) {
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "expert_icon";
@@ -193,8 +202,7 @@ class SocialStamp {
 				$params['slot1_desc'] = $desc;
 			}
 		}
-
-		# Second part (slot2), only if no expert
+		# Second part (right) (slot2), only if no expert
 		else {
 			// tech
 			if (array_key_exists(SocialProofStats::VERIFIER_TYPE_TECH, $verifiers)) {
@@ -248,34 +256,46 @@ class SocialStamp {
 			}
 		}
 
-		if (class_exists('WikihowToc') && empty($params['showBylineRefs'])) {
+		// Show references either in the byline or the TOC, but not both
+		if ( empty($params['showBylineRefs']) ) {
 			WikihowToc::setReferences();
+		} else {
+			pq('#toc_ref')->addClass('hidden');
 		}
 
 		# Hover text
 
+		$citations = '';
+		if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
+			if ($isExpert || $isCommunity || $isIntl) {
+				$msg = 'ss_expert_citations';
+			} elseif ($isStaff) {
+				$msg = 'ss_staff_citations';
+			} elseif ($isDefault) {
+				$msg = 'ss_default_citations';
+			}
+			$citations = wfMessage($msg, $refsCount, $refsUrl)->text();
+		}
+
 		if ($isExpert) {
 			$vData = $verifiers[$key];
 			$link = ArticleReviewers::getLinkByVerifierName($vData->name);
-
-			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_expert_citations', $refsCount, $refsUrl)->text();
+			if ($isIntl) {
+				$coauthorLink = Html::element('a', ['href' => $link, 'target' => '_blank'], $vData->name);
+				$msg = $vData->hoverBlurb ? 'ss_coauthored_by' : 'ss_expert_no_blurb';
+				$hoverText = wfMessage($msg, $coauthorLink )->text() . ' ' . $vData->hoverBlurb . $citations;
+			} else {
+				$coauthoredBy = lcfirst(wfMessage("sp_expert_attribution")->text());
+				if (SocialProofStats::isSpecialInline()) {
+					$coauthoredBy = lcfirst(wfMessage("ss_special_author")->text());
+				}
+				$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();
 			}
-			$coauthor = lcfirst(wfMessage("sp_expert_attribution")->text());
-			if (SocialProofStats::isSpecialInline()) {
-				$coauthor = lcfirst(wfMessage("ss_special_author")->text());
-			}
-			$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthor )->text();
-		} elseif ($isCommunity) {
-			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_expert_citations', $refsCount, $refsUrl)->text();
-			}
+		}
+		elseif ($isCommunity) {
 			$hoverText = wfMessage("ss_community", $verifiers[$key]->name, $verifiers[$key]->hoverBlurb, $citations)->text();
-		} elseif ($isStaff) {
-			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_staff_citations', $refsCount, $refsUrl)->text();
-			}
-
+		}
+		elseif ($isStaff) {
 			if ($isTested) {
 				$hoverText = wfMessage('ss_staff_tested', $citations, self::getHoverInfo($testKey))->text();
 			} elseif ($isUserReview) {
@@ -283,26 +303,31 @@ class SocialStamp {
 			} else {
 				$hoverText = wfMessage('ss_staff', $citations)->text();
 			}
-		} elseif ($isDefault) {
-			if ($refsCount >= SocialProofStats::MESSAGE_CITATIONS_LIMIT) {
-				$citations = wfMessage('ss_default_citations', $refsCount, $refsUrl)->text();
-			}
-			$numEditors = count(ArticleAuthors::getAuthors($articleId));
+		}
+		elseif ($isDefault) {
+			$numEditors = $isIntl
+				? ArticleAuthors::getENAuthorCount($articleId)
+				: count(ArticleAuthors::getAuthors($articleId));
 			if ($numEditors >= self::MIN_AUTHOR) {
 				$editorBlurb = wfMessage('ss_editors_big', $numEditors)->text();
 			} else {
 				$editorBlurb = wfMessage('ss_editors_small', $numEditors)->text();
 			}
-			$views = RequestContext::getMain()->getWikiPage()->getCount();
-			if ($isTested) {
-				$hoverText = wfMessage("ss_default_tested", $editorBlurb, $citations, self::getHoverInfo($testKey) )->text();
-			} elseif ($isUserReview) {
-				$hoverText = wfMessage("ss_default_readers", $editorBlurb, $citations, UserReview::getIconHoverText($articleId) )->text();
+
+			if ($isIntl) {
+				$hoverText = wfMessage('ss_default')->text() . ' ' . $editorBlurb . $citations;
 			} else {
-				if ($views > self::MIN_VIEWS) {
-					$viewText = wfMessage("ss_default_views", number_format($views))->text();
+				$views = RequestContext::getMain()->getWikiPage()->getCount();
+				if ($isTested) {
+					$hoverText = wfMessage("ss_default_tested", $editorBlurb, $citations, self::getHoverInfo($testKey) )->text();
+				} elseif ($isUserReview) {
+					$hoverText = wfMessage("ss_default_readers", $editorBlurb, $citations, UserReview::getIconHoverText($articleId) )->text();
+				} else {
+					if ($views > self::MIN_VIEWS) {
+						$viewText = wfMessage("ss_default_views", number_format($views))->text();
+					}
+					$hoverText = wfMessage('ss_default', $editorBlurb, $citations, $viewText)->text();
 				}
-				$hoverText = wfMessage('ss_default', $editorBlurb, $citations, $viewText)->text();
 			}
 		}
 
@@ -330,7 +355,7 @@ class SocialStamp {
 			'amp' => $amp
 		];
 
-		if (!$isExpert && !$isAlternateDomain) {
+		if (!Misc::isIntl() && !$isExpert && !$isAlternateDomain) {
 			$vars['learn_more_link'] = SocialProofStats::LEARN_MORE_LINK;
 			$vars['learn_more'] = wfMessage('sp_learn_more')->text();
 		}

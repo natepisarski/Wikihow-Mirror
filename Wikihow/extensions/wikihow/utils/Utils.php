@@ -1,7 +1,6 @@
 <?php
 
 $wgAutoloadClasses['FileAttachmentResponse'] = __DIR__ . '/FileAttachmentResponse.php';
-$wgAutoloadClasses['DataUtil'] = __DIR__ . '/DataUtil.php';
 $wgAutoloadClasses['UrlUtil'] = __DIR__ . '/UrlUtil.php';
 $wgAutoloadClasses['WilsonConfidenceInterval'] = __DIR__ . '/WilsonConfidenceInterval.php';
 $wgAutoloadClasses['BadWordFilter'] = __DIR__ . '/BadWordFilter.php';

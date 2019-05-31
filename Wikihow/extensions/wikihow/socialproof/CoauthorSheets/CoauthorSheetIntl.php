@@ -2,27 +2,24 @@
 
 class CoauthorSheetIntl extends CoauthorSheet
 {
-	private $enBlurbs;
-	private $enCoauthors;
-	private $enArticles;
-
-	public function doImport() {
+	public static function doImport() {
 		global $wgActiveLanguages;
 
-		$this->enBlurbs = VerifyData::getAllBlurbsFromDB();
-		$this->enCoauthors = VerifyData::getAllVerifierInfoFromDB();
-		$this->enArticles = VerifyData::getAllArticlesFromDB();
-		$apiToken = self::getApiAccessToken();
 		$stats = [ 'imported'=>[], 'errors'=>[], 'warnings'=>[] ];
+		$apiToken = self::getApiAccessToken();
+
+		$enBlurbs = VerifyData::getAllBlurbsFromDB('en');
+		$enCoauthors = VerifyData::getAllVerifierInfoFromDB('en');
+		$enArticles = VerifyData::getAllArticlesFromDB('en');
 
 		foreach ($wgActiveLanguages as $lang) {
-			list($translations, $errors, $warnings) = $this->fetchBlurbTranslationsFromSheet($lang, $apiToken);
+			list($translations, $errors, $warnings) = self::fetchBlurbTranslationsFromSheet($lang, $enBlurbs, $apiToken);
 			$stats['errors'] = array_merge( $stats['errors'], $errors );
 			$stats['warnings'] = array_merge( $stats['warnings'], $warnings );
 			if ( !$errors ) {
-				$intlBlurbs = $this->updateIntlBlurbs( $lang, $translations );
-				$intlCoauthors = $this->updateIntlCoauthors( $lang, $intlBlurbs );
-				$intlArticles = $this->updateIntlArticles( $lang, $intlBlurbs );
+				$intlBlurbs = self::updateIntlBlurbs( $lang, $enBlurbs, $translations );
+				self::updateIntlCoauthors( $lang, $enCoauthors, $intlBlurbs );
+				self::updateIntlArticles( $lang, $enArticles, $intlBlurbs );
 
 				$worksheetName = strtoupper($lang);
 				$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), $worksheetName);
@@ -36,13 +33,23 @@ class CoauthorSheetIntl extends CoauthorSheet
 	public static function getSheetId(): string {
 		global $wgIsDevServer;
 		if ($wgIsDevServer) {
-			return '1sFcNapOXQemTD0tbYbi3RYY1vSFy0TaolHcJYXhKXTY';
+			return '1IN15FiCdCgZ5U9_lXcEFwSdA5_AoTeoTZdAJCthj0FQ';
 		} else {
 			return '1wXloPN4fEahP4LEFeG_JMyyZALbK03URnP_uW3un2eg';
 		}
 	}
 
-	private function fetchBlurbTranslationsFromSheet(string $lang, string $apiToken): array
+	public static function recalculateIntlArticles() {
+		global $wgActiveLanguages;
+
+		$enArticles = VerifyData::getAllArticlesFromDB('en');
+		foreach ($wgActiveLanguages as $lang) {
+			$intlBlurbs = VerifyData::getAllBlurbsFromDB($lang);
+			$intlArticles = self::updateIntlArticles($lang, $enArticles, $intlBlurbs);
+		}
+	}
+
+	private static function fetchBlurbTranslationsFromSheet(string $lang, array $enBlurbs, string $apiToken): array
 	{
 		$translations = [];
 		$errors = [];
@@ -61,7 +68,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 			list($coauthorId, $blurbNum) = self::parseBlurbId($blurbId, 0, $errors, $rowInfo);
 
-			if ( $blurbNum && !isset($this->enBlurbs[$blurbId]) ) {
+			if ( $blurbNum && !isset($enBlurbs[$blurbId]) ) {
 				$errors[] = "$rowInfo Blurb ID not found: $blurbId";
 			}
 
@@ -99,10 +106,10 @@ class CoauthorSheetIntl extends CoauthorSheet
 		return [ $translations, $errors, $warnings ];
 	}
 
-	private function updateIntlBlurbs(string $lang, array $translations): array
+	private static function updateIntlBlurbs(string $lang, array $enBlurbs, array $translations): array
 	{
 		$blurbs = [];
-		foreach ($this->enBlurbs as $blurbId => $enBlurb)
+		foreach ($enBlurbs as $blurbId => $enBlurb)
 		{
 			$translation = $translations[$blurbId] ?? null;
 			if ( $translation ) {
@@ -118,18 +125,17 @@ class CoauthorSheetIntl extends CoauthorSheet
 		return $blurbs;
 	}
 
-	private function updateIntlCoauthors(string $lang, array $intlBlurbs): array
+	private static function updateIntlCoauthors(string $lang, array $enCoauthors, array $intlBlurbs): array
 	{
 		$coauthors = [];
-		foreach ($this->enCoauthors as $coauthorId => $enCoauthor) {
+		foreach ($enCoauthors as $coauthorId => $enCoauthor) {
 			$blurbId = "v{$coauthorId}_b01"; // default blurb
 			$intlBlurb = $intlBlurbs[$blurbId] ?? null;
-			if ( $intlBlurb ) {
-				$vd = clone $enCoauthor; // VerifyData
-				$vd->blurb = $intlBlurb->byline;
-				$vd->hoverBlurb = $intlBlurb->blurb;
-				$coauthors[$coauthorId] = $vd;
-			}
+
+			$vd = clone $enCoauthor; // VerifyData
+			$vd->blurb = $intlBlurb->byline ?? null;
+			$vd->hoverBlurb = $intlBlurb->blurb ?? null;
+			$coauthors[$coauthorId] = $vd;
 		}
 
 		VerifyData::replaceCoauthors($lang, $coauthors);
@@ -137,7 +143,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 		return $coauthors;
 	}
 
-	private function updateIntlArticles(string $lang, array $intlBlurbs): array
+	private static function updateIntlArticles(string $lang, array $enArticles, array $intlBlurbs): array
 	{
 		$articles = [];
 
@@ -156,9 +162,10 @@ class CoauthorSheetIntl extends CoauthorSheet
 		$where = [
 			'titus_en.ti_language_code' => 'en',
 			'titus_intl.ti_language_code' => $lang,
-			'titus_en.ti_page_id' => array_keys($this->enArticles),
+			'titus_en.ti_page_id' => array_keys($enArticles),
 			'titus_en.ti_page_id = titus_intl.ti_tl_en_id',
 			'titus_en.ti_expert_verified_date_original IS NOT NULL',
+			'titus_en.ti_expert_verified_source' => ['academic', 'community', 'expert', 'video'],
 		];
 
 		$rows = $dbr->select($tables, $fields, $where);
@@ -173,19 +180,17 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 			$enAid = (int) $row->en_page_id;
 			$intlAid = (int) $row->intl_page_id;
-			$enArticle = $this->enArticles[$enAid];
+			$enArticle = $enArticles[$enAid];
 			$blurbId = $enArticle->blurbId;
 			$intlBlurb = $intlBlurbs[$blurbId] ?? null;
 
-			if ($intlBlurb) {
-				$vd = clone $enArticle; // VerifyData
-				$vd->blurb = $intlBlurb->byline;
-				$vd->hoverBlurb = $intlBlurb->blurb;
-				$vd->aid = $intlAid;
-				$vd->revisionId = null;
+			$vd = clone $enArticle; // VerifyData
+			$vd->blurb = $intlBlurb->byline ?? null;
+			$vd->hoverBlurb = $intlBlurb->blurb ?? null;
+			$vd->aid = $intlAid;
+			$vd->revisionId = null;
 
-				$articles[$intlAid][] = $vd;
-			}
+			$articles[$intlAid][] = $vd;
 		}
 
 		VerifyData::replaceArticles($lang, $articles);

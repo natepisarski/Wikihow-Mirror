@@ -84,6 +84,7 @@ class GreenBox {
 			'expert_dialog_text' => $showBlurb ? self::expertDialogText($expert_data) : '',
 			'expert_name' => $expert_data->name,
 			'expert_title' => $expert_data->blurb,
+			'expert_link' => ArticleReviewers::getLinkByVerifierName($expert_data->name),
 			'questioner' => wfMessage('green_box_questioner')->text()
 		];
 
@@ -128,7 +129,7 @@ class GreenBox {
 	}
 
 	private static function expertDialogText(VerifyData $expert_data): string {
-		return $expert_data->name == wfMessage('qa_staff_editor')->text() ? '' : $expert_data->hoverBlurb;
+		return $expert_data->name == wfMessage('qa_staff_editor')->text() ? '' : (string) $expert_data->hoverBlurb;
 	}
 
 	private static function unauthorizedExpertGreenBoxEdits(WikiPage $wikiPage, Content $new_content, User $user): bool {
@@ -211,19 +212,16 @@ class GreenBox {
 					$amp_img = GoogleAmp::makeAmpImgElement(pq($gb_img)->attr('src'), 45, 45);
 
 					//no dialog hover; make image a link
-					$link = pq($green_box)->find('.green_box_expert_dialog a')->attr('href');
-					if ($link) {
-						//make relative because this can be a desktop link
-						$link = preg_replace('/https?:\/\/www.wikihow.com/i','',$link);
-						$amp_img = Html::rawElement('a', [ 'href' => $link, 'target' => '_blank' ], $amp_img);
-					}
+					// $link = pq($green_box)->find('.green_box_person')->attr('data-link');
+					// if ($link) {
+					// 	//make relative because this can be a desktop link
+					// 	$link = preg_replace('/https?:\/\/www.wikihow.com/i','',$link);
+					// 	$amp_img = Html::rawElement('a', [ 'href' => $link, 'target' => '_blank' ], $amp_img);
+					// }
 
 					pq($gb_img)->replaceWith($amp_img);
 				}
 			}
-
-			//add tips class for our tip icon test
-			if (self::showTipIcon($out)) pq('.green_box')->addClass('green_tip');
 		}
 
 		//add the green box edit links (for authorized users)
@@ -233,12 +231,8 @@ class GreenBox {
 		$title = $out->getTitle();
 		$article_page = !empty($title) ? $title->inNamespace(NS_MAIN) : false;
 
-		$show_green_box_cta = $out->getLanguage()->getCode() == 'en' &&
-													$action == 'view' &&
-													empty($diff_num) &&
-													$article_page &&
-													!Misc::isMobileMode() &&
-													GreenBoxEditTool::authorizedUser($out->getUser());
+		$show_green_box_cta = $action == 'view' && empty($diff_num) && $article_page
+			&& !Misc::isMobileMode() && GreenBoxEditTool::authorizedUser($out->getUser());
 
 		if ($show_green_box_cta) {
 			$out->addModules('ext.wikihow.green_box_cta');
@@ -265,13 +259,5 @@ class GreenBox {
 			$status->fatal('green_box_article_edit_expert');
 			return false;
 		}
-	}
-
-	private function showTipIcon(OutputPage $out): bool {
-		if (Misc::isMobileMode()) return false;
-
-		$title = $out->getTitle();
-		$aid = $title ? $title->getArticleId() : 0;
-		return $aid ? ArticleTagList::hasTag( 'green_box_tips_icon_articles', $aid ) : false;
 	}
 }

@@ -92,7 +92,11 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		$expertCategories = array('Notable Reviewers' => $expertCategories['Notable Reviewers']) + $expertCategories;
 
 		foreach ($expertCategories as $category => $catArray) {
-			uasort($expertCategories[$category], "ArticleReviewers::cmp");
+			if($category == "Notable Reviewers") {
+				uasort($expertCategories[$category], "ArticleReviewers::cmpNotable");
+			} else {
+				uasort($expertCategories[$category], "ArticleReviewers::cmp");
+			}
 		}
 
 		$tmpl = new EasyTemplate( __DIR__ );
@@ -124,6 +128,12 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		return ($a['count'] < $b['count']) ? 1 : -1;
 	}
 
+	static function cmpNotable($a, $b) {
+		if ($a['count'] == $b['count'] ) return 0;
+
+		return ($a['count'] < $b['count']) ? -1 : 1;
+	}
+
 	public static function makeCustomSideBar(&$customSideBar) {
 		$customSideBar = true;
 		return true;
@@ -135,11 +145,15 @@ class ArticleReviewers extends UnlistedSpecialPage {
 
 	public static function getLinkByVerifierName(string $verifierName): string {
 		//en: forces a wikihow.com url, so check to see if it's an altdomain
-		$ar_title_text = (Misc::isAltDomain() || RequestContext::getMain()->getLanguage()->getCode() == "en") ? 'ArticleReviewers' : 'en:ArticleReviewers';
+		$lang = RequestContext::getMain()->getLanguage()->getCode();
+		$ar_title_text = ( $lang == 'en' || Misc::isAltDomain() ) ? 'ArticleReviewers' : 'en:ArticleReviewers';
 		$article_reviewers = Title::newFromText($ar_title_text, NS_SPECIAL);
 		if (empty($article_reviewers)) return '';
 
 		$article_reviewers_url = $article_reviewers->getLocalUrl();
+		if ( Misc::isIntl() && Misc::isMobileMode() ) {
+			$article_reviewers_url = str_replace('/www.', '/m.', $article_reviewers_url);
+		}
 		$abbr_name = urlencode(self::getAnchorName($verifierName));
 		if ($abbr_name == '') return $article_reviewers_url;
 

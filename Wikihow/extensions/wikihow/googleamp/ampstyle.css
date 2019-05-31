@@ -831,12 +831,12 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 .green_box p:first-child {
 	margin: 0;
 }
-.green_box_person, .green_box_content {
+.green_box.expert_qa .green_box_person,
+.green_box.expert_qa .green_box_content {
 	display: table-cell;
 	vertical-align: top;
 }
 .green_box.expert_short .green_box_content {
-	display: block;
 	padding: 0 0 .5em 0;
 }
 .green_box.expert_short p {
@@ -845,30 +845,39 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 	font-size: 24px;
 	line-height: 32px;
 }
-.green_box_person a {
-	color: #FFF;
-}
 .green_box_person {
+	position: relative;
+	padding: .5em .3em;
 	color: #6F8460;
+}
+.green_box.expert .green_box_person {
+	padding-top: 0;
+}
+.green_box.expert_qa .green_box_person {
+	vertical-align: top;
 	text-align: center;
 	width: 45px;
-	padding: .5em .3em;
-}
-.green_box.expert_short .green_box_person {
-	display: block;
-	text-align: left;
-	width: auto;
-	padding: 0;
 }
 .green_box_expert_info {
-	font-size: 12px;
-	color: #9B9B9B;
-	line-height: 1.4em;
+	font-size: .8em;
+	color: #434343;
+	line-height: 1.2em;
 	padding-top: 10px;
+	font-weight: bold;
 }
 .green_box_expert_info b {
 	font-size: 14px;
 	color: #434343;
+}
+.green_box_expert_info span {
+	text-transform: uppercase;
+	color: #4E6C34;
+	font-size: .85em;
+}
+.green_box.expert_short .green_box_expert_info {
+	font-size: 12px;
+	color: #9B9B9B;
+	font-weight: normal;
 }
 .green_box_content {
 	padding: .5em .3em .5em .5em;
@@ -882,34 +891,30 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 .green_box_person_circle {
 	width: 45px;
 	height: 45px;
+	float: left;
 	background-color: #ced9be;
 	color: #FFF;
 	font-size: 1.3em;
-	line-height: 42px;
-	border: 2px solid #6F8460;
+	line-height: 43px;
 	border-radius: 50%;
 	box-sizing: border-box;
 	overflow: hidden;
-	margin-top: 4px;
+	margin: 4px .5em 0 0;
+	text-align: center;
+}
+.green_box.expert_qa .green_box_person_circle {
+	border: 2px solid #6F8460;
+	float: none;
+	margin-right: 0;
 }
 .green_box_person_circle img {
 	width: 100%;
 }
-.green_box_spacing_row {
-	height: .5em;
-}
-.green_box_person_circle.questioner {
+.green_box.expert_qa .green_box_person_circle.questioner {
 	background-color: #93b873;
 	border-color: #93b873;
 	text-align: center;
 	font-size: 1.6em;
-}
-.green_box.expert_short .green_box_person_circle {
-	border: none;
-	float: left;
-	margin-right: .5em;
-	line-height: 45px;
-	text-align: center;
 }
 p.green_box_bullet {
 	padding-left: 1.6em;

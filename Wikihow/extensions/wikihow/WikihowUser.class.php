@@ -121,6 +121,32 @@ class WikihowUser extends User {
 		return $bots;
 	}
 
+	/**
+	 * To be used from INTL to get the user IDs of all English bots
+	 */
+	public static function getENBotIDs(): array {
+		global $wgMemc, $wgLanguageCode;
+
+		if ( $wgLanguageCode == 'en' ) {
+			throw new Exception("This method should only be called from INTL");
+		}
+
+		$key = wfMemcKey('en_botids');
+		$bots = $wgMemc->get($key);
+		if ( !is_array($bots) ) {
+			$dbr = wfGetDB(DB_REPLICA);
+			$table = Misc::getLangDB('en') . '.user_groups';
+			$res = $dbr->select( $table, 'ug_user', ['ug_group'=>'bot'], __METHOD__ );
+
+			$bots = [];
+			foreach ($res as $row) {
+				$bots[] = $row->ug_user;
+			}
+			$wgMemc->set($key, $bots);
+		}
+		return $bots;
+	}
+
 	static function getUserIDsByUserGroup($user_group) {
 		global $wgMemc;
 

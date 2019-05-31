@@ -994,6 +994,7 @@ body.action-view #fa_container p {
 	width: 100%;
 	position: relative;
 	border-bottom: 1px solid #79A355;
+	clear: both;
 }
 
 #mobile_tab_container a, #mobile_tab_container a:visited {
@@ -1262,6 +1263,50 @@ a.related-title,a.related-title:active, a.related-title:visited {
 .ss_pipe {
 	color: #e9e7e3;
 	padding: 0 2px;
+}
+
+.expert_wrapper {
+	display: table-cell;
+	padding-left: 5px;
+	vertical-align: middle;
+}
+
+.expert_coauthor_image {
+	position: relative;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.expert_coauthor_image img {
+	width:50px;
+	height: 50px;
+	display: block;
+	border-radius: 25px;
+	margin-right: 5px;
+}
+
+#expert_coauthor.has_image {
+	padding-top: 10px;
+	margin-bottom: 10px;
+}
+
+#expert_coauthor.no_tabs.has_image {
+	margin-bottom: 0;
+}
+
+#expert_coauthor .expert_check {
+	background: url(/skins/owl/images/badge@2x.png) right center / 15px no-repeat;
+	background-image: url(/skins/owl/images/badge@3x.svg);
+	width: 15px;
+	height: 15px;
+	position: absolute;
+	right: 2px;
+	bottom: 2px;
+}
+
+#expert_coauthor.has_image .expert_icon {
+	background-image: none;
+	background:none;
 }
 /* Tablet Support */
 

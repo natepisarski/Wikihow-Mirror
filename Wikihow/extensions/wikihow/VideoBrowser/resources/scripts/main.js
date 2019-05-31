@@ -31,23 +31,24 @@ function onInteract() {
 
 // Start
 $( function () {
-	$( '#bubble_search' ).on( 'submit', function ( event ) {
-		if ( event.isDefaultPrevented() ) {
-			return;
-		}
-		event.preventDefault();
-		WH.maEvent( 'videoBrowser_search_submit', {
-			origin: location.hostname,
-			referrer: location.pathname,
-			userIsMobile: !mw.mobileFrontend,
-			userHasAutoPlayNextUpEnabled: WH.VideoBrowser.preferences.autoPlayNextUp,
-			userHasInteracted: WH.VideoBrowser.hasUserInteracted,
-			userHasMuted: WH.VideoBrowser.hasUserMuted,
-			userSessionStreak: WH.VideoBrowser.sessionStreak
-		}, function () {
-			$( event.target ).unbind( 'submit' ).trigger( 'submit' );
-		} );
-	} );
+	// Trevor - 5/30/19 - Disabling tracking for now since Machinfy is being slow
+	// $( '#bubble_search' ).on( 'submit', function ( event ) {
+	// 	if ( event.isDefaultPrevented() ) {
+	// 		return;
+	// 	}
+	// 	event.preventDefault();
+	// 	WH.maEvent( 'videoBrowser_search_submit', {
+	// 		origin: location.hostname,
+	// 		referrer: location.pathname,
+	// 		userIsMobile: !mw.mobileFrontend,
+	// 		userHasAutoPlayNextUpEnabled: WH.VideoBrowser.preferences.autoPlayNextUp,
+	// 		userHasInteracted: WH.VideoBrowser.hasUserInteracted,
+	// 		userHasMuted: WH.VideoBrowser.hasUserMuted,
+	// 		userSessionStreak: WH.VideoBrowser.sessionStreak
+	// 	}, function () {
+	// 		$( event.target ).unbind( 'submit' ).trigger( 'submit' );
+	// 	} );
+	// } );
 
 	try {
 		if (

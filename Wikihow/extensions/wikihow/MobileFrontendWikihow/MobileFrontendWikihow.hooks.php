@@ -219,7 +219,7 @@ class MobileFrontendWikiHowHooks {
 			$out->addScript($minNoscript);
 		}
 
-		if ( $wgTitle->inNamespace(NS_MAIN) && class_exists( 'SocialProofStats' ) ) {
+		if ( $wgTitle->inNamespace(NS_MAIN) ) {
 			$out->addModules('mobile.wikihow.socialproof');
 		}
 

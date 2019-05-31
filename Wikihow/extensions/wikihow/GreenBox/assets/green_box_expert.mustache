@@ -1,5 +1,5 @@
 <div class="green_box expert">
-	<div class="green_box_person expert">
+	<div class="green_box_person expert" data-link="{{expert_link}}">
 
 		{{#expert_dialog_text}}
 			<div class="green_box_expert_dialog">
@@ -15,7 +15,10 @@
 		{{/expert_dialog_text}}
 
 		<div class="green_box_person_circle">{{{expert_display}}}</div>
-		<div class="green_box_expert_label">{{expert_label}}</div>
+		<div class="green_box_expert_info">
+			<span>{{expert_name}}</span><br />
+			{{{expert_title}}}
+		</div>
 
 	</div>
 

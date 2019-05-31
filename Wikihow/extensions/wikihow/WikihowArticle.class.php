@@ -64,7 +64,7 @@ class WikihowArticleHTML {
 			&& $title->getText() == wfMessage('mainpage')->inContentLanguage()->text()
 			&& $req->getVal('action', 'view') == 'view';
 
-		$isNewTocArticle = class_exists('WikihowToc') && WikihowToc::isNewArticle();
+		$isNewTocArticle = WikihowToc::isNewArticle();
 		$action = $req ? $req->getVal('action') : '';
 
 		// Remove __TOC__ resulting html from all pages other than User pages
@@ -544,7 +544,7 @@ class WikihowArticleHTML {
 		}
 
 		$summary_at_top = true;
-		if (class_exists('SummarySection') && pq('#summary_position')->length) {
+		if ( pq('#summary_position')->length ) {
 			$summary_at_top = pq('#summary_position')->hasClass(SummarySection::SUMMARY_POSITION_TOP_CLASS);
 		}
 
@@ -602,7 +602,7 @@ class WikihowArticleHTML {
 							pq('.firstHeading')->after("<p id='method_toc' class='sp_method_toc'>{$specialAnchorList}</p>");
 						}
 
-						class_exists('SummarySection') && SummarySection::addDesktopTOCItems();
+						SummarySection::addDesktopTOCItems();
 					}
 				}
 			}
@@ -621,15 +621,7 @@ class WikihowArticleHTML {
 		}
 
 		// if there is a summary video but no text
-		if ( class_exists( 'SummarySection' ) ) {
-			SummarySection::addIntlDesktopVideoTOCItem();
-		}
-
-		// On INTL, move #expert_coauthor between .firstHeading and #method_toc
-		// NOTE: Similar to SocialProofStats::onProcessArticleHTMLAfter() on EN
-		if (Misc::isIntl() && pq('#expert_coauthor')->length && pq('#method_toc')->length) {
-			pq('#expert_coauthor')->after(pq('#method_toc'));
-		}
+		SummarySection::addIntlDesktopVideoTOCItem();
 
 		// add the controls
 		$summaryHtml = WHVid::getVideoControlsSummaryHtml( $headingText );
@@ -955,9 +947,9 @@ class WikihowArticleHTML {
 			$pattern = "@([$punct])($|\s|\W|\D])@im";
 		}
 
-
 		$htmlparts = preg_split('@(<[^>]*>)@im', $htmlText,
 			0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
 		$incaption = false;
 		$apply_b = false;
 		$closed_b = false;
@@ -967,13 +959,13 @@ class WikihowArticleHTML {
 			# add any other "line-break" tags here.
 			$is_break_tag = strpos($x, '<ul>') === 0 || strpos($x, '<ol>') === 0;
 
-			# if it's a tag, just append it and keep going (but only if we have already begun bolding)
-			if (!$is_break_tag && strpos($x, '<') === 0 && $apply_b) {
+			# check if it is "in" a tag. If yes, just append it and continue until it is "out" of the tag
+			if (!$is_break_tag && strpos($x, '<') === 0) {
 				# add the tag
 				$p .= $x;
-				if ($x == '<span class="caption">') {
+				if ($x == '<span class="caption">' || $x == '<span style="white-space: nowrap;">' || strpos($x, '<math') === 0) {
 					$incaption = true;
-				} elseif ($x == "</span>" && $incaption) {
+				} elseif (($x == "</span>" || $x == "</math>") && $incaption) {
 					$incaption = false;
 				}
 				continue;
@@ -1010,7 +1002,6 @@ class WikihowArticleHTML {
 
 		# get anything left over
 		$p .= implode('', $htmlparts);
-
 		return "<div class='step'>". $p . "</div>";
 	}
 
@@ -1319,7 +1310,7 @@ class WikihowArticleHTML {
 									if (preg_match("@(<[^>]*>)@im", $x)) {
 										//tag
 										$p .= $x;
-										if ($x == "<span class='caption'>") {
+										if(preg_match("@<span*@",$x)){
 											$incaption = true;
 										} elseif ($x == "</span>" && $incaption) {
 											$incaption = false;

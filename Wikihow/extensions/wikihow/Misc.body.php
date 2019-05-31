@@ -1037,4 +1037,15 @@ class Misc {
 		return $count;
 	}
 
+	public static function getReferencesID(): string {
+		$id = '#' . self::getSectionName( wfMessage('sources')->text() );
+		if ( phpQuery::$defaultDocumentID ) {
+			$references = '#' . self::getSectionName( wfMessage('references')->text() );
+			if ( pq( $references )->length > 0 ) {
+				$id = $references;
+			}
+		}
+		return $id;
+	}
+
 }

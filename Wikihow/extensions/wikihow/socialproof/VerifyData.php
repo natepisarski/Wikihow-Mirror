@@ -8,11 +8,9 @@
  */
 
 class VerifyData {
-	const VERIFIED_ARTICLES_KEY = 'verified_articles';
 	const VERIFIER_TABLE = 'verifier_info';
 	const ARTICLE_TABLE = 'article_verifier';
 	const BLURB_TABLE = 'coauthor_blurbs';
-	const VERIFIER_INFO_CACHE_KEY = 'verifier_info_5';
 
 	// Both
 	public $blurb; 		// byline
@@ -90,7 +88,11 @@ class VerifyData {
 		return $vd;
 	}
 
-	public static function getAllArticlesFromDB($lang='en') {
+	public static function getAllArticlesFromDB($lang='') {
+		global $wgLanguageCode;
+
+		if ( !$lang ) { $lang = $wgLanguageCode; }
+
 		$results = [];
 
 		$dbr = wfGetDB(DB_REPLICA);
@@ -111,7 +113,7 @@ class VerifyData {
 	 * @return array|null the array of verify data for the page. there may be multiple
 	 */
 	public static function getByPageId( $pageId ) {
-		global $wgMemc;
+		global $wgMemc, $wgLanguageCode;
 		if ( !$pageId ) {
 			return null;
 		}
@@ -120,7 +122,7 @@ class VerifyData {
 			return null;
 		}
 
-		$cacheKey = wfMemcKey( 'article_verifier_data', $pageId );
+		$cacheKey = self::getCacheKeyForArticle( $wgLanguageCode, $pageId );
 		$verifiers = $wgMemc->get( $cacheKey );
 		if ( $verifiers === FALSE ) {
 			$verifiers = self::getByPageIdFromDB( $pageId );
@@ -192,15 +194,13 @@ class VerifyData {
 	public static function isVerified( $pageId ) {
 		global $wgMemc, $wgLanguageCode;
 
-
-		$cacheKey = wfMemcKey( 'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
-
+		$cacheKey = self::getCacheKeyForAllArticles( $wgLanguageCode );
 		$pageIds = $wgMemc->get( $cacheKey );
 
 		if ( $pageIds === FALSE ) {
 			MWDebug::log("loading article verifier list from db");
 			$pageIds = self::getPageIdsFromDB();
-			self::cachePageIds( $pageIds, $wgLanguageCode );
+			self::cachePageIds( $wgLanguageCode, $pageIds );
 		}
 		return isset( $pageIds[$pageId] );
 	}
@@ -277,9 +277,9 @@ class VerifyData {
 
 	// gets all the verifier_info from memcached with db as a backup
 	public static function getAllVerifierInfo() {
-		global $wgMemc;
+		global $wgMemc, $wgLanguageCode;
 
-		$cacheKey = wfMemcKey( self::VERIFIER_INFO_CACHE_KEY );
+		$cacheKey = self::getCacheKeyForAllCoauthors( $wgLanguageCode );
 		$vInfo = $wgMemc->get( $cacheKey );
 
 		// if found in cache just return it
@@ -295,7 +295,11 @@ class VerifyData {
 		return $vInfo;
 	}
 
-	public static function getAllVerifierInfoFromDB($lang='en') {
+	public static function getAllVerifierInfoFromDB($lang='') {
+		global $wgLanguageCode;
+
+		if ( !$lang ) { $lang = $wgLanguageCode; }
+
 		$results = [];
 
 		$dbr = wfGetDB(DB_REPLICA);
@@ -309,14 +313,17 @@ class VerifyData {
 		return $results;
 	}
 
-	private static function getBlurbCountByIdFromDB(int $id, string $lang = 'en' ): int {
+	private static function getBlurbCountByIdFromDB(int $id ): int {
 		$dbr = wfGetDB(DB_REPLICA);
-		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
-		return $dbr->selectField($blurbTable, 'count(*)', ['cab_coauthor_id' => $id]);
+		return $dbr->selectField(self::BLURB_TABLE, 'count(*)', ['cab_coauthor_id' => $id]);
 	}
 
 	# BLURBS
-	public static function getAllBlurbsFromDB($lang='en'): array {
+	public static function getAllBlurbsFromDB($lang=''): array {
+		global $wgLanguageCode;
+
+		if ( !$lang ) { $lang = $wgLanguageCode; }
+
 		$blurbs = [];
 		$dbr = wfGetDB(DB_REPLICA);
 		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
@@ -355,7 +362,7 @@ class VerifyData {
 	}
 
 	public static function replaceCoauthors(string $lang, array $coauthors) {
-		global $wgMemc, $wgCachePrefix;
+		global $wgMemc;
 
 		if ( !$coauthors ) {
 			return;
@@ -404,12 +411,12 @@ class VerifyData {
 
 		// Clear the coauthor cache
 
-		$cacheKey = wfForeignMemcKey( $dbName, $wgCachePrefix, self::VERIFIER_INFO_CACHE_KEY );
+		$cacheKey = self::getCacheKeyForAllCoauthors( $lang );
 		$wgMemc->delete( $cacheKey );
 	}
 
 	public static function replaceArticles(string $lang, array $articles) {
-		global $wgMemc, $wgCachePrefix;
+		global $wgMemc;
 
 		if (!$articles ) {
 			return;
@@ -435,7 +442,8 @@ class VerifyData {
 			$pageIds[$pageId] = true;
 
 			// set in memcached
-			$cacheKey = wfForeignMemcKey( $dbName, $wgCachePrefix, 'article_verifier_data', $pageId );
+			$cacheKey = self::getCacheKeyForArticle( $lang, $pageId );
+
 			$wgMemc->set( $cacheKey, $verifyData );
 		}
 
@@ -458,11 +466,11 @@ class VerifyData {
 
 		foreach ( $toDelete as $deleteId ) {
 			$res = $dbw->delete( $articleTable, [ "av_id"=> $deleteId ] );
-			$cacheKey = wfForeignMemcKey( $dbName, $wgCachePrefix, 'article_verifier_data', $deleteId );
+			$cacheKey = self::getCacheKeyForArticle( $lang, $deleteId );
 			$wgMemc->delete( $cacheKey );
 		}
 
-		self::cachePageIds( $pageIds, $lang );
+		self::cachePageIds( $lang, $pageIds );
 	}
 
 	# MISC
@@ -473,22 +481,41 @@ class VerifyData {
 		}
 
 		$path = parse_url($vd->image)['path'];
-		$title = Title::newFromText(substr($path, 7), NS_IMAGE);
-		if ( !$title || !$title->exists() ) {
-			return "";
+		$title = Title::newFromText('en:' . substr($path, 7), NS_IMAGE);
+		if ( !$title ) {
+			return '';
 		}
-
-		$file = wfFindFile($title, false);
+		$file = @wfFindFile($title, false);
+		if ( !$file ) {
+			return '';
+		}
 		$thumb = $file->getThumbnail(200, 200, true, true);
+		if ( !$thumb ) {
+			return '';
+		}
 		return $thumb->getUrl();
 	}
 
-	private static function cachePageIds( $pageIds, $lang ) {
-		global $wgMemc, $wgCachePrefix;
-		$cacheKey = wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix,
-			'article_verifier_data', self::VERIFIED_ARTICLES_KEY );
+	private static function cachePageIds( $lang, $pageIds ) {
+		global $wgMemc;
+		$cacheKey = self::getCacheKeyForAllArticles( $lang );
 		$expirationTime = 30 * 24 * 60 * 60; //30 days
 		$wgMemc->set( $cacheKey, $pageIds, $expirationTime );
+	}
+
+	private static function getCacheKeyForArticle( $lang, $aid ) {
+		global $wgCachePrefix;
+		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vd_articles', $aid );
+	}
+
+	private static function getCacheKeyForAllArticles( $lang ) {
+		global $wgCachePrefix;
+		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vd_articles', 'all' );
+	}
+
+	private static function getCacheKeyForAllCoauthors( $lang ) {
+		global $wgCachePrefix;
+		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vd_authors' );
 	}
 
 }

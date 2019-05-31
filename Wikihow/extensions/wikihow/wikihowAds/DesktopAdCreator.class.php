@@ -1544,7 +1544,7 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 			'quiz' => 'dfp'
 		);
 
-		if ( ( class_exists("WikihowToc") && WikihowToc::isNewArticle() ) ) {
+		if ( WikihowToc::isNewArticle() ) {
 			$this->mAdsenseSlots['method2'] = 3356467874;
 			$this->mAdServices['method2'] = 'adsense';
 		}
@@ -1601,7 +1601,9 @@ class MixedAdCreatorExtraRightRail extends MixedAdCreatorScrollTo {
 		if ( $wgTitle ) {
 			$pageId = $wgTitle->getArticleID();
 		}
-		$this->numMethods = pq( '.section.steps' )->length;
+		if ( $pageId ) {
+			$this->numMethods = pq( '.section.steps' )->length;
+		}
 
 		$this->mExtendedRightRail = true;
 		// right now this data will be added to each ad as data attributes
@@ -1666,7 +1668,7 @@ class MixedAdCreatorExtraRightRail extends MixedAdCreatorScrollTo {
 			$this->mAdServices[$rrName] = 'dfp';
 		}
 
-		if ( ( class_exists("WikihowToc") && WikihowToc::isNewArticle() ) ) {
+		if ( WikihowToc::isNewArticle() ) {
 			$this->mAdsenseSlots['method2'] = 3356467874;
 			$this->mAdServices['method2'] = 'adsense';
 		}

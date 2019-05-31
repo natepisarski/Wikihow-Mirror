@@ -60,7 +60,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				}
 				//XXCHANGED: BEBETH
 				echo $preBodyText;
-				$this->renderIntlExpertBox();
 				echo $internalBanner;
 				?>
 		</div>
@@ -97,14 +96,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 		$this->renderPreContent( $data );
 		$this->renderContent( $data );
-	}
-
-	protected function renderIntlExpertBox() {
-		if ( $this->isArticlePage && Misc::isIntl() ) {
-			$title = $this->getSkin()->getTitle();
-			$request = $this->getSkin()->getRequest();
-			echo WikihowSkinHelper::getIntlExpertBoxHtml($title, $request);
-		}
 	}
 
 	protected function renderMainMenu( $data ) {

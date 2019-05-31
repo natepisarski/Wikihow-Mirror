@@ -64,6 +64,56 @@ class ArticleAuthors {
 		return $authors;
 	}
 
+	/**
+	 * To be used from INTL to get the # of EN authors by the time of translation/retranslation
+	 */
+	public static function getENAuthorCount(int $intlAid): int {
+		global $wgMemc, $wgLanguageCode;
+
+		if ( $wgLanguageCode == 'en' ) {
+			throw new Exception("This method should only be called from INTL");
+		}
+
+		$cacheKey = wfMemcKey('en_coauthor_count', $intlAid);
+		$count = $wgMemc->get($cacheKey);
+		if ( $count !== false ) {
+			return (int) $count;
+		}
+
+		$dbr = wfGetDB(DB_REPLICA);
+		$enDB = Misc::getLangDB('en');
+		$table = "{$enDB}.titus_copy";
+		$fields = [
+			'en_id' => 'ti_tl_en_id',
+			'max_date' => 'GREATEST( COALESCE(ti_first_edit_timestamp, 0), COALESCE(ti_last_retranslation, 0) )',
+		];
+		$where = [
+			'ti_language_code' => $wgLanguageCode,
+			'ti_page_id' => $intlAid,
+		];
+		$info = $dbr->selectRow($table, $fields, $where);
+		if (!$info || !$info->max_date) { // extremely rare (e.g. new articles without Titus data)
+			return 0;
+		}
+
+		$table = "{$enDB}.revision";
+		$field = 'COUNT(DISTINCT rev_user)';
+		$badIds = WikihowUser::getENBotIDs();
+		$badIds[] = 0; // anons
+		$where = [
+			'rev_page' => $info->en_id,
+			'rev_timestamp < ' . $dbr->addQuotes($info->max_date),
+			'rev_user NOT IN (' . $dbr->makeList($badIds) . ')'
+		];
+		$count = $dbr->selectField($table, $field, $where);
+
+		if ($count !== false) {
+			$wgMemc->set($cacheKey, $count);
+		}
+
+		return (int) $count;
+	}
+
 	static function getAuthorHeaderSidebar() {
 		global $wgTitle, $wgRequest, $wgUser;
 		if (!$wgTitle
@@ -86,16 +136,6 @@ class ArticleAuthors {
 		}
 
 		return $message;
-	}
-
-	public static function getAuthorCount() {
-		ArticleAuthors::loadAuthorsCache();
-		$users =  self::$authorsCache;
-		if (!empty($users)) {
-			return count($users);
-		} else {
-			return 0;
-		}
 	}
 
 	static function loadAuthorsCache() {

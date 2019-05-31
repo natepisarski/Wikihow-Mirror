@@ -45,8 +45,7 @@ class SummarySection {
 			if ($rev) {
 				$wikitext = ContentHandler::getContentText( $rev->getContent() );
 
-				$param = "((?:.|\n)*)";
-				$regex = '{{'.self::QUICKSUMMARY_TEMPLATE_PREFIX.$param.'\|'.$param.'\|'.$param.'}}$';
+				$regex = '{{' . self::QUICKSUMMARY_TEMPLATE_PREFIX . '([^|]*)\|([^|]*)\|([^}]*)}}$';
 				preg_match('/'.$regex.'/imU', $wikitext, $m);
 
 				$summary_content = isset($m[3]) ? trim($m[3]) : '';
@@ -157,7 +156,11 @@ class SummarySection {
 	public static function addDesktopTOCItems() {
 		$tocText = wfMessage('summary_toc')->text();
 		if ( Misc::isIntl() ) {
-			pq("<a id='summary_toc' href='#'>$tocText</a>")->appendTo("#method_toc");
+			if ( pq('#toc_ref')->length > 0 ) {
+				pq("<a id='summary_toc' href='#'>$tocText</a>")->insertBefore("#toc_ref");
+			} else {
+				pq("<a id='summary_toc' href='#'>$tocText</a>")->appendTo("#method_toc");
+			}
 		} else {
 			pq("<a id='summary_toc' href='#'>$tocText</a>")->insertAfter("#method_toc > span");
 		}
@@ -179,6 +182,11 @@ class SummarySection {
 		$linkText = wfMessage('summaryvideo_toc')->text();
 		$attr = ['href'=>'#quick_summary_section','id'=>'summaryvideo_toc'];
 		$videoSummaryLink = Html::element( 'a', $attr, $linkText );
-		pq("#method_toc")->append( $videoSummaryLink );
+
+		if ( pq('#toc_ref')->length > 0 ) {
+			pq('#toc_ref')->before( $videoSummaryLink );
+		} else {
+			pq("#method_toc")->append( $videoSummaryLink );
+		}
 	}
 }

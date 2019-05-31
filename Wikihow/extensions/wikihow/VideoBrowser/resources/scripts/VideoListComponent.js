@@ -61,12 +61,13 @@ WH.VideoBrowser.VideoListComponent = WH.Render.createComponent( {
 		this.setPage( this.state.page + 1 );
 
 		// Track more click
-		WH.maEvent( 'videoBrowser_index_more', {
-			origin: location.hostname,
-			categoryTitle: this.props.category.title,
-			categoryPage: this.state.page,
-			userIsMobile: this.isMobile
-		} );
+		// Trevor - 5/30/19 - Disabling tracking for now since Machinfy is being slow
+		// WH.maEvent( 'videoBrowser_index_more', {
+		// 	origin: location.hostname,
+		// 	categoryTitle: this.props.category.title,
+		// 	categoryPage: this.state.page,
+		// 	userIsMobile: this.isMobile
+		// } );
 
 		return false;
 	}

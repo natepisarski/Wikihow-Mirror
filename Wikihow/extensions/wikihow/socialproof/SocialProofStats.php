@@ -438,6 +438,7 @@ class SocialProofStats extends ContextSource {
 		$stats['category_links'] = WikihowHeaderBuilder::getCategoryLinks(false, $this, $this->categoryTree);
 		$stats['amp'] = GoogleAmp::isAmpMode( $this->getOutput() );
 		$stats['author_info'] = SocialStamp::getHoverTextForArticleInfo();
+		$stats['is_intl'] = SocialStamp::getHoverTextForArticleInfo();
 
 		return $this->getHtmlFromTemplate('social_section_mobile.mustache', $stats);
 	}

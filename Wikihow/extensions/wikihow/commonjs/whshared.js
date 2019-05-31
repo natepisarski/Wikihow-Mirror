@@ -311,6 +311,9 @@ WH.shared = (function () {
 
 	function addScrollLoadItem(id) {
 		var el = document.getElementById(id);
+		if (!el) {
+			return;
+		}
 		var item = null;
 		if (el.nodeName.toLowerCase() === 'img') {
 			item = new ScrollLoadImage(el);

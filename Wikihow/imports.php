@@ -10,7 +10,6 @@ require_once("$IP/extensions/wikihow/statsd/WikihowStatsd.php");
 
 # English-specific extensions
 if ($wgLanguageCode == 'en') {
-	require_once("$IP/extensions/wikihow/socialstamp/SocialStamp.php");
 	require_once("$IP/extensions/wikihow/dedup/DedupTool.php");
 	require_once("$IP/extensions/wikihow/wikigame/WikiGame.php");
 	require_once("$IP/extensions/wikihow/FeaturedContributor.php");
@@ -61,7 +60,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/guidededitor/GuidedEditor.php");
 	require_once("$IP/extensions/wikihow/AdminImageRemoval.php");
 	require_once("$IP/extensions/wikihow/ucipatrol/UCIPatrol.php");
-	require_once("$IP/extensions/wikihow/socialproof/SocialProof.php");
 	require_once("$IP/extensions/wikihow/spelltool/Spellchecker.php");
 	require_once("$IP/extensions/wikihow/category_guardian/CategoryGuardian.php");
 	require_once("$IP/extensions/wikihow/usercompletedimages/UserCompletedImages.php");
@@ -89,7 +87,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/SensitiveArticle/SensitiveArticle.php");
 	require_once("$IP/extensions/wikihow/techlayout/TechLayout.php");
 	require_once("$IP/extensions/wikihow/duptool/DuplicateTitles.php");
-	require_once("$IP/extensions/wikihow/tabs/Tabs.php");
 	require_once("$IP/extensions/wikihow/charity/Charity.php");
 	require_once("$IP/extensions/wikihow/TwitterReport/TwitterReport.php");
 	require_once("$IP/extensions/wikihow/FlaggedAnswers/FlaggedAnswers.php");
@@ -381,6 +378,9 @@ require_once("$IP/extensions/wikihow/talkpages/Talkpage.php");
 require_once("$IP/extensions/wikihow/ExternalRecommendedArticles/ExternalRecommendedArticles.php");
 require_once("$IP/extensions/wikihow/instantarticles/AdminInstantArticles.php");
 
+require_once("$IP/extensions/wikihow/socialstamp/SocialStamp.php");
+require_once("$IP/extensions/wikihow/socialproof/SocialProof.php");
+require_once("$IP/extensions/wikihow/tabs/Tabs.php");
 require_once("$IP/extensions/wikihow/socialproof/ArticleVerifyReview.php");
 require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheets.php");
 require_once("$IP/extensions/wikihow/socialproof/VerifyData.php");

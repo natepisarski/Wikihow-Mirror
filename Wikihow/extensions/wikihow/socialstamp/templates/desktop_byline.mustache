@@ -1,4 +1,9 @@
-<div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}} {{oldToc}}">
+<div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}}">
+
+	{{#coauthor_image}}
+		<div class="expert_coauthor_image"><img src="{{{coauthor_image}}}" /></div>
+		<div class="expert_wrapper">
+	{{/coauthor_image}}
 
 	{{coauthor}}
 
@@ -18,6 +23,9 @@
 	{{#lastUpdatedDate}}
 		<p>{{lastUpdatedMsg}} {{lastUpdatedDate}}</p>
 	{{/lastUpdatedDate}}
+	{{#coauthor_image}}
+		</div>
+	{{/coauthor_image}}
 
 </div>
 

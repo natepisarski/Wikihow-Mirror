@@ -511,9 +511,6 @@ class GoogleAmp {
 		$bottomOfPage = 9;
 
 		$hasIntroAd = true;
-		if ( $pageId == 647493 || $pageId == 1135550 ) {
-			$hasIntroAd = false;
-		}
 
 		if ( $hasIntroAd == true ) {
 			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
@@ -623,9 +620,6 @@ class GoogleAmp {
 				1 => ['adsense' => 100],
 			]
 		];
-		if ( $pageId == 11088075 ) {
-			$testSetup['en'] = [['gpt' => 100]];
-		}
 
 		$lang = 'en';
 		if ( $intl ) {
@@ -677,14 +671,8 @@ class GoogleAmp {
 		if ( $intlSite ) {
 			$slot = '/10095428/AMP_Test_2';
 		}
-		// for this page only show a single dfp ad at the top
-		if ( $pageId == 11088075 ) {
-			if ( $num == 1 ) {
-				$slot = '/10095428/AMP_Test_1';
-			} else {
-				return '';
-			}
-		} elseif ( $num == 1 ) {
+		// no DFP ads for the intro
+		if ( $num == 1 ) {
 			return '';
 		}
 		// tips
@@ -710,10 +698,8 @@ class GoogleAmp {
 			'layout' => 'responsive',
 			'type' => 'doubleclick',
 			'data-slot' => $slot,
+			'rtc-config' => '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}',
 		);
-		if ( $pageId == 11088075 || $pageId == 7128554 || $pageId == 647493 ) {
-			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
-		}
 
 		// this is a layout we never got working but
 		// it has some interesting media queries worth remembering

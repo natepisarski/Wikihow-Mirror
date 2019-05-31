@@ -240,14 +240,16 @@ class DesktopAds {
 		pq( '#ratearticle_sidebar' )->prependTo( pq( '#rightrail3 .whad' ) );
 		pq( '#rightrail2' )->after( pq( '#rightrail3' ) );
 
-		$relatedWikihowsLarger = $relatedWikihows->getSideDataLarger();
-		$attr = ['id' => 'side_related_articles_larger', 'class' => 'sidebox related_articles'];
-		$relatedWikihowsLarger = Html::rawElement( 'div', $attr, $relatedWikihowsLarger );
-		pq( $relatedWikihowsLarger )->prependTo( pq( '#rightrail4 .whad' ) );
+		if ( $relatedWikihows ) {
+			$relatedWikihowsLarger = $relatedWikihows->getSideDataLarger();
+			$attr = ['id' => 'side_related_articles_larger', 'class' => 'sidebox related_articles'];
+			$relatedWikihowsLarger = Html::rawElement( 'div', $attr, $relatedWikihowsLarger );
+			pq( $relatedWikihowsLarger )->prependTo( pq( '#rightrail4 .whad' ) );
+		}
 
 		// now add spacing on the right rail ads
 		pq( '.rr_container' )->addClass( 'nofixed' );
-		
+
 		// clear the heights
 		pq( '.rr_container' )->attr( 'style', '' );
 
@@ -376,7 +378,7 @@ class DesktopAds {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
 
-			if ( $pageId % 10 == 10 ) {
+			if ( $pageId % 10 == 0 ) {
 				$adCreator = new MixedAdCreatorExtraRightRail();
 				$adCreator->mAdServices['step'] = '';
 			}
@@ -385,7 +387,7 @@ class DesktopAds {
 				 $adCreator->mAdServices['intro'] = '';
 			}
 
-			if ( ( class_exists("WikihowToc") && ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) ) {
+			if ( ArticleTagList::hasTag( WikihowToc::CONFIG_LIST_NAME, $pageId ) ) {
 				$adCreator->addAdsenseChannel( 4805470868 );
 			} else {
 				$adCreator->addAdsenseChannel( 3492389196 );
