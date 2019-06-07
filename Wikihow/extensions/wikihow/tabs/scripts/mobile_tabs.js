@@ -10,6 +10,10 @@
 						articleId: mw.config.get('wgArticleId'),
 						tabName: $(this).text()
 					}, false);
+
+				if ($(this).text() && $(this).text().toLowerCase().trim() == "video") {
+					WH.shared.loadAllEmbed();
+				}
 			});
 		}
 

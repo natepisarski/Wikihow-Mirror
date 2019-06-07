@@ -378,11 +378,6 @@ class DesktopAds {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
 
-			if ( $pageId % 10 == 0 ) {
-				$adCreator = new MixedAdCreatorExtraRightRail();
-				$adCreator->mAdServices['step'] = '';
-			}
-
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
 			}

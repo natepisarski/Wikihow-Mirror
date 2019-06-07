@@ -551,7 +551,12 @@ class WikihowMobileTools {
 
 				$thumb_ss = $url;
 
-				pq($img)->attr("data-srclarge", $thumb_ss);
+				$startTime = strtotime('June 4, 2019');
+				$twoWeeks = 2 * 7 * 24 * 60 * 60;
+				$rolloutArticle = Misc::percentileRollout( $startTime, $twoWeeks );
+				if ( $rolloutArticle ) {
+					pq($img)->attr("data-srclarge", $thumb_ss);
+				}
 				// need to add microtime to handle the editor overlays so there aren't 2 images with the same id on the page
 				$thumb_id = md5(pq($img)->attr("src") . microtime());
 				pq($img)->attr("id", $thumb_id);
@@ -878,6 +883,8 @@ class WikihowMobileTools {
 				$link->append( $controls );
 			}
 		}
+
+		SchemaMarkup::calcHowToSchema( $out );
 
 		Hooks::run('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
 

@@ -301,9 +301,9 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 		$method3Ad = $this->mAds['method3']->mHtml;
 		if ( $method3Ad ) {
 			$count = pq( ".steps_list_2" )->length;
-			for ( $i = 0; $i < $count; $i++ ) {
-				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:first-child)" )->length() ) {
-					pq( ".steps_list_2:eq($i) > li:first-child" )->append( $method3Ad );
+			for ( $i = 1; $i < $count; $i++ ) {
+				if ( pq( ".steps_list_2:eq($i) > li" )->length > 2 && pq( ".steps_list_2:eq($i) > li:last-child)" )->length() ) {
+					pq( ".steps_list_2:eq($i) > li:last-child" )->append( $method3Ad );
 
 				}
 			}
@@ -1509,10 +1509,17 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		if ( $pageId == 223933 ) {
 			$this->mAdsenseChannels[] = 9756424883;
 		}
+
+		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $pageId) ) {
+			$this->mAdsenseChannels[] = 2001974826;
+		} else {
+			$this->mAdsenseChannels[] = 2385774741;
+		}
+
 		$this->mAdSetupData = array(
 			'rightrail2' => array(
 				'refreshable' => 1,
-				'first-refresh-time' => 35000,
+				'first-refresh-time' => 30000,
 				'refresh-time' => 28000,
 				'aps-timeout' => 800
 			),
@@ -1547,6 +1554,14 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		if ( WikihowToc::isNewArticle() ) {
 			$this->mAdsenseSlots['method2'] = 3356467874;
 			$this->mAdServices['method2'] = 'adsense';
+		}
+
+		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $pageId) ) {
+			unset( $this->mAdsenseSlots['intro'] );
+			unset( $this->mAdServices['intro'] );
+			$this->mAdsenseSlots['method3'] = 7750426266;
+			$this->mAdServices['method3'] = 'adsense';
+			$this->mAdSetupData['scrollto']['maxsteps'] = 0;
 		}
 	}
 

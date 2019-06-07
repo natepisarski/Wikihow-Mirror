@@ -1,22 +1,10 @@
 #sliderbox {
 	position: fixed;
-/*	width: 500px;
-	bottom: 0;*/
 	right: -500px;
 	z-index: 4;
 	*display: none; /* hide from IE6 & IE 7 */
 	margin-right: -10px;
-	/*_03*/
-	/*width: 250px;
-	bottom: -300px;*/
 }
-
-/*
-.sliderbox_06 {
-	width: 275px;
-	bottom: -300px;
-}
-*/
 
 /* IE6 HACK for position: fixed */
 /* blech */
@@ -45,93 +33,11 @@ a#slider_close_button {
 }
 a#slider_close_button:hover { text-decoration: none; }
 
-/*
-#slider_contents {
-	background: url(./book_question.png) #FFF no-repeat 20px 20px;
-	border: 2px solid #b5ab97;
-	border-top: none;
-	height: 250px;
-	padding: 20px 40px 20px 90px;
-	font-size: .9em;
-	-moz-box-shadow: -3px 3px 4px #BFBFBF;
-	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
-	box-shadow: -3px 3px 4px #BFBFBF;
-}
-
-.slider_strong {
-	font-weight: bold;
-	font-size: 1.6em;
-	padding: 2px 0;
-}
-
-#slider_no {
-	float: right;
-	line-height: 26px;
-	font-weight: bold;
-}
-
-#slider_choices {
-	margin-top: 14px;
-}
-*/
-
-/*Thank The Authors
-#slider_thanks {
-	border: 2px solid #b5ab97;
-	background: url(/skins/WikiHow/images/thank_you_pen_sm.png) #FFF no-repeat 390px top;
-	border: 4px solid #4A3C31;
-	border-left: 2px solid #b5ab97;
-	border-right: none;
-	border-bottom: none;
-	height: 70px;
-	padding: 8px;
-	font-size: .9em;
-	-moz-box-shadow: -3px 3px 4px #BFBFBF;
-	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
-	box-shadow: -3px 3px 4px #BFBFBF;
-	margin-bottom: 0;
-}
-
-#slider_thanks_02 {
-	border-top: 4px solid #645349;
-	background: url(/extensions/wikihow/slider/wikisquare.png) #FFF no-repeat left top;
-	height: 70px;
-	padding: 8px;
-	font-size: .9em;
-	-moz-box-shadow: -3px 3px 4px #BFBFBF;
-	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
-	box-shadow: -3px 3px 4px #BFBFBF;
-	margin-bottom: 0;
-}
-#slider_thanks_03 {
-	\/*background-color: #F3ECDE;*\/
-	background-color: #FFF;
-    \/*border: 4px solid #645349;*\/
-	border: 4px solid #E2DDD1;
-	border-right: none;
-	border-bottom: none;
-    border-radius: 150px 150px 0 150px;
-    \/*box-shadow: -3px 3px 4px #BFBFBF;*\/
-    font-size: 0.9em;
-    height: 160px;
-    margin-bottom: 0;
-    padding: 40px;
-	text-align: center;
-}*/
-#slider_thanks_outer_03 {
-	/*border: 5px solid #F3ECDE;*/
-	border: 5px solid #FFF;
-	border-radius: 150px 150px 0 150px;
-    box-shadow: -3px 3px 4px #BFBFBF;
-    margin-bottom: 0;
-}
-
-/*Become an Author*/
-.sliderbox_08, .sliderbox_10 {
+#sliderbox{
 	width: 250px;
 	bottom: -310px;
 }
-#slider_thanks_08, #slider_thanks_10 {
+#slider_thanks {
 	background-color: #FFF;
 	border: 5px solid #93b874;
 	border-right: none;
@@ -146,18 +52,75 @@ a#slider_close_button:hover { text-decoration: none; }
 .slider_become_main {
 	font-size: 1.4em;
 	margin-top: 18px;
+	text-align: left;
+	display: table-cell;
+	vertical-align: middle;
+	height: 155px;
+	width: 175px;
 }
-.slider_become_text {
+
+.slider_cta {
 	font-size: 1.3em;
 	font-weight: bold;
 }
-.sliderbox_10 .slider_become_text { font-size: 15.5px; }
-.sliderbox_08 .slider_button, .sliderbox_10 .slider_button { margin-top: 1em; }
-.sliderbox_08 .slider_button a, .sliderbox_10 .slider_button a { margin-right: 0; }
-.sliderbox_08 #slider_close_button, .sliderbox_10 #slider_close_button {
+
+.sliderbox_small .slider_cta {
+	font-size: 1.0em;
+}
+
+.sliderbox_category .slider_button {
+	color: #93b874;
+	border: 1px solid #93b874;
+	border-radius: 17px;
+	width: 128px;
+	display: block;
+	text-align: center;
+	line-height: 6px;
+	margin-top: 10px;
+}
+.slider_readmore {
+	color: #989898;
+	font-size: 11px;
+	line-height: 20px;
+}
+.slider_category {
+	color: #484B4A;
+	font-size: 22px;
+	font-weight: bold;
+	line-height: 24px;
+}
+
+#slider_close_button {
 	/* @embed */
 	background: url(/skins/owl/images/ico-x.png) no-repeat 0 0;
 	width: 14px;
 	height: 14px;
 	position: relative;
+}
+
+/*** VIDEO ***/
+.sliderbox_video .slider_cta {
+	font-size: 1.0em;
+	margin-top: 30px;
+}
+.sliderbox_video .slider_button {
+	background-image: url(/skins/owl/images/play_button@3x.svg);
+	background-repeat: no-repeat;
+	background-size: 16px;
+	background-position: center left;
+	border: none;
+	font-size: 13px;
+	color: #545454;
+	display: block;
+	padding: 5px 0 5px 19px;
+	font-weight: bold;
+}
+
+#sliderbox a:hover{
+	text-decoration: none;
+}
+
+.slider_title {
+	color: #79A355;
+	font-size: 20px;
 }

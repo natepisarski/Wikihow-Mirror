@@ -4,9 +4,12 @@
 	window.WH.GreenBox = {
 
 		init: function() {
-			var action = WH.isMobileDomain ? 'click' : 'mouseenter mouseleave';
+			if ($.browser.safari) this.addSafariTabHack();
 
-			$('.green_box_person.expert').on(action, function() {
+			var action = WH.isMobileDomain ? 'click' : 'mouseenter mouseleave';
+			var elements = '.green_box_person.expert .green_box_person_circle, .green_box_person.expert .green_box_expert_info';
+
+			$(elements).on(action, function() {
 				WH.GreenBox.toggleDialog(this);
 			});
 		},
@@ -14,7 +17,7 @@
 		toggleDialog: function(obj) {
 			if (WH.isMobileDomain) this.disallowClickClose();
 
-			var dialog = $(obj).find('.green_box_expert_dialog');
+			var dialog = $(obj).closest('.green_box_person.expert').find('.green_box_expert_dialog');
 			if (!$(dialog).length) return;
 
 			if ($(dialog).is(':visible')) {
@@ -36,6 +39,13 @@
 
 		disallowClickClose: function() {
 			$(window).off('click.green_box_click_close');
+		},
+
+		// Green box Expert Q&A "Expert Answer" tab breaks on
+		// iOS Safari because it renders the table-caption element really oddly
+		// and when the expert dialog appears, the tab loses it's positioning
+		addSafariTabHack: function() {
+			$('.green_box_tab_label').addClass('safari_tab_hack');
 		}
 	}
 

@@ -88,12 +88,6 @@ $wgResourceModules['ext.wikihow.rcwidget'] =
 		'scripts' => [ 'rcwidget/rcwidget.js' ]
 	];
 
-$wgResourceModules['ext.wikihow.slider'] =
-	$wgResourceModulesDesktopBoiler + [
-		'styles' => [ 'slider/slider.css' ],
-		'scripts' => [ 'slider/slider.js' ]
-	];
-
 $wgResourceModules['ext.wikihow.toptentips'] =
 	$wgResourceModulesDesktopBoiler + [
 		'styles' => [ 'tipsandwarnings/topten.css' ],

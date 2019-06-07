@@ -2,7 +2,6 @@
 
 class SchemaMarkup {
 	private static $mHowToSchema = '';
-	const HOWTO_SCHEMA_CACHE_KEY = "howto_schema";
 	const RECIPE_SCHEMA_CACHE_KEY = "recipe_schema";
 	const ARTICLE_IMAGE_WIDTH = 1200;
 
@@ -265,6 +264,7 @@ class SchemaMarkup {
 				continue;
 			}
 			$name = pq($section)->find('.mw-headline:first')->text();
+			$name = trim( preg_replace( '~\x{00a0}~siu',' ', $name ) );
 			if ( !$name ) {
 				$name = "Method " . $sectionNumber;
 			}
@@ -275,7 +275,7 @@ class SchemaMarkup {
 				$i++;
 				$text = pq( $step)->text();
 				// use this to change nbsp to regular space
-				$text = preg_replace('~\x{00a0}~siu',' ',$text);
+				$text = preg_replace( '~\x{00a0}~siu',' ',$text );
 				if ( !trim( $text ) ) {
 					continue;
 				}
@@ -417,7 +417,6 @@ class SchemaMarkup {
 	// run in the context of php query to get the how to schema information
 
 	public static function calcHowToSchema( $out ) {
-		global $wgMemc;
 		// does sanity checks on the title and wikipage and $out
 		if ( !self::okToShowSchema( $out ) ) {
 			return '';
@@ -455,11 +454,6 @@ class SchemaMarkup {
 
 			$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
 		}
-
-		// set in memcached
-		$cacheKey = wfMemcKey( self::HOWTO_SCHEMA_CACHE_KEY, $title->getArticleID() );
-		$expirationTime = 30 * 24 * 60 * 60;
-		$wgMemc->set( $cacheKey, $schema, $expirationTime );
 
 		// set in class static var
 		self::$mHowToSchema = $schema;
@@ -837,18 +831,11 @@ class SchemaMarkup {
 		return $schema;
 	}
 
-	// store in cache so that the mobile site can use the same
-	// data calculated from the desktop site and not have to reprocess all the time
-	private static function getHowToSchema( $pageId ) {
+	private static function getHowToSchema( $pageId, $isMobile = false ) {
 		global $wgMemc;
 		if ( self::$mHowToSchema ) {
 			return self::$mHowToSchema;
 		}
-
-		// try memcached
-		$cacheKey = wfMemcKey( self::HOWTO_SCHEMA_CACHE_KEY, $pageId );
-		$howToSchema = $wgMemc->get( $cacheKey );
-		return $howToSchema;
 	}
 
 	private static function getMainEntityOfPage( $title ) {

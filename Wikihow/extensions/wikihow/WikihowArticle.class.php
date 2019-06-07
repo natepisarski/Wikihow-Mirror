@@ -963,9 +963,9 @@ class WikihowArticleHTML {
 			if (!$is_break_tag && strpos($x, '<') === 0) {
 				# add the tag
 				$p .= $x;
-				if ($x == '<span class="caption">' || $x == '<span style="white-space: nowrap;">' || strpos($x, '<math') === 0) {
+				if ($x == '<span class="caption">' || $x == '<span style="white-space: nowrap;">' || strpos($x, '<math') === 0 || strpos($x, '<a') === 0 ) {
 					$incaption = true;
-				} elseif (($x == "</span>" || $x == "</math>") && $incaption) {
+				} elseif (($x == "</span>" || $x == "</math>" || $x == "</a>") && $incaption) {
 					$incaption = false;
 				}
 				continue;

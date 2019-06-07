@@ -17,4 +17,8 @@ $messages['en'] = array (
 	'slider-sub-text-become'	=> "Start your very own article today.",
 	'slider-text-become-link' => "/Special:ListRequestedTopics",
 	'slider-button-text' => "Write an Article",
+	"slider_cta_video" => "WATCH THE VIDEO",
+	"slider_url_text_video" => "Watch",
+	"slider_cta_category" => "READ ANOTHER ARTICLE IN",
+	"slider_url_text_category" => "Let's go!",
 );

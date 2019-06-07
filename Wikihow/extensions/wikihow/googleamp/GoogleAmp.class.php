@@ -537,8 +537,12 @@ class GoogleAmp {
 		}
 
 		// ad in last step of each method
-		$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $method, $pageId, $intlSite ) );
-		pq(".steps:not('.sample') .steps_list_2 > li:last-child")->append($adhtml);
+		$methodNumber = 1;
+		foreach ( pq(".steps:not('.sample') .steps_list_2 > li:last-child") as $lastStep ) {
+			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $method, $pageId, $intlSite, $methodNumber ) );
+			pq( $lastStep )->append( $adhtml );
+			$methodNumber++;
+		}
 
 		$relatedsname = RelatedWikihows::getSectionName();
 		if ( pq("#{$relatedsname}")->length ) {
@@ -644,7 +648,7 @@ class GoogleAmp {
 		return "";
 	}
 
-	public static function getAd( $num, $pageId, $intl ) {
+	public static function getAd( $num, $pageId, $intl, $methodNumber = 0 ) {
 		$adType = self::getAdType( $num, $pageId, $intl );
 
 		if ( $adType == "adsense" ) {
@@ -652,11 +656,11 @@ class GoogleAmp {
 		}
 
 		if ( $adType == 'gpt' ) {
-			return self::getGPTAd( $num, $intl );
+			return self::getGPTAd( $num, $intl, $methodNumber );
 		}
 	}
 
-	public static function getGPTAd( $num, $intl ) {
+	public static function getGPTAd( $num, $intl, $methodNumber = 0 ) {
 		global $wgLanguageCode, $wgTitle;
 		$pageId = 0;
 		if ( $wgTitle ) {
@@ -673,9 +677,32 @@ class GoogleAmp {
 		}
 		// no DFP ads for the intro
 		if ( $num == 1 ) {
+			// leaving this here in case we add DFP to intro
+			//$slot = '/10095428/june19_amp_intro';
 			return '';
 		}
-		// tips
+
+		// do not reuse ad units
+		if ( $pageId % 2 == 1 ) {
+			if ( $num == 2 ) {
+				$slot = '/10095428/june19_amp_step';
+			}
+			if ( $num == 3 ) {
+				$slot = '/10095428/june19_amp_step_2';
+			}
+			// method
+			if ( $num == 4 ) {
+				// figure out which method
+				$slot = '/10095428/june19_amp_method_1';
+				if ( $methodNumber > 0 ) {
+					$slot = '/10095428/june19_amp_method_'.$methodNumber;
+				}
+			}
+			if ( $num == 5 ) {
+				$slot = '/10095428/matt_test_RwH_1';
+			}
+		}
+
 		if ( $num == 7 ) {
 			$slot = '/10095428/AMP_DFP_Ad_for_Tips';
 		}
@@ -698,7 +725,6 @@ class GoogleAmp {
 			'layout' => 'responsive',
 			'type' => 'doubleclick',
 			'data-slot' => $slot,
-			'rtc-config' => '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}',
 		);
 
 		// this is a layout we never got working but

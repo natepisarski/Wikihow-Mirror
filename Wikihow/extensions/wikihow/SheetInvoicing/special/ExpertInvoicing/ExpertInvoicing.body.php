@@ -42,7 +42,7 @@ class ExpertInvoicing extends \UnlistedSpecialPage
 		else {
 			$out->disable();
 			$mailer = new Mailer(
-				'Connor <connor@wikihow.com>',
+				'Allyson <allyson@wikihow.com>',
 				'Expert Invoicing report',
 				[ 'subject' => $req->getText('email_subject') ]
 			);

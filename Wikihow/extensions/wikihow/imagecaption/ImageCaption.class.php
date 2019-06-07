@@ -28,84 +28,8 @@ class ImageCaption {
     }
 
 	public static function parserFunction( $parser, $position, $text, $text2 = '', $icon = null, $stripes = null, $side= null, $fade = null, $font = null, $hidden = false ) {
-		// set the css classes for the text div and the div that wraps the text divs
-		// the wrapping div is needed so we can add an optional icon
-		$textWrapClass = array( "caption-wrap" );
-
-		// set up the classes in the case that icon is active
-		// the default icon color is green but you can specify orange as well for now
-		$iconClass = array();
-		if ( $icon === 'orange' ) {
-			$iconClass[] = "caption-icon-flag";
-			$iconClass[] = "caption-icon-orange";
-		} elseif ( $icon == 'lightbulb' ) {
-			$iconClass[] = "caption-icon-lightbulb";
-		} elseif ( $icon == 'lightbulb2' ) {
-			$iconClass[] = "caption-icon-lightbulb";
-			$iconClass[] = "caption-icon-lightbulb-2";
-		} else {
-			$iconClass[] = "caption-icon-flag";
-		}
-
-		if ( $icon ) {
-			$iconElement = Html::element( "div", [ 'class' => implode( " ", $iconClass ) ] );
-			$textWrapClass[] = "caption-wrap-icon";
-		}
-		else {
-			$iconElement = '';
-		}
-
-		if ( $stripes === 'black' ) {
-			$textWrapClass[] = " caption-bg-grey";
-		} elseif ( $stripes === 'white' ) {
-			$textWrapClass[] = " caption-bg-white";
-		}
-
-		if ( $side ) {
-			$textWrapClass[] = " caption-wrap-small";
-		}
-		if ( $side === 'right' ) {
-			$textWrapClass[] = " caption-wrap-right";
-		}
-
-		$textClass = array( "mwimg-caption-text" );
-		if ( $text2 ) {
-			$text2 = Sanitizer::removeHTMLtags( $text2 );
-			$text2 = Html::rawElement( "div", [ "class"=> implode( " ", $textClass ) ], $text2 );
-		}
-		$textClass[] = "mwimg-caption-text-first";
-
-		$text = Sanitizer::removeHTMLtags( $text );
-		$text = Html::rawElement( "div", [ "class"=> implode( " ", $textClass ) ], $text );
-		$textWrapAttr = [ "class"=> implode( " ", $textWrapClass ) ];
-		if ( $font ) {
-			$textWrapAttr['style'] = "font-family:$font";
-		}
-		$textWrap = Html::rawElement( "div", $textWrapAttr, $text . $text2 . $iconElement );
-
-		$outerClass = array( "mwimg-caption" );
-
-		// data attributes for outer class
-		$outerData = array();
-		if ( $fade ) {
-			$outerClass[] = "mwimg-caption-fade";
-			$outerData["fadetime"] = intval( $fade );
-		}
-		if ( $hidden ) {
-			$outerClass[] = "mwimg-caption-hidden";
-		}
-		if ( $position === 'bottom' ) {
-			$outerClass[] = "mwimg-caption-bottom";
-		}
-		$id = wfRandomString( 10 );
-		$outerAttr = [ 'id' => $id, 'class' => implode( " ", $outerClass ) ];
-		foreach ( $outerData as $key => $val ) {
-			$outerAttr[ "data-".$key ] = $val;
-		}
-
-		$html = Html::rawElement( 'div', $outerAttr, $textWrap );
-
-		return $html;
+		// disabling captions for now
+		return;
 	}
 
 	// puts the caption inside the mwimg so we can position it absolutely on top

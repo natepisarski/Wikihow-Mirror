@@ -122,6 +122,19 @@ WH.shared = (function () {
 		}
 	}
 
+	// loads all scroll load embed videos. will be called if we click on video in toc
+	function loadAllEmbed() {
+		for (var i = 0; i < scrollLoadItems.length; i++) {
+			var item = scrollLoadItems[i];
+			if (item.isLoaded) {
+				continue;
+			}
+			if (item.element.nodeName.toLowerCase() == 'iframe') {
+				item.load();
+			}
+		}
+	}
+
 	function updateVisibility() {
 		var unloadedItems = false,
 			viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
@@ -263,6 +276,15 @@ WH.shared = (function () {
 		element.alt = '';
 		this.finishedLoadingEvent = 'load';
 		this.src = element.getAttribute( 'data-src' );
+		// detect if we are on an ipad (in the same way that the old defer code does
+		if (window.WH.sizer && !window.WH.sizer.isPhone()) {
+			// look for the data-srclarge and use it if it is set
+			var large = element.getAttribute( 'data-srclarge' );
+			if (large != null) {
+				this.src = large;
+			}
+		}
+
 		this.src = getCompressedImageSrc( this.src );
 		if ( element && element.classList !== undefined ) {
 			element.classList.add( 'img-loading-hide' );
@@ -375,6 +397,7 @@ WH.shared = (function () {
 		'setupLoader' : setupLoader,
 		'addResizeFunction' : addResizeFunction,
 		'loadAllImages' : loadAllImages,
+		'loadAllEmbed' : loadAllEmbed,
 		'addLoadedCallback' : addLoadedCallback,
 		'showVideoPlay' : showVideoPlay,
 		'getCompressedImageSrc' : getCompressedImageSrc

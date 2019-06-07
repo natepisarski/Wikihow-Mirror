@@ -11,3 +11,11 @@ conversantmedia.com, 42030, DIRECT, 03113cd04947736d
 appnexus.com, 4052, RESELLER
 contextweb.com, 561998, RESELLER, 89ff185a4c4e857c
 openx.com, 540031703, RESELLER, 6a698e2ec38604c6
+openx.com, 540198127, DIRECT, 6a698e2ec38604c6
+sovrn.com, 7039, DIRECT, fafdf38b16bf6b2b
+lijit.com, 7039, DIRECT, fafdf38b16bf6b2b
+triplelift.com, 2866, DIRECT, 6c33edb13117fd86
+appnexus.com, 1314, RESELLER
+spotxchange.com, 228454, RESELLER, 7842df1d2fe2db34
+spotx.tv, 228454, RESELLER, 7842df1d2fe2db34
+lkqd.net, 504, RESELLER, 59c49fa9598a01

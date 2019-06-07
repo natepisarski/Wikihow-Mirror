@@ -105,7 +105,11 @@ class CoauthorSheetTools {
 					$service->permissions->delete( $file->id, 'anyoneWithLink' );
 				} catch ( Google_Service_Exception $e ) {
 				}
-				$service->parents->insert( $file->id, $newParent );
+
+				try {
+					$service->parents->insert( $file->id, $newParent );
+				} catch (Google_Service_Exception $e) {
+				}
 
 				try {
 					//delete old parent

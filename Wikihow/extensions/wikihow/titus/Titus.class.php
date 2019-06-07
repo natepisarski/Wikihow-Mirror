@@ -1702,13 +1702,26 @@ class TSNumSteps extends TitusStat {
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$text = Wikitext::getStepsSection(ContentHandler::getContentText( $r->getContent() ), true);
+		$wikiText = ContentHandler::getContentText( $r->getContent() );
+		$text = Wikitext::getStepsSection( $wikiText, true );
 		$text = $text[0];
-		$num_steps = 0;
-		if ($text) {
-			$num_steps = preg_match_all('/^\#[^*^#]/im', $text, $matches);
+		if ( !$text ) {
+			//try to get steps section with all caps
+			$stepsMsg = strtoupper( wfMessage( 'steps' )->inContentLanguage()->text() );
+			$text = Wikitext::getSection( $wikiText, $stepsMsg, true );
+			$text = $text[0];
 		}
-		return array("ti_num_steps" => intVal($num_steps));
+		$numSteps = 0;
+		if ( $text ) {
+			$numSteps = preg_match_all( '/^\#[^*^#]/im', $text, $matches );
+		}
+		// if no steps but we have an ol then try to count li inside it
+		if ( $numSteps == 0 && strstr( $text, '<ol>' ) ) {
+			$doc = phpQuery::newDocument( $text );
+			$numSteps = pq('ol > li')->length;
+		}
+		$result = array( "ti_num_steps" => intVal( $numSteps ) );
+		return $result;
 	}
 }
 

@@ -258,6 +258,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 		// ignore the blank user which is a placeholder
 		$cond = array(
 			'stvi_page_id' => $pageId,
+			'stvi_batch_name' => $batchName,
 			'stvi_user_id <> ""',
 		);
 

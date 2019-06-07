@@ -1,5 +1,6 @@
 .green_box {
 	display: table;
+	position: relative;
 	background-color: #f0f6ec;
 	margin: .8em auto 1em;
 	width: 95%;
@@ -36,6 +37,13 @@
 	border-radius: 4px 4px 0 0;
 	text-align: center;
 	width: 11em;
+}
+
+.safari_tab_hack {
+	position: absolute;
+	display: block;
+	top: -1.9em;
+	left: -5px;
 }
 
 .green_box_row {
@@ -103,6 +111,7 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 }
 
 .green_box_expert_info {
+	display: inline-block;
 	font-size: .8em;
 	color: #434343;
 	line-height: 1.2em;

@@ -44,6 +44,7 @@ class LSearch extends SpecialPage {
 	var $searchUrl = '/wikiHowTo';
 	var $disableAds = false;
 	var $showSuicideHotline = false;
+	var $enableCdnCaching = true;
 	var $mResultsSource = '';
 
 	var $mEnableBeta = true;
@@ -184,7 +185,7 @@ class LSearch extends SpecialPage {
 	*/
 	public function onAfterFinalPageOutput($out) {
 		$user = $out->getUser();
-		if ( $user && $user->isAnon() && $out->getTitle() ) {
+		if ( $user && $user->isAnon() && $out->getTitle() && $this->enableCdnCaching ) {
 			$out = $this->getOutput();
 			$req = $this->getRequest();
 			$out->setSquidMaxage( self::ONE_DAY_IN_SECONDS );
@@ -437,8 +438,15 @@ class LSearch extends SpecialPage {
 		$this->mResultsSource = 'whsolr';
 
 		if ( $data['suicide'] ) {
+
+			// Show suicide hotline info to visitors from US only
+			if( $this->getRequest()->getHeader('x-cc') == 'US' ){
+                        	$this->showSuicideHotline = true;
+			}
 			$this->disableAds = true;
-			$this->showSuicideHotline = true;
+
+			// Disable fastly cache if the search term is related to suicide/ self-harm
+			$this->enableCdnCaching = false;
 		}
 
 		return count( $data['results'] );
@@ -1217,6 +1225,7 @@ class LSearch extends SpecialPage {
 		$html = '';
 		if ( $this->showSuicideHotline ) {
 			$html .= EasyTemplate::html( 'suicide-hotline.tmpl.php' );
+			$html .= EasyTemplate::html( 'crisis-text-line.tmpl.php' );
 		}
 		$html .= EasyTemplate::html($tmpl, $vars);
 		// Check that the Sherlock class is loaded (IE: Not on international)
