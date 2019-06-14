@@ -712,22 +712,22 @@ function calcActivityScore(wordCount) {
 	// is logged. For any given parts, if the user stays <= 1s on that parts, the
 	// score for it is 0. Is the user stays >= 10s, the score is 100. The score is
 	// the average of the ACTIVITY_NUM_BUCKETS parts.
-	var score2 = 0.0;
-	for (var i = 0; i < ACTIVITY_NUM_BUCKETS; i++) {
-		var ms = 0;
-		if (typeof activityTimings[i] !== 'undefined') {
-			ms = activityTimings[i];
-		}
-		var pct = (ms/1000.0 - 1.0) / (10.0 - 1.0);
-		if (pct < 0.0) pct = 0.0;
-		if (pct > 1.0) pct = 1.0;
-		score2 += pct;
-	}
-	score2 = Math.round(100 * score2 / ACTIVITY_NUM_BUCKETS);
+//	var score2 = 0.0;
+//	for (var i = 0; i < ACTIVITY_NUM_BUCKETS; i++) {
+//		var ms = 0;
+//		if (typeof activityTimings[i] !== 'undefined') {
+//			ms = activityTimings[i];
+//		}
+//		var pct = (ms/1000.0 - 1.0) / (10.0 - 1.0);
+//		if (pct < 0.0) pct = 0.0;
+//		if (pct > 1.0) pct = 1.0;
+//		score2 += pct;
+//	}
+//	score2 = Math.round(100 * score2 / ACTIVITY_NUM_BUCKETS);
 
-	// Elizabeth wanted 50% of one metric and 50% of the other. No judgement!
-	var score = Math.round(0.5 * score1 + 0.5 * score2);
-	pingDebug('<span class="replace_line">score: ' + score + ' = 50% of ' + score1 + ' + 50% of ' + score2 + '</span>');
+	// Elizabeth wants 100% of score1 now...
+	var score = Math.round(score1);
+//	pingDebug('<span class="replace_line">score: ' + score + ' = 50% of ' + score1 + ' + 50% of ' + score2 + '</span>');
 	return score;
 }
 

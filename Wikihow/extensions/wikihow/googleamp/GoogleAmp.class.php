@@ -580,7 +580,7 @@ class GoogleAmp {
 		}
 	}
 
-    private static function getAdSlotData() {
+    private static function getAdSlotData( $pageId ) {
         $slotData = array(
             'en' => array(
                 1 => 6567556784,
@@ -722,10 +722,13 @@ class GoogleAmp {
 		$setSize = array(
 			'width' => 300,
 			'height' => 250,
-			'layout' => 'responsive',
 			'type' => 'doubleclick',
 			'data-slot' => $slot,
 		);
+
+		if ( $num == 7 || $num == 8 || $num == 9 ) {
+			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		}
 
 		// this is a layout we never got working but
 		// it has some interesting media queries worth remembering
@@ -780,17 +783,18 @@ class GoogleAmp {
         if ( $intl ) {
             $slotType = 'intl';
         }
-        $slotData = self::getAdSlotData();
+        $slotData = self::getAdSlotData( $pageId );
         $slot = $slotData[$slotType][$num];
 
 
 		// the class is called ad_label_mobile in our main code so leaving it the same for now
 		$whAdLabelBottom = "";
 
-		$adsenseChannel = null;
+		$adsenseChannel = array();
 		if ( !ArticleTagList::hasTag( 'amp_disabled_pages', $pageId ) ) {
-			$adsenseChannel = 4198383040;
+			$adsenseChannel[] = 4198383040;
 		}
+
 		$dataLoadingStrategy = 'prefer-viewability-over-views';
 
 		// intro ad
@@ -843,8 +847,8 @@ class GoogleAmp {
 			'data-ad-slot' => $slot,
 		);
 
-		if ( $adsenseChannel ) {
-			$adAttributes['data-ad-channel'] = $adsenseChannel;
+		if ( !empty( $adsenseChannel ) ) {
+			$adAttributes['data-ad-channel'] = implode( ",", $adsenseChannel );
 		}
 		if ( $dataLoadingStrategy ) {
 			$adAttributes['data-loading-strategy'] = $dataLoadingStrategy;

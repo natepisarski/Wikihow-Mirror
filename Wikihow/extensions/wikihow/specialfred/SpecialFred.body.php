@@ -77,6 +77,20 @@ class SpecialFred extends UnlistedSpecialPage {
 			return;
 		}
 
+		if ( $this->request->getVal( 'action' ) == 'saveline' ) {
+			$this->out->setArticleBodyOnly( true );
+			$data = $this->saveData( $this->request );
+			print json_encode( $data );
+			return;
+		}
+
+		if ( $this->request->getVal( 'action' ) == 'deleterow' ) {
+			$this->out->setArticleBodyOnly( true );
+			$data = $this->deleteRow( $this->request );
+			print json_encode( $data );
+			return;
+		}
+
 		$this->out->setPageTitle( wfMessage( 'fred_page_title' )->text() );
 		$this->out->addModuleStyles( 'ext.wikihow.specialfred.styles' );
 		$this->out->addModules( 'ext.wikihow.specialfred' );
@@ -111,7 +125,6 @@ class SpecialFred extends UnlistedSpecialPage {
 		$conds = array( "status in ( 20, 30 )", "processed > '$timestamp'" );
 
 		$dbw->delete( $table, $conds, __METHOD__ );
-		decho("last", $dbw->lastQuery());
 	}
 
 	public function isMobileCapable() {
@@ -175,7 +188,7 @@ class SpecialFred extends UnlistedSpecialPage {
 		return $link;
 	}
 
-	private function getDataWithParams( $lang, $limit ) {
+	private function getDataWithParams( $lang, $limit, $orderBy ) {
 		$dbr = wfGetDB( DB_REPLICA );
         $table = self::FRED_DB_TABLE;
 		if ( $lang != 'en' ) {
@@ -184,9 +197,10 @@ class SpecialFred extends UnlistedSpecialPage {
         $var = '*';
         $cond = array();
 
-		$options = ["LIMIT" => $limit, 'ORDER_BY' => 'processed DESC'];
+		$sql = "select * from (select * from " . $table . " order by processed DESC LIMIT $limit) as w order by $orderBy";
 
-		$res = $dbr->select( $table, $var, $cond, __METHOD__, $options );
+		//$res = $dbr->select( $table, $var, $cond, __METHOD__, $options );
+		$res = $dbr->query( $sql, __METHOD__ );
 		$data = [];
 
 		foreach ( $res as $row ) {
@@ -202,11 +216,70 @@ class SpecialFred extends UnlistedSpecialPage {
 		return $data;
 	}
 
+	private function deleteRow( \WebRequest $request ): array {
+		$result = array();
+
+		$lang = $request->getVal('lang');
+		if ( !$lang ) {
+			return $result;
+		}
+
+		$pageId = $request->getVal('pageid');
+		if ( !$pageId ) {
+			return $result;
+		}
+		$pageId = intval( $pageId );
+
+		$dbw = wfGetDB( DB_MASTER );
+
+        $table = self::FRED_DB_TABLE;
+		if ( $lang != 'en' ) {
+			$table = 'wikidb_' . $lang . "." . $table;
+		}
+		$conds = ["article_id" => $pageId];
+		$list = $dbw->makeList( $conds, LIST_AND );
+		$dbw->delete( $table, $conds, __METHOD__ );
+		$result = [];
+		return $result;
+	}
+
+	private function saveData( \WebRequest $request ): array {
+		$result = array();
+
+		$saveData = $request->getArray( 'savedata' );
+		if ( empty( $saveData ) ) {
+			return $result;
+		}
+		$lang = $request->getVal('lang');
+		if ( !$lang ) {
+			return $result;
+		}
+
+		$pageId = $request->getVal('pageid');
+		if ( !$pageId ) {
+			return $result;
+		}
+
+		$dbw = wfGetDB( DB_MASTER );
+
+        $table = self::FRED_DB_TABLE;
+		if ( $lang != 'en' ) {
+			$table = 'wikidb_' . $lang . "." . $table;
+		}
+		$values = $saveData;
+		$conds = array( 'article_id' => $pageId );
+		$dbw->update( $table, $values, $conds, __METHOD__ );
+		return $saveData;
+	}
+
 	private function getData( \WebRequest $request ): array {
 		// TODO get some params like from  date or lang
 		//$startDate = $request->getVal('start_date');
 		$lang = $request->getVal('lang');
 		$limit = $request->getInt('shownum');
+		$orderBy = $request->getVal('orderby');
+		$orderByDirection = $request->getVal('orderbydirection');
+		$orderBy = $orderBy . " " . $orderByDirection;
 
 		// first line will be the header
 		$firstLine = [
@@ -234,7 +307,7 @@ class SpecialFred extends UnlistedSpecialPage {
 		];
 
 		$data = [$firstLine];
-		$data = array_merge( $data, $this->getDataWithParams( $lang, $limit ) );
+		$data = array_merge( $data, $this->getDataWithParams( $lang, $limit, $orderBy ) );
 
 		return $data;
 	}

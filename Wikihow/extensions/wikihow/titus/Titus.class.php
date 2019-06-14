@@ -2284,10 +2284,10 @@ class TSStu extends TitusStat {
  * Stu2 data (www and mobile) for article
 
    alter table titus_intl
-     add column ti_stu2_3m_active_mobile int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_3m_active_desktop int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_10s_active_mobile int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_10s_active_desktop int(10) unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_3m_active_mobile decimal(6,2) NOT NULL DEFAULT '0.0',
+     add column ti_stu2_3m_active_desktop decimal(6,2) NOT NULL DEFAULT '0.0',
+     add column ti_stu2_10s_active_mobile decimal(6,2) NOT NULL DEFAULT '0.0',
+     add column ti_stu2_10s_active_desktop decimal(6,2) NOT NULL DEFAULT '0.0',
      add column ti_stu2_activity_avg_mobile decimal(6,2) NOT NULL DEFAULT '0.0',
      add column ti_stu2_activity_avg_desktop decimal(6,2) NOT NULL DEFAULT '0.0',
      add column ti_stu2_all_mobile int(10) unsigned NOT NULL DEFAULT '0',
@@ -2345,10 +2345,10 @@ class TSStu2 extends TitusStat {
 
 	private function extractStatsStu2($rows) {
 		$stats = [
-			'ti_stu2_3m_active_mobile' => 0,
-			'ti_stu2_3m_active_desktop' => 0,
-			'ti_stu2_10s_active_mobile' => 0,
-			'ti_stu2_10s_active_desktop' => 0,
+			'ti_stu2_3m_active_mobile' => 0.0,
+			'ti_stu2_3m_active_desktop' => 0.0,
+			'ti_stu2_10s_active_mobile' => 0.0,
+			'ti_stu2_10s_active_desktop' => 0.0,
 			'ti_stu2_all_mobile' => 0,
 			'ti_stu2_all_desktop' => 0,
 			'ti_stu2_search_mobile' => 0,
@@ -2377,20 +2377,36 @@ class TSStu2 extends TitusStat {
 		}
 
 		if ($mb) {
-			$stats['ti_stu2_3m_active_mobile'] += $mb['sa_3m_active'];
-			$stats['ti_stu2_10s_active_mobile'] += $mb['sa_10s_active'];
-			$stats['ti_stu2_all_mobile'] += $mb['sa_all'];
-			$stats['ti_stu2_search_mobile'] += $mb['sa_search'];
-			$stats['ti_stu2_quickbounce_mobile'] += $mb['sa_quick_bounce'];
-			$stats['ti_stu2_amp'] += $mb['sa_amp'];
+			if ($mb['sa_search']) {
+				$active3m = 100 * ( $mb['sa_3m_active'] / $mb['sa_search'] );
+				$active10s = 100 * ( $mb['sa_10s_active'] / $mb['sa_search'] );
+			} else {
+				$active3m = 0.0;
+				$active10s = 0.0;
+			}
+			$stats['ti_stu2_3m_active_mobile'] = $active3m;
+			$stats['ti_stu2_10s_active_mobile'] = $active10s;
+
+			$stats['ti_stu2_all_mobile'] = $mb['sa_all'];
+			$stats['ti_stu2_search_mobile'] = $mb['sa_search'];
+			$stats['ti_stu2_quickbounce_mobile'] = $mb['sa_quick_bounce'];
+			$stats['ti_stu2_amp'] = $mb['sa_amp'];
 		}
 
 		if ($dt) {
-			$stats['ti_stu2_3m_active_desktop'] += $dt['sa_3m_active'];
-			$stats['ti_stu2_10s_active_desktop'] += $dt['sa_10s_active'];
-			$stats['ti_stu2_all_desktop'] += $dt['sa_all'];
-			$stats['ti_stu2_search_desktop'] += $dt['sa_search'];
-			$stats['ti_stu2_quickbounce_desktop'] += $dt['sa_quick_bounce'];
+			if ($dt['sa_search']) {
+				$active3m = 100 * ( $dt['sa_3m_active'] / $dt['sa_search'] );
+				$active10s = 100 * ( $dt['sa_10s_active'] / $dt['sa_search'] );
+			} else {
+				$active3m = 0.0;
+				$active10s = 0.0;
+			}
+			$stats['ti_stu2_3m_active_desktop'] = $active3m;
+			$stats['ti_stu2_10s_active_desktop'] = $active10s;
+
+			$stats['ti_stu2_all_desktop'] = $dt['sa_all'];
+			$stats['ti_stu2_search_desktop'] = $dt['sa_search'];
+			$stats['ti_stu2_quickbounce_desktop'] = $dt['sa_quick_bounce'];
 		}
 
 		return $stats;
@@ -3366,8 +3382,9 @@ class TSLastFellowStubEdit extends TitusStat {
 }
 
 class TSLastFellowEdit extends TitusStat {
-	private $_kwl = array();
-	private $_ids = array();
+	private $_last_edits = [];
+	private $_first_edits = array();
+	private $_ids = [];
 	private $_gotSpreadsheet = false;
 	private $_badSpreadsheet = false;
 
@@ -3380,16 +3397,26 @@ class TSLastFellowEdit extends TitusStat {
 			$endColumn = 3;
 			$startRow = 2;
 			$cols = $gs->getColumnData( WH_TITUS_EDITOR_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
-			$ids = array();
+			$ids = [];
 			$badDates = 0;
 			foreach ($cols as $col) {
 				if (is_numeric($col[0])) {
-					$output = array($this->fixDate($col[1]),$col[2]);
-					if ($output[1] == NULL) {
+					$output = [ $this->fixDate($col[1]), $col[2] ];
+					$newDate = $output[0];
+					if ($newDate == NULL) {
 						$badDates++;
+					} else {
+						$aid = $col[0];
+						$ids[$aid] = true;
+						$lastEditSoFar = $this->_last_edits[$aid][0] ?? null;
+						if ( !$lastEditSoFar || strcmp($lastEditSoFar, $newDate) < 0 ) {
+							$this->_last_edits[$aid] = $output;
+						}
+						$firstEditSoFar = $this->_first_edits[$aid][0] ?? null;
+						if ( !$firstEditSoFar || strcmp($firstEditSoFar, $newDate) > 0 ) {
+							$this->_first_edits[$aid] = $output;
+						}
 					}
-					$this->_kwl[$col[0]] = $output;
-					$ids[] = $col[0];
 				}
 			}
 			if ($badDates > 100) {
@@ -3406,27 +3433,34 @@ class TSLastFellowEdit extends TitusStat {
 				$this->_badSpreadsheet=true;
 				return;
 			}
-			$this->checkForRedirects($dbr, $ids);
-			$this->checkForMissing($dbr, $ids);
+			$this->checkForRedirects( $dbr, array_keys($ids) );
+			$this->checkForMissing( $dbr, array_keys($ids) );
 
-			$res = $dbr->select( TitusDB::getDBName() . "." . TitusDB::TITUS_INTL_TABLE_NAME,
-				['ti_page_id', 'ti_last_fellow_edit', 'ti_last_fellow_edit_timestamp'],
+			$res = $dbr->select( TitusDB::getDBName() . '.' . TitusDB::TITUS_INTL_TABLE_NAME,
+				['ti_page_id', 'ti_last_fellow_edit', 'ti_last_fellow_edit_timestamp','ti_first_fellow_edit_timestamp'],
 				['ti_language_code' => $wgLanguageCode],
 				__METHOD__ );
-			$pageIds = array();
+			$pageIds = [];
 			foreach ($res as $row) {
-				if ( isset($this->_kwl[$row->ti_page_id]) ) {
-					if ( $this->_kwl[$row->ti_page_id][0] != $row->ti_last_fellow_edit_timestamp
-						|| $this->_kwl[$row->ti_page_id][1]!=$row->ti_last_fellow_edit
+				$aid = $row->ti_page_id;
+
+				// We update the DB in 2 scenarios:
+
+				// 1) If the article has fellow data in the DB but is missing from the sheet, we clear the DB data
+				if ( !isset( $ids[$aid] ) ) {
+					if ( ($row->ti_last_fellow_edit_timestamp != NULL && $row->ti_last_fellow_edit_timestamp != '') ||
+						 ($row->ti_last_fellow_edit != NULL && $row->ti_last_fellow_edit != '') ||
+						 ($row->ti_first_fellow_edit_timestamp != NULL && $row->ti_first_fellow_edit_timestamp != '')
 					) {
-						$pageIds[] = $row->ti_page_id;
+						$pageIds[] = $aid;
 					}
-				} else {
-					if ( ($row->ti_last_fellow_edit_timestamp != NULL && $row->ti_last_fellow_edit_timestamp != "")
-						|| ($row->ti_last_fellow_edit != NULL && $row->ti_last_fellow_edit != "")
-					) {
-						$pageIds[] = $row->ti_page_id;
-					}
+				}
+				// 2) If the fellow data in the DB differs from the data in the spreadsheet, we update the DB
+				elseif ( ($this->_last_edits[$aid][0] != $row->ti_last_fellow_edit_timestamp) ||
+						 ($this->_last_edits[$aid][1] != $row->ti_last_fellow_edit) ||
+						 ($this->_first_edits[$aid][0] != $row->ti_first_fellow_edit_timestamp)
+				) {
+					$pageIds[] = $aid;
 				}
 			}
 			$this->_ids = $pageIds;
@@ -3435,7 +3469,7 @@ class TSLastFellowEdit extends TitusStat {
 			$this->_badSpreadsheet = false;
 
 		}
-		catch(Exception $e) {
+		catch (Exception $e) {
 			$this->_gotSpreadsheet = true;
 			$this->_badSpreadsheet = true;
 			$this->reportError("Problem fetching spreadsheet :" . $e->getMessage());
@@ -3445,17 +3479,22 @@ class TSLastFellowEdit extends TitusStat {
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		global $wgLanguageCode;
 
-		$result = array(
-			"ti_last_fellow_edit_timestamp" => "",
-			"ti_last_fellow_edit" => "",
-		);
+		$result = [
+			'ti_last_fellow_edit_timestamp' => '',
+			'ti_last_fellow_edit' => '',
+			'ti_first_fellow_edit_timestamp' => '',
+		];
 
 		$pageId = $pageRow->page_id;
 
-		$editData = $this->_kwl[$pageId];
-		if ( $editData && $wgLanguageCode == "en" ) {
-			$result["ti_last_fellow_edit_timestamp"] = $dbr->strencode( $editData[0] );
-			$result["ti_last_fellow_edit"] = $dbr->strencode( $editData[1] );
+		$lastEdit = $this->_last_edits[$pageId] ?? null;
+		if ( $lastEdit && $wgLanguageCode == 'en' ) {
+			$result['ti_last_fellow_edit_timestamp'] = $dbr->strencode( $lastEdit[0] );
+			$result['ti_last_fellow_edit'] = $dbr->strencode( $lastEdit[1] );
+		}
+		$firstEdit = $this->_first_edits[$pageId] ?? null;
+		if ( $firstEdit && $wgLanguageCode == 'en' ) {
+			$result['ti_first_fellow_edit_timestamp'] = $dbr->strencode( $firstEdit[0] );
 		}
 
 		return $result;
@@ -3463,8 +3502,8 @@ class TSLastFellowEdit extends TitusStat {
 
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
-		if ($wgLanguageCode != "en") {
-			return array();
+		if ($wgLanguageCode != 'en') {
+			return [];
 		}
 		if (!$this->_gotSpreadsheet) {
 			$this->getSpreadsheet($dbr);
@@ -5104,9 +5143,13 @@ class TSExpertVerifiedSince extends TitusStat {
 		$errors = 0;
 		foreach ($cols as $col) {
 			$aid = ( is_numeric($col[0]) && (int) $col[0] > 0 ) ? (int) $col[0] : null;
-			$date = $col[2] ? $this->fixDate($col[2]) : null;
-			if ($aid && $date) {
-				$this->dates[$aid] = $date;
+			$newDate = $col[2] ? $this->fixDate($col[2]) : null;
+			if ($aid && $newDate) {
+				$oldDate = $this->dates[$aid] ?? null;
+				if ( $oldDate && strcmp($oldDate, $newDate) <= 0 ) {
+					continue; // we are only interested in the oldest date
+				}
+				$this->dates[$aid] = $newDate;
 			} else {
 				$errors++;
 			}

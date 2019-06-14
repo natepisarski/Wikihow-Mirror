@@ -163,7 +163,7 @@ class CreateEmptyIntlArticle extends UnlistedSpecialPage {
 	}
 
 	private function getArticleText() {
-		return wfMessage("ftt_articletext")->inLanguage("en")->plain();
+		return wfMessage("ftt_articletext", wfMessage("Steps")->text(), wfMessage("ftt_step_placeholder")->text())->inLanguage("en")->plain();
 	}
 
 	private function getEditSummary() {

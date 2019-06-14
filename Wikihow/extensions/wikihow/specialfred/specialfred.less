@@ -7,6 +7,17 @@
 #downloadcsv {
 	display: none;
 }
+#orderby {
+	display: none;
+	margin-left: 3px;
+}
+#orderbydirection {
+	display: none;
+	margin-left: 5px;
+}
+.first-line .orderby-selected {
+	font-weight: bold;
+}
 #main_container {
 	width: 100%;
 	padding-left: 0;
@@ -38,6 +49,10 @@
 	height: 20px;
 	line-height: 21px;
 	border-right: 1px solid #DDD;
+}
+.first-line .data-element:hover {
+	cursor: pointer;
+	text-decoration: underline;
 }
 .data-line:first-of-type {
 	color: #FFF;
@@ -102,6 +117,13 @@
 	.first-line .article_url {
 		font-size: 14px;
 	}
+	.first-line .edit a {
+		display: none;
+	}
+	.edit {
+		width: 30px;
+		font-size: 12px;
+	}
 	.article_url {
 		width: 250px;
 		font-size: 13px;
@@ -110,7 +132,8 @@
 		width: 125px;
 	}
 	.error {
-		width: 90px;
+		width: 125px;
+		height: 100%;
 	}
 	.error,.warning {
 		color: #000;

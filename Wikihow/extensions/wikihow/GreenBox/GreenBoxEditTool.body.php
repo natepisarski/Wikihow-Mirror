@@ -46,7 +46,8 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 			'green_box_editors',
 			'staff',
 			'staff_widget',
-			'editor_team'
+			'editor_team',
+			'translator'
 		];
 	}
 

@@ -203,11 +203,18 @@ class DesktopAds {
 		return "";
 	}
 
-	public function isHealthlineRRTest() {
-		if ( isset( $this->mAdCreator->mExtendedRightRail ) ) {
-			return true;
+	public function modifyRightRailForAdTest( $html, $relatedWikihows ) {
+		$pageId = $this->mTitle->getArticleID();
+
+		if ( $pageId % 10 != 5 ) {
+			return $html;
 		}
-		return false;
+
+		$doc = phpQuery::newDocument( $html );
+		pq('#ratearticle_sidebar')->remove();
+
+		$rightRailHtml = $doc->htmlOuter();
+		return $rightRailHtml;
 	}
 
 	public function modifyForHealthlineTest( $html, $relatedWikihows ) {
@@ -378,6 +385,10 @@ class DesktopAds {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
 
+			if ( $pageId % 10 == 5 ) {
+				$adCreator = new TwoRightRailAdCreator();
+				$adCreator->mAdServices['step'] = '';
+			}
 			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
 				 $adCreator->mAdServices['intro'] = '';
 			}

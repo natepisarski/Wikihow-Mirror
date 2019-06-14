@@ -950,12 +950,11 @@ class WikihowArticleHTML {
 		$htmlparts = preg_split('@(<[^>]*>)@im', $htmlText,
 			0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-		$incaption = false;
+		$intag = false;
 		$apply_b = false;
 		$closed_b = false;
 		$p = '';
 		while ($x = array_shift($htmlparts)) {
-
 			# add any other "line-break" tags here.
 			$is_break_tag = strpos($x, '<ul>') === 0 || strpos($x, '<ol>') === 0;
 
@@ -963,10 +962,23 @@ class WikihowArticleHTML {
 			if (!$is_break_tag && strpos($x, '<') === 0) {
 				# add the tag
 				$p .= $x;
-				if ($x == '<span class="caption">' || $x == '<span style="white-space: nowrap;">' || strpos($x, '<math') === 0 || strpos($x, '<a') === 0 ) {
-					$incaption = true;
-				} elseif (($x == "</span>" || $x == "</math>" || $x == "</a>") && $incaption) {
-					$incaption = false;
+
+				# Captions are turned off on the site as on 12th June 2019. However, if these are enabled later,
+				# do not boldface caption text. Continue to next "htmlparts" - Gaurang
+				if( $x == '<span class="caption">' ){
+					$intag = true;
+					continue;
+				}
+
+				# Check if it is in a hyperlink, math template, or keyboard template. If yes, boldface the template text
+				if ( $x == '<span style="white-space: nowrap;">' || strpos($x, '<math') === 0 || strpos($x, '<a') === 0 ) {
+					$p .= '<b class="whb">';
+					$intag = true;
+				} elseif ( ($x == "</span>" || $x == "</math>" || $x == "</a>") && $intag ) {
+					# Stop boldface if at the end of the template. Boldfacing of out-of-template text is handled
+					# seperately below (line 993)
+					$x = '</b>' . $x;
+					$intag = false;
 				}
 				continue;
 			}
@@ -978,7 +990,7 @@ class WikihowArticleHTML {
 
 
 			# put the closing </b> in if we hit the end of the sentence
-			if (!$incaption) {
+			if (!$intag) {
 				if (!$apply_b && trim($x)) {
 					$p .= '<b class="whb">';
 					$apply_b = true;

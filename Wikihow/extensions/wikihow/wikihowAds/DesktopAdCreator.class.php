@@ -226,6 +226,7 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 		}
 		$this->mAds['related'] = $this->getRelatedAd();
 		$this->mAds['scrollto'] = $this->getScrollToAd();
+
 	}
 
 	/*
@@ -1597,6 +1598,80 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 			),
 			'rightrail2' => array(
 				'adUnitPath' => '/10095428/RR3_Test_32',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true
+			),
+			'quiz' => array(
+				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			)
+		);
+	}
+}
+
+class TwoRightRailAdCreator extends MixedAdCreatorScrollTo {
+	public function __construct() {
+		global $wgTitle, $wgRequest;
+		$pageId = 0;
+		if ( $wgTitle ) {
+			$pageId = $wgTitle->getArticleID();
+		}
+		// right now this data will be added to each ad as data attributes
+		// however we can use it in the future to define almost everything about each ad
+		$this->mAdsenseChannels[] = 8837922476;
+		if ( $pageId == 223933 ) {
+			$this->mAdsenseChannels[] = 9756424883;
+		}
+		$this->mAdSetupData = array(
+			'rightrail1' => array(
+				'refreshable' => 1,
+				'first-refresh-time' => 30000,
+				'refresh-time' => 28000,
+				'aps-timeout' => 800
+			),
+			'scrollto' => array(
+				'id' => 'scrolltoad',
+				'type' => 'scrollto',
+				'slot' => 6515934903,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'adsensewidth' => 728,
+				'adsenseheight' => 90,
+				'channels' => implode( ',', $this->mAdsenseChannels )
+			)
+		);
+
+		$this->mAdsenseSlots = array(
+			'intro' => 7862589374,
+			'step' => 1652132604,
+			'rightrail0' => 4769522171,
+		);
+
+		$this->mAdServices = array(
+			'intro' => 'adsense',
+			'step' => 'adsense',
+			'method' => 'dfp',
+			'rightrail0' => 'adsense',
+			'rightrail1' => 'dfp',
+			'quiz' => 'dfp'
+		);
+
+		if ( WikihowToc::isNewArticle() ) {
+			$this->mAdsenseSlots['method2'] = 3356467874;
+			$this->mAdServices['method2'] = 'adsense';
+		}
+	}
+
+	protected function setDFPAdUnitPaths() {
+		$this->mDFPData = array(
+			'method' => array(
+				'adUnitPath' => '/10095428/Testing_Method1_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'rightrail1' => array(
+				'adUnitPath' => '/10095428/RR2_Refreshing_Instruct',
 				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
 				'apsLoad' => true
 			),

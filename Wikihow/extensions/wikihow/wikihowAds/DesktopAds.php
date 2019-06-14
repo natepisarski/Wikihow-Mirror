@@ -10,6 +10,7 @@ $wgAutoloadClasses['MixedAdCreatorVersion3'] = __DIR__ . '/DesktopAdCreator.clas
 $wgAutoloadClasses['MixedAdCreatorVersion4'] = __DIR__ . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['MixedAdCreatorVersion5'] = __DIR__ . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['MixedAdCreatorScrollTo'] = __DIR__ . '/DesktopAdCreator.class.php';
+$wgAutoloadClasses['TwoRightRailAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['DocViewerAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['DocViewerAdCreatorVersion2'] = __DIR__ . '/DesktopAdCreator.class.php';
 $wgAutoloadClasses['SearchPageAdCreator'] = __DIR__ . '/DesktopAdCreator.class.php';

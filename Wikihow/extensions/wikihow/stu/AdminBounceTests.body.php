@@ -521,11 +521,14 @@ $tmpl = <<<EOHTML
 	</div>
 </div>
 <div style="font-size: 13px; margin: 20px 0 7px 0;">
-	Enter a list of URL(s) such as <code style="font-weight: bold;">http://www.wikihow.com/Lose-Weight-Fast</code> to which this tool will apply.  One per line.
+	Enter a list of URL(s) such as <code style="font-weight: bold;">https://www.wikihow.com/Lose-Weight-Fast</code> to which this tool will apply.  One per line.
 </div>
 <textarea id="pages-list" name="pages-list" type="text" rows="10" cols="70"></textarea><br/>
 <button id="pages-fetch" disabled="disabled" style="padding: 5px;">fetch stats</button>
 <button id="pages-reset" disabled="disabled" style="padding: 5px;">reset all</button>
+<div style="font-size: 14px; margin: 20px 0 0 0">
+NOTE: This page only clears Stu data. If you want to clear both Page Helpfulness and Stu, visit <a href="/Special:AdminClearRatings">Special:AdminClearRatings</a>.
+</div>
 <br/>
 <br/>
 <div id="pages-result">

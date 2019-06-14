@@ -83,7 +83,10 @@ class AdminClearRatings extends UnlistedSpecialPage {
 
 	function getGuts($action) {
 		return "		<form method='post' action='/Special:$action'>
-		<h4>Enter a list of full URLs such as <code>https://www.wikihow.com/Kill-a-<a href='https://www.gva.be/cnt/blpbr_01728395/scorpions-bissen-in-sportpaleis'>Scorpion</a></code> or partial URLs like <code>Sample/Research-Outline</code> for pages whose ratings should be cleared.  One per line.</h4>
+		<div>Enter a list of full URLs such as <code>https://www.wikihow.com/Kill-a-<a href='https://www.gva.be/cnt/blpbr_01728395/scorpions-bissen-in-sportpaleis'>Scorpion</a></code> or partial URLs like <code>Sample/Research-Outline</code> for pages whose ratings should be cleared.  One per line.</div>
+		<div style='margin: 15px 0 0 0'>
+			NOTE: This tool clears both Page Helpfulness and Stu. If you want to clear only Stu for a page, visit <a href='/Special:AdminBounceTests'>Special:AdminBounceTests</a>.
+		</div>
 		<br/>
 		<table><tr><td>Pages:</td><td><textarea id='pages-list' type='text' rows='10' cols='70'></textarea></td></tr>
 		<tr><td>Reason:</td><td><textarea id='reason' type='text' rows='1' cols='70'></textarea></td></tr></table>

@@ -132,15 +132,15 @@ class PageStats extends UnlistedSpecialPage {
 			$html .= "<hr style='margin:5px 0; '/>";
 			$html .= "<p><b>Stu2</b> $nb$nb$nb$resetLine</p>";
 			if ($titusData->ti_stu2_search_mobile) {
-				$stu2Mb10sAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_active_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
-				$stu2Mb3mAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_active_mobile / $titusData->ti_stu2_search_mobile) ) . "%";
+				$stu2Mb10sAc = sprintf( '%.1f', $titusData->ti_stu2_10s_active_mobile ) . "%";
+				$stu2Mb3mAc = sprintf( '%.1f', $titusData->ti_stu2_3m_active_mobile ) . "%";
 				$html .= "<p>mobile:$nb$stu2Mb10sAc$nb$stu2Mb3mAc$nb{$nb}views:{$titusData->ti_stu2_search_mobile}</p>";
 			} else {
 				$html .= "<p>mobile: <i>(no search views)</i></p>";
 			}
 			if ($titusData->ti_stu2_search_desktop) {
-				$stu2Dt10sAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_10s_active_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
-				$stu2Dt3mAc = sprintf( '%.1f', 100 * ($titusData->ti_stu2_3m_active_desktop / $titusData->ti_stu2_search_desktop) ) . "%";
+				$stu2Dt10sAc = sprintf( '%.1f', $titusData->ti_stu2_10s_active_desktop ) . "%";
+				$stu2Dt3mAc = sprintf( '%.1f', $titusData->ti_stu2_3m_active_desktop ) . "%";
 				$html .= "<p>desktop:$nb$stu2Dt10sAc$nb$stu2Dt3mAc$nb{$nb}views:{$titusData->ti_stu2_search_desktop}</p>";
 			} else {
 				$html .= "<p>desktop: <i>(no search views)</i></p>";

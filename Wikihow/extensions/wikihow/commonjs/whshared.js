@@ -14,7 +14,25 @@ WH.shared = (function () {
 		nv.match(/Opera/) ||
 		nv.match(/Chrome/) && !nv.match(/Edge/),
 	// Note: this is the same as php global WH_CDN_VIDEO_ROOT
-	videoRoot = 'https://www.wikihow.com/video';
+	videoRoot = 'https://www.wikihow.com/video',
+	lazyLoadingObserver = null;
+
+	if ("IntersectionObserver" in window) {
+		lazyLoadingObserver = new IntersectionObserver(function(entries, observer) {
+			entries.forEach(function(entry) {
+				if (entry.isIntersecting) {
+					loadElement(entry.target);
+					lazyLoadingObserver.unobserve(entry.target);
+				}
+			});
+		}, {
+			rootMargin: "0px 0px 100% 0px"
+		});
+	} else {
+		// in the future we can load the polyfill as a backup, but for now
+		// we have a backup of the old scroll loading code
+		console.log("no intersection observer available");
+	}
 
 	function resize() {
 		if ( resizeFunctions.forEach ) {
@@ -102,7 +120,6 @@ WH.shared = (function () {
 			overlay.style.visibility = 'visible';
 		}
 	}
-
 	function addLoadedCallback(id, callback) {
 		for (var i = 0; i < scrollLoadItems.length; i++) {
 			var item = scrollLoadItems[i];
@@ -141,6 +158,9 @@ WH.shared = (function () {
 
 		for (var i = 0; i < scrollLoadItems.length; i+=1) {
 			var item = scrollLoadItems[i];
+			if (item.useScrollLoader == false) {
+				continue;
+			}
 			if (item.isLoaded) {
 				continue;
 			}
@@ -337,12 +357,28 @@ WH.shared = (function () {
 			return;
 		}
 		var item = null;
+		var useObserver = true;
+		if (WH.isMobile || WH.pageID == 0 || WH.pageID % 10 != 3 || lazyLoadingObserver == null) {
+			var useObserver = false;
+		}
 		if (el.nodeName.toLowerCase() === 'img') {
 			item = new ScrollLoadImage(el);
+			if (useObserver) {
+				item.useScrollLoader = false;
+				lazyLoadingObserver.observe(item.element);
+			}
 		} else if (el.nodeName.toLowerCase() === 'video') {
 			item = new ScrollLoadVideo(el);
+			if (useObserver) {
+				item.useScrollLoader = false;
+				lazyLoadingObserver.observe(item.element);
+			}
 		} else if (el.nodeName.toLowerCase() === 'iframe') {
 			item = new ScrollLoadIframe(el);
+			if (useObserver) {
+				item.useScrollLoader = false;
+				lazyLoadingObserver.observe(item.element);
+			}
 		} else {
 			// unknown type of item
 			return;
@@ -385,6 +421,17 @@ WH.shared = (function () {
 	} else {
 		autoLoad = true;
 	}
+
+	// finds the ScrollLoad item matching the element and loads it
+	function loadElement(element) {
+		for (var i = 0; i < scrollLoadItems.length; i+=1) {
+			var item = scrollLoadItems[i];
+			if (item.element == element) {
+				item.load()
+			}
+		}
+	}
+
 
 	return {
 		'throttle' : throttle,
