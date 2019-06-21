@@ -5,8 +5,8 @@
  * @license MIT
  * @author Trevor Parscal <trevorparscal@gmail.com>
  */
-$wgExtensionCredits['SummaryVideos'][] = array(
-	'name' => 'Summary Videos',
+$wgExtensionCredits['SummaryVideosApi'][] = array(
+	'name' => 'Summary Videos API',
 	'author' => 'Trevor Parscal',
 	'description' => 'API that lists article summary videos',
 );

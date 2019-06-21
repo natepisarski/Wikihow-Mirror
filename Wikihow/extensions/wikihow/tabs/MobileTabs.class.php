@@ -35,13 +35,7 @@ class MobileTabs {
 	}
 
 	public static function getSummarySectionAnchorName() {
-		if(self::$hasYTVideo && self::$isYTListVideo) {
-			$anchorName = "Video";
-		} else {
-			$anchorName = 'quick_summary_section';
-		}
-
-		return $anchorName;
+		return self::$hasYTVideo && self::$isYTListVideo ? 'Video' : 'quick_summary_video_section';
 	}
 
 	public static function isTabArticle($title) {

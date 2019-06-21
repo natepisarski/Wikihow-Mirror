@@ -48,7 +48,9 @@ WH.VideoBrowser.VideoComponent = WH.Render.createComponent( {
 		// 		userHasMuted: WH.VideoBrowser.hasUserMuted,
 		// 		userSessionStreak: WH.VideoBrowser.sessionStreak
 		// 	}, function () {
-		// 		window.location = video.pathname;
+		// 		if ( window.location.pathname !== video.pathname ) {
+		// 			window.location = video.pathname;
+		// 		}
 		// 	} );
 		// }
 	}

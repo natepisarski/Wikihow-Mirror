@@ -385,7 +385,7 @@ class DesktopAds {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
 
-			if ( $pageId % 10 == 5 ) {
+			if ( $pageId % 2 == 1 ) {
 				$adCreator = new TwoRightRailAdCreator();
 				$adCreator->mAdServices['step'] = '';
 			}

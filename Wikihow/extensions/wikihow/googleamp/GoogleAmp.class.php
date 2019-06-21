@@ -246,15 +246,7 @@ class GoogleAmp {
 		$currentBox->append( '<div class="clearall"></div>' );
 	}
 
-	public static function addSchema( $out ) {
-		$schema = SchemaMarkup::getAmpSchema( $out );
-		if ($schema) {
-			$out->addHeadItem( 'ampschema', $schema );
-		}
-	}
-
 	public static function addHeadItems( $out ) {
-		self::addSchema( $out );
 		$out->addHeadItem( 'ampboilerplate',
 			'<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>' );
 		$out->addHeadItem( 'ampscript', '<script async src="https://cdn.ampproject.org/v0.js"></script>' );
@@ -616,7 +608,7 @@ class GoogleAmp {
 		// setup by language, then by ad number (0 is default) then by ad type (adsense or gpt)
 		$testSetup = [
 			'en' => [
-				0 => ['adsense' => 10, 'gpt' => 90],
+				0 => ['adsense' => 1, 'gpt' => 99],
 				1 => ['adsense' => 100],
 			],
 			'intl' => [
@@ -682,25 +674,22 @@ class GoogleAmp {
 			return '';
 		}
 
-		// do not reuse ad units
-		if ( $pageId % 2 == 1 ) {
-			if ( $num == 2 ) {
-				$slot = '/10095428/june19_amp_step';
+		if ( $num == 2 ) {
+			$slot = '/10095428/june19_amp_step';
+		}
+		if ( $num == 3 ) {
+			$slot = '/10095428/june19_amp_step_2';
+		}
+		// method
+		if ( $num == 4 ) {
+			// figure out which method
+			$slot = '/10095428/june19_amp_method_1';
+			if ( $methodNumber > 0 ) {
+				$slot = '/10095428/june19_amp_method_'.$methodNumber;
 			}
-			if ( $num == 3 ) {
-				$slot = '/10095428/june19_amp_step_2';
-			}
-			// method
-			if ( $num == 4 ) {
-				// figure out which method
-				$slot = '/10095428/june19_amp_method_1';
-				if ( $methodNumber > 0 ) {
-					$slot = '/10095428/june19_amp_method_'.$methodNumber;
-				}
-			}
-			if ( $num == 5 ) {
-				$slot = '/10095428/matt_test_RwH_1';
-			}
+		}
+		if ( $num == 5 ) {
+			$slot = '/10095428/matt_test_RwH_1';
 		}
 
 		if ( $num == 7 ) {

@@ -351,16 +351,32 @@ WH.shared = (function () {
 		};
 	}
 
+	function useIntersectionObserver() {
+		if (lazyLoadingObserver == null) {
+			return false;
+		}
+		if (WH.pageID == 0) {
+			return false;
+		}
+		if (WH.isMobile) {
+			return false;
+		}
+		if (WH.pageID % 10 == 3) {
+			return true;
+		}
+		if (WH.pageID % 100 < 15) {
+			return true;
+		}
+		return false;
+	}
+
 	function addScrollLoadItem(id) {
 		var el = document.getElementById(id);
 		if (!el) {
 			return;
 		}
 		var item = null;
-		var useObserver = true;
-		if (WH.isMobile || WH.pageID == 0 || WH.pageID % 10 != 3 || lazyLoadingObserver == null) {
-			var useObserver = false;
-		}
+		var useObserver = useIntersectionObserver();
 		if (el.nodeName.toLowerCase() === 'img') {
 			item = new ScrollLoadImage(el);
 			if (useObserver) {

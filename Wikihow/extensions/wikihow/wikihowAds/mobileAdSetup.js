@@ -662,6 +662,12 @@ WH.mobileads = (function () {
 			this.showStickyFooterYPos = parseInt(this.adElement.getAttribute('data-stickyfooterypos'));
 			registerAnchorScrollHandler();
 		}
+
+		//add ad height to the css so we can block out space for it on the page
+		//(needed for animating anchor links in scroll_handler.js)
+		var adHeight = getAdHeight(this.type);
+		this.adElement.style.height = adHeight+'px';
+
 		this.load = function() {
 			if (this.scrollTo) {
 				loadScrollToAd(this);

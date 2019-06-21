@@ -347,7 +347,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				</div>
 
 				<? $schema = SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
-				if ( $schema && !$data['amp'] ) {
+				if ( $schema ) {
 					echo $schema;
 				}?>
 

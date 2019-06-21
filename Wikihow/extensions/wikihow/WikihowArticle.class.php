@@ -43,8 +43,9 @@ class WikihowArticleHTML {
 		$title = $ctx->getTitle();
 		$langCode = $ctx->getLanguage()->getCode();
 
-		// Used later on to add structred data to inline summary videos
-		$videoData = SchemaMarkup::getVideo( $title );
+		// Trevor, 5/22 - Used later on to add structred data to inline summary videos, must be
+		// called here due to mysterious issue with calling it later to be solved in the future
+		$videoSchema = SchemaMarkup::getVideo( $title );
 
 		$doc = phpQuery::newDocument($body);
 		$context = RequestContext::getMain();
@@ -638,13 +639,8 @@ class WikihowArticleHTML {
 			pq( "#quick_summary_section")->addClass("summary_with_video");
 
 			// Structured data
-			if ( $videoData ) {
-				$videoSchema = Html::rawElement(
-					'script',
-					[ 'type'=>'application/ld+json' ],
-					json_encode( $videoData, JSON_PRETTY_PRINT )
-				);
-				pq( '#quick_summary_section' )->append( $videoSchema );
+			if ( $videoSchema ) {
+				pq( '#quick_summary_section .video-player' )->append( SchemaMarkup::getSchemaTag( $videoSchema ) );
 			}
 
 			if ( Misc::isIntl() ) {
@@ -659,8 +655,19 @@ class WikihowArticleHTML {
 			if(pq('.summary_with_video')->length) {
 				pq('.summary_with_video')->replaceWith(pq('#summary_wrapper'));
 			}
+			// Add schema to all YouTube videos that are from our channel
+			foreach ( pq( '.embedvideo' ) as $video ) {
+				$src = pq( $video )->attr( 'data-src' );
+				preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
+				if ( $matches[1] ) {
+					$videoSchema = SchemaMarkup::getYouTubeVideo( $matches[1] );
+					// Only videos from our own channel will have publisher information
+					if ( array_key_exists( 'publisher', $videoSchema ) ) {
+						pq( $video )->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
+					}
+				}
+			}
 		}
-
 
 		//move each of the large images to the top
 		foreach (pq(".steps_list_2 li .mwimg.largeimage") as $image) {
@@ -882,7 +889,9 @@ class WikihowArticleHTML {
 		// after videos are updated
 		// Trevor, 3/1/19 - Check article being on alt-domain, not just which domain we are on, logged in
 		// users can see alt-domain articles on the main site
-		if ( $langCode == 'en' && !AlternateDomain::getAlternateDomainForPage( $title->getArticleID() ) ) {
+		// Trevor, 6/18/19 - Make a special exception for recipe articles, play those inline
+		$recipeSchema = SchemaMarkup::getRecipeSchema( $title, $context->getOutput()->getRevisionId() );
+		if ( !$recipeSchema && $langCode == 'en' && !AlternateDomain::getAlternateDomainForPage( $title->getArticleID() ) ) {
 			$videoPlayer = pq( '#quick_summary_section .video-player' );
 			if ( $videoPlayer ) {
 				$link = pq( '<a id="summary_video_link">' )->attr(
@@ -892,6 +901,7 @@ class WikihowArticleHTML {
 				$poster->addClass( 'm-video' );
 				$poster->addClass( 'content-fill placeholder' );
 				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $title ) );
+				// Includes the structured data, which was appened to .video-player
 				$videoPlayer->empty()->append( $link );
 				$link->append( $poster );
 				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );

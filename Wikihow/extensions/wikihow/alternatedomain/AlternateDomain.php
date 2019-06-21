@@ -6,7 +6,8 @@ $wgExtensionMessagesFiles['AlternateDomain'] = __DIR__ . '/AlternateDomain.i18n.
 
 $wgAutoloadClasses['AlternateDomain'] = __DIR__ . '/AlternateDomain.class.php';
 
-$wgHooks['BeforePageDisplay'][] = 'AlternateDomain::onBeforePageDisplay'; $wgHooks['TitleSquidURLs'][] = array('AlternateDomain::onTitleSquidURLs');
+$wgHooks['BeforePageDisplay'][] = 'AlternateDomain::onBeforePageDisplay';
+$wgHooks['TitleSquidURLs'][] = array('AlternateDomain::onTitleSquidURLs');
 $wgHooks['ImageHelperGetThumbnail'][] = 'AlternateDomain::onGetThumbnail';
 $wgHooks['RelatedWikihowsBeforeLoadRelatedArticles'][] = 'AlternateDomain::onRelatedWikihowsBeforeLoadRelatedArticles';
 $wgHooks['RelatedWikihowsAfterLoadRelatedArticles'][] = 'AlternateDomain::onRelatedWikihowsAfterLoadRelatedArticles';

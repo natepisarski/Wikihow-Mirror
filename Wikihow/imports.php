@@ -357,6 +357,7 @@ require_once("$IP/extensions/wikihow/api/ApiApp.php");
 require_once("$IP/extensions/wikihow/api/ApiRDSlag.php");
 require_once("$IP/extensions/wikihow/api/ApiGraphs.php");
 require_once("$IP/extensions/wikihow/api/ApiSmsListing.php");
+require_once("$IP/extensions/wikihow/api/ApiSchemaMarkup.php");
 require_once("$IP/extensions/wikihow/api/ApiSummaryVideos.php");
 require_once("$IP/extensions/wikihow/api/ApiSummarySection.php");
 require_once("$IP/extensions/wikihow/api/ApiRelatedArticles.php");

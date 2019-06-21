@@ -191,7 +191,6 @@ abstract class CoauthorSheet
 		return Html::rawElement('a', [ 'href'=>$linkHref, 'target'=>'_blank' ], $linkText);
 	}
 
-
 	/*
 	 * @see https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
 	 *

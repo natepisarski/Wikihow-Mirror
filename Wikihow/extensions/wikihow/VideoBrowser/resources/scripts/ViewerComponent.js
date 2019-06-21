@@ -5,6 +5,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			slug: null,
 			summary: null,
 			summaryError: false,
+			schema: null,
 			bumper: false,
 			playing: false,
 			nextVideoId: null,
@@ -103,6 +104,13 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 					summary: html,
 					summaryError: html === null,
 					summaryText: element.innerText.replace( /^\s\s*/, '' ).replace( /\s\s*$/, '' )
+				} );
+			} );
+
+			// Schema
+			this.getSchema( function ( schema ) {
+				viewer.change( {
+					schema: JSON.stringify( schema )
 				} );
 			} );
 
@@ -225,22 +233,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 							]
 						]
 					],
-					[ 'script', { type: 'application/ld+json' }, JSON.stringify( {
-						'@context': 'http://schema.org',
-						'@type': 'VideoObject',
-						'name': mw.msg( 'videobrowser-meta-title', video.title ),
-						'description': state.summaryText || undefined,
-						'thumbnailUrl': [ video.poster, video['poster@4:3'], video['poster@1:1'] ],
-						'contentUrl': video.id in this.youtubeIds ?
-							'https://www.youtube.com/watch?v=' + this.youtubeIds[video.id] :
-							String( window.location ),
-						'embedUrl': video.id in this.youtubeIds ?
-							'https://www.youtube.com/embed/' + this.youtubeIds[video.id] :
-							video.video,
-						'uploadDate': video.id in this.youtubeIds ? undefined : video.updated,
-						'interactionCount': video.id in this.youtubeIds ? undefined : video.plays
-						//'duration': 'PT1M33S', // TODO: Actual duration
-					} ) ],
+					[ 'script', { type: 'application/ld+json' }, state.schema || '' ],
 					[ 'div.videoBrowser-viewer-related',
 						[ 'h2.videoBrowser-viewer-related-title',
 							[ 'span.mw-headline', 'Related Videos' ],
@@ -420,6 +413,22 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				callback( null );
 			} );
 	},
+	getSchema: function ( callback ) {
+		var params = { action: 'schema_markup' };
+		if ( this.video.id in this.youtubeIds ) {
+			params.sm_type = 'video/youtube';
+			params.sm_video_youtube_id = this.youtubeIds[this.video.id];
+		} else {
+			params.sm_type = 'video/wikihow';
+			params.sm_video_wikihow_id = this.video.id;
+		}
+		this.api.get( params )
+			.then( function ( data ) {
+				callback( data.query.schema_markup.schema );
+			}, function () {
+				callback( null );
+			} );
+	},
 	getRelatedArticles: function ( callback ) {
 		this.api.get( { action: 'related_articles', ra_page: this.video.id } )
 			.then( function ( data ) {
@@ -444,6 +453,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				.filter( { id: { '!is': this.video.id } } )
 				.order( 'watched' )
 				.limit( 9 )
+				.get()
 		);
 	},
 	logAction: function ( action ) {

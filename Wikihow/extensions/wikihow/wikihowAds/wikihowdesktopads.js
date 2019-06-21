@@ -161,12 +161,6 @@ WH.desktopAds = (function () {
 
 		if (ad.refreshable && ad.renderrefresh) {
 			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
-		} else if (ad.refreshable && e.isEmpty) {
-			if (window.location.pathname == "/Upshift") {
-				// the ad we got back is empty..keep trying to load one
-				// but this has a bug, the ad will not be in the viewport so it will never refresh
-				// setTimeout(function() {ad.refresh();}, 2000);
-			}
 		}
 	}
 
@@ -1093,17 +1087,6 @@ WH.desktopAds = (function () {
 		});
 	}
 
-    function addRightRailAdExtraData(id) {
-        if (!rightRailElements.length) {
-            return;
-        }
-        // make sure this is an ad
-        var ad = rightRailElements[0];
-        var item = document.getElementById(id);
-        ad.adElement.appendChild(item);
-        ad.extraChild = item;
-    }
-
 	function getIntroAd() {
 		return introAd;
 	}
@@ -1113,7 +1096,6 @@ WH.desktopAds = (function () {
 		'addIntroAd': addIntroAd,
 		'addRightRailAd': addRightRailAd,
 		'addRightRailElement': addRightRailElement,
-		'addRightRailAdExtraData': addRightRailAdExtraData,
 		'addQuizAd': addQuizAd,
 		'addBodyAd': addBodyAd,
 		'addTOCAd': addTOCAd,

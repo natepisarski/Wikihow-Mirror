@@ -1,33 +1,40 @@
 #method_toc {
+	display: none;
 	position: fixed;
 	z-index: 5;
-	width: 100%;
 	overflow-x: scroll;
 	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
 	white-space: nowrap;
 	font-size: 12px;
-	letter-spacing: -.09pt;
-	font-weight: bold;
 	box-sizing: border-box;
-	font-family: "Arial", "Helvetica Neue", "Helvetica", sans-serif;
-
-	a, a:visited {
-		color: #445835;
-	}
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	background-color: #FFF;
+	top: 40px;
+	left: 0;
+	right: 0;
+	border-bottom: 1px solid #79A355;
 
 	&::-webkit-scrollbar {
 		display: none;
+		width: 0;
+		-webkit-appearance: none;
+	}
+
+	> div {
+		position: relative;
 	}
 }
 
 #method_toc_list {
-	width: 100%;
+	min-width: 100%;
 	display: table;
 	height: 40px;
 	border-spacing: 1em;
 	background-color: #FFF;
-	border-bottom: 1px solid #79A355;
 }
 
 .method_toc_item {
@@ -35,13 +42,26 @@
 	text-transform: uppercase;
 	vertical-align: middle;
 	text-align: center;
+	transform: translate3d(0,0,0);
+
+	a, a:visited {
+		color: #818181;
+	}
+
+	&.active {
+		a, a:visited {
+			color: #445835;
+		}
+	}
 }
 
 #toc_line {
 	position: absolute;
 	bottom: 0;
 	left: 0;
+	width: 0;
 	background-color: #417505;
 	height: 4px;
 	border-radius: 4px 4px 0 0;
+	transform: translate3d(0,0,0);
 }

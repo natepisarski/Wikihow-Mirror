@@ -2,7 +2,7 @@
 
 class CoauthorSheetMaster extends CoauthorSheet {
 	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1ix0subHGrixYSrAONNYH9g7th_-0oRKul9EsJpxAxwg';
+	const SHEET_ID_DEV = '1v-IEhY5_gL8f_d1yq8S19SX4Aeg9NdqusEharagsHdM';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
@@ -278,7 +278,8 @@ class CoauthorSheetMaster extends CoauthorSheet {
 
 			// $pageId
 			$title = $titles[$pageId];
-			$titleLink = $title ? Html::rawElement( 'a', ['href'=>$title->getCanonicalURL()], $title->getDBKey()) : '';
+			list($titleLink, $titleSpan) = self::getTitleLink($title);
+			$rowInfo .= $titleSpan;
 			if ( !trim($pageIdStr) ) {
 				$errors[] = "$rowInfo Empty article ID";
 			} elseif ( $pageId <= 0 ) {
@@ -360,11 +361,24 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		}
 
 		foreach ($dups as $aid => $links) {
+			$title = $titles[$aid];
+			list($titleLink, $titleSpan) = self::getTitleLink($title);
+
 			$locations = implode(',<br>', $links);
-			$result['errors'][] = "<span class='spa_location'>{$locations}</span> Duplicate Article ID: {$aid}";
+			$result['errors'][] = "<span class='spa_location'>{$locations}</span> Duplicate Article ID: {$aid}{$titleSpan}";
 		}
 
 		return $articles;
+	}
+
+	private static function getTitleLink($title): array {
+		if ( !$title || !$title->exists() ) {
+			return [ '', '' ];
+		}
+		$aid = $title->getArticleID();
+		$link = Html::rawElement( 'a', ['href'=>$title->getCanonicalURL(), 'target'=>'_blank'], $title->getDBKey() );
+		$span = "<span style='float:right;'>$link ($aid)</span>";
+		return [ $link, $span ];
 	}
 
 	/**

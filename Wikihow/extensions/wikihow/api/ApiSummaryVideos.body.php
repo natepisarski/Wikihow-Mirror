@@ -209,9 +209,9 @@ class ApiSummaryVideos extends ApiQueryBase {
 	}
 
 	/**
-	 * Get API description
+	 * Get allowed parameters
 	 *
-	 * @return string API description
+	 * @return array Allowed parameter options, keyed by parameter name
 	 */
 	public function getAllowedParams() {
 		return [
@@ -223,6 +223,11 @@ class ApiSummaryVideos extends ApiQueryBase {
 		];
 	}
 
+	/**
+	 * Get parameter descriptions
+	 *
+	 * @return array Parameter descriptions
+	 */
 	public function getParamDescription() {
 		return [
 			'sv_page' => 'Page ID to get video (or related videos) for',

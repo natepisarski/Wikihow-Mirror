@@ -5,6 +5,11 @@ class SchemaMarkup {
 	const RECIPE_SCHEMA_CACHE_KEY = "recipe_schema";
 	const ARTICLE_IMAGE_WIDTH = 1200;
 
+	const YOUTUBE_CHANNEL_IDS = [
+		'UCFSOC35EA1ugObwHQIIKRCg',
+		'UC1gi0J2xmZgP4sRFNEfcy7w',
+	];
+
 	const SOCIAL_DATA = [
 		'ar' => [
 			'facebook' => 'https://www.facebook.com/ar.wikihow/',
@@ -171,6 +176,14 @@ class SchemaMarkup {
 		return $result;
 	}
 
+	public static function getSchemaTag( $data ) {
+		return Html::rawElement(
+			'script',
+			[ 'type'=>'application/ld+json' ],
+			json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG )
+		);
+	}
+
 	public static function getWikihowOrganization() {
 		global $wgLanguageCode;
 
@@ -225,6 +238,10 @@ class SchemaMarkup {
 
 		foreach ( pq( $stepsSelector )->filter(':first')->parent()->nextAll( 'ol:first' )->children( 'li' ) as $step ) {
 			$text = self::getTextFromStep( $step );
+			$text = preg_replace( '~\x{00a0}~siu',' ', $text );
+			if ( !trim( $text ) ) {
+				continue;
+			}
 			$stepData = [
 				"@type" => "HowToStep",
 				"description" => $text
@@ -387,7 +404,6 @@ class SchemaMarkup {
 			"name" => $title->getText(),
 		];
 
-		$data += self::getMainEntityOfPage( $title );
 		$data += self::getSchemaImage( $title );
 		$data += self::getAuthors( $title );
 		$data += self::getAggregateRating( $title );
@@ -407,9 +423,10 @@ class SchemaMarkup {
 
 		$recipeInstructions = self::getRecipeInstructions( $title, $latestGoodText );
 
-		$data['recipeInstructions'] = $recipeInstructions;
-
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
+		if ( !empty( $recipeInstructions ) )  {
+			$data['recipeInstructions'] = $recipeInstructions;
+			$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
+		}
 
 		return $schema;
 	}
@@ -432,7 +449,6 @@ class SchemaMarkup {
 			"name" => $title->getText(),
 		];
 
-		$data += self::getMainEntityOfPage( $title );
 		$data += self::getSchemaImage();
 		$data += self::getAuthors( $title );
 		$data += self::getAggregateRating( $title );
@@ -452,7 +468,7 @@ class SchemaMarkup {
 
 			Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
 
-			$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
+			$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
 		}
 
 		// set in class static var
@@ -496,7 +512,7 @@ class SchemaMarkup {
 		//check if it has recipe
 		$allCats = self::getCategoryListForBreadcrumb( $title );
 		if ( !$allCats ) {
-			return '';
+			return 'general';
 		}
 		$cat = null;
 		$matchingCategories = null;
@@ -533,7 +549,7 @@ class SchemaMarkup {
 	}
 
 	private static function getVideoData( $title, $videoTemplateText ) {
-		global $wgServer;
+		global $wgServer, $wgLanguageCode;
 		if ( !$videoTemplateText ) {
 			return '';
 		}
@@ -552,8 +568,26 @@ class SchemaMarkup {
 		}
 
 		$name = $title->getText();
-		$description = "Quick Summary of " . $name;
+		$description = '';
+		$summaryData = SummarySection::summaryData( $name );
+		if ( $summaryData && array_key_exists( 'content', $summaryData ) ) {
+			$description = trim( strip_tags( SummarySection::summaryData( $name )['content'] ) );
+		}
 		$item = MessageCache::singleton()->parse( $videoTemplateText, null, false, false )->getText();
+
+		// Get combined mobile/desktop play count for summary video
+		$dbr = wfGetDB( DB_REPLICA );
+		$row = $dbr->selectRow(
+			'titus_copy',
+			[ 'plays' => '(ti_summary_video_play + ti_summary_video_play_mobile)' ],
+			[
+				'ti_page_id' => $title->getArticleID(),
+				'ti_language_code' => $wgLanguageCode
+			],
+			__METHOD__
+		);
+		$plays = $row ? $row->plays : 0;
+
 		if ( !$item ) {
 			return '';
 		}
@@ -565,14 +599,15 @@ class SchemaMarkup {
 
 		$thumbnailUrl = $wgServer . pq('.m-video')->attr('data-poster');
 		$data = [
-			"@context"=> "http://schema.org",
-			"@type" => "VideoObject",
-			"name" => $name,
-			"description" => $description,
-			"thumbnailUrl" => $thumbnailUrl,
-			"uploadDate" => $uploadDate,
-			"contentUrl" => $contentUrl,
-			"publisher" => self::getWikihowOrganization()
+			'@context'=> 'http://schema.org',
+			'@type' => 'VideoObject',
+			'publisher' => self::getWikihowOrganization(),
+			'name' => $name,
+			'description' => $description,
+			'thumbnailUrl' => $thumbnailUrl,
+			'contentUrl' => $contentUrl,
+			'interactionCount' => $plays,
+			'uploadDate' => $uploadDate,
 		];
 		return $data;
 	}
@@ -580,28 +615,28 @@ class SchemaMarkup {
 	public static function getLatestGoodRevisionText( $title ) {
 		$gr = GoodRevision::newFromTitle( $title );
 		if ( !$gr ) {
-			return "";
+			return '';
 		}
 
 		$latestGood = $gr->latestGood();
 		if ( !$latestGood ) {
-			return "";
+			return '';
 		}
 		$r = Revision::newFromId( $latestGood );
 		if ( !$r ) {
-			return "";
+			return '';
 		}
 		return ContentHandler::getContentText( $r->getContent() );
 	}
 
 	public static function getVideo( $title ) {
 		if ( !$title ) {
-			return "";
+			return '';
 		}
 
 		$text = self::getLatestGoodRevisionText( $title );
 		if ( !$text ) {
-			return "";
+			return '';
 		}
 
 		preg_match_all( '@{{whvid.*?Step 0.*?}}@m', $text, $out );
@@ -616,6 +651,45 @@ class SchemaMarkup {
 		// we could look for regular videos too but for now just summary videos
 		//preg_match_all( '@{{whvid(.*?)\}}@m', $text, $out );
 
+		return '';
+	}
+
+	public static function getYouTubeVideo( $id ) {
+		global $wgMemc;
+
+		$key = wfMemcKey( "SchemaMarkup::getYouTubeVideo({$id})" );
+		$info = $wgMemc->get( $key );
+		if ( $info === false ) {
+			$data = json_decode( file_get_contents( wfAppendQuery(
+				'https://www.googleapis.com/youtube/v3/videos',
+				[
+					'part' => 'statistics,snippet',
+					'id' => $id,
+					'key' => WH_YOUTUBE_API_KEY
+				]
+			) ) );
+			$item = $data->items[0];
+			$info = [
+				'name' => $item->snippet->title,
+				'description' => $item->snippet->description,
+				'thumbnailUrl' => $item->snippet->thumbnails->default->url,
+				'contentUrl' => "https://www.youtube.com/watch?v={$id}",
+				'embedUrl' => "https://www.youtube.com/embed/{$id}",
+				'interactionCount' => $item->statistics->viewCount,
+				'uploadDate' => $item->snippet->publishedAt
+			];
+			// Add publisher info for videos on our own channels
+			if ( in_array( $item->snippet->channelId, self::YOUTUBE_CHANNEL_IDS ) ) {
+				$info = array_merge( [ 'publisher' => self::getWikihowOrganization() ], $info );
+			}
+			$wgMemc->set( $key, $info );
+		}
+		if ( $info ) {
+			return array_merge( [
+				'@context'=> 'http://schema.org',
+				'@type' => 'VideoObject'
+			], $info );
+		}
 		return '';
 	}
 
@@ -783,21 +857,10 @@ class SchemaMarkup {
 		return true;
 	}
 
-	// get schema for amp pages which may differ from the regular page
-	public static function getAmpSchema( $out ) {
-		$pageId = $out->getTitle()->getArticleID();
-		$testPages = [ 2305417, 11774, 669011, 134766 ];
-		$testPages = array_flip( $testPages );
-		if ( isset( $testPages[$pageId] ) ) {
-			return self::getRecipeSchema( $out->getTitle(), $out->getRevisionId() );
-		}
-
-		return self::getArticleSchema( $out );
-	}
-
 	// get the json schema to put on the page if applicable
 	// uses $out to get title and wikipage but does not write to $out
 	public static function getSchema( $out ) {
+		global $wgIsDevServer;
 		if ( !self::okToShowSchema( $out ) ) {
 			return '';
 		}
@@ -824,6 +887,10 @@ class SchemaMarkup {
 			}
 
 			if ( CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
+				if ( $wgIsDevServer ) {
+					$goodRevision = GoodRevision::newFromTitle( $title );
+					self::processRecipeSchema( $title, $goodRevision, true );
+				}
 				$schema .= self::getRecipeSchema( $title, $out->getRevisionId() );
 			}
 		}
@@ -839,21 +906,19 @@ class SchemaMarkup {
 	}
 
 	private static function getMainEntityOfPage( $title ) {
-		global $wgServer;
-
 		$result = array();
 		if ( !$title ) {
 			return $result;
 		}
 
-		$url = $wgServer . '/' . $title->getPrefixedURL();
-		$url = wfExpandUrl( $url, PROTO_CANONICAL );
+	   $canonical = "https://" . Misc::getCanonicalDomain() . '/' . $title->getPrefixedURL();
+	   $canonical = wfExpandUrl( $canonical, PROTO_CANONICAL );
 
-		if ( !$url ) {
+		if ( !$canonical ) {
 			return $result;
 		}
 
-		$result = [ "mainEntityOfPage" => [ '@type' => 'WebPage', 'id' => $url] ];
+		$result = [ "mainEntityOfPage" => [ '@type' => 'WebPage', 'id' => $canonical] ];
 
 		return $result;
 	}
@@ -878,7 +943,7 @@ class SchemaMarkup {
 
 		$data = self::getWikihowOrganization();
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
 		return $schema;
 	}
 
@@ -950,7 +1015,7 @@ class SchemaMarkup {
 			"itemListElement" => $items
 		];
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
 		return $schema;
 	}
 	public static function getArticleSchema( $out ) {
@@ -983,7 +1048,7 @@ class SchemaMarkup {
 
 		Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
 
-		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT ) );
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
 		return $schema;
 	}
 
@@ -1078,6 +1143,9 @@ class SchemaMarkup {
 		if ( !$title || !$goodRevision ) {
 			return true;
 		}
+		if ( !CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
+			return true;
+		}
 		// do not process this if the recipe schema table does not exist
 		$dbr = wfGetDB( DB_REPLICA );
 		if ( !$dbr->tableExists( 'recipe_schema' ) ) {
@@ -1109,11 +1177,31 @@ class SchemaMarkup {
 	 * and before squid is purged. See GoodRevision::onMarkPatrolled for more details.
 	 */
 	public static function onAfterGoodRevisionUpdated( $title, $goodRevision ) {
+		if ( !CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
+			return true;
+		}
 		global $wgTitle;
 		$oldTitle = $wgTitle;
 		$wgTitle = $title;
 		self::processRecipeSchema( $title, $goodRevision );
 		$wgTitle = $oldTitle;
+	}
+
+	public static function beforeArticlePurge( $wikiPage ) {
+		if ( $wikiPage ) {
+			$title = $wikiPage->getTitle();
+			if ( !CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
+				return true;
+			}
+			$revision = $title->mLatestID;
+
+			$goodRevision = GoodRevision::newFromTitle( $title );
+			$latestGood = $goodRevision->latestGood();
+			if ( $latestGood == $revision ) {
+				self::processRecipeSchema( $title, $goodRevision, true );
+			}
+		}
+		return true;
 	}
 
 	public static function getSocialData($lang = ''): array {

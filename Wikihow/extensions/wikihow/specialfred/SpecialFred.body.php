@@ -197,7 +197,8 @@ class SpecialFred extends UnlistedSpecialPage {
         $var = '*';
         $cond = array();
 
-		$sql = "select * from (select * from " . $table . " order by processed DESC LIMIT $limit) as w order by $orderBy";
+		$rows = "status, article_id, creator, reviewed, processed, vid_processed, photo_processed, warning, error, article_url, photo_cnt, vid_cnt, replaced, incubation, leave_old_media";
+		$sql = "select $rows from (select * from " . $table . " order by processed DESC LIMIT $limit) as w order by $orderBy";
 
 		//$res = $dbr->select( $table, $var, $cond, __METHOD__, $options );
 		$res = $dbr->query( $sql, __METHOD__ );
@@ -283,27 +284,21 @@ class SpecialFred extends UnlistedSpecialPage {
 
 		// first line will be the header
 		$firstLine = [
-			'article_id' => 'PageId',
 			'status' => 'Status',
+			'article_id' => 'PageId',
 			'creator' => 'Creator',
 			'reviewed' => 'Reviewed',
 			'processed' => 'Processed',
 			'vid_processed' => 'Vid Processed',
-			'gif_processed' => 'Gif Processed',
-			'gif_processed_error' => 'Gif Processed Error',
 			'photo_processed' => 'Photo Processed',
 			'warning'  => 'Warning',
 			'error'  => 'Error',
 			'article_url' => 'Article URL',
-			'retry'  =>'Retry',
-			'vid_cnt'  => 'Videos',
 			'photo_cnt' => 'Photos',
+			'vid_cnt'  => 'Videos',
 			'replaced' => 'Replaced',
-			'steps' => 'Steps',
-			'staging_dir'=>  'Staging Dir',
 			'incubation' => 'Incubation',
 			'leave_old_media' => 'Leave Old',
-			'titlechange' => 'Title Change'
 		];
 
 		$data = [$firstLine];

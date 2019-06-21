@@ -208,6 +208,113 @@ class RelatedWikihows {
 	}
 
 	/*
+	 * get list of related articles from a title given a category
+	 * @param Title $title the title of the page to act on
+	 * @param string $cat the category to look in
+	 *
+	 * @return array result is assoc array with pageids as they key
+	 */
+	private static function getRelatedArticlesForTitleAndCategory( $title, $cat ) {
+		global $wgLanguageCode;
+
+		if ( !$title ) {
+			return array();
+		}
+
+		if ( !$cat ) {
+			return array();
+		}
+
+		$cat = $cat->getDBKey();
+		$result['category'] = $cat;
+
+		// Populate related articles box with other articles in the category,
+		// displaying the featured articles first
+		$result = [];
+
+		$dbr = wfGetDB( DB_REPLICA );
+
+		$pageId = $title->getArticleID();
+		$table = array( WH_DATABASE_NAME_EN.'.titus_copy' );
+		$vars = array( 'ti_page_id' );
+
+		$conds = array(
+			'ti_page_id <> '.$pageId,
+			'ti_language_code' => $wgLanguageCode,
+			'ti_robot_policy' => 'index,follow',
+			'ti_num_photos > 0'
+		);
+
+		$table[] = 'categorylinks';
+		$conds[] = 'ti_page_id = cl_from';
+		$conds['cl_to'] = $cat;
+
+		if ( SensitiveRelatedWikihows::isSensitiveRelatedRemovePage( $title ) ) {
+			$srpTable = SensitiveRelatedWikihows::SENSITIVE_RELATED_PAGE_TABLE;
+			$conds[] = "ti_page_id NOT IN (select srp_page_id from $srpTable)";
+		}
+
+		$orderBy = 'ti_30day_views DESC';
+		$limit = self::MIN_TO_SHOW_DESKTOP;
+		$options = array( 'ORDER BY' => $orderBy, 'LIMIT' => $limit );
+
+		$res = $dbr->select( $table, $vars, $conds, __METHOD__, $options );
+		if ( !$res ) {
+			return $result;
+		}
+
+		foreach ( $res as $row ) {
+			$targetId = $row->ti_page_id;
+			$result[$targetId] = true;
+		}
+
+		return $result;
+	}
+
+
+	/*
+	 * get list of categories we can search in for related wikihows
+	 * filters out categories to ignore
+	 * @param Title $title the title of the page to act on
+	 *
+	 * @return first title which fits the criteria or null
+	 */
+	private static function getCategoryForTitle( $title ) {
+		if ( !$title ) {
+			return null;
+		}
+
+		$categories = $title->getParentCategories();
+
+		if ( !is_array( $categories ) || empty( $categories ) ) {
+			return null;
+		}
+
+		// first get an associative array of categories to ignore
+		$categoriesToIgnore = wfMessage( 'categories_to_ignore' )->inContentLanguage()->text();
+		$categoriesToIgnore = explode( "\n", $categoriesToIgnore );
+		$tempCategories = array();
+		foreach ( $categoriesToIgnore as $catToIgnore ) {
+			$tempCategories[] = end( explode( ":", $catToIgnore ) );
+		}
+		$categoriesToIgnore = array_flip( $tempCategories );
+
+		$keys = array_keys( $categories );
+		for ( $i = 0; $i < sizeof( $keys ); $i++ ) {
+			$t = Title::newFromText( $keys[$i] );
+			$partial = $t->getPartialURL();
+			if ( isset( $categoriesToIgnore[urldecode( $partial )] ) || isset( $categoriesToIgnore[$partial] ) ) {
+				continue;
+			} else {
+				//$result[] = $t->getDBKey();
+				return $t;
+			}
+		}
+
+		return null;
+	}
+
+	/*
 	 * get list of related articles and their category given a title
 	 * @param Title $title the title of the page to act on
 	 *
@@ -224,85 +331,17 @@ class RelatedWikihows {
 			return $val;
 		}
 
-		$result = array();
-
-		// Determine first non-ignorable category associated with the article.
-		// Ignorable categories are ones like "Stub", "Nfd", "User-Thankers", etc.
-		$cat = '';
-
-		// this used to be cached but it causes bugs, if the category is an ignored one
-		// since the related wikihows are cached it's not a huge deal to regenerate this
-		$cats = $title->getParentCategories();
-
-		if ( is_array( $cats ) && sizeof( $cats ) > 0) {
-			$catsToIgnore = wfMessage( 'categories_to_ignore' )->inContentLanguage()->text();
-			$catsToIgnore = explode( "\n", $catsToIgnore );
-			$categories = array();
-			foreach ( $catsToIgnore as $catToIgnore ) {
-				$categories[] = end( explode( ":", $catToIgnore ) );
-			}
-			$catsToIgnore = array_flip( $categories ); // make the array associative.
-
-			$keys = array_keys( $cats );
-			for ( $i = 0; $i < sizeof( $keys ); $i++ ) {
-				$t = Title::newFromText( $keys[$i] );
-				$partial = $t->getPartialURL();
-				if ( isset( $catsToIgnore[urldecode( $partial )] ) || isset( $catsToIgnore[$partial] ) ) {
-					continue;
-				} else {
-					$cat = $t->getDBKey();
-					break;
-				}
-			}
-		}
-
-		$result['category'] = $cat;
-		// Populate related articles box with other articles in the category,
-		// displaying the featured articles first
-		$data = [];
-
-		$dbr = wfGetDB( DB_REPLICA );
-
-		$pageId = $title->getArticleID();
-
-		global $wgLanguageCode;
-		$table = array( WH_DATABASE_NAME_EN.'.titus_copy' );
-		$vars = array( 'ti_page_id' );
-
-		$conds = array(
-			'ti_page_id <> '.$pageId,
-			'ti_language_code' => $wgLanguageCode,
-			'ti_robot_policy' => 'index,follow',
-			'ti_num_photos > 0'
-		);
-
-		if ( empty( $cat ) ) {
-			// return a list of ten from chris
+		$category = self::getCategoryForTitle( $title );
+		if ( empty( $category ) ) {
+			// return a list from chris
 			$result['articles'] = self::getDefaultRelatedWikihows();
-			return $result;
-		} else {
-			$table[] = 'categorylinks';
-			$conds[] = 'ti_page_id = cl_from';
-			$conds['cl_to'] = $cat;
 		}
 
-		if ( SensitiveRelatedWikihows::isSensitiveRelatedRemovePage( $title ) ) {
-			$srpTable = SensitiveRelatedWikihows::SENSITIVE_RELATED_PAGE_TABLE;
-			$conds[] = "ti_page_id NOT IN (select srp_page_id from $srpTable)";
-		}
+		// Populate related articles box with other articles in the category,
+		$data = self::getRelatedArticlesForTitleAndCategory( $title, $category );
 
-
-		$orderBy = 'ti_30day_views DESC';
-		$limit = self::MIN_TO_SHOW_DESKTOP;
-		$options = array( 'ORDER BY' => $orderBy, 'LIMIT' => $limit );
-
-		$res = $dbr->select( $table, $vars, $conds, __METHOD__, $options );
-		if (!$res) $res = [];
-
-		foreach ( $res as $row ) {
-			$targetId = $row->ti_page_id;
-			$data[$targetId] = true;
-		}
+		$result = array();
+		$result['category'] = $category;
 		$result['articles'] = $data;
 
 		$wgMemc->set( $cachekey, $result );
@@ -453,7 +492,15 @@ class RelatedWikihows {
 
 			$relatedArticles = $relatedArticles + $relatedArticlesByCategory;
 
-			// limit the results of the wikitext and by-cat to 10
+			// limit the results of the wikitext and by-cat
+			$relatedArticles = array_slice( $relatedArticles, 0, self::MIN_TO_SHOW_DESKTOP, true );
+		}
+
+		// it is possible we still do not have enough articles. in that case use from a default list
+		$count = count( $relatedArticles );
+		if ( $count < $minNumber ) {
+			$defaultRelatedArticles = self::getDefaultRelatedWikihows();
+			$relatedArticles = $relatedArticles + $defaultRelatedArticles;
 			$relatedArticles = array_slice( $relatedArticles, 0, self::MIN_TO_SHOW_DESKTOP, true );
 		}
 

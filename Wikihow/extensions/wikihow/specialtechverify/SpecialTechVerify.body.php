@@ -311,7 +311,7 @@ class SpecialTechVerify extends UnlistedSpecialPage {
 		$dbr = wfGetDb( DB_REPLICA );
         $table = self::STV_TABLE;
         $vars = "count('*')";
-        $conds = array( "stvi_user_id" => '' );
+		$conds = array( "stvi_enabled" => 1, "stvi_user_id" => '' );
         $options = array();
 		$count = $dbr->selectField( $table, $vars, $conds, __METHOD__, $options );
         return $count;

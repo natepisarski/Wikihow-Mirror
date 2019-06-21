@@ -25,6 +25,11 @@ class WikihowMobileTools {
 
 	static function processDom($text, $skin, $config = null) {
 		global $wgLanguageCode, $wgTitle, $wgMFDeviceWidthMobileSmall, $IP, $wgUser, $wgContLang;
+
+		// Trevor, 5/22 - Used later on to add structred data to inline summary videos, must be
+		// called here due to mysterious issue with calling it later to be solved in the future
+		$videoSchema = SchemaMarkup::getVideo( $wgTitle );
+
 		if (is_null($config)) {
 			$config = self::getDefaultArticleConfig();
 		}
@@ -442,6 +447,9 @@ class WikihowMobileTools {
 		//give the whole section a consistent id
 		pq( '.summarysection .video-player' )->parents( '.summarysection' )->eq( 0 )->attr( 'id','quick_summary_section');
 
+		//give the summary video title a consistent id (like the other sections)
+		pq( '.summarysection .video-player')->parents( '.section' )->find('h2 span')->attr( 'id', 'quick_summary_video_section');
+
 		pq( 'video:not(.summary-m-video)' )->parent()->after( WHVid::getVideoControlsHtmlMobile() );
 
 		//move each of the large images to the top
@@ -551,12 +559,7 @@ class WikihowMobileTools {
 
 				$thumb_ss = $url;
 
-				$startTime = strtotime('June 4, 2019');
-				$twoWeeks = 2 * 7 * 24 * 60 * 60;
-				$rolloutArticle = Misc::percentileRollout( $startTime, $twoWeeks );
-				if ( $rolloutArticle ) {
-					pq($img)->attr("data-srclarge", $thumb_ss);
-				}
+				pq($img)->attr("data-srclarge", $thumb_ss);
 				// need to add microtime to handle the editor overlays so there aren't 2 images with the same id on the page
 				$thumb_id = md5(pq($img)->attr("src") . microtime());
 				pq($img)->attr("id", $thumb_id);
@@ -621,8 +624,8 @@ class WikihowMobileTools {
 		pq("#intro .mwimg:not(.introimage)")->remove();
 
 		// We add the deferred loading scripts until the end of this html
+		$out = $context->getOutput();
 		if ($config['display-deferred-javascript']) {
-			$out = $context->getOutput();
 			$scripts = $out->getDeferHeadScripts();
 			if ($scripts) {
 				$scripts .= "<script>mw.mobileFrontend.emit( 'header-loaded' );</script>";
@@ -748,6 +751,12 @@ class WikihowMobileTools {
 				//if there's a video summary, rename the section
 				if ( pq('video', $summarySection)->length > 0) {
 					pq('.mw-headline', $summarySection)->html(wfMessage('qs_video_title')->text());
+
+					// Add structured data
+					if ( $videoSchema ) {
+						pq('video', $summarySection)->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
+					}
+
 				}
 
 				//no edit for the summary section since we're moving to templates [sc: 5/2018]
@@ -866,7 +875,11 @@ class WikihowMobileTools {
 
 		// Trevor, 11/8/18 - Testing making videos a link to the video browser - this must come
 		// after videos are updated
-		if ( $wgLanguageCode == 'en' && !Misc::isAltDomain() && !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
+		// Trevor, 3/1/19 - Check article being on alt-domain, not just which domain we are on, logged in
+		// users can see alt-domain articles on the main site
+		// Trevor, 6/18/19 - Make a special exception for recipe articles, play those inline
+		$recipeSchema = SchemaMarkup::getRecipeSchema( $wgTitle, $context->getOutput()->getRevisionId() );
+		if ( !$recipeSchema && $wgLanguageCode == 'en' && !Misc::isAltDomain() && !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
 			$videoPlayer = pq( '.summarysection .video-player' );
 			if ( $videoPlayer ) {
 				$link = pq( '<a id="summary_video_link">' )->attr(
@@ -881,6 +894,21 @@ class WikihowMobileTools {
 				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
 				$link->append( Html::inlineScript( "WH.shared.addLoadedCallback('summary_video_poster', function(){WH.shared.showVideoPlay(this);})" ) );
 				$link->append( $controls );
+			}
+		}
+
+		if( pq('.embedvideocontainer')->length > 0 && WHVid::isYtSummaryArticle($wgTitle)) {
+			// Add schema to all YouTube videos that are from our channel
+			foreach ( pq( '.embedvideo' ) as $video ) {
+				$src = pq( $video )->attr( 'data-src' );
+				preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
+				if ( $matches[1] ) {
+					$videoSchema = SchemaMarkup::getYouTubeVideo( $matches[1] );
+					// Only videos from our own channel will have publisher information
+					if ( array_key_exists( 'publisher', $videoSchema ) ) {
+						pq( $video )->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
+					}
+				}
 			}
 		}
 
@@ -1115,7 +1143,7 @@ class WikihowMobileTools {
 			case $relatedAnchor:
 				$extraTOCPostData[$relatedAnchor] = [
 					'anchor' => $relatedAnchor,
-					'name' => wfMessage('relatedwikihows')->text(),
+					'name' => wfMessage('relatedarticles')->text(),
 					'priority' => 1500,
 					'selector' => '#' . Misc::escapeJQuerySelector($relatedAnchor),
 				];

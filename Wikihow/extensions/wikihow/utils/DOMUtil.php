@@ -89,6 +89,11 @@ class DOMHelper {
 				continue;
 			}
 
+			$hasImageInLink = pq('amp-img', $a)->length;
+			if ($hasImageInLink) {
+				continue;
+			}
+
 			$title = $a->getAttribute('title');
 			$href = $a->getAttribute('href');
 			if ($title && $href && strpos($href, '/') === 0 && strpos($href, '.php') === false) {

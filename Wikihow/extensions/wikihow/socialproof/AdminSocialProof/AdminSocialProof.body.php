@@ -16,12 +16,9 @@ class AdminSocialProof extends UnlistedSpecialPage {
 		$userGroups = $user->getGroups();
 
 		if ( $user->isBlocked() || !in_array('staff', $userGroups) ) {
-			// $devReq = $wgIsDevServer && $request->wasPosted() && $request->getVal('action') == 'import' && $request->getBool('dev');
-			// if (!$devReq) {
 			$out->setRobotpolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
-			// }
 		}
 
 		if ( !$request->wasPosted() ) {

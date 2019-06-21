@@ -184,6 +184,9 @@ class SpecialVideoBrowser extends SpecialPage {
 						$wgMemc->set( $key, $info );
 					}
 					$viewing = array_merge( $viewing, $info );
+					$schema = SchemaMarkup::getYouTubeVideo( $youtubeIds[$viewing['id']] );
+				} else {
+					$schema = SchemaMarkup::getVideo( Title::newFromId( $viewing['id'] ) );
 				}
 
 				$prerender = VideoBrowser::render( 'viewer-prerender.mustache', [
@@ -191,13 +194,12 @@ class SpecialVideoBrowser extends SpecialPage {
 					'read-more' => wfMessage( 'videobrowser-read-more' )->text(),
 					'context' => wfMessage( 'videobrowser-context' )->text(),
 					'summary' => "<p>{$summaryHtml}</p>",
-					'summaryText' => $summaryText,
 					'titleText' => $titleText,
 					'howToTitle' => $howToTitle,
 					'video' => $viewing,
 					'breadcrumbs' => $list,
 					'youtube' => $youtubeIds[$viewing['id']],
-					'publisher' => json_encode( SchemaMarkup::getWikihowOrganization() )
+					'schema' => SchemaMarkup::getSchemaTag( $schema )
 				] );
 			} else {
 				// Index

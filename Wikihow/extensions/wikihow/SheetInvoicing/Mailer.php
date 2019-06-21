@@ -53,6 +53,13 @@ abstract class Mailer
 			$entry['subject'] = $this->getSubject($entry);
 			$entry['body'] = $this->mustache->render('invoice.mustache', $entry);
 
+// TODO: remove
+global $wgUser;
+if ( $wgUser->getName() == 'Albur' ) {
+	$entry['fullName'] .= ' (DEV)';
+	$entry['email'] = 'alberto+' . preg_replace("/[^A-Za-z0-9 ]/", '', $entry['email']) . '@wikihow.com';
+}
+
 			$to = new MailAddress("{$entry['fullName']} <{$entry['email']}>");
 			$entry['error'] = $wgIsProduction
 				? $this->sendEmail($to, $entry['subject'], $entry['body'])
@@ -81,7 +88,9 @@ abstract class Mailer
 	{
 		$contentType = 'text/html; charset=UTF-8';
 		try {
-			UserMailer::send($to, $this->sender, $subject, $body, $this->replyTo, $contentType);
+			$status = UserMailer::send($to, $this->sender, $subject, $body, $this->replyTo, $contentType);
+// TODO remove
+wfDebugLog('alber', "From '" . $this->sender . "' to '$to': $subject | " . var_export($status, true) );
 			return '';
 		} catch (\Exception $e) {
 			return $e->getMessage();
