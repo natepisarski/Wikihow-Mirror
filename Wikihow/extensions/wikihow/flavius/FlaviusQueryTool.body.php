@@ -43,9 +43,10 @@ class FlaviusQueryTool extends UnlistedSpecialPage {
 			return;
 		} else {
 			EasyTemplate::set_path(__DIR__.'/resources/templates/');
-
+			$flaviusLastRunStatus = $this->getLastRunInfo();
 			$vars = array('fields'=>$this->getFields() );
-
+			$vars['flaviusLastRunTime'] = $flaviusLastRunStatus['flaviusLastRunTime'];
+			$vars['flaviusLastRunErrorDump'] = $flaviusLastRunStatus['flaviusLastRunErrorDump'];
 			$html = EasyTemplate::html('flaviusquerytool.tmpl.php', $vars);
 			$out->addModules('ext.wikihow.flaviusquerytool');
 			$out->setPageTitle('Dear Flavius Anicius Petronius Maximus. I come seeking.....');
@@ -248,6 +249,42 @@ class FlaviusQueryTool extends UnlistedSpecialPage {
 			}
 			print "\n";
 		}
+	}
+
+	private function getLastRunInfo() {
+		// This JSON contains information about flavius' last run
+		$flaviusFinishedLogFile = '/data/titus_log/flavius_finished.json';
+
+		// Doing this for error-handling in flaviusquerytool.tmpl.php
+		$formattedTime = -1;
+		$errors = -1;
+
+		if ( file_exists( $flaviusFinishedLogFile ) ) {
+			$jsonContents = file_get_contents( '/data/titus_log/flavius_finished.json' );
+			$decoded = json_decode( $jsonContents, true );
+			if ( array_key_exists( 'err', $decoded ) ) {
+				$errors = $decoded['err'];
+			}
+			if ( array_key_exists( 'date', $decoded ) ) {
+				$unixTime = $decoded['date'];
+
+				// Making sure we have a numeric Unix timestamp before formatting it
+				if ( is_numeric( $unixTime ) && (int)$unixTime == $unixTime ){
+					$timezone = 'America/Los_Angeles';
+					$dt = new DateTime("now", new DateTimeZone($timezone));
+					$dt->setTimestamp($unixTime);
+					$formattedTime = $dt->format('g:ia \o\n l jS F Y');
+				} else {
+				// If the timestamp isn't numeric, just use whatever value is stored without formatting it
+					$formattedTime = $unixTime;
+				}
+			}
+		}
+
+		return [
+			'flaviusLastRunTime' => $formattedTime,
+			'flaviusLastRunErrorDump' => $errors
+		];
 	}
 
 }

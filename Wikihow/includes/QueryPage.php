@@ -836,7 +836,10 @@ abstract class WantedQueryPage extends QueryPage {
 			}
 			return $this->getLanguage()->specialList( $pageLink, $this->makeWlhLink( $title, $result ) );
 		} else {
-			return $this->msg( 'wantedpages-badtitle', $result->title )->escaped();
+		//	Hiding bad/ garbage entries on the WantedPages. Return the line below, instead of empty string,
+		//	to show bad entries again. - Gaurang 6/21/2019
+		//	return $this->msg( 'wantedpages-badtitle', $result->title )->escaped();
+			return '';
 		}
 	}
 

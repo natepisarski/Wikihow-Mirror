@@ -1,10 +1,11 @@
 (function( window, document, $) {
 	'use strict';
 
-	$(document).on('submit', '#aci_form', function(e) {
+	$(document).on('submit', '.aci_form', function(e) {
 		e.preventDefault();
 
-		$('#aci_submit_btn').hide();
+		$('.aci_submit_btn').prop('disabled', true).addClass('disabled');
+		$('#spa_details_container').hide();
 		$('#aci_progress_label').css('display', 'inline-block');
 
 		$.ajax({

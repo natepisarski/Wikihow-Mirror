@@ -780,7 +780,7 @@ class QAPatrol extends UnlistedSpecialPage {
 		if ($data['verifier_id'] && $this->qap_expert_mode) {
 			$vd = VerifyData::getVerifierInfoById($data['verifier_id']);
 			if (!empty($vd)) {
-				$link = ArticleReviewers::getLinkByVerifierName($vd->name);
+				$link = ArticleReviewers::getLinkToCoauthor($vd);
 				$html .= wfMessage('qap_user_sub_exp', $vd->name, $link)->text();
 			}
 		}

@@ -18,6 +18,10 @@ class SocialStamp {
 		$html = self::getBylineHtml();
 
 		pq('.firstHeading')->after($html);
+
+		if(class_exists('TechRating')) {
+			TechRating::insertTechRating(RequestContext::getMain()->getOutput()->getTitle()->getArticleID());
+		}
 	}
 
 	private static function getBylineHtml() {
@@ -79,9 +83,17 @@ class SocialStamp {
 
 	private static function isEligibleForByline() {
 		$main = RequestContext::getMain();
+		$req = $main->getRequest();
 
-		$revision = $main->getRequest()->getVal('oldid', "");
-		if ($revision != "") return false;
+		$revision = $req->getVal('oldid', '');
+		if ($revision != "") {
+			return false;
+		}
+
+		$action = $req->getVal('action', 'view');
+		if ( $action != 'view' ) {
+			return false;
+		}
 
 		$title = $main->getTitle();
 		if (!$title->inNamespace(NS_MAIN) || $title->isMainPage() || $title->getArticleID() <= 0) return false;
@@ -279,10 +291,16 @@ class SocialStamp {
 
 		if ($isExpert) {
 			$vData = $verifiers[$key];
-			$link = ArticleReviewers::getLinkByVerifierName($vData->name);
+			$link = ArticleReviewers::getLinkToCoauthor($vData);
 			if ($isIntl) {
-				$coauthorLink = Html::element('a', ['href' => $link, 'target' => '_blank'], $vData->name);
-				$msg = $vData->hoverBlurb ? 'ss_coauthored_by' : 'ss_expert_no_blurb';
+				if ( $vData->hoverBlurb ) { // show link only if blurb is translated
+					$coauthorLink = Html::element('a', ['href' => $link], $vData->name);
+					$msg = 'ss_coauthored_by';
+				} else {
+					$coauthorLink = $vData->name;
+					$msg = 'ss_expert_no_blurb';
+				}
+
 				$hoverText = wfMessage($msg, $coauthorLink )->text() . ' ' . $vData->hoverBlurb . $citations;
 			} else {
 				$coauthoredBy = lcfirst(wfMessage("sp_expert_attribution")->text());

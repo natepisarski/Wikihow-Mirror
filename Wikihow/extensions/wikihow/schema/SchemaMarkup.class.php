@@ -288,6 +288,7 @@ class SchemaMarkup {
 			$steps = array();
 			$i = 0;
 			foreach ( pq( $section )->find( '.steps_list_2 > li' ) as $stepItem ) {
+				$stepId = pq( $stepItem )->attr( 'id' );
 				$step = pq( $stepItem )->find( '.step' );
 				$i++;
 				$text = pq( $step)->text();
@@ -309,6 +310,11 @@ class SchemaMarkup {
 				$stepImage = self::getHowToStepImageFromStep( $stepItem );
 				if ( $stepImage ) {
 					$stepData['image'] = $stepImage;
+				}
+				if ( $stepId ) {
+					$url = $wgServer . '/' . $wgTitle->getPrefixedURL();
+					$url = wfExpandUrl( $url, PROTO_CANONICAL );
+					$stepData['url'] = $url . '#' . $stepId;
 				}
 				$steps[] = $stepData;
 			}
@@ -412,7 +418,7 @@ class SchemaMarkup {
 		$data += self::getNutritionInformation( $title );
 		$data += self::getPrepTime( $title );
 		$data += self::getCookTime( $title );
-		$data['description'] = ArticleMetaInfo::getCurrentTitleMetaDescription();
+		$data['description'] = self::getDescription( $title );
 		$data['recipeIngredient'] = $ingredients;
 
 		$videoData = self::getVideo( $title );
@@ -464,7 +470,7 @@ class SchemaMarkup {
 				$data = array_merge( $data, self::getHowToSteps() );
 			}
 
-			$data['description'] = ArticleMetaInfo::getCurrentTitleMetaDescription();
+			$data['description'] = self::getDescription( $title );
 
 			Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
 
@@ -654,35 +660,67 @@ class SchemaMarkup {
 		return '';
 	}
 
-	public static function getYouTubeVideo( $id ) {
+	/**
+	 * Gets schema markup for a YouTube video.
+	 *
+	 * Info is fetched async, so the first time it is called for a given YouTube ID it will return
+	 * an empty string, indicating the schema isn't available yet. Once the info is available, the
+	 * title that initiated the call will be purged so this method is called again - except this
+	 * time it will read from the cached response.
+	 *
+	 * AsyncHttp is used to store and read back the response from the API called invoked in a job,
+	 * and memcache is used for the trimmed down portion of the response we use in the schema.
+	 *
+	 * @param  [type] $title Title object of page YouTube video is embedded in, if page is in the
+	 *     main namespace this will be used to purge the cache and regnerate the page after the info
+	 *     has been fetched
+	 * @param  [type] $id YouTube video ID string
+	 * @return [array|string] Array containing VideoObject schema data or an empty string if schema
+	 *   is currently being fetched
+	 */
+	public static function getYouTubeVideo( $title, $id ) {
 		global $wgMemc;
 
-		$key = wfMemcKey( "SchemaMarkup::getYouTubeVideo({$id})" );
-		$info = $wgMemc->get( $key );
+		$requestKey = "YouTubeInfo({$id})";
+		$cacheKey = wfMemcKey( $requestKey );
+		$info = $wgMemc->get( $cacheKey );
 		if ( $info === false ) {
-			$data = json_decode( file_get_contents( wfAppendQuery(
-				'https://www.googleapis.com/youtube/v3/videos',
-				[
-					'part' => 'statistics,snippet',
-					'id' => $id,
-					'key' => WH_YOUTUBE_API_KEY
-				]
-			) ) );
-			$item = $data->items[0];
-			$info = [
-				'name' => $item->snippet->title,
-				'description' => $item->snippet->description,
-				'thumbnailUrl' => $item->snippet->thumbnails->default->url,
-				'contentUrl' => "https://www.youtube.com/watch?v={$id}",
-				'embedUrl' => "https://www.youtube.com/embed/{$id}",
-				'interactionCount' => $item->statistics->viewCount,
-				'uploadDate' => $item->snippet->publishedAt
-			];
-			// Add publisher info for videos on our own channels
-			if ( in_array( $item->snippet->channelId, self::YOUTUBE_CHANNEL_IDS ) ) {
-				$info = array_merge( [ 'publisher' => self::getWikihowOrganization() ], $info );
+			// Lookup info in DB
+			$response = AsyncHttp::read( $requestKey );
+			if ( $response && $response['status'] === 200 ) {
+				$data = json_decode( $response['body'] );
+				$item = $data->items[0];
+				$info = [
+					'name' => $item->snippet->title,
+					'description' => $item->snippet->description,
+					'thumbnailUrl' => $item->snippet->thumbnails->default->url,
+					'contentUrl' => "https://www.youtube.com/watch?v={$id}",
+					'embedUrl' => "https://www.youtube.com/embed/{$id}",
+					'interactionCount' => $item->statistics->viewCount,
+					'uploadDate' => $item->snippet->publishedAt
+				];
+				// Add publisher info for videos on our own channels
+				if ( in_array( $item->snippet->channelId, self::YOUTUBE_CHANNEL_IDS ) ) {
+					$info = array_merge( [ 'publisher' => self::getWikihowOrganization() ], $info );
+				}
+				$wgMemc->set( $cacheKey, $info );
 			}
-			$wgMemc->set( $key, $info );
+
+			// If the DB doesn't have it or it's more than a week old, setup a job to fetch it
+			$lastWeek = wfTimestamp( TS_MW, strtotime( '-1 week' ) );
+			if ( !$response || $response['updated'] < $lastWeek ) {
+				$purgeUrls = [];
+				if ( $title->inNamespace( NS_MAIN ) ) {
+					$purgeUrls[] = $wgCanonicalServer . '/' . $title->getPrefixedDBkey();
+				}
+				$job = Job::factory( 'YouTubeInfoJob', $title, [
+					'id' => $id,
+					'requestKey' => $requestKey,
+					'cacheKey' => $cacheKey,
+					'purgeUrls' => $purgeUrls
+				] );
+				JobQueueGroup::singleton()->push( $job );
+			}
 		}
 		if ( $info ) {
 			return array_merge( [
@@ -1018,6 +1056,15 @@ class SchemaMarkup {
 		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
 		return $schema;
 	}
+
+	private static function getDescription( $title ) {
+		$description = ArticleMetaInfo::getCurrentTitleMetaDescription();
+		$description = preg_replace( '~\x{00a0}~siu', ' ', $description );
+		if ( !trim( $description ) ) {
+			$description = wfMessage( 'article_meta_description', $title->getText() )->text();
+		}
+		return $description;
+	}
 	public static function getArticleSchema( $out ) {
 		// does sanity checks on the title and wikipage and $out
 		if ( !self::okToShowSchema( $out ) ) {
@@ -1044,7 +1091,7 @@ class SchemaMarkup {
 		$data += self::getPublisher();
 		$data += self::getContributors( $title );
 
-		$data['description'] = ArticleMetaInfo::getCurrentTitleMetaDescription();
+		$data['description'] = self::getDescription( $title );
 
 		Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
 

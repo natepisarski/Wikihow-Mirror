@@ -27,13 +27,20 @@ class AdminCoauthorIntl extends UnlistedSpecialPage
 			$action = $req->getText('action');
 			if ( !$user->matchEditToken($token) ) {
 				Misc::jsonResponse( 'Not authorized.', 400 );
-			}
-			elseif ( $action != 'import' ) {
-				Misc::jsonResponse( 'Action not supported.', 400 );
-			}
-			else {
+			} else {
 				ini_set('memory_limit', '1024M');
-				$stats = CoauthorSheetIntl::doImport();
+				if ( $action == 'import_date_overrides' ) {
+					$stats = CoauthorSheetIntl::recalculateIntlArticles();
+					$stats['title'] = 'Overrides import results';
+				}
+				elseif ( $action == 'import_blurb_translations' ) {
+					$stats = CoauthorSheetIntl::importTranslations();
+					$stats['title'] = 'Localization import results';
+				}
+				else {
+					Misc::jsonResponse( 'Action not supported.', 400 );
+					return;
+				}
 				Misc::jsonResponse( $this->getHtml($stats) );
 			}
 		}
@@ -43,10 +50,12 @@ class AdminCoauthorIntl extends UnlistedSpecialPage
 		$m = new Mustache_Engine(['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)]);
 		return $m->render('AdminCoauthorIntl.mustache', [
 			'token' => $this->getUser()->getEditToken(),
-			'sheetLink' => 'https://docs.google.com/spreadsheets/d/' . CoauthorSheetIntl::getSheetId(),
+			'linkToL18nSheet' => 'https://docs.google.com/spreadsheets/d/' . CoauthorSheetIntl::getLocalizationSheetId(),
+			'linkToOverrideSheet' => 'https://docs.google.com/spreadsheets/d/' . CoauthorSheetIntl::getOverridesSheetId(),
 			'imported' => $stats['imported'] ?? [],
 			'errors' => $stats['errors'] ?? [],
 			'warnings' => $stats['warnings'] ?? [],
+			'title' => $stats['title'] ?? null,
 		]);
 	}
 

@@ -52,3 +52,61 @@
 .qa_social_login_form .x_button {
 	display: none;
 }
+
+/***** TECH DOMAIN ******/
+#tech_rating {
+	float: right;
+	display: table;
+	margin: -41px -27px 0 10px;
+}
+
+#tech_rating_help {
+	color: #79A355;
+	margin: 0 8px 0 0;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 15px;
+	display: table-row;
+	text-align: center;
+}
+
+.none #tech_rating_help{
+	color: #545454;
+}
+
+#tech_rating_data {
+	color: #ffffff;
+	font-size: 10px;
+	line-height: 14px;
+	text-align: center;
+	position: relative;
+	text-transform: uppercase;
+	background-image: url(/extensions/wikihow/Rating/images/intro-banner-dark-green.svg);
+	background-size: 135px 67px;
+	background-repeat: no-repeat;
+	background-position: top right;
+	width: 132px;
+	height: 67px;
+	vertical-align: middle;
+	display: table-cell;
+	font-weight: bold;
+	padding-bottom: 5px;
+}
+
+.none #tech_rating_data {
+	background-image: url(/extensions/wikihow/Rating/images/intro-banner-light-green.svg);
+	color: #545454;
+}
+
+#tech_rating_data #tech_count {
+	font-size: 22px;
+	font-weight: normal;
+}
+
+#intro.tech {
+	padding-top: 41px;
+}
+
+.tech #expert_coauthor {
+	border: none;
+}

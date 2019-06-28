@@ -76,6 +76,24 @@
 		<button type='button' id='getsql' class="btn btn-sm"><i class='fa fa-code'></i>&nbsp;SQL</button>
 	</div>
 </div>
+	<p>
+		<?php
+			$lastRunMessage = '';
+
+			// Print last run time and error dump only if we successfully retreived values from JSON
+			if ( $flaviusLastRunTime != -1 ) {
+				$lastRunMessage = 'Flavius last ran on: ' . $flaviusLastRunTime . ' (Pacific Time)';
+			}
+			if ( $flaviusLastRunErrorDump != -1 ) {
+				if ( $flaviusLastRunErrorDump == '' ) {
+					$lastRunMessage = $lastRunMessage . ' without any errors.';
+				} else {
+					$lastRunMessage = $lastRunMessage . '. Error dump from last run: ' . $flaviusLastRunErrorDump;
+				}
+			}
+			echo $lastRunMessage;
+			?>
+	</p>
 
 <div style='display:none;' id='sqlselect_template'>
 	<li class='rule-container'>

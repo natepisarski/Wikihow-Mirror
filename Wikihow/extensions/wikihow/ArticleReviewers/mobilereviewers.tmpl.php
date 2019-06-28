@@ -3,7 +3,6 @@
 	<p><?= wfMessage('ar_subtitle')->text() ?></p>
 </div>
 <? foreach($expertCategories as $catname => $category): ?>
-	<? if ($catname == "experts" ) continue; ?>
 	<div class="minor_section ar_category">
 		<h3><a class="ar_anchor" name="<?= strtolower($catname) ?>"></a><?= $catname ?></h3>
 

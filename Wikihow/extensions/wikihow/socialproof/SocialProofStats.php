@@ -203,7 +203,7 @@ class SocialProofStats extends ContextSource {
 
 				$learn_more_link = ' '.Html::rawElement(
 					'a',
-					[ 'href' => ArticleReviewers::getLinkByVerifierName($data->name) ],
+					[ 'href' => ArticleReviewers::getLinkToCoauthor($data) ],
 					wfMessage('sp_learn_more')->text()
 				);
 
@@ -330,7 +330,7 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private function formatExpertDetails($data, $title) {
-		$verifierpage = ArticleReviewers::getLinkByVerifierName($data->name);
+		$verifierpage = ArticleReviewers::getLinkToCoauthor($data);
 
 		if ($data->worksheetName == "community") {
 			$nameLink = $data->name;
@@ -438,7 +438,7 @@ class SocialProofStats extends ContextSource {
 		$stats['category_links'] = WikihowHeaderBuilder::getCategoryLinks(false, $this, $this->categoryTree);
 		$stats['amp'] = GoogleAmp::isAmpMode( $this->getOutput() );
 		$stats['author_info'] = SocialStamp::getHoverTextForArticleInfo();
-		$stats['is_intl'] = SocialStamp::getHoverTextForArticleInfo();
+		$stats['is_intl'] = Misc::isIntl();
 
 		return $this->getHtmlFromTemplate('social_section_mobile.mustache', $stats);
 	}

@@ -21,29 +21,45 @@ class ApiSchemaMarkup extends ApiQueryBase {
 			case 'video/wikihow':
 				$id = $request->getVal( 'sm_video_wikihow_id', null );
 				if ( $id === null ) {
-					$data = [ 'error' => 'Missing sm_wikihow_video_id parameter' ];
+					$data = [
+						'status' => 'error',
+						'error' => 'Missing sm_wikihow_video_id parameter'
+					];
 					break;
 				}
 				$title = Title::newFromId( $id );
 				if ( $title === null ) {
-					$data = [ 'error' => 'Invalid video ID' ];
+					$data = [
+						'status' => 'error',
+						'error' => 'Invalid video ID'
+					];
 					break;
 				}
 				$data = [
+					'status' => 'ok',
 					'schema' => SchemaMarkup::getVideo( $title )
 				];
 			break;
 			case 'video/youtube':
 				$id = $request->getVal( 'sm_video_youtube_id', null );
 				if ( $id === null ) {
-					$data = [ 'error' => 'Missing sm_wikihow_video_id parameter' ];
+					$data = [
+						'status' => 'error',
+						'error' => 'Missing sm_wikihow_video_id parameter'
+					];
 				}
+				$title = Title::newFromText( 'Special:VideoBrowser' );
+				$schema = SchemaMarkup::getYouTubeVideo( $title, $id );
 				$data = [
-					'schema' => SchemaMarkup::getYouTubeVideo( $id )
+					'status' => ( $schema ? 'ok' : 'pending' ),
+					'schema' => $schema
 				];
 			break;
 			default:
-				$data = [ 'error' => 'Unsupported schema type' ];
+				$data = [
+					'status' => 'error',
+					'error' => 'Unsupported schema type'
+				];
 			break;
 		}
 		$result = $this->getResult();

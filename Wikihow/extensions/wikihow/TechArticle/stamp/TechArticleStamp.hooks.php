@@ -18,14 +18,6 @@ use VerifyData;
  */
 class TechArticleStampHooks {
 
-	public static function isStampVisible(WikiPage $page): bool {
-		if (!RobotPolicy::isIndexable($page->getTitle())) {
-			return false;
-		}
-		$techArticle = TechArticle::newFromDB($page->getId());
-		return $techArticle->isFullyTested();
-	}
-
 	public static function setBylineInfo( &$verifiers, $pageId) {
 		if (!class_exists('TechArticle\TechArticle')) return true; // EN-only
 		$techArticle = TechArticle::newFromDB($pageId);

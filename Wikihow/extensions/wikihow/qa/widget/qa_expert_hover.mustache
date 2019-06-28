@@ -1,8 +1,8 @@
-<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
+<a href="{{verifierData.articleReviewersUrl}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
 {{^verifierData.imagePath}}<span>{{verifierData.initials}}</span>{{/verifierData.imagePath}}</a>
 
 <div class='qa_expert_name'>
-	<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink" target="_blank">{{verifierData.name}}</a><br />
+	<a href="{{verifierData.articleReviewersUrl}}" class="sp_namelink" target="_blank">{{verifierData.name}}</a><br />
 	{{{verifierData.blurb}}}
 </div>
 {{{verifierData.hoverBlurb}}}

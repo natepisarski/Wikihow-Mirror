@@ -1,7 +1,7 @@
 <div class='spa_sectioncontents'>
 
 	<h2 class='spa_left'>Import Master Expert Verified Sheet</h2>
-	<label id="spa_go_to_sheet">Go to <a target="_blank" href="<?= $sheetLink ?>">sheet</a></label>
+	<label class="spa_go_to_sheet">Go to <a target="_blank" href="<?= $sheetLink ?>">sheet</a></label>
 	<div class='clearall'></div>
 
 	<div class='button primary spa_buttonlarge' id='spa_import'>

@@ -184,7 +184,7 @@ class SpecialVideoBrowser extends SpecialPage {
 						$wgMemc->set( $key, $info );
 					}
 					$viewing = array_merge( $viewing, $info );
-					$schema = SchemaMarkup::getYouTubeVideo( $youtubeIds[$viewing['id']] );
+					$schema = SchemaMarkup::getYouTubeVideo( $output->getTitle(), $youtubeIds[$viewing['id']] );
 				} else {
 					$schema = SchemaMarkup::getVideo( Title::newFromId( $viewing['id'] ) );
 				}
@@ -199,7 +199,7 @@ class SpecialVideoBrowser extends SpecialPage {
 					'video' => $viewing,
 					'breadcrumbs' => $list,
 					'youtube' => $youtubeIds[$viewing['id']],
-					'schema' => SchemaMarkup::getSchemaTag( $schema )
+					'schema' => $schema ? SchemaMarkup::getSchemaTag( $schema ) : ''
 				] );
 			} else {
 				// Index

@@ -292,6 +292,10 @@ $(document).ready(function() {
 		var rating = 0;
 		if ($(this).attr('id') == 'gatAccuracyYes') {
 			rating = 1;
+			/*** This is for wikihow.tech ***/
+			if (typeof updateCount == 'function') {
+				updateCount();
+			}
 		}
 
 		var pageId = $(this).attr('pageid');

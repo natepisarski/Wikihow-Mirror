@@ -2,7 +2,7 @@
 
 class CoauthorSheetMaster extends CoauthorSheet {
 	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1v-IEhY5_gL8f_d1yq8S19SX4Aeg9NdqusEharagsHdM';
+	const SHEET_ID_DEV = '1rG4sJd92CHjBvloiC5Xqq7mqNku9Ahb1BtlScVRSKkQ';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
@@ -10,7 +10,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 	 * Imports the 'Master Expert Verified' sheet into the DB.
 	 * Called by MasterExpertSheetUpdate via the AdminSocialProof special page.
 	 */
-	public function doImport()
+	public function doImport(): array
 	{
 		$token = self::getApiAccessToken();
 		$dbVerifiers = self::getVerifiersFromDB(); // TODO use VerifyData::getAllVerifierInfoFromDB()

@@ -172,9 +172,6 @@ class QAWidget {
 		if (count($vars['submitted_questions']) == self::LIMIT_SUBMITTED_QUESTIONS) {
 			$vars['qa_show_more_submitted'] = wfMessage('qa_show_more_submitted')->text();
 		}
-		$vars['formatName'] = function($text, Mustache_LambdaHelper $helper) {
-			return ArticleReviewers::getLinkByVerifierName($helper->render($text));
-		};
 		$vars['search_enabled'] = $this->isSearchTarget() ? 1 : 0;
 
 		if ($showUnpatrolledQuestions) {
@@ -500,6 +497,9 @@ class QAWidget {
 			$q->show_editor_tools = self::showEditorTools($q, $isEditor, $isAdmin);
 			$q->qa_answerer_class = self::getAnswererClass($q);
 			$q->qa_answerer_label = self::getAnswererLabel($q);
+			if ( $q->verifierData ) {
+				$q->verifierData->articleReviewersUrl = ArticleReviewers::getLinkToCoauthor($q->verifierData);
+			}
 		}
 
 		return $aqs;

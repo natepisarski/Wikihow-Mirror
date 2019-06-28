@@ -19,7 +19,7 @@ class AdminArticleReviewers extends UnlistedSpecialPage {
 			throw new UserBlockedError( $user->getBlock() );
 		}
 
-		if (!$user || $user->getID() == 0 || !in_array('staff', $user->getGroups())) {
+		if ( !$user || $user->getID() == 0 || !in_array('staff', $user->getGroups()) || Misc::isIntl() ) {
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}

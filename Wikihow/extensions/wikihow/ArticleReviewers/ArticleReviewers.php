@@ -9,16 +9,9 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgAutoloadClasses['ArticleReviewers'] = __DIR__ . '/ArticleReviewers.body.php';
 
-if (Misc::isIntl()) {
-	return;
-}
-
 $wgSpecialPages['ArticleReviewers'] = 'ArticleReviewers';
 $wgExtensionMessagesFiles['ArticleReviewers'] = __DIR__ . '/ArticleReviewers.i18n.php';
 $wgExtensionMessagesFiles['ArticleReviewersAliases'] = __DIR__ . '/ArticleReviewers.alias.php';
-
-$wgSpecialPages['AdminArticleReviewers'] = 'AdminArticleReviewers';
-$wgAutoloadClasses['AdminArticleReviewers'] = __DIR__ . '/AdminArticleReviewers.body.php';
 
 $wgResourceModules['ext.wikihow.articlereviewers'] = array(
 	'styles' => array('articlereviewers.css'),
@@ -43,6 +36,13 @@ $wgResourceModules['ext.wikihow.mobilearticlereviewers'] = array(
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' ),
 );
+
+if (Misc::isIntl()) {
+	return;
+}
+
+$wgSpecialPages['AdminArticleReviewers'] = 'AdminArticleReviewers';
+$wgAutoloadClasses['AdminArticleReviewers'] = __DIR__ . '/AdminArticleReviewers.body.php';
 
 $wgResourceModules['ext.wikihow.adminarticlereviewers'] = array(
 	'styles' => array('../common/uploadify/uploadify.css'),

@@ -391,6 +391,24 @@ EOHTML;
 
 		return $context->msg($msg, $search_term)->text();
 	}
+
+	public function getRatingCountForPeriod($articleId, $startDate) {
+		$dbr = wfGetDB(DB_REPLICA);
+
+		$count = $dbr->selectField(
+			$this->tableName,
+			'count(*)',
+			[
+				'rat_page' => $articleId,
+				"rat_timestamp > '{$startDate}'",
+				'rat_isdeleted' => 0,
+				'rat_rating' => 1
+			],
+			__METHOD__
+		);
+
+		return $count;
+	}
 }
 
 /***

@@ -1,4 +1,4 @@
-<li class="qa_aq qa_block {{#inactive}}qa_inactive{{/inactive}}" data-aqid="{{id}}" data-cqid="{{curatedQuestion.id}}" data-caid="{{curatedQuestion.curatedAnswer.id}}" data-sqid="{{curatedQuestion.submittedId}}" data-qa_inactive="{{inactive}}" data-votes_up="{{votesUp}}" data-votes_down="{{votesDown}}" data-verifier_id="{{verifierId}}" data-submitter_id="{{submitterUserId}}">
+	<li class="qa_aq qa_block {{#inactive}}qa_inactive{{/inactive}}" data-aqid="{{id}}" data-cqid="{{curatedQuestion.id}}" data-caid="{{curatedQuestion.curatedAnswer.id}}" data-sqid="{{curatedQuestion.submittedId}}" data-qa_inactive="{{inactive}}" data-votes_up="{{votesUp}}" data-votes_down="{{votesDown}}" data-verifier_id="{{verifierId}}" data-submitter_id="{{submitterUserId}}">
 	<div class="qa_divider"></div>
 
 	<div class="qa_li_container">
@@ -21,7 +21,7 @@
 				<div class="qa_badge"></div>
 
 			{{#verifierId}}
-				<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
+				<a href="{{verifierData.articleReviewersUrl}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
 					{{^verifierData.imagePath}}<span>{{verifierData.initials}}</span>{{/verifierData.imagePath}}</a>
 			{{/verifierId}}
 
@@ -32,7 +32,7 @@
 				<div class="qa_answerer_info">
 				{{#verifierId}}
 					<div class="qa_user_name">
-						<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" target="_blank">{{verifierData.name}}</a>
+						<a href="{{verifierData.articleReviewersUrl}}" target="_blank">{{verifierData.name}}</a>
 					</div>
 					<div class="qa_user_title">{{{verifierData.blurb}}}</div>
 				{{/verifierId}}

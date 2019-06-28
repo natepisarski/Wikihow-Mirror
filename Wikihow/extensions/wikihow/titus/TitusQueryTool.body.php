@@ -457,17 +457,56 @@ class TitusQueryTool extends UnlistedSpecialPage {
 		$curUser = $this->getCurrentUserName();
 		$curUserQueries = $this->getCurrentUserQueries();
 		$allQueries = $this->getAllUserQueries();
+		$titusLastRunStatus = $this->getLastRunInfo();
+
 		if (array_key_exists($curUser, $allQueries)) {
 			unset($allQueries[$curUser]);
 		}
-
 		return array(
 			'dbfields' => $this->getTitusFields(),
 			'languages' => $this->languageInfo,
 			'curUser' => $curUser,
 			'curUserQueries' => $curUserQueries,
-			'allQueries' => $allQueries
+			'allQueries' => $allQueries,
+			'titusErrorDump' => $titusLastRunStatus['titusLastRunErrorDump'],
+			'titusLastRun' => $titusLastRunStatus['titusLastRunTime']
 		);
+	}
+
+	private function getLastRunInfo() {
+		// This JSON contains information about titus' last run
+		$titusFinishedLogFile = '/data/titus_log/titus_finished.json';
+
+		// Doing this for error-handling in titusquerytool.tmpl.php
+		$formattedTime = -1;
+		$errors = -1;
+
+		if ( file_exists( $titusFinishedLogFile ) ) {
+			$jsonContents = file_get_contents( '/data/titus_log/titus_finished.json' );
+			$decoded = json_decode( $jsonContents, true );
+			if ( array_key_exists( 'err', $decoded ) ) {
+				$errors = $decoded['err'];
+			}
+			if ( array_key_exists( 'date', $decoded ) ) {
+				$unixTime = $decoded['date'];
+
+				// Making sure we have a numeric Unix timestamp before formatting it
+				if ( is_numeric( $unixTime ) && (int)$unixTime == $unixTime ){
+					$timezone = 'America/Los_Angeles';
+					$dt = new DateTime("now", new DateTimeZone($timezone));
+					$dt->setTimestamp($unixTime);
+					$formattedTime = $dt->format('g:ia \o\n l jS F Y');
+				} else {
+				// If the timestamp isn't numeric, just use whatever value is stored without formatting it
+					$formattedTime = $unixTime;
+				}
+			}
+		}
+
+		return [
+			'titusLastRunTime' => $formattedTime,
+			'titusLastRunErrorDump' => $errors
+		];
 	}
 
 	private function getToolHtml() {

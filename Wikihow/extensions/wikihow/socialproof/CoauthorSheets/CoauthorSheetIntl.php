@@ -2,7 +2,7 @@
 
 class CoauthorSheetIntl extends CoauthorSheet
 {
-	public static function doImport() {
+	public static function importTranslations(): array {
 		global $wgActiveLanguages;
 
 		$stats = [ 'imported'=>[], 'errors'=>[], 'warnings'=>[] ];
@@ -11,6 +11,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 		$enBlurbs = VerifyData::getAllBlurbsFromDB('en');
 		$enCoauthors = VerifyData::getAllVerifierInfoFromDB('en');
 		$enArticles = VerifyData::getAllArticlesFromDB('en');
+		list($overrides, $errors) = self::fetchDateOverridesFromSheet($apiToken);
 
 		foreach ($wgActiveLanguages as $lang) {
 			list($translations, $errors, $warnings) = self::fetchBlurbTranslationsFromSheet($lang, $enBlurbs, $apiToken);
@@ -19,10 +20,10 @@ class CoauthorSheetIntl extends CoauthorSheet
 			if ( !$errors ) {
 				$intlBlurbs = self::updateIntlBlurbs( $lang, $enBlurbs, $translations );
 				self::updateIntlCoauthors( $lang, $enCoauthors, $intlBlurbs );
-				self::updateIntlArticles( $lang, $enArticles, $intlBlurbs );
+				self::updateIntlArticles( $lang, $enArticles, $intlBlurbs, $overrides );
 
 				$worksheetName = strtoupper($lang);
-				$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), $worksheetName);
+				$rowInfo = self::makeRowInfoHtml(0, self::getLocalizationSheetId(), $worksheetName);
 				$stats['imported'][] = $rowInfo . count($translations);
 			}
 		}
@@ -30,23 +31,44 @@ class CoauthorSheetIntl extends CoauthorSheet
 		return $stats;
 	}
 
-	public static function getSheetId(): string {
+	public static function getLocalizationSheetId(): string {
 		global $wgIsDevServer;
 		if ($wgIsDevServer) {
-			return '1IN15FiCdCgZ5U9_lXcEFwSdA5_AoTeoTZdAJCthj0FQ';
+			return '1IN15FiCdCgZ5U9_lXcEFwSdA5_AoTeoTZdAJCthj0FQ'; // dev
 		} else {
-			return '1wXloPN4fEahP4LEFeG_JMyyZALbK03URnP_uW3un2eg';
+			return '1wXloPN4fEahP4LEFeG_JMyyZALbK03URnP_uW3un2eg'; // prod
 		}
 	}
 
-	public static function recalculateIntlArticles() {
+	public static function getOverridesSheetId(): string {
+		global $wgIsDevServer;
+		if ($wgIsDevServer) {
+			return '1P1Qbm4d8QvTdd6uBUNQNntChu3uJk94qzNQUeC_WiAY'; // dev
+		} else {
+			return '1tm3USIvG-ug-OT7Bv9gYP6idhtIH3uwxy2Dji46sFZQ'; // prod
+		}
+	}
+
+	public static function recalculateIntlArticles(): array {
 		global $wgActiveLanguages;
 
+		$apiToken = self::getApiAccessToken();
 		$enArticles = VerifyData::getAllArticlesFromDB('en');
+		list($overrides, $errors) = self::fetchDateOverridesFromSheet($apiToken);
+
 		foreach ($wgActiveLanguages as $lang) {
 			$intlBlurbs = VerifyData::getAllBlurbsFromDB($lang);
-			$intlArticles = self::updateIntlArticles($lang, $enArticles, $intlBlurbs);
+			$intlArticles = self::updateIntlArticles($lang, $enArticles, $intlBlurbs, $overrides);
 		}
+
+		$overrideCount = [];
+		foreach ($overrides as $lang => $aids) {
+			$worksheetName = strtoupper($lang);
+			$rowInfo = self::makeRowInfoHtml(0, self::getOverridesSheetId(), $worksheetName);
+			$overrideCount[] = $rowInfo . count($aids);
+		}
+
+		return [ 'imported' => $overrideCount, 'errors' => $errors, 'warnings' => [] ];
 	}
 
 	private static function fetchBlurbTranslationsFromSheet(string $lang, array $enBlurbs, string $apiToken): array
@@ -55,7 +77,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 		$errors = [];
 		$warnings = [];
 
-		$sheetId = self::getSheetId();
+		$sheetId = self::getLocalizationSheetId();
 		$worksheetName = strtoupper($lang);
 		$rowGenerator = self::getWorksheetDataV4($sheetId, $worksheetName, $apiToken);
 
@@ -143,7 +165,17 @@ class CoauthorSheetIntl extends CoauthorSheet
 		return $coauthors;
 	}
 
-	private static function updateIntlArticles(string $lang, array $enArticles, array $intlBlurbs): array
+	/**
+	 * Recalculate and update the list coauthored articles
+	 *
+	 * @param  string $lang
+	 * @param  array  $enArticles  EN coauthored articles
+	 * @param  array  $intlBlurbs  Translations for blurbs and bylines
+	 * @param  array  $overrides   INTL article IDs to which date rules don't apply
+	 * @return array
+	 */
+	private static function updateIntlArticles(string $lang, array $enArticles,
+		array $intlBlurbs, array $overrides): array
 	{
 		$articles = [];
 
@@ -172,14 +204,15 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 		foreach ($rows as $row) {
 			// Only accept INTL articles that were created/retranslated after the EN article was verified
-			$valid = ( $row->intl_first_edit && strcmp($row->en_verif_date, $row->intl_first_edit) < 0 )
+			$intlAid = (int) $row->intl_page_id;
+			$valid = isset( $overrides[$lang][$intlAid] )
+				  || ( $row->intl_first_edit && strcmp($row->en_verif_date, $row->intl_first_edit) < 0 )
 				  || ( $row->intl_last_retrans && strcmp($row->en_verif_date, $row->intl_last_retrans) < 0 );
 			if ( !$valid ) {
 				continue;
 			}
 
 			$enAid = (int) $row->en_page_id;
-			$intlAid = (int) $row->intl_page_id;
 			$enArticle = $enArticles[$enAid];
 			$blurbId = $enArticle->blurbId;
 			$intlBlurb = $intlBlurbs[$blurbId] ?? null;
@@ -196,6 +229,46 @@ class CoauthorSheetIntl extends CoauthorSheet
 		VerifyData::replaceArticles($lang, $articles);
 
 		return $articles;
+	}
+
+	private static function fetchDateOverridesFromSheet(string $apiToken): array
+	{
+		global $wgActiveLanguages;
+
+		$langs = array_flip($wgActiveLanguages);
+		$errors = [];
+		$overrides = [];
+
+		$sheetId = self::getOverridesSheetId();
+		$worksheetName = 'Master';
+		$rowGenerator = self::getWorksheetDataV4($sheetId, $worksheetName, $apiToken);
+
+		foreach ($rowGenerator as $num => $row) {
+			$rowInfo = self::makeRowInfoHtml($num, $sheetId, $worksheetName);
+
+
+			$aid = intval( $row['Article ID'] );
+			if ( $aid <= 0 ) {
+				$errors[] = "$rowInfo Invalid article ID: " . $row['Article ID'];
+				continue;
+			}
+
+			$lang = strtolower( trim($row['Lang']) );
+			if ( !isset($langs[$lang]) ) {
+				$errors[] = "$rowInfo Invalid language code: " . $row['Lang'];
+				continue;
+			}
+
+			$overrides[$lang][$aid] = true;
+		}
+
+		$errMsg = $rowGenerator->getReturn();
+		if ($errMsg) {
+			$rowInfo = self::makeRowInfoHtml(0, $sheetId, $worksheetName);
+			$errors[] = "$rowInfo $errMsg";
+		}
+
+		return [ $overrides, $errors ];
 	}
 
 }

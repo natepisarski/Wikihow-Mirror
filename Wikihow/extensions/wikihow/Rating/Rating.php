@@ -43,6 +43,7 @@ $wgAutoloadClasses['ClearRatings'] = __DIR__ . '/ClearRatings.php';
 $wgAutoloadClasses['ListRatings'] = __DIR__ . '/ListRatings.php';
 $wgAutoloadClasses['RateItem'] = __DIR__ . '/RateItem.php';
 $wgAutoloadClasses['RatingReason'] = __DIR__ . '/RatingReason.php';
+$wgAutoloadClasses['TechRating'] = __DIR__ . '/techrating/TechRating.class.php';
 
 $wgAutoloadClasses['RatingRedis'] = __DIR__ . '/RatingRedis.php';
 

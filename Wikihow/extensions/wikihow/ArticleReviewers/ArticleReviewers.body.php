@@ -47,9 +47,14 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		$medicalExceptions = explode("\n", ConfigStorage::dbGetConfig(self::MEDICAL_EXCLUSION_LIST, true));
 		$requestedName = $req->getText('name');
 		$expert_count = 0;
+		$isIntl = Misc::isIntl();
 		foreach ($experts as $expert) {
 
-			if ( strtolower($expert->category) == 'community' ) {
+			if ( $expert->category == 'categ_community' ) {
+				continue;
+			}
+
+			if ( $isIntl && !($expert->blurb && $expert->hoverBlurb) ) { // skip non-translated
 				continue;
 			}
 
@@ -62,12 +67,11 @@ class ArticleReviewers extends UnlistedSpecialPage {
 			if ( !isset($expertCategories[$expert->category]) ) {
 				$expertCategories[$expert->category] = array();
 				$expertCategories[$expert->category]['count'] = 0;
-				$expertCategories['experts'] = array();
 			}
 
 			// Filter out experts with no recent reviews
 			$anchorName = ArticleReviewers::getAnchorName($expert->name);
-			if ($expert->category == 'Medical Review Board'
+			if ($expert->category == 'categ_medical_review_board'
 					&& in_array($expert->verifierId, $medicalExceptions)
 					&& $anchorName !== $requestedName) {
 				continue;
@@ -88,27 +92,29 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		}
 
 		uasort($expertCategories, "ArticleReviewers::cmp");
-		$expertCategories = array('Medical Review Board' => $expertCategories['Medical Review Board']) + $expertCategories;
-		$expertCategories = array('Notable Reviewers' => $expertCategories['Notable Reviewers']) + $expertCategories;
-
+		$expertCategories = [ 'categ_medical_review_board' => $expertCategories['categ_medical_review_board'] ?? [] ] + $expertCategories;
+		$expertCategories = [ 'categ_notable_reviewers' => $expertCategories['categ_notable_reviewers'] ?? [] ] + $expertCategories;
+		$localizedCategs = [];
 		foreach ($expertCategories as $category => $catArray) {
-			if($category == "Notable Reviewers") {
+			if ($category == "categ_notable_reviewers") {
 				uasort($expertCategories[$category], "ArticleReviewers::cmpNotable");
 			} else {
 				uasort($expertCategories[$category], "ArticleReviewers::cmp");
 			}
+			$localizedCateg = wfMessage($category)->text();
+			$localizedCategs[$localizedCateg] = $expertCategories[$category];
 		}
 
 		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array('numRows' => self::REVIEWER_ROWS));
-		$tmpl->set_vars(array('expertCategories' => $expertCategories));
+		$tmpl->set_vars(array('expertCategories' => $localizedCategs));
 		if (Misc::isMobileMode()) {
 			$out->addModules("ext.wikihow.mobilearticlereviewers");
 			$out->addHTML($tmpl->execute('mobilereviewers.tmpl.php'));
 		} else {
 			$out->addModules(["ext.wikihow.articlereviewers","ext.wikihow.articlereviewers_script"]);
 			$out->addHTML($tmpl->execute('reviewers.tmpl.php'));
-			$out->getSkin()->addWidget($this->getSideBar($expertCategories, $expert_count), 'ar_sidebar');
+			$out->getSkin()->addWidget($this->getSideBar($localizedCategs, $expert_count), 'ar_sidebar');
 		}
 	}
 
@@ -116,7 +122,8 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars([
 			'expertCategories' => $expertCategories,
-			'expert_count' => $expert_count
+			'expert_count' => $expert_count,
+			'view_all' => wfMessage('ar_view_all')->text()
 		]);
 		$html = $tmpl->execute('reviewers_sidebar.tmpl.php');
 		return $html;
@@ -143,21 +150,32 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		return strtolower( str_replace(' ', '', $verifierName) );
 	}
 
-	public static function getLinkByVerifierName(string $verifierName): string {
-		//en: forces a wikihow.com url, so check to see if it's an altdomain
-		$lang = RequestContext::getMain()->getLanguage()->getCode();
-		$ar_title_text = ( $lang == 'en' || Misc::isAltDomain() ) ? 'ArticleReviewers' : 'en:ArticleReviewers';
-		$article_reviewers = Title::newFromText($ar_title_text, NS_SPECIAL);
-		if (empty($article_reviewers)) return '';
-
-		$article_reviewers_url = $article_reviewers->getLocalUrl();
-		if ( Misc::isIntl() && Misc::isMobileMode() ) {
-			$article_reviewers_url = str_replace('/www.', '/m.', $article_reviewers_url);
+	public static function getLinkToCoauthor(VerifyData $vd = null): string {
+		if (!$vd) {
+			return '';
 		}
-		$abbr_name = urlencode(self::getAnchorName($verifierName));
-		if ($abbr_name == '') return $article_reviewers_url;
 
-		return $article_reviewers_url.'?name='.$abbr_name.'#'.$abbr_name;
+		$lang = RequestContext::getMain()->getLanguage()->getCode();
+		$titleTxt = !Misc::isAltDomain() && ($lang == 'en' || $vd->hoverBlurb)
+			? 'ArticleReviewers'     // English or INTL with blurb translation: link locally
+			: 'en:ArticleReviewers'; // Alts or INTL without blurb translation: link to wikihow.com
+
+		$title = Title::newFromText($titleTxt, NS_SPECIAL);
+		if ( !$title ) {
+			return '';
+		}
+
+		$url = $title->getLocalUrl();
+		if ( $titleTxt == 'en:ArticleReviewers' && Misc::isMobileMode() ) {
+			$url = str_replace('/www.', '/m.', $url); // fix absolute URL
+		}
+
+		$abbrName = urlencode(self::getAnchorName($vd->name));
+		if ($abbrName == '') {
+			return $url;
+		}
+
+		return $url.'?name='.$abbrName.'#'.$abbrName;
 	}
 
 	public static function removeBreadCrumbsCallback(&$showBreadCrumb) {

@@ -14,7 +14,7 @@
 				<div class="qa_badge"></div>
 
 			{{#verifierId}}
-				<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
+				<a href="{{verifierData.articleReviewersUrl}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
 					{{^verifierData.imagePath}}<span>{{verifierData.initials}}</span>{{/verifierData.imagePath}}</a>
 			{{/verifierId}}
 
@@ -25,7 +25,7 @@
 				<div class="qa_answerer_info">
 				{{#verifierId}}
 					<div class="qa_user_name">
-						<a href="{{#formatName}}{{verifierData.name}}{{/formatName}}" target="_blank">{{verifierData.name}}</a>
+						<a href="{{verifierData.articleReviewersUrl}}" target="_blank">{{verifierData.name}}</a>
 					</div>
 					<div class="qa_user_title">{{{verifierData.blurb}}}</div>
 					<div class="qa_user_label">{{qa_expert_answer}}</div>

@@ -1,0 +1,31 @@
+<div id="tech_rating" class="{{tech_class}}">
+	<p id="tech_rating_data"><span id="tech_count">{{helped_count}}</span>{{{helped_text}}}</p>
+	<a href="#" id="tech_rating_help">+1 did this<br/>help you?</a>
+</div>
+<script type="text/javascript">
+	var helpButton = document.getElementById("tech_rating_help");
+	helpButton.addEventListener("click", function(e) {
+		e.preventDefault();
+		if(this.classList != "clicked") {
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("POST", "/Special:RateItem", true);
+			xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xmlhttp.send("action=rate_page&page_id=" + mw.config.get("wgArticleId") + "&type=article_mh_style&source=desktop&rating=1");
+			this.innerHTML = "Awesome!";
+			updateCount();
+			this.classList.add("clicked");
+			if(WH) {
+				WH.maEvent("tech_help");
+			}
+		}
+	});
+	function updateCount() {
+		if(!$("#tech_rating").hasClass("none")) {
+			var count = parseInt($("#tech_count").text());
+			if(count == 1) {
+				$(".tech_reader").html("readers");
+			}
+			$("#tech_count").html(count+1);
+		}
+	}
+</script>

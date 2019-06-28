@@ -660,10 +660,18 @@ class WikihowArticleHTML {
 				$src = pq( $video )->attr( 'data-src' );
 				preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
 				if ( $matches[1] ) {
-					$videoSchema = SchemaMarkup::getYouTubeVideo( $matches[1] );
+					$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
 					// Only videos from our own channel will have publisher information
 					if ( array_key_exists( 'publisher', $videoSchema ) ) {
-						pq( $video )->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
+						pq( $video )->after(
+							SchemaMarkup::getSchemaTag( $videoSchema ) .
+							'<!-- ' . (
+								$videoSchema ?
+									'YouTube info from cache' :
+									'YouTube info being fetched'
+								) .
+							' -->'
+						);
 					}
 				}
 			}
@@ -829,6 +837,21 @@ class WikihowArticleHTML {
 		//STAFF ONLY
 		if ($user && in_array('staff', $user->getGroups()) && $req && $req->getVal('display_images') == 'false') {
 			pq(".steps_list_2 li .mwimg")->remove();
+		}
+
+		// add id to each stepslist2 li so we can make a url link to it if need be (like in the howto schema)
+		$sectionNumber = 0;
+		$stepNumber = 0;
+		foreach ( pq( '.section.steps .steps_list_2 ' ) as $section ) {
+			foreach ( pq( $section )->children( 'li' ) as $stepItem ) {
+				// check if it has an id already..if it does not add one
+				$stepId = pq( $stepItem )->attr( 'id' );
+				if ( !$stepId ) {
+					pq( $stepItem )->attr('id', 'step-id-' . $sectionNumber . $stepNumber );
+				}
+				$stepNumber++;
+			}
+			$sectionNumber++;
 		}
 
 		SchemaMarkup::calcHowToSchema( $out );

@@ -51,10 +51,10 @@ class StaffReviewed {
 	 * on average as of 2019-05 (on dev server, cache disabled).
 	 */
 	private static function isStaffReviewedIntl(string $lang, int $intlAid): bool {
-		global $wgMemc, $wgLanguageCode;
+		global $wgMemc;
 
-		if ( $wgLanguageCode == 'en' ) {
-			throw new Exception("This method should only be called from INTL");
+		if ( $lang == 'en' ) {
+			throw new Exception("This method should only be called for INTL");
 		}
 
 		$cacheKey = wfMemcKey(self::STAFF_REVIEWED_KEY, $intlAid);
@@ -76,7 +76,7 @@ class StaffReviewed {
 			'titus_intl.ti_page_id' => $intlAid,
 			'titus_intl.ti_tl_en_id = titus_en.ti_page_id',
 
-			'titus_en.ti_last_fellow_edit_timestamp < GREATEST(
+			'titus_en.ti_first_fellow_edit_timestamp < GREATEST(
 				COALESCE(titus_intl.ti_first_edit_timestamp, 0),
 				COALESCE(titus_intl.ti_last_retranslation, 0)
 			)'

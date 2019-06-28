@@ -50,6 +50,26 @@ class AlternateDomain {
 		return array( 'howyougetfit.com', 'howyoulivelife.com', 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com' );
 	}
 
+	public static function getAlternateDomainClass($domain) {
+		$domainMapping = [
+			'howyougetfit.com' => 'howyougetfit',
+			'howyoulivelife.com' => 'howyoulivelife',
+			'wikihow.tech' => 'tech',
+			'wikihow.pet' => 'pet',
+			'wikihow.mom' => 'mom',
+			'wikihow.life' => 'life',
+			'wikihow.fitness' => 'fitness',
+			'wikihow.health' => 'health',
+			'wikihow-fun.com' => 'fun'
+		];
+
+		if(array_key_exists($domain, $domainMapping)) {
+			return $domainMapping[$domain];
+		} else {
+			"";
+		}
+	}
+
 	/*
 	 * get list of no branding domains
 	 */
@@ -1323,6 +1343,9 @@ class AlternateDomain {
 			pq( '#sourcesandcitations .internal' )->remove();
 			pq( '#references .internal' )->remove();
 			pq( '.sp_fullbox' )->remove();
+
+			//add the alt domain info as a class to intro
+			pq("#intro")->addClass(self::getAlternateDomainClass(self::getAlternateDomainForCurrentPage()));
 		} else {
 			foreach(pq('a.interwiki_otherdomain') as $link) {
 				$pqObject = pq($link);

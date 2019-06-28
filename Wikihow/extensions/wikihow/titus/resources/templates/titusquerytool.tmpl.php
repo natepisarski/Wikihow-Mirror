@@ -68,6 +68,25 @@
 		<button type='button' id='getsql' class="btn btn-sm"><i class='fa fa-code'></i>&nbsp;SQL</button>
 	</div>
 
+	<p>
+		<?php
+		$lastRunMessage = '';
+
+		// Print last run time and error dump only if we successfully retreived values from JSON
+		if ( $titusLastRun != -1 ) {
+			$lastRunMessage = 'Titus last ran on: ' . $titusLastRun . ' (Pacific Time)';
+		}
+		if ( $titusErrorDump != -1 ) {
+			if ( $titusErrorDump == '' ) {
+				$lastRunMessage = $lastRunMessage . ' without any errors.';
+			} else {
+				$lastRunMessage = $lastRunMessage . '. Error dump from last run: ' . $titusErrorDump;
+			}
+		}
+		echo $lastRunMessage;
+		?>
+	</p>
+
 	<hr>
 	<div class='tqt-type query-builder'>
 		<h3>Vault</h3>

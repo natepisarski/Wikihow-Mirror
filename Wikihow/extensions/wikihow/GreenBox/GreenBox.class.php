@@ -84,7 +84,7 @@ class GreenBox {
 			'expert_dialog_text' => $showBlurb ? self::expertDialogText($expert_data) : '',
 			'expert_name' => $expert_data->name,
 			'expert_title' => $expert_data->blurb,
-			'expert_link' => ArticleReviewers::getLinkByVerifierName($expert_data->name),
+			'expert_link' => ArticleReviewers::getLinkToCoauthor($expert_data),
 			'questioner' => wfMessage('green_box_questioner')->text()
 		];
 
