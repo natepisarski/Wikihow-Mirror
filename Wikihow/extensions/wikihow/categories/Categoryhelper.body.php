@@ -304,7 +304,8 @@ class CategoryHelper extends UnlistedSpecialPage {
 			// Get the first sub-tree that matches the top category as a list
 			foreach ( $tree as $cat => $subtree ) {
 				$list = self::cleanCurrentParentCategoryTree( [ $cat => $subtree ] );
-				if ( array_pop( array_slice( $list, -1 ) ) === $top ) {
+				$trimmedList = array_slice( $list, -1 );
+				if ( array_pop( $trimmedList ) === $top ) {
 					return $list;
 				}
 			}

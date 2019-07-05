@@ -107,7 +107,7 @@ Disallow: /api.php
 Disallow: /index.php
 Disallow: /Special:
 
-User-agent: Googlebot
+User-agent: *
 Allow: /Special:LSearch
 Allow: /Special:QABox
 Allow: /Special:Sitemap
@@ -118,38 +118,6 @@ Disallow: /index.php
 Disallow: /*feed=rss
 Disallow: /*action=delete
 Disallow: /*action=history
-Disallow: /Special:
-Disallow: /images/samplepdfs
-Disallow: /images/sampledocs*doc
-Disallow: /images/sampledocs*pdf
-Disallow: /images/sampledocs*txt
-Disallow: /*platform=
-Disallow: /*variant=
-Noindex: /w/
-Noindex: /forum/
-Noindex: /index.php
-Noindex: /*feed=rss
-Noindex: /*action=delete
-Noindex: /*action=history
-Noindex: /Special:
-Noindex: /images/samplepdfs
-Noindex: /images/sampledocs*doc
-Noindex: /images/sampledocs*pdf
-Noindex: /images/sampledocs*txt
-Noindex: /*platform=
-Noindex: /*variant=
-
-User-agent: *
-Allow: /Special:LSearch
-Allow: /Special:QABox
-Allow: /Special:Sitemap
-Disallow: /w/
-Disallow: /forum/
-Disallow: /index.php
-Disallow: /*feed=rss
-Disallow: /*action=delete
-Disallow: /*action=edit
-Disallow: /*action=history
 Disallow: /*action=watch
 Disallow: /Special:
 Disallow: /images/samplepdfs
@@ -158,4 +126,3 @@ Disallow: /images/sampledocs*pdf
 Disallow: /images/sampledocs*txt
 Disallow: /*platform=
 Disallow: /*variant=
-

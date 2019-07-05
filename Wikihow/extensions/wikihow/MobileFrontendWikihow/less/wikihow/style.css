@@ -859,3 +859,22 @@ a.reference-anchor {
 	display: inline-table;
 	width: 100%;
 }
+#language_links {
+	display: none;
+}
+#summary_wrapper +  #other_languages {
+	border-top: 1px solid #e7e7e5;
+	margin-top: -5px;
+	border-radius: 0;
+}
+#other_languages {
+	position: relative;
+	margin-top: -5px;
+	border-top: 1px solid #e7e7e5;
+}
+.language_link {
+	line-height: 25px;
+}
+.language_link span {
+	padding-right: 3px;
+}

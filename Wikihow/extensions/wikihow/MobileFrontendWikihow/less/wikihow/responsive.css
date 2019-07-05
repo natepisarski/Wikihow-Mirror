@@ -1,0 +1,67 @@
+@media only screen and (min-width:728px) {
+	#content_wrapper {
+	    margin: 1em auto;
+		max-width: 1052px;
+		padding: 40px 1em 1em;
+	}
+	#content_inner {
+		max-width: 728px;
+		margin: 0 auto;
+		position: relative;
+	}
+	.stable .content p, .stable .content li, .stable .content dl, #intro p {
+		line-height: 25px;
+	}
+	#intro {
+		font-size: 16px;
+		margin: 0;
+	}
+ 	#section_0.title_lg, #section_0.title_md, #section_0.title_sm {
+	    font-size: 35px;
+	}
+	.mw-headline {
+	    font-size: 16px;
+	}
+	.stable .content p, .stable .content li, .stable .content dl, #intro p {
+	    line-height: 25px;
+	}
+	.section_text, .steps_text {
+	    font-size: 16px;
+	}
+	.steps_list_2 li {
+		    font-size: 16px;
+	}
+	.content {
+		margin: 0 0px 1.5em;
+	}
+	.pre-content {
+	    border-radius: 5px;
+	}
+	#wh_ad_intro {
+		margin-left: -13px;
+	}
+	.method_ad {
+		margin-left: -19px;
+	}
+	#wh_ad_related {
+		margin-left: -14px;
+	}
+	#wh_ad_middle_related {
+		margin-left: -14px;
+	}
+}
+/*
+@media only screen and (min-width:1052px) {
+	#sidebar {
+		display: block;
+		width: 300px;
+		height: 1900px;
+		float: right;
+		background-color: #E9E7E3;
+		background-color: #F6F5F4;
+	}
+	#content_inner {
+		float: left;
+	}
+}
+*/

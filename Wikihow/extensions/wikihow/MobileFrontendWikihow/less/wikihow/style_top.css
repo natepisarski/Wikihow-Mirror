@@ -799,6 +799,9 @@ h4.steps_text::before {
 }
 
 /*** ADS ***/
+#wh_ad_middle_related {
+	float: left;
+}
 #wh_ad_tips, #pagebottom {
 	margin-top: 12px;
 }
@@ -1311,14 +1314,6 @@ a.related-title,a.related-title:active, a.related-title:visited {
 /* Tablet Support */
 
 @media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {
-	.content {
-		margin: 0 25px;
-	}
-
-	#intro {
-		margin: 0 -25px;
-	}
-
 	#hp_container {
 		/* fix for slider alignment inside content div */
 		margin: 0 -25px;

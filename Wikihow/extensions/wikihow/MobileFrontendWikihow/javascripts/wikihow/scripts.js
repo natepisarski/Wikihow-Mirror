@@ -47,6 +47,11 @@ function initializeArticlePage() {
 		$("#summary_text").show();
 		$(this).addClass("open");
 	});
+	$(document).one("click", "#other_languages .collapse_link", function(e){
+		e.preventDefault();
+		$("#language_links").show();
+		$(this).addClass("open");
+	});
 
 	$('.checkmark').on('click', function() {
 		if ($(this).hasClass('checked')) {

@@ -111,50 +111,6 @@ Disallow: /api.php
 Disallow: /index.php
 Disallow: /Special:
 
-User-agent: Googlebot
-Allow: /Special:AllPages
-Allow: /Special:Block
-Allow: /Special:BlockList
-Allow: /Special:CategoryListing
-Allow: /Special:EmailUser
-Allow: /Special:LSearch
-Allow: /Special:NewPages
-Allow: /Special:ReindexedPages
-Allow: /Special:PopularPages
-Allow: /Special:QABox
-Allow: /Special:Sitemap
-Allow: /Special:ThankAuthors
-Allow: /Special:UserLogin
-Allow: /index.php?*action=credits
-Allow: /index.php?*MathShowImage
-Allow: /index.php?*printable
-Disallow: /w/
-Disallow: /forum/
-Disallow: /index.php
-Disallow: /*feed=rss
-Disallow: /*action=delete
-Disallow: /*action=history
-Disallow: /Special:
-Disallow: /images/samplepdfs
-Disallow: /images/sampledocs*doc
-Disallow: /images/sampledocs*pdf
-Disallow: /images/sampledocs*txt
-Disallow: /*platform=
-Disallow: /*variant=
-Noindex: /w/
-Noindex: /forum/
-Noindex: /index.php
-Noindex: /*feed=rss
-Noindex: /*action=delete
-Noindex: /*action=history
-Noindex: /Special:
-Noindex: /images/samplepdfs
-Noindex: /images/sampledocs*doc
-Noindex: /images/sampledocs*pdf
-Noindex: /images/sampledocs*txt
-Noindex: /*platform=
-Noindex: /*variant=
-
 User-agent: *
 Allow: /Special:AllPages
 Allow: /Special:CategoryListing
@@ -180,4 +136,3 @@ Disallow: /images/sampledocs*pdf
 Disallow: /images/sampledocs*txt
 Disallow: /*platform=
 Disallow: /*variant=
-

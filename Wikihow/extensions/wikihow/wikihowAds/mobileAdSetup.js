@@ -154,11 +154,15 @@ WH.mobileads = (function () {
 			default:
 				width = width - 20;
 		}
+		if (width > 724) {
+			width = 724;
+		}
 
 		return width;
 	}
 
 	function getAdHeight(type) {
+		var width = document.documentElement.clientWidth;
 		var height = 250;
 		if (type == 'intro') {
 			height = 120;
@@ -175,6 +179,9 @@ WH.mobileads = (function () {
 		} else if (type == 'middlerelated') {
 			height = 200;
 		}
+		if (width >= 728 && height > 200) {
+			height = 200;
+		}
 		return height;
 	}
 
@@ -183,7 +190,13 @@ WH.mobileads = (function () {
 		var height = getAdHeight(type);
 		var css = 'display:inline-block;width:'+width+'px;height:'+height+'px;';
 		var noWidthTypes = ["qa", "tips", "warnings"];
-		if (noWidthTypes.includes(type)) {
+		var isNoWidthType = false;
+		for (var i = 0; i < noWidthTypes.length; i++) {
+			if (noWidthTypes[i] == type) {
+				isNoWidthType = true;
+			}
+		}
+		if (isNoWidthType) {
 			css = 'display:block;height:'+height+'px;';
 		}
 		return css;

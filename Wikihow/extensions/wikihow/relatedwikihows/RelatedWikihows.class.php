@@ -496,14 +496,6 @@ class RelatedWikihows {
 			$relatedArticles = array_slice( $relatedArticles, 0, self::MIN_TO_SHOW_DESKTOP, true );
 		}
 
-		// it is possible we still do not have enough articles. in that case use from a default list
-		$count = count( $relatedArticles );
-		if ( $count < $minNumber ) {
-			$defaultRelatedArticles = self::getDefaultRelatedWikihows();
-			$relatedArticles = $relatedArticles + $defaultRelatedArticles;
-			$relatedArticles = array_slice( $relatedArticles, 0, self::MIN_TO_SHOW_DESKTOP, true );
-		}
-
 		Hooks::run( 'RelatedWikihowsAfterLoadRelatedArticles', array( $title, &$relatedArticles ) );
 
 		// pull out the needed data from the related articles and create thumbnail urls

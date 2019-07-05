@@ -206,12 +206,10 @@ class DesktopAds {
 	public function modifyRightRailForAdTest( $html, $relatedWikihows ) {
 		$pageId = $this->mTitle->getArticleID();
 
-		if ( $pageId % 10 != 5 ) {
-			return $html;
-		}
-
 		$doc = phpQuery::newDocument( $html );
-		pq('#ratearticle_sidebar')->remove();
+		if ( pq( '.rr_container' )->length < 3 ) {
+			pq('#ratearticle_sidebar')->remove();
+		}
 
 		$rightRailHtml = $doc->htmlOuter();
 		return $rightRailHtml;
@@ -385,7 +383,7 @@ class DesktopAds {
 			$adCreator = new MixedAdCreatorScrollTo();
 			$adCreator->mAdServices['step'] = '';
 
-			if ( $pageId % 4 != 3 ) {
+			if ( $pageId % 100 < 95 ) {
 				$adCreator = new TwoRightRailAdCreator();
 				$adCreator->mAdServices['step'] = '';
 			}

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * API for querying summary videos
  *
@@ -13,22 +14,19 @@ class ApiSummaryVideos extends ApiQueryBase {
 	 */
 	protected static $cdn = WH_CDN_VIDEO_ROOT;
 
+	/**
+	 * Refresh daily
+	 */
+	protected static $refreshAfter = 24 * 60 * 60;
+
 	/* Methods */
 
 	public static function query( $params = [] ) {
-		global $wgCategoryNames, $wgLanguageCode, $wgMemc, $wgCanonicalServer;
-
-		// Refresh daily
-		$refreshAfter = 24 * 60 * 60;
+		global $wgLanguageCode, $wgMemc, $wgCanonicalServer;
 
 		if ( isset( $params['page'] ) && $params['page'] !== null ) {
 			$page = $params['page'];
 			$title = Title::newFromID( $page );
-		}
-		if ( isset( $params['related'] ) && $params['related'] !== null ) {
-			$related = (bool)$params['related'];
-		} else {
-			$related = false;
 		}
 		if ( isset( $params['shuffle'] ) && $params['shuffle'] !== null ) {
 			$shuffle = (bool)$params['shuffle'];
@@ -54,7 +52,6 @@ class ApiSummaryVideos extends ApiQueryBase {
 				implode( [
 					"version:{$updated}",
 					"page:{$page}",
-					"related:{$related}",
 					"shuffle:{$shuffle}",
 					"featured:{$featured}",
 					"limit{$limit})"
@@ -66,64 +63,33 @@ class ApiSummaryVideos extends ApiQueryBase {
 
 		if ( !is_array( $data ) ) {
 			$dbr = wfGetDB( DB_REPLICA );
+			$where = [];
 
-			$tables = [
-				'article_meta_info',
-				'page',
-				'wikivisual_article_status',
-				'titus_copy'
-			];
-			$fields = [
-				'ami_id',
-				'ami_video',
-				'ami_summary_video',
-				'page_catinfo',
-				'vid_processed',
-				'ti_featured',
-				'ti_30day_views_unique',
-				'plays' => '(ti_summary_video_play + ti_summary_video_play_mobile)'
-			];
-			$where = [ 'ami_summary_video != \'\'' ];
-			$options = [ 'ORDER BY' =>
-				'ti_featured DESC, ti_30day_views_unique DESC, plays DESC'
-			];
-			$joins = [
-				'page' => [ 'INNER JOIN', [ 'ami_id=page_id' ] ],
-				'wikivisual_article_status' => [ 'INNER JOIN', [ 'ami_id=article_id' ] ],
-				'titus_copy' => [ 'INNER JOIN', [
-					'ti_language_code="' . $wgLanguageCode . '"', 'ti_page_id=page_id' ]
-				]
-			];
-
-			// If title was given, the state of related makes it either the only one we get, or the
-			// only one we don't get
+			// Optionally limit to specified page
 			if ( isset( $page ) ) {
-				if ( $related ) {
-					$where[] = "page_id != {$dbr->addQuotes( $page )}";
-				} else {
-					$where['page_id'] = $page;
-				}
+				$where['sv_id'] = $page;
+			}
+			// Optionally restrict to featured articles
+			if ( $featured ) {
+				$where['sv_featured'] = 1;
 			}
 
-			if ( $featured ) {
-				// Restrict to featured articles
-				$where['ti_featured'] = 1;
+			$options = [ 'ORDER BY' => 'sv_featured DESC, sv_popularity DESC, sv_plays DESC' ];
+
+			// Optionally apply limit
+			if ( isset( $limit ) ) {
+				// If shuffling, make sure we have 3x the limit
+				if ( $shuffle ) {
+					$options[ 'LIMIT' ] = $limit * 3;
+				} else {
+					$options[ 'LIMIT' ] = $limit;
+				}
 			}
 
 			// Get meta info for every article with a summary video
-			$rows = $dbr->select( $tables, $fields, $where, __METHOD__, $options, $joins );
+			$rows = $dbr->select( 'summary_videos', '*', $where, __METHOD__, $options );
 
-			// Filter by category intersection
-			if ( $title && $related ) {
-				$categories = CategoryHelper::getTitleTopLevelCategories( $title );
-				//var_dump( $primary );
-				$filterCategories = [];
-				foreach ( $categories as $category ) {
-					$filterCategories[] = $category->getText();
-				}
-			}
-
-			// Shuffle if requested
+			// Optionally shuffle
 			if ( $shuffle ) {
 				$items = [];
 				foreach ( $rows as $row ) {
@@ -136,36 +102,19 @@ class ApiSummaryVideos extends ApiQueryBase {
 			// Build results
 			$videos = [];
 			foreach ( $rows as $row ) {
-				// Filter out alt-domain titles
-				if ( !empty( AlternateDomain::getAlternateDomainForPage( $row->ami_id ) ) ) {
-					continue;
-				}
-
-				// Detect category intersection
-				$rowCategories = explode( ',', static::getCategoryListFromCatInfo( $row->page_catinfo ) );
-				if ( isset( $filterCategories ) ) {
-					$intersection = array_intersect( $filterCategories, $rowCategories );
-					if ( count( $intersection ) === 0 ) {
-						continue;
-					}
-				}
-
-				$title = Title::newFromId( $row->ami_id );
 				$videos[] = [
-					'id' => $row->ami_id,
-					'title' => $title->getText(),
-					'article' => $title->getCanonicalURL(),
-					'updated' => wfTimestamp( TS_ISO_8601, $row->vid_processed ),
-					'video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
-					'poster' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title ),
-					'poster@1:1' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title, 1 / 1 ),
-					'poster@4:3' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title, 4 / 3 ),
-					'clip' => static::getVideoUrlFromVideo( $row->ami_video ),
-					'categories' => implode( $rowCategories, ',' ),
-					'breadcrumbs' => implode( (array)CategoryHelper::getBreadcrumbCategories( $title ), ',' ),
-					'popularity' => $row->ti_30day_views_unique,
-					'featured' => $row->ti_featured,
-					'plays' => $row->plays,
+					'id' => $row->sv_id,
+					'title' => $row->sv_title,
+					'article' => "{$wgCanonicalServer}/" . str_replace( ' ', '-', $row->sv_title ),
+					'updated' => wfTimestamp( TS_ISO_8601, $row->sv_updated ),
+					'video' => static::$cdn . $row->sv_video,
+					'poster' => $wgCanonicalServer . $row->sv_poster,
+					'clip' => $row->sv_clip ? ( static::$cdn . $row->sv_clip ) : '',
+					'categories' => $row->sv_categories,
+					'breadcrumbs' => $row->sv_breadcrumbs,
+					'popularity' => $row->sv_popularity,
+					'featured' => $row->sv_featured,
+					'plays' => $row->sv_plays
 				];
 
 				if ( isset( $limit ) && count( $videos ) >= $limit ) {
@@ -174,7 +123,7 @@ class ApiSummaryVideos extends ApiQueryBase {
 			}
 
 			$data = [ 'videos' => $videos ];
-			$wgMemc->set( $key, $data, $refreshAfter );
+			$wgMemc->set( $key, $data, static::$refreshAfter );
 		}
 
 		return $data;
@@ -186,14 +135,18 @@ class ApiSummaryVideos extends ApiQueryBase {
 	public function execute() {
 		// To avoid API warning, register the parameter used to bust browser cache
 		$this->getMain()->getVal( '_' );
+
+		// Purge from varnish daily
+		$this->getMain()->setCacheMaxAge( static::$refreshAfter );
+		$this->getMain()->setCacheMode( 'public' );
+
 		// Get the parameters
 		$request = $this->getRequest();
 		$page = $request->getVal( 'sv_page', null );
-		$related = $request->getBool( 'sv_related' );
 		$shuffle = $request->getBool( 'sv_shuffle', null );
 		$featured = $request->getBool( 'sv_featured', null );
 		$limit = $request->getVal( 'sv_limit', null );
-		$data = self::query( compact( 'page', 'related', 'shuffle', 'featured', 'limit' ) );
+		$data = self::query( compact( 'page', 'shuffle', 'featured', 'limit' ) );
 		$result = $this->getResult();
 		$result->setIndexedTagName( $data['videos'], 'video' );
 		$result->addValue( 'query', $this->getModuleName(), $data );
@@ -216,7 +169,6 @@ class ApiSummaryVideos extends ApiQueryBase {
 	public function getAllowedParams() {
 		return [
 			'sv_page' => [ ApiBase::PARAM_TYPE => 'integer' ],
-			'sv_related' => [ ApiBase::PARAM_TYPE => 'boolean' ],
 			'sv_shuffle' => [ ApiBase::PARAM_TYPE => 'boolean' ],
 			'sv_featured' => [ ApiBase::PARAM_TYPE => 'boolean' ],
 			'sv_limit' => [ ApiBase::PARAM_TYPE => 'integer' ]
@@ -230,90 +182,10 @@ class ApiSummaryVideos extends ApiQueryBase {
 	 */
 	public function getParamDescription() {
 		return [
-			'sv_page' => 'Page ID to get video (or related videos) for',
-			'sv_related' => 'Get related videos (except the video for the given page if it exists)',
+			'sv_page' => 'Page ID to get video for (omit to get a list)',
 			'sv_shuffle' => 'Shuffle results',
-			'sv_featured' => 'Limit results to videos related to featured articles',
+			'sv_featured' => 'Limit results to videos on featured articles',
 			'sv_limit' => 'Maximum number of videos to list',
 		];
-	}
-
-	/**
-	 * Get a video URL from a video name
-	 *
-	 * @param string $video Video name from ami_summary_video column of article_meta_info table
-	 * @return string Absolute URL of video
-	 */
-	protected static function getVideoUrlFromVideo( $video ) {
-		return $video ? static::$cdn . str_replace( ' ', '+', $video ) : '';
-	}
-
-	/**
-	 * Get a poster URL from a video name
-	 *
-	 * @param string $video Video name from ami_summary_video column of article_meta_info table
-	 * @param number $aspect Aspect ratio
-	 * @return string Absolute URL of poster
-	 */
-	protected static function getPosterUrlFromVideo( $video, $title, $aspect = null ) {
-		global $wgCanonicalServer;
-
-		// Hardcoded for now
-		$width = 548;
-		$height = 360;
-
-		// Translate between video filename and poster image filename by changing the
-		//     From: '/{X}/{YZ}/{NAME} Step 0 Version 1.360p.mp4'
-		//     To:   '{NAME} Step 0 preview Version 1.jpg'
-		$name = str_replace(
-			[ 'Step 0', '.360p.mp4' ], // Replace anchor and video extension
-			[ 'Step 0 preview', '.jpg' ], // With anchor + 'preview' and image extension
-			substr( $video, 6 ) // Remove leading directory hashing
-		);
-		$image = Title::newFromText( $name, NS_IMAGE );
-
-		// Fallback to trying to generate a poster image from the video name
-		if ( !$image || !$image->exists() ) {
-			// Try to generate a poster image from the page title
-			$image = Title::newFromText( $title->getText() . ' Step 0 preview.jpg', NS_IMAGE );
-		}
-
-		if ( $image && $image->exists() ) {
-			// Get a file from an image
-			$file = RepoGroup::singleton()->findFile( $image );
-			if ( $file ) {
-				// Get a thumbnail from a file
-				$params = [ 'width' => $width, WatermarkSupport::NO_WATERMARK => true ];
-				if ( is_numeric( $aspect ) ) {
-					$params['crop'] = 1;
-					$params['width'] = $height * $aspect;
-					$params['height'] = $height;
-				}
-				$thumb = $file->transform( $params, 0 );
-				return $wgCanonicalServer . $thumb->getUrl();
-			}
-		}
-		return '';
-	}
-
-	/**
-	 * Get a categories list from a category info bitmask
-	 *
-	 * @param integer $catInfo Category bitmask from page_catinfo column of page table
-	 * @return string Comma delimited category list
-	 */
-	protected static function getCategoryListFromCatInfo( $catInfo ) {
-		global $wgCategoryNames;
-
-		$categories = [];
-		$mask = (int)$catInfo;
-		foreach ( $wgCategoryNames as $bit => $category ) {
-			if ( $bit & $mask ) {
-				if ( $category !== "WikiHow" ) {
-					$categories[] = $category;
-				}
-			}
-		}
-		return join( $categories, ',' );
 	}
 }

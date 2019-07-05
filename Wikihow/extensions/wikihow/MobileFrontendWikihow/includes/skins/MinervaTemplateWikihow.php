@@ -237,6 +237,36 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			echo GoogleAmp::getAmpSidebar( $items );
 	}
 
+	private function getRightRailHtml( $data ) {
+		global $wgTitle;;
+
+		// for some reason putting this on special pages makes their css no work well
+		// so restricting it for now
+		if ( $wgTitle && !$wgTitle->inNamespace( NS_MAIN ) ) {
+			return;
+		}
+		if ( $data['amp'] ) {
+			return;
+		}
+		$context = RequestContext::getMain();
+		$html = '';
+
+		$sp = new SocialProofStats($context, $fullCategoryTree);
+		$socialProofSidebar = $sp->getDesktopSidebarHtml();
+		$html .= $socialProofSidebar;
+
+		$relatedWikihows = new RelatedWikihows( $context, $context->getUser());
+		$relatedOutput = $relatedWikihows->getSideData();
+		$attr = ['id' => 'side_related_articles', 'class' => 'sidebox related_articles'];
+		$html .= Html::rawElement( 'div', $attr, $relatedOutput );
+
+		$html .= RatingArticle::getDesktopSideForm( 0, '' );
+
+		// blanked out for now
+		$html = '';
+
+		return $html;
+	}
 
 	private function renderPageLeft( $data ) {
 		// in amp mode we have to add the header as a direct decendent of <body>
@@ -341,10 +371,20 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				?>
 
 				<div id="content_wrapper" role="main">
+					<div id="content_inner">
+						<?php
+						$this->renderContentWrapper( $data );
+						?>
+					</div>
+
+					<div id="sidebar">
 					<?php
-					$this->renderContentWrapper( $data );
+						$html = $this->getRightRailHtml( $data );
+						echo $html;
 					?>
+					</div>
 				</div>
+				<br class="clearall" />
 
 				<? $schema = SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
 				if ( $schema ) {
@@ -362,8 +402,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				}  else {
 					$this->renderFooter( $data );
 				}
-				?>
-			</div>
+		   ?>
 		</div>
 		<div id='servedtime'><?= Misc::reportTimeMS(); ?></div>
 		<?php

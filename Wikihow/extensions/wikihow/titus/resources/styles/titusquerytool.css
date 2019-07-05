@@ -138,3 +138,10 @@ input.sqllabel {
 .qv-input {
 	width: 42%;
 }
+
+.tqt-lastrun {
+	display: inline-flex;
+	flex-flow: nowrap;
+	width: -webkit-fill-available;
+	justify-content: space-between;
+}

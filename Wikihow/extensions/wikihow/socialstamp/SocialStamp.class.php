@@ -105,21 +105,40 @@ class SocialStamp {
 		return true;
 	}
 
+	public static function getCoauthorGroup(array $verifiers): string
+	{
+		if ( array_key_exists(SocialProofStats::VERIFIER_TYPE_EXPERT, $verifiers)) {
+			return 'expert';
+		} elseif ( array_key_exists(SocialProofStats::VERIFIER_TYPE_ACADEMIC, $verifiers)) {
+			return 'expert';
+		} elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_YOUTUBER, $verifiers)) {
+			return 'expert';
+		} elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_COMMUNITY, $verifiers)) {
+			return 'community';
+		} elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_STAFF, $verifiers)) {
+			return 'staff';
+		} else {
+			return 'author info';
+		}
+	}
+
 	private static function setBylineData($verifiers, $articleId, $isMobile, $isAmp, $isAlternateDomain) {
 		$params = [];
 
-		$isExpert = false; // expert | academic | youtuber
-		$isStaff = false;
-		$isCommunity = false;
+		$group = self::getCoauthorGroup($verifiers);
+
+		$isExpert =    $group == 'expert'; // expert | academic | youtuber
+		$isCommunity = $group == 'community';
+		$isStaff =     $group == 'staff';
+		$isDefault =   $group == 'author info';
+
 		$isTested = false; // tech | video | chef
 		$isUserReview = false;
-		$isDefault = false;
-
 		$isIntl = Misc::isIntl();
 
 		$hoverText = "";
 
-		if(ArticleTagList::hasTag("expert_test", $articleId) && !RequestContext::getMain()->getUser()->isLoggedIn()) {
+		if ( ArticleTagList::hasTag("expert_test", $articleId) && !RequestContext::getMain()->getUser()->isLoggedIn() ) {
 			$vd = VerifyData::getVerifierInfoById($verifiers['expert']->verifierId);
 			$params['coauthor_image'] = $vd->imagePath;
 		}
@@ -160,33 +179,29 @@ class SocialStamp {
 		}
 
 		// expert
-		if ( array_key_exists(SocialProofStats::VERIFIER_TYPE_EXPERT, $verifiers)) {
+		if ( array_key_exists(SocialProofStats::VERIFIER_TYPE_EXPERT, $verifiers) ) {
 			$key = SocialProofStats::VERIFIER_TYPE_EXPERT;
-			$isExpert = true;
 		}
 		// academic
-		elseif ( array_key_exists(SocialProofStats::VERIFIER_TYPE_ACADEMIC, $verifiers)) {
+		elseif ( array_key_exists(SocialProofStats::VERIFIER_TYPE_ACADEMIC, $verifiers) ) {
 			$key = SocialProofStats::VERIFIER_TYPE_ACADEMIC;
-			$isExpert = true;
 		}
 		// youtuber
-		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_YOUTUBER, $verifiers)) {
+		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_YOUTUBER, $verifiers) ) {
 			$key = SocialProofStats::VERIFIER_TYPE_YOUTUBER;
-			$isExpert = true;
 		}
 		// community
-		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_COMMUNITY, $verifiers)) {
+		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_COMMUNITY, $verifiers) ) {
 			$key = SocialProofStats::VERIFIER_TYPE_COMMUNITY;
-			$isCommunity = true;
 		}
-		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_STAFF, $verifiers)) {
+		// staff
+		elseif ( array_key_exists( SocialProofStats::VERIFIER_TYPE_STAFF, $verifiers) ) {
 			$key = SocialProofStats::VERIFIER_TYPE_STAFF;
 			$params['slot1'] = self::getIntroInfo($key, $verifiers[$key]);
 			$params['slot1class'] = "staff_icon";
 			$params['showBylineRefs'] = $hasEnoughRefsForByline;
-			$isStaff = true;
 		}
-		// default
+		// default (author info)
 		else {
 			$params['slot1'] = self::GetIntroInfo(SocialProofStats::VERIFIER_TYPE_AUTHORS);
 			unset($params["coauthor"]);
@@ -194,7 +209,6 @@ class SocialStamp {
 			$params["check"] = "ss_info";
 			$key = $isIntl && $isMobile ? 'showBylineRefsNextToAuthor' : 'showBylineRefs';
 			$params[$key] = $hasEnoughRefsForByline;
-			$isDefault = true;
 		}
 
 		# First part (left) (slot1)

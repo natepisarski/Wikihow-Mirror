@@ -31,7 +31,6 @@ WH.shared = (function () {
 	} else {
 		// in the future we can load the polyfill as a backup, but for now
 		// we have a backup of the old scroll loading code
-		console.log("no intersection observer available");
 	}
 
 	function resize() {
@@ -358,13 +357,7 @@ WH.shared = (function () {
 		if (WH.pageID == 0) {
 			return false;
 		}
-		if (WH.isMobile) {
-			return false;
-		}
-		if (WH.pageID % 10 == 3) {
-			return true;
-		}
-		if (WH.pageID % 100 < 15) {
+		if (WH.pageID % 2 == 0) {
 			return true;
 		}
 		return false;

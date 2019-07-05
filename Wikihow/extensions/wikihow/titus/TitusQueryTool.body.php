@@ -495,7 +495,7 @@ class TitusQueryTool extends UnlistedSpecialPage {
 					$timezone = 'America/Los_Angeles';
 					$dt = new DateTime("now", new DateTimeZone($timezone));
 					$dt->setTimestamp($unixTime);
-					$formattedTime = $dt->format('g:ia \o\n l jS F Y');
+					$formattedTime = $dt->format('l jS F Y, g:i a ');
 				} else {
 				// If the timestamp isn't numeric, just use whatever value is stored without formatting it
 					$formattedTime = $unixTime;

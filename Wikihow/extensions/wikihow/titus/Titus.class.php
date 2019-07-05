@@ -665,7 +665,8 @@ class TitusConfig {
 			"SensitiveArticle" => 1,
 			"SearchVolume" => 1,
 			"InboundLinks" => 1,
-			"GreenBox" => 1
+			"GreenBox" => 1,
+			"ActiveCoauthor" => 1,
 		);
 
 		if ( $wgLanguageCode != "en" ) {
@@ -5283,5 +5284,27 @@ class TSGreenBox extends TitusStat {
 		$stats['ti_num_greenbox_expert'] =preg_match_all($regex_gbe, $text, $matches);
 
 		return $stats;
+	}
+}
+
+/**
+ * ti_active_coauthor: indicates what kind of coauthor is currently being displayed on an article
+ *
+ * ALTER TABLE titus_intl ADD COLUMN ti_active_coauthor varchar(32) NOT NULL default '' AFTER ti_expert_verified_date_original;
+ */
+class TSActiveCoauthor extends TitusStat {
+
+	public function getPageIdsToCalc($dbr, $date) {
+		return TitusDB::ALL_IDS;
+	}
+
+	public function calc($dbr, $r, $t, $pageRow)
+	{
+		$aid = $t->getArticleID();
+		$verifiers = [];
+		Hooks::run( 'BylineStamp', [ &$verifiers, $aid ] );
+		$group = SocialStamp::getCoauthorGroup($verifiers);
+
+		return [ 'ti_active_coauthor' => $group ];
 	}
 }

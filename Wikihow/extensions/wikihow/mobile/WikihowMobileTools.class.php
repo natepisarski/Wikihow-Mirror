@@ -767,6 +767,10 @@ class WikihowMobileTools {
 			}
 		}
 
+		if ( !$amp ) {
+			self::insertLanguageLinksHtml( $skin );
+		}
+
 		// Remove logged in templates for logged out users
 		// so that they don't display
 		if ($wgUser->getID() == 0) {
@@ -905,7 +909,7 @@ class WikihowMobileTools {
 				if ( $matches[1] ) {
 					$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $matches[1] );
 					// Only videos from our own channel will have publisher information
-					if ( array_key_exists( 'publisher', $videoSchema ) ) {
+					if ( is_array( $videoSchema ) && array_key_exists( 'publisher', $videoSchema ) ) {
 						pq( $video )->after(
 							SchemaMarkup::getSchemaTag( $videoSchema ) .
 							'<!-- ' . (
@@ -1683,6 +1687,60 @@ class WikihowMobileTools {
 
 	protected static function getTableOfContents() {
 		return self::$tableOfContentsHtml;
+	}
+
+	private static function insertLanguageLinksHtml( $skin ) {
+		global $wgLanguageCode;
+
+		$isIndexed = RobotPolicy::isIndexable( $skin->getTitle(), $skin->getContext() );
+		if ( !$isIndexed ) {
+			return;
+		}
+
+		$alternateDomain = AlternateDomain::onAlternateDomain();
+		if ( $alternateDomain ) {
+			return;
+		}
+
+		//other languages
+		$languageLinks = WikihowSkinHelper::getLanguageLinks();
+
+		$linksHtml = '';
+		// if we are on english, then we need to remove any links to alt domains
+		foreach ( $languageLinks as $langLink ) {
+			if ( !$langLink ) {
+				continue;
+			}
+			if ( $langLink['lang'] == 'es' ) {
+				$altDomains = AlternateDomain::getAlternateDomains();
+				foreach ( $altDomains as $altDomain ) {
+					if ( strstr( $langLink['href'], $altDomain ) ) {
+						continue;
+					}
+				}
+			}
+			$linkText = $langLink['text'];
+			$text = Html::rawElement( 'span', [], htmlspecialchars( trim( $langLink['language'] ) ) );
+			$link = Html::rawElement( 'a', ['href' => htmlspecialchars( $langLink['href'] )], $linkText );
+			$linksHtml .= Html::rawElement( 'div', ['class' => 'language_link'], $text . $link );
+			//$linksHtml .= htmlspecialchars(trim($langLink['text'])) . '&nbsp;<span><a href="' .  htmlspecialchars($langLink['href']) . '">' .  $linkText . "</a></span>";
+		}
+
+		if ( !$linksHtml ) {
+			return;
+		}
+
+		// wrap it
+		$linksHtml = Html::rawElement( 'div', ['id' => 'language_links'], $linksHtml );
+
+		$linksHeader = Html::rawElement( 'a', ['href' => '#other_languages', 'class' => 'collapse_link'], wfMessage('otherlanguages')->text() );
+		$html = Html::rawElement( 'div', ['id' => 'other_languages', 'class' => 'section_text'], $linksHeader . $linksHtml );
+
+		if ( pq( '#summary_wrapper' )->length ) {
+			pq( '#summary_wrapper' )->after( $html );
+		} elseif ( pq( '#social_proof_mobile' )->length ) {
+			pq( '#social_proof_mobile' )->after( $html );
+		}
 	}
 
 	private static function formatReferencesSection( $skin ) {

@@ -5,6 +5,14 @@
  * @class
  */
 class ApiSummarySection extends ApiQueryBase {
+
+	/* Static Members */
+
+	/**
+	 * Refresh daily
+	 */
+	protected static $refreshAfter = 24 * 60 * 60;
+
 	/**
 	 * Execute API
 	 */
@@ -25,13 +33,14 @@ class ApiSummarySection extends ApiQueryBase {
 		$title = Title::newFromId( $page );
 
 		// Caching
-		$refreshAfter = 24 * 60 * 60;
+		$this->getMain()->setCacheMaxAge( static::$refreshAfter );
+		$this->getMain()->setCacheMode( 'public' );
 		$key = wfMemcKey( "ApiSummarySection::execute(page:{$page})@{$wgCanonicalServer}" );
 		$data = $wgMemc->get( $key );
 
 		if ( !is_array( $data ) ) {
 			$data = SummarySection::summaryData( $title->getText() );
-			$wgMemc->set( $key, $data, $refreshAfter );
+			$wgMemc->set( $key, $data, static::$refreshAfter );
 		}
 
 		$result->addValue( 'query', $this->getModuleName(), $data );

@@ -5,6 +5,9 @@
 class VideoBrowser {
 	static $mustache = null;
 
+	/**
+	 * Render a mustache template from the VideoBrowser templates directory.
+	 */
 	public static function render( $template, $params ) {
 		if ( !static::$mustache ) {
 			static::$mustache = new \Mustache_Engine( [
@@ -14,6 +17,9 @@ class VideoBrowser {
 		return static::$mustache->render( $template, $params );
 	}
 
+	/**
+	 * Allow VideoBrowser special page on mobile.
+	 */
 	public static function onIsEligibleForMobileSpecial( &$isEligible ) {
 		global $wgTitle;
 		if (
@@ -35,29 +41,43 @@ class VideoBrowser {
 		return true;
 	}
 
+	/**
+	 * Add videos to mobile home page.
+	 */
 	public static function onWikihowHomepageFAContainerHtml( &$html1, &$html2, &$html3 ) {
 		global $wgOut;
 
-		if (
-			Misc::isMobileMode()
-			&& !( class_exists( 'AndroidHelper' ) && AndroidHelper::isAndroidRequest() ) ) {
+		$isAndroid = class_exists( 'AndroidHelper' ) && AndroidHelper::isAndroidRequest();
+		if ( Misc::isMobileMode() && !$isAndroid ) {
 			$html1 .= static::render( 'mobile-widget.mustache', [
 				'howto' => 'How to',
-				'videos' => static::queryVideos( [
-					'limit' => 4,
-					'featured' => true,
-					'shuffle' => true
-				] )
+				'videos' => static::getHomePageVideos()
 			] );
-
 			$wgOut->addModules( 'ext.wikihow.videoBrowser-mobile-widget' );
 		}
-
 		return true;
 	}
 
-	public static function queryVideos( $params ) {
-		$data = ApiSummaryVideos::query( $params );
+	/**
+	 * Add videos to desktop home page.
+	 */
+	public static function getDesktopWidgetHtml( $context ) {
+		return static::render( 'desktop-widget.mustache', [
+			'title' => 'wikiHow Videos',
+			'howto' => 'How to',
+			'videos' => static::getHomePageVideos()
+		] );
+	}
+
+	/**
+	 * Get a list of videos for the home page.
+	 */
+	private static function getHomePageVideos() {
+		$data = ApiSummaryVideos::query( [
+				'limit' => 4,
+				'featured' => true,
+				'shuffle' => true
+			] );
 		$items = [];
 		foreach ( $data['videos'] as $video ) {
 			if ( $video['clip'] !== '' ) {
@@ -80,49 +100,5 @@ class VideoBrowser {
 			];
 		}
 		return $items;
-	}
-
-	public static function addDesktopSection( $context ) {
-		$title = $context ? $context->getTitle() : null;
-		if (
-			// Valid title
-			$title &&
-			// Existing title
-			$title->exists() ||
-			// No redirects
-			!$title->isRedirect() ||
-			// Only English
-			$context->getLanguage()->getCode() == 'en' ||
-			// Only main namespace
-			$title->inNamespace( NS_MAIN ) ||
-			// Only view pages
-			$context->getRequest()->getVal( 'action', 'view' ) == 'view' ||
-			// Not on main page
-			$title->getText() != wfMessage( 'mainpage' )->inContentLanguage()->text()
-		) {
-			$context->getOutput()->addModules( 'ext.wikihow.videoBrowser-desktop-section' );
-			pq( '#bodycontents' )->append( static::render( 'desktop-section.mustache', [
-				'title' => 'wikiHow Videos',
-				'howto' => 'How to',
-				'videos' => static::queryVideos( [
-					'page' => $title->getArticleId(),
-					'related' => true,
-					'limit' => 4,
-					'shuffle' => true
-				] )
-			] ) );
-		}
-	}
-
-	function getDesktopWidgetHtml( $context ) {
-		return static::render( 'desktop-widget.mustache', [
-			'title' => 'wikiHow Videos',
-			'howto' => 'How to',
-			'videos' => static::queryVideos( [
-				'limit' => 4,
-				'featured' => true,
-				'shuffle' => true
-			] )
-		] );
 	}
 }

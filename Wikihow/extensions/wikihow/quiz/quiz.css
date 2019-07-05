@@ -133,11 +133,3 @@
 	display: block;
 	margin-top: 10px;
 }
-
-@media only screen and (max-aspect-ratio: 13/9) and (min-width: 500px), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-	.content .qz_container {font-size: 22px;}
-	.stable .content .qz_explanation {font-size: 22px;}
-	.content .qz_header {font-size: 22px;}
-	.content .qz_section {font-size: 22px;}
-	.qz_score {font-size: 16px;}
-}

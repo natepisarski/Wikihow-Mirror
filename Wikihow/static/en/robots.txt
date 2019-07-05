@@ -142,16 +142,3 @@ Disallow: /images/sampledocs*pdf
 Disallow: /images/sampledocs*txt
 Disallow: /*platform=
 Disallow: /*variant=
-Noindex: /w/
-Noindex: /forum/
-Noindex: /index.php
-Noindex: /*feed=rss
-Noindex: /*action=delete
-Noindex: /*action=history
-Noindex: /Special:
-Noindex: /images/samplepdfs
-Noindex: /images/sampledocs*doc
-Noindex: /images/sampledocs*pdf
-Noindex: /images/sampledocs*txt
-Noindex: /*platform=
-Noindex: /*variant=

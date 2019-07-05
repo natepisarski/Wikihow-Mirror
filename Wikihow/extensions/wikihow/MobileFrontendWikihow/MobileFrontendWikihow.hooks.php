@@ -127,6 +127,19 @@ class MobileFrontendWikiHowHooks {
 		$ampStylePaths = $stylePaths;
 		$stylePaths[] = __DIR__ . '/less/wikihow/noamp_style_top.css';
 
+		// TODO get this working for some reason when I add the css in this way it does not work yet probably due to loading order
+		//$less = ResourceLoader::getLessCompiler();
+		//$style = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/responsive.css');
+		//$style = $less->compile($style);
+		//$style = ResourceLoader::filter('minify-css', $style);
+		//$style = HTML::inlineStyle($style);
+		//$out->addHeadItem('topcss2', $style);
+		// only add this on regular article pages for now:
+		//we're checking this elsewhere, so if we get here, it's ok
+		if ( $wgTitle && $wgTitle->inNamespace( NS_MAIN ) && !$wgTitle->isMainPage() ) {
+			$stylePaths[] = __DIR__ . '/less/wikihow/responsive.css';
+		}
+
 		$top_style = Misc::getEmbedFiles('css', $stylePaths, null, $wgLang->isRTL());
 
 		// Add some custom meta info for android phone requests.

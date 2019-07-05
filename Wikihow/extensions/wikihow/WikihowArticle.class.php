@@ -713,11 +713,6 @@ class WikihowArticleHTML {
 		//Made Recently section
 		if (class_exists('UserCompletedImages') && $showCurrentTitle) UserCompletedImages::addDesktopSection($context);
 
-		// Related videos section
-		// if ( class_exists( 'VideoBrowser') && $showCurrentTitle ) {
-		// 	VideoBrowser::addDesktopSection( $context );
-		// }
-
 		//remove all images in the intro that aren't
 		//marked with the class "introimage"
 		pq("#intro .mwimg:not(.introimage)")->remove();
@@ -979,15 +974,34 @@ class WikihowArticleHTML {
 			// ($|\s|\W|\D) = end of line, a space, or any non-word, non-number (skip decimals and urls)
 			$pattern = "@([$punct])($|\s|\W|\D])@im";
 		}
-
+		// Array of characters that are used to end sentences (language-specific)
+		$punct_split = str_split( str_replace( "\\", '', $punct ) );
 		$htmlparts = preg_split('@(<[^>]*>)@im', $htmlText,
 			0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		$intag = false;
 		$apply_b = false;
 		$closed_b = false;
+		$endsWithSpecial = false;
+		$endOfLink = false;
 		$p = '';
+
 		while ($x = array_shift($htmlparts)) {
+			// Hack-ish fix for when the sentence ends with a hyperlink that contains a punctuation
+			if( $endsWithSpecial == true && $endOfLink == true ) {
+				$x = '</b>' . $x;
+				$p .= $x;
+				continue;
+			}
+			if ( in_array( substr( trim( $x ), -1 ), $punct_split ) ) {
+				$endsWithSpecial = true;
+			}
+			if ( $x == '</a>' ) {
+				$endOfLink = true;
+			} else {
+				$endOfLink = false;
+			}
+
 			# add any other "line-break" tags here.
 			$is_break_tag = strpos($x, '<ul>') === 0 || strpos($x, '<ol>') === 0;
 
