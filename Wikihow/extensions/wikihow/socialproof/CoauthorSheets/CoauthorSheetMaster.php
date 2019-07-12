@@ -2,7 +2,7 @@
 
 class CoauthorSheetMaster extends CoauthorSheet {
 	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1rG4sJd92CHjBvloiC5Xqq7mqNku9Ahb1BtlScVRSKkQ';
+	const SHEET_ID_DEV = '1wShwD5Loui45MOK7fSXd7LbMIOBbQ0w-otbL0V71iaQ';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
@@ -104,9 +104,9 @@ class CoauthorSheetMaster extends CoauthorSheet {
 
 			if ( !$coauthorName ) {
 				$result['errors'][] = "$rowInfo Empty coauthor name";
-			} elseif ( strlen($coauthorName) < 2 ) {
+			} elseif ( mb_strlen($coauthorName) < 2 ) {
 				$result['errors'][] = "$rowInfo Coauthor name too short: $coauthorName";
-			} elseif ( strlen($coauthorName) > 120 ) {
+			} elseif ( mb_strlen($coauthorName) > 120 ) {
 				$result['errors'][] = "$rowInfo Coauthor name too long: $coauthorName";
 			} elseif ( isset($names[$coauthorName]) ) {
 				$result['errors'][] = "$rowInfo Duplicate coauthor name: $coauthorName";
@@ -114,15 +114,15 @@ class CoauthorSheetMaster extends CoauthorSheet {
 
 			if ( !$initials ) {
 				$result['errors'][] = "$rowInfo Empty initials";
-			} elseif ( strlen($initials) > 10 ) {
+			} elseif ( mb_strlen($initials) > 10 ) {
 				$result['errors'][] = "$rowInfo Initials too long: $initials";
 			}
 
 			if ( !$category ) {
 				$result['errors'][] = "$rowInfo Empty category";
-			} elseif ( strlen($category) < 3 ) {
+			} elseif ( mb_strlen($category) < 3 ) {
 				$result['errors'][] = "$rowInfo Category too short: $category";
-			} elseif ( strlen($category) > 120 ) {
+			} elseif ( mb_strlen($category) > 120 ) {
 				$result['errors'][] = "$rowInfo Category too long: $category";
 			}
 
@@ -188,17 +188,17 @@ class CoauthorSheetMaster extends CoauthorSheet {
 
 			if ( !$byline ) {
 				$result['errors'][] = "$rowInfo Empty byline";
-			} elseif ( strlen($byline) < 2 ) {
+			} elseif ( mb_strlen($byline) < 2 ) {
 				$result['errors'][] = "$rowInfo Byline too short: $byline";
-			} elseif ( strlen($byline) > 150 ) {
+			} elseif ( mb_strlen($byline) > 200 ) {
 				$result['errors'][] = "$rowInfo Byline too long: $byline";
 			}
 
 			if ( !$blurb ) {
 				$result['errors'][] = "$rowInfo Empty blurb";
-			} elseif ( strlen($blurb) < 5 ) {
+			} elseif ( mb_strlen($blurb) < 5 ) {
 				$result['errors'][] = "$rowInfo Blurb too short: $blurb";
-			} elseif ( strlen($blurb) > 1000 ) {
+			} elseif ( mb_strlen($blurb) > 1500 ) {
 				$result['errors'][] = "$rowInfo Blurb too long: $blurb";
 			}
 

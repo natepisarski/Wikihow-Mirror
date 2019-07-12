@@ -2212,7 +2212,7 @@ class TSStu extends TitusStat {
 	private function getDailyStu( $dbr, $pageId, $totalViews ) {
 		// get the last 7 days of stu data from historical
 		$query = "select ti_stu_views_www as views from titusdb2.titus_historical_intl where ti_language_code = 'en' and ti_page_id=" . $pageId . " order by ti_datestamp DESC limit 7";
-		$res = $dbr->query( $query );
+		$res = $dbr->query( $query, __METHOD__ );
 		$views = array();
 		foreach ( $res as $row ) {
 			$views[] = $row->views;
@@ -2242,7 +2242,6 @@ class TSStu extends TitusStat {
 				$total += $diff;
 			}
 		}
-		$result = array( 'ti_stu_1day_views' => $diffs[0] );
 
 		if ( $countedDays > 0 ) {
 			$avg = intval( $total / $countedDays );
@@ -2285,22 +2284,26 @@ class TSStu extends TitusStat {
  * Stu2 data (www and mobile) for article
 
    alter table titus_intl
-     add column ti_stu2_3m_active_mobile decimal(6,2) NOT NULL DEFAULT '0.0',
+     add column ti_stu2_3m_active_mobile  decimal(6,2) NOT NULL DEFAULT '0.0',
      add column ti_stu2_3m_active_desktop decimal(6,2) NOT NULL DEFAULT '0.0',
-     add column ti_stu2_10s_active_mobile decimal(6,2) NOT NULL DEFAULT '0.0',
+     add column ti_stu2_10s_active_mobile  decimal(6,2) NOT NULL DEFAULT '0.0',
      add column ti_stu2_10s_active_desktop decimal(6,2) NOT NULL DEFAULT '0.0',
-     add column ti_stu2_activity_avg_mobile decimal(6,2) NOT NULL DEFAULT '0.0',
+     add column ti_stu2_activity_avg_mobile  decimal(6,2) NOT NULL DEFAULT '0.0',
      add column ti_stu2_activity_avg_desktop decimal(6,2) NOT NULL DEFAULT '0.0',
-     add column ti_stu2_all_mobile int(10) unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_all_mobile  int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_all_desktop int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_search_mobile  int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_search_desktop int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_activity_count_mobile int unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_activity_count_mobile  int unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_activity_count_desktop int unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_quickbounce_mobile  int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_quickbounce_desktop int(10) unsigned NOT NULL DEFAULT '0',
      add column ti_stu2_amp int(10) unsigned NOT NULL DEFAULT '0',
-     add column ti_stu2_last_reset varchar(8) NOT NULL DEFAULT '';
+     add column ti_stu2_last_reset varchar(8) NOT NULL DEFAULT '',
+     add column ti_stu2_1day_views_mobile  int(10) unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_1day_views_desktop int(10) unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_7day_views_mobile  int(10) unsigned NOT NULL DEFAULT '0',
+     add column ti_stu2_7day_views_desktop int(10) unsigned NOT NULL DEFAULT '0';
  */
 class TSStu2 extends TitusStat {
 	public function __construct() {
@@ -2340,7 +2343,15 @@ class TSStu2 extends TitusStat {
 		}
 		$statsActivity = $this->extractStatsActivity($rows);
 
-		$result = $statsStu2 + $statsActivity;
+		$result = array_merge( $statsStu2, $statsActivity );
+
+		// only calculate for English right now
+		if ( $wgLanguageCode == "en" ) {
+			// calculate 1 and 7 day difference of stu2 daily views
+			$dailyViewAvgs = $this->getDailyViewDiffs( $dbr, $t->getArticleID(), $result );
+			$result = array_merge( $result, $dailyViewAvgs );
+		}
+
 		return $result;
 	}
 
@@ -2446,6 +2457,70 @@ class TSStu2 extends TitusStat {
 
 		return $stats;
 	}
+
+	private function getDailyViewDiffs( $dbr, $pageId, $prevResults ) {
+		$total_mb = $prevResults['ti_stu2_search_mobile'];
+		$total_dt = $prevResults['ti_stu2_search_desktop'];
+
+		// get the last 7 days of stu data from titus_historical_intl
+		$query = "SELECT ti_stu2_search_mobile, ti_stu2_search_desktop
+				  FROM titusdb2.titus_historical_intl
+				  WHERE ti_language_code = 'en' AND ti_page_id={$pageId}
+				  ORDER BY ti_datestamp DESC
+				  LIMIT 7";
+		$res = $dbr->query( $query, __METHOD__ );
+		$views_mb = [];
+		$views_dt = [];
+		foreach ( $res as $row ) {
+			$views_mb[] = $row->ti_stu2_search_mobile;
+			$views_dt[] = $row->ti_stu2_search_desktop;
+		}
+
+		list($days_1_mb, $days_7_mb) = self::computeDiffs( $total_mb, $views_mb );
+		list($days_1_dt, $days_7_dt) = self::computeDiffs( $total_dt, $views_dt );
+
+		return [
+			'ti_stu2_1day_views_mobile' => $days_1_mb,
+			'ti_stu2_1day_views_desktop' => $days_1_dt,
+			'ti_stu2_7day_views_mobile' => $days_7_mb,
+			'ti_stu2_7day_views_desktop' => $days_7_dt,
+		];
+	}
+
+	private static function computeDiffs($total, $views) {
+		if ( count( $views ) == 0 ) {
+			return [ $total, 0 ];
+		}
+
+		$diffs = [];
+		$diffs[] = $total - $views[0];
+		for ( $i = 0; $i < count( $views ) - 1; $i++ ) {
+			// day minus prev days count
+			$diffs[] = $views[$i] - $views[$i + 1];
+		}
+
+		// set the 1 day views (ok to be negative)
+		$days_1 = $diffs[0];
+
+		// now set the average views for the 7 days (ignoring negative numbers)
+		$countedDays = 0;
+		$sum = 0;
+		foreach ( $diffs as $diff ) {
+			if ( $diff >= 0 ) {
+				$countedDays++;
+				$sum += $diff;
+			}
+		}
+
+		$days_7 = 0;
+		if ( $countedDays > 0 ) {
+			$avg = (int)round( $sum / $countedDays, 0 );
+			$days_7 = $avg;
+		}
+
+		return [ $days_1, $days_7 ];
+	}
+
 }
 
 /*

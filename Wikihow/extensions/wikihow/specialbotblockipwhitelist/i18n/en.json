@@ -1,0 +1,10 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "ipwhitelist_title": "Bot Blocking IP Whitelist",
+    "ipwl_tool_desc": "This tool is used to add blocked IP addresses to the whitelist. If you are not sure what this tool does, or how to use it, please contact Anna.<br>\n<br>\nYour IP address is <b>$1</b>.",
+    "ipinput_text": "Enter an IP address (IPv4) to be whitelisted:",
+    "whitelist_btn_text": "Whitelist",
+    "viewallwhitelist_btn_text": "View All Whitelisted IPs"
+}

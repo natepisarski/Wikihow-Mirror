@@ -647,11 +647,19 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 * @return Ad an ad for the first right rail
 	 */
 	protected function getRightRailFirstAdsense() {
+		global $wgTitle;
+		$pageId = 0;
+		if ( $wgTitle ) {
+			$pageId = $wgTitle->getArticleID();
+		}
 		$ad = $this->getNewAd( 'rightrail0' );
 		$ad->service = "adsense";
 		$ad->targetId = $ad->mType;
 		$ad->containerHeight = 2000;
 		$ad->initialLoad = true;
+		if ( $pageId % 20 == 0 ) {
+			$ad->initialLoad = false;
+		}
 		$ad->lateLoad = false;
 		$ad->width = 300;
 		$ad->height = 600;
@@ -1210,6 +1218,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		if ( $addDFP ) {
 			$dfpScript = $this->getGPTDefine();
 			if ( $this->mLateLoadDFP == false ) {
+				$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
 				$dfpInit = file_get_contents( __DIR__."/desktopDFP.js" );
 				$dfpScript .= Html::inlineScript( $dfpInit );
 
@@ -1511,6 +1520,13 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 			$this->mAdsenseChannels[] = 9756424883;
 		}
 
+		// adsense channel for not initial load rr0 ad
+		if ( $pageId % 20 == 0 ) {
+			$this->mAdsenseChannels[] = 8177814015;
+		} else {
+			$this->mAdsenseChannels[] = 6429618073;
+		}
+
 		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $pageId) ) {
 			$this->mAdsenseChannels[] = 2001974826;
 		} else {
@@ -1623,7 +1639,18 @@ class TwoRightRailAdCreator extends MixedAdCreatorScrollTo {
 		if ( $pageId == 223933 ) {
 			$this->mAdsenseChannels[] = 9756424883;
 		}
+
+		// adsense channel for not initial load rr0 ad
+		if ( $pageId % 20 == 0 ) {
+			$this->mAdsenseChannels[] = 8177814015;
+		} else {
+			$this->mAdsenseChannels[] = 6429618073;
+		}
+
 		$this->mAdSetupData = array(
+			'rightrail1' => array(
+				'instantload' => 1,
+			),
 			'rightrail1' => array(
 				'refreshable' => 1,
 				'first-refresh-time' => 30000,

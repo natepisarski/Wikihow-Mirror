@@ -439,3 +439,4 @@ require_once("$IP/extensions/wikihow/SocialFooter/SocialFooter.php");
 require_once("$IP/extensions/wikihow/PressBoxes/PressBoxes.php");
 require_once("$IP/extensions/wikihow/WikihowNamespacePages/WikihowNamespacePages.php");
 require_once("$IP/extensions/wikihow/Summary/Summary.php");
+require_once("$IP/extensions/wikihow/specialbotblockipwhitelist/BotBlockIPWhitelist.php");

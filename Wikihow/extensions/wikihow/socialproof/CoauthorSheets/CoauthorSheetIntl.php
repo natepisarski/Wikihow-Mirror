@@ -100,17 +100,17 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 			if ( !$byline ) {
 				$errors[] = "$rowInfo Empty byline";
-			} elseif ( strlen($byline) < 2 ) {
+			} elseif ( mb_strlen($byline) < 2 ) {
 				$errors[] = "$rowInfo Byline too short: $byline";
-			} elseif ( strlen($byline) > 150 ) {
+			} elseif ( mb_strlen($byline) > 200 ) {
 				$errors[] = "$rowInfo Byline too long: $byline";
 			}
 
 			if ( !$blurb ) {
 				$errors[] = "$rowInfo Empty blurb";
-			} elseif ( strlen($blurb) < 5 ) {
+			} elseif ( mb_strlen($blurb) < 5 ) {
 				$errors[] = "$rowInfo Blurb too short: $blurb";
-			} elseif ( strlen($blurb) > 1000 ) {
+			} elseif ( mb_strlen($blurb) > 1500 ) {
 				$errors[] = "$rowInfo Blurb too long: $blurb";
 			}
 

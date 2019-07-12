@@ -527,7 +527,7 @@ $tmpl = <<<EOHTML
 <button id="pages-fetch" disabled="disabled" style="padding: 5px;">fetch stats</button>
 <button id="pages-reset" disabled="disabled" style="padding: 5px;">reset all</button>
 <div style="font-size: 14px; margin: 20px 0 0 0">
-NOTE: This page only clears Stu data. If you want to clear both Page Helpfulness and Stu, visit <a href="/Special:AdminClearRatings">Special:AdminClearRatings</a>.
+NOTE: This page only clears Stu data (new Stu2 and old Stu). If you want to clear both Page Helpfulness and new Stu2, visit <a href="/Special:AdminClearRatings">Special:AdminClearRatings</a>.
 </div>
 <br/>
 <br/>

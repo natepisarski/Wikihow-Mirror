@@ -404,6 +404,7 @@ WH.desktopAds = (function () {
 		this.viewablerefresh = this.adElement.getAttribute('data-viewablerefresh') == 1;
 		this.renderrefresh = this.adElement.getAttribute('data-renderrefresh') == 1;
 		this.adLabelClass = this.adElement.getAttribute('data-adlabelclass');
+		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
 		this.apsTimeout = this.adElement.getAttribute('data-aps-timeout');
 		this.refreshtimeout = false;
 		this.refreshNumber = 1;
@@ -520,6 +521,9 @@ WH.desktopAds = (function () {
 				});
 			}
 		};
+		if (this.instantLoad) {
+			this.load();
+		}
 	}
 
 	function QuizAd(element) {
@@ -1000,6 +1004,7 @@ WH.desktopAds = (function () {
 	function init() {
 		updateVisibility();
 		window.addEventListener('scroll', WH.shared.throttle(updateVisibility, 10));
+		document.addEventListener('DOMContentLoaded', function() {updateVisibility();}, false);
 	}
 
 	function addScrollToAd(id) {

@@ -1,0 +1,26 @@
+<div id='tooltitle'>
+	<div>
+		<p>{{{ipwl_description}}}</p>
+	</div><br>
+	<hr>
+</div>
+
+<div>
+<form method="post" action="/Special:BotBlockIPWhitelist" id="ipwl_submitform" name="ipwl_submitform">
+	{{inputbox_text}}<br>
+	<input type="text" id="input_ip_wl" name="input_ip_wl" class="input_ipwl">
+</form>
+
+<button id='new_ipwl_btn' id='new_ipwl_btn1' name='new_ipwl_btn' class='button primary'>{{wl_btn}}</button>
+<button id='viewall_ipwl_btn' name='viewall_ipwl_btn' class='button primary'>{{viewall_btn}}</button>
+</div>
+
+<br><hr><br>
+
+<textarea readonly id="ipwl_list" name="ipwl_list" rows="10" class="ipwl_list_textarea">
+{{#all_wl_ip1}}
+{{.}}
+{{/all_wl_ip1}}
+</textarea>
+
+<div class="spinner"></div>
