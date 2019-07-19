@@ -1522,9 +1522,9 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 
 		// adsense channel for not initial load rr0 ad
 		if ( $pageId % 20 == 0 ) {
-			$this->mAdsenseChannels[] = 8177814015;
+			$this->mAdsenseChannels[] = 7551128051;
 		} else {
-			$this->mAdsenseChannels[] = 6429618073;
+			$this->mAdsenseChannels[] = 8375811488;
 		}
 
 		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $pageId) ) {
@@ -1534,6 +1534,9 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		}
 
 		$this->mAdSetupData = array(
+			'rightrail0' => array(
+				'instantload' => 1,
+			),
 			'rightrail2' => array(
 				'refreshable' => 1,
 				'first-refresh-time' => 30000,
@@ -1642,13 +1645,13 @@ class TwoRightRailAdCreator extends MixedAdCreatorScrollTo {
 
 		// adsense channel for not initial load rr0 ad
 		if ( $pageId % 20 == 0 ) {
-			$this->mAdsenseChannels[] = 8177814015;
+			$this->mAdsenseChannels[] = 7551128051;
 		} else {
-			$this->mAdsenseChannels[] = 6429618073;
+			$this->mAdsenseChannels[] = 8375811488;
 		}
 
 		$this->mAdSetupData = array(
-			'rightrail1' => array(
+			'rightrail0' => array(
 				'instantload' => 1,
 			),
 			'rightrail1' => array(

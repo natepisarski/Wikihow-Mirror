@@ -1,6 +1,6 @@
 {
     "require": {
-        "aws/aws-sdk-php": "2.3.1",
+        "aws/aws-sdk-php": "^2",
 		"electrolinux/phpquery": "*",
         "davechild/textstatistics": "dev-master",
 		"pimax/fb-messenger-php": "dev-master",

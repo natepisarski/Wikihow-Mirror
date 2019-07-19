@@ -2,6 +2,28 @@
 Quick Start
 ===========
 
+Including the SDK
+-----------------
+
+No matter which :doc:`installation method <installation>` you are using, the SDK can be included into your project or
+script with a single include (or require) statement. Please refer to the following table for the code that best fits
+your installation method. Please replace any instances of ``/path/to/`` with the actual path on your system.
+
+========================== =============================================================================================
+Installation Method        Include Statement
+========================== =============================================================================================
+Using Composer             ``require '/path/to/vendor/autoload.php';``
+-------------------------- ---------------------------------------------------------------------------------------------
+Using the Phar             ``require '/path/to/aws.phar';``
+-------------------------- ---------------------------------------------------------------------------------------------
+Using the Zip              ``require '/path/to/aws-autoloader.php';``
+-------------------------- ---------------------------------------------------------------------------------------------
+Using PEAR                 ``require 'AWSSDKforPHP/aws.phar';``
+========================== =============================================================================================
+
+For the remainder of this guide, we will show examples that use the Composer installation method. If you are using a
+different installation method, then you can refer to this section and substitute in the proper code.
+
 Creating a client
 -----------------
 
@@ -15,7 +37,6 @@ You can quickly get up and running by using a web service client's factory metho
     require 'vendor/autoload.php';
 
     use Aws\S3\S3Client;
-    use Aws\Common\Enum\Region;
 
     // Instantiate the S3 client with your AWS credentials and desired AWS region
     $client = S3Client::factory(array(
@@ -77,8 +98,6 @@ The ``Command`` object also supports a chainable syntax and can also be useful w
 before execution.
 
 .. code-block:: php
-
-    $glacier =
 
     $result = $client->getCommand('ListObjects')
         ->set('MaxKeys', 50)

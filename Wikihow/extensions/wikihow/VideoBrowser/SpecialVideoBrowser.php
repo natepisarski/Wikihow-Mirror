@@ -31,7 +31,7 @@ class SpecialVideoBrowser extends SpecialPage {
 		$output->addModules( [ 'ext.wikihow.videoBrowser' ] );
 
 		$url = $output->getRequest()->getRequestURL();
-		$output->setCanonicalUrl( $wgCanonicalServer . $url );
+		$output->setCanonicalUrl( WikihowMobileTools::getNonMobileSite() . $url );
 		$parsedUrl = parse_url( $url );
 		$parts = explode( '/', $parsedUrl['path'] );
 		if ( $parts[0] === '' && $parts[1] === 'Special:VideoBrowser' ) {
@@ -166,25 +166,11 @@ class SpecialVideoBrowser extends SpecialPage {
 				];
 
 				if ( $youtubeIds[$viewing['id']] ) {
-					$key = wfMemcKey( "SpecialVideoBrowser/YouTubeInfo/{$viewing['id']}" );
-					$info = $wgMemc->get( $key );
-					if ( $info === false ) {
-						$data = json_decode( file_get_contents( wfAppendQuery(
-							'https://www.googleapis.com/youtube/v3/videos',
-							[
-								'part' => 'statistics,snippet',
-								'id' => $youtubeIds[$viewing['id']],
-								'key' => WH_YOUTUBE_API_KEY
-							]
-						) ) );
-						$info = [
-							'plays' => $data->items[0]->statistics->viewCount,
-							'updated' => $data->items[0]->snippet->publishedAt
-						];
-						$wgMemc->set( $key, $info );
-					}
-					$viewing = array_merge( $viewing, $info );
 					$schema = SchemaMarkup::getYouTubeVideo( $output->getTitle(), $youtubeIds[$viewing['id']] );
+					if ( $schema ) {
+						$viewing['plays'] = $schema['interactionCount'];
+						$viewing['updated'] = $schema['uploadDate'];
+					}
 				} else {
 					$schema = SchemaMarkup::getVideo( Title::newFromId( $viewing['id'] ) );
 				}

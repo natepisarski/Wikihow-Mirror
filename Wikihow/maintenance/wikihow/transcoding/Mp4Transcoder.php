@@ -17,9 +17,9 @@ class Mp4Transcoder extends AbsTranscoder {
 
 	private function getThumbUri(&$awsJob) {
 		$output = $awsJob["Outputs"][0];
-		$thumbPrefix = $output["Key"];
-		$thumbPrefix = str_replace(WikiVisualTranscoder::VIDEO_EXTENSION, ".", $thumbPrefix);
-	
+		// Replaces ".360p.mp4" with "."
+		$thumbPrefix = preg_replace( '/\.\d+p\.mp4/', '.', $output['Key'] );
+
 		$thumbUris = array();
 		$svc = WikiVisualTranscoder::getS3Service();
 		$lastKey = null;
@@ -30,6 +30,7 @@ class Mp4Transcoder extends AbsTranscoder {
 			}
 			$result = $svc->listObjects($inputs);
 			$contents = $result['Contents'];
+
 			if ( $contents ) {
 				foreach ($contents as $key => $val) {
 					$thumbUris[] = $val['Key'];
@@ -37,7 +38,7 @@ class Mp4Transcoder extends AbsTranscoder {
 				}
 			}
 		} while ($result['IsTruncated']);
-	
+
 		// Pull out the jpgs
 		// Grab the last thumbnail frame with pattern  <key>/<filename>.{resolution}.{count}.jpg
 		$thumbUris = preg_grep('@.*\.jpg$@', $thumbUris);
@@ -45,7 +46,7 @@ class Mp4Transcoder extends AbsTranscoder {
 
 		// if this is a zero step video use the first frame for the thumbnail
 		if ( $thumbUris && substr( $thumbPrefix, -3 === '-0.' ) ) {
-			$thumbUri = $thumbUris[0];
+			$thumbUri = reset( $thumbUris );
 		}
 
 		return $thumbUri;
@@ -55,7 +56,7 @@ class Mp4Transcoder extends AbsTranscoder {
 	private function dbRecordTranscodingJobStatus($aid, &$awsJob) {
 		$dbw = WikiVisualTranscoder::getDB('write');
 	
-		// Should only be one output file format
+		// Only record the first output file in the general status
 		$output = $awsJob["Outputs"][0];
 		$thumbUri = $output['Status'] == 'Complete' ? $this->getThumbUri($awsJob) : '';
 		$statusDetail = is_null($output['StatusDetail']) ? "" : $output['StatusDetail'];
@@ -71,6 +72,24 @@ class Mp4Transcoder extends AbsTranscoder {
 		$dbw->query($sql, __METHOD__);
 	}
 	
+	private function dbRecordTranscodingJobOutputs(&$awsJob) {
+		$dbw = WikiVisualTranscoder::getDB('write');
+
+		// Record each output in a separate rows
+		$columns = '(aws_job_id, aws_output_id, aws_preset_id, aws_uri_out)';
+		$values = [];
+		foreach ( $awsJob['Outputs'] as $output ) {
+			$values[] = '(' . implode( ',', [
+				$dbw->addQuotes( $awsJob['Id'] ),
+				$dbw->addQuotes( $output['Id'] ),
+				$dbw->addQuotes( $output['PresetId'] ),
+				$dbw->addQuotes( $output['Key'] )
+			] ) . ')';
+		}
+		$values = implode( ',', $values );
+		$sql = "REPLACE INTO wikivisual_vid_transcoding_output {$columns} VALUES {$values};";
+		$dbw->query($sql, __METHOD__);
+	}
 	
 	private function dbUpdateArticleJobsStatus($aid) {
 		$dbJobs = $this->dbGetTranscodingArticleJobs($aid);
@@ -201,29 +220,33 @@ class Mp4Transcoder extends AbsTranscoder {
 	private function createTranscodingJob($dir, $filename) {
 		$dir = $dir . "/";
 		$svc = self::getTranscoderService();
-		$presetId = WikiVisualTranscoder::TRANSCODER_360P_16x9_PRESET;
 
-		if ( substr( $filename, -6 === '-0.mp4' ) ) {
-			$presetId = WikiVisualTranscoder::TRANSCODER_360P_16x9_PRESET_AUDIO;
+		$outputs = [];
+		$basename = basename($filename, ".mp4");
+		$type = substr( $basename, -2 === '-0' ) ? 'summary' : 'clip';
+		foreach ( WikiVisualTranscoder::$presetIdsByOutputType[$type] as $presetId ) {
+			$preset = WikiVisualTranscoder::$presets[$presetId];
+			$outputs[] = [
+				'Key' => $dir . $basename . '.' . $preset['height'] . "p.mp4",
+				'ThumbnailPattern' => $dir . $basename . ".{resolution}.{count}",
+				'Rotate' => '0',
+				'PresetId' => $presetId,
+			];
 		}
 
 		$params = array(
-				'PipelineId' => WikiVisualTranscoder::AWS_PIPELINE_ID,
-				'Input' => array(
-						'Key' => $dir . $filename,
-						'FrameRate' => 'auto',
-						'Resolution' =>	'auto',
-						'AspectRatio' => 'auto',
-						'Interlaced' => 'auto',
-						'Container' => 'auto',
-					),
-					'Output' => array(
-						'Key' => $dir . basename($filename, ".mp4") . WikiVisualTranscoder::VIDEO_EXTENSION,
-						'ThumbnailPattern' => $dir . basename($filename, ".mp4") . ".{resolution}.{count}",
-						'Rotate' => '0',
-						'PresetId' => $presetId,
-					)
-				);
+			'PipelineId' => WikiVisualTranscoder::AWS_PIPELINE_ID,
+			'Input' => array(
+				'Key' => $dir . $filename,
+				'FrameRate' => 'auto',
+				'Resolution' =>	'auto',
+				'AspectRatio' => 'auto',
+				'Interlaced' => 'auto',
+				'Container' => 'auto',
+			),
+			'Outputs' => $outputs
+		);
+
 		$ret = $svc->createJob($params);
 		return $ret['Job'];
 	}
@@ -253,6 +276,7 @@ class Mp4Transcoder extends AbsTranscoder {
 			self::d( "Transcoding job created for", $pageId );
 			self::d( "result", $result );
 			$this->dbRecordTranscodingJobStatus( $pageId, $result );
+			$this->dbRecordTranscodingJobOutputs( $result );
 		}
 		$status = $err ? WikiVisualTranscoder::STATUS_ERROR : WikiVisualTranscoder::STATUS_TRANSCODING;
 		self::d("Transcoding job for page: ". $pageId . ", status: ". $status);

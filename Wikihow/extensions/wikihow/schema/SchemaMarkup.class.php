@@ -683,6 +683,17 @@ class SchemaMarkup {
 
 		$requestKey = "YouTubeInfo({$id})";
 		$cacheKey = wfMemcKey( $requestKey );
+
+		wfDebugLog(
+			'youtubeinfo',
+			">> SchemaMarkup::getYouTubeVideo " . var_export( [
+				'title' => $title->getText(),
+				'id' => $id,
+				'requestKey' => $requestKey,
+				'cacheKey' => $cacheKey,
+			], true ) . "\n"
+		);
+
 		$info = $wgMemc->get( $cacheKey );
 		if ( $info === false ) {
 			// Lookup info in DB
@@ -703,6 +714,17 @@ class SchemaMarkup {
 				if ( in_array( $item->snippet->channelId, self::YOUTUBE_CHANNEL_IDS ) ) {
 					$info = array_merge( [ 'publisher' => self::getWikihowOrganization() ], $info );
 				}
+
+				wfDebugLog(
+					'youtubeinfo',
+					">> SchemaMarkup::getYouTubeVideo - caching stored info\n" . var_export( [
+						'title' => $title->getText(),
+						'id' => $id,
+						'requestKey' => $requestKey,
+						'cacheKey' => $cacheKey
+					], true ) . "\n"
+				);
+
 				$wgMemc->set( $cacheKey, $info );
 			}
 
@@ -713,6 +735,18 @@ class SchemaMarkup {
 				if ( $title->inNamespace( NS_MAIN ) ) {
 					$purgeUrls[] = $wgCanonicalServer . '/' . $title->getPrefixedDBkey();
 				}
+
+				wfDebugLog(
+					'youtubeinfo',
+					">> SchemaMarkup::getYouTubeVideo - queuing job\n" . var_export( [
+						'title' => $title->getText(),
+						'id' => $id,
+						'requestKey' => $requestKey,
+						'cacheKey' => $cacheKey,
+						'purgeUrls' => $purgeUrls,
+					], true ) . "\n"
+				);
+
 				$job = Job::factory( 'YouTubeInfoJob', $title, [
 					'id' => $id,
 					'requestKey' => $requestKey,

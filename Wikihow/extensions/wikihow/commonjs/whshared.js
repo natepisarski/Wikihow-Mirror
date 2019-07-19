@@ -354,13 +354,7 @@ WH.shared = (function () {
 		if (lazyLoadingObserver == null) {
 			return false;
 		}
-		if (WH.pageID == 0) {
-			return false;
-		}
-		if (WH.pageID % 2 == 0) {
-			return true;
-		}
-		return false;
+		return true;
 	}
 
 	function addScrollLoadItem(id) {

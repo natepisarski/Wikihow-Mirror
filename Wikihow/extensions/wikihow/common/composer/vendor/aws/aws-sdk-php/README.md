@@ -2,22 +2,29 @@
 
 The **AWS SDK for PHP** enables PHP developers to easily work with [Amazon Web Services][aws] and build scalable
 solutions with Amazon S3, Amazon DynamoDB, Amazon Glacier, and more. You can get started in minutes by [installing the
-SDK through Composer][docs-installation] or by downloading a [single phar file][install-phar].
+SDK through Composer][docs-installation] or by downloading a single [zip][install-zip] or [phar][install-phar] file.
 
-* [User Guide][docs-guide]
-* [API Docs][docs-api]
-* [SDK Homepage][sdk-website]
-* [Forum][sdk-forum]
-* [Issues][sdk-issues]
-* [Packagist/Composer][install-packagist]
-* [Contribution Guide][docs-contribution]
-* [License][sdk-license]
+* **Install**
+    * [Instructions][docs-installation]
+    * [Packagist/Composer Package][install-packagist]
+    * [PEAR Channel][install-pear]
+    * [Zip Download][install-zip]
+    * [Phar Download][install-phar]
+* **Documentation**
+    * [User Guide][docs-guide]
+    * [API Docs][docs-api]
+    * [Contribution Guide][docs-contribution]
+    * [License][sdk-license]
+* **Support**
+    * [Forum][sdk-forum]
+    * [Issues][sdk-issues]
 
 ## Features
 
 * Provides easy-to-use HTTP clients for all supported AWS services, regions, and authentication protocols.
 * Built for PHP 5.3.3+ and is compliant with [PSR-0][], [PSR-1][], and [PSR-2][].
-* Easy to install through [Composer][install-packagist], [PEAR][install-pear], or the [`aws.phar`][install-phar].
+* Easy to install through [Composer][install-packagist], [PEAR][install-pear], or single download ([zip][install-zip] or
+  [phar][install-phar]).
 * Built on [Guzzle][] and utilizes many of its features including persistent connections, parallel requests, events and
   plugins (via [Symfony2 EventDispatcher][symfony2-events]), service descriptions, [over-the-wire
   logging][docs-wire-logging], caching, flexible batching, and request retrying with truncated exponential backoff.
@@ -38,12 +45,12 @@ SDK through Composer][docs-installation] or by downloading a [single phar file][
 1. **Install the SDK** – Using [Composer][] is the recommended way to install the AWS SDK for PHP. The SDK is available
    via [Packagist][] under the [`aws/aws-sdk-php`][install-packagist] package. Please see the
    [Installation][docs-installation] section of the user guide for more detailed information about installing the SDK
-   through Composer and other means.
+   through Composer and other means (e.g., [Phar][install-phar], [Zip][install-zip], [PEAR][install-pear]).
 1. **Using the SDK** – The best way to become familiar with how to use the SDK is to read the [User Guide][docs-guide].
    The [Quick Start Guide][docs-quickstart] will help you become familiar with the basic concepts, and there are also
    specific guides for each of the [supported services][docs-services].
 
-## Quick Examples
+## Quick Example
 
 ### Upload a File to Amazon S3
 
@@ -59,7 +66,7 @@ use Aws\S3\Exception\S3Exception;
 // Instantiate an S3 client
 $s3 = Aws::factory('/path/to/config.php')->get('s3');
 
-// Upload a publicly accessible file. File size, file type, and MD5 hash are automatically calculated by the SDK
+// Upload a publicly accessible file. The file size, file type, and MD5 hash are automatically calculated by the SDK
 try {
     $s3->putObject(array(
         'Bucket' => 'my-bucket',
@@ -68,7 +75,7 @@ try {
         'ACL'    => CannedAcl::PUBLIC_READ
     ));
 } catch (S3Exception $e) {
-    echo "The file was not uploaded.\n";
+    echo "There was an error uploading the file.\n";
 }
 ```
 
@@ -80,7 +87,6 @@ try {
 * [Send a message to your Amazon SQS queue][example-sqs-sendmessage]
 
 
-
 [sdk-website]: http://aws.amazon.com/sdkforphp
 [sdk-forum]: https://forums.aws.amazon.com/forum.jspa?forumID=80
 [sdk-issues]: https://github.com/aws/aws-sdk-php/issues
@@ -88,6 +94,7 @@ try {
 
 [install-packagist]: https://packagist.org/packages/aws/aws-sdk-php
 [install-phar]: http://pear.amazonwebservices.com/get/aws.phar
+[install-zip]: http://pear.amazonwebservices.com/get/aws.zip
 [install-pear]: http://pear.amazonwebservices.com
 
 [docs-api]: http://docs.aws.amazon.com/aws-sdk-php-2/latest/index.html

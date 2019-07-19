@@ -321,6 +321,7 @@ HTML;
 		$maxAgeSecs = 60;
 		$out->setSquidMaxage( $maxAgeSecs );
 		$req->response()->header( 'Cache-Control: s-maxage=' . $maxAgeSecs . ', must-revalidate, max-age=' . $maxAgeSecs );
+		$req->response()->header( 'x-robots-tag: noindex, nofollow' );
 		$future = time() + $maxAgeSecs;
 		$req->response()->header( 'Expires: ' . gmdate('D, d M Y H:i:s T', $future) );
 

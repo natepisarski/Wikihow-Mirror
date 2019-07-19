@@ -375,6 +375,14 @@ class SpecialListUsers extends IncludableSpecialPage {
 	 * @param string $par (optional) A group to list users from
 	 */
 	public function execute( $par ) {
+		// Jordan, wikiHow (7/15/19): remove access to Special:ListUsers
+		// for anonymous users. This page is slow and has been a target
+		// for recent DDoS attacks.
+		if ($this->getUser()->isAnon()) {
+			$this->getOutput()->loginToUse();
+			return;
+		}
+
 		$this->setHeaders();
 		$this->outputHeader();
 

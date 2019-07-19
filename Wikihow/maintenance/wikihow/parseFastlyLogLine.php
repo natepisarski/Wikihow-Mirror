@@ -6,6 +6,10 @@
 // This method exists stand-alone so that it can be easily included without running
 // Mediawiki. This is necessary because it's used in operations scripts where MW might
 // not be available.
+//
+// NOTE: if you update this regex, you should update the one in
+//       googlebot_watcher.git:/botwatcher/readlogs.py too!!
+//
 function parseFastlyLogLine($line) {
 	if (preg_match("@^([A-Za-z]+ +[0-9]+ [0-9:]+) ([0-9a-z\\.-]+) fastly_log_[a-z]+(?:\\[[^\\]]+\\])?: *([0-9.]+) \"-\" \"-\" ([A-Za-z,]+ [0-9]+ [a-zA-Z]+ [0-9]+ [0-9:]+ GMT) \"([A-Z]+) (([^\"?&]+)(?:\\?[^\"]*)?(?:&[^\"]+)?)\" ([0-9]+) ([^ ]+) \"([^\"]*)\" \"([^\"]*)\" \"([^\"]+)\" ([0-9]+) ([^ ]+) ([^ ]+) (HIT|MISS)(.*) ([01]) ([01]) ([01]) ([01]) ([01]) \"([^\"]*)\"$@", $line, $m)) {
 		$result = [

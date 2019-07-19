@@ -666,8 +666,8 @@ class TopAnswerers {
 
 			UserMailer::send($to, $from, $subject, $body, null, $content_type);
 
-			//send an email to Anna too!
-			$to = new MailAddress('anna@wikihow.com');
+			//send an email to CMs too!
+			$to = new MailAddress('anna@wikihow.com,jayne@wikihow.com');
 			$subject = '[Top Answerer email] '.$name;
 			UserMailer::send($to, $from, $subject, $body, null, $content_type);
 		}

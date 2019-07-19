@@ -232,6 +232,14 @@ class SpecialActiveUsers extends SpecialPage {
 	 * @param $par Mixed: parameter passed to the page or null
 	 */
 	public function execute( $par ) {
+		// Jordan, wikiHow (7/15/19): remove access to Special:ActiveUsers
+		// for anonymous users. This page is slow and has been a target
+		// for recent DDoS attacks.
+		if ($this->getUser()->isAnon()) {
+			$this->getOutput()->loginToUse();
+			return;
+		}
+
 		global $wgActiveUserDays;
 
 		$this->setHeaders();

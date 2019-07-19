@@ -78,7 +78,7 @@ class QACopyCheckJob extends Job {
 
 				$subject = $skipQAP ? 'Q&A plagiarized answer (article)' : 'Q&A plagiarized answer';
 
-				mail('anna@wikihow.com', $subject, $body);
+				mail('anna@wikihow.com,jayne@wikihow.com', $subject, $body);
 
 				//inactive for live Q&As
 				if ($skipQAP) $this->inactivate($data['qa_id']);

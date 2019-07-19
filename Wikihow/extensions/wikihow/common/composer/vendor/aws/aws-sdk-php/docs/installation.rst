@@ -24,7 +24,7 @@ your project. In order to use the AWS SDK for PHP 2 through Composer, you must d
 
    .. code-block:: sh
 
-       curl -s "http://getcomposer.org/installer" | php
+       curl -sS https://getcomposer.org/installer | php
 
 #. Install your dependencies.
 
@@ -58,31 +58,60 @@ requirement for the SDK to ``dev-master``.
 Installing via Phar
 -------------------
 
-Each release of the AWS SDK for PHP ships with a pre-packaged `phar <http://php.net/manual/en/book.phar.php>`_ file
-containing all of the classes and dependencies you need to run the SDK. Additionally, the phar file automatically
-registers a class autoloader for the AWS SDK for PHP and all of its dependencies when included. Bundled with the phar
-file are the following required and suggested libraries:
+Each release of the AWS SDK for PHP ships with a pre-packaged `phar <http://php.net/manual/en/book.phar.php>`_ (PHP
+archive) file containing all of the classes and dependencies you need to run the SDK. Additionally, the phar file
+automatically registers a class autoloader for the AWS SDK for PHP and all of its dependencies when included. Bundled
+with the phar file are the following required and suggested libraries:
 
 -  `Guzzle <https://github.com/guzzle/guzzle>`_ for HTTP requests
 -  `Symfony2 EventDispatcher <http://symfony.com/doc/master/components/event_dispatcher/introduction.html>`_ for events
--  `Monolog <https://github.com/seldaek/monolog>`_ for logging
+-  `Monolog <https://github.com/seldaek/monolog>`_ and `Psr\\Log <https://github.com/php-fig/log>`_ for logging
 -  `Doctrine <https://github.com/doctrine/common>`_ for caching
 
 You can `download the packaged Phar <http://pear.amazonwebservices.com/get/aws.phar>`_ and simply include it in your
 scripts to get started::
 
-    require 'aws.phar';
+    require '/path/to/aws.phar';
 
 If you have `phing <http://www.phing.info/>`_ installed, you can clone the SDK and build a phar file yourself using the
 *"phar"* task.
 
 .. note::
 
-    If you are using PHP with the Suhosin patch (especially common on Ubuntu and Debian distributions), you will need
+    If you are using PHP with the Suhosin patch (especially common on Ubuntu and Debian distributions), you may need
     to enable the use of phars in the ``suhosin.ini``. Without this, including a phar file in your code will cause it to
     silently fail. You should modify the ``suhosin.ini`` file by adding the line:
 
     ``suhosin.executor.include.whitelist = phar``
+
+Installing via Zip
+------------------
+
+Each release of the AWS SDK for PHP (since 2.3.2) ships with a zip file containing all of the classes and dependencies
+you need to run the SDK in a `PSR-0 <https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md>`_
+compatible directory structure. Additionally, the zip file includes a class autoloader for the AWS SDK for PHP and the
+following required and suggested libraries:
+
+-  `Guzzle <https://github.com/guzzle/guzzle>`_ for HTTP requests
+-  `Symfony2 EventDispatcher <http://symfony.com/doc/master/components/event_dispatcher/introduction.html>`_ for events
+-  `Monolog <https://github.com/seldaek/monolog>`_ and `Psr\\Log <https://github.com/php-fig/log>`_ for logging
+-  `Doctrine <https://github.com/doctrine/common>`_ for caching
+
+Using the zip file is great if you:
+
+1. Prefer not to or cannot use package managers like Composer and PEAR.
+2. Cannot use phar files due to environment limitations.
+3. Want to use only specific files from the SDK.
+
+To get started, you must `download the zip file <http://pear.amazonwebservices.com/get/aws.zip>`_, unzip it into your
+project to a location of your choosing, and include the autoloader::
+
+    require '/path/to/aws-autoloader.php';
+
+Alternatively, you can write your own autoloader or use an existing one from your project.
+
+If you have `phing <http://www.phing.info/>`_ installed, you can clone the SDK and build a zip file yourself using the
+*"zip"* task.
 
 Installing via PEAR
 ~~~~~~~~~~~~~~~~~~~
@@ -95,10 +124,18 @@ From the command-line, you can install the SDK with PEAR as follows (this might 
 
 .. code-block:: sh
 
+    pear config-set auto_discover 1
     pear channel-discover pear.amazonwebservices.com
     pear install aws/sdk
 
-Once the SDK has been installed via PEAR, you can load the phar into your project with:
+Alternatively, you can combine all three of the preceding statements into one by doing the following:
+
+.. code-block:: sh
+
+    pear -D auto_discover=1 install pear.amazonwebservices.com/sdk
+
+Once the SDK has been installed via PEAR, you can include the `phar <http://php.net/manual/en/book.phar.php>`_ into
+your project with:
 
 .. code-block:: php
 

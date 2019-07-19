@@ -515,7 +515,7 @@ class VerifyData {
 
 	private static function getCacheKeyForAllCoauthors( $lang ) {
 		global $wgCachePrefix;
-		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vd_authors' );
+		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vd_coauthors' );
 	}
 
 }

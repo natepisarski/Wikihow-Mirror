@@ -95,15 +95,9 @@ $(document).ready(function() {
 	if ($addTip.length > 0) {
 		$addTip.click(function(e) {
 			e.preventDefault();
-			$.scrollTo('.addTipElement', 2000, {offset:-85});
-		});
-	}
-
-	var $addUCI = $('#icon-adduci a');
-	if ($addUCI.length > 0) {
-		$addUCI.click(function(e) {
-			e.preventDefault();
-			$.scrollTo('#uci_section', 2000, {offset:-105});
+			$('html, body').animate({
+				scrollTop: $(".addTipElement").offset().top - 85
+			}, 2000);
 		});
 	}
 

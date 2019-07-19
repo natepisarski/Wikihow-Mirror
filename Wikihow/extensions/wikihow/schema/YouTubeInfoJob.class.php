@@ -29,26 +29,47 @@ class YouTubeInfoJob extends Job {
 	public function run() {
 		global $wgUseSquid, $wgMemc, $wgCanonicalServer;
 
-		// Hit the YouTube API
-		$body = file_get_contents( wfAppendQuery(
-			'https://www.googleapis.com/youtube/v3/videos',
-			[
-				'part' => 'statistics,snippet',
+		wfDebugLog(
+			'youtubeinfo',
+			">> YouTubeInfoJob::run\n" . var_export( [
 				'id' => $this->params['id'],
-				'key' => WH_YOUTUBE_API_KEY
-			]
-		) );
+				'requestKey' => $this->params['requestKey'],
+				'cacheKey' => $this->params['cacheKey'],
+				'purgeUrls' => $this->params['purgeUrls']
+			], true ) . "\n"
+		);
 
-		// Parse the status code
-		if ( !preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $http_response_header[0], $match ) ) {
-			return false;
-		}
-		$status = intval( $match[1] );
-
-		// Only proceed if the data isn't stored or is older than a week
+		// Only hit the API if the data isn't stored or is older than a week
 		$response = AsyncHttp::read( $this->params['requestKey'] );
 		$lastWeek = wfTimestamp( TS_MW, strtotime( '-1 week' ) );
 		if ( !$response || $response['updated'] < $lastWeek ) {
+			// Hit the YouTube API
+			$body = file_get_contents( wfAppendQuery(
+				'https://www.googleapis.com/youtube/v3/videos',
+				[
+					'part' => 'statistics,snippet',
+					'id' => $this->params['id'],
+					'key' => WH_YOUTUBE_API_KEY
+				]
+			) );
+
+			wfDebugLog(
+				'youtubeinfo',
+				">> YouTubeInfoJob::run - interpreting response\n" . var_export( [
+					'id' => $this->params['id'],
+					'requestKey' => $this->params['requestKey'],
+					'cacheKey' => $this->params['cacheKey'],
+					'purgeUrls' => $this->params['purgeUrls'],
+					'status' => $http_response_header[0]
+				], true ) . "\n"
+			);
+
+			// Parse the status code
+			if ( !preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $http_response_header[0], $match ) ) {
+				return false;
+			}
+			$status = intval( $match[1] );
+
 			// Store the response
 			AsyncHttp::store( $this->params['requestKey'], $status, $body );
 

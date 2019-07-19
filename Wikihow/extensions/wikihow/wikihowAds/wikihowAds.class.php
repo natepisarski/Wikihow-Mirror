@@ -1798,12 +1798,59 @@ class wikihowAds {
 	}
 
 	private static function insertMobileAdIntro() {
+        global $wgTitle;
+
+        $pageId = $wgTitle->getArticleID();
+		// test direct insert
+		if ( $pageId % 20 == 13 ) {
+			$inner = Html::rawElement(
+				'ins',
+				[
+					'data-ad-client' => 'ca-pub-9543332082073187',
+					'data-ad-slot' => '8943394577',
+					'class' => 'adsbygoogle',
+					'style' => 'display:block;height:120px;'
+				]
+			);
+
+			$wrap = Html::rawElement(
+				'div',
+				[
+					'class' => 'wh_ad',
+					'id' => 'wh_ad_intro'
+				],
+				$inner
+			);
+			$channels = self::getAdTestChannels();
+			//$script = Html::inlineScript("(adsbygoogle = window.adsbygoogle || []).push({});");
+			$script = Html::inlineScript("(adsbygoogle = window.adsbygoogle || []).push({
+					params: {
+						google_max_num_ads: 1,
+						google_ad_region: 'test',
+						google_override_format: true,
+						google_ad_channel: '$channels'
+					}
+			});");
+					/*
+				"(adsbygoogle = window.adsbygoogle || []).push({
+					params: {
+						google_max_num_ads: maxNumAds,
+						google_ad_region: 'test',
+						google_override_format: true,
+						google_ad_channel: '$channels'
+						});"
+						*/
+			$html = $wrap . $script;
+			pq("#intro")->append( $html );
+			return;
+		}
+
+
 		$type = 'intro';
 		$id = 'wh_ad_intro';
 		$html = Html::rawElement(
 			'div',
 			[
-
 				'data-type' => $type,
 				'class' => 'wh_ad',
 				'id' => $id
@@ -2090,6 +2137,12 @@ class wikihowAds {
 
 		if ( $pageId == 223933 ) {
 			$channels .= '+6747118168';
+		}
+
+		if ( $pageId % 20 == 13 ) {
+			$channels .= '+2161493906';
+		} else {
+			$channels .= '+7445610171';
 		}
 
 		return $channels;

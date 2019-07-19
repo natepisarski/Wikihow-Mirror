@@ -490,53 +490,67 @@ abstract class AbsTranscoder implements Transcodable {
      * Add a new video file into the mediawiki infrastructure so that it can
      * be accessed as {{whvid|filename.mp4|Preview.jpg}}
      */
-    public function addWikiHowVideo($articleId, &$video) {
+    public function addWikiHowVideo($articleId, &$video, $outputs) {
         // find name for video; change filename to Filename 1.jpg if
         // Filename.jpg already existed
         $regexp = '/[^' . Title::legalChars() . ']+/';
         $first = preg_replace($regexp, '', $video['first']);
         // Let's also remove " and ' since s3 doesn't seem to like
         $first = preg_replace('/["\']+/', '', $first);
-        $ext = $video['ext'];
-        $newName = $first . '.' . $ext;
-        $i = 1;
-        do {
+
+		// Find version using first "canonical" output described in $video
+		$version = 1;
+		$ext = $video['ext'];
+		$newName = $first . '.' . $ext;
+		do {
 			if ( !WikiVideo::fileExists( $newName ) ) {
 				break;
 			}
-            $newName = $first . ' Version ' . ++$i . '.' . $ext;
-        } while ($i <= 1000);
-    
-        // Move the file from one s3 bucket to another
-        $ret = WikiVideo::copyFileToProd(WikiVisualTranscoder::AWS_TRANSCODING_OUT_BUCKET, $video['aws_uri_out'], $newName);
-		if ( $ret['error'] ) {
-			return $ret['error'];
-		}
-    
-        // instruct later processing about which mediawiki name was used
-        $video['mediawikiName'] = $newName;
-    
-        // Add preview image
-        $img = $video;
-        $img['ext'] = 'jpg';
-        $err = Mp4Transcoder::addMediawikiImage($articleId, $img);
-        if ($err) {
-            return 'Unable to add preview image: ' . $err;
-        } else {
-            $video['previewMediawikiName'] = $img['mediawikiName'];
-            // Cleanup temporary preview image
-            if (!empty($img['filename'])) {
-                $rmCmd = "rm " . $img['filename'];
-                system($rmCmd);
-            }
+			$newName = $first . ' Version ' . ++$version . '.' . $ext;
+		} while ($version <= 1000);
+
+        // TODO: Reverse outputs so the last one to modify video is the first one in the list?
+        $outputs = array_reverse( $outputs );
+        foreach ( $outputs as $output ) {
+        	$preset = WikiVisualTranscoder::$presets[$output->aws_preset_id];
+	        $ext = $preset['height'] . 'p.mp4';
+	        if ( $version > 1 ) {
+	       		$newName = $first . ' Version ' . $version . '.' . $ext;
+	        } else {
+	       		$newName = $first . '.' . $ext;
+	        }
+
+	        // Move the file from one s3 bucket to another
+	        $ret = WikiVideo::copyFileToProd(WikiVisualTranscoder::AWS_TRANSCODING_OUT_BUCKET, $output->aws_uri_out, $newName);
+			if ( $ret['error'] ) {
+				return $ret['error'];
+			}
+
+	        // instruct later processing about which mediawiki name was used
+	        $video['mediawikiName'] = $newName;
+
+	        // Add preview image
+	        $img = $video;
+	        $img['ext'] = 'jpg';
+	        $err = Mp4Transcoder::addMediawikiImage($articleId, $img);
+	        if ($err) {
+	            return 'Unable to add preview image: ' . $err;
+	        } else {
+	            $video['previewMediawikiName'] = $img['mediawikiName'];
+	            // Cleanup temporary preview image
+	            if (!empty($img['filename'])) {
+	                $rmCmd = "rm " . $img['filename'];
+	                system($rmCmd);
+	            }
+	        }
+	    
+	        self::d("video['mediawikiName']=". $video['mediawikiName'] .", video['previewMediawikiName']=". $video['previewMediawikiName']);
+	        // Keep a log of where videos were uploaded in wikivisual_video_names table
+	        $dbw = WikiVisualTranscoder::getDB('write');
+	        $vidname = $articleId . '/' . basename( $output->aws_uri_out );
+	        $sql = 'INSERT INTO wikivisual_vid_names SET filename=' . $dbw->addQuotes($vidname) . ', wikiname=' . $dbw->addQuotes($video['mediawikiName']);
+	        $dbw->query($sql, __METHOD__);
         }
-    
-        self::d("video['mediawikiName']=". $video['mediawikiName'] .", video['previewMediawikiName']=". $video['previewMediawikiName']);
-        // Keep a log of where videos were uploaded in wikivisual_video_names table
-        $dbw = WikiVisualTranscoder::getDB('write');
-        $vidname = $articleId . '/' . $video['name'];
-        $sql = 'INSERT INTO wikivisual_vid_names SET filename=' . $dbw->addQuotes($vidname) . ', wikiname=' . $dbw->addQuotes($video['mediawikiName']);
-        $dbw->query($sql, __METHOD__);
 
         return '';
     }
@@ -634,8 +648,12 @@ abstract class AbsTranscoder implements Transcodable {
 			}
 		}
 		if ( strpos( $text, $summarySectionText ) === false ) {
-			self:i("summary section not found!");
+			self::i("summary section not found!");
 			return $result;
+		}
+
+		if ( !array_key_exists( 'previewMediawikiName', $video ) || !array_key_exists( 'mediawikiName', $video ) ) {
+			self::i( 'mediawiki names missing! ' . var_export( $video, true ) );
 		}
 
 		$summaryIntroImage = $video['previewMediawikiName'];
@@ -871,9 +889,20 @@ abstract class AbsTranscoder implements Transcodable {
 		// add all these videos to the wikihow mediawiki repos
 		if (!$err) {
 			$videosAdded = array();
-
+			$dbr = WikiVisualTranscoder::getDB('read');
 			foreach ($videos as &$vid) {
-				$error = $this->addWikiHowVideo($pageId, $vid);
+				// Get list of outputs
+				$outputs = $dbr->select(
+					'wikivisual_vid_transcoding_output',
+					'*',
+					[ 'aws_job_id' => $vid['aws_job_id'] ],
+					__METHOD__
+				);
+				if ( !$outputs ) {
+					continue;
+				}
+				$outputs = iterator_to_array( $outputs );
+				$error = $this->addWikiHowVideo($pageId, $vid, $outputs);
 				if (strlen($error)) {
 					$err = 'Unable to add new video file ' . $vid['name'] . ' to wikiHow: ' . $error;
 				} else {

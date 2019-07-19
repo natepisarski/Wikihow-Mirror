@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "guzzle/guzzle": "~3.4.3"
+        "guzzle/guzzle": ">=3.4.3,<4"
     },
     "suggest": {
         "doctrine/cache": "Adds support for caching of credentials and responses",
@@ -23,7 +23,7 @@
         "symfony/yaml": "Eases the ability to write manifests for creating jobs in AWS Import/Export"
     },
     "require-dev": {
-        "doctrine/common": "2.3.*",
+        "doctrine/cache": "~1.0",
         "ext-apc": "*",
         "ext-openssl": "*",
         "monolog/monolog": "1.4.*",
@@ -38,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.2.x-dev"
+            "dev-master": "2.3.x-dev"
         }
     }
 }

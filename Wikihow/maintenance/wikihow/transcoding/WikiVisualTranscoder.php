@@ -90,6 +90,15 @@ data schema for reference:
 		KEY article_id (article_id) 
 	) ENGINE=InnoDB DEFAULT CHARSET=latin1
 
+	CREATE TABLE wikivisual_vid_transcoding_output (
+		aws_job_id VARCHAR(32) NOT NULL default '',
+		aws_output_id INT(10) UNSIGNED NOT NULL default 0,
+		aws_preset_id VARCHAR(32) NOT NULL default '',
+		aws_uri_out TEXT,
+		PRIMARY KEY (aws_job_id,aws_output_id),
+		KEY aws_job_id (aws_job_id),
+		KEY aws_uri_out (aws_uri_out(255))
+	) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 */
 
 require_once __DIR__ . '/../../commandLine.inc';
@@ -156,7 +165,6 @@ class WikiVisualTranscoder {
 
 	var $mAwsBucket = '';
 	var $mAwsBucketPrefix = null;
-	
 	const DEFAULT_STAGING_DIR = '/data/wikivisual';
 	const MEDIA_USER = 'wikivisual'; 
 	const AWS_BACKUP_BUCKET = 'wikivisual-backup'; 
@@ -168,13 +176,8 @@ class WikiVisualTranscoder {
 	const AWS_PIPELINE_ID = '1373317258162-6npnrl';
 
 	const VIDEO_WARNING_MIN_WIDTH = 500;
-	const VIDEO_EXTENSION = '.360p.mp4';
 	const DEFAULT_VIDEO_WIDTH = '500px';
 	const DEFAULT_VIDEO_HEIGHT = '375px';
-	
-	// wikivideo - Generic 360p 16:9
-	const TRANSCODER_360P_16x9_PRESET = '1373409713520-t0nqq0';
-	const TRANSCODER_360P_16x9_PRESET_AUDIO = '1503961241607-9swq73';
 	
 	const ERROR_MIN_WIDTH = 3200;
 	const ERROR_MIN_WIDTH_VIDEO_COMPANION = 1920;
@@ -196,7 +199,45 @@ class WikiVisualTranscoder {
 	const FINISHED = 'Finished';
 	
 	const ADMIN_CONFIG_INCUBATION_LIST = 'wikivisual-incubation-list';
-	
+
+	static $presets = [
+		// 360p no audio
+		'1373409713520-t0nqq0' => [
+			'width' => 640,
+			'height' => 360,
+			'audio' => false,
+		],
+		// 360p
+		'1503961241607-9swq73' => [
+			'width' => 640,
+			'height' => 360,
+			'audio' => true,
+		],
+		// 720p
+		'1557861734804-zm431n' => [
+			'width' => 1200,
+			'height' => 720,
+			'audio' => true,
+		],
+		// 1080p
+		'1557861651499-ixil9u' => [
+			'width' => 1920,
+			'height' => 1080,
+			'audio' => true,
+		],
+	];
+
+	static $presetIdsByOutputType = [
+		'clip' => [
+			'1373409713520-t0nqq0',
+		],
+		'summary' => [
+			'1503961241607-9swq73',
+			'1557861734804-zm431n',
+			'1557861651499-ixil9u',
+		],
+	];
+
 	static $DEBUG = false;
     static $exitAfterNumArticles = 1;
 	static $stagingDir = '';

@@ -233,16 +233,17 @@ class SkinMinervaWikihow extends SkinMinerva {
 					$help_page_added = true;
 				}
 			}
-			if (class_exists("UserCompletedImages") && UserCompletedImages::onWhitelist($title)) {
-				$out = &$this->getOutput();
-				$items['adduci'] = array(
-					'text' => wfMessage( 'mobile-wikihow-adduci-link')->escaped(),
-					'href' => '#',
-					'class' => 'icon-adduci',
-					'id' => 'icon-adduci',
-				);
-				$help_page_added = true;
-			}
+
+			// if (class_exists("UserCompletedImages") && UserCompletedImages::onWhitelist($title)) {
+			// 	$out = &$this->getOutput();
+			// 	$items['adduci'] = array(
+			// 		'text' => wfMessage( 'mobile-wikihow-adduci-link')->escaped(),
+			// 		'href' => '#',
+			// 		'class' => 'icon-adduci',
+			// 		'id' => 'icon-adduci',
+			// 	);
+			// 	$help_page_added = true;
+			// }
 
 			//didn't add anything? maybe we should remove that header then...
 			if (!$help_page_added) unset($items['header3']);

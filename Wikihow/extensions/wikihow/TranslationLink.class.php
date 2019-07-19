@@ -64,6 +64,9 @@ class TranslationLink {
 	const TL_STUBBED = 0;
 	const TL_TRANSLATED = 1;
 
+	//Translation date
+	public $translationDate;
+
 	public $iwStatus;
 
 	public function  __construct() {
@@ -186,7 +189,10 @@ class TranslationLink {
 				'tl_translated' => $this->isTranslated
 			],
 			[],
-			['tl_translated' => $this->isTranslated],
+			[
+				'tl_translated' => $this->isTranslated,
+				'tl_timestamp' => wfTimestampNow(TS_MW)
+			],
 			__METHOD__
 		);
 		$this->setTlStatus(self::TL_STATUS_SAVED);
@@ -695,7 +701,7 @@ class TranslationLink {
 
 		// TODO: convert this to Mediawiki Database interface
 		$sql = "
-		SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid, tl_translated
+		SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid, tl_translated, tl_timestamp
 		  FROM {$enTrLinkTable}
 		 WHERE (tl_from_lang = {$safeFromLang} AND tl_from_aid = {$fromPageId})
 		    OR (tl_to_lang   = {$safeFromLang} AND tl_to_aid   = {$fromPageId})";
@@ -712,6 +718,7 @@ class TranslationLink {
 			$tl->toLang = $row->tl_to_lang;
 			$tl->toAID = $row->tl_to_aid;
 			$tl->isTranslated = $row->tl_translated;
+			$tl->translationDate = $row->tl_timestamp;
 			$tls[] = $tl;
 		}
 

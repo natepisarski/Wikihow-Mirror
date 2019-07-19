@@ -2803,6 +2803,10 @@ class TSSocial extends TitusStat {
 	}
 }
 
+/*****
+ * Class TSTranslations
+ * alter table titus_intl add column `ti_first_translation_date` varchar(8) DEFAULT NULL after ti_expert_verified_date_original;
+ */
 class TSTranslations extends TitusStat {
 
 	public function getPageIdsToCalc( $dbr,  $date ) {
@@ -2881,6 +2885,11 @@ class TSTranslations extends TitusStat {
 				}
 				$ret["ti_tl_" . $l->fromLang . "_id"] = intVal($l->fromAID);
 				$ret["ti_tl_" . $l->fromLang . "_status"] = intVal($l->isTranslated) == 1 ? "active" : "inactive";
+
+				//now do the ftt timestmp
+				if($l->isTranslated == 1) {
+					$ret['ti_first_translation_date'] = $l->translationDate;
+				}
 			}
 		}
 		return $ret;

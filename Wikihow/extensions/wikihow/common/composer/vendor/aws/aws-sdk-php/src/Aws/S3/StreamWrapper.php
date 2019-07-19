@@ -417,7 +417,7 @@ class StreamWrapper
         // Reset the cache
         $this->clearStatInfo();
         $params = $this->getParams($path);
-        $delim = $this->getOptions('delimiter') ?: '/';
+        $delim = $this->getOption('delimiter') ?: '/';
         if ($params['Key']) {
             $params['Key'] = rtrim($params['Key'], $delim) . $delim;
         }
@@ -533,6 +533,18 @@ class StreamWrapper
         }
 
         return true;
+    }
+
+    /**
+     * Cast the stream to return the underlying file resource
+     *
+     * @param int $cast_as STREAM_CAST_FOR_SELECT or STREAM_CAST_AS_STREAM
+     *
+     * @return resource
+     */
+    public function stream_cast($cast_as)
+    {
+        return $this->body->getStream();
     }
 
     /**
