@@ -223,7 +223,7 @@ class Mp4Transcoder extends AbsTranscoder {
 
 		$outputs = [];
 		$basename = basename($filename, ".mp4");
-		$type = substr( $basename, -2 === '-0' ) ? 'summary' : 'clip';
+		$type = substr( $basename, -2 ) === '-0' ? 'summary' : 'clip';
 		foreach ( WikiVisualTranscoder::$presetIdsByOutputType[$type] as $presetId ) {
 			$preset = WikiVisualTranscoder::$presets[$presetId];
 			$outputs[] = [

@@ -188,6 +188,11 @@ class RobotPolicy {
 		} elseif ($this->isNotViewAction()) {
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
 			$policyText = 'notViewAction';
+		} elseif ($this->isIndexphpRequestURL() && Misc::isAltDomain()) {
+			// July 2019: apply to alt domains only right now, while we test robots.txt changes
+			// there. this will go out for all sites later, as we test more.
+			$policy = self::POLICY_NOINDEX_NOFOLLOW;
+			$policyText = 'isIndexphpRequestURL';
 		} elseif ($this->isNonExistentPage()) {
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
 			$policyText = 'isNonExistentPage';
@@ -365,6 +370,26 @@ class RobotPolicy {
 	private function isPrintable() {
 		$isPrintable = $this->request && $this->request->getVal('printable', '') == 'yes';
 		return $isPrintable;
+	}
+
+	/**
+	 * Test whether the request came in from the "user" looking like:
+	 * https://www.wikihow.com/index.php?... (for example)
+	 * We want to noindex all /index.php requests, since they used
+	 * to be noindex in the robots.txt file, but that (no-)indexation
+	 * mechanism has been removed by Google.
+	 */
+	private function isIndexphpRequestURL() {
+		if ($this->request) {
+			$requestUrl = $this->request->getRequestURL();
+			if ( preg_match('@^(https?://[^/]+)?/index\.php@', $requestUrl) ) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 
 	/**

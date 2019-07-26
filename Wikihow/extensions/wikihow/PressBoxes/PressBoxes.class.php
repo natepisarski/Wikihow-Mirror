@@ -12,8 +12,6 @@ class PressBoxes {
 	const PRESS_IMAGE_PATH = '/extensions/wikihow/PressBoxes/assets/images/';
 
 	public static function pressSidebox(): string {
-		return '';
-
 		$loader = new Mustache_Loader_CascadingLoader( [
 			new Mustache_Loader_FilesystemLoader( __DIR__ . '/assets' )
 		] );

@@ -203,7 +203,21 @@ class DesktopAds {
 		return "";
 	}
 
+	/*
+	 * note - i discovered an annoying and hard to track down bug
+	 * in this function, which is if there is javascript in this htmlo
+	 * and this javascript has strings which are <div> insertions
+	 * then php query seems to get confused making a new document and 
+	 * puts a closing script tag too early. this was happening on the right rail
+	 * on the sample pages when loggged in because the staff pagestats js
+	 * was in the html here and it was screwing it up completely.
+	 * now we check if ads are active before running this to solve it
+	 * but i could imagine a way that it causes another bug in the future
+	 * */
 	public function modifyRightRailForAdTest( $html, $relatedWikihows ) {
+		if ( !$this->isActive() ) {
+			return $html;
+		}
 		$pageId = $this->mTitle->getArticleID();
 
 		$doc = phpQuery::newDocument( $html );

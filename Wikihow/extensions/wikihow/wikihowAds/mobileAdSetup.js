@@ -196,6 +196,9 @@ WH.mobileads = (function () {
 				isNoWidthType = true;
 			}
 		}
+		if (WH.pageID % 20 == 13 && type == 'intro') {
+			isNoWidthType = true;
+		}
 		if (isNoWidthType) {
 			css = 'display:block;height:'+height+'px;';
 		}

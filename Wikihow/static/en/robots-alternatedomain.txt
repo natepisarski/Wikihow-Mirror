@@ -111,17 +111,5 @@ User-agent: *
 Allow: /Special:LSearch
 Allow: /Special:QABox
 Allow: /Special:Sitemap
-Allow: /index.php?*printable
-Disallow: /index.php
 Disallow: /*feed=rss
-Disallow: /*action=delete
-Disallow: /*action=history
-Disallow: /*action=watch
-Disallow: /*platform=
-Disallow: /*variant=
-Noindex: /index.php
 Noindex: /*feed=rss
-Noindex: /*action=delete
-Noindex: /*action=history
-Noindex: /*platform=
-Noindex: /*variant=
