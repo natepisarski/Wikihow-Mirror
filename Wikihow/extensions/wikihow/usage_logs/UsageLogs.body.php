@@ -17,8 +17,12 @@ class UsageLogs extends UnlistedSpecialPage {
 		$out = $this->getContext()->getOutput();
 		$out->setRobotPolicy('noindex,nofollow');
 
-		if ($request->wasPosted() && !$user->isBlocked() && XSSFilter::isValidRequest()) {
+		if ($request->wasPosted() && !$user->isBlocked()) {
 			$out->setArticleBodyOnly(true);
+			if (!XSSFilter::isValidRequest()) {
+				$out->addHtml('XSS filtered');
+				return;
+			}
 
 			self::saveEvents($_POST['events']);
 
@@ -27,7 +31,6 @@ class UsageLogs extends UnlistedSpecialPage {
 					'success' => true
 				))
 			);
-			return;
 		} else {
 			 $out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 		}

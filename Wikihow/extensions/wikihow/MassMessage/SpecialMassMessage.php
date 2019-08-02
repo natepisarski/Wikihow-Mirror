@@ -348,14 +348,7 @@ class SpecialMassMessage extends SpecialPage {
 
 	//let's format this message wikiHow-style
 	function FormatMessage($msg) {
-		global $wgLang;
-
 		$user = $this->getUser();
-
-		$msg = TalkPageFormatter::createComment( $user, $msg );
-		//add a hidden variable to id mass message notifications for echo
-		$msg .= '<!--massmessage-->';
-
-		return $msg;
+		return TalkPageFormatter::createComment( $user, $msg );
 	}
 }

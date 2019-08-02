@@ -35,99 +35,127 @@ require_once __DIR__ . '/Maintenance.php';
 class GenerateJsonI18n extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Build JSON messages files from a PHP messages file";
-		$this->addArg( 'phpfile', 'PHP file defining a $messages array', true );
-		$this->addArg( 'jsondir', 'Directory to write JSON files to', true );
-		$this->addOption( 'langcode', 'Language code; only needed for converting core i18n files',
+		$this->addDescription( 'Build JSON messages files from a PHP messages file' );
+
+		$this->addArg( 'phpfile', 'PHP file defining a $messages array', false );
+		$this->addArg( 'jsondir', 'Directory to write JSON files to', false );
+		$this->addOption( 'extension', 'Perform default conversion on an extension',
 			false, true );
+		$this->addOption( 'supplementary', 'Find supplementary i18n files in subdirs and convert those',
+			false, false );
 	}
 
 	public function execute() {
+		global $IP;
+
 		$phpfile = $this->getArg( 0 );
 		$jsondir = $this->getArg( 1 );
+		$extension = $this->getOption( 'extension' );
+		$convertSupplementaryI18nFiles = $this->hasOption( 'supplementary' );
+
+		if ( $extension ) {
+			if ( $phpfile ) {
+				$this->fatalError( "The phpfile is already specified, conflicts with --extension." );
+			}
+			$phpfile = "$IP/extensions/$extension/$extension.i18n.php";
+		}
+
+		if ( !$phpfile ) {
+			$this->error( "I'm here for an argument!" );
+			$this->maybeHelp( true );
+			// dies.
+		}
+
+		if ( $convertSupplementaryI18nFiles ) {
+			if ( is_readable( $phpfile ) ) {
+				$this->transformI18nFile( $phpfile, $jsondir );
+			} else {
+				// This is non-fatal because we might want to continue searching for
+				// i18n files in subdirs even if the extension does not include a
+				// primary i18n.php.
+				$this->error( "Warning: no primary i18n file was found." );
+			}
+			$this->output( "Searching for supplementary i18n files...\n" );
+			$dir_iterator = new RecursiveDirectoryIterator( dirname( $phpfile ) );
+			$iterator = new RecursiveIteratorIterator(
+				$dir_iterator, RecursiveIteratorIterator::LEAVES_ONLY );
+			foreach ( $iterator as $path => $fileObject ) {
+				if ( fnmatch( "*.i18n.php", $fileObject->getFilename() ) ) {
+					$this->output( "Converting $path.\n" );
+					$this->transformI18nFile( $path );
+				}
+			}
+		} else {
+			// Just convert the primary i18n file.
+			$this->transformI18nFile( $phpfile, $jsondir );
+		}
+	}
+
+	public function transformI18nFile( $phpfile, $jsondir = null ) {
+		if ( !$jsondir ) {
+			// Assume the json directory should be in the same directory as the
+			// .i18n.php file.
+			$jsondir = dirname( $phpfile ) . "/i18n";
+		}
+		if ( !is_dir( $jsondir ) ) {
+			$this->output( "Creating directory $jsondir.\n" );
+			$success = mkdir( $jsondir );
+			if ( !$success ) {
+				$this->fatalError( "Could not create directory $jsondir" );
+			}
+		}
 
 		if ( !is_readable( $phpfile ) ) {
-			$this->error( "Error reading $phpfile\n", 1 );
+			$this->fatalError( "Error reading $phpfile" );
 		}
+		$messages = null;
 		include $phpfile;
 		$phpfileContents = file_get_contents( $phpfile );
 
 		if ( !isset( $messages ) ) {
-			$this->error( "PHP file $phpfile does not define \$messages array\n", 1 );
+			$this->fatalError( "PHP file $phpfile does not define \$messages array" );
 		}
 
-		$extensionStyle = true;
+		if ( !$messages ) {
+			$this->fatalError( "PHP file $phpfile contains an empty \$messages array. " .
+				"Maybe it was already converted?" );
+		}
+
 		if ( !isset( $messages['en'] ) || !is_array( $messages['en'] ) ) {
-			if ( !$this->hasOption( 'langcode' ) ) {
-				$this->error( "PHP file $phpfile does not set language codes, --langcode " .
-					"is required.\n", 1 );
-			}
-			$extensionStyle = false;
-			$langcode = $this->getOption( 'langcode' );
-			$messages = array( $langcode => $messages );
-		} else if ( $this->hasOption( 'langcode' ) ) {
-			$this->output( "Warning: --langcode option set but will not be used.\n" );
+			$this->fatalError( "PHP file $phpfile does not set language codes" );
 		}
 
 		foreach ( $messages as $langcode => $langmsgs ) {
 			$authors = $this->getAuthorsFromComment( $this->findCommentBefore(
-				$extensionStyle ? "\$messages['$langcode'] =" : '$messages =',
+				"\$messages['$langcode'] =",
 				$phpfileContents
 			) );
 			// Make sure the @metadata key is the first key in the output
 			$langmsgs = array_merge(
-				array( '@metadata' => array( 'authors' => $authors ) ),
+				[ '@metadata' => [ 'authors' => $authors ] ],
 				$langmsgs
 			);
 
 			$jsonfile = "$jsondir/$langcode.json";
 			$success = file_put_contents(
 				$jsonfile,
-				FormatJson::encode( $langmsgs, true, FormatJson::ALL_OK )
+				FormatJson::encode( $langmsgs, "\t", FormatJson::ALL_OK ) . "\n"
 			);
 			if ( $success === false ) {
-				$this->error( "FAILED to write $jsonfile", 1 );
+				$this->fatalError( "FAILED to write $jsonfile" );
 			}
 			$this->output( "$jsonfile\n" );
 		}
 
-		if ( !$this->hasOption( 'langcode' ) ) {
-			$shim = $this->doShim( $jsondir );
-			file_put_contents( $phpfile, $shim );
-		}
-
-		$this->output( "All done.\n" );
-		$this->output( "Also add \$wgMessagesDirs['YourExtension'] = __DIR__ . '/i18n';\n" );
-	}
-
-	protected function doShim( $jsondir ) {
-		$shim = <<<'PHP'
-<?php
-$messages = array();
-$GLOBALS['wgHooks']['LocalisationCacheRecache'][] = function ( $cache, $code, &$cachedData ) {
-	$codeSequence = array_merge( array( $code ), $cachedData['fallbackSequence'] );
-	foreach ( $codeSequence as $csCode ) {
-		$fileName = __DIR__ . "/{{OUT}}/$csCode.json";
-		if ( is_readable( $fileName ) ) {
-			$data = FormatJson::decode( file_get_contents( $fileName ), true );
-			foreach ( array_keys( $data ) as $key ) {
-				if ( $key === '' || $key[0] === '@' ) {
-					unset( $data[$key] );
-				}
-			}
-			$cachedData['messages'] = array_merge( $data, $cachedData['messages'] );
-		}
-
-		$cachedData['deps'][] = new FileDependency( $fileName );
-	}
-	return true;
-};
-
-PHP;
-
-		$jsondir = str_replace('\\', '/', $jsondir );
-		$shim = str_replace( '{{OUT}}', $jsondir, $shim );
-		return $shim;
+		$this->output(
+			"All done. To complete the conversion, please do the following:\n" .
+			"* Add \$wgMessagesDirs['YourExtension'] = __DIR__ . '/i18n';\n" .
+			"* Remove \$wgExtensionMessagesFiles['YourExtension']\n" .
+			"* Delete the old PHP message file\n" .
+			"This script no longer generates backward compatibility shims! If you need\n" .
+			"compatibility with MediaWiki 1.22 and older, use the MediaWiki 1.23 version\n" .
+			"of this script instead, or create a shim manually.\n"
+		);
 	}
 
 	/**
@@ -154,14 +182,15 @@ PHP;
 	/**
 	 * Get an array of author names from a documentation comment containing @author declarations.
 	 * @param string $comment Documentation comment
-	 * @return Array of author names (strings)
+	 * @return array Array of author names (strings)
 	 */
 	protected function getAuthorsFromComment( $comment ) {
 		$matches = null;
 		preg_match_all( '/@author (.*?)$/m', $comment, $matches );
-		return $matches && $matches[1] ? $matches[1] : array();
+
+		return $matches && $matches[1] ? $matches[1] : [];
 	}
 }
 
-$maintClass = "GenerateJsonI18n";
+$maintClass = GenerateJsonI18n::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

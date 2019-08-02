@@ -34,7 +34,8 @@ require_once __DIR__ . '/Maintenance.php';
 class FixExtLinksProtocolRelative extends LoggedUpdateMaintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Fixes any entries in the externallinks table containing protocol-relative URLs";
+		$this->addDescription(
+			'Fixes any entries in the externallinks table containing protocol-relative URLs' );
 	}
 
 	protected function getUpdateKey() {
@@ -46,14 +47,15 @@ class FixExtLinksProtocolRelative extends LoggedUpdateMaintenance {
 	}
 
 	protected function doDBUpdates() {
-		$db = wfGetDB( DB_MASTER );
+		$db = $this->getDB( DB_MASTER );
 		if ( !$db->tableExists( 'externallinks' ) ) {
 			$this->error( "externallinks table does not exist" );
+
 			return false;
 		}
 		$this->output( "Fixing protocol-relative entries in the externallinks table...\n" );
-		$res = $db->select( 'externallinks', array( 'el_from', 'el_to', 'el_index' ),
-			array( 'el_index' . $db->buildLike( '//', $db->anyString() ) ),
+		$res = $db->select( 'externallinks', [ 'el_from', 'el_to', 'el_index' ],
+			[ 'el_index' . $db->buildLike( '//', $db->anyString() ) ],
 			__METHOD__
 		);
 		$count = 0;
@@ -64,27 +66,36 @@ class FixExtLinksProtocolRelative extends LoggedUpdateMaintenance {
 				wfWaitForSlaves();
 			}
 			$db->insert( 'externallinks',
-				array(
-					array(
-						'el_id' => $db->nextSequenceValue( 'externallinks_el_id_seq' ),
+				[
+					[
 						'el_from' => $row->el_from,
 						'el_to' => $row->el_to,
 						'el_index' => "http:{$row->el_index}",
-					),
-					array(
-						'el_id' => $db->nextSequenceValue( 'externallinks_el_id_seq' ),
+						'el_index_60' => substr( "http:{$row->el_index}", 0, 60 ),
+					],
+					[
 						'el_from' => $row->el_from,
 						'el_to' => $row->el_to,
 						'el_index' => "https:{$row->el_index}",
-					)
-				), __METHOD__, array( 'IGNORE' )
+						'el_index_60' => substr( "https:{$row->el_index}", 0, 60 ),
+					]
+				], __METHOD__, [ 'IGNORE' ]
 			);
-			$db->delete( 'externallinks', array( 'el_index' => $row->el_index, 'el_from' => $row->el_from, 'el_to' => $row->el_to ), __METHOD__ );
+			$db->delete(
+				'externallinks',
+				[
+					'el_index' => $row->el_index,
+					'el_from' => $row->el_from,
+					'el_to' => $row->el_to
+				],
+				__METHOD__
+			);
 		}
 		$this->output( "Done, $count rows updated.\n" );
+
 		return true;
 	}
 }
 
-$maintClass = "FixExtLinksProtocolRelative";
+$maintClass = FixExtLinksProtocolRelative::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

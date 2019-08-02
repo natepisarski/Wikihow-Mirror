@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../../commandLine.inc';
-require_once "$IP/extensions/wikihow/titus/Titus.class.php";
 require_once "$IP/extensions/wikihow/DatabaseHelper.class.php";
 
 $dbw = DatabaseBase::factory('mysql');

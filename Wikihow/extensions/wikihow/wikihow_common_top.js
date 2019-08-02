@@ -103,26 +103,28 @@ WH.ga.loadGoogleAnalytics = function(siteVersion, propertyId, config) {
  * Process pending Google Analytics events
  */
 WH.ga.processPendingEvents = function() {
-	// Process pending analytics events
-	var cookieName = mw.config.get('wgCookiePrefix') + 'GAPendingEvents';
-	var eventsJson = $.cookie(cookieName);
-	if (eventsJson) {
-		try {
-			var events = JSON.parse(eventsJson);
-			for (var i = 0; i < events.length; i++) {
-				var e = events[i];
-				WH.ga.sendEvent(e.category, e.action, e.label, e.value, e.nonInter);
+	mw.loader.using('mediawiki.cookie', function() {
+		// Process pending analytics events
+		var cookieName = mw.config.get('wgCookiePrefix') + 'GAPendingEvents';
+		var eventsJson = mw.cookie.get(cookieName);
+		if (eventsJson) {
+			try {
+				var events = JSON.parse(eventsJson);
+				for (var i = 0; i < events.length; i++) {
+					var e = events[i];
+					WH.ga.sendEvent(e.category, e.action, e.label, e.value, e.nonInter);
+				}
+			} catch (exception) {
+				if (typeof console.log != 'undefined') {
+					console.log(exception);
+				}
 			}
-		} catch (exception) {
-			if (typeof console.log != 'undefined') {
-				console.log(exception);
-			}
+			mw.cookie.set(cookieName, null, {
+				'path': '/',
+				'domain': '.' + mw.config.get('wgCookieDomain')
+			});
 		}
-		$.removeCookie(cookieName, {
-			'path': '/',
-			'domain': '.' + mw.config.get('wgCookieDomain')
-		});
-	}
+	} );
 };
 
 // TODO: (Reuben, Jan 2017) maybe this method should be in wikihow_common_bottom.js.
@@ -130,11 +132,18 @@ WH.ga.processPendingEvents = function() {
 // randomish tools.
 WH.xss = {
 	addToken: function() {
-		$.ajaxSetup({
-			beforeSend: function(xhr /*, settings*/) {
-				xhr.setRequestHeader('X-CSRF-TOKEN', mw.user.sessionId());
+		mw.loader.using( 'mediawiki.cookie', function() {
+			var js_sessid = mw.user.sessionId();
+			var cookie_sessid = mw.cookie.get('js_sessid');
+			if ( !cookie_sessid || cookie_sessid != js_sessid ) {
+				mw.cookie.set('js_sessid', js_sessid);
 			}
-		});
+			$.ajaxSetup({
+				beforeSend: function(xhr /*, settings*/) {
+					xhr.setRequestHeader('x-csrf-token', js_sessid);
+				}
+			});
+		} );
 	}
 };
 
@@ -172,60 +181,63 @@ WH.whEvent = function(category, action, group, label, version, fromMAEvent) {
 //    the previous noLogToWHEvent argument won't break anything
 WH.maEventInitialized = false;
 WH.maEvent = function(eventName, eventProps, callback) {
-	if (typeof MachinifyAPI == 'undefined') {
-		if (typeof console != 'undefined') {
-			console.log('error: Machinify API called before it was initialized! (Maybe a loading order issue?) maEvent=' + eventName);
-		}
-		return;
-	}
 
-	if (!WH.maEventInitialized) {
-		// wikiHow Machinify key
-		MachinifyAPI.setApiKey('69Me1Jf95c9f9604b77bd0cb6cedc346');
-
-		var deviceID = $.cookie('whv');
-		if (deviceID) {
-			MachinifyAPI.setDeviceID(deviceID);
+	mw.loader.using('mediawiki.cookie', function() {
+		if (typeof MachinifyAPI == 'undefined') {
+			if (typeof console != 'undefined') {
+				console.log('error: Machinify API called before it was initialized! (Maybe a loading order issue?) maEvent=' + eventName);
+			}
+			return;
 		}
 
-		var platform;
-		if (WH.isAndroidAppRequest) {
-			platform = 'android_app';
-		} else if (WH.isMobileDomain) {
-			platform = 'mobile_web';
-		} else {
-			platform = 'desktop';
+		if (!WH.maEventInitialized) {
+			// wikiHow Machinify key
+			MachinifyAPI.setApiKey('69Me1Jf95c9f9604b77bd0cb6cedc346');
+
+			var deviceID = mw.cookie.get('whv');
+			if (deviceID) {
+				MachinifyAPI.setDeviceID(deviceID);
+			}
+
+			var platform;
+			if (WH.isAndroidAppRequest) {
+				platform = 'android_app';
+			} else if (WH.isMobileDomain) {
+				platform = 'mobile_web';
+			} else {
+				platform = 'desktop';
+			}
+
+			MachinifyAPI.setDeviceProperties( {platform: platform} );
+			MachinifyAPI.delayAllEvents(); // send events synchronously (-ish).
+			MachinifyAPI.setUserProperties(); // no one is signed in.
+			// MachinifyAPI.sendEvent('launch'); // send a launch event; no special properties.
+
+			WH.maEventInitialized = true;
 		}
 
-		MachinifyAPI.setDeviceProperties( {platform: platform} );
-		MachinifyAPI.delayAllEvents(); // send events synchronously (-ish).
-		MachinifyAPI.setUserProperties(); // no one is signed in.
-		// MachinifyAPI.sendEvent('launch'); // send a launch event; no special properties.
+		if (typeof eventProps != 'object') {
+			eventProps = {};
+		}
+		var isDev = (window.location.href.indexOf(".wikidogs.") >= 0) ? 1 : 0;
+		eventProps.isDev = isDev;
+		var uid = mw.config.get('wgUserId');
+		uid = uid || 0; // user id
+		eventProps.anon = (uid <= 0);
+		var u = mw.config.get('wgUserName');
+		u = u || ''; // user name
+		if (u) eventProps.username = u;
 
-		WH.maEventInitialized = true;
-	}
+		//add language code
+		eventProps.language = mw.config.get('wgContentLanguage');
 
-	if (typeof eventProps != 'object') {
-		eventProps = {};
-	}
-	var isDev = (window.location.href.indexOf(".wikidogs.") >= 0) ? 1 : 0;
-	eventProps.isDev = isDev;
-	var uid = mw.config.get('wgUserId');
-	uid = uid || 0; // user id
-	eventProps.anon = (uid <= 0);
-	var u = mw.config.get('wgUserName');
-	u = u || ''; // user name
-	if (u) eventProps.username = u;
+		if (isDev) {
+			console.log(eventName);
+			console.log(eventProps);
+		}
 
-	//add language code
-	eventProps.language = mw.config.get('wgContentLanguage');
-
-	if (isDev) {
-		console.log(eventName);
-		console.log(eventProps);
-	}
-
-	MachinifyAPI.sendEvent(eventName, eventProps, callback);
+		MachinifyAPI.sendEvent(eventName, eventProps, callback);
+	} );
 };
 
 /**
@@ -354,6 +366,17 @@ WH.showEmbedVideos = function() {
     });
 };
 
-$(window).load(WH.showEmbedVideos);
+if (document.readyState == 'complete') {
+	WH.showEmbedVideos();
+} else {
+	$(window).load(WH.showEmbedVideos);
+}
+
+// Load GA if these variables are set
+if ( typeof WH.gaType != "undefined" && typeof WH.gaID != "undefined" && typeof WH.gaConfig != "undefined" ) {
+	WH.ga.loadGoogleAnalytics(WH.gaType, WH.gaID, WH.gaConfig);
+	// We shouldn't need to delete these since this code is only run once
+	//delete WH.gaType; delete WH.gaID; delete WH.gaConfig;
+}
 
 }(mediaWiki, jQuery));

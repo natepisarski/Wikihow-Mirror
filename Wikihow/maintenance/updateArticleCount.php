@@ -35,27 +35,39 @@ class UpdateArticleCount extends Maintenance {
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Count of the number of articles and update the site statistics table";
+		$this->addDescription( 'Count of the number of articles and update the site statistics table' );
 		$this->addOption( 'update', 'Update the site_stats table with the new count' );
+		$this->addOption( 'use-master', 'Count using the master database' );
 	}
 
 	public function execute() {
 		$this->output( "Counting articles..." );
 
-		$counter = new SiteStatsInit( false );
+		if ( $this->hasOption( 'use-master' ) ) {
+			$dbr = $this->getDB( DB_MASTER );
+		} else {
+			$dbr = $this->getDB( DB_REPLICA, 'vslow' );
+		}
+		$counter = new SiteStatsInit( $dbr );
 		$result = $counter->articles();
 
 		$this->output( "found {$result}.\n" );
 		if ( $this->hasOption( 'update' ) ) {
 			$this->output( "Updating site statistics table... " );
-			$dbw = wfGetDB( DB_MASTER );
-			$dbw->update( 'site_stats', array( 'ss_good_articles' => $result ), array( 'ss_row_id' => 1 ), __METHOD__ );
+			$dbw = $this->getDB( DB_MASTER );
+			$dbw->update(
+				'site_stats',
+				[ 'ss_good_articles' => $result ],
+				[ 'ss_row_id' => 1 ],
+				__METHOD__
+			);
 			$this->output( "done.\n" );
 		} else {
-			$this->output( "To update the site statistics table, run the script with the --update option.\n" );
+			$this->output( "To update the site statistics table, run the script "
+				. "with the --update option.\n" );
 		}
 	}
 }
 
-$maintClass = "UpdateArticleCount";
+$maintClass = UpdateArticleCount::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

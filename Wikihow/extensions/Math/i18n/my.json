@@ -2,14 +2,19 @@
 	"@metadata": {
 		"authors": [
 			"Hintha",
-			"Lionslayer"
+			"Lionslayer",
+			"Ninjastrikers",
+			"Macofe",
+			"Dr Lotus Black"
 		]
 	},
-	"math_sample": "ဤနေရာတွင် သင်္ချာပုံသေနည်း သုံးရန်",
-	"math_tip": "သင်္ချာပုံသေနည်း (LaTeX)",
-	"prefs-math": "သင်္ချာ",
-	"mw_math_png": "PNG ဖိုင်အဖြစ် အမြဲပုံဖော်ရန်",
-	"mw_math_source": "TeX အဖြစ်ထားခဲ့ပါ (စာသားသာပြသည့် ဘရောက်ဇာများအတွက်)",
+	"math-visualeditor-mwlatexcontextitem-quickedit": "အမြန်တည်းဖြတ်",
+	"math-visualeditor-mwlatexinspector-display-default": "နဂိုအတိုင်း",
+	"math-tracking-category-error": "သင်္ချာအမှားများပါဝင်သည့် စာမျက်နှာများ",
 	"math_unknown_error": "အမည်မသိ အမှား",
-	"math_unknown_function": "အမည်မသိ ဖန်ရှင်"
+	"math_unknown_function": "အမည်မသိ လုပ်ဆောင်ချက် \"$1\"",
+	"mw_math_png": "PNG ပုံများ",
+	"mw_math_source": "LaTeX ရင်းမြစ် (စာသားသာပြသည့် ဘရောက်ဇာများအတွက်)",
+	"prefs-math": "သင်္ချာ",
+	"mathstatus": "သင်္ချာ အခြေနေ"
 }

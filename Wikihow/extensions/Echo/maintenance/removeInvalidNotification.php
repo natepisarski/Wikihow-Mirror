@@ -4,47 +4,53 @@
  *
  * @ingroup Maintenance
  */
-require_once ( getenv( 'MW_INSTALL_PATH' ) !== false
+require_once getenv( 'MW_INSTALL_PATH' ) !== false
 	? getenv( 'MW_INSTALL_PATH' ) . '/maintenance/Maintenance.php'
-	: dirname( __FILE__ ) . '/../../../maintenance/Maintenance.php' );
+	: __DIR__ . '/../../../maintenance/Maintenance.php';
 
 /**
  * Maintenance script that removes invalid notifications
  *
  * @ingroup Maintenance
  */
-class removeInvalidNotification extends Maintenance {
+class RemoveInvalidNotification extends Maintenance {
 
 	protected $batchSize = 500;
-	protected $invalidEventType = array( 'article-linked' );
+	protected $invalidEventType = [ 'article-linked' ];
+
+	public function __construct() {
+		$this->mDescription = "Removes invalid notifications from the database.";
+		$this->requireExtension( 'Echo' );
+	}
 
 	public function execute() {
 		if ( !$this->invalidEventType ) {
 			$this->output( "There is nothing to process\n" );
+
 			return;
 		}
 
 		global $wgEchoCluster;
 
 		$dbw = MWEchoDbFactory::getDB( DB_MASTER );
-		$dbr = MWEchoDbFactory::getDB( DB_SLAVE );
+		$dbr = MWEchoDbFactory::getDB( DB_REPLICA );
 
 		$count = $this->batchSize;
 
 		while ( $count == $this->batchSize ) {
 			$res = $dbr->select(
-				array( 'echo_event' ),
-				array( 'event_id' ),
-				array(
+				[ 'echo_event' ],
+				[ 'event_id' ],
+				[
 					'event_type' => $this->invalidEventType,
-				),
+				],
 				__METHOD__,
-				array( 'LIMIT' => $this->batchSize )
+				[ 'LIMIT' => $this->batchSize ]
 			);
 
-			$event = array();
+			$event = [];
 			$count = 0;
-			foreach( $res as $row ) {
+			foreach ( $res as $row ) {
 				if ( !in_array( $row->event_id, $event ) ) {
 					$event[] = $row->event_id;
 				}
@@ -52,20 +58,20 @@ class removeInvalidNotification extends Maintenance {
 			};
 
 			if ( $event ) {
-				$dbw->begin();
+				$this->beginTransaction( $dbw, __METHOD__ );
 
 				$dbw->delete(
 					'echo_event',
-					array( 'event_id' => $event ),
+					[ 'event_id' => $event ],
 					__METHOD__
 				);
 				$dbw->delete(
 					'echo_notification',
-					array( 'notification_event' => $event ),
+					[ 'notification_event' => $event ],
 					__METHOD__
 				);
 
-				$dbw->commit();
+				$this->commitTransaction( $dbw, __METHOD__ );
 
 				$this->output( "processing " . count( $event ) . " invalid events\n" );
 				wfWaitForSlaves( false, false, $wgEchoCluster );
@@ -77,5 +83,5 @@ class removeInvalidNotification extends Maintenance {
 	}
 }
 
-$maintClass = 'removeInvalidNotification'; // Tells it to run the class
-require_once( RUN_MAINTENANCE_IF_MAIN );
+$maintClass = RemoveInvalidNotification::class; // Tells it to run the class
+require_once RUN_MAINTENANCE_IF_MAIN;

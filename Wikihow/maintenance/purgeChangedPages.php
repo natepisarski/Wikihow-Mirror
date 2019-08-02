@@ -2,7 +2,6 @@
 /**
  * Send purge requests for pages edited in date range to squid/varnish.
  *
- * @section LICENSE
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -24,6 +23,8 @@
 
 require_once __DIR__ . '/Maintenance.php';
 
+use Wikimedia\Rdbms\ResultWrapper;
+
 /**
  * Maintenance script that sends purge requests for pages edited in a date
  * range to squid/varnish.
@@ -37,7 +38,7 @@ class PurgeChangedPages extends Maintenance {
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = 'Send purge requests for edits in date range to squid/varnish';
+		$this->addDescription( 'Send purge requests for edits in date range to squid/varnish' );
 		$this->addOption( 'starttime', 'Starting timestamp', true, true );
 		$this->addOption( 'endtime', 'Ending timestamp', true, true );
 		$this->addOption( 'htcp-dest', 'HTCP announcement destination (IP:port)', false, true );
@@ -58,15 +59,15 @@ class PurgeChangedPages extends Maintenance {
 			}
 
 			// Route all HTCP messages to provided host:port
-			$wgHTCPRouting = array(
-				'' => array( 'host' => $parts[0], 'port' => $parts[1] ),
-			);
+			$wgHTCPRouting = [
+				'' => [ 'host' => $parts[0], 'port' => $parts[1] ],
+			];
 			if ( $this->hasOption( 'verbose' ) ) {
 				$this->output( "HTCP broadcasts to {$parts[0]}:{$parts[1]}\n" );
 			}
 		}
 
-		$dbr = $this->getDB( DB_SLAVE );
+		$dbr = $this->getDB( DB_REPLICA );
 		$minTime = $dbr->timestamp( $this->getOption( 'starttime' ) );
 		$maxTime = $dbr->timestamp( $this->getOption( 'endtime' ) );
 
@@ -78,28 +79,28 @@ class PurgeChangedPages extends Maintenance {
 		$stuckCount = 0; // loop breaker
 		while ( true ) {
 			// Adjust bach size if we are stuck in a second that had many changes
-			$bSize = $this->mBatchSize + ( $stuckCount * $this->mBatchSize );
+			$bSize = ( $stuckCount + 1 ) * $this->getBatchSize();
 
 			$res = $dbr->select(
-				array( 'page', 'revision' ),
-				array(
+				[ 'page', 'revision' ],
+				[
 					'rev_timestamp',
 					'page_namespace',
 					'page_title',
-				),
-				array(
+				],
+				[
 					"rev_timestamp > " . $dbr->addQuotes( $minTime ),
 					"rev_timestamp <= " . $dbr->addQuotes( $maxTime ),
 					// Only get rows where the revision is the latest for the page.
 					// Other revisions would be duplicate and we don't need to purge if
 					// there has been an edit after the interesting time window.
 					"page_latest = rev_id",
-				),
+				],
 				__METHOD__,
-				array( 'ORDER BY' => 'rev_timestamp', 'LIMIT' => $bSize ),
-				array(
-					'page' => array( 'INNER JOIN', 'rev_page=page_id' ),
-				)
+				[ 'ORDER BY' => 'rev_timestamp', 'LIMIT' => $bSize ],
+				[
+					'page' => [ 'INNER JOIN', 'rev_page=page_id' ],
+				]
 			);
 
 			if ( !$res->numRows() ) {
@@ -122,7 +123,7 @@ class PurgeChangedPages extends Maintenance {
 			$minTime = $lastTime;
 
 			// Create list of URLs from page_namespace + page_title
-			$urls = array();
+			$urls = [];
 			foreach ( $rows as $row ) {
 				$title = Title::makeTitle( $row->page_namespace, $row->page_title );
 				$urls[] = $title->getInternalURL();
@@ -136,7 +137,7 @@ class PurgeChangedPages extends Maintenance {
 			}
 
 			// Send batch of purge requests out to squids
-			$squid = new SquidUpdate( $urls, count( $urls ) );
+			$squid = new CdnCacheUpdate( $urls, count( $urls ) );
 			$squid->doUpdate();
 
 			if ( $this->hasOption( 'sleep-per-batch' ) ) {
@@ -160,19 +161,20 @@ class PurgeChangedPages extends Maintenance {
 	 * If this returns an empty array for a non-empty query result, then all the rows
 	 * had the same column value and the query should be repeated with a higher LIMIT.
 	 *
-	 * @TODO: move this elsewhere
+	 * @todo move this elsewhere
 	 *
 	 * @param ResultWrapper $res Query result sorted by $column (ascending)
 	 * @param string $column
+	 * @param int $limit
 	 * @return array (array of rows, string column value)
 	 */
 	protected function pageableSortedRows( ResultWrapper $res, $column, $limit ) {
 		$rows = iterator_to_array( $res, false );
 		$count = count( $rows );
 		if ( !$count ) {
-			return array( array(), null ); // nothing to do
+			return [ [], null ]; // nothing to do
 		} elseif ( $count < $limit ) {
-			return array( $rows, $rows[$count - 1]->$column ); // no more rows left
+			return [ $rows, $rows[$count - 1]->$column ]; // no more rows left
 		}
 		$lastValue = $rows[$count - 1]->$column; // should be the highest
 		for ( $i = $count - 1; $i >= 0; --$i ) {
@@ -183,9 +185,10 @@ class PurgeChangedPages extends Maintenance {
 			}
 		}
 		$lastValueLeft = count( $rows ) ? $rows[count( $rows ) - 1]->$column : null;
-		return array( $rows, $lastValueLeft );
+
+		return [ $rows, $lastValueLeft ];
 	}
 }
 
-$maintClass = "PurgeChangedPages";
+$maintClass = PurgeChangedPages::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

@@ -972,7 +972,6 @@ class GoogleAmp {
 	}
 
 	public static function modifyDom() {
-
 		self::formatQABadges();
 		self::modifyVideoSection();
 		pq( 'script' )->remove();
@@ -1065,6 +1064,9 @@ class GoogleAmp {
 		pq( '.mwimg-caption-image' )->removeClass( 'mwimg-caption-image' );
 		pq( '.mwimg-caption-mobile' )->removeClass( 'mwimg-caption-mobile' );
 
+		// remove weird new "Retrieved from ... url" message
+		pq( '.printfooter' )->remove();
+
 		// make sure any table border attribute has value 0 or 1
 		foreach ( pq( 'table[border]' ) as $elem ) {
 			$pqElem = pq($elem);
@@ -1100,7 +1102,11 @@ class GoogleAmp {
 
 		// do this last to make sure we don't add any inline styles or js, and that the doc is as
 		// small as possible when we iterate over everything
-		pq( '*' )->removeAttr( 'style' )->removeAttr('onload')->removeAttr('clear');
+		pq( '*' )
+			->removeAttr( 'style' )
+			->removeAttr('onload')
+			->removeAttr('onclick')
+			->removeAttr('clear');
 	}
 
 	static function addNewAnchortags() {
@@ -1133,7 +1139,7 @@ class GoogleAmp {
 	// so we can take it out later for use by amp code
 	// does not need to be marked as display none because the content in the math tag
 	// is already wrapped in display none
-	static function mathHook( $parser, &$renderer, &$renderedMath ) {
+	static function mathHook( $parser, $renderer, &$renderedMath ) {
 		$doc = phpQuery::newDocument( $renderedMath );
 		pq( '.mwe-math-mathml-inline' )->attr( 'data-original-text', $renderer->getTex() );
 		$renderedMath = $doc->htmlOuter();

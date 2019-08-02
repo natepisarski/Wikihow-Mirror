@@ -797,7 +797,7 @@ class QCRuleIntroImage extends QCRuleTextChange {
 		$popts = RequestContext::getMain()->getOutput()->parserOptions();
 		$popts->setTidy(true);
 		$magic = WikihowArticleHTML::grabTheMagic($text);
-		$parsed = RequestContext::getMain()->getOutput()->parse($text, $t, $popts);
+		$parsed = RequestContext::getMain()->getOutput()->parseAsContent($text);
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1010,7 +1010,7 @@ class QCRuleVideoChange extends QCRuleTextChange {
 		$popts = RequestContext::getMain()->getOutput()->parserOptions();
 		$popts->setTidy(true);
 		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
-		$parsed = RequestContext::getMain()->getOutput()->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
+		$parsed = RequestContext::getMain()->getOutput()->parseAsContent(ContentHandler::getContentText( $r->getContent() ) );
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1092,10 +1092,8 @@ class QCRuleRollback extends QCRule {
 		$html = "<div id='qc_box'>".$changedby.$html.$out->getHTML()."</div>";
 		$out->clearHTML();
 		$html .= "<div id='quickeditlink'></div>";
-		$popts = $out->parserOptions();
-		$popts->setTidy(true);
 		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
-		$parsed = $out->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
+		$parsed = $out->parseAsContent( ContentHandler::getContentText( $r->getContent() ) );
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1256,7 +1254,7 @@ class QCRCPatrol extends QCRule {
 		$popts = $out->parserOptions();
 		$popts->setTidy(true);
 		$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
-		$parsed = $out->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
+		$parsed = $out->parseAsContent(ContentHandler::getContentText( $r->getContent() ) );
 		$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 		$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 		$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1295,7 +1293,7 @@ class QCRuleTemplateChange extends QCRuleTextChange {
 
 		$part	 = $this->getPart();
 		$oldtext = $this->getLastRevisionText();
-		$newtext = $this->mRevision->getText();
+		$newtext = $this->mRevision->getContent()->getText();
 
 		$ret = false;
 		if ($this->textRemoved($part, $oldtext, $newtext)) {
@@ -1544,7 +1542,7 @@ class QCRuleTip extends QCRule {
 			$popts = $out->parserOptions();
 			$popts->setTidy(true);
 			$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $r->getContent() ));
-			$parsed = $out->parse(ContentHandler::getContentText( $r->getContent() ), $t, $popts);
+			$parsed = $out->parseAsContent(ContentHandler::getContentText( $r->getContent() ) );
 			$html .= WikihowArticleHTML::processArticleHTML($parsed, array('no-ads'=>1, 'ns' => $t->getNamespace(), 'magic-word' => $magic));
 			$html .= "<input type='hidden' name='qc_id' value='{$this->mResult->qc_id}'/>";
 			$html .= "<div id='numqcusers'>{$this->mUsers}</div>";
@@ -1892,7 +1890,7 @@ class QG extends SpecialPage {
 		$out->setHTMLTitle('Quality Guardian');
 		$out->addModules('ext.wikihow.UsageLogs');
 		$out->addModules('ext.wikihow.quality_guardian');
-		$out->addModules('ext.wikihow.diff_styles');
+		$out->addModuleStyles('ext.wikihow.diff_styles');
 		$out->addHTML(QuickNoteEdit::displayQuickEdit() . QuickNoteEdit::displayQuickNote(true));
 		$out->setHTMLTitle(wfMessage('quality_control')->text());
 		$out->setPageTitle(wfMessage('quality_control')->text());

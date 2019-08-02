@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on Jun 20, 2007
- *
  * Copyright © 2007 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
@@ -40,37 +36,63 @@ class ApiRollback extends ApiBase {
 	private $mUser = null;
 
 	public function execute() {
+		$this->useTransactionalTimeLimit();
+
+		$user = $this->getUser();
 		$params = $this->extractRequestParams();
 
-		// User and title already validated in call to getTokenSalt from Main
-		$titleObj = $this->getRbTitle();
+		$titleObj = $this->getRbTitle( $params );
 		$pageObj = WikiPage::factory( $titleObj );
 		$summary = $params['summary'];
-		$details = array();
+		$details = [];
+
+		// If change tagging was requested, check that the user is allowed to tag,
+		// and the tags are valid
+		if ( $params['tags'] ) {
+			$tagStatus = ChangeTags::canAddTagsAccompanyingChange( $params['tags'], $user );
+			if ( !$tagStatus->isOK() ) {
+				$this->dieStatus( $tagStatus );
+			}
+		}
+
+		// @TODO: remove this hack once rollback uses POST (T88044)
+		$fname = __METHOD__;
+		$trxLimits = $this->getConfig()->get( 'TrxProfilerLimits' );
+		$trxProfiler = Profiler::instance()->getTransactionProfiler();
+		$trxProfiler->redefineExpectations( $trxLimits['POST'], $fname );
+		DeferredUpdates::addCallableUpdate( function () use ( $trxProfiler, $trxLimits, $fname ) {
+			$trxProfiler->redefineExpectations( $trxLimits['PostSend-POST'], $fname );
+		} );
+
 		$retval = $pageObj->doRollback(
-			$this->getRbUser(),
+			$this->getRbUser( $params ),
 			$summary,
 			$params['token'],
 			$params['markbot'],
 			$details,
-			$this->getUser()
+			$user,
+			$params['tags']
 		);
 
 		if ( $retval ) {
-			// We don't care about multiple errors, just report one of them
-			$this->dieUsageMsg( reset( $retval ) );
+			$this->dieStatus( $this->errorArrayToStatus( $retval, $user ) );
 		}
 
-		$this->setWatch( $params['watchlist'], $titleObj );
+		$watch = $params['watchlist'] ?? 'preferences';
 
-		$info = array(
+		// Watch pages
+		$this->setWatch( $watch, $titleObj, 'watchrollback' );
+
+		$info = [
 			'title' => $titleObj->getPrefixedText(),
 			'pageid' => intval( $details['current']->getPage() ),
 			'summary' => $details['summary'],
 			'revid' => intval( $details['newid'] ),
+			// The revision being reverted (previously the current revision of the page)
 			'old_revid' => intval( $details['current']->getID() ),
+			// The revision being restored (the last revision before revision(s) by the reverted user)
 			'last_revid' => intval( $details['target']->getID() )
-		);
+		];
 
 		$this->getResult()->addValue( null, $this->getModuleName(), $info );
 	}
@@ -84,132 +106,104 @@ class ApiRollback extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'title' => array(
-				ApiBase::PARAM_TYPE => 'string',
+		return [
+			'title' => null,
+			'pageid' => [
+				ApiBase::PARAM_TYPE => 'integer'
+			],
+			'tags' => [
+				ApiBase::PARAM_TYPE => 'tags',
+				ApiBase::PARAM_ISMULTI => true,
+			],
+			'user' => [
+				ApiBase::PARAM_TYPE => 'user',
 				ApiBase::PARAM_REQUIRED => true
-			),
-			'user' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
-			'token' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
+			],
 			'summary' => '',
 			'markbot' => false,
-			'watchlist' => array(
+			'watchlist' => [
 				ApiBase::PARAM_DFLT => 'preferences',
-				ApiBase::PARAM_TYPE => array(
+				ApiBase::PARAM_TYPE => [
 					'watch',
 					'unwatch',
 					'preferences',
 					'nochange'
-				),
-			),
-		);
-	}
-
-	public function getParamDescription() {
-		return array(
-			'title' => 'Title of the page you want to rollback.',
-			'user' => 'Name of the user whose edits are to be rolled back. If ' .
-				'set incorrectly, you\'ll get a badtoken error.',
-			'token' => 'A rollback token previously retrieved through ' .
-				"{$this->getModulePrefix()}prop=revisions",
-			'summary' => 'Custom edit summary. If empty, default summary will be used',
-			'markbot' => 'Mark the reverted edits and the revert as bot edits',
-			'watchlist' => 'Unconditionally add or remove the page from your watchlist, ' .
-				'use preferences or do not change watch',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			'' => array(
-				'title' => 'string',
-				'pageid' => 'integer',
-				'summary' => 'string',
-				'revid' => 'integer',
-				'old_revid' => 'integer',
-				'last_revid' => 'integer'
-			)
-		);
-	}
-
-	public function getDescription() {
-		return array(
-			'Undo the last edit to the page. If the last user who edited the page made',
-			'multiple edits in a row, they will all be rolled back'
-		);
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'invalidtitle', 'title' ),
-			array( 'notanarticle' ),
-			array( 'invaliduser', 'user' ),
-		) );
+				],
+			],
+			'token' => [
+				// Standard definition automatically inserted
+				ApiBase::PARAM_HELP_MSG_APPEND => [ 'api-help-param-token-webui' ],
+			],
+		];
 	}
 
 	public function needsToken() {
-		return true;
+		return 'rollback';
 	}
 
-	public function getTokenSalt() {
-		return array( $this->getRbTitle()->getPrefixedText(), $this->getRbUser() );
-	}
-
-	private function getRbUser() {
+	/**
+	 * @param array $params
+	 *
+	 * @return string
+	 */
+	private function getRbUser( array $params ) {
 		if ( $this->mUser !== null ) {
 			return $this->mUser;
 		}
-
-		$params = $this->extractRequestParams();
 
 		// We need to be able to revert IPs, but getCanonicalName rejects them
 		$this->mUser = User::isIP( $params['user'] )
 			? $params['user']
 			: User::getCanonicalName( $params['user'] );
 		if ( !$this->mUser ) {
-			$this->dieUsageMsg( array( 'invaliduser', $params['user'] ) );
+			$this->dieWithError( [ 'apierror-invaliduser', wfEscapeWikiText( $params['user'] ) ] );
 		}
 
 		return $this->mUser;
 	}
 
 	/**
+	 * @param array $params
+	 *
 	 * @return Title
 	 */
-	private function getRbTitle() {
+	private function getRbTitle( array $params ) {
 		if ( $this->mTitleObj !== null ) {
 			return $this->mTitleObj;
 		}
 
-		$params = $this->extractRequestParams();
+		$this->requireOnlyOneParameter( $params, 'title', 'pageid' );
 
-		$this->mTitleObj = Title::newFromText( $params['title'] );
-
-		if ( !$this->mTitleObj || $this->mTitleObj->isExternal() ) {
-			$this->dieUsageMsg( array( 'invalidtitle', $params['title'] ) );
+		if ( isset( $params['title'] ) ) {
+			$this->mTitleObj = Title::newFromText( $params['title'] );
+			if ( !$this->mTitleObj || $this->mTitleObj->isExternal() ) {
+				$this->dieWithError( [ 'apierror-invalidtitle', wfEscapeWikiText( $params['title'] ) ] );
+			}
+		} elseif ( isset( $params['pageid'] ) ) {
+			$this->mTitleObj = Title::newFromID( $params['pageid'] );
+			if ( !$this->mTitleObj ) {
+				$this->dieWithError( [ 'apierror-nosuchpageid', $params['pageid'] ] );
+			}
 		}
+
 		if ( !$this->mTitleObj->exists() ) {
-			$this->dieUsageMsg( 'notanarticle' );
+			$this->dieWithError( 'apierror-missingtitle' );
 		}
 
 		return $this->mTitleObj;
 	}
 
-	public function getExamples() {
-		return array(
-			'api.php?action=rollback&title=Main%20Page&user=Catrope&token=123ABC',
-			'api.php?action=rollback&title=Main%20Page&user=217.121.114.116&' .
-				'token=123ABC&summary=Reverting%20vandalism&markbot=1'
-		);
+	protected function getExamplesMessages() {
+		return [
+			'action=rollback&title=Main%20Page&user=Example&token=123ABC' =>
+				'apihelp-rollback-example-simple',
+			'action=rollback&title=Main%20Page&user=192.0.2.5&' .
+				'token=123ABC&summary=Reverting%20vandalism&markbot=1' =>
+				'apihelp-rollback-example-summary',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Rollback';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Rollback';
 	}
 }

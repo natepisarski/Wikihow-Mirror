@@ -46,6 +46,7 @@
 	background-color: #f6f5f4;
 	margin-bottom: 25px;
 	position: relative;
+	overflow: auto;
 }
 
 .content .ar_category h3 {

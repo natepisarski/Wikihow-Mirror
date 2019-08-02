@@ -78,6 +78,10 @@ class ArticleStats extends SpecialPage {
 		}
 
 		$rev = Revision::newFromTitle($t);
+		if (!$rev) {
+			$out->addHTML(wfMessage("checkquality_titlenonexistant"));
+			return;
+		}
 		$wikitext = ContentHandler::getContentText( $rev->getContent() );
 		$section = $wgParser->getSection($wikitext, 0);
 		$intro_photo = preg_match('/\[\[Image:/', $section) == 1 ? wfMessage('articlestats_yes') : wfMessage('articlestats_no');
@@ -116,7 +120,7 @@ class ArticleStats extends SpecialPage {
 
 
 		$a = new Article($t);
-		$count = $a->getCount();
+		$count = $a->getPage()->getCount();
 		$pageviews = number_format($count, 0, "", ",");
 
 

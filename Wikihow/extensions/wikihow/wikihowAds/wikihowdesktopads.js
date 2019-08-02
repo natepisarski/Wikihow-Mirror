@@ -365,7 +365,7 @@ WH.desktopAds = (function () {
 			ad.target.appendChild(i);
 		}
 		var channels = ad.channels ? ad.channels: "";
-		(adsbygoogle = window.adsbygoogle || []).push({
+		(window.adsbygoogle = window.adsbygoogle || []).push({
 			params: {
 				google_ad_channel: channels
 			}

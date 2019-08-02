@@ -8,7 +8,7 @@ $wgExtensionCredits['parserhook'][] = array(
     'description'=>'Adds a parser function to add captions to images and videos',
 );
 
-$wgHooks['LanguageGetMagic'][] = 'ImageCaption::languageGetMagic';
+$wgExtensionMessagesFiles['ImageCaption'] = __DIR__ . '/ImageCaption.i18n.php';
 $wgAutoloadClasses['ImageCaption'] = __DIR__ . '/ImageCaption.class.php';
 $wgHooks['ParserFirstCallInit'][] = 'ImageCaption::setParserFunction';
 $wgHooks['BeforePageDisplay'][] = 'ImageCaption::onBeforePageDisplay';

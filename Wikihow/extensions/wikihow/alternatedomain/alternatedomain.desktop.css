@@ -53,6 +53,11 @@
 	display: none;
 }
 
+/* Remove edit links from all section headers on alt domains */
+.mw-editsection {
+	display: none;
+}
+
 /***** TECH DOMAIN ******/
 #tech_rating {
 	float: right;

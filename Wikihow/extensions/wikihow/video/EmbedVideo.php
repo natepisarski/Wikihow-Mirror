@@ -66,13 +66,8 @@ $wgExtensionCredits['parserhook'][] = array(
 
 $wgExtensionMessagesFiles['EmbedVideo'] = __DIR__ . '/EmbedVideo.i18n.php';
 
-$wgHooks['LanguageGetMagic'][] = 'wfEmbedVideoLanguageGetMagic';
+$wgHooks['ParserFirstCallInit'][] = 'wfEmbedVideoSetParserFunction';
 
-if ( defined( 'MW_SUPPORTS_PARSERFIRSTCALLINIT' ) ) {
-	$wgHooks['ParserFirstCallInit'][] = 'wfEmbedVideoSetParserFunction';
-} else {
-	$wgExtensionFunctions[] = "wfEmbedVideoSetParserFunction";
-}
 $wgEmbedVideoServiceList = array(
 	'dailymotion' => array(
 		'url' => '//www.dailymotion.com/embed/video/$1'
@@ -118,104 +113,97 @@ $wgEmbedVideoServiceList = array(
 
 //</source>
 
-  function wfEmbedVideoSetParserFunction () {
-		# Setup parser hook
-		global $wgParser;
-		$wgParser->setFunctionHook( 'ev', 'wfEmbedVideoParserFunction' );
-		return true;
-	}
+function wfEmbedVideoSetParserFunction($parser) {
+	$parser->setFunctionHook( 'ev', 'wfEmbedVideoParserFunction' );
+	return true;
+}
 
-	function wfEmbedVideoLanguageGetMagic( &$magicWords ) {
-		$magicWords['ev'] = array( 0, 'ev' );
-		return true;
-	}
-	function wfEmbedVideoParserFunction( $parser, $service=null, $id=null, $width=null ) {
-		global $wgTitle;
-		if ($service===null || $id===null) return '<div class="errorbox">'.wfMessage('embedvideo-missing-params')->text().'</div>';
+function wfEmbedVideoParserFunction( $parser, $service=null, $id=null, $width=null ) {
+	global $wgTitle;
+	if ($service===null || $id===null) return '<div class="errorbox">'.wfMessage('embedvideo-missing-params')->text().'</div>';
 
-		$params = array(
-			'service' => trim($service),
-			'id' => trim($id),
-			'width' => ($width===null?null:trim($width)),
-		);
+	$params = array(
+		'service' => trim($service),
+		'id' => trim($id),
+		'width' => ($width===null?null:trim($width)),
+	);
 
-		global $wgEmbedVideoMinWidth, $wgEmbedVideoMaxWidth;
-		if (!is_numeric($wgEmbedVideoMinWidth) || $wgEmbedVideoMinWidth<100) $wgEmbedVideoMinWidth = 100;
-		if (!is_numeric($wgEmbedVideoMaxWidth) || $wgEmbedVideoMaxWidth>1024) $wgEmbedVideoMaxWidth = 1024;
+	global $wgEmbedVideoMinWidth, $wgEmbedVideoMaxWidth;
+	if (!is_numeric($wgEmbedVideoMinWidth) || $wgEmbedVideoMinWidth<100) $wgEmbedVideoMinWidth = 100;
+	if (!is_numeric($wgEmbedVideoMaxWidth) || $wgEmbedVideoMaxWidth>1024) $wgEmbedVideoMaxWidth = 1024;
 
-		global $wgEmbedVideoServiceList;
-		$service = $wgEmbedVideoServiceList[$params['service']];
-		if (!$service) return '<div class="errorbox">'.wfMessage('embedvideo-unrecognized-service', @htmlspecialchars($params['service']))->text().'</div>';
+	global $wgEmbedVideoServiceList;
+	$service = $wgEmbedVideoServiceList[$params['service']];
+	if (!$service) return '<div class="errorbox">'.wfMessage('embedvideo-unrecognized-service', @htmlspecialchars($params['service']))->text().'</div>';
 
-		$id = htmlspecialchars($params['id']);
-		$idpattern = ( isset($service['id_pattern']) ? $service['id_pattern'] : '%[^A-Za-z0-9_\\-]%' );
+	$id = htmlspecialchars($params['id']);
+	$idpattern = ( isset($service['id_pattern']) ? $service['id_pattern'] : '%[^A-Za-z0-9_\\-]%' );
 #echo wfBacktrace(); print_r($params); echo $id; exit;
-		if ($id==null || ($idpattern != '' &&preg_match($idpattern,$id))) {
-			return '<div class="errorbox">'.wfMessage('embedvideo-bad-id', $id, @htmlspecialchars($params['service']))->inContentLanguage()->text().'</div>';
-		}
-
-		# Build URL and output embedded flash object
-		$ratio = 425 / 350;
-		$width = 425;
-
-		if ($params['width']!==null) {
-			if (
-				!is_numeric($params['width']) ||
-				$params['width'] < $wgEmbedVideoMinWidth ||
-				$params['width'] > $wgEmbedVideoMaxWidth
-			) return
-				'<div class="errorbox">'.
-				wfMessage('embedvideo-illegal-width', @htmlspecialchars($params['width']))->inContentLanguage()->text().
-				'</div>';
-			$width = $params['width'];
-		}
-		$height = round($width / $ratio);
-
-		// TODO: test with this instead
-		// $url = RawMessage( $service['url'] )->params( [$id, $width, $height] )->plain();
-		$url = wfMsgReplaceArgs($service['url'], array($id, $width, $height));
-
-		if ($params['service'] == 'youtube' || $params['service'] == 'whyoutube') {
-			$pOut = $parser->getOutput();
-			$pOut->addOutputHook( 'ampEmbedVideoParserOutputHook' );
-		}
-		if ($params['service'] == 'videojug') {
-			return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-videojug', $url, $width, $height)->inContentLanguage()->text());
-		} elseif ($params['service'] == 'popcorn') {
-				return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-popcorn', $url, $width, $height)->inContentLanguage()->text());
-		} elseif ($params['service'] == 'wonderhowto') {
-			$id = str_replace("&61;", "=", htmlspecialchars_decode($id));
-			// youtube now requires a ? after the http://www.youtube.com/v/[^?&]+). If you use
-			// an ampersand things will autoplay.  Very bad!
-			$id = preg_replace("@(https?://www.youtube.com/v/[^?&]+)(&)autoplay=@", "$1?", $id);
-			return $parser->insertStripItem( $id );
-		} elseif ($params['service'] == 'howcast') {
-			return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-howcast', $url, $width, $height)->inContentLanguage()->text());
-		} elseif ($params['service'] == '5min') {
-			return "";
-		} else {
-			$gdprWarningText = wfMessage( 'embedvideo-gdpr' )->text();
-
-			$html = Html::rawElement( 'input', ['type'=>'checkbox', 'class' => 'gdpr_only', 'id'=>'show_embedvideo_gdpr_block'] );
-			$html .= Html::rawElement( 'label', ['for'=>'show_embedvideo_gdpr_block', 'class'=>'embedvideo_gdpr_label gdpr_only'], '.' );
-			$html .= Html::rawElement( 'div', ['class'=> 'embedvideo_gdpr_message gdpr_only'], $gdprWarningText );
-			$gdprWarning = Html::rawElement( 'div', ['class'=>'embedvideo_gdpr'], $html );
-			/*
-			$id = 'ev_'.wfRandomString(4);
-			$attr = array(
-				'role' => 'button',
-				'aria-pressed' => 'false',
-				'aria-expanded' => 'false',
-				'aria-controls' => $id,
-			);
-			$html = Html::rawElement( 'button', $attr, 'i' );
-			$html .= Html::rawElement( 'div', ['aria-hidden'=>'true'], $gdprWarningText );
-			$gdprWarning = Html::rawElement( 'div', ['class'=>'embedvideo_gdpr gdpr_only'], $html );
-			 */
-			return $parser->insertStripItem( $gdprWarning . wfMessage('embedvideo-embed-clause', $url, $width, $height)->inContentLanguage()->text());
-		}
-		#return wfMessage('embedvideo-embed-clause', $url, $width, $height)->inContentLanguage()->text();
+	if ($id==null || ($idpattern != '' &&preg_match($idpattern,$id))) {
+		return '<div class="errorbox">'.wfMessage('embedvideo-bad-id', $id, @htmlspecialchars($params['service']))->inContentLanguage()->text().'</div>';
 	}
 
+	# Build URL and output embedded flash object
+	$ratio = 425 / 350;
+	$width = 425;
 
+	if ($params['width']!==null) {
+		if (
+			!is_numeric($params['width']) ||
+			$params['width'] < $wgEmbedVideoMinWidth ||
+			$params['width'] > $wgEmbedVideoMaxWidth
+		) return
+			'<div class="errorbox">'.
+			wfMessage('embedvideo-illegal-width', @htmlspecialchars($params['width']))->inContentLanguage()->text().
+			'</div>';
+		$width = $params['width'];
+	}
+	$height = round($width / $ratio);
 
+	// TODO: test with this instead
+	// $url = RawMessage( $service['url'] )->params( [$id, $width, $height] )->plain();
+	$url = wfMsgReplaceArgs($service['url'], array($id, $width, $height));
+
+	if ($params['service'] == 'youtube' || $params['service'] == 'whyoutube') {
+		$pOut = $parser->getOutput();
+		$pOut->addOutputHook( 'ampEmbedVideoParserOutputHook' );
+	}
+	if ($params['service'] == 'videojug') {
+		return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-videojug', $url, $width, $height)->inContentLanguage()->text());
+	} elseif ($params['service'] == 'popcorn') {
+			return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-popcorn', $url, $width, $height)->inContentLanguage()->text());
+	} elseif ($params['service'] == 'wonderhowto') {
+		$id = str_replace("&61;", "=", htmlspecialchars_decode($id));
+		// youtube now requires a ? after the http://www.youtube.com/v/[^?&]+). If you use
+		// an ampersand things will autoplay.  Very bad!
+		$id = preg_replace("@(https?://www.youtube.com/v/[^?&]+)(&)autoplay=@", "$1?", $id);
+		return $parser->insertStripItem( $id );
+	} elseif ($params['service'] == 'howcast') {
+		return $parser->insertStripItem( wfMessage('embedvideo-embed-clause-howcast', $url, $width, $height)->inContentLanguage()->text());
+	} elseif ($params['service'] == '5min') {
+		return "";
+	} else {
+		$gdprWarningText = wfMessage( 'embedvideo-gdpr' )->text();
+
+		$html = Html::rawElement( 'input', ['type'=>'checkbox', 'class' => 'gdpr_only', 'id'=>'show_embedvideo_gdpr_block'] );
+		$html .= Html::rawElement( 'label', ['for'=>'show_embedvideo_gdpr_block', 'class'=>'embedvideo_gdpr_label gdpr_only'], '.' );
+		$html .= Html::rawElement( 'div', ['class'=> 'embedvideo_gdpr_message gdpr_only'], $gdprWarningText );
+		$gdprWarning = Html::rawElement( 'div', ['class'=>'embedvideo_gdpr'], $html );
+		/*
+		$id = 'ev_'.wfRandomString(4);
+		$attr = array(
+			'role' => 'button',
+			'aria-pressed' => 'false',
+			'aria-expanded' => 'false',
+			'aria-controls' => $id,
+		);
+		$html = Html::rawElement( 'button', $attr, 'i' );
+		$html .= Html::rawElement( 'div', ['aria-hidden'=>'true'], $gdprWarningText );
+		$gdprWarning = Html::rawElement( 'div', ['class'=>'embedvideo_gdpr gdpr_only'], $html );
+		 */
+		$html = wfMessage('embedvideo-embed-clause', $url, $width, $height)->inContentLanguage()->text();
+		return $parser->insertStripItem( $gdprWarning . $html );
+
+	}
+	#return wfMessage('embedvideo-embed-clause', $url, $width, $height)->inContentLanguage()->text();
+}

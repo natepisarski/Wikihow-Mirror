@@ -1,8 +1,7 @@
 <?php
 /** Kashmiri (Arabic script) (کٲشُر)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
+ * To improve a translation please visit https://translatewiki.net
  *
  * @ingroup Language
  * @file
@@ -14,10 +13,9 @@
 
 $rtl = true;
 
-$namespaceNames = array(
+$namespaceNames = [
 	NS_MEDIA            => 'میڈیا',
 	NS_SPECIAL          => 'خاص',
-	NS_MAIN             => '',
 	NS_TALK             => 'بَحَژ',
 	NS_USER             => 'رُکُن',
 	NS_USER_TALK        => 'رُکُن_بَحَژ',
@@ -32,81 +30,22 @@ $namespaceNames = array(
 	NS_HELP_TALK        => 'پَلزُن_بَحَژ',
 	NS_CATEGORY         => 'زٲژ',
 	NS_CATEGORY_TALK    => 'زٲژ_بَحَژ',
-);
+];
 
-$digitTransformTable = array(
-	'0' => '٠', # &#x0660;
-	'1' => '١', # &#x0661;
-	'2' => '٢', # &#x0662;
-	'3' => '٣', # &#x0663;
-	'4' => '٤', # &#x0664;
-	'5' => '٥', # &#x0665;
-	'6' => '٦', # &#x0666;
-	'7' => '٧', # &#x0667;
-	'8' => '٨', # &#x0668;
-	'9' => '٩', # &#x0669;
-);
+$digitTransformTable = [
+	'0' => '٠', # U+0660
+	'1' => '١', # U+0661
+	'2' => '٢', # U+0662
+	'3' => '٣', # U+0663
+	'4' => '٤', # U+0664
+	'5' => '٥', # U+0665
+	'6' => '٦', # U+0666
+	'7' => '٧', # U+0667
+	'8' => '٨', # U+0668
+	'9' => '٩', # U+0669
+];
 
-$separatorTransformTable = array(
-	'.' => '٫', # &#x066b;
-	',' => '٬', # &#x066c;
-);
-
-$messages = array(
-# Dates
-'monday' => 'ژِنٛدٕروار',
-'january' => 'جنوری',
-'february' => 'فرؤری',
-'march' => 'مارچ',
-'april' => 'اپریٖل',
-'may_long' => 'مٔی',
-'june' => 'جوٗن',
-'july' => 'جولائی',
-'august' => 'اَگست',
-'september' => 'سیٚپٹَمبَر',
-'october' => 'اکتوبر',
-'november' => 'نَوَمبَر',
-'december' => 'ڈیٚسَمبَر',
-'jan' => 'جنوری',
-
-'about' => 'مُتعلِق',
-
-# Vector skin
-'vector-view-edit' => 'تَرتیٖب دِیُن',
-'vector-view-view' => 'پَرُن',
-
-'help' => 'مدد',
-'search' => 'ژھارُن',
-'searchbutton' => 'ژھارُن',
-'history_short' => 'توٲریٖخ',
-'talkpagelinktext' => 'بَحَژ',
-'talk' => 'بَحَژ',
-'toolbox' => 'اَوزار',
-'otherlanguages' => 'باقیَن زَبانَن منٛز',
-'jumptosearch' => 'ژھارُن',
-
-# All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage).
-'aboutsite' => 'مُتعلِق {{SITENAME}}',
-'mainpage' => 'گَرٕ',
-'mainpage-description' => 'اہم صَفہٕ',
-
-# Short words for each namespace, by default used in the namespace tab in monobook
-'nstab-main' => 'صَفہٕ',
-'nstab-category' => 'زٲژ',
-
-# Edit pages
-'summary' => 'خُلاسہٕ:',
-
-# Recent changes
-'recentchanges' => 'نَوِ تبدیلی',
-
-# Upload
-'filedesc' => 'خُلاسہٕ',
-
-'sp-contributions-talk' => 'بَحَژ',
-'sp-contributions-submit' => 'ژھارُن',
-
-# Namespace 8 related
-'allmessagesname' => 'ناو',
-
-);
+$separatorTransformTable = [
+	'.' => '٫', # U+066B
+	',' => '٬', # U+066C
+];

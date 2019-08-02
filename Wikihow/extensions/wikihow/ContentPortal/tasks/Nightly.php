@@ -82,8 +82,9 @@ class Nightly extends CLI {
 			self::trace($recips, 'green');
 		}
 
-		foreach($recips as $to) {
-			UserMailer::send($to, $from, 'article sync', $body, null, 'text/html; charset=utf8');
+		foreach ($recips as $to) {
+			$opts = ['contentType' => 'text/html; charset=utf8'];
+			UserMailer::send($to, $from, 'article sync', $body, $opts);
 		}
 		self::trace(UserMailer::$mErrorString);
 	}

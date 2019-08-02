@@ -50,7 +50,21 @@ class WikihowArticleHTML {
 		$doc = phpQuery::newDocument($body);
 		$context = RequestContext::getMain();
 
-
+		// Remove the mw-parser-output div since it breaks our stuff
+		//
+		// REUBEN NOTE: mw-parser-output comes from a new thing in the MW parser
+		// which wraps output in a bunch of places with mw-parser-output. We are
+		// unwrapping the output here, but a better long solution would probably
+		// be to not generate the extra div in the first place. The MW 1.30
+		// Release Notes say something about this, and we should use this
+		// mechanism to no longer wrap the output in general.
+		//
+		// From the release notes:
+		// * (T37247) Output from Parser::parse() will now be wrapped in a div with
+		//   class="mw-parser-output" by default. This may be changed or disabled using
+		//   ParserOptions::setWrapOutputClass().
+		pq(".mw-parser-output")->parent()->append(pq(".mw-parser-output")->html());
+		pq(".mw-parser-output")->remove();
 		Hooks::run('WikihowArticleBeforeProcessBody', array( $title ) );
 
 		$featurestar = pq("div#featurestar");
@@ -98,7 +112,11 @@ class WikihowArticleHTML {
 		}
 
 		//remove top edit link
-		pq("#intro .editsection")->remove();
+		pq("#intro .mw-editsection")->remove();
+		//remove edit section brackets
+		pq(".mw-editsection-bracket")->remove();
+		//remove edit links for anons
+		if ($user->isAnon()) pq('.mw-editsection')->remove();
 
 		// The "whcdn" class is added to all <img> tags whose src contents
 		// should pull from the whstatic.com (CDN) domain. We apply this change
@@ -224,7 +242,7 @@ class WikihowArticleHTML {
 						pq($node)->addClass("hidden");
 					}
 
-					$stepsEditUrl = pq('.editsection', $node)->attr("href");
+					$stepsEditUrl = pq('.mw-editsection a', $node)->attr("href");
 
 					$displayMethodCount = $h3Count;
 					$isSample = array();
@@ -290,7 +308,7 @@ class WikihowArticleHTML {
 						//want to change the url for the edit link to
 						//edit the whole steps section, not just the
 						//alternate method
-						pq(".editsection", $h3Tags[$i])->attr("href", $stepsEditUrl);
+						pq(".mw-editsection a", $h3Tags[$i])->attr("href", $stepsEditUrl);
 
 						$sample = $isSample[$i] ? "sample" : "";
 
@@ -407,12 +425,47 @@ class WikihowArticleHTML {
 			}
 		}
 
+		/* MW UPGRADE (Alberto)
+		The parser inserts empty <span> elements in section headings (h2, h3) that contain
+		single quotes. They are not needed, so we remove them. Examples:
+
+		===  Some ' Step ===
+		<span id="Some-'-Step"></span>
+		<span class="mw-headline" id="Some-.27-Step">Some ' Step</span>
+
+		== Things You'll Need ==
+		<span id="Things-You'll-Need"></span>
+		<span class="mw-headline" id="Things-You.27ll-Need">Things You'll Need</span>
+		*/
+		pq('.section > h2 > span:empty:not([class])')->remove();
+		pq('.section > h3 > span:empty:not([class])')->remove();
 
 		//add a clear to the end of each section_text to make sure
 		//images don't bleed across the bottom
 		pq(".section_text")->append("<div class='clearall'></div>");
 
+
+		// Change ids for ingredients and things you'll need so CSS and other stuff works on intl
+		if ( Misc::isIntl() ) {
+
+			$canonicalIngredients = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('ingredients')->text());
+			pq("#" . $canonicalIngredients)->attr('id', 'ingredients');
+
+			// Thing you'll need fixing code goes haywire on Hindi, so take it out
+			if ($langCode != 'hi') {
+				$canonicalThings = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('thingsyoullneed')->text());
+				pq($headingId)->attr('id', 'thingsyoullneed');
+			}
+
+			pq("#" . mb_strtolower(wfMessage('video')))->attr('id', 'video');
+		}
+
+
 		Hooks::run('AtAGlanceTest', array( $title ) );
+
+		//remove edit links from ingredients and things you'll need section headers
+		pq('#ingredients h3 .mw-editsection, #thingsyoullneed h3 .mw-editsection')->remove();
+
 
 		// Add checkboxes to Ingredients and 'Things You Need' sections, but only to the top-most li
 		$lis = pq('#ingredients > ul > li, #thingsyoullneed > ul > li');
@@ -438,6 +491,11 @@ class WikihowArticleHTML {
 			pq('.template_top')->insertAfter('#intro');
 		}
 
+
+		if ( $req->getVal('action', 'view') == 'view' && !$isMainPage && $opts['ns'] == NS_MAIN ) {
+			$out->addModules(['ext.wikihow.rating_sidebar']);
+			$out->addModuleStyles(['ext.wikihow.rating_sidebar.styles']);
+		}
 
 		if (class_exists("StepEditorParser")) {
 			$stepEditorHelper = new StepEditorParser($title, 0, $out);
@@ -502,6 +560,9 @@ class WikihowArticleHTML {
 			// find the mwimg so we can move the video into it
 			// as it is a wrapper to our img and video elements
 			$mwimg = $mVideo->nextAll( ".mwimg:first" );
+
+			// Remove floatright to prevent conflict with other styling aimed at actual images
+			$mwimg->removeClass( 'floatright' );
 
 			// move the js snippet into the mwimg
 			$mVideo->next( 'script' )->insertAfter( $mwimg );
@@ -635,7 +696,7 @@ class WikihowArticleHTML {
 			if (strlen($titleText) > 49) {
 				$titleText = mb_substr($titleText, 0, 46) . '...';
 			}
-			pq("#quick_summary_section h2 span")->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
+			pq("#quick_summary_section h2 span.mw-headline")->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
 			pq( "#quick_summary_section")->addClass("summary_with_video");
 
 			// Structured data
@@ -750,6 +811,7 @@ class WikihowArticleHTML {
 		if ( pq("#video")->find('iframe')->length < 1 ) {
 			pq(".video")->remove();
 		}
+
 		// remove the empty <p> after the video
 		if ( pq("#video")->children('p:first')->text() == "" ) {
 			pq("#video")->children('p:first')->remove();
@@ -763,6 +825,7 @@ class WikihowArticleHTML {
 			pq( $node )->parents( '.section:first' )->find( '.mw-headline:first' )->after( pq( $node )->html() );
 		}
 		pq( ".embedvideo_gdpr" )->remove();
+
 		// Truncate the list of sources/citations and show a link to expand it
 		$sourcestext = wfMessage("sources")->text();
 		$sourcesId = str_replace( [' ','(',')'], "", mb_strtolower($sourcestext));
@@ -1094,11 +1157,6 @@ class WikihowArticleHTML {
 		//let's mark each bodycontents section so we can target it with CSS
 		if ($action) pq("#bodycontents")->addClass("bc_".$action);
 
-		//default each mw-htmlform-submit button to a primary button
-		//gotta clear too because we're floating it now
-		pq(".mw-htmlform-submit")->addClass("primary button buttonright");
-		pq(".mw-htmlform-submit")->after("<div class='clearall'></div>");
-
 		//adds CSS to Cancel Upload and Upload Ignore Warning buttons,removes them from DOM, and adds them above clearall div`
 		$pqButtons = pq("[name='wpCancelUpload'], [name='wpUploadIgnoreWarning]")->addClass("button buttonright");
 		$pqButtons->remove();
@@ -1287,6 +1345,7 @@ class WikihowArticleHTML {
 
 		$punct = "!\.\?\:"; # valid ways of ending a sentence for bolding
 		$i = strpos($body, '<div id="steps"');
+		$j = false;
 		if ($i !== false) {
 			$j = strpos($body, '<div id=', $i+5); //find the position of the next div. Starting after the '<div ' (5 characters)
 			$sub = "sd_"; //want to skip over the samples section if they're there

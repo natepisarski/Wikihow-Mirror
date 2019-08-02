@@ -29,13 +29,13 @@ class Autopromote {
 	/**
 	 * Get the groups for the given user based on $wgAutopromote.
 	 *
-	 * @param $user User The user to get the groups for
+	 * @param User $user The user to get the groups for
 	 * @return array Array of groups to promote to.
 	 */
 	public static function getAutopromoteGroups( User $user ) {
 		global $wgAutopromote;
 
-		$promote = array();
+		$promote = [];
 
 		foreach ( $wgAutopromote as $group => $cond ) {
 			if ( self::recCheckCondition( $cond, $user ) ) {
@@ -43,7 +43,7 @@ class Autopromote {
 			}
 		}
 
-		wfRunHooks( 'GetAutoPromoteGroups', array( $user, &$promote ) );
+		Hooks::run( 'GetAutoPromoteGroups', [ $user, &$promote ] );
 
 		return $promote;
 	}
@@ -53,8 +53,8 @@ class Autopromote {
 	 *
 	 * Does not return groups the user already belongs to or has once belonged.
 	 *
-	 * @param $user User The user to get the groups for
-	 * @param string $event key in $wgAutopromoteOnce (each one has groups/criteria)
+	 * @param User $user The user to get the groups for
+	 * @param string $event Key in $wgAutopromoteOnce (each one has groups/criteria)
 	 *
 	 * @return array Groups the user should be promoted to.
 	 *
@@ -63,7 +63,7 @@ class Autopromote {
 	public static function getAutopromoteOnceGroups( User $user, $event ) {
 		global $wgAutopromoteOnce;
 
-		$promote = array();
+		$promote = [];
 
 		if ( isset( $wgAutopromoteOnce[$event] ) && count( $wgAutopromoteOnce[$event] ) ) {
 			$currentGroups = $user->getGroups();
@@ -99,12 +99,12 @@ class Autopromote {
 	 * This function evaluates the former type recursively, and passes off to
 	 * self::checkCondition for evaluation of the latter type.
 	 *
-	 * @param $cond Mixed: a condition, possibly containing other conditions
-	 * @param $user User The user to check the conditions against
+	 * @param mixed $cond A condition, possibly containing other conditions
+	 * @param User $user The user to check the conditions against
 	 * @return bool Whether the condition is true
 	 */
 	private static function recCheckCondition( $cond, User $user ) {
-		$validOps = array( '&', '|', '^', '!' );
+		$validOps = [ '&', '|', '^', '!' ];
 
 		if ( is_array( $cond ) && count( $cond ) >= 2 && in_array( $cond[0], $validOps ) ) {
 			# Recursive condition
@@ -144,7 +144,7 @@ class Autopromote {
 		// If we got here, the array presumably does not contain other conditions;
 		// it's not recursive.  Pass it off to self::checkCondition.
 		if ( !is_array( $cond ) ) {
-			$cond = array( $cond );
+			$cond = [ $cond ];
 		}
 
 		return self::checkCondition( $cond, $user );
@@ -156,7 +156,7 @@ class Autopromote {
 	 * APCOND_AGE.  Other types will throw an exception if no extension evaluates them.
 	 *
 	 * @param array $cond A condition, which must not contain other conditions
-	 * @param $user User The user to check the condition against
+	 * @param User $user The user to check the condition against
 	 * @throws MWException
 	 * @return bool Whether the condition is true for the user
 	 */
@@ -177,7 +177,13 @@ class Autopromote {
 				}
 				return false;
 			case APCOND_EDITCOUNT:
-				return $user->getEditCount() >= $cond[1];
+				$reqEditCount = $cond[1];
+
+				// T157718: Avoid edit count lookup if specified edit count is 0 or invalid
+				if ( $reqEditCount <= 0 ) {
+					return true;
+				}
+				return $user->getEditCount() >= $reqEditCount;
 			case APCOND_AGE:
 				$age = time() - wfTimestampOrNull( TS_UNIX, $user->getRegistration() );
 				return $age >= $cond[1];
@@ -197,7 +203,8 @@ class Autopromote {
 				return in_array( 'bot', User::getGroupPermissions( $user->getGroups() ) );
 			default:
 				$result = null;
-				wfRunHooks( 'AutopromoteCondition', array( $cond[0], array_slice( $cond, 1 ), $user, &$result ) );
+				Hooks::run( 'AutopromoteCondition', [ $cond[0],
+					array_slice( $cond, 1 ), $user, &$result ] );
 				if ( $result === null ) {
 					throw new MWException( "Unrecognized condition {$cond[0]} for autopromotion!" );
 				}

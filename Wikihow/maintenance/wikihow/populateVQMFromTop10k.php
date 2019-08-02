@@ -1,20 +1,25 @@
 <?php
-
+#
 # Load the verified query matches from the spreadhseet into the database
-require_once('../commandLine.inc');
-global $IP;
+#
+
+require_once __DIR__ . '/../Maintenance.php';
 
 require_once("$IP/extensions/wikihow/titus/GoogleSpreadsheet.class.php");
-require_once("$IP/extensions/wikihow/titus/Titus.class.php");
 
-class VQMFromTop10k {
+class VQMFromTop10k extends Maintenance {
+
+	public function execute() {
+		$this->processSpreadsheet();
+	}
 
 	public static function addQueryMatch($query1, $query2) {
 		$dbw = wfGetDB(DB_MASTER);
 		$sql = "insert ignore into dedup.verified_query_match(vqm_query1, vqm_query2, vqm_date_added) values(" . $dbw->addQuotes($query1) . "," . $dbw->addQuotes($query2) . "," . $dbw->addQuotes(wfTimestampNow()) . ")";
 		$dbw->query($sql, __METHOD__);
 	}
-	public function execute() {
+
+	public function processSpreadsheet() {
 		$gs = new GoogleSpreadsheet();
 		$startColumn = 1;
 		$endColumn = 5;
@@ -24,7 +29,7 @@ class VQMFromTop10k {
 			if ($col[2] == "en" ) {
 				$queries =  preg_split("@, *@",$col[0]);
 				$url = $col[4];
-				if(preg_match("@http://www\.wikihow\.com/(.+)@", $url, $matches)) {
+				if (preg_match("@https?://www\.wikihow\.com/(.+)@", $url, $matches)) {
 					$titleKW = "how to " . str_replace("-"," ",urldecode($matches[1]));
 					if ( !in_array($titleKW, $queries) ) {
 						$queries[] = $titleKW;
@@ -40,5 +45,5 @@ class VQMFromTop10k {
 	}
 }
 
-$v = new VQMFromTop10k();
-$v->execute();
+$maintClass = 'VQMFromTop10k';
+require_once RUN_MAINTENANCE_IF_MAIN;

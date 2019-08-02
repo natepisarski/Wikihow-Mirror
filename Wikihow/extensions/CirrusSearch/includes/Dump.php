@@ -2,7 +2,8 @@
 
 namespace CirrusSearch;
 
-use \FormlessAction;
+use MediaWiki\MediaWikiServices;
+use FormlessAction;
 
 /**
  * action=cirrusDump handler.  Dumps contents of Elasticsearch indexes for the
@@ -31,33 +32,55 @@ class Dump extends FormlessAction {
 		$response = $this->getRequest()->response();
 		$response->header( 'Content-type: application/json; charset=UTF-8' );
 
-		$searcher = new Searcher( 0, 0, false, $this->getUser() );
-		$id = $this->getTitle()->getArticleID();
-		$esSources = $searcher->get( array( $id ), true );
-		if ( !$esSources->isOk() ) {
+		$config = MediaWikiServices::getInstance()
+			->getConfigFactory()
+			->makeConfig( 'CirrusSearch' );
+		/** @phan-suppress-next-line PhanTypeMismatchArgument $config is actually a SearchConfig */
+		$conn = new Connection( $config );
+		/** @phan-suppress-next-line PhanTypeMismatchArgument $config is actually a SearchConfig */
+		$searcher = new Searcher( $conn, 0, 0, $config, [], $this->getUser() );
+
+		/** @phan-suppress-next-line PhanUndeclaredMethod Phan doesn't know $config is a SearchConfig */
+		$docId = $config->makeId( $this->getTitle()->getArticleID() );
+		$esSources = $searcher->get( [ $docId ], true );
+		if ( !$esSources->isOK() ) {
 			// Exception has been logged
 			echo '{}';
 			return null;
 		}
 		$esSources = $esSources->getValue();
 
-		$result = array();
+		$result = [];
 		foreach ( $esSources as $esSource ) {
-			$result[ $esSource->getIndex() ] = $esSource->getData();
+			$result[] = [
+				'_index' => $esSource->getIndex(),
+				'_type' => $esSource->getType(),
+				'_id' => $esSource->getId(),
+				'_version' => $esSource->getVersion(),
+				'_source' => $esSource->getData(),
+			];
 		}
 		echo json_encode( $result );
-
 		return null;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getName() {
 		return 'cirrusdump';
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function requiresWrite() {
 		return false;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function requiresUnblock() {
 		return false;
 	}

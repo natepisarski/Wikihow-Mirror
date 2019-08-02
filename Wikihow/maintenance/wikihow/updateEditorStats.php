@@ -42,9 +42,14 @@ $createdLevels = array(1, 5, 10, 50, 100, 300, 500, 1000, 5000, 10000);
 $patrolLevels = array(10000, 50000, 100000, 300000, 500000, 1000000);
 $nabLevels = array(50000, 100000, 300000, 500000);
 
-echo "In update_editor_stats with " . $argv[0] . "\n";
+if (count($argv) < 2) {
+	die('usage: updateEditorStats.php populate|startup|update [date]');
+}
+$cmd = $argv[1];
 
-if ($argv[0] == "populate") {
+echo "In update_editor_stats with " . $cmd . "\n";
+
+if ($cmd == "populate") {
 	//poplulate the db with stats between the given dates
 	//this is really just used for testing
 	$startDate = getLastDate($dbr);
@@ -64,7 +69,7 @@ if ($argv[0] == "populate") {
 	return;
 
 }
-elseif ($argv[0] == "startup") {
+elseif ($cmd == "startup") {
 	//This is used to fill up the table for the first time.
 	$sql = "TRUNCATE {$table}";
 	$dbw->query($sql);
@@ -104,15 +109,15 @@ elseif ($argv[0] == "startup") {
 	echo "\n\nFINISHED STARTUP\n\n";
 	return;
 }
-elseif ($argv[0] == "update") {
+elseif ($cmd == "update") {
 	//This is used to update the table from the last date
 	//data was entered until now
 
 	echo "\n\nSTARTING UPDATE\n\n";
 
 	$startDate = getLastDate($dbr);
-	if ($argv[1] != null && preg_match('@[^0-9]@', $endDate) == 0)
-		$now = $argv[1] . "000000";
+	if ($cmd != null && preg_match('@[^0-9]@', $cmd) == 0)
+		$now = $cmd . "000000";
 	else
 		$now = wfTimestamp(TS_MW, time());
 
@@ -260,10 +265,9 @@ function createEmail(&$editedStats, &$createdStats, &$nabStats, &$patrolStats, &
 	$to = new MailAddress("reports@wikihow.com");
 	$from = new MailAddress("reports@wikihow.com");
 	$subject = "Editor Stats";
-	$content_type = "text/html; charset=UTF-8";
+	$opts = ['contentType' => "text/html; charset=UTF-8"];
 
-	UserMailer::send($to, $from, $subject, $email, null, $content_type);
-
+	UserMailer::send($to, $from, $subject, $email, $opts);
 }
 
 function getUser(&$users, $userId) {
@@ -280,7 +284,7 @@ function getStats(&$dbr) {
 
 	$res = $dbr->select($table, '*', '', __METHOD__);
 	$stats = array();
-	while ($row = $dbr->fetchObject($res) ) {
+	foreach ($res as $row) {
 		$stats[$row->es_user] = array();
 		$stats[$row->es_user]['edited'] = $row->es_edits;
 		$stats[$row->es_user]['created'] = $row->es_created;
@@ -419,7 +423,7 @@ function updateStats(&$dbw, &$dbr, $startDate = null, $endDate = null) {
 
 function addData(&$stats, $userId, $field) {
 	if ($userId > 0) {
-		if ($stats[$userId] == null){
+		if ( !isset($stats[$userId]) ) {
 			$stats[$userId] = array();
 			$stats[$userId]['edits'] = 0;
 			$stats[$userId]['created'] = 0;

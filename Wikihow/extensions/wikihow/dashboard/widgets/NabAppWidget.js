@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.NabAppWidget = (function($) {
+WH.dashboard.NabAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.NabAppWidget = (function($) {
 	WH.dashboard.registerDataListener('NabAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

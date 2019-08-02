@@ -21,7 +21,11 @@ function initPage() {
 	//check for historical pages
 	if (window.location.search) {
 		$.get(toolName+window.location.search+'&ajax=true',function(result) {
-			result['topic'] ? loadTopicResults(result) : loadTitleResults(result);
+			if (result['topic']) {
+				loadTopicResults(result);
+			} else {
+				loadTitleResults(result);
+			}
 		},'json');
 	}
 
@@ -75,7 +79,7 @@ function loadTitleResults(result) {
 			//ah...that new article smell...
 			if (result['list']) {
 				//got alternates
-				list = "<div id='cpr_list'>"+result['list']+"</div>";
+				var list = "<div id='cpr_list'>"+result['list']+"</div>";
 				$('#cpr_title_text').html(list);
 
 				$('.article_topic').click(function() {
@@ -88,16 +92,17 @@ function loadTitleResults(result) {
 				});
 
 				$('.article_options_options a').click(function(e) {
-					art_id = $(this).parent().attr('data-id');
+					var art_id = $(this).parent().attr('data-id');
 					if (!art_id) return;
 
 					e.preventDefault();
 					//create redirect
-					qs = '?target='+result['target'].replace(/ /g,'+')+'&createpage_title='+art_id;
-					go_to = this.href;
+					var go_to = this.href;
 
-					$.get(toolName+qs+'&ajax=true', function(data) {
-						//send them on their way
+					var qs = '?target='+result['target'].replace(/ /g,'+')+'&createpage_title='+art_id;
+					var load_url = toolName+qs+'&ajax=true';
+					$.get(load_url).always( function() {
+						// send them on their way
 						location.href = go_to;
 					});
 				});
@@ -116,13 +121,12 @@ function loadTitleResults(result) {
 		else {
 			//whoops! already exists
 			$('#cpr_title_text').html(result['html']);
-
 			$('#cpr_write_something').click(function() {
 				$(this).removeClass('primary').addClass('secondary');
 				$('#cpr_text_bottom').slideDown(function() {
 					$('#cp_existing_title_input').focus();
 					$('#cp_existing_title_btn').off().click(function() {
-						qs = '?target='+$('#cp_existing_title_input').val().replace(/ /g,'+');
+						var qs = '?target='+$('#cp_existing_title_input').val().replace(/ /g,'+');
 						$.get(toolName+qs+'&ajax=true',function(result) {
 							if (!result['new'] || result['list']) {
 								pushItRealGood(qs);

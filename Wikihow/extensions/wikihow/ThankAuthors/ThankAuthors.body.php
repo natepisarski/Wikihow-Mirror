@@ -120,13 +120,12 @@ EOHTML
 
 			if ( wfReadOnly() || $target === 'Spam-Blacklist' ) {
 				wfDebugLog( "ThankAuthors", "Not sending kudos, read-only mode");
-				$out->readOnlyPage();
-				return;
+				throw new ReadOnlyError();
 			}
 
 			if ( $user->pingLimiter('userkudos') ) {
 				wfDebugLog( "ThankAuthors", "Not sending kudos, rate limited");
-				throw new ThrottledError;
+				throw new ThrottledError();
 			}
 
 

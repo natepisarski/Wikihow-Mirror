@@ -75,5 +75,3 @@
 
 </style>
 </noscript>
-
-</div>

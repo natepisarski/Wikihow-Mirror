@@ -80,8 +80,8 @@ class QAHelpfulnessEmailJob extends Job {
 
 			$body = wfMessage('qa_helpfulness_body_'.$milestone, $name, $article_title, $article_link, $link->getLink())->text();
 
-			$content_type = "text/html; charset=UTF-8";
-			UserMailer::send($to, $from, $subject, $body, null, $content_type);
+			$opts = [ 'contentType' => "text/html; charset=UTF-8" ];
+			UserMailer::send($to, $from, $subject, $body, $opts);
 
 			self::updateTable($user->getId());
 		}

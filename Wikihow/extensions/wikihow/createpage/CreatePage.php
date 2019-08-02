@@ -64,13 +64,21 @@ $wgLogNames['redirects'] = 'redirects';
 $wgLogHeaders['redirects'] = 'redirectstext';
 $wgLogActions['redirects/added'] = 'redirects_logsummary';
 
-$wgResourceModules['ext.wikihow.createpage'] = [
+$wgResourceModules['ext.wikihow.createpage_styles'] = [
     'styles' => ['createpage.css'],
+    'localBasePath' => __DIR__,
+    'remoteExtPath' => 'wikihow/createpage',
+    'targets' => ['desktop'],
+    'position' => 'top',
+	'group' => 'prio2',
+];
+
+$wgResourceModules['ext.wikihow.createpage'] = [
     'scripts' => ['createpage.js'],
     'localBasePath' => __DIR__,
     'remoteExtPath' => 'wikihow/createpage',
-    'position' => 'top',
     'targets' => ['desktop'],
+    'position' => 'top',
     'dependencies' => ['ext.wikihow.common_top'],
 ];
 

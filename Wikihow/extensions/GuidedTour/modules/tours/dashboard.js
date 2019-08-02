@@ -6,7 +6,7 @@
 		// Excludes pages outside the main namespace and pages with editing restrictions
 		// Should be 'pages that are not in content namespaces'.
 		// However, the list of content namespaces isn't currently exposed to JS.
-		return ( mw.config.get( 'wgTitle' ) === 'CommunityDashboard');
+		return mw.config.get( 'wgTitle' ) === 'CommunityDashboard';
 	}
 
 	// If we shouldn't show it, don't initialize the guiders
@@ -37,7 +37,8 @@
 			overlay: true,
 			xButton: true,
 			buttons: [ {
-				action: 'next'
+				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-dashboard-answerquestions-title',
@@ -49,7 +50,8 @@
 			offset: {'top': 20, 'left': 0},
 			xButton: true,
 			buttons: [ {
-				action: 'next'
+				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-dashboard-editbytopic-title',
@@ -61,7 +63,8 @@
 			offset: {'top': 20, 'left': 0},
 			xButton: true,
 			buttons: [ {
-				action: 'next'
+				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-dashboard-answerrequests-title',
@@ -73,7 +76,8 @@
 			offset: {'top': 20, 'left': 0},
 			xButton: true,
 			buttons: [ {
-				action: 'next'
+				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-dashboard-end-title',
@@ -82,7 +86,8 @@
 			overlay: true,
 			xButton: true,
 			buttons: [ {
-				action: 'end'
+				action: 'end',
+				namemsg: 'guidedtour-okay-button'
 			} ]
 		} ]
 	} );

@@ -33,6 +33,7 @@ class RecommendedArticles extends SpecialPage {
 			$out->addHTML(self::getTopLevelSuggestions($map, $cats));
 			return;
 		}
+		$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 		$out->addModules( ['ext.wikihow.SuggestedTopics'] );
 
 		ListRequestedTopics::setActiveWidget();
@@ -42,7 +43,7 @@ class RecommendedArticles extends SpecialPage {
 		$wgHooks["pageTabs"][] = ["SuggestedTopicsHooks::requestedTopicsTabs"];
 
 		//heading with link
-		$request = Html::element('a', ['href' => '/Special:RequestTopic', 'class' => 'editsection'], wfMessage('requesttopic')->text());
+		$request = Html::element('a', ['href' => '/Special:RequestTopic', 'class' => 'mw-editsection'], wfMessage('requesttopic')->text());
 		$heading = $request . Html::element('h2', [], wfMessage('suggestedarticles_header')->text());
 
 		$out->addHTML($heading);

@@ -22,13 +22,11 @@ abstract class WAPUIController {
 	protected function getDefaultVars() {
 		global $wgIsDevServer;
 		$user = RequestContext::getMain()->getUser();
+		$out = RequestContext::getMain()->getOutput();
+		$out->addModules('ext.wikihow.wap');
+		$out->addModuleStyles('ext.wikihow.wap_styles');
 
 		$vars = array();
-		$vars['js'] = HtmlSnips::makeUrlTag('/extensions/wikihow/common/chosen/chosen.jquery.min.js');
-		$vars['js'] .= HtmlSnips::makeUrlTag('/extensions/wikihow/wap/wap.js', $wgIsDevServer);
-		$vars['js'] .= HtmlSnips::makeUrlTags('js', array('jquery-ui-1.9.2.core_datepicker.custom.min.js','jquery.tablesorter.min.js', 'download.jQuery.js'), 'extensions/wikihow/common');
-		$vars['css'] = HtmlSnips::makeUrlTag('/extensions/wikihow/common/chosen/chosen.css');
-		$vars['css'] .= HtmlSnips::makeUrlTag('/extensions/wikihow/wap/wap.css');
 		$vars['userPage'] = $this->config->getUserPageName();
 		$vars['adminPage'] = $this->config->getAdminPageName();
 		$vars['system'] = $this->config->getSystemName();

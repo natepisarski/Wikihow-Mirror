@@ -583,7 +583,7 @@ class DocViewer extends UnlistedSpecialPage {
 		}
 		else {
 			//http cache headers
-			$wgOut->setSquidMaxage($wgSquidMaxage);
+			$wgOut->setCdnMaxage($wgSquidMaxage);
 
 			//meta tags
 			$wgOut->addMeta('description', "Use our sample '$page_title.' Read it or download it for free. Free help from wikiHow.");

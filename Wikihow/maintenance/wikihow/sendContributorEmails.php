@@ -447,7 +447,7 @@ SQL;
 
 					UserMailer::send(
 						$tester_email, $from, $testSubject,
-						$email['body'], NULL, $content_type
+						$email['body'], [ 'contentType' => $content_type ]
 					);
 				}
 			}
@@ -506,7 +506,8 @@ SQL;
 					$emailCategory = null;
 				}
 
-				UserMailer::send($to, $from, $email['subject'], $email['body'], NULL, $content_type, $emailCategory);
+				$opts = [ 'contentType' => $content_type, 'category' => $emailCategory ];
+				UserMailer::send($to, $from, $email['subject'], $email['body'], $opts);
 			}
 		}
 

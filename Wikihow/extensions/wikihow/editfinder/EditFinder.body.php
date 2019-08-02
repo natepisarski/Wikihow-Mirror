@@ -447,7 +447,7 @@ class EditFinder extends UnlistedSpecialPage {
 		$this->topicMode = strtolower($target) == 'topic' || strtolower($req->getVal('edittype')) == 'topic';
 
 		if ($req->getVal( 'fetchArticle' )) {
-			$out->setSquidMaxage(0);
+			$out->setCdnMaxage(0);
 			$out->setArticleBodyOnly(true);
 
 			print json_encode($this->getNextArticle());

@@ -28,10 +28,7 @@ class DraftsPage extends SpecialPage {
 		// Make sure the user is logged in
 		if ( !$wgUser->isLoggedIn() ) {
 			// If not, let them know they need to
-			$wgOut->loginToUse();
-
-			// Continue
-			return true;
+			throw new PermissionsError( 'read' );
 		}
 
 		// Handle discarding
@@ -39,7 +36,7 @@ class DraftsPage extends SpecialPage {
 		if ( $draft->exists() ) {
 			// Discard draft
 			$draft->discard();
-			
+
 			// Redirect to the article editor or view if returnto was set
 			$section = $wgRequest->getIntOrNull( 'section' );
 			$urlSection = $section !== null ? "&section={$section}" : '';

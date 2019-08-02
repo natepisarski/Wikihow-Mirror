@@ -56,8 +56,11 @@ class Welcome extends UnlistedSpecialPage {
 
 		$from = new MailAddress($from_name);
 		$to = new MailAddress($to_name);
-		$content_type = "text/html; charset=UTF-8";
-		if (!UserMailer::send($to, $from, $subject, $body, null, $content_type, "welcome")) {
+		$opts = [
+			'contentType' => "text/html; charset=UTF-8",
+			'category' => 'welcome',
+		];
+		if ( !UserMailer::send($to, $from, $subject, $body, $opts) ) {
 			wfDebug( "Welcome email: got an en error while sending.\n");
 		};
 

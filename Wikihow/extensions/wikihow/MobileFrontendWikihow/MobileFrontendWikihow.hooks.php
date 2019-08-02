@@ -175,30 +175,35 @@ class MobileFrontendWikiHowHooks {
 		if ($wgTitle->inNamespace(NS_MAIN)) {
 			//load bottom
 			$out->addModules('zzz.mobile.wikihow.styles_late_load');
+			$out->addModules('zzz.mobile.wikihow.scripts_late_load');
 		}
 		else {
 			//load top
 			$out->addModuleStyles('zzz.mobile.wikihow.styles_late_load');
 		}
+
+		if ($wgTitle->inNamespace(NS_SPECIAL)
+			&& $page_title == SpecialPage::getTitleFor( 'Notifications' )) {
+			$out->addModuleStyles('zzz.mobile.wikihow.notifications');
+		}
+
 		$out->addModules('mobile.wikihow');
 
 		$out->addModules('mobile.wikihow.stable.styles');
 
 		// Add the logged out overlay module.
-		$out->addModules('mobile.wikihow.loggedout');
+		// Reuben: disabling this for upgrade since overlays apparently changed
+		//$out->addModules('mobile.wikihow.loggedout');
 
 		if (class_exists('Recommendations')) {
 			$whr = new Recommendations();
 			$whr->addModules();
 		}
 
-		$isLoginPage = $page_title == SpecialPage::getTitleFor( 'Userlogin' );
+		$isLoginPage = $page_title == SpecialPage::getTitleFor( 'Userlogin' )
+					|| $page_title == SpecialPage::getTitleFor( 'CreateAccount' );
 
 		if ( $isLoginPage ) {
-			$out->addModules('ext.wikihow.sociallogin.buttons');
-		}
-
-		if ($isLoginPage) {
 			$out->addModules('mobile.wikihow.login');
 			$out->addModuleStyles('zzz.mobile.wikihow.login.styles');
 			$pagetitle = $out->getPageTitle();

@@ -1,6 +1,6 @@
 <?php
+
 require_once(__DIR__ . '/../../commandLine.inc');
-require_once("$IP/extensions/wikihow/titus/Titus.class.php");
 
 $statsToCalc = TitusConfig::getDailyEditStats();
 $titus = new TitusDB(true);

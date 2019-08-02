@@ -8,9 +8,6 @@ class TitusGetLangPageId extends Maintenance {
 	}
 
 	public function execute() {
-		global $wgLanguageCode, $IP;
-		require_once("$IP/extensions/wikihow/titus/Titus.class.php");
-
 		$id = $this->getOption( 'id' );
 		$lang = $this->getOption( 'lang' );
 

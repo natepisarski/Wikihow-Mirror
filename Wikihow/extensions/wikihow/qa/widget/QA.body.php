@@ -106,7 +106,7 @@ class QA extends UnlistedSpecialPage {
 				$this->handleGetUnpatrolledQuestions();
 				break;
 			case self::ACTION_GET_TOP_ANSWERER_DATA:
-				$out->setSquidMaxage($wgSquidMaxage); //make sure this caches
+				$out->setCdnMaxage($wgSquidMaxage); //make sure this caches
 				$this->handleGetTopAnswererData();
 				break;
 		}

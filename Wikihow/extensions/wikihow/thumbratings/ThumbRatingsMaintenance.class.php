@@ -117,11 +117,13 @@ class ThumbRatingsMaintenance {
 	}
 
 	public static function getMaintenanceDBR() {
-		global $wgDBname, $wgIsDevServer;
-
-		$maintenanceDBhost = WH_DATABASE_MASTER;
-		$db = DatabaseBase::factory('mysql');
-		$db->open($maintenanceDBhost, WH_DATABASE_MAINTENANCE_USER, WH_DATABASE_MAINTENANCE_PASSWORD, $wgDBname);
+		global $wgDBname;
+		$db = DatabaseBase::factory( 'mysql', [
+			'host' => $maintenanceDBhost,
+			'user' => WH_DATABASE_MAINTENANCE_USER,
+			'password' => WH_DATABASE_MAINTENANCE_PASSWORD,
+			'dbname' => $wgDBname,
+		] );
 		return $db;
 	}
 

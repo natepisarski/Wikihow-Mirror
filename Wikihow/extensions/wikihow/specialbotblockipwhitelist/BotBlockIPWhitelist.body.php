@@ -55,8 +55,7 @@ class BotBlockIPWhitelist extends UnlistedSpecialPage {
 		$this->out->setRobotPolicy( 'noindex,nofollow' );
 
 		if ($this->user->isAnon()) {
-			$this->out->loginToUse();
-			return;
+			throw new PermissionsError( 'read' );
 		}
 
 		if ( $this->user->isBlocked() ) {

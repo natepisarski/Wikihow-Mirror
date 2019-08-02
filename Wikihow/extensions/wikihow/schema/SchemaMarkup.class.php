@@ -1187,6 +1187,14 @@ class SchemaMarkup {
 	}
 
 	public static function updateRecipeSchema( $pageId, $revisionId, $schema ) {
+		global $wgReadOnly;
+		if ($wgReadOnly) {
+			// We don't throw an error here because this apparently
+			// is sometimes called when viewing an article page as
+			// anon.
+			return;
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update(
 			'recipe_schema',
@@ -1197,6 +1205,12 @@ class SchemaMarkup {
 	}
 
 	public static function insertRecipeSchema( $pageId, $revisionId, $schema ) {
+		global $wgReadOnly;
+		if ($wgReadOnly) {
+			// Don't try to update database when site is read-only
+			return;
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->insert(
 			'recipe_schema',
@@ -1274,7 +1288,7 @@ class SchemaMarkup {
 			if ( !CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
 				return true;
 			}
-			$revision = $title->mLatestID;
+			$revision = $title->getLatestRevID();
 
 			$goodRevision = GoodRevision::newFromTitle( $title );
 			$latestGood = $goodRevision->latestGood();

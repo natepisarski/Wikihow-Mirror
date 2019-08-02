@@ -79,7 +79,7 @@
 		getSectionSelectors: function() {
 			var sectionSelectors =
 					$.merge(
-						['#content>div>.section.steps'],
+						['#bodyContent div>.section.steps'],
 						$('.method_toc_item.toc_pre,.method_toc_item.toc_post').map(function () {
 							return $(this).data('section');
 						})
@@ -228,7 +228,14 @@
 		offsetHashAnchor: function() {
 			var sh = WH.tocScrollHandler;
 
+
 			if (location.hash.length !== 0) {
+
+				// Don't do this for the "more references" dropdown section at the bottom of the refs section
+				if (location.hash == "#aiinfo") {
+					return;
+				}
+
 				sh.resetToc(); //start fresh
 
 				var hashedElem = sh.getHashedElement(location.hash);

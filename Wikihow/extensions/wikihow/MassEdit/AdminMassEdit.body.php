@@ -199,7 +199,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		$user = $this->getUser();
 		$uname = $user->getName();
 		$allLangs = [ 'Chris H', 'ElizabethD' ];
-		$intlOnly = [ 'Bridget8', 'AdrianaBaird' ];
+		$intlOnly = [ 'Bridget8', 'AdrianaBaird', 'Vanna Tran' ];
 
 		$allowed = in_array($uname, $allLangs) || ( Misc::isIntl() && in_array($uname, $intlOnly) ) || ($wgIsDevServer && $user->hasGroup('staff'));
 		if (!$allowed) {

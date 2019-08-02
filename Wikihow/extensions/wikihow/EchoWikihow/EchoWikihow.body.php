@@ -1,35 +1,17 @@
 <?php
 
-class EchoWikiHowFormatter extends EchoBasicFormatter {
-   /**
-    * @param $event EchoEvent
-    * @param $param
-    * @param $message Message
-    * @param $user User
-    */
-   protected function processParam( $event, $param, $message, $user ) {
-       if ( $param === 'difflink' ) {
-           $eventData = $event->getExtra();
-           if ( !isset( $eventData['revid'] ) ) {
-               $message->params(  );
-               return;
-           }
-           $this->setTitleLink(
-               $event,
-               $message,
-               array(
-                   'class' => 'mw-echo-diff',
-                   'linkText' => wfMessage( 'notification-thumbs-up-diff-link' )->text(),
-                   'param' => array(
-                       'oldid' => $eventData['revid'],
-                       'diff' => 'prev',
-                   )
-               )
-           );
-       } else {
-           parent::processParam( $event, $param, $message, $user );
-       }
-   }
+class EchoWikihow {
+
+	public static function updateAgentLink( $agent, $agentLink ): array {
+		//anons are fine
+		if ($agent->isAnon()) return $agentLink;
+
+		//changing user page link to user talk link (with an anchor to the bottom)
+		$agentLink['url'] = $agent->getTalkPage()->getFullURL().'#post';
+
+		return $agentLink;
+	}
+
 }
 
 class EchoWikihowHooks {
@@ -41,22 +23,19 @@ class EchoWikihowHooks {
 			'tooltip' => 'echo-pref-tooltip-thumbs-up',
 		);
 
-		$notifications['thumbs-up'] = array(
-			'primary-link' => array( 'message' => 'notification-link-text-respond-to-user', 'destination' => 'agent' ),
-			'secondary-link' => array( 'message' => 'notification-link-text-view-edit', 'destination' => 'diff' ),
+		$notifications['thumbs-up'] = [
 			'category' => 'thumbs-up',
 			'group' => 'interactive',
-			'formatter-class' => 'EchoWikiHowFormatter',
-			'title-message' => 'notification-thumbs-up',
-			'title-params' => array( 'agent', 'difflink', 'title' ),
-			'payload' => array( 'summary' ),
-			'icon' => 'thumbs-up',
-		);
-
-		$icons['thumbs-up'] = array(
-			'path' => "wikihow/EchoWikihow/images/thumb_up_x2.png",
-		);
-
+			'section' => 'alert',
+			'bundle' => [
+				'web' => true,
+				'expandable' => true,
+			],
+			'user-locators' => [
+				[ 'EchoUserLocator::locateFromEventExtra', [ 'thumbed-user-id' ] ]
+			],
+			'presentation-model' => EchoWikihowThumbsUpPresentationModel::class
+		];
 
 		/******************* KUDOS/FAN MAIL ***/
 		$notificationCategories['kudos'] = array(
@@ -64,96 +43,106 @@ class EchoWikihowHooks {
 			'tooltip' => 'echo-pref-tooltip-kudos',
 		);
 
-		$notifications['kudos'] = array(
-			'primary-link' => array( 'message' => 'notification-link-text-respond-to-user', 'destination' => 'agent' ),
-			'secondary-link' => array( 'message' => 'notification-link-text-view-edit', 'destination' => 'diff' ),
+		$notifications['kudos'] = [
 			'category' => 'kudos',
 			'group' => 'interactive',
-			'formatter-class' => 'EchoWikiHowFormatter',
-			'title-message' => 'notification-kudos',
-			'title-params' => array( 'agent', 'difflink', 'title' ),
-			'payload' => array( 'summary' ),
-			'icon' => 'kudos',
-		);
+			'section' => 'alert',
+			'bundle' => [
+				'web' => true,
+				'expandable' => true,
+			],
+			'user-locators' => [
+				[ 'EchoUserLocator::locateFromEventExtra', [ 'kudoed-user-id' ] ]
+			],
+			'presentation-model' => EchoWikihowKudosPresentationModel::class
+		];
 
-		$icons['kudos'] = array(
-			'path' => "wikihow/EchoWikihow/images/passion_x2.png",
-		);
+		self::updateEchoIcons( $icons );
 
-		//remap some mw msgs
-		$notifications['edit-user-talk']['email-body-batch-message'] = 'notification-edit-talk-page-email-batch-body-wh';
-
-		//remap some icons
-		$notifications['welcome']['icon'] = 'star';
-
-		//redefine icons we use here
-		$icons['chat'] = array( 'path' => wfGetPad("/extensions/wikihow/EchoWikihow/images/conversation_x2.png") );
-		$icons['linked'] = array( 'path' => wfGetPad("/extensions/wikihow/EchoWikihow/images/crossed_x2.png") );
-		$icons['placeholder'] = array( 'path' => wfGetPad("/extensions/wikihow/EchoWikihow/images/notification_x2.png") );
-		$icons['star'] = array( 'path' => wfGetPad("/extensions/wikihow/EchoWikihow/images/featured_x2.png") );
+		self::updatePresentationModels( $notifications );
 
 		//disable the revert notification option
 		unset($notificationCategories['reverted']);
 		unset($notifications['reverted']);
-
-	   return true;
 	}
 
-	public static function onEchoGetDefaultNotifiedUsers( $event, &$users ) {
-		switch ( $event->getType() ) {
-			case 'kudos':
-				$extra = $event->getExtra();
-				if ( !$extra || !isset( $extra['kudoed-user-id'] ) ) {
-					break;
-				}
-				$recipientId = $extra['kudoed-user-id'];
-				$recipient = User::newFromId( $recipientId );
-				$users[$recipientId] = $recipient;
-				break;
-
-			case 'thumbs-up':
-				$extra = $event->getExtra();
-				if ( !$extra || !isset( $extra['thumbed-user-id'] ) ) {
-					break;
-				}
-				$recipientId = $extra['thumbed-user-id'];
-				$recipient = User::newFromId( $recipientId );
-
-				if ($recipientId == 0) {
-					if ( !isset( $extra['thumbed-user-text'] ) ) {
-						break;
-					}
-					$recipient = User::newFromName($extra['thumbed-user-text'], false );
-				}
-
-				$users[$recipientId] = $recipient;
-				break;
-
-			case 'edit-user-talk':
-				//do not notify about a talk page msg if it is also a thumbs up
-				$extra = $event->getExtra();
-
-				if ( $extra && isset( $extra['content'] ) ) {
-					if (strpos($extra['content'],'<!--thumbsup-->') !== false) {
-						//it's a thumbs up! ABORT! ABORT!
-						$users = array();
-						break;
-					}
-					if (strpos($extra['content'],'<!--welcomeuser-->') !== false) {
-						//it's a welcome! ABORT! ABORT!
-						//(because it gets sent from Welcomebot; we have our own in HAWelcome)
-						$users = array();
-					}
-					if (strpos($extra['content'],'<!--massmessage-->') !== false) {
-						//it's a mass message! ABORT! ABORT!
-						//(because it gets sent from MessengerBot; we have our own in MassMessage)
-						$users = array();
-					}
-				}
-				break;
-		}
-		return true;
+	//set all our custom wikiHow notification icons
+	private static function updateEchoIcons( &$icons ) {
+		$icons['placeholder'] = [ 'path' => 'wikihow/EchoWikihow/images/notice.svg' ];
+		$icons['chat'] = [ 'path' =>
+			[
+				'ltr' => 'wikihow/EchoWikihow/images/speechBubbles-ltr-progressive.svg',
+				'rtl' => 'wikihow/EchoWikihow/images/speechBubbles-rtl-progressive.svg'
+			]
+		];
+		$icons['edit'] = [ 'path' => 'wikihow/EchoWikihow/images/edit-progressive.svg' ];
+		$icons['edit-user-talk'] = [ 'path' => 'wikihow/EchoWikihow/images/edit-user-talk-progressive.svg' ];
+		$icons['linked'] = [ 'path' => 'wikihow/EchoWikihow/images/link-progressive.svg' ];
+		$icons['mention'] = [ 'path' => 'wikihow/EchoWikihow/images/mention-progressive.svg' ];
+		$icons['mention-failure'] = [ 'path' => 'wikihow/EchoWikihow/images/mention-failure.svg' ];
+		$icons['mention-success'] = [ 'path' => 'wikihow/EchoWikihow/images/mention-success-constructive.svg' ];
+		$icons['mention-status-bundle'] = [ 'path' => 'wikihow/EchoWikihow/images/mention-status-bundle-progressive.svg' ];
+		$icons['reviewed'] = [ 'path' => 'wikihow/EchoWikihow/images/articleCheck-progressive.svg' ];
+		$icons['revert'] = [ 'path' => 'wikihow/EchoWikihow/images/revert.svg' ];
+		$icons['user-rights'] = [ 'path' => 'wikihow/EchoWikihow/images/user-rights-progressive.svg' ];
+		$icons['emailuser'] = [ 'path' => 'wikihow/EchoWikihow/images/message-constructive.svg' ];
+		$icons['help'] = [ 'path' => 'wikihow/EchoWikihow/images/help.svg' ];
+		$icons['global'] = [ 'path' => 'wikihow/EchoWikihow/images/global-progressive.svg' ];
+		$icons['article-reminder'] = [ 'path' => 'wikihow/EchoWikihow/images/global-progressive.svg' ];
+		$icons['changes'] = [ 'path' => 'wikihow/EchoWikihow/images/changes.svg' ];
+		$icons['thanks'] = [ 'path' =>
+			[
+				'ltr' => 'wikihow/EchoWikihow/images/userTalk-ltr.svg',
+				'rtl' => 'wikihow/EchoWikihow/images/userTalk-rtl.svg'
+			]
+		];
+		$icons['userSpeechBubble'] = [ 'path' => 'wikihow/EchoWikihow/images/user-speech-bubble.svg' ];
+		$icons['star'] = [ 'path' => 'wikihow/EchoWikihow/images/star.svg' ];
+		$icons['kudos'] = [ 'path' => 'wikihow/EchoWikihow/images/kudos.svg' ];
+		$icons['thumbs-up'] = [ 'path' => 'wikihow/EchoWikihow/images/thumbs_up.svg' ];
 	}
+
+	private static function updatePresentationModels( &$notifications ) {
+		$notifications['edit-user-talk']['presentation-model'] = EchoWikihowEditUserTalkPresentationModel::class;
+		$notifications['welcome']['presentation-model'] = EchoWikihowWelcomePresentationModel::class;
+		$notifications['thank-you-edit']['presentation-model'] = EchoWikihowEditThresholdPresentationModel::class;
+		$notifications['mention']['presentation-model'] = EchoWikihowMentionPresentationModel::class;
+		$notifications['user-rights']['presentation-model'] = EchoWikihowUserRightsPresentationModel::class;
+	}
+
+	// public static function onEchoGetDefaultNotifiedUsers( $event, &$users ) {
+		// switch ( $event->getType() ) {
+		// 	case 'kudos':
+		// 		$extra = $event->getExtra();
+		// 		if ( !$extra || !isset( $extra['kudoed-user-id'] ) ) {
+		// 			break;
+		// 		}
+		// 		$recipientId = $extra['kudoed-user-id'];
+		// 		$recipient = User::newFromId( $recipientId );
+		// 		$users[$recipientId] = $recipient;
+		// 		break;
+
+		// 	case 'thumbs-up':
+		// 		$extra = $event->getExtra();
+		// 		if ( !$extra || !isset( $extra['thumbed-user-id'] ) ) {
+		// 			break;
+		// 		}
+		// 		$recipientId = $extra['thumbed-user-id'];
+		// 		$recipient = User::newFromId( $recipientId );
+
+		// 		if ($recipientId == 0) {
+		// 			if ( !isset( $extra['thumbed-user-text'] ) ) {
+		// 				break;
+		// 			}
+		// 			$recipient = User::newFromName($extra['thumbed-user-text'], false );
+		// 		}
+
+		// 		$users[$recipientId] = $recipient;
+		// 		break;
+
+		// }
+		// return true;
+	// }
 
 	// Global email optout preference by Lojjik Braughler
 	public static function onCreateEmailPreferences($user, &$preferences) {
@@ -195,23 +184,10 @@ class EchoWikihowHooks {
 		return true;
 	}
 
-	public static function onAccountCreated( $user, $byEmail ) {
-		//default settings for new users that are different than default
-		// $user->setOption( 'echo-subscriptions-web-kudos', true );
-		// $user->saveSettings();
-
-		//welcome new user!
-		EchoEvent::create( array(
-			'type' => 'welcome',
-			'agent' => $user,
-		) );
-
-		return true;
-	}
-
 	public static function onUserClearNewKudosNotification($user) {
-		$notifUser = MWEchoNotifUser::newFromUser($user);
-		$notifUser->clearKudosNotification();
+		$echoGateway = new EchoUserNotificationGateway( $user, MWEchoDbFactory::newFromDefault() );
+		$notif = $echoGateway->getUnreadNotifications('kudos');
+		$echoGateway->markRead( $notif );
 		return true;
 	}
 
@@ -219,6 +195,17 @@ class EchoWikihowHooks {
 	//we can do this ourselves...
 	public static function onEchoAbortEmailNotification( $user, $event ) {
 		return false;
+	}
+
+	public static function onBeforeEchoEventInsert( EchoEvent $event ) {
+		if ($event->getType() == 'edit-user-talk') {
+			//silence the welcomebot notification because we do our own in HAWelcome
+			if ($event->getExtraParam('section-text', '') == 'welcoming new contributor') {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 }

@@ -1,0 +1,13 @@
+{
+	"@metadata": {
+		"authors": [
+			"The Discoverer"
+		]
+	},
+	"tooltip-pt-notifications-alert": "{{GENDER:|Tujeo}} chotraio",
+	"notification-timestamp-today": "Aiz",
+	"notification-timestamp-yesterday": "Kal",
+	"notification-inbox-filter-read": "Vach",
+	"notification-inbox-filter-unread": "Vachunk naslele",
+	"notification-inbox-filter-all": "Sogllem"
+}

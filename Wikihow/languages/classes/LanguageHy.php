@@ -33,8 +33,8 @@ class LanguageHy extends Language {
 	 * Convert from the nominative form of a noun to some other case
 	 * Invoked with {{grammar:case|word}}
 	 *
-	 * @param $word string
-	 * @param $case string
+	 * @param string $word
+	 * @param string $case
 	 * @return string
 	 */
 	function convertGrammar( $word, $case ) {
@@ -47,17 +47,17 @@ class LanguageHy extends Language {
 		# matter if they are wrong sometimes. Just add a special case for your site name if necessary.
 
 		# join and array_slice instead mb_substr
-		$ar = array();
+		$ar = [];
 		preg_match_all( '/./us', $word, $ar );
 		if ( !preg_match( "/[a-zA-Z_]/us", $word ) ) {
 			switch ( $case ) {
 				case 'genitive': # սեռական հոլով
-					if ( join( '', array_slice( $ar[0], -1 ) ) == 'ա' ) {
-						$word = join( '', array_slice( $ar[0], 0, -1 ) ) . 'այի';
-					} elseif ( join( '', array_slice( $ar[0], -1 ) ) == 'ո' ) {
-						$word = join( '', array_slice( $ar[0], 0, -1 ) ) . 'ոյի';
-					} elseif ( join( '', array_slice( $ar[0], -4 ) ) == 'գիրք' ) {
-						$word = join( '', array_slice( $ar[0], 0, -4 ) ) . 'գրքի';
+					if ( implode( '', array_slice( $ar[0], -1 ) ) == 'ա' ) {
+						$word = implode( '', array_slice( $ar[0], 0, -1 ) ) . 'այի';
+					} elseif ( implode( '', array_slice( $ar[0], -1 ) ) == 'ո' ) {
+						$word = implode( '', array_slice( $ar[0], 0, -1 ) ) . 'ոյի';
+					} elseif ( implode( '', array_slice( $ar[0], -4 ) ) == 'գիրք' ) {
+						$word = implode( '', array_slice( $ar[0], 0, -4 ) ) . 'գրքի';
 					} else {
 						$word .= 'ի';
 					}
@@ -68,29 +68,14 @@ class LanguageHy extends Language {
 				case 'accusative': # Հայցական հոլով
 					# stub
 					break;
-				case 'instrumental':  #
+				case 'instrumental':
 					# stub
 					break;
-				case 'prepositional': #
+				case 'prepositional':
 					# stub
 					break;
 			}
 		}
 		return $word;
-	}
-
-	/**
-	 * Armenian numeric format is "12 345,67" but "1234,56"
-	 *
-	 * @param $_ string
-	 *
-	 * @return string
-	 */
-	function commafy( $_ ) {
-		if ( !preg_match( '/^\d{1,4}$/', $_ ) ) {
-			return strrev( (string)preg_replace( '/(\d{3})(?=\d)(?!\d*\.)/', '$1,', strrev( $_ ) ) );
-		} else {
-			return $_;
-		}
 	}
 }

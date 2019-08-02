@@ -1,0 +1,38 @@
+{
+	"@metadata": {
+		"authors": [
+			"Mattflaschen",
+			"Shirayuki",
+			"Tgr",
+			"Umherirrender"
+		]
+	},
+	"guidedtour-desc": "{{desc|name=Guided Tour|url=https://www.mediawiki.org/wiki/Extension:GuidedTour}}",
+	"guidedtour-help-url": "Main page for GuidedTour documentation",
+	"guidedtour-help-guider-url": "Brief GuidedTour documentation page that a tour step can transclude.  Used in the test tour.",
+	"guidedtour-next-button": "Text for moving to next step of guided tour.\n\nSee also:\n* {{msg-mw|Guidedtour-back-button}}\n{{Identical|Next}}",
+	"guidedtour-okay-button": "Main action button text.  Will dismiss single tour step (ending the tour if this is the last step) or do another tour-defined action.\n{{Identical|OK}}",
+	"guidedtour-back-button": "Used as label for the Back button.\n\nSee also:\n* {{msg-mw|Guidedtour-next-button}}\n{{Identical|Back}}",
+	"guidedtour-tour-test-testing": "Title of first step in test tour",
+	"guidedtour-tour-test-test-description": "Sample description to show how it is used.\n{{doc-important|Do not translate the Latin \"Lorem ipsum dolor sit!\".}}",
+	"guidedtour-tour-test-callouts": "Title of second step in test tour, introducing callouts",
+	"guidedtour-tour-test-portal-description": "Description of second step in test tour.\n\nIt will be pointing to the page link given at {{msg-mw|Portal-url}}, in the toolbox.\n\nRefers to {{msg-mw|Portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Description of third step in test tour",
+	"guidedtour-tour-test-wikitext-description": "{{doc-important|Do not translate \"<code>onShow</code>\" or \"<code>parseDescription</code>\", because they are JavaScript method names.}}\nTitle of third step in test tour.\n\nDon't be concerned if [[{{MediaWiki:Guidedtour-help-url}}]] does not yet exist.\n\nRefers to {{msg-mw|Guidedtour-help-url}}.",
+	"guidedtour-tour-test-description-page": "Title of fourth step in test tour",
+	"guidedtour-tour-test-go-description-page": "Text of the button pointing to [[{{MediaWiki:Guidedtour-help-url}}]]",
+	"guidedtour-tour-test-launch-tour": "Title of fifth step in test tour",
+	"guidedtour-tour-test-launch-tour-description": "Description of fifth step in test tour",
+	"guidedtour-tour-test-launch-editing": "Button text for launching a tour on editing",
+	"guidedtour-tour-firstedit-edit-page-title": "Title of the step of the firstedit tour pointing to the main edit button",
+	"guidedtour-tour-firstedit-edit-page-description": "Description of the step of the firstedit tour pointing to the main edit button, if VisualEditor is not installed.\n\nSee also:\n* {{msg-mw|Guidedtour-tour-firstedit-edit-page-visualeditor-description}}\n* {{msg-mw|Vector-view-edit}}",
+	"guidedtour-tour-firstedit-edit-section-title": "Title of the step of the firstedit tour pointing to the section edit button",
+	"guidedtour-tour-firstedit-edit-section-description": "Description of the step of the firstedit tour pointing to the section edit button, if VisualEditor is not installed\n\nSee also:\n* {{msg-mw|editsection}}",
+	"guidedtour-tour-firstedit-preview-title": "Title of step explaining preview.\n\nThe body for this title is {{msg-mw|Guidedtour-tour-firstedit-preview-description}}.",
+	"guidedtour-tour-firstedit-preview-description": "Description of step explaining preview\n\nSee also:\n* {{msg-mw|showpreview}}",
+	"guidedtour-tour-firstedit-save-title": "Title of step explaining saving an edit",
+	"guidedtour-tour-firstedit-save-description": "Description of step explaining how to save\n\nSee also:\n* {{msg-mw|savearticle}}",
+	"guidedtour-tour-firsteditve-edit-page-description": "Description of the step of the firsteditve tour pointing to the VisualEditor edit button.\n\nParameters:\n* $1 - Text of VisualEditor edit tab (please pass this through unaltered)\nSee also:\n* {{msg-mw|Guidedtour-tour-firsteditve-edit-section-description}}",
+	"guidedtour-tour-firsteditve-edit-section-description": "Description of the step of the firsteditve tour pointing to the VE section edit button.\n\nParameters:\n* $1 - Text of VisualEditor section edit link (please pass this through unaltered)\nSee also:\n* {{msg-mw|Guidedtour-tour-firsteditve-edit-page-description}}",
+	"guidedtour-tour-firsteditve-save-description": "Description of step of the firsteditve tour explaining how to save in VisualEditor.\n\nRefers to {{msg-mw|Visualeditor-toolbar-savedialog}}."
+}

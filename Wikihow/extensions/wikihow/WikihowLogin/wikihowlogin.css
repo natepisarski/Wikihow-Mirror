@@ -1,19 +1,9 @@
 /***** SIGNUP/LOGIN PAGE *****/
-.login_header {
-	padding: 15px 22px;
-	margin-bottom: 0;
-	border-radius: 5px 5px 0 0;
-	-moz-border-radius: 5px 5px 0 0;
-	-webkit-border-radius: 5px 5px 0 0;
-}
-.login_headline {
-	font-size: 2.2em;
-	font-weight: bold;
-}
 .login_top_link {
 	float: right;
-	font-size: .8em;
+	font-size: .36em;
 	line-height: 3.3em;
+	font-weight: normal;
 }
 
 #userloginForm {
@@ -56,12 +46,17 @@
 }
 .captcha_label { padding-top: 12px; }
 .mw-ui-checkbox-label { font-weight: normal; }
-#userloginForm .input_med { font-size: 1.3em; width: 305px; margin-bottom: 15px;}
+#userloginForm .mw-ui-input {
+	font-size: 1.3em;
+	margin-bottom: 15px;
+/*	border: none;
+	box-shadow: none;*/
+}
 .remember_pwd {  padding-bottom: 9px;}
 .minor_section form .remember_pwd input[type="checkbox"] {
 	margin-left: 0px;
 }
-.fancycaptcha-image-container { margin-left: 66px; margin-bottom: 5px; }
+.fancycaptcha-image-container { margin-bottom: 5px; }
 #realname_check {
 	margin-left: 65px;
 	margin-bottom: 10px;
@@ -73,7 +68,9 @@
 }
 #wpLoginAttempt {
 	width: 327px;
-	margin-right: 0;
+	background-color: #97ba78;
+	border: none;
+	float: none;
 }
 #realname_check label { font-weight: normal; font-size: .75em; }
 .userlogin_option_row {
@@ -90,7 +87,7 @@
 
 #userlogin_alt_logins {
 	float: right;
-	padding: 20px 5px 5px 15px;
+	padding: 15px 5px 5px 15px;
 	width: 265px;
 	color: #ABABAB;
 	width: 220px;
@@ -124,7 +121,7 @@
 	font-weight: bold;
 }
 
-#userloginprompt {
+.userloginprompt {
 	padding: .5em 0;
 	margin-top: 20px;
 	font-size: 12px;
@@ -215,7 +212,7 @@
 	margin-top: -15px;
 }
 
-.mw-info h4 {
+#userloginForm h4 {
 	font-size: 17px;
 	line-height: normal;
 	margin: 0;
@@ -286,4 +283,29 @@
 .sidebox.usercreate p {
 	font-weight: bold;
 	margin: 25px 0 10px 0;
+}
+
+.minor_section #userloginForm form {
+	margin: 0 0 0 20px;
+	width: 327px;
+}
+
+.mw-ui-vform .warning {
+	background: none;
+	border: none;
+	color: #545454;
+}
+
+.htmlform-tip,
+.mw-htmlform-field-HTMLFancyCaptchaField.mw-ui-vform-field.captcha > label,
+.mw-htmlform-field-HTMLFancyCaptchaField.mw-ui-vform-field.captcha > p:first-of-type {
+	display: none;
+}
+
+.mw-htmlform-field-HTMLFancyCaptchaField.mw-ui-vform-field.captcha .fancycaptcha-captcha-and-reload {
+	width: 307px;
+}
+
+#userloginForm #mw-input-captchaWord {
+	margin-bottom: 0;
 }

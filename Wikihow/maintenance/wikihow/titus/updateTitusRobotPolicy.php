@@ -1,7 +1,6 @@
 <?php
 
 require_once( __DIR__ . '/../../Maintenance.php');
-require_once( $IP . '/extensions/wikihow/titus/Titus.class.php');
 
 class CheckRobotPolicy extends Maintenance {
 	private $testServer, $titusdb;

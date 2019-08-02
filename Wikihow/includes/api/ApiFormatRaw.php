@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on Feb 2, 2009
- *
  * Copyright © 2009 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,21 +26,27 @@
  */
 class ApiFormatRaw extends ApiFormatBase {
 
+	private $errorFallback;
+	private $mFailWithHTTPError = false;
+
 	/**
-	 * Constructor
-	 * @param $main ApiMain object
-	 * @param $errorFallback ApiFormatBase object to fall back on for errors
+	 * @param ApiMain $main
+	 * @param ApiFormatBase|null $errorFallback Object to fall back on for errors
 	 */
-	public function __construct( $main, $errorFallback ) {
+	public function __construct( ApiMain $main, ApiFormatBase $errorFallback = null ) {
 		parent::__construct( $main, 'raw' );
-		$this->mErrorFallback = $errorFallback;
+		if ( $errorFallback === null ) {
+			$this->errorFallback = $main->createPrinterByName( $main->getParameter( 'format' ) );
+		} else {
+			$this->errorFallback = $errorFallback;
+		}
 	}
 
 	public function getMimeType() {
-		$data = $this->getResultData();
+		$data = $this->getResult()->getResultData();
 
-		if ( isset( $data['error'] ) ) {
-			return $this->mErrorFallback->getMimeType();
+		if ( isset( $data['error'] ) || isset( $data['errors'] ) ) {
+			return $this->errorFallback->getMimeType();
 		}
 
 		if ( !isset( $data['mime'] ) ) {
@@ -54,11 +56,42 @@ class ApiFormatRaw extends ApiFormatBase {
 		return $data['mime'];
 	}
 
-	public function execute() {
-		$data = $this->getResultData();
+	public function getFilename() {
+		$data = $this->getResult()->getResultData();
 		if ( isset( $data['error'] ) ) {
-			$this->mErrorFallback->execute();
+			return $this->errorFallback->getFilename();
+		} elseif ( !isset( $data['filename'] ) || $this->getIsWrappedHtml() || $this->getIsHtml() ) {
+			return parent::getFilename();
+		} else {
+			return $data['filename'];
+		}
+	}
 
+	public function initPrinter( $unused = false ) {
+		$data = $this->getResult()->getResultData();
+		if ( isset( $data['error'] ) || isset( $data['errors'] ) ) {
+			$this->errorFallback->initPrinter( $unused );
+			if ( $this->mFailWithHTTPError ) {
+				$this->getMain()->getRequest()->response()->statusHeader( 400 );
+			}
+		} else {
+			parent::initPrinter( $unused );
+		}
+	}
+
+	public function closePrinter() {
+		$data = $this->getResult()->getResultData();
+		if ( isset( $data['error'] ) || isset( $data['errors'] ) ) {
+			$this->errorFallback->closePrinter();
+		} else {
+			parent::closePrinter();
+		}
+	}
+
+	public function execute() {
+		$data = $this->getResult()->getResultData();
+		if ( isset( $data['error'] ) || isset( $data['errors'] ) ) {
+			$this->errorFallback->execute();
 			return;
 		}
 
@@ -66,5 +99,18 @@ class ApiFormatRaw extends ApiFormatBase {
 			ApiBase::dieDebug( __METHOD__, 'No text given for raw formatter' );
 		}
 		$this->printText( $data['text'] );
+	}
+
+	/**
+	 * Output HTTP error code 400 when if an error is encountered
+	 *
+	 * The purpose is for output formats where the user-agent will
+	 * not be able to interpret the validity of the content in any
+	 * other way. For example subtitle files read by browser video players.
+	 *
+	 * @param bool $fail
+	 */
+	public function setFailWithHTTPError( $fail ) {
+		$this->mFailWithHTTPError = $fail;
 	}
 }

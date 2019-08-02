@@ -399,7 +399,7 @@ class Quizzes extends UnlistedSpecialPage {
 		}
 		else {
 			//http caching headers
-			$out->setSquidMaxage($wgSquidMaxage);
+			$out->setCdnMaxage($wgSquidMaxage);
 
 			//meta tags
 			$out->addMeta('description','Test yourself on How to '.$quiz.' with a fun and challenging quiz from wikiHow. See how well you score.');

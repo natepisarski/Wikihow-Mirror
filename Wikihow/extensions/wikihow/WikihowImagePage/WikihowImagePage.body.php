@@ -27,7 +27,7 @@ class WikihowImagePage extends ImagePage {
 		$req = $this->getContext()->getRequest();
 		$user = $this->getContext()->getUser();
 
-		$out->setSquidMaxage($wgSquidMaxage);
+		$out->setCdnMaxage($wgSquidMaxage);
 		$out->setArticleBodyOnly(true);
 
 		$image = RepoGroup::singleton()->findFile($this->mTitle);
@@ -71,6 +71,11 @@ class WikihowImagePage extends ImagePage {
 
 		$hash = explode('?', $req->getRequestURL());
 		$out->addHtml(Html::inlineScript("window.location.hash='$hash[0]'"));
+
+		// Our Lightbox (Featherlight) needs a wrapping div to work properly
+		$html = $out->getHTML();
+		$out->clearHTML();
+		$out->addHTML( Html::rawElement('div', [], $html) );
 	}
 
 	/*
@@ -106,9 +111,6 @@ class WikihowImagePage extends ImagePage {
 
 		$this->openShowImage();
 		ImageHelper::showDescription($this->mTitle);
-
-		$lastUser = $this->getDisplayedFile()->getUser();
-		$userLink = Linker::link(Title::makeTitle(NS_USER, $lastUser), $lastUser);
 
 		$out->addHTML("<div style='margin-bottom:20px'></div>");
 

@@ -10,3 +10,11 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['AdminClearRatings'] = 'AdminClearRatings';
 $wgAutoloadClasses['AdminClearRatings'] = __DIR__ . '/AdminClearRatings.body.php';
+
+$wgResourceModules['ext.wikihow.admin_clear_ratings'] = [
+	'scripts' => [ 'admin_clear_ratings.js' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/',
+	'targets' => [ 'desktop' ],
+	'position' => 'bottom'
+];

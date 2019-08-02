@@ -21,7 +21,11 @@
 }
 
 #articleEdit, #articleDiscussion, #articleHistory, #articleHelpfulness {
-	display: none
+	display: none;
+}
+
+.mw-editsection {
+	display: none;
 }
 
 #page_helpfulness_box { background-color: #f6f5f4 }
@@ -223,7 +227,7 @@ ul#tabs {
 
 #nfd_delete_confirm{display:none;}
 
-#wpDiff{display:none;}
+#wpDiff, #wpDraftSave {display:none;}
 
 #nfd_reasons{
 	height:50px;

@@ -71,7 +71,7 @@ class QADomain extends UnlistedSpecialPage {
 		$out = $this->getOutput();
 
 		$out->addHTML("quickAnswers is down temporarily for maintenance. We will return soon.");
-		$out->setSquidMaxage(7200); //2 hours, just to start
+		$out->setCdnMaxage(7200); //2 hours, just to start
 		$out->addModules('ext.wikihow.qadomain');
 		return;
 		$this->amp = GoogleAmp::isAmpMode( $out );
@@ -125,7 +125,7 @@ class QADomain extends UnlistedSpecialPage {
 			$out->setCanonicalUrl($wgServer . "/" . $par);
 			$out->addMeta('description', substr($data['question'] . " " . $data['answer'], 0, 160));
 		}
-		$out->setSquidMaxage(7200); //2 hours, just to start
+		$out->setCdnMaxage(7200); //2 hours, just to start
 		$out->addModules('ext.wikihow.qadomain');
 	}
 
@@ -395,21 +395,20 @@ class QADomain extends UnlistedSpecialPage {
 	 * Use this to add the custom css to the AMP pages
 	 ******/
 	static function onBeforePageDisplay( &$out ){
-		if ( GoogleAmp::isAmpMode( $out ) ) {
-			$less = ResourceLoader::getLessCompiler();
-			$style = Misc::getEmbedFile('css', __DIR__ . '/qadomain.less');
-			$style = $less->compile($style);
-			$style = ResourceLoader::filter('minify-css', $style);
-			$style = HTML::inlineStyle($style);
-			$style = str_replace( "<style>", "<style amp-custom>", $style);
-			$out->addHeadItem('topcss', $style);
-		}
+		global $wgFavicon, $canonicalDomain;
 
 		if (QADomain::isQADomain()) {
-			global $wgFavicon, $canonicalDomain;
+			if ( GoogleAmp::isAmpMode( $out ) ) {
+				$less = ResourceLoader::getLessCompiler();
+				$style = Misc::getEmbedFile('css', __DIR__ . '/qadomain.less');
+				$style = $less->compile($style);
+				$style = ResourceLoader::filter('minify-css', $style);
+				$style = HTML::inlineStyle($style);
+				$style = str_replace( "<style>", "<style amp-custom>", $style);
+				$out->addHeadItem('topcss', $style);
+			}
 
 			$info = self::getDomainInfoFromUrl($canonicalDomain);
-
 			$wgFavicon = "/extensions/wikihow/qadomain/images/" . $info['icon'];
 		}
 	}

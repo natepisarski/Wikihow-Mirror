@@ -12,7 +12,7 @@ require_once "$IP/extensions/GuidedTour/GuidedTour.php";
 * Test that it worked by calling a page with tour=test appended to the URL. For
 example http://MyServer/w/index.php?tour=test
 
-'test' is a tour defined by the GuidedTour extenion.
+'test' is a tour defined by the GuidedTour extension.
 * Write an on-wiki tour on a page in the MediaWiki namespace.  Perhaps called
 MediaWiki:Guidedtour-tour-mytour.js
 
@@ -22,9 +22,6 @@ local tour.
 http://MyServer/w/index.php?tour=mytour
 * The name of the tour is the parameter you call it with.
 In the examples above, that's 'test' and 'mytour'
-
-* To style the output provide a file of overrides on the wiki page
-MediaWiki:Guidedtour-custom.css
 
 License
 
@@ -37,10 +34,10 @@ the Apache License 2.0.
 
 The mediawiki.libs.guiders directory is based on Guiders.js, developed by Optimizely
 and Jeff Pickhardt.
-See https://github.com/jeff-optimizely/Guiders-JS
+See https://github.com/pickhardt/Guiders-JS
 
 Further enhancements to Guiders.js were developed by the GuidedTour team.  Earlier
-work is at https://git.wikimedia.org/log/mediawiki%2Fextensions%2FGuidedTour%2Fguiders.git
+work is at https://phabricator.wikimedia.org/diffusion/EGTG/history/
 
 but that repository is no longer used.
 

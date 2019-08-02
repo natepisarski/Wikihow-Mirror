@@ -85,7 +85,7 @@
 		},
 
 		init: function() {
-			$('#csui_close_popup').live('click', function (e) {
+			$(document).on("click", "#csui_close_popup", function (e) {
 				$('#editfinder_interests').slideUp(function() { 
 					if ($('#ef_num_cats').val() != $(".csui_category").size()) {
 						window.location.reload();
@@ -93,7 +93,7 @@
 				});
 			});
 
-			$(".csui_close").live('click', function(e) {
+			$(document).on("click", ".csui_close", function(e) {
 				var interestDiv = $(this).parent();
 				var interest = $(this).parent().children('div:first').text();
 				$.get(WH.CatSearchUI.ci_url, {a: 'remove', cat: interest}, function(data) {
@@ -108,7 +108,7 @@
 				});
 			});
 
-			$(".csui_suggestion").live('click', function(e) {
+			$(document).on("click", ".csui_suggestion", function(e) {
 				var id = $(this).children('div:first').text();
 				var label = id.replace(/-/g, " ");
 				WH.CatSearchUI.addInterest(label, id);

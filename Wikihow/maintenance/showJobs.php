@@ -25,7 +25,7 @@
  * @author Antoine Musso
  */
 
-require_once( __DIR__ . '/Maintenance.php' );
+require_once __DIR__ . '/Maintenance.php';
 
 /**
  * Maintenance script that reports the number of jobs currently waiting
@@ -34,26 +34,70 @@ require_once( __DIR__ . '/Maintenance.php' );
  * @ingroup Maintenance
  */
 class ShowJobs extends Maintenance {
+	protected static $stateMethods = [
+		'unclaimed' => 'getAllQueuedJobs',
+		'delayed'   => 'getAllDelayedJobs',
+		'claimed'   => 'getAllAcquiredJobs',
+		'abandoned' => 'getAllAbandonedJobs',
+	];
+
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Show number of jobs waiting in master database";
+		$this->addDescription( 'Show number of jobs waiting in master database' );
 		$this->addOption( 'group', 'Show number of jobs per job type' );
+		$this->addOption( 'list', 'Show a list of all jobs instead of counts' );
+		$this->addOption( 'type', 'Only show/count jobs of a given type', false, true );
+		$this->addOption( 'status', 'Filter list by state (unclaimed,delayed,claimed,abandoned)' );
+		$this->addOption( 'limit', 'Limit of jobs listed' );
 	}
 
 	public function execute() {
+		$typeFilter = $this->getOption( 'type', '' );
+		$stateFilter = $this->getOption( 'status', '' );
+		$stateLimit = (float)$this->getOption( 'limit', INF );
+
 		$group = JobQueueGroup::singleton();
-		if ( $this->hasOption( 'group' ) ) {
-			foreach ( $group->getQueueTypes() as $type ) {
-				$queue   = $group->get( $type );
+
+		$filteredTypes = $typeFilter
+			? [ $typeFilter ]
+			: $group->getQueueTypes();
+		$filteredStates = $stateFilter
+			? array_intersect_key( self::$stateMethods, [ $stateFilter => 1 ] )
+			: self::$stateMethods;
+
+		if ( $this->hasOption( 'list' ) ) {
+			$count = 0;
+			foreach ( $filteredTypes as $type ) {
+				$queue = $group->get( $type );
+				foreach ( $filteredStates as $state => $method ) {
+					foreach ( $queue->$method() as $job ) {
+						/** @var Job $job */
+						$this->output( $job->toString() . " status=$state\n" );
+						if ( ++$count >= $stateLimit ) {
+							return;
+						}
+					}
+				}
+			}
+		} elseif ( $this->hasOption( 'group' ) ) {
+			foreach ( $filteredTypes as $type ) {
+				$queue = $group->get( $type );
+				$delayed = $queue->getDelayedCount();
 				$pending = $queue->getSize();
 				$claimed = $queue->getAcquiredCount();
-				if ( ( $pending + $claimed ) > 0 ) {
-					$this->output( "{$type}: $pending queued; $claimed acquired\n" );
+				$abandoned = $queue->getAbandonedCount();
+				$active = max( 0, $claimed - $abandoned );
+				if ( ( $pending + $claimed + $delayed + $abandoned ) > 0 ) {
+					$this->output(
+						"{$type}: $pending queued; " .
+						"$claimed claimed ($active active, $abandoned abandoned); " .
+						"$delayed delayed\n"
+					);
 				}
 			}
 		} else {
 			$count = 0;
-			foreach ( $group->getQueueTypes() as $type ) {
+			foreach ( $filteredTypes as $type ) {
 				$count += $group->get( $type )->getSize();
 			}
 			$this->output( "$count\n" );
@@ -61,5 +105,5 @@ class ShowJobs extends Maintenance {
 	}
 }
 
-$maintClass = "ShowJobs";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+$maintClass = ShowJobs::class;
+require_once RUN_MAINTENANCE_IF_MAIN;

@@ -2,13 +2,13 @@
 	"@metadata": {
 		"authors": [
 			"Avjoska",
-			"Pikne"
+			"Pikne",
+			"Cumbril"
 		]
 	},
-	"scribunto-ignore-errors": "Luba salvestada kood tõrgetega",
+	"scribunto-desc": "Raamistik, mis võimaldab põimida MediaWiki lehekülgedesse skriptikeeli.",
 	"scribunto-line": "$1. real",
 	"scribunto-module-line": "kohal $1 $2. real",
-	"scribunto-parser-error": "Skriptitõrge",
 	"scribunto-parser-dialog-title": "Skriptitõrge",
 	"scribunto-error-short": "Skriptitõrge: $1",
 	"scribunto-error-long": "Skriptitõrked:\n\n$1",
@@ -33,5 +33,7 @@
 	"scribunto-limitreport-virtmemusage": "Lua virtuaalne suurus",
 	"scribunto-limitreport-estmemusage": "Lua hinnanguline mälukasutus",
 	"scribunto-limitreport-memusage": "Lua mälukasutus",
-	"scribunto-limitreport-profile": "Lua profiil"
+	"scribunto-limitreport-profile": "Lua profiil",
+	"nstab-module": "Moodul",
+	"tooltip-ca-nstab-module": "Vaata mooduli lehekülge"
 }

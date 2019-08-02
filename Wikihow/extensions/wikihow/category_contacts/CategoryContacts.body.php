@@ -429,7 +429,8 @@ class CategoryContactMailer extends UnlistedSpecialPage {
 		$content_type = "text/html; charset=UTF-8"; //HTML email
 
 		if (!$wgIsDevServer) {
-			$sent = UserMailer::send($to, $from, $subject, $body, null, $content_type, "cat_contacts");
+			$opts = [ 'contentType' => $content_type, 'category' => 'cat_contacts' ];
+			$sent = UserMailer::send($to, $from, $subject, $body, $opts);
 			$result = $sent->isGood() ? true : false;
 		}
 

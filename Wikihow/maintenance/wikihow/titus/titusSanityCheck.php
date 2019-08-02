@@ -3,7 +3,6 @@
 # Check to make sure Titus has run recently on a somewhat reasonable number of articles
 
 require_once(__DIR__ . '/../../commandLine.inc');
-require("$IP/extensions/wikihow/titus/Titus.class.php");
 
 global $wgActiveLanguages;
 

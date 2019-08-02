@@ -102,9 +102,14 @@ $wgHooks['EditPageBeforeEditButtons'][] = 'DraftHooks::onEditPageBeforeEditButto
 $wgHooks['EditPage::showEditForm:initial'][] = 'DraftHooks::loadForm';
 
 // Register JS / CSS
+$wgResourceModules[ 'ext.Drafts_styles' ] = array(
+	'styles'        => 'modules/ext.Drafts.css',
+	'localBasePath' => $dir,
+	'remoteExtPath' => 'Drafts',
+);
+
 $wgResourceModules[ 'ext.Drafts' ] = array(
 	'scripts'       => 'modules/ext.Drafts.js',
-	'styles'        => 'modules/ext.Drafts.css',
 	'localBasePath' => $dir,
 	'remoteExtPath' => 'Drafts',
 	'dependencies'  => array(

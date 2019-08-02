@@ -22,7 +22,7 @@ class FeaturedContributor {
 
 		$rec = self::getFCList($top);
 		preg_match('/== (.*?) ==/',$rec,$matches);
-		$fc_user =  $matches[1];
+		$fc_user =  trim($matches[1]);
 		preg_match('/==\n(.*)/',$rec,$matches);
 		$fc_blurb =  $matches[1];
 

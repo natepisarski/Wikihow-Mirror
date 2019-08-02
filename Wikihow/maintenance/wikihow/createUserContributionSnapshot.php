@@ -7,8 +7,17 @@
 	primary key(ucs_user,ucs_day) 
 );
  */
-require_once __DIR__ . '/../commandLine.inc';
-class ContributionSnapshot {
+require_once __DIR__ . '/../Maintenance.php';
+
+class ContributionSnapshot extends Maintenance {
+
+	public function execute() {
+		print wfTimestampNow() . " --- taking snapshot of user_contributions on " . "\n";
+		self::snapshot();	
+		print wfTimestampNow() . " --- preparing to clean old snapshots\n";
+		self::cleanSnapshots();
+		print wfTimestampNow() . " --- removed old snapshots\n";
+	}
 
 	public static function snapshot() {
 		$dbw = wfGetDB(DB_MASTER);
@@ -22,14 +31,8 @@ class ContributionSnapshot {
 		$dbw->query($sql, __METHOD__);
 	}
 
-	public static function run() {
-		print wfTimestampNow() . " --- taking snapshot of user_contributions on " . "\n";
-		self::snapshot();	
-		print wfTimestampNow() . " --- preparing to clean old snapshots\n";
-		self::cleanSnapshots();
-		print wfTimestampNow() . " --- removed old snapshots\n";
-	}
-
 }
 
-ContributionSnapshot::run();
+$maintClass = 'ContributionSnapshot';
+require_once RUN_MAINTENANCE_IF_MAIN;
+

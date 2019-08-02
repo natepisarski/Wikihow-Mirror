@@ -20,6 +20,8 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Image gallery
  *
@@ -28,20 +30,44 @@
  * @ingroup Media
  */
 abstract class ImageGalleryBase extends ContextSource {
-	/** @var array Gallery images */
+	/**
+	 * @var array Gallery images
+	 */
 	protected $mImages;
 
-	/** @var bool Whether to show the filesize in bytes in categories */
+	/**
+	 * @var bool Whether to show the filesize in bytes in categories
+	 */
 	protected $mShowBytes;
 
-	/** @var bool Whether to show the filename. Default: true */
+	/**
+	 * @var bool Whether to show the dimensions in categories
+	 */
+	protected $mShowDimensions;
+
+	/**
+	 * @var bool Whether to show the filename. Default: true
+	 */
 	protected $mShowFilename;
 
-	/** @var string Gallery mode. Default: traditional */
+	/**
+	 * @var string Gallery mode. Default: traditional
+	 */
 	protected $mMode;
 
-	/** @var bool|string Gallery caption. Default: false */
+	/**
+	 * @var bool|string Gallery caption. Default: false
+	 */
 	protected $mCaption = false;
+
+	/**
+	 * Length to truncate filename to in caption when using "showfilename".
+	 * A value of 'true' will truncate the filename to one line using CSS
+	 * and will be the behaviour after deprecation.
+	 *
+	 * @var bool|int
+	 */
+	protected $mCaptionLength = true;
 
 	/**
 	 * @var bool Hide blacklisted images?
@@ -51,7 +77,7 @@ abstract class ImageGalleryBase extends ContextSource {
 	/**
 	 * @var Parser Registered parser object for output callbacks
 	 */
-	protected $mParser;
+	public $mParser;
 
 	/**
 	 * @var Title Contextual title, used when images are being screened against
@@ -60,7 +86,7 @@ abstract class ImageGalleryBase extends ContextSource {
 	protected $contextTitle = false;
 
 	/** @var array */
-	protected $mAttribs = array();
+	protected $mAttribs = [];
 
 	/** @var bool */
 	static private $modeMapping = false;
@@ -69,20 +95,26 @@ abstract class ImageGalleryBase extends ContextSource {
 	 * Get a new image gallery. This is the method other callers
 	 * should use to get a gallery.
 	 *
-	 * @param string|bool $mode Mode to use. False to use the default.
+	 * @param string|bool $mode Mode to use. False to use the default
+	 * @param IContextSource|null $context
+	 * @return ImageGalleryBase
 	 * @throws MWException
 	 */
-	static function factory( $mode = false ) {
-		global $wgGalleryOptions, $wgContLang;
+	static function factory( $mode = false, IContextSource $context = null ) {
 		self::loadModes();
+		if ( !$context ) {
+			$context = RequestContext::getMainAndWarn( __METHOD__ );
+		}
 		if ( !$mode ) {
-			$mode = $wgGalleryOptions['mode'];
+			$galleryOptions = $context->getConfig()->get( 'GalleryOptions' );
+			$mode = $galleryOptions['mode'];
 		}
 
-		$mode = $wgContLang->lc( $mode );
+		$mode = MediaWikiServices::getInstance()->getContentLanguage()->lc( $mode );
 
 		if ( isset( self::$modeMapping[$mode] ) ) {
-			return new self::$modeMapping[$mode]( $mode );
+			$class = self::$modeMapping[$mode];
+			return new $class( $mode, $context );
 		} else {
 			throw new MWException( "No gallery class registered for mode $mode" );
 		}
@@ -90,15 +122,16 @@ abstract class ImageGalleryBase extends ContextSource {
 
 	private static function loadModes() {
 		if ( self::$modeMapping === false ) {
-			self::$modeMapping = array(
-				'traditional' => 'TraditionalImageGallery',
-				'nolines' => 'NolinesImageGallery',
-				'packed' => 'PackedImageGallery',
-				'packed-hover' => 'PackedHoverImageGallery',
-				'packed-overlay' => 'PackedOverlayImageGallery',
-			);
+			self::$modeMapping = [
+				'traditional' => TraditionalImageGallery::class,
+				'nolines' => NolinesImageGallery::class,
+				'packed' => PackedImageGallery::class,
+				'packed-hover' => PackedHoverImageGallery::class,
+				'packed-overlay' => PackedOverlayImageGallery::class,
+				'slideshow' => SlideshowImageGallery::class,
+			];
 			// Allow extensions to make a new gallery format.
-			wfRunHooks( 'GalleryGetModes', self::$modeMapping );
+			Hooks::run( 'GalleryGetModes', [ &self::$modeMapping ] );
 		}
 	}
 
@@ -107,18 +140,25 @@ abstract class ImageGalleryBase extends ContextSource {
 	 *
 	 * You should not call this directly, but instead use
 	 * ImageGalleryBase::factory().
+	 * @param string $mode
+	 * @param IContextSource|null $context
 	 */
-	function __construct( $mode = 'traditional' ) {
-		global $wgGalleryOptions;
-		$this->mImages = array();
-		$this->mShowBytes = $wgGalleryOptions['showBytes'];
+	function __construct( $mode = 'traditional', IContextSource $context = null ) {
+		if ( $context ) {
+			$this->setContext( $context );
+		}
+
+		$galleryOptions = $this->getConfig()->get( 'GalleryOptions' );
+		$this->mImages = [];
+		$this->mShowBytes = $galleryOptions['showBytes'];
+		$this->mShowDimensions = $galleryOptions['showDimensions'];
 		$this->mShowFilename = true;
 		$this->mParser = false;
 		$this->mHideBadImages = false;
-		$this->mPerRow = $wgGalleryOptions['imagesPerRow'];
-		$this->mWidths = $wgGalleryOptions['imageWidth'];
-		$this->mHeights = $wgGalleryOptions['imageHeight'];
-		$this->mCaptionLength = $wgGalleryOptions['captionLength'];
+		$this->mPerRow = $galleryOptions['imagesPerRow'];
+		$this->mWidths = $galleryOptions['imageWidth'];
+		$this->mHeights = $galleryOptions['imageHeight'];
+		$this->mCaptionLength = $galleryOptions['captionLength'];
 		$this->mMode = $mode;
 	}
 
@@ -130,7 +170,7 @@ abstract class ImageGalleryBase extends ContextSource {
 	 * @note This also triggers using the page's target
 	 *  language instead of the user language.
 	 *
-	 * @param $parser Parser
+	 * @param Parser $parser
 	 */
 	function setParser( $parser ) {
 		$this->mParser = $parser;
@@ -138,6 +178,7 @@ abstract class ImageGalleryBase extends ContextSource {
 
 	/**
 	 * Set bad image flag
+	 * @param bool $flag
 	 */
 	function setHideBadImages( $flag = true ) {
 		$this->mHideBadImages = $flag;
@@ -146,7 +187,7 @@ abstract class ImageGalleryBase extends ContextSource {
 	/**
 	 * Set the caption (as plain text)
 	 *
-	 * @param string $caption Caption
+	 * @param string $caption
 	 */
 	function setCaption( $caption ) {
 		$this->mCaption = htmlspecialchars( $caption );
@@ -155,7 +196,7 @@ abstract class ImageGalleryBase extends ContextSource {
 	/**
 	 * Set the caption (as HTML)
 	 *
-	 * @param string $caption Caption
+	 * @param string $caption
 	 */
 	public function setCaptionHtml( $caption ) {
 		$this->mCaption = $caption;
@@ -176,22 +217,26 @@ abstract class ImageGalleryBase extends ContextSource {
 	/**
 	 * Set how wide each image will be, in pixels.
 	 *
-	 * @param int $num Integer > 0; invalid numbers will be ignored
+	 * @param string $num Number. Unit other than 'px is invalid. Invalid numbers
+	 *   and those below 0 are ignored.
 	 */
 	public function setWidths( $num ) {
-		if ( $num > 0 ) {
-			$this->mWidths = (int)$num;
+		$parsed = Parser::parseWidthParam( $num, false );
+		if ( isset( $parsed['width'] ) && $parsed['width'] > 0 ) {
+			$this->mWidths = $parsed['width'];
 		}
 	}
 
 	/**
 	 * Set how high each image will be, in pixels.
 	 *
-	 * @param int $num Integer > 0; invalid numbers will be ignored
+	 * @param string $num Number. Unit other than 'px is invalid. Invalid numbers
+	 *   and those below 0 are ignored.
 	 */
 	public function setHeights( $num ) {
-		if ( $num > 0 ) {
-			$this->mHeights = (int)$num;
+		$parsed = Parser::parseWidthParam( $num, false );
+		if ( isset( $parsed['width'] ) && $parsed['width'] > 0 ) {
+			$this->mHeights = $parsed['width'];
 		}
 	}
 
@@ -200,20 +245,9 @@ abstract class ImageGalleryBase extends ContextSource {
 	 * to allow extensions to add additional parameters to
 	 * <gallery> parser tag.
 	 *
-	 * @param array $options Attributes of gallery tag.
+	 * @param array $options Attributes of gallery tag
 	 */
 	public function setAdditionalOptions( $options ) {
-	}
-
-	/**
-	 * Instruct the class to use a specific skin for rendering
-	 *
-	 * @param Skin $skin
-	 * @deprecated since 1.18 Not used anymore
-	 */
-	function useSkin( $skin ) {
-		wfDeprecated( __METHOD__, '1.18' );
-		/* no op */
 	}
 
 	/**
@@ -226,12 +260,12 @@ abstract class ImageGalleryBase extends ContextSource {
 	 * @param string $link Override image link (optional)
 	 * @param array $handlerOpts Array of options for image handler (aka page number)
 	 */
-	function add( $title, $html = '', $alt = '', $link = '', $handlerOpts = array() ) {
+	function add( $title, $html = '', $alt = '', $link = '', $handlerOpts = [] ) {
 		if ( $title instanceof File ) {
 			// Old calling convention
 			$title = $title->getTitle();
 		}
-		$this->mImages[] = array( $title, $html, $alt, $link, $handlerOpts );
+		$this->mImages[] = [ $title, $html, $alt, $link, $handlerOpts ];
 		wfDebug( 'ImageGallery::add ' . $title->getText() . "\n" );
 	}
 
@@ -245,12 +279,20 @@ abstract class ImageGalleryBase extends ContextSource {
 	 * @param string $link Override image link (optional)
 	 * @param array $handlerOpts Array of options for image handler (aka page number)
 	 */
-	function insert( $title, $html = '', $alt = '', $link = '', $handlerOpts = array() ) {
+	function insert( $title, $html = '', $alt = '', $link = '', $handlerOpts = [] ) {
 		if ( $title instanceof File ) {
 			// Old calling convention
 			$title = $title->getTitle();
 		}
-		array_unshift( $this->mImages, array( &$title, $html, $alt, $link, $handlerOpts ) );
+		array_unshift( $this->mImages, [ &$title, $html, $alt, $link, $handlerOpts ] );
+	}
+
+	/**
+	 * Returns the list of images this gallery contains
+	 * @return array
+	 */
+	public function getImages() {
+		return $this->mImages;
 	}
 
 	/**
@@ -262,10 +304,20 @@ abstract class ImageGalleryBase extends ContextSource {
 	}
 
 	/**
+	 * Enable/Disable showing of the dimensions of an image in the gallery.
+	 * Enabled by default.
+	 *
+	 * @param bool $f Set to false to disable
+	 */
+	function setShowDimensions( $f ) {
+		$this->mShowDimensions = (bool)$f;
+	}
+
+	/**
 	 * Enable/Disable showing of the file size of an image in the gallery.
 	 * Enabled by default.
 	 *
-	 * @param bool $f Set to false to disable.
+	 * @param bool $f Set to false to disable
 	 */
 	function setShowBytes( $f ) {
 		$this->mShowBytes = (bool)$f;
@@ -275,7 +327,7 @@ abstract class ImageGalleryBase extends ContextSource {
 	 * Enable/Disable showing of the filename of an image in the gallery.
 	 * Enabled by default.
 	 *
-	 * @param bool $f Set to false to disable.
+	 * @param bool $f Set to false to disable
 	 */
 	function setShowFilename( $f ) {
 		$this->mShowFilename = (bool)$f;

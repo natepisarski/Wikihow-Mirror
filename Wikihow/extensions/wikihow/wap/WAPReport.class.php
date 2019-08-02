@@ -16,8 +16,12 @@ class WAPReport {
 
 	private function getDBR() {
 		global $wgDBname;
-		$db = DatabaseBase::factory('mysql');
-		$db->open(WH_DATABASE_MASTER, WH_DATABASE_USER, WH_DATABASE_PASSWORD, $wgDBname);
+		$db = DatabaseBase::factory( 'mysql', [
+			'host' => WH_DATABASE_MASTER,
+			'user' => WH_DATABASE_USER,
+			'password' => WH_DATABASE_PASSWORD,
+			'dbname' => $wgDBname,
+		] );
 		return $db;
 	}
 

@@ -113,8 +113,8 @@ class QAAnswerEmailJob extends Job {
 
 			$body = wfMessage('qap_answered_email_body', $name, $email_info, $question, $answer, $article_title, $article_link, $link_help, $link_unhelp, $stinger)->text();
 
-			$content_type = "text/html; charset=UTF-8";
-			UserMailer::send($to, $from, $subject, $body, null, $content_type);
+			$opts = [ 'contentType' => "text/html; charset=UTF-8" ];
+			UserMailer::send($to, $from, $subject, $body, $opts);
 		}
 
 		//log it

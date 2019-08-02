@@ -1,8 +1,8 @@
 <?php
 
 namespace CirrusSearch;
-use \ProfileSection;
-use \Status;
+
+use Status;
 
 /**
  * Fetch the Elasticsearch version
@@ -24,40 +24,45 @@ use \Status;
  */
 class Version extends ElasticsearchIntermediary {
 	/**
-	 * Constructor
+	 * @param Connection $conn
 	 */
-	public function __construct() {
-		parent::__construct( null, 0 );
+	public function __construct( Connection $conn ) {
+		parent::__construct( $conn, null, 0 );
 	}
 
 	/**
 	 * Get the version of Elasticsearch with which we're communicating.
 	 *
-	 * @return Status(string) version number as a string
+	 * @return Status<string> version number as a string
 	 */
 	public function get() {
-		global $wgMemc, $wgCirrusSearchClientSideSearchTimeout;
-
-		$profiler = new ProfileSection( __METHOD__ );
-
-		$mcKey = wfMemcKey( 'CirrusSearch', 'Elasticsearch', 'version' );
-		$result = $wgMemc->get( $mcKey );
-		if ( !$result ) {
-			try {
-				$this->start( 'fetching elasticsearch version' );
-				// If this times out the cluster is in really bad shape but we should still
-				// check it.
-				Connection::setTimeout( $wgCirrusSearchClientSideSearchTimeout[ 'default' ] );
-				$result = Connection::getClient()->request( '' );
-				$this->success();
-			} catch ( \Elastica\Exception\ExceptionInterface $e ) {
-				return $this->failure( $e );
-			}
-			$result = $result->getData();
-			$result = $result[ 'version' ][ 'number' ];
-			$wgMemc->set( $mcKey, $result, 3600 * 12 );
+		try {
+			$this->startNewLog( 'fetching elasticsearch version', 'version' );
+			// If this times out the cluster is in really bad shape but we should still
+			// check it.
+			$this->connection->setTimeout( $this->getClientTimeout( 'version' ) );
+			$result = $this->connection->getClient()->request( '' );
+			$this->success();
+		} catch ( \Elastica\Exception\ExceptionInterface $e ) {
+			return $this->failure( $e );
 		}
+		return Status::newGood(
+			$result->getData()['version']['number']
+		);
+	}
 
-		return Status::newGood( $result );
+	/**
+	 * @param string $description
+	 * @param string $queryType
+	 * @param string[] $extra
+	 * @return SearchRequestLog
+	 */
+	protected function newLog( $description, $queryType, array $extra = [] ) {
+		return new SearchRequestLog(
+			$this->connection->getClient(),
+			$description,
+			$queryType,
+			$extra
+		);
 	}
 }

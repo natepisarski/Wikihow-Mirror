@@ -21,13 +21,11 @@
  * @ingroup Language
  */
 
-require_once __DIR__ . '/../LanguageConverter.php';
-
 /**
  * @ingroup Language
  */
 class UzConverter extends LanguageConverter {
-	public $toLatin = array(
+	public $toLatin = [
 		'а' => 'a', 'А' => 'A',
 		'б' => 'b', 'Б' => 'B',
 		'д' => 'd', 'Д' => 'D',
@@ -52,9 +50,9 @@ class UzConverter extends LanguageConverter {
 		'т' => 't', 'Т' => 'T',
 		'у' => 'u', 'У' => 'U',
 		'ф' => 'f', 'Ф' => 'F',
-		'ц' => 'c', 'Ц' => 'C',
 		'ў' => 'oʻ', 'Ў' => 'Oʻ',
-		'ц' => 'ts', 'Ц' => 'Ts', // note: at the beginning of a word and right after a consonant, only "s" is used
+		// note: at the beginning of a word and right after a consonant, only "s" is used
+		'ц' => 'ts', 'Ц' => 'Ts',
 		'қ' => 'q', 'Қ' => 'Q',
 		'ё' => 'yo', 'Ё' => 'Yo',
 		'ю' => 'yu', 'Ю' => 'Yu',
@@ -63,15 +61,15 @@ class UzConverter extends LanguageConverter {
 		'й' => 'y', 'Й' => 'Y',
 		'я' => 'ya', 'Я' => 'Ya',
 		'ъ' => 'ʼ',
-	);
+	];
 
-	public $toCyrillic = array(
+	public $toCyrillic = [
 		'a' => 'а', 'A' => 'А',
 		'b' => 'б', 'B' => 'Б',
 		'd' => 'д', 'D' => 'Д',
-		'e' => 'е', 'E' => 'Е',
-		' e' => ' э', ' E' => ' Э', // "э" is used at the beginning of a word instead of "e"
-		'ye' => 'е', 'Ye' => 'Е',
+		// at the beginning of a word and after a vowel, "э" is used instead of "e"
+		// (see regex below)
+		'e' => 'э', 'E' => 'Э',
 		'f' => 'ф', 'F' => 'Ф',
 		'g' => 'г', 'G' => 'Г',
 		'g‘' => 'ғ', 'G‘' => 'Ғ', 'gʻ' => 'ғ', 'Gʻ' => 'Ғ',
@@ -102,14 +100,26 @@ class UzConverter extends LanguageConverter {
 		'y' => 'й', 'Y' => 'Й',
 		'ya' => 'я', 'Ya' => 'Я',
 		'ʼ' => 'ъ',
-	);
+	];
 
 	function loadDefaultTables() {
-		$this->mTables = array(
+		$this->mTables = [
 			'uz-cyrl' => new ReplacementArray( $this->toCyrillic ),
 			'uz-latn' => new ReplacementArray( $this->toLatin ),
 			'uz' => new ReplacementArray()
-		);
+		];
+	}
+
+	function translate( $text, $toVariant ) {
+		if ( $toVariant == 'uz-cyrl' ) {
+			$text = str_replace( 'ye', 'е', $text );
+			$text = str_replace( 'Ye', 'Е', $text );
+			$text = str_replace( 'YE', 'Е', $text );
+			// "е" after consonants, otherwise "э" (see above)
+			$text = preg_replace( '/([BVGDJZYKLMNPRSTFXCWQʻ‘H])E/u', '$1Е', $text );
+			$text = preg_replace( '/([bvgdjzyklmnprstfxcwqʻ‘h])e/ui', '$1е', $text );
+		}
+		return parent::translate( $text, $toVariant );
 	}
 
 }
@@ -121,17 +131,15 @@ class UzConverter extends LanguageConverter {
  */
 class LanguageUz extends Language {
 	function __construct() {
-		global $wgHooks;
 		parent::__construct();
 
-		$variants = array( 'uz', 'uz-latn', 'uz-cyrl' );
-		$variantfallbacks = array(
+		$variants = [ 'uz', 'uz-latn', 'uz-cyrl' ];
+		$variantfallbacks = [
 			'uz' => 'uz-latn',
 			'uz-cyrl' => 'uz',
 			'uz-latn' => 'uz',
-		);
+		];
 
 		$this->mConverter = new UzConverter( $this, 'uz', $variants, $variantfallbacks );
-		$wgHooks['PageContentSaveComplete'][] = $this->mConverter;
 	}
 }

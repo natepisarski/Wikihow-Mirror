@@ -186,8 +186,8 @@ class WikihowUser extends User {
 		//let's assume we have a good name
 		$result = true;
 
-		//disallow usernames that start with _
-		if (preg_match('/^_/',$name)) $result = false;
+		//disallow usernames that start or end with _
+		if (preg_match('/(^_|_$)/',$name)) $result = false;
 
 		//no usernames with multiple spaces
 		if ($result && preg_match('/(\s|-)(\s+|-+)/',$name)) $result = false;

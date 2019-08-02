@@ -82,7 +82,7 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 			}
 		}
 		// no module styles are allowed in amp
-		$out->mModuleStyles = array();
+		$out->clearModuleStyles();
 
 		$tpl = SkinTemplate::prepareQuickTemplate();
 
@@ -95,8 +95,6 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 
 		$this->prepareHeaderAndFooter( $tpl );
 		$this->prepareBanners( $tpl );
-		$this->prepareSiteLinks( $tpl );
-		$this->prepareWarnings( $tpl );
 		$this->preparePageActions( $tpl );
 		$this->prepareDiscoveryTools( $tpl );
 
@@ -160,7 +158,7 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 		$out->addMeta('google-site-verification','Jb3uMWyKPQ3B9lzp5hZvJjITDKG8xI8mnEpWifGXUb0');
 
 		// Add canonical link if it doesn't exist already (it will for Samples)
-		if (!$out->mCanonicalUrl) {
+		if (!$out->getCanonicalUrl()) {
 			$canonicalUrl = WikihowMobileTools::getNonMobileSite() . '/' . $this->getSkin()->getTitle()->getPrefixedURL();
 			$out->setCanonicalUrl($canonicalUrl);
 		}

@@ -176,8 +176,7 @@ class ImageFeedback extends UnlistedSpecialPage {
 
 		$allowAnonFeedback = self::$allowAnonFeedback;
 
-		$ctx = MobileContext::singleton();
-		$isMobileMode = $ctx->shouldDisplayMobileView();
+		$isMobileMode = Misc::isMobileMode();
 
 		return $user &&
 			(!$user->isAnon() || $allowAnonFeedback) &&

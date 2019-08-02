@@ -25,9 +25,8 @@ class TitusTestStats extends Maintenance {
 	}
 
 	public function execute() {
-		global $wgLanguageCode, $IP;
+		global $wgLanguageCode;
 		require_once( __DIR__ . '/titusController.php' );
-		require_once("$IP/extensions/wikihow/titus/Titus.class.php");
 		decho( "Running with language code", $wgLanguageCode, false );
 
 

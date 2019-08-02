@@ -1,0 +1,40 @@
+{
+	"@metadata": {
+		"authors": [
+			"Chrumps",
+			"Dalis",
+			"Matma Rex",
+			"Peter Bowman",
+			"Tar Lócesilion",
+			"WTM",
+			"Railfail536"
+		]
+	},
+	"guidedtour-desc": "Umożliwia korzystanie z interaktywnych przewodników dla początkujących",
+	"guidedtour-help-url": "Help:Interaktywny przewodnik",
+	"guidedtour-help-guider-url": "Pomoc:Interaktywny przewodnik/przewodnik",
+	"guidedtour-next-button": "Dalej",
+	"guidedtour-okay-button": "OK",
+	"guidedtour-back-button": "Wstecz",
+	"guidedtour-tour-test-testing": "Testowanie",
+	"guidedtour-tour-test-test-description": "To jest przykładowy tekst. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Test odniesień",
+	"guidedtour-tour-test-portal-description": "To jest strona „{{int:portal}}”.",
+	"guidedtour-tour-test-mediawiki-parse": "Test składni MediaWiki",
+	"guidedtour-tour-test-description-page": "Test stron opisowych MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Przejdź na stronę opisu",
+	"guidedtour-tour-test-launch-tour": "Test rozpoczęcia wycieczki",
+	"guidedtour-tour-test-launch-tour-description": "Jeden przewodnik może uruchomić drugi. Fajne, prawda?",
+	"guidedtour-tour-test-launch-editing": "Uruchom przewodnik po edytowaniu",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Edytuj}} całą stronę…",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Kliknij}} na „$1”, aby dokonać zmian.",
+	"guidedtour-tour-firstedit-edit-section-title": "Lub {{GENDER:|edytuj}} sekcję",
+	"guidedtour-tour-firstedit-edit-section-description": "Obok każdego nagłówka znajduje się odnośnik „{{int:editsection}}”, aby móc skupić się tylko na tej części.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Przejrzyj}} swoje zmiany (opcjonalne)",
+	"guidedtour-tour-firstedit-preview-description": "Naciśnięcie na „{{int:showpreview}}” pozwoli Ci obejrzeć wygląd strony po wprowadzeniu Twoich zmian. Nie zapomnij ich zapisać!",
+	"guidedtour-tour-firstedit-save-title": "Prawie gotowe!",
+	"guidedtour-tour-firstedit-save-description": "Gdy będziesz {{GENDER:|gotowy|gotowa}}, kliknij „{{int:publishchanges}}”, aby zmiany stały się widoczne dla każdego.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Kliknij}} przycisk „$1”, aby dokonać zmian.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Obok każdego nagłówka znajduje się przycisk „$1”, aby móc skupić się tylko na tej części.",
+	"guidedtour-tour-firsteditve-save-description": "Gdy skończysz, kliknięcie na „{{int:visualeditor-toolbar-savedialog}}” sprawi, że zmiany będą widoczne dla każdego."
+}

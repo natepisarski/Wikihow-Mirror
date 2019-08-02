@@ -34,6 +34,7 @@
  * @ingroup DifferenceEngine
  */
 abstract class DiffFormatter {
+
 	/** @var int Number of leading context "lines" to preserve.
 	 *
 	 * This should be left at zero for this class, but subclasses
@@ -48,18 +49,20 @@ abstract class DiffFormatter {
 	 */
 	protected $trailingContextLines = 0;
 
+	/** @var string The output buffer; holds the output while it is built. */
+	private $result = '';
+
 	/**
 	 * Format a diff.
 	 *
-	 * @param $diff Diff A Diff object.
+	 * @param Diff $diff
+	 *
 	 * @return string The formatted output.
 	 */
 	public function format( $diff ) {
-		wfProfileIn( __METHOD__ );
-
 		$xi = $yi = 1;
 		$block = false;
-		$context = array();
+		$context = [];
 
 		$nlead = $this->leadingContextLines;
 		$ntrail = $this->trailingContextLines;
@@ -90,7 +93,7 @@ abstract class DiffFormatter {
 					$context = array_slice( $context, count( $context ) - $nlead );
 					$x0 = $xi - count( $context );
 					$y0 = $yi - count( $context );
-					$block = array();
+					$block = [];
 					if ( $context ) {
 						$block[] = new DiffOpCopy( $context );
 					}
@@ -113,7 +116,6 @@ abstract class DiffFormatter {
 		}
 
 		$end = $this->endDiff();
-		wfProfileOut( __METHOD__ );
 
 		return $end;
 	}
@@ -123,11 +125,11 @@ abstract class DiffFormatter {
 	 * @param int $xlen
 	 * @param int $ybeg
 	 * @param int $ylen
-	 * @param $edits
-	 * @throws MWException
+	 * @param array &$edits
+	 *
+	 * @throws MWException If the edit type is not known.
 	 */
 	protected function block( $xbeg, $xlen, $ybeg, $ylen, &$edits ) {
-		wfProfileIn( __METHOD__ );
 		$this->startBlock( $this->blockHeader( $xbeg, $xlen, $ybeg, $ylen ) );
 		foreach ( $edits as $edit ) {
 			if ( $edit->type == 'copy' ) {
@@ -143,28 +145,37 @@ abstract class DiffFormatter {
 			}
 		}
 		$this->endBlock();
-		wfProfileOut( __METHOD__ );
 	}
 
 	protected function startDiff() {
-		ob_start();
+		$this->result = '';
+	}
+
+	/**
+	 * Writes a string to the output buffer.
+	 *
+	 * @param string $text
+	 */
+	protected function writeOutput( $text ) {
+		$this->result .= $text;
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function endDiff() {
-		$val = ob_get_contents();
-		ob_end_clean();
+		$val = $this->result;
+		$this->result = '';
 
 		return $val;
 	}
 
 	/**
-	 * @param $xbeg
-	 * @param $xlen
-	 * @param $ybeg
-	 * @param $ylen
+	 * @param int $xbeg
+	 * @param int $xlen
+	 * @param int $ybeg
+	 * @param int $ylen
+	 *
 	 * @return string
 	 */
 	protected function blockHeader( $xbeg, $xlen, $ybeg, $ylen ) {
@@ -178,51 +189,66 @@ abstract class DiffFormatter {
 		return $xbeg . ( $xlen ? ( $ylen ? 'c' : 'd' ) : 'a' ) . $ybeg;
 	}
 
+	/**
+	 * Called at the start of a block of connected edits.
+	 * This default implementation writes the header and a newline to the output buffer.
+	 *
+	 * @param string $header
+	 */
 	protected function startBlock( $header ) {
-		echo $header . "\n";
+		$this->writeOutput( $header . "\n" );
 	}
 
+	/**
+	 * Called at the end of a block of connected edits.
+	 * This default implementation does nothing.
+	 */
 	protected function endBlock() {
 	}
 
 	/**
-	 * @param $lines
-	 * @param $prefix string
+	 * Writes all (optionally prefixed) lines to the output buffer, separated by newlines.
+	 *
+	 * @param string[] $lines
+	 * @param string $prefix
 	 */
 	protected function lines( $lines, $prefix = ' ' ) {
 		foreach ( $lines as $line ) {
-			echo "$prefix $line\n";
+			$this->writeOutput( "$prefix $line\n" );
 		}
 	}
 
 	/**
-	 * @param $lines
+	 * @param string[] $lines
 	 */
 	protected function context( $lines ) {
 		$this->lines( $lines );
 	}
 
 	/**
-	 * @param $lines
+	 * @param string[] $lines
 	 */
 	protected function added( $lines ) {
 		$this->lines( $lines, '>' );
 	}
 
 	/**
-	 * @param $lines
+	 * @param string[] $lines
 	 */
 	protected function deleted( $lines ) {
 		$this->lines( $lines, '<' );
 	}
 
 	/**
-	 * @param $orig
-	 * @param $closing
+	 * Writes the two sets of lines to the output buffer, separated by "---" and a newline.
+	 *
+	 * @param string[] $orig
+	 * @param string[] $closing
 	 */
 	protected function changed( $orig, $closing ) {
 		$this->deleted( $orig );
-		echo "---\n";
+		$this->writeOutput( "---\n" );
 		$this->added( $closing );
 	}
+
 }

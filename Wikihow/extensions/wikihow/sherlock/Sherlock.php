@@ -5,11 +5,16 @@ class Sherlock {
 	const SHA_TABLE = 'whdata.sherlock_article';
 
 	public function __contstruct() {
-
 	}
 
-	// Make a new Sherlock Search entry
+	// Make a new Sherlock Search entry. This corresponds to a
+	// search being done against our WH search product.
 	public static function logSherlockSearch($q, $vId, $numResults, $logged, $platform) {
+		global $wgReadOnly;
+		if ($wgReadOnly) {
+			return '';
+		}
+
 		// Establish DB connection
 		$dbw = wfGetDB(DB_MASTER);
 
@@ -18,12 +23,12 @@ class Sherlock {
 
 		// Create data array for the entry
 		$data = array(
-			"shs_query"			=> $q,
-			"shs_results"		=> $numResults,
-			"shs_visitor_id"	=> $vId,
-			"shs_usr_logged"	=> $logged,
-			"shs_platform"		=> $platform,
-			"shs_timestamp"		=> $dbw->timestamp()
+			"shs_query"         => $q,
+			"shs_results"       => $numResults,
+			"shs_visitor_id"    => $vId,
+			"shs_usr_logged"    => $logged,
+			"shs_platform"      => $platform,
+			"shs_timestamp"     => $dbw->timestamp()
 		);
 
 		// Insert data, get the entry key
@@ -33,25 +38,26 @@ class Sherlock {
 		return $key;
 	}
 
-	// Make a new Sherlock article entry
+	// Make a new Sherlock article entry. This corresponds to
+	// an article being viewed (after a search has happened)
+	// from our WH search index.
 	public static function logSherlockArticle($pageId, $index, $shs_key, $pageTitle) {
-		// Establish DB connection
+		global $wgReadOnly;
+		if ($wgReadOnly) {
+			return;
+		}
+
 		$dbw = wfGetDB(DB_MASTER);
 
-		// Create data array for the entry
 		$data = array(
-			"shs_key"			=> $shs_key,
-			"sha_article_id"	=> $pageId,
-			"sha_title"			=> $pageTitle,
-			"sha_index"			=> $index,
-			"sha_timestamp"		=> $dbw->timestamp()
+			"shs_key"           => $shs_key,
+			"sha_article_id"    => $pageId,
+			"sha_title"         => $pageTitle,
+			"sha_index"         => $index,
+			"sha_timestamp"     => $dbw->timestamp()
 		);
 
-		// Insert data
-		$res = $dbw->insert(self::SHA_TABLE, $data, __METHOD__);
+		$dbw->insert(self::SHA_TABLE, $data, __METHOD__);
 	}
 
-	private static function checkSherlockSearchDuplicate() {
-		//query the DB for the last entry for
-	}
 }

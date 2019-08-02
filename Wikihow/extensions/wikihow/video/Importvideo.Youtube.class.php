@@ -47,6 +47,7 @@ class ImportVideoYoutube extends ImportVideo {
 		$this->nextOffset = $data->nextPageToken;
 
 		foreach ( $data->items as $video ) {
+			WikihowStatsd::increment( 'youtube.Importvideo' );
 			$videoInfo = json_decode( $this->getResults( $this->getVideoURL( $video->id->videoId ) ) );
 			$this->parseVideo( $videoInfo->items[0] );
 		}
@@ -56,7 +57,7 @@ class ImportVideoYoutube extends ImportVideo {
 		$data = array(
 						'part' => 'id,status,snippet,statistics',
 						'id' => $id,
-						'key' => WH_YOUTUBE_API_KEY
+						'key' => WH_YOUTUBE_IMPORT_API_KEY
 					);
 
 		return 'https://www.googleapis.com/youtube/v3/videos?' . http_build_query($data);
@@ -72,7 +73,7 @@ class ImportVideoYoutube extends ImportVideo {
 						'type' => 'video',
 						'videoEmbeddable' => 'true',
 						'videoSyndicated' => 'true',
-						'key' => WH_YOUTUBE_API_KEY
+						'key' => WH_YOUTUBE_IMPORT_API_KEY
 					);
 
 		$data = array_merge( $data, $additionalParams );
@@ -186,6 +187,7 @@ class ImportVideoYoutube extends ImportVideo {
 			$url = $this->getSearchURL( $query, $limit, $orderby, $additionalParams );
 		}
 
+		WikihowStatsd::increment( 'youtube.Importvideo' );
 		$results = $this->getResults($url);
 		$this->parseSearch($results);
 	}
@@ -195,6 +197,7 @@ class ImportVideoYoutube extends ImportVideo {
 			return null;
 		}
 		$url = $this->getVideoURL($id);
+		WikihowStatsd::increment( 'youtube.Importvideo' );
 		$data = json_decode($this->getResults($url));
 		$this->parseVideo($data->items[0]);
 		$v = $this->mResults[0];

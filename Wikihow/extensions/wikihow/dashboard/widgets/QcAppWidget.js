@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.QcAppWidget = (function($) {
+WH.dashboard.QcAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.QcAppWidget = (function($) {
 	WH.dashboard.registerDataListener('QcAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

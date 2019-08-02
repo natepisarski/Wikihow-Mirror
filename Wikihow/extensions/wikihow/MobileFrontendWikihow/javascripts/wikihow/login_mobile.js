@@ -10,11 +10,11 @@
 				$( this ).addClass( 'ulb_describe' );
 			} );
 			var buttons = {
-				fb: '#facebookButton',
-				gplus: '#googleButton'
+				fb: '#fb_login',
+				gplus: '#gplus_login'
 			};
 			if ( mw.config.get( 'wgUserLanguage' ) === 'en' ) {
-				buttons.civic = '#civicButton';
+				buttons.civic = '#civic_login';
 			}
 			WH.social.setupLoginButtons( buttons, $( '#social-login-form' ).data( 'returnTo' ) );
 		}

@@ -110,7 +110,7 @@ class ProfileBox extends UnlistedSpecialPage {
 			$checkFavs = 'CHECKED';
 		}
 
-
+		// can/should we be using ext.wikihow.profile_box{,_styles} RL modules here?
 		$out->addHTML("
 <script language='javascript' src='" . wfGetPad('/extensions/wikihow/profilebox/profilebox.js?') . WH_SITEREV . "'></script>
 <link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/profilebox/profilebox.css?') . WH_SITEREV . "' type='text/css' />
@@ -794,8 +794,8 @@ $out->addHTML("
 	// Used in WikihowUserPage
 	public static function getPageViews() {
 		$a = new Article( RequestContext::getMain()->getTitle() );
-		$count = $a ? (int)$a->getCount() : 0;
-		$countFormatted = RequestContext::getMain()->getLanguage()->formatNum( $count );
+		$viewCount = $a->getPage()->getCount();
+		$countFormatted = RequestContext::getMain()->getLanguage()->formatNum( $viewCount );
 		$s = wfMessage( 'viewcountuser', $countFormatted )->text();
 		return $s;
 	}

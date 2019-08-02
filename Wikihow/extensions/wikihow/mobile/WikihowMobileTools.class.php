@@ -83,7 +83,6 @@ class WikihowMobileTools {
 		$showTOC = false;
 
 		foreach (pq("h2") as $node) {
-			$h2Parent = pq($node)->parent();
 			//find each section
 
 			$sectionName = Misc::getSectionName(pq("span.mw-headline", $node)->html());
@@ -154,8 +153,6 @@ class WikihowMobileTools {
 						pq($node)->addClass("hidden");
 					}
 
-					$stepsEditUrl = pq('.editsection', $node)->attr("href");
-
 					$displayMethodCount = $h3Count;
 					$isSample = array();
 					for ($i = 1; $i <= $h3Count; $i++) {
@@ -180,10 +177,6 @@ class WikihowMobileTools {
 							$isSample[$i] = false;
 						}
 					}
-
-					/*if ($ads) {
-						wikihowAds::setAltMethods($displayMethodCount > 1);
-					}*/
 
 					$wikitext = ContentHandler::getContentText($context->getWikiPage()->getContent(Revision::RAW));
 					$hasParts = MagicWord::get( 'parts' )->match( $wikitext );
@@ -215,11 +208,6 @@ class WikihowMobileTools {
 						}
 						pq("span.mw-headline", $h3Tags[$i])->html($methodTitle);
 
-						//want to change the url for the edit link to
-						//edit the whole steps section, not just the
-						//alternate method
-						//pq(".editsection", $h3Tags[$i])->attr("href", $stepsEditUrl);
-
 						$sample = $isSample[$i] ? "sample" : "";
 
 						//only wrap if there's stuff there to wrap.
@@ -239,13 +227,6 @@ class WikihowMobileTools {
 						} catch (Exception $e) {
 						}
 					}
-
-					//BEBETH - not sure we need this anymore, but not sure yet
-					//fix for Chrome -- wrap first anchor name so it detects the spacing
-					/*try {
-						pq(".section.steps:first")->prev()->children(".anchor")->after('<br class="clearall" />')->wrapAll('<div></div>');
-					} catch (Exception $e) {
-					}*/
 				}
 
 				$showTOC = !$amp
@@ -328,17 +309,16 @@ class WikihowMobileTools {
 					}
 				}
 
-				// commenting this out because it's causing the following error:
-				// "Couldn't add newnode as the previous sibling of refnode"
-				// // format edit links for non-steps sections
-				// // pq('span', $node)->prepend(pq('a.edit', $node));
-
-				//remove the edit link from subheaders if we're not in the steps section
-				/*try {
-					pq(".{$sectionName} h3 .editsection")->remove();
-				} catch(Exception $e) {
-				}*/
 			}
+		}
+
+		//Move the edit links to the end b/c new skin uses table display
+		//UPGRADE TODO - decide if this is an ok solution
+		foreach(pq(".section-heading .mw-editsection") as $editsection) {
+			pq($editsection)->parent()->append($editsection);
+		}
+		foreach(pq("h3 > .mw-editsection") as $editsection) {
+			pq($editsection)->parent()->append($editsection);
 		}
 
 		Hooks::run('AtAGlanceTest', array( $wgTitle ) );
@@ -397,6 +377,7 @@ class WikihowMobileTools {
 			}
 			// we want no inline style on the mwimg containing a video
 			$whvid = $mVideo->nextAll( ".mwimg" )->removeAttr( "style" );
+			$whvid->removeClass( 'floatright' );
 			// we want to move the javascript that adds the video to after the video
 			$mVideo->next('script')->insertAfter( $whvid );
 			// move the video into the mwimg, just after the <a class='image'> which we can remove later
@@ -429,15 +410,6 @@ class WikihowMobileTools {
 
 				//add a class to these sections so we can normalize the css
 				pq($headingId)->addClass("summarysection");
-
-				//keeping this code for now, we'll likely bring back soon.
-				/*$headingImages = pq( $headingId . ' .mwimg' )->addClass( 'summarysection' );
-				foreach ( $headingImages as $headingImage ) {
-					$headingImage = pq( $headingImage )->remove();
-					if ( $headingImage ) {
-						pq( $headingId )->prepend( pq( $headingImage ) );
-					}
-				}*/
 			}
 		}
 
@@ -514,7 +486,7 @@ class WikihowMobileTools {
 				$imageCreators[$imageObj->getUser( 'text' )] = $title;
 				//get the mobile sized image
 				$smallWidth = 460; //we've chosed this as our max image size on mobile devices
-				$smallHeight = $smallWidth*$srcHeight/$srcWidth;
+				$smallHeight = round($smallWidth*$srcHeight/$srcWidth, 0);
 				$smallQuality = self::getImageQuality($wgTitle);
 				list($thumb_small, $newWidth, $newHeight) =
 					self::makeThumbDPI($imageObj, $smallWidth, $smallHeight, false, $pageId, $smallQuality);
@@ -547,7 +519,7 @@ class WikihowMobileTools {
 						if ( pq($img)->parents( '.techicon' )->length > 0 ) {
 							//for the techicon template
 							$smallHeight = 30;
-							$smallWidth = $smallHeight*$srcWidth/$srcHeight;
+							$smallWidth = round($smallHeight*$srcWidth/$srcHeight, 0);
 							$srcSet = null;
 							$layout = "fixed";
 						}
@@ -638,19 +610,6 @@ class WikihowMobileTools {
 
 			TipsAndWarnings::addRedesignCTAs($doc, $docTitle);
 		}
-
-		//[sc] 12/2018 - removing UCI from mobile
-		// $showUserImagesSection = $wgLanguageCode == 'en'
-		// 	&& class_exists('UserCompletedImages')
-		// 	&& isset($config['show-upload-images'])
-		// 	&& $config['show-upload-images']
-		// 	&& !$amp
-		// 	&& PagePolicy::showCurrentTitle($context);
-
-		// if ( $showUserImagesSection ) {
-		// 	$uci = UserCompletedImages::getMobileSectionHTML( $context );
-		// 	$doc->append($uci);
-		// }
 
 		DOMUtil::hideLinksInArticle();
 
@@ -787,14 +746,12 @@ class WikihowMobileTools {
 		//remove the <p><br><p> that's just causing blank space
 		foreach (pq("#video p") as $paragraph) {
 			$children = pq($paragraph)->children();
-			//var_dump($children[0]);
 			if (pq($children)->length == 1 && pq($children[0])->is("br")) {
 				pq($paragraph)->remove();
 			}
 		}
 
 		foreach (pq("embed") as $node) {
-			$url = '';
 			$src = pq($node)->attr("src");
 			if (stripos($src, 'youtube.com') === false) {
 				$parent = $node->parentNode;
@@ -945,7 +902,9 @@ class WikihowMobileTools {
 
 		UserTiming::modifyDOM($canonicalSteps);
 		PinterestMod::modifyDOM();
-		ImageCaption::modifyDOM();
+		if ( class_exists('ImageCaption') ) {
+			ImageCaption::modifyDOM();
+		}
 
 		// AMP validation
 		if ( $amp ) {
@@ -1036,9 +995,10 @@ class WikihowMobileTools {
 		}
 		$html = $out->parse($wikitext);
 
-
-		$formatter = MobileFormatter::newFromContext($context, $html);
-
+		// Maybe ContentProviderFactory::getProvider() should be used instead,
+		// but this way is easier
+		$contentProvider = new \MobileFrontend\ContentProviders\DefaultContentProvider($html);
+		$formatter = MobileFormatter::newFromContext($context, $contentProvider);
 
 		Hooks::run('MobileFrontendBeforeDOM', array($context, $formatter));
 
@@ -1083,12 +1043,16 @@ class WikihowMobileTools {
 			function ($m) {
 				return preg_replace(
 					['@%@', '@\+@'],
-					['.', '_'],
+					['.', '-'],
 					urlencode(wfMessage($m)->plain())
 				);
 			},
 			self::getTOCSectionMessages()
 		);
+
+		// Post-upgrade, our anchors/url fragments might have dashes rather
+		// than just underscores
+		$relatedAnchorUnderscores = strtr($relatedAnchor, ['-' => '_']);
 
 		$otherWikihowsAnchor = 'Other_wikiHows';
 
@@ -1167,12 +1131,14 @@ class WikihowMobileTools {
 					'selector' => '#' . Misc::escapeJQuerySelector($thingsyoullneedAnchor),
 				];
 				break;
+			case $relatedAnchorUnderscores:
 			case $relatedAnchor:
-				$extraTOCPostData[$relatedAnchor] = [
-					'anchor' => $relatedAnchor,
+				$anchor = $headlineID == $relatedAnchor ? $relatedAnchor : $relatedAnchorUnderscores;
+				$extraTOCPostData[$anchor] = [
+					'anchor' => $anchor,
 					'name' => wfMessage('relatedarticles')->text(),
 					'priority' => 1500,
-					'selector' => '#' . Misc::escapeJQuerySelector($relatedAnchor),
+					'selector' => '#' . Misc::escapeJQuerySelector($anchor),
 				];
 				break;
 			case $otherWikihowsAnchor:
@@ -1642,10 +1608,23 @@ class WikihowMobileTools {
 	}
 
 	public static function getNonMobileSite() {
-		global $wgLanguageCode, $wgIsSecureSite;
+		global $wgLanguageCode, $wgIsDevServer, $wgDomainName;
 
-		$protocol = $wgIsSecureSite ? 'https' : 'http';
-		return $protocol . '://' . wfCanonicalDomain($wgLanguageCode);
+		if (!$wgIsDevServer) {
+			$domain = Misc::getCanonicalDomain();
+		} else {
+			// On dev, we just remove the m- from the url and that
+			// should send us to the right place.
+			$newDomain = preg_replace('@(\b|^)m-@', '', $wgDomainName);
+			if ($newDomain != $wgDomainName) {
+				$domain = $newDomain;
+			} else {
+				// or remove -m if we couldn't remove m-
+				$domain = preg_replace('@(\b|^)-m\.@', '.', $wgDomainName);
+			}
+		}
+
+		return 'https://' . $domain;
 	}
 
 	/**

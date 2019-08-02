@@ -20,47 +20,52 @@
  * @file
  * @ingroup Cache
  */
+use MediaWiki\MediaWikiServices;
+use Wikimedia\ScopedCallback;
+use MediaWiki\Logger\LoggerFactory;
+use Wikimedia\Rdbms\Database;
 
 /**
  * MediaWiki message cache structure version.
  * Bump this whenever the message cache format has changed.
  */
-define( 'MSG_CACHE_VERSION', 1 );
+define( 'MSG_CACHE_VERSION', 2 );
 
 /**
- * Memcached timeout when loading a key.
- * See MessageCache::load()
- */
-define( 'MSG_LOAD_TIMEOUT', 60 );
-
-/**
- * Memcached timeout when locking a key for a writing operation.
- * See MessageCache::lock()
- */
-define( 'MSG_LOCK_TIMEOUT', 30 );
-/**
- * Number of times we will try to acquire a lock from Memcached.
- * This comes in addition to MSG_LOCK_TIMEOUT.
- */
-define( 'MSG_WAIT_TIMEOUT', 30 );
-
-/**
- * Message cache
+ * Cache of messages that are defined by MediaWiki namespace pages or by hooks
+ *
  * Performs various MediaWiki namespace-related functions
  * @ingroup Cache
  */
 class MessageCache {
-	/**
-	 * Process local cache of loaded messages that are defined in
-	 * MediaWiki namespace. First array level is a language code,
-	 * second level is message key and the values are either message
-	 * content prefixed with space, or !NONEXISTENT for negative
-	 * caching.
-	 */
-	protected $mCache;
+	const FOR_UPDATE = 1; // force message reload
+
+	/** How long to wait for memcached locks */
+	const WAIT_SEC = 15;
+	/** How long memcached locks last */
+	const LOCK_TTL = 30;
 
 	/**
-	 * Should  mean that database cannot be used, but check
+	 * Process cache of loaded messages that are defined in MediaWiki namespace
+	 *
+	 * @var MapCacheLRU Map of (language code => key => " <MESSAGE>" or "!TOO BIG")
+	 */
+	protected $cache;
+
+	/**
+	 * Map of (lowercase message key => index) for all software defined messages
+	 *
+	 * @var array
+	 */
+	protected $overridable;
+
+	/**
+	 * @var bool[] Map of (language code => boolean)
+	 */
+	protected $cacheVolatile = [];
+
+	/**
+	 * Should mean that database cannot be used, but check
 	 * @var bool $mDisable
 	 */
 	protected $mDisable;
@@ -72,16 +77,26 @@ class MessageCache {
 	protected $mExpiry;
 
 	/**
-	 * Message cache has it's own parser which it uses to transform
-	 * messages.
+	 * Message cache has its own parser which it uses to transform messages
+	 * @var ParserOptions
 	 */
-	protected $mParserOptions, $mParser;
+	protected $mParserOptions;
+	/** @var Parser */
+	protected $mParser;
 
 	/**
-	 * Variable for tracking which variables are already loaded
-	 * @var array $mLoadedLanguages
+	 * @var bool $mInParser
 	 */
-	protected $mLoadedLanguages = array();
+	protected $mInParser = false;
+
+	/** @var WANObjectCache */
+	protected $wanCache;
+	/** @var BagOStuff */
+	protected $clusterCache;
+	/** @var BagOStuff */
+	protected $srvCache;
+	/** @var Language */
+	protected $contLang;
 
 	/**
 	 * Singleton instance
@@ -91,23 +106,24 @@ class MessageCache {
 	private static $instance;
 
 	/**
-	 * @var bool $mInParser
-	 */
-	protected $mInParser = false;
-
-	/**
 	 * Get the signleton instance of this class
 	 *
 	 * @since 1.18
 	 * @return MessageCache
 	 */
 	public static function singleton() {
-		if ( is_null( self::$instance ) ) {
-			global $wgUseDatabaseMessages, $wgMsgCacheExpiry;
+		if ( self::$instance === null ) {
+			global $wgUseDatabaseMessages, $wgMsgCacheExpiry, $wgUseLocalMessageCache;
+			$services = MediaWikiServices::getInstance();
 			self::$instance = new self(
+				$services->getMainWANObjectCache(),
 				wfGetMessageCacheStorage(),
+				$wgUseLocalMessageCache
+					? $services->getLocalServerObjectCache()
+					: new EmptyBagOStuff(),
 				$wgUseDatabaseMessages,
-				$wgMsgCacheExpiry
+				$wgMsgCacheExpiry,
+				$services->getContentLanguage()
 			);
 		}
 
@@ -124,18 +140,47 @@ class MessageCache {
 	}
 
 	/**
-	 * @param BagOStuff $memCached A cache instance. If none, fall back to CACHE_NONE.
-	 * @param bool $useDB
-	 * @param int $expiry Lifetime for cache. @see $mExpiry.
+	 * Normalize message key input
+	 *
+	 * @param string $key Input message key to be normalized
+	 * @return string Normalized message key
 	 */
-	function __construct( $memCached, $useDB, $expiry ) {
-		if ( !$memCached ) {
-			$memCached = wfGetCache( CACHE_NONE );
+	public static function normalizeKey( $key ) {
+		$lckey = strtr( $key, ' ', '_' );
+		if ( ord( $lckey ) < 128 ) {
+			$lckey[0] = strtolower( $lckey[0] );
+		} else {
+			$lckey = MediaWikiServices::getInstance()->getContentLanguage()->lcfirst( $lckey );
 		}
 
-		$this->mMemc = $memCached;
+		return $lckey;
+	}
+
+	/**
+	 * @param WANObjectCache $wanCache
+	 * @param BagOStuff $clusterCache
+	 * @param BagOStuff $serverCache
+	 * @param bool $useDB Whether to look for message overrides (e.g. MediaWiki: pages)
+	 * @param int $expiry Lifetime for cache. @see $mExpiry.
+	 * @param Language|null $contLang Content language of site
+	 */
+	public function __construct(
+		WANObjectCache $wanCache,
+		BagOStuff $clusterCache,
+		BagOStuff $serverCache,
+		$useDB,
+		$expiry,
+		Language $contLang = null
+	) {
+		$this->wanCache = $wanCache;
+		$this->clusterCache = $clusterCache;
+		$this->srvCache = $serverCache;
+
+		$this->cache = new MapCacheLRU( 5 ); // limit size for sanity
+
 		$this->mDisable = !$useDB;
 		$this->mExpiry = $expiry;
+		$this->contLang = $contLang ?? MediaWikiServices::getInstance()->getContentLanguage();
 	}
 
 	/**
@@ -144,76 +189,52 @@ class MessageCache {
 	 * @return ParserOptions
 	 */
 	function getParserOptions() {
+		global $wgUser;
+
 		if ( !$this->mParserOptions ) {
+			if ( !$wgUser->isSafeToLoad() ) {
+				// $wgUser isn't unstubbable yet, so don't try to get a
+				// ParserOptions for it. And don't cache this ParserOptions
+				// either.
+				$po = ParserOptions::newFromAnon();
+				$po->setAllowUnsafeRawHtml( false );
+				$po->setTidy( true );
+				return $po;
+			}
+
 			$this->mParserOptions = new ParserOptions;
-			$this->mParserOptions->setEditSection( false );
+			// Messages may take parameters that could come
+			// from malicious sources. As a precaution, disable
+			// the <html> parser tag when parsing messages.
+			$this->mParserOptions->setAllowUnsafeRawHtml( false );
+			// For the same reason, tidy the output!
+			$this->mParserOptions->setTidy( true );
 		}
 
 		return $this->mParserOptions;
 	}
 
 	/**
-	 * Try to load the cache from a local file.
+	 * Try to load the cache from APC.
 	 *
-	 * @param string $hash the hash of contents, to check validity.
-	 * @param Mixed $code Optional language code, see documenation of load().
-	 * @return array The cache array
+	 * @param string $code Optional language code, see documenation of load().
+	 * @return array|bool The cache array, or false if not in cache.
 	 */
-	function getLocalCache( $hash, $code ) {
-		global $wgCacheDirectory;
+	protected function getLocalCache( $code ) {
+		$cacheKey = $this->srvCache->makeKey( __CLASS__, $code );
 
-		$filename = "$wgCacheDirectory/messages-" . wfWikiID() . "-$code";
-
-		# Check file existence
-		wfSuppressWarnings();
-		$file = fopen( $filename, 'r' );
-		wfRestoreWarnings();
-		if ( !$file ) {
-			return false; // No cache file
-		}
-
-		// Check to see if the file has the hash specified
-		$localHash = fread( $file, 32 );
-		if ( $hash === $localHash ) {
-			// All good, get the rest of it
-			$serialized = '';
-			while ( !feof( $file ) ) {
-				$serialized .= fread( $file, 100000 );
-			}
-			fclose( $file );
-
-			return unserialize( $serialized );
-		} else {
-			fclose( $file );
-
-			return false; // Wrong hash
-		}
+		return $this->srvCache->get( $cacheKey );
 	}
 
 	/**
-	 * Save the cache to a local file.
+	 * Save the cache to APC.
+	 *
+	 * @param string $code
+	 * @param array $cache The cache array
 	 */
-	function saveToLocal( $serialized, $hash, $code ) {
-		global $wgCacheDirectory;
-
-		$filename = "$wgCacheDirectory/messages-" . wfWikiID() . "-$code";
-		wfMkdirParents( $wgCacheDirectory, null, __METHOD__ ); // might fail
-
-		wfSuppressWarnings();
-		$file = fopen( $filename, 'w' );
-		wfRestoreWarnings();
-
-		if ( !$file ) {
-			wfDebug( "Unable to open local cache file for writing\n" );
-
-			return;
-		}
-
-		fwrite( $file, $hash . $serialized );
-		fclose( $file );
-		wfSuppressWarnings();
-		chmod( $filename, 0666 );
-		wfRestoreWarnings();
+	protected function saveToLocalCache( $code, $cache ) {
+		$cacheKey = $this->srvCache->makeKey( __CLASS__, $code );
+		$this->srvCache->set( $cacheKey, $cache );
 	}
 
 	/**
@@ -222,33 +243,42 @@ class MessageCache {
 	 * (2) memcached
 	 * (3) from the database.
 	 *
-	 * When succesfully loading from (2) or (3), all higher level caches are
+	 * When successfully loading from (2) or (3), all higher level caches are
 	 * updated for the newest version.
 	 *
 	 * Nothing is loaded if member variable mDisable is true, either manually
 	 * set by calling code or if message loading fails (is this possible?).
 	 *
-	 * Returns true if cache is already populated or it was succesfully populated,
+	 * Returns true if cache is already populated or it was successfully populated,
 	 * or false if populating empty cache fails. Also returns true if MessageCache
 	 * is disabled.
 	 *
-	 * @param bool|String $code Language to which load messages
-	 * @throws MWException
+	 * @param string $code Language to which load messages
+	 * @param int|null $mode Use MessageCache::FOR_UPDATE to skip process cache [optional]
+	 * @throws InvalidArgumentException
 	 * @return bool
 	 */
-	function load( $code = false ) {
-		global $wgUseLocalMessageCache;
-
+	protected function load( $code, $mode = null ) {
 		if ( !is_string( $code ) ) {
-			# This isn't really nice, so at least make a note about it and try to
-			# fall back
-			wfDebug( __METHOD__ . " called without providing a language code\n" );
-			$code = 'en';
+			throw new InvalidArgumentException( "Missing language code" );
 		}
 
 		# Don't do double loading...
-		if ( isset( $this->mLoadedLanguages[$code] ) ) {
+		if ( $this->cache->has( $code ) && $mode != self::FOR_UPDATE ) {
 			return true;
+		}
+
+		$this->overridable = array_flip( Language::getMessageKeysFor( $code ) );
+
+		// T208897 array_flip can fail and return null
+		if ( is_null( $this->overridable ) ) {
+			LoggerFactory::getInstance( 'MessageCache' )->error(
+				__METHOD__ . ': $this->overridable is null',
+				[
+					'message_keys' => Language::getMessageKeysFor( $code ),
+					'code' => $code
+				]
+			);
 		}
 
 		# 8 lines of code just to say (once) that message cache is disabled
@@ -263,147 +293,98 @@ class MessageCache {
 		}
 
 		# Loading code starts
-		wfProfileIn( __METHOD__ );
 		$success = false; # Keep track of success
 		$staleCache = false; # a cache array with expired data, or false if none has been loaded
-		$where = array(); # Debug info, delayed to avoid spamming debug log too much
-		$cacheKey = wfMemcKey( 'messages', $code ); # Key in memc for messages
+		$where = []; # Debug info, delayed to avoid spamming debug log too much
 
-		# Local cache
-		# Hash of the contents is stored in memcache, to detect if local cache goes
-		# out of date (e.g. due to replace() on some other server)
-		if ( $wgUseLocalMessageCache ) {
-			wfProfileIn( __METHOD__ . '-fromlocal' );
+		# Hash of the contents is stored in memcache, to detect if data-center cache
+		# or local cache goes out of date (e.g. due to replace() on some other server)
+		list( $hash, $hashVolatile ) = $this->getValidationHash( $code );
+		$this->cacheVolatile[$code] = $hashVolatile;
 
-			$hash = $this->mMemc->get( wfMemcKey( 'messages', $code, 'hash' ) );
-			if ( $hash ) {
-				$cache = $this->getLocalCache( $hash, $code );
-				if ( !$cache ) {
-					$where[] = 'local cache is empty or has the wrong hash';
-				} elseif ( $this->isCacheExpired( $cache ) ) {
-					$where[] = 'local cache is expired';
-					$staleCache = $cache;
-				} else {
-					$where[] = 'got from local cache';
-					$success = true;
-					$this->mCache[$code] = $cache;
-				}
-			}
-			wfProfileOut( __METHOD__ . '-fromlocal' );
+		# Try the local cache and check against the cluster hash key...
+		$cache = $this->getLocalCache( $code );
+		if ( !$cache ) {
+			$where[] = 'local cache is empty';
+		} elseif ( !isset( $cache['HASH'] ) || $cache['HASH'] !== $hash ) {
+			$where[] = 'local cache has the wrong hash';
+			$staleCache = $cache;
+		} elseif ( $this->isCacheExpired( $cache ) ) {
+			$where[] = 'local cache is expired';
+			$staleCache = $cache;
+		} elseif ( $hashVolatile ) {
+			$where[] = 'local cache validation key is expired/volatile';
+			$staleCache = $cache;
+		} else {
+			$where[] = 'got from local cache';
+			$this->cache->set( $code, $cache );
+			$success = true;
 		}
 
 		if ( !$success ) {
+			$cacheKey = $this->clusterCache->makeKey( 'messages', $code );
 			# Try the global cache. If it is empty, try to acquire a lock. If
 			# the lock can't be acquired, wait for the other thread to finish
 			# and then try the global cache a second time.
-			for ( $failedAttempts = 0; $failedAttempts < 2; $failedAttempts++ ) {
-				wfProfileIn( __METHOD__ . '-fromcache' );
-				$cache = $this->mMemc->get( $cacheKey );
-				if ( !$cache ) {
-					$where[] = 'global cache is empty';
-				} elseif ( $this->isCacheExpired( $cache ) ) {
-					$where[] = 'global cache is expired';
-					$staleCache = $cache;
+			for ( $failedAttempts = 0; $failedAttempts <= 1; $failedAttempts++ ) {
+				if ( $hashVolatile && $staleCache ) {
+					# Do not bother fetching the whole cache blob to avoid I/O.
+					# Instead, just try to get the non-blocking $statusKey lock
+					# below, and use the local stale value if it was not acquired.
+					$where[] = 'global cache is presumed expired';
 				} else {
-					$where[] = 'got from global cache';
-					$this->mCache[$code] = $cache;
-					$this->saveToCaches( $cache, 'local-only', $code );
-					$success = true;
+					$cache = $this->clusterCache->get( $cacheKey );
+					if ( !$cache ) {
+						$where[] = 'global cache is empty';
+					} elseif ( $this->isCacheExpired( $cache ) ) {
+						$where[] = 'global cache is expired';
+						$staleCache = $cache;
+					} elseif ( $hashVolatile ) {
+						# DB results are replica DB lag prone until the holdoff TTL passes.
+						# By then, updates should be reflected in loadFromDBWithLock().
+						# One thread renerates the cache while others use old values.
+						$where[] = 'global cache is expired/volatile';
+						$staleCache = $cache;
+					} else {
+						$where[] = 'got from global cache';
+						$this->cache->set( $code, $cache );
+						$this->saveToCaches( $cache, 'local-only', $code );
+						$success = true;
+					}
 				}
-
-				wfProfileOut( __METHOD__ . '-fromcache' );
 
 				if ( $success ) {
 					# Done, no need to retry
 					break;
 				}
 
-				# We need to call loadFromDB. Limit the concurrency to a single
-				# process. This prevents the site from going down when the cache
-				# expires.
-				$statusKey = wfMemcKey( 'messages', $code, 'status' );
-				$acquired = $this->mMemc->add( $statusKey, 'loading', MSG_LOAD_TIMEOUT );
-				if ( $acquired ) {
-					# Unlock the status key if there is an exception
-					$that = $this;
-					$statusUnlocker = new ScopedCallback( function () use ( $that, $statusKey ) {
-						$that->mMemc->delete( $statusKey );
-					} );
-
-					# Now let's regenerate
-					$where[] = 'loading from database';
-
-					# Lock the cache to prevent conflicting writes
-					# If this lock fails, it doesn't really matter, it just means the
-					# write is potentially non-atomic, e.g. the results of a replace()
-					# may be discarded.
-					if ( $this->lock( $cacheKey ) ) {
-						$mainUnlocker = new ScopedCallback( function () use ( $that, $cacheKey ) {
-							$that->unlock( $cacheKey );
-						} );
-					} else {
-						$mainUnlocker = null;
-						$where[] = 'could not acquire main lock';
-					}
-
-					$cache = $this->loadFromDB( $code );
-					$this->mCache[$code] = $cache;
+				# We need to call loadFromDB. Limit the concurrency to one process.
+				# This prevents the site from going down when the cache expires.
+				# Note that the DB slam protection lock here is non-blocking.
+				$loadStatus = $this->loadFromDBWithLock( $code, $where, $mode );
+				if ( $loadStatus === true ) {
 					$success = true;
-					$saveSuccess = $this->saveToCaches( $cache, 'all', $code );
-
-					# Unlock
-					ScopedCallback::consume( $mainUnlocker );
-					ScopedCallback::consume( $statusUnlocker );
-
-					if ( !$saveSuccess ) {
-						# Cache save has failed.
-						# There are two main scenarios where this could be a problem:
-						#
-						#   - The cache is more than the maximum size (typically
-						#     1MB compressed).
-						#
-						#   - Memcached has no space remaining in the relevant slab
-						#     class. This is unlikely with recent versions of
-						#     memcached.
-						#
-						# Either way, if there is a local cache, nothing bad will
-						# happen. If there is no local cache, disabling the message
-						# cache for all requests avoids incurring a loadFromDB()
-						# overhead on every request, and thus saves the wiki from
-						# complete downtime under moderate traffic conditions.
-						if ( !$wgUseLocalMessageCache ) {
-							$this->mMemc->set( $statusKey, 'error', 60 * 5 );
-							$where[] = 'could not save cache, disabled globally for 5 minutes';
-						} else {
-							$where[] = "could not save global cache";
-						}
-					}
-
-					# Load from DB complete, no need to retry
 					break;
 				} elseif ( $staleCache ) {
 					# Use the stale cache while some other thread constructs the new one
 					$where[] = 'using stale cache';
-					$this->mCache[$code] = $staleCache;
+					$this->cache->set( $code, $staleCache );
 					$success = true;
 					break;
 				} elseif ( $failedAttempts > 0 ) {
-					# Already retried once, still failed, so don't do another lock/unlock cycle
+					# Already blocked once, so avoid another lock/unlock cycle.
 					# This case will typically be hit if memcached is down, or if
-					# loadFromDB() takes longer than MSG_WAIT_TIMEOUT
+					# loadFromDB() takes longer than LOCK_WAIT.
 					$where[] = "could not acquire status key.";
 					break;
+				} elseif ( $loadStatus === 'cantacquire' ) {
+					# Wait for the other thread to finish, then retry. Normally,
+					# the memcached get() will then yeild the other thread's result.
+					$where[] = 'waited for other thread to complete';
+					$this->getReentrantScopedLock( $cacheKey );
 				} else {
-					$status = $this->mMemc->get( $statusKey );
-					if ( $status === 'error' ) {
-						# Disable cache
-						break;
-					} else {
-						# Wait for the other thread to finish, then retry
-						$where[] = 'waited for other thread to complete';
-						$this->lock( $cacheKey );
-						$this->unlock( $cacheKey );
-					}
+					# Disable cache; $loadStatus is 'disabled'
+					break;
 				}
 			}
 		}
@@ -411,18 +392,79 @@ class MessageCache {
 		if ( !$success ) {
 			$where[] = 'loading FAILED - cache is disabled';
 			$this->mDisable = true;
-			$this->mCache = false;
+			$this->cache->set( $code, [] );
+			wfDebugLog( 'MessageCacheError', __METHOD__ . ": Failed to load $code\n" );
 			# This used to throw an exception, but that led to nasty side effects like
 			# the whole wiki being instantly down if the memcached server died
-		} else {
-			# All good, just record the success
-			$this->mLoadedLanguages[$code] = true;
 		}
+
+		if ( !$this->cache->has( $code ) ) { // sanity
+			throw new LogicException( "Process cache for '$code' should be set by now." );
+		}
+
 		$info = implode( ', ', $where );
-		wfDebug( __METHOD__ . ": Loading $code... $info\n" );
-		wfProfileOut( __METHOD__ );
+		wfDebugLog( 'MessageCache', __METHOD__ . ": Loading $code... $info\n" );
 
 		return $success;
+	}
+
+	/**
+	 * @param string $code
+	 * @param array &$where List of wfDebug() comments
+	 * @param int|null $mode Use MessageCache::FOR_UPDATE to use DB_MASTER
+	 * @return bool|string True on success or one of ("cantacquire", "disabled")
+	 */
+	protected function loadFromDBWithLock( $code, array &$where, $mode = null ) {
+		# If cache updates on all levels fail, give up on message overrides.
+		# This is to avoid easy site outages; see $saveSuccess comments below.
+		$statusKey = $this->clusterCache->makeKey( 'messages', $code, 'status' );
+		$status = $this->clusterCache->get( $statusKey );
+		if ( $status === 'error' ) {
+			$where[] = "could not load; method is still globally disabled";
+			return 'disabled';
+		}
+
+		# Now let's regenerate
+		$where[] = 'loading from database';
+
+		# Lock the cache to prevent conflicting writes.
+		# This lock is non-blocking so stale cache can quickly be used.
+		# Note that load() will call a blocking getReentrantScopedLock()
+		# after this if it really need to wait for any current thread.
+		$cacheKey = $this->clusterCache->makeKey( 'messages', $code );
+		$scopedLock = $this->getReentrantScopedLock( $cacheKey, 0 );
+		if ( !$scopedLock ) {
+			$where[] = 'could not acquire main lock';
+			return 'cantacquire';
+		}
+
+		$cache = $this->loadFromDB( $code, $mode );
+		$this->cache->set( $code, $cache );
+		$saveSuccess = $this->saveToCaches( $cache, 'all', $code );
+
+		if ( !$saveSuccess ) {
+			/**
+			 * Cache save has failed.
+			 *
+			 * There are two main scenarios where this could be a problem:
+			 * - The cache is more than the maximum size (typically 1MB compressed).
+			 * - Memcached has no space remaining in the relevant slab class. This is
+			 *   unlikely with recent versions of memcached.
+			 *
+			 * Either way, if there is a local cache, nothing bad will happen. If there
+			 * is no local cache, disabling the message cache for all requests avoids
+			 * incurring a loadFromDB() overhead on every request, and thus saves the
+			 * wiki from complete downtime under moderate traffic conditions.
+			 */
+			if ( $this->srvCache instanceof EmptyBagOStuff ) {
+				$this->clusterCache->set( $statusKey, 'error', 60 * 5 );
+				$where[] = 'could not save cache, disabled globally for 5 minutes';
+			} else {
+				$where[] = "could not save global cache";
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -430,32 +472,40 @@ class MessageCache {
 	 * $wgMaxMsgCacheEntrySize are assigned a special value, and are loaded
 	 * on-demand from the database later.
 	 *
-	 * @param string $code Language code.
-	 * @return array Loaded messages for storing in caches.
+	 * @param string $code Language code
+	 * @param int|null $mode Use MessageCache::FOR_UPDATE to skip process cache
+	 * @return array Loaded messages for storing in caches
 	 */
-	function loadFromDB( $code ) {
-		wfProfileIn( __METHOD__ );
+	protected function loadFromDB( $code, $mode = null ) {
 		global $wgMaxMsgCacheEntrySize, $wgLanguageCode, $wgAdaptiveMessageCache;
-		$dbr = wfGetDB( DB_SLAVE );
-		$cache = array();
 
-		# Common conditions
-		$conds = array(
-			'page_is_redirect' => 0,
-			'page_namespace' => NS_MEDIAWIKI,
-		);
+		// (T164666) The query here performs really poorly on WMF's
+		// contributions replicas. We don't have a way to say "any group except
+		// contributions", so for the moment let's specify 'api'.
+		// @todo: Get rid of this hack.
+		$dbr = wfGetDB( ( $mode == self::FOR_UPDATE ) ? DB_MASTER : DB_REPLICA, 'api' );
 
-		$mostused = array();
+		$cache = [];
+
+		$mostused = []; // list of "<cased message key>/<code>"
 		if ( $wgAdaptiveMessageCache && $code !== $wgLanguageCode ) {
-			if ( !isset( $this->mCache[$wgLanguageCode] ) ) {
+			if ( !$this->cache->has( $wgLanguageCode ) ) {
 				$this->load( $wgLanguageCode );
 			}
-			$mostused = array_keys( $this->mCache[$wgLanguageCode] );
+			$mostused = array_keys( $this->cache->get( $wgLanguageCode ) );
 			foreach ( $mostused as $key => $value ) {
 				$mostused[$key] = "$value/$code";
 			}
 		}
 
+		// Get the list of software-defined messages in core/extensions
+		$overridable = array_flip( Language::getMessageKeysFor( $wgLanguageCode ) );
+
+		// Common conditions
+		$conds = [
+			'page_is_redirect' => 0,
+			'page_namespace' => NS_MEDIAWIKI,
+		];
 		if ( count( $mostused ) ) {
 			$conds['page_title'] = $mostused;
 		} elseif ( $code !== $wgLanguageCode ) {
@@ -463,124 +513,217 @@ class MessageCache {
 		} else {
 			# Effectively disallows use of '/' character in NS_MEDIAWIKI for uses
 			# other than language code.
-			$conds[] = 'page_title NOT' . $dbr->buildLike( $dbr->anyString(), '/', $dbr->anyString() );
+			$conds[] = 'page_title NOT' .
+				$dbr->buildLike( $dbr->anyString(), '/', $dbr->anyString() );
 		}
 
-		# Conditions to fetch oversized pages to ignore them
-		$bigConds = $conds;
-		$bigConds[] = 'page_len > ' . intval( $wgMaxMsgCacheEntrySize );
-
-		# Load titles for all oversized pages in the MediaWiki namespace
-		$res = $dbr->select( 'page', 'page_title', $bigConds, __METHOD__ . "($code)-big" );
-		foreach ( $res as $row ) {
-			$cache[$row->page_title] = '!TOO BIG';
-		}
-
-		# Conditions to load the remaining pages with their contents
-		$smallConds = $conds;
-		$smallConds[] = 'page_latest=rev_id';
-		$smallConds[] = 'rev_text_id=old_id';
-		$smallConds[] = 'page_len <= ' . intval( $wgMaxMsgCacheEntrySize );
-
+		// Set the stubs for oversized software-defined messages in the main cache map
 		$res = $dbr->select(
-			array( 'page', 'revision', 'text' ),
-			array( 'page_title', 'old_text', 'old_flags' ),
-			$smallConds,
-			__METHOD__ . "($code)-small"
+			'page',
+			[ 'page_title', 'page_latest' ],
+			array_merge( $conds, [ 'page_len > ' . intval( $wgMaxMsgCacheEntrySize ) ] ),
+			__METHOD__ . "($code)-big"
 		);
-
 		foreach ( $res as $row ) {
-			$text = Revision::getRevisionText( $row );
-			if ( $text === false ) {
-				// Failed to fetch data; possible ES errors?
-				// Store a marker to fetch on-demand as a workaround...
-				$entry = '!TOO BIG';
-				wfDebugLog(
-					'MessageCache',
-					__METHOD__
-						. ": failed to load message page text for {$row->page_title} ($code)"
-				);
-			} else {
-				$entry = ' ' . $text;
+			$name = $this->contLang->lcfirst( $row->page_title );
+			// Include entries/stubs for all keys in $mostused in adaptive mode
+			if ( $wgAdaptiveMessageCache || $this->isMainCacheable( $name, $overridable ) ) {
+				$cache[$row->page_title] = '!TOO BIG';
 			}
-			$cache[$row->page_title] = $entry;
+			// At least include revision ID so page changes are reflected in the hash
+			$cache['EXCESSIVE'][$row->page_title] = $row->page_latest;
+		}
+
+		// Set the text for small software-defined messages in the main cache map
+		$res = $dbr->select(
+			[ 'page', 'revision', 'text' ],
+			[ 'page_title', 'page_latest', 'old_id', 'old_text', 'old_flags' ],
+			array_merge( $conds, [ 'page_len <= ' . intval( $wgMaxMsgCacheEntrySize ) ] ),
+			__METHOD__ . "($code)-small",
+			[],
+			[
+				'revision' => [ 'JOIN', 'page_latest=rev_id' ],
+				'text' => [ 'JOIN', 'rev_text_id=old_id' ],
+			]
+		);
+		foreach ( $res as $row ) {
+			$name = $this->contLang->lcfirst( $row->page_title );
+			// Include entries/stubs for all keys in $mostused in adaptive mode
+			if ( $wgAdaptiveMessageCache || $this->isMainCacheable( $name, $overridable ) ) {
+				$text = Revision::getRevisionText( $row );
+				if ( $text === false ) {
+					// Failed to fetch data; possible ES errors?
+					// Store a marker to fetch on-demand as a workaround...
+					// TODO Use a differnt marker
+					$entry = '!TOO BIG';
+					wfDebugLog(
+						'MessageCache',
+						__METHOD__
+						. ": failed to load message page text for {$row->page_title} ($code)"
+					);
+				} else {
+					$entry = ' ' . $text;
+				}
+				$cache[$row->page_title] = $entry;
+			} else {
+				// T193271: cache object gets too big and slow to generate.
+				// At least include revision ID so page changes are reflected in the hash.
+				$cache['EXCESSIVE'][$row->page_title] = $row->page_latest;
+			}
 		}
 
 		$cache['VERSION'] = MSG_CACHE_VERSION;
+		ksort( $cache );
+
+		# Hash for validating local cache (APC). No need to take into account
+		# messages larger than $wgMaxMsgCacheEntrySize, since those are only
+		# stored and fetched from memcache.
+		$cache['HASH'] = md5( serialize( $cache ) );
 		$cache['EXPIRY'] = wfTimestamp( TS_MW, time() + $this->mExpiry );
-		wfProfileOut( __METHOD__ );
+		unset( $cache['EXCESSIVE'] ); // only needed for hash
 
 		return $cache;
 	}
 
 	/**
+	 * @param string $name Message name with lowercase first letter
+	 * @param array $overridable Map of (key => unused) for software-defined messages
+	 * @return bool
+	 */
+	private function isMainCacheable( $name, array $overridable ) {
+		// Include common conversion table pages. This also avoids problems with
+		// Installer::parse() bailing out due to disallowed DB queries (T207979).
+		return ( isset( $overridable[$name] ) || strpos( $name, 'conversiontable/' ) === 0 );
+	}
+
+	/**
 	 * Updates cache as necessary when message page is changed
 	 *
-	 * @param string $title Name of the page changed.
-	 * @param mixed $text New contents of the page.
+	 * @param string $title Message cache key with initial uppercase letter
+	 * @param string|bool $text New contents of the page (false if deleted)
 	 */
 	public function replace( $title, $text ) {
-		global $wgMaxMsgCacheEntrySize;
-		wfProfileIn( __METHOD__ );
+		global $wgLanguageCode;
 
 		if ( $this->mDisable ) {
-			wfProfileOut( __METHOD__ );
-
 			return;
 		}
 
 		list( $msg, $code ) = $this->figureMessage( $title );
+		if ( strpos( $title, '/' ) !== false && $code === $wgLanguageCode ) {
+			// Content language overrides do not use the /<code> suffix
+			return;
+		}
 
-		$cacheKey = wfMemcKey( 'messages', $code );
-		$this->load( $code );
-		$this->lock( $cacheKey );
-
-		$titleKey = wfMemcKey( 'messages', 'individual', $title );
-
+		// (a) Update the process cache with the new message text
 		if ( $text === false ) {
-			# Article was deleted
-			$this->mCache[$code][$title] = '!NONEXISTENT';
-			$this->mMemc->delete( $titleKey );
-		} elseif ( strlen( $text ) > $wgMaxMsgCacheEntrySize ) {
-			# Check for size
-			$this->mCache[$code][$title] = '!TOO BIG';
-			$this->mMemc->set( $titleKey, ' ' . $text, $this->mExpiry );
+			// Page deleted
+			$this->cache->setField( $code, $title, '!NONEXISTENT' );
 		} else {
-			$this->mCache[$code][$title] = ' ' . $text;
-			$this->mMemc->delete( $titleKey );
+			// Ignore $wgMaxMsgCacheEntrySize so the process cache is up to date
+			$this->cache->setField( $code, $title, ' ' . $text );
 		}
 
-		# Update caches
-		$this->saveToCaches( $this->mCache[$code], 'all', $code );
-		$this->unlock( $cacheKey );
+		// (b) Update the shared caches in a deferred update with a fresh DB snapshot
+		DeferredUpdates::addUpdate(
+			new MessageCacheUpdate( $code, $title, $msg ),
+			DeferredUpdates::PRESEND
+		);
+	}
 
-		// Also delete cached sidebar... just in case it is affected
-		$codes = array( $code );
-		if ( $code === 'en' ) {
-			// Delete all sidebars, like for example on action=purge on the
-			// sidebar messages
-			$codes = array_keys( Language::fetchLanguageNames() );
+	/**
+	 * @param string $code
+	 * @param array[] $replacements List of (title, message key) pairs
+	 * @throws MWException
+	 */
+	public function refreshAndReplaceInternal( $code, array $replacements ) {
+		global $wgMaxMsgCacheEntrySize;
+
+		// Allow one caller at a time to avoid race conditions
+		$scopedLock = $this->getReentrantScopedLock(
+			$this->clusterCache->makeKey( 'messages', $code )
+		);
+		if ( !$scopedLock ) {
+			foreach ( $replacements as list( $title ) ) {
+				LoggerFactory::getInstance( 'MessageCache' )->error(
+					__METHOD__ . ': could not acquire lock to update {title} ({code})',
+					[ 'title' => $title, 'code' => $code ] );
+			}
+
+			return;
 		}
 
-		global $wgMemc;
-		foreach ( $codes as $code ) {
-			$sidebarKey = wfMemcKey( 'sidebar', $code );
-			$wgMemc->delete( $sidebarKey );
+		// Load the existing cache to update it in the local DC cache.
+		// The other DCs will see a hash mismatch.
+		if ( $this->load( $code, self::FOR_UPDATE ) ) {
+			$cache = $this->cache->get( $code );
+		} else {
+			// Err? Fall back to loading from the database.
+			$cache = $this->loadFromDB( $code, self::FOR_UPDATE );
 		}
+		// Check if individual cache keys should exist and update cache accordingly
+		$newTextByTitle = []; // map of (title => content)
+		$newBigTitles = []; // map of (title => latest revision ID), like EXCESSIVE in loadFromDB()
+		foreach ( $replacements as list( $title ) ) {
+			$page = WikiPage::factory( Title::makeTitle( NS_MEDIAWIKI, $title ) );
+			$page->loadPageData( $page::READ_LATEST );
+			$text = $this->getMessageTextFromContent( $page->getContent() );
+			// Remember the text for the blob store update later on
+			$newTextByTitle[$title] = $text;
+			// Note that if $text is false, then $cache should have a !NONEXISTANT entry
+			if ( !is_string( $text ) ) {
+				$cache[$title] = '!NONEXISTENT';
+			} elseif ( strlen( $text ) > $wgMaxMsgCacheEntrySize ) {
+				$cache[$title] = '!TOO BIG';
+				$newBigTitles[$title] = $page->getLatest();
+			} else {
+				$cache[$title] = ' ' . $text;
+			}
+		}
+		// Update HASH for the new key. Incorporates various administrative keys,
+		// including the old HASH (and thereby the EXCESSIVE value from loadFromDB()
+		// and previous replace() calls), but that doesn't really matter since we
+		// only ever compare it for equality with a copy saved by saveToCaches().
+		$cache['HASH'] = md5( serialize( $cache + [ 'EXCESSIVE' => $newBigTitles ] ) );
+		// Update the too-big WAN cache entries now that we have the new HASH
+		foreach ( $newBigTitles as $title => $id ) {
+			// Match logic of loadCachedMessagePageEntry()
+			$this->wanCache->set(
+				$this->bigMessageCacheKey( $cache['HASH'], $title ),
+				' ' . $newTextByTitle[$title],
+				$this->mExpiry
+			);
+		}
+		// Mark this cache as definitely being "latest" (non-volatile) so
+		// load() calls do not try to refresh the cache with replica DB data
+		$cache['LATEST'] = time();
+		// Update the process cache
+		$this->cache->set( $code, $cache );
+		// Pre-emptively update the local datacenter cache so things like edit filter and
+		// blacklist changes are reflected immediately; these often use MediaWiki: pages.
+		// The datacenter handling replace() calls should be the same one handling edits
+		// as they require HTTP POST.
+		$this->saveToCaches( $cache, 'all', $code );
+		// Release the lock now that the cache is saved
+		ScopedCallback::consume( $scopedLock );
 
-		// Update the message in the message blob store
-		global $wgContLang;
-		MessageBlobStore::updateMessage( $wgContLang->lcfirst( $msg ) );
+		// Relay the purge. Touching this check key expires cache contents
+		// and local cache (APC) validation hash across all datacenters.
+		$this->wanCache->touchCheckKey( $this->getCheckKey( $code ) );
 
-		wfRunHooks( 'MessageCacheReplace', array( $title, $text ) );
-
-		wfProfileOut( __METHOD__ );
+		// Purge the messages in the message blob store and fire any hook handlers
+		$resourceloader = RequestContext::getMain()->getOutput()->getResourceLoader();
+		$blobStore = $resourceloader->getMessageBlobStore();
+		foreach ( $replacements as list( $title, $msg ) ) {
+			$blobStore->updateMessage( $this->contLang->lcfirst( $msg ) );
+			Hooks::run( 'MessageCacheReplace', [ $title, $newTextByTitle[$title] ] );
+		}
 	}
 
 	/**
 	 * Is the given cache array expired due to time passing or a version change?
 	 *
-	 * @param $cache
+	 * @param array $cache
 	 * @return bool
 	 */
 	protected function isCacheExpired( $cache ) {
@@ -606,66 +749,82 @@ class MessageCache {
 	 * @param string|bool $code Language code (default: false)
 	 * @return bool
 	 */
-	protected function saveToCaches( $cache, $dest, $code = false ) {
-		wfProfileIn( __METHOD__ );
-		global $wgUseLocalMessageCache;
-
-		$cacheKey = wfMemcKey( 'messages', $code );
-
+	protected function saveToCaches( array $cache, $dest, $code = false ) {
 		if ( $dest === 'all' ) {
-			$success = $this->mMemc->set( $cacheKey, $cache );
+			$cacheKey = $this->clusterCache->makeKey( 'messages', $code );
+			$success = $this->clusterCache->set( $cacheKey, $cache );
+			$this->setValidationHash( $code, $cache );
 		} else {
 			$success = true;
 		}
 
-		# Save to local cache
-		if ( $wgUseLocalMessageCache ) {
-			$serialized = serialize( $cache );
-			$hash = md5( $serialized );
-			$this->mMemc->set( wfMemcKey( 'messages', $code, 'hash' ), $hash );
-			$this->saveToLocal( $serialized, $hash, $code );
-		}
-
-		wfProfileOut( __METHOD__ );
+		$this->saveToLocalCache( $code, $cache );
 
 		return $success;
 	}
 
 	/**
-	 * Represents a write lock on the messages key.
+	 * Get the md5 used to validate the local APC cache
 	 *
-	 * Will retry MessageCache::MSG_WAIT_TIMEOUT times, each operations having
-	 * a timeout of MessageCache::MSG_LOCK_TIMEOUT.
-	 *
-	 * @param string $key
-	 * @return Boolean: success
+	 * @param string $code
+	 * @return array (hash or false, bool expiry/volatility status)
 	 */
-	function lock( $key ) {
-		$lockKey = $key . ':lock';
-		$acquired = false;
-		$testDone = false;
-		for ( $i = 0; $i < MSG_WAIT_TIMEOUT && !$acquired; $i++ ) {
-			$acquired = $this->mMemc->add( $lockKey, 1, MSG_LOCK_TIMEOUT );
-			if ( $acquired ) {
-				break;
-			}
+	protected function getValidationHash( $code ) {
+		$curTTL = null;
+		$value = $this->wanCache->get(
+			$this->wanCache->makeKey( 'messages', $code, 'hash', 'v1' ),
+			$curTTL,
+			[ $this->getCheckKey( $code ) ]
+		);
 
-			# Fail fast if memcached is totally down
-			if ( !$testDone ) {
-				$testDone = true;
-				if ( !$this->mMemc->set( wfMemcKey( 'test' ), 'test', 1 ) ) {
-					break;
-				}
+		if ( $value ) {
+			$hash = $value['hash'];
+			if ( ( time() - $value['latest'] ) < WANObjectCache::TTL_MINUTE ) {
+				// Cache was recently updated via replace() and should be up-to-date.
+				// That method is only called in the primary datacenter and uses FOR_UPDATE.
+				// Also, it is unlikely that the current datacenter is *now* secondary one.
+				$expired = false;
+			} else {
+				// See if the "check" key was bumped after the hash was generated
+				$expired = ( $curTTL < 0 );
 			}
-			sleep( 1 );
+		} else {
+			// No hash found at all; cache must regenerate to be safe
+			$hash = false;
+			$expired = true;
 		}
 
-		return $acquired;
+		return [ $hash, $expired ];
 	}
 
-	function unlock( $key ) {
-		$lockKey = $key . ':lock';
-		$this->mMemc->delete( $lockKey );
+	/**
+	 * Set the md5 used to validate the local disk cache
+	 *
+	 * If $cache has a 'LATEST' UNIX timestamp key, then the hash will not
+	 * be treated as "volatile" by getValidationHash() for the next few seconds.
+	 * This is triggered when $cache is generated using FOR_UPDATE mode.
+	 *
+	 * @param string $code
+	 * @param array $cache Cached messages with a version
+	 */
+	protected function setValidationHash( $code, array $cache ) {
+		$this->wanCache->set(
+			$this->wanCache->makeKey( 'messages', $code, 'hash', 'v1' ),
+			[
+				'hash' => $cache['HASH'],
+				'latest' => $cache['LATEST'] ?? 0
+			],
+			WANObjectCache::TTL_INDEFINITE
+		);
+	}
+
+	/**
+	 * @param string $key A language message cache key that stores blobs
+	 * @param int $timeout Wait timeout in seconds
+	 * @return null|ScopedCallback
+	 */
+	protected function getReentrantScopedLock( $key, $timeout = self::WAIT_SEC ) {
+		return $this->clusterCache->getScopedLock( $key, $timeout, self::LOCK_TTL, __METHOD__ );
 	}
 
 	/**
@@ -687,27 +846,21 @@ class MessageCache {
 	 *  * Fallbacks will be just that: fallbacks. A fallback language will never be reached if
 	 *    the message is available *anywhere* in the language for which it is a fallback.
 	 *
-	 * @param string $key the message key
+	 * @param string $key The message key
 	 * @param bool $useDB If true, look for the message in the DB, false
-	 *                    to use only the compiled l10n cache.
+	 *   to use only the compiled l10n cache.
 	 * @param bool|string|object $langcode Code of the language to get the message for.
-	 *        - If string and a valid code, will create a standard language object
-	 *        - If string but not a valid code, will create a basic language object
-	 *        - If boolean and false, create object from the current users language
-	 *        - If boolean and true, create object from the wikis content language
-	 *        - If language object, use it as given
-	 * @param bool $isFullKey specifies whether $key is a two part key
-	 *                   "msg/lang".
+	 *   - If string and a valid code, will create a standard language object
+	 *   - If string but not a valid code, will create a basic language object
+	 *   - If boolean and false, create object from the current users language
+	 *   - If boolean and true, create object from the wikis content language
+	 *   - If language object, use it as given
 	 *
-	 * @throws MWException when given an invalid key
+	 * @throws MWException When given an invalid key
 	 * @return string|bool False if the message doesn't exist, otherwise the
 	 *   message (which can be empty)
 	 */
-	function get( $key, $useDB = true, $langcode = true, $isFullKey = false ) {
-		global $wgContLang;
-
-		$section = new ProfileSection( __METHOD__ );
-
+	function get( $key, $useDB = true, $langcode = true ) {
 		if ( is_int( $key ) ) {
 			// Fix numerical strings that somehow become ints
 			// on their way here
@@ -719,35 +872,15 @@ class MessageCache {
 			return false;
 		}
 
-		// For full keys, get the language code from the key
-		$pos = strrpos( $key, '/' );
-		if ( $isFullKey && $pos !== false ) {
-			$langcode = substr( $key, $pos + 1 );
-			$key = substr( $key, 0, $pos );
-		}
-
 		// Normalise title-case input (with some inlining)
-		$lckey = strtr( $key, ' ', '_' );
-		if ( ord( $lckey ) < 128 ) {
-			$lckey[0] = strtolower( $lckey[0] );
-		} else {
-			$lckey = $wgContLang->lcfirst( $lckey );
-		}
+		$lckey = self::normalizeKey( $key );
 
-		wfRunHooks( 'MessageCache::get', array( &$lckey ) );
-
-		if ( ord( $lckey ) < 128 ) {
-			$uckey = ucfirst( $lckey );
-		} else {
-			$uckey = $wgContLang->ucfirst( $lckey );
-		}
+		Hooks::run( 'MessageCache::get', [ &$lckey ] );
 
 		// Loop through each language in the fallback list until we find something useful
-		$lang = wfGetLangObj( $langcode );
 		$message = $this->getMessageFromFallbackChain(
-			$lang,
+			wfGetLangObj( $langcode ),
 			$lckey,
-			$uckey,
 			!$this->mDisable && $useDB
 		);
 
@@ -769,18 +902,20 @@ class MessageCache {
 		if ( $message !== false ) {
 			// Fix whitespace
 			$message = str_replace(
-				array(
+				[
 					# Fix for trailing whitespace, removed by textarea
 					'&#32;',
 					# Fix for NBSP, converted to space by firefox
 					'&nbsp;',
 					'&#160;',
-				),
-				array(
+					'&shy;'
+				],
+				[
 					' ',
-					"\xc2\xa0",
-					"\xc2\xa0"
-				),
+					"\u{00A0}",
+					"\u{00A0}",
+					"\u{00AD}"
+				],
 				$message
 			);
 		}
@@ -789,36 +924,60 @@ class MessageCache {
 	}
 
 	/**
-	 * Given a language, try and fetch a message from that language, then the
-	 * fallbacks of that language, then the site language, then the fallbacks for the
-	 * site language.
+	 * Given a language, try and fetch messages from that language.
 	 *
-	 * @param Language $lang Requested language
-	 * @param string $lckey Lowercase key for the message
-	 * @param string $uckey Uppercase key for the message
-	 * @param bool $useDB Whether to use the database
+	 * Will also consider fallbacks of that language, the site language, and fallbacks for
+	 * the site language.
 	 *
 	 * @see MessageCache::get
+	 * @param Language|StubObject $lang Preferred language
+	 * @param string $lckey Lowercase key for the message (as for localisation cache)
+	 * @param bool $useDB Whether to include messages from the wiki database
 	 * @return string|bool The message, or false if not found
 	 */
-	protected function getMessageFromFallbackChain( $lang, $lckey, $uckey, $useDB ) {
-		global $wgLanguageCode, $wgContLang;
-
-		$langcode = $lang->getCode();
-		$message = false;
+	protected function getMessageFromFallbackChain( $lang, $lckey, $useDB ) {
+		$alreadyTried = [];
 
 		// First try the requested language.
-		if ( $useDB ) {
-			if ( $langcode === $wgLanguageCode ) {
-				// Messages created in the content language will not have the /lang extension
-				$message = $this->getMsgFromNamespace( $uckey, $langcode );
-			} else {
-				$message = $this->getMsgFromNamespace( "$uckey/$langcode", $langcode );
-			}
-		}
-
+		$message = $this->getMessageForLang( $lang, $lckey, $useDB, $alreadyTried );
 		if ( $message !== false ) {
 			return $message;
+		}
+
+		// Now try checking the site language.
+		$message = $this->getMessageForLang( $this->contLang, $lckey, $useDB, $alreadyTried );
+		return $message;
+	}
+
+	/**
+	 * Given a language, try and fetch messages from that language and its fallbacks.
+	 *
+	 * @see MessageCache::get
+	 * @param Language|StubObject $lang Preferred language
+	 * @param string $lckey Lowercase key for the message (as for localisation cache)
+	 * @param bool $useDB Whether to include messages from the wiki database
+	 * @param bool[] $alreadyTried Contains true for each language that has been tried already
+	 * @return string|bool The message, or false if not found
+	 */
+	private function getMessageForLang( $lang, $lckey, $useDB, &$alreadyTried ) {
+		$langcode = $lang->getCode();
+
+		// Try checking the database for the requested language
+		if ( $useDB ) {
+			$uckey = $this->contLang->ucfirst( $lckey );
+
+			if ( !isset( $alreadyTried[$langcode] ) ) {
+				$message = $this->getMsgFromNamespace(
+					$this->getMessagePageName( $langcode, $uckey ),
+					$langcode
+				);
+				if ( $message !== false ) {
+					return $message;
+				}
+				$alreadyTried[$langcode] = true;
+			}
+		} else {
+			$uckey = null;
 		}
 
 		// Check the CDB cache
@@ -827,56 +986,44 @@ class MessageCache {
 			return $message;
 		}
 
-		list( $fallbackChain, $siteFallbackChain ) =
-			Language::getFallbacksIncludingSiteLanguage( $langcode );
-
-		// Next try checking the database for all of the fallback languages of the requested language.
+		// Try checking the database for all of the fallback languages
 		if ( $useDB ) {
+			$fallbackChain = Language::getFallbacksFor( $langcode );
+
 			foreach ( $fallbackChain as $code ) {
-				if ( $code === $wgLanguageCode ) {
-					// Messages created in the content language will not have the /lang extension
-					$message = $this->getMsgFromNamespace( $uckey, $code );
-				} else {
-					$message = $this->getMsgFromNamespace( "$uckey/$code", $code );
+				if ( isset( $alreadyTried[$code] ) ) {
+					continue;
 				}
+
+				$message = $this->getMsgFromNamespace(
+					$this->getMessagePageName( $code, $uckey ), $code );
 
 				if ( $message !== false ) {
-					// Found the message.
 					return $message;
 				}
-			}
-		}
-
-		// Now try checking the site language.
-		if ( $useDB ) {
-			$message = $this->getMsgFromNamespace( $uckey, $wgLanguageCode );
-			if ( $message !== false ) {
-				return $message;
-			}
-		}
-
-		$message = $wgContLang->getMessage( $lckey );
-		if ( $message !== null ) {
-			return $message;
-		}
-
-		// Finally try the DB for the site language's fallbacks.
-		if ( $useDB ) {
-			foreach ( $siteFallbackChain as $code ) {
-				$message = $this->getMsgFromNamespace( "$uckey/$code", $code );
-				if ( $message === false && $code === $wgLanguageCode ) {
-					// Messages created in the content language will not have the /lang extension
-					$message = $this->getMsgFromNamespace( $uckey, $code );
-				}
-
-				if ( $message !== false ) {
-					// Found the message.
-					return $message;
-				}
+				$alreadyTried[$code] = true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the message page name for a given language
+	 *
+	 * @param string $langcode
+	 * @param string $uckey Uppercase key for the message
+	 * @return string The page name
+	 */
+	private function getMessagePageName( $langcode, $uckey ) {
+		global $wgLanguageCode;
+
+		if ( $langcode === $wgLanguageCode ) {
+			// Messages created in the content language will not have the /lang extension
+			return $uckey;
+		} else {
+			return "$uckey/$langcode";
+		}
 	}
 
 	/**
@@ -887,107 +1034,140 @@ class MessageCache {
 	 * some callers require this behavior. LanguageConverter::parseCachedTable()
 	 * and self::get() are some examples in core.
 	 *
-	 * @param string $title Message cache key with initial uppercase letter.
-	 * @param string $code Code denoting the language to try.
+	 * @param string $title Message cache key with initial uppercase letter
+	 * @param string $code Code denoting the language to try
 	 * @return string|bool The message, or false if it does not exist or on error
 	 */
-	function getMsgFromNamespace( $title, $code ) {
+	public function getMsgFromNamespace( $title, $code ) {
+		// Load all MediaWiki page definitions into cache. Note that individual keys
+		// already loaded into cache during this request remain in the cache, which
+		// includes the value of hook-defined messages.
 		$this->load( $code );
-		if ( isset( $this->mCache[$code][$title] ) ) {
-			$entry = $this->mCache[$code][$title];
+
+		$entry = $this->cache->getField( $code, $title );
+
+		if ( $entry !== null ) {
+			// Message page exists as an override of a software messages
 			if ( substr( $entry, 0, 1 ) === ' ' ) {
-				// The message exists, so make sure a string
-				// is returned.
+				// The message exists and is not '!TOO BIG'
 				return (string)substr( $entry, 1 );
 			} elseif ( $entry === '!NONEXISTENT' ) {
+				// The text might be '-' or missing due to some data loss
 				return false;
-			} elseif ( $entry === '!TOO BIG' ) {
-				// Fall through and try invididual message cache below
 			}
+			// Load the message page, utilizing the individual message cache.
+			// If the page does not exist, there will be no hook handler fallbacks.
+			$entry = $this->loadCachedMessagePageEntry(
+				$title,
+				$code,
+				$this->cache->getField( $code, 'HASH' )
+			);
 		} else {
-			// XXX: This is not cached in process cache, should it?
-			$message = false;
-			wfRunHooks( 'MessagesPreLoad', array( $title, &$message ) );
-			if ( $message !== false ) {
+			// Message page either does not exist or does not override a software message
+			$name = $this->contLang->lcfirst( $title );
+			if ( !$this->isMainCacheable( $name, $this->overridable ) ) {
+				// Message page does not override any software-defined message. A custom
+				// message might be defined to have content or settings specific to the wiki.
+				// Load the message page, utilizing the individual message cache as needed.
+				$entry = $this->loadCachedMessagePageEntry(
+					$title,
+					$code,
+					$this->cache->getField( $code, 'HASH' )
+				);
+			}
+			if ( $entry === null || substr( $entry, 0, 1 ) !== ' ' ) {
+				// Message does not have a MediaWiki page definition; try hook handlers
+				$message = false;
+				Hooks::run( 'MessagesPreLoad', [ $title, &$message, $code ] );
+				if ( $message !== false ) {
+					$this->cache->setField( $code, $title, ' ' . $message );
+				} else {
+					$this->cache->setField( $code, $title, '!NONEXISTENT' );
+				}
+
 				return $message;
 			}
-
-			return false;
 		}
 
-		# Try the individual message cache
-		$titleKey = wfMemcKey( 'messages', 'individual', $title );
-		$entry = $this->mMemc->get( $titleKey );
-		if ( $entry ) {
-			if ( substr( $entry, 0, 1 ) === ' ' ) {
-				$this->mCache[$code][$title] = $entry;
-
-				// The message exists, so make sure a string
-				// is returned.
-				return (string)substr( $entry, 1 );
-			} elseif ( $entry === '!NONEXISTENT' ) {
-				$this->mCache[$code][$title] = '!NONEXISTENT';
-
-				return false;
+		if ( $entry !== false && substr( $entry, 0, 1 ) === ' ' ) {
+			if ( $this->cacheVolatile[$code] ) {
+				// Make sure that individual keys respect the WAN cache holdoff period too
+				LoggerFactory::getInstance( 'MessageCache' )->debug(
+					__METHOD__ . ': loading volatile key \'{titleKey}\'',
+					[ 'titleKey' => $title, 'code' => $code ] );
 			} else {
-				# Corrupt/obsolete entry, delete it
-				$this->mMemc->delete( $titleKey );
+				$this->cache->setField( $code, $title, $entry );
 			}
+			// The message exists, so make sure a string is returned
+			return (string)substr( $entry, 1 );
 		}
 
-		# Try loading it from the database
-		$revision = Revision::newFromTitle(
-			Title::makeTitle( NS_MEDIAWIKI, $title ), false, Revision::READ_LATEST
-		);
-		if ( $revision ) {
-			$content = $revision->getContent();
-			if ( !$content ) {
-				// A possibly temporary loading failure.
-				wfDebugLog(
-					'MessageCache',
-					__METHOD__ . ": failed to load message page text for {$title} ($code)"
+		$this->cache->setField( $code, $title, '!NONEXISTENT' );
+
+		return false;
+	}
+
+	/**
+	 * @param string $dbKey
+	 * @param string $code
+	 * @param string $hash
+	 * @return string Either " <MESSAGE>" or "!NONEXISTANT"
+	 */
+	private function loadCachedMessagePageEntry( $dbKey, $code, $hash ) {
+		$fname = __METHOD__;
+		return $this->srvCache->getWithSetCallback(
+			$this->srvCache->makeKey( 'messages-big', $hash, $dbKey ),
+			IExpiringStore::TTL_MINUTE,
+			function () use ( $code, $dbKey, $hash, $fname ) {
+				return $this->wanCache->getWithSetCallback(
+					$this->bigMessageCacheKey( $hash, $dbKey ),
+					$this->mExpiry,
+					function ( $oldValue, &$ttl, &$setOpts ) use ( $dbKey, $code, $fname ) {
+						// Try loading the message from the database
+						$dbr = wfGetDB( DB_REPLICA );
+						$setOpts += Database::getCacheSetOptions( $dbr );
+						// Use newKnownCurrent() to avoid querying revision/user tables
+						$title = Title::makeTitle( NS_MEDIAWIKI, $dbKey );
+						$revision = Revision::newKnownCurrent( $dbr, $title );
+						if ( !$revision ) {
+							// The wiki doesn't have a local override page. Cache absence with normal TTL.
+							// When overrides are created, self::replace() takes care of the cache.
+							return '!NONEXISTENT';
+						}
+						$content = $revision->getContent();
+						if ( $content ) {
+							$message = $this->getMessageTextFromContent( $content );
+						} else {
+							LoggerFactory::getInstance( 'MessageCache' )->warning(
+								$fname . ': failed to load page text for \'{titleKey}\'',
+								[ 'titleKey' => $dbKey, 'code' => $code ]
+							);
+							$message = null;
+						}
+
+						if ( !is_string( $message ) ) {
+							// Revision failed to load Content, or Content is incompatible with wikitext.
+							// Possibly a temporary loading failure.
+							$ttl = 5;
+
+							return '!NONEXISTENT';
+						}
+
+						return ' ' . $message;
+					}
 				);
-				$message = null; // no negative caching
-			} else {
-				// XXX: Is this the right way to turn a Content object into a message?
-				// NOTE: $content is typically either WikitextContent, JavaScriptContent or
-				//       CssContent. MessageContent is *not* used for storing messages, it's
-				//       only used for wrapping them when needed.
-				$message = $content->getWikitextForTransclusion();
-
-				if ( $message === false || $message === null ) {
-					wfDebugLog(
-						'MessageCache',
-						__METHOD__ . ": message content doesn't provide wikitext "
-							. "(content model: " . $content->getContentHandler() . ")"
-					);
-
-					$message = false; // negative caching
-				} else {
-					$this->mCache[$code][$title] = ' ' . $message;
-					$this->mMemc->set( $titleKey, ' ' . $message, $this->mExpiry );
-				}
 			}
-		} else {
-			$message = false; // negative caching
-		}
-
-		if ( $message === false ) { // negative caching
-			$this->mCache[$code][$title] = '!NONEXISTENT';
-			$this->mMemc->set( $titleKey, '!NONEXISTENT', $this->mExpiry );
-		}
-
-		return $message;
+		);
 	}
 
 	/**
 	 * @param string $message
 	 * @param bool $interface
-	 * @param string $language Language code
-	 * @param Title $title
+	 * @param Language|null $language
+	 * @param Title|null $title
 	 * @return string
 	 */
-	function transform( $message, $interface = false, $language = null, $title = null ) {
+	public function transform( $message, $interface = false, $language = null, $title = null ) {
 		// Avoid creating parser if nothing to transform
 		if ( strpos( $message, '{{' ) === false ) {
 			return $message;
@@ -1016,14 +1196,15 @@ class MessageCache {
 	/**
 	 * @return Parser
 	 */
-	function getParser() {
+	public function getParser() {
 		global $wgParser, $wgParserConf;
+
 		if ( !$this->mParser && isset( $wgParser ) ) {
 			# Do some initialisation so that we don't have to do it twice
 			$wgParser->firstCallInit();
 			# Clone it and store it
 			$class = $wgParserConf['class'];
-			if ( $class == 'Parser_DiffTest' ) {
+			if ( $class == ParserDiffTest::class ) {
 				# Uncloneable
 				$this->mParser = new $class( $wgParserConf );
 			} else {
@@ -1036,15 +1217,17 @@ class MessageCache {
 
 	/**
 	 * @param string $text
-	 * @param Title $title
+	 * @param Title|null $title
 	 * @param bool $linestart Whether or not this is at the start of a line
 	 * @param bool $interface Whether this is an interface message
-	 * @param string $language Language code
+	 * @param Language|string|null $language Language code
 	 * @return ParserOutput|string
 	 */
 	public function parse( $text, $title = null, $linestart = true,
 		$interface = false, $language = null
 	) {
+		global $wgTitle;
+
 		if ( $this->mInParser ) {
 			return htmlspecialchars( $text );
 		}
@@ -1052,70 +1235,88 @@ class MessageCache {
 		$parser = $this->getParser();
 		$popts = $this->getParserOptions();
 		$popts->setInterfaceMessage( $interface );
+
+		if ( is_string( $language ) ) {
+			$language = Language::factory( $language );
+		}
 		$popts->setTargetLanguage( $language );
 
-		wfProfileIn( __METHOD__ );
 		if ( !$title || !$title instanceof Title ) {
-			global $wgTitle;
+			wfDebugLog( 'GlobalTitleFail', __METHOD__ . ' called by ' .
+				wfGetAllCallers( 6 ) . ' with no title set.' );
 			$title = $wgTitle;
 		}
 		// Sometimes $wgTitle isn't set either...
 		if ( !$title ) {
 			# It's not uncommon having a null $wgTitle in scripts. See r80898
 			# Create a ghost title in such case
-			$title = Title::newFromText( 'Dwimmerlaik' );
+			$title = Title::makeTitle( NS_SPECIAL, 'Badtitle/title not set in ' . __METHOD__ );
 		}
 
 		$this->mInParser = true;
 		$res = $parser->parse( $text, $title, $popts, $linestart );
 		$this->mInParser = false;
 
-		wfProfileOut( __METHOD__ );
-
 		return $res;
 	}
 
-	function disable() {
+	public function disable() {
 		$this->mDisable = true;
 	}
 
-	function enable() {
+	public function enable() {
 		$this->mDisable = false;
 	}
 
 	/**
-	 * Clear all stored messages. Mainly used after a mass rebuild.
+	 * Whether DB/cache usage is disabled for determining messages
+	 *
+	 * If so, this typically indicates either:
+	 *   - a) load() failed to find a cached copy nor query the DB
+	 *   - b) we are in a special context or error mode that cannot use the DB
+	 * If the DB is ignored, any derived HTML output or cached objects may be wrong.
+	 * To avoid long-term cache pollution, TTLs can be adjusted accordingly.
+	 *
+	 * @return bool
+	 * @since 1.27
 	 */
-	function clear() {
-		$langs = Language::fetchLanguageNames( null, 'mw' );
-		foreach ( array_keys( $langs ) as $code ) {
-			# Global cache
-			$this->mMemc->delete( wfMemcKey( 'messages', $code ) );
-			# Invalidate all local caches
-			$this->mMemc->delete( wfMemcKey( 'messages', $code, 'hash' ) );
-		}
-		$this->mLoadedLanguages = array();
+	public function isDisabled() {
+		return $this->mDisable;
 	}
 
 	/**
-	 * @param $key
+	 * Clear all stored messages in global and local cache
+	 *
+	 * Mainly used after a mass rebuild
+	 */
+	public function clear() {
+		$langs = Language::fetchLanguageNames( null, 'mw' );
+		foreach ( array_keys( $langs ) as $code ) {
+			$this->wanCache->touchCheckKey( $this->getCheckKey( $code ) );
+		}
+		$this->cache->clear();
+	}
+
+	/**
+	 * @param string $key
 	 * @return array
 	 */
 	public function figureMessage( $key ) {
 		global $wgLanguageCode;
+
 		$pieces = explode( '/', $key );
 		if ( count( $pieces ) < 2 ) {
-			return array( $key, $wgLanguageCode );
+			return [ $key, $wgLanguageCode ];
 		}
 
 		$lang = array_pop( $pieces );
 		if ( !Language::fetchLanguageName( $lang, null, 'mw' ) ) {
-			return array( $key, $wgLanguageCode );
+			return [ $key, $wgLanguageCode ];
 		}
 
 		$message = implode( '/', $pieces );
 
-		return array( $message, $lang );
+		return [ $message, $lang ];
 	}
 
 	/**
@@ -1124,23 +1325,88 @@ class MessageCache {
 	 * for which MediaWiki:msgkey exists. If $code is another language code, this
 	 * will ONLY return message keys for which MediaWiki:msgkey/$code exists.
 	 * @param string $code Language code
-	 * @return array of message keys (strings)
+	 * @return array Array of message keys (strings)
 	 */
 	public function getAllMessageKeys( $code ) {
-		global $wgContLang;
 		$this->load( $code );
-		if ( !isset( $this->mCache[$code] ) ) {
+		if ( !$this->cache->has( $code ) ) {
 			// Apparently load() failed
 			return null;
 		}
 		// Remove administrative keys
-		$cache = $this->mCache[$code];
+		$cache = $this->cache->get( $code );
 		unset( $cache['VERSION'] );
 		unset( $cache['EXPIRY'] );
+		unset( $cache['EXCESSIVE'] );
 		// Remove any !NONEXISTENT keys
-		$cache = array_diff( $cache, array( '!NONEXISTENT' ) );
+		$cache = array_diff( $cache, [ '!NONEXISTENT' ] );
 
 		// Keys may appear with a capital first letter. lcfirst them.
-		return array_map( array( $wgContLang, 'lcfirst' ), array_keys( $cache ) );
+		return array_map( [ $this->contLang, 'lcfirst' ], array_keys( $cache ) );
+	}
+
+	/**
+	 * Purge message caches when a MediaWiki: page is created, updated, or deleted
+	 *
+	 * @param Title $title Message page title
+	 * @param Content|null $content New content for edit/create, null on deletion
+	 * @since 1.29
+	 */
+	public function updateMessageOverride( Title $title, Content $content = null ) {
+		$msgText = $this->getMessageTextFromContent( $content );
+		if ( $msgText === null ) {
+			$msgText = false; // treat as not existing
+		}
+
+		$this->replace( $title->getDBkey(), $msgText );
+
+		if ( $this->contLang->hasVariants() ) {
+			$this->contLang->updateConversionTable( $title );
+		}
+	}
+
+	/**
+	 * @param string $code Language code
+	 * @return string WAN cache key usable as a "check key" against language page edits
+	 */
+	public function getCheckKey( $code ) {
+		return $this->wanCache->makeKey( 'messages', $code );
+	}
+
+	/**
+	 * @param Content|null $content Content or null if the message page does not exist
+	 * @return string|bool|null Returns false if $content is null and null on error
+	 */
+	private function getMessageTextFromContent( Content $content = null ) {
+		// @TODO: could skip pseudo-messages like js/css here, based on content model
+		if ( $content ) {
+			// Message page exists...
+			// XXX: Is this the right way to turn a Content object into a message?
+			// NOTE: $content is typically either WikitextContent, JavaScriptContent or
+			//       CssContent. MessageContent is *not* used for storing messages, it's
+			//       only used for wrapping them when needed.
+			$msgText = $content->getWikitextForTransclusion();
+			if ( $msgText === false || $msgText === null ) {
+				// This might be due to some kind of misconfiguration...
+				$msgText = null;
+				LoggerFactory::getInstance( 'MessageCache' )->warning(
+					__METHOD__ . ": message content doesn't provide wikitext "
+					. "(content model: " . $content->getModel() . ")" );
+			}
+		} else {
+			// Message page does not exist...
+			$msgText = false;
+		}
+
+		return $msgText;
+	}
+
+	/**
+	 * @param string $hash Hash for this version of the entire key/value overrides map
+	 * @param string $title Message cache key with initial uppercase letter
+	 * @return string
+	 */
+	private function bigMessageCacheKey( $hash, $title ) {
+		return $this->wanCache->makeKey( 'messages-big', $hash, $title );
 	}
 }

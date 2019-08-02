@@ -29,15 +29,14 @@ require_once __DIR__ . '/Maintenance.php';
  * @ingroup Maintenance
  */
 class TableCleanup extends Maintenance {
-	protected $defaultParams = array(
+	protected $defaultParams = [
 		'table' => 'page',
-		'conds' => array(),
+		'conds' => [],
 		'index' => 'page_id',
 		'callback' => 'processRow',
-	);
+	];
 
 	protected $dryrun = false;
-	protected $maxLag = 10; # if slaves are lagged more than 10 secs, wait
 	public $batchSize = 100;
 	public $reportInterval = 100;
 
@@ -50,11 +49,12 @@ class TableCleanup extends Maintenance {
 
 	public function execute() {
 		global $wgUser;
-		$wgUser = User::newFromName( 'Conversion script' );
 		$this->dryrun = $this->hasOption( 'dry-run' );
 		if ( $this->dryrun ) {
+			$wgUser = User::newFromName( 'Conversion script' );
 			$this->output( "Checking for bad titles...\n" );
 		} else {
+			$wgUser = User::newSystemUser( 'Conversion script', [ 'steal' => true ] );
 			$this->output( "Checking and fixing bad titles...\n" );
 		}
 		$this->runTable( $this->defaultParams );
@@ -106,10 +106,10 @@ class TableCleanup extends Maintenance {
 	 * @throws MWException
 	 */
 	public function runTable( $params ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = $this->getDB( DB_REPLICA );
 
 		if ( array_diff( array_keys( $params ),
-			array( 'table', 'conds', 'index', 'callback' ) )
+			[ 'table', 'conds', 'index', 'callback' ] )
 		) {
 			throw new MWException( __METHOD__ . ': Missing parameter ' . implode( ', ', $params ) );
 		}
@@ -121,12 +121,12 @@ class TableCleanup extends Maintenance {
 		$this->output( "Processing $table...\n" );
 
 		$index = (array)$params['index'];
-		$indexConds = array();
-		$options = array(
+		$indexConds = [];
+		$options = [
 			'ORDER BY' => implode( ',', $index ),
 			'LIMIT' => $this->batchSize
-		);
-		$callback = array( $this, $params['callback'] );
+		];
+		$callback = [ $this, $params['callback'] ];
 
 		while ( true ) {
 			$conds = array_merge( $params['conds'], $indexConds );
@@ -158,7 +158,7 @@ class TableCleanup extends Maintenance {
 					$nextCond = "$field > $encValue OR ($field = $encValue AND ($nextCond))";
 				}
 			}
-			$indexConds = array( $nextCond );
+			$indexConds = [ $nextCond ];
 		}
 
 		$this->output( "Finished $table... $this->updated of $this->processed rows updated\n" );
@@ -172,10 +172,3 @@ class TableCleanup extends Maintenance {
 		return sprintf( "\\x%02x", ord( $matches[1] ) );
 	}
 }
-
-class TableCleanupTest extends TableCleanup {
-	function processRow( $row ) {
-		$this->progress( mt_rand( 0, 1 ) );
-	}
-}
-

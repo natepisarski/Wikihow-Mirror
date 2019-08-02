@@ -1,44 +1,48 @@
 <?php
+
+use MediaWiki\Logger\LoggerFactory;
+
 /**
  * Represents a schema revision on a remote wiki.
  * Handles retrieval (via HTTP) and local caching.
- * @note When we switch to PHP 5.4, add 'implements JsonSerializable'
  */
-class RemoteSchema {
+class RemoteSchema implements JsonSerializable {
 
 	const LOCK_TIMEOUT = 20;
 
-	var $cache;
-	var $http;
-	var $key;
-	var $revision;
-	var $title;
-	var $content = false;
-
+	public $title;
+	public $revision;
+	public $cache;
+	public $http;
+	public $key;
+	public $content = false;
 
 	/**
 	 * Constructor.
 	 * @param string $title
-	 * @param integer $revision
-	 * @param ObjectCache $cache: (optional) cache client.
-	 * @param Http $http: (optional) HTTP client.
+	 * @param int $revision
+	 * @param BagOStuff|null $cache (optional) cache client.
+	 * @param Http|null $http (optional) HTTP client.
 	 */
-	function __construct( $title, $revision, $cache = NULL, $http = NULL ) {
-		global $wgEventLoggingDBname;
+	public function __construct( $title, $revision, $cache = null, $http = null ) {
+		global $wgEventLoggingSchemaApiUri;
 
 		$this->title = $title;
 		$this->revision = $revision;
 		$this->cache = $cache ?: wfGetCache( CACHE_ANYTHING );
 		$this->http = $http ?: new Http();
-		$this->key = "schema:{$wgEventLoggingDBname}:{$title}:{$revision}";
+		$this->key = $this->cache->makeGlobalKey(
+			'eventlogging-schema',
+			$wgEventLoggingSchemaApiUri,
+			$revision
+		);
 	}
-
 
 	/**
 	 * Retrieves schema content.
-	 * @return array|bool: Schema or false if irretrievable.
+	 * @return array|bool Schema or false if irretrievable.
 	 */
-	function get() {
+	public function get() {
 		if ( $this->content ) {
 			return $this->content;
 		}
@@ -56,72 +60,79 @@ class RemoteSchema {
 		return $this->content;
 	}
 
+	/**
+	 * Returns an object containing serializable properties.
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		return [
+			'schema'   => $this->get() ?: new stdClass(),
+			'revision' => $this->revision
+		];
+	}
 
 	/**
 	 * Retrieves content from memcached.
-	 * @return array:bool: Schema or false if not in cache.
+	 * @return array|bool Schema or false if not in cache.
 	 */
-	function memcGet() {
+	protected function memcGet() {
 		return $this->cache->get( $this->key );
 	}
 
-
 	/**
 	 * Store content in memcached.
+	 * @return bool
 	 */
-	function memcSet() {
+	protected function memcSet() {
 		return $this->cache->set( $this->key, $this->content );
 	}
-
-
-	/**
-	 * Acquire a mutex lock for HTTP retrieval.
-	 * @return bool: Whether lock was successfully acquired.
-	 */
-	function lock() {
-		return $this->cache->add( $this->key . ':lock', 1, self::LOCK_TIMEOUT );
-	}
-
-
-	/**
-	 * Constructs URI for retrieving schema from remote wiki.
-	 * @return string: URI.
-	 */
-	function getUri() {
-		global $wgEventLoggingSchemaIndexUri;
-
-		$q = array(
-			'title'  =>  'Schema:' . $this->title,
-			'action' =>  'raw',
-			'oldid'  =>  $this->revision
-		);
-
-		return wfAppendQuery( $wgEventLoggingSchemaIndexUri, $q );
-	}
-
-
-	/**
-	 * Returns an object containing serializable properties.
-	 * @implements JsonSerializable
-	 */
-	function jsonSerialize() {
-		return array(
-			'schema'   => $this->get() ?: new StdClass(),
-			'revision' => $this->revision
-		);
-	}
-
 
 	/**
 	 * Retrieves the schema using HTTP.
 	 * Uses a memcached lock to avoid cache stampedes.
-	 * @return array|boolean: Schema or false if unable to fetch.
+	 * @return array|bool Schema or false if unable to fetch.
 	 */
-	function httpGet() {
+	protected function httpGet() {
+		$uri = $this->getUri();
 		if ( !$this->lock() ) {
+			LoggerFactory::getInstance( 'EventLogging' )->warning(
+				'Failed to get lock for requesting {schema_uri}.',
+				[ 'schema_uri' => $uri ]
+			);
 			return false;
 		}
-		$raw = $this->http->get( $this->getUri(), self::LOCK_TIMEOUT * 0.8 );
-		return FormatJson::decode( $raw, true ) ?: false;
+		$raw = $this->http->get( $uri, [
+			'timeout' => self::LOCK_TIMEOUT * 0.8
+		] );
+		$content = FormatJson::decode( $raw, true );
+		if ( !$content ) {
+			LoggerFactory::getInstance( 'EventLogging' )->error(
+				'Request to {schema_uri} failed.',
+				[ 'schema_uri' => $uri ]
+			);
+		}
+		return $content ?: false;
+	}
+
+	/**
+	 * Acquire a mutex lock for HTTP retrieval.
+	 * @return bool Whether lock was successfully acquired.
+	 */
+	protected function lock() {
+		return $this->cache->add( $this->key . ':lock', 1, self::LOCK_TIMEOUT );
+	}
+
+	/**
+	 * Constructs URI for retrieving schema from remote wiki.
+	 * @return string URI.
+	 */
+	protected function getUri() {
+		global $wgEventLoggingSchemaApiUri;
+
+		return wfAppendQuery( $wgEventLoggingSchemaApiUri, [
+			'action' => 'jsonschema',
+			'revid'  => $this->revision,
+			'formatversion' => 2,
+		] );
 	}
 }

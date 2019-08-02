@@ -22,6 +22,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 	function __construct() {
 		parent::__construct('TranslateEditor');
 	}
+
 	/**
 	 * Check if the user is a translater, and return true if a translator and false otherwise
 	 */
@@ -42,18 +43,21 @@ class TranslateEditor extends UnlistedSpecialPage {
 			return true;
 		}
 	}
+
 	/**
 	 * Regex for matching section names to replace
 	 */
 	static function getSectionRegex($sectionName) {
 		return("== *" . $sectionName . " *==");
 	}
+
 	/**
 	 * Name of section name to change them to
 	 */
 	static function getSectionWikitext($sectionName) {
 		return("== " . $sectionName . " ==");
 	}
+
 	/**
 	 * Get an array of values from messages, that are newline seperated
 	 */
@@ -68,11 +72,12 @@ class TranslateEditor extends UnlistedSpecialPage {
 
 		return($arr);
 	}
+
 	/**
 	 * Called when the user goes to an edit page
 	 * Override the functionality of the edit to require a URL to translate
 	 */
-	static function onCustomEdit() {
+	public static function onCustomEdit() {
 		global $wgRequest, $wgOut, $wgLanguageCode, $wgUser;
 
 		$draft = $wgRequest->getVal('draft', null);
@@ -81,6 +86,8 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$section = $wgRequest->getVal('section',$wgRequest->getVal('wpSection',null));
 		$save = $wgRequest->getVal('wpSave',null);
 		$title = Title::newFromURL($target);
+
+		$wgOut->addModules('ext.wikihow.translateeditor');
 
 		Mustache_Autoloader::register();
 		$options =  ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];

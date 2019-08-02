@@ -56,7 +56,7 @@ class WikihowStatsd {
 	}
 
 	public static function onPageContentSave(WikiPage $article, User &$user, Content $content,
-		string $summary, int $minor, $null1, $null2, int $flags, Status $status=null
+		$summary, int $minor, $null1, $null2, int $flags, Status $status=null
 	) {
 		self::increment('page.edit');
 	}

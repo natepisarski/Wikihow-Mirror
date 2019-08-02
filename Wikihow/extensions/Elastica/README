@@ -41,13 +41,14 @@ Installation
 Fetch this plugin plugin into your extensions directory.
 Make sure you have the curl php library installed (sudo apt-get install
 php5-curl in Debian.)
+Fetch the elastica library by running "composer install".
 Add this to LocalSettings.php:
- require_once( "$IP/extensions/Elastica/Elastica.php" );
+ wfLoadExtension( 'Elastica' );
 
 
 Licensing information
 ---------------------
 CirrusSearch makes use of the Elastica library to connect to Elasticsearch
 <http://elastica.io/>.
-It is Apache licensed and you can read the license Elastica/LICENSE.txt for
+It is Apache licensed and you can read its LICENSE.txt for
 more information.

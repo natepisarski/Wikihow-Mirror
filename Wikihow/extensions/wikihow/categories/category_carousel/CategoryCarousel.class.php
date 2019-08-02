@@ -15,7 +15,8 @@ class CategoryCarousel {
 	}
 
 	public function getCarouselHtml() {
-		RequestContext::getMain()->getOutput()->addModules(array('mobile.wikihow.category_carousel'));
+		RequestContext::getMain()->getOutput()->addModuleStyles( ['mobile.wikihow.category_carousel_styles'] );
+		RequestContext::getMain()->getOutput()->addModules( ['mobile.wikihow.category_carousel'] );
 
 		$options =  array(
 			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),
@@ -26,8 +27,8 @@ class CategoryCarousel {
 	}
 
 	public static function getCategoryListingHtml($listingData) {
-
-		RequestContext::getMain()->getOutput()->addModules(array('mobile.wikihow.category_carousel'));
+		RequestContext::getMain()->getOutput()->addModuleStyles( ['mobile.wikihow.category_carousel_styles'] );
+		RequestContext::getMain()->getOutput()->addModules( ['mobile.wikihow.category_carousel'] );
 
 		$options =  array(
 			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__),

@@ -208,7 +208,7 @@ class SpecialVideoBrowser extends SpecialPage {
 			) );
 			$output->setRobotPolicy( 'index,follow' );
 		}
-		$output->setSquidMaxage( $wgSquidMaxage );
+		$output->setCdnMaxage( $wgSquidMaxage );
 	}
 
 	public static function makeCustomSideBar( &$customSideBar ) {

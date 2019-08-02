@@ -20,13 +20,14 @@
  * @file
  * @ingroup SpecialPage
  */
+use MediaWiki\MediaWikiServices;
 
 /**
  * Implements Special:Prefixindex
  *
  * @ingroup SpecialPage
  */
-class SpecialPrefixindex extends SpecialAllpages {
+class SpecialPrefixindex extends SpecialAllPages {
 
 	/**
 	 * Whether to remove the searched prefix from the displayed link. Useful
@@ -44,11 +45,9 @@ class SpecialPrefixindex extends SpecialAllpages {
 
 	/**
 	 * Entry point : initialise variables and call subfunctions.
-	 * @param string $par becomes "FOO" when called like Special:Prefixindex/FOO (default null)
+	 * @param string $par Becomes "FOO" when called like Special:Prefixindex/FOO (default null)
 	 */
 	function execute( $par ) {
-		global $wgContLang;
-
 		$this->setHeaders();
 		$this->outputHeader();
 
@@ -64,15 +63,15 @@ class SpecialPrefixindex extends SpecialAllpages {
 		$this->hideRedirects = $request->getBool( 'hideredirects', $this->hideRedirects );
 		$this->stripPrefix = $request->getBool( 'stripprefix', $this->stripPrefix );
 
-		$namespaces = $wgContLang->getNamespaces();
+		$namespaces = MediaWikiServices::getInstance()->getContentLanguage()->getNamespaces();
 		$out->setPageTitle(
-			( $namespace > 0 && in_array( $namespace, array_keys( $namespaces ) ) )
+			( $namespace > 0 && array_key_exists( $namespace, $namespaces ) )
 				? $this->msg( 'prefixindex-namespace', str_replace( '_', ' ', $namespaces[$namespace] ) )
 				: $this->msg( 'prefixindex' )
 		);
 
 		$showme = '';
-		if ( isset( $par ) ) {
+		if ( $par !== null ) {
 			$showme = $par;
 		} elseif ( $prefix != '' ) {
 			$showme = $prefix;
@@ -82,7 +81,7 @@ class SpecialPrefixindex extends SpecialAllpages {
 			$showme = $from;
 		}
 
-		// Bug 27864: if transcluded, show all pages instead of the form.
+		// T29864: if transcluded, show all pages instead of the form.
 		if ( $this->including() || $showme != '' || $ns !== null ) {
 			$this->showPrefixChunk( $namespace, $showme, $from );
 		} else {
@@ -92,81 +91,70 @@ class SpecialPrefixindex extends SpecialAllpages {
 
 	/**
 	 * HTML for the top form
-	 * @param $namespace Integer: a namespace constant (default NS_MAIN).
-	 * @param string $from dbKey we are starting listing at.
+	 * @param int $namespace A namespace constant (default NS_MAIN).
+	 * @param string $from DbKey we are starting listing at.
 	 * @return string
 	 */
 	protected function namespacePrefixForm( $namespace = NS_MAIN, $from = '' ) {
-		global $wgScript;
-
-		$out = Xml::openElement( 'div', array( 'class' => 'namespaceoptions' ) );
-		$out .= Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) );
-		$out .= Html::hidden( 'title', $this->getPageTitle()->getPrefixedText() );
-		$out .= Xml::openElement( 'fieldset' );
-		$out .= Xml::element( 'legend', null, $this->msg( 'allpages' )->text() );
-		$out .= Xml::openElement( 'table', array( 'id' => 'nsselect', 'class' => 'allpages' ) );
-		$out .= "<tr>
-				<td class='mw-label'>" .
-			Xml::label( $this->msg( 'allpagesprefix' )->text(), 'nsfrom' ) .
-			"</td>
-				<td class='mw-input'>" .
-			Xml::input( 'prefix', 30, str_replace( '_', ' ', $from ), array( 'id' => 'nsfrom' ) ) .
-			"</td>
-			</tr>
-			<tr>
-			<td class='mw-label'>" .
-			Xml::label( $this->msg( 'namespace' )->text(), 'namespace' ) .
-			"</td>
-				<td class='mw-input'>" .
-			Html::namespaceSelector( array(
-				'selected' => $namespace,
-			), array(
+		$formDescriptor = [
+			'prefix' => [
+				'label-message' => 'allpagesprefix',
+				'name' => 'prefix',
+				'id' => 'nsfrom',
+				'type' => 'text',
+				'size' => '30',
+				'default' => str_replace( '_', ' ', $from ),
+			],
+			'namespace' => [
+				'type' => 'namespaceselect',
 				'name' => 'namespace',
 				'id' => 'namespace',
-				'class' => 'namespaceselector',
-			) ) .
-			Xml::checkLabel(
-				$this->msg( 'allpages-hide-redirects' )->text(),
-				'hideredirects',
-				'hideredirects',
-				$this->hideRedirects
-			) . ' ' .
-			Xml::checkLabel(
-				$this->msg( 'prefixindex-strip' )->text(),
-				'stripprefix',
-				'stripprefix',
-				$this->stripPrefix
-			) . ' ' .
-			Xml::submitButton( $this->msg( 'allpagessubmit' )->text() ) .
-			"</td>
-			</tr>";
-		$out .= Xml::closeElement( 'table' );
-		$out .= Xml::closeElement( 'fieldset' );
-		$out .= Xml::closeElement( 'form' );
-		$out .= Xml::closeElement( 'div' );
+				'label-message' => 'namespace',
+				'all' => null,
+				'default' => $namespace,
+			],
+			'hidedirects' => [
+				'class' => 'HTMLCheckField',
+				'name' => 'hideredirects',
+				'label-message' => 'allpages-hide-redirects',
+			],
+			'stripprefix' => [
+				'class' => 'HTMLCheckField',
+				'name' => 'stripprefix',
+				'label-message' => 'prefixindex-strip',
+			],
+		];
+		$context = new DerivativeContext( $this->getContext() );
+		$context->setTitle( $this->getPageTitle() ); // Remove subpage
+		$htmlForm = HTMLForm::factory( 'ooui', $formDescriptor, $context );
+		$htmlForm
+			->setMethod( 'get' )
+			->setWrapperLegendMsg( 'prefixindex' )
+			->setSubmitTextMsg( 'prefixindex-submit' );
 
-		return $out;
+		return $htmlForm->prepareForm()->getHTML( false );
 	}
 
 	/**
-	 * @param $namespace Integer, default NS_MAIN
-	 * @param $prefix String
-	 * @param string $from list all pages from this name (default FALSE)
+	 * @param int $namespace
+	 * @param string $prefix
+	 * @param string|null $from List all pages from this name (default false)
 	 */
-	protected function showPrefixChunk( $namespace = NS_MAIN, $prefix, $from = null ) {
-		global $wgContLang;
-
+	protected function showPrefixChunk( $namespace, $prefix, $from = null ) {
 		if ( $from === null ) {
 			$from = $prefix;
 		}
 
 		$fromList = $this->getNamespaceKeyAndText( $namespace, $from );
 		$prefixList = $this->getNamespaceKeyAndText( $namespace, $prefix );
-		$namespaces = $wgContLang->getNamespaces();
+		$namespaces = MediaWikiServices::getInstance()->getContentLanguage()->getNamespaces();
+		$res = null;
+		$n = 0;
+		$nextRow = null;
 
 		if ( !$prefixList || !$fromList ) {
 			$out = $this->msg( 'allpagesbadtitle' )->parseAsBlock();
-		} elseif ( !in_array( $namespace, array_keys( $namespaces ) ) ) {
+		} elseif ( !array_key_exists( $namespace, $namespaces ) ) {
 			// Show errormessage and reset to NS_MAIN
 			$out = $this->msg( 'allpages-bad-ns', $namespace )->parse();
 			$namespace = NS_MAIN;
@@ -174,126 +162,138 @@ class SpecialPrefixindex extends SpecialAllpages {
 			list( $namespace, $prefixKey, $prefix ) = $prefixList;
 			list( /* $fromNS */, $fromKey, ) = $fromList;
 
-			### @todo FIXME: Should complain if $fromNs != $namespace
+			# ## @todo FIXME: Should complain if $fromNs != $namespace
 
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 
-			$conds = array(
+			$conds = [
 				'page_namespace' => $namespace,
 				'page_title' . $dbr->buildLike( $prefixKey, $dbr->anyString() ),
 				'page_title >= ' . $dbr->addQuotes( $fromKey ),
-			);
+			];
 
 			if ( $this->hideRedirects ) {
 				$conds['page_is_redirect'] = 0;
 			}
 
 			$res = $dbr->select( 'page',
-				array( 'page_namespace', 'page_title', 'page_is_redirect' ),
+				array_merge(
+					[ 'page_namespace', 'page_title' ],
+					LinkCache::getSelectFields()
+				),
 				$conds,
 				__METHOD__,
-				array(
+				[
 					'ORDER BY' => 'page_title',
 					'LIMIT' => $this->maxPerPage + 1,
 					'USE INDEX' => 'name_title',
-				)
+				]
 			);
 
-			### @todo FIXME: Side link to previous
+			// @todo FIXME: Side link to previous
 
-			$n = 0;
 			if ( $res->numRows() > 0 ) {
-				$out = Xml::openElement( 'table', array( 'id' => 'mw-prefixindex-list-table' ) );
+				$out = Html::openElement( 'ul', [ 'class' => 'mw-prefixindex-list' ] );
+				$linkCache = MediaWikiServices::getInstance()->getLinkCache();
 
 				$prefixLength = strlen( $prefix );
-				while ( ( $n < $this->maxPerPage ) && ( $s = $res->fetchObject() ) ) {
-					$t = Title::makeTitle( $s->page_namespace, $s->page_title );
-					if ( $t ) {
-						$displayed = $t->getText();
-						// Try not to generate unclickable links
-						if ( $this->stripPrefix && $prefixLength !== strlen( $displayed ) ) {
-							$displayed = substr( $displayed, $prefixLength );
-						}
-						$link = ( $s->page_is_redirect ? '<div class="allpagesredirect">' : '' ) .
-							Linker::linkKnown(
-								$t,
-								htmlspecialchars( $displayed ),
-								$s->page_is_redirect ? array( 'class' => 'mw-redirect' ) : array()
-							) .
-							( $s->page_is_redirect ? '</div>' : '' );
-					} else {
-						$link = '[[' . htmlspecialchars( $s->page_title ) . ']]';
+				foreach ( $res as $row ) {
+					if ( $n >= $this->maxPerPage ) {
+						$nextRow = $row;
+						break;
 					}
-					if ( $n % 3 == 0 ) {
-						$out .= '<tr>';
+					$title = Title::newFromRow( $row );
+					// Make sure it gets into LinkCache
+					$linkCache->addGoodLinkObjFromRow( $title, $row );
+					$displayed = $title->getText();
+					// Try not to generate unclickable links
+					if ( $this->stripPrefix && $prefixLength !== strlen( $displayed ) ) {
+						$displayed = substr( $displayed, $prefixLength );
 					}
-					$out .= "<td>$link</td>";
+					$link = ( $title->isRedirect() ? '<div class="allpagesredirect">' : '' ) .
+						$this->getLinkRenderer()->makeKnownLink(
+							$title,
+							$displayed
+						) .
+						( $title->isRedirect() ? '</div>' : '' );
+
+					$out .= "<li>$link</li>\n";
 					$n++;
-					if ( $n % 3 == 0 ) {
-						$out .= '</tr>';
-					}
-				}
 
-				if ( $n % 3 != 0 ) {
-					$out .= '</tr>';
 				}
+				$out .= Html::closeElement( 'ul' );
 
-				$out .= Xml::closeElement( 'table' );
+				if ( $res->numRows() > 2 ) {
+					// Only apply CSS column styles if there's more than 2 entries.
+					// Otherwise rendering is broken as "mw-prefixindex-body"'s CSS column count is 3.
+					$out = Html::rawElement( 'div', [ 'class' => 'mw-prefixindex-body' ], $out );
+				}
 			} else {
 				$out = '';
 			}
 		}
 
-		$footer = '';
+		$output = $this->getOutput();
+
 		if ( $this->including() ) {
-			$out2 = '';
-		} else {
-			$nsForm = $this->namespacePrefixForm( $namespace, $prefix );
-			$self = $this->getPageTitle();
-			$out2 = Xml::openElement( 'table', array( 'id' => 'mw-prefixindex-nav-table' ) ) .
-				'<tr>
-					<td>' .
-				$nsForm .
-				'</td>
-				<td id="mw-prefixindex-nav-form" class="mw-prefixindex-nav">';
-
-			if ( isset( $res ) && $res && ( $n == $this->maxPerPage ) &&
-				( $s = $res->fetchObject() )
-			) {
-				$query = array(
-					'from' => $s->page_title,
-					'prefix' => $prefix,
-					'hideredirects' => $this->hideRedirects,
-					'stripprefix' => $this->stripPrefix,
-				);
-
-				if ( $namespace || $prefix == '' ) {
-					// Keep the namespace even if it's 0 for empty prefixes.
-					// This tells us we're not just a holdover from old links.
-					$query['namespace'] = $namespace;
-				}
-
-				$nextLink = Linker::linkKnown(
-					$self,
-					$this->msg( 'nextpage', str_replace( '_', ' ', $s->page_title ) )->escaped(),
-					array(),
-					$query
-				);
-
-				$out2 .= $nextLink;
-
-				$footer = "\n" . Html::element( 'hr' ) .
-					Html::rawElement(
-						'div',
-						array( 'class' => 'mw-prefixindex-nav' ),
-						$nextLink
-					);
-			}
-			$out2 .= "</td></tr>" .
-				Xml::closeElement( 'table' );
+			// We don't show the nav-links and the form when included into other
+			// pages so let's just finish here.
+			$output->addHTML( $out );
+			return;
 		}
 
-		$this->getOutput()->addHTML( $out2 . $out . $footer );
+		$topOut = $this->namespacePrefixForm( $namespace, $prefix );
+
+		if ( $res && ( $n == $this->maxPerPage ) && $nextRow ) {
+			$query = [
+				'from' => $nextRow->page_title,
+				'prefix' => $prefix,
+				'hideredirects' => $this->hideRedirects,
+				'stripprefix' => $this->stripPrefix,
+			];
+
+			if ( $namespace || $prefix == '' ) {
+				// Keep the namespace even if it's 0 for empty prefixes.
+				// This tells us we're not just a holdover from old links.
+				$query['namespace'] = $namespace;
+			}
+
+			$nextLink = $this->getLinkRenderer()->makeKnownLink(
+				$this->getPageTitle(),
+				$this->msg( 'nextpage', str_replace( '_', ' ', $nextRow->page_title ) )->text(),
+				[],
+				$query
+			);
+
+			// Link shown at the top of the page below the form
+			$topOut .= Html::rawElement( 'div',
+				[ 'class' => 'mw-prefixindex-nav' ],
+				$nextLink
+			);
+
+			// Link shown at the footer
+			$out .= "\n" . Html::element( 'hr' ) .
+				Html::rawElement(
+					'div',
+					[ 'class' => 'mw-prefixindex-nav' ],
+					$nextLink
+				);
+
+		}
+
+		$output->addHTML( $topOut . $out );
+	}
+
+	/**
+	 * Return an array of subpages beginning with $search that this special page will accept.
+	 *
+	 * @param string $search Prefix to search for
+	 * @param int $limit Maximum number of results to return (usually 10)
+	 * @param int $offset Number of results to skip (usually 0)
+	 * @return string[] Matching subpages
+	 */
+	public function prefixSearchSubpages( $search, $limit, $offset ) {
+		return $this->prefixSearchString( $search, $limit, $offset );
 	}
 
 	protected function getGroupName() {

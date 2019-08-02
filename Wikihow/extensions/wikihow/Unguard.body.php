@@ -51,7 +51,7 @@ class Unguard extends UnlistedSpecialPage {
 				$out->addHTML("reverting changes by $userName between {$cutoff} and {$cutoff2} <br/>");
 			}
 
-			$userObj = User::newFromName($userName);
+			$userObj = User::newFromName($userName, false);
 
 			if ($userObj->getID() == 0) {
 				$out->addHTML("<b>Whoa! There is no user with this name $userName, bailing.</b>");

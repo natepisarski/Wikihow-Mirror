@@ -117,8 +117,15 @@ class Spellchecker extends UnlistedSpecialPage {
 
 	private function getIds() {
 		global $wgMemc;
+
+		// We need to use the MemcacheClient interface to get at the cas() methods.
+		// TODO: Should we be using the MemcachedBagOStuff::merge() function now
+		// instead? I can't tell, but this is how cas() is exposed via our normal
+		// Memcache interface now. - Reuben, 2019
+		$memcacheClient = $wgMemc->getClient();
+
 		$key = wfMemcKey(self::SPCH_AVAIL_IDS_KEY);
-		$ids = $wgMemc->get($key, $casToken);
+		$ids = $memcacheClient->get($key, $casToken);
 		$newIds = array();
 		$success = false;
 		if (empty($ids)) {
@@ -130,14 +137,14 @@ class Spellchecker extends UnlistedSpecialPage {
 		if (sizeof($ids) < 100) {
 			// Only get ids once every 5 minutes max
 			$lastCheckedKey = wfMemcKey(self::SPCH_IDS_LAST_CHECKED_KEY);
-			$lastChecked = $wgMemc->get($lastCheckedKey);
+			$lastChecked = $memcacheClient->get($lastCheckedKey);
 
 			MWDebug::log("lastChecked: " . wfTimestamp(TS_MW, $lastChecked));
 			MWDebug::log("5 min cutoff: " . wfTimestamp(TS_MW, strtotime("-5 minutes")));
 			if (!$lastChecked || intVal($lastChecked) < strtotime("-5 minutes")) {
 				$lastChecked = time();
 				MWDebug::log('setting lastCheckedKey: ' .  wfTimestamp(TS_MW, $lastChecked));
-				$wgMemc->set($lastCheckedKey, $lastChecked);
+				$memcacheClient->set($lastCheckedKey, $lastChecked);
 
 				MWDebug::log("Getting new spellchecker ids since last check was : " . date($lastChecked));
 				$dbr = wfGetDB(DB_REPLICA);
@@ -160,16 +167,16 @@ class Spellchecker extends UnlistedSpecialPage {
 				MWDebug::log('Setting ids in memcache from getIds(). ids to be set' .  print_r($newIds, true));
 				// If cache key hasn't yet been set, set it
 				if (empty($ids)) {
-					$wgMemc->set($key, $newIds);
+					$memcacheClient->set($key, $newIds);
 				} else {
-					$success = $wgMemc->cas($casToken, $key, $newIds);
+					$success = $memcacheClient->cas($casToken, $key, $newIds);
 				}
                 // Retry 3 times if we can't successfully cas
 				if (!$success) {
 					$retries = 0;
 					do {
-						$wgMemc->get($key, $casToken);
-						$success = $wgMemc->cas($casToken, $key, $newIds);
+						$memcacheClient->get($key, $casToken);
+						$success = $memcacheClient->cas($casToken, $key, $newIds);
 						$retries++;
 						MWDebug::log("getIds retry #: " . $retries . ", success? " . $success);
 					} while (!$success && $retries < 4);
@@ -183,6 +190,9 @@ class Spellchecker extends UnlistedSpecialPage {
 
 	private function getNextId(&$retries = 0) {
 		global $wgMemc;
+
+		// We need to use the MemcacheClient interface to get at the cas() methods.
+		$memcacheClient = $wgMemc->getClient();
 
 		list($ids, $casToken) = $this->getIds();
 
@@ -200,7 +210,7 @@ class Spellchecker extends UnlistedSpecialPage {
 		MWDebug::log('setting ids in memcache from getNextId(). ids to be set' . print_r($ids, true));
 		// TODO: DO we need to do an initial set if sizeof ids array == 0?
 		// TODO: recursion doesn't seem to be working here.  is there something we can fix?
-		$success = $wgMemc->cas($casToken, $key, $ids);
+		$success = $memcacheClient->cas($casToken, $key, $ids);
 		if (!$success) {
 			// Set the article id to a non-value since we didn't successfully set the cache key
 			$id = 0;

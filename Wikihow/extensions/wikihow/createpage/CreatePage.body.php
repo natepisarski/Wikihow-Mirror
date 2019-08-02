@@ -149,6 +149,7 @@ class CreatePage extends SpecialPage {
 					// $from = $t;
 					// $to = Title::newFromText(GuidedEditorHelper::formatTitle($wgRequest->getVal('createpage_title')));
 					// if ($from && $to) ProposedRedirects::createProposedRedirect($from->getDBKey(), $to->getDBKey());
+					$wgOut->addHTML('OK');
 					return;
 				}
 
@@ -211,6 +212,7 @@ class CreatePage extends SpecialPage {
 		$me = Title::newFromText("CreatePage", NS_SPECIAL);
 		$sk = $this->getSkin();
 		$this->setHeaders();
+		$wgOut->addModuleStyles('ext.wikihow.createpage_styles');
 		$wgOut->addModules('ext.wikihow.createpage');
 
 		if ($wgRequest->wasPosted() && $wgRequest->getVal('create_redirects') != null) {
@@ -263,6 +265,7 @@ class CreatePage extends SpecialPage {
 		. $boxes
 		);
 
+		$wgOut->addModuleStyles(['ext.wikihow.common_bottom_styles']);
 		$wgOut->addModules(array('ext.wikihow.common_top', 'ext.wikihow.common_bottom'));
 
 		return;

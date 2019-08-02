@@ -33,8 +33,15 @@ $wgResourceModules['ext.wikihow.desktop_category_page'] = array(
 	'dependencies' => array('ext.wikihow.common_top', 'wikihow.common.slick'),
 );
 
-$wgResourceModules['mobile.wikihow.mobile_category_page'] = array(
+$wgResourceModules['mobile.wikihow.mobile_category_page_styles'] = array(
 	'styles' => array('mobile_category_page.less'),
+	'localBasePath' => __DIR__ . '/mobile_category_page',
+	'remoteExtPath' => 'wikihow/categories/mobile_category_page',
+	'position' => 'top',
+	'targets' => array('mobile', 'desktop'),
+);
+
+$wgResourceModules['mobile.wikihow.mobile_category_page'] = array(
 	'scripts' => array('mobile_category_page.js'),
 	'localBasePath' => __DIR__ . '/mobile_category_page',
 	'remoteExtPath' => 'wikihow/categories/mobile_category_page',
@@ -47,8 +54,15 @@ $wgResourceModules['mobile.wikihow.mobile_category_page'] = array(
 	]
 );
 
-$wgResourceModules['mobile.wikihow.category_carousel'] = array(
+$wgResourceModules['mobile.wikihow.category_carousel_styles'] = array(
 	'styles' => array('category_carousel.less'),
+	'localBasePath' => __DIR__ . '/category_carousel',
+	'remoteExtPath' => 'wikihow/categories/category_carousel',
+	'position' => 'top',
+	'targets' => array('mobile', 'desktop'),
+);
+
+$wgResourceModules['mobile.wikihow.category_carousel'] = array(
 	'scripts' => array('category_carousel.js'),
 	'localBasePath' => __DIR__ . '/category_carousel',
 	'remoteExtPath' => 'wikihow/categories/category_carousel',

@@ -4,11 +4,43 @@
 // scripts that crawl the site (like to generate cache.wikihow.com)
 //
 
-require_once __DIR__ . '/../commandLine.inc';
+require_once __DIR__ . '/../Maintenance.php';
 
-class GenerateURLsMaintenance {
+class GenerateURLs extends Maintenance {
 
-	static function iso8601_date($time) {
+	public function __construct() {
+		parent::__construct();
+		$this->mDescription = 'Generate a list of URLs, to be used for things like generating sitemaps';
+
+		// addOption(long_form, description, required (bool), takes_args (bool), short_form)
+		$this->addOption('titles-only', 'Produce only a list of title, no lastmod=date in output', false, false, 't');
+		$this->addOption('categories', 'Produce output for all categories, instead of all articles', false, false, 'c');
+		$this->addOption('since', 'Produce output for all articles touched after a certain date (articles only)', false, true, 's');
+		$this->addOption('relative', 'Produce relative URLs rather than full ones (articles only)', false, false, 'r');
+		$this->addOption('forsitemap', 'Produce format specific for sitemaps (articles only)', false, false, 'f');
+		$this->addOption('random-percentage', 'Only output some random set of articles, as percentage of all articles (articles only)', false, true, 'p');
+	}
+
+	public function execute() {
+		$titles_only = $this->getOption('titles-only');
+		$categories = $this->getOption('categories');
+		$since = $this->getOption('since');
+		if ($since) {
+			$since = wfTimestamp(TS_MW, 'since');
+		}
+		$relative = $this->getOption('relative'); // Output relative article URLs. E.g. '/Hug'
+		// flag for if we are generating this list for the sitemap
+		$forSitemap = $this->getOption('forsitemap');
+		$randomPercentage = (int)$this->getOption('random-percentage', 0);
+
+		if (!$categories) {
+			self::listArticles($titles_only, $since, $relative, $forSitemap, $randomPercentage);
+		} else {
+			self::listCategories($titles_only);
+		}
+	}
+
+	private static function iso8601_date($time) {
 		$date = substr($time, 0, 4)  . "-"
 			  . substr($time, 4, 2)  . "-"
 			  . substr($time, 6, 2)  . "T"
@@ -18,7 +50,9 @@ class GenerateURLsMaintenance {
 		return $date;
 	}
 
-	static function listArticles($titlesOnly, $touchedSince, $relativeURLs=false, $forSitemap=false, $randomPercentage=0) {
+	private static function listArticles($titlesOnly, $touchedSince,
+		$relativeURLs = false, $forSitemap = false, $randomPercentage = 0
+	) {
 		$PAGE_SIZE = 2000;
 		$dbr = wfGetDB(DB_REPLICA);
 
@@ -122,7 +156,7 @@ class GenerateURLsMaintenance {
 		}
 	}
 
-	static function categoryTreeToList($node, &$list) {
+	private static function categoryTreeToList($node, &$list) {
 		foreach ($node as $name => $subNode) {
 			$list[] = $name;
 			if ($subNode && is_array($subNode)) {
@@ -131,7 +165,7 @@ class GenerateURLsMaintenance {
 		}
 	}
 
-	static function listCategories($titlesOnly) {
+	private static function listCategories($titlesOnly) {
 		$epoch = wfTimestamp( TS_MW, strtotime('January 1, 2010') );
 
 		$ch = new CategoryHelper();
@@ -176,23 +210,7 @@ class GenerateURLsMaintenance {
 		}
 	}
 
-	static function main() {
-		$opts = getopt('', array('titles-only', 'categories', 'since:', 'relative', 'forsitemap', 'random-percentage:'));
-		$titles_only = isset($opts['titles-only']);
-		$categories = isset($opts['categories']);
-		$since = isset($opts['since']) ? wfTimestamp(TS_MW, $opts['since']) : '';
-		$relative = isset($opts['relative']); // Output relative article URLs. E.g. '/Hug'
-		// flag for if we are generating this list for the sitemap
-		$forSitemap = isset($opts['forsitemap']);
-		$randomPercentage = isset($opts['random-percentage']) ? (int)$opts['random-percentage'] : 0;
-
-		if (!$categories) {
-			self::listArticles($titles_only, $since, $relative, $forSitemap, $randomPercentage);
-		} else {
-			self::listCategories($titles_only);
-		}
-	}
-
 }
 
-GenerateURLsMaintenance::main();
+$maintClass = 'GenerateURLs';
+require_once RUN_MAINTENANCE_IF_MAIN;

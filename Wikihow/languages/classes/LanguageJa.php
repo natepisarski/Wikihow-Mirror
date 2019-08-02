@@ -29,7 +29,7 @@
 class LanguageJa extends Language {
 
 	/**
-	 * @param $string string
+	 * @param string $string
 	 * @return string
 	 */
 	function segmentByWord( $string ) {
@@ -51,9 +51,9 @@ class LanguageJa extends Language {
 
 	/**
 	 * Italic is not appropriate for Japanese script
-	 * Unfortunately most browsers do not recognise this, and render <em> as italic
+	 * Unfortunately most browsers do not recognise this, and render `<em>` as italic
 	 *
-	 * @param $text string
+	 * @param string $text
 	 * @return string
 	 */
 	function emphasize( $text ) {
@@ -63,7 +63,7 @@ class LanguageJa extends Language {
 	/**
 	 * Added by Alberto (wikiHow)
 	 *
-	 * @param $text string
+	 * @param string $text
 	 * @return string
 	 */
 	function segmentForDiff($text) {
@@ -74,7 +74,7 @@ class LanguageJa extends Language {
 	/**
 	 * Added by Alberto (wikiHow)
 	 *
-	 * @param $text string
+	 * @param string $text
 	 * @return string
 	 */
 	function unsegmentForDiff($text) {
@@ -88,10 +88,10 @@ class LanguageJa extends Language {
 	 * @return string
 	 */
 	private function getSegmentPattern() {
-		# Regular expressions on UTF-8 bytes
+		// Regular expressions on UTF-8 bytes
 		$hiragana = '(?:\xe3(?:\x81[\x80-\xbf]|\x82[\x80-\x9f]))'; # U+3040-U+309F
 		$katakana = '(?:\xe3(?:\x82[\xa0-\xbf]|\x83[\x80-\xbf]))'; # U+30A0-U+30FF
-		# Don't group Kanji: runs can be very long, and Kanji tend to disambiguate themselves well
+		// Don't group Kanji: runs can be very long, and Kanji tend to disambiguate themselves well
 		$nonBasicLatin = '(?:[\xc0-\xff][\x80-\xbf]*)'; # U+0080-U+10FFFF
 		return "$hiragana+|$katakana+|$nonBasicLatin";
 	}

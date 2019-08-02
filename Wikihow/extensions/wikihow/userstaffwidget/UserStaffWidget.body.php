@@ -18,7 +18,7 @@ class UserStaffWidget extends UnlistedSpecialPage {
 		return true;
 	}
 
-	public static function getStaffWidgetData($userId ) {
+	public static function getStaffWidgetData($userId) {
 		$host = WH_TITUS_API_HOST;
 		$url = $host."/api.php?action=flavius&subcmd=staff&user_id=$userId&format=json";
 		$ch = curl_init($url);
@@ -35,7 +35,7 @@ class UserStaffWidget extends UnlistedSpecialPage {
 		} else {
 			$result = json_decode($ret, FALSE);
 		}
-		return($result->flavius->values);
+		return $result->flavius->values;
 	}
 
 	public static function formatUserData($row) {
@@ -48,19 +48,17 @@ class UserStaffWidget extends UnlistedSpecialPage {
 		$txt .= "<b>Articles started: </b>" . $row->articles_started_all . "<br/>\n";
 		$txt .= "<b>Edits Patrolled: </b>" . $row->patrol_count_all . "<br/>\n";
 		$txt .= "<b>Talk messages sent: </b>" . $row->talk_pages_sent_all . "<br/>\n";
-		$txt .= "<b>First contact: </b>" . ($row->fe_first_human_talk_date ? $lang->date($row->fe_first_human_talk_date) : "") . "<br/>\n";
-		return($txt);
-
+		$txt .= "<b>First contact: </b>" . ($row->fe_first_human_talk_date ? $lang->date($row->fe_first_human_talk_date) : "<i>never</i>") . "<br/>\n";
+		return $txt;
 	}
 
 	public function execute($par) {
-		global $wgOut, $wgRequest, $wgUser;
 		if (!self::isAllowed()) {
-			$wgOut->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+			$this->getOutput()->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
-		$userName = $wgRequest->getVal('user_name','');
+		$userName = $this->getRequest()->getVal('user_name','');
 		$userName = str_replace('-',' ',$userName);
 		$u = User::newFromName($userName);
 
@@ -69,62 +67,45 @@ class UserStaffWidget extends UnlistedSpecialPage {
 			$row = self::getStaffWidgetData($u->getId());
 			$txt = self::formatUserData($row);
 		}
-		$wgOut->addHTML($txt);
-		$wgOut->setArticleBodyOnly(true);
+		$this->getOutput()->addHTML($txt);
+		$this->getOutput()->setArticleBodyOnly(true);
 	}
 
-	public static function beforeHeaderDisplay() {
-		if (!self::isAllowed()) {
+	public static function onBeforePageDisplay() {
+		if ( !self::isAllowed() || RequestContext::getMain()->getRequest()->getVal('diff') ) {
 			return true;
 		}
 
 		$title = RequestContext::getMain()->getTitle();
+		$out = RequestContext::getMain()->getOutput();
+		if ($title->inNamespace(NS_USER) ) {
+			$out->addModules('ext.wikihow.user_widget_userpage');
+		} elseif ($title->inNamespace(NS_USER_TALK)) {
+			$out->addModules('ext.wikihow.user_widget_usertalkpage');
+		}
+	}
+
+	public static function onBeforeHeaderDisplay() {
+		if ( !self::isAllowed() || RequestContext::getMain()->getRequest()->getVal('diff') ) {
+			return true;
+		}
+
+		$title = RequestContext::getMain()->getTitle();
+		$out = RequestContext::getMain()->getOutput();
 		if ($title->inNamespace(NS_USER) ) {
 			if (preg_match("@^([^/]+)(/|$)@", $title->getText(), $matches)) {
 				$u = User::newFromName($matches[1]);
 				if ($u) {
 					$row = self::getStaffWidgetData($u->getId());
+					$txt = self::formatUserData($row);
+
 					$sk = RequestContext::getMain()->getSkin();
-					$lang = RequestContext::getMain()->getLanguage();
-					$txt = "<b>User: </b>" . $row->fe_username . "<br/>\n";
-					$txt .= "<b>Joined: </b>" . ($row->fe_date_joined ? $lang->date($row->fe_date_joined):"") . "<br/>\n";
-					$txt .= "<b>Last edit: </b>" . ($row->fe_last_edit_date ? $lang->date($row->fe_last_edit_date) : "")  . "<br/>\n";
-					$txt .= "<b>Last touch: </b>" . ($row->fe_last_touched ? $lang->date($row->fe_last_touched) : "") . "<br/>\n";
-					$txt .= "<b>Contributions: </b>" . $row->contribution_edit_count_all . "<br/>\n";
-					$txt .= "<b>Articles started: </b>" . $row->articles_started_all . "<br/>\n";
-					$txt .= "<b>Edits Patrolled: </b>" . $row->patrol_count_all . "<br/>\n";
-					$txt .= "<b>Talk messages sent: </b>" . $row->talk_pages_sent_all . "<br/>\n";
-					$txt .= "<b>First contact: </b>" . ($row->fe_first_human_talk_date ? $lang->date($row->fe_first_human_talk_date) : "") . "<br/>\n";
-					$txt .= "<script type=\"text/javascript\">";
-					$txt .= "$(document).ready(function() {\n";
-					$txt .= "$(\"#sidebar\").prepend($(\".user_widget\"));\n";
-					$txt .= "});";
-					$txt .= "</script>";
 					$sk->addWidget($txt, 'user_widget');
 				}
 			}
 		} elseif ($title->inNamespace(NS_USER_TALK)) {
 			$sk = RequestContext::getMain()->getSkin();
-			$txt = "<script type\"text/javascript\">\n";
-			$txt .= "$(document).ready(function() {\n";
-			$txt .= "$(\".user_widget\").hide();\n";
-			$txt .= "$(\".de_user a\").mouseover(function() {\n";
-			$txt .= "var res = this.title.match(/User:(.+)/)\n";
-			$txt .= "var username = this.title;
-					$.ajax({url:'/Special:UserStaffWidget',type:'GET',
-					data: {'user_name':username}, success:function(data) {
-						$('#sidebar .user_widget').html(data).show();
-					}});
-			";
-			$txt .= "});\n";
-			$txt .= "$(\".user_widget\").css(\"position\",\"fixed\");\n";
-			$txt .= "$(\".user_widget\").css(\"top\",\"80px\");\n";
-			$txt .= "$(\".user_widget\").css(\"z-index\",\"50\");\n";
-
-			$txt .= "});\n";
-			$txt .= "</script>";
-			$sk->addWidget($txt, 'user_widget');
+			$sk->addWidget('', 'user_widget');
 		}
-		return true;
 	}
 }

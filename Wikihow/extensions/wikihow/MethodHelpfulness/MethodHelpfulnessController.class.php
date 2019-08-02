@@ -81,7 +81,7 @@ class Controller {
 		$req = $context->getRequest();
 		$out = $context->getOutput();
 
-		$out->setSquidMaxage($wgSquidMaxage);
+		$out->setCdnMaxage($wgSquidMaxage);
 		$out->setArticleBodyOnly(true);
 		$action = $req->getVal('action', '');
 

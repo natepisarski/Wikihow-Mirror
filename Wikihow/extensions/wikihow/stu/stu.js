@@ -1,8 +1,8 @@
 var STU_BUILD = '6';
 
 // EXIT TIMER MODULE
-window['WH'] = window['WH'] || {};
-window['WH']['Stu'] = (function () {
+window.WH = window.WH || {};
+window.WH.Stu = (function () {
 	'use strict';
 
 // Make it really clear that we can't use jQuery in this context because it may
@@ -204,6 +204,13 @@ function checkFromGoogle() {
 }
 
 function start() {
+	// Make sure Stu isn't already running on the page. This can happen in
+	// Wikihow tools such as RCP and NAB in particular.
+	if (typeof window.WH.stuStarted != 'undefined' && window.WH.stuStarted) {
+		return;
+	}
+	window.WH.stuStarted = true;
+
 	// we set events in IE 9 or less in a different way so it works
 	// reference: http://stackoverflow.com/questions/1060008/is-there-a-way-to-detect-if-a-browser-window-is-not-currently-active
 	var m = navigator.userAgent.match(/MSIE (\d+)/);
@@ -731,7 +738,7 @@ function calcActivityScore(wordCount) {
 	return score;
 }
 
-// Expose WH['Stu'].start method
+// Expose WH.Stu.start method
 return {
 	'start': start,
 	'ping': customEventPing,
@@ -741,4 +748,4 @@ return {
 })();
 
 // Start stu event handlers here now
-window['WH']['Stu'].start();
+window.WH.Stu.start();

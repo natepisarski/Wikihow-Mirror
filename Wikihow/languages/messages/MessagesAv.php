@@ -1,133 +1,112 @@
 <?php
 /** Avaric (авар)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
+ * To improve a translation please visit https://translatewiki.net
  *
  * @ingroup Language
  * @file
  *
- * @author Amikeco
- * @author Amire80
- * @author MF-Warburg
- * @author MONARCH79
- * @author Phoebe
- * @author Умар
  */
 
 $fallback = 'ru';
 
-$messages = array(
-# Dates
-'sunday' => 'ГьатӀан',
-'monday' => 'Итни',
-'tuesday' => 'Талат',
-'wednesday' => 'АрбагӀ',
-'thursday' => 'Хамиз',
-'friday' => 'Рузман',
-'saturday' => 'Шаммат',
-
-'mytalk' => 'Дур бахlс',
-'and' => '&#32;ва',
-
-# Vector skin
-'vector-view-edit' => 'Хисизабизе',
-
-'errorpagetitle' => 'Гъалатl',
-'help' => 'Кумек',
-'history' => 'Хиса-басазул тарих',
-'printableversion' => 'КутӀизе версия',
-'permalink' => 'Кидаго букӀунеб рехсей',
-'edit' => 'Хисизабе',
-'talkpage' => 'Гьумералда тlасан бахlс',
-'talk' => 'Бахlс',
-'toolbox' => 'Алатал',
-'userpage' => 'ГӀахьалчиясул гьумер',
-'otherlanguages' => 'Цойги мацӀазда',
-
-# All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage).
-'currentevents' => 'Жакъасел лъугьа-бахъинал',
-'mainpage' => 'БетӀераб гьумер',
-'mainpage-description' => 'БетӀераб гьумер',
-'portal' => 'Майдан',
-'portal-url' => 'Project:Майдан',
-
-'editsection' => 'хисизабизе',
-
-# Short words for each namespace, by default used in the namespace tab in monobook
-'nstab-help' => 'Кумек',
-
-# General errors
-'error' => 'Гъалатl',
-'internalerror' => 'Жанисеб гъалатl',
-'viewsource' => 'Код бихьи',
-
-# Login and logout pages
-'userlogin' => 'ЦIар бице',
-'userlogout' => 'Къватlиве лъугьине',
-
-# Edit pages
-'savearticle' => 'Хъвай-хъвай цӀунизе',
-
-# Preferences page
-'preferences' => 'Рекъезаби',
-'localtime' => 'Бакlалъул заман',
-
-# User rights
-'userrights-user-editname' => 'ГӀахьалчиясул цӀар хъвай:',
-
-# Recent changes
-'recentchanges' => 'ЦӀиял хиса-басал',
-'rcshowhideminor' => '$1 гӀиси-микъинал хиса-басал',
-'rcshowhidebots' => '$1 бот',
-'rcshowhideliu' => '$1 цӀар рагьарал гӀахьалчагӀи',
-'rcshowhideanons' => '$1 цӀаргьечӀ',
-'rcshowhidemine' => '$1 дир хиса-басал',
-'diff' => 'батӀалъи',
-'hide' => 'Бахчизе',
-'show' => 'Бихьизабизе',
-'minoreditletter' => 'гӀ.-м.',
-'newpageletter' => 'ЦӀ',
-
-# Recent changes linked
-'recentchangeslinked' => 'Рухьарал хиса-басиял',
-'recentchangeslinked-feed' => 'Рухьарал хиса-басиял',
-'recentchangeslinked-toolbox' => 'Рухьарал хиса-басиял',
-
-# Upload
-'uploadnologin' => 'Дуца цӀар бицун гьечӀо',
-
-# Random page
-'randompage' => 'Цебе ккараб гьумер',
-
-# Miscellaneous special pages
-'shortpages' => 'Къокъал макъалаби',
-'longpages' => 'Кlудиял гьумерал',
-'listusers' => 'Гlахьалчагlазул сияхl',
-
-# Special:Log
-'specialloguserlabel' => 'ГӀахьалчи:',
-
-# Special:AllPages
-'allarticles' => 'Киналго макъалаби',
-
-# Watchlist
-'watchlist' => 'Дур халгьабиялъул сияхl',
-'watch' => 'хал гьабизе',
-
-# Contributions
-'contributions' => 'ГӀахьалчиясул хӀалтӀи',
-'mycontris' => 'Дур гlахьаллъи',
-
-# What links here
-'whatlinkshere' => 'Рехсей гьанибе',
-
-# Move page
-'move-page-legend' => 'Гьумералъул цlар хисизе',
-'movearticle' => 'Гьумералъул цӀар хисизе',
-'movepagebtn' => 'Гьумералъул цlар хисизе',
-
-# Special:SpecialPages
-'specialpages' => 'Хассал гьумерал',
-
-);
+$specialPageAliases = [
+	'Activeusers'               => [ 'ХІаракатчилъи_бугел_гІахьалчагІи' ],
+	'Allmessages'               => [ 'Системаялъулал_баян_кьеял' ],
+	'AllMyUploads'              => [ 'Киналго_дир_файлал' ],
+	'Allpages'                  => [ 'Киналго_гьумерал' ],
+	'Badtitle'                  => [ 'БукІине_бегьулареб_цІар' ],
+	'Blankpage'                 => [ 'ЧІобогояб_гьумер' ],
+	'Block'                     => [ 'Блокалада_лъезе' ],
+	'Booksources'               => [ 'ТІахьазул_иццал' ],
+	'BrokenRedirects'           => [ 'Рек-рекарал_цоги_бакІалде_руссинариял' ],
+	'Categories'                => [ 'Категориял' ],
+	'ChangeEmail'               => [ 'e-mail_хисизе', 'Почта_хисизе' ],
+	'ChangePassword'            => [ 'Балъгояб_рагІи_хисизе' ],
+	'ComparePages'              => [ 'Гьумеразул_дандекквей' ],
+	'Confirmemail'              => [ 'E-mail_битІухъ_гьаби', 'почта_битІухъ_гьаби' ],
+	'Contributions'             => [ 'Хазина' ],
+	'CreateAccount'             => [ 'Учёталъулаб_Хъвай-хъвагІай_гІуцІцІизе', 'ГІахьалчи_гІуцІцІизе', 'Регистрация_гьабизе' ],
+	'Deadendpages'              => [ 'Нух_къарал_гьумерал' ],
+	'DeletedContributions'      => [ 'Нахъе_гьабураб_хазина' ],
+	'Diff'                      => [ 'Хиса-басиял' ],
+	'DoubleRedirects'           => [ 'КІицІулго_цоги_бакІалде_руссинариял' ],
+	'EditWatchlist'             => [ 'Халкквеялъул_сияхІ_хисизабизе' ],
+	'Emailuser'                 => [ 'ГІахьалчиясухъе_кагъат', 'Кагъат_битІизе' ],
+	'ExpandTemplates'           => [ 'Шаблонал_кколе-кколелъуре_ккезари' ],
+	'Export'                    => [ 'КъватІибе_битІи', 'ЧIехьей' ],
+	'Fewestrevisions'           => [ 'КъанагІат_хиса-баси_гьарулел' ],
+	'FileDuplicateSearch'       => [ 'Релъарал_файлал_хъирщи' ],
+	'Filepath'                  => [ 'Файлалде_нух' ],
+	'Import'                    => [ 'Импорт' ],
+	'Invalidateemail'           => [ 'Адрес_битІухъ_гьаби_нахъ_чІвазе' ],
+	'JavaScriptTest'            => [ 'JavaScript_хІалбихьи' ],
+	'BlockList'                 => [ 'Блокалда_лъеялъул_сияхІ', 'Блокалда_лъеял' ],
+	'LinkSearch'                => [ 'Ссылкаби_хъирщи' ],
+	'Listbots'                  => [ 'Ботазул_сияхІ' ],
+	'Listfiles'                 => [ 'Файлазул_сияхІ', 'Суратазул_сияхІ' ],
+	'Listgrouprights'           => [ 'ГІахьалчагІазул_группабазул_ихтиярал', 'Группабазул_ихтияразул_сияхІ' ],
+	'Listredirects'             => [ 'Цоги_бакІалде_руссинабиязул_сияхІ' ],
+	'ListDuplicatedFiles'       => [ 'Релъарал_файлазул_сияхІ' ],
+	'Listusers'                 => [ 'ГІахьалчагІазул_сияхІ' ],
+	'Lockdb'                    => [ 'ХІБ_блокалда_лъезе', 'ХІужжабазул_база_блокалда_лъезе' ],
+	'Log'                       => [ 'Журналал', 'Журнал' ],
+	'Lonelypages'               => [ 'БатІатІурал_гьумерал' ],
+	'Longpages'                 => [ 'Халатал_гьумерал' ],
+	'MergeHistory'              => [ 'Тарихал_цо_гьари' ],
+	'MIMEsearch'                => [ 'MIME_ялдалъул_хъирщи' ],
+	'Mostcategories'            => [ 'Бищунго_категориял_цІикІкІарал' ],
+	'Mostimages'                => [ 'Бищунго_хІалтІизарулел_файлал' ],
+	'Mostinterwikis'            => [ 'Интервики-ссылкабазул_бищун_цІикІкІараб_къадар' ],
+	'Mostlinked'                => [ 'Бищунго_хІалтІизарулел_гьумерал' ],
+	'Mostlinkedcategories'      => [ 'Бищунго_хІалтІизарулел_категориял' ],
+	'Mostlinkedtemplates'       => [ 'Бищунго_хІалтІизарулел_шаблонал' ],
+	'Mostrevisions'             => [ 'Сверелазул_бищун_цІикІкІараб_къадар' ],
+	'Movepage'                  => [ 'Гьумералда_цІар_хисизабизе', 'ЦІар_хисизаби', 'ЦІар_хисизе' ],
+	'Mycontributions'           => [ 'Дир_хазина' ],
+	'MyLanguage'                => [ 'Дир_мацІ' ],
+	'Mypage'                    => [ 'Дир_гьумер' ],
+	'Mytalk'                    => [ 'Дир_бахІс' ],
+	'Myuploads'                 => [ 'Дица_жанире_цІарал_жал' ],
+	'Newimages'                 => [ 'ЦІиял_файлал' ],
+	'Newpages'                  => [ 'ЦІиял_гьумерал' ],
+	'PasswordReset'             => [ 'Сброс_пароля' ],
+	'PermanentLink'             => [ 'Даимаб_ссылка' ],
+	'Preferences'               => [ 'Рекъезабиял' ],
+	'Prefixindex'               => [ 'ЦІаразул_бетІералде_бихьизаби' ],
+	'Protectedpages'            => [ 'ЦІунарал_гьумерал' ],
+	'Protectedtitles'           => [ 'ЦІунарал_цІарал' ],
+	'Randompage'                => [ 'Цебе_ккараб_гьумер', 'Цебе_ккараб' ],
+	'Randomredirect'            => [ 'Цебе_ккараб_цоги_бакІалде_руссинаби' ],
+	'Recentchanges'             => [ 'ЦІиял_хиса-басиял' ],
+	'Recentchangeslinked'       => [ 'Хурхинарурал_хиса-басиял' ],
+	'Revisiondelete'            => [ 'Хиса-баси_нахъе_бацІцІи' ],
+	'Search'                    => [ 'Хъирщи' ],
+	'Shortpages'                => [ 'Къокъал_гьумерал' ],
+	'Specialpages'              => [ 'Хассал_гьумерал' ],
+	'Statistics'                => [ 'Статистика' ],
+	'Tags'                      => [ 'ГІужал' ],
+	'Unblock'                   => [ 'Блокалдаса_бахъи' ],
+	'Uncategorizedcategories'   => [ 'Категориял_гьечІел_категориял' ],
+	'Uncategorizedimages'       => [ 'Категориял_гьечІел_файлал' ],
+	'Uncategorizedpages'        => [ 'Категориял_гьечІел_гьумерал' ],
+	'Uncategorizedtemplates'    => [ 'Категориял_гьечІе_шаблонал' ],
+	'Undelete'                  => [ 'ТІадбуссинабизе', 'ТІадбуссинаби' ],
+	'Unlockdb'                  => [ 'ХІБ_блокалдаса_бахъи' ],
+	'Unusedcategories'          => [ 'ХІалтІизаруларел_категориял' ],
+	'Unusedimages'              => [ 'ХІалтІизаруларел_файлал' ],
+	'Unusedtemplates'           => [ 'ХІалтІизаруларел_шаблонал' ],
+	'Upload'                    => [ 'Загрузка' ],
+	'UploadStash'               => [ 'Бахчараб_загрузка' ],
+	'Userlogin'                 => [ 'Жаниве_лъугьин' ],
+	'Userlogout'                => [ 'Сеанс_лъугІи', 'КъватІиве_лъугьин' ],
+	'Userrights'                => [ 'Ихтиярал_рилълъинари' ],
+	'Version'                   => [ 'Сверел', 'Версия' ],
+	'Wantedcategories'          => [ 'ХІажатал_категориял' ],
+	'Wantedfiles'               => [ 'ХІажатал_файлал' ],
+	'Wantedpages'               => [ 'ХІажатал_гьумерал' ],
+	'Wantedtemplates'           => [ 'ХІажатал_шаблонал' ],
+	'Watchlist'                 => [ 'Халкквеялъул_сияхІ' ],
+	'Whatlinkshere'             => [ 'Ссылкаби_гьанире' ],
+	'Withoutinterwiki'          => [ 'Интервики_гьечІого' ],
+];

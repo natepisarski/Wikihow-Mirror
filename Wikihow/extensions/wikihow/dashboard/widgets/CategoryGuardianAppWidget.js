@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.CategoryGuardianAppWidget = (function($) {
+WH.dashboard.CategoryGuardianAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,4 @@ WH.dashboard.CategoryGuardianAppWidget = (function($) {
 	WH.dashboard.registerDataListener('CategoryGuardianAppWidget', widget);
 
 	return widget;
-})(jQuery);
-
+})();

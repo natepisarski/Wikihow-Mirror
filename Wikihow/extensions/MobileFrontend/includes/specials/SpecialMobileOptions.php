@@ -1,25 +1,48 @@
 <?php
 
+use MediaWiki\MediaWikiServices;
+
+/**
+ * Adds a special page with mobile specific preferences
+ */
 class SpecialMobileOptions extends MobileSpecialPage {
-	/**
-	 * @var Title
-	 */
+	/** @var Title The title of page to return to after save */
 	private $returnToTitle;
-	private $subpage;
-	private $options = array(
-		'Language' => array( 'get' => 'chooseLanguage' ),
-	);
-	protected $unstyledContent = false;
+	/** @var boolean $hasDesktopVersion Whether this special page has a desktop version or not */
+	protected $hasDesktopVersion = true;
+
+	/**
+	 * @var MediaWikiServices;
+	 */
+	private $services;
+
+	/**
+	 * Advanced Mobile Contributions mode
+	 * @var \MobileFrontend\AMC\Manager
+	 */
+	private $amc;
 
 	public function __construct() {
 		parent::__construct( 'MobileOptions' );
+		$this->services = MediaWikiServices::getInstance();
+		$this->amc = $this->services->getService( 'MobileFrontend.AMC.Manager' );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function doesWrites() {
+		return true;
+	}
+
+	/**
+	 * Render the special page
+	 * @param string|null $par Parameter submitted as subpage
+	 */
 	public function execute( $par = '' ) {
 		parent::execute( $par );
 		$context = MobileContext::singleton();
 
-		wfIncrStats( 'mobile.options.views' );
 		$this->returnToTitle = Title::newFromText( $this->getRequest()->getText( 'returnto' ) );
 		if ( !$this->returnToTitle ) {
 			$this->returnToTitle = Title::newMainPage();
@@ -28,218 +51,227 @@ class SpecialMobileOptions extends MobileSpecialPage {
 		$this->setHeaders();
 		$context->setForceMobileView( true );
 		$context->setContentTransformations( false );
-		if ( isset( $this->options[$par] ) ) {
-			$this->subpage = $par;
-			$option = $this->options[$par];
 
-			if ( $this->getRequest()->wasPosted() && isset( $option['post'] ) ) {
-				$func = $option['post'];
-			} else {
-				$func = $option['get'];
-			}
-			$this->$func();
+		if ( $this->getRequest()->wasPosted() ) {
+			$this->submitSettingsForm();
 		} else {
-			if ( $this->getRequest()->wasPosted() ) {
-				$this->submitSettingsForm();
-			} else {
-				$this->getSettingsForm();
-			}
+			$this->addSettingsForm();
 		}
 	}
 
-	private function getSettingsForm() {
+	private function buildAMCToggle() {
+		/** @var \MobileFrontend\AMC\UserMode $userMode */
+			$userMode = $this->services->getService( 'MobileFrontend.AMC.UserMode' );
+			$amcToggle = new OOUI\CheckboxInputWidget( [
+				'name' => 'enableAMC',
+				'infusable' => true,
+				'selected' => $userMode->isEnabled(),
+				'id' => 'enable-amc-toggle',
+				'value' => '1',
+			] );
+			$layout = new OOUI\FieldLayout(
+				$amcToggle,
+				[
+					'label' => new OOUI\LabelWidget( [
+						'input' => $amcToggle,
+						'label' => new OOUI\HtmlSnippet(
+							Html::openElement( 'div' ) .
+							Html::rawElement( 'strong', [],
+								$this->msg( 'mobile-frontend-mobile-option-amc' )->parse() ) .
+							Html::rawElement( 'div', [ 'class' => 'option-description' ],
+								$this->msg( 'mobile-frontend-mobile-option-amc-experiment-description' )->parse()
+							) .
+							Html::closeElement( 'div' )
+						)
+					] ),
+					'id' => 'amc-field',
+				]
+			);
+			// placing links inside a label reduces usability and accessibility so
+			// append links to $layout and outside of label instead
+			// https://www.w3.org/TR/html52/sec-forms.html#example-42c5e0c5
+			$layout->appendContent( new OOUI\HtmlSnippet(
+					Html::openElement( 'ul', [ 'class' => 'hlist option-links' ] ) .
+					Html::openElement( 'li' ) .
+					Html::rawElement(
+							'a',
+							// phpcs:ignore Generic.Files.LineLength.TooLong
+							[ 'href' => 'https://www.mediawiki.org/wiki/Special:MyLanguage/Reading/Web/Advanced_mobile_contributions' ],
+							$this->msg( 'mobile-frontend-mobile-option-amc-learn-more' )->parse()
+					) .
+					Html::closeElement( 'li' ) .
+					Html::openElement( 'li' ) .
+					Html::rawElement(
+							'a',
+							// phpcs:ignore Generic.Files.LineLength.TooLong
+							[ 'href' => 'https://www.mediawiki.org/wiki/Special:MyLanguage/Talk:Reading/Web/Advanced_mobile_contributions' ],
+							$this->msg( 'mobile-frontend-mobile-option-amc-send-feedback' )->parse()
+					) .
+					Html::closeElement( 'li' ) .
+					Html::closeElement( 'ul' )
+			) );
+			return $layout;
+	}
+	/**
+	 * Render the settings form (with actual set settings) and add it to the
+	 * output as well as any supporting modules.
+	 */
+	private function addSettingsForm() {
 		$out = $this->getOutput();
 		$context = MobileContext::singleton();
+		$user = $this->getUser();
 
 		$out->setPageTitle( $this->msg( 'mobile-frontend-main-menu-settings-heading' ) );
+		$out->enableOOUI();
 
 		if ( $this->getRequest()->getCheck( 'success' ) ) {
 			$out->wrapWikiMsg(
-				"<div class=\"successbox\"><strong>\n$1\n</strong></div><div id=\"mw-pref-clear\"></div>",
-				'savedprefs'
+				MobileUI::contentElement(
+					Html::successBox( $this->msg( 'savedprefs' ) )
+				)
 			);
 		}
 
-		$betaEnabled = $context->isBetaGroupMember();
-		$alphaEnabled = $context->isAlphaGroupMember();
+		$fields = [];
+		$form = new OOUI\FormLayout( [
+			'method' => 'POST',
+			'id' => 'mobile-options',
+			'action' => $this->getPageTitle()->getLocalURL(),
+		] );
+		$form->addClasses( [ 'mw-mf-settings' ] );
 
-		$imagesChecked = $context->imagesDisabled() ? '' : 'checked'; // images are off when disabled
-		$imagesBeta = $betaEnabled ? 'checked' : '';
-		$disableMsg = $this->msg( 'mobile-frontend-images-status' )->parse();
-		$betaEnableMsg = $this->msg( 'mobile-frontend-settings-beta' )->parse();
-		$betaDescriptionMsg = $this->msg( 'mobile-frontend-opt-in-explain' )->parse();
-
-		$saveSettings = $this->msg( 'mobile-frontend-save-settings' )->escaped();
-		$onoff = '<span class="mw-mf-settings-on">' . $this->msg( 'mobile-frontend-on' )->escaped() . '</span><span class="mw-mf-settings-off">' .
-			$this->msg( 'mobile-frontend-off' )->escaped() .'</span>';
-		$action = $this->getPageTitle()->getLocalURL();
-		$html = Html::openElement( 'form',
-			array( 'class' => 'mw-mf-settings', 'method' => 'POST', 'action' => $action )
-		);
-		$aboutMessage = $this->msg( 'mobile-frontend-settings-description' )->parse();
-		$token = Html::hidden( 'token', $context->getMobileToken() );
-		$returnto = Html::hidden( 'returnto', $this->returnToTitle->getFullText() );
-
-		$alphaEnableMsg = wfMessage( 'mobile-frontend-settings-alpha' )->parse();
-		$alphaChecked = $alphaEnabled ? 'checked' : '';
-		$alphaDescriptionMsg = wfMessage( 'mobile-frontend-settings-alpha-description' )->text();
-
-		$betaSetting = <<<HTML
-	<li>
-		<div class="option-name">
-			{$betaEnableMsg}
-			<div class="mw-mf-checkbox-css3" id="enable-beta-toggle">
-				<input type="checkbox" name="enableBeta"
-				{$imagesBeta}>{$onoff}
-			</div>
-		</div>
-		<div class="option-description">
-				{$betaDescriptionMsg}
-		</div>
-	</li>
-HTML;
-		$alphaSetting = '';
-		if ( $betaEnabled ) {
-
-			if ( $alphaEnabled ) {
-				$betaSetting = '<input type="hidden" name="enableBeta" value="checked">';
-			}
-
-			$alphaSetting .= <<<HTML
-		<li>
-			<div class="option-name">
-				{$alphaEnableMsg}
-				<div class="mw-mf-checkbox-css3" id="enable-alpha-toggle">
-					<input type="checkbox" name="enableAlpha"
-					{$alphaChecked}>{$onoff}
-				</div>
-			</div>
-			<div class="option-description">
-					{$alphaDescriptionMsg}
-			</div>
-		</li>
-HTML;
+		if ( $this->amc->isAvailable() ) {
+			$fields[] = $this->buildAMCToggle();
 		}
+		// beta settings
+		$isInBeta = $context->isBetaGroupMember();
+		if ( $this->getMFConfig()->get( 'MFEnableBeta' ) ) {
+			$input = new OOUI\CheckboxInputWidget( [
+				'name' => 'enableBeta',
+				'infusable' => true,
+				'selected' => $isInBeta,
+				'id' => 'enable-beta-toggle',
+				'value' => '1',
+			] );
+			$fields[] = new OOUI\FieldLayout(
+				$input,
+				[
+					'label' => new OOUI\LabelWidget( [
+						'input' => $input,
+						'label' => new OOUI\HtmlSnippet(
+							Html::openElement( 'div' ) .
+							Html::rawElement( 'strong', [],
+								$this->msg( 'mobile-frontend-settings-beta' )->parse() ) .
+							Html::rawElement( 'div', [ 'class' => 'option-description' ],
+								$this->msg( 'mobile-frontend-opt-in-explain' )->parse()
+							) .
+							Html::closeElement( 'div' )
+						)
+					] ),
+					'id' => 'beta-field',
+				]
+			);
 
-		$html .= <<<HTML
-	<p>
-		{$aboutMessage}
-	</p>
-	<ul>
-		<li>
-			<div class="option-name">
-			{$disableMsg}
-			<span class="mw-mf-checkbox-css3" id="enable-images-toggle">
-				<input type="checkbox" name="enableImages"
-				{$imagesChecked}>{$onoff}
-			</span>
-			</div>
-		</li>
-		{$betaSetting}
-		{$alphaSetting}
-		<li>
-			<input type="submit" class="mw-ui-progressive mw-ui-button" id="mw-mf-settings-save" value="{$saveSettings}">
-		</li>
-	</ul>
-	$token
-	$returnto
-</form>
-HTML;
-		$out->addHTML( $html );
-	}
+			$manager = $this->services->getService( 'MobileFrontend.FeaturesManager' );
 
-	private function getSiteSelector() {
-		global $wgLanguageCode;
+			$features = array_diff(
+				$manager->getAvailableForMode( new \MobileFrontend\Features\BetaUserMode( $context ) ),
+				$manager->getAvailableForMode( new \MobileFrontend\Features\StableUserMode( $context ) )
+			);
 
-		wfProfileIn( __METHOD__ );
-		$selector = '';
-		$count = 0;
-		$language = $this->getLanguage();
-		foreach ( Interwiki::getAllPrefixes( true ) as $interwiki ) {
-			$code = $interwiki['iw_prefix'];
-			$name = $language->fetchLanguageName( $code );
-			if ( !$name ) {
-				continue;
-			}
-			$title = Title::newFromText( "$code:" );
-			if ( $title ) {
-				$url = $title->getFullURL();
+			$classNames = [ 'mobile-options-beta-feature' ];
+			if ( $isInBeta ) {
+				$classNames[] = 'is-enabled';
+				$icon = 'check';
 			} else {
-				$url = '';
+				$icon = 'lock';
 			}
-			$attrs = array( 'href' => $url );
-			$count++;
-			if( $code == $wgLanguageCode ) {
-				$attrs['class'] = 'selected';
+			/** @var \MobileFrontend\Features\IFeature $feature */
+			foreach ( $features as $feature ) {
+				$fields[] = new OOUI\FieldLayout(
+					new OOUI\IconWidget( [
+						'icon' => $icon,
+						'title' => wfMessage( 'mobile-frontend-beta-only' )->text(),
+					] ),
+					[
+						'classes' => $classNames,
+						'label' => new OOUI\LabelWidget( [
+							'label' => new OOUI\HtmlSnippet(
+								Html::rawElement( 'div', [],
+									Html::element( 'strong', [],
+										wfMessage( $feature->getNameKey() )->text() ) .
+									Html::element( 'div', [ 'class' => 'option-description' ],
+										wfMessage( $feature->getDescriptionKey() )->text() )
+								)
+							),
+						] )
+					]
+				);
 			}
-			$selector .= Html::openElement( 'li' );
-			$selector .= Html::element( 'a', $attrs, $name );
-			$selector .= Html::closeElement( 'li' );
 		}
 
-		if ( $selector && $count > 1 ) {
-			$selector = <<<HTML
-			<p>{$this->msg( 'mobile-frontend-settings-site-description', $count )->parse()}</p>
-			<ul id='mw-mf-language-list'>
-				{$selector}
-			</ul>
-HTML;
+		$fields[] = new OOUI\ButtonInputWidget( [
+			'id' => 'mw-mf-settings-save',
+			'infusable' => true,
+			'value' => $this->msg( 'mobile-frontend-save-settings' )->text(),
+			'label' => $this->msg( 'mobile-frontend-save-settings' )->text(),
+			'flags' => [ 'primary', 'progressive' ],
+			'type' => 'submit',
+		] );
+
+		if ( $user->isLoggedIn() ) {
+			$fields[] = new OOUI\HiddenInputWidget( [ 'name' => 'token',
+				'value' => $user->getEditToken() ] );
 		}
-		wfProfileOut( __METHOD__ );
-		return $selector;
+
+		$feedbackLink = $this->getConfig()->get( 'MFBetaFeedbackLink' );
+		if ( $feedbackLink && $isInBeta ) {
+			$fields[] = new OOUI\ButtonWidget( [
+				'framed' => false,
+				'href' => $feedbackLink,
+				'icon' => 'feedback',
+				'flags' => [
+					'progressive',
+				],
+				'classes' => [ 'mobile-options-feedback' ],
+				'label' => $this->msg( 'mobile-frontend-send-feedback' )->text(),
+			] );
+		}
+
+		$form->appendContent(
+			$fields
+		);
+		$out->addHTML( $form );
 	}
 
-	private function chooseLanguage() {
-		$out = $this->getOutput();
-		$out->setPageTitle( $this->msg( 'mobile-frontend-settings-site-header' )->escaped() );
-		$out->addHTML( $this->getSiteSelector() );
-	}
-
+	/**
+	 * Saves the settings submitted by the settings form
+	 */
 	private function submitSettingsForm() {
 		$context = MobileContext::singleton();
 		$request = $this->getRequest();
+		$user = $this->getUser();
 
-		if ( $request->getVal( 'token' ) != $context->getMobileToken() ) {
-			wfIncrStats( 'mobile.options.errors' );
-			wfDebugLog( 'mobile', __METHOD__ . "(): token mismatch" );
+		if ( $user->isLoggedIn() && !$user->matchEditToken( $request->getVal( 'token' ) ) ) {
+			$errorText = __METHOD__ . '(): token mismatch';
+			wfDebugLog( 'mobile', $errorText );
 			$this->getOutput()->addHTML( '<div class="error">'
 				. $this->msg( "mobile-frontend-save-error" )->parse()
 				. '</div>'
 			);
-			$this->getSettingsForm();
+			$this->addSettingsForm();
 			return;
 		}
-		wfIncrStats( 'mobile.options.saves' );
-		if ( $request->getBool( 'enableAlpha' ) ) {
-			$group = 'alpha';
-		} elseif ( $request->getBool( 'enableBeta' ) ) {
-			$group = 'beta';
-		} else {
-			$group = '';
+
+		$group = $request->getBool( 'enableBeta' ) ? 'beta' : '';
+		if ( $this->amc->isAvailable() ) {
+			/** @var \MobileFrontend\AMC\UserMode $userMode */
+			$userMode = $this->services->getService( 'MobileFrontend.AMC.UserMode' );
+			$userMode->setEnabled( $request->getBool( 'enableAMC' ) );
 		}
+
 		$context->setMobileMode( $group );
-		$imagesDisabled = !$request->getBool( 'enableImages' );
-		$context->setDisableImagesCookie( $imagesDisabled );
-
-		$returnToTitle = Title::newFromText( $request->getText( 'returnto' ) );
-		if ( $returnToTitle ) {
-			$url = $returnToTitle->getFullURL();
-		} else {
-			$url = $this->getPageTitle()->getFullURL( 'success' );
-		}
+		$url = $this->getPageTitle()->getFullURL( 'success' );
 		$context->getOutput()->redirect( MobileContext::singleton()->getMobileUrl( $url ) );
-	}
-
-	public static function getURL( $option, Title $returnTo = null, $fullUrl = false ) {
-		$t = SpecialPage::getTitleFor( 'MobileOptions', $option );
-		$params = array();
-		if ( $returnTo ) {
-			$params['returnto'] = $returnTo->getPrefixedText();
-		}
-		if ( $fullUrl ) {
-			return MobileContext::singleton()->getMobileUrl( $t->getFullURL( $params ) );
-		} else {
-			return $t->getLocalURL( $params );
-		}
 	}
 }

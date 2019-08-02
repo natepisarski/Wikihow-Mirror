@@ -518,7 +518,7 @@ class RelatedWikihows {
 
 		$tooltip = wfMessage('relatedwikihows');
 		$customAttribs = array(
-			'class' => 'editsection',
+			'class' => 'mw-editsection',
 			'onclick' => "gatTrack(gatUser,\'Edit\',\'Edit_section\');",
 			'tabindex' => '-1',
 			'title' => wfMessage('editsectionhint')->rawParams( htmlspecialchars($tooltip) )->escaped(),

@@ -207,13 +207,13 @@ class AuthorEmailNotification extends SpecialPage {
 		return true;
 	}
 
-	public static function notifyViewership($title, $user, $milestone, $viewership, $last_vemail_sent) {
+	public static function notifyViewership($title, $user, $milestone, $viewership, $en_viewership) {
 		global $wgCanonicalServer;
 		$dbw = wfGetDB(DB_MASTER);
 
-		if ($last_vemail_sent != NULL) {
+		if ($en_viewership) {
 			$now = time();
-			$last = strtotime($row->en_viewership_email . " UTC");
+			$last = strtotime($en_viewership . " UTC");
 			$diff = $now - $last;
 		} else {
 			$diff = 86400 * 10;
@@ -245,11 +245,11 @@ class AuthorEmailNotification extends SpecialPage {
 						  'en_user' => $user->getID() ),
 					__METHOD__);
 
-			echo "AEN notifyViewership  [TITLE] ".$title->getText()." --- ".$title->getArticleID()." [USER] ".$user->getName()." [VIEWS]".$row->en_viewership."::".$viewership." - Sending Viewership Email.\n";
+			echo "AEN notifyViewership  [TITLE] ".$title->getText()." --- ".$title->getArticleID()." [USER] ".$user->getName()." [VIEWS]".$en_viewership."::".$viewership." - Sending Viewership Email.\n";
 
 			self::notify($user, $from_name, $subject, $body, "", false, "aen_readership");
 		} else {
-			echo "AEN notifyViewership [TITLE] ".$title->getText()." :: ".$title->getArticleID()." [USER] ".$user->getName()." [VIEWS]".$row->en_viewership."::".$viewership." - Threshold encountered, too soon last email sent $diff seconds ago.\n";
+			echo "AEN notifyViewership [TITLE] ".$title->getText()." :: ".$title->getArticleID()." [USER] ".$user->getName()." [VIEWS]".$en_viewership."::".$viewership." - Threshold encountered, too soon last email sent $diff seconds ago.\n";
 		}
 
 		return true;
@@ -508,21 +508,29 @@ class AuthorEmailNotification extends SpecialPage {
 			$from = new MailAddress($from_name);
 			$to = new MailAddress($to_name);
 
+			# Adding a header used by SendGrid to categorize emails for statistics
+			# breakdown. This header is removed by SendGrid before the final email
+			# is sent to the user.
+			$opts = [];
+			if ($category) {
+				$opts['category'] = $category;
+			}
+
 			if ($type == 'text') {
-				UserMailer::send($to, $from, $subject, $body, null, null, $category);
+				UserMailer::send($to, $from, $subject, $body, $opts);
 				//XX HARDCODE SEND TO ELIZABETH FOR TEST
 				if ($debug) {
 					$to = new MailAddress("elizabethwikihowtest@gmail.com");
-					UserMailer::send($to, $from, $subject, $body, null, null, $category);
+					UserMailer::send($to, $from, $subject, $body, $opts);
 				}
 			} else {
 				//FOR HTML EMAILS
-				$content_type = "text/html; charset=UTF-8";
-				UserMailer::send($to, $from, $subject, $body, null, $content_type, $category);
+				$opts['contentType'] = "text/html; charset=UTF-8";
+				UserMailer::send($to, $from, $subject, $body, $opts);
 				//XX HARDCODE SEND TO ELIZABETH FOR TEST
 				if ($debug) {
 					$to = new MailAddress ("elizabethwikihowtest@gmail.com");
-					UserMailer::send($to, $from, $subject, $body, null, $content_type, $category);
+					UserMailer::send($to, $from, $subject, $body, $opts);
 				}
 			}
 

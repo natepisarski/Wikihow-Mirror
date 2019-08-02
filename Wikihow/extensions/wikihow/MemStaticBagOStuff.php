@@ -44,12 +44,12 @@ class MemStaticBagOStuff extends BagOStuff {
 	// NOTE: there is a known bug where we do not know the expiry time of objects
 	// from memcache, so their proper expiry time is not set in the HashBag after
 	// getting the object from memcache.
-	public function get( $key, &$casToken = null ) {
-		$res = $this->hash->get( $key, $casToken );
+	protected function doGet( $key, $flags = 0 ) {
+		$res = $this->hash->get( $key, $flags );
 		if ($res !== false) {
 			return $res;
 		} else {
-			$res = $this->memc->get( $key, $casToken );
+			$res = $this->memc->get( $key, $flags );
 			self::assertValueSize( $res );
 			$this->hash->set( $key, $res );
 			return $res;
@@ -81,25 +81,16 @@ class MemStaticBagOStuff extends BagOStuff {
 		}
 	}
 
-	public function set( $key, $value, $exptime = 0 ) {
+	public function set( $key, $value, $exptime = 0, $flags = 0 ) {
 		self::assertValueSize( $value );
-		$res_memc = $this->memc->set( $key, $value, $exptime );
-		$res_hash = $this->hash->set( $key, $value, $exptime );
+		$res_memc = $this->memc->set( $key, $value, $exptime, $flags );
+		$res_hash = $this->hash->set( $key, $value, $exptime, $flags );
 		return $res_memc && $res_hash;
 	}
 
-	// This abstract method must be implemented, but we don't want to
-	// support this operation on this relatively simple cache.
-	public function cas( $casToken, $key, $value, $exptime = 0 ) {
-		throw new MWException( 'Internal error: cas() method is not available ' .
-			'in class: ' . __CLASS__ );
-
-		return false;
-	}
-
-	public function delete( $key, $time = 0 ) {
-		$res_memc = $this->memc->delete( $key, $time );
-		$res_hash = $this->hash->delete( $key, $time );
+	public function delete( $key ) {
+		$res_memc = $this->memc->delete( $key );
+		$res_hash = $this->hash->delete( $key );
 		return $res_memc && $res_hash;
 	}
 }

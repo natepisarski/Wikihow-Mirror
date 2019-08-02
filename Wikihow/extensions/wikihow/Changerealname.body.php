@@ -19,7 +19,7 @@ class ChangeRealName extends SpecialPage {
 		if ($req->wasPosted()) {
 			if ($req->getVal('target') && $req->getVal('realname')) {
 				// $dbw = wfGetDB(DB_MASTER);
-				$changeUser = User::newFromName($req->getVal('target'));
+				$changeUser = User::newFromName($req->getVal('target'), false);
 				if ($changeUser->getId() == 0) {
 					$out->addHTML( wfMessage('changerealname_nouser', $changeUser->getName() )->text() );
 					return;

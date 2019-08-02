@@ -128,7 +128,7 @@ class GoodRevision {
 	 * Note: if the requested revision is a rolled back revision, don't return it.
 	 */
 	public static function getRevFromRC($pageid, $rcid) {
-		$rc = RecentChange::newFromId($rcid, true);
+		$rc = RecentChange::newFromConds( [ 'rc_id' => $rcid ], __METHOD__, DB_MASTER );
 		if ($rc) {
 			// Check if there was a rollback on any of the more
 			// recent changes to the article. If there was a

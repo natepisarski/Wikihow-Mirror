@@ -1,0 +1,8 @@
+<li>
+	<a href="#{{anchor}}">{{{line}}}</a>
+	<ul>
+		{{#subsections}}
+		{{>tocHeading}}
+		{{/subsections}}
+	</ul>
+</li>

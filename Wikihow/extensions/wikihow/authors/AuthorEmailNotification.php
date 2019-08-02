@@ -42,8 +42,10 @@ function sendModNotification(&$rcid, &$article) {
 		if ($articleTitle && $articleTitle->getArticleID() != 0)  {
 			$dbw = wfGetDB(DB_MASTER);
 			$r = Revision::loadFromPageId($dbw, $articleTitle->getArticleID());
-			$u = User::newFromId($r->getUser());
-			AuthorEmailNotification::notifyMod($article, $u, $r);
+			if ($r) {
+				$u = User::newFromId($r->getUser());
+				AuthorEmailNotification::notifyMod($article, $u, $r);
+			}
 		}
 	} catch (Exception $e) {
 	}

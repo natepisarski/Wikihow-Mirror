@@ -79,30 +79,28 @@ class SpecialPagesHooks {
 		return true;
 	}
 
-	public static function onBeforeWelcomeCreation(&$welcome_creation_msg, &$injected_html) {
-		global $wgRedirectOnLogin, $wgLanguageCode, $wgCookiePrefix, $wgCookiePath, $wgCookieDomain;
+	public static function onPostLoginRedirect( &$returnTo, &$returnToQuery, &$type ) {
+		global $wgCookiePrefix, $wgCookiePath, $wgCookieDomain;
+
+		//only for new accounts
+		if ($type != 'signup') return;
 
 		// Mobile does the default
-		if (Misc::isMobileMode()) return true;
+		if (Misc::isMobileMode()) return;
 
-		if ($wgLanguageCode != "en") {
+		$type = 'successredirect';
+
+		if (RequestContext::getMain()->getLanguage()->getCode() != 'en') {
 			$dashboardPage = Title::makeTitle(NS_PROJECT, wfMessage("community")->text());
-			$wgRedirectOnLogin = $dashboardPage->getFullText();
-		} else {
-			$ctx = RequestContext::getMain();
-			$returnto = $ctx->getRequest()->getText('returnto');
-
-			if ($returnto) {
-				$wgRedirectOnLogin = urldecode($returnto);
-			}
-			else {
+			$returnTo = $dashboardPage->getFullText();
+		}
+		else {
+			if ($returnTo == '') {
 				//set cookie for the expertise modal
 				setcookie($wgCookiePrefix.'_exp_modal', '1', time()+3600, $wgCookiePath, $wgCookieDomain);
-				$wgRedirectOnLogin = 'Special:CommunityDashboard';
+				$returnTo = 'Special:CommunityDashboard';
 			}
 		}
-
-		return true;
 	}
 
 	/**
@@ -116,17 +114,6 @@ class SpecialPagesHooks {
 		$extraOpts['reverse'] = array(
 			'<input name="reverse" type="checkbox" value="1" id="nsreverse" title="' . $description . '"' . ($reverse ? ' checked=""' : '') . '>',
 			'<label for="nsreverse" title="' . $description . '">' . $labelText . '</label>');
-		return true;
-	}
-
-	/**
-	 * Use 'reverse' option in RecentChanges queries
-	 */
-	public static function onSpecialRecentChangesQuery($conds, $tables, $join_conds, $opts, $query_options, $fields, &$reverse)
-	{
-		global $wgRequest;
-		$reverseOpt = $wgRequest->getInt('reverse');
-		if ($reverseOpt == 1) $reverse = 1;
 		return true;
 	}
 

@@ -11,11 +11,7 @@ $wgHooks['EditPage::showStandardInputs:options'][] = 'GuidedEditor::addHiddenFor
 
 $wgExtensionMessagesFiles['GuidedEditor'] = __DIR__ . '/GuidedEditor.i18n.php';
 
-// This global declaration is needed for INTL Special:CreatePage, since the
-// GuidedEditor module is included is a funny way there
-global $wgResourceModulesDesktopBoiler;
-
-$wgResourceModules['ext.wikihow.guided_editor'] = $wgResourceModulesDesktopBoiler + [
+$wgResourceModules['ext.wikihow.guided_editor_styles'] = [
 	'styles' => [
 		'guidededitor/guidededitor.css',
 		'winpop.css',
@@ -23,19 +19,32 @@ $wgResourceModules['ext.wikihow.guided_editor'] = $wgResourceModulesDesktopBoile
 		'cattool/categorizer.css',
 		'cattool/categorizer_editpage.css',
 	],
+	'group' => 'prio2',
+	'localBasePath' => __DIR__ . '/..',
+	'remoteExtPath' => 'wikihow',
+	'position' => 'top',
+	'targets' => [ 'desktop' ]
+];
+
+$wgResourceModules['ext.wikihow.guided_editor'] = [
 	'scripts' => [
 		'guidededitor/guidededitor_events.js',
 		'winpop.js',
 		'video/previewvideo.js',
 		'../../skins/common/ac.js',
 		'video/importvideo.js',
-	]
+	],
+	'dependencies' => [ 'ext.wikihow.desktop_base' ],
+	'localBasePath' => __DIR__ . '/..',
+	'remoteExtPath' => 'wikihow',
+	'position' => 'top',
+	'targets' => [ 'desktop' ]
 ];
 
-$wgResourceModules['ext.wikihow.guidededitor_quicktips'] = [
+$wgResourceModules['ext.wikihow.guidededitor_quicktips_styles'] = [
 	'styles' => 'guidededitor_quicktips.css',
-	'localBasePath' => __DIR__ . '/',
-	'remoteExtPath' => 'wikihow',
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/guidededitor',
 	'position' => 'top',
 	'targets' => [ 'desktop' ]
 ];

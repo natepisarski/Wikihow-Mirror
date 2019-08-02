@@ -19,6 +19,7 @@ EOS;
 		$out->addHeadItem('shared_head_scripts',  HTML::inlineScript($headScript));
 
 		$out->addModules( array( 'ext.wikihow.common_top' ) );
+		$out->addModuleStyles( array( 'ext.wikihow.common_bottom_styles' ) );
 		$out->addModules( array( 'ext.wikihow.common_bottom' ) );
 	}
 

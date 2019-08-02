@@ -15,3 +15,11 @@ $wgAutoloadClasses['EditMapper\TranslatorEditMapper'] = __DIR__ . '/TranslatorEd
 
 $wgHooks['CustomEditor'][] = 'TranslateEditor::onCustomEdit';
 
+$wgResourceModules['ext.wikihow.translateeditor'] = [
+    'scripts' => [ 'translateeditor.js' ],
+    'localBasePath' => __DIR__,
+    'targets' => [ 'desktop' ],
+    'dependencies' => [ 'ext.wikihow.desktop_base', 'jquery' ],
+    'remoteExtPath' => 'wikihow/translateeditor',
+    'position' => 'top',
+];

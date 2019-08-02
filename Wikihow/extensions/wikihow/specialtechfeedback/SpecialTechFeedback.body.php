@@ -48,8 +48,13 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 			print json_encode( $data );
 
 			return;
-		} elseif ( $this->request->wasPosted() && XSSFilter::isValidRequest() ) {
+		} elseif ( $this->request->wasPosted() ) {
 			$this->out->setArticleBodyOnly( true );
+			if ( !XSSFilter::isValidRequest() ) {
+				// did this for ease of debugging xss issues
+				$this->out->addHtml('XSS filtered');
+				return;
+			}
 			$this->saveVote();
 			$this->updateVoted();
 			$data = array( 'logactions' => $this->mLogActions );

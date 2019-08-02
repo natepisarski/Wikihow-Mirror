@@ -16,9 +16,9 @@ if (!class_exists('UnlistedSpecialPage')) {
 use UnlistedSpecialPage;
 use Exception;
 use MVC\Errors;
+use MVC\Traits\Utils;
 
 class Router extends UnlistedSpecialPage {
-	use Traits\Utils;
 
 	static $instance = null;
 	public $groupWhiteList = ['*'];
@@ -31,7 +31,7 @@ class Router extends UnlistedSpecialPage {
 		global $wgHooks, $wgIsDevServer;
 
 		if (!defined('CLI') && session_status() == PHP_SESSION_NONE) session_start();
-		self::checkConstants();
+		Utils::checkConstants();
 
 
 		if (!defined('ENV')) {
@@ -39,15 +39,15 @@ class Router extends UnlistedSpecialPage {
 			define('ENV', (HOST == 'localhost') ? 'development' : ($wgIsDevServer ? 'staging' : 'production'));
 		}
 
-		$this->config = self::getConfig();
+		$this->config = Utils::getConfig();
 		Errors::initialize();
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 
 		parent::__construct(APP_NS);
 		static::$instance = $this;
 
-		self::includeDir(__DIR__ . "/helpers");
-		self::includeDir(APP_DIR . "/helpers");
+		Utils::includeDir(__DIR__ . "/helpers");
+		Utils::includeDir(APP_DIR . "/helpers");
 
 		if (!defined('CLI') && defined('DISABLED') && DISABLED) {
 			include __DIR__ . "/templates/maintenance.html";
@@ -81,7 +81,7 @@ class Router extends UnlistedSpecialPage {
 			}
 		}
 
-		$controller = self::namespaceClass(ucfirst($segments[0]) . "Controller");
+		$controller = Utils::namespaceClass(ucfirst($segments[0]) . "Controller");
 		$action = count($segments) > 1 ? $segments[1] : "index";
 		// get around reserved keyword new
 		$this->currentUrl = "{$segments[0]}/$action";

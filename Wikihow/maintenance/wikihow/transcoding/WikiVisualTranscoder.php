@@ -30,7 +30,7 @@ If your assets are not there, you have to copy them from the production folder.
    $s3cmd_wikivisual sync s3://wikivisual-upload/todd/4831.zip s3://wikivisual-upload-test/aaron/
 
 
-2. Run the transcoder on that article ID with the -f argument to run on a single article
+2. Run the transcoder on that article ID with the --force argument to run on a single article
 - if you run on the dev server it will use the wikivisual-upload-test bucket by default
 - if you are testing a file with video assets, this command will get the zip file and submit a job
 for the videos to be transcoded, then you will have to run the script a second time once the transcoding job
@@ -38,9 +38,9 @@ for the videos to be transcoded, then you will have to run the script a second t
 	the second time you run this it is nice to add the -t flag which will only look at transcoded
 	articles and not submit the videos for transcoding a second time
 
-/opt/wikihow/scripts/whrun --user=apache -- php ~/wikihow/prod/maintenance/wikihow/transcoding/WikiVisualTranscoder.php -f 6918
+/opt/wikihow/scripts/whrun --user=apache -- php ~/wikihow/prod/maintenance/wikihow/transcoding/WikiVisualTranscoder.php --force 6918
 
-Note: you can also use the -v flag  to get verbose output
+Note: you can also use the --verbose flag  to get verbose output
 
 data schema for reference:
     CREATE TABLE wikivisual_article_status ( 
@@ -101,6 +101,9 @@ data schema for reference:
 	) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 */
 
+$optionsWithoutArgs = array( 'backup', 'cleanup', 'verbose', 'transcoding');
+$optionsWithArgs = array( 'stagingdir', 'excludeid', 'force' );
+
 require_once __DIR__ . '/../../commandLine.inc';
 
 global $IP;
@@ -128,7 +131,7 @@ use Guzzle\Http\EntityBody;
 * to run this on dev server:
 *   1. cd ${REPOPATH}/wikihow/prod/maintenance/wikihow/transcoding
 *   2. if you want to pass a specific ID into the script you can run it like this:
-*      whrun --user=apache -- php WikiVisualTranscoder.php -f 1089411
+*      whrun --user=apache -- php WikiVisualTranscoder.php --force 1089411
 *      otherwise run it like this:
 *      whrun --user=apache -- php WikiVisualTranscoder.php
 *
@@ -1171,7 +1174,7 @@ class WikiVisualTranscoder {
 		return $ret;
 	}
 	
-	public function main() {
+	public function main( $options = array() ) {
 		global $wgLanguageCode, $wgIsDevServer;
 		date_default_timezone_set('America/Los_Angeles');
 		
@@ -1191,25 +1194,14 @@ class WikiVisualTranscoder {
 			self::$assocImgExts = Utils::arrToAssoArr(self::$imgExts);
 		}
 		
-		$opts = getopt( 'bcd:e:f:vt',
-			array (
-				'backup',
-				'cleanup',
-				'staging-dir:',
-				'exclude-article-id:',
-				'force:',
-				'verbose',
-				'transcoding'
-			)
-		);
+		$doCleanup = isset( $options ['cleanup'] );
+		
+		self::$stagingDir = self::DEFAULT_STAGING_DIR;
+		if ( isset( $options['stagingdir'] ) ) {
+			self::$stagingDir = $options['stagingdir'];
+		}
 
-		$doCleanup = isset( $opts ['c'] ) || isset ( $opts ['cleanup'] );
-		
-		self::$stagingDir = @$opts ['d'] ? @$opts ['d'] : @$opts ['staging-dir'];
-		if ( empty( self::$stagingDir ) )
-			self::$stagingDir = self::DEFAULT_STAGING_DIR;
-		
-		if ( array_key_exists( 'v', $opts ) ) {
+		if ( isset( $options['verbose'] ) ) {
 			self::$DEBUG = true;
 			self::d( "running script in debug mode" );
 		}
@@ -1219,19 +1211,23 @@ class WikiVisualTranscoder {
 			self::d( "using aws bucket prefix", $this->mAwsBucketPrefix);
 		}
 
-		self::$debugArticleID = @$opts ['f'] ? @$opts ['f'] : @$opts ['force'];
+		self::$debugArticleID = isset( $options['force'] ) ? $options['force'] : null;
+
 		if (self::$debugArticleID) {
 			self::d( "running on article id", self::$debugArticleID);
 		}
+
 		$processTranscodingOnly = false;
-		if ( array_key_exists( 't', $opts ) ) {
+		if ( isset( $options['transcoding'] ) ) {
 			self::d( "skipping new articles, will only process transcoding jobs" );
 			$processTranscodingOnly = true;
 		}
 
-		$skipID = @$opts ['e'] ? $opts ['e'] : @$opts ['exclude-article-id'];
-		if ( $skipID )
+		$skipID = isset( $ptions['excludeid'] ) ? $options['excludeid'] : null;
+
+		if ( $skipID ) {
 			self::$excludeArticles[] = $skipID;
+		}
 		
 		if ( $_ENV ['USER'] != 'apache' ) {
 			self::e( "script must be run as part of wikivisual-process-media.sh" );
@@ -1259,5 +1255,6 @@ class WikiVisualTranscoder {
 		}
 	}
 }
+
 $wmt = new WikiVisualTranscoder();
-$wmt->main();
+$wmt->main( $options );

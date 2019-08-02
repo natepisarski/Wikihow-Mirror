@@ -13,7 +13,7 @@ $wgSpecialPages['ArticleReviewers'] = 'ArticleReviewers';
 $wgExtensionMessagesFiles['ArticleReviewers'] = __DIR__ . '/ArticleReviewers.i18n.php';
 $wgExtensionMessagesFiles['ArticleReviewersAliases'] = __DIR__ . '/ArticleReviewers.alias.php';
 
-$wgResourceModules['ext.wikihow.articlereviewers'] = array(
+$wgResourceModules['ext.wikihow.articlereviewers_styles'] = array(
 	'styles' => array('articlereviewers.css'),
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/ArticleReviewers',
@@ -31,6 +31,7 @@ $wgResourceModules['ext.wikihow.articlereviewers_script'] = array(
 
 $wgResourceModules['ext.wikihow.mobilearticlereviewers'] = array(
 	'styles' => array('mobilearticlereviewers.css'),
+	'group' => 'prio2', // This RL group says load after main css bundle
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/ArticleReviewers',
 	'position' => 'top',

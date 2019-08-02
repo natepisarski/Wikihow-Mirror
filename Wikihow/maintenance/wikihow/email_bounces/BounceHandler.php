@@ -1,6 +1,6 @@
 <?php
 
-require_once('../../commandLine.inc');
+require_once __DIR__ . '/../../commandLine.inc';
 
 global $IP;
 
@@ -27,28 +27,28 @@ class BounceHandler {
 	private static function getBouncedEmails($days) {
 	
 		$url = "https://api.sendgrid.com/api/bounces.get.json";
-		$args = array();
-		$args["api_user"] = WH_SENDGRID_USER;
-		$args["api_key"] = WH_SENDGRID_PASSWORD;
-		$args["date"] = 1;
-		$args["days"] = $days;
+		$args = [
+			'api_user' => WH_SENDGRID_USER,
+			'api_key' => WH_SENDGRID_PASSWORD,
+			'date' => 1,
+			'days' => $days,
+		];
 	
-	
-		foreach($args as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
-			rtrim($fields_string, '&');
+		array_walk( $args, function(&$v, $k) { $v = "$k=$v"; } );
+		$post_data = join('&', $args);
 	
 		$ch = curl_init();
 	
-		curl_setopt($ch,CURLOPT_URL, $url);
-		curl_setopt($ch,CURLOPT_POST, count($args));
-		curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, strlen($post_data) > 0);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	
 		$response = curl_exec($ch);
 	
 		curl_close($ch);
 
-		if($response !== false) {
+		if ($response !== false) {
 			return json_decode($response);
 		} else {
 			return false;
@@ -64,8 +64,9 @@ class BounceHandler {
 	}
 	
 	public static function updateDb($bounce) {
-		if (empty($bounce) || empty($bounce->email)) return "No email mentioned";
-		//var_dump($bounce);
+		if (empty($bounce) || empty($bounce->email)) {
+			return "No email mentioned";
+		}
 		$email = trim( strtolower( $bounce->email ) );
 		$updatedTs = self::mysql2MWdate(trim($bounce->created));
 		$status = trim($bounce->status);
@@ -92,10 +93,12 @@ class BounceHandler {
 	}
 
 	public static function main($days) {
-		if (empty($days) || $days <= 0 ) $days = self::NUM_DAYS;
+		if (empty($days) || $days <= 0) {
+			$days = self::NUM_DAYS;
+		}
 		self::d("Getting bounced emails!");
 		$bounces = self::getBouncedEmails($days);
-		if($bounces === false) {
+		if ($bounces === false) {
 			self::e("Unknown error occured while fetching bounces!");
 			exit(1);
 		}
@@ -108,7 +111,7 @@ class BounceHandler {
 		
 		self::d("Updating bounces to the database!");
 		$i = 0;
-		foreach($bounces as $bounce) {
+		foreach ($bounces as $bounce) {
 			self::updateDb($bounce);
 			$i++;
 		}
@@ -116,4 +119,6 @@ class BounceHandler {
 	}	
 	
 }
-BounceHandler::main($argv[1]);
+
+$numDays = $argv[1] ?? 0;
+BounceHandler::main( (int)$numDays );

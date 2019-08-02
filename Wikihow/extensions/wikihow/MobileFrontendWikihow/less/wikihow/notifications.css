@@ -16,3 +16,49 @@ li.mw-echo-notification:last-child {
 	-webkit-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 }
+
+#bodyContent .mw-echo-ui-notificationsInboxWidget-sidebar {
+	display: none;
+}
+
+.mw-echo-ui-notificationItemWidget-markAsReadButton {
+	display: none ;
+}
+
+.mw-echo-ui-notificationsInboxWidget-main-toolbar-readState .mw-echo-ui-readStateButtonSelectWidget {
+	display: none;
+}
+
+.mw-echo-ui-notificationsInboxWidget-main-toolbar-nav-filter-placeholder {
+	display: none;
+}
+
+.mw-echo-ui-notificationsInboxWidget-main-toolbar-top .mw-echo-ui-notificationsInboxWidget-main-toolbar-settings {
+	display: none;
+}
+
+.mw-echo-ui-notificationsInboxWidget-main .mw-echo-ui-notificationsInboxWidget-toolbarWrapper {
+	height: 4em;
+}
+
+@media only screen and (min-width:1024px) {
+	.mw-echo-ui-notificationsInboxWidget-main .mw-echo-ui-notificationsInboxWidget-toolbarWrapper {
+		height: 3.5em;
+	}
+}
+
+.mw-echo-ui-notificationsInboxWidget-toolbarWrapper .mw-echo-ui-notificationsInboxWidget-main-toolbar-top .mw-echo-ui-notificationsInboxWidget-row {
+	text-align: left;
+}
+
+.mw-echo-ui-notificationsInboxWidget-main-toolbar-top .mw-echo-ui-notificationsInboxWidget-cell-placeholder {
+	display: none;
+}
+
+.mw-echo-ui-notificationsInboxWidget-toolbarWrapper .mw-echo-ui-notificationsInboxWidget-main-toolbar-pagination {
+	margin-top: .5em;
+}
+
+.mw-echo-ui-datedSubGroupListWidget-title .mw-echo-ui-datedSubGroupListWidget-title-secondary {
+	display: none;
+}

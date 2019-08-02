@@ -1,0 +1,23 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"mynotifications": "My Notifications",
+	"more-notifications-link": "View all notifications...",
+	"no-notifications": "You have no [[Special:Notifications|notifications]] at this time.",
+	"notification-link-text-view-message-wh": "View page",
+	"echo-category-title-thumbs-up": "Thumbs up",
+	"echo-pref-tooltip-thumbs-up": "Notify me when someone gives me a thumbs up.",
+	"notification-header-thumbs-up": "You just got a thumbs up!",
+	"notification-thumbs-up": "[[User_talk:$1#post|$1]] gave your $2 on [[$3]] a thumbs up.",
+	"notification-thumbs-up-diff-link": "edit",
+	"echo-category-title-kudos": "Fan Mail",
+	"echo-pref-tooltip-kudos": "Notify me when someone sends me fan mail.",
+	"notification-header-kudos": "You just got fan mail!",
+	"notification-kudos": "[[User_talk:$1#post|$1]] sent you [[Special:MyPages/fanmail#post|fan mail]].",
+	"notification-kudos-diff-link": "edit",
+	"notification-link-text-view-kudos": "View fan mail",
+	"prefs-globalemailoptout": "Receive emails from wikiHow:",
+	"prefs-globalemailoptout-on": "On",
+	"prefs-globalemailoptout-off": "Off"
+}

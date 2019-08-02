@@ -1,11 +1,11 @@
 (function($, mw) {
 
-$(document).ready(function() {
-	$('.thumbbutton:not(.clickbound)').addClass('clickbound').on('click',  function (c) {
+function setClickHandler() {
+	$(document).on('click', '.thumbbutton', function (c) {
 		c.preventDefault();
 		// only allow one click
 		$(this).unbind('click');
-		
+
 		// for usage logs tracking
 		if ($('body').data('event_type') !== undefined) {
 			WH.usageLogs.log({event_action: 'thumbs_up'});
@@ -19,6 +19,9 @@ $(document).ready(function() {
 			$(c.target).addClass("clicked");
 		});
 	});
-});
+
+}
+
+mw.loader.using('ext.wikihow.UsageLogs', setClickHandler);
 
 })(jQuery, mw);

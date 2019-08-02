@@ -3,9 +3,9 @@
 // simple part, yes rating
 if ( $rating == 1 ) {
 	if ( $isMobile) {
-		echo wfMessage('ratearticle_reason_submitted_mobile_yes')->text();
+		echo wfMessage('ratearticle_reason_submitted_mobile_yes', urlencode($titleText))->text();
 	} else {
-		echo wfMessage('ratearticle_reason_submitted_yes')->text();
+		echo wfMessage('ratearticle_reason_submitted_yes', urlencode($titleText))->text();
 	}
 	return;
 }

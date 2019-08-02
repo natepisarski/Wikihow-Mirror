@@ -53,7 +53,7 @@ class RemoveBadWebsolr extends Maintenance {
 		}
 
 		$output = json_decode( $output );
-		$numFound = $output->response->numFound;
+		$numFound = $output->response->numFound ?? 0;
 		$this->output( "found $numFound ids in websolr index to process\n");
 		
 		$docs = $output->response->docs ?? [];

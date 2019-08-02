@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.RecentChangesAppWidget = (function($) {
+WH.dashboard.RecentChangesAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.RecentChangesAppWidget = (function($) {
 	WH.dashboard.registerDataListener('RecentChangesAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

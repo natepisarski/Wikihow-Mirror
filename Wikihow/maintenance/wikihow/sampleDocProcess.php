@@ -10,13 +10,12 @@
  * - add data to our sample doc viewer table
  */
 
-global $IP;
+require_once __DIR__ . '/../Maintenance.php';
 
-require_once __DIR__ . '/../commandLine.inc';
 require_once "$IP/extensions/wikihow/common/copyscape_functions.php";
 require_once "$IP/extensions/wikihow/common/S3.php";
 
-class SampleDocProcess {
+class SampleDocProcess extends Maintenance {
 	const PHOTO_USER = 'Wikiphoto';
 	const AWS_BUCKET = 'sampledocs';
 	const DEFAULT_DOC_DIR = '/sampledocs/';
@@ -29,6 +28,11 @@ class SampleDocProcess {
 	static $docExts = array('doc', 'docx', 'pdf', 'txt', 'html', 'zip', 'xls', 'xlsx');
 	static $overwrite = false;
 	static $quiet = false;
+
+	public function execute() {
+		$options = ['overwrite' => false, 'quiet' => false];
+		SampleDocProcess::main($options['overwrite'],$options['quiet']);
+	}
 
 	private function listS3Docs() {
 		$s3 = new S3(WH_AWS_WIKIVISUAL_ACCESS_KEY, WH_AWS_WIKIVISUAL_SECRET_KEY);
@@ -355,7 +359,7 @@ class SampleDocProcess {
 		if ($res['count']) {
 			$words = $res['querywords'];
 			foreach($res['result'] as $r) {
-				if (!preg_match("@^http://[a-z0-9]*.(wikihow|whstatic|youtube).com@i", $r['url'])) {
+				if (!preg_match("@^https?://[a-z0-9]*.(wikihow|whstatic|youtube).com@i", $r['url'])) {
 					if ($r['minwordsmatched'] / $words > $threshold) {
 						//we got one!
 						$is_plagiarized = true;
@@ -540,4 +544,5 @@ class SampleDocProcess {
 
 }
 
-SampleDocProcess::main($options['overwrite'],$options['quiet']);
+$maintClass = 'SampleDocProcess';
+require_once RUN_MAINTENANCE_IF_MAIN;

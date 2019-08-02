@@ -36,11 +36,12 @@ class SpecialDrafts extends SpecialPage {
 			// Redirect to the article editor or view if returnto was set
 			$section = $request->getIntOrNull( 'section' );
 			$urlSection = $section !== null ? "&section={$section}" : '';
+			$advanced = $request->getBool( 'advanced' ) ? '&advanced=true' : '';
 			switch( $request->getText( 'returnto' ) ) {
 				case 'edit':
 					$title = Title::newFromDBKey( $draft->getTitle() );
 					$out->redirect(
-						wfExpandURL( $title->getEditURL() . $urlSection )
+						wfExpandURL( $title->getEditURL() . $advanced . $urlSection )
 					);
 					break;
 				case 'view':

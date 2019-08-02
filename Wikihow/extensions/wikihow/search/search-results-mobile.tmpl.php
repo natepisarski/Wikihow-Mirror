@@ -75,7 +75,10 @@
 					<div class="result_title"><?= $result['title_match'] ?></div>
 				<? endif; // has_supplement ?>
 				<? // Sherlock-form ?>
-				<?= EasyTemplate::html('sherlock-form.tmpl.php', array("index" => $i + $first, "result" => $result)); ?>
+				<?= EasyTemplate::html(
+					'sherlock-form.tmpl.php',
+					[ 'index' => $i + $first, 'result' => $result, 'searchId' => $searchId ]
+				); ?>
 				</div>
 			</div>
 		</a>

@@ -106,7 +106,7 @@ class TipsPatrol extends SpecialPage {
 		$out->addHTML(EasyTemplate::html('TipsPatrol.tmpl.php', $vars));
 		$coach = $this->getRequest()->getVal("coach");
 		// code to init the tipspatrol javascript.. doing it here lets us pass in extra variables when we init
-		$out->addScript("<script>$(document).ready(function(){WH.TipsPatrol.init($coach)});</script>");
+		$out->addScript("<script>WH.tipsPatrolCoachSetting = '$coach';</script>");
 
 		$bubbleText = "Only publish this tip if you can make it helpful, clear, and grammatically correct. Most tips should get deleted.";
 

@@ -109,7 +109,7 @@ foreach($creators as $creator) {
 	$from = new MailAddress("alerts@wikihow.com");
 	$to = new MailAddress($email);
 	$subject = "Image Transfers Complete";
-	$content_type = "text/html; charset=UTF-8";
+	$opts = ['contentType' => "text/html; charset=UTF-8"];
 	print("Sending email:\n from:alerts@wikihow.com\nto:$email\nSubject:$subject\n$msg");
-	UserMailer::send($to,$from,$subject,$msg, false,$content_type);
+	UserMailer::send($to,$from,$subject,$msg,$opts);
 }

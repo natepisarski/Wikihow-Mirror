@@ -17,7 +17,6 @@
 			<?= call_user_func($displayWidgetsFunc, $userWidgets) ?>
 			<div class="clearall"></div>
 		</div>
-		<script>$(document).ready(WH.dashboard.init);</script>
 		<div id="cd-user-box"></div>
 	</div>
 </div><!--end comdash-container-->

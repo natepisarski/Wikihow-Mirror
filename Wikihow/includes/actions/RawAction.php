@@ -5,7 +5,7 @@
  * Copyright © 2004 Gabriel Wicke <wicke@wikidev.net>
  * http://wikidev.net/
  *
- * Based on HistoryPage and SpecialExport
+ * Based on HistoryAction and SpecialExport
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
  * @file
  */
 
+use MediaWiki\Logger\LoggerFactory;
+
 /**
  * A simple method to retrieve the plain source of an article,
  * using "action=raw" in the GET request string.
@@ -33,8 +35,6 @@
  * @ingroup Actions
  */
 class RawAction extends FormlessAction {
-	private $mGen;
-
 	public function getName() {
 		return 'raw';
 	}
@@ -47,11 +47,14 @@ class RawAction extends FormlessAction {
 		return false;
 	}
 
+	/**
+	 * @suppress SecurityCheck-XSS Non html mime type
+	 */
 	function onView() {
-		global $wgSquidMaxage, $wgForcedRawSMaxage;
-
 		$this->getOutput()->disable();
 		$request = $this->getRequest();
+		$response = $request->response();
+		$config = $this->context->getConfig();
 
 		if ( !$request->checkUrlExtension() ) {
 			return;
@@ -61,60 +64,110 @@ class RawAction extends FormlessAction {
 			return; // Client cache fresh and headers sent, nothing more to do.
 		}
 
-		# special case for 'generated' raw things: user css/js
-		# This is deprecated and will only return empty content
-		$gen = $request->getVal( 'gen' );
-		$smaxage = $request->getIntOrNull( 'smaxage' );
-
-		if ( $gen == 'css' || $gen == 'js' ) {
-			$this->mGen = $gen;
-			if ( $smaxage === null ) {
-				$smaxage = $wgSquidMaxage;
-			}
-		} else {
-			$this->mGen = false;
-		}
-
 		$contentType = $this->getContentType();
 
-		# Force caching for CSS and JS raw content, default: 5 minutes.
-		# Note: If using a canonical url for userpage css/js, we send an HTCP purge.
+		$maxage = $request->getInt( 'maxage', $config->get( 'SquidMaxage' ) );
+		$smaxage = $request->getIntOrNull( 'smaxage' );
 		if ( $smaxage === null ) {
-			if ( $contentType == 'text/css' || $contentType == 'text/javascript' ) {
-				$smaxage = intval( $wgForcedRawSMaxage );
+			if (
+				$contentType == 'text/css' ||
+				$contentType == 'application/json' ||
+				$contentType == 'text/javascript'
+			) {
+				// CSS/JSON/JS raw content has its own CDN max age configuration.
+				// Note: Title::getCdnUrls() includes action=raw for css/json/js
+				// pages, so if using the canonical url, this will get HTCP purges.
+				$smaxage = intval( $config->get( 'ForcedRawSMaxage' ) );
 			} else {
+				// No CDN cache for anything else
 				$smaxage = 0;
 			}
 		}
 
-		$maxage = $request->getInt( 'maxage', $wgSquidMaxage );
+		// Set standard Vary headers so cache varies on cookies and such (T125283)
+		$response->header( $this->getOutput()->getVaryHeader() );
+		if ( $config->get( 'UseKeyHeader' ) ) {
+			$response->header( $this->getOutput()->getKeyHeader() );
+		}
 
-		$response = $request->response();
-
-		$response->header( 'Content-type: ' . $contentType . '; charset=UTF-8' );
-		# Output may contain user-specific data;
-		# vary generated content for open sessions on private wikis
-		$privateCache = !User::isEveryoneAllowed( 'read' ) && ( $smaxage == 0 || session_id() != '' );
-		// Bug 53032 - make this private if user is logged in,
-		// so we don't accidentally cache cookies
-		$privateCache = $privateCache ?: $this->getUser()->isLoggedIn();
-		# allow the client to cache this for 24 hours
+		// Output may contain user-specific data;
+		// vary generated content for open sessions on private wikis
+		$privateCache = !User::isEveryoneAllowed( 'read' ) &&
+			( $smaxage == 0 || MediaWiki\Session\SessionManager::getGlobalSession()->isPersistent() );
+		// Don't accidentally cache cookies if user is logged in (T55032)
+		$privateCache = $privateCache || $this->getUser()->isLoggedIn();
 		$mode = $privateCache ? 'private' : 'public';
 		$response->header(
 			'Cache-Control: ' . $mode . ', s-maxage=' . $smaxage . ', max-age=' . $maxage
 		);
 
-		$text = $this->getRawText();
-
-		if ( $text === false && $contentType == 'text/x-wiki' ) {
-			# Don't return a 404 response for CSS or JavaScript;
-			# 404s aren't generally cached and it would create
-			# extra hits when user CSS/JS are on and the user doesn't
-			# have the pages.
-			$response->header( 'HTTP/1.x 404 Not Found' );
+		// In the event of user JS, don't allow loading a user JS/CSS/Json
+		// subpage that has no registered user associated with, as
+		// someone could register the account and take control of the
+		// JS/CSS/Json page.
+		$title = $this->getTitle();
+		if ( $title->isUserConfigPage() && $contentType !== 'text/x-wiki' ) {
+			// not using getRootText() as we want this to work
+			// even if subpages are disabled.
+			$rootPage = strtok( $title->getText(), '/' );
+			$userFromTitle = User::newFromName( $rootPage, 'usable' );
+			if ( !$userFromTitle || $userFromTitle->getId() === 0 ) {
+				$elevated = $this->getUser()->isAllowed( 'editinterface' );
+				$elevatedText = $elevated ? 'by elevated ' : '';
+				$log = LoggerFactory::getInstance( "security" );
+				$log->warning(
+					"Unsafe JS/CSS/Json $elevatedText" . "load - {user} loaded {title} with {ctype}",
+					[
+						'user' => $this->getUser()->getName(),
+						'title' => $title->getPrefixedDBKey(),
+						'ctype' => $contentType,
+						'elevated' => $elevated
+					]
+				);
+				$msg = wfMessage( 'unregistered-user-config' );
+				throw new HttpError( 403, $msg );
+			}
 		}
 
-		if ( !wfRunHooks( 'RawPageViewBeforeOutput', array( &$this, &$text ) ) ) {
+		// Don't allow loading non-protected pages as javascript.
+		// In future we may further restrict this to only CONTENT_MODEL_JAVASCRIPT
+		// in NS_MEDIAWIKI or NS_USER, as well as including other config types,
+		// but for now be more permissive. Allowing protected pages outside of
+		// NS_USER and NS_MEDIAWIKI in particular should be considered a temporary
+		// allowance.
+		if (
+			$contentType === 'text/javascript' &&
+			!$title->isUserJsConfigPage() &&
+			!$title->inNamespace( NS_MEDIAWIKI ) &&
+			!in_array( 'sysop', $title->getRestrictions( 'edit' ) ) &&
+			!in_array( 'editprotected', $title->getRestrictions( 'edit' ) )
+		) {
+
+			$log = LoggerFactory::getInstance( "security" );
+			$log->info( "Blocked loading unprotected JS {title} for {user}",
+				[
+					'user' => $this->getUser()->getName(),
+					'title' => $title->getPrefixedDBKey(),
+				]
+			);
+			throw new HttpError( 403, wfMessage( 'unprotected-js' ) );
+		}
+
+		$response->header( 'Content-type: ' . $contentType . '; charset=UTF-8' );
+
+		$text = $this->getRawText();
+
+		// Don't return a 404 response for CSS or JavaScript;
+		// 404s aren't generally cached and it would create
+		// extra hits when user CSS/JS are on and the user doesn't
+		// have the pages.
+		if ( $text === false && $contentType == 'text/x-wiki' ) {
+			$response->statusHeader( 404 );
+		}
+
+		// Avoid PHP 7.1 warning of passing $this by reference
+		$rawAction = $this;
+		if ( !Hooks::run( 'RawPageViewBeforeOutput', [ &$rawAction, &$text ] ) ) {
 			wfDebug( __METHOD__ . ": RawPageViewBeforeOutput hook broke raw page output.\n" );
 		}
 
@@ -125,66 +178,49 @@ class RawAction extends FormlessAction {
 	 * Get the text that should be returned, or false if the page or revision
 	 * was not found.
 	 *
-	 * @return String|Bool
+	 * @return string|bool
 	 */
 	public function getRawText() {
 		global $wgParser;
-
-		# No longer used
-		if ( $this->mGen ) {
-			return '';
-		}
 
 		$text = false;
 		$title = $this->getTitle();
 		$request = $this->getRequest();
 
-		// If it's a MediaWiki message we can just hit the message cache
-		if ( $request->getBool( 'usemsgcache' ) && $title->getNamespace() == NS_MEDIAWIKI ) {
-			// The first "true" is to use the database, the second is to use
-			// the content langue and the last one is to specify the message
-			// key already contains the language in it ("/de", etc.).
-			$text = MessageCache::singleton()->get( $title->getDBkey(), true, true, true );
-			// If the message doesn't exist, return a blank
-			if ( $text === false ) {
-				$text = '';
-			}
-		} else {
-			// Get it from the DB
-			$rev = Revision::newFromTitle( $title, $this->getOldId() );
-			if ( $rev ) {
-				$lastmod = wfTimestamp( TS_RFC2822, $rev->getTimestamp() );
-				$request->response()->header( "Last-modified: $lastmod" );
+		// Get it from the DB
+		$rev = Revision::newFromTitle( $title, $this->getOldId() );
+		if ( $rev ) {
+			$lastmod = wfTimestamp( TS_RFC2822, $rev->getTimestamp() );
+			$request->response()->header( "Last-modified: $lastmod" );
 
-				// Public-only due to cache headers
-				$content = $rev->getContent();
+			// Public-only due to cache headers
+			$content = $rev->getContent();
 
-				if ( $content === null ) {
-					// revision not found (or suppressed)
+			if ( $content === null ) {
+				// revision not found (or suppressed)
+				$text = false;
+			} elseif ( !$content instanceof TextContent ) {
+				// non-text content
+				wfHttpError( 415, "Unsupported Media Type", "The requested page uses the content model `"
+					. $content->getModel() . "` which is not supported via this interface." );
+				die();
+			} else {
+				// want a section?
+				$section = $request->getIntOrNull( 'section' );
+				if ( $section !== null ) {
+					$content = $content->getSection( $section );
+				}
+
+				if ( $content === null || $content === false ) {
+					// section not found (or section not supported, e.g. for JS, JSON, and CSS)
 					$text = false;
-				} elseif ( !$content instanceof TextContent ) {
-					// non-text content
-					wfHttpError( 415, "Unsupported Media Type", "The requested page uses the content model `"
-						. $content->getModel() . "` which is not supported via this interface." );
-					die();
 				} else {
-					// want a section?
-					$section = $request->getIntOrNull( 'section' );
-					if ( $section !== null ) {
-						$content = $content->getSection( $section );
-					}
-
-					if ( $content === null || $content === false ) {
-						// section not found (or section not supported, e.g. for JS and CSS)
-						$text = false;
-					} else {
-						$text = $content->getNativeData();
-					}
+					$text = $content->getNativeData();
 				}
 			}
 		}
 
-		if ( $text !== false && $text !== '' && $request->getVal( 'templates' ) === 'expand' ) {
+		if ( $text !== false && $text !== '' && $request->getRawVal( 'templates' ) === 'expand' ) {
 			$text = $wgParser->preprocess(
 				$text,
 				$title,
@@ -198,17 +234,18 @@ class RawAction extends FormlessAction {
 	/**
 	 * Get the ID of the revision that should used to get the text.
 	 *
-	 * @return Integer
+	 * @return int
 	 */
 	public function getOldId() {
 		$oldid = $this->getRequest()->getInt( 'oldid' );
 		switch ( $this->getRequest()->getText( 'direction' ) ) {
 			case 'next':
 				# output next revision, or nothing if there isn't one
+				$nextid = 0;
 				if ( $oldid ) {
-					$oldid = $this->getTitle()->getNextRevisionID( $oldid );
+					$nextid = $this->getTitle()->getNextRevisionID( $oldid );
 				}
-				$oldid = $oldid ? $oldid : -1;
+				$oldid = $nextid ?: -1;
 				break;
 			case 'prev':
 				# output previous revision, or nothing if there isn't one
@@ -216,8 +253,8 @@ class RawAction extends FormlessAction {
 					# get the current revision so we can get the penultimate one
 					$oldid = $this->page->getLatest();
 				}
-				$prev = $this->getTitle()->getPreviousRevisionID( $oldid );
-				$oldid = $prev ? $prev : -1;
+				$previd = $this->getTitle()->getPreviousRevisionID( $oldid );
+				$oldid = $previd ?: -1;
 				break;
 			case 'cur':
 				$oldid = 0;
@@ -230,13 +267,17 @@ class RawAction extends FormlessAction {
 	/**
 	 * Get the content type to use for the response
 	 *
-	 * @return String
+	 * @return string
 	 */
 	public function getContentType() {
-		$ctype = $this->getRequest()->getVal( 'ctype' );
+		// Use getRawVal instead of getVal because we only
+		// need to match against known strings, there is no
+		// storing of localised content or other user input.
+		$ctype = $this->getRequest()->getRawVal( 'ctype' );
 
 		if ( $ctype == '' ) {
-			$gen = $this->getRequest()->getVal( 'gen' );
+			// Legacy compatibilty
+			$gen = $this->getRequest()->getRawVal( 'gen' );
 			if ( $gen == 'js' ) {
 				$ctype = 'text/javascript';
 			} elseif ( $gen == 'css' ) {
@@ -244,48 +285,18 @@ class RawAction extends FormlessAction {
 			}
 		}
 
-		$allowedCTypes = array( 'text/x-wiki', 'text/javascript', 'text/css', 'application/x-zope-edit' );
+		$allowedCTypes = [
+			'text/x-wiki',
+			'text/javascript',
+			'text/css',
+			// FIXME: Should we still allow Zope editing? External editing feature was dropped
+			'application/x-zope-edit',
+			'application/json'
+		];
 		if ( $ctype == '' || !in_array( $ctype, $allowedCTypes ) ) {
 			$ctype = 'text/x-wiki';
 		}
 
 		return $ctype;
-	}
-}
-
-/**
- * Backward compatibility for extensions
- *
- * @deprecated in 1.19
- */
-class RawPage extends RawAction {
-	public $mOldId;
-
-	/**
-	 * @param Page $page
-	 * @param WebRequest|bool $request The WebRequest (default: false).
-	 */
-	function __construct( Page $page, $request = false ) {
-		wfDeprecated( __CLASS__, '1.19' );
-		parent::__construct( $page );
-
-		if ( $request !== false ) {
-			$context = new DerivativeContext( $this->getContext() );
-			$context->setRequest( $request );
-			$this->context = $context;
-		}
-	}
-
-	public function view() {
-		$this->onView();
-	}
-
-	public function getOldId() {
-		# Some extensions like to set $mOldId
-		if ( $this->mOldId !== null ) {
-			return $this->mOldId;
-		}
-
-		return parent::getOldId();
 	}
 }

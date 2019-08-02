@@ -25,7 +25,7 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 			$modal = self::getExpertiseModal2($request->getVal('cat'));
 		}
 		elseif ($modal_type == 'helpfulness') {
-			$out->setSquidMaxage($wgSquidMaxage); //make sure this caches
+			$out->setCdnMaxage($wgSquidMaxage); //make sure this caches
 			$modal = self::getHelpfulnessModal();
 		}
 		elseif ($modal_type == 'helpfulness2') {

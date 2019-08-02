@@ -11,9 +11,13 @@ $wgExtensionCredits['special'][] = array(
 $wgAutoloadClasses['Slider'] = __DIR__ . '/Slider.class.php';
 $wgExtensionMessagesFiles['Slider'] = __DIR__ . '/Slider.i18n.php';
 
+$wgResourceModules['ext.wikihow.slider_styles'] =
+	$wgResourceModulesDesktopBoilerStyles + [
+		'styles' => [ 'slider/slider.css' ],
+	];
+
 $wgResourceModules['ext.wikihow.slider'] =
 	$wgResourceModulesDesktopBoiler + [
-		'styles' => [ 'slider/slider.css' ],
 		'scripts' => [ 'slider/slider.js' ],
 		'messages' => [
 			'slider_cta_video',

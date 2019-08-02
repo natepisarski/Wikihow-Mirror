@@ -1,0 +1,86 @@
+@import '../../mobile.less/mobile.variables';
+@import 'mediawiki.mixins.less';
+
+.editor-overlay {
+	.box-sizing( border-box );
+
+	.overlay-content {
+		width: 100%;
+	}
+
+	.anonwarning {
+		margin-top: 16px;
+
+		.anonmsg {
+			margin-bottom: 19px;
+		}
+
+		.mw-ui-button {
+			margin-bottom: 15px;
+		}
+
+		> p {
+			text-align: center;
+			font-style: italic;
+			font-size: 0.875em;
+		}
+	}
+
+	.preview {
+		display: none;
+	}
+
+	.wikitext-editor {
+		.box-sizing( border-box );
+		font-size: inherit;
+	}
+
+	.summary-request {
+		font-size: 1.4em;
+		font-weight: bold;
+		margin: 0.5em 0;
+		color: @grayMediumDark;
+	}
+
+	.buttonBar {
+		.message {
+			margin: 0 0 0.7em;
+			padding: 0 0 0.3em;
+			border-bottom: 1px solid @colorGray12;
+			color: @infoColor;
+
+			p {
+				display: inline-block;
+				text-align: center;
+				padding-top: 0;
+			}
+		}
+	}
+
+	.editor-switcher {
+		border-left: 1px solid @colorGray12;
+
+		.oo-ui-toolbar-bar,
+		.oo-ui-toolbar-popups {
+			font-size: unit( 0.8 * @targetIconSize / @baseIconSize, em );
+			border-collapse: separate;
+		}
+
+		.oo-ui-toolbar-bar {
+			border: 0;
+			box-shadow: none;
+		}
+
+		.oo-ui-popupToolGroup-handle {
+			display: block;
+			height: 3.14em;
+		}
+	}
+}
+
+.abusefilter-overlay {
+	// FIXME: enwiki only?
+	.mbox-image {
+		min-width: 30px;
+	}
+}

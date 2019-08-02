@@ -16,6 +16,8 @@ $wgResourceModules['ext.wikihow.pagestats'] = array(
 		'../common/plotly-latest.min.js',
 		'../common/moment.min.js',
 		'graphs.js',
+		'pagestats.js',
+		'../SensitiveArticle/widget/resources/sensitive_article_widget.js',
 	),
 	'styles' => array(
 		'graphs.css',

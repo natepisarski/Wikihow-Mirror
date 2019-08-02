@@ -5,47 +5,16 @@
  * @author Marius Hoch <hoo@online.de>
  */
 
-( function( mw, $ ) {
+( function () {
 	'use strict';
 
-	// Syntax result div
-	// @type {jQuery}
+	// @var {jQuery} Syntax result div
 	var $syntaxResult;
-
-	/**
-	 * Tests the filter against an rc event or abuse log entry.
-	 *
-	 * @context HTMLElement
-	 * @param {jQuery.Event} e
-	 */
-	function examinerTestFilter() {
-		/*jshint validthis:true */
-		var filter = $( '#wpTestFilter' ).val(),
-			examine = mw.config.get( 'abuseFilterExamine' ),
-			params = {
-				action: 'abusefiltercheckmatch',
-				filter: filter
-			},
-			api = new mw.Api();
-
-		$( this ).injectSpinner( 'filter-check' );
-
-		if ( examine.type === 'rc' ) {
-			params.rcid = examine.id;
-		} else {
-			params.logid = examine.id;
-		}
-
-		// Use post due to the rather large amount of data
-		api.post( params )
-			.done( examinerTestProcess )
-			.fail( examinerTestProcessFailure );
-	}
 
 	/**
 	 * Processes the results of the filter test
 	 *
-	 * @param {Object} data
+	 * @param {Object} data The response of the API request
 	 */
 	function examinerTestProcess( data ) {
 		var msg, exClass;
@@ -68,8 +37,9 @@
 	 * Processes the results of the filter test in case of an error
 	 *
 	 * @param {string} error Error code returned from the AJAX request
+	 * @param {Object} details Details about the error
 	 */
-	function examinerTestProcessFailure( error ) {
+	function examinerTestProcessFailure( error, details ) {
 		var msg;
 		$.removeSpinner( 'filter-check' );
 
@@ -81,19 +51,51 @@
 		} else if ( error === 'nosuchrcid' || error === 'nosuchlogid' ) {
 			msg = 'abusefilter-examine-notfound';
 		} else if ( error === 'permissiondenied' ) {
-			// The 'abusefilter-modify' right is needed to use this API
-			msg = 'abusefilter-mustbeeditor';
+			// The 'abusefilter-modify' or 'abusefilter-view-private' right is needed
+			// to use this API
+			msg = 'abusefilter-mustviewprivateoredit';
+		} else if ( error === 'http' ) {
+			msg = 'abusefilter-http-error';
 		} else {
 			msg = 'unknown-error';
 		}
 
 		$syntaxResult
-			.text( mw.msg( msg ) )
+			.text( mw.msg( msg, details && details.exception ) )
 			.show();
 	}
 
-	$( document ).ready( function() {
+	/**
+	 * Tests the filter against an rc event or abuse log entry.
+	 *
+	 * @context HTMLElement
+	 * @param {jQuery.Event} e The event fired when the function is called
+	 */
+	function examinerTestFilter() {
+		var filter = $( '#wpTestFilter' ).val(),
+			examine = mw.config.get( 'abuseFilterExamine' ),
+			params = {
+				action: 'abusefiltercheckmatch',
+				filter: filter
+			},
+			api = new mw.Api();
+
+		$( this ).injectSpinner( { id: 'filter-check', size: 'large' } );
+
+		if ( examine.type === 'rc' ) {
+			params.rcid = examine.id;
+		} else {
+			params.logid = examine.id;
+		}
+
+		// Use post due to the rather large amount of data
+		api.post( params )
+			.done( examinerTestProcess )
+			.fail( examinerTestProcessFailure );
+	}
+
+	$( function initialize() {
 		$syntaxResult = $( '#mw-abusefilter-syntaxresult' );
-		$( '#mw-abusefilter-examine-test' ).click( examinerTestFilter );
+		$( '#mw-abusefilter-examine-test' ).on( 'click', examinerTestFilter );
 	} );
-} ( mediaWiki, jQuery ) );
+}() );

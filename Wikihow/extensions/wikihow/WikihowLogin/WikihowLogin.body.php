@@ -1,6 +1,51 @@
 <?php
 
+use MediaWiki\Auth\AuthManager;
+use MediaWiki\Logger\LoggerFactory;
+
 class WikihowLogin {
+
+	public static function onSpecialPage_initList( &$list ) {
+		$list['Userlogin'] = 'WikihowUserLogin';
+		$list['CreateAccount'] = 'WikihowCreateAccount';
+	}
+
+	public static function onAuthChangeFormFields( $requests, $fieldInfo, &$formDescriptor, $action ) {
+		$title = RequestContext::getMain()->getTitle();
+
+		if ($title->inNamespace(NS_SPECIAL)) {
+
+			if ($title->getText() == 'UserLogin')
+				WikihowUserLogin::changeFormFields( $formDescriptor);
+			elseif ($title->getText() == 'CreateAccount')
+				WikihowCreateAccount::changeFormFields( $formDescriptor );
+		}
+	}
+
+	public static function renderTemplate(string $template, array $vars): string {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		//add the alt login options
+		$alt_login_vars = [
+			'alt_logins' => $loader->load('alt_logins'),
+			'aria_facebook_login' => wfMessage('aria_facebook_login')->showIfExists(),
+			'ulb-btn-fb' => wfMessage('ulb-btn-fb')->text(),
+			'ulb-btn-loading' => wfMessage('ulb-btn-loading')->text(),
+			'aria_google_login' => wfMessage('aria_google_login')->showIfExists(),
+			'ulb-btn-gplus' => wfMessage('ulb-btn-gplus')->text(),
+			'show_civic' => CivicLogin::isEnabled(),
+			'aria_civic_login' => wfMessage('aria_civic_login')->showIfExists(),
+			'ulb-btn-civic' => wfMessage('ulb-btn-civic')->text()
+		];
+
+		$vars = array_merge($vars, $alt_login_vars);
+
+		return $m->render($template, $vars);
+	}
+
 
 	private static $BAD_USER_ERRORS = array('noname','noname-mobile','userexists','userexists-mobile','createaccount-hook-aborted');
 	private static $BAD_PASSWORD_ERRORS = array('badretype','badretype-mobile','passwordtooshort','passwordtooshort-mobile','password-name-match','password-login-forbidden');
@@ -37,7 +82,6 @@ class WikihowLogin {
 				echo $linkq.' <a href="'.htmlspecialchars($link_href).'">'.$link_text.'</a>';
 			}
 		echo  '</span><span class="login_headline">' . $header_text . '</span></p>';
-		return true;
 	}
 
 	static function CustomSideBar(&$result) {
@@ -89,163 +133,6 @@ class WikihowLogin {
 	}
 }
 
-/*
- * wikiHow's custom login form
- */
-class WikihowLoginTemplate extends BaseTemplate {
-
-	function __construct() {
-		global $wgHooks;
-		parent::__construct();
-		$wgHooks['BeforeTabsLine'][] = array('WikihowLogin::topContent',$this,'login');
-	}
-
-	function execute() {
-		global $wgCookieExpiration;
-		$expirationDays = ceil( $wgCookieExpiration / ( 3600 * 24 ) );
-
-		$ctx = RequestContext::getMain();
-
-		if ($this->data['loggedin'] && !empty($ctx->getRequest()->getVal('returnto'))) {
-			$lf = new LoginForm();
-			$lf->showReturnToPage('successredirect',$ctx->getRequest()->getVal('returnto'),'',true);
-		}
-
-		$ctx->getOutput()->addModules('ext.wikihow.loginpage');
-?>
-<div id="userlogin_alt_logins">
-	<div class="headline"><?= wfMessage('log_in_via')->plain() ?></div>
-	<div id="fb_connect<?=$suffix?>"><a id="fb_login<?=$suffix?>" href="#" role="button" class="ulb_button loading" aria-label="<?=wfMessage('aria_facebook_login')->showIfExists()?>"><span class="ulb_loading_indicator"></span><span class="ulb_icon"></span><span class="ulb_label"><?=wfMessage('ulb-btn-fb')?></span><span class="ulb_status"><?=wfMessage('ulb-btn-loading')?></span></a></div>
-	<div id="gplus_connect<?=$suffix?>"><a id="gplus_login<?=$suffix?>" href="#" role="button" class="ulb_button loading"  aria-label="<?=wfMessage('aria_google_login')->showIfExists()?>"><span class="ulb_loading_indicator"></span><span class="ulb_icon"></span><span class="ulb_label"><?=wfMessage('ulb-btn-gplus')?></span><span class="ulb_status"><?=wfMessage('ulb-btn-loading')?></span></a></div>
-	<?php if (CivicLogin::isEnabled()): ?>
-		<div id="civic_connect<?=$suffix?>"><a id="civic_login<?=$suffix?>" href="#" role="button" class="ulb_button loading"  aria-label="<?= wfMessage('aria_civic_login')->showIfExists() ?>"><span class="ulb_loading_indicator"></span><span class="ulb_icon"></span><span class="ulb_label"><?= wfMessage('ulb-btn-civic')?></span><span class="ulb_status"><?= wfMessage('ulb-btn-loading')?></span></a></div>
-	<?php endif ?>
-</div>
-
-<div class="mw-ui-container">
-	<?php if ( $this->haveData( 'languages' ) ) { ?>
-		<div id="languagelinks">
-			<p><?php $this->html( 'languages' ); ?></p>
-		</div>
-	<?php } ?>
-
-	<div id="userloginForm" class="userloginform">
-		<div id="userLoginOr"><?= wfMessage('loginor')->text() ?></div>
-		<form name="userlogin" id="userlogin" class="mw-ui-vform" method="post" action="<?php $this->text( 'action' ); ?>">
-			<?php if ( $this->data['loggedin'] ) { ?>
-				<div class="warningbox">
-					<?= $this->getMsg( 'userlogin-loggedin' )->params( $this->data['loggedinuser'] )->parse() ?>
-				</div>
-			<?php } ?>
-			<section class="mw-form-header">
-				<?php $this->html( 'header' ); /* extensions such as ConfirmEdit add form HTML here */ ?>
-			</section>
-
-			<div>
-				<?php
-				$extraAttrs = array();
-				echo Html::input( 'wpName', $this->data['name'], 'text', array(
-					'class' => 'loginText input_med',
-					'id' => 'wpName1',
-					'tabindex' => '1',
-					'size' => '20',
-					// 'required' is blacklisted for now in Html.php due to browser issues.
-					// Keeping here in case that changes.
-					'required' => true,
-					// Set focus to this field if it's blank.
-					'autofocus' => !$this->data['name'],
-					'placeholder' => $this->getMsg( 'userlogin-yourname-ph' )->text()
-				) );
-				?>
-				<?php if ( in_array('username',$this->data['errorlist'])): ?>
-					<div class="mw-error" id="wpName1_error">
-						<?php $this->html('message') ?>
-					</div>
-				<?php endif; ?>
-			</div>
-
-			<div>
-				<?php
-				echo Html::input( 'wpPassword', null, 'password', array(
-					'class' => 'loginPassword input_med',
-					'id' => 'wpPassword1',
-					'tabindex' => '2',
-					'size' => '20',
-					// Set focus to this field if username is filled in.
-					'autofocus' => (bool)$this->data['name'],
-					'placeholder' => $this->getMsg( 'userlogin-yourpassword-ph' )->text()
-				) );
-				?>
-				<?php if ( in_array('password', $this->data['errorlist'] )): ?>
-					<div class="mw-error" id="wpPassword1_error">
-						<?php $this->html('message') ?>
-					</div>
-				<?php endif; ?>
-			</div>
-			<div class="remember_pwd">
-				<?php if ( $this->data['canremember'] ) { ?>
-					<input name="wpRemember" type="checkbox" value="1" id="wpRemember" tabindex="4"
-						<?php if ( $this->data['remember'] ) {
-							echo 'checked="checked"';
-						} ?>
-					>
-					<label class="mw-ui-checkbox-label">
-						<?= $this->getMsg( 'rememberme' )->numParams( $expirationDays )->escaped() ?>
-					</label>
-				<?php } ?>
-			</div>
-			<?php
-			if ( isset( $this->data['usedomain'] ) && $this->data['usedomain'] ) {
-				$select = new XmlSelect( 'wpDomain', false, $this->data['domain'] );
-				$select->setAttribute( 'tabindex', 3 );
-				foreach ( $this->data['domainnames'] as $dom ) {
-					$select->addOption( $dom );
-				}
-			?>
-				<div id="mw-user-domain-section">
-					<label for='wpDomain'><?php $this->msg( 'yourdomainname' ); ?></label>
-					<?= $select->getHTML() ?>
-				</div>
-			<?php } ?>
-
-			<?php
-			if ( $this->haveData( 'extrafields' ) ) {
-				echo $this->data['extrafields'];
-			}
-			?>
-
-			<div>
-				<?php
-				echo Html::input( 'wpLoginAttempt', $this->getMsg( 'login' )->text(), 'submit', array(
-					'id' => 'wpLoginAttempt',
-					'tabindex' => '6',
-					'class' => 'mw-ui-button mw-ui-big mw-ui-block button primary submit_button'
-				) );
-				?>
-			</div>
-			<div id="forgot_pwd">
-				<?php
-				if ( $this->data['useemail'] && $this->data['canreset'] && $this->data['resetlink'] === true ) {
-					echo ' ' . Linker::link(
-							SpecialPage::getTitleFor( 'PasswordReset' ),
-							$this->getMsg( 'forgot_pwd' )->parse(),
-							array( 'class' => 'mw-ui-flush-right' )
-						);
-				}
-				?>
-			</div>
-			<div id="userloginprompt"><?php  $this->msgWiki('loginprompt') ?></div>
-			<?php if ( $this->haveData( 'uselang' ) ) { ?><input type="hidden" name="uselang" value="<?php $this->text( 'uselang' ); ?>" /><?php } ?>
-			<?php if ( $this->haveData( 'token' ) ) { ?><input type="hidden" name="wpLoginToken" value="<?php $this->text( 'token' ); ?>" /><?php } ?>
-			<?php if ( $this->data['cansecurelogin'] ) {?><input type="hidden" name="wpForceHttps" value="<?php $this->text( 'stickhttps' ); ?>" /><?php } ?>
-		</form>
-	</div>
-</div>
-<?php
-
-	}
-}
-
 
 /*
  * wikiHow's custom sign up form
@@ -279,7 +166,7 @@ class WikihowCreateTemplate extends BaseTemplate {
 		$expirationDays = ceil( $wgCookieExpiration / ( 3600 * 24 ) );
 
 		$ctx = RequestContext::getMain();
-		$ctx->getOutput()->addModules('ext.wikihow.loginpage');
+		$ctx->getOutput()->addModuleStyles('ext.wikihow.loginpage_styles');
 
 		//is the user already logged in?
 		if ($this->data['loggedin']) {
@@ -567,5 +454,134 @@ label[for="wpName2"], label[for="wpPassword2"] {
 </div>
 <div class="captcha_fineprint"><?php $this->msgWiki( 'fancycaptcha-createaccount' ) ?></div>
 <?php
+	}
+}
+
+class WikihowUserLogin extends SpecialUserLogin {
+
+	public function isMobileCapable() {
+		return true;
+	}
+
+	protected function getPageHtml( $form ) {
+		$this->getOutput()->addModuleStyles('ext.wikihow.loginpage_styles');
+		$vars = $this->getVars($form);
+		return WikihowLogin::renderTemplate('wikihow_login.mustache', $vars);
+	}
+
+	protected function getVars(string $form) {
+		return [
+			'loginor' => wfMessage('loginor')->text(),
+			'form' => $form,
+			'alt_login_header' => wfMessage('log_in_via')->text(),
+			'mobile_tabs' => UserLoginAndCreateTemplate::getMobileTabs(false)
+		];
+	}
+
+	public static function changeFormFields( &$formDescriptor ) {
+		//no username label
+		unset($formDescriptor['username']['label-raw']);
+
+		//no password label
+		unset($formDescriptor['password']['label-message']);
+
+		//no help link
+		unset($formDescriptor['linkcontainer']);
+
+		//no login/create link (we're putting it elsewhere)
+		unset($formDescriptor['createOrLogin']);
+
+		//update message for rememberMe
+		if (isset($formDescriptor['rememberMe']))
+			$formDescriptor['rememberMe']['label-message'] = wfMessage('rememberme');
+
+		//the passwordReset is like school on Saturday...no class
+		unset($formDescriptor['passwordReset']['cssclass']);
+
+		//add our cookie message
+		$formDescriptor['userloginprompt'] = [
+			'type' => 'info',
+			'cssclass' => 'userloginprompt',
+			'default' => wfMessage('loginprompt')->text(),
+			'weight' => 250
+		];
+	}
+}
+
+class WikihowCreateAccount extends SpecialCreateAccount {
+
+	public function isMobileCapable() {
+		return true;
+	}
+
+	protected function getPageHtml( $form ) {
+		global $wgHooks;
+		$wgHooks['CustomSideBar'][] = array('WikihowLogin::CustomSideBar');
+			$this->getOutput()->getSkin()->addWidget(wfMessage('signupreasons')->text(), 'usercreate');
+
+		$this->getOutput()->addModuleStyles('ext.wikihow.loginpage_styles');
+		$vars = $this->getVars($form);
+		return WikihowLogin::renderTemplate('wikihow_create_account.mustache', $vars);
+	}
+
+	protected function getVars(string $form) {
+		return [
+			'loginor' => Misc::isMobileMode() ? '' : wfMessage('loginor')->text(),
+			'or_create_an_account' => wfMessage('or_create_an_account')->text(),
+			'form' => $form,
+			'alt_login_header' => wfMessage('sign_up_with')->text(),
+			'mobile_tabs' => UserLoginAndCreateTemplate::getMobileTabs(true)
+		];
+	}
+
+	public static function changeFormFields( &$formDescriptor ) {
+		//no placeholders
+		unset($formDescriptor['username']['placeholder-message']);
+		unset($formDescriptor['password']['placeholder-message']);
+		unset($formDescriptor['retype']['placeholder-message']);
+		unset($formDescriptor['email']['placeholder-message']);
+
+		//add real name checkbox
+		$formDescriptor['real_name_check'] = [
+			'type' => 'check',
+			'id' => 'wpUseRealNameAsDisplay',
+			'name' => 'wpUseRealNameAsDisplay',
+			'label-message' => 'user_real_name_display'
+		];
+
+		//add rememberMe checkbox
+		$formDescriptor['rememberMe'] = [
+			'type' => 'check',
+			'id' => 'wpRemember',
+			'name' => 'wpRemember',
+			'label-message' => 'rememberme'
+		];
+
+		//add final thoughts
+		$formDescriptor['captcha_fineprint'] = [
+			'type' => 'info',
+			'cssclass' => 'captcha_fineprint',
+			'default' => wfMessage('fancycaptcha-createaccount')->parse(),
+			'raw' => true,
+			'weight' => 250
+		];
+
+		//add weights
+		$formDescriptor['username']['weight'] = 1;
+		$formDescriptor['real_name_check']['weight'] = 2;
+		$formDescriptor['password']['weight'] = 3;
+		$formDescriptor['retype']['weight'] = 4;
+		$formDescriptor['email']['weight'] = 5;
+		$formDescriptor['realname']['weight'] = 6;
+		// These captcha* form fields are only available to anons; logged
+		// in users can visit this page, and we don't want to show them
+		// a Mediawiki exception if they do.
+		if ( RequestContext::getMain()->getUser()->isAnon() ) {
+			$formDescriptor['captchaId']['weight'] = 7;
+			$formDescriptor['captchaInfo']['weight'] = 8;
+			$formDescriptor['captchaWord']['weight'] = 9;
+		}
+		$formDescriptor['rememberMe']['weight'] = 10;
+
 	}
 }

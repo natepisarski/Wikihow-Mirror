@@ -7,7 +7,7 @@ function wfGetRCPatrols($rcid, $hi, $low, $curid) {
 		array('rc_id <= ' . $hi,
 			  'rc_id >= ' . $low,
 			  'rc_cur_id = ' . $curid,
-			  'rc_patrolled <> 1'),
+			  'rc_patrolled = 0'),
 		__METHOD__
 	);
 	$result = array();

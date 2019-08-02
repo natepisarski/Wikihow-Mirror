@@ -243,7 +243,7 @@ abstract class WAPMaintenance {
 					$body = "The following articles had a bad template added yesterday but exist in $system\r\n\r\n ";
 				}
 
-				$urlsByLang = $urls[$lang];
+				$urlsByLang = $urls[$lang] ?? '';
 				if (!empty($urlsByLang)) {
 					$subject = $this->getSubject($subject, $lang);
 					$body .= implode("\r\n ", $urlsByLang);
@@ -342,7 +342,8 @@ abstract class WAPMaintenance {
 		$urls = array();
 		foreach ($rows as $row) {
 			$userText = intval($row->ct_user_id) > 0 ? $row->ct_user_text : "[NOT ASSIGNED]";
-			$urls[$row->ct_lang_code][] = "{$row->ct_page_id} | " . WAPLinker::makeWikiHowUrl($row->ct_page_title) . " | $userText | {$row->extra}";
+			$extra = $row->extra ?? '';
+			$urls[$row->ct_lang_code][] = "{$row->ct_page_id} | " . WAPLinker::makeWikiHowUrl($row->ct_page_title) . " | $userText | {$extra}";
 		}
 
 		$system = $this->wapConfig->getSystemName();
@@ -371,7 +372,7 @@ abstract class WAPMaintenance {
 				$body = "The following articles should be completed in $system\r\n\r\n ";
 			}
 
-			$urlsByLang = $urls[$lang];
+			$urlsByLang = $urls[$lang] ?? [];
 			if (!empty($urlsByLang)) {
 				$subject = $this->getSubject($subject, $lang);
 				$body .= implode("\r\n ", $urlsByLang);

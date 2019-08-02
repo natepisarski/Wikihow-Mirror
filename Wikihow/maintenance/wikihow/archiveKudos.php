@@ -28,12 +28,12 @@ foreach ($res as $row) {
 		}
 		$links[] .= "[[{$t->getPrefixedText()}|" . ($num_titles+1) . "]]";
 		$nt  = Title::makeTitle(NS_USER_KUDOS, wfMessage('user_kudos_archive_url', $row->user_name, $num_titles + 1));
-print ("Moving {$ot->getFullText()} to {$nt->getFullText()}\n");
-		$ot->moveNoAuth($nt);
+		print("Moving {$ot->getFullText()} to {$nt->getFullText()}\n");
+		$ot->moveTo($nt, false);
 
 		$text = wfMessage('user_kudos_archive_title') . implode(", ", $links);
 		$a = new Article($ot);
 		$a->updateArticle($text, wfMessage('user_kudos_archive_summary'), false, false);
-print ("Setting new text $text\n");
+		print("Setting new text $text\n");
 	} catch (Exception $e) { }
 }

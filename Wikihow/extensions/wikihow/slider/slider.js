@@ -98,5 +98,50 @@
 
 	};
 
+	function loadSlider() {
+		// Slider -- not for browsers that don't render +1 buttons
+
+		var ua = navigator.userAgent.toLowerCase(); // get client browser info
+		var m = ua.match(/msie (\d+)\./);
+		var msieVer = (m ? Number.parseInt(m[1],10) : false);
+		var isiPad = ua.indexOf('ipad');
+		var isiPhone = ua.indexOf('iphone');
+
+		var oldMSIE = msieVer && msieVer <= 7;
+		if ($('#slideshowdetect').length && typeof WH.WHSlider == 'object' && !mw.cookie.get('sliderbox') && isiPhone < 0 && isiPad < 0 && !oldMSIE) {
+
+			if ($('#slideshowdetect_mainpage').length) {
+				//homepage
+				$(window).bind('scroll', function(){
+					if  (!mw.cookie.get('sliderbox')) {
+						if (isPageScrolledToFollowTable() && $('#sliderbox').css('right') == '-500px' && !$('#sliderbox').is(':animated')) {
+							WH.WHSlider.openSlider();
+						}
+						if (!isPageScrolledToFollowTable() && $('#sliderbox').css('right') == '0px' && !$('#sliderbox').is(':animated')) {
+							WH.WHSlider.closeSlider();
+						}
+					}
+				});
+			}
+			else {
+				//article page
+				$(window).bind('scroll', function(){
+					if  (!mw.cookie.get('sliderbox')) {
+						if (WH.isPageScrolledToWarningsORArticleInfo() && $('#sliderbox').css('right') == '-500px' && !$('#sliderbox').is(':animated')) {
+							WH.WHSlider.openSlider();
+						}
+						if (!WH.isPageScrolledToWarningsORArticleInfo() && $('#sliderbox').css('right') == '0px' && !$('#sliderbox').is(':animated')) {
+							WH.WHSlider.closeSlider();
+						}
+					}
+				});
+			}
+		}
+	}
+
 	WH.WHSlider.init();
+
+	mw.loader.using( 'mediawiki.cookie', function() {
+		loadSlider();
+	} );
 }($, mw));

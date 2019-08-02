@@ -2,8 +2,6 @@
 /**
  * API for MediaWiki 1.14+
  *
- * Created on Sep 2, 2008
- *
  * Copyright © 2008 Soxred93 soxred93@gmail.com,
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +22,8 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Allows user to patrol pages
  * @ingroup API
@@ -38,31 +38,40 @@ class ApiPatrol extends ApiBase {
 		$this->requireOnlyOneParameter( $params, 'rcid', 'revid' );
 
 		if ( isset( $params['rcid'] ) ) {
-			$rc = RecentChange::newFromID( $params['rcid'] );
+			$rc = RecentChange::newFromId( $params['rcid'] );
 			if ( !$rc ) {
-				$this->dieUsageMsg( array( 'nosuchrcid', $params['rcid'] ) );
+				$this->dieWithError( [ 'apierror-nosuchrcid', $params['rcid'] ] );
 			}
 		} else {
-			$rev = Revision::newFromId( $params['revid'] );
+			$store = MediaWikiServices::getInstance()->getRevisionStore();
+			$rev = $store->getRevisionById( $params['revid'] );
 			if ( !$rev ) {
-				$this->dieUsageMsg( array( 'nosuchrevid', $params['revid'] ) );
+				$this->dieWithError( [ 'apierror-nosuchrevid', $params['revid'] ] );
 			}
-			$rc = $rev->getRecentChange();
+			$rc = $store->getRecentChange( $rev );
 			if ( !$rc ) {
-				$this->dieUsage(
-					'The revision ' . $params['revid'] . " can't be patrolled as it's too old",
-					'notpatrollable'
-				);
+				$this->dieWithError( [ 'apierror-notpatrollable', $params['revid'] ] );
 			}
 		}
 
-		$retval = $rc->doMarkPatrolled( $this->getUser() );
+		$user = $this->getUser();
+		$tags = $params['tags'];
+
+		// Check if user can add tags
+		if ( !is_null( $tags ) ) {
+			$ableToTag = ChangeTags::canAddTagsAccompanyingChange( $tags, $user );
+			if ( !$ableToTag->isOK() ) {
+				$this->dieStatus( $ableToTag );
+			}
+		}
+
+		$retval = $rc->doMarkPatrolled( $user, false, $tags );
 
 		if ( $retval ) {
-			$this->dieUsageMsg( reset( $retval ) );
+			$this->dieStatus( $this->errorArrayToStatus( $retval, $user ) );
 		}
 
-		$result = array( 'rcid' => intval( $rc->getAttribute( 'rc_id' ) ) );
+		$result = [ 'rcid' => intval( $rc->getAttribute( 'rc_id' ) ) ];
 		ApiQueryBase::addTitleInfo( $result, $rc->getTitle() );
 		$this->getResult()->addValue( null, $this->getModuleName(), $result );
 	}
@@ -76,73 +85,34 @@ class ApiPatrol extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'token' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
-			'rcid' => array(
+		return [
+			'rcid' => [
 				ApiBase::PARAM_TYPE => 'integer'
-			),
-			'revid' => array(
+			],
+			'revid' => [
 				ApiBase::PARAM_TYPE => 'integer'
-			),
-		);
-	}
-
-	public function getParamDescription() {
-		return array(
-			'token' => 'Patrol token obtained from list=recentchanges',
-			'rcid' => 'Recentchanges ID to patrol',
-			'revid' => 'Revision ID to patrol',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			'' => array(
-				'rcid' => 'integer',
-				'ns' => 'namespace',
-				'title' => 'string'
-			)
-		);
-	}
-
-	public function getDescription() {
-		return 'Patrol a page or revision';
-	}
-
-	public function getPossibleErrors() {
-		return array_merge(
-			parent::getPossibleErrors(),
-			parent::getRequireOnlyOneParameterErrorMessages( array( 'rcid', 'revid' ) ),
-			array(
-				array( 'nosuchrcid', 'rcid' ),
-				array( 'nosuchrevid', 'revid' ),
-				array(
-					'code' => 'notpatrollable',
-					'info' => "The revision can't be patrolled as it's too old"
-				)
-			)
-		);
+			],
+			'tags' => [
+				ApiBase::PARAM_TYPE => 'tags',
+				ApiBase::PARAM_ISMULTI => true,
+			],
+		];
 	}
 
 	public function needsToken() {
-		return true;
-	}
-
-	public function getTokenSalt() {
 		return 'patrol';
 	}
 
-	public function getExamples() {
-		return array(
-			'api.php?action=patrol&token=123abc&rcid=230672766',
-			'api.php?action=patrol&token=123abc&revid=230672766'
-		);
+	protected function getExamplesMessages() {
+		return [
+			'action=patrol&token=123ABC&rcid=230672766'
+				=> 'apihelp-patrol-example-rcid',
+			'action=patrol&token=123ABC&revid=230672766'
+				=> 'apihelp-patrol-example-revid',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Patrol';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Patrol';
 	}
 }

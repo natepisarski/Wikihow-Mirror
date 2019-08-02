@@ -60,7 +60,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		ArticleMetaInfo::addTwitterMetaProperties();
 
 		// Add canonical link if it doesn't exist already (it will for Samples)
-		if (!$out->mCanonicalUrl) {
+		if (!$out->getCanonicalUrl()) {
 			$canonicalUrl = WikihowMobileTools::getNonMobileSite() . '/' . $this->getSkin()->getTitle()->getPrefixedURL();
 			$out->setCanonicalUrl($canonicalUrl);
 		}
@@ -92,6 +92,9 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		$tmpl = parent::prepareQuickTemplate();
 		$this->prepareWikihowTools($tmpl);
+		$this->prepareDiscoveryTools($tmpl);
+		$tmpl->set('personal_urls', $this->buildPersonalUrls());
+		$this->prepareMobileFooterLinks($tmpl);
 
 		return $tmpl;
 	}
@@ -139,37 +142,96 @@ class SkinMinervaWikihow extends SkinMinerva {
 		// We don't want anything that the MinervaSkin does here, so override
 	}
 
+	public function doEditSectionLink( Title $nt, $section, $tooltip, Language $lang ) {
+		// Disabling edit (pencil) links on mobile for now. We talked about
+		// this, and feel it's likely that our new responsive site would need
+		// deal with different mobile/desktop editing experiences too. We
+		// almost certainly will need to have 1 editing experience when 
+		// responsive design rolls out, and mobile editing won't be it. Once
+		// responsive design site rolls out (and includes desktop+mobile on www
+		// domain), we'll probably have either an edit or pencil link again, and
+		// it will go to a link that looks like our current desktop editing
+		// experience, but hopefully made slightly nicer and more responsive.
+		return '';
+	}
+
 	/*
 	 * Check if the count is greater than 0 if there is a notification before displaying in UI
+	 *
+	 * NOTE: overrides SkinMinerva::prepareUserButton()
 	 */
-	protected function prepareUserButton( BaseTemplate $tpl ) {
-		parent::prepareUserButton ( $tpl );
-		$button = $tpl->get('secondaryButton');
-		if (!empty($button)) {
+	protected function prepareUserButton( QuickTemplate $tpl ) {
+		// Set user button to empty string by default
+		$tpl->set( 'secondaryButtonData', '' );
+		$notificationsTitle = '';
+		$count = 0;
+		$countLabel = '';
+		$isZero = true;
+		$hasUnseen = false;
 
-			$user = $this->getUser();
-			$cachedNotifs = !$user->isAnon();
-			$count = MWEchoNotifUser::newFromUser( $user )->getNotificationCount( $cachedNotifs );
+		$user = $this->getUser();
+		$currentTitle = $this->getTitle();
 
-			if (is_int($count) && $count == 0) {
-				$tpl->set('secondaryButton', '');
+		// If Echo is available, the user is logged in, and they are not already on the
+		// notifications archive, show the notifications icon in the header.
+		if ( $this->useEcho() && $user->hasCookies() ) {
+			$notificationsTitle = SpecialPage::getTitleFor( 'Notifications' );
+			if ( $currentTitle->equals( $notificationsTitle ) ) {
+				// Don't show the secondary button at all
+				$notificationsTitle = null;
+			} else {
+				$notificationsMsg = $this->msg( 'mobile-frontend-user-button-tooltip' )->text();
+
+				$notifUser = $this->getEchoNotifUser( $user );
+				$count = $notifUser->getNotificationCount();
+
+				$seenAlertTime = $this->getEchoSeenTime( $user, 'alert' );
+				$seenMsgTime = $this->getEchoSeenTime( $user, 'message' );
+
+				$alertNotificationTimestamp = $notifUser->getLastUnreadAlertTime();
+				$msgNotificationTimestamp = $notifUser->getLastUnreadMessageTime();
+
+				$isZero = $count === 0;
+				$hasUnseen = $count > 0 &&
+					(
+						$seenMsgTime !== false && $msgNotificationTimestamp !== false &&
+						$seenMsgTime < $msgNotificationTimestamp->getTimestamp( TS_ISO_8601 )
+					) ||
+					(
+						$seenAlertTime !== false && $alertNotificationTimestamp !== false &&
+						$seenAlertTime < $alertNotificationTimestamp->getTimestamp( TS_ISO_8601 )
+					);
+
+				$countLabel = $this->getFormattedEchoNotificationCount( $count );
 			}
+		}
 
+		if ( $notificationsTitle ) {
+			$url = $notificationsTitle->getLocalURL(
+				[ 'returnto' => $currentTitle->getPrefixedText() ] );
+
+			# weird html structure is req'd
+			$link = Html::rawElement( 'a',
+				[
+					'href' => $url,
+					'title' => $notificationsMsg,
+					'id' => 'secondary-button',
+					'class' => 'user-button',
+				],
+				Html::element( 'span', [], $count )
+			);
+
+			if ( !$isZero ) {
+				$tpl->set('secondaryButtonData', $link);
+			}
 		}
 	}
 
 	/*
-	 * Remove the watchlist from the personal_urls items
+	 * Override method so that we don't build the menu in Javascript too
 	 */
-	protected function preparePersonalTools( QuickTemplate $tpl ) {
-		parent::preparePersonalTools( $tpl );
-		$items = $tpl->get('personal_urls');
-		unset($items['watchlist']);
-		unset($items['uploads']);
-		unset($items['settings']);
-		unset($items['preferences']);
-		Hooks::run( 'WikihowMobileSkinAfterPreparePersonalTools', array( &$items ) );
-		$tpl->set('personal_urls', $items);
+	protected function getMenuData() {
+		return [];
 	}
 
 	/*
@@ -178,28 +240,38 @@ class SkinMinervaWikihow extends SkinMinerva {
 	protected function prepareDiscoveryTools( QuickTemplate $tpl ) {
 		global $wgLanguageCode;
 
-		parent::prepareDiscoveryTools( $tpl );
-		$items = $tpl->get('discovery_urls');
+		$items = [];
+
+		$items['home'] = array(
+			'text' => wfMessage( 'mobile-frontend-home-button' )->escaped(),
+			'href' => Title::newMainPage()->getLocalUrl(),
+			'class' => 'icon-home',
+		);
+
+		$items['random'] = array(
+			'text' => wfMessage( 'mobile-frontend-random-button' )->escaped(),
+			'href' => SpecialPage::getTitleFor( 'Randomizer' )->getLocalUrl(),
+			'class' => 'icon-random',
+			'id' => 'randomButton',
+		);
+
+		$items['categories'] = array(
+			'text' => wfMessage( 'menu-categories' )->escaped(),
+			'href' => SpecialPage::getTitleFor( 'CategoryListing' )->getFullUrl(),
+			'class' => 'icon-categories',
+			'id' => 'icon-categories',
+		);
 
 		$user = $this->getUser();
-		if ($user) {
-
-			$items['categories'] = array(
-				'text' => wfMessage( 'menu-categories' )->escaped(),
-				'href' => SpecialPage::getTitleFor( 'CategoryListing' )->getFullUrl(),
-				'class' => 'icon-categories',
-				'id' => 'icon-categories',
+		$isAmp = GoogleAmp::isAmpMode( $this->getOutput() );
+		if ( class_exists('EchoEvent') && $user->hasCookies() && !$isAmp ) {
+			//add notifications
+			$items['notifications'] = array(
+				'text' => wfMessage( 'menu-notifications' )->escaped(),
+				'href' => SpecialPage::getTitleFor( 'Notifications' )->getFullUrl(),
+				'class' => 'icon-notification',
+				'id' => 'icon-notification',
 			);
-
-			if ( class_exists('EchoEvent') && $user->hasCookies() ) {
-				//add notifications
-				$items['notifications'] = array(
-					'text' => wfMessage( 'menu-notifications' )->escaped(),
-					'href' => SpecialPage::getTitleFor( 'Notifications' )->getFullUrl(),
-					'class' => 'icon-notification',
-					'id' => 'icon-notification',
-				);
-			}
 		}
 
 		if (WikihowNamespacePages::showMobileAboutWikihow()) {
@@ -223,7 +295,11 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 			$isMainPage = $title->getText() == wfMessage('mainpage')->text();
 			if ($title->inNamespace(NS_MAIN) && !$isMainPage) {
-				if (class_exists('TipsAndWarnings') && TipsAndWarnings::isActivePage() && TipsAndWarnings::isValidTitle($title)) {
+				if (class_exists('TipsAndWarnings')
+					&& TipsAndWarnings::isActivePage()
+					&& TipsAndWarnings::isValidTitle($title)
+					&& !$isAmp
+				) {
 					$items['addtip'] = array(
 						'text' => wfMessage( 'mobile-wikihow-addtip-link' )->escaped(),
 						'href' => '#',
@@ -373,10 +449,12 @@ class SkinMinervaWikihow extends SkinMinerva {
 		}
 
 		$title = $this->getTitle();
-		if ( $title == "Special:UserLogin" ) {
+		$createAccountPage = SpecialPage::getTitleFor( 'CreateAccount' );
+		$loginPage = SpecialPage::getTitleFor( 'UserLogin' );
+		if ( $title->equals($createAccountPage) || $title->equals($loginPage) ) {
 			$query = $this->getSkin()->getRequest()->getQueryValues();
-			$useformat = $query['useformat'];
-			if ( $query['useformat'] )  {
+			$useformat = $query['useformat'] ?? '';
+			if ( $useformat )  {
 				foreach ( $items as $itemKey => $itemVal ) {
 					foreach ( $itemVal as $key => $val ) {
 						if ( $key == 'href' ) {
@@ -390,22 +468,48 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		$tpl->set('historyLink', null);
 		unset($items['nearby']);
-		$items['random']['href'] = SpecialPage::getTitleFor( 'Randomizer' )->getLocalUrl();
 		Hooks::run( 'WikihowMobileSkinAfterPrepareDiscoveryTools', array( &$items ) );
 		$tpl->set('discovery_urls', $items);
 	}
 
-	protected function getLogInOutLink() {
-		$loginLogoutLink = parent::getLogInOutLink();
+	/*
+	 * Build the log in / log out part of the menu at the bottom of hamburger menu
+	 */
+	protected function buildPersonalUrls() {
+		$loginLogoutItem = $this->getLogInOutLink();
+		$personalUrls = ['auth' => $loginLogoutItem];
+		Hooks::run( 'WikihowMobileSkinAfterPreparePersonalTools', [ &$personalUrls ] );
+		return $personalUrls;
+	}
 
-		if ( array_key_exists( 'href', $loginLogoutLink ) ) {
-			$loginLogoutLink['href'] = $loginLogoutLink['href'] . '&useformat=mobile';
+	protected function getLogInOutLink() {
+		// Taken and simplified from parent::buildPersonalUrls()
+		$page = $this->getRequest()->getVal( 'returnto', $this->getTitle() );
+		$a = ($page ? ['returnto' => $page] : []);
+		$query = wfArrayToCgi( $a );
+
+		if ( $this->getUser()->isLoggedIn() ) {
+			$url = SpecialPage::getTitleFor( 'Userlogout' )->getFullURL( $query );
+			$text = wfMessage( 'mobile-frontend-main-menu-logout' )->escaped();
+		} else {
+			$url = SpecialPage::getTitleFor( 'CreateAccount' )->getLocalURL( $query );
+			// Link to sign up page if there's no history of previous sign in
+			if ($this->getRequest()->getCookie('UserName') == null) {
+				$url .= '&type=signup';
+			}
+			$text = wfMessage( 'mobile-frontend-main-menu-login' )->escaped();
 		}
+
+		$loginLogoutLink = [
+			'text' => $text,
+			'href' => $url,
+			'class' => 'icon-loginout',
+		];
 
 		// Below is mainly taken from SkinMinervaBeta::getLoginOutLink
 		$user = $this->getUser();
 		if ( $user->isLoggedIn() ) {
-			$loginLogoutLink['class'] = 'icon-secondary icon-secondary-logout';
+			$loginLogoutLink['class'] = 'icon-secondary icon-secondary-logout mw-ui-icon mw-ui-icon-element secondary-action truncated-text';
 			$name = $user->getName();
 			$avatarUrl = Avatar::getAvatarURL($name);
 			$style = "background-image: url($avatarUrl);";
@@ -414,9 +518,9 @@ class SkinMinervaWikihow extends SkinMinerva {
 					array(
 						'text' => $name,
 						// JRS 06/17/14 commenting out beta behavior and linking to normal user page
-						/*	'href' => SpecialPage::getTitleFor( 'UserProfile', $name )->getLocalUrl(),*/
+						/* 'href' => SpecialPage::getTitleFor( 'UserProfile', $name )->getLocalUrl(),*/
 						'href' =>  $user->getUserPage()->getLocalURL(),
-						'class' => 'icon-profile truncated-text',
+						'class' => 'icon-profile truncated-text mw-ui-icon primary-action',
 						'style' => $style
 					),
 					$loginLogoutLink
@@ -484,8 +588,8 @@ class SkinMinervaWikihow extends SkinMinerva {
 		}
 
 	}
+
 	protected function prepareMobileFooterLinks( $tpl ) {
-		parent::prepareMobileFooterLinks( $tpl );
 		$title = $this->getTitle();
 
 		$editHtml = '<a href="'.$title->getEditURL().'">'.wfMessage('mobile-frontend-footer-edit-wh')->text().'</a>';
@@ -495,12 +599,19 @@ class SkinMinervaWikihow extends SkinMinerva {
 		$randomLink = '<a href="/Special:Randomizer" >' . wfMessage('randompage')->text() . '</a>';
 		$tpl->set('random', $randomLink);
 		$req = $this->getRequest();
-		$url = $this->mobileContext->getDesktopUrl( wfExpandUrl(
-			$req->appendQuery( 'mobileaction=toggle_view_desktop' )
+		$url = $this->getDesktopUrl( wfExpandUrl(
+			$this->getTitle()->getLocalURL( $req->appendQueryValue( 'mobileaction', 'toggle_view_desktop' ) )
 		) );
 		$fullSiteText = wfMessage( 'mobile-frontend-view-desktop-wh' )->escaped();
 		$switcherHtml = self::getMobileMenuFullSiteLink( $fullSiteText, $url );
 		$tpl->set( 'mobile-switcher', $switcherHtml );
+	}
+
+	private function getDesktopUrl( $mobileUrl ) {
+		$parts = wfParseUrl($mobileUrl);
+		$baseSite = WikihowMobileTools::getNonMobileSite();
+		$parts['host'] = preg_replace('@^https?:\/\/@', '', $baseSite);
+		return wfAssembleUrl($parts);
 	}
 
 	// annoying but for gdpr we make the section twice and use the one that is appropriate
@@ -535,12 +646,13 @@ class SkinMinervaWikihow extends SkinMinerva {
 		parent::prepareMenuButton( $tpl );
 		//remove the actual link so we don't have people go to the menu as a page
 		//JAVASCRIPT OR NOTHING!
-		$button = Html::element( 'a', array(
+		$button = Html::element( 'a', [
 			'href' => '#',
 			'title' => wfMessage( 'mobile-frontend-main-menu-button-tooltip' ),
-			'id'=> 'mw-mf-main-menu-button',
-			) );
-		$tpl->set('menuButton',$button);
+			'id' => 'mw-mf-main-menu-button',
+			'class' => 'mainmenu element main-menu-button',
+		] );
+		$tpl->set('menuButton', $button);
 	}
 
 	public function getDefaultModules() {
@@ -548,16 +660,6 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		unset($modules['toggling']);
 		//unset($modules['newusers']);
-
-		// This RL module 'mobile.site' is contains no content, but
-		// is requested by our site as a separate HTTP request. Turning
-		// it off for now.
-		$index = array_search('mobile.site', $modules['mobile']);
-		if ($index !== false) {
-			// array_splice() rather than unset() is used so that indices
-			// are renumbered
-			array_splice($modules['mobile'], $index, 1);
-		}
 
 		return $modules;
 	}

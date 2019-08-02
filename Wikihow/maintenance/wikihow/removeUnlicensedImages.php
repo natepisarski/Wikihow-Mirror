@@ -50,7 +50,7 @@ class RemoveUnlicensedImages extends Maintenance {
 
 			// check if copyrighted
 			$result = self::getCopyrightMatches($url);
-			if ($result['error']) {
+			if ($result['error'] ?? '') {
 				decho('error', $result['message'], false);
 				continue;
 			}
@@ -97,7 +97,7 @@ class RemoveUnlicensedImages extends Maintenance {
 
 			// check if copyrighted
 			$result = self::getCopyrightMatches($url);
-			if ($result['error']) {
+			if ($result['error'] ?? '') {
 				decho('error', $result['message'], false);
 				UCIPatrol::markCopyright($pageId, 1, 0, 1);
 				continue;

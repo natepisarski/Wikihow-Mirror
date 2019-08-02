@@ -23,10 +23,11 @@
 
 require_once __DIR__ . '/Maintenance.php';
 
+use Wikimedia\Rdbms\ResultWrapper;
+use Wikimedia\Rdbms\IDatabase;
+
 /**
  * Maintenance script to convert user options to the new `user_properties` table.
- *
- * Do each user sequentially, since accounts can't be deleted
  *
  * @ingroup Maintenance
  */
@@ -36,27 +37,34 @@ class ConvertUserOptions extends Maintenance {
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Convert user options from old to new system";
+		$this->addDescription( 'Convert user options from old to new system' );
+		$this->setBatchSize( 50 );
 	}
 
 	public function execute() {
 		$this->output( "...batch conversion of user_options: " );
 		$id = 0;
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = $this->getDB( DB_MASTER );
 
 		if ( !$dbw->fieldExists( 'user', 'user_options', __METHOD__ ) ) {
 			$this->output( "nothing to migrate. " );
+
 			return;
 		}
 		while ( $id !== null ) {
-			$idCond = 'user_id > ' . $dbw->addQuotes( $id );
-			$optCond = "user_options != " . $dbw->addQuotes( '' ); // For compatibility
-			$res = $dbw->select( 'user', '*',
-				array( $optCond, $idCond ), __METHOD__,
-				array( 'LIMIT' => 500, 'FOR UPDATE' )
+			$res = $dbw->select( 'user',
+				[ 'user_id', 'user_options' ],
+				[
+					'user_id > ' . $dbw->addQuotes( $id ),
+					"user_options != " . $dbw->addQuotes( '' ),
+				],
+				__METHOD__,
+				[
+					'ORDER BY' => 'user_id',
+					'LIMIT' => $this->getBatchSize(),
+				]
 			);
 			$id = $this->convertOptionBatch( $res, $dbw );
-			$dbw->commit( __METHOD__ );
 
 			wfWaitForSlaves();
 
@@ -68,26 +76,43 @@ class ConvertUserOptions extends Maintenance {
 	}
 
 	/**
-	 * @param $res
-	 * @param $dbw DatabaseBase
+	 * @param ResultWrapper $res
+	 * @param IDatabase $dbw
 	 * @return null|int
 	 */
 	function convertOptionBatch( $res, $dbw ) {
 		$id = null;
 		foreach ( $res as $row ) {
 			$this->mConversionCount++;
+			$insertRows = [];
+			foreach ( explode( "\n", $row->user_options ) as $s ) {
+				$m = [];
+				if ( !preg_match( "/^(.[^=]*)=(.*)$/", $s, $m ) ) {
+					continue;
+				}
 
-			$u = User::newFromRow( $row );
+				// MW < 1.16 would save even default values. Filter them out
+				// here (as in User) to avoid adding many unnecessary rows.
+				$defaultOption = User::getDefaultOption( $m[1] );
+				if ( is_null( $defaultOption ) || $m[2] != $defaultOption ) {
+					$insertRows[] = [
+						'up_user' => $row->user_id,
+						'up_property' => $m[1],
+						'up_value' => $m[2],
+					];
+				}
+			}
 
-			$u->saveSettings();
+			if ( count( $insertRows ) ) {
+				$dbw->insert( 'user_properties', $insertRows, __METHOD__, [ 'IGNORE' ] );
+			}
 
-			// Do this here as saveSettings() doesn't set user_options to '' anymore!
-			/*$dbw->update(
+			$dbw->update(
 				'user',
-				array( 'user_options' => '' ),
-				array( 'user_id' => $row->user_id ),
+				[ 'user_options' => '' ],
+				[ 'user_id' => $row->user_id ],
 				__METHOD__
-			);*/
+			);
 			$id = $row->user_id;
 		}
 
@@ -95,5 +120,5 @@ class ConvertUserOptions extends Maintenance {
 	}
 }
 
-$maintClass = "ConvertUserOptions";
+$maintClass = ConvertUserOptions::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

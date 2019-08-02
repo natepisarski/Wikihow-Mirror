@@ -1,4 +1,4 @@
-.aritem {
+.aritem, button.aritem {
 	min-width: 100px;
 	background-repeat: no-repeat;
 	background-size: 30px;

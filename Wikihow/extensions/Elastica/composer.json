@@ -1,0 +1,94 @@
+{
+	"name": "mediawiki/elastica",
+	"description": "Provides the elastica library and a connection layer as a MediaWiki extension",
+	"homepage": "https://www.mediawiki.org/wiki/Extension:Elastica",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "Nik Everett"
+		},
+		{
+			"name": "Chad Horohoe"
+		}
+	],
+	"repositories": [
+		{
+			"type": "package",
+			"package": {
+				"name": "ruflin/elastica",
+				"description": "upstream requires PHP 7.0 hhvm exposes PHP 5 (it's fine to drop this repo once hhvm is completely replaced with php)",
+				"version": "6.0.2",
+				"dist": {
+					"url": "https://github.com/ruflin/Elastica/archive/6.0.2.zip",
+					"type": "zip"
+				},
+				"source": {
+					"url": "https://github.com/ruflin/Elastica.git",
+					"type": "git",
+					"reference": "tags/6.0.2"
+				},
+				"autoload": {
+					"psr-4": {
+						"Elastica\\": "lib/Elastica/"
+					}
+				},
+				"require": {
+					"elasticsearch/elasticsearch": "^6.0"
+				}
+			}
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "elasticsearch/elasticsearch",
+				"description": "Forked version on my own github.com/nomoa repo because upstream uses declare(strict_types=1), PHP 7.0 and ext-json >= 1.3.7 but hhvm exposes PHP 5 & ext-json 1.2.1 (it's fine to drop this repo once hhvm is completely replaced with php)",
+				"version": "v6.0.1",
+				"version_normalized": "6.0.1.0",
+				"dist": {
+					"type": "zip",
+					"url": "https://codeload.github.com/nomoa/elasticsearch-php/zip/bc9e8674d7df3b9d4d1fb1241b299a82ec63911a",
+					"reference": "bc9e8674d7df3b9d4d1fb1241b299a82ec63911a"
+				},
+				"source": {
+					"url": "https://github.com/nomoa/elasticsearch-php.git",
+					"type": "git",
+					"reference": "bc9e8674d7df3b9d4d1fb1241b299a82ec63911a"
+				},
+				"require": {
+					"guzzlehttp/ringphp": "~1.0",
+					"psr/log": "~1.0"
+				},
+				"autoload": {
+					"psr-4": {
+						"Elasticsearch\\": "src/Elasticsearch/"
+					}
+				}
+			}
+		}
+	],
+	"require": {
+		"ruflin/elastica": "6.0.2",
+		"ext-curl": "*"
+	},
+	"require-dev": {
+		"jakub-onderka/php-parallel-lint": "1.0.0",
+		"jakub-onderka/php-console-highlighter": "0.3.2",
+		"mediawiki/mediawiki-codesniffer": "24.0.0",
+		"mediawiki/minus-x": "0.3.1",
+		"mediawiki/mediawiki-phan-config": "0.4.0"
+	},
+	"scripts": {
+		"fix": [
+			"phpcbf",
+			"minus-x fix ."
+		],
+		"test": [
+			"parallel-lint . --exclude vendor --exclude node_modules",
+			"phpcs -p -s",
+			"minus-x check ."
+		]
+	},
+	"extra": {
+		"phan-taint-check-plugin": "1.5.0"
+	}
+}

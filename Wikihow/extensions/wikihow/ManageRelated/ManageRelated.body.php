@@ -45,7 +45,7 @@ class ManageRelated extends UnlistedSpecialPage {
 		if ($req->wasPosted()) {
 			// protect from users who can't edit
 			if ( ! $titleObj->userCan('edit') ) {
-				$out->readOnlyPage($origText, true);
+				$out->addHTML('Error: unable to edit target page');
 				return;
 			}
 

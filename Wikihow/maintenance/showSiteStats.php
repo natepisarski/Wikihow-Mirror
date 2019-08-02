@@ -26,10 +26,10 @@
  * @author Brion Vibber
  * @author Rob Church <robchur@gmail.com>
  *
- * @license GNU General Public License 2.0 or later
+ * @license GPL-2.0-or-later
  */
 
-require_once( __DIR__ . '/Maintenance.php' );
+require_once __DIR__ . '/Maintenance.php';
 
 /**
  * Maintenance script to show the cached statistics.
@@ -39,35 +39,40 @@ require_once( __DIR__ . '/Maintenance.php' );
 class ShowSiteStats extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Show the cached statistics";
+		$this->addDescription( 'Show the cached statistics' );
 	}
+
 	public function execute() {
-		$fields = array(
-			'ss_total_views' => 'Total views',
+		$fields = [
 			'ss_total_edits' => 'Total edits',
 			'ss_good_articles' => 'Number of articles',
 			'ss_total_pages' => 'Total pages',
 			'ss_users' => 'Number of users',
+			'ss_active_users' => 'Active users',
 			'ss_images' => 'Number of images',
-		);
+		];
 
-		// Get cached stats from slave database
-		$dbr = wfGetDB( DB_SLAVE );
+		// Get cached stats from a replica DB
+		$dbr = $this->getDB( DB_REPLICA );
 		$stats = $dbr->selectRow( 'site_stats', '*', '', __METHOD__ );
 
 		// Get maximum size for each column
 		$max_length_value = $max_length_desc = 0;
 		foreach ( $fields as $field => $desc ) {
 			$max_length_value = max( $max_length_value, strlen( $stats->$field ) );
-			$max_length_desc  = max( $max_length_desc,  strlen( $desc ) ) ;
+			$max_length_desc = max( $max_length_desc, strlen( $desc ) );
 		}
 
 		// Show them
 		foreach ( $fields as $field => $desc ) {
-			$this->output( sprintf( "%-{$max_length_desc}s: %{$max_length_value}d\n", $desc, $stats->$field ) );
+			$this->output( sprintf(
+				"%-{$max_length_desc}s: %{$max_length_value}d\n",
+				$desc,
+				$stats->$field
+			) );
 		}
 	}
 }
 
-$maintClass = "ShowSiteStats";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+$maintClass = ShowSiteStats::class;
+require_once RUN_MAINTENANCE_IF_MAIN;

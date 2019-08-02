@@ -2,25 +2,13 @@
 
 if ( ! defined( 'MEDIAWIKI' ) ) die();
 
-/**#@+
- *
- * @package MediaWiki
- * @subpackage Extensions
- *
- * @link http://www.wikihow.com/WikiHow:AutotimestampTemplate-Extension Documentation
- *
- *
- * @author Travis Derouin <travis@wikihow.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
- */
-
-$wgHooks['PageContentSave'][] = array("wfAutotimestamp");
-
 $wgExtensionCredits['other'][] = array(
 	'name' => 'AutotimestampTemplate',
 	'author' => 'Travis Derouin',
 	'description' => 'Provides a way of automatically adding a timestamp to a template.',
 );
+
+$wgHooks['PageContentSave'][] = 'wfAutotimestamp';
 
 function wfAutotimestamp(&$wikiPage, &$user, &$content, $summary, $minor, $watch, $sectionanchor, $flags) {
 	$text = ContentHandler::getContentText( $content );

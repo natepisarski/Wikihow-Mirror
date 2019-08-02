@@ -34,7 +34,7 @@ class MobileSearchUI {
 
 		$classes = ['hs_new_style'];
 		if ($isSearchPage) $classes[] = 'hs_active';
-		if ($data['secondaryButton']) $classes[] = 'hs_notif';
+		if ($data['secondaryButtonData']) $classes[] = 'hs_notif';
 
 		$vars = [
 			'classes' => implode($classes, ' '),

@@ -130,7 +130,7 @@ class WikihowHomepage extends Article {
 		$sk->addWidget( $html );
 
 		$wgOut->setRobotPolicy('index,follow', 'Main Page');
-		$wgOut->setSquidMaxage(3600);
+		$wgOut->setCdnMaxage(3600);
 	}
 
 	public static function removeGrayContainerCallback(&$showGrayContainer) {

@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.SpellcheckerAppWidget = (function($) {
+WH.dashboard.SpellcheckerAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.SpellcheckerAppWidget = (function($) {
 	WH.dashboard.registerDataListener('SpellcheckerAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

@@ -12,8 +12,7 @@ class Vanilla extends UnlistedSpecialPage {
 	public static function sync($user) {
 		global $wgVanillaDB;
 		$user->load();
-		$db = DatabaseBase::factory('mysql');
-		$db->open($wgVanillaDB['host'], $wgVanillaDB['user'], $wgVanillaDB['password'], $wgVanillaDB['dbname']);
+		$db = DatabaseBase::factory( 'mysql', $wgVanillaDB );
 
 		$vanillaID = $db->selectField('GDN_UserAuthentication',
 			'UserID',

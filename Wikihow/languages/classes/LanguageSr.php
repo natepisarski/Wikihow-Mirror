@@ -21,8 +21,6 @@
  * @ingroup Language
  */
 
-require_once __DIR__ . '/../LanguageConverter.php';
-
 /**
  * There are two levels of conversion for Serbian: the script level
  * (Cyrillics <-> Latin), and the variant level (ekavian
@@ -33,7 +31,7 @@ require_once __DIR__ . '/../LanguageConverter.php';
  * @ingroup Language
  */
 class SrConverter extends LanguageConverter {
-	public $mToLatin = array(
+	public $mToLatin = [
 		'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd',
 		'ђ' => 'đ', 'е' => 'e', 'ж' => 'ž', 'з' => 'z', 'и' => 'i',
 		'ј' => 'j', 'к' => 'k', 'л' => 'l', 'љ' => 'lj', 'м' => 'm',
@@ -47,9 +45,9 @@ class SrConverter extends LanguageConverter {
 		'Н' => 'N', 'Њ' => 'Nj', 'О' => 'O', 'П' => 'P', 'Р' => 'R',
 		'С' => 'S', 'Т' => 'T', 'Ћ' => 'Ć', 'У' => 'U', 'Ф' => 'F',
 		'Х' => 'H', 'Ц' => 'C', 'Ч' => 'Č', 'Џ' => 'Dž', 'Ш' => 'Š',
-	);
+	];
 
-	public $mToCyrillics = array(
+	public $mToCyrillics = [
 		'a' => 'а', 'b' => 'б', 'c' => 'ц', 'č' => 'ч', 'ć' => 'ћ',
 		'd' => 'д', 'dž' => 'џ', 'đ' => 'ђ', 'e' => 'е', 'f' => 'ф',
 		'g' => 'г', 'h' => 'х', 'i' => 'и', 'j' => 'ј', 'k' => 'к',
@@ -67,39 +65,14 @@ class SrConverter extends LanguageConverter {
 		'DŽ' => 'Џ', 'd!ž' => 'дж', 'D!ž' => 'Дж', 'D!Ž' => 'ДЖ',
 		'Lj' => 'Љ', 'l!j' => 'лј', 'L!j' => 'Лј', 'L!J' => 'ЛЈ',
 		'Nj' => 'Њ', 'n!j' => 'нј', 'N!j' => 'Нј', 'N!J' => 'НЈ'
-	);
+	];
 
 	function loadDefaultTables() {
-		$this->mTables = array(
+		$this->mTables = [
 			'sr-ec' => new ReplacementArray( $this->mToCyrillics ),
 			'sr-el' => new ReplacementArray( $this->mToLatin ),
 			'sr' => new ReplacementArray()
-		);
-	}
-
-	/**
-	 * rules should be defined as -{ekavian | iyekavian-} -or-
-	 * -{code:text | code:text | ...}-
-	 *
-	 * update: delete all rule parsing because it's not used
-	 * currently, and just produces a couple of bugs
-	 *
-	 * @param $rule string
-	 * @param $flags array
-	 * @return array
-	 */
-	function parseManualRule( $rule, $flags = array() ) {
-		if ( in_array( 'T', $flags ) ) {
-			return parent::parseManualRule( $rule, $flags );
-		}
-
-		$carray = array();
-		// otherwise ignore all formatting
-		foreach ( $this->mVariants as $v ) {
-			$carray[$v] = $rule;
-		}
-
-		return $carray;
+		];
 	}
 
 	/**
@@ -108,9 +81,9 @@ class SrConverter extends LanguageConverter {
 	 *     names as they were
 	 *   - do not try to find variants for usernames
 	 *
-	 * @param $link string
-	 * @param $nt Title
-	 * @param $ignoreOtherCond bool
+	 * @param string &$link
+	 * @param Title &$nt
+	 * @param bool $ignoreOtherCond
 	 */
 	function findVariantLink( &$link, &$nt, $ignoreOtherCond = false ) {
 		// check for user namespace
@@ -129,31 +102,11 @@ class SrConverter extends LanguageConverter {
 	}
 
 	/**
-	 * An ugly function wrapper for parsing Image titles
-	 * (to prevent image name conversion)
-	 *
-	 * @param $text string
-	 * @param $toVariant bool
-	 *
-	 * @return string
-	 */
-	function autoConvert( $text, $toVariant = false ) {
-		global $wgTitle;
-		if ( is_object( $wgTitle ) && $wgTitle->getNamespace() == NS_FILE ) {
-			$imagename = $wgTitle->getNsText();
-			if ( preg_match( "/^$imagename:/", $text ) ) {
-				return $text;
-			}
-		}
-		return parent::autoConvert( $text, $toVariant );
-	}
-
-	/**
 	 *  It translates text into variant, specials:
 	 *    - ommiting roman numbers
 	 *
-	 * @param $text string
-	 * @param $toVariant string
+	 * @param string $text
+	 * @param string $toVariant
 	 *
 	 * @throws MWException
 	 * @return string
@@ -162,7 +115,8 @@ class SrConverter extends LanguageConverter {
 		$breaks = '[^\w\x80-\xff]';
 
 		// regexp for roman numbers
-		$roman = 'M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})';
+		// Lookahead assertion ensures $roman doesn't match the empty string
+		$roman = '(?=[MDCLXVI])M{0,4}(C[DM]|D?C{0,3})(X[LC]|L?X{0,3})(I[VX]|V?I{0,3})';
 
 		$reg = '/^' . $roman . '$|^' . $roman . $breaks . '|' . $breaks
 			. $roman . '$|' . $breaks . $roman . $breaks . '/';
@@ -178,7 +132,7 @@ class SrConverter extends LanguageConverter {
 		$ret = $this->mTables[$toVariant]->replace( $m[0] );
 		$mstart = $m[1] + strlen( $m[0] );
 		foreach ( $matches as $m ) {
-			$ret .= substr( $text, $mstart, $m[1] -$mstart );
+			$ret .= substr( $text, $mstart, $m[1] - $mstart );
 			$ret .= parent::translate( $m[0], $toVariant );
 			$mstart = $m[1] + strlen( $m[0] );
 		}
@@ -190,9 +144,9 @@ class SrConverter extends LanguageConverter {
 	 * Guess if a text is written in Cyrillic or Latin.
 	 * Overrides LanguageConverter::guessVariant()
 	 *
-	 * @param string  $text The text to be checked
-	 * @param string  $variant Language code of the variant to be checked for
-	 * @return bool  true if $text appears to be written in $variant
+	 * @param string $text The text to be checked
+	 * @param string $variant Language code of the variant to be checked for
+	 * @return bool True if $text appears to be written in $variant
 	 *
 	 * @author Nikola Smolenski <smolensk@eunet.rs>
 	 * @since 1.19
@@ -208,7 +162,6 @@ class SrConverter extends LanguageConverter {
 		} else {
 			return false;
 		}
-
 	}
 
 }
@@ -220,22 +173,19 @@ class SrConverter extends LanguageConverter {
  */
 class LanguageSr extends Language {
 	function __construct() {
-		global $wgHooks;
-
 		parent::__construct();
 
-		$variants = array( 'sr', 'sr-ec', 'sr-el' );
-		$variantfallbacks = array(
+		$variants = [ 'sr', 'sr-ec', 'sr-el' ];
+		$variantfallbacks = [
 			'sr' => 'sr-ec',
 			'sr-ec' => 'sr',
 			'sr-el' => 'sr',
-		);
+		];
 
-		$flags = array(
+		$flags = [
 			'S' => 'S', 'писмо' => 'S', 'pismo' => 'S',
 			'W' => 'W', 'реч' => 'W', 'reč' => 'W', 'ријеч' => 'W', 'riječ' => 'W'
-		);
+		];
 		$this->mConverter = new SrConverter( $this, 'sr', $variants, $variantfallbacks, $flags );
-		$wgHooks['PageContentSaveComplete'][] = $this->mConverter;
 	}
 }

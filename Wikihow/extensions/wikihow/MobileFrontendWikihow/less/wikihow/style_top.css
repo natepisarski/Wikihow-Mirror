@@ -168,7 +168,7 @@ a, a:active, a:visited {
 .header {
 	background-color: #93B874;
 	position: fixed;
-	border-bottom: 0;
+	border: 0;
 	z-index: 10;
 	height: 40px;
 	top: 0;
@@ -226,6 +226,7 @@ a, a:active, a:visited {
 
 #hs, #hs_query {
 	width: 72px;
+	position: static;
 }
 
 #hs + a {
@@ -417,11 +418,17 @@ sup {
 
 #content_wrapper {
 	padding-top: 40px;
+	background-color: #e9e7e3;
 }
 
 .pre-content {
 	background-color: #FFF;
 	border-bottom: none;
+	margin: 0;
+}
+
+.section-heading .indicator {
+	display: none;
 }
 
 #section_0 {
@@ -665,6 +672,7 @@ h4.steps_text::before {
 }
 #ingredients .mw-headline, #thingsyoullneed .mw-headline {
 	display: inline-block;
+	width: auto;
 }
 
 .content ul {
@@ -696,9 +704,13 @@ h4.steps_text::before {
 	margin-right: 4px;
 }
 
-#page-actions{
-	float:right;
+#page-actions:not(.page-actions-menu__list) {
+	font-size: inherit;
+	float: right;
+	border: none;
 	padding: 10px 0 0 0;
+	margin: 0;
+	width: auto;
 }
 
 #page-actions li {
@@ -784,6 +796,7 @@ h4.steps_text::before {
 /*BUTTONS*/
 .content .button, .content button, .panel .button, .panel button, .buttonBar .button, .buttonBar button, .buttonBar input[type="submit"], .mw-ui-button, .content input[type="submit"] {
 	border-radius: 4px;
+	text-align: center;
 	color: #FFF;
 	padding: 8px 11px;
 	font-size: 1.1em;
@@ -1131,7 +1144,10 @@ body.action-view #fa_container p {
 }
 
 #mw-mf-page-left {
-	position: fixed;
+	position: fixed !important;
+}
+body.navigation-enabled #mw-mf-page-left {
+	display: block;
 }
 a.related-title,a.related-title:active, a.related-title:visited {
 	color: #FFF;
@@ -1457,4 +1473,16 @@ a.related-title,a.related-title:active, a.related-title:visited {
 	#gdpr {
 		padding-bottom: 15px;
 	}
+}
+
+.skin-minervawh .content .section-heading {
+	margin-bottom: 0;
+}
+
+.content ol {
+	list-style: decimal inside;
+}
+
+.content .in-block.steps_text {
+	display: block;
 }

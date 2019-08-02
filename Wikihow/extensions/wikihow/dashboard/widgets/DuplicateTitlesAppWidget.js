@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.DuplToolAppWidget = (function($) {
+WH.dashboard.DuplToolAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.DuplToolAppWidget = (function($) {
 	WH.dashboard.registerDataListener('DuplicateTitlesAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

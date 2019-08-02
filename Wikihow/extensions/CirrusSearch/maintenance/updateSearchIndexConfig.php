@@ -1,7 +1,6 @@
 <?php
 
-namespace CirrusSearch;
-use \Maintenance;
+namespace CirrusSearch\Maintenance;
 
 /**
  * Update the search configuration on the search backend.
@@ -23,10 +22,11 @@ use \Maintenance;
  */
 
 $IP = getenv( 'MW_INSTALL_PATH' );
-if( $IP === false ) {
+if ( $IP === false ) {
 	$IP = __DIR__ . '/../../..';
 }
-require_once( "$IP/maintenance/Maintenance.php" );
+require_once "$IP/maintenance/Maintenance.php";
+require_once __DIR__ . '/../includes/Maintenance/Maintenance.php';
 
 /**
  * Update the elasticsearch configuration for this index.
@@ -34,23 +34,40 @@ require_once( "$IP/maintenance/Maintenance.php" );
 class UpdateSearchIndexConfig extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->addDescription( "Update the configuration or contents of all search indecies." );
+		$this->addDescription( "Update the configuration or contents of all search indices. This always operates on a single cluster." );
 		// Directly require this script so we can include its parameters as maintenance scripts can't use the autoloader
 		// in __construct.  Lame.
 		require_once __DIR__ . '/updateOneSearchIndexConfig.php';
 		UpdateOneSearchIndexConfig::addSharedOptions( $this );
 	}
 
+	/**
+	 * @return bool|null
+	 * @suppress PhanAccessPropertyProtected Phan has a bug where it thinks we can't
+	 *  access mOptions because its protected. That would be true but this
+	 *  class shares the hierarchy that contains mOptions so php allows it.
+	 * @suppress PhanUndeclaredMethod runChild technically returns a
+	 *  \Maintenance instance but only \CirrusSearch\Maintenance\Maintenance
+	 *  classes have the done method. Just allow it since we know what type of
+	 *  maint class is being created
+	 */
 	public function execute() {
-		foreach ( Connection::getAllIndexTypes() as $indexType ) {
-			$this->output( "$indexType index...\n");
-			$child = $this->runChild( 'CirrusSearch\UpdateOneSearchIndexConfig' );
+		$this->outputIndented( "indexing namespaces...\n" );
+		$child = $this->runChild( IndexNamespaces::class );
+		$child->execute();
+		$child->done();
+
+		foreach ( $this->getConnection()->getAllIndexTypes( null ) as $indexType ) {
+			$this->outputIndented( "$indexType index...\n" );
+			$child = $this->runChild( UpdateOneSearchIndexConfig::class );
 			$child->mOptions[ 'indexType' ] = $indexType;
-			$child->mOptions[ 'indent' ] = "\t";
 			$child->execute();
+			$child->done();
 		}
+
+		return true;
 	}
 }
 
-$maintClass = "CirrusSearch\UpdateSearchIndexConfig";
+$maintClass = UpdateSearchIndexConfig::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

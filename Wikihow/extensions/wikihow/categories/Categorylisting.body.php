@@ -23,7 +23,7 @@ class CategoryListing extends SpecialPage {
 		$this->setHeaders();
 		$out->setPageTitle(wfMessage("Categories")->text());
 		$out->setRobotPolicy('index,follow');
-		$out->setSquidMaxage(6 * 60 * 60);
+		$out->setCdnMaxage(6 * 60 * 60);
 
 
 		$catData = CategoryData::getCategoryListingData();
@@ -42,6 +42,7 @@ class CategoryListing extends SpecialPage {
 
 	function renderMobile($catData) {
 		$out = $this->getOutput();
+		$out->addModuleStyles('mobile.wikihow.mobile_category_page_styles');
 		$out->addModules('mobile.wikihow.mobile_category_page');
 		$out->setPageTitle(wfMessage('categories')->text());
 		$out->addHTML(CategoryCarousel::getCategoryListingHtml($catData));

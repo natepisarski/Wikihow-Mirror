@@ -153,7 +153,7 @@ class CategoryQuestions {
 		//make sure the category has - not spaces
 		$category = str_replace(" ", "-", $category);
 
-		$dbw->delete(AnswerQuestions::TABLE_QUEUE, ["aqq_category" => $category, "aqq_category_type" => $values[0]['aqq_category_type']], __METHOD__);
+		$dbw->delete(AnswerQuestions::TABLE_QUEUE, ["aqq_category" => $category, "aqq_category_type" => $values[0]['aqq_category_type'] ?? 0], __METHOD__);
 		if (count($values) > 0) {
 			$dbw->insert(AnswerQuestions::TABLE_QUEUE, $values, __METHOD__);
 		}

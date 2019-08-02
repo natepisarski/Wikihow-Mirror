@@ -1,0 +1,27 @@
+{
+	"@metadata": {
+		"authors": [
+			"Умар"
+		]
+	},
+	"guidedtour-desc": "ГӀуьттуш некъ гойтуш, Ӏаморан тураш йолу агӀонаш тӀетоха таро ло",
+	"guidedtour-help-url": "Help:Хьехаран мураш",
+	"guidedtour-help-guider-url": "Help:Хьехаран мураш/гойтурш",
+	"guidedtour-next-button": "Кхин дӀа",
+	"guidedtour-back-button": "Юха",
+	"guidedtour-tour-test-testing": "Зер",
+	"guidedtour-tour-test-test-description": "Цу Lorem ipsum dolor sit лаьцна хьажар!",
+	"guidedtour-tour-test-callouts": "Хьажар зер",
+	"guidedtour-tour-test-portal-description": "ХӀара агӀо ю {{int:portal}}.",
+	"guidedtour-tour-test-description-page": "MediaWiki лаьцна агӀонаш зер",
+	"guidedtour-tour-test-go-description-page": "Цунах лаьцнарг долу агӀонг гӀо",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Кийча дуй}} тадарш дан?",
+	"guidedtour-tour-firstedit-edit-page-description": "Хьай хийцам бан тӀетаӀе кнопка «$1.",
+	"guidedtour-tour-firstedit-edit-section-title": "Дакъана бен хийцам ма бе",
+	"guidedtour-tour-firstedit-edit-section-description": "Хьажорг «{{int:editsection}}» хӀора дакъана ю, цундела хьа йиш ю дакъа къастина тадан.",
+	"guidedtour-tour-firstedit-save-title": "Ахьа долийнарг чакхдала гергга ду!",
+	"guidedtour-tour-firstedit-save-description": "Хьой кичча хилча, тӀетаӀе «{{int:publishchanges}}» хийцамаш массарна гуш хилийта.",
+	"guidedtour-tour-firsteditve-edit-page-description": "Хьай хийцам бан тӀетаӀе кнопка «{{int:vector-view-edit}} {{int:visualeditor-beta-appendix}}».",
+	"guidedtour-tour-firsteditve-edit-section-description": "Хьажорг «$1» хӀора дакъана ю, цундела хьа йиш ю дакъа къастина тадан.",
+	"guidedtour-tour-firsteditve-save-description": "Хьой кичча хилча, тӀетаӀе «{{int:visualeditor-toolbar-savedialog}}» хийцамаш массарна гуш хилийта."
+}

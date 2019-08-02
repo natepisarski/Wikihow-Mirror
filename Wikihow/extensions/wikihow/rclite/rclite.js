@@ -242,6 +242,7 @@
 		updateButtonText();
 		swapImagesWithPlaceholder();
 	}
+
 	function loadResult(result) {
 		aData = result;
 		$('body').data('assoc_id', result.rc_id);
@@ -270,7 +271,8 @@
 			// Don't trigger whvid init since we aren't displaying
 			// images in rc lite
 			//$(document).trigger('rcdataloaded');
-			mw.mobileFrontend.emit('page-loaded');
+			// TODO: figure out new right way to trigger an event to init the article
+			//mw.mobileFrontend.emit('page-loaded');
 
 			jumpToFirstEdit();
 			enableButtons();

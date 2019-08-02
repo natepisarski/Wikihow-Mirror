@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.TechFeedbackAppWidget = (function($) {
+WH.dashboard.TechFeedbackAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.TechFeedbackAppWidget = (function($) {
 	WH.dashboard.registerDataListener('TechFeedbackAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

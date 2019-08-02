@@ -1,53 +1,17 @@
 <?php
-if ( !defined( 'MEDIAWIKI' ) ) die();
-/**
- * A Special Page extension to rename users, runnable by users with renameuser
- * rights
- *
- * @file
- * @ingroup Extensions
- * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
- * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
- */
 
-$wgAvailableRights[] = 'renameuser';
-$wgGroupPermissions['bureaucrat']['renameuser'] = true;
-# Reuben, wikiHow May 8, 2017: giving rename user permission to admins, per bug #1947
-$wgGroupPermissions['sysop']['renameuser'] = true;
+if ( function_exists( 'wfLoadExtension' ) ) {
+	wfLoadExtension( 'Renameuser' );
+	// Keep i18n globals so mergeMessageFileList.php doesn't break
+	$wgMessagesDirs['Renameuser'] = __DIR__ . '/i18n';
+	$wgExtensionMessagesFiles['RenameuserAliases'] = __DIR__ . '/Renameuser.alias.php';
 
-$wgExtensionCredits['specialpage'][] = array(
-	'path' => __FILE__,
-	'name' => 'Renameuser',
-	'author'         => array( 'Ævar Arnfjörð Bjarmason', 'Aaron Schulz' ),
-	'url'            => 'https://www.mediawiki.org/wiki/Extension:Renameuser',
-	'descriptionmsg' => 'renameuser-desc',
-);
+	wfWarn(
+		'Deprecated PHP entry point used for Renameuser extension. Please use wfLoadExtension instead, ' .
+		'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
+	);
 
-# Internationalisation files
-$wgExtensionMessagesFiles['Renameuser'] = __DIR__ . '/Renameuser.i18n.php';
-$wgExtensionMessagesFiles['RenameuserAliases'] = __DIR__ . '/Renameuser.alias.php';
-
-/**
- * Users with more than this number of edits will have their rename operation
- * deferred via the job queue.
- */
-define( 'RENAMEUSER_CONTRIBJOB', 5000 );
-
-# Add a new log type
-$wgLogTypes[] = 'renameuser';
-$wgLogActionsHandlers['renameuser/renameuser'] = 'RenameuserLogFormatter';
-
-$wgAutoloadClasses['RenameuserHooks'] = __DIR__ . '/Renameuser.hooks.php';
-$wgAutoloadClasses['RenameUserJob'] = __DIR__ . '/RenameUserJob.php';
-$wgAutoloadClasses['RenameuserLogFormatter'] = __DIR__ . '/RenameuserLogFormatter.php';
-$wgAutoloadClasses['RenameuserSQL'] = __DIR__ . '/RenameuserSQL.php';
-$wgAutoloadClasses['SpecialRenameuser'] = __DIR__ . '/specials/SpecialRenameuser.php';
-
-$wgSpecialPages['Renameuser'] = 'SpecialRenameuser';
-$wgSpecialPageGroups['Renameuser'] = 'users';
-$wgJobClasses['renameUser'] = 'RenameUserJob';
-
-$wgHooks['ShowMissingArticle'][] = 'RenameuserHooks::onShowMissingArticle';
-$wgHooks['ContributionsToolLinks'][] = 'RenameuserHooks::onContributionsToolLinks';
-
+	return true;
+} else {
+	die( 'This version of the Renameuser extension requires MediaWiki 1.30+' );
+}

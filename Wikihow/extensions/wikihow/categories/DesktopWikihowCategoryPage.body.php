@@ -316,7 +316,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 		return ['classes' => implode( ' ', $thumbnailClasses ), 'url' => $title->getFullUrl(), 'data-src' => $thumbSrc, 'textBlock' => $textBlock];
 	}
 
-	public function isFileCacheable() {
+	public function isFileCacheable($mode = HTMLFileCache::MODE_NORMAL) {
 		return true;
 	}
 
@@ -341,16 +341,16 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 		// prev & next links
 		if ($pg > 1) {
 			$prev_page = ($pg == 2) ? '' : '?pg='.($pg-1);
-			$prev = '<a rel="prev" href="'.$here.$prev_page.'" class="button buttonleft primary pag_prev">'.wfMessage('lsearch_previous')->text().'</a>';
+			$prev = '<a rel="prev" href="'.$here.$prev_page.'" class="button buttonleft primary pag_prev">'.wfMessage('lsearch_previous')->escaped().'</a>';
 		}
 		else {
-			$prev = '<a class="button buttonleft primary pag_prev disabled">'.wfMessage('lsearch_previous')->text().'</a>';
+			$prev = '<a class="button buttonleft primary pag_prev disabled">'.wfMessage('lsearch_previous')->escaped().'</a>';
 		}
 		if ($pg < $numOfPages) {
-			$next = '<a rel="next" href="'.$here.'?pg='.($pg+1).'" class="button buttonright pag_next primary">'.wfMessage('lsearch_next')->text().'</a>';
+			$next = '<a rel="next" href="'.$here.'?pg='.($pg+1).'" class="button buttonright pag_next primary">'.wfMessage('lsearch_next')->escaped().'</a>';
 		}
 		else {
-			$next = '<a class="button buttonright pag_next primary disabled">'.wfMessage('lsearch_next')->text().'</a>';
+			$next = '<a class="button buttonright pag_next primary disabled">'.wfMessage('lsearch_next')->escaped().'</a>';
 		}
 		$html = $prev.$next;
 

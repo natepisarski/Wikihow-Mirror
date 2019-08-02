@@ -17,7 +17,7 @@ class SearchAd extends UnlistedSpecialPage {
 
 		$out = $this->getOutput();
 		$out->setArticleBodyOnly(true);
-		$out->setSquidMaxage($wgSquidMaxage); //make sure this caches
+		$out->setCdnMaxage($wgSquidMaxage); //make sure this caches
 
 		$this->ad_type = $this->getRequest()->getText('t', '');
 		if ($this->ad_type != 'bnr' && $this->ad_type != 'sq') return;

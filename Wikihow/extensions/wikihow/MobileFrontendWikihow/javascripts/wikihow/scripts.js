@@ -14,6 +14,7 @@ $(document).ready(function() {
 	}
 });
 
+/* disabling this since the on() method is no longer available - Reuben, 2019 MW upgrade
 mw.mobileFrontend.on( 'page-loaded', function() {
 	initializeArticlePage();
 
@@ -27,6 +28,7 @@ function hideBlankIntro() {
 		$('#intro').hide();
 	}
 }
+*/
 
 function initializeArticlePage() {
 

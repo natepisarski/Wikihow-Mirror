@@ -237,12 +237,11 @@ EOHTML;
 
 
 	public static function getDesktopSideForm( $pageId, $class ) {
-		$context = RequestContext::getMain();
-		$context->getOutput()->addModules(['ext.wikihow.rating_sidebar.styles','ext.wikihow.rating_sidebar']);
+		global $wgTitle, $wgLanguageCode;
 		$headerText = wfMessage('ratearticle_side_hdr')->text();
 		$noMessage = wfMessage('ras_res_no_top')->text();
 		$showNoForm = false;
-		if ( SpecialTechFeedback::isTitleInTechCategory( $context->getTitle() ) ) {
+		if ( SpecialTechFeedback::isTitleInTechCategory( $wgTitle ) ) {
 			$headerText = wfMessage( 'rateitem_question_tech' )->text();
 			$noMessage = wfMessage('sidebar_no_message_tech')->text();
 			$showNoForm = true;
@@ -252,7 +251,7 @@ EOHTML;
 		$tmpl->set_vars([
 			'headerText' => $headerText,
 			'class' => $class,
-			'is_intl' => ($context->getLanguage()->getCode() != 'en'),
+			'is_intl' => ($wgLanguageCode != 'en'),
 			'noMessage' => $noMessage,
 			'showNoForm' => $showNoForm,
 		]);
@@ -261,7 +260,6 @@ EOHTML;
 
 	public static function getDesktopBodyForm( $pageId ) {
 		$context = RequestContext::getMain();
-		$context->getOutput()->addModules('ext.wikihow.rating_desktop.style');
 
 		if ( SpecialTechFeedback::isTitleInTechCategory( $context->getTitle() ) )
 			$msgText = wfMessage( 'rateitem_question_tech' )->text();

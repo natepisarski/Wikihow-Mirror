@@ -24,17 +24,20 @@
  * Class to allow throwing wfDeprecated warnings
  * when people use globals that we do not want them to.
  */
-
 class DeprecatedGlobal extends StubObject {
-	// The m's are to stay consistent with parent class.
-	protected $mRealValue, $mVersion;
+	protected $version;
 
-	function __construct( $name, $realValue, $version = false ) {
-		parent::__construct( $name );
-		$this->mRealValue = $realValue;
-		$this->mVersion = $version;
+	/**
+	 * @param string $name Global name
+	 * @param callable|string $callback Factory function or class name to construct
+	 * @param bool|string $version Version global was deprecated in
+	 */
+	function __construct( $name, $callback, $version = false ) {
+		parent::__construct( $name, $callback );
+		$this->version = $version;
 	}
 
+	// phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore,PSR2.Classes.PropertyDeclaration.ScopeMissing
 	function _newObject() {
 		/* Put the caller offset for wfDeprecated as 6, as
 		 * that gives the function that uses this object, since:
@@ -48,7 +51,7 @@ class DeprecatedGlobal extends StubObject {
 		 * sequences for this method, but that seems to be
 		 * rather unlikely.
 		 */
-		wfDeprecated( '$' . $this->mGlobal, $this->mVersion, false, 6 );
-		return $this->mRealValue;
+		wfDeprecated( '$' . $this->global, $this->version, false, 6 );
+		return parent::_newObject();
 	}
 }

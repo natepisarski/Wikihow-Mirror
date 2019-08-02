@@ -76,7 +76,9 @@
 	};
 	
 	$(document).ready(function() {
-		WH.SortQuestions.init();
+		mw.loader.using( 'ext.wikihow.common_top', function() {
+			WH.SortQuestions.init();
+		} );
 	});
 	
 })();

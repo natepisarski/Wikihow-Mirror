@@ -19,7 +19,7 @@ class ApiTitleSearch extends ApiBase {
 		$result = $this->getResult();
 
 		$format = $this->getRequest()->getVal('format');
-		if (!in_array($format, ['json'])) {
+		if (!in_array($format, ['json', 'jsonfm'])) {
 			$result->addValue( null, 'error',
 				'We only allow JSON-encoded API output for this method. See ' .
 				'file ' . __FILE__ . ':' . __LINE__ . ' for details. Or, use format=json.');

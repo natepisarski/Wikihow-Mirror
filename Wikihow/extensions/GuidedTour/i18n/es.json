@@ -1,0 +1,42 @@
+{
+	"@metadata": {
+		"authors": [
+			"Benfutbol10",
+			"Ciencia Al Poder",
+			"Fitoschido",
+			"QuimGil",
+			"Chocolate con galleta",
+			"VegaDark",
+			"Macofe",
+			"Dgstranz",
+			"Luzcaru"
+		]
+	},
+	"guidedtour-desc": "Permite a las páginas ofrecer una visita guiada para ayudar a los usuarios nuevos",
+	"guidedtour-help-url": "Help:Visitas guiadas",
+	"guidedtour-help-guider-url": "Help:Visitas guiadas/guía",
+	"guidedtour-next-button": "Siguiente",
+	"guidedtour-okay-button": "Aceptar",
+	"guidedtour-back-button": "Volver",
+	"guidedtour-tour-test-testing": "Pruebas",
+	"guidedtour-tour-test-test-description": "Esta es una prueba de la descripción. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Prueba de llamadas",
+	"guidedtour-tour-test-portal-description": "Esta es la página de {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Prueba del procesamiento de MediaWiki",
+	"guidedtour-tour-test-description-page": "Probar las páginas de descripción de MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Ir a la página de descripción",
+	"guidedtour-tour-test-launch-tour": "Prueba de inicio de la visita guiada",
+	"guidedtour-tour-test-launch-tour-description": "Los guías pueden iniciar otras visitas guiadas. Muy bueno, ¿eh?",
+	"guidedtour-tour-test-launch-editing": "Iniciar una visita guiada sobre la edición",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Edita}} la página completa…",
+	"guidedtour-tour-firstedit-edit-page-description": "Haz {{GENDER:|clic}} en el botón \"$1\" para realizar tus cambios.",
+	"guidedtour-tour-firstedit-edit-section-title": "O {{GENDER:|edita}} una sección",
+	"guidedtour-tour-firstedit-edit-section-description": "Existen enlaces de \"{{int:editsection}}\" en cada sección principal de la página, para que puedas centrarte solo en esa parte.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Previsualiza}} tus cambios (opcional)",
+	"guidedtour-tour-firstedit-preview-description": "Al hacer clic en \"{{int:showpreview}}\" podrás verificar cómo se verá la página con tus cambios. ¡No olvides guardarlos!",
+	"guidedtour-tour-firstedit-save-title": "¡Ya casi has terminado!",
+	"guidedtour-tour-firstedit-save-description": "Cuando termines, pulsa en «{{int:publishchanges}}» para que todos puedan ver tus cambios.",
+	"guidedtour-tour-firsteditve-edit-page-description": "Haz {{GENDER:|clic}} en el botón «$1» para realizar los cambios.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Existen enlaces de «$1» en cada sección principal de la página, para que puedas centrarte solo en esa parte.",
+	"guidedtour-tour-firsteditve-save-description": "Cuando termines, pulsa en «{{int:visualeditor-toolbar-savedialog}}» para que tus cambios sean visibles para todos."
+}

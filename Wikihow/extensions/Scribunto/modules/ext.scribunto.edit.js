@@ -1,4 +1,6 @@
-( function ( $, mw ) {
+/* eslint-disable no-use-before-define */
+
+( function () {
 
 	/**
 	 * Debug console
@@ -11,14 +13,12 @@
 	 *    * Collapsible backtrace display
 	 */
 
-	var
-		histList = [''],
+	var histList = [ '' ],
 		histPos = 0,
 		question,
 		input,
 		output,
 		$spinner,
-		lastError = null,
 		sessionContent = null,
 		sessionKey = null,
 		pending = false,
@@ -41,11 +41,10 @@
 
 	/**
 	 * Use onkeydown because IE doesn't support onkeypress for arrow keys
+	 *
 	 * @param {jQuery.Event} e
 	 */
 	function inputKeydown( e ) {
-		/*jshint noempty:false */
-
 		if ( e.shiftKey && e.keyCode === 13 ) {
 			// shift-enter
 			// don't do anything; allow the shift-enter to insert a line break as normal
@@ -70,9 +69,6 @@
 		setTimeout( recalculateInputHeight, 0 );
 	}
 
-	/**
-	 * @param {jQuery.Event} e
-	 */
 	function inputFocus() {
 		if ( sessionContent === null ) {
 			// No previous state to clear
@@ -91,23 +87,27 @@
 	}
 
 	function caretInFirstLine( textbox ) {
+		var firstLineBreak;
+
 		// IE doesn't support selectionStart/selectionEnd
 		if ( textbox.selectionStart === undefined ) {
 			return true;
 		}
 
-		var firstLineBreak = textbox.value.indexOf( '\n' );
+		firstLineBreak = textbox.value.indexOf( '\n' );
 
-		return ((firstLineBreak === -1) || (textbox.selectionStart <= firstLineBreak));
+		return ( ( firstLineBreak === -1 ) || ( textbox.selectionStart <= firstLineBreak ) );
 	}
 
 	function caretInLastLine( textbox ) {
+		var lastLineBreak;
+
 		// IE doesn't support selectionStart/selectionEnd
 		if ( textbox.selectionEnd === undefined ) {
 			return true;
 		}
 
-		var lastLineBreak = textbox.value.lastIndexOf( '\n' );
+		lastLineBreak = textbox.value.lastIndexOf( '\n' );
 
 		return ( textbox.selectionEnd > lastLineBreak );
 	}
@@ -126,8 +126,9 @@
 	}
 
 	function println( s, type ) {
+		var newdiv;
 		if ( ( s = String( s ) ) ) {
-			var newdiv = document.createElement( 'div' );
+			newdiv = document.createElement( 'div' );
 			newdiv.appendChild( document.createTextNode( s ) );
 			newdiv.className = type;
 			output.appendChild( newdiv );
@@ -157,7 +158,7 @@
 		if ( direction === 'up' ) {
 			if ( histPos === L - 1 ) {
 				// Save this entry in case the user hits the down key.
-				histList[histPos] = input.value;
+				histList[ histPos ] = input.value;
 			}
 
 			if ( histPos > 0 ) {
@@ -166,9 +167,10 @@
 				// Set to nothing first for the same reason
 				setTimeout(
 					function () {
+						var caretPos;
 						input.value = '';
-						input.value = histList[histPos];
-						var caretPos = input.value.length;
+						input.value = histList[ histPos ];
+						caretPos = input.value.length;
 						if ( input.setSelectionRange ) {
 							input.setSelectionRange( caretPos, caretPos );
 						}
@@ -180,12 +182,11 @@
 			// direction down
 			if ( histPos < L - 1 ) {
 				histPos++;
-				input.value = histList[histPos];
-			}
-			else if ( histPos === L - 1 ) {
+				input.value = histList[ histPos ];
+			} else if ( histPos === L - 1 ) {
 				// Already on the current entry: clear but save
 				if ( input.value ) {
-					histList[histPos] = input.value;
+					histList[ histPos ] = input.value;
 					++histPos;
 					input.value = '';
 				}
@@ -200,11 +201,9 @@
 	function printError( er ) {
 		var lineNumberString;
 
-		// for debugging the shell
-		lastError = er;
 		if ( er.name ) {
 			// lineNumberString should not be '', to avoid a very wacky bug in IE 6.
-			lineNumberString = (er.lineNumber !== undefined) ? (' on line ' + er.lineNumber + ': ') : ': ';
+			lineNumberString = ( er.lineNumber !== undefined ) ? ( ' on line ' + er.lineNumber + ': ' ) : ': ';
 			// Because IE doesn't have error.toString.
 			println( er.name + lineNumberString + er.message, 'mw-scribunto-error' );
 		} else {
@@ -241,8 +240,8 @@
 			return;
 		}
 
-		histList[histList.length - 1] = question;
-		histList[histList.length] = '';
+		histList[ histList.length - 1 ] = question;
+		histList[ histList.length ] = '';
 		histPos = histList.length - 1;
 
 		// Unfortunately, this has to happen *before* the script is run, so that
@@ -295,13 +294,13 @@
 				sessionKey = result.session;
 				sessionContent = content;
 				if ( result.type === 'error' ) {
-					printError( result.message );
+					$( '<div>' ).addClass( 'mw-scribunto-error' ).html( result.html ).appendTo( output );
 				} else {
 					if ( result.print !== '' ) {
 						println( result.print, 'mw-scribunto-print' );
 					}
-					if ( result['return'] !== '' ) {
-						println( result['return'], 'mw-scribunto-normalOutput' );
+					if ( result.return !== '' ) {
+						println( result.return, 'mw-scribunto-normalOutput' );
 					}
 				}
 				clearPending();
@@ -332,68 +331,68 @@
 		}
 	}
 
-	/**
-	 * @param {jQuery.Event} e
-	 */
 	function onClearClick() {
 		$( '#mw-scribunto-output' ).empty();
 		clearNextRequest = true;
 		refocus();
 	}
 
-	mw.scribunto.edit = {
-		init: function () {
-			var action = mw.config.get( 'wgAction' );
-			if ( action === 'edit' || action === 'submit' || action === 'editredlink' ) {
-				this.initEditPage();
-			}
-		},
-
-		initEditPage: function () {
-			var console = document.getElementById( 'mw-scribunto-console' );
-			if ( !console ) {
+	function initEditPage() {
+		var $wpTextbox1,
+			$console = $( '#mw-scribunto-console' );
+		if ( !$console.length ) {
+			// There is no console in the DOM; on read-only (protected) pages,
+			// we need to add it here, because the hook does not insert
+			// it server-side.
+			$wpTextbox1 = $( '#wpTextbox1' );
+			if ( !$wpTextbox1.length || !$wpTextbox1.prop( 'readonly' ) ) {
 				return;
 			}
 
-			$( '<fieldset>' )
-				.attr( 'class', 'mw-scribunto-console-fieldset' )
-				.append( $( '<legend>' ).text( mw.msg( 'scribunto-console-title' ) ) )
-				.append( $( '<div id="mw-scribunto-output"></div>' ) )
-				.append(
-					$( '<div>' ).append(
-						$( '<textarea>' )
-							.attr( {
-								id: 'mw-scribunto-input',
-								'class': 'mw-scribunto-input',
-								wrap: 'off',
-								rows: 1,
-								dir: 'ltr',
-								lang: 'en'
-							} )
-							.bind( 'keydown', inputKeydown )
-							.bind( 'focus', inputFocus )
-					)
-				)
-				.append(
-					$( '<div>' ).append(
-						$( '<input>' )
-							.attr( {
-								type: 'button',
-								value: mw.msg( 'scribunto-console-clear' )
-							} )
-							.bind( 'click', onClearClick )
-					)
-				)
-				.wrap( '<form>' )
-				.appendTo( console );
-
-			initConsole();
+			$console = $( '<div>' ).attr( { id: 'mw-scribunto-console' } );
+			$wpTextbox1.after( $console );
 		}
-	};
+
+		$( '<fieldset>' )
+			.attr( 'class', 'mw-scribunto-console-fieldset' )
+			.append( $( '<legend>' ).text( mw.msg( 'scribunto-console-title' ) ) )
+			.append( $( '<div id="mw-scribunto-output"></div>' ) )
+			.append(
+				$( '<div>' ).append(
+					$( '<textarea>' )
+						.attr( {
+							id: 'mw-scribunto-input',
+							'class': 'mw-scribunto-input',
+							wrap: 'off',
+							rows: 1,
+							dir: 'ltr',
+							lang: 'en'
+						} )
+						.bind( 'keydown', inputKeydown )
+						.bind( 'focus', inputFocus )
+				)
+			)
+			.append(
+				$( '<div>' ).append(
+					$( '<input>' )
+						.attr( {
+							type: 'button',
+							value: mw.msg( 'scribunto-console-clear' )
+						} )
+						.bind( 'click', onClearClick )
+				)
+			)
+			.wrap( '<form>' )
+			.appendTo( $console );
+
+		initConsole();
+	}
 
 	$( function () {
-		mw.scribunto.edit.init();
+		var action = mw.config.get( 'wgAction' );
+		if ( action === 'edit' || action === 'submit' || action === 'editredlink' ) {
+			initEditPage();
+		}
 	} );
 
-} )( jQuery, mediaWiki );
-
+}() );

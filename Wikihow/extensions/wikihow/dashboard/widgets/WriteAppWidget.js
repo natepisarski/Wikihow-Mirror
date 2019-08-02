@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.WriteAppWidget = (function($) {
+WH.dashboard.WriteAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.WriteAppWidget = (function($) {
 	WH.dashboard.registerDataListener('WriteAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

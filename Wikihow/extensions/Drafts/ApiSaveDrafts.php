@@ -76,8 +76,7 @@ class ApiSaveDrafts extends ApiBase {
 			'minoredit' => array(
 				ApiBase::PARAM_TYPE => 'boolean',
 				ApiBase::PARAM_REQUIRED => true,
-			),
-			'token' => null,
+			)
 		);
 	}
 
@@ -99,13 +98,8 @@ class ApiSaveDrafts extends ApiBase {
 		return true;
 	}
 
-
 	public function needsToken() {
-		return true;
-	}
-
-	public function getTokenSalt() {
-		return '';
+		return 'csrf';
 	}
 
 	public function isWriteMode() {

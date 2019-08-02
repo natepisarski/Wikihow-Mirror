@@ -4,7 +4,7 @@
  *
  * @class
  */
-class ApiHypothesisTests extends ApiQueryBase {
+class ApiHypothesisTests extends ApiBase {
 
 	/* Static Members */
 

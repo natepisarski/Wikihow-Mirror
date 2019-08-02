@@ -65,6 +65,15 @@ function pue_Handler() {
 			document.editform.setAttribute('onsubmit', 'return pue_SubmitForm();');
 			document.editform.wpTextbox1.focus();
 
+			$('#mw-editform-cancel').off('click');
+			$('#mw-editform-cancel').on('click', function() {
+				$('#modal_x').click();
+				return false;
+			});
+
+			// Hide Show Changes and Save Drafts buttons too
+			$('#wpDiffWidget, #wpDraftSaveWidget').hide();
+
 			addShortcutBindings();
 			WH.Editor.restoreToolbarButtons();
 			//window.onbeforeunload = confirmExit;
@@ -111,6 +120,9 @@ function pue_processEditHandler() {
 				textbxid.cols = 67;
 
 				ac.scrollTop = 0;
+
+				// Remove edit links beside section headings in RCP Quick Edit Preview
+				$('.mw-editsection').hide();
 
 				var previewButton = document.getElementById('wpPreview');
 				previewButton.setAttribute('onclick', 'pue_preview=true;');

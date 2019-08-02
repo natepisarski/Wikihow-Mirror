@@ -143,7 +143,7 @@ $wgResourceModules['wikihow.common.querybuilder'] = array (
 		'toastr/toastr.min.css',
 	],
 	'scripts' => [
-		'jquery.extendext.min.js',
+		'jquery.extendext.whmodified.js',
 		'dot.min.js',
 		'moment.min.js',
 		'interact.min.js',
@@ -155,6 +155,7 @@ $wgResourceModules['wikihow.common.querybuilder'] = array (
 		'sql-formatter.min.js',
 		'sql-parser.min.js',
 	],
+	'dependencies' => [ 'ext.wikihow.common_top' ],
 	'position' => 'bottom',
 	'targets' => ['desktop'],
 	'localBasePath' => __DIR__,

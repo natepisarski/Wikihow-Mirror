@@ -312,8 +312,9 @@ class ArticleAdExclusions {
 	 * articles for those languages.
 	 */
 	private static function processTranslations(&$dbw, $englishId, $action = 'add_urls'): array {
-		global $wgActiveLanguages;
+		global $wgActiveLanguages, $wgDBname;
 
+		$dbw->selectDB($wgDBname); //reset it back to english
 		$titusData = PageStats::getTitusData($englishId);
 		$articleIds = [];
 		if ($titusData) {

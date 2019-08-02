@@ -184,7 +184,8 @@ class GreenBox {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
-		$out->addModules(['ext.wikihow.green_box','ext.wikihow.green_box.scripts']);
+		$out->addModuleStyles(['ext.wikihow.green_box']);
+		$out->addModules(['ext.wikihow.green_box.scripts']);
 	}
 
 	//this uses the phpQuery object
@@ -253,7 +254,7 @@ class GreenBox {
 	}
 
 	public static function onPageContentSave(WikiPage $wikiPage, User $user, Content $content,
-			string $summary, int $minor, $null1, $null2, int $flags, Status $status = null)
+			$summary, int $minor, $null1, $null2, int $flags, Status $status = null)
 	{
 		if (self::unauthorizedExpertGreenBoxEdits($wikiPage, $content, $user)) {
 			$status->fatal('green_box_article_edit_expert');

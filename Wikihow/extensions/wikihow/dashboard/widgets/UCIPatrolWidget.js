@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.UCIPatrolWidget = (function($) {
+WH.dashboard.UCIPatrolWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -73,5 +73,5 @@ WH.dashboard.UCIPatrolWidget = (function($) {
 	WH.dashboard.registerDataListener('UCIPatrolWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

@@ -93,7 +93,7 @@ class User extends AppModel {
 	}
 
 	function avatar() {
-		return avatar($this);
+		return getWikihowAvatar($this);
 	}
 
 	function busy() {

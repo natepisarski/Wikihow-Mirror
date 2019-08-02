@@ -45,6 +45,7 @@ class SocialFooter {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		$out->addModuleStyles('ext.wikihow.social_footer_styles');
 		$out->addModules('ext.wikihow.social_footer');
 	}
 }

@@ -24,7 +24,7 @@ class RequestTopic extends SpecialPage {
 		]);
 
 		$fancyCaptcha = new FancyCaptcha();
-		$passCaptcha = !$req->wasPosted() || $fancyCaptcha->passCaptcha();
+		$passCaptcha = !$req->wasPosted() || $fancyCaptcha->passCaptchaLimitedFromRequest( $req, $user );
 
 		if ($req->wasPosted() && $passCaptcha) {
 			$dbr = wfGetDB(DB_REPLICA);
@@ -76,6 +76,7 @@ class RequestTopic extends SpecialPage {
 					['st_title' => $title->getDBKey()]
 				);
 			}
+			$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 			$out->addModules(['ext.wikihow.SuggestedTopics']);
 			$vars = [ 'title' => $title->getText(), 'url' => $title->getFullURL() ];
 			$html = $mustacheEngine->render('request_topic_confirmation.mustache', $vars);
@@ -86,11 +87,25 @@ class RequestTopic extends SpecialPage {
 		$out->setHTMLTitle('Requested Topics - wikiHow');
 		$out->setRobotPolicy('noindex,nofollow');
 
+		$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 		$out->addModules(['ext.wikihow.SuggestedTopics']);
+
+		// Followed the example in SimpleCaptcha::addFormInformationToOutput()
+		$info = $fancyCaptcha->getFormInformation();
+		$captchaHtml = '';
+		if ( isset( $info['html'] ) ) {
+			$captchaHtml = $info['html'];
+		}
+		if ( isset( $info['modules'] ) ) {
+			$out->addModules( $info['modules'] );
+		}
+		if ( isset( $info['modulestyles'] ) ) {
+			$out->addModuleStyles( $info['modulestyles'] );
+		}
 
 		$out->addHTML($mustacheEngine->render('request_topic_form.mustache', [
 			'cats' => self::getCategoryOptions(),
-			'catpcha_form' => $fancyCaptcha->getForm(),
+			'catpcha_form' => $captchaHtml,
 			'user_email' => $user->getEmail(),
 			'msg' => [
 				'captcha_error' => $passCaptcha ? '' : wfMessage('suggest_captcha_failed')->text(),

@@ -1,8 +1,9 @@
 <?php
 
 namespace CirrusSearch\Sanity;
-use \Title;
-use \WikiPage;
+
+use Title;
+use WikiPage;
 
 /**
  * Remediation actions for insanity in the search index.
@@ -28,34 +29,89 @@ interface Remediator {
 	 * There is a redirect in the index.
 	 * @param WikiPage $page the page in the index
 	 */
-	public function redirectInIndex( $page );
+	public function redirectInIndex( WikiPage $page );
+
 	/**
 	 * A page isn't in the index.
 	 * @param WikiPage $page not in the index
 	 */
-	public function pageNotInIndex( $page );
+	public function pageNotInIndex( WikiPage $page );
+
 	/**
 	 * A non-existent page is in the index.  Odds are good it was deleted.
-	 * @param int $pageId id of the deleted page
+	 *
+	 * @param string $docId elsaticsearch document id of the deleted page
 	 * @param Title $title title of the page read from the ghost
 	 */
-	public function ghostPageInIndex( $pageId, $title );
+	public function ghostPageInIndex( $docId, Title $title );
+
 	/**
 	 * An existent page is in more then one index.
+	 *
+	 * @param string $docId elasticsearch document id
 	 * @param WikiPage $page page in too many indexes
 	 * @param string $indexType index type that the page is in but shouldn't be in
 	 */
-	public function pageInWrongIndex( $page, $indexType );
+	public function pageInWrongIndex( $docId, WikiPage $page, $indexType );
+
+	/**
+	 * @param string $docId elasticsearch document id
+	 * @param WikiPage $page page with outdated document in index
+	 * @param string $indexType index contgaining outdated document
+	 */
+	public function oldVersionInIndex( $docId, WikiPage $page, $indexType );
+
+	/**
+	 * @param WikiPage $page Page considered too old in index
+	 */
+	public function oldDocument( WikiPage $page );
 }
 
 /**
  * Remediator that takes no actions.
  */
 class NoopRemediator implements Remediator {
-	public function redirectInIndex( $page ) {}
-	public function pageNotInIndex( $page ) {}
-	public function ghostPageInIndex( $pageId, $title ) {}
-	public function pageInWrongIndex( $page, $indexType ) {}
+
+	/**
+	 * @param WikiPage $page
+	 */
+	public function redirectInIndex( WikiPage $page ) {
+	}
+
+	/**
+	 * @param WikiPage $page
+	 */
+	public function pageNotInIndex( WikiPage $page ) {
+	}
+
+	/**
+	 * @param string $docId
+	 * @param Title $title
+	 */
+	public function ghostPageInIndex( $docId, Title $title ) {
+	}
+
+	/**
+	 * @param string $docId
+	 * @param WikiPage $page
+	 * @param string $indexType
+	 */
+	public function pageInWrongIndex( $docId, WikiPage $page, $indexType ) {
+	}
+
+	/**
+	 * @param string $docId elasticsearch document id
+	 * @param WikiPage $page page with outdated document in index
+	 * @param string $indexType index contgaining outdated document
+	 */
+	public function oldVersionInIndex( $docId, WikiPage $page, $indexType ) {
+	}
+
+	/**
+	 * @param WikiPage $page Page considered too old in index
+	 */
+	public function oldDocument( WikiPage $page ) {
+	}
 }
 
 /**
@@ -66,29 +122,65 @@ class PrintingRemediator implements Remediator {
 
 	/**
 	 * Build the remediator.
-	 * @param Remediator $next the rememediator that this one decorates
+	 * @param Remediator $next the remediator that this one decorates
 	 */
-	public function __construct( $next ) {
+	public function __construct( Remediator $next ) {
 		$this->next = $next;
 	}
 
-	public function redirectInIndex( $page ) {
+	public function redirectInIndex( WikiPage $page ) {
 		$this->log( $page->getId(), $page->getTitle(), 'Redirect in index' );
 		$this->next->redirectInIndex( $page );
 	}
-	public function pageNotInIndex( $page ) {
+
+	public function pageNotInIndex( WikiPage $page ) {
 		$this->log( $page->getId(), $page->getTitle(), 'Page not in index' );
 		$this->next->pageNotInIndex( $page );
 	}
-	public function ghostPageInIndex( $pageId, $title ) {
-		$this->log( $pageId, $title, 'Deleted page in index' );
-		$this->next->ghostPageInIndex( $pageId, $title );
+
+	/**
+	 * @param string $docId
+	 * @param Title $title
+	 */
+	public function ghostPageInIndex( $docId, Title $title ) {
+		$this->log( $docId, $title, 'Deleted page in index' );
+		$this->next->ghostPageInIndex( $docId, $title );
 	}
-	public function pageInWrongIndex( $page, $indexType ) {
+
+	/**
+	 * @param string $docId
+	 * @param WikiPage $page
+	 * @param string $indexType
+	 */
+	public function pageInWrongIndex( $docId, WikiPage $page, $indexType ) {
 		$this->log( $page->getId(), $page->getTitle(), "Page in wrong index: $indexType" );
-		$this->next->pageInWrongIndex( $page, $indexType );
+		$this->next->pageInWrongIndex( $docId, $page, $indexType );
 	}
-	private function log( $pageId, $title, $message ) {
-		printf("%30s %10d %s\n", $message, $pageId, $title );
+
+	/**
+	 * @param string $docId elasticsearch document id
+	 * @param WikiPage $page page with outdated document in index
+	 * @param string $indexType index contgaining outdated document
+	 */
+	public function oldVersionInIndex( $docId, WikiPage $page, $indexType ) {
+		$this->log( $page->getId(), $page->getTitle(), "Outdated page in index: $indexType" );
+		$this->next->oldVersionInIndex( $docId, $page, $indexType );
+	}
+
+	/**
+	 * @param WikiPage $page Page considered too old in index
+	 */
+	public function oldDocument( WikiPage $page ) {
+		$this->log( $page->getId(), $page->getTitle(), "Old page in index" );
+		$this->next->oldDocument( $page );
+	}
+
+	/**
+	 * @param int|string $pageOrDocId
+	 * @param Title $title
+	 * @param string $message
+	 */
+	private function log( $pageOrDocId, $title, $message ) {
+		printf( "%30s %10d %s\n", $message, $pageOrDocId, $title );
 	}
 }

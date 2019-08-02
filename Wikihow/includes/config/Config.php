@@ -21,37 +21,27 @@
  */
 
 /**
- * Abstract class for get settings for
+ * Interface for configuration instances
  *
  * @since 1.23
  */
-abstract class Config {
-	/**
-	 * @param string $name configuration variable name without prefix
-	 * @param string $prefix of the variable name
-	 * @return mixed
-	 */
-	abstract public function get( $name, $prefix = 'wg' );
+interface Config {
 
 	/**
-	 * @param string $name configuration variable name without prefix
-	 * @param mixed $value to set
-	 * @param string $prefix of the variable name
-	 * @return Status object indicating success or failure
+	 * Get a configuration variable such as "Sitename" or "UploadMaintenance."
+	 *
+	 * @param string $name Name of configuration option
+	 * @return mixed Value configured
+	 * @throws ConfigException
 	 */
-	abstract public function set( $name, $value, $prefix = 'wg' );
+	public function get( $name );
 
 	/**
-	 * @param string|null $type class name for Config object,
-	 *        uses $wgConfigClass if not provided
-	 * @return Config
+	 * Check whether a configuration option is set for the given name
+	 *
+	 * @param string $name Name of configuration option
+	 * @return bool
+	 * @since 1.24
 	 */
-	public static function factory( $type = null ) {
-		if ( !$type ) {
-			global $wgConfigClass;
-			$type = $wgConfigClass;
-		}
-
-		return new $type;
-	}
+	public function has( $name );
 }

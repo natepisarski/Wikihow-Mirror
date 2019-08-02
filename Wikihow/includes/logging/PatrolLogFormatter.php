@@ -19,7 +19,7 @@
  *
  * @file
  * @author Niklas Laxström
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
+ * @license GPL-2.0-or-later
  * @since 1.22
  */
 
@@ -30,10 +30,11 @@
  */
 class PatrolLogFormatter extends LogFormatter {
 	protected function getMessageKey() {
-		$key = parent::getMessageKey();
 		$params = $this->getMessageParameters();
 		if ( isset( $params[5] ) && $params[5] ) {
-			$key .= '-auto';
+			$key = 'logentry-patrol-patrol-auto';
+		} else {
+			$key = 'logentry-patrol-patrol';
 		}
 
 		return $key;
@@ -49,16 +50,38 @@ class PatrolLogFormatter extends LogFormatter {
 		if ( $this->plaintext ) {
 			$revlink = $revision;
 		} elseif ( $target->exists() ) {
-			$query = array(
+			$query = [
 				'oldid' => $oldid,
 				'diff' => 'prev'
-			);
-			$revlink = Linker::link( $target, htmlspecialchars( $revision ), array(), $query );
+			];
+			$revlink = $this->getLinkRenderer()->makeLink( $target, $revision, [], $query );
 		} else {
 			$revlink = htmlspecialchars( $revision );
 		}
 
 		$params[3] = Message::rawParam( $revlink );
+
+		return $params;
+	}
+
+	protected function getParametersForApi() {
+		$entry = $this->entry;
+		$params = $entry->getParameters();
+
+		static $map = [
+			'4:number:curid',
+			'5:number:previd',
+			'6:bool:auto',
+			'4::curid' => '4:number:curid',
+			'5::previd' => '5:number:previd',
+			'6::auto' => '6:bool:auto',
+		];
+		foreach ( $map as $index => $key ) {
+			if ( isset( $params[$index] ) ) {
+				$params[$key] = $params[$index];
+				unset( $params[$index] );
+			}
+		}
 
 		return $params;
 	}

@@ -12,11 +12,12 @@ class WikihowUserPage extends Article {
 	var $isPageOwner;
 
 	public static function onArticleFromTitle($title, &$page) {
-		$ctx = MobileContext::singleton();
+		$isMobileMode = Misc::isMobileMode();
 		if ($title &&
-			($title->inNamespace(NS_USER) ||
-			($title->inNamespace(NS_USER_KUDOS) && $ctx->shouldDisplayMobileView()) ||
-			($title->inNamespace(NS_USER_TALK) && $ctx->shouldDisplayMobileView()))) {
+			(  $title->inNamespace(NS_USER) ||
+			  ($title->inNamespace(NS_USER_KUDOS) && $isMobileMode) ||
+			  ($title->inNamespace(NS_USER_TALK) && $isMobileMode) )
+		) {
 				$page = new WikihowUserPage($title);
 		}
 
@@ -81,6 +82,7 @@ class WikihowUserPage extends Article {
 		$skin = $out->getSkin();
 
 		// add profile box javascript and css
+		$out->addModuleStyles('ext.wikihow.profile_box_styles');
 		$out->addModules('ext.wikihow.profile_box');
 
 		//user settings
@@ -209,6 +211,17 @@ class WikihowUserPage extends Article {
 		$html = $out->parse($wikitext);
 		$html = WikihowArticleHTML::processHTML($html);
 		$html = Avatar::insertAvatarIntoDiscussion($html);
+
+
+		// Remove all links to non-existent user pages
+		$doc = phpQuery::newDocument($html);
+		foreach (pq('.de_user a[class="new"]') as $a) {
+			$pq_a = pq($a);
+			// Replace <a class="new" ...> with <span>
+			$span = pq('<span></span>')->html( $pq_a->html() );
+			$pq_a->replaceWith( $span );
+		}
+		$html = $doc->htmlOuter();
 
 		//add target link
 		$html .= '<div id="at_the_bottom"></div>';

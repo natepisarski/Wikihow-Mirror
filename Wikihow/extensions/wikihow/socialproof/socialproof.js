@@ -25,15 +25,19 @@
 		$('#sp_star_rating_text').show();
 		$('.sp_star_container').addClass('star_editing');
 	}
+
 	function hideStarRating() {
 		$('#sp_helpful_rating_count').show();
 		$('#sp_star_rating_text').hide();
 		$('.sp_star_container').removeClass('star_editing');
 	}
+
 	function votedStarRating() {
 		$(".sp_star_container").off("click");
 		$(".sp_star_container").off("hover");
+		// First star hover on desktop that needs turning off
 		$("#sp_star_section_upper").off("hover");
+		$("#sp_star_section_upper").off('mouseenter mouseleave');
 		$("#sp_helpful_lower").off("hover");
 		$(".sp_helpful_hoverable").removeClass("sp_box_hoverable");
 		$(".sp_star_section_hoverable,#helpfulness_text").off("hover");
@@ -45,6 +49,11 @@
 		else {
 			$("#sp_star_rating_text").hide();
 			$('#helpfulness_text').html(thanks);
+		}
+
+		// Second star hover on desktop that needs turning off
+		for (var k = 1; k <= 5; k++) {
+			$('#sidebar').off('mouseenter mouseleave click', '#star' + k);
 		}
 	}
 
@@ -70,42 +79,37 @@
 			if (WH.isMobileDomain && $("#sp_helpful_box").data('helpful') > 0) return;
 
 			var currStarId = i;
-			$("#star" + i).bind({
-		  		mouseenter: function () {
-		  			for (var j = 1; j <= currStarId; j++){
-		  				$("#star" + j + " > div").addClass("mousevote");
-		  			}
-		  			$("#sp_star_rating_text").text(voteText[currStarId]);
-		  		},
-				mouseleave: function () {
-	  			for (var j = 1; j <= currStarId; j++){
-	  				$("#star" + j + " > div").removeClass("mousevote");
-	  			}
-	  			$("#sp_star_rating_text").text("");
-				},
-				click: function () {
-		  		for (var j = 1; j <= currStarId; j++){
-						$("#star" + j + " > div").addClass("mousedone");
-					}
-					var postData = {
-							'action': 'rate_page',
-							'page_id': wgArticleId,
-							'rating': currStarId,
-							'type': 'star',
-							'source': 'desktop'
-					};
-					$.post('/Special:RateItem',
-						postData,
-						function(result) {
-						},
-						'json'
-						);
-					votedStarRating()
+			$('#sidebar').on('mouseenter', '#star' + i, function () {
+				for (var j = 1; j <= currStarId; j++) {
+					$("#star" + j + " > div").addClass("mousevote");
 				}
-			});
-
+				$("#sp_star_rating_text").text(voteText[currStarId]);
+			} );
+			$('#sidebar').on('mouseleave', '#star' + i, function () {
+				for (var j = 1; j <= currStarId; j++) {
+					$("#star" + j + " > div").removeClass("mousevote");
+				}
+				$("#sp_star_rating_text").text("");
+			} );
+			$('#sidebar').on('click', '#star' + i, function () {
+				for (var j = 1; j <= currStarId; j++) {
+					$("#star" + j + " > div").addClass("mousedone");
+				}
+				var postData = {
+					'action': 'rate_page',
+					'page_id': wgArticleId,
+					'rating': currStarId,
+					'type': 'star',
+					'source': 'desktop'
+				};
+				$.post('/Special:RateItem',
+					postData,
+					function(result) { },
+					'json' );
+				votedStarRating();
+			} );
 		}
-		for (k = 1; k <= 5; k++) {
+		for (var k = 1; k <= 5; k++) {
 			starBehavior(k);
 		}
 

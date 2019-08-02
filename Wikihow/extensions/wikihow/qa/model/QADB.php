@@ -115,15 +115,15 @@ class QADB {
 		try {
 			$updatedTimestamp = wfTimestampNow();
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->begin(__METHOD__);
+			$dbw->startAtomic(__METHOD__, Database::ATOMIC_CANCELABLE);
 
 			$uid = $data['uid'] ? $data['uid'] : RequestContext::getMain()->getUser()->getId();
 			$status = $this->doInsertArticleQuestion($aq, $updatedTimestamp, $uid);
 
 			if (!$status->getSuccess()) {
-				$dbw->rollback(__METHOD__);
+				$dbw->cancelAtomic(__METHOD__);
 			} else {
-				$dbw->commit(__METHOD__);
+				$dbw->endAtomic(__METHOD__);
 
 				// Update the submitted question curated flag to reflect an ArticleQuestion exists
 				// for this submitted question
@@ -366,13 +366,13 @@ class QADB {
 	}
 
 	protected function getBackupDB() {
-		global $wgDBname, $wgIsDevServer;
-
-		$db = DatabaseBase::factory('mysql');
-		if (!$db->isOpen()) {
-			$db->open(WH_DATABASE_MASTER, WH_DATABASE_USER, WH_DATABASE_PASSWORD, $wgDBname);
-		}
-
+		global $wgDBname;
+		$db = DatabaseBase::factory( 'mysql', [
+			'host' => WH_DATABASE_MASTER,
+			'user' => WH_DATABASE_USER,
+			'password' => WH_DATABASE_PASSWORD,
+			'dbname' => $wgDBname,
+		] );
 		return $db;
 	}
 
@@ -937,9 +937,11 @@ class QADB {
 	 */
 	public function deleteArticleQuestion($data, $answerOnly = false) {
 
+		$inTransaction = false;
 		try {
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->begin(__METHOD__);
+			$dbw->startAtomic(__METHOD__, self::ATOMIC_CANCELABLE);
+			$inTransaction = true;
 
 			$dbw->delete(
 				self::TABLE_ARTICLES_QUESTIONS,
@@ -978,10 +980,15 @@ class QADB {
 				);
 			}
 
-			$dbw->commit(__METHOD__);
+			$inTransaction = false;
+			$dbw->endAtomic(__METHOD__);
+
 			Hooks::run('DeleteArticleQuestion', [$data['aid'], $data['aqid']]);
 			$status = new QADBResult(true);
 		} catch(Exception $e) {
+			if ($inTransaction) {
+				$dbw->cancelAtomic(__METHOD__);
+			}
 			$status = new QADBResult(false, $e->getMessage());
 		}
 

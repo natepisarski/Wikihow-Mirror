@@ -21,8 +21,12 @@ class RisingStar {
 
 		$t = Title::newFromText('wikiHow:Rising-star-feed');
 		if ($t->getArticleId() > 0) {
-			$r = Revision::newFromTitle($t);
-			$text = ContentHandler::getContentText( $r->getContent() );
+			$r = Revision::newFromPageId($t->getArticleId());
+			if ($r) {
+				$text = ContentHandler::getContentText( $r->getContent() );
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}

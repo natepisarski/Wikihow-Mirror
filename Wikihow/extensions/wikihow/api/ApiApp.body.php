@@ -12,6 +12,7 @@ class ApiApp extends ApiBase {
 
 	public function __construct($main, $action) {
 		parent::__construct($main, $action);
+		$this->getRequest()->setVal('formatversion', '2');
 		$this->mSubCommands = self::$SubCommands;
 	}
 

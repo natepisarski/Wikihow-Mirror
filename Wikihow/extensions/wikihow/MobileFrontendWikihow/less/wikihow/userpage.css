@@ -52,13 +52,13 @@ a.uht_off, a.uht_off:visited { color: #606060; }
 }
 #user_head_tabs  .uht_off #uht_carat { display: none; }
 
-.userpage_section { 
+.userpage_section {
 	text-align: center;
 	margin-bottom: 1em;
 }
 
 /*BADGES*/
-.pb_badge_section a { 
+.pb_badge_section a {
 	float: left;
 	width: 50%;
 }
@@ -79,7 +79,7 @@ a.uht_off, a.uht_off:visited { color: #606060; }
 .pb-fa { background-position: 0 -135px; }
 .pb-welcome { background-position: 0 -296px; }
 
-.pb-badge div { 
+.pb-badge div {
 	position: absolute;
 	height: 23px;
 	bottom: 0px;
@@ -107,6 +107,7 @@ a.uht_off, a.uht_off:visited { color: #606060; }
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
+    word-break: break-word;
 }
 
 .de_comment, .discussion_entry_comment {
@@ -158,9 +159,9 @@ a.uht_off, a.uht_off:visited { color: #606060; }
     -webkit-border-radius: 20px;
     border-radius: 20px;
 }
-.user_kudos .de_user img { 
+.user_kudos .de_user img {
 	position: absolute;
-	left: -65px; 
+	left: -65px;
 }
 
 .de_user span { display: block; }
@@ -203,7 +204,7 @@ a.uht_off, a.uht_off:visited { color: #606060; }
 	right: 10px;
 }
 
-.postcommentForm_buttons .button { 
+.postcommentForm_buttons .button {
 	margin: 0 0 0 10px;
 	padding: 4px 12px !important;
 }
@@ -246,7 +247,7 @@ a.uht_off, a.uht_off:visited { color: #606060; }
 }
 
 
-@media only screen and (min-width: 600px) and (max-aspect-ratio: 13/9), 
+@media only screen and (min-width: 600px) and (max-aspect-ratio: 13/9),
 only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	.pb-badge p {
 		font-size: .45em;
@@ -265,9 +266,9 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	}
 	#uht_profile .icon { background-position: 8px 5px; }
 	#uht_profile.uht_off .icon { background-position: -18px 5px; }
-	
+
 	#touchdown { font-size: 1.2em; }
-	#touchdown a { 
+	#touchdown a {
 		background-size: 12px;
 		padding-right: 18px;
 	}

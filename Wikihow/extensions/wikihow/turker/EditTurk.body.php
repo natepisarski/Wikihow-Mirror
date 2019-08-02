@@ -1,8 +1,5 @@
 <?php
 
-global $IP;
-require_once("$IP/extensions/wikihow/titus/Titus.class.php");
-
 session_start();
 
 class EditTurk extends UnlistedSpecialPage {

@@ -107,6 +107,8 @@ class CommunityDashboard extends UnlistedSpecialPage {
 				$html = $this->displayMobileContainer();
 			}
 			else {
+				$out->addModules('ext.wikihow.community_dashboard');
+
 				$html = $this->displayContainer();
 
 				//check if we need the expertise modal (after signup)
@@ -151,7 +153,6 @@ class CommunityDashboard extends UnlistedSpecialPage {
 		$containerJS = array(
 			'community-dashboard.js',
 			'dashboard-widget.js',
-			'jquery.json-2.2.min.js',
 		);
 		$containerCSS = array(
 			'community-dashboard.css',
@@ -213,12 +214,6 @@ class CommunityDashboard extends UnlistedSpecialPage {
 
 		$func = array($this, 'displayWidgets');
 		$out = call_user_func($func, array('test'));
-
-		$langKeys = array(
-			'howto','cd-pause-updates','cd-resume-updates',
-			'cd-current-priority','cd-network-error',
-		);
-		$langScript = Wikihow_i18n::genJSMsgs($langKeys);
 
 		//TODO: Likely should move this somewhere else
 		//but not sure where yet

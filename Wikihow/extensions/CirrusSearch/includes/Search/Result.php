@@ -2,12 +2,13 @@
 
 namespace CirrusSearch\Search;
 
-use \CirrusSearch\InterwikiSearcher;
-use \CirrusSearch\Util;
-use \CirrusSearch\Searcher;
-use \MWTimestamp;
-use \SearchResult;
-use \Title;
+use CirrusSearch\Util;
+use CirrusSearch\Searcher;
+use MediaWiki\Logger\LoggerFactory;
+use MWTimestamp;
+use SearchResult;
+use Sanitizer;
+use Title;
 
 /**
  * An individual search result from Elasticsearch.
@@ -28,22 +29,51 @@ use \Title;
  * http://www.gnu.org/copyleft/gpl.html
  */
 class Result extends SearchResult {
-	private $titleSnippet = '';
-	private $redirectTitle = null, $redirectSnipppet = '';
-	private $sectionTitle = null, $sectionSnippet = '';
-	private $textSnippet = '', $isFileMatch = false;
-	private $interwiki = '', $interwikiNamespace = '';
-	private $wordCount;
-	private $byteSize;
-	private $timestamp;
 
-	// George 2015-04-14
+	/** @var int */
+	private $namespace;
+	/** @var string */
+	private $titleSnippet = '';
+	/** @var Title|null */
+	private $redirectTitle = null;
+	/** @var string */
+	private $redirectSnippet = '';
+	/** @var Title|null */
+	private $sectionTitle = null;
+	/** @var string */
+	private $sectionSnippet = '';
+	/** @var string */
+	private $categorySnippet = '';
+	/** @var string */
+	private $textSnippet;
+	/** @var bool */
+	private $isFileMatch = false;
+	/* @var string result wiki */
+	private $wiki;
+	/** @var string */
+	private $namespaceText = '';
+	/** @var int */
+	private $wordCount;
+	/** @var int */
+	private $byteSize;
+	/** @var string */
+	private $timestamp;
+	/** @var string */
+	private $docId;
+	/** @var float */
+	private $score;
+	/** @var array */
+	private $explanation;
+	/** @var bool */
+	private $ignoreMissingRev;
+
+	// Wikihow/George 2015-04-14
 	// wikiHow-specific fields
-	private $score = null;
+	private $whscore = null;
 	private $titusData = null;
 	private $template = null;
 
-	// George 2015-04-15
+	// Wikihow/George 2015-04-15
 	// TODO: Keep this around for the duration of the Elasticsearch project.
 	// Remove when done with testing, or improve and move to better location (Finner?).
 	public function printExplanation($expl, $indent=2) {
@@ -57,35 +87,20 @@ class Result extends SearchResult {
 
 	/**
 	 * Build the result.
-	 * @param $results \Elastica\ResultSet containing all search results
-	 * @param $result \Elastica\Result containing the given search result
-	 * @param string $interwiki Interwiki prefix, if any
-	 * @param $result \Elastic\Result containing information about the result this class should represent
+	 *
+	 * @param \Elastica\ResultSet $results containing all search results
+	 * @param \Elastica\Result $result containing the given search result
 	 */
-	public function __construct( $results, $result, $interwiki = '' ) {
-		if ( $interwiki ) {
-			$this->setInterwiki( $result, $interwiki );
-		}
-		$this->mTitle = Title::makeTitle( $result->namespace, $result->title, '', $this->interwiki );
+	public function __construct( $results, $result ) {
+		global $wgCirrusSearchDevelOptions;
+		$this->ignoreMissingRev = isset( $wgCirrusSearchDevelOptions['ignore_missing_rev'] );
+		$this->namespaceText = $result->namespace_text;
+		$this->wiki = $result->wiki;
+		$this->docId = $result->getId();
+		$this->namespace = $result->namespace;
+		$this->mTitle = TitleHelper::makeTitle( $result );
 		if ( $this->getTitle()->getNamespace() == NS_FILE ) {
 			$this->mImage = wfFindFile( $this->mTitle );
-		}
-
-		// George 2015-04-15
-		// TODO: Keep this around for the duration of the Elasticsearch project.
-		// print "EXPLANATIONDUMP\n";
-		// $this->printExplanation($result->getExplanation());
-
-		// George 2015-04-14
-		// Set Titus data
-		if (isset($result->titus)) {
-			$this->titusData = $result->titus;
-		}
-
-		// George 2015-05-12
-		// Set templates
-		if (isset($result->template)) {
-			$this->template = $result->template;
 		}
 
 		$fields = $result->getFields();
@@ -94,9 +109,13 @@ class Result extends SearchResult {
 		$this->byteSize = $result->text_bytes;
 		$this->timestamp = new MWTimestamp( $result->timestamp );
 		$highlights = $result->getHighlights();
-		// TODO remove when Elasticsearch issue 3757 is fixed
-		$highlights = $this->swapInPlainHighlighting( $highlights, 'redirect.title' );
-		$highlights = $this->swapInPlainHighlighting( $highlights, 'heading' );
+		// Evil hax to not special case .plain fields for intitle regex
+		foreach ( [ 'title', 'redirect.title' ] as $field ) {
+			if ( isset( $highlights["$field.plain"] ) && !isset( $highlights[$field] ) ) {
+				$highlights[$field] = $highlights["$field.plain"];
+				unset( $highlights["$field.plain"] );
+			}
+		}
 		if ( isset( $highlights[ 'title' ] ) ) {
 			$nstext = $this->getTitle()->getNamespace() === 0 ? '' :
 				Util::getNamespaceText( $this->getTitle() ) . ':';
@@ -104,48 +123,71 @@ class Result extends SearchResult {
 		} elseif ( $this->mTitle->isExternal() ) {
 			// Interwiki searches are weird. They won't have title highlights by design, but
 			// if we don't return a title snippet we'll get weird display results.
-			$nsText = $this->getInterwikiNamespaceText();
-			$titleText = $this->mTitle->getText();
-			$this->titleSnippet = $nsText ? "$nsText:$titleText" : $titleText;
+			$this->titleSnippet = $this->mTitle->getText();
 		}
 
 		if ( !isset( $highlights[ 'title' ] ) && isset( $highlights[ 'redirect.title' ] ) ) {
 			// Make sure to find the redirect title before escaping because escaping breaks it....
-			$redirects = $result->redirect;
-			$this->redirectTitle = $this->findRedirectTitle( $highlights[ 'redirect.title' ][ 0 ], $redirects );
-			$this->redirectSnipppet = $this->escapeHighlightedText( $highlights[ 'redirect.title' ][ 0 ] );
+			$this->redirectTitle = $this->findRedirectTitle( $result, $highlights[ 'redirect.title' ][ 0 ] );
+			$this->redirectSnippet = $this->escapeHighlightedText( $highlights[ 'redirect.title' ][ 0 ] );
 		}
 
 		$this->textSnippet = $this->escapeHighlightedText( $this->pickTextSnippet( $highlights ) );
 
 		if ( isset( $highlights[ 'heading' ] ) ) {
 			$this->sectionSnippet = $this->escapeHighlightedText( $highlights[ 'heading' ][ 0 ] );
-			$this->sectionTitle = $this->findSectionTitle();
+			$this->sectionTitle = $this->findSectionTitle( $highlights[ 'heading' ][ 0 ] );
 		}
 
-		// George 2015-04-14
+		if ( isset( $highlights[ 'category' ] ) ) {
+			$this->categorySnippet = $this->escapeHighlightedText( $highlights[ 'category' ][ 0 ] );
+		}
+		$this->score = $result->getScore();
+		$this->explanation = $result->getExplanation();
+
+		// Wikihow/George 2015-04-15
+		// TODO: Keep this around for the duration of the Elasticsearch project.
+		// print "EXPLANATIONDUMP\n";
+		// $this->printExplanation($result->getExplanation());
+
+		// Wikihow/George 2015-04-14
+		// Set Titus data
+		if (isset($result->titus)) {
+			$this->titusData = $result->titus;
+		}
+
+		// Wikihow/George 2015-05-12
+		// Set templates
+		if (isset($result->template)) {
+			$this->template = $result->template;
+		}
+
+		// Wikihow/George 2015-04-14
 		// Set the relevance score for display in search results
 		$maxScore = $results->getMaxScore();
-		if ($maxScore > 0 && !is_array($result->getScore())) {
-			$this->score = $result->getScore() / $results->getMaxScore();
-		} elseif (!is_array($result->getScore())) {
-			$this->score = $result->getScore();
+		$score = $result->getWHScore();
+		if ( $maxScore > 0 && !is_array($score) ) {
+			$this->whscore = $score / $maxScore;
+		} elseif ( !is_array($score) ) {
+			$this->whscore = $score;
 		} else {
-			$this->score = NULL;
+			$this->whscore = NULL;
 		}
 	}
 
+	/**
+	 * @param string[] $highlights
+	 * @return string
+	 */
 	private function pickTextSnippet( $highlights ) {
+		// This can get skipped if there the page was sent to Elasticsearch without text.
+		// This could be a bug or it could be that the page simply doesn't have any text.
 		$mainSnippet = '';
 		if ( isset( $highlights[ 'text' ] ) ) {
 			$mainSnippet = $highlights[ 'text' ][ 0 ];
 			if ( $this->containsMatches( $mainSnippet ) ) {
 				return $mainSnippet;
 			}
-		} else {
-			// This can get skipped if there the page was sent to Elasticsearch without text.
-			// This could be a bug or it could be that the page simply doesn't have any text.
-			$mainSnipppet = '';
 		}
 		if ( isset( $highlights[ 'auxiliary_text' ] ) ) {
 			$auxSnippet = $highlights[ 'auxiliary_text' ][ 0 ];
@@ -158,6 +200,12 @@ class Result extends SearchResult {
 			if ( $this->containsMatches( $fileSnippet ) ) {
 				$this->isFileMatch = true;
 				return $fileSnippet;
+			}
+		}
+		if ( isset( $highlights[ 'source_text.plain' ] ) ) {
+			$sourceSnippet = $highlights[ 'source_text.plain' ][ 0 ];
+			if ( $this->containsMatches( $sourceSnippet ) ) {
+				return $sourceSnippet;
 			}
 		}
 		return $mainSnippet;
@@ -174,167 +222,207 @@ class Result extends SearchResult {
 	 * @return bool
 	 */
 	public function isMissingRevision() {
-		return !$this->mTitle->isKnown();
-	}
-
-	/**
-	 * Swap plain highlighting into the highlighting field if there isn't any normal highlighting.
-	 * TODO remove when Elasticsearch issue 3757 is fixed.
-	 * @var $highlights array of highlighting results
-	 * @var $name string normal field name
-	 * @return $highlights with $name replaced with plain field results if $name isn't in $highlights
-	 */
-	private function swapInPlainHighlighting( $highlights, $name ) {
-		if ( !isset( $highlights[ $name ] ) && isset( $highlights[ "$name.plain" ] ) ) {
-			$highlights[ $name ] = $highlights[ "$name.plain" ];
-		}
-		return $highlights;
+		return !( $this->ignoreMissingRev || $this->mTitle->isKnown() );
 	}
 
 	/**
 	 * Escape highlighted text coming back from Elasticsearch.
-	 * @param $snippet string highlighted snippet returned from elasticsearch
+	 *
+	 * @param string $snippet highlighted snippet returned from elasticsearch
 	 * @return string $snippet with html escaped _except_ highlighting pre and post tags
 	 */
 	private function escapeHighlightedText( $snippet ) {
-		static $highlightPreEscaped = null, $highlightPostEscaped = null;
-		if ( $highlightPreEscaped === null ) {
-			$highlightPreEscaped = htmlspecialchars( Searcher::HIGHLIGHT_PRE );
-			$highlightPostEscaped = htmlspecialchars( Searcher::HIGHLIGHT_POST );
-		}
-		return str_replace( array( $highlightPreEscaped, $highlightPostEscaped ),
-			array( Searcher::HIGHLIGHT_PRE, Searcher::HIGHLIGHT_POST ),
-			htmlspecialchars( $snippet ) );
+		return strtr( htmlspecialchars( $snippet ), [
+			Searcher::HIGHLIGHT_PRE_MARKER => Searcher::HIGHLIGHT_PRE,
+			Searcher::HIGHLIGHT_POST_MARKER => Searcher::HIGHLIGHT_POST
+		] );
 	}
 
 	/**
 	 * Checks if a snippet contains matches by looking for HIGHLIGHT_PRE.
+	 *
 	 * @param string $snippet highlighted snippet returned from elasticsearch
 	 * @return boolean true if $snippet contains matches, false otherwise
 	 */
 	private function containsMatches( $snippet ) {
-		return strpos( $snippet, Searcher::HIGHLIGHT_PRE ) !== false;
+		return strpos( $snippet, Searcher::HIGHLIGHT_PRE_MARKER ) !== false;
 	}
 
 	/**
 	 * Build the redirect title from the highlighted redirect snippet.
-	 * @param string highlighted redirect snippet
-	 * @param array $redirects Array of redirects stored as arrays with 'title' and 'namespace' keys
-	 * @return Title object representing the redirect
+	 *
+	 * @param \Elastica\Result $result
+	 * @param string $snippet Highlighted redirect snippet
+	 * @return Title|null object representing the redirect
 	 */
-	private function findRedirectTitle( $snippet, $redirects ) {
+	private function findRedirectTitle( \Elastica\Result $result, $snippet ) {
 		$title = $this->stripHighlighting( $snippet );
 		// Grab the redirect that matches the highlighted title with the lowest namespace.
+		$redirects = $result->redirect;
 		// That is pretty arbitrary but it prioritizes 0 over others.
 		$best = null;
 		if ( $redirects !== null ) {
 			foreach ( $redirects as $redirect ) {
-				if ( $redirect[ 'title' ] === $title && ( $best === null || $best[ 'namespace' ] > $redirect ) ) {
+				if ( $redirect[ 'title' ] === $title && ( $best === null || $best[ 'namespace' ] > $redirect['namespace'] ) ) {
 					$best = $redirect;
 				}
 			}
 		}
 		if ( $best === null ) {
-			wfLogWarning( "Search backend highlighted a redirect ($title) but didn't return it." );
+			LoggerFactory::getInstance( 'CirrusSearch' )->warning(
+				"Search backend highlighted a redirect ({title}) but didn't return it.",
+				[ 'title' => $title ]
+			);
 			return null;
 		}
-		return Title::makeTitleSafe( $best[ 'namespace' ], $best[ 'title' ] );
+		return TitleHelper::makeRedirectTitle( $result, $best['title'], $best['namespace'] );
 	}
 
-	private function findSectionTitle() {
-		$heading = $this->stripHighlighting( $this->sectionSnippet );
-		return Title::makeTitle(
-			$this->getTitle()->getNamespace(),
-			$this->getTitle()->getDBkey(),
-			Title::escapeFragmentForURL( $heading )
-		);
+	/**
+	 * @return Title
+	 */
+	private function findSectionTitle( $highlighted ) {
+		return $this->getTitle()->createFragmentTarget( Sanitizer::escapeIdForLink(
+			$this->stripHighlighting( $highlighted )
+		) );
 	}
 
+	/**
+	 * @param string $highlighted
+	 * @return string
+	 */
 	private function stripHighlighting( $highlighted ) {
-		$markers = array( Searcher::HIGHLIGHT_PRE, Searcher::HIGHLIGHT_POST );
+		$markers = [ Searcher::HIGHLIGHT_PRE_MARKER, Searcher::HIGHLIGHT_POST_MARKER ];
 		return str_replace( $markers, '', $highlighted );
 	}
 
 	/**
-	 * Set interwiki and interwikiNamespace properties
-	 * @param \Elastica\Result $result containing the given search result
-	 * @param string $interwiki Interwiki prefix, if any
+	 * @return string
 	 */
-	private function setInterwiki( $result, $interwiki ) {
-		$resultIndex = $result->getIndex();
-		$indexBase = InterwikiSearcher::getIndexForInterwiki( $interwiki );
-		$pos = strpos( $resultIndex, $indexBase );
-		if ( $pos === 0 && $resultIndex[strlen( $indexBase )] == '_' ) {
-			$this->interwiki = $interwiki;
-			$this->interwikiNamespace = $result->namespace_text ? $result->namespace_text : '';
-		}
-	}
-
-	public function getTitleSnippet($terms) {
+	public function getTitleSnippet() {
 		return $this->titleSnippet;
 	}
 
+	/**
+	 * @return Title|null
+	 */
 	public function getRedirectTitle() {
 		return $this->redirectTitle;
 	}
 
-	public function getRedirectSnippet($terms) {
-		return $this->redirectSnipppet;
+	/**
+	 * @return string
+	 */
+	public function getRedirectSnippet() {
+		return $this->redirectSnippet;
 	}
 
+	/**
+	 * @param array $terms
+	 * @return string|null
+	 */
 	public function getTextSnippet( $terms ) {
 		return $this->textSnippet;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getSectionSnippet() {
 		return $this->sectionSnippet;
 	}
 
+	/**
+	 * @return Title|null
+	 */
 	public function getSectionTitle() {
 		return $this->sectionTitle;
 	}
 
-	// George 2015-04-14
-	// Used to display the relevance score in search results
-	public function getScore() {
-		return $this->score;
+	/**
+	 * @return string
+	 */
+	public function getCategorySnippet() {
+		return $this->categorySnippet;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getWordCount() {
 		return $this->wordCount;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getByteSize() {
 		return $this->byteSize;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTimestamp() {
 		return $this->timestamp->getTimestamp( TS_MW );
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isFileMatch() {
 		return $this->isFileMatch;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getInterwikiPrefix() {
-		return $this->interwiki;
+		return $this->mTitle->getInterwiki();
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getInterwikiNamespaceText() {
-		return $this->interwikiNamespace;
+		// Seems to be only useful for API
+		return $this->namespaceText;
 	}
 
-	// George 2015-04-14
+	/**
+	 * @return string
+	 */
+	public function getDocId() {
+		return $this->docId;
+	}
+
+	/**
+	 * @return float the score
+	 */
+	public function getScore() {
+		return $this->score;
+	}
+
+	/**
+	 * @return array lucene score explanation
+	 */
+	public function getExplanation() {
+		return $this->explanation;
+	}
+
+	// Wikihow/George 2015-04-14
+	// Used to display the relevance score in search results
+	public function getWHScore() {
+		return $this->whscore;
+	}
+
+	// Wikihow/George 2015-04-14
 	public function getTitusData() {
 		return $this->titusData;
 	}
 
-	// George 2015-05-12
+	// Wikihow/George 2015-05-12
 	public function getTemplates() {
 		return $this->template;
-	}
-
-	public function getTitle() {
-		return $this->mTitle;
 	}
 }

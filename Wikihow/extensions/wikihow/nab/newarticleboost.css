@@ -12,7 +12,7 @@
 #nap_header {
 	position: fixed;
 	top: 99px;
-	width: 693px;
+	width: 676px;
 	z-index: 5;
 }
 
@@ -36,7 +36,7 @@
 #wpDiff {
 	display:none;
 }
-.templatesUsed, .editHelp {
+.templatesUsed, .editHelp, .mw-editsection {
 	display:none;
 }
 

@@ -1,0 +1,40 @@
+{
+	"@metadata": {
+		"authors": [
+			"Asaifm",
+			"Ciphers",
+			"Emara",
+			"زكريا",
+			"Meno25",
+			"ديفيد"
+		]
+	},
+	"guidedtour-desc": "السماح للصفحات بعرض رسائل جولات إرشادية لمساعدة المستخدمين الجدد",
+	"guidedtour-help-url": "Help:جولات إرشادية",
+	"guidedtour-help-guider-url": "مساعدة:جولات إرشادية/مرشد",
+	"guidedtour-next-button": "التالي",
+	"guidedtour-okay-button": "حسناً",
+	"guidedtour-back-button": "رجوع",
+	"guidedtour-tour-test-testing": "تجربة",
+	"guidedtour-tour-test-test-description": "هذه تجربة للوصف. أبجد هوز حطي كلمن!",
+	"guidedtour-tour-test-callouts": "شرح التجربة",
+	"guidedtour-tour-test-portal-description": "هذه هي صفحة {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "جرب طريقة إعراب ميديا ويكي",
+	"guidedtour-tour-test-wikitext-description": "المرشد في جولتك على الويكي يمكن أن يحتوي على نص الويكي. استخدمه لإنشاء وصلة ويكي إلى [[{{MediaWiki:Guidedtour-help-url}}|توثيق الجولات المرشدة]]. أو [https://example.com وصلة خارجية]، على سبيل المثال.",
+	"guidedtour-tour-test-description-page": "جرب صفحات شرح ميديا ويكي",
+	"guidedtour-tour-test-go-description-page": "اذهب إلى صفحة الشرح",
+	"guidedtour-tour-test-launch-tour": "جرب جولة افتتاحية",
+	"guidedtour-tour-test-launch-tour-description": "من الممكن للمرشدين إطلاق المزيد من الجولات الإرشادية. أليس ذلك رائعا؟",
+	"guidedtour-tour-test-launch-editing": "بدء جولة حول التحرير",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|تعديل}} كامل الصفحة...",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|اضغط}} الزر \"$1\" لإجراء تعديلاتك.",
+	"guidedtour-tour-firstedit-edit-section-title": "أو عدلي{{GENDER:||ي}} قسما",
+	"guidedtour-tour-firstedit-edit-section-description": "هناك وصلات \"{{int:editsection}}\" لكل قسم رئيسي في الصفحة لكي تتمكن من التركيز عليه.",
+	"guidedtour-tour-firstedit-preview-title": "عاين{{GENDER:||ي}} تغييراتك (اختياري)",
+	"guidedtour-tour-firstedit-preview-description": "يمكنك معاينة شكل الصفحة عند الضغط على \"{{int:showpreview}}\". لا تنسى النقر على زر الحفظ عند غنتهائك من المعاينة!",
+	"guidedtour-tour-firstedit-save-title": "أنت على وشك الانتهاء!",
+	"guidedtour-tour-firstedit-save-description": "عند انتهائك قم بالضغط على \"{{int:publishchanges}}\" كي تظهر تغييراتك للجميع.",
+	"guidedtour-tour-firsteditve-edit-page-description": "اضغط{{GENDER:||ي}} \"$1\" لإجراء تعديلاتك.",
+	"guidedtour-tour-firsteditve-edit-section-description": "هناك وصلات \"$1\" لكل قسم رئيسي في الصفحة، لكي تتمكن من التركيز على هذا الجزء فقط.",
+	"guidedtour-tour-firsteditve-save-description": "عند انتهائك قم بالضغط على \"{{int:visualeditor-toolbar-savedialog}}\" كي تظهر تغييراتك للجميع."
+}

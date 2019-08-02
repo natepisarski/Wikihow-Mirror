@@ -34,11 +34,12 @@ if ($limit == 0) {
 }
 
 // get all of the new pages, newest first that aren't redirects and haven't been already checked
+$pageid = (isset($argv[1]) ? (int)$argv[1] : 0);
 $res = $dbr->query("SELECT * FROM recentchanges
 	LEFT JOIN copyviocheck ON cv_page=rc_cur_id
 	LEFT JOIN page ON rc_cur_id = page_id
 	WHERE rc_namespace = 0 AND rc_new = 1 AND page_is_redirect=0  "
-	. (isset($argv[0]) ? " and page_id =  " . $argv[0] : " AND cv_page is null ")
+	. ($pageid ? " AND page_id =  " . $pageid : " AND cv_page is null ")
 	. " ORDER BY page_id desc LIMIT $limit");
 
 $index = 0;

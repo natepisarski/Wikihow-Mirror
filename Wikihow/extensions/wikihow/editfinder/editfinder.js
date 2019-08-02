@@ -3,6 +3,7 @@
  */
 var editfinder_preview = false;
 var g_bEdited = false;
+var editfinder_toolbar = false;
 
 var EF_WIDGET_LEADERBOARD_REFRESH = 10 * 60;
 
@@ -303,9 +304,9 @@ EditFinder.prototype.edit = function (id,title) {
 			jQuery('#wpSummary').val("Edit from "+mw.message('app-name').text()+": " + editFinder.getEditType().toUpperCase());
 
 			//cancel link update
-			var cancel_link = jQuery('#mw-editform-cancel').attr('href');
+			var cancel_link = jQuery('#mw-editform-cancel a').attr('href');
 			cancel_link += '/'+editFinder.getEditType();
-			jQuery('#mw-editform-cancel').attr('href',cancel_link);
+			jQuery('#mw-editform-cancel a').attr('href',cancel_link);
 
 			//make Cancel do the right thing
 			jQuery('.editButtons #edit_cancel_btn').unbind('click');
@@ -534,19 +535,22 @@ EditFinder.prototype.getUserCats = function() {
 EditFinder.prototype.restoreToolbarButtons = function() {
 	if(window.mw){
 		mw.loader.using("mediawiki.action.edit", function() {
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Bold text", "\'\'\'", "\'\'\'", "Place bold text here", "mw-editbutton-bold");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Italic text", "\'\'", "\'\'", "Italic text", "mw-editbutton-italic");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Internal link", "[[", "]]", "Link title", "mw-editbutton-link");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "External link (remember http:// prefix)", "[", "]", "http://www.example.com link title", "mw-editbutton-extlink");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Level 2 headline", "\n== ", " ==\n", "Headline text", "mw-editbutton-headline");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Embedded image", "[[Image:", "]]", "Example.jpg", "mw-editbutton-image");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Media file link", "[[Media:", "]]", "Example.ogg", "mw-editbutton-media");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Ignore wiki formatting", "\x3cnowiki\x3e", "\x3c/nowiki\x3e", "Insert non-formatted text here", "mw-editbutton-nowiki");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Your signature with timestamp", "--~~~~", "", "", "mw-editbutton-signature");
-		mw.toolbar.addButton("/skins/owl/images/1x1_transparent.gif", "Horizontal line (use sparingly)", "\n----\n", "", "", "mw-editbutton-hr");
+			if ( !editfinder_toolbar ) {
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Bold text", "\'\'\'", "\'\'\'", "Place bold text here", "mw-editbutton-bold");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Italic text", "\'\'", "\'\'", "Italic text", "mw-editbutton-italic");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Internal link", "[[", "]]", "Link title", "mw-editbutton-link");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "External link (remember http:// prefix)", "[", "]", "http://www.example.com link title", "mw-editbutton-extlink");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Level 2 headline", "\n== ", " ==\n", "Headline text", "mw-editbutton-headline");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Embedded image", "[[Image:", "]]", "Example.jpg", "mw-editbutton-image");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Media file link", "[[Media:", "]]", "Example.ogg", "mw-editbutton-media");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Ignore wiki formatting", "\x3cnowiki\x3e", "\x3c/nowiki\x3e", "Insert non-formatted text here", "mw-editbutton-nowiki");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Your signature with timestamp", "--~~~~", "", "", "mw-editbutton-signature");
+				WH.Editor.addButton("/skins/owl/images/1x1_transparent.gif", "Horizontal line (use sparingly)", "\n----\n", "", "", "mw-editbutton-hr");
+				editfinder_toolbar = true;
+			}
 
 		// Create button bar
-		$(function() { mw.toolbar.init(); } );
+			$(function() { WH.Editor.setupEditFormOnReady(); } );
 		});
 	}
 }

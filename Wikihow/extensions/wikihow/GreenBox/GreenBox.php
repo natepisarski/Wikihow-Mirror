@@ -5,7 +5,7 @@ $wgSpecialPages['GreenBoxEditTool'] = 'GreenBoxEditTool';
 $wgAutoloadClasses['GreenBox'] = __DIR__ . '/GreenBox.class.php';
 $wgAutoloadClasses['GreenBoxEditTool'] = __DIR__ . '/GreenBoxEditTool.body.php';
 
-$wgExtensionMessagesFiles['GreenBox'] = __DIR__ . '/GreenBox.i18n.magic.php';
+$wgExtensionMessagesFiles['GreenBoxMagic'] = __DIR__ . '/GreenBox.i18n.magic.php';
 $wgMessagesDirs['GreenBox'] = __DIR__ . '/i18n';
 
 $wgHooks['ParserFirstCallInit'][] 					= ['GreenBox::onParserFirstCallInit'];

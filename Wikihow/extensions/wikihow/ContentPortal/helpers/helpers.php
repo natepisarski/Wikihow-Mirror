@@ -32,8 +32,8 @@ function controller() {
 	return MVC\Controller::getInstance();
 }
 
-function avatar(ContentPortal\User $user) {
+function getWikihowAvatar(ContentPortal\User $user) {
 	global $wgIsDevServer;
-	$prefix = $wgIsDevServer ? '' : 'http://www.wikihow.com';
+	$prefix = $wgIsDevServer ? '' : 'https://www.wikihow.com';
 	return $prefix . Avatar::getAvatarURL($user->username);
 }

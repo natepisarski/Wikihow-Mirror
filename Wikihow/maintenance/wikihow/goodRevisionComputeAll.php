@@ -4,9 +4,13 @@
 // for each article on the site.
 //
 
-require_once __DIR__ . '/../commandLine.inc';
+require_once __DIR__ . '/../Maintenance.php';
 
-class GoodRevisionRecompute {
+class GoodRevisionRecompute extends Maintenance {
+
+	public function execute() {
+		self::computeLatestAll();
+	}
 
 	/**
 	 * Compute the latest good revisions table for all articles.
@@ -46,7 +50,7 @@ class GoodRevisionRecompute {
 				WHERE page_id = rc_cur_id AND
 					page_namespace = 0 AND
 					page_is_redirect = 0 AND
-					rc_patrolled = 1 AND
+					rc_patrolled != 0 AND
 					page_touched >= ' . $dbw->addQuotes($one_week_ago) . '
 				GROUP BY rc_cur_id';
 		$patrolled = array();
@@ -101,5 +105,5 @@ class GoodRevisionRecompute {
 
 }
 
-GoodRevisionRecompute::computeLatestAll();
-
+$maintClass = 'GoodRevisionRecompute';
+require_once RUN_MAINTENANCE_IF_MAIN;

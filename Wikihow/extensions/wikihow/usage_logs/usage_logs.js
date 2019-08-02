@@ -1,5 +1,6 @@
 (function () {
 	"use strict";
+
 	window.WH = WH || {};
 	window.WH.usageLogs = {
 
@@ -76,7 +77,7 @@
 					payload.serialized_data[key] = action[key];
 				}
 			}, this);
-			
+
 			// failsafe to prevent eager clicking before DOM and JS are initialized
 			if (_.isNull(payload.event_type) || _.isNull(payload.event_action)) {
 				return;
@@ -114,5 +115,7 @@
 		}
 	};
 
-	WH.usageLogs.initialize();
+	mw.loader.using( 'ext.wikihow.common_top', function() {
+		WH.usageLogs.initialize();
+	} );
 }());

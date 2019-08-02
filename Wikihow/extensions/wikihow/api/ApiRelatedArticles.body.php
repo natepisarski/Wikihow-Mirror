@@ -4,7 +4,7 @@
  *
  * @class
  */
-class ApiRelatedArticles extends ApiQueryBase {
+class ApiRelatedArticles extends ApiBase {
 
 	/* Static Members */
 

@@ -27,11 +27,15 @@ class ThankAuthorsJob extends Job {
 
 	function sendKudos() {
 		$title = $this->title;
-		$kudos = $this->params['kudos'];
-		$submitter = $this->params['source'];
+		$kudos = $this->params['kudos'] ?? 0;
+		$submitter = $this->params['source'] ?? null;
 
 		$authors = array_keys(ArticleAuthors::getAuthors($title->getArticleID()));
 		wfDebugLog( 'ThankAuthors', "job received to send kudos to: " . implode( ',', $authors) );
+		if (!$submitter) {
+			wfDebugLog( 'ThankAuthors', "Error: job received with params " . print_r($this->params,true) . "; no source found" );
+			return true;
+		}
 
 		foreach ($authors as $author) {
 			$user = User::newFromName($author);

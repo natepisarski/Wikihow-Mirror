@@ -19,6 +19,7 @@
  *
  * @file
  */
+use Wikimedia\ObjectFactory;
 
 /**
  * Class to implement stub globals, which are globals that delay loading the
@@ -42,30 +43,42 @@
  * which refers to it should be kept to a minimum.
  */
 class StubObject {
-	var $mGlobal, $mClass, $mParams;
+	/** @var null|string */
+	protected $global;
+
+	/** @var null|string */
+	protected $class;
+
+	/** @var null|callable */
+	protected $factory;
+
+	/** @var array */
+	protected $params;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param string $global name of the global variable.
-	 * @param string $class name of the class of the real object.
-	 * @param array $params parameters to pass to constructor of the real
-	 *               object.
+	 * @param string|null $global Name of the global variable.
+	 * @param string|callable|null $class Name of the class of the real object
+	 *                               or a factory function to call
+	 * @param array $params Parameters to pass to constructor of the real object.
 	 */
-	function __construct( $global = null, $class = null, $params = array() ) {
-		$this->mGlobal = $global;
-		$this->mClass = $class;
-		$this->mParams = $params;
+	public function __construct( $global = null, $class = null, $params = [] ) {
+		$this->global = $global;
+		if ( is_callable( $class ) ) {
+			$this->factory = $class;
+		} else {
+			$this->class = $class;
+		}
+		$this->params = $params;
 	}
 
 	/**
 	 * Returns a bool value whenever $obj is a stub object. Can be used to break
 	 * a infinite loop when unstubbing an object.
 	 *
-	 * @param $obj Object to check.
-	 * @return Boolean: true if $obj is not an instance of StubObject class.
+	 * @param object $obj Object to check.
+	 * @return bool True if $obj is not an instance of StubObject class.
 	 */
-	static function isRealObject( $obj ) {
+	public static function isRealObject( $obj ) {
 		return is_object( $obj ) && !$obj instanceof StubObject;
 	}
 
@@ -74,12 +87,12 @@ class StubObject {
 	 * infinite loop when unstubbing an object or to avoid reference parameter
 	 * breakage.
 	 *
-	 * @param $obj Object to check.
+	 * @param object &$obj Object to check.
 	 * @return void
 	 */
-	static function unstub( $obj ) {
+	public static function unstub( &$obj ) {
 		if ( $obj instanceof StubObject ) {
-			$obj->_unstub( 'unstub', 3 );
+			$obj = $obj->_unstub( 'unstub', 3 );
 		}
 	}
 
@@ -90,32 +103,38 @@ class StubObject {
 	 * This function will also call the function with the same name in the real
 	 * object.
 	 *
-	 * @param string $name name of the function called
-	 * @param array $args arguments
+	 * @param string $name Name of the function called
+	 * @param array $args Arguments
 	 * @return mixed
 	 */
-	function _call( $name, $args ) {
+	public function _call( $name, $args ) {
 		$this->_unstub( $name, 5 );
-		return call_user_func_array( array( $GLOBALS[$this->mGlobal], $name ), $args );
+		return call_user_func_array( [ $GLOBALS[$this->global], $name ], $args );
 	}
 
 	/**
 	 * Create a new object to replace this stub object.
 	 * @return object
 	 */
-	function _newObject() {
-		return MWFunction::newObj( $this->mClass, $this->mParams );
+	public function _newObject() {
+		$params = $this->factory
+			? [ 'factory' => $this->factory ]
+			: [ 'class' => $this->class ];
+		return ObjectFactory::getObjectFromSpec( $params + [
+			'args' => $this->params,
+			'closure_expansion' => false,
+		] );
 	}
 
 	/**
 	 * Function called by PHP if no function with that name exists in this
 	 * object.
 	 *
-	 * @param string $name name of the function called
-	 * @param array $args arguments
+	 * @param string $name Name of the function called
+	 * @param array $args Arguments
 	 * @return mixed
 	 */
-	function __call( $name, $args ) {
+	public function __call( $name, $args ) {
 		return $this->_call( $name, $args );
 	}
 
@@ -125,82 +144,65 @@ class StubObject {
 	 * This is public, for the convenience of external callers wishing to access
 	 * properties, e.g. eval.php
 	 *
-	 * @param string $name name of the method called in this object.
-	 * @param $level Integer: level to go in the stack trace to get the function
-	 *               who called this function.
+	 * @param string $name Name of the method called in this object.
+	 * @param int $level Level to go in the stack trace to get the function
+	 *   who called this function.
+	 * @return object The unstubbed version of itself
 	 * @throws MWException
 	 */
-	function _unstub( $name = '_unstub', $level = 2 ) {
+	public function _unstub( $name = '_unstub', $level = 2 ) {
 		static $recursionLevel = 0;
 
-		if ( !$GLOBALS[$this->mGlobal] instanceof StubObject ) {
-			return $GLOBALS[$this->mGlobal]; // already unstubbed.
+		if ( !$GLOBALS[$this->global] instanceof StubObject ) {
+			return $GLOBALS[$this->global]; // already unstubbed.
 		}
 
-		if ( get_class( $GLOBALS[$this->mGlobal] ) != $this->mClass ) {
-			$fname = __METHOD__ . '-' . $this->mGlobal;
-			wfProfileIn( $fname );
+		if ( get_class( $GLOBALS[$this->global] ) != $this->class ) {
 			$caller = wfGetCaller( $level );
 			if ( ++$recursionLevel > 2 ) {
-				wfProfileOut( $fname );
-				throw new MWException( "Unstub loop detected on call of \${$this->mGlobal}->$name from $caller\n" );
+				throw new MWException( "Unstub loop detected on call of "
+					. "\${$this->global}->$name from $caller\n" );
 			}
-			wfDebug( "Unstubbing \${$this->mGlobal} on call of \${$this->mGlobal}::$name from $caller\n" );
-			$GLOBALS[$this->mGlobal] = $this->_newObject();
+			wfDebug( "Unstubbing \${$this->global} on call of "
+				. "\${$this->global}::$name from $caller\n" );
+			$GLOBALS[$this->global] = $this->_newObject();
 			--$recursionLevel;
-			wfProfileOut( $fname );
+			return $GLOBALS[$this->global];
 		}
 	}
 }
 
 /**
- * Stub object for the content language of this wiki. This object have to be in
- * $wgContLang global.
- *
- * @deprecated since 1.18
- */
-class StubContLang extends StubObject {
-
-	function __construct() {
-		wfDeprecated( __CLASS__, '1.18' );
-		parent::__construct( 'wgContLang' );
-	}
-
-	function __call( $name, $args ) {
-		return $this->_call( $name, $args );
-	}
-
-	/**
-	 * @return Language
-	 */
-	function _newObject() {
-		global $wgLanguageCode;
-		$obj = Language::factory( $wgLanguageCode );
-		$obj->initEncoding();
-		$obj->initContLang();
-		return $obj;
-	}
-}
-
-/**
- * Stub object for the user language. It depends of the user preferences and
- * "uselang" parameter that can be passed to index.php. This object have to be
- * in $wgLang global.
+ * Stub object for the user language. Assigned to the $wgLang global.
  */
 class StubUserLang extends StubObject {
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'wgLang' );
 	}
 
-	function __call( $name, $args ) {
-		return $this->_call( $name, $args );
+	/**
+	 * Call Language::findVariantLink after unstubbing $wgLang.
+	 *
+	 * This method is implemented with a full signature rather than relying on
+	 * __call so that the pass-by-reference signature of the proxied method is
+	 * honored.
+	 *
+	 * @param string &$link The name of the link
+	 * @param Title &$nt The title object of the link
+	 * @param bool $ignoreOtherCond To disable other conditions when
+	 *   we need to transclude a template or update a category's link
+	 */
+	public function findVariantLink( &$link, &$nt, $ignoreOtherCond = false ) {
+		global $wgLang;
+		$this->_unstub( 'findVariantLink', 3 );
+		$wgLang->findVariantLink( $link, $nt, $ignoreOtherCond );
 	}
 
 	/**
 	 * @return Language
 	 */
-	function _newObject() {
+	public function _newObject() {
 		return RequestContext::getMain()->getLanguage();
 	}
 }

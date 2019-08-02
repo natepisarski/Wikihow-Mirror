@@ -1,10 +1,12 @@
 <?php
 
 namespace CirrusSearch\Sanity;
-use \CirrusSearch\Job\DeletePages;
-use \CirrusSearch\Job\LinksUpdate;
-use \JobQueueGroup;
-use \WikiPage;
+
+use CirrusSearch\Job\DeletePages;
+use CirrusSearch\Job\LinksUpdate;
+use JobQueueGroup;
+use Title;
+use WikiPage;
 
 /**
  * Remediator implementation that queues jobs to fix the index.
@@ -26,31 +28,78 @@ use \WikiPage;
  */
 
 class QueueingRemediator implements Remediator {
-	public function redirectInIndex( $page ) {
+	/**
+	 * @var string|null
+	 */
+	protected $cluster;
+
+	/**
+	 * @param string|null $cluster The name of the cluster to update,
+	 *  or null to update all clusters.
+	 */
+	public function __construct( $cluster ) {
+		$this->cluster = $cluster;
+	}
+
+	public function redirectInIndex( WikiPage $page ) {
 		$this->pushLinksUpdateJob( $page );
 	}
-	public function pageNotInIndex( $page ) {
-		$this->pushLinksUpdateJob( $page );
-	}
-	public function ghostPageInIndex( $pageId, $title ) {
-		JobQueueGroup::singleton()->push(
-			new DeletePages( $title, array( 'id' => $pageId ) )
-		);
-	}
-	public function pageInWrongIndex( $page, $wrongIndex ) {
-		JobQueueGroup::singleton()->push( new DeletePages( $page->getTitle(), array(
-			'indexType' => $wrongIndex,
-			'id' => $page->getId()
-		) ) );
+	public function pageNotInIndex( WikiPage $page ) {
 		$this->pushLinksUpdateJob( $page );
 	}
 
-	private function pushLinksUpdateJob( $page ) {
+	/**
+	 * @param string $docId
+	 * @param Title $title
+	 */
+	public function ghostPageInIndex( $docId, Title $title ) {
 		JobQueueGroup::singleton()->push(
-			new LinksUpdate( $page->getTitle(), array(
-				'addedLinks' => array(),
-				'removedLinks' => array(),
-			) )
+			new DeletePages( $title, [
+				'docId' => $docId,
+				'cluster' => $this->cluster,
+			] )
+		);
+	}
+
+	/**
+	 * @param string $docId
+	 * @param WikiPage $page
+	 * @param string $wrongIndex
+	 */
+	public function pageInWrongIndex( $docId, WikiPage $page, $wrongIndex ) {
+		JobQueueGroup::singleton()->push(
+			new DeletePages( $page->getTitle(), [
+				'indexType' => $wrongIndex,
+				'docId' => $docId,
+				'cluster' => $this->cluster,
+			] )
+		);
+		$this->pushLinksUpdateJob( $page );
+	}
+
+	/**
+	 * @param string $docId
+	 * @param WikiPage $page
+	 * @param string $index
+	 */
+	public function oldVersionInIndex( $docId, WikiPage $page, $index ) {
+		$this->pushLinksUpdateJob( $page );
+	}
+
+	/**
+	 * @param WikiPage $page
+	 */
+	public function oldDocument( WikiPage $page ) {
+		$this->pushLinksUpdateJob( $page );
+	}
+
+	private function pushLinksUpdateJob( WikiPage $page ) {
+		JobQueueGroup::singleton()->push(
+			new LinksUpdate( $page->getTitle(), [
+				'addedLinks' => [],
+				'removedLinks' => [],
+				'cluster' => $this->cluster,
+			] )
 		);
 	}
 }

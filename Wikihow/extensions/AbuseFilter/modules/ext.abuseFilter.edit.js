@@ -4,78 +4,83 @@
  * @author John Du Hart
  * @author Marius Hoch <hoo@online.de>
  */
+/* global ace */
 
-( function( mw, $ ) {
+( function () {
 	'use strict';
 
-	// Filter textarea
-	// @var {jQuery}
-	var $filterBox;
+	// @var {jQuery} Filter editor for JS and jQuery handling
+	var $filterBox,
+		// Filter editor for Ace specific functions
+		filterEditor,
+		// @var {jQuery} Hidden textarea for submitting form
+		$plainTextBox,
+		// @var {boolean} To determine what editor to use
+		useAce = false,
+		// Infused OOUI elements
+		toggleWarnPreviewButton, warnMessageExisting, warnMessageOther,
+		toggleDisallowPreviewButton, disallowMessageExisting, disallowMessageOther;
 
 	/**
-	 * Returns the currently selected warning message
+	 * Returns the currently selected warning or disallow message.
 	 *
-	 * @returns {string} current warning message
+	 * @param {string} action The action to get the message for
+	 * @return {string} current warning message
 	 */
-	function getCurrentWarningMessage() {
-		var message = $( '#mw-abusefilter-warn-message-existing' ).val();
+	function getCurrentMessage( action ) {
+		var existing = action === 'warn' ? warnMessageExisting : disallowMessageExisting,
+			other = action === 'warn' ? warnMessageOther : disallowMessageOther,
+			message = existing.getValue();
 
 		if ( message === 'other' ) {
-			message = $( '#mw-abusefilter-warn-message-other' ).val();
+			message = other.getValue();
 		}
 
 		return message;
 	}
 
 	/**
-	 * Sends the current filter text to be checked for syntax issues.
-	 *
-	 * @context HTMLElement
-	 * @param {jQuery.Event} e
-	 */
-	function doSyntaxCheck() {
-		/*jshint validthis:true */
-		var filter = $filterBox.val(),
-			api = new mw.Api();
-
-		$( this )
-			.attr( 'disabled', 'disabled' )
-			.injectSpinner( 'abusefilter-syntaxcheck' );
-
-		api.post( {
-			action: 'abusefilterchecksyntax',
-			filter: filter
-		} )
-		.done( processSyntaxResult )
-		.fail( processSyntaxResultFailure );
-	}
-
-	/**
 	 * Things always needed after syntax checks
 	 *
-	 * @param {string} resultText
+	 * @param {string} resultText The message to show, telling if the syntax is valid
 	 * @param {string} className Class to add
-	 * @param {bool} syntaxOk Is the syntax ok?
+	 * @param {boolean} syntaxOk Is the syntax ok?
 	 */
 	function processSyntaxResultAlways( resultText, className, syntaxOk ) {
 		$.removeSpinner( 'abusefilter-syntaxcheck' );
-		$( '#mw-abusefilter-syntaxcheck' ).removeAttr( 'disabled' );
+		$( '#mw-abusefilter-syntaxcheck' ).prop( 'disabled', false );
 
 		$( '#mw-abusefilter-syntaxresult' )
 			.show()
-			.removeClass( 'mw-abusefilter-syntaxresult-ok mw-abusefilter-syntaxresult-error' )
+			.attr( 'class', className )
 			.text( resultText )
-			.addClass( className )
 			.data( 'syntaxOk', syntaxOk );
 	}
 
 	/**
-	 * Takes the data retrieved in doSyntaxCheck and processes it
-	 *
-	 * @param {Object} data Data returned from the AJAX request
+	 * Switch between Ace Editor and classic textarea
 	 */
-	function processSyntaxResult( data ) {
-		data = data.abusefilterchecksyntax;
+	function switchEditor() {
+		if ( useAce ) {
+			useAce = false;
+			$filterBox.hide();
+			$plainTextBox.show();
+		} else {
+			useAce = true;
+			filterEditor.session.setValue( $plainTextBox.val() );
+			$filterBox.show();
+			$plainTextBox.hide();
+		}
+	}
+
+	/**
+	 * Takes the data retrieved in doSyntaxCheck and processes it.
+	 *
+	 * @param {Object} response Data returned from the AJAX request
+	 */
+	function processSyntaxResult( response ) {
+		var position,
+			data = response.abusefilterchecksyntax;
 
 		if ( data.status === 'ok' ) {
 			// Successful
@@ -92,25 +97,59 @@
 				false
 			);
 
-			$filterBox
-				.focus()
-				.textSelection( 'setSelection', { start: data.character } );
+			if ( useAce ) {
+				filterEditor.focus();
+				// Convert index (used in textareas) in position {row, column} for ace
+				position = filterEditor.session.getDocument().indexToPosition( data.character );
+				filterEditor.navigateTo( position.row, position.column );
+				filterEditor.scrollToRow( position.row );
+			} else {
+				$plainTextBox
+					.trigger( 'focus' )
+					.textSelection( 'setSelection', { start: data.character } );
+			}
 		}
 	}
 
 	/**
-	 * Acts on errors after doSyntaxCheck
+	 * Acts on errors after doSyntaxCheck.
+	 *
+	 * @param {string} error Error code returned from the AJAX request
+	 * @param {Object} details Details about the error
 	 */
-	function processSyntaxResultFailure() {
+	function processSyntaxResultFailure( error, details ) {
+		var msg = error === 'http' ? 'abusefilter-http-error' : 'unknown-error';
 		processSyntaxResultAlways(
-			mw.msg( 'unknown-error' ),
+			mw.msg( msg, details && details.exception ),
 			'mw-abusefilter-syntaxresult-error',
 			false
 		);
 	}
 
 	/**
-	 * Adds text to the filter textarea
+	 * Sends the current filter text to be checked for syntax issues.
+	 *
+	 * @context HTMLElement
+	 * @param {jQuery.Event} e The event fired when the function is called
+	 */
+	function doSyntaxCheck() {
+		var filter = $plainTextBox.val(),
+			api = new mw.Api();
+
+		$( this )
+			.prop( 'disabled', true )
+			.injectSpinner( { id: 'abusefilter-syntaxcheck', size: 'large' } );
+
+		api.post( {
+			action: 'abusefilterchecksyntax',
+			filter: filter
+		} )
+			.done( processSyntaxResult )
+			.fail( processSyntaxResultFailure );
+	}
+
+	/**
+	 * Adds text to the filter textarea.
 	 * Fired by a change event from the #wpFilterBuilder dropdown
 	 */
 	function addText() {
@@ -120,9 +159,15 @@
 			return;
 		}
 
-		$filterBox.textSelection(
-			'encapsulateSelection', { 'pre': $filterBuilder.val() + ' ' }
-		);
+		if ( useAce ) {
+			filterEditor.insert( $filterBuilder.val() + ' ' );
+			$plainTextBox.val( filterEditor.getSession().getValue() );
+			filterEditor.focus();
+		} else {
+			$plainTextBox.textSelection(
+				'encapsulateSelection', { pre: $filterBuilder.val() + ' ' }
+			);
+		}
 		$filterBuilder.prop( 'selectedIndex', 0 );
 	}
 
@@ -130,18 +175,17 @@
 	 * Fetches a filter from the API and inserts it into the filter box.
 	 *
 	 * @context HTMLElement
-	 * @param {jQuery.Event} e
+	 * @param {jQuery.Event} e The event fired when the function is called
 	 */
 	function fetchFilter() {
-		/*jshint validthis:true */
-		var filterId = $.trim( $( '#mw-abusefilter-load-filter' ).val() ),
+		var filterId = $( '#mw-abusefilter-load-filter input' ).val().trim(),
 			api;
 
 		if ( filterId === '' ) {
 			return;
 		}
 
-		$( this ).injectSpinner( 'fetch-spinner' );
+		$( this ).injectSpinner( { id: 'fetch-spinner', size: 'large' } );
 
 		// We just ignore errors or unexisting filters over here
 		api = new mw.Api();
@@ -153,24 +197,27 @@
 			abfendid: filterId,
 			abflimit: 1
 		} )
-		.always( function() {
-			$.removeSpinner( 'fetch-spinner' );
-		} )
-		.done( function( data ) {
-			if ( data.query.abusefilters[0] !== undefined ) {
-				$filterBox.val( data.query.abusefilters[0].pattern );
-			}
-		} );
+			.always( function removeSpinner() {
+				$.removeSpinner( 'fetch-spinner' );
+			} )
+			.done( function insertFilter( data ) {
+				if ( data.query.abusefilters[ 0 ] !== undefined ) {
+					if ( useAce ) {
+						filterEditor.setValue( data.query.abusefilters[ 0 ].pattern );
+					}
+					$plainTextBox.val( data.query.abusefilters[ 0 ].pattern );
+				}
+			} );
 	}
 
 	/**
-	 * Cycles through all action checkboxes and hides parameter divs
+	 * Cycles through all action checkboxes and hides parameter divs.
 	 * that don't have checked boxes
 	 */
 	function hideDeselectedActions() {
-		$( 'input.mw-abusefilter-action-checkbox' ).each( function() {
+		$( '.mw-abusefilter-action-checkbox input' ).each( function showHideParams() {
 			// mw-abusefilter-action-checkbox-{$action}
-			var action = this.id.substr( 31 ),
+			var action = this.parentNode.id.substr( 31 ),
 				$params = $( '#mw-abusefilter-' + action + '-parameters' );
 
 			if ( $params.length ) {
@@ -184,97 +231,274 @@
 	}
 
 	/**
-	* Fetches the selected warning message for previewing
-	*/
-	function previewWarnMessage() {
-		$.get(
-			mw.config.get( 'wgScript' ), {
-				title: 'MediaWiki:' + getCurrentWarningMessage(),
-				action: 'render'
-			}
-		)
-		.done( function( messageHtml ) {
-			// Replace $1 with the description of the filter
-			messageHtml = messageHtml.replace(
-				/\$1/g,
-				mw.html.escape( $( 'input[name=wpFilterDescription]' ).val() )
-			);
-
-			$( '#mw-abusefilter-warn-preview' ).html( messageHtml );
-		} );
-	}
-
-	/**
-	 * Redirects the browser to the warning message for editing
+	 * Fetches the selected warning message for previewing.
+	 *
+	 * @param {string} action The action the message refers to
 	 */
-	function editWarnMessage() {
-		var message = getCurrentWarningMessage();
+	function previewMessage( action ) {
+		var api = new mw.Api(),
+			args = [
+				'<nowiki>' + $( 'input[name=wpFilterDescription]' ).val() + '</nowiki>',
+				$( '#mw-abusefilter-edit-id' ).children().last().text()
+			],
+			message = getCurrentMessage( action ),
+			// mw-abusefilter-warn-preview, mw-abusefilter-disallow-preview
+			$element = $( '#mw-abusefilter-' + action + '-preview' ),
+			previewButton = action === 'warn' ? toggleWarnPreviewButton : toggleDisallowPreviewButton;
 
-		window.location = mw.config.get( 'wgScript' ) + '?title=MediaWiki:' +  mw.util.wikiUrlencode( message ) + '&action=edit&preload=MediaWiki:abusefilter-warning';
+		if ( $element.is( ':visible' ) ) {
+			$element.hide();
+			previewButton.setFlags( { destructive: false, progressive: true } );
+		} else {
+			api.get( {
+				action: 'query',
+				meta: 'allmessages',
+				ammessages: message,
+				amargs: args.join( '|' )
+			} )
+				.done( function parseMessage( data ) {
+					api.parse( data.query.allmessages[ 0 ][ '*' ], {
+						disablelimitreport: '',
+						preview: '',
+						prop: 'text',
+						title: 'MediaWiki:' + message
+					} )
+						.done( function showMessage( html ) {
+							$element.show().html( html );
+							previewButton.setFlags(
+								{ destructive: true, progressive: false }
+							);
+						} );
+				} );
+		}
 	}
 
 	/**
-	 * Called if the filter group (#mw-abusefilter-edit-group-input) is changed.
+	 * Redirects the browser to the message for editing.
+	 *
+	 * @param {string} action The action for which the message is used
+	 */
+	function editMessage( action ) {
+		var message = getCurrentMessage( action ),
+			defaultMsg = action === 'warn' ? 'warning' : 'disallowed',
+			url = mw.config.get( 'wgScript' ) +
+				'?title=MediaWiki:' + mw.util.wikiUrlencode( message ) +
+				'&action=edit&preload=MediaWiki:abusefilter-' + defaultMsg;
+
+		window.open( url, '_blank' );
+	}
+
+	/**
+	 * Called if the filter group (#mw-abusefilter-edit-group-input select) is changed.
 	 *
 	 * @context HTMLELement
-	 * @param {jQuery.Event} e
+	 * @param {jQuery.Event} e The event fired when the function is called
 	 */
 	function onFilterGroupChange() {
-		/*jshint validthis:true */
-		var $afWarnMessageExisting, $afWarnMessageOther, newVal;
+		var $afWarnMessageExisting, $afDisallowMessageExisting, newVal;
 
 		if ( !$( '#mw-abusefilter-action-warn-checkbox' ).is( ':checked' ) ) {
-			$afWarnMessageExisting = $( '#mw-abusefilter-warn-message-existing' );
-			$afWarnMessageOther = $( '#mw-abusefilter-warn-message-other' );
-			newVal = mw.config.get( 'wgAbuseFilterDefaultWarningMessage' )[$( this ).val()];
+			$afWarnMessageExisting = $( '#mw-abusefilter-warn-message-existing select' );
+			newVal = mw.config.get( 'wgAbuseFilterDefaultWarningMessage' )[ $( this ).val() ];
 
 			if ( $afWarnMessageExisting.find( 'option[value=\'' + newVal + '\']' ).length ) {
 				$afWarnMessageExisting.val( newVal );
-				$afWarnMessageOther.val( '' );
+				warnMessageOther.setValue( '' );
 			} else {
 				$afWarnMessageExisting.val( 'other' );
-				$afWarnMessageOther.val( newVal );
+				warnMessageOther.setValue( newVal );
+			}
+		}
+
+		if ( !$( '#mw-abusefilter-action-disallow-checkbox' ).is( ':checked' ) ) {
+			$afDisallowMessageExisting = $( '#mw-abusefilter-disallow-message-existing select' );
+			newVal = mw.config.get( 'wgAbuseFilterDefaultDisallowMessage' )[ $( this ).val() ];
+
+			if ( $afDisallowMessageExisting.find( 'option[value=\'' + newVal + '\']' ).length ) {
+				$afDisallowMessageExisting.val( newVal );
+				disallowMessageOther.setValue( '' );
+			} else {
+				$afDisallowMessageExisting.val( 'other' );
+				disallowMessageOther.setValue( newVal );
 			}
 		}
 	}
 
 	/**
-	 * Remove the options for warning messages if the filter is set to global
+	 * Remove the options for warning and disallow messages if the filter is set to global.
 	 */
 	function toggleCustomMessages() {
 		// Use the table over here as hideDeselectedActions might alter the visibility of the div
-		var $warnOptions = $( '#mw-abusefilter-warn-parameters > table' );
+		var $warnOptions = $( '#mw-abusefilter-warn-parameters > table' ),
+			$disallowOptions = $( '#mw-abusefilter-disallow-parameters > table' );
 
 		if ( $( '#wpFilterGlobal' ).is( ':checked' ) ) {
 			// It's a global filter, so use the default message and hide the option from the user
-			$( '#mw-abusefilter-warn-message-existing option[value="abusefilter-warning"]' )
-				.prop( 'selected', true );
+			warnMessageExisting.setValue( 'abusefilter-warning' );
+			disallowMessageExisting.setValue( 'abusefilter-disallowed' );
 
 			$warnOptions.hide();
+			$disallowOptions.hide();
 		} else {
 			$warnOptions.show();
+			$disallowOptions.show();
 		}
 	}
 
 	/**
-	 * Called if the user presses a key in the load filter field
+	 * Called if the user presses a key in the load filter field.
 	 *
 	 * @context HTMLELement
-	 * @param {jQuery.Event} e
+	 * @param {jQuery.Event} e The event fired when the function is called
 	 */
 	function onFilterKeypress( e ) {
 		if ( e.type === 'keypress' && e.which === 13 ) {
 			e.preventDefault();
-			$( '#mw-abusefilter-load' ).click();
+			$( '#mw-abusefilter-load' ).trigger( 'click' );
 		}
 	}
 
+	/**
+	 * Warn if the user changed anything and tries to leave the window
+	 */
+	function setWarnOnLeave() {
+		var warnOnLeave,
+			$form = $( '#mw-abusefilter-editing-form' ),
+			origValues = $form.serialize();
+
+		warnOnLeave = mw.confirmCloseWindow( {
+			test: function () {
+				return $form.serialize() !== origValues;
+			},
+			message: mw.msg( 'abusefilter-edit-warn-leave' )
+		} );
+
+		$form.on( 'submit', function () {
+			warnOnLeave.release();
+		} );
+	}
+
+	/**
+	 * Builds a TagMultiselectWidget, to be used both for throttle groups and change tags
+	 *
+	 * @param {string} action Either 'throttle' or 'tag', will be used to build element IDs
+	 * @param {Array} config The array with configuration passed from PHP code
+	 */
+	function buildSelector( action, config ) {
+		var disabled = config.disabled.length !== 0,
+			// mw-abusefilter-throttle-parameters, mw-abusefilter-tag-parameters
+			$container = $( '#mw-abusefilter-' + action + '-parameters' ),
+			// Character used to separate elements in the textarea.
+			separator = action === 'throttle' ? '\n' : ',',
+			selector, field, hiddenField;
+
+		selector =
+			new OO.ui.TagMultiselectWidget( {
+				inputPosition: 'outline',
+				allowArbitrary: true,
+				allowEditTags: true,
+				selected: config.values,
+				// abusefilter-edit-throttle-placeholder, abusefilter-edit-tag-placeholder
+				placeholder: OO.ui.msg( 'abusefilter-edit-' + action + '-placeholder' ),
+				disabled: disabled
+			} );
+		field =
+			new OO.ui.FieldLayout(
+				selector,
+				{
+					label: $( $.parseHTML( config.label ) ),
+					align: 'top'
+				}
+			);
+
+		// mw-abusefilter-hidden-throttle-field, mw-abusefilter-hidden-tag-field
+		hiddenField = OO.ui.infuse( $( '#mw-abusefilter-hidden-' + action + '-field' ) );
+		selector.on( 'change', function () {
+			hiddenField.setValue( selector.getValue().join( separator ) );
+		} );
+
+		// mw-abusefilter-hidden-throttle, mw-abusefilter-hidden-tag
+		$( '#mw-abusefilter-hidden-' + action ).hide();
+		$container.append( field.$element );
+	}
+
 	// On ready initialization
-	$( document ).ready( function() {
-		var $exportBox = $( '#mw-abusefilter-export' );
-		$filterBox = $( '#' + mw.config.get( 'abuseFilterBoxName' ) );
+	$( function () {
+		var basePath, readOnly,
+			$exportBox = $( '#mw-abusefilter-export' ),
+			isFilterEditor = mw.config.get( 'isFilterEditor' ),
+			tagConfig = mw.config.get( 'tagConfig' ),
+			throttleConfig = mw.config.get( 'throttleConfig' ),
+			cbEnabled, cbDeleted;
+
+		if ( isFilterEditor ) {
+			// Configure the actual editing interface
+			if ( tagConfig ) {
+				// Build the tag selector
+				buildSelector( 'tag', tagConfig );
+			}
+			if ( throttleConfig ) {
+				// Build the throttle groups selector
+				buildSelector( 'throttle', throttleConfig );
+			}
+
+			toggleWarnPreviewButton = OO.ui.infuse( $( '#mw-abusefilter-warn-preview-button' ) );
+			warnMessageExisting = OO.ui.infuse( $( '#mw-abusefilter-warn-message-existing' ) );
+			warnMessageOther = OO.ui.infuse( $( '#mw-abusefilter-warn-message-other' ) );
+			toggleDisallowPreviewButton = OO.ui.infuse( $( '#mw-abusefilter-disallow-preview-button' ) );
+			disallowMessageExisting = OO.ui.infuse( $( '#mw-abusefilter-disallow-message-existing' ) );
+			disallowMessageOther = OO.ui.infuse( $( '#mw-abusefilter-disallow-message-other' ) );
+			setWarnOnLeave();
+		}
+
+		$plainTextBox = $( '#' + mw.config.get( 'abuseFilterBoxName' ) );
+
+		if ( $( '#wpAceFilterEditor' ).length ) {
+			// CodeEditor is installed.
+			mw.loader.using( [ 'ext.abuseFilter.ace' ] ).then( function () {
+				$filterBox = $( '#wpAceFilterEditor' );
+
+				filterEditor = ace.edit( 'wpAceFilterEditor' );
+				filterEditor.session.setMode( 'ace/mode/abusefilter' );
+
+				// Ace setup from codeEditor extension
+				basePath = mw.config.get( 'wgExtensionAssetsPath', '' );
+				if ( basePath.slice( 0, 2 ) === '//' ) {
+					// ACE uses web workers, which have importScripts, which don't like
+					// relative links. This is a problem only when the assets are on another
+					// server, so this rewrite should suffice.
+					basePath = window.location.protocol + basePath;
+				}
+				ace.config.set( 'basePath', basePath + '/CodeEditor/modules/ace' );
+
+				// Settings for Ace editor box
+				readOnly = mw.config.get( 'aceConfig' ).aceReadOnly;
+
+				filterEditor.setTheme( 'ace/theme/textmate' );
+				filterEditor.session.setOption( 'useWorker', false );
+				filterEditor.setReadOnly( readOnly );
+				filterEditor.$blockScrolling = Infinity;
+
+				// Display Ace editor
+				switchEditor();
+
+				// Hide the syntax ok message when the text changes and sync dummy box
+				filterEditor.on( 'change', function () {
+					var $el = $( '#mw-abusefilter-syntaxresult' );
+
+					if ( $el.data( 'syntaxOk' ) ) {
+						$el.hide();
+					}
+
+					$plainTextBox.val( filterEditor.getSession().getValue() );
+				} );
+
+				$( '#mw-abusefilter-switcheditor' ).on( 'click', switchEditor );
+			} );
+		}
+
 		// Hide the syntax ok message when the text changes
-		$filterBox.keyup( function() {
+		$plainTextBox.on( 'change', function () {
 			var $el = $( '#mw-abusefilter-syntaxresult' );
 
 			if ( $el.data( 'syntaxOk' ) ) {
@@ -282,26 +506,60 @@
 			}
 		} );
 
-		$( '#mw-abusefilter-load' ).click( fetchFilter );
-		$( '#mw-abusefilter-load-filter' ).keypress( onFilterKeypress );
-		$( '#mw-abusefilter-warn-preview-button' ).click( previewWarnMessage );
-		$( '#mw-abusefilter-warn-edit-button' ).click( editWarnMessage );
-		$( 'input.mw-abusefilter-action-checkbox' ).click( hideDeselectedActions );
-		hideDeselectedActions();
+		$( '#mw-abusefilter-load' ).on( 'click', fetchFilter );
+		$( '#mw-abusefilter-load-filter' ).on( 'keypress', onFilterKeypress );
 
-		$( '#wpFilterGlobal' ).change( toggleCustomMessages );
-		toggleCustomMessages();
+		if ( isFilterEditor ) {
+			// Add logic for flags and consequences
+			$( '#mw-abusefilter-warn-preview-button' ).on( 'click',
+				function () { previewMessage( 'warn' ); }
+			);
+			$( '#mw-abusefilter-disallow-preview-button' ).on( 'click',
+				function () { previewMessage( 'disallow' ); }
+			);
+			$( '#mw-abusefilter-warn-edit-button' ).on( 'click',
+				function () { editMessage( 'warn' ); }
+			);
+			$( '#mw-abusefilter-disallow-edit-button' ).on( 'click',
+				function () { editMessage( 'disallow' ); }
+			);
+			$( '.mw-abusefilter-action-checkbox input' ).on( 'click', hideDeselectedActions );
+			hideDeselectedActions();
 
-		$( '#mw-abusefilter-syntaxcheck' ).click( doSyntaxCheck );
-		$( '#wpFilterBuilder' ).change( addText );
-		$( '#mw-abusefilter-edit-group-input' ).change( onFilterGroupChange );
+			$( '#wpFilterGlobal' ).on( 'change', toggleCustomMessages );
+			toggleCustomMessages();
 
-		$( '#mw-abusefilter-export-link' ).toggle(
-			function() {
-				$exportBox.show();
-			}, function() {
-				$exportBox.hide();
-			}
-		);
+			cbEnabled = OO.ui.infuse( $( '#wpFilterEnabled' ) );
+			cbDeleted = OO.ui.infuse( $( '#wpFilterDeleted' ) );
+			OO.ui.infuse( $( '#wpFilterDeletedLabel' ) );
+			cbEnabled.on( 'change',
+				function () {
+					cbDeleted.setDisabled( cbEnabled.isSelected() );
+					if ( cbEnabled.isSelected() ) {
+						cbDeleted.setSelected( false );
+					}
+				}
+			);
+
+			cbDeleted.on( 'change',
+				function () {
+					if ( cbDeleted.isSelected() ) {
+						cbEnabled.setSelected( false );
+					}
+				}
+			);
+
+			$( '#mw-abusefilter-edit-group-input select' ).on( 'change', onFilterGroupChange );
+
+			$( '#mw-abusefilter-export-link' ).on( 'click',
+				function ( e ) {
+					e.preventDefault();
+					$exportBox.toggle();
+				}
+			);
+		}
+
+		$( '#mw-abusefilter-syntaxcheck' ).on( 'click', doSyntaxCheck );
+		$( '#wpFilterBuilder' ).on( 'change', addText );
 	} );
-} ( mediaWiki, jQuery ) );
+}() );

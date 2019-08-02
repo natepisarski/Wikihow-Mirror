@@ -26,7 +26,7 @@ if [ "`ps auxww |grep ${main_class} |grep -c -v grep`" = "0" ]; then
 	if [ "`echo $skip_id |egrep -c '^[0-9]*$'`" != "0" ]; then
 		count=`ls -ld $staging_dir/$skip_id* |wc -l`
 		if  [ "$count" -gt "3" ]; then
-			params="--staging-dir=$staging_dir --exclude-article-id=$skip_id"
+			params="--stagingdir=$staging_dir --excludeid=$skip_id"
 		fi
 	fi
 

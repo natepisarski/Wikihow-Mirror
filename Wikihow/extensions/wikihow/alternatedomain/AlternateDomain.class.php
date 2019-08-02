@@ -14,7 +14,7 @@ class AlternateDomain {
 	 */
 	private static function getNoBrandingDomainForPage( $pageId ) {
 		$result = null;
-		$noBrandingDomains = array( "howyougetfit.com", 'howyoulivelife.com' );
+		$noBrandingDomains = self::getNoBrandingDomains();
 		foreach ( $noBrandingDomains as $domain ) {
 			if ( ArticleTagList::hasTag( $domain, $pageId ) ) {
 				$result = $domain;
@@ -34,7 +34,7 @@ class AlternateDomain {
 			return $result;
 		}
 
-		$brandedAlternateDomains = array ( 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com' );
+		$brandedAlternateDomains = self::getBrandedDomains();
 		foreach ( $brandedAlternateDomains as $domain ) {
 			if ( ArticleTagList::hasTag( $domain, $pageId ) ) {
 				$result = $domain;
@@ -47,7 +47,7 @@ class AlternateDomain {
 	 * get list of all alternate domains
 	 */
 	public static function getAlternateDomains() {
-		return array( 'howyougetfit.com', 'howyoulivelife.com', 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com' );
+		return array_merge( self::getNoBrandingDomains(), self::getBrandedDomains() );
 	}
 
 	public static function getAlternateDomainClass($domain) {
@@ -71,24 +71,46 @@ class AlternateDomain {
 	}
 
 	/*
-	 * get list of no branding domains
+	 * get list of branded alt domains
+	 */
+	private static function getBrandedDomains() {
+		return [ 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com' ];
+	}
+
+	/*
+	 * get list of no branding alt domains
 	 */
 	private static function getNoBrandingDomains() {
-		return array( 'howyougetfit.com', 'howyoulivelife.com' );
+		return [ 'howyougetfit.com', 'howyoulivelife.com' ];
+	}
+
+	/*
+	 * Create list of strings that we can use to check for other forms of
+	 * alt domains on dev. For example, this creates a list of strings like:
+	 *
+	 * [ 'wikihowtech', 'wikihowfuncom', 'wikihowlife', ... ]
+	 *
+	 * This allows us to use domains like wikihowlife-reuben.wikidogs.com without
+	 * having to change our fastly config, which is a little burdensome.
+	 */
+	private static function getDevAltDomainStrings() {
+		global $wgIsDevServer;
+		static $domains = [];
+		if ( $wgIsDevServer && !$domains ) {
+			foreach ( self::getAlternateDomains() as $realDomain ) {
+				$devString = preg_replace( '@[-.]@', '', $realDomain );
+				$domains[ $devString ] = $realDomain;
+			}
+		}
+		return $domains;
 	}
 
 	/*
 	 * are we on one of the alternate domains
 	 */
 	public static function onAlternateDomain() {
-		global $domainName;
-		$domains = self::getAlternateDomains();
-		foreach ( $domains as $domain ) {
-			if ( strstr( $domainName, $domain ) ) {
-				return true;
-			}
-		}
-		return false;
+		$currentAltDomain = self::getAlternateDomainForCurrentPage();
+		return ( $currentAltDomain ? true : false );
 	}
 
 	/*
@@ -101,6 +123,10 @@ class AlternateDomain {
 			if ( strstr( $domainName, $domain ) ) {
 				return $domain;
 			}
+		}
+		$devAltDomain = self::devDomainToAltDomain($domainName);
+		if ($devAltDomain) {
+			return $devAltDomain;
 		}
 		return false;
 	}
@@ -120,6 +146,24 @@ class AlternateDomain {
 		return false;
 	}
 
+	/*
+	 * On dev, we look for a string like "wikihowtech" in the domain
+	 * wikhowtech-p.wikidogs.com, then return "wikihow.tech".
+	 */
+	public static function devDomainToAltDomain($domainName) {
+		global $wgIsDevServer;
+		if (!$wgIsDevServer) {
+			return '';
+		}
+
+		foreach ( self::getDevAltDomainStrings() as $devString => $altDomain ) {
+			if ( strstr( $domainName, $devString ) !== false ) {
+				return $altDomain;
+			}
+		}
+
+		return '';
+	}
 
 	/*
 	 * gets an array of all of the pages on the current alternate domain
@@ -504,6 +548,9 @@ class AlternateDomain {
 			'ArticleReviewers',
 			'QABox',
 			'BuildWikihowModal',
+			'PageHelpfulness',
+			'PageStats',
+			'RCWidget'
 		);
 
 		$noRedirect = false;
@@ -547,13 +594,40 @@ class AlternateDomain {
 	}
 
 	/*
+	 * check if we need to redirect to a different domain, given the page
+	 * that we're on.
+	 *
+	 * NOTE: this method assumes that onAlternateDomain() returns true and
+	 * that we're on an article page. If we change how this method is used,
+	 * we should add this assertion, or handle more cases in this code.
+	 */
+	private static function redirectDomainForPage($pageId) {
+		global $domainName, $wgIsDevServer;
+		$altDomainforPage = self::getAlternateDomainForPage( $pageId );
+		if ( !$altDomainforPage ) {
+			// we're on an alt domain and page has no alt domain associated with it
+			return true;
+		} elseif ( strstr($domainName, $altDomainforPage) !== false ) {
+			// page has alt domain associated with it, and user is visiting that domain
+			return false;
+		} elseif ($wgIsDevServer) {
+			// page has alt domain associated with it, and on dev, user is visiting
+			// a host with a stripped down version of that alt domain in it. For
+			// example, user is visiting wikihowtech-p.wikidogs.com.
+			$devAltDomain = self::devDomainToAltDomain($domainName);
+			return $devAltDomain != $altDomainforPage;
+		} else {
+			// there is an alt domain for the page, and we're not on that domain
+			return true;
+		}
+	}
+
+	/*
 	 * redirect anons to special domains if the page is on an alternate domain
 	 * prohibit any query parameters on viewing an article on the alternate domain
 	 * we redirect the page to the same url but with no query parameters at all
 	 */
 	public static function onBeforeInitialize( &$title, &$unused, &$output, &$user, $request, $wiki ) {
-		global $domainName;
-
 		// check if we are on a specific page that never redirects for the alt domains
 		if ( self::isOnNoRedirectPage( $title ) ) {
 			return true;
@@ -575,15 +649,11 @@ class AlternateDomain {
 		}
 
 		$pageId = $title->getArticleID();
-		$alternateDomainForPage = self::getAlternateDomainForPage( $pageId );
 		if ( self::onAlternateDomain() ) {
 
 			// Redirect to wikiHow if the page is not on the current alt domain
 			$isCategoryPage = $title->inNamespace(NS_CATEGORY);
-			$redirect = !$isCategoryPage && (
-				!$alternateDomainForPage || !strstr($domainName, $alternateDomainForPage)
-			);
-
+			$redirect = !$isCategoryPage && self::redirectDomainForPage($pageId);
 			if ($redirect) {
 				$url = self::getDestUrl( $request->getRequestURL(), "wikihow.com" );
 				$output->redirect( $request->getProtocol() . "://" . $url, 301 );
@@ -666,8 +736,9 @@ class AlternateDomain {
 			}
 
 			// if there is a domain set for the current page, then redirect to it
-			if ( $alternateDomainForPage ) {
-				$url = self::getDestUrl( $request->getRequestURL(), $alternateDomainForPage );
+			$altDomainforPage = self::getAlternateDomainForPage( $pageId );
+			if ( $altDomainforPage ) {
+				$url = self::getDestUrl( $request->getRequestURL(), $altDomainforPage );
 				// always go to http version of the alternate domain page
 				$output->redirect( "https://" . $url, 301 );
 			}
@@ -682,6 +753,12 @@ class AlternateDomain {
 	 */
 	public static function getCurrentRootDomain() {
 		global $domainName;
+
+		$altDomain = self::devDomainToAltDomain($domainName);
+		if ($altDomain) {
+			return $altDomain;
+		}
+
 		$domain = explode ( '.', $domainName );
 		if ( count( $domain ) < 2 ) {
 			return "";
@@ -744,7 +821,6 @@ class AlternateDomain {
 			return true;
 		}
 
-		global $domainName;
 		$typeTag = str_replace( '.', '_', self::getCurrentRootDomain() );
 		if ( Misc::isMobileMode() ) {
 			$typeTag = 'mobile_' . $typeTag;
@@ -812,7 +888,7 @@ class AlternateDomain {
 			return true;
 		}
 
-		global $domainName;
+		$altDomain = self::getCurrentRootDomain();
 
 		$data = [
 			"channels" => [
@@ -830,7 +906,7 @@ class AlternateDomain {
 			],
 		];
 
-		if ( strstr( $domainName, "howyougetfit.com") ) {
+		if ( $altDomain == 'howyougetfit.com' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '3524867775',
@@ -846,7 +922,7 @@ class AlternateDomain {
 					'related' => '5001600976'
 				]
 			];
-		} elseif ( strstr( $domainName, "wikihow.tech" ) ) {
+		} elseif ( $altDomain == 'wikihow.tech' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '6757535770',
@@ -862,7 +938,7 @@ class AlternateDomain {
 					'related' => '2187735379'
 				]
 			];
-		} elseif ( strstr( $domainName, "wikihow.pet" ) ) {
+		} elseif ( $altDomain == 'wikihow.pet' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '7189227370',
@@ -878,7 +954,7 @@ class AlternateDomain {
 					'related' => '8665960573'
 				]
 			];
-		} elseif ( strstr( $domainName, "howyoulivelife.com" ) ) {
+		} elseif ( $altDomain == 'howyoulivelife.com' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '4370814181',
@@ -894,7 +970,7 @@ class AlternateDomain {
 					'related' => '5189071838'
 				]
 			];
-		} elseif ( strstr( $domainName, "wikihow.mom" ) ) {
+		} elseif ( $altDomain == 'wikihow.mom' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '2618748819',
@@ -910,7 +986,7 @@ class AlternateDomain {
 					'related' => '3245434778'
 				]
 			];
-		} elseif ( strstr( $domainName, "wikihow.life" ) ) {
+		} elseif ( $altDomain == 'wikihow.life' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '7567823162',
@@ -926,7 +1002,7 @@ class AlternateDomain {
 					'related' => '8497761450'
 				]
 			];
-		} elseif ( strstr( $domainName, "wikihow.fitness" ) ) {
+		} elseif ( $altDomain == 'wikihow.fitness' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '1743816697',
@@ -942,7 +1018,7 @@ class AlternateDomain {
 					'related' => '6084841797'
 				]
 			];
-		} elseif ( strstr( $domainName, "wikihow.health" ) ) {
+		} elseif ( $altDomain == 'wikihow.health' ) {
 			// ads are currently disabled for this domain in another part of the code
 			// if they were to be turned on then these would need to be defined for ads to work
 			$data['slots'] = [
@@ -960,7 +1036,7 @@ class AlternateDomain {
 					'related' => '0'
 				]
 			];
-		} else if ( strstr( $domainName, "wikihow-fun.com" ) ) {
+		} elseif ( $altDomain == 'wikihow-fun.com' ) {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '7550202981',
@@ -989,25 +1065,25 @@ class AlternateDomain {
 			return true;
 		}
 
-		global $domainName;
+		$altDomain = self::getCurrentRootDomain();
 
-		if ( strstr( $domainName, "howyougetfit.com") ) {
+		if ( $altDomain == 'howyougetfit.com' ) {
 			$codes['UA-2375655-16'] = 'howyougetfit';
-		} elseif ( strstr( $domainName, "wikihow.tech") ) {
+		} elseif ( $altDomain == 'wikihow.tech' ) {
 			$codes['UA-2375655-17'] = 'wikihowtech';
-		} elseif ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( $altDomain == 'wikihow.pet' ) {
 			$codes['UA-2375655-20'] = 'wikihowpet';
-		} elseif ( strstr( $domainName, "howyoulivelife.com") ) {
+		} elseif ( $altDomain == 'howyoulivelife.com' ) {
 			$codes['UA-2375655-28'] = 'howyoulivelife';
-		} elseif ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( $altDomain == 'wikihow.mom' ) {
 			$codes['UA-2375655-25'] = 'wikihowmom';
-		} elseif ( strstr( $domainName, "wikihow.life") ) {
+		} elseif ( $altDomain == 'wikihow.life' ) {
 			$codes['UA-2375655-27'] = 'wikihowlife';
-		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( $altDomain == 'wikihow.fitness' ) {
 			$codes['UA-2375655-26'] = 'wikihowfitness';
-		} elseif ( strstr( $domainName, "wikihow.health") ) {
+		} elseif ( $altDomain == 'wikihow.health' ) {
 			$codes['UA-2375655-31'] = 'wikihowhealth';
-		} else if ( strstr( $domainName, "wikihow-fun.com") ) {
+		} elseif ( $altDomain == 'wikihow-fun.com' ) {
 			$codes['UA-2375655-32'] = 'wikihowfun';
 		}
 	}
@@ -1119,7 +1195,6 @@ class AlternateDomain {
 		if ( !self::onAlternateDomain() ) {
 			return true;
 		}
-		global $domainName;
 
 		$domain = self::getCurrentRootDomain();
 		unset( $headLinks['apple-touch-icon'] );
@@ -1535,7 +1610,6 @@ class AlternateDomain {
 		}
 
 		$currentPages = array_flip( self::getAlternateDomainPagesForCurrentDomain() );
-
 		if ( !isset( $currentPages[$pageId] ) ) {
 			return true;
 		}
@@ -1593,45 +1667,45 @@ class AlternateDomain {
 	}
 
 	public static function onWikihowTemplateBeforeCreateLogoImage( &$logoPath, &$logoClass ) {
-		global $domainName;
+		$altDomain = self::getCurrentRootDomain();
 
-		if ( strstr( $domainName, "wikihow.tech") ) {
+		if ( $altDomain == 'wikihow.tech' ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_tech_4.png';
 			$logoClass[] = 'tech_logo';
-		} elseif ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( $altDomain == 'wikihow.pet' ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_pet_3.png';
 			$logoClass[] = 'pet_logo';
-		} elseif ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( $altDomain == 'wikihow.mom' ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_mom.png';
 			$logoClass[] = 'mom_logo';
-		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( $altDomain == 'wikihow.fitness' ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_fitness.png';
 			$logoClass[] = 'fitness_logo';
 		}
 	}
 
 	public static function onMinervaTemplateWikihowBeforeCreateHeaderLogo( &$headerClass ) {
-		global $domainName;
+		$altDomain = self::getCurrentRootDomain();
 
-		if ( strstr( $domainName, "wikihow.tech") ) {
+		if ( $altDomain == 'wikihow.tech' ) {
 			if ( $headerClass ) {
 				$headerClass = $headerClass . ' tech_logo';
 			} else {
 				$headerClass = 'tech_logo';
 			}
-		} elseif ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( $altDomain == 'wikihow.pet' ) {
 			if ( $headerClass ) {
 				$headerClass = $headerClass . ' pet_logo';
 			} else {
 				$headerClass = 'pet_logo';
 			}
-		} elseif ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( $altDomain == 'wikihow.mom' ) {
 			if ( $headerClass ) {
 				$headerClass = $headerClass . ' mom_logo';
 			} else {
 				$headerClass = 'mom_logo';
 			}
-		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( $altDomain == 'wikihow.fitness' ) {
 			if ( $headerClass ) {
 				$headerClass = $headerClass . ' fitness_logo';
 			} else {
@@ -1688,33 +1762,33 @@ class AlternateDomain {
 			return true;
 		}
 
-		global $domainName;
+		$altDomain = self::getCurrentRootDomain();
 
-		if ( strstr( $domainName, "howyougetfit.com") ) {
+		if ( $altDomain == 'howyougetfit.com' ) {
 			$firstAd = 6329126174;
 			$regularAd = 7805859374;
-		} elseif ( strstr( $domainName, "wikihow.tech") ) {
+		} elseif ( $altDomain == 'wikihow.tech' ) {
 			$firstAd = 3236058970;
 			$regularAd = 4712792172;
-		} elseif ( strstr( $domainName, "wikihow.pet") ) {
+		} elseif ( $altDomain == 'wikihow.pet' ) {
 			$firstAd = 9282592570;
 			$regularAd = 1759325775;
-		} elseif ( strstr( $domainName, "howyoulivelife.com") ) {
+		} elseif ( $altDomain == 'howyoulivelife.com' ) {
 			$firstAd = 7885008625;
 			$regularAd = 1407230185;
-		} elseif ( strstr( $domainName, "wikihow.life") ) {
+		} elseif ( $altDomain == 'wikihow.life' ) {
 			$firstAd = 2905689278;
 			$regularAd = 5874633394;
-		} elseif ( strstr( $domainName, "wikihow.mom") ) {
+		} elseif ( $altDomain == 'wikihow.mom' ) {
 			$firstAd = 7962574839;
 			$regularAd = 8359172411;
-		} elseif ( strstr( $domainName, "wikihow.fitness") ) {
+		} elseif ( $altDomain == 'wikihow.fitness' ) {
 			$firstAd = 3823185129;
 			$regularAd = 6557993821;
-		} elseif ( strstr( $domainName, "wikihow.health") ) {
+		} elseif ( $altDomain == 'wikihow.health' ) {
 			$firstAd = 0;
 			$regularAd = 0;
-		} else if ( strstr( $domainName, "wikihow-fun.com") ) {
+		} elseif ( $altDomain == 'wikihow-fun.com' ) {
 			$firstAd = 4732467955;
 			$regularAd = 6442147207;
 		}
@@ -1797,8 +1871,11 @@ class AlternateDomain {
 		global $wgResourceModules;
 		unset( $wgResourceModules[ 'mobile.newusers' ] );
 		unset( $wgResourceModules[ 'mobile.editor' ] );
-		if ( ( $key = array_search( 'javascripts/modules/mf-watchstar.js', $wgResourceModules['mobile.stable']['scripts'] ) ) !== false) {
+		if ( isset($wgResourceModules['mobile.stable']['scripts']) ) {
+			$key = array_search( 'javascripts/modules/mf-watchstar.js', $wgResourceModules['mobile.stable']['scripts'] );
+			if ( $key !== false) {
 				unset( $wgResourceModules['mobile.stable']['scripts'][$key] );
+			}
 		}
 	}
 

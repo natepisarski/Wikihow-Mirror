@@ -195,22 +195,24 @@ function resetRCLinks() {
 		marklink = document.getElementById('newlinkpatrol').textContent + skiptitle;
 		skiplink = document.getElementById('newlinkskip').textContent + skiptitle;
 	}
+
+	enableRollbackButton();
 }
 
 function setupTabs() {
-	$('#rctab_advanced a').click(function() {
+	$(document).on('click', '#rctab_advanced a', function() {
 		openSubMenu('advanced');
 		return false;
 	});
-	$('#rctab_ordering a').click(function() {
+	$(document).on('click', '#rctab_ordering a', function() {
 		openSubMenu('ordering');
 		return false;
 	});
-	$('#rctab_user a').click(function() {
+	$(document).on('click', '#rctab_user a', function() {
 		openSubMenu('user');
 		return false;
 	});
-	$('#rctab_help a').click(function() {
+	$(document).on('click', '#rctab_help a', function() {
 		openSubMenu('help');
 		return false;
 	});
@@ -485,7 +487,7 @@ function initRCPatrol() {
 		$('#article').prepend('<div id="rcpatrolcount" class="tool_count"><h3></h3></div>');
 	}
 
-	$(document).on("change", "#namespace", function(){
+	$(document).on("change", "#namespace", function() {
 		ns = $('#namespace').val();
 		nextrev = null;
 	});
@@ -514,39 +516,109 @@ function cancelRollback() {
 }
 */
 
-function setRollbackURL(url) {
-	rollbackUrl = url;
-}
-
 function rollback() {
 	var span = $('#rollback-link');
 	if (!span.length) span = $('#rollback-status');
 	span.html('<b>' + msg_rollback_inprogress + '</b>');
 
-	$.get(rollbackUrl, function(response) {
-		var span = $('#rollback-link');
-		if (!span.length) {
-			$('#rollback-status').html(response);
-			if (readyForRollback) postRollbackCallback();
-			return false;
-		} else {
-			if (response.indexOf("<title>Rollback failed") > 0) {
-				var msg = '<br/><div style="background: red;"><b>' + msg_rollback_fail + '</b></div>';
+	// Weird looking thing here is done because RCP doesn't set itself
+	// up properly for the first revision patrolled.
+	if (!rollbackUrl) {
+		rollbackUrl = window.rollbackUrl;
+		window.rollbackUrl = '';
+	}
+
+	if (rollbackUrl) {
+		$.get(rollbackUrl, function(response) {
+			var span = $('#rollback-link');
+			if (!span.length) {
+				$('#rollback-status').html(response);
+				if (readyForRollback) postRollbackCallback();
+				return false;
 			} else {
-				var msg = '<br/><div style="background: yellow;"><b>' + msg_rollback_complete + '</b></div>';
+				if (response.indexOf("<title>Rollback failed") > 0) {
+					var msg = '<br/><div style="background: red;"><b>' + msg_rollback_fail + '</b></div>';
+				} else {
+					var msg = '<br/><div style="background: yellow;"><b>' + msg_rollback_complete + '</b></div>';
+				}
+				span.html(msg);
+				if (readyForRollback) postRollbackCallback();
 			}
-			span.html(msg);
-			if (readyForRollback) postRollbackCallback();
-		}
-	});
+		});
+	} else {
+		$('.rcp_err_dump').text( 'Internal RCP error: empty/missing rollback URL!' );
+		$('.rcp_err').show();
+	}
 
 	$('body').trigger('trackAction');
 
 	return false;
 }
 
-$(document).ready(initKeyBindings);
-$(document).ready(initRCPatrol);
+function enableRollbackButton() {
+	$('#rb_button').removeClass('rb_disabled');
+}
+
+// Don't set these until called through scroll handler, after dom ready
+var $header = null;
+var $toolHeader = null;
+var $tool = null;
+var toolOffsetTop;
+
+function makeToolHeaderSticky() {
+	// lazy-compute this once since the dom lookup could be expensive
+	if (!$header) {
+		$header = $('#header');
+	}
+	if (!$toolHeader) {
+		$toolHeader = $('.tool_header');
+	}
+	if (!$tool) {
+		$tool = $('.tool.sticky');
+		toolOffsetTop = $tool.offset().top;
+	}
+
+	// needs to be recomputed because site header (at top) gets smaller and bigger
+	var siteHeaderHeight = $header.height();
+
+	var scrollTop = $(document).scrollTop();
+	var sectionHeight = $tool.height();
+
+	if (scrollTop + siteHeaderHeight < toolOffsetTop ) {
+		// Above the section header
+		$toolHeader.removeClass('sticking');
+	} else {
+		if (scrollTop - toolOffsetTop - sectionHeight + siteHeaderHeight > 0) {
+			// Below the end of the section
+			$toolHeader.removeClass('sticking');
+		} else {
+			// Between the header and the end of the section
+			$toolHeader.addClass('sticking');
+		}
+	}
+}
+
+$(document).ready(function() {
+	initKeyBindings();
+	initRCPatrol();
+
+	setupTabs();
+	preloadNext(nextlink);
+	$('#rc_user_filter').keypress(function(e) {
+		if (e.which == 13) {
+			$('#rc_user_filter_go').click();
+			return false;
+		}
+	});
+
+	// disable stickiness for the rc patrol guided tour
+	if (extractParamFromUri(document.location.search, 'gt_mode') != 1) {
+		// Use scroll event (throttled) to set tool header stickiness
+		WH.addThrottledScrollHandler(makeToolHeaderSticky);
+	}
+
+	enableRollbackButton();
+});
 
 // External methods
 window.WH.RCPatrol = {
@@ -559,7 +631,6 @@ window.WH.RCPatrol = {
 	preloadNext : preloadNext,
 	goback : goback,
 	handleQESubmit : handleQESubmit,
-	setRollbackURL : setRollbackURL,
 	rollback : rollback
 };
 

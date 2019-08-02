@@ -17,8 +17,14 @@ $wgLogTypes[] = 'welcomewag';
 $wgLogNames['welcomewag'] = 'welcomewag';
 $wgLogHeaders['welcomewag'] = 'welcomewag_log';
 
-$wgResourceModules['ext.wikihow.welcome_wagon'] = [
+$wgResourceModules['ext.wikihow.welcome_wagon_styles'] = [
     'styles' => ['welcomewagon.css'],
+    'localBasePath' => __DIR__,
+    'remoteExtPath' => 'wikihow/WelcomeWagon',
+    'targets' => ['desktop', 'mobile'],
+];
+
+$wgResourceModules['ext.wikihow.welcome_wagon'] = [
     'scripts' => ['welcomewagon.js'],
     'localBasePath' => __DIR__,
     'remoteExtPath' => 'wikihow/WelcomeWagon',

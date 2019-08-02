@@ -11,20 +11,23 @@ class DiffHooks {
 		return true;
 	}
 
-	public static function onDifferenceEngineShowDiff(&$differenceEngine) {
-		$differenceEngine->getOutput()->addModules('ext.wikihow.diff_styles');
+	public static function onDifferenceEngineShowDiff($differenceEngine) {
+		$differenceEngine->getOutput()->addModuleStyles('ext.wikihow.diff_styles');
 		return true;
 	}
 
-	public static function onDifferenceEngineShowDiffPage(&$out) {
-		$out->addModules('ext.wikihow.diff_styles');
+	public static function onDifferenceEngineShowDiffPage($out) {
+		$out->addModuleStyles([ 'ext.wikihow.diff_styles' ]);
+		$out->addModules([ 'ext.wikihow.QuickNoteEdit' ]);
 
 		// The Math extension adds these ResourceLoader modules while the article's wikitext
 		// is being parsed by the diff page, but the diff page throws out those resulting
 		// modules output. We explicitly add these styles here instead, but unfortunately
 		// do it for all diff pages rather than just those with Math styling on them.
 		// Fixes bug #1311.
-		$out->addModules( array( 'ext.math.styles', 'ext.math.desktop.styles', 'ext.math.scripts' ) );
+		$out->addModuleStyles( [ 'ext.math.styles', 'ext.math.desktop.styles' ] );
+		$out->addModules( [ 'ext.math.scripts' ] );
+
 		return true;
 	}
 
@@ -156,9 +159,10 @@ class DiffHooks {
 		return $query;
 	}
 
-	public static function onDifferenceEngineMarkPatrolledLink($differenceEngine, &$markPatrolledLink, $rcid, $token) {
+	public static function onDifferenceEngineMarkPatrolledLink($differenceEngine, &$markPatrolledLink, $rcid) {
 		// Reuben: Include RC patrol/browsing opts when patrolling or skipping
 		$req = $differenceEngine->getContext()->getRequest();
+		$token = $differenceEngine->getUser()->getToken( $rcid );
 		$browseParams = self::getRecentChangesBrowseParams($req);
 		if ( !$browseParams['fromrc'] ) {
 			$browseParams = array();
@@ -216,16 +220,19 @@ class DiffHooks {
 		return false;
 	}
 
-	public static function onDifferenceEngineRenderRevisionAddParserOutput($differenceEngine, &$out, $parserOutput, $wikiPage) {
+	public static function onDifferenceEngineRenderRevisionAddParserOutput($differenceEngine, $out, $parserOutput, $wikiPage) {
 		$wikitext = ContentHandler::getContentText( $differenceEngine->mNewRev->getContent() );
 		$magic = WikihowArticleHTML::grabTheMagic($wikitext);
 		$html = WikihowArticleHTML::processArticleHTML($parserOutput->getText(), array('ns' => $wikiPage->mTitle->getNamespace(), 'magic-word' => $magic));
 		$out->addHTML( $html );
-		return true;
+
+		// Note: we return false so that default action in core class DifferenceEngine
+		// (which is to display this content) is NOT taken.
+		return false;
 	}
 
 	// this is so we can display the diff for new articles [sc - 1/16/2014]
-	public static function onDifferenceEngineShowEmptyOldContent(&$differenceEngine) {
+	public static function onDifferenceEngineShowEmptyOldContent($differenceEngine) {
 		$oldContent = ContentHandler::makeContent( '', $differenceEngine->getTitle() );
 		$differenceEngine->mOldContent = $oldContent;
 		return true;

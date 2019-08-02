@@ -1,16 +1,20 @@
 {
 	"@metadata": {
 		"authors": [
-			"PrinceValiant"
+			"PrinceValiant",
+			"Macofe",
+			"Wertuose",
+			"Serkanland"
 		]
 	},
-	"math_sample": "Riyazi formulu bura yazın",
-	"math_tip": "Riyazi formul (LaTeX formatı)",
-	"prefs-math": "Riyaziyyat",
-	"mw_math_png": "Həmişə PNG formatında göstər",
-	"mw_math_source": "TeX kimi saxla (mətn brouzerləri üçün)",
-	"mw_math_mathml": "Mümkünsə MathML (sınaq)",
+	"math-visualeditor-mwchemdialog-title": "Kimyəvi formul",
+	"math-visualeditor-mwmathdialog-title": "Riyazi formul",
+	"math_syntax_error": "sintaksis xətası",
+	"math-tracking-category-error": "Riyazi xəta olan səhifələr",
 	"math_unknown_error": "bilinməyən xəta",
 	"math_unknown_function": "bilinməyən funksiya",
-	"math_syntax_error": "sintaksis xətası"
+	"mw_math_mathml": "Mümkünsə MathML (sınaq)",
+	"mw_math_png": "Həmişə PNG formatında göstər",
+	"mw_math_source": "LaTeX kimi saxla (mətn brouzerləri üçün)",
+	"prefs-math": "Riyaziyyat"
 }

@@ -1,9 +1,10 @@
 <?php
 
 namespace CirrusSearch\Job;
-use \CirrusSearch\Updater;
-use \Title;
-use \WikiPage;
+
+use MediaWiki\Logger\LoggerFactory;
+use Title;
+use WikiPage;
 
 /**
  * Job wrapper around Updater::updatePages.  Used by forceSearchIndex.php
@@ -25,34 +26,56 @@ use \WikiPage;
  * http://www.gnu.org/copyleft/gpl.html
  */
 class MassIndex extends Job {
-	public static function build( $pages, $updateFlags ) {
+	/**
+	 * @param WikiPage[] $pages
+	 * @param int $updateFlags
+	 * @param string|null $cluster
+	 * @return MassIndex
+	 */
+	public static function build( array $pages, $updateFlags, $cluster = null ) {
 		// Strip $pages down to PrefixedDBKeys so we don't put a ton of stuff in the job queue.
-		$pageDBKeys = array();
+		$pageDBKeys = [];
 		foreach ( $pages as $page ) {
 			$pageDBKeys[] = $page->getTitle()->getPrefixedDBkey();
 		}
 
 		// We don't have a "title" for this job so we use the Main Page because it exists.
-		return new self( Title::newMainPage(), array(
+		return new self( Title::newMainPage(), [
 			'pageDBKeys' => $pageDBKeys,
 			'updateFlags' => $updateFlags,
-		) );
+			'cluster' => $cluster,
+		] );
 	}
 
+	/**
+	 * @return bool
+	 * @throws \MWException
+	 */
 	protected function doJob() {
 		// Reload pages from pageIds to throw into the updater
-		$pageData = array();
+		$pageData = [];
 		foreach ( $this->params[ 'pageDBKeys' ] as $pageDBKey ) {
-			$title = Title::newFromDBKey( $pageDBKey );
+			$title = Title::newFromDBkey( $pageDBKey );
 			// Skip any titles with broken keys.  We can't do anything with them.
 			if ( !$title ) {
-				wfLogWarning( "Skipping invalid DBKey:  $pageDBKey" );
+				LoggerFactory::getInstance( 'CirrusSearch' )->warning(
+					"Skipping invalid DBKey: {pageDBKey}",
+					[ 'pageDBKey' => $pageDBKey ]
+				);
 				continue;
 			}
 			$pageData[] = WikiPage::factory( $title );
 		}
 		// Now invoke the updater!
-		$updater = new Updater();
-		$count = $updater->updatePages( $pageData, null, null, $this->params[ 'updateFlags' ] );
+		$updater = $this->createUpdater();
+		$count = $updater->updatePages( $pageData, $this->params[ 'updateFlags' ] );
+		return $count >= 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function workItemCount() {
+		return count( $this->params[ 'pageDBKeys' ] );
 	}
 }

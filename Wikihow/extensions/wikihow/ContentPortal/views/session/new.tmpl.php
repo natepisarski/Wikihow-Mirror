@@ -6,8 +6,9 @@
 	<div class="col-md-8">
 		<div class="well">
 			<h2>
-				Log In
-				<small>Manage your assignments in the WikiHow Content Portal</small>
+				Log In<br>
+				<small>Manage your assignments in the wikiHow Content Portal</small><br><br>
+				<small>NOTE: During upgrade, if you CANNOT login here, try <a href="/Special:UserLogin?returnto=Special%3AContentPortal">logging in to the main site</a> then return to Content Portal.</small>
 			</h2>
 
 			<div class="well-body">
@@ -15,9 +16,9 @@
 				<form class="prevent-double form-horizontal" action="<?= url('session/create') ?>" method="POST">
 					
 					<div class="form-group">
-						<label class="control-label col-sm-3">WikiHow Username:</label>
+						<label class="control-label col-sm-3">wikiHow Username:</label>
 						<div class="col-sm-9">
-							<input type="text" name="user[username]" value="<?= params("user[username]") ?>" class="input-lg form-control" placeholder="Wikihow Username">
+							<input type="text" name="user[username]" value="<?= params("user[username]") ?>" class="input-lg form-control" placeholder="wikiHow Username">
 						</div>
 					</div>
 

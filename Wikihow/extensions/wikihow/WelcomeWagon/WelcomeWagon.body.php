@@ -263,10 +263,11 @@ class WelcomeWagon extends UnlistedSpecialPage {
 	}
 
 	private function getUserIds() {
-		global $wgSharedDB;
+		global $wgSharedDB, $wgIsDevServer;
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$beginTime = wfTimestamp( TS_MW, time() - 60 * 60 * 24 * 7 );
+		$days = !$wgIsDevServer ? 7 : 60;
+		$beginTime = wfTimestamp( TS_MW, time() - 60 * 60 * 24 * $days );
 
 		$initialUserIds = array();
 
@@ -507,6 +508,10 @@ class WelcomeWagon extends UnlistedSpecialPage {
 
 		$target = $this->getRequest()->getVal('userName');
 		$user = User::newFromName($target);
+		if (!$user) {
+			$this->getOutput()->addHTML( json_encode( ['html' => "error: unable to find user: " . $target . '<br>'] ) );
+			return;
+		}
 
 		$tab = $this->getRequest()->getVal('tabName');
 		switch ($tab) {
@@ -554,7 +559,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 
 		$userId = $this->getNextUserId();
 		if ($userId == null) {
-			return; // Nothing to do
+			print json_encode(['error' => 'error: no next user found']);
 		} else {
 			$user = User::newFromId($userId);
 			print json_encode($this->getOutputVariables($user));
@@ -657,7 +662,7 @@ class WelcomeWagon extends UnlistedSpecialPage {
 		$tmpl = new EasyTemplate(__DIR__);
 
 		$out->addHTML($tmpl->execute('WelcomeWagon.tmpl.php'));
-		$out->addModules('ext.wikihow.diff_styles');
+		$out->addModuleStyles(['ext.wikihow.diff_styles', 'ext.wikihow.welcome_wagon_styles']);
 		$out->addModules('ext.wikihow.welcome_wagon');
 
 		InterfaceElements::addBubbleTipToElement('form-header', 'wwagon', 'No matter what happens keep the message positive and personalized.');

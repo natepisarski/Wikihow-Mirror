@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on Feb 4, 2009
- *
  * Copyright © 2009 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,16 +28,20 @@
 class ApiImport extends ApiBase {
 
 	public function execute() {
+		$this->useTransactionalTimeLimit();
+
 		$user = $this->getUser();
 		$params = $this->extractRequestParams();
+
+		$this->requireMaxOneParameter( $params, 'namespace', 'rootpage' );
 
 		$isUpload = false;
 		if ( isset( $params['interwikisource'] ) ) {
 			if ( !$user->isAllowed( 'import' ) ) {
-				$this->dieUsageMsg( 'cantimport' );
+				$this->dieWithError( 'apierror-cantimport' );
 			}
 			if ( !isset( $params['interwikipage'] ) ) {
-				$this->dieUsageMsg( array( 'missingparam', 'interwikipage' ) );
+				$this->dieWithError( [ 'apierror-missingparam', 'interwikipage' ] );
 			}
 			$source = ImportStreamSource::newFromInterwiki(
 				$params['interwikisource'],
@@ -49,44 +49,85 @@ class ApiImport extends ApiBase {
 				$params['fullhistory'],
 				$params['templates']
 			);
+			$usernamePrefix = $params['interwikisource'];
 		} else {
 			$isUpload = true;
 			if ( !$user->isAllowed( 'importupload' ) ) {
-				$this->dieUsageMsg( 'cantimport-upload' );
+				$this->dieWithError( 'apierror-cantimport-upload' );
 			}
 			$source = ImportStreamSource::newFromUpload( 'xml' );
+			$usernamePrefix = (string)$params['interwikiprefix'];
+			if ( $usernamePrefix === '' ) {
+				$encParamName = $this->encodeParamName( 'interwikiprefix' );
+				$this->dieWithError( [ 'apierror-missingparam', $encParamName ] );
+			}
 		}
 		if ( !$source->isOK() ) {
 			$this->dieStatus( $source );
 		}
 
-		$importer = new WikiImporter( $source->value );
+		// Check if user can add the log entry tags which were requested
+		if ( $params['tags'] ) {
+			$ableToTag = ChangeTags::canAddTagsAccompanyingChange( $params['tags'], $user );
+			if ( !$ableToTag->isOK() ) {
+				$this->dieStatus( $ableToTag );
+			}
+		}
+
+		$importer = new WikiImporter( $source->value, $this->getConfig() );
 		if ( isset( $params['namespace'] ) ) {
 			$importer->setTargetNamespace( $params['namespace'] );
-		}
-		if ( isset( $params['rootpage'] ) ) {
+		} elseif ( isset( $params['rootpage'] ) ) {
 			$statusRootPage = $importer->setTargetRootPage( $params['rootpage'] );
 			if ( !$statusRootPage->isGood() ) {
 				$this->dieStatus( $statusRootPage );
 			}
 		}
+		$importer->setUsernamePrefix( $usernamePrefix, $params['assignknownusers'] );
 		$reporter = new ApiImportReporter(
 			$importer,
 			$isUpload,
 			$params['interwikisource'],
 			$params['summary']
 		);
+		if ( $params['tags'] ) {
+			$reporter->setChangeTags( $params['tags'] );
+		}
 
 		try {
 			$importer->doImport();
-		} catch ( MWException $e ) {
-			$this->dieUsageMsg( array( 'import-unknownerror', $e->getMessage() ) );
+		} catch ( Exception $e ) {
+			$this->dieWithException( $e, [ 'wrap' => 'apierror-import-unknownerror' ] );
 		}
 
 		$resultData = $reporter->getData();
 		$result = $this->getResult();
-		$result->setIndexedTagName( $resultData, 'page' );
+		ApiResult::setIndexedTagName( $resultData, 'page' );
 		$result->addValue( null, $this->getModuleName(), $resultData );
+	}
+
+	/**
+	 * Returns a list of interwiki prefixes corresponding to each defined import
+	 * source.
+	 *
+	 * @return array
+	 * @since 1.27
+	 */
+	public function getAllowedImportSources() {
+		$importSources = $this->getConfig()->get( 'ImportSources' );
+		Hooks::run( 'ImportSources', [ &$importSources ] );
+
+		$result = [];
+		foreach ( $importSources as $key => $value ) {
+			if ( is_int( $key ) ) {
+				$result[] = $value;
+			} else {
+				foreach ( $value as $subproject ) {
+					$result[] = "$key:$subproject";
+				}
+			}
+		}
+		return $result;
 	}
 
 	public function mustBePosted() {
@@ -98,93 +139,46 @@ class ApiImport extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		global $wgImportSources;
-
-		return array(
-			'token' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
+		return [
 			'summary' => null,
-			'xml' => array(
+			'xml' => [
 				ApiBase::PARAM_TYPE => 'upload',
-			),
-			'interwikisource' => array(
-				ApiBase::PARAM_TYPE => $wgImportSources
-			),
+			],
+			'interwikiprefix' => [
+				ApiBase::PARAM_TYPE => 'string',
+			],
+			'interwikisource' => [
+				ApiBase::PARAM_TYPE => $this->getAllowedImportSources(),
+			],
 			'interwikipage' => null,
 			'fullhistory' => false,
 			'templates' => false,
-			'namespace' => array(
+			'namespace' => [
 				ApiBase::PARAM_TYPE => 'namespace'
-			),
+			],
+			'assignknownusers' => false,
 			'rootpage' => null,
-		);
-	}
-
-	public function getParamDescription() {
-		return array(
-			'token' => 'Import token obtained through prop=info',
-			'summary' => 'Import summary',
-			'xml' => 'Uploaded XML file',
-			'interwikisource' => 'For interwiki imports: wiki to import from',
-			'interwikipage' => 'For interwiki imports: page to import',
-			'fullhistory' => 'For interwiki imports: import the full history, not just the current version',
-			'templates' => 'For interwiki imports: import all included templates as well',
-			'namespace' => 'For interwiki imports: import to this namespace',
-			'rootpage' => 'Import as subpage of this page',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			ApiBase::PROP_LIST => true,
-			'' => array(
-				'ns' => 'namespace',
-				'title' => 'string',
-				'revisions' => 'integer'
-			)
-		);
-	}
-
-	public function getDescription() {
-		return array(
-			'Import a page from another wiki, or an XML file.',
-			'Note that the HTTP POST must be done as a file upload (i.e. using multipart/form-data) when',
-			'sending a file for the "xml" parameter.'
-		);
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'cantimport' ),
-			array( 'missingparam', 'interwikipage' ),
-			array( 'cantimport-upload' ),
-			array( 'import-unknownerror', 'source' ),
-			array( 'import-unknownerror', 'result' ),
-			array( 'import-rootpage-nosubpage', 'namespace' ),
-			array( 'import-rootpage-invalid' ),
-		) );
+			'tags' => [
+				ApiBase::PARAM_TYPE => 'tags',
+				ApiBase::PARAM_ISMULTI => true,
+			],
+		];
 	}
 
 	public function needsToken() {
-		return true;
+		return 'csrf';
 	}
 
-	public function getTokenSalt() {
-		return '';
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=import&interwikisource=meta&interwikipage=Help:ParserFunctions&' .
+	protected function getExamplesMessages() {
+		return [
+			'action=import&interwikisource=meta&interwikipage=Help:ParserFunctions&' .
 				'namespace=100&fullhistory=&token=123ABC'
-				=> 'Import [[meta:Help:Parserfunctions]] to namespace 100 with full history',
-		);
+				=> 'apihelp-import-example-import',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Import';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Import';
 	}
 }
 
@@ -193,24 +187,24 @@ class ApiImport extends ApiBase {
  * @ingroup API
  */
 class ApiImportReporter extends ImportReporter {
-	private $mResultArr = array();
+	private $mResultArr = [];
 
 	/**
-	 * @param $title Title
-	 * @param $origTitle Title
-	 * @param $revisionCount int
-	 * @param $successCount int
-	 * @param $pageInfo
+	 * @param Title $title
+	 * @param Title $origTitle
+	 * @param int $revisionCount
+	 * @param int $successCount
+	 * @param array $pageInfo
 	 * @return void
 	 */
-	function reportPage( $title, $origTitle, $revisionCount, $successCount, $pageInfo ) {
+	public function reportPage( $title, $origTitle, $revisionCount, $successCount, $pageInfo ) {
 		// Add a result entry
-		$r = array();
+		$r = [];
 
 		if ( $title === null ) {
 			# Invalid or non-importable title
 			$r['title'] = $pageInfo['title'];
-			$r['invalid'] = '';
+			$r['invalid'] = true;
 		} else {
 			ApiQueryBase::addTitleInfo( $r, $title );
 			$r['revisions'] = intval( $successCount );
@@ -222,7 +216,7 @@ class ApiImportReporter extends ImportReporter {
 		parent::reportPage( $title, $origTitle, $revisionCount, $successCount, $pageInfo );
 	}
 
-	function getData() {
+	public function getData() {
 		return $this->mResultArr;
 	}
 }

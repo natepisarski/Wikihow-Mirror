@@ -9,9 +9,8 @@ class StoreTitusQuery extends Maintenance {
 		parent::__construct();
 		$this->addOption('query', 'Query to store', true, true, 'q');
 	}
+
 	public function execute() {
-		global $IP;
-		require_once( "$IP/extensions/wikihow/titus/Titus.class.php" );
 		$query = $this->getOption('query');
 		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->query("select uuid() as uuid");

@@ -480,27 +480,32 @@ class ImageHelper extends UnlistedSpecialPage {
 			}
 
 			$license = '';
-			$content = preg_replace_callback(
-				'@({{([^}|]+)(\|[^}]*)?}})@',
-				function ($m) use ($templates, &$license) {
-					$name = trim(strtolower($m[2]));
-					$name = str_replace(' ', '-', $name);
-					foreach ($templates as $template) {
-						if ($name == $template) {
-							$license .= $m[0];
-							return '';
+			$imageRevision = $imagePage->getRevision();
+			if ($imageRevision) {
+				$content = preg_replace_callback(
+					'@({{([^}|]+)(\|[^}]*)?}})@',
+					function ($m) use ($templates, &$license) {
+						$name = trim(strtolower($m[2]));
+						$name = str_replace(' ', '-', $name);
+						foreach ($templates as $template) {
+							if ($name == $template) {
+								$license .= $m[0];
+								return '';
+							}
 						}
-					}
-					return $m[1];
-				},
-				$imagePage->getContent()
-			);
+						return $m[1];
+					},
+					$imageRevision->getContent()->getText()
+				);
+			} else {
+				$content = '';
+			}
 		}
 
-		$html = "<div id='im-info' style='word-wrap: break-word;'>".
-						$wgOut->parse("=== Licensing / Attribution === \n" . $license );
+		$html = "<div id='im-info' style='word-wrap: break-word;'>" .
+			$wgOut->parse( "=== Licensing / Attribution === \n" . $license );
 
-		$lastUser = $image->getUser();
+		$lastUser = $image->exists() ? $image->getUser() : null;
 		if ($lastUser) {
 			$userLink = Linker::link(Title::makeTitle(NS_USER, $lastUser), $lastUser);
 			$html .= "<p>".wfMessage('image_upload', $userLink)->text()."</p><br />";

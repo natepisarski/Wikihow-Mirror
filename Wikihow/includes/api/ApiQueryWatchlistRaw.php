@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on Oct 4, 2008
- *
  * Copyright © 2008 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,6 +20,8 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * This query action allows clients to retrieve a list of pages
  * on the logged-in user's watchlist.
@@ -32,7 +30,7 @@
  */
 class ApiQueryWatchlistRaw extends ApiQueryGeneratorBase {
 
-	public function __construct( $query, $moduleName ) {
+	public function __construct( ApiQuery $query, $moduleName ) {
 		parent::__construct( $query, $moduleName, 'wr' );
 	}
 
@@ -45,77 +43,82 @@ class ApiQueryWatchlistRaw extends ApiQueryGeneratorBase {
 	}
 
 	/**
-	 * @param $resultPageSet ApiPageSet
+	 * @param ApiPageSet $resultPageSet
 	 * @return void
 	 */
 	private function run( $resultPageSet = null ) {
-		$this->selectNamedDB( 'watchlist', DB_SLAVE, 'watchlist' );
-
 		$params = $this->extractRequestParams();
 
 		$user = $this->getWatchlistUser( $params );
 
 		$prop = array_flip( (array)$params['prop'] );
 		$show = array_flip( (array)$params['show'] );
-		if ( isset( $show['changed'] ) && isset( $show['!changed'] ) ) {
-			$this->dieUsageMsg( 'show' );
+		if ( isset( $show[WatchedItemQueryService::FILTER_CHANGED] )
+			&& isset( $show[WatchedItemQueryService::FILTER_NOT_CHANGED] )
+		) {
+			$this->dieWithError( 'apierror-show' );
 		}
 
-		$this->addTables( 'watchlist' );
-		$this->addFields( array( 'wl_namespace', 'wl_title' ) );
-		$this->addFieldsIf( 'wl_notificationtimestamp', isset( $prop['changed'] ) );
-		$this->addWhereFld( 'wl_user', $user->getId() );
-		$this->addWhereFld( 'wl_namespace', $params['namespace'] );
-		$this->addWhereIf( 'wl_notificationtimestamp IS NOT NULL', isset( $show['changed'] ) );
-		$this->addWhereIf( 'wl_notificationtimestamp IS NULL', isset( $show['!changed'] ) );
+		$options = [];
+		if ( $params['namespace'] ) {
+			$options['namespaceIds'] = $params['namespace'];
+		}
+		if ( isset( $show[WatchedItemQueryService::FILTER_CHANGED] ) ) {
+			$options['filter'] = WatchedItemQueryService::FILTER_CHANGED;
+		}
+		if ( isset( $show[WatchedItemQueryService::FILTER_NOT_CHANGED] ) ) {
+			$options['filter'] = WatchedItemQueryService::FILTER_NOT_CHANGED;
+		}
 
 		if ( isset( $params['continue'] ) ) {
 			$cont = explode( '|', $params['continue'] );
 			$this->dieContinueUsageIf( count( $cont ) != 2 );
 			$ns = intval( $cont[0] );
 			$this->dieContinueUsageIf( strval( $ns ) !== $cont[0] );
-			$title = $this->getDB()->addQuotes( $cont[1] );
-			$op = $params['dir'] == 'ascending' ? '>' : '<';
-			$this->addWhere(
-				"wl_namespace $op $ns OR " .
-				"(wl_namespace = $ns AND " .
-				"wl_title $op= $title)"
-			);
+			$title = $cont[1];
+			$options['startFrom'] = new TitleValue( $ns, $title );
 		}
 
-		$sort = ( $params['dir'] == 'descending' ? ' DESC' : '' );
-		// Don't ORDER BY wl_namespace if it's constant in the WHERE clause
-		if ( count( $params['namespace'] ) == 1 ) {
-			$this->addOption( 'ORDER BY', 'wl_title' . $sort );
-		} else {
-			$this->addOption( 'ORDER BY', array(
-				'wl_namespace' . $sort,
-				'wl_title' . $sort
-			) );
+		if ( isset( $params['fromtitle'] ) ) {
+			list( $ns, $title ) = $this->prefixedTitlePartToKey( $params['fromtitle'] );
+			$options['from'] = new TitleValue( $ns, $title );
 		}
-		$this->addOption( 'LIMIT', $params['limit'] + 1 );
-		$res = $this->select( __METHOD__ );
 
-		$titles = array();
+		if ( isset( $params['totitle'] ) ) {
+			list( $ns, $title ) = $this->prefixedTitlePartToKey( $params['totitle'] );
+			$options['until'] = new TitleValue( $ns, $title );
+		}
+
+		$options['sort'] = WatchedItemStore::SORT_ASC;
+		if ( $params['dir'] === 'descending' ) {
+			$options['sort'] = WatchedItemStore::SORT_DESC;
+		}
+		$options['limit'] = $params['limit'] + 1;
+
+		$titles = [];
 		$count = 0;
-		foreach ( $res as $row ) {
+		$items = MediaWikiServices::getInstance()->getWatchedItemQueryService()
+			->getWatchedItemsForUser( $user, $options );
+		foreach ( $items as $item ) {
+			$ns = $item->getLinkTarget()->getNamespace();
+			$dbKey = $item->getLinkTarget()->getDBkey();
 			if ( ++$count > $params['limit'] ) {
 				// We've reached the one extra which shows that there are
 				// additional pages to be had. Stop here...
-				$this->setContinueEnumParameter( 'continue', $row->wl_namespace . '|' . $row->wl_title );
+				$this->setContinueEnumParameter( 'continue', $ns . '|' . $dbKey );
 				break;
 			}
-			$t = Title::makeTitle( $row->wl_namespace, $row->wl_title );
+			$t = Title::makeTitle( $ns, $dbKey );
 
 			if ( is_null( $resultPageSet ) ) {
-				$vals = array();
+				$vals = [];
 				ApiQueryBase::addTitleInfo( $vals, $t );
-				if ( isset( $prop['changed'] ) && !is_null( $row->wl_notificationtimestamp ) ) {
-					$vals['changed'] = wfTimestamp( TS_ISO_8601, $row->wl_notificationtimestamp );
+				if ( isset( $prop['changed'] ) && !is_null( $item->getNotificationTimestamp() ) ) {
+					$vals['changed'] = wfTimestamp( TS_ISO_8601, $item->getNotificationTimestamp() );
 				}
 				$fit = $this->getResult()->addValue( $this->getModuleName(), null, $vals );
 				if ( !$fit ) {
-					$this->setContinueEnumParameter( 'continue', $row->wl_namespace . '|' . $row->wl_title );
+					$this->setContinueEnumParameter( 'continue', $ns . '|' . $dbKey );
 					break;
 				}
 			} else {
@@ -123,112 +126,75 @@ class ApiQueryWatchlistRaw extends ApiQueryGeneratorBase {
 			}
 		}
 		if ( is_null( $resultPageSet ) ) {
-			$this->getResult()->setIndexedTagName_internal( $this->getModuleName(), 'wr' );
+			$this->getResult()->addIndexedTagName( $this->getModuleName(), 'wr' );
 		} else {
 			$resultPageSet->populateFromTitles( $titles );
 		}
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'continue' => null,
-			'namespace' => array(
+		return [
+			'continue' => [
+				ApiBase::PARAM_HELP_MSG => 'api-help-param-continue',
+			],
+			'namespace' => [
 				ApiBase::PARAM_ISMULTI => true,
 				ApiBase::PARAM_TYPE => 'namespace'
-			),
-			'limit' => array(
+			],
+			'limit' => [
 				ApiBase::PARAM_DFLT => 10,
 				ApiBase::PARAM_TYPE => 'limit',
 				ApiBase::PARAM_MIN => 1,
 				ApiBase::PARAM_MAX => ApiBase::LIMIT_BIG1,
 				ApiBase::PARAM_MAX2 => ApiBase::LIMIT_BIG2
-			),
-			'prop' => array(
+			],
+			'prop' => [
 				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_TYPE => array(
+				ApiBase::PARAM_TYPE => [
 					'changed',
-				)
-			),
-			'show' => array(
+				],
+				ApiBase::PARAM_HELP_MSG_PER_VALUE => [],
+			],
+			'show' => [
 				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_TYPE => array(
-					'changed',
-					'!changed',
-				)
-			),
-			'owner' => array(
+				ApiBase::PARAM_TYPE => [
+					WatchedItemQueryService::FILTER_CHANGED,
+					WatchedItemQueryService::FILTER_NOT_CHANGED
+				]
+			],
+			'owner' => [
 				ApiBase::PARAM_TYPE => 'user'
-			),
-			'token' => array(
-				ApiBase::PARAM_TYPE => 'string'
-			),
-			'dir' => array(
+			],
+			'token' => [
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_SENSITIVE => true,
+			],
+			'dir' => [
 				ApiBase::PARAM_DFLT => 'ascending',
-				ApiBase::PARAM_TYPE => array(
+				ApiBase::PARAM_TYPE => [
 					'ascending',
 					'descending'
-				),
-			),
-		);
+				],
+			],
+			'fromtitle' => [
+				ApiBase::PARAM_TYPE => 'string'
+			],
+			'totitle' => [
+				ApiBase::PARAM_TYPE => 'string'
+			],
+		];
 	}
 
-	public function getParamDescription() {
-		return array(
-			'continue' => 'When more results are available, use this to continue',
-			'namespace' => 'Only list pages in the given namespace(s)',
-			'limit' => 'How many total results to return per request',
-			'prop' => array(
-				'Which additional properties to get (non-generator mode only)',
-				' changed  - Adds timestamp of when the user was last notified about the edit',
-			),
-			'show' => 'Only list items that meet these criteria',
-			'owner' => 'The name of the user whose watchlist you\'d like to access',
-			'token' => 'Give a security token (settable in preferences) to allow ' .
-				'access to another user\'s watchlist',
-			'dir' => 'Direction to sort the titles and namespaces in',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			'' => array(
-				'ns' => 'namespace',
-				'title' => 'string'
-			),
-			'changed' => array(
-				'changed' => array(
-					ApiBase::PROP_TYPE => 'timestamp',
-					ApiBase::PROP_NULLABLE => true
-				)
-			)
-		);
-	}
-
-	public function getDescription() {
-		return "Get all pages on the logged in user's watchlist";
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'code' => 'notloggedin', 'info' => 'You must be logged-in to have a watchlist' ),
-			array( 'show' ),
-			array( 'code' => 'bad_wlowner', 'info' => 'Specified user does not exist' ),
-			array(
-				'code' => 'bad_wltoken',
-				'info' => 'Incorrect watchlist token provided -- ' .
-					'please set a correct token in Special:Preferences'
-			),
-		) );
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=query&list=watchlistraw',
-			'api.php?action=query&generator=watchlistraw&gwrshow=changed&prop=revisions',
-		);
+	protected function getExamplesMessages() {
+		return [
+			'action=query&list=watchlistraw'
+				=> 'apihelp-query+watchlistraw-example-simple',
+			'action=query&generator=watchlistraw&gwrshow=changed&prop=info'
+				=> 'apihelp-query+watchlistraw-example-generator',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Watchlistraw';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Watchlistraw';
 	}
 }

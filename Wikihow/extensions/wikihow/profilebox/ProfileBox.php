@@ -17,8 +17,15 @@ $wgExtensionMessagesFiles['ProfileBox'] = __DIR__ . "/ProfileBox.i18n.php";
 
 $wgHooks['AddNewAccount'][] = 'ProfileBox::onInitProfileBox';
 
-$wgResourceModules['ext.wikihow.profile_box'] = array(
+$wgResourceModules['ext.wikihow.profile_box_styles'] = array(
     'styles' => array('profilebox.css'),
+    'localBasePath' => __DIR__,
+    'remoteExtPath' => 'wikihow/profilebox',
+    'position' => 'top',
+    'targets' => array('desktop'),
+);
+
+$wgResourceModules['ext.wikihow.profile_box'] = array(
     'scripts' => array('profilebox.js'),
     'messages' => array(
       'profilebox_name',

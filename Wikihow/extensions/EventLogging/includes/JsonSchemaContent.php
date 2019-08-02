@@ -9,104 +9,130 @@
  * @author Ori Livneh <ori@wikimedia.org>
  */
 
-
 /**
  * Represents the content of a JSON Schema article.
  */
-class JsonSchemaContent extends TextContent {
+class JsonSchemaContent extends JsonContent {
 
-	function __construct( $text ) {
-		parent::__construct( $text, 'JsonSchema' );
+	const DEFAULT_RECURSION_LIMIT = 3;
+
+	public function __construct( $text, $modelId = 'JsonSchema' ) {
+		parent::__construct( $text, $modelId );
 	}
 
 	/**
-	 * @throws JsonSchemaException: If invalid.
-	 * @return bool: True if valid.
+	 * Resolve a JSON reference to a schema.
+	 * @param string $ref Schema reference with format 'Title/Revision'
+	 * @return array|bool
 	 */
-	function validate() {
-		$schema = FormatJson::decode( $this->getNativeData(), true );
+	public static function resolve( $ref ) {
+		list( $title, $revId ) = explode( '/', $ref );
+		$rs = new RemoteSchema( $title, $revId );
+		return $rs->get();
+	}
+
+	/**
+	 * Recursively resolve references in a schema.
+	 * @param array $schema Schema object to expand
+	 * @param int $recursionLimit Maximum recursion limit
+	 * @return array Expanded schema object
+	 */
+	public static function expand( $schema,
+			$recursionLimit = self::DEFAULT_RECURSION_LIMIT ) {
+		return array_map( function ( $value ) use( $recursionLimit ) {
+			if ( is_array( $value ) && $recursionLimit > 0 ) {
+				if ( isset( $value['$ref'] ) ) {
+					$value = JsonSchemaContent::resolve( $value['$ref'] );
+				}
+				return JsonSchemaContent::expand( $value, $recursionLimit - 1 );
+			}
+			return $value;
+		}, $schema );
+	}
+
+	/**
+	 * Decodes the JSON schema into a PHP associative array.
+	 * @return array Schema array
+	 */
+	public function getJsonData() {
+		return FormatJson::decode( $this->getNativeData(), true );
+	}
+
+	/**
+	 * @throws JsonSchemaException If content is invalid
+	 * @return bool True if valid
+	 */
+	public function validate() {
+		$schema = $this->getJsonData();
 		if ( !is_array( $schema ) ) {
-			throw new JsonSchemaException( wfMessage( 'eventlogging-invalid-json' )->parse() );
+			throw new JsonSchemaException( 'eventlogging-invalid-json' );
 		}
-		return efSchemaValidate( $schema );
+		return EventLogging::schemaValidate( $schema );
 	}
 
 	/**
-	 * @return bool: Whether content is valid JSON Schema.
+	 * @return bool Whether content is valid JSON Schema.
 	 */
-	function isValid() {
+	public function isValid() {
 		try {
-			return $this->validate();
+			return parent::isValid() && $this->validate();
 		} catch ( JsonSchemaException $e ) {
 			return false;
 		}
 	}
 
 	/**
-	 * Beautifies JSON prior to save.
-	 * @param Title $title Title
-	 * @param User $user User
-	 * @param ParserOptions $popts
-	 * @return JsonSchemaContent
-	 */
-	function preSaveTransform( Title $title, User $user, ParserOptions $popts ) {
-		return new JsonSchemaContent( efBeautifyJson( $this->getNativeData() ) );
-	}
-
-	/**
-	 * Constructs an HTML representation of a JSON object.
-	 * @return string: HTML.
-	 */
-	static function objectTable( $mapping ) {
-		$rows = array();
-
-		foreach ( $mapping as $key => $val ) {
-			$rows[] = self::objectRow( $key, $val );
-		}
-		return Xml::tags( 'table', array( 'class' => 'mw-json-schema' ),
-			Xml::tags( 'tbody', array(), join( "\n", $rows ) )
-		);
-	}
-
-	/**
 	 * Constructs HTML representation of a single key-value pair.
-	 * @return string: HTML.
+	 * Override this to support $ref
+	 * @param string $key
+	 * @param mixed $val
+	 * @return string HTML
 	 */
-	static function objectRow( $key, $val ) {
-		$th = Xml::elementClean( 'th', array(), $key );
-		if ( is_array( $val ) ) {
-			$td = Xml::tags( 'td', array(), self::objectTable( $val ) );
-		} else {
-			if ( is_string( $val ) ) {
-				$val = '"' . $val . '"';
-			} else {
-				$val = FormatJson::encode( $val );
-			}
+	public function objectRow( $key, $val ) {
+		if ( $key === '$ref' ) {
+			$valParts = explode( '/', $val, 2 );
+			if ( !isset( $valParts[1] ) ) {
+				$revId = $valParts[1];
+				$title = Revision::newFromId( $revId )->getTitle();
+				$link = Linker::link( $title, htmlspecialchars( $val ), [],
+					[ 'oldid' => $revId ] );
 
-			$td = Xml::elementClean( 'td', array( 'class' => 'value' ), $val );
+				$th = Xml::elementClean( 'th', [], $key );
+				$td = Xml::tags( 'td', [ 'class' => 'value' ], $link );
+				return Html::rawElement( 'tr', [], $th . $td );
+			}
 		}
 
-		return Xml::tags( 'tr', array(), $th . $td );
+		return parent::objectRow( $key, $val );
 	}
 
 	/**
 	 * Generate generic PHP and JavaScript code strings showing how to
 	 * use a schema.
-	 * @param $dbKey string DB key of schema article
-	 * @param $revId int Revision ID of schema article
-	 * @return array: Array mapping language names to source code
+	 * @param string $dbKey DB key of schema article
+	 * @param int $revId Revision ID of schema article
+	 * @return array Nested array with each sub-array having a language, header
+	 *  (message key), and code
 	 */
 	public function getCodeSamples( $dbKey, $revId ) {
-		return array(
-			'PHP' =>
-				"\$wgResourceModules[ 'schema.{$dbKey}' ] = array(\n" .
-				"	'class'  => 'ResourceLoaderSchemaModule',\n" .
-				"	'schema' => '{$dbKey}',\n" .
-				"	'revision' => {$revId},\n" .
-				");",
-			'JavaScript' =>
-				"mw.eventLog.logEvent( '{$dbKey}', { /* ... */ } );"
-		);
+		return [
+			[
+				'language' => 'php',
+				'header' => 'eventlogging-code-sample-logging-on-server-side',
+				'code' => "EventLogging::logEvent( '$dbKey', $revId, \$event );",
+			], [
+				'language' => 'json',
+				'header' => 'eventlogging-code-sample-module-setup-json',
+				'code' => FormatJson::encode( [
+					'attributes' => [ 'EventLogging' => [
+						'Schemas' => [ $dbKey => $revId, ] ]
+					] ], "\t" ),
+			], [
+				'language' => 'javascript',
+				'header' => 'eventlogging-code-sample-logging-on-client-side',
+				'code' => "mw.track( 'event.{$dbKey}', { /* ... */ } );",
+			],
+		];
 	}
 
 	/**
@@ -118,10 +144,10 @@ class JsonSchemaContent extends TextContent {
 	 *
 	 * @see https://mediawiki.org/wiki/Extension:SyntaxHighlight_GeSHi
 	 *
-	 * @param $title Title
-	 * @param $revId int|null Revision ID
-	 * @param $options ParserOptions|null
-	 * @param $generateHtml bool Whether or not to generate HTML
+	 * @param Title $title
+	 * @param int|null $revId Revision ID
+	 * @param ParserOptions|null $options
+	 * @param bool $generateHtml Whether or not to generate HTML
 	 * @return ParserOutput
 	 */
 	public function getParserOutput( Title $title, $revId = null,
@@ -131,26 +157,23 @@ class JsonSchemaContent extends TextContent {
 		if ( $revId !== null && class_exists( 'SyntaxHighlight_GeSHi' ) ) {
 			$html = '';
 			$highlighter = new SyntaxHighlight_GeSHi();
-			foreach( self::getCodeSamples( $title->getDBkey(), $revId ) as $lang => $code ) {
-				$geshi = $highlighter->prepare( $code, $lang );
-				$out->addHeadItem( $highlighter::buildHeadItem( $geshi ), "source-$lang" );
-				$html .= Xml::tags( 'h2', array(), $lang ) . $geshi->parse_code();
+			foreach ( $this->getCodeSamples( $title->getDBkey(), $revId ) as $sample ) {
+				$lang = $sample['language'];
+				$code = $sample['code'];
+				$highlighted = $highlighter->highlight( $code, $lang )->getValue();
+				$html .= Html::element( 'h2',
+					[],
+					wfMessage( $sample['header'] )->text()
+				) . $highlighted;
 			}
 			// The glyph is '< >' from the icon font 'Entypo' (see ../modules).
-			$html = Xml::tags( 'div', array( 'class' => 'mw-json-schema-code-glyph' ), '&#xe714;' ) .
-				Xml::tags( 'div', array( 'class' => 'mw-json-schema-code-samples' ), $html );
-			$out->setText( $html . $out->mText );
+			$html = Xml::tags( 'div', [ 'class' => 'mw-json-schema-code-glyph' ], '&#xe714;' ) .
+				Xml::tags( 'div', [ 'class' => 'mw-json-schema-code-samples' ], $html );
+			$out->setIndicator( 'schema-code-samples', $html );
+			$out->addModules( [ 'ext.eventLogging.jsonSchema', 'ext.pygments' ] );
+			$out->addModuleStyles( 'ext.eventLogging.jsonSchema.styles' );
 		}
 
 		return $out;
-	}
-
-	/**
-	 * Generates HTML representation of content.
-	 * @return string: HTML representation.
-	 */
-	function getHighlightHtml() {
-		$schema = FormatJson::decode( $this->getNativeData(), true );
-		return is_array( $schema ) ? self::objectTable( $schema ) : '';
 	}
 }

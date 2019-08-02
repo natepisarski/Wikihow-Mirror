@@ -1,7 +1,6 @@
 <?php
 
 require_once(__DIR__ . '/../../commandLine.inc');
-require_once("$IP/extensions/wikihow/titus/Titus.class.php");
 
 if ($wgLanguageCode == 'en') {
 	print "Retranslatefish updates not supported for English. Exiting.\n";
@@ -20,4 +19,3 @@ try {
 } catch (Exception $e) {
 	print 'Caught exception: "' . $e->getMessage() . "\"\n";
 }
-

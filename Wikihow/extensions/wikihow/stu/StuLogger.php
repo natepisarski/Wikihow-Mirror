@@ -26,7 +26,7 @@ $wgResourceModules['ext.wikihow.stu_inspector'] = [
     'targets' => [ 'desktop', 'mobile' ],
     'styles' => [ 'stu_inspector.css' ],
     'scripts' => [ 'stu_inspector.js' ],
-    'remoteExtPath' => 'wikihow',
+    'remoteExtPath' => 'wikihow/stu',
     'position' => 'top' ];
 
 // The basis for this code was taken from:

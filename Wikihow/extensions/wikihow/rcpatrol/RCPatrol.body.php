@@ -79,12 +79,13 @@ class RCPatrol extends SpecialPage {
 
 		$out = $this->getOutput();
 		$out->addModules('common.mousetrap');
-		$out->addModules('ext.wikihow.UsageLogs');
+		// $out->addModules('ext.wikihow.UsageLogs'); # TODO (mwup): this wasn't working - I've disabled it for now (Alberto)
 		$out->addModules('jquery.ui.dialog');
+		$out->addModuleStyles('ext.wikihow.rcpatrol_styles');
 		$out->addModules('ext.wikihow.rcpatrol');
 		$out->addModules('ext.wikihow.editor_script');
 
-		$out->addHTML(QuickNoteEdit::displayQuickEdit() . QuickNoteEdit::displayQuickNote());
+		$out->addHTML(QuickNoteEdit::displayQuickEdit() . QuickNoteEdit::displayQuickNote(false, false));
 		$out->addHTML(self::getErrorBoxHtml());
 		$result = self::getNextArticleToPatrol();
 		if ($result) {
@@ -183,12 +184,17 @@ EOHTML;
 		$link .=  "<input type='button' $class1 id='markpatrolurl' class='op-action' onclick=\"return WH.RCPatrol.markPatrolled();\" title='" . wfMessage('rcpatrol_patrolled_title') .
 			"' value='" . wfMessage('rcpatrol_patrolled_button') . "' data-event_action='mark_patrolled' data-article_id='$articleId' data-assoc_id='$rcid'/>";
 		if ($setonload) {
-			$link .= "<script type='text/javascript'>marklink = '$url';
+			$link .= "<script type='text/javascript'>
+				marklink = '$url';
 				skiplink = '$url&skip=1';
-				$(document).ready(function() {
-					WH.RCPatrol.setupTabs();
-					WH.RCPatrol.preloadNext('$url&grabnext=true');
-				});
+				nextlink = '$url&grabnext=true';
+
+				if (typeof WH.RCPatrol !== 'undefined') {
+					if (typeof WH.RCPatrol.setupTabs == 'function') {
+						WH.RCPatrol.setupTabs();
+						WH.RCPatrol.preloadNext(nextlink);
+					}
+				}
 				</script>";
 
 		}
@@ -299,7 +305,7 @@ EOHTML;
 			}
 		}
 
-		$class = "class='button secondary' style='float: right;'";
+		$class = "class='button secondary rb_disabled' style='float: right;'";
 
 		// Genrate an RC Patrol rollback url. Different than the normal mediawiki rollback
 		// to handle multiple intermediate revisions (if they exist)
@@ -307,16 +313,18 @@ EOHTML;
 
 		$rcid = $rev->getId();
 		$articleId = $rev->getParentId();
+		$onClick = 'if (typeof WH.RCPatrol !== "undefined") {return WH.RCPatrol.rollback();}';
 
 		$s = "
 			<script type='text/javascript'>
-				WH.RCPatrol.setRollbackURL(\"{$url}\");
+				rollbackUrl = \"{$url}\";
 				var msg_rollback_complete = \"" . htmlspecialchars(wfMessage('rollback_complete')) . "\";
 				var msg_rollback_fail = \"" . htmlspecialchars(wfMessage('rollback_fail')) . "\";
 				var msg_rollback_inprogress = \"" . htmlspecialchars(wfMessage('rollback_inprogress')) . "\";
 				var msg_rollback_confirm= \"" . htmlspecialchars(wfMessage('rollback_confirm')) . "\";
 			</script>
-				<a id='rb_button' $class href='' onclick='return WH.RCPatrol.rollback();' title='" . wfMessage('rcpatrol_rollback_title') . "' data-event_action='rollback' data-article_id='$articleId' data-assoc_id='$rcid'>" . wfMessage('rcpatrol_rollback_button') . "</a>
+				<a id='rb_button' $class href='' onclick='$onClick' title='" . wfMessage('rcpatrol_rollback_title') . "' data-event_action='rollback' data-article_id='$articleId' data-assoc_id='$rcid'>" . wfMessage('rcpatrol_rollback_button') . "</a>
+
 			</span>";
 		$s .= "<div id='newrollbackurl' style='display:none;'>{$url}</div>";
 		return $s;
@@ -427,10 +435,11 @@ EOHTML;
 	private static function getUserTab() {
 		$tab = "<tr class='rc_submenu' id='rc_user'><td>
 			<div id='controls' style='text-align:center'>
-				" . wfMessage('rcpatrol_username') . ": <input type='text' name='rc_user_filter' id='rc_user_filter' size='30' onchange='WH.RCPatrol.changeUserFilter();'/> <script> $('#rc_user_filter').keypress(function(e) { if (e.which == 13) { $('#rc_user_filter_go').click(); return false; } }); </script>
-				<input type='button' id='rc_user_filter_go' value='" . wfMessage('rcpatrol_go') . "' onclick='WH.RCPatrol.changeUser(true);'/>
+				" . wfMessage('rcpatrol_username')
+				. ": <input type='text' name='rc_user_filter' id='rc_user_filter' size='30' onchange='WH.RCPatrol.changeUserFilter();'/>
+				<input type='button' id='rc_user_filter_go' value='" . wfMessage('rcpatrol_go') . "' onclick='WH.RCPatrol.changeUser(true); return false;'/>
 				-
-				<a href='#' onclick='WH.RCPatrol.changeUser(false);'>" . wfMessage('rcpatrol_off') . "</a>
+				<a href='#' onclick='WH.RCPatrol.changeUser(false); return false;'>" . wfMessage('rcpatrol_off') . "</a>
 			</div></td></tr>";
 		return $tab;
 	}
@@ -1020,7 +1029,7 @@ class RCTestStub {
 		if (class_exists('ThumbsUp')) {
 			//-1 is a secret code to our thumbs up function
 			$result['old'] = ($result['old'] != 0) ? $result['old'] : -1;
-			$button = ThumbsUp::getThumbsUpButton($result);
+			$button = ThumbsUp::getThumbsUpButton($result, false, false);
 		}
 		return $button;
 	}

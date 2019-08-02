@@ -23,6 +23,8 @@
 
 require_once __DIR__ . '/../Maintenance.php';
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Maintenance script that shows some statistics on the blob_orphans table,
  * created with trackBlobs.php.
@@ -32,34 +34,42 @@ require_once __DIR__ . '/../Maintenance.php';
 class OrphanStats extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "how some statistics on the blob_orphans table, created with trackBlobs.php";
+		$this->addDescription(
+			"Show some statistics on the blob_orphans table, created with trackBlobs.php" );
 	}
 
-	protected function &getDB( $cluster, $groups = array(), $wiki = false ) {
-		$lb = wfGetLBFactory()->getExternalLB( $cluster );
-		return $lb->getConnection( DB_SLAVE );
+	protected function &getDB( $cluster, $groups = [], $wiki = false ) {
+		$lbFactory = MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
+		$lb = $lbFactory->getExternalLB( $cluster );
+
+		return $lb->getConnection( DB_REPLICA );
 	}
 
 	public function execute() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = $this->getDB( DB_REPLICA );
 		if ( !$dbr->tableExists( 'blob_orphans' ) ) {
-			$this->error( "blob_orphans doesn't seem to exist, need to run trackBlobs.php first", true );
+			$this->fatalError( "blob_orphans doesn't seem to exist, need to run trackBlobs.php first" );
 		}
-		$res = $dbr->select( 'blob_orphans', '*', false, __METHOD__ );
+		$res = $dbr->select( 'blob_orphans', '*', '', __METHOD__ );
 
 		$num = 0;
 		$totalSize = 0;
-		$hashes = array();
+		$hashes = [];
 		$maxSize = 0;
 
 		foreach ( $res as $boRow ) {
 			$extDB = $this->getDB( $boRow->bo_cluster );
-			$blobRow = $extDB->selectRow( 'blobs', '*', array( 'blob_id' => $boRow->bo_blob_id ), __METHOD__ );
+			$blobRow = $extDB->selectRow(
+				'blobs',
+				'*',
+				[ 'blob_id' => $boRow->bo_blob_id ],
+				__METHOD__
+			);
 
 			$num++;
 			$size = strlen( $blobRow->blob_text );
 			$totalSize += $size;
-			$hashes[ sha1( $blobRow->blob_text ) ] = true;
+			$hashes[sha1( $blobRow->blob_text )] = true;
 			$maxSize = max( $size, $maxSize );
 		}
 		unset( $res );
@@ -67,11 +77,11 @@ class OrphanStats extends Maintenance {
 		$this->output( "Number of orphans: $num\n" );
 		if ( $num > 0 ) {
 			$this->output( "Average size: " . round( $totalSize / $num, 0 ) . " bytes\n" .
-			"Max size: $maxSize\n" .
-			"Number of unique texts: " . count( $hashes ) . "\n" );
+				"Max size: $maxSize\n" .
+				"Number of unique texts: " . count( $hashes ) . "\n" );
 		}
 	}
 }
 
-$maintClass = "OrphanStats";
+$maintClass = OrphanStats::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

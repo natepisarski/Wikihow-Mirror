@@ -368,7 +368,9 @@ class WikihowArticleEditor {
 	public static function articleIsWikiHow($wikiPage) {
 		if (!($wikiPage instanceof WikiPage)) return false;
 		if (!$wikiPage->getTitle()->inNamespace(NS_MAIN)) return false;
-		$wikitext = $wikiPage->getText();
+		$contentObj = $wikiPage->getContent();
+		if (!$contentObj) return false;
+		$wikitext = $contentObj->getText();
 		$count = preg_match('/^==[ ]*' . wfMessage('steps')->text() . '[ ]*==/mi', $wikitext);
 		return $count > 0;
 	}

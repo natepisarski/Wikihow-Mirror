@@ -1,0 +1,38 @@
+{
+	"@metadata": {
+		"authors": [
+			"Aftab1995",
+			"Bellayet",
+			"Nasir8891",
+			"Aftabuzzaman",
+			"আফতাবুজ্জামান"
+		]
+	},
+	"guidedtour-desc": "নতুন ব্যবহারকারীদের সহযোগিতার জন্য পাতায় একটি ভাসমান নির্দেশনামূলক ভ্রমণের সুযোগ করে দেয়।",
+	"guidedtour-help-url": "Help:নির্দেশনামূলক ভ্রমণ",
+	"guidedtour-help-guider-url": "Help:নির্দেশনামূলক ভ্রমণ/নির্দেশক",
+	"guidedtour-next-button": "পরবর্তী",
+	"guidedtour-okay-button": "ঠিক আছে",
+	"guidedtour-back-button": "পিছনে",
+	"guidedtour-tour-test-testing": "পরীক্ষণ",
+	"guidedtour-tour-test-test-description": "এটি বর্ণনার একটি উদাহারণ। Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "পরীক্ষামূলক কলআউট",
+	"guidedtour-tour-test-portal-description": "এটি হচ্ছে {{int:portal}} পাতা।",
+	"guidedtour-tour-test-mediawiki-parse": "মিডিয়াউইকি পার্স পরীক্ষা করুন",
+	"guidedtour-tour-test-description-page": "মিডিয়াউইকির বিবরণের পাতা পরীক্ষা",
+	"guidedtour-tour-test-go-description-page": "বিবরণের পাতায় যান",
+	"guidedtour-tour-test-launch-tour": "পরীক্ষামূলক ভ্রমণ আরম্ভ করুন",
+	"guidedtour-tour-test-launch-tour-description": "নির্দেশকগণ আরও নতুন নতুন ভ্রমনের আয়োজন করতে পারেন। কি বলেন, ভালো?",
+	"guidedtour-tour-test-launch-editing": "সম্পাদনা করার উপর একটি ভ্রমণ শুরু করুন",
+	"guidedtour-tour-firstedit-edit-page-title": "সম্পূর্ণ পাতাটি {{GENDER:|সম্পাদনা করুন}}...",
+	"guidedtour-tour-firstedit-edit-page-description": "\"$1\" বোতামে {{GENDER:|ক্লিক}} করে আপানার পরিবর্তনগুলো সম্পন্ন করুন।",
+	"guidedtour-tour-firstedit-edit-section-title": "অথবা একটি অনুচ্ছেদ {{GENDER:|সম্পাদনা করুন}}",
+	"guidedtour-tour-firstedit-edit-section-description": "গুরুত্বপূর্ণ প্রতিটি অনুচ্ছেদের জন্য \"{{int:editsection}}\" লিংক রয়েছে, তাই আপনি নির্দিষ্ট অংশটি সরাসরি সম্পাদনা করতে পারবেন।",
+	"guidedtour-tour-firstedit-preview-title": "আপনার পরিবর্তনের {{GENDER:|প্রাকদর্শন}} করুন (ঐচ্ছিক)",
+	"guidedtour-tour-firstedit-preview-description": "\"{{int:showpreview}}\" বোতামে ক্লিক করে আপনার পরিবর্তনের পর পাতাটি কেমন দেখাবে সেটি জানতে পারবেন। সংরক্ষণ করতে ভুলবেন না!",
+	"guidedtour-tour-firstedit-save-title": "আপনি প্রায় সম্পন্ন করেছেন!",
+	"guidedtour-tour-firstedit-save-description": "আপনার কাজ সম্পন্ন হলে, \"{{int:publishchanges}}\" বোতামে ক্লিক করুন এবং আপনার পরিবর্তনগুলো সকলে দেখতে পারবে।",
+	"guidedtour-tour-firsteditve-edit-page-description": "পরিবর্তনের জন্য \"$1\" বোতামে {{GENDER:|ক্লিক করুন}}।",
+	"guidedtour-tour-firsteditve-edit-section-description": "গুরুত্বপূর্ণ প্রতিটি অনুচ্ছেদের জন্য পাতায় \"$1\" লিংক রয়েছে, এর ফলে আপনি শুধু সেই অংশে মনোনিবেশ করতে পারবেন।",
+	"guidedtour-tour-firsteditve-save-description": "আপনার কাজ সম্পন্ন হলে, \"{{int:visualeditor-toolbar-savedialog}}\" বোতামে ক্লিক করুন এবং আপনার পরিবর্তনগুলো সকলে দেখতে পারবে।"
+}

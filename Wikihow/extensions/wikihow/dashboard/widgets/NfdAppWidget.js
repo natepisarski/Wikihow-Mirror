@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.NfdAppWidget = (function($) {
+WH.dashboard.NfdAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.NfdAppWidget = (function($) {
 	WH.dashboard.registerDataListener('NfdAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

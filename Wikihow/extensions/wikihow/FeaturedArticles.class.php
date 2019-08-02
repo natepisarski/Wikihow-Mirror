@@ -28,7 +28,7 @@ class FeaturedArticles {
 		global $wgRSSOffsetHours;
 
 		$result = array();
-		$tstamp = mktime() - $wgRSSOffsetHours * 3600;
+		$tstamp = time() - $wgRSSOffsetHours * 3600;
 		$last_tz = date('Z', $tstamp);
 		for ($i = 0; $i < $numDays; $i++) {
 			$xx = getdate($tstamp);

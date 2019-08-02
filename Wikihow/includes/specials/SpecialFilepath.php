@@ -2,7 +2,6 @@
 /**
  * Implements Special:Filepath
  *
- * @section LICENSE
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -28,15 +27,31 @@
  * @ingroup SpecialPage
  */
 class SpecialFilepath extends RedirectSpecialPage {
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'Filepath' );
-		$this->mAllowedRedirectParams = array( 'width', 'height' );
+		$this->mAllowedRedirectParams = [ 'width', 'height' ];
 	}
 
-	// implement by redirecting through Special:Redirect/file
-	function getRedirect( $par ) {
+	/**
+	 * Implement by redirecting through Special:Redirect/file.
+	 *
+	 * @param string|null $par
+	 * @return Title
+	 */
+	public function getRedirect( $par ) {
 		$file = $par ?: $this->getRequest()->getText( 'file' );
-		return SpecialPage::getSafeTitleFor( 'Redirect', 'file/' . $file );
+
+		$redirect = null;
+		if ( $file ) {
+			$redirect = SpecialPage::getSafeTitleFor( 'Redirect', "file/$file" );
+		}
+		if ( $redirect === null ) {
+			// The user input is empty or an invalid title,
+			// redirect to form of Special:Redirect with the invalid value prefilled
+			$this->mAddedRedirectParams['wpvalue'] = $file;
+			$redirect = SpecialPage::getSafeTitleFor( 'Redirect', 'file' );
+		}
+		return $redirect;
 	}
 
 	protected function getGroupName() {

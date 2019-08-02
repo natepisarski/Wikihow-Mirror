@@ -27,7 +27,7 @@ class FastlyAction {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$ret = curl_exec($ch);
 		$result = (array)json_decode($ret);
-		return $result['status'];
+		return $result['status'] ?? false;
 	}
 
 	// Use Fastly's API /service/.../purge/key function, described here:

@@ -1,0 +1,22 @@
+{
+	"@metadata": {
+		"authors": [
+			"VASANTH S.N.",
+			"Yogesh",
+			"Omshivaprakash"
+		]
+	},
+	"guidedtour-next-button": "ನಂತರ",
+	"guidedtour-okay-button": "ಸರಿ",
+	"guidedtour-back-button": "ಹಿಂದೆ",
+	"guidedtour-tour-test-testing": "ಪರೀಕ್ಷಿಸಲಾಗುತ್ತಿದೆ",
+	"guidedtour-tour-test-test-description": "This is a test of the description. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-description-page": "ಮೀಡಿಯವಿಕಿ ವಿವರಣೆ ಪುಟಗಳನ್ನು ಪರೀಕ್ಷಿಸಿ",
+	"guidedtour-tour-test-go-description-page": "ವಿವರಣೆ ಪುಟಕ್ಕೆ ನಡೆಯಿರಿ",
+	"guidedtour-tour-firstedit-edit-page-title": "ಪೂರ್ಣ ಪುಟ {{GENDER:|Edit}}...",
+	"guidedtour-tour-firstedit-edit-page-description": "ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಮಾಡಲು \"$1\" ಅನ್ನು {{GENDER:|Click}} ಮಾಡಿ",
+	"guidedtour-tour-firstedit-edit-section-title": "ಅಥವಾ {{GENDER:|edit}} ಒಂದು ವಿಭಾಗ",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Preview}} ನಿಮ್ಮ ಬದಲಾವಣೆಗಳು (ಐಚ್ಛಿಕ)",
+	"guidedtour-tour-firstedit-save-title": "ನೀವು ಇನ್ನೇನು ಮುಗಿಸಲಿದ್ದೀರಿ !",
+	"guidedtour-tour-firsteditve-edit-page-description": "ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಮಾಡಲು \"$1\" ಅನ್ನು {{GENDER:|Click}} ಮಾಡಿ"
+}

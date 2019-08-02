@@ -17,8 +17,8 @@ class WikihowMobileHomepage extends Article {
 		 * Perhaps an alternative would be creating a dependency module that loads the styles
 		 * first to ensure the slider JS loads afterward.
 		 */
-		$out->addModuleStyles('zzz.mobile.wikihow.homepage'); // load styles first
-		$out->addModuleScripts('zzz.mobile.wikihow.homepage'); // then scripts
+		$out->addModuleStyles(['zzz.mobile.wikihow.homepage.styles']);
+		$out->addModules(['zzz.mobile.wikihow.homepage.scripts']);
 
 		WikihowMobileHomepage::showTopImage();
 

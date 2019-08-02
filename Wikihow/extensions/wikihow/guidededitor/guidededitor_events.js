@@ -66,7 +66,7 @@ $(document).ready( function() {
 		window.needToConfirm = true;
 	});
 
-	$('#ep_cat').live('click', function(e) {
+	$(document).on('click', '#ep_cat', function(e) {
 		e.preventDefault();
 		var title = 'Categorize ' + mw.config.get('wgTitle');
 		if (title.length > 54) {

@@ -78,7 +78,7 @@ class GenerateFeed extends UnlistedSpecialPage {
 		elseif ($par == 'mrss') $mrss = 1;
 
 		header('Content-Type: text/xml');
-		$this->getOutput()->setSquidMaxage(60);
+		$this->getOutput()->setCdnMaxage(60);
 		$feedFormat = 'rss';
 
 		$feedTitle = wfMessage('Rss-feedtitle');

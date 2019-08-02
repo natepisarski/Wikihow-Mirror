@@ -1,7 +1,10 @@
 <?php
 
 namespace CirrusSearch;
-use \Maintenance;
+
+use CirrusSearch\Maintenance\Maintenance;
+use CirrusSearch\MetaStore\MetaStoreIndex;
+use CirrusSearch\MetaStore\MetaVersionStore;
 
 /**
  * Check that all Cirrus indexes report OK.
@@ -23,37 +26,53 @@ use \Maintenance;
  */
 
 $IP = getenv( 'MW_INSTALL_PATH' );
-if( $IP === false ) {
+if ( $IP === false ) {
 	$IP = __DIR__ . '/../../..';
 }
-require_once( "$IP/maintenance/Maintenance.php" );
+require_once "$IP/maintenance/Maintenance.php";
+require_once __DIR__ . '/../includes/Maintenance/Maintenance.php';
 
 class CheckIndexes extends Maintenance {
-	private $errors = array();
+	/**
+	 * @var array[] Nested array of arrays containing error strings. Individual
+	 *  errors are nested based on the keys in self::$path at the time the error
+	 *  occurred.
+	 */
+	private $errors = [];
+	/**
+	 * @var string[] Represents each step of current indentation level
+	 */
 	private $path;
+	/**
+	 * @var array Result of querying elasticsearch _cluster/state api endpoint
+	 */
 	private $clusterState;
+	/**
+	 * @var array Version info stored in elasticsearch /mw_cirrus_versions/version
+	 */
 	private $cirrusInfo;
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Check that all Cirrus indexes report OK.";
+		$this->mDescription = "Check that all Cirrus indexes report OK. This always operates on a single cluster.";
 		$this->addOption( 'nagios', 'Output in nagios format' );
 	}
 
 	public function execute() {
 		if ( $this->hasOption( 'nagios' ) ) {
-			// Force silent running mode so we can match Nagio's expected output.
+			// Force silent running mode so we can match Nagios expected output.
 			$this->mQuiet = true;
 		}
 		$this->ensureClusterStateFetched();
 		$this->ensureCirrusInfoFetched();
-		$this->checkIndex( 'mw_cirrus_versions', 1 );
-		$aliases = array();
+		// @todo: use MetaStoreIndex
+		$aliases = [];
 		foreach ( $this->clusterState[ 'metadata' ][ 'indices' ] as $indexName => $data ) {
 			foreach ( $data[ 'aliases' ] as $alias ) {
 				$aliases[ $alias ][] = $indexName;
 			}
 		}
+		$this->checkMetastore( $aliases );
 		foreach ( $this->cirrusInfo as $alias => $data ) {
 			foreach ( $aliases[ $alias ] as $indexName ) {
 				$this->checkIndex( $indexName, $data[ 'shard_count'] );
@@ -75,17 +94,36 @@ class CheckIndexes extends Maintenance {
 		if ( $errCount > 0 ) {
 			die( 2 );
 		}
+
+		return true;
 	}
 
-	private function checkIndex( $indexName, $expectedShardCount ) {
-		$this->path = array();
-		$metdata = $this->getIndexMetadata( $indexName );
-		$this->in( $indexName );
-		if ( $metdata === null ) {
+	private function checkMetastore( array $aliases ) {
+		$this->in( MetaStoreIndex::INDEX_NAME );
+		if ( isset( $aliases[ MetaStoreIndex::INDEX_NAME ] ) ) {
+			$this->check( 'alias count', 1, count( $aliases[ MetaStoreIndex::INDEX_NAME ] ) );
+			foreach ( $aliases[ MetaStoreIndex::INDEX_NAME ] as $indexName ) {
+				$this->checkIndex( $indexName, 1 );
+			}
+		} else {
 			$this->err( "does not exist" );
+		}
+		$this->out();
+	}
+
+	/**
+	 * @param string $indexName
+	 * @param int $expectedShardCount
+	 */
+	private function checkIndex( $indexName, $expectedShardCount ) {
+		$metadata = $this->getIndexMetadata( $indexName );
+		$this->in( $indexName );
+		if ( $metadata === null ) {
+			$this->err( "does not exist" );
+			$this->out();
 			return;
 		}
-		$this->check( 'state', 'open', $metdata[ 'state' ] );
+		$this->check( 'state', 'open', $metadata[ 'state' ] );
 		// TODO check aliases
 
 		$routingTable = $this->getIndexRoutingTable( $indexName );
@@ -94,7 +132,7 @@ class CheckIndexes extends Maintenance {
 			$this->in( "shard $shardIndex" );
 			foreach ( $shardRoutingTable as $replicaIndex => $replica ) {
 				$this->in( "replica $replicaIndex" );
-				$this->check( 'state', array( 'STARTED', 'RELOCATING' ), $replica[ 'state' ] );
+				$this->check( 'state', [ 'STARTED', 'RELOCATING' ], $replica[ 'state' ] );
 				$this->out();
 			}
 			$this->out();
@@ -102,17 +140,27 @@ class CheckIndexes extends Maintenance {
 		$this->out();
 	}
 
+	/**
+	 * @param string $header
+	 */
 	private function in( $header ) {
 		$this->path[] = $header;
 		$this->output( str_repeat( "\t", count( $this->path ) - 1 ) );
 		$this->output( "$header...\n" );
 	}
+
 	private function out() {
 		array_pop( $this->path );
 	}
+
+	/**
+	 * @param string $name
+	 * @param mixed $expected
+	 * @param mixed $actual
+	 */
 	private function check( $name, $expected, $actual ) {
 		$this->output( str_repeat( "\t", count( $this->path ) ) );
-		$this->output( "$name...");
+		$this->output( "$name..." );
 		if ( is_array( $expected ) ) {
 			if ( in_array( $actual, $expected ) ) {
 				$this->output( "ok\n" );
@@ -130,6 +178,10 @@ class CheckIndexes extends Maintenance {
 			}
 		}
 	}
+
+	/**
+	 * @param string $explanation
+	 */
 	private function err( $explanation ) {
 		$err = $this->path;
 		$err[] = $explanation;
@@ -139,7 +191,12 @@ class CheckIndexes extends Maintenance {
 		}
 		$e[] = $explanation;
 	}
-	private function printErrorRecursive( $indent, $array ) {
+
+	/**
+	 * @param string $indent Prefix to attach before each line of output
+	 * @param array $array
+	 */
+	private function printErrorRecursive( $indent, array $array ) {
 		foreach ( $array as $key => $value ) {
 			$line = $indent;
 			if ( !is_numeric( $key ) ) {
@@ -159,6 +216,10 @@ class CheckIndexes extends Maintenance {
 		}
 	}
 
+	/**
+	 * @param string $indexName fully qualified name of elasticsearch index
+	 * @return array|null Index metadata from elasticsearch cluster state
+	 */
 	private function getIndexMetadata( $indexName ) {
 		if ( isset( $this->clusterState[ 'metadata' ][ 'indices' ][ $indexName ] ) ) {
 			return $this->clusterState[ 'metadata' ][ 'indices' ][ $indexName ];
@@ -166,31 +227,34 @@ class CheckIndexes extends Maintenance {
 		return null;
 	}
 
+	/**
+	 * @param string $indexName fully qualified name of elasticsearch index
+	 * @return array
+	 */
 	private function getIndexRoutingTable( $indexName ) {
 		return $this->clusterState[ 'routing_table' ][ 'indices' ][ $indexName ];
 	}
 
 	private function ensureClusterStateFetched() {
 		if ( $this->clusterState === null ) {
-			$this->clusterState = Connection::getClient()->request( '_cluster/state' )->getData();
+			$this->clusterState = $this->getConnection()->getClient()
+				->request( '_cluster/state' )->getData();
 		}
 	}
+
 	private function ensureCirrusInfoFetched() {
 		if ( $this->cirrusInfo === null ) {
-			$query = new \Elastica\Query();
-			$query->setSize( 5000 );
-			$res = Connection::getIndex( 'mw_cirrus_versions' )->getType( 'version' )
-				->getIndex()->search( $query );
-			$this->cirrusInfo = array();
-			foreach( $res as $r ) {
+			$store = new MetaVersionStore( $this->getConnection() );
+			$this->cirrusInfo = [];
+			foreach ( $store->findAll() as $r ) {
 				$data = $r->getData();
-				$this->cirrusInfo[ $r->getId() ] = array(
+				$this->cirrusInfo[ $data['index_name'] ] = [
 					'shard_count' => $data[ 'shard_count' ],
-				);
+				];
 			}
 		}
 	}
 }
 
-$maintClass = "CirrusSearch\CheckIndexes";
+$maintClass = CheckIndexes::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

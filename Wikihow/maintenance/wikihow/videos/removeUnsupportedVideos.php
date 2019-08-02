@@ -37,6 +37,7 @@ class RemoveUnsupportedVideos extends Maintenance {
 		$videos = $this->getVideos();
 		$this->output( "Done, " . count( $videos ) . " videos to sort through.\n" );
 
+		$sendMail = false;
 		foreach ( $videos as $video ) {
 			if ( !$video->isAvailable() ) {
 

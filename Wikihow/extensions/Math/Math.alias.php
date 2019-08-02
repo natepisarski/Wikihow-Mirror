@@ -8,26 +8,35 @@
  * @file
  * @ingroup Extensions
  */
-// @codingStandardsIgnoreFile
 
-$specialPageAliases = array();
+$specialPageAliases = [];
 
 /** English (English) */
-$specialPageAliases['en'] = array(
-	'MathStatus' => array( 'MathStatus' ),
-);
+$specialPageAliases['en'] = [
+	'MathStatus' => [ 'MathStatus' ],
+];
 
 /** Arabic (العربية) */
-$specialPageAliases['ar'] = array(
-	'MathStatus' => array( 'حالة_الرياضيات' ),
-);
+$specialPageAliases['ar'] = [
+	'MathStatus' => [ 'حالة_الرياضيات' ],
+];
+
+/** Persian (فارسی) */
+$specialPageAliases['fa'] = [
+	'MathStatus' => [ 'وضعیت_ریاضی' ],
+];
 
 /** Macedonian (македонски) */
-$specialPageAliases['mk'] = array(
-	'MathStatus' => array( 'МатСтатус' ),
-);
+$specialPageAliases['mk'] = [
+	'MathStatus' => [ 'МатСтатус' ],
+];
+
+/** Urdu (اردو) */
+$specialPageAliases['ur'] = [
+	'MathStatus' => [ 'کیفیت_ریاضی' ],
+];
 
 /** Simplified Chinese (中文（简体）‎) */
-$specialPageAliases['zh-hans'] = array(
-	'MathStatus' => array( '数学状态' ),
-);
+$specialPageAliases['zh-hans'] = [
+	'MathStatus' => [ '数学状态' ],
+];

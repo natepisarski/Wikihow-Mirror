@@ -97,7 +97,7 @@ class UserReviewForm extends UnlistedSpecialPage {
 			$out->addHTML(json_encode($result));
 			return;
 		} elseif ($action == 'get_form') {
-			$out->setSquidMaxage($wgSquidMaxage);
+			$out->setCdnMaxage($wgSquidMaxage);
 
 			$out->setArticleBodyOnly(true);
 			$result = array();

@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on Dec 22, 2010
- *
  * Copyright © 2010 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,29 +20,33 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Special\SpecialPageFactory;
+
 /**
  * Query module to get the results of a QueryPage-based special page
  *
  * @ingroup API
  */
 class ApiQueryQueryPage extends ApiQueryGeneratorBase {
-	private $qpMap;
 
-	public function __construct( $query, $moduleName ) {
+	/**
+	 * @var string[] list of special page names
+	 */
+	private $queryPages;
+
+	/**
+	 * @var SpecialPageFactory
+	 */
+	private $specialPageFactory;
+
+	public function __construct( ApiQuery $query, $moduleName ) {
 		parent::__construct( $query, $moduleName, 'qp' );
-		// We need to do this to make sure $wgQueryPages is set up
-		// This SUCKS
-		global $IP;
-		require_once "$IP/includes/QueryPage.php";
-
-		// Build mapping from special page names to QueryPage classes
-		global $wgQueryPages, $wgAPIUselessQueryPages;
-		$this->qpMap = array();
-		foreach ( $wgQueryPages as $page ) {
-			if ( !in_array( $page[1], $wgAPIUselessQueryPages ) ) {
-				$this->qpMap[$page[1]] = $page[0];
-			}
-		}
+		$this->queryPages = array_values( array_diff(
+			array_column( QueryPage::getPages(), 1 ), // [ class, name ]
+			$this->getConfig()->get( 'APIUselessQueryPages' )
+		) );
+		$this->specialPageFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
 	}
 
 	public function execute() {
@@ -58,34 +58,52 @@ class ApiQueryQueryPage extends ApiQueryGeneratorBase {
 	}
 
 	/**
-	 * @param $resultPageSet ApiPageSet
+	 * @param string $name
+	 * @return QueryPage
+	 */
+	private function getSpecialPage( $name ) {
+		$qp = $this->specialPageFactory->getPage( $name );
+		if ( !$qp ) {
+			self::dieDebug(
+				__METHOD__,
+				'SpecialPageFactory failed to create special page ' . $name
+			);
+		}
+		if ( !( $qp instanceof QueryPage ) ) {
+			self::dieDebug(
+				__METHOD__,
+				'Special page ' . $name . ' is not a QueryPage'
+			);
+		}
+		return $qp;
+	}
+
+	/**
+	 * @param ApiPageSet|null $resultPageSet
 	 */
 	public function run( $resultPageSet = null ) {
-		global $wgQueryCacheLimit;
-
 		$params = $this->extractRequestParams();
 		$result = $this->getResult();
 
-		/** @var $qp QueryPage */
-		$qp = new $this->qpMap[$params['page']]();
+		$qp = $this->getSpecialPage( $params['page'] );
 		if ( !$qp->userCanExecute( $this->getUser() ) ) {
-			$this->dieUsageMsg( 'specialpage-cantexecute' );
+			$this->dieWithError( 'apierror-specialpage-cantexecute' );
 		}
 
-		$r = array( 'name' => $params['page'] );
+		$r = [ 'name' => $params['page'] ];
 		if ( $qp->isCached() ) {
 			if ( !$qp->isCacheable() ) {
-				$r['disabled'] = '';
+				$r['disabled'] = true;
 			} else {
-				$r['cached'] = '';
+				$r['cached'] = true;
 				$ts = $qp->getCachedTimestamp();
 				if ( $ts ) {
 					$r['cachedtimestamp'] = wfTimestamp( TS_ISO_8601, $ts );
 				}
-				$r['maxresults'] = $wgQueryCacheLimit;
+				$r['maxresults'] = $this->getConfig()->get( 'QueryCacheLimit' );
 			}
 		}
-		$result->addValue( array( 'query' ), $this->getModuleName(), $r );
+		$result->addValue( [ 'query' ], $this->getModuleName(), $r );
 
 		if ( $qp->isCached() && !$qp->isCacheable() ) {
 			// Disabled query page, don't run the query
@@ -94,7 +112,7 @@ class ApiQueryQueryPage extends ApiQueryGeneratorBase {
 
 		$res = $qp->doQuery( $params['offset'], $params['limit'] + 1 );
 		$count = 0;
-		$titles = array();
+		$titles = [];
 		foreach ( $res as $row ) {
 			if ( ++$count > $params['limit'] ) {
 				// We've had enough
@@ -104,19 +122,19 @@ class ApiQueryQueryPage extends ApiQueryGeneratorBase {
 
 			$title = Title::makeTitle( $row->namespace, $row->title );
 			if ( is_null( $resultPageSet ) ) {
-				$data = array( 'value' => $row->value );
+				$data = [ 'value' => $row->value ];
 				if ( $qp->usesTimestamps() ) {
 					$data['timestamp'] = wfTimestamp( TS_ISO_8601, $row->value );
 				}
 				self::addTitleInfo( $data, $title );
 
 				foreach ( $row as $field => $value ) {
-					if ( !in_array( $field, array( 'namespace', 'title', 'value', 'qc_type' ) ) ) {
+					if ( !in_array( $field, [ 'namespace', 'title', 'value', 'qc_type' ] ) ) {
 						$data['databaseResult'][$field] = $value;
 					}
 				}
 
-				$fit = $result->addValue( array( 'query', $this->getModuleName(), 'results' ), null, $data );
+				$fit = $result->addValue( [ 'query', $this->getModuleName(), 'results' ], null, $data );
 				if ( !$fit ) {
 					$this->setContinueEnumParameter( 'offset', $params['offset'] + $count - 1 );
 					break;
@@ -126,8 +144,8 @@ class ApiQueryQueryPage extends ApiQueryGeneratorBase {
 			}
 		}
 		if ( is_null( $resultPageSet ) ) {
-			$result->setIndexedTagName_internal(
-				array( 'query', $this->getModuleName(), 'results' ),
+			$result->addIndexedTagName(
+				[ 'query', $this->getModuleName(), 'results' ],
 				'page'
 			);
 		} else {
@@ -136,8 +154,7 @@ class ApiQueryQueryPage extends ApiQueryGeneratorBase {
 	}
 
 	public function getCacheMode( $params ) {
-		/** @var $qp QueryPage */
-		$qp = new $this->qpMap[$params['page']]();
+		$qp = $this->getSpecialPage( $params['page'] );
 		if ( $qp->getRestriction() != '' ) {
 			return 'private';
 		}
@@ -146,79 +163,33 @@ class ApiQueryQueryPage extends ApiQueryGeneratorBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'page' => array(
-				ApiBase::PARAM_TYPE => array_keys( $this->qpMap ),
+		return [
+			'page' => [
+				ApiBase::PARAM_TYPE => $this->queryPages,
 				ApiBase::PARAM_REQUIRED => true
-			),
-			'offset' => 0,
-			'limit' => array(
+			],
+			'offset' => [
+				ApiBase::PARAM_DFLT => 0,
+				ApiBase::PARAM_HELP_MSG => 'api-help-param-continue',
+			],
+			'limit' => [
 				ApiBase::PARAM_DFLT => 10,
 				ApiBase::PARAM_TYPE => 'limit',
 				ApiBase::PARAM_MIN => 1,
 				ApiBase::PARAM_MAX => ApiBase::LIMIT_BIG1,
 				ApiBase::PARAM_MAX2 => ApiBase::LIMIT_BIG2
-			),
-		);
+			],
+		];
 	}
 
-	public function getParamDescription() {
-		return array(
-			'page' => 'The name of the special page. Note, this is case sensitive',
-			'offset' => 'When more results are available, use this to continue',
-			'limit' => 'Number of results to return',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			ApiBase::PROP_ROOT => array(
-				'name' => array(
-					ApiBase::PROP_TYPE => 'string',
-					ApiBase::PROP_NULLABLE => false
-				),
-				'disabled' => array(
-					ApiBase::PROP_TYPE => 'boolean',
-					ApiBase::PROP_NULLABLE => false
-				),
-				'cached' => array(
-					ApiBase::PROP_TYPE => 'boolean',
-					ApiBase::PROP_NULLABLE => false
-				),
-				'cachedtimestamp' => array(
-					ApiBase::PROP_TYPE => 'timestamp',
-					ApiBase::PROP_NULLABLE => true
-				)
-			),
-			'' => array(
-				'value' => 'string',
-				'timestamp' => array(
-					ApiBase::PROP_TYPE => 'timestamp',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'ns' => 'namespace',
-				'title' => 'string'
-			)
-		);
-	}
-
-	public function getDescription() {
-		return 'Get a list provided by a QueryPage-based special page';
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'specialpage-cantexecute' )
-		) );
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=query&list=querypage&qppage=Ancientpages'
-		);
+	protected function getExamplesMessages() {
+		return [
+			'action=query&list=querypage&qppage=Ancientpages'
+				=> 'apihelp-query+querypage-example-ancientpages',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Querypage';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Querypage';
 	}
 }

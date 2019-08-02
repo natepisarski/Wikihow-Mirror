@@ -12,6 +12,9 @@
 		var LEADERBOARD_REFRESH = 10 * 60;
 		var error = false;
 		var topMessage = 'Welcome Wagon';
+		var userName,
+			userRealName,
+			userId;
 
 		function postLoadTab(tab) {
 			if (tab == "contributions") {
@@ -205,7 +208,7 @@
 			});
 		}
 
-		updateStandingsTable = function() {
+		var updateStandingsTable = function() {
 			var url = '/Special:Standings/WelcomeWagonStandingsGroup';
 			$.get(url, function (data) {
 				$('#iia_standings_table').html(data['html']);

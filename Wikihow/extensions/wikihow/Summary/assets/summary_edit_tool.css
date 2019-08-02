@@ -8,8 +8,11 @@ h2#summary_edit_header {
 }
 
 #summary_edit_close {
-	float: right;
+	position: absolute;
+	right: 2em;
 	color: #FFF;
+	font-size: .75rem;
+	font-weight: normal;
 }
 
 #summary_edit_err {

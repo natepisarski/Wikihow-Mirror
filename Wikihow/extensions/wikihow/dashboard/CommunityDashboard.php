@@ -19,7 +19,7 @@ $wgExtensionCredits['special'][] = array(
 	'name' => 'CommunityDashboard',
 	'author' => 'Bebeth Steudel and Reuben Smith',
 	'description' => 'Shows the status of a bunch of different aspects of the wikiHow site',
-	'url' => 'http://www.wikihow.com/WikiHow:CommunityDashboard-Extension',
+	'url' => 'https://www.wikihow.com/WikiHow:CommunityDashboard-Extension',
 );
 
 $wgSpecialPages['CommunityDashboard'] = 'CommunityDashboard';
@@ -28,6 +28,22 @@ $wgAutoloadClasses['DashboardData'] = __DIR__ . '/DashboardData.php';
 $wgAutoloadClasses['DashboardWidget'] = __DIR__ . '/DashboardWidget.php';
 $wgExtensionMessagesFiles['CommunityDashboard'] = __DIR__ . '/CommunityDashboard.i18n.php';
 $wgExtensionMessagesFiles['CommunityDashboardAliases'] = __DIR__ . '/CommunityDashboard.alias.php';
+
+$wgResourceModules['ext.wikihow.community_dashboard'] = array(
+    'scripts' => [
+		'community_dashboard_init.js',
+	],
+    'messages' => [
+		'cd-pause-updates',
+		'howto',
+		'cd-resume-updates',
+		'cd-current-priority',
+		'cd-network-error',
+    ],
+    'localBasePath' => __DIR__ . '/',
+    'remoteExtPath' => 'wikihow/dashboard',
+    'targets' => ['desktop', 'mobile']
+);
 
 /**
  * $wgWidgetList is a list of that can be displayed on the CommunityDashboard

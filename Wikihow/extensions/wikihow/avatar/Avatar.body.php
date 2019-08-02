@@ -87,7 +87,7 @@ class Avatar extends UnlistedSpecialPage {
 	}
 
 	public static function getPicture($name, $raw = false, $fromCDN = false) {
-		global $wgUser, $wgTitle;
+		global $wgUser, $wgTitle, $wgOut;
 
 		$u = User::newFromName($name);
 		if (!$u) return;
@@ -104,9 +104,13 @@ class Avatar extends UnlistedSpecialPage {
 
 		$ret = "";
 		if (!$raw) {
+			$wgOut->addModuleStyles( ['ext.wikihow.avatar_styles'] );
+			$wgOut->addModules( ['ext.wikihow.avatar'] );
+			/*
 			$ret = "<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/avatar/avatar.css?') . WH_SITEREV . "' type='text/css' />
 			<script type='text/javascript' src='".wfGetPad('/extensions/wikihow/common/jquery.md5.js?') . WH_SITEREV ."'></script>
 			<script language='javascript' src='" . wfGetPad('/extensions/wikihow/avatar/avatar.js?') . WH_SITEREV . "'></script>\n";
+			*/
 		}
 
 		// handle facebook and google+ users

@@ -38,7 +38,6 @@
  * @since 1.20
  */
 abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
-
 	/**
 	 * CacheHelper object to which we forward the non-SpecialPage specific caching work.
 	 * Initialized in startCache.
@@ -52,7 +51,7 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 * If the cache is enabled or not.
 	 *
 	 * @since 1.20
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $cacheEnabled = true;
 
@@ -61,7 +60,7 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param $subPage string|null
+	 * @param string|null $subPage
 	 */
 	protected function afterExecute( $subPage ) {
 		$this->saveCache();
@@ -73,7 +72,7 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 * Sets if the cache should be enabled or not.
 	 *
 	 * @since 1.20
-	 * @param boolean $cacheEnabled
+	 * @param bool $cacheEnabled
 	 */
 	public function setCacheEnabled( $cacheEnabled ) {
 		$this->cacheHelper->setCacheEnabled( $cacheEnabled );
@@ -85,15 +84,15 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param integer|null $cacheExpiry Sets the cache expiry, either ttl in seconds or unix timestamp.
-	 * @param boolean|null $cacheEnabled Sets if the cache should be enabled or not.
+	 * @param int|null $cacheExpiry Sets the cache expiry, either ttl in seconds or unix timestamp.
+	 * @param bool|null $cacheEnabled Sets if the cache should be enabled or not.
 	 */
 	public function startCache( $cacheExpiry = null, $cacheEnabled = null ) {
 		if ( !isset( $this->cacheHelper ) ) {
 			$this->cacheHelper = new CacheHelper();
 
 			$this->cacheHelper->setCacheEnabled( $this->cacheEnabled );
-			$this->cacheHelper->setOnInitializedHandler( array( $this, 'onCacheInitialized' ) );
+			$this->cacheHelper->setOnInitializedHandler( [ $this, 'onCacheInitialized' ] );
 
 			$keyArgs = $this->getCacheKey();
 
@@ -125,7 +124,7 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 *
 	 * @return mixed
 	 */
-	public function getCachedValue( $computeFunction, $args = array(), $key = null ) {
+	public function getCachedValue( $computeFunction, $args = [], $key = null ) {
 		return $this->cacheHelper->getCachedValue( $computeFunction, $args, $key );
 	}
 
@@ -141,8 +140,12 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 * @param array $args
 	 * @param string|null $key
 	 */
-	public function addCachedHTML( $computeFunction, $args = array(), $key = null ) {
-		$this->getOutput()->addHTML( $this->cacheHelper->getCachedValue( $computeFunction, $args, $key ) );
+	public function addCachedHTML( $computeFunction, $args = [], $key = null ) {
+		$this->getOutput()->addHTML( $this->cacheHelper->getCachedValue(
+			$computeFunction,
+			$args,
+			$key
+		) );
 	}
 
 	/**
@@ -158,11 +161,12 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	}
 
 	/**
-	 * Sets the time to live for the cache, in seconds or a unix timestamp indicating the point of expiry.
+	 * Sets the time to live for the cache, in seconds or a unix timestamp
+	 * indicating the point of expiry.
 	 *
 	 * @since 1.20
 	 *
-	 * @param integer $cacheExpiry
+	 * @param int $cacheExpiry
 	 */
 	public function setExpiry( $cacheExpiry ) {
 		$this->cacheHelper->setExpiry( $cacheExpiry );
@@ -176,10 +180,10 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 * @return array
 	 */
 	protected function getCacheKey() {
-		return array(
+		return [
 			$this->mName,
 			$this->getLanguage()->getCode()
-		);
+		];
 	}
 
 	/**
@@ -187,7 +191,7 @@ abstract class SpecialCachedPage extends SpecialPage implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param boolean $hasCached
+	 * @param bool $hasCached
 	 */
 	public function onCacheInitialized( $hasCached ) {
 		if ( $hasCached ) {

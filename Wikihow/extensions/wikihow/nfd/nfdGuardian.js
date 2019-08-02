@@ -30,8 +30,9 @@ function addOptions() {
 //to patrol and loads it in the page
 function getNextNFD() {
 	$.get('/Special:NFDGuardian',
-		{fetchInnards: true,
-		  nfd_type: $.cookie('nfdrule_choices'),
+		{
+			fetchInnards: true,
+			nfd_type: mw.cookie.get('nfdrule_choices')
 		},
 		function (result) {
 			loadResult(result);
@@ -47,7 +48,7 @@ function updateChoices() {
 	$("#nfd_reasons select option:selected").each(function() {
 		choices.push($(this).text());
 	});
-	$.cookie('nfdrule_choices',choices.join(), { expires: 7 });
+	mw.cookie.set('nfdrule_choices', choices.join(), { expires: 7 });
 }
 
 function loadResult(result) {
@@ -187,7 +188,7 @@ function submitResponse() {
 		{ 
 		  nfd_vote: nfd_vote,
 		  nfd_skip: nfd_skip,
-		  nfd_type: $.cookie('nfdrule_choices'),
+		  nfd_type: mw.cookie.get('nfdrule_choices'),
 		  nfd_id: nfd_id
 		},
 		function (result) {
@@ -213,7 +214,7 @@ function nfdSkip() {
 }
 
 function updateStandingsTable() {
-    var url = '/Special:Standings/nfdStandingsGroup';
+    var url = '/Special:Standings/NFDStandingsGroup';
     $.get(url,
 		function (data) {
 			$('#iia_standings_table').html(data['html']);
@@ -250,6 +251,7 @@ function getEditor() {
 			$('#wpPreview').click(function() {
 				nfd_preview = true;
 			});
+			$('#wpDraftSave').hide();
 			//Publish button
 			$('#wpSave').click(function() {
 				nfd_preview = false;
@@ -268,8 +270,6 @@ function getEditor() {
 						type: 'POST',
 						data: 'wpTextbox1='+editform,
 						success: function(data) {
-
-							var XMLObject = data;
 							var previewElement = $(data).find('preview').first();
 
 							// Inject preview 
@@ -278,6 +278,9 @@ function getEditor() {
 								previewContainer.html(previewElement.first().text());
 								previewContainer.slideDown('slow');
 							}
+						},
+						error: function(xhr, textStatus, errorThrown) {
+							alert('Error from server: ' + textStatus);
 						}
 					});
 				}
@@ -320,7 +323,7 @@ function closeConfirmation(bRemoveTemplate) {
 		wpSummary: $("#editform #wpSummary").val(),
 		//data: $('#editform').serialize(),
 		removeTemplate: bRemoveTemplate,
-		nfd_type: $.cookie('nfdrule_choices'),
+		nfd_type: mw.cookie.get('nfdrule_choices'),
 		nfd_id: nfd_id,
 		articleId: nfd_page
 		},

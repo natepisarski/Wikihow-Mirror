@@ -85,8 +85,12 @@ class NabAtlasList {
 			die("error: WH_DATABASE_PORT_PRODUCTION_MASTER define must exist in production environment\n");
 		}
 
-		$dbw = DatabaseBase::factory('mysql');
-		$dbw->open(WH_DATABASE_HOST_PRODUCTION_MASTER . ':' . $dbPort, WH_DATABASE_USER, WH_DATABASE_PASSWORD, WH_DATABASE_NAME_EN);
+		$dbw = DatabaseBase::factory( 'mysql', [
+			'host' => WH_DATABASE_HOST_PRODUCTION_MASTER . ':' . $dbPort,
+			'user' => WH_DATABASE_USER,
+			'password' => WH_DATABASE_PASSWORD,
+			'dbname' => WH_DATABASE_NAME_EN,
+		] );
 
 		$i = 0;
 		$params = array('page_id', 'atlas_score', 'atlas_revision', 'atlas_score_updated');

@@ -9,41 +9,17 @@
  * @author Ori Livneh <ori@wikimedia.org>
  */
 
-class JsonSchemaContentHandler extends TextContentHandler {
+class JsonSchemaContentHandler extends JsonContentHandler {
 
 	public function __construct( $modelId = 'JsonSchema' ) {
-		parent::__construct( $modelId, array( CONTENT_FORMAT_JSON ) );
+		parent::__construct( $modelId, [ CONTENT_FORMAT_JSON ] );
 	}
 
-	/**
-	 * Unserializes a JsonSchemaContent object.
-	 *
-	 * @param  $text    string       Serialized form of the content
-	 * @param  $format  null|string  The format used for serialization
-	 *
-	 * @return Content  the JsonSchemaContent object wrapping $text
-	 */
-	public function unserializeContent( $text, $format = null ) {
-		$this->checkFormat( $format );
-		return new JsonSchemaContent( $text );
+	public function canBeUsedOn( Title $title ) {
+		return $title->inNamespace( NS_SCHEMA );
 	}
 
-	/**
-	 * Creates an empty JsonSchemaContent object.
-	 *
-	 * @return  Content
-	 */
-	public function makeEmptyContent() {
-		return new JsonSchemaContent( '' );
-	}
-
-	/** JSON Schema is English **/
-	public function getPageLanguage( Title $title, Content $content = null ) {
-		return wfGetLangObj( 'en' );
-	}
-
-	/** JSON Schema is English **/
-	public function getPageViewLanguage( Title $title, Content $content = null ) {
-		return wfGetLangObj( 'en' );
+	protected function getContentClass() {
+		return JsonSchemaContent::class;
 	}
 }

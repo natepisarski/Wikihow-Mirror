@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Dsvyas",
+			"KartikMistry"
+		]
+	},
+	"checkuser-reason": "કારણ:",
+	"checkuser-nolog": "કોઇ લૉગ ફાઇલ મળી નહી.",
+	"checkuser-locked": "તાળું મારેલ",
+	"checkuser-search": "શોધો",
+	"checkuser-search-submit": "શોધો",
+	"checkuser-search-target": "લક્ષ્ય"
+}

@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.StubAppWidget = (function($) {
+WH.dashboard.StubAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.StubAppWidget = (function($) {
 	WH.dashboard.registerDataListener('StubAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

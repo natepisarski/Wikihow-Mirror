@@ -24,18 +24,19 @@
 /**
  * @ingroup Parser
  */
-class Preprocessor_DOM implements Preprocessor {
+// phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+class Preprocessor_DOM extends Preprocessor {
 
 	/**
 	 * @var Parser
 	 */
-	var $parser;
+	public $parser;
 
-	var $memoryLimit;
+	public $memoryLimit;
 
-	const CACHE_VERSION = 1;
+	const CACHE_PREFIX = 'preprocess-xml';
 
-	function __construct( $parser ) {
+	public function __construct( $parser ) {
 		$this->parser = $parser;
 		$mem = ini_get( 'memory_limit' );
 		$this->memoryLimit = false;
@@ -51,40 +52,56 @@ class Preprocessor_DOM implements Preprocessor {
 	/**
 	 * @return PPFrame_DOM
 	 */
-	function newFrame() {
+	public function newFrame() {
 		return new PPFrame_DOM( $this );
 	}
 
 	/**
-	 * @param $args array
+	 * @param array $args
 	 * @return PPCustomFrame_DOM
 	 */
-	function newCustomFrame( $args ) {
+	public function newCustomFrame( $args ) {
 		return new PPCustomFrame_DOM( $this, $args );
 	}
 
 	/**
-	 * @param $values
+	 * @param array $values
 	 * @return PPNode_DOM
+	 * @throws MWException
 	 */
-	function newPartNodeArray( $values ) {
-		//NOTE: DOM manipulation is slower than building & parsing XML! (or so Tim sais)
+	public function newPartNodeArray( $values ) {
+		// NOTE: DOM manipulation is slower than building & parsing XML! (or so Tim sais)
 		$xml = "<list>";
 
 		foreach ( $values as $k => $val ) {
 			if ( is_int( $k ) ) {
-				$xml .= "<part><name index=\"$k\"/><value>" . htmlspecialchars( $val ) . "</value></part>";
+				$xml .= "<part><name index=\"$k\"/><value>"
+					. htmlspecialchars( $val ) . "</value></part>";
 			} else {
-				$xml .= "<part><name>" . htmlspecialchars( $k ) . "</name>=<value>" . htmlspecialchars( $val ) . "</value></part>";
+				$xml .= "<part><name>" . htmlspecialchars( $k )
+					. "</name>=<value>" . htmlspecialchars( $val ) . "</value></part>";
 			}
 		}
 
 		$xml .= "</list>";
 
 		$dom = new DOMDocument();
-		$dom->loadXML( $xml );
-		$root = $dom->documentElement;
+		Wikimedia\suppressWarnings();
+		$result = $dom->loadXML( $xml );
+		Wikimedia\restoreWarnings();
+		if ( !$result ) {
+			// Try running the XML through UtfNormal to get rid of invalid characters
+			$xml = UtfNormal\Validator::cleanUp( $xml );
+			// 1 << 19 == XML_PARSE_HUGE, needed so newer versions of libxml2
+			// don't barf when the XML is >256 levels deep
+			$result = $dom->loadXML( $xml, 1 << 19 );
+		}
 
+		if ( !$result ) {
+			throw new MWException( 'Parameters passed to ' . __METHOD__ . ' result in invalid XML' );
+		}
+
+		$root = $dom->documentElement;
 		$node = new PPNode_DOM( $root->childNodes );
 		return $node;
 	}
@@ -93,7 +110,7 @@ class Preprocessor_DOM implements Preprocessor {
 	 * @throws MWException
 	 * @return bool
 	 */
-	function memCheck() {
+	public function memCheck() {
 		if ( $this->memoryLimit === false ) {
 			return true;
 		}
@@ -109,13 +126,14 @@ class Preprocessor_DOM implements Preprocessor {
 	 * Preprocess some wikitext and return the document tree.
 	 * This is the ghost of Parser::replace_variables().
 	 *
-	 * @param string $text the text to parse
-	 * @param $flags Integer: bitwise combination of:
-	 *          Parser::PTD_FOR_INCLUSION    Handle "<noinclude>" and "<includeonly>" as if the text is being
-	 *                                     included. Default is to assume a direct page view.
+	 * @param string $text The text to parse
+	 * @param int $flags Bitwise combination of:
+	 *     Parser::PTD_FOR_INCLUSION  Handle "<noinclude>" and "<includeonly>"
+	 *                                as if the text is being included. Default
+	 *                                is to assume a direct page view.
 	 *
 	 * The generated DOM tree must depend only on the input text and the flags.
-	 * The DOM tree must be the same in OT_HTML and OT_WIKI mode, to avoid a regression of bug 4899.
+	 * The DOM tree must be the same in OT_HTML and OT_WIKI mode, to avoid a regression of T6899.
 	 *
 	 * Any flag added to the $flags parameter here, or any other parameter liable to cause a
 	 * change in the DOM tree for a given text, must be passed through the section identifier
@@ -128,36 +146,11 @@ class Preprocessor_DOM implements Preprocessor {
 	 * @throws MWException
 	 * @return PPNode_DOM
 	 */
-	function preprocessToObj( $text, $flags = 0 ) {
-		wfProfileIn( __METHOD__ );
-		global $wgMemc, $wgPreprocessorCacheThreshold;
-
-		$xml = false;
-		$cacheable = ( $wgPreprocessorCacheThreshold !== false
-			&& strlen( $text ) > $wgPreprocessorCacheThreshold );
-		if ( $cacheable ) {
-			wfProfileIn( __METHOD__ . '-cacheable' );
-
-			$cacheKey = wfMemcKey( 'preprocess-xml', md5( $text ), $flags );
-			$cacheValue = $wgMemc->get( $cacheKey );
-			if ( $cacheValue ) {
-				$version = substr( $cacheValue, 0, 8 );
-				if ( intval( $version ) == self::CACHE_VERSION ) {
-					$xml = substr( $cacheValue, 8 );
-					// From the cache
-					wfDebugLog( "Preprocessor", "Loaded preprocessor XML from memcached (key $cacheKey)" );
-				}
-			}
-			if ( $xml === false ) {
-				wfProfileIn( __METHOD__ . '-cache-miss' );
-				$xml = $this->preprocessToXml( $text, $flags );
-				$cacheValue = sprintf( "%08d", self::CACHE_VERSION ) . $xml;
-				$wgMemc->set( $cacheKey, $cacheValue, 86400 );
-				wfProfileOut( __METHOD__ . '-cache-miss' );
-				wfDebugLog( "Preprocessor", "Saved preprocessor XML to memcached (key $cacheKey)" );
-			}
-		} else {
+	public function preprocessToObj( $text, $flags = 0 ) {
+		$xml = $this->cacheGetTree( $text, $flags );
+		if ( $xml === false ) {
 			$xml = $this->preprocessToXml( $text, $flags );
+			$this->cacheSetTree( $text, $flags, $xml );
 		}
 
 		// Fail if the number of elements exceeds acceptable limits
@@ -165,34 +158,26 @@ class Preprocessor_DOM implements Preprocessor {
 		$this->parser->mGeneratedPPNodeCount += substr_count( $xml, '<' );
 		$max = $this->parser->mOptions->getMaxGeneratedPPNodeCount();
 		if ( $this->parser->mGeneratedPPNodeCount > $max ) {
-			if ( $cacheable ) {
-				wfProfileOut( __METHOD__ . '-cacheable' );
-			}
-			wfProfileOut( __METHOD__ );
+			// if ( $cacheable ) { ... }
 			throw new MWException( __METHOD__ . ': generated node count limit exceeded' );
 		}
 
-		wfProfileIn( __METHOD__ . '-loadXML' );
 		$dom = new DOMDocument;
-		wfSuppressWarnings();
+		Wikimedia\suppressWarnings();
 		$result = $dom->loadXML( $xml );
-		wfRestoreWarnings();
+		Wikimedia\restoreWarnings();
 		if ( !$result ) {
 			// Try running the XML through UtfNormal to get rid of invalid characters
-			$xml = UtfNormal::cleanUp( $xml );
-			// 1 << 19 == XML_PARSE_HUGE, needed so newer versions of libxml2 don't barf when the XML is >256 levels deep
+			$xml = UtfNormal\Validator::cleanUp( $xml );
+			// 1 << 19 == XML_PARSE_HUGE, needed so newer versions of libxml2
+			// don't barf when the XML is >256 levels deep.
 			$result = $dom->loadXML( $xml, 1 << 19 );
 		}
 		if ( $result ) {
 			$obj = new PPNode_DOM( $dom->documentElement );
 		}
-		wfProfileOut( __METHOD__ . '-loadXML' );
 
-		if ( $cacheable ) {
-			wfProfileOut( __METHOD__ . '-cacheable' );
-		}
-
-		wfProfileOut( __METHOD__ );
+		// if ( $cacheable ) { ... }
 
 		if ( !$result ) {
 			throw new MWException( __METHOD__ . ' generated invalid XML' );
@@ -201,44 +186,30 @@ class Preprocessor_DOM implements Preprocessor {
 	}
 
 	/**
-	 * @param $text string
-	 * @param $flags int
+	 * @param string $text
+	 * @param int $flags
 	 * @return string
 	 */
-	function preprocessToXml( $text, $flags = 0 ) {
-		wfProfileIn( __METHOD__ );
-		$rules = array(
-			'{' => array(
-				'end' => '}',
-				'names' => array(
-					2 => 'template',
-					3 => 'tplarg',
-				),
-				'min' => 2,
-				'max' => 3,
-			),
-			'[' => array(
-				'end' => ']',
-				'names' => array( 2 => null ),
-				'min' => 2,
-				'max' => 2,
-			)
-		);
+	public function preprocessToXml( $text, $flags = 0 ) {
+		global $wgDisableLangConversion;
 
 		$forInclusion = $flags & Parser::PTD_FOR_INCLUSION;
 
 		$xmlishElements = $this->parser->getStripList();
+		$xmlishAllowMissingEndTag = [ 'includeonly', 'noinclude', 'onlyinclude' ];
 		$enableOnlyinclude = false;
 		if ( $forInclusion ) {
-			$ignoredTags = array( 'includeonly', '/includeonly' );
-			$ignoredElements = array( 'noinclude' );
+			$ignoredTags = [ 'includeonly', '/includeonly' ];
+			$ignoredElements = [ 'noinclude' ];
 			$xmlishElements[] = 'noinclude';
-			if ( strpos( $text, '<onlyinclude>' ) !== false && strpos( $text, '</onlyinclude>' ) !== false ) {
+			if ( strpos( $text, '<onlyinclude>' ) !== false
+				&& strpos( $text, '</onlyinclude>' ) !== false
+			) {
 				$enableOnlyinclude = true;
 			}
 		} else {
-			$ignoredTags = array( 'noinclude', '/noinclude', 'onlyinclude', '/onlyinclude' );
-			$ignoredElements = array( 'includeonly' );
+			$ignoredTags = [ 'noinclude', '/noinclude', 'onlyinclude', '/onlyinclude' ];
+			$ignoredElements = [ 'includeonly' ];
 			$xmlishElements[] = 'includeonly';
 		}
 		$xmlishRegex = implode( '|', array_merge( $xmlishElements, $ignoredTags ) );
@@ -248,23 +219,38 @@ class Preprocessor_DOM implements Preprocessor {
 
 		$stack = new PPDStack;
 
-		$searchBase = "[{<\n"; #}
-		$revText = strrev( $text ); // For fast reverse searches
+		$searchBase = "[{<\n"; # }
+		if ( !$wgDisableLangConversion ) {
+			$searchBase .= '-';
+		}
+
+		// For fast reverse searches
+		$revText = strrev( $text );
 		$lengthText = strlen( $text );
 
-		$i = 0;                     # Input pointer, starts out pointing to a pseudo-newline before the start
-		$accum =& $stack->getAccum();   # Current accumulator
+		// Input pointer, starts out pointing to a pseudo-newline before the start
+		$i = 0;
+		// Current accumulator
+		$accum =& $stack->getAccum();
 		$accum = '<root>';
-		$findEquals = false;            # True to find equals signs in arguments
-		$findPipe = false;              # True to take notice of pipe characters
+		// True to find equals signs in arguments
+		$findEquals = false;
+		// True to take notice of pipe characters
+		$findPipe = false;
 		$headingIndex = 1;
-		$inHeading = false;        # True if $i is inside a possible heading
-		$noMoreGT = false;         # True if there are no more greater-than (>) signs right of $i
-		$findOnlyinclude = $enableOnlyinclude; # True to ignore all input up to the next <onlyinclude>
-		$fakeLineStart = true;     # Do a line-start run without outputting an LF character
+		// True if $i is inside a possible heading
+		$inHeading = false;
+		// True if there are no more greater-than (>) signs right of $i
+		$noMoreGT = false;
+		// Map of tag name => true if there are no more closing tags of given type right of $i
+		$noMoreClosingTag = [];
+		// True to ignore all input up to the next <onlyinclude>
+		$findOnlyinclude = $enableOnlyinclude;
+		// Do a line-start run without outputting an LF character
+		$fakeLineStart = true;
 
 		while ( true ) {
-			//$this->memCheck();
+			// $this->memCheck();
 
 			if ( $findOnlyinclude ) {
 				// Ignore all input up to the next <onlyinclude>
@@ -316,7 +302,10 @@ class Preprocessor_DOM implements Preprocessor {
 						break;
 					}
 				} else {
-					$curChar = $text[$i];
+					$curChar = $curTwoChar = $text[$i];
+					if ( ( $i + 1 ) < $lengthText ) {
+						$curTwoChar .= $text[$i + 1];
+					}
 					if ( $curChar == '|' ) {
 						$found = 'pipe';
 					} elseif ( $curChar == '=' ) {
@@ -329,14 +318,27 @@ class Preprocessor_DOM implements Preprocessor {
 						} else {
 							$found = 'line-start';
 						}
+					} elseif ( $curTwoChar == $currentClosing ) {
+						$found = 'close';
+						$curChar = $curTwoChar;
 					} elseif ( $curChar == $currentClosing ) {
 						$found = 'close';
-					} elseif ( isset( $rules[$curChar] ) ) {
+					} elseif ( isset( $this->rules[$curTwoChar] ) ) {
+						$curChar = $curTwoChar;
 						$found = 'open';
-						$rule = $rules[$curChar];
+						$rule = $this->rules[$curChar];
+					} elseif ( isset( $this->rules[$curChar] ) ) {
+						$found = 'open';
+						$rule = $this->rules[$curChar];
 					} else {
-						# Some versions of PHP have a strcspn which stops on null characters
-						# Ignore and continue
+						# Some versions of PHP have a strcspn which stops on
+						# null characters; ignore these and continue.
+						# We also may get '-' and '}' characters here which
+						# don't match -{ or $currentClosing.  Add these to
+						# output and continue.
+						if ( $curChar == '-' || $curChar == '}' ) {
+							$accum .= $curChar;
+						}
 						++$i;
 						continue;
 					}
@@ -346,7 +348,9 @@ class Preprocessor_DOM implements Preprocessor {
 			if ( $found == 'angle' ) {
 				$matches = false;
 				// Handle </onlyinclude>
-				if ( $enableOnlyinclude && substr( $text, $i, strlen( '</onlyinclude>' ) ) == '</onlyinclude>' ) {
+				if ( $enableOnlyinclude
+					&& substr( $text, $i, strlen( '</onlyinclude>' ) ) == '</onlyinclude>'
+				) {
 					$findOnlyinclude = true;
 					continue;
 				}
@@ -360,7 +364,6 @@ class Preprocessor_DOM implements Preprocessor {
 				}
 				// Handle comments
 				if ( isset( $matches[2] ) && $matches[2] == '!--' ) {
-
 					// To avoid leaving blank lines, when a sequence of
 					// space-separated comments is both preceded and followed by
 					// a newline (ignoring spaces), then
@@ -383,14 +386,14 @@ class Preprocessor_DOM implements Preprocessor {
 
 						// Keep looking forward as long as we're finding more
 						// comments.
-						$comments = array( array( $wsStart, $wsEnd ) );
+						$comments = [ [ $wsStart, $wsEnd ] ];
 						while ( substr( $text, $wsEnd + 1, 4 ) == '<!--' ) {
 							$c = strpos( $text, '-->', $wsEnd + 4 );
 							if ( $c === false ) {
 								break;
 							}
 							$c = $c + 2 + strspn( $text, " \t", $c + 3 );
-							$comments[] = array( $wsEnd + 1, $c );
+							$comments[] = [ $wsEnd + 1, $c ];
 							$wsEnd = $c;
 						}
 
@@ -460,7 +463,9 @@ class Preprocessor_DOM implements Preprocessor {
 
 				// Handle ignored tags
 				if ( in_array( $lowerName, $ignoredTags ) ) {
-					$accum .= '<ignore>' . htmlspecialchars( substr( $text, $i, $tagEndPos - $i + 1 ) ) . '</ignore>';
+					$accum .= '<ignore>'
+						. htmlspecialchars( substr( $text, $i, $tagEndPos - $i + 1 ) )
+						. '</ignore>';
 					$i = $tagEndPos + 1;
 					continue;
 				}
@@ -474,17 +479,29 @@ class Preprocessor_DOM implements Preprocessor {
 				} else {
 					$attrEnd = $tagEndPos;
 					// Find closing tag
-					if ( preg_match( "/<\/" . preg_quote( $name, '/' ) . "\s*>/i",
+					if (
+						!isset( $noMoreClosingTag[$name] ) &&
+						preg_match( "/<\/" . preg_quote( $name, '/' ) . "\s*>/i",
 							$text, $matches, PREG_OFFSET_CAPTURE, $tagEndPos + 1 )
 					) {
 						$inner = substr( $text, $tagEndPos + 1, $matches[0][1] - $tagEndPos - 1 );
 						$i = $matches[0][1] + strlen( $matches[0][0] );
 						$close = '<close>' . htmlspecialchars( $matches[0][0] ) . '</close>';
 					} else {
-						// No end tag -- let it run out to the end of the text.
-						$inner = substr( $text, $tagEndPos + 1 );
-						$i = $lengthText;
-						$close = '';
+						// No end tag
+						if ( in_array( $name, $xmlishAllowMissingEndTag ) ) {
+							// Let it run out to the end of the text.
+							$inner = substr( $text, $tagEndPos + 1 );
+							$i = $lengthText;
+							$close = '';
+						} else {
+							// Don't match the tag, treat opening tag as literal and resume parsing.
+							$i = $tagEndPos + 1;
+							$accum .= htmlspecialchars( substr( $text, $tagStartPos, $tagEndPos + 1 - $tagStartPos ) );
+							// Cache results, otherwise we have O(N^2) performance for input like <foo><foo><foo>...
+							$noMoreClosingTag[$name] = true;
+							continue;
+						}
 					}
 				}
 				// <includeonly> and <noinclude> just become <ignore> tags
@@ -520,29 +537,42 @@ class Preprocessor_DOM implements Preprocessor {
 
 				$count = strspn( $text, '=', $i, 6 );
 				if ( $count == 1 && $findEquals ) {
-					// DWIM: This looks kind of like a name/value separator
-					// Let's let the equals handler have it and break the potential heading
-					// This is heuristic, but AFAICT the methods for completely correct disambiguation are very complex.
+					// DWIM: This looks kind of like a name/value separator.
+					// Let's let the equals handler have it and break the
+					// potential heading. This is heuristic, but AFAICT the
+					// methods for completely correct disambiguation are very
+					// complex.
 				} elseif ( $count > 0 ) {
-					$piece = array(
+					$piece = [
 						'open' => "\n",
 						'close' => "\n",
-						'parts' => array( new PPDPart( str_repeat( '=', $count ) ) ),
+						'parts' => [ new PPDPart( str_repeat( '=', $count ) ) ],
 						'startPos' => $i,
-						'count' => $count );
+						'count' => $count ];
 					$stack->push( $piece );
 					$accum =& $stack->getAccum();
-					$flags = $stack->getFlags();
-					extract( $flags );
+					$stackFlags = $stack->getFlags();
+					if ( isset( $stackFlags['findEquals'] ) ) {
+						$findEquals = $stackFlags['findEquals'];
+					}
+					if ( isset( $stackFlags['findPipe'] ) ) {
+						$findPipe = $stackFlags['findPipe'];
+					}
+					if ( isset( $stackFlags['inHeading'] ) ) {
+						$inHeading = $stackFlags['inHeading'];
+					}
 					$i += $count;
 				}
 			} elseif ( $found == 'line-end' ) {
 				$piece = $stack->top;
 				// A heading must be open, otherwise \n wouldn't have been in the search list
-				assert( '$piece->open == "\n"' );
+				// FIXME: Don't use assert()
+				// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.assert
+				assert( $piece->open === "\n" );
 				$part = $piece->getCurrentPart();
-				// Search back through the input to see if it has a proper close
-				// Do this using the reversed string since the other solutions (end anchor, etc.) are inefficient
+				// Search back through the input to see if it has a proper close.
+				// Do this using the reversed string since the other solutions
+				// (end anchor, etc.) are inefficient.
 				$wsLength = strspn( $revText, " \t", $lengthText - $i );
 				$searchStart = $i - $wsLength;
 				if ( isset( $part->commentEnd ) && $searchStart - 1 == $part->commentEnd ) {
@@ -582,8 +612,16 @@ class Preprocessor_DOM implements Preprocessor {
 				// Unwind the stack
 				$stack->pop();
 				$accum =& $stack->getAccum();
-				$flags = $stack->getFlags();
-				extract( $flags );
+				$stackFlags = $stack->getFlags();
+				if ( isset( $stackFlags['findEquals'] ) ) {
+					$findEquals = $stackFlags['findEquals'];
+				}
+				if ( isset( $stackFlags['findPipe'] ) ) {
+					$findPipe = $stackFlags['findPipe'];
+				}
+				if ( isset( $stackFlags['inHeading'] ) ) {
+					$inHeading = $stackFlags['inHeading'];
+				}
 
 				// Append the result to the enclosing accumulator
 				$accum .= $element;
@@ -594,36 +632,66 @@ class Preprocessor_DOM implements Preprocessor {
 				// input pointer.
 			} elseif ( $found == 'open' ) {
 				# count opening brace characters
-				$count = strspn( $text, $curChar, $i );
+				$curLen = strlen( $curChar );
+				$count = ( $curLen > 1 ) ?
+					# allow the final character to repeat
+					strspn( $text, $curChar[$curLen - 1], $i + 1 ) + 1 :
+					strspn( $text, $curChar, $i );
+
+				$savedPrefix = '';
+				$lineStart = ( $i > 0 && $text[$i - 1] == "\n" );
+
+				if ( $curChar === "-{" && $count > $curLen ) {
+					// -{ => {{ transition because rightmost wins
+					$savedPrefix = '-';
+					$i++;
+					$curChar = '{';
+					$count--;
+					$rule = $this->rules[$curChar];
+				}
 
 				# we need to add to stack only if opening brace count is enough for one of the rules
 				if ( $count >= $rule['min'] ) {
 					# Add it to the stack
-					$piece = array(
+					$piece = [
 						'open' => $curChar,
 						'close' => $rule['end'],
+						'savedPrefix' => $savedPrefix,
 						'count' => $count,
-						'lineStart' => ( $i > 0 && $text[$i - 1] == "\n" ),
-					);
+						'lineStart' => $lineStart,
+					];
 
 					$stack->push( $piece );
 					$accum =& $stack->getAccum();
-					$flags = $stack->getFlags();
-					extract( $flags );
+					$stackFlags = $stack->getFlags();
+					if ( isset( $stackFlags['findEquals'] ) ) {
+						$findEquals = $stackFlags['findEquals'];
+					}
+					if ( isset( $stackFlags['findPipe'] ) ) {
+						$findPipe = $stackFlags['findPipe'];
+					}
+					if ( isset( $stackFlags['inHeading'] ) ) {
+						$inHeading = $stackFlags['inHeading'];
+					}
 				} else {
 					# Add literal brace(s)
-					$accum .= htmlspecialchars( str_repeat( $curChar, $count ) );
+					$accum .= htmlspecialchars( $savedPrefix . str_repeat( $curChar, $count ) );
 				}
 				$i += $count;
 			} elseif ( $found == 'close' ) {
 				$piece = $stack->top;
 				# lets check if there are enough characters for closing brace
 				$maxCount = $piece->count;
-				$count = strspn( $text, $curChar, $i, $maxCount );
+				if ( $piece->close === '}-' && $curChar === '}' ) {
+					$maxCount--; # don't try to match closing '-' as a '}'
+				}
+				$curLen = strlen( $curChar );
+				$count = ( $curLen > 1 ) ? $curLen :
+					strspn( $text, $curChar, $i, $maxCount );
 
 				# check for maximum matching characters (if there are 5 closing
 				# characters, we will probably need only 3 - depending on the rules)
-				$rule = $rules[$piece->open];
+				$rule = $this->rules[$piece->open];
 				if ( $count > $rule['max'] ) {
 					# The specified maximum exists in the callback array, unless the caller
 					# has made an error
@@ -641,14 +709,16 @@ class Preprocessor_DOM implements Preprocessor {
 				if ( $matchingCount <= 0 ) {
 					# No matching element found in callback array
 					# Output a literal closing brace and continue
-					$accum .= htmlspecialchars( str_repeat( $curChar, $count ) );
+					$endText = substr( $text, $i, $count );
+					$accum .= htmlspecialchars( $endText );
 					$i += $count;
 					continue;
 				}
 				$name = $rule['names'][$matchingCount];
 				if ( $name === null ) {
 					// No element, just literal text
-					$element = $piece->breakSyntax( $matchingCount ) . str_repeat( $rule['end'], $matchingCount );
+					$endText = substr( $text, $i, $matchingCount );
+					$element = $piece->breakSyntax( $matchingCount ) . $endText;
 				} else {
 					# Create XML element
 					# Note: $parts is already XML, does not need to be encoded further
@@ -658,7 +728,9 @@ class Preprocessor_DOM implements Preprocessor {
 
 					# The invocation is at the start of the line if lineStart is set in
 					# the stack, and all opening brackets are used up.
-					if ( $maxCount == $matchingCount && !empty( $piece->lineStart ) ) {
+					if ( $maxCount == $matchingCount &&
+							!empty( $piece->lineStart ) &&
+							strlen( $piece->savedPrefix ) == 0 ) {
 						$attr = ' lineStart="1"';
 					} else {
 						$attr = '';
@@ -689,19 +761,42 @@ class Preprocessor_DOM implements Preprocessor {
 
 				# Re-add the old stack element if it still has unmatched opening characters remaining
 				if ( $matchingCount < $piece->count ) {
-					$piece->parts = array( new PPDPart );
+					$piece->parts = [ new PPDPart ];
 					$piece->count -= $matchingCount;
 					# do we still qualify for any callback with remaining count?
-					$min = $rules[$piece->open]['min'];
+					$min = $this->rules[$piece->open]['min'];
 					if ( $piece->count >= $min ) {
 						$stack->push( $piece );
 						$accum =& $stack->getAccum();
+					} elseif ( $piece->count == 1 && $piece->open === '{' && $piece->savedPrefix === '-' ) {
+						$piece->savedPrefix = '';
+						$piece->open = '-{';
+						$piece->count = 2;
+						$piece->close = $this->rules[$piece->open]['end'];
+						$stack->push( $piece );
+						$accum =& $stack->getAccum();
 					} else {
-						$accum .= str_repeat( $piece->open, $piece->count );
+						$s = substr( $piece->open, 0, -1 );
+						$s .= str_repeat(
+							substr( $piece->open, -1 ),
+							$piece->count - strlen( $s )
+						);
+						$accum .= $piece->savedPrefix . $s;
 					}
+				} elseif ( $piece->savedPrefix !== '' ) {
+					$accum .= $piece->savedPrefix;
 				}
-				$flags = $stack->getFlags();
-				extract( $flags );
+
+				$stackFlags = $stack->getFlags();
+				if ( isset( $stackFlags['findEquals'] ) ) {
+					$findEquals = $stackFlags['findEquals'];
+				}
+				if ( isset( $stackFlags['findPipe'] ) ) {
+					$findPipe = $stackFlags['findPipe'];
+				}
+				if ( isset( $stackFlags['inHeading'] ) ) {
+					$inHeading = $stackFlags['inHeading'];
+				}
 
 				# Add XML element to the enclosing accumulator
 				$accum .= $element;
@@ -725,8 +820,6 @@ class Preprocessor_DOM implements Preprocessor {
 		$stack->rootAccum .= '</root>';
 		$xml = $stack->rootAccum;
 
-		wfProfileOut( __METHOD__ );
-
 		return $xml;
 	}
 }
@@ -736,19 +829,19 @@ class Preprocessor_DOM implements Preprocessor {
  * @ingroup Parser
  */
 class PPDStack {
-	var $stack, $rootAccum;
+	public $stack, $rootAccum;
 
 	/**
 	 * @var PPDStack
 	 */
-	var $top;
-	var $out;
-	var $elementClass = 'PPDStackElement';
+	public $top;
+	public $out;
+	public $elementClass = PPDStackElement::class;
 
-	static $false = false;
+	public static $false = false;
 
-	function __construct() {
-		$this->stack = array();
+	public function __construct() {
+		$this->stack = [];
 		$this->top = false;
 		$this->rootAccum = '';
 		$this->accum =& $this->rootAccum;
@@ -757,15 +850,15 @@ class PPDStack {
 	/**
 	 * @return int
 	 */
-	function count() {
+	public function count() {
 		return count( $this->stack );
 	}
 
-	function &getAccum() {
+	public function &getAccum() {
 		return $this->accum;
 	}
 
-	function getCurrentPart() {
+	public function getCurrentPart() {
 		if ( $this->top === false ) {
 			return false;
 		} else {
@@ -773,7 +866,7 @@ class PPDStack {
 		}
 	}
 
-	function push( $data ) {
+	public function push( $data ) {
 		if ( $data instanceof $this->elementClass ) {
 			$this->stack[] = $data;
 		} else {
@@ -784,8 +877,8 @@ class PPDStack {
 		$this->accum =& $this->top->getAccum();
 	}
 
-	function pop() {
-		if ( !count( $this->stack ) ) {
+	public function pop() {
+		if ( $this->stack === [] ) {
 			throw new MWException( __METHOD__ . ': no elements remaining' );
 		}
 		$temp = array_pop( $this->stack );
@@ -800,7 +893,7 @@ class PPDStack {
 		return $temp;
 	}
 
-	function addPart( $s = '' ) {
+	public function addPart( $s = '' ) {
 		$this->top->addPart( $s );
 		$this->accum =& $this->top->getAccum();
 	}
@@ -808,13 +901,13 @@ class PPDStack {
 	/**
 	 * @return array
 	 */
-	function getFlags() {
-		if ( !count( $this->stack ) ) {
-			return array(
+	public function getFlags() {
+		if ( $this->stack === [] ) {
+			return [
 				'findEquals' => false,
 				'findPipe' => false,
 				'inHeading' => false,
-			);
+			];
 		} else {
 			return $this->top->getFlags();
 		}
@@ -825,62 +918,94 @@ class PPDStack {
  * @ingroup Parser
  */
 class PPDStackElement {
-	var	$open,              // Opening character (\n for heading)
-		$close,             // Matching closing character
-		$count,             // Number of opening characters found (number of "=" for heading)
-		$parts,             // Array of PPDPart objects describing pipe-separated parts.
-		$lineStart;         // True if the open char appeared at the start of the input line. Not set for headings.
+	/**
+	 * @var string Opening character (\n for heading)
+	 */
+	public $open;
 
-	var $partClass = 'PPDPart';
+	/**
+	 * @var string Matching closing character
+	 */
+	public $close;
 
-	function __construct( $data = array() ) {
+	/**
+	 * @var string Saved prefix that may affect later processing,
+	 *  e.g. to differentiate `-{{{{` and `{{{{` after later seeing `}}}`.
+	 */
+	public $savedPrefix = '';
+
+	/**
+	 * @var int Number of opening characters found (number of "=" for heading)
+	 */
+	public $count;
+
+	/**
+	 * @var PPDPart[] Array of PPDPart objects describing pipe-separated parts.
+	 */
+	public $parts;
+
+	/**
+	 * @var bool True if the open char appeared at the start of the input line.
+	 *  Not set for headings.
+	 */
+	public $lineStart;
+
+	public $partClass = PPDPart::class;
+
+	public function __construct( $data = [] ) {
 		$class = $this->partClass;
-		$this->parts = array( new $class );
+		$this->parts = [ new $class ];
 
 		foreach ( $data as $name => $value ) {
 			$this->$name = $value;
 		}
 	}
 
-	function &getAccum() {
+	public function &getAccum() {
 		return $this->parts[count( $this->parts ) - 1]->out;
 	}
 
-	function addPart( $s = '' ) {
+	public function addPart( $s = '' ) {
 		$class = $this->partClass;
 		$this->parts[] = new $class( $s );
 	}
 
-	function getCurrentPart() {
+	public function getCurrentPart() {
 		return $this->parts[count( $this->parts ) - 1];
 	}
 
 	/**
 	 * @return array
 	 */
-	function getFlags() {
+	public function getFlags() {
 		$partCount = count( $this->parts );
 		$findPipe = $this->open != "\n" && $this->open != '[';
-		return array(
+		return [
 			'findPipe' => $findPipe,
 			'findEquals' => $findPipe && $partCount > 1 && !isset( $this->parts[$partCount - 1]->eqpos ),
 			'inHeading' => $this->open == "\n",
-		);
+		];
 	}
 
 	/**
 	 * Get the output string that would result if the close is not found.
 	 *
+	 * @param bool|int $openingCount
 	 * @return string
 	 */
-	function breakSyntax( $openingCount = false ) {
+	public function breakSyntax( $openingCount = false ) {
 		if ( $this->open == "\n" ) {
-			$s = $this->parts[0]->out;
+			$s = $this->savedPrefix . $this->parts[0]->out;
 		} else {
 			if ( $openingCount === false ) {
 				$openingCount = $this->count;
 			}
-			$s = str_repeat( $this->open, $openingCount );
+			$s = substr( $this->open, 0, -1 );
+			$s .= str_repeat(
+				substr( $this->open, -1 ),
+				$openingCount - strlen( $s )
+			);
+			$s = $this->savedPrefix . $s;
 			$first = true;
 			foreach ( $this->parts as $part ) {
 				if ( $first ) {
@@ -899,14 +1024,17 @@ class PPDStackElement {
  * @ingroup Parser
  */
 class PPDPart {
-	var $out; // Output accumulator string
+	/**
+	 * @var string Output accumulator string
+	 */
+	public $out;
 
 	// Optional member variables:
 	//   eqpos        Position of equals sign in output accumulator
 	//   commentEnd   Past-the-end input pointer for the last comment encountered
 	//   visualEnd    Past-the-end input pointer for the end of the accumulator minus comments
 
-	function __construct( $out = '' ) {
+	public function __construct( $out = '' ) {
 		$this->out = $out;
 	}
 }
@@ -915,58 +1043,71 @@ class PPDPart {
  * An expansion frame, used as a context to expand the result of preprocessToObj()
  * @ingroup Parser
  */
+// phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 class PPFrame_DOM implements PPFrame {
 
 	/**
 	 * @var Preprocessor
 	 */
-	var $preprocessor;
+	public $preprocessor;
 
 	/**
 	 * @var Parser
 	 */
-	var $parser;
+	public $parser;
 
 	/**
 	 * @var Title
 	 */
-	var $title;
-	var $titleCache;
+	public $title;
+	public $titleCache;
 
 	/**
 	 * Hashtable listing templates which are disallowed for expansion in this frame,
 	 * having been encountered previously in parent frames.
 	 */
-	var $loopCheckHash;
+	public $loopCheckHash;
 
 	/**
 	 * Recursion depth of this frame, top = 0
 	 * Note that this is NOT the same as expansion depth in expand()
 	 */
-	var $depth;
+	public $depth;
+
+	private $volatile = false;
+	private $ttl = null;
+
+	/**
+	 * @var array
+	 */
+	protected $childExpansionCache;
 
 	/**
 	 * Construct a new preprocessor frame.
-	 * @param $preprocessor Preprocessor The parent preprocessor
+	 * @param Preprocessor $preprocessor The parent preprocessor
 	 */
-	function __construct( $preprocessor ) {
+	public function __construct( $preprocessor ) {
 		$this->preprocessor = $preprocessor;
 		$this->parser = $preprocessor->parser;
 		$this->title = $this->parser->mTitle;
-		$this->titleCache = array( $this->title ? $this->title->getPrefixedDBkey() : false );
-		$this->loopCheckHash = array();
+		$this->titleCache = [ $this->title ? $this->title->getPrefixedDBkey() : false ];
+		$this->loopCheckHash = [];
 		$this->depth = 0;
+		$this->childExpansionCache = [];
 	}
 
 	/**
 	 * Create a new child frame
 	 * $args is optionally a multi-root PPNode or array containing the template arguments
 	 *
+	 * @param bool|array $args
+	 * @param Title|bool $title
+	 * @param int $indexOffset
 	 * @return PPTemplateFrame_DOM
 	 */
-	function newChild( $args = false, $title = false, $indexOffset = 0 ) {
-		$namedArgs = array();
-		$numberedArgs = array();
+	public function newChild( $args = false, $title = false, $indexOffset = 0 ) {
+		$namedArgs = [];
+		$numberedArgs = [];
 		if ( $title === false ) {
 			$title = $this->title;
 		}
@@ -979,7 +1120,7 @@ class PPFrame_DOM implements PPFrame {
 				if ( $arg instanceof PPNode ) {
 					$arg = $arg->node;
 				}
-				if ( !$xpath ) {
+				if ( !$xpath || $xpath->document !== $arg->ownerDocument ) {
 					$xpath = new DOMXPath( $arg->ownerDocument );
 				}
 
@@ -989,11 +1130,25 @@ class PPFrame_DOM implements PPFrame {
 					// Numbered parameter
 					$index = $nameNodes->item( 0 )->attributes->getNamedItem( 'index' )->textContent;
 					$index = $index - $indexOffset;
+					if ( isset( $namedArgs[$index] ) || isset( $numberedArgs[$index] ) ) {
+						$this->parser->getOutput()->addWarning( wfMessage( 'duplicate-args-warning',
+							wfEscapeWikiText( $this->title ),
+							wfEscapeWikiText( $title ),
+							wfEscapeWikiText( $index ) )->text() );
+						$this->parser->addTrackingCategory( 'duplicate-args-category' );
+					}
 					$numberedArgs[$index] = $value->item( 0 );
 					unset( $namedArgs[$index] );
 				} else {
 					// Named parameter
 					$name = trim( $this->expand( $nameNodes->item( 0 ), PPFrame::STRIP_COMMENTS ) );
+					if ( isset( $namedArgs[$name] ) || isset( $numberedArgs[$name] ) ) {
+						$this->parser->getOutput()->addWarning( wfMessage( 'duplicate-args-warning',
+							wfEscapeWikiText( $this->title ),
+							wfEscapeWikiText( $title ),
+							wfEscapeWikiText( $name ) )->text() );
+						$this->parser->addTrackingCategory( 'duplicate-args-category' );
+					}
 					$namedArgs[$name] = $value->item( 0 );
 					unset( $numberedArgs[$name] );
 				}
@@ -1004,11 +1159,23 @@ class PPFrame_DOM implements PPFrame {
 
 	/**
 	 * @throws MWException
-	 * @param $root
-	 * @param $flags int
+	 * @param string|int $key
+	 * @param string|PPNode_DOM|DOMDocument $root
+	 * @param int $flags
 	 * @return string
 	 */
-	function expand( $root, $flags = 0 ) {
+	public function cachedExpand( $key, $root, $flags = 0 ) {
+		// we don't have a parent, so we don't have a cache
+		return $this->expand( $root, $flags );
+	}
+
+	/**
+	 * @throws MWException
+	 * @param string|PPNode_DOM|DOMDocument $root
+	 * @param int $flags
+	 * @return string
+	 */
+	public function expand( $root, $flags = 0 ) {
 		static $expansionDepth = 0;
 		if ( is_string( $root ) ) {
 			return $root;
@@ -1029,7 +1196,6 @@ class PPFrame_DOM implements PPFrame {
 			);
 			return '<span class="error">Expansion depth limit exceeded</span>';
 		}
-		wfProfileIn( __METHOD__ );
 		++$expansionDepth;
 		if ( $expansionDepth > $this->parser->mHighestExpansionDepth ) {
 			$this->parser->mHighestExpansionDepth = $expansionDepth;
@@ -1042,9 +1208,9 @@ class PPFrame_DOM implements PPFrame {
 			$root = $root->documentElement;
 		}
 
-		$outStack = array( '', '' );
-		$iteratorStack = array( false, $root );
-		$indexStack = array( 0, 0 );
+		$outStack = [ '', '' ];
+		$iteratorStack = [ false, $root ];
+		$indexStack = [ 0, 0 ];
 
 		while ( count( $iteratorStack ) > 1 ) {
 			$level = count( $outStack ) - 1;
@@ -1106,10 +1272,10 @@ class PPFrame_DOM implements PPFrame {
 						$newIterator = $this->virtualBracketedImplode( '{{', '|', '}}', $title, $parts );
 					} else {
 						$lineStart = $contextNode->getAttribute( 'lineStart' );
-						$params = array(
+						$params = [
 							'title' => new PPNode_DOM( $title ),
 							'parts' => new PPNode_DOM( $parts ),
-							'lineStart' => $lineStart );
+							'lineStart' => $lineStart ];
 						$ret = $this->parser->braceSubstitution( $params, $this );
 						if ( isset( $ret['object'] ) ) {
 							$newIterator = $ret['object'];
@@ -1126,9 +1292,9 @@ class PPFrame_DOM implements PPFrame {
 					if ( $flags & PPFrame::NO_ARGS ) {
 						$newIterator = $this->virtualBracketedImplode( '{{{', '|', '}}}', $title, $parts );
 					} else {
-						$params = array(
+						$params = [
 							'title' => new PPNode_DOM( $title ),
-							'parts' => new PPNode_DOM( $parts ) );
+							'parts' => new PPNode_DOM( $parts ) ];
 						$ret = $this->parser->argSubstitution( $params, $this );
 						if ( isset( $ret['object'] ) ) {
 							$newIterator = $ret['object'];
@@ -1139,19 +1305,20 @@ class PPFrame_DOM implements PPFrame {
 				} elseif ( $contextNode->nodeName == 'comment' ) {
 					# HTML-style comment
 					# Remove it in HTML, pre+remove and STRIP_COMMENTS modes
-					if ( $this->parser->ot['html']
+					# Not in RECOVER_COMMENTS mode (msgnw) though.
+					if ( ( $this->parser->ot['html']
 						|| ( $this->parser->ot['pre'] && $this->parser->mOptions->getRemoveComments() )
 						|| ( $flags & PPFrame::STRIP_COMMENTS )
+						) && !( $flags & PPFrame::RECOVER_COMMENTS )
 					) {
 						$out .= '';
-					}
-					# Add a strip marker in PST mode so that pstPass2() can run some old-fashioned regexes on the result
-					# Not in RECOVER_COMMENTS mode (extractSections) though
-					elseif ( $this->parser->ot['wiki'] && !( $flags & PPFrame::RECOVER_COMMENTS ) ) {
+					} elseif ( $this->parser->ot['wiki'] && !( $flags & PPFrame::RECOVER_COMMENTS ) ) {
+						# Add a strip marker in PST mode so that pstPass2() can
+						# run some old-fashioned regexes on the result.
+						# Not in RECOVER_COMMENTS mode (extractSections) though.
 						$out .= $this->parser->insertStripItem( $contextNode->textContent );
-					}
-					# Recover the literal comment in RECOVER_COMMENTS and pre+no-remove
-					else {
+					} else {
+						# Recover the literal comment in RECOVER_COMMENTS and pre+no-remove
 						$out .= $contextNode->textContent;
 					}
 				} elseif ( $contextNode->nodeName == 'ignore' ) {
@@ -1159,7 +1326,9 @@ class PPFrame_DOM implements PPFrame {
 					# OT_WIKI will only respect <ignore> in substed templates.
 					# The other output types respect it unless NO_IGNORE is set.
 					# extractSections() sets NO_IGNORE and so never respects it.
-					if ( ( !isset( $this->parent ) && $this->parser->ot['wiki'] ) || ( $flags & PPFrame::NO_IGNORE ) ) {
+					if ( ( !isset( $this->parent ) && $this->parser->ot['wiki'] )
+						|| ( $flags & PPFrame::NO_IGNORE )
+					) {
 						$out .= $contextNode->textContent;
 					} else {
 						$out .= '';
@@ -1171,13 +1340,29 @@ class PPFrame_DOM implements PPFrame {
 					$attrs = $xpath->query( 'attr', $contextNode );
 					$inners = $xpath->query( 'inner', $contextNode );
 					$closes = $xpath->query( 'close', $contextNode );
-					$params = array(
-						'name' => new PPNode_DOM( $names->item( 0 ) ),
-						'attr' => $attrs->length > 0 ? new PPNode_DOM( $attrs->item( 0 ) ) : null,
-						'inner' => $inners->length > 0 ? new PPNode_DOM( $inners->item( 0 ) ) : null,
-						'close' => $closes->length > 0 ? new PPNode_DOM( $closes->item( 0 ) ) : null,
-					);
-					$out .= $this->parser->extensionSubstitution( $params, $this );
+					if ( $flags & PPFrame::NO_TAGS ) {
+						$s = '<' . $this->expand( $names->item( 0 ), $flags );
+						if ( $attrs->length > 0 ) {
+							$s .= $this->expand( $attrs->item( 0 ), $flags );
+						}
+						if ( $inners->length > 0 ) {
+							$s .= '>' . $this->expand( $inners->item( 0 ), $flags );
+							if ( $closes->length > 0 ) {
+								$s .= $this->expand( $closes->item( 0 ), $flags );
+							}
+						} else {
+							$s .= '/>';
+						}
+						$out .= $s;
+					} else {
+						$params = [
+							'name' => new PPNode_DOM( $names->item( 0 ) ),
+							'attr' => $attrs->length > 0 ? new PPNode_DOM( $attrs->item( 0 ) ) : null,
+							'inner' => $inners->length > 0 ? new PPNode_DOM( $inners->item( 0 ) ) : null,
+							'close' => $closes->length > 0 ? new PPNode_DOM( $closes->item( 0 ) ) : null,
+						];
+						$out .= $this->parser->extensionSubstitution( $params, $this );
+					}
 				} elseif ( $contextNode->nodeName == 'h' ) {
 					# Heading
 					$s = $this->expand( $contextNode->childNodes, $flags );
@@ -1188,9 +1373,9 @@ class PPFrame_DOM implements PPFrame {
 						# Insert heading index marker
 						$headingIndex = $contextNode->getAttribute( 'i' );
 						$titleText = $this->title->getPrefixedDBkey();
-						$this->parser->mHeadings[] = array( $titleText, $headingIndex );
+						$this->parser->mHeadings[] = [ $titleText, $headingIndex ];
 						$serial = count( $this->parser->mHeadings ) - 1;
-						$marker = "{$this->parser->mUniqPrefix}-h-$serial-" . Parser::MARKER_SUFFIX;
+						$marker = Parser::MARKER_PREFIX . "-h-$serial-" . Parser::MARKER_SUFFIX;
 						$count = $contextNode->getAttribute( 'level' );
 						$s = substr( $s, 0, $count ) . $marker . substr( $s, $count );
 						$this->parser->mStripState->addGeneral( $marker, '' );
@@ -1201,7 +1386,6 @@ class PPFrame_DOM implements PPFrame {
 					$newIterator = $contextNode->childNodes;
 				}
 			} else {
-				wfProfileOut( __METHOD__ );
 				throw new MWException( __METHOD__ . ': Invalid parameter type' );
 			}
 
@@ -1225,16 +1409,16 @@ class PPFrame_DOM implements PPFrame {
 			}
 		}
 		--$expansionDepth;
-		wfProfileOut( __METHOD__ );
 		return $outStack[0];
 	}
 
 	/**
-	 * @param $sep
-	 * @param $flags
+	 * @param string $sep
+	 * @param int $flags
+	 * @param string|PPNode_DOM|DOMDocument $args,...
 	 * @return string
 	 */
-	function implodeWithFlags( $sep, $flags /*, ... */ ) {
+	public function implodeWithFlags( $sep, $flags /*, ... */ ) {
 		$args = array_slice( func_get_args(), 2 );
 
 		$first = true;
@@ -1244,7 +1428,7 @@ class PPFrame_DOM implements PPFrame {
 				$root = $root->node;
 			}
 			if ( !is_array( $root ) && !( $root instanceof DOMNodeList ) ) {
-				$root = array( $root );
+				$root = [ $root ];
 			}
 			foreach ( $root as $node ) {
 				if ( $first ) {
@@ -1262,9 +1446,11 @@ class PPFrame_DOM implements PPFrame {
 	 * Implode with no flags specified
 	 * This previously called implodeWithFlags but has now been inlined to reduce stack depth
 	 *
+	 * @param string $sep
+	 * @param string|PPNode_DOM|DOMDocument $args,...
 	 * @return string
 	 */
-	function implode( $sep /*, ... */ ) {
+	public function implode( $sep /*, ... */ ) {
 		$args = array_slice( func_get_args(), 1 );
 
 		$first = true;
@@ -1274,7 +1460,7 @@ class PPFrame_DOM implements PPFrame {
 				$root = $root->node;
 			}
 			if ( !is_array( $root ) && !( $root instanceof DOMNodeList ) ) {
-				$root = array( $root );
+				$root = [ $root ];
 			}
 			foreach ( $root as $node ) {
 				if ( $first ) {
@@ -1292,11 +1478,13 @@ class PPFrame_DOM implements PPFrame {
 	 * Makes an object that, when expand()ed, will be the same as one obtained
 	 * with implode()
 	 *
+	 * @param string $sep
+	 * @param string|PPNode_DOM|DOMDocument $args,...
 	 * @return array
 	 */
-	function virtualImplode( $sep /*, ... */ ) {
+	public function virtualImplode( $sep /*, ... */ ) {
 		$args = array_slice( func_get_args(), 1 );
-		$out = array();
+		$out = [];
 		$first = true;
 
 		foreach ( $args as $root ) {
@@ -1304,7 +1492,7 @@ class PPFrame_DOM implements PPFrame {
 				$root = $root->node;
 			}
 			if ( !is_array( $root ) && !( $root instanceof DOMNodeList ) ) {
-				$root = array( $root );
+				$root = [ $root ];
 			}
 			foreach ( $root as $node ) {
 				if ( $first ) {
@@ -1320,11 +1508,15 @@ class PPFrame_DOM implements PPFrame {
 
 	/**
 	 * Virtual implode with brackets
+	 * @param string $start
+	 * @param string $sep
+	 * @param string $end
+	 * @param string|PPNode_DOM|DOMDocument $args,...
 	 * @return array
 	 */
-	function virtualBracketedImplode( $start, $sep, $end /*, ... */ ) {
+	public function virtualBracketedImplode( $start, $sep, $end /*, ... */ ) {
 		$args = array_slice( func_get_args(), 3 );
-		$out = array( $start );
+		$out = [ $start ];
 		$first = true;
 
 		foreach ( $args as $root ) {
@@ -1332,7 +1524,7 @@ class PPFrame_DOM implements PPFrame {
 				$root = $root->node;
 			}
 			if ( !is_array( $root ) && !( $root instanceof DOMNodeList ) ) {
-				$root = array( $root );
+				$root = [ $root ];
 			}
 			foreach ( $root as $node ) {
 				if ( $first ) {
@@ -1347,37 +1539,37 @@ class PPFrame_DOM implements PPFrame {
 		return $out;
 	}
 
-	function __toString() {
+	public function __toString() {
 		return 'frame{}';
 	}
 
-	function getPDBK( $level = false ) {
+	public function getPDBK( $level = false ) {
 		if ( $level === false ) {
 			return $this->title->getPrefixedDBkey();
 		} else {
-			return isset( $this->titleCache[$level] ) ? $this->titleCache[$level] : false;
+			return $this->titleCache[$level] ?? false;
 		}
 	}
 
 	/**
 	 * @return array
 	 */
-	function getArguments() {
-		return array();
+	public function getArguments() {
+		return [];
 	}
 
 	/**
 	 * @return array
 	 */
-	function getNumberedArguments() {
-		return array();
+	public function getNumberedArguments() {
+		return [];
 	}
 
 	/**
 	 * @return array
 	 */
-	function getNamedArguments() {
-		return array();
+	public function getNamedArguments() {
+		return [];
 	}
 
 	/**
@@ -1385,20 +1577,25 @@ class PPFrame_DOM implements PPFrame {
 	 *
 	 * @return bool
 	 */
-	function isEmpty() {
+	public function isEmpty() {
 		return true;
 	}
 
-	function getArgument( $name ) {
+	/**
+	 * @param int|string $name
+	 * @return bool Always false in this implementation.
+	 */
+	public function getArgument( $name ) {
 		return false;
 	}
 
 	/**
 	 * Returns true if the infinite loop check is OK, false if a loop is detected
 	 *
+	 * @param Title $title
 	 * @return bool
 	 */
-	function loopCheck( $title ) {
+	public function loopCheck( $title ) {
 		return !isset( $this->loopCheckHash[$title->getPrefixedDBkey()] );
 	}
 
@@ -1407,7 +1604,7 @@ class PPFrame_DOM implements PPFrame {
 	 *
 	 * @return bool
 	 */
-	function isTemplate() {
+	public function isTemplate() {
 		return false;
 	}
 
@@ -1416,8 +1613,46 @@ class PPFrame_DOM implements PPFrame {
 	 *
 	 * @return Title
 	 */
-	function getTitle() {
+	public function getTitle() {
 		return $this->title;
+	}
+
+	/**
+	 * Set the volatile flag
+	 *
+	 * @param bool $flag
+	 */
+	public function setVolatile( $flag = true ) {
+		$this->volatile = $flag;
+	}
+
+	/**
+	 * Get the volatile flag
+	 *
+	 * @return bool
+	 */
+	public function isVolatile() {
+		return $this->volatile;
+	}
+
+	/**
+	 * Set the TTL
+	 *
+	 * @param int $ttl
+	 */
+	public function setTTL( $ttl ) {
+		if ( $ttl !== null && ( $this->ttl === null || $ttl < $this->ttl ) ) {
+			$this->ttl = $ttl;
+		}
+	}
+
+	/**
+	 * Get the TTL
+	 *
+	 * @return int|null
+	 */
+	public function getTTL() {
+		return $this->ttl;
 	}
 }
 
@@ -1425,23 +1660,27 @@ class PPFrame_DOM implements PPFrame {
  * Expansion frame with template arguments
  * @ingroup Parser
  */
+// phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 class PPTemplateFrame_DOM extends PPFrame_DOM {
-	var $numberedArgs, $namedArgs;
+
+	public $numberedArgs, $namedArgs;
 
 	/**
 	 * @var PPFrame_DOM
 	 */
-	var $parent;
-	var $numberedExpansionCache, $namedExpansionCache;
+	public $parent;
+	public $numberedExpansionCache, $namedExpansionCache;
 
 	/**
-	 * @param $preprocessor
-	 * @param $parent PPFrame_DOM
-	 * @param $numberedArgs array
-	 * @param $namedArgs array
-	 * @param $title Title
+	 * @param Preprocessor $preprocessor
+	 * @param bool|PPFrame_DOM $parent
+	 * @param array $numberedArgs
+	 * @param array $namedArgs
+	 * @param bool|Title $title
 	 */
-	function __construct( $preprocessor, $parent = false, $numberedArgs = array(), $namedArgs = array(), $title = false ) {
+	public function __construct( $preprocessor, $parent = false, $numberedArgs = [],
+		$namedArgs = [], $title = false
+	) {
 		parent::__construct( $preprocessor );
 
 		$this->parent = $parent;
@@ -1456,10 +1695,10 @@ class PPTemplateFrame_DOM extends PPFrame_DOM {
 			$this->loopCheckHash[$pdbk] = true;
 		}
 		$this->depth = $parent->depth + 1;
-		$this->numberedExpansionCache = $this->namedExpansionCache = array();
+		$this->numberedExpansionCache = $this->namedExpansionCache = [];
 	}
 
-	function __toString() {
+	public function __toString() {
 		$s = 'tplframe{';
 		$first = true;
 		$args = $this->numberedArgs + $this->namedArgs;
@@ -1477,16 +1716,34 @@ class PPTemplateFrame_DOM extends PPFrame_DOM {
 	}
 
 	/**
+	 * @throws MWException
+	 * @param string|int $key
+	 * @param string|PPNode_DOM|DOMDocument $root
+	 * @param int $flags
+	 * @return string
+	 */
+	public function cachedExpand( $key, $root, $flags = 0 ) {
+		if ( isset( $this->parent->childExpansionCache[$key] ) ) {
+			return $this->parent->childExpansionCache[$key];
+		}
+		$retval = $this->expand( $root, $flags );
+		if ( !$this->isVolatile() ) {
+			$this->parent->childExpansionCache[$key] = $retval;
+		}
+		return $retval;
+	}
+
+	/**
 	 * Returns true if there are no arguments in this frame
 	 *
 	 * @return bool
 	 */
-	function isEmpty() {
+	public function isEmpty() {
 		return !count( $this->numberedArgs ) && !count( $this->namedArgs );
 	}
 
-	function getArguments() {
-		$arguments = array();
+	public function getArguments() {
+		$arguments = [];
 		foreach ( array_merge(
 				array_keys( $this->numberedArgs ),
 				array_keys( $this->namedArgs ) ) as $key ) {
@@ -1495,34 +1752,45 @@ class PPTemplateFrame_DOM extends PPFrame_DOM {
 		return $arguments;
 	}
 
-	function getNumberedArguments() {
-		$arguments = array();
+	public function getNumberedArguments() {
+		$arguments = [];
 		foreach ( array_keys( $this->numberedArgs ) as $key ) {
 			$arguments[$key] = $this->getArgument( $key );
 		}
 		return $arguments;
 	}
 
-	function getNamedArguments() {
-		$arguments = array();
+	public function getNamedArguments() {
+		$arguments = [];
 		foreach ( array_keys( $this->namedArgs ) as $key ) {
 			$arguments[$key] = $this->getArgument( $key );
 		}
 		return $arguments;
 	}
 
-	function getNumberedArgument( $index ) {
+	/**
+	 * @param int $index
+	 * @return string|bool
+	 */
+	public function getNumberedArgument( $index ) {
 		if ( !isset( $this->numberedArgs[$index] ) ) {
 			return false;
 		}
 		if ( !isset( $this->numberedExpansionCache[$index] ) ) {
 			# No trimming for unnamed arguments
-			$this->numberedExpansionCache[$index] = $this->parent->expand( $this->numberedArgs[$index], PPFrame::STRIP_COMMENTS );
+			$this->numberedExpansionCache[$index] = $this->parent->expand(
+				$this->numberedArgs[$index],
+				PPFrame::STRIP_COMMENTS
+			);
 		}
 		return $this->numberedExpansionCache[$index];
 	}
 
-	function getNamedArgument( $name ) {
+	/**
+	 * @param string $name
+	 * @return string|bool
+	 */
+	public function getNamedArgument( $name ) {
 		if ( !isset( $this->namedArgs[$name] ) ) {
 			return false;
 		}
@@ -1534,7 +1802,11 @@ class PPTemplateFrame_DOM extends PPFrame_DOM {
 		return $this->namedExpansionCache[$name];
 	}
 
-	function getArgument( $name ) {
+	/**
+	 * @param int|string $name
+	 * @return string|bool
+	 */
+	public function getArgument( $name ) {
 		$text = $this->getNumberedArgument( $name );
 		if ( $text === false ) {
 			$text = $this->getNamedArgument( $name );
@@ -1547,8 +1819,18 @@ class PPTemplateFrame_DOM extends PPFrame_DOM {
 	 *
 	 * @return bool
 	 */
-	function isTemplate() {
+	public function isTemplate() {
 		return true;
+	}
+
+	public function setVolatile( $flag = true ) {
+		parent::setVolatile( $flag );
+		$this->parent->setVolatile( $flag );
+	}
+
+	public function setTTL( $ttl ) {
+		parent::setTTL( $ttl );
+		$this->parent->setTTL( $ttl );
 	}
 }
 
@@ -1556,15 +1838,17 @@ class PPTemplateFrame_DOM extends PPFrame_DOM {
  * Expansion frame with custom arguments
  * @ingroup Parser
  */
+// phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 class PPCustomFrame_DOM extends PPFrame_DOM {
-	var $args;
 
-	function __construct( $preprocessor, $args ) {
+	public $args;
+
+	public function __construct( $preprocessor, $args ) {
 		parent::__construct( $preprocessor );
 		$this->args = $args;
 	}
 
-	function __toString() {
+	public function __toString() {
 		$s = 'cstmframe{';
 		$first = true;
 		foreach ( $this->args as $name => $value ) {
@@ -1583,18 +1867,19 @@ class PPCustomFrame_DOM extends PPFrame_DOM {
 	/**
 	 * @return bool
 	 */
-	function isEmpty() {
+	public function isEmpty() {
 		return !count( $this->args );
 	}
 
-	function getArgument( $index ) {
-		if ( !isset( $this->args[$index] ) ) {
-			return false;
-		}
-		return $this->args[$index];
+	/**
+	 * @param int|string $index
+	 * @return string|bool
+	 */
+	public function getArgument( $index ) {
+		return $this->args[$index] ?? false;
 	}
 
-	function getArguments() {
+	public function getArguments() {
 		return $this->args;
 	}
 }
@@ -1602,29 +1887,30 @@ class PPCustomFrame_DOM extends PPFrame_DOM {
 /**
  * @ingroup Parser
  */
+// phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 class PPNode_DOM implements PPNode {
 
 	/**
 	 * @var DOMElement
 	 */
-	var $node;
-	var $xpath;
+	public $node;
+	public $xpath;
 
-	function __construct( $node, $xpath = false ) {
+	public function __construct( $node, $xpath = false ) {
 		$this->node = $node;
 	}
 
 	/**
 	 * @return DOMXPath
 	 */
-	function getXPath() {
+	public function getXPath() {
 		if ( $this->xpath === null ) {
 			$this->xpath = new DOMXPath( $this->node->ownerDocument );
 		}
 		return $this->xpath;
 	}
 
-	function __toString() {
+	public function __toString() {
 		if ( $this->node instanceof DOMNodeList ) {
 			$s = '';
 			foreach ( $this->node as $node ) {
@@ -1639,37 +1925,37 @@ class PPNode_DOM implements PPNode {
 	/**
 	 * @return bool|PPNode_DOM
 	 */
-	function getChildren() {
+	public function getChildren() {
 		return $this->node->childNodes ? new self( $this->node->childNodes ) : false;
 	}
 
 	/**
 	 * @return bool|PPNode_DOM
 	 */
-	function getFirstChild() {
+	public function getFirstChild() {
 		return $this->node->firstChild ? new self( $this->node->firstChild ) : false;
 	}
 
 	/**
 	 * @return bool|PPNode_DOM
 	 */
-	function getNextSibling() {
+	public function getNextSibling() {
 		return $this->node->nextSibling ? new self( $this->node->nextSibling ) : false;
 	}
 
 	/**
-	 * @param $type
+	 * @param string $type
 	 *
 	 * @return bool|PPNode_DOM
 	 */
-	function getChildrenOfType( $type ) {
+	public function getChildrenOfType( $type ) {
 		return new self( $this->getXPath()->query( $type, $this->node ) );
 	}
 
 	/**
 	 * @return int
 	 */
-	function getLength() {
+	public function getLength() {
 		if ( $this->node instanceof DOMNodeList ) {
 			return $this->node->length;
 		} else {
@@ -1678,10 +1964,10 @@ class PPNode_DOM implements PPNode {
 	}
 
 	/**
-	 * @param $i
+	 * @param int $i
 	 * @return bool|PPNode_DOM
 	 */
-	function item( $i ) {
+	public function item( $i ) {
 		$item = $this->node->item( $i );
 		return $item ? new self( $item ) : false;
 	}
@@ -1689,7 +1975,7 @@ class PPNode_DOM implements PPNode {
 	/**
 	 * @return string
 	 */
-	function getName() {
+	public function getName() {
 		if ( $this->node instanceof DOMNodeList ) {
 			return '#nodelist';
 		} else {
@@ -1706,7 +1992,7 @@ class PPNode_DOM implements PPNode {
 	 * @throws MWException
 	 * @return array
 	 */
-	function splitArg() {
+	public function splitArg() {
 		$xpath = $this->getXPath();
 		$names = $xpath->query( 'name', $this->node );
 		$values = $xpath->query( 'value', $this->node );
@@ -1715,10 +2001,10 @@ class PPNode_DOM implements PPNode {
 		}
 		$name = $names->item( 0 );
 		$index = $name->getAttribute( 'index' );
-		return array(
+		return [
 			'name' => new self( $name ),
 			'index' => $index,
-			'value' => new self( $values->item( 0 ) ) );
+			'value' => new self( $values->item( 0 ) ) ];
 	}
 
 	/**
@@ -1728,7 +2014,7 @@ class PPNode_DOM implements PPNode {
 	 * @throws MWException
 	 * @return array
 	 */
-	function splitExt() {
+	public function splitExt() {
 		$xpath = $this->getXPath();
 		$names = $xpath->query( 'name', $this->node );
 		$attrs = $xpath->query( 'attr', $this->node );
@@ -1737,9 +2023,9 @@ class PPNode_DOM implements PPNode {
 		if ( !$names->length || !$attrs->length ) {
 			throw new MWException( 'Invalid ext node passed to ' . __METHOD__ );
 		}
-		$parts = array(
+		$parts = [
 			'name' => new self( $names->item( 0 ) ),
-			'attr' => new self( $attrs->item( 0 ) ) );
+			'attr' => new self( $attrs->item( 0 ) ) ];
 		if ( $inners->length ) {
 			$parts['inner'] = new self( $inners->item( 0 ) );
 		}
@@ -1754,14 +2040,14 @@ class PPNode_DOM implements PPNode {
 	 * @throws MWException
 	 * @return array
 	 */
-	function splitHeading() {
+	public function splitHeading() {
 		if ( $this->getName() !== 'h' ) {
 			throw new MWException( 'Invalid h node passed to ' . __METHOD__ );
 		}
-		return array(
+		return [
 			'i' => $this->node->getAttribute( 'i' ),
 			'level' => $this->node->getAttribute( 'level' ),
 			'contents' => $this->getChildren()
-		);
+		];
 	}
 }

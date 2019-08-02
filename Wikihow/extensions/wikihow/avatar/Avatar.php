@@ -26,3 +26,22 @@ CREATE TABLE `avatar` (
 
 $wgSpecialPages['Avatar'] = 'Avatar';
 $wgAutoloadClasses['Avatar'] = __DIR__ . '/Avatar.body.php';
+
+$wgResourceModules['ext.wikihow.avatar_styles'] = [
+	'styles' => [ 'avatar.css' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/avatar',
+	'targets' => [ 'desktop', 'mobile' ],
+];
+
+$wgResourceModules['ext.wikihow.avatar'] = [
+	'scripts' => [
+		'../common/jquery.md5.js',
+		'avatar.js',
+	],
+	'dependencies' => ['jquery', 'ext.wikihow.common_bottom'],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/avatar',
+	'targets' => [ 'desktop', 'mobile' ],
+	'position' => 'top'
+];

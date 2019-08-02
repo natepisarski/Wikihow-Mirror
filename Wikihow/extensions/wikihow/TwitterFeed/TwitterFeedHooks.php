@@ -23,7 +23,11 @@ class TwitterFeedHooks {
 		}
 
 		// old categories
+		if (!$wikiPage->mPreparedEdit) {
+			return true;
+		}
 		$oldtext = $wikiPage->mPreparedEdit->oldText;
+
 		preg_match_all("@\[\[Category:[^\]]*\]\]@", $oldtext, $matches);
 		$oldcats = array();
 		if (sizeof($matches[0]) > 0) {

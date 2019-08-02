@@ -5,7 +5,7 @@
  *
  * @class
  */
-class ApiSummaryVideos extends ApiQueryBase {
+class ApiSummaryVideos extends ApiBase {
 
 	/* Static Members */
 

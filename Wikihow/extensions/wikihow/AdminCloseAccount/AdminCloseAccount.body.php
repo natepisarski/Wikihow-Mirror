@@ -117,7 +117,7 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 			// Describe actions
 			$changes = [];
 			$warnings = [];
-			$actions = $this->getActions( $queriedUser );
+			$actions = $this->getActions( $queriedUser, $this->getConfig() );
 			foreach ( $actions as $action ) {
 				$action->describe( $changes, $warnings );
 			}
@@ -160,7 +160,7 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 			// Perform actions
 			$changes = [];
 			$warnings = [];
-			$actions = $this->getActions( $queriedUser );
+			$actions = $this->getActions( $queriedUser, $this->getConfig() );
 			foreach ( $actions as $action ) {
 				$action->execute( $changes, $warnings );
 			}
@@ -397,17 +397,17 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 	 * @param User $user User to get action objects for
 	 * @return Action[] List of action objects
 	 */
-	private function getActions( $user ) {
+	private function getActions( $user, $config ) {
 		return [
-			new AnonymizeURAdminCloseAccountAction( $user ),
-			new AnonymizeQAAdminCloseAccountAction( $user ),
-			new RemoveUserPagesAdminCloseAccountAction( $user ),
-			new UnlinkSocialAdminCloseAccountAction( $user ),
-			new RemoveAvatarAdminCloseAccountAction( $user ),
-			new RemoveEmailAdminCloseAccountAction( $user ),
-			new RemoveRealNameAdminCloseAccountAction( $user ),
-			new ResetPasswordAdminCloseAccountAction( $user ),
-			new RenameUserAdminCloseAccountAction( $user )
+			new AnonymizeURAdminCloseAccountAction( $user, $config ),
+			new AnonymizeQAAdminCloseAccountAction( $user, $config ),
+			new RemoveUserPagesAdminCloseAccountAction( $user, $config ),
+			new UnlinkSocialAdminCloseAccountAction( $user, $config ),
+			new RemoveRealNameAdminCloseAccountAction( $user, $config ),
+			new ResetPasswordAdminCloseAccountAction( $user, $config ),
+			new RemoveEmailAdminCloseAccountAction( $user, $config ),
+			new RemoveAvatarAdminCloseAccountAction( $user, $config ),
+			new RenameUserAdminCloseAccountAction( $user, $config )
 		];
 	}
 }
@@ -421,8 +421,9 @@ abstract class AdminCloseAccountAction {
 	 *
 	 * @param User $user User to apply action to
 	 */
-	public function __construct( $user ) {
+	public function __construct( $user, $config ) {
 		$this->user = $user;
+		$this->config = $config;
 	}
 
 	/**
@@ -904,14 +905,15 @@ class RemoveAvatarAdminCloseAccountAction extends AdminCloseAccountAction {
 	 */
 	public function execute( &$changes, &$warnings ) {
 		if ( !$this->user->isAnon() && $this->hasAvatar() ) {
-			$removeAvatar = new AdminRemoveAvatar();
-			if ( $removeAvatar->removeAvatar( $this->user->getName() ) ) {
+			$result = Avatar::removePicture( $this->user->getId() );
+			if ( preg_match( '/^SUCCESS/', $result ) ) {
 				$changes[] = 'Avatar was removed.';
 			} else {
 				// We may have gotten here because there was nothing to remove, check to see if the
 				// avatar is still there to know if it actually failed or not
 				if ( $this->hasAvatar() ) {
-					$warnings[] = 'Avatar failed to be removed.';
+					$warnings[] = 'Avatar failed to be removed. ' .
+						str_replace( 'FAILED: ', '', $result );
 				}
 			}
 		}
@@ -935,12 +937,24 @@ class ResetPasswordAdminCloseAccountAction extends AdminCloseAccountAction {
 	 * @ineheritDoc
 	 */
 	public function execute( &$changes, &$warnings ) {
+		global $wgUser;
 		if ( !$this->user->isAnon() ) {
-			$resetPassword = new AdminResetPassword();
-			if ( $resetPassword->resetPassword( $this->user->getName() ) ) {
-				$changes[] = 'Password was reset.';
-			} else {
-				$warnings[] = 'Password failed to be reset.';
+			$passwordReset = new PasswordReset(
+				$this->config, MediaWiki\Auth\AuthManager::singleton()
+			);
+			try {
+				$status = $passwordReset->execute( $wgUser, $this->user->getName() );
+				if ( $status->isOK() ) {
+					$changes[] = 'Password was reset.';
+				} else {
+					$errors = $status->getErrors();
+					$keys = array_map( function( $error ) {
+						return $error['message']->getKey();
+					}, $errors );
+					$warnings[] = 'Password failed to be reset. ' . implode( ', ', $keys );
+				}
+			} catch ( Exception $error ) {
+				$warnings[] = 'Password failed to be reset. ' . $error;
 			}
 		}
 	}
@@ -1030,11 +1044,12 @@ class RenameUserAdminCloseAccountAction extends AdminCloseAccountAction {
 	 * @ineheritDoc
 	 */
 	public function execute( &$changes, &$warnings ) {
+		global $wgUser;
 		if ( !$this->user->isAnon() ) {
 			$id = $this->user->getId();
 			$name = $this->user->getName();
 			$generatedName = User::getCanonicalName( 'WikiHowUser' . wfTimestampNow(), 'creatable' );
-			$renameUser = new RenameuserSQL( $name, $generatedName, $id );
+			$renameUser = new RenameuserSQL( $name, $generatedName, $id, $wgUser );
 			$this->user->setName( $generatedName );
 			if ( $renameUser->rename() ) {
 				$changes[] = "User <i>{$name}</i> was renamed to <i>{$generatedName}</i>.";

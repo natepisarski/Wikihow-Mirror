@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.TopicTaggingAppWidget = (function($) {
+WH.dashboard.TopicTaggingAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -56,5 +56,5 @@ WH.dashboard.TopicTaggingAppWidget = (function($) {
 	WH.dashboard.registerDataListener('TopicTaggingAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

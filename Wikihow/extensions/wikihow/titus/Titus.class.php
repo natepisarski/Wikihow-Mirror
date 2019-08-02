@@ -99,14 +99,6 @@ class TitusDB {
 					$this->printPageIdsToCalcException( $stat, $e );
 					$statCalculator->storeError( $e, true );
 					$ids = array();
-
-					// we are setting the ignore errors to false again here because of a bug with mediawiki
-					// that sets the ignore to true and never sets it back
-					// it will be fixed in mw 1.25. you are not advised to call this function from outside the
-					// Database.php class but this is done on purpose here
-					// the mediawiki changeid for this is I41508127f74e1bbee4c020546fed85ab53318ab7
-					// TODO: remove this call after MW Upgrade 2019
-					$dbr->ignoreErrors( false );
 				}
 
 				if ( is_array( $ids ) ) {
@@ -347,14 +339,6 @@ class TitusDB {
 						$this->printPageCalcException( $stat, $t, $e );
 						$statCalculator->storeError( $e, true );
 						$fields['error'] = true;
-
-						// we are setting the ignore errors to false again here because of a bug with mediawiki
-						// that sets the ignore to true and never sets it back
-						// it will be fixed in mw 1.25. you are not advised to call this function from outside the
-						// Database.php class but this is done on purpose here
-						// the mediawiki changeid for this is I41508127f74e1bbee4c020546fed85ab53318ab7
-						// TODO: remove this call after MW Upgrade 2019
-						$dbr->ignoreErrors( false );
 					}
 					if ( $statResult && is_array( $statResult ) ) {
 						$fields = array_merge( $fields, $statResult );
@@ -510,9 +494,34 @@ class TitusDB {
 	}
 
 	private function getDBHandle($handleType, $user, $password, $dbname) {
+		global $wgSharedDB, $wgSharedTables, $wgSharedSchema, $wgSharedPrefix;
+
 		if ( !isset($this->db[$handleType]) || !$this->db[$handleType]->ping() ) {
-			$this->db[$handleType] = DatabaseBase::factory( 'mysql' );
-			$this->db[$handleType]->open( self::getDBHost(), $user, $password, $dbname );
+			// We should consider re-evaluating and setting up our Titus db access
+			// differently, where we are able to use the normal Mediawiki database
+			// setup calls, involving $wgDBservers and LocalSettings.php.
+			$this->db[$handleType] = DatabaseBase::factory( 'mysql', [
+				'host' => self::getDBHost(),
+				'user' => $user,
+				'password' => $password,
+				'dbname' => $dbname,
+			] );
+
+			// This "if" block is copied and changed from /prod/includes/Setup.php.
+			if ( $wgSharedDB && $wgSharedTables ) {
+				// Apply $wgSharedDB table aliases for the local LB (all non-foreign DB connections)
+				$this->db[$handleType]->setTableAliases(
+					array_fill_keys(
+						$wgSharedTables,
+						[
+							'dbname' => $wgSharedDB,
+							'schema' => $wgSharedSchema,
+							'prefix' => $wgSharedPrefix
+						]
+					)
+				);
+			}
+
 		}
 		return $this->db[$handleType];
 	}

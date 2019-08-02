@@ -1,0 +1,14 @@
+{
+	"root": true,
+	"extends": [
+		"wikimedia/client",
+		"wikimedia/jquery"
+	],
+	"globals": {
+		"mw": true,
+		"OO": false
+	},
+	"rules": {
+		"max-len": 0
+	}
+}

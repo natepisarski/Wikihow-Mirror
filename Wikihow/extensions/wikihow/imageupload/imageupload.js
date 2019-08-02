@@ -39,7 +39,7 @@ ImageUploader.prototype.doEIUModal = function (origin) {
 	$('#iu_initial').show();
 	$('#iu_upload').hide();
 	$('#iu_error_message, .iu_wheel').hide();
-	$('#iu_choose_file').removeProp('disabled');
+	$('#iu_choose_file').prop('disabled', false);
 
 	// set up after-dialog load callback
 	var onloadFunc = function () {
@@ -242,7 +242,7 @@ ImageUploader.prototype.insertImage = function (action, params) {
 				.show();
 		} )
 		.always( function () {
-			$('#iu_insert_image').removeProp('disabled');
+			$('#iu_insert_image').prop('disabled', false);
 			$('.iu_wheel').hide();
 		} );
 };
@@ -250,8 +250,7 @@ ImageUploader.prototype.insertImage = function (action, params) {
 // globally publish this class
 window.WH.ImageUpload.ImageUploader = ImageUploader;
 
-$(document).ready( function() {
-
+mw.loader.using('jquery', function() {
 	// singleton instance
 	WH.ImageUpload.whCursorHelper = new WH.ImageUpload.WHCursorHelper();
 
@@ -295,7 +294,7 @@ $(document).ready( function() {
 	} );
 
 	$('input[name="license"]').change( function() {
-		$('#iu_insert_image').removeProp('disabled');
+		$('#iu_insert_image').prop('disabled', false);
 	} );
 
 	$('#iu_insert_image').click( function() {
@@ -324,12 +323,10 @@ $(document).ready( function() {
 			imageUploader.checkMediawikiImage(mwname);
 		}, WAIT_AFTER_KEYSTROKE);
 	} );
-} );
 
-// For the advanced edit, the button is added later than the dom-ready event,
-// so we need to use the window-load event.
-$(window).load( function() {
-	$('#imageupload_button').click( function() {
+	// For the advanced edit, the button is added later than the dom-ready event,
+	// so we need to use the window-load event.
+	$('#article').on( 'click', '#imageupload_button', function() {
 		WH.ImageUpload.imageUploader.doEIUModal('advanced');
 		return false;
 	} );

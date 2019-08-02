@@ -1,14 +1,14 @@
 {
 	"@metadata": {
 		"authors": [
-			"Wizardist"
+			"Wizardist",
+			"Чаховіч Уладзіслаў",
+			"Mechanizatar"
 		]
 	},
 	"scribunto-desc": "Фрэймворк для выкарыстання скрыптавых моў на старонках MediaWiki",
-	"scribunto-ignore-errors": "Дазволіць захаванне кода з памылкамі",
 	"scribunto-line": "на радку $1",
 	"scribunto-module-line": "у $1 на радку $2",
-	"scribunto-parser-error": "Памылка скрыпта",
 	"scribunto-parser-dialog-title": "Памылка скрыпта",
 	"scribunto-error-short": "Памылка скрыпта: $1",
 	"scribunto-error-long": "Памылкі скрыпта:\n\n$1",
@@ -19,10 +19,14 @@
 	"scribunto-console-title": "Кансоль адладкі",
 	"scribunto-console-clear": "Ачысціць",
 	"scribunto-common-error-category": "Старонкі з памылкамі ў скрыптах",
-	"scribunto-common-nosuchmodule": "Памылка скрыпта: модуль не існуе.",
+	"scribunto-common-nosuchmodule": "Памылка скрыпта: модуль \"$2\" не існуе.",
+	"scribunto-common-nofunction": "Памылка скрыпта: Вы павінны пазначыць функцыю для выкліку.",
+	"scribunto-common-nosuchfunction": "Памылка скрыпта: функцыя \"$2\" не існуе.",
+	"scribunto-common-notafunction": "Памылка скрыпта: \"$2\" гэта не функцыя.",
 	"scribunto-common-backtrace": "Шлях выклікаў:",
 	"scribunto-lua-in-function": "у функцыі «$1»",
 	"scribunto-lua-in-main": "у асноўнай частцы коду",
 	"scribunto-lua-in-function-at": "у функцыі $1:$2",
-	"scribunto-lua-error-location": "Памылка Lua $1: $2."
+	"scribunto-lua-error-location": "Памылка Lua $1: $2.",
+	"scribunto-lua-error": "Памылка Lua: $2."
 }

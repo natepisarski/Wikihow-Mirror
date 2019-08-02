@@ -21,12 +21,15 @@
  * @ingroup Maintenance
  */
 
+use MediaWiki\MediaWikiServices;
+
+$optionsWithoutArgs = [ 'verbose' ];
 require_once __DIR__ . '/commandLine.inc';
 
 $wgHooks['BeforeParserFetchTemplateAndtitle'][] = 'PPFuzzTester::templateHook';
 
 class PPFuzzTester {
-	public $hairs = array(
+	public $hairs = [
 		'[[', ']]', '{{', '{{', '}}', '}}', '{{{', '}}}',
 		'<', '>', '<nowiki', '<gallery', '</nowiki>', '</gallery>', '<nOwIkI>', '</NoWiKi>',
 		'<!--', '-->',
@@ -38,14 +41,18 @@ class PPFuzzTester {
 
 		// extensions
 		// '<ref>', '</ref>', '<references/>',
-	);
+	];
 	public $minLength = 0;
 	public $maxLength = 20;
 	public $maxTemplates = 5;
-	// public $outputTypes = array( 'OT_HTML', 'OT_WIKI', 'OT_PREPROCESS' );
-	public $entryPoints = array( 'testSrvus', 'testPst', 'testPreprocess' );
+	// public $outputTypes = [ 'OT_HTML', 'OT_WIKI', 'OT_PREPROCESS' ];
+	public $entryPoints = [ 'testSrvus', 'testPst', 'testPreprocess' ];
 	public $verbose = false;
-	static $currentTest = false;
+
+	/**
+	 * @var bool|PPFuzzTest
+	 */
+	private static $currentTest = false;
 
 	function execute() {
 		if ( !file_exists( 'results' ) ) {
@@ -63,7 +70,7 @@ class PPFuzzTester {
 				self::$currentTest = new PPFuzzTest( $this );
 				self::$currentTest->execute();
 				$passed = 'passed';
-			} catch ( MWException $e ) {
+			} catch ( Exception $e ) {
 				$testReport = self::$currentTest->getReport();
 				$exceptionReport = $e->getText();
 				$hash = md5( $testReport );
@@ -118,8 +125,8 @@ class PPFuzzTester {
 		// This resolves a few differences between the old preprocessor and the
 		// XML-based one, which doesn't like illegals and converts line endings.
 		// It's done by the MW UI, so it's a reasonably legitimate thing to do.
-		global $wgContLang;
-		$s = $wgContLang->normalize( $s );
+		$s = MediaWikiServices::getInstance()->getContentLanguage()->normalize( $s );
+
 		return $s;
 	}
 
@@ -135,7 +142,8 @@ class PPFuzzTester {
 
 	function pickEntryPoint() {
 		$count = count( $this->entryPoints );
-		return $this->entryPoints[ mt_rand( 0, $count - 1 ) ];
+
+		return $this->entryPoints[mt_rand( 0, $count - 1 )];
 	}
 }
 
@@ -151,11 +159,12 @@ class PPFuzzTest {
 		$this->entryPoint = $tester->pickEntryPoint();
 		$this->nickname = $tester->makeInputText( $wgMaxSigChars + 10 );
 		$this->fancySig = (bool)mt_rand( 0, 1 );
-		$this->templates = array();
+		$this->templates = [];
 	}
 
 	/**
-	 * @param $title Title
+	 * @param Title $title
+	 * @return array
 	 */
 	function templateHook( $title ) {
 		$titleText = $title->getPrefixedDBkey();
@@ -177,10 +186,11 @@ class PPFuzzTest {
 					$text = $this->parent->makeInputText();
 				}
 			}
-			$this->templates[$titleText] = array(
+			$this->templates[$titleText] = [
 				'text' => $text,
-				'finalTitle' => $finalTitle );
+				'finalTitle' => $finalTitle ];
 		}
+
 		return $this->templates[$titleText];
 	}
 
@@ -193,17 +203,24 @@ class PPFuzzTest {
 		$wgUser->ppfz_test = $this;
 
 		$options = ParserOptions::newFromUser( $wgUser );
-		$options->setTemplateCallback( array( $this, 'templateHook' ) );
+		$options->setTemplateCallback( [ $this, 'templateHook' ] );
 		$options->setTimestamp( wfTimestampNow() );
-		$this->output = call_user_func( array( $wgParser, $this->entryPoint ), $this->mainText, $this->title, $options );
+		$this->output = call_user_func(
+			[ $wgParser, $this->entryPoint ],
+			$this->mainText,
+			$this->title,
+			$options
+		);
+
 		return $this->output;
 	}
 
 	function getReport() {
 		$s = "Title: " . $this->title->getPrefixedDBkey() . "\n" .
-//			"Output type: {$this->outputType}\n" .
+// 			"Output type: {$this->outputType}\n" .
 			"Entry point: {$this->entryPoint}\n" .
-			"User: " . ( $this->fancySig ? 'fancy' : 'no-fancy' ) . ' ' . var_export( $this->nickname, true ) . "\n" .
+			"User: " . ( $this->fancySig ? 'fancy' : 'no-fancy' ) .
+			' ' . var_export( $this->nickname, true ) . "\n" .
 			"Main text: " . var_export( $this->mainText, true ) . "\n";
 		foreach ( $this->templates as $titleText => $template ) {
 			$finalTitle = $template['finalTitle'];
@@ -214,6 +231,7 @@ class PPFuzzTest {
 			}
 		}
 		$s .= "Output: " . var_export( $this->output, true ) . "\n";
+
 		return $s;
 	}
 }

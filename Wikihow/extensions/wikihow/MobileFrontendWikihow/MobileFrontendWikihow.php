@@ -27,7 +27,7 @@ $wgMFMobileResourceBoilerplateWikihow = array(
 	'localBasePath' => $localBasePath,
 	'remoteExtPath' => $remoteExtPath,
 	'localTemplateBasePath' => $localBasePath . '/templates',
-	'class' => 'MFResourceLoaderModule',
+	'targets' => ['mobile', 'desktop'],
 );
 
 /**
@@ -83,7 +83,11 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'styles' => array(
 				'less/wikihow/style.css',
 				'../thumbratings/thumbratings.css',
-			),
+			)
+	),
+	// Split out script from styles so we can use addModuleStyles with the style module, otherwise
+	// it gets skipped (and logs an error) because it's not expecting a "general" module
+	'zzz.mobile.wikihow.scripts_late_load' => $wgMFMobileResourceBoilerplateWikihow + array(
 			'scripts' => array(
 				'javascripts/wikihow/late_load_scripts.js',
 			)
@@ -106,18 +110,21 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 	// is to pull out specific styles for each mw module we are overriding and inject
 	// css into those modules. This approach, of course, is brittle and still will largely
 	// be influenced by the sort order
-	'zzz.mobile.wikihow.homepage' => $wgMFMobileResourceBoilerplateWikihow + array(
+	'zzz.mobile.wikihow.homepage.styles' => $wgMFMobileResourceBoilerplateWikihow + array(
 			'styles' => array(
 				'less/wikihow/homepage.less',
 				'less/wikihow/related_boxes.css',
 				'../homepage/less/hipsterSlider.css',
 			),
-			'scripts' => array(
-				'../homepage/javascripts/wikihow/homepage.js',
-				'../homepage/javascripts/wikihow/jquery.hipsterSlider.js',
-			),
 			'position' => 'top',
 	),
+	'zzz.mobile.wikihow.homepage.scripts' => $wgMFMobileResourceBoilerplateWikihow + array(
+			'scripts' => array(
+				'../homepage/javascripts/wikihow/jquery.hipsterSlider.js',
+				'../homepage/javascripts/wikihow/homepage.js',
+			),
+			'position' => 'top',
+		),
 	// Have to add zzz to beginning of module to ensure it loads after other mw modules
 	// and properly overrides css without having to add !important with all the rules.
 	// A hack, for sure, but has to be done since the OutputPage alphabetically sorts
@@ -132,9 +139,7 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 		'position' => 'top',
 	),
 	'mobile.wikihow.loggedout' => $wgMFMobileResourceBoilerplateWikihow + array(
-			'dependencies' => array(
-				'mobile.overlays',
-			),
+#			'dependencies' => array('mobile.overlays'),
 			'scripts' => array(
 				'javascripts/modules/loggedout/loggedout.js',
 			),
@@ -182,19 +187,17 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 		'position' => 'bottom',
 	),
 	'mobile.wikihow.login' => $wgMFMobileResourceBoilerplateWikihow + array(
-		'dependencies' => array(
-			'mobile.stable',
-		),
 		'scripts' => array(
 			'javascripts/wikihow/login_mobile.js'
 		),
-		'position' => 'bottom'
+		'position' => 'bottom',
+		'dependencies' => [ 'ext.wikihow.socialauth' ],
 	),
 	'mobile.wikihow.whCtaDrawer' => $wgMFMobileResourceBoilerplateWikihow + [
 		'scripts' => 'javascripts/modules/whCtaDrawer/WhCtaDrawer.js',
 		'styles' => 'less/modules/whCtaDrawer/whCtaDrawer.less',
 		'dependencies' => [ 'ext.wikihow.socialauth', 'mobile.stable' ],
-		'templates' => 'modules/whCtaDrawer/whCtaDrawer',
+		//'templates' => 'modules/whCtaDrawer/whCtaDrawer', // this was throwing an exception
 		'messages' => [
 			'mobile-cta-drawer-log-in-google',
 			'mobile-cta-drawer-log-in-facebook'
@@ -218,20 +221,20 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 				'less/modules/tutorialswikihow.less',
 			),
 			'position' => 'top',
-			'dependencies' => array('mobile.stable.styles'),
+#			'dependencies' => array('mobile.stable.styles'),
 		),
 ));
 
 // Extend the core configuration found in extensions/MobileFrontend/includes/Resources.php
-$wgResourceModules['mobile.editor']['dependencies'][] = 'mobile.wikihow.whCtaDrawer';
+#$wgResourceModules['mobile.editor']['dependencies'][] = 'mobile.wikihow.whCtaDrawer';
 
 // Add a few styles to MobileFrontend-specific modules. We do this rather than create our own since they are common/core
 // modules and would require modifying other MobileFrontend modules to reference our new module
-$wgResourceModules['mobile.overlays']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/OverlayNew.less';
+#$wgResourceModules['mobile.overlays']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/OverlayNew.less';
 $wgResourceModules['skins.minerva.buttons.styles']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/buttons.less';
 $wgResourceModules['mobile.styles']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/buttons.less';
 $wgResourceModules['skins.minerva.content.styles']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/common.less';
-$wgResourceModules['mobile.startup']['templates'][] = '../../wikihow/MobileFrontendWikihow/templates/pagewh';
+#$wgResourceModules['mobile.startup']['templates'][] = '../../wikihow/MobileFrontendWikihow/templates/pagewh';
 
 $cwd = $localBasePath;
 
@@ -267,6 +270,8 @@ $wgAPIModules['mobileviewwikihow'] = 'ApiMobileViewWikihow';
 
 $wgMFDefaultSkinClass = 'SkinMinervaWikihow';
 if ( @$_GET["amp"] == 1 ) {
+	// NOTE: we use this AMP skin for some Android (wh_an=1) requests, such
+	// as to article pages, as well.
 	$wgMFDefaultSkinClass = 'SkinMinervaWikihowAmp';
 }
 if (class_exists("QADomain") && QADomain::isQADomain()) {

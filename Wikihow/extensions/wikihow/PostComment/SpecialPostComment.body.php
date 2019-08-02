@@ -63,10 +63,19 @@ class PostComment extends UnlistedSpecialPage {
 		$id = rand(0, 10000);
 		$newpage = $title->getArticleId() == 0 ? "true" : "false";
 
-		$fc = null;
+		$captchaHtml = '';
 		$pass_captcha = true;
-		if ($this->getUser()->getID()== 0) {
-			 $fc = new FancyCaptcha();
+		if ($this->getUser()->getID() == 0) {
+			// Followed the example in SimpleCaptcha::addFormInformationToOutput()
+			$fancyCaptcha = new FancyCaptcha();
+			$info = $fancyCaptcha->getFormInformation();
+			$captchaHtml = $info['html'];
+			if ( isset( $info['modules'] ) ) {
+				$this->getOutput()->addModules( $info['modules'] );
+			}
+			if ( isset( $info['modulestyles'] ) ) {
+				$this->getOutput()->addModuleStyles( $info['modulestyles'] );
+			}
 		}
 		$future_comment = "<div id='postcomment_newmsg_$id'></div>";
 		$preview_place = "<div id='postcomment_preview_$id' class='postcomment_preview'></div>";
@@ -117,7 +126,7 @@ class PostComment extends UnlistedSpecialPage {
 			<div class=\"postcommentForm_details\">
 				$user_str
 				"  . ($pass_captcha ? "" : "<br><br/><font color='red'>Sorry, that phrase was incorrect, try again.</font><br/><br/>") . "
-				" . ($fc == null ? "" : $fc->getForm('') ) . "
+				" . $captchaHtml . "
 			</div>
 			</form>
 			";
@@ -233,17 +242,15 @@ class PostComment extends UnlistedSpecialPage {
 			throw new UserBlockedError( $this->getUser()->getBlock() );
 		}
 		if ( wfReadOnly() ) {
-			$this->getOutput()->readOnlyPage();
-			return;
+			throw new ReadOnlyError();
 		}
 
 		if ($target == "Spam-Blacklist") {
-			$this->getOutput()->readOnlyPage();
-			return;
+			throw new ReadOnlyError();
 		}
 
 		if ( $this->getUser()->pingLimiter() ) {
-			throw new ThrottledError;
+			throw new ThrottledError();
 		}
 
 		$editPage = new EditPage($article);
@@ -252,7 +259,15 @@ class PostComment extends UnlistedSpecialPage {
 		$contentFormat = $handler->getDefaultFormat();
 		$content = ContentHandler::makeContent( $text, $t, $contentModel, $contentFormat );
 		$status = Status::newGood();
-		if (!Hooks::run('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $user, false))) {
+
+		// Make a new context object
+		$newTitleContext = new DerivativeContext( $this->getContext() );
+		$newTitleContext->setTitle( $t );
+		// The SpamBlacklist EditFilterMergedContent needs a page that always exists to
+		// run prepareContentForEdit() on.
+		$newTitleContext->setWikiPage( WikiPage::factory( $t ) );
+
+		if (!Hooks::run('EditFilterMergedContent', array($newTitleContext, $content, &$status, '', $user, false))) {
 			return;
 		}
 		if (!$status->isGood()) {
@@ -296,8 +311,8 @@ class PostComment extends UnlistedSpecialPage {
 		   $watch = $this->getUser()->isWatched($t);
 		}
 
-		$fc = new FancyCaptcha();
-		$pass_captcha = $fc->passCaptcha();
+		$fancyCaptcha = new FancyCaptcha();
+		$pass_captcha = $fancyCaptcha->passCaptchaLimitedFromRequest( $this->getRequest(), $this->getUser() );
 
 		if (!$pass_captcha && $this->getUser()->getID() == 0) {
 			$this->getOutput()->addHTML("Sorry, please enter the correct word.");
@@ -377,8 +392,8 @@ class PostCommentCaptcha extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		$fc = new FancyCaptcha();
 		$this->getOutput()->setArticleBodyOnly(true);
-		$this->getOutput()->addHTML($fc->getForm());
+		$fancyCaptcha = new FancyCaptcha();
+		$fancyCaptcha->addFormToOutput( $this->getOutput() );
 	}
 }

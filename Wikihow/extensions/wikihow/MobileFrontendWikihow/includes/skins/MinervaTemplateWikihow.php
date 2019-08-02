@@ -75,8 +75,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			}
 		}
 		$this->renderPreContent( $data );
-		$this->renderContent( $data );
-
+		print $this->getContentHtml($data);
 	}
 
 	protected function renderContentWrapper( $data ) {
@@ -95,36 +94,32 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			}
 		}
 		$this->renderPreContent( $data );
-		$this->renderContent( $data );
+		print $this->getContentHtml($data);
+		//was: $this->renderContent( $data );
+		// NOTE: we don't call parent::render() because it adds the
+		// header before the content, which we've already added. We
+		// might need to consult that function, which is in the file
+		// /prod/skins/MinervaNeue/includes/skins/SkinMinerva.php
+		// in case there are things missing from our mobile page that
+		// would be displayed in vanilla Mediawiki MobileFrontend.
 	}
 
 	protected function renderMainMenu( $data ) {
 		?>
 		<ul>
 		<?php
-		foreach( $this->getDiscoveryTools() as $key => $val ):
+		foreach( $this->get('discovery_urls') as $key => $val ):
 			echo $this->makeListItem( $key, $val );
 		endforeach;
 		?>
 		</ul>
 		<ul>
 		<?php
-		foreach( $this->getPersonalTools() as $key => $val ):
+		foreach( $this->get('personal_urls') as $key => $val ):
 			echo $this->makeListItem( $key, $val );
 		endforeach;
 		?>
 		</ul>
-		<?php
-		/*
-		?>
-		<ul class="hlist">
-		<?php
-		foreach( $this->getSiteLinks() as $key => $val ):
-			echo $this->makeListItem( $key, $val );
-		endforeach;
-		?>
-		</ul>*/
-		?>
 		<?php
 	}
 
@@ -210,35 +205,28 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 	protected function renderPageActions( $data ) {
 		Hooks::run('BeforeRenderPageActionsMobile', array(&$data));
+/* // Disabling the pencil icon from loading at all during upgrade -> responsive time window
 		?><ul id="page-actions" class="hlist"><?php
 		foreach( $this->getPageActions() as $key => $val ):
 			echo $this->makeListItem( $key, $val );
 		endforeach;
 		?></ul><?php
+*/
 	}
 
 
 	// this function exists in this class instead of the google amp
 	// helper class because it calls some protected functions on the class
 	private function renderAmpSidebar() {
-			$items = '';
-			foreach( $this->getDiscoveryTools() as $key => $val ) {
-				if ( $key == "header3" || $key == 'addtip' ) {
-					continue;
-				}
-				if ( $key == "header3" || $key == 'notifications' ) {
-					continue;
-				}
-				if ( $key == "header3" || $key == 'adduci' ) {
-					continue;
-				}
-				$items .= $this->makeListItem( $key, $val );
-			}
-			echo GoogleAmp::getAmpSidebar( $items );
+		$items = '';
+		foreach( $this->get('discovery_urls') as $key => $val ) {
+			$items .= $this->makeListItem( $key, $val );
+		}
+		echo GoogleAmp::getAmpSidebar( $items );
 	}
 
 	private function getRightRailHtml( $data ) {
-		global $wgTitle;;
+		global $wgTitle;
 
 		// for some reason putting this on special pages makes their css no work well
 		// so restricting it for now
@@ -327,7 +315,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			if ( $this->isSearchPage ) {
 				$classes[] = 'hs_active';
 			}
-			if ( $data['secondaryButton'] ) {
+			if ( $data['secondaryButtonData'] ) {
 				$classes[] = 'hs_notif';
 			}
 			?>
@@ -342,7 +330,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 		?>
 		<?php
-		echo $data['secondaryButton'];
+		echo $data['secondaryButtonData'];
 		?>
 		</div>
 		<?
@@ -407,7 +395,9 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		<div id='servedtime'><?= Misc::reportTimeMS(); ?></div>
 		<?php
 		echo MWDebug::getDebugHTML( $this->getSkin()->getContext() );
-		echo wfReportTime();
+		if ( !$data['amp'] ) {
+			echo wfReportTime();
+		}
 		echo $data['bottomscripts'];
 
 		// Reuben: using this hook to post-load the ResourceLoader startup

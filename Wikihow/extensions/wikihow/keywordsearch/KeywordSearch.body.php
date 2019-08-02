@@ -1,8 +1,5 @@
 <?php
 
-global $IP;
-require_once("$IP/extensions/wikihow/titus/Titus.class.php");
-
 /**
  * Allows searching through top keywords to see the rank of them, and some associated information from Titus.
  */

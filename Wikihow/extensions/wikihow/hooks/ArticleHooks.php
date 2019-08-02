@@ -61,38 +61,35 @@ class ArticleHooks {
 		return true;
 	}
 
-	public static function editPageBeforeEditToolbar(&$toolbar) {
-		global $wgStylePath, $wgOut, $wgLanguageCode;
+	public static function editPageBeforeEditToolbar(&$toolarray) {
+		global $wgStylePath, $wgOut;
 
-		$params = array(
-			$image = $wgStylePath . '/owl/images/1x1_transparent.gif',
+		$toolarray[] = [
+			'image' => $wgStylePath . '/owl/images/1x1_transparent.gif',
 			// Note that we use the tip both for the ALT tag and the TITLE tag of the image.
 			// Older browsers show a "speedtip" type message only for ALT.
 			// Ideally these should be different, realistically they
 			// probably don't need to be.
-			$tip = 'Weave links',
-			$open = '',
-			$close = '',
-			$sample = '',
-			$cssId = 'weave_button',
-		);
-		$script = Xml::encodeJsCall( 'mw.toolbar.addButton', $params );
-		$wgOut->addScript( Html::inlineScript( ResourceLoader::makeLoaderConditionalScript($script) ) );
+			'tip' => 'Weave links',
+			'open' => '',
+			'close' => '',
+			'sample' => '',
+			'id' => 'weave_button',
+		];
 
-		$params = array(
-			$image = $wgStylePath . '/owl/images/1x1_transparent.gif',
+
+		$toolarray[] = [
+			'image' => $wgStylePath . '/owl/images/1x1_transparent.gif',
 			// Note that we use the tip both for the ALT tag and the TITLE tag of the image.
 			// Older browsers show a "speedtip" type message only for ALT.
 			// Ideally these should be different, realistically they
 			// probably don't need to be.
-			$tip = 'Add Image',
-			$open = '',
-			$close = '',
-			$sample = '',
-			$cssId = 'imageupload_button',
-		);
-		$script = Xml::encodeJsCall( 'mw.toolbar.addButton', $params );
-		$wgOut->addScript( Html::inlineScript( ResourceLoader::makeLoaderConditionalScript($script) ) );
+			'tip' => 'Add Image',
+			'open' => '',
+			'close' => '',
+			'sample' => '',
+			'id' => 'imageupload_button',
+		];
 
 		// TODO, from Reuben: this RL module and JS/CSS/HTML should really be attached inside the
 		//   EditPage::showEditForm:initial hook, which happens just before the edit form. Doing
@@ -278,6 +275,52 @@ class ArticleHooks {
 		}
 
 		return true;
+	}
+
+	public static function onBeforeDisplayNoArticleInterface($article, $dir, $lang, $text, &$html) {
+		$showHeader = false;
+
+		$oldid = $article->getOldID();
+		if ( $oldid ) {
+			// don't change in this case
+			return true;
+		} elseif ( $article->getTitle()->getNamespace() === NS_MEDIAWIKI ) {
+			// don't change in this case
+			return true;
+		} elseif ( $article->getTitle()->quickUserCan( 'create', $article->getContext()->getUser() )
+			&& $article->getTitle()->quickUserCan( 'edit', $article->getContext()->getUser() )
+		) {
+			// changed inside this if condition for
+			// custom messages and params needed for messages
+			if ($article->getTitle()->getNamespace() == NS_USER_TALK) {
+				$text = wfMessage( 'noarticletext_user_talk', $article->getTitle()->getText(), $article->getTitle()->getFullURL() . "?action=edit" )->plain();
+				$showHeader = true;
+			} elseif (MWNamespace::isTalk($article->mTitle->getNamespace())) {
+				$text = wfMessage( 'noarticletext_talk', $article->getTitle()->getText(), $article->getTitle()->getFullURL() . "?action=edit"   )->plain();
+				$showHeader = true;
+			} elseif ($article->mTitle->getNamespace() == NS_USER) {
+				$text = wfMessage( 'noarticletext_user', $article->getTitle()->getText(), $article->getTitle()->getFullURL() . "?action=edit"   )->plain();
+			} elseif ($article->mTitle->getNamespace() == NS_USER_KUDOS) {
+				$text = wfMessage( 'noarticletext_user_kudos', $article->getTitle()->getText(), $article->getTitle()->getFullURL() . "?action=edit"   )->plain();
+			} elseif ($article->mTitle->getNamespace() == NS_MAIN) {
+				$text = wfMessage( 'noarticletext', $article->getTitle()->getText(), $article->getTitle()->getFullURL() . "?action=edit", urlencode($article->getTitle()->getText())  )->plain();
+				$showHeader = true;
+			} else {
+				$text = wfMessage( 'noarticletext_standard', $article->getTitle()->getDBKey(), $article->getTitle()->getText(), $article->getTitle()->getFullURL() . "?action=edit" )->plain();
+			}
+		} else {
+			$text = wfMessage( 'noarticletext-nopermission' )->plain();
+		}
+
+		$text = "<div class='noarticletext'>\n$text\n</div>";
+
+		// following 3 lines added for styling
+		if ( $showHeader ) {
+			$text = "<h2>" . wfMessage('noarticlefound')->text() . "</h2>$text";
+		}
+
+		// finally, change the input $html if needed
+		$html = $text;
 	}
 
 }

@@ -2,6 +2,8 @@
 
 if ( !defined('MEDIAWIKI') ) die();
 
+use MediaWiki\Session\Token;
+
 class GuidedEditor extends EditPage {
 
 	var $whow = null;
@@ -156,6 +158,7 @@ class GuidedEditor extends EditPage {
 		}
 
 		$out->clearHTML();
+		$out->addModuleStyles( ['ext.wikihow.createpage_styles', 'ext.wikihow.guided_editor_styles'] );
 		$out->addModules( ['jquery.ui.dialog', 'jquery.ui.autocomplete'] );
 		$out->addModules( ['ext.wikihow.editor_script', 'ext.wikihow.guided_editor']);
 		$out->addModules( ['ext.wikihow.popbox', 'ext.wikihow.createpage'] );
@@ -201,7 +204,6 @@ class GuidedEditor extends EditPage {
 				$conflictTitle = true;
 			} else {
 				$this->edittime = $this->mArticle->getTimestamp();
-			    $out->addHTML( wfMessage('explainconflict') );
 				// let the advanced editor handle the situation
 				if ($this->isConflict) {
 					EditPage::showEditForm();
@@ -459,7 +461,7 @@ class GuidedEditor extends EditPage {
 		}
 
 		if ( 'diff' == $this->formtype ) {
-			$out->addModules('ext.wikihow.diff_styles');
+			$out->addModuleStyles('ext.wikihow.diff_styles');
 			$this->showDiff();
 			$show_weave = true;
 		}
@@ -532,7 +534,7 @@ class GuidedEditor extends EditPage {
 			'show_watch_html' => $user->isLoggedIn(),
 			'show_video_button' => $show_video_button,
 
-			'edit_token' => ($user->isLoggedIn() ? $user->getEditToken() : EDIT_TOKEN_SUFFIX),
+			'edit_token' => ($user->isLoggedIn() ? $user->getEditToken() : Token::SUFFIX),
 			'edit_token_track' => md5($user->getName() . $this->mTitle->getArticleID() . time()),
 			'copyright_warning' => $copyright_warning,
 
@@ -565,18 +567,18 @@ class GuidedEditor extends EditPage {
 			'more_info_categorization_msg' => wfMessage('more-info-categorization'),
 			'video_change_msg' => wfMessage('video_change'),
 
-			'summaryinfo_msg' => wfMessage('summaryinfo'),
+			'summaryinfo_msg' => wfMessage('summaryinfo')->text(),
 			'moreinfo_msg' => wfMessage('moreinfo'),
 			'ingredients_tooltip_msg' => wfMessage('ingredients_tooltip'),
-			'stepsinfo_msg' => wfMessage('stepsinfo'),
+			'stepsinfo_msg' => wfMessage('stepsinfo')->text(),
 			'video_loggedin_msg' => wfMessage('video_loggedin')->text(),
 			'videoinfo_msg' => wfMessage('videoinfo'),
 			'show_preview_msg' => wfMessage('show_preview'),
 			'ep_hide_preview_msg' => wfMessage('ep_hide_preview'),
-			'listhints_msg' => wfMessage('listhints'),
-			'optionallist_msg' => wfMessage('optionallist'),
-			'items_msg' => wfMessage('items'),
-			'relatedlist_msg' => wfMessage('relatedlist'),
+			'listhints_msg' => wfMessage('listhints')->text(),
+			'optionallist_msg' => wfMessage('optionallist')->text(),
+			'items_msg' => wfMessage('items')->text(),
+			'relatedlist_msg' => wfMessage('relatedlist')->text(),
 			'relatedwikihows_url_msg' => wfMessage('related-wikihows-url'),
 			// TODO update this when we fix the destination link page (writers guide)
 			'sources_url_msg' => wfMessage('sources-links-url'),
@@ -617,7 +619,7 @@ class GuidedEditor extends EditPage {
 		$out->addHTML($html);
 
 		if ( $this->isConflict ) {
-			$out->addModules('ext.wikihow.diff_styles');
+			$out->addModuleStyles('ext.wikihow.diff_styles');
 			$out->addHTML( "<h2>" . wfMessage('yourdiff') . "</h2>\n" );
 			DifferenceEngine::showDiff( $this->textbox2, $this->textbox1,
 				wfMessage('yourtext')->text(), wfMessage('storedversion')->text() );
@@ -634,6 +636,11 @@ class GuidedEditor extends EditPage {
 			$html = $mustache->render('persistent_save_bar.mustache', $vars);
 			$out->addHTML($html);
 		}
+
+		$out->addHTML( Html::hidden( 'wpUnicodeCheck', self::UNICODE_CHECK ) );
+
+		// This parameter is used to detect data truncation on form submit
+		$out->addHTML( Html::hidden( 'wpUltimateParam', true ) );
 
 		$out->addHTML( "</form></div>\n" );
 	}

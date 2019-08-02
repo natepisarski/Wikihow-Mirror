@@ -139,9 +139,13 @@ class Flavius {
 	 * Constructor intializes array constant and creates Flavius database
 	 */
 	public function __construct() {
-		$this->db = DatabaseBase::factory('mysql');
 		$flaviusDBhost = WH_DATABASE_MASTER;
-		$this->db->open($flaviusDBhost, WH_DATABASE_MAINTENANCE_USER, WH_DATABASE_MAINTENANCE_PASSWORD, self::DATABASE_NAME);
+		$this->db = DatabaseBase::factory( 'mysql', [
+			'host' => $flaviusDBhost,
+			'user' => WH_DATABASE_MAINTENANCE_USER,
+			'password' => WH_DATABASE_MAINTENANCE_PASSWORD,
+			'dbname' => self::DATABASE_NAME,
+		] );
 		$this->dayTimes = array(1,7,14,30,45,60);
 		$this->flaviusProfile = false;
 	}

@@ -212,6 +212,7 @@ class Categorizer extends UnlistedSpecialPage {
 		$out->setArticleBodyOnly($this->editPage);
 
 		if (!$this->editPage) {
+			$out->addModuleStyles('ext.wikihow.categorizer_styles');
 			$out->addModules('ext.wikihow.categorizer');
 		}
 		$msgs = $this->getJSMsgs($msgs);

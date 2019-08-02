@@ -11,7 +11,7 @@ $(document).ready(function() {
 });
 
 function qgGetOption(optName) {
-	var cookie = $.cookie(optName);
+	var cookie = mw.cookie.get(optName);
 
 	if (typeof cookie == 'undefined') {
 		return "";
@@ -41,11 +41,11 @@ function updateChoices() {
 	$("#qg_options input:checked").each(function() {
 		choices.push($(this).attr('id'));
 	});
-	$.cookie('qcrule_choices',choices.join(), { expires: 7 });
+	mw.cookie.set('qcrule_choices',choices.join(), { expires: 7 });
 }
 
 function QG_byUserName(name) {
-	$.cookie('qg_byusername',$.trim(name));
+	mw.cookie.set('qg_byusername',$.trim(name));
 }
 
 function loadResult(result) {

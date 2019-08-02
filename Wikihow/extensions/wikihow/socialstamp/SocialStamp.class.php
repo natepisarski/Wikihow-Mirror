@@ -147,9 +147,7 @@ class SocialStamp {
 		$sourcesAnchor = '#' . Misc::getSectionName( wfMessage('sources')->text() );
 		$refsAnchor = '#' . Misc::getSectionName( wfMessage('references')->text() );
 
-		if ( $isMobile ) {
-			$refsUrl = "#references_first";
-		} else if ( pq( $refsAnchor )->length > 0 ) {
+		if ( pq( $refsAnchor )->length > 0 ) {
 			$refsUrl = $refsAnchor;
 		} else {
 			$refsUrl = $sourcesAnchor;

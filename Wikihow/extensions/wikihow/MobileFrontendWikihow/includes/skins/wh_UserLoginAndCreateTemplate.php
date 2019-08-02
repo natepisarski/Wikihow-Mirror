@@ -190,8 +190,29 @@ abstract class UserLoginAndCreateTemplate extends QuickTemplate {
 			. '</div>';
 	}
 
-	function getLoginTabs($query, $isSignup) {
-		global $wgLang;
+	public static function getMobileTabs(bool $isSignup): string {
+		if ( !Misc::isMobileMode() ) {
+			return '';
+		}
+
+		$req = RequestContext::getMain()->getRequest();
+
+		// Build log in query
+
+		$query = [];
+		$fullQuery = $req->getQueryValues();
+		if ( $fullQuery['returnto'] )  {
+			$query['returnto'] = $fullQuery['returnto'];
+		}
+		if ( $fullQuery['returntoquery'] )  {
+			$query['returntoquery'] = $fullQuery['returntoquery'];
+		}
+		if ( $fullQuery['useformat'] )  {
+			$query['useformat'] = $fullQuery['useformat'];
+		}
+
+		// Build log in tabs
+
 		$carat = '<span id="lt_carat" class="icon"></span>';
 		$off_class = 'lt_off';
 
@@ -201,7 +222,7 @@ abstract class UserLoginAndCreateTemplate extends QuickTemplate {
 
 		);
 		$signup_link_inner = $carat.'<span class="icon"></span>'.wfMessage('mobile-frontend-edit-signup-wh-link');
-		$signup_link = Linker::link(SpecialPage::getTitleFor( 'Userlogin' ), $signup_link_inner, $attributes, $query, array('known'));
+		$signup_link = Linker::link(SpecialPage::getTitleFor( 'CreateAccount' ), $signup_link_inner, $attributes, $query, array('known'));
 
 		$attributes = array(
 			'class' => (!$isSignup) ? '' : $off_class,
@@ -216,6 +237,7 @@ abstract class UserLoginAndCreateTemplate extends QuickTemplate {
 				$login_link.
 				'</div>';
 
-		echo $html;
+		return $html;
 	}
+
 }

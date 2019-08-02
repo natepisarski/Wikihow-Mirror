@@ -1,10 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Jordz"
+			"Jordz",
+			"Leeheonjin"
 		]
 	},
-	"math_sample": "I-insert dinhi ang formula",
-	"math_tip": "Mathematical formula (LaTeX)",
+	"math-visualeditor-symbol-group-math-geometry": "Heometriya",
 	"prefs-math": "Math"
 }

@@ -57,7 +57,7 @@ class Minify_CSS {
 		 * for right-to-left lanugages.
 		 */
 		if (isset($options['cssjanus']) && $options['cssjanus']) {
-			require_once dirname(__FILE__) . '/../../../../includes/libs/CSSJanus.php';
+			require_once dirname(__FILE__) . '/../../../../vendor/cssjanus/cssjanus/src/CSSJanus.php';
 			$css = CSSJanus::transform($css, true, false);
 		}
 

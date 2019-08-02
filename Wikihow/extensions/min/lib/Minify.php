@@ -565,7 +565,7 @@ class Minify {
         $wgServer = 'https://' . $serverName;
         define('MEDIAWIKI', true);
         require_once('../../extensions/wikihow/Misc.php');
-        @include('../../env.php');
+        @include('../../wikihow_env.php');
 
         $content = wfRewriteCSS($content, false);
         return $content;

@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.SortQuestionsAppWidget = (function($) {
+WH.dashboard.SortQuestionsAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.SortQuestionsAppWidget = (function($) {
 	WH.dashboard.registerDataListener('SortQuestionsAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

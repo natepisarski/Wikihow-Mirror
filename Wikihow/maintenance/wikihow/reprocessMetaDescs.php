@@ -3,12 +3,16 @@
  * Change all meta descriptions
  */
 
-require_once __DIR__ . '/../commandLine.inc';
-global $IP;
+require_once __DIR__ . '/../Maintenance.php';
+
 require_once "$IP/extensions/wikihow/ArticleMetaInfo.class.php";
 require_once "$IP/extensions/wikihow/DatabaseHelper.class.php";
 
-class ReprocessAllAMI {
+class ReprocessAllAMI extends Maintenance {
+
+	public function execute() {
+		self::reprocessAllArticles();
+	}
 
     /**
      * Add meta descriptions for all pages on site.  Convert all to the
@@ -54,4 +58,5 @@ class ReprocessAllAMI {
 
 }
 
-ReprocessAllAMI::reprocessAllArticles();
+$maintClass = 'ReprocessAllAMI';
+require_once RUN_MAINTENANCE_IF_MAIN;

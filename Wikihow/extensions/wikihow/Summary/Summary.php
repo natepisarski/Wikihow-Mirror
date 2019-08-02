@@ -16,10 +16,10 @@ $wgAutoloadClasses['TranslateSummariesTool'] = __DIR__ . '/TranslateSummariesToo
 $wgAutoloadClasses['TranslateSummariesAdmin'] = __DIR__ . '/TranslateSummariesAdmin.body.php';
 $wgAutoloadClasses['EditMapper\TranslateSummariesEditMapper'] = __DIR__ . '/TranslateSummariesEditMapper.class.php';
 
-$wgExtensionMessagesFiles['SummarySection'] = __DIR__ . '/Summary.i18n.magic.php';
+$wgExtensionMessagesFiles['QuickSummary'] = __DIR__ . '/QuickSummary.i18n.php';
 $wgMessagesDirs['SummarySection'] = __DIR__ . '/i18n/';
 
-$wgHooks['ParserFirstCallInit'][] = ['SummarySection::onParserFirstCallInit'];
+$wgHooks['ParserFirstCallInit'][] = 'SummarySection::onParserFirstCallInit';
 $wgHooks['ProcessArticleHTMLAfter'][] = ['SummarySection::onProcessArticleHTMLAfter'];
 $wgHooks['BeforePageDisplay'][] = ['SummarySection::onBeforePageDisplay'];
 $wgHooks['TitleMoveComplete'][] = ['SummarySection::onTitleMoveComplete'];

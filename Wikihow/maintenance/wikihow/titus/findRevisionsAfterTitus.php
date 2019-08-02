@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . "/../../commandLine.inc";
-require_once "$IP/extensions/wikihow/titus/Titus.class.php";
 require_once "$IP/extensions/wikihow/DatabaseHelper.class.php";
 
 global $wgLanguageCode;
@@ -15,7 +14,7 @@ $rows = array();
 foreach($res as $row) {
 	$rows[] = $row;
 }
-if(sizeof($rows) > 0) {
+if ($rows) {
 	$now = wfTimestampNow();
 	$msg = "<table><thead><tr><td>Title</td><td>Page Id</td><td>Latest Revision</td><td>First Revision After Patrolled</td><td>Last Patrolled Revision</td></tr></thead>\n<tbody>\n";
 	foreach($rows as $row) {
@@ -26,14 +25,14 @@ if(sizeof($rows) > 0) {
 		}
 	}
 	$msg .= "</tbody></table>\n";
-	if($msg != "") {
+	if ($msg) {
 		$msg = "<p>The following pages on $wgLanguageCode have been modified over 24 hours ago, but aren't showing up in Titus</p>\n" . $msg;
 		print $msg;
 		$to = new MailAddress("eng@wikihow.com");
 		$from = new MailAddress("alerts@wikihow.com");
-		$subject = "Out of date fields in titus:\n";
-	        $content_type = "text/html; charset=UTF-8";
+		$subject = "Out of date fields in titus";
+		$opts = [ 'contentType' => "text/html; charset=UTF-8" ];
 
-		UserMailer::send($to, $from, $subject, $msg, false, $content_encoding);
+		UserMailer::send($to, $from, $subject, $msg, $opts);
 	}
 }

@@ -134,7 +134,7 @@ class MassMessageJob extends Job {
 		// Redirects are automatically followed in getLocalTargets
 		if ( $title->inNamespace(NS_USER) || $title->inNamespace(NS_USER_TALK) ) {
 			$user = User::newFromName( $title->getBaseText() );
-			if ( !$user->getId() ) { // Does not exist
+			if ( !$user || !$user->getId() ) { // Does not exist
 				$this->logLocalSkip( 'skipnouser' );
 				return true;
 			}

@@ -384,7 +384,8 @@
 			}
 
 			if (typeof mw.mobileFrontend !== 'undefined') {
-				mw.mobileFrontend.emit('page-loaded');
+				// TODO: figure out new right way to trigger an event to init the article
+				//mw.mobileFrontend.emit('page-loaded');
 			}
 
 			if (!isMobile && imageWidth < $("#uci_header").width()) {

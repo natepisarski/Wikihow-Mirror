@@ -206,7 +206,9 @@
 		}
 	};
 
-	WH.CategoryGuardian.initialize();
+	mw.loader.using( 'ext.wikihow.common_top', function() {
+		WH.CategoryGuardian.initialize();
+	} );
 }());
 
 

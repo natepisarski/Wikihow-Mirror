@@ -4,6 +4,7 @@ class ApiArticleText extends ApiBase {
 
 	public function __construct($main, $action) {
 		parent::__construct($main, $action);
+		$this->getRequest()->setVal('formatversion', '2');
 	}
 
 	function execute() {
@@ -18,7 +19,7 @@ class ApiArticleText extends ApiBase {
 		$result = $this->getResult();
 
 		$format = $this->getRequest()->getVal('format');
-		if (!in_array($format, ['json']) && !in_array($format, ['jsonfm'])) {
+		if ( !in_array($format, ['json', 'jsonfm']) ) {
 			$result->addValue( null, 'error',
 				'We only allow JSON-encoded API output for this method. See ' .
 				'file ' . __FILE__ . ':' . __LINE__ . ' for details. Or, use format=json.');

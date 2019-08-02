@@ -1,8 +1,5 @@
 <?php
 
-global $IP;
-require_once("$IP/extensions/wikihow/titus/Titus.class.php");
-
 class ApiTitus extends ApiBase {
 	/**
 	 * Get language and article info

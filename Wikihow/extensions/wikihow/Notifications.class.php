@@ -45,7 +45,7 @@ class Notifications {
 			}
 
 			//KUDOS / FAN MAIL
-			if ($wgUser->getNewkudos() && !$wgUser->getOption('ignorefanmail')) {
+			if ($wgUser->getNewKudos() && !$wgUser->getOption('ignorefanmail')) {
 				$kudos_count = self::getCount('user_newkudos');
 				($kudos_count > 1) ? $m = 'notifications_newkudos_mult' : $m = 'notifications_newkudos_one';
 				$msg = '<div class="note_row"><div class="note_icon_kudo"></div>' .

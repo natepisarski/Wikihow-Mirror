@@ -27,44 +27,35 @@
  * @since 1.21
  * @ingroup Content
  */
-class CssContentHandler extends TextContentHandler {
+class CssContentHandler extends CodeContentHandler {
+
+	/**
+	 * @param string $modelId
+	 */
 	public function __construct( $modelId = CONTENT_MODEL_CSS ) {
-		parent::__construct( $modelId, array( CONTENT_FORMAT_CSS ) );
+		parent::__construct( $modelId, [ CONTENT_FORMAT_CSS ] );
 	}
 
-	public function unserializeContent( $text, $format = null ) {
-		$this->checkFormat( $format );
-
-		return new CssContent( $text );
+	protected function getContentClass() {
+		return CssContent::class;
 	}
 
-	public function makeEmptyContent() {
-		return new CssContent( '' );
-	}
-
-	/**
-	 * Returns the english language, because CSS is english, and should be handled as such.
-	 *
-	 * @param Title $title
-	 * @param Content $content
-	 * @return Language wfGetLangObj( 'en' )
-	 *
-	 * @see ContentHandler::getPageLanguage()
-	 */
-	public function getPageLanguage( Title $title, Content $content = null ) {
-		return wfGetLangObj( 'en' );
+	public function supportsRedirects() {
+		return true;
 	}
 
 	/**
-	 * Returns the english language, because CSS is english, and should be handled as such.
+	 * Create a redirect that is also valid CSS
 	 *
-	 * @param Title $title
-	 * @param Content $content
-	 * @return Language wfGetLangObj( 'en' )
-	 *
-	 * @see ContentHandler::getPageViewLanguage()
+	 * @param Title $destination
+	 * @param string $text ignored
+	 * @return CssContent
 	 */
-	public function getPageViewLanguage( Title $title, Content $content = null ) {
-		return wfGetLangObj( 'en' );
+	public function makeRedirectContent( Title $destination, $text = '' ) {
+		// The parameters are passed as a string so the / is not url-encoded by wfArrayToCgi
+		$url = $destination->getFullURL( 'action=raw&ctype=text/css', false, PROTO_RELATIVE );
+		$class = $this->getContentClass();
+		return new $class( '/* #REDIRECT */@import ' . CSSMin::buildUrlValue( $url ) . ';' );
 	}
+
 }

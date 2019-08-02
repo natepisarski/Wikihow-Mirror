@@ -19,6 +19,8 @@ $wgHooks['ArticleDelete'][] = ['RobotPolicy::onArticleDelete'];
 $wgHooks['TitleMoveComplete'][] = ['RobotPolicy::onTitleMoveComplete'];
 // Category pages
 $wgHooks['CategoryAfterPageRemoved'][] = ['RobotPolicy::recalcCategoryPolicy'];
+$wgHooks['AfterGoodRevisionUpdated'][] = 'RobotPolicy::onAfterGoodRevisionUpdated';
+$wgHooks['LinksUpdateComplete'][] = 'RobotPolicy::onLinksUpdateComplete';
 
 class RobotPolicy {
 
@@ -48,12 +50,13 @@ class RobotPolicy {
 		]
 	];
 
-	var $title, $wikiPage, $request;
+	var $title, $wikiPage, $request, $fromMaster;
 
-	private function __construct($title, $wikiPage, $request = null) {
+	private function __construct($title, $wikiPage, $request = null, $fromMaster = false) {
 		$this->title = $title;
 		$this->wikiPage = $wikiPage;
 		$this->request = $request;
+		$this->fromMaster = $fromMaster;
 	}
 
 	public static function setRobotPolicy($out) {
@@ -82,15 +85,15 @@ class RobotPolicy {
 		return true;
 	}
 
-	private static function newFromTitle($title, $context = null) {
+	private static function newFromTitle($title, $context = null, $fromMaster = false) {
 		if (!$title) {
 			return null;
 		} elseif ($context) {
 			$wikiPage = $title->exists() ? $context->getWikiPage() : null;
-			return new RobotPolicy($title, $wikiPage, $context->getRequest());
+			return new RobotPolicy($title, $wikiPage, $context->getRequest(), $fromMaster);
 		} else {
 			$wikiPage = $title->exists() ? WikiPage::factory($title) : null;
-			return new RobotPolicy($title, $wikiPage);
+			return new RobotPolicy($title, $wikiPage, null, $fromMaster);
 		}
 	}
 
@@ -166,6 +169,8 @@ class RobotPolicy {
 	}
 
 	public function genRobotPolicyLong() {
+		global $wgLanguageCode;
+
 		// First, we compute any indexation that isn't based based on
 		// article ID but on request details or non-existence of article.
 		// Note: these are generally "cheap" checks in terms of resources
@@ -188,7 +193,9 @@ class RobotPolicy {
 		} elseif ($this->isNotViewAction()) {
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
 			$policyText = 'notViewAction';
-		} elseif ($this->isIndexphpRequestURL() && Misc::isAltDomain()) {
+		} elseif ($this->isIndexphpRequestURL()
+			&& (Misc::isAltDomain() || $wgLanguageCode != 'en')
+		) {
 			// July 2019: apply to alt domains only right now, while we test robots.txt changes
 			// there. this will go out for all sites later, as we test more.
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
@@ -305,10 +312,13 @@ class RobotPolicy {
 	/**
 	 * Get (and cache) the database handle.
 	 */
-	private static function getDB() {
-		static $dbr = null;
-		if (!$dbr) $dbr = wfGetDB(DB_REPLICA);
-		return $dbr;
+	private function getDB() {
+		static $dbh = null;
+		if (!$dbh) {
+			$dbType = $this->fromMaster ? DB_MASTER : DB_REPLICA;
+			$dbh = wfGetDB($dbType);
+		}
+		return $dbh;
 	}
 
 	/**
@@ -519,13 +529,16 @@ class RobotPolicy {
 	 */
 	private function hasBadTemplate() {
 		$result = 0;
-		$tables = 'templatelinks';
+		$table = 'templatelinks';
 		$fields = 'tl_title';
+		$maybeBadTemplates = [ 'Speedy','Stub','Copyvio',
+			'Copyviobot','Copyedit','Cleanup','Notifiedcopyviobot',
+			'CopyvioNotified','Notifiedcopyvio','Format','Nfd','Inuse' ];
 		$where = [
 			'tl_from' => $this->title->getArticleID(),
-			'tl_title' => ['Speedy', 'Stub', 'Copyvio','Copyviobot','Copyedit','Cleanup','Notifiedcopyviobot','CopyvioNotified','Notifiedcopyvio','Format','Nfd','Inuse']
+			'tl_title' => $maybeBadTemplates,
 		];
-		$res = self::getDB()->select($tables, $fields, $where);
+		$res = $this->getDB()->select($table, $fields, $where, __METHOD__);
 
 		$templates = array();
 		foreach ($res as $row) {
@@ -533,13 +546,13 @@ class RobotPolicy {
 		}
 		// Checks to see if an article has the nfd template AND has less
 		// than 10,000 page views. If so, it is de-indexed.
-		if (@$templates['Nfd']) {
+		if ($templates['Nfd'] ?? '') {
 			if ($this->wikiPage->getCount() < 10000) return true;
 			unset( $templates['Nfd'] );
 		}
 		// Checks to see if the article is "In use" AND has little or no content.
 		// If so, it is de-indexed.
-		if (@$templates['Inuse']) {
+		if ($templates['Inuse'] ?? '') {
 			if ($this->title->getLength() < 1500) return true;
 			unset( $templates['Inuse'] );
 		}
@@ -555,7 +568,7 @@ class RobotPolicy {
 		if ($this->wikiPage
 			&& $this->title->inNamespace(NS_MAIN)
 			&& class_exists('NewArticleBoost')
-			&& !NewArticleBoost::isNABbed( self::getDB(), $this->title->getArticleID() )
+			&& !NewArticleBoost::isNABbed( $this->getDB(), $this->title->getArticleID() )
 		) {
 			$ret = true;
 		}
@@ -629,7 +642,7 @@ class RobotPolicy {
 			'page_namespace != 14',
 			'ii_policy IN (1, 4)'
 		];
-		$count = (int) $dbr->selectField($tables, $fields, $where);
+		$count = (int)$dbr->selectField($tables, $fields, $where, __METHOD__);
 		return $count === 0;
 	}
 
@@ -681,17 +694,17 @@ class RobotPolicy {
 		}
 	}
 
-	public static function recalcArticlePolicyBasedOnId($aid, bool $dry=false): int {
+	public static function recalcArticlePolicyBasedOnId($aid, bool $dry=false, $fromMaster=false): int {
 		$title = Title::newFromID($aid);
 
-		return self::recalcArticlePolicyBasedOnTitle($title, $dry);
+		return self::recalcArticlePolicyBasedOnTitle($title, $dry, $fromMaster);
 	}
 
 	/**
 	 * @param  int  $aid Article ID
 	 * @param  bool $dry Dry run: calculate but don't write to DB nor cache
 	 */
-	public static function recalcArticlePolicyBasedOnTitle(&$title, bool $dry=false): int {
+	public static function recalcArticlePolicyBasedOnTitle($title, bool $dry=false, $fromMaster=false): int {
 		$cache = wfGetCache(CACHE_MEMSTATIC);
 		if (!$title || !$title->exists() || !$title->inNamespaces(NS_MAIN, NS_CATEGORY)) {
 			// Not an article or category page, so index info is not stored in the DB
@@ -700,7 +713,7 @@ class RobotPolicy {
 
 		$cachekey = self::getCacheKey($title);
 
-		$robotPolicy = RobotPolicy::newFromTitle($title);
+		$robotPolicy = RobotPolicy::newFromTitle($title, null, $fromMaster);
 
 		list($policy, $policyText) = $robotPolicy->generateRobotPolicyBasedOnTitle();
 
@@ -718,6 +731,30 @@ class RobotPolicy {
 		}
 
 		return $policy;
+	}
+
+	/**
+	 * We hook into LinksUpdateComplete as well as PageContentSaveComplete because
+	 * tables such as templatelinks, which we use to search for {{Stub}} etc templates,
+	 * are updated with DeferredUpdate updates, which  means they happen at the very
+	 * end of the connection, after this PageContentSaveComplete hook.
+	 *
+	 * NOTE: We should consider only hooking into LinksUpdateComplete and not
+	 *   PageContentSaveComplete. This would be more efficient. It's not completely
+	 *   clear to me that LinksUpdateComplete is always called after the same
+	 *   edits as PageContentSaveComplete, though. We can't make this change until
+	 *   we know that, so these index_info values keep updating properly.
+	 */
+	public static function onLinksUpdateComplete(&$linksUpdate, $ticket) {
+		// Force reads from master DB because templatelinks was updated earlier in
+		// the same request, and so might not make it to a replicated db in time.
+		self::recalcArticlePolicyBasedOnId( $linksUpdate->mId,
+			false /* $dry */, true /* $fromMaster */ );
+	}
+
+	public static function onAfterGoodRevisionUpdated($title, $goodRev) {
+		self::recalcArticlePolicyBasedOnTitle($title);
+		return true;
 	}
 
 	// Used as hook on page save complete

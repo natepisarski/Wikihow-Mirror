@@ -66,6 +66,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 			print json_encode($result);
 			return;
 		} else {
+			$out->addModules(['ext.wikihow.admin_clear_ratings']);
 			$tmpl = self::getGuts('AdminClearRatings');
 			$out->addHTML($tmpl);
 		}
@@ -94,30 +95,7 @@ class AdminClearRatings extends UnlistedSpecialPage {
 		<br/><br/>
 		<div id='pages-result'>
 		</div>
-		</form>
-
-		<script>
-		(function($){
-			$(document).ready(function() {
-				$('#pages-clear')
-					.prop('disabled', false)
-					.click(function() {
-						$('#pages-result').html('Loading ...');
-						$.post('/Special:$action',
-							{ 'pages-list': $('#pages-list').val(),
-							  'comment' : $('#reason').val()
-							},
-							function(data) {
-								$('#pages-result').html(data['result']);
-								$('#pages-list').focus();
-							},
-							'json');
-						return false;
-					});
-				$('#pages-list').focus();
-			});
-		})(jQuery);
-		</script>";
+		</form>";
 	}
 
 	public function userAllowed() {

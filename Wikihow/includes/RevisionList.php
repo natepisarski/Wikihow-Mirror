@@ -20,21 +20,30 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+use Wikimedia\Rdbms\ResultWrapper;
+use Wikimedia\Rdbms\IDatabase;
+
 /**
  * List for revision table items for a single page
  */
-abstract class RevisionListBase extends ContextSource {
-	/**
-	 * @var Title
-	 */
-	var $title;
+abstract class RevisionListBase extends ContextSource implements Iterator {
+	/** @var Title */
+	public $title;
 
-	var $ids, $res, $current;
+	/** @var array */
+	protected $ids;
+
+	/** @var ResultWrapper|bool */
+	protected $res;
+
+	/** @var bool|Revision */
+	protected $current;
 
 	/**
 	 * Construct a revision list for a given title
-	 * @param $context IContextSource
-	 * @param $title Title
+	 * @param IContextSource $context
+	 * @param Title $title
 	 */
 	function __construct( IContextSource $context, Title $title ) {
 		$this->setContext( $context );
@@ -43,7 +52,7 @@ abstract class RevisionListBase extends ContextSource {
 
 	/**
 	 * Select items only where the ID is any of the specified values
-	 * @param $ids Array
+	 * @param array $ids
 	 */
 	function filterByIds( array $ids ) {
 		$this->ids = $ids;
@@ -72,11 +81,11 @@ abstract class RevisionListBase extends ContextSource {
 
 	/**
 	 * Start iteration. This must be called before current() or next().
-	 * @return First list item
+	 * @return Revision First list item
 	 */
 	public function reset() {
 		if ( !$this->res ) {
-			$this->res = $this->doQuery( wfGetDB( DB_SLAVE ) );
+			$this->res = $this->doQuery( wfGetDB( DB_REPLICA ) );
 		} else {
 			$this->res->rewind();
 		}
@@ -84,8 +93,13 @@ abstract class RevisionListBase extends ContextSource {
 		return $this->current;
 	}
 
+	public function rewind() {
+		$this->reset();
+	}
+
 	/**
 	 * Get the current list item, or false if we are at the end
+	 * @return Revision
 	 */
 	public function current() {
 		return $this->current;
@@ -93,11 +107,20 @@ abstract class RevisionListBase extends ContextSource {
 
 	/**
 	 * Move the iteration pointer to the next list item, and return it.
+	 * @return Revision
 	 */
 	public function next() {
 		$this->res->next();
 		$this->initCurrent();
 		return $this->current;
+	}
+
+	public function key() {
+		return $this->res ? $this->res->key() : 0;
+	}
+
+	public function valid() {
+		return $this->res ? $this->res->valid() : false;
 	}
 
 	/**
@@ -114,13 +137,13 @@ abstract class RevisionListBase extends ContextSource {
 
 	/**
 	 * Do the DB query to iterate through the objects.
-	 * @param $db DatabaseBase object to use for the query
+	 * @param IDatabase $db DB object to use for the query
 	 */
 	abstract public function doQuery( $db );
 
 	/**
 	 * Create an item object from a DB result row
-	 * @param $row stdclass
+	 * @param object $row
 	 */
 	abstract public function newItem( $row );
 }
@@ -129,15 +152,15 @@ abstract class RevisionListBase extends ContextSource {
  * Abstract base class for revision items
  */
 abstract class RevisionItemBase {
-	/** The parent RevisionListBase */
-	var $list;
+	/** @var RevisionListBase The parent */
+	protected $list;
 
-	/** The DB result row */
-	var $row;
+	/** The database result row */
+	protected $row;
 
 	/**
-	 * @param $list RevisionListBase
-	 * @param $row DB result row
+	 * @param RevisionListBase $list
+	 * @param object $row DB result row
 	 */
 	public function __construct( $list, $row ) {
 		$this->list = $list;
@@ -181,8 +204,18 @@ abstract class RevisionItemBase {
 	}
 
 	/**
+	 * Get the DB field name storing actor ids.
+	 * Override this function.
+	 * @since 1.31
+	 * @return bool
+	 */
+	public function getAuthorActorField() {
+		return false;
+	}
+
+	/**
 	 * Get the ID, as it would appear in the ids URL parameter
-	 * @return
+	 * @return int
 	 */
 	public function getId() {
 		$field = $this->getIdField();
@@ -191,7 +224,7 @@ abstract class RevisionItemBase {
 
 	/**
 	 * Get the date, formatted in user's language
-	 * @return String
+	 * @return string
 	 */
 	public function formatDate() {
 		return $this->list->getLanguage()->userDate( $this->getTimestamp(),
@@ -200,7 +233,7 @@ abstract class RevisionItemBase {
 
 	/**
 	 * Get the time, formatted in user's language
-	 * @return String
+	 * @return string
 	 */
 	public function formatTime() {
 		return $this->list->getLanguage()->userTime( $this->getTimestamp(),
@@ -209,7 +242,7 @@ abstract class RevisionItemBase {
 
 	/**
 	 * Get the timestamp in MW 14-char form
-	 * @return Mixed
+	 * @return mixed
 	 */
 	public function getTimestamp() {
 		$field = $this->getTimestampField();
@@ -235,6 +268,16 @@ abstract class RevisionItemBase {
 	}
 
 	/**
+	 * Get the author actor ID
+	 * @since 1.31
+	 * @return string
+	 */
+	public function getAuthorActor() {
+		$field = $this->getAuthorActorField();
+		return strval( $this->row->$field );
+	}
+
+	/**
 	 * Returns true if the current user can view the item
 	 */
 	abstract public function canView();
@@ -249,6 +292,14 @@ abstract class RevisionItemBase {
 	 * This is used to show the list in HTML form, by the special page.
 	 */
 	abstract public function getHTML();
+
+	/**
+	 * Returns an instance of LinkRenderer
+	 * @return \MediaWiki\Linker\LinkRenderer
+	 */
+	protected function getLinkRenderer() {
+		return MediaWikiServices::getInstance()->getLinkRenderer();
+	}
 }
 
 class RevisionList extends RevisionListBase {
@@ -257,23 +308,22 @@ class RevisionList extends RevisionListBase {
 	}
 
 	/**
-	 * @param $db DatabaseBase
+	 * @param IDatabase $db
 	 * @return mixed
 	 */
 	public function doQuery( $db ) {
-		$conds = array( 'rev_page' => $this->title->getArticleID() );
+		$conds = [ 'rev_page' => $this->title->getArticleID() ];
 		if ( $this->ids !== null ) {
 			$conds['rev_id'] = array_map( 'intval', $this->ids );
 		}
+		$revQuery = Revision::getQueryInfo( [ 'page', 'user' ] );
 		return $db->select(
-			array( 'revision', 'page', 'user' ),
-			array_merge( Revision::selectFields(), Revision::selectUserFields() ),
+			$revQuery['tables'],
+			$revQuery['fields'],
 			$conds,
 			__METHOD__,
-			array( 'ORDER BY' => 'rev_id DESC' ),
-			array(
-				'page' => Revision::pageJoinCond(),
-				'user' => Revision::userJoinCond() )
+			[ 'ORDER BY' => 'rev_id DESC' ],
+			$revQuery['joins']
 		);
 	}
 
@@ -286,7 +336,11 @@ class RevisionList extends RevisionListBase {
  * Item class for a live revision table row
  */
 class RevisionItem extends RevisionItemBase {
-	var $revision, $context;
+	/** @var Revision */
+	protected $revision;
+
+	/** @var RequestContext */
+	protected $context;
 
 	public function __construct( $list, $row ) {
 		parent::__construct( $list, $row );
@@ -307,7 +361,7 @@ class RevisionItem extends RevisionItemBase {
 	}
 
 	public function getAuthorNameField() {
-		return 'user_name'; // see Revision::selectUserFields()
+		return 'rev_user_text';
 	}
 
 	public function canView() {
@@ -324,51 +378,61 @@ class RevisionItem extends RevisionItemBase {
 
 	/**
 	 * Get the HTML link to the revision text.
-	 * Overridden by RevDel_ArchiveItem.
+	 * @todo Essentially a copy of RevDelRevisionItem::getRevisionLink. That class
+	 * should inherit from this one, and implement an appropriate interface instead
+	 * of extending RevDelItem
 	 * @return string
 	 */
 	protected function getRevisionLink() {
-		$date = $this->list->getLanguage()->timeanddate( $this->revision->getTimestamp(), true );
+		$date = $this->list->getLanguage()->userTimeAndDate(
+			$this->revision->getTimestamp(), $this->list->getUser() );
+
 		if ( $this->isDeleted() && !$this->canViewContent() ) {
-			return $date;
+			return htmlspecialchars( $date );
 		}
-		return Linker::link(
+		$linkRenderer = $this->getLinkRenderer();
+		return $linkRenderer->makeKnownLink(
 			$this->list->title,
 			$date,
-			array(),
-			array(
+			[],
+			[
 				'oldid' => $this->revision->getId(),
 				'unhide' => 1
-			)
+			]
 		);
 	}
 
 	/**
 	 * Get the HTML link to the diff.
-	 * Overridden by RevDel_ArchiveItem
+	 * @todo Essentially a copy of RevDelRevisionItem::getDiffLink. That class
+	 * should inherit from this one, and implement an appropriate interface instead
+	 * of extending RevDelItem
 	 * @return string
 	 */
 	protected function getDiffLink() {
 		if ( $this->isDeleted() && !$this->canViewContent() ) {
 			return $this->context->msg( 'diff' )->escaped();
 		} else {
-			return Linker::link(
+			$linkRenderer = $this->getLinkRenderer();
+			return $linkRenderer->makeKnownLink(
 					$this->list->title,
-					$this->context->msg( 'diff' )->escaped(),
-					array(),
-					array(
+					$this->list->msg( 'diff' )->text(),
+					[],
+					[
 						'diff' => $this->revision->getId(),
 						'oldid' => 'prev',
 						'unhide' => 1
-					),
-					array(
-						'known',
-						'noclasses'
-					)
+					]
 				);
 		}
 	}
 
+	/**
+	 * @todo Essentially a copy of RevDelRevisionItem::getHTML. That class
+	 * should inherit from this one, and implement an appropriate interface instead
+	 * of extending RevDelItem
+	 * @return string
+	 */
 	public function getHTML() {
 		$difflink = $this->context->msg( 'parentheses' )
 			->rawParams( $this->getDiffLink() )->escaped();

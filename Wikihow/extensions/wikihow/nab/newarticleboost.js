@@ -8,6 +8,31 @@ window.WH.nab = window.WH.nab || {};
 window.WH.nab.preview = false;
 window.WH.nab.needToConfirm = true;
 
+// Handlers for expand/contract arrows
+(function ($) {
+	// This is not in newarticleboost.js because there would be a delay if we put it there
+	$(".wh_block:first").remove();
+	$("#nap_header").next().css("margin-top", ($("#nap_header").height() + 58) + "px");
+
+	$('.nap_expand').click(function() {
+		var thisSpan = $(this);
+		var body = thisSpan.parent().next();
+		if (body.css('display') != 'none') {
+			var oldHeight = body.height();
+			body.slideUp( 'slow',
+				function () {
+					thisSpan.addClass("collapsed");
+				});
+		} else {
+			body.slideDown( 'slow',
+				function () {
+					thisSpan.removeClass("collapsed");
+				});
+		}
+		return false;
+	});
+})(window.jQuery);
+
 window.WH.nab.editClick = function(url) {
 	var strResult;
 	window.WH.nab.editUrl = url;
@@ -28,6 +53,11 @@ window.WH.nab.editClick = function(url) {
 
 	$.get(url, function (data) {
 		$("#quickedit_contents").html(data);
+		// This parameter is present in the "data" variable, but for a reason I can't figure
+		// out, it doesn't get added to the DOM. Maybe there are html parsing issues? I can't
+		// tell. Anyway, this is an important param, so this hack lets the form submission
+		// proceed normally and for the article to save.
+		$("#editform").append('<input type="hidden" value="1" name="wpUltimateParam"/>');
 		$(".templatesUsed").parent().remove();
 		$("#wpPreview")
 			.unbind("click")
@@ -123,6 +153,10 @@ window.WH.nab.submitNabForm = function() {
 
 window.WH.nab.loadNextArticle = function() {
 	var nextUrl = $("#nextNabUrl").val();
+	if (nextUrl == "") {
+		alert("It looks like we're out of articles!");
+		return;
+	}
 	var nextTitle = $("#nextNabTitle").val();
 	$("#nab-article-container").load(nextUrl + "&noSkin=1", function(response, status, xhr) {
 		if (status == "error") {

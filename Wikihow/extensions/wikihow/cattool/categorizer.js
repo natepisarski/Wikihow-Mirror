@@ -38,7 +38,8 @@ $(function() {
 		return $(cat).find('.cat_txt:first').text();
 	}
 
-	$('.cat_breadcrumb').die().live('click', function(e) {
+	$(document).off('click', '.cat_breadcrumb');
+	$(document).on('click', '.cat_breadcrumb', function(e) {
 		e.preventDefault();
 		var cat = $(this).text();
 		var pos = $.inArray(cat, breadcrumbs) + 1;
@@ -46,19 +47,22 @@ $(function() {
 		updateBreadcrumbs(cat);
 	});
 
-	$('.cat_breadcrumb_add').die().live('click', function(e) {
+	$(document).off('click', '.cat_breadcrumb_add');
+	$(document).on('click', '.cat_breadcrumb_add', function(e) {
 		e.preventDefault();
 		var lastCrumb = breadcrumbs.length - 1;
 		var category = breadcrumbs[lastCrumb];
 		addCategory(category);
-	});
+	} );
 
-	$('#cat_search_button').die().live('click', function(e) {
+	$(document).off('click', '#cat_search_button');
+	$(document).on('click', '#cat_search_button', function(e) {
 		e.preventDefault();
 		$('#cat_search').autocomplete( "search" , $('#cat_search').val());
 	});
 
-	$('#cat_search').die().live('keypress', function(e) {
+	$(document).off('keypress', '#cat_search');
+	$(document).on('keypress', '#cat_search', function(e) {
 		/* ENTER PRESSED*/
 		if (e.keyCode == 13) {
 			$('#cat_search').autocomplete( "search" , $('#cat_search').val());
@@ -171,8 +175,8 @@ $(function() {
 		return true;
 	}
 
-
-	$('#cat_introlink').die().live('click', function(e) {
+	$(document).off('click', '#cat_introlink');
+	$(document).on('click', '#cat_introlink', function(e) {
 		e.preventDefault();
 		if($('#cat_article_intro').is(':visible')){
                 $('#cat_article_intro').slideUp('fast');
@@ -186,12 +190,14 @@ $(function() {
             }
 	});
 
-	$('#cat_cancel').die().live('click', function (e) {
+	$(document).off('click', '#cat_cancel');
+	$(document).on('click', '#cat_cancel', function(e) {
 		e.preventDefault();
 		$('#dialog-box').dialog('close');
 	});
 
-	$('#cat_skip').die().live('click', function (e) {
+	$(document).off('click', '#cat_skip');
+	$(document).on('click', '#cat_skip', function(e) {
 		e.preventDefault();
 		var aid = $('#cat_aid').text();
 		$('#cat_article').html("");
@@ -208,7 +214,8 @@ $(function() {
 		$('#cat_search').val('');
 	});
 
-	$('#cat_save_editpage').off().live('click', function(e) {
+	$(document).off('click', '#cat_save_editpage');
+	$(document).on('click', '#cat_save_editpage', function(e) {
 		e.preventDefault();
 
 		if ($(this).hasClass('disabled')) {
@@ -229,7 +236,8 @@ $(function() {
 		$('#dialog-box').dialog('close');
 	});
 
-	$('#cat_save').die().live('click', function (e) {
+	$(document).off('click', '#cat_save');
+	$(document).on('click', '#cat_save', function(e) {
 		e.preventDefault();
 		saveCategories(this);
 		incrementStats();
@@ -266,7 +274,8 @@ $(function() {
 		return categories;
 	}
 
-	$(".cat_close").die().live('click', function(e) {
+	$(document).off('click', '.cat_close');
+	$(document).on('click', '.cat_close', function(e) {
 		var catDiv = $(this).parent();
 		catDiv.fadeOut('fast', function() {
 			catDiv.remove();
@@ -277,7 +286,8 @@ $(function() {
 		});
 	});
 
-	$(".cat_subcat").die().live('click', function(e) {
+	$(document).off('click', '.cat_subcat');
+	$(document).on('click', '.cat_subcat', function(e) {
 		e.preventDefault();
 		breadcrumbs.push($(this).text());
 		updateBreadcrumbs($(this).text());

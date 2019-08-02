@@ -1,8 +1,6 @@
 <?php
 /**
- * Created on Jun 25, 2013
- *
- * Copyright © 2013 Brad Jorsch <bjorsch@wikimedia.org>
+ * Copyright © 2013 Wikimedia Foundation and contributors
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +21,8 @@
  * @since 1.23
  */
 
+use MediaWiki\Revision\RevisionRecord;
+
 /**
  * API interface to RevDel. The API equivalent of Special:RevisionDelete.
  * Requires API write mode to be enabled.
@@ -32,30 +32,41 @@
 class ApiRevisionDelete extends ApiBase {
 
 	public function execute() {
+		$this->useTransactionalTimeLimit();
+
 		$params = $this->extractRequestParams();
 		$user = $this->getUser();
+		$this->checkUserRightsAny( RevisionDeleter::getRestriction( $params['type'] ) );
 
-		if ( !$user->isAllowed( RevisionDeleter::getRestriction( $params['type'] ) ) ) {
-			$this->dieUsageMsg( 'badaccess-group0' );
+		if ( $user->isBlocked() ) {
+			$this->dieBlocked( $user->getBlock() );
 		}
 
 		if ( !$params['ids'] ) {
-			$this->dieUsage( "At least one value is required for 'ids'", 'badparams' );
+			$this->dieWithError( [ 'apierror-paramempty', 'ids' ], 'paramempty_ids' );
 		}
 
-		$hide = $params['hide'] ?: array();
-		$show = $params['show'] ?: array();
-		if ( array_intersect( $hide, $show ) ) {
-			$this->dieUsage( "Mutually exclusive values for 'hide' and 'show'", 'badparams' );
-		} elseif ( !$hide && !$show ) {
-			$this->dieUsage( "At least one value is required for 'hide' or 'show'", 'badparams' );
+		// Check if user can add tags
+		if ( $params['tags'] ) {
+			$ableToTag = ChangeTags::canAddTagsAccompanyingChange( $params['tags'], $user );
+			if ( !$ableToTag->isOK() ) {
+				$this->dieStatus( $ableToTag );
+			}
 		}
-		$bits = array(
+
+		$hide = $params['hide'] ?: [];
+		$show = $params['show'] ?: [];
+		if ( array_intersect( $hide, $show ) ) {
+			$this->dieWithError( 'apierror-revdel-mutuallyexclusive', 'badparams' );
+		} elseif ( !$hide && !$show ) {
+			$this->dieWithError( 'apierror-revdel-paramneeded', 'badparams' );
+		}
+		$bits = [
 			'content' => RevisionDeleter::getRevdelConstant( $params['type'] ),
-			'comment' => Revision::DELETED_COMMENT,
-			'user' => Revision::DELETED_USER,
-		);
-		$bitfield = array();
+			'comment' => RevisionRecord::DELETED_COMMENT,
+			'user' => RevisionRecord::DELETED_USER,
+		];
+		$bitfield = [];
 		foreach ( $bits as $key => $bit ) {
 			if ( in_array( $key, $hide ) ) {
 				$bitfield[$bit] = 1;
@@ -67,14 +78,12 @@ class ApiRevisionDelete extends ApiBase {
 		}
 
 		if ( $params['suppress'] === 'yes' ) {
-			if ( !$user->isAllowed( 'suppressrevision' ) ) {
-				$this->dieUsageMsg( 'badaccess-group0' );
-			}
-			$bitfield[Revision::DELETED_RESTRICTED] = 1;
+			$this->checkUserRightsAny( 'suppressrevision' );
+			$bitfield[RevisionRecord::DELETED_RESTRICTED] = 1;
 		} elseif ( $params['suppress'] === 'no' ) {
-			$bitfield[Revision::DELETED_RESTRICTED] = 0;
+			$bitfield[RevisionRecord::DELETED_RESTRICTED] = 0;
 		} else {
-			$bitfield[Revision::DELETED_RESTRICTED] = -1;
+			$bitfield[RevisionRecord::DELETED_RESTRICTED] = -1;
 		}
 
 		$targetObj = null;
@@ -83,20 +92,23 @@ class ApiRevisionDelete extends ApiBase {
 		}
 		$targetObj = RevisionDeleter::suggestTarget( $params['type'], $targetObj, $params['ids'] );
 		if ( $targetObj === null ) {
-			$this->dieUsage( 'A target title is required for this RevDel type', 'needtarget' );
+			$this->dieWithError( [ 'apierror-revdel-needtarget' ], 'needtarget' );
 		}
 
 		$list = RevisionDeleter::createList(
 			$params['type'], $this->getContext(), $targetObj, $params['ids']
 		);
-		$status = $list->setVisibility(
-			array( 'value' => $bitfield, 'comment' => $params['reason'], 'perItemStatus' => true )
-		);
+		$status = $list->setVisibility( [
+			'value' => $bitfield,
+			'comment' => $params['reason'],
+			'perItemStatus' => true,
+			'tags' => $params['tags']
+		] );
 
 		$result = $this->getResult();
 		$data = $this->extractStatusInfo( $status );
 		$data['target'] = $targetObj->getFullText();
-		$data['items'] = array();
+		$data['items'] = [];
 
 		foreach ( $status->itemStatuses as $id => $s ) {
 			$data['items'][$id] = $this->extractStatusInfo( $s );
@@ -104,61 +116,28 @@ class ApiRevisionDelete extends ApiBase {
 		}
 
 		$list->reloadFromMaster();
-		// @codingStandardsIgnoreStart Avoid function calls in a FOR loop test part
+		// phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall
 		for ( $item = $list->reset(); $list->current(); $item = $list->next() ) {
 			$data['items'][$item->getId()] += $item->getApiData( $this->getResult() );
 		}
-		// @codingStandardsIgnoreEnd
 
 		$data['items'] = array_values( $data['items'] );
-		$result->setIndexedTagName( $data['items'], 'i' );
+		ApiResult::setIndexedTagName( $data['items'], 'i' );
 		$result->addValue( null, $this->getModuleName(), $data );
 	}
 
 	private function extractStatusInfo( $status ) {
-		$ret = array(
+		$ret = [
 			'status' => $status->isOK() ? 'Success' : 'Fail',
-		);
-		$errors = $this->formatStatusMessages( $status->getErrorsByType( 'error' ) );
+		];
+
+		$errors = $this->getErrorFormatter()->arrayFromStatus( $status, 'error' );
 		if ( $errors ) {
-			$this->getResult()->setIndexedTagName( $errors, 'e' );
 			$ret['errors'] = $errors;
 		}
-		$warnings = $this->formatStatusMessages( $status->getErrorsByType( 'warning' ) );
+		$warnings = $this->getErrorFormatter()->arrayFromStatus( $status, 'warning' );
 		if ( $warnings ) {
-			$this->getResult()->setIndexedTagName( $warnings, 'w' );
 			$ret['warnings'] = $warnings;
-		}
-
-		return $ret;
-	}
-
-	private function formatStatusMessages( $messages ) {
-		if ( !$messages ) {
-			return array();
-		}
-		$result = $this->getResult();
-		$ret = array();
-		foreach ( $messages as $m ) {
-			$message = array();
-			if ( $m['message'] instanceof Message ) {
-				$msg = $m['message'];
-				$message = array( 'message' => $msg->getKey() );
-				if ( $msg->getParams() ) {
-					$message['params'] = $msg->getParams();
-					$result->setIndexedTagName( $message['params'], 'p' );
-				}
-			} else {
-				$message = array( 'message' => $m['message'] );
-				$msg = wfMessage( $m['message'] );
-				if ( isset( $m['params'] ) ) {
-					$message['params'] = $m['params'];
-					$result->setIndexedTagName( $message['params'], 'p' );
-					$msg->params( $m['params'] );
-				}
-			}
-			$message['rendered'] = $msg->useDatabase( false )->inLanguage( 'en' )->plain();
-			$ret[] = $message;
 		}
 
 		return $ret;
@@ -173,82 +152,52 @@ class ApiRevisionDelete extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'type' => array(
+		return [
+			'type' => [
 				ApiBase::PARAM_TYPE => RevisionDeleter::getTypes(),
 				ApiBase::PARAM_REQUIRED => true
-			),
+			],
 			'target' => null,
-			'ids' => array(
+			'ids' => [
 				ApiBase::PARAM_ISMULTI => true,
 				ApiBase::PARAM_REQUIRED => true
-			),
-			'hide' => array(
-				ApiBase::PARAM_TYPE => array( 'content', 'comment', 'user' ),
+			],
+			'hide' => [
+				ApiBase::PARAM_TYPE => [ 'content', 'comment', 'user' ],
 				ApiBase::PARAM_ISMULTI => true,
-			),
-			'show' => array(
-				ApiBase::PARAM_TYPE => array( 'content', 'comment', 'user' ),
+			],
+			'show' => [
+				ApiBase::PARAM_TYPE => [ 'content', 'comment', 'user' ],
 				ApiBase::PARAM_ISMULTI => true,
-			),
-			'suppress' => array(
-				ApiBase::PARAM_TYPE => array( 'yes', 'no', 'nochange' ),
+			],
+			'suppress' => [
+				ApiBase::PARAM_TYPE => [ 'yes', 'no', 'nochange' ],
 				ApiBase::PARAM_DFLT => 'nochange',
-			),
-			'token' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
+			],
 			'reason' => null,
-		);
-	}
-
-	public function getParamDescription() {
-		return array(
-			'type' => 'Type of revision deletion being performed',
-			'target' => 'Page title for the revision deletion, if required for the type',
-			'ids' => 'Identifiers for the revisions to be deleted',
-			'hide' => 'What to hide for each revision',
-			'show' => 'What to unhide for each revision',
-			'suppress' => 'Whether to suppress data from administrators as well as others',
-			'token' => 'A delete token previously retrieved through action=tokens',
-			'reason' => 'Reason for the deletion/undeletion',
-		);
-	}
-
-	public function getDescription() {
-		return 'Delete/undelete revisions';
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(),
-			array(
-				'needtarget' => 'A target title is required for this RevDel type',
-				'badparams' => 'Bad value for some parameter',
-			)
-		);
+			'tags' => [
+				ApiBase::PARAM_TYPE => 'tags',
+				ApiBase::PARAM_ISMULTI => true,
+			],
+		];
 	}
 
 	public function needsToken() {
-		return true;
+		return 'csrf';
 	}
 
-	public function getTokenSalt() {
-		return '';
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=revisiondelete&target=Main%20Page&type=revision&ids=12345&' .
+	protected function getExamplesMessages() {
+		return [
+			'action=revisiondelete&target=Main%20Page&type=revision&ids=12345&' .
 				'hide=content&token=123ABC'
-				=> 'Hide content for revision 12345 on the Main Page',
-			'api.php?action=revisiondelete&type=logging&ids=67890&hide=content|comment|user&' .
+				=> 'apihelp-revisiondelete-example-revision',
+			'action=revisiondelete&type=logging&ids=67890&hide=content|comment|user&' .
 				'reason=BLP%20violation&token=123ABC'
-				=> 'Hide all data on log entry 67890 with the reason "BLP violation"',
-		);
+				=> 'apihelp-revisiondelete-example-log',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Revisiondelete';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Revisiondelete';
 	}
 }

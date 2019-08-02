@@ -19,6 +19,8 @@
  * @ingroup Maintenance
  */
 
+use Wikimedia\Rdbms\DBQueryError;
+
 /**
  * When using shared tables that are referenced by foreign keys on local
  * tables you have to change the constraints on local tables.
@@ -32,7 +34,7 @@ require_once __DIR__ . '/../Maintenance.php';
 class AlterSharedConstraints extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Alter foreign key to reference master tables in shared database setup.";
+		$this->addDescription( 'Alter foreign key to reference master tables in shared database setup.' );
 	}
 
 	public function getDbType() {
@@ -44,10 +46,11 @@ class AlterSharedConstraints extends Maintenance {
 
 		if ( $wgSharedDB == null ) {
 			$this->output( "Database sharing is not enabled\n" );
+
 			return;
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = $this->getDB( DB_MASTER );
 		foreach ( $wgSharedTables as $table ) {
 			$stable = $dbw->tableNameInternal( $table );
 			if ( $wgSharedPrefix != null ) {
@@ -56,36 +59,39 @@ class AlterSharedConstraints extends Maintenance {
 				$ltable = "{$wgDBprefix}{$stable}";
 			}
 
-			$result = $dbw->query( "SELECT uc.constraint_name, uc.table_name, ucc.column_name, uccpk.table_name pk_table_name, uccpk.column_name pk_column_name, uc.delete_rule, uc.deferrable, uc.deferred
-					  FROM user_constraints uc, user_cons_columns ucc, user_cons_columns uccpk
-					 WHERE uc.constraint_type = 'R'
-					   AND ucc.constraint_name = uc.constraint_name
-					   AND uccpk.constraint_name = uc.r_constraint_name
-					   AND uccpk.table_name = '$ltable'" );
+			$result = $dbw->query( "SELECT uc.constraint_name, uc.table_name, ucc.column_name,
+						uccpk.table_name pk_table_name, uccpk.column_name pk_column_name,
+						uc.delete_rule, uc.deferrable, uc.deferred
+					FROM user_constraints uc, user_cons_columns ucc, user_cons_columns uccpk
+					WHERE uc.constraint_type = 'R'
+						AND ucc.constraint_name = uc.constraint_name
+						AND uccpk.constraint_name = uc.r_constraint_name
+						AND uccpk.table_name = '$ltable'" );
+
 			while ( ( $row = $result->fetchRow() ) !== false ) {
+				$this->output( "Altering {$row['constraint_name']} ..." );
 
-					$this->output( "Altering {$row['constraint_name']} ..." );
-
-					try {
-						$dbw->query( "ALTER TABLE {$row['table_name']} DROP CONSTRAINT {$wgDBprefix}{$row['constraint_name']}" );
-					} catch ( DBQueryError $exdb ) {
-						if ( $exdb->errno != 2443 ) {
-							throw $exdb;
-						}
+				try {
+					$dbw->query( "ALTER TABLE {$row['table_name']}
+							DROP CONSTRAINT {$wgDBprefix}{$row['constraint_name']}" );
+				} catch ( DBQueryError $exdb ) {
+					if ( $exdb->errno != 2443 ) {
+						throw $exdb;
 					}
+				}
 
-					$deleteRule = $row['delete_rule'] == 'NO ACTION' ? '' : "ON DELETE {$row['delete_rule']}";
-					$dbw->query( "ALTER TABLE {$row['table_name']} ADD CONSTRAINT {$wgDBprefix}{$row['constraint_name']}
+				$deleteRule = $row['delete_rule'] == 'NO ACTION' ? '' : "ON DELETE {$row['delete_rule']}";
+				$dbw->query( "ALTER TABLE {$row['table_name']}
+						ADD CONSTRAINT {$wgDBprefix}{$row['constraint_name']}
 						FOREIGN KEY ({$row['column_name']})
 						REFERENCES {$wgSharedDB}.$stable({$row['pk_column_name']})
 						{$deleteRule} {$row['deferrable']} INITIALLY {$row['deferred']}" );
 
-					$this->output( "DONE\n" );
+				$this->output( "DONE\n" );
 			}
 		}
 	}
-
 }
 
-$maintClass = "AlterSharedConstraints";
+$maintClass = AlterSharedConstraints::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

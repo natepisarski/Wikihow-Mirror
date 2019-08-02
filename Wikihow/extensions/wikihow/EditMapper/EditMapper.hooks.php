@@ -8,6 +8,7 @@ use Revision;
 use Status;
 use User;
 use WikiPage;
+use CommentStoreComment;
 
 use EditMapper\PortalEditMapper;
 use EditMapper\TranslatorEditMapper;
@@ -24,7 +25,7 @@ class EditMapperHooks {
 	 * Triggered when the software receives a request to save an article
 	 */
 	public static function onPageContentSave(WikiPage $article, User &$user, Content $content,
-			string $comment, int $minor, $null1, $null2, int $flags, Status $status=null) {
+			CommentStoreComment $comment, int $minor, $null1, $null2, int $flags, Status $status=null) {
 
 		if (!isset($user) || $user->isAnon()) {
 			return true;
@@ -34,7 +35,7 @@ class EditMapperHooks {
 
 		$isNew = $flags & EDIT_NEW;
 
-		list($mapper, $destUser) = static::getActiveMapper($title, $user, $isNew, $comment);
+		list($mapper, $destUser) = static::getActiveMapper($title, $user, $isNew, $comment->text);
 		if ($mapper && $destUser) {
 			static::$mapper = $mapper;
 			$mapper->doMapping($user, $destUser);
@@ -69,7 +70,7 @@ class EditMapperHooks {
 		foreach ($mappers as $mapper) {
 			if ($mapper->shouldMapEdit($title, $user, $isNew, $comment)) {
 				$destUser = $mapper->getDestUser($title, $isNew);
-				if ($destUser) {
+				if ($destUser && $destUser->getId()) {
 					return [ $mapper, $destUser ];
 				}
 			}

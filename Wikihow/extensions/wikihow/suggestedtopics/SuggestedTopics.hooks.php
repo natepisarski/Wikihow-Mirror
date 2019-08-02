@@ -93,8 +93,11 @@ $html_text";
 			$subject = wfMessage( 'suggested_notify_email_subject', $title->getText() )->text();
 			if (!$title) continue;
 			$to = new MailAddress($email);
-			UserMailer::send($to, $from, $subject, $body, null, "multipart/alternative;\n" .
-							"     boundary=" . $mime_boundary_header) ;
+			$opts = [
+				'contentType' => "multipart/alternative;\n" .
+				"     boundary=" . $mime_boundary_header
+			];
+			UserMailer::send($to, $from, $subject, $body, $opts);
 		}
 
 		return true;

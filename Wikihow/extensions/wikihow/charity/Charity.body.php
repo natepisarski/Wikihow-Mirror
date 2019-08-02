@@ -35,7 +35,7 @@ class Charity extends SpecialPage {
 			global $wgSquidMaxage, $wgMimeType;
 
 			$wgMimeType = 'application/json'; // force response mime type to json
-			$out->setSquidMaxage($wgSquidMaxage);
+			$out->setCdnMaxage($wgSquidMaxage);
 			$out->setArticleBodyOnly(true);
 
 			$out->getRequest()->response()->header('X-Robots-Tag: noindex, nofollow');

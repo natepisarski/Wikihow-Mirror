@@ -16,3 +16,25 @@ $wgAutoloadClasses['WAPConfig'] = __DIR__ . '/WAPConfig.class.php';
 $wgAutoloadClasses['WAPUIController'] = __DIR__ . '/WAPUIController.class.php';
 $wgAutoloadClasses['WAPUIUserController'] = __DIR__ . '/WAPUIUserController.class.php';
 $wgAutoloadClasses['WAPUIAdminController'] = __DIR__ . '/WAPUIAdminController.class.php';
+
+$wgResourceModules['ext.wikihow.wap'] = array(
+	'scripts' => [
+		'wap.js',
+		'../common/jquery-ui-1.9.2.core_datepicker.custom.min.js',
+		'../common/jquery.tablesorter.min.js',
+		'../common/download.jQuery.js'
+	],
+	'localBasePath' => __DIR__ . '/',
+	'remoteExtPath' => 'wikihow/wap',
+	'position' => 'top',
+	'targets' => array( 'desktop', 'mobile' ),
+	'dependencies' => ['jquery.chosen', 'jquery']
+);
+
+$wgResourceModules['ext.wikihow.wap_styles'] = array(
+	'styles' => ['wap.css'],
+	'localBasePath' => __DIR__ . '/',
+	'remoteExtPath' => 'wikihow/wap',
+	'position' => 'top',
+	'targets' => array( 'desktop', 'mobile' )
+);

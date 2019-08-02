@@ -5,6 +5,24 @@ if (!defined('MEDIAWIKI')) {
 }
 
 $wgAutoloadClasses['UserStaffWidget'] = __DIR__ . '/UserStaffWidget.body.php';
-$wgHooks["PageHeaderDisplay"][] = 'UserStaffWidget::beforeHeaderDisplay';
+$wgHooks['PageHeaderDisplay'][] = 'UserStaffWidget::onBeforeHeaderDisplay';
+$wgHooks['BeforePageDisplay'][] = 'UserStaffWidget::onBeforePageDisplay';
 $wgSpecialPages['UserStaffWidget'] = 'UserStaffWidget';
 
+$wgResourceModules['ext.wikihow.user_widget_userpage'] = [
+    'scripts' => [ 'userstaffwidget_userpage.js' ],
+    'dependencies' => ['jquery', 'ext.wikihow.common_bottom'],
+    'localBasePath' => __DIR__,
+    'remoteExtPath' => 'wikihow/userstaffwidget',
+    'targets' => [ 'desktop' ],
+    'position' => 'top',
+];
+
+$wgResourceModules['ext.wikihow.user_widget_usertalkpage'] = [
+    'scripts' => [ 'userstaffwidget_usertalkpage.js' ],
+    'dependencies' => ['jquery', 'ext.wikihow.common_bottom'],
+    'localBasePath' => __DIR__,
+    'remoteExtPath' => 'wikihow/userstaffwidget',
+    'targets' => [ 'desktop' ],
+    'position' => 'top',
+];

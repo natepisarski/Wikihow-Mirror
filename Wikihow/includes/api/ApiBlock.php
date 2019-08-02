@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on Sep 4, 2007
- *
  * Copyright © 2007 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
@@ -39,46 +35,80 @@ class ApiBlock extends ApiBase {
 	 * of success. If it fails, the result will specify the nature of the error.
 	 */
 	public function execute() {
+		$this->checkUserRightsAny( 'block' );
+
 		$user = $this->getUser();
 		$params = $this->extractRequestParams();
 
-		if ( !$user->isAllowed( 'block' ) ) {
-			$this->dieUsageMsg( 'cantblock' );
-		}
+		$this->requireOnlyOneParameter( $params, 'user', 'userid' );
 
-		# bug 15810: blocked admins should have limited access here
+		# T17810: blocked admins should have limited access here
 		if ( $user->isBlocked() ) {
 			$status = SpecialBlock::checkUnblockSelf( $params['user'], $user );
 			if ( $status !== true ) {
-				$this->dieUsageMsg( array( $status ) );
+				$this->dieWithError(
+					$status,
+					null,
+					[ 'blockinfo' => ApiQueryUserInfo::getBlockInfo( $user->getBlock() ) ]
+				);
 			}
 		}
 
-		$target = User::newFromName( $params['user'] );
-		// Bug 38633 - if the target is a user (not an IP address), but it
-		// doesn't exist or is unusable, error.
-		if ( $target instanceof User &&
-			( $target->isAnon() /* doesn't exist */ || !User::isUsableName( $target->getName() ) )
-		) {
-			$this->dieUsageMsg( array( 'nosuchuser', $params['user'] ) );
+		$editingRestriction = 'sitewide';
+		$pageRestrictions = '';
+		$namespaceRestrictions = '';
+		if ( $this->getConfig()->get( 'EnablePartialBlocks' ) ) {
+			if ( $params['partial'] ) {
+				$editingRestriction = 'partial';
+			}
+
+			$pageRestrictions = implode( "\n", (array)$params['pagerestrictions'] );
+			$namespaceRestrictions = implode( "\n", (array)$params['namespacerestrictions'] );
+		}
+
+		if ( $params['userid'] !== null ) {
+			$username = User::whoIs( $params['userid'] );
+
+			if ( $username === false ) {
+				$this->dieWithError( [ 'apierror-nosuchuserid', $params['userid'] ], 'nosuchuserid' );
+			} else {
+				$params['user'] = $username;
+			}
+		} else {
+			list( $target, $type ) = SpecialBlock::getTargetAndType( $params['user'] );
+
+			// T40633 - if the target is a user (not an IP address), but it
+			// doesn't exist or is unusable, error.
+			if ( $type === Block::TYPE_USER &&
+				( $target->isAnon() /* doesn't exist */ || !User::isUsableName( $params['user'] ) )
+			) {
+				$this->dieWithError( [ 'nosuchusershort', $params['user'] ], 'nosuchuser' );
+			}
+		}
+
+		if ( $params['tags'] ) {
+			$ableToTag = ChangeTags::canAddTagsAccompanyingChange( $params['tags'], $user );
+			if ( !$ableToTag->isOK() ) {
+				$this->dieStatus( $ableToTag );
+			}
 		}
 
 		if ( $params['hidename'] && !$user->isAllowed( 'hideuser' ) ) {
-			$this->dieUsageMsg( 'canthide' );
+			$this->dieWithError( 'apierror-canthide' );
 		}
 		if ( $params['noemail'] && !SpecialBlock::canBlockEmail( $user ) ) {
-			$this->dieUsageMsg( 'cantblock-email' );
+			$this->dieWithError( 'apierror-cantblock-email' );
 		}
 
-		$data = array(
+		$data = [
 			'PreviousTarget' => $params['user'],
 			'Target' => $params['user'],
-			'Reason' => array(
+			'Reason' => [
 				$params['reason'],
 				'other',
 				$params['reason']
-			),
-			'Expiry' => $params['expiry'] == 'never' ? 'infinite' : $params['expiry'],
+			],
+			'Expiry' => $params['expiry'],
 			'HardBlock' => !$params['anononly'],
 			'CreateAccount' => $params['nocreate'],
 			'AutoBlock' => $params['autoblock'],
@@ -88,51 +118,44 @@ class ApiBlock extends ApiBase {
 			'Reblock' => $params['reblock'],
 			'Watch' => $params['watchuser'],
 			'Confirm' => true,
-		);
+			'Tags' => $params['tags'],
+			'EditingRestriction' => $editingRestriction,
+			'PageRestrictions' => $pageRestrictions,
+			'NamespaceRestrictions' => $namespaceRestrictions,
+		];
 
 		$retval = SpecialBlock::processForm( $data, $this->getContext() );
 		if ( $retval !== true ) {
-			// We don't care about multiple errors, just report one of them
-			$this->dieUsageMsg( $retval );
+			$this->dieStatus( $this->errorArrayToStatus( $retval ) );
 		}
 
 		list( $target, /*...*/ ) = SpecialBlock::getTargetAndType( $params['user'] );
 		$res['user'] = $params['user'];
 		$res['userID'] = $target instanceof User ? $target->getId() : 0;
 
-		$block = Block::newFromTarget( $target );
+		$block = Block::newFromTarget( $target, null, true );
 		if ( $block instanceof Block ) {
-			$res['expiry'] = $block->mExpiry == $this->getDB()->getInfinity()
-				? 'infinite'
-				: wfTimestamp( TS_ISO_8601, $block->mExpiry );
+			$res['expiry'] = ApiResult::formatExpiry( $block->mExpiry, 'infinite' );
 			$res['id'] = $block->getId();
 		} else {
 			# should be unreachable
-			$res['expiry'] = '';
-			$res['id'] = '';
+			$res['expiry'] = ''; // @codeCoverageIgnore
+			$res['id'] = ''; // @codeCoverageIgnore
 		}
 
 		$res['reason'] = $params['reason'];
-		if ( $params['anononly'] ) {
-			$res['anononly'] = '';
-		}
-		if ( $params['nocreate'] ) {
-			$res['nocreate'] = '';
-		}
-		if ( $params['autoblock'] ) {
-			$res['autoblock'] = '';
-		}
-		if ( $params['noemail'] ) {
-			$res['noemail'] = '';
-		}
-		if ( $params['hidename'] ) {
-			$res['hidename'] = '';
-		}
-		if ( $params['allowusertalk'] ) {
-			$res['allowusertalk'] = '';
-		}
-		if ( $params['watchuser'] ) {
-			$res['watchuser'] = '';
+		$res['anononly'] = $params['anononly'];
+		$res['nocreate'] = $params['nocreate'];
+		$res['autoblock'] = $params['autoblock'];
+		$res['noemail'] = $params['noemail'];
+		$res['hidename'] = $params['hidename'];
+		$res['allowusertalk'] = $params['allowusertalk'];
+		$res['watchuser'] = $params['watchuser'];
+
+		if ( $this->getConfig()->get( 'EnablePartialBlocks' ) ) {
+			$res['partial'] = $params['partial'];
+			$res['pagerestrictions'] = $params['pagerestrictions'];
+			$res['namespacerestrictions'] = $params['namespacerestrictions'];
 		}
 
 		$this->getResult()->addValue( null, $this->getModuleName(), $res );
@@ -147,12 +170,13 @@ class ApiBlock extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'user' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
-			'token' => null,
+		$params = [
+			'user' => [
+				ApiBase::PARAM_TYPE => 'user',
+			],
+			'userid' => [
+				ApiBase::PARAM_TYPE => 'integer',
+			],
 			'expiry' => 'never',
 			'reason' => '',
 			'anononly' => false,
@@ -163,94 +187,44 @@ class ApiBlock extends ApiBase {
 			'allowusertalk' => false,
 			'reblock' => false,
 			'watchuser' => false,
-		);
-	}
+			'tags' => [
+				ApiBase::PARAM_TYPE => 'tags',
+				ApiBase::PARAM_ISMULTI => true,
+			],
+		];
 
-	public function getParamDescription() {
-		return array(
-			'user' => 'Username, IP address or IP range you want to block',
-			'token' => 'A block token previously obtained through prop=info',
-			'expiry' => 'Relative expiry time, e.g. \'5 months\' or \'2 weeks\'. ' .
-				'If set to \'infinite\', \'indefinite\' or \'never\', the block will never expire.',
-			'reason' => 'Reason for block',
-			'anononly' => 'Block anonymous users only (i.e. disable anonymous edits for this IP)',
-			'nocreate' => 'Prevent account creation',
-			'autoblock' => 'Automatically block the last used IP address, and ' .
-				'any subsequent IP addresses they try to login from',
-			'noemail'
-				=> 'Prevent user from sending email through the wiki. (Requires the "blockemail" right.)',
-			'hidename' => 'Hide the username from the block log. (Requires the "hideuser" right.)',
-			'allowusertalk'
-				=> 'Allow the user to edit their own talk page (depends on $wgBlockAllowsUTEdit)',
-			'reblock' => 'If the user is already blocked, overwrite the existing block',
-			'watchuser' => 'Watch the user/IP\'s user and talk pages',
-		);
-	}
+		if ( $this->getConfig()->get( 'EnablePartialBlocks' ) ) {
+			$params['partial'] = false;
+			$params['pagerestrictions'] = [
+				ApiBase::PARAM_ISMULTI => true,
+				ApiBase::PARAM_ISMULTI_LIMIT1 => 10,
+				ApiBase::PARAM_ISMULTI_LIMIT2 => 10,
+			];
+			$params['namespacerestrictions'] = [
+				ApiBase::PARAM_ISMULTI => true,
+				ApiBase::PARAM_TYPE => 'namespace',
+			];
+		}
 
-	public function getResultProperties() {
-		return array(
-			'' => array(
-				'user' => array(
-					ApiBase::PROP_TYPE => 'string',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'userID' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'expiry' => array(
-					ApiBase::PROP_TYPE => 'string',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'id' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'reason' => array(
-					ApiBase::PROP_TYPE => 'string',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'anononly' => 'boolean',
-				'nocreate' => 'boolean',
-				'autoblock' => 'boolean',
-				'noemail' => 'boolean',
-				'hidename' => 'boolean',
-				'allowusertalk' => 'boolean',
-				'watchuser' => 'boolean'
-			)
-		);
-	}
-
-	public function getDescription() {
-		return 'Block a user';
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'cantblock' ),
-			array( 'canthide' ),
-			array( 'cantblock-email' ),
-			array( 'ipbblocked' ),
-			array( 'ipbnounblockself' ),
-		) );
+		return $params;
 	}
 
 	public function needsToken() {
-		return true;
+		return 'csrf';
 	}
 
-	public function getTokenSalt() {
-		return '';
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=block&user=123.5.5.12&expiry=3%20days&reason=First%20strike',
-			'api.php?action=block&user=Vandal&expiry=never&reason=Vandalism&nocreate=&autoblock=&noemail='
-		);
+	protected function getExamplesMessages() {
+		// phpcs:disable Generic.Files.LineLength
+		return [
+			'action=block&user=192.0.2.5&expiry=3%20days&reason=First%20strike&token=123ABC'
+				=> 'apihelp-block-example-ip-simple',
+			'action=block&user=Vandal&expiry=never&reason=Vandalism&nocreate=&autoblock=&noemail=&token=123ABC'
+				=> 'apihelp-block-example-user-complex',
+		];
+		// phpcs:enable
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Block';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Block';
 	}
 }

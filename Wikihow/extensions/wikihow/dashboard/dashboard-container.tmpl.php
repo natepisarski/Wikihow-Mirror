@@ -60,7 +60,6 @@ WH.dashboard.appShortCodes = <?= json_encode($appShortCodes) ?>;
 			<?= call_user_func($displayWidgetsFunc, $userWidgets) ?>
 			<div class="clearall"></div>
 		</div>
-		<script>$(document).ready(WH.dashboard.init);</script>
 		<div class="comdash-controls">
 			<a href="#" class="comdash-pause"><?= wfMessage('cd-pause-updates') ?></a> |
 			<a href="#" class="comdash-settings"><?= wfMessage('cd-settings') ?></a>

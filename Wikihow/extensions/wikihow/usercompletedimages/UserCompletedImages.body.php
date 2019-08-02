@@ -76,13 +76,11 @@ class UserCompletedImages extends UnlistedSpecialPage {
 			'uci_article_name' => $data['fromPage']);
 
 		$dbw = wfGetDB(DB_MASTER);
-		$dbw->begin();
 		$dbw->insert(
 			'user_completed_images',
 			$uci_row_data,
 			__METHOD__,
 			array());
-		$dbw->commit();
 	}
 
 	protected function uploadImage() {
@@ -239,12 +237,10 @@ class UserCompletedImages extends UnlistedSpecialPage {
 
 		$file->delete($comment);
 		$dbw = wfGetDB(DB_MASTER);
-		$dbw->begin();
 		$dbw->delete(
 			'user_completed_images',
 			array('uci_image_name' => $imgDBKey),
 			__METHOD__);
-		$dbw->commit();
 
 		$result['success'] = 1;
 
@@ -542,7 +538,7 @@ class UserCompletedImages extends UnlistedSpecialPage {
 		return $thumbs;
 	}
 
-	public static function getDesktopSectionHtml( $context, $title = null, $offset = 0, $limit = 5 ) {
+	public static function getDesktopSectionHTML( $context, $title = null, $offset = 0, $limit = 5 ) {
 		$result = '';
 
 		if (!$context) {

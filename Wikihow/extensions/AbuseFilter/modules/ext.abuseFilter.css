@@ -8,7 +8,8 @@ table.mw-abuselog-details {
 	table-layout: fixed;
 }
 
-table.mw-abuselog-details th, table.mw-abuselog-details td {
+table.mw-abuselog-details th,
+table.mw-abuselog-details td {
 	border: 1px #aaa solid;
 	padding: 0.2em;
 }
@@ -22,7 +23,13 @@ table.mw-abuselog-details caption {
 	font-weight: bold;
 }
 
-.mw-abusefilter-history-changed {
+.mw-abusefilter-log-hidden-entry {
+	text-decoration: line-through;
+	color: #72777d;
+	font-style: italic;
+}
+
+body td.mw-abusefilter-history-changed {
 	background: #ffe0e0;
 	font-weight: bold;
 }
@@ -42,31 +49,93 @@ td.mw-abuselog-var {
 	width: 30%;
 }
 
-tr.mw-abusefilter-list-disabled, tr.mw-abusefilter-list-disabled td {
-	color: #666666;
+table.mw-abusefilter-list-scrollable {
+	display: block;
+	border: 0;
+	overflow-x: auto;
 }
 
-tr.mw-abusefilter-list-deleted, tr.mw-abusefilter-list-deleted td {
-	color: #aaaaaa;
+.client-nojs .mw-abusefilter-javascript-tools {
+	display: none;
+}
+
+#mw-abusefilter-throttle-parameters,
+#mw-abusefilter-warn-parameters,
+#mw-abusefilter-disallow-parameters,
+#mw-abusefilter-tag-parameters,
+#mw-abusefilter-block-parameters {
+	width: 50%;
+	padding-left: 3em;
+}
+
+.mw-abusefilter-preview-buttons {
+	text-align: center;
+}
+
+#mw-abusefilter-warn-preview,
+#mw-abusefilter-disallow-preview {
+	border: 1px solid #a2a9b1;
+	margin: 2em;
+	padding: 1em;
+}
+
+.client-nojs #mw-abusefilter-export-link,
+.client-js #mw-abusefilter-export {
+	display: none;
+}
+
+tr.mw-abusefilter-list-disabled,
+tr.mw-abusefilter-list-disabled td {
+	color: #666;
+}
+
+tr.mw-abusefilter-list-deleted,
+tr.mw-abusefilter-list-deleted td {
+	color: #aaa;
+}
+
+tr.mw-abusefilter-list-throttled,
+tr.mw-abusefilter-list-throttled td {
+	color: #f00;
 }
 
 .mw-abusefilter-examine-match,
 .mw-abusefilter-syntaxresult-ok,
 li.mw-abusefilter-changeslist-match {
 	/* @embed */
-	background-image: url(yes_check.png);
+	background-image: url( yes_check.png );
 }
 
 .mw-abusefilter-examine-nomatch,
 .mw-abusefilter-syntaxresult-error,
 li.mw-abusefilter-changeslist-nomatch {
 	/* @embed */
-	background-image: url(red_x.png);
+	background-image: url( red_x.png );
+}
+
+div.mw-abusefilter-editor {
+	max-width: 75em;
+	height: 30em;
+	line-height: 1.5em;
+	border: 1px solid #a2a9b1;
+	display: none;
+}
+
+fieldset.mw-abusefilter-edit-buttons {
+	margin-top: 1em;
+}
+
+.mw-abusefilter-load-filter-id {
+	max-width: 50em;
+}
+
+.client-nojs .mw-abusefilter-load-filter-id {
+	display: none;
 }
 
 #mw-abusefilter-syntaxresult,
-li.mw-abusefilter-changeslist-nomatch,
-li.mw-abusefilter-changeslist-match {
+ul li.mw-abusefilter-changeslist-nomatch,
+ul li.mw-abusefilter-changeslist-match {
 	/* Do not consolidate these into a "background:" rule; it will override the background-image: settings in above rulesets */
 	background-repeat: no-repeat;
 	padding-left: 25px;
@@ -88,7 +157,17 @@ li.mw-abusefilter-changeslist-match {
 	display: inline;
 }
 
-.client-nojs #mw-abusefilter-export-link,
-.client-js #mw-abusefilter-export {
-	display: none;
+.mw-abusefilter-history-buttons {
+	text-align: center;
+}
+
+/* Ace highlight customisation */
+
+span.ace_invalid.ace_deprecated {
+	color: #fe6767;
+	background-color: initial;
+}
+
+span.ace_support.ace_function {
+	color: #495dd0;
 }

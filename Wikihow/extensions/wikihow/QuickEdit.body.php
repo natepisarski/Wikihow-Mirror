@@ -36,13 +36,13 @@ class QuickEdit extends UnlistedSpecialPage {
 	 * @param Title $title title object describing which article to edit
 	 */
 	public static function showEditForm($title) {
-		global $wgTitle;
-
 		$ctx = RequestContext::getMain();
+		$wikiPage = WikiPage::factory( $title );
+		$ctx->setWikiPage($wikiPage);
+
 		$req = $ctx->getRequest();
 		$out = $ctx->getOutput();
 
-		$wgTitle = $title;
 		$article = new Article($title);
 		$editor = new EditPage($article);
 		$editor->edit();

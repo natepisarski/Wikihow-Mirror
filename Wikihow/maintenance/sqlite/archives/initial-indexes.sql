@@ -3,7 +3,7 @@
 -- Unique indexes need to be handled with INSERT SELECT since just running
 -- the CREATE INDEX statement will fail if there are duplicate values.
 --
--- Ignore duplicates, several tables will have them (e.g. bug 16966) but in
+-- Ignore duplicates, several tables will have them (e.g. T18966) but in
 -- most cases it's harmless to discard them.
 
 --------------------------------------------------------------------------------
@@ -69,7 +69,6 @@ CREATE TABLE /*_*/page_tmp (
   page_namespace int NOT NULL,
   page_title varchar(255) binary NOT NULL,
   page_restrictions tinyblob NOT NULL,
-  page_counter bigint unsigned NOT NULL default 0,
   page_is_redirect tinyint unsigned NOT NULL default 0,
   page_is_new tinyint unsigned NOT NULL default 0,
   page_random real unsigned NOT NULL,
@@ -164,7 +163,6 @@ CREATE INDEX /*i*/ll_lang_title ON /*_*/langlinks_tmp (ll_lang, ll_title);
 
 CREATE TABLE /*_*/site_stats_tmp (
   ss_row_id int unsigned NOT NULL,
-  ss_total_views bigint unsigned default 0,
   ss_total_edits bigint unsigned default 0,
   ss_good_articles bigint unsigned default 0,
   ss_total_pages bigint default '-1',
@@ -396,14 +394,6 @@ CREATE UNIQUE INDEX /*i*/si_page ON /*_*/searchindex (si_page);
 CREATE INDEX /*i*/si_title ON /*_*/searchindex (si_title);
 CREATE INDEX /*i*/si_text ON /*_*/searchindex (si_text);
 
-DROP TABLE IF EXISTS /*_*/transcache;
-CREATE TABLE /*_*/transcache (
-  tc_url varbinary(255) NOT NULL,
-  tc_contents text,
-  tc_time int NOT NULL
-) /*$wgDBTableOptions*/;
-CREATE UNIQUE INDEX /*i*/tc_url_idx ON /*_*/transcache (tc_url);
-
 DROP TABLE IF EXISTS /*_*/querycache_info;
 CREATE TABLE /*_*/querycache_info (
   qci_type varbinary(32) NOT NULL default '',
@@ -443,7 +433,7 @@ CREATE INDEX /*i*/fa_group_key ON /*_*/filearchive (fa_storage_group, fa_storage
 CREATE INDEX /*i*/fa_deleted_timestamp ON /*_*/filearchive (fa_deleted_timestamp);
 CREATE INDEX /*i*/fa_user_timestamp ON /*_*/filearchive (fa_user_text,fa_timestamp);
 CREATE INDEX /*i*/rc_timestamp ON /*_*/recentchanges (rc_timestamp);
-CREATE INDEX /*i*/rc_namespace_title ON /*_*/recentchanges (rc_namespace, rc_title);
+CREATE INDEX /*i*/rc_namespace_title_timestamp ON /*_*/recentchanges (rc_namespace, rc_title, rc_timestamp);
 CREATE INDEX /*i*/rc_cur_id ON /*_*/recentchanges (rc_cur_id);
 CREATE INDEX /*i*/new_name_timestamp ON /*_*/recentchanges (rc_new,rc_namespace,rc_timestamp);
 CREATE INDEX /*i*/rc_ip ON /*_*/recentchanges (rc_ip);

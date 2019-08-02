@@ -18,33 +18,42 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
- * @ingroup Upload
  */
 
 /**
  * UploadStash is intended to accomplish a few things:
- *   - enable applications to temporarily stash files without publishing them to the wiki.
- *      - Several parts of MediaWiki do this in similar ways: UploadBase, UploadWizard, and FirefoggChunkedExtension
- *        And there are several that reimplement stashing from scratch, in idiosyncratic ways. The idea is to unify them all here.
- *	  Mostly all of them are the same except for storing some custom fields, which we subsume into the data array.
- *   - enable applications to find said files later, as long as the db table or temp files haven't been purged.
- *   - enable the uploading user (and *ONLY* the uploading user) to access said files, and thumbnails of said files, via a URL.
- *     We accomplish this using a database table, with ownership checking as you might expect. See SpecialUploadStash, which
- *     implements a web interface to some files stored this way.
+ *   - Enable applications to temporarily stash files without publishing them to
+ *     the wiki.
+ *      - Several parts of MediaWiki do this in similar ways: UploadBase,
+ *        UploadWizard, and FirefoggChunkedExtension.
+ *        And there are several that reimplement stashing from scratch, in
+ *        idiosyncratic ways. The idea is to unify them all here.
+ *        Mostly all of them are the same except for storing some custom fields,
+ *        which we subsume into the data array.
+ *   - Enable applications to find said files later, as long as the db table or
+ *     temp files haven't been purged.
+ *   - Enable the uploading user (and *ONLY* the uploading user) to access said
+ *     files, and thumbnails of said files, via a URL. We accomplish this using
+ *     a database table, with ownership checking as you might expect. See
+ *     SpecialUploadStash, which implements a web interface to some files stored
+ *     this way.
  *
- * UploadStash right now is *mostly* intended to show you one user's slice of the entire stash. The user parameter is only optional
- * because there are few cases where we clean out the stash from an automated script. In the future we might refactor this.
+ * UploadStash right now is *mostly* intended to show you one user's slice of
+ * the entire stash. The user parameter is only optional because there are few
+ * cases where we clean out the stash from an automated script. In the future we
+ * might refactor this.
  *
  * UploadStash represents the entire stash of temporary files.
  * UploadStashFile is a filestore for the actual physical disk files.
- * UploadFromStash extends UploadBase, and represents a single stashed file as it is moved from the stash to the regular file repository
+ * UploadFromStash extends UploadBase, and represents a single stashed file as
+ * it is moved from the stash to the regular file repository
  *
  * @ingroup Upload
  */
 class UploadStash {
-
 	// Format of the key for files -- has to be suitable as a filename itself (e.g. ab12cd34ef.jpg)
-	const KEY_FORMAT_REGEX = '/^[\w-\.]+\.\w*$/';
+	const KEY_FORMAT_REGEX = '/^[\w\-\.]+\.\w*$/';
+	const MAX_US_PROPS_SIZE = 65535;
 
 	/**
 	 * repository that this uses to store temp files
@@ -55,13 +64,13 @@ class UploadStash {
 	public $repo;
 
 	// array of initialized repo objects
-	protected $files = array();
+	protected $files = [];
 
 	// cache of the file metadata that's stored in the database
-	protected $fileMetadata = array();
+	protected $fileMetadata = [];
 
 	// fileprops cache
-	protected $fileProps = array();
+	protected $fileProps = [];
 
 	// current user
 	protected $user, $userId, $isLoggedIn;
@@ -71,8 +80,8 @@ class UploadStash {
 	 * Designed to be compatible with the session stashing code in UploadBase
 	 * (should replace it eventually).
 	 *
-	 * @param $repo FileRepo
-	 * @param $user User (default null)
+	 * @param FileRepo $repo
+	 * @param User|null $user
 	 */
 	public function __construct( FileRepo $repo, $user = null ) {
 		// this might change based on wiki's configuration.
@@ -95,10 +104,11 @@ class UploadStash {
 
 	/**
 	 * Get a file and its metadata from the stash.
-	 * The noAuth param is a bit janky but is required for automated scripts which clean out the stash.
+	 * The noAuth param is a bit janky but is required for automated scripts
+	 * which clean out the stash.
 	 *
-	 * @param string $key key under which file information is stored
-	 * @param $noAuth Boolean (optional) Don't check authentication. Used by maintenance scripts.
+	 * @param string $key Key under which file information is stored
+	 * @param bool $noAuth (optional) Don't check authentication. Used by maintenance scripts.
 	 * @throws UploadStashFileNotFoundException
 	 * @throws UploadStashNotLoggedInException
 	 * @throws UploadStashWrongOwnerException
@@ -106,23 +116,29 @@ class UploadStash {
 	 * @return UploadStashFile
 	 */
 	public function getFile( $key, $noAuth = false ) {
-		if ( ! preg_match( self::KEY_FORMAT_REGEX, $key ) ) {
-			throw new UploadStashBadPathException( "key '$key' is not in a proper format" );
+		if ( !preg_match( self::KEY_FORMAT_REGEX, $key ) ) {
+			throw new UploadStashBadPathException(
+				wfMessage( 'uploadstash-bad-path-bad-format', $key )
+			);
 		}
 
 		if ( !$noAuth && !$this->isLoggedIn ) {
-			throw new UploadStashNotLoggedInException( __METHOD__ .
-				' No user is logged in, files must belong to users' );
+			throw new UploadStashNotLoggedInException(
+				wfMessage( 'uploadstash-not-logged-in' )
+			);
 		}
 
 		if ( !isset( $this->fileMetadata[$key] ) ) {
 			if ( !$this->fetchFileMetadata( $key ) ) {
-				// If nothing was received, it's likely due to replication lag.  Check the master to see if the record is there.
+				// If nothing was received, it's likely due to replication lag.
+				// Check the master to see if the record is there.
 				$this->fetchFileMetadata( $key, DB_MASTER );
 			}
 
 			if ( !isset( $this->fileMetadata[$key] ) ) {
-				throw new UploadStashFileNotFoundException( "key '$key' not found in stash" );
+				throw new UploadStashFileNotFoundException(
+					wfMessage( 'uploadstash-file-not-found', $key )
+				);
 			}
 
 			// create $this->files[$key]
@@ -142,17 +158,22 @@ class UploadStash {
 		// since it might not exist on local app server. This is needed because
 		// we're removing dependence on NFS.
 		if ( ! $this->files[$key]->exists() ) {
-			wfRunHooks('UploadStashGetFile', [ $this->files[$key] ]);
+			Hooks::run('UploadStashGetFile', [ $this->files[$key] ]);
 		}
 
 		if ( ! $this->files[$key]->exists() ) {
 			wfDebug( __METHOD__ . " tried to get file at $key, but it doesn't exist\n" );
-			throw new UploadStashBadPathException( "path doesn't exist" );
+			// @todo Is this not an UploadStashFileNotFoundException case?
+			throw new UploadStashBadPathException(
+				wfMessage( 'uploadstash-bad-path' )
+			);
 		}
 
 		if ( !$noAuth ) {
 			if ( $this->fileMetadata[$key]['us_user'] != $this->userId ) {
-				throw new UploadStashWrongOwnerException( "This file ($key) doesn't belong to the current user." );
+				throw new UploadStashWrongOwnerException(
+					wfMessage( 'uploadstash-wrong-owner', $key )
+				);
 			}
 		}
 
@@ -162,41 +183,49 @@ class UploadStash {
 	/**
 	 * Getter for file metadata.
 	 *
-	 * @param string $key key under which file information is stored
-	 * @return Array
+	 * @param string $key Key under which file information is stored
+	 * @return array
 	 */
 	public function getMetadata( $key ) {
 		$this->getFile( $key );
+
 		return $this->fileMetadata[$key];
 	}
 
 	/**
 	 * Getter for fileProps
 	 *
-	 * @param string $key key under which file information is stored
-	 * @return Array
+	 * @param string $key Key under which file information is stored
+	 * @return array
 	 */
 	public function getFileProps( $key ) {
 		$this->getFile( $key );
+
 		return $this->fileProps[$key];
 	}
 
 	/**
-	 * Stash a file in a temp directory and record that we did this in the database, along with other metadata.
+	 * Stash a file in a temp directory and record that we did this in the
+	 * database, along with other metadata.
 	 *
-	 * @param string $path path to file you want stashed
-	 * @param string $sourceType the type of upload that generated this file (currently, I believe, 'file' or null)
+	 * @param string $path Path to file you want stashed
+	 * @param string|null $sourceType The type of upload that generated this file
+	 *   (currently, I believe, 'file' or null)
 	 * @throws UploadStashBadPathException
 	 * @throws UploadStashFileException
 	 * @throws UploadStashNotLoggedInException
-	 * @return UploadStashFile: file, or null on failure
+	 * @return UploadStashFile|null File, or null on failure
 	 */
 	public function stashFile( $path, $sourceType = null ) {
 		if ( !is_file( $path ) ) {
 			wfDebug( __METHOD__ . " tried to stash file at '$path', but it doesn't exist\n" );
-			throw new UploadStashBadPathException( "path doesn't exist" );
+			throw new UploadStashBadPathException(
+				wfMessage( 'uploadstash-bad-path' )
+			);
 		}
-		$fileProps = FSFile::getPropsFromPath( $path );
+
+		$mwProps = new MWFileProps( MediaWiki\MediaWikiServices::getInstance()->getMimeAnalyzer() );
+		$fileProps = $mwProps->getPropsFromPath( $path, true );
 		wfDebug( __METHOD__ . " stashing file at '$path'\n" );
 
 		// we will be initializing from some tmpnam files that don't have extensions.
@@ -208,22 +237,24 @@ class UploadStash {
 			$pathWithGoodExtension = $path;
 		}
 
-		// If no key was supplied, make one.  a mysql insertid would be totally reasonable here, except
-		// that for historical reasons, the key is this random thing instead.  At least it's not guessable.
-		//
-		// some things that when combined will make a suitably unique key.
+		// If no key was supplied, make one.  a mysql insertid would be totally
+		// reasonable here, except that for historical reasons, the key is this
+		// random thing instead.  At least it's not guessable.
+		// Some things that when combined will make a suitably unique key.
 		// see: http://www.jwz.org/doc/mid.html
 		list( $usec, $sec ) = explode( ' ', microtime() );
 		$usec = substr( $usec, 2 );
-		$key = wfBaseConvert( $sec . $usec, 10, 36 ) . '.' .
-			wfBaseConvert( mt_rand(), 10, 36 ) . '.' .
+		$key = Wikimedia\base_convert( $sec . $usec, 10, 36 ) . '.' .
+			Wikimedia\base_convert( mt_rand(), 10, 36 ) . '.' .
 			$this->userId . '.' .
 			$extension;
 
 		$this->fileProps[$key] = $fileProps;
 
-		if ( ! preg_match( self::KEY_FORMAT_REGEX, $key ) ) {
-			throw new UploadStashBadPathException( "key '$key' is not in a proper format" );
+		if ( !preg_match( self::KEY_FORMAT_REGEX, $key ) ) {
+			throw new UploadStashBadPathException(
+				wfMessage( 'uploadstash-bad-path-bad-format', $key )
+			);
 		}
 
 		wfDebug( __METHOD__ . " key for '$path': $key\n" );
@@ -231,43 +262,57 @@ class UploadStash {
 		// if not already in a temporary area, put it there
 		$storeStatus = $this->repo->storeTemp( basename( $pathWithGoodExtension ), $path );
 
-		if ( ! $storeStatus->isOK() ) {
-			// It is a convention in MediaWiki to only return one error per API exception, even if multiple errors
-			// are available. We use reset() to pick the "first" thing that was wrong, preferring errors to warnings.
-			// This is a bit lame, as we may have more info in the $storeStatus and we're throwing it away, but to fix it means
+		if ( !$storeStatus->isOK() ) {
+			// It is a convention in MediaWiki to only return one error per API
+			// exception, even if multiple errors are available. We use reset()
+			// to pick the "first" thing that was wrong, preferring errors to
+			// warnings. This is a bit lame, as we may have more info in the
+			// $storeStatus and we're throwing it away, but to fix it means
 			// redesigning API errors significantly.
-			// $storeStatus->value just contains the virtual URL (if anything) which is probably useless to the caller
+			// $storeStatus->value just contains the virtual URL (if anything)
+			// which is probably useless to the caller.
 			$error = $storeStatus->getErrorsArray();
 			$error = reset( $error );
-			if ( ! count( $error ) ) {
+			if ( !count( $error ) ) {
 				$error = $storeStatus->getWarningsArray();
 				$error = reset( $error );
-				if ( ! count( $error ) ) {
-					$error = array( 'unknown', 'no error recorded' );
+				if ( !count( $error ) ) {
+					$error = [ 'unknown', 'no error recorded' ];
 				}
 			}
-			// at this point, $error should contain the single "most important" error, plus any parameters.
+			// At this point, $error should contain the single "most important"
+			// error, plus any parameters.
 			$errorMsg = array_shift( $error );
-			throw new UploadStashFileException( "Error storing file in '$path': " . wfMessage( $errorMsg, $error )->text() );
+			throw new UploadStashFileException( wfMessage( $errorMsg, $error ) );
 		}
 		$stashPath = $storeStatus->value;
 
 		// fetch the current user ID
 		if ( !$this->isLoggedIn ) {
-			throw new UploadStashNotLoggedInException( __METHOD__ . ' No user is logged in, files must belong to users' );
+			throw new UploadStashNotLoggedInException(
+				wfMessage( 'uploadstash-not-logged-in' )
+			);
 		}
 
 		// insert the file metadata into the db.
 		wfDebug( __METHOD__ . " inserting $stashPath under $key\n" );
-		$dbw = $this->repo->getMasterDb();
+		$dbw = $this->repo->getMasterDB();
 
-		$this->fileMetadata[$key] = array(
-			'us_id' => $dbw->nextSequenceValue( 'uploadstash_us_id_seq' ),
+		$serializedFileProps = serialize( $fileProps );
+		if ( strlen( $serializedFileProps ) > self::MAX_US_PROPS_SIZE ) {
+			// Database is going to truncate this and make the field invalid.
+			// Prioritize important metadata over file handler metadata.
+			// File handler should be prepared to regenerate invalid metadata if needed.
+			$fileProps['metadata'] = false;
+			$serializedFileProps = serialize( $fileProps );
+		}
+
+		$this->fileMetadata[$key] = [
 			'us_user' => $this->userId,
 			'us_key' => $key,
 			'us_orig_path' => $path,
 			'us_path' => $stashPath, // virtual URL
-			'us_props' => $dbw->encodeBlob( serialize( $fileProps ) ),
+			'us_props' => $dbw->encodeBlob( $serializedFileProps ),
 			'us_size' => $fileProps['size'],
 			'us_sha1' => $fileProps['sha1'],
 			'us_mime' => $fileProps['mime'],
@@ -278,7 +323,7 @@ class UploadStash {
 			'us_source_type' => $sourceType,
 			'us_timestamp' => $dbw->timestamp(),
 			'us_status' => 'finished'
-		);
+		];
 
 		$dbw->insert(
 			'uploadstash',
@@ -286,7 +331,8 @@ class UploadStash {
 			__METHOD__
 		);
 
-		// store the insertid in the class variable so immediate retrieval (possibly laggy) isn't necesary.
+		// store the insertid in the class variable so immediate retrieval
+		// (possibly laggy) isn't necessary.
 		$this->fileMetadata[$key]['us_id'] = $dbw->insertId();
 
 		# create the UploadStashFile object for this file.
@@ -294,7 +340,7 @@ class UploadStash {
 
 		// Reuben, wikiHow (May 21, 2015): upload stashed temp files to S3 so they
 		// are available on other app servers without needing NFS
-		wfRunHooks('UploadStashProcessFile', [ $this->files[$key] ]);
+		Hooks::run('UploadStashProcessFile', [ $this->files[$key] ]);
 
 		return $this->getFile( $key );
 	}
@@ -304,24 +350,26 @@ class UploadStash {
 	 * Does not clean up files in the repo, just the record of them.
 	 *
 	 * @throws UploadStashNotLoggedInException
-	 * @return boolean: success
+	 * @return bool Success
 	 */
 	public function clear() {
 		if ( !$this->isLoggedIn ) {
-			throw new UploadStashNotLoggedInException( __METHOD__ . ' No user is logged in, files must belong to users' );
+			throw new UploadStashNotLoggedInException(
+				wfMessage( 'uploadstash-not-logged-in' )
+			);
 		}
 
 		wfDebug( __METHOD__ . ' clearing all rows for user ' . $this->userId . "\n" );
-		$dbw = $this->repo->getMasterDb();
+		$dbw = $this->repo->getMasterDB();
 		$dbw->delete(
 			'uploadstash',
-			array( 'us_user' => $this->userId ),
+			[ 'us_user' => $this->userId ],
 			__METHOD__
 		);
 
 		# destroy objects.
-		$this->files = array();
-		$this->fileMetadata = array();
+		$this->files = [];
+		$this->fileMetadata = [];
 
 		return true;
 	}
@@ -329,32 +377,39 @@ class UploadStash {
 	/**
 	 * Remove a particular file from the stash.  Also removes it from the repo.
 	 *
-	 * @param $key
-	 * @throws UploadStashNoSuchKeyException|UploadStashNotLoggedInException|UploadStashWrongOwnerException
-	 * @return boolean: success
+	 * @param string $key
+	 * @throws UploadStashNoSuchKeyException|UploadStashNotLoggedInException
+	 * @throws UploadStashWrongOwnerException
+	 * @return bool Success
 	 */
 	public function removeFile( $key ) {
 		if ( !$this->isLoggedIn ) {
-			throw new UploadStashNotLoggedInException( __METHOD__ . ' No user is logged in, files must belong to users' );
+			throw new UploadStashNotLoggedInException(
+				wfMessage( 'uploadstash-not-logged-in' )
+			);
 		}
 
-		$dbw = $this->repo->getMasterDb();
+		$dbw = $this->repo->getMasterDB();
 
-		// this is a cheap query. it runs on the master so that this function still works when there's lag.
-		// it won't be called all that often.
+		// this is a cheap query. it runs on the master so that this function
+		// still works when there's lag. It won't be called all that often.
 		$row = $dbw->selectRow(
 			'uploadstash',
 			'us_user',
-			array( 'us_key' => $key ),
+			[ 'us_key' => $key ],
 			__METHOD__
 		);
 
 		if ( !$row ) {
-			throw new UploadStashNoSuchKeyException( "No such key ($key), cannot remove" );
+			throw new UploadStashNoSuchKeyException(
+				wfMessage( 'uploadstash-no-such-key', $key )
+			);
 		}
 
 		if ( $row->us_user != $this->userId ) {
-			throw new UploadStashWrongOwnerException( "Can't delete: the file ($key) doesn't belong to this user." );
+			throw new UploadStashWrongOwnerException(
+				wfMessage( 'uploadstash-wrong-owner', $key )
+			);
 		}
 
 		return $this->removeFileNoAuth( $key );
@@ -363,7 +418,8 @@ class UploadStash {
 	/**
 	 * Remove a file (see removeFile), but doesn't check ownership first.
 	 *
-	 * @return boolean: success
+	 * @param string $key
+	 * @return bool Success
 	 */
 	public function removeFileNoAuth( $key ) {
 		wfDebug( __METHOD__ . " clearing row $key\n" );
@@ -371,16 +427,17 @@ class UploadStash {
 		// Ensure we have the UploadStashFile loaded for this key
 		$this->getFile( $key, true );
 
-		$dbw = $this->repo->getMasterDb();
+		$dbw = $this->repo->getMasterDB();
 
 		$dbw->delete(
 			'uploadstash',
-			array( 'us_key' => $key ),
+			[ 'us_key' => $key ],
 			__METHOD__
 		);
 
-		// TODO: look into UnregisteredLocalFile and find out why the rv here is sometimes wrong (false when file was removed)
-		// for now, ignore.
+		/** @todo Look into UnregisteredLocalFile and find out why the rv here is
+		 *  sometimes wrong (false when file was removed). For now, ignore.
+		 */
 		$this->files[$key]->remove();
 
 		unset( $this->files[$key] );
@@ -393,18 +450,20 @@ class UploadStash {
 	 * List all files in the stash.
 	 *
 	 * @throws UploadStashNotLoggedInException
-	 * @return Array
+	 * @return array
 	 */
 	public function listFiles() {
 		if ( !$this->isLoggedIn ) {
-			throw new UploadStashNotLoggedInException( __METHOD__ . ' No user is logged in, files must belong to users' );
+			throw new UploadStashNotLoggedInException(
+				wfMessage( 'uploadstash-not-logged-in' )
+			);
 		}
 
-		$dbr = $this->repo->getSlaveDb();
+		$dbr = $this->repo->getReplicaDB();
 		$res = $dbr->select(
 			'uploadstash',
 			'us_key',
-			array( 'us_user' => $this->userId ),
+			[ 'us_user' => $this->userId ],
 			__METHOD__
 		);
 
@@ -414,7 +473,7 @@ class UploadStash {
 		}
 
 		// finish the read before starting writes.
-		$keys = array();
+		$keys = [];
 		foreach ( $res as $row ) {
 			array_push( $keys, $row->us_key );
 		}
@@ -423,12 +482,12 @@ class UploadStash {
 	}
 
 	/**
-	 * Find or guess extension -- ensuring that our extension matches our mime type.
+	 * Find or guess extension -- ensuring that our extension matches our MIME type.
 	 * Since these files are constructed from php tempnames they may not start off
 	 * with an extension.
 	 * XXX this is somewhat redundant with the checks that ApiUpload.php does with incoming
 	 * uploads versus the desired filename. Maybe we can get that passed to us...
-	 * @param $path
+	 * @param string $path
 	 * @throws UploadStashFileException
 	 * @return string
 	 */
@@ -440,17 +499,19 @@ class UploadStash {
 		if ( $n !== false ) {
 			$extension = $n ? substr( $path, $n + 1 ) : '';
 		} else {
-			// If not, assume that it should be related to the mime type of the original file.
-			$magic = MimeMagic::singleton();
+			// If not, assume that it should be related to the MIME type of the original file.
+			$magic = MediaWiki\MediaWikiServices::getInstance()->getMimeAnalyzer();
 			$mimeType = $magic->guessMimeType( $path );
-			$extensions = explode( ' ', MimeMagic::singleton()->getExtensionsForType( $mimeType ) );
+			$extensions = explode( ' ', $magic->getExtensionsForType( $mimeType ) );
 			if ( count( $extensions ) ) {
 				$extension = $extensions[0];
 			}
 		}
 
 		if ( is_null( $extension ) ) {
-			throw new UploadStashFileException( "extension is null" );
+			throw new UploadStashFileException(
+				wfMessage( 'uploadstash-no-extension' )
+			);
 		}
 
 		$extension = File::normalizeExtension( $extension );
@@ -461,30 +522,36 @@ class UploadStash {
 			// put it in a web accesible directory.
 			return '';
 		}
+
 		return $extension;
 	}
 
 	/**
 	 * Helper function: do the actual database query to fetch file metadata.
 	 *
-	 * @param string $key key
-	 * @param $readFromDB: constant (default: DB_SLAVE)
-	 * @return boolean
+	 * @param string $key
+	 * @param int $readFromDB Constant (default: DB_REPLICA)
+	 * @return bool
 	 */
-	protected function fetchFileMetadata( $key, $readFromDB = DB_SLAVE ) {
+	protected function fetchFileMetadata( $key, $readFromDB = DB_REPLICA ) {
 		// populate $fileMetadata[$key]
 		$dbr = null;
 		if ( $readFromDB === DB_MASTER ) {
 			// sometimes reading from the master is necessary, if there's replication lag.
-			$dbr = $this->repo->getMasterDb();
+			$dbr = $this->repo->getMasterDB();
 		} else {
-			$dbr = $this->repo->getSlaveDb();
+			$dbr = $this->repo->getReplicaDB();
 		}
 
 		$row = $dbr->selectRow(
 			'uploadstash',
-			'*',
-			array( 'us_key' => $key ),
+			[
+				'us_user', 'us_key', 'us_orig_path', 'us_path', 'us_props',
+				'us_size', 'us_sha1', 'us_mime', 'us_media_type',
+				'us_image_width', 'us_image_height', 'us_image_bits',
+				'us_source_type', 'us_timestamp', 'us_status',
+			],
+			[ 'us_key' => $key ],
 			__METHOD__
 		);
 
@@ -494,6 +561,7 @@ class UploadStash {
 		}
 
 		$this->fileMetadata[$key] = (array)$row;
+		$this->fileMetadata[$key]['us_props'] = $dbr->decodeBlob( $row->us_props );
 
 		return true;
 	}
@@ -501,32 +569,40 @@ class UploadStash {
 	/**
 	 * Helper function: Initialize the UploadStashFile for a given file.
 	 *
-	 * @param string $key key under which to store the object
+	 * @param string $key Key under which to store the object
 	 * @throws UploadStashZeroLengthFileException
 	 * @return bool
 	 */
 	protected function initFile( $key ) {
 		$file = new UploadStashFile( $this->repo, $this->fileMetadata[$key]['us_path'], $key );
 		if ( $file->getSize() === 0 ) {
-			throw new UploadStashZeroLengthFileException( "File is zero length" );
+			throw new UploadStashZeroLengthFileException(
+				wfMessage( 'uploadstash-zero-length' )
+			);
 		}
 		$this->files[$key] = $file;
+
 		return true;
 	}
 }
 
+/**
+ * @ingroup Upload
+ */
 class UploadStashFile extends UnregisteredLocalFile {
 	private $fileKey;
 	private $urlName;
 	protected $url;
 
 	/**
-	 * A LocalFile wrapper around a file that has been temporarily stashed, so we can do things like create thumbnails for it
-	 * Arguably UnregisteredLocalFile should be handling its own file repo but that class is a bit retarded currently
+	 * A LocalFile wrapper around a file that has been temporarily stashed,
+	 * so we can do things like create thumbnails for it. Arguably
+	 * UnregisteredLocalFile should be handling its own file repo but that
+	 * class is a bit retarded currently.
 	 *
-	 * @param $repo FileRepo: repository where we should find the path
-	 * @param string $path path to file
-	 * @param string $key key to store the path and any stashed data under
+	 * @param FileRepo $repo Repository where we should find the path
+	 * @param string $path Path to file
+	 * @param string $key Key to store the path and any stashed data under
 	 * @throws UploadStashBadPathException
 	 * @throws UploadStashFileNotFoundException
 	 */
@@ -534,22 +610,29 @@ class UploadStashFile extends UnregisteredLocalFile {
 		$this->fileKey = $key;
 
 		// resolve mwrepo:// urls
-		if ( $repo->isVirtualUrl( $path ) ) {
+		if ( FileRepo::isVirtualUrl( $path ) ) {
 			$path = $repo->resolveVirtualUrl( $path );
 		} else {
-
-			// check if path appears to be sane, no parent traversals, and is in this repo's temp zone.
+			// check if path appears to be sane, no parent traversals,
+			// and is in this repo's temp zone.
 			$repoTempPath = $repo->getZonePath( 'temp' );
-			if ( ( ! $repo->validateFilename( $path ) ) ||
-					( strpos( $path, $repoTempPath ) !== 0 ) ) {
-				wfDebug( "UploadStash: tried to construct an UploadStashFile from a file that should already exist at '$path', but path is not valid\n" );
-				throw new UploadStashBadPathException( 'path is not valid' );
+			if ( ( !$repo->validateFilename( $path ) ) ||
+				( strpos( $path, $repoTempPath ) !== 0 )
+			) {
+				wfDebug( "UploadStash: tried to construct an UploadStashFile "
+					. "from a file that should already exist at '$path', but path is not valid\n" );
+				throw new UploadStashBadPathException(
+					wfMessage( 'uploadstash-bad-path-invalid' )
+				);
 			}
 
 			// check if path exists! and is a plain file.
-			if ( ! $repo->fileExists( $path ) ) {
-				wfDebug( "UploadStash: tried to construct an UploadStashFile from a file that should already exist at '$path', but path is not found\n" );
-				throw new UploadStashFileNotFoundException( 'cannot find path, or not a plain file' );
+			if ( !$repo->fileExists( $path ) ) {
+				wfDebug( "UploadStash: tried to construct an UploadStashFile from "
+					. "a file that should already exist at '$path', but path is not found\n" );
+				throw new UploadStashFileNotFoundException(
+					wfMessage( 'uploadstash-file-not-found-not-exists' )
+				);
 			}
 		}
 
@@ -561,10 +644,10 @@ class UploadStashFile extends UnregisteredLocalFile {
 	/**
 	 * A method needed by the file transforming and scaling routines in File.php
 	 * We do not necessarily care about doing the description at this point
-	 * However, we also can't return the empty string, as the rest of MediaWiki demands this (and calls to imagemagick
-	 * convert require it to be there)
+	 * However, we also can't return the empty string, as the rest of MediaWiki
+	 * demands this (and calls to imagemagick convert require it to be there)
 	 *
-	 * @return String: dummy value
+	 * @return string Dummy value
 	 */
 	public function getDescriptionUrl() {
 		return $this->getUrl();
@@ -575,14 +658,17 @@ class UploadStashFile extends UnregisteredLocalFile {
 	 * The actual argument is the result of thumbName although we seem to have
 	 * buggy code elsewhere that expects a boolean 'suffix'
 	 *
-	 * @param string $thumbName name of thumbnail (e.g. "120px-123456.jpg" ), or false to just get the path
-	 * @return String: path thumbnail should take on filesystem, or containing directory if thumbname is false
+	 * @param string $thumbName Name of thumbnail (e.g. "120px-123456.jpg" ),
+	 *   or false to just get the path
+	 * @return string Path thumbnail should take on filesystem, or containing
+	 *   directory if thumbname is false
 	 */
 	public function getThumbPath( $thumbName = false ) {
 		$path = dirname( $this->path );
 		if ( $thumbName !== false ) {
 			$path .= "/$thumbName";
 		}
+
 		return $path;
 	}
 
@@ -591,18 +677,20 @@ class UploadStashFile extends UnregisteredLocalFile {
 	 * We override this because we want to use the pretty url name instead of the
 	 * ugly file name.
 	 *
-	 * @param array $params handler-specific parameters
-	 * @param $flags integer Bitfield that supports THUMB_* constants
-	 * @return String: base name for URL, like '120px-12345.jpg', or null if there is no handler
+	 * @param array $params Handler-specific parameters
+	 * @param array $clientParams Client-specific parameters
+	 * @param int $flags Bitfield that supports THUMB_* constants
+	 * @return string|null Base name for URL, like '120px-12345.jpg', or null if there is no handler
 	 */
-	function thumbName( $params, $clientParams = array(), $flags = 0 ) {
+	function thumbName( $params,  $clientParams = [], $flags = 0 ) {
 		return $this->generateThumbName( $this->getUrlName(), $params );
 	}
 
 	/**
-	 * Helper function -- given a 'subpage', return the local URL e.g. /wiki/Special:UploadStash/subpage
-	 * @param $subPage String
-	 * @return String: local URL for this subpage in the Special:UploadStash space.
+	 * Helper function -- given a 'subpage', return the local URL,
+	 * e.g. /wiki/Special:UploadStash/subpage
+	 * @param string $subPage
+	 * @return string Local URL for this subpage in the Special:UploadStash space.
 	 */
 	private function getSpecialUrl( $subPage ) {
 		return SpecialPage::getTitleFor( 'UploadStash', $subPage )->getLocalURL();
@@ -611,14 +699,16 @@ class UploadStashFile extends UnregisteredLocalFile {
 	/**
 	 * Get a URL to access the thumbnail
 	 * This is required because the model of how files work requires that
-	 * the thumbnail urls be predictable. However, in our model the URL is not based on the filename
-	 * (that's hidden in the db)
+	 * the thumbnail urls be predictable. However, in our model the URL is
+	 * not based on the filename (that's hidden in the db)
 	 *
-	 * @param string $thumbName basename of thumbnail file -- however, we don't want to use the file exactly
-	 * @return String: URL to access thumbnail, or URL with partial path
+	 * @param string $thumbName Basename of thumbnail file -- however, we don't
+	 *   want to use the file exactly
+	 * @return string URL to access thumbnail, or URL with partial path
 	 */
 	public function getThumbUrl( $thumbName = false ) {
 		wfDebug( __METHOD__ . " getting for $thumbName \n" );
+
 		return $this->getSpecialUrl( 'thumb/' . $this->getUrlName() . '/' . $thumbName );
 	}
 
@@ -626,12 +716,13 @@ class UploadStashFile extends UnregisteredLocalFile {
 	 * The basename for the URL, which we want to not be related to the filename.
 	 * Will also be used as the lookup key for a thumbnail file.
 	 *
-	 * @return String: base url name, like '120px-123456.jpg'
+	 * @return string Base url name, like '120px-123456.jpg'
 	 */
 	public function getUrlName() {
-		if ( ! $this->urlName ) {
+		if ( !$this->urlName ) {
 			$this->urlName = $this->fileKey;
 		}
+
 		return $this->urlName;
 	}
 
@@ -639,29 +730,32 @@ class UploadStashFile extends UnregisteredLocalFile {
 	 * Return the URL of the file, if for some reason we wanted to download it
 	 * We tend not to do this for the original file, but we do want thumb icons
 	 *
-	 * @return String: url
+	 * @return string Url
 	 */
 	public function getUrl() {
 		if ( !isset( $this->url ) ) {
 			$this->url = $this->getSpecialUrl( 'file/' . $this->getUrlName() );
 		}
+
 		return $this->url;
 	}
 
 	/**
-	 * Parent classes use this method, for no obvious reason, to return the path (relative to wiki root, I assume).
-	 * But with this class, the URL is unrelated to the path.
+	 * Parent classes use this method, for no obvious reason, to return the path
+	 * (relative to wiki root, I assume). But with this class, the URL is
+	 * unrelated to the path.
 	 *
-	 * @return String: url
+	 * @return string Url
 	 */
 	public function getFullUrl() {
 		return $this->getUrl();
 	}
 
 	/**
-	 * Getter for file key (the unique id by which this file's location & metadata is stored in the db)
+	 * Getter for file key (the unique id by which this file's location &
+	 * metadata is stored in the db)
 	 *
-	 * @return String: file key
+	 * @return string File key
 	 */
 	public function getFileKey() {
 		return $this->fileKey;
@@ -669,7 +763,7 @@ class UploadStashFile extends UnregisteredLocalFile {
 
 	/**
 	 * Remove the associated temporary file
-	 * @return Status: success
+	 * @return status Success
 	 */
 	public function remove() {
 		if ( !$this->repo->fileExists( $this->path ) ) {
@@ -683,15 +777,73 @@ class UploadStashFile extends UnregisteredLocalFile {
 	public function exists() {
 		return $this->repo->fileExists( $this->path );
 	}
-
 }
 
-class UploadStashException extends MWException {};
-class UploadStashNotAvailableException extends UploadStashException {};
-class UploadStashFileNotFoundException extends UploadStashException {};
-class UploadStashBadPathException extends UploadStashException {};
-class UploadStashFileException extends UploadStashException {};
-class UploadStashZeroLengthFileException extends UploadStashException {};
-class UploadStashNotLoggedInException extends UploadStashException {};
-class UploadStashWrongOwnerException extends UploadStashException {};
-class UploadStashNoSuchKeyException extends UploadStashException {};
+/**
+ * @ingroup Upload
+ */
+class UploadStashException extends MWException implements ILocalizedException {
+	/** @var string|array|MessageSpecifier */
+	protected $messageSpec;
+
+	/**
+	 * @param string|array|MessageSpecifier $messageSpec See Message::newFromSpecifier
+	 * @param int $code Exception code
+	 * @param Exception|Throwable|null $previous The previous exception used for the exception
+	 *  chaining.
+	 */
+	public function __construct( $messageSpec, $code = 0, $previous = null ) {
+		$this->messageSpec = $messageSpec;
+
+		$msg = $this->getMessageObject()->text();
+		$msg = preg_replace( '!</?(var|kbd|samp|code)>!', '"', $msg );
+		$msg = Sanitizer::stripAllTags( $msg );
+		parent::__construct( $msg, $code, $previous );
+	}
+
+	public function getMessageObject() {
+		return Message::newFromSpecifier( $this->messageSpec );
+	}
+}
+
+/**
+ * @ingroup Upload
+ */
+class UploadStashFileNotFoundException extends UploadStashException {
+}
+
+/**
+ * @ingroup Upload
+ */
+class UploadStashBadPathException extends UploadStashException {
+}
+
+/**
+ * @ingroup Upload
+ */
+class UploadStashFileException extends UploadStashException {
+}
+
+/**
+ * @ingroup Upload
+ */
+class UploadStashZeroLengthFileException extends UploadStashException {
+}
+
+/**
+ * @ingroup Upload
+ */
+class UploadStashNotLoggedInException extends UploadStashException {
+}
+
+/**
+ * @ingroup Upload
+ */
+class UploadStashWrongOwnerException extends UploadStashException {
+}
+
+/**
+ * @ingroup Upload
+ */
+class UploadStashNoSuchKeyException extends UploadStashException {
+}

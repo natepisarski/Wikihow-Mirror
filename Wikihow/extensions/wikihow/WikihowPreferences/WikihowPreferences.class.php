@@ -26,14 +26,15 @@ class WikihowPreferences {
 		'useadvanced',
 		'patrolcountlocal');
 
-	public static function userResetAllOptions($newOptions, $oldOptions) {
-		//these are the options we don't want to reset when we say reset all
-		//reset all comes from the preferences page
-		//these are set in other locations
+	public static function userResetAllOptions(User $user, array &$newOptions, $oldOptions, $resetKinds) {
+		// These are the options we don't want to reset when we say reset all
+		// reset all comes from the preferences page
+		// these are set in other locations
 
 		foreach (self::$otherPreferences as $prefName) {
-			if (array_key_exists($prefName, $oldOptions))
-				$newOptions[$prefName] = $oldOptions [$prefName];
+			if ( $oldOptions && array_key_exists($prefName, $oldOptions) ) {
+				$newOptions[$prefName] = $oldOptions[$prefName];
+			}
 		}
 
 		return true;

@@ -25,8 +25,8 @@
  * @since 1.20
  */
 class UserCache {
-	protected $cache = array(); // (uid => property => value)
-	protected $typesCached = array(); // (uid => cache type => 1)
+	protected $cache = []; // (uid => property => value)
+	protected $typesCached = []; // (uid => cache type => 1)
 
 	/**
 	 * @return UserCache
@@ -46,25 +46,23 @@ class UserCache {
 	/**
 	 * Get a property of a user based on their user ID
 	 *
-	 * @param $userId integer User ID
+	 * @param int $userId User ID
 	 * @param string $prop User property
-	 * @return mixed The property or false if the user does not exist
+	 * @return mixed|bool The property or false if the user does not exist
 	 */
 	public function getProp( $userId, $prop ) {
 		if ( !isset( $this->cache[$userId][$prop] ) ) {
 			wfDebug( __METHOD__ . ": querying DB for prop '$prop' for user ID '$userId'.\n" );
-			$this->doQuery( array( $userId ) ); // cache miss
+			$this->doQuery( [ $userId ] ); // cache miss
 		}
 
-		return isset( $this->cache[$userId][$prop] )
-			? $this->cache[$userId][$prop]
-			: false; // user does not exist?
+		return $this->cache[$userId][$prop] ?? false; // user does not exist?
 	}
 
 	/**
 	 * Get the name of a user or return $ip if the user ID is 0
 	 *
-	 * @param integer $userId
+	 * @param int $userId
 	 * @param string $ip
 	 * @return string
 	 * @since 1.22
@@ -77,13 +75,13 @@ class UserCache {
 	 * Preloads user names for given list of users.
 	 * @param array $userIds List of user IDs
 	 * @param array $options Option flags; include 'userpage' and 'usertalk'
-	 * @param string $caller the calling method
+	 * @param string $caller The calling method
 	 */
-	public function doQuery( array $userIds, $options = array(), $caller = '' ) {
-		wfProfileIn( __METHOD__ );
+	public function doQuery( array $userIds, $options = [], $caller = '' ) {
+		global $wgActorTableSchemaMigrationStage;
 
-		$usersToCheck = array();
-		$usersToQuery = array();
+		$usersToCheck = [];
+		$usersToQuery = [];
 
 		$userIds = array_unique( $userIds );
 
@@ -101,22 +99,37 @@ class UserCache {
 
 		// Lookup basic info for users not yet loaded...
 		if ( count( $usersToQuery ) ) {
-			$dbr = wfGetDB( DB_SLAVE );
-			$table = array( 'user' );
-			$conds = array( 'user_id' => $usersToQuery );
-			$fields = array( 'user_name', 'user_real_name', 'user_registration', 'user_id' );
+			$dbr = wfGetDB( DB_REPLICA );
+			$tables = [ 'user' ];
+			$conds = [ 'user_id' => $usersToQuery ];
+			$fields = [ 'user_name', 'user_real_name', 'user_registration', 'user_id' ];
+			$joinConds = [];
+
+			// Technically we shouldn't allow this without SCHEMA_COMPAT_READ_NEW,
+			// but it does little harm and might be needed for write callers loading a User.
+			if ( $wgActorTableSchemaMigrationStage & SCHEMA_COMPAT_NEW ) {
+				$tables[] = 'actor';
+				$fields[] = 'actor_id';
+				$joinConds['actor'] = [
+					( $wgActorTableSchemaMigrationStage & SCHEMA_COMPAT_READ_NEW ) ? 'JOIN' : 'LEFT JOIN',
+					[ 'actor_user = user_id' ]
+				];
+			}
 
 			$comment = __METHOD__;
 			if ( strval( $caller ) !== '' ) {
 				$comment .= "/$caller";
 			}
 
-			$res = $dbr->select( $table, $fields, $conds, $comment );
+			$res = $dbr->select( $tables, $fields, $conds, $comment, [], $joinConds );
 			foreach ( $res as $row ) { // load each user into cache
 				$userId = (int)$row->user_id;
 				$this->cache[$userId]['name'] = $row->user_name;
 				$this->cache[$userId]['real_name'] = $row->user_real_name;
 				$this->cache[$userId]['registration'] = $row->user_registration;
+				if ( $wgActorTableSchemaMigrationStage & SCHEMA_COMPAT_NEW ) {
+					$this->cache[$userId]['actor'] = $row->actor_id;
+				}
 				$usersToCheck[$userId] = $row->user_name;
 			}
 		}
@@ -124,23 +137,21 @@ class UserCache {
 		$lb = new LinkBatch();
 		foreach ( $usersToCheck as $userId => $name ) {
 			if ( $this->queryNeeded( $userId, 'userpage', $options ) ) {
-				$lb->add( NS_USER, str_replace( ' ', '_', $row->user_name ) );
+				$lb->add( NS_USER, $name );
 				$this->typesCached[$userId]['userpage'] = 1;
 			}
 			if ( $this->queryNeeded( $userId, 'usertalk', $options ) ) {
-				$lb->add( NS_USER_TALK, str_replace( ' ', '_', $row->user_name ) );
+				$lb->add( NS_USER_TALK, $name );
 				$this->typesCached[$userId]['usertalk'] = 1;
 			}
 		}
 		$lb->execute();
-
-		wfProfileOut( __METHOD__ );
 	}
 
 	/**
 	 * Check if a cache type is in $options and was not loaded for this user
 	 *
-	 * @param $uid integer user ID
+	 * @param int $uid User ID
 	 * @param string $type Cache type
 	 * @param array $options Requested cache types
 	 * @return bool

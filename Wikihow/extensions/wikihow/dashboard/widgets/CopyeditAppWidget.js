@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.CleanupAppWidget = (function($) {
+WH.dashboard.CleanupAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.CleanupAppWidget = (function($) {
 	WH.dashboard.registerDataListener('CleanupAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

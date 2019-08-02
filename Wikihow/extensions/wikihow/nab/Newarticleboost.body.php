@@ -313,21 +313,28 @@ class NewArticleBoost extends SpecialPage {
 		$startdate = strtotime($period);
 		$starttimestamp = date('YmdG', $startdate) . floor(date('i', $startdate) / 10) . '00000';
 
-		$res = $dbr->select('logging',
-			array('*',
+		$row = $dbr->selectRow( 'logging',
+			[   '*',
 				'count(*) as C',
-				'MAX(log_timestamp) as recent_timestamp'),
-			array("log_type" => 'nap',
-				'log_timestamp > "' . $starttimestamp . '"'),
+				'MAX(log_timestamp) as recent_timestamp' ],
+			[   "log_type" => 'nap',
+				'log_timestamp > "' . $starttimestamp . '"' ],
 			__METHOD__,
-			array("GROUP BY" => 'log_user',
-				"ORDER BY"=>"C DESC",
-				"LIMIT"=>1));
-		$row = $dbr->fetchObject($res);
+			[   "GROUP BY" => 'log_user',
+				"ORDER BY" => "C DESC",
+				"LIMIT" => 1 ] );
 
-		$nabuser = array();
-		$nabuser['id'] = $row->log_user;
-		$nabuser['date'] = wfTimeAgo($row->recent_timestamp);
+		if ($row) {
+			$nabuser = [
+				'id' => $row->log_user,
+				'date' => wfTimeAgo($row->recent_timestamp),
+			];
+		} else {
+			$nabuser = [
+				'id' => 0,
+				'date' => wfTimeAgo( wfTimestampNow() )
+			];
+		}
 
 		return $nabuser;
 	}
@@ -626,7 +633,8 @@ class NewArticleBoost extends SpecialPage {
 
 		$patrolled_opt = $this->do_newbie ? '' : 'AND nap_patrolled = 0';
 		$newbie_opt = $this->do_newbie ? 'AND nap_newbie = 1' : '';
-		$score_opt = $this->do_score ? 'AND nap_atlas_score != -1' : '';
+		$atlasScore = $dbw->selectField(self::NAB_TABLE, 'nap_atlas_score', array('nap_page' => $aid), __METHOD__);
+		$score_opt = $this->do_score && $atlasScore != -1 ? 'AND nap_atlas_score != -1' : '';
 		$old_opt = $this->wantOld ? ' AND nap_timestamp <= "' . self::BACKLOG_DATE . '" ' : ' AND nap_timestamp > "' . self::BACKLOG_DATE . '" ';
 
 		$order = " ORDER BY nap_atlas_score DESC, nap_page DESC";
@@ -661,7 +669,6 @@ class NewArticleBoost extends SpecialPage {
 			}
 			$sql .= " AND nap_page != {$aid} ";
 		} else {
-			$atlasScore = $dbw->selectField(self::NAB_TABLE, 'nap_atlas_score', array('nap_page' => $aid), __METHOD__);
 			if ($this->sortOrder == "asc") {
 				$sql .= "AND ((nap_page > $aid AND nap_atlas_score = $atlasScore) OR (nap_page != $aid AND nap_atlas_score > $atlasScore))";
 			} else {
@@ -916,8 +923,8 @@ class NewArticleBoost extends SpecialPage {
 			$vars['nextNabUrl'] = $this->getNabUrl($nextTitle->getPrefixedText(), true);
 			$vars['nextNabTitle'] = wfMessage('nap_title', $nextTitle->getFullText());
 		} else {
-			$vars['nextNabUrl'] = NULL;
-			$vars['nextNabTitle'] = NULL;
+			$vars['nextNabUrl'] = null;
+			$vars['nextNabTitle'] = null;
 		}
 
 		/// CHECK TO SEE IF ARTICLE IS LOCKED OR ALREADY PATROLLED
@@ -1087,10 +1094,18 @@ class NewArticleBoost extends SpecialPage {
 	 * Special page class entry point
 	 */
 	public function execute($par) {
+		global $wgReadOnly;
+
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$langCode = $this->getLanguage()->getCode();
+
+		if ( $wgReadOnly ) {
+			$this->getOutput()->prepareErrorPage("NAB Disabled Temporarily");
+			$this->getOutput()->addHTML("Site is currently in read-only mode. NAB is unavailable.");
+			return;
+		}
 
 		if ($user->isBlocked()) {
 			throw new UserBlockedError( $user->getBlock() );

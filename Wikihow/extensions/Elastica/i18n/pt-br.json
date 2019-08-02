@@ -1,8 +1,9 @@
 {
 	"@metadata": {
 		"authors": [
-			"Jaideraf"
+			"Jaideraf",
+			"OTAVIO1981"
 		]
 	},
-	"elastica-desc": "Funcionalidade base do mecanismo de busca ''Elasticsearch'', utilizada por outras extensões"
+	"elastica-desc": "Fornece funcionalidade básica de [http://www.elasticsearch.org/ Elasticsearch] para outras extensões, através da biblioteca [http://elastica.io/ Elastica]"
 }

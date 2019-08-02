@@ -1,7 +1,10 @@
 <?php
 
 namespace CirrusSearch;
-use \ProfileSection;
+
+use Language;
+use MediaWiki\Logger\LoggerFactory;
+use Title;
 
 /**
  * Picks the best "near match" title.
@@ -31,16 +34,14 @@ class NearMatchPicker {
 	 */
 	private $term;
 	/**
-	 * @var array(Title) potential near matches
+	 * @var array[] Potential near matches
 	 */
 	private $titles;
 
 	/**
-	 * Constructor
-	 *
 	 * @param Language $language to use during normalization process
 	 * @param string $term the search term
-	 * @param array with optional keys:
+	 * @param array[] $titles Array of arrays, each with optional keys:
 	 *   titleMatch => a title if the title matched
 	 *   redirectMatches => an array of redirect matches, one per matched redirect
 	 */
@@ -56,8 +57,6 @@ class NearMatchPicker {
 	 * @return Title|null title if there is a near match and null otherwise
 	 */
 	public function pickBest() {
-		$profiler = new ProfileSection( __METHOD__ );
-
 		if ( !$this->titles ) {
 			return null;
 		}
@@ -71,15 +70,18 @@ class NearMatchPicker {
 			if ( isset( $this->titles[ 0 ][ 'redirectMatches' ][ 0 ] ) ) {
 				return $this->titles[ 0 ][ 'redirectMatches' ][ 0 ];
 			}
-			wfDebugLog( 'CirrusSearch', 'NearMatchPicker built with busted matches.  Assuming no near match');
+			LoggerFactory::getInstance( 'CirrusSearch' )->info(
+				'NearMatchPicker built with busted matches.  Assuming no near match' );
 			return null;
 		}
 
-		$transformers = array(
-			function( $term ) { return $term; },
-			array( $this->language, 'lc' ),
-			array( $this->language, 'ucwords' ),
-		);
+		$transformers = [
+			function ( $term ) {
+				return $term;
+			},
+			[ $this->language, 'lc' ],
+			[ $this->language, 'ucwords' ],
+		];
 
 		foreach ( $transformers as $transformer ) {
 			$transformedTerm = call_user_func( $transformer, $this->term );
@@ -108,6 +110,9 @@ class NearMatchPicker {
 
 	/**
 	 * Check a single title's worth of matches.  The big thing here is that titles cannot compete with themselves.
+	 * @param callable $transformer
+	 * @param string $transformedTerm
+	 * @param array $allMatchedTitles
 	 * @return null|Title null if no title matches and the actual title (either of the page or of a redirect to the
 	 *       page) if one did match
 	 */
@@ -126,6 +131,12 @@ class NearMatchPicker {
 		return null;
 	}
 
+	/**
+	 * @param callable $transformer
+	 * @param string $transformedTerm
+	 * @param Title $matchedTitle
+	 * @return bool
+	 */
 	private function checkOneMatch( $transformer, $transformedTerm, $matchedTitle ) {
 		$transformedTitle = call_user_func( $transformer, $matchedTitle->getText() );
 		return $transformedTerm === $transformedTitle;

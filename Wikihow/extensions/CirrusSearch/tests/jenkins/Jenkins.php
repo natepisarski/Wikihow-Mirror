@@ -1,7 +1,10 @@
 <?php
+
 namespace CirrusSearch\Jenkins;
 
-use \JobQueueGroup;
+use DatabaseUpdater;
+use Language;
+use Title;
 
 /**
  * Sets up configuration required to run the browser tests on Jenkins.
@@ -27,96 +30,83 @@ use \JobQueueGroup;
 
 // Configuration we have to override before installing Cirrus but only if we're using
 // Jenkins as a prototype for development.
-if ( !isset( $wgRedisPassword ) ) {
-	$wgRedisPassword = 'notsecure';
-}
+
+require_once __DIR__ . '/FullyFeaturedConfig.php';
 
 // Extra Cirrus stuff for Jenkins
-$wgAutoloadClasses[ 'CirrusSearch\Jenkins\CleanSetup' ] = __DIR__ . '/cleanSetup.php';
-$wgAutoloadClasses[ 'CirrusSearch\Jenkins\NukeAllIndexes' ] = __DIR__ . '/nukeAllIndexes.php';
-$wgHooks[ 'LoadExtensionSchemaUpdates' ][] = 'CirrusSearch\Jenkins\Jenkins::installDatabaseUpdatePostActions';
-$wgHooks[ 'BeforeInitialize' ][] = 'CirrusSearch\Jenkins\Jenkins::recyclePruneAndUndelayJobs';
-$wgHooks[ 'PageContentLanguage' ][] = 'CirrusSearch\Jenkins\Jenkins::setLanguage';
+$wgAutoloadClasses['CirrusSearch\Jenkins\CleanSetup'] = __DIR__ . '/cleanSetup.php';
+$wgAutoloadClasses['CirrusSearch\Jenkins\NukeAllIndexes'] = __DIR__ . '/nukeAllIndexes.php';
+$wgHooks['LoadExtensionSchemaUpdates'][] = 'CirrusSearch\Jenkins\Jenkins::installDatabaseUpdatePostActions';
+$wgHooks['PageContentLanguage'][] = 'CirrusSearch\Jenkins\Jenkins::setLanguage';
 
 // Dependencies
 // Jenkins will automatically load these for us but it makes this file more generally useful
 // to require them ourselves.
-require_once( "$IP/extensions/Elastica/Elastica.php" );
-require_once( "$IP/extensions/MwEmbedSupport/MwEmbedSupport.php" );
-require_once( "$IP/extensions/TimedMediaHandler/TimedMediaHandler.php" );
-require_once( "$IP/extensions/PdfHandler/PdfHandler.php" );
-require_once( "$IP/extensions/Cite/Cite.php" );
+wfLoadExtension( 'TimedMediaHandler' );
+wfLoadExtension( 'PdfHandler' );
+wfLoadExtension( 'Cite' );
+wfLoadExtension( 'SiteMatrix' );
 
 // Configuration
-$wgSearchType = 'CirrusSearch';
-$wgCirrusSearchUseExperimentalHighlighter = true;
-$wgCirrusSearchOptimizeIndexForExperimentalHighlighter = true;
 $wgOggThumbLocation = '/usr/bin/oggThumb';
-$wgGroupPermissions[ '*' ][ 'deleterevision' ] = true;
+$wgGroupPermissions['*']['deleterevision'] = true;
 $wgFileExtensions[] = 'pdf';
+$wgFileExtensions[] = 'svg';
 $wgCapitalLinks = false;
 $wgUseInstantCommons = true;
 $wgEnableUploads = true;
-$wgJobTypeConf['default'] = array(
+$wgJobTypeConf['default'] = [
 	'class' => 'JobQueueRedis',
+	'daemonized'  => true,
 	'order' => 'fifo',
 	'redisServer' => 'localhost',
 	'checkDelay' => true,
-	'redisConfig' => array(
-		'password' => $wgRedisPassword,
-	),
-);
-$wgJobQueueAggregator = array(
-	'class'       => 'JobQueueAggregatorRedis',
-	'redisServer' => 'localhost',
-	'redisConfig' => array(
-		'password' => $wgRedisPassword,
-	),
-);
-$wgCiteEnablePopups = true;
+	'redisConfig' => [
+		'password' => null,
+	],
+];
 
-// Running a ton of jobs every request helps to make sure all the pages that are created
-// are indexed as fast as possible.
-$wgJobRunRate = 100;
+$wgCiteEnablePopups = true;
+$wgExtraNamespaces[760] = 'Mó';
 
 // Extra helpful configuration but not really required
 $wgShowExceptionDetails = true;
-$wgCirrusSearchShowScore = true;
 
-$wgCirrusSearchLanguageWeight[ 'user' ] = 10.0;
-$wgCirrusSearchLanguageWeight[ 'wiki' ] = 5.0;
+$wgCirrusSearchLanguageWeight['user'] = 10.0;
+$wgCirrusSearchLanguageWeight['wiki'] = 5.0;
+$wgCirrusSearchAllowLeadingWildcard = false;
+// $wgCirrusSearchInterwikiSources['c'] = 'commonswiki';
 
-$wgCirrusSearchAllFields = array( 'build' => true, 'use' => false );
+// Test only API action to expose freezing/thawing writes to the elasticsearch cluster
+$wgAPIModules['cirrus-freeze-writes'] = 'CirrusSearch\Api\FreezeWritesToCluster';
+$wgAPIModules['cirrus-suggest-index'] = 'CirrusSearch\Api\SuggestIndex';
+// Bring the ElasticWrite backoff down to between 2^-1 and 2^3 seconds during browser tests
+$wgCirrusSearchWriteBackoffExponent = -1;
+$wgCirrusSearchUseCompletionSuggester = "yes";
 
 class Jenkins {
 	/**
 	 * Installs maintenance scripts that provide a clean Elasticsearch index for testing.
-	 * @param DatabaseUpdater $updater database updater
+	 * @param DatabaseUpdater $updater
 	 * @return bool true so we let other extensions install more maintenance actions
 	 */
 	public static function installDatabaseUpdatePostActions( $updater ) {
-		$updater->addPostDatabaseUpdateMaintenance( 'CirrusSearch\Jenkins\NukeAllIndexes');
-		$updater->addPostDatabaseUpdateMaintenance( 'CirrusSearch\Jenkins\CleanSetup');
+		$updater->addPostDatabaseUpdateMaintenance( 'CirrusSearch\Jenkins\NukeAllIndexes' );
+		$updater->addPostDatabaseUpdateMaintenance( 'CirrusSearch\Jenkins\CleanSetup' );
 		return true;
-	}
-
-	public static function recyclePruneAndUndelayJobs( $special, $subpage ) {
-		$jobQueue = JobQueueGroup::singleton()->get( 'cirrusSearchLinksUpdateSecondary' );
-		if ( $jobQueue ) {
-			$jobQueue->recyclePruneAndUndelayJobs();
-		}
 	}
 
 	/**
 	 * If the page ends in '/<language code>' then set the page's language to that code.
-	 * @param Title @title page title object
-	 * @param string|Language $pageLang the page content language (either an object or a language code)
+	 * @param Title $title
+	 * @param string|Language &$pageLang the page content language (either an object or a language code)
 	 * @param Language $wgLang the user language
+	 * @return bool
 	 */
 	public static function setLanguage( $title, &$pageLang, $wgLang ) {
-		$matches = array();
+		$matches = [];
 		if ( preg_match( '/\/..$/', $title->getText(), $matches ) ) {
-			$pageLang = substr( $matches[ 0 ], 1 );
+			$pageLang = substr( $matches[0], 1 );
 		}
 		return true;
 	}

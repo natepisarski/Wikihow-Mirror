@@ -440,16 +440,16 @@ BODY;
 		$subject = 'Translation Links: Changed articles report (generated ' . date('jS F, Y', strtotime('today')) . ')';
 		$from = new MailAddress('reports@wikihow.com');
 		$to = new MailAddress(implode(',', $this->getRecipientEmailAddresses()));
-		$replyTo = new MailAddress('reuben@wikihow.com');
-		$contentType = 'multipart/mixed; boundary="PHP-mixed-' . $boundaryHash . '"';
-
+		$opts = [
+			'contentType' => 'multipart/mixed; boundary="PHP-mixed-' . $boundaryHash . '"',
+			'replyTo' => new MailAddress('reuben@wikihow.com'),
+		];
 		UserMailer::send(
 			$to,
 			$from,
 			$subject,
 			$body,
-			$replyTo,
-			$contentType
+			$opts
 		);
 
 		return;

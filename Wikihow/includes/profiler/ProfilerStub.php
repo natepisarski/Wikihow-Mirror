@@ -27,18 +27,22 @@
  * @ingroup Profiler
  */
 class ProfilerStub extends Profiler {
-	public function isStub() {
-		return true;
+	public function scopedProfileIn( $section ) {
+		return null; // no-op
 	}
-	public function isPersistent() {
-		return false;
+
+	public function getFunctionStats() {
 	}
-	public function profileIn( $fn ) {}
-	public function profileOut( $fn ) {}
-	public function getOutput() {}
-	public function close() {}
-	public function logData() {}
-	public function getCurrentSection() { return ''; }
-	public function transactionWritingIn( $server, $db ) {}
-	public function transactionWritingOut( $server, $db ) {}
+
+	public function getOutput() {
+	}
+
+	public function close() {
+	}
+
+	public function logData() {
+	}
+
+	public function logDataPageOutputOnly() {
+	}
 }

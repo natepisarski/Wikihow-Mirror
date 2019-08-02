@@ -24,6 +24,10 @@
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  */
 
+use MediaWiki\MediaWikiServices;
+use Wikimedia\Rdbms\IResultWrapper;
+use Wikimedia\Rdbms\IDatabase;
+
 /**
  * A special page that displays a list of pages that are not on anyones watchlist.
  *
@@ -35,7 +39,7 @@ class UnwatchedpagesPage extends QueryPage {
 		parent::__construct( $name, 'unwatchedpages' );
 	}
 
-	function isExpensive() {
+	public function isExpensive() {
 		return true;
 	}
 
@@ -43,20 +47,44 @@ class UnwatchedpagesPage extends QueryPage {
 		return false;
 	}
 
-	function getQueryInfo() {
-		return array(
-			'tables' => array( 'page', 'watchlist' ),
-			'fields' => array( 'namespace' => 'page_namespace',
-					'title' => 'page_title',
-					'value' => 'page_namespace' ),
-			'conds' => array( 'wl_title IS NULL',
-					'page_is_redirect' => 0,
-					"page_namespace != '" . NS_MEDIAWIKI .
-					"'" ),
-			'join_conds' => array( 'watchlist' => array(
-				'LEFT JOIN', array( 'wl_title = page_title',
-					'wl_namespace = page_namespace' ) ) )
-		);
+	/**
+	 * Pre-cache page existence to speed up link generation
+	 *
+	 * @param IDatabase $db
+	 * @param IResultWrapper $res
+	 */
+	public function preprocessResults( $db, $res ) {
+		if ( !$res->numRows() ) {
+			return;
+		}
+
+		$batch = new LinkBatch();
+		foreach ( $res as $row ) {
+			$batch->add( $row->namespace, $row->title );
+		}
+		$batch->execute();
+
+		$res->seek( 0 );
+	}
+
+	public function getQueryInfo() {
+		$dbr = wfGetDB( DB_REPLICA );
+		return [
+			'tables' => [ 'page', 'watchlist' ],
+			'fields' => [
+				'namespace' => 'page_namespace',
+				'title' => 'page_title',
+				'value' => 'page_namespace'
+			],
+			'conds' => [
+				'wl_title IS NULL',
+				'page_is_redirect' => 0,
+				'page_namespace != ' . $dbr->addQuotes( NS_MEDIAWIKI ),
+			],
+			'join_conds' => [ 'watchlist' => [
+				'LEFT JOIN', [ 'wl_title = page_title',
+					'wl_namespace = page_namespace' ] ] ]
+		];
 	}
 
 	function sortDescending() {
@@ -64,7 +92,16 @@ class UnwatchedpagesPage extends QueryPage {
 	}
 
 	function getOrderFields() {
-		return array( 'page_namespace', 'page_title' );
+		return [ 'page_namespace', 'page_title' ];
+	}
+
+	/**
+	 * Add the JS
+	 * @param string|null $par
+	 */
+	public function execute( $par ) {
+		parent::execute( $par );
+		$this->getOutput()->addModules( 'mediawiki.special.unwatchedPages' );
 	}
 
 	/**
@@ -73,23 +110,23 @@ class UnwatchedpagesPage extends QueryPage {
 	 * @return string
 	 */
 	function formatResult( $skin, $result ) {
-		global $wgContLang;
-
 		$nt = Title::makeTitleSafe( $result->namespace, $result->title );
 		if ( !$nt ) {
-			return Html::element( 'span', array( 'class' => 'mw-invalidtitle' ),
+			return Html::element( 'span', [ 'class' => 'mw-invalidtitle' ],
 				Linker::getInvalidTitleDescription( $this->getContext(), $result->namespace, $result->title ) );
 		}
 
-		$text = $wgContLang->convert( $nt->getPrefixedText() );
+		$text = MediaWikiServices::getInstance()->getContentLanguage()->
+			convert( htmlspecialchars( $nt->getPrefixedText() ) );
 
-		$plink = Linker::linkKnown( $nt, htmlspecialchars( $text ) );
-		$token = WatchAction::getWatchToken( $nt, $this->getUser() );
-		$wlink = Linker::linkKnown(
+		$linkRenderer = $this->getLinkRenderer();
+
+		$plink = $linkRenderer->makeKnownLink( $nt, new HtmlArmor( $text ) );
+		$wlink = $linkRenderer->makeKnownLink(
 			$nt,
-			$this->msg( 'watch' )->escaped(),
-			array(),
-			array( 'action' => 'watch', 'token' => $token )
+			$this->msg( 'watch' )->text(),
+			[ 'class' => 'mw-watch-link' ],
+			[ 'action' => 'watch' ]
 		);
 
 		return $this->getLanguage()->specialList( $plink, $wlink );

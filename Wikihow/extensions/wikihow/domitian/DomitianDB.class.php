@@ -79,13 +79,12 @@ class DomitianDB {
 		}
 
 		if (is_null($this->domitianDB) || !$this->domitianDB->ping()) {
-			$this->domitianDB = DatabaseBase::factory('mysql');
-			$this->domitianDB->open(
-				WH_DATABASE_MASTER,
-				WH_DATABASE_MAINTENANCE_USER,
-				WH_DATABASE_MAINTENANCE_PASSWORD,
-				self::getDBName()
-			);
+			$this->domitianDB = DatabaseBase::factory( 'mysql', [
+				'host' => WH_DATABASE_MASTER,
+				'user' => WH_DATABASE_MAINTENANCE_USER,
+				'password' => WH_DATABASE_MAINTENANCE_PASSWORD,
+				'dbname' => self::getDBName(),
+			] );
 		}
 
 		return $this->domitianDB;

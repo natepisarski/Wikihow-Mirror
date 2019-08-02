@@ -15,8 +15,8 @@ CREATE TABLE /*_*/mathoid (
   math_svg TEXT,
   -- MW_MATHSTYLE_(INLINE_DISPLAYSTYLE|DISPLAY|INLINE)
   math_style SMALLINT,
-  -- type of the Math input (TeX, MathML, AsciiMath...)
+    -- type of the Math input (TeX, MathML, AsciiMath...)
   math_input_type SMALLINT,
-  -- encoded png image
-  math_png text
+  -- png output of mathoid
+  math_png BYTEA
 ) /*$wgDBTableOptions*/;

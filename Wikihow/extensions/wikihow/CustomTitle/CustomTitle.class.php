@@ -368,7 +368,7 @@ class CustomTitle {
 	/**
 	 * Remove a title from the list
 	 */
-	public static function dbRemoveTitle(&$dbw, Title $title) {
+	public static function dbRemoveTitle($dbw, Title $title) {
 		self::dbRemoveTitleID( $dbw, $title->getArticleId() );
 	}
 

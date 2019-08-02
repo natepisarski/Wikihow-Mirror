@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.UnitGuardianAppWidget = (function($) {
+WH.dashboard.UnitGuardianAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.UnitGuardianAppWidget = (function($) {
 	WH.dashboard.registerDataListener('UnitGuardianAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

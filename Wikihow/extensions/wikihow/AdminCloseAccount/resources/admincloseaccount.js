@@ -33,7 +33,10 @@
 						var $result = $template.clone();
 						var registered = user.id !== null;
 
-						$result.attr( 'id', '' ).addClass( 'aca_query_result_rendered' ).show();
+						$result.attr( 'id', '' )
+							.addClass( 'aca_query_result_rendered' )
+							.removeClass( 'hidden' )
+							.show();
 						$result.find( '.aca_query_result_avatar span' )
 							.css( { backgroundImage: 'url(' + user.avatar + ')' } );
 						$result.find( '.aca_query_result_username' ).append(

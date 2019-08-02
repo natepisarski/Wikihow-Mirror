@@ -3,9 +3,7 @@
 /**
  * API for MediaWiki 1.14+
  *
- * Created on Jun 18, 2012
- *
- * Copyright © 2012 Brad Jorsch
+ * Copyright © 2012 Wikimedia Foundation and contributors
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,31 +23,38 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * API interface for setting the wl_notificationtimestamp field
  * @ingroup API
  */
 class ApiSetNotificationTimestamp extends ApiBase {
 
-	private $mPageSet;
+	private $mPageSet = null;
 
 	public function execute() {
 		$user = $this->getUser();
 
 		if ( $user->isAnon() ) {
-			$this->dieUsage( 'Anonymous users cannot use watchlist change notifications', 'notloggedin' );
+			$this->dieWithError( 'watchlistanontext', 'notloggedin' );
 		}
-		if ( !$user->isAllowed( 'editmywatchlist' ) ) {
-			$this->dieUsage( 'You don\'t have permission to edit your watchlist', 'permissiondenied' );
-		}
+		$this->checkUserRightsAny( 'editmywatchlist' );
 
 		$params = $this->extractRequestParams();
 		$this->requireMaxOneParameter( $params, 'timestamp', 'torevid', 'newerthanrevid' );
 
+		$continuationManager = new ApiContinuationManager( $this, [], [] );
+		$this->setContinuationManager( $continuationManager );
+
 		$pageSet = $this->getPageSet();
 		if ( $params['entirewatchlist'] && $pageSet->getDataSource() !== null ) {
-			$this->dieUsage(
-				"Cannot use 'entirewatchlist' at the same time as '{$pageSet->getDataSource()}'",
+			$this->dieWithError(
+				[
+					'apierror-invalidparammix-cannotusewith',
+					$this->encodeParamName( 'entirewatchlist' ),
+					$pageSet->encodeParamName( $pageSet->getDataSource() )
+				],
 				'multisource'
 			);
 		}
@@ -67,108 +72,122 @@ class ApiSetNotificationTimestamp extends ApiBase {
 
 		if ( isset( $params['torevid'] ) ) {
 			if ( $params['entirewatchlist'] || $pageSet->getGoodTitleCount() > 1 ) {
-				$this->dieUsage( 'torevid may only be used with a single page', 'multpages' );
+				$this->dieWithError( [ 'apierror-multpages', $this->encodeParamName( 'torevid' ) ] );
 			}
-			$title = reset( $pageSet->getGoodTitles() );
-			$timestamp = Revision::getTimestampFromId( $title, $params['torevid'] );
-			if ( $timestamp ) {
-				$timestamp = $dbw->timestamp( $timestamp );
-			} else {
-				$timestamp = null;
+			$titles = $pageSet->getGoodTitles();
+			$title = reset( $titles );
+			if ( $title ) {
+				$timestamp = MediaWikiServices::getInstance()->getRevisionStore()
+					->getTimestampFromId( $title, $params['torevid'], IDBAccessObject::READ_LATEST );
+				if ( $timestamp ) {
+					$timestamp = $dbw->timestamp( $timestamp );
+				} else {
+					$timestamp = null;
+				}
 			}
 		} elseif ( isset( $params['newerthanrevid'] ) ) {
 			if ( $params['entirewatchlist'] || $pageSet->getGoodTitleCount() > 1 ) {
-				$this->dieUsage( 'newerthanrevid may only be used with a single page', 'multpages' );
+				$this->dieWithError( [ 'apierror-multpages', $this->encodeParamName( 'newerthanrevid' ) ] );
 			}
-			$title = reset( $pageSet->getGoodTitles() );
-			$revid = $title->getNextRevisionID( $params['newerthanrevid'] );
-			if ( $revid ) {
-				$timestamp = $dbw->timestamp( Revision::getTimestampFromId( $title, $revid ) );
-			} else {
-				$timestamp = null;
+			$titles = $pageSet->getGoodTitles();
+			$title = reset( $titles );
+			if ( $title ) {
+				$revid = $title->getNextRevisionID( $params['newerthanrevid'], Title::GAID_FOR_UPDATE );
+				if ( $revid ) {
+					$timestamp = $dbw->timestamp(
+						MediaWikiServices::getInstance()->getRevisionStore()->getTimestampFromId( $title, $revid )
+					);
+				} else {
+					$timestamp = null;
+				}
 			}
 		}
 
+		$watchedItemStore = MediaWikiServices::getInstance()->getWatchedItemStore();
 		$apiResult = $this->getResult();
-		$result = array();
+		$result = [];
 		if ( $params['entirewatchlist'] ) {
 			// Entire watchlist mode: Just update the thing and return a success indicator
-			$dbw->update( 'watchlist', array( 'wl_notificationtimestamp' => $timestamp ),
-				array( 'wl_user' => $user->getID() ),
-				__METHOD__
-			);
+			if ( is_null( $timestamp ) ) {
+				$watchedItemStore->resetAllNotificationTimestampsForUser( $user );
+			} else {
+				$watchedItemStore->setNotificationTimestampsForUser(
+					$user,
+					$timestamp
+				);
+			}
 
 			$result['notificationtimestamp'] = is_null( $timestamp )
 				? ''
 				: wfTimestamp( TS_ISO_8601, $timestamp );
 		} else {
 			// First, log the invalid titles
-			foreach ( $pageSet->getInvalidTitles() as $title ) {
-				$r = array();
-				$r['title'] = $title;
-				$r['invalid'] = '';
+			foreach ( $pageSet->getInvalidTitlesAndReasons() as $r ) {
+				$r['invalid'] = true;
 				$result[] = $r;
 			}
 			foreach ( $pageSet->getMissingPageIDs() as $p ) {
-				$page = array();
+				$page = [];
 				$page['pageid'] = $p;
-				$page['missing'] = '';
-				$page['notwatched'] = '';
+				$page['missing'] = true;
+				$page['notwatched'] = true;
 				$result[] = $page;
 			}
 			foreach ( $pageSet->getMissingRevisionIDs() as $r ) {
-				$rev = array();
+				$rev = [];
 				$rev['revid'] = $r;
-				$rev['missing'] = '';
-				$rev['notwatched'] = '';
+				$rev['missing'] = true;
+				$rev['notwatched'] = true;
 				$result[] = $rev;
 			}
 
-			// Now process the valid titles
-			$lb = new LinkBatch( $pageSet->getTitles() );
-			$dbw->update( 'watchlist', array( 'wl_notificationtimestamp' => $timestamp ),
-				array( 'wl_user' => $user->getID(), $lb->constructSet( 'wl', $dbw ) ),
-				__METHOD__
-			);
-
-			// Query the results of our update
-			$timestamps = array();
-			$res = $dbw->select(
-				'watchlist',
-				array( 'wl_namespace', 'wl_title', 'wl_notificationtimestamp' ),
-				array( 'wl_user' => $user->getID(), $lb->constructSet( 'wl', $dbw ) ),
-				__METHOD__
-			);
-			foreach ( $res as $row ) {
-				$timestamps[$row->wl_namespace][$row->wl_title] = $row->wl_notificationtimestamp;
-			}
-
-			// Now, put the valid titles into the result
-			/** @var $title Title */
-			foreach ( $pageSet->getTitles() as $title ) {
-				$ns = $title->getNamespace();
-				$dbkey = $title->getDBkey();
-				$r = array(
-					'ns' => intval( $ns ),
-					'title' => $title->getPrefixedText(),
+			if ( $pageSet->getTitles() ) {
+				// Now process the valid titles
+				$watchedItemStore->setNotificationTimestampsForUser(
+					$user,
+					$timestamp,
+					$pageSet->getTitles()
 				);
-				if ( !$title->exists() ) {
-					$r['missing'] = '';
-				}
-				if ( isset( $timestamps[$ns] ) && array_key_exists( $dbkey, $timestamps[$ns] ) ) {
-					$r['notificationtimestamp'] = '';
-					if ( $timestamps[$ns][$dbkey] !== null ) {
-						$r['notificationtimestamp'] = wfTimestamp( TS_ISO_8601, $timestamps[$ns][$dbkey] );
+
+				// Query the results of our update
+				$timestamps = $watchedItemStore->getNotificationTimestampsBatch(
+					$user,
+					$pageSet->getTitles()
+				);
+
+				// Now, put the valid titles into the result
+				/** @var Title $title */
+				foreach ( $pageSet->getTitles() as $title ) {
+					$ns = $title->getNamespace();
+					$dbkey = $title->getDBkey();
+					$r = [
+						'ns' => intval( $ns ),
+						'title' => $title->getPrefixedText(),
+					];
+					if ( !$title->exists() ) {
+						$r['missing'] = true;
+						if ( $title->isKnown() ) {
+							$r['known'] = true;
+						}
 					}
-				} else {
-					$r['notwatched'] = '';
+					if ( isset( $timestamps[$ns] ) && array_key_exists( $dbkey, $timestamps[$ns] ) ) {
+						$r['notificationtimestamp'] = '';
+						if ( $timestamps[$ns][$dbkey] !== null ) {
+							$r['notificationtimestamp'] = wfTimestamp( TS_ISO_8601, $timestamps[$ns][$dbkey] );
+						}
+					} else {
+						$r['notwatched'] = true;
+					}
+					$result[] = $r;
 				}
-				$result[] = $r;
 			}
 
-			$apiResult->setIndexedTagName( $result, 'page' );
+			ApiResult::setIndexedTagName( $result, 'page' );
 		}
 		$apiResult->addValue( null, $this->getModuleName(), $result );
+
+		$this->setContinuationManager( null );
+		$continuationManager->setContinuationIntoResult( $apiResult );
 	}
 
 	/**
@@ -176,7 +195,7 @@ class ApiSetNotificationTimestamp extends ApiBase {
 	 * @return ApiPageSet
 	 */
 	private function getPageSet() {
-		if ( !isset( $this->mPageSet ) ) {
+		if ( $this->mPageSet === null ) {
 			$this->mPageSet = new ApiPageSet( $this );
 		}
 
@@ -192,29 +211,27 @@ class ApiSetNotificationTimestamp extends ApiBase {
 	}
 
 	public function needsToken() {
-		return true;
-	}
-
-	public function getTokenSalt() {
-		return '';
+		return 'csrf';
 	}
 
 	public function getAllowedParams( $flags = 0 ) {
-		$result = array(
-			'entirewatchlist' => array(
+		$result = [
+			'entirewatchlist' => [
 				ApiBase::PARAM_TYPE => 'boolean'
-			),
-			'token' => null,
-			'timestamp' => array(
+			],
+			'timestamp' => [
 				ApiBase::PARAM_TYPE => 'timestamp'
-			),
-			'torevid' => array(
+			],
+			'torevid' => [
 				ApiBase::PARAM_TYPE => 'integer'
-			),
-			'newerthanrevid' => array(
+			],
+			'newerthanrevid' => [
 				ApiBase::PARAM_TYPE => 'integer'
-			),
-		);
+			],
+			'continue' => [
+				ApiBase::PARAM_HELP_MSG => 'api-help-param-continue',
+			],
+		];
 		if ( $flags ) {
 			$result += $this->getPageSet()->getFinalParams( $flags );
 		}
@@ -222,94 +239,21 @@ class ApiSetNotificationTimestamp extends ApiBase {
 		return $result;
 	}
 
-	public function getParamDescription() {
-		return $this->getPageSet()->getFinalParamDescription() + array(
-			'entirewatchlist' => 'Work on all watched pages',
-			'timestamp' => 'Timestamp to which to set the notification timestamp',
-			'torevid' => 'Revision to set the notification timestamp to (one page only)',
-			'newerthanrevid' => 'Revision to set the notification timestamp newer than (one page only)',
-			'token' => 'A token previously acquired via prop=info',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			ApiBase::PROP_LIST => true,
-			ApiBase::PROP_ROOT => array(
-				'notificationtimestamp' => array(
-					ApiBase::PROP_TYPE => 'timestamp',
-					ApiBase::PROP_NULLABLE => true
-				)
-			),
-			'' => array(
-				'ns' => array(
-					ApiBase::PROP_TYPE => 'namespace',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'title' => array(
-					ApiBase::PROP_TYPE => 'string',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'pageid' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'revid' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => true
-				),
-				'invalid' => 'boolean',
-				'missing' => 'boolean',
-				'notwatched' => 'boolean',
-				'notificationtimestamp' => array(
-					ApiBase::PROP_TYPE => 'timestamp',
-					ApiBase::PROP_NULLABLE => true
-				)
-			)
-		);
-	}
-
-	public function getDescription() {
-		return array( 'Update the notification timestamp for watched pages.',
-			'This affects the highlighting of changed pages in the watchlist and history,',
-			'and the sending of email when the "Email me when a page on my watchlist is',
-			'changed" preference is enabled.'
-		);
-	}
-
-	public function getPossibleErrors() {
-		$ps = $this->getPageSet();
-
-		return array_merge(
-			parent::getPossibleErrors(),
-			$ps->getFinalPossibleErrors(),
-			$this->getRequireMaxOneParameterErrorMessages(
-				array( 'timestamp', 'torevid', 'newerthanrevid' ) ),
-			$this->getRequireOnlyOneParameterErrorMessages(
-				array_merge( array( 'entirewatchlist' ), array_keys( $ps->getFinalParams() ) ) ),
-			array(
-				array( 'code' => 'notloggedin', 'info'
-				=> 'Anonymous users cannot use watchlist change notifications' ),
-				array( 'code' => 'multpages', 'info' => 'torevid may only be used with a single page' ),
-				array( 'code' => 'multpages', 'info' => 'newerthanrevid may only be used with a single page' ),
-			)
-		);
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=setnotificationtimestamp&entirewatchlist=&token=123ABC'
-				=> 'Reset the notification status for the entire watchlist',
-			'api.php?action=setnotificationtimestamp&titles=Main_page&token=123ABC'
-				=> 'Reset the notification status for "Main page"',
-			'api.php?action=setnotificationtimestamp&titles=Main_page&' .
+	protected function getExamplesMessages() {
+		return [
+			'action=setnotificationtimestamp&entirewatchlist=&token=123ABC'
+				=> 'apihelp-setnotificationtimestamp-example-all',
+			'action=setnotificationtimestamp&titles=Main_page&token=123ABC'
+				=> 'apihelp-setnotificationtimestamp-example-page',
+			'action=setnotificationtimestamp&titles=Main_page&' .
 				'timestamp=2012-01-01T00:00:00Z&token=123ABC'
-				=> 'Set the notification timestamp for "Main page" so all edits ' .
-					'since 1 January 2012 are unviewed',
-		);
+				=> 'apihelp-setnotificationtimestamp-example-pagetimestamp',
+			'action=setnotificationtimestamp&generator=allpages&gapnamespace=2&token=123ABC'
+				=> 'apihelp-setnotificationtimestamp-example-allpages',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:SetNotificationTimestamp';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:SetNotificationTimestamp';
 	}
 }

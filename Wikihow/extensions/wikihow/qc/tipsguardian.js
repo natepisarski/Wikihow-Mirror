@@ -64,7 +64,8 @@ function loadResult(result) {
 	//increase throttle count
 	throttler.recordEdit(1);
 	//trigger all that article stuff
-	mw.mobileFrontend.emit('page-loaded');
+	// TODO: figure out new right way to trigger an event to init the article
+	//mw.mobileFrontend.emit('page-loaded');
 
 	if (result['html']) setLogging(qc_id,result['html']);
 }

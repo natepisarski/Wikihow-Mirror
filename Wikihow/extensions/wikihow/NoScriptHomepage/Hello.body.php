@@ -30,7 +30,7 @@ class Hello extends UnlistedSpecialPage {
 			return;
 		}
 
-		$out->setSquidMaxage($wgSquidMaxage);
+		$out->setCdnMaxage($wgSquidMaxage);
 
 		$out->setPageTitle("WikiHow");
         $vars = $this->getDefaultVars();

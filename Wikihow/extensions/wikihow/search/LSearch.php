@@ -4,11 +4,11 @@ if ( !defined( 'MEDIAWIKI' ) ) {
     exit(1);
 }
 
-$wgExtensionCredits['specialpage'][] = array(
+$wgExtensionCredits['specialpage'][] = [
     'name' => 'LSearch',
     'author' => 'Travis <travis@wikihow.com>',
     'description' => 'Customed search backend for wikiHow',
-);
+];
 
 $wgExtensionMessagesFiles['LSearch'] = __DIR__ . '/LSearch.i18n.php';
 $wgExtensionMessagesFiles['LSearchAlias'] = __DIR__ . '/LSearch.alias.php';
@@ -16,7 +16,7 @@ $wgExtensionMessagesFiles['LSearchAlias'] = __DIR__ . '/LSearch.alias.php';
 $wgSpecialPages['LSearch'] = 'LSearch';
 $wgAutoloadClasses['LSearch'] = __DIR__ . '/LSearch.body.php';
 
-$wgBogusQueries  = array(
+$wgBogusQueries  = [
     "_vti_bin/owssvr.dll",
     "msoffice/cltreq.asp",
     "crossdomain.xml",
@@ -52,23 +52,31 @@ $wgBogusQueries  = array(
 	"opera6fixes.css",
 	"opera7fixes.css",
 	"khtmlfixes.css",
-);
+];
 
 $wgCensoredWords = [
 	"nigger"
 ];
 
-$wgResourceModules['ext.wikihow.lsearch.desktop.styles'] = array(
-	'styles' => array('searchresults_desktop.css'),
+$wgResourceModules['ext.wikihow.lsearch.desktop.styles'] = [
+	'styles' => [ 'searchresults_desktop.css' ],
 	'localBasePath' => __DIR__ . '/../../../skins/owl',
 	'remoteExtPath' => 'skins/owl',
-);
+];
 
-$wgResourceModules['ext.wikihow.lsearch.mobile.styles'] = array(
+$wgResourceModules['ext.wikihow.lsearch.mobile.styles'] = [
 	'styles' => array('searchresults.css', 'searchresults_mobile.css'),
 	'localBasePath' => __DIR__ . '/../../../skins/owl',
 	'remoteExtPath' => 'skins/owl',
-	'targets' => array( 'desktop', 'mobile' ),
-);
+	'targets' => [ 'desktop', 'mobile' ],
+];
+
+$wgResourceModules['ext.wikihow.lsearch'] = [
+    'scripts' => [ 'searchresults.js' ],
+    'dependencies' => [ 'jquery' ],
+    'localBasePath' => __DIR__,
+    'remoteExtPath' => 'extensions/wikihow/search',
+    'targets' => [ 'desktop', 'mobile' ]
+];
 
 $wgHooks['OutputPageAfterGetHeadLinksArray'][] = 'LSearch::onOutputPageAfterGetHeadLinksArray';

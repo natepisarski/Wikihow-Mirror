@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.TechTestingAppWidget = (function($) {
+WH.dashboard.TechTestingAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -73,5 +73,5 @@ WH.dashboard.TechTestingAppWidget = (function($) {
 	WH.dashboard.registerDataListener('TechTestingAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

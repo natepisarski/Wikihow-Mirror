@@ -36,16 +36,22 @@ $wgHooks["ArticleDelete"][] = "wfRemoveNFD";
 $wgHooks["ArticleUndelete"][] = "wfUndeleteNFD";
 $wgHooks['wgQueryPages'][] = 'wfNFDAddQueryPages';
 
-$wgResourceModules['ext.wikihow.nfd_guardian'] = [
+$wgResourceModules['ext.wikihow.nfd_guardian_styles'] = [
 	'styles' => ['nfdGuardian.css'],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/nfd',
+	'position' => 'top',
+	'targets' => ['desktop', 'mobile'],
+];
+
+$wgResourceModules['ext.wikihow.nfd_guardian'] = [
 	'scripts' => ['nfdGuardian.js'],
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/nfd',
 	'position' => 'top',
 	'targets' => ['desktop', 'mobile'],
-	'dependencies' => ['ext.wikihow.common_top'],
+	'dependencies' => ['ext.wikihow.common_top', 'mediawiki.cookie'],
 ];
-
 
 function wfNFDAddQueryPages(&$wgQueryPages) {
 	$wgQueryPages[] = array('NFDAdvanced','NFDAdvanced');

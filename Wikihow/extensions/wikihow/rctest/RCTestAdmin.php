@@ -11,6 +11,6 @@ $wgResourceModules['ext.wikihow.rcTestAdmin'] = [
 	'targets' => [ 'desktop' ],
 	'styles' => [ 'rctestadmin.css' ],
 	'dependencies' => [ 'ext.wikihow.desktop_base', 'jquery.ui.dialog' ],
-	'remoteExtPath' => 'wikihow',
-	'position' => 'top' ];
-
+	'remoteExtPath' => 'wikihow/rctest',
+	'position' => 'top',
+];

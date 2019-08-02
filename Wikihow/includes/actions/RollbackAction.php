@@ -35,23 +35,63 @@ class RollbackAction extends FormlessAction {
 		return 'rollback';
 	}
 
+	/**
+	 * Temporarily unused message keys due to T88044/T136375:
+	 * - confirm-rollback-top
+	 * - confirm-rollback-button
+	 * - rollbackfailed
+	 * - rollback-missingparam
+	 * - rollback-success-notify
+	 */
+
+	/**
+	 * @throws ErrorPageError
+	 */
 	public function onView() {
-		$details = null;
+		// TODO: use $this->useTransactionalTimeLimit(); when POST only
+		wfTransactionalTimeLimit();
 
 		$request = $this->getRequest();
+		$user = $this->getUser();
+		$from = $request->getVal( 'from' );
+		$rev = $this->page->getRevision();
+		if ( $from === null ) {
+			throw new ErrorPageError( 'rollbackfailed', 'rollback-missingparam' );
+		}
+		if ( !$rev ) {
+			throw new ErrorPageError( 'rollbackfailed', 'rollback-missingrevision' );
+		}
+		if ( $from !== $rev->getUserText() ) {
+			throw new ErrorPageError( 'rollbackfailed', 'alreadyrolled', [
+				$this->getTitle()->getPrefixedText(),
+				$from,
+				$rev->getUserText()
+			] );
+		}
 
-		$result = $this->page->doRollback(
-			$request->getVal( 'from' ),
+		// @TODO: remove this hack once rollback uses POST (T88044)
+		$fname = __METHOD__;
+		$trxLimits = $this->context->getConfig()->get( 'TrxProfilerLimits' );
+		$trxProfiler = Profiler::instance()->getTransactionProfiler();
+		$trxProfiler->redefineExpectations( $trxLimits['POST'], $fname );
+		DeferredUpdates::addCallableUpdate( function () use ( $trxProfiler, $trxLimits, $fname ) {
+			$trxProfiler->redefineExpectations( $trxLimits['PostSend-POST'], $fname );
+		} );
+
+		$data = null;
+		$errors = $this->page->doRollback(
+			$from,
 			$request->getText( 'summary' ),
 			$request->getVal( 'token' ),
 			$request->getBool( 'bot' ),
-			$details,
+			$data,
 			$this->getUser()
 		);
 
-		if ( in_array( array( 'actionthrottledtext' ), $result ) ) {
+		if ( in_array( [ 'actionthrottledtext' ], $errors ) ) {
 			throw new ThrottledError;
 		}
+
 		/* XXX: Added by Gershon Bialer for RCPatrol, so it doesn't break
 		 *
 		*/
@@ -59,54 +99,67 @@ class RollbackAction extends FormlessAction {
 			$this->getOutput()->setArticleBodyOnly(true);	
 		}
 
-		if ( isset( $result[0][0] ) &&
-			( $result[0][0] == 'alreadyrolled' || $result[0][0] == 'cantrollback' )
+		if ( isset( $errors[0][0] ) &&
+			( $errors[0][0] == 'alreadyrolled' || $errors[0][0] == 'cantrollback' )
 		) {
 			$this->getOutput()->setPageTitle( $this->msg( 'rollbackfailed' ) );
-			$errArray = $result[0];
+			$errArray = $errors[0];
 			$errMsg = array_shift( $errArray );
 			$this->getOutput()->addWikiMsgArray( $errMsg, $errArray );
 
-			if ( isset( $details['current'] ) ) {
+			if ( isset( $data['current'] ) ) {
 				/** @var Revision $current */
-				$current = $details['current'];
+				$current = $data['current'];
 
 				if ( $current->getComment() != '' ) {
-					$this->getOutput()->addHTML( $this->msg( 'editcomment' )->rawParams(
-						Linker::formatComment( $current->getComment() ) )->parse() );
+					$this->getOutput()->addWikiMsg(
+						'editcomment',
+						Message::rawParam(
+							Linker::formatComment( $current->getComment() )
+						)
+					);
 				}
 			}
 
 			return;
 		}
 
-		#NOTE: Permission errors already handled by Action::checkExecute.
-
-		if ( $result == array( array( 'readonlytext' ) ) ) {
+		# NOTE: Permission errors already handled by Action::checkExecute.
+		if ( $errors == [ [ 'readonlytext' ] ] ) {
 			throw new ReadOnlyError;
 		}
 
-		#XXX: Would be nice if ErrorPageError could take multiple errors, and/or a status object.
-		#     Right now, we only show the first error
-		foreach ( $result as $error ) {
+		# XXX: Would be nice if ErrorPageError could take multiple errors, and/or a status object.
+		#      Right now, we only show the first error
+		foreach ( $errors as $error ) {
 			throw new ErrorPageError( 'rollbackfailed', $error[0], array_slice( $error, 1 ) );
 		}
 
 		/** @var Revision $current */
-		$current = $details['current'];
-		$target = $details['target'];
-		$newId = $details['newid'];
+		$current = $data['current'];
+		$target = $data['target'];
+		$newId = $data['newid'];
 		$this->getOutput()->setPageTitle( $this->msg( 'actioncomplete' ) );
 		$this->getOutput()->setRobotPolicy( 'noindex,nofollow' );
 
 		$old = Linker::revUserTools( $current );
 		$new = Linker::revUserTools( $target );
-		$this->getOutput()->addHTML( $this->msg( 'rollback-success' )->rawParams( $old, $new )
-			->parseAsBlock() );
+		$this->getOutput()->addHTML(
+			$this->msg( 'rollback-success' )
+				->rawParams( $old, $new )
+				->params( $current->getUserText( Revision::FOR_THIS_USER, $user ) )
+				->params( $target->getUserText( Revision::FOR_THIS_USER, $user ) )
+				->parseAsBlock()
+		);
+
+		if ( $user->getBoolOption( 'watchrollback' ) ) {
+			$user->addWatch( $this->page->getTitle(), User::IGNORE_USER_RIGHTS );
+		}
+
 		$this->getOutput()->returnToMain( false, $this->getTitle() );
 
 		if ( !$request->getBool( 'hidediff', false ) &&
-			!$this->getUser()->getBoolOption( 'norollbackdiff', false )
+			!$this->getUser()->getBoolOption( 'norollbackdiff' )
 		) {
 			$contentHandler = $current->getContentHandler();
 			$de = $contentHandler->createDifferenceEngine(
@@ -122,5 +175,9 @@ class RollbackAction extends FormlessAction {
 
 	protected function getDescription() {
 		return '';
+	}
+
+	public function doesWrites() {
+		return true;
 	}
 }

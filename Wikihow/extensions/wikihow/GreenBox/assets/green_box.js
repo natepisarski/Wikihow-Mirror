@@ -4,7 +4,12 @@
 	window.WH.GreenBox = {
 
 		init: function() {
-			if ($.browser.safari) this.addSafariTabHack();
+			// jQuery took away their $.browser object (they want people to use feature
+			// detection), so re-hacking the hack:
+			// from https://stackoverflow.com/questions/3007480/determine-if-user-navigated-from-mobile-safari
+			var ua = window.navigator.userAgent;
+			var iosSafari = ua.match(/(iPad|iPhone.*WebKit)/i) && !ua.match(/CriOS/i);
+			if (iosSafari) this.addSafariTabHack();
 
 			var action = WH.isMobileDomain ? 'click' : 'mouseenter mouseleave';
 			var elements = '.green_box_person.expert .green_box_person_circle, .green_box_person.expert .green_box_expert_info';

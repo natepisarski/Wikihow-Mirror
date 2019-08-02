@@ -1,0 +1,37 @@
+{
+	"@metadata": {
+		"authors": [
+			"CERminator",
+			"Edinwiki",
+			"Srdjan m"
+		]
+	},
+	"guidedtour-desc": "Dozvoljava stranicama da koriste vodič sa skočnim prozorima da bi se pomoglo novim korisnicima",
+	"guidedtour-help-url": "Help:Vodiči",
+	"guidedtour-help-guider-url": "Pomoć:Vodiči/vodič",
+	"guidedtour-next-button": "Sljedeće",
+	"guidedtour-okay-button": "U redu",
+	"guidedtour-back-button": "Nazad",
+	"guidedtour-tour-test-testing": "Testiranje",
+	"guidedtour-tour-test-test-description": "Ovo je test opisa. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Test oblačića",
+	"guidedtour-tour-test-portal-description": "Ovo je stranica {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Test raščlanjivanja MediaWikija",
+	"guidedtour-tour-test-wikitext-description": "Vodič na Vašem wikivodiču može se sastojati od wikiteksta. Koristite ga da napravite wikilink ka [[{{MediaWiki:Guidedtour-help-url}}|dokumentaciji za Vodič]]. Ili, recimo, [https://example.com vanjski link].",
+	"guidedtour-tour-test-description-page": "Test opisnih stranica MediaWikija",
+	"guidedtour-tour-test-go-description-page": "Idi na opisnu stranicu",
+	"guidedtour-tour-test-launch-tour": "Test pokretanja vodiča",
+	"guidedtour-tour-test-launch-tour-description": "Vodiči mogu pokrenuti druge vodiče. Baš super, zar ne?",
+	"guidedtour-tour-test-launch-editing": "Pokreni vodič o uređivanju",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Uredite}} cijelu stranicu…",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Kliknite}} na dugme \"$1\" da biste napravili izmjene.",
+	"guidedtour-tour-firstedit-edit-section-title": "Ili {{GENDER:|uredite}} samo odlomak",
+	"guidedtour-tour-firstedit-edit-section-description": "Postoje linkovi \"{{int:editsection}}\" kraj svakog odlomka (podnaslova) stranice, tako da se možete fokusirati samo na taj dio.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Pregledajte}} svoje izmjene (neobavezno)",
+	"guidedtour-tour-firstedit-preview-description": "Klikom na \"{{int:showpreview}}\" možete vidjeti kako će stranica izgledati s Vašim izmjenama. Samo je ne zaboravite sačuvati!",
+	"guidedtour-tour-firstedit-save-title": "Skoro ste pri kraju!",
+	"guidedtour-tour-firstedit-save-description": "Kada završite, kliknite na \"{{int:publishchanges}}\" da Vaše izmjene budu vidljive svima.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Kliknite}} na dugme \"$1\" da biste napravili izmjene.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Postoje linkovi \"$1\" kraj svakog odlomka (podnaslova) stranice, tako da se možete fokusirati samo na taj dio.",
+	"guidedtour-tour-firsteditve-save-description": "Kada završite, kliknite na \"{{int:visualeditor-toolbar-savedialog}}\" da Vaše izmjene budu vidljive svima."
+}

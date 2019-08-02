@@ -10,7 +10,7 @@
 			WH.xss.addToken();
 			if (!$('#bodycontents').length) {
 				// on mobile
-				$('#content').prepend('<div id="bodycontents"></div>');
+				$('.content').prepend('<div id="bodycontents"></div>');
 			}
 			$('#bodycontents').append('<div id="tool-data"></div>');
 			$('#bodycontents').after('<div id="article-data"></div>');
@@ -149,6 +149,8 @@
 		},
 	};
 	$(document).ready(function() {
-		WH.SpecialTechFeedback.init();
+		mw.loader.using( 'ext.wikihow.common_top', function() {
+			WH.SpecialTechFeedback.init();
+		} );
 	});
 })();

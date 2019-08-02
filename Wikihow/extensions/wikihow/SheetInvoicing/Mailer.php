@@ -86,9 +86,12 @@ if ( $wgUser->getName() == 'Albur' ) {
 
 	private function sendEmail(MailAddress $to, string $subject, string $body): string
 	{
-		$contentType = 'text/html; charset=UTF-8';
 		try {
-			$status = UserMailer::send($to, $this->sender, $subject, $body, $this->replyTo, $contentType);
+			$opts = [
+				'contentType' => 'text/html; charset=UTF-8',
+				'replyTo' => $this->replyTo,
+			];
+			$status = UserMailer::send($to, $this->sender, $subject, $body, $opts);
 // TODO remove
 wfDebugLog('alber', "From '" . $this->sender . "' to '$to': $subject | " . var_export($status, true) );
 			return '';

@@ -49,11 +49,11 @@ class ArticleCreator extends SpecialPage {
 			$response = array();
 			$token = $request->getVal('ac_token');
 			if ( ! $context->getUser()->matchEditToken( $token ) ) {
-				$response['error'] = wfMessage('ac-invalid-edit-token');
+				$response['error'] = wfMessage('ac-invalid-edit-token')->text();
 			} elseif ($this->onlyEditNewArticles && $t->exists() && !$overwriteAllowed) {
-				$response['error'] = wfMessage('ac-title-exists', $t->getEditUrl());
+				$response['error'] = wfMessage('ac-title-exists', $t->getEditUrl())->text();
 			} elseif (!$t->userCan( 'create', $context->getUser(), false)) {
-				$response['error'] = wfMessage('ac-cannot-create', $t->getEditUrl());
+				$response['error'] = wfMessage('ac-cannot-create', $t->getEditUrl())->text();
 			} else {
 				$response = $this->saveArticle($t, $request, $response);
 			}
@@ -179,7 +179,15 @@ class ArticleCreator extends SpecialPage {
 		$contentFormat = $handler->getDefaultFormat();
 		$content = ContentHandler::makeContent( $text, $t, $contentModel, $contentFormat );
 		$status = Status::newGood();
-		if (!Hooks::run('EditFilterMergedContent', array($this->getContext(), $content, &$status, '', $user, false))) {
+
+		$newTitleContext = new DerivativeContext( $this->getContext() );
+		$newTitleContext->setTitle( $t );
+		// The SpamBlacklist EditFilterMergedContent needs a page that always exists to
+		// run prepareContentForEdit() on. I chose Sandbox, but we can change to something
+		// more permanent if needed.
+		$newTitleContext->setWikiPage( WikiPage::factory( Title::newFromText('Sandbox') ) );
+
+		if (!Hooks::run('EditFilterMergedContent', array($newTitleContext, $content, &$status, '', $user, false))) {
 			$response['error'] = wfMessage('ac-error-editfilter')->text();
 			return $response;
 		}

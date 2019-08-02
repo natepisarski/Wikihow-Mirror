@@ -11,9 +11,6 @@
  )
  */
 
-global $IP;
-require_once("$IP/extensions/wikihow/titus/Titus.class.php");
-
 class TitusStoredQuery extends UnlistedSpecialPage {
 	public function __construct() {
 		parent::__construct('TitusStoredQuery');
@@ -23,8 +20,12 @@ class TitusStoredQuery extends UnlistedSpecialPage {
 	 * Get the the restricted database for titus stored queries
 	 */
 	private function getDB() {
-		$db = DatabaseBase::factory('mysql');
-		$db->open(TitusDB::getDBHost(), WH_DATABASE_USER, WH_DATABASE_PASSWORD, TitusDB::getDBName());
+		$db = DatabaseBase::factory( 'mysql', [
+			'host' => TitusDB::getDBHost(),
+			'user' => WH_DATABASE_USER,
+			'password' => WH_DATABASE_PASSWORD,
+			'dbname' => TitusDB::getDBName(),
+		] );
 		return $db;
 	}
 

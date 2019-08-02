@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"Michawiki"
+		]
+	},
+	"guidedtour-help-url": "Help:Wjedźene tury",
+	"guidedtour-help-guider-url": "Help:Wjedźene tury/wjednik",
+	"guidedtour-okay-button": "W porjadku",
+	"guidedtour-tour-test-testing": "Testowanje",
+	"guidedtour-tour-test-test-description": "To je test wopisanja. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Wujasnjenja testować",
+	"guidedtour-tour-test-portal-description": "To je strona {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Parsowanje MediaWiki testować",
+	"guidedtour-tour-test-description-page": "Wopisanske strony mdiaWiki testować",
+	"guidedtour-tour-test-go-description-page": "Dźi k wopisanskej stronje",
+	"guidedtour-tour-test-launch-tour": "Turowy start testować",
+	"guidedtour-tour-test-launch-tour-description": "Wjednicy móža druhe wjedźene tury startować. Dosć cool, něwěrno?"
+}

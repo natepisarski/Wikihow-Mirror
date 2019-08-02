@@ -157,7 +157,6 @@ EOHTML;
 			// But it may be better, because then the user can opt-in again if they want to (they
 			// either need the opt-out link or have to go to their preferences)
 
-			// @TODO  UPGRADE NOTE: In 1.24, you can just use $this->getConfig()
 			if ( $num > 0 && $this->getContext()->getConfig()->get( 'UnsubscribeLinkedAccounts' ) ) {
 				foreach ( $res as $row ) {
 					$this->unsubscribeUser( $row->user_id );

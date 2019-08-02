@@ -20,8 +20,6 @@ class TitusQueryTool extends UnlistedSpecialPage {
 		$this->languageInfo = Misc::getActiveLanguageNames();
 
 		$wgHooks['ShowSideBar'][] = array('TitusQueryTool::removeSideBarCallback');
-
-		require_once("$IP/extensions/wikihow/titus/Titus.class.php");
 	}
 
 	public static function removeSideBarCallback(&$showSideBar) {

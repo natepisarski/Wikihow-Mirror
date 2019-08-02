@@ -39,7 +39,7 @@ class CategoryHelper extends UnlistedSpecialPage {
 	}
 
 	// Used in category guardian
-	public static function decategorize($pageId, $categorySlug, $summary, $flags=null, $user=null) {
+	public static function decategorize($pageId, $categorySlug, $summary, $flags = 0, $user = null) {
 		global $wgContLang;
 
 		$wikiPage = WikiPage::newFromID($pageId);

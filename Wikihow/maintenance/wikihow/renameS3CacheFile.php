@@ -8,16 +8,22 @@
 // characters in their names.
 //
 
-require_once __DIR__ . '/../commandLine.inc';
+require_once __DIR__ . '/../Maintenance.php';
+
 require_once "$IP/extensions/wikihow/common/S3.php";
 
-class RenameS3CacheFileMaintenance {
+class RenameS3CacheFileMaintenance extends Maintenance {
 
 	const BUCKET_NAME = 'cache.wikihow.com';
 
 	static $s3;
+	
+	public function execute() {
+		self::main();
+	}
 
 	static function main() {
+		// TODO: should be re-written to use $this->getOption() etc
 		global $argv;
 		if (count($argv) < 2) {
 			print "usage: " . __FILE__ . " domain-name files...\n";
@@ -65,5 +71,5 @@ class RenameS3CacheFileMaintenance {
 
 }
 
-RenameS3CacheFileMaintenance::main();
-
+$maintClass = 'RenameS3CacheFileMaintenance';
+require_once RUN_MAINTENANCE_IF_MAIN;

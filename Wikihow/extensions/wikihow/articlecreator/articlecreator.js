@@ -2,8 +2,11 @@ WH = WH || {};
 
 WH.ArticleCreator = function() {
 	
+	var m = navigator.userAgent.toLowerCase().match(/msie (\d+)\./),
+		msieVer = (m ? Number.parseInt(m[1],10) : false);
+
 	// Redirect older IE users to the guided editor
-	if ($.browser.msie && $.browser.version < 9) {
+	if (msieVer && msieVer < 9) {
 		window.location.href = mw.util.getUrl(mw.util.getParamValue('t'), {'action': 'edit'});
 		return;
 	}
@@ -444,7 +447,7 @@ WH.ArticleCreator = function() {
 	function Controller() {
 		
 		// input event not supported in IE < 9
-		var changeEvent = $.browser.msie && $.browser.version < 9 ?  
+		var changeEvent = msieVer && msieVer < 9 ?
 			'keydown' : 'input';
 		       
        $(document).on(changeEvent, 'textarea.ac_new_li', function() {

@@ -226,17 +226,18 @@ abstract class Drafts {
 			 */
 			foreach ( $drafts as $draft ) {
 				// Get article title text
-				$htmlTitle = $draft->getTitle()->getEscapedText();
+				$htmlTitle = htmlspecialchars( $draft->getTitle()->getText() );
 				// Build Article Load link
+				$advanced = $wgRequest->getBool( 'advanced' ) ? '&advanced=true' : '';
 				$urlLoad = $draft->getTitle()->getFullURL(
-					'action=edit&draft=' . urlencode( $draft->getID() )
+					'action=edit&draft=' . urlencode( $draft->getID() ) . $advanced
 				);
 				// Build discard link
 				$urlDiscard = SpecialPage::getTitleFor( 'Drafts' )->getFullURL(
 					sprintf( 'discard=%s&token=%s',
 						urlencode( $draft->getID() ),
 						urlencode( $wgUser->getEditToken() )
-					)
+					) . $advanced
 				);
 				// If in edit mode, return to editor
 				if (
@@ -305,9 +306,7 @@ abstract class Drafts {
 					Xml::openElement( 'td' )
 				);
 				$jsClick = "if( wgDraft.getState() !== 'unchanged' )" .
-					"return confirm('" .
-					Xml::escapeJsString( wfMessage( 'drafts-view-warn' )->escaped() ) .
-					"')";
+					"return " . Xml::encodeJsCall( 'confirm', [ wfMessage( 'drafts-view-warn' ) ] ) . ';';
 				$wgOut->addHTML(
 					Xml::element( 'a',
 						array(
@@ -635,7 +634,6 @@ class Draft {
 		global $wgUser;
 		// Gets database connection
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->begin();
 		// Builds insert/update information
 		$data = array(
 			'draft_token' => (string) $this->getToken(),
@@ -686,8 +684,6 @@ class Draft {
 				$this->exists = true;
 			}
 		}
-		// Commits any processed changes
-		$dbw->commit();
 		// Returns success
 		return true;
 	}

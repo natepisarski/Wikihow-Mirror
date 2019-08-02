@@ -4,9 +4,7 @@
  * Our custom login and sign-up page templates *
  ***********************************************/
 
-if ( !defined( 'MEDIAWIKI' ) ) die( -1 );
-
-$wgResourceModules['ext.wikihow.loginpage'] = array(
+$wgResourceModules['ext.wikihow.loginpage_styles'] = array(
 	'styles' => 'wikihowlogin.css',
 	'targets' => array( 'desktop' ),
 	'localBasePath' => __DIR__,
@@ -15,5 +13,15 @@ $wgResourceModules['ext.wikihow.loginpage'] = array(
 );
 
 $wgAutoloadClasses['WikihowLogin'] = __DIR__ . '/WikihowLogin.body.php';
-$wgAutoloadClasses['WikihowLoginTemplate'] = __DIR__ . '/WikihowLogin.body.php';
-$wgAutoloadClasses['WikihowCreateTemplate'] = __DIR__ . '/WikihowLogin.body.php';
+$wgAutoloadClasses['EmailLogin\\EmailPasswordAuthenticationProvider'] = __DIR__ . '/EmailLogin.php';
+
+$wgMessagesDirs['WikihowLogin'] = __DIR__ . '/i18n';
+
+$wgHooks['SpecialPage_initList'][] = ['WikihowLogin::onSpecialPage_initList'];
+$wgHooks['AuthChangeFormFields'][] = ['WikihowLogin::onAuthChangeFormFields'];
+
+$wgAuthManagerAutoConfig['primaryauth'] = [
+	'EmailPasswordAuthenticationProvider' => [
+		'class' => 'EmailLogin\\EmailPasswordAuthenticationProvider'
+	]
+];

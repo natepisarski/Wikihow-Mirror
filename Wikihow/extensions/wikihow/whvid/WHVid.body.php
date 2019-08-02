@@ -8,17 +8,10 @@ class WHVid {
 
 	const YT_VIDEOS_LIKE_SUMMARY_LIST = "youtube_wikihow_videos";
 
-	public static function setParserFunction () {
+	public static function setParserFunction($parser) {
 		# Setup parser hook
-		global $wgParser;
-		$wgParser->setFunctionHook( 'whvid', 'WHVid::parserFunction' );
-		return true;
+		$parser->setFunctionHook( 'whvid', 'WHVid::parserFunction' );
 	}
-
-    public static function languageGetMagic( &$magicWords ) {
-		$magicWords['whvid'] = array( 0, 'whvid' );
-        return true;
-    }
 
 	public static function getVidFullPathForAmp( $vidSrc ) {
 		$root = WH_CDN_VIDEO_ROOT;

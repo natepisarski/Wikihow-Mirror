@@ -151,8 +151,7 @@ class DraftHooks {
 				$out->addHTML( Xml::closeElement( 'div' ) );
 			} else {
 				$jsWarn = "if( !wgAjaxSaveDraft.insync ) return confirm('" .
-					Xml::escapeJsString( $context->msg( 'drafts-view-warn' )->escaped() ) .
-					"')";
+					$context->msg( 'drafts-view-warn' )->escaped() .  "')";
 				$link = Xml::element( 'a',
 					array(
 						'href' => $context->getTitle()->getFullURL( 'action=edit' ),
@@ -191,6 +190,7 @@ class DraftHooks {
 
 		$context = $editpage->getArticle()->getContext();
 		$user = $context->getUser();
+		$sk = $context->getSkin();
 
 		if ( !$user->getOption( 'extensionDrafts_enable', 'true' ) ) {
 			return true;
@@ -200,18 +200,16 @@ class DraftHooks {
 			$request = $context->getRequest();
 
 			// Build XML
-			$buttons['savedraft'] = Xml::openElement( 'script',
-				array(
-					'type' => 'text/javascript',
-					'language' => 'javascript'
-				)
-			);
 			$buttonAttribs = array(
-				'id' => 'wpDraftSave',
+				'id' => 'wpDraftSaveWidget',
+				'inputId' => 'wpDraftSave',
 				'name' => 'wpDraftSave',
-				'class' => 'button secondary disabled',
 				'tabindex' => ++$tabindex,
-				'value' => $context->msg( 'drafts-save-save' )->text(),
+				'label' => $context->msg( 'drafts-save-save' )->text(),
+				'type' => 'submit',
+				// Support: IE 6 – Use <input>, otherwise it can't distinguish which button was clicked
+				'useInputTag' => true,
+				'infusable' => false
 			);
 			$attribs = Linker::tooltipAndAccesskeyAttribs( 'drafts-save' );
 			if ( isset( $attribs['accesskey'] ) ) {
@@ -220,22 +218,13 @@ class DraftHooks {
 			if ( isset( $attribs['title'] ) ) {
 				$buttonAttribs['title'] = $attribs['title'];
 			}
-			$ajaxButton = Xml::escapeJsString(
-				Xml::element( 'input',
-					array( 'type' => 'submit' ) + $buttonAttribs
-					+ ( $request->getText( 'action' ) !== 'submit' ?
-						array ( 'disabled' => 'disabled' )
-						: array()
-					)
-				)
-			);
-			$buttons['savedraft'] .= "document.write( '{$ajaxButton}' );";
-			$buttons['savedraft'] .= Xml::closeElement( 'script' );
-			$buttons['savedraft'] .= Xml::openElement( 'noscript' );
-			$buttons['savedraft'] .= Xml::element( 'input',
-				array( 'type' => 'submit' ) + $buttonAttribs
-			);
-			$buttons['savedraft'] .= Xml::closeElement( 'noscript' );
+
+			// Copied with love from Echo extension
+			$sk->getOutput()->setupOOUI(
+				strtolower( $sk->getSkinName() ), $sk->getOutput()->getLanguage()->getDir() );
+
+			$htmlButton = new OOUI\ButtonInputWidget( $buttonAttribs );
+			$buttons['savedraft'] .= (string)$htmlButton;
 			$buttons['savedraft'] .= Xml::element( 'input',
 				array(
 					'type' => 'hidden',
@@ -287,7 +276,11 @@ class DraftHooks {
 	 * @return bool
 	 */
 	public static function onBeforePageDisplay( $out, $skin ) {
-		$out->addModules( 'ext.Drafts' );
+		$action = $out->getRequest()->getVal('action', 'view');
+		if ( $action != 'view' ) {
+			$out->addModuleStyles( 'ext.Drafts_styles' );
+			$out->addModules( 'ext.Drafts' );
+		}
 		return true;
 	}
 

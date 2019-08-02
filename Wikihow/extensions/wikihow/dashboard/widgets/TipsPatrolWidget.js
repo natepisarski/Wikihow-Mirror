@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.TipsPatrolWidget = (function($) {
+WH.dashboard.TipsPatrolWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -73,5 +73,5 @@ WH.dashboard.TipsPatrolWidget = (function($) {
 	WH.dashboard.registerDataListener('TipsPatrolWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

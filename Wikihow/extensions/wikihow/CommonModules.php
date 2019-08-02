@@ -23,20 +23,26 @@ if ($wgLanguageCode == 'zh' && $wgIsProduction) {
 	$wgResourceModules['ext.wikihow.common_top']['scripts'][] = 'baidu.js';
 }
 
-$wgResourceModules['ext.wikihow.common_bottom'] = [
-	'localBasePath' => __DIR__,
+$wgResourceModules['ext.wikihow.common_bottom_styles'] = [
+	'styles' => [ 'wikihow_common_bottom.css' ],
 	'targets' => [ 'desktop', 'mobile' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow',
+];
+
+$wgResourceModules['ext.wikihow.common_bottom'] = [
 	'scripts' => [
 		'../../skins/WikiHow/MachinifyAPI.js',
 		'wikihow_common_bottom.js',
 	],
-	'styles' => [ 'wikihow_common_bottom.css' ],
+	'targets' => [ 'desktop', 'mobile' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow',
 	'dependencies' => [
 		'ext.wikihow.common_top',
 		'wikihow.common.mustache',
 		'mediawiki.jqueryMsg'
 	],
-	'remoteExtPath' => 'wikihow',
 	'position' => 'bottom',
 	'messages' => [
 		'mhmt-question',
@@ -65,7 +71,7 @@ $wgResourceModules['ext.wikihow.desktop_base'] = [
 	'remoteExtPath' => 'wikihow',
 	'position' => 'top' ];
 
-// NOTE: Should the CSS of whwid be loaded higher?
+// NOTE: Should the CSS of whvid be loaded higher?
 $wgResourceModules['ext.wikihow.whvid'] = [
 	'localBasePath' => __DIR__,
 	'targets' => [ 'desktop' ],
@@ -73,6 +79,11 @@ $wgResourceModules['ext.wikihow.whvid'] = [
 	'remoteExtPath' => 'wikihow',
 	'position' => 'top' ];
 
+
+$wgResourceModulesDesktopBoilerStyles = [
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop' ],
+	'remoteExtPath' => 'wikihow' ];
 
 $wgResourceModulesDesktopBoiler = [
 	'localBasePath' => __DIR__,
@@ -82,66 +93,61 @@ $wgResourceModulesDesktopBoiler = [
 	'position' => 'top'];
 
 $wgResourceModules['ext.wikihow.rcwidget'] =
-	$wgResourceModulesDesktopBoiler + [
-		// JS doesn't seem to work when css is included
-		//'styles' => [ 'rcwidget/rcwidget.css' ],
-		'scripts' => [ 'rcwidget/rcwidget.js' ]
-	];
+	$wgResourceModulesDesktopBoiler
+	+ [ 'scripts' => [ 'rcwidget/rcwidget.js' ] ];
+
+$wgResourceModules['ext.wikihow.toptentips_styles'] =
+	$wgResourceModulesDesktopBoilerStyles
+	+ [ 'styles' => [ 'tipsandwarnings/topten.css' ] ];
 
 $wgResourceModules['ext.wikihow.toptentips'] =
-	$wgResourceModulesDesktopBoiler + [
-		'styles' => [ 'tipsandwarnings/topten.css' ],
-		'scripts' => [ 'tipsandwarnings/toptentips.js' ]
-	];
+	$wgResourceModulesDesktopBoiler
+	+ [ 'scripts' => [ 'tipsandwarnings/toptentips.js' ] ];
+
+$wgResourceModules['ext.wikihow.homepage_styles'] =
+	$wgResourceModulesDesktopBoilerStyles
+	+ [ 'styles' => [ '../../skins/owl/home.css' ] ];
 
 $wgResourceModules['ext.wikihow.homepage'] =
-	$wgResourceModulesDesktopBoiler + [
-		'styles' => [ '../../skins/owl/home.css' ],
-		'scripts' => [ 'homepage/wikihowhomepage.js' ]
-	];
+	$wgResourceModulesDesktopBoiler
+	+ [ 'scripts' => [ 'homepage/wikihowhomepage.js' ] ];
+
+$wgResourceModules['ext.wikihow.image_feedback_styles'] =
+	$wgResourceModulesDesktopBoilerStyles
+	+ [ 'styles' => [ 'imagefeedback/imagefeedback.css' ] ];
 
 $wgResourceModules['ext.wikihow.image_feedback'] =
-	$wgResourceModulesDesktopBoiler + [
-		'styles' => [ 'imagefeedback/imagefeedback.css' ],
-		'scripts' => [ 'imagefeedback/imagefeedback.js' ]
-	];
+	$wgResourceModulesDesktopBoiler
+	+ [ 'scripts' => [ 'imagefeedback/imagefeedback.js' ] ];
 
 $wgResourceModules['ext.wikihow.editor_script'] =
 	$wgResourceModulesDesktopBoiler
 	+ [ 'scripts' => [ '../../skins/common/editor_script.js' ] ];
 
 $wgResourceModules['ext.wikihow.notindexed_styles'] =
-	$wgResourceModulesDesktopBoiler
+	$wgResourceModulesDesktopBoilerStyles
 	+ [ 'styles' => [ '../../skins/owl/noindex.css' ] ];
 
 $wgResourceModules['ext.wikihow.specials_styles'] =
-	$wgResourceModulesDesktopBoiler
+	$wgResourceModulesDesktopBoilerStyles
 	+ [ 'styles' => [ '../../skins/owl/special.css' ] ];
 
 $wgResourceModules['ext.wikihow.nonarticle_styles'] =
-	$wgResourceModulesDesktopBoiler
+	$wgResourceModulesDesktopBoilerStyles
 	+ [ 'styles' => [ '../../skins/owl/nonarticle.css' ] ];
 
 $wgResourceModules['ext.wikihow.diff_styles'] =
-	$wgResourceModulesDesktopBoiler
+	$wgResourceModulesDesktopBoilerStyles
 	+ [ 'styles' => [ '../../skins/common/diff.css' ] ];
 
 $wgResourceModules['ext.wikihow.loggedin_styles'] =
-	$wgResourceModulesDesktopBoiler + [
+	$wgResourceModulesDesktopBoilerStyles + [
 		'styles' => [
 			'../../skins/WikiHow/loggedin.css',
 			'../../skins/owl/loggedin.css'
-		]
+		],
+		'group' => 'prio2', // Load these styles after main CSS bundle
 	];
-
-$wgResourceModules['ext.wikihow.thumbsup'] = [
-	'localBasePath' => __DIR__,
-	'targets' => [ 'desktop' ],
-	'scripts' => [ 'thumbsup/thumbsup.js' ],
-	'dependencies' => [ 'ext.wikihow.desktop_base' ],
-	'messages' => [ 'rcpatrol_thumb_msg_pending', 'rcpatrol_thumb_msg_complete' ],
-	'remoteExtPath' => 'wikihow',
-	'position' => 'bottom' ];
 
 // Styles for the printable version of our site, restricted to @media type 'print'.
 $wgResourceModules['ext.wikihow.printable'] = [

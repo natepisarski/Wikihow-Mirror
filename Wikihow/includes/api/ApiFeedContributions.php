@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on June 06, 2011
- *
  * Copyright © 2011 Sam Reed
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,10 +20,19 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionAccessException;
+use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Revision\RevisionStore;
+use MediaWiki\Revision\SlotRecord;
+
 /**
  * @ingroup API
  */
 class ApiFeedContributions extends ApiBase {
+
+	/** @var RevisionStore */
+	private $revisionStore;
 
 	/**
 	 * This module uses a custom feed wrapper printer.
@@ -39,53 +44,63 @@ class ApiFeedContributions extends ApiBase {
 	}
 
 	public function execute() {
+		$this->revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
+
 		$params = $this->extractRequestParams();
 
-		global $wgFeed, $wgFeedClasses, $wgFeedLimit, $wgSitename, $wgLanguageCode;
-
-		if ( !$wgFeed ) {
-			$this->dieUsage( 'Syndication feeds are not available', 'feed-unavailable' );
+		$config = $this->getConfig();
+		if ( !$config->get( 'Feed' ) ) {
+			$this->dieWithError( 'feed-unavailable' );
 		}
 
-		if ( !isset( $wgFeedClasses[$params['feedformat']] ) ) {
-			$this->dieUsage( 'Invalid subscription feed type', 'feed-invalid' );
+		$feedClasses = $config->get( 'FeedClasses' );
+		if ( !isset( $feedClasses[$params['feedformat']] ) ) {
+			$this->dieWithError( 'feed-invalid' );
 		}
 
-		global $wgMiserMode;
-		if ( $params['showsizediff'] && $wgMiserMode ) {
-			$this->dieUsage( 'Size difference is disabled in Miser Mode', 'sizediffdisabled' );
+		if ( $params['showsizediff'] && $this->getConfig()->get( 'MiserMode' ) ) {
+			$this->dieWithError( 'apierror-sizediffdisabled' );
 		}
 
 		$msg = wfMessage( 'Contributions' )->inContentLanguage()->text();
-		$feedTitle = $wgSitename . ' - ' . $msg . ' [' . $wgLanguageCode . ']';
+		$feedTitle = $config->get( 'Sitename' ) . ' - ' . $msg .
+			' [' . $config->get( 'LanguageCode' ) . ']';
 		$feedUrl = SpecialPage::getTitleFor( 'Contributions', $params['user'] )->getFullURL();
 
 		$target = $params['user'] == 'newbies'
 			? 'newbies'
 			: Title::makeTitleSafe( NS_USER, $params['user'] )->getText();
 
-		$feed = new $wgFeedClasses[$params['feedformat']] (
+		$feed = new $feedClasses[$params['feedformat']] (
 			$feedTitle,
 			htmlspecialchars( $msg ),
 			$feedUrl
 		);
 
-		$pager = new ContribsPager( $this->getContext(), array(
+		// Convert year/month parameters to end parameter
+		$params['start'] = '';
+		$params['end'] = '';
+		$params = ContribsPager::processDateFilter( $params );
+
+		$pager = new ContribsPager( $this->getContext(), [
 			'target' => $target,
 			'namespace' => $params['namespace'],
-			'year' => $params['year'],
-			'month' => $params['month'],
+			'start' => $params['start'],
+			'end' => $params['end'],
 			'tagFilter' => $params['tagfilter'],
 			'deletedOnly' => $params['deletedonly'],
 			'topOnly' => $params['toponly'],
+			'newOnly' => $params['newonly'],
+			'hideMinor' => $params['hideminor'],
 			'showSizeDiff' => $params['showsizediff'],
-		) );
+		] );
 
-		if ( $pager->getLimit() > $wgFeedLimit ) {
-			$pager->setLimit( $wgFeedLimit );
+		$feedLimit = $this->getConfig()->get( 'FeedLimit' );
+		if ( $pager->getLimit() > $feedLimit ) {
+			$pager->setLimit( $feedLimit );
 		}
 
-		$feedItems = array();
+		$feedItems = [];
 		if ( $pager->getNumRows() > 0 ) {
 			$count = 0;
 			$limit = $pager->getLimit();
@@ -94,7 +109,10 @@ class ApiFeedContributions extends ApiBase {
 				if ( ++$count > $limit ) {
 					break;
 				}
-				$feedItems[] = $this->feedItem( $row );
+				$item = $this->feedItem( $row );
+				if ( $item !== null ) {
+					$feedItems[] = $item;
+				}
 			}
 		}
 
@@ -102,16 +120,33 @@ class ApiFeedContributions extends ApiBase {
 	}
 
 	protected function feedItem( $row ) {
+		// This hook is the api contributions equivalent to the
+		// ContributionsLineEnding hook. Hook implementers may cancel
+		// the hook to signal the user is not allowed to read this item.
+		$feedItem = null;
+		$hookResult = Hooks::run(
+			'ApiFeedContributions::feedItem',
+			[ $row, $this->getContext(), &$feedItem ]
+		);
+		// Hook returned a valid feed item
+		if ( $feedItem instanceof FeedItem ) {
+			return $feedItem;
+		// Hook was canceled and did not return a valid feed item
+		} elseif ( !$hookResult ) {
+			return null;
+		}
+
+		// Hook completed and did not return a valid feed item
 		$title = Title::makeTitle( intval( $row->page_namespace ), $row->page_title );
 		if ( $title && $title->userCan( 'read', $this->getUser() ) ) {
 			$date = $row->rev_timestamp;
 			$comments = $title->getTalkPage()->getFullURL();
-			$revision = Revision::newFromRow( $row );
+			$revision = $this->revisionStore->newRevisionFromRow( $row );
 
 			return new FeedItem(
 				$title->getPrefixedText(),
 				$this->feedItemDesc( $revision ),
-				$title->getFullURL(),
+				$title->getFullURL( [ 'diff' => $revision->getId() ] ),
 				$date,
 				$this->feedItemAuthor( $revision ),
 				$comments
@@ -122,103 +157,92 @@ class ApiFeedContributions extends ApiBase {
 	}
 
 	/**
-	 * @param $revision Revision
+	 * @since 1.32, takes a RevisionRecord instead of a Revision
+	 * @param RevisionRecord $revision
 	 * @return string
 	 */
-	protected function feedItemAuthor( $revision ) {
-		return $revision->getUserText();
+	protected function feedItemAuthor( RevisionRecord $revision ) {
+		$user = $revision->getUser();
+		return $user ? $user->getName() : '';
 	}
 
 	/**
-	 * @param $revision Revision
+	 * @since 1.32, takes a RevisionRecord instead of a Revision
+	 * @param RevisionRecord $revision
 	 * @return string
 	 */
-	protected function feedItemDesc( $revision ) {
-		if ( $revision ) {
-			$msg = wfMessage( 'colon-separator' )->inContentLanguage()->text();
-			$content = $revision->getContent();
-
-			if ( $content instanceof TextContent ) {
-				// only textual content has a "source view".
-				$html = nl2br( htmlspecialchars( $content->getNativeData() ) );
-			} else {
-				//XXX: we could get an HTML representation of the content via getParserOutput, but that may
-				//     contain JS magic and generally may not be suitable for inclusion in a feed.
-				//     Perhaps Content should have a getDescriptiveHtml method and/or a getSourceText method.
-				//Compare also FeedUtils::formatDiffRow.
-				$html = '';
-			}
-
-			return '<p>' . htmlspecialchars( $revision->getUserText() ) . $msg .
-				htmlspecialchars( FeedItem::stripComment( $revision->getComment() ) ) .
-				"</p>\n<hr />\n<div>" . $html . "</div>";
+	protected function feedItemDesc( RevisionRecord $revision ) {
+		$msg = wfMessage( 'colon-separator' )->inContentLanguage()->text();
+		try {
+			$content = $revision->getContent( SlotRecord::MAIN );
+		} catch ( RevisionAccessException $e ) {
+			$content = null;
 		}
 
-		return '';
+		if ( $content instanceof TextContent ) {
+			// only textual content has a "source view".
+			$html = nl2br( htmlspecialchars( $content->getNativeData() ) );
+		} else {
+			// XXX: we could get an HTML representation of the content via getParserOutput, but that may
+			//     contain JS magic and generally may not be suitable for inclusion in a feed.
+			//     Perhaps Content should have a getDescriptiveHtml method and/or a getSourceText method.
+			// Compare also FeedUtils::formatDiffRow.
+			$html = '';
+		}
+
+		$comment = $revision->getComment();
+
+		return '<p>' . htmlspecialchars( $this->feedItemAuthor( $revision ) ) . $msg .
+			htmlspecialchars( FeedItem::stripComment( $comment ? $comment->text : '' ) ) .
+			"</p>\n<hr />\n<div>" . $html . '</div>';
 	}
 
 	public function getAllowedParams() {
-		global $wgFeedClasses;
-		$feedFormatNames = array_keys( $wgFeedClasses );
+		$feedFormatNames = array_keys( $this->getConfig()->get( 'FeedClasses' ) );
 
-		return array(
-			'feedformat' => array(
+		$ret = [
+			'feedformat' => [
 				ApiBase::PARAM_DFLT => 'rss',
 				ApiBase::PARAM_TYPE => $feedFormatNames
-			),
-			'user' => array(
+			],
+			'user' => [
 				ApiBase::PARAM_TYPE => 'user',
 				ApiBase::PARAM_REQUIRED => true,
-			),
-			'namespace' => array(
+			],
+			'namespace' => [
 				ApiBase::PARAM_TYPE => 'namespace'
-			),
-			'year' => array(
+			],
+			'year' => [
 				ApiBase::PARAM_TYPE => 'integer'
-			),
-			'month' => array(
+			],
+			'month' => [
 				ApiBase::PARAM_TYPE => 'integer'
-			),
-			'tagfilter' => array(
+			],
+			'tagfilter' => [
 				ApiBase::PARAM_ISMULTI => true,
 				ApiBase::PARAM_TYPE => array_values( ChangeTags::listDefinedTags() ),
 				ApiBase::PARAM_DFLT => '',
-			),
+			],
 			'deletedonly' => false,
 			'toponly' => false,
-			'showsizediff' => false,
-		);
+			'newonly' => false,
+			'hideminor' => false,
+			'showsizediff' => [
+				ApiBase::PARAM_DFLT => false,
+			],
+		];
+
+		if ( $this->getConfig()->get( 'MiserMode' ) ) {
+			$ret['showsizediff'][ApiBase::PARAM_HELP_MSG] = 'api-help-param-disabled-in-miser-mode';
+		}
+
+		return $ret;
 	}
 
-	public function getParamDescription() {
-		return array(
-			'feedformat' => 'The format of the feed',
-			'user' => 'What users to get the contributions for',
-			'namespace' => 'What namespace to filter the contributions by',
-			'year' => 'From year (and earlier)',
-			'month' => 'From month (and earlier)',
-			'tagfilter' => 'Filter contributions that have these tags',
-			'deletedonly' => 'Show only deleted contributions',
-			'toponly' => 'Only show edits that are latest revisions',
-			'showsizediff' => 'Show the size difference between revisions. Disabled in Miser Mode',
-		);
-	}
-
-	public function getDescription() {
-		return 'Returns a user contributions feed';
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'code' => 'feed-unavailable', 'info' => 'Syndication feeds are not available' ),
-			array( 'code' => 'feed-invalid', 'info' => 'Invalid subscription feed type' ),
-			array( 'code' => 'sizediffdisabled', 'info' => 'Size difference is disabled in Miser Mode' ),
-		) );
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=feedcontributions&user=Reedy',
-		);
+	protected function getExamplesMessages() {
+		return [
+			'action=feedcontributions&user=Example'
+				=> 'apihelp-feedcontributions-example-simple',
+		];
 	}
 }

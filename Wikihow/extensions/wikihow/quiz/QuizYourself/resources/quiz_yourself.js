@@ -173,7 +173,7 @@
 				i.style.cssText = "display:block;width:320px;height:50px;margin:-5px auto 10px auto;";
 			}
 			document.getElementById(adId).appendChild(i);
-			(adsbygoogle = window.adsbygoogle || []).push({});
+			(window.adsbygoogle = window.adsbygoogle || []).push({});
 		},
 
 		answerTap: function(obj) {
@@ -208,6 +208,8 @@
 	}
 
 	$(document).ready(function() {
-		WH.QuizYourself.init();
+		mw.loader.using( 'mediawiki.util', function() {
+			WH.QuizYourself.init();
+		} );
 	});
 })(jQuery, mw);

@@ -188,7 +188,7 @@ class LSearch extends SpecialPage {
 		if ( $user && $user->isAnon() && $out->getTitle() && $this->enableCdnCaching ) {
 			$out = $this->getOutput();
 			$req = $this->getRequest();
-			$out->setSquidMaxage( self::ONE_DAY_IN_SECONDS );
+			$out->setCdnMaxage( self::ONE_DAY_IN_SECONDS );
 			$req->response()->header( 'Cache-Control: s-maxage=' . self::ONE_DAY_IN_SECONDS . ', must-revalidate, max-age=' . self::ONE_DAY_IN_SECONDS );
 			$future = time() + self::ONE_DAY_IN_SECONDS;
 			$req->response()->header( 'Expires: ' . gmdate('D, d M Y H:i:s T', $future) );
@@ -919,12 +919,13 @@ class LSearch extends SpecialPage {
 
 			// Determine whether or not this is a new search
 			if ($request->getCookie("sherlock_q") != $this->mQ) {
+				// NOTE: searchId can be '' (empty string), which means delete existing cookie
 				$searchId = Sherlock::logSherlockSearch($this->mQ, $vId, $this->mResults['totalresults'], $logged, $platform);
 
 				// Then make a new cookie
 				$response = $request->response();
-				$response->setcookie("sherlock_id", $searchId);
-				$response->setcookie("sherlock_q", $this->mQ);
+				$response->setCookie("sherlock_id", $searchId);
+				$response->setCookie("sherlock_q", $this->mQ);
 			} else {
 				// It's the same query, so we're saying it's not a new search & they must have just gone "back".
 				// Don't make a new search entry.
@@ -1137,13 +1138,13 @@ class LSearch extends SpecialPage {
 
 		$next_label = wfMessage( "lsearch_next" )->text();
 		if ( $disabled ) {
-			$next_button = Html::rawElement(
+			$next_button = Html::element(
 				'span',
 				[ 'class' => 'button buttonright primary disabled' ],
 				$next_label
 			);
 		} else {
-			$next_button = Html::rawElement(
+			$next_button = Html::element(
 				'a',
 				[ 'href' => $next_url, 'class' => 'button buttonright primary' ],
 				$next_label
@@ -1162,13 +1163,13 @@ class LSearch extends SpecialPage {
 
 		$prev_label = wfMessage( "lsearch_previous" )->text();
 		if ( $disabled ) {
-			$prev_button = Html::rawElement(
+			$prev_button = Html::element(
 				'span',
 				[ 'class' => 'button buttonleft primary disabled' ],
 				$prev_label
 			);
 		} else {
-			$prev_button = Html::rawElement(
+			$prev_button = Html::element(
 				'a',
 				[ 'href' => $prev_url, 'class' => 'button buttonleft primary' ],
 				$prev_label
@@ -1206,8 +1207,10 @@ class LSearch extends SpecialPage {
 			'next_button' => $next_button,
 			'prev_button' => $prev_button,
 			'results_source' => $resultsSource,
+			'searchId' => $searchId
 		);
 
+		$out->addModules( 'ext.wikihow.lsearch' );
 		if (Misc::isMobileMode()) {
 			$tmpl = 'search-results-mobile.tmpl.php';
 			$out->addModuleStyles('ext.wikihow.lsearch.mobile.styles');
@@ -1228,10 +1231,6 @@ class LSearch extends SpecialPage {
 			$html .= EasyTemplate::html( 'crisis-text-line.tmpl.php' );
 		}
 		$html .= EasyTemplate::html($tmpl, $vars);
-		// Check that the Sherlock class is loaded (IE: Not on international)
-		if (class_exists('Sherlock')) {
-			$html .= EasyTemplate::html('sherlock-script.tmpl.php', ['shs_key' => $searchId]);
-		}
 
 		$out->addHTML($html);
 	}

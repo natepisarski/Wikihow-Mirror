@@ -33,7 +33,6 @@ $wgResourceModules['ext.wikihow.videoBrowser'] = [
 		'resources/styles/ViewerComponent.less',
 	],
 	'scripts' => [
-		'resources/scripts/main.js',
 		'resources/scripts/Catalog.js',
 		'resources/scripts/ActionBarComponent.js',
 		'resources/scripts/ArticleComponent.js',
@@ -44,6 +43,7 @@ $wgResourceModules['ext.wikihow.videoBrowser'] = [
 		'resources/scripts/TitleComponent.js',
 		'resources/scripts/SliderComponent.js',
 		'resources/scripts/ViewerComponent.js',
+		'resources/scripts/main.js',
 	],
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/VideoBrowser',

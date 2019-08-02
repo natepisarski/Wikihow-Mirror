@@ -1,15 +1,17 @@
 <?php
 
 namespace CirrusSearch;
-use CirrusSearch\BuildDocument\FileDataBuilder;
-use CirrusSearch\BuildDocument\PageDataBuilder;
-use CirrusSearch\BuildDocument\PageTextBuilder;
-use \MWTimestamp;
-use \ParserCache;
-use \ProfileSection;
-use \Sanitizer;
-use \Title;
-use \WikiPage;
+
+use CirrusSearch\Search\CirrusIndexField;
+use Hooks as MWHooks;
+use MediaWiki\Logger\LoggerFactory;
+use MediaWiki\MediaWikiServices;
+use MWTimestamp;
+use ParserOutput;
+use Sanitizer;
+use TextContent;
+use Title;
+use WikiPage;
 
 /**
  * Performs updates and deletes on the Elasticsearch index.  Called by
@@ -37,16 +39,37 @@ class Updater extends ElasticsearchIntermediary {
 	const INDEX_ON_SKIP = 1;
 	const SKIP_PARSE = 2;
 	const SKIP_LINKS = 4;
+	const FORCE_PARSE = 8;
+	const INSTANT_INDEX = 16;
 
 	/**
 	 * Full title text of pages updated in this process.  Used for deduplication
 	 * of updates.
-	 * @var array(String)
+	 * @var string[]
 	 */
-	private $updated = array();
+	private $updated = [];
 
-	public function __construct() {
-		parent::__construct( null, null );
+	/**
+	 * @var string|null Name of cluster to write to, or null if none
+	 */
+	protected $writeToClusterName;
+
+	/**
+	 * @var SearchConfig
+	 */
+	protected $searchConfig;
+
+	/**
+	 * @param Connection $conn
+	 * @param SearchConfig $config
+	 * @param string[] $flags
+	 */
+	public function __construct( Connection $conn, SearchConfig $config, array $flags = [] ) {
+		parent::__construct( $conn, null, 0 );
+		$this->searchConfig = $config;
+		if ( in_array( 'same-cluster', $flags ) ) {
+			$this->writeToClusterName = $this->connection->getClusterName();
+		}
 	}
 
 	/**
@@ -55,29 +78,25 @@ class Updater extends ElasticsearchIntermediary {
 	 * @return bool true if the page updated, false if it failed, null if it didn't need updating
 	 */
 	public function updateFromTitle( $title ) {
-		global $wgCirrusSearchUpdateShardTimeout, $wgCirrusSearchClientSideUpdateTimeout;
-
 		list( $page, $redirects ) = $this->traceRedirects( $title );
 		if ( $page ) {
-			$success = (bool)$this->updatePages(
-				array( $page ),
-				$wgCirrusSearchUpdateShardTimeout,
-				$wgCirrusSearchClientSideUpdateTimeout,
+			$updatedCount = $this->updatePages(
+				[ $page ],
 				self::INDEX_EVERYTHING
 			);
-			if ( !$success ) {
+			if ( $updatedCount < 0 ) {
 				return false;
 			}
 		}
 
-		if ( count( $redirects ) === 0 ) {
+		if ( $redirects === [] ) {
 			return true;
 		}
-		$redirectIds = array();
+		$redirectDocIds = [];
 		foreach ( $redirects as $redirect ) {
-			$redirectIds[] = $redirect->getId();
+			$redirectDocIds[] = $this->searchConfig->makeId( $redirect->getId() );
 		}
-		return $this->deletePages( array(), $redirectIds, $wgCirrusSearchClientSideUpdateTimeout );
+		return $this->deletePages( [], $redirectDocIds );
 	}
 
 	/**
@@ -85,42 +104,43 @@ class Updater extends ElasticsearchIntermediary {
 	 * memory of titles updated and detects special pages.
 	 *
 	 * @param Title $title title to trace
-	 * @return array(target, redirects)
+	 * @return array with keys: target, redirects
 	 *    - target is WikiPage|null wikipage if the $title either isn't a redirect or resolves
-	 *    to an updateable page that hasn't been updated yet.  Null if the page has been
+	 *    to an updatable page that hasn't been updated yet.  Null if the page has been
 	 *    updated, is a special page, or the redirects enter a loop.
 	 *    - redirects is an array of WikiPages, one per redirect in the chain.  If title isn't
 	 *    a redirect then this will be an empty array
 	 */
 	public function traceRedirects( $title ) {
 		// Loop through redirects until we get to the ultimate target
-		$redirects = array();
+		$redirects = [];
 		while ( true ) {
 			$titleText = $title->getFullText();
 			if ( in_array( $titleText, $this->updated ) ) {
 				// Already indexed this article in this process.  This is mostly useful
 				// to catch self redirects but has a storied history of catching strange
 				// behavior.
-				return array( null, $redirects );
+				return [ null, $redirects ];
 			}
 
 			// Never. Ever. Index. Negative. Namespaces.
 			if ( $title->getNamespace() < 0 ) {
-				return array( null, $redirects );
+				return [ null, $redirects ];
 			}
 
 			$page = WikiPage::factory( $title );
+			$logger = LoggerFactory::getInstance( 'CirrusSearch' );
 			if ( !$page->exists() ) {
-				wfDebugLog( 'CirrusSearch', "Ignoring an update for a nonexistent page: $titleText" );
-				return array( null, $redirects );
+				$logger->debug( "Ignoring an update for a nonexistent page: $titleText" );
+				return [ null, $redirects ];
 			}
 			$content = $page->getContent();
 			if ( is_string( $content ) ) {
-				$content = new TextContent( $content );
+				$content = new TextContent( (string)$content );
 			}
 			// If the event that the content is _still_ not usable, we have to give up.
 			if ( !is_object( $content ) ) {
-				return array( null, $redirects );
+				return [ null, $redirects ];
 			}
 
 			// Add the page to the list of updated pages before we start trying to update to catch redirect loops.
@@ -130,13 +150,13 @@ class Updater extends ElasticsearchIntermediary {
 				$target = $content->getUltimateRedirectTarget();
 				if ( $target->equals( $page->getTitle() ) ) {
 					// This doesn't warn about redirect loops longer than one but we'll catch those anyway.
-					wfDebugLog( 'CirrusSearch', "Title redirecting to itself. Skip indexing" );
-					return array( null, $redirects );
+					$logger->info( "Title redirecting to itself. Skip indexing" );
+					return [ null, $redirects ];
 				}
 				$title = $target;
 				continue;
 			} else {
-				return array( $page, $redirects );
+				return [ $page, $redirects ];
 			}
 		}
 	}
@@ -157,208 +177,279 @@ class Updater extends ElasticsearchIntermediary {
 	 *     index.  Indexing with any portion of the document skipped is dangerous because it
 	 *     can put half created pages in the index.  This is only a good idea during the first
 	 *     half of the two phase index build.
+	 *   INSTANT_INDEX Do quick index of initial data, without waiting. Do not retry the job
+	 *     if it failed. This is useful for fast-index updates which can later be picked up by
+	 *     main update if they fail.
 	 *
-	 * @param $pages array(WikiPage) pages to update
-	 * @param $shardTimeout null|string How long should elaticsearch wait for an offline
-	 *   shard.  Defaults to null, meaning don't wait.  Null is more efficient when sending
-	 *   multiple pages because Cirrus will use Elasticsearch's bulk API.  Timeout is in
-	 *   Elasticsearch's time format.
-	 * @param $clientSideTimeout null|int timeout in seconds to update pages or null to not
-	 *      change the configured timeout which defaults to 300 seconds.
-	 * @param $flags int Bitfield containing instructions about how the document should be built
+	 * @param WikiPage[] $pages pages to update
+	 * @param int $flags Bit field containing instructions about how the document should be built
 	 *   and sent to Elasticsearch.
-	 * @return int Number of documents updated
+	 * @return int Number of documents updated of -1 if there was an error
 	 */
-	public function updatePages( $pages, $shardTimeout, $clientSideTimeout, $flags ) {
-		$profiler = new ProfileSection( __METHOD__ );
-
+	public function updatePages( $pages, $flags ) {
 		// Don't update the same page twice. We shouldn't, but meh
-		$pageIds = array();
-		$pages = array_filter( $pages, function( $page ) use ( &$pageIds ) {
+		$pageIds = [];
+		$pages = array_filter( $pages, function ( WikiPage $page ) use ( &$pageIds ) {
 			if ( !in_array( $page->getId(), $pageIds ) ) {
 				$pageIds[] = $page->getId();
 				return true;
 			}
 			return false;
 		} );
+		$isInstantIndex = ( $flags & self::INSTANT_INDEX ) !== 0;
 
-		if ( $clientSideTimeout !== null ) {
-			Connection::setTimeout( $clientSideTimeout );
+		$titles = $this->pagesToTitles( $pages );
+		if ( !$isInstantIndex ) {
+			Job\OtherIndex::queueIfRequired( $this->searchConfig, $titles, $this->writeToClusterName );
 		}
 
-		Job\OtherIndex::queueIfRequired( $this->pagesToTitles( $pages ), true );
-
-		$allData = array_fill_keys( Connection::getAllIndexTypes(), array() );
+		$allDocuments = array_fill_keys( $this->connection->getAllIndexTypes(), [] );
 		foreach ( $this->buildDocumentsForPages( $pages, $flags ) as $document ) {
-			$suffix = Connection::getIndexSuffixForNamespace( $document->get( 'namespace' ) );
-			// $allData[$suffix][] = $this->docToScript( $document );
-			// To quickly switch back to sending doc as upsert instead of script, remove the line above
-			// and switch to the one below:
-			// -- As you can see we switched back - MVEL was freaking out every once in a while and we
-			// had trouble reproducing it locally.  Faster to just turn it off.
-			$allData[$suffix][] = $document;
+			$suffix = $this->connection->getIndexSuffixForNamespace( $document->get( 'namespace' ) );
+			$allDocuments[$suffix][] = $document;
 		}
+
 		$count = 0;
-		foreach( $allData as $indexType => $data ) {
-			// Elasticsearch has a queue capacity of 50 so if $data contains 50 pages it could bump up against
-			// the max.  So we chunk it and do them sequentially.
-			foreach( array_chunk( $data, 10 ) as $chunked ) {
-				$this->sendData( $indexType, $chunked, $shardTimeout );
+		foreach ( $allDocuments as $indexType => $documents ) {
+			// Elasticsearch has a queue capacity of 50 so if $documents contains 50 pages it could bump up
+			// against the max.  So we chunk it and do them sequentially.
+			foreach ( array_chunk( $documents, 10 ) as $chunked ) {
+				$job = Job\ElasticaWrite::build(
+					reset( $titles ),
+					'sendData',
+					[ $indexType, $chunked ],
+					[
+						'cluster' => $this->writeToClusterName,
+						'doNotRetry' => $isInstantIndex,
+					]
+				);
+				// This job type will insert itself into the job queue
+				// with a delay if writes to ES are currently unavailable
+				$job->run();
 			}
-			$count += count( $data );
+			$count += count( $documents );
 		}
 
 		return $count;
 	}
 
 	/**
-	 * Delete pages from the elasticsearch index.  $titles and $ids must point to the
+	 * Delete pages from the elasticsearch index.  $titles and $docIds must point to the
 	 * same pages and should point to them in the same order.
 	 *
-	 * @param $titles array(Title) of titles to delete.  If empty then skipped other index
+	 * @param Title[] $titles List of titles to delete.  If empty then skipped other index
 	 *      maintenance is skipped.
-	 * @param $ids array(integer) of ids to delete
-	 * @param $clientSideTimeout null|int timeout in seconds to update pages or null to not
-	 *      change the configured timeout which defaults to 300 seconds.
-	 * @param string $indexType index from which to delete
-	 * @return bool True if nothing happened or we successfully deleted, false on failure
+	 * @param int[]|string[] $docIds List of elasticsearch document ids to delete
+	 * @param string|null $indexType index from which to delete.  null means all.
+	 * @param string|null $elasticType Mapping type to use for the document
+	 * @return bool Always returns true.
 	 */
-	public function deletePages( $titles, $ids, $clientSideTimeout = null, $indexType = null ) {
-		$profiler = new ProfileSection( __METHOD__ );
+	public function deletePages( $titles, $docIds, $indexType = null, $elasticType = null ) {
+		Job\OtherIndex::queueIfRequired( $this->searchConfig, $titles, $this->writeToClusterName );
+		$job = Job\ElasticaWrite::build(
+			$titles ? reset( $titles ) : Title::makeTitle( NS_SPECIAL, "Badtitle/" . Job\ElasticaWrite::class ),
+			'sendDeletes',
+			[ $docIds, $indexType, $elasticType ],
+			[ 'cluster' => $this->writeToClusterName ]
+		);
+		// This job type will insert itself into the job queue
+		// with a delay if writes to ES are currently paused
+		$job->run();
 
-		Job\OtherIndex::queueIfRequired( $titles, false );
-
-		if ( $clientSideTimeout !== null ) {
-			Connection::setTimeout( $clientSideTimeout );
-		}
-		return $this->sendDeletes( $ids, $indexType );
+		return true;
 	}
 
 	/**
-	 * @param string $indexType type of index to which to send $data
-	 * @param array(\Elastica\Script or \Elastica\Document) $data documents to send
-	 * @param null|string $shardTimeout How long should elaticsearch wait for an offline
-	 *   shard.  Defaults to null, meaning don't wait.  Null is more efficient when sending
-	 *   multiple pages because Cirrus will use Elasticsearch's bulk API.  Timeout is in
-	 *   Elasticsearch's time format.
-	 * @return bool True if nothing happened or we successfully indexed, false on failure
+	 * Add documents to archive index.
+	 * @param array $archived
+	 * @param bool $forceIndex If true, index to archive regardless of config.
+	 * @return bool
 	 */
-	private function sendData( $indexType, $data, $shardTimeout ) {
-		$documentCount = count( $data );
-		if ( $documentCount === 0 ) {
+	public function archivePages( $archived, $forceIndex = false ) {
+		if ( !$this->searchConfig->getElement( 'CirrusSearchIndexDeletes' ) && !$forceIndex ) {
+			// Disabled by config - don't do anything
 			return true;
 		}
-
-		$profiler = new ProfileSection( __METHOD__ );
-
-		$exception = null;
-		try {
-			$pageType = Connection::getPageType( wfWikiId(), $indexType );
-			$this->start( "sending $documentCount documents to the $indexType index" );
-			$bulk = new \Elastica\Bulk( Connection::getClient() );
-			if ( $shardTimeout ) {
-				$bulk->setShardTimeout( $shardTimeout );
-			}
-			$bulk->setType( $pageType );
-			$bulk->addData( $data, 'update' );
-			$bulk->send();
-		} catch ( \Elastica\Exception\Bulk\ResponseException $e ) {
-			if ( !$this->bulkResponseExceptionIsJustDocumentMissing( $e,
-					"Updating a page that doesn't yet exist in Elasticsearch" ) ) {
-				$exception = $e;
-			}
-		} catch ( \Elastica\Exception\ExceptionInterface $e ) {
-			$exception = $e;
+		$docs = $this->buildArchiveDocuments( $archived );
+		$head = reset( $archived );
+		foreach ( array_chunk( $docs, 10 ) as $chunked ) {
+			$job = Job\ElasticaWrite::build(
+				$head['title'],
+				'sendData',
+				[ Connection::ARCHIVE_INDEX_TYPE, $chunked, Connection::ARCHIVE_TYPE_NAME ],
+				[ 'cluster' => $this->writeToClusterName ]
+			);
+			$job->run();
 		}
-		if ( $exception === null ) {
-			$this->success();
-			return true;
-		} else {
-			$this->failure( $exception );
-			$documentIds = array_map( function( $d ) {
-				return $d->getId();
-			}, $data );
-			wfDebugLog( 'CirrusSearchChangeFailed', 'Update for doc ids: ' .
-				implode( ',', $documentIds ) . '; error message was: ' . $exception->getMessage() );
-			return false;
-		}
+
+		return true;
 	}
 
+	/**
+	 * Build Elastica documents for archived pages.
+	 * @param array $archived
+	 * @return \Elastica\Document[]
+	 */
+	private function buildArchiveDocuments( array $archived ) {
+		$docs = [];
+		foreach ( $archived as $delete ) {
+			if ( !isset( $delete['title'] ) ) {
+				// These come from pages that still exist, but are redirects.
+				// This is non-obvious and we probably need a better way...
+				continue;
+			}
+			/** @var Title $title */
+			$title = $delete['title'];
+			$doc = new \Elastica\Document( $delete['page'], [
+				'namespace' => $title->getNamespace(),
+				'title' => $title->getText(),
+				'wiki' => wfWikiID(),
+			] );
+			$doc->setDocAsUpsert( true );
+			$doc->setRetryOnConflict( $this->searchConfig->getElement( 'CirrusSearchUpdateConflictRetryCount' ) );
+
+			$docs[] = $doc;
+		}
+
+		return $docs;
+	}
+
+	/**
+	 * @param \CirrusSearch $engine
+	 * @param WikiPage $page Page to build document for
+	 * @param Connection $connection Elasticsearch connection to calculate some
+	 *  derived properties.
+	 * @param bool $forceParse see self::updatePages $flags
+	 * @param bool $skipParse see self::updatePages $flags
+	 * @param bool $skipLinks see self::updatePages $flags
+	 * @return \Elastica\Document Partial elasticsearch document representing only
+	 *  the fields.
+	 */
+	public static function buildDocument(
+		\CirrusSearch $engine,
+		WikiPage $page,
+		Connection $connection,
+		$forceParse,
+		$skipParse,
+		$skipLinks
+	) {
+		$title = $page->getTitle();
+		$doc = new \Elastica\Document( null, [
+			'version' => $page->getLatest(),
+			'wiki' => wfWikiID(),
+			'namespace' => $title->getNamespace(),
+			'namespace_text' => Util::getNamespaceText( $title ),
+			'title' => $title->getText(),
+			'timestamp' => wfTimestamp( TS_ISO_8601, $page->getTimestamp() ),
+		] );
+		$createTs = self::loadCreateTimestamp( $page->getId(), TS_ISO_8601 );
+		if ( $createTs !== false ) {
+			$doc->set( 'create_timestamp', $createTs );
+		}
+		CirrusIndexField::addNoopHandler( $doc, 'version', 'documentVersion' );
+		if ( !$skipParse ) {
+			$contentHandler = $page->getContentHandler();
+			$parserCache = $forceParse ? null : MediaWikiServices::getInstance()->getParserCache();
+			$output = $contentHandler->getParserOutputForIndexing( $page, $parserCache );
+
+			$fieldDefinitions = $contentHandler->getFieldsForSearchIndex( $engine );
+			foreach ( $contentHandler->getDataForSearchIndex( $page, $output, $engine ) as
+				$field => $fieldData ) {
+				$doc->set( $field, $fieldData );
+				if ( isset( $fieldDefinitions[$field] ) ) {
+					$hints = $fieldDefinitions[$field]->getEngineHints( $engine );
+					CirrusIndexField::addIndexingHints( $doc, $field, $hints );
+				}
+			}
+
+			$doc->set( 'display_title', self::extractDisplayTitle( $page->getTitle(), $output ) );
+
+			// Then let hooks have a go
+			MWHooks::run( 'CirrusSearchBuildDocumentParse', [
+				$doc,
+				$title,
+				$page->getContent(),
+				$output,
+				$connection
+			] );
+		}
+
+		if ( !$skipLinks ) {
+			// TODO: Does anything else use this? It's an awfully specific hook, maybe
+			// call out directly to appropriate code.
+			MWHooks::run( 'CirrusSearchBuildDocumentLinks', [ $doc, $title, $connection ] );
+		}
+
+		return $doc;
+	}
+
+	/**
+	 * Timestamp the oldest revision of this page was created.
+	 * @param int $pageId
+	 * @param int $style TS_* output format constant
+	 * @return string|bool Formatted timestamp or false on failure
+	 */
+	private static function loadCreateTimestamp( $pageId, $style ) {
+		$db = wfGetDB( DB_REPLICA );
+		$row = $db->selectRow(
+			'revision',
+			'rev_timestamp',
+			[ 'rev_page' => $pageId ],
+			__METHOD__,
+			[ 'ORDER BY' => 'rev_timestamp ASC' ]
+		);
+		if ( !$row ) {
+			return false;
+		}
+		return MWTimestamp::convert( $style, $row->rev_timestamp );
+	}
+
+	/**
+	 * @param \WikiPage[] $pages
+	 * @param int $flags
+	 * @return \Elastica\Document[]
+	 */
 	private function buildDocumentsForPages( $pages, $flags ) {
-		global $wgCirrusSearchUpdateConflictRetryCount;
-
-		$profiler = new ProfileSection( __METHOD__ );
-
 		$indexOnSkip = $flags & self::INDEX_ON_SKIP;
 		$skipParse = $flags & self::SKIP_PARSE;
 		$skipLinks = $flags & self::SKIP_LINKS;
+		$forceParse = $flags & self::FORCE_PARSE;
 		$fullDocument = !( $skipParse || $skipLinks );
 
-		$documents = array();
+		$documents = [];
+		$engine = new \CirrusSearch();
 		foreach ( $pages as $page ) {
-			wfProfileIn( __METHOD__ . '-basic' );
 			$title = $page->getTitle();
 			if ( !$page->exists() ) {
-				wfLogWarning( 'Attempted to build a document for a page that doesn\'t exist.  This should be caught ' .
-					"earlier but wasn't.  Page: $title" );
-				wfProfileOut( __METHOD__ . '-basic' );
-				continue;	
+				LoggerFactory::getInstance( 'CirrusSearch' )->warning(
+					'Attempted to build a document for a page that doesn\'t exist.  This should be caught ' .
+					"earlier but wasn't.  Page: {title}",
+					[ 'title' => $title ]
+				);
+				continue;
 			}
 
-			$doc = new \Elastica\Document( $page->getId(), array(
-				'namespace' => $title->getNamespace(),
-				'namespace_text' => Util::getNamespaceText( $title ),
-				'title' => $title->getText(),
-				'timestamp' => wfTimestamp( TS_ISO_8601, $page->getTimestamp() ),
-			) );
-			// Everything as sent as an update to prevent overwriting fields maintained in other processes like
-			// addLocalSiteToOtherIndex and removeLocalSiteFromOtherIndex.
-			// But we need a way to index documents that don't already exist.  We're willing to upsert any full
-			// documents or any documents that we've been explicitly told it is ok to index when they aren't full.
-			// This is typically just done during the first phase of the initial index build.
-			// A quick note about docAsUpsert's merging behavior:  It overwrites all fields provided by doc unless they
-			// are objects in both doc and the indexed source.  We're ok with this because all of our fields are either
-			// regular types or lists of objects and lists are overwritten.
+			$doc = self::buildDocument(
+				$engine, $page, $this->connection, $forceParse, $skipParse, $skipLinks );
+			$doc->setId( $this->searchConfig->makeId( $page->getId() ) );
+
+			// Everything as sent as an update to prevent overwriting fields maintained in other processes
+			// like OtherIndex::updateOtherIndex.
+			// But we need a way to index documents that don't already exist.  We're willing to upsert any
+			// full documents or any documents that we've been explicitly told it is ok to index when they
+			// aren't full. This is typically just done during the first phase of the initial index build.
+			// A quick note about docAsUpsert's merging behavior:  It overwrites all fields provided by doc
+			// unless they are objects in both doc and the indexed source.  We're ok with this because all of
+			// our fields are either regular types or lists of objects and lists are overwritten.
 			$doc->setDocAsUpsert( $fullDocument || $indexOnSkip );
-			$doc->setRetryOnConflict( $wgCirrusSearchUpdateConflictRetryCount );
-			wfProfileOut( __METHOD__ . '-basic' );
-
-			if ( !$skipParse ) {
-				wfProfileIn( __METHOD__ . '-parse' );
-
-				// Get text to index, based on content and parser output
-				list( $content, $parserOutput ) = $this->getContentAndParserOutput( $page );
-
-				// Build our page data
-				$pageBuilder = new PageDataBuilder( $doc, $title, $content, $parserOutput );
-				$doc = $pageBuilder->build();
-
-				// And build the page text itself
-				$textBuilder = new PageTextBuilder( $doc, $content, $parserOutput );
-				$doc = $textBuilder->build();
-
-				// If we're a file, build its metadata too
-				if ( $title->getNamespace() === NS_FILE ) {
-					$fileBuilder = new FileDataBuilder( $doc, $title );
-					$doc = $fileBuilder->build();
-				}
-
-				// Then let hooks have a go
-				wfRunHooks( 'CirrusSearchBuildDocumentParse', array( $doc, $title, $content, $parserOutput ) );
-
-				wfProfileOut( __METHOD__ . '-parse' );
-			}
-
-			if ( !$skipLinks ) {
-				wfRunHooks( 'CirrusSearchBuildDocumentLinks', array( $doc, $title ) );
-			}
+			$doc->setRetryOnConflict( $this->searchConfig->get( 'CirrusSearchUpdateConflictRetryCount' ) );
 
 			$documents[] = $doc;
 		}
 
-		wfRunHooks( 'CirrusSearchBuildDocumentFinishBatch', array( $pages ) );
+		MWHooks::run( 'CirrusSearchBuildDocumentFinishBatch', [ $pages ] );
 
-		// George 2015-05-15
+		// Wikihow/George 2015-05-15
 		// Add another hook for extras.
 		// This is similar to CirrusSearchBuildDocumentFinishBatch, but
 		// passes on some extra data to give context.
@@ -369,81 +460,23 @@ class Updater extends ElasticsearchIntermediary {
 		// in the main loop to avoid performing a large number of small DB queries.
 		// TODO: Maybe we want to send $this as well?
 		// TODO: Add a flag ($doTitusUpdate).
-		wfRunHooks(
+		MWHooks::run(
 			'CirrusSearchBuildDocumentFinishBatchExtras',
-			array(&$documents, $skipParse, $skipLinks)
+			[ &$documents, $skipParse, $skipLinks ]
 		);
 
 		return $documents;
 	}
 
-	private function docToScript( $doc ) {
-		// !!!!!!!!!NOTE!!!!!!!!
-		// This has not been ported to groovy because it is not in active use.  Please port if using.
-		$scriptText = <<<MVEL
-changed = false;
-
-MVEL;
-		$params = $doc->getParams();
-		foreach ( $doc->getData() as $key => $value ) {
-			$scriptText .= <<<MVEL
-if ( ctx._source.$key != $key ) {
-	changed = true;
-	ctx._source.$key = $key;
-}
-
-MVEL;
-			$params[ $key ] = $value;
-		}
-		$scriptText .= <<<MVEL
-if ( !changed ) {
-	ctx.op = "none";
-}
-
-MVEL;
-		$script = new \Elastica\Script( $scriptText, $params, 'mvel' );
-		if ( $doc->getDocAsUpsert() ) {
-			$script->setUpsert( $doc );
-		}
-
-		return $script;
-	}
-
 	/**
-	 * Fetch page's content and parser output, using the parser cache if we can
-	 *
-	 * @param WikiPage $page The wikipage to get output for
-	 * @return array(Content,ParserOutput)
+	 * Update the search index for newly linked or unlinked articles.
+	 * @param Title[] $titles titles to update
+	 * @return bool were all pages updated?
 	 */
-	private function getContentAndParserOutput( $page ) {
-		$content = $page->getContent();
-		$parserOptions = $page->makeParserOptions( 'canonical' );
-		$parserOutput = ParserCache::singleton()->get( $page, $parserOptions );
-		if ( !$parserOutput ) {
-			// We specify the revision ID here. There might be a newer revision,
-			// but we don't care because (a) we've already got a job somewhere
-			// in the queue to index it, and (b) we want magic words like
-			// {{REVISIONUSER}} to be accurate
-			$revId = $page->getRevision()->getId();
-			$parserOutput = $content->getParserOutput( $page->getTitle(), $revId );
-		}
-		return array( $content, $parserOutput );
-	}
-
-	/**
-	 * Update the search index for articles linked from this article.  Just updates link counts.
-	 * @param $addedLinks array of Titles added to the page
-	 * @param $removedLinks array of Titles removed from the page
-	 */
-	public function updateLinkedArticles( $addedLinks, $removedLinks ) {
-		global $wgCirrusSearchUpdateShardTimeout, $wgCirrusSearchClientSideUpdateTimeout;
-
-		// We don't do anything different with removed or added pages at this point so merge them.
-		$titleKeys = array_merge( $addedLinks, $removedLinks );
-		$pages = array();
-		foreach ( $titleKeys as $titleKey ) {
-			$title = Title::newFromDBKey( $titleKey );
-			// Bad titles and special pages don't get updated
+	public function updateLinkedArticles( $titles ) {
+		$pages = [];
+		foreach ( $titles as $title ) {
+			// Special pages don't get updated
 			if ( !$title || $title->getNamespace() < 0 ) {
 				continue;
 			}
@@ -467,87 +500,107 @@ MVEL;
 				continue;
 			}
 			if ( in_array( $title->getFullText(), $this->updated ) ) {
-				// We've already updated this page in this proces so there is no need to update it again.
+				// We've already updated this page in this process so there is no need to update it again.
 				continue;
 			}
 			// Note that we don't add this page to the list of updated pages because this update isn't
 			// a full update (just link counts).
 			$pages[] = $page;
 		}
-		$this->updatePages( $pages, $wgCirrusSearchUpdateShardTimeout, $wgCirrusSearchClientSideUpdateTimeout,
-			self::SKIP_PARSE );
-	}
-
-	/**
-	 * Check if $exception is a bulk response exception that just contains document is missing failures.
-	 *
-	 * @param \Elastica\Exception\Bulk\ResponseException $exception exception to check
-	 * @param string|null $log debug message to log if this happens or null to log nothing
-	 */
-	protected function bulkResponseExceptionIsJustDocumentMissing( $exception, $log ) {
-		$justDocumentMissing = true;
-		foreach ( $exception->getResponseSet()->getBulkResponses() as $bulkResponse ) {
-			if ( $bulkResponse->hasError() ) {
-				if ( strpos( $bulkResponse->getError(), 'DocumentMissingException' ) === false ) {
-					$justDocumentMissing = false;
-				} else {
-					// This is generally not an error but we should log it to see how many we get
-					if ( $log ) {
-						$id = $bulkResponse->getAction()->getData()->getId();
-						wfDebugLog( 'CirrusSearch', $log . ":  $id" );
-					}
-				}
-			}
-		}
-		return $justDocumentMissing;
-	}
-
-	/**
-	 * Send delete requests to Elasticsearch.
-	 *
-	 * @param array(int) $ids ids to delete from Elasticsearch
-	 * @param string|null $indexType index from which to delete.  null means all.
-	 * @return bool True if nothing happened or we deleted, false on failure
-	 */
-	private function sendDeletes( $ids, $indexType = null ) {
-		$profiler = new ProfileSection( __METHOD__ );
-
-		$idCount = count( $ids );
-		if ( $idCount !== 0 ) {
-			try {
-				if ( $indexType === null ) {
-					foreach ( Connection::getAllIndexTypes() as $indexType ) {
-						$this->start( "deleting $idCount from $indexType" );
-						Connection::getPageType( wfWikiId(), $indexType )->deleteIds( $ids );
-						$this->success();
-					}
-				} else {
-					$this->start( "deleting $idCount from $indexType" );
-					Connection::getPageType( wfWikiId(), $indexType )->deleteIds( $ids );
-					$this->success();
-				}
-			} catch ( \Elastica\Exception\ExceptionInterface $e ) {
-				$this->failure( $e );
-				wfDebugLog( 'CirrusSearchChangeFailed', 'Delete for ids: ' .
-					implode( ',', $ids ) . '; error message was: ' . $e->getMessage() );
-				return false;
-			}
-		}
-
-		return true;
+		$updatedCount = $this->updatePages( $pages, self::SKIP_PARSE );
+		return $updatedCount >= 0;
 	}
 
 	/**
 	 * Convert an array of pages to an array of their titles.
 	 *
-	 * @param $pages array(WikiPage)
-	 * @return array(Title)
+	 * @param WikiPage[] $pages
+	 * @return Title[]
 	 */
 	private function pagesToTitles( $pages ) {
-		$titles = array();
+		$titles = [];
 		foreach ( $pages as $page ) {
 			$titles[] = $page->getTitle();
 		}
 		return $titles;
+	}
+
+	/**
+	 * @param Title $title
+	 * @param ParserOutput $output
+	 * @return string|null
+	 */
+	private static function extractDisplayTitle( Title $title, ParserOutput $output ) {
+		$titleText = $title->getText();
+		$titlePrefixedText = $title->getPrefixedText();
+
+		$raw = $output->getDisplayTitle();
+		if ( $raw === false ) {
+			return null;
+		}
+		$clean = Sanitizer::stripAllTags( $raw );
+		// Only index display titles that differ from the normal title
+		if ( self::isSameString( $clean, $titleText ) ||
+			self::isSameString( $clean, $titlePrefixedText )
+		) {
+			return null;
+		}
+		if ( $title->getNamespace() === 0 || false === strpos( $clean, ':' ) ) {
+			return $clean;
+		}
+		// There is no official way that namespaces work in display title, it
+		// is an arbitrary string. Even so some use cases, such as the
+		// Translate extension, will translate the namespace as well. Here
+		// `Help:foo` will have a display title of `Aide:bar`. If we were to
+		// simply index as is the autocomplete and near matcher would see
+		// Help:Aide:bar, which doesn't seem particularly useful.
+		// The strategy here is to see if the portion before the : is a valid namespace
+		// in either the language of the wiki or the language of the page. If it is
+		// then we strip it from the display title.
+		list( $maybeNs, $maybeDisplayTitle ) = explode( ':', $clean, 2 );
+		$cleanTitle = Title::newFromText( $clean );
+		if ( $cleanTitle === null ) {
+			// The title is invalid, we cannot extract the ns prefix
+			return $clean;
+		}
+		if ( $cleanTitle->getNamespace() == $title->getNamespace() ) {
+			// While it doesn't really matter, $cleanTitle->getText() may
+			// have had ucfirst() applied depending on settings so we
+			// return the unmodified $maybeDisplayTitle.
+			return $maybeDisplayTitle;
+		}
+
+		$docLang = $title->getPageLanguage();
+		$nsIndex = $docLang->getNsIndex( $maybeNs );
+		if ( $nsIndex !== $title->getNamespace() ) {
+			// Valid namespace but not the same as the actual page.
+			// Keep the namespace in the display title.
+			return $clean;
+		}
+
+		return self::isSameString( $maybeDisplayTitle, $titleText )
+			? null
+			: $maybeDisplayTitle;
+	}
+
+	private static function isSameString( $a, $b ) {
+		$a = mb_strtolower( strtr( $a, '_', ' ' ) );
+		$b = mb_strtolower( strtr( $b, '_', ' ' ) );
+		return $a === $b;
+	}
+
+	/**
+	 * @param string $description
+	 * @param string $queryType
+	 * @param string[] $extra
+	 * @return SearchRequestLog
+	 */
+	protected function newLog( $description, $queryType, array $extra = [] ) {
+		return new SearchRequestLog(
+			$this->connection->getClient(),
+			$description,
+			$queryType,
+			$extra
+		);
 	}
 }

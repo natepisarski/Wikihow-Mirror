@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on March 5, 2011
- *
  * Copyright © 2011 Bryan Tong Minh <Bryan.TongMinh@Gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -38,12 +34,14 @@ class ApiFileRevert extends ApiBase {
 	protected $params;
 
 	public function execute() {
+		$this->useTransactionalTimeLimit();
+
 		$this->params = $this->extractRequestParams();
 		// Extract the file and archiveName from the request parameters
 		$this->validateParameters();
 
 		// Check whether we're allowed to revert this file
-		$this->checkPermissions( $this->getUser() );
+		$this->checkTitleUserPermissions( $this->file->getTitle(), [ 'edit', 'upload' ] );
 
 		$sourceUrl = $this->file->getArchiveVirtualUrl( $this->archiveName );
 		$status = $this->file->upload(
@@ -57,32 +55,15 @@ class ApiFileRevert extends ApiBase {
 		);
 
 		if ( $status->isGood() ) {
-			$result = array( 'result' => 'Success' );
+			$result = [ 'result' => 'Success' ];
 		} else {
-			$result = array(
+			$result = [
 				'result' => 'Failure',
-				'errors' => $this->getResult()->convertStatusToArray( $status ),
-			);
+				'errors' => $this->getErrorFormatter()->arrayFromStatus( $status ),
+			];
 		}
 
 		$this->getResult()->addValue( null, $this->getModuleName(), $result );
-	}
-
-	/**
-	 * Checks that the user has permissions to perform this revert.
-	 * Dies with usage message on inadequate permissions.
-	 * @param $user User The user to check.
-	 */
-	protected function checkPermissions( $user ) {
-		$title = $this->file->getTitle();
-		$permissionErrors = array_merge(
-			$title->getUserPermissionsErrors( 'edit', $user ),
-			$title->getUserPermissionsErrors( 'upload', $user )
-		);
-
-		if ( $permissionErrors ) {
-			$this->dieUsageMsg( $permissionErrors[0] );
-		}
 	}
 
 	/**
@@ -93,21 +74,23 @@ class ApiFileRevert extends ApiBase {
 		// Validate the input title
 		$title = Title::makeTitleSafe( NS_FILE, $this->params['filename'] );
 		if ( is_null( $title ) ) {
-			$this->dieUsageMsg( array( 'invalidtitle', $this->params['filename'] ) );
+			$this->dieWithError(
+				[ 'apierror-invalidtitle', wfEscapeWikiText( $this->params['filename'] ) ]
+			);
 		}
 		$localRepo = RepoGroup::singleton()->getLocalRepo();
 
 		// Check if the file really exists
 		$this->file = $localRepo->newFile( $title );
 		if ( !$this->file->exists() ) {
-			$this->dieUsageMsg( 'notanarticle' );
+			$this->dieWithError( 'apierror-missingtitle' );
 		}
 
 		// Check if the archivename is valid for this file
 		$this->archiveName = $this->params['archivename'];
 		$oldFile = $localRepo->newFromArchiveName( $title, $this->archiveName );
 		if ( !$oldFile->exists() ) {
-			$this->dieUsageMsg( 'filerevert-badversion' );
+			$this->dieWithError( 'filerevert-badversion' );
 		}
 	}
 
@@ -120,82 +103,30 @@ class ApiFileRevert extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'filename' => array(
+		return [
+			'filename' => [
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => true,
-			),
-			'comment' => array(
+			],
+			'comment' => [
 				ApiBase::PARAM_DFLT => '',
-			),
-			'archivename' => array(
+			],
+			'archivename' => [
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => true,
-			),
-			'token' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
-		);
-	}
-
-	public function getParamDescription() {
-		return array(
-			'filename' => 'Target filename without the File: prefix',
-			'token' => 'Edit token. You can get one of these through prop=info',
-			'comment' => 'Upload comment',
-			'archivename' => 'Archive name of the revision to revert to',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			'' => array(
-				'result' => array(
-					ApiBase::PROP_TYPE => array(
-						'Success',
-						'Failure'
-					)
-				),
-				'errors' => array(
-					ApiBase::PROP_TYPE => 'string',
-					ApiBase::PROP_NULLABLE => true
-				)
-			)
-		);
-	}
-
-	public function getDescription() {
-		return array(
-			'Revert a file to an old version'
-		);
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(),
-			array(
-				array( 'mustbeloggedin', 'upload' ),
-				array( 'badaccess-groups' ),
-				array( 'invalidtitle', 'title' ),
-				array( 'notanarticle' ),
-				array( 'filerevert-badversion' ),
-			)
-		);
+			],
+		];
 	}
 
 	public function needsToken() {
-		return true;
+		return 'csrf';
 	}
 
-	public function getTokenSalt() {
-		return '';
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=filerevert&filename=Wiki.png&comment=Revert&' .
+	protected function getExamplesMessages() {
+		return [
+			'action=filerevert&filename=Wiki.png&comment=Revert&' .
 				'archivename=20110305152740!Wiki.png&token=123ABC'
-				=> 'Revert Wiki.png to the version of 20110305152740',
-		);
+				=> 'apihelp-filerevert-example-revert',
+		];
 	}
 }

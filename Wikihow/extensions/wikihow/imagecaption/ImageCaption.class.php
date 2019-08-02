@@ -22,11 +22,6 @@ class ImageCaption {
 		return true;
 	}
 
-    public static function languageGetMagic( &$magicWords ) {
-		$magicWords['imagecaption'] = array( 0, 'imagecaption' );
-        return true;
-    }
-
 	public static function parserFunction( $parser, $position, $text, $text2 = '', $icon = null, $stripes = null, $side= null, $fade = null, $font = null, $hidden = false ) {
 		// disabling captions for now
 		return;

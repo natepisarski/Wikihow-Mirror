@@ -6,6 +6,7 @@
 	#article_shell {
 		margin-right: 0;
 		width: 1045px;
+		max-width: 100%;
 	}
 
 	#main #actionbar {
@@ -17,11 +18,7 @@
 	}
 
 	#videoBrowser.loading .videoBrowser-viewer-player {
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: 1045px;
-		height: 588px;
+		max-width: 100%;
 	}
 
 	#videoBrowser.loading .videoBrowser-viewer-context {
@@ -34,10 +31,6 @@
 		margin-bottom: 0.5em;
 	}
 
-	#videoBrowser.loading .videoBrowser-browser {
-		padding-top: 588px;
-	}
-
 	#videoBrowser.loading .videoBrowser-viewer-more {
 		margin-top: 1em;
 		font-weight: bold;
@@ -45,43 +38,44 @@
 </style>
 <div id="videoBrowser" class="loading">
 	<div class="videoBrowser-browser">
-		<div class="videoBrowser-actionBar" role="navigation">
-			<div id="gatBreadCrumb">
-				<ul id="breadcrumb" class="Breadcrumbs" aria-label="Video breadcrumbs">
-					{{#breadcrumbs}}
-					{{^last}}<li>{{^first}} » {{/first}}<a href="{{link}}" title="{{label}}">{{label}}</a></li>{{/last}}
-					{{/breadcrumbs}}
-				</ul>
+		<div class="videoBrowser-viewer">
+			{{#youtube}}
+			<div class="videoBrowser-viewer-player">
+				<iframe width="1045" height="588" src="https://www.youtube.com/embed/{{youtube}}?rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
 			</div>
-		</div>
-		<script type="application/ld+json">{"@context": "https://schema.org","@type": "BreadcrumbList","itemListElement": [{{#breadcrumbs}}{"@type": "ListItem","position": {{position}},"name": "{{label}}","item": "{{link}}"}{{^last}},{{/last}}{{/breadcrumbs}}]}</script>
-		{{#video}}
-		<div class="videoBrowser-viewer section_text">
-			<div>
-				<div class="videoBrowser-viewer-text">
-					<p class="videoBrowser-viewer-context">{{{context}}}</div>
-					<h1 class="videoBrowser-viewer-title">{{howToTitle}}</h1>
-					<!-- <p class="videoBrowser-viewer-plays">{{plays}}</p> -->
+			{{/youtube}}
+			{{^youtube}}
+			<div class="videoBrowser-viewer-player">
+				{{#video}}
+				<video key="{{id}}" width="1045" height="588" playsinline="" controls="" controlslist="nodownload" poster="{{poster}}"><source src="{{video}}" type="video/mp4"></video>
+				{{/video}}
+			</div>
+			{{/youtube}}
+			{{#schema}}{{{schema}}}{{/schema}}
+			<div class="section_text">
+				<div class="videoBrowser-actionBar" role="navigation">
+					<div id="gatBreadCrumb">
+						<ul id="breadcrumb" class="Breadcrumbs" aria-label="Video breadcrumbs">
+							{{#breadcrumbs}}
+							{{^last}}<li>{{^first}} » {{/first}}<a href="{{link}}" title="{{label}}">{{label}}</a></li>{{/last}}
+							{{/breadcrumbs}}
+						</ul>
+					</div>
+				</div>
+				{{#video}}
+				<p class="videoBrowser-viewer-context">{{{context}}}</p>
+				<h1 class="videoBrowser-viewer-title">{{howToTitle}}</h1>
+				<div class="videoBrowser-viewer-description">
 					<div class="videoBrowser-viewer-summary">{{{summary}}}</div>
 					<p class="videoBrowser-viewer-more">
 						<a href="{{article}}">{{read-more}}</a>
 					</p>
 				</div>
-				{{#youtube}}
-				<div class="videoBrowser-viewer-player">
-					<iframe width="1045" height="588" src="https://www.youtube.com/embed/{{youtube}}?rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
-				</div>
-				{{#schema}}<!-- YouTube info from cache -->{{/schema}}
-				{{^schema}}<!-- YouTube info being fetched -->{{/schema}}
-				{{/youtube}}
-				{{^youtube}}
-				<div class="videoBrowser-viewer-player">
-					<video key="{{id}}" width="1045" height="588" playsinline="" controls="" controlslist="nodownload" poster="{{poster}}"><source src="{{video}}" type="video/mp4"></video>
-				</div>
-				{{/youtube}}
-				{{#schema}}{{{schema}}}{{/schema}}
+				{{/video}}
 			</div>
+			{{#schema}}<!-- YouTube info from cache -->{{/schema}}
+			{{^schema}}<!-- YouTube info being fetched -->{{/schema}}
 		</div>
-		{{/video}}
+		<script type="application/ld+json">{"@context": "https://schema.org","@type": "BreadcrumbList","itemListElement": [{{#breadcrumbs}}{"@type": "ListItem","position": {{position}},"name": "{{label}}","item": "{{link}}"}{{^last}},{{/last}}{{/breadcrumbs}}]}</script>
 	</div>
 </div>

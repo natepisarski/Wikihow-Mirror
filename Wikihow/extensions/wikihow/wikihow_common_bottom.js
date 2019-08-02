@@ -160,8 +160,11 @@ WH.updateProjectLinks = function() {
  * the site on IE9.
  */
 WH.loadPrintModule = function () {
+	// Need to detect IE9 or lower
+	var userAgent = navigator.userAgent;
+	var m = userAgent.match(/MSIE (\d+)\./);
 	if (!WH.isMobileDomain &&
-		!($.browser.msie && $.browser.version < 10)
+		!(m && Number.parseInt(m[1],10) < 10)
 	) {
 		mw.loader.using(['ext.wikihow.printable']);
 		WH.bindPrintEvents();

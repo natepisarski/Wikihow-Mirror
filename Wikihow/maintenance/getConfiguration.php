@@ -34,26 +34,26 @@ class GetConfiguration extends Maintenance {
 
 	protected $regex = null;
 
-	protected $settings_list = array();
+	protected $settings_list = [];
 
 	/**
 	 * List of format output internally supported.
 	 * Each item MUST be lower case.
 	 */
-	protected static $outFormats = array(
+	protected static $outFormats = [
 		'json',
 		'php',
 		'serialize',
 		'vardump',
-	);
+	];
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Get serialized MediaWiki site configuration";
+		$this->addDescription( 'Get serialized MediaWiki site configuration' );
 		$this->addOption( 'regex', 'regex to filter variables with', false, true );
 		$this->addOption( 'iregex', 'same as --regex but case insensitive', false, true );
 		$this->addOption( 'settings', 'Space-separated list of wg* variables', false, true );
-		$this->addOption( 'format', join( ', ', self::$outFormats ), false, true );
+		$this->addOption( 'format', implode( ', ', self::$outFormats ), false, true );
 	}
 
 	protected function validateParamsAndArgs() {
@@ -63,8 +63,8 @@ class GetConfiguration extends Maintenance {
 		$format = strtolower( $this->getOption( 'format', 'PHP' ) );
 
 		$validFormat = in_array( $format, self::$outFormats );
-		if ( ! $validFormat ) {
-			$this->error( "--format set to an unrecognized format", 0 );
+		if ( !$validFormat ) {
+			$this->error( "--format set to an unrecognized format" );
 			$error_out = true;
 		}
 
@@ -91,7 +91,7 @@ class GetConfiguration extends Maintenance {
 		if ( $this->regex ) {
 			$this->regex = '/' . $this->regex . '/';
 			if ( $this->hasOption( 'iregex' ) ) {
-				$this->regex .= 'i';  # case insensitive regex
+				$this->regex .= 'i'; # case insensitive regex
 			}
 		}
 
@@ -101,7 +101,7 @@ class GetConfiguration extends Maintenance {
 			foreach ( $this->settings_list as $name ) {
 				if ( !preg_match( '/^wg[A-Z]/', $name ) ) {
 					throw new MWException( "Variable '$name' does start with 'wg'." );
-				} elseif ( !isset( $GLOBALS[$name] ) ) {
+				} elseif ( !array_key_exists( $name, $GLOBALS ) ) {
 					throw new MWException( "Variable '$name' is not set." );
 				} elseif ( !$this->isAllowedVariable( $GLOBALS[$name] ) ) {
 					throw new MWException( "Variable '$name' includes non-array, non-scalar, items." );
@@ -112,16 +112,16 @@ class GetConfiguration extends Maintenance {
 
 	public function execute() {
 		// Settings we will display
-		$res = array();
+		$res = [];
 
 		# Sane default: dump any wg / wmg variable
-		if ( ! $this->regex && ! $this->getOption( 'settings' ) ) {
+		if ( !$this->regex && !$this->getOption( 'settings' ) ) {
 			$this->regex = '/^wm?g/';
 		}
 
 		# Filter out globals based on the regex
 		if ( $this->regex ) {
-			$res = array();
+			$res = [];
 			foreach ( $GLOBALS as $name => $value ) {
 				if ( preg_match( $this->regex, $name ) ) {
 					$res[$name] = $value;
@@ -165,7 +165,7 @@ class GetConfiguration extends Maintenance {
 	protected function formatVarDump( $res ) {
 		$ret = '';
 		foreach ( $res as $key => $value ) {
-			ob_start();  # intercept var_dump() output
+			ob_start(); # intercept var_dump() output
 			print "\${$key} = ";
 			var_dump( $value );
 			# grab var_dump() output and discard it from the output buffer
@@ -182,13 +182,15 @@ class GetConfiguration extends Maintenance {
 					return false;
 				}
 			}
+
 			return true;
-		} elseif ( is_scalar( $value ) ) {
+		} elseif ( is_scalar( $value ) || $value === null ) {
 			return true;
 		}
+
 		return false;
 	}
 }
 
-$maintClass = "GetConfiguration";
+$maintClass = GetConfiguration::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

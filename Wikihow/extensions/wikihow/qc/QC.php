@@ -42,6 +42,7 @@ $wgResourceModules['ext.wikihow.quality_guardian'] = array(
     'dependencies' => array(
     	'ext.wikihow.common_top',
     	'ext.wikihow.common_bottom',
+		'mediawiki.cookie',
     ),
 );
 

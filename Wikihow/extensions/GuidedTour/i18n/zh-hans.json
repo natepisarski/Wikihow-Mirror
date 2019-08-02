@@ -1,0 +1,43 @@
+{
+	"@metadata": {
+		"authors": [
+			"Byfserag",
+			"Hydra",
+			"Li3939108",
+			"Liflon",
+			"Liuxinyu970226",
+			"Shizhao",
+			"Xiaomingyan",
+			"Yfdyh000",
+			"乌拉跨氪",
+			"范"
+		]
+	},
+	"guidedtour-desc": "允许页面提供弹出式导览来引导新用户",
+	"guidedtour-help-url": "Help:导览",
+	"guidedtour-help-guider-url": "Help:导览/向导",
+	"guidedtour-next-button": "下一步",
+	"guidedtour-okay-button": "好的",
+	"guidedtour-back-button": "返回",
+	"guidedtour-tour-test-testing": "测试",
+	"guidedtour-tour-test-test-description": "这是一个说明的测试。Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "测试标注",
+	"guidedtour-tour-test-portal-description": "这是{{int:portal}}页。",
+	"guidedtour-tour-test-mediawiki-parse": "测试MediaWiki解析器",
+	"guidedtour-tour-test-description-page": "测试MediaWiki说明页面",
+	"guidedtour-tour-test-go-description-page": "前往说明页面",
+	"guidedtour-tour-test-launch-tour": "测试启动导览",
+	"guidedtour-tour-test-launch-tour-description": "向导可以启动其他导览。很酷，对吧？",
+	"guidedtour-tour-test-launch-editing": "在编辑中开始一次指导",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|编辑}}全部页面...",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|点击}}“$1”按钮以做出您的更改。",
+	"guidedtour-tour-firstedit-edit-section-title": "或{{GENDER:|编辑}}一个章节",
+	"guidedtour-tour-firstedit-edit-section-description": "页面中每个主要章节都有“{{int:editsection}}”链接，让您可以只集中精神在这一部分上。",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|预览}}您的更改（可选）",
+	"guidedtour-tour-firstedit-preview-description": "点击“{{int:showpreview}}”，您将看到您作出了更改后页面看上去会如何。请不要忘记保存！",
+	"guidedtour-tour-firstedit-save-title": "您马上就要完成了！",
+	"guidedtour-tour-firstedit-save-description": "当你准备好时，点击“{{int:publishchanges}}”，这样您所做的修改所有人都会看到。",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|单击}}“$1”按钮以作出您的更改。",
+	"guidedtour-tour-firsteditve-edit-section-description": "页面中每个主要章节都有“$1”链接使你可以集中精神在此部分。",
+	"guidedtour-tour-firsteditve-save-description": "当您准备好时，点击“{{int:visualeditor-toolbar-savedialog}}”，便会让所有人都能看到您所做的修改。"
+}

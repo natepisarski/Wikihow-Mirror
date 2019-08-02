@@ -103,12 +103,12 @@ class HAWelcomeJob extends Job {
 	 * @access public
 	 */
 	public function runEditThanks($Title) {
-		global $wgUser, $wgTitle, $wgErrorLog;
+		global $wgUser, $wgTitle, $wgErrorLog, $wgRequest;
 
 
 		//set the variables (used to be in __construct() )
 		$mUserId   = $wgUser->getID();
-		$mUserIP   = wfGetIp();
+		$mUserIP   = $wgRequest->getIP();
 		$mUserName = $wgUser->getName();
 		$mAnon     = $wgUser->isAnon();
 		$mSysop    = false;
@@ -237,8 +237,6 @@ class HAWelcomeJob extends Job {
 							$real_name = User::whoIsReal($mSysop->getID());
 							if ($real_name == "") { $real_name = $mSysop->getName(); }
 							$comment = $welcomeMsg;
-							//add a hidden variable to id welcome user notifications for echo
-							$comment .= '<!--welcomeuser-->';
 
 							$formattedComment = TalkPageFormatter::createComment( $mSysop, $comment );
 							$content = ContentHandler::makeContent($formattedComment, $talkPage);
@@ -250,7 +248,7 @@ class HAWelcomeJob extends Job {
 								EchoEvent::create( array(
 									'type' => 'edit-user-talk',
 									'title' => $talkPage,
-									'agent' => $mSysop,
+									'agent' => $mSysop
 								) );
 							}
 						}
@@ -268,12 +266,12 @@ class HAWelcomeJob extends Job {
 	}
 
 	public function runWelcome() {
-		global $wgUser;
+		global $wgUser, $wgRequest;
 
 
 		//set the variables (used to be in __construct() )
 		$mUserId   = $wgUser->getID();
-		$mUserIP   = wfGetIp();
+		$mUserIP   = $wgRequest->getIP();
 		$mUserName = $wgUser->getName();
 		$mAnon     = $wgUser->isAnon();
 		$mSysop    = false;
@@ -365,8 +363,6 @@ class HAWelcomeJob extends Job {
 							$real_name = User::whoIsReal($mSysop->getID());
 							if ($real_name == "") { $real_name = $mSysop->getName(); }
 							$comment = $welcomeMsg;
-							//add a hidden variable to id welcome user notifications for echo
-							$comment .= '<!--welcomeuser-->';
 
 							$formattedComment = TalkPageFormatter::createComment( $mSysop, $comment );
 							$content = ContentHandler::makeContent( $formattedComment, $talkPage );
@@ -378,7 +374,7 @@ class HAWelcomeJob extends Job {
 								EchoEvent::create( array(
 									'type' => 'edit-user-talk',
 									'title' => $talkPage,
-									'agent' => $mSysop,
+									'agent' => $mSysop
 								) );
 							}
 						}

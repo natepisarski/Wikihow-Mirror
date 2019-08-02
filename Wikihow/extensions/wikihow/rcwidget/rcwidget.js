@@ -143,11 +143,11 @@ function rcUpdate() {
 
 var rcwRunning = true;
 function rcTransport(obj) {
-	var rcwScrollCookie = $.cookie('rcScroll');
+	var rcwScrollCookie = mw.cookie.get('rcScroll');
 
 	obj = $(obj);
 	if (rcwRunning) {
-		$.cookie('rcScroll', 'stop', {expires: 7});
+		mw.cookie.set('rcScroll', 'stop', {expires: 7});
 		rcStop();
 		rcwRunning = false;
 		obj.addClass('play');
@@ -265,9 +265,12 @@ function rcwLoad() {
 
 
 	var url = RCW_CDN_SERVER + rc_URL + '?function=WH.RCWidget.rcwOnLoadData';
-	if(rcUser != -1)
+	if (rcUser != -1) {
 		url += "&userId=" + rcUser;
-	rcwLoadUrl(url);
+	}
+	mw.loader.using('mediawiki.cookie', function () {
+		rcwLoadUrl(url);
+	} );
 }
 
 function rcwLoadUrl(url) {
@@ -321,7 +324,7 @@ function rcwOnLoadData(data) {
 
 	var listid = $('#rcElement_list');
 	if (rcwTestStatusOn) $('#teststatus').innerHTML = "Nodes..."+listid.childNodes.length;
-	var rcwScrollCookie = $.cookie('rcScroll');
+	var rcwScrollCookie = mw.cookie.get('rcScroll');
 
 	if (!rcwScrollCookie) {
 		var elem = getRCElem(listid, 'new');
@@ -401,5 +404,11 @@ WH.RCWidget.setParams = setParams;
 WH.RCWidget.rcwOnLoadData = rcwOnLoadData;
 WH.RCWidget.rcwOnReloadData = rcwOnReloadData;
 
-})(jQuery, mw);
+if (typeof WH.rcwidgetParams != 'undefined') {
+	setParams(WH.rcwidgetParams);
+	if (WH.rcwidgetParams.rc_loadNow) {
+		rcwLoad();
+	}
+}
 
+})(jQuery, mw);

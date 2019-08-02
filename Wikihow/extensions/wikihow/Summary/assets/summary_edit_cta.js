@@ -21,7 +21,9 @@
 		}
 	}
 
-	$(window).load(function() {
-		WH.SummaryEditCTA.init();
-	});
+	// WH.SummaryEditCTA.init is now run via pagestats.js, which is set up to depend
+	// on this ext.wikihow.summary_edit_cta resource module loading, and to depend
+	// implicitly on the html from the staff widget (loaded by pagestats.js) being
+	// present.
+	//WH.SummaryEditCTA.init();
 })(jQuery, mw);

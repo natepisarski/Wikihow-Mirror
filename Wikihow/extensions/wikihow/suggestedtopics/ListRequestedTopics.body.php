@@ -24,6 +24,7 @@ class ListRequestedTopics extends SpecialPage {
 		list( $limit, $offset ) = $req->getLimitOffset(50, 'rclimit');
 		$dbr = wfGetDB(DB_REPLICA);
 
+		$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 		$out->addModules( ['ext.wikihow.SuggestedTopics'] );
 		$out->addModules( ['ext.wikihow.leaderboard'] );
 
@@ -34,7 +35,7 @@ class ListRequestedTopics extends SpecialPage {
 
 		//heading with link
 		$request = Html::element('a',
-			['href' => '/Special:RequestTopic', 'class' => 'editsection'],
+			['href' => '/Special:RequestTopic', 'class' => 'mw-editsection'],
 			wfMessage('requesttopic')->text()
 		);
 		$heading = $request . '<h2>';

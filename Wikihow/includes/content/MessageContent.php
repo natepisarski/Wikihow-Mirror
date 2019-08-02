@@ -29,19 +29,20 @@
  * Wrapper allowing us to handle a system message as a Content object.
  * Note that this is generally *not* used to represent content from the
  * MediaWiki namespace, and that there is no MessageContentHandler.
- * MessageContent is just intended as glue for wrapping a message programatically.
+ * MessageContent is just intended as glue for wrapping a message programmatically.
  *
  * @ingroup Content
  */
 class MessageContent extends AbstractContent {
+
 	/**
 	 * @var Message
 	 */
 	protected $mMessage;
 
 	/**
-	 * @param Message|String $msg A Message object, or a message key
-	 * @param array|null $params An optional array of message parameters
+	 * @param Message|string $msg A Message object, or a message key.
+	 * @param string[]|null $params An optional array of message parameters.
 	 */
 	public function __construct( $msg, $params = null ) {
 		# XXX: messages may be wikitext, html or plain text! and maybe even something else entirely.
@@ -59,18 +60,18 @@ class MessageContent extends AbstractContent {
 	}
 
 	/**
-	 * Returns the message as rendered HTML
+	 * Fully parse the text from wikitext to HTML.
 	 *
-	 * @return string The message text, parsed into html
+	 * @return string Parsed HTML.
 	 */
 	public function getHtml() {
 		return $this->mMessage->parse();
 	}
 
 	/**
-	 * Returns the message as rendered HTML
+	 * Returns the message text. {{-transformation is done.
 	 *
-	 * @return string The message text, parsed into html
+	 * @return string Unescaped message text.
 	 */
 	public function getWikitext() {
 		return $this->mMessage->text();
@@ -79,14 +80,29 @@ class MessageContent extends AbstractContent {
 	/**
 	 * Returns the message object, with any parameters already substituted.
 	 *
+	 * @deprecated since 1.33 use getMessage() instead.
+	 *
 	 * @return Message The message object.
 	 */
 	public function getNativeData() {
-		//NOTE: Message objects are mutable. Cloning here makes MessageContent immutable.
+		return $this->getMessage();
+	}
+
+	/**
+	 * Returns the message object, with any parameters already substituted.
+	 *
+	 * @since 1.33
+	 *
+	 * @return Message The message object.
+	 */
+	public function getMessage() {
+		// NOTE: Message objects are mutable. Cloning here makes MessageContent immutable.
 		return clone $this->mMessage;
 	}
 
 	/**
+	 * @return string
+	 *
 	 * @see Content::getTextForSearchIndex
 	 */
 	public function getTextForSearchIndex() {
@@ -94,6 +110,8 @@ class MessageContent extends AbstractContent {
 	}
 
 	/**
+	 * @return string
+	 *
 	 * @see Content::getWikitextForTransclusion
 	 */
 	public function getWikitextForTransclusion() {
@@ -101,6 +119,10 @@ class MessageContent extends AbstractContent {
 	}
 
 	/**
+	 * @param int $maxlength Maximum length of the summary text, defaults to 250.
+	 *
+	 * @return string The summary text.
+	 *
 	 * @see Content::getTextForSummary
 	 */
 	public function getTextForSummary( $maxlength = 250 ) {
@@ -108,48 +130,48 @@ class MessageContent extends AbstractContent {
 	}
 
 	/**
-	 * @see Content::getSize
-	 *
 	 * @return int
+	 *
+	 * @see Content::getSize
 	 */
 	public function getSize() {
 		return strlen( $this->mMessage->plain() );
 	}
 
 	/**
-	 * @see Content::copy
+	 * @return Content A copy of this object
 	 *
-	 * @return Content. A copy of this object
+	 * @see Content::copy
 	 */
 	public function copy() {
-		// MessageContent is immutable (because getNativeData() returns a clone of the Message object)
+		// MessageContent is immutable (because getNativeData() and getMessage()
+		//   returns a clone of the Message object)
 		return $this;
 	}
 
 	/**
-	 * @see Content::isCountable
+	 * @param bool|null $hasLinks
 	 *
-	 * @param bool $hasLinks
-	 * @return bool false
+	 * @return bool Always false.
+	 *
+	 * @see Content::isCountable
 	 */
 	public function isCountable( $hasLinks = null ) {
 		return false;
 	}
 
 	/**
-	 * @see Content::getParserOutput
+	 * @param Title $title Unused.
+	 * @param int|null $revId Unused.
+	 * @param ParserOptions|null $options Unused.
+	 * @param bool $generateHtml Whether to generate HTML (default: true).
 	 *
-	 * @param Title $title
-	 * @param int $revId Optional revision ID
-	 * @param ParserOptions $options
-	 * @param bool $generateHtml Wether to generate HTML
 	 * @return ParserOutput
+	 *
+	 * @see Content::getParserOutput
 	 */
-	public function getParserOutput(
-		Title $title, $revId = null,
-		ParserOptions $options = null, $generateHtml = true
-	) {
-
+	public function getParserOutput( Title $title, $revId = null,
+		ParserOptions $options = null, $generateHtml = true ) {
 		if ( $generateHtml ) {
 			$html = $this->getHtml();
 		} else {
@@ -157,7 +179,10 @@ class MessageContent extends AbstractContent {
 		}
 
 		$po = new ParserOutput( $html );
+		// Message objects are in the user language.
+		$po->recordOption( 'userlang' );
 
 		return $po;
 	}
+
 }

@@ -31,35 +31,33 @@ require_once __DIR__ . '/Benchmarker.php';
  *
  * @ingroup Benchmark
  */
-class bench_HTTP_HTTPS extends Benchmarker {
-
+class BenchHttpHttps extends Benchmarker {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Benchmark HTTP request vs HTTPS request.";
+		$this->addDescription( 'Benchmark HTTP request vs HTTPS request.' );
 	}
 
 	public function execute() {
-		$this->bench( array(
-			array( 'function' => array( $this, 'getHTTP' ) ),
-			array( 'function' => array( $this, 'getHTTPS' ) ),
-		));
-		print $this->getFormattedResults();
+		$this->bench( [
+			[ 'function' => [ $this, 'getHTTP' ] ],
+			[ 'function' => [ $this, 'getHTTPS' ] ],
+		] );
 	}
 
-	static function doRequest( $proto ) {
-		Http::get( "$proto://localhost/" );
+	private function doRequest( $proto ) {
+		Http::get( "$proto://localhost/", [], __METHOD__ );
 	}
 
 	// bench function 1
-	function getHTTP() {
+	protected function getHTTP() {
 		$this->doRequest( 'http' );
 	}
 
 	// bench function 2
-	function getHTTPS() {
+	protected function getHTTPS() {
 		$this->doRequest( 'https' );
 	}
 }
 
-$maintClass = 'bench_HTTP_HTTPS';
+$maintClass = BenchHttpHttps::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

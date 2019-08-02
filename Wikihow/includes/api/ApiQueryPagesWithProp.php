@@ -1,8 +1,6 @@
 <?php
 /**
- * Created on December 31, 2012
- *
- * Copyright © 2012 Brad Jorsch <bjorsch@wikimedia.org>
+ * Copyright © 2012 Wikimedia Foundation and contributors
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +19,6 @@
  *
  * @file
  * @since 1.21
- * @author Brad Jorsch
  */
 
 /**
@@ -32,7 +29,7 @@
  */
 class ApiQueryPagesWithProp extends ApiQueryGeneratorBase {
 
-	public function __construct( $query, $moduleName ) {
+	public function __construct( ApiQuery $query, $moduleName ) {
 		parent::__construct( $query, $moduleName, 'pwp' );
 	}
 
@@ -49,7 +46,7 @@ class ApiQueryPagesWithProp extends ApiQueryGeneratorBase {
 	}
 
 	/**
-	 * @param $resultPageSet ApiPageSet
+	 * @param ApiPageSet $resultPageSet
 	 * @return void
 	 */
 	private function run( $resultPageSet = null ) {
@@ -61,13 +58,13 @@ class ApiQueryPagesWithProp extends ApiQueryGeneratorBase {
 		$fld_value = isset( $prop['value'] );
 
 		if ( $resultPageSet === null ) {
-			$this->addFields( array( 'page_id' ) );
-			$this->addFieldsIf( array( 'page_title', 'page_namespace' ), $fld_title );
+			$this->addFields( [ 'page_id' ] );
+			$this->addFieldsIf( [ 'page_title', 'page_namespace' ], $fld_title );
 			$this->addFieldsIf( 'pp_value', $fld_value );
 		} else {
 			$this->addFields( $resultPageSet->getPageTableFields() );
 		}
-		$this->addTables( array( 'page_props', 'page' ) );
+		$this->addTables( [ 'page_props', 'page' ] );
 		$this->addWhere( 'pp_page=page_id' );
 		$this->addWhereFld( 'pp_propname', $params['propname'] );
 
@@ -99,7 +96,9 @@ class ApiQueryPagesWithProp extends ApiQueryGeneratorBase {
 			}
 
 			if ( $resultPageSet === null ) {
-				$vals = array();
+				$vals = [
+					ApiResult::META_TYPE => 'assoc',
+				];
 				if ( $fld_ids ) {
 					$vals['pageid'] = (int)$row->page_id;
 				}
@@ -110,7 +109,7 @@ class ApiQueryPagesWithProp extends ApiQueryGeneratorBase {
 				if ( $fld_value ) {
 					$vals['value'] = $row->pp_value;
 				}
-				$fit = $result->addValue( array( 'query', $this->getModuleName() ), null, $vals );
+				$fit = $result->addValue( [ 'query', $this->getModuleName() ], null, $vals );
 				if ( !$fit ) {
 					$this->setContinueEnumParameter( 'continue', $row->page_id );
 					break;
@@ -121,72 +120,56 @@ class ApiQueryPagesWithProp extends ApiQueryGeneratorBase {
 		}
 
 		if ( $resultPageSet === null ) {
-			$result->setIndexedTagName_internal( array( 'query', $this->getModuleName() ), 'page' );
+			$result->addIndexedTagName( [ 'query', $this->getModuleName() ], 'page' );
 		}
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'propname' => array(
+		return [
+			'propname' => [
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => true,
-			),
-			'prop' => array(
+			],
+			'prop' => [
 				ApiBase::PARAM_DFLT => 'ids|title',
 				ApiBase::PARAM_ISMULTI => true,
-				ApiBase::PARAM_TYPE => array(
+				ApiBase::PARAM_TYPE => [
 					'ids',
 					'title',
 					'value',
-				)
-			),
-			'continue' => null,
-			'limit' => array(
+				],
+				ApiBase::PARAM_HELP_MSG_PER_VALUE => [],
+			],
+			'continue' => [
+				ApiBase::PARAM_HELP_MSG => 'api-help-param-continue',
+			],
+			'limit' => [
 				ApiBase::PARAM_TYPE => 'limit',
 				ApiBase::PARAM_DFLT => 10,
 				ApiBase::PARAM_MIN => 1,
 				ApiBase::PARAM_MAX => ApiBase::LIMIT_BIG1,
 				ApiBase::PARAM_MAX2 => ApiBase::LIMIT_BIG2
-			),
-			'dir' => array(
+			],
+			'dir' => [
 				ApiBase::PARAM_DFLT => 'ascending',
-				ApiBase::PARAM_TYPE => array(
+				ApiBase::PARAM_TYPE => [
 					'ascending',
 					'descending',
-				)
-			),
-		);
+				]
+			],
+		];
 	}
 
-	public function getParamDescription() {
-		return array(
-			'propname' => 'Page prop for which to enumerate pages',
-			'prop' => array(
-				'What pieces of information to include',
-				' ids   - Adds the page ID',
-				' title - Adds the title and namespace ID of the page',
-				' value - Adds the value of the page prop',
-			),
-			'dir' => 'In which direction to sort',
-			'continue' => 'When more results are available, use this to continue',
-			'limit' => 'The maximum number of pages to return',
-		);
-	}
-
-	public function getDescription() {
-		return 'List all pages using a given page prop';
-	}
-
-	public function getExamples() {
-		return array(
-			'api.php?action=query&list=pageswithprop&pwppropname=displaytitle&pwpprop=ids|title|value'
-				=> 'Get first 10 pages using {{DISPLAYTITLE:}}',
-			'api.php?action=query&generator=pageswithprop&gpwppropname=notoc&prop=info'
-				=> 'Get page info about first 10 pages using __NOTOC__',
-		);
+	protected function getExamplesMessages() {
+		return [
+			'action=query&list=pageswithprop&pwppropname=displaytitle&pwpprop=ids|title|value'
+				=> 'apihelp-query+pageswithprop-example-simple',
+			'action=query&generator=pageswithprop&gpwppropname=notoc&prop=info'
+				=> 'apihelp-query+pageswithprop-example-generator',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Pageswithprop';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Pageswithprop';
 	}
 }

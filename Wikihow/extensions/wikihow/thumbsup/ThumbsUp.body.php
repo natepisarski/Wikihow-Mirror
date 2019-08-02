@@ -294,7 +294,7 @@ class ThumbsUp extends UnlistedSpecialPage {
 	** - $result['old'] = previous id [$r->getPrevious()->getID()];
 	** - $result['title'] = title object;
 	********************************/
-	function getThumbsUpButton(&$result, $diffPage = false) {
+	function getThumbsUpButton(&$result, $diffPage = false, $addJS = true) {
 		global $wgUser;
 		$link = "";
 		$r = Revision::newFromId($result['new']);
@@ -316,7 +316,9 @@ class ThumbsUp extends UnlistedSpecialPage {
 				- revisions that don't appear to be vandalism
 				*/
 				$link = "<input type='button' title='" . wfMessage('rcpatrol_thumb_title')->text() . "' class='button secondary thumbbutton $diffClass'/>";
-				$link  .= "<script type='text/javascript' src='" . wfGetPad('/extensions/min/f/extensions/wikihow/thumbsup/thumbsup.js?') . WH_SITEREV . "'></script>";
+				if ($loadJS) {
+					$link  .= "<script type='text/javascript' src='" . wfGetPad('/extensions/min/f/extensions/wikihow/thumbsup/thumbsup.js?') . WH_SITEREV . "'></script>";
+				}
 				$link .= "<div id='thumbUp'>/Special:ThumbsUp?revold=" . $result['old'] . "&revnew=" . $result['new'] .  "&pageid=" . $t->getArticleID() . "</div>";
 				$langKeys = array('rcpatrol_thumb_msg_pending', 'rcpatrol_thumb_msg_complete');
 				$link .= Wikihow_i18n::genJSMsgs($langKeys);

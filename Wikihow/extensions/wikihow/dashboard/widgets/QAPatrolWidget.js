@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.QAPatrolWidget = (function($) {
+WH.dashboard.QAPatrolWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,4 +80,4 @@ WH.dashboard.QAPatrolWidget = (function($) {
 	WH.dashboard.registerDataListener('QAPatrolWidget', widget);
 
 	return widget;
-})(jQuery);
+})();

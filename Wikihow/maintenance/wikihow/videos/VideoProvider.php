@@ -29,22 +29,35 @@ class YouTube implements VideoProvider {
 		$json = json_decode($http->getContent());
 
 		// Safety: In case the page is blank or no data was retrieved
-		if ( !is_object($json) ) {
+		if ( !is_object($json) || !$json ) {
 			return true;
 		}
 
 		// If the number of total results is 0, then we know the video doesn't exist
-		if ( $json->pageInfo->totalResults === 0 ) {
+		if ( isset($json->pageInfo)
+			&& isset($json->pageInfo->totalResults)
+			&& $json->pageInfo->totalResults === 0
+		) {
 			return false;
 		}
 
 		// Video can't be embedded
-		if ( $json->items[0]->status->embeddable === 0 ) {
+		if ( isset($json->items)
+			&& count($json->items) > 0
+			&& isset($json->items[0]->status)
+			&& isset($json->items[0]->status->embeddable)
+			&& $json->items[0]->status->embeddable === 0
+		) {
 			return false;
 		}
 
 		// Video is marked private in which case we shouldn't have access to it
-		if ( !in_array($json->items[0]->status->privacyStatus, array( 'public', 'unlisted' ) ) ) {
+		if ( isset($json->items)
+			&& count($json->items) > 0
+			&& isset($json->items[0]->status)
+			&& isset($json->items[0]->status->privacyStatus)
+			&& !in_array($json->items[0]->status->privacyStatus, array( 'public', 'unlisted' ) )
+		) {
 			return false;
 		}
 
@@ -52,7 +65,9 @@ class YouTube implements VideoProvider {
 	}
 
 	public function getURL( $videoURL ) {
-		return 'https://www.googleapis.com/youtube/v3/videos?part=id,status&id=' . $videoURL . '&key=' . WH_YOUTUBE_API_KEY;
+		// Track requests in statds/grafana
+		WikihowStatsd::increment( 'youtube.VideoProvider' );
+		return 'https://www.googleapis.com/youtube/v3/videos?part=id,status&id=' . $videoURL . '&key=' . WH_YOUTUBE_IMPORT_API_KEY;
 	}
 
 }

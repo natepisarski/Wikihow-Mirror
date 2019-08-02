@@ -20,190 +20,222 @@
  * @file
  * @ingroup SpecialPage
  */
+
+use MediaWiki\MediaWikiServices;
+
 class SpecialNewFiles extends IncludableSpecialPage {
+	/** @var FormOptions */
+	protected $opts;
+
+	/** @var string[] */
+	protected $mediaTypes;
+
 	public function __construct() {
 		parent::__construct( 'Newimages' );
 	}
 
 	public function execute( $par ) {
-		// Reuben, wikiHow (May 22, 2015): remove access to Special:NewFiles
+		// Wikihow/Reuben, May 2015: remove access to Special:NewFiles
 		// for anonymous users. This page is slow and has been a target
 		// for recent DDoS attacks.
 		if ($this->getUser()->isAnon()) {
-			$this->getOutput()->loginToUse();
-			return;
+			// Displays a stock "Login required" message
+			throw new PermissionsError( 'read' );
 		}
+
+		$context = new DerivativeContext( $this->getContext() );
 
 		$this->setHeaders();
 		$this->outputHeader();
+		$mimeAnalyzer = MediaWiki\MediaWikiServices::getInstance()->getMimeAnalyzer();
+		$this->mediaTypes = $mimeAnalyzer->getMediaTypes();
 
-		$pager = new NewFilesPager( $this->getContext(), $par );
+		$out = $this->getOutput();
+		$this->addHelpLink( 'Help:New images' );
 
-		if ( !$this->including() ) {
-			$form = $pager->getForm();
-			$form->prepareForm();
-			$form->displayForm( '' );
+		$opts = new FormOptions();
+
+		$opts->add( 'like', '' );
+		$opts->add( 'user', '' );
+		$opts->add( 'showbots', false );
+		$opts->add( 'newbies', false );
+		$opts->add( 'hidepatrolled', false );
+		$opts->add( 'mediatype', $this->mediaTypes );
+		$opts->add( 'limit', 50 );
+		$opts->add( 'offset', '' );
+		$opts->add( 'start', '' );
+		$opts->add( 'end', '' );
+
+		$opts->fetchValuesFromRequest( $this->getRequest() );
+
+		if ( $par !== null ) {
+			$opts->setValue( is_numeric( $par ) ? 'limit' : 'like', $par );
 		}
 
-		$this->getOutput()->addHTML( $pager->getBody() );
-		if ( !$this->including() ) {
-			$this->getOutput()->addHTML( $pager->getNavigationBar() );
+		// If start date comes after end date chronologically, swap them.
+		// They are swapped in the interface by JS.
+		$start = $opts->getValue( 'start' );
+		$end = $opts->getValue( 'end' );
+		if ( $start !== '' && $end !== '' && $start > $end ) {
+			$temp = $end;
+			$end = $start;
+			$start = $temp;
+
+			$opts->setValue( 'start', $start, true );
+			$opts->setValue( 'end', $end, true );
+
+			// also swap values in request object, which is used by HTMLForm
+			// to pre-populate the fields with the previous input
+			$request = $context->getRequest();
+			$context->setRequest( new DerivativeRequest(
+				$request,
+				[ 'start' => $start, 'end' => $end ] + $request->getValues(),
+				$request->wasPosted()
+			) );
 		}
+
+		// if all media types have been selected, wipe out the array to prevent
+		// the pointless IN(...) query condition (which would have no effect
+		// because every possible type has been selected)
+		$missingMediaTypes = array_diff( $this->mediaTypes, $opts->getValue( 'mediatype' ) );
+		if ( empty( $missingMediaTypes ) ) {
+			$opts->setValue( 'mediatype', [] );
+		}
+
+		$opts->validateIntBounds( 'limit', 0, 500 );
+
+		$this->opts = $opts;
+
+		if ( !$this->including() ) {
+			$this->setTopText();
+			$this->buildForm( $context );
+		}
+
+		$pager = new NewFilesPager( $context, $opts );
+
+		$out->addHTML( $pager->getBody() );
+		if ( !$this->including() ) {
+			$out->addHTML( $pager->getNavigationBar() );
+		}
+	}
+
+	protected function buildForm( IContextSource $context ) {
+		$mediaTypesText = array_map( function ( $type ) {
+			// mediastatistics-header-unknown, mediastatistics-header-bitmap,
+			// mediastatistics-header-drawing, mediastatistics-header-audio,
+			// mediastatistics-header-video, mediastatistics-header-multimedia,
+			// mediastatistics-header-office, mediastatistics-header-text,
+			// mediastatistics-header-executable, mediastatistics-header-archive,
+			// mediastatistics-header-3d,
+			return $this->msg( 'mediastatistics-header-' . strtolower( $type ) )->text();
+		}, $this->mediaTypes );
+		$mediaTypesOptions = array_combine( $mediaTypesText, $this->mediaTypes );
+		ksort( $mediaTypesOptions );
+
+		$formDescriptor = [
+			'like' => [
+				'type' => 'text',
+				'label-message' => 'newimages-label',
+				'name' => 'like',
+			],
+
+			'user' => [
+				'type' => 'text',
+				'label-message' => 'newimages-user',
+				'name' => 'user',
+			],
+
+			'newbies' => [
+				'type' => 'check',
+				'label-message' => 'newimages-newbies',
+				'name' => 'newbies',
+			],
+
+			'showbots' => [
+				'type' => 'check',
+				'label-message' => 'newimages-showbots',
+				'name' => 'showbots',
+			],
+
+			'hidepatrolled' => [
+				'type' => 'check',
+				'label-message' => 'newimages-hidepatrolled',
+				'name' => 'hidepatrolled',
+			],
+
+			'mediatype' => [
+				'type' => 'multiselect',
+				'flatlist' => true,
+				'name' => 'mediatype',
+				'label-message' => 'newimages-mediatype',
+				'options' => $mediaTypesOptions,
+				'default' => $this->mediaTypes,
+			],
+
+			'limit' => [
+				'type' => 'hidden',
+				'default' => $this->opts->getValue( 'limit' ),
+				'name' => 'limit',
+			],
+
+			'offset' => [
+				'type' => 'hidden',
+				'default' => $this->opts->getValue( 'offset' ),
+				'name' => 'offset',
+			],
+
+			'start' => [
+				'type' => 'date',
+				'label-message' => 'date-range-from',
+				'name' => 'start',
+			],
+
+			'end' => [
+				'type' => 'date',
+				'label-message' => 'date-range-to',
+				'name' => 'end',
+			],
+		];
+
+		if ( $this->getConfig()->get( 'MiserMode' ) ) {
+			unset( $formDescriptor['like'] );
+		}
+
+		if ( !$this->getUser()->useFilePatrol() ) {
+			unset( $formDescriptor['hidepatrolled'] );
+		}
+
+		HTMLForm::factory( 'ooui', $formDescriptor, $context )
+			// For the 'multiselect' field values to be preserved on submit
+			->setFormIdentifier( 'specialnewimages' )
+			->setWrapperLegendMsg( 'newimages-legend' )
+			->setSubmitTextMsg( 'ilsubmit' )
+			->setMethod( 'get' )
+			->prepareForm()
+			->displayForm( false );
 	}
 
 	protected function getGroupName() {
 		return 'changes';
 	}
-}
 
-/**
- * @ingroup SpecialPage Pager
- */
-class NewFilesPager extends ReverseChronologicalPager {
 	/**
-	 * @var ImageGallery
+	 * Send the text to be displayed above the options
 	 */
-	var $gallery;
+	function setTopText() {
+		$message = $this->msg( 'newimagestext' )->inContentLanguage();
+		if ( !$message->isDisabled() ) {
+			$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+			$this->getOutput()->addWikiTextAsContent(
+				Html::rawElement( 'div',
+					[
 
-	function __construct( IContextSource $context, $par = null ) {
-		$this->like = $context->getRequest()->getText( 'like' );
-		$this->showbots = $context->getRequest()->getBool( 'showbots', 0 );
-		if ( is_numeric( $par ) ) {
-			$this->setLimit( $par );
+						'lang' => $contLang->getHtmlCode(),
+						'dir' => $contLang->getDir()
+					],
+					"\n" . $message->plain() . "\n"
+				)
+			);
 		}
-
-		parent::__construct( $context );
-	}
-
-	function getQueryInfo() {
-		global $wgMiserMode;
-		$conds = $jconds = array();
-		$tables = array( 'image' );
-
-		if ( !$this->showbots ) {
-			$groupsWithBotPermission = User::getGroupsWithPermission( 'bot' );
-
-			if ( count( $groupsWithBotPermission ) ) {
-				$tables[] = 'user_groups';
-				$conds[] = 'ug_group IS NULL';
-				$jconds['user_groups'] = array(
-					'LEFT JOIN',
-					array(
-						'ug_group' => $groupsWithBotPermission,
-						'ug_user = img_user'
-					)
-				);
-			}
-		}
-
-		if ( !$wgMiserMode && $this->like !== null ) {
-			$dbr = wfGetDB( DB_SLAVE );
-			$likeObj = Title::newFromURL( $this->like );
-			if ( $likeObj instanceof Title ) {
-				$like = $dbr->buildLike(
-					$dbr->anyString(),
-					strtolower( $likeObj->getDBkey() ),
-					$dbr->anyString()
-				);
-				$conds[] = "LOWER(img_name) $like";
-			}
-		}
-
-		$query = array(
-			'tables' => $tables,
-			'fields' => '*',
-			'join_conds' => $jconds,
-			'conds' => $conds
-		);
-
-		return $query;
-	}
-
-	function getIndexField() {
-		return 'img_timestamp';
-	}
-
-	function getStartBody() {
-		if ( !$this->gallery ) {
-			// Note that null for mode is taken to mean use default.
-			$mode = $this->getRequest()->getVal( 'gallerymode', null );
-			try {
-				$this->gallery = ImageGalleryBase::factory( $mode );
-			} catch ( MWException $e ) {
-				// User specified something invalid, fallback to default.
-				$this->gallery = ImageGalleryBase::factory();
-			}
-			$this->gallery->setContext( $this->getContext() );
-		}
-
-		return '';
-	}
-
-	function getEndBody() {
-		return $this->gallery->toHTML();
-	}
-
-	function formatRow( $row ) {
-		$name = $row->img_name;
-
-		// 2/29/2015 Lojjik Braughler changed to make anonymous uploads (UCI)
-		// show correct attribution in the gallery on Special:Newfiles
-		$user = User::newFromName( $row->img_user_text );
-
-		$title = Title::makeTitle( NS_FILE, $name );
-		if ( $user ) {
-			$ul = Linker::link( $user->getUserpage(), $user->getName() );
-		} else {
-			$ul = Linker::link( Title::makeTitle( NS_USER, $row->img_user_text ), $row->img_user_text );
-		}
-
-		$time = $this->getLanguage()->userTimeAndDate( $row->img_timestamp, $this->getUser() );
-
-		$this->gallery->add(
-			$title,
-			"$ul<br />\n<i>"
-				. htmlspecialchars( $time )
-				. "</i><br />\n"
-		);
-	}
-
-	function getForm() {
-		global $wgMiserMode;
-
-		$fields = array(
-			'like' => array(
-				'type' => 'text',
-				'label-message' => 'newimages-label',
-				'name' => 'like',
-			),
-			'showbots' => array(
-				'type' => 'check',
-				'label' => $this->msg( 'showhidebots', $this->msg( 'show' )->plain() )->escaped(),
-				'name' => 'showbots',
-			),
-			'limit' => array(
-				'type' => 'hidden',
-				'default' => $this->mLimit,
-				'name' => 'limit',
-			),
-			'offset' => array(
-				'type' => 'hidden',
-				'default' => $this->getRequest()->getText( 'offset' ),
-				'name' => 'offset',
-			),
-		);
-
-		if ( $wgMiserMode ) {
-			unset( $fields['like'] );
-		}
-
-		$context = new DerivativeContext( $this->getContext() );
-		$context->setTitle( $this->getTitle() ); // Remove subpage
-		$form = new HTMLForm( $fields, $context );
-		$form->setSubmitTextMsg( 'ilsubmit' );
-		$form->setMethod( 'get' );
-		$form->setWrapperLegendMsg( 'newimages-legend' );
-
-		return $form;
 	}
 }

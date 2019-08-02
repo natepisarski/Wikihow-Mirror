@@ -1,4 +1,6 @@
-Before("@user_agent") do |scenario|
-  @user_agent = true
-  @scenario = scenario
+# Needed for cucumber --dry-run -f stepdefs
+require_relative 'env'
+
+Before('@skip') do |scenario|
+  scenario.skip_invoke!
 end

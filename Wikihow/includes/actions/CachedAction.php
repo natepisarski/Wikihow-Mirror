@@ -58,7 +58,7 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 * If the cache is enabled or not.
 	 *
 	 * @since 1.20
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $cacheEnabled = true;
 
@@ -66,7 +66,7 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 * Sets if the cache should be enabled or not.
 	 *
 	 * @since 1.20
-	 * @param boolean $cacheEnabled
+	 * @param bool $cacheEnabled
 	 */
 	public function setCacheEnabled( $cacheEnabled ) {
 		$this->cacheHelper->setCacheEnabled( $cacheEnabled );
@@ -78,14 +78,14 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param integer|null $cacheExpiry Sets the cache expiry, either ttl in seconds or unix timestamp.
-	 * @param boolean|null $cacheEnabled Sets if the cache should be enabled or not.
+	 * @param int|null $cacheExpiry Sets the cache expiry, either ttl in seconds or unix timestamp.
+	 * @param bool|null $cacheEnabled Sets if the cache should be enabled or not.
 	 */
 	public function startCache( $cacheExpiry = null, $cacheEnabled = null ) {
 		$this->cacheHelper = new CacheHelper();
 
 		$this->cacheHelper->setCacheEnabled( $this->cacheEnabled );
-		$this->cacheHelper->setOnInitializedHandler( array( $this, 'onCacheInitialized' ) );
+		$this->cacheHelper->setOnInitializedHandler( [ $this, 'onCacheInitialized' ] );
 
 		$keyArgs = $this->getCacheKey();
 
@@ -110,13 +110,13 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param {function} $computeFunction
+	 * @param callable $computeFunction
 	 * @param array|mixed $args
 	 * @param string|null $key
 	 *
 	 * @return mixed
 	 */
-	public function getCachedValue( $computeFunction, $args = array(), $key = null ) {
+	public function getCachedValue( $computeFunction, $args = [], $key = null ) {
 		return $this->cacheHelper->getCachedValue( $computeFunction, $args, $key );
 	}
 
@@ -128,11 +128,11 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param {function} $computeFunction
+	 * @param callable $computeFunction
 	 * @param array $args
 	 * @param string|null $key
 	 */
-	public function addCachedHTML( $computeFunction, $args = array(), $key = null ) {
+	public function addCachedHTML( $computeFunction, $args = [], $key = null ) {
 		$html = $this->cacheHelper->getCachedValue( $computeFunction, $args, $key );
 		$this->getOutput()->addHTML( $html );
 	}
@@ -153,7 +153,7 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param integer $cacheExpiry
+	 * @param int $cacheExpiry
 	 */
 	public function setExpiry( $cacheExpiry ) {
 		$this->cacheHelper->setExpiry( $cacheExpiry );
@@ -167,11 +167,11 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 * @return array
 	 */
 	protected function getCacheKey() {
-		return array(
+		return [
 			get_class( $this->page ),
 			$this->getName(),
 			$this->getLanguage()->getCode()
-		);
+		];
 	}
 
 	/**
@@ -179,7 +179,7 @@ abstract class CachedAction extends FormlessAction implements ICacheHelper {
 	 *
 	 * @since 1.20
 	 *
-	 * @param boolean $hasCached
+	 * @param bool $hasCached
 	 */
 	public function onCacheInitialized( $hasCached ) {
 		if ( $hasCached ) {

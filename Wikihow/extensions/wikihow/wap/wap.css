@@ -59,7 +59,6 @@
 }
 
 #article li {
-	padding: 0;
 	clear: none;
 }
 
@@ -69,8 +68,6 @@
 }
 
 #article ul {
-	padding: 0;
-	margin-left: 15px;
 }
 
 #article ul.chzn-results {

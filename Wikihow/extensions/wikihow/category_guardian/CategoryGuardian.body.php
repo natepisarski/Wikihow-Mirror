@@ -55,13 +55,14 @@ class CategoryGuardian extends UnlistedSpecialPage {
 			return;
 
 		} elseif ($request->wasPosted()) {
-		  if (!XSSFilter::isValidRequest()) {
-				$this->out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+			$this->out->setArticleBodyOnly(true);
+
+			if (!XSSFilter::isValidRequest()) {
+				$this->out->addHtml('CategoryGuardian XSS filtered');
 				return;
 			}
 			$post = new PostVote();
 			$post->saveVotes();
-			$this->out->setArticleBodyOnly(true);
 
 			print_r($this->getJSON());
 			return;

@@ -407,7 +407,9 @@ class PageHooks {
 	}
 
 	public static function onResourceLoaderStartupModuleQuery(&$query) {
-		unset($query['version']);
+// UPGRADE TODO: I'm not sure this hook is necessary any longer, since versioning is based on file contents now
+//		unset($query['version']);
+//		$query['siterev'] = WH_SITEREV;
 		return true;
 	}
 
@@ -425,7 +427,7 @@ class PageHooks {
 	/**
 	 * Decide whether on not to autopatrol an edit
 	 */
-	public static function onMaybeAutoPatrol($page, $user, &$patrolled) {
+	public static function onMaybeAutoPatrol($page, $user, $summary, &$patrolled) {
 		global $wgLanguageCode, $wgRequest;
 
 		// If this edit was already flagged autopatrol, only
@@ -491,12 +493,57 @@ class PageHooks {
 		//every page edit that adds a quick summary
 		if ($page->mTitle->inNamespace(NS_MAIN) &&
 			SummaryEditTool::authorizedUser($user) &&
-			$page->getComment() == wfMessage('summary_add_log')->text())
+			$summary->message == wfMessage('summary_add_log')->text())
 		{
 			$patrolled = true;
 		}
 
 		return true;
+	}
+
+	// We attach to MarkPatrolledComplete, which is run after
+	// RecentChange::markPatrolled does its thing. This hook is
+	// used to consistently call our own hook MarkPatrolledDB,
+	// which we want to be called after something is patrolled by
+	// another user, or is autopatrolled.
+	//
+	// The MarkPatrolledDB hook is used for GoodRevision, DailyEdits and email
+	// notifications.
+	public static function onMarkPatrolledComplete($rcid, $user, $_, $auto) {
+		// Fetch from master db, since this record might have just been created
+		$rc = RecentChange::newFromConds( [ 'rc_id' => $rcid ], __METHOD__, DB_MASTER );
+		if (!$rc) {
+			throw new MWException("Could not get new RecentChange $rcid from within MarkPatrolledComplete hook!");
+		}
+
+		// Call our own MarkPatrolledDB hook
+		$revId = $rc->getAttribute( 'rc_this_oldid' );
+		$article = new Article( $rc->getTitle(), $revId );
+		Hooks::run( 'MarkPatrolledDB', [ &$rcid, &$article ] );
+	}
+
+	// We attach to RecentChange_save hook here, which is run when
+	// a RecentChange object is first written to the recentchange
+	// table in the database. When this object it written with the
+	// rc_patrolled column != 0 (unpatrolled), it is neither
+	//   1. recorded in the PatrolLog, or
+	//   2. have MarkPatrolled hooks called on it.
+	// We fix that here by using this to call out to our own hook,
+	// MarkPatrolledDB. See comment above about onMarkPatrolledComplete,
+	// which works in conjunction with this one.
+	public static function onRecentChangeSave($rc) {
+		// Check if user saving this RecentChange set rc_patrolled > 0
+		$patrolled = $rc->getAttribute('rc_patrolled');
+		if ($patrolled != RecentChange::PRC_UNPATROLLED) {
+			// Add to patrol log
+			PatrolLog::record( $rc, true /*$auto*/ );
+
+			// Call our own MarkPatrolledDB hook
+			$rcid = $rc->getAttribute( 'rc_id' );
+			$revId = $rc->getAttribute( 'rc_this_oldid' );
+			$article = new Article( $rc->getTitle(), $revId );
+			Hooks::run( 'MarkPatrolledDB', [ &$rcid, &$article ] );
+		}
 	}
 
 	// Temporary, for redirect debugging
@@ -941,4 +988,10 @@ class PageHooks {
 			$out->addHtml( SearchBox::render( $out ) );
 		}
 	}
+
+	public static function onResourceLoaderGetConfigVars( &$vars, $skin, $conf ) {
+		$vars['wgCanonicalServer'] = $conf->get('CanonicalServer');
+		return true;
+	}
+
 }

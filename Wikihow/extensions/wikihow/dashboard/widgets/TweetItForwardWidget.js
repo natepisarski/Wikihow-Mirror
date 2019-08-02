@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.TweetItForwardWidget = (function($) {
+WH.dashboard.TweetItForwardWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -72,5 +72,5 @@ WH.dashboard.TweetItForwardWidget = (function($) {
 	WH.dashboard.registerDataListener('TweetItForwardWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

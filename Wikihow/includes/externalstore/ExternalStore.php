@@ -3,6 +3,8 @@
  * @defgroup ExternalStorage ExternalStorage
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Interface for data storage in external repositories.
  *
@@ -51,17 +53,10 @@ class ExternalStore {
 	 * @param array $params Associative array of ExternalStoreMedium parameters
 	 * @return ExternalStoreMedium|bool The store class or false on error
 	 */
-	public static function getStoreObject( $proto, array $params = array() ) {
-		global $wgExternalStores;
-
-		if ( !$wgExternalStores || !in_array( $proto, $wgExternalStores ) ) {
-			return false; // protocol not enabled
-		}
-
-		$class = 'ExternalStore' . ucfirst( $proto );
-
-		// Any custom modules should be added to $wgAutoLoadClasses for on-demand loading
-		return class_exists( $class ) ? new $class( $params ) : false;
+	public static function getStoreObject( $proto, array $params = [] ) {
+		return MediaWikiServices::getInstance()
+			->getExternalStoreFactory()
+			->getStoreObject( $proto, $params );
 	}
 
 	/**
@@ -72,7 +67,7 @@ class ExternalStore {
 	 * @return string|bool The text stored or false on error
 	 * @throws MWException
 	 */
-	public static function fetchFromURL( $url, array $params = array() ) {
+	public static function fetchFromURL( $url, array $params = [] ) {
 		$parts = explode( '://', $url, 2 );
 		if ( count( $parts ) != 2 ) {
 			return false; // invalid URL
@@ -97,16 +92,17 @@ class ExternalStore {
 	 * @param array $urls The URLs of the text to get
 	 * @return array Map from url to its data.  Data is either string when found
 	 *     or false on failure.
+	 * @throws MWException
 	 */
 	public static function batchFetchFromURLs( array $urls ) {
-		$batches = array();
+		$batches = [];
 		foreach ( $urls as $url ) {
 			$scheme = parse_url( $url, PHP_URL_SCHEME );
 			if ( $scheme ) {
 				$batches[$scheme][] = $url;
 			}
 		}
-		$retval = array();
+		$retval = [];
 		foreach ( $batches as $proto => $batchedUrls ) {
 			$store = self::getStoreObject( $proto );
 			if ( $store === false ) {
@@ -131,12 +127,12 @@ class ExternalStore {
 	 * class itself as a parameter.
 	 *
 	 * @param string $url A partial external store URL ("<store type>://<location>")
-	 * @param $data string
+	 * @param string $data
 	 * @param array $params Associative array of ExternalStoreMedium parameters
 	 * @return string|bool The URL of the stored data item, or false on error
 	 * @throws MWException
 	 */
-	public static function insert( $url, $data, array $params = array() ) {
+	public static function insert( $url, $data, array $params = [] ) {
 		$parts = explode( '://', $url, 2 );
 		if ( count( $parts ) != 2 ) {
 			return false; // invalid URL
@@ -162,11 +158,11 @@ class ExternalStore {
 	 * provided by $wgDefaultExternalStore.
 	 *
 	 * @param string $data
-	 * @param array $params Associative array of ExternalStoreMedium parameters
+	 * @param array $params Map of ExternalStoreMedium::__construct context parameters
 	 * @return string|bool The URL of the stored data item, or false on error
 	 * @throws MWException
 	 */
-	public static function insertToDefault( $data, array $params = array() ) {
+	public static function insertToDefault( $data, array $params = [] ) {
 		global $wgDefaultExternalStore;
 
 		return self::insertWithFallback( (array)$wgDefaultExternalStore, $data, $params );
@@ -178,13 +174,13 @@ class ExternalStore {
 	 * itself. It also fails-over to the next possible clusters
 	 * as provided in the first parameter.
 	 *
-	 * @param array $tryStores refer to $wgDefaultExternalStore
+	 * @param array $tryStores Refer to $wgDefaultExternalStore
 	 * @param string $data
-	 * @param array $params Associative array of ExternalStoreMedium parameters
+	 * @param array $params Map of ExternalStoreMedium::__construct context parameters
 	 * @return string|bool The URL of the stored data item, or false on error
 	 * @throws MWException
 	 */
-	public static function insertWithFallback( array $tryStores, $data, array $params = array() ) {
+	public static function insertWithFallback( array $tryStores, $data, array $params = [] ) {
 		$error = false;
 		while ( count( $tryStores ) > 0 ) {
 			$index = mt_rand( 0, count( $tryStores ) - 1 );
@@ -195,19 +191,25 @@ class ExternalStore {
 			if ( $store === false ) {
 				throw new MWException( "Invalid external storage protocol - $storeUrl" );
 			}
+
 			try {
-				$url = $store->store( $path, $data ); // Try to save the object
-			} catch ( MWException $error ) {
-				$url = false;
+				if ( $store->isReadOnly( $path ) ) {
+					$msg = 'read only';
+				} else {
+					$url = $store->store( $path, $data );
+					if ( strlen( $url ) ) {
+						return $url; // a store accepted the write; done!
+					}
+					$msg = 'operation failed';
+				}
+			} catch ( Exception $error ) {
+				$msg = 'caught exception';
 			}
-			if ( strlen( $url ) ) {
-				return $url; // Done!
-			} else {
-				unset( $tryStores[$index] ); // Don't try this one again!
-				$tryStores = array_values( $tryStores ); // Must have consecutive keys
-				wfDebugLog( 'ExternalStorage',
-					"Unable to store text to external storage $storeUrl" );
-			}
+
+			unset( $tryStores[$index] ); // Don't try this one again!
+			$tryStores = array_values( $tryStores ); // Must have consecutive keys
+			wfDebugLog( 'ExternalStorage',
+				"Unable to store text to external storage $storeUrl ($msg)" );
 		}
 		// All stores failed
 		if ( $error ) {
@@ -218,12 +220,35 @@ class ExternalStore {
 	}
 
 	/**
-	 * @param $data string
-	 * @param $wiki string
+	 * @return bool Whether all the default insertion stores are marked as read-only
+	 * @since 1.31
+	 */
+	public static function defaultStoresAreReadOnly() {
+		global $wgDefaultExternalStore;
+
+		$tryStores = (array)$wgDefaultExternalStore;
+		if ( !$tryStores ) {
+			return false; // no stores exists which can be "read only"
+		}
+
+		foreach ( $tryStores as $storeUrl ) {
+			list( $proto, $path ) = explode( '://', $storeUrl, 2 );
+			$store = self::getStoreObject( $proto, [] );
+			if ( !$store->isReadOnly( $path ) ) {
+				return false; // at least one store is not read-only
+			}
+		}
+
+		return true; // all stores are read-only
+	}
+
+	/**
+	 * @param string $data
+	 * @param string $wiki
 	 * @return string|bool The URL of the stored data item, or false on error
 	 * @throws MWException
 	 */
 	public static function insertToForeignDefault( $data, $wiki ) {
-		return self::insertToDefault( $data, array( 'wiki' => $wiki ) );
+		return self::insertToDefault( $data, [ 'wiki' => $wiki ] );
 	}
 }

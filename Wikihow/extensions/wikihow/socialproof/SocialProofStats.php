@@ -27,7 +27,7 @@ class SocialProofStats extends ContextSource {
 
 	const EXPERT_INLINE_ARTICLES_TAG = 'expert_inline_articles';
 
-	const LEARN_MORE_LINK = '/wikiHow:About-wikiHow#Why_should_you_choose_wikiHow_first.3F_sub';
+	const LEARN_MORE_LINK = '/wikiHow:About-wikiHow#Why-should-you-choose-wikiHow-first.3F_sub';
 
 	const MESSAGE_CITATIONS_LIMIT 				= 5; 	//the threshold for some message logic
 	const DISPLAY_CITATIONS_LIMIT 				= 10; //the threshold for displaying the citations on the page

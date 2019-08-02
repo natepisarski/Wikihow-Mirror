@@ -7,7 +7,7 @@
  * Templates etc are pulled from the local wiki database, not from the dump.
  *
  * Copyright (C) 2006 Brion Vibber <brion@pobox.com>
- * http://www.mediawiki.org/
+ * https://www.mediawiki.org/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,8 @@ class DumpRenderer extends Maintenance {
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Take page text out of an XML dump file and render basic HTML out to files";
+		$this->addDescription(
+			'Take page text out of an XML dump file and render basic HTML out to files' );
 		$this->addOption( 'output-dir', 'The directory to output the HTML files to', true, true );
 		$this->addOption( 'prefix', 'Prefix for the rendered files (defaults to wiki)', false, true );
 		$this->addOption( 'parser', 'Use an alternative parser class', false, true );
@@ -61,10 +62,13 @@ class DumpRenderer extends Maintenance {
 		}
 
 		$source = new ImportStreamSource( $this->getStdin() );
-		$importer = new WikiImporter( $source );
+		$importer = new WikiImporter( $source, $this->getConfig() );
 
 		$importer->setRevisionCallback(
-			array( &$this, 'handleRevision' ) );
+			[ $this, 'handleRevision' ] );
+		$importer->setNoticeCallback( function ( $msg, $params ) {
+			echo wfMessage( $msg, $params )->text() . "\n";
+		} );
 
 		$importer->doImport();
 
@@ -78,12 +82,13 @@ class DumpRenderer extends Maintenance {
 
 	/**
 	 * Callback function for each revision, turn into HTML and save
-	 * @param $rev Revision
+	 * @param Revision $rev
 	 */
 	public function handleRevision( $rev ) {
 		$title = $rev->getTitle();
 		if ( !$title ) {
 			$this->error( "Got bogus revision with null title!" );
+
 			return;
 		}
 		$display = $title->getPrefixedText();
@@ -118,5 +123,5 @@ class DumpRenderer extends Maintenance {
 	}
 }
 
-$maintClass = "DumpRenderer";
+$maintClass = DumpRenderer::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

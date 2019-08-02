@@ -21,6 +21,8 @@
  * @ingroup SpecialPage
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * A special page that lists special pages
  *
@@ -45,41 +47,39 @@ class SpecialSpecialpages extends UnlistedSpecialPage {
 			return;
 		}
 
+		$this->addHelpLink( 'Help:Special pages' );
 		$this->outputPageList( $groups );
 	}
 
 	private function getPageGroups() {
-		global $wgSortSpecialPages;
+		$pages = MediaWikiServices::getInstance()->getSpecialPageFactory()->
+			getUsablePages( $this->getUser() );
 
-		$pages = SpecialPageFactory::getUsablePages( $this->getUser() );
-
-		if ( !count( $pages ) ) {
+		if ( $pages === [] ) {
 			# Yeah, that was pointless. Thanks for coming.
 			return false;
 		}
 
 		/** Put them into a sortable array */
-		$groups = array();
+		$groups = [];
 		/** @var SpecialPage $page */
 		foreach ( $pages as $page ) {
 			if ( $page->isListed() ) {
 				$group = $page->getFinalGroupName();
 				if ( !isset( $groups[$group] ) ) {
-					$groups[$group] = array();
+					$groups[$group] = [];
 				}
-				$groups[$group][$page->getDescription()] = array(
+				$groups[$group][$page->getDescription()] = [
 					$page->getPageTitle(),
 					$page->isRestricted(),
 					$page->isCached()
-				);
+				];
 			}
 		}
 
 		/** Sort */
-		if ( $wgSortSpecialPages ) {
-			foreach ( $groups as $group => $sortedPages ) {
-				ksort( $groups[$group] );
-			}
+		foreach ( $groups as $group => $sortedPages ) {
+			ksort( $groups[$group] );
 		}
 
 		/** Always move "other" to end */
@@ -99,24 +99,22 @@ class SpecialSpecialpages extends UnlistedSpecialPage {
 		$includesCachedPages = false;
 
 		foreach ( $groups as $group => $sortedPages ) {
-			$total = count( $sortedPages );
-			$middle = ceil( $total / 2 );
-			$count = 0;
-
 			// JRS 12/5/13 Added html to match redesign styling
 			$out->addHTML( Html::openElement( 'div', array( 'class' => 'section' ) ) );
-			$out->wrapWikiMsg( "<h2 class=\"mw-specialpagesgroup\" id=\"mw-specialpagesgroup-$group\">$1</h2>\n", "specialpages-group-$group" );
+
+			$out->wrapWikiMsg(
+				"<h2 class=\"mw-specialpagesgroup\" id=\"mw-specialpagesgroup-$group\">$1</h2>\n",
+				"specialpages-group-$group"
+			);
 			$out->addHTML( Html::openElement( 'div', array( 'class' => 'section_text' ) ) );
 			$out->addHTML(
-				Html::openElement( 'table', array( 'style' => 'width:100%;', 'class' => 'mw-specialpages-table' ) ) . "\n" .
-				Html::openElement( 'tr' ) . "\n" .
-				Html::openElement( 'td', array( 'style' => 'width:30%;vertical-align:top' ) ) . "\n" .
-				Html::openElement( 'ul' ) . "\n"
+				Html::openElement( 'div', [ 'class' => 'mw-specialpages-list' ] )
+				. '<ul>'
 			);
 			foreach ( $sortedPages as $desc => $specialpage ) {
 				list( $title, $restricted, $cached ) = $specialpage;
 
-				$pageClasses = array();
+				$pageClasses = [];
 				if ( $cached ) {
 					$includesCachedPages = true;
 					$pageClasses[] = 'mw-specialpagecached';
@@ -126,34 +124,44 @@ class SpecialSpecialpages extends UnlistedSpecialPage {
 					$pageClasses[] = 'mw-specialpagerestricted';
 				}
 
-				$link = Linker::linkKnown( $title, htmlspecialchars( $desc ) );
-				$out->addHTML( Html::rawElement( 'li', array( 'class' => implode( ' ', $pageClasses ) ), $link ) . "\n" );
-
-				# Split up the larger groups
-				$count++;
-				if ( $total > 3 && $count == $middle ) {
-					$out->addHTML(
-						Html::closeElement( 'ul' ) . Html::closeElement( 'td' ) .
-						Html::element( 'td', array( 'style' => 'width:10%' ), '' ) .
-						Html::openElement( 'td', array( 'style' => 'width:30%' ) ) . Html::openElement( 'ul' ) . "\n"
-					);
-				}
+				$link = $this->getLinkRenderer()->makeKnownLink( $title, $desc );
+				$out->addHTML( Html::rawElement(
+						'li',
+						[ 'class' => implode( ' ', $pageClasses ) ],
+						$link
+					) . "\n" );
 			}
 			$out->addHTML(
-				Html::closeElement( 'ul' ) . Html::closeElement( 'td' ) .
-				Html::element( 'td', array( 'style' => 'width:30%' ), '' ) .
-				Html::closeElement( 'tr' ) . Html::closeElement( 'table' ) . "\n"
+				Html::closeElement( 'ul' ) .
+				Html::closeElement( 'div' ) .
+				// JRS 12/5/13 Added html to match redesign styling
+				Html::closeElement( 'div' ) .
+				Html::closeElement( 'div' )
 			);
-			// JRS 12/5/13 Added html to match redesign styling
-			$out->addHtml( Html::closeElement( 'div' ) );
-			$out->addHtml( Html::closeElement( 'div' ) );
 		}
 
-		if ( $includesRestrictedPages || $includesCachedPages ) {
-			//SAC 03/12/14 Commented out to match Jordan's change (also because it looked weird)
-			//$out->wrapWikiMsg( "<h2 class=\"mw-specialpages-note-top\">$1</h2>", 'specialpages-note-top' );
-			// JRS 12/5/13 Commented out to match styling
-			//$out->wrapWikiMsg( "<div class=\"mw-specialpages-notes\">\n$1\n</div>", 'specialpages-note' );
+		// add legend
+		$notes = [];
+		if ( $includesRestrictedPages ) {
+			$restricedMsg = $this->msg( 'specialpages-note-restricted' );
+			if ( !$restricedMsg->isDisabled() ) {
+				$notes[] = $restricedMsg->plain();
+			}
+		}
+		if ( $includesCachedPages ) {
+			$cachedMsg = $this->msg( 'specialpages-note-cached' );
+			if ( !$cachedMsg->isDisabled() ) {
+				$notes[] = $cachedMsg->plain();
+			}
+		}
+		if ( $notes !== [] ) {
+			$out->wrapWikiMsg(
+				"<h2 class=\"mw-specialpages-note-top\">$1</h2>", 'specialpages-note-top'
+			);
+			$out->wrapWikiTextAsInterface(
+				'mw-specialpages-notes',
+				implode( "\n", $notes )
+			);
 		}
 	}
 }

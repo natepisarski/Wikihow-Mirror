@@ -183,7 +183,7 @@ class AdminVerifyReview extends UnlistedSpecialPage {
 		$subject = wfMessage( 'admin_verify_email_subject' )->text();
 		$text = wfMessage( 'admin_verify_email', $url, $title, $date, $name )->text();
 		$replyTo = $from;
-		$status = UserMailer::send( $to, $from, $subject, $text, $replyTo );
+		$status = UserMailer::send( $to, $from, $subject, $text, [ 'replyTo' => $replyTo ] );
 		if ( !$status->isGood() ) {
 			decho("status", $status);
 			return false;

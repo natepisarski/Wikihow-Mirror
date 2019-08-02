@@ -181,14 +181,25 @@ class Misc {
 
 	/**
 	 * Get the canonical domain, including alts
+	 *
+	 * TODO: we should either integrate the wfCanonicalDomain() function into here,
+	 * or move it from here into wfCanonicalDomain(). I don't believe there is any
+	 * good reason to have slightly different but almost the same functionality
+	 * in these 2 places. One of the 2 places should be marked deprecated too.
 	 */
 	public static function getCanonicalDomain($lang = '', $mobile = false): string {
-		global $domainName;
-
-		$altDomains = AlternateDomain::getAlternateDomains();
-		foreach ($altDomains as $domain) {
-			if (strstr($domainName, $domain)) {
-				return ($mobile ? 'm.' : 'www.') . $domain;
+		if (AlternateDomain::onAlternateDomain()) {
+			global $domainName;
+			$altDomains = AlternateDomain::getAlternateDomains();
+			foreach ($altDomains as $domain) {
+				if (strstr($domainName, $domain)) {
+					return ($mobile ? 'm.' : 'www.') . $domain;
+				}
+			}
+			// Only returns something if on a dev server
+			$devAltDomain = AlternateDomain::devDomainToAltDomain($domainName);
+			if ($devAltDomain) {
+				return $devAltDomain;
 			}
 		}
 		return wfCanonicalDomain($lang, $mobile);

@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.RateAppWidget = (function($) {
+WH.dashboard.RateAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -73,5 +73,5 @@ WH.dashboard.RateAppWidget = (function($) {
 	WH.dashboard.registerDataListener('RateAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

@@ -475,9 +475,10 @@ abstract class RatingsTool {
 			$from = new MailAddress('wikiHow Community Team <communityteam@wikihow.com>');
 			$to = new MailAddress($to_email);
 			$content_type = "text/html; charset=UTF-8"; // HTML email
+			$opts = [ 'contentType' => $content_type, 'category' => "aen_helpful" ];
 
 			if (!$wgIsDevServer) {
-				$sent = UserMailer::send($to, $from, $subject, $body, null, $content_type, "aen_helpful");
+				$sent = UserMailer::send($to, $from, $subject, $body, $opts);
 				$result = $sent->isGood() ? true : false;
 			}
 

@@ -20,70 +20,141 @@
  * @file
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Handles searching prefixes of titles and finding any page
  * names that match. Used largely by the OpenSearch implementation.
+ * @deprecated Since 1.27, Use SearchEngine::defaultPrefixSearch or SearchEngine::completionSearch
  *
  * @ingroup Search
  */
-class PrefixSearch {
+abstract class PrefixSearch {
 	/**
 	 * Do a prefix search of titles and return a list of matching page names.
+	 * @deprecated Since 1.23, use TitlePrefixSearch or StringPrefixSearch classes
 	 *
-	 * @param $search String
-	 * @param $limit Integer
-	 * @param array $namespaces used if query is not explicitly prefixed
-	 * @return Array of strings
+	 * @param string $search
+	 * @param int $limit
+	 * @param array $namespaces Used if query is not explicitly prefixed
+	 * @param int $offset How many results to offset from the beginning
+	 * @return array Array of strings
 	 */
-	public static function titleSearch( $search, $limit, $namespaces = array() ) {
-		$search = trim( $search );
-		if ( $search == '' ) {
-			return array(); // Return empty result
-		}
-		$namespaces = self::validateNamespaces( $namespaces );
-
-		// Find a Title which is not an interwiki and is in NS_MAIN
-		$title = Title::newFromText( $search );
-		if ( $title && !$title->isExternal() ) {
-			$ns = array( $title->getNamespace() );
-			if ( $ns[0] == NS_MAIN ) {
-				$ns = $namespaces; // no explicit prefix, use default namespaces
-			}
-			return self::searchBackend(
-				$ns, $title->getText(), $limit );
-		}
-
-		// Is this a namespace prefix?
-		$title = Title::newFromText( $search . 'Dummy' );
-		if ( $title && $title->getText() == 'Dummy'
-			&& $title->getNamespace() != NS_MAIN
-			&& !$title->isExternal() ) {
-			return self::searchBackend(
-				array( $title->getNamespace() ), '', $limit );
-		}
-
-		return self::searchBackend( $namespaces, $search, $limit );
+	public static function titleSearch( $search, $limit, $namespaces = [], $offset = 0 ) {
+		$prefixSearch = new StringPrefixSearch;
+		return $prefixSearch->search( $search, $limit, $namespaces, $offset );
 	}
 
 	/**
 	 * Do a prefix search of titles and return a list of matching page names.
-	 * @param $namespaces Array
-	 * @param $search String
-	 * @param $limit Integer
-	 * @return Array of strings
+	 *
+	 * @param string $search
+	 * @param int $limit
+	 * @param array $namespaces Used if query is not explicitly prefixed
+	 * @param int $offset How many results to offset from the beginning
+	 * @return array Array of strings or Title objects
 	 */
-	protected static function searchBackend( $namespaces, $search, $limit ) {
+	public function search( $search, $limit, $namespaces = [], $offset = 0 ) {
+		$search = trim( $search );
+		if ( $search == '' ) {
+			return []; // Return empty result
+		}
+
+		$hasNamespace = SearchEngine::parseNamespacePrefixes( $search, false, true );
+		if ( $hasNamespace !== false ) {
+			list( $search, $namespaces ) = $hasNamespace;
+		}
+
+		return $this->searchBackend( $namespaces, $search, $limit, $offset );
+	}
+
+	/**
+	 * Do a prefix search for all possible variants of the prefix
+	 * @param string $search
+	 * @param int $limit
+	 * @param array $namespaces
+	 * @param int $offset How many results to offset from the beginning
+	 *
+	 * @return array
+	 */
+	public function searchWithVariants( $search, $limit, array $namespaces, $offset = 0 ) {
+		$searches = $this->search( $search, $limit, $namespaces, $offset );
+
+		// if the content language has variants, try to retrieve fallback results
+		$fallbackLimit = $limit - count( $searches );
+		if ( $fallbackLimit > 0 ) {
+			$fallbackSearches = MediaWikiServices::getInstance()->getContentLanguage()->
+				autoConvertToAllVariants( $search );
+			$fallbackSearches = array_diff( array_unique( $fallbackSearches ), [ $search ] );
+
+			foreach ( $fallbackSearches as $fbs ) {
+				$fallbackSearchResult = $this->search( $fbs, $fallbackLimit, $namespaces );
+				$searches = array_merge( $searches, $fallbackSearchResult );
+				$fallbackLimit -= count( $fallbackSearchResult );
+
+				if ( $fallbackLimit == 0 ) {
+					break;
+				}
+			}
+		}
+		return $searches;
+	}
+
+	/**
+	 * When implemented in a descendant class, receives an array of Title objects and returns
+	 * either an unmodified array or an array of strings corresponding to titles passed to it.
+	 *
+	 * @param array $titles
+	 * @return array
+	 */
+	abstract protected function titles( array $titles );
+
+	/**
+	 * When implemented in a descendant class, receives an array of titles as strings and returns
+	 * either an unmodified array or an array of Title objects corresponding to strings received.
+	 *
+	 * @param array $strings
+	 *
+	 * @return array
+	 */
+	abstract protected function strings( array $strings );
+
+	/**
+	 * Do a prefix search of titles and return a list of matching page names.
+	 * @param array $namespaces
+	 * @param string $search
+	 * @param int $limit
+	 * @param int $offset How many results to offset from the beginning
+	 * @return array Array of strings
+	 */
+	protected function searchBackend( $namespaces, $search, $limit, $offset ) {
 		if ( count( $namespaces ) == 1 ) {
 			$ns = $namespaces[0];
 			if ( $ns == NS_MEDIA ) {
-				$namespaces = array( NS_FILE );
+				$namespaces = [ NS_FILE ];
 			} elseif ( $ns == NS_SPECIAL ) {
-				return self::specialSearch( $search, $limit );
+				return $this->titles( $this->specialSearch( $search, $limit, $offset ) );
 			}
 		}
-		$srchres = array();
-		if ( wfRunHooks( 'PrefixSearchBackend', array( $namespaces, $search, $limit, &$srchres ) ) ) {
-			return self::defaultSearchBackend( $namespaces, $search, $limit );
+		$srchres = [];
+		if ( Hooks::run(
+			'PrefixSearchBackend',
+			[ $namespaces, $search, $limit, &$srchres, $offset ]
+		) ) {
+			return $this->titles( $this->defaultSearchBackend( $namespaces, $search, $limit, $offset ) );
+		}
+		return $this->strings(
+			$this->handleResultFromHook( $srchres, $namespaces, $search, $limit, $offset ) );
+	}
+
+	private function handleResultFromHook( $srchres, $namespaces, $search, $limit, $offset ) {
+		if ( $offset === 0 ) {
+			// Only perform exact db match if offset === 0
+			// This is still far from perfect but at least we avoid returning the
+			// same title afain and again when the user is scrolling with a query
+			// that matches a title in the db.
+			$rescorer = new SearchExactMatchRescorer();
+			$srchres = $rescorer->rescore( $search, $namespaces, $srchres, $limit );
 		}
 		return $srchres;
 	}
@@ -91,54 +162,81 @@ class PrefixSearch {
 	/**
 	 * Prefix search special-case for Special: namespace.
 	 *
-	 * @param string $search term
-	 * @param $limit Integer: max number of items to return
-	 * @return Array
+	 * @param string $search Term
+	 * @param int $limit Max number of items to return
+	 * @param int $offset Number of items to offset
+	 * @return array
 	 */
-	protected static function specialSearch( $search, $limit ) {
-		global $wgContLang;
+	protected function specialSearch( $search, $limit, $offset ) {
+		$searchParts = explode( '/', $search, 2 );
+		$searchKey = $searchParts[0];
+		$subpageSearch = $searchParts[1] ?? null;
 
-		# normalize searchKey, so aliases with spaces can be found - bug 25675
-		$search = str_replace( ' ', '_', $search );
+		// Handle subpage search separately.
+		$spFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
+		if ( $subpageSearch !== null ) {
+			// Try matching the full search string as a page name
+			$specialTitle = Title::makeTitleSafe( NS_SPECIAL, $searchKey );
+			if ( !$specialTitle ) {
+				return [];
+			}
+			$special = $spFactory->getPage( $specialTitle->getText() );
+			if ( $special ) {
+				$subpages = $special->prefixSearchSubpages( $subpageSearch, $limit, $offset );
+				return array_map( function ( $sub ) use ( $specialTitle ) {
+					return $specialTitle->getSubpage( $sub );
+				}, $subpages );
+			} else {
+				return [];
+			}
+		}
 
-		$searchKey = $wgContLang->caseFold( $search );
+		# normalize searchKey, so aliases with spaces can be found - T27675
+		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+		$searchKey = str_replace( ' ', '_', $searchKey );
+		$searchKey = $contLang->caseFold( $searchKey );
 
 		// Unlike SpecialPage itself, we want the canonical forms of both
 		// canonical and alias title forms...
-		$keys = array();
-		foreach ( SpecialPageFactory::getList() as $page => $class ) {
-			$keys[$wgContLang->caseFold( $page )] = $page;
+		$keys = [];
+		foreach ( $spFactory->getNames() as $page ) {
+			$keys[$contLang->caseFold( $page )] = [ 'page' => $page, 'rank' => 0 ];
 		}
 
-		foreach ( $wgContLang->getSpecialPageAliases() as $page => $aliases ) {
-			if ( !array_key_exists( $page, SpecialPageFactory::getList() ) ) {# bug 20885
+		foreach ( $contLang->getSpecialPageAliases() as $page => $aliases ) {
+			if ( !in_array( $page, $spFactory->getNames() ) ) {# T22885
 				continue;
 			}
 
-			foreach ( $aliases as $alias ) {
-				$keys[$wgContLang->caseFold( $alias )] = $alias;
+			foreach ( $aliases as $key => $alias ) {
+				$keys[$contLang->caseFold( $alias )] = [ 'page' => $alias, 'rank' => $key ];
 			}
 		}
 		ksort( $keys );
 
-		$srchres = array();
+		$matches = [];
 		foreach ( $keys as $pageKey => $page ) {
 			if ( $searchKey === '' || strpos( $pageKey, $searchKey ) === 0 ) {
-				wfSuppressWarnings();
-				// bug 27671: Don't use SpecialPage::getTitleFor() here because it
+				// T29671: Don't use SpecialPage::getTitleFor() here because it
 				// localizes its input leading to searches for e.g. Special:All
 				// returning Spezial:MediaWiki-Systemnachrichten and returning
 				// Spezial:Alle_Seiten twice when $wgLanguageCode == 'de'
-				$srchres[] = Title::makeTitleSafe( NS_SPECIAL, $page )->getPrefixedText();
-				wfRestoreWarnings();
+				$matches[$page['rank']][] = Title::makeTitleSafe( NS_SPECIAL, $page['page'] );
+
+				if ( isset( $matches[0] ) && count( $matches[0] ) >= $limit + $offset ) {
+					// We have enough items in primary rank, no use to continue
+					break;
+				}
 			}
 
-			if ( count( $srchres ) >= $limit ) {
-				break;
-			}
 		}
 
-		return $srchres;
+		// Ensure keys are in order
+		ksort( $matches );
+		// Flatten the array
+		$matches = array_reduce( $matches, 'array_merge', [] );
+
+		return array_slice( $matches, $offset, $limit );
 	}
 
 	/**
@@ -147,57 +245,73 @@ class PrefixSearch {
 	 * be automatically capitalized by Title::secureAndSpit()
 	 * later on depending on $wgCapitalLinks)
 	 *
-	 * @param array $namespaces namespaces to search in
-	 * @param string $search term
-	 * @param $limit Integer: max number of items to return
-	 * @return Array of title strings
+	 * @param array|null $namespaces Namespaces to search in
+	 * @param string $search Term
+	 * @param int $limit Max number of items to return
+	 * @param int $offset Number of items to skip
+	 * @return Title[] Array of Title objects
 	 */
-	protected static function defaultSearchBackend( $namespaces, $search, $limit ) {
-		$ns = array_shift( $namespaces ); // support only one namespace
-		if ( in_array( NS_MAIN, $namespaces ) ) {
-			$ns = NS_MAIN; // if searching on many always default to main
+	public function defaultSearchBackend( $namespaces, $search, $limit, $offset ) {
+		// Backwards compatability with old code. Default to NS_MAIN if no namespaces provided.
+		if ( $namespaces === null ) {
+			$namespaces = [];
+		}
+		if ( !$namespaces ) {
+			$namespaces[] = NS_MAIN;
 		}
 
-		// Prepare nested request
-		$req = new FauxRequest( array(
-			'action' => 'query',
-			'list' => 'allpages',
-			'apnamespace' => $ns,
-			'aplimit' => $limit,
-			'apprefix' => $search
-		));
+		// Construct suitable prefix for each namespace. They differ in cases where
+		// some namespaces always capitalize and some don't.
+		$prefixes = [];
+		foreach ( $namespaces as $namespace ) {
+			// For now, if special is included, ignore the other namespaces
+			if ( $namespace == NS_SPECIAL ) {
+				return $this->specialSearch( $search, $limit, $offset );
+			}
 
-		// Execute
-		$module = new ApiMain( $req );
-		$module->execute();
-
-		// Get resulting data
-		$data = $module->getResultData();
-
-		// Reformat useful data for future printing by JSON engine
-		$srchres = array();
-		foreach ( (array)$data['query']['allpages'] as $pageinfo ) {
-			// Note: this data will no be printable by the xml engine
-			// because it does not support lists of unnamed items
-			$srchres[] = $pageinfo['title'];
+			$title = Title::makeTitleSafe( $namespace, $search );
+			// Why does the prefix default to empty?
+			$prefix = $title ? $title->getDBkey() : '';
+			$prefixes[$prefix][] = $namespace;
 		}
 
-		return $srchres;
+		$dbr = wfGetDB( DB_REPLICA );
+		// Often there is only one prefix that applies to all requested namespaces,
+		// but sometimes there are two if some namespaces do not always capitalize.
+		$conds = [];
+		foreach ( $prefixes as $prefix => $namespaces ) {
+			$condition = [
+				'page_namespace' => $namespaces,
+				'page_title' . $dbr->buildLike( $prefix, $dbr->anyString() ),
+			];
+			$conds[] = $dbr->makeList( $condition, LIST_AND );
+		}
+
+		$table = 'page';
+		$fields = [ 'page_id', 'page_namespace', 'page_title' ];
+		$conds = $dbr->makeList( $conds, LIST_OR );
+		$options = [
+			'LIMIT' => $limit,
+			'ORDER BY' => [ 'page_title', 'page_namespace' ],
+			'OFFSET' => $offset
+		];
+
+		$res = $dbr->select( $table, $fields, $conds, __METHOD__, $options );
+
+		return iterator_to_array( TitleArray::newFromResult( $res ) );
 	}
 
 	/**
 	 * Validate an array of numerical namespace indexes
 	 *
-	 * @param $namespaces Array
-	 * @return Array (default: contains only NS_MAIN)
+	 * @param array $namespaces
+	 * @return array (default: contains only NS_MAIN)
 	 */
-	protected static function validateNamespaces( $namespaces ) {
-		global $wgContLang;
-
-		// We will look at each given namespace against wgContLang namespaces
-		$validNamespaces = $wgContLang->getNamespaces();
+	protected function validateNamespaces( $namespaces ) {
+		// We will look at each given namespace against content language namespaces
+		$validNamespaces = MediaWikiServices::getInstance()->getContentLanguage()->getNamespaces();
 		if ( is_array( $namespaces ) && count( $namespaces ) > 0 ) {
-			$valid = array();
+			$valid = [];
 			foreach ( $namespaces as $ns ) {
 				if ( is_numeric( $ns ) && array_key_exists( $ns, $validNamespaces ) ) {
 					$valid[] = $ns;
@@ -208,6 +322,44 @@ class PrefixSearch {
 			}
 		}
 
-		return array( NS_MAIN );
+		return [ NS_MAIN ];
+	}
+}
+
+/**
+ * Performs prefix search, returning Title objects
+ * @deprecated Since 1.27, Use SearchEngine::defaultPrefixSearch or SearchEngine::completionSearch
+ * @ingroup Search
+ */
+class TitlePrefixSearch extends PrefixSearch {
+
+	protected function titles( array $titles ) {
+		return $titles;
+	}
+
+	protected function strings( array $strings ) {
+		$titles = array_map( 'Title::newFromText', $strings );
+		$lb = new LinkBatch( $titles );
+		$lb->setCaller( __METHOD__ );
+		$lb->execute();
+		return $titles;
+	}
+}
+
+/**
+ * Performs prefix search, returning strings
+ * @deprecated Since 1.27, Use SearchEngine::prefixSearchSubpages or SearchEngine::completionSearch
+ * @ingroup Search
+ */
+class StringPrefixSearch extends PrefixSearch {
+
+	protected function titles( array $titles ) {
+		return array_map( function ( Title $t ) {
+			return $t->getPrefixedText();
+		}, $titles );
+	}
+
+	protected function strings( array $strings ) {
+		return $strings;
 	}
 }

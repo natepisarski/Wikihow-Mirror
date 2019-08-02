@@ -8,7 +8,7 @@ class Awards extends UnlistedSpecialPage {
 
 	public function execute($par) {
 		$out = $this->getOutput();
-		$out->setSquidMaxage( 3600 );
+		$out->setCdnMaxage( 3600 );
 
 		$out->addHTML("
 

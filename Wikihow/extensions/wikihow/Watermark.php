@@ -105,7 +105,7 @@ class WatermarkSupport {
 		$err = wfShellExec( $cmd, $retval );
 		$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 		$currentDate = `date`;
-		wfErrorLog(trim($currentDate) . " $cmd b:$before a:$after\n", '/tmp/watermark.log');
+		wfDebugLog('watermark', trim($currentDate) . " $cmd b:$before a:$after\n");
 	}
 
 	public static function addWatermark($srcPath, $dstPath, $width, $height) {
@@ -151,7 +151,7 @@ class WatermarkSupport {
 		$err = wfShellExec( $cmd, $retval );
 		$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 		$currentDate = `date`;
-		wfErrorLog(trim($currentDate) . " $cmd b:$before a:$after\n", '/tmp/watermark.log');
+		wfDebugLog('watermark', trim($currentDate) . " $cmd b:$before a:$after\n");
 	}
 
 	// adds version 3 watermark to the image
@@ -197,9 +197,8 @@ class WatermarkSupport {
 		$err = wfShellExec( $cmd, $retval );
 		$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 		$currentDate = `date`;
-		wfErrorLog(trim($currentDate) . " $cmd b:$before a:$after\n", '/tmp/watermark.log');
+		wfDebugLog('watermark', trim($currentDate) . " $cmd b:$before a:$after\n");
 	}
-
 
 	/**
 	 * checks if this image is on a list which restricts watermarks

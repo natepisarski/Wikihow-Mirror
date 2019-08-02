@@ -1,9 +1,17 @@
-<?
-require_once('commandLine.inc');
+<?php
 
-$importer = new ConciergeDataImporter();
-//$importer->importArtists("/tmp/artists.txt");
-$importer->importArticles("/tmp/test_import.txt");
+require_once __DIR__ . '/../../Maintenance.php';
+
+class ConciergeDataImporterMaintenance extends Maintenance {
+
+	public function execute() {
+		$importer = new ConciergeDataImporter();
+		//$importer->importArtists("/tmp/artists.txt");
+		$importer->importArticles("/tmp/test_import.txt");
+	}
+
+}
+
 class ConciergeDataImporter {
 
 	public function importArticles($filePath) {
@@ -49,7 +57,6 @@ class ConciergeDataImporter {
 			$dbw->query($sql);
 		}
 	}
-
 
 	public function addArticles(&$data) {
 		$rows = array();
@@ -166,5 +173,8 @@ class ConciergeDataImporter {
 	function debug($msg) {
 		echo "$msg\n";
 	}
+
 }
-?>
+
+$maintClass = 'ConciergeDataImporterMaintenance';
+require_once RUN_MAINTENANCE_IF_MAIN;

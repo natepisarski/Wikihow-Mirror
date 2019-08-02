@@ -30,7 +30,7 @@ class SpecialHoneypotCampaign extends SpecialPage {
 
 		$this->setHeaders();
 		$output = $this->getOutput();
-		$output->setSquidMaxage( $wgSquidMaxage );
+		$output->setCdnMaxage( $wgSquidMaxage );
 		$output->setRobotPolicy( 'noindex,nofollow' );
 
 		// Use the default campaign if the requested campaign isn't recognized

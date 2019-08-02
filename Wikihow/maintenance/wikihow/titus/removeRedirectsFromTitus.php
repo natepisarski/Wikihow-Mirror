@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . '/../../commandLine.inc';
-require_once "$IP/extensions/wikihow/titus/Titus.class.php";
 
 $dbw = DatabaseBase::factory('mysql');
 $dbw->open(TitusDB::getDBHost(), WH_DATABASE_MAINTENANCE_USER, WH_DATABASE_MAINTENANCE_PASSWORD, TitusDB::getDBName());

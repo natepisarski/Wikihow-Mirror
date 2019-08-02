@@ -1,7 +1,8 @@
 <?php
 
 namespace CirrusSearch\Jenkins;
-use \Maintenance;
+
+use CirrusSearch\Maintenance\Maintenance;
 
 /**
  * Calls maintenance scripts properly to get an empty and configured index and
@@ -24,25 +25,29 @@ use \Maintenance;
  */
 
 $IP = getenv( 'MW_INSTALL_PATH' );
-if( $IP === false ) {
+if ( $IP === false ) {
 	$IP = __DIR__ . '/../../../..';
 }
-require_once( "$IP/maintenance/Maintenance.php" );
+require_once "$IP/maintenance/Maintenance.php";
+require_once __DIR__ . "/../../includes/Maintenance/Maintenance.php";
 
 class CleanSetup extends Maintenance {
 	public function execute() {
-		$child = $this->runChild( 'CirrusSearch\UpdateSearchIndexConfig' );
+		$child = $this->runChild( \CirrusSearch\Maintenance\Metastore::class );
+		$child->mOptions['upgrade'] = true;
+		$child->execute();
+		$child = $this->runChild( \CirrusSearch\Maintenance\UpdateSearchIndexConfig::class );
 		$child->mOptions[ 'startOver' ] = true;
 		$child->execute();
-		$child = $this->runChild( 'CirrusSearch\ForceSearchIndex' );
+		$child = $this->runChild( \CirrusSearch\ForceSearchIndex::class );
 		$child->mOptions[ 'skipLinks' ] = true;
 		$child->mOptions[ 'indexOnSkip' ] = true;
 		$child->execute();
-		$child = $this->runChild( 'CirrusSearch\ForceSearchIndex' );
+		$child = $this->runChild( \CirrusSearch\ForceSearchIndex::class );
 		$child->mOptions[ 'skipParse' ] = true;
 		$child->execute();
 	}
 }
 
-$maintClass = "CirrusSearch\Jenkins\CleanSetup";
+$maintClass = CleanSetup::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

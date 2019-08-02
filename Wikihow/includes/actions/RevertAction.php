@@ -23,31 +23,14 @@
  * @author Rob Church <robchur@gmail.com>
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
- * Dummy class for pages not in NS_FILE
+ * File reversion user interface
  *
  * @ingroup Actions
  */
-class RevertAction extends Action {
-
-	public function getName() {
-		return 'revert';
-	}
-
-	public function show() {
-		$this->getOutput()->showErrorPage( 'nosuchaction', 'nosuchactiontext' );
-	}
-
-	public function execute() {
-	}
-}
-
-/**
- * Class for pages in NS_FILE
- *
- * @ingroup Actions
- */
-class RevertFileAction extends FormAction {
+class RevertAction extends FormAction {
 	/**
 	 * @var OldLocalFile
 	 */
@@ -62,6 +45,9 @@ class RevertFileAction extends FormAction {
 	}
 
 	protected function checkCanExecute( User $user ) {
+		if ( $this->getTitle()->getNamespace() !== NS_FILE ) {
+			throw new ErrorPageError( $this->msg( 'nosuchaction' ), $this->msg( 'nosuchactiontext' ) );
+		}
 		parent::checkCanExecute( $user );
 
 		$oldimage = $this->getRequest()->getText( 'oldimage' );
@@ -69,7 +55,7 @@ class RevertFileAction extends FormAction {
 			|| strpos( $oldimage, '/' ) !== false
 			|| strpos( $oldimage, '\\' ) !== false
 		) {
-			throw new ErrorPageError( 'internalerror', 'unexpected', array( 'oldimage', $oldimage ) );
+			throw new ErrorPageError( 'internalerror', 'unexpected', [ 'oldimage', $oldimage ] );
 		}
 
 		$this->oldFile = RepoGroup::singleton()->getLocalRepo()->newFromArchiveName(
@@ -82,26 +68,33 @@ class RevertFileAction extends FormAction {
 		}
 	}
 
+	protected function usesOOUI() {
+		return true;
+	}
+
 	protected function alterForm( HTMLForm $form ) {
 		$form->setWrapperLegendMsg( 'filerevert-legend' );
 		$form->setSubmitTextMsg( 'filerevert-submit' );
 		$form->addHiddenField( 'oldimage', $this->getRequest()->getText( 'oldimage' ) );
+		$form->setTokenSalt( [ 'revert', $this->getTitle()->getPrefixedDBkey() ] );
 	}
 
 	protected function getFormFields() {
-		global $wgContLang;
-
 		$timestamp = $this->oldFile->getTimestamp();
 
 		$user = $this->getUser();
 		$lang = $this->getLanguage();
 		$userDate = $lang->userDate( $timestamp, $user );
 		$userTime = $lang->userTime( $timestamp, $user );
-		$siteDate = $wgContLang->date( $timestamp, false, false );
-		$siteTime = $wgContLang->time( $timestamp, false, false );
+		$siteTs = MWTimestamp::getLocalInstance( $timestamp );
+		$ts = $siteTs->format( 'YmdHis' );
+		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+		$siteDate = $contLang->date( $ts, false, false );
+		$siteTime = $contLang->time( $ts, false, false );
+		$tzMsg = $siteTs->getTimezoneMessage()->inContentLanguage()->text();
 
-		return array(
-			'intro' => array(
+		return [
+			'intro' => [
 				'type' => 'info',
 				'vertical-label' => true,
 				'raw' => true,
@@ -111,24 +104,32 @@ class RevertFileAction extends FormAction {
 						$this->page->getFile()->getArchiveUrl( $this->getRequest()->getText( 'oldimage' ) ),
 						PROTO_CURRENT
 					) )->parseAsBlock()
-			),
-			'comment' => array(
+			],
+			'comment' => [
 				'type' => 'text',
 				'label-message' => 'filerevert-comment',
-				'default' => $this->msg( 'filerevert-defaultcomment', $siteDate, $siteTime
-					)->inContentLanguage()->text()
-			)
-		);
+				'default' => $this->msg( 'filerevert-defaultcomment', $siteDate, $siteTime,
+					$tzMsg )->inContentLanguage()->text()
+			]
+		];
 	}
 
 	public function onSubmit( $data ) {
-		$source = $this->page->getFile()->getArchiveVirtualUrl(
-			$this->getRequest()->getText( 'oldimage' )
-		);
+		$this->useTransactionalTimeLimit();
+
+		$old = $this->getRequest()->getText( 'oldimage' );
+		$localFile = $this->page->getFile();
+		$oldFile = OldLocalFile::newFromArchiveName( $this->getTitle(), $localFile->getRepo(), $old );
+
+		$source = $localFile->getArchiveVirtualUrl( $old );
 		$comment = $data['comment'];
 
+		if ( $localFile->getSha1() === $oldFile->getSha1() ) {
+			return Status::newFatal( 'filerevert-identical' );
+		}
+
 		// TODO: Preserve file properties from database instead of reloading from file
-		return $this->page->getFile()->upload(
+		return $localFile->upload(
 			$source,
 			$comment,
 			$comment,
@@ -159,8 +160,10 @@ class RevertFileAction extends FormAction {
 	}
 
 	protected function getDescription() {
-		$this->getOutput()->addBacklinkSubtitle( $this->getTitle() );
+		return OutputPage::buildBacklinkSubtitle( $this->getTitle() );
+	}
 
-		return '';
+	public function doesWrites() {
+		return true;
 	}
 }

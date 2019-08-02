@@ -1,0 +1,37 @@
+{
+	"@metadata": {
+		"authors": [
+			"Shirayuki",
+			"Whym",
+			"Sujiniku",
+			"2nd-player",
+			"Otokoume"
+		]
+	},
+	"guidedtour-desc": "新しい利用者を支援するポップアップのガイド付きツアーをページで提供できるようにする",
+	"guidedtour-help-url": "Help:ガイド付きツアー",
+	"guidedtour-help-guider-url": "Help:ガイド付きツアー/guider",
+	"guidedtour-next-button": "次へ",
+	"guidedtour-okay-button": "OK",
+	"guidedtour-back-button": "戻る",
+	"guidedtour-tour-test-testing": "テスト",
+	"guidedtour-tour-test-test-description": "これは説明のテストです。Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "呼び出しのテスト",
+	"guidedtour-tour-test-portal-description": "これは{{int:portal}}のページです。",
+	"guidedtour-tour-test-mediawiki-parse": "MediaWiki の構文解析のテスト",
+	"guidedtour-tour-test-description-page": "MediaWiki 説明ページのテスト",
+	"guidedtour-tour-test-go-description-page": "説明ページに移動",
+	"guidedtour-tour-test-launch-tour": "ツアー起動のテスト",
+	"guidedtour-tour-test-launch-tour-description": "guider は他のガイド付きツアーを起動できます。すごいでしょう?",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|編集}}をはじめてみましょう",
+	"guidedtour-tour-firstedit-edit-page-description": "「$1」ボタンを{{GENDER:|クリック}}すると編集を開始できます。",
+	"guidedtour-tour-firstedit-edit-section-title": "1つの節だけ{{GENDER:|編集}}してみましょう",
+	"guidedtour-tour-firstedit-edit-section-description": "1つの部分だけに着目できるよう、ページ内の主要な節それぞれに対応する「{{int:editsection}}」リンクがあります。",
+	"guidedtour-tour-firstedit-preview-title": "変更内容の{{GENDER:|プレビュー}} (省略可能)",
+	"guidedtour-tour-firstedit-preview-description": "「{{int:showpreview}}」をクリックすると、変更した結果、ページがどのようになるか確認できます。保存するのもお忘れなく!",
+	"guidedtour-tour-firstedit-save-title": "もう少しで完了します!",
+	"guidedtour-tour-firstedit-save-description": "大丈夫だと思ったら「{{int:publishchanges}}」をクリックして、この変更を誰にでも見られるようにしましょう。",
+	"guidedtour-tour-firsteditve-edit-page-description": "「$1」ボタンを{{GENDER:|クリック}}すると編集を始められます。",
+	"guidedtour-tour-firsteditve-edit-section-description": "ページには主要な節ひとつひとつに「$1」リンクがあります。これを使用するとその部分だけに集中できます。",
+	"guidedtour-tour-firsteditve-save-description": "大丈夫だと思ったら「{{int:visualeditor-toolbar-savedialog}}」をクリックして、この変更を誰にでも見られるようにしましょう。"
+}

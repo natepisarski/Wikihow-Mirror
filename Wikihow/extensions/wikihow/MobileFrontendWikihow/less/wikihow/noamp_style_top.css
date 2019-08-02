@@ -88,6 +88,9 @@
 #mw-mf-viewport {
 	background-color: #E9E7E3;
 }
+#mw-mf-viewport.menuopen {
+	overflow:auto;
+}
 #sidebar {
 	display: none;
 }

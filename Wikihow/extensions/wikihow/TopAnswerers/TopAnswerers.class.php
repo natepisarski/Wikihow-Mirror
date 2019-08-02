@@ -664,12 +664,13 @@ class TopAnswerers {
 			$link = UnsubscribeLink::newFromId($user->getId());
 			$body = wfMessage('ta_grats_body', $name, $answer_link, $link->getLink())->text();
 
-			UserMailer::send($to, $from, $subject, $body, null, $content_type);
+			$opts = [ 'contentType' => $content_type ];
+			UserMailer::send($to, $from, $subject, $body, $opts);
 
 			//send an email to CMs too!
 			$to = new MailAddress('anna@wikihow.com,jayne@wikihow.com');
 			$subject = '[Top Answerer email] '.$name;
-			UserMailer::send($to, $from, $subject, $body, null, $content_type);
+			UserMailer::send($to, $from, $subject, $body, $opts);
 		}
 	}
 

@@ -9,7 +9,7 @@
 		return extractParamFromUri(document.location.search, 'gt_mode') == 1 || extractParamFromUri(document.location.search, 'gtc') == 1;
 	}
 
-	// Redirect to the guided tour if a tour is loaded in the guided tour cookie.  
+	// Redirect to the guided tour if a tour is loaded in the guided tour cookie.
 	// Load the appropriate rct_id for where the user left off
 	function redirectToGuidedTour() {
 		var cookieVal = $.cookie(mw.config.get('wgCookiePrefix') + '-mw-tour');
@@ -21,7 +21,7 @@
 			if (rctId !== undefined) {
 				var redirectUrl = '/' + mw.config.get('wgPageName') + '?';
 				if (rctId == -1) {
-					redirectUrl += 'gtc=1';	
+					redirectUrl += 'gtc=1';
 				} else {
 					redirectUrl += 'gt_mode=1&rct_id=' + rctId;
 				}
@@ -59,7 +59,8 @@
 			overlay: true,
 			xButton: true,
 			buttons: [ {
-				action: 'next'
+				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-rc-review-title',
@@ -70,13 +71,14 @@
 			position: 'top',
 			offset: {'top': 20, 'left': 0},
 			buttons: [ {
-				action: 'next'
+				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-rc-rollback-title',
 			descriptionmsg: 'guidedtour-tour-rc-rollback-description',
 			xButton: true,
-			
+
 			// attachment
 			attachTo: '#rb_button.gt52',
 			position: 'bottom',
@@ -84,6 +86,7 @@
 			shouldSkip: function() { return $('#rb_button.gt52').length <= 0;},
 			buttons: [ {
 				action: 'okay',
+				namemsg: 'guidedtour-okay-button',
 				onclick: function () {
 					mw.libs.guiders.hideAll();
 				}
@@ -101,6 +104,7 @@
 
 			buttons: [ {
 				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-rc-patrolled-title',
@@ -113,6 +117,7 @@
 
 			buttons: [ {
 				action: 'okay',
+				namemsg: 'guidedtour-okay-button',
 				onclick: function () {
 					mw.libs.guiders.hideAll();
 				}
@@ -128,6 +133,7 @@
 
 			buttons: [ {
 				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-rc-talk-title',
@@ -140,6 +146,7 @@
 
 			buttons: [ {
 				action: 'okay',
+				namemsg: 'guidedtour-okay-button',
 				onclick: function () {
 					mw.libs.guiders.hideAll();
 				}
@@ -153,7 +160,8 @@
 			offset: {'top': -20, 'left': 0},
 			shouldSkip: function() { return $('#rb_button.gt15').length <= 0;},
 			buttons: [ {
-				action: 'next'
+				action: 'next',
+				namemsg: 'guidedtour-next-button'
 			} ]
 		}, {
 			titlemsg: 'guidedtour-tour-rc-driveby-title',
@@ -165,6 +173,7 @@
 			shouldSkip: function() { return $('#rb_button.gt15').length <= 0;},
 			buttons: [ {
 				action: 'okay',
+				namemsg: 'guidedtour-okay-button',
 				onclick: function () {
 					mw.libs.guiders.hideAll();
 				}
@@ -180,7 +189,8 @@
 			closeOnClickOutside: false,
 
 			buttons: [ {
-				action: 'end'
+				action: 'end',
+				namemsg: 'guidedtour-okay-button'
 			} ]
 		} ]
 	} );

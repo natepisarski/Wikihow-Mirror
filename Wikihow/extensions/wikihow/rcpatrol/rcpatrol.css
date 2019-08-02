@@ -2,7 +2,7 @@
 	background-color: inherit;
 }
 
-span.mw-rollback-link {
+.mw-editsection, .mw-rollback-link {
 	display: none;
 }
 
@@ -12,7 +12,6 @@ span.mw-rollback-link {
 
 #feature_star, #markaspatrolledlinks, #fulledit, #undolink, #feature_star {
 	display: none;
-
 }
 
 #controls {
@@ -67,6 +66,7 @@ td.patrolcount {
 #rc_header {
 	margin-bottom: 0;
 	padding: 10px 25px;
+	width: 678px; /* override .sticking width in main.css */
 }
 
 .rc_header .button {}
@@ -77,6 +77,15 @@ td.patrolcount {
 	display: none;
 	clear: both;
 	padding-top: 15px;
+}
+
+/*
+ * Fill in space above the content immediately below the sticky header,
+ * once it is made sticky. This removes the page jitter when it becomes
+ * sticky.
+ */
+.sticking + table {
+	padding-top: 126px;
 }
 
 .rc_submenu {
@@ -146,3 +155,21 @@ td.patrolcount {
 .rcp_template_list {
 	margin: 3px 0 13px;
 }
+
+#editform #toolbar {height:0;}
+#wpSummary {font-size: 14px;}
+
+#wpDiffWidget, #wpDraftSaveWidget {
+	display: none;
+}
+
+.editCheckboxes {
+	visibility: hidden;
+}
+#rb_button {
+	display: block;
+}
+#rb_button.rb_disabled {
+	display: none;
+}
+

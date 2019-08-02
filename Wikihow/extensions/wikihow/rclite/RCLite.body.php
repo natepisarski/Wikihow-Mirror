@@ -110,6 +110,17 @@ class RCLite extends MobileSpecialPage {
 		$html = $this->getArticleHtml($rRev->getTitle(), $rRev, $txt['txt']);
 		if ($txt['type'] == self::EDIT_USER_TALK) {
 			$html = Avatar::insertAvatarIntoDiscussion($html);
+
+			// Remove all links to non-existent user pages
+			// NOTE: taken from WikihowUserPage.class.php
+			$doc = phpQuery::newDocument($html);
+			foreach (pq('.de_user a[class="new"]') as $a) {
+				$pq_a = pq($a);
+				// Replace <a class="new" ...> with <span>
+				$span = pq('<span></span>')->html( $pq_a->html() );
+				$pq_a->replaceWith( $span );
+			}
+			$html = $doc->htmlOuter();
 		}
 
 		return array('html' => $html, 'type' => $txt['type']);
@@ -118,8 +129,8 @@ class RCLite extends MobileSpecialPage {
 	protected function modifyWikiText($lRev, $rRev) {
 		global $wgContLang;
 
-		$lTxt = $lRev->getText();
-		$rTxt = $rRev->getText();
+		$lTxt = $lRev->getContent()->getText();
+		$rTxt = $rRev->getContent()->getText();
 		$rTitle = $rRev->getTitle();
 		$newTxt = $lTxt;
 

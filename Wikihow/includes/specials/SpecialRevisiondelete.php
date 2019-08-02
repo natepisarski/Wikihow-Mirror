@@ -28,77 +28,104 @@
  * @ingroup SpecialPage
  */
 class SpecialRevisionDelete extends UnlistedSpecialPage {
-	/** True if the submit button was clicked, and the form was posted */
-	var $submitClicked;
-
-	/** Target ID list */
-	var $ids;
-
-	/** Archive name, for reviewing deleted files */
-	var $archiveName;
-
-	/** Edit token for securing image views against XSS */
-	var $token;
-
-	/** Title object for target parameter */
-	var $targetObj;
-
-	/** Deletion type, may be revision, archive, oldimage, filearchive, logging. */
-	var $typeName;
-
-	/** Array of checkbox specs (message, name, deletion bits) */
-	var $checks;
-
-	/** UI Labels about the current type */
-	var $typeLabels;
-
-	/** The RevDel_List object, storing the list of items to be deleted/undeleted */
-	var $list;
-
-	/** Was the DB modified in this request */
+	/** @var bool Was the DB modified in this request */
 	protected $wasSaved = false;
+
+	/** @var bool True if the submit button was clicked, and the form was posted */
+	private $submitClicked;
+
+	/** @var array Target ID list */
+	private $ids;
+
+	/** @var string Archive name, for reviewing deleted files */
+	private $archiveName;
+
+	/** @var string Edit token for securing image views against XSS */
+	private $token;
+
+	/** @var Title Title object for target parameter */
+	private $targetObj;
+
+	/** @var string Deletion type, may be revision, archive, oldimage, filearchive, logging. */
+	private $typeName;
+
+	/** @var array Array of checkbox specs (message, name, deletion bits) */
+	private $checks;
+
+	/** @var array UI Labels about the current type */
+	private $typeLabels;
+
+	/** @var RevDelList RevDelList object, storing the list of items to be deleted/undeleted */
+	private $revDelList;
+
+	/** @var bool Whether user is allowed to perform the action */
+	private $mIsAllowed;
+
+	/** @var string */
+	private $otherReason;
 
 	/**
 	 * UI labels for each type.
 	 */
-	static $UILabels = array(
-		'revision' => array(
-			'check-label' 	=> 'revdelete-hide-text',
-			'success' 		=> 'revdelete-success',
-			'failure' 		=> 'revdelete-failure',
-		),
-		'archive' => array(
-			'check-label' 	=> 'revdelete-hide-text',
-			'success' 		=> 'revdelete-success',
-			'failure' 		=> 'revdelete-failure',
-		),
-		'oldimage' => array(
-			'check-label' 	=> 'revdelete-hide-image',
-			'success' 		=> 'revdelete-success',
-			'failure' 		=> 'revdelete-failure',
-		),
-		'filearchive' => array(
-			'check-label' 	=> 'revdelete-hide-image',
-			'success' 		=> 'revdelete-success',
-			'failure' 		=> 'revdelete-failure',
-		),
-		'logging' => array(
-			'check-label'	=> 'revdelete-hide-name',
-			'success' 		=> 'logdelete-success',
-			'failure' 		=> 'logdelete-failure',
-		),
-	);
+	private static $UILabels = [
+		'revision' => [
+			'check-label' => 'revdelete-hide-text',
+			'success' => 'revdelete-success',
+			'failure' => 'revdelete-failure',
+			'text' => 'revdelete-text-text',
+			'selected' => 'revdelete-selected-text',
+		],
+		'archive' => [
+			'check-label' => 'revdelete-hide-text',
+			'success' => 'revdelete-success',
+			'failure' => 'revdelete-failure',
+			'text' => 'revdelete-text-text',
+			'selected' => 'revdelete-selected-text',
+		],
+		'oldimage' => [
+			'check-label' => 'revdelete-hide-image',
+			'success' => 'revdelete-success',
+			'failure' => 'revdelete-failure',
+			'text' => 'revdelete-text-file',
+			'selected' => 'revdelete-selected-file',
+		],
+		'filearchive' => [
+			'check-label' => 'revdelete-hide-image',
+			'success' => 'revdelete-success',
+			'failure' => 'revdelete-failure',
+			'text' => 'revdelete-text-file',
+			'selected' => 'revdelete-selected-file',
+		],
+		'logging' => [
+			'check-label' => 'revdelete-hide-name',
+			'success' => 'logdelete-success',
+			'failure' => 'logdelete-failure',
+			'text' => 'logdelete-text',
+			'selected' => 'logdelete-selected',
+		],
+	];
 
 	public function __construct() {
-		parent::__construct( 'Revisiondelete', 'deletedhistory' );
+		parent::__construct( 'Revisiondelete', 'deleterevision' );
+	}
+
+	public function doesWrites() {
+		return true;
 	}
 
 	public function execute( $par ) {
+		$this->useTransactionalTimeLimit();
+
 		$this->checkPermissions();
 		$this->checkReadOnly();
 
 		$output = $this->getOutput();
 		$user = $this->getUser();
+
+		// Check blocks
+		if ( $user->isBlocked() ) {
+			throw new UserBlockedError( $user->getBlock() );
+		}
 
 		$this->setHeaders();
 		$this->outputHeader();
@@ -111,27 +138,20 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 			$this->ids = explode( ',', $ids );
 		} else {
 			# Array input
-			$this->ids = array_keys( $request->getArray( 'ids', array() ) );
+			$this->ids = array_keys( $request->getArray( 'ids', [] ) );
 		}
 		// $this->ids = array_map( 'intval', $this->ids );
 		$this->ids = array_unique( array_filter( $this->ids ) );
 
-		if ( $request->getVal( 'action' ) == 'historysubmit' || $request->getVal( 'action' ) == 'revisiondelete' ) {
-			// For show/hide form submission from history page
-			// Since we are access through index.php?title=XXX&action=historysubmit
-			// getFullTitle() will contain the target title and not our title
-			$this->targetObj = $this->getFullTitle();
-			$this->typeName = 'revision';
-		} else {
-			$this->typeName = $request->getVal( 'type' );
-			$this->targetObj = Title::newFromText( $request->getText( 'target' ) );
-		}
+		$this->typeName = $request->getVal( 'type' );
+		$this->targetObj = Title::newFromText( $request->getText( 'target' ) );
 
 		# For reviewing deleted files...
 		$this->archiveName = $request->getVal( 'file' );
 		$this->token = $request->getVal( 'token' );
 		if ( $this->archiveName && $this->targetObj ) {
 			$this->tryShowFile( $this->archiveName );
+
 			return;
 		}
 
@@ -141,52 +161,68 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 		if ( !$this->typeName || count( $this->ids ) == 0 ) {
 			throw new ErrorPageError( 'revdelete-nooldid-title', 'revdelete-nooldid-text' );
 		}
-		$this->typeLabels = self::$UILabels[$this->typeName];
-		$this->mIsAllowed = $user->isAllowed( RevisionDeleter::getRestriction( $this->typeName ) );
 
 		# Allow the list type to adjust the passed target
-		$this->targetObj = RevisionDeleter::suggestTarget( $this->typeName, $this->targetObj, $this->ids );
+		$this->targetObj = RevisionDeleter::suggestTarget(
+			$this->typeName,
+			$this->targetObj,
+			$this->ids
+		);
 
-		$this->otherReason = $request->getVal( 'wpReason' );
 		# We need a target page!
-		if ( is_null( $this->targetObj ) ) {
+		if ( $this->targetObj === null ) {
 			$output->addWikiMsg( 'undelete-header' );
+
 			return;
 		}
+
+		$this->typeLabels = self::$UILabels[$this->typeName];
+		$list = $this->getList();
+		$list->reset();
+		$this->mIsAllowed = $user->isAllowed( RevisionDeleter::getRestriction( $this->typeName ) );
+		$canViewSuppressedOnly = $this->getUser()->isAllowed( 'viewsuppressed' ) &&
+			!$this->getUser()->isAllowed( 'suppressrevision' );
+		$pageIsSuppressed = $list->areAnySuppressed();
+		$this->mIsAllowed = $this->mIsAllowed && !( $canViewSuppressedOnly && $pageIsSuppressed );
+
+		$this->otherReason = $request->getVal( 'wpReason' );
 		# Give a link to the logs/hist for this page
 		$this->showConvenienceLinks();
 
 		# Initialise checkboxes
-		$this->checks = array(
-			array( $this->typeLabels['check-label'], 'wpHidePrimary',
+		$this->checks = [
+			# Messages: revdelete-hide-text, revdelete-hide-image, revdelete-hide-name
+			[ $this->typeLabels['check-label'], 'wpHidePrimary',
 				RevisionDeleter::getRevdelConstant( $this->typeName )
-			),
-			array( 'revdelete-hide-comment', 'wpHideComment', Revision::DELETED_COMMENT ),
-			array( 'revdelete-hide-user', 'wpHideUser', Revision::DELETED_USER )
-		);
+			],
+			[ 'revdelete-hide-comment', 'wpHideComment', Revision::DELETED_COMMENT ],
+			[ 'revdelete-hide-user', 'wpHideUser', Revision::DELETED_USER ]
+		];
 		if ( $user->isAllowed( 'suppressrevision' ) ) {
-			$this->checks[] = array( 'revdelete-hide-restricted',
-				'wpHideRestricted', Revision::DELETED_RESTRICTED );
+			$this->checks[] = [ 'revdelete-hide-restricted',
+				'wpHideRestricted', Revision::DELETED_RESTRICTED ];
 		}
 
 		# Either submit or create our form
 		if ( $this->mIsAllowed && $this->submitClicked ) {
-			$this->submit( $request );
+			$this->submit();
 		} else {
 			$this->showForm();
 		}
 
-		$qc = $this->getLogQueryCond();
-		# Show relevant lines from the deletion log
-		$deleteLogPage = new LogPage( 'delete' );
-		$output->addHTML( "<h2>" . $deleteLogPage->getName()->escaped() . "</h2>\n" );
-		LogEventsList::showLogExtract(
-			$output,
-			'delete',
-			$this->targetObj,
-			'', /* user */
-			array( 'lim' => 25, 'conds' => $qc, 'useMaster' => $this->wasSaved )
-		);
+		if ( $user->isAllowed( 'deletedhistory' ) ) {
+			$qc = $this->getLogQueryCond();
+			# Show relevant lines from the deletion log
+			$deleteLogPage = new LogPage( 'delete' );
+			$output->addHTML( "<h2>" . $deleteLogPage->getName()->escaped() . "</h2>\n" );
+			LogEventsList::showLogExtract(
+				$output,
+				'delete',
+				$this->targetObj,
+				'', /* user */
+				[ 'lim' => 25, 'conds' => $qc, 'useMaster' => $this->wasSaved ]
+			);
+		}
 		# Show relevant lines from the suppression log
 		if ( $user->isAllowed( 'suppressionlog' ) ) {
 			$suppressLogPage = new LogPage( 'suppress' );
@@ -196,7 +232,7 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 				'suppress',
 				$this->targetObj,
 				'',
-				array( 'lim' => 25, 'conds' => $qc, 'useMaster' => $this->wasSaved )
+				[ 'lim' => 25, 'conds' => $qc, 'useMaster' => $this->wasSaved ]
 			);
 		}
 	}
@@ -205,34 +241,35 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 	 * Show some useful links in the subtitle
 	 */
 	protected function showConvenienceLinks() {
+		$linkRenderer = $this->getLinkRenderer();
 		# Give a link to the logs/hist for this page
 		if ( $this->targetObj ) {
 			// Also set header tabs to be for the target.
 			$this->getSkin()->setRelevantTitle( $this->targetObj );
 
-			$links = array();
-			$links[] = Linker::linkKnown(
+			$links = [];
+			$links[] = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'Log' ),
-				$this->msg( 'viewpagelogs' )->escaped(),
-				array(),
-				array( 'page' => $this->targetObj->getPrefixedText() )
+				$this->msg( 'viewpagelogs' )->text(),
+				[],
+				[ 'page' => $this->targetObj->getPrefixedText() ]
 			);
 			if ( !$this->targetObj->isSpecialPage() ) {
 				# Give a link to the page history
-				$links[] = Linker::linkKnown(
+				$links[] = $linkRenderer->makeKnownLink(
 					$this->targetObj,
-					$this->msg( 'pagehist' )->escaped(),
-					array(),
-					array( 'action' => 'history' )
+					$this->msg( 'pagehist' )->text(),
+					[],
+					[ 'action' => 'history' ]
 				);
 				# Link to deleted edits
 				if ( $this->getUser()->isAllowed( 'undelete' ) ) {
 					$undelete = SpecialPage::getTitleFor( 'Undelete' );
-					$links[] = Linker::linkKnown(
+					$links[] = $linkRenderer->makeKnownLink(
 						$undelete,
-						$this->msg( 'deletedhist' )->escaped(),
-						array(),
-						array( 'target' => $this->targetObj->getPrefixedDBkey() )
+						$this->msg( 'deletedhist' )->text(),
+						[],
+						[ 'target' => $this->targetObj->getPrefixedDBkey() ]
 					);
 				}
 			}
@@ -246,18 +283,22 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 	 * @return array
 	 */
 	protected function getLogQueryCond() {
-		$conds = array();
+		$conds = [];
 		// Revision delete logs for these item
-		$conds['log_type'] = array( 'delete', 'suppress' );
+		$conds['log_type'] = [ 'delete', 'suppress' ];
 		$conds['log_action'] = $this->getList()->getLogAction();
 		$conds['ls_field'] = RevisionDeleter::getRelationType( $this->typeName );
 		$conds['ls_value'] = $this->ids;
+
 		return $conds;
 	}
 
 	/**
 	 * Show a deleted file version requested by the visitor.
-	 * TODO Mostly copied from Special:Undelete. Refactor.
+	 * @todo Mostly copied from Special:Undelete. Refactor.
+	 * @param string $archiveName
+	 * @throws MWException
+	 * @throws PermissionsError
 	 */
 	protected function tryShowFile( $archiveName ) {
 		$repo = RepoGroup::singleton()->getLocalRepo();
@@ -266,6 +307,7 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 		// Check if user is allowed to see this file
 		if ( !$oimage->exists() ) {
 			$this->getOutput()->addWikiMsg( 'revdelete-no-file' );
+
 			return;
 		}
 		$user = $this->getUser();
@@ -283,27 +325,30 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 				$lang->userDate( $oimage->getTimestamp(), $user ),
 				$lang->userTime( $oimage->getTimestamp(), $user ) );
 			$this->getOutput()->addHTML(
-				Xml::openElement( 'form', array(
+				Xml::openElement( 'form', [
 					'method' => 'POST',
-					'action' => $this->getPageTitle()->getLocalURL( array(
+					'action' => $this->getPageTitle()->getLocalURL( [
 							'target' => $this->targetObj->getPrefixedDBkey(),
 							'file' => $archiveName,
 							'token' => $user->getEditToken( $archiveName ),
-						) )
-					)
+						] )
+					]
 				) .
 				Xml::submitButton( $this->msg( 'revdelete-show-file-submit' )->text() ) .
 				'</form>'
 			);
+
 			return;
 		}
 		$this->getOutput()->disable();
-		# We mustn't allow the output to be Squid cached, otherwise
+		# We mustn't allow the output to be CDN cached, otherwise
 		# if an admin previews a deleted image, and it's cached, then
 		# a user without appropriate permissions can toddle off and
-		# nab the image, and Squid will serve it
+		# nab the image, and CDN will serve it
 		$this->getRequest()->response()->header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', 0 ) . ' GMT' );
-		$this->getRequest()->response()->header( 'Cache-Control: no-cache, no-store, max-age=0, must-revalidate' );
+		$this->getRequest()->response()->header(
+			'Cache-Control: no-cache, no-store, max-age=0, must-revalidate'
+		);
 		$this->getRequest()->response()->header( 'Pragma: no-cache' );
 
 		$key = $oimage->getStorageKey();
@@ -313,14 +358,16 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 
 	/**
 	 * Get the list object for this request
+	 * @return RevDelList
 	 */
 	protected function getList() {
-		if ( is_null( $this->list ) ) {
-			$this->list = RevisionDeleter::createList(
+		if ( is_null( $this->revDelList ) ) {
+			$this->revDelList = RevisionDeleter::createList(
 				$this->typeName, $this->getContext(), $this->targetObj, $this->ids
 			);
 		}
-		return $this->list;
+
+		return $this->revDelList;
 	}
 
 	/**
@@ -328,50 +375,58 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 	 * which will allow the user to choose new visibility settings.
 	 */
 	protected function showForm() {
-		$UserAllowed = true;
+		$userAllowed = true;
 
-		if ( $this->typeName == 'logging' ) {
-			$this->getOutput()->addWikiMsg( 'logdelete-selected', $this->getLanguage()->formatNum( count( $this->ids ) ) );
-		} else {
-			$this->getOutput()->addWikiMsg( 'revdelete-selected',
-				$this->targetObj->getPrefixedText(), count( $this->ids ) );
-		}
+		// Messages: revdelete-selected-text, revdelete-selected-file, logdelete-selected
+		$out = $this->getOutput();
+		$out->wrapWikiMsg( "<strong>$1</strong>", [ $this->typeLabels['selected'],
+			$this->getLanguage()->formatNum( count( $this->ids ) ), $this->targetObj->getPrefixedText() ] );
 
-		$this->getOutput()->addHTML( "<ul>" );
+		$this->addHelpLink( 'Help:RevisionDelete' );
+		$out->addHTML( "<ul>" );
 
 		$numRevisions = 0;
 		// Live revisions...
 		$list = $this->getList();
+		// phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall
 		for ( $list->reset(); $list->current(); $list->next() ) {
 			$item = $list->current();
+
 			if ( !$item->canView() ) {
 				if ( !$this->submitClicked ) {
 					throw new PermissionsError( 'suppressrevision' );
 				}
-				$UserAllowed = false;
+				$userAllowed = false;
 			}
+
 			$numRevisions++;
-			$this->getOutput()->addHTML( $item->getHTML() );
+			$out->addHTML( $item->getHTML() );
 		}
 
 		if ( !$numRevisions ) {
 			throw new ErrorPageError( 'revdelete-nooldid-title', 'revdelete-nooldid-text' );
 		}
 
-		$this->getOutput()->addHTML( "</ul>" );
+		$out->addHTML( "</ul>" );
 		// Explanation text
 		$this->addUsageText();
 
 		// Normal sysops can always see what they did, but can't always change it
-		if ( !$UserAllowed ) {
+		if ( !$userAllowed ) {
 			return;
 		}
 
 		// Show form if the user can submit
 		if ( $this->mIsAllowed ) {
-			$out = Xml::openElement( 'form', array( 'method' => 'post',
-					'action' => $this->getPageTitle()->getLocalURL( array( 'action' => 'submit' ) ),
-					'id' => 'mw-revdel-form-revisions' ) ) .
+			$out->addModules( [ 'mediawiki.special.revisionDelete' ] );
+			$out->addModuleStyles( 'mediawiki.special' );
+
+			$conf = $this->getConfig();
+			$oldCommentSchema = $conf->get( 'CommentTableSchemaMigrationStage' ) === MIGRATION_OLD;
+
+			$form = Xml::openElement( 'form', [ 'method' => 'post',
+					'action' => $this->getPageTitle()->getLocalURL( [ 'action' => 'submit' ] ),
+					'id' => 'mw-revdel-form-revisions' ] ) .
 				Xml::fieldset( $this->msg( 'revdelete-legend' )->text() ) .
 				$this->buildCheckBoxes() .
 				Xml::openElement( 'table' ) .
@@ -383,7 +438,7 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 						Xml::listDropDown( 'wpRevDeleteReasonList',
 							$this->msg( 'revdelete-reason-dropdown' )->inContentLanguage()->text(),
 							$this->msg( 'revdelete-reasonotherlist' )->inContentLanguage()->text(),
-							$this->getRequest()->getText( 'wpRevDeleteReasonList', 'other' ), 'wpReasonDropDown', 1
+							$this->getRequest()->getText( 'wpRevDeleteReasonList', 'other' ), 'wpReasonDropDown'
 						) .
 					'</td>' .
 				"</tr><tr>\n" .
@@ -391,13 +446,20 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 						Xml::label( $this->msg( 'revdelete-otherreason' )->text(), 'wpReason' ) .
 					'</td>' .
 					'<td class="mw-input">' .
-						Xml::input( 'wpReason', 60, $this->otherReason, array( 'id' => 'wpReason', 'maxlength' => 100 ) ) .
+						Xml::input( 'wpReason', 60, $this->otherReason, [
+							'id' => 'wpReason',
+							// HTML maxlength uses "UTF-16 code units", which means that characters outside BMP
+							// (e.g. emojis) count for two each. This limit is overridden in JS to instead count
+							// Unicode codepoints (or 255 UTF-8 bytes for old schema).
+							// "- 155" is to leave room for the 'wpRevDeleteReasonList' value.
+							'maxlength' => $oldCommentSchema ? 100 : CommentStore::COMMENT_CHARACTER_LIMIT - 155,
+						] ) .
 					'</td>' .
 				"</tr><tr>\n" .
 					'<td></td>' .
 					'<td class="mw-submit">' .
 						Xml::submitButton( $this->msg( 'revdelete-submit', $numRevisions )->text(),
-							array( 'name' => 'wpSubmit' ) ) .
+							[ 'name' => 'wpSubmit' ] ) .
 					'</td>' .
 				"</tr>\n" .
 				Xml::closeElement( 'table' ) .
@@ -405,25 +467,22 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 				Html::hidden( 'target', $this->targetObj->getPrefixedText() ) .
 				Html::hidden( 'type', $this->typeName ) .
 				Html::hidden( 'ids', implode( ',', $this->ids ) ) .
-				Xml::closeElement( 'fieldset' ) . "\n";
-		} else {
-			$out = '';
-		}
-		if ( $this->mIsAllowed ) {
-			$out .= Xml::closeElement( 'form' ) . "\n";
+				Xml::closeElement( 'fieldset' ) . "\n" .
+				Xml::closeElement( 'form' ) . "\n";
 			// Show link to edit the dropdown reasons
 			if ( $this->getUser()->isAllowed( 'editinterface' ) ) {
-				$title = Title::makeTitle( NS_MEDIAWIKI, 'Revdelete-reason-dropdown' );
-				$link = Linker::link(
-					$title,
-					$this->msg( 'revdelete-edit-reasonlist' )->escaped(),
-					array(),
-					array( 'action' => 'edit' )
+				$link = $this->getLinkRenderer()->makeKnownLink(
+					$this->msg( 'revdelete-reason-dropdown' )->inContentLanguage()->getTitle(),
+					$this->msg( 'revdelete-edit-reasonlist' )->text(),
+					[],
+					[ 'action' => 'edit' ]
 				);
-				$out .= Xml::tags( 'p', array( 'class' => 'mw-revdel-editreasons' ), $link ) . "\n";
+				$form .= Xml::tags( 'p', [ 'class' => 'mw-revdel-editreasons' ], $link ) . "\n";
 			}
+		} else {
+			$form = '';
 		}
-		$this->getOutput()->addHTML( $out );
+		$out->addHTML( $form );
 	}
 
 	/**
@@ -431,17 +490,23 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 	 * @todo FIXME: Wikimedia-specific policy text
 	 */
 	protected function addUsageText() {
-		$this->getOutput()->addWikiMsg( 'revdelete-text' );
+		// Messages: revdelete-text-text, revdelete-text-file, logdelete-text
+		$this->getOutput()->wrapWikiMsg(
+			"<strong>$1</strong>\n$2", $this->typeLabels['text'],
+			'revdelete-text-others'
+		);
+
 		if ( $this->getUser()->isAllowed( 'suppressrevision' ) ) {
 			$this->getOutput()->addWikiMsg( 'revdelete-suppress-text' );
 		}
+
 		if ( $this->mIsAllowed ) {
 			$this->getOutput()->addWikiMsg( 'revdelete-confirm' );
 		}
 	}
 
 	/**
-	 * @return String: HTML
+	 * @return string HTML
 	 */
 	protected function buildCheckBoxes() {
 		$html = '<table>';
@@ -450,26 +515,42 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 		if ( $list->length() == 1 ) {
 			$list->reset();
 			$bitfield = $list->current()->getBits(); // existing field
+
 			if ( $this->submitClicked ) {
 				$bitfield = RevisionDeleter::extractBitfield( $this->extractBitParams(), $bitfield );
 			}
+
 			foreach ( $this->checks as $item ) {
+				// Messages: revdelete-hide-text, revdelete-hide-image, revdelete-hide-name,
+				// revdelete-hide-comment, revdelete-hide-user, revdelete-hide-restricted
 				list( $message, $name, $field ) = $item;
-				$innerHTML = Xml::checkLabel( $this->msg( $message )->text(), $name, $name, $bitfield & $field );
+				$innerHTML = Xml::checkLabel(
+					$this->msg( $message )->text(),
+					$name,
+					$name,
+					$bitfield & $field
+				);
+
 				if ( $field == Revision::DELETED_RESTRICTED ) {
 					$innerHTML = "<b>$innerHTML</b>";
 				}
-				$line = Xml::tags( 'td', array( 'class' => 'mw-input' ), $innerHTML );
+
+				$line = Xml::tags( 'td', [ 'class' => 'mw-input' ], $innerHTML );
 				$html .= "<tr>$line</tr>\n";
 			}
-		// Otherwise, use tri-state radios
 		} else {
+			// Otherwise, use tri-state radios
 			$html .= '<tr>';
-			$html .= '<th class="mw-revdel-checkbox">' . $this->msg( 'revdelete-radio-same' )->escaped() . '</th>';
-			$html .= '<th class="mw-revdel-checkbox">' . $this->msg( 'revdelete-radio-unset' )->escaped() . '</th>';
-			$html .= '<th class="mw-revdel-checkbox">' . $this->msg( 'revdelete-radio-set' )->escaped() . '</th>';
+			$html .= '<th class="mw-revdel-checkbox">'
+				. $this->msg( 'revdelete-radio-same' )->escaped() . '</th>';
+			$html .= '<th class="mw-revdel-checkbox">'
+				. $this->msg( 'revdelete-radio-unset' )->escaped() . '</th>';
+			$html .= '<th class="mw-revdel-checkbox">'
+				. $this->msg( 'revdelete-radio-set' )->escaped() . '</th>';
 			$html .= "<th></th></tr>\n";
 			foreach ( $this->checks as $item ) {
+				// Messages: revdelete-hide-text, revdelete-hide-image, revdelete-hide-name,
+				// revdelete-hide-comment, revdelete-hide-user, revdelete-hide-restricted
 				list( $message, $name, $field ) = $item;
 				// If there are several items, use third state by default...
 				if ( $this->submitClicked ) {
@@ -490,6 +571,7 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 		}
 
 		$html .= '</table>';
+
 		return $html;
 	}
 
@@ -503,30 +585,37 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 		$token = $this->getRequest()->getVal( 'wpEditToken' );
 		if ( $this->submitClicked && !$this->getUser()->matchEditToken( $token ) ) {
 			$this->getOutput()->addWikiMsg( 'sessionfailure' );
+
 			return false;
 		}
 		$bitParams = $this->extractBitParams();
-		$listReason = $this->getRequest()->getText( 'wpRevDeleteReasonList', 'other' ); // from dropdown
+		// from dropdown
+		$listReason = $this->getRequest()->getText( 'wpRevDeleteReasonList', 'other' );
 		$comment = $listReason;
-		if ( $comment != 'other' && $this->otherReason != '' ) {
-			// Entry from drop down menu + additional comment
-			$comment .= $this->msg( 'colon-separator' )->inContentLanguage()->text() . $this->otherReason;
-		} elseif ( $comment == 'other' ) {
+		if ( $comment === 'other' ) {
 			$comment = $this->otherReason;
+		} elseif ( $this->otherReason !== '' ) {
+			// Entry from drop down menu + additional comment
+			$comment .= $this->msg( 'colon-separator' )->inContentLanguage()->text()
+				. $this->otherReason;
 		}
 		# Can the user set this field?
-		if ( $bitParams[Revision::DELETED_RESTRICTED] == 1 && !$this->getUser()->isAllowed( 'suppressrevision' ) ) {
+		if ( $bitParams[Revision::DELETED_RESTRICTED] == 1
+			&& !$this->getUser()->isAllowed( 'suppressrevision' )
+		) {
 			throw new PermissionsError( 'suppressrevision' );
 		}
 		# If the save went through, go to success message...
-		$status = $this->save( $bitParams, $comment, $this->targetObj );
+		$status = $this->save( $bitParams, $comment );
 		if ( $status->isGood() ) {
 			$this->success();
+
 			return true;
-		# ...otherwise, bounce back to form...
 		} else {
+			# ...otherwise, bounce back to form...
 			$this->failure( $status );
 		}
+
 		return false;
 	}
 
@@ -534,19 +623,28 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 	 * Report that the submit operation succeeded
 	 */
 	protected function success() {
+		// Messages: revdelete-success, logdelete-success
 		$this->getOutput()->setPageTitle( $this->msg( 'actioncomplete' ) );
-		$this->getOutput()->wrapWikiMsg( "<span class=\"success\">\n$1\n</span>", $this->typeLabels['success'] );
+		$this->getOutput()->wrapWikiMsg(
+			"<div class=\"successbox\">\n$1\n</div>",
+			$this->typeLabels['success']
+		);
 		$this->wasSaved = true;
-		$this->list->reloadFromMaster();
+		$this->revDelList->reloadFromMaster();
 		$this->showForm();
 	}
 
 	/**
 	 * Report that the submit operation failed
+	 * @param Status $status
 	 */
 	protected function failure( $status ) {
+		// Messages: revdelete-failure, logdelete-failure
 		$this->getOutput()->setPageTitle( $this->msg( 'actionfailed' ) );
-		$this->getOutput()->addWikiText( $status->getWikiText( $this->typeLabels['failure'] ) );
+		$this->getOutput()->wrapWikiTextAsInterface(
+			'errorbox',
+			$status->getWikiText( $this->typeLabels['failure'] )
+		);
 		$this->showForm();
 	}
 
@@ -556,7 +654,7 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 	 * @return array
 	 */
 	protected function extractBitParams() {
-		$bitfield = array();
+		$bitfield = [];
 		foreach ( $this->checks as $item ) {
 			list( /* message */, $name, $field ) = $item;
 			$val = $this->getRequest()->getInt( $name, 0 /* unchecked */ );
@@ -568,19 +666,19 @@ class SpecialRevisionDelete extends UnlistedSpecialPage {
 		if ( !isset( $bitfield[Revision::DELETED_RESTRICTED] ) ) {
 			$bitfield[Revision::DELETED_RESTRICTED] = 0;
 		}
+
 		return $bitfield;
 	}
 
 	/**
-	 * Do the write operations. Simple wrapper for RevDel_*List::setVisibility().
-	 * @param $bitfield
-	 * @param $reason
-	 * @param $title
-	 * @return
+	 * Do the write operations. Simple wrapper for RevDel*List::setVisibility().
+	 * @param array $bitPars ExtractBitParams() bitfield array
+	 * @param string $reason
+	 * @return Status
 	 */
-	protected function save( $bitfield, $reason, $title ) {
+	protected function save( array $bitPars, $reason ) {
 		return $this->getList()->setVisibility(
-			array( 'value' => $bitfield, 'comment' => $reason )
+			[ 'value' => $bitPars, 'comment' => $reason ]
 		);
 	}
 

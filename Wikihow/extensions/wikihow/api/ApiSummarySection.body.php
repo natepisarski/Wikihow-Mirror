@@ -4,7 +4,7 @@
  *
  * @class
  */
-class ApiSummarySection extends ApiQueryBase {
+class ApiSummarySection extends ApiBase {
 
 	/* Static Members */
 

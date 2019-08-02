@@ -2075,6 +2075,12 @@ class wikihowAds {
 		wikihowAds::insertMobileAdAtTarget( 'pagebottom', 'pagebottom' );
 	}
 
+	private static function isMobileTestActive() {
+		if ( rand( 1, 5 ) == 1 ) {
+			return true;
+		}
+	}
+
 	private static function getAdTestChannels() {
 		global $wgOut, $wgLanguageCode, $wgRequest;
 
@@ -2095,10 +2101,10 @@ class wikihowAds {
 			$channels .= '+6747118168';
 		}
 
-		if ( $pageId % 20 == 13 ) {
-			$channels .= '+6132528505';
+		if ( self::isMobileTestActive() ) {
+			$channels .= '+3714673751';
 		} else {
-			$channels .= '+9848412230';
+			$channels .= '+5027755420';
 		}
 
 		return $channels;

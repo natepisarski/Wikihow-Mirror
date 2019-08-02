@@ -106,7 +106,7 @@
 							$('#summary_wrapper').hide().find('#summary_text p').remove();
 
 							var summary = data.parse.text['*'];
-							$('#summary_wrapper .clearall').before(summary);
+							$('#summary_wrapper h2').after(summary);
 
 							$('html, body').animate({scrollTop: 0}, 300, function() {
 								$('#summary_wrapper').show();

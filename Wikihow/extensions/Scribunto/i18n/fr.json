@@ -9,21 +9,21 @@
 			"IAlex",
 			"Urhixidur",
 			"Orlodrim",
-			"Wyz"
+			"Wyz",
+			"Wladek92",
+			"Od1n"
 		]
 	},
 	"scribunto-desc": "Framework pour l'intégration de langages de script dans les pages MediaWiki",
-	"scribunto-ignore-errors": "Autoriser l'enregistrement de code comportant des erreurs",
 	"scribunto-line": "à la ligne $1",
 	"scribunto-module-line": "dans $1 à la ligne $2",
-	"scribunto-parser-error": "Erreur de script",
 	"scribunto-parser-dialog-title": "Erreur de script",
 	"scribunto-error-short": "Erreur de script : $1",
 	"scribunto-error-long": "Erreurs de script :\n\n$1",
 	"scribunto-doc-page-name": "Module:$1/doc",
 	"scribunto-doc-page-does-not-exist": "''La documentation pour ce module peut être créée à [[$1]]''",
 	"scribunto-doc-page-header": "'''Ceci est la page de documentation pour [[$1]]'''",
-	"scribunto-console-intro": "* Les exportations du module sont accessibles par la variable « p », y compris les modifications non enregistrées. \n* Faites précéder une ligne par « = » pour l'évaluer comme une expression, ou utilisez print(). \n* Utilisez mw.log() dans le code du module pour envoyer des messages à cette console.",
+	"scribunto-console-intro": "* Les exportations du module sont accessibles par la variable « p », y compris les modifications non enregistrées. \n* Faites précéder une ligne par « = » pour l'évaluer comme une expression, ou utilisez print(). Utilisez mw.logObject() pour les tables.\n* Utilisez mw.log() et mw.logObject() dans le code du module pour envoyer des messages à cette console.",
 	"scribunto-console-title": "Console de débogage",
 	"scribunto-console-too-large": "Cette session de console est trop grande. Veuillez effacer l’historique de la console ou réduire la taille du module.",
 	"scribunto-console-current-src": "entrée de la console",
@@ -39,6 +39,7 @@
 	"scribunto-common-timeout": "Le temps alloué pour l’exécution des scripts a expiré.",
 	"scribunto-common-oom": "La quantité de mémoire allouée pour exécuter des scripts a été dépassée.",
 	"scribunto-common-backtrace": "Pile des appels :",
+	"scribunto-common-no-details": "Aucun autre détail n’est disponible.",
 	"scribunto-lua-in-function": "dans la fonction « $1 »",
 	"scribunto-lua-in-main": "dans le segment principal",
 	"scribunto-lua-in-function-at": "dans la fonction $1 : $2",
@@ -49,7 +50,6 @@
 	"scribunto-luastandalone-proc-error": "Erreur LUA : Impossible de créer le processus.",
 	"scribunto-luastandalone-proc-error-msg": "Erreur LUA : Impossible de créer le processus : $2",
 	"scribunto-luastandalone-proc-error-proc-open": "Erreur LUA : Impossible de créer le processus : proc_open n’est pas disponible. Vérifiez la directive de configuration PHP « disable_functions ».",
-	"scribunto-luastandalone-proc-error-safe-mode": "Erreur LUA : Impossible de créer le processus : Veuillez noter que la directive de configuration PHP obsolète « safe_mode » est activée.",
 	"scribunto-luastandalone-decode-error": "Erreur LUA : Erreur interne : Impossible de décoder le message.",
 	"scribunto-luastandalone-write-error": "Erreur LUA : Erreur interne : Erreur d'écriture dans le tube (pipe).",
 	"scribunto-luastandalone-read-error": "Erreur LUA : Erreur interne : Erreur de lecture du tube (pipe).",
@@ -65,5 +65,7 @@
 	"scribunto-limitreport-memusage": "Utilisation mémoire de Lua",
 	"scribunto-limitreport-profile": "Profil Lua",
 	"scribunto-limitreport-profile-ms": "$1 ms",
-	"scribunto-limitreport-logs": "Journaux de Lua"
+	"scribunto-limitreport-logs": "Journaux de Lua",
+	"nstab-module": "Module",
+	"tooltip-ca-nstab-module": "Afficher la page du module"
 }

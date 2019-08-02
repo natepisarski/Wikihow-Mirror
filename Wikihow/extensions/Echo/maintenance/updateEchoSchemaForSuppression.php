@@ -5,58 +5,59 @@
  *
  * @ingroup Maintenance
  */
-require_once ( getenv( 'MW_INSTALL_PATH' ) !== false
+require_once getenv( 'MW_INSTALL_PATH' ) !== false
 	? getenv( 'MW_INSTALL_PATH' ) . '/maintenance/Maintenance.php'
-	: __DIR__ . '/../../../maintenance/Maintenance.php' );
+	: __DIR__ . '/../../../maintenance/Maintenance.php';
 
 /**
  * Maintenance script that populates the event_page_id column of echo_event
  *
  * @ingroup Maintenance
  */
-class UpdateEchoSchemaForSuppression extends Maintenance {
+class UpdateEchoSchemaForSuppression extends LoggedUpdateMaintenance {
 
 	/**
-	 * @var $table string The table to update
+	 * @var string The table to update
 	 */
 	protected $table = 'echo_event';
 
 	/**
-	 * @var $idField string The primary key column of the table to update
+	 * @var string The primary key column of the table to update
 	 */
 	protected $idField = 'event_id';
 
 	public function __construct() {
 		parent::__construct();
 		$this->setBatchSize( 500 );
+		$this->requireExtension( 'Echo' );
 	}
 
-	public function execute() {
+	public function getUpdateKey() {
+		return __CLASS__;
+	}
+
+	public function doDBUpdates() {
 		global $wgEchoCluster;
 
-		$reader = new EchoBatchRowIterator( MWEchoDbFactory::getDB( DB_SLAVE ), $this->table, $this->idField, $this->mBatchSize );
-		$reader->addConditions( array(
+		$reader = new BatchRowIterator( MWEchoDbFactory::getDB( DB_REPLICA ), $this->table, $this->idField, $this->mBatchSize );
+		$reader->addConditions( [
 			"event_page_title IS NOT NULL",
 			"event_page_id" => null,
-		) );
+		] );
+		$reader->setFetchColumns( [ 'event_page_namespace', 'event_page_title', 'event_extra', 'event_type' ] );
 
-		$updater = new EchoBatchRowUpdate(
+		$updater = new BatchRowUpdate(
 			$reader,
-			new EchoBatchRowWriter( MWEchoDbFactory::getDB( DB_MASTER ), $this->table, $wgEchoCluster ),
+			new BatchRowWriter( MWEchoDbFactory::getDB( DB_MASTER ), $this->table, $wgEchoCluster ),
 			new EchoSuppressionRowUpdateGenerator
 		);
-		$updater->setOutput( array( $this, '__internalOutput' ) );
+		$updater->setOutput( function ( $text ) {
+			$this->output( $text );
+		} );
 		$updater->execute();
-	}
-
-	/**
-	 * Internal use only. parent::output() is a protected method, only way to access it from
-	 * a callback in php5.3 is to make a public function. In 5.4 can replace with a Closure.
-	 */
-	public function __internalOutput( $text ) {
-		$this->output( $text );
+		return true;
 	}
 }
 
-$maintClass = 'UpdateEchoSchemaForSuppression'; // Tells it to run the class
-require_once ( RUN_MAINTENANCE_IF_MAIN );
+$maintClass = UpdateEchoSchemaForSuppression::class; // Tells it to run the class
+require_once RUN_MAINTENANCE_IF_MAIN;

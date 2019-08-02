@@ -44,12 +44,13 @@ class YouTubeInfoJob extends Job {
 		$lastWeek = wfTimestamp( TS_MW, strtotime( '-1 week' ) );
 		if ( !$response || $response['updated'] < $lastWeek ) {
 			// Hit the YouTube API
+			WikihowStatsd::increment( 'youtube.YouTubeInfoJob' );
 			$body = file_get_contents( wfAppendQuery(
 				'https://www.googleapis.com/youtube/v3/videos',
 				[
 					'part' => 'statistics,snippet',
 					'id' => $this->params['id'],
-					'key' => WH_YOUTUBE_API_KEY
+					'key' => WH_YOUTUBE_INFO_API_KEY
 				]
 			) );
 

@@ -20,9 +20,7 @@ class DumpPageRatingsFromWikiLogNightlyMaintenance extends Maintenance {
 	 * Run the maintenance task to do the data dumping
 	 */
 	public function execute() {
-		global $wgLanguageCode, $IP;
-
-		require_once("$IP/extensions/wikihow/titus/Titus.class.php");
+		global $wgLanguageCode;
 
 		$titus = new TitusDB();
 		$dbr = $titus->getTitusDB();

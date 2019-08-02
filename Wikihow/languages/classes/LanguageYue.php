@@ -40,7 +40,7 @@ class LanguageYue extends Language {
 	 * for now just treat each character as a word.
 	 * @todo FIXME: Only do this for Han characters...
 	 *
-	 * @param $string string
+	 * @param string $string
 	 * @return string
 	 */
 	function segmentByWord( $string ) {
@@ -50,18 +50,15 @@ class LanguageYue extends Language {
 	}
 
 	/**
-	 * @param $string
+	 * @param string $string
 	 * @return string
 	 */
 	function normalizeForSearch( $string ) {
-		wfProfileIn( __METHOD__ );
-
 		// Double-width roman characters
 		$s = self::convertDoubleWidth( $string );
 		$s = trim( $s );
 		$s = parent::normalizeForSearch( $s );
 
-		wfProfileOut( __METHOD__ );
 		return $s;
 	}
 }

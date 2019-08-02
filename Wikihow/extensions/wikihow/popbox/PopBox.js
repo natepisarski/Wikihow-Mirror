@@ -142,7 +142,11 @@ function processResponse() {
 
 		$('.popbox_category_link').click( function() {
 			var article = $(this).data('article');
-			WH.Editor.insertTagsWH(targetObj, '[[' + article + '|',']]', ''); 
+			if (window.isGuided) {
+				WH.Editor.insertTagsWH(targetObj, '[[' + article + '|',']]', '');
+			} else {
+				WH.Editor.insertTags('[[' + article + '|',']]', '');
+			}
 			updateSummary();
 			$('#dialog-box').dialog('close');
 		} );

@@ -18,7 +18,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$this->out = $ctx->getOutput();
 
 		if ($ctx->getUser()->isAnon()) {
-			$this->out->setSquidMaxage($wgSquidMaxage);
+			$this->out->setCdnMaxage($wgSquidMaxage);
 		}
 
 		$this->request = $ctx->getRequest();
@@ -85,7 +85,8 @@ class MobileWikihowCategoryPage extends CategoryPage {
 
 	function addCSSAndJs() {
 		$out = RequestContext::getMain()->getOutput();
-		$out->addModules(array('mobile.wikihow.mobile_category_page', 'wikihow.common.font-awesome'));
+		$out->addModuleStyles( ['mobile.wikihow.mobile_category_page_styles', 'wikihow.common.font-awesome'] );
+		$out->addModules( ['mobile.wikihow.mobile_category_page'] );
 	}
 
 	protected function getCarouselsHtml($page) {

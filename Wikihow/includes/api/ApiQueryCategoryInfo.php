@@ -1,9 +1,5 @@
 <?php
 /**
- *
- *
- * Created on May 13, 2007
- *
  * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,45 +28,44 @@
  */
 class ApiQueryCategoryInfo extends ApiQueryBase {
 
-	public function __construct( $query, $moduleName ) {
+	public function __construct( ApiQuery $query, $moduleName ) {
 		parent::__construct( $query, $moduleName, 'ci' );
 	}
 
 	public function execute() {
 		$params = $this->extractRequestParams();
-		$alltitles = $this->getPageSet()->getAllTitlesByNamespace();
+		$alltitles = $this->getPageSet()->getGoodAndMissingTitlesByNamespace();
 		if ( empty( $alltitles[NS_CATEGORY] ) ) {
 			return;
 		}
 		$categories = $alltitles[NS_CATEGORY];
 
-		$titles = $this->getPageSet()->getGoodTitles() +
-			$this->getPageSet()->getMissingTitles();
-		$cattitles = array();
+		$titles = $this->getPageSet()->getGoodAndMissingTitles();
+		$cattitles = [];
 		foreach ( $categories as $c ) {
-			/** @var $t Title */
+			/** @var Title $t */
 			$t = $titles[$c];
 			$cattitles[$c] = $t->getDBkey();
 		}
 
-		$this->addTables( array( 'category', 'page', 'page_props' ) );
-		$this->addJoinConds( array(
-			'page' => array( 'LEFT JOIN', array(
+		$this->addTables( [ 'category', 'page', 'page_props' ] );
+		$this->addJoinConds( [
+			'page' => [ 'LEFT JOIN', [
 				'page_namespace' => NS_CATEGORY,
-				'page_title=cat_title' ) ),
-			'page_props' => array( 'LEFT JOIN', array(
+				'page_title=cat_title' ] ],
+			'page_props' => [ 'LEFT JOIN', [
 				'pp_page=page_id',
-				'pp_propname' => 'hiddencat' ) ),
-		) );
+				'pp_propname' => 'hiddencat' ] ],
+		] );
 
-		$this->addFields( array(
+		$this->addFields( [
 			'cat_title',
 			'cat_pages',
 			'cat_subcats',
 			'cat_files',
 			'cat_hidden' => 'pp_propname'
-		) );
-		$this->addWhere( array( 'cat_title' => $cattitles ) );
+		] );
+		$this->addWhere( [ 'cat_title' => $cattitles ] );
 
 		if ( !is_null( $params['continue'] ) ) {
 			$title = $this->getDB()->addQuotes( $params['continue'] );
@@ -82,14 +77,12 @@ class ApiQueryCategoryInfo extends ApiQueryBase {
 
 		$catids = array_flip( $cattitles );
 		foreach ( $res as $row ) {
-			$vals = array();
+			$vals = [];
 			$vals['size'] = intval( $row->cat_pages );
 			$vals['pages'] = $row->cat_pages - $row->cat_subcats - $row->cat_files;
 			$vals['files'] = intval( $row->cat_files );
 			$vals['subcats'] = intval( $row->cat_subcats );
-			if ( $row->cat_hidden ) {
-				$vals['hidden'] = '';
-			}
+			$vals['hidden'] = (bool)$row->cat_hidden;
 			$fit = $this->addPageSubItems( $catids[$row->cat_title], $vals );
 			if ( !$fit ) {
 				$this->setContinueEnumParameter( 'continue', $row->cat_title );
@@ -103,54 +96,21 @@ class ApiQueryCategoryInfo extends ApiQueryBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'continue' => null,
-		);
+		return [
+			'continue' => [
+				ApiBase::PARAM_HELP_MSG => 'api-help-param-continue',
+			],
+		];
 	}
 
-	public function getParamDescription() {
-		return array(
-			'continue' => 'When more results are available, use this to continue',
-		);
-	}
-
-	public function getResultProperties() {
-		return array(
-			ApiBase::PROP_LIST => false,
-			'' => array(
-				'size' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => false
-				),
-				'pages' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => false
-				),
-				'files' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => false
-				),
-				'subcats' => array(
-					ApiBase::PROP_TYPE => 'integer',
-					ApiBase::PROP_NULLABLE => false
-				),
-				'hidden' => array(
-					ApiBase::PROP_TYPE => 'boolean',
-					ApiBase::PROP_NULLABLE => false
-				)
-			)
-		);
-	}
-
-	public function getDescription() {
-		return 'Returns information about the given categories';
-	}
-
-	public function getExamples() {
-		return 'api.php?action=query&prop=categoryinfo&titles=Category:Foo|Category:Bar';
+	protected function getExamplesMessages() {
+		return [
+			'action=query&prop=categoryinfo&titles=Category:Foo|Category:Bar'
+				=> 'apihelp-query+categoryinfo-example-simple',
+		];
 	}
 
 	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Properties#categoryinfo_.2F_ci';
+		return 'https://www.mediawiki.org/wiki/Special:MyLanguage/API:Categoryinfo';
 	}
 }

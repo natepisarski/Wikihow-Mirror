@@ -66,9 +66,10 @@
 					that.$chevron.addClass('fa-chevron-up').removeClass('fa-chevron-down');
 
 					if (!that.shown) {
-						// Fire off events to properly init th earticle
+						// Fire off events to properly init the article
 						$(document).trigger('rcdataloaded');
-						mw.mobileFrontend.emit('page-loaded');
+						// TODO: figure out new right way to trigger an event to init the article
+						//mw.mobileFrontend.emit('page-loaded');
 					}
 					if (typeof(callback) === typeof(Function)) {
 						callback();

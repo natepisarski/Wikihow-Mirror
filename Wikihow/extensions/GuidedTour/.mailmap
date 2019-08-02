@@ -1,0 +1,109 @@
+# Map author and committer names and email addresses to canonical real names
+# and email addresses.
+#
+# To update the CREDITS file, run maintenance/updateCredits.php
+#
+# Two types of entries are useful here. The first sets a canonical author
+# name for a given email address:
+#
+#   Canonical Author Name <author email>
+#
+# The second allows collecting alternate email addresses into a single
+# canonical author name and email address:
+#
+#   Canonical Author Name <author email> <alternate email>
+#
+# Mappings are only needed for authors who have used multiple author names
+# and/or author emails for revisions over time. Author names beginning with
+# "[BOT]" will be omitted from the CREDITS file.
+#
+# See also: https://git-scm.com/docs/git-shortlog#_mapping_authors
+#
+[BOT] Gerrit Code Review <gerrit@wikimedia.org>
+[BOT] Gerrit Patch Uploader <gerritpatchuploader@gmail.com>
+[BOT] jenkins-bot <jenkins-bot@gerrit.wikimedia.org>
+[BOT] jenkins-bot <jenkins-bot@gerrit.wikimedia.org> <jenkins-bot@wikimedia.org>
+[BOT] Translation updater bot <l10n-bot@translatewiki.net>
+Adam Conrad <acconrad@gmail.com>
+Amir E. Aharoni <amir.aharoni@mail.huji.ac.il>
+Amir E. Aharoni <amir.aharoni@mail.huji.ac.il> <amire80@users.mediawiki.org>
+Andrew Shults <andrewjshults@gmail.com>
+Andy Dawson <andydawson76@gmail.com>
+Bartosz Dziewoński <matma.rex@gmail.com>
+Bartosz Dziewoński <matma.rex@gmail.com> <bdziewonski@wikimedia.org>
+Bartosz Dziewoński <matma.rex@gmail.com> <matmarex@wikimedia.org>
+Ben Greene <ben@benmgreene.com>
+Billy Vong <billyvg@gmail.com>
+bradrobertson <brad@influitive.com>
+Chad Horohoe <chadh@wikimedia.org>
+Chad Horohoe <chadh@wikimedia.org> <demon@users.mediawiki.org>
+Chetan Sastry <chetan.kr@gmail.com>
+Damien Holzapfel <an0nymity@gmail.com>
+darktable <calvin@darktable.com>
+David Hirtle <david.hirtle@pulseenergy.com>
+Dominick Bellizzi <dmb27@cornell.edu>
+Ivan Plamenov Tanev <vankata.t@gmail.com>
+James D. Forrester <jforrester@wikimedia.org>
+Jeff Pickhardt <jeff@optimizely.com>
+Jeff Pickhardt <pickhardt@gmail.com> <jeff@optimizely.com>
+Jon Robson <jrobson@wikimedia.org>
+Jon Robson <jrobson@wikimedia.org> <jdlrobson@gmail.com>
+Kunal Mehta <legoktm@member.fsf.org>
+Kunal Mehta <legoktm@member.fsf.org> <legoktm.wikipedia@gmail.com>
+Kunal Mehta <legoktm@member.fsf.org> <legoktm@gmail.com>
+Kurtis Rainbolt-Greene <kurtisrainboltgreene@gmail.com>
+leek <leeked@gmail.com>
+Luke Welling <lwelling@wikimedia.org>
+Manuel Meurer <manuel.meurer@gmail.com>
+Mathias Biilmann <info@mathias-biilmann.net>
+Matthew Flaschen <mflaschen@wikimedia.org>
+Matthew Flaschen <mflaschen@wikimedia.org> <matthew.flaschen@gatech.edu>
+Maxim Troyanov <troyanov.max@gmail.com>
+Michal Cichra <michal.cichra@gmail.com>
+Michal Cichra <michal@o2h.cz> <michal.cichra@gmail.com>
+Moiz Syed <msyed@wikimedia.org>
+Munaf Assaf <munaf.assaf@gmail.com>
+Nemo bis <federicoleva@tiscali.it>
+Niharika <niharikakohli29@gmail.com>
+Nikolay Bachiyski <nb@nikolay.bg>
+Ori Livneh <ori@wikimedia.org>
+Ori Livneh <ori@wikimedia.org> <ori.livneh@gmail.com>
+paladox <thomasmulhall410@yahoo.com>
+Patrick McKenzie <patrick.in.gifu@gmail.com>
+Peter Törnstrand <peter@happiness.se>
+Pietro Giorgianni <pietro.giorgianni@zephirworks.com>
+Prateek Saxena <psaxena@wikimedia.org>
+Prateek Saxena <psaxena@wikimedia.org> <prtksxna@gmail.com>
+Raimond Spekking <raimond.spekking@gmail.com>
+Raimond Spekking <raimond.spekking@gmail.com> <raymond@users.mediawiki.org>
+Ram Dobson <ram.dobson@solsystemscompany.com>
+Ricordisamoa <ricordisamoa@openmailbox.org>
+rillke <rillke@wikipedia.de>
+rillke <rillke@wikipedia.de> <rainerrillke@hotmail.com>
+Rob Moen <rmoen@mediawiki.org>
+Rob Moen <rmoen@mediawiki.org> <rmoen@users.mediawiki.org>
+Rob Moen <rmoen@mediawiki.org> <rmoen@wikimedia.org>
+S Page <spage@wikimedia.org>
+Sam Reed <reedy@wikimedia.org>
+Sam Reed <reedy@wikimedia.org> <Reedy reedy@wikimedia.org>
+Sam Reed <reedy@wikimedia.org> <reedy@formey.wikimedia.org>
+Sam Reed <reedy@wikimedia.org> <reedy@users.mediawiki.org>
+Sam Smith <git@samsmith.io>
+Siebrand Mazeland <s.mazeland@xs4all.nl>
+Siebrand Mazeland <s.mazeland@xs4all.nl> <siebrand@kitano.nl>
+Siebrand Mazeland <s.mazeland@xs4all.nl> <siebrand@users.mediawiki.org>
+Siebrand Mazeland <s.mazeland@xs4all.nl> <siebrand@wikimedia.org>
+Stephan Bönnemann <stephan@boennemann.me>
+Steven Walling <steven.walling@gmail.com>
+Terry Chay <tychay@php.net>
+Tim Starling <tstarling@wikimedia.org>
+Tim Starling <tstarling@wikimedia.org> <tstarling@users.mediawiki.org>
+Timo Tijhof <krinklemail@gmail.com>
+Timo Tijhof <krinklemail@gmail.com> <krinkle@users.mediawiki.org>
+Timo Tijhof <krinklemail@gmail.com> <timo@wikimedia.org>
+Timo Tijhof <krinklemail@gmail.com> <ttijhof@wikimedia.org>
+Tom Locke <tom@tomlocke.com>
+Trent Ogren <tedwardo2@gmail.com>
+Volker E <volker.e@wikimedia.org>
+Wolfgang Werner <wolfgang.werner@gmail.com>
+Yuki Shira <shirayuking@gmail.com>

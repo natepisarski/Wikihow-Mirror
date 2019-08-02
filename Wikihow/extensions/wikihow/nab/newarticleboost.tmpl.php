@@ -122,33 +122,4 @@
 	</div>
 </div>
 
-<script type='text/javascript'>
-
-	// This is not in newarticleboost.js because there would be a delay if we put it there
-	$(".wh_block:first").remove();
-	$("#nap_header").next().css("margin-top", ($("#nap_header").height() + 58) + "px");
-
-	// Handlers for expand/contract arrows
-	(function ($) {
-		$('.nap_expand').click(function() {
-			var thisSpan = $(this);
-			var body = thisSpan.parent().next();
-			if (body.css('display') != 'none') {
-				var oldHeight = body.height();
-				body.slideUp( 'slow',
-					function () {
-						thisSpan.addClass("collapsed");
-					});
-			} else {
-				body.slideDown( 'slow',
-					function () {
-						thisSpan.removeClass("collapsed");
-					});
-			}
-			return false;
-		});
-	})(jQuery);
-
-</script>
-
 </div>

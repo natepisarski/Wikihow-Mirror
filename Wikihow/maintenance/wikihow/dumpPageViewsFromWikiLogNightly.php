@@ -27,7 +27,6 @@ class DumpPageViewsFromWikiLogNightlyMaintenance extends Maintenance {
 	public function execute() {
 		global $wgLanguageCode;
 
-		require_once __DIR__ . "/../../extensions/wikihow/titus/Titus.class.php";
 		$titus = new TitusDB();
 		$dbr = $titus->getTitusDB();
 		$dbr->selectDB(self::PAGE_VIEWS_LOG_DB);

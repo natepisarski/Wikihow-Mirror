@@ -28,7 +28,7 @@ require_once __DIR__ . '/Maintenance.php';
  *
  * @ingroup Maintenance
  */
-class MaintenanceFormatInstallDoc extends Maintenance {
+class FormatInstallDoc extends Maintenance {
 	function __construct() {
 		parent::__construct();
 		$this->addArg( 'path', 'The file name to format', false );
@@ -41,8 +41,7 @@ class MaintenanceFormatInstallDoc extends Maintenance {
 			$fileName = $this->getArg( 0 );
 			$inFile = fopen( $fileName, 'r' );
 			if ( !$inFile ) {
-				$this->error( "Unable to open input file \"$fileName\"" );
-				exit( 1 );
+				$this->fatalError( "Unable to open input file \"$fileName\"" );
 			}
 		} else {
 			$inFile = STDIN;
@@ -52,8 +51,7 @@ class MaintenanceFormatInstallDoc extends Maintenance {
 			$fileName = $this->getOption( 'outfile' );
 			$outFile = fopen( $fileName, 'w' );
 			if ( !$outFile ) {
-				$this->error( "Unable to open output file \"$fileName\"" );
-				exit( 1 );
+				$this->fatalError( "Unable to open output file \"$fileName\"" );
 			}
 		} else {
 			$outFile = STDOUT;
@@ -74,5 +72,5 @@ class MaintenanceFormatInstallDoc extends Maintenance {
 	}
 }
 
-$maintClass = 'MaintenanceFormatInstallDoc';
+$maintClass = FormatInstallDoc::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

@@ -1,7 +1,5 @@
 <?php
 /**
- * Request-dependant objects containers.
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,15 +15,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @since 1.18
- *
  * @author Happy-melon
  * @file
  */
+use MediaWiki\MediaWikiServices;
 
 /**
  * The simplest way of implementing IContextSource is to hold a RequestContext as a
  * member variable and provide accessors to it.
+ *
+ * @since 1.18
  */
 abstract class ContextSource implements IContextSource {
 	/**
@@ -34,13 +33,13 @@ abstract class ContextSource implements IContextSource {
 	private $context;
 
 	/**
-	 * Get the RequestContext object
+	 * Get the base IContextSource object
 	 * @since 1.18
-	 * @return RequestContext
+	 * @return IContextSource
 	 */
 	public function getContext() {
 		if ( $this->context === null ) {
-			$class = get_class( $this );
+			$class = static::class;
 			wfDebug( __METHOD__ . " ($class): called and \$context is null. " .
 				"Using RequestContext::getMain() for sanity\n" );
 			$this->context = RequestContext::getMain();
@@ -50,8 +49,6 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Set the IContextSource object
-	 *
 	 * @since 1.18
 	 * @param IContextSource $context
 	 */
@@ -60,8 +57,6 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Get the Config object
-	 *
 	 * @since 1.23
 	 * @return Config
 	 */
@@ -70,8 +65,6 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Get the WebRequest object
-	 *
 	 * @since 1.18
 	 * @return WebRequest
 	 */
@@ -80,10 +73,8 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Get the Title object
-	 *
 	 * @since 1.18
-	 * @return Title
+	 * @return Title|null
 	 */
 	public function getTitle() {
 		return $this->getContext()->getTitle();
@@ -115,8 +106,6 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Get the OutputPage object
-	 *
 	 * @since 1.18
 	 * @return OutputPage
 	 */
@@ -125,8 +114,6 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Get the User object
-	 *
 	 * @since 1.18
 	 * @return User
 	 */
@@ -135,20 +122,6 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Get the Language object
-	 *
-	 * @deprecated since 1.19 Use getLanguage instead
-	 * @return Language
-	 */
-	public function getLang() {
-		wfDeprecated( __METHOD__, '1.19' );
-
-		return $this->getLanguage();
-	}
-
-	/**
-	 * Get the Language object
-	 *
 	 * @since 1.19
 	 * @return Language
 	 */
@@ -157,8 +130,6 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
-	 * Get the Skin object
-	 *
 	 * @since 1.18
 	 * @return Skin
 	 */
@@ -167,23 +138,44 @@ abstract class ContextSource implements IContextSource {
 	}
 
 	/**
+	 * @since 1.27
+	 * @return Timing
+	 */
+	public function getTiming() {
+		return $this->getContext()->getTiming();
+	}
+
+	/**
+	 * @deprecated since 1.27 use a StatsdDataFactory from MediaWikiServices (preferably injected)
+	 *
+	 * @since 1.25
+	 * @return IBufferingStatsdDataFactory
+	 */
+	public function getStats() {
+		return MediaWikiServices::getInstance()->getStatsdDataFactory();
+	}
+
+	/**
 	 * Get a Message object with context set
 	 * Parameters are the same as wfMessage()
 	 *
 	 * @since 1.18
+	 * @param string|string[]|MessageSpecifier $key Message key, or array of keys,
+	 *   or a MessageSpecifier.
+	 * @param mixed $args,...
 	 * @return Message
 	 */
-	public function msg( /* $args */ ) {
+	public function msg( $key /* $args */ ) {
 		$args = func_get_args();
 
-		return call_user_func_array( array( $this->getContext(), 'msg' ), $args );
+		return $this->getContext()->msg( ...$args );
 	}
 
 	/**
 	 * Export the resolved user IP, HTTP headers, user ID, and session ID.
 	 * The result will be reasonably sized to allow for serialization.
 	 *
-	 * @return Array
+	 * @return array
 	 * @since 1.21
 	 */
 	public function exportSession() {

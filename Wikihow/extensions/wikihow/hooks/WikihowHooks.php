@@ -23,7 +23,6 @@ $wgHooks['FileThumbName'][] = array('ImageHooks::onFileThumbName');
 $wgHooks['ThumbnailBeforeProduceHTML'][] = array('ImageHooks::onThumbnailBeforeProduceHTML');
 $wgHooks['ImageBeforeProduceHTML'][] = array('ImageHooks::onImageBeforeProduceHTML');
 $wgHooks['ImageHandlerParseParamString'][] = array('ImageHooks::onImageHandlerParseParamString');
-$wgHooks['ExtractThumbParameters'][] = array('ImageHooks::onExtractThumbParameters');
 $wgHooks['ConstructImageConvertCommand'][] = array('ImageHooks::onConstructImageConvertCommand');
 
 
@@ -69,10 +68,15 @@ $wgHooks['ArticlePurge'][] = array('PageHooks::beforeArticlePurge');
 $wgHooks['TitleMoveComplete'][] = array('PageHooks::onTitleMoveCompletePurgeThumbnails');
 
 // ARG added this hook to remove the version from the startup module scripts
+// TODO: this hook may no longer be necessary
 $wgHooks['ResourceLoaderStartupModuleQuery'][] = array('PageHooks::onResourceLoaderStartupModuleQuery');
+
 // ARG added this hook to perform a special db operation on change of specific config storage values
 $wgHooks['ConfigStorageDbStoreConfig'][] = array('PageHooks::onConfigStorageDbStoreConfig');
 $wgHooks['MaybeAutoPatrol'][] = array('PageHooks::onMaybeAutoPatrol');
+$wgHooks['MarkPatrolledComplete'][] = 'PageHooks::onMarkPatrolledComplete';
+$wgHooks['RecentChange_save'][] = 'PageHooks::onRecentChangeSave';
+$wgHooks['ResourceLoaderGetConfigVars'][] = 'PageHooks::onResourceLoaderGetConfigVars';
 
 // Temporary, for redirect debugging
 //$wgHooks['BeforePageRedirect'][] = array('PageHooks::onBeforePageRedirect');
@@ -92,6 +96,7 @@ $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::firstEditPopCheck')
 $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::onPageContentSaveCompleteAddFirstEditTag');
 $wgHooks['ArticlePageDataAfter'][] = array('ArticleHooks::firstEditPopIt');
 $wgHooks['AddDesktopTOCItems'][] = array('ArticleHooks::addDesktopTOCItems');
+$wgHooks['BeforeDisplayNoArticleInterface'][] = 'ArticleHooks::onBeforeDisplayNoArticleInterface';
 
 
 $wgHooks['GoodRevisionUpdated'][] = array('ArticleHooks::updateExpertVerifiedRevision');
@@ -110,10 +115,9 @@ $wgHooks['MobileProcessDomAfterSetSourcesSection'][] = ['ArticleHooks::BuildMusc
 //
 $wgHooks['ArticleConfirmDelete'][] = array('SpecialPagesHooks::getDeleteReasonFromCode');
 $wgHooks['EditPage::showEditForm:fields'][] = array('SpecialPagesHooks::onShowEditFormFields');
-$wgHooks['BeforeWelcomeCreation'][] = array('SpecialPagesHooks::onBeforeWelcomeCreation');
+$wgHooks['PostLoginRedirect'][] = array('SpecialPagesHooks::onPostLoginRedirect');
 
 $wgHooks['SpecialRecentChangesPanel'][] = array('SpecialPagesHooks::onSpecialRecentChangesPanel');
-$wgHooks['SpecialRecentChangesQuery'][] = array('SpecialPagesHooks::onSpecialRecentChangesQuery');
 $wgHooks['wgQueryPages'][] = array('SpecialPagesHooks::onPopulateWgQueryPages');
 $wgHooks['WantedPages::getQueryInfo'][] = array('SpecialPagesHooks::onWantedPagesGetQueryInfo');
 $wgHooks['UserLogoutComplete'][] = array('SpecialPagesHooks::onUserLogoutComplete');

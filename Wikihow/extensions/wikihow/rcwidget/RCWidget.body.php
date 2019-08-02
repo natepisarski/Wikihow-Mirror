@@ -299,14 +299,15 @@ HTML;
 		$nab_RedThreshold = (int)(wfMessage('RCwidget-nab-red-threshold')->text());
 		$patrol_RedThreshold = (int)(wfMessage('RCwidget-unpatrolled-red-threshold')->text());
 ?>
-	<script type="text/javascript" >
-		WH.RCWidget.setParams({
+	<script>
+		WH.rcwidgetParams = {
+			'rc_loadNow': true,
 			'rc_URL': '/Special:RCWidget',
 			'rc_ReloadInterval': 60000,
 			'rc_nabRedThreshold': <?= json_encode($nab_RedThreshold) ?>,
 			'rc_patrolRedThreshold': <?= json_encode($patrol_RedThreshold) ?>
-		});
-		$(window).load(WH.RCWidget.rcwLoad);
+		};
+		mw.loader.load('ext.wikihow.rcwidget');
 	</script>
 <?php
 	}
@@ -319,7 +320,7 @@ HTML;
 		$wgHooks['AllowMaxageHeaders'][] = array('RCWidget::allowMaxageHeadersCallback');
 
 		$maxAgeSecs = 60;
-		$out->setSquidMaxage( $maxAgeSecs );
+		$out->setCdnMaxage( $maxAgeSecs );
 		$req->response()->header( 'Cache-Control: s-maxage=' . $maxAgeSecs . ', must-revalidate, max-age=' . $maxAgeSecs );
 		$req->response()->header( 'x-robots-tag: noindex, nofollow' );
 		$future = time() + $maxAgeSecs;

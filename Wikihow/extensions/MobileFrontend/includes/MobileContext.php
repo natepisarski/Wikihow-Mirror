@@ -1,39 +1,111 @@
 <?php
 
+use MediaWiki\MediaWikiServices;
+use MobileFrontend\Devices\DeviceDetectorService;
+use MobileFrontend\WMFBaseDomainExtractor;
+
+/**
+ * Provide various request-dependant methods to use in mobile context
+ */
 class MobileContext extends ContextSource {
+	const MODE_BETA = 'beta';
+	const MODE_STABLE = 'stable';
+	const OPTIN_COOKIE_NAME = 'optin';
+	const STOP_MOBILE_REDIRECT_COOKIE_NAME = 'stopMobileRedirect';
 	const USEFORMAT_COOKIE_NAME = 'wiki_bwsr';
+	const USER_MODE_PREFERENCE_NAME = 'mfMode';
+	const LOGGER_CHANNEL = 'mobile';
+	/**
+	 * Saves the testing mode user has opted in: 'beta' or 'stable'
+	 * @var string $mobileMode
+	 */
 	protected $mobileMode;
-	protected $contentFormat = '';
-	protected $disableImages;
+
+	/**
+	 * Whether to show the first paragraph before the infobox in the lead section
+	 * @var boolean $showFirstParagraphBeforeInfobox
+	 */
+	protected $showFirstParagraphBeforeInfobox;
+	/**
+	 * Save explicitly requested format
+	 * @var string $useFormat
+	 */
 	protected $useFormat;
+	/**
+	 * Save whether current page is blacklisted from displaying in mobile view
+	 * @var boolean $blacklistedPage
+	 */
 	protected $blacklistedPage;
 
 	/**
 	 * Key/value pairs of things to add to X-Analytics response header for anlytics
 	 * @var array
 	 */
-	protected $analyticsLogItems = array();
-
-	/** @var IDeviceProperties */
-	private $device;
+	protected $analyticsLogItems = [];
 
 	/**
-	 * @var string MediaWiki 'action'
+	 * The memoized result of `MobileContext#isMobileDevice`.
+	 *
+	 * This defaults to `null`, meaning that `MobileContext#isMobileDevice` has
+	 * yet to be called.
+	 *
+	 * @see MobileContext#isMobileDevice
+	 *
+	 * @var bool|null $isMobileDevice
+	 */
+	private $isMobileDevice = null;
+
+	/**
+	 * @var string $action MediaWiki 'action'
 	 */
 	protected $action;
 
 	/**
-	 * @var string
+	 * Saves requested Mobile action
+	 * @var string $mobileAction
 	 */
 	protected $mobileAction;
 
+	/**
+	 * Save whether mobile view is explicity requested
+	 * @var boolean $forceMobileView
+	 */
 	private $forceMobileView = false;
+	/**
+	 * Save whether content should be transformed to better suit mobile devices
+	 * @var boolean $contentTransformations
+	 */
 	private $contentTransformations = true;
+	/**
+	 * Save whether or not we should display the mobile view
+	 * @var boolean $mobileView
+	 */
 	private $mobileView = null;
-
+	/**
+	 * Have we already checked for desktop/mobile view toggling?
+	 * @var boolean $toggleViewChecked
+	 */
+	private $toggleViewChecked = false;
+	/**
+	 * Save an instance of this class
+	 * @var MobileContext $instance
+	 */
 	private static $instance = null;
+	/**
+	 * @var string What to switch the view to
+	 */
+	private $viewChange = '';
+	/**
+	 * @var String Domain to use for the stopMobileRedirect cookie
+	 */
+	public static $mfStopRedirectCookieHost = null;
+	/**
+	 * @var String Stores the actual mobile url template.
+	 */
+	private $mobileUrlTemplate = false;
 
 	/**
+	 * Returns the actual MobileContext Instance or create a new if no exists
 	 * @return MobileContext
 	 */
 	public static function singleton() {
@@ -43,166 +115,136 @@ class MobileContext extends ContextSource {
 		return self::$instance;
 	}
 
-	public static function setInstance( /* MobileContext|null */ $instance ) {
-		self::$instance = $instance;
+	/**
+	 * Resets the singleton instance.
+	 */
+	public static function resetInstanceForTesting() {
+		self::$instance = null;
 	}
 
+	/**
+	 * Set the IontextSource Object
+	 * @param IContextSource $context The IContextSource Object has to set
+	 */
 	protected function __construct( IContextSource $context ) {
 		$this->setContext( $context );
 	}
 
 	/**
-	 * Gets the current device description
-	 * @return IDeviceProperties
+	 * Get MobileFrontend's config object.
+	 * @return Config
 	 */
-	public function getDevice() {
-		wfProfileIn( __METHOD__ );
-		if ( $this->device ) {
-			wfProfileOut( __METHOD__ );
-			return $this->device;
-		}
-		$detector = DeviceDetection::factory();
-		$request = $this->getRequest();
-
-		$wap = $this->getRequest()->getHeader( 'X-WAP' );
-		if ( $wap ) {
-			$className = ( $wap === 'no' ) ? 'HtmlDeviceProperties' : 'WmlDeviceProperties';
-			$this->device = new $className;
-		} else {
-			$userAgent = $request->getHeader( 'User-agent' );
-			$acceptHeader = $request->getHeader( 'Accept' );
-			$acceptHeader = $acceptHeader === false ? '' : $acceptHeader;
-			$this->device = $detector->detectDeviceProperties( $userAgent, $acceptHeader );
-		}
-
-		wfProfileOut( __METHOD__ );
-		return $this->device;
+	public function getMFConfig() {
+		/** @var Config $config */
+		$config = MediaWikiServices::getInstance()->getService( 'MobileFrontend.Config' );
+		return $config;
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getContentFormat() {
-		if ( $this->contentFormat ) {
-			return $this->contentFormat;
-		}
-		// honor useformat if it's set, otherwise determine by device
-		$device = $this->getDevice();
-		$viewFormat = ( $this->getUseFormat() != '' ) ? $this->getUseFormat() : $device->format();
-		$this->contentFormat = static::parseContentFormat( $viewFormat );
-		return $this->contentFormat;
-	}
-
-	/**
-	 * Converts a multitude of format strings to 'HTML' or 'WML'
-	 * @param string $format
+	 * Detects whether the UA is sending the request from a device and, if so,
+	 * whether to display the mobile view to that device.
 	 *
-	 * @return string
-	 */
-	public static function parseContentFormat( $format ) {
-		if ( $format === 'wml' ) {
-			return 'WML';
-		} elseif ( $format === 'html' ) {
-			return 'HTML';
-		}
-		if ( $format === 'mobile-wap' ) {
-			return 'WML';
-		}
-		return 'HTML';
-	}
-
-	public function imagesDisabled() {
-		if ( is_null( $this->disableImages ) ) {
-			$this->disableImages = (bool)$this->getRequest()->getCookie( 'disableImages' );
-		}
-
-		return $this->disableImages;
-	}
-
-	public function isMobileDevice() {
-		global $wgMFAutodetectMobileView, $wgMFShowMobileViewToTablets;
-
-		if ( !$wgMFAutodetectMobileView ) {
-			return false;
-		}
-		if ( $this->getAMF() ) {
-			return true;
-		}
-		$device =  $this->getDevice();
-		return $device->isMobileDevice()
-			&& !( !$wgMFShowMobileViewToTablets && $device->isTablet() );
-
-	}
-
-	/**
-	 * Check for mobile device when using Apache Mobile Filter (AMF)
+	 * The mobile view will always be displayed to mobile devices. However, it
+	 * will only be displayed to tablet devices if `$wgMFShowMobileViewToTablets`
+	 * is truthy.
 	 *
-	 * IF AMF is enabled, make sure we use it to detect mobile devices.
-	 * Tablets are currently served desktop site.
+	 * @fixme This should be renamed to something more appropriate, e.g.
+	 * `shouldDisplayMobileViewToDevice`.
 	 *
-	 * AMF docs: http://wiki.apachemobilefilter.org/
+	 * @see MobileContext::shouldDisplayMobileView
 	 *
 	 * @return bool
 	 */
-	public function getAMF() {
-		global  $wgMFShowMobileViewToTablets;
-
-		$amf = isset( $_SERVER['AMF_DEVICE_IS_MOBILE'] ) && $_SERVER['AMF_DEVICE_IS_MOBILE'] === 'true';
-		if ( !$wgMFShowMobileViewToTablets && $amf ) {
-			$amf &= $_SERVER['AMF_DEVICE_IS_TABLET'] === 'false';
+	public function isMobileDevice() {
+		if ( $this->isMobileDevice !== null ) {
+			return $this->isMobileDevice;
 		}
-		return $amf;
+
+		$this->isMobileDevice = false;
+
+		$config = $this->getMFConfig();
+		$properties = DeviceDetectorService::factory( $config )
+			->detectDeviceProperties( $this->getRequest(), $_SERVER );
+
+		if ( $properties ) {
+			$showMobileViewToTablets = $config->get( 'MFShowMobileViewToTablets' );
+
+			$this->isMobileDevice =
+				$properties->isMobileDevice()
+				|| ( $properties->isTabletDevice() && $showMobileViewToTablets );
+		}
+
+		return $this->isMobileDevice;
 	}
 
 	/**
-	 * @param $value bool: Whether mobile view should always be enforced
+	 * Save whether mobile view should always be enforced
+	 * @param bool $value should mobile view be enforced?
 	 */
 	public function setForceMobileView( $value ) {
 		$this->forceMobileView = $value;
 	}
 
 	/**
-	 * @return bool: Whether mobile view should always be enforced
+	 * Whether mobile view should always be enforced
+	 * @return bool is mobile view enforced?
 	 */
 	public function getForceMobileView() {
 		return $this->forceMobileView;
 	}
 
 	/**
-	 * @param $value bool: Whether content should be transformed to better suit mobile devices
+	 * Whether content should be transformed to better suit mobile devices
+	 * @param bool $value should content be transformed?
 	 */
 	public function setContentTransformations( $value ) {
 		$this->contentTransformations = $value;
 	}
 
 	/**
-	 * @return bool: Whether content should be transformed to better suit mobile devices
+	 * Whether content should be transformed to better suit mobile devices
+	 * @return bool is content being transformed?
 	 */
 	public function getContentTransformations() {
 		return $this->contentTransformations;
 	}
 
-	protected function isFauxMobileDevice() {
-		$useFormat = $this->getUseFormat();
-		if ( $useFormat !== 'mobile' && $useFormat !== 'mobile-wap' ) {
-			return false;
-		}
-
-		return true;
+	/**
+	 * Sets the value of $this->mobileMode property to the value of the 'optin' cookie.
+	 * If the cookie is not set the value will be an empty string.
+	 */
+	private function loadMobileModeCookie() {
+		$this->mobileMode = $this->getRequest()->getCookie( self::OPTIN_COOKIE_NAME, '' );
 	}
 
 	/**
-	 * Returns the testing mode user has opted in: 'alpha', 'beta' or any other value for stable
+	 * Returns the testing mode user has opted in: 'beta' or any other value for stable
 	 * @return string
 	 */
-	protected function getMobileMode() {
+	private function getMobileMode() {
+		$enableBeta = $this->getMFConfig()->get( 'MFEnableBeta' );
+
+		if ( !$enableBeta ) {
+			return '';
+		}
 		if ( is_null( $this->mobileMode ) ) {
 			$mobileAction = $this->getMobileAction();
-			if ( $mobileAction === 'alpha' || $mobileAction === 'beta' || $mobileAction === 'stable' ) {
+			if ( $mobileAction === self::MODE_BETA || $mobileAction === self::MODE_STABLE ) {
 				$this->mobileMode = $mobileAction;
 			} else {
-				$req = $this->getRequest();
-				$this->mobileMode = $req->getCookie( 'optin', '' );
+				$user = $this->getUser();
+				if ( $user->isAnon() ) {
+					$this->loadMobileModeCookie();
+				} else {
+					$mode = $user->getOption( self::USER_MODE_PREFERENCE_NAME );
+					$this->mobileMode = $mode;
+					// Edge case where preferences are corrupt or the user opted
+					// in before change.
+					if ( $mode === null ) {
+						// Should we set the user option here?
+						$this->loadMobileModeCookie();
+					}
+				}
 			}
 		}
 		return $this->mobileMode;
@@ -210,51 +252,47 @@ class MobileContext extends ContextSource {
 
 	/**
 	 * Sets testing group membership, both cookie and this class variables
-	 * @param string $mode: Mode to set
+	 * @param string $mode Mode to set
 	 */
 	public function setMobileMode( $mode ) {
-		wfProfileIn( __METHOD__ );
-		if ( $mode !== 'alpha' && $mode !== 'beta' ) {
+		if ( $mode !== self::MODE_BETA ) {
 			$mode = '';
 		}
 		// Update statistics
-		if ( $mode === 'alpha' && !is_null( $this->mobileMode ) ) {
-			wfIncrStats( 'mobile.alpha.opt_in_cookie_set' );
-		}
-		if ( $mode === 'beta' ) {
-			if ( $this->mobileMode === 'alpha' ) {
-				wfIncrStats( 'mobile.alpha.opt_in_cookie_unset' );
-			} else {
-				wfIncrStats( 'mobile.opt_in_cookie_set' );
-			}
+		if ( $mode === self::MODE_BETA ) {
+			wfIncrStats( 'mobile.opt_in_cookie_set' );
 		}
 		if ( !$mode ) {
 			wfIncrStats( 'mobile.opt_in_cookie_unset' );
 		}
 		$this->mobileMode = $mode;
-		$this->getRequest()->response()->setcookie( 'optin', $mode, 0, '', $this->getBaseDomain() );
-		wfProfileOut( __METHOD__ );
-	}
 
-	public function isAlphaGroupMember() {
-		return $this->getMobileMode() === 'alpha';
-	}
+		$user = $this->getUser();
+		if ( $user->getId() ) {
+			$user->setOption( self::USER_MODE_PREFERENCE_NAME, $mode );
+			DeferredUpdates::addCallableUpdate( function () use ( $user, $mode ) {
+				if ( wfReadOnly() ) {
+					return;
+				}
 
-	public function isBetaGroupMember() {
-		$mode = $this->getMobileMode();
-		return $mode === 'beta' || $mode === 'alpha';
-	}
-
-	public function getMobileToken() {
-		$token = $this->getRequest()->getSessionData( 'wsMobileToken' );
-		if ( $token === null ) {
-			if ( $this->getUser()->isAnon() ) {
-				wfSetupSession();
-			}
-			$token = MWCryptRand::generateHex( 32 );
-			$this->getRequest()->setSessionData( 'wsMobileToken', $token );
+				$latestUser = $user->getInstanceForUpdate();
+				$latestUser->setOption( self::USER_MODE_PREFERENCE_NAME, $mode );
+				$latestUser->saveSettings();
+			} );
 		}
-		return $token;
+
+		$this->getRequest()->response()->setCookie( self::OPTIN_COOKIE_NAME, $mode, 0, [
+			'prefix' => '',
+			'domain' => $this->getCookieDomain()
+		] );
+	}
+
+	/**
+	 * Wether user is Beta group member
+	 * @return bool
+	 */
+	public function isBetaGroupMember() {
+		return $this->getMobileMode() === self::MODE_BETA;
 	}
 
 	/**
@@ -273,13 +311,13 @@ class MobileContext extends ContextSource {
 		if ( !is_null( $this->mobileView ) ) {
 			return $this->mobileView;
 		}
-		wfProfileIn( __METHOD__ );
+		// check if we need to toggle between mobile/desktop view
+		$this->checkToggleView();
 		$this->mobileView = $this->shouldDisplayMobileViewInternal();
 		if ( $this->mobileView ) {
 			$this->redirectMobileEnabledPages();
-			wfRunHooks( 'EnterMobileMode', array( $this ) );
+			Hooks::run( 'EnterMobileMode', [ $this ] );
 		}
-		wfProfileOut( __METHOD__ );
 		return $this->mobileView;
 	}
 
@@ -287,12 +325,23 @@ class MobileContext extends ContextSource {
 	 * If a page has an equivalent but different mobile page redirect to it
 	 */
 	private function redirectMobileEnabledPages() {
+		$request = $this->getRequest();
+		$title = $this->getTitle();
+
 		$redirectUrl = null;
-		if ( $this->getRequest()->getCheck( 'diff' ) ) {
+		if ( $request->getCheck( 'diff' ) &&
+			MobileFrontendHooks::shouldMobileFormatSpecialPages( $this->getUser() )
+		) {
 			$redirectUrl = SpecialMobileDiff::getMobileUrlFromDesktop();
 		}
 
-		if ( $this->getRequest()->getVal( 'action' ) === 'history' ) {
+		if ( $request->getVal( 'action' ) === 'history' &&
+			// IContextSource::getTitle() can be null
+			$title !== null &&
+			// check, if SpecialMobileHistory supports the history action set for this title
+			// content model
+			SpecialMobileHistory::shouldUseSpecialHistory( $title, $this->getUser() )
+		) {
 			$values = $this->getRequest()->getValues();
 			// avoid infinite redirect loops
 			unset( $values['action'] );
@@ -308,18 +357,10 @@ class MobileContext extends ContextSource {
 	}
 
 	/**
-	 * @return bool Value for shouldDisplayMobileView()
+	 * Value for shouldDisplayMobileView()
+	 * @return bool
 	 */
 	private function shouldDisplayMobileViewInternal() {
-		global $wgMobileUrlTemplate, $wgNoMobileRedirectTest;
-
-		$ctx = MobileContext::singleton();
-		$action = $this->getAction();
-
-		if ( $action === 'history' && !$ctx->isBetaGroupMember() ) {
-			return false;
-		}
-
 		// May be overridden programmatically
 		if ( $this->forceMobileView ) {
 			return true;
@@ -329,20 +370,17 @@ class MobileContext extends ContextSource {
 		$useFormat = $this->getUseFormat();
 		if ( $useFormat == 'desktop' ) {
 			return false;
-		} elseif ( $this->isFauxMobileDevice() ) {
+		} elseif ( $useFormat == 'mobile' ) {
 			return true;
 		}
 
 		/**
-		 * If a mobile-domain is specified by the $wgMobileUrlTemplate and
-		 * there's an X-WAP header, then we assume the user is accessing
-		 * the site from the mobile-specific domain (because why would the
-		 * desktop site set X-WAP header?). If a user is accessing the
-		 * site from a mobile domain, then we should always display the mobile
-		 * version of the site (otherwise, the cache may get polluted). See
+		 * If a user is accessing the site from a mobile domain, then we should
+		 * always display the mobile version of the site (otherwise, the cache
+		 * may get polluted). See
 		 * https://bugzilla.wikimedia.org/show_bug.cgi?id=46473
 		 */
-		if ( $wgMobileUrlTemplate && $this->getRequest()->getHeader( 'X-WAP' ) ) {
+		if ( $this->usingMobileDomain() ) {
 			return true;
 		}
 
@@ -365,14 +403,18 @@ class MobileContext extends ContextSource {
 			return true;
 		}
 
-		// This is a test where we display both the mobile site and desktop site
-		// on main desktop domain
-		if ( $wgNoMobileRedirectTest && $this->getRequest()->getHeader( 'X-Browser' ) == 'mb' ) {
-			return true;
-		}
-
 		// do device detection
-		if ( $this->isMobileDevice() ) {
+		// Wikihow: we always do device detection at Fastly layer, so we
+		// never want to do it in the MW code. Doing it here too could lead
+		// to infinite redirect bugs if we saw the Fastly mobile detection
+		// rules disagree with the MW detection rules stuff.
+//		if ( $this->isMobileDevice() ) {
+//			return true;
+//		}
+		// Wikihow: instead, we call to our "lite" detection method which
+		// just looks at the domain name, as a fall back. This lite method
+		// will never call to other methods, so it's safe to call here.
+		if ( Misc::isMobileModeLite() ) {
 			return true;
 		}
 
@@ -388,29 +430,31 @@ class MobileContext extends ContextSource {
 	 * @return bool
 	 */
 	public function isBlacklistedPage() {
-
-		wfProfileIn( __METHOD__ );
-
 		if ( is_null( $this->blacklistedPage ) ) {
 			$this->blacklistedPage = $this->isBlacklistedPageInternal();
 		}
 
-		wfProfileOut( __METHOD__ );
-
 		return $this->blacklistedPage;
 	}
 
+	/**
+	 * Value for isBlacklistedPage()
+	 * @return bool
+	 */
 	private function isBlacklistedPageInternal() {
-		global $wgMFNoMobileCategory, $wgMFNoMobilePages;
+		$config = $this->getMFConfig();
+		$noMobilePages = $config->get( 'MFNoMobilePages' );
+		$noMobileCategory = $config->get( 'MFNoMobileCategory' );
+
 		// Check for blacklisted category membership
 		$title = $this->getTitle();
-		if ( $wgMFNoMobileCategory && $title ) {
+		if ( $noMobileCategory && $title ) {
 			$id = $title->getArticleID();
 			if ( $id ) {
-				$dbr = wfGetDB( DB_SLAVE );
+				$dbr = wfGetDB( DB_REPLICA );
 				if ( $dbr->selectField( 'categorylinks',
 					'cl_from',
-					array( 'cl_from' => $id, 'cl_to' => $wgMFNoMobileCategory ),
+					[ 'cl_from' => $id, 'cl_to' => $noMobileCategory ],
 					__METHOD__
 				) ) {
 					return true;
@@ -418,17 +462,16 @@ class MobileContext extends ContextSource {
 			}
 		}
 		// ...and individual page blacklisting
-		if ( $wgMFNoMobilePages && $title ) {
-			$name = $title->getPrefixedText();
-			foreach ( $wgMFNoMobilePages as $page ) {
-				if ( $page === $name ) {
-					return true;
-				}
-			}
+		if ( $noMobilePages && $title && in_array( $title->getPrefixedText(), $noMobilePages ) ) {
+			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Get requested mobile action
+	 * @return string
+	 */
 	public function getMobileAction() {
 		if ( is_null( $this->mobileAction ) ) {
 			$this->mobileAction = $this->getRequest()->getText( 'mobileaction' );
@@ -437,14 +480,12 @@ class MobileContext extends ContextSource {
 		return $this->mobileAction;
 	}
 
-	public function getAction() {
-		if ( is_null( $this->action ) ) {
-			$this->action = $this->getRequest()->getText( 'action' );
-		}
-
-		return $this->action;
-	}
-
+	/**
+	 * Gets the value of the `useformat` query string parameter. This can be
+	 * overridden using the `MobileContext#setUseFormat`.
+	 *
+	 * @return string
+	 */
 	public function getUseFormat() {
 		if ( !isset( $this->useFormat ) ) {
 			$useFormat = $this->getRequest()->getText( 'useformat' );
@@ -453,17 +494,32 @@ class MobileContext extends ContextSource {
 		return $this->useFormat;
 	}
 
+	/**
+	 * Overrides the value of `MobileContext#getUseFormat`.
+	 *
+	 * @param string $useFormat new value
+	 */
 	public function setUseFormat( $useFormat ) {
 		$this->useFormat = $useFormat;
 	}
 
+	/**
+	 * Set Cookie to stop automatically redirect to mobile page
+	 * @param int|null $expiry Expire time of cookie
+	 */
 	public function setStopMobileRedirectCookie( $expiry = null ) {
-		global $wgCookiePath, $wgCookieSecure;
 		if ( is_null( $expiry ) ) {
 			$expiry = $this->getUseFormatCookieExpiry();
 		}
 
-		setcookie( self::USEFORMAT_COOKIE_NAME, 'dt', $expiry, $wgCookiePath, $this->getStopMobileRedirectCookieDomain(), $wgCookieSecure );
+		$this->getRequest()->response()->setcookie(
+			self::STOP_MOBILE_REDIRECT_COOKIE_NAME, 'true', $expiry,
+			[
+				'domain' => $this->getStopMobileRedirectCookieDomain(),
+				'prefix' => '',
+				'secure' => false,
+			]
+		);
 	}
 
 	public function setTempRedirectCookie() {
@@ -471,7 +527,13 @@ class MobileContext extends ContextSource {
 
 		$expiry = time() + 60; // 1 minute
 		$cookieName = self::USEFORMAT_COOKIE_NAME . 'tmp';
-		setcookie( $cookieName, 'dt', $expiry, $wgCookiePath, $this->getStopMobileRedirectCookieDomain(), $wgCookieSecure );
+		$this->getRequest()->response()->setcookie(
+			$cookieName, 'dt', $expiry,
+			[
+				'domain' => $this->getStopMobileRedirectCookieDomain(),
+				'secure' => $wgCookieSecure,
+			]
+		);
 	}
 
 	public function getTempRedirectCookie() {
@@ -481,6 +543,9 @@ class MobileContext extends ContextSource {
 		return $tempRedirectCookie;
 	}
 
+	/**
+	 * Remove cookie and continue automatic redirect to mobile page
+	 */
 	public function unsetStopMobileRedirectCookie() {
 		if ( is_null( $this->getStopMobileRedirectCookie() ) ) {
 			return;
@@ -489,8 +554,13 @@ class MobileContext extends ContextSource {
 		$this->setStopMobileRedirectCookie( $expire );
 	}
 
+	/**
+	 * Read cookie for stop automatic mobile redirect
+	 * @return string
+	 */
 	public function getStopMobileRedirectCookie() {
-		$stopMobileRedirectCookie = $this->getRequest()->getCookie( self::USEFORMAT_COOKIE_NAME, '' );
+		$stopMobileRedirectCookie = $this->getRequest()
+			->getCookie( self::STOP_MOBILE_REDIRECT_COOKIE_NAME, '' );
 
 		return $stopMobileRedirectCookie;
 	}
@@ -510,50 +580,33 @@ class MobileContext extends ContextSource {
 	}
 
 	/**
-	 * @param $disable bool
-	 */
-	public function setDisableImagesCookie( $disable ) {
-		$this->getRequest()->response()->setcookie( 'disableImages', $disable ? '1' : '' );
-	}
-
-	/**
+	 * Return the base level domain or IP address
+	 *
 	 * @return string
 	 */
-	public function getBaseDomain() {
-		wfProfileIn( __METHOD__ );
-		// Validates value as IP address
-		$host = $this->getRequest()->getHeader( 'Host' );
-		if ( !IP::isValid( $host ) ) {
-			// Alberto, 2018/09 - Temporary hack until we update MW, which should now
-			// be able to handle effective TLDs: https://phabricator.wikimedia.org/T150768
-			if (strpos($host, 'wikihow.com.tr') !== false) {
-				return '.wikihow.com.tr';
-			}
-			$domainParts = explode( '.', $host );
-			$domainParts = array_reverse( $domainParts );
-			// Although some browsers will accept cookies without the initial ., » RFC 2109 requires it to be included.
-			wfProfileOut( __METHOD__ );
-			return count( $domainParts ) >= 2 ? '.' . $domainParts[1] . '.' . $domainParts[0] : $host;
-		}
-		wfProfileOut( __METHOD__ );
-		return $host;
+	public function getCookieDomain() {
+		$helper = new WMFBaseDomainExtractor();
+		return $helper->getCookieDomain( $this->getMFConfig()->get( 'Server' ) );
 	}
 
 	/**
 	 * Determine the correct domain to use for the stopMobileRedirect cookie
 	 *
 	 * Will use $wgMFStopRedirectCookieHost if it's set, otherwise will use
-	 * result of getBaseDomain()
+	 * result of getCookieDomain()
 	 * @return string
 	 */
 	public function getStopMobileRedirectCookieDomain() {
-		global $wgMFStopRedirectCookieHost;
+		$mfStopRedirectCookieHost = $this->getMFConfig()->get( 'MFStopRedirectCookieHost' );
 
-		if ( !$wgMFStopRedirectCookieHost ) {
-			$wgMFStopRedirectCookieHost = $this->getBaseDomain();
+		if ( !$mfStopRedirectCookieHost ) {
+			self::$mfStopRedirectCookieHost = $this->getCookieDomain();
+
+		} else {
+			self::$mfStopRedirectCookieHost = $mfStopRedirectCookieHost;
 		}
 
-		return $wgMFStopRedirectCookieHost;
+		return self::$mfStopRedirectCookieHost;
 	}
 
 	/**
@@ -562,25 +615,28 @@ class MobileContext extends ContextSource {
 	 * This cookie can determine whether or not a user should see the mobile
 	 * version of pages.
 	 *
-	 * Uses regular php setcookie rather than WebResponse::setCookie()
-	 * so we can ignore $wgCookieHttpOnly since the protection is provides
-	 * is irrelevant for this cookie.
-	 *
-	 * @param string $cookieFormat
-	 * @param null $expiry
+	 * @param string $cookieFormat should user see mobile version of pages?
+	 * @param null $expiry Expiration of cookie
 	 */
 	public function setUseFormatCookie( $cookieFormat = 'true', $expiry = null ) {
-		global $wgCookiePath, $wgCookieSecure;
-
 		if ( is_null( $expiry ) ) {
 			$expiry = $this->getUseFormatCookieExpiry();
 		}
-
-		setcookie( self::USEFORMAT_COOKIE_NAME, $cookieFormat, $expiry, $wgCookiePath,
-			$this->getStopMobileRedirectCookieDomain(), $wgCookieSecure );
+		$this->getRequest()->response()->setcookie(
+			self::USEFORMAT_COOKIE_NAME,
+			$cookieFormat,
+			$expiry,
+			[
+				'prefix' => '',
+				'httpOnly' => false,
+			]
+		);
 		wfIncrStats( 'mobile.useformat_' . $cookieFormat . '_cookie_set' );
 	}
 
+	/**
+	 * Remove cookie based saved useformat value
+	 */
 	public function unsetUseFormatCookie() {
 		if ( is_null( $this->getUseFormatCookie() ) ) {
 			return;
@@ -588,15 +644,15 @@ class MobileContext extends ContextSource {
 
 		// set expiration date in the past
 		$expire = $this->getUseFormatCookieExpiry( time(), -3600 );
-		$this->setUseFormatCookie( '', $expire, true );
+		$this->setUseFormatCookie( '', $expire );
 	}
 
 	/**
 	 * Get the expiration time for the mf_useformat cookie
 	 *
-	 * @param int $startTime The base time (in seconds since Epoch) from which to calculate
+	 * @param int|null $startTime The base time (in seconds since Epoch) from which to calculate
 	 * 		cookie expiration. If null, time() is used.
-	 * @param int $cookieDuration The time (in seconds) the cookie should last
+	 * @param int|null $cookieDuration The time (in seconds) the cookie should last
 	 * @return int The time (in seconds since Epoch) that the cookie should expire
 	 */
 	protected function getUseFormatCookieExpiry( $startTime = null, $cookieDuration = null ) {
@@ -606,7 +662,9 @@ class MobileContext extends ContextSource {
 		}
 
 		// use $startTime if it's valid
-		if ( intval( $startTime ) === 0 ) $startTime = time();
+		if ( intval( $startTime ) === 0 ) {
+			$startTime = time();
+		}
 
 		$expiry = $startTime + $cookieDuration;
 		return $expiry;
@@ -621,9 +679,13 @@ class MobileContext extends ContextSource {
 	 * @return int The number of seconds for which the cookie should last.
 	 */
 	public function getUseFormatCookieDuration() {
-		global $wgMobileFrontendFormatCookieExpiry, $wgCookieExpiration;
-		$cookieDuration = ( abs( intval( $wgMobileFrontendFormatCookieExpiry ) ) > 0 ) ?
-			$wgMobileFrontendFormatCookieExpiry : $wgCookieExpiration;
+		$mobileFrontendFormatCookieExpiry =
+			$this->getMFConfig()->get( 'MobileFrontendFormatCookieExpiry' );
+
+		$cookieExpiration = $this->getConfig()->get( 'CookieExpiration' );
+
+		$cookieDuration = ( abs( intval( $mobileFrontendFormatCookieExpiry ) ) > 0 ) ?
+			$mobileFrontendFormatCookieExpiry : $cookieExpiration;
 		return $cookieDuration;
 	}
 
@@ -632,39 +694,61 @@ class MobileContext extends ContextSource {
 	 *
 	 * Eg if a desktop domain is en.wikipedia.org, but the mobile variant is
 	 * en.m.wikipedia.org, the mobile token is 'm.'
-	 * @param $mobileUrlHostTemplate string
+	 *
+	 * @param string $mobileUrlHostTemplate URL host
 	 * @return string
 	 */
 	public function getMobileHostToken( $mobileUrlHostTemplate ) {
-		wfProfileIn( __METHOD__ );
-		$mobileToken = preg_replace( '/%h[0-9]\.{0,1}/', '', $mobileUrlHostTemplate );
-		wfProfileOut( __METHOD__ );
-		return $mobileToken;
+		return preg_replace( '/%h[0-9]\.{0,1}/', '', $mobileUrlHostTemplate );
+	}
+
+	/**
+	 * Get the template for mobile URLs.
+	 * @see $wgMobileUrlTemplate
+	 * @return string
+	 */
+	public function getMobileUrlTemplate() {
+		if ( !$this->mobileUrlTemplate ) {
+			$this->mobileUrlTemplate = $this->getMFConfig()->get( 'MobileUrlTemplate' );
+		}
+		return $this->mobileUrlTemplate;
 	}
 
 	/**
 	 * Take a URL and return a copy that conforms to the mobile URL template
-	 * @param $url string
-	 * @param $forceHttps bool
-	 * @return string
+	 * @param string $url URL to convert
+	 * @param bool $forceHttps should force HTTPS?
+	 * @return string|bool
 	 */
 	public function getMobileUrl( $url, $forceHttps = false ) {
-
 		if ( $this->shouldDisplayMobileView() ) {
 			$subdomainTokenReplacement = null;
-			if ( wfRunHooks( 'GetMobileUrl', array( &$subdomainTokenReplacement, $this ) ) ) {
+			if ( Hooks::run( 'GetMobileUrl', [ &$subdomainTokenReplacement, $this ] ) ) {
 				if ( !empty( $subdomainTokenReplacement ) ) {
-					global $wgMobileUrlTemplate;
 					$mobileUrlHostTemplate = $this->parseMobileUrlTemplate( 'host' );
 					$mobileToken = $this->getMobileHostToken( $mobileUrlHostTemplate );
-					$wgMobileUrlTemplate = str_replace( $mobileToken, $subdomainTokenReplacement, $wgMobileUrlTemplate );
+					$this->mobileUrlTemplate = str_replace(
+						$mobileToken,
+						$subdomainTokenReplacement,
+						$this->getMobileUrlTemplate()
+					);
 				}
 			}
 		}
 
 		$parsedUrl = wfParseUrl( $url );
+		// if parsing failed, maybe it's a local Url, try to expand and reparse it - task T107505
+		if ( !$parsedUrl ) {
+			$expandedUrl = wfExpandUrl( $url );
+			if ( $expandedUrl ) {
+				$parsedUrl = wfParseUrl( $expandedUrl );
+			}
+			if ( !$expandedUrl || !$parsedUrl ) {
+				return false;
+			}
+		}
+
 		$this->updateMobileUrlHost( $parsedUrl );
-		$this->updateMobileUrlQueryString( $parsedUrl );
 		if ( $forceHttps ) {
 			$parsedUrl['scheme'] = 'https';
 			$parsedUrl['delimiter'] = '://';
@@ -675,9 +759,25 @@ class MobileContext extends ContextSource {
 	}
 
 	/**
+	 * If a mobile-domain is specified by the $wgMobileUrlTemplate and
+	 * there's a mobile header, then we assume the user is accessing
+	 * the site from the mobile-specific domain (because why would the
+	 * desktop site set the header?).
+	 * @return bool
+	 */
+	public function usingMobileDomain() {
+		$config = $this->getMFConfig();
+		$mobileHeader = $config->get( 'MFMobileHeader' );
+		return ( $config->get( 'MobileUrlTemplate' )
+			&& $mobileHeader
+			&& $this->getRequest()->getHeader( $mobileHeader ) !== false
+		);
+	}
+
+	/**
 	 * Take a URL and return a copy that removes any mobile tokens
-	 * @param string
-	 * @return string
+	 * @param string $url representing a page on the mobile domain e.g. `https://en.m.wikipedia.org/`
+	 * @return string (absolute url)
 	 */
 	public function getDesktopUrl( $url ) {
 		$parsedUrl = wfParseUrl( $url );
@@ -689,10 +789,13 @@ class MobileContext extends ContextSource {
 
 	/**
 	 * Update host of given URL to conform to mobile URL template.
-	 * @param $parsedUrl array
-	 * 		Result of parseUrl() or wfParseUrl()
+	 * @param array &$parsedUrl Result of parseUrl() or wfParseUrl()
 	 */
-	protected function updateMobileUrlHost( &$parsedUrl ) {
+	protected function updateMobileUrlHost( array &$parsedUrl ) {
+		if ( IP::isIPAddress( $parsedUrl['host'] ) ) {
+			// Do not update host when IP is used
+			return;
+		}
 		$mobileUrlHostTemplate = $this->parseMobileUrlTemplate( 'host' );
 		if ( !strlen( $mobileUrlHostTemplate ) ) {
 			return;
@@ -700,13 +803,17 @@ class MobileContext extends ContextSource {
 
 		$parsedHostParts = explode( ".", $parsedUrl['host'] );
 		$templateHostParts = explode( ".", $mobileUrlHostTemplate );
-		$targetHostParts = array();
+		$targetHostParts = [];
 
 		foreach ( $templateHostParts as $key => $templateHostPart ) {
 			if ( strstr( $templateHostPart, '%h' ) ) {
 				$parsedHostPartKey = substr( $templateHostPart, 2 );
-				$targetHostParts[ $key ] = $parsedHostParts[$parsedHostPartKey];
-			} elseif ( isset( $parsedHostParts[ $key ] )
+				if ( !array_key_exists( $parsedHostPartKey, $parsedHostParts ) ) {
+					// invalid pattern for this host, ignore
+					return;
+				}
+				$targetHostParts[$key] = $parsedHostParts[$parsedHostPartKey];
+			} elseif ( isset( $parsedHostParts[$key] )
 				&& $templateHostPart == $parsedHostParts[$key] ) {
 				$targetHostParts = $parsedHostParts;
 				break;
@@ -720,28 +827,27 @@ class MobileContext extends ContextSource {
 
 	/**
 	 * Update the host of a given URL to strip out any mobile tokens
-	 * @param $parsedUrl array
-	 *		Result of parseUrl() or wfParseUrl()
+	 * @param array &$parsedUrl Result of parseUrl() or wfParseUrl()
 	 */
-	protected function updateDesktopUrlHost( &$parsedUrl ) {
-		global $wgServer;
+	protected function updateDesktopUrlHost( array &$parsedUrl ) {
+		$server = $this->getConfig()->get( 'Server' );
+
 		$mobileUrlHostTemplate = $this->parseMobileUrlTemplate( 'host' );
 		if ( !strlen( $mobileUrlHostTemplate ) ) {
 			return;
 		}
 
-		$parsedWgServer = wfParseUrl( $wgServer );
+		$parsedWgServer = wfParseUrl( $server );
 		$parsedUrl['host'] = $parsedWgServer['host'];
 	}
 
 	/**
 	 * Update the query portion of a given URL to remove any 'useformat' params
-	 * @param $parsedUrl array
-	 * 		Result of parseUrl() or wfParseUrl()
+	 * @param array &$parsedUrl Result of parseUrl() or wfParseUrl()
 	 */
-	protected function updateDesktopUrlQuery( &$parsedUrl ) {
+	protected function updateDesktopUrlQuery( array &$parsedUrl ) {
 		if ( isset( $parsedUrl['query'] ) && strpos( $parsedUrl['query'], 'useformat' ) !== false ) {
-			$query = wfCgiToArray( html_entity_decode( $parsedUrl['query'] ) );
+			$query = wfCgiToArray( $parsedUrl['query'] );
 			unset( $query['useformat'] );
 			$parsedUrl['query'] = wfArrayToCgi( $query );
 		}
@@ -755,11 +861,10 @@ class MobileContext extends ContextSource {
 	 * this is intended to provide. This will hopefully be implemented someday
 	 * in the not to distant future.
 	 *
-	 * @param $parsedUrl array
-	 * 		Result of parseUrl() or wfParseUrl()
+	 * @param array &$parsedUrl Result of parseUrl() or wfParseUrl()
 	 */
-	protected function updateMobileUrlPath( &$parsedUrl ) {
-		global $wgScriptPath;
+	protected function updateMobileUrlPath( array &$parsedUrl ) {
+		$scriptPath = $this->getConfig()->get( 'ScriptPath' );
 
 		$mobileUrlPathTemplate = $this->parseMobileUrlTemplate( 'path' );
 
@@ -771,36 +876,27 @@ class MobileContext extends ContextSource {
 		// find out if we already have a templated path
 		$templatePathOffset = strpos( $mobileUrlPathTemplate, '%p' );
 		$templatePathSansToken = substr( $mobileUrlPathTemplate, 0, $templatePathOffset );
-		if ( substr_compare( $parsedUrl[ 'path' ], $wgScriptPath . $templatePathSansToken, 0 ) > 0 ) {
+		if ( substr_compare( $parsedUrl[ 'path' ], $scriptPath . $templatePathSansToken, 0 ) > 0 ) {
 			return;
 		}
 
-		$scriptPathLength = strlen( $wgScriptPath );
+		$scriptPathLength = strlen( $scriptPath );
 		// the "+ 1" removes the preceding "/" from the path sans $wgScriptPath
 		$pathSansScriptPath = substr( $parsedUrl[ 'path' ], $scriptPathLength + 1 );
-		$parsedUrl[ 'path' ] = $wgScriptPath . $templatePathSansToken . $pathSansScriptPath;
-	}
-
-	/**
-	 * Placeholder for potential future use of query string handling
-	 *
-	 * @param $parsedUrl
-	 */
-	protected function updateMobileUrlQueryString( &$parsedUrl ) {
-		return;
+		$parsedUrl[ 'path' ] = $scriptPath . $templatePathSansToken . $pathSansScriptPath;
 	}
 
 	/**
 	 * Parse mobile URL template into its host and path components.
 	 *
 	 * Optionally specify which portion of the template you want returned.
-	 * @param $part string
-	 * @return Mixed
+	 * @param string|null $part which part to return?
+	 * @return mixed
 	 */
 	public function parseMobileUrlTemplate( $part = null ) {
-		global $wgMobileUrlTemplate;
+		$mobileUrlTemplate = $this->getMobileUrlTemplate();
 
-		$pathStartPos = strpos( $wgMobileUrlTemplate, '/' );
+		$pathStartPos = strpos( $mobileUrlTemplate, '/' );
 
 		/**
 		 * This if/else block exists because of an annoying aspect of substr()
@@ -809,19 +905,19 @@ class MobileContext extends ContextSource {
 		 * http://www.stopgeek.com/wp-content/uploads/2007/07/sense.jpg
 		 */
 		if ( $pathStartPos === false ) {
-			$host = substr( $wgMobileUrlTemplate, 0 );
+			$host = substr( $mobileUrlTemplate, 0 );
 		} else {
-			$host = substr( $wgMobileUrlTemplate, 0,  $pathStartPos );
+			$host = substr( $mobileUrlTemplate, 0,  $pathStartPos );
 		}
 
-		$path = substr( $wgMobileUrlTemplate, $pathStartPos );
+		$path = substr( $mobileUrlTemplate, $pathStartPos );
 
 		if ( $part == 'host' ) {
 			return $host;
 		} elseif ( $part == 'path' ) {
 			return $path;
 		} else {
-			return array( 'host' => $host, 'path' => $path );
+			return [ 'host' => $host, 'path' => $path ];
 		}
 	}
 
@@ -831,83 +927,92 @@ class MobileContext extends ContextSource {
 	 * If a user has requested a particular view (eg clicked 'Desktop' from
 	 * a mobile page), set the requested view for this particular request
 	 * and set a cookie to keep them on that view for subsequent requests.
+	 *
+	 * @param string $view User requested particular view
 	 */
-	public function toggleView( $view, $temporary = false ) {
-		global $wgMobileUrlTemplate;
+	public function toggleView( $view ) {
+		$this->viewChange = $view;
+		if ( !strlen( trim( $this->getMobileUrlTemplate() ) ) ) {
+			$this->setUseFormat( $view );
+		}
+	}
 
-		$url = $this->getTitle()->getFullURL();
+	/**
+	 * Performs view change as requested vy toggleView()
+	 */
+	public function doToggling() {
+		$mobileUrlTemplate = $this->getMobileUrlTemplate();
 
-		if ( $view == 'mobile' ) {
+		if ( !$this->viewChange ) {
+			return;
+		}
+
+		$query = $this->getRequest()->getQueryValues();
+		unset( $query['mobileaction'] );
+		unset( $query['useformat'] );
+		unset( $query['title'] );
+		$url = $this->getTitle()->getFullURL( $query, false, PROTO_CURRENT );
+
+		if ( $this->viewChange == 'mobile' ) {
 			// unset stopMobileRedirect cookie
-			if ( !$temporary ) {
-				// @TODO is this necessary with unsetting the cookie via JS?
-				//$this->unsetStopMobileRedirectCookie();
-			}
+			// @TODO is this necessary with unsetting the cookie via JS?
+			//$this->unsetStopMobileRedirectCookie();
 
 			// if no mobileurl template, set mobile cookie
-			if ( !strlen( trim( $wgMobileUrlTemplate ) ) ) {
-				if ( !$temporary ) {
-					$this->setUseFormatCookie('mb');
-				}
-				$this->setUseFormat( $view );
+			if ( !strlen( trim( $mobileUrlTemplate ) ) ) {
+				$this->setUseFormatCookie('mb');
 			} else {
 				// else redirect to mobile domain
 				$mobileUrl = $this->getMobileUrl( $url );
 				$this->getOutput()->redirect( $mobileUrl, 301 );
 			}
-		} elseif ( $view == 'desktop' ) {
+		} elseif ( $this->viewChange == 'desktop' ) {
 			// set stopMobileRedirect cookie
-			if ( !$temporary ) {
-				$this->setStopMobileRedirectCookie();
-				// unset useformat cookie
-				if ( $this->getUseFormatCookie() ) {
-					$this->setUseFormatCookie('dt');
-				}
+			$this->setStopMobileRedirectCookie();
+			// unset useformat cookie
+			if ( $this->getUseFormatCookie() ) {
+				$this->unsetUseFormatCookie('dt');
 			}
 
-			// if no mobileurl template, unset useformat cookie
-			if ( !strlen( trim( $wgMobileUrlTemplate ) ) ) {
-				$this->setUseFormat( $view );
-			} else {
+			if ( strlen( trim( $mobileUrlTemplate ) ) ) {
 				// if mobileurl template, redirect to desktop domain
 				$desktopUrl = $this->getDesktopUrl( $url );
 				$this->getOutput()->redirect( $desktopUrl, 301 );
 			}
 		}
-
-		// Reuben, 7/10/2014: added hook to be able to redirect using our own mobile functions
-		wfRunHooks( 'MobileToggleView', array( $this->getOutput(), $url, $view, $temporary ) );
 	}
 
 	/**
 	 * Determine whether or not we need to toggle the view, and toggle it
 	 */
 	public function checkToggleView() {
-		$mobileAction = $this->getMobileAction();
-		if ( $mobileAction == 'toggle_view_desktop' ) {
-			$this->toggleView( 'desktop' );
-		} elseif ( $mobileAction == 'toggle_view_mobile' ) {
-			$this->toggleView( 'mobile' );
+		if ( !$this->toggleViewChecked ) {
+			$this->toggleViewChecked = true;
+			$mobileAction = $this->getMobileAction();
+			if ( $mobileAction == 'toggle_view_desktop' ) {
+				$this->toggleView( 'desktop' );
+			} elseif ( $mobileAction == 'toggle_view_mobile' ) {
+				$this->toggleView( 'mobile' );
+			}
 		}
 	}
 
 	/**
 	 * Determine whether or not a given URL is local
 	 *
-	 * @param string $url: URL to check against
+	 * @param string $url URL to check against
 	 * @return bool
 	 */
-	public static function isLocalUrl( $url ) {
-		global $wgServer;
+	public function isLocalUrl( $url ) {
 		$parsedTarget = wfParseUrl( $url );
-		$parsedServer = wfParseUrl( $wgServer );
-		return  $parsedTarget['host'] === $parsedServer['host'];
+		$parsedServer = wfParseUrl( $this->getMFConfig()->get( 'Server' ) );
+		return $parsedTarget['host'] === $parsedServer['host'];
 	}
 
 	/**
 	 * Add key/value pairs for analytics purposes to $this->analyticsLogItems
-	 * @param string $key
-	 * @param string $val
+	 * @param string $key for <key> in `X-Analytics: <key>=<value>`
+	 * @param string $val for <value> in `X-Analytics: <key>=<value>`
 	 */
 	public function addAnalyticsLogItem( $key, $val ) {
 		$key = trim( $key );
@@ -916,6 +1021,7 @@ class MobileContext extends ContextSource {
 	}
 
 	/**
+	 * Read key/value pairs for analytics purposes from $this->analyticsLogItems
 	 * @return array
 	 */
 	public function getAnalyticsLogItems() {
@@ -925,15 +1031,18 @@ class MobileContext extends ContextSource {
 	/**
 	 * Get HTTP header string for X-Analytics
 	 *
-	 * This is made up of key/vaule pairs and is used for analytics
-	 * purposes.
+	 * This is made up of key/value pairs and is used for analytics purposes.
 	 *
 	 * @return string|bool
 	 */
 	public function getXAnalyticsHeader() {
-		$logItems = $this->getAnalyticsLogItems();
+		$response = $this->getRequest()->response();
+		$currentHeader = method_exists( $response, 'getHeader' ) ?
+			$response->getHeader( 'X-Analytics' ) : '';
+		parse_str( preg_replace( '/; */', '&', $currentHeader ), $logItems );
+		$logItems += $this->getAnalyticsLogItems();
 		if ( count( $logItems ) ) {
-			$xanalytics_items = array();
+			$xanalytics_items = [];
 			foreach ( $logItems as $key => $val ) {
 				$xanalytics_items[] = urlencode( $key ) . "=" . urlencode( $val );
 			}
@@ -947,23 +1056,77 @@ class MobileContext extends ContextSource {
 	/**
 	 * Take a key/val pair in string format and add it to $this->analyticsLogItems
 	 *
-	 * @param string $xanalytics_item: In the format key=value
+	 * @param string $xanalytics_item In the format key=value
 	 */
 	public function addAnalyticsLogItemFromXAnalytics( $xanalytics_item ) {
-		list( $key, $val ) = explode( '=', $xanalytics_item );
-		$this->addAnalyticsLogItem( urldecode( $key ), urldecode( $val ));
+		list( $key, $val ) = explode( '=', $xanalytics_item, 2 );
+		$this->addAnalyticsLogItem( urldecode( $key ), urldecode( $val ) );
 	}
 
 	/**
-	 * Adds analytics log items if the user is in alpha or beta mode
+	 * Adds analytics log items if the user is in beta mode
 	 *
 	 * Invoked from MobileFrontendHooks::onRequestContextCreateSkin()
+	 *
+	 * Making changes to what this method logs? Make sure you update the
+	 * documentation for the X-Analytics header: https://wikitech.wikimedia.org/wiki/X-Analytics
 	 */
 	public function logMobileMode() {
-		if ( $this->isAlphaGroupMember() ) {
-			$this->addAnalyticsLogItem( 'mf-m', 'a' );
-		} elseif ( $this->isBetaGroupMember() ) {
+		if ( $this->isBetaGroupMember() ) {
 			$this->addAnalyticsLogItem( 'mf-m', 'b' );
 		}
+	}
+
+	/**
+	 * Process-local override for MFStripResponsiveImages, used by
+	 * the mobileview API request.
+	 */
+	private $stripResponsiveImagesOverride = null;
+
+	/**
+	 * Should image thumbnails in pages remove the high-density additions
+	 * during this request?
+	 *
+	 * @return bool
+	 */
+	public function shouldStripResponsiveImages() {
+		if ( $this->stripResponsiveImagesOverride === null ) {
+			return $this->shouldDisplayMobileView()
+				&& $this->getMFConfig()->get( 'MFStripResponsiveImages' );
+		} else {
+			return $this->stripResponsiveImagesOverride;
+		}
+	}
+
+	/**
+	 * Config override for responsive image strip mode.
+	 *
+	 * @param bool $val New value
+	 */
+	public function setStripResponsiveImages( $val ) {
+		$this->stripResponsiveImagesOverride = $val;
+	}
+
+	/**
+	 * Gets whether Wikibase descriptions should be shown in search results, including nearby search,
+	 * and watchlists; or as taglines on article pages.
+	 * Doesn't take into account whether the wikidata descriptions
+	 * feature has been enabled.
+	 *
+	 * @param string $feature which description to show?
+	 * @return bool
+	 * @throws DomainException If `feature` isn't one that shows Wikidata descriptions. See the
+	 *  `wgMFDisplayWikibaseDescriptions` configuration variable for detail
+	 */
+	public function shouldShowWikibaseDescriptions( $feature ) {
+		$config = $this->getMFConfig();
+		$displayWikibaseDescriptions = $config->get( 'MFDisplayWikibaseDescriptions' );
+		if ( !isset( $displayWikibaseDescriptions[ $feature ] ) ) {
+			throw new DomainException(
+				"\"{$feature}\" isn't a feature that shows Wikidata descriptions."
+			);
+		}
+
+		return $displayWikibaseDescriptions[ $feature ];
 	}
 }

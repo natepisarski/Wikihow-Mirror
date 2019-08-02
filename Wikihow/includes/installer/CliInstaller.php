@@ -21,6 +21,8 @@
  * @ingroup Deployment
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Class for the core installer command line interface.
  *
@@ -30,7 +32,7 @@
 class CliInstaller extends Installer {
 	private $specifiedScriptPath = false;
 
-	private $optionMap = array(
+	private $optionMap = [
 		'dbtype' => 'wgDBtype',
 		'dbserver' => 'wgDBserver',
 		'dbname' => 'wgDBname',
@@ -38,43 +40,42 @@ class CliInstaller extends Installer {
 		'dbpass' => 'wgDBpassword',
 		'dbprefix' => 'wgDBprefix',
 		'dbtableoptions' => 'wgDBTableOptions',
-		'dbmysql5' => 'wgDBmysql5',
 		'dbport' => 'wgDBport',
 		'dbschema' => 'wgDBmwschema',
 		'dbpath' => 'wgSQLiteDataDir',
 		'server' => 'wgServer',
 		'scriptpath' => 'wgScriptPath',
-	);
+	];
 
 	/**
-	 * Constructor.
-	 *
-	 * @param $siteName
-	 * @param $admin
-	 * @param $option Array
+	 * @param string $siteName
+	 * @param string|null $admin
+	 * @param array $options
 	 */
-	function __construct( $siteName, $admin = null, array $option = array() ) {
+	function __construct( $siteName, $admin = null, array $options = [] ) {
 		global $wgContLang;
 
 		parent::__construct();
 
-		if ( isset( $option['scriptpath'] ) ) {
+		if ( isset( $options['scriptpath'] ) ) {
 			$this->specifiedScriptPath = true;
 		}
 
 		foreach ( $this->optionMap as $opt => $global ) {
-			if ( isset( $option[$opt] ) ) {
-				$GLOBALS[$global] = $option[$opt];
-				$this->setVar( $global, $option[$opt] );
+			if ( isset( $options[$opt] ) ) {
+				$GLOBALS[$global] = $options[$opt];
+				$this->setVar( $global, $options[$opt] );
 			}
 		}
 
-		if ( isset( $option['lang'] ) ) {
+		if ( isset( $options['lang'] ) ) {
 			global $wgLang, $wgLanguageCode;
-			$this->setVar( '_UserLang', $option['lang'] );
-			$wgContLang = Language::factory( $option['lang'] );
-			$wgLang = Language::factory( $option['lang'] );
-			$wgLanguageCode = $option['lang'];
+			$this->setVar( '_UserLang', $options['lang'] );
+			$wgLanguageCode = $options['lang'];
+			$this->setVar( 'wgLanguageCode', $wgLanguageCode );
+			$wgContLang = MediaWikiServices::getInstance()->getContentLanguage();
+			$wgLang = Language::factory( $options['lang'] );
+			RequestContext::getMain()->setLanguage( $wgLang );
 		}
 
 		$this->setVar( 'wgSitename', $siteName );
@@ -89,24 +90,75 @@ class CliInstaller extends Installer {
 			$this->setVar( '_AdminName', $admin );
 		}
 
-		if ( !isset( $option['installdbuser'] ) ) {
+		if ( !isset( $options['installdbuser'] ) ) {
 			$this->setVar( '_InstallUser',
 				$this->getVar( 'wgDBuser' ) );
 			$this->setVar( '_InstallPassword',
 				$this->getVar( 'wgDBpassword' ) );
 		} else {
 			$this->setVar( '_InstallUser',
-				$option['installdbuser'] );
+				$options['installdbuser'] );
 			$this->setVar( '_InstallPassword',
-				isset( $option['installdbpass'] ) ? $option['installdbpass'] : "" );
+				$options['installdbpass'] ?? "" );
 
 			// Assume that if we're given the installer user, we'll create the account.
 			$this->setVar( '_CreateDBAccount', true );
 		}
 
-		if ( isset( $option['pass'] ) ) {
-			$this->setVar( '_AdminPassword', $option['pass'] );
+		if ( isset( $options['pass'] ) ) {
+			$this->setVar( '_AdminPassword', $options['pass'] );
 		}
+
+		// Detect and inject any extension found
+		if ( isset( $options['extensions'] ) ) {
+			$status = $this->validateExtensions(
+				'extension', 'extensions', $options['extensions'] );
+			if ( !$status->isOK() ) {
+				$this->showStatusMessage( $status );
+			}
+			$this->setVar( '_Extensions', $status->value );
+		} elseif ( isset( $options['with-extensions'] ) ) {
+			$this->setVar( '_Extensions', array_keys( $this->findExtensions() ) );
+		}
+
+		// Set up the default skins
+		if ( isset( $options['skins'] ) ) {
+			$status = $this->validateExtensions( 'skin', 'skins', $options['skins'] );
+			if ( !$status->isOK() ) {
+				$this->showStatusMessage( $status );
+			}
+			$skins = $status->value;
+		} else {
+			$skins = array_keys( $this->findExtensions( 'skins' ) );
+		}
+		$this->setVar( '_Skins', $skins );
+
+		if ( $skins ) {
+			$skinNames = array_map( 'strtolower', $skins );
+			$this->setVar( 'wgDefaultSkin', $this->getDefaultSkin( $skinNames ) );
+		}
+	}
+
+	private function validateExtensions( $type, $directory, $nameLists ) {
+		$extensions = [];
+		$status = new Status;
+		foreach ( (array)$nameLists as $nameList ) {
+			foreach ( explode( ',', $nameList ) as $name ) {
+				$name = trim( $name );
+				if ( $name === '' ) {
+					continue;
+				}
+				$extStatus = $this->getExtensionInfo( $type, $directory, $name );
+				if ( $extStatus->isOK() ) {
+					$extensions[] = $name;
+				} else {
+					$status->merge( $extStatus );
+				}
+			}
+		}
+		$extensions = array_unique( $extensions );
+		$status->value = $extensions;
+		return $status;
 	}
 
 	/**
@@ -121,8 +173,8 @@ class CliInstaller extends Installer {
 		}
 
 		$this->performInstallation(
-			array( $this, 'startStage' ),
-			array( $this, 'endStage' )
+			[ $this, 'startStage' ],
+			[ $this, 'endStage' ]
 		);
 	}
 
@@ -138,7 +190,8 @@ class CliInstaller extends Installer {
 
 	public function startStage( $step ) {
 		// Messages: config-install-database, config-install-tables, config-install-interwiki,
-		// config-install-stats, config-install-keys, config-install-sysop, config-install-mainpage
+		// config-install-stats, config-install-keys, config-install-sysop, config-install-mainpage,
+		// config-install-extensions
 		$this->showMessage( "config-install-$step" );
 	}
 
@@ -158,7 +211,7 @@ class CliInstaller extends Installer {
 	}
 
 	/**
-	 * @param $params array
+	 * @param array $params
 	 *
 	 * @return string
 	 */
@@ -169,7 +222,7 @@ class CliInstaller extends Installer {
 
 		$text = preg_replace( '/<a href="(.*?)".*?>(.*?)<\/a>/', '$2 &lt;$1&gt;', $text );
 
-		return html_entity_decode( strip_tags( $text ), ENT_QUOTES );
+		return Sanitizer::stripAllTags( $text );
 	}
 
 	/**
@@ -184,11 +237,11 @@ class CliInstaller extends Installer {
 
 		if ( count( $warnings ) !== 0 ) {
 			foreach ( $warnings as $w ) {
-				call_user_func_array( array( $this, 'showMessage' ), $w );
+				$this->showMessage( ...$w );
 			}
 		}
 
-		if ( !$status->isOk() ) {
+		if ( !$status->isOK() ) {
 			echo "\n";
 			exit( 1 );
 		}

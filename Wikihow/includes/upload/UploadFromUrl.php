@@ -29,19 +29,18 @@
  * @author Michael Dale
  */
 class UploadFromUrl extends UploadBase {
-	protected $mAsync, $mUrl;
-	protected $mIgnoreWarnings = true;
+	protected $mUrl;
 
 	protected $mTempPath, $mTmpHandle;
 
-	protected static $allowedUrls = array();
+	protected static $allowedUrls = [];
 
 	/**
 	 * Checks if the user is allowed to use the upload-by-URL feature. If the
 	 * user is not allowed, return the name of the user right as a string. If
 	 * the user is allowed, have the parent do further permissions checking.
 	 *
-	 * @param $user User
+	 * @param User $user
 	 *
 	 * @return bool|string
 	 */
@@ -49,6 +48,7 @@ class UploadFromUrl extends UploadBase {
 		if ( !$user->isAllowed( 'upload_by_url' ) ) {
 			return 'upload_by_url';
 		}
+
 		return parent::isAllowed( $user );
 	}
 
@@ -58,6 +58,7 @@ class UploadFromUrl extends UploadBase {
 	 */
 	public static function isEnabled() {
 		global $wgAllowCopyUploads;
+
 		return $wgAllowCopyUploads && parent::isEnabled();
 	}
 
@@ -66,7 +67,7 @@ class UploadFromUrl extends UploadBase {
 	 * The domains in the whitelist can include wildcard characters (*) in place
 	 * of any of the domain levels, e.g. '*.flickr.com' or 'upload.*.gov.uk'.
 	 *
-	 * @param $url string
+	 * @param string $url
 	 * @return bool
 	 */
 	public static function isAllowedHost( $url ) {
@@ -103,51 +104,44 @@ class UploadFromUrl extends UploadBase {
 			}
 			*/
 		}
+
 		return $valid;
 	}
 
 	/**
 	 * Checks whether the URL is not allowed.
 	 *
-	 * @param $url string
+	 * @param string $url
 	 * @return bool
 	 */
 	public static function isAllowedUrl( $url ) {
 		if ( !isset( self::$allowedUrls[$url] ) ) {
 			$allowed = true;
-			wfRunHooks( 'IsUploadAllowedFromUrl', array( $url, &$allowed ) );
+			Hooks::run( 'IsUploadAllowedFromUrl', [ $url, &$allowed ] );
 			self::$allowedUrls[$url] = $allowed;
 		}
+
 		return self::$allowedUrls[$url];
 	}
 
 	/**
 	 * Entry point for API upload
 	 *
-	 * @param $name string
-	 * @param $url string
-	 * @param $async mixed Whether the download should be performed
-	 * asynchronous. False for synchronous, async or async-leavemessage for
-	 * asynchronous download.
+	 * @param string $name
+	 * @param string $url
 	 * @throws MWException
 	 */
-	public function initialize( $name, $url, $async = false ) {
-		global $wgAllowAsyncCopyUploads;
-
+	public function initialize( $name, $url ) {
 		$this->mUrl = $url;
-		$this->mAsync = $wgAllowAsyncCopyUploads ? $async : false;
-		if ( $async ) {
-			throw new MWException( 'Asynchronous copy uploads are no longer possible as of r81612.' );
-		}
 
-		$tempPath = $this->mAsync ? null : $this->makeTemporaryFile();
+		$tempPath = $this->makeTemporaryFile();
 		# File size and removeTempFile will be filled in later
 		$this->initializePathInfo( $name, $tempPath, 0, false );
 	}
 
 	/**
 	 * Entry point for SpecialUpload
-	 * @param $request WebRequest object
+	 * @param WebRequest &$request
 	 */
 	public function initializeFromRequest( &$request ) {
 		$desiredDestName = $request->getText( 'wpDestFile' );
@@ -156,21 +150,20 @@ class UploadFromUrl extends UploadBase {
 		}
 		$this->initialize(
 			$desiredDestName,
-			trim( $request->getVal( 'wpUploadFileURL' ) ),
-			false
+			trim( $request->getVal( 'wpUploadFileURL' ) )
 		);
 	}
 
 	/**
-	 * @param $request WebRequest object
+	 * @param WebRequest $request
 	 * @return bool
 	 */
 	public static function isValidRequest( $request ) {
 		global $wgUser;
 
 		$url = $request->getVal( 'wpUploadFileURL' );
+
 		return !empty( $url )
-			&& Http::isValidURI( $url )
 			&& $wgUser->isAllowed( 'upload_by_url' );
 	}
 
@@ -182,15 +175,15 @@ class UploadFromUrl extends UploadBase {
 	}
 
 	/**
-	 * Download the file (if not async)
+	 * Download the file
 	 *
-	 * @param Array $httpOptions Array of options for MWHttpRequest. Ignored if async.
+	 * @param array $httpOptions Array of options for MWHttpRequest.
 	 *   This could be used to override the timeout on the http request.
 	 * @return Status
 	 */
-	public function fetchFile( $httpOptions = array() ) {
+	public function fetchFile( $httpOptions = [] ) {
 		if ( !Http::isValidURI( $this->mUrl ) ) {
-			return Status::newFatal( 'http-invalid-url' );
+			return Status::newFatal( 'http-invalid-url', $this->mUrl );
 		}
 
 		if ( !self::isAllowedHost( $this->mUrl ) ) {
@@ -199,10 +192,7 @@ class UploadFromUrl extends UploadBase {
 		if ( !self::isAllowedUrl( $this->mUrl ) ) {
 			return Status::newFatal( 'upload-copy-upload-invalid-url' );
 		}
-		if ( !$this->mAsync ) {
-			return $this->reallyFetchFile( $httpOptions );
-		}
-		return Status::newGood();
+		return $this->reallyFetchFile( $httpOptions );
 	}
 
 	/**
@@ -211,25 +201,32 @@ class UploadFromUrl extends UploadBase {
 	 * @return string Path to the file
 	 */
 	protected function makeTemporaryFile() {
-		$tmpFile = TempFSFile::factory( 'URL' );
+		$tmpFile = TempFSFile::factory( 'URL', 'urlupload_', wfTempDir() );
 		$tmpFile->bind( $this );
+
 		return $tmpFile->getPath();
 	}
 
 	/**
 	 * Callback: save a chunk of the result of a HTTP request to the temporary file
 	 *
-	 * @param $req mixed
-	 * @param $buffer string
-	 * @return int number of bytes handled
+	 * @param mixed $req
+	 * @param string $buffer
+	 * @return int Number of bytes handled
 	 */
 	public function saveTempFileChunk( $req, $buffer ) {
+		wfDebugLog( 'fileupload', 'Received chunk of ' . strlen( $buffer ) . ' bytes' );
 		$nbytes = fwrite( $this->mTmpHandle, $buffer );
 
 		if ( $nbytes == strlen( $buffer ) ) {
 			$this->mFileSize += $nbytes;
 		} else {
 			// Well... that's not good!
+			wfDebugLog(
+				'fileupload',
+				'Short write ' . $nbytes . '/' . strlen( $buffer ) .
+					' bytes, aborting with ' . $this->mFileSize . ' uploaded so far'
+			);
 			fclose( $this->mTmpHandle );
 			$this->mTmpHandle = false;
 		}
@@ -241,10 +238,10 @@ class UploadFromUrl extends UploadBase {
 	 * Download the file, save it to the temporary file and update the file
 	 * size and set $mRemoveTempFile to true.
 	 *
-	 * @param Array $httpOptions Array of options for MWHttpRequest
+	 * @param array $httpOptions Array of options for MWHttpRequest
 	 * @return Status
 	 */
-	protected function reallyFetchFile( $httpOptions = array() ) {
+	protected function reallyFetchFile( $httpOptions = [] ) {
 		global $wgCopyUploadProxy, $wgCopyUploadTimeout;
 		if ( $this->mTempPath === false ) {
 			return Status::newFatal( 'tmp-create-error' );
@@ -255,21 +252,27 @@ class UploadFromUrl extends UploadBase {
 		if ( !$this->mTmpHandle ) {
 			return Status::newFatal( 'tmp-create-error' );
 		}
+		wfDebugLog( 'fileupload', 'Temporary file created "' . $this->mTempPath . '"' );
 
 		$this->mRemoveTempFile = true;
 		$this->mFileSize = 0;
 
-		$options = $httpOptions + array(
-			'followRedirects' => true,
-		);
+		$options = $httpOptions + [ 'followRedirects' => true ];
+
 		if ( $wgCopyUploadProxy !== false ) {
 			$options['proxy'] = $wgCopyUploadProxy;
 		}
+
 		if ( $wgCopyUploadTimeout && !isset( $options['timeout'] ) ) {
 			$options['timeout'] = $wgCopyUploadTimeout;
 		}
-		$req = MWHttpRequest::factory( $this->mUrl, $options );
-		$req->setCallback( array( $this, 'saveTempFileChunk' ) );
+		wfDebugLog(
+			'fileupload',
+			'Starting download from "' . $this->mUrl . '" ' .
+				'<' . implode( ',', array_keys( array_filter( $options ) ) ) . '>'
+		);
+		$req = MWHttpRequest::factory( $this->mUrl, $options, __METHOD__ );
+		$req->setCallback( [ $this, 'saveTempFileChunk' ] );
 		$status = $req->execute();
 
 		if ( $this->mTmpHandle ) {
@@ -281,93 +284,16 @@ class UploadFromUrl extends UploadBase {
 			return Status::newFatal( 'tmp-write-error' );
 		}
 
-		if ( !$status->isOk() ) {
-			return $status;
+		wfDebugLog( 'fileupload', $status );
+		if ( $status->isOK() ) {
+			wfDebugLog( 'fileupload', 'Download by URL completed successfully.' );
+		} else {
+			wfDebugLog(
+				'fileupload',
+				'Download by URL completed with HTTP status ' . $req->getStatus()
+			);
 		}
 
 		return $status;
 	}
-
-	/**
-	 * Wrapper around the parent function in order to defer verifying the
-	 * upload until the file really has been fetched.
-	 * @return array|mixed
-	 */
-	public function verifyUpload() {
-		if ( $this->mAsync ) {
-			return array( 'status' => UploadBase::OK );
-		}
-		return parent::verifyUpload();
-	}
-
-	/**
-	 * Wrapper around the parent function in order to defer checking warnings
-	 * until the file really has been fetched.
-	 * @return Array
-	 */
-	public function checkWarnings() {
-		if ( $this->mAsync ) {
-			$this->mIgnoreWarnings = false;
-			return array();
-		}
-		return parent::checkWarnings();
-	}
-
-	/**
-	 * Wrapper around the parent function in order to defer checking protection
-	 * until we are sure that the file can actually be uploaded
-	 * @param $user User
-	 * @return bool|mixed
-	 */
-	public function verifyTitlePermissions( $user ) {
-		if ( $this->mAsync ) {
-			return true;
-		}
-		return parent::verifyTitlePermissions( $user );
-	}
-
-	/**
-	 * Wrapper around the parent function in order to defer uploading to the
-	 * job queue for asynchronous uploads
-	 * @param $comment string
-	 * @param $pageText string
-	 * @param $watch bool
-	 * @param $user User
-	 * @return Status
-	 */
-	public function performUpload( $comment, $pageText, $watch, $user ) {
-		if ( $this->mAsync ) {
-			$sessionKey = $this->insertJob( $comment, $pageText, $watch, $user );
-
-			return Status::newFatal( 'async', $sessionKey );
-		}
-
-		return parent::performUpload( $comment, $pageText, $watch, $user );
-	}
-
-	/**
-	 * @param $comment
-	 * @param $pageText
-	 * @param $watch
-	 * @param $user User
-	 * @return String
-	 */
-	protected function insertJob( $comment, $pageText, $watch, $user ) {
-		$sessionKey = $this->stashSession();
-		$job = new UploadFromUrlJob( $this->getTitle(), array(
-			'url' => $this->mUrl,
-			'comment' => $comment,
-			'pageText' => $pageText,
-			'watch' => $watch,
-			'userName' => $user->getName(),
-			'leaveMessage' => $this->mAsync == 'async-leavemessage',
-			'ignoreWarnings' => $this->mIgnoreWarnings,
-			'sessionId' => session_id(),
-			'sessionKey' => $sessionKey,
-		) );
-		$job->initializeSessionData();
-		JobQueueGroup::singleton()->push( $job );
-		return $sessionKey;
-	}
-
 }

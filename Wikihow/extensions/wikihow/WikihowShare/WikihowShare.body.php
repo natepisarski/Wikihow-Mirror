@@ -210,7 +210,7 @@ class WikihowShareRest extends UnlistedSpecialPage {
 		global $wgOut, $wgRequest;
 		$socialNet = $wgRequest->getVal('soc', '');
 		$wgOut->setArticleBodyOnly(true);
-		$wgOut->setSquidMaxage(5*60); // 5 minutes in varnish
+		$wgOut->setCdnMaxage(5*60); // 5 minutes in varnish
 		if ($socialNet == 'pinterest') {
 			$pins = self::getPinterestArticles();
 			$pinterest_follow = wfGetPad('/skins/WikiHow/images/pinterest-test/pinterest_follow_box.jpg');

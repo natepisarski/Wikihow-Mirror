@@ -1,8 +1,10 @@
 {
-    "@metadata": {
-        "authors": [
-            "Shirayuki"
-        ]
-    },
-    "echo-email-batch-category-header-other": "$1 uncategorised {{PLURAL:$1|notification|notifications}}"
+	"@metadata": {
+		"authors": [
+			"Shirayuki",
+			"Mhutti1",
+			"Shahjad ansari"
+		]
+	},
+	"echo-pref-beta-feature-cross-wiki-message": "Enhanced notifications"
 }

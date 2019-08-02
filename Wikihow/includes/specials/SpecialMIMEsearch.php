@@ -22,19 +22,21 @@
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Searches the database for files of the requested MIME type, comparing this with the
  * 'img_major_mime' and 'img_minor_mime' fields in the image table.
  * @ingroup SpecialPage
  */
 class MIMEsearchPage extends QueryPage {
-	protected $major, $minor;
+	protected $major, $minor, $mime;
 
 	function __construct( $name = 'MIMEsearch' ) {
 		parent::__construct( $name );
 	}
 
-	function isExpensive() {
+	public function isExpensive() {
 		return false;
 	}
 
@@ -47,13 +49,19 @@ class MIMEsearchPage extends QueryPage {
 	}
 
 	function linkParameters() {
-		return array( 'mime' => "{$this->major}/{$this->minor}" );
+		return [ 'mime' => "{$this->major}/{$this->minor}" ];
 	}
 
 	public function getQueryInfo() {
-		$qi = array(
-			'tables' => array( 'image' ),
-			'fields' => array(
+		$minorType = [];
+		if ( $this->minor !== '*' ) {
+			// Allow wildcard searching
+			$minorType['img_minor_mime'] = $this->minor;
+		}
+		$imgQuery = LocalFile::getQueryInfo();
+		$qi = [
+			'tables' => $imgQuery['tables'],
+			'fields' => [
 				'namespace' => NS_FILE,
 				'title' => 'img_name',
 				// Still have a value field just in case,
@@ -62,15 +70,15 @@ class MIMEsearchPage extends QueryPage {
 				'img_size',
 				'img_width',
 				'img_height',
-				'img_user_text',
+				'img_user_text' => $imgQuery['fields']['img_user_text'],
 				'img_timestamp'
-			),
-			'conds' => array(
+			],
+			'conds' => [
 				'img_major_mime' => $this->major,
-				'img_minor_mime' => $this->minor,
 				// This is in order to trigger using
 				// the img_media_mime index in "range" mode.
-				'img_media_type' => array(
+				// @todo how is order defined? use MimeAnalyzer::getMediaTypes?
+				'img_media_type' => [
 					MEDIATYPE_BITMAP,
 					MEDIATYPE_DRAWING,
 					MEDIATYPE_AUDIO,
@@ -81,9 +89,12 @@ class MIMEsearchPage extends QueryPage {
 					MEDIATYPE_TEXT,
 					MEDIATYPE_EXECUTABLE,
 					MEDIATYPE_ARCHIVE,
-				),
-			),
-		);
+					MEDIATYPE_3D,
+				],
+			] + $minorType,
+			'join_conds' => $imgQuery['joins'],
+		];
+
 		return $qi;
 	}
 
@@ -94,38 +105,73 @@ class MIMEsearchPage extends QueryPage {
 	 * that this report gives results in a logical order). As an aditional
 	 * note, mysql seems to by default order things by img_name ASC, which
 	 * is what we ideally want, so everything works out fine anyhow.
+	 * @return array
 	 */
 	function getOrderFields() {
-		return array();
+		return [];
 	}
 
-	function execute( $par ) {
-		global $wgScript;
+	/**
+	 * Generate and output the form
+	 */
+	function getPageHeader() {
+		$formDescriptor = [
+			'mime' => [
+				'type' => 'combobox',
+				'options' => $this->getSuggestionsForTypes(),
+				'name' => 'mime',
+				'label-message' => 'mimetype',
+				'required' => true,
+				'default' => $this->mime,
+			],
+		];
 
-		$mime = $par ? $par : $this->getRequest()->getText( 'mime' );
+		HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() )
+			->setSubmitTextMsg( 'ilsubmit' )
+			->setAction( $this->getPageTitle()->getLocalURL() )
+			->setMethod( 'get' )
+			->prepareForm()
+			->displayForm( false );
+	}
 
-		$this->setHeaders();
-		$this->outputHeader();
-		$this->getOutput()->addHTML(
-			Xml::openElement(
-				'form',
-				array( 'id' => 'specialmimesearch', 'method' => 'get', 'action' => $wgScript )
-			) .
-				Xml::openElement( 'fieldset' ) .
-				Html::hidden( 'title', $this->getPageTitle()->getPrefixedText() ) .
-				Xml::element( 'legend', null, $this->msg( 'mimesearch' )->text() ) .
-				Xml::inputLabel( $this->msg( 'mimetype' )->text(), 'mime', 'mime', 20, $mime ) .
-				' ' .
-				Xml::submitButton( $this->msg( 'ilsubmit' )->text() ) .
-				Xml::closeElement( 'fieldset' ) .
-				Xml::closeElement( 'form' )
+	protected function getSuggestionsForTypes() {
+		$dbr = wfGetDB( DB_REPLICA );
+		$lastMajor = null;
+		$suggestions = [];
+		$result = $dbr->select(
+			[ 'image' ],
+			// We ignore img_media_type, but using it in the query is needed for MySQL to choose a
+			// sensible execution plan
+			[ 'img_media_type', 'img_major_mime', 'img_minor_mime' ],
+			[],
+			__METHOD__,
+			[ 'GROUP BY' => [ 'img_media_type', 'img_major_mime', 'img_minor_mime' ] ]
 		);
+		foreach ( $result as $row ) {
+			$major = $row->img_major_mime;
+			$minor = $row->img_minor_mime;
+			$suggestions[ "$major/$minor" ] = "$major/$minor";
+			if ( $lastMajor === $major ) {
+				// If there are at least two with the same major mime type, also include the wildcard
+				$suggestions[ "$major/*" ] = "$major/*";
+			}
+			$lastMajor = $major;
+		}
+		ksort( $suggestions );
+		return $suggestions;
+	}
 
-		list( $this->major, $this->minor ) = File::splitMime( $mime );
+	public function execute( $par ) {
+		$this->mime = $par ?: $this->getRequest()->getText( 'mime' );
+		$this->mime = trim( $this->mime );
+		list( $this->major, $this->minor ) = File::splitMime( $this->mime );
 
 		if ( $this->major == '' || $this->minor == '' || $this->minor == 'unknown' ||
 			!self::isValidType( $this->major )
 		) {
+			$this->setHeaders();
+			$this->outputHeader();
+			$this->getPageHeader();
 			return;
 		}
 
@@ -138,13 +184,13 @@ class MIMEsearchPage extends QueryPage {
 	 * @return string
 	 */
 	function formatResult( $skin, $result ) {
-		global $wgContLang;
-
+		$linkRenderer = $this->getLinkRenderer();
 		$nt = Title::makeTitle( $result->namespace, $result->title );
-		$text = $wgContLang->convert( $nt->getText() );
-		$plink = Linker::link(
+		$text = MediaWikiServices::getInstance()->getContentLanguage()
+			->convert( htmlspecialchars( $nt->getText() ) );
+		$plink = $linkRenderer->makeLink(
 			Title::newFromText( $nt->getPrefixedText() ),
-			htmlspecialchars( $text )
+			new HtmlArmor( $text )
 		);
 
 		$download = Linker::makeMediaLinkObj( $nt, $this->msg( 'download' )->escaped() );
@@ -153,9 +199,9 @@ class MIMEsearchPage extends QueryPage {
 		$bytes = htmlspecialchars( $lang->formatSize( $result->img_size ) );
 		$dimensions = $this->msg( 'widthheight' )->numParams( $result->img_width,
 			$result->img_height )->escaped();
-		$user = Linker::link(
+		$user = $linkRenderer->makeLink(
 			Title::makeTitle( NS_USER, $result->img_user_text ),
-			htmlspecialchars( $result->img_user_text )
+			$result->img_user_text
 		);
 
 		$time = $lang->userTimeAndDate( $result->img_timestamp, $this->getUser() );
@@ -165,12 +211,12 @@ class MIMEsearchPage extends QueryPage {
 	}
 
 	/**
-	 * @param $type string
+	 * @param string $type
 	 * @return bool
 	 */
 	protected static function isValidType( $type ) {
 		// From maintenance/tables.sql => img_major_mime
-		$types = array(
+		$types = [
 			'unknown',
 			'application',
 			'audio',
@@ -179,10 +225,15 @@ class MIMEsearchPage extends QueryPage {
 			'video',
 			'message',
 			'model',
-			'multipart'
-		);
+			'multipart',
+			'chemical'
+		];
 
 		return in_array( $type, $types );
+	}
+
+	public function preprocessResults( $db, $res ) {
+		$this->executeLBFromResultWrapper( $res );
 	}
 
 	protected function getGroupName() {

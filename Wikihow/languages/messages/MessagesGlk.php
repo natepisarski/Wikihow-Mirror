@@ -1,83 +1,50 @@
 <?php
 /** Gilaki (گیلکی)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
+ * To improve a translation please visit https://translatewiki.net
  *
  * @ingroup Language
  * @file
  *
- * @author AminSanaei
- * @author Varg
- * @author محک
  */
 
 $fallback = 'fa';
 
 $rtl = true;
 
-$messages = array(
-'moredotdotdot' => 'ویشتر...',
-'mypage' => 'می هنه‌شر',
-'mytalk' => 'می گب',
-'anontalk' => 'اَ آی.پیˇ گب',
+$namespaceNames = [
+	NS_MEDIA            => 'مديا',
+	NS_SPECIAL          => 'خاص',
+	NS_TALK             => 'گب',
+	NS_USER             => 'کارگير',
+	NS_USER_TALK        => 'کارگيرˇ_گب',
+	NS_PROJECT_TALK     => 'مدي_$1',
+	NS_FILE             => 'فاىل',
+	NS_FILE_TALK        => 'فاىلˇ_گب',
+	NS_MEDIAWIKI        => 'مدياويکي',
+	NS_MEDIAWIKI_TALK   => 'مدياويکي_گب',
+	NS_TEMPLATE         => 'قالب',
+	NS_TEMPLATE_TALK    => 'قالبˇ_گب',
+	NS_HELP             => 'رانما',
+	NS_HELP_TALK        => 'رانما_گب',
+	NS_CATEGORY         => 'جرگه',
+	NS_CATEGORY_TALK    => 'جرگه_گب',
+];
 
-# Cologne Blue skin
-'qbfind' => 'یاتن',
-'qbedit' => 'دچین واچین',
-
-'returnto' => 'واگرد به $1.',
-'search' => 'واموج',
-'searchbutton' => 'واموج',
-'go' => 'بوشو',
-'searcharticle' => 'بوشو',
-'history_short' => 'تارئخ',
-'printableversion' => 'پرینتی نوسخه',
-'permalink' => 'مؤنسنی پیوند',
-'edit' => 'دچین واچین',
-'editthispage' => 'اَ هنه‌شره (صفحه‌یه) دچین‌واچین بکون.',
-'create-this-page' => 'اَ هنه‌شره (صفحه‌یه) چاکون.',
-'deletethispage' => 'اَ هنه‌شره پاکأ کون.',
-'newpage' => 'تازه هنه‌شر (تازه صفحه)',
-'talkpagelinktext' => 'گب',
-'talk' => 'گب',
-'toolbox' => 'ابزار جیگا',
-'jumpto' => 'واز بکون به:',
-'jumptonavigation' => 'گردسن',
-'jumptosearch' => 'واموج',
-
-# All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage).
-'currentevents' => 'تازه چیؤن',
-'mainpage' => 'گت صفحه',
-'mainpage-description' => 'گت صفحه',
-'portal' => 'امه جیگا',
-'privacy' => 'رازبداری',
-
-'editsection' => 'دچین‌واچین',
-'editold' => 'دچین‌واچین',
-
-# Short words for each namespace, by default used in the namespace tab in monobook
-'nstab-main' => 'وانیویس (مقاله)',
-'nstab-user' => 'کاربری هنه‌شر',
-'nstab-category' => 'رج',
-
-# Search results
-'searchresults' => 'واموج‌دموجˇ نتایج',
-'searchresults-title' => 'واموج‌دموجˇ نتایج، «$1»ˇ واسی',
-
-# Special:AllPages
-'allpagessubmit' => 'بشو',
-
-# Special:Categories
-'categories' => 'رجؤن',
-
-'sp-contributions-talk' => 'گب',
-
-# Block/unblock
-'blocklink' => 'دَوَسته ببه',
-
-# Tooltip help for the actions
-'tooltip-ca-edit' => 'شمه تانید اَ هنه‌شره (صفحه) دچین‌واچین بکونید. بی‌زحمت قبل از ان‌کی ذخیره بکونید، پیش‌نمایشˇ دوکمه جا استفاده بکونید.',
-'tooltip-ca-history' => 'اَ هنه‌شر (صفحه)ˇ قدیمی نسخه‌یان',
-
-);
+$namespaceAliases = [
+	// Aliases from old Persian (fa) namespace names
+	'ویژه' => NS_SPECIAL,
+	'بحث' => NS_TALK,
+	'کاربر' => NS_USER,
+	'بحث_کاربر' => NS_USER_TALK,
+	'بحث_$1' => NS_PROJECT_TALK,
+	'پرونده' => NS_FILE,
+	'بحث_پرونده' => NS_FILE_TALK,
+	'بحث_مدیاویکی' => NS_MEDIAWIKI_TALK,
+	'الگو' => NS_TEMPLATE,
+	'بحث_الگو' => NS_TEMPLATE_TALK,
+	'راهنما' => NS_HELP,
+	'بحث_راهنما' => NS_HELP_TALK,
+	'رده' => NS_CATEGORY,
+	'بحث_رده' => NS_CATEGORY_TALK,
+];

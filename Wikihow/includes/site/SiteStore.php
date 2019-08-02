@@ -23,10 +23,10 @@
  * @file
  * @ingroup Site
  *
- * @license GNU GPL v2+
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
-interface SiteStore {
+interface SiteStore extends SiteLookup {
 
 	/**
 	 * Saves the provided site.
@@ -35,7 +35,7 @@ interface SiteStore {
 	 *
 	 * @param Site $site
 	 *
-	 * @return boolean Success indicator
+	 * @return bool Success indicator
 	 */
 	public function saveSite( Site $site );
 
@@ -46,36 +46,9 @@ interface SiteStore {
 	 *
 	 * @param Site[] $sites
 	 *
-	 * @return boolean Success indicator
+	 * @return bool Success indicator
 	 */
 	public function saveSites( array $sites );
-
-	/**
-	 * Returns the site with provided global id, or null if there is no such site.
-	 *
-	 * @since 1.21
-	 *
-	 * @param string $globalId
-	 * @param string $source either 'cache' or 'recache'.
-	 * If 'cache', the values are allowed (but not obliged) to come from a cache.
-	 *
-	 * @return Site|null
-	 */
-	public function getSite( $globalId, $source = 'cache' );
-
-	/**
-	 * Returns a list of all sites. By default this site is
-	 * fetched from the cache, which can be changed to loading
-	 * the list from the database using the $useCache parameter.
-	 *
-	 * @since 1.21
-	 *
-	 * @param string $source either 'cache' or 'recache'.
-	 * If 'cache', the values are allowed (but not obliged) to come from a cache.
-	 *
-	 * @return SiteList
-	 */
-	public function getSites( $source = 'cache' );
 
 	/**
 	 * Deletes all sites from the database. After calling clear(), getSites() will return an empty

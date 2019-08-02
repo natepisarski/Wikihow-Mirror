@@ -8,7 +8,12 @@ $wgExtensionCredits['specialpage'][] = array(
 $wgSpecialPages['PageHelpfulness'] = 'PageHelpfulness';
 $wgAutoloadClasses['PageHelpfulness'] = __DIR__ . '/PageHelpfulness.body.php';
 
-$wgResourceModules['ext.wikihow.pagehelpfulness'] =
-	$wgResourceModulesDesktopBoiler + [
+$wgResourceModules['ext.wikihow.pagehelpfulness_styles'] =
+	$wgResourceModulesDesktopBoilerStyles + [
 		'styles' => [ 'pagehelpfulness/pagehelpfulness.css' ]
+	];
+
+$wgResourceModules['ext.wikihow.pagehelpfulness_staff'] =
+	$wgResourceModulesDesktopBoiler + [
+		'scripts' => [ 'pagehelpfulness/phstaff.js' ]
 	];

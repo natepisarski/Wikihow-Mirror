@@ -1,8 +1,9 @@
 <?php
 
 namespace CirrusSearch\Job;
-use \CirrusSearch\Updater;
-use \JobQueueGroup;
+
+use JobQueueGroup;
+use Title;
 
 /**
  * Performs the appropriate updates to Elasticsearch after a LinksUpdate is
@@ -41,36 +42,38 @@ class LinksUpdate extends Job {
 		// be confusing.
 	}
 
+	/**
+	 * @return bool
+	 */
 	protected function doJob() {
 		global $wgCirrusSearchRefreshInterval;
 
-		$updater = new Updater();
+		$updater = $this->createUpdater();
 		$res = $updater->updateFromTitle( $this->title );
 		if ( $res === false ) {
-			// Couldn't update. Bail early and retry rather than adding a
-			// secondary job that probably won't work.
+			// Couldn't update. Bail early and retry rather than adding an
+			// IncomingLinkCount job that will produce the wrong answer.
 			return $res;
 		}
 
-		// Trigger LinksUpdateSecondary jobs when links were...updated
-		if ( count( $this->params[ 'addedLinks' ] ) > 0 ||
-				count( $this->params[ 'removedLinks' ] ) > 0 ) {
-			$params = array(
-				'addedLinks' => $this->params[ 'addedLinks' ],
-				'removedLinks' => $this->params[ 'removedLinks' ],
-			);
-			$jobQueueGroup = JobQueueGroup::singleton();
-			$jobQueue = $jobQueueGroup->get( 'cirrusSearchLinksUpdateSecondary' );
+		// Queue IncomingLinkCount jobs when pages are newly linked or unlinked
+		$titleKeys = array_merge( $this->params[ 'addedLinks' ],
+			$this->params[ 'removedLinks' ] );
+		foreach ( $titleKeys as $titleKey ) {
+			$title = Title::newFromDBkey( $titleKey );
+			if ( !$title ) {
+				continue;
+			}
+			$linkCount = new IncomingLinkCount( $title, [
+				'cluster' => $this->params['cluster'],
+			] );
 			// If possible, delay the job execution by a few seconds so Elasticsearch
 			// can refresh to contain what we just sent it.  The delay should be long
 			// enough for Elasticsearch to complete the refresh cycle, which normally
 			// takes wgCirrusSearchRefreshInterval seconds but we double it and add
 			// one just in case.
-			if ( $jobQueue->delayedJobsEnabled() ) {
-				$params[ 'jobReleaseTimestamp' ] = time() + 2 * $wgCirrusSearchRefreshInterval + 1;
-			}
-			$jobQueueGroup->push(
-				new LinksUpdateSecondary( $this->title, $params ) );
+			$linkCount->setDelay( 2 * $wgCirrusSearchRefreshInterval + 1 );
+			JobQueueGroup::singleton()->push( $linkCount );
 		}
 
 		// All done
@@ -78,9 +81,9 @@ class LinksUpdate extends Job {
 	}
 
 	/**
-	 * @return is this job prioritized?
+	 * @return bool Is this job prioritized?
 	 */
-	private function isPrioritized() {
+	public function isPrioritized() {
 		return isset( $this->params[ 'prioritize' ] ) && $this->params[ 'prioritize' ];
 	}
 }

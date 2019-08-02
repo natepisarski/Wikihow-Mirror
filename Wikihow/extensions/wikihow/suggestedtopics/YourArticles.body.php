@@ -20,6 +20,7 @@ class YourArticles extends SpecialPage {
 			return;
 		}
 
+		$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 		$out->addModules( ['ext.wikihow.SuggestedTopics'] );
 
 		ListRequestedTopics::setActiveWidget();
@@ -33,7 +34,7 @@ class YourArticles extends SpecialPage {
 
 		//heading with link
 		$request = Html::element('a',
-			['href' => '/Special:RequestTopic', 'class' => 'editsection'],
+			['href' => '/Special:RequestTopic', 'class' => 'mw-editsection'],
 			wfMessage('requesttopic')->text()
 		);
 		$heading = $request . Html::element('h2', [], wfMessage('your_articles_header')->text());

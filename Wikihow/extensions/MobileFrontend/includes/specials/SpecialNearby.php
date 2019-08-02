@@ -1,56 +1,72 @@
 <?php
 
+/**
+ * Provide the Special page "Nearby" with location based articles
+ */
 class SpecialNearby extends MobileSpecialPage {
+	/** @var boolean $hasDesktopVersion Does this special page has a desktop version? */
+	protected $hasDesktopVersion = true;
+
 	public function __construct() {
 		parent::__construct( 'Nearby' );
 		$this->listed = true;
 	}
 
+	/**
+	 * Render Special Page Nearby
+	 * @param string $par Parameter submitted as subpage
+	 */
 	public function executeWhenAvailable( $par = '' ) {
-		global $wgMFNearbyRange;
-
 		$this->setHeaders();
-
+		$config = $this->getMFConfig();
 		$output = $this->getOutput();
-
+		$output->addBodyClasses( 'nearby-accept-pending' );
 		// set config
-		$output->addJsConfigVars( 'wgMFNearbyRange', $wgMFNearbyRange );
+		$output->addJsConfigVars( [
+			'wgMFNearbyRange' => $config->get( 'MFNearbyRange' ),
+		] );
+		$output->addModuleStyles( [ 'mobile.nearby.images' ] );
+		$output->setPageTitle( $this->msg( 'mobile-frontend-nearby-title' ) );
 
-		// add previews to mobile only
-		$ctx = MobileContext::singleton();
-		if ( $ctx->shouldDisplayMobileView() && $ctx->isBetaGroupMember() ) {
-			$output->addModules( 'mobile.nearby.beta' );
-		} else {
-			// Only the Minerva skin loads this module so make sure we load it for desktop
-			$output->addModuleStyles( 'mobile.pagelist.styles' );
-		}
+		$html = Html::openElement( 'div', [ 'id' => 'mf-nearby-info-holder' ] )
+				. Html::element( 'div', [
+					'class' => 'mw-ui-icon mw-ui-icon-element mw-ui-mf-nearby-image-info mw-ui-icon-large icon'
+				] )
+				. Html::element( 'h3', [],
+					$this->msg( 'mobile-frontend-nearby-info-heading' )->text() )
+				. Html::element( 'div', [ 'class' => 'desc' ],
+					$this->msg( 'mobile-frontend-nearby-info-description' )->text() )
+				. Html::openElement( 'div', [ 'class' => 'jsonly' ] )
+					. Html::linkButton( $this->msg( 'mobile-frontend-nearby-info-show-button' )->text(),
+						[ 'id' => 'showArticles', 'class' => 'mw-ui-progressive' ] )
+				. Html::closeElement( 'div' )
+			. Html::closeElement( 'div' )
 
-		$output->setPageTitle( wfMessage( 'mobile-frontend-nearby-title' )->escaped() );
-
-		$html =
-			Html::openElement( 'div',
-				array(
+			. Html::openElement( 'div',
+				[
+					'class' => 'content-unstyled',
 					'id' => 'mw-mf-nearby',
-				)
+				]
 			) .
-			Html::openElement( 'div',
-				array(
-					'class' => 'noscript error alert',
-				)
+			MobileUI::contentElement(
+				Html::errorBox(
+					Html::element( 'h2', [],
+						$this->msg( 'mobile-frontend-nearby-requirements' )->text() ) .
+					Html::element( 'p', [],
+						$this->msg( 'mobile-frontend-nearby-requirements-guidance' )->text() )
+				),
+				'noscript'
 			) .
-			Html::openElement( 'div',
-				array(
-					'class' => 'content',
-				)
-			) .
-			Html::element( 'h2', array(),
-				wfMessage( 'mobile-frontend-nearby-requirements' ) ) .
-			Html::element( 'p', array(),
-				wfMessage( 'mobile-frontend-nearby-requirements-guidance' ) ) .
-			Html::closeElement( 'div' ) . // .content
-			Html::closeElement( 'div' ) . // .noscript
-			Html::closeElement( 'div' ); // #mw-mf-nearby
+			// #mw-mf-nearby
+			Html::closeElement( 'div' );
 
 		$output->addHTML( $html );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getGroupName() {
+		return 'pages';
 	}
 }

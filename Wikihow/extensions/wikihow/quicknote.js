@@ -8,7 +8,7 @@ var contribs;
 var commentSelector = '#dialog-box textarea[name=comment_text]';
 var formSelector = '#dialog-box form';
 
-function switchUser() {
+window.switchUser = function() {
 	var i = $("#dialog-box #userdropdown").val() ;
 	$(formSelector + ' #qnTarget').val("User_talk:"+users[i]);
 	html = "";
@@ -22,14 +22,14 @@ function switchUser() {
 	$(formSelector + ' #contribsreg').html(html);
 }
 
-function initQuickNote( qnArticle, qnUser, contrib, regdate, qnArticleLink ) {
+window.initQuickNote = function( qnArticle, qnUser, contrib, regdate, qnArticleLink ) {
 	article = urldecode(qnArticle);
-	
-	if (!qnArticleLink) { qnArticleLink = ""; }	
+
+	if (!qnArticleLink) { qnArticleLink = ""; }
 	articlelink = urldecode(qnArticleLink);
-	
+
 	var message = qnMsgBody.replace(/\<nowiki\>|\<\/nowiki\>/ig, '');
-	
+
 	//If this is an image, then we want to link to it, so need an extra :
 	if(article.indexOf("Image:") == 0)
 		message = message.replace(/\[\[ARTICLE\]\]/, '[[:'+article+']]');
@@ -39,7 +39,7 @@ function initQuickNote( qnArticle, qnUser, contrib, regdate, qnArticleLink ) {
 	//for QG
 	//message = message.replace(/\[\[ARTICLELINK\]\]/, '['+articlelink.replace(/ /g,'-')+' '+article+']');
 	message = message.replace(/\[\[ARTICLELINK\]\]/, articlelink.replace(/ /g,'-'));
-	
+
 	maxChar2 = maxChar + message.length;
 
 	users 		= qnUser.split("|");
@@ -55,11 +55,11 @@ function initQuickNote( qnArticle, qnUser, contrib, regdate, qnArticleLink ) {
 			html += "<OPTION value='" + i + "'>" + users[i] + "</OPTION>";
 		}
 		html += "</select>";
-	} else { 
+	} else {
 		html += "<input type='hidden' name='userdropdown' id='userdropdown' value'" + users[0] +"'/><b>" + users[0] + "</b>."
 		$('#qnTarget').val("User_talk:"+users[0]);
 	}
-	html += "<br/><span id='contribsreg'>";	
+	html += "<br/><span id='contribsreg'>";
 
 	var editorid = $('#qnEditorInfo');
 	editorid.html(html);
@@ -71,7 +71,7 @@ function initQuickNote( qnArticle, qnUser, contrib, regdate, qnArticleLink ) {
 	else {
 		$('#qn_thumbsup').hide();
 	}
-	
+
 	$('#dialog-box').html($('#quicknotecontent').html());
 	$(commentSelector).text(message);
 
@@ -86,10 +86,10 @@ function initQuickNote( qnArticle, qnUser, contrib, regdate, qnArticleLink ) {
 					var target = this.id.replace('postcommentForm_','');
 					if($("#quickedit_response_wrapper").length == 0) {
 						if($("#qccontents").length > 0) {
-							$("#qccontents").first().prepend("<div id='quickedit_response_wrapper'></div>");	
+							$("#qccontents").first().prepend("<div id='quickedit_response_wrapper'></div>");
 						}
 						else if($("#bodycontents").length > 0) {
-							$("#bodycontents").first().prepend("<div id='quickedit_response_wrapper'></div>");	
+							$("#bodycontents").first().prepend("<div id='quickedit_response_wrapper'></div>");
 						}
 											}
 					$("#quickedit_response_wrapper").html("<div id='postcomment_newmsg_" + target + "_spam'></div>");
@@ -101,11 +101,11 @@ function initQuickNote( qnArticle, qnUser, contrib, regdate, qnArticleLink ) {
 	return false;
 }
 
-function qnClose() {
+window.qnClose = function() {
 	//document.getElementById('modalPage').style.display = 'none';
 }
 
-function qnButtons(form_id, tmpl) {
+window.qnButtons = function(form_id, tmpl) {
 	var message = tmpl.replace(/\{\{\{1\}\}\}/, '[['+article+']]');
 	$(commentSelector).text(message);
 
@@ -115,16 +115,16 @@ function qnButtons(form_id, tmpl) {
 	return false;
 }
 
-function checkThumbsUp() {
+window.checkThumbsUp = function() {
 	if ($('#qn_thumbsup').is(":visible")) {
 		$('input[name="qn_thumbs_check"]').prop('checked', true);
 	}
 }
 
-function qnSend(pc_newmsg, obj) {
+window.qnSend = function(pc_newmsg, obj) {
 
 	if($(formSelector + ' #qnTarget').val()  == '') {
-		alert('Please select a user to send the quick note.'); 
+		alert('Please select a user to send the quick note.');
 		return false;
 	}
 
@@ -136,13 +136,13 @@ function qnSend(pc_newmsg, obj) {
 
 		var button = document.getElementById("postcommentbutton_" + pc_newmsg.replace(/postcomment_newmsg_/, ''));
 		if (button) { button.disabled = false; }
-	
+
 		$('#dialog-box').dialog('close');
 	}
 	return false;
 }
 
-function qnCountchars(obj) {
+window.qnCountchars = function(obj) {
 	//var countid = document.getElementById('qnCharcount');
 
 	//while(obj.value.length>maxChar2){
@@ -157,9 +157,9 @@ function qnCountchars(obj) {
 
 //###########################
 
-function urldecode( str ) {
+window.urldecode = function( str ) {
     // Decodes URL-encoded string
-    // 
+    //
     // +    discuss at: http://kevin.vanzonneveld.net/techblog/article/javascript_equivalent_for_phps_urldecode/
     // +       version: 901.1411
     // +   original by: Philip Peterson
@@ -168,16 +168,16 @@ function urldecode( str ) {
     // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
     // +   improved by: Brett Zamir
     // %          note: info on what encoding functions to use from: http://xkr.us/articles/javascript/encode-compare/
-    
+
     var histogram = {};
     var ret = str.toString();
-    
+
     var replacer = function(search, replace, str) {
         var tmp_arr = [];
         tmp_arr = str.split(search);
         return tmp_arr.join(replace);
     };
-    
+
     // The histogram is identical to the one in urlencode.
     histogram["'"]   = '%27';
     histogram['(']   = '%28';
@@ -189,9 +189,9 @@ function urldecode( str ) {
 
     for (replace in histogram) {
         search = histogram[replace]; // Switch order when decoding
-        ret = replacer(search, replace, ret) // Custom replace. No regexing   
+        ret = replacer(search, replace, ret) // Custom replace. No regexing
     }
-    
+
     // End with decodeURIComponent, which most resembles PHP's encoding functions
     ret = decodeURIComponent(ret);
 

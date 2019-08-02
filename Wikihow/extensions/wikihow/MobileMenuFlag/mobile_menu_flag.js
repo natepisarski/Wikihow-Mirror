@@ -27,7 +27,7 @@
 			if (wgUserName !== null) return false;
 
 			//not flagging if we've already set the cookie
-			var mmf = $.cookie(this.COOKIE_NAME);
+			var mmf = mw.cookie.get(this.COOKIE_NAME);
 			if (typeof mmf != 'undefined' && parseInt(mmf) == this.COOKIE_SHOW_NONE) return false;
 
 			//get the threshold percentage that's set by a mw msg
@@ -45,7 +45,7 @@
 		 */
 		getVisitorPct: function() {
 			var visitor_pct = 110; //impossible %
-			var visitor_id = $.cookie('whv');
+			var visitor_id = mw.cookie.get('whv');
 
 			if (typeof visitor_id != 'undefined') {
 
@@ -85,12 +85,14 @@
 			if (!$line.length) return;
 
 			//add those flags
-			var mmf = typeof $.cookie(this.COOKIE_NAME) == 'undefined' ? this.COOKIE_SHOW_ALL : parseInt($.cookie(this.COOKIE_NAME));
+			var mmf = typeof mw.cookie.get(this.COOKIE_NAME) == 'undefined' ? this.COOKIE_SHOW_ALL : parseInt(mw.cookie.get(this.COOKIE_NAME));
 			if (mmf < this.COOKIE_SHOW_NONE) {
 				//menu flag
 				$line.prepend('<div id="'+this.ID_MENU+'">NEW</div>');
 				//hamburger flag
-				if (mmf == this.COOKIE_SHOW_ALL) this.$hamburger.before('<div id="'+this.ID_HAMBURGER+'">1</div>');
+				if (mmf == this.COOKIE_SHOW_ALL) {
+					this.$hamburger.before('<div id="'+this.ID_HAMBURGER+'">1</div>');
+				}
 			}
 
 			this.addHandlers($line);
@@ -116,18 +118,20 @@
 
 		hamburgerClick: function() {
 			$('#'+this.ID_HAMBURGER).fadeOut($.proxy(function() {
-				$.cookie(this.COOKIE_NAME,this.COOKIE_SHOW_MENU);
+				mw.cookie.get(this.COOKIE_NAME, this.COOKIE_SHOW_MENU);
 			},this));
 		},
 
 		menuClick: function() {
-			$.cookie(this.COOKIE_NAME,this.COOKIE_SHOW_NONE);
+			mw.cookie.get(this.COOKIE_NAME, this.COOKIE_SHOW_NONE);
 		}
 
 	}
 
 	$(document).ready(function() {
-		window.WH.MobileMenuFlag.init();
+		mw.loader.using( 'mediawiki.cookie', function() {
+			window.WH.MobileMenuFlag.init();
+		} );
 	});
 
 }( mw.mobileFrontend, jQuery ));

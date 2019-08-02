@@ -17,6 +17,6 @@ CREATE TABLE /*_*/mathoid (
   math_style tinyint,
   -- type of the Math input (TeX, MathML, AsciiMath...)
   math_input_type tinyint,
-  -- encoded png image (needs to be mediumtext, since TEXT works for PNG images < 64kB only)
-  math_png mediumtext
+  -- png output of mathoid (for higher DPI settings this files might become larger than 64KiB)
+  math_png mediumblob
 ) /*$wgDBTableOptions*/;

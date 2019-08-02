@@ -10,6 +10,10 @@ a:hover {
 	text-decoration: none;
 }
 
+a.external {
+	background-image: none;
+}
+
 /**********
  * FOOTER *
  **********/
@@ -155,9 +159,13 @@ a.addtip {
 
 .content .edit-page {
 	background-size: 14px;
-	background-position: 50% 75%;
+	background-position: right 75%;
 	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMjQuODc4cHgiIGhlaWdodD0iMjQuODg3cHgiIHZpZXdCb3g9IjAgMCAyNC44NzggMjQuODg3IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyNC44NzggMjQuODg3IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiM3ODc4NzgiIGQ9Ik0yNC44NjMsNi4wMTdsLTguMDMzLDguMDMybC05LjI0Myw5LjE4TDAsMjQuODg3bDEuNTk0LTcuNjVsOS4yNDQtOS4xOGw4LjAzMy04LjAzMw0KCQljMCwwLDEuNzIxLTAuMzgzLDQuMDE3LDEuOTEzQzI1LjE4Miw0LjI5NSwyNC44NjMsNi4wMTcsMjQuODYzLDYuMDE3eiBNNy45MDUsMjEuNTczYzAsMC0wLjA2My0xLjQwMy0xLjY1Ny0yLjk5Nw0KCQljLTEuNTMtMS41OTUtMi45OTctMS41OTUtMi45OTctMS41OTVMMi41NSwxNy43NDdsLTAuNTczLDIuNTVjMC40NDYsMC4yNTUsMC45NTYsMC41NzQsMS40NjYsMS4wODMNCgkJYzAuNTc0LDAuNTc0LDAuODkzLDEuMDIsMS4xNDcsMS41M2wyLjU1MS0wLjU3NEw3LjkwNSwyMS41NzN6Ii8+DQo8L2c+DQo8L3N2Zz4NCg==);
 	background-repeat: no-repeat;
+}
+
+.mw-ui-icon-minerva-edit-enabled:before {
+	background-image: none;
 }
 
 .content .edit-page:active {
@@ -175,14 +183,16 @@ a.addtip {
 	border: none;
 	padding-bottom: 3em;
 	font-size: 1.2em;
+	box-sizing: border-box;
 }
 
 #mw-mf-page-left ul {
 	background-color: #5C5C5C;
+	padding-bottom: 0 !important;
 }
 
 #mw-mf-page-left ul li {
-	border: none;
+	border: none !important;
 	text-shadow: none;
 }
 #mw-mf-page-left ul li:active { background-color: #858585; }
@@ -208,7 +218,7 @@ a.addtip {
 	background-repeat: no-repeat;
 	background-position: 10px;
 	background-size: 20px 20px;
-	padding: 6px 0 6px 40px;
+	padding: 6px 0 6px 40px !important;
 	margin: 0;
 }
 
@@ -222,7 +232,9 @@ body.navigation-enabled {
 	border: none;
 }
 
-body.navigation-enabled #mw-mf-page-left { width: 13.5em; }
+body.navigation-enabled #mw-mf-page-left {
+	width: 13.5em;
+}
 
 body.navigation-enabled #mw-mf-page-center {
 	background-color: #e9e7e3;
@@ -731,8 +743,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	.content .edit-page, #page-actions li#ca-edit { background-size: 20px; }
 	#page-actions li#ca-edit { height: 20px; }
 
-	/*side menu*/
-	body.navigation-enabled #mw-mf-page-left { width: 10.75em; }
 	#mw-mf-page-left { font-size: 1.5em; }
 	#mw-mf-page-left ul li a { line-height: 2em; }
 
@@ -877,4 +887,23 @@ a.reference-anchor {
 }
 .language_link span {
 	padding-right: 3px;
+}
+.drawer {
+	position: fixed;
+	bottom: -500px;
+	left: 0;
+	right: 0;
+}
+
+.drawer.visible {
+	bottom: 0;
+}
+
+.skin-minervawh .drawer.references {
+	background-color: #fff;
+}
+
+/* MWUP: after the upgrade to 1.33, MW includes an empty div in the menu, distorting the layout */
+.menu.view-border-box {
+	display: none;
 }

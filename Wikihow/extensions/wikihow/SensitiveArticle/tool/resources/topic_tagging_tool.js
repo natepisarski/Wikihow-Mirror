@@ -61,7 +61,7 @@
 
 			if (this.is_mobile) {
 				var title = $('#ttt_title').clone();
-				$('#intro').prepend($(title).css('opacity',1).show());
+				$('#intro').prepend($(title).css({'opacity': 1, 'display': 'block'}));
 			}
 			else {
 				$('#ttt_remaining p').html(data.remaining);

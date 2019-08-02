@@ -74,8 +74,7 @@ class ImageHooks {
 			$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 			$currentDate = `date`;
 			// debugging output
-			wfErrorLog(trim($currentDate) . " $cmd b:$before " .
-				"a:$after ret:$retval\n", '/tmp/imgopt.log');
+			wfDebugLog('imagehooks', trim($currentDate) . " $cmd b:$before a:$after ret:$retval\n");
 		} elseif (@$params['mimeType'] == 'image/png' && file_exists($wgOptiPngCommand) && $wgOptiPngCommand) {
 			$cmd = wfEscapeShellArg($wgOptiPngCommand) . " " .
 				wfEscapeShellArg($dstPath) . " >> /tmp/imgopt.log 2>&1";
@@ -86,8 +85,7 @@ class ImageHooks {
 			$after = file_exists($dstPath) ? filesize($dstPath) : 'f';
 			$currentDate = `date`;
 			// debugging output
-			wfErrorLog(trim($currentDate) . " $cmd b:$before " .
-				"a:$after ret:$retval\n", '/tmp/imgopt.log');
+			wfDebugLog('imagehooks', trim($currentDate) . " $cmd b:$before a:$after ret:$retval\n");
 		}
 
 		return true;
@@ -149,6 +147,10 @@ class ImageHooks {
 			$rawParams = $params;
 		}
 
+		if (@$params['pageId'] && preg_match('@^aid([0-9]+)$@', $params['pageId'], $m)) {
+			$params['mArticleID'] = (int)$m[1];
+		}
+
 		if ( is_array( $params ) && isset( $params['mArticleID'] ) && WatermarkSupport::isRestricted( $params['mArticleID'] ) ) {
 			$params[WatermarkSupport::NO_WATERMARK] = true;
 		}
@@ -203,9 +205,14 @@ class ImageHooks {
 		$prefix = WatermarkSupport::getThumbPrefix( $image, $params );
 		$thumbName = $prefix . $thumbName;
 
-		// when we need a thumbnail in WEBP format instead, we see urls like this:
-		// /images/thumb/7/76/Kiss-Step-1-Version-5.jpg/aid2053-728px-Kiss-Step-1-Version-5.jpg.webp
-		if ( isset( $params['webp'] ) && $params['webp'] ) {
+		// When we need a thumbnail in WEBP format instead, we see urls like this:
+		//   /images/thumb/7/76/Kiss-Step-1-Version-5.jpg/aid2053-728px-Kiss-Step-1-Version-5.jpg.webp
+		// We rely on the input URL because sometimes there is no other way to tell
+		// that WEBP is being requested.
+		$title = @$_GET['title'];
+		if ( $title && preg_match('@^[^?]+\.webp(\?.*)?$@', $title)
+			|| isset( $params['webp'] ) && $params['webp']
+		) {
 			$thumbName .= '.webp';
 		}
 
@@ -318,15 +325,6 @@ class ImageHooks {
 				$normalizedParams['quality'] = $quality;
 			}
 		}
-	}
-
-	// Detect whether an otherwise normal thumbnail request ended with .webp. For ex:
-	// /images/thumb/7/76/Kiss-Step-1-Version-5.jpg/aid2053-728px-Kiss-Step-1-Version-5.jpg.webp
-	public static function onExtractThumbParameters($thumbname, &$params) {
-		if ( preg_match('@\.webp$@', $thumbname) ) {
-			$params['webp'] = 1;
-		}
-		return true;
 	}
 
 	public static function onUnitTestsList( &$files ) {

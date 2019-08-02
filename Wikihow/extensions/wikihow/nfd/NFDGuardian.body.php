@@ -719,7 +719,7 @@ class NFDProcessor {
 		$t = Title::newFromID($this->mResult->nfd_page);
 		if ($t) {
 			$wikiPage = WikiPage::factory($t);
-			$pageHistory = new HistoryPage($wikiPage);
+			$pageHistory = new HistoryAction($wikiPage);
 			$items = $pageHistory->fetchRevisions(100000,0,1);
 			$edits = $items->numRows();
 
@@ -728,7 +728,7 @@ class NFDProcessor {
 			if ($discussionTitle) {
 
 				$discussionPage = WikiPage::factory($discussionTitle);
-				$pageHistory = new HistoryPage($discussionPage);
+				$pageHistory = new HistoryAction($discussionPage);
 				$items = $pageHistory->fetchRevisions(100000,0,1);
 				$discussion = $items->numRows();
 			} else {
@@ -1174,7 +1174,7 @@ class NFDGuardian extends SpecialPage {
 			$out->setArticleBodyOnly(true);
 			$t = Title::newFromID($req->getVal('articleId'));
 			if ($t && $t->exists()) {
-				print PageHelpfulness::getJSsnippet("article");
+				print PageHelpfulness::getJSsnippet();
 				return;
 			}
 		} elseif ($req->getVal('diff')) {
@@ -1228,9 +1228,9 @@ class NFDGuardian extends SpecialPage {
 		/**
 		 * This is the shell of the page, has the buttons, etc.
 		 */
+		$out->addModuleStyles( ['ext.wikihow.diff_styles', 'ext.wikihow.pagehelpfulness_styles', 'ext.wikihow.nfd_guardian_styles'] );
 		$out->addModules('jquery.ui.dialog');
 		$out->addModules( ['ext.wikihow.nfd_guardian', 'ext.wikihow.editor_script'] );
-		$out->addModules( ['ext.wikihow.diff_styles', 'ext.wikihow.pagehelpfulness'] );
 
 		//add delete confirmation to bottom of page
 		$out->addHtml("<div class='waiting'><img src='" . wfGetPad('/extensions/wikihow/rotate.gif') . "' alt='' /></div>");

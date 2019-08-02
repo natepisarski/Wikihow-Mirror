@@ -72,8 +72,8 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 		return $buttons;
 	}
 
-	public static function displayQuickNote($forQG = false) {
-		global $wgServer, $wgTitle, $wgIsDevServer;
+	public static function displayQuickNote($forQG = false, $addJS = true) {
+		global $wgServer, $wgTitle;
 
 		$id = rand(0, 10000);
 		$newpage = $wgTitle->getArticleId() == 0 ? "true" : "false";
@@ -81,16 +81,10 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 		$quickNoteButtons = self::displayQuickNoteButtons($id);
 
 		$display = self::getJSMsgs();
-		if (!$wgIsDevServer) {
-			$display .= "
-<script type='text/javascript' src='" . wfGetPad('/extensions/min/f/extensions/wikihow/quicknote.js,/extensions/wikihow/PostComment/postcomment.js&rev=') . WH_SITEREV . "'></script> ";
+		if ($addJS) {
+			$src = wfGetPad('/extensions/min/f/extensions/wikihow/quicknote.js,/extensions/wikihow/PostComment/postcomment.js&rev=') . WH_SITEREV;
+			$display .= "<script type='text/javascript' src='{$src}'></script> ";
 		}
-		else {
-			$display .= "
-<script type='text/javascript' src='/extensions/wikihow/quicknote.js?rev=". WH_SITEREV . "' ></script>
-<script type='text/javascript' src='/extensions/wikihow/PostComment/postcomment.js?rev=" . WH_SITEREV . "'></script> ";
-		}
-
 		if ($forQG) {
 			$qnMsgBody = wfMessage('Quicknote_MsgBody_forQG')->text();
 			$qn_template_buttons = '';
@@ -170,6 +164,9 @@ class QuickNoteEdit extends UnlistedSpecialPage {
 	}
 
 	public static function getQuickNoteLink($title, $userId, $userText, $editor  = null) {
+		$out = RequestContext::getMain()->getOutput();
+		$out->addModules('jquery.ui.dialog');
+
 		if (!$editor) {
 			$editor = User::newFromId( $userId );
 			$editor->loadFromId();

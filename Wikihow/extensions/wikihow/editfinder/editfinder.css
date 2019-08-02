@@ -116,7 +116,7 @@ h2 .editsectionbutton {
 div#article { padding-bottom: 0; }
 
 #drafts-list-box { display: none; }
-#wpDiff { display: none; }
+#wpDiff, #wpDraftSave { display: none; }
 #othereditlink { display: none; }
 
 .editfinder_stats table {

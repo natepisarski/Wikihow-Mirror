@@ -33,8 +33,8 @@ require_once __DIR__ . '/Maintenance.php';
 class McTest extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Makes several 'set', 'incr' and 'get' requests on every"
-			. " memcached server and shows a report";
+		$this->addDescription( "Makes several 'set', 'incr' and 'get' requests on every"
+			. " memcached server and shows a report" );
 		$this->addOption( 'i', 'Number of iterations', false, true );
 		$this->addOption( 'cache', 'Use servers from this $wgObjectCaches store', false, true );
 		$this->addArg( 'server[:port]', 'Memcached server to test, with optional port', false );
@@ -47,18 +47,18 @@ class McTest extends Maintenance {
 		$iterations = $this->getOption( 'i', 100 );
 		if ( $cache ) {
 			if ( !isset( $wgObjectCaches[$cache] ) ) {
-				$this->error( "MediaWiki isn't configured with a cache named '$cache'", 1 );
+				$this->fatalError( "MediaWiki isn't configured with a cache named '$cache'" );
 			}
 			$servers = $wgObjectCaches[$cache]['servers'];
 		} elseif ( $this->hasArg() ) {
-			$servers = array( $this->getArg() );
+			$servers = [ $this->getArg() ];
 		} elseif ( $wgMainCacheType === CACHE_MEMCACHED ) {
 			global $wgMemCachedServers;
 			$servers = $wgMemCachedServers;
 		} elseif ( isset( $wgObjectCaches[$wgMainCacheType]['servers'] ) ) {
 			$servers = $wgObjectCaches[$wgMainCacheType]['servers'];
 		} else {
-			$this->error( "MediaWiki isn't configured for Memcached usage", 1 );
+			$this->fatalError( "MediaWiki isn't configured for Memcached usage" );
 		}
 
 		# find out the longest server string to nicely align output later on
@@ -67,18 +67,18 @@ class McTest extends Maintenance {
 		foreach ( $servers as $server ) {
 			$this->output(
 				str_pad( $server, $maxSrvLen ),
-				$server  # output channel
+				$server # output channel
 			);
 
-			$mcc = new MemCachedClientforWiki( array(
+			$mcc = new MemcachedClient( [
 				'persistant' => true,
 				'timeout' => $wgMemCachedTimeout
-			) );
-			$mcc->set_servers( array( $server ) );
+			] );
+			$mcc->set_servers( [ $server ] );
 			$set = 0;
 			$incr = 0;
 			$get = 0;
-			$time_start = $this->microtime_float();
+			$time_start = microtime( true );
 			for ( $i = 1; $i <= $iterations; $i++ ) {
 				if ( $mcc->set( "test$i", $i ) ) {
 					$set++;
@@ -95,21 +95,12 @@ class McTest extends Maintenance {
 					$get++;
 				}
 			}
-			$exectime = $this->microtime_float() - $time_start;
+			$exectime = microtime( true ) - $time_start;
 
 			$this->output( " set: $set   incr: $incr   get: $get time: $exectime", $server );
 		}
 	}
-
-	/**
-	 * Return microtime() as a float
-	 * @return float
-	 */
-	private function microtime_float() {
-		list( $usec, $sec ) = explode( " ", microtime() );
-		return ( (float)$usec + (float)$sec );
-	}
 }
 
-$maintClass = "McTest";
+$maintClass = McTest::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

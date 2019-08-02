@@ -1,10 +1,19 @@
 <?php
 
 namespace CirrusSearch;
-use CirrusSearch\Search\InterwikiResultsType;
+
+use CirrusSearch\Fallbacks\FallbackRunner;
+use CirrusSearch\Search\CrossProjectBlockScorerFactory;
+use CirrusSearch\Search\FullTextResultsType;
+use CirrusSearch\Search\ResultSet;
+use CirrusSearch\Search\SearchContext;
+use CirrusSearch\Search\SearchQuery;
+use CirrusSearch\Search\SearchQueryBuilder;
+use MediaWiki\MediaWikiServices;
+use User;
 
 /**
- * Performs searches using Elasticsearch -- on interwikis! 
+ * Performs searches using Elasticsearch -- on interwikis!
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,87 +32,83 @@ use CirrusSearch\Search\InterwikiResultsType;
  */
 class InterwikiSearcher extends Searcher {
 	/**
-	 * @var int Max number of results to fetch from other wiki
+	 * @param Connection $connection
+	 * @param SearchConfig $config
+	 * @param int[]|null $namespaces Namespace numbers to search, or null for all of them
+	 * @param User|null $user
+	 * @param CirrusDebugOptions|null $debugOptions
 	 */
-	const MAX_RESULTS = 5;
-
-	/**
-	 * @var string interwiki prefix
-	 */
-	private $interwiki;
-
-	/**
-	 * Constructor
-	 * @param array $namespaces Namespace numbers to search
-	 * @param array $namespaces Namespace numbers to search
-	 * @param string $index Base name for index to search from, defaults to wfWikiId()
-	 * @param string $interwiki Interwiki prefix we're searching
-	 */
-	public function __construct( $namespaces, $user, $index, $interwiki ) {
-		parent::__construct( 0, self::MAX_RESULTS, $namespaces, $user, $index );
-		$this->interwiki = $interwiki;
-		// Only allow core namespaces. We can't be sure any others exist
-		if ( $this->namespaces !== null ) {
-			$this->namespaces = array_filter( $namespaces, function( $namespace ) {
-				return $namespace <= 15;
-			} );
-		}
+	public function __construct(
+		Connection $connection,
+		SearchConfig $config,
+		array $namespaces = null,
+		User $user = null,
+		CirrusDebugOptions $debugOptions = null
+	) {
+		$maxResults = $config->get( 'CirrusSearchNumCrossProjectSearchResults' );
+		parent::__construct( $connection, 0, $maxResults, $config, $namespaces, $user, false, $debugOptions );
 	}
 
 	/**
 	 * Fetch search results, from caches, if there's any
-	 * @param string $term Search term to look for
-	 * @return Result
+	 * @param SearchQuery $query original search query
+	 * @return ResultSet[]|null
 	 */
-	public function getInterwikiResults( $term ) {
-		global $wgMemc, $wgCirrusSearchInterwikiCacheTime;
-
-		// Return early if we can
-		if ( !$term ) {
-			return;
+	public function getInterwikiResults( SearchQuery $query ) {
+		$sources = MediaWikiServices::getInstance()
+			->getService( InterwikiResolver::SERVICE )
+			->getSisterProjectConfigs();
+		if ( !$sources ) {
+			return null;
 		}
 
-		$namespaceKey = $this->namespaces !== null ?
-			implode( ',', $this->namespaces ) : '';
+		$iwQueries = [];
+		$resultsType = new FullTextResultsType();
+		foreach ( $sources as $interwiki => $config ) {
+			$iwQueries[$interwiki] = SearchQueryBuilder::forCrossProjectSearch( $config, $query )
+				->build();
+		}
 
-		$results = array();
-		$key = wfMemcKey(
-			'cirrus',
-			'interwiki',
-			$this->interwiki,
-			$namespaceKey,
-			md5( $term )
-		);
-
-		$res = $wgMemc->get( $key );
-		if ( !$res ) {
-			$this->setResultsType( new InterwikiResultsType( $this->interwiki ) );
-			$results = $this->searchText( $term, false );
-			if ( $results->isOk() ) {
-				$res = $results->getValue();
-				$wgMemc->set( $key, $res, $wgCirrusSearchInterwikiCacheTime );
+		$retval = [];
+		$searches = [];
+		$this->setResultsType( $resultsType );
+		$blockScorer = CrossProjectBlockScorerFactory::load( $this->config );
+		foreach ( $iwQueries as $interwiki => $iwQuery ) {
+			$context = SearchContext::fromSearchQuery( $iwQuery,
+				FallbackRunner::create( $this, $iwQuery ) );
+			$this->searchContext = $context;
+			$this->config = $context->getConfig();
+			$this->limit = $iwQuery->getLimit();
+			$this->offset = $iwQuery->getOffset();
+			$this->buildFullTextSearch( $query->getParsedQuery()->getQueryWithoutNsHeader() );
+			$this->indexBaseName = $context->getConfig()->get( 'CirrusSearchIndexBaseName' );
+			$search = $this->buildSearch();
+			if ( $this->searchContext->areResultsPossible() ) {
+				$searches[$interwiki] = $search;
+			} else {
+				$retval[$interwiki] = [];
 			}
 		}
-		return $res;
+
+		$results = $this->searchMulti( $searches );
+		if ( !$results->isOK() ) {
+			return null;
+		}
+
+		$retval = array_merge( $retval, $results->getValue() );
+
+		if ( $this->searchContext->getDebugOptions()->isReturnRaw() ) {
+			return $retval;
+		}
+
+		return $blockScorer->reorder( $retval );
 	}
 
 	/**
-	 * Get the index basename for a given interwiki prefix, if one is defined.
-	 * @return string
+	 * @return string The stats key used for reporting hit/miss rates of the
+	 *  application side query cache.
 	 */
-	public static function getIndexForInterwiki( $interwiki ) {
-		global $wgCirrusSearchInterwikiSources;
-		return isset( $wgCirrusSearchInterwikiSources[ $interwiki ] ) ?
-			$wgCirrusSearchInterwikiSources[ $interwiki ] : null;
-	}
-
-	/**
-	 * We don't support extra indicies when we're doing interwiki searches
-	 *
-	 * @see Searcher::getAndFilterExtraIndexes()
-	 * @return array()
-	 */
-	protected function getAndFilterExtraIndexes() {
-		return array();
+	protected function getQueryCacheStatsKey() {
+		return 'CirrusSearch.query_cache.interwiki';
 	}
 }

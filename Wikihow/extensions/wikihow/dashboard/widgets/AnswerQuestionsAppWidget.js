@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.AnswerQuestionsAppWidget = (function($) {
+WH.dashboard.AnswerQuestionsAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -57,5 +57,4 @@ WH.dashboard.AnswerQuestionsAppWidget = (function($) {
 	WH.dashboard.registerDataListener('AnswerQuestionsAppWidget', widget);
 
 	return widget;
-})(jQuery);
-
+})();

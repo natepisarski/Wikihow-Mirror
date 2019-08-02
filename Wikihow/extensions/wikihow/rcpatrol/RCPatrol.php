@@ -29,11 +29,21 @@ $wgAutoloadClasses['RCPatrol'] = __DIR__ . '/RCPatrol.body.php';
 $wgSpecialPages['RCPatrolGuts'] = 'RCPatrolGuts';
 $wgAutoloadClasses['RCPatrolGuts'] = __DIR__ . '/RCPatrol.body.php';
 
-$wgResourceModules['ext.wikihow.rcpatrol'] = [
+$wgResourceModules['ext.wikihow.rcpatrol_styles'] = [
 	'localBasePath' => __DIR__,
 	'targets' => [ 'desktop', 'mobile' ],
 	'styles' => [ 'rcpatrol.css' ],
-	'scripts' => [ 'rcpatrol.js' ],
-	'remoteExtPath' => 'wikihow',
-	'position' => 'top'
+	'remoteExtPath' => 'wikihow/rcpatrol',
+	'position' => 'top',
+];
+
+$wgResourceModules['ext.wikihow.rcpatrol'] = [
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop', 'mobile' ],
+	'scripts' => [
+		'rcpatrol.js',
+	],
+	'dependencies' => [ 'ext.wikihow.QuickNoteEdit' ],
+	'remoteExtPath' => 'wikihow/rcpatrol',
+	'position' => 'top',
 ];

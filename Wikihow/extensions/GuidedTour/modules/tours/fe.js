@@ -118,7 +118,7 @@
 				// action: 'end'
 			// }],
 			// closeOnClickOutside: false
-		// } 
+		// }
 		]
 	} );
 

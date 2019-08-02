@@ -9,6 +9,14 @@
 	padding-bottom: 0;
 }
 
+.videoBrowser-videoList-subtitle {
+    float: right;
+    height: 25px;
+    font-size: 12px;
+    font-weight: normal;
+    margin: 0 27px 0 0;
+}
+
 .videoBrowser-videoList-videos:after {
 	content: "";
 	display: table;
@@ -70,7 +78,7 @@
 	}
 }
 
-@media only screen and (max-width: @min-thumb-width * 3) {
+@media only screen and (max-width: (@min-thumb-width * 3)) {
 	.skin-minervawh {
 		.videoBrowser-videoList .videoBrowser-video {
 			width: 50%;
@@ -79,7 +87,7 @@
 	}
 }
 
-@media only screen and (max-width: @min-thumb-width * 2) {
+@media only screen and (max-width: (@min-thumb-width * 2)) {
 	.skin-minervawh {
 		.videoBrowser-videoList .videoBrowser-video {
 			width: 100%;

@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.CategorizerAppWidget = (function($) {
+WH.dashboard.CategorizerAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.CategorizerAppWidget = (function($) {
 	WH.dashboard.registerDataListener('CategorizerAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

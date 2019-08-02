@@ -27,7 +27,7 @@ WH.VideoBrowser.VideoListComponent = WH.Render.createComponent( {
 		return [ 'div.videoBrowser-videoList.section',
 			[ 'h2.videoBrowser-videoList-title',
 				[ 'span.mw-headline', props.category.title ],
-				[ 'span.videoBrowser-videoList-subtitle.editsection',
+				[ 'span.videoBrowser-videoList-subtitle',
 					'watched ' + props.category.watched + ' of ' + props.category.size
 				],
 			],

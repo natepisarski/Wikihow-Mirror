@@ -1,0 +1,284 @@
+== MediaWiki 1.33 ==
+
+THIS IS NOT A RELEASE YET
+
+MediaWiki 1.33 is an alpha-quality branch and is not recommended for use in
+production.
+
+=== Configuration changes in 1.33 ===
+
+==== New configuration ====
+* $wgEnablePartialBlocks – This enables the Partial Blocks feature, which gives
+  accounts with block permissions the ability to block users, IPs, and IP ranges
+  from editing specific pages, while allowing them to edit the rest of the wiki.
+* $wgMediaInTargetLanguage – whether multilingual images should be dispalyed in
+  the current parse language where available.
+
+==== Changed configuration ====
+* Some external link searches will not work correctly until update.php (or
+  refreshExternallinksIndex.php) is run. These include searches for links using
+  IP addresses, internationalized domain names, and possibly mailto links.
+* (T193868) $wgChangeTagsSchemaMigrationStage — This temporary setting, added in
+  MediaWiki 1.32, now defaults to MIGRATION_NEW instead of MIGRATION_WRITE_BOTH.
+
+==== Removed configuration ====
+* (T199334) $wgTagStatisticsNewTable — This temporary setting, added in
+  MediaWiki 1.32, has now been removed. When loading Special:Tags, MediaWiki
+  will now always use the `change_tag_def` instead of the `change_tag` table.
+* MediaWiki now always tidies user output, and most related
+  configuration has been removed. Thus $wgUseTidy, $wgTidyBin,
+  $wgTidyConf, $wgTidyOpts, $wgTidyInternal, and $wgDebugTidy, all
+  deprecated since 1.26, have now all been removed. The $wgTidyConfig
+  setting remains only for Remex experimental features or debugging.
+* $wgEnableParserCache, deprecated since 1.26, was removed.
+  If disabling the parser cache is still desirable,
+  set `$wgParserCacheType = CACHE_NONE;` instead.
+
+=== New features in 1.33 ===
+* (T96041) __EXPECTUNUSEDCATEGORY__ on a category page causes the category
+  to be hidden on Special:UnusedCategories.
+* Add PasswordPolicy to check the password isn't in the large blacklist.
+* The AuthManagerLoginAuthenticateAudit hook has a new parameter for
+  additional information about the authentication event.
+* TextContent::getText() was introduced as a replacement for
+  Content::getNativeData() for text-based content models.
+* (T210814) SVGs are now by default displayed in wiki language on image
+  pages.
+
+=== External library changes in 1.33 ===
+
+==== New external libraries ====
+* Added wikimedia/password-blacklist 0.1.4.
+* Added guzzlehttp/guzzle 6.3.3.
+
+==== Changed external libraries ====
+* Updated OOUI from v0.29.2 to v0.30.2.
+* Updated wikimedia/xmp-reader from 0.6.0 to 0.6.1.
+* Updated wikimedia/scoped-callback from 2.0.0 to 3.0.0.
+* Updated wikimedia/ip-set from 1.2.0 to 2.0.0.
+  * The deprecated IPSet\IPSet alias was removed, Wikimedia\IPSet must be
+    used instead.
+* Updated qunitjs from 2.6.2 to 2.9.1.
+
+==== Removed external libraries ====
+
+=== Bug fixes in 1.33 ===
+* (T164211) Special:UserRights could sometimes fail with a
+  "conflict detected" error when there weren't any conflicts.
+
+=== Action API changes in 1.33 ===
+* (T198913) Added 'ApiOptions' hook.
+* The JSON formatversion=2 is no longer experimental.
+* Internal API errors (those with code beginning "internal_api_error") will
+  include the exception class name in a data field named "errorclass".
+  * Class names are not guaranteed to remain stable, and in particular database
+    exceptions will now include the "Wikimedia\Rdbms\" prefix in the class name.
+  * The code including an exception class name is deprecated. In the future,
+    all internal errors will use code "internal_api_error".
+* (T212356) When using action=delete on pages with many revisions, the module
+  may return a boolean-true 'scheduled' and no 'logid'. This signifies that the
+  deletion will be processed via the job queue.
+* action=setnotificationtimestamp will now update the watchlist asynchronously
+  if entirewatchlist is set, so updates may not be visible immediately
+
+=== Action API internal changes in 1.33 ===
+* A number of deprecated methods for API documentation, intended for overriding
+  by extensions, are no longer called by MediaWiki, and will emit deprecation
+  notices if your extension attempts to use them:
+  * ApiBase::getDescription() (deprecated in 1.25)
+  * ApiBase::getParamDescription() (deprecated in 1.25)
+  * ApiBase::getExamples() (deprecated in 1.25)
+  * ApiBase::getDescriptionMessage() (deprecated in 1.30)
+  Additionally, the  'APIGetDescription' and 'APIGetParamDescription' hooks have
+  been removed, as their only use was to let extensions override values returned
+  by getDescription() and getParamDescription(), respectively.
+* API error codes may only contain ASCII letters, numbers, underscore, and
+  hyphen. Methods such as ApiBase::dieWithError() and
+  ApiMessageTrait::setApiCode() will throw an InvalidArgumentException if
+  passed a bad code.
+
+=== Languages updated in 1.33 ===
+MediaWiki supports over 350 languages. Many localisations are updated regularly.
+Below only new and removed languages are listed, as well as changes to languages
+because of Phabricator reports.
+
+* (T203908) Added language support for Eastern Pwo (kjp).
+* (T213717) Fixed a translation error on Goan Konkani (gom-deva) translations
+  for NS_TEMPLATE.
+* (T212221) Added $digitTransformTable for Santali (sat).
+
+=== Breaking changes in 1.33 ===
+* The parameteter $lang in DifferenceEngine::setTextLanguage must be of type
+  Language. Other types are deprecated since 1.32.
+* Skin::doEditSectionLink requires type Language for the parameter $lang.
+  The parameters $tooltip and $lang are mandatory. Omitting the parameters is
+  deprecated since 1.32.
+* Language::truncate(), deprecated in 1.31, has been removed.
+* UtfNormal, deprecated in 1.25, was removed. Use UtfNormal\Validator directly
+  instead.
+* (T197179) In OOUI HTMLForm fields, the parameters 'notice', 'notice-messages',
+  and 'notice-message', which were deprecated in 1.32, were removed. Instead,
+  use 'help', 'help-message', and 'help-messages'.
+* (T197179) HTMLFormField::getNotices(), deprecated in 1.32, was removed.
+* The "Parsoid v1" compatibility mappings in ParsoidVirtualRESTService and
+  RestbaseVirtualRESTService, deprecated since 1.26, have been removed.
+  Use the RESTBase v1 or Parsoid v3 API instead.
+* ParserOptions defaults 'tidy' to true now, since the untidy modes of the
+  parser are being deprecated and ParserOptions::getCanonicalOverrides()
+  has always been true at any rate.
+* Support for disabling tidy and external tidy implementations has been removed.
+  This was deprecated in 1.32. The pure PHP Remex tidy implementation is now
+  used and no configuration is necessary.
+* A number of deprecated methods for API documentation, intended for overriding
+  by extensions, are no longer called by MediaWiki, and will emit deprecation
+  notices if your extension attempts to use them:
+  * ApiBase::getDescription() (deprecated in 1.25)
+  * ApiBase::getParamDescription() (deprecated in 1.25)
+  * ApiBase::getExamples() (deprecated in 1.25)
+  * ApiBase::getDescriptionMessage() (deprecated in 1.30)
+  Additionally, the  'APIGetDescription' and 'APIGetParamDescription' hooks have
+  been removed, as their only use was to let extensions override values returned
+  by getDescription() and getParamDescription(), respectively.
+* The authentication hooks 'AbortAutoAccount' 'AbortNewAccount', 'AbortLogin',
+  'LoginUserMigrated', 'UserCreateForm', and 'UserLoginForm', all deprecated by
+  the creation of AuthManager in 1.27, have been removed. This also means that
+  the FakeAuthTemplate and LoginForm classes are removed, that FakeAuthTemplate
+  is no longer passed into LoginSignupSpecialPage->getFieldDefinitions(), and
+  that LoginSignupSpecialPage->getBCFieldDefinitions() is removed.
+* The 'jquery.localize' module, deprecated in 1.32, has been removed. Instead,
+  use 'jquery.i18n'.
+* The hooks LanguageGetSpecialPageAliases and LanguageGetMagic, deprecated since
+  1.16, have now been removed. Instead, use $specialPageAliases or $magicWords
+  respectively in a $wgExtensionMessagesFiles file.
+* The following methods of the Preferences class, deprecated in 1.31, have been
+  removed:
+  * getSaveBlacklist()
+  * loadPreferenceValues()
+  * getOptionFromUser()
+  * profilePreferences()
+  * skinPreferences()
+  * filesPreferences()
+  * datetimePreferences()
+  * renderingPreferences()
+  * editingPreferences()
+  * rcPreferences()
+  * watchlistPreferences()
+  * searchPreferences()
+  * miscPreferences()
+  * generateSkinOptions()
+  * getDateOptions()
+  * getImageSizes()
+  * getThumbSizes()
+  * validateSignature()
+  * cleanSignature()
+  * getTimezoneOptions()
+  * filterIntval()
+  * filterTimezoneInput()
+  * getTimeZoneList()
+* mw.util.jsMessage(), deprecated in 1.20, was removed. Use mw.notify instead.
+* (T61113) User::EDIT_TOKEN_SUFFIX was removed. It was deprecated since 1.27.
+* The 'mediawiki.api' module aliases, deprecated in 1.32, have been removed.
+  Specifically: mediawiki.api.category, mediawiki.api.edit,
+  mediawiki.api.login, mediawiki.api.options, mediawiki.api.parse,
+  mediawiki.api.upload, mediawiki.api.user, mediawiki.api.watch,
+  mediawiki.api.messages, and mediawiki.api.rollback.
+* The 'jquery.byteLimit' module alias for 'jquery.lengthLimit',
+  deprecated in 1.31, was removed.
+* Revision::fetchRevision(), deprecated in 1.28, was removed.
+
+=== Deprecations in 1.33 ===
+* The configuration option $wgUseESI has been deprecated, and is expected
+  to be removed in a future release.
+* The configuration option $wgSquidPurgeUseHostHeader has been deprecated,
+  and is expected to be removed in a future release.
+* The configuration options $wgFixArabicUnicode and $wgFixMalayalamUnicode,
+  introduced in MW 1.17, have been deprecated.  These fixes will always be
+  applied for Arabic and Malayalam in the future.  Please enable these on
+  your local wiki (if you have them explicitly set to false) and run
+  maintenance/cleanupTitles.php to fix any existing page titles.
+* The LegacyHookPreAuthenticationProvider class, deprecated since its creation
+  in 1.27 as part of the AuthManager re-write, now emits deprecation warnings.
+  This will help identify the issue if you added it to $wgAuthManagerConfig.
+* wfSplitWikiId() is now deprecated. Cache key generation should have the wiki
+  domain ID as a key component and use makeGlobalKey().
+* (T202094) Title::getUserCaseDBKey() is deprecated; instead, please use
+  Title::getDBKey(), which doesn't vary case.
+* User::getPasswordValidity() is now deprecated. User::checkPasswordValidity()
+  returns the same information in a more useful format.
+* For Linker::generateTOC() and Linker::tocList(), passing strings or booleans
+  as the $lang parameter was deprecated. The same applies to DummyLinker.
+* The PasswordPolicy 'PasswordCannotBePopular' has been deprecated. To
+  follow best practices, it is reccommended to use 'PasswordNotInLargeBlacklist'
+  instead which blacklists 100,000 commonly used passwords.
+* (T208862) Action::requiresUnblock() is now called from
+  Title::getUserPermissionsErrors() and Title::userCan(). Previously, the method
+  was only called in Action::checkCanExecute(). Actions should ensure that their
+  requiresUnblock() returns the proper result (the default is `true`).
+* (T211608) The MediaWiki\Services namespace has been renamed to
+  Wikimedia\Services. The old name is still supported, but deprecated.
+* (T155582) Content::getNativeData has been deprecated. Please use model-
+  specific getters, such as TextContent::getText().
+* The class WebInstallerOutput is now marked as @private.
+* (T209699) The jquery.async module has been deprecated. JavaScript code that
+  needs asynchronous behaviour should use Promises.
+* Password::equals() is deprecated, use verify().
+* BaseTemplate::msgWiki() and QuickTemplate::msgWiki() will be removed. Use
+  other means to fetch a properly escaped message string or Message object.
+
+=== Other changes in 1.33 ===
+* (T208871) The hard-coded Google search form on the database error page was
+  removed.
+* (T201747) Html::openElement() warns if given an element name wiht a space
+  in it.
+
+== Compatibility ==
+MediaWiki 1.33 requires PHP 7.0.0 or later. Although HHVM 3.18.5 or later is
+supported, it is generally advised to use PHP 7.0.0 or later for long term
+support.
+
+MySQL/MariaDB is the recommended DBMS. PostgreSQL or SQLite can also be used,
+but support for them is somewhat less mature. There is experimental support for
+Oracle and Microsoft SQL Server.
+
+The supported versions are:
+
+* MySQL 5.5.8 or later
+* PostgreSQL 9.2 or later
+* SQLite 3.3.7 or later
+* Oracle 9.0.1 or later
+* Microsoft SQL Server 2005 (9.00.1399)
+
+== Upgrading ==
+1.33 has several database changes since 1.32, and will not work without schema
+updates. Note that due to changes to some very large tables like the revision
+table, the schema update may take quite long (minutes on a medium sized site,
+many hours on a large site).
+
+Don't forget to always back up your database before upgrading!
+
+See the file UPGRADE for more detailed upgrade instructions, including
+important information when upgrading from versions prior to 1.11.
+
+For notes on 1.32.x and older releases, see HISTORY.
+
+== Online documentation ==
+Documentation for both end-users and site administrators is available on
+MediaWiki.org, and is covered under the GNU Free Documentation License (except
+for pages that explicitly state that their contents are in the public domain):
+
+       https://www.mediawiki.org/wiki/Special:MyLanguage/Documentation
+
+== Mailing list ==
+A mailing list is available for MediaWiki user support and discussion:
+
+       https://lists.wikimedia.org/mailman/listinfo/mediawiki-l
+
+A low-traffic announcements-only list is also available:
+
+       https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce
+
+It's highly recommended that you sign up for one of these lists if you're
+going to run a public MediaWiki, so you can be notified of security fixes.
+
+== IRC help ==
+There's usually someone online in #mediawiki on irc.freenode.net.

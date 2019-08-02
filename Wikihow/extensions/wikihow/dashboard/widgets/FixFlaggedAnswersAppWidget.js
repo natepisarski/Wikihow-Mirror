@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.FixFlaggedAnswersAppWidget = (function($) {
+WH.dashboard.FixFlaggedAnswersAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -56,5 +56,5 @@ WH.dashboard.FixFlaggedAnswersAppWidget = (function($) {
 	WH.dashboard.registerDataListener('FixFlaggedAnswersAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

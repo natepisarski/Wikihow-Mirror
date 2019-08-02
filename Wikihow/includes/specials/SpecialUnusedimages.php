@@ -44,31 +44,30 @@ class UnusedimagesPage extends ImageQueryPage {
 	}
 
 	function getQueryInfo() {
-		global $wgCountCategorizedImagesAsUsed;
-		$retval = array(
-			'tables' => array( 'image', 'imagelinks' ),
-			'fields' => array( 'namespace' => NS_FILE,
-					'title' => 'img_name',
-					'value' => 'img_timestamp',
-					'img_user', 'img_user_text',
-					'img_description' ),
-			'conds' => array( 'il_to IS NULL' ),
-			'join_conds' => array( 'imagelinks' => array(
-					'LEFT JOIN', 'il_to = img_name' ) )
-		);
+		$retval = [
+			'tables' => [ 'image', 'imagelinks' ],
+			'fields' => [
+				'namespace' => NS_FILE,
+				'title' => 'img_name',
+				'value' => 'img_timestamp',
+			],
+			'conds' => [ 'il_to IS NULL' ],
+			'join_conds' => [ 'imagelinks' => [ 'LEFT JOIN', 'il_to = img_name' ] ]
+		];
 
-		if ( $wgCountCategorizedImagesAsUsed ) {
+		if ( $this->getConfig()->get( 'CountCategorizedImagesAsUsed' ) ) {
 			// Order is significant
-			$retval['tables'] = array( 'image', 'page', 'categorylinks',
-					'imagelinks' );
+			$retval['tables'] = [ 'image', 'page', 'categorylinks',
+				'imagelinks' ];
 			$retval['conds']['page_namespace'] = NS_FILE;
 			$retval['conds'][] = 'cl_from IS NULL';
 			$retval['conds'][] = 'img_name = page_title';
-			$retval['join_conds']['categorylinks'] = array(
-					'LEFT JOIN', 'cl_from = page_id' );
-			$retval['join_conds']['imagelinks'] = array(
-					'LEFT JOIN', 'il_to = page_title' );
+			$retval['join_conds']['categorylinks'] = [
+				'LEFT JOIN', 'cl_from = page_id' ];
+			$retval['join_conds']['imagelinks'] = [
+				'LEFT JOIN', 'il_to = page_title' ];
 		}
+
 		return $retval;
 	}
 
@@ -77,6 +76,11 @@ class UnusedimagesPage extends ImageQueryPage {
 	}
 
 	function getPageHeader() {
+		if ( $this->getConfig()->get( 'CountCategorizedImagesAsUsed' ) ) {
+			return $this->msg(
+				'unusedimagestext-categorizedimgisused'
+			)->parseAsBlock();
+		}
 		return $this->msg( 'unusedimagestext' )->parseAsBlock();
 	}
 

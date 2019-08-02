@@ -1,9 +1,11 @@
 <?php
 
 namespace CirrusSearch\Job;
+
 use CirrusSearch\OtherIndexes;
-use \JobQueueGroup;
-use \Title;
+use CirrusSearch\SearchConfig;
+use JobQueueGroup;
+use Title;
 
 /**
  * Job wrapper around OtherIndexes. Used during page updates.
@@ -26,38 +28,47 @@ use \Title;
 class OtherIndex extends Job {
 	/**
 	 * Check if we need to make a job and inject one if so.
-	 * @param $titles array(Title) The title we might update
-	 * @param $existsInLocalIndex boolean Do these titles exist in the local index?
+	 *
+	 * @param SearchConfig $config
+	 * @param Title[] $titles The title we might update
+	 * @param string|null $cluster The name of the cluster to write
+	 *  to, or null for all clusters.
 	 */
-	public static function queueIfRequired( $titles, $existsInLocalIndex ) {
-		$titlesToUpdate = array();
-		foreach( $titles as $title ) {
-			if ( OtherIndexes::getExternalIndexes( $title ) ) {
-				$titlesToUpdate[] = array( $title->getNamespace(), $title->getText() );
+	public static function queueIfRequired( SearchConfig $config, array $titles, $cluster ) {
+		$titlesToUpdate = [];
+		foreach ( $titles as $title ) {
+			if ( OtherIndexes::getExternalIndexes( $config, $title, $cluster ) ) {
+				$titlesToUpdate[] = [ $title->getNamespace(), $title->getText() ];
 			}
 		}
 		if ( $titlesToUpdate ) {
 			// Note that we're updating a bunch of titles but we have to pick one to
 			// attach to the job so we pick the first one.
 			JobQueueGroup::singleton()->push(
-				new self( $titles[ 0 ], array(
+				new self( $titles[0], [
 					'titles' => $titlesToUpdate,
-					'existsInLocalIndex' => $existsInLocalIndex,
-				) )
+					'cluster' => $cluster,
+				] )
 			);
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	protected function doJob() {
-		$titles = array();
-		foreach ( $this->params[ 'titles' ] as $titleArr ) {
+		$titles = [];
+		foreach ( $this->params['titles'] as $titleArr ) {
 			list( $namespace, $title ) = $titleArr;
 			$titles[] = Title::makeTitle( $namespace, $title );
 		}
-		$otherIdx = new OtherIndexes( wfWikiId() );
+		$flags = [];
+		if ( $this->params['cluster'] ) {
+			$flags[] = 'same-cluster';
+		}
+		$otherIdx = new OtherIndexes( $this->connection, $this->searchConfig, $flags, wfWikiID() );
+		$otherIdx->updateOtherIndex( $titles );
 
-		return $this->params[ 'existsInLocalIndex' ] ?
-			$otherIdx->addLocalSiteToOtherIndex( $titles ) :
-			$otherIdx->removeLocalSiteFromOtherIndex( $titles );
+		return true;
 	}
 }

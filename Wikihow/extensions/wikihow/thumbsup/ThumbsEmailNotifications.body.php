@@ -70,15 +70,12 @@ $html_text";
 			}
 
 			$to = new MailAddress($email);
-			UserMailer::send($to, $from, $subject, $body, null, "multipart/alternative;\n" .
-							"     boundary=" . $mime_boundary_header, "thumbs_up") ;
-
-			// send one to our test email account for debugging
-			/*
-			$to = new MailAddress('elizabethwikihowtest@gmail.com');
-			UserMailer::send($to, $from, $subject, $body, null, "multipart/alternative;\n" .
-							"     boundary=" . $mime_boundary_header, "thumbs_up") ;
-			*/
+			$opts = [
+				'contentType' => "multipart/alternative;\n" .
+					"     boundary=" . $mime_boundary_header,
+				'category' => "thumbs_up",
+			];
+			UserMailer::send($to, $from, $subject, $body, $opts);
 			return true;
 
 	}

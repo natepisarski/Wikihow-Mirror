@@ -1,5 +1,5 @@
 /* JavaScript for Drafts extension */
-
+/*global $, mw, ActiveXObject, checkMinLength, WH, isGuided */
 function Draft() {
 
 	/* Private Members */
@@ -28,33 +28,38 @@ function Draft() {
 			// Stores state information
 			state = newState;
 			// Updates UI elements
+			var disabled, value;
 			switch ( state ) {
 				case 'unchanged':
-					form.wpDraftSave.disabled = true;
-					form.wpDraftSave.className += ' disabled ';
-					form.wpDraftSave.value = mw.message( 'drafts-save-save' ).text();
+					disabled = true;
+					value = mw.message( 'drafts-save-save' ).text();
 					break;
 				case 'changed':
-					form.wpDraftSave.disabled = false;
-					form.wpDraftSave.className = form.wpDraftSave.className.replace(/ disabled/g,'');
-					form.wpDraftSave.value = mw.message( 'drafts-save-save' ).text();
+					disabled = false;
+					value = mw.message( 'drafts-save-save' ).text();
 					break;
 				case 'saved':
-					form.wpDraftSave.disabled = true;
-					form.wpDraftSave.className += ' disabled ';
-					form.wpDraftSave.value = mw.message( 'drafts-save-saved' ).text();
+					disabled = true;
+					value = mw.message( 'drafts-save-saved' ).text();
 					break;
 				case 'saving':
-					form.wpDraftSave.disabled = true;
-					form.wpDraftSave.className += ' disabled ';
-					form.wpDraftSave.value = mw.message( 'drafts-save-saving' ).text();
+					disabled = true;
+					value = mw.message( 'drafts-save-saving' ).text();
 					break;
 				case 'error':
-					form.wpDraftSave.disabled = true;
-					form.wpDraftSave.className += ' disabled ';
-					form.wpDraftSave.value = mw.message( 'drafts-save-error' ).text();
+					disabled = true;
+					value = mw.message( 'drafts-save-error' ).text();
 					break;
 				default: break;
+			}
+			var $input = $( '#wpDraftSave' );
+			var $widget = $( '#wpDraftSaveWidget' );
+			if ( disabled !== undefined ) {
+				$input.prop( 'disabled', disabled );
+				$widget.toggleClass( 'oo-ui-widget-disabled', disabled );
+			}
+			if ( value !== undefined ) {
+				$input.val( value );
 			}
 		}
 	};
@@ -101,9 +106,9 @@ function Draft() {
 		api.post(params).done( self.respond ).fail( self.respond );
 
 		// Re-allow request if it is not done in 10 seconds
-		self.timeoutID = window.setTimeout(
-			"wgDraft.setState( 'changed' )", 10000
-		);
+		self.timeoutID = window.setTimeout( function () {
+			self.setState( 'changed' );
+		}, 10000 );
 		// Ensure timer is cleared in case we saved manually before it expired
 		clearTimeout( timer );
 		timer = null;
@@ -119,19 +124,20 @@ function Draft() {
 		// Sets state to saving
 		self.setState( 'saving' );
 
-		checkMinLength = false;
+
+		checkMinLength = false; // eslint-disable-line no-global-assign
 		WH.Editor.checkForm();
-		checkMinLength = true;
+		checkMinLength = true; // eslint-disable-line no-global-assign
 
 		// setu p text
-		var parameters = "";
+		var parameters = '';
 		for (var i=0; i < document.editform.elements.length; i++) {
 			var element = document.editform.elements[i];
-			if (parameters != "") {
-				parameters += "&";
+			if (parameters != '') {
+				parameters += '&';
 			}
 
-			parameters += element.name + "=" + encodeURIComponent(element.value);
+			parameters += element.name + '=' + encodeURIComponent(element.value);
 		}
 		try {
 			this.request = new XMLHttpRequest();
@@ -142,7 +148,7 @@ function Draft() {
 				return false;
 			}
 		}
-		var url = "//" + window.location.hostname + "/Special:BuildWikihowArticle";
+		var url = '//' + window.location.hostname + '/Special:BuildWikihowArticle';
 		this.request.open('POST', url, false);
 		this.request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		this.request.send(parameters);
@@ -168,10 +174,10 @@ function Draft() {
 		var api = new mw.Api();
 		api.post(params).done( self.respond ).fail( self.respond );
 
-    	// Ensure timer is cleared in case we saved manually before it expired
+		// Ensure timer is cleared in case we saved manually before it expired
 		clearTimeout( timer );
 		timer = null;
-	}
+	};
 	/**
 	 * Updates the user interface to represent being out of sync with the server
 	 */
@@ -186,7 +192,7 @@ function Draft() {
 			if ( configuration.autoSaveWait && configuration.autoSaveWait > 0 ) {
 				// Sets timer to save automatically after a period of time
 				timer = setTimeout(function() {
-					var e = jQuery.Event();
+					var e = $.Event();
 					if (typeof isGuided !== 'undefined' && isGuided) {
 						self.save_guided(e);
 					} else {
@@ -205,7 +211,7 @@ function Draft() {
 		if ( configuration.autoSaveWait && configuration.autoSaveWait > 0 ) {
 			// Sets timer to save automatically after a period of time
 			timer = setTimeout(function() {
-				var e = jQuery.Event();
+				var e = $.Event();
 				if (typeof isGuided !== 'undefined' && isGuided) {
 					self.save_guided(e);
 				} else {
@@ -223,15 +229,26 @@ function Draft() {
 		form = document.editform;
 		// Check to see that the form and controls exist
 		if ( form && form.wpDraftSave ) {
+			var $input = $( '#wpDraftSave' );
+			var $widget = $( '#wpDraftSaveWidget' );
+
+			// Gets configured specific values
+			configuration = {
+				autoSaveWait: mw.config.get( 'wgDraftAutoSaveWait' ),
+				autoSaveTimeout: mw.config.get( 'wgDraftAutoSaveTimeout' ),
+				autoSaveBasedOnInput: mw.config.get( 'wgDraftAutoSaveInputBased' )
+			};
+
+			$input.attr( 'disabled', 'disabled' );
+			$widget.addClass( 'oo-ui-widget-disabled' );
 			// Handle manual draft saving through clicking the save draft button
-			$('#wpDraftSave').on('click', function(e) {
+			$input.on('click', function(e) {
 				if (typeof isGuided !== 'undefined' && isGuided) {
 					self.save_guided(e);
 				} else {
 					self.save(e);
 				}
 			});
-			
 			// Handle keeping track of state by watching for changes to fields
 			if($('#wpTextbox1').length) {
 				$('#wpTextbox1').bind('keypress keyup keydown paste cut', function() {
@@ -241,23 +258,17 @@ function Draft() {
 			else {
 				// GUIDED HANDLERS                                                                                                                                                            
 				//XXCHANGEDXX - addHandler is so 2005... [sc]
-				$("#summary, #ingredients, #steps, #tips, #warnings, #thingsyoullneed, #related, #sources").bind('keypress keyup keydown paste cut', function() {
-					self.change();
-				});
-
+				$( '#summary, #ingredients, #steps, #tips, #warnings, #thingsyoullneed, #related, #sources' )
+					.bind('keypress keyup keydown paste cut', function() {
+						self.change();
+					});
 			}
 
-			$('#wpSummary').bind('keypress', 'keyup', 'keydown', 'paste', 'cut', self.change);
+			$( '#wpSummary' ).bind('keypress keyup keydown paste cut', self.change);
 
 			if ($('#wpMinoredit').length) {
 				$('#wpMinoredit').bind('change', self.change);
 			}
-			// Gets configured specific values
-			configuration = {
-				autoSaveWait: mw.config.get( 'wgDraftAutoSaveWait' ),
-				autoSaveTimeout: mw.config.get( 'wgDraftAutoSaveTimeout' ),
-				autoSaveBasedOnInput: mw.config.get( 'wgDraftAutoSaveInputBased' )
-			};
 		}
 	};
 

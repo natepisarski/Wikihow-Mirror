@@ -43,7 +43,7 @@ class QABox extends UnlistedSpecialPage {
 
 			//marking the last question as answered?
 			if ($action == 'load') {
-				$out->setSquidMaxage($wgSquidMaxage);
+				$out->setCdnMaxage($wgSquidMaxage);
 			} elseif ($action == 'refresh' && $answered_sqid) {
 				self::updateAnswerFlag($answered_sqid);
 			}

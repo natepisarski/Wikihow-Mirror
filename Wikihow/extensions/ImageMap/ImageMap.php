@@ -1,23 +1,14 @@
 <?php
 
-$dir = __DIR__ . '/';
-$wgExtensionMessagesFiles['ImageMap'] = $dir . 'ImageMap.i18n.php';
-$wgAutoloadClasses['ImageMap'] = $dir . 'ImageMap_body.php';
-$wgHooks['ParserFirstCallInit'][] = 'wfSetupImageMap';
-
-$wgExtensionCredits['parserhook']['ImageMap'] = array(
-	'path'           => __FILE__,
-	'name'           => 'ImageMap',
-	'author'         => 'Tim Starling',
-	'url'            => 'https://www.mediawiki.org/wiki/Extension:ImageMap',
-	'descriptionmsg' => 'imagemap_desc',
-);
-
-/**
- * @param $parser Parser
- * @return bool
- */
-function wfSetupImageMap( &$parser ) {
-	$parser->setHook( 'imagemap', array( 'ImageMap', 'render' ) );
+if ( function_exists( 'wfLoadExtension' ) ) {
+	wfLoadExtension( 'ImageMap' );
+	// Keep i18n globals so mergeMessageFileList.php doesn't break
+	$wgMessagesDirs['ImageMap'] = __DIR__ . '/i18n';
+	wfWarn(
+		'Deprecated PHP entry point used for ImageMap extension. Please use wfLoadExtension instead, ' .
+		'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
+	);
 	return true;
+} else {
+	die( 'This version of the ImageMap extension requires MediaWiki 1.25+' );
 }

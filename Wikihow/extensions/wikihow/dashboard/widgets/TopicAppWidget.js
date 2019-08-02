@@ -1,5 +1,5 @@
 // Add this widget to the WH.dashboard module
-WH.dashboard.TopicAppWidget = (function($) {
+WH.dashboard.TopicAppWidget = (function() {
 
 	// Make aliases for things we use a lot
 	var animateUpdate = WH.dashboard.animateUpdate,
@@ -80,5 +80,5 @@ WH.dashboard.TopicAppWidget = (function($) {
 	WH.dashboard.registerDataListener('TopicAppWidget', widget);
 
 	return widget;
-})(jQuery);
+})();
 

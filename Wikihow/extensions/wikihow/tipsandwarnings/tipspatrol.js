@@ -291,4 +291,8 @@ window.WH.TipsPatrol = {
 	init : init
 };
 
+mw.loader.using( 'common.mousetrap', function() {
+	init(WH.tipsPatrolCoachSetting);
+} );
+
 }(jQuery, mediaWiki) );
