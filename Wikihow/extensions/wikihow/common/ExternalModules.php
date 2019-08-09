@@ -148,7 +148,7 @@ $wgResourceModules['wikihow.common.querybuilder'] = array (
 		'moment.min.js',
 		'interact.min.js',
 		'select2/select2.js',
-		'jquery-ui-1.8.full.min.js',
+		'jquery-ui-1.12.1/jquery-ui.min.js',
 		'toastr/toastr.min.js',
 		'query-builder/query-builder.min.js',
 		'query-builder/query-builder.select2.js',

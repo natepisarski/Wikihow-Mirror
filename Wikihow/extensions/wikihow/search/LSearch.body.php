@@ -288,9 +288,9 @@ class LSearch extends SpecialPage {
 
 		// Fallback to internal search results (extracts results from MediaWiki Special:Search) for
 		// English only
-		if ( $this->getLanguage()->getCode() == 'en' ) {
-			return $this->internalSearchResults( $q, $start, $limit );
-		}
+//		if ( $this->getLanguage()->getCode() == 'en' ) {
+//			return $this->internalSearchResults( $q, $start, $limit );
+//		}
 		return 0;
 	}
 

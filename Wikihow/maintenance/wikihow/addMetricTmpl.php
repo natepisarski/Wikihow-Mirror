@@ -34,7 +34,6 @@
 
 require_once __DIR__ . '/../commandLine.inc';
 $wgUser = User::newFromName('MiscBot');
-$db = wfGetDB(DB_REPLICA);
 $articles = array();
 $articles_skipped = array();
 $skipcheck = ($options['skipped']) ? true : false;
@@ -73,7 +72,7 @@ foreach ($res as $row) {
 }
 
 function checkForConversion($page_title,$options) {
-	global $db, $articles;
+	global $articles;
 	global $nums, $numWS, $conns, $negLA, $negLB;
 	
 	$title = Title::newFromText($page_title);
@@ -82,7 +81,7 @@ function checkForConversion($page_title,$options) {
 	//also skip protected articles
 	if (!$title || preg_match('@(convert|metric|calculate)@i',$title->getText()) || $title->isProtected()) return;
 
-	$wikitext = Wikitext::getWikitext($db, $title);
+	$wikitext = Wikitext::getWikitext($title);
 	
 	//substitute tokens for things we're skipping
 	list($new_wikitext, $all_tokens) = tokenize($wikitext);

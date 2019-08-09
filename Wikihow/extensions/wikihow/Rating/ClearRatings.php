@@ -30,6 +30,11 @@ class ClearRatings extends SpecialPage {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 
+		if ($user->isAnon()) {
+			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+			return;
+		}
+
 		$err = "";
 		$target = isset( $par ) ? $par : $req->getVal( 'target' );
 		$restore = $req->getVal('restore', null);
@@ -103,7 +108,7 @@ class ClearRatings extends SpecialPage {
 			} elseif ($type == "article" && !$t->inNamespace(NS_MAIN)) {
 				$err = wfMessage('clearratings_only_main', $target);
 			} else {
-				// clearing info
+				// list all previous ratings clearing info
 				$ratingTool->showClearingInfo($t, $id, $me, $target);
 				$ap = Title::makeTitle(NS_SPECIAL, "AccuracyPatrol");
 				$out->addHTML( Linker::link($ap, "Return to accuracy patrol") );

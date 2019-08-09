@@ -358,14 +358,14 @@ EditFinder.prototype.showPreview = function (id) {
 		type: 'POST',
 		data: $('#editform').serialize() + '&wpPreview=true&live=true&action=edit&title=' + thisTitle,
 		success: function(data) {
-
 			var XMLObject = data;
-			var previewElement = jQuery(data).find('preview').first();
+			var $content = jQuery( '<div>' + data + '</div>' );
+			var previewElement = $content.find('.mw-content-ltr,.mw-content-rtl').first();
 
 			/* Inject preview */
 			var previewContainer = jQuery('#editfinder_preview_updated');
 			if ( previewContainer && previewElement ) {
-				previewContainer.html(previewElement.first().text());
+				previewContainer.html(previewElement.html());
 				previewContainer.slideDown('slow');
 			}
 		}

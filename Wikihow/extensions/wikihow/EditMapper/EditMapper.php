@@ -16,5 +16,5 @@ $wgAutoloadClasses['EditMapper\EditMapperHooks'] = __DIR__ . '/EditMapper.hooks.
 $wgAutoloadClasses['EditMapper\EditMapper'] = __DIR__ . '/EditMapper.class.php';
 $wgAutoloadClasses['EditMapper\PortalEditMapper'] = __DIR__ . '/PortalEditMapper.class.php';
 
-$wgHooks['PageContentSave'][] = 'EditMapper\EditMapperHooks::onPageContentSave';
+$wgHooks['BeforePrepareContent'][] = 'EditMapper\EditMapperHooks::onBeforePrepareContent';
 $wgHooks['PageContentSaveComplete'][] = 'EditMapper\EditMapperHooks::onPageContentSaveComplete';

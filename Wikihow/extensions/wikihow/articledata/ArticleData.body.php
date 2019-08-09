@@ -40,8 +40,8 @@ class ArticleData extends UnlistedSpecialPage {
 			return;
 		}
 
+		$out->addModules( 'ext.wikihow.articledata' );
 		$this->action = empty($par) ? 'cats' : strtolower($par);
-		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/download.jQuery.js'));
 		EasyTemplate::set_path( __DIR__.'/' );
 		$vars = array();
 		$this->setVars($vars);
@@ -179,14 +179,13 @@ class ArticleData extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 
 		$urls = explode("\n", trim(Misc::getUrlDecodedData($req->getVal('data'))));
-		$dbr = wfGetDB(DB_REPLICA);
 		$articles = array();
 		foreach ($urls as $url) {
 			$t = Misc::getTitleFromText($url);
 			if ($t && $t->exists()) {
 				$articles[$t->getArticleId()] = array ('url' => Misc::makeUrl($t->getText()));
 				if ($this->slowQuery) {
-					$wikitext = Wikitext::getWikitext($dbr, $t);
+					$wikitext = Wikitext::getWikitext($t);
 					$articles[$t->getArticleId()]['alts'] = $this->hasAlternateMethods($wikitext) ? "Yes" : "No";
 					$articles[$t->getArticleId()]['size'] = $this->getArticleSize($t);
 					$articles[$t->getArticleId()]['imgs'] = $this->hasImages($wikitext);

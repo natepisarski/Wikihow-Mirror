@@ -195,7 +195,7 @@ class CivicLogin extends UnlistedSpecialPage {
 		CivicSocialUser::newFromWhId($user->getID())->unlink();
 
 		// Display confirmation message and temporary password
-		$newpass = AdminResetPassword::resetPassword($user->getName());
+		$newpass = AdminResetPassword::resetPassword( $user, $user->getName() );
 		$html = '<p><b>Your disconnected login name:</b> ' . $user->getName() . '</p>'.
 				'<p><b>Your temporary password:</b> '.$newpass.'</p>'.
 				'<p>Copy it down and then use it to <a href="/Special:Userlogin">login here</a>.';

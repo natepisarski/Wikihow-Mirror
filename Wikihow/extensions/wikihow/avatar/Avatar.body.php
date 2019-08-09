@@ -491,6 +491,8 @@ Event.observe(window, 'load', initNonModal);
 	public function execute($par) {
 		global $wgUser, $wgOut, $wgTitle, $wgRequest, $wgImageMagickConvertCommand;
 		$dbw = wfGetDB(DB_MASTER);
+		$this->getOutput()->setRobotPolicy('noindex,nofollow');
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		if (!$wgUser || $wgUser->isAnon()) {
 			$wgOut->addHtml('You must <a href="/Special:UserLogin">sign in</a> to use this page.');

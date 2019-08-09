@@ -42,6 +42,16 @@ class WikihowArticleHTML {
 		$user = $ctx->getUser();
 		$title = $ctx->getTitle();
 		$langCode = $ctx->getLanguage()->getCode();
+		global $wgRequest;
+
+		// Only output body for "live" previews
+		if (
+			$req->getVal( 'action' ) == 'edit' &&
+			$req->getBool( 'wpPreview' ) &&
+			$req->getBool( 'live' )
+		) {
+			$out->setArticleBodyOnly( true );
+		}
 
 		// Trevor, 5/22 - Used later on to add structred data to inline summary videos, must be
 		// called here due to mysterious issue with calling it later to be solved in the future
@@ -447,9 +457,14 @@ class WikihowArticleHTML {
 
 		// Change ids for ingredients and things you'll need so CSS and other stuff works on intl
 		if ( Misc::isIntl() ) {
-
-			$canonicalIngredients = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('ingredients')->text());
-			pq("#" . $canonicalIngredients)->attr('id', 'ingredients');
+			$ingredientsMessage = wfMessage('ingredients');
+			if ( $ingredientsMessage->exists() ) {
+				$ingredientsMessage = wfMessage('ingredients')->text();
+				$canonicalIngredients = WikihowArticleHTML::canonicalizeHTMLSectionName( $ingredientsMessage );
+				if ( pq("#" . $canonicalIngredients)->length > 0) {
+					pq("#" . $canonicalIngredients)->attr('id', 'ingredients');
+				}
+			}
 
 			// Thing you'll need fixing code goes haywire on Hindi, so take it out
 			if ($langCode != 'hi') {
@@ -459,7 +474,6 @@ class WikihowArticleHTML {
 
 			pq("#" . mb_strtolower(wfMessage('video')))->attr('id', 'video');
 		}
-
 
 		Hooks::run('AtAGlanceTest', array( $title ) );
 
@@ -853,7 +867,7 @@ class WikihowArticleHTML {
 		DOMUtil::hideLinksInArticle();
 
 
-		if (class_exists('ArticleQuizzes')) {
+		if ( class_exists('ArticleQuizzes') && $wgRequest->getText('action') != 'submit' ) {
 			$articleQuizzes = new ArticleQuizzes($title->getArticleID());
 			$count = 1;
 			foreach (pq(".steps h3") as $headline) {

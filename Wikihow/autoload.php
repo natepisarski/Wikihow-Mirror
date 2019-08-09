@@ -1657,6 +1657,7 @@ $wgAutoloadLocalClasses = [
 	'Wikimedia\\Rdbms\\DatabaseMysqlBase' => __DIR__ . '/includes/libs/rdbms/database/DatabaseMysqlBase.php',
 	'Wikimedia\\Rdbms\\DatabaseMysqli' => __DIR__ . '/includes/libs/rdbms/database/DatabaseMysqli.php',
 	'Wikimedia\\Rdbms\\DatabasePostgres' => __DIR__ . '/includes/libs/rdbms/database/DatabasePostgres.php',
+	'Wikimedia\\Rdbms\\DatabaseRedshift' => __DIR__ . '/includes/libs/rdbms/database/DatabaseRedshift.php',
 	'Wikimedia\\Rdbms\\DatabaseSqlite' => __DIR__ . '/includes/libs/rdbms/database/DatabaseSqlite.php',
 	'Wikimedia\\Rdbms\\FakeResultWrapper' => __DIR__ . '/includes/libs/rdbms/database/resultwrapper/FakeResultWrapper.php',
 	'Wikimedia\\Rdbms\\Field' => __DIR__ . '/includes/libs/rdbms/field/Field.php',

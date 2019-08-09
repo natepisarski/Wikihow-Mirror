@@ -44,7 +44,7 @@ class UserPagePolicy {
 
 		// Hide user pages belonging to users who've been inactive for 1+ years
 		$lastYear = wfTimestamp( TS_MW, strtotime( '-1 year' ) );
-		if ( $reqUser->isAnon() && $user->getTouched() < $lastYear ) {
+		if ( $reqUser->isAnon() && $user->getDBTouched() < $lastYear ) {
 			self::$goodUserCache[$name] = false;
 			return false;
 		}

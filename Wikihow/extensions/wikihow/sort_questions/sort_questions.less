@@ -2,50 +2,253 @@
 @import '../less/mixins.less';
 @import '../less/common.less';
 
+@small: ~'only screen and (max-width: 690px)';
+@medium: ~'only screen and (min-width:690px) and (max-width: 1051px)';
+@large: ~'only screen and (min-width:1051px)';
+
 @buttonSize: 30px;
 @buttonSizeLarge: 40px;
 
-#next-container {
-	box-shadow: 0px 0px 2px #999;
-	box-sizing: border-box;
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	width: 100%;
+@media @small {
+	#article_shell {
+		width: 100%;
+		margin-right: 0px;
+		font-size: 14px;
+	}
+
+	.article_title {
+		padding: 10px 10px 10px 15px;
+		font-size: 16px;
+		line-height: 21px;
+
+		a {
+			font-weight: bold;
+		}
+	}
+
+	#sidebar {
+		display: none !important;
+	}
+
+	#main_container {
+		width: 100%;
+		padding: 0;
+	}
+
+	#actionbar {
+		height: 0;
+	}
+
+	.minor_section {
+		padding: 5px;
+	}
+
+	.wh_block {
+			margin-bottom: 0;
+			padding: 0px;
+	}
+
+	.firstHeading {
+		font-size: 18px;
+		padding: 15px 15px 15px 20px;
+	}
+
+	body {
+		font-size: 12px;
+	}
+
+	#ti_icon {
+		position: relative;
+		right: 5px;
+		top: -45px;
+	}
+
+	#next-container {
+		box-shadow: 0px 0px 2px #999;
+		box-sizing: border-box;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+	}
+
+	#ti_outer_box {
+		clear: both;
+		margin: 0 !important;
+		padding-left: 5px;
+		margin-top: 5px !important;
+		padding-right: 5px;
+		padding-bottom: 35px;
+		position: relative;
+		top: -15px;
+	}
+
+	.minor_section ol, .minor_section ul {
+		margin: 0px !important;
+	}
 }
 
-.article_title {
-	padding: 0 10px 10px 15px;
-	font-size: 18px;
-	line-height: 21px;
+@media @medium {
+	#ti_icon {
+		position: relative;
+		right: 0px;
+		top: -50px;
+	}
 
-	a {
+	#article_shell {
+		font-size: 16px;
+		width: 100%;
+		font-size: 16px;
+	}
+
+	body {
+		font-size: 16px;
+	}
+	.minor_section {
+		backgroud-color: black !important;
+	}
+	.wh_block {
+			margin-bottom: 27px;
+			padding: 0px;
+	}
+
+	.firstHeading {
+		padding: 27px 27px 27px 27px;
+	}
+
+	#sidebar {
+		display: none !important;
+	}
+
+	.article_title {
+		padding: 30px 10px 10px 5px;
+		line-height: 21px;
+		font-size: 18px;
 		font-weight: bold;
 	}
+
+	#next-container {
+		position: relative;
+		bottom: 0;
+		left: 69%;
+		width: 30%;
+		padding: 0;
+		padding-top: 20px;
+		background-color: transparent;
+	}
+
+	#bodycontents.section, .minor_section {
+		margin-bottom: 25px;
+		position: relative;
+		background-color: transparent;
+		padding: 22px 0;
+		margin-top: -10px;
+		padding-top: 0px;
+	}
+
+
+	#ti_outer_box {
+		display: block;
+		margin-top: -5px !important;
+		margin: 1em;
+		padding-bottom: 15px;
+	}
+
+	#intro, .wh_block {
+		margin-bottom: 5px !important;
+	}
+
+	.arrow {
+		background-color: #ecebe8 !important;
+	}
+
+	.button-bar .arrow-right .arrow {
+		border-width: none !important;
+	}
+}
+
+
+@media @large {
+
+	#ti_icon {
+		position: relative;
+		right: 0px;
+		top: -40px;
+	}
+
+	#article_shell {
+		font-size: 16px;
+	}
+
+	#next-container {
+		position: relative;
+		bottom: 0;
+		left: 69%;
+		width: 30%;
+		padding: 0;
+		padding-top: 20px;
+		background-color: transparent;
+	}
+
+	.article_title {
+		padding: 30px 10px 10px 5px;
+		line-height: 21px;
+		font-size: 18px;
+		font-weight: bold;
+	}
+
+	#bodycontents.section, .minor_section {
+		margin-bottom: 25px;
+		position: relative;
+		background-color: transparent;
+		padding: 22px 0;
+		margin-top: -10px;
+		padding-top: 0px;
+	}
+
+	.arrow {
+		background-color: #ecebe8 !important;
+	}
+
+	#ti_outer_box {
+		display: block;
+		margin-top: -5px !important;
+		margin: 1em;
+		padding-bottom: 15px;
+	}
+
+	#intro, .wh_block {
+		margin-bottom: 5px !important;
+	}	
+
 }
 
 .button-bar {
 	.arrow-right {
 		.arrow {
-			border-width: 22px;
+			border-width: none !important;
 		}
 	}
+}
+#footer_outer {
+	display: none !important;
 }
 
 #footer {
 	display: none !important;
 }
 
-#ti_icon {
-	margin-top: -43px;
+#ti_box ul {
+	padding: 8px !important;
 }
+
 
 .question {
 	display: block;
 	overflow: hidden;
 	background-color: #fff;
 	text-align: left;
-	padding: @margin*2 85px @margin*2 15px;
+	padding: @margin*1.5 85px @margin*1.5 15px;
 	position: relative;
 
 	&:nth-child(even) {
@@ -55,7 +258,7 @@
 	.question-options {
 		display: inline-block;
 		position: absolute;
-		top: @margin;
+		top: @margin*0.5;
 		right: 0;
 		overflow: hidden;
 		float: right;

@@ -21,7 +21,7 @@ $wgResourceModules['ext.wikihow.sort_questions'] = array(
 	'scripts' => array('sort_questions.js'),
 	'localBasePath' => __DIR__ . '/' ,
 	'remoteExtPath' => 'wikihow/sort_questions',
-	'targets' => array('mobile')
+	'targets' => array( 'desktop', 'mobile' )
 );
 
 $wgResourceModules['ext.wikihow.sort_questions.styles'] = array(
@@ -32,5 +32,5 @@ $wgResourceModules['ext.wikihow.sort_questions.styles'] = array(
 	'localBasePath' => __DIR__ . '/' ,
 	'remoteExtPath' => 'wikihow/sort_questions',
 	'position' => 'top',
-	'targets' => array('mobile')
+	'targets' => array( 'desktop', 'mobile' )
 );

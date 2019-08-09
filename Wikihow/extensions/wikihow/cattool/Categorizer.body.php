@@ -375,8 +375,7 @@ class Categorizer extends UnlistedSpecialPage {
 
 		$t = Title::newFromId($aid);
 		if ($t && $t->exists()) {
-			$dbw = wfGetDB(DB_MASTER);
-			$wikitext = Wikitext::getWikitext($dbw, $t);
+			$wikitext = Wikitext::getWikitext($t, 'latest');
 
 			$intro = Wikitext::getIntro($wikitext);
 			$intro = $this->stripCats($intro);

@@ -1910,11 +1910,16 @@ class WikiPage implements Page, IDBAccessObject {
 		// TODO: this logic should not be in the storage layer, it's here for compatibility
 		// with 1.31 behavior. Applying the 'autopatrol' right should be done in the same
 		// place the 'bot' right is handled, which is currently in EditPage::attemptSave.
-		if ( $needsPatrol && $this->getTitle()->userCan( 'autopatrol', $user ) ) {
-			// Wikihow/Reuben: allow the $needsPatrol flag may be changed by this hook
-			$doAutoPatrol = true;
+		if ($needsPatrol) {
+			$doAutoPatrol = false;
+			if ( $this->getTitle()->userCan( 'autopatrol', $user ) ) {
+				$doAutoPatrol = true;
+			}
+
+			// Wikihow/Reuben: allow the $needsPatrol flag to be changed by this hook
 			$wikiPage = $this; // apparently something PHP 7.1 needs
 			Hooks::run( 'MaybeAutoPatrol', [ $wikiPage, $user, $summary, &$doAutoPatrol ] );
+
 			if ( $doAutoPatrol ) {
 				$updater->setRcPatrolStatus( RecentChange::PRC_AUTOPATROLLED );
 			}
@@ -3171,7 +3176,7 @@ class WikiPage implements Page, IDBAccessObject {
 		// If the revision's user is not visible, then $from should be empty.
 		if (
 			$from !== ( $currentEditorForPublic ? $currentEditorForPublic->getName() : '' )
-			&& $fromP != $current->getUserText()
+			&& $fromP != ( $currentEditorForPublic ? $currentEditorForPublic->getName() : '' )
 		) {
 			$resultDetails = [ 'current' => $legacyCurrent ];
 			return [ [ 'alreadyrolled',

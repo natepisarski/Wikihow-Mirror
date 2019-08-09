@@ -22,6 +22,9 @@ class GPlusLogin extends UnlistedSpecialPage {
 
 		$out = $this->getOutput();
 		$req = $this->getRequest();
+		
+		$out->setRobotPolicy('noindex,nofollow');
+		$req->response()->header('x-robots-tag: noindex, nofollow');
 
 		if ($req->getVal('disconnect')) {
 			$this->unlinkGoogleAccount();
@@ -29,7 +32,6 @@ class GPlusLogin extends UnlistedSpecialPage {
 		}
 
 		if (!$req->wasPosted()) {
-			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -183,7 +185,7 @@ class GPlusLogin extends UnlistedSpecialPage {
 		}
 
 		// Display confirmation message and temporary password
-		$newpass = AdminResetPassword::resetPassword($wgUser->getName());
+		$newpass = AdminResetPassword::resetPassword( $wgUser, $wgUser->getName() );
 		$html = '<p><b>Your disconnected login name:</b> '.$wgUser->getName().'</p>'.
 				'<p><b>Your temporary password:</b> '.$newpass.'</p>'.
 				'<p>Copy it down and then use it to <a href="/Special:Userlogin">login here</a>.';

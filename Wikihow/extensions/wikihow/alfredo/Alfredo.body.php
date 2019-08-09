@@ -22,12 +22,12 @@ class Alfredo extends UnlistedSpecialPage {
 	 * Show the HTML template for adding images to URLs
 	 */
 	private function showTemplate() {
-		global $wgOut, $wgActiveLangs;
+		global $wgOut;
 
 		EasyTemplate::set_path( __DIR__ );
 		$tmpl = EasyTemplate::html("Alfredo.tmpl.php", array('langs'=>$this->langs));
 
-		$wgOut->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/download.jQuery.js'));
+		$wgOut->addModules('ext.wikihow.alfredo');
 		$wgOut->addHTML($tmpl);
 	}
 

@@ -532,31 +532,18 @@ class RCTest {
 	}
 
 	/*
-	* Returns true if rctest preference is set for user, false otherwise.
-	* If preference hasn't been set, defaults preference to on
+	 *refactored this function since it made no sense and was throwing an exception
 	*/
-	static function isEnabled($userId = null) {
+	static function isEnabled() {
 		global $wgUser;
-
-		if (is_null($userId)) {
-			$userId = $wgUser->getId();
+		if ( $wgUser->isAnon() ) {
+			return false;
+		}
+		if ( $wgUser->getOption('rctest') == 1 ) {
+			return false;
 		}
 
-		if ($userId > 0) {
-			$u = User::newFromId($userId);
-			$option = $u->getOption('rctest');
-			// If the option hasn't been initialized yet, set it to on (0) by default
-			if ($option === '') {
-				$u->setOption('rctest', 0);
-				$u->saveSettings();
-				$option = 0;
-			}
-		}
-		else {
-			// This preference doesn't apply to anons
-			$option = 1;
-		}
-		return !intVal($option);
+		return true;
 	}
 
 	/*

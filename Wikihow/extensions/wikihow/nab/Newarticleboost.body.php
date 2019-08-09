@@ -481,7 +481,7 @@ class NewArticleBoost extends SpecialPage {
 
 		if ($found) {
 			$t = Title::newFromID($aid);
-			$wikitext = Wikitext::getWikitext($dbr, $t);
+			$wikitext = Wikitext::getWikitext($t);
 			Common::log(__METHOD__, $aid, $t);
 
 			$intro = Wikitext::getIntro($wikitext);
@@ -555,8 +555,9 @@ class NewArticleBoost extends SpecialPage {
 		if ($page) RobotPolicy::clearArticleMemc($page);
 
 		$ts = wfTimestampNow();
+		$t = Title::newFromID($aid);
 
-		Common::log(__METHOD__, $aid, Title::newFromID($aid));
+		Common::log(__METHOD__, $aid, $t);
 		if (self::existsInNab($aid)) {
 			//do that demotion
 			$dbw->update(self::NAB_TABLE,
@@ -586,14 +587,18 @@ class NewArticleBoost extends SpecialPage {
 			if ($langCode == 'en') {
 				$dbw->insert('nab_atlas', array('na_page_id' => $aid), __METHOD__);
 			}
-
 		}
 
 		//add demote cat
-		$t = Title::newFromId($aid);
 		if ($t && $t->exists()) {
-			$dbw = wfGetDB(DB_MASTER);
-			$wikitext = Wikitext::getWikitext($dbw, $t);
+			$wikitext = Wikitext::getWikitext($t, 'latest');
+			if ( empty(trim($wikitext)) ) {
+				// This is a new problem from the upgrade, which is being fixed now. In
+				// future, if wikitext is blank here, we should probably not try to do anything
+				// with it.
+				throw new MWException( 'NAB error: unable to properly pull wikitext for title: ' . $t->getText() );
+			}
+
 			$intro = Wikitext::getIntro($wikitext);
 			$cat = "\n[[" . $wgContLang->getNSText(NS_CATEGORY) . ":" . self::DEMOTE_CATEGORY . "]]";
 			$intro .= $cat;
@@ -1299,6 +1304,7 @@ class NABStatus extends SpecialPage {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$title = $this->getUser();
+		$out->setRobotPolicy('noindex,nofollow');
 
 		$target = isset($par) ? $par : $req->getVal('target');
 

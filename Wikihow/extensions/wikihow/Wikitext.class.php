@@ -595,20 +595,23 @@ class Wikitext {
 	}
 
 	/**
-	 * Utility method to return the wikitext for an article
+	 * Utility method to return the wikitext for an article.
+	 *
+	 * NOTE: Use param $from = 'latest' if needing master DB pull of revision.
 	 */
-	public static function getWikitext(&$dbr, $title) {
-		if (!$title) return false;
+	public static function getWikitext($title, $from = 'replica') {
+		if (!$title || !$title->getArticleID()) return false;
 		// try to see if the wikihow article editor instance already has this title loaded
 		$whow = WikihowArticleEditor::wikiHowArticleIfMatchingTitle($title);
 		if ($whow) {
 			$wikitext = $whow->mLoadText;
 		} else {
-			$rev = Revision::loadFromTitle($dbr, $title);
-			if (!$rev) {
+			$fromDB = $from === 'latest' ? WikiPage::READ_LATEST : 'fromdb';
+			$wikiPage = WikiPage::newFromID( $title->getArticleID(), $fromDB );
+			if (!$wikiPage) {
 				return false;
 			}
-			$wikitext = ContentHandler::getContentText( $rev->getContent() );
+			$wikitext = ContentHandler::getContentText( $wikiPage->getContent(Revision::RAW) );
 		}
 		return $wikitext;
 	}
@@ -635,18 +638,11 @@ class Wikitext {
 	 *   2nd element is number of images found/changed
 	 */
 	public static function enlargeImages($title, $recenter, $px, $introPx = 0) {
-		// use master DB to sort out a likely db-lag related race condition
-		$dbw = wfGetDB(DB_MASTER);
-
 		$err = '';
 		$numImages = 0;
 		$stepsText = '';
 
-		$wikitext = self::getWikitext($dbw, $title);
-//debugging
-//$t = Title::newFromText('Assess Your Relationship Stage');
-//$r = Revision::loadFromTitle($dbw, $t, 7607372);
-//$wikitext = ContentHandler::getContentText( $r->getContent() );
+		$wikitext = self::getWikitext($title, 'latest'); // use master to avoid lag issues
 		if ($wikitext) {
 			list($stepsText, $sectionID) =
 				self::getStepsSection($wikitext, true);

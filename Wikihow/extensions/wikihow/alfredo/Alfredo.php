@@ -11,3 +11,14 @@ $wgExtensionCredits['specialpage'][] = array(
 $wgSpecialPages['Alfredo'] = 'Alfredo';
 $wgAutoloadClasses['Alfredo'] = __DIR__ . '/Alfredo.body.php';
 
+$wgResourceModules['ext.wikihow.alfredo'] = [
+	'scripts' => [
+		'../common/download.jQuery.js',
+		'alfredo.js'
+	],
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop' ],
+	'dependencies' => [ 'ext.wikihow.desktop_base', 'jquery', 'ext.wikihow.common_bottom' ],
+	'remoteExtPath' => 'wikihow/alfredo',
+	'position' => 'top'
+];

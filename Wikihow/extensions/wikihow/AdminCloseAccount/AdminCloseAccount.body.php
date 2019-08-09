@@ -886,7 +886,16 @@ class RemoveAvatarAdminCloseAccountAction extends AdminCloseAccountAction {
 	private function hasAvatar() {
 		$dbr = wfGetDB( DB_REPLICA );
 		$row = $dbr->selectRow(
-			'avatar', [ 'count(*) as count' ], [ 'av_user' => $this->user->getID() ], __METHOD__
+			'avatar',
+			[ 'count(*) as count' ],
+			[
+				'av_user' => $this->user->getID(),
+				// Sometimes the image is blanked out
+				'av_image != ""',
+				// Sometimes the image is just patrolled
+				'av_patrol < 2',
+			],
+			__METHOD__
 		);
 		return $row->count > 0;
 	}
@@ -914,6 +923,8 @@ class RemoveAvatarAdminCloseAccountAction extends AdminCloseAccountAction {
 				if ( $this->hasAvatar() ) {
 					$warnings[] = 'Avatar failed to be removed. ' .
 						str_replace( 'FAILED: ', '', $result );
+				} else {
+					$changes[] = 'Avatar was removed.';
 				}
 			}
 		}

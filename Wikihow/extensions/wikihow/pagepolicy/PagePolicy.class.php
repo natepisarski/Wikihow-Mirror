@@ -55,7 +55,7 @@ class PagePolicy {
 						// Hide user talk pages belonging to users who've been inactive for 1+ years
 						$owner = User::newFromName( $title->getBaseText() );
 						$lastYear = wfTimestamp( TS_MW, strtotime( '-1 year' ) );
-						$showCurrentTitle = !$owner || $owner->getTouched() >= $lastYear;
+						$showCurrentTitle = !$owner || $owner->getDBTouched() >= $lastYear;
 					}
 				} elseif (
 					// Any main namespace article that exists and isn't black-listed

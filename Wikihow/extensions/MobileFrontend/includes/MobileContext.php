@@ -515,22 +515,23 @@ class MobileContext extends ContextSource {
 		$this->getRequest()->response()->setcookie(
 			self::STOP_MOBILE_REDIRECT_COOKIE_NAME, 'true', $expiry,
 			[
-				'domain' => $this->getStopMobileRedirectCookieDomain(),
+				'domain' => $wgCookieDomain,
 				'prefix' => '',
-				'secure' => false,
+				'secure' => $wgCookieSecure,
 			]
 		);
 	}
 
-	public function setTempRedirectCookie() {
-		global $wgCookiePath, $wgCookieSecure;
+	public function setTempRedirectCookie( $expiry = null ) {
+		global $wgCookiePath, $wgCookieSecure, $wgCookieDomain;
 
-		$expiry = time() + 60; // 1 minute
+		$expiry = time() + ( $expiry ? $expiry : 60 ); // default to 1 minute
 		$cookieName = self::USEFORMAT_COOKIE_NAME . 'tmp';
 		$this->getRequest()->response()->setcookie(
 			$cookieName, 'dt', $expiry,
 			[
-				'domain' => $this->getStopMobileRedirectCookieDomain(),
+				'domain' => $wgCookieDomain,
+				'prefix' => '',
 				'secure' => $wgCookieSecure,
 			]
 		);

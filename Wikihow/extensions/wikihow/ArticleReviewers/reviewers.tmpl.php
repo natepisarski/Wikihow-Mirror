@@ -24,10 +24,10 @@
 						<? endif; ?>
 					</p>
 					<!--<p><?= $expert['count']?></p>-->
-					<p class="ar_blurb"><?= $expert['expert']->blurb ?></p>
+					<p class="ar_blurb"><?= htmlspecialchars($expert['expert']->blurb) ?></p>
 					<?= $expert['expert']->nameLinkHTML ?>
 				</div>
-				<p class="ar_hoverblurb"><?= $expert['expert']->hoverBlurb ?></p>
+				<p class="ar_hoverblurb"><?= htmlspecialchars($expert['expert']->hoverBlurb) ?></p>
 			</div>
 
 			<?

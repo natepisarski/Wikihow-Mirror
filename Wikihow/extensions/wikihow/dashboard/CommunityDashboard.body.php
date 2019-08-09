@@ -28,6 +28,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 
 		$out = $this->getOutput();
 		$request = $this->getRequest();
+		$request->response()->header('x-robots-tag: noindex, nofollow');
 
 		$langCode = $this->getLanguage()->getCode();
 		if ($langCode != "en") {
@@ -98,7 +99,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			$out->setHTMLTitle( wfMessage('pagetitle', wfMessage('cd-html-title')) );
 			// This doesn't make a good landing page for searchers from Google,
 			// so making it noindex.
-			$out->setRobotPolicy('noindex,follow');
+			$out->setRobotPolicy('noindex,nofollow');
 			$out->addModules( ['jquery.ui.sortable', 'jquery.ui.dialog'] );
 
 			$isMobile = MobileContext::singleton()->shouldDisplayMobileView();

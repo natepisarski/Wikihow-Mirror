@@ -113,8 +113,10 @@ class AdminCommunityDashboard extends UnlistedSpecialPage {
 			$current[$widget->getName()] = $widget->getCount($dbr);
 		}
 
+		$out->addModuleStyles( 'ext.wikihow.admincommunitydashboard_styles' );
+		$out->addModules( 'ext.wikihow.admincommunitydashboard' );
+
 		$out->setHTMLTitle('Admin - Change Community Dashboard Settings - wikiHow');
-		$out->addScript('<script src="/extensions/wikihow/dashboard/jquery.json-2.2.min.js"></script>');
 
 		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(

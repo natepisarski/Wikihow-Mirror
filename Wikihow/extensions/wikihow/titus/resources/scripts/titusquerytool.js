@@ -20,8 +20,6 @@ $(document).ready(function() {
 		setupSparkles();
 		setupToastr();
 		handleQueryLocation();
-		hackSqlWhereLocation();
-		setupSqlHackEvents();
 		$('.loading').hide();
 		$('.tqt').show();
 	}
@@ -88,33 +86,6 @@ $(document).ready(function() {
 				}
 			}
 		});
-	}
-
-	function setupSqlHackEvents() {
-		$('.sqlwhere').on('afterAddGroup.queryBuilder', function() {
-			hackSqlWhereLocation();
-		});
-	}
-
-	function hackSqlWhereLocation() {
-		/**
-		* DIRE WARNING: MASSIVE, MASSIVE HACK
-		*
-		* I understand why this should be done, for usability reasons. It seems
-		* so obvious. However, if we ever upgrade the querybuilder library this is
-		* highly likely to break things.
-		* Upgrade at your own risk!
-		* Modify at your own risk!
-		**/
-		// BEGIN HACK
-		var buttons_copy = $('.sqlwhere dt.rules-group-header div.group-actions').not('.hack-applied').first().clone();
-		buttons_copy.removeClass('pull-right').addClass('hack-applied');
-		$('.sqlwhere dt.rules-group-header div.group-actions').not('.hack-applied').remove();
-		var new_buttons_group = $('<dt class="rules-group-header"></dt>');
-		var new_buttons_dd = $('<dd class="rules-group-body-hack hack-applied"></dd>').append(buttons_copy);
-		new_buttons_group.after(new_buttons_dd);
-		$('.sqlwhere dd.rules-group-body').not('.hack-applied').append(new_buttons_group).addClass('hack-applied');
-		// END HACK
 	}
 
 	function setupSparkles() {
@@ -438,7 +409,6 @@ $(document).ready(function() {
 		}
 		resetBuilder();
 		setBuilderFromSQL(sql);
-		hackSqlWhereLocation(); // I'm a little too annoyed with this right now, but it needs to go here.
 		$('#getsql').html('<i class=\'fa fa-code\'></i>&nbsp;SQL');
 		$('.tqt-query-builder-gui').show();
 		$('.tqt-query-builder-sql').hide();

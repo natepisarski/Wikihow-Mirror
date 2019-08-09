@@ -194,11 +194,12 @@
 				type: 'POST',
 				data: $('#editform').serialize() + '&wpPreview=true&live=true&action=edit&title=' + thisTitle,
 				success: function(data) {
-					var previewElement = $(data).find('preview').first();
+					var $content = jQuery( '<div>' + data + '</div>' );
+					var previewElement = $content.find('.mw-content-ltr,.mw-content-rtl').first();
 
 					var previewContainer = $('#rvq_preview');
 					if ( previewContainer && previewElement ) {
-						previewContainer.html(previewElement.first().text()).show();
+						previewContainer.html(previewElement.html()).show();
 						WH.ReverficationQuickFeedback.scrollToTop();
 					}
 				}

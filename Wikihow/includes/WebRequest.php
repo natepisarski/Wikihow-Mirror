@@ -1226,7 +1226,8 @@ HTML;
 			# the command line context. This comes up when running jobs, for example.
 			global $wgCommandLineMode;
 			if ( !$wgCommandLineMode ) {
-				throw new MWException( 'Unable to determine IP.' );
+				// Wikihow: changed this error message for debugging. You can toss this out on merge.
+				throw new MWException( 'Unable to determine IP - running from command line' );
 			} else {
 				return "(unknown_ip)";
 			}
@@ -1277,7 +1278,8 @@ HTML;
 		Hooks::run( 'GetIP', [ &$ip ] );
 
 		if ( !$ip ) {
-			throw new MWException( "Unable to determine IP." );
+			// Wikihow: changed this error message for debugging. You can toss this out on merge.
+			throw new MWException( "Unable to determine IP - XFF header: $forwardedFor" );
 		}
 
 		wfDebug( "IP: $ip\n" );

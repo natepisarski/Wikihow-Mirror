@@ -95,6 +95,12 @@ function wfUndeleteNFD(&$title, $create) {
 
 	$article = new Article($title);
 	$revision = Revision::newFromTitle($title);
+	if (!$revision) {
+		// If we can't find the revision for this title, ignore the NFD hook
+		return true;
+		// another option, if we see this causing data issues, is to debug it like this:
+		//throw new MWException('Unable to load revision for title: ' . $title->getText());
+	}
 
 	// if an article becomes a redirect, vanquish all previous nfd entries
 	if (preg_match("@^#REDIRECT@", ContentHandler::getContentText( $revision->getContent() ))) {

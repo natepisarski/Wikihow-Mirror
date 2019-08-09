@@ -78,7 +78,7 @@ class MWMessages extends UnlistedSpecialPage {
 				$out->addHTML("<table class='mwmessages'>
 						<tr><td><b>Lang</b></td><td><b>Key</b></td><td><b>Value</b></td></tr>");
 				foreach ($sortedArray as $key=>$val) {
-					$val = wfMessage($key);
+					$val = wfMessage((string)$key);
 					if (stripos($val, $search) !== false) {
 						$t = Title::makeTitle(NS_MEDIAWIKI, $key);
 						$qe_url = '<a href="/' . htmlspecialchars($t->getPrefixedURL()) . '?action=edit" target="_blank">' . $key .'</a>';

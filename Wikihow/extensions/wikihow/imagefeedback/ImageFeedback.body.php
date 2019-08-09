@@ -34,6 +34,8 @@ class ImageFeedback extends UnlistedSpecialPage {
 
 		$req = $this->getRequest();
 		$user = $this->getUser();
+		$this->getOutput()->setRobotPolicy('noindex,nofollow');
+		$req->response()->header('x-robots-tag: noindex, nofollow');
 
 		if ($req->wasPosted()) {
 			$action = $req->getVal('a');

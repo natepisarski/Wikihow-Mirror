@@ -115,7 +115,7 @@ class QADB {
 		try {
 			$updatedTimestamp = wfTimestampNow();
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->startAtomic(__METHOD__, Database::ATOMIC_CANCELABLE);
+			$dbw->startAtomic(__METHOD__, IDatabase::ATOMIC_CANCELABLE);
 
 			$uid = $data['uid'] ? $data['uid'] : RequestContext::getMain()->getUser()->getId();
 			$status = $this->doInsertArticleQuestion($aq, $updatedTimestamp, $uid);
@@ -940,7 +940,7 @@ class QADB {
 		$inTransaction = false;
 		try {
 			$dbw = wfGetDB(DB_MASTER);
-			$dbw->startAtomic(__METHOD__, self::ATOMIC_CANCELABLE);
+			$dbw->startAtomic(__METHOD__, IDatabase::ATOMIC_CANCELABLE);
 			$inTransaction = true;
 
 			$dbw->delete(

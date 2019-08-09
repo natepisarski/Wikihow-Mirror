@@ -194,9 +194,10 @@
 					WH.AnswerQuestions.getQuestions();
 				} else {
 					WH.AnswerQuestions.resetCategorySelector();
-					$("#qat_start").fadeIn();
-					$("#qat_change_cancel").hide();
-					$("#qat_cat_container").slideDown();
+					$("#qat_start").fadeIn( function () {
+						$("#qat_change_cancel").hide();
+						$("#qat_cat_container").slideDown();
+					});
 				}
 			}
 

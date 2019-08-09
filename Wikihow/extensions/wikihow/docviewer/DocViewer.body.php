@@ -544,12 +544,25 @@ class DocViewer extends UnlistedSpecialPage {
 	 * EXECUTE
 	 **/
 	public function execute($par = '') {
-		global $wgOut, $wgRequest, $wgHooks, $wgCanonical, $wgSquidMaxage, $wgLanguageCode;
+		global $wgHooks, $wgCanonical, $wgSquidMaxage, $wgLanguageCode;
+
+		$out = $this->getOutput();
+		$req = $this->getRequest();
 
 		$ctx = MobileContext::singleton();
 		$isMobile = $ctx->shouldDisplayMobileView();
 
-		if ($isMobile) $wgOut->addModules('zzz.mobile.wikihow.sample');
+		// Lift this 301 redirect code from Special:VideoBrowser
+		$url = $req->getRequestURL();
+		$parsedUrl = parse_url( $url );
+		$parts = explode( '/', $parsedUrl['path'] );
+		if ( $parts[0] === '' && $parts[1] === 'Special:DocViewer' ) {
+			$path = implode( '/', array_merge( [ '', 'Sample' ], array_slice( $parts, 2 ) ) );
+			$out->redirect( $path, 301 );
+			return;
+		}
+
+		if ($isMobile) $out->addModules('zzz.mobile.wikihow.sample');
 
 		$sample = preg_replace('@-@',' ',$par);
 
@@ -562,37 +575,36 @@ class DocViewer extends UnlistedSpecialPage {
 
 		// make a custom canonical url
 		//we want to do this for desktop and mobile so neither ends up with the Special:Docviewer canonical url
-		$wgOut->setCanonicalUrl(Misc::getLangBaseURL($wgLanguageCode) . self::$wgSampleURL . $par);
+		$out->setCanonicalUrl(Misc::getLangBaseURL($wgLanguageCode) . self::$wgSampleURL . $par);
 
 		self::$wgSampleURL = wfExpandUrl(self::$wgSampleURL . $par);
 		$wgHooks['GetFullURL'][] = array('DocViewer::getCanonicalUrl');
 
 		//page title
 		$page_title = self::getPageTitleString($par);
-		if ($isMobile) $wgOut->setPageTitle($page_title);
-		$wgOut->setHTMLTitle( wfMessage('pagetitle', $page_title)->text() );
+		if ($isMobile) $out->setPageTitle($page_title);
+		$out->setHTMLTitle( wfMessage('pagetitle', $page_title)->text() );
 
 		//the guts
 		$html = $this->displayContainer($par,$isMobile);
 
 		if (!$html) {
 			//nothin'
-			$wgOut->setStatusCode(404);
-			$wgOut->setRobotPolicy('noindex,nofollow');
+			$out->setStatusCode(404);
+			$out->setRobotPolicy('noindex,nofollow');
 			$html = '<p>'.wfMessage('dv-no-doc-err')->text().'</p>';
-		}
-		else {
+		} else {
 			//http cache headers
-			$wgOut->setCdnMaxage($wgSquidMaxage);
+			$out->setCdnMaxage($wgSquidMaxage);
 
 			//meta tags
-			$wgOut->addMeta('description', "Use our sample '$page_title.' Read it or download it for free. Free help from wikiHow.");
-			$wgOut->addMeta('keywords',$sample.', '.wfMessage('sample_meta_keywords_default')->text());
-			$wgOut->setRobotPolicy('index,follow');
+			$out->addMeta('description', "Use our sample '$page_title.' Read it or download it for free. Free help from wikiHow.");
+			$out->addMeta('keywords',$sample.', '.wfMessage('sample_meta_keywords_default')->text());
+			$out->setRobotPolicy('index,follow');
 		}
 
-		$wgOut->addModules('ext.wikihow.samples');
-		$wgOut->addHTML($html);
+		$out->addModules('ext.wikihow.samples');
+		$out->addHTML($html);
 	}
 
 }

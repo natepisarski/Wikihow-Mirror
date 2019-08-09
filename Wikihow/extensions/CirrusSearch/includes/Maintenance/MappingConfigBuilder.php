@@ -86,6 +86,16 @@ class MappingConfigBuilder {
 		$this->searchIndexFieldFactory = new CirrusSearchIndexFieldFactory( $this->config );
 	}
 
+	// Wikihow
+	public function getSearchIndexFieldFactory() {
+		return $this->searchIndexFieldFactory;
+	}
+
+	// Wikihow
+	public function getEngine() {
+		return $this->engine;
+	}
+
 	/**
 	 * Get definitions for default index fields.
 	 * These fields are always present in the index.

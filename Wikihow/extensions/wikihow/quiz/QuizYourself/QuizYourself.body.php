@@ -12,12 +12,17 @@ class QuizYourself extends SpecialPage {
 		return true;
 	}
 
+	public function isMobileAnonOnly() {
+		return true;
+	}
+
 	public function execute($par) {
 		$out = $this->getOutput();
+		$out->setRobotPolicy('noindex,nofollow');
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		//mobile-only
 		if (!Misc::isMobileMode()) {
-			$out->setRobotPolicy('noindex,nofollow');
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}

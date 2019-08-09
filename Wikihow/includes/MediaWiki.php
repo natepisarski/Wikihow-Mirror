@@ -277,20 +277,25 @@ class MediaWiki {
 						// target can also be true. We let that case fall through to normal processing.
 						if ( $target instanceof Title ) {
 							$query = $specialPage->getRedirectQuery() ?: [];
-							$request = new DerivativeRequest( $this->context->getRequest(), $query );
-							$request->setRequestURL( $this->context->getRequest()->getRequestURL() );
-							$this->context->setRequest( $request );
+							// Wikihow: attempt at fixing these redirects being cached incorrectly
+							// by forcing old school server side redirects.
+							$redirectUrl = $target->getFullURL( $query );
+							$output->redirect( $redirectUrl );
+
+							//$request = new DerivativeRequest( $this->context->getRequest(), $query );
+							//$request->setRequestURL( $this->context->getRequest()->getRequestURL() );
+							//$this->context->setRequest( $request );
 							// Do not varnish cache these. May vary even for anons
-							$this->context->getOutput()->lowerCdnMaxage( 0 );
-							$this->context->setTitle( $target );
-							$wgTitle = $target;
+							//$this->context->getOutput()->lowerCdnMaxage( 0 );
+							//$this->context->setTitle( $target );
+							//$wgTitle = $target;
 							// Reset action type cache. (Special pages have only view)
-							$this->action = null;
-							$title = $target;
-							$output->addJsConfigVars( [
-								'wgInternalRedirectTargetUrl' => $target->getFullURL( $query ),
-							] );
-							$output->addModules( 'mediawiki.action.view.redirect' );
+							//$this->action = null;
+							//$title = $target;
+							//$output->addJsConfigVars( [
+							//	'wgInternalRedirectTargetUrl' => $target->getFullURL( $query ),
+							//] );
+							//$output->addModules( 'mediawiki.action.view.redirect' );
 						}
 					}
 				}

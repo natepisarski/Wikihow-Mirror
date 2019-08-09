@@ -18,8 +18,8 @@
 		},
 
 		getUserCounts: function() {
-			var approvedCount = $.cookie(this.cookieNameApproved);
-			var deletedCount = $.cookie(this.cookieNameDeleted);
+			var approvedCount = mw.cookie.get(this.cookieNameApproved);
+			var deletedCount = mw.cookie.get(this.cookieNameDeleted);
 			if(!approvedCount) {
 				approvedCount = 0;
 			}
@@ -189,7 +189,8 @@
 			$count.text(newCount);
 			var d = new Date();
 			d.setHours(24,0,0,0); //expire at midnight their time
-			document.cookie = this.cookieNameApproved + "=" + newCount + "; expires=" + d.toGMTString() + "; path=/";
+			var cookie_name = mw.config.get( 'wgCookiePrefix' ) + this.cookieNameApproved;
+			document.cookie = cookie_name + "=" + newCount + "; expires=" + d.toGMTString() + "; path=/";
 		},
 
 		increaseDeleteNowCount: function(){
@@ -198,7 +199,8 @@
 			$count.text(newCount);
 			var d = new Date();
 			d.setHours(24,0,0,0); //expire at midnight their time
-			document.cookie = this.cookieNameDeleted + "=" + newCount + "; expires=" + d.toGMTString() + "; path=/";
+			var cookie_name = mw.config.get( 'wgCookiePrefix' ) + this.cookieNameDeleted;
+			document.cookie = cookie_name + "=" + newCount + "; expires=" + d.toGMTString() + "; path=/";
 		}
 
 	};

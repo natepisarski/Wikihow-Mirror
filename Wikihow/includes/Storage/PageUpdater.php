@@ -685,7 +685,15 @@ class PageUpdater {
 		// TODO: use this only for the legacy hook, and only if something uses the legacy hook
 		$wikiPage = $this->getWikiPage();
 
+		// WIKIHOW: allow the user to be changed by a hook
+		$preHookUser = $this->user;
 		$user = $this->user;
+		Hooks::run( 'BeforePrepareContent', [$wikiPage, &$user, $summary->text, $flags & EDIT_NEW] );
+		if ( !$preHookUser->equals( $user ) ) {
+			$this->user = $user;
+			// update the user in the derived data updater if it changed here
+			$this->derivedDataUpdater->changeUser( $user );
+		}
 
 		// Prepare the update. This performs PST and generates the canonical ParserOutput.
 		$this->derivedDataUpdater->prepareContent(
@@ -726,7 +734,6 @@ class PageUpdater {
 
 		$mainContent = $this->derivedDataUpdater->getSlots()->getContent( SlotRecord::MAIN );
 		$preHookMainContent = $mainContent;
-		$preHookUser = $user;
 
 		// Trigger pre-save hook (using provided edit summary)
 		$hookStatus = Status::newGood( [] );
@@ -752,14 +759,6 @@ class PageUpdater {
 			$newMainSlot = SlotRecord::newUnsaved( SlotRecord::MAIN, $mainContent );
 			$revision = $this->derivedDataUpdater->getRevision();
 			$revision->setSlot($newMainSlot);
-		}
-
-		// Wikihow: After PageContentSave, we sometimes update the $user variable
-		// to change who is doing the edit (hence it being passed by reference). Here,
-		// we make sure that new user object is propagated to the right places in
-		// this class instance, if the user was changed.
-		if ( !$preHookUser->equals($user) ) {
-			$this->user = $user;
 		}
 
 		// Provide autosummaries if one is not provided and autosummaries are enabled

@@ -87,7 +87,7 @@ class ReportBrokenInternationalWikitext extends Maintenance {
 
 		foreach ($page_titles as $i => $page_title) {
 			$t = Title::newFromDBKey($page_title);
-			$wikitext = Wikitext::getWikitext($dbr, $t);
+			$wikitext = Wikitext::getWikitext($t);
 
 			$errors = $this->checkWikitext($wikitext);
 

@@ -34,7 +34,7 @@ class HistoricalPV extends UnlistedSpecialPage {
 			return false;
 		}
 
-		$this->redshift = wfGetLBFactory()->getExternalLB('redshift')->getConnection(DB_MASTER);
+		$this->redshift = wfGetLBFactory()->getExternalLB('redshift')->getConnection(DB_MASTER, [], 'thi');
 
 		$this->getOutput()->addModules('ext.wikihow.historicalpv');
 		return true;

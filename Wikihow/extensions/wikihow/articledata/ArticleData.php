@@ -11,3 +11,14 @@ $wgExtensionCredits['specialpage'][] = array(
 $wgSpecialPages['ArticleData'] = 'ArticleData';
 $wgAutoloadClasses['ArticleData'] = __DIR__ . '/ArticleData.body.php';
 $wgExtensionMessagesFiles['ArticleData'] = __DIR__ . '/ArticleData.i18n.php';
+
+$wgResourceModules['ext.wikihow.articledata'] = array(
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop' ],
+	'styles' => [ 'articledata.css' ],
+	'scripts' => [ 'articledata.js' ],
+	'dependencies' => [ 'ext.wikihow.common_bottom', 'jquery', 'wikihow.common.jquery.download' ],
+	'remoteExtPath' => 'wikihow/articledata',
+	'messages' => [],
+	'position' => 'bottom'
+);

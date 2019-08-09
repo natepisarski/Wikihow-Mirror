@@ -31,20 +31,26 @@ class SortQuestions extends UnlistedSpecialPage {
 	const MAX_NUM_ARTICLES = 5;
 
 	function __construct() {
+		global $wgHooks;
 		parent::__construct('SortQuestions');
 		$this->out = $this->getContext()->getOutput();
 		$this->user = $this->getUser();
 		$this->request = $this->getRequest();
+
+		//$wgHooks['ShowSideBar'][] = [$this, 'removeSideBarCallback'];
+		$wgHooks['ShowBreadCrumbs'][] = [$this, 'removeBreadCrumbsCallback'];
 	}
+
 
 	function execute($par) {
 		$this->out->setRobotPolicy("noindex,follow");
+		//$this->out->setArticleBodyOnly( true );
 
 		if ( $this->user->isBlocked() ) {
 			throw new UserBlockedError( $this->user->getBlock() );
 		}
 
-		if ($this->getLanguage()->getCode() != 'en' || !Misc::isMobileMode()) {
+		if ($this->getLanguage()->getCode() != 'en') {
 			$this->out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
@@ -86,6 +92,7 @@ class SortQuestions extends UnlistedSpecialPage {
 		$this->out->addModules('ext.wikihow.sort_questions');
 
 		$html = $this->getMainHTML();
+		$this->addStandingGroups();
 		$this->out->addHTML($html);
 	}
 
@@ -364,5 +371,28 @@ class SortQuestions extends UnlistedSpecialPage {
 		$userGroups = $this->user->getGroups();
 		if (empty($userGroups) || !is_array($userGroups)) return false;
 		return (in_array('staff', $userGroups) || in_array('admin', $userGroups) || in_array('newarticlepatrol', $userGroups));
+	}
+
+	public function removeSideBarCallback( &$showSideBar ) {
+		$showSideBar = false;
+	}
+
+	public function removeBreadCrumbsCallback( &$showBreadCrumbs ) {
+		$showBreadCrumbs = false;
+	}
+
+	protected function addStandingGroups() {
+		if ( !$this->user->isAnon() ) {
+			$singleStanding = new SortQuestionsStandingsIndividual();
+			$singleStanding->addStatsWidget();
+		}
+
+		$group = new SortQuestionsStandingsGroup();
+		$group->addStandingsWidget();
+	}
+
+	public static function getRemainingCount() {
+		$get = new GetArticles();
+		return $get->getRemainingCount();
 	}
 }

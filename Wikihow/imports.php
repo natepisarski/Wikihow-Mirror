@@ -246,9 +246,9 @@ if (!defined('WIKIHOW_LIMITED')) {
 
 require_once("$IP/extensions/wikihow/StatsList.php");
 require_once("$IP/extensions/wikihow/adminresetpassword/AdminResetPassword.php");
-require_once("$IP/extensions/wikihow/AdminMarkEmailConfirmed.php");
+require_once("$IP/extensions/wikihow/adminmarkemailconfirmed/AdminMarkEmailConfirmed.php");
 require_once("$IP/extensions/wikihow/avatar/AdminRemoveAvatar.php");
-require_once("$IP/extensions/wikihow/AdminLookupPages.php");
+require_once("$IP/extensions/wikihow/nab/AdminLookupNab.php");
 require_once("$IP/extensions/wikihow/AdminRedirects.php");
 require_once("$IP/extensions/wikihow/AdminEnlargeImages.php");
 require_once("$IP/extensions/wikihow/AdminRatingReasons.php");
@@ -291,8 +291,8 @@ require_once("$IP/extensions/wikihow/alfredo/Alfredo.php");
 require_once("$IP/extensions/wikihow/schema/SchemaMarkup.php");
 require_once("$IP/extensions/wikihow/AdminUserCompletedImages.php");
 require_once("$IP/extensions/wikihow/AdminClearRatings.php");
-require_once("$IP/extensions/wikihow/AdminCopyCheck.php");
-require_once("$IP/extensions/wikihow/AdminReadabilityScore.php");
+require_once("$IP/extensions/wikihow/admincopycheck/AdminCopyCheck.php");
+require_once("$IP/extensions/wikihow/adminreadabilityscore/AdminReadabilityScore.php");
 require_once("$IP/extensions/wikihow/WelcomeWagon/WelcomeWagon.php");
 require_once("$IP/extensions/wikihow/interfaceelements/InterfaceElements.php");
 require_once("$IP/extensions/wikihow/Watermark.php");

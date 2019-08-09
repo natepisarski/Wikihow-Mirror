@@ -21,6 +21,7 @@ $wgResourceModules['ext.wikihow.specialfred'] = array(
 		'../common/jquery.simplemodal.1.4.4.min.js'
 		),
 	'localBasePath' => __DIR__ . '/',
+	'dependencies' => ['jquery.cookie'],
 	// TODO this
 	'messages' => [
 		'stva_batch_label',

@@ -1,7 +1,22 @@
 <?php
+
+$optionsWithoutArgs = ['all', 'dirty'];
+$optionsWithArgs = ['article', 'limit'];
 require_once(__DIR__ . '/../../commandLine.inc');
 
-$inputSet = isset($argv[0]) ? $argv[0] : '';
+// Do the input the options
+if ($options['all'] ?? false) {
+	$inputSet = 'all';
+} elseif ($options['dirty'] ?? false) {
+	$inputSet = 'dirty';
+	$dirtyLimit = $options['limit'] ?? false;
+} elseif ($options['article'] ?? false) {
+	$inputSet = 'article';
+	$article = $options['article'];
+} else {
+	die("error: must specify --all, --dirty or --article\n");
+}
+
 echo "Start: " . $inputSet . " " . date('G:i:s:u') . "\n";
 switch ($inputSet) {
 	case "all":
@@ -18,7 +33,7 @@ switch ($inputSet) {
 		$pspell = wikiHowDictionary::getLibrary();
 		$whitelistArray = wikiHowDictionary::getWhitelistArray();
 	
-		spellCheckArticle($dbw, $argv[1], $pspell, $whitelistArray);
+		spellCheckArticle($dbw, $article, $pspell, $whitelistArray);
 		break;
 }
 echo "Finish: " . $inputSet . " " . date('G:i:s:u') . "\n\n";
@@ -102,7 +117,7 @@ function checkAllArticles() {
  * edited). 
  */
 function checkDirtyArticles() {
-	global $argv, $wgMemc;
+	global $dirtyLimit, $wgMemc;
 
 	echo "Checking dirty articles for spelling mistakes at " . microtime(true) . "\n";
 	
@@ -110,9 +125,9 @@ function checkDirtyArticles() {
 	$dbw = wfGetDB(DB_MASTER);
 
 	$options = array();
-	if (!empty($argv[1])) {
-		$options['LIMIT'] = $argv[1];
-		echo "LIMIT of {$argv[1]} supplied via input \n";
+	if ($dirtyLimit) {
+		$options['LIMIT'] = (int)$dirtyLimit;
+		echo "LIMIT of {$dirtyLimit} supplied via input\n";
  	}
 	$articles = DatabaseHelper::batchSelect('spellchecker',
 		array('sc_page'),

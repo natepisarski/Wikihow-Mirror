@@ -110,7 +110,7 @@ class ApiGraphs extends ApiBase {
 		$this->getResult()->addValue('cache', 'key', $cacheKey);
 		if (!$result) {
 			$redshiftLB = wfGetLBFactory()->getExternalLB('redshift');
-			$redshiftConnection = $redshiftLB->getConnection(DB_MASTER);
+			$redshiftConnection = $redshiftLB->getConnection(DB_MASTER, [], 'thi');
 
 			$dbResult = $redshiftConnection->select(
 				$table, $vars, $conds, $fname, $options, $join_conds
@@ -132,7 +132,7 @@ class ApiGraphs extends ApiBase {
 		$userGroups = $this->getUser()->getGroups();
 		if ($this->getUser()->isBlocked() || !in_array('staff', $userGroups)) {
 			$this->getOutput()->setRobotPolicy('noindex,nofollow');
-			$this->dieUsageMsg('badaccess-groups');
+			$this->dieWithError( [ 'badaccess-groups', ': staff' ] );
 			return;
 		}
 

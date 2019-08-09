@@ -169,8 +169,6 @@ class RobotPolicy {
 	}
 
 	public function genRobotPolicyLong() {
-		global $wgLanguageCode;
-
 		// First, we compute any indexation that isn't based based on
 		// article ID but on request details or non-existence of article.
 		// Note: these are generally "cheap" checks in terms of resources
@@ -194,7 +192,6 @@ class RobotPolicy {
 			$policy = self::POLICY_NOINDEX_NOFOLLOW;
 			$policyText = 'notViewAction';
 		} elseif ($this->isIndexphpRequestURL()
-			&& (Misc::isAltDomain() || $wgLanguageCode != 'en')
 		) {
 			// July 2019: apply to alt domains only right now, while we test robots.txt changes
 			// there. this will go out for all sites later, as we test more.
@@ -724,9 +721,14 @@ class RobotPolicy {
 
 		// Recalculate the policies of the categories to which the article belongs
 		if ( !$dry && $title->exists() && $title->inNamespace(NS_MAIN) ) {
-			$categories = WikiPage::newFromID($title->getArticleID())->getCategories();
-			foreach ($categories as $category) {
-				self::recalcArticlePolicyBasedOnTitle($category);
+			$article = WikiPage::newFromID($title->getArticleID(), WikiPage::READ_LATEST);
+			// Sometimes, when deleting an article, this data may not be available.
+			// So we don't want to recalculate the categories if we can't find them.
+			if ($article) {
+				$categories = $article->getCategories();
+				foreach ($categories as $category) {
+					self::recalcArticlePolicyBasedOnTitle($category);
+				}
 			}
 		}
 
@@ -753,7 +755,9 @@ class RobotPolicy {
 	}
 
 	public static function onAfterGoodRevisionUpdated($title, $goodRev) {
-		self::recalcArticlePolicyBasedOnTitle($title);
+		$dry = false;
+		$fromMaster = true;
+		self::recalcArticlePolicyBasedOnTitle( $title, $dry, $fromMaster );
 		return true;
 	}
 
@@ -761,7 +765,9 @@ class RobotPolicy {
 	public static function recalcArticlePolicy(&$article) {
 		if ($article) {
 			$title = $article->getTitle();
-			self::recalcArticlePolicyBasedOnTitle($title);
+			$dry = false;
+			$fromMaster = true;
+			self::recalcArticlePolicyBasedOnTitle( $title, $dry, $fromMaster );
 		}
 	}
 

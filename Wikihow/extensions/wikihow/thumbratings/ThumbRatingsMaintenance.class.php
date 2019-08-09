@@ -20,7 +20,7 @@ class ThumbRatingsMaintenance {
 		$wgUseSquid = false;
 
 		// Get articles with votes
-		$dbr = self::getMaintenanceDBR();
+		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select('thumb_ratings', 'tr_page_id',
 			array("tr_last_ranked IS NULL OR tr_last_ranked < '$lowDate'"),
 			__METHOD__,
@@ -116,19 +116,8 @@ class ThumbRatingsMaintenance {
 		return $r;
 	}
 
-	public static function getMaintenanceDBR() {
-		global $wgDBname;
-		$db = DatabaseBase::factory( 'mysql', [
-			'host' => $maintenanceDBhost,
-			'user' => WH_DATABASE_MAINTENANCE_USER,
-			'password' => WH_DATABASE_MAINTENANCE_PASSWORD,
-			'dbname' => $wgDBname,
-		] );
-		return $db;
-	}
-
 	public static function getRatedArticlesCount() {
-		$dbr = self::getMaintenanceDBR();
+		$dbr = wfGetDB(DB_REPLICA);
 		return $dbr->selectField('thumb_ratings', 'count(distinct tr_page_id)', array(), __METHOD__);
 	}
 }

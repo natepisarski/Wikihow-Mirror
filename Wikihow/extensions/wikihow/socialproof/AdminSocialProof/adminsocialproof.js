@@ -108,6 +108,7 @@
 
 		return {
 			init : function() {
+				$('#spa_wrap').show();
 				setupClickHandling();
 				pollForResults();
 			},

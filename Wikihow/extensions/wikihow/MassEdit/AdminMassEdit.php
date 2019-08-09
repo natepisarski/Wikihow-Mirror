@@ -10,3 +10,12 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['AdminMassEdit'] = 'AdminMassEdit';
 $wgAutoloadClasses['AdminMassEdit'] = __DIR__ . '/AdminMassEdit.body.php';
+
+$wgResourceModules['ext.wikihow.adminmassedit'] = [
+	'scripts' => [ 'adminmassedit.js' ],
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop' ],
+	'dependencies' => [ 'jquery' ],
+	'remoteExtPath' => 'wikihow/MassEdit',
+	'position' => 'top'
+];

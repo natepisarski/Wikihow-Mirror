@@ -125,9 +125,8 @@ class TranslateEditor extends UnlistedSpecialPage {
 					'translateURL' => true,
 					'translations' => json_encode($translations),
 				]);
-				if($title->exists()) {
-					$dbr = wfGetDB(DB_REPLICA);
-					$wikiText = Wikitext::getWikitext($dbr, $title);
+				if ($title->exists()) {
+					$wikiText = Wikitext::getWikitext($title);
 					$summary = Wikitext::getSummarizedSection($wikiText);
 					if($summary != "") {
 						$vars['translationExists'] = true;
@@ -257,7 +256,7 @@ class TranslateEditor extends UnlistedSpecialPage {
 					$output['text'] = $txt;
 
 					$dbw = wfGetDB(DB_MASTER);
-					$sql = 'insert into pre_translation_link(ptl_translator, ptl_english_aid, ptl_to_title, ptl_timestamp) values(' . $dbw->addQuotes($wgUser->getId()) . ',' . $dbw->addQuotes($fromAID) . ',' . $dbw->addQuotes($toTarget) . ',' . $dbw->addQuotes(wfTimestampNow()) .  ') on duplicate key update ptl_english_aid=' . $dbw->addQuotes($fromAID) . ', ptl_timestamp=' . $dbw->addQuotes(wfTimestampNow());
+					$sql = 'INSERT INTO pre_translation_link (ptl_translator, ptl_english_aid, ptl_to_title, ptl_timestamp) VALUES (' . $dbw->addQuotes($wgUser->getId()) . ',' . $dbw->addQuotes($fromAID) . ',' . $dbw->addQuotes($toTarget) . ',' . $dbw->addQuotes(wfTimestampNow()) .  ') on duplicate key update ptl_english_aid=' . $dbw->addQuotes($fromAID) . ', ptl_timestamp=' . $dbw->addQuotes(wfTimestampNow());
 					$dbw->query($sql, __METHOD__);
 					TranslationLink::writeLog(TranslationLink::ACTION_NAME, 'en', $fromRevisionId, $fromAID,$target,$wgLanguageCode,$toTarget);
 				}

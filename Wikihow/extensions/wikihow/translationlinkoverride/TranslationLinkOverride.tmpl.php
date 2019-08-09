@@ -1,6 +1,4 @@
-		<script src="/extensions/wikihow/common/download.jQuery.js"></script>
-		<script src="/extensions/wikihow/translationlinkoverride/webtoolkit.aim.js"></script>
-		<script type="text/javascript">
+		<script>
 		function completeCallback(response) {
 		}
 		</script>

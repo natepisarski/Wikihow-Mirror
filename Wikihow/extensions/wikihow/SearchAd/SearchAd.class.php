@@ -15,6 +15,8 @@ class SearchAd extends UnlistedSpecialPage {
 	public function execute($par) {
 		global $wgSquidMaxage;
 
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
+
 		$out = $this->getOutput();
 		$out->setArticleBodyOnly(true);
 		$out->setCdnMaxage($wgSquidMaxage); //make sure this caches

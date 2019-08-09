@@ -5,14 +5,22 @@
  */
 class TipsGuardian extends MobileSpecialPage {
 
-	function __construct() {
+	public function __construct() {
 		global $wgHooks;
 
 		parent::__construct("TipsGuardian", "TipsGuardian");
 		$wgHooks['getMobileToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
-	function executeWhenAvailable($par) {
+	public function isMobileCapable() {
+		return true;
+	}
+
+	public function isMobileAnonOnly() {
+		return true;
+	}
+
+	public function executeWhenAvailable($par) {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 
@@ -26,6 +34,7 @@ class TipsGuardian extends MobileSpecialPage {
 		// redir to QG if desktop
 		if ( !$this->getRequest()->wasPosted() && !Misc::isMobileMode() ) {
 			$out->redirect(SpecialPage::getTitleFor('QG')->getFullURL());
+			return;
 		}
 
 		$out->setPageTitle(''); //making our own header
@@ -40,14 +49,14 @@ class TipsGuardian extends MobileSpecialPage {
 		$out->addHTML($tmpl->execute('tipsguardian.tmpl.php'));
 	}
 
-	function addModules() {
+	protected function addModules() {
 		$out = $this->getOutput();
 		$out->addModuleStyles('mobile.tipsguardian.styles');
 		$out->addModules('mobile.tipsguardian.scripts');
 		$out->addModules('ext.wikihow.UsageLogs');
 	}
 
-	function getTGVars() {
+	private function getTGVars() {
 		$adw = new ArticleDisplayWidget();
 		return $adw->addTemplateVars();
 	}

@@ -9,6 +9,8 @@ class ProfileBadges extends SpecialPage {
 	public function execute($par) {
 		$out = $this->getOutput();
 
+		$this->setHeaders();
+
 		$out->addHTML(HtmlSnips::makeUrlTag('/extensions/wikihow/ProfileBadges.css'));
 
 		$out->setPageTitle(wfMessage('ab-title'));

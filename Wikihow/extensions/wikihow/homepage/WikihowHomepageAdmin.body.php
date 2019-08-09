@@ -104,7 +104,7 @@ wgAjaxUploadDestCheck = {$adc};
 wgAjaxLicensePreview = {$alp};
 </script>" );
 		$out->addModules('jquery.ui.dialog');
-		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/ui/js/jquery-ui-1.8.custom.min.js'));
+		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/jquery-ui-1.12.1/jquery-ui.min.js'));
 		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.js'));
 		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.css'));
 		$out->addScript(HtmlSnips::makeUrlTag('/skins/common/upload.js'));

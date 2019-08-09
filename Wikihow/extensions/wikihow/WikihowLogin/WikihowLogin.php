@@ -20,7 +20,7 @@ $wgMessagesDirs['WikihowLogin'] = __DIR__ . '/i18n';
 $wgHooks['SpecialPage_initList'][] = ['WikihowLogin::onSpecialPage_initList'];
 $wgHooks['AuthChangeFormFields'][] = ['WikihowLogin::onAuthChangeFormFields'];
 
-$wgAuthManagerAutoConfig['primaryauth'] = [
+$wgAuthManagerAutoConfig['primaryauth'] += [
 	'EmailPasswordAuthenticationProvider' => [
 		'class' => 'EmailLogin\\EmailPasswordAuthenticationProvider'
 	]

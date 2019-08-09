@@ -213,22 +213,36 @@ class ArticleHooks {
 		return true;
 	}
 
-	// Run on PageContentSaveComplete. It adds a tag to the first main namespace
+	// Run on NewRevisionFromEditComplete. It adds a tag to the first main namespace
 	// edit done by a user with 0 contributions. Note that this is tag is not set
 	// for anon users because they don't have a running contrib count.
-	public static function onPageContentSaveCompleteAddFirstEditTag(
-		$article, $user, $content, $summary, $isMinor, $isWatch, $section, $flags, $revision, $status, $baseRevId
+	public static function onNewRevisionFromEditCompleteAddFirstContributionTag(
+		$wikiPage,
+		$revision,
+		$originalRevId,
+		$user,
+		&$tags
 	) {
+
 		global $wgIgnoreNamespacesForEditCount;
 
-		if ($user && $revision && $article
-			&& !$user->isAnon()
-			&& !in_array( $article->getTitle()->getNamespace(), $wgIgnoreNamespacesForEditCount )
-			&& $user->getEditCount() == 0
-		) {
-			ChangeTags::addTags("First Contribution from User", null, $revision->getId());
+		if( !$user || $user->isAnon() ) {
+			return;
 		}
-		return true;
+
+		if ( !$wikiPage ) {
+			return;
+		}
+
+		if ( in_array( $wikiPage->getTitle()->getNamespace(), $wgIgnoreNamespacesForEditCount ) ) {
+			return;
+		}
+
+		if ( $user->getEditCount() == 0 ) {
+			if ( is_array( $tags ) ) {
+				$tags[] = "First Contribution from User";
+			}
+		}
 	}
 
 	// hook run when the good revision for an article has been updated

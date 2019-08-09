@@ -276,37 +276,6 @@ class ArticleCreator extends SpecialPage {
 		return EasyTemplate::html('ac-created-dialog.tmpl.php', $vars);
 	}
 
-	public static function printArticleCreatedScript($t) {
-		$aid = $t->getArticleId();
-
-		// deprecated cookie?
-		// setcookie('aen_dialog_check', $aid, time()+3600);
-		 echo '
-			<script type="text/javascript">
-			var whNewLoadFunc = function() {
-				var url = "/extensions/wikihow/common/jquery.simplemodal.1.4.4.min.js";
-				$.getScript(url, function() {
-					$.get("/Special:ArticleCreator?ac_created_dialog=1", function(data) {
-						$.modal(data, {
-							zIndex: 100000007,
-							maxWidth: 400,
-							minWidth: 400,
-							minHeight: 600,
-							overlayCss: { "background-color": "#000" },
-							escClose: false,
-							overlayClose: false
-						});
-						$.getScript("/extensions/wikihow/articlecreator/ac_modal.js");
-					});
-				});
-			};
-
-			$(window).load(whNewLoadFunc);
-
-			</script>
-		';
-	}
-
 	public static function onEditFormPreloadText( &$text, &$title ) {
 		$req = RequestContext::getMain()->getRequest();
 		$wikitext = $req->getVal('ac_wikitext');

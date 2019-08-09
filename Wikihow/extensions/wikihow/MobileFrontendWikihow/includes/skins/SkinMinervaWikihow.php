@@ -3,6 +3,8 @@
  * Extension of the SkinMinerva skin for wikiHow customization. Used for mobile and tablet devices
  */
 
+use MediaWiki\MediaWikiServices;
+
 class SkinMinervaWikihow extends SkinMinerva {
 	public $skinname = 'minervawh';
 	public $template = 'MinervaTemplateWikihow';
@@ -61,11 +63,17 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		// Add canonical link if it doesn't exist already (it will for Samples)
 		if (!$out->getCanonicalUrl()) {
-			$canonicalUrl = WikihowMobileTools::getNonMobileSite() . '/' . $this->getSkin()->getTitle()->getPrefixedURL();
+			// A few pages are for mobile only when user is anon
+			if ( $this->isMobileAnonOnly( $this->getTitle() ) ) {
+				$baseUrl = WikihowMobileTools::getMobileSite();
+			} else {
+				$baseUrl = WikihowMobileTools::getNonMobileSite();
+			}
+			$canonicalUrl = $baseUrl . '/' . $this->getTitle()->getPrefixedURL();
 			$out->setCanonicalUrl($canonicalUrl);
 		}
 
-		$articleName = $this->getSkin()->getTitle()->getText();
+		$articleName = $this->getTitle()->getText();
 		$isMainPage = $articleName == wfMessage('mainpage')->text();
 
 		if ( $out->getTitle()->inNamespace( NS_MAIN ) && !$isMainPage ) {
@@ -589,6 +597,17 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 	}
 
+	protected function isMobileAnonOnly($title) {
+		$isMobileAnonOnly = false;
+		if ( $title && $title->inNamespace(NS_SPECIAL) ) {
+			$specialPage = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( $title->getText() );
+			if ( $specialPage && $specialPage->isMobileAnonOnly() ) {
+				$isMobileAnonOnly = true;
+			}
+		}
+		return $isMobileAnonOnly;
+	}
+
 	protected function prepareMobileFooterLinks( $tpl ) {
 		$title = $this->getTitle();
 
@@ -598,12 +617,21 @@ class SkinMinervaWikihow extends SkinMinerva {
 		// Use the wikiHow random link message
 		$randomLink = '<a href="/Special:Randomizer" >' . wfMessage('randompage')->text() . '</a>';
 		$tpl->set('random', $randomLink);
-		$req = $this->getRequest();
-		$url = $this->getDesktopUrl( wfExpandUrl(
-			$this->getTitle()->getLocalURL( $req->appendQueryValue( 'mobileaction', 'toggle_view_desktop' ) )
-		) );
-		$fullSiteText = wfMessage( 'mobile-frontend-view-desktop-wh' )->escaped();
-		$switcherHtml = self::getMobileMenuFullSiteLink( $fullSiteText, $url );
+
+		// Create url to switch to desktop site (and set cookie so varnish
+		// doesn't redirect user right back).
+		if ( ! $this->isMobileAnonOnly($title) ) {
+			$req = $this->getRequest();
+			$url = $this->getDesktopUrl( wfExpandUrl(
+				$this->getTitle()->getLocalURL( $req->appendQueryValue( 'mobileaction', 'toggle_view_desktop' ) )
+			) );
+			$fullSiteText = wfMessage( 'mobile-frontend-view-desktop-wh' )->escaped();
+			$switcherHtml = self::getMobileMenuFullSiteLink( $fullSiteText, $url );
+		} else {
+			// There are certain special pages which only run on our mobile
+			// site, so we don't want to display a "Desktop site" link for these.
+			$switcherHtml = '';
+		}
 		$tpl->set( 'mobile-switcher', $switcherHtml );
 	}
 

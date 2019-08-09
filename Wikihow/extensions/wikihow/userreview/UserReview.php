@@ -18,13 +18,21 @@ $wgHooks['PicturePatrolResolved'][] = 'UserReview::handlePicturePatrol';
 $wgHooks['SensitiveArticleEdited'][] = 'UserReview::handSensitiveArticleEdit';
 
 $wgResourceModules['ext.wikihow.userreviewtool'] = array(
-	'scripts' => array('userreviewtool.js'),
-	'styles' => array('userreviewtool.css'),
+	'scripts' => ['userreviewtool.js'],
+	'localBasePath' => __DIR__ . '/',
+	'remoteExtPath' => 'wikihow/userreview',
+	'position' => 'bottom',
+	'targets' => ['desktop', 'mobile'],
+	'dependencies' => ['ext.wikihow.common_top', 'mediawiki.cookie'],
+);
+
+$wgResourceModules['ext.wikihow.userreviewtool_styles'] = [
+	'styles' => ['userreviewtool.css'],
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/userreview',
 	'position' => 'top',
-	'targets' => array( 'desktop', 'mobile' ),
-);
+	'targets' => [ 'desktop', 'mobile' ]
+];
 
 $wgResourceModules['ext.wikihow.userreviewimporter'] = array(
 	'scripts' => array('userreviewimporter.js'),

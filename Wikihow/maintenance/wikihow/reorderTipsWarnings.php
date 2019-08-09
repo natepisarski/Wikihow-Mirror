@@ -1,5 +1,6 @@
 <?php
 
+$optionsWithoutArgs = ['iterations', 'rank'];
 require_once(__DIR__ . '/../commandLine.inc');
 require_once("$IP/extensions/wikihow/thumbratings/ThumbRatingsMaintenance.class.php");
 
@@ -7,12 +8,12 @@ $wgUser = User::newFromName('Votebot');
 $calculationDuration = 30;
 $numToCalc = 1000;
 
-$cmd = isset($argv[0]) ? $argv[0] : '';
-
-if ($cmd == "iterations") {
+if ($options["iterations"] ?? false) {
 	numIterations();
-} elseif ($cmd == "rank") {
+} elseif ($options["rank"] ?? false) {
 	rank();
+} else {
+	die("error: specify option: iterations or rank\n");
 }
 
 function rank() {

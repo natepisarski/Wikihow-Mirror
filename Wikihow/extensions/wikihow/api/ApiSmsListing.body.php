@@ -18,8 +18,20 @@ class ApiSmsListing extends ApiBase {
 		if ($params['skipcat'] != "1") {
 			$searchEngine = SearchEngine::create();
 			$titleMatches = $searchEngine->searchTitle($search);
+			if ($titleMatches instanceof Status && $titleMatches->isGood()) {
+				$titleMatches = $titleMatches->getValue();
+			}
 			if ( !($titleMatches instanceof SearchResultTooMany) ) {
 				$textMatches = $searchEngine->searchText($search);
+				// searchText method can now return a status object
+				if ($textMatches instanceof Status) {
+					if ( $textMatches->isGood() ) {
+						$textMatches = $textMatches->getValue();
+					} else {
+						$this->dieWithError( [ 'apierror-badparameter', $search ] );
+						return;
+					}
+				}
 			}
 			$titleMatchesNum = $titleMatches ? $titleMatches->numRows() : 0;
 			$textMatchesNum = $textMatches ? $textMatches->numRows() : 0;
@@ -87,6 +99,9 @@ class ApiSmsListing extends ApiBase {
 
 	private static function getFormattedSummaryFromTitle($title) {
 		$r = Revision::newFromTitle($title);
+		if (!$r) {
+			return null;
+		}
 		$wikitext = ContentHandler::getContentText($r->getContent());
 		$summaryText = Wikitext::getSummarizedSection($wikitext);
 		if ( !empty($summaryText) ) {

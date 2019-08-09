@@ -165,7 +165,8 @@ class Result extends SearchResult {
 		// Wikihow/George 2015-04-14
 		// Set the relevance score for display in search results
 		$maxScore = $results->getMaxScore();
-		$score = $result->getWHScore();
+		// Trevor, 2019-08-05, Changed from getWHScore() because $result is now an Elastica result, not a CirrusSearch\Search\Result (one of these)
+		$score = $result->getScore();
 		if ( $maxScore > 0 && !is_array($score) ) {
 			$this->whscore = $score / $maxScore;
 		} elseif ( !is_array($score) ) {

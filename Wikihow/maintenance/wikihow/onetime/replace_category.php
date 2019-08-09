@@ -8,7 +8,7 @@ $wgUser = User::newFromName('MiscBot');
 $old_cat = 'In progress articles removed from NAB';
 $new_cat = 'Articles in Quality Review';
 
-$dbr = wfGetDB(DB_REPLICA);
+// $dbr = wfGetDB(DB_REPLICA);
 // $sql = "SELECT page_title, page_id 
 			// FROM (page, categorylinks cl1)
 			// WHERE cl1.cl_from = page_id 
@@ -36,12 +36,12 @@ print "$count out of $total articles updated\n";
 
 
 function replaceCat($id) {
-	global $wgContLang, $new_cat, $old_cat, $dbr;
+	global $wgContLang, $new_cat, $old_cat;
 	
 	//grab the wikitext	
 	$t = Title::newFromID($id);
 	if (!$t || !$t->exists()) return false;
-	$wikitext = Wikitext::getWikitext($dbr, $t);
+	$wikitext = Wikitext::getWikitext($t);
 
 	//now, just the intro
 	$intro = Wikitext::getIntro($wikitext);

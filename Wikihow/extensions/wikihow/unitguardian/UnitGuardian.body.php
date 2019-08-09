@@ -29,6 +29,14 @@ class UnitGuardian extends UnlistedSpecialPage {
 		return true;
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
+	public function isMobileAnonOnly() {
+		return true;
+	}
+
 	function execute($par) {
 		$request = $this->getRequest();
 		$out = $this->getOutput();
@@ -280,7 +288,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 			//need to actually put the conversion in now
 			$title = Title::newFromID($data['ugc_page']);
 			if ($title) {
-				$wikitext = Wikitext::getWikitext($dbw, $title);
+				$wikitext = Wikitext::getWikitext($title, 'latest');
 				$newWikitext = str_replace($data['replacement'], $data['ugc_template'], $wikitext);
 
 				$wp = new WikiPage($title);

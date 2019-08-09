@@ -497,12 +497,8 @@ class PageStats extends UnlistedSpecialPage {
 	}
 
 	public static function getJSsnippet() {
-		$langCode = RequestContext::getMain()->getLanguage()->getCode();
-?>
-<script>
-	mw.loader.load('ext.wikihow.pagestats');
-</script>
-<?php
+		$out = RequestContext::getMain()->getOutput();
+		$out->addModules( 'ext.wikihow.pagestats' );
 	}
 
 }

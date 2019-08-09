@@ -60,6 +60,9 @@ class RCWidget extends UnlistedSpecialPage {
 		switch ($row->log_type) {
 			case 'patrol':
 
+			//don't show patrolled user page edits so the widget isn't clogged by bots making users (Anna request)
+			if ($row->log_namespace == NS_USER) return;
+
 			$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
 			if ($row->log_namespace == NS_USER) {
 					$obj['type'] = 'patrol';

@@ -214,6 +214,10 @@ class RCLite extends MobileSpecialPage {
 		return true;
 	}
 
+	public function isMobileAnonOnly() {
+		return true;
+	}
+
 	protected function markPatrolled($rcid) {
 		$rc = RecentChange::newFromId( $rcid );
 		if (!is_null($rc)) {

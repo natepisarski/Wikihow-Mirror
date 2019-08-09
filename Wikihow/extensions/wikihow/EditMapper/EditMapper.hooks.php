@@ -22,20 +22,16 @@ class EditMapperHooks {
 	protected static $mappers = null;  	  // array   EditMapper subclasses that may handle the mapping
 
 	/**
-	 * Triggered when the software receives a request to save an article
+	 * Triggered before a new edit is saved so we can possibly update the user
 	 */
-	public static function onPageContentSave(WikiPage $article, User &$user, Content $content,
-			CommentStoreComment $comment, int $minor, $null1, $null2, int $flags, Status $status=null) {
-
+	public static function onBeforePrepareContent( WikiPage $article, User &$user, $summary, $isNew ) {
 		if (!isset($user) || $user->isAnon()) {
 			return true;
 		}
 
 		$title = $article->getTitle();
 
-		$isNew = $flags & EDIT_NEW;
-
-		list($mapper, $destUser) = static::getActiveMapper($title, $user, $isNew, $comment->text);
+		list($mapper, $destUser) = static::getActiveMapper( $title, $user, $isNew, $summary );
 		if ($mapper && $destUser) {
 			static::$mapper = $mapper;
 			$mapper->doMapping($user, $destUser);

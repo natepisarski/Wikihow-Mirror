@@ -29,6 +29,8 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 	function execute($par) {
 		global $wgHooks;
+		$this->getOutput()->setRobotPolicy('noindex,nofollow');
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		$wgHooks['CustomSideBar'][] = array($this, 'makeCustomSideBar');
 		$wgHooks['ShowBreadCrumbs'][] = array($this, 'hideBreadcrumb');

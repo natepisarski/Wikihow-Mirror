@@ -9,7 +9,9 @@ class UnitConverter {
 	var $excess = 10;
 	var $token = "TOKE_";
 
-	function checkForConversion($pageId, &$db) {
+	// NOTE: param $db is now unused. We should remove it from the spots this
+	// is called.
+	public function checkForConversion($pageId, &$db) {
 
 		$title = Title::newFromID($pageId);
 
@@ -17,7 +19,7 @@ class UnitConverter {
 		//also skip protected articles
 		if (!$title || preg_match('@(convert|metric|calculate)@i',$title->getText()) || $title->isProtected()) return;
 
-		$wikitext = Wikitext::getWikitext($db, $title);
+		$wikitext = Wikitext::getWikitext($title);
 
 		//substitute tokens for things we're skipping
 		list($new_wikitext, $all_tokens) = $this->tokenize($wikitext);

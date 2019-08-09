@@ -191,7 +191,6 @@ EOHTML;
 
 				if (typeof WH.RCPatrol !== 'undefined') {
 					if (typeof WH.RCPatrol.setupTabs == 'function') {
-						WH.RCPatrol.setupTabs();
 						WH.RCPatrol.preloadNext(nextlink);
 					}
 				}

@@ -2656,26 +2656,23 @@ ERROR;
 			) );
 
 			if ( $this->context->getUser()->isLoggedIn() ) {
-				//XXCHANGED Bebeth - message has html links in it, so couldn't use wrapper
-				$out->addHTML(wfMessage('newarticletext')->plain());
-				// $out->wrapWikiMsg(
-				// 	// Suppress the external link icon, consider the help url an internal one
-				// 	"<div class=\"mw-newarticletext plainlinks\">\n$1\n</div>",
-				// 	[
-				// 		'newarticletext',
-				// 		$helpLink
-				// 	]
-				// );
+				$out->addHTML(
+					// Suppress the external link icon, consider the help url an internal one
+					Html::rawElement(
+						'div',
+						[ 'class' => 'mw-newarticletext plainlinks' ],
+						wfMessage( 'newarticletext', $helpLink )->text()
+					)
+				);
 			} else {
-				$out->addHTML(wfMessage('newarticletextanon')->plain());
-				// $out->wrapWikiMsg(
-				// 	// Suppress the external link icon, consider the help url an internal one
-				// 	"<div class=\"mw-newarticletextanon plainlinks\">\n$1\n</div>",
-				// 	[
-				// 		'newarticletextanon',
-				// 		$helpLink
-				// 	]
-				// );
+				$out->addHTML(
+					// Suppress the external link icon, consider the help url an internal one
+					Html::rawElement(
+						'div',
+						[ 'class' => 'mw-newarticletextanon plainlinks' ],
+						wfMessage( 'newarticletextanon', $helpLink )->text()
+					)
+				);
 			}
 		}
 		# Give a notice if the user is editing a deleted/moved page...

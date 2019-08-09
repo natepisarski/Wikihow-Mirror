@@ -129,9 +129,10 @@ h6.steps_text .edit-page,
 	display:none;
 }
 
-a, a:active, a:visited {
+a, a:active, a:visited, a.new {
 	color: #93b874;
 	text-decoration: none;
+	word-wrap: break-word;
 }
 
 .clearall { clear: both; }
@@ -414,6 +415,11 @@ sub {
 sub,
 sup {
   font-size: 0.75em;
+}
+
+pre {
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
 }
 
 #content_wrapper {

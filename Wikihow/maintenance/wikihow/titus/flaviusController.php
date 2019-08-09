@@ -1,7 +1,107 @@
 <?php
 
-require_once(__DIR__ . '/../../commandLine.inc');
-require_once("$IP/extensions/wikihow/flavius/Flavius.class.php");
+require_once __DIR__ . '/../../Maintenance.php';
+
+require_once __DIR__ . "/../../../extensions/wikihow/flavius/Flavius.class.php";
+
+class FlaviusMaintenance extends Maintenance {
+	public function __construct() {
+		parent::__construct();
+
+		$this->mDescription = 'Flav-a-Flavius';
+
+		// addOption: long form, description, required, takes arguments, short form
+		$this->addOption( 'yesterday', 'run on yesterdays data', false, false, 'y' );
+		$this->addOption( 'fullrun', '', false, false, '' );
+		$this->addOption( 'fulleternal', '', false, false, '' );
+		$this->addOption( 'dailyrun', '', false, false, '' );
+		$this->addOption( 'eternalstat', '', false, true, '' );
+		$this->addOption( 'partialeternalstat', '', false, true, '' );
+		$this->addOption( 'fullgroup', '', false, false, '' );
+		$this->addOption( 'fullinterval', '', false, false, '' );
+		$this->addOption( 'recalcinterval', '', false, true, '' );
+		$this->addOption( 'recalcintervalend', '', false, true, '' );
+		$this->addOption( 'partialintervalstat', '', false, true, '' );
+		$this->addOption( 'drypartialintervalstat', '', false, true, '' );
+		$this->addOption( 'intervalstat', '', false, true, '' );
+		$this->addOption( 'dryintervalstat', '', false, true, '' );
+		$this->addOption( 'summary', '', false, false, '' );
+		$this->addOption( 'milestones', '', false, true, '' );
+		$this->addOption( 'milestonescustom', '', false, true, '' );
+		$this->addOption( 'anonstats', '', false, false, '' );
+		$this->addOption( 'shift', '', false, false, '' );
+	}
+
+	public function execute() {
+		if ( $this->getOption('yesterday') ) {
+			$fc = new FlaviusController(1);
+		} else {
+			$fc = new FlaviusController();
+		}
+		$fc->addErrorEmail("reuben@wikihow.com");
+
+		if ( $this->getOption('fullrun') ) {
+			$fc->run(true);
+			$fc->makeSummary();
+		}
+
+		if ($this->getOption('fullrun')) {
+			$fc->run(true);
+			$fc->makeSummary();
+		}
+		elseif ($this->getOption("fulleternal")) {
+			$fc->calcEternalStats();
+		}
+		elseif ($this->getOption("dailyrun")) {
+			$fc->run(false);
+			$fc->makeSummary();
+		}
+		elseif ($this->getOption("eternalstat")) {
+			$fc->calcEternalStat( $this->getOption("eternalstat") );	
+		}
+		elseif ($this->getOption("partialeternalstat")) {
+			$fc->calcEternalStat($this->getOption("partialeternalstat"), "20120101", true);	
+		}
+		elseif ($this->getOption("fullgroup")) {
+			$fc->calcGroupStats();
+		}
+		elseif ($this->getOption("fullinterval")) {
+			$fc->calcIntervalStats();
+		}
+		elseif ($this->getOption("recalcinterval")) {
+			$fc->recalcInterval($this->getOption("recalcinterval"), $this->getOption("recalcintervalend"));
+		}
+		elseif ($this->getOption("partialintervalstat")) {
+			$fc->calcIntervalStat($this->getOption("partialintervalstat"), "20010101", true);
+		}
+		elseif ($this->getOption("drypartialintervalstat")) {
+			$fc->calcIntervalStat($this->getOption("drypartialintervalstat"), "20010101", true, true);
+		}
+		elseif ($this->getOption("intervalstat")) {
+			$fc->calcIntervalStat($this->getOption("intervalstat"));
+		}
+		elseif ($this->getOption("dryintervalstat")) {
+			$fc->calcIntervalStat($this->getOption("dryintervalstat"), false, false, true);
+		}
+		elseif ($this->getOption("summary")) {
+			$fc->makeSummary();
+		}
+		elseif ($this->getOption("milestones")) {
+			if ($this->getOption("milestonescustom")) {
+				$fc->calculateMilestones($this->getOption('milestones'),array(10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000), $this->getOption("milestonescustom"));
+			}
+			else {
+				$fc->calculateMilestones($this->getOption('milestones'),array(10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000));
+			}
+		}
+		elseif ($this->getOption("anonstats")) {
+			$fc->calculateAnons();	
+		}
+		elseif ($this->getOption("shift")) {
+			$fc->shift();
+		}
+	}
+}
 
 /**
  * Code used to run Flavius over varius periods of time
@@ -57,7 +157,7 @@ class FlaviusController {
 		$now = wfTimestampNow();
 		print("Starting full run at $now \n");
 		try {
-			if($fullRun) {
+			if ($fullRun) {
 				$this->flavius->clearIntervalStats();
 				$this->flavius->clearTotalStats();
 				$startDay = $this->oldDay;	
@@ -76,7 +176,7 @@ class FlaviusController {
 				print_r(wfTimestampNow() . " calculating intervals");	
 				$t->flavius->calcIntervalStats($idSlice, $intervalStats, $startDay, $t->todaysDate);
 				// Totals have been shifted for non-total date, so don't need to be calculated
-				if($fullRun) {
+				if ($fullRun) {
 					print_r(wfTimestampNow() . " calculating totals");	
 					$t->flavius->calcTotalStats($idSlice, $intervalStats, $t->oldDay); 
 				}
@@ -86,7 +186,7 @@ class FlaviusController {
 				$groupStats = FlaviusConfig::getGroupStats();
 				$t->flavius->calcGroupStats($idSlice, $groupStats);
 			});
-			if(!$fullRun) {
+			if (!$fullRun) {
 				$this->flavius->shiftTotals($this->oldDay);
 				$this->flavius->clearIntervalStats($this->clearDay);
 				$this->flavius->clearTotalStats($this->clearDay);
@@ -114,7 +214,7 @@ class FlaviusController {
 	 * Calculate all Eternal statistics from last touch date
 	 */
 	public function calcEternalStats($lastTouchDate = false) {
-		if($lastTouchDate) {
+		if ($lastTouchDate) {
 			$ids = $this->flavius->getIdsToCalc($lastTouchDate);	
 		}
 		else {
@@ -132,13 +232,13 @@ class FlaviusController {
 	 * Calculate a specific Eternal statistic from last touch date
 	 */
 	public function calcEternalStat($statName, $lastTouchDate=false, $partial = false) {
-		if($lastTouchDate) {
+		if ($lastTouchDate) {
 			$ids = $this->flavius->getIdsToCalc($lastTouchDate);
 		}
 		else {
 			$ids = $this->flavius->getAllIdsToCalc();	
 		}
-		if($partial) {
+		if ($partial) {
 			$ids = array_slice($ids,0,100);                                                                                                                                                                 
 		}
 
@@ -152,7 +252,7 @@ class FlaviusController {
 	 * Calculate all group stats
 	 */
 	public function calcGroupStats($lastTouchDate = false) {
-		if($lastTouchDate) {
+		if ($lastTouchDate) {
 			$ids = $this->flavius->getIdsToCalc($lastTouchDate);	
 		}
 		else {
@@ -170,7 +270,7 @@ class FlaviusController {
 	 * Calculate a specific group statistic from last touch date
 	 */
 	public function calcGroupStat($statName, $lastTouchDate) {
-		if($lastTouchDate) {
+		if ($lastTouchDate) {
 			$ids = $this->flavius->getIdsToCalc($lastTouchDate);	
 		}
 		else {
@@ -187,7 +287,7 @@ class FlaviusController {
 	 * Calculate all group stats
 	 */
 	public function calcIntervalStats($lastTouchDate = false, $dryRun = false) {
-		if($lastTouchDate) { 
+		if ($lastTouchDate) { 
 			$ids = $this->flavius->getIdsToCalc($lastTouchDate);
 		}
 		else {
@@ -219,14 +319,14 @@ class FlaviusController {
 	 * Calculate interval stats form last touch date
 	 */
 	public function calcIntervalStat($statName, $lastTouchDate=false, $partial=false, $dryRun = false) {
-		if($lastTouchdate) {
+		if ($lastTouchdate) {
 			$ids = $this->flavius->getIdsToCalc($lastTouchDate);
 		}
 		else {
 			$ids = $this->flavius->getAllIdsToCalc();	
 		}
 		$stats = array($statName => 1);
-		if($partial) {
+		if ($partial) {
 			$ids = array_slice($ids,0,100);	
 		}
 
@@ -253,7 +353,7 @@ class FlaviusController {
 	 * 
 	 */
 	public function calculateMilestones($field, $values, $date = false) {
-		if(!$date) {
+		if (!$date) {
 			$today = substr(wfTimestampNow(),0,8) . '000000';
 			$ts = wfTimestamp(TS_UNIX, $today);
 			$ago = strtotime('-1 day',wfTimestamp(TS_UNIX, $today));
@@ -274,67 +374,5 @@ class FlaviusController {
 	}
 }
 
-if($argv[0] == '-yesterday') {
-	$fc = new FlaviusController(1);
-	array_shift($argv);
-}
-else {
-	$fc = new FlaviusController();
-}
-$fc->addErrorEmail("reuben@wikihow.com");
-
-if($argv[0] == '--fullrun') {
-	$fc->run(true);
-	$fc->makeSummary();
-}
-elseif($argv[0] == "--fulleternal") {
-	$fc->calcEternalStats();
-}
-elseif($argv[0] == "--dailyrun") {
-	$fc->run(false);
-	$fc->makeSummary();
-}
-elseif($argv[0] == "--eternalstat") {
-	$fc->calcEternalStat($argv[1]);	
-}
-elseif($argv[0] == "--partialeternalstat") {
-	$fc->calcEternalStat($argv[1], "20120101", true);	
-}
-elseif($argv[0] == "--fullgroup") {
-	$fc->calcGroupStats();
-}
-elseif($argv[0] == "--fullinterval") {
-	$fc->calcIntervalStats();
-}
-elseif($argv[0] == "--recalcinterval") {
-	$fc->recalcInterval($argv[1], $argv[2]);
-}
-elseif($argv[0] == "--partialintervalstat") {
-	$fc->calcIntervalStat($argv[1], "20010101", true);
-}
-elseif($argv[0] == "--drypartialintervalstat") {
-	$fc->calcIntervalStat($argv[1], "20010101", true, true);
-}
-elseif($argv[0] == "--intervalstat") {
-	$fc->calcIntervalStat($argv[1]);
-}
-elseif($argv[0] == "--dryintervalstat") {
-	$fc->calcIntervalStat($argv[1], false, false, true);
-}
-elseif($argv[0] == "--summary") {
-	$fc->makeSummary();
-}
-elseif($argv[0] == "--milestones") {
-	if(isset($argv[2])) {
-		$fc->calculateMilestones($argv[1],array(10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000), $argv[2]);
-	}
-	else {
-		$fc->calculateMilestones($argv[1],array(10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000));
-	}
-}
-elseif($argv[0] == "--anonstats") {
-	$fc->calculateAnons();	
-}
-elseif($argv[0] == "--shift") {
-	$fc->shift();
-}
+$maintClass = 'FlaviusMaintenance';
+require_once RUN_MAINTENANCE_IF_MAIN;

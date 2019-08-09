@@ -51,3 +51,8 @@ WH.imageFeedback = function() {
 		$(this).find('.rpt_img').hide();
 	});
 };
+if (document.readyState == 'complete') {
+	WH.imageFeedback();
+} else {
+	$(window).load(WH.imageFeedback);
+}

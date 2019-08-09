@@ -35,6 +35,8 @@ class QABox extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$user = $this->getUser();
 
+		$request->response()->header('x-robots-tag: noindex, nofollow');
+
 		$action = $request->getVal('action');
 		$answered_sqid = $request->getInt('asqid');
 

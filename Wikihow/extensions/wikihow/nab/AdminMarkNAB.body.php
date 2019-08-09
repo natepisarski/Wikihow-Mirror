@@ -60,7 +60,8 @@ class AdminMarkPromoted extends UnlistedSpecialPage {
 			$result = array('result' => $html);
 			print json_encode($result);
 		} else {
-			$tmpl = self::getGuts('AdminMarkPromoted');
+			$out->addModules( 'ext.wikihow.adminmarkpromoted' );
+			$tmpl = self::getGuts();
 			$out->setRobotPolicy('noindex,nofollow');
 			$out->addHTML($tmpl);
 		}
@@ -75,9 +76,9 @@ class AdminMarkPromoted extends UnlistedSpecialPage {
 		return $partial;
 	}
 
-	private static function getGuts($action) {
-		return "		<form method='post' action='/Special:$action'>
-		<h4 style='margin-left:0'>Enter a list of full URLs such as <code>http://www.wikihow.com/Kill-a-Scorpion</code> or partial URLs like <code>/Research-Wallabies</code> for pages that should be marked as nabbed in <a href='/Special:NewArticleBoost'>Special:NewArticleBoost</a>.  One per line.</h4>
+	private static function getGuts() {
+		return "		<form method='post' action='/Special:AdminMarkPromoted'>
+		<h4 style='margin-left:0'>Enter a list of full URLs such as <code>https://www.wikihow.com/Kill-a-Scorpion</code> or partial URLs like <code>/Research-Wallabies</code> for pages that should be marked as nabbed in <a href='/Special:NewArticleBoost'>Special:NewArticleBoost</a>.  One per line.</h4>
 		<br/>
 		** Note this tool promotes articles.
 		<br /><br />
@@ -86,28 +87,7 @@ class AdminMarkPromoted extends UnlistedSpecialPage {
 		<br/><br/>
 		<div id='pages-result'>
 		</div>
-		</form>
-
-		<script>
-		(function($){
-			$(document).ready(function() {
-				$('#pages-clear')
-					.prop('disabled', false)
-					.click(function() {
-						$('#pages-result').html('Loading ...');
-						$.post('/Special:$action',
-							{ 'pages-list': $('#pages-list').val() },
-							function(data) {
-								$('#pages-result').html(data['result']);
-								$('#pages-list').focus();
-							},
-							'json');
-						return false;
-					});
-				$('#pages-list').focus();
-			});
-		})(jQuery);
-		</script>";
+		</form>";
 	}
 
 	private function userAllowed() {

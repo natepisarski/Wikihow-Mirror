@@ -1,20 +1,8 @@
 <?php
 if ( ! defined('MEDIAWIKI') ) die();
-/**#@+
- *
- * @package MediaWiki
- * @subpackage Extensions
- *
- * @link http://www.wikihow.com/WikiHow:NewArticleBoost-Extension Documentation
- *
- *
- * @author Travis Derouin <travis@wikihow.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
- */
-
 
 $wgExtensionCredits['specialpage'][] = array(
-	'name' => 'NewArticleBoost',
+	'name' => 'New Article Boost',
 	'author' => 'Travis Derouin',
 	'description' => 'Provides a separate way of boosting new articles',
 	'url' => 'http://www.wikihow.com/WikiHow:NewArticleBoost-Extension',
@@ -72,6 +60,15 @@ $wgGroupPermissions['staff']['newbienap'] = true;
 $wgLogTypes[] = 'nap';
 $wgLogNames['nap'] = 'newarticlepatrollogpage';
 $wgLogHeaders['nap'] = 'newarticlepatrollogpagetext';
+
+$wgResourceModules['ext.wikihow.adminmarkpromoted'] = [
+	'scripts' => ['adminmarkpromoted.js'],
+	'localBasePath' => __DIR__ . '/',
+	'remoteExtPath' => 'wikihow/nab',
+	'position' => 'bottom',
+	'targets' => ['desktop', 'mobile'],
+	'dependencies' => ['ext.wikihow.common_bottom', 'jquery'],
+];
 
 // Take the article out of the queue if it's been deleted
 function wfNewArticlePatrolClearOnDelete($article, $user, $reason) {

@@ -607,6 +607,18 @@ class ForceSearchIndex extends Maintenance {
 		}
 
 		if ( !$content->isRedirect() ) {
+			// Trevor, 2019-08-06, copied this condition from below which was only being applied to
+			// redirects, now it's applied to all pages
+			if ( $page != null &&
+				Title::makeTitleSafe( $page->getTitle()->getNamespace(), $page->getTitle()->getText() ) === null
+			) {
+				// The title cannot be rebuilt from its ns_prefix + text.
+				// It happens if an invalid title is present in the DB
+				// We may prefer to not index them as they are hardly viewable
+				$this->output( 'Skipping page with invalid title: ' . $page->getTitle()->getPrefixedText() );
+				return null;
+			}
+
 			return $page;
 		}
 

@@ -25,6 +25,8 @@ class AnswerResponse extends UnlistedSpecialPage {
 	public function execute($par) {
 		$out = $this->getOutput();
 		$request = $this->getRequest();
+		$out->setRobotPolicy('noindex,nofollow');
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		if ($request->getVal('a') == 'submit') {
 			$out->setArticleBodyOnly(true);

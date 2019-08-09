@@ -467,8 +467,8 @@ class WHVid {
 		if(!$title || !$title->exists()) return false;
 
 		if(is_null(self::$titleHasSummaryVideo)) {
-			$wikiText = wikiText::getWikitext(wfGetDB(DB_SLAVE), $title);
-			self::$titleHasSummaryVideo = wikiText::countSummaryVideos($wikiText) > 0;
+			$wikiText = Wikitext::getWikitext($title);
+			self::$titleHasSummaryVideo = Wikitext::countSummaryVideos($wikiText) > 0;
 		}
 
 		return self::$titleHasSummaryVideo;
@@ -478,8 +478,8 @@ class WHVid {
 		if(!$title || !$title->exists()) return false;
 
 		if(is_null(self::$titleHasYTVideo)) {
-			$wikiText = wikiText::getWikitext(wfGetDB(DB_SLAVE), $title);
-			self::$titleHasYTVideo = strlen(wikiText::getVideoSection($wikiText)[0]) > 0;
+			$wikiText = Wikitext::getWikitext($title);
+			self::$titleHasYTVideo = strlen(Wikitext::getVideoSection($wikiText)[0]) > 0;
 		}
 
 		return self::$titleHasYTVideo;

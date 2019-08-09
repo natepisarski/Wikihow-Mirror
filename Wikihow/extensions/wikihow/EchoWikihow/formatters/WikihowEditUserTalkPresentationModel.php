@@ -5,7 +5,7 @@ class EchoWikihowEditUserTalkPresentationModel extends EchoEditUserTalkPresentat
 	public function getPrimaryLink() {
 		return [
 			// Need FullURL so the section is included
-			'url' => $this->getTitleWithSection()->getFullURL(),
+			'url' => $this->getTitleWithSection()->getFullURL() . '#post',
 			'label' => $this->msg( 'notification-link-text-view-message-wh' )->text()
 		];
 	}

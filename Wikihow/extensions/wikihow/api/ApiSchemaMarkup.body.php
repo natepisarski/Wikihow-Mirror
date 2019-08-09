@@ -4,7 +4,7 @@
  *
  * @class
  */
-class ApiSchemaMarkup extends ApiQueryBase {
+class ApiSchemaMarkup extends ApiBase {
 
 	/* Methods */
 

@@ -65,18 +65,6 @@ class Randomizer extends SpecialPage {
 	}
 
 	/**
-	 * Utility method to return the wikitext for an article
-	 */
-	protected static function getWikitext(&$dbr, $title) {
-		$rev = Revision::loadFromTitle($dbr, $title);
-		if (!$rev) {
-			return false;
-		}
-		$wikitext = ContentHandler::getContentText( $rev->getContent() );
-		return $wikitext;
-	}
-
-	/**
 	 * Utility method to load a bunch of rows from the DB and use memcache
 	 */
 	protected static function loadRows(&$dbr, $sql, $cachekey, $fname) {
@@ -299,7 +287,7 @@ CREATE TABLE page_randomizer (
 				$reason[] = 'does-not-exist';
 				$wikitext = '';
 			} else {
-				$wikitext = self::getWikitext($dbr, $title);
+				$wikitext = Wikitext::getWikitext($title);
 				if (!$wikitext) {
 					$toadd = false;
 					$reason[] = 'does-not-exist';

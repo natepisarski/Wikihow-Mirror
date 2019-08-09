@@ -49,7 +49,7 @@ $wgHooks['ArticleDelete'][] = array("wfCheckSuggestionOnDelete");
 $wgHooks['PageContentSaveComplete'][] = array("wfCheckSuggestionOnSave");
 $wgHooks['PageContentSave'][] = array("wfCheckForCashSpammer");
 $wgHooks['TitleMoveComplete'][] = array("wfCheckSuggestionOnMove");
-$wgHooks['ArticleJustBeforeBodyClose'][] = array("wfShowFollowUpOnCreation");
+$wgHooks['BeforePageDisplay'][] = array("wfShowFollowUpOnCreation");
 $wgHooks['PageContentInsertComplete'][] = array("wfProcessNewArticle");
 $wgHooks['ArticleDeleteComplete'][] = array("wfRemoveFromFirstEdit");
 $wgHooks['ArticleUndelete'][] = array('wfRestoreFirstEdit');
@@ -269,7 +269,7 @@ function wfHasCurrentArticleCreationCookie() {
 	return false;
 }
 
-function wfShowFollowUpOnCreation() {
+function wfShowFollowUpOnCreation( $output, $skin ) {
 	global $wgTitle, $wgUser, $wgCookiePath, $wgCookieDomain, $wgCookieSecure, $wgLanguageCode;
 
 	// Don't show extra sharing dialog after creating an article on international
@@ -322,7 +322,7 @@ function wfShowFollowUpOnCreation() {
 			}
 
 			// pop it!
-			ArticleCreator::printArticleCreatedScript($t);
+			$output->addModules( 'ext.wikihow.articlecreator.init' );
 
 			$_SESSION["aen_dialog"][$article->getId()] = 1;
 		}

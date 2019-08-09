@@ -105,6 +105,32 @@ class CirrusSearchIndexFieldFactory {
 	}
 
 	/**
+	 * Create a floating-point number field.
+	 * @param string $name Field name
+	 * @return IntegerIndexField
+	 */
+	public function newFloatField( $name ) {
+		return new NumberIndexField(
+			$name,
+			SearchIndexField::INDEX_TYPE_NUMBER,
+			$this->searchConfig
+		);
+	}
+
+	/**
+	 * Create a boolean field.
+	 * @param string $name Field name
+	 * @return IntegerIndexField
+	 */
+	public function newBooleanField( $name ) {
+		return new BooleanIndexField(
+			$name,
+			SearchIndexField::INDEX_TYPE_BOOL,
+			$this->searchConfig
+		);
+	}
+
+	/**
 	 * Create a long field.
 	 * @param string $name Field name
 	 * @return KeywordIndexField

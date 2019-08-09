@@ -25,6 +25,7 @@ class UserReviewTool extends UnlistedSpecialPage {
 		}
 
 		$out->addModules('ext.wikihow.userreviewtool');
+		$out->addModuleStyles('ext.wikihow.userreviewtool_styles');
 		$out->setPageTitle("User Review Curator");
 
 		if ($request->wasPosted()) {

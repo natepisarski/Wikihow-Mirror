@@ -270,17 +270,34 @@ class FinnerHooks {
 
 		$titusConfig = array(
 			'dynamic' => false,
-			'_all' => array('enabled' => false),
 			'type' => 'object',
 			'properties' => array(
-				'robot_indexed' => self::buildCustomTypeField($context, 'boolean'),
-				'bytes' => $context->buildLongField(),
-				'has_bad_template' => self::buildCustomTypeField($context, 'boolean'),
-				'bad_templates' => $context->buildLowercaseKeywordField(),
-				'views_30_days' => $context->buildLongField(),
-				'helpful_percentage' => $context->buildLongField(),
-				'helpful_total' => $context->buildLongField(false),
-				'readability' => self::buildCustomTypeField($context, 'float')
+				'robot_indexed' => $context->getSearchIndexFieldFactory()
+					->newBooleanField( 'robot_indexed' )
+					->getMapping( $context->getEngine() ),
+				'bytes' => $context->getSearchIndexFieldFactory()
+					->newLongField( 'bytes' )
+					->getMapping( $context->getEngine() ),
+				'has_bad_template' => $context->getSearchIndexFieldFactory()
+					->newBooleanField( 'has_bad_template' )
+					->getMapping( $context->getEngine() ),
+				'bad_templates' => $context->getSearchIndexFieldFactory()
+					->newKeywordField( 'bad_templates' )
+					->setFlag( SearchIndexField::FLAG_CASEFOLD )
+					->getMapping( $context->getEngine() ),
+				'views_30_days' => $context->getSearchIndexFieldFactory()
+					->newLongField( 'views_30_days' )
+					->getMapping( $context->getEngine() ),
+				'helpful_percentage' => $context->getSearchIndexFieldFactory()
+					->newLongField( 'helpful_percentage' )
+					->getMapping( $context->getEngine() ),
+				'helpful_total' => $context->getSearchIndexFieldFactory()
+					->newLongField( 'helpful_total' )
+					->setFlag( SearchIndexField::FLAG_NO_INDEX )
+					->getMapping( $context->getEngine() ),
+				'readability' => $context->getSearchIndexFieldFactory()
+					->newFloatField( 'readability' )
+					->getMapping( $context->getEngine() ),
 			)
 		);
 
@@ -450,19 +467,6 @@ class FinnerHooks {
 	}
 
 	// ==== Miscellaneous methods ====
-
-	/**
-	 * Hacky addition to MappingConfigBuilder to provide custom field mapping.
-	 */
-	public static function buildCustomTypeField(
-		MappingConfigBuilder $mappingConfigBuilder,
-		$type,
-		$index=true
-	) {
-		$config = $mappingConfigBuilder->buildLongField($index);
-		$config['type'] = $type;
-		return $config;
-	}
 
 	/**
 	 * Adds filtering and sorting options to the default search profile.

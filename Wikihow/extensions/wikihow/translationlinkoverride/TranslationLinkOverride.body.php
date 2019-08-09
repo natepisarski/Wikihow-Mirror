@@ -81,7 +81,7 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgActiveLanguages, $wgIsToolsServer, $wgIsDevServer;
+		global $wgActiveLanguages, $wgIsDevServer, $wgServer;
 
 		$out = $this->getOutput();
 		$req = $this->getRequest();
@@ -94,12 +94,17 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 
 		if ($user->getID() == 0
 			|| !(in_array('sysop', $userGroups) || in_array('staff', $userGroups))
-			|| !($wgIsToolsServer || $wgIsDevServer)
 		) {
 			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
+
+		// Make sure this can only run on parsnip or a dev host
+        if (!$wgIsDevServer && $wgServer != 'https://parsnip.wikiknowhow.com') {
+            $out->redirect('https://parsnip.wikiknowhow.com/Special:TranslationLinkOverride?action=search');
+        }
+
 		$action = $req->getVal('action', NULL);
 
 		if ($req->wasPosted() && $_FILES['upload']) {
@@ -163,6 +168,9 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 			exit;
 			return true;
 		} elseif ($action == null) {
+			$out->addModuleStyles(['ext.wikihow.translationlinkoverride_styles']);
+			$out->addModules(['ext.wikihow.translationlinkoverride']);
+
 			EasyTemplate::set_path( __DIR__ );
 			$tmpl = EasyTemplate::html( "TranslationLinkOverride.tmpl.php");
 			$out->addHTML($tmpl);
@@ -173,6 +181,9 @@ class TranslationLinkOverride extends UnlistedSpecialPage {
 			$this->fetchLinks($lang, $id);
 			return true;
 		} elseif ($action == "search") {
+			$out->addModuleStyles(['ext.wikihow.translationlinkoverride_styles']);
+			$out->addModules(['ext.wikihow.translationlinkoverride']);
+
 			EasyTemplate::set_path(__DIR__);
 			$langs = $wgActiveLanguages;
 			$langs[] = 'en';

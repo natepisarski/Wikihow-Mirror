@@ -41,35 +41,6 @@ class RatingStar extends RatingsTool {
 		}
 	}
 
-	function getLoggingInfo($title) {
-		global $wgLang, $wgOut;
-
-		$dbr = wfGetDB( DB_REPLICA );
-
-		// get log
-		$res = $dbr->select ('logging',
-			array('log_timestamp', 'log_user', 'log_comment', 'log_params'),
-			array ('log_type' => $this->logType, "log_title"=>$title->getDBKey() ),
-			__METHOD__);
-
-		$results = array();
-		foreach ($res as $row) {
-			$item = array();
-			$item['date'] = $wgLang->date($row->log_timestamp);
-			$u = User::newFromId($row->log_user);
-			$item['userId'] = $row->log_user;
-			$item['userName'] = $u->getName();
-			$item['userPage'] = $u->getUserPage();
-			$item['params'] = explode("\n", $row->log_params);
-			$item['comment'] = preg_replace('/<?p>/', '', $wgOut->parse($row->log_comment) );
-			$item['show'] = (strpos($row->log_comment, wfMessage('clearratings_restore')->text()) === false);
-
-			$results[] = $item;
-		}
-
-		return $results;
-	}
-
 	function logRestore($itemId, $low, $hi, $reason, $count) {
 		$title = Title::newFromId($itemId);
 		$params = array($itemId, $low, $hi);

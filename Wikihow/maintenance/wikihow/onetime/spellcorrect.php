@@ -25,7 +25,6 @@ $table = 'spellsheet2';
 
 print "BEGIN.\n\n";
 
-$dbr = wfGetDB(DB_REPLICA);
 $res = DatabaseHelper::batchSelect($table, array('URL','MisusedPhrase','ReplacementPhrase'), array(), __METHOD__);
 // $res = DatabaseHelper::batchSelect($table, array('URL','MisusedPhrase','ReplacementPhrase'), array(), __METHOD__, array('LIMIT' => 50000));
 print count($res)." articles grabbed at ".microtime(true)."\n";
@@ -33,16 +32,16 @@ print count($res)." articles grabbed at ".microtime(true)."\n";
 $i = 0;
 $count = 0;
 foreach ($res as $row) {
-	correctIt($row,$dbr);
+	correctIt($row);
 	$i++;
 }
 
-function correctIt($change,$dbr) {
+function correctIt($change) {
 	global $count;
 	$name = str_replace('http://www.wikihow.com/','',urldecode($change->URL));
 	$title = Title::newFromText($name);
 	if (!$title) return;
-	$wikitext = Wikitext::getWikitext($dbr, $title);
+	$wikitext = Wikitext::getWikitext($title);
 	if (!$wikitext) return;
 	list($new_wikitext, $all_tokens) = tokenize($wikitext);
 

@@ -195,11 +195,12 @@ $(document).ready(function() {
 			helpfulTitle = 'Tech Page up-to-date %';
 		}
 		var charts = [
-			[
-				{ title: '30 day views m/m', names: { total: 'Views' }, subcmd: 'get_30day_views' },
-				{ title: '30 day unique views m/m', names: { total: 'Unique Views' }, subcmd: 'get_30day_views_unique' },
-				{ title: '30 day unique views mobile m/m', names: { total: 'Unique Views Mobile' }, subcmd: 'get_30day_views_unique_mobile' }
-			],
+// Reuben: server side of these is disabled, so disabling client side for better experience too
+//			[
+//				{ title: '30 day views m/m', names: { total: 'Views' }, subcmd: 'get_30day_views' },
+//				{ title: '30 day unique views m/m', names: { total: 'Unique Views' }, subcmd: 'get_30day_views_unique' },
+//				{ title: '30 day unique views mobile m/m', names: { total: 'Unique Views Mobile' }, subcmd: 'get_30day_views_unique_mobile' }
+//			],
 			{ title: helpfulTitle, names: { total: 'Votes', percent: 'Helpful %' }, subcmd: 'get_helpfulness_data', xnote: 'Points reflect helpfulness resets', yrangemode: 'tozero' }
 		];
 

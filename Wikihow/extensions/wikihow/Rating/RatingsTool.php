@@ -375,7 +375,6 @@ abstract class RatingsTool {
 
 	protected abstract function logClear($itemId, $max, $min, $count, $reason);
 	protected abstract function logRestore($itemId, $low, $hi, $reason, $count);
-	protected abstract function getLoggingInfo($title);
 	protected abstract function makeTitle($itemId);
 	protected abstract function makeTitleFromId($itemId);
 	protected abstract function getId($title);
@@ -384,6 +383,44 @@ abstract class RatingsTool {
 	protected abstract function getRatingForm();
 	protected abstract function getMobileRatingForm();
 	protected abstract function getQueryPage();
+
+	/*
+	 * This method is identical between RatingSample and RatingArticle. Not sure why it was originally copy-pastad into the subclasses.
+	 */
+	function getLoggingInfo($title) {
+		global $wgLang, $wgOut;
+
+		$dbr = wfGetDB( DB_REPLICA );
+
+		// get logs. we use just the logid here, the instantiate a LogEntry object
+		// later for correctness, since joins are needed to get user and comment info.
+		$res = $dbr->select ('logging',
+			[ 'log_id' ],
+			[
+				'log_type' => $this->logType,
+				'log_title'=>$title->getDBKey()
+			],
+			__METHOD__);
+
+		$results = array();
+		foreach ($res as $row) {
+			$logEntry = DatabaseLogEntry::newFromId($row->log_id, $dbr);
+			$item = array();
+			$item['date'] = $wgLang->date( $logEntry->getTimestamp() );
+			$u = $logEntry->getPerformer();
+			$item['userId'] = $u->getId();
+			$item['userName'] = $u->getName();
+			$item['userPage'] = $u->getUserPage();
+			$item['params'] = $logEntry->getParameters();
+			$comment = $logEntry->getComment();
+			$item['comment'] = preg_replace('/<?p>/', '', $wgOut->parseAsContent($comment) );
+			$item['show'] = (strpos($comment, wfMessage('clearratings_restore')->text()) === false);
+
+			$results[] = $item;
+		}
+
+		return $results;
+	}
 
 	/*
 	 * Send an email to the original article author based on

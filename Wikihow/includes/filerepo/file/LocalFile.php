@@ -1769,8 +1769,9 @@ class LocalFile extends File {
 						$logEntry->setTags( $tags );
 					}
 
+					// Wikihow: we don't want images and other file uploads patrolled
 					# Uploads can be patrolled
-					$logEntry->setIsPatrollable( true );
+					//$logEntry->setIsPatrollable( true );
 
 					# Now that the log entry is up-to-date, make an RC entry.
 					$logEntry->publish( $logId );

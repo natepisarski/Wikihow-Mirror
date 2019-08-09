@@ -430,6 +430,7 @@ class EditFinder extends UnlistedSpecialPage {
 
 	public function execute($par) {
 		global $wgParser, $efType;
+		$this->setHeaders();
 
 
 		$req = $this->getRequest();

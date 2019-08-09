@@ -282,12 +282,6 @@ $html = <<<EOHTML
 		Discarded page(s): {$stats['discardedPages']}.
 		Exits collected: $total.
 	</i><br>
-	<style>
-		#ast * th { text-decoration: underline; padding-bottom: 10px }
-		#ast * td { text-align:right; padding: 3px }
-		#ast * td:nth-child(even), #ast * th:nth-child(even)
-			{ background-color:rgba(0,0,0,0.1) }
-	</style>
 	<br>
 	<code><table id="ast" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 EOHTML;
@@ -495,129 +489,21 @@ EOHTML;
 
 		$domain_opts = '';
 		foreach (self::$domains as $domain=>$label){
-			$domain_opts.= "<option value=\"$domain\">$label</option>\n";
+			$domain_opts .= "<option value=\"$domain\">$label</option>\n";
 		}
 		$specialPage = $this->specialPage;
-$tmpl = <<<EOHTML
-<script src="/extensions/wikihow/common/download.jQuery.js"></script>
-<form id="admin-form" method="post" action="/Special:{$specialPage}">
-<div style="font-size: 16px; letter-spacing: 2px; margin-bottom: 15px;">
-	Fetch or Reset Stu Live Stats
-</div>
-<div style="font-size: 13px; margin-bottom: 10px; border: 1px solid #dddddd; padding: 10px;">
-	<div>
-		Views discard threshold: <input id="discard-threshold" type="text" size="4" name="discard-threshold" value="{$defaultDiscardThreshold}" />
-		<!--
-		&nbsp;&nbsp;Domain
-		<select name="domain" id="pages-domains">
-		<option value="all">All</option>
-		$domain_opts
-		</select>
-		//-->
-	</div>
-	<div style="margin-top: 5px;">
-		<input type="radio" name="data-type" value="summary" checked> Summary</input>
-		<input type="radio" name="data-type" value="csv"> CSV</input>
-	</div>
-</div>
-<div style="font-size: 13px; margin: 20px 0 7px 0;">
-	Enter a list of URL(s) such as <code style="font-weight: bold;">https://www.wikihow.com/Lose-Weight-Fast</code> to which this tool will apply.  One per line.
-</div>
-<textarea id="pages-list" name="pages-list" type="text" rows="10" cols="70"></textarea><br/>
-<button id="pages-fetch" disabled="disabled" style="padding: 5px;">fetch stats</button>
-<button id="pages-reset" disabled="disabled" style="padding: 5px;">reset all</button>
-<div style="font-size: 14px; margin: 20px 0 0 0">
-NOTE: This page only clears Stu data (new Stu2 and old Stu). If you want to clear both Page Helpfulness and new Stu2, visit <a href="/Special:AdminClearRatings">Special:AdminClearRatings</a>.
-</div>
-<br/>
-<br/>
-<div id="pages-result">
-</div>
-</form>
 
-<script>
-(function($) {
-	function doServerAction(action) {
-		var dataType = $('input:radio[name=data-type]:checked').val();
-		var url = '/Special:{$specialPage}/views.csv?action=' + action + '&data-type=' + dataType;
-		if ('summary' == dataType) {
-			var form = $('#admin-form').serializeArray();
-			$('#pages-result').html('loading ...');
-			var finished = false;
-			$.post(url,
-				form,
-				function(data) {
-					finished = true;
-					if (!data) {
-						$('#pages-result').html('Received no response');
-					} else if (typeof data['err'] == 'string') {
-						$('#pages-result').html('Received error:<br>' + data['err']);
-					} else {
-						$('#pages-result').html(data['result']);
-						$('#pages-list').focus();
-					}
-				},
-				'json')
-				.complete(function (xhr) {
-					if (!finished) {
-						$('#pages-result').html('Server call is taking too long. Wait for an email.<br><br>debug info, just in case: ' + xhr.responseText);
-					}
-				});
-		} else { // csv
-			var form = 'pages-list=' + encodeURIComponent($('#pages-list').val());
-			$.download(url, form);
-		}
-	}
+		$options = [ 'loader' => new Mustache_Loader_FilesystemLoader(__DIR__) ];
+		$mustache = new Mustache_Engine($options);
 
-	$(document).ready(function() {
-		$('#pages-resetbt, #pages-resetmb, #pages-reset, #pages-fetch')
-			.prop('disabled', false)
-			.click(function () {
-				var action = $(this).attr('id').replace(/^pages-/, '');
-				var answer = true;
-				if ('reset' == action.substring(0,5)) {
-					var count = $('#pages-list').val().split(/\\n/).length;
-					var domain = 'www';
-					if ('resetmb'==action) domain='mobile';
-					else if ('reset'==action) domain='all domains';
-					answer = confirm('Are you sure you want to reset data for approx. ' + count + ' URL(s) on ' + domain + '?');
-				}
-				if (answer) {
-					doServerAction(action);
-				}
-				return false;
-			});
-		/*
-		$('#pages-allcheck')
-			.click(function() {
-				if ($(this).prop('checked')){
-					$('#pages-reset').prop('disabled',false);
-				}else{
-					$('#pages-reset').prop('disabled',true);
-				}
-			});
-		$('#pages-domains')
-			.change(function(){
-				if ($(this).attr('value')=='all'){
-					$('#pages-reset').prop('disabled',true);
-					$('#pages-allcheck').prop('disabled',false);
-					$('#pages-check').css('color','');
-				}else{
-					$('#pages-reset').prop('disabled',false);
-					$('#pages-allcheck').prop('disabled',true).prop('checked',false);
-					$('#pages-check').css('color','#ccc');
-				}
-				$('#pages-result').html('');
-			});
-		*/
+		$out->addModuleStyles( 'ext.wikihow.adminstu_styles' );
+		$out->addModules( 'ext.wikihow.adminstu' );
 
-		$('#pages-list')
-			.focus();
-	});
-})(jQuery);
-</script>
-EOHTML;
-
-		$out->addHTML($tmpl);
+		$vars = [
+			'defaultDiscardThreshold' => self::$discardThreshold,
+			'domain_opts' => $domain_opts,
+			'specialPage' => $specialPage,
+		];
+		$out->addHTML( $mustache->render('adminstu.mustache', $vars) );
 	}
 }

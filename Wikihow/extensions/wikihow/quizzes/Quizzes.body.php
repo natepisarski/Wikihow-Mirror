@@ -365,6 +365,9 @@ class Quizzes extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 
+		$out->setRobotPolicy('noindex,nofollow');
+		$req->response()->header('x-robots-tag: noindex, nofollow');
+
 		if ($req->getVal('otherquizzesfor')) {
 			$others = self::getOtherQuizzes($req->getVal('otherquizzesfor'));
 			$out->setArticleBodyOnly(true);
@@ -403,7 +406,6 @@ class Quizzes extends UnlistedSpecialPage {
 
 			//meta tags
 			$out->addMeta('description','Test yourself on How to '.$quiz.' with a fun and challenging quiz from wikiHow. See how well you score.');
-			$out->setRobotPolicy('index,follow');
 		}
 
 		$out->addHTML($html);

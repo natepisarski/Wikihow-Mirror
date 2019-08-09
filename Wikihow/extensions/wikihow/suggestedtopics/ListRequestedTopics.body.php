@@ -323,11 +323,21 @@ class ListRequestedTopics extends SpecialPage {
 			$alltime = self::getArticlesWritten(true);
 			$topicsAlltime = self::getTopicsSuggested(true);
 		} else {
-			$today = Linker::link(Title::makeTitle(NS_SPECIAL, "Userlogin"), "Login");
+			// Setting flag to identify anons to display different HTML (line 332)
+			$today = -1;
 			$topicsToday = "N/A";
 			$alltime = "N/A";
 			$topicsAlltime = "N/A";
 		}
+
+		if( $today == -1 ) {
+			$todayHtml = Html::openElement( 'td', [ 'class' => 'stcount', 'id' => 'patrolledcount' ] ) .
+						Html::element( 'a', [ 'href' => '/Special:UserLogin' ], "Login" ) .
+						Html::closeElement( 'td' );
+		} else {
+			$todayHtml = Html::element( 'td', [ 'class' => 'stcount', 'id' => 'patrolledcount' ], $today );
+		}
+
 
 		$html =
 		Html::openElement('div', ['class' => 'stactivewidget']) .
@@ -348,7 +358,7 @@ class ListRequestedTopics extends SpecialPage {
 							'target' => 'new'
 						], wfMessage('st_articleswrittentoday')->text()) .
 					Html::closeElement('td') .
-					Html::element('td', ['class' => 'stcount', 'id' => 'patrolledcount'], $today) .
+					$todayHtml .
 				Html::closeElement('tr') .
 
 				Html::openElement('tr', ['class' => 'dashed']) .

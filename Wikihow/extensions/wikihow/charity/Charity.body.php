@@ -30,6 +30,8 @@ class Charity extends SpecialPage {
 
 	public function execute($par) {
 		$out = $this->getOutput();
+		$out->setRobotPolicy('noindex,nofollow');
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		if ($this->getRequest()->getVal('action') == 'load') {
 			global $wgSquidMaxage, $wgMimeType;

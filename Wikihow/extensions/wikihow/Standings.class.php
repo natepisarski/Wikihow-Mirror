@@ -855,7 +855,7 @@ class UnitGuardianStandingsIndividual extends StandingsIndividual {
 class SortQuestionsStandingsIndividual extends StandingsIndividual {
 
 	function __construct() {
-		$this->mLeaderboardKey = "sortquestions_indiv_stats";
+		$this->mLeaderboardKey = "questionssorted";
 	}
 
 	function getTable() {

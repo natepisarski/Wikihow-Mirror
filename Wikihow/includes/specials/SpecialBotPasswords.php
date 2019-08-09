@@ -67,6 +67,15 @@ class SpecialBotPasswords extends FormSpecialPage {
 	 * @param string|null $par
 	 */
 	function execute( $par ) {
+		// Wikihow, July 2019: Added this, after discussing with Anna some of these new, esoteric and broken
+		// features, and decided that having community contact us if they really want this stuff
+		// would be the best way to approach.
+		$this->getOutput()->addHTML( 'This page has been disabled by wikiHow because its features ' .
+			'are not supported in our system presently. If you feel that we should address this, please ' .
+			'contact us so that we can start the conversation about how you would plan to use it and to see ' .
+			'whether we can support it.' );
+		return;
+
 		$this->getOutput()->disallowUserJs();
 		$this->requireLogin();
 

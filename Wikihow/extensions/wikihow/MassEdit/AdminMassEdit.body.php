@@ -198,7 +198,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 
 		$user = $this->getUser();
 		$uname = $user->getName();
-		$allLangs = [ 'Chris H', 'ElizabethD' ];
+		$allLangs = [ 'Chris H', 'ElizabethD', 'Argutier' ];
 		$intlOnly = [ 'Bridget8', 'AdrianaBaird', 'Vanna Tran' ];
 
 		$allowed = in_array($uname, $allLangs) || ( Misc::isIntl() && in_array($uname, $intlOnly) ) || ($wgIsDevServer && $user->hasGroup('staff'));
@@ -258,6 +258,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 			return;
 		}
 
+		$out->addModules( ['ext.wikihow.adminmassedit'] );
 		$out->setHTMLTitle(wfMessage('pagetitle', 'Admin - Mass Article Editor'));
 		$listConfigs = ConfigStorage::dbListConfigKeys();
 
@@ -302,52 +303,6 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		<div id='url-list'></div>
 		</form>
 
-		<script>
-		//remove a url from the list
-		$('body').on('click', 'a.remove_link', function() {
-			var rmvid = $(this).attr('id');
-			$(this).hide();
-			$.post('/Special:<?= $this->specialPage ?>',
-				{ 'action': 'remove-line',
-				  'config-key': $('#config-key').val(),
-				  'id': rmvid },
-				function(data) {
-					if (data['error'] != '') {
-						alert('Error: '+ data['error']);
-					}
-					$('#url-list').html(data['result']);
-				},
-				'json');
-			return false;
-		});
-
-		(function($) {
-			$(document).ready(function() {
-				$('#update')
-					.click(function (e) {
-						e.preventDefault();
-						$('#admin-result').html('saving ...');
-						var undoChecked = $('#undo').is(':checked') ? 1 : 0;
-						$.post('/Special:<?= $this->specialPage ?>',
-							{ 'action': 'update',
-							  'text': $('#new-text').val(),
-							  'summary': $('#summary').val(),
-							  'undo': undoChecked,
-							  'articles': $('#article-list').val()
-							},
-							function(data) {
-								if (data['error']) {
-									$('#admin-result').html(data['error']);
-									return;
-								}
-								$('#admin-result').html(data['result']);
-							},
-							'json');
-						return false;
-					})
-			});
-		})(jQuery);
-		</script>
 <?php
 		$html = ob_get_contents();
 		ob_end_clean();

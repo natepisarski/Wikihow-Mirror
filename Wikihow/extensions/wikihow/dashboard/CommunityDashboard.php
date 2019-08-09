@@ -146,7 +146,6 @@ $wgMobileWidgetList = array(
 $wgMobileOnlyWidgetList = array(
 	'TipsGuardianAppWidget',
 	'UnitGuardianAppWidget',
-	'SortQuestionsAppWidget',
 	'QuizYourselfWidget'
 );
 

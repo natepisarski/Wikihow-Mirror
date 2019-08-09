@@ -49,7 +49,6 @@ class RemoveExtraImgAttribs extends Maintenance {
 
 		$lang = $wgLanguageCode;
 		$dbr = wfGetDB(DB_REPLICA);
-		if (!$dbw) $dbw = wfGetDB(DB_MASTER);
 		$page_titles = array();
 		$err = '';
 		$count = 0;
@@ -78,7 +77,7 @@ class RemoveExtraImgAttribs extends Maintenance {
 				continue;
 			}
 
-			$wikitext = Wikitext::getWikitext($dbr, $t);
+			$wikitext = Wikitext::getWikitext($t);
 			if (!$wikitext) {
 				$err = "Unable to load wikitext in title $t";
 				$this->logError($err);

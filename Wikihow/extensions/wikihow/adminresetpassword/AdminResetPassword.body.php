@@ -23,8 +23,7 @@ class AdminResetPassword extends UnlistedSpecialPage {
 	 * @param $username string, the username
 	 * @return a temporary password string to give to user
 	 */
-	public function resetPassword($username) {
-		$performingUser = $this->getUser();
+	public static function resetPassword( $performingUser, $username) {
 		$user = User::newFromName($username, false);
 		if ($user && $user->getID() > 0) {
 			$req = TemporaryPasswordAuthenticationRequest::newRandom();
@@ -34,16 +33,17 @@ class AdminResetPassword extends UnlistedSpecialPage {
 			$authManager = AuthManager::singleton();
 			$status = $authManager->allowsAuthenticationDataChange( $req, true );
 			if ( ! $status->isGood() || $status->getValue() === 'ignored' ) {
-				return [ 'result' =>
+				return [
+					'result' =>
 					'Computer says <a href="https://www.youtube.com/watch?v=0n_Ty_72Qds">no</a>. ' .
-					print_r($status->getErrors(), true) ];
+					'<pre>' . var_export( $status->getErrors(), true ) . '</pre>'
+				];
 			}
 
 			// This is adding a new temporary password, not intentionally changing anything
 			// (even though it might technically invalidate an old temporary password).
 			$authManager->changeAuthenticationData( $req, /* $isAddition */ true );
-			$newPassword = $req->password;
-			return $newPassword;
+			return $req->password;
 		} else {
 			return '';
 		}
@@ -52,23 +52,25 @@ class AdminResetPassword extends UnlistedSpecialPage {
 	/**
 	 * Execute special page.  Only available to wikihow staff.
 	 */
-	public function execute($par) {
+	public function execute( $par ) {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
 
 		$userGroups = $user->getGroups();
-		if ($user->isBlocked() || !in_array('staff', $userGroups)) {
-			$out->setRobotPolicy('noindex,nofollow');
-			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
+		if ( $user->isBlocked() || !in_array( 'staff', $userGroups ) ) {
+			$out->setRobotPolicy( 'noindex,nofollow' );
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
-		if ($req->wasPosted()) {
-			$username = $req->getVal('username', '');
-			$out->setArticleBodyOnly(true);
-			$newPass = $this->resetPassword($username);
-			if ($newPass) {
+		if ( $req->wasPosted() ) {
+			$username = $req->getVal( 'username', '' );
+			$out->setArticleBodyOnly( true );
+			$newPass = self::resetPassword( $this->getUser(), $username );
+			if ( is_array( $newPass ) ) {
+				$result = $newPass;
+			} else if ( $newPass !== '' ) {
 				$url = 'https://www.wikihow.com/Special:UserLogin';
 				$params = [
 					'username' => $username,
@@ -76,16 +78,16 @@ class AdminResetPassword extends UnlistedSpecialPage {
 					'url' => $url,
 				];
 				$htmlResponse = $this->mustache->render( 'reset_response.mustache', $params );
-				$result = ['result' => $htmlResponse];
+				$result = [ 'result' => $htmlResponse ];
 			} else {
-				$result = ['result' => "error: user '{$username}' not found"];
+				$result = [ 'result' => "error: user '{$username}' not found" ];
 			}
-			$out->addHtml( json_encode($result) );
+			$out->addHtml( json_encode( $result ) );
 			return;
 		}
 
-		$out->setHTMLTitle('Admin - Reset User Password - wikiHow');
-		$out->addModules('ext.wikihow.adminresetpassword');
+		$out->setHTMLTitle( 'Admin - Reset User Password - wikiHow' );
+		$out->addModules( 'ext.wikihow.adminresetpassword' );
 		$out->addHTML( $this->mustache->render( 'adminresetpassword.mustache', [] ) );
 	}
 }

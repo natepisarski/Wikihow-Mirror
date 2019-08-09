@@ -1623,16 +1623,16 @@ class TSFeatured extends TitusStat {
 		];
 
 		if ($pageRow->page_is_featured) {
-			$stats['ti_featured_date'] = $this->featuredDate($dbr, $t);
+			$stats['ti_featured_date'] = $this->featuredDate($t);
 		}
 
 		return $stats;
 	}
 
-	private function featuredDate($dbr, $t) {
+	private function featuredDate($t) {
 		$date = '';
 
-		$wikitext = Wikitext::getWikitext($dbr, $t->getTalkPage());
+		$wikitext = Wikitext::getWikitext($t->getTalkPage());
 
 		preg_match('/{{featured\|(.*?)}}/i',$wikitext,$m);
 
@@ -2870,7 +2870,7 @@ class TSTranslations extends TitusStat {
 		$langs[] = "en";
 
 		// Added template fields to each language
-		$ret = array();
+		$ret = array( 'ti_first_translation_date' => '' );
 		$links = array();
 		foreach ($langs as $l) {
 

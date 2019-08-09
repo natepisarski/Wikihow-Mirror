@@ -226,7 +226,7 @@ class Unpatrol extends UnlistedSpecialPage {
 				return;
 			}
 
-			$unpatrolled = $this->doTheUnpatrol($user,$cutoff,$cutoff2,false);
+			$unpatrolled = $this->doTheUnpatrol($user, $cutoff, $cutoff2);
 
 			if ($unpatrolled > 0) {
 				$this->getOutput()->addHTML("Unpatrolled " . $unpatrolled . " patrols by {$user->getName()}\n");
@@ -241,16 +241,12 @@ class Unpatrol extends UnlistedSpecialPage {
 	//does the unpatrolling
 	// - returns the count of unpatrolled articles
 	// *** MAKE SURE TO ADD AN UNPATROL LIMIT ***
-	public static function doTheUnpatrol($user, $cutoff, $cutoff2, $unpatrol_limit) {
+	public static function doTheUnpatrol($user, $cutoff, $cutoff2, $unpatrol_limit = 1000) {
 		global $wgLang;
 
-		// max number of possible unpatrols
-		if (!empty($unpatrol_limit)) {
-			$limit = array('LIMIT' => $unpatrol_limit);
-		}
-		else {
-			$limit = array();
-		}
+		// max number of possible unpatrols -- set to max 1000, for random bug safety
+		$unpatrol_limit = min($unpatrol_limit, 1000);
+		$limit = array('LIMIT' => $unpatrol_limit);
 
 		$dbw = wfGetDB(DB_MASTER);
 		$options = array('log_user'=>$user->getID(), 'log_type'=>'patrol', "log_timestamp > " . $dbw->addQuotes($cutoff), 'log_deleted' => 0);
@@ -270,9 +266,12 @@ class Unpatrol extends UnlistedSpecialPage {
 			// and use the correct result. -Reuben 12/19/2013, MWUP
 			$decoded = unserialize($row->log_params);
 			if ($decoded !== false) {
-				$oldids[] = isset($decoded['curid']) ? $decoded['curid'] : $decoded['4::curid']; // or should this be previd??
+				$oldid = isset($decoded['curid']) ? $decoded['curid'] : $decoded['4::curid']; // or should this be previd??
 			} else {
-				$oldids[] = preg_replace("@\n.*@", "", $row->log_params);
+				$oldid = preg_replace("@\n.*@", "", $row->log_params);
+			}
+			if ( $oldid && (int)$oldid > 0 ) {
+				$oldids[] = (int)$oldid;
 			}
 		}
 
@@ -297,7 +296,9 @@ class Unpatrol extends UnlistedSpecialPage {
 				// log the change
 				$title = Title::newFromText('Special:Unpatrol');
 				$log = new LogPage( 'unpatrol', false );
-				$msg = wfMessage("unpatrol_log")->rawParams($count, "[[User:" . $user->getName() . "]]", $wgLang->date($cutoff), $cutoff2==null?$wgLang->date(wfTimestampNow()):$wgLang->date($cutoff2))->escaped();
+				$dateCutoff = $wgLang->date($cutoff);
+				$dateCutoff2 = ( !$cutoff2 ? $wgLang->date(wfTimestampNow()) : $wgLang->date($cutoff2) );
+				$msg = wfMessage("unpatrol_log")->rawParams($count, "[[User:" . $user->getName() . "]]", $dateCutoff, $dateCutoff2)->escaped();
 				$log->addEntry('unpatrol', $title, $msg);
 			}
 		}

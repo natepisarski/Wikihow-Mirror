@@ -31,7 +31,6 @@ class RemoveBrokenInternationalWikitext extends Maintenance {
 
 		$lang = $wgLanguageCode;
 		$dbr = wfGetDB(DB_REPLICA);
-		if (!$dbw) $dbw = wfGetDB(DB_MASTER);
 		$page_titles = array();
 		$err = '';
 		$count = 0;
@@ -60,7 +59,7 @@ class RemoveBrokenInternationalWikitext extends Maintenance {
 				continue;
 			}
 
-			$wikitext = Wikitext::getWikitext($dbw, $t);
+			$wikitext = Wikitext::getWikitext($t, 'latest');
 			if (!$wikitext) {
 				$err = "Unable to load wikitext in title $t";
 				$this->logError($err);

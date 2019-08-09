@@ -71,8 +71,8 @@ class ManageSuggestedTopics extends SpecialPage {
 						}
 						$dbw->delete('suggested_titles', ['st_id' => $id]);
 					}
-					$id = $dbr->selectField('suggested_titles', 'st_id', ['st_title' => $title->getDBKey()]);
-					if ($id) {
+					$id_select = $dbr->selectField('suggested_titles', 'st_id', ['st_title' => $title->getDBKey()]);
+					if ($id_select) {
 						// well, it already exists... like the Highlander, there can be only one
 						$notify = $dbr->selectField('suggested_titles', 'st_notify', ['st_id' => $id]);
 						if ($notify) {

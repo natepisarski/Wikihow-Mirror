@@ -1204,7 +1204,7 @@ class QCRCPatrol extends QCRule {
 		$dbw = wfGetDB(DB_MASTER);
 		$row = $dbw->selectRow('qc', array('*'), array('qc_id' => $qcid), __METHOD__);
 		$t = Title::newFromID($row->qc_page);
-		if (!$t) {
+		if ( !$t || $t->getArticleID() == 0 || !$t->exists() ) {
 			return false;
 		}
 

@@ -103,6 +103,8 @@ class UCIPatrol extends SpecialPage {
 
 		$request = $this->getRequest();
 		$out = $this->getOutput();
+		$out->setRobotPolicy('noindex,nofollow');
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		# Check blocks
 		$user = $this->getUser();
@@ -616,9 +618,9 @@ class UCIPatrol extends SpecialPage {
 	private function getSkipCacheKey() {
 		if ($this->getUser()->isAnon()) {
 			//$name = $this->getRequest()->getInt('guestId');
-			$name =  WikihowUser::getVisitorId();
+			$name = 'anon' . WikihowUser::getVisitorId();
 		} else {
-			$name = $this->getUser()->getName();
+			$name = 'id' . $this->getUser()->getId();
 		}
 		return "UCIPatrol_".$name."_skipped";
 	}

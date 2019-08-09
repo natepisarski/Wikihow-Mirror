@@ -101,8 +101,7 @@ class CustomTitle {
 	}
 
 	private static function getWikitext(Title $title): array {
-		$dbr = wfGetDB(DB_REPLICA);
-		$wikitext = Wikitext::getWikitext($dbr, $title);
+		$wikitext = Wikitext::getWikitext($title);
 		$stepsText = '';
 		if ($wikitext) {
 			list($stepsText, ) = Wikitext::getStepsSection($wikitext, true);

@@ -28,7 +28,8 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 	}
 
 	public function execute( $subPage ) {
-		$this->out->setRobotPolicy( "noindex,follow" );
+		$this->setHeaders();
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		if ( $this->user->isBlocked() ) {
 			throw new UserBlockedError( $this->user->getBlock() );

@@ -691,6 +691,24 @@ class DerivedPageDataUpdater implements IDBAccessObject {
 		return $mainContent->isRedirect();
 	}
 
+
+	/**
+	 * wikihow added this function so we could change the user after prepare content
+	 * has been called but before the edit is created this is so we can have our edits from
+	 * editors show up as edits from an editing account.
+	 */
+	public function changeUser( User $user ) {
+		// only change the user if it was set before otherwise it will be set as usual in prepareUpdate
+		if ( $this->user ) {
+			$this->user = $user;
+		}
+		// if the revision had been set before by a prev call to prepare update
+		// then update it
+		if ( $this->revision ) {
+			$this->revision->setUser( $user );
+		}
+	}
+
 	/**
 	 * Prepare updates based on an update which has not yet been saved.
 	 *

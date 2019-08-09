@@ -270,12 +270,13 @@ function getEditor() {
 						type: 'POST',
 						data: 'wpTextbox1='+editform,
 						success: function(data) {
-							var previewElement = $(data).find('preview').first();
+							var $content = jQuery( '<div>' + data + '</div>' );
+							var previewElement = $content.find('.mw-content-ltr,.mw-content-rtl').first();
 
 							// Inject preview 
 							var previewContainer = $('#articleBody');
 							if ( previewContainer && previewElement ) {
-								previewContainer.html(previewElement.first().text());
+								previewContainer.html(previewElement.html());
 								previewContainer.slideDown('slow');
 							}
 						},

@@ -25,6 +25,17 @@ $wgResourceModules['ext.wikihow.articlecreator_css'] = array(
 	'position' => 'top'
 );
 
+$wgResourceModules['ext.wikihow.articlecreator.init'] = array(
+	'localBasePath' => __DIR__,
+	'targets' => array( 'desktop' ),
+	'styles' => [],
+	'scripts' => array('articlecreator.init.js'),
+	'dependencies' => ['ext.wikihow.common_bottom', 'jquery' ],
+	'remoteExtPath' => 'wikihow/articlecreator',
+	'messages' => array(),
+	'position' => 'bottom'
+);
+
 $wgResourceModules['ext.wikihow.articlecreator'] = array(
 	'localBasePath' => __DIR__,
 	'targets' => array( 'desktop' ),

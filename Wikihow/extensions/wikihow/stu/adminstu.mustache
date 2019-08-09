@@ -1,0 +1,34 @@
+<form id="admin-form" method="post" action="/Special:{{specialPage}}">
+<div style="font-size: 16px; letter-spacing: 2px; margin-bottom: 15px;">
+	Fetch or Reset Stu Live Stats
+</div>
+<div style="font-size: 13px; margin-bottom: 10px; border: 1px solid #dddddd; padding: 10px;">
+	<div>
+		Views discard threshold: <input id="discard-threshold" type="text" size="4" name="discard-threshold" value="{{defaultDiscardThreshold}}" />
+		<!--
+		&nbsp;&nbsp;Domain
+		<select name="domain" id="pages-domains">
+		<option value="all">All</option>
+		{{domain_opts}}
+		</select>
+		//-->
+	</div>
+	<div style="margin-top: 5px;">
+		<input type="radio" name="data-type" value="summary" checked> Summary</input>
+		<input type="radio" name="data-type" value="csv"> CSV</input>
+	</div>
+</div>
+<div style="font-size: 13px; margin: 20px 0 7px 0;">
+	Enter a list of URL(s) such as <code style="font-weight: bold;">https://www.wikihow.com/Lose-Weight-Fast</code> to which this tool will apply.  One per line.
+</div>
+<textarea id="pages-list" name="pages-list" type="text" rows="10" cols="70"></textarea><br/>
+<button id="pages-fetch" disabled="disabled" style="padding: 5px;">fetch stats</button>
+<button id="pages-reset" disabled="disabled" style="padding: 5px;">reset all</button>
+<div style="font-size: 14px; margin: 20px 0 0 0">
+NOTE: This page only clears Stu data (new Stu2 and old Stu). If you want to clear both Page Helpfulness and new Stu2, visit <a href="/Special:AdminClearRatings">Special:AdminClearRatings</a>.
+</div>
+<br/>
+<br/>
+<div id="pages-result">
+</div>
+</form>

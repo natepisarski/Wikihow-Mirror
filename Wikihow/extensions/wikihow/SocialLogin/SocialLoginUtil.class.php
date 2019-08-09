@@ -43,6 +43,7 @@ class SocialLoginUtil {
 				$factory = SocialUser::newFactory($type);
 				$socialUser = $factory::link($user->getId(), $exId);
 				if ($socialUser) {
+					$user = $socialUser->getWhUser();
 					if ($realName) { $user->setRealName($realName); }
 					if ($email) { $user->setEmail($email); }
 					if ($avatar) { Avatar::updateAvatar($user->getId(), $avatar); }

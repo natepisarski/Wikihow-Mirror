@@ -472,28 +472,27 @@ class PageHooks {
 		}
 
 		if ( $page->mTitle->inNamespace(NS_MAIN) ) {
-			//all edits to overwritable articles are autopatrolled
+			// all edits to overwritable articles are autopatrolled
 			if ( $page->exists() && NewArticleBoost::isOverwriteAllowed($page->getTitle()) && $wgRequest->getVal("overwrite") == "yes" ) {
 				$patrolled = true;
 			}
 
-			//all new articles no longer go into RCP
+			// all new articles no longer go into RCP
 			$oldestRevision =  $page->getOldestRevision();
-			$newestRevision = $page->getRevision();
-			if ( $oldestRevision != null && $newestRevision != null && $oldestRevision->getId() == $newestRevision->getId() ) {
+			if ( $oldestRevision == null ) {
 				$patrolled = true;
 			}
 		}
 
-		//Summary: pages
-		if ($page->mTitle->inNamespace(NS_SUMMARY)) {
+		// Summary: and Image: pages autopatrolled
+		if ( $page->mTitle->inNamespaces( NS_SUMMARY, NS_IMAGE, NS_VIDEO ) ) {
 			$patrolled = true;
 		}
 
-		//every page edit that adds a quick summary
+		// every page edit that adds a quick summary
 		if ($page->mTitle->inNamespace(NS_MAIN) &&
 			SummaryEditTool::authorizedUser($user) &&
-			$summary->message == wfMessage('summary_add_log')->text())
+			$summary->text == wfMessage('summary_add_log')->text())
 		{
 			$patrolled = true;
 		}
@@ -536,7 +535,13 @@ class PageHooks {
 		$patrolled = $rc->getAttribute('rc_patrolled');
 		if ($patrolled != RecentChange::PRC_UNPATROLLED) {
 			// Add to patrol log
-			PatrolLog::record( $rc, true /*$auto*/ );
+			$auto = true;
+			$user = null;
+			$userId = $rc->getAttribute( 'rc_user' );
+			if ( $userId ) {
+				$user = User::newFromId( $userId );
+			}
+			PatrolLog::record( $rc, $auto, $user );
 
 			// Call our own MarkPatrolledDB hook
 			$rcid = $rc->getAttribute( 'rc_id' );
@@ -867,6 +872,9 @@ class PageHooks {
 	}
 
 	/**
+	 * If the request has printable key set in the query param, unset it and the images param and
+	 * redirect back to the regular page
+	 *
 	 * @param $title
 	 * @param $unused
 	 * @param $output
@@ -874,9 +882,6 @@ class PageHooks {
 	 * @param $request
 	 * @param $mediaWiki
 	 * @return bool
-	 *
-	 * if the request has printable key set in the query param, unset it and the images param and
-	 * redirect back to the regular page
 	 */
 	public static function redirectIfPrintableRequest(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
 		global $wgServer;
@@ -897,7 +902,52 @@ class PageHooks {
 			$output->redirect( $url, 301 );
 		}
 	}
+
 	/**
+	 * If user comes in with mobileaction=...anything... set we usually want to set a cookie
+	 * redirect. These urls are used by the mobile site to allow visitors with a mobile
+	 * user-agent (who would be redirected at fastly layer) to stay on desktop site.
+	 */
+	public static function redirectIfMobileActionRequest(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
+		$mobileaction = $request->getVal('mobileaction', '');
+		if ( ( $mobileaction == 'toggle_view_desktop' || $mobileaction == 'toggle_view_mobile' )
+			&& $title && $title->isKnown()
+		) {
+			if ( $mobileaction == 'toggle_view_desktop' ) {
+				// Set a cookie to latch to domain
+				$mobileContext = MobileContext::singleton();
+				$expiry = 24 * 60 * 60; // stop redirects for up to a day
+				$mobileContext->setTempRedirectCookie( $expiry );
+
+				// If this request is coming from the mobile domain, we want
+				// to do a 301 redirect because Google instructs us to do this
+				// for retired URLs:
+				// https://support.google.com/webmasters/answer/139066?hl=en
+				$redirectStatusCode = Misc::isMobileModeLite() ? '301' : '302';
+
+				// Redirect to desktop site
+				$baseUrl = WikihowMobileTools::getNonMobileSite();
+			} elseif ( $mobileaction == 'toggle_view_mobile' ) {
+				// We don't need a cookie to stay on this domain, so we just redirect.
+				// Do the redirect to mobile site
+				$baseUrl = WikihowMobileTools::getMobileSite();
+
+				// This is a retired URL, so we make it a permanent redirect for Google
+				$redirectStatusCode = '301';
+			}
+
+			// Do the redirect to the canonical page.
+			//
+			// We redirect to the URL without this parameter, so there
+			// should never be a redirect loop caused by this redirect.
+			$redirect = $baseUrl . $title->getLocalURL();
+			$output->redirect( $redirect, $redirectStatusCode );
+		}
+	}
+
+	/**
+	 * Redirect to a specific special page for all request to prevent spiders from indexing the dev server
+	 *
 	 * @param $title
 	 * @param $unused
 	 * @param $output
@@ -905,8 +955,6 @@ class PageHooks {
 	 * @param $request
 	 * @param $mediaWiki
 	 * @return bool
-	 *
-	 * Redirect to a specific special page for all request to prevent spiders from indexing the dev server
 	 */
 	public static function redirectIfNotBotRequest(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
 		global $wgIsSecureSite, $isSecureDevServer, $wgCommandLineMode;
