@@ -15,15 +15,20 @@ $wgExtensionMessagesFiles['AdminVerifyRewviewAliases'] = __DIR__ . '/AdminVerify
 $wgSpecialPages['AdminVerifyReview'] = 'AdminVerifyReview';
 $wgAutoloadClasses['AdminVerifyReview'] = __DIR__ . '/AdminVerifyReview.body.php';
 
-$wgResourceModules['ext.wikihow.adminverifyreview'] = array(
-	'scripts' => array( 'adminverifyreview.js', ),
-	'styles' => array( 'adminverifyreview.css' ),
+$wgResourceModules['ext.wikihow.adminverifyreview'] = [
+	'scripts' => ['adminverifyreview.js'],
+	'styles' => ['adminverifyreview.css'],
 	'position' => 'top',
-	'targets' => array( 'desktop' ),
+	'targets' => ['desktop'],
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/socialproof/AdminVerifyReview',
-	'dependencies' => array('mediawiki.page.startup', 'jquery.spinner'),
-);
+	'dependencies' => [
+		'mediawiki.page.startup',
+		'ext.wikihow.diff_styles',
+		'jquery.spinner',
+		'jquery.cookie'
+	]
+];
 
 /*
  * sql table used by this tool

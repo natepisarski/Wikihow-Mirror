@@ -23,7 +23,7 @@ $wgResourceModules['ext.wikihow.specialtechverify'] = array(
 	'remoteExtPath' => 'wikihow/specialtechverify',
 	'targets' => array( 'desktop', 'mobile' ),
 	'dependencies' => [
-		'wikihow.common.select2',
+		'wikihow.common.querybuilder',
 	],
 );
 

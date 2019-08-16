@@ -1,24 +1,24 @@
+<div class="hp_admin_form">
+
 <p>Add a new image to the homepage:</p>
-<form id='hp_form' action='/Special:WikihowHomepageAdmin' method="POST"
-		enctype="multipart/form-data" onsubmit="return checkHpInputs();">
+<form id='hp_form' action='/Special:WikihowHomepageAdmin' method="POST" enctype="multipart/form-data">
 
-	Article Url:
-	<input type="text" name="articleName" value="<?= $articleName ?>" />
-	<span class='error'><?= $errorTitle ?></span>
+	<div class="row">
+		Article Url:
+		<input type="text" id="articleName" name="articleName" value="<?= $articleName ?>" />
+		<span class='error'><?= $errorTitle ?></span>
+	</div>
 
-	<br><br>
+	<div class="row">
+		Article Image:
+		<input type='file' id='ImageUploadFile' name='wpUploadFile' size='30'>
+		<span class='error'><?= $errorFile ?></span>
+	</div>
 
-	Article Image:
-	<input type='file' id='ImageUploadFile' name='wpUploadFile' size='30'>
-	<span class='error'><?= $errorFile ?></span>
-
-	<br><br>
-
-	Image Destination Name:
-	<input tabindex="2" type="text" name="wpDestFile" id="wpDestFile" size="40"
-			value="<?= $destFile ?>" onkeyup="wgUploadWarningObj.keypress();">
-
-	<br><br>
+	<div class="row">
+		Image Destination Name:
+		<input tabindex="2" type="text" name="wpDestFile" id="wpDestFile" size="40" value="<?= $destFile ?>">
+	</div>
 
 	<input type='submit' id='upload_btn' value='Upload' class="button" />
 
@@ -27,3 +27,5 @@
 </form>
 
 <div id='wpDestFile-warning'>&nbsp;</div>
+
+</div>

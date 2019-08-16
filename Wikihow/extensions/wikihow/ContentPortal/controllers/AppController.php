@@ -18,6 +18,7 @@ class AppController extends Controller {
 			} else {
 				$this->render('session/new', 'session');
 				$this->continue = false;
+				$this->redirectTo('https://daikon.wikiknowhow.com/index.php?title=Special:UserLogin&returnto=Special:ContentPortal');
 			}
 
 		} elseif ($this->currentUser->disabled) {

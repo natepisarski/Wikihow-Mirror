@@ -33,3 +33,16 @@ input[name=articleName] {
 input[name=wpDestFile] {
 	width: 68%;
 }
+
+hr.divider {
+	margin-bottom: 23px;
+}
+
+#hp_form .row {
+	margin-bottom: 10px;
+    line-height: 30px;
+}
+
+#hp_form .error {
+	line-height: 1em;
+}

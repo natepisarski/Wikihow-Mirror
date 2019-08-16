@@ -121,7 +121,7 @@
 
 		var optVal = escape('-1,' + tag);
 		$('.tags').append($("<option></option>").attr("value", optVal).attr("selected", "selected").text(tag));
-		$('.tags').trigger('liszt:updated');
+		$('.tags').trigger('chosen:updated');
 	});
 
 	// Get article details if they hit enter in text box

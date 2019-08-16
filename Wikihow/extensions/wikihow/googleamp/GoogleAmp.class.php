@@ -29,7 +29,7 @@ class GoogleAmp {
 	public static function addAmpStyle( $style, $out ) {
 		// remove any important tags which are not valid in amp
 		$style = str_replace( "!important", "", $style );
-		if (class_exists('ArticleQuizzes')) {
+		if (class_exists('ArticleQuizzes') && ArticleQuizzes::isEligibleForQuizzes()) {
 			global $wgTitle;
 			$articleQuizzes = new ArticleQuizzes($wgTitle->getArticleID());
 			if (count($articleQuizzes::$quizzes) > 0) {
@@ -715,7 +715,7 @@ class GoogleAmp {
 			'data-slot' => $slot,
 		);
 
-		if ( $num == 7 || $num == 8 || $num == 9 ) {
+		if ( $num == 5 || $num == 7 || $num == 8 || $num == 9 ) {
 			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
 

@@ -4,6 +4,7 @@ class ArticleQuizzes {
 	public static $articleId = 0;
 	public static $quizzes = null;
 	public static $showFirstAtTop = false;
+	public static $isEligible = null;
 
 	const FIRST_TAG = "quiz_test_top";
 
@@ -19,7 +20,7 @@ class ArticleQuizzes {
 
 	//Get quiz to display on an article specifically
 	public function getQuiz($methodName, $methodType) {
-		if(!ArticleTagList::hasTag(self::EXCLUDE_TAG, self::$articleId)) {
+		if(self::isEligibleForQuizzes()) {
 			$methodHash = md5($methodName);
 			if (array_key_exists($methodHash, self::$quizzes)) {
 				return self::$quizzes[$methodHash]->getQuizHtml($methodType, self::$showFirstAtTop);
@@ -41,9 +42,9 @@ class ArticleQuizzes {
 			&& $title->inNamespace(NS_MAIN)
 			&& $title->getText() != wfMessage('mainpage')->inContentLanguage()->text()
 			&& $action == 'view'
-			&& !ArticleTagList::hasTag(self::EXCLUDE_TAG, $title->getArticleID())) {
+			&& self::isEligibleForQuizzes() ) {
 			$articleQuizzes = new ArticleQuizzes($title->getArticleID());
-			if (count($articleQuizzes::$quizzes) > 0) {
+			if (count($articleQuizzes::$quizzes) > 0 && !AlternateDomain::onAlternateDomain()) {
 				$out->addModules("ext.wikihow.quiz_js");
 				if (!$articleQuizzes->showFirstAtTop()) {
 					$out->addModules("ext.wikihow.quiz_css");
@@ -51,6 +52,14 @@ class ArticleQuizzes {
 			}
 		}
 		return true;
+	}
+
+	public static function isEligibleForQuizzes() {
+		if( is_null(self::$isEligible) ) {
+			$title = RequestContext::getMain()->getTitle();
+			self::$isEligible = !AlternateDomain::onAlternateDomain() && !ArticleTagList::hasTag(self::EXCLUDE_TAG, $title->getArticleID());
+		}
+		return self::$isEligible;
 	}
 
 	public function showFirstAtTop() {

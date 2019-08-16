@@ -15,3 +15,12 @@ $wgLogTypes[]             = 'avatarrm';
 $wgLogNames['avatarrm']   = 'avatarrm';
 $wgLogHeaders['avatarrm'] = 'avatarrmtext';
 
+$wgResourceModules['ext.wikihow.adminremoveavatar'] = [
+	'scripts' => [
+		'adminremoveavatar.js',
+	],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/avatar',
+	'position' => 'top',
+	'targets' => [ 'desktop' ]
+];

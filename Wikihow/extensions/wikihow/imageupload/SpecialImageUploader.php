@@ -173,7 +173,7 @@ class ImageUploader extends UnlistedSpecialPage {
 			return ['error' =>  $status->getHTML(true)];
 		}
 
-		$file = wfFindFile($title);
+		$file = wfFindFile($title, [ 'latest' => true ]);
 		if (!is_object($file)) {
 			return ['error' => 'Uploaded file not found'];
 		}
@@ -251,14 +251,18 @@ class ImageUploader extends UnlistedSpecialPage {
 		if ($error) {
 			return ['error' => $error];
 		} else {
-			$file = $upload->getLocalFile();
-			self::putFileS3($file);
+			// If we find that getThumbnail below isn't putting the image
+			// correctly on S3, we can try showing the original upload on S3
+			// as a thumbnail.
+			//$stashPath = $file->getPath();
+			//$stashS3Path = self::convertPathS3($stashPath);
 
 			$thumbWidth = min($file->getWidth(), 670);
 			$thumbnail = $file->getThumbnail($thumbWidth, -1);
 			$htmlWidth = min($thumbWidth, 340);
 
 			$props = [
+				//'stashS3Path' => $stashS3Path,
 				'error' => '',
 				'origname' => $origname,
 				'mwname' => $mwname,

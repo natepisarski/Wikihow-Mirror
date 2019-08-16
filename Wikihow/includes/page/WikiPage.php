@@ -1879,6 +1879,11 @@ class WikiPage implements Page, IDBAccessObject {
 	) {
 		global $wgUser, $wgUseNPPatrol, $wgUseRCPatrol;
 
+		// WIKIHOW: added this to do things that change the content before the revision is saved
+		// moving to do these kinds of changes here instead of in PageUpdater as that may be
+		// too late in the save process
+		Hooks::run( 'BeforeDoEditContent', [$this, &$content] );
+
 		if ( !( $summary instanceof CommentStoreComment ) ) {
 			$summary = CommentStoreComment::newUnsavedComment( trim( $summary ) );
 		}
@@ -3294,8 +3299,19 @@ class WikiPage implements Page, IDBAccessObject {
 		// TODO: this logic should not be in the storage layer, it's here for compatibility
 		// with 1.31 behavior. Applying the 'autopatrol' right should be done in the same
 		// place the 'bot' right is handled, which is currently in EditPage::attemptSave.
-		if ( $wgUseRCPatrol && $this->getTitle()->userCan( 'autopatrol', $guser ) ) {
-			$updater->setRcPatrolStatus( RecentChange::PRC_AUTOPATROLLED );
+		if ( $wgUseRCPatrol ) {
+			$doAutoPatrol = false;
+			if ( $this->getTitle()->userCan( 'autopatrol', $guser ) ) {
+				$doAutoPatrol = true;
+			}
+
+			// Wikihow/Reuben: allow the $needsPatrol flag to be changed by this hook
+			$wikiPage = $this; // apparently something PHP 7.1 needs
+			Hooks::run( 'MaybeAutoPatrol', [ $wikiPage, $guser, $summary, &$doAutoPatrol ] );
+
+			if ( $doAutoPatrol ) {
+				$updater->setRcPatrolStatus( RecentChange::PRC_AUTOPATROLLED );
+			}
 		}
 
 		// Actually store the rollback

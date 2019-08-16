@@ -851,7 +851,7 @@ class NFDProcessor {
 		}
 
 		$dateStr = gmdate('n/j/Y', time());
-		$votes = $this->getVotes($nfdid, $dbr);
+		$votes = $this->getVotes($nfdid, wfGetDB(DB_MASTER));
 		$comment = wfMessage('nfd_delete_message')->rawParams($dateStr, $nfdReason['type'], $votes['deleteUsers'], $votes['keepUsers'], "[[".$t->getText()."]]", number_format($wikiPage->getCount(), 0, "", ","))->escaped();
 
 		$foundDup = false;
@@ -928,11 +928,11 @@ class NFDProcessor {
 	 * Helper function to get an array of all the votes
 	 * to delete and keep for the given nfdid
 	 */
-	private function getVotes($nfdid, $dbr) {
+	private function getVotes($nfdid, $dbw) {
 		$votes = array();
 		$votes['keepUsers'] = "";
 		$votes['deleteUsers'] = "";
-		$res = $dbr->select('nfd_vote', ['nfdv_user', 'nfdv_vote'], ['nfdv_nfdid' => $nfdid], __METHOD__);
+		$res = $dbw->select('nfd_vote', ['nfdv_user', 'nfdv_vote'], ['nfdv_nfdid' => $nfdid], __METHOD__);
 		foreach ($res as $row) {
 			$nfdvUser = User::newFromId($row->nfdv_user);
 			if ($nfdvUser) {
@@ -995,7 +995,7 @@ class NFDProcessor {
 			$text = "";
 			$discussionTitle = $t->getTalkPage();
 
-			$votes = $this->getVotes($nfdid, $dbr);
+			$votes = $this->getVotes($nfdid, wfGetDB(DB_MASTER));
 
 			$fullTemplate = $this->getFullTemplate($nfdid);
 			$nfdReason = self::extractReason($fullTemplate);

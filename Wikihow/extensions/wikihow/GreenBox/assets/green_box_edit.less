@@ -5,7 +5,7 @@
 	background-color: #f0f6ec;
 	border-left: 5px solid #93b873;
 
-	#toolbar {
+	#green_box_toolbar {
 		float: right;
 	}
 
@@ -73,12 +73,14 @@
 	&.green_box_expert_short_edit_type {
 		#green_box_edit_content_2,
 		.green_box_qa_label,
-		#toolbar {
+		#green_box_toolbar {
 			display: none;
 		}
 	}
 
 	&.green_box_expert_qa_edit_type {
-		//show it all!!!
+		#green_box_toolbar {
+			display: none;
+		}
 	}
 }

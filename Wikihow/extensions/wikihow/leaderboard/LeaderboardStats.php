@@ -146,18 +146,33 @@ class LeaderboardStats {
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
-		$bot = "";
+		$where = [];
 
 		if (count($bots) > 0) {
-			$bot = " AND rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
+			$where[] = "rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
 		}
 
 		$starttimestamp = $dbr->strencode($starttimestamp);
-		$sql = "SELECT distinct(rc_title) ".
-				"FROM recentchanges  ".
-				"WHERE rc_timestamp >= '$starttimestamp' AND rc_comment like 'Marking new article as a Rising Star from From%'   ". $bot .
-				"AND rc_namespace=".NS_TALK." ";
-		$res = $dbr->query($sql, __METHOD__);
+		$where[] = "rc_timestamp >= '$starttimestamp'";
+		$where[] = "comment_rc_comment.comment_text like 'Marking new article as a Rising Star from%'";
+		$where["rc_namespace"] = NS_TALK;
+		$where[] = "rc_user_text != 'WRM'";
+		$fields = ['distinct(rc_title)', 'comment_rc_comment.comment_text'];
+
+		$commentStore = CommentStore::getStore();
+		$commentQuery = $commentStore->getJoin( 'rc_comment' );
+		$tables = ['recentchanges', 'comment_rc_comment' => $commentQuery['tables']['comment_rc_comment']];
+		$res = $dbr->select(
+			$tables,
+			$fields,
+			$where,
+			__METHOD__,
+			[],
+			['comment_rc_comment' =>
+				["LEFT JOIN", $commentQuery['joins']['comment_rc_comment'][1]]
+			]
+		);
+
 		foreach ($res as $row) {
 			$t = Title::newFromText($row->rc_title);
 			$a = new Article($t);
@@ -265,18 +280,33 @@ class LeaderboardStats {
 		$data = array();
 
 		$bots = WikihowUser::getBotIDs();
-		$bot = "";
+		$where = [];
+
 
 		if (count($bots) > 0) {
-			$bot = " AND rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
+			$where[] = "rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
 		}
 
 		$starttimestamp = $dbr->strencode($starttimestamp);
-		$sql = "SELECT rc_title,rc_user_text ".
-				"FROM recentchanges  ".
-				"WHERE rc_timestamp >= '$starttimestamp' AND rc_comment like 'Marking new article as a Rising Star from From%'   ". $bot .
-				"AND rc_namespace=".NS_TALK." AND rc_user_text != 'WRM' ";
-		$res = $dbr->query($sql, __METHOD__);
+		$where[] = "rc_timestamp >= '$starttimestamp'";
+		$where[] = "comment_rc_comment.comment_text like 'Marking new article as a Rising Star from%'";
+		$where["rc_namespace"] = NS_TALK;
+		$where[] = "rc_user_text != 'WRM'";
+		$fields = ['rc_user_text', 'rc_title', 'comment_rc_comment.comment_text'];
+
+		$commentStore = CommentStore::getStore();
+		$commentQuery = $commentStore->getJoin( 'rc_comment' );
+		$tables = ['recentchanges', 'comment_rc_comment' => $commentQuery['tables']['comment_rc_comment']];
+		$res = $dbr->select(
+			$tables,
+			$fields,
+			$where,
+			__METHOD__,
+			[],
+			['comment_rc_comment' =>
+				["LEFT JOIN", $commentQuery['joins']['comment_rc_comment'][1]]
+			]
+		);
 
 		foreach ($res as $row) {
 			$t = Title::newFromText($row->rc_title);
@@ -1170,21 +1200,36 @@ class LeaderboardStats {
 		}
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$data = array();
+		$data = [];
 
 		$bots = WikihowUser::getBotIDs();
-		$bot = "";
+
+		$where = [];
+		$options = [];
 
 		if (count($bots) > 0) {
-			$bot = " AND rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
+			$where[] = "rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
 		}
 
 		$starttimestamp = $dbr->strencode($starttimestamp);
-		$sql = "SELECT rc_user_text,rc_title ".
-			"FROM recentchanges ".
-			"WHERE rc_comment like 'Quick edit while patrolling' and rc_timestamp >= '$starttimestamp'". $bot .
-			"GROUP BY rc_user_text,rc_title ";
-		$res = $dbr->query($sql, __METHOD__);
+		$where[] = "rc_timestamp >= '$starttimestamp'";
+		$where[] = "comment_rc_comment.comment_text like 'Quick edit while patrolling'";
+		$fields = ['rc_user_text', 'rc_title', 'comment_rc_comment.comment_text'];
+		$options['GROUP BY'] =  "rc_user_text,rc_title";
+
+		$commentStore = CommentStore::getStore();
+		$commentQuery = $commentStore->getJoin( 'rc_comment' );
+		$tables = ['recentchanges', 'comment_rc_comment' => $commentQuery['tables']['comment_rc_comment']];
+		$res = $dbr->select(
+			$tables,
+			$fields,
+			$where,
+			__METHOD__,
+			$options,
+			['comment_rc_comment' =>
+				["LEFT JOIN", $commentQuery['joins']['comment_rc_comment'][1]]
+			]
+		);
 
 		foreach ($res as $row) {
 			if ($getArticles) {
@@ -1372,22 +1417,36 @@ class LeaderboardStats {
 		}
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$data = array();
+		$data = [];
 
 		$bots = WikihowUser::getBotIDs();
 
-		$bot = "";
+		$where = [];
+		$options = [];
 
 		if (count($bots) > 0) {
-			$bot = " AND rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
+			$where[] = "rc_user NOT IN (" . $dbr->makeList($bots) . ") ";
 		}
 
 		$starttimestamp = $dbr->strencode($starttimestamp);
-		$sql = "SELECT rc_user_text,rc_title ".
-			"FROM recentchanges ".
-			"WHERE rc_comment like 'categorization' and rc_timestamp >= '$starttimestamp' ". $bot .
-			"GROUP BY rc_user_text,rc_title" ;
-		$res = $dbr->query($sql, __METHOD__);
+		$where[] = "rc_timestamp >= '$starttimestamp'";
+		$where[] = "comment_rc_comment.comment_text like 'categorization'";
+		$fields = ['rc_user_text', 'rc_title', 'comment_rc_comment.comment_text'];
+		$options['GROUP BY'] =  "rc_user_text,rc_title";
+
+		$commentStore = CommentStore::getStore();
+		$commentQuery = $commentStore->getJoin( 'rc_comment' );
+		$tables = ['recentchanges', 'comment_rc_comment' => $commentQuery['tables']['comment_rc_comment']];
+		$res = $dbr->select(
+			$tables,
+			$fields,
+			$where,
+			__METHOD__,
+			$options,
+			['comment_rc_comment' =>
+				["LEFT JOIN", $commentQuery['joins']['comment_rc_comment'][1]]
+			]
+		);
 
 		foreach ($res as $row) {
 			if ($getArticles) {

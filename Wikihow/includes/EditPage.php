@@ -2510,19 +2510,21 @@ ERROR;
 	public function setHeaders() {
 		$out = $this->context->getOutput();
 
-		$out->addModules( 'mediawiki.action.edit' );
-		$out->addModuleStyles( 'mediawiki.action.edit.styles' );
-		$out->addModuleStyles( 'mediawiki.editfont.styles' );
+		// WIKIHOW, Trevor, 2019-08-09 - Disabling these modules, they aren't useful for us
 
-		$user = $this->context->getUser();
+		// $out->addModules( 'mediawiki.action.edit' );
+		// $out->addModuleStyles( 'mediawiki.action.edit.styles' );
+		// $out->addModuleStyles( 'mediawiki.editfont.styles' );
 
-		if ( $user->getOption( 'uselivepreview' ) ) {
-			$out->addModules( 'mediawiki.action.edit.preview' );
-		}
+		// $user = $this->context->getUser();
 
-		if ( $user->getOption( 'useeditwarning' ) ) {
-			$out->addModules( 'mediawiki.action.edit.editWarning' );
-		}
+		// if ( $user->getOption( 'uselivepreview' ) ) {
+		// 	$out->addModules( 'mediawiki.action.edit.preview' );
+		// }
+
+		// if ( $user->getOption( 'useeditwarning' ) ) {
+		// 	$out->addModules( 'mediawiki.action.edit.editWarning' );
+		// }
 
 		# Enabled article-related sidebar, toplinks, etc.
 		$out->setArticleRelated( true );

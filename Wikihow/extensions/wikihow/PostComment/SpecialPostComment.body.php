@@ -80,6 +80,7 @@ class PostComment extends UnlistedSpecialPage {
 		$future_comment = "<div id='postcomment_newmsg_$id'></div>";
 		$preview_place = "<div id='postcomment_preview_$id' class='postcomment_preview'></div>";
 		$result = "
+			<script type='text/javascript' src='" . wfGetPad('/resources/lib/jquery/jquery.js') . "'></script>
 			<script type='text/javascript'>
 				var gPreviewText = \"" . wfMessage('postcomment_generatingpreview') . "\";
 				var gPreviewURL = \"{$previewPage->getFullURL()}\";

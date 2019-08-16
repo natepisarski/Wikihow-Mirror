@@ -225,20 +225,11 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 		),
 ));
 
-// Extend the core configuration found in extensions/MobileFrontend/includes/Resources.php
-#$wgResourceModules['mobile.editor']['dependencies'][] = 'mobile.wikihow.whCtaDrawer';
-
-// Add a few styles to MobileFrontend-specific modules. We do this rather than create our own since they are common/core
-// modules and would require modifying other MobileFrontend modules to reference our new module
-#$wgResourceModules['mobile.overlays']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/OverlayNew.less';
-// NOTE: Reuben, 2019: we CANNOT remove these next 3 statements without doing other work. Fixing any exceptions
-// caused by these next statements will cause MFE to import modules such as "collapsible", which will hide our
-// == Steps == section on all mobile articles. This is horrible and needs to be debugged, and the offending
-// modules removed. But these errors need to stay in place until then.
-$wgResourceModules['skins.minerva.buttons.styles']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/buttons.less';
-$wgResourceModules['mobile.styles']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/buttons.less';
-$wgResourceModules['skins.minerva.content.styles']['styles'][] = '../wikihow/MobileFrontendWikihow/less/common/common.less';
-#$wgResourceModules['mobile.startup']['templates'][] = '../../wikihow/MobileFrontendWikihow/templates/pagewh';
+// wikiHow, Trevor, 2019-08-09 - Wipe out the styles for these modules to avoid collapsing sections and other
+// shenanigans, tomfoolery and malarkey that MobileFrontend/Minerva might be up to
+$wgResourceModules['skins.minerva.buttons.styles']['styles'] = [];
+$wgResourceModules['mobile.styles']['styles'] = [];
+$wgResourceModules['skins.minerva.content.styles']['styles'] = [];
 
 $cwd = $localBasePath;
 

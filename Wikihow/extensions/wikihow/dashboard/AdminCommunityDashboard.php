@@ -12,16 +12,16 @@ $wgSpecialPages['AdminCommunityDashboard'] = 'AdminCommunityDashboard';
 $wgAutoloadClasses['AdminCommunityDashboard'] = __DIR__ . '/AdminCommunityDashboard.body.php';
 
 $wgResourceModules['ext.wikihow.admincommunitydashboard_styles'] = array(
-	'scripts' => ['admincommunitydashboard.css'],
-	'localBasePath' => __DIR__ . '/',
+	'styles' => ['admincommunitydashboard.css'],
+	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/dashboard',
-	'position' => 'bottom',
+	'position' => 'top',
 	'targets' => ['desktop', 'mobile'],
 );
 
 $wgResourceModules['ext.wikihow.admincommunitydashboard'] = array(
 	'scripts' => ['admincommunitydashboard.js'],
-	'localBasePath' => __DIR__ . '/',
+	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/dashboard',
 	'position' => 'bottom',
 	'targets' => ['desktop', 'mobile'],

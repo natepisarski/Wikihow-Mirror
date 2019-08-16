@@ -237,45 +237,10 @@ class WikihowHomepage extends Article {
 	}
 
 	public static function getSearchUrl($query = '') {
-		global $wgCanonicalServer, $wgLanguageCode;
+		global $wgDomainName;
 
 		$query = $query ? urlencode($query) : '{search_term_string}';
-
-		if ($wgLanguageCode == 'en') {
-			// $cxid = 'mr-gwotjmbs'; // Unused
-			return $wgCanonicalServer . '/wikiHowTo?search=' . $query;
-		}
-
-		// [ [ lang => [cxid, url] ]
-		$cnf = [
-			'ar' => [ 'p69otx3fxl8', 'https://cse.google.ae/cse' ],
-			'cs' => [ 'rbfdcv7xp3y', 'https://cse.google.cz/cse' ],
-			'de' => [ 'uodsdlb5i_g', 'https://cse.google.de/cse' ],
-			'es' => [ 'd-m9-bge-b8', 'https://cse.google.es/cse' ],
-			'fr' => [ 'ar_ivxaiyic', 'https://cse.google.fr/cse' ],
-			'hi' => [ 'veo5jv3yqlo', 'https://cse.google.co.in/cse' ],
-			'id' => [ '-gta3fdvfh8', 'https://cse.google.co.id/cse' ],
-			'it' => [ 'tav742__lhu', 'https://cse.google.it/cse' ],
-			'ja' => [ 'g_epwflza0e', 'https://cse.google.co.jp/cse' ],
-			'ko' => [ '4datrbvuolo', 'https://cse.google.co.kr/cse' ],
-			'nl' => [ 'lgi9gl9f5so', 'https://cse.google.nl/cse' ],
-			'pt' => [ 'npdtpoa9n0o', 'https://cse.google.pt/cse' ],
-			'ru' => [ '9eczeje2tra', 'https://cse.google.ru/cse' ],
-			'th' => [ 'ub6yetul04s', 'https://cse.google.co.th/cse' ],
-			'tr' => [ '5fi_u5xsm5k', 'https://cse.google.com.tr/cse' ],
-			'vi' => [ 'tghxspjdhxu', 'https://cse.google.com.vn/cse' ],
-			'zh' => [ 'wqu8qtfdf2g', 'https://cse.google.com.hk/cse' ],
-		];
-
-		$langCnf = $cnf[$wgLanguageCode] ?? null;
-		if (!$langCnf) {
-			return false;
-		}
-
-		$site = Misc::isMobileMode() ? $langCnf[1] : "{$wgCanonicalServer}/Special:GoogSearch";
-		$cxid = $langCnf[0];
-
-		return $site . '?cx=008953293426798287586:' . $cxid . '&cof=FORID%3A10&ie=UTF-8&q=' . $query;
+		return 'https://' . $wgDomainName . '/wikiHowTo?search=' . $query;
 	}
 
 	public static function getLanguageLinksForHomePage() {

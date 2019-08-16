@@ -228,12 +228,17 @@ class ArticleCreator extends SpecialPage {
 		$wikiPage = WikiPage::factory($t);
 		$wikitext = $request->getVal('wikitext');
 		$content = ContentHandler::makeContent($wikitext, $t);
-		$wikiPage->doEditContent($content, wfMessage('ac-edit-summary'));
+
+		// setup more arguments to the call
+		$flags = 0;
+		$originalRevId = false;
+		$tags = array();
+		$serialFormat = null;
 		if ($request->getVal("overwrite") == "yes") {
-			//put the article back into nab
-			// NewArticleBoost::redoNabStatus($t);
-			ChangeTags::addTags('article rewrite', null, $wikiPage->getLatest());
+			$tags[] = 'article rewrite';
 		}
+
+		$wikiPage->doEditContent( $content, wfMessage('ac-edit-summary'), $flags, $originalRevId, $user, $serialFormat, $tags );
 		// Add an author email notification
 		$aen = new AuthorEmailNotification();
 		$aen->addNotification($t->getText());

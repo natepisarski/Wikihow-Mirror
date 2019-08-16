@@ -294,26 +294,41 @@ class Avatar extends UnlistedSpecialPage {
 			$avatarNew = "var avatarNew = true;";
 		}
 
+		$wgOut->addModuleStyles( ['ext.wikihow.avatar_styles'] );
+		$wgOut->addModules( ['ext.wikihow.avatar'] );
+
 		$wgOut->addHTML("\n<!-- AVATAR CODE START -->\n<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/avatar/avatar.css?') . WH_SITEREV . "' type='text/css' />\n");
 
+
+		$prototypeSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/prototype.js?') . WH_SITEREV;
+		$builderSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/builder.js?') . WH_SITEREV;
+		$dragdropSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/dragdrop.js?') . WH_SITEREV;
+		$cropperSrc = wfGetPad('/extensions/wikihow/common/cropper/cropper.js?') . WH_SITEREV;
+
 		$wgOut->addHTML( "
-	<script>jQuery.noConflict();</script>
-	<script language='javascript' src='" . wfGetPad('/extensions/wikihow/common/cropper/lib/prototype.js?') . WH_SITEREV . "'></script>
-	<script language='javascript' src='" . wfGetPad('/extensions/wikihow/common/cropper/lib/scriptaculous.js?load=builder,dragdrop&') . WH_SITEREV . "'></script>
-	<script language='javascript' src='" . wfGetPad('/extensions/wikihow/common/cropper/cropper.js?') . WH_SITEREV . "'></script>
-	<script type='text/javascript' src='".wfGetPad('/extensions/wikihow/common/jquery.md5.js?') . WH_SITEREV ."'></script>
-	<script language='javascript' src='" . wfGetPad('/extensions/wikihow/avatar/avatar.js?') . WH_SITEREV . "'></script>
-	<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/common/cropper/cropper.css?') . WH_SITEREV . "' type='text/css' />
+<script>
+var wgUserID = '".$wgUser->getID()."';
+var nonModal = true;
+var userpage = '".$wgUser->getUserPage()."';
+$avatarReload\n
+$avatarNew\n
 
-
-<script type='text/javascript'>
-		var wgUserID = '".$wgUser->getID()."';
-		var nonModal = true;
-		var userpage = '".$wgUser->getUserPage()."';
-		$avatarReload\n
-		$avatarNew\n
+function initAvatarPage() {
+	jQuery.noConflict();
+	jQuery.getScript( '$prototypeSrc' )
+		.then( function () {
+			return jQuery.getScript( '$builderSrc' )
+		} )
+		.then( function () {
+			return jQuery.getScript( '$dragdropSrc' )
+		} )
+		.then( function () {
+			return jQuery.getScript( '$cropperSrc' )
+		} )
+		.then( initNonModal );
+}
 </script>
-
+	<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/common/cropper/cropper.css?') . WH_SITEREV . "' type='text/css' />
 	  <div class='avatarModalBody minor_section'>
 	  <div>". wfMessage('avatar-instructions',$wgUser->getName())."</div>
 		 <div id='avatarUpload' >
@@ -342,9 +357,8 @@ class Avatar extends UnlistedSpecialPage {
 
 				<div id='cropSubmit' >
 				<form name='crop' method='post' >
-					<a onclick=\"closeButton();\" class='button'>Cancel</a>
-					<input type='button' class='button primary' value='Crop and Save' id='gatAvatarCropAndSave' onclick='ajaxCropit();' />
-					<!-- <a onclick=\"alert($('avatarPreview2').innerHTML);\">vutest</a> -->
+					<a class='button' id='gatAvatarCancel'>Cancel</a>
+					<input type='button' class='button primary' value='Crop and Save' id='gatAvatarCropAndSave' />
 					<input type='hidden' name='cropflag' value='false' />
 					<input type='hidden' name='image' value='".$imgname."' />
 					<input type='hidden' name='type' value='crop' />
@@ -358,10 +372,7 @@ class Avatar extends UnlistedSpecialPage {
 				</div>
 
 		 </div>
-	  </div>
-<script type='text/javascript'>
-Event.observe(window, 'load', initNonModal);
-</script>");
+	  </div>");
 
 		$wgOut->addHTML("<!-- AVATAR CODE ENDS -->\n");
 	}

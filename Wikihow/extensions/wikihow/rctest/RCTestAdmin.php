@@ -9,6 +9,7 @@ $wgExtensionMessagesFiles['RCTestAdmin'] = __DIR__ . '/RCTestAdmin.i18n.php';
 $wgResourceModules['ext.wikihow.rcTestAdmin'] = [
 	'localBasePath' => __DIR__,
 	'targets' => [ 'desktop' ],
+	'scripts' => [ 'rctestadmin.js' ],
 	'styles' => [ 'rctestadmin.css' ],
 	'dependencies' => [ 'ext.wikihow.desktop_base', 'jquery.ui.dialog' ],
 	'remoteExtPath' => 'wikihow/rctest',

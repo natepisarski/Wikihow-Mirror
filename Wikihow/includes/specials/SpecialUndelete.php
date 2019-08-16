@@ -801,15 +801,13 @@ class SpecialUndelete extends SpecialPage {
 								'value' => '1',
 								'label' => $this->msg( 'undeletebtn' )->text(),
 								'flags' => [ 'primary', 'progressive' ],
-								'type' => 'submit',
-								'classes' => [ 'button', 'primary' ], // Wikihow
+								'type' => 'submit'
 							] ),
 							new OOUI\ButtonInputWidget( [
 								'name' => 'invert',
 								'inputId' => 'mw-undelete-invert',
 								'value' => '1',
-								'label' => $this->msg( 'undeleteinvert' )->text(),
-								'classes' => [ 'button', 'secondary' ], // Wikihow
+								'label' => $this->msg( 'undeleteinvert' )->text()
 							] ),
 						]
 					] )

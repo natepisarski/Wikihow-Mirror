@@ -26,6 +26,7 @@ class ManageSuggestedTopics extends SpecialPage {
 		$out->setRobotPolicy('noindex,nofollow');
 
 		$dbr = wfGetDB(DB_REPLICA);
+		$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 		$out->addModules( ['ext.wikihow.ManageSuggestedTopics'] );
 
 		if ($req->wasPosted()) {

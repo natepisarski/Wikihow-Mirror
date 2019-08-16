@@ -5,6 +5,19 @@ if ( ! defined( 'MEDIAWIKI' ) )
 $wgSpecialPages['WikihowHomepageAdmin'] = 'WikihowHomepageAdmin';
 $wgAutoloadClasses['WikihowHomepageAdmin'] = __DIR__ . '/WikihowHomepageAdmin.body.php';
 
+$wgResourceModules['ext.wikihow.WikihowHomepageAdmin'] = [
+	'scripts' => [
+		'../common/jquery-ui-1.12.1/jquery-ui.min.js',
+		'wikihowhomepageadmin.js',
+	],
+	'styles' => [ 'wikihowhomepageadmin.css' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/homepage',
+	'targets' => ['desktop', 'mobile'],
+];
+
+$wgHooks['FileUpload'][] = array('WikihowHomepageAdmin::onFileUpload');
+
 /*******
  *
 

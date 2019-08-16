@@ -477,8 +477,7 @@ class MovePageForm extends UnlistedSpecialPage {
 				'value' => $this->msg( 'movepagebtn' )->text(),
 				'label' => $this->msg( 'movepagebtn' )->text(),
 				'flags' => [ 'primary', 'progressive' ],
-				'type' => 'submit',
-				'classes' => [ 'button', 'primary' ]
+				'type' => 'submit'
 			] ),
 			[
 				'align' => 'top',

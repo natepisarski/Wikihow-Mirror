@@ -4,14 +4,17 @@
 	window.WH.SummaryEditCTA = {
 		init: function() {
 			this.addHandlers();
-			$('#summary_edit_sidebox').fadeIn();
 		},
 
 		addHandlers: function() {
-			$('.summary_edit_link').click($.proxy(function() {
+			$('#main_container').on('click', '.summary_edit_link', $.proxy(function() {
 				this.summaryEditUI();
 				return false;
 			},this));
+		},
+
+		showPageStatLink: function() {
+			$('#summary_edit_sidebox').fadeIn();
 		},
 
 		summaryEditUI: function() {
@@ -21,9 +24,5 @@
 		}
 	}
 
-	// WH.SummaryEditCTA.init is now run via pagestats.js, which is set up to depend
-	// on this ext.wikihow.summary_edit_cta resource module loading, and to depend
-	// implicitly on the html from the staff widget (loaded by pagestats.js) being
-	// present.
-	//WH.SummaryEditCTA.init();
+	WH.SummaryEditCTA.init();
 })(jQuery, mw);

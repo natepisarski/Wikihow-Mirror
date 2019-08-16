@@ -57,6 +57,15 @@ use Wikimedia\Rdbms\IMaintainableDatabase;
  * @since 1.16
  * @ingroup Maintenance
  */
+
+// mwupgrade 2019 - Define $IP earlier on to allow to prevent breakage of require_once statements in scripts
+// that reference $IP before the Maintenance class constructor is called
+
+global $IP;
+$IP = strval( getenv( 'MW_INSTALL_PATH' ) ) !== ''
+	? getenv( 'MW_INSTALL_PATH' )
+	: realpath( __DIR__ . '/..' );
+
 abstract class Maintenance {
 	/**
 	 * Constants for DB access type

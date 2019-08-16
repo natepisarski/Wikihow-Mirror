@@ -1214,8 +1214,12 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 			$adsenseScript = Html::inlineScript( $adsenseScript );
 		}
 
+		$indexHeadScript = "";
 		$dfpScript = "";
 		if ( $addDFP ) {
+			if ( rand( 1, 100 ) == 1 ) {
+				$indexHeadScript = $this->getIndexHeadScript();
+			}
 			$dfpScript = $this->getGPTDefine();
 			if ( $this->mLateLoadDFP == false ) {
 				$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
@@ -1238,7 +1242,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 
 		$adLabelStyle = $this->getAdLabelStyle();
 
-		return $adsenseScript . $dfpScript . $adLabelStyle;
+		return $indexHeadScript . $adsenseScript . $dfpScript . $adLabelStyle;
 	}
 
 	protected function getAdLabelStyle() {
@@ -1255,6 +1259,10 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		return $labelText;
 	}
 
+	protected function getIndexHeadScript() {
+		$html =  '<script async src="//js-sec.indexww.com/ht/p/184011-188477170437417.js"></script>';
+		return $html;
+	}
 	protected function getGPTDefine() {
 		$dfpKeyVals = $this->getDFPKeyValsJSON();
 		$gpt = "var gptAdSlots = [];\n";

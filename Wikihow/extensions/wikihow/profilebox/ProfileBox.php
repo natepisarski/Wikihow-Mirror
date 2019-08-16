@@ -28,7 +28,7 @@ $wgResourceModules['ext.wikihow.profile_box_styles'] = array(
 $wgResourceModules['ext.wikihow.profile_box'] = array(
     'scripts' => array('profilebox.js'),
     'messages' => array(
-      'profilebox_name',
+      'profilebox_remove_confirm',
       'pb-viewmore',
       'pb-viewless'
     ),

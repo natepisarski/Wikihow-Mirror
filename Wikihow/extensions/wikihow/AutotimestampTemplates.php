@@ -8,9 +8,9 @@ $wgExtensionCredits['other'][] = array(
 	'description' => 'Provides a way of automatically adding a timestamp to a template.',
 );
 
-$wgHooks['PageContentSave'][] = 'wfAutotimestamp';
+$wgHooks['BeforeDoEditContent'][] = 'wfAutotimestamp';
 
-function wfAutotimestamp(&$wikiPage, &$user, &$content, $summary, $minor, $watch, $sectionanchor, $flags) {
+function wfAutotimestamp( $wikiPage, &$content ) {
 	$text = ContentHandler::getContentText( $content );
 	$oldtext = $text;
 	if (strpos($text, "{{") !== false) {

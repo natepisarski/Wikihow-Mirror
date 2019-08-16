@@ -128,6 +128,7 @@ class TranslateSummariesTool extends UnlistedSpecialPage {
 	}
 
 	private function saveSummary(): array {
+		$user = RequestContext::getMain()->getUser(); //get the user now, before the edit mapping happens
 		$aid = $this->getRequest()->getInt('page_id_intl', 0);
 		$summary_content = trim(strip_tags($this->getRequest()->getText('content', ''),'<br>'));
 		$last_sentence = trim(strip_tags($this->getRequest()->getText('last_sentence', ''),'<br>'));
@@ -144,7 +145,7 @@ class TranslateSummariesTool extends UnlistedSpecialPage {
 		$ts->translated = 1;
 		if (!$ts->save()) return [];
 
-		$res = TranslateSummariesAdmin::logSummarySave($ts);
+		$res = TranslateSummariesAdmin::logSummarySave($ts, $user);
 
 		return ['html' => $this->successResult($ts->language_code, $ts->page_title_intl)];
 	}

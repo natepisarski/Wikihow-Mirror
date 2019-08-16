@@ -151,58 +151,14 @@
 		addEditToolbar: function() {
 			var transparent_gif = '/skins/owl/images/1x1_transparent.gif';
 
-			mw.loader.using(['mediawiki.action.edit', 'ext.wikihow.nonarticle_styles'], function() {
-				mw.toolbar.addButtons(
-					{
-						imageFile: transparent_gif,
-						speedTip: "Bold text",
-						tagOpen: "\'\'\'",
-						tagClose: "\'\'\'",
-						sampleText: "Place bold text here",
-						imageId: "mw-editbutton-bold"
-					},
-					{
-						imageFile: transparent_gif,
-						speedTip: "Italic text",
-						tagOpen: "\'\'",
-						tagClose: "\'\'",
-						sampleText: "Italic text",
-						imageId: "mw-editbutton-italic"
-					},
-					{
-						imageFile: transparent_gif,
-						speedTip: "Green box headline",
-						tagOpen: "== ",
-						tagClose: " ==",
-						sampleText: "Headline text",
-						imageId: "mw-editbutton-headline"
-					},
-					{
-						imageFile: transparent_gif,
-						speedTip: "Internal link",
-						tagOpen: "[[",
-						tagClose: "]]",
-						sampleText: "Link title",
-						imageId: "mw-editbutton-link"
-					},
-					{
-						imageFile: transparent_gif,
-						speedTip: "External link (remember http:// prefix)",
-						tagOpen: "[",
-						tagClose: "]",
-						sampleText: "http://www.example.com link title",
-						imageId: "mw-editbutton-extlink"
-					},
-					{
-						imageFile: transparent_gif,
-						speedTip: 'Mathematical formula (LaTeX)',
-						tagOpen: '<math>',
-						tagClose: '</math>',
-						sampleText: 'Insert formula here',
-						imageId: 'mw-editbutton-math'
-					}
-				);
-			});
+			WH.Editor.addButton(transparent_gif, 'Bold text', "\'\'\'", "\'\'\'", "Place bold text here", "mw-editbutton-bold");
+			WH.Editor.addButton(transparent_gif, 'Italic text', "\'\'", "\'\'", "Italic text", "mw-editbutton-italic");
+			WH.Editor.addButton(transparent_gif, 'Green box headline', "== ", " ==", "Headline text", "mw-editbutton-headline");
+			WH.Editor.addButton(transparent_gif, 'Internal link', "[[", "]]", "Link title", "mw-editbutton-link");
+			WH.Editor.addButton(transparent_gif, 'External link (remember http:// prefix)', "[", "]", "http://www.example.com link title", "mw-editbutton-extlink");
+			WH.Editor.addButton(transparent_gif, 'Mathematical formula (LaTeX)', "<math>", "</math>", "Insert formula here", "mw-editbutton-math");
+
+			WH.Editor.restoreToolbarButtons('green_box_toolbar', 'green_box_edit_content');
 		},
 
 		save: function() {

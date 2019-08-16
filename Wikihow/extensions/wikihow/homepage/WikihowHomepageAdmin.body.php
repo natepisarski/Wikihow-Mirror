@@ -4,12 +4,47 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 
 	const HP_TABLE = "homepage";
 
-	var $errorTitle;
-	var $errorFile;
-	var $postSuccessful;
+	private $errorTitle;
+	private $errorFile;
+	private $postSuccessful;
+	private $reload = false; // if true, admin.tmpl.php is rendered with an AJAX call
+
+	private static $articleTitle = null;
+	private static $wpDestFile = null;
+
+	/**
+	 * Hook called from LocalFile.php when a new file is uploaded
+	 */
+	public static function onFileUpload( LocalFile $localFile, bool $reupload, bool $titleExists ) {
+		global $wgUser;
+
+		$imageTitle = $localFile->getTitle();
+		if ( self::$wpDestFile !== $imageTitle->getText() ) {
+			return;
+		}
+
+		$dbw = wfGetDB(DB_MASTER);
+		$dbw->insert(self::HP_TABLE, [
+			'hp_page' => self::$articleTitle->getArticleID(),
+			'hp_image' => $imageTitle->getArticleID()
+		]);
+
+		$wikiPage = WikiPage::factory($imageTitle);
+		$limit = [ 'move' => 'sysop', 'edit' => 'sysop' ];
+		$expiry = [];
+		$cascade = false;
+		$reason = 'Used on homepage';
+		$wikiPage->doUpdateRestrictions($limit, $expiry, $cascade, $reason, $wgUser);
+
+		return;
+	}
 
 	public function __construct() {
 		parent::__construct('WikihowHomepageAdmin');
+	}
+
+	public function doesWrites() {
+		return true;
 	}
 
 	public function execute($par) {
@@ -61,6 +96,9 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 					$dbw->update(self::HP_TABLE, array('hp_active' => 1, 'hp_order' => $count), array('hp_id' => $image));
 					$count++;
 				}
+			} elseif ($req->getVal("reload")) {
+				Misc::jsonResponse($this->getAdminPanelHtml());
+				return;
 			} else {
 				$title = WikiPhoto::getArticleTitleNoCheck($req->getVal('articleName'));
 				if (!$title || !$title->exists()) {
@@ -72,21 +110,15 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 					//keep going
 					$imageTitle = Title::newFromText($req->getVal('wpDestFile'), NS_IMAGE);
 					$file = new LocalFile($imageTitle, RepoGroup::singleton()->getLocalRepo());
-					$file->upload($req->getFileTempName('wpUploadFile'), '', '');
-					$filesize = $file->getSize();
-					if ($filesize > 0) {
-						$dbw = wfGetDB(DB_MASTER);
-						$dbw->insert(self::HP_TABLE, array('hp_page' => $title->getArticleID(), 'hp_image' => $imageTitle->getArticleID()));
-
-						$wikiPage = WikiPage::factory($imageTitle);
-						$limit = array();
-						$limit['move'] = "sysop";
-						$limit['edit'] = "sysop";
-						$cascade = false;
-						$protectResult = $wikiPage->doUpdateRestrictions($limit, [], $cascade, "Used on homepage", $user)->isOK();
+					$comment = 'Created with WikihowHomepageAdmin';
+					$status = $file->upload($req->getFileTempName('wpUploadFile'), $comment, '');
+					if ($status->isGood()) {
+						self::$articleTitle = $title;
+						self::$wpDestFile = $req->getVal('wpDestFile');
+						$this->reload = true;
 					} else {
 						$this->postSuccessful = false;
-						$this->errorFile = "* We encountered an error uploading that file.";
+						$this->errorFile = $status->getHTML();
 					}
 				}
 			}
@@ -98,20 +130,17 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 
 		$adc = wfBoolToStr( $useAjaxDestCheck );
 		$alp = wfBoolToStr( $useAjaxLicensePreview );
+		$rel = json_encode($this->reload);
 		$out->setPageTitle('WikiHow Homepage Admin');
 		$out->addScript( "<script type='text/javascript'>
 wgAjaxUploadDestCheck = {$adc};
 wgAjaxLicensePreview = {$alp};
+window.WH.HPAdminReload = {$rel};
 </script>" );
-		$out->addModules('jquery.ui.dialog');
-		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/common/jquery-ui-1.12.1/jquery-ui.min.js'));
-		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.js'));
-		$out->addScript(HtmlSnips::makeUrlTag('/extensions/wikihow/homepage/wikihowhomepageadmin.css'));
-		$out->addScript(HtmlSnips::makeUrlTag('/skins/common/upload.js'));
-
-		$this->displayHomepageData();
+		$out->addModules('ext.wikihow.WikihowHomepageAdmin');
 
 		$this->displayForm();
+		$out->addHTML($this->getAdminPanelHtml());
 	}
 
 	private function getHomepageData() {
@@ -136,16 +165,19 @@ wgAjaxLicensePreview = {$alp};
 		return $results;
 	}
 
-	private function displayHomepageData() {
+	private function getAdminPanelHtml(): string {
+		if ($this->reload) {
+			return '<div class="hp_admin_panel"><hr class="divider"><i>Loading...</i></div>';
+		}
+
 		$results = $this->getHomepageData();
 
 		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(
 			'items' => $results
 		));
-		$html = $tmpl->execute('admin.tmpl.php');
 
-		$this->getOutput()->addHTML($html);
+		return $tmpl->execute('admin.tmpl.php');
 	}
 
 	private function displayForm() {

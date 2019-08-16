@@ -128,7 +128,9 @@ td.category_list{
 
 #st_search { width: 435px; }
 
-#suggested_surprise { margin-top: 0px; }
+#suggested_surprise {
+	margin: 5px 0 0 0;
+}
 #suggested_surprise_big { text-align: center; }
 #suggested_surprise_big a { padding: 12px 100px; }
 
@@ -468,10 +470,6 @@ td.not_chosen a {
 
 .minor_section form {
     margin: 1px 0px 9px;
-}
-
-#suggested_surprise {
-    margin-right: 0px;
 }
 
 .search_noresults {

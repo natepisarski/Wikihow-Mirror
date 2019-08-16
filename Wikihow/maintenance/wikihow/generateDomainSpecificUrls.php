@@ -36,11 +36,23 @@ class GenerateDomainSpecificUrls extends Maintenance {
 				continue;
 			}
 			$title = Title::newFromID( $pageId );
-			if ( $title && !$title->isRedirect() ) {
-				$line = "https://www.$domain{$title->getLocalURL()}";
-				$line .= ' lastmod=' . self::iso8601_date( $title->getTouched() );
-				print "$line\n";
+
+			if (!$title) {
+				continue;
 			}
+
+			if ( $title->isRedirect() ) {
+				continue;
+			}
+
+			$indexed = RobotPolicy::isTitleIndexable($title);
+			if (!$indexed) {
+				continue;
+			}
+
+			$line = "https://www.$domain{$title->getLocalURL()}";
+			$line .= ' lastmod=' . self::iso8601_date( $title->getTouched() );
+			print "$line\n";
 		}
 	}
 }

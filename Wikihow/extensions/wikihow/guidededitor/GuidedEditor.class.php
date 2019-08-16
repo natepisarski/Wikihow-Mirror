@@ -93,20 +93,13 @@ class GuidedEditor extends EditPage {
 			// it's a rewrite. let us start anew
 			$page = WikiPage::factory($this->mTitle);
 			$reason = wfMessage('ac-overwrite-reason')->text();
-			$status = $page->doDeleteArticleReal($reason);
+			$tags = ['article rewrite'];
+			$status = $page->doDeleteArticleReal($reason, false, null, null, '', null, $tags);
 			if (!$status->isGood()) {
 				return;
 			}
-			$overwrite = true;
-		} else {
-			$overwrite = false;
 		}
-
 		parent::edit();
-
-		if ($overwrite) {
-			ChangeTags::addTags('article rewrite', null, $this->mArticle->getLatest());
-		}
 	}
 
 	protected function importContentFormData( &$request ) {

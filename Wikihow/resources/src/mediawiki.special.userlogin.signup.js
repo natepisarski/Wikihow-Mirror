@@ -60,7 +60,7 @@
 					if ( resp.query.users.length !== 1 || userinfo.invalid ) {
 						d.resolve( { valid: false, messages: [ mw.message( 'noname' ).parseDom() ] } );
 					} else if ( userinfo.userid !== undefined ) {
-						d.resolve( { valid: false, messages: [ mw.message( 'userexists' ).text() ] } );
+						d.resolve( { valid: false, messages: [ mw.message( 'userexists' ).parseDom() ] } );
 					} else if ( !userinfo.cancreate ) {
 						d.resolve( {
 							valid: false,

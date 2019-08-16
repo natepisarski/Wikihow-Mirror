@@ -64,7 +64,11 @@ class AdminCloseAccount extends UnlistedSpecialPage {
 			} elseif ( $action == 'describe' ) {
 				$this->apiDescribe();
 			} elseif ( $action == 'execute' ) {
-				$this->apiExecute();
+				try {
+					$this->apiExecute();
+				} catch ( Exception $e ) {
+					$this->apiError( 'Error:' . $e->getMessage() . "\n" .$e->getTraceAsString() );
+				}
 			} else {
 				$this->apiError( 'Action not supported.' );
 			}

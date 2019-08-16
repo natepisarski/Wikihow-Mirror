@@ -165,8 +165,8 @@ $wgResourceModules['wikihow.common.querybuilder'] = array (
 $wgResourceModules['wikihow.common.select2'] = array (
 	'styles' => ['select2/select2.min.css'],
 	'scripts' => ['select2/select2.js'],
-	'position' => 'bottom',
-	'targets' => ['desktop'],
+	'position' => 'top',
+	'targets' => ['desktop','mobile'],
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => COMMONS_DIR,
 );

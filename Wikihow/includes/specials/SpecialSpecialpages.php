@@ -140,28 +140,29 @@ class SpecialSpecialpages extends UnlistedSpecialPage {
 			);
 		}
 
-		// add legend
-		$notes = [];
-		if ( $includesRestrictedPages ) {
-			$restricedMsg = $this->msg( 'specialpages-note-restricted' );
-			if ( !$restricedMsg->isDisabled() ) {
-				$notes[] = $restricedMsg->plain();
-			}
-		}
-		if ( $includesCachedPages ) {
-			$cachedMsg = $this->msg( 'specialpages-note-cached' );
-			if ( !$cachedMsg->isDisabled() ) {
-				$notes[] = $cachedMsg->plain();
-			}
-		}
-		if ( $notes !== [] ) {
-			$out->wrapWikiMsg(
-				"<h2 class=\"mw-specialpages-note-top\">$1</h2>", 'specialpages-note-top'
-			);
-			$out->wrapWikiTextAsInterface(
-				'mw-specialpages-notes',
-				implode( "\n", $notes )
-			);
-		}
+		// [sc] 8/2019 - wH doesn't really maintain this feature, so...
+		// // add legend
+		// $notes = [];
+		// if ( $includesRestrictedPages ) {
+		// 	$restricedMsg = $this->msg( 'specialpages-note-restricted' );
+		// 	if ( !$restricedMsg->isDisabled() ) {
+		// 		$notes[] = $restricedMsg->plain();
+		// 	}
+		// }
+		// if ( $includesCachedPages ) {
+		// 	$cachedMsg = $this->msg( 'specialpages-note-cached' );
+		// 	if ( !$cachedMsg->isDisabled() ) {
+		// 		$notes[] = $cachedMsg->plain();
+		// 	}
+		// }
+		// if ( $notes !== [] ) {
+		// 	$out->wrapWikiMsg(
+		// 		"<h2 class=\"mw-specialpages-note-top\">$1</h2>", 'specialpages-note-top'
+		// 	);
+		// 	$out->wrapWikiTextAsInterface(
+		// 		'mw-specialpages-notes',
+		// 		implode( "\n", $notes )
+		// 	);
+		// }
 	}
 }

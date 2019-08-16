@@ -29,10 +29,12 @@ footer {
 // FIXME: Overly specific selector
 #mw-mf-diffarea {
 	.hyphens( auto );
-	padding: 0 1em ( 2 * @userInfoHeight + 1em );
+	padding: 0 1em 5em;
 }
 
 #mw-mf-diffview {
+	background-color: #FFF;
+
 	.meta {
 		font-size: 0.7em;
 		text-transform: uppercase;
@@ -143,8 +145,17 @@ footer {
 	font-size: 0.9em;
 	margin-bottom: 12px;
 
+	li::after {
+		content: '';
+	}
+
 	.revision-history-next {
 		float: right;
+	}
+
+	.revision-history-prev,
+	.revision-history-next {
+		font-size: 1.5em;
 	}
 }
 

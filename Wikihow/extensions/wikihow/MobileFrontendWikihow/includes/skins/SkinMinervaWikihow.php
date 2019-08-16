@@ -609,6 +609,8 @@ class SkinMinervaWikihow extends SkinMinerva {
 	}
 
 	protected function prepareMobileFooterLinks( $tpl ) {
+		global $wgLanguageCode;
+
 		$title = $this->getTitle();
 
 		$editHtml = '<a href="'.$title->getEditURL().'">'.wfMessage('mobile-frontend-footer-edit-wh')->text().'</a>';
@@ -618,9 +620,13 @@ class SkinMinervaWikihow extends SkinMinerva {
 		$randomLink = '<a href="/Special:Randomizer" >' . wfMessage('randompage')->text() . '</a>';
 		$tpl->set('random', $randomLink);
 
+		// Don't create this link for non-en anon users due to GSC problems relating to mobile usability.
+		// This is a test implementation to see if we can please the Google gods.
+		$nonEnglishAnon = $wgLanguageCode != 'en' && $this->getUser()->isAnon();
+
 		// Create url to switch to desktop site (and set cookie so varnish
 		// doesn't redirect user right back).
-		if ( ! $this->isMobileAnonOnly($title) ) {
+		if ( ! $this->isMobileAnonOnly($title) && !$nonEnglishAnon ) {
 			$req = $this->getRequest();
 			$url = $this->getDesktopUrl( wfExpandUrl(
 				$this->getTitle()->getLocalURL( $req->appendQueryValue( 'mobileaction', 'toggle_view_desktop' ) )

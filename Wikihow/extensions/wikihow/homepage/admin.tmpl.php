@@ -1,3 +1,7 @@
+<div class="hp_admin_panel">
+
+<hr class="divider">
+
 <p>Drag and drop to reorder the articles.</p>
 <p>Note: inactive ones go to the bottom</p>
 <form action="/Special:WikihowHomepageAdmin" method="post" name="updating">
@@ -26,3 +30,5 @@
 		</tbody>
 	</table>
 </form>
+
+</div>

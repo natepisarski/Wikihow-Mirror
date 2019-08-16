@@ -26,10 +26,8 @@
 		},
 
 		removeUserPage: function() {
-			var conf = confirm(
-				'Are you sure you want to permanently remove your ' +
-					mw.message( 'profilebox_name' ).text() + '?'
-			);
+			var conf = confirm( mw.message( 'profilebox_remove_confirm' ).text() );
+
 			if ( conf == true ) {
 				var url = '/Special:ProfileBox?type=remove';
 

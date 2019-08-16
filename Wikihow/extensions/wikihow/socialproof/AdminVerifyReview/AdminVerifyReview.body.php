@@ -539,12 +539,11 @@ class AdminVerifyReview extends UnlistedSpecialPage {
         return EasyTemplate::html( $templateName, $vars );
     }
 
-    private function outputAdminPageHtml() {
+	private function outputAdminPageHtml() {
 		$out = $this->getOutput();
-        $out->setPageTitle( "Review Verified Articles" );
+		$out->setPageTitle( "Review Verified Articles" );
 		$out->addModules( 'ext.wikihow.adminverifyreview' );
-		$out->addModuleStyles( 'mediawiki.action.history.diff' );
-        $out->addHtml( $this->getTemplateHtml( 'AdminVerifyReview.tmpl.php' ) );
-    }
+		$out->addHtml( $this->getTemplateHtml( 'AdminVerifyReview.tmpl.php' ) );
+	}
 
 }

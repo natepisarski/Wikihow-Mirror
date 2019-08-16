@@ -2127,7 +2127,7 @@ class wikihowAds {
 		$html .= Html::rawElement( 'div', [ 'class' => 'ad_label_method' ], 'Advertisement' );
 
 		$script = Html::inlineScript("WH.mobileads.add('$id');");
-		$target = "#".$target;
+		$target = "div#".$target;
 		if ( pq( $target )->length > 0 ) {
 			pq( $target )->append( $html.$script );
 		}

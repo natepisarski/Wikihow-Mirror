@@ -8,6 +8,7 @@
 		cookieName = 'changeslist-state',
 		// Expanded by default
 		doCollapsibleLegend = function ( $container ) {
+			if (!$container.length && $('#container').length) $container = $('#container');
 			$container.find( '.mw-changeslist-legend' )
 				.makeCollapsible( {
 					// Wikihow: default to collapsed

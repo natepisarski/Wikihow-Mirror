@@ -255,11 +255,8 @@ a, a:active, a:visited, a.new {
 	border: solid 5px #93B874;
 	border-radius: 10px;
 	padding: 0 5px;
-	background-color: white;
 	-webkit-appearance: none;
-	background-image: url(/extensions/wikihow/mobile/images/search_gray.svg);
-	background-size: 20px;
-	background-position: right 4px center;
+	background: #FFF url(/extensions/wikihow/mobile/images/search_gray.svg) right 4px center / 20px no-repeat;
 	box-sizing: border-box;
 	color: transparent;
 	font-size: 16px;
@@ -281,9 +278,7 @@ a, a:active, a:visited, a.new {
 
 #hs_close {
 	width: 0;
-	background-size: 15px;
-	background-position: center center;
-	background-image: url(/extensions/wikihow/mobile/images/close.svg);
+	background: url(/extensions/wikihow/mobile/images/close.svg) center / 15px no-repeat;
 }
 
 #hs_submit {
@@ -349,6 +344,7 @@ a, a:active, a:visited, a.new {
 
 .content {
 	margin: 0 5px 1.5em;
+	word-wrap: break-word;
 }
 
 .content img {
@@ -548,9 +544,7 @@ h4.steps_text::before {
 }
 
 .steps_list_2 .mwimg.largeimage{
-	margin-left:-20px;
-	margin-right:-20px;
-	margin-top: -20px;
+	margin: -20px -20px 10px;
 }
 
 .mwimg {
@@ -611,9 +605,7 @@ h4.steps_text::before {
 }
 
 .steps_list_2 li li .mwimg.largeimage {
-	margin-left: 0;
-	margin-right: 0;
-	margin-top: 5px;
+	margin: 5px 0;
 }
 
 .section_text, .steps_text {
@@ -642,8 +634,7 @@ h4.steps_text::before {
 }
 
 .content .steps_list_2 ul, .content .steps_list_2 ol {
-	margin-left: 30px;
-	margin-top:8px;
+	margin: 8px 0 0 30px;
 }
 
 .steps .section_text {
@@ -774,11 +765,9 @@ h4.steps_text::before {
 .header #mw-mf-main-menu-button{
 	width: 72px;
 	border-right: none;
-	background-image: url(/extensions/wikihow/mobile/images/main_menu_button.png);
+	background: url(/extensions/wikihow/mobile/images/main_menu_button.png) 15px center / 18px no-repeat;
 	/* @embed */
 	background-image: url(/extensions/wikihow/mobile/images/main_menu_button.svg);
-	background-size: 18px;
-	background-position: 15px center;
 }
 .header #mw-mf-main-menu-button, .header #secondary-button { height: auto; }
 
@@ -836,8 +825,7 @@ h4.steps_text::before {
 	margin-top: 10px;
 }
 .method_ad {
-	margin-top: 17px;
-	margin-left: -16px;
+	margin: 17px 0 0 -16px;
 	display: block;
 }
 .wh_ad1_full {
@@ -1046,9 +1034,7 @@ body.action-view #fa_container p {
 }
 
 .summarysection.mwimg, .summarysection .mwimg {
-	margin-left: -15px;
-	margin-right: -15px;
-	margin-top: -16px;
+	margin: -16px -15px 0;
 }
 .content .m-video {
 	max-width: 100%;
@@ -1122,9 +1108,7 @@ body.action-view #fa_container p {
 }
 .mw-mf-display-toggle {
 	/* @embed */
-	background-image:  url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-full.svg);
-	background-repeat: no-repeat;
-	background-size: 17px;
+	background: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-full.svg) 0 0 / 17px no-repeat;
 	padding-left: 25px;
 	position: absolute;
 	bottom: 0;
@@ -1491,4 +1475,15 @@ a.related-title,a.related-title:active, a.related-title:visited {
 
 .content .in-block.steps_text {
 	display: block;
+}
+
+.mw-mf-cleanup {
+	display: block;
+	padding: 10px 15px 10px 44px;
+	background: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-notification.svg) 10px center / 24px no-repeat;
+	margin-bottom: 4px;
+}
+
+.overlay-issues .cleanup > li .issue-notice {
+	padding-top: 50px;
 }

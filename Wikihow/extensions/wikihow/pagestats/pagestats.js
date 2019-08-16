@@ -313,9 +313,7 @@ function initPageStats() {
 					setupMtsMenu();
 				}
 
-				mw.loader.using( 'ext.wikihow.summary_edit_cta', function() {
-					WH.SummaryEditCTA.init();
-				} );
+				if (WH.SummaryEditCTA) WH.SummaryEditCTA.showPageStatLink();
 			}, 'json');
 	}
 }

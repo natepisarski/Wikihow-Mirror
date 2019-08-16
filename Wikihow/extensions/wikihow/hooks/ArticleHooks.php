@@ -221,7 +221,7 @@ class ArticleHooks {
 		$revision,
 		$originalRevId,
 		$user,
-		&$tags
+		&$tags = null
 	) {
 
 		global $wgIgnoreNamespacesForEditCount;

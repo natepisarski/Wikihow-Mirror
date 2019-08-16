@@ -103,13 +103,6 @@ class SpecialUserLogin extends LoginSignupSpecialPage {
 		$user = $this->targetUser ?: $this->getUser();
 		$session = $this->getRequest()->getSession();
 
-		wfDebugLog('wh_login', __METHOD__ . ' : login successful');
-		wfDebugLog('wh_login', __METHOD__ . ' username: ' . $user->getName());
-		wfDebugLog('wh_login', __METHOD__ . ' session id: ' . $session->getSessionId());
-		wfDebugLog('wh_login', ' WebRequest: ');
-		wfDebugLog('wh_login', var_export($this->getRequest(), true));
-
-
 		if ( $direct ) {
 			$user->touch();
 

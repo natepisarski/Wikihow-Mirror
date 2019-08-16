@@ -371,7 +371,14 @@ class CookieSessionProvider extends SessionProvider {
 			return [
 				'UserID' => $user->getId(),
 				'UserName' => $user->getName(),
-				'Token' => $remember ? (string)$user->getToken() : false,
+				// Wikihow: MW seems too aggressive about forgetting users who
+				// don't click "Remember Me" now. If we don't set this cookie,
+				// users will be logged out after we restart memcache, and maybe
+				// after a memcache key expires. We don't want to just remove
+				// the Remember Me option though because it's nice for users to
+				// choose how long before their cookies expire (180 days vs 30).
+				//'Token' => $remember ? (string)$user->getToken() : false,
+				'Token' => (string)$user->getToken(),
 			];
 		}
 	}

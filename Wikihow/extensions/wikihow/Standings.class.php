@@ -1271,7 +1271,7 @@ class CategorizationStandingsIndividual extends StandingsIndividual {
 		global $wgUser;
 		$opts = array();
 		$opts['rc_user_text'] =$wgUser->getName();
-		$opts[] = "rc_comment like 'categorization'";
+		$opts[] = "comment_rc_comment.comment_text like 'categorization'";
 		if ($ts) {
 			$opts[]= "rc_timestamp >'{$ts}'";
 		}
@@ -1281,6 +1281,71 @@ class CategorizationStandingsIndividual extends StandingsIndividual {
 	function getGroupStandings() {
 		return new CategorizationStandingsGroup();
 	}
+
+	/**
+	 * fetchStats
+	 * get the stats in an array
+	 **/
+	function fetchStats() {
+		global $wgUser, $wgLang;
+
+		$dbr = wfGetDB(DB_REPLICA);
+
+		$ts_today = date('Ymd',strtotime('today')) . '000000';
+		$ts_week = date('Ymd',strtotime('7 days ago')) . '000000';
+
+		$timecorrection = $wgUser->getOption( 'timecorrection' );
+		$ts_today = $wgLang->userAdjust( $ts_today, $timecorrection );
+		$ts_week = $wgLang->userAdjust( $ts_week, $timecorrection );
+
+		$tbl = $this->getTable();
+		$commentStore = CommentStore::getStore();
+		$commentQuery = $commentStore->getJoin( 'rc_comment' );
+		$table = [$tbl, 'comment_rc_comment' => $commentQuery['tables']['comment_rc_comment']];
+		$join = ['comment_rc_comment' => ['LEFT JOIN', $commentQuery['joins']['comment_rc_comment'][1]] ];
+
+		$today = $dbr->selectField(
+			$table,
+			'count(*)',
+			$this->getOpts($ts_today),
+			__METHOD__,
+			[],
+			$join
+		);
+
+		$week = $dbr->selectField(
+			$table,
+			'count(*)',
+			$this->getOpts($ts_week),
+			__METHOD__,
+			[],
+			$join
+		);
+
+		if ($this->showTotal()) {
+			$all = $dbr->selectField(
+				$table,
+				'count(*)',
+				$this->getOpts(),
+				__METHOD__,
+				[],
+				$join
+			);
+		}
+
+		$standing = $this->getStanding($wgUser);
+
+		$s_arr = array(
+			'today' => $today,
+			'week' => $week,
+			'all' => $all,
+			'standing' => $standing,
+		);
+
+		$this->mStats = $s_arr;
+		return $this->mStats;
+	}
+
 
 }
 
@@ -1557,10 +1622,13 @@ class CategorizationStandingsGroup extends StandingsGroup  {
 	}
 
 	function getSQL($ts) {
+		$commentStore = CommentStore::getStore();
+			$commentQuery = $commentStore->getJoin( 'rc_comment' );
 		$sql = "SELECT rc_user_text,rc_title, count(*) as C ".
-			"FROM recentchanges ".
-			"WHERE rc_comment like 'categorization' and rc_timestamp >= '$ts' AND rc_user_text != 'WRM' ".
+			"FROM recentchanges join comment as comment_rc_comment on " . $commentQuery['joins']['comment_rc_comment'][1] .
+			" WHERE comment_rc_comment.comment_text like 'categorization' and rc_timestamp >= '$ts' and rc_user_text != 'WRM' ".
 			"GROUP BY rc_user_text ORDER BY C DESC limit 25" ;
+
 		return $sql;
 	}
 

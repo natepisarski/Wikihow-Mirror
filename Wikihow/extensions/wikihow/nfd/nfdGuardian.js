@@ -48,7 +48,7 @@ function updateChoices() {
 	$("#nfd_reasons select option:selected").each(function() {
 		choices.push($(this).text());
 	});
-	mw.cookie.set('nfdrule_choices', choices.join(), { expires: 7 });
+	mw.cookie.set('nfdrule_choices', choices.join(), { expires: 7 * 60 * 60 * 24 });
 }
 
 function loadResult(result) {

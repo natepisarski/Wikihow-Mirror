@@ -174,11 +174,13 @@ class TranslateSummariesAdmin extends UnlistedSpecialPage {
 		);
 	}
 
-	public static function logSummarySave(TranslateSummaries $ts): bool {
+	public static function logSummarySave(TranslateSummaries $ts, $user = null): bool {
 		if (empty($ts)) return false;
 
+		if(!$user) {
+			$user = RequestContext::getMain()->getUser();
+		}
 		$summary = TranslateSummaries::getENSummaryData($ts->page_id_en);
-		$user = RequestContext::getMain()->getUser();
 
 		$dbw = wfGetDB(DB_MASTER);
 		$dbName = $dbw->getDBname();

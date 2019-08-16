@@ -742,6 +742,7 @@ class PageUpdater {
 		$hook_args = [ &$wikiPage, &$user, &$mainContent, &$summary,
 			$flags & EDIT_MINOR, null, null, &$flags, &$hookStatus ];
 		// Check if the hook rejected the attempted save
+		// TODO this hook should not alter the contents of the main content
 		if ( !Hooks::run( 'PageContentSave', $hook_args ) ) {
 			if ( $hookStatus->isOK() ) {
 				// Hook returned false but didn't call fatal(); use generic message
@@ -755,6 +756,7 @@ class PageUpdater {
 		// Wikihow: After the PageContentSave, we sometimes update our $mainContent
 		// object (hence it being passed by reference). So, here, we update the main
 		// slot/content inside our unsaved revision record with our new content object.
+		// TODO this code should be removed as changing the content at this stage causes bugs
 		if ( !$preHookMainContent->equals($mainContent) ) {
 			$newMainSlot = SlotRecord::newUnsaved( SlotRecord::MAIN, $mainContent );
 			$revision = $this->derivedDataUpdater->getRevision();

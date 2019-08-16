@@ -50,5 +50,9 @@ $wgResourceModules['ext.wikihow.green_box_edit'] = [
 	'localBasePath' => __DIR__.'/assets',
 	'remoteExtPath' => 'wikihow/GreenBox/assets',
 	'targets' => [ 'desktop' ],
+	'dependencies' => [
+		'ext.wikihow.editor_script',
+		'ext.wikihow.nonarticle_styles'
+	],
 	'position' => 'bottom'
 ];

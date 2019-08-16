@@ -72,14 +72,6 @@ class SpecialMytalk extends RedirectSpecialArticle {
 	 * @return Title
 	 */
 	public function getRedirect( $subpage ) {
-
-		wfDebugLog('wh_login', __METHOD__ . ' : debug talk page redirection');
-		wfDebugLog('wh_login', __METHOD__ . ' username: ' . $this->getUser()->getName());
-		wfDebugLog('wh_login', __METHOD__ . ' session id: ' . $this->getRequest()->getSessionId());
-		wfDebugLog('wh_login', __METHOD__ . ' WebRequest: ');
-		wfDebugLog('wh_login', var_export($this->getRequest(), true));
-
-
 		if ( $subpage === null || $subpage === '' ) {
 			return Title::makeTitle( NS_USER_TALK, $this->getUser()->getName() );
 		}

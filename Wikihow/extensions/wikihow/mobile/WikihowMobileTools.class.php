@@ -998,7 +998,7 @@ class WikihowMobileTools {
 		// Maybe ContentProviderFactory::getProvider() should be used instead,
 		// but this way is easier
 		$contentProvider = new \MobileFrontend\ContentProviders\DefaultContentProvider($html);
-		$formatter = MobileFormatter::newFromContext($context, $contentProvider);
+		$formatter = MobileFormatter::newFromContext($context, $contentProvider, true);
 
 		Hooks::run('MobileFrontendBeforeDOM', array($context, $formatter));
 

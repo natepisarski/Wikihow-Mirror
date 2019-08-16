@@ -27,7 +27,15 @@ WH.imageFeedback = function() {
 			$('.rpt_button').on('click', function(e) {
 				var reason = $('.rpt_reason').val();
 				if (reason.length) {
-					var url = $(rpt_img).parent().children('a.image').first().attr('data-href').split(/[?#]/)[0];
+					var url;
+					var $video = $( rpt_img ).parent().find( 'video' );
+					if ( $video.length ) {
+						// Extract wikiname from URL like /image/x/xx/{{NAME}}/scaler-params
+						url = '/Image:' + $video.attr('data-poster').split( '/' )[5];
+					} else {
+						url = $(rpt_img).parent().children('a.image').first().attr('data-href').split(/[?#]/)[0];
+					}
+					console.log( url );
 					$.post('/Special:ImageFeedback', {imgUrl: url, aid: wgArticleId, 'reason': reason, 'voteType' : $('input[name=voteType]:checked').val()});
 					$('#dialog-box').dialog('close');
 				}

@@ -1,4 +1,4 @@
-var whNewLoadFunc = function() {
+$( function() {
 	var url = "/extensions/wikihow/common/jquery.simplemodal.1.4.4.min.js";
 	$.getScript(url, function() {
 		$.get("/Special:ArticleCreator?ac_created_dialog=1", function(data) {
@@ -14,5 +14,4 @@ var whNewLoadFunc = function() {
 			$.getScript("/extensions/wikihow/articlecreator/ac_modal.js");
 		});
 	});
-};
-$(window).load(whNewLoadFunc);
+} );
