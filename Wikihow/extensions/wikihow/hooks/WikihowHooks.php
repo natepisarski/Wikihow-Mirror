@@ -88,6 +88,7 @@ $wgHooks['ResourceLoaderGetConfigVars'][] = 'PageHooks::onResourceLoaderGetConfi
 //
 $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::onPageContentSaveUndoEditMarkPatrolled');
 $wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::updatePageFeaturedFurtherEditing');
+$wgHooks['PageContentSaveComplete'][] = array('ArticleHooks::updateArticleMetaInfo');
 $wgHooks['EditPageBeforeEditToolbar'][] = array('ArticleHooks::editPageBeforeEditToolbar');
 $wgHooks['DoEditSectionLink'][] = array('ArticleHooks::onDoEditSectionLink');
 $wgHooks['MakeGlobalVariablesScript'][] = array('ArticleHooks::addGlobalVariables');

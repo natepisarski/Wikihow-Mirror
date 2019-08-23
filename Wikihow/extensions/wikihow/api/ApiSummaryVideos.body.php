@@ -15,7 +15,7 @@ class ApiSummaryVideos extends ApiBase {
 	protected static $cdn = WH_CDN_VIDEO_ROOT;
 
 	/**
-	 * Refresh daily
+	 * Refresh daily (key changes when getLatestSummaryVideoUpdate result changes)
 	 */
 	protected static $refreshAfter = 24 * 60 * 60;
 

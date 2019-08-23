@@ -1,6 +1,7 @@
 WH.gdpr = (function () {
 	var acceptCookieName = 'gdpr_accept';
 	var delineCookieName = 'gdpr_decline';
+
 	function hasAcceptCookie() {
 		var hasCookie = document.cookie.indexOf('gdpr_accept=');
 		if (hasCookie >= 0) {
@@ -11,9 +12,9 @@ WH.gdpr = (function () {
 
 	function hasEUQueryParam() {
 		var url = window.location.href;
-		if (url.indexOf('?EU=') != -1) {
+		if (url.indexOf('?EUtest=') != -1) {
 			return true;
-		} else if( url.indexOf('&EU=') != -1) {
+		} else if( url.indexOf('&EUtest=') != -1) {
 			return true;
 		}
 		return false;
@@ -36,6 +37,7 @@ WH.gdpr = (function () {
 		}
 		return false;
 	}
+
 	function popupClosed() {
 		createCookie("gdpr_accept", 1, 365);
 		createCookie("gdpr_decline", "", -1);
@@ -96,15 +98,18 @@ WH.gdpr = (function () {
 		var gdpr = document.getElementById('gdpr');
 		if (gdpr && isEU && !hasAcceptCookie() ) {
 			gdpr.style.display = "block";
+		} else if (gdpr) {
+			gdpr.parentNode.removeChild(gdpr);
 		}
 		var accept = document.getElementById('gdpr_accept');
 		if (accept) {
-			accept.addEventListener ("click", popupClosed);
+			accept.addEventListener("click", function() {popupClosed()}, true);
 		}
 		var close = document.getElementById('gdpr_close');
 		if (close) {
-			close.addEventListener ("click", popupClosed);
+			close.addEventListener("click", function() {popupClosed()}, true);
 		}
+
 		return;
 	}
 	return {

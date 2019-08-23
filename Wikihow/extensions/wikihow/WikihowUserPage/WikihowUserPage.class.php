@@ -132,7 +132,7 @@ class WikihowUserPage extends Article {
 		$this->mTitle = $title;
 		$wp = new WikiPage($this->mTitle);
 		$popts = $out->parserOptions();
-		$popts->setTidy(true);
+		$popts->setTidy(false);
 		$content = $wp->getContent();
 		if ($content) {
 			$parserOutput = $content->getParserOutput($this->mTitle, null, $popts, false)->getText();

@@ -56,10 +56,7 @@ $wgHooks['CirrusSearchMappingConfig'][] =
 	array('FinnerHooks::onCirrusSearchMappingConfig');
 
 // CirrusSearch custom hooks
-$wgHooks['CirrusSearchExtraFilters'][] =
-	array('FinnerHooks::onCirrusSearchExtraFilters');
-$wgHooks['CirrusSearchBuildDocumentFinishBatchExtras'][] =
-	array('FinnerHooks::onCirrusSearchBuildDocumentFinishBatchExtras');
-$wgHooks['CirrusSearchSelectSort'][] =
-	array('FinnerHooks::onCirrusSearchSelectSort');
-
+$wgHooks['CirrusSearchFulltextQueryBuilder'][] =
+	array('FinnerHooks::onCirrusSearchFulltextQueryBuilder');
+$wgHooks['CirrusSearchBuildDocumentFinishBatch'][] =
+	array('FinnerHooks::onCirrusSearchBuildDocumentFinishBatch');

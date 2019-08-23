@@ -248,6 +248,10 @@ abstract class WAPMaintenance {
 					$subject = $this->getSubject($subject, $lang);
 					$body .= implode("\r\n ", $urlsByLang);
 					$emails = $this->wapConfig->getMaintenanceStandardEmailList();
+					// TODO: this should probably use UserMailer::send() instead. The UserMailer
+					// function does special stuff for us on dev, and it's easier to fix mailer
+					// problems (like if we needed different mail headers) in one place.
+					// - Reuben, 2019
 					mail($emails, $subject, $body);
 				}
 

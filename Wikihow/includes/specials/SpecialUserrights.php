@@ -81,9 +81,18 @@ class UserrightsPage extends SpecialPage {
 	 */
 	public function execute( $par ) {
 		$user = $this->getUser();
+
+		if ( $user->isBlocked() && !$user->isAllowed( 'userrights' ) ) {
+			throw new UserBlockedError( $user->getBlock() );
+		}
+
 		$request = $this->getRequest();
 		$session = $request->getSession();
 		$out = $this->getOutput();
+
+        if ( !$this->userCanChangeRights( $user, true ) ) {
+            throw new PermissionsError('');
+        }
 
 		$out->addModules( [ 'mediawiki.special.userrights' ] );
 

@@ -2,9 +2,9 @@
 
 $magicWords = [];
 $magicWords['en'] = [
-	'ARTICLESSTARTED' => [ 0, 'articlesstarted' ],
-	'PATROLCOUNT' => [ 0, 'patrolcount' ],
-	'NABCOUNT' => [ 0, 'nabcount' ],
-	'VIEWERSHIP' => [ 1, 'viewership' ],
-	'NUMBEROFARTICLESSTARTED' => [ 1, 'numberofarticlesstarted' ],
+	'ARTICLESSTARTED' => [ 0, 'ARTICLESSTARTED' ],
+	'PATROLCOUNT' => [ 0, 'PATROLCOUNT' ],
+	'NABCOUNT' => [ 0, 'NABCOUNT' ],
+	'VIEWERSHIP' => [ 1, 'VIEWERSHIP' ],
+	'NUMBEROFARTICLESSTARTED' => [ 1, 'NUMBEROFARTICLESSTARTED' ],
 ];

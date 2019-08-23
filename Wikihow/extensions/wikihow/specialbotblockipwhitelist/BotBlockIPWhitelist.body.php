@@ -18,111 +18,66 @@ class BotBlockIPWhitelist extends UnlistedSpecialPage {
 
 		$this->out = $this->getOutput();
 		$this->user = $this->getUser();
-		$this->request = $this->getRequest();
-
-		$wgHooks['ShowSideBar'][] = [$this, 'removeSideBarCallback'];
-		$wgHooks['ShowBreadCrumbs'][] = [$this, 'removeBreadCrumbsCallback'];
+		$this->req = $this->getRequest();
 	}
 
-	public function removeSideBarCallback(&$showSideBar) {
-		$showSideBar = false;
-	}
+	private function isValidRequest(): bool {
+		$user = $this->user;
+		$req = $this->req;
+		$lang = $this->getLanguage()->getCode();
+		$validGroups = [ 'staff', 'staff_widget', 'sysop' ];
 
-	public function removeBreadCrumbsCallback(&$showBreadCrumbs) {
-		$showBreadCrumbs = false;
-	}
+		$valid = !$user->isBlocked() && !$user->isAnon()
+			&& count( array_intersect($validGroups, $user->getGroups()) ) > 0;
 
-	private function isUserAllowed(\User $user): bool {
-		$permittedGroups = [
-			'staff',
-			'staff_widget',
-			'sysop'
-		];
+		if ( $valid && $req->wasPosted() ) {
+			$action = $req->getVal('action');
+			$token = $req->getVal('token');
+			$valid = ( $action == 'submit' ) && $user->matchEditToken( $token );
+		}
 
-		return $user &&
-					!$user->isBlocked() &&
-					!$user->isAnon() &&
-					count( array_intersect( $permittedGroups, $user->getGroups() ) ) > 0;
+		return $valid;
 	}
 
 	public function execute( $subPage ) {
 
-		if ( preg_match( '@^/whitelist@', $this->request->getRequestURL() ) ) {
+		if ( preg_match( '@^/whitelist@', $this->req->getRequestURL() ) ) {
 			$this->out->redirect('/Special:BotBlockIPWhitelist');
 			return;
 		}
 
-		$this->out->setRobotPolicy( 'noindex,nofollow' );
-
-		if ($this->user->isAnon()) {
-			throw new PermissionsError( 'read' );
-		}
-
-		if ( $this->user->isBlocked() ) {
-			throw new UserBlockedError( $this->user->getBlock() );
-		}
-
-		if ( \Misc::isMobileMode() || !$this->isUserAllowed( $this->user ) ) {
-			$this->out->setRobotPolicy( 'noindex,nofollow' );
+		if ( !$this->isValidRequest() ) {
 			$this->out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
 
-		if ( !in_array( $this->getLanguage()->getCode(), ['en', 'qqx'] ) ) {
-			$this->out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext');
-			return;
-		}
+		$this->out->setRobotPolicy( 'noindex,nofollow' );
+		$this->out->setArticleBodyOnly( true );
 
-		if ( $this->request->wasPosted() && $this->request->getVal( 'action' ) == 'submit' ) {
-			$this->out->setArticleBodyOnly( true );
-			$requestVal = $this->request->getValues();
-			$json = json_encode( $requestVal );
-
-			if ( filter_var( $requestVal['ipwl_addr'], FILTER_VALIDATE_IP ) ) {
-				self::insertIPintoDB( $json, $this->user );
-				$response = array( 'response' => 1 );
+		$resultHtml = '';
+		if ( $this->req->wasPosted() ) {
+			$ipAddr = trim( $this->req->getVal('ipwl_addr', '') );
+			if ( filter_var( $ipAddr, FILTER_VALIDATE_IP ) ) {
+				$this->insertIPintoDB( $ipAddr, $this->user->getId() );
+				$resultHtml = "<span style='color: green'>Success: added $ipAddr</span>";
 			} else {
-				$response = array( 'response' => 0 );
+				$resultHtml = "<span style='color: red'>Error: <i>$ipAddr</i> is not a valid IP address</span>";
 			}
-
-			$this->out->addHTML( json_encode( $response ) );
-			return;
 		}
 
-
-		$this->out->setPageTitle( wfMessage( 'ipwhitelist_title' )->text() );
-		$this->out->addModuleStyles( 'ext.wikihow.specialbotblockipwhitelist.styles' );
-		$this->out->addModules( 'ext.wikihow.specialbotblockipwhitelist' );
-
-		$html = $this->getMainHTML();
+		$html = $this->getMainHTML($resultHtml);
 		$this->out->addHTML( $html );
 	}
 
-	 /**
-	 * Adds new IP address to the bot block ip whitelist table
-	 * @param $toBeInserted IP address to be inserted into DB
-	 * @param $user User who has inserted the IP address
-	 */
-	private static function insertIPintoDB( $toBeInserted, $user ) {
-		$dbw = wfGetDB( DB_MASTER );
-		$table = self::IPWL_TABLE;
-		$insertIP['ipwl_ip_addr'] = trim( json_decode( $toBeInserted )->ipwl_addr );
-		$insertIP['ipwl_added_on'] = $dbw->timestamp( wfTimestampNow() );
-		$insertIP['ipwl_added_by'] = $user->mId;
-		$dbw->insert( $table, $insertIP, __METHOD__ );
-	}
-
-	private function getMainHTML() {
+	private function getMainHTML(string $resultHtml) {
 		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$vars = [
-			'titleTop' => wfMessage( 'ipwhitelist_title' )->text(),
-			'ipwl_description' => wfMessage( 'ipwl_tool_desc', $this->request->getIP() )->text(),
-			'inputbox_text' => wfMessage( 'ipinput_text' )->text(),
-			'wl_btn' => wfMessage( 'whitelist_btn_text' )->text(),
-			'viewall_btn' => wfMessage( 'viewallwhitelist_btn_text' )->text(),
-			'all_wl_ip1' => $this->getAllWhitelistedIPs(),
+			'resultHtml' => $resultHtml,
+			'token' => $this->user->getEditToken(),
+			'ipAddr' => $this->req->getIP(),
+			'all_wl_ip1' => self::getAllWhitelistedIPs(true),
 		];
 
 		$html = $m->render( 'botblockipwhitelist.mustache', $vars );
@@ -130,12 +85,32 @@ class BotBlockIPWhitelist extends UnlistedSpecialPage {
 		return $html;
 	}
 
-	private static function getAllWhitelistedIPs() {
-		$dbr = wfGetDB( DB_MASTER );
+	 /**
+	 * Adds new IP address to the bot block ip whitelist table
+	 * @param $ipAddr IP address to be inserted into DB
+	 * @param $userId User who has inserted the IP address
+	 */
+	private function insertIPintoDB( string $ipAddr, int $userId ) {
+		$dbw = wfGetDB( DB_MASTER );
+		$table = self::IPWL_TABLE;
+		$row = [
+			'ipwl_ip_addr' => $ipAddr,
+			'ipwl_added_on' => $dbw->timestamp( wfTimestampNow() ),
+			'ipwl_added_by' => $userId,
+		];
+		$set = [
+			'ipwl_added_on' => $row['ipwl_added_on'],
+			'ipwl_added_by' => $row['ipwl_added_by'],
+		];
+		$dbw->upsert( $table, $row, [], $set, __METHOD__ );
+	}
+
+	public static function getAllWhitelistedIPs	($fromMaster = false) {
+		$dbw = wfGetDB( $fromMaster ? DB_MASTER : DB_REPLICA );
 		$table = self::IPWL_TABLE;
 		$var = 'ipwl_ip_addr';
 		$cond = '';
-		$res = $dbr->select( $table, $var, $cond, __METHOD__ );
+		$res = $dbw->select( $table, $var, $cond, __METHOD__ );
 		$allData = array();
 		foreach ( $res as $row ) {
 			$allData[] = $row->ipwl_ip_addr;

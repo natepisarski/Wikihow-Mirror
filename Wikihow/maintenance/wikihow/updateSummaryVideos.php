@@ -47,10 +47,18 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 			return;
 		}
 
+		$dbw = wfGetDB( DB_MASTER );
+		$cached = wfTimestamp( TS_MW );
+
+		$rows = $dbw->select( 'summary_videos', [ 'sv_title' ], [], __METHOD__ );
+		$existing = [];
+		foreach ( $rows as $row ) {
+			$existing[] = $row->sv_title;
+		}
+
+		echo "Selecting...\t";
 		// Get meta info for every article with a summary video
-		echo "Selecting...\n";
-		$dbr = wfGetDB( DB_REPLICA );
-		$rows = $dbr->select(
+		$rows = $dbw->select(
 			[
 				'article_meta_info',
 				'page',
@@ -80,42 +88,67 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 			]
 		);
 
-		$dbw = wfGetDB( DB_MASTER );
-		$cached = wfTimestamp( TS_MW );
+		$selectedCount = $rows->numRows();
+		echo "{$selectedCount} selected\n";
 
 		// Insert rows to be inserted into summary_videos
-		echo "Replacing...\n";
+		$skipped = [];
+		$replaced = [];
+		$replacements = [];
+		echo "Replacing...\t";
 		foreach ( $rows as $row ) {
+			$title = Title::newFromId( $row->ami_id );
 			// Filter out alt-domain titles
 			if ( !empty( AlternateDomain::getAlternateDomainForPage( $row->ami_id ) ) ) {
+				$skipped[] = $title->getText();
 				continue;
 			}
-			$title = Title::newFromId( $row->ami_id );
-			$dbw->replace(
-				'summary_videos',
-				[ 'sv_id' ],
-				[
-					'sv_id' => $row->ami_id,
-					'sv_title' => $title->getText(),
-					// Use processed if vid_processed is missing for some reason
-					'sv_updated' => ( $row->vid_processed ? $row->vid_processed : $row->processed ),
-					'sv_video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
-					'sv_poster' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title ),
-					'sv_clip' => static::getVideoUrlFromVideo( $row->ami_video ),
-					'sv_categories' => static::getCategoryListFromCatInfo( $row->page_catinfo ),
-					'sv_breadcrumbs' => implode( (array)CategoryHelper::getBreadcrumbCategories( $title ), ',' ),
-					'sv_popularity' => $row->ti_30day_views_unique,
-					'sv_featured' => $row->ti_featured,
-					'sv_plays' => $row->plays,
-					'sv_cached' => $cached
-				],
-				__METHOD__
-			);
+			$replaced[] = $title->getText();
+			$replacements[] = [
+				'sv_id' => $row->ami_id,
+				'sv_title' => $title->getText(),
+				// Use processed if vid_processed is missing for some reason
+				'sv_updated' => ( $row->vid_processed ? $row->vid_processed : $row->processed ),
+				'sv_video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
+				'sv_poster' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title ),
+				'sv_clip' => static::getVideoUrlFromVideo( $row->ami_video ),
+				'sv_categories' => static::getCategoryListFromCatInfo( $row->page_catinfo ),
+				'sv_breadcrumbs' => implode( (array)CategoryHelper::getBreadcrumbCategories( $title ), ',' ),
+				'sv_popularity' => $row->ti_30day_views_unique,
+				'sv_featured' => $row->ti_featured,
+				'sv_plays' => $row->plays,
+				'sv_cached' => $cached
+			];
+		}
+		$dbw->replace( 'summary_videos', [ 'sv_id' ], $replacements, __METHOD__ );
+
+		$new = array_diff( $replaced, $existing );
+		$newCount = count( $new );
+		$newList = implode( ', ', $new );
+		$skippedCount = count( $skipped );
+		$replacedCount = count( $replaced );
+		$updatedCount = $replacedCount - $newCount;
+		echo "{$updatedCount} updated, {$skippedCount} skipped, {$newCount} new\n";
+		if ( $newCount ) {
+			echo "New titles: {$newList}\n";
 		}
 
 		// Clear previous data
-		echo "Pruning...\n";
-		$dbw->delete( 'summary_videos', [ "sv_cached < {$cached}" ], __METHOD__ );
+		echo "Deleting...\t";
+		$rows = $dbw->select( 'summary_videos', [ 'sv_title' ], [ "sv_cached != {$cached}" ], __METHOD__ );
+		$deleted = [];
+		foreach ( $rows as $row ) {
+			$deleted[] = $row->sv_title;
+		}
+
+		$dbw->delete( 'summary_videos', [ "sv_cached != {$cached}" ], __METHOD__ );
+
+		$deletedCount = $dbw->affectedRows();
+		$deletedList = implode( ', ', $deleted );
+		echo "{$deletedCount} deleted\n";
+		if ( $deletedCount ) {
+			echo "Deleted titles: {$deletedList}\n";
+		}
 
 		echo "Done.\n";
 	}

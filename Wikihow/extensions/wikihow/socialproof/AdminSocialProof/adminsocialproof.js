@@ -94,6 +94,7 @@
 					return;
 				}
 
+				$(".spa_working").show();
 				resetImportButton();
 
 				var data = { 'action':'import' };

@@ -7,7 +7,7 @@
 
 		<div class='button primary spa_buttonlarge' id='spa_import'>
 			<div id='import_button_text'>Import</div>
-		</div>
+		</div> <span class="spa_working" style="display:none;">Getting results....</span>
 
 		<hr>
 

@@ -36,9 +36,13 @@ class GuidedEditor extends EditPage {
 	}
 
 	public static function possibleInGuidedEditor($request, $title, $article) {
+		$user = RequestContext::getMain()->getUser();
+		$isLoggedIn = !$user || !$user->isAnon();
 		$newArticle = false;
 		// The article can't have parts/methods, and must be parsed with the
 		// parser in WikihowArticleEditor, to be editable in Guided Editor.
+		// Also, as of August 2019, user must be logged in and have their
+		// Preference set to use Guided Editor when possible by default.
 		$isSimpleWikihowArticle = false;
 		if ($title->inNamespace(NS_MAIN)) {
 			if ($request->getVal('title') == '' || $title->getArticleID() == 0) {
@@ -48,13 +52,13 @@ class GuidedEditor extends EditPage {
 				$isSimpleWikihowArticle = WikihowArticleEditor::useWrapperForEdit($article);
 			}
 		}
-		return $newArticle || $isSimpleWikihowArticle;
+		return $isLoggedIn && ($newArticle || $isSimpleWikihowArticle);
 	}
 
 	private static function handleEditHooks($request, $title, $article, $action, $user) {
 		$editor = $user->getOption('defaulteditor', '');
 		if (!$editor) {
-			$editor = $user->getOption('useadvanced', false) ? 'advanced' : 'visual';
+			$editor = $user->getOption('useadvanced', true) ? 'advanced' : 'visual';
 		}
 
 		if ($request->getVal('advanced') != 'true'

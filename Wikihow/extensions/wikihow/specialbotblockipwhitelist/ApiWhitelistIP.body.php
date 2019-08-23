@@ -1,6 +1,7 @@
 <?php
 
 class ApiWhitelistIP extends ApiBase {
+
 	public function __construct( $main, $action ) {
 		parent::__construct( $main, $action );
 	}
@@ -14,7 +15,7 @@ class ApiWhitelistIP extends ApiBase {
 
 		// Check auth using secret parameter/ key
 		if ( $params['ipwl_key_param'] == WH_BOTBLOCK_WHITELIST_KEY ) {
-			$allIPs = $this->getAllWhitelistedIPs();
+			$allIPs = BotBlockIPWhitelist::getAllWhitelistedIPs();
 			$result->setIndexedTagName( $allIPs, 'ipwl_ip_addr' );
 			$result->addValue( null, $module, $allIPs );
 		}
@@ -57,17 +58,5 @@ class ApiWhitelistIP extends ApiBase {
 		return '0.0.1';
 	}
 
-	private static function getAllWhitelistedIPs() {
-		$dbr = wfGetDB( DB_MASTER );
-		$table = 'botblock_ip_whitelist';
-		$var = 'ipwl_ip_addr';
-		$cond = '';
-		$res = $dbr->select( $table, $var, $cond, __METHOD__ );
-		$allData = array();
-		foreach ( $res as $row ) {
-			$allData[] = $row->ipwl_ip_addr;
-		}
-		return $allData;
-	}
 }
 

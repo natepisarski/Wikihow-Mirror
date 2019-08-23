@@ -161,11 +161,11 @@ class CreatePage extends SpecialPage {
 				if (!$t) {
 
 					$result = [
-						'target' => $target,
+						'target' => strip_tags($target),
 						'class' => 'cp_result_err',
 						'header' => 'Bad title',
 						'button_text' => wfMessage('cp_existing_btn')->text(),
-						'html' => 'Bad title: ' . $target,
+						'html' => 'Bad title: ' . strip_tags($target),
 						'edit_url' => '',
 					];
 

@@ -49,6 +49,7 @@ class ImageFeedback extends UnlistedSpecialPage {
 				in_array( 'staff', $user->getGroups() )
 			) {
 				$this->showAdminForm();
+				$this->getOutput()->addModules('ext.wikihow.imagefeedbackadmin');
 			}
 		}
 	}

@@ -184,7 +184,7 @@
 						var lbSrc = "/images/test.png";
 						var newImg = "<a class='swipebox ucis_swipebox' href=#></a>";
 						var a = $(newImg).append(file.preview);
-						a = $(a).after("<div class='uci_thumbnail_description uci_just_uploaded'>"+response+"</div>");
+						$('#uci_fileinput_square_wrapper').append("<div class='uci_thumbnail_description uci_just_uploaded'>"+response+"</div>");
 
 						//no longer empty!
 						$('#uci_fileinput_square_wrapper').removeClass('uci_empty');

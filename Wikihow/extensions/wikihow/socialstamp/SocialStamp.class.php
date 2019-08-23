@@ -266,7 +266,8 @@ class SocialStamp {
 				$isUserReview = true;
 			}
 			if ($isDefault) {
-				$params['slot2_intro'] = ucfirst($params['slot2_intro']);
+				$params['slot2_intro'] = array_key_exists( 'slot2_intro', $params ) ?
+					ucfirst( $params['slot2_intro'] ) : '';
 
 				if ($isMobile) {
 					//mobile uses slot 2 on line 1, so move it there

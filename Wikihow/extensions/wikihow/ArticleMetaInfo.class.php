@@ -232,23 +232,16 @@ class ArticleMetaInfo {
 		$this->cachekey = wfMemcKey('metadata2', $this->namespace, $this->articleID);
 	}
 
-	public function updateLastVideoPath( $videoPath ) {
+	public function updateVideoPaths( $lastVideo, $summaryVideo ) {
 		$this->loadInfo();
-		if ( $this->row['ami_video'] != $videoPath ) {
-			$this->row['ami_video'] = $videoPath;
-			$this->saveInfo();
-		}
-	}
-
-	public function updateSummaryVideoPath( $videoPath = '' ) {
-		global $wgMemc;
-
-		$this->loadInfo();
-		if ( $this->row['ami_summary_video'] != $videoPath ) {
-			$this->row['ami_summary_video'] = $videoPath;
+		if ( $this->row['ami_video'] != $lastVideo || $this->row['ami_summary_video'] != $summaryVideo ) {
+			$this->row['ami_video'] = $lastVideo;
+			$this->row['ami_summary_video'] = $summaryVideo;
 			$this->row['ami_summary_video_updated'] = wfTimestampNow(TS_MW);
 			$this->saveInfo();
-			$wgMemc->delete( self::SUMMARY_VIDEO_UPDATED_KEY );
+			if ( $this->row['ami_summary_video'] != $summaryVideo ) {
+				$wgMemc->delete( self::SUMMARY_VIDEO_UPDATED_KEY );
+			}
 		}
 	}
 
@@ -735,7 +728,8 @@ class ArticleMetaInfo {
 	/**
 	 * Load the meta info record from either DB or memcache
 	 */
-	private function loadInfo() {
+	// Trevor, 2019-08-19, Making public temporarily for logging purposes in WikihowArticle
+	public function loadInfo() {
 		global $wgMemc;
 
 		if ($this->row) return;

@@ -11,7 +11,6 @@ window.WH.nab.needToConfirm = true;
 // Handlers for expand/contract arrows
 (function ($) {
 	// This is not in newarticleboost.js because there would be a delay if we put it there
-	$(".wh_block:first").remove();
 	$("#nap_header").next().css("margin-top", ($("#nap_header").height() + 58) + "px");
 
 	$('.nap_expand').click(function() {

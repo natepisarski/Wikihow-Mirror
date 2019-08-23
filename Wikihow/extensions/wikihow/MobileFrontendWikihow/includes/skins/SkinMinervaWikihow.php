@@ -622,11 +622,11 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		// Don't create this link for non-en anon users due to GSC problems relating to mobile usability.
 		// This is a test implementation to see if we can please the Google gods.
-		$nonEnglishAnon = $wgLanguageCode != 'en' && $this->getUser()->isAnon();
+		$isAnon = $this->getUser()->isAnon();
 
 		// Create url to switch to desktop site (and set cookie so varnish
 		// doesn't redirect user right back).
-		if ( ! $this->isMobileAnonOnly($title) && !$nonEnglishAnon ) {
+		if ( ! $this->isMobileAnonOnly($title) && !$isAnon ) {
 			$req = $this->getRequest();
 			$url = $this->getDesktopUrl( wfExpandUrl(
 				$this->getTitle()->getLocalURL( $req->appendQueryValue( 'mobileaction', 'toggle_view_desktop' ) )

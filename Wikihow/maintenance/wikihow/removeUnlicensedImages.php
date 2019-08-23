@@ -79,13 +79,28 @@ class RemoveUnlicensedImages extends Maintenance {
 		self::removeImageLinks(self::$imageLinksToRemove);
 
 		//now do the same for UCI images
-		$imageIds = UCIPatrol::getImagesToBeCopyrightChecked($limitUCI);
+		$images = UCIPatrol::getImagesToBeCopyrightChecked($limitUCI);
 
-		decho("will check ".count($imageIds)." picture patrol images", false, false);
+		decho("will check ".count($images)." picture patrol images", false, false);
 
 		// check the copyright status of each one
-		foreach($imageIds as $pageId) {
+		foreach($images as $imageInfo) {
+			$pageId = $imageInfo->uci_article_id;
 			$title = Title::newFromID($pageId);
+			if(!$title || !$title->exists()) {
+				///if the pageId isn't right, let's check the title instead and fix it.
+				$file = UserCompletedImages::fileFromRow($imageInfo);
+				$title = $file->getTitle();
+				if($title && $title->exists()) {
+					//we need to update the table, because the id didn't exist originally
+					UCIPatrol::updateRowArticleId($imageInfo->uci_image_name, $title->getArticleID());
+				} else {
+					decho("Title no longer exists, marking as error code 2 "  . $imageInfo->uci_image_name, false, false);
+					//UCIPatrol::markCopyright($pageId, 1, 0, 2);
+					continue;
+				}
+			}
+
 			$file = wfLocalFile($title);
 
 			if(empty($file)) { //don't want any exceptions thrown in this case

@@ -150,10 +150,23 @@ class ManageSuggestedTopics extends SpecialPage {
 
 		if ($page_title) {
 			//then log that sucker
-			$log = new LogPage( 'suggestion', true );
+			$logEntry = new ManualLogEntry( 'suggestion', $name );
+			$logEntry->setPerformer( $wgUser );
+			$logEntry->setTarget( $page_title );
+			$logEntry->setIsPatrollable( false );
+
 			$mw_msg = ($name == 'added') ? 'managesuggestions_log_add' : 'managesuggestions_log_remove';
-			$msg = wfMessage($mw_msg, $wgUser->getName(), $page_title);
-			$log->addEntry($name, $title_mst, $msg);
+			$comment = wfMessage( $mw_msg, $wgUser->getName(), $page_title )->text();
+			$logEntry->setComment( $comment );
+
+			$newId = $logEntry->insert();
+
+			$titleObj = SpecialPage::getTitleFor( 'Log', 'suggestion' );
+			RecentChange::notifyLog(
+				wfTimestampNow(), $titleObj, $wgUser, $comment, '',
+				'suggestion', $name, $page_title, $comment,
+				'', $newId, $comment
+			);
 		}
 	}
 }

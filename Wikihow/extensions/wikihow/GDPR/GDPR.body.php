@@ -1,5 +1,18 @@
 <?php
+
+/*
+CREATE TABLE `gdpr_banner_event` (
+	`gbe_page` int(10) unsigned NOT NULL,
+	`gbe_vi` varbinary(20) NOT NULL DEFAULT '',
+	`gbe_close` tinyint(3) NOT NULL DEFAULT 0,
+	`gbe_button` tinyint(3) NOT NULL DEFAULT 0,
+	`gbe_acceptcookie` tinyint(3) NOT NULL DEFAULT 0,
+	`gbe_ip` varbinary(40) NOT NULL DEFAULT '',
+	`gbe_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+*/
 class GDPR extends UnlistedSpecialPage {
+	const GBE_TABLE = 'gdpr_banner_event';
 
 	public function __construct($source = null) {
 		parent::__construct('GDPR');
@@ -10,14 +23,48 @@ class GDPR extends UnlistedSpecialPage {
 		return isset($_COOKIE['vi']) && $_COOKIE['vi'] == 'EU';
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
+	private function addGDPREvent() {
+		$req = $this->getRequest();
+		$vi = $req->getVal( 'vi' );
+		$button = $req->getInt( 'button' );
+		$close = $req->getInt( 'close' );
+		$acceptCookie = $req->getInt( 'acceptcookie' );
+		$ip = $req->getIP();
+		$pageId = $req->getInt( 'pageid' );
+
+		$dbw = wfGetDB( DB_MASTER );
+		$insertData = array(
+			'gbe_page' => $pageId,
+			'gbe_vi' => $vi,
+			'gbe_close' => $close,
+			'gbe_button' => $button,
+			'gbe_acceptcookie' => $acceptCookie,
+			'gbe_ip' => $ip
+		);
+
+		$options = array();
+		$dbw->insert( self::GBE_TABLE, $insertData, __METHOD__, $options );
+
+	}
+
 	public function execute($par) {
 		$user = $this->getUser();
 		$out = $this->getOutput();
 		$req = $this->getRequest();
 
 		$out->setArticleBodyOnly( true );
-		$out->setRobotPolicy('noindex,nofollow');
 
+		// log the users ip
+		if ( $req->wasPosted() ) {
+			$this->addGDPREvent();
+			return;
+		}
+
+		$out->setRobotPolicy('noindex,nofollow');
 		$req->response()->header('Content-type: text/plain');
 		$req->response()->header('Content-Disposition: attachment; filename="userdata.txt"');
 
@@ -63,9 +110,18 @@ class GDPR extends UnlistedSpecialPage {
 	}
 
 	public static function getHTML() {
-		$messageInner = wfMessage("gdpr_message")->text();
+		global $wgLanguageCode;
+
+		$messageName = "gdpr_message";
+		if ( Misc::isMobileMode() ) {
+			if ( $wgLanguageCode == 'en' ) {
+				$messageName = "gdpr_message_mobile";
+			}
+		}
+
+		$messageInner = wfMessage( $messageName )->text();
 		if ( strpos( $messageInner, '[[' ) !== FALSE ) {
-			$messageInner = wfMessage("gdpr_message")->parse();
+			$messageInner = wfMessage( $messageName )->parse();
 		}
 		$message = Html::rawElement( 'div', ['id' => 'gdpr_text'], $messageInner );
 		$acceptText = wfMessage("gdpr_accept")->text();

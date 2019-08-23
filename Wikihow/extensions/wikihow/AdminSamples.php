@@ -10,3 +10,11 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['AdminSamples'] = 'AdminSamples';
 $wgAutoloadClasses['AdminSamples'] = __DIR__ . '/AdminSamples.body.php';
+
+$wgResourceModules['ext.wikihow.adminsamples'] = [
+	'scripts' => array('adminsamples.js'),
+	'localBasePath' => __DIR__ ,
+	'remoteExtPath' => 'wikihow',
+	'position' => 'bottom',
+	'targets' => array('desktop')
+];

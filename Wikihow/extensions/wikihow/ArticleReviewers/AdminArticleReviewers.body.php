@@ -6,6 +6,32 @@ class AdminArticleReviewers extends UnlistedSpecialPage {
 		parent::__construct('AdminArticleReviewers');
 	}
 
+	public function doesWrites() {
+		return true;
+	}
+
+	private static $imgTitle = null;
+
+	/**
+	 * Hook called from LocalFile.php when a new file is uploaded
+	 */
+	public static function onFileUpload( LocalFile $localFile, bool $reupload, bool $titleExists ) {
+		global $wgUser;
+
+		$imgTitle = $localFile->getTitle();
+		if ( !self::$imgTitle || !self::$imgTitle->equals($imgTitle) ) {
+			return;
+		}
+
+		$imgWikiPage = WikiPage::factory($imgTitle);
+		$limit = [ 'move' => 'sysop', 'edit' => 'sysop' ];
+		$expiry = [];
+		$cascade = false;
+		$reason = 'Used for Article Reviewers';
+
+		$imgWikiPage->doUpdateRestrictions($limit, $expiry, $cascade, $reason, $wgUser);
+	}
+
 	public function execute($par) {
 		global $wgCanonicalServer;
 
@@ -14,6 +40,8 @@ class AdminArticleReviewers extends UnlistedSpecialPage {
 		$req = $this->getRequest();
 
 		$out->setRobotPolicy( 'noindex,nofollow' );
+
+		// Is the user authorized?
 
 		if ($user && $user->isBlocked()) {
 			throw new UserBlockedError( $user->getBlock() );
@@ -24,54 +52,53 @@ class AdminArticleReviewers extends UnlistedSpecialPage {
 			return;
 		}
 
-		// lame way to load this javascript, but resource loader was breaking it for some reason
-		$out->addHeadItem('uploadify_script',
-			'<script src="/extensions/wikihow/common/uploadify/jquery.uploadify.min.js"></script>');
-		$out->addModules("ext.wikihow.adminarticlereviewers");
+		// GET
 
-		$this->postSuccessful = true;
-		if ($req->wasPosted()) {
-			$out->setArticleBodyOnly(true);
-
-			$tempFile = $_FILES['Filedata']['tmp_name'];
-			$fileTypes = array('jpg','jpeg','gif','png'); // File extensions
-			$fileParts = pathinfo($_FILES['Filedata']['name']);
-			if (in_array($fileParts['extension'],$fileTypes)) {
-				$imageTitle = Title::newFromText($_FILES['Filedata']['name'], NS_IMAGE);
-				if ($imageTitle->getArticleID() > 0) {
-					$result['success'] = false;
-					$result['message'] = "Image name already exists";
-				} else {
-					$file = new LocalFile($imageTitle, RepoGroup::singleton()->getLocalRepo());
-					$file->upload($tempFile, '', '');
-					$filesize = $file->getSize();
-					if ( $filesize > 0 ) {
-						$limit = array();
-						$limit['move'] = "sysop";
-						$limit['edit'] = "sysop";
-						$wikiPage = WikiPage::factory($imageTitle);
-						$cascade = false;
-						$protectResult = $wikiPage->doUpdateRestrictions($limit, [], $cascade, "Used for Article Reviewers", $user)->isOK();
-						$result['url'] = $wgCanonicalServer . $imageTitle->getLocalURL();
-						$result['success'] = true;
-					} else {
-						$result['message'] = 'Unknown uploading error.';
-						$result['success'] = false;
-					}
-				}
-				print(json_encode($result));
-				return;
-			} else {
-				$result['message'] = 'Invalid file type.';
-				$result['success'] = false;
-				print(json_encode($result));
-				return;
-			}
-
+		if ( !$req->wasPosted()) {
+			$out->setPageTitle('Article Reviewer Admin');
+			$out->addModules("ext.wikihow.adminarticlereviewers");
+			$this->displayForm();
+			return;
 		}
-		$out->setPageTitle('Article Reviewer Admin');
 
-		$this->displayForm();
+		// POST
+
+		$imgInfo = $_FILES['ImageUploadFile'];
+		$imgName = $imgInfo['name'];
+		$imgExtension = pathinfo($imgName)['extension'];
+		$validExtensions = [ 'jpg', 'jpeg', 'gif', 'png' ];
+		$imgTitle = Title::newFromText($imgName, NS_IMAGE);
+
+		$success = false;
+		$errorMsg = '';
+		$imgLink = '';
+		if ( $imgInfo['error'] != UPLOAD_ERR_OK ) {
+			$errorMsg = "There was a problem uploading the image (error code: {$imgInfo['error']})";
+		}
+		elseif ( $imgInfo['size'] == 0 ) {
+			$errorMsg = "The image is empty";
+		}
+		elseif ( !in_array($imgExtension, $validExtensions) ) {
+			$errorMsg = "Invalid file type";
+		}
+		elseif ($imgTitle->getArticleID() > 0) {
+			$errorMsg = "Image name already exists";
+		}
+		else {
+			$comment = 'Created with AdminArticleReviewers';
+			$localFile = new LocalFile($imgTitle, RepoGroup::singleton()->getLocalRepo());
+			$uploadStatus = $localFile->upload($imgInfo['tmp_name'], $comment, '');
+			if ( !$uploadStatus->isGood() ) {
+				$errorMsg = $uploadStatus->getHTML();
+			} else {
+				$href = $wgCanonicalServer . $imgTitle->getLocalURL();
+				$success = true;
+				$imgLink = Html::element('a', ['href'=>$href, 'target'=>'_blank'], $href);
+				self::$imgTitle = $imgTitle;
+			}
+		}
+		Misc::jsonResponse( compact('success', 'errorMsg', 'imgLink') );
+		return;
 	}
 
 	function displayForm() {

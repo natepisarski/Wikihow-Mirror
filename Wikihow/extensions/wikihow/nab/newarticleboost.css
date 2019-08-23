@@ -289,3 +289,6 @@ h5 {
 .wait, .wait * {
 	cursor: wait !important;
 }
+.wh_block:first-of-type {
+	display: none;
+}

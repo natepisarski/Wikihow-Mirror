@@ -174,6 +174,11 @@ class UserCompletedImages extends UnlistedSpecialPage {
 		}
 
 		$fileTitle = $file->getTitle();
+		//BS: - It's a known bug that the page table hasn't always been written to yet after the upgrade.
+		//Which means the article_id isn't always there.
+		//Couldn't figure out why or how to hook into it after it's been written.
+		//All of these images get checked for copyright issues each night, so during that process
+		//we update the user_completed_image row if we're in that situation
 		$result['titleText'] = $fileTitle->getText();
 		$result['titleDBkey'] = substr($fileTitle->getDBkey(), 21); // Only keep important info
 		$result['titlePreText'] = '/' . $fileTitle->getPrefixedText();
@@ -364,6 +369,7 @@ class UserCompletedImages extends UnlistedSpecialPage {
 			$purge = true;
 		}
 		$thumbs = self::getImagesHTMLSized( $title, $offset, $limit, $width, $height, $purge );
+
 		$data = array( "thumbs" => $thumbs['data'],
 			"end" => $thumbs['end'],
 			"totalCount" => $thumbs['count'],
@@ -371,7 +377,9 @@ class UserCompletedImages extends UnlistedSpecialPage {
 			"addPhotoMessage" => wfMessage( "addphotomessage_desktop" )->text(),
 			"loadingMessage" => wfMessage( "loadingmessage" )->text(),
 			"uciupload_instructions" => wfMessage( "uciupload_instructions" )->text(),
-			'headername' => $headerName );
+			'headername' => $headerName,
+			"headerextraclass" => ''
+		);
 		return $data;
 	}
 

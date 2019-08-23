@@ -2,6 +2,8 @@
 
 if (!defined('MEDIAWIKI')) die();
 
+use MediaWiki\MediaWikiServices;
+
 class ArticleHooks {
 
 	public static function onPageContentSaveUndoEditMarkPatrolled($wikiPage, $user, $content, $p4, $p5, $p6, $p7) {
@@ -58,6 +60,87 @@ class ArticleHooks {
 			$dbw = wfGetDB(DB_MASTER);
 			$dbw->update('page', $updates, array('page_id'=>$t->getArticleID()), __METHOD__);
 		}
+		return true;
+	}
+
+	public static function updateArticleMetaInfo($wikiPage, $user, $content) {
+		global $wgOut;
+		$title = $wikiPage->getTitle();
+		$ami = new ArticleMetaInfo( $title );
+		$lastVideo = '';
+		$summaryVideo = '';
+
+		// Only for main-site and main-namespace, otherwise we want them to be blank
+		if (
+			$title->inNamespace( NS_MAIN ) &&
+			!( class_exists('AlternateDomain') &&
+				(bool)AlternateDomain::getAlternateDomainForPage( $title->getArticleID() ) )
+		) {
+
+			// Parse new content
+			$context = RequestContext::getMain();
+			$context->setTitle( $title );
+			$out = $context->getOutput();
+			$parser = MediaWikiServices::getInstance()->getParserFactory()->create();
+			$options = $out->parserOptions();
+			$options->setTidy( true );
+			$options->setEditSection( false );
+			$parserOutput = $out->parse(
+				ContentHandler::getContentText( $content ),
+				$title,
+				$options
+			);
+			$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $content ) );
+			$html = WikihowArticleHTML::processArticleHTML(
+				$parserOutput,
+				[ 'no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic ]
+			);
+
+			$doc = phpQuery::newDocument( $html );
+
+			// Find the source URLs for the last video clip and the summary video
+			foreach ( pq( '.m-video' ) as $video ) {
+				// Inline summary video
+				if (
+					!pq( $video )->attr( 'data-summary' ) &&
+					!pq( $video )->attr( 'id' ) !== 'summary_video_poster'
+				) {
+					// Inline video clip
+					$lastVideo = pq( $video )->attr( 'data-src' );
+				}
+			}
+			$src = pq( '#summary_wrapper' )->attr( 'data-summary-video-src' );
+			if ( $src ) {
+				$summaryVideo = $src;
+			}
+		}
+
+		// Log the change
+		$ami->loadInfo();
+
+		if ( $ami->row['ami_summary_video'] != $summaryVideo ) {
+			wfDebugLog( 'articlemetainfo', var_export( [
+				'url' => $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+				'page_title' => $title->getText(),
+				'page_namespace' => $title->getNamespace(),
+				'page_id' => $title->getArticleID(),
+				'summary_video' => [
+					'database' => $ami->row['ami_summary_video'],
+					'content' => $summaryVideo
+				],
+				'last_video' => [
+					'database' => $ami->row['ami_video'],
+					'content' => $lastVideo
+				],
+				'html' => isset( $doc ) ? $doc->htmlOuter() : ''
+			], true ) . "\n" );
+		}
+
+		// Update article meta info with their source URLs
+		$ami->updateVideoPaths( $lastVideo, $summaryVideo );
+
+		// TODO: Update summary_videos directly
+
 		return true;
 	}
 

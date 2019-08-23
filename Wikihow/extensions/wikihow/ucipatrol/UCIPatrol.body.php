@@ -1058,14 +1058,19 @@ class UCIPatrol extends SpecialPage {
 		if ($limit) {
 			$options['LIMIT'] = $limit;
 		}
-		$res = $dbr->select(self::TABLE_NAME, ['uci_article_id'], ['uci_copyright_checked' => 0], __METHOD__, $options);
+		$res = $dbr->select(self::TABLE_NAME, ['uci_article_id', 'uci_image_name'], ['uci_copyright_checked' => 0], __METHOD__, $options);
 
-		$ids = [];
+		$images = [];
 		foreach ($res as $row) {
-			$ids[] = $row->uci_article_id;
+			$images[] = $row;
 		}
 
-		return $ids;
+		return $images;
+	}
+
+	public static function updateRowArticleId($imageName, $articleId) {
+		$dbw = wfGetDB(DB_MASTER);
+		$dbw->update(self::TABLE_NAME, ['uci_article_id' => $articleId], ['uci_image_name' => $imageName], __METHOD__);
 	}
 
 	// NOTE: used in removeUnlicensedImages.php

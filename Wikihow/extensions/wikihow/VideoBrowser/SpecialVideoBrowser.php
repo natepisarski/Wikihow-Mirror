@@ -15,7 +15,7 @@ class SpecialVideoBrowser extends SpecialPage {
 	}
 
 	public function execute( $sub ) {
-		global $wgHooks, $wgSquidMaxage, $wgMemc, $wgParser, $wgCanonicalServer, $wgSitename;
+		global $wgHooks, $wgParser, $wgCanonicalServer, $wgSitename;
 
 		$output = $this->getOutput();
 
@@ -208,7 +208,8 @@ class SpecialVideoBrowser extends SpecialPage {
 			) );
 			$output->setRobotPolicy( 'index,follow' );
 		}
-		$output->setCdnMaxage( $wgSquidMaxage );
+		// 5 minutes
+		$output->setCdnMaxage( 60 * 5 );
 	}
 
 	public static function makeCustomSideBar( &$customSideBar ) {

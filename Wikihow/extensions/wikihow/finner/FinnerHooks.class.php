@@ -314,81 +314,7 @@ class FinnerHooks {
 
 	// ==== CirrusSearch hook handlers for custom hooks ====
 
-	/**
-	 * CirrusSearchBuildDocumentFinishBatchExtras custom hook handler
-	 *
-	 * Adds Titus data to the given documents.
-	 *
-	 * TODO: Add a flag ($doTitusUpdate).
-	 */
-	public static function onCirrusSearchBuildDocumentFinishBatchExtras(
-		&$documents,
-		$skipParse,
-		$skipLinks
-	) {
-		// TODO: Is $wgLanguageCode the best choice here,
-		// or do we need the language specified in each doc...?
-		global $wgLanguageCode;
-
-		// We only want to populate Titus data when we're not parsing or linking
-		if (!($skipParse && $skipLinks)) {
-			return true;
-		}
-
-		$page_doc_ids = array();
-		foreach ($documents as $k=>$doc) {
-			$id = $doc->getId();
-			if (!is_null($id)) {
-				$page_doc_ids[$id] = $k;
-			}
-		}
-
-		$dbr = wfGetDB(DB_REPLICA);
-
-		$res = $dbr->select(
-			'titusdb2.titus_intl',
-			array(
-				'page_id' => 'ti_page_id',
-				'robot_indexed' => 'ti_robot_policy NOT LIKE "noindex%"',
-				'bYTEs' => 'ti_bytes',
-				'has_bad_template' => 'ti_bad_template>0',
-				'bad_templates' => 'ti_templates',
-				'views_30_days' => 'ti_30day_views',
-				'helpful_percentage' => 'ti_helpful_percentage',
-				'helpful_total' => 'ti_helpful_total',
-				'readability' => 'ti_fk_reading_ease'
-			),
-			array(
-				'ti_language_code' => $wgLanguageCode,
-				'ti_page_id' => array_keys($page_doc_ids)
-			),
-			__METHOD__
-		);
-
-		foreach ($res as $row) {
-			$id = $row->page_id;
-			$doc = $documents[$page_doc_ids[$id]];
-			$doc->set('titus', array(
-				'robot_indexed' => (bool) $row->robot_indexed,
-				'bytes' => (int) $row->bytes,
-				'has_bad_template' => (bool) $row->has_bad_template,
-				'bad_templates' => array_unique(explode(',', $row->bad_templates)),
-				'views_30_days' => (int) $row->views_30_days,
-				'helpful_percentage' => (int) $row->helpful_percentage,
-				'helpful_total' => (int) $row->helpful_total,
-				'readability' => (float) $row->readability
-			));
-		}
-
-		return true;
-	}
-
-	/**
-	 * CirrusSearchExtraFilters custom hook handler
-	 *
-	 * Adds custom filters to CirrusSearch query.
-	 */
-	public static function onCirrusSearchExtraFilters(&$filters, &$notFilters) {
+	public static function onCirrusSearchFulltextQueryBuilder( &$query, $searchContext ) {
 		$requestContext = RequestContext::getMain();
 		$request = $requestContext->getRequest();
 
@@ -403,65 +329,122 @@ class FinnerHooks {
 		foreach ($newFilters as $filter=>$value) {
 			$elasticaFilter = self::getElasticaFilter($filter, $value, $newFilters);
 			if ($elasticaFilter !== false) {
-				$filters[] = $elasticaFilter;
+				$searchContext->addFilter( $elasticaFilter );
 			}
 		}
+
+		// Trevor, 2019-08-16 - This needs to be rewritten to work with the new
+		// CirrusSearch, which handles sorting differently
+
+		// $ss = $request->getVal( 'ss', 'relevance' );
+		// $so = $request->getVal( 'so', 'desc' );
+		// $sort = "{$ss}_{$so}";
+		// switch ( $sort ) {
+		// 	case 'relevance_asc':
+		// 		$query->setSort( [ '_score' => [ 'order' => 'asc' ] ] );
+		// 		break;
+		// 	case 'relevance_desc':
+		// 		$query->setSort( [ '_score' => [ 'order' => 'desc' ] ] );
+		// 		break;
+		// 	case 'titus_bytes_asc':
+		// 		$query->setSort( [ 'titus.bytes' => [ 'order' => 'asc' ] ] );
+		// 		break;
+		// 	case 'titus_bytes_desc':
+		// 		$query->setSort( [ 'titus.bytes' => [ 'order' => 'desc' ] ] );
+		// 		break;
+		// 	case 'titus_views_30_days_asc':
+		// 		$query->setSort( [ 'titus.views_30_days' => [ 'order' => 'asc' ] ] );
+		// 		break;
+		// 	case 'titus_views_30_days_desc':
+		// 		$query->setSort( [ 'titus.views_30_days' => [ 'order' => 'desc' ] ] );
+		// 		break;
+		// 	case 'titus_helpfulness_asc':
+		// 		$query->setSort(
+		// 			[
+		// 				'titus.helpful_percentage' => [ 'order' => 'asc' ],
+		// 				'titus.helpful_total' => [ 'order' => 'desc' ]
+		// 			]
+		// 		);
+		// 		break;
+		// 	case 'titus_helpfulness_desc':
+		// 		$query->setSort(
+		// 			[
+		// 				'titus.helpful_percentage' => [ 'order' => 'desc' ],
+		// 				'titus.helpful_total' => [ 'order' => 'desc' ]
+		// 			]
+		// 		);
+		// 		break;
+		// 	case 'titus_readability_asc':
+		// 		$query->setSort( [ 'titus.readability' => [ 'order' => 'asc' ] ] );
+		// 		break;
+		// 	case 'titus_readability_desc':
+		// 		$query->setSort( [ 'titus.readability' => [ 'order' => 'desc' ] ] );
+		// 		break;
+		// }
 
 		return true;
 	}
 
 	/**
-	 * CirrusSearchSelectSort custom hook handler
+	 * CirrusSearchBuildDocumentFinishBatchExtras custom hook handler
 	 *
-	 * Adds custom sort options to CirrusSearch query.
+	 * Adds Titus data to the given documents.
+	 *
+	 * TODO: Add a flag ($doTitusUpdate).
 	 */
-	public static function onCirrusSearchSelectSort($context, $sort, $query) {
-		$sort = $sort ?: 'relevance_desc';
+	public static function onCirrusSearchBuildDocumentFinishBatch( &$pages ) {
 
-		switch ($sort) {
-		case 'relevance_asc':
-			$query->setSort(array('_score' => 'asc'));
-			break;
-		case 'relevance_desc':
-			$query->setSort(array('_score' => 'desc'));
-			break;
-		case 'titus_bytes_asc':
-			$query->setSort(array('titus.bytes' => 'asc'));
-			break;
-		case 'titus_bytes_desc':
-			$query->setSort(array('titus.bytes' => 'desc'));
-			break;
-		case 'titus_views_30_days_asc':
-			$query->setSort(array('titus.views_30_days' => 'asc'));
-			break;
-		case 'titus_views_30_days_desc':
-			$query->setSort(array('titus.views_30_days' => 'desc'));
-			break;
-		case 'titus_helpfulness_asc':
-			$query->setSort(
-				array(
-					'titus.helpful_percentage' => 'asc',
-					'titus.helpful_total' => 'desc'
-				)
-			);
-			break;
-		case 'titus_helpfulness_desc':
-			$query->setSort(
-				array(
-					'titus.helpful_percentage' => 'desc',
-					'titus.helpful_total' => 'desc'
-				)
-			);
-			break;
-		case 'titus_readability_asc':
-			$query->setSort(array('titus.readability' => 'asc'));
-			break;
-		case 'titus_readability_desc':
-			$query->setSort(array('titus.readability' => 'desc'));
-			break;
-		default:
-			return false;
-		}
+		// Trevor, 2019-08-16 - This needs to be rewritten to work with the new
+		// CirrusSearchBuildDocumentFinishBatch hook, then everything has to be re-indexed
+
+		// TODO: Is $wgLanguageCode the best choice here,
+		// or do we need the language specified in each doc...?
+		// global $wgLanguageCode;
+
+		// $page_doc_ids = array();
+		// foreach ($documents as $k=>$doc) {
+		// 	$id = $doc->getId();
+		// 	if (!is_null($id)) {
+		// 		$page_doc_ids[$id] = $k;
+		// 	}
+		// }
+
+		// $dbr = wfGetDB(DB_REPLICA);
+
+		// $res = $dbr->select(
+		// 	'titusdb2.titus_intl',
+		// 	array(
+		// 		'page_id' => 'ti_page_id',
+		// 		'robot_indexed' => 'ti_robot_policy NOT LIKE "noindex%"',
+		// 		'bYTEs' => 'ti_bytes',
+		// 		'has_bad_template' => 'ti_bad_template>0',
+		// 		'bad_templates' => 'ti_templates',
+		// 		'views_30_days' => 'ti_30day_views',
+		// 		'helpful_percentage' => 'ti_helpful_percentage',
+		// 		'helpful_total' => 'ti_helpful_total',
+		// 		'readability' => 'ti_fk_reading_ease'
+		// 	),
+		// 	array(
+		// 		'ti_language_code' => $wgLanguageCode,
+		// 		'ti_page_id' => array_keys($page_doc_ids)
+		// 	),
+		// 	__METHOD__
+		// );
+
+		// foreach ($res as $row) {
+		// 	$id = $row->page_id;
+		// 	$doc = $documents[$page_doc_ids[$id]];
+		// 	$doc->set('titus', array(
+		// 		'robot_indexed' => (bool) $row->robot_indexed,
+		// 		'bytes' => (int) $row->bytes,
+		// 		'has_bad_template' => (bool) $row->has_bad_template,
+		// 		'bad_templates' => array_unique(explode(',', $row->bad_templates)),
+		// 		'views_30_days' => (int) $row->views_30_days,
+		// 		'helpful_percentage' => (int) $row->helpful_percentage,
+		// 		'helpful_total' => (int) $row->helpful_total,
+		// 		'readability' => (float) $row->readability
+		// 	));
+		// }
 
 		return true;
 	}
@@ -552,18 +535,18 @@ class FinnerHooks {
 		switch ($filter) {
 		case 'robot_indexed_yes':
 			if (!isset($all['robot_indexed_no'])) {
-				return new \Elastica\Filter\Term(array('titus.robot_indexed' => true));
+				return new \Elastica\Query\Term(array('titus.robot_indexed' => true));
 			}
 			break;
 		case 'robot_indexed_no':
 			if (!isset($all['robot_indexed_yes'])) {
-				return new \Elastica\Filter\Term(array('titus.robot_indexed' => false));
+				return new \Elastica\Query\Term(array('titus.robot_indexed' => false));
 			}
 			break;
 		case 'templates':
 			switch (Finner::filterFromShortname($value)['filter']) {
 			case 'templates_bad':
-				return new \Elastica\Filter\Term(array('titus.has_bad_template' => true));
+				return new \Elastica\Query\Term(array('titus.has_bad_template' => true));
 				break;
 			case 'templates_specific':
 				$q = $all['templates_specific_extras'];
@@ -575,16 +558,14 @@ class FinnerHooks {
 						$qwords[] = 'Template:' . $qword;
 					}
 
-					$queryFilters = array();
+					$orQuery = new \Elastica\Query\BoolQuery();
 					foreach ($qwords as $qword) {
 						$match = new \Elastica\Query\Match();
 						$match->setFieldQuery('template', $qword);
-						$queryFilters[] = new \Elastica\Filter\Query($match);
+						$orQuery->addShould( $match );
 					}
 
-					$orFilter = new \Elastica\Filter\BoolOr();
-					$orFilter->setFilters($queryFilters);
-					return $orFilter;
+					return $orQuery;
 				}
 				break;
 			case 'templates_any': // Ignored

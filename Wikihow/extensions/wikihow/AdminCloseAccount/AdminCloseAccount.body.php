@@ -964,7 +964,7 @@ class ResetPasswordAdminCloseAccountAction extends AdminCloseAccountAction {
 				} else {
 					$errors = $status->getErrors();
 					$keys = array_map( function( $error ) {
-						return $error['message']->getKey();
+						return $error['message'];
 					}, $errors );
 					$warnings[] = 'Password failed to be reset. ' . implode( ', ', $keys );
 				}

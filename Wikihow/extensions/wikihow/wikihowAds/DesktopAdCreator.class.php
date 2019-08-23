@@ -225,7 +225,9 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			$this->mAds['quiz'.$i] = $this->getQuizAd( $i ); //taking ads off quizzes temporairily
 		}
 		$this->mAds['related'] = $this->getRelatedAd();
+		$this->mAds['qa'] = $this->getQAAd();
 		$this->mAds['scrollto'] = $this->getScrollToAd();
+
 
 	}
 
@@ -238,6 +240,8 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 	 * creates the related Ad
 	 */
 	abstract public function getRelatedAd();
+
+	abstract public function getQAAd();
 
 	/*
 	 * creates the quiz Ads
@@ -327,6 +331,15 @@ abstract class DefaultDesktopAdCreator extends DesktopAdCreator {
 			pq( "#intro" )->after( $scrollToHtml );
 		}
 
+		$relatedAdHtml = $this->mAds['related']->mHtml;
+		if ( $relatedAdHtml  && pq( '#relatedwikihows' )->length > 0 ) {
+			pq( "#relatedwikihows" )->append( $relatedAdHtml );
+		}
+
+		$qaAdHtml = $this->mAds['qa']->mHtml;
+		if ($qaAdHtml && pq( '#qa' )->length > 0 ) {
+			pq( "#qa" )->append( $qaAdHtml );
+		}
 	}
 }
 
@@ -657,7 +670,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad->targetId = $ad->mType;
 		$ad->containerHeight = 2000;
 		$ad->initialLoad = true;
-		if ( $pageId % 20 == 0 ) {
+		if ( rand( 1, 20 ) == 1 ) {
 			$ad->initialLoad = false;
 		}
 		$ad->lateLoad = false;
@@ -949,6 +962,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	public function getRightRailFirst() {
 		$ad = $this->getNewAd( 'rightrail0' );
 		// for now only adsense supported for intro
+		if ( !isset( $this->mAdServices ) || !isset( $this->mAdServices['rightrail0'] ) ) {
+			return $ad;
+		}
 		if ( $this->mAdServices['rightrail0'] == "adsense" ) {
 			$ad = $this->getRightRailFirstAdsense();
 		} elseif ( $this->mAdServices['rightrail0'] == "dfp" ) {
@@ -962,6 +978,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 */
 	public function getRightRailSecond() {
 		$ad = $this->getNewAd( 'rightrail1' );
+		if ( !isset( $this->mAdServices ) || !isset( $this->mAdServices['rightrail1'] ) ) {
+			return $ad;
+		}
 		if ( $this->mAdServices['rightrail1'] == "adsense" ) {
 			$ad = $this->getRightRailSecondAdsense();
 		} elseif ( $this->mAdServices['rightrail1'] == "dfp" ) {
@@ -975,6 +994,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	 */
 	public function getRightRailThird() {
 		$ad = $this->getNewAd( 'rightrail2' );
+		if ( !isset( $this->mAdServices ) || !isset( $this->mAdServices['rightrail2'] ) ) {
+			return $ad;
+		}
 		if ( $this->mAdServices['rightrail2'] == "adsense" ) {
 			$ad = $this->getRightRailThirdAdsense();
 		} elseif ( $this->mAdServices['rightrail2'] == "dfp" ) {
@@ -1040,10 +1062,40 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	}
 
 	/*
+	 * creates the qa Ad
+	 */
+	public function getQAAd() {
+		$ad = $this->getNewAd( 'qa' );
+		$ad = $this->getQAAdDFP();
+		if ( $ad->targetId ) {
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
+		}
+		return $ad;
+	}
+
+
+	public function getQAAdDFP() {
+		$ad = $this->getNewAd( 'qa' );
+		$ad->service = "dfp";
+		$ad->targetId = 'qa_ad';
+		$ad->mLabel = "";
+		$ad->width = 728;
+		$ad->height = 90;
+		$ad->initialLoad = false;
+		$ad->lateLoad = false;
+		$ad->mHtml = $this->getBodyAdHtml( $ad );
+		return $ad;
+	}
+	/*
 	 * creates the related Ad
 	 */
 	public function getRelatedAd() {
-		return "";
+		$ad = $this->getNewAd( 'related' );
+		$ad = $this->getRelatedAdDFP();
+		if ( $ad->targetId ) {
+			$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addBodyAd('{$ad->targetId}')" );
+		}
+		return $ad;
 	}
 
 	/*
@@ -1053,10 +1105,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad = $this->getNewAd( 'related' );
 		$ad->service = "dfp";
 		$ad->targetId = 'related_ad';
-		$ad->adClass = "related-article";
 		$ad->mLabel = "";
-		$ad->width = 342;
-		$ad->height = 184;
+		$ad->width = 728;
+		$ad->height = 90;
 		$ad->initialLoad = false;
 		$ad->lateLoad = false;
 		$ad->mHtml = $this->getBodyAdHtml( $ad );
@@ -1073,6 +1124,8 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$ad->initialLoad = false;
 		$ad->lateLoad = false;
 		$ad->adClass = "hidden";
+		$ad->width = null;
+		$ad->height = null;
 		$ad->mHtml = $this->getBodyAdHtml( $ad );
 		$ad->mHtml .= Html::inlineScript( "WH.desktopAds.addQuizAd('{$ad->targetId}')" );
 		return $ad;
@@ -1217,7 +1270,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$indexHeadScript = "";
 		$dfpScript = "";
 		if ( $addDFP ) {
-			if ( rand( 1, 100 ) == 1 ) {
+			if ( rand( 1, 10 ) == 1 ) {
 				$indexHeadScript = $this->getIndexHeadScript();
 			}
 			$dfpScript = $this->getGPTDefine();
@@ -1529,10 +1582,10 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		}
 
 		// adsense channel for not initial load rr0 ad
-		if ( $pageId % 20 == 0 ) {
-			$this->mAdsenseChannels[] = 7551128051;
+		if ( rand( 1, 20 ) == 1 ) {
+			$this->mAdsenseChannels[] = 8177814015;
 		} else {
-			$this->mAdsenseChannels[] = 8375811488;
+			$this->mAdsenseChannels[] = 6429618073;
 		}
 
 		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $pageId) ) {
@@ -1576,7 +1629,9 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
 			'rightrail2' => 'dfp',
-			'quiz' => 'dfp'
+			'quiz' => 'dfp',
+			'related' => 'dfp',
+			'qa' => 'dfp'
 		);
 
 		if ( WikihowToc::isNewArticle() ) {
@@ -1632,12 +1687,23 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
 				'size' => '[728, 90]',
 				'apsLoad' => true
+			),
+			'related' => array(
+				'adUnitPath' => '/10095428/desktop_en_rwh_1',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'qa' => array(
+				'adUnitPath' => '/10095428/desktop_en_qa_1',
+				'size' => '[728, 90]',
+				'apsLoad' => true
 			)
 		);
 	}
 }
 
 class TwoRightRailAdCreator extends MixedAdCreatorScrollTo {
+
 	public function __construct() {
 		global $wgTitle, $wgRequest;
 		$pageId = 0;
@@ -1692,7 +1758,9 @@ class TwoRightRailAdCreator extends MixedAdCreatorScrollTo {
 			'method' => 'dfp',
 			'rightrail0' => 'adsense',
 			'rightrail1' => 'dfp',
-			'quiz' => 'dfp'
+			'quiz' => 'dfp',
+			'related' => 'dfp',
+			'qa' => 'dfp'
 		);
 
 		if ( WikihowToc::isNewArticle() ) {
@@ -1715,6 +1783,16 @@ class TwoRightRailAdCreator extends MixedAdCreatorScrollTo {
 			),
 			'quiz' => array(
 				'adUnitPath' => '/10095428/AllPages_Quiz_English_Desktop',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'related' => array(
+				'adUnitPath' => '/10095428/desktop_en_rwh_1',
+				'size' => '[728, 90]',
+				'apsLoad' => true
+			),
+			'qa' => array(
+				'adUnitPath' => '/10095428/desktop_en_qa_1',
 				'size' => '[728, 90]',
 				'apsLoad' => true
 			)

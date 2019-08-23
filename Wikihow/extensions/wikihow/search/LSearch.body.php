@@ -1070,14 +1070,14 @@ class LSearch extends SpecialPage {
 			$res = $dbr->select('search_results', '*', array('sr_id' => $ids), __METHOD__);
 			$rows = [];
 			foreach ($res as $row) {
-				$rows[ $row->sr_title ] = (array)$row;
+				$rows[ $row->sr_id ] = (array)$row;
 			}
 
 			$wgMemc->set($cachekey, $rows);
 		}
 
 		foreach ($titles as $title) {
-			$key = $title['key'];
+			$key = $title['id'];
 			$hasSupplement = isset($rows[$key]);
 			if ($hasSupplement) {
 				foreach ($rows[$key] as $k => &$v) {

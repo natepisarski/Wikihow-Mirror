@@ -913,6 +913,13 @@ class PageHooks {
 		if ( ( $mobileaction == 'toggle_view_desktop' || $mobileaction == 'toggle_view_mobile' )
 			&& $title && $title->isKnown()
 		) {
+			// We want to 404 these pages now for anons, for SEO reasons, since Googlebot
+			// apparently is confused
+			if ( $user && $user->isAnon() ) {
+				Misc::exitWith404();
+				return true; // we'll never reach this, but just in case...
+			}
+
 			if ( $mobileaction == 'toggle_view_desktop' ) {
 				// Set a cookie to latch to domain
 				$mobileContext = MobileContext::singleton();

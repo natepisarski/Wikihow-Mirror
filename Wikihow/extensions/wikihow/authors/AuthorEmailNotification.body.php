@@ -431,10 +431,22 @@ class AuthorEmailNotification extends SpecialPage {
 			$track_btn = '?utm_source=thumbsup_message&utm_medium=email&utm_term=gta_link&utm_campaign=talk_page_message';
 		}
 
-		if ($aid == 0) {return;}
-		if (preg_match('/{{.*?}}/', $comment, $matches)) { return; }
+		if ($aid == 0) {
+			return;
+		}
+		if (preg_match('/{{.*?}}/', $comment, $matches)) {
+			return;
+		}
 
 		$t = Title::newFromID($aid);
+		if ($t) {
+			$touser = User::newFromName($t->getText());
+		} else {
+			// no article no object
+			$touser = null;
+		}
+
+		if (!$touser) return;
 
 		if ($type == 'talk') {
 			$options = new ParserOptions();
@@ -447,15 +459,6 @@ class AuthorEmailNotification extends SpecialPage {
 		}
 
 		$fromuser = User::newFromID($from_uid);
-
-		if (isset($t)) {
-			$touser = User::newFromName($t->getText());
-		} else {
-			// no article no object
-			return;
-		}
-
-		if (!$touser) return;
 
 		if ( $t->getArticleID() > 0 &&
 			$t->inNamespace(NS_USER_TALK) &&

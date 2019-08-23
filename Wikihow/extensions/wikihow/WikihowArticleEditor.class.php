@@ -731,7 +731,9 @@ class WikihowArticleEditor {
 						[],
 						['action' => 'edit', 'override' => 'yes'] + $oldParams);
 				} else {
-					$warning = '<span class="greywarning">Guided Editing not available for this article</span>';
+					if ( !$ctx->getUser()->isAnon() ) {
+						$warning = '<span class="greywarning">Guided Editing is not available for this article</span>';
+					}
 				}
 			}
 

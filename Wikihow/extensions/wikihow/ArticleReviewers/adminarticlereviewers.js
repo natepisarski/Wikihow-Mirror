@@ -1,22 +1,31 @@
 (function(mw, $) {
-	window.WH = window.WH || {};
+$(document).ready(function() {
 
-	$(document).ready(function () {
-		$('#ImageUploadFile').uploadify({
-			'swf': '/extensions/wikihow/common/uploadify/uploadify.swf',
-			'uploader': '/Special:AdminArticleReviewers',
-			'onUploadSuccess': function (file, data, response) {
-				info = JSON.parse(data);
-				if (info['success']) {
-					$("#ex_completed").append("<li>" + info['url'] + "</li>");
-				} else {
-					$("#ex_error").append("<li>" + file.name + " - " + info['message'] + "</li>");
-				}
-			},
-			'onUploadError': function (file, errorCode, errorMsg, errorString) {
-				alert('The file ' + file.name + ' could not be uploaded: ' + errorString);
-			}
-		});
+$("#ImageUploadFile").change(function() {
+	var fileName = $(this).val();
+	if ( !fileName ) {
+		return;
+	}
+
+	$.ajax({
+		type: 'POST',
+		data: new FormData($('#AdminArticleReviewers')[0]),
+		cache: false,
+		contentType: false,
+		processData: false
+	})
+	.done(function(data, textStatus, jqXHR) {
+		if (data['success']) {
+			$("#ex_completed").append("<li>" + data['imgLink'] + "</li>");
+		} else {
+			$("#ex_error").append("<li>" + fileName.replace(/^.*\\/, '') + " - " + data['errorMsg'] + "</li>");
+		}
+	})
+	.fail(function(jqXHR, textStatus, errorThrown) {
+		var data = JSON.parse(jqXHR.responseText);
+		alert('The file ' + fileName.replace(/^.*\\/, '') + ' could not be uploaded: ' + data);
 	});
+});
 
+});
 }(mediaWiki, jQuery));

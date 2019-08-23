@@ -295,7 +295,8 @@ class RelatedWikihows {
 		$categoriesToIgnore = explode( "\n", $categoriesToIgnore );
 		$tempCategories = array();
 		foreach ( $categoriesToIgnore as $catToIgnore ) {
-			$tempCategories[] = end( explode( ":", $catToIgnore ) );
+			$parts = explode( ":", $catToIgnore );
+			$tempCategories[] = end( $parts );
 		}
 		$categoriesToIgnore = array_flip( $tempCategories );
 
@@ -349,19 +350,10 @@ class RelatedWikihows {
 	}
 
 	/*
-	 * a list of 10 related wikihows to show if we have no others
-	 *		Fall-Asleep
-	 *		Get-Effects-on-Snapchat
-	 *		Get-Rid-of-a-Headache
-	 *		Unclog-a-Toilet
-	 *		Use-Uber
-	 *		Take-a-Screenshot-in-Microsoft-Windows
-	 *		French-Braid
-	 *		Play-Poker
-	 *		Care-for-Orchids
+	 * a list of 14 related wikihows to show if we have no others
 	 */
 	private static function getDefaultRelatedWikihows() {
-		return array_flip( [ 57203, 4157156, 14093, 5207, 1304771, 3450, 22372, 5014, 221266 ] );
+		return array_flip( [ 57203, 4157156, 14093, 5207, 1304771, 3450, 22372, 5014, 221266, 1622, 2959, 30513, 6257, 384626 ] );
 	}
 
 	// gets the related wikihow titles from wikitext

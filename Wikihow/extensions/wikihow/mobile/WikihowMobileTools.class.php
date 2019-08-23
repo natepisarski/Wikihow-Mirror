@@ -839,8 +839,11 @@ class WikihowMobileTools {
 		// Trevor, 3/1/19 - Check article being on alt-domain, not just which domain we are on, logged in
 		// users can see alt-domain articles on the main site
 		// Trevor, 6/18/19 - Make a special exception for recipe articles, play those inline
+		// Trevor, 8/16/19 - Added check that VideoBrowser knows about the video
+		$dbr = wfGetDb( DB_REPLICA );
+		$summaryVideo = $dbr->selectRow( 'summary_videos', '*', [ 'sv_id' => $wgTitle->getArticleID() ], __METHOD__ );
 		$recipeSchema = SchemaMarkup::getRecipeSchema( $wgTitle, $context->getOutput()->getRevisionId() );
-		if ( !$recipeSchema && $wgLanguageCode == 'en' && !Misc::isAltDomain() && !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
+		if ( $summaryVideo && !$recipeSchema && $wgLanguageCode == 'en' && !Misc::isAltDomain() && !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
 			$videoPlayer = pq( '.summarysection .video-player' );
 			if ( $videoPlayer ) {
 				$link = pq( '<a id="summary_video_link">' )->attr(

@@ -27,7 +27,7 @@ class Avatar extends UnlistedSpecialPage {
 		// check for facebook
 		if ($u->isFacebookUser()) {
 			$row = $dbr->selectRow('avatar', array('av_image','av_patrol'), array('av_user'=>$u->getID()), __METHOD__);
-			if ($row->av_image && ($row->av_patrol == 0 || $row->av_patrol == 1)) {
+			if ($row && $row->av_image && ($row->av_patrol == 0 || $row->av_patrol == 1)) {
 				// make Facebook images load from HTTP or HTTPS depending on context
 				$row->av_image = preg_replace('@^http:@', '', $row->av_image);
 				return array('type' => 'fb', 'url' => $row->av_image);
@@ -37,7 +37,7 @@ class Avatar extends UnlistedSpecialPage {
 		//check for Google+
 		if ($u->isGPlusUser()) {
 			$row = $dbr->selectRow('avatar', array('av_image','av_patrol'), array('av_user'=>$u->getID()), __METHOD__);
-			if ($row->av_image && ($row->av_patrol == 0 || $row->av_patrol == 1)) {
+			if ($row && $row->av_image && ($row->av_patrol == 0 || $row->av_patrol == 1)) {
 				return array('type' => 'gp', 'url' => $row->av_image);
 			}
 		}

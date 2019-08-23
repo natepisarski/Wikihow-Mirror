@@ -177,6 +177,7 @@
 				return;
 			}
 
+			anchor = decodeURI(location.hash);
 			var tocOuterHeight = sh.$toc.outerHeight() || sh.TOC_DEFAULT_OUTER_HEIGHT;
 			var toElement = sh.getHashedElement(anchor);
 			if (!toElement.length) return;
@@ -238,7 +239,8 @@
 
 				sh.resetToc(); //start fresh
 
-				var hashedElem = sh.getHashedElement(location.hash);
+				var hash = decodeURI(location.hash);
+				var hashedElem = sh.getHashedElement(hash);
 
 				if (hashedElem.length) {
 					var tocOuterHeight = sh.$toc.outerHeight() || sh.TOC_DEFAULT_OUTER_HEIGHT;

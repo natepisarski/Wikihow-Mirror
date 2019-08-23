@@ -1,5 +1,5 @@
 
-<form action='#' method="POST" enctype="multipart/form-data">
+<form id="AdminArticleReviewers" method="POST" enctype="multipart/form-data">
 	<p style="margin-bottom:10px;">New Article Reviewer Profile Images</p>
 	<input type='file' id='ImageUploadFile' name='ImageUploadFile'>
 </form>

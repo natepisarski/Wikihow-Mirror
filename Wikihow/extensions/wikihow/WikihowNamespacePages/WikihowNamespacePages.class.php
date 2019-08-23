@@ -30,7 +30,9 @@ class WikihowNamespacePages {
 			'Deletion-Policy',
 			'Powered-and-Inspired-by-MediaWiki',
 			'Jobs',
-			'Free-Basics'
+			'Free-Basics',
+			'Cookie-Policy-Info',
+			'Cookie-Policy-Information'
 		];
 	}
 

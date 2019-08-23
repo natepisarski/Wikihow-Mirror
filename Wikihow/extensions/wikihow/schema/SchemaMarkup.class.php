@@ -253,7 +253,7 @@ class SchemaMarkup {
 
 	private static function getHowToStepImageFromStep( $step ) {
 		global $wgIsDevServer;
-		$result = '';
+		$url = '';
 		$img = pq( $step )->find( 'img:not(.m-video-wm-img):first' );
 		if ( $img->length > 0 ) {
 			$url = $img->attr( 'src' );
@@ -273,7 +273,7 @@ class SchemaMarkup {
 	}
 
 	private static function getHowToSteps() {
-		global $wgTitle;
+		global $wgTitle, $wgServer;
 		$sections = array();
 		$sectionNumber = 1;
 		foreach ( pq( '.section.steps' ) as $section ) {
@@ -679,7 +679,7 @@ class SchemaMarkup {
 	 *   is currently being fetched
 	 */
 	public static function getYouTubeVideo( $title, $id ) {
-		global $wgMemc;
+		global $wgMemc, $wgCanonicalServer;
 
 		$requestKey = "YouTubeInfo({$id})";
 		$cacheKey = wfMemcKey( $requestKey );

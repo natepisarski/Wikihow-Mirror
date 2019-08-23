@@ -109,9 +109,11 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 
 			// Schema
 			this.getSchema( function ( schema ) {
-				viewer.change( {
-					schema: JSON.stringify( schema )
-				} );
+				if ( schema ) {
+					viewer.change( {
+						schema: JSON.stringify( schema )
+					} );
+				}
 			} );
 
 			// Related Videos
@@ -233,7 +235,9 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 							]
 						]
 					],
-					[ 'script', { type: 'application/ld+json' }, state.schema || '' ],
+					state.schema ?
+						[ 'script', { type: 'application/ld+json' }, state.schema ] :
+						undefined,
 					[ 'div.videoBrowser-viewer-related',
 						[ 'h2.videoBrowser-viewer-related-title',
 							[ 'span.mw-headline', 'Related Videos' ],

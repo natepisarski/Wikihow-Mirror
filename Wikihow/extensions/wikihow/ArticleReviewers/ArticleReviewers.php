@@ -45,13 +45,18 @@ if (Misc::isIntl()) {
 $wgSpecialPages['AdminArticleReviewers'] = 'AdminArticleReviewers';
 $wgAutoloadClasses['AdminArticleReviewers'] = __DIR__ . '/AdminArticleReviewers.body.php';
 
+$wgHooks['FileUpload'][] = array('AdminArticleReviewers::onFileUpload');
+
 $wgResourceModules['ext.wikihow.adminarticlereviewers'] = array(
 	'styles' => array('../common/uploadify/uploadify.css'),
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/ArticleReviewers',
 	'position' => 'top',
 	'targets' => array( 'desktop', 'mobile' ),
-	'scripts' => array('adminarticlereviewers.js'),
+	'scripts' => array(
+		'../common/uploadify/jquery.uploadify.min.js',
+		'adminarticlereviewers.js',
+	),
 );
 
 /*********

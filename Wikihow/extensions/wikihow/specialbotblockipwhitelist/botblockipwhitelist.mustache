@@ -1,26 +1,48 @@
-<div id='tooltitle'>
-	<div>
-		<p>{{{ipwl_description}}}</p>
-	</div><br>
-	<hr>
-</div>
+<style type="text/css">
+	body {
+		max-width: 39rem;
+		padding: 2rem;
+		margin: auto;
+		font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+	}
 
-<div>
-<form method="post" action="/Special:BotBlockIPWhitelist" id="ipwl_submitform" name="ipwl_submitform">
-	{{inputbox_text}}<br>
-	<input type="text" id="input_ip_wl" name="input_ip_wl" class="input_ipwl">
+	form, input, select, textarea, button {
+		font-family: inherit !important;
+		font-size: 0.9em !important;
+	}
+</style>
+
+<h1>Bot Blocking IP Whitelist</h1>
+
+<p>
+- This tool allows us to unblock IP addresses so they can access wikiHow again.
+<br>
+- Note that it take up to 5 minutes for access to be restored after whitelisting an IP.
+<br>
+- If you are not sure what this tool does, or how to use it, please contact Anna.
+<br><br>
+Your IP address is <b>{{ipAddr}}</b>.</p>
+<hr>
+
+<br>
+
+<form method="POST">
+	Enter an IP address (IPv4) to be whitelisted:
+	<br><br>
+	<input type="text" name="ipwl_addr" required>
+	<input type='hidden' name='token' value='{{token}}'>
+	<input type='hidden' name='action' value='submit'>
+	<button type="submit">Whitelist</button>
 </form>
 
-<button id='new_ipwl_btn' id='new_ipwl_btn1' name='new_ipwl_btn' class='button primary'>{{wl_btn}}</button>
-<button id='viewall_ipwl_btn' name='viewall_ipwl_btn' class='button primary'>{{viewall_btn}}</button>
-</div>
+{{{resultHtml}}}
 
-<br><hr><br>
+<br><hr>
 
-<textarea readonly id="ipwl_list" name="ipwl_list" rows="10" class="ipwl_list_textarea">
+<h2>Whitelisted IPs:</h2>
+
+<textarea readonly id="ipwl_list" name="ipwl_list" rows="10">
 {{#all_wl_ip1}}
 {{.}}
 {{/all_wl_ip1}}
 </textarea>
-
-<div class="spinner"></div>

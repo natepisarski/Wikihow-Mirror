@@ -109,7 +109,9 @@ class GoogleAmp {
 	private static function getAmpSummaryVideo( $video, $width, $height, $sectionName )  {
 		global $wgTitle, $wgCanonicalServer;
 
-		if ( Misc::isAltDomain() ) {
+		// Trevor, 8/16/19 - Disable AMP going to VideoBrowser for now
+
+//		if ( Misc::isAltDomain() ) {
 			// Use original inline video
 			$src = $video->attr( 'data-src' );
 			$poster = $video->attr( 'data-poster' );
@@ -149,29 +151,29 @@ class GoogleAmp {
 			);
 			$videoPlayer = Html::rawElement( 'div', [ 'class' => 'summary-video' ], $ampVideo . $overlay );
 			return $videoPlayer;
-		}
+//		}
 
-		// Trevor - use link to VideoBrowser
-		$href = "{$wgCanonicalServer}/Video/" . str_replace( ' ', '-', $wgTitle->getText() );
-		return Html::rawElement( 'div',
-			[ 'class' => 'summary-video' ],
-			Html::rawElement( 'a',
-				[
-					'class' => 'click-to-play-overlay',
-					'role' => 'button',
-					'href' => $href,
-					'tabindex' => 0
-				],
-				WHVid::getSummaryIntroOverlayHtml( $sectionName, $wgTitle ) .
-					Html::element( 'amp-img',
-						[
-							'class' => 'video-poster-image',
-							'layout' => 'fill',
-							'src' => $video->attr( 'data-poster' ),
-						]
-					)
-			)
-		);
+		// // Trevor - use link to VideoBrowser
+		// $href = "{$wgCanonicalServer}/Video/" . str_replace( ' ', '-', $wgTitle->getText() );
+		// return Html::rawElement( 'div',
+		// 	[ 'class' => 'summary-video' ],
+		// 	Html::rawElement( 'a',
+		// 		[
+		// 			'class' => 'click-to-play-overlay',
+		// 			'role' => 'button',
+		// 			'href' => $href,
+		// 			'tabindex' => 0
+		// 		],
+		// 		WHVid::getSummaryIntroOverlayHtml( $sectionName, $wgTitle ) .
+		// 			Html::element( 'amp-img',
+		// 				[
+		// 					'class' => 'video-poster-image',
+		// 					'layout' => 'fill',
+		// 					'src' => $video->attr( 'data-poster' ),
+		// 				]
+		// 			)
+		// 	)
+		// );
 	}
 
 	// creates the amp-img that will be placed in the main article
@@ -359,16 +361,17 @@ class GoogleAmp {
 	}
 
 	private static function addConsentElement() {
+		global $wgLanguageCode;
+
 		$config = [
 			'ISOCountryGroups' => [
 				'eu' => ["al", "ad", "am", "at", "by", "be", "ba", "bg", "ch", "cy", "cz", "de", "dk", "ee", "es", "fo", "fi", "fr", "gb", "ge", "gi", "gr", "hu", "hr", "ie", "is", "it", "lt", "lu", "lv", "mc", "mk", "mt", "no", "nl", "po", "pt", "ro", "ru", "se", "si", "sk", "sm", "tr", "ua", "uk", "va"]
 			]
 		];
 
-
 		global $wgRequest;
 		// for testings
-		$eu = $wgRequest->getVal( "EU" ) == 1;
+		$eu = $wgRequest->getVal( "EUtest" ) == 1;
 		if ( $eu ) {
 			$config = [
 				'ISOCountryGroups' => [
@@ -376,14 +379,20 @@ class GoogleAmp {
 				]
 			];
 		}
+
 		$jsonObject = json_encode( $config, JSON_PRETTY_PRINT );
 		$scriptElement = Html::element( 'script', [ 'type' => 'application/json' ], $jsonObject );
 		$ampElement = Html::rawElement( 'amp-geo', ['layout'=>'nodisplay'], $scriptElement );
 		pq( 'div:first' )->after( $ampElement );
 
-		$messageInner = wfMessage("gdpr_message")->text();
+		$messageName = "gdpr_message";
+		if ( $wgLanguageCode == 'en' ) {
+			$messageName = "gdpr_message_amp";
+		}
+
+		$messageInner = wfMessage( $messageName )->text();
 		if ( strpos( $messageInner, '[[' ) !== FALSE ) {
-			$messageInner = wfMessage("gdpr_message")->parse();
+			$messageInner = wfMessage( $messageName )->parse();
 		}
 		$vars = array(
 			'gdpr_message' => $messageInner,
@@ -715,7 +724,7 @@ class GoogleAmp {
 			'data-slot' => $slot,
 		);
 
-		if ( $num == 5 || $num == 7 || $num == 8 || $num == 9 ) {
+		if ( $num == 7 || $num == 8 || $num == 9 ) {
 			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
 
@@ -1084,6 +1093,7 @@ class GoogleAmp {
 		} else {
 			self::addGoogleAnalytics( WH_GA_ID, $i++ );
 			self::addConsentElement();
+
 		}
 
 		$gaCnf = Misc::getGoogleAnalyticsConfig();

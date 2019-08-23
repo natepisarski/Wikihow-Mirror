@@ -40,9 +40,10 @@ $wgResourceModules['ext.wikihow.quality_guardian'] = array(
     'position' => 'top',
     'targets' => array('desktop', 'mobile'),
     'dependencies' => array(
+		'jquery',
     	'ext.wikihow.common_top',
     	'ext.wikihow.common_bottom',
-		'mediawiki.cookie',
+		'jquery.cookie',
     ),
 );
 

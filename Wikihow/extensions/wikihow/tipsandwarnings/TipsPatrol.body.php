@@ -801,7 +801,7 @@ CREATE TABLE `tipspatrol_views` (
 		}
 
 		if (!$row || !$row['tw_tip']) {
-			$row = $dbr->selectRow('tipsandwarnings_log', array('tw_tip', 'tw_page'), array("tw_id = $tipId", "tw_tip is not NULL"), __METHOD__);
+			$row = $dbr->selectRow('tipsandwarnings_log', array('tw_tip', 'tw_page'), array('tw_id' => $tipId, "tw_tip is not NULL"), __METHOD__);
 			if ($row) {
 				$row = get_object_vars($row);
 			}
@@ -823,7 +823,7 @@ CREATE TABLE `tipspatrol_views` (
 	}
 
 	function getTipRow($tipId) {
-		$dbr = wfGetDB(DB_REPLICA);
+		$dbr = wfGetDB(DB_MASTER);
 		if ($row = $dbr->selectRow('tipsandwarnings', '*', array('tw_id' => $tipId), __METHOD__)) {
 			$row = get_object_vars($row);
 		} else {

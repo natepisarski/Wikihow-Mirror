@@ -53,6 +53,10 @@ class WikihowArticleHTML {
 			$out->setArticleBodyOnly( true );
 		}
 
+		$isAltDomainView = Misc::isAltDomain();
+		$isAltDomainArticle = class_exists('AlternateDomain') &&
+			(bool)AlternateDomain::getAlternateDomainForPage( $title->getArticleID() );
+
 		// Trevor, 5/22 - Used later on to add structred data to inline summary videos, must be
 		// called here due to mysterious issue with calling it later to be solved in the future
 		$videoSchema = SchemaMarkup::getVideo( $title );
@@ -700,7 +704,7 @@ class WikihowArticleHTML {
 		SummarySection::addIntlDesktopVideoTOCItem();
 
 		// add the controls
-		$summaryHtml = WHVid::getVideoControlsSummaryHtml( $headingText );
+		$summaryHtml = WHVid::getVideoControlsSummaryHtml( isset( $headingText ) ? $headingText : '' );
 		$summaryHelpfulHtml = WHVid::getDesktopVideoHelpfulness();
 		$replayHtml = WHVid::getVideoReplayHtml();
 		pq( '.summarysection .video-container' )->after( $summaryHtml . $summaryHelpfulHtml . $replayHtml );
@@ -727,8 +731,14 @@ class WikihowArticleHTML {
 		//check the yt vidoes
 		if( pq('.embedvideocontainer')->length > 0 && WHVid::isYtSummaryArticle($title)) {
 			wikihowToc::setSummaryVideo(true);
-			if(pq('.summary_with_video')->length) {
-				pq('.summary_with_video')->replaceWith(pq('#summary_wrapper'));
+			$summary = pq('.summary_with_video');
+			$wrapper = pq( '#summary_wrapper' );
+			if( $summary->length ) {
+				// Grab the original video source before the video is messed with
+				$src = $summary->find( 'video' )->attr( 'data-src' );
+				// Add it to the summary wrapper for safe keeping
+				$wrapper->attr( 'data-summary-video-src', $src );
+				$summary->replaceWith( $wrapper );
 			}
 			// Add schema to all YouTube videos that are from our channel
 			foreach ( pq( '.embedvideo' ) as $video ) {
@@ -886,12 +896,8 @@ class WikihowArticleHTML {
 			}
 		}
 
-		$this->mDesktopAds = new DesktopAds( $context, $user, $langCode, $opts, $isMainPage );
-		$this->mDesktopAds->addToBody();
-
 		$relatedsName = RelatedWikihows::getSectionName();
 		$this->mRelatedWikihows = new RelatedWikihows( $context, $user, pq( ".section.".$relatedsName ) );
-		$this->mRelatedWikihows->setAdHtml( $this->mDesktopAds->getRelatedAdHtml() );
 		$this->mRelatedWikihows->addRelatedWikihowsSection();
 
 		$markPatrolledLink = self::getMarkPatrolledLink();
@@ -904,6 +910,9 @@ class WikihowArticleHTML {
 			$widget = new QAWidget();
 			$widget->addWidget();
 		}
+		$this->mDesktopAds = new DesktopAds( $context, $user, $langCode, $opts, $isMainPage );
+		$this->mDesktopAds->addToBody();
+
 
 		//special querystring for loading pages faster by removing step images
 		//STAFF ONLY
@@ -930,8 +939,9 @@ class WikihowArticleHTML {
 
 		Hooks::run('ProcessArticleHTMLAfter', array( $out ) );
 
-
-		UserTiming::modifyDOM($canonicalSteps);
+		if ( isset( $canonicalSteps ) ) {
+			UserTiming::modifyDOM($canonicalSteps);
+		}
 		PinterestMod::modifyDOM();
 		DeferImages::modifyDOM();
 		Lightbox::modifyDOM($title->getArticleID());
@@ -960,41 +970,40 @@ class WikihowArticleHTML {
 			}
 		}
 
-		// do not update video path if we are viewing an old revision
-		if ( !$context->getRequest()->getVal( 'oldid' ) ) {
-			// get the last video name and add it to article meta info
-			$ami = ArticleMetaInfo::getAMICache();
-			$lastVideo = '';
-			$summaryVideo = '';
-			// look through all videos for summary section
-
-			foreach ( pq( '.m-video' ) as $mVideo ) {
-				if ( pq( $mVideo )->attr( 'data-summary' ) ) {
-					$summaryVideo = pq( $mVideo )->attr( 'data-src' );
-				} else {
-					$lastVideo = pq( $mVideo )->attr('data-src');
-				}
-			}
-
-			$ami->updateLastVideoPath( $lastVideo );
-			$ami->updateSummaryVideoPath( $summaryVideo );
-		}
-
-		// Trevor, 10/29/18 - Testing making videos a link to the video browser - this must come
-		// after videos are updated
-		// Trevor, 3/1/19 - Check article being on alt-domain, not just which domain we are on, logged in
-		// users can see alt-domain articles on the main site
-		// Trevor, 6/18/19 - Make a special exception for recipe articles, play those inline
+		// Replace inline-videos with links to VideoBrowser pages
+		$dbr = wfGetDb( DB_REPLICA );
+		$summaryVideo = $dbr->selectRow( 'summary_videos', '*', [ 'sv_id' => $title->getArticleID() ], __METHOD__ );
 		$recipeSchema = SchemaMarkup::getRecipeSchema( $title, $context->getOutput()->getRevisionId() );
-		if ( !$recipeSchema && $langCode == 'en' && !AlternateDomain::getAlternateDomainForPage( $title->getArticleID() ) ) {
+		if (
+			// Only on English, for now, could change in the future
+			$langCode == 'en' &&
+			// Make sure VideoBrowser knows about the video, there could be lag between save and
+			// summary_video being populated, this is a safety net
+			$summaryVideo &&
+			// Special exception for recipe articles, play those inline since the recipe schema
+			// advertises the video is here
+			!$recipeSchema &&
+			// Don't use VideoBrowser on alt-domains
+			!$isAltDomainView &&
+			// Check article being on alt-domain as well, because logged in users can see alt-domain
+			// articles on the main site
+			!$isAltDomainArticle
+		) {
 			$videoPlayer = pq( '#quick_summary_section .video-player' );
+
+			// Grab the original video source before the video is messed with
+			$src = $videoPlayer->find( 'video' )->attr( 'data-src' );
+			// Add it to the summary wrapper for safe keeping
+			pq('#summary_wrapper')->attr( 'data-summary-video-src', $src );
+
 			if ( $videoPlayer ) {
 				$link = pq( '<a id="summary_video_link">' )->attr(
 					'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )
 				);
-				$poster = pq( '<img id="summary_video_poster">' )->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) );
-				$poster->addClass( 'm-video' );
-				$poster->addClass( 'content-fill placeholder' );
+				$poster = pq( '<img id="summary_video_poster">' )
+					->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) )
+					->addClass( 'm-video' )
+					->addClass( 'content-fill placeholder' );
 				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $title ) );
 				// Includes the structured data, which was appened to .video-player
 				$videoPlayer->empty()->append( $link );

@@ -590,7 +590,7 @@ class NewArticleBoost extends SpecialPage {
 		}
 
 		//add demote cat
-		if ($t && $t->exists()) {
+		if ($t && $t->exists() && !$t->isRedirect()) {
 			$wikitext = Wikitext::getWikitext($t, 'latest');
 			if ( empty(trim($wikitext)) ) {
 				// This is a new problem from the upgrade, which is being fixed now. In
