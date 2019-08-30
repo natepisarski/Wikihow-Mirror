@@ -68,3 +68,8 @@
 	background-image: url(/skins/owl/images/wikihow_logo_fitness.png);
 	background-size: 143px;
 }
+#header_logo.legal_logo {
+	background-position: 43% 65%;
+	background-image: url(/skins/owl/images/wikihow_logo_legal.png);
+	background-size: 143px;
+}

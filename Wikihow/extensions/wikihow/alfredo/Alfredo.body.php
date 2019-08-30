@@ -341,6 +341,9 @@ class Alfredo extends UnlistedSpecialPage {
 		global $wgRequest, $wgOut, $wgUser, $wgLanguageCode;
 		global $wgIsToolsServer, $wgIsDevServer;
 
+		$wgOut->addHTML('Alfredo is in maintenance mode, after deleting a number of articles on INTL in a single run');
+		return;
+
 		if (!$wgIsToolsServer && !$wgIsDevServer) {
 			$wgOut->setRobotPolicy('noindex,nofollow');
 			$wgOut->showErrorPage('nosuchspecialpage', 'nospecialpagetext');

@@ -109,6 +109,12 @@ Disallow: /
 User-agent: ZyBORG
 Disallow: /
 
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
 User-agent: *
 Allow: /Special:AllPages
 Allow: /Special:Block
@@ -129,5 +135,10 @@ Allow: /Special:UserLogin
 Allow: /index.php?*action=credits
 Allow: /index.php?*MathShowImage
 Allow: /index.php?*printable
+Disallow: /index.php
 Disallow: /*feed=rss
-Noindex: /*feed=rss
+Disallow: /*action=delete
+Disallow: /*action=history
+Disallow: /Special:
+Disallow: /*platform=
+Disallow: /*variant=

@@ -8,6 +8,34 @@ class VideoCatalog {
 	/* Public Static Methods */
 
 	/**
+	 * Check if, during a page render, a summary video being rendered on the page should be included
+	 * in the VideoCatalog.
+	 *
+	 * @param  {Context} $context Context of page view
+	 * @return {bool} Include summary video
+	 */
+	public static function shouldIncludeSummaryVideo( $context ) {
+		$langCode = $context->getLanguage()->getCode();
+		$isGoogleAmpMode = GoogleAmp::isAmpMode( $context->getOutput() );
+		$isAltDomainView = Misc::isAltDomain();
+		$isAltDomainArticle = class_exists( 'AlternateDomain' ) &&
+			AlternateDomain::getAlternateDomainForPage( $context->getTitle()->getArticleID() );
+
+		return (bool)(
+			// Only on English, for now, could change in the future
+			$langCode == 'en' &&
+			// Not in Google AMP, for now, could change in the future
+			!$isGoogleAmpMode &&
+			// Don't use VideoBrowser on alt-domains, even rendering a 404 for a real article on
+			// an alt-domain could hit this code so we need this check to prevent that
+			!$isAltDomainView &&
+			// Check article being on alt-domain as well, because logged in users can see alt-domain
+			// articles on the main site so $isAltDomainView isn't enough
+			!$isAltDomainArticle
+		);
+	}
+
+	/**
 	 * Parse a source URL.
 	 *
 	 *	"Tie a Tie Step 0.360p.mp4" will return:

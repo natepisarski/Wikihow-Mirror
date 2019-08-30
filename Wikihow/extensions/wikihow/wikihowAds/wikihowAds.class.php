@@ -1801,6 +1801,39 @@ class wikihowAds {
         global $wgTitle;
 
         $pageId = $wgTitle->getArticleID();
+		// test direct insert
+		if ( self::isMobileTestActive() ) {
+			$inner = Html::rawElement(
+				'ins',
+				[
+					'data-ad-client' => 'ca-pub-9543332082073187',
+					'data-ad-slot' => '8943394577',
+					'class' => 'adsbygoogle',
+					'style' => 'display:block;height:120px;'
+				]
+			);
+
+			$wrap = Html::rawElement(
+				'div',
+				[
+					'class' => 'wh_ad',
+					'id' => 'wh_ad_intro'
+				],
+				$inner
+			);
+			$channels = self::getAdTestChannels();
+			$script = Html::inlineScript("(adsbygoogle = window.adsbygoogle || []).push({
+				params: {
+					google_max_num_ads: 1,
+						google_ad_region: 'test',
+						google_override_format: true,
+						google_ad_channel: '$channels'
+				}
+				});console.log('direct insert test');");
+			$html = $wrap . $script;
+			pq("#intro")->append( $html );
+			return;
+		}
 
 		$type = 'intro';
 		$id = 'wh_ad_intro';
@@ -2076,7 +2109,7 @@ class wikihowAds {
 	}
 
 	private static function isMobileTestActive() {
-		if ( rand( 1, 5 ) == 1 ) {
+		if ( rand( 1, 20 ) == 1 ) {
 			return true;
 		}
 	}
@@ -2102,9 +2135,9 @@ class wikihowAds {
 		}
 
 		if ( self::isMobileTestActive() ) {
-			$channels .= '+3714673751';
+			$channels .= '+5941219836';
 		} else {
-			$channels .= '+5027755420';
+			$channels .= '+8567383174';
 		}
 
 		return $channels;

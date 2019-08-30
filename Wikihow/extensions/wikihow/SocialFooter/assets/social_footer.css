@@ -4,16 +4,16 @@
 }
 
 #sf.mobile {
-	margin: 13px 0 0 0;
-	text-align: center;
+	margin: 20px 0 0 0;
 	float: none;
+	text-align: center;
 }
 
 #sf .sf_icon {
-	width: 32px;
-	height: 32px;
+	width: 40px;
+	height: 40px;
 	display: inline-block;
-	margin: 0 3px;
+	margin: 0 10px;
 	background-repeat: no-repeat;
 	background-size: cover;
 }
@@ -40,14 +40,4 @@
 	background: url(/extensions/wikihow/SocialFooter/images/yt.png);
 	/* @embed */
 	background: url(/extensions/wikihow/SocialFooter/images/yt.svg);
-}
-
-@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
-only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-	#sf.mobile {
-		margin-top: -30px;
-		text-align: center;
-		float: right;
-		position: relative;
-	}
 }

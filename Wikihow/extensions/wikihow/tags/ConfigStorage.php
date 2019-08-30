@@ -185,7 +185,7 @@ class ConfigStorage {
 				'quickanswers_how_donotedit', 'quickanswers_love_donotedit', 'quickanswers_pet_donotedit', 'reverification_older_than_date',
 				'staff_reviewed_articles', 'staff_reviewed_articles_handpicked', 'userreview_whitelist', 'wikihow.fitness',
 				'wikihow.health', 'wikihow.life', 'wikihow.mom', 'wikihow.pet',
-				'wikihow.tech', 'wikihow-fun.com', 'wikihowanswers_donotedit', 'qa_blacklisted_article_ids', 'qa_box_article_ids',
+				'wikihow.tech', 'wikihow-fun.com', 'wikihow.legal', 'wikihowanswers_donotedit', 'qa_blacklisted_article_ids', 'qa_box_article_ids',
 				'qa_category_blacklist', 'ad-exclude-list', 'amp_disabled_pages', 'staff_reviewers',
 			  ],
 			  'users' =>

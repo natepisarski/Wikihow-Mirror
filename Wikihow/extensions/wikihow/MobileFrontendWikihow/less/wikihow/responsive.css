@@ -2,7 +2,7 @@
 	#content_wrapper {
 	    margin: 1em auto;
 		max-width: 1052px;
-		padding: 40px 1em 1em;
+		padding: 40px 1em 3em;
 	}
 	#content_inner {
 		max-width: 728px;
@@ -32,7 +32,7 @@
 		    font-size: 16px;
 	}
 	.content {
-		margin: 0 0px 1.5em;
+		margin: 0;
 	}
 	.pre-content {
 	    border-radius: 5px;

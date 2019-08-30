@@ -1,0 +1,37 @@
+<div id="fb-root" ></div>
+{{^disableFooter}}
+<div id="footer" role="navigation">
+
+	<div id="footer_inner">
+
+		<a href='{{mainLink}}' id="footer_logo">
+			{{^amp}}<img src='{{logoImage}}' width='120' height='31' alt='{{imageAlt}}' />{{/amp}}
+			{{#amp}}<amp-img src='{{logoImage}}' width='120' height='31' alt='{{imageAlt}}' />{{/amp}}
+		</a>
+
+		<div id="footer_crumbs">
+			<ul class="breadcrumbs">
+				{{{crumbs}}}
+			</ul>
+		</div>
+
+		<div id="footer_middle">
+			{{{searchBox}}}
+
+			<div id="footer_links">
+				<ul>
+					{{#links}}
+					<li>{{{link}}}</li>
+					{{/links}}
+				</ul>
+			</div>
+
+		</div>
+
+		{{{socialFooter}}}
+
+		{{{mobileAdAnchor}}}
+	</div>
+
+</div>
+{{/disableFooter}}

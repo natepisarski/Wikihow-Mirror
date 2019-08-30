@@ -40,13 +40,6 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 	public function execute() {
 		global $wgLanguageCode;
 
-		// Skip updating if no changes to videos have been made in the last day
-		$updated = ArticleMetaInfo::getLatestSummaryVideoUpdate();
-		if ( $updated < wfTimestamp( TS_MW, strtotime( '-1 day' ) ) ) {
-			echo "Nothing to update.\n";
-			return;
-		}
-
 		$dbw = wfGetDB( DB_MASTER );
 		$cached = wfTimestamp( TS_MW );
 
@@ -76,7 +69,7 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 				'ti_30day_views_unique',
 				'plays' => '(ti_summary_video_play + ti_summary_video_play_mobile)'
 			],
-			[ 'ami_summary_video != \'\'' ],
+			[ 'ami_summary_video != \'\'', 'ti_domain' => 'wikihow.com' ],
 			__METHOD__,
 			[ 'ORDER BY' => 'ti_featured DESC, ti_30day_views_unique DESC, plays DESC' ],
 			[
@@ -92,17 +85,11 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 		echo "{$selectedCount} selected\n";
 
 		// Insert rows to be inserted into summary_videos
-		$skipped = [];
 		$replaced = [];
 		$replacements = [];
 		echo "Replacing...\t";
 		foreach ( $rows as $row ) {
 			$title = Title::newFromId( $row->ami_id );
-			// Filter out alt-domain titles
-			if ( !empty( AlternateDomain::getAlternateDomainForPage( $row->ami_id ) ) ) {
-				$skipped[] = $title->getText();
-				continue;
-			}
 			$replaced[] = $title->getText();
 			$replacements[] = [
 				'sv_id' => $row->ami_id,
@@ -125,10 +112,9 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 		$new = array_diff( $replaced, $existing );
 		$newCount = count( $new );
 		$newList = implode( ', ', $new );
-		$skippedCount = count( $skipped );
 		$replacedCount = count( $replaced );
 		$updatedCount = $replacedCount - $newCount;
-		echo "{$updatedCount} updated, {$skippedCount} skipped, {$newCount} new\n";
+		echo "{$updatedCount} updated, {$newCount} new\n";
 		if ( $newCount ) {
 			echo "New titles: {$newList}\n";
 		}

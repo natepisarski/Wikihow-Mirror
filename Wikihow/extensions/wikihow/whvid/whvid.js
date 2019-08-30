@@ -173,8 +173,8 @@ WH.video = (function () {
 					});
 				}
 			}
-			if (video.summaryVideo && !video.isLoaded && "onloadstart" in window) {
-				video.element.addEventListener( 'loadstart', function() {
+			if (video.summaryVideo && !video.isLoaded) {
+				video.onLoadStart = function() {
 					setTimeout(function(){
 						if ( !video.isPlaying ) {
 							video.playButton.style.visibility = 'visible';
@@ -183,7 +183,7 @@ WH.video = (function () {
 							}
 						}
 					}, 200);
-				});
+				};
 			} else {
 				if (video.inlinePlayButton) {
 					video.playButton.style.visibility = 'visible';
@@ -487,7 +487,10 @@ WH.video = (function () {
 					}
 					var videoUrl = cdnRoot + video.element.getAttribute('data-src');
 					video.element.setAttribute('src', videoUrl);
-					video.isLoaded = true;
+					if ( !video.isLoaded ) {
+						video.isLoaded = true;
+						video.onLoadStart();
+					}
 					video.element.addEventListener("canplay", function() {
 						if (loadingContainer && loadingContainer.parentNode == video.element.parentElement) {
 							video.element.parentElement.removeChild(loadingContainer);

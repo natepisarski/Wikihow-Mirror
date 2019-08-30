@@ -1211,7 +1211,7 @@ class GoogleAmp {
 		return $toggleWrap;
 	}
 
-	private static function getSearchBar( $submitId, $placeholderText = "" ) {
+	public static function getSearchBar( $submitId, $placeholderText = "" ) {
 
 		$inputAttr = [
 			"type" => "submit",
@@ -1241,26 +1241,6 @@ class GoogleAmp {
 		$form = Html::rawElement( "form", $formAttr, $formContents );
 
 		return $form;
-	}
-
-	public static function renderFooter( $data ) {
-		$creature = MinervaTemplateWikihow::getFooterCreatureArray()[rand(0,count(MinervaTemplateWikihow::getFooterCreatureArray())-1)];
-		$textPath = Html::rawElement( "textPath", [ "xlink:href" => "#textPath", "startoffset" => "22%" ], wfMessage('surprise-me-footer')->plain() );
-		$creatureTextCurved = Html::rawElement( "text", [ "class" => "creature_text" ], $textPath );
-		$creature = str_replace( '[[creature_text_curved]]', $creatureTextCurved, $creature );
-		$creature = str_replace( '[[creature_text_flat]]', '', $creature );
-
-		$creatureLink = Html::rawElement( "a", [ "href" => "/Special:Randomizer" ], $creature );
-		$footerRandom = Html::rawElement( "div", [ "id" => "amp_footer_random_button", "role" => "button" ], $creatureLink);
-		$footerSearch = self::getSearchBar( "footer_search", wfMessage('footer-search-placeholder')->text() );
-
-		$contentsMain = $footerSearch;
-		if (class_exists('SocialFooter')) $contentsMain .= SocialFooter::getSocialFooter();
-		$footerMain = Html::rawElement( "div", [ "id" => "footer_main" ], $contentsMain);
-
-		$contents = $footerRandom . $footerMain;
-		$footerHtml = Html::rawElement( "div", [ "id" => "footer", "role" => "navigation" ], $contents);
-		echo $footerHtml;
 	}
 
 	public static function onArticleFromTitle(&$title, &$article) {

@@ -60,7 +60,7 @@ class HAWelcomeJob extends Job {
 		$mSysop;
 
 	const WELCOMEUSER = "WelcomeBot";
-	const DEFAULTUSER = "Anna";
+	const DEFAULTUSER = "JayneG";
 
 	/**
 	 * Construct a job

@@ -60,7 +60,8 @@ class AlternateDomain {
 			'wikihow.life' => 'life',
 			'wikihow.fitness' => 'fitness',
 			'wikihow.health' => 'health',
-			'wikihow-fun.com' => 'fun'
+			'wikihow-fun.com' => 'fun',
+			'wikihow.legal' => 'legal',
 		];
 
 		if(array_key_exists($domain, $domainMapping)) {
@@ -74,7 +75,7 @@ class AlternateDomain {
 	 * get list of branded alt domains
 	 */
 	private static function getBrandedDomains() {
-		return [ 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com' ];
+		return [ 'wikihow.tech', 'wikihow.pet', 'wikihow.mom', 'wikihow.life', 'wikihow.fitness', 'wikihow.health', 'wikihow-fun.com', 'wikihow.legal' ];
 	}
 
 	/*
@@ -974,6 +975,7 @@ class AlternateDomain {
 			$data['slots'] = [
 				'small' => [
 					'intro' => '2618748819',
+
 					'method' => '3245434778',
 					'related' => '3245434778'
 				],
@@ -1052,6 +1054,24 @@ class AlternateDomain {
 					'related' => '4199127249'
 				]
 			];
+		} elseif ( $altDomain == 'wikihow.legal' ) {
+			// ads are currently disabled for this domain in another part of the code
+			// if they were to be turned on then these would need to be defined for ads to work
+			$data['slots'] = [
+				'small' => [
+					'intro' => '0',
+					'method' => '0',
+					'related' => '0'
+				],
+				'medium' => [
+
+				],
+				'large' => [
+					'intro' => '0',
+					'method' => '0',
+					'related' => '0'
+				]
+			];
 		}
 
 		$script = Html::element( 'script', [ 'id' => 'wh_ad_data', 'type'=>'application/json' ], json_encode( $data ) );
@@ -1085,6 +1105,8 @@ class AlternateDomain {
 			$codes['UA-2375655-31'] = 'wikihowhealth';
 		} elseif ( $altDomain == 'wikihow-fun.com' ) {
 			$codes['UA-2375655-32'] = 'wikihowfun';
+		} elseif ( $altDomain == 'wikihow.legal' ) {
+			$codes['UA-2375655-33'] = 'wikihowlegal';
 		}
 	}
 
@@ -1681,6 +1703,9 @@ class AlternateDomain {
 		} elseif ( $altDomain == 'wikihow.fitness' ) {
 			$logoPath = '/skins/owl/images/wikihow_logo_fitness.png';
 			$logoClass[] = 'fitness_logo';
+		} elseif ( $altDomain == 'wikihow.legal' ) {
+			$logoPath = '/skins/owl/images/wikihow_logo_legal.png';
+			$logoClass[] = 'legal_logo';
 		}
 	}
 
@@ -1710,6 +1735,12 @@ class AlternateDomain {
 				$headerClass = $headerClass . ' fitness_logo';
 			} else {
 				$headerClass = 'fitness_logo';
+			}
+		} elseif ( $altDomain == 'wikihow.legal' ) {
+			if ( $headerClass ) {
+				$headerClass = $headerClass . ' legal_logo';
+			} else {
+				$headerClass = 'legal_logo';
 			}
 		}
 	}
@@ -1791,6 +1822,9 @@ class AlternateDomain {
 		} elseif ( $altDomain == 'wikihow-fun.com' ) {
 			$firstAd = 4732467955;
 			$regularAd = 6442147207;
+		} elseif ( $altDomain == 'wikihow.legal' ) {
+			$firstAd = 0;
+			$regularAd = 0;
 		}
 
 		$slotData['en'] = array(

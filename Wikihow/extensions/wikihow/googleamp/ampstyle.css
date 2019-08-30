@@ -218,63 +218,73 @@
 	text-indent: 0em;
 	font-size: .95em;
 }
-.creature {
-	width: 100px;
-	height: 100px;
-	position: relative;
-	z-index: 2;
-	margin-bottom: -20px;
-}
-.creature .creature_path {
-	fill: #93B874;
-}
-.creature .creature_text, .creature_text_flat {
-	font-weight: bold;
-	font-size: 2em;
-	fill: #93B874;
-}
 #footer {
-	border-top: none;
 	padding: 0;
 	margin: 0;
-	position: absolute;
 	bottom: 0;
 	width: 100%;
-	font-size: .9em;
-}
-#amp_footer_random_button {
+	background-color: #91B874;
 	text-align: center;
-	width: 100px;
-	margin: auto;
+	color: #FFF;
 }
-#footer_main {
-	position: relative;
-	z-index: 3;
-	box-sizing: border-box;
-	padding: 8px;
-	background-color: #93b874;
-	-webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
-	box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
+#footer a {
+	color: #FFF;
+}
+#footer_inner {
+	padding: 23px 1em 1.5em;
+	margin: 0 auto;
+	max-width: 728px;
+}
+#footer_logo {
+	display: block;
+	height: 21px;
+	margin-bottom: 1em;
+}
+#footer_middle {
+	border-top: 1px solid #77a555;
+	padding: 1.4em 1em 0;
+	margin: 0 -1em;
 }
 #footer form {
-	display: block;
+	position: relative;
 }
 .search_text {
-	color: #FFF;
-	background-color: #B3CE9C;
-	border-radius: 5px 0 0 5px;
-	width: 92%;
-	height: 29px;
-	padding-left: 1em;
 	box-sizing: border-box;
+	padding: .7em 33px .7em .7em;
+	width: 100%;
+	border: 1px solid #5f8344;
+	border-radius: 5px;
+	background-color: #FFF;
+	font-size: 16px; /*CSS hack to stop zooming when the iOS keyboard appears*/
 }
 .search_button {
-	width: 8%;
-	height: 29px;
-	float: right;
-	background: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/search_icon.svg) #B3CE9C no-repeat 50% 50%/contain;
-	border: 4px solid #B3CE9C;
-	border-radius: 0 5px 5px 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 38px;
+	height: 42px;
+	background: url(/extensions/wikihow/mobile/images/gray_mag.png) center / 17px no-repeat;
+	/* @embed */
+	background-image: url(/extensions/wikihow/mobile/images/gray_mag.svg);
+}
+#footer_links ul {
+	display: inline-block;
+	-webkit-columns: 2;
+	-moz-columns: 2;
+	columns: 2;
+	-webkit-column-gap: 3em;
+	-moz-column-gap: 3em;
+	column-gap: 3em;
+	margin: 1.2em auto 0;
+	font-size: 1.1em;
+	text-align: left;
+	overflow: hidden;
+}
+#footer_links li {
+	line-height: 2em;
+}
+#footer_crumbs {
+	margin-bottom: 1.4em;
 }
 #menu-button-wrap {
 	position: relative;
@@ -959,10 +969,6 @@ p.green_box_bullet {
 
 @media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
 		only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-	#footer form {
-		padding-right: 180px;
-	}
-
 	#ur_mobile {
 		font-size: 22px;
 		line-height: 30px;

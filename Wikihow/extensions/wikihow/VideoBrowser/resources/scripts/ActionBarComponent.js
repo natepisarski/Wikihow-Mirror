@@ -24,18 +24,18 @@ WH.VideoBrowser.ActionBarComponent = WH.Render.createComponent( {
 		for ( i = 0, len = list.length; i < len; i++ ) {
 			item = list[i];
 			list[i] = [ 'li',
-				' » ', [ 'a', { href: item.link, title: item.label }, item.label ]
+				[ 'a', { href: item.link, title: item.label }, item.label ]
 			];
 		}
 
 		return [ 'div.videoBrowser-actionBar', { role: 'navigation' },
 			[ 'div#gatBreadCrumb',
-				[ 'ul#breadcrumb.Breadcrumbs',
+				[ 'ul#breadcrumb.breadcrumbs',
 					{ 'aria-label': 'Video breadcrumbs' },
 					['li.home',
 						[ 'a', { href: '/Main-Page', title: 'Main Page' }, 'Home' ]
 					],
-					['li', ' » ',
+					['li',
 						[ 'a', { href: '/Video', title: 'Video' }, 'Video' ]
 					]
 				].concat( list )

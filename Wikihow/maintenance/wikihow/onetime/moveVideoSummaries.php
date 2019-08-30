@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../Maintenance.php';
 
-class moveVideoSummaries extends Maintenance {
+class MoveVideoSummaries extends Maintenance {
 
 	const LOG = '/var/log/wikihow/video_summaries.log';
 	const DESIRED_POSITION = 'bottom';
@@ -116,5 +116,5 @@ class moveVideoSummaries extends Maintenance {
 	}
 }
 
-$maintClass = "moveVideoSummaries";
+$maintClass = "MoveVideoSummaries";
 require_once RUN_MAINTENANCE_IF_MAIN;

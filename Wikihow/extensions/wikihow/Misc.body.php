@@ -279,9 +279,16 @@ class Misc {
 		$dbr = wfGetDB(DB_REPLICA);
 
 		foreach ($urls as $url) {
-			list($lang, $partial) = self::getLangFromFullURL($url);
+			// try non-mobile version of url first
+			list($lang, $partial) = self::getLangFromFullURL($url, false);
 			if ($lang && $partial) {
 				$urlsByLang[$lang][] = $partial;
+			} else {
+				// then try looking for a mobile hostname
+				list($lang, $partial) = self::getLangFromFullURL($url, true);
+				if ($lang && $partial) {
+					$urlsByLang[$lang][] = $partial;
+				}
 			}
 		}
 		if (!empty($cols) && !in_array('page_title', $cols)) {

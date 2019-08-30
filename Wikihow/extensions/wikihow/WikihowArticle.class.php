@@ -53,10 +53,6 @@ class WikihowArticleHTML {
 			$out->setArticleBodyOnly( true );
 		}
 
-		$isAltDomainView = Misc::isAltDomain();
-		$isAltDomainArticle = class_exists('AlternateDomain') &&
-			(bool)AlternateDomain::getAlternateDomainForPage( $title->getArticleID() );
-
 		// Trevor, 5/22 - Used later on to add structred data to inline summary videos, must be
 		// called here due to mysterious issue with calling it later to be solved in the future
 		$videoSchema = SchemaMarkup::getVideo( $title );
@@ -696,6 +692,11 @@ class WikihowArticleHTML {
 			pq( $headingId . ' .m-video-wm' )->remove();
 		}
 
+		// Ensure #summary_wrapper is always there, even if it's empty right now
+		if ( !pq( '#summary_wrapper' )->length ) {
+			pq( $doc )->append( '<div id="summary_wrapper"></div>' );
+		}
+
 		if (pq("#method_toc")->length <= 0) {
 			pq('.firstHeading')->addClass('no_toc');
 		}
@@ -726,40 +727,6 @@ class WikihowArticleHTML {
 				pq( "#quick_summary_section")->addClass("intl");
 			}
 			WikihowToc::setSummaryVideo();
-		}
-
-		//check the yt vidoes
-		if( pq('.embedvideocontainer')->length > 0 && WHVid::isYtSummaryArticle($title)) {
-			wikihowToc::setSummaryVideo(true);
-			$summary = pq('.summary_with_video');
-			$wrapper = pq( '#summary_wrapper' );
-			if( $summary->length ) {
-				// Grab the original video source before the video is messed with
-				$src = $summary->find( 'video' )->attr( 'data-src' );
-				// Add it to the summary wrapper for safe keeping
-				$wrapper->attr( 'data-summary-video-src', $src );
-				$summary->replaceWith( $wrapper );
-			}
-			// Add schema to all YouTube videos that are from our channel
-			foreach ( pq( '.embedvideo' ) as $video ) {
-				$src = pq( $video )->attr( 'data-src' );
-				preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
-				if ( $matches[1] ) {
-					$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
-					// Only videos from our own channel will have publisher information
-					if ( array_key_exists( 'publisher', $videoSchema ) ) {
-						pq( $video )->after(
-							SchemaMarkup::getSchemaTag( $videoSchema ) .
-							'<!-- ' . (
-								$videoSchema ?
-									'YouTube info from cache' :
-									'YouTube info being fetched'
-								) .
-							' -->'
-						);
-					}
-				}
-			}
 		}
 
 		//move each of the large images to the top
@@ -950,6 +917,71 @@ class WikihowArticleHTML {
 			Donate::addDonateSectionToArticle();
 		}
 
+		// Maybe include summary video in VideoCatalog
+		$videoPlayer = pq( '#quick_summary_section .video-player' );
+		if ( $videoPlayer && class_exists( 'VideoCatalog' ) && VideoCatalog::shouldIncludeSummaryVideo( $context ) ) {
+			// Grab the original video source before the video is messed with
+			$src = $videoPlayer->find( 'video' )->attr( 'data-src' );
+
+			if ( $src ) {
+				// Add it to the summary wrapper for safe keeping - this is where
+				// maintenance/wikihow/updateSummaryVideos.php will be looking for it
+				// In the case of a random YouTube embed, $src is empty
+				pq('#summary_wrapper')->attr( 'data-summary-video-src', $src );
+			}
+
+			// Maybe replace inline player with link to VideoBrowser
+			if ( $src && class_exists( 'VideoBrowser' ) && VideoBrowser::inlinePlayerShouldBeReplaced( $context ) ) {
+				$link = pq( '<a id="summary_video_link">' )->attr(
+					'href', '/Video/' . str_replace( ' ', '-', $title->getText() )
+				);
+				$poster = pq( '<img id="summary_video_poster">' )
+					->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) )
+					->addClass( 'm-video' )
+					->addClass( 'content-fill placeholder' );
+				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $title ) );
+				// Include the structured data, which was appened to .video-player
+				$videoPlayer->empty()->append( $link );
+				$link->append( $poster );
+				$link->append( Html::inlineScript(
+					"WH.shared.addScrollLoadItem('summary_video_poster')"
+				) );
+				$link->append( Html::inlineScript(
+					"WH.shared.addLoadedCallback('summary_video_poster', function(){WH.shared.showVideoPlay(this);})"
+				) );
+				$link->append( $controls );
+			}
+		}
+
+		// Check the YouTube videos
+		if ( pq( '.embedvideocontainer' )->length > 0 && WHVid::isYtSummaryArticle( $title ) ) {
+			wikihowToc::setSummaryVideo( true );
+			$summary = pq( '.summary_with_video' );
+			if ( $summary->length ) {
+				$summary->replaceWith( pq( '#summary_wrapper' ) );
+			}
+			// Add schema to all YouTube videos that are from our channel
+			foreach ( pq( '.embedvideo' ) as $video ) {
+				$src = pq( $video )->attr( 'data-src' );
+				preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
+				if ( $matches[1] ) {
+					$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
+					// Only videos from our own channel will have publisher information
+					if ( array_key_exists( 'publisher', $videoSchema ) ) {
+						pq( $video )->after(
+							SchemaMarkup::getSchemaTag( $videoSchema ) .
+							'<!-- ' . (
+								$videoSchema ?
+									'YouTube info from cache' :
+									'YouTube info being fetched'
+								) .
+							' -->'
+						);
+					}
+				}
+			}
+		}
+
 		if ($isNewTocArticle) {
 			WikihowToc::addToc();
 		}
@@ -967,50 +999,6 @@ class WikihowArticleHTML {
 				$start = array_slice($words, 0, 5);
 				$end = array_slice($words, 5);
 				$firstParagraph->html("<span style='font-weight: bold'>" . join(" ", $start) . "</span> " . join(" ", $end));
-			}
-		}
-
-		// Replace inline-videos with links to VideoBrowser pages
-		$dbr = wfGetDb( DB_REPLICA );
-		$summaryVideo = $dbr->selectRow( 'summary_videos', '*', [ 'sv_id' => $title->getArticleID() ], __METHOD__ );
-		$recipeSchema = SchemaMarkup::getRecipeSchema( $title, $context->getOutput()->getRevisionId() );
-		if (
-			// Only on English, for now, could change in the future
-			$langCode == 'en' &&
-			// Make sure VideoBrowser knows about the video, there could be lag between save and
-			// summary_video being populated, this is a safety net
-			$summaryVideo &&
-			// Special exception for recipe articles, play those inline since the recipe schema
-			// advertises the video is here
-			!$recipeSchema &&
-			// Don't use VideoBrowser on alt-domains
-			!$isAltDomainView &&
-			// Check article being on alt-domain as well, because logged in users can see alt-domain
-			// articles on the main site
-			!$isAltDomainArticle
-		) {
-			$videoPlayer = pq( '#quick_summary_section .video-player' );
-
-			// Grab the original video source before the video is messed with
-			$src = $videoPlayer->find( 'video' )->attr( 'data-src' );
-			// Add it to the summary wrapper for safe keeping
-			pq('#summary_wrapper')->attr( 'data-summary-video-src', $src );
-
-			if ( $videoPlayer ) {
-				$link = pq( '<a id="summary_video_link">' )->attr(
-					'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )
-				);
-				$poster = pq( '<img id="summary_video_poster">' )
-					->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) )
-					->addClass( 'm-video' )
-					->addClass( 'content-fill placeholder' );
-				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $title ) );
-				// Includes the structured data, which was appened to .video-player
-				$videoPlayer->empty()->append( $link );
-				$link->append( $poster );
-				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
-				$link->append( Html::inlineScript( "WH.shared.addLoadedCallback('summary_video_poster', function(){WH.shared.showVideoPlay(this);})" ) );
-				$link->append( $controls );
 			}
 		}
 

@@ -18,7 +18,6 @@
 
 		initPage: function() {
 			$('#article_rating_mobile').show();
-			$('#footer_random_button').show();
 			this.placeholderToggle();
 		}
 	};

@@ -606,6 +606,19 @@ $out->addHTML("
 		}
 	}
 
+	static function callbackRemoveHTMLAttribs(&$params, $args) {
+		// Remove style=... attributes. A security researcher CUZLOCKED said this on August 23, 2019, to me (Reuben) by email:
+		/*
+			The first issue does appear to be mostly fixed. However, it is still possible to take control of almost the entire site with CSS injection. This can be used for phishing, removal of administrative tools, and in some cases JavaScript execution (Some versions of IE and Firefox allow JavaScript code inside CSS). If you set your location to the following:
+			<p style=z-index:1000000000;position:fixed;top:0;left:0;width:100%;height:100%;margin:0;padding:0;background:linear-gradient(280deg,#ff3cac,#784ba0,#2b86c5);color:white;margin-left:auto;margin-right:auto;text-align:center;font-size:32px;><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>CSS Injection demo</p>
+
+			You will see that the entire profile page has been overwritten with a custom message, and this issue persists if you disable JavaScript as it is CSS overwriting the page. You can test this bug here.
+		*/
+		if ( preg_match('@style=@', $params) ) {
+			$params = '';
+		}
+	}
+
 	// Used in WikihowUserPage
 	public static function getPageTop($u, $isMobile = false){
 		$realName = User::whoIsReal($u->getId());
@@ -615,22 +628,31 @@ $out->addHTML("
 			$pb_regdate = self::getMemberSince(wfTimestamp(TS_UNIX,'20060725043938'));
 		}
 
-		$pb_showlive = false;
+		$callback = 'ProfileBox::callbackRemoveHTMLAttribs';
+
 		$pb_live = '';
 		$t = Title::newFromText($u->getUserPage() . '/profilebox-live');
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			if ($r) $pb_live = ContentHandler::getContentText( $r->getContent() );
-			if ($pb_live) $pb_showlive = true;
+			if ($r) {
+				$pb_live = ContentHandler::getContentText( $r->getContent() );
+				$pb_live = Sanitizer::removeHTMLtags($pb_live, $callback);
+			}
 		}
 
-		$pb_showwork = false;
 		$pb_work = '';
 		$t = Title::newFromText($u->getUserPage() . '/profilebox-occupation');
 		if ($t->getArticleId() > 0) {
 			$r = Revision::newFromTitle($t);
-			if ($r) $pb_work = ContentHandler::getContentText( $r->getContent() );
-			if ($pb_work) $pb_showwork = true;
+			if ($r) {
+				$pb_work = ContentHandler::getContentText( $r->getContent() );
+				$pb_work = Sanitizer::removeHTMLtags($pb_work, $callback);
+				// We only allow websites here since these are turned into
+				// <a href=...> links.
+				if ( !preg_match('@^\s*https?://@', $pb_work) ) {
+					$pb_work = '';
+				}
+			}
 		}
 
 		$t = Title::newFromText($u->getUserPage() . '/profilebox-aboutme');
@@ -642,6 +664,7 @@ $out->addHTML("
 				$pb_aboutme = strip_tags($pb_aboutme, '<p><br><b><i>');
 				$pb_aboutme = preg_replace('/\\\\r\\\\n/s',"\n",$pb_aboutme);
 				$pb_aboutme = stripslashes($pb_aboutme);
+				$pb_aboutme = Sanitizer::removeHTMLtags($pb_aboutme, $callback);
 			}
 		}
 
@@ -652,9 +675,9 @@ $out->addHTML("
 			'pb_display_name' => htmlspecialchars($realName ? $realName : $u->getName()),
 			'pb_display_show' => $u->getOption('profilebox_display'),
 			'pb_regdate' => $pb_regdate,
-			'pb_showlive' => $pb_showlive,
+			'pb_showlive' => !empty($pb_live),
 			'pb_live' => $pb_live,
-			'pb_showwork' => $pb_showwork,
+			'pb_showwork' => !empty($pb_work),
 			'pb_work' => $pb_work,
 			'pb_aboutme' => $pb_aboutme,
 			'pb_social' => $social,

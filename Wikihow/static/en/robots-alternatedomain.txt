@@ -107,9 +107,22 @@ Disallow: /api.php
 Disallow: /index.php
 Disallow: /Special:
 
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
 User-agent: *
 Allow: /Special:LSearch
 Allow: /Special:QABox
 Allow: /Special:Sitemap
+Allow: /index.php?*printable
+Disallow: /index.php
 Disallow: /*feed=rss
-Noindex: /*feed=rss
+Disallow: /*action=delete
+Disallow: /*action=history
+Disallow: /*action=watch
+Disallow: /Special:
+Disallow: /*platform=
+Disallow: /*variant=

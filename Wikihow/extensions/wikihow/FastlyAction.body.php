@@ -30,6 +30,25 @@ class FastlyAction {
 		return $result['status'] ?? false;
 	}
 
+	public static function getTag($langCode, $id) {
+		$resetTag = "id$langCode$id";
+		return $resetTag;
+	}
+
+	public static function getTagFromURL($url) {
+		$resetTag = '';
+		$resetService = '';
+		$rows = Misc::getPagesFromURLs( [$url] );
+		foreach ($rows as $row) {
+			$langCode = $row['lang'];
+			$pageid = $row['page_id'];
+			$resetTag = self::getTag($langCode, $pageid);
+			$resetService = $langCode == 'en' ? 'en' : 'intl';
+			break;
+		}
+		return [$resetTag, $resetService];
+	}
+
 	// Use Fastly's API /service/.../purge/key function, described here:
 	// http://www.fastly.com/docs/api#service
 	public static function purgeURL($url) {

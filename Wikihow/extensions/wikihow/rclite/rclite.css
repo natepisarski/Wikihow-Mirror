@@ -155,8 +155,3 @@ a#rcl-no {
 .de_reply {
 	display: none;
 }
-
-div#footer div#footer_random_button {
-	visibility: hidden;
-	display: block;
-}

@@ -367,4 +367,14 @@ class MobileFrontendWikiHowHooks {
 
 		return true;
 	}
+
+	public static function onHeaderBuilderGetCategoryLinksShowCategoryListing( &$showCategoryListing ) {
+		$title = RequestContext::getMain()->getTitle();
+		if (!$title) return;
+
+		//only show "Categories" in the mobile footer breadcrumb if it's an article page
+		if (!$title->inNamespace(NS_MAIN) || $title->getText() == wfMessage('Mainpage')->text()) {
+			$showCategoryListing = false;
+		}
+	}
 }

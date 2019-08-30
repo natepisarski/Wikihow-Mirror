@@ -17,77 +17,125 @@ a.external {
 /**********
  * FOOTER *
  **********/
-
 #footer {
-	border-top: none;
 	padding: 0;
 	margin: 0;
-	position: absolute;
 	bottom: 0;
 	width: 100%;
-	font-size: .9em;
-}
-
-#footer a {
-	color: #93B874;
-}
-
-#footer_bar {
-	position: relative;
-	z-index: 3;
-	width: 100%;
 	background-color: #93B874;
-	-webkit-box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
-	box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.10);
-	padding: 10px;
-	box-sizing: border-box;
+	text-align: center;
+	color: #FFF;
+}
+#footer a {
+	color: #FFF;
 }
 
-#search_footer #cse-search-box {
-	margin: 0 10px;
+#footer_inner {
+	padding: 23px 1em 1.5em;
+	margin: 0 auto;
+	max-width: 728px;
+}
+
+#footer_logo {
+	display: block;
+	height: 21px;
+	margin-bottom: 1em;
+}
+
+#footer_middle {
+	border-top: 1px solid #77a555;
+	padding: 1.4em 1em 0;
+	margin: 0 -1em;
+}
+
+#cse-search-box-bottom {
+	position: relative;
 }
 
 #search_footer .cse_q {
-	color: #FFF;
-	background-color: #B3CE9C;
-	width: 86%;
+	box-sizing: border-box;
+	padding: .7em 33px .7em .7em;
+	width: 100%;
+	border: 1px solid #5f8344;
+	border-radius: 5px;
+	background-color: #FFF;
+	font-size: 16px; /*CSS hack to stop zooming when the iOS keyboard appears*/
 }
+
 #search_footer .cse_sa {
-	top: auto;
-	right: auto;
-	background-color: #B3CE9C;
-	background-image: url(/extensions/wikihow/mobile/images/white_mag.png);
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 38px;
+	height: 42px;
+	background: url(/extensions/wikihow/mobile/images/gray_mag.png) center / 17px no-repeat;
 	/* @embed */
-	background-image: url(/extensions/wikihow/mobile/images/white_mag.svg);
+	background-image: url(/extensions/wikihow/mobile/images/gray_mag.svg);
 }
 
-#footer_random_button {
-	text-align: center;
-	width: 100px;
-	margin: auto;
+#footer_links ul {
+	display: inline-block;
+	-webkit-columns: 2;
+	-moz-columns: 2;
+	columns: 2;
+	-webkit-column-gap: 3em;
+	-moz-column-gap: 3em;
+	column-gap: 3em;
+	margin: 1.2em auto 0;
+	font-size: 1.1em;
+	text-align: left;
+	overflow: hidden;
 }
 
-.creature {
-	width: 100px;
-	height: 100px;
-	position: relative;
-	z-index: 2;
-	margin-bottom: -20px;
+#footer_links li {
+	line-height: 2em;
 }
-.creature .creature_path { fill: #93B874; }
-.creature:hover .creature_path { fill: #58773A; }
-.creature .creature_text, .creature_text_flat {
-	font-weight: bold;
-	font-size: 2em;
-	fill: #93B874;
+
+#footer_crumbs {
+	margin-bottom: 1.4em;
 }
-.creature:hover .creature_text, .creature:hover + .creature_text_flat { fill: #58773A; }
-.creature_text_flat {
-	position:absolute;
-	bottom: 95px;
-	width: 100px;
-	text-align: center;
+
+@media only screen and (min-width:728px) {
+	#footer {
+		border-top: 2px solid #77a555;
+		text-align: left;
+	}
+
+	#footer_middle {
+		border: solid #77a555;
+		border-width: 1px 0;
+		padding: 0;
+		display: table;
+		width: 100%;
+		max-width: 728px;
+		margin: 0 auto;
+	}
+
+	#search_footer {
+		display: table-cell;
+		vertical-align: middle;
+		width: 60%;
+	}
+
+	#footer_links {
+		display: table-cell;
+		text-align: center;
+	}
+
+	#footer_links ul {
+		margin: .5em 0 .2em;
+		text-align: left;
+		font-size: 1em;
+		-webkit-column-gap: 2em;
+		-moz-column-gap: 2em;
+		column-gap: 2em;
+	}
+
+	#footer_crumbs {
+		font-size: .9em;
+	}
 }
+
 /* End footer */
 
 #mw-mf-last-modified{
@@ -600,24 +648,6 @@ a.button.disabled:hover, input.button.disabled:hover, a.button.clickfail:hover, 
 	background-size: 24px;
 }
 
-.wh_search .cse_sa {
-	position: absolute;
-	top:8px;
-	right: 10%;
-	margin: 5px 0 0 -23px;
-	width: 18px;
-	height: 18px;
-	background-image: url(/extensions/wikihow/mobile/images/gray_mag.png);
-	/* @embed */
-	background-image: url(/extensions/wikihow/mobile/images/gray_mag.svg);
-	background-color: #FFF;
-	background-size: 18px;
-	background-repeat: no-repeat;
-	border: none;
-	padding: 0;
-	cursor: pointer;
-}
-
 .editor-overlay .overlay-header .icon.cancel { background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMzguOTQ5cHgiIGhlaWdodD0iMzguOTQ5cHgiIHZpZXdCb3g9IjAgMCAzOC45NDkgMzguOTQ5IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAzOC45NDkgMzguOTQ5IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiM2MDYwNjAiIGQ9Ik0yMy4wMSwxOS40NzRMMzguMjE2LDQuMjY4YzAuOTc3LTAuOTc2LDAuOTc3LTIuNTU5LDAtMy41MzVjLTAuOTc3LTAuOTc3LTIuNTU5LTAuOTc3LTMuNTM1LDANCglMMTkuNDc0LDE1LjkzOUw0LjI2OCwwLjczMmMtMC45NzctMC45NzctMi41NTktMC45NzctMy41MzUsMGMtMC45NzcsMC45NzYtMC45NzcsMi41NTksMCwzLjUzNWwxNS4yMDcsMTUuMjA3TDAuNzMzLDM0LjY4MQ0KCWMtMC45NzcsMC45NzYtMC45NzcsMi41NTksMCwzLjUzNWMwLjQ4OCwwLjQ4OCwxLjEyOCwwLjczMiwxLjc2OCwwLjczMnMxLjI3OS0wLjI0NCwxLjc2OC0wLjczMkwxOS40NzQsMjMuMDFsMTUuMjA3LDE1LjIwNw0KCWMwLjQ4OCwwLjQ4OCwxLjEyOCwwLjczMiwxLjc2OCwwLjczMnMxLjI3OS0wLjI0NCwxLjc2OC0wLjczMmMwLjk3Ny0wLjk3NiwwLjk3Ny0yLjU1OSwwLTMuNTM1TDIzLjAxLDE5LjQ3NHoiLz4NCjwvc3ZnPg==) !important; }
 .editor-overlay .overlay-header .icon.back {
 	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMTcuNTE2cHgiIGhlaWdodD0iMjkuMzc1cHgiIHZpZXdCb3g9IjAgMCAxNy41MTYgMjkuMzc1IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNy41MTYgMjkuMzc1IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiM2MDYwNjAiIGQ9Ik0xNS41MTYsMjkuMzc1Yy0wLjUxMiwwLTEuMDIzLTAuMTk1LTEuNDE0LTAuNTg2TDAsMTQuNjg4TDE0LjEwMiwwLjU4NmMwLjc4MS0wLjc4MSwyLjA0Ny0wLjc4MSwyLjgyOCwwDQoJCWMwLjc4MSwwLjc4MSwwLjc4MSwyLjA0NywwLDIuODI4TDUuNjU2LDE0LjY4OEwxNi45MywyNS45NmMwLjc4MSwwLjc4MSwwLjc4MSwyLjA0NywwLDIuODI4DQoJCUMxNi41MzksMjkuMTc5LDE2LjAyNywyOS4zNzUsMTUuNTE2LDI5LjM3NXoiLz4NCjwvZz4NCjwvc3ZnPg==) !important;
@@ -732,11 +762,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	textarea.newtip {
 		font-size: 18px;
 	}
-	#search_footer {
-		padding-right: 180px;
-	}
-	#search_footer #cse-search-box .cse_q { width: 24%; }
-
 	.sticky { padding-top: 67px; }
 
 	.sticky h2 { line-height: 1.7em; }

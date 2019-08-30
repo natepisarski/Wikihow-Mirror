@@ -954,9 +954,7 @@ class SchemaMarkup {
 			if ( $howToSchema ) {
 				$schema .= $howToSchema;
 			}
-			if ( ArticleTagList::hasTag( 'breadcrumb_schema', $title->getArticleID() ) ) {
-				$schema .= self::getBreadcrumbSchema( $out );
-			}
+			$schema .= self::getBreadcrumbSchema( $out );
 
 			if ( CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
 				if ( $wgIsDevServer ) {

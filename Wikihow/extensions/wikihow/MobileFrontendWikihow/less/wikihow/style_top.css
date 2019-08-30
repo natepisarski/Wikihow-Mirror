@@ -112,7 +112,6 @@ h5.steps_text .edit-page,
 h6.steps_text .edit-page,
 #article_rating_mobile,
 #uci_section,
-#footer_random_button,
 .trvote_box,
 .section.video,
 #hp_navigation,
@@ -125,7 +124,8 @@ h6.steps_text .edit-page,
 .m-video-helpful-wrap,
 #gdpr_dismiss,
 #gdpr_close,
-#intro .green_box {
+#intro .green_box,
+.pswp {
 	display:none;
 }
 
@@ -151,7 +151,7 @@ a, a:active, a:visited, a.new {
 }
 
 #mw-mf-page-center {
-	padding: 0 0 178px; /*<-- height of footer*/
+	padding: 0;
 	min-height: 100%;
 	width: 100%;
 	position: relative;
@@ -343,7 +343,7 @@ a, a:active, a:visited, a.new {
 }
 
 .content {
-	margin: 0 5px 1.5em;
+	margin: 0 5px;
 	word-wrap: break-word;
 }
 
@@ -421,6 +421,8 @@ pre {
 #content_wrapper {
 	padding-top: 40px;
 	background-color: #e9e7e3;
+	min-height: 715px; /* important for footer to sit at the bottom of the page */
+	margin: 0 0 3em 0;
 }
 
 .pre-content {
@@ -522,10 +524,6 @@ h4.steps_text::before {
 	padding:20px;
 	border: 1px solid #bfbfbf;
 	clear:both;
-}
-
-#content_wrapper {
-	margin:0;
 }
 
 .mw-headline {
@@ -780,13 +778,22 @@ h4.steps_text::before {
 }
 .wh_search .cse_q {
 	border: none;
-	font-size: 16px; /*CSS hack to stop zooming when the iOS keyboard appears*/
-	width: 84%;
-	height: 21px;
-	padding: 4px 10% 4px 4%;
-	-webkit-padding-end: 8%; /* adjust for the webkit scrollbar spacing */
-	border-radius: 5px;
 }
+
+.breadcrumbs li {
+	display: inline-block;
+	padding-right: .3em;
+}
+.breadcrumbs li.home {
+	display: none;
+}
+.breadcrumbs li:after {
+	content: '\0020 \00BB';
+}
+.breadcrumbs li:last-child:after {
+	content: '';
+}
+
 
 /*BUTTONS*/
 .content .button, .content button, .panel .button, .panel button, .buttonBar .button, .buttonBar button, .buttonBar input[type="submit"], .mw-ui-button, .content input[type="submit"] {

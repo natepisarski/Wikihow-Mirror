@@ -16,6 +16,7 @@ class LoginReminder extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 		$this->getOutput()->setArticleBodyOnly(true);
 		if ($this->getRequest()->getVal('submit')) {
 			$result = $this->mailPassword();

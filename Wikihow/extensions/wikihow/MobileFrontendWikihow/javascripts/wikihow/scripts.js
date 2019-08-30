@@ -1,12 +1,14 @@
 ( function($, mw) {
 'use strict';
 
-if (mw.config.get('wgNamespaceNumber') === 0) {
-	var isIOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/gi) !== null;
-	if (isIOS) {
-		iOSheaderFixes();
-	}
-}
+//[sc] 8/2019 - this is causing issues, but maybe it's there for a reason? Just commenting out
+// if (mw.config.get('wgNamespaceNumber') === 0) {
+//     var isIOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/gi) !== null;
+//     if (isIOS) {
+//             iOSheaderFixes();
+//     }
+// }
+
 
 $(document).ready(function() {
 	if (mw.config.get('wgNamespaceNumber') === 0) {
@@ -188,26 +190,22 @@ function resizeVideo() {
 	}
 }
 
-// fix for when the keyboard pops up
-function iOSheaderFixes() {
-	$('.cse_q').first()
-		.focus(function() {
-			//search box is being used
-			//WARNING: the iOS keyboard approacheth!!!
-			$('.header').css('position','absolute');
-			$(window).scrollTop(0);
-		})
-		.blur(function() {
-			$('.header').css('position','fixed');
-		});
-}
+//[sc] 8/2019 - this is causing issues, but might be needed for something? just commenting out
+// // fix for when the keyboard pops up
+// function iOSheaderFixes() {
+//     $('.cse_q').first()
+//             .focus(function() {
+//                     //search box is being used
+//                     //WARNING: the iOS keyboard approacheth!!!
+//                     $('.header').css('position','absolute');
+//                     $(window).scrollTop(0);
+//             })
+//             .blur(function() {
+//                     $('.header').css('position','fixed');
+//             });
+// }
 
 function addClickHandlers() {
-		//footer creature click
-		$(document).on('click', '#footer_random_button a', function() {
-			WH.ga.sendEvent('m-footer', 'surprise-creature', mw.config.get('wgTitle'));
-		});
-
 		// Track pencil click events
 		$(document).on('click', 'a.edit-page', function(/*e*/) {
 			//e.preventDefault();

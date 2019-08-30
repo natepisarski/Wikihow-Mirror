@@ -834,34 +834,42 @@ class WikihowMobileTools {
 		// this is a way to ensure that the sticky class is not added when it is not needed
 		pq('.section.sticky')->removeClass('sticky');
 
-		// Trevor, 11/8/18 - Testing making videos a link to the video browser - this must come
-		// after videos are updated
-		// Trevor, 3/1/19 - Check article being on alt-domain, not just which domain we are on, logged in
-		// users can see alt-domain articles on the main site
-		// Trevor, 6/18/19 - Make a special exception for recipe articles, play those inline
-		// Trevor, 8/16/19 - Added check that VideoBrowser knows about the video
-		$dbr = wfGetDb( DB_REPLICA );
-		$summaryVideo = $dbr->selectRow( 'summary_videos', '*', [ 'sv_id' => $wgTitle->getArticleID() ], __METHOD__ );
-		$recipeSchema = SchemaMarkup::getRecipeSchema( $wgTitle, $context->getOutput()->getRevisionId() );
-		if ( $summaryVideo && !$recipeSchema && $wgLanguageCode == 'en' && !Misc::isAltDomain() && !GoogleAmp::isAmpMode( $context->getOutput() ) ) {
-			$videoPlayer = pq( '.summarysection .video-player' );
-			if ( $videoPlayer ) {
+		// Maybe include summary video in VideoCatalog
+		$videoPlayer = pq( '#quick_summary_section .video-player' );
+		if ( $videoPlayer && class_exists( 'VideoCatalog' ) && VideoCatalog::shouldIncludeSummaryVideo( $context ) ) {
+			// Grab the original video source before the video is messed with
+			$src = $videoPlayer->find( 'video' )->attr( 'data-src' );
+
+			// Maybe replace inline player with link to VideoBrowser
+			if ( $src && class_exists( 'VideoBrowser' ) && VideoBrowser::inlinePlayerShouldBeReplaced( $context ) ) {
 				$link = pq( '<a id="summary_video_link">' )->attr(
-					'href', '/Video/' . str_replace( ' ', '-', $context->getTitle()->getText() )
+					'href', '/Video/' . str_replace( ' ', '-', $wgTitle->getText() )
 				);
-				$poster = pq( '<img id="summary_video_poster">' )->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) );
-				$poster->addClass( 'm-video' );
-				$poster->addClass( 'content-fill placeholder' );
+				$poster = pq( '<img id="summary_video_poster">' )
+					->attr( 'data-src', $videoPlayer->find( 'video' )->attr( 'data-poster' ) )
+					->addClass( 'm-video' )
+					->addClass( 'content-fill placeholder' );
 				$controls = pq( WHVid::getSummaryIntroOverlayHtml( '', $wgTitle ) );
+				// Include the structured data, which was appened to .video-player
 				$videoPlayer->empty()->append( $link );
 				$link->append( $poster );
-				$link->append( Html::inlineScript( "WH.shared.addScrollLoadItem('summary_video_poster')" ) );
-				$link->append( Html::inlineScript( "WH.shared.addLoadedCallback('summary_video_poster', function(){WH.shared.showVideoPlay(this);})" ) );
+				$link->append( Html::inlineScript(
+					"WH.shared.addScrollLoadItem('summary_video_poster')"
+				) );
+				$link->append( Html::inlineScript(
+					"WH.shared.addLoadedCallback('summary_video_poster', function(){WH.shared.showVideoPlay(this);})"
+				) );
 				$link->append( $controls );
 			}
 		}
 
-		if( pq('.embedvideocontainer')->length > 0 && WHVid::isYtSummaryArticle($wgTitle)) {
+		// Check the YouTube videos
+		if ( pq( '.embedvideocontainer' )->length > 0 && WHVid::isYtSummaryArticle( $wgTitle ) ) {
+			wikihowToc::setSummaryVideo( true );
+			$summary = pq( '.summary_with_video' );
+			if ( $summary->length ) {
+				$summary->replaceWith( pq( '#summary_wrapper' ) );
+			}
 			// Add schema to all YouTube videos that are from our channel
 			foreach ( pq( '.embedvideo' ) as $video ) {
 				$src = pq( $video )->attr( 'data-src' );
@@ -869,7 +877,7 @@ class WikihowMobileTools {
 				if ( $matches[1] ) {
 					$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $matches[1] );
 					// Only videos from our own channel will have publisher information
-					if ( is_array( $videoSchema ) && array_key_exists( 'publisher', $videoSchema ) ) {
+					if ( array_key_exists( 'publisher', $videoSchema ) ) {
 						pq( $video )->after(
 							SchemaMarkup::getSchemaTag( $videoSchema ) .
 							'<!-- ' . (

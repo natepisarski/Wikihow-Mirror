@@ -1165,6 +1165,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 	// instead of just a string to prevetn google bot from crawling these paths
 	protected function getGPTAdSlot( $ad ) {
 		$adUnitPath = $this->mDFPData[$ad->mType]['adUnitPath'];
+		if ( !$adUnitPath ) {
+			return '';
+		}
 		$adUnitPath = str_replace( "/", "|", $adUnitPath);
 		$adUnitPath = "'".$adUnitPath . "'.replace(/\|/g,'/')";
 		return $adUnitPath;
@@ -1270,7 +1273,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$indexHeadScript = "";
 		$dfpScript = "";
 		if ( $addDFP ) {
-			if ( rand( 1, 10 ) == 1 ) {
+			if ( rand( 1, 4 ) == 1 ) {
 				$indexHeadScript = $this->getIndexHeadScript();
 			}
 			$dfpScript = $this->getGPTDefine();
@@ -1320,6 +1323,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$dfpKeyVals = $this->getDFPKeyValsJSON();
 		$gpt = "var gptAdSlots = [];\n";
 		$gpt .= "var dfpKeyVals = $dfpKeyVals;\n";
+
 		$gpt .= "var googletag = googletag || {};\n";
 		$gpt .= "googletag.cmd = googletag.cmd || [];\n";
 		$gpt .= "var gptRequested = false;\n";
@@ -1337,6 +1341,9 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 				continue;
 			}
 			$adUnitPath = $this->getGPTAdSlot( $ad );
+			if ( !$adUnitPath ) {
+				continue;
+			}
 			$adSize = $this->getGPTAdSize( $ad );
 			$adId = $ad->targetId;
 			$gpt .= "gptAdSlots['$adId'] = googletag.defineSlot(".$adUnitPath.", $adSize, '$adId').addService(googletag.pubads());\n";
@@ -1997,6 +2004,10 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 			$this->mAdsenseSlots = array(
 				'intro' => 7741774671,
 			);
+		} elseif ( strstr( $domainName, "wikihow.legal" ) ) {
+			$this->mAdsenseSlots = array(
+				'intro' => 0,
+			);
 		}
 		$this->mAdServices = array(
 			'intro' => 'adsense',
@@ -2025,6 +2036,8 @@ class AlternateDomainAdCreator extends MixedAdCreatorVersion3 {
 			$adUnitPath = 'AllPages_RR_1_wikiHowMom_Desktop_All';
 		} else if ( strstr( $domainName, "wikihow-fun.com" ) ) {
 			$adUnitPath = 'WH-Fun-RR';
+		} elseif ( strstr( $domainName, "wikihow.legal" ) ) {
+			$adUnitPath = '';
 		}
 		$this->mDFPData = array(
 			'method' => array(

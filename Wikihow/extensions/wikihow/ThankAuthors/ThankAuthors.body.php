@@ -7,7 +7,7 @@ class ThankAuthors extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgFilterCallback;
+		global $wgFilterCallback, $wgLanguageCode;
 
 		$this->setHeaders();
 		$user = $this->getUser();
@@ -16,6 +16,7 @@ class ThankAuthors extends UnlistedSpecialPage {
 
 		$target = isset($par) ? $par : $req->getVal('target');
 		if (!$target) {
+			$out->setStatusCode( '404' );
 			$out->addHTML("No target specified. In order to thank a group of authors, a page must be provided.");
 			return;
 		}
@@ -27,6 +28,12 @@ class ThankAuthors extends UnlistedSpecialPage {
 			$out->setStatusCode( '404' );
 			$titleText = ($title ? $title->getText() : '');
 			$out->addHtml(wfMessage("thankauthors-title-not-exist", $titleText)->text());
+			return;
+		}
+
+		if ($wgLanguageCode != 'en') {
+			$out->setStatusCode( '404' );
+			$out->addHTML('Page disabled; it no longer exists');
 			return;
 		}
 

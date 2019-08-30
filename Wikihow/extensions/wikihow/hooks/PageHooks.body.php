@@ -69,7 +69,7 @@ class PageHooks {
 		if ($id > 0) {
 			$ctx = RequestContext::getMain();
 			$langCode = $ctx->getLanguage()->getCode();
-			$idResetTag = "id$langCode$id";
+			$idResetTag = FastlyAction::getTag($langCode, $id);
 
 			// Create a job that clears a particular fastly surrogate-key via the api
 			$params = ['action' => 'reset-tag', 'lang' => $langCode, 'tag' => $idResetTag];

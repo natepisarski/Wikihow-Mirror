@@ -43,6 +43,12 @@
 	margin-top: 20px;
 	margin-left: 22px;
 }
+#header .logo.legal_logo {
+	width: 147px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 22px;
+}
 #header.shrunk .logo.fitness_logo {
 	margin-top: 0px;
 	margin-left: 22px;
