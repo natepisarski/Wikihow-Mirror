@@ -464,6 +464,11 @@ body.action-view #content>#intro {
 	line-height: 20px;
 }
 
+.stu_test_font #intro p {
+	line-height: 30px;
+	font-size: 18px;
+}
+
 .section h2, .steps h3 {
 	padding-left: 15px;
 	font-family: inherit;
@@ -749,6 +754,11 @@ h4.steps_text::before {
 
 .stable .content p, .stable .content li, .stable .content dl {
 	line-height: 25px;
+}
+
+.stable .content .stu_test_font p, .stable .content .stu_test_font li, .stable .content .stu_test_font dl {
+	line-height: 35px;
+	font-size: 18px;
 }
 
 #header_logo {

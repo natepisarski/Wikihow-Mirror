@@ -12,3 +12,11 @@ $wgSpecialPages['AdminCustomMeta'] = 'AdminCustomMeta';
 $wgAutoloadClasses['AdminCustomMeta'] = __DIR__ . '/AdminCustomMeta.body.php';
 $wgExtensionMessagesFiles['AdminCustomMetaAlias'] = __DIR__ . '/AdminCustomMeta.alias.php';
 
+$wgResourceModules['ext.wikihow.admincustommeta'] = [
+	'scripts' => [ 'admincustommeta.js' ],
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop' ],
+	'dependencies' => [ 'ext.wikihow.desktop_base', 'jquery', 'ext.wikihow.common_bottom' ],
+	'remoteExtPath' => 'wikihow/custom_meta',
+	'position' => 'top'
+];

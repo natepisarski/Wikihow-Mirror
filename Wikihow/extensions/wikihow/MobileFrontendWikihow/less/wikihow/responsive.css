@@ -12,6 +12,10 @@
 	.stable .content p, .stable .content li, .stable .content dl, #intro p {
 		line-height: 25px;
 	}
+	.stable .content .stu_test_font p, .stable .content .stu_test_font li, .stable .content .stu_test_font dl, .stu_test_font #intro p {
+		line-height: 35px;
+		font-size: 18px;
+	}
 	#intro {
 		font-size: 16px;
 		margin: 0;
@@ -24,6 +28,9 @@
 	}
 	.stable .content p, .stable .content li, .stable .content dl, #intro p {
 	    line-height: 25px;
+	}
+	.stable .content .stu_test_font p, .stable .content .stu_test_font li, .stable .content .stu_test_font dl, .stu_test_font #intro p {
+		line-height: 35px;
 	}
 	.section_text, .steps_text {
 	    font-size: 16px;

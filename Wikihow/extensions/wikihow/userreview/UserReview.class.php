@@ -11,6 +11,7 @@ class UserReview {
 	const MAX_CHARACTER_COUNT = 20;
 	const MAX_REVIEW_LENGTH = 115;
 	const MAX_REVIEWS = 30;
+	const MAX_REVIEWS_MOBILE = 5;
 	const NUMBER_REVIEWS_KEY = "ur_numreviews";
 	const NUMBER_REVIEWS_ALL_KEY = "ur_numreviews_all";
 	const REVIEWS_KEY = "userreviews2";
@@ -401,8 +402,12 @@ class UserReview {
 				usort($oldReviews, "UserReview::compareReviewsByLength");
 				$reviews['reviews'] = array_merge($newReviews, $oldReviews);
 				//only want to include the max number
-				if (count($reviews['reviews'] > self::MAX_REVIEWS)) {
-					array_splice($reviews['reviews'], self::MAX_REVIEWS);
+				$maxReviews = self::MAX_REVIEWS;
+				if ($isMobile == false && Misc::isMobileMode()) {
+					$maxReviews = self::MAX_REVIEWS_MOBILE;
+				}
+				if (count($reviews['reviews']) > $maxReviews) {
+					array_splice($reviews['reviews'], $maxReviews);
 				}
 
 				$user_ids = [];

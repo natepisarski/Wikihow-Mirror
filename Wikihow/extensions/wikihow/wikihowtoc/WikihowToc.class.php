@@ -7,6 +7,7 @@ class WikihowToc {
 	private static $qanda = null;
 	private static $summary = null;
 	private static $videoSummary = null;
+	private static $expertAdvice = null;
 	private static $hasAnswers = false;
 
 	const MAX_ITEMS = 8;
@@ -22,6 +23,10 @@ class WikihowToc {
 
 	public static function setSummary() {
 		self::$summary = ['url' => '#', 'id' => 'summary_toc', 'text' => wfMessage('summary_toc')->text()];
+	}
+
+	public static function setExpertAdvice() {
+		self::$expertAdvice = ['url' => '#expertadvice', 'id' => 'ea_toc', 'text' => wfMessage('expert_advice')->text()];
 	}
 
 	public static function setSummaryVideo($isYoutube = false) {
@@ -125,7 +130,7 @@ class WikihowToc {
 
 		//first deal with priority of the elements
 		$count = 0;
-		$useSummary = $useVideoSummary = $useQandA = $useRwhs = $useReferences = false;
+		$useSummary = $useVideoSummary = $useQandA = $useRwhs = $useReferences = $useExpertAdvice = false;
 		if ($count < $secondaryShown && self::$summary != null) {
 			$useSummary = true;
 			$count++;
@@ -138,7 +143,11 @@ class WikihowToc {
 			$useVideoSummary = true;
 			$count++;
 		}
-		if ($count < $secondaryShown && self::$hasAnswers && self::$qanda) {
+		if ($count < $secondaryShown && self::$expertAdvice != null) {
+			$useExpertAdvice = true;
+			$count++;
+		}
+		if ($count < $secondaryShown && !$useExpertAdvice && self::$hasAnswers && self::$qanda) {
 			$useQandA = true;
 			$count++;
 		}
@@ -146,7 +155,7 @@ class WikihowToc {
 			$useRwhs = true;
 			$count++;
 		}
-		if ($count < $secondaryShown && !self::$hasAnswers && self::$qanda) {
+		if ($count < $secondaryShown && !$useExpertAdvice && !self::$hasAnswers && self::$qanda) {
 			$useQandA = true;
 			$count++;
 		}
@@ -159,6 +168,11 @@ class WikihowToc {
 
 		if ($useVideoSummary) {
 			$data['toc'][] = self::$videoSummary;
+		}
+
+		//Expert Advice
+		if ($useExpertAdvice) {
+			$data['toc'][] = self::$expertAdvice;
 		}
 
 		//q&a

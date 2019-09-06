@@ -133,9 +133,8 @@ class SpecialVideoBrowser extends SpecialPage {
 
 				$youtubeIds = [
 					5775245 => 'pPYmcaPwwVU',
-					// Trevor, 8/29/19, Going to replace these with some new IDs shortly
-					// 8570867 => 'ogKBevxvdr8',
-					// 8326974 => 'JQ0K--cv5Y4',
+					8570867 => 've5iZlE4QxY',
+					8326974 => 'Oy2s7yqy1XQ',
 					13268 => 'b-F7OtrLaoc',
 					66809 => '0c9PExGc9WE',
 					663332 => 'I4WHOEsq1Ko',

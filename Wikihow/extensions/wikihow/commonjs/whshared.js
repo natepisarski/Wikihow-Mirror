@@ -82,6 +82,9 @@ WH.shared = (function () {
 			offset = viewportHeight * 2;
 		screenTop -= offset;
 		viewportHeight = viewportHeight + offset;
+		if (rect.top == 0 && rect.bottom == 0) {
+			return false;
+		}
 		if (rect.top >= screenTop && rect.top <= viewportHeight) {
 			return true;
 		}

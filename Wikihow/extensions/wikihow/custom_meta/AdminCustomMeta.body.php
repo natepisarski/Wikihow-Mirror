@@ -162,7 +162,7 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 		$out->setHTMLTitle('Admin - Custom ' . $name . ' - wikiHow');
 		$out->setPageTitle('Customize ' . $name);
 
-		$out->addModules( ['wikihow.common.jquery.download', 'wikihow.common.aim'] );
+		$out->addModules( ['wikihow.common.jquery.download', 'wikihow.common.aim', 'ext.wikihow.admincustommeta'] );
 		$tmpl = $this->getGuts();
 		$out->addHTML($tmpl);
 	}

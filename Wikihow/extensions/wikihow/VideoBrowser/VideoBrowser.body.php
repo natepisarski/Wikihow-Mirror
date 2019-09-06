@@ -64,8 +64,10 @@ class VideoBrowser {
 	 * Add routes to make /Video the canonical URL for Special:VideoBrowser
 	 */
 	public static function onWebRequestPathInfoRouter( $router ) {
-		$router->add( '/Video/$1', array( 'title' => 'Special:VideoBrowser/$1' ) );
-		$router->addStrict( '/Video', array( 'title' => 'Special:VideoBrowser' ) );
+		if ( !class_exists( 'AlternateDomain' ) || !AlternateDomain::onAlternateDomain() ) {
+			$router->add( '/Video/$1', array( 'title' => 'Special:VideoBrowser/$1' ) );
+			$router->addStrict( '/Video', array( 'title' => 'Special:VideoBrowser' ) );
+		}
 		return true;
 	}
 

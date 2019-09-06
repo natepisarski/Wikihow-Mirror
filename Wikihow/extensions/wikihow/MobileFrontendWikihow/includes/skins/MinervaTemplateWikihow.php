@@ -13,6 +13,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	protected $breadCrumb = '';
 
 	public function execute() {
+Misc::_startTimer(); // TODO: remove (Alberto, 2019-09)
 		$this->isMainPage = $this->getSkin()->getTitle()->isMainPage();
 		$title = $this->getSkin()->getTitle();
 		$action = $this->getSkin()->getRequest()->getVal('action', 'view');
@@ -23,6 +24,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 		$this->breadCrumb = $this->setBreadcrumbHtml();
 		parent::execute();
+Misc::_stopTimer(); // TODO: remove (Alberto, 2019-09)
 	}
 
 	public function getWikihowTools() {
@@ -142,7 +144,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	protected function renderFooter( $data ) {
 		global $IP;
 
-		if ($this->isArticlePage && $data['titletext'] && !$data['amp'])
+		if ($this->isArticlePage && $data['titletext'])
 			$footerPlaceholder = wfMessage('howto', $data['titletext'])->text();
 		else
 			$footerPlaceholder = wfMessage('footer-search-placeholder')->text();

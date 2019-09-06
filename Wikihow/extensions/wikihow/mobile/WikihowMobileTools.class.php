@@ -911,6 +911,11 @@ class WikihowMobileTools {
 
 		Hooks::run('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
 
+		//stu font test
+		if( ArticleTagList::hasTag("stu_test_font", $docTitle->getArticleID()) ) {
+			pq(".mw-parser-output")->addClass("stu_test_font");
+		}
+
 		UserTiming::modifyDOM($canonicalSteps);
 		PinterestMod::modifyDOM();
 		if ( class_exists('ImageCaption') ) {

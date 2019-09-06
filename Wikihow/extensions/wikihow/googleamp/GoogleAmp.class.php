@@ -1231,7 +1231,15 @@ class GoogleAmp {
 		];
 		$input = Html::rawElement( "input", $inputAttr );
 
-		$formContents = $input.$button;
+
+		$inputAttr = [
+			"type" => "hidden",
+			"name" => "searchdefault",
+			"value" => $placeholderText,
+		];
+		$inputDefault = Html::rawElement( "input", $inputAttr );
+
+		$formContents = $input.$inputDefault.$button;
 
 		$formAttr  = [
 			"method" => "get",

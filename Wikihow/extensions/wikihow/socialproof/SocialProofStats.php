@@ -212,7 +212,7 @@ class SocialProofStats extends ContextSource {
 					'is_verifier' => true,
 					'name_link' => $nameLink,
 					'subname_blurb' => $subNameLink,
-					'avatar_image_html' => $this->getAvatarImageHtml( $this->verifierInfo ),
+					'avatar_image_html' => self::getAvatarImageHtml( $this->verifierInfo ),
 					'initials' => $this->verifierInfo->initials,
 				];
 
@@ -248,7 +248,7 @@ class SocialProofStats extends ContextSource {
 					'subname_blurb' => $subNameLink,
 				];
 
-				$avatarHtml = $this->getAvatarImageHtml( $this->verifierInfo );
+				$avatarHtml = self::getAvatarImageHtml( $this->verifierInfo );
 				if ($avatarHtml) {
 					$data['avatar_image_html'] = $avatarHtml;
 				} else {
@@ -346,15 +346,15 @@ class SocialProofStats extends ContextSource {
 	/**
 	 * get the html for the avatar of the expert icon with possible avatar image
 	 */
-	private function getAvatarImageHtml( $vInfo, $id = 'avatar_img', $after = '' ) {
+	public static function getAvatarImageHtml( $vInfo, $id = 'avatar_img', $after = '' ) {
 		$html = '';
 		if ( !$vInfo->imagePath ) return $html;
 
-		$amp = GoogleAmp::isAmpMode( $this->getOutput() );
+		$amp = GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() );
 
 		$imagePath = wfGetPad( $vInfo->imagePath );
 
-		if (GoogleAmp::isAmpMode( $this->getOutput() )) {
+		if ($amp) {
 			$contents = GoogleAmp::makeAmpImgElement($imagePath, 50, 50);
 		}
 		else {

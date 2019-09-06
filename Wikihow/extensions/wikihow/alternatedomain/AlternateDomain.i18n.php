@@ -59,14 +59,13 @@ $messages['en'] = array (
 	'meta_description_wikihow.fitness' => 'Learn how to get in shape and stay healthy with fitness tips from wikiHow.fitness. Step-by-step, illlustrated guides to help you maintain a healthy, fit lifestyle.',
 	'meta_description_wikihow.health' => 'Learn how to treat illnesses and follow best practices for wellness with wikiHow.health. Step-by-step, illustrated guides to help you become healthier and happier.',
 	'meta_description_wikihow-fun.com' => 'Spark your creativity and have fun with the entertaining guides at wikihow-fun.com. Easy, step-by-step, illustrated instructions to help you explore and play.',
-	'meta_description_wikihow.legal' => 'fill in',
+	'meta_description_wikihow.legal' => 'Learn how to defend your rights and follow the law with wikiHow.legal. Step-by-step, expert-reviewed guides to help you answer your legal questions.',
 	'meta_keywords_wikihow.tech' => 'Android, iPhone, iPad, Google, Pixel, phone, tablet, cell, cell phone, wifi, internet, Apple, YouTube, cable, television, tech, technology, information, information technology, education, educational, how to, digital, digital technology, invent, engineer, mobile, privacy, Facebook, Instagram, Snapchat, social, social media',
 	'meta_keywords_wikihow.pet' => 'pet, pets, dog, cat, care, pet care, bird, lizard, fish, snake, rabbit, bunny, training, grooming, dog training, dog grooming, cat training, litter box, litter box training, feed, bird feed, food, dog food, cat food, pet sitting, how to care, how to groom, how to, instructions',
 	'meta_keywords_wikihow.mom' => 'child, baby, parent, parents, parenting, children, raising, toys, toddler, infant, teen, teenager, teens, school, rearing, bottle, boys, boy, girls, girl, teach, teaching, mom, mother, dad, father, safety, preschool, preschooler',
-
 	'meta_keywords_wikihow.life' => 'Life, self help, home, homemade, example, make, sample, care, self, self care, relationship, love, romance, boy, girl, boyfriend, girlfriend, hygiene, clean, cleanliness, health',
 	'meta_keywords_wikihow.fitness' => 'fit, fitness, work, workout, health, healthy, muscle, muscles, lean, bulk, strong, strength, exercise, care, body, bodies, back, arm, arms, leg, legs, glutes, pecs, gym, heart, pool, run, swim, lift, weight, weights, model, skill, speed',
 	'meta_keywords_wikihow-fun.com' => 'imagination, games, costumes, cosplay, boy, girl, boys, girls, pretend, imagine, youth, fun, funny',
 	'meta_keywords_wikihow.health' => 'health, healthy, healthcare, illness, sickness, ill, sick, treatment, how to treat, diagnose, diagnosis, medical, injury, symptoms, disease, pain, diet, recovery',
-	'meta_keywords_wikihow.legal' => 'legal law',
+	'meta_keywords_wikihow.legal' => 'legal, law, right, lawyer, attorney, court, lawsuit, sue, civil, criminal, felony, bankruptcy, housing, business, claim, copyright, patent, motion, trial, defend, prosecute, file, contract, malpractice, divorce, license, custody',
 );

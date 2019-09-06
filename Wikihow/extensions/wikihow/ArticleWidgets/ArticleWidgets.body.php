@@ -8,6 +8,8 @@ class ArticleWidgets extends UnlistedSpecialPage {
 
 	function execute($par) {
 		global $wgOut, $wgRequest;
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
+
 		$html = '';
 		$target = isset( $par ) ? $par : $wgRequest->getVal( 'target' );
 		$target = strtoupper($target);

@@ -134,6 +134,12 @@ class LSearch extends SpecialPage {
 	public static function getSearchQuery(): string {
 		$req = RequestContext::getMain()->getRequest();
 		$q = trim($req->getVal('search', ''));
+
+		// used by amp footer search
+		$defaultQuery = trim($req->getVal('searchdefault', ''));
+		if ( !$q && $defaultQuery ) {
+			$q = $defaultQuery;
+		}
 		return $q;
 	}
 

@@ -959,6 +959,33 @@ p.green_box_bullet {
 	top: -88px;
 }
 
+#expertadvice .ar_avatar {
+	width: 50px;
+	height: 50px;
+	position: absolute;
+}
+
+.expert_advice_info {
+	padding-left: 60px;
+}
+
+.expert_advice_info {
+	padding-left: 60px;
+}
+
+#expertadvice ul {
+	list-style: none;
+}
+
+#expertadvice li:before {
+	content: '';
+	width: 18px;
+	height: 18px;
+	position: absolute;
+	background: url(/extensions/wikihow/WikihowLogin/images/check.svg) center / cover no-repeat;
+	margin: 3px 0 0 -25px;
+}
+
 /* Tablet Support */
 
 @media only screen and (min-width: 500px) {

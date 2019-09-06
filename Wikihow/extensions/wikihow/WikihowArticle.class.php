@@ -906,6 +906,11 @@ class WikihowArticleHTML {
 
 		Hooks::run('ProcessArticleHTMLAfter', array( $out ) );
 
+		//line-height and font test
+		if( ArticleTagList::hasTag("stu_test_font", $title->getArticleID()) ) {
+			pq("#bodycontents")->addClass("stu_test_font");
+		}
+
 		if ( isset( $canonicalSteps ) ) {
 			UserTiming::modifyDOM($canonicalSteps);
 		}

@@ -1,6 +1,6 @@
 <a href="/<?= $switchPage ?>">switch to editing <?= $switchName ?></a> &raquo;<br>
 <a href="/<?= $switchPage2 ?>">switch to editing <?= $switchName2 ?></a> &raquo;
-<form id='admin-upload-form' name='adminUploadForm' enctype='multipart/form-data' method='post' action='/Special:<?= $action ?>' onsubmit="return AIM.submit(this, { onStart: function () { $('#admin-result').html('sent!'); }, onComplete: function (data) { console.log('d',data); $('#admin-result').html(''); onFormSubmitted(); } });">
+<form id='admin-upload-form' name='adminUploadForm' enctype='multipart/form-data' method='post' action='/Special:<?= $action ?>'>
 <input type="hidden" name="action" value="save-list" />
 <br/>
 <style>
@@ -34,35 +34,3 @@
 		<?= $recent ?>
 	</tt>
 </div>
-
-<script>
-(function($) {
-	$(document).ready(function() {
-
-		$('#admin-get').click(function () {
-			$('#admin-result').html('retrieving list ...');
-			var url = '/Special:<?= $action ?>';
-			var form = 'action=retrieve-list';
-			$.download(url, form);
-			return false;
-		});
-
-		$('#adminFile').change(function () {
-			var filename = $('#adminFile').val();
-			if (!filename) {
-				alert('No file selected!');
-			} else {
-				$('#admin-result').html('sending list ...');
-				$('#admin-upload-form').submit();
-			}
-			return false;
-		});
-
-	});
-})(jQuery);
-
-function onFormSubmitted(data) {
-	$('#admin-result').html('saved! reload this page to see status, or to upload again.');
-	console.log('e',data);
-}
-</script>

@@ -19,7 +19,7 @@ class WikihowHomepageAdmin extends UnlistedSpecialPage {
 		global $wgUser;
 
 		$imageTitle = $localFile->getTitle();
-		if ( self::$wpDestFile !== $imageTitle->getText() ) {
+		if ( ucfirst(self::$wpDestFile) !== $imageTitle->getText() ) {
 			return;
 		}
 
