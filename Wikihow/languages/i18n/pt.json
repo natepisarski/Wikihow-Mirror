@@ -3836,5 +3836,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "A palavra-passe não pode {{PLURAL:$1|ser a mais popular|estar na lista das $1 palavras-passe mais populares}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "A palavra-passe não pode constar na lista das 100 000 palavras-passe usadas com mais frequência.",
 	"easydeflate-invaliddeflate": "O conteúdo fornecido não está devidamente comprimido",
-	"unprotected-js": "Por motivos de segurança o JavaScript de páginas desprotegidas não pode ser carregado. Crie javascript só no espaço nominal/domínio MediaWiki: ou numa subpágina do utilizador"
+	"unprotected-js": "Por motivos de segurança o JavaScript de páginas desprotegidas não pode ser carregado. Crie javascript só no espaço nominal/domínio MediaWiki: ou numa subpágina do utilizador",
+	"userlogout-continue": "Quer sair?"
 }

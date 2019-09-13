@@ -2149,5 +2149,6 @@
 	"authmanager-email-label": "Электрон почта",
 	"authmanager-email-help": "Электрон почта адресы",
 	"authmanager-realname-label": "Чын исеме",
-	"authprovider-resetpass-skip-label": "Калдыру"
+	"authprovider-resetpass-skip-label": "Калдыру",
+	"userlogout-continue": "Чыгасыгыз киләме?"
 }

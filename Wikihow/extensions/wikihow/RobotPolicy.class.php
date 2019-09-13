@@ -755,9 +755,8 @@ class RobotPolicy {
 	}
 
 	public static function onAfterGoodRevisionUpdated($title, $goodRev) {
-		$dry = false;
-		$fromMaster = true;
-		self::recalcArticlePolicyBasedOnTitle( $title, $dry, $fromMaster );
+		self::recalcArticlePolicyBasedOnTitle($title,
+			false /* $dry */, true /* $fromMaster */ );
 		return true;
 	}
 
@@ -765,9 +764,8 @@ class RobotPolicy {
 	public static function recalcArticlePolicy(&$article) {
 		if ($article) {
 			$title = $article->getTitle();
-			$dry = false;
-			$fromMaster = true;
-			self::recalcArticlePolicyBasedOnTitle( $title, $dry, $fromMaster );
+			self::recalcArticlePolicyBasedOnTitle($title,
+				false /* $dry */, true /* $fromMaster */);
 		}
 	}
 

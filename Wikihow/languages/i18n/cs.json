@@ -3833,5 +3833,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "Heslo nesmí být {{PLURAL:$1|dané oblíbené heslo|v seznamu $1 oblíbených hesel}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "Heslo nesmí být v seznamu 100 000 nejčastěji používaných hesel.",
 	"easydeflate-invaliddeflate": "Poskytnutý obsah nebyl správně zkomprimován",
-	"unprotected-js": "Z bezpečnostních důvodů nelze načítat JavaScript z nechráněných stran. Vyrábějte prosím JavaScriptové skripty jen ve jmenném prostoru MediaWiki: nebo jako uživatelskou podstránku"
+	"unprotected-js": "Z bezpečnostních důvodů nelze načítat JavaScript z nechráněných stran. Vyrábějte prosím JavaScriptové skripty jen ve jmenném prostoru MediaWiki: nebo jako uživatelskou podstránku",
+	"userlogout-continue": "Chcete se odhlásit?"
 }

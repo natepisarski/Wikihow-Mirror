@@ -3461,5 +3461,6 @@
 	"passwordpolicies-policy-passwordcannotmatchusername": "Паролата не може да бъде същата като потребителското име",
 	"passwordpolicies-policy-passwordcannotmatchblacklist": "Паролата не може да съвпада с пароли от черния списък",
 	"passwordpolicies-policy-maximalpasswordlength": "Паролата трябва да бъде по-малко от $1 {{PLURAL:$1|знак|знака}}",
-	"passwordpolicies-policy-passwordcannotbepopular": "Паролата не може да бъде {{PLURAL:$1|най-популярната такава|от списъка на най-популярните $1 пароли}}"
+	"passwordpolicies-policy-passwordcannotbepopular": "Паролата не може да бъде {{PLURAL:$1|най-популярната такава|от списъка на най-популярните $1 пароли}}",
+	"userlogout-continue": "Искате да излезете?"
 }

@@ -304,6 +304,9 @@ class ArticleAdExclusions {
 		foreach ($res as $row) {
 			$ids[] = array('lang' => $langCode, 'id' => $row->ae_page);
 		}
+
+		//reset back to en after so we don't run into errors
+		$dbr->selectDB($wgDBname);
 	}
 
 	/**

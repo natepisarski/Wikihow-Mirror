@@ -3704,5 +3704,6 @@
 	"passwordpolicies-policy-passwordcannotmatchblacklist": "La contraseña nun puede casar con contraseñes torgaes específicamente",
 	"passwordpolicies-policy-maximalpasswordlength": "La llonxitú de la contraseña tien de ser menor que {{PLURAL:$1|1 caráuter|$1 caráuteres}}",
 	"passwordpolicies-policy-passwordcannotbepopular": "La contraseña nun puede {{PLURAL:$1|ser la contraseña más popular|tar na llista de $1 contraseñes populares}}",
-	"easydeflate-invaliddeflate": "El conteníu dau nun ta comprimíu correutamente"
+	"easydeflate-invaliddeflate": "El conteníu dau nun ta comprimíu correutamente",
+	"userlogout-continue": "¿Desees zarrar la sesión?"
 }

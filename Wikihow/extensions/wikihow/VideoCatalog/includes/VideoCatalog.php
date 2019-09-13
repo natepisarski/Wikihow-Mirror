@@ -158,6 +158,7 @@ class VideoCatalog {
 							// Instantiation failed
 							return false;
 						}
+						$item->setOriginalArticleId( $articleId );
 						// Optionally override default item values
 						if ( $videoAdded['previewMediawikiName'] ) {
 							$item->setPosterUrl( $videoAdded['previewMediawikiName'] );
@@ -224,6 +225,7 @@ class VideoCatalog {
 			$item = VideoCatalogItem::newFromSourceUrl( $sourceUrl );
 			$item->setPosterUrl( $posterUrl );
 			$item->setClipUrl( $clipUrl );
+			$item->setOriginalArticleId( $articleId );
 			if ( !$item->create() ) {
 				// Creation failed
 				return false;

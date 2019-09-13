@@ -3813,5 +3813,6 @@
 	"passwordpolicies-policy-maximalpasswordlength": "Salasanan tulee olla lyhyempi kuin $1 {{PLURAL:$1|merkki|merkkiä}}",
 	"passwordpolicies-policy-passwordcannotbepopular": "Salasana ei saa olla {{PLURAL:$1|suosittu salasana|$1 suosituimman salasanan listalla}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "Salasana ei voi olla 100,000 yleisimmin käytetyn joukossa.",
-	"unprotected-js": "Turvallisuussyistä JavaScriptiä ei voi ladata suojaamattomilta sivuilta. Luo JavaScript-sivuja vain MediaWiki-nimiavaruuteen tai käyttäjän alasivulle."
+	"unprotected-js": "Turvallisuussyistä JavaScriptiä ei voi ladata suojaamattomilta sivuilta. Luo JavaScript-sivuja vain MediaWiki-nimiavaruuteen tai käyttäjän alasivulle.",
+	"userlogout-continue": "Haluatko kirjautua ulos?"
 }

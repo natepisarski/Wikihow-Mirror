@@ -3760,5 +3760,6 @@
 	"passwordpolicies-policy-passwordcannotmatchblacklist": "Parolele nu pot fi cele de pe lista neagră",
 	"passwordpolicies-policy-maximalpasswordlength": "Parola trebuie să aibă cel puțin $1 {{PLURAL:$1|caracter|caractere|de caractere}}.",
 	"passwordpolicies-policy-passwordcannotbepopular": "Parola nu poate fi {{PLURAL:$1|o parolă populară|în lista celor $1 parole populare|în lista celor $1 de parole populare}}.",
-	"easydeflate-invaliddeflate": "Conținutul oferit nu este comprimat corect"
+	"easydeflate-invaliddeflate": "Conținutul oferit nu este comprimat corect",
+	"userlogout-continue": "Doriți să vă deconectați?"
 }

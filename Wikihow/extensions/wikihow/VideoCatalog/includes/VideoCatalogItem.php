@@ -8,6 +8,7 @@ CREATE TABLE video_catalog_item (
   vci_step INT UNSIGNED NOT NULL DEFAULT 0,
   vci_version INT UNSIGNED NOT NULL DEFAULT 0,
   vci_published VARCHAR(14) NOT NULL DEFAULT '',
+  vci_original_article_id INT UNSIGNED,
   vci_poster_url VARCHAR(255) NOT NULL DEFAULT '',
   vci_clip_url VARCHAR(255) NOT NULL DEFAULT '',
   PRIMARY KEY (vci_id),
@@ -27,6 +28,7 @@ class VideoCatalogItem extends VideoCatalogObject {
 	protected $step;
 	protected $version;
 	protected $published;
+	protected $originalArticleId;
 	protected $posterUrl;
 	protected $clipUrl;
 
@@ -44,6 +46,7 @@ class VideoCatalogItem extends VideoCatalogObject {
 		$this->step = $row->vci_step;
 		$this->version = $row->vci_version;
 		$this->published = $row->vci_published;
+		$this->originalArticleId = $row->vci_original_article_id;
 		$this->posterUrl = $row->vci_poster_url;
 		$this->clipUrl = $row->vci_clip_url;
 	}
@@ -70,6 +73,10 @@ class VideoCatalogItem extends VideoCatalogObject {
 		return $this->published;
 	}
 
+	public function getOriginalArticleId() {
+		return $this->originalArticleId;
+	}
+
 	public function getPosterUrl() {
 		return $this->posterUrl;
 	}
@@ -94,6 +101,7 @@ class VideoCatalogItem extends VideoCatalogObject {
 					'vci_step' => $item->step,
 					'vci_version' => $item->version,
 					'vci_published' => wfTimestamp( TS_MW ),
+					'vci_original_article_id' => $item->originalArticleId,
 					'vci_poster_url' => $item->posterUrl,
 					'vci_clip_url' => $item->clipUrl
 				],
@@ -119,10 +127,11 @@ class VideoCatalogItem extends VideoCatalogObject {
 				'video_catalog_item',
 				[
 					'vci_published' => wfTimestamp( TS_MW ),
+					'vci_original_article_id' => $item->originalArticleId,
 					'vci_poster_url' => $item->posterUrl,
 					'vci_clip_url' => $item->clipUrl
 				],
-				[ 'vcs_id' => $item->id ],
+				[ 'vci_id' => $item->id ],
 				__METHOD__
 			);
 		} );
@@ -138,7 +147,7 @@ class VideoCatalogItem extends VideoCatalogObject {
 		return parent::deleteObject( function () use ( $item ) {
 			return static::getDB( DB_MASTER )->delete(
 				'video_catalog_item',
-				[ 'vcs_id' => $item->id ],
+				[ 'vci_id' => $item->id ],
 				__METHOD__
 			);
 		} );
@@ -171,6 +180,16 @@ class VideoCatalogItem extends VideoCatalogObject {
 	 */
 	public function setPublishedDate( $published ) {
 		$this->published = $published;
+		$this->dirty = true;
+	}
+
+	/**
+	 * Set orignal article ID.
+	 *
+	 * @param {string} $originalArticleId Set original article ID
+	 */
+	public function setOriginalArticleId( $originalArticleId ) {
+		$this->originalArticleId = $originalArticleId;
 		$this->dirty = true;
 	}
 
@@ -226,6 +245,7 @@ class VideoCatalogItem extends VideoCatalogObject {
 			'vci_step' => $source->step,
 			'vci_version' => $source->version,
 			'vci_published' => null,
+			'vci_original_article_id' => null,
 			'vci_poster_url' => '',
 			'vci_clip_url' => ''
 		] );

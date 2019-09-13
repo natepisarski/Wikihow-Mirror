@@ -3233,5 +3233,6 @@
 	"undelete-cantedit": "Anjeun teu bisa ngabolaykeun pamupusan ieu kaca lantaran anjeun teu bisa ngédit ieu kaca.",
 	"pagedata-title": "Data kaca",
 	"pagedata-not-acceptable": "Teu kapanggih format nu luyu. Jinis MIME nu dirojong: $1",
-	"pagedata-bad-title": "Judul teu sah: $1."
+	"pagedata-bad-title": "Judul teu sah: $1.",
+	"userlogout-continue": "Yakin rék kaluar log?"
 }

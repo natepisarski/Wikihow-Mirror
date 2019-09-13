@@ -3825,5 +3825,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "Lösenordet kan inte vara {{PLURAL:$1|det populäraste lösenordet|i listan över de $1 populäraste lösenorden}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "Lösenordet kan inte vara med i listan över de 100 000 vanligaste lösenorden.",
 	"easydeflate-invaliddeflate": "Innehåll som tillhandahålls är inte helt komprimerat",
-	"unprotected-js": "Av säkerhetsskäl kan inte JavaScript läsas in från oskyddade sidor. Skapa endast JavaScript i namnrymden MediaWiki: eller som en användarundersida."
+	"unprotected-js": "Av säkerhetsskäl kan inte JavaScript läsas in från oskyddade sidor. Skapa endast JavaScript i namnrymden MediaWiki: eller som en användarundersida.",
+	"userlogout-continue": "Vill du logga ut?"
 }

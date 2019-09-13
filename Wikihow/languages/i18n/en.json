@@ -6463,5 +6463,6 @@
 	"aria_catguard_accept": "Vote yes, article belongs in category",
 	"aria_catguard_reject": "Vote no, article does not belong in category",
 	"step_anchor": "step_$1_$2",
-	"sources": "Sources and Citations"
+	"sources": "Sources and Citations",
+	"userlogout-continue": "Do you want to log out?"
 }

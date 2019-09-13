@@ -3832,5 +3832,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "O contrasinal non pode {{PLURAL:$1|ser o contrasinal máis habitual|estar na lista dos $1 máis habituais}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "O contrasinal non pode estar na lista dos 100.000 contrasinais máis usados.",
 	"easydeflate-invaliddeflate": "O contido fornecido non está debidamente comprimido",
-	"unprotected-js": "Por motivos de seguridade non se pode cargar JavaScript desde páxinas non protexidas. Por favor, cree só JavaScript no espazo de nomes MediaWiki ou como subpáxina de usuario"
+	"unprotected-js": "Por motivos de seguridade non se pode cargar JavaScript desde páxinas non protexidas. Por favor, cree só JavaScript no espazo de nomes MediaWiki ou como subpáxina de usuario",
+	"userlogout-continue": "Quere rematar a sesión?"
 }

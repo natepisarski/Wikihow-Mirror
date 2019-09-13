@@ -3558,5 +3558,6 @@
 	"gotointerwiki-invalid": "'U titole specificate non g'è valide.",
 	"pagedata-bad-title": "Titole invalide: $1.",
 	"passwordpolicies-group": "Gruppe",
-	"passwordpolicies-policies": "Politeche"
+	"passwordpolicies-policies": "Politeche",
+	"userlogout-continue": "Vue ccù isse?"
 }

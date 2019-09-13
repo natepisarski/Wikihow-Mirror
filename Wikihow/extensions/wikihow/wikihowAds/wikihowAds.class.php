@@ -366,7 +366,7 @@ class wikihowAds {
 		 * over ~2000 articles then we should switch to querying the table
 		 * each time rather than storing the whole array.
 		 **/
-		$key = wfMemcKey('adExclusions', $wgLanguageCode);
+		$key = self::getKey($wgLanguageCode);
 		$excludeList = $wgMemc->get($key);
 		if (!$excludeList || !is_array($excludeList)) {
 			$excludeList = array();
@@ -398,19 +398,13 @@ class wikihowAds {
 	}
 
 	function resetAdExclusionCache(&$dbr, $languageCode) {
-		global $wgMemc, $wgDBname;
+		global $wgMemc;
 
-		$oldDBname = $wgDBname;
-		$wgDBname = Misc::getLangDB($languageCode);
-		$key = wfMemcKey('adExclusions', $languageCode);
-		$wgDBname = $oldDBname;
+		$dbName = Misc::getLangDB($languageCode);
+		$key = self::getKey($languageCode);
 		$excludeList = array();
 
-		if ($languageCode == "en") {
-			$dbr->selectDB($wgDBname);
-		} else {
-			$dbr->selectDB('wikidb_'.$languageCode);
-		}
+		$dbr->selectDB($dbName);
 
 		$res = $dbr->select(ArticleAdExclusions::TABLE, "ae_page", array(), __METHOD__);
 		foreach ($res as $row) {
@@ -418,6 +412,12 @@ class wikihowAds {
 		}
 
 		$wgMemc->set($key, $excludeList);
+	}
+
+	function getKey($languageCode) {
+		global $wgCachePrefix;
+
+		return wfForeignMemcKey(Misc::getLangDB($languageCode), $wgCachePrefix, 'adExclusions' );
 	}
 
 	/*******

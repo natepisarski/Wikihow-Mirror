@@ -2607,5 +2607,6 @@
 	"passwordpolicies-group": "အုပ်စု",
 	"passwordpolicies-policies": "မူဝါဒများ",
 	"passwordpolicies-policy-minimalpasswordlength": "စကားဝှက်တွင် အနည်းဆုံး {{PLURAL:$1|စကားလုံး|စကားလုံးများ}} $1 ခုရှိရမည်။",
-	"passwordpolicies-policy-passwordcannotmatchusername": "စကားဝှက်သည် အသုံးပြုသူအမည်နှင့် မတူညီရပါ"
+	"passwordpolicies-policy-passwordcannotmatchusername": "စကားဝှက်သည် အသုံးပြုသူအမည်နှင့် မတူညီရပါ",
+	"userlogout-continue": "အကောင့်မှ ထွက်လိုပါသလား"
 }

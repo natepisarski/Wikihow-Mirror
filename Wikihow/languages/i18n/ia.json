@@ -3729,5 +3729,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "Le contrasigno non pote esser {{PLURAL:$1|le contrasigno le plus popular|in le lista de $1 contrasignos popular}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "Le contrasigno non pote apparer in le lista del 100.000 contrasignos le plus commun.",
 	"easydeflate-invaliddeflate": "Le contento fornite non es correctemente comprimite",
-	"unprotected-js": "Pro motivos de securitate, non es possibile cargar codice JavaScript de paginas non protegite. Crea JavaScript solmente in le spatio de nomines \"MediaWiki:\" o como un subpagina de usator."
+	"unprotected-js": "Pro motivos de securitate, non es possibile cargar codice JavaScript de paginas non protegite. Crea JavaScript solmente in le spatio de nomines \"MediaWiki:\" o como un subpagina de usator.",
+	"userlogout-continue": "Vole tu clauder le session?"
 }

@@ -59,6 +59,10 @@ class ApiArticleText extends ApiBase {
 			'numMethods' => [
 				ApiBase :: PARAM_DFLT => 1,
 				ApiBase :: PARAM_TYPE => 'integer'
+			],
+			'partnerId' => [
+				ApiBase :: PARAM_DFLT => 'other',
+				ApiBase :: PARAM_TYPE => 'string'
 			]
 		);
 	}

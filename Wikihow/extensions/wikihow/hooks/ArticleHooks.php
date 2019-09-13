@@ -99,7 +99,7 @@ class ArticleHooks {
 			$doc = phpQuery::newDocument( $html );
 
 			// Find the source URLs for the last video clip and the summary video
-			foreach ( pq( '.m-video' ) as $video ) {
+			foreach ( pq( 'video.m-video' ) as $video ) {
 				// Inline summary video
 				if (
 					!pq( $video )->attr( 'data-summary' ) &&

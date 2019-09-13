@@ -1595,12 +1595,6 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 			$this->mAdsenseChannels[] = 6429618073;
 		}
 
-		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $pageId) ) {
-			$this->mAdsenseChannels[] = 2001974826;
-		} else {
-			$this->mAdsenseChannels[] = 2385774741;
-		}
-
 		$this->mAdSetupData = array(
 			'rightrail0' => array(
 				'instantload' => 1,
@@ -1644,14 +1638,6 @@ class MixedAdCreatorScrollTo extends MixedAdCreatorVersion2 {
 		if ( WikihowToc::isNewArticle() ) {
 			$this->mAdsenseSlots['method2'] = 3356467874;
 			$this->mAdServices['method2'] = 'adsense';
-		}
-
-		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $pageId) ) {
-			unset( $this->mAdsenseSlots['intro'] );
-			unset( $this->mAdServices['intro'] );
-			$this->mAdsenseSlots['method3'] = 7750426266;
-			$this->mAdServices['method3'] = 'adsense';
-			$this->mAdSetupData['scrollto']['maxsteps'] = 0;
 		}
 	}
 

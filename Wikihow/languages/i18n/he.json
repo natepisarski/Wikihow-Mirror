@@ -3859,5 +3859,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "הסיסמה לא יכולה להיות זהה {{PLURAL:$1|לסיסמה נפוצה|לאחת הסיסמאות שנמצאות ברשימה של $1 הסיסמאות הנפוצות}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "הסיסמה לא יכולה להיות ברשימת 100,000 הסיסמאות הנפוצות ביותר.",
 	"easydeflate-invaliddeflate": "התוכן שהועבר אינו דחוס כנדרש",
-	"unprotected-js": "מסיבות אבטחה, לא ניתן לטעון JavaScript מדפים שאינם מוגנים. ניתן ליצור סקריפטי JavaScript רק במרחב השם \"מדיה ויקי:\" או בדפי משנה של דף המשתמש."
+	"unprotected-js": "מסיבות אבטחה, לא ניתן לטעון JavaScript מדפים שאינם מוגנים. ניתן ליצור סקריפטי JavaScript רק במרחב השם \"מדיה ויקי:\" או בדפי משנה של דף המשתמש.",
+	"userlogout-continue": "האם ברצונך לצאת מהחשבון?"
 }

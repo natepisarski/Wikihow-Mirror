@@ -3991,5 +3991,6 @@
 	"passwordpolicies-policy-maximalpasswordlength": "パスワードは$1{{PLURAL:$1|文字}}以下でなければなりません",
 	"passwordpolicies-policy-passwordcannotbepopular": "パスワードは{{PLURAL:$1|一般的なものにすることはできません|一般的な$1個のパスワードのリストと一致するものにすることはできません}}",
 	"easydeflate-invaliddeflate": "提供されたコンテンツが適切に圧縮されていません",
-	"unprotected-js": "セキュリティ上の理由から、JavaScriptは保護されていないページからロードすることはできません。MediaWiki: 名前空間内、または利用者サブページとしてのみjavascriptを作成してください。"
+	"unprotected-js": "セキュリティ上の理由から、JavaScriptは保護されていないページからロードすることはできません。MediaWiki: 名前空間内、または利用者サブページとしてのみjavascriptを作成してください。",
+	"userlogout-continue": "ログアウトしますか？"
 }

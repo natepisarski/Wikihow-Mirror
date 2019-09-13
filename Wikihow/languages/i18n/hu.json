@@ -3776,5 +3776,6 @@
 	"passwordpolicies-policy-maximalpasswordlength": "A jelszó legfeljebb $1 karakter hosszú lehet",
 	"passwordpolicies-policy-passwordcannotbepopular": "A jelszó nem {{PLURAL:$1|lehet a gyakran használt jelszó|szerepelhet a(z) $1 leggyakrabban használt jelszó listáján}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "A jelszó nem szerepelhet a 100 000 leggyakrabban használt jelszó listáján .",
-	"unprotected-js": "Biztonsági okokból JavaScript nem tölthető be védtelen lapokról. Kérlek egyedül a MediaWiki névtérben készíts JavaScriptet, vagy szerkesztői allapként."
+	"unprotected-js": "Biztonsági okokból JavaScript nem tölthető be védtelen lapokról. Kérlek egyedül a MediaWiki névtérben készíts JavaScriptet, vagy szerkesztői allapként.",
+	"userlogout-continue": "Biztos ki szeretnél jelentkezni?"
 }

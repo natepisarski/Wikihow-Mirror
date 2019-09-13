@@ -13,7 +13,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	protected $breadCrumb = '';
 
 	public function execute() {
-Misc::_startTimer(); // TODO: remove (Alberto, 2019-09)
 		$this->isMainPage = $this->getSkin()->getTitle()->isMainPage();
 		$title = $this->getSkin()->getTitle();
 		$action = $this->getSkin()->getRequest()->getVal('action', 'view');
@@ -24,7 +23,6 @@ Misc::_startTimer(); // TODO: remove (Alberto, 2019-09)
 		}
 		$this->breadCrumb = $this->setBreadcrumbHtml();
 		parent::execute();
-Misc::_stopTimer(); // TODO: remove (Alberto, 2019-09)
 	}
 
 	public function getWikihowTools() {

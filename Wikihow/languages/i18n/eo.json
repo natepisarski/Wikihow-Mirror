@@ -3659,5 +3659,6 @@
 	"passwordpolicies-group": "Grupo",
 	"passwordpolicies-policies": "Politiko",
 	"passwordpolicies-policy-minimalpasswordlength": "Pasvortoj devas esti longaj almenaŭ  $1 {{PLURAL:$1|1 signon|$1 signojn}}.",
-	"passwordpolicies-policy-passwordcannotmatchusername": "La pasvorto ne povas esti la sama kiel la uzantnomo"
+	"passwordpolicies-policy-passwordcannotmatchusername": "La pasvorto ne povas esti la sama kiel la uzantnomo",
+	"userlogout-continue": "Ĉu vi volas elsaluti?"
 }

@@ -3449,5 +3449,6 @@
 	"passwordpolicies-policy-passwordcannotmatchusername": "ห้ามรหัสผ่านซ้ำกับชื่อผู้ใช้",
 	"passwordpolicies-policy-passwordcannotmatchblacklist": "ห้ามรหัสผ่านตรงกับรหัสผ่านที่ขึ้นบัญชีดำโดยเจาะจง",
 	"passwordpolicies-policy-maximalpasswordlength": "รหัสผ่านจะต้องมีความยาวน้อยกว่า $1 อักขระ",
-	"passwordpolicies-policy-passwordcannotbepopular": "ห้ามรหัสผ่านเป็น{{PLURAL:$1|รหัสผ่านยอดนิยม|ติดรายการ $1 รหัสผ่านยอดนิยม}}"
+	"passwordpolicies-policy-passwordcannotbepopular": "ห้ามรหัสผ่านเป็น{{PLURAL:$1|รหัสผ่านยอดนิยม|ติดรายการ $1 รหัสผ่านยอดนิยม}}",
+	"userlogout-continue": "คุณต้องการออกจากระบบหรือไม่"
 }

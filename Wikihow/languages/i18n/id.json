@@ -3866,5 +3866,6 @@
 	"passwordpolicies-policy-maximalpasswordlength": "Kata sandi tidak boleh kurang dari {{PLURAL:$1|karakter|karakter}}.",
 	"passwordpolicies-policy-passwordcannotbepopular": "Kata sandi tidak boleh {{PLURAL:$1|kata sandi populer|dalam senarai $1 kata sandi populer}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "Kata sandi tidak boleh termasuk dalam daftar 100.000 kata sandi yang paling umum digunakan.",
-	"unprotected-js": "Karena alasan keamanan Javascript tidak dapat dimuat dari halaman yang tidak dilindungi. Mohon hanya buat javascript di ruangnama MediaWiki: atau sebagai subhalaman  Pengguna"
+	"unprotected-js": "Karena alasan keamanan Javascript tidak dapat dimuat dari halaman yang tidak dilindungi. Mohon hanya buat javascript di ruangnama MediaWiki: atau sebagai subhalaman  Pengguna",
+	"userlogout-continue": "Apakah Anda ingin keluar log?"
 }

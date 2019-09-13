@@ -3780,5 +3780,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "Parool ei tohi olla {{PLURAL:$1|populaarne parool|$1 populaarse parooli loendis}}.",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "Parool ei saa olla 100&nbsp;000 kõige levinuma parooli loendis.",
 	"easydeflate-invaliddeflate": "Ette antud sisu ei ole õigesti vähendatud",
-	"unprotected-js": "Turvalisuse huvides ei saa JavaScripti laadida kaitsmata lehekülgedelt. Palun koosta JavaScripti ainult nimeruumis MediaWiki või kasutajate nimeruumi alamleheküljel."
+	"unprotected-js": "Turvalisuse huvides ei saa JavaScripti laadida kaitsmata lehekülgedelt. Palun koosta JavaScripti ainult nimeruumis MediaWiki või kasutajate nimeruumi alamleheküljel.",
+	"userlogout-continue": "Kas soovid välja logida?"
 }

@@ -3244,5 +3244,6 @@
 	"gotointerwiki": "{{SITENAME}} ra abırriyeno",
 	"passwordpolicies-group": "Grube",
 	"passwordpolicies-policies": "Politikeyi",
-	"passwordpolicies-policy-minimalpasswordlength": "Parola gani tewr senık be {{PLURAL:$1|1 karakter|$1 karakteran}} derg bo"
+	"passwordpolicies-policy-minimalpasswordlength": "Parola gani tewr senık be {{PLURAL:$1|1 karakter|$1 karakteran}} derg bo",
+	"userlogout-continue": "Şıma qayılê bıvıciyê?"
 }

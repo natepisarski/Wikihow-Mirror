@@ -3822,5 +3822,6 @@
 	"passwordpolicies-policy-passwordcannotbepopular": "Passordet kan ikke være {{PLURAL:$1|det populære passordet|i lista over $1 populære passord}}",
 	"passwordpolicies-policy-passwordnotinlargeblacklist": "Passord kan ikke være i listen over de vanligste 100&nbsp;000 passordene.",
 	"easydeflate-invaliddeflate": "Det gitte innholdet er ikke riktig komprimert",
-	"unprotected-js": "Av sikkerhetsårsaker kan ikke JavaScript lastes fra ubeskyttede sider. Bare skap JavaScript i MediaWiki-navnerommet eller som en brukerunderside"
+	"unprotected-js": "Av sikkerhetsårsaker kan ikke JavaScript lastes fra ubeskyttede sider. Bare skap JavaScript i MediaWiki-navnerommet eller som en brukerunderside",
+	"userlogout-continue": "Ønsker du å logge ut?"
 }
