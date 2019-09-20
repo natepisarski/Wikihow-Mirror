@@ -12,7 +12,7 @@ class WikihowMobileTools {
 
 		// only do this for article pages
 		if ($wgOut->isArticle()) {
-			$mobileTemplate->data['bodytext'] = self::processDom($mobileTemplate->data['bodytext'], $mobileTemplate->getSkin());
+			$mobileTemplate->data['bodytext'] = self::processDom( $mobileTemplate->data['bodytext'], $mobileTemplate->getSkin(), null, $mobileTemplate );
 			$mobileTemplate->data['tableofcontents'] = self::getTableOfContents();
 		}
 
@@ -23,7 +23,7 @@ class WikihowMobileTools {
 		return true;
 	}
 
-	static function processDom($text, $skin, $config = null) {
+	static function processDom($text, $skin, $config = null, $mobileTemplate = null ) {
 		global $wgLanguageCode, $wgTitle, $wgMFDeviceWidthMobileSmall, $IP, $wgUser, $wgContLang;
 
 		// Trevor, 5/22 - Used later on to add structred data to inline summary videos, must be
@@ -78,6 +78,8 @@ class WikihowMobileTools {
 			}
 		}
 
+		//add a clearall to the end of the intro
+		pq("#intro")->append("<div class='clearall'></div>");
 		// Contains elements with the raw titles of methods (i.e. non-parts)
 		$nonAltMethodElements = array();
 		$showTOC = false;
@@ -787,13 +789,19 @@ class WikihowMobileTools {
 			$qaWidget->addWidget();
 		}
 
-		if ($config['show-ads'] && wikihowAds::isEligibleForAds() && !wikihowAds::isExcluded($docTitle)) {
-			wikihowAds::insertMobileAds();
-
-			if (class_exists('AdblockNotice')) {
-				AdblockNotice::insertMobileNotice();
-			}
-		}
+		if ( $mobileTemplate
+				&& $mobileTemplate->data
+				&& $mobileTemplate->data['rightrail']
+				&& $mobileTemplate->data['rightrail']->mAds ) {
+			$mobileTemplate->data['rightrail']->mAds->addToBody();
+		} else if ( $amp ) {
+			$ads = new Ads( $context, $wgUser, $wgLanguageCode, array(), false );
+			$ads->addToBody();
+		} 
+			// TODO this
+			//if (class_exists('AdblockNotice')) {
+				//AdblockNotice::insertMobileNotice();
+			//}
 
 		if ($showTOC) {
 			//we should have all the alt methods from further up,

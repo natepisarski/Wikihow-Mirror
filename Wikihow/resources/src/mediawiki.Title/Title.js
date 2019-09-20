@@ -125,7 +125,7 @@
 		getNamespacePrefix = function ( namespace ) {
 			return namespace === NS_MAIN ?
 				'' :
-				( mw.config.get( 'wgFormattedNamespaces' )[ namespace ].replace( / /g, '_' ) + ':' );
+				( mw.config.get( 'wgFormattedNamespaces' )[ namespace ].replace( / /g, '-' ) + ':' );
 		},
 
 		rUnderscoreTrim = /^_+|_+$/g,
@@ -236,7 +236,7 @@
 				// Strip Unicode bidi override characters
 				.replace( rUnicodeBidi, '' )
 				// Normalise whitespace to underscores and remove duplicates
-				.replace( rWhitespace, '_' )
+				.replace( rWhitespace, '-' )
 				// Trim underscores
 				.replace( rUnderscoreTrim, '' );
 
@@ -365,7 +365,7 @@
 		 * @return {string}
 		 */
 		text = function ( s ) {
-			return s.replace( /_/g, ' ' );
+			return s.replace( /-/g, ' ' );
 		},
 
 		/**

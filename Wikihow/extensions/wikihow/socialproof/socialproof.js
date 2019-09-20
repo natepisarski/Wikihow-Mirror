@@ -1,6 +1,7 @@
 ( function ( mw, $ ) {
 
 	var toolUrl = '/Special:SocialProof';
+	var starVotingEnabled = false;
 
 	WH.sp = (function() {
 		function sendEvent(action, expert_name, target, callbackFunc) {
@@ -21,34 +22,34 @@
 	}());
 
 	function showStarRating() {
-		$('#sp_helpful_rating_count').hide();
-		$('#sp_star_rating_text').show();
-		$('.sp_star_container').addClass('star_editing');
+		var box = $(this).closest('.sp_box');
+		$(box).find('.sp_helpful_rating_count').hide();
+		$(box).find('.sp_star_rating_text').show();
+		$(box).find('.sp_star_container').addClass('star_editing');
 	}
 
 	function hideStarRating() {
-		$('#sp_helpful_rating_count').show();
-		$('#sp_star_rating_text').hide();
-		$('.sp_star_container').removeClass('star_editing');
+		var box = $(this).closest('.sp_box');
+		$(box).find('.sp_helpful_rating_count').show();
+		$(box).find('.sp_star_rating_text').hide();
+		$(box).find('.sp_star_container').removeClass('star_editing');
 	}
 
 	function votedStarRating() {
 		$(".sp_star_container").off("click");
 		$(".sp_star_container").off("hover");
-		// First star hover on desktop that needs turning off
-		$("#sp_star_section_upper").off("hover");
-		$("#sp_star_section_upper").off('mouseenter mouseleave');
-		$("#sp_helpful_lower").off("hover");
+		$(".sp_star_section_upper").off("hover");
+		$(".sp_star_section_upper").off('mouseenter mouseleave');
+		$(".sp_helpful_lower").off("hover");
 		$(".sp_helpful_hoverable").removeClass("sp_box_hoverable");
-		$(".sp_star_section_hoverable,#helpfulness_text").off("hover");
+		$(".sp_star_section_hoverable,.helpfulness_text").off("hover");
 
 		var thanks = mw.msg('sp_votethanks');
 		if ($('.helpful_sidebox').length) {
 			$('#sp_helpful_text_sidebox').html(thanks);
-		}
-		else {
-			$("#sp_star_rating_text").hide();
-			$('#helpfulness_text').html(thanks);
+		} else {
+			$(".sp_star_rating_text").hide();
+			$('.helpfulness_text').html(thanks);
 		}
 
 		// Second star hover on desktop that needs turning off
@@ -57,10 +58,15 @@
 		}
 	}
 
-	$(document).ready( function() {
+	function enableStarVoting() {
+		starVotingEnabled = !WH.isMobile || $(window).width() >= WH.largeScreenMinWidth;
+	}
 
-		if (!WH.isMobileDomain) {
-			$("#sp_star_section_upper").on({
+	$(document).ready( function() {
+		enableStarVoting();
+
+		if (starVotingEnabled) {
+			$(".sp_star_section_upper").on({
 				mouseenter: showStarRating,
 				mouseleave: hideStarRating
 			});
@@ -75,15 +81,44 @@
 		};
 
 		function starBehavior(i) {
-			//for some reason we only allow mobile voting...UNLESS there are zero votes (?!?)
-			if (WH.isMobileDomain && $("#sp_helpful_box").data('helpful') > 0) return;
-
 			var currStarId = i;
-			$('#sidebar').on('mouseenter', '#star' + i, function () {
-				for (var j = 1; j <= currStarId; j++) {
-					$("#star" + j + " > div").addClass("mousevote");
+
+			$(".star" + i).bind({
+				mouseenter: function () {
+					var box = $(this).closest('.sp_box');
+					for (var j = 1; j <= currStarId; j++){
+						$(box).find(".star" + j + " > div").addClass("mousevote");
+					}
+					$(box).find(".sp_star_rating_text").text(voteText[currStarId]);
+					$("#sp_star_rating_text").text(voteText[currStarId]);
+				},
+				mouseleave: function () {
+					var box = $(this).closest('.sp_box');
+					for (var j = 1; j <= currStarId; j++){
+						$(box).find(".star" + j + " > div").removeClass("mousevote");
+					}
+					$(box).find(".sp_star_rating_text").text("");
+				},
+				click: function () {
+					var box = $(this).closest('.sp_box');
+					for (var j = 1; j <= currStarId; j++){
+						$(box).find(".star" + j + " > div").addClass("mousedone");
+					}
+					var postData = {
+							'action': 'rate_page',
+							'page_id': wgArticleId,
+							'rating': currStarId,
+							'type': 'star',
+							'source': 'desktop'
+					};
+					$.post('/Special:RateItem',
+						postData,
+						function(result) {
+						},
+						'json'
+						);
+					votedStarRating()
 				}
-				$("#sp_star_rating_text").text(voteText[currStarId]);
 			} );
 			$('#sidebar').on('mouseleave', '#star' + i, function () {
 				for (var j = 1; j <= currStarId; j++) {
@@ -109,12 +144,15 @@
 				votedStarRating();
 			} );
 		}
-		for (var k = 1; k <= 5; k++) {
-			starBehavior(k);
+
+		if (starVotingEnabled) {
+			for (var k = 1; k <= 5; k++) {
+				starBehavior(k);
+			}
 		}
 
-		if ($("#sp_helpful_box").length > 0) {
-			$('.sp_popup_container').css("top", $("#sp_star_section_upper").position().top - $(".sp_popup_container").height() + 5);
+		if ($(".sp_helpful_box").length > 0) {
+			$('.sp_popup_container').css("top", $(".sp_star_section_upper").position().top - $(".sp_popup_container").height() + 5);
 		}
 
 		function displayHelpfulnessPopup() {
@@ -129,13 +167,13 @@
 				.animate({ top: "+=13px" }, 130);
 		}
 
-		$("#helpfulness_text, #sp_helpful_text_sidebox").on({
+		$(".helpfulness_text, #sp_helpful_text_sidebox").on({
 			mouseenter: displayHelpfulnessPopup,
 			mouseleave: hideHelpfulnessPopup
 		});
 
-		if ($('#sp_expert').length > 0 ) {
-			$('#sp_expert').click(function(e) {
+		if ($('.sp_expert').length > 0 ) {
+			$('.sp_expert').click(function(e) {
 				//e.preventDefault();
 				if ($('#sp_namelink').length) {
 					var target = $('#sp_namelink').attr('href');
@@ -172,14 +210,14 @@
 			});
 		}
 
-		if (!WH.isMobileDomain) {
-			//side bar hover
-			$('.sp_top_box_hoverable').hover(function() {
-				dialog_box(true, this, 'icon_hover');
-			}, function() {
-				dialog_box(false, this, 'icon_hover');
-			});
+		//side bar hover
+		$('#sidebar .sp_top_box_hoverable').hover(function() {
+			dialog_box(true, this, 'icon_hover');
+		}, function() {
+			dialog_box(false, this, 'icon_hover');
+		});
 
+		if (!WH.isMobile) {
 			//(i) icon & top badge hover
 			$('.sp_info_icon, #sp_icon_hover, .sp_expert_inline, .expert_coauthor_link').hover(function() {
 				dialog_box(true, this, 'icon_hover');
@@ -191,39 +229,37 @@
 			$('.sp_expert_inline, .expert_coauthor_link').click(function() {
 				return false;
 			});
-
-			//(i) dialog link tracking
-			$(document).on('click', '.sp_learn_more_link', function() {
-				WH.maEvent('article-information-hover-learnmore-click');
-			});
 		}
-		else {
-			var clickable_elements = '.ec_view, .sp_expert_inline, .expert_coauthor_link';
 
-			// badge at the top
-			$(clickable_elements).click(function(e) {
-				e.preventDefault();
-				if ($('#sp_icon_hover').is(':visible')) {
-					dialog_box(false, this, 'badge_click');
-				}
-				else {
-					dialog_box(true, this, 'badge_click');
-					WH.maEvent('article-info-badge-click-mobile');
-				}
-			});
+		//(i) dialog link tracking
+		$(document).on('click', '.sp_learn_more_link', function() {
+			WH.maEvent('article-information-hover-learnmore-click');
+		});
+		var clickable_elements = '.ec_view, .sp_expert_inline, .expert_coauthor_link';
 
-			//badge dialog click (close it)
-			$('#sp_icon_hover').click(function() {
-				var obj = $(this).parent().find(clickable_elements);
-				dialog_box(false, obj, 'badge_click');
-			});
+		// badge at the top
+		$(clickable_elements).click(function(e) {
+			e.preventDefault();
+			if ($('#sp_icon_hover').is(':visible')) {
+				dialog_box(false, this, 'badge_click');
+			}
+			else {
+				dialog_box(true, this, 'badge_click');
+				WH.maEvent('article-info-badge-click-mobile');
+			}
+		});
 
-			$("body").click(function(){
-				if($("#sp_icon_hover").is(':visible')) {
-                    dialog_box(false, this, 'badge_click');
-				}
-			})
-		}
+		//badge dialog click (close it)
+		$('#sp_icon_hover').click(function() {
+			var obj = $(this).parent().find(clickable_elements);
+			dialog_box(false, obj, 'badge_click');
+		});
+
+		$("body").click(function(){
+			if($("#sp_icon_hover").is(':visible')) {
+				dialog_box(false, this, 'badge_click');
+			}
+		})
 
 		var on_bubble = false;
 
@@ -257,6 +293,10 @@
 				popupContainer = $('#sp_icon_hover');
 				finalTopPopupPosition = $(obj).position().top + $(obj).height() + 15;
 				startTopPopupPosition = finalTopPopupPosition + 10;
+
+				if (WH.shared.isDesktopSize && $(obj).is($('.expert_coauthor_link'))) {
+					$(popupContainer).css('left', $(obj).position().left);
+				}
 			}
 			else {
 				return;

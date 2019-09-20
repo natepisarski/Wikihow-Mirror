@@ -1273,7 +1273,7 @@ class MixedAdCreator extends DefaultDesktopAdCreator {
 		$indexHeadScript = "";
 		$dfpScript = "";
 		if ( $addDFP ) {
-			if ( rand( 1, 4 ) == 1 ) {
+			if ( rand( 1, 2 ) == 1 ) {
 				$indexHeadScript = $this->getIndexHeadScript();
 			}
 			$dfpScript = $this->getGPTDefine();

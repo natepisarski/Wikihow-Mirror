@@ -413,4 +413,16 @@ function onLoadWikihowCommonBottom() {
 	WH.loadAdblockNotice();
 }
 
+// ThankAuthors dialog
+$( '#end_options .endop_fanmail a' ).click( function ( e ) {
+	var $endop_fanmail = $( this ).parent();
+	$endop_fanmail.addClass( 'endop_loading' );
+	mw.loader.using( 'ext.wikihow.thankAuthors', function () {
+		$endop_fanmail.removeClass( 'endop_loading' );
+		OO.ui.getWindowManager().openWindow( 'authorThanksDialog' );
+	} );
+	e.preventDefault();
+	return false;
+} );
+
 }(mediaWiki, jQuery));

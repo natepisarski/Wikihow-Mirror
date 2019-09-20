@@ -37,67 +37,11 @@ class ThankAuthors extends UnlistedSpecialPage {
 			return;
 		}
 
-		//if (!$req->getVal('token')) {
 		if ( !$req->wasPosted() ) {
-			$talk_page = $title->getTalkPage();
-
-			//$token = $this->getToken1();
-			$thanks_msg = wfMessage(
-					'thank-you-kudos',
-					$title->getCanonicalURL(),
-					wfMessage('howto', $title->getText())
-				)->plain();
-
-			// add the form HTML
-			$out->addHTML(<<<EOHTML
-				<script type='text/javascript'>
-					function submitThanks () {
-						var message = $('#details').val();
-						if (message == "") {
-							alert("Please enter a message");
-							return false;
-						}
-						var url = '{$me->getFullURL()}';
-						var params = {
-						//	token: $('#token')[0].value,
-							target: $('#target')[0].value,
-							details: $('#details')[0].value };
-
-						var form = $('#thanks_form');
-						$.post(url, params)
-							.done(function (data) {
-								form.html($('#thanks_response').html());
-							})
-							.fail(function (data) {
-								// add a fail handler so that we don't fail silently any longer
-								form.html('There was an error sending your thanks! Please reload page and try again');
-							});
-						return true;
-					}
-				</script>
-
-				<div id="thanks_response" style="display:none;">$thanks_msg</div>
-				<div id="thanks_form"><div class="section_text">
-EOHTML
-				);
-			if ($user->isLoggedIn()) {
-				$enjoyArticle = wfMessage('enjoyed-reading-article', $title->getFullText(), $talk_page->getFullText());
-			} else {
-				$enjoyArticle = wfMessage('enjoyed-reading-article-anon', $title->getFullText());
-			}
-			$out->addWikiText( $enjoyArticle->plain() );
-
-			//	<input id='token' type='hidden' name='$token' value='$token'/>
-			$out->addHTML("<input id='target' type='hidden' name='target' value='$target'/>");
-
-
-			$out->addHTML ("<br />
-				<textarea style='width:98%;' id='details' rows='5' cols='100' name='details'></textarea><br/>
-				<br /><button onclick='submitThanks();' class='button primary'>" . wfMessage('submit') . "</button>
-				</div></div>");
+			$out->setStatusCode( '404' );
+			$out->addHTML( 'Page not found. Use "send fan mail to authors" form on article page to submit kudos.' );
+			return;
 		} else {
-			// Token received, send the kudos
-
 			$out->setArticleBodyOnly(true);
 			$comment = strip_tags($req->getVal("details"));
 			$text = $title->getFullText();
@@ -135,7 +79,6 @@ EOHTML
 				throw new ThrottledError();
 			}
 
-
 			if ($wgFilterCallback && $wgFilterCallback($title, $comment, "")) {
 				wfDebugLog( "ThankAuthors", "Callback filtered and stopped Kudos job from running");
 				// Error messages or other handling should be
@@ -143,24 +86,10 @@ EOHTML
 				return;
 			}
 
-			// Reuben note: I'm turning off this anti-spam measure for now since it's been
-			// a while since we had a spam attack, and this token checking functionality
-			// seems to be buggy.
-			//$usertoken = $req->getVal('token');
-			//$token1 = $this->getToken1();
-			//$token2 = $this->getToken2();
-			//if ($usertoken != $token1 && $usertoken != $token2) {
-			//	wfDebugLog( "ThankAuthors", "User kudos token doesn't match user: $usertoken token1: $token1 token2: $token2" );
-			//	return;
-			//}
-
 			$params = array('source' => $this->getUser(), 'kudos' => $comment);
 			$job = new ThankAuthorsJob($title, $params);
 			JobQueueGroup::singleton()->push($job);
-
-			//wfDebugLog( 'ThankAuthors', "Created new ThankAuthorJob: " . print_r($job, true) );
 		}
-
 	}
 
 	private static function hasBadWord($comment, &$matched) {
@@ -177,22 +106,5 @@ EOHTML
 			return false;
 		}
 	}
-
-//	function getToken1() {
-//		global $wgRequest, $wgUser;
-//		$d = substr(wfTimestampNow(), 0, 10);
-//		$s = $wgUser->getID() . $_SERVER['HTTP_X_FORWARDED_FOR'] . $_SERVER['REMOTE_ADDR'] . $wgRequest->getVal("target")  . $d;
-//		wfDebug("STA: generating token 1 ($s) " . md5($s) . "\n");
-//		return md5($s);
-//	}
-//
-//	function getToken2() {
-//		global $wgRequest, $wgUser;
-//		$d = substr( wfTimestamp( TS_MW, time() - 3600 ), 0, 10);
-//		$s = $wgUser->getID() . $_SERVER['HTTP_X_FORWARDED_FOR'] . $_SERVER['REMOTE_ADDR'] . $wgRequest->getVal("target")  . $d;
-//		wfDebug("STA: generating token 2 ($s) " . md5($s) . "\n");
-//		return md5($s);
-//	}
-
 }
 

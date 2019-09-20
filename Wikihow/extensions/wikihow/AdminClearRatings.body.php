@@ -136,8 +136,8 @@ class AdminClearRatings extends UnlistedSpecialPage {
 
 			if (!preg_match('/:/', $p) && !$title) {
 				$notFound = true;
-			} elseif (!preg_match('/:/', $p) && $title->exists()) {
-				// It's an article in NS_MAIN:
+			} elseif ($title && $title->exists() && $title->inNamespace(NS_MAIN) && !$title->isRedirect()) {
+				// It's an article in NS_MAIN
 				$artId = $title->getArticleID();
 				if ($artId > 0) {
 					$dataRow['type'] = 'article';

@@ -351,6 +351,7 @@ class SocialProofStats extends ContextSource {
 		if ( !$vInfo->imagePath ) return $html;
 
 		$amp = GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() );
+		$id = $id . wfRandomString(10);
 
 		$imagePath = wfGetPad( $vInfo->imagePath );
 
@@ -439,6 +440,8 @@ class SocialProofStats extends ContextSource {
 		$stats['amp'] = GoogleAmp::isAmpMode( $this->getOutput() );
 		$stats['author_info'] = SocialStamp::getHoverTextForArticleInfo();
 		$stats['is_intl'] = Misc::isIntl();
+		$stats['page_stats'] = $this->getSkin()->pageStats();
+		$stats['end_options'] = $this->getEndOptions();
 
 		return $this->getHtmlFromTemplate('social_section_mobile.mustache', $stats);
 	}
@@ -453,6 +456,43 @@ class SocialProofStats extends ContextSource {
 		$html = $m->render($template, $stats);
 		return $html;
 	}
+
+	private function getEndOptions(): array {
+			//PRINT
+			$options = [
+					[
+							'link' => '#',
+							'id' => 'printLink',
+							'name' => wfMessage( 'print' )->plain()
+					]
+			];
+
+			if (!Misc::isAltDomain()) {
+					$editUrl = $this->getTitle()->getEditUrl();
+
+					if ($this->getUser()->isAnon() && $this->getLanguage()->getCode() != 'en') {
+							$editLinkAttribs['data-return-to'] = substr($editUrl, 1); // strip leading "/"
+							$editUrl = '#';
+					}
+
+					//EDIT
+					$options[] = [
+							'link' => $editUrl,
+							'id' => 'gatEditFooter',
+							'name' => wfMessage('edit')->text()
+					];
+
+					//FAN MAIL / KUDOS
+					$options[] = [
+							'link' => '/index.php?title=Special:ThankAuthors&target='.$this->getTitle()->getPrefixedURL(),
+							'id' => 'gatThankAuthors',
+							'name' => wfMessage('at_fanmail')->text()
+					];
+			}
+
+			return $options;
+	}
+
 
 	public static function getSidebarVerifyHtml() {
 		// get any vars to pass to the template

@@ -59,7 +59,7 @@ class GreenBox {
 
 			$coauthor = self::getCoauthorData($parser);
 
-			if ($expert_id == $coauthor->verifierId) {
+			if ($coauthor && $expert_id == $coauthor->verifierId) {
 				//this expert is the same as the page coauthor so use the same blurb
 				$expert_data->blurb = $coauthor->blurb;
 				$expert_data->hoverBlurb = $coauthor->hoverBlurb;

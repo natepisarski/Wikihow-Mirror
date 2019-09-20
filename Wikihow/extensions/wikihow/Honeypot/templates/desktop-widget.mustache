@@ -46,7 +46,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			// Track view
 			var done = false;
 			var interval = setInterval( function () {
-				if ( !done && MachinifyAPI ) {
+				if ( !done && typeof MachinifyAPI !== "undefined") {
 					done = true;
 					WH.maEvent( '{{campaign}}_ad_view', { origin: location.hostname, ref: ref } );
 					clearInterval( interval );

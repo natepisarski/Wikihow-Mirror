@@ -1,9 +1,9 @@
-#sp_helpful_box {
+#social_proof_mobile .sp_helpful_box {
 	border: none;
 	padding: 19px 15px 15px;
 }
 
-#sp_difficult_box {
+.sp_difficult_box {
 	border: none;
 	padding: 15px;
 }

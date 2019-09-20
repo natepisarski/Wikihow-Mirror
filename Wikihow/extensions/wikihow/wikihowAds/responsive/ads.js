@@ -1,4 +1,4 @@
-WH.desktopAds = (function () {
+WH.ads = (function () {
 	"use strict";
 	var RR_REFRESH_TIME = 30000;
 	var VIEW_REFRESH_TIME = 5000;
@@ -20,10 +20,15 @@ WH.desktopAds = (function () {
 	var quizAds = {};
 	var introAd;
 	var scrollToAd;
+	var scrollToAdInsertCount = 0;
 	var TOCAd;
 	var bodyAds = [];
 	var lastScrollPosition = window.scrollY;
 
+	var topMenuHeight = WH.shared.TOP_MENU_HEIGHT;
+	if (WH.isMobile) {
+		topMenuHeight = 92;
+	}
 	function log() {
 	}
 
@@ -64,7 +69,6 @@ WH.desktopAds = (function () {
 	}
 
 	function apsLoad(ad) {
-		log("apsLoad", ad);
 		var id = ad.adTargetId;
 		var slotName = gptAdSlots[id].getAdUnitPath();
 		var sizes = gptAdSlots[id].getSizes();
@@ -94,7 +98,7 @@ WH.desktopAds = (function () {
 	function gptLoad(ad) {
 		log('gptLoad', ad);
 		var id = ad.adTargetId;
-		var display = ad.lateLoad;
+		var display = ad.gptLateLoad;
 		var refreshValue = ad.getRefreshValue();
 		googletag.cmd.push(function() {
 			// optionally call display first if dfp late loading is active
@@ -127,7 +131,7 @@ WH.desktopAds = (function () {
 		if (!ad) {
 			return;
 		}
-		ad.adHeight = ad.adElement.offsetHeight;
+		ad.height = ad.adElement.offsetHeight;
 
 		if (ad.refreshable && ad.viewablerefresh) {
 			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
@@ -147,7 +151,7 @@ WH.desktopAds = (function () {
 		if (!ad) {
 			return;
 		}
-		ad.adHeight = ad.adElement.offsetHeight;
+		ad.height = ad.adElement.offsetHeight;
         // don't even bother checking the space unless the ad is less than 300px in height
 		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
         if (ad.extraChild && size && parseInt(size[1]) < 300) {
@@ -170,18 +174,32 @@ WH.desktopAds = (function () {
 			gads.async = true;
 			gads.type = 'text/javascript';
 			var useSSL = 'https:' == document.location.protocol;
-			gads.src = (useSSL ? 'https:' : 'http:') +
-			'//www.googletagservices.com/tag/js/gpt.js';
+			gads.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
 			var node = document.getElementsByTagName('script')[0];
 			node.parentNode.insertBefore(gads, node);
 		})();
+		function setDFPTargeting(slot, data) {
+			var slotData = data[slot.getAdUnitPath()];
+			for (var key in slotData) {
+			  slot.setTargeting(key, slotData[key]);
+			}
+		}
 		googletag.cmd.push(function() {
 			defineGPTSlots();
+			googletag.pubads().addEventListener('slotRenderEnded', function(event) {
+				if (WH.ads) {
+					WH.ads.slotRendered(event.slot, event.size, event);
+				}
+			});
+			googletag.pubads().addEventListener('impressionViewable', function(event) {
+				if (WH.ads) {
+					WH.ads.impressionViewable(event.slot);
+				}
+			});
 		});
 	}
 
 	function insertDFPLightAd(ad) {
-		ad.adHeight = ad.asHeight;
 		var i = window.document.createElement('div');
 		i.setAttribute('data-glade', '');
 		var path = ad.adunitpath;
@@ -218,8 +236,8 @@ WH.desktopAds = (function () {
 		newAdItem.setAttribute('data-insert-refresh', ad.insertRefresh ? 1 : 0);
 		newAdItem.setAttribute('data-adlabelclass', 'ad_label ad_label_dollar');
 		newAdItem.setAttribute('data-adtargetid', newItemId);
-		newAdItem.setAttribute('data-adsensewidth', ad.asWidth);
-		newAdItem.setAttribute('data-adsenseheight', ad.asHeight);
+		newAdItem.setAttribute('data-adsensewidth', ad.width);
+		newAdItem.setAttribute('data-height', ad.height);
 		newAdItem.setAttribute('data-channels', ad.channels);
 		newAdItem.setAttribute('data-loaded', 0);
 		newAdItem.setAttribute('data-slot', ad.slot);
@@ -340,7 +358,6 @@ WH.desktopAds = (function () {
 
 	function insertAdsenseAd(ad) {
 		// set the height of he ad to the adsense height
-		ad.adHeight = ad.asHeight;
 		var client = "ca-pub-9543332082073187";
 		var i = window.document.createElement('ins');
 		i.setAttribute('data-ad-client', client);
@@ -350,21 +367,34 @@ WH.desktopAds = (function () {
 			i.setAttribute('class', 'adsbygoogle');
 		}
 		var slot = ad.slot;
+		if (!slot) {
+			return;
+		}
 		i.setAttribute('data-ad-slot', slot);
-		var css = 'display:inline-block;width:'+ad.asWidth+'px;height:'+ad.asHeight+'px;';
+
+		if (ad.type == 'middlerelated') {
+			i.setAttribute('data-ad-format', 'fluid');
+			i.setAttribute('data-ad-layout-key', '-fb+5w+4e-db+86');
+		}
+
+		var css = 'display:inline-block;width:'+ad.width+'px;height:'+ad.height+'px;';
+		var noWidthTypes = ["method", "qa", "tips", "warnings"];
+		// TODO do not use includes
+		if (noWidthTypes.includes(ad.type)) {
+			css = 'display:block;height:'+ad.height+'px;';
+		}
 		i.style.cssText = css;
 		var target = null
 		if (ad.adTargetId) {
-			target = ad.adTargetId;
-			if (target == 'tocad') {
-				window.document.getElementById(target).appendChild(i);
-			} else {
-				window.document.getElementById(target).firstElementChild.appendChild(i);
-			}
+			window.document.getElementById(ad.adTargetId).appendChild(i);
 		} else {
-			ad.target.appendChild(i);
+			return;
 		}
+
 		var channels = ad.channels ? ad.channels: "";
+		if (typeof adsbygoogle === 'undefined') {
+			window.adsbygoogle = [];
+		}
 		(window.adsbygoogle = window.adsbygoogle || []).push({
 			params: {
 				google_ad_channel: channels
@@ -375,23 +405,72 @@ WH.desktopAds = (function () {
 	function recalcAdHeights() {
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var ad = rightRailElements[i];
-			ad.adHeight = ad.adElement.offsetHeight;
+			ad.height = ad.adElement.offsetHeight;
 		}
 	}
 
-	function Ad(adElement) {
+	function getMobileAdWidth(type) {
+		var width = document.documentElement.clientWidth;
+
+		switch(type) {
+			case "intro":
+				width = width - 30;
+				break;
+			case "method":
+				width = width - 20;
+				break;
+			case "related":
+				width = width - 14;
+				break;
+			default:
+				width = width - 20;
+		}
+		return width;
+	}
+	function Ad(element) {
+		// the ad ELement has all the data attributes about the ad
+		// the element is the contained div which is the target of the ad insertion
+		// it is nested due to making css easier
+		var adElement = element.parentElement;
+		var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
+		this.isDesktopSize = viewportWidth >= WH.mediumScreenMinWidth;
+		this.isLargeSize = viewportWidth >= WH.largeScreenMinWidth;
+		this.isMediumSize = this.isDesktopSize && !this.isLargeSize;
+
+		this.element = element;
 		this.adElement = adElement;
-		this.adHeight = this.adElement.offsetHeight;
-		this.adTargetId = this.adElement.getAttribute('data-adtargetid');
-		this.lateLoad = this.adElement.getAttribute('data-lateload') == 1;
+		this.height = this.adElement.offsetHeight;
+		this.adTargetId = element.id;
+		this.desktopOnly = this.adElement.getAttribute('data-desktoponly') == 1;
+		if (this.desktopOnly && !this.isDesktopSize) {
+			this.disabled = true;
+			return;
+		}
+
+		this.mediumOnly = this.adElement.getAttribute('data-mediumonly') == 1;
+		if (this.mediumOnly && !this.isMediumSize) {
+			this.disabled = true;
+			return;
+		}
+
+		this.largeOnly = this.adElement.getAttribute('data-largeonly') == 1;
+		if (this.largeOnly && !this.isLargeSize) {
+			this.disabled = true;
+			return;
+		}
+
+		this.gptLateLoad = this.adElement.getAttribute('data-lateload') == 1;
 		this.service = this.adElement.getAttribute('data-service');
 		this.apsload = this.adElement.getAttribute('data-apsload') == 1;
-		this.isLoaded = this.adElement.getAttribute('data-loaded') == 1;
-		this.asWidth = this.adElement.getAttribute('data-adsensewidth');
-		this.asHeight = this.adElement.getAttribute('data-adsenseheight');
 		this.slot = this.adElement.getAttribute('data-slot');
+		if (this.isDesktopSize && this.service == 'adsense' && !this.slot) {
+			this.disabled = true;
+			adElement.style.display = 'none';
+			return;
+		}
 		this.adunitpath = this.adElement.getAttribute('data-adunitpath');
 		this.channels = this.adElement.getAttribute('data-channels');
+		this.mobileChannels = this.adElement.getAttribute('data-mobilechannels');
 		this.refreshable = this.adElement.getAttribute('data-refreshable') == 1;
 		this.insertRefresh = this.adElement.getAttribute('data-insert-refresh') == 1;
 		this.slotName = this.adElement.getAttribute('data-slot-name');
@@ -400,9 +479,30 @@ WH.desktopAds = (function () {
 		if (this.sizesArray) {
 			this.sizesArray = JSON.parse(this.sizesArray);
 		}
+		this.type = this.adElement.getAttribute('data-type');
+		if (this.type == 'rightrail') {
+			this.position = 'initial';
+		}
+
 		this.notfixedposition = this.adElement.getAttribute('data-notfixedposition') == 1;
 		this.viewablerefresh = this.adElement.getAttribute('data-viewablerefresh') == 1;
 		this.renderrefresh = this.adElement.getAttribute('data-renderrefresh') == 1;
+		this.width = this.adElement.getAttribute('data-width');
+		this.height = this.adElement.getAttribute('data-height');
+		this.mobileHeight = this.adElement.getAttribute('data-mobileheight');
+		this.mobileSlot = this.adElement.getAttribute('data-mobileslot');
+		if (!this.isDesktopSize) {
+			this.channels = this.mobileChannels;
+			this.slot = this.mobileSlot;
+			this.height = this.mobileHeight;
+			this.width = getMobileAdWidth(this.type);;
+			if (this.service == 'adsense' && !this.slot) {
+				this.disabled = true;
+				return;
+			}
+		}
+
+		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
 		this.adLabelClass = this.adElement.getAttribute('data-adlabelclass');
 		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
 		this.apsTimeout = this.adElement.getAttribute('data-aps-timeout');
@@ -422,6 +522,7 @@ WH.desktopAds = (function () {
 		} else {
 			this.firstRefreshTime = parseInt(this.firstRefreshTime);
 		}
+
 		this.getRefreshTime = function() {
 			if (this.firstRefresh == true ) {
 				this.firstRefresh = false;
@@ -454,6 +555,9 @@ WH.desktopAds = (function () {
 			if (this.isLoaded == true) {
 				return;
 			}
+			if (!this.isLargeSize && this.isRightRail) {
+				return;
+			}
 			if (this.service == 'dfp') {
 				// if dfp was not already initialized do so now
 				if (gptRequested == false) {
@@ -461,9 +565,19 @@ WH.desktopAds = (function () {
 					gptRequested = true;
 				}
 				if (this.apsload) {
-					apsLoad(this)
+					var id = this.adTargetId;
+					var slot = gptAdSlots[id];
+					var ad = this;
+					// if gpt slots haven't bene defined yet then queue up this command
+					if (!slot) {
+						googletag.cmd.push(function() {
+							apsLoad(ad);
+						});
+					} else {
+						apsLoad(ad);
+					}
 				} else {
-					gptLoad(this)
+					gptLoad(this);
 				}
 			} else if (this.service == 'dfplight') {
 				insertDFPLightAd(this);
@@ -511,36 +625,27 @@ WH.desktopAds = (function () {
 			} else if (this.insertRefresh) {
 				insertNewDFPAd(this);
 			} else if (this.apsload) {
-				apsLoad(this)
+				apsLoad(this);
 			} else {
 				var id = this.adTargetId;
-				var display = this.lateLoad;
+				var display = this.gptLateLoad;
 				googletag.cmd.push(function() {
 					setDFPTargeting(gptAdSlots[id], dfpKeyVals);
 					googletag.pubads().refresh([gptAdSlots[id]]);
 				});
 			}
 		};
+		this.show = function() {
+			this.adElement.style.display = 'block';
+		};
+
 		if (this.instantLoad) {
 			this.load();
 		}
 	}
 
-	function QuizAd(element) {
-		if (!element) {
-			return;
-		}
-		this.show = function() {
-			this.adElement.style.display = 'block';
-			this.adElement.classList.remove("hidden");
-		};
-
-		Ad.call(this, element);
-	}
-
 	function BodyAd(element) {
-		Ad.call(this, element.parentElement);
-		this.element = element;
+		Ad.call(this, element);
 	}
 
 	function isNearEndOfStep(rect, viewportHeight) {
@@ -648,12 +753,11 @@ WH.desktopAds = (function () {
 
 	function ScrollToAd(element) {
 		Ad.call(this, element);
-		this.element = element;
+		element.parentElement.style.display = 'none';
+
 		this.scrollToTimer = null;
 		this.lastScrollPositionY = 0;
 
-		this.asWidth = parseInt(this.asWidth);;
-		this.asHeight = parseInt(this.asHeight);;
 		this.maxNonSteps = parseInt(this.adElement.getAttribute('data-maxnonsteps'));
 		this.maxSteps = parseInt(this.adElement.getAttribute('data-maxsteps'));
 		this.updateVisibility = function() {
@@ -709,7 +813,12 @@ WH.desktopAds = (function () {
 			}
 			insertTarget.appendChild(wrap);
 			insertTarget = wrap;
-			this.target = insertTarget;
+			// give it an id for inserting
+			if ( !insertTarget.id ) {
+				insertTarget.id = 'scrollto-ad-'+scrollToAdInsertCount;
+			}
+			this.adTargetId = insertTarget.id;
+
 			insertAdsenseAd(this);
 
 			if (isStep) {
@@ -718,13 +827,15 @@ WH.desktopAds = (function () {
 				this.maxNonSteps--;
 			}
 
+			scrollToAdInsertCount++;
+
 			return;
 		};
 	}
 
 	function IntroAd(element) {
 		Ad.call(this, element);
-		this.element = element;
+		// TODO get all of these values from data attributes
 		this.refreshTime = INTRO_REFRESH_TIME;
         this.maxRefresh = 2;
 		this.stickingHeaderElement = document.getElementsByClassName("firstadsticking")[0];
@@ -734,11 +845,9 @@ WH.desktopAds = (function () {
 	}
 
     function RightRailAd(element) {
-		var adElement = element.getElementsByClassName('whad')[0];
-		Ad.call(this, adElement);
+		Ad.call(this, element);
 		// store the right rail container element and height for use later
 		this.height = element.offsetHeight;
-		this.element = element;
 		this.position = 'initial';
 	}
 
@@ -752,9 +861,10 @@ WH.desktopAds = (function () {
 	 *  @param ad - the ad we are checking
 	 */
 	function isInViewport(rect, viewportHeight, forLoading, ad) {
-		var screenTop = WH.shared.TOP_MENU_HEIGHT;
+		var screenTop = topMenuHeight;
 
-		if (rect.height == 0) return false;
+		// TODO not sure if we should leave this or comment out...
+		//if (rect.height == 0) return false;
 
 		if (forLoading) {
 			var offset = viewportHeight;
@@ -867,47 +977,47 @@ WH.desktopAds = (function () {
 	 * when trying to get the height of all three ads
 	 */
 	function updateFixedPositioning(ad, viewportHeight) {
-		var rect = ad.element.getBoundingClientRect();
+		var rect = ad.adElement.getBoundingClientRect();
 
 		if (!isInViewport(rect, viewportHeight, false, ad)) {
 			// if the container is not in the viewport then make sure it is not fixed pos
 			if (ad.position == 'fixed') {
-				ad.adElement.style.position = 'absolute';
-				ad.adElement.style.top = '0';
-				ad.adElement.style.bottom = 'auto';
+				ad.element.style.position = 'absolute';
+				ad.element.style.top = '0';
+				ad.element.style.bottom = 'auto';
 				ad.position = 'top';
 			}
 			return rect.height;
 		}
 
-		var bottom = WH.shared.TOP_MENU_HEIGHT + parseInt(ad.adHeight);
+		var bottom = topMenuHeight + parseInt(ad.height);
 		if (rect.bottom < bottom && !ad.last) {
 			if (ad.position != 'bottom') {
-				ad.adElement.style.position = 'absolute';
-				ad.adElement.style.top = 'auto';
-				ad.adElement.style.bottom = '0';
+				ad.element.style.position = 'absolute';
+				ad.element.style.top = 'auto';
+				ad.element.style.bottom = '0';
 				ad.position = 'bottom';
 			}
-		} else if (rect.top <= WH.shared.TOP_MENU_HEIGHT) {
+		} else if (rect.top <= topMenuHeight) {
 			if (ad.position != 'fixed') {
-				ad.adElement.style.position = 'fixed';
+				ad.element.style.position = 'fixed';
 				ad.isFixed = true;
 				ad.position = 'fixed';
 			}
-			var topPx = WH.shared.TOP_MENU_HEIGHT;
+			var topPx = topMenuHeight;
 			if (ad.last) {
-				var adBottom = window.scrollY + WH.shared.TOP_MENU_HEIGHT + parseInt(ad.adHeight);
+				var adBottom = window.scrollY + topMenuHeight + parseInt(ad.height);
 				var offsetBottom = document.documentElement.scrollHeight - BOTTOM_MARGIN;
 				if ( adBottom > offsetBottom ) {
 					topPx = topPx - (adBottom - offsetBottom);
 				}
 			}
-			ad.adElement.style.top = topPx + 'px';
+			ad.element.style.top = topPx + 'px';
 		} else {
 			if (ad.position != 'top') {
-				ad.adElement.style.position = 'absolute';
-				ad.adElement.style.top = '0';
-				ad.adElement.style.bottom = 'auto';
+				ad.element.style.position = 'absolute';
+				ad.element.style.top = '0';
+				ad.element.style.bottom = 'auto';
 				ad.position = 'top';
 			}
 		}
@@ -970,11 +1080,18 @@ WH.desktopAds = (function () {
 	function updateVisibility() {
 		lastScrollPosition = window.scrollY;
 		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
+		var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
+		// TODO put this into the ad itself instead of rechecking constantly?
+		var hasRightRail = viewportWidth >= WH.largeScreenMinWidth;
+		var hasDesktopAds = viewportWidth >= WH.mediumScreenMinWidth;
 
 		// keep track of ad heights for possible use if they are too tall for the article
 		var adHeights = [];
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var ad = rightRailElements[i];
+			if (!hasRightRail) {
+				continue;
+			}
 			updateAdLoading(ad, viewportHeight);
 			if (ad.notfixedposition) {
 				continue;
@@ -996,7 +1113,9 @@ WH.desktopAds = (function () {
 			}
 		}
 
-		checkSidebarHeight(rightRailElements, adHeights);
+		if (hasRightRail) {
+			checkSidebarHeight(rightRailElements, adHeights);
+		}
 
 		if (scrollToAd) {
 			scrollToAd.updateVisibility();
@@ -1007,6 +1126,9 @@ WH.desktopAds = (function () {
 		updateVisibility();
 		window.addEventListener('scroll', WH.shared.throttle(updateVisibility, 10));
 		document.addEventListener('DOMContentLoaded', function() {updateVisibility();}, false);
+		if (WH.shared) {
+			WH.shared.addResizeFunction(updateVisibility);
+		}
 	}
 
 	function addScrollToAd(id) {
@@ -1033,40 +1155,61 @@ WH.desktopAds = (function () {
         rightRailElements.push(ad);
     }
 
-	// special ad based on table of contents click
-    function addTOCAd(id) {
-        var element = document.getElementById(id);
-        var ad = new BodyAd(element);
-		TOCAd = ad;
-	}
-
 	// requires jquery to have been loaded
     function loadTOCAd(anchor) {
 		if (!TOCAd) {
 			return;
 		}
 		var target = $(anchor).next('.section').find('.steps_list_2 > li:first');
-		if (target.length) {
-			target.append($('#tocad_wrap'));
+		if (!target.length) {
+			return;
 		}
-		if (TOCAd) {
-			TOCAd.load();
-			TOCAd = null;
-		}
+		target.append($(TOCAd.adElement));
+		TOCAd.load();
+		TOCAd = null;
 	}
 
     function addBodyAd(id) {
         var element = document.getElementById(id);
         var ad = new BodyAd(element);
 
-        bodyAds.push(ad);
+		// check if ad is disabled for this size screen
+		// TODO could keep a list of disabled ads and try them if screen size changes
+		if (ad.disabled) {
+			return;
+		}
+		if (ad.type == 'rightrail') {
+			ad.last = true;
+			if (rightRailElements.length > 0) {
+				rightRailElements[rightRailElements.length -1].last = false;
+			}
+			rightRailElements.push(ad);
+		} else if (ad.type == 'toc') {
+			TOCAd = ad;
+			ad.adElement.style.display = "none";
+		} else if (ad.type == 'scrollto') {
+			scrollToAd = new ScrollToAd(element);
+		} else if (ad.type == 'quiz') {
+			quizAds[ad.adElement.parentElement.id] = ad;
+			ad.adElement.parentElement.addEventListener("change", function(e) {
+				var id = this.id;
+				if (quizAds[id]) {
+					ad.adElement.classList.remove("hidden");
+					quizAds[id].load()
+				}
+			});
+		} else {
+			bodyAds.push(ad);
+		}
+		if (ad.service == 'dfp') {
+			googletag.cmd.push(function() { googletag.display(ad.adTargetId); });;
+		}
 	}
 
 	function RightRailElement(element) {
 		this.adElement = element.getElementsByClassName('rr_inner')[0];
 		this.element = element;
 		this.height = element.offsetHeight;
-		this.isLoaded = true;
 	}
 
 	function addRightRailElement(id) {
@@ -1103,16 +1246,13 @@ WH.desktopAds = (function () {
 		'addIntroAd': addIntroAd,
 		'addRightRailAd': addRightRailAd,
 		'addRightRailElement': addRightRailElement,
-		'addQuizAd': addQuizAd,
 		'addBodyAd': addBodyAd,
-		'addTOCAd': addTOCAd,
 		'loadTOCAd': loadTOCAd,
 		'getIntroAd' : getIntroAd,
 		'slotRendered' : slotRendered,
 		'impressionViewable' : impressionViewable,
 		'apsFetchBids' : apsFetchBids,
-		'addScrollToAd': addScrollToAd
 	};
 
 })();
-WH.desktopAds.init();
+WH.ads.init();

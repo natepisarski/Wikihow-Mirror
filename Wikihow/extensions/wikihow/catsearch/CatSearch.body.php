@@ -28,7 +28,7 @@ class CatSearch extends UnlistedSpecialPage {
 
 		// Add an exact category match
 		$t = Title::newFromText($q, NS_CATEGORY);
-		if ($t && $t->exists() && !$this->ignoreCategory($t->getText())) {
+		if ($t && $t->exists() && !$t->isRedirect() && !$this->ignoreCategory($t->getText())) {
 			$suggestions[] = $t->getPartialUrl();
 		}
 

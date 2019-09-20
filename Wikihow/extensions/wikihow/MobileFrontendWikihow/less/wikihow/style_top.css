@@ -422,7 +422,7 @@ pre {
 	padding-top: 40px;
 	background-color: #e9e7e3;
 	min-height: 715px; /* important for footer to sit at the bottom of the page */
-	margin: 0 0 3em 0;
+	margin: 0;
 }
 
 .pre-content {
@@ -829,9 +829,6 @@ h4.steps_text::before {
 }
 #wh_ad_tips, #pagebottom {
 	margin-top: 12px;
-}
-.wh_ad_inner {
-	float:left;
 }
 .ad_label_method, .ad_label_related {
 	text-align: center;

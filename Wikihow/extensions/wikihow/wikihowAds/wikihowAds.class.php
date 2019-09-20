@@ -28,7 +28,6 @@ class wikihowAds {
 	public static $mCategories = array();
 	static $mCategoriesSet = false;
 	static $mTopLevelCategory = null;
-	static $excluded = false;
 
 	public static $mDesktopDfpCategoryInfo  = array(
 		'Health' => array(
@@ -1298,88 +1297,6 @@ class wikihowAds {
 		}
 	}
 
-	public static function getSearchAds(string $engine, string $query, int $page, int $results) {
-		global $wgUser;
-
-		if ($wgUser->isLoggedIn()) {
-			return '';
-		}
-
-		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()){
-			return ''; // No search ads for the Android app
-		}
-
-		if ($engine == 'google') {
-			return self::getSearchAdsGoogle($query, $page);
-		} elseif ($engine == 'yahoo') {
-			return self::getSearchAdsYPA($query, $page, $results);
-		}
-
-		return '';
-	}
-
-	private static function getSearchAdsGoogle(string $query, int $page): string {
-		global $wgLanguageCode, $wgIsDevServer;
-
-		if ($wgLanguageCode == 'zh') {
-			return '';
-		}
-
-		if (SearchAdExclusions::isExcluded($query)) {
-			return '';
-		}
-
-		$query = LSearch::formatSearchQuery($query);
-
-		$channels = [
-			'en' => [ 'desktop' => 2304462817, 'mobile' => 5227630311 ],
-			'intl' => [ 'desktop' => 9166875328, 'mobile' => 2932639465 ]
-		];
-		if ( array_key_exists( $wgLanguageCode, $channels ) ) {
-			$channel = $channels[$wgLanguageCode];
-		} else {
-			$channel = $channels['intl'];
-		}
-		$channel = $channel[Misc::isMobileMode() ? 'mobile' : 'desktop'];
-
-		$vars = [
-			"query" => json_encode($query),
-			"lang" => json_encode($wgLanguageCode),
-			"page" => json_encode($page),
-			"test" => json_encode($wgIsDevServer ? 'on' : 'off'),
-			"channel" => json_encode((string)$channel)
-		];
-
-		$tmpl = new EasyTemplate(__DIR__); // TODO use mustache
-		$tmpl->set_vars($vars);
-
-		return $tmpl->execute('wikihowAdSearchGoogle.tmpl.php');
-	}
-
-	private static function getSearchAdsYPA(string $query, int $page, int $results) {
-		$vars = [
-			'slotIdPrefix' => '',
-			'adConfig' => '0000008c4',
-			"page" => $page,
-			"rangeTop" => $results ? '1-2' : '1-3',
-			'query' => json_encode($query),
-		];
-		if (Misc::isMobileMode()) {
-			$vars['slotIdPrefix'] = 'M';
-			$vars['adConfig'] = '0000008c5';
-		}
-
-		$typeTag = self::getTypeTag();
-
-        Hooks::run( 'WikihowAdsAfterGetTypeTag', array( &$typeTag ) );
-
-		$vars['adTypeTag'] = $typeTag;
-
-		$tmpl = new EasyTemplate( __DIR__ );
-		$tmpl->set_vars($vars);
-
-		return $tmpl->execute('wikihowAdSearchYPA.tmpl.php');
-	}
 
 	/******
 	 *
@@ -2038,34 +1955,6 @@ class wikihowAds {
 		if ( self::getMobileFooterAd() ) {
 			return "footerad";
 		}
-
-	}
-
-	private static function getTypeTag(): string {
-		global $wgLanguageCode;
-
-		$isM = Misc::isMobileMode();
-		$lang = $wgLanguageCode;
-
-		if ($lang == 'en')     return $isM ? '__alt__ddc_mobile_wikihow_com' : '__alt__ddc_wikihow_com';
-		elseif ($lang == 'ar') return $isM ? '__alt__ddc_arm_wikihow_com'    : '__alt__ddc_ar_wikihow_com';
-		elseif ($lang == 'cs') return $isM ? '__alt__ddc_mobile_wikihow_cz'  : '__alt__ddc_wikihow_cz';
-		elseif ($lang == 'de') return $isM ? '__alt__ddc_dem_wikihow_com'    : '__alt__ddc_de_wikihow_com';
-		elseif ($lang == 'es') return $isM ? '__alt__ddc_esm_wikihow_com'    : '__alt__ddc_es_wikihow_com';
-		elseif ($lang == 'fr') return $isM ? '__alt__ddc_frm_wikihow_com'    : '__alt__ddc_fr_wikihow_com';
-		elseif ($lang == 'hi') return $isM ? '__alt__ddc_him_wikihow_com'    : '__alt__ddc_hi_wikihow_com';
-		elseif ($lang == 'id') return $isM ? '__alt__ddc_idm_wikihow_com'    : '__alt__ddc_id_wikihow_com';
-		elseif ($lang == 'it') return $isM ? '__alt__ddc_mobile_wikihow_it'  : '__alt__ddc_wikihow_it';
-		elseif ($lang == 'ja') return $isM ? '__alt__ddc_mobile_wikihow_jp'  : '__alt__ddc_wikihow_jp';
-		elseif ($lang == 'ko') return $isM ? '__alt__ddc_kom_wikihow_com'    : '__alt__ddc_ko_wikihow_com';
-		elseif ($lang == 'nl') return $isM ? '__alt__ddc_nl_mwikihow_com'    : '__alt__ddc_nl_wikihow_com';
-		elseif ($lang == 'pt') return $isM ? '__alt__ddc_ptm_wikihow_com'    : '__alt__ddc_pt_wikihow_com';
-		elseif ($lang == 'ru') return $isM ? '__alt__ddc_rum_wikihow_com'    : '__alt__ddc_ru_wikihow_com';
-		elseif ($lang == 'th') return $isM ? '__alt__ddc_thm_wikihow_com'    : '__alt__ddc_th_wikihow_com';
-		elseif ($lang == 'vi') return $isM ? '__alt__ddc_mobile_wikihow_vn'  : '__alt__ddc_wikihow_vn';
-		elseif ($lang == 'zh') return $isM ? '__alt__ddc_zhm_wikihow_com'    : '__alt__ddc_zh_wikihow_com';
-
-		return $isM ? '__alt__ddc_mobile_wikihow_com' : '__alt__ddc_wikihow_com';
 
 	}
 

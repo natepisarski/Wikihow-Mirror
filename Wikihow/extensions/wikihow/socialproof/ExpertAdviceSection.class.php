@@ -42,16 +42,23 @@ class ExpertAdviceSection {
 	}
 
 	//this uses the phpQuery object
+	//can be Expert Advice (expertadvice) or Expert Q&A (expertqampa)
 	public static function onProcessArticleHTMLAfter(OutputPage $out) {
-		if (!pq('#expertadvice')->length()) return;
+		$section_name = pq('#expertadvice')->length() ? 'expertadvice' : '';
+		if ($section_name == '' && pq('#expertqampa')->length()) $section_name = 'expertqampa';
+		if ($section_name == '') return;
 
 		$expertHtml = self::expertHtml( $out );
-		pq('#expertadvice')->prepend($expertHtml);
+		pq('#'.$section_name)->prepend($expertHtml);
+		pq('#'.$section_name)->addClass('expert_advice_section');
 
 		//put above the Q&A section
-		if (pq('.qa.section')->length()) pq('.qa.section')->before(pq('.expertadvice'));
+		if (pq('.qa.section')->length()) pq('.qa.section')->before(pq('.'.$section_name));
+
+		// $section_text = wfMessage($section_name)->text();
+		$section_text = pq('.'.$section_name)->find('h2 span.mw-headline')->text();
 
 		//add it to desktop TOC
-		WikihowToc::setExpertAdvice();
+		WikihowToc::setExpertAdvice($section_name, $section_text);
 	}
 }

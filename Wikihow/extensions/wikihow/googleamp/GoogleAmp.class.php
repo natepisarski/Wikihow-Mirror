@@ -514,18 +514,19 @@ class GoogleAmp {
 		$hasIntroAd = true;
 
 		if ( $hasIntroAd == true ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $intro, $pageId, $intlSite ) );
+			$adhtml = self::getAd( $intro, $pageId, $intlSite );
 			pq( "#intro" )->append( $adhtml );
 
+
 			// put an ad after second step if there is more than 1 step in first method
-			if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
-				$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
+			if ( pq( ".steps_list_2:first > li" )->length > 2 ) {
+				$adhtml = self::getAd( $firstStep, $pageId, $intlSite );
 				pq(".steps_list_2:first > li:eq(1)")->append( $adhtml );
 			}
 		} else {
 			// put an ad after first step if there is more than 1 step in first method
 			if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
-				$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $firstStep, $pageId, $intlSite ) );
+				$adhtml = self::getAd( $firstStep, $pageId, $intlSite );
 				pq(".steps_list_2:first > li:eq(0)")->append( $adhtml );
 			}
 		}
@@ -533,31 +534,31 @@ class GoogleAmp {
 
 		// put an ad after fifth step if there is more than 5 steps in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 5 ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $fifthStep, $pageId, $intlSite ) );
+			$adhtml = self::getAd( $fifthStep, $pageId, $intlSite );
 			pq(".steps_list_2:first > li:eq(4)")->append( $adhtml );
 		}
 
 		// ad in last step of each method
 		$methodNumber = 1;
 		foreach ( pq(".steps:not('.sample') .steps_list_2 > li:last-child") as $lastStep ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( self::getAd( $method, $pageId, $intlSite, $methodNumber ) );
+			$adhtml = self::getAd( $method, $pageId, $intlSite, $methodNumber );
 			pq( $lastStep )->append( $adhtml );
 			$methodNumber++;
 		}
 
 		$relatedsname = RelatedWikihows::getSectionName();
 		if ( pq("#{$relatedsname}")->length ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
+			$adhtml = GoogleAmp::getAd( $related, $pageId, $intlSite );
 			pq("#{$relatedsname}")->append($adhtml);
 		} elseif ( pq("#relatedwikihows")->length ) {
-			$adhtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $related, $pageId, $intlSite ) );
+			$adhtml = GoogleAmp::getAd( $related, $pageId, $intlSite );
 			pq("#relatedwikihows")->append($adhtml);
 		}
 
 		// tips
 		$tipsTarget = '#' . strtolower( wfMessage( 'tips' )->text() );
 		if ( pq( $tipsTarget )->length ) {
-			$adHtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $tips, $pageId, $intlSite ) );
+			$adHtml = GoogleAmp::getAd( $tips, $pageId, $intlSite );
 			if ( $adHtml ) {
 				pq( $tipsTarget )->append( $adHtml );
 			}
@@ -566,14 +567,14 @@ class GoogleAmp {
 		// warnings
 		$warningsTarget = '#' . strtolower( wfMessage( 'warnings' )->text() );
 		if ( pq( $warningsTarget )->length ) {
-			$adHtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $warnings, $pageId, $intlSite ) );
+			$adHtml = GoogleAmp::getAd( $warnings, $pageId, $intlSite );
 			if ( $adHtml ) {
 				pq( $warningsTarget )->append( $adHtml );
 			}
 		}
 
 		// page bottom
-		$adHtml = wikihowAds::rewriteAdCloseTags( GoogleAmp::getAd( $bottomOfPage, $pageId, $intlSite ) );
+		$adHtml = GoogleAmp::getAd( $bottomOfPage, $pageId, $intlSite );
 		if ( $adHtml && pq( '#article_rating_mobile' )->length > 0 ) {
 			$bottomAdContainer = Html::element( 'div', ['id' => 'pagebottom'] );
 			pq( '#article_rating_mobile' )->after( $bottomAdContainer );
@@ -1037,11 +1038,11 @@ class GoogleAmp {
 		//self::getUpdated();
 
 		//star ratings
-		pq( '#sp_helpful_box' )->remove();
+		pq( '.sp_helpful_box' )->remove();
 		pq( '#sp_helpful_new' )->remove();
 
 		// remove the "difficult" warning
-		pq( '#sp_difficult_box' )->remove();
+		pq( '.sp_difficult_box' )->remove();
 
 		// remove any font tags and unwrap them (unwrap does not exist in php query so use this)
 		// wrap in while loop in case there is a font tag within a font tag

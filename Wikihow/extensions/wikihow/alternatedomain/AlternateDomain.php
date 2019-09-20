@@ -25,7 +25,6 @@ $wgHooks['LSearchYahooAfterGetCacheKey'][] = 'AlternateDomain::onLSearchYahooAft
 $wgHooks['LSearchBeforeYahooSearch'][] = 'AlternateDomain::onLSearchBeforeYahooSearch';
 $wgHooks['WikihowAdsAfterGetTypeTag'][] = 'AlternateDomain::onWikihowAdsAfterGetTypeTag';
 $wgHooks['SitemapOutputHtml'][] = 'AlternateDomain::onSitemapOutputHtml';
-$wgHooks['WikihowAdsAfterGetMobileAdData'][] = 'AlternateDomain::onWikihowAdsAfterGetMobileAdData';
 $wgHooks['WikihowAdsAfterGetCategoryAd'][] = 'AlternateDomain::onWikihowAdsAfterGetCategoryAd';
 $wgHooks['MiscGetExtraGoogleAnalyticsCodes'][] = 'AlternateDomain::onMiscGetExtraGoogleAnalyticsCodes';
 $wgHooks['WikihowCategoryViewerQueryBeforeProcessTitle'][] = 'AlternateDomain::onWikihowCategoryViewerQueryBeforeProcessTitle';

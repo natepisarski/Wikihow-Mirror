@@ -484,9 +484,17 @@ class PageHooks {
 			}
 		}
 
-		// Summary: and Image: pages autopatrolled
-		if ( $page->mTitle->inNamespaces( NS_SUMMARY, NS_IMAGE, NS_VIDEO ) ) {
+		// Summary: and Video: pages autopatrolled
+		if ( $page->mTitle->inNamespaces( NS_SUMMARY, NS_VIDEO ) ) {
 			$patrolled = true;
+		}
+
+		// New Image: pages are autopatrolled, later edits are not
+		if ( $page->mTitle->inNamespace(NS_IMAGE) ) {
+			$oldestRevision =  $page->getOldestRevision();
+			if ( $oldestRevision === null ) {
+				$patrolled = true;
+			}
 		}
 
 		// every page edit that adds a quick summary

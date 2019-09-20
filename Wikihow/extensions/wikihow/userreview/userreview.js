@@ -18,7 +18,6 @@
 	window.WH = window.WH || {};
 	window.WH.UserReview = {
 
-		ur_div: WH.isMobileDomain ? 'ur_mobile' :'userreviews',
 
 		init: function () {
 			// Auto-repair broken avatar images
@@ -30,43 +29,35 @@
 			$(".ur_more").on("click", function (e) {
 				e.preventDefault();
 				$(this).hide();
+				var container = $(this).parent().parent();
 				//expand all reviews
-				$("#"+WH.UserReview.ur_div+" .ur_review").show();
+				$(container).find(".ur_review").show();
 				//expand all review texts
-				$(".ur_review_show").hide();
-				$(".ur_review_more").show().css("display", "inline");
-				$(".ur_ellipsis").hide();
+				$(container).find(".ur_review_show").hide();
+				$(container).find(".ur_review_more").show().css("display", "inline");
+				$(container).find(".ur_ellipsis").hide();
 				//are there any left to show?
-				if ($("#"+WH.UserReview.ur_div+" .ur_review:hidden").length > 0) {
-					//$(".ur_even_more").show().css("display", "block");
-				} else {
-					$(".ur_hide").show().css("display", "block");
-				}
+				$(container).find(".ur_hide").show().css("display", "block");
 			});
-			//show all the reviews - NOT USING RIGHT NOW
-			/*$(".ur_even_more").on("click", function (e) {
-				e.preventDefault();
-				$(this).hide();
-				//expand all reviews
-				$("#"+WH.UserReview.ur_div+" .ur_review").show();
-				$(".ur_hide").show().css("display", "block");
-			});*/
 			//show the rest of the text of this review
 			$(".ur_review_show").on("click", function (e) {
 				e.preventDefault();
 				$(this).hide();
-				$(".ur_review_more", $(this).parent()).show();
-				$(".ur_ellipsis", $(this).parent()).hide();
+				var container = $(this).parent().parent();
+				$(container).find(".ur_review_more", $(this).parent()).show();
+				$(container).find(".ur_ellipsis", $(this).parent()).hide();
 			});
 			//hide all but the first review
 			$(".ur_hide").on("click", function (e) {
 				e.preventDefault();
-				$("#"+WH.UserReview.ur_div+" .ur_review:gt(0)").hide();
+				var container = $(this).parent().parent();
+				$(container).find(".ur_review:gt(0)").hide();
 				$(this).hide();
-				$(".ur_more").show().css("display", "block");
+				$(container).find(".ur_more").show().css("display", "block");
 			});
 			$(".ur_share").on("click", function(e) {
 				e.preventDefault();
+				// TODO should this be based on screen size instead?
 				if(WH.isMobileDomain) {
 					mw.loader.using('ext.wikihow.UserReviewForm.mobile', function () {
 						var urf = new window.WH.UserReviewForm();

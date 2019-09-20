@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Specialized version of the MinervaTemplate with wikiHow customizations
  */
@@ -175,7 +176,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				'searchBox' => $search_box,
 				'links' => $this->footerLinks(),
 				'socialFooter' => class_exists('SocialFooter') ? SocialFooter::getSocialFooter() : '',
-				'mobileAdAnchor' => $data['amp'] ? '' : wikihowAds::getMobileAdAnchor(),
 				'amp' => $data['amp']
 			];
 
@@ -253,35 +253,30 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		echo GoogleAmp::getAmpSidebar( $items );
 	}
 
-	private function getRightRailHtml( $data ) {
-		global $wgTitle;
-
-		// for some reason putting this on special pages makes their css no work well
-		// so restricting it for now
-		if ( $wgTitle && !$wgTitle->inNamespace( NS_MAIN ) ) {
-			return;
-		}
+	private function getTopContentJS( $data ) {
 		if ( $data['amp'] ) {
 			return;
 		}
-		$context = RequestContext::getMain();
+
+		$rightRail = $data['rightrail'];
+		$adsJs = $rightRail->mAds->getJavascriptFile();
 		$html = '';
-
-		$sp = new SocialProofStats($context, $fullCategoryTree);
-		$socialProofSidebar = $sp->getDesktopSidebarHtml();
-		$html .= $socialProofSidebar;
-
-		$relatedWikihows = new RelatedWikihows( $context, $context->getUser());
-		$relatedOutput = $relatedWikihows->getSideData();
-		$attr = ['id' => 'side_related_articles', 'class' => 'sidebox related_articles'];
-		$html .= Html::rawElement( 'div', $attr, $relatedOutput );
-
-		$html .= RatingArticle::getDesktopSideForm( 0, '' );
-
-		// blanked out for now
-		$html = '';
-
+		if ( $adsJs ) {
+			$html = Html::inlineScript( Misc::getEmbedFiles( 'js', [$adsJs] ) );
+		}
 		return $html;
+	}
+
+
+	private function getRightRailHtml( $data ) {
+		if ( $data['amp'] ) {
+			return;
+		}
+
+		$rightRail = $data['rightrail'];
+		$rightRailHtml = $rightRail->getRightRailHtml();
+
+		return $rightRailHtml;
 	}
 
 	private function renderPageLeft( $data ) {
@@ -309,10 +304,14 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		global $wgLanguageCode;
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 
+		$rightRailHtml = $this->getRightRailHtml( $data );
+
 		// begin rendering
 		echo $data[ 'headelement' ];
 		if ( $data['amp'] ) {
 			$this->renderAmpSidebar();
+		} else {
+			echo $data['rightrail']->mAds->getGPTDefine();
 		}
 		?>
 		<? /* BEBETH: Moving header to the top to deal with links in static header */ ?>
@@ -367,13 +366,12 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$classes = array();
 		Hooks::run('MinervaViewportClasses', array(&$classes));
 		$classes = empty($classes) ? '' : implode(" ", $classes);
-		$pageCenterClasses = wikihowAds::getMobilePageCenterClass();
 		?>
 		<div id="mw-mf-viewport" class="<?=$classes?>">
 			<?php
 			$this->renderPageLeft( $data );
 			?>
-			<div id='mw-mf-page-center' class="<?=$pageCenterClasses?>">
+			<div id='mw-mf-page-center'>
 				<? if ( class_exists( 'GDPR' ) && !$data['amp'] ) {
 					if ( $this->isMainPage || $this->isArticlePage || $this->isSearchPage ) {
 						echo GDPR::getHTML();
@@ -387,6 +385,10 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				?>
 
 				<div id="content_wrapper" role="main">
+					<?php
+						$html = $this->getTopContentJS( $data );
+						echo $html;
+					?>
 					<div id="content_inner">
 						<?php
 						$this->renderContentWrapper( $data );
@@ -395,8 +397,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 					<div id="sidebar">
 					<?php
-						$html = $this->getRightRailHtml( $data );
-						echo $html;
+						echo $rightRailHtml;
 					?>
 					</div>
 				</div>

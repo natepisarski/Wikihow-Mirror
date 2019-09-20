@@ -21,3 +21,23 @@ $wgExtraNamespaces[NS_USER_KUDOS] = "User_kudos";
 $wgExtraNamespaces[NS_USER_KUDOS_TALK] = "User_kudos_talk";
 
 $wgJobClasses['thankAuthors'] = 'ThankAuthorsJob';
+
+$wgResourceModules[ 'ext.wikihow.thankAuthors' ] = [
+	'scripts' => [ 'thankauthors.js' ],
+	'dependencies' => [ 'oojs-ui-core', 'oojs-ui-widgets', 'oojs-ui-windows' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/ThankAuthors',
+	'position' => 'bottom',
+	'targets' => [ 'desktop' ],
+	'messages' => [
+		'enjoyed-reading-article',
+		'enjoyed-reading-article-anon',
+		'send-kudos',
+		'send-kudos-error',
+		'send-kudos-submit',
+		'send-kudos-cancel',
+		'send-kudos-done',
+		'thank-you-kudos',
+		'howto'
+	]
+];

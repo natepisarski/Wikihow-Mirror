@@ -1,4 +1,7 @@
 /*jslint browser: true, white:true, sloppy:true*/
+//our media query breakpoints (also in responsive.less)
+WH.mediumScreenMinWidth = 728;
+WH.largeScreenMinWidth = 1070;
 WH.shared = (function () {
 	'use strict';
 
@@ -15,8 +18,8 @@ WH.shared = (function () {
 		nv.match(/Chrome/) && !nv.match(/Edge/),
 	// Note: this is the same as php global WH_CDN_VIDEO_ROOT
 	videoRoot = 'https://www.wikihow.com/video',
+	isDesktopSize = (window.innerWidth || document.documentElement.clientWidth) >= WH.mediumScreenMinWidth;
 	lazyLoadingObserver = null;
-
 	if ("IntersectionObserver" in window) {
 		lazyLoadingObserver = new IntersectionObserver(function(entries, observer) {
 			entries.forEach(function(entry) {
@@ -340,7 +343,7 @@ WH.shared = (function () {
 		};
 		this.load = function() {
 			this.element.setAttribute('poster', this.poster);
-			if (autoPlayVideo && !this.noAutoplay && (window.WH.isMobile == 0 || window.wgIsMainPage === true)) {
+			if (autoPlayVideo && !this.noAutoplay && (isDesktopSize || window.wgIsMainPage === true)) {
 				this.element.setAttribute('src', this.src);
 				this.play();
 			} else {
@@ -440,6 +443,7 @@ WH.shared = (function () {
 
 
 	return {
+		'isDesktopSize' : isDesktopSize,
 		'throttle' : throttle,
 		'TOP_MENU_HEIGHT' : TOP_MENU_HEIGHT,
 		'autoPlayVideo' : autoPlayVideo,

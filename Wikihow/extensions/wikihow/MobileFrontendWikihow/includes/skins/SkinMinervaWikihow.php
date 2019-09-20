@@ -98,11 +98,20 @@ class SkinMinervaWikihow extends SkinMinerva {
 			$out->setHTMLTitle($htmlTitle);
 		}
 
+		$rightRail = RightRail::createRightRail( $this );
+		if ( $rightRail->mAds->isActive() ) {
+			// TODO what does this output?
+			$headHtml = $rightRail->mAds->getHeadHtml();
+			$out->addHeadItem( 'desktopadshead', $headHtml );
+		}
+
 		$tmpl = parent::prepareQuickTemplate();
 		$this->prepareWikihowTools($tmpl);
 		$this->prepareDiscoveryTools($tmpl);
 		$tmpl->set('personal_urls', $this->buildPersonalUrls());
 		$this->prepareMobileFooterLinks($tmpl);
+
+		$tmpl->data['rightrail'] = $rightRail;
 
 		return $tmpl;
 	}
@@ -745,6 +754,28 @@ class SkinMinervaWikihow extends SkinMinerva {
 					]));
 			}
 		}
+	}
+
+	//copied from WikihowSkin.php
+	public function pageStats() {
+		global $wgOut, $wgLang, $wgRequest, $wgTitle;
+
+		$context = $this->getSkin()->getContext();
+		extract( $wgRequest->getValues( 'oldid', 'diff' ) );
+		if ( ! $wgOut->isArticle() ) { return ''; }
+		if ( isset( $oldid ) || isset( $diff ) ) { return ''; }
+		if ( !$context->canUseWikiPage() ) { return ''; }
+
+		$s = '';
+		$count = $wgLang->formatNum( $context->getWikiPage()->getCount() );
+		if ( $count ) {
+			if ($wgTitle->getNamespace() == NS_USER)
+				$s = wfMessage( 'viewcountuser', $count )->text();
+			else
+				$s = wfMessage( 'viewcount', $count )->text();
+		}
+
+		return $s;
 	}
 
 }

@@ -31,7 +31,7 @@ $wgResourceModules['ext.wikihow.socialproof.special'] = array(
 $wgResourceModules['ext.wikihow.socialproof'] = array(
 	'styles' => array('socialproof.css'),
 	'scripts' => 'socialproof.js',
-	'targets' => array( 'desktop' ),
+	'targets' => array( 'desktop', 'mobile' ),
 	'localBasePath' => __DIR__,
 	'dependencies' => array(
 		'wikihow.common.jquery.dateformat',

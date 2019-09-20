@@ -1321,12 +1321,12 @@ class WikihowArticleHTML {
 
 
 						if (stripos($parts[$i], "mwimg") != false) {
-							$body = "<div class='article_inner editable'>" . $content . "<div class='ad_image " . $class . "'>" . wikihowAds::getAdUnitPlaceholder('intro') . "</div>" . substr($parts[$i], $anchorPos) ."</div>\n";
+							$body = "<div class='article_inner editable'>" . $content . "<div class='ad_image " . $class . "'>" . "</div>" . substr($parts[$i], $anchorPos) ."</div>\n";
 						} else {
-							$body = "<div class='article_inner editable'>" . $content . "<div class='ad_noimage " . $class . "'>" . wikihowAds::getAdUnitPlaceholder('intro') . "</div>" . substr($parts[$i], $anchorPos) ."</div>\n";
+							$body = "<div class='article_inner editable'>" . $content . "<div class='ad_noimage " . $class . "'>" . "</div>" . substr($parts[$i], $anchorPos) ."</div>\n";
 						}
 					} elseif ($anchorPos == 0 && $ads) {
-						$body = "<div class='article_inner editable'>{$parts[$i]}" . wikihowAds::getAdUnitPlaceholder('intro') . "</div>\n";
+						$body = "<div class='article_inner editable'>{$parts[$i]}" . "</div>\n";
 					}
 					else
 						$body = "<div class='article_inner editable'>{$parts[$i]}</div>\n";
@@ -1481,7 +1481,6 @@ class WikihowArticleHTML {
 
 								if ($closecount == 0) $p .= "</b>"; // close the bold tag if we didn't already
 								if ($level == 1 && $current_li == 2 && $ads && !$donefirst) {
-									$p .= wikihowAds::getAdUnitPlaceholder(0);
 									$donefirst = true;
 								}
 
@@ -1527,11 +1526,8 @@ class WikihowArticleHTML {
 					// ads after the last step
 					if ($ads) {
 						if (substr($body, $j) == ""){
-							$p = "<script>missing_last_ads = true;</script>" . wikihowAds::getAdUnitPlaceholder(1) . $p;
+							$p = "<script>missing_last_ads = true;</script>" . $p;
 							$no_third_ad = true;
-						}
-						else {
-							$p = wikihowAds::getAdUnitPlaceholder(1) . $p;
 						}
 					}
 					$donelast = true;
@@ -1575,7 +1571,7 @@ class WikihowArticleHTML {
 						if ($isAtEnd) {
 							$anchorTag = "<p></p>";
 						}
-						$body = str_replace($section, $section . $anchorTag . wikihowAds::getAdUnitPlaceholder('2a') , $body);
+						$body = str_replace($section, $section . $anchorTag, $body);
 						$foundtips = true;
 						break;
 					} else {
@@ -1583,14 +1579,14 @@ class WikihowArticleHTML {
 						if ($isAtEnd) {
 							$anchorTag = "<p></p>";
 						}
-						$body = str_replace($section, $section . $anchorTag . wikihowAds::getAdUnitPlaceholder(2) , $body);
+						$body = str_replace($section, $section . $anchorTag, $body);
 						break;
 					}
 				}
 			}
 			if (!$foundtips && !$no_third_ad) { //must be the video section
 				//need to put in the empty <p> tag since all the other sections have them for the anchor tags.
-				$body .= "<p class='video_spacing'></p>" . wikihowAds::getAdUnitPlaceholder(2);
+				$body .= "<p class='video_spacing'></p>";
 			}
 
 		}

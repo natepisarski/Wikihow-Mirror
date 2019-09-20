@@ -25,8 +25,8 @@ class WikihowToc {
 		self::$summary = ['url' => '#', 'id' => 'summary_toc', 'text' => wfMessage('summary_toc')->text()];
 	}
 
-	public static function setExpertAdvice() {
-		self::$expertAdvice = ['url' => '#expertadvice', 'id' => 'ea_toc', 'text' => wfMessage('expert_advice')->text()];
+	public static function setExpertAdvice(String $anchor = '', String $text = '') {
+		self::$expertAdvice = ['url' => '#'.$anchor, 'id' => 'ea_toc', 'text' => $text];
 	}
 
 	public static function setSummaryVideo($isYoutube = false) {

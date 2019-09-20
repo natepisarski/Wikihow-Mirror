@@ -127,19 +127,6 @@ class MobileFrontendWikiHowHooks {
 		$ampStylePaths = $stylePaths;
 		$stylePaths[] = __DIR__ . '/less/wikihow/noamp_style_top.css';
 
-		// TODO get this working for some reason when I add the css in this way it does not work yet probably due to loading order
-		//$less = ResourceLoader::getLessCompiler();
-		//$style = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/responsive.css');
-		//$style = $less->compile($style);
-		//$style = ResourceLoader::filter('minify-css', $style);
-		//$style = HTML::inlineStyle($style);
-		//$out->addHeadItem('topcss2', $style);
-		// only add this on regular article pages for now:
-		//we're checking this elsewhere, so if we get here, it's ok
-		if ( $wgTitle && $wgTitle->inNamespace( NS_MAIN ) && !$wgTitle->isMainPage() ) {
-			$stylePaths[] = __DIR__ . '/less/wikihow/responsive.css';
-		}
-
 		$top_style = Misc::getEmbedFiles('css', $stylePaths, null, $wgLang->isRTL());
 
 		// Add some custom meta info for android phone requests.
@@ -245,11 +232,6 @@ class MobileFrontendWikiHowHooks {
 		// in javascript which is useful for ajax requests debugging
 		WikihowSkinHelper::maybeAddDebugToolbar($out);
 
-		if (wikihowAds::isEligibleForAds() && !wikihowAds::isExcluded($wgTitle)) {
-			wikihowAds::addMobileAdSetup( $out );
-			wikihowAds::getGlobalChannels();
-		}
-
 		if ($wgTitle->inNamespace(NS_MAIN)
 			&& !$wgTitle->isMainPage()
 			&& class_exists('Ouroboros\Special')
@@ -259,6 +241,19 @@ class MobileFrontendWikiHowHooks {
 				'ext.wikihow.ouroboros.styles',
 				'ext.wikihow.ouroboros.scripts'
 			));
+		}
+
+		// only add this on regular article pages for now:
+		//we're checking this elsewhere, so if we get here, it's ok
+		if ( $wgTitle && $wgTitle->inNamespace( NS_MAIN ) && !$wgTitle->isMainPage() ) {
+		        // $stylePaths[] = __DIR__ . '/less/wikihow/responsive.css';
+		        $less = ResourceLoader::getLessCompiler();
+		        $style = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/responsive.less');
+		        $less->parse($style);
+		        $style = $less->getCss();
+		        $style = ResourceLoader::filter('minify-css', $style);
+		        $style = HTML::inlineStyle($style);
+		        $out->addHeadItem('topcss2', $style);
 		}
 
 		return true;

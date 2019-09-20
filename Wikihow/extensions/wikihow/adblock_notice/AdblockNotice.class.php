@@ -45,7 +45,6 @@ class AdblockNotice {
 	}
 
 	public static function isTarget() {
-		$t = RequestContext::getMain()->getTitle();
-		return wikihowAds::isEligibleForAds() && !wikihowAds::isExcluded($t);
+		return false;
 	}
 }

@@ -240,7 +240,6 @@ class CategoryHelper extends UnlistedSpecialPage {
 		return $cats;
 	}
 
-	// Used in this class and by wikihowAds.php
 	public static function cleanUpCategoryTree($tree) {
 		$results = array();
 		if (!is_array($tree)) return $results;

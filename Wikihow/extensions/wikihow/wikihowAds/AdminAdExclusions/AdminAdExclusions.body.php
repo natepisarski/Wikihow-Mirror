@@ -140,6 +140,44 @@ class AdminAdExclusions extends UnlistedSpecialPage {
 		header("Content-disposition: attachment; filename=$fname");
 	}
 
+	private static function getKey($languageCode) {
+		global $wgCachePrefix;
+
+		return wfForeignMemcKey(Misc::getLangDB($languageCode), $wgCachePrefix, 'adExclusions' );
+	}
+
+	public static function resetAllAdExclusionCaches() {
+		global $wgActiveLanguages, $wgDBname;
+
+		$dbr = wfGetDB(DB_REPLICA);
+
+		//first do english
+		self::resetAdExclusionCache($dbr, "en");
+
+		foreach ($wgActiveLanguages as $languageCode) {
+			self::resetAdExclusionCache($dbr, $languageCode);
+		}
+
+		$dbr->selectDB($wgDBname);
+	}
+
+	private static function resetAdExclusionCache(&$dbr, $languageCode) {
+		global $wgMemc;
+
+		$dbName = Misc::getLangDB($languageCode);
+		$key = self::getKey($languageCode);
+		$excludeList = array();
+
+		$dbr->selectDB($dbName);
+
+		$res = $dbr->select(ArticleAdExclusions::TABLE, "ae_page", array(), __METHOD__);
+		foreach ($res as $row) {
+			$excludeList[] = $row->ae_page;
+		}
+
+		$wgMemc->set($key, $excludeList);
+	}
+
 }
 
 class ArticleAdExclusions {
@@ -207,7 +245,7 @@ class ArticleAdExclusions {
 		$dbw->selectDB($wgDBname);
 
 		//reset memcache since we just changed a lot of values
-		wikihowAds::resetAllAdExclusionCaches();
+		AdminAdExclusions::resetAllAdExclusionCaches();
 
 		return [ $artIDs, $errors ];
 	}
@@ -256,7 +294,7 @@ class ArticleAdExclusions {
 		$dbw->selectDB($wgDBname);
 
 		//reset memcache since we just changed a lot of values
-		wikihowAds::resetAllAdExclusionCaches();
+		AdminAdExclusions::resetAllAdExclusionCaches();
 
 		return [ $artIDs, $errors ];
 	}
@@ -272,7 +310,7 @@ class ArticleAdExclusions {
 		}
 
 		//reset memcache since we just changed a lot of values
-		wikihowAds::resetAllAdExclusionCaches();
+		AdminAdExclusions::resetAllAdExclusionCaches();
 	}
 
 	/**

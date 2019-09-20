@@ -12,7 +12,7 @@
 	padding-top: 19px;
 	padding-bottom: 7px;
 }
-#sp_inner {
+.sp_inner {
 	overflow:auto;
 }
 #aag_sidebox {
@@ -51,7 +51,7 @@
 	text-align:left;
 	font-size: 15px;
 }
-.sp_box {
+#social_proof_mobile .sp_box {
 	float:left;
 	width: 50%;
 	margin: 0;
@@ -82,11 +82,11 @@
 	border-top: none;
 }
 
-#sp_star_section_upper {
+.sp_star_section_upper {
 	display: inline-block;
 }
 
-.sp_fullbox {
+#social_proof_mobile .sp_fullbox {
 	width: 100%;
 	border-top: 1px solid #e7e7e5;
 	border-left: none;
@@ -317,7 +317,7 @@
 	clear: both;
 }
 
-.star_editing .sp_helpful_icon_star {
+.star_editing .sp_helpful_icon_star:not(.mousevote):not(.mousedone) {
 	background-image: none;
 }
 
@@ -385,7 +385,7 @@
 	width: 18px;
 	height: 18px;
 	position: absolute;
-	z-index: 5;
+	z-index: 4;
 	background-size: 18px;
 	background-repeat: no-repeat;
 	right: -5px;
@@ -412,7 +412,6 @@
 	top: -29px;
 	left: 44px;
 	border: 14px solid transparent;
-	content: " ";
 	height: 0;
 	width: 0;
 	position: absolute;
@@ -459,22 +458,7 @@
 	margin-bottom: -4px;
 }
 
-
-@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
-only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-
-	#sp_expert_name, #sp_expert_team {
-		font-size: 22px;
-	}
-
-	.sp_expert_text > div {
-		font-size: 20px;
-	}
-
-	.sp_box, #articleinfo, #sp_expert h4 {
-		font-size: 20px;
-	}
-
+@media only screen and (min-width:728px) {
 	.sp_icon_bg {
 		margin: 34px 0 5px 88px;
 	}
@@ -483,7 +467,4 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 		margin: 38px 0 5px 103px;
 	}
 
-	#sp_expert_desc {
-		font-size: 1.3em;
-	}
 }

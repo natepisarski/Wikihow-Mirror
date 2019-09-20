@@ -6,7 +6,7 @@
  * Released under the MIT license
  * http://oojs.mit-license.org
  *
- * Date: 2019-07-11T23:18:20Z
+ * Date: 2019-09-06T16:43:36Z
  */
 .oo-ui-actionWidget.oo-ui-pendingElement-pending {
   background-image: /* @embed */ url(themes/wikimediaui/images/textures/pending.gif);
@@ -79,7 +79,7 @@
   bottom: 0;
 }
 .oo-ui-dialog-content > .oo-ui-window-body {
-  box-shadow: 0 0 0.66em rgba(0, 0, 0, 0.25);
+  /* */
 }
 
 .oo-ui-messageDialog-actions .oo-ui-actionWidget {
@@ -237,7 +237,7 @@
 }
 .oo-ui-processDialog-content .oo-ui-window-body {
   top: 3.4em;
-  box-shadow: 0 0 0.33em rgba(0, 0, 0, 0.33);
+  border-top: 1px solid #e5e5e5;
 }
 .oo-ui-processDialog-navigation {
   position: relative;
@@ -384,7 +384,7 @@
   position: relative;
 }
 .oo-ui-windowManager-modal > .oo-ui-dialog {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.75);
   opacity: 0;
   -webkit-transition: opacity 250ms;
   -moz-transition: opacity 250ms;
@@ -418,5 +418,5 @@
   max-height: calc( 100% - 2em );
   border: 1px solid #e5e5e5;
   border-radius: 4px;
-  box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0.2em 1em rgba(0, 0, 0, 0.125);
 }

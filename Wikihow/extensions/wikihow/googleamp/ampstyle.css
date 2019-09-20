@@ -959,7 +959,7 @@ p.green_box_bullet {
 	top: -88px;
 }
 
-#expertadvice .ar_avatar {
+.expert_advice_section .ar_avatar {
 	width: 50px;
 	height: 50px;
 	position: absolute;
@@ -973,17 +973,20 @@ p.green_box_bullet {
 	padding-left: 60px;
 }
 
-#expertadvice ul {
+.expert_advice_section ul {
 	list-style: none;
 }
 
-#expertadvice li:before {
+.expert_advice_section li:before {
 	content: '';
 	width: 18px;
 	height: 18px;
 	position: absolute;
 	background: url(/extensions/wikihow/WikihowLogin/images/check.svg) center / cover no-repeat;
 	margin: 3px 0 0 -25px;
+}
+#expertqampa li:before {
+	background-image: url(/extensions/wikihow/socialproof/star_circle.svg);
 }
 
 /* Tablet Support */
