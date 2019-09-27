@@ -17,9 +17,3 @@ $wgAutoloadClasses['DefaultSearchPageAdCreator'] = __DIR__ . '/AdCreator.class.p
 $wgAutoloadClasses['DefaultAlternateDomainAdCreator'] = __DIR__ . '/AlternateDomainAdCreator.class.php';
 $wgAutoloadClasses['DefaultCategoryPageAdCreator'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['DefaultMainPageAdCreator'] = __DIR__ . '/AdCreator.class.php';
-
-// TODO what are these for?
-$wgHooks['BeforeActionbar'][] = 'Ads::onBeforeActionbar';
-$wgHooks['AfterActionbar'][] = 'Ads::onAfterActionbar';
-
-

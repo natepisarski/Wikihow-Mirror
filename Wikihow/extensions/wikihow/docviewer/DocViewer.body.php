@@ -149,10 +149,10 @@ class DocViewer extends UnlistedSpecialPage {
 			}
 
 			if ( !$is_mobile ) {
-				$desktopAds = new DesktopAds( $this->getContext(), $this->getUser(), $wgLanguageCode, array(), false );
-				$ads = $desktopAds->getDocViewerAdHtml( 0 );
+				$adCreator = new Ads( $this->getContext(), $this->getUser(), $wgLanguageCode, array(), false );
+				$ads = $adCreator->getDocViewerAdHtml( 0 );
 				if ( !self::showPdf($doc_name) ) {
-					$ads2 = $desktopAds->getDocViewerAdHtml( 1 );
+					$ads2 = $adCreator->getDocViewerAdHtml( 1 );
 				}
 			}
 

@@ -250,20 +250,14 @@ class Ads {
 	 * was in the html here and it was screwing it up completely.
 	 * now we check if ads are active before running this to solve it
 	 * but i could imagine a way that it causes another bug in the future
+	 *
+	 * due to this bug I am disabling this function until we fix the issue
 	 * */
 	public function modifyRightRailForAdTest( $html, $relatedWikihows ) {
 		if ( !$this->isActive() ) {
 			return $html;
 		}
-		$pageId = $this->mTitle->getArticleID();
-
-		$doc = phpQuery::newDocument( $html );
-		if ( pq( '.rr_container' )->length < 3 ) {
-			pq('#ratearticle_sidebar')->remove();
-		}
-
-		$rightRailHtml = $doc->htmlOuter();
-		return $rightRailHtml;
+		return $html;
 	}
 
 	public function getGPTDefine() {
@@ -322,78 +316,18 @@ class Ads {
 	}
 
 	/*
-	 * @return the html for related section ad
-	 */
-	public function getRelatedAdHtml() {
-		$html = '';
-		if ( isset( $this->mAdCreator->mAds['related'] ) && $this->mAdCreator->mAds['related'] ) {
-			$html = $this->mAdCreator->mAds['related']->mHtml;
-		}
-		return $html;
-	}
-	/*
 	 * @param int the doc viewer ad
 	 * @return the html for doc viewer ad
 	 */
 	public function getDocViewerAdHtml( $position ) {
-		if ( isset( $this->mAdCreator->mAds['docviewer'.$position] ) ) {
-			return $this->mAdCreator->mAds['docviewer'.$position]->mHtml;
+		if (!$this->mAdCreator) {
+			return;
 		}
-		return "";
-	}
-
-	/*
-	 * get the html of the banner ad if it is set
-	 */
-	public function getBannerAdHtml() {
-		if ( $this->mAdCreator ) {
-			return $this->mAdCreator->getPreContentAdHtml();
-		}
-	}
-
-	/*
-	 * get the html of the funding choices javscript if ads are active
-	 * @return string the html of the funding choices code to go in the head of the page
-	 */
-	public function getFundingChoicesSnippet() {
-		if ( !$this->mActive ) {
+		$ad = $this->mAdCreator->getBodyAd( 'docviewer'.$position );
+		if ( !$ad ) {
 			return "";
 		}
-		if ( !$this->mFundingChoicesActive ) {
-			return "";
-		}
-		$html = file_get_contents( __DIR__."/fundingchoices.html" );
-		return $html;
-	}
-
-	/*
-	 * get the html of the funding choices target div
-	 * @return string the html of the funding choices target id
-	 */
-	public function getFundingChoicesTarget() {
-		if ( !$this->mActive ) {
-			return "";
-		}
-		if ( !$this->mFundingChoicesActive ) {
-			return "";
-		}
-		return '<div id="ndcxng"></div>';
-	}
-
-	/*
-	 * Hook from the WikihowTemplate class that lets us insert html before the action bar
-	 */
-	public static function onBeforeActionbar( $wgOut, $desktopAds ) {
-		if ( $desktopAds ) {
-			echo $desktopAds->getBannerAdHtml();
-		}
-	}
-
-	/*
-	 * Hook from the WikihowTemplate class that lets us insert html after the action bar
-	 */
-	public static function onAfterActionbar( $wgOut, $desktopAds ) {
-		echo "";
+		return $ad->mHtml;
 	}
 
 	/*

@@ -10,7 +10,6 @@ class WikihowArticleHTML {
 	var $mBody = null;
 	var $mOpts = array();
 	var $mRelatedWikihows = null;
-	var $mDesktopAds = null;
 
 	// this is deprecated.
 	// instead of using it, construct a new instance and call processBody instead
@@ -27,10 +26,6 @@ class WikihowArticleHTML {
 
 	public function getRelatedWikihows() {
 		return $this->mRelatedWikihows;
-	}
-
-	public function getDesktopAds() {
-		return $this->mDesktopAds;
 	}
 
 	public function processBody() {
@@ -877,9 +872,11 @@ class WikihowArticleHTML {
 			$widget = new QAWidget();
 			$widget->addWidget();
 		}
-		$this->mDesktopAds = new DesktopAds( $context, $user, $langCode, $opts, $isMainPage );
-		$this->mDesktopAds->addToBody();
 
+		$ads = $opts['ads'];
+		if ( $ads ) {
+			$ads->addToBody();
+		}
 
 		//special querystring for loading pages faster by removing step images
 		//STAFF ONLY

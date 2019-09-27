@@ -16,7 +16,6 @@ abstract class AdCreator {
 	var $mStickyIntro = false;
 	var $mDFPKeyVals = array();
 	var $mRefreshableRightRail = false;
-	var $mAdsenseAutoAds = false;
 	var $mAdCounts = array();
 	var $mGptSlotDefines = array();
 	var $mDFPData = array();
@@ -514,41 +513,6 @@ abstract class AdCreator {
 		}
 	}
 
-	public function getAdsenseAutoAds() {
-		return $this->mAdsenseAutoAds;
-	}
-
-	public function setAdsenseAutoAds( $value ) {
-		$this->mAdsenseAutoAds = $value;
-	}
-
-	/*
-	 * @param Ad
-	 * @return string or int channels to be used when creating adsense ad
-	 */
-	protected function getAdClient( $ad ) {
-		return 'ca-pub-9543332082073187';
-	}
-
-	/*
-	 * return the abg snippet, not wrapped in a script tag
-	 * @return string a snippet of javasript used to insert an adsense ad on an <ins> element
-	 */
-	protected function getAdsByGoogleJS( $ad ) {
-		$channels = $this->getAdsenseChannels( $ad );
-		$adsenseAutoAds = $this->getAdsenseAutoAds();
-		$script = "(adsbygoogle = window.adsbygoogle || []).push({";
-		if ( $channels ) {
-			$script .= "params: {google_ad_channel: '$channels'}";
-		}
-		if ( $adsenseAutoAds ) {
-			$script .= "google_ad_client: \"ca-pub-9543332082073187\",\n";
-			$script .= "enable_page_level_ads: true";
-		}
-		$script .= "});";
-		return $script;
-	}
-
 	public function getBodyAd( $type ) {
 		$ad = $this->getNewAd( $type );
 
@@ -562,7 +526,16 @@ abstract class AdCreator {
 			'id' => $ad->mTargetId,
 			'class' => $innerClass,
 		);
-		$innerAdHtml = Html::element( 'div', $attributes );
+		$innerHtml = '';
+		$skipInlineHtml = true;
+
+		if ( !Misc::isMobileMode() && $ad->setupData['inline-html'] == 1 ) {
+			// do not use js to load the add but load it with html
+			$innerHtml .= $this->getInlineHtmlForAd( $ad );
+			$skipInlineHtml = false;
+		}
+
+		$innerAdHtml = Html::rawElement( 'div', $attributes, $innerHtml );
 
 		// now the wrapper
 		$attributes = array(
@@ -580,6 +553,8 @@ abstract class AdCreator {
 				$innerAdHtml .= Html::rawElement( 'div', [ 'class' => 'ad_label_method' ], $label );
 			} elseif ( $key == 'containerheight' ) {
 				$attributes['style'] = "height:{$val}px";
+			} elseif ( $skipInlineHtml && $key == 'inline-html' ) {
+				// skip this key
 			} else {
 				if ( is_array( $val ) ) {
 					$val = implode(' ', $val);
@@ -602,8 +577,6 @@ abstract class AdCreator {
 		$attributes['data-mobilechannels'] = implode( ',', $attributes['data-mobilechannels'] );
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
-		// TODO This adds the gpt script..sould be able to do this in js though
-		$html .= $script;
 		$html .= Html::inlineScript( "WH.ads.addBodyAd('{$ad->mTargetId}')" );
 		$ad->mHtml = $html;
 
@@ -612,6 +585,44 @@ abstract class AdCreator {
 		}
 
 		return $ad;
+	}
+
+
+	private function getInlineHtmlForAd( $ad ) {
+		if ( $ad->setupData['service'] != 'adsense' ) {
+			return;
+		}
+
+		$slot = $ad->setupData['slot'];
+		if ( !$slot ) {
+			return;
+		}
+		$width = $ad->setupData['width'];
+		$height = $ad->setupData['height'];
+		$attributes = array(
+				'class' => 'adsbygoogle',
+				'style' => "display:inline-block;width:".$width."px;height:".$height."px;",
+				'data-ad-client' => "ca-pub-9543332082073187",
+				'data-ad-slot' => $slot
+		);
+		$ins = Html::element( "ins", $attributes );
+		$script = $this->getAdsByGoogleJS( $ad );
+		$script = Html::inlineScript( $script );
+		return $ins . $script;
+	}
+
+	private function getAdsByGoogleJS( $ad ) {
+		if ( !isset( $attributes['data-channels'] ) ) {
+			$channels = array();
+		}
+		$channels += $this->mAdsenseChannels ?: [];
+		$channels = implode( ',', $channels );
+		$script = "(adsbygoogle = window.adsbygoogle || []).push({";
+		if ( $channels ) {
+			$script .= "params: {google_ad_channel: '$channels'}";
+		}
+		$script .= "});";
+		return $script;
 	}
 
 	protected function getInitialRefreshSnippetGPT() {
@@ -724,7 +735,7 @@ abstract class AdCreator {
 
 		$adsenseScript = "";
 		if ( $addAdsense ) {
-			$adsenseScript = file_get_contents( __DIR__."/../desktopAdsense.js" );
+			$adsenseScript = file_get_contents( __DIR__."/../adsenseSetup.js" );
 			$adsenseScript = Html::inlineScript( $adsenseScript );
 		}
 
@@ -844,12 +855,6 @@ class DefaultAdCreator extends AdCreator {
 	public function __construct() {
 		parent::__construct();
 
-		if ( ArticleTagList::hasTag('ads_desktop_no_intro', $this->mPageId) ) {
-			$this->mAdsenseChannels[] = 2001974826;
-		} else {
-			$this->mAdsenseChannels[] = 2385774741;
-		}
-
 		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $this->mPageId ) ) {
 			$this->mMobileAdsenseChannels[] = 8411928010;
 		} else {
@@ -872,6 +877,7 @@ class DefaultAdCreator extends AdCreator {
 				'mobileheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
+				'inline-html' => 1,
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -958,6 +964,7 @@ class DefaultAdCreator extends AdCreator {
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
 				'largeonly' => 1,
+				'inline-html' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
@@ -1087,14 +1094,12 @@ class DefaultDocViewerAdCreator extends AdCreator {
 				'adUnitPath' => '/10095428/Image_Ad_Sample_Page',
 				'size' => '[[300, 250], [300, 600]]',
 				'apsLoad' => true,
-				'refreshable' => 1,
-				'first-refresh-time' => 30000,
-				'refresh-time' => 28000,
-				'aps-timeout' => 800,
+				'aps-timeout' => 2000,
 				'width' => 300,
 				'height' => 600,
 				'containerheight' => 3300,
-				'class' => ['rr_container', 'ad_label', 'ad_label_dollar'],
+				'class' => ['rr_container'],
+				'innerclass' => ['docviewerad', 'ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
 			),
 			'docviewer1' => array(
@@ -1105,7 +1110,7 @@ class DefaultDocViewerAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'class' => ['ad_label', 'ad_label_dollar'],
+				'class' => ['docview_top', 'ad_label', 'ad_label_dollar'],
 			),
 		);
 	}
@@ -1128,6 +1133,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'mobileheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
+				'inline-html' => 1,
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -1156,6 +1162,8 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'largeonly' => 1,
+				'inline-html' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
@@ -1172,6 +1180,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'largeonly' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -1181,6 +1190,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
+				'largeonly' => 1,
 			),
 			'mobilemethod' => array(
 				'service' => 'adsense',
@@ -1243,6 +1253,8 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'mobileslot' => 2831688978,
 				'mobileheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'intro',
+				'inline-html' => 1,
 			),
 			'method' => array(
 				'service' => 'adsense',
@@ -1268,6 +1280,8 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'largeonly' => 1,
+				'inline-html' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'adsense',
@@ -1278,6 +1292,7 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'largeonly' => 1,
 			),
 			'rightrail2' => array(
 				'service' => 'adsense',
@@ -1288,6 +1303,7 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'largeonly' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -1297,36 +1313,42 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
+				'largeonly' => 1,
 			),
 			'mobilemethod' => array(
 				'service' => 'adsense',
 				'mobileslot' => 6771527778,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'type' => 'method',
 			),
-			'related' => array(
+			'mobilerelated' => array(
 				'service' => 'adsense',
 				'mobileslot' => 9724994176,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'type' => 'related'
 			),
 			'tips' => array(
 				'service' => 'adsense',
 				'mobileslot' => 8125162876,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'type' => 'tips'
 			),
 			'warnings' => array(
 				'service' => 'adsense',
 				'mobileslot' => 4621387358,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'type' => 'warnings'
 			),
 			'pagebottom' => array(
 				'service' => 'adsense',
 				'mobileslot' => 3373074232,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'type' => 'pagebottom'
 			),
 		);
 

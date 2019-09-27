@@ -26,8 +26,10 @@ WH.ads = (function () {
 	var lastScrollPosition = window.scrollY;
 
 	var topMenuHeight = WH.shared.TOP_MENU_HEIGHT;
+	var bottomMarginHeight = WH.shared.BOTTOM_MARGIN;
 	if (WH.isMobile) {
 		topMenuHeight = 92;
+		bottomMarginHeight = 314;
 	}
 	function log() {
 	}
@@ -131,7 +133,7 @@ WH.ads = (function () {
 		if (!ad) {
 			return;
 		}
-		ad.height = ad.adElement.offsetHeight;
+		ad.height = ad.element.offsetHeight;
 
 		if (ad.refreshable && ad.viewablerefresh) {
 			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
@@ -151,7 +153,7 @@ WH.ads = (function () {
 		if (!ad) {
 			return;
 		}
-		ad.height = ad.adElement.offsetHeight;
+		ad.height = ad.element.offsetHeight;
         // don't even bother checking the space unless the ad is less than 300px in height
 		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
         if (ad.extraChild && size && parseInt(size[1]) < 300) {
@@ -503,6 +505,10 @@ WH.ads = (function () {
 		}
 
 		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
+		this.inlineHtml = this.adElement.getAttribute('data-inline-html') == 1;
+		if (this.inlineHtml) {
+			this.isLoaded = true;
+		}
 		this.adLabelClass = this.adElement.getAttribute('data-adlabelclass');
 		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
 		this.apsTimeout = this.adElement.getAttribute('data-aps-timeout');
@@ -1007,7 +1013,7 @@ WH.ads = (function () {
 			var topPx = topMenuHeight;
 			if (ad.last) {
 				var adBottom = window.scrollY + topMenuHeight + parseInt(ad.height);
-				var offsetBottom = document.documentElement.scrollHeight - BOTTOM_MARGIN;
+				var offsetBottom = document.documentElement.scrollHeight - bottomMarginHeight;
 				if ( adBottom > offsetBottom ) {
 					topPx = topPx - (adBottom - offsetBottom);
 				}

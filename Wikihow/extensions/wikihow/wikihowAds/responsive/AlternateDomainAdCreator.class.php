@@ -132,6 +132,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
+				'inline-html' => 1,
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -217,6 +218,8 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'inline-html' => 1,
+				'largeonly' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
@@ -233,6 +236,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'largeonly' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -242,6 +246,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
+				'largeonly' => 1,
 			),
 			'quiz' => array(
 				'service' => 'dfp',

@@ -1,5 +1,6 @@
 <?php
 
+
 class SchemaMarkup {
 	private static $mHowToSchema = '';
 	const RECIPE_SCHEMA_CACHE_KEY = "recipe_schema";
@@ -1025,13 +1026,14 @@ class SchemaMarkup {
 		];
 		return $data;
 	}
-	public static function getBreadCrumbSchema( $out ) {
+
+	public static function getBreadcrumbSchema( $out ) {
 		// does sanity checks on the title and wikipage and $out
 		if ( !self::okToShowSchema( $out ) ) {
 			return '';
 		}
 
-		return self::getBreadCrumbSchemaFromTitle( $out->getTitle() );
+		return self::getBreadcrumbSchemaFromTitle( $out->getTitle() );
 	}
 
 	public static function getCategoryListForBreadcrumb( $title ) {
@@ -1039,12 +1041,25 @@ class SchemaMarkup {
 		$allCats = array();
 		// get the list
 		foreach ( $tree as $catTitle => $parents ) {
+			// skip any in categories to ignore
+			$tempCategories = wfMessage( 'categories_to_ignore' )->inContentLanguage()->text();
+			$tempCategories = explode( "\n", $tempCategories );
+			$categoriesToIgnore = array();
+			foreach ( $tempCategories as $catToIgnore ) {
+				$parts = explode( "/", $catToIgnore );
+				$categoriesToIgnore[] = end( $parts );
+			}
+
+			if ( in_array( $catTitle, $categoriesToIgnore ) ) {
+				continue;
+			}
 			// check if top level category is indexable or not
 			$catTitle = Title::newFromText($catTitle);
 			$indexable = RobotPolicy::isIndexable( $catTitle );
 			if ( !$indexable ) {
 				continue;
 			}
+
 			$cats = [$catTitle];
 			$parentCats = CategoryHelper::flattenCategoryTree( $parents );
 			if ( !$parentCats ) {
@@ -1062,7 +1077,7 @@ class SchemaMarkup {
 		return $allCats;
 	}
 
-	public static function getBreadCrumbSchemaFromTitle( $title ) {
+	public static function getBreadcrumbSchemaFromTitle( $title ) {
 		$items = array();
 		$items[] = self::getBreadcrumbItem( 1, 'https://www.wikihow.com', 'wikiHow' );
 		$allCats = self::getCategoryListForBreadcrumb( $title );

@@ -272,7 +272,6 @@ require_once("$IP/extensions/wikihow/GoodRevision.class.php");
 require_once("$IP/extensions/wikihow/DailyEdits.php");
 require_once("$IP/extensions/wikihow/ArticleWidgets/ArticleWidgets.php");
 require_once("$IP/extensions/wikihow/ToolSkip.php");
-require_once("$IP/extensions/wikihow/wikihowAds/DesktopAds.php");
 require_once("$IP/extensions/wikihow/wikihowAds/responsive/Ads.php");
 require_once("$IP/extensions/wikihow/rightrail/RightRail.php");
 require_once("$IP/extensions/wikihow/WikihowShare/WikihowShare.php");

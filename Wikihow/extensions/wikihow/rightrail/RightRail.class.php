@@ -413,7 +413,6 @@ class RightRail {
 		//}
 
 		if ( $this->mAds ) {
-			$html .= $this->mAds->getFundingChoicesTarget();
 			$html .= $this->mAds->getRightRailAdHtml( 0 );
 		}
 
@@ -515,7 +514,9 @@ class RightRail {
 			$html .= Html::rawElement( 'div', ['class' => 'sidebox videobrowser_sidebox'], $videoWidget );
 		}
 
-		if ( $this->mShowCurrentArticle && $this->mAction == 'view' && !$this->mIsMainPage && $this->mTitle->getNamespace() == NS_MAIN) {
+		$numberOfRightRailAds = 2;
+
+		if ( $numberOfRightRailAds > 2 && $this->mShowCurrentArticle && $this->mAction == 'view' && !$this->mIsMainPage && $this->mTitle->getNamespace() == NS_MAIN) {
 			$html .= RatingArticle::getDesktopSideForm( $this->mPageId, $this->mLoggedOutClass );
 		}
 

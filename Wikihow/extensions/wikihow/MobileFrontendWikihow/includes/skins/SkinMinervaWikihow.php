@@ -100,7 +100,6 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		$rightRail = RightRail::createRightRail( $this );
 		if ( $rightRail->mAds->isActive() ) {
-			// TODO what does this output?
 			$headHtml = $rightRail->mAds->getHeadHtml();
 			$out->addHeadItem( 'desktopadshead', $headHtml );
 		}
