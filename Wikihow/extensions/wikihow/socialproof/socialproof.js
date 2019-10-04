@@ -210,12 +210,13 @@
 			});
 		}
 
-		//side bar hover
-		$('#sidebar .sp_top_box_hoverable').hover(function() {
+		//side bar hover (for non-experts or community experts)
+		$('#sidebar .sp_top_box_hoverable.sp_nonverifier_text, #sidebar .sp_community .sp_top_box_hoverable').hover(function() {
 			dialog_box(true, this, 'icon_hover');
 		}, function() {
 			dialog_box(false, this, 'icon_hover');
 		});
+
 
 		if (!WH.isMobile) {
 			//(i) icon & top badge hover

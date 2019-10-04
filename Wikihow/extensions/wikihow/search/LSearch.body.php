@@ -317,7 +317,7 @@ class LSearch extends SpecialPage {
 		if ( substr( $q, 0, 7 ) === 'how to ' ) {
 			// Use the normalization but not the "how to " since Solr does that on its own
 			$q = substr( $q, 7 );
-		} 
+		}
 
 		$domain = Misc::getCanonicalDomain();
 		$key = wfMemcKey('SolrSearchResultsV1', str_replace(' ', '-', $q), $start, $limit, $domain);
@@ -1272,6 +1272,7 @@ class LSearch extends SpecialPage {
 		elseif ($lang == 'pt') $domain = $isM ? 'ptm.wikihow.com'    : 'pt.wikihow.com';
 		elseif ($lang == 'ru') $domain = $isM ? 'rum.wikihow.com'    : 'ru.wikihow.com';
 		elseif ($lang == 'th') $domain = $isM ? 'thm.wikihow.com'    : 'th.wikihow.com';
+	//  elseif ($lang == 'tr') $domain = $isM ? '....wikihow.com'    : '...wikihow.com';  // TR is not supported
 		elseif ($lang == 'vi') $domain = $isM ? 'mobile.wikihow.vn'  : 'wikihow.vn';
 		elseif ($lang == 'zh') $domain = $isM ? 'zhm.wikihow.com'    : 'zh.wikihow.com';
 		else                   $domain = $isM ? 'mobile.wikihow.com' : 'wikihow.com';

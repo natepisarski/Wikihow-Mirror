@@ -878,7 +878,7 @@ class AlternateDomain {
 			if (!$title || !$title->exists()) continue;
 			$titlesHtml .= Html::rawElement( "li", array(), Linker::link( $title, $title->getText() ) );
 		}
-		$html = Html::rawElement( 'ul', array(), $titlesHtml );
+		$html = Html::rawElement( 'ul', ['class' => 'cat_list_ul'], $titlesHtml );
 	}
 
 	/*

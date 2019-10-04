@@ -11,6 +11,8 @@ class SocialStamp {
 	private static $isNotable = null;
 
 	const NOTABLE_TAG = "notable_coauthor";
+	const ENHANCED_BYLINE_ARTICLE_TAG = 'enhanced_byline_test';
+	const ENHANCED_BYLINE_EXPERTS_TAG = 'enhanced_byline_experts';
 
 	public static function addDesktopByline($out) {
 		if (!self::isEligibleForByline()) return;
@@ -220,7 +222,7 @@ class SocialStamp {
 				$params['coauthor'] = wfMessage("ss_notable")->text();
 			}
 
-			if (self::isEnhancedBylineArticle($articleId)) {
+			if (self::showEnhancedByline($articleId, $verifiers[$key])) {
 				//HACK - remove any leading PhD because it's at the end of 2 people's names
 				$desc = preg_replace('/^PhD,\s/', '', $verifiers[$key]->blurb);
 				$params['slot1_desc'] = $desc;
@@ -451,8 +453,21 @@ class SocialStamp {
 		return $last_updated;
 	}
 
-	private static function isEnhancedBylineArticle(int $pageId): bool {
-		return ArticleTagList::hasTag('enhanced_byline_test', $pageId);
+	private static function showEnhancedByline(Int $pageId, VerifyData $vData = null): Bool {
+		return self::isEnhancedBylineArticle($pageId) || self::isEnhancedBylineExpert($vData);
+	}
+
+	private static function isEnhancedBylineArticle(int $pageId): Bool {
+		return ArticleTagList::hasTag(self::ENHANCED_BYLINE_ARTICLE_TAG, $pageId);
+	}
+
+	private static function isEnhancedBylineExpert(VerifyData $vData = null): Bool {
+		if (!isset($vData->verifierId) || RequestContext::getMain()->getUser()->isLoggedIn()) return false;
+
+		$bucket = ConfigStorage::dbGetConfig(self::ENHANCED_BYLINE_EXPERTS_TAG, true);
+		$expert_ids = explode("\n", $bucket);
+
+		return in_array($vData->verifierId, $expert_ids);
 	}
 
 }

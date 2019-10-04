@@ -737,6 +737,11 @@ class SkinMinervaWikihow extends SkinMinerva {
 			return;
 		}
 
+		// do not show any hreflang links on alt domain pages
+		if ( Misc::isAltDomain() ) {
+			return;
+		}
+
 		$out = $this->getOutput();
 		$hreflangs = WikihowSkinHelper::getLanguageLinks();
 		$params = $wgRequest->getBool('amp') ? '?amp=1' : '';

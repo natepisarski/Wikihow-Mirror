@@ -205,6 +205,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if (RequestContext::getMain()->getLanguage()->getCode() == 'en' && !$isAlternateDomain)
 			$links[] = ['link' => wfMessage('footer_jobs')->parse()];
 
+		$links[] = ['link' => wfMessage('footer_site_map')->parse()];
+
 		// $links[] = ['link' => wfMessage('footer_experts')->parse()];
 		$links[] = ['link' => wfMessage('footer_terms')->parse()];
 		// $links[] = ['link' => wfMessage('footer_site_map')->parse()];

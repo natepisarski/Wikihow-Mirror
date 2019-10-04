@@ -16,12 +16,7 @@ sovrn.com, 7039, DIRECT, fafdf38b16bf6b2b
 lijit.com, 7039, DIRECT, fafdf38b16bf6b2b
 triplelift.com, 2866, DIRECT, 6c33edb13117fd86
 appnexus.com, 1314, RESELLER
-spotxchange.com, 228454, RESELLER, 7842df1d2fe2db34
-spotx.tv, 228454, RESELLER, 7842df1d2fe2db34
-lkqd.net, 504, RESELLER, 59c49fa9598a01
 rhythmone.com, 4259564122, DIRECT, a670c89d4a324e47
-sovrn.com, 7039, DIRECT, fafdf38b16bf6b2b
-lijit.com, 7039, DIRECT, fafdf38b16bf6b2b
 appnexus.com, 1360, RESELLER, f5ab79cb980f11d1
 gumgum.com, 11645, RESELLER, ffdef49475d318a9
 openx.com, 538959099, RESELLER, 6a698e2ec38604c6
@@ -35,3 +30,4 @@ appnexus.com, 1356, RESELLER, f5ab79cb980f11d1
 google.com, pub-5995202563537249, RESELLER, f08c47fec0942fa0
 pubmatic.com, 158515, DIRECT, 5d62403b186f2ace
 pubmatic.com, 158516, DIRECT, 5d62403b186f2ace
+lijit.com, 7039-eb, DIRECT, fafdf38b16bf6b2b

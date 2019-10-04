@@ -900,6 +900,7 @@ class WikihowArticleHTML {
 		}
 
 		SchemaMarkup::calcHowToSchema( $out );
+		SchemaMarkup::calcFAQSchema( $out );
 
 		Hooks::run('ProcessArticleHTMLAfter', array( $out ) );
 
@@ -984,7 +985,7 @@ class WikihowArticleHTML {
 			}
 		}
 
-		if ($isNewTocArticle) {
+		if ($isNewTocArticle && $showCurrentTitle) {
 			WikihowToc::addToc();
 		}
 

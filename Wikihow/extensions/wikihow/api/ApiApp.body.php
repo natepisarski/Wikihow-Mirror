@@ -312,7 +312,7 @@ class AppDataFormatter {
 		return self::formatResults($titles);
 	}
 
-	private static function getAbstract($title) {
+	private static function getAbstract($title, $forceRecalculate = false) {
 		global $wgParser;
 
 		$abstract = '';
@@ -322,8 +322,10 @@ class AppDataFormatter {
 			$abstract = $ami->getFacebookDescription();
 		}
 
-		if (!$abstract) {
-			$rev = Revision::newFromTitle($title);
+		if ( !$abstract || $forceRecalculate == true ) {
+			$gr = GoodRevision::newFromTitle($title, $title->getArticleId());
+			$revId = $gr->latestGood();
+			$rev = Revision::newFromId( $revId );
 			if ($rev) {
 				$wikitext = ContentHandler::getContentText( $rev->getContent() );
 				$abstract = $wgParser->getSection($wikitext, 0);

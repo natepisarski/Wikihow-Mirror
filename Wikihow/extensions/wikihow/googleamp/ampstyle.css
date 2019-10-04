@@ -166,14 +166,21 @@
 	background-image: url(/extensions/wikihow/TopAnswerers/assets/qa_ta_badge.svg);
 }
 
-.qa_expert_area .qa_person_circle, .qa_expert_area .qa_person_circle span {
-	height: 52px;
-	width: 52px;
-	font-size: 21px;
+.qa_expert_area .qa_person_circle,
+.qa_ta_area .qa_person_circle {
 	border: 2px solid #6f8460;
 }
 
-.qa_ta_area .qa_person_circle, .qa_ta_area .qa_person_circle span {
+.qa_expert_area .qa_person_circle,
+.qa_expert_area .qa_person_circle span {
+	height: 52px;
+	width: 52px;
+	font-size: 21px;
+	border-radius: 50%;
+}
+
+.qa_ta_area .qa_person_circle,
+.qa_ta_area .qa_person_circle span {
 	height: 52px;
 	width: 52px;
 	font-size: 21px;

@@ -695,6 +695,12 @@ class Language {
 
 			# Also add converted namespace names as aliases, to avoid confusion.
 			$convertedNames = [];
+
+			/**
+			 * >>> wikiHow, 2019/09 (Alberto)
+			 * We disable the following code block, as it causes a 5x increase
+			 * in response times, at least since the MW upgrade of August 2019.
+			 *
 			foreach ( $this->getVariants() as $variant ) {
 				if ( $variant === $this->mCode ) {
 					continue;
@@ -703,6 +709,7 @@ class Language {
 					$convertedNames[$this->getConverter()->convertNamespace( $ns, $variant )] = $ns;
 				}
 			}
+			 * <<< wikiHow, 2019/09 (Alberto) */
 
 			$this->namespaceAliases = $aliases + $convertedNames;
 

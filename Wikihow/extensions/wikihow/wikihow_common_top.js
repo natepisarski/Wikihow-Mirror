@@ -88,6 +88,13 @@ WH.ga.loadGoogleAnalytics = function(siteVersion, propertyId, config) {
 		}
 	}
 
+	//ping Optimize if we should
+	if(WH.useOptimize == 1) {
+		ga('create', 'UA-2375655-30', 'auto');
+		ga('require', 'GTM-MDDNK99');
+		ga('send', 'pageview');
+	}
+
 	//var load_t_delta = (new Date()).getTime() - WH.timeStart;
 	//setTimeout('ga("send","event","Adjusted Bounce","60 seconds on page (' + siteVersion + ')")',
 		//Math.max(60000 - load_t_delta, 0));

@@ -1,8 +1,8 @@
 <?php
 
-
 class SchemaMarkup {
 	private static $mHowToSchema = '';
+	private static $mFAQSchema = '';
 	const RECIPE_SCHEMA_CACHE_KEY = "recipe_schema";
 	const ARTICLE_IMAGE_WIDTH = 1200;
 
@@ -256,8 +256,11 @@ class SchemaMarkup {
 		global $wgIsDevServer;
 		$url = '';
 		$img = pq( $step )->find( 'img:not(.m-video-wm-img):first' );
+		$ampImg = pq( $step )->find( 'amp-img:not(.m-video-wm-img):first' );
 		if ( $img->length > 0 ) {
 			$url = $img->attr( 'src' );
+		} elseif ( $ampImg->length > 0 ) {
+			$url = $ampImg->attr( 'src' );
 		} else {
 			$video = pq( $step )->find( 'video.m-video:first' );
 			if ( $video->length > 0 ) {
@@ -439,7 +442,6 @@ class SchemaMarkup {
 	}
 
 	// run in the context of php query to get the how to schema information
-
 	public static function calcHowToSchema( $out ) {
 		// does sanity checks on the title and wikipage and $out
 		if ( !self::okToShowSchema( $out ) ) {
@@ -480,6 +482,69 @@ class SchemaMarkup {
 
 		// set in class static var
 		self::$mHowToSchema = $schema;
+	}
+
+	private static function getFAQQuestion( $qaItem ) {
+		if ( pq( $qaItem )->find( '.qa_expert_area' )->length < 1 ) {
+			return;
+		}
+		$name = pq( $qaItem )->find( '.qa_q_txt:first' )->text();
+		$name = preg_replace( '~\x{00a0}~siu',' ',$name );
+		$name = trim( $name );
+		if ( !$name ) {
+			return '';
+		}
+		$answer = array();
+		$answerText = pq( $qaItem )->find( '.qa_answer:first' )->text();
+		$answerText = preg_replace( '~\x{00a0}~siu',' ',$answerText );
+		$answerText = trim( $answerText );
+		if ( !$answerText ) {
+			return '';
+		}
+		$answer['@type'] = 'Answer';
+		$answer['text'] = $answerText;
+		$result = array();
+		$result['@type'] = "Question";
+		$result['name'] = $name;
+		$result['acceptedAnswer'] = $answer;
+		return $result;
+	}
+
+	// run in the context of php query to get the how to schema information
+	public static function calcFAQSchema( $out ) {
+		// does sanity checks on the title and wikipage and $out
+		if ( !self::okToShowSchema( $out ) ) {
+			return '';
+		}
+
+		$title = $out->getTitle();
+		$wikiPage = $out->getWikiPage();
+
+		$questions = array();
+
+		foreach ( pq( '#qa .qa_li_container' ) as $section ) {
+			$question = self::getFAQQuestion( $section );
+			if ( !$question ) {
+				continue;
+			}
+			$questions[] = $question;
+		}
+		if ( empty( $questions ) ) {
+			return '';
+		}
+
+		$data = [
+			"@context"=> "http://schema.org",
+			"@type" => "FAQPage",
+			"headline" => $title->getText(),
+			"name" => $title->getText(),
+			"mainEntity" => $questions
+		];
+
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
+
+		// set in class static var
+		self::$mFAQSchema = $schema;
 	}
 
 	private static function getAggregateRating( $title ) {
@@ -831,23 +896,39 @@ class SchemaMarkup {
 	private static function getContributors( $t ) {
 		$result = [];
 
+		$verifier = self::getVerifierName( $t );
+
+		$result['contributor'] = [ '@type' => 'Person', 'name' => $verifier ];
+		return $result;
+	}
+
+	private static function getVerifierName( $t ) {
 		$verifiers = VerifyData::getByPageId( $t->getArticleID() );
 
 		if ( empty( $verifiers ) ) {
-			return $result;
+			return '';
 		}
 
 		$verifier = array_pop( $verifiers );
 		if ( empty( $verifier ) || $verifier->name == '' ) {
-			return $result;
+			return '';
 		}
 
-		$result['contributor'] = [ '@type' => 'Person', 'name' => $verifier->name ];
-		return $result;
+		return $verifier->name;
 	}
 
 	private static function getAuthors( $t ) {
-		$result = [ 'author' => self::getWikihowOrganization() ];
+		$author = self::getWikihowOrganization();
+
+		$aid = $t->getArticleID();
+		if ( ArticleTagList::hasTag( 'schema_expert_author', $aid ) ) {
+			$verifier = self::getVerifierName( $t );
+			if ( $verifier ) {
+				$author = $verifier;
+			}
+		}
+
+		$result = [ 'author' => $author ];
 
 		return $result;
 	}
@@ -955,6 +1036,12 @@ class SchemaMarkup {
 			if ( $howToSchema ) {
 				$schema .= $howToSchema;
 			}
+
+			$faqSchema = self::getFAQSchema();
+			if ( $faqSchema && ArticleTagList::hasTag( 'schema_faq_page', $pageId ) ) {
+				$schema .= $faqSchema;
+			}
+
 			$schema .= self::getBreadcrumbSchema( $out );
 
 			if ( CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
@@ -969,10 +1056,15 @@ class SchemaMarkup {
 		return $schema;
 	}
 
-	private static function getHowToSchema( $pageId, $isMobile = false ) {
-		global $wgMemc;
+	private static function getHowToSchema() {
 		if ( self::$mHowToSchema ) {
 			return self::$mHowToSchema;
+		}
+	}
+
+	private static function getFAQSchema() {
+		if ( self::$mFAQSchema ) {
+			return self::$mFAQSchema;
 		}
 	}
 
@@ -1132,7 +1224,6 @@ class SchemaMarkup {
 		$data += self::getMainEntityOfPage( $title );
 		$data += self::getSchemaImage();
 		$data += self::getAuthors( $title );
-		$data += self::getAggregateRating( $title );
 		$data += self::getDatePublished( $title );
 		$data += self::getDateModified( $title );
 		$data += self::getPublisher();

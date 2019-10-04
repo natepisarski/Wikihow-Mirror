@@ -6,7 +6,7 @@ class TechTestingAppWidget extends DashboardWidget {
 		parent::__construct($name);
 	}
 
-	public function getMWName(){
+	public function getMWName() {
 		return "tv";
 	}
 
@@ -15,7 +15,7 @@ class TechTestingAppWidget extends DashboardWidget {
 	 * Provides the content in the footer of the widget
 	 * for the last contributor to this widget
 	 */
-	public function getLastContributor(&$dbr){
+	public function getLastContributor(&$dbr) {
 		$res = $dbr->select('logging', array('log_user','log_timestamp'), array('log_type' => "test_tech_articles"), __FUNCTION__, array("ORDER BY"=>"log_timestamp DESC", "LIMIT" => 1));
 		$row = $dbr->fetchObject($res);
 		$res->free();
@@ -37,7 +37,7 @@ class TechTestingAppWidget extends DashboardWidget {
 	 * Provides the content in the footer of the widget
 	 * for the top contributor to this widget
 	 */
-	public function getTopContributor(&$dbr){
+	public function getTopContributor(&$dbr) {
 		$startdate = strtotime("7 days ago");
 		$starttimestamp = date('YmdG',$startdate) . floor(date('i',$startdate)/10) . '00000';
 		$res = $dbr->select('logging', array('log_user', 'count(*) as C', 'MAX(log_timestamp) as log_recent'), array('log_type' => 'test_tech_articles', 'log_timestamp >= "' . $starttimestamp . '"'), __FUNCTION__, array("GROUP BY" => 'log_user', "ORDER BY"=>"C DESC", "LIMIT"=>1));
@@ -59,7 +59,7 @@ class TechTestingAppWidget extends DashboardWidget {
 	/*
 	 * Returns the start link for this widget
 	 */
-	public function getStartLink($showArrow, $widgetStatus){
+	public function getStartLink($showArrow, $widgetStatus) {
 		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
 			$link = "<a href='/Special:TechTesting' class='comdash-start'>Start";
 		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
@@ -94,18 +94,18 @@ class TechTestingAppWidget extends DashboardWidget {
 	/*
 	 * Returns the number of changes left to be patrolled.
 	 */
-	public function getCount(&$dbr){
+	public function getCount(&$dbr) {
         $count = SpecialTechVerify::getRemainingCount();
         return $count;
 	}
 
-	public function getUserCount(&$dbr){
+	public function getUserCount(&$dbr) {
 		$standings = new TechTestingStandingsIndividual();
 		$data = $standings->fetchStats();
 		return $data['week'];
 	}
 
-	public function getAverageCount(&$dbr){
+	public function getAverageCount(&$dbr) {
 		$standings = new TechTestingStandingsGroup();
 		return $standings->getStandingByIndex(self::GLOBAL_WIDGET_MEDIAN);
 	}
@@ -114,7 +114,7 @@ class TechTestingAppWidget extends DashboardWidget {
 	 *
 	 * Gets data from the Leaderboard class for this widget
 	 */
-	public function getLeaderboardData(&$dbr, $starttimestamp){
+	public function getLeaderboardData(&$dbr, $starttimestamp) {
 		$data = LeaderboardStats::getTechTestingVotedIn($starttimestamp);
 		arsort($data);
         $data = array();
@@ -123,12 +123,12 @@ class TechTestingAppWidget extends DashboardWidget {
 
 	}
 
-	public function getLeaderboardTitle(){
+	public function getLeaderboardTitle() {
 		return "<a href='/Special:Leaderboard/techarticletested?period=7'>" . $this->getTitle() . "</a>";
 	}
 
-	public function isAllowed($isLoggedIn, $userId=0){
-			return true;
+	public function isAllowed($isLoggedIn, $userId=0) {
+		return $isLoggedIn;
 	}
 
 }

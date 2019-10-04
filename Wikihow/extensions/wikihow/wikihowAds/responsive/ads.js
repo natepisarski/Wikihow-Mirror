@@ -1172,6 +1172,7 @@ WH.ads = (function () {
 		}
 		target.append($(TOCAd.adElement));
 		TOCAd.load();
+		TOCAd.adElement.style.display = "block";
 		TOCAd = null;
 	}
 

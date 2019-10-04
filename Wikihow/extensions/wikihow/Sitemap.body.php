@@ -43,12 +43,16 @@ class Sitemap extends SpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgUser;
 		$out = $this->getOutput();
 		$out->setRobotPolicy('noindex,follow');
-		$topcats = $this->getTopLevelCategories();
-
 		$out->setHTMLTitle('wikiHow Sitemap');
+
+		if(Misc::isMobileMode()) {
+			$this->displayMobilePage();
+			return;
+		}
+
+		$topcats = $this->getTopLevelCategories();
 
 		$count = 0;
 		$html = "
@@ -101,6 +105,88 @@ class Sitemap extends SpecialPage {
 		Hooks::run( 'SitemapOutputHtml', array( &$html ) );
 
 		$out->addHTML( $html );
+	}
+
+	private function displayMobilePage() {
+		$topcats = $this->getTopLevelCategories();
+
+		$htmlcss = "
+			<style>
+				.cat_list {
+					border: 1px solid #e5e5e5;
+				    padding: 10px;
+				    background: white;
+				    margin: 10px;
+				}
+
+				.cat_list ul {
+					padding-left: 0;
+				}
+
+				.cat_list_ul {
+					margin-left: 5px;
+					background-color: #fff;
+                    padding-left: 10px;
+				}
+
+				@media only screen and (min-width:728px) {
+					.cat_container {
+						display: table;
+						border-spacing: 10px;
+						width: 100%;
+					}
+					.cat_list {
+						width: 50%;
+						display: table-cell;
+					}
+					#content_inner { width: 100%; }
+					#cat_outer { margin-top: -10px; }
+				}
+			</style>";
+
+		$data = ['cats' => []];
+		$count = 0;
+		foreach ($topcats as $cat) {
+			$t = Title::newFromText($cat, NS_CATEGORY);
+			if($t) {
+				$catData = ['catname' => Linker::link($t, $t->getText()), 'subcats' => []];
+				if($count % 2 == 0) {
+					$catData['even'] = 1;
+				} else {
+					$catData['odd'] = 1;
+				}
+				$subcats = $this->getSubcategories($t);
+				foreach ($subcats as $sub) {
+					$catData['subcats'][] = ['subcatname' => Linker::link($sub, $sub->getText())];
+				}
+			} else {
+				$catData = ['catname' => $cat];
+			}
+			$data['cats'][] = $catData;
+			$count++;
+		}
+
+		$loader = new Mustache_Loader_CascadingLoader([
+			new Mustache_Loader_FilesystemLoader(__DIR__)
+		]);
+		$options = array('loader' => $loader);
+		$m = new Mustache_Engine($options);
+
+		$html = $m->render('Sitemap.mustache', $data);
+
+		Hooks::run( 'SitemapOutputHtml', array( &$html ) );
+		$html = $htmlcss . $html;
+
+		$this->getOutput()->addHTML( $html );
+	}
+
+	public static function isEligibleForMobileSpecial(&$isEligible) {
+		global $wgTitle;
+		if ($wgTitle && strrpos($wgTitle->getText(), "Sitemap") === 0) {
+			$isEligible = true;
+		}
+
+		return true;
 	}
 
 }

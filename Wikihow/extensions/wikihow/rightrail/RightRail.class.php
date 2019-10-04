@@ -82,7 +82,7 @@ class RightRail {
 		Hooks::run( "WikihowTemplateAfterCreateNotices", array( &$siteNotice, &$cookieNotice, &$adblockNotice ) );
 
 		$socialProofSidebar = '';
-		if ( !Misc::isIntl() && self::showSocialProofSidebar()) {
+		if ( !Misc::isIntl() && self::showSocialProofSidebar() && !$isMainPage) {
 			$parenttree = CategoryHelper::getCurrentParentCategoryTree();
 			$fullCategoryTree = CategoryHelper::cleanCurrentParentCategoryTree( $parenttree );
 			$sp = new SocialProofStats($context, $fullCategoryTree);

@@ -113,6 +113,11 @@ User-agent: Mediapartners-Google
 Allow: /
 
 User-agent: Googlebot
+Allow: /Special:AllPages
+Allow: /Special:NewPages
+Allow: /Special:ReindexedPages
+Allow: /Special:Sitemap
+Allow: /Special:CategoryListing
 Allow: /
 
 User-agent: *
