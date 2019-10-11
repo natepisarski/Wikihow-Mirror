@@ -42,7 +42,14 @@ class ReindexedPages extends QueryPage {
 	}
 
 	function getPageHeader() {
-		return wfMessage('reindexed-description')->text();
+		return "<div class='mw-special-container'>" . wfMessage('reindexed-description')->text() . "</div>";
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
+	function openList( $offset ) {
+		return "\n<ol start='" . ( $offset + 1 ) . "' class='special mw-special-container'>\n";
+	}
 }

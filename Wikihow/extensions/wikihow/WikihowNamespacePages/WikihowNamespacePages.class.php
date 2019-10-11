@@ -18,6 +18,7 @@ class WikihowNamespacePages {
 			wfMessage( 'gdpr_mobile_menu_top_link' )->text(),
 			wfMessage( 'cookie_policy_page' )->text(),
 			wfMessage('about-page')->text(),
+			wfMessage('trustworthy-page')->text(),
 			'Privacy-Policy',
 			"Writer's-Guide",
 			'Language-Projects',
@@ -39,6 +40,7 @@ class WikihowNamespacePages {
 	public static function mobileWithStyle(): array {
 		return [
 			wfMessage('about-page')->text(),
+			wfMessage('trustworthy-page')->text(),
 			'Jobs',
 			'Mission'
 		];
@@ -69,6 +71,12 @@ class WikihowNamespacePages {
 		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('about-page')->text();
 	}
 
+	private static function trustworthyWikihowPage(): bool {
+		$title = RequestContext::getMain()->getTitle();
+		if (!$title) return false;
+		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('trustworthy-page')->text();
+	}
+
 	public static function showMobileAboutWikihow(): bool {
 		$mobile_about_languages = ['en', 'es'];
 		return in_array(RequestContext::getMain()->getLanguage()->getCode(), $mobile_about_languages) &&
@@ -87,6 +95,11 @@ class WikihowNamespacePages {
 			if (self::aboutWikihowPage()) {
 				$out->setPageTitle(wfMessage('aboutwikihow')->text());
 				$out->addModules('ext.wikihow.press_boxes');
+			}
+			elseif (self::trustworthyWikihowPage()) {
+				$out->setPageTitle(''); //no title header
+				$out->setHTMLTitle(wfMessage('trustworthy-title')->text());
+				$out->setRobotPolicy('index,follow');
 			}
 
 			$title = $out->getTitle();

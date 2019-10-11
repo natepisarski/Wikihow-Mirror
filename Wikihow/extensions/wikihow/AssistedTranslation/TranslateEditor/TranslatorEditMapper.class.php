@@ -8,7 +8,7 @@ use TranslationLink;
 use User;
 use WikiPage;
 
-require_once __DIR__ . '/../TranslationLink.php';
+require_once __DIR__ . '/../../TranslationLink.php';
 
 /**
  * Map article edits made by translators to the "WikiHow Traduce" account

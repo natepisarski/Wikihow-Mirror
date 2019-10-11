@@ -10,7 +10,7 @@ $wgExtensionCredits['edithook'][] = array(
 );
 
 // Make sure all required EditMapper subclasses are included
-require_once("$IP/extensions/wikihow/translateeditor/TranslateEditor.php");
+require_once("$IP/extensions/wikihow/AssistedTranslation/AssistedTranslation.php");
 
 $wgAutoloadClasses['EditMapper\EditMapperHooks'] = __DIR__ . '/EditMapper.hooks.php';
 $wgAutoloadClasses['EditMapper\EditMapper'] = __DIR__ . '/EditMapper.class.php';

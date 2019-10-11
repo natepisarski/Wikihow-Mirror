@@ -57,6 +57,7 @@ class updateArticleReferences extends Maintenance {
 		$this->addOption( 'verbose', 'print verbose info', false, false, 'v' );
 		$this->addOption( 'count', 'get remaining items count', false, false, 'c' );
 		$this->addOption( 'url', 'recheck a url', false, true, 'u' );
+		$this->addOption( 'alloutbound', 'get all outbound links', false, false, 'a' );
     }
 
 	private static function get_pdf_prop($file) {
@@ -499,6 +500,79 @@ class updateArticleReferences extends Maintenance {
 		}
 	}
 
+	private function getRootDomain( $subdomain ) {
+		$rootDomain = $subdomain;
+
+		$hostData = explode('.', $subdomain);
+		$length = count( $hostData );
+
+		if ( $hostData[$length - 1] == 'edu' && $length > 1 ) {
+			$rootDomain = $hostData[$length - 2] . "." . $hostData[$length - 1];
+			return $rootDomain;
+		}
+
+		if ( $hostData[$length - 1] == 'gov' && $length > 1 ) {
+			$rootDomain = $hostData[$length - 2] . "." . $hostData[$length - 1];
+			return $rootDomain;
+		}
+
+		if ( $length == 3 ) {
+			$rootDomain = $hostData[$length - 2] . "." . $hostData[$length - 1];
+		} elseif ( $length >= 4 ) {
+			$rootDomain = $hostData[$length - 3] . "." . $hostData[$length - 2] . "." . $hostData[$length - 1];
+		}
+
+		return $rootDomain;
+	}
+
+	private function getAllOutbound() {
+		global $wgLanguageCode;
+		$dbr = wfGetDb( DB_REPLICA );
+        $table = array(
+			'externallinks',
+			'page'
+		);
+        $var = array(
+			'el_to',
+			'page_id',
+			'page_title'
+		);
+		$cond = array(
+			'el_from = page_id',
+			'page_namespace' => 0,
+		);
+		$limit = 1;
+		if ( $this->getOption( 'limit' ) ) {
+			$limit = $this->getOption( 'limit');
+		}
+		$options = array( 'LIMIT' => $limit);
+
+		$res = $dbr->select( $table, $var, $cond, __METHOD__, $options );
+		foreach ( $res as $row ) {
+			$whUrl = Misc::getLangBaseUrl( $wgLanguageCode ) . '/' . $row->page_title;
+			$outboundUrl = $row->el_to;
+			$parsed = parse_url( $outboundUrl );
+			$subdomain = $parsed['host'];
+			$rootDomain =  self::getRootDomain( $subdomain );
+
+			$domainsOnly = false;
+			if ( !$domainsOnly ) {
+				echo $wgLanguageCode;
+				echo "\t";
+				echo $row->page_id;
+				echo "\t";
+				echo $whUrl;
+				echo "\t";
+				echo $outboundUrl;
+				echo "\t";
+			}
+			echo $subdomain;
+			echo "\t";
+			echo $rootDomain;
+			echo "\n";
+		}
+	}
+
 	public function execute() {
 		global $wgTitle;
 
@@ -510,6 +584,11 @@ class updateArticleReferences extends Maintenance {
 
 		if ( $this->hasOption( 'count' ) ) {
 			$this->showCount();
+			return;
+		}
+
+		if ( $this->hasOption( 'alloutbound' ) ) {
+			$this->getAllOutbound();
 			return;
 		}
 

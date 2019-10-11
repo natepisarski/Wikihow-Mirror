@@ -639,11 +639,11 @@ class SchemaMarkup {
 			}
 		}
 
-		$name = $title->getText();
+		$titleText = $title->getText();
 		$description = '';
-		$summaryData = SummarySection::summaryData( $name );
+		$summaryData = SummarySection::summaryData( $titleText );
 		if ( $summaryData && array_key_exists( 'content', $summaryData ) ) {
-			$description = trim( strip_tags( SummarySection::summaryData( $name )['content'] ) );
+			$description = trim( strip_tags( SummarySection::summaryData( $titleText )['content'] ) );
 		}
 		$item = MessageCache::singleton()->parse( $videoTemplateText, null, false, false )->getText();
 
@@ -669,12 +669,15 @@ class SchemaMarkup {
 			$contentUrl = WH_CDN_VIDEO_ROOT . wfUrlencode( $contentUrl );
 		}
 
-		$thumbnailUrl = $wgServer . pq('.m-video')->attr('data-poster');
+		$thumbnailUrl = pq('.m-video')->attr('data-poster');
+		if ( !preg_match( '/^https?:\/\//', $thumbnailUrl ) ) {
+			$thumbnailUrl = $wgServer . $thumbnailUrl;
+		}
 		$data = [
 			'@context'=> 'http://schema.org',
 			'@type' => 'VideoObject',
 			'publisher' => self::getWikihowOrganization(),
-			'name' => $name,
+			'name' => wfMessage( 'howto', $titleText )->text(),
 			'description' => $description,
 			'thumbnailUrl' => $thumbnailUrl,
 			'contentUrl' => $contentUrl,

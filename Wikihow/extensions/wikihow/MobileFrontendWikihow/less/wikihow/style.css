@@ -932,3 +932,9 @@ a.reference-anchor {
 .menu.view-border-box {
 	display: none;
 }
+
+.mw-special-container {
+	background: #fff;
+	padding: 15px;
+	border-radius: 4px;
+}

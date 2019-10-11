@@ -18,6 +18,7 @@ class ArticleCreator extends SpecialPage {
 		$context = $this->getContext();
 		$request = $context->getRequest();
 		$out = $context->getOutput();
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
 		if ($request->getVal('ac_created_dialog', 0)) {
 			$out->setArticleBodyOnly(true);
@@ -30,7 +31,6 @@ class ArticleCreator extends SpecialPage {
 		$out->addModules( 'ext.guidedTour' );  // used for showing validation responses
 
 		if ( is_null( $request->getVal( 't' ) ) ) {
-			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->addWikitext( 'You must specify a title to create.' );
 			return;
 		}
@@ -60,7 +60,6 @@ class ArticleCreator extends SpecialPage {
 
 			$out->addHtml(json_encode($response));
 		} else {
-			$out->setRobotPolicy( 'noindex,nofollow' );
 			if ( $this->onlyEditNewArticles && $t->exists() && !$overwriteAllowed) {
 				$out->redirect($t->getEditURL());
 			} else {

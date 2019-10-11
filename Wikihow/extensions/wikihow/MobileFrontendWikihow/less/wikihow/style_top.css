@@ -1331,6 +1331,20 @@ a.related-title,a.related-title:active, a.related-title:visited {
 	background-image: none;
 	background:none;
 }
+
+#trust_banner {
+	background-color: #f6f8f7;
+	padding: .5em 15px;
+	font-size: 12px;
+	line-height: 1em;
+}
+#trust_banner a {
+	color: #417505;
+	padding-left: 18px;
+	font-weight: normal;
+	background-position: left center;
+}
+
 /* Tablet Support */
 
 @media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {

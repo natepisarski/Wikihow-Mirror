@@ -245,7 +245,8 @@ class MobileFrontendWikiHowHooks {
 
 		// only add this on regular article pages for now:
 		//we're checking this elsewhere, so if we get here, it's ok
-		if ( $wgTitle && ($wgTitle->inNamespace( NS_MAIN ) && !$wgTitle->isMainPage()) || ($wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getText() == "Sitemap") ) {
+		$specialPagesWithCss = ['SiteMap', 'NewPages', 'ReindexedPages'];
+		if ( $wgTitle && ($wgTitle->inNamespace( NS_MAIN ) && !$wgTitle->isMainPage()) || ($wgTitle->inNamespace(NS_SPECIAL) && in_array($wgTitle->getText(), $specialPagesWithCss)) ) {
 		        // $stylePaths[] = __DIR__ . '/less/wikihow/responsive.css';
 		        $less = ResourceLoader::getLessCompiler();
 		        $style = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/responsive.less');

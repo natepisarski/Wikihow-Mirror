@@ -131,7 +131,7 @@ require_once("$IP/extensions/wikihow/mobile/WikihowMobileTools.php");
 require_once("$IP/extensions/wikihow/nab/Newarticleboost.php");
 require_once("$IP/extensions/wikihow/wikihowAds/AdminAdExclusions/AdminAdExclusions.php");
 require_once("$IP/extensions/wikihow/whvid/WHVid.php");
-require_once("$IP/extensions/wikihow/translateeditor/TranslateEditor.php");
+require_once("$IP/extensions/wikihow/AssistedTranslation/AssistedTranslation.php");
 require_once("$IP/extensions/wikihow/QuickEdit.php");
 require_once("$IP/extensions/wikihow/ext-utils/ExtUtils.php");
 require_once("$IP/extensions/wikihow/qa/QA.php");

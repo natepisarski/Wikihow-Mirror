@@ -778,7 +778,6 @@ class ArticleMetaInfo {
 	 */
 	private function saveInfo( $updateDB = true ) {
 		global $wgMemc;
-
 		if (empty($this->row)) {
 			throw new Exception(__METHOD__ . ': nothing loaded');
 		}
@@ -813,6 +812,12 @@ class ArticleMetaInfo {
 		}
 
 		if ( $updateDB == true ) {
+			if ($this->row['ami_facebook_desc'] == '') {
+				$logMessage = wfTimestampNow(TS_MW) . "\n";
+				$logMessage .= 'saving blank fb description on page: ' . $this->row['ami_id'];
+				$logMessage .= "\n" . wfBacktrace(true);
+				wfDebugLog( 'ami', $logMessage);
+			}
 			$dbw = $this->getDB('write');
 			$sql = 'REPLACE INTO article_meta_info SET ' . $dbw->makeList($this->row, LIST_SET);
 			$res = $dbw->query($sql, __METHOD__);

@@ -110,6 +110,10 @@ class TitleFilters {
 	];
 
 	const EXPLICIT_AIDS_ALEXA_EN = [
+		4902009,
+		2974707,
+		9462978,
+		457632,
 		4149799,
 		198597,
 		799143,

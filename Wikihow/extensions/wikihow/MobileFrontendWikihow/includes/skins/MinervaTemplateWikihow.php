@@ -202,14 +202,13 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if (!wfMessage('footer_about_wh')->isBlank())
 			$links[] = ['link' => wfMessage('footer_about_wh')->parse()];
 
-		if (RequestContext::getMain()->getLanguage()->getCode() == 'en' && !$isAlternateDomain)
+		if (RequestContext::getMain()->getLanguage()->getCode() == 'en' && !AlternateDomain::onAlternateDomain())
 			$links[] = ['link' => wfMessage('footer_jobs')->parse()];
 
 		$links[] = ['link' => wfMessage('footer_site_map')->parse()];
 
 		// $links[] = ['link' => wfMessage('footer_experts')->parse()];
 		$links[] = ['link' => wfMessage('footer_terms')->parse()];
-		// $links[] = ['link' => wfMessage('footer_site_map')->parse()];
 
 		return $links;
 	}

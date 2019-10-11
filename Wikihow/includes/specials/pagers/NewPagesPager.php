@@ -149,7 +149,7 @@ class NewPagesPager extends ReverseChronologicalPager {
 		}
 		$linkBatch->execute();
 
-		return '<ul>';
+		return '<ul class="mw-special-container">';
 	}
 
 	protected function getEndBody() {

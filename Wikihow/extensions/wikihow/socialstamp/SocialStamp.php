@@ -7,3 +7,5 @@ $wgMessagesDirs['SocialStamp'] = __DIR__ . '/i18n';
 
 $wgHooks['MobilePreRenderPreContent'][] = ['SocialStamp::addMobileByline'];
 $wgHooks['ProcessArticleHTMLAfter'][] = ['SocialStamp::addDesktopByline'];
+$wgHooks['MobilePreRenderPreContent'][] = ['SocialStamp::addMobileTrustBanner'];
+$wgHooks['ProcessArticleHTMLAfter'][] = ['SocialStamp::addDesktopTrustBanner'];

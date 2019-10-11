@@ -1,0 +1,24 @@
+<style type="text/css">
+	#retrans_form > button {
+		float: right;
+		margin: 0 18px 10px 18px;
+	}
+	#retrans_error {
+		float: left;
+		max-width: 590px;
+		color: #C00;
+		font-weight: bold;
+		padding-left: 27px;
+		line-height: 40px;
+	}
+</style>
+
+<div id="retrans_error"></div>
+
+<form id='retrans_form'>
+	<input type='hidden' name='intlAid' value='{{intlAid}}'>
+	<input type='hidden' name='token' value='{{token}}'>
+	<button type='submit' id='retrans_btn' class="button primary">Retranslate</button>
+</form>
+
+<div class="clearall"></div>

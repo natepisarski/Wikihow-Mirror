@@ -134,10 +134,13 @@ class SpecialNewpages extends IncludableSpecialPage {
 	 */
 	public function execute( $par ) {
 		$out = $this->getOutput();
+		$user = $this->getUser();
 
 		$this->setHeaders();
 		// Wikihow/JRS, circa 2014: manually overriding default robot policy to noindex,follow
 		$out->setRobotPolicy('noindex,follow');
+
+		$this->getOutput()->addHTML("<div class='mw-special-container'>");
 		$this->outputHeader();
 
 		$this->showNavigation = !$this->including(); // Maybe changed in setup
@@ -145,7 +148,7 @@ class SpecialNewpages extends IncludableSpecialPage {
 
 		$this->addHelpLink( 'Help:New pages' );
 
-		if ( !$this->including() ) {
+		if ( !$this->including() && $user->isLoggedIn()) {
 			// Settings
 			$this->form();
 
@@ -160,6 +163,7 @@ class SpecialNewpages extends IncludableSpecialPage {
 			unset( $allValues['feed'] );
 			$out->setFeedAppendQuery( wfArrayToCgi( $allValues ) );
 		}
+		$this->getOutput()->addHTML("</div>");
 
 		$pager = new NewPagesPager( $this, $this->opts );
 		$pager->mLimit = $this->opts->getValue( 'limit' );
@@ -332,6 +336,9 @@ class SpecialNewpages extends IncludableSpecialPage {
 	 * @return string
 	 */
 	public function formatRow( $result ) {
+		//BS: Lots of changes to this function to allow for a different experience
+		//logged out - 9/7/2019
+		$isLoggedIn = $this->getUser()->isLoggedIn();
 		$title = Title::newFromRow( $result );
 
 		// Revision deletion works on revisions,
@@ -344,9 +351,13 @@ class SpecialNewpages extends IncludableSpecialPage {
 		$lang = $this->getLanguage();
 		$dm = $lang->getDirMark();
 
-		$spanTime = Html::element( 'span', [ 'class' => 'mw-newpages-time' ],
-			$lang->userTimeAndDate( $result->rc_timestamp, $this->getUser() )
-		);
+		if($isLoggedIn) {
+			$spanTime = Html::element('span', ['class' => 'mw-newpages-time'],
+				$lang->userTimeAndDate($result->rc_timestamp, $this->getUser())
+			);
+		} else {
+			$spanTime = date('F j, Y', wfTimestamp(TS_UNIX, $result->rc_timestamp));
+		}
 		$linkRenderer = $this->getLinkRenderer();
 		$time = $linkRenderer->makeKnownLink(
 			$title,
@@ -371,8 +382,8 @@ class SpecialNewpages extends IncludableSpecialPage {
 			[],
 			[ 'action' => 'history' ]
 		);
-		$hist = Html::rawElement( 'span', [ 'class' => 'mw-newpages-history' ],
-			$this->msg( 'parentheses' )->rawParams( $histLink )->escaped() );
+		$hist = Html::rawElement('span', ['class' => 'mw-newpages-history'],
+			$this->msg('parentheses')->rawParams($histLink)->escaped());
 
 		$length = Html::rawElement(
 			'span',
@@ -382,7 +393,17 @@ class SpecialNewpages extends IncludableSpecialPage {
 			)->escaped()
 		);
 
-		$ulink = Linker::revUserTools( $rev );
+		if( $isLoggedIn ) {
+			$ulink = Linker::revUserTools($rev);
+		} else {
+			$userText = $rev->getUserText( Revision::FOR_THIS_USER );
+			$title = Title::newFromText($userText, NS_USER);
+			if(RobotPolicy::isIndexable($title)) {
+				$ulink = Linker::revUserLink($rev);
+			} else {
+				$ulink = $userText;
+			}
+		}
 		$comment = Linker::revComment( $rev );
 
 		//BS - Turning highlighting off
@@ -420,8 +441,13 @@ class SpecialNewpages extends IncludableSpecialPage {
 			);
 		}
 
-		$ret = "{$time} {$dm}{$plink} {$hist} {$dm}{$length} {$dm}{$ulink} {$comment} "
-			. "{$tagDisplay} {$oldTitleText}";
+		if($isLoggedIn) {
+			$ret = "{$time} {$dm}{$plink} {$hist} {$dm}{$length} {$dm}{$ulink} {$comment} "
+				. "{$tagDisplay} {$oldTitleText}";
+		} else {
+			$ret = "{$spanTime} {$dm}{$plink} {$dm} {$dm}{$ulink} {$comment} "
+				. "{$tagDisplay} {$oldTitleText}";
+		}
 
 		// Let extensions add data
 		Hooks::run( 'NewPagesLineEnding', [ $this, &$ret, $result, &$classes, &$attribs ] );
@@ -541,5 +567,10 @@ class SpecialNewpages extends IncludableSpecialPage {
 
 	protected function getCacheTTL() {
 		return 60 * 5;
+	}
+
+	// WIKIHOW added this function to allow this page on mobile
+	public function isMobileCapable() {
+		return true;
 	}
 }

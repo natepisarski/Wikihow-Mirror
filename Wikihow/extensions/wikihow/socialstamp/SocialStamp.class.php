@@ -470,4 +470,35 @@ class SocialStamp {
 		return in_array($vData->verifierId, $expert_ids);
 	}
 
+	private static function getTrustBanner(): String {
+		$trust_page = wfMessage('trustworthy-page')->text();
+		$link_page = Title::newFromText($trust_page, NS_PROJECT);
+
+		$vars = [
+			'banner_link' => $link_page && $link_page->exists() ? $link_page->getLocalURL() : '#',
+			'banner_text' => wfMessage('ss_trust_banner_text')->parse()
+		];
+
+		return self::getHtmlFromTemplate('trust_banner.mustache', $vars);
+	}
+
+	private static function showTrustBanner(): Bool {
+		$context = RequestContext::getMain();
+		return self::isEligibleForByline() &&
+			$context->getUser()->isAnon() &&
+			$context->getLanguage()->getCode() == 'en' &&
+			!AlternateDomain::onAlternateDomain();
+	}
+
+	public static function addDesktopTrustBanner() {
+		if (!self::showTrustBanner()) return;
+		$html = self::getTrustBanner();
+		if ($html) pq('#intro')->prepend($html);
+	}
+
+	public static function addMobileTrustBanner(&$data) {
+		if (!self::showTrustBanner()) return;
+		$html = self::getTrustBanner();
+		if ($html) $data['prebodytext'] = $html . $data['prebodytext'];
+	}
 }

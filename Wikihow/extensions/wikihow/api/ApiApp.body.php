@@ -323,6 +323,10 @@ class AppDataFormatter {
 		}
 
 		if ( !$abstract || $forceRecalculate == true ) {
+			$logMessage = wfTimestampNow(TS_MW) . "\n";
+			$logMessage .= 'could not get fb description for page: ' . $title->getArticleID();
+			$logMessage .= "\n" . wfBacktrace(true);
+			wfDebugLog( 'ami', $logMessage);
 			$gr = GoodRevision::newFromTitle($title, $title->getArticleId());
 			$revId = $gr->latestGood();
 			$rev = Revision::newFromId( $revId );

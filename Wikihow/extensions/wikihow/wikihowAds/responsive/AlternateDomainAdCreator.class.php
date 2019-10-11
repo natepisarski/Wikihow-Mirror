@@ -14,7 +14,6 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 		$mobileRelatedSlot = '';
 		$rr1AdUnitPath = '';
 		$quizAdUnitPath = '';
-		$rr1AdUnitPathDesktop = '';
 		$altDomain = AlternateDomain::getAlternateDomainForCurrentPage();
 
 		switch ( $altDomain ) {
@@ -31,7 +30,6 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				$relatedAdUnitPath = 'dfp_responsive_alt_tech_lm_rwh';
 				$qaAdUnitPath = 'dfp_responsive_alt_tech_lm_qa';
 				$rr1AdUnitPath = 'dfp_responsive_alt_tech_lm_right_rail_2';
-				$rr1AdUnitPathDesktop = 'AllPages_RR_1_WikiHowTech_Desktop_All';
 				break;
 			case "wikihow.pet":
 				$introSlot = 7668157756;
@@ -122,10 +120,6 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				break;
 		}
 
-		if ( $rr1AdUnitPathDesktop == '' ) {
-			$rr1AdUnitPathDesktop = $rr1AdUnitPath;
-		}
-
 		$this->mAdSetupData = array(
 			'intro' => array(
 				'service' => 'adsense',
@@ -157,6 +151,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
+				'mobiledomain' => 1,
 				'mediumonly' => 1
 			),
 			'method3' => array(
@@ -167,6 +162,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
+				'mobiledomain' => 1,
 				'mediumonly' => 1
 			),
 			'method4' => array(
@@ -177,6 +173,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
+				'mobiledomain' => 1,
 				'mediumonly' => 1
 			),
 			'method5' => array(
@@ -187,6 +184,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
+				'mobiledomain' => 1,
 				'mediumonly' => 1
 			),
 			'methodextra' => array(
@@ -194,6 +192,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'slot' => 2108966478,
 				'width' => 728,
 				'height' => 90,
+				'mobiledomain' => 1,
 				'mediumonly' => 1
 			),
 			'methodlast' => array(
@@ -204,6 +203,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
+				'mobiledomain' => 1,
 				'mediumonly' => 1
 			),
 			'toc' => array(
@@ -229,7 +229,6 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 			'rightrail1' => array(
 				'service' => 'dfp',
 				'adUnitPath' => '/10095428/'.$rr1AdUnitPath,
-				'adUnitPathDesktop' => '/10095428/'.$rr1AdUnitPathDesktop,
 				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
 				'apsLoad' => true,
 				'refreshable' => 1,
@@ -291,6 +290,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileslot' => $mobileMethodSlot,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'mobiledomain' => 1,
 				'type' => 'method',
 			),
 			'mobilerelated' => array(
@@ -298,6 +298,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileslot' => $mobileRelatedSlot,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'mobiledomain' => 1,
 				'type' => 'related'
 			),
 			'middlerelated' => array(
@@ -305,6 +306,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileslot' => $mobileMethodSlot,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'mobiledomain' => 1,
 				'type' => 'related'
 			),
 			'mobileqa' => array(
@@ -312,6 +314,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileslot' => $mobileMethodSlot,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'mobiledomain' => 1,
 				'type' => 'qa'
 			),
 			'tips' => array(
@@ -319,6 +322,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileslot' => $mobileMethodSlot,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'mobiledomain' => 1,
 				'type' => 'tips'
 			),
 			'warnings' => array(
@@ -326,6 +330,7 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileslot' => $mobileMethodSlot,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'mobiledomain' => 1,
 				'type' => 'warnings'
 			),
 			'pagebottom' => array(
@@ -333,14 +338,14 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'mobileslot' => $mobileMethodSlot,
 				'mobileheight' => 250,
 				'mobilelabel' => 1,
+				'mobiledomain' => 1,
 				'type' => 'pagebottom'
 			),
 		);
 		if ( !Misc::isMobileMode() ) {
 			foreach ( $this->mAdSetupData as $adType => $adData ) {
-				if ( isset( $this->mAdSetupData[$adType]['adUnitPathDesktop'] ) ) {
-					$this->mAdSetupData[$adType]['adUnitPath'] = $this->mAdSetupData[$adType]['adUnitPathDesktop'];
-					unset( $this->mAdSetupData[$adType]['adUnitPathDesktop'] );
+				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
+					unset( $this->mAdSetupData[$adType]);
 				}
 			}
 		}

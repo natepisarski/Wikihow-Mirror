@@ -16,8 +16,9 @@ class ListBrokenDocs extends Maintenance {
 		$pageRows = $dbr->select('page', 'page_id', ['page_namespace' => 0]);
 		foreach ($pageRows as $pageRow) {
 			$page = WikiPage::newFromID($pageRow->page_id);
+			$wikiText = ContentHandler::getContentText( $page->getContent() );
 			// Check if the wikitext contains documents. E.g. [[Doc:Document1,Document2]]
-			if ($page && preg_match('/\[\[Doc:([^\]]+)\]\]/', $page->getText(), $docs)) {
+			if ( preg_match('/\[\[Doc:([^\]]+)\]\]/i', $wikiText, $docs)) {
 				$docs = explode(',', $docs[1]);
 				// Check if the documents exist in the database
 				foreach ($docs as $doc) {
