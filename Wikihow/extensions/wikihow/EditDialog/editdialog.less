@@ -1,0 +1,129 @@
+/* */
+
+#editDialog-editPanel {
+	.oo-ui-toolbar {
+		font-size: 0.8em;
+	}
+
+	.oo-ui-toolbar-actions {
+		padding: 0.4em;
+		.oo-ui-labelElement .oo-ui-buttonElement-button {
+			padding: 0.45em 1.25em;
+		}
+		.oo-ui-labelElement-label {
+			font-size: 1.25em;
+		}
+	}
+
+	.oo-ui-inputWidget-input {
+		margin-right: 0;
+	}
+
+	.oo-ui-popupWidget {
+		font-size: 1.25em;
+		.oo-ui-popupWidget-anchor::before {
+			/* Fix for bad theme style, can be removed when theme is fixed */
+			border-bottom-color: #E5E5E5;
+		}
+	}
+	.editDialog-warning {
+		.oo-ui-popupWidget-popup {
+			border-color: #fde29b;
+			color: #705000;
+			background-color: #fdf1d1;
+		}
+		.oo-ui-popupWidget-anchor::before {
+			border-bottom-color: #fde29b;
+		}
+		.oo-ui-popupWidget-anchor::after {
+			border-bottom-color: #fdf1d1;
+		}
+	}
+}
+
+#editDialog-diffPanel {
+	table.diff {
+		width: auto;
+	}
+}
+
+#editDialog-captchaPanel {
+	.editDialog-captchaChallenge {
+		position: relative;
+		display: block;
+		border: solid 1px #ccc;
+		border-radius: 4px;
+		margin: 1em 0;
+	}
+	.editDialog-captchaImage {
+		margin: 1em 0;
+		width: 184px;
+		height: 97px;
+		mix-blend-mode: multiply;
+	}
+	.editDialog-captchaReloadButton {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+	}
+	.editDialog-captchaChallenge {
+		text-align: center;
+	}
+}
+
+#editDialog-previewPanel {
+	.previewnote {
+		border-bottom: solid 1px red;
+		padding: 27px;
+		margin-bottom: 0;
+	}
+	ol.steps_list_2 {
+		padding: 0;
+		margin: 0;
+	}
+	.steps_list_2 ul,
+	.steps_list_2 ol {
+		padding-left: 55px;
+		padding-top: 5px;
+		margin: 0;
+	}
+}
+
+#editDialog-contentInput {
+	position: absolute;
+	top: 2.8em;
+	left: 0;
+	right: 0;
+	bottom: 3.75em;
+	width: auto;
+	margin: 0;
+
+	textarea {
+		margin: 0;
+		padding: 0.75em;
+		box-sizing: border-box;
+		height: 100%;
+		border-radius: 0;
+		border: none;
+		border-top: solid 1px #ccc;
+		border-bottom: solid 1px #ccc;
+		resize: none;
+	}
+	textarea:focus {
+		border-top: solid 1px #2483ef;
+		border-bottom: solid 1px #2483ef;
+	}
+}
+#editDialog-summaryInput {
+	position: absolute;
+	bottom: 0.5em;
+	left: 0.75em;
+	right: 0.75em;
+	height: 2.5em;
+	width: auto;
+	box-sizing: border-box;
+
+	input {
+		box-sizing: border-box;
+	}
+}

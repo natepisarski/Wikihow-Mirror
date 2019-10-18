@@ -118,7 +118,7 @@ function wfNewArticlePatrolAddOnCreation($wikiPage, $napUser, $content, $summary
 		$revUser = User::newFromID($userid);
 		if ($revUser) {
 			if ($langCode == 'en') {
-				$specialGroups = array('bot');
+				$specialGroups = array('bot', 'staff', 'staff_widget');
 			} else {
 				// Edits by users in these groups won't go into NAB on intl
 				$specialGroups = array('bot', 'translator', 'staff', 'sysop');

@@ -360,7 +360,7 @@ WH.video = (function () {
 		if (this.summaryVideo) {
 			this.autoplay = false;
 			// Wait for other dependant scripts to have loaded
-			document.addEventListener( 'DOMContentLoaded', function () { 
+			document.addEventListener( 'DOMContentLoaded', function () {
 				logAction( 'svideoview' );
 			}, false );
 		}
@@ -489,7 +489,7 @@ WH.video = (function () {
 					video.element.setAttribute('src', videoUrl);
 					if ( !video.isLoaded ) {
 						video.isLoaded = true;
-						video.onLoadStart();
+						video.onLoadStart && video.onLoadStart();
 					}
 					video.element.addEventListener("canplay", function() {
 						if (loadingContainer && loadingContainer.parentNode == video.element.parentElement) {

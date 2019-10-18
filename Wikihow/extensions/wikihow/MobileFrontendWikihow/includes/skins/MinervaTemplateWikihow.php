@@ -210,6 +210,9 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		// $links[] = ['link' => wfMessage('footer_experts')->parse()];
 		$links[] = ['link' => wfMessage('footer_terms')->parse()];
 
+		if ($this->isMainPage && !AlternateDomain::onAlternateDomain())
+			$links[] = ['link' => wfMessage('footer_newpages')->parse()];
+
 		return $links;
 	}
 

@@ -1515,3 +1515,57 @@ a.related-title,a.related-title:active, a.related-title:visited {
 .overlay-issues .cleanup > li .issue-notice {
 	padding-top: 50px;
 }
+
+/***** jp trending box ******/
+/* Copied from prod/skins/owl/main.css */
+#sidebar #jpt_sidebox {
+	padding: 0px;
+	background-color: #f6f5f4;
+}
+
+#jpt_header {
+	padding: 16px;
+	font-weight: bold;
+}
+
+.jpt_container {
+	border-bottom: 1px solid #ecebe8;
+	padding: 5px 16px;
+	background-color: #fff;
+	display: block;
+	width: 268px;
+	height: 61px;
+}
+.jpt_container:last-child {
+	border-bottom: none;
+}
+
+.jpt_container:hover {
+	text-decoration: none;
+}
+
+.jpt_container img {
+	vertical-align: middle;
+	margin: 5px 10px 5px 13px;
+	width: 50px;
+	height: 50px;
+}
+
+.jpt_count{
+	font-size: 22px;
+	color: #ecebe8;
+	font-weight: bold;
+	vertical-align: middle;
+}
+
+.jpt_container:hover .jpt_count {
+	color: #93b874;
+}
+
+.jpt_title {
+	font-size: 14px;
+	display: inline-block;
+	width: 182px;
+	color: #686868;
+	vertical-align: middle;
+}

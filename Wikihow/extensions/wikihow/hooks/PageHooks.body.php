@@ -912,6 +912,31 @@ class PageHooks {
 	}
 
 	/**
+	 * If the request is for an edit page by an anon, redirect to the article.
+	 *
+	 * @param $title
+	 * @param $unused
+	 * @param $output
+	 * @param $user
+	 * @param $request
+	 * @param $mediaWiki
+	 * @return bool
+	 */
+	public static function redirectIfAnonEditRequest(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
+		global $wgServer, $wgLanguageCode;
+
+		if (
+			$wgLanguageCode == 'en' &&
+			$user->isAnon() &&
+			$title &&
+			$title->inNamespace( NS_MAIN ) &&
+			$request->getVal( 'action' ) === 'edit'
+		) {
+			$output->redirect( $title->getFullURL() . '#edit', 301 );
+		}
+	}
+
+	/**
 	 * If user comes in with mobileaction=...anything... set we usually want to set a cookie
 	 * redirect. These urls are used by the mobile site to allow visitors with a mobile
 	 * user-agent (who would be redirected at fastly layer) to stay on desktop site.

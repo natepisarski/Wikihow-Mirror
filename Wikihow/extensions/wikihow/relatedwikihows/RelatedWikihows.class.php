@@ -166,6 +166,7 @@ class RelatedWikihows {
 	public function __construct( $context, $user, $relatedSection = '' ) {
 		$title = $context->getTitle();
 		$this->mTitle = $title;
+		$this->mUser = $user;
 		$this->mShowEdit = $title->quickUserCan( 'edit', $user );
 		$this->mShowSection = $title && $title->inNamespace( NS_MAIN ) && $title->exists() && !$title->isRedirect() && PagePolicy::showCurrentTitle( $context );
 		$this->mMobile = Misc::isMobileMode();
@@ -501,7 +502,7 @@ class RelatedWikihows {
 	// for mobile version we could use SkinMinerva.php doEditSedctionLink
 	// however that requires a section number..so for now leave it blank
 	private function createEditLink() {
-		if ( $this->mMobile ) {
+		if ( $this->mMobile || $this->mUser->isAnon() ) {
 			return "";
 		}
 

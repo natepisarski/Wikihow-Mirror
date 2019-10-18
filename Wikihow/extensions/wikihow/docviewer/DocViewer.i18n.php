@@ -20,4 +20,5 @@ $messages['en'] = array (
 	'dv-meta-article-prefix'	=> "from How to",
 	'sample_meta_keywords_default'	=>	"sample, pdf, doc, txt",
 	'dv-preview' 		=> "Preview",
+	'sample-loading' 	=> "Loading...",
 );

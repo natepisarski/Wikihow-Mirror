@@ -1,5 +1,7 @@
 <?php
 
+/* The variant dropdown has been disabled since October 2019 */
+
 if ( ! defined( 'MEDIAWIKI' ) )
     die();
 

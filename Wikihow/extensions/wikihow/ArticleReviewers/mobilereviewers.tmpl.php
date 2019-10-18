@@ -10,7 +10,15 @@
 			<? if ($name == "count") continue; ?>
 			<div class="reviewer">
 				<a class="ar_anchor" name="<?= $expert['expert']->anchorName ?>"></a>
-				<div class="ar_initials"><div class="ar_avatar" style="background-image: url('<?= $expert['expert']->imagePath ?>');"></div><span><?= $expert['expert']->initials ?></span></div>
+
+				<div class="ar_initials">
+					<?php if ($expert['expert']->imagePath): ?>
+						<div class="ar_avatar" style="background-image: url('<?= $expert['expert']->imagePath ?>');"></div>
+					<?php else: ?>
+						<span><?= $expert['expert']->initials ?></span>
+					<?php endif ?>
+				</div>
+
 				<div class="reviewer_top">
 					<p class="ar_name">
 						<? if ($expert['expert']->nameLink != ""): ?>

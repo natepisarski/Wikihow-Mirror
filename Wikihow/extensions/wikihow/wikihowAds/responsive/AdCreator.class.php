@@ -13,7 +13,6 @@ class Ad {
  * default setup for the ad creators
  */
 abstract class AdCreator {
-	var $mStickyIntro = false;
 	var $mDFPKeyVals = array();
 	var $mRefreshableRightRail = false;
 	var $mAdCounts = array();
@@ -52,14 +51,6 @@ abstract class AdCreator {
 	}
 
 	/*
-	 * intro sticky data attr (to be used client side)
-	 * $param boolean
-	 */
-	public function setStickyIntro( $val ) {
-		$this->mStickyIntro = $val;
-	}
-
-	/*
 	 * get json string of the dfp key vals for use in js
 	 */
 	public function getDFPKeyValsJSON() {
@@ -79,15 +70,6 @@ abstract class AdCreator {
 		$dfpKeyVals = json_encode( $dfpKeyVals );
 		return $dfpKeyVals;
 	}
-
-	public function getSticky( $ad ) {
-		if ( $ad->mType == 'intro' && $this->mStickyIntro == true ) {
-			return true;
-		}
-
-		return false;
-	}
-
 
 	/*
 	 *  adds the intro ad to the body using php query
@@ -229,8 +211,8 @@ abstract class AdCreator {
 		if ( !$ad ) {
 			return;
 		}
-		$target = strtolower( wfMessage( 'tips' )->text() );
-		$target = "#".$target;
+		$target = mb_strtolower( wfMessage( 'tips' )->text() );
+		$target = "div#".$target;
 		if ( pq( $target )->length == 0 ) {
 			return;
 		}
@@ -242,8 +224,8 @@ abstract class AdCreator {
 		if ( !$ad ) {
 			return;
 		}
-		$target = strtolower( wfMessage( 'warnings' )->text() );
-		$target = "#".$target;
+		$target = mb_strtolower( wfMessage( 'warnings' )->text() );
+		$target = "div#".$target;
 		if ( pq( $target )->length == 0 ) {
 			return;
 		}
@@ -1355,6 +1337,37 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'mobilelabel' => 1,
 				'type' => 'pagebottom',
 				'mobiledomain' => 1,
+			),
+		);
+
+		if ( !Misc::isMobileMode() ) {
+			foreach ( $this->mAdSetupData as $adType => $adData ) {
+				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
+					unset( $this->mAdSetupData[$adType]);
+				}
+			}
+		}
+	}
+}
+class DefaultIntlCategoryListingAdCreator extends AdCreator {
+	public function __construct() {
+		parent::__construct();
+
+		$this->mAdsenseChannels[] = 4819709854;
+
+		$this->mAdSetupData = array(
+			'rightrail0' => array(
+				'service' => 'adsense',
+				'slot' => 4060538172,
+				'instantload' => 0,
+				'width' => 300,
+				'height' => 600,
+				'containerheight' => 600,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'largeonly' => 1,
+				'inline-html' => 1,
 			),
 		);
 

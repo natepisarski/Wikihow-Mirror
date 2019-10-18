@@ -51,7 +51,7 @@ class BadWordFilter {
 	 */
 	public static function getBadWordsArray($listType = self::TYPE_STRICT, $langCode = 'en') {
 		global $IP, $wgMemc;
-		$key =  wfMemcKey($listType, $langCode, "V9");
+		$key =  wfMemcKey($listType, $langCode, "V10");
 		$badWordsArray = $wgMemc->get($key);
 		if (!is_array($badWordsArray)) {
 			if ($listType == self::TYPE_ALEXA) {

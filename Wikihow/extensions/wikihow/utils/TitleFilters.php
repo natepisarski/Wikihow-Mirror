@@ -111,6 +111,10 @@ class TitleFilters {
 
 	const EXPLICIT_AIDS_ALEXA_EN = [
 		4902009,
+		187641,
+		308178,
+		1338498,
+		2079776,
 		2974707,
 		9462978,
 		457632,

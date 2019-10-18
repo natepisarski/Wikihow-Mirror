@@ -3,6 +3,7 @@
 	"use strict";
 	window.WH = window.WH || {};
 	window.WH.WHSlider = {
+		cookieName: '_slider_box',
 
 		init: function() {
 			//does this page have a video?
@@ -70,22 +71,18 @@
 
 				//initialize buttons/links
 				WH.WHSlider.buttonize();
-
-				//set a sesh cookie
-				//document.cookie = 'sliderbox = 1';
 			});
 		},
 
 		buttonize: function() {
-			$('#slider_close_button').click(function() {
-				//let us not speak of this again...
-				var exdate = new Date();
-				var expiredays = 365;
-				exdate.setDate(exdate.getDate()+expiredays);
-				document.cookie = "sliderbox=3;expires="+exdate.toGMTString();
+			$(document).on("click", "#slider_close_button", function(e) {
+				e.preventDefault();
 
-				this.closeSlider();
-				return false;
+				//let us not speak of this for awhile...
+				var expiredays = 60*60*24*7; //7 days
+				mw.cookie.set(WH.WHSlider.cookieName, '3',{expires: expiredays});
+
+				WH.WHSlider.closeSlider();
 			});
 		},
 
@@ -108,12 +105,12 @@
 		var isiPhone = ua.indexOf('iphone');
 
 		var oldMSIE = msieVer && msieVer <= 7;
-		if ($('#slideshowdetect').length && typeof WH.WHSlider == 'object' && !mw.cookie.get('sliderbox') && isiPhone < 0 && isiPad < 0 && !oldMSIE) {
+		if ($('#slideshowdetect').length && typeof WH.WHSlider == 'object' && !mw.cookie.get(WH.WHSlider.cookieName) && isiPhone < 0 && isiPad < 0 && !oldMSIE) {
 
 			if ($('#slideshowdetect_mainpage').length) {
 				//homepage
 				$(window).bind('scroll', function(){
-					if  (!mw.cookie.get('sliderbox')) {
+					if  (!mw.cookie.get(WH.WHSlider.cookieName)) {
 						if (isPageScrolledToFollowTable() && $('#sliderbox').css('right') == '-500px' && !$('#sliderbox').is(':animated')) {
 							WH.WHSlider.openSlider();
 						}
@@ -126,7 +123,7 @@
 			else {
 				//article page
 				$(window).bind('scroll', function(){
-					if  (!mw.cookie.get('sliderbox')) {
+					if  (!mw.cookie.get(WH.WHSlider.cookieName)) {
 						if (WH.isPageScrolledToWarningsORArticleInfo() && $('#sliderbox').css('right') == '-500px' && !$('#sliderbox').is(':animated')) {
 							WH.WHSlider.openSlider();
 						}

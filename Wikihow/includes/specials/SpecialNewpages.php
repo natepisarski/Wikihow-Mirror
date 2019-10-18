@@ -39,11 +39,13 @@ class SpecialNewpages extends IncludableSpecialPage {
 	function outputHeader($summaryMessageKey = '') {
 		parent::outputHeader($summaryMessageKey);
 
-		$url = SpecialPage::getTitleFor('ReindexedPages')->getLinkUrl();
-		$txt = strtolower(wfMessage('reindexedpages')->text());
+		if( $this->getLanguage()->getCode() == "en" ) {
+			$url = SpecialPage::getTitleFor('ReindexedPages')->getLinkUrl();
+			$txt = strtolower(wfMessage('reindexedpages')->text());
 
-		$html = wfMessage('reindexed-link-from-newpages', $url, $txt)->text();
-		$this->getOutput()->addHTML($html);
+			$html = wfMessage('reindexed-link-from-newpages', $url, $txt)->text();
+			$this->getOutput()->addHTML($html);
+		}
 	}
 
 

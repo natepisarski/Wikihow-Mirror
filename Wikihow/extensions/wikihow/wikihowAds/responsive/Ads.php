@@ -11,6 +11,7 @@ $wgAutoloadClasses['DefaultAdCreator'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['DefaultInternationalAdCreator'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['DefaultInternationalAdCreatorAllAdsense'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['DefaultInternationalSearchPageAdCreator'] = __DIR__ . '/AdCreator.class.php';
+$wgAutoloadClasses['DefaultIntlCategoryListingAdCreator'] = __DIR__ . '/AdCreator.class.php';
 
 $wgAutoloadClasses['DefaultDocViewerAdCreator'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['DefaultSearchPageAdCreator'] = __DIR__ . '/AdCreator.class.php';

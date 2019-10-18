@@ -39,6 +39,7 @@ $wgHooks['BeforeInitialize'][] = array('PageHooks::maybeRedirectProductionDomain
 $wgHooks['BeforeInitialize'][] = array('PageHooks::maybeRedirectTitus');
 $wgHooks['BeforeInitialize'][] = array('PageHooks::redirectIfNotBotRequest');
 $wgHooks['BeforeInitialize'][] = array('PageHooks::redirectIfPrintableRequest');
+$wgHooks['BeforeInitialize'][] = array('PageHooks::redirectIfAnonEditRequest');
 $wgHooks['BeforeInitialize'][] = 'PageHooks::redirectIfMobileActionRequest';
 $wgHooks['BeforeInitialize'][] = array('PageHooks::maybeRedirectIfUseformat');
 $wgHooks['BeforeInitialize'][] = array('PageHooks::noIndexRecentChangesRSS');

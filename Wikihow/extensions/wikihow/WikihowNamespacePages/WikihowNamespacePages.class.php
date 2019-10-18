@@ -97,8 +97,17 @@ class WikihowNamespacePages {
 				$out->addModules('ext.wikihow.press_boxes');
 			}
 			elseif (self::trustworthyWikihowPage()) {
-				$out->setPageTitle(''); //no title header
+				$h1 = wfMessage('trustworthy-h1')->text();
+				$out->setPageTitle($h1); //fancy h1
 				$out->setHTMLTitle(wfMessage('trustworthy-title')->text());
+				$out->addModules('ext.wikihow.trustworthy_styles');
+
+				//inline these styles so there's no flicker
+				$style = Misc::getEmbedFile('css', __DIR__ . '/resources/trustworthy.css');
+				$style = ResourceLoader::filter('minify-css', $style);
+				$style = HTML::inlineStyle($style);
+				$out->addHeadItem('topcss3', $style);
+
 				$out->setRobotPolicy('index,follow');
 			}
 

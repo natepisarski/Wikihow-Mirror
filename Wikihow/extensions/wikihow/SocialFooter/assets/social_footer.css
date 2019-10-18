@@ -10,12 +10,18 @@
 }
 
 #sf .sf_icon {
-	width: 40px;
-	height: 40px;
+	width: 32px;
+	height: 32px;
 	display: inline-block;
-	margin: 0 10px;
+	margin: 0 3px;
 	background-repeat: no-repeat;
 	background-size: cover;
+}
+
+#sf.mobile .sf_icon {
+	width: 40px;
+	height: 40px;
+	margin: 0 10px;
 }
 
 #sf_ig {

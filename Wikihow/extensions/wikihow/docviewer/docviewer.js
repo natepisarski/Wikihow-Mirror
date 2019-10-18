@@ -19,4 +19,6 @@ $(document).ready(function() {
         WH.ratings.rateItem(0, wgSampleName, 'sample', 'desktop');
     });
 
+    $( '#sample' ).removeClass( 'hidden' );
+    $( '#sample_loading' ).addClass( 'hidden' );
 });

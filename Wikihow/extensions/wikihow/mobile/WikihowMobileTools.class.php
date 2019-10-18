@@ -654,15 +654,16 @@ class WikihowMobileTools {
 
 		// Change ids for ingredients and things you'll need so CSS and other stuff works on intl
 		if ( $wgLanguageCode != "en" ) {
-			$canonicalIngredients = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('ingredients')->text());
-			pq("#" . $canonicalIngredients)->attr('id', 'ingredients');
+			if (wfMessage('ingredients')->exists()) {
+				$canonicalIngredients = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('ingredients')->text());
+				pq("#" . $canonicalIngredients)->attr('id', 'ingredients');
+			}
 			// Thing you'll need fixing code goes haywire on Hindi, so take it out
 			if ( $wgLanguageCode != "hi" ) {
 				$canonicalThings = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('thingsyoullneed')->text());
 				pq("#" . $canonicalThings)->attr('id', 'thingsyoullneed');
 			}
 			pq("#" . mb_strtolower(wfMessage('video')))->attr('id', 'video');
-
 		}
 
 		foreach (pq("#ingredients h3, #thingsyoullneed h3") as $item) {

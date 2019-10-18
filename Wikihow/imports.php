@@ -103,10 +103,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/specialbotblockipwhitelist/BotBlockIPWhitelist.php");
 }
 
-if ($wgLanguageCode == "zh") {
-	require_once("$IP/extensions/wikihow/chinesevariantselector/ChineseVariantSelector.php");
-}
-
 require_once("$IP/extensions/wikihow/DupImage.php");
 require_once("$IP/extensions/wikihow/MemStaticBagOStuff.php");
 require_once("$IP/extensions/wikihow/whredis/WHRedis.php");
@@ -153,6 +149,7 @@ require_once("$IP/extensions/wikihow/search/SearchBox.php");
 require_once("$IP/extensions/wikihow/Newcontributors.php");
 require_once("$IP/extensions/wikihow/TitleSearch.php");
 require_once("$IP/extensions/wikihow/ThankAuthors/ThankAuthors.php");
+require_once("$IP/extensions/wikihow/EditDialog/EditDialog.php");
 require_once("$IP/extensions/wikihow/createpage/CreatePage.php");
 require_once("$IP/extensions/wikihow/TwitterFeed/TwitterFeed.php");
 require_once("$IP/extensions/wikihow/Standings.php");

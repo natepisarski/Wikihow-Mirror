@@ -78,9 +78,9 @@ a.external {
 	-webkit-columns: 2;
 	-moz-columns: 2;
 	columns: 2;
-	-webkit-column-gap: 3em;
-	-moz-column-gap: 3em;
-	column-gap: 3em;
+	-webkit-column-gap: 1.5em;
+	-moz-column-gap: 1.5em;
+	column-gap: 1.5em;
 	margin: 1.2em auto 0;
 	font-size: 1.1em;
 	text-align: left;
@@ -120,15 +120,17 @@ a.external {
 	#footer_links {
 		display: table-cell;
 		text-align: center;
+		padding-left: 1em;
 	}
 
 	#footer_links ul {
 		margin: .5em 0 .2em;
 		text-align: left;
 		font-size: 1em;
-		-webkit-column-gap: 2em;
-		-moz-column-gap: 2em;
-		column-gap: 2em;
+	}
+
+	#footer_links li {
+		white-space: nowrap;
 	}
 
 	#footer_crumbs {

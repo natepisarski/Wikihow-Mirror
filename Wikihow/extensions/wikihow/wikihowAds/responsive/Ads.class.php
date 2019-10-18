@@ -337,11 +337,6 @@ class Ads {
 		$pageId = $this->mTitle->getArticleID();
 		if ( $this->mAlternateDomain == true ) {
 			$adCreator = new DefaultAlternateDomainAdCreator();
-			if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $pageId)) ) {
-				 $adCreator->mAdServices['intro'] = '';
-			}
-			$adCreator->mAdServices['step'] = '';
-			$adCreator->setStickyIntro( false );
 			return $adCreator;
 		}
 
@@ -366,7 +361,9 @@ class Ads {
 				} else {
 					$adCreator = new DefaultInternationalAdCreator();
 				}
-				$adCreator->mAdServices['step'] = '';
+				if ( $this->mTitle->isSpecial( 'CategoryListing' ) ) {
+					$adCreator = new DefaultIntlCategoryListingAdCreator();
+				}
 			}
 		}
 

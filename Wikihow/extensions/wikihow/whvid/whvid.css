@@ -49,6 +49,7 @@
 	padding-left: 47px;
 	margin-left: -47px;
 	display: inline-block;
+	white-space: nowrap;
 }
 
 .m-video::-webkit-media-controls-overlay-play-button {

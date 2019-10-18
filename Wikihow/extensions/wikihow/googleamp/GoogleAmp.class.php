@@ -556,7 +556,7 @@ class GoogleAmp {
 		}
 
 		// tips
-		$tipsTarget = '#' . strtolower( wfMessage( 'tips' )->text() );
+		$tipsTarget = 'div#' . mb_strtolower( wfMessage( 'tips' )->text() );
 		if ( pq( $tipsTarget )->length ) {
 			$adHtml = GoogleAmp::getAd( $tips, $pageId, $intlSite );
 			if ( $adHtml ) {
@@ -565,7 +565,7 @@ class GoogleAmp {
 		}
 
 		// warnings
-		$warningsTarget = '#' . strtolower( wfMessage( 'warnings' )->text() );
+		$warningsTarget = 'div#' . mb_strtolower( wfMessage( 'warnings' )->text() );
 		if ( pq( $warningsTarget )->length ) {
 			$adHtml = GoogleAmp::getAd( $warnings, $pageId, $intlSite );
 			if ( $adHtml ) {

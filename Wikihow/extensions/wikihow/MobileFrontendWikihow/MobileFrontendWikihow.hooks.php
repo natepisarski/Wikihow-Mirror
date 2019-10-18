@@ -187,8 +187,9 @@ class MobileFrontendWikiHowHooks {
 			$whr->addModules();
 		}
 
-		$isLoginPage = $page_title == SpecialPage::getTitleFor( 'Userlogin' )
-					|| $page_title == SpecialPage::getTitleFor( 'CreateAccount' );
+		$isLoginPage = $page_title == (string)SpecialPage::getTitleFor( 'Userlogin' )
+					|| $page_title == (string)SpecialPage::getTitleFor( 'CreateAccount' );
+
 
 		if ( $isLoginPage ) {
 			$out->addModules('mobile.wikihow.login');

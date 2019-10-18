@@ -1,4 +1,5 @@
 <?= $dv_ads2 ?>
+<div id="sample" class="hidden">
 <div id="sample_options">
 	<h3><?=$header_get?></h3>
 	<ul id="dv_dls">
@@ -62,3 +63,7 @@ var wgSampleName = "<?= $doc_name ?>";
 //-->
 </script>
 <br class="clearall" />
+</div>
+<div id="sample_loading">
+	<p style="text-align: center;padding:10em"><?= wfMessage( 'sample-loading' )->text() ?></p>
+</div>
