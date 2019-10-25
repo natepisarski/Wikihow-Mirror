@@ -4,7 +4,7 @@ if ( !defined('MEDIAWIKI') ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminMarkEmailConfirmed',
-	'author' => 'Reuben Smith',
+	'author' => 'Reuben',
 	'description' => 'Tool for support personnel to confirm a user\'s email address attached to the account',
 );
 

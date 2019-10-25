@@ -33,6 +33,10 @@ class UserCompletedImages extends UnlistedSpecialPage {
 	// 	return true;
 	// }
 
+	public function isAnonAvailable() {
+		return true;
+	}
+
 	public function execute($par) {
 		if ($this->getUser()->isBlocked()) {
 			throw new PermissionsError( 'usercompletedimages' );

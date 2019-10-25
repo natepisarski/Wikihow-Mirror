@@ -5,11 +5,9 @@ if (!defined('MEDIAWIKI')) {
 }
 
 $wgExtensionCredits['specialpage'][] = [
-	'name' => 'wikiVisualLibrary',
+	'name' => 'WikiVisualLibrary',
 	'author' => 'George Bahij',
-	'namemsg' => 'wikivisuallibrary',
-	'description' => 'Collect all the visual things',
-	'descriptionmsg' => 'wikivisuallibrarydescription',
+	'description' => 'Collect all the visual things into a library and make them searchable',
 	'version' => 1
 ];
 

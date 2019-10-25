@@ -137,6 +137,5 @@ class EndOfQueue extends UnlistedSpecialPage {
 		$out->setArticleBodyOnly(true);
 		$out->addModules('ext.wikihow.UsageLogs');
 		$out->addHTML($this->getMessage($dt));
-		return;
 	}
 }

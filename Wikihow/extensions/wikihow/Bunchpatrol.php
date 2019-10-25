@@ -17,8 +17,7 @@ if ( ! defined( 'MEDIAWIKI' ) )
 $wgExtensionCredits['special'][] = array(
 	'name' => 'BunchPatrol',
 	'author' => 'Travis Derouin',
-	'description' => 'Bunches a bunch of edits of 1 user together',
-	'url' => 'http://www.wikihow.com/WikiHow:BunchPatrol-Extension',
+	'description' => 'Bunches many edits of a user together, so they can be patrolled all at once',
 );
 
 $wgExtensionMessagesFiles['BunchPatrol'] = __DIR__ . '/Bunchpatrol.i18n.php';

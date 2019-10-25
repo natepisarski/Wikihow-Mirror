@@ -17,7 +17,6 @@ $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'CreatePage',
 	'author' => 'Travis Derouin',
 	'description' => 'Provides a basic way entering a title and searching for potential duplicate articles before creating a page',
-	'url' => 'http://www.wikihow.com/WikiHow:CreatePage-Extension',
 );
 
 $wgExtensionMessagesFiles['CreatePage'] = __DIR__ . '/CreatePage.i18n.php';

@@ -158,8 +158,8 @@ class WriteAppWidget extends DashboardWidget {
 		return "<a href='/Special:Leaderboard/requested_topics?period=7'>" . $this->getTitle() . "</a>";
 	}
 
-	public function isAllowed($isLoggedIn, $userId=0){
-		return true;
+	public function isAllowed($isLoggedIn, $userId=0) {
+		return $isLoggedIn;
 	}
 
 }

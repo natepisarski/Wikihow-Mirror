@@ -504,6 +504,10 @@ class Spellchecker extends UnlistedSpecialPage {
 		);
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
+
 }
 
 class Spellcheckerwhitelist extends UnlistedSpecialPage {
@@ -570,6 +574,10 @@ class Spellcheckerwhitelist extends UnlistedSpecialPage {
 		$out->setHTMLTitle(wfMessage('spch-whitelist'));
 		$out->setPageTitle(wfMessage('spch-whitelist'));
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }
 
 class SpellcheckerArticleWhitelist extends UnlistedSpecialPage {
@@ -632,6 +640,10 @@ class SpellcheckerArticleWhitelist extends UnlistedSpecialPage {
 		$sql = "INSERT INTO spellchecker (sc_page, sc_timestamp, sc_dirty, sc_errors, sc_exempt) VALUES (" .
 					$title->getArticleID() . ", " . wfTimestampNow() . ", 0, 0, 1) ON DUPLICATE KEY UPDATE sc_exempt = '1', sc_errors = 0, sc_timestamp = " . wfTimestampNow();
 		return $dbw->query($sql);
+	}
+
+	public function isAnonAvailable() {
+		return true;
 	}
 }
 

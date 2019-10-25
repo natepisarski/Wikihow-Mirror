@@ -607,4 +607,8 @@ class DocViewer extends UnlistedSpecialPage {
 		$out->addHTML($html);
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 }

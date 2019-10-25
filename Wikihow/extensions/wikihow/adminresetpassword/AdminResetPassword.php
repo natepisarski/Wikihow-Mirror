@@ -4,7 +4,7 @@ if ( !defined('MEDIAWIKI') ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminResetPassword',
-	'author' => 'Reuben Smith',
+	'author' => 'Reuben',
 	'description' => 'Tool for support personnel to reset a user\'s password without an email address attached to the account',
 );
 

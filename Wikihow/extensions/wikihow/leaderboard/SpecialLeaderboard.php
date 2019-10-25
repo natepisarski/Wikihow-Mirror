@@ -6,65 +6,72 @@
 class Leaderboard extends SpecialPage {
 
 	public function __construct() {
+		global $wgHooks;
 		parent::__construct( 'Leaderboard' );
+		$wgHooks['ShowBreadCrumbs'][] = 'Leaderboard::onShowBreadCrumbs';
 	}
 
-	private function getTabs($section, $tab) {
-			$tabs = '';
-			if ($section == 'Writing') {
-				$tab1 = $tab=='articles_written' ? "class='on'" : "";
-				$tab2 = $tab=='risingstars_received' ? "class='on'" : "";
-				$tab3 = $tab=='requested_topics' ? "class='on'" : "class='tab_129'";
-				$tab4 = $tab=='spellchecked' ? "class='on'" : "";
+	public static function onShowBreadCrumbs(&$showLine) {
+		$showLine = false;
+	}
 
-				$tabs = " <ul class='sub_tabs'> <li><a href='/Special:Leaderboard/articles_written' $tab1 >Articles Written</a></li> <li><a href='/Special:Leaderboard/risingstars_received' $tab2 >Rising Stars</a></li> <li><a href='/Special:Leaderboard/requested_topics' $tab3>Requests</a></li> <li><a href='/Special:Leaderboard/spellchecked' $tab4 >Spell Checked</a></li></ul>";
-				return $tabs;
+	private function getTabs($section, $tab, $period) {
+		$tabs = '';
+		$periodParam = ($period != '24' ? '?period=' . $period : '');
+		if ($section == 'Writing') {
+			$tab1 = $tab=='articles_written' ? "class='on'" : "";
+			$tab2 = $tab=='risingstars_received' ? "class='on'" : "";
+			$tab3 = $tab=='requested_topics' ? "class='on'" : "class='tab_129'";
+			$tab4 = $tab=='spellchecked' ? "class='on'" : "";
 
-			} elseif ($section == "RCNAB") {
-				$tab1 = $tab=='articles_nabed' ? "class='on'" : "";
-				$tab2 = $tab=='risingstars_nabed' ? "class='on'" : "";
-				$tab3 = $tab=='rc_edits' ? "class='on'" : "";
-				$tab4 = $tab=='rc_quick_edits' ? "class='on'" : "";
-				$tab5 = $tab=='qc' ? "class='on'" : "";
+			$tabs = " <ul class='sub_tabs'> <li><a href='/Special:Leaderboard/articles_written$periodParam' $tab1 >Articles Written</a></li> <li><a href='/Special:Leaderboard/risingstars_received$periodParam' $tab2 >Rising Stars</a></li> <li><a href='/Special:Leaderboard/requested_topics$periodParam' $tab3>Requests</a></li> <li><a href='/Special:Leaderboard/spellchecked$periodParam' $tab4 >Spell Checked</a></li></ul>";
+			return $tabs;
 
-				$tabs = " <ul class='sub_tabs'> <li><a href='/Special:Leaderboard/articles_nabed' $tab1 >Articles NABed</a></li> <li><a href='/Special:Leaderboard/risingstars_nabed' $tab2 >RS NABed</a></li><li><a href='/Special:Leaderboard/rc_edits' $tab3 >Edits Patrolled</a></li> <li><a href='/Special:Leaderboard/rc_quick_edits' $tab4 >RC Quick Edits</a></li> <li><a href='/Special:Leaderboard/qc' $tab5 >Top Guardians</a></li> </ul>";
-				return $tabs;
-			} elseif ($section == "Other") {
-				$tab1 = $tab=='total_edits' ? "class='on'" : "";
-				$tab2 = $tab=='thumbs_up' ? "class='on'" : "";
-				$tab3 = $tab=='articles_categorized' ? "class='on'" : "";
-				$tab4 = $tab=='welcomewagon_indiv1' ? "class='on'" : "";
-				$tab5 = $tab=='tiptool_indiv1' ? "class='on'" :"";
-				$tab6 = $tab=='nfd' ? "class='on'" : "";
-				$tab7 = $tab=='CategoryGuardian' ? "class='on'" : "";
-				$tab8 = $tab=='questionssorted' ? "class='on'" : "";
-				$tab9 = $tab=='techfeedbackreviewed' ? "class='on'" : "";
-				$tab10 = $tab=='techarticletested' ? "class='on'" : "";
-				$tab11 = $tab=='duplicatetitles' ? "class='on'" : "";
-				$tab12 = $tab=='articlefeedbackreviewed' ? "class='on'" : "";
-				$tab13 = $tab=='fixflaggedanswers' ? "class='on'" : "";
-				$tab14 = $tab=='qap' ? "class='on'" : "";
-				$tab15 = $tab=='topicstagged' ? "class='on'" : "";
+		} elseif ($section == "RCNAB") {
+			$tab1 = $tab=='articles_nabed' ? "class='on'" : "";
+			$tab2 = $tab=='risingstars_nabed' ? "class='on'" : "";
+			$tab3 = $tab=='rc_edits' ? "class='on'" : "";
+			$tab4 = $tab=='rc_quick_edits' ? "class='on'" : "";
+			$tab5 = $tab=='qc' ? "class='on'" : "";
 
-				$tabs = " <ul class='sub_tabs'> <li><a href='/Special:Leaderboard/total_edits' $tab1 >All Edits</a></li> <li><a href='/Special:Leaderboard/thumbs_up' $tab2 >Thumbs Up</a></li> <li><a href='/Special:Leaderboard/articles_categorized' $tab3 >Categorization</a></li><li><a href='/Special:Leaderboard/welcomewagon_indiv1' $tab4 >Welcome Wagon</a></li> <li><a href='/Special:Leaderboard/tiptool_indiv1' $tab5>Tips Patrol</a> </ul> <ul class='sub_tabs'></li><li><a href='/Special:Leaderboard/nfd' $tab6 >NFD</a></li> <li><a href='/Special:Leaderboard/CategoryGuardian' $tab7 >Category Guardian</a></li> <li><a href='/Special:Leaderboard/questionssorted' $tab8 >Approve Questions</a></li> <li><a href='/Special:Leaderboard/techfeedbackreviewed' $tab9 >Review Tech Feedback</a></li><li><a href='/Special:Leaderboard/techarticletested' $tab10 >Test Tech Articles</a></li><li><a href='/Special:Leaderboard/duplicatetitles' $tab11 >Find Duplicate Titles</a></li><li><a href='/Special:Leaderboard/articlefeedbackreviewed' $tab12 >Review Article Feedback</a></li><li><a href='/Special:Leaderboard/fixflaggedanswers' $tab13 >Fix Flagged Answers</a></li><li><a href='/Special:Leaderboard/qap' $tab14 >Q&A Patrol</a></li><li><a href='/Special:Leaderboard/topicstagged' $tab15 >Topic Tagging</a></li></ul>";
-				return $tabs;
-			} elseif ($section == "Greenhouse") {
-				$tab1 = $tab=='repair_format' ? "class='on'" : "";
-				// $tab2 = $tab=='repair_stub' ? "class='on'" : "";
-				$tab3 = $tab=='repair_cleanup' ? "class='on'" : "";
-				$tab4 = $tab=='repair_copyedit' ? "class='on'" : "";
-				$tab5 = $tab=='repair_topic' ? "class='on'" : "";
+			$tabs = " <ul class='sub_tabs'> <li><a href='/Special:Leaderboard/articles_nabed$periodParam' $tab1 >Articles NABed</a></li> <li><a href='/Special:Leaderboard/risingstars_nabed$periodParam' $tab2 >RS NABed</a></li><li><a href='/Special:Leaderboard/rc_edits$periodParam' $tab3 >Edits Patrolled</a></li> <li><a href='/Special:Leaderboard/rc_quick_edits$periodParam' $tab4 >RC Quick Edits</a></li> <li><a href='/Special:Leaderboard/qc$periodParam' $tab5 >Top Guardians</a></li> </ul>";
+			return $tabs;
+		} elseif ($section == "Other") {
+			$tab1 = $tab=='total_edits' ? "class='on'" : "";
+			$tab2 = $tab=='thumbs_up' ? "class='on'" : "";
+			$tab3 = $tab=='articles_categorized' ? "class='on'" : "";
+			$tab4 = $tab=='welcomewagon_indiv1' ? "class='on'" : "";
+			$tab5 = $tab=='tiptool_indiv1' ? "class='on'" :"";
+			$tab6 = $tab=='nfd' ? "class='on'" : "";
+			$tab7 = $tab=='CategoryGuardian' ? "class='on'" : "";
+			$tab8 = $tab=='questionssorted' ? "class='on'" : "";
+			$tab9 = $tab=='techfeedbackreviewed' ? "class='on'" : "";
+			$tab10 = $tab=='techarticletested' ? "class='on'" : "";
+			$tab11 = $tab=='duplicatetitles' ? "class='on'" : "";
+			$tab12 = $tab=='articlefeedbackreviewed' ? "class='on'" : "";
+			$tab13 = $tab=='fixflaggedanswers' ? "class='on'" : "";
+			$tab14 = $tab=='qap' ? "class='on'" : "";
+			$tab15 = $tab=='topicstagged' ? "class='on'" : "";
 
-				$tabs .= "<ul class='sub_tabs'><li><a href='/Special:Leaderboard/repair_format' $tab1 >Formatting</a></li> <li><a href='/Special:Leaderboard/repair_cleanup' $tab3 >Cleanup</a></li> <li><a href='/Special:Leaderboard/repair_copyedit' $tab4 >Copyedit</a></li> <li><a href='/Special:Leaderboard/repair_topic' $tab5 >Topic</a></li></ul>";
-				return $tabs;
-			} elseif ($section == "Imagevideo") {
-				$tab1 = $tab=='images_added' ? "class='on'" : "";
-				$tab2 = $tab=='videos_reviewed' ? "class='on'" : "";
-				$tab3 = $tab=='ucitool_indiv1' ? "class='on'" :"";
+			$tabs = " <ul class='sub_tabs'> <li><a href='/Special:Leaderboard/total_edits$periodParam' $tab1 >All Edits</a></li> <li><a href='/Special:Leaderboard/thumbs_up$periodParam' $tab2 >Thumbs Up</a></li> <li><a href='/Special:Leaderboard/articles_categorized$periodParam' $tab3 >Categorization</a></li><li><a href='/Special:Leaderboard/welcomewagon_indiv1$periodParam' $tab4 >Welcome Wagon</a></li> <li><a href='/Special:Leaderboard/tiptool_indiv1$periodParam' $tab5>Tips Patrol</a> </ul> <ul class='sub_tabs'></li><li><a href='/Special:Leaderboard/nfd$periodParam' $tab6 >NFD</a></li> <li><a href='/Special:Leaderboard/CategoryGuardian$periodParam' $tab7 >Category Guardian</a></li> <li><a href='/Special:Leaderboard/questionssorted$periodParam' $tab8 >Approve Questions</a></li> <li><a href='/Special:Leaderboard/techfeedbackreviewed$periodParam' $tab9 >Review Tech Feedback</a></li><li><a href='/Special:Leaderboard/techarticletested$periodParam' $tab10 >Test Tech Articles</a></li><li><a href='/Special:Leaderboard/duplicatetitles$periodParam' $tab11 >Find Duplicate Titles</a></li><li><a href='/Special:Leaderboard/articlefeedbackreviewed$periodParam' $tab12 >Review Article Feedback</a></li><li><a href='/Special:Leaderboard/fixflaggedanswers$periodParam' $tab13 >Fix Flagged Answers</a></li><li><a href='/Special:Leaderboard/qap$periodParam' $tab14 >Q&A Patrol</a></li><li><a href='/Special:Leaderboard/topicstagged$periodParam' $tab15 >Topic Tagging</a></li></ul>";
+			return $tabs;
+		} elseif ($section == "Greenhouse") {
+			$tab1 = $tab=='repair_format' ? "class='on'" : "";
+			// $tab2 = $tab=='repair_stub' ? "class='on'" : "";
+			$tab3 = $tab=='repair_cleanup' ? "class='on'" : "";
+			$tab4 = $tab=='repair_copyedit' ? "class='on'" : "";
+			$tab5 = $tab=='repair_topic' ? "class='on'" : "";
 
-				$tabs = " <ul class='sub_tabs'><li><a href='/Special:Leaderboard/images_added' $tab1 >Images Added</a></li> <li><a href='/Special:Leaderboard/videos_reviewed' $tab2 >Videos Reviewed</a></li> <li><a href='/Special:Leaderboard/ucitool_indiv1' $tab3 >Pictures Patrolled</a></li> </ul>";
-				return $tabs;
-			}
+			$tabs .= "<ul class='sub_tabs'><li><a href='/Special:Leaderboard/repair_format$periodParam' $tab1 >Formatting</a></li> <li><a href='/Special:Leaderboard/repair_cleanup$periodParam' $tab3 >Cleanup</a></li> <li><a href='/Special:Leaderboard/repair_copyedit$periodParam' $tab4 >Copyedit</a></li> <li><a href='/Special:Leaderboard/repair_topic$periodParam' $tab5 >Topic</a></li></ul>";
+			return $tabs;
+		} elseif ($section == "Imagevideo") {
+			$tab1 = $tab=='images_added' ? "class='on'" : "";
+			$tab2 = $tab=='videos_reviewed' ? "class='on'" : "";
+			$tab3 = $tab=='ucitool_indiv1' ? "class='on'" :"";
+
+			$tabs = " <ul class='sub_tabs'><li><a href='/Special:Leaderboard/images_added$periodParam' $tab1 >Images Added</a></li> <li><a href='/Special:Leaderboard/videos_reviewed$periodParam' $tab2 >Videos Reviewed</a></li> <li><a href='/Special:Leaderboard/ucitool_indiv1$periodParam' $tab3 >Pictures Patrolled</a></li> </ul>";
+			return $tabs;
+		}
 		return '';
 	}
 
@@ -328,6 +335,7 @@ class Leaderboard extends SpecialPage {
 	public function execute($par) {
 		$req = $this->getRequest();
 		$out = $this->getOutput();
+		$user = $this->getUser();
 
 		$target = !empty($par) ? $par : $req->getVal('target');
 		$target = filter_var( $target, FILTER_SANITIZE_STRING );
@@ -349,7 +357,6 @@ class Leaderboard extends SpecialPage {
 
 		$period = $req->getVal('period');
 		$period = filter_var( $period, FILTER_SANITIZE_NUMBER_INT );
-
 
 		$startdate = '000000';
 		if ($period == 31) {
@@ -592,8 +599,9 @@ class Leaderboard extends SpecialPage {
 		//   above the article_inner.  hacky i know, but otherwise it
 		//   would have to go into the skin which is worse.
 		$dropdown = " <span style='float:right;'>In the last <select id='period' onchange='WH.Leaderboard.changePeriod(this);'> <option $period24selected value='24'>24 hours</option> <option $period7selected value='7'>7 days</option> <option $period31selected value='31'>31 days</option> </select> </span>";
-		$tabs_main = "<ul id='tabs'><li><a href='/Special:Leaderboard/articles_written' $sectionStyleWriting >Writing</a></li><li><a href='/Special:Leaderboard/articles_nabed' $sectionStyleRCNAB >RC and NAB</a></li><li><a href='/Special:Leaderboard/repair_format' $sectionStyleGreenhouse >Greenhouse</a></li><li><a href='/Special:Leaderboard/images_added' $sectionStyleImagevideo >Images/Videos</a></li><li><a href='/Special:Leaderboard/total_edits' $sectionStyleOther >Other</a></li></ul>";
-		$tabs_sub = $this->getTabs($section, $target);
+		$periodParam = ($period != '24' ? '?period=' . $period : '');
+		$tabs_main = "<ul id='tabs'><li><a href='/Special:Leaderboard/articles_written$periodParam' $sectionStyleWriting >Writing</a></li><li><a href='/Special:Leaderboard/articles_nabed$periodParam' $sectionStyleRCNAB >RC and NAB</a></li><li><a href='/Special:Leaderboard/repair_format$periodParam' $sectionStyleGreenhouse >Greenhouse</a></li><li><a href='/Special:Leaderboard/images_added$periodParam' $sectionStyleImagevideo >Images/Videos</a></li><li><a href='/Special:Leaderboard/total_edits$periodParam' $sectionStyleOther >Other</a></li></ul>";
+		$tabs_sub = $this->getTabs($section, $target, $period);
 		if ($action != 'articlelist') {
 			$tabs_sub .= "<div class='clearall'></div>";
 		}
@@ -626,12 +634,14 @@ class Leaderboard extends SpecialPage {
 
 		// don't show learn link for categories that don't have learning pages
 		if (!in_array($target, $noLearnLinks)) {
-			$out->addHTML("<span class='leader_learn'><img src='" . wfGetPad('/skins/WikiHow/images/icon_help.jpg') .
-				"'><a href='$learnlink'>Learn about this activity</a></span>");
+			if (!$user->isAnon()) {
+				$text = "Learn about this activity";
+				$out->addHTML("<span class='leader_learn'><img src='" . wfGetPad('/skins/WikiHow/images/icon_help.jpg') .
+					"'><a href='$learnlink'>$text</a></span>");
+			}
 		}
 
-		$out->addHTML("
-			<table class='leader_table'>
+		$out->addHTML("<table class='leader_table'>
 				<tr> <td colspan='3' class='leader_title'>$columnHeader:</td> </tr> ");
 
 		// display difference in only new articles
@@ -666,5 +676,9 @@ class Leaderboard extends SpecialPage {
 			if ($index > 20) break;
 		}
 		$out->addHTML("</table></div>");
+	}
+
+	public function isAnonAvailable() {
+		return true;
 	}
 }

@@ -206,5 +206,4 @@ class CivicLogin extends UnlistedSpecialPage {
 		global $wgLanguageCode;
 		return $wgLanguageCode == 'en';
 	}
-
 }

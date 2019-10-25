@@ -614,7 +614,6 @@ class PreviewVideo extends UnlistedSpecialPage {
  */
 class NewVideoBoard extends SpecialPage {
 
-
 	public function __construct() {
 		parent::__construct( 'NewVideoBoard' );
 	}
@@ -680,5 +679,8 @@ class NewVideoBoard extends SpecialPage {
 			$out->addHTML("<br/><br/><i><font size='-2'>" . wfMessage('patrolcount_viewlocal_info')->parseAsBlock() . "</font></i>");
 		}
 	}
-}
 
+	public function isAnonAvailable() {
+		return true;
+	}
+}

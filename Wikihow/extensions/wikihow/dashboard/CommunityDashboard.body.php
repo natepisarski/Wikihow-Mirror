@@ -453,5 +453,8 @@ class CommunityDashboard extends UnlistedSpecialPage {
 		return false;
 	}
 
-}
+	public function isMobileCapable() {
+		return true;
+	}
 
+}

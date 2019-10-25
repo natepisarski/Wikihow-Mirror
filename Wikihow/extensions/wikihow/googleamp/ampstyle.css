@@ -573,7 +573,7 @@
 }
 
 .ur_divider {
-	margin: 0 -15px 15px -15px;
+	margin: 0 -15px 15px;
 	border-top: 1px solid #e5e5e5;
 }
 
@@ -683,42 +683,13 @@
 .m-video-intro-over {
 	visibility: visible;
 }
-
-/**** CHARITY PROJECT ****/
-
 .don_mobile #donate_bottom {
-	background-color: #f6f5f4;
-	margin: 0 -15px -14px -15px;
-	padding: 27px;
 	text-align: center;
 }
 .don_mobile #donate_button {
 	display: inline-block;
-	margin: 0 auto;
+	margin: 0;
 	padding: 14px 20px;
-	text-align: center;
-}
-.don_default #donate_button {
-	padding-left: 46px;
-	background: no-repeat 16px center/23px;
-	background-image: url(/extensions/wikihow/charity/images/heart.png);
-	/* @embed */
-	background-image: url(/extensions/wikihow/charity/images/heart.svg);
-}
-.donate_quote_line {
-	border-top: 1px solid #cbdcbb;
-	width: 65%;
-	max-width: 350px;
-	margin: 1.3em auto;
-}
-#donate_quote {
-	font-style: italic;
-}
-#donate_quote_opening {
-	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
-	font-weight: bold;
-	font-size: 1.4em;
-	margin-bottom: .7em;
 }
 .amp-geo-group-eu .icon-aboutwikihow {
 	 display: list-item;
@@ -820,7 +791,7 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 .green_box.expert_short {
 	background-color: #FFF;
 	border-radius: 0;
-	padding-top: .5em;
+	padding: 1px .7em;
 }
 .green_box_tab_label {
 	display: table-caption;
@@ -853,15 +824,25 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 .green_box.expert_qa .green_box_content {
 	display: table-cell;
 	vertical-align: top;
+	padding-left: .5em;
 }
 .green_box.expert_short .green_box_content {
-	padding: 0 0 .5em 0;
+	padding: .8em 0 .5em;
 }
 .green_box.expert_short p {
 	font-family: Georgia, 'Times New Roman', serif;
 	color: #75A24E;
 	font-size: 24px;
 	line-height: 32px;
+}
+.green_box_expert_head {
+	font-size: .9em;
+	padding: 0 .3em .1em;
+	font-weight: bold;
+}
+.green_box.expert_short .green_box_expert_head {
+	padding-left: 0;
+	line-height: 1em;
 }
 .green_box_person {
 	position: relative;
@@ -898,7 +879,7 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 	font-weight: normal;
 }
 .green_box_content {
-	padding: .5em .3em .5em .5em;
+	padding: .5em .3em .5em;
 }
 .green_box_expert_label {
 	font-size: .55em;

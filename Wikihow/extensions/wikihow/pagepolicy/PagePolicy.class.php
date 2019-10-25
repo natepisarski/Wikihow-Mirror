@@ -2,23 +2,12 @@
 
 if (!defined('MEDIAWIKI')) die();
 
+use MediaWiki\MediaWikiServices;
+
 class PagePolicy {
 
 	const VALIDATION_TOKEN_NAME = 'validate';
 	const EXCEPTIONS = [ 'Sandbox' ];
-	const RESTRICTED_NAMESPACES = [
-		NS_TALK,
-		NS_IMAGE_TALK,
-		NS_VIDEO,
-		NS_VIDEO_TALK,
-		NS_VIDEO_COMMENTS,
-		NS_VIDEO_COMMENTS_TALK,
-		NS_MEDIAWIKI,
-		NS_MEDIAWIKI_TALK,
-		NS_PROJECT_TALK,
-		NS_SUMMARY,
-		NS_SUMMARY_TALK
-	];
 	static $mustache;
 
 	private static function render( $template, $vars ) {
@@ -42,14 +31,56 @@ class PagePolicy {
 			);
 
 			if ( $user->isAnon() && !$exception ) {
-				if ( $title->inNamespaces( self::RESTRICTED_NAMESPACES ) ) {
-					$showCurrentTitle = false;
+				$showCurrentTitle = false;
+				$req = $context->getRequest();
+				if ( $title->inNamespace( NS_MAIN ) ) {
+					// Any main namespace article that exists and isn't black-listed
+					if ( $title->exists() && !in_array( $title->getDBKey(), self::EXCEPTIONS ) ) {
+						$isNew = $req->getVal( 'new' );
+						$token = $req->getVal( self::VALIDATION_TOKEN_NAME );
+						if ( $isNew && wfHasCurrentArticleCreationCookie() ) {
+							$showCurrentTitle = true;
+						} elseif ( $token ) {
+							$pageid = $title->getArticleId();
+							$showCurrentTitle = self::validateToken( $token, $pageid );
+						} else {
+							$showCurrentTitle = RobotPolicy::isTitleIndexable( $title, $context );
+						}
+					} else {
+						$showCurrentTitle = true;
+					}
+				} elseif ( $title->inNamespace( NS_CATEGORY ) ) {
+					// managed on a per-category page level in the WikihowCategory
+					// class.
+					// Example 200: https://www.wikihow.com/Category:Health
+					// Example 404: https://www.wikihow.com/Category:Stub
+					$showCurrentTitle = true;
+				} elseif ( $title->inNamespace( NS_PROJECT ) ) {
+					if ( $title->exists() ) {
+						$projectPages = WikihowNamespacePages::anonAvailablePages();
+						$showCurrentTitle = in_array( $title->getDBKey(), $projectPages );
+					} else {
+						$showCurrentTitle = true;
+					}
+				} elseif ( $title->inNamespace( NS_PROJECT_TALK ) ) {
+					$pages = WikihowNamespacePages::anonAvailableTalkPages();
+					$showCurrentTitle = in_array( $title->getDBKey(), $pages );
+				} elseif ( $title->inNamespace( NS_FILE ) ) {
+					// Show Image: urls to anons for now on EN and intl. Phase 2 will remove them.
+					$showCurrentTitle = true;
 				} elseif ( $title->inNamespace( NS_USER ) ) {
 					// Hide "bad" user pages
 					$showCurrentTitle = UserPagePolicy::isGoodUserPage( $title->getDBKey() );
 				} elseif ( $title->inNamespace( NS_USER_TALK ) ) {
+					$listAnonVisible = UserPagePolicy::listUserTalkAnonVisible();
 					if ( $title->isSubPage() ) {
 						// Hide user talk sub pages
+						$showCurrentTitle = false;
+					} elseif ( in_array( $title->getDBKey(), $listAnonVisible ) ) {
+						// Always show this small list of User_talk pages
+						$showCurrentTitle = true;
+					} elseif ( !$user->hasCookies() ) {
+						// Hide user talk pages from users without any backend cookies (ie, including most bots)
 						$showCurrentTitle = false;
 					} else {
 						// Hide user talk pages belonging to users who've been inactive for 1+ years
@@ -57,25 +88,33 @@ class PagePolicy {
 						$lastYear = wfTimestamp( TS_MW, strtotime( '-1 year' ) );
 						$showCurrentTitle = !$owner || $owner->getDBTouched() >= $lastYear;
 					}
-				} elseif (
-					// Any main namespace article that exists and isn't black-listed
-					$title->inNamespace( NS_MAIN ) &&
-					$title->exists() &&
-					!in_array( $title->getDBKey(), self::EXCEPTIONS )
-				) {
-					$req = $context->getRequest();
-					$isNew = $req->getVal( 'new' );
-					$token = $req->getVal( self::VALIDATION_TOKEN_NAME );
-					if ( $isNew && wfHasCurrentArticleCreationCookie() ) {
+				} elseif ( $title->inNamespace( NS_USER_KUDOS ) ) {
+					// Show the kudos pages to anons iff that anon has cookies
+					$showCurrentTitle = $user->hasCookies();
+				} elseif ( $title->inNamespace( NS_SPECIAL ) ) {
+					// Only show special pages where we've designated them as appropriate for anons.
+					// Right now, this matches up almost exactly with special pages that we allow
+					// to be viewed on mobile.
+					$spFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
+					$specialPage = $spFactory->getPage( $title->getDBkey() );
+					if ( $specialPage &&
+						( $req->wasPosted() || $specialPage->isAnonAvailable() )
+					) {
 						$showCurrentTitle = true;
-					} elseif ( $token ) {
-						$pageid = $title->getArticleId();
-						$showCurrentTitle = self::validateToken( $token, $pageid );
-					} else {
-						$showCurrentTitle = RobotPolicy::isTitleIndexable( $title, $context );
 					}
 				} else {
-					$showCurrentTitle = true;
+					// All other namespaces are restricted by default
+					$showCurrentTitle = false;
+				}
+
+				// 404 edit pages for non-Main namespace articles too
+				// Ex: https://www.wikihow.com/index.php?title=wikiHow:About-wikiHow&action=edit
+				if ( !$title->inNamespace(NS_MAIN) && $title->exists() && $req->getVal('action') == 'edit' ) {
+					$showCurrentTitle = false;
+				}
+
+				if ( $showCurrentTitle && !self::isVisibleAction($req) ) {
+					$showCurrentTitle = false;
 				}
 			} else {
 				$showCurrentTitle = true;
@@ -83,6 +122,31 @@ class PagePolicy {
 			Hooks::run( 'PagePolicyShowCurrentTitle', array( $title, &$showCurrentTitle ) );
 		}
 		return $showCurrentTitle;
+	}
+
+	private static function isVisibleAction($req) {
+		$anonVisible = true;
+		$actionParam = $req->getVal('action', '');
+		$typeParam = $req->getVal('type', '');
+		$oldidParam = $req->getVal('oldid', '');
+		// NOTE: $actionParam == 'edit' check is because we do a redirect if action=edit in
+		// a different spot back to view and the new anon edit dialog.
+		if ( in_array($actionParam, ['edit','submit','preview','submit2','purge']) ) {
+			$anonVisible = true;
+		} elseif ( $actionParam && $actionParam != 'view' ) {
+			// Hide pages if action is set and NOT action=view
+			// Example: https://www.wikihow.com/index.php?title=Hang-a-Bike-in-a-Garage&action=history
+			$anonVisible = false;
+		} elseif ( $typeParam && $typeParam == 'revision' ) {
+			// Hide URLs like diff pages
+			// Example: https://www.wikihow.com/index.php?title=Hang-a-Bike-in-a-Garage&type=revision&diff=27146112&oldid=26978045
+			$anonVisible = false;
+		} elseif ( $oldidParam ) {
+			// Hide oldid URLs
+			// Example: https://www.wikihow.com/index.php?title=Hang-a-Bike-in-a-Garage&oldid=26978045
+			$anonVisible = false;
+		}
+		return $anonVisible;
 	}
 
 	// Enables mobile for 404s
@@ -125,11 +189,29 @@ class PagePolicy {
 				$userPageOverride = $user && $user->getID() !== 0;
 			}
 
+			// If it's a special page URL and that special page exists, prompt
+			// the user to login on the 404 page
+			$virtualLogin = false;
+			if ( !$wgTitle->canExist() ) {
+				$virtualLogin = true;
+				if ( $wgTitle->isSpecialPage() ) {
+					$spFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
+					$specialPage = $spFactory->getPage( $wgTitle->getDBkey() );
+					if (!$specialPage) {
+						$virtualLogin = false;
+					}
+				}
+			}
+
 			$css = Misc::getEmbedFile( 'css', __DIR__ . '/pagepolicy.css' );
 			$out->addHeadItem( 'pagepolicy-css', HTML::inlineStyle( $css ) );
 
-			if ( $wgTitle->exists() || $userPageOverride ) {
-				if ( $wgTitle->inNamespace( NS_MAIN ) ) {
+			if ( $wgTitle->exists()
+				|| $virtualLogin
+				|| $wgTitle->inNamespaces(NS_TALK, NS_USER, NS_USER_TALK)
+				|| $userPageOverride
+			) {
+				if ( $wgTitle->inNamespace( NS_MAIN ) && self::isVisibleAction( $out->getRequest() ) ) {
 					$login = Title::newFromText( 'Special:UserLogin' );
 					$url = $login->getCanonicalURL( [ 'returnto' => $wgTitle->getPrefixedUrl() ] );
 					$out->addHTML( self::render(
@@ -163,6 +245,16 @@ class PagePolicy {
 					]
 				) );
 			}
+		}
+	}
+
+	/**
+	 * Remove all tabs if we are showing the page as 404
+	 */
+	public static function onHeaderBuilderAfterGetTabsArray(&$tabs) {
+		$context = RequestContext::getMain();
+		if ( !self::showCurrentTitle($context) ) {
+			$tabs = [];
 		}
 	}
 

@@ -1041,7 +1041,7 @@ class SchemaMarkup {
 			}
 
 			$faqSchema = self::getFAQSchema();
-			if ( $faqSchema && ArticleTagList::hasTag( 'schema_faq_page', $pageId ) ) {
+			if ( $faqSchema ) {
 				$schema .= $faqSchema;
 			}
 

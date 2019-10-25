@@ -729,6 +729,10 @@ class GoogleAmp {
 			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
 
+		if ( rand( 1, 2 ) == 1 && $num == 2 ) {
+			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		}
+
 		// this is a layout we never got working but
 		// it has some interesting media queries worth remembering
 		$noSize = array(

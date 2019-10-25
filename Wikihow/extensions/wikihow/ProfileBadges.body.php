@@ -33,4 +33,7 @@ class ProfileBadges extends SpecialPage {
 		return $html;
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
 }

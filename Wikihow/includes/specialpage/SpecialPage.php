@@ -947,4 +947,17 @@ class SpecialPage implements MessageLocalizer {
 	public function isMobileAnonOnly() {
 		return false;
 	}
+
+	/**
+	 * Is this special page available to anonymous users, regardless
+	 * of its existence on mobile? (By default, all mobile-available
+	 * pages are available to anons.)
+	 *
+	 * @return bool
+	 *
+	 * WIKIHOW added this function
+	 */
+	public function isAnonAvailable() {
+		return $this->isMobileCapable() || $this->isMobileAnonOnly();
+	}
 }

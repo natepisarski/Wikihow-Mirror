@@ -2,24 +2,15 @@
 
 if (!defined('MEDIAWIKI')) die();
 
-/**#@+
+/*
  * wikiHow stores its images on S3. This class contains a bunch of the glue for
  * those operations.
- *
- * @package MediaWiki
- * @subpackage Extensions
- *
- * @link http://www.wikihow.com/WikiHow:CommunityDashboard-Extension Documentation
- *
- * @author Reuben Smith <reuben@wikihow.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 $wgExtensionCredits['special'][] = array(
 	'name' => 'S3Images',
-	'author' => 'Reuben Smith',
+	'author' => 'Reuben',
 	'description' => 'Glue to allow wikiHow store its uploaded images on S3',
-	'url' => 'http://www.wikihow.com/WikiHow:S3Images-Extension',
 );
 
 $wgAutoloadClasses['S3Images'] = __DIR__ . '/S3Images.body.php';
@@ -34,4 +25,3 @@ $wgJobClasses['DeleteS3FileJob'] = 'DeleteS3FileJob';
 #$wgHooks['LocalFilePurgeThumbnails'][] = array('S3Images::onLocalFilePurgeThumbnails');
 #$wgHooks['NewRevisionFromEditComplete'][] = array('S3Images::onNewRevisionFromEditComplete');
 $wgHooks['FileUpload'][] = array('S3Images::onFileUpload');
-

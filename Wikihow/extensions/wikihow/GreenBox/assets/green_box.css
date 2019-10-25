@@ -24,7 +24,7 @@
 .green_box.expert_short {
 	background-color: #FFF;
 	border-radius: 0;
-	padding-top: .5em;
+	padding: 1px .7em;
 }
 
 .green_box_tab_label {
@@ -80,10 +80,11 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 .green_box.expert_qa .green_box_content {
 	display: table-cell;
 	vertical-align: top;
+	padding-left: .5em;
 }
 
 .green_box.expert_short .green_box_content {
-	padding: 0 0 .5em 0;
+	padding: .8em 0 .5em;
 }
 
 .green_box.expert_short .green_box_content p,
@@ -108,6 +109,17 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 	text-align: center;
 	width: 45px;
 	padding: .5em .3em;
+}
+
+.green_box_expert_head {
+	font-size: .9em;
+	padding: 0 .3em .1em;
+	font-weight: bold;
+}
+
+.green_box.expert_short .green_box_expert_head {
+	padding-left: 0;
+	line-height: 1em;
 }
 
 .green_box_expert_info {
@@ -138,7 +150,7 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 }
 
 .green_box_content {
-	padding: .5em .3em .5em .5em;
+	padding: .5em .3em .5em;
 }
 
 .green_box_expert_label {

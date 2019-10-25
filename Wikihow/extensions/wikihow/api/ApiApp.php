@@ -7,13 +7,10 @@ $wgExtensionCredits['api'][] = array(
 	'path' => __FILE__,
 	'name' => 'App Articles API',
 	'description' => 'An API extension to parse and list articles for the wikiHow apps',
-	'descriptionmsg' => 'sampleapiextension-desc',
 	'version' => 1,
-	'author' => 'Reuben Smith',
-	'url' => 'https://www.mediawiki.org/wiki/API:Extensions',
+	'author' => 'Reuben',
 );
 
 $wgAutoloadClasses['ApiApp'] = __DIR__ . '/ApiApp.body.php';
 
 $wgAPIModules['app'] = 'ApiApp';
-

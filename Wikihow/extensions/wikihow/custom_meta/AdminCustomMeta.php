@@ -4,7 +4,7 @@ if ( !defined('MEDIAWIKI') ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminCustomMeta',
-	'author' => 'Reuben Smith',
+	'author' => 'Reuben',
 	'description' => 'Tool for support personnel to upload/download lists of custom titles',
 );
 

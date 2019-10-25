@@ -5,7 +5,7 @@ if ( ! defined( 'MEDIAWIKI' ) )
 
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'Sitemap',
-    'author' => 'Travis <travis@wikihow.com>',
+    'author' => 'wikiHow',
     'description' => 'Generates a page of links to the top level categories and their subcatgories',
 );
 

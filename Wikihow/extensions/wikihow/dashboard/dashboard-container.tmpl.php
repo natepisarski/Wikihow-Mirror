@@ -34,7 +34,7 @@ WH.dashboard.appShortCodes = <?= json_encode($appShortCodes) ?>;
 				</div>
 			<?php else: ?>
 				<div class="sandbox" id="comdash-sb-addimages">
-					<?= wfMessage('cd-welcome-cta1', $tipsLink)->text() ?>
+					<?= wfMessage('cd-welcome-cta1')->parseAsBlock() ?>
 				</div>
 			<? endif; ?>
 			<div class="clearall"></div>

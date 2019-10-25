@@ -13,10 +13,9 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 
 $wgExtensionCredits['specialpage'][] = array(
 	'path' => __FILE__,
-	'name' => 'SpecialPage',
-	'url' => 'http://src.wikihow.com',
+	'name' => 'Sherlock',
 	'author' => 'Sam Gussman',
-    'description' => 'controlled for sherlock data collection project.'
+    'description' => 'Sherlock data collection project. Real search ddata is used in aggregate to improve our search results.'
 );
 
 $wgSpecialPages['SherlockController'] = "SherlockController";

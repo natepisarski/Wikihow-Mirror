@@ -16,9 +16,7 @@ $wgExtensionCredits['specialpage'][] = array(
 	'path' => __FILE__,
 	'name' => 'AdminNabAtlasList',
 	'author' => 'wikiHow',
-	'url' => 'http://src.wikihow.com/',
-	'descriptionmsg' => 'adminnabatlaslist-desc',
-	'version' => '0.1',
+	'description' => 'Score new articles automatically, and make the score available in NAB',
 );
 $dir = __DIR__;
 

@@ -107,4 +107,8 @@ class Vanilla extends UnlistedSpecialPage {
 			print WriteJsConnect($user, $this->getRequest()->getValues(), WH_VANILLA_CLIENT_ID, WH_VANILLA_SECRET, $secure);
 		}
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

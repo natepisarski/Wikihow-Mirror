@@ -285,6 +285,7 @@ function rcwLoadUrl(url) {
 	} else {
 		url += '&nabrequest=0';
 	}
+	url += "&anonview=" + (mw.user.isAnon() ? "1" : "0");
 	if (rcExternalPause) return false;
 	var activateWidget = true;
 	if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)){ //test for MSIE x.x;

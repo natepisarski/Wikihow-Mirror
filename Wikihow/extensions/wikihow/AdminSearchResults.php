@@ -4,7 +4,7 @@ if ( !defined('MEDIAWIKI') ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminSearchResults',
-	'author' => 'Reuben Smith',
+	'author' => 'Reuben',
 	'description' => 'Tool for support personnel to lookup wikiHow articles for given queries using Yahoo Boss',
 );
 

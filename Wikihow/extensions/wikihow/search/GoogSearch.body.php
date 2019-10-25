@@ -66,4 +66,7 @@ EOHTML;
 		return;
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
 }

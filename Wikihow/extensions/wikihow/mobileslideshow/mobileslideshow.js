@@ -35,6 +35,10 @@
 					var total = $(this).find('.mwimg').length;
 					$(this).find('.mwimg').each(function (index) {
 
+						//we don't do slideshow for videos, so skip over
+						if($(".video-player", this).length > 0) {
+							return;
+						}
 						var details = $.parseJSON($('.image_details span', this).html());
 
 						// Conditional logic taken from image-swap-js.tmpl.php

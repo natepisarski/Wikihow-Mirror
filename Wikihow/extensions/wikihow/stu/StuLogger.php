@@ -34,11 +34,7 @@ $wgResourceModules['ext.wikihow.stu_inspector'] = [
 $wgExtensionCredits['api'][] = array(
 	'path' => __FILE__,
 	'name' => 'Stu API',
-	'description' => 'An API extension to fetch info for stu',
-	'descriptionmsg' => 'apidataextension-desc',
-	'version' => 1,
-	'author' => 'Reuben',
-	'url' => 'https://www.mediawiki.org/wiki/API:Extensions',
+	'description' => 'An API extension to fetch info for Stu',
 );
 
 $wgAutoloadClasses['ApiStu'] = __DIR__ . '/ApiStu.php';

@@ -515,4 +515,9 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 
 		return $file;
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
+
 }

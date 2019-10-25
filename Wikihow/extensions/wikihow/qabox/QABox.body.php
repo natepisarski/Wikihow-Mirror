@@ -258,4 +258,8 @@ class QABox extends UnlistedSpecialPage {
 			&& !$user->isBlocked()
 			&& $user->hasGroup('staff');
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

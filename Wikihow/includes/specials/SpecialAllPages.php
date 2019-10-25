@@ -384,4 +384,5 @@ class SpecialAllPages extends IncludableSpecialPage {
 	protected function getGroupName() {
 		return 'pages';
 	}
+
 }

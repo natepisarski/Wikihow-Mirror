@@ -31,7 +31,11 @@ class RCWidget extends UnlistedSpecialPage {
 		return self::$mBots;
 	}
 
-	private static function filterLog(&$widget, &$count, $row) {
+	private static function isIP($user) {
+		return preg_match('/\d+\.\d+\.\d+\.\d+/', $user);
+	}
+
+	private static function filterLog(&$widget, &$count, $row, $anonViewer) {
 
 		$bots = self::getBotIDs();
 		if (in_array($row->log_user, $bots)) {
@@ -41,7 +45,7 @@ class RCWidget extends UnlistedSpecialPage {
 		$obj = array();
 		$real_user = $row->log_user_text;
 
-		if (preg_match('/\d+\.\d+\.\d+\.\d+/',$real_user)){
+		if ( self::isIP($real_user) ) {
 			$wuser = wfMessage('rcwidget_anonymous_visitor')->text();
 			$wuserLink = '/wikiHow:Anonymous';
 		} else {
@@ -49,40 +53,57 @@ class RCWidget extends UnlistedSpecialPage {
 			$wuserLink = '/User:'.$real_user;
 		}
 
-		if (preg_match('/\d+\.\d+\.\d+\.\d+/',$row->log_title)){
+		if ( self::isIP($row->log_title) ) {
 			$destUser = wfMessage('rcwidget_anonymous_visitor')->text();
 			$destUserLink = '/User:'.$row->log_title;
 		} else {
 			$destUser = $row->log_title;
+			$destUser = preg_replace('/-/',' ',$destUser);
 			$destUserLink = '/'.$row->log_title;
 		}
 
 		switch ($row->log_type) {
 			case 'patrol':
 
-			//don't show patrolled user page edits so the widget isn't clogged by bots making users (Anna request)
-			if ($row->log_namespace == NS_USER) return;
+				//don't show patrolled user page edits so the widget isn't clogged by bots making users (Anna request)
+				if ($row->log_namespace == NS_USER) return;
 
-			$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-			if ($row->log_namespace == NS_USER) {
+				if (!$anonViewer) {
+					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+				} else {
+					$userLink = $wuser;
+				}
+				if ($row->log_namespace == NS_USER) {
 					$obj['type'] = 'patrol';
 					$obj['ts'] = Misc::getDTDifferenceString($row->log_timestamp);
-					$resourceLink = '<a href="/User:'.$row->log_title.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$resourceLink = '<a href="/User:'.$row->log_title.'">'.$destUser.'</a>';
+					} else {
+						$resourceLink = $destUser;
+					}
 					$obj['text'] = wfMessage('action_patrolled', $userLink, $resourceLink)->text();
 				} elseif ($row->log_namespace == NS_USER_TALK) {
 					$obj['type'] = 'patrol';
 					$obj['ts'] = Misc::getDTDifferenceString($row->log_timestamp);
-					$resourceLink = '<a href="/User_talk:'.$row->log_title.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$resourceLink = '<a href="/User_talk:'.$row->log_title.'">'.$destUser.'</a>';
+					} else {
+						$resourceLink = $destUser;
+					}
 					$obj['text'] = wfMessage('action_patrolled', $userLink, $resourceLink)->text();
 				} elseif ($row->log_namespace == NS_TALK) {
 					$obj['type'] = 'patrol';
 					$obj['ts'] = Misc::getDTDifferenceString($row->log_timestamp);
-					$resourceLink = '<a href="/Discussion:'.$row->log_title.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$resourceLink = '<a href="/Discussion:'.$row->log_title.'">'.$destUser.'</a>';
+					} else {
+						$resourceLink = $destUser;
+					}
 					$obj['text'] = wfMessage('action_patrolled', $userLink, $resourceLink)->text();
 				} elseif ($row->log_namespace == NS_MAIN) {
 					$obj['type'] = 'patrol';
 					$obj['ts'] = Misc::getDTDifferenceString($row->log_timestamp);
-					$resourceLink = '<a href="/'.urlencode($row->log_title).'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					$resourceLink = '<a href="/'.urlencode($row->log_title).'">'.$destUser.'</a>';
 					$obj['text'] = wfMessage('action_patrolled', $userLink, $resourceLink)->text();
 				}
 				self::addRCElement($widget, $count, $obj);
@@ -90,7 +111,11 @@ class RCWidget extends UnlistedSpecialPage {
 			case 'nap':
 				$obj['type'] = 'nab';
 				$obj['ts'] = Misc::getDTDifferenceString($row->log_timestamp);
-				$userLink  = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+				if (!$anonViewer) {
+					$userLink  = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+				} else {
+					$userLink  = $wuser;
+				}
 				$resourceLink = '<a href="/'.$row->log_title.'">'.preg_replace('/-/',' ',$row->log_title).'</a>';
 				$obj['text'] = wfMessage('action_boost', $userLink, $resourceLink)->text();
 				self::addRCElement($widget, $count, $obj);
@@ -99,11 +124,17 @@ class RCWidget extends UnlistedSpecialPage {
 				if ( ($row->log_action == 'upload') && ($row->log_namespace == 6)) {
 					$obj['type'] = 'image';
 					$obj['ts'] = Misc::getDTDifferenceString($row->log_timestamp);
-					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
 					if (strlen($row->log_title) > 25) {
-						$resourceLink = '<a href="/Image:'.$row->log_title.'">'.substr($row->log_title,0,25).'...</a>';
+						$displayTitle = substr($row->log_title,0,25) . '...';
 					} else {
-						$resourceLink = '<a href="/Image:'.$row->log_title.'">'.$row->log_title.'</a>';
+						$displayTitle = $row->log_title;
+					}
+					if (!$anonViewer) {
+						$resourceLink = '<a href="/Image:'.$row->log_title.'">'.$displayTitle.'</a>';
+						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+					} else {
+						$resourceLink = $displayTitle;
+						$userLink = $wuser;
 					}
 					$obj['text'] = wfMessage('action_image', $userLink, $resourceLink)->text();
 					self::addRCElement($widget, $count, $obj);
@@ -113,7 +144,11 @@ class RCWidget extends UnlistedSpecialPage {
 				if ( ($row->log_action == 'added') && ($row->log_namespace == 0)) {
 					$obj['type'] = 'video';
 					$obj['ts'] = Misc::getDTDifferenceString($row->log_timestamp);
-					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+					if (!$anonViewer) {
+						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+					} else {
+						$userLink = $wuser;
+					}
 					$resourceLink = '<a href="/'.$row->log_title.'">'.preg_replace('/-/',' ',$row->log_title).'</a>';
 					$obj['text'] = wfMessage('action_addedvideo', $userLink, $resourceLink)->text();
 					self::addRCElement($widget, $count, $obj);
@@ -122,14 +157,14 @@ class RCWidget extends UnlistedSpecialPage {
 		}
 	}
 
-	private static function filterRC(&$widget, &$count, $row) {
+	private static function filterRC(&$widget, &$count, $row, $anonViewer) {
 		$bots = self::getBotIDs();
 		if (isset($row->rc_user) && in_array($row->rc_user, $bots)) {
 			return;
 		}
 
 		$obj = array();
-		if (preg_match('/\d+\.\d+\.\d+\.\d+/',$row->rc_user_text)){
+		if ( self::isIP($row->rc_user_text) ) {
 			$wuser = wfMessage('rcwidget_anonymous_visitor')->text();;
 			$wuserLink = '/wikiHow:Anonymous';
 		} else {
@@ -137,11 +172,12 @@ class RCWidget extends UnlistedSpecialPage {
 			$wuserLink = '/User:'.$row->rc_user_text;
 		}
 
-		if (preg_match('/\d+\.\d+\.\d+\.\d+/',$row->rc_title)){
+		if ( self::isIP($row->rc_title) ) {
 			$destUser = wfMessage('rcwidget_anonymous_visitor')->text();;
 			$destUserLink = '/User:'.$row->rc_title;
 		} else {
 			$destUser = $row->rc_title;
+			$destUser = preg_replace('/-/',' ',$destUser);
 			$destUserLink = '/'.$row->rc_title;
 		}
 
@@ -150,15 +186,23 @@ class RCWidget extends UnlistedSpecialPage {
 				if (preg_match('/^New page:/',$row->rc_comment)) {
 					$obj['type'] = 'newpage';
 					$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-					$resourceLink = '<a href="'.$destUserLink.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+					} else {
+						$userLink = $wuser;
+					}
+					$resourceLink = '<a href="'.$destUserLink.'">'.$destUser.'</a>';
 					$obj['text'] = wfMessage('action_newpage', $userLink, $resourceLink)->text();
 					self::addRCElement($widget, $count, $obj);
 				} elseif (preg_match('/^categorization/',$row->rc_comment)) {
 					$obj['type'] = 'categorized';
 					$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-					$resourceLink = '<a href="'.$destUserLink.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+					} else {
+						$userLink = $wuser;
+					}
+					$resourceLink = '<a href="'.$destUserLink.'">'.$destUser.'</a>';
 					$obj['text'] = wfMessage('action_categorized', $userLink, $resourceLink)->text();;
 					self::addRCElement($widget, $count, $obj);
 				} elseif ( (preg_match('/^\/* Steps *\//',$row->rc_comment)) ||
@@ -170,8 +214,12 @@ class RCWidget extends UnlistedSpecialPage {
 								(preg_match('/^Quick edit/',$row->rc_comment)) ) {
 					$obj['type'] = 'edit';
 					$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-					$resourceLink = '<a href="'.$destUserLink.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+					} else {
+						$userLink = $wuser;
+					}
+					$resourceLink = '<a href="'.$destUserLink.'">'.$destUser.'</a>';
 					if (!isset($obj['text'])) $obj['text'] = '';
 					$obj['text'] .= wfMessage('action_edit', $userLink, $resourceLink)->text();
 					self::addRCElement($widget, $count, $obj);
@@ -182,14 +230,24 @@ class RCWidget extends UnlistedSpecialPage {
 					if (preg_match('/^Marking new article as a Rising Star from From/',$row->rc_comment)) {
 						$obj['type'] = 'risingstar';
 						$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-						$userLink= '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-						$resourceLink = '<a href="'.$destUserLink.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+						if (!$anonViewer) {
+							$userLink= '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+							$resourceLink = '<a href="'.$destUserLink.'">'.$destUser.'</a>';
+						} else {
+							$userLink = $wuser;
+							$resourceLink = $destUser;
+						}
 						$obj['text'] = wfMessage('action_risingstar', $userLink, $resourceLink)->text();
 					} elseif ($row->rc_comment == '') {
 						$obj['type'] = 'discussion';
 						$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-						$resourceLink = '<a href="/Discussion:'.$row->rc_title.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+						if (!$anonViewer) {
+							$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+							$resourceLink = '<a href="/Discussion:'.$row->rc_title.'">'.$destUser.'</a>';
+						} else {
+							$userLink = $wuser;
+							$resourceLink = $destUser;
+						}
 						$obj['text'] = wfMessage('action_discussion', $userLink, $resourceLink)->text();
 					}
 					self::addRCElement($widget, $count, $obj);
@@ -199,8 +257,13 @@ class RCWidget extends UnlistedSpecialPage {
 				if (!preg_match('/^Revert/',$row->rc_comment)) {
 					$obj['type'] = 'usertalk';
 					$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-					$resourceLink = '<a href="/User_talk:'.$row->rc_title.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+						$resourceLink = '<a href="/User_talk:'.$row->rc_title.'">'.$destUser.'</a>';
+					} else {
+						$userLink = $wuser;
+						$resourceLink = $destUser;
+					}
 					$obj['text'] = wfMessage('action_usertalk', $userLink, $resourceLink)->text();
 					self::addRCElement($widget, $count, $obj);
 				}
@@ -208,8 +271,13 @@ class RCWidget extends UnlistedSpecialPage {
 			case NS_USER_KUDOS: //KUDOS
 				$obj['type'] = 'kudos';
 				$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-				$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-				$resourceLink = '<a href="/User_kudos:'.$row->rc_title.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+				if (!$anonViewer) {
+					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+					$resourceLink = '<a href="/User_kudos:'.$row->rc_title.'">'.$destUser.'</a>';
+				} else {
+					$userLink = $wuser;
+					$resourceLink = $destUser;
+				}
 				$obj['text'] = wfMessage('action_fanmail', $userLink, $resourceLink)->text();
 				self::addRCElement($widget, $count, $obj);
 				break;
@@ -218,8 +286,13 @@ class RCWidget extends UnlistedSpecialPage {
 				if (preg_match('/^adding video/',$row->rc_comment)) {
 					$obj['type'] = 'video';
 					$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-					$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
-					$resourceLink = '<a href="'.$destUserLink.'">'.preg_replace('/-/',' ',$destUser).'</a>';
+					if (!$anonViewer) {
+						$userLink = '<a href="'.$wuserLink.'">'.$wuser.'</a>';
+						$resourceLink = '<a href="'.$destUserLink.'">'.$destUser.'</a>';
+					} else {
+						$userLink = $wuser;
+						$resourceLink = $destUser;
+					}
 					$obj['text'] = wfMessage('action_addedvideo', $userLink, $resourceLink)->text();
 					self::addRCElement($widget, $count, $obj);
 				}
@@ -228,7 +301,11 @@ class RCWidget extends UnlistedSpecialPage {
 				if (preg_match('/^New user/',$row->rc_comment)) {
 					$obj['type'] = 'newuser';
 					$obj['ts'] = Misc::getDTDifferenceString($row->rc_timestamp);
-					$userLink = '<a href="/User:'.$row->rc_user_text.'">'.$wuser.'</a>';
+					if (!$anonViewer) {
+						$userLink = '<a href="/User:'.$row->rc_user_text.'">'.$wuser.'</a>';
+					} else {
+						$userLink = $wuser;
+					}
 					$obj['text'] = wfMessage('action_newuser', $userLink)->text();
 					self::addRCElement($widget, $count, $obj);
 				}
@@ -241,6 +318,7 @@ class RCWidget extends UnlistedSpecialPage {
 	public static function getWidgetHtml() {
 		$user = RequestContext::getMain()->getUser();
 		$isNewArticlePatrol = NewArticleBoost::isNewArticlePatrol( $user );
+		$isAnon = $user->isAnon();
 		$nabHeader = '';
 		if ( $isNewArticlePatrol ) {
 			$articlesToBoost = wfMessage('articles_to_boost')->text();
@@ -255,16 +333,22 @@ HTML;
 		}
 
 		$rcHelp = wfMessage('rc_help')->text();
-		$patrolArticle = wfMessage('rcchange-patrol-article')->text();
+		if (!$isAnon) {
+			$patrolArticleLink = '/' . wfMessage('rcchange-patrol-article')->text();
+		} else {
+			$patrolArticleLink = '#';
+		}
 		$changesToPatrol = wfMessage('changes_to_patrol')->text();
+		$attrsLink1 = !$isAnon ? ' onclick="location=\'/index.php?title=Special:RecentChanges&hidepatrolled=1\';" style="cursor:pointer;"' : '';
+		$attrsLink2 = !$isAnon ? ' onclick="location=\'/Special:RecentChanges\';" style="cursor:pointer;"' : '';
 		$html = <<<HTML
 <div id='rcwidget_divid'>
-	<a class="rc_help rcw-help-icon" title="{$rcHelp}" href="/{$patrolArticle}"></a>
+	<a class="rc_help rcw-help-icon" title="{$rcHelp}" href="{$patrolArticleLink}"></a>
 	<h3>
-		<span class="weather" id="rcwweather" onclick="location='/index.php?title=Special:RecentChanges&hidepatrolled=1';" style="cursor:pointer;">
+		<span class="weather" id="rcwweather" $attrsLink1>
 			<span class='weather_unpatrolled'></span>
 		</span>
-		<span onclick="location='/Special:RecentChanges';" style="cursor:pointer;">{$changesToPatrol}</span>
+		<span $attrsLink2>{$changesToPatrol}</span>
 	</h3>
 	{$nabHeader}
 	<div id='rcElement_list' class='widgetbox'>
@@ -334,8 +418,9 @@ HTML;
 
 		// Enforce that this value is an int
 		$userId = $req->getInt('userId');
+		$anonViewer = $req->getBool('anonview');
 
-		$data = self::pullData($userId);
+		$data = self::pullData($userId, $anonViewer);
 
 		// if we also wand nabdata then add it here
 		if ( $req->getBool( 'nabrequest' ) === true ) {
@@ -412,11 +497,11 @@ HTML;
 		return $nabCount;
 	}
 
-	public static function pullData(int $user = 0) {
+	public static function pullData(int $user = 0, bool $anonViewer = false) {
 		global $wgMemc;
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$cachekey = wfMemcKey('rcwidget', $user);
+		$cachekey = wfMemcKey('rcwidget', $user, (int)$anonViewer);
 
 		// for logged in users whose requests bypass varnish, this data is
 		// cached for $cacheSecs
@@ -455,10 +540,10 @@ HTML;
 
 
 		if ($user == 0) {
-			$widget = self::processDataRCWidget($logsql, $sql, $currenttime);
+			$widget = self::processDataRCWidget($logsql, $sql, $currenttime, $anonViewer);
 		}
 		else {
-			$widget = self::processDataUserActivity($logsql, $sql, $currenttime);
+			$widget = self::processDataUserActivity($logsql, $sql, $currenttime, $anonViewer);
 		}
 
 		$wgMemc->set($cachekey, $widget, $cacheSecs);
@@ -466,7 +551,7 @@ HTML;
 		return $widget;
 	}
 
-	private function processDataUserActivity($logsql, $sql, $currenttime) {
+	private function processDataUserActivity($logsql, $sql, $currenttime, $anonViewer) {
 		$dbr = wfGetDB(DB_REPLICA);
 
 		$sql = $dbr->limitResult($sql, 200, 0);
@@ -488,12 +573,12 @@ HTML;
 			if ($rr && $rl) {
 				if ($rl->log_timestamp > $rr->rc_timestamp) {
 					if ($rl->log_action != 'patrol') {
-						self::filterLog($widget, $count, $rl);
+						self::filterLog($widget, $count, $rl, $anonViewer);
 					} elseif ($rl->log_action == 'patrol') {
 						if ($patrol_prevUser != $rl->log_user
 							|| $patrol_prevTitle != $rl->log_title)
 						{
-							self::filterLog($widget, $count, $rl);
+							self::filterLog($widget, $count, $rl, $anonViewer);
 						}
 						$patrol_prevUser = $rl->log_user;
 						$patrol_prevTitle = $rl->log_title;
@@ -501,27 +586,27 @@ HTML;
 					$rl = $logres->fetchObject();
 				} else {
 					if ($rr->rc_namespace != NS_USER_KUDOS) {
-						self::filterRC($widget, $count, $rr);
+						self::filterRC($widget, $count, $rr, $anonViewer);
 					} elseif ($rr->rc_namespace == NS_USER_KUDOS) {
-						self::filterRC($widget, $count, $rr);
+						self::filterRC($widget, $count, $rr, $anonViewer);
 					}
 					$rr = $res->fetchObject();
 				}
 			} elseif ($rr) {
 				if ($rr->rc_namespace != NS_USER_KUDOS) {
-					self::filterRC($widget, $count, $rr);
+					self::filterRC($widget, $count, $rr, $anonViewer);
 				} elseif ($rr->rc_namespace == NS_USER_KUDOS) {
-					self::filterRC($widget, $count, $rr);
+					self::filterRC($widget, $count, $rr, $anonViewer);
 				}
 				$rr = $res->fetchObject() ;
 			} elseif ($rl) {
 				if ($rl->log_action != 'patrol') {
-					self::filterLog($widget, $count, $rl);
+					self::filterLog($widget, $count, $rl, $anonViewer);
 				} elseif ($rl->log_action == 'patrol') {
 					if ($patrol_prevUser != $rl->log_user
 						|| $patrol_prevTitle != $rl->log_title)
 					{
-						self::filterLog($widget, $count, $rl);
+						self::filterLog($widget, $count, $rl, $anonViewer);
 					}
 					$patrol_prevUser = $rl->log_user;
 					$patrol_prevTitle = $rl->log_title;
@@ -544,7 +629,7 @@ HTML;
 		return $widget;
 	}
 
-	private function processDataRCWidget($logsql, $sql, $currenttime) {
+	private function processDataRCWidget($logsql, $sql, $currenttime, $anonViewer) {
 		$dbr = wfGetDB(DB_REPLICA);
 
 		$sql = $dbr->limitResult($sql, 200, 0);
@@ -570,14 +655,14 @@ HTML;
 			if ($rr && $rl) {
 				if ($rl->log_timestamp > $rr->rc_timestamp) {
 					if ($rl->log_action != 'patrol') {
-						self::filterLog($widget, $count, $rl);
+						self::filterLog($widget, $count, $rl, $anonViewer);
 					} elseif ($rl->log_action == 'patrol'
 						&& $patrol_count < $patrol_limit)
 					{
 						if ($patrol_prevUser != $rl->log_user
 							|| $patrol_prevTitle != $rl->log_title)
 						{
-							self::filterLog($widget, $count, $rl);
+							self::filterLog($widget, $count, $rl, $anonViewer);
 						}
 						$patrol_prevUser = $rl->log_user;
 						$patrol_prevTitle = $rl->log_title;
@@ -586,35 +671,35 @@ HTML;
 					$rl = $logres->fetchObject();
 				} else {
 					if ($rr->rc_namespace != NS_USER_KUDOS) {
-						self::filterRC($widget, $count, $rr);
+						self::filterRC($widget, $count, $rr, $anonViewer);
 					} elseif ($rr->rc_namespace == NS_USER_KUDOS
 						&& $kudos_count < $kudos_limit)
 					{
-						self::filterRC($widget, $count, $rr);
+						self::filterRC($widget, $count, $rr, $anonViewer);
 						$kudos_count++;
 					}
 					$rr = $res->fetchObject();
 				}
 			} elseif ($rr) {
 				if ($rr->rc_namespace != NS_USER_KUDOS) {
-					self::filterRC($widget, $count, $rr);
+					self::filterRC($widget, $count, $rr, $anonViewer);
 				} elseif ($rr->rc_namespace == NS_USER_KUDOS
 					&& $kudos_count < $kudos_limit)
 				{
-					self::filterRC($widget, $count, $rr);
+					self::filterRC($widget, $count, $rr, $anonViewer);
 					$kudos_count++;
 				}
 				$rr = $res->fetchObject();
 			} elseif ($rl) {
 				if ($rl->log_action != 'patrol') {
-					self::filterLog($widget, $count, $rl);
+					self::filterLog($widget, $count, $rl, $anonViewer);
 				} elseif ($rl->log_action == 'patrol'
 					&& $patrol_count < $patrol_limit)
 				{
 					if ($patrol_prevUser != $rl->log_user
 						|| $patrol_prevTitle != $rl->log_title)
 					{
-						self::filterLog($widget, $count, $rl);
+						self::filterLog($widget, $count, $rl, $anonViewer);
 					}
 					$patrol_prevUser = $rl->log_user;
 					$patrol_prevTitle = $rl->log_title;

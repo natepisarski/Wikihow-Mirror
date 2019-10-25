@@ -571,4 +571,8 @@ class EditFinder extends UnlistedSpecialPage {
 		$standings->addStandingsWidget();
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
+
 }

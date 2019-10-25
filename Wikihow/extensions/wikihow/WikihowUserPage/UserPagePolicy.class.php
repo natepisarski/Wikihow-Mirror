@@ -81,5 +81,11 @@ class UserPagePolicy {
 		return false;
 	}
 
+	/**
+	 * List of the user's whose User_talk pages are visible to all anons.
+	 */
+	public static function listUserTalkAnonVisible() : array {
+		// This list could be a static var + admin tag if better configuration is needed
+		return ['Chris-H', 'JackHerrick', 'JayneG'];
+	}
 }
-

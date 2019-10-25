@@ -2,7 +2,7 @@
 
 class CoauthorSheetMaster extends CoauthorSheet {
 	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1wShwD5Loui45MOK7fSXd7LbMIOBbQ0w-otbL0V71iaQ';
+	const SHEET_ID_DEV = '1YOUprSw_GvTZs1Wys-9X4R98t-i4Vgn1jjVV0kLEpQA';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 

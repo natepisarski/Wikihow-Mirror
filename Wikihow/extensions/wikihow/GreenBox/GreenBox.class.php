@@ -79,6 +79,7 @@ class GreenBox {
 			'green_box_tab_label' => wfMessage('green_box_tab_label')->text(),
 			'content' => self::formatBoxContents($parser, $wikitext),
 			'content_2' => self::formatBoxContents($parser, $wikitext_2),
+			'expert_header' => wfMessage('green_box_expert_header')->text(),
 			'expert_display' => self::expertDisplayHtml($expert_data),
 			'expert_label' => $expert_label,
 			'expert_dialog_text' => $showBlurb ? self::expertDialogText($expert_data) : '',

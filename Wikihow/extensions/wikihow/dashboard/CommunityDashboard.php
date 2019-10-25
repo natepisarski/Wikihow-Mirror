@@ -19,7 +19,6 @@ $wgExtensionCredits['special'][] = array(
 	'name' => 'CommunityDashboard',
 	'author' => 'Bebeth Steudel and Reuben Smith',
 	'description' => 'Shows the status of a bunch of different aspects of the wikiHow site',
-	'url' => 'https://www.wikihow.com/WikiHow:CommunityDashboard-Extension',
 );
 
 $wgSpecialPages['CommunityDashboard'] = 'CommunityDashboard';

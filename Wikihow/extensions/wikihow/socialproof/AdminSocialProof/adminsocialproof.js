@@ -1,124 +1,116 @@
-( function ( mw, $ ) {
-	WH.adminsocialproof = (function() {
-		var toolUrl = '/Special:AdminSocialProof';
-		var disabled = true;
+(function( window, document, $) {
+	'use strict';
 
-		function enableInputs() {
-			disabled = false;
-			$('#spa_import').css("cursor", "pointer");
-			$('#spa_import').css("background-color", "#97ba78");
+	function enableUI() {
+		$('#spa_import').show();
+		$('#spa_in_progress').hide();
+		$('#spa_details_container').show();
+	}
+
+	function disableUI() {
+		$('#spa_import').hide();
+		$('#spa_in_progress').show();
+		$('#spa_details_container').hide();
+	}
+
+	function makeUL(array) {
+		if (!array) {
+			return "";
+		}
+		var list = document.createElement('ul');
+		for (var i = 0; i < array.length; i++) {
+			var item = document.createElement('li');
+			var line = array[i];
+			item.innerHTML = line;
+			list.appendChild(item);
 		}
 
-		function resetImportButton () {
-			$('#spa_import').css("cursor", "default");
-			$('#spa_import').css("background-color", "#83a168");
+		return list;
+	}
+
+	function importResult(result) {
+
+		if ( result['is_running'] ) {
+			disableUI();
+			setTimeout(function() { pollForResults() }, 5000);
+			return;
 		}
 
-		function makeUL(array) {
-			if (!array) {
-				return "";
-			}
-			var list = document.createElement('ul');
-			for (var i = 0; i < array.length; i++) {
-				var item = document.createElement('li');
-				var line = array[i];
-				item.innerHTML = line;
-				list.appendChild(item);
-			}
+		$('#spa_last_run_result').html(result['last_run_result'] || '');
+		$('#spa_last_run_start').html(result['last_run_start'] || '');
 
-			return list;
+		if (result['errors'] && result['errors'].length) {
+			$('#spa_error_container').show();
+			$('#spa_errors').html(makeUL(result['errors']));
+		} else {
+			$('#spa_error_container').hide();
 		}
 
-		function importResult(result) {
-			if (result['is_running'] == 1) {
-				$('#loader_container').show();
-				$('#import_button_text').hide();
-
-				resetImportButton();
-
-				$('#spa_last_run_result').html('In progress...');
-				$('#spa_last_run_start').html(result['last_run_start'] || '');
-
-				$('#spa_details_container').hide();
-
-				setTimeout(function() {
-					pollForResults()
-				}, 2000);
-
-				return;
-			}
-
-			$('#loader_container').hide();
-			$('#import_button_text').show();
-
-			$('#spa_last_run_result').html(result['last_run_result'] || '');
-			$('#spa_last_run_start').html(result['last_run_start'] || '');
-
-			if (result['errors'].length) {
-				$('#spa_error_container').show();
-				$('#spa_errors').html(makeUL(result['errors']));
-			} else {
-				$('#spa_error_container').hide();
-			}
-
-			if (result['warnings'].length) {
-				$('#spa_warn_container').show();
-				$('#spa_warnings').html(makeUL(result['warnings']));
-			} else {
-				$('#spa_warn_container').hide();
-			}
-
-			if (result['stats'].length) {
-				$('#spa_stats_container').show();
-				$('#spa_stats').html(result['stats'] || '');
-			} else {
-				$('#spa_stats_container').hide();
-			}
-
-
-			$('#spa_details_container').show();
-
-			enableInputs();
+		if (result['warnings'] && result['warnings'].length) {
+			$('#spa_warn_container').show();
+			$('#spa_warnings').html(makeUL(result['warnings']));
+		} else {
+			$('#spa_warn_container').hide();
 		}
 
-		function pollForResults() {
-			$.get(toolUrl, {action:'poll'},  function (result) {
-				importResult(result);
-			}, "json");
+		if (result['stats'] && result['stats'].length) {
+			$('#spa_stats_container').show();
+			$('#spa_stats').html(result['stats'] || '');
+		} else {
+			$('#spa_stats_container').hide();
 		}
 
-		function setupClickHandling() {
-			$(document).on('click', '#spa_import', function (e) {
-				e.preventDefault();
-				if (disabled == true) {
-					return;
-				}
+		$('#spa_details_container').show();
+		enableUI();
+	}
 
-				$(".spa_working").show();
-				resetImportButton();
+	function pollForResults() {
+		var res;
+		$.ajax({
+			url: '/Special:AdminSocialProof',
+			type: 'POST',
+			data: { action: 'poll' }
+		})
+		.done(function(data, textStatus, jqXHR) {
+			res = data;
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			res = JSON.parse(jqXHR.responseText);
+		})
+		.always(function() {
+			importResult(res);
+			$('#spa_wrap').show();
+		});
 
-				var data = { 'action':'import' };
-				$.post(toolUrl, data, function (result) {
-					pollForResults();
-				}, "json").fail( function(xhr, textStatus, errorThrown) {
-					enableInputs();
-				});
-				return false;
-			});
-		}
+	}
 
-		return {
-			init : function() {
+	function setupClickHandling() {
+		$(document).on('click', '#spa_import', function (e) {
+			e.preventDefault();
+			disableUI();
+
+			var res;
+			$.ajax({
+				url: '/Special:AdminSocialProof',
+				type: 'POST',
+				data: { action: 'import' }
+			})
+			.done(function(data, textStatus, jqXHR) {
+				res = data;
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				res = JSON.parse(jqXHR.responseText);
+			})
+			.always(function() {
+				importResult(res);
 				$('#spa_wrap').show();
-				setupClickHandling();
-				pollForResults();
-			},
-		};
-	}());
+			});
+		});
+	}
 
-	$( function() {
-		WH.adminsocialproof.init();
+	$(document).ready(function() {
+		pollForResults();
+		setupClickHandling();
 	});
 
-}( mediaWiki, jQuery ) );
-
+}(window, document, jQuery));

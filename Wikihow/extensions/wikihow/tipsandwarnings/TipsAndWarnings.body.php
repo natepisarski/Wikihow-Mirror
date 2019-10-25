@@ -36,9 +36,7 @@ class TipsAndWarnings extends UnlistedSpecialPage {
 		}
 
 		$llr = new NewTipsAndWarnings();
-    	$llr->getList();
-		return;
-
+		$llr->getList();
 	}
 
 	private function addTip($articleId, $tip) {
@@ -146,10 +144,13 @@ class TipsAndWarnings extends UnlistedSpecialPage {
 	function getSQL() {
 		return "SELECT *, rc_timestamp as value from recentchanges WHERE rc_comment = '" . TipsAndWarnings::EDIT_COMMENT . "'";
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }
 
 class NewTipsAndWarnings extends QueryPage {
-
 	function __construct() {
 		parent::__construct('TipsAndWarnings');
 	}

@@ -28,5 +28,6 @@
 	"green_box_questioner": "Q",
 	"green_box_tab_label": "Expert Answer",
 	"green_box_article_edit_expert": "Expertgreenbox templates can only be modified by certain users. If you spot something that needs changing, please contact the [[wikiHow_talk:Help|Help Team]].",
-	"green_box_quick_edit_expert": "Note: Only certain users can change \"expertgreenbox\" templates. If your edits affect that template, they won't be saved."
+	"green_box_quick_edit_expert": "Note: Only certain users can change \"expertgreenbox\" templates. If your edits affect that template, they won't be saved.",
+	"green_box_expert_header": "EXPERT TIP"
 }

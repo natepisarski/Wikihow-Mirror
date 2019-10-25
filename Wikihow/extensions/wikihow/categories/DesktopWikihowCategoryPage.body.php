@@ -157,7 +157,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 				$pageIds = TopCategoryData::getPagesForCategory($categoryTitle->getDBkey(), TopCategoryData::HIGHTRAFFIC, ($articlesPerPage - count($allArticles)));
 				foreach ($pageIds as $pageId) {
 					$addedTitle = Title::newFromID($pageId);
-					if ($addedTitle) {
+					if ($addedTitle && RobotPolicy::isIndexable($addedTitle)) {
 						$info = $this->getArticleThumbWithPathFromTitle($addedTitle);
 						if ($info) {
 							$allArticles[] = $info;

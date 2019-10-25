@@ -4,7 +4,7 @@ if ( !defined('MEDIAWIKI') ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminRemoveAvatar',
-	'author' => 'Reuben Smith',
+	'author' => 'Reuben',
 	'description' => 'Tool for support personnel to remove a user\'s avatar file',
 );
 

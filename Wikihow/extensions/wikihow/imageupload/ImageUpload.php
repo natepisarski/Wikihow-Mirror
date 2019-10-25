@@ -3,23 +3,10 @@
 if ( ! defined( 'MEDIAWIKI' ) )
 	die();
 
-/**#@+
- * An extension that allows users to upload an image while on the edit page
- * without leaving that page.
- *
- * @package MediaWiki
- * @subpackage Extensions
- *
- * @link http://www.wikihow.com/WikiHow:ImageUpload-Extension Documentation
- * @author Reuben Smith <reuben@wikihow.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
- */
-
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'Image Upload',
 	'author' => 'wikiHow',
 	'description' => 'Provides an easy way of uploading and adding images to articles',
-	'url' => 'http://www.wikihow.com/WikiHow:ImageUpload-Extension',
 );
 
 $wgSpecialPages['ImageUploader'] = 'ImageUploader';

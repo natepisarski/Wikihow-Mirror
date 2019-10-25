@@ -447,8 +447,4 @@ class SpecialMobileDiff extends MobileSpecialPage {
 		return wfAppendQuery( wfScript(), $params );
 	}
 
-	public function isMobileCapable() {
-		return true;
-	}
-
 }

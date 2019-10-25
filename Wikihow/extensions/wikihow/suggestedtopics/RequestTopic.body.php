@@ -78,7 +78,11 @@ class RequestTopic extends SpecialPage {
 			}
 			$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 			$out->addModules(['ext.wikihow.SuggestedTopics']);
-			$vars = [ 'title' => $title->getText(), 'url' => $title->getFullURL() ];
+			$vars = [
+				'title' => $title->getText(),
+				'url' => $title->getFullURL(),
+				'user_loggedin' => !$user->isAnon(),
+			];
 			$html = $mustacheEngine->render('request_topic_confirmation.mustache', $vars);
 			$out->addHTML($html);
 			return;
@@ -107,6 +111,7 @@ class RequestTopic extends SpecialPage {
 			'cats' => self::getCategoryOptions(),
 			'catpcha_form' => $captchaHtml,
 			'user_email' => $user->getEmail(),
+			'user_loggedin' => !$user->isAnon(),
 			'msg' => [
 				'captcha_error' => $passCaptcha ? '' : wfMessage('suggest_captcha_failed')->text(),
 				'subheader' => wfMessage('request_topic_subheader')->text(),
@@ -141,6 +146,10 @@ class RequestTopic extends SpecialPage {
 			$opts[] = [ 'value' => $val, 'text' => $line ];
 		}
 		return $opts;
+	}
+
+	public function isAnonAvailable() {
+		return true;
 	}
 
 }

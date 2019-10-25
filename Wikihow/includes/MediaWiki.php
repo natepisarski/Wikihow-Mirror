@@ -305,6 +305,10 @@ class MediaWiki {
 			if ( $title->isSpecialPage() ) {
 				// Actions that need to be made when we have a special pages
 				$spFactory->executePath( $title, $this->context );
+			} elseif ( !$title->canExist() ) {
+				// avoids an exception, and outputs a 404 response code
+				http_response_code(404);
+				die('Invalid URL: article cannot exist');
 			} else {
 				// ...otherwise treat it as an article view. The article
 				// may still be a wikipage redirect to another article or URL.

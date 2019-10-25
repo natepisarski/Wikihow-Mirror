@@ -223,4 +223,8 @@ class ProposedRedirects extends SpecialPage {
 		self::deleteProposedRedirect($from->getDBKey(), $to->getDBKey(), $deleteAllFrom);
 		return true;
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

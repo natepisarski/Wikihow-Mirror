@@ -548,6 +548,10 @@ class AnswerQuestions extends UnlistedSpecialPage {
 
 		return $this->userCategory;
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }
  /*******
 CREATE TABLE `answerquestions` (

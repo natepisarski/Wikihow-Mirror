@@ -316,4 +316,8 @@ class CreatePage extends SpecialPage {
 		}
 
 	}
+
+	function isAnonAvailable() {
+		return true;
+	}
 }

@@ -3,9 +3,8 @@ if ( ! defined('MEDIAWIKI') ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'New Article Boost',
-	'author' => 'Travis Derouin',
+	'author' => 'wikiHow',
 	'description' => 'Provides a separate way of boosting new articles',
-	'url' => 'http://www.wikihow.com/WikiHow:NewArticleBoost-Extension',
 );
 
 $wgResourceModules['ext.wikihow.nab'] = array(

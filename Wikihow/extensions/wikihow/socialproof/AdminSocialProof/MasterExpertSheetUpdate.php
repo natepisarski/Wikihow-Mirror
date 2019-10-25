@@ -12,95 +12,33 @@ CREATE TABLE `master_expert_sheet_update` (
 	`mesu_finish_time` datetime NOT NULL
 );
  */
-// this  will update all indexable recipe pages based on latest good revision
 class MasterExpertSheetUpdate implements DeferrableUpdate {
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-	}
+	public function __construct() {}
 
-	/**
-	 * Run the update
-	 */
-	public function doUpdate() {
-		self::doSheetUpdate();
-	}
-
-	public static function getCurrentStatus() {
+	public static function getCurrentStateFromDB(): array {
 		$dbw = wfGetDB( DB_MASTER );
-		$running = $dbw->selectField( 'master_expert_sheet_update', 'mesu_running', array(), __METHOD__ );
-		return $running;
+		$running = $dbw->selectRow( 'master_expert_sheet_update', '*', [], __METHOD__ );
+		return (array)$running;
 	}
 
-	public static function getStats() {
+	public static function prepareUpdate() {
 		$dbw = wfGetDB( DB_MASTER );
-		$result = $dbw->selectField( 'master_expert_sheet_update', 'mesu_stats', array(), __METHOD__ );
-		return $result;
-	}
-
-	public static function getLastRunStart() {
-		$dbw = wfGetDB( DB_MASTER );
-		$time = $dbw->selectField( 'master_expert_sheet_update', 'mesu_start_time', array(), __METHOD__ );
-		if ( !$time ) {
-			return '';
-		}
-		$dateTime = new DateTime($time);
-		$dateTime->setTimezone(new DateTimeZone('America/Los_Angeles'));
-		$result = $dateTime->format("M j \\a\\t H:i (T)");
-		return $result;
-	}
-
-	public static function getLastRunFinish() {
-		$dbw = wfGetDB( DB_MASTER );
-		$time = $dbw->selectField( 'master_expert_sheet_update', 'mesu_finish_time', array(), __METHOD__ );
-		if ( !$time ) {
-			return '';
-		}
-		$dateTime = new DateTime($time);
-		$dateTime->setTimezone(new DateTimeZone('America/Los_Angeles'));
-		$result = $dateTime->format("M j \\a\\t H:i (T)");
-		return $result;
-	}
-
-	public static function checkSheetUpdateTimeout() {
-		$dbw = wfGetDB( DB_MASTER );
-		$time = $dbw->selectField( 'master_expert_sheet_update', 'mesu_start_time', array(), __METHOD__ );
-		$difference = time() - strtotime($time);
-		if ( $difference > 60 * 5 ) {
-			// reset the job since there is an error
-			// should prbably log this somehow to the user?
-			$updateData = array(
-				'mesu_running' => 0,
-			);
-			$dbw->update( 'master_expert_sheet_update', $updateData, array(), __METHOD__ );
-			return true;
-		}
-		return false;
-	}
-
-	public static function doSheetUpdate() {
-		ini_set('memory_limit', '1024M');
-		//set_time_limit(300);
-		$dbw = wfGetDB( DB_MASTER );
-
-		$running = $dbw->selectField( 'master_expert_sheet_update', 'mesu_running', array(), __METHOD__ );
-		if ( $running == null ) {
-			// edge case if there is no data in this table
-			$running = $dbw->insert( 'master_expert_sheet_update', array( 'mesu_running' => 1 ), __METHOD__ );
-		} elseif ( $running == 1 ) {
-			return;
-		}
-
-		$old_user_abort = ignore_user_abort( true );
-		$startDate = gmdate( "Y-m-d H:i:s" );
-		$updateData = array(
+		$updateData = [
 			'mesu_running' => 1,
-			'mesu_start_time' => $startDate,
+			'mesu_stats' => '',
+			'mesu_start_time' => gmdate( 'Y-m-d H:i:s' ),
 			'mesu_finish_time' => ''
-		);
-		$dbw->update( 'master_expert_sheet_update', $updateData, array(), __METHOD__ );
+		];
+		$dbw->update( 'master_expert_sheet_update', $updateData, [], __METHOD__ );
+	}
+
+	public function doUpdate() {
+		ini_set('memory_limit', '1024M');
+		set_time_limit(300);
+		$old_user_abort = ignore_user_abort( true );
+
+		$dbw = wfGetDB( DB_MASTER );
 
 		$coauthorSheet = new CoauthorSheetMaster();
 		try {
@@ -130,11 +68,10 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 
 		$result['stats'] = self::getVerifierStats();
 
-		$finishDate = gmdate( "Y-m-d H:i:s" );
 		$updateData = array(
 			'mesu_running' => 0,
 			'mesu_stats' => json_encode( $result ),
-			'mesu_finish_time' => $finishDate
+			'mesu_finish_time' => gmdate( 'Y-m-d H:i:s' ),
 		);
 
 		$dbw->update( 'master_expert_sheet_update', $updateData, array(), __METHOD__ );

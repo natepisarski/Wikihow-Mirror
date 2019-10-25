@@ -9,13 +9,19 @@ class ListRequestedTopics extends SpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgHooks, $wgLanguageCode;
+		global $wgHooks;
 
 		$out = $this->getOutput();
 		$req = $this->getRequest();
+		$user = $this->getUser();
+
+		$out->setRobotPolicy('noindex,nofollow');
+
+		if ($user->isAnon()) {
+			return;
+		}
 
 		$out->setHTMLTitle('List Requested Topics - wikiHow');
-		$out->setRobotPolicy('noindex,nofollow');
 
 		self::setActiveWidget();
 		self::setTopAuthorWidget($par);
@@ -235,7 +241,7 @@ class ListRequestedTopics extends SpecialPage {
 				$out->addHTML("<br class='clearall' />");
 			} else {
 				if ($key) {
-					if ($wgLanguageCode == 'en') {
+					if ($this->getLanguage()->getCode() == 'en') {
 						$create_link = '/Special:ArticleCreator?t='.urlencode($st_search);
 					}
 					else {
@@ -487,5 +493,3 @@ class ListRequestedTopics extends SpecialPage {
 	}
 
 }
-
-

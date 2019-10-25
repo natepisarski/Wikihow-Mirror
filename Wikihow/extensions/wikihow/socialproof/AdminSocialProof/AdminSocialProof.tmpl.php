@@ -5,40 +5,29 @@
 		<label class="spa_go_to_sheet">Go to <a target="_blank" href="<?= $sheetLink ?>">sheet</a></label>
 		<div class='clearall'></div>
 
-		<div class='button primary spa_buttonlarge' id='spa_import'>
-			<div id='import_button_text'>Import</div>
-		</div> <span class="spa_working" style="display:none;">Getting results....</span>
+		<button class='spa_button button primary' id='spa_import'>Import</button>
+		<button class='spa_button button primary' id='spa_in_progress' disabled>In progress</button>
 
 		<hr>
 
-		<div id='loader_container' class='progress'>
-		  <span>i</span>
-		  <span>m</span>
-		  <span>p</span>
-		  <span>o</span>
-		  <span>r</span>
-		  <span>t</span>
-		  <span>i</span>
-		  <span>n</span>
-		  <span>g</span>
-		</div>
 	</div>
 
-	<table class="spa_table">
-		<tr>
-			<td><b>Last run result:</b></td>
-			<td id='spa_last_run_result'>&nbsp;</td>
-		</tr>
-
-		<tr>
-			<td><b>Last run time:</b></td>
-			<td id='spa_last_run_start'>&nbsp;</td>
-		</tr>
-	</table>
-
-	<hr>
-
 	<div id="spa_details_container" class="hidden">
+
+		<table class="spa_table">
+			<tr>
+				<td><b>Last run result:</b></td>
+				<td id='spa_last_run_result'>&nbsp;</td>
+			</tr>
+
+			<tr>
+				<td><b>Last run time:</b></td>
+				<td id='spa_last_run_start'>&nbsp;</td>
+			</tr>
+		</table>
+
+		<hr>
+
 
 		<div id="spa_error_container" class="hidden">
 			<h5 class='spa_error'>Errors</h5>

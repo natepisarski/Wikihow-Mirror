@@ -397,4 +397,8 @@ class PostCommentCaptcha extends UnlistedSpecialPage {
 		$fancyCaptcha = new FancyCaptcha();
 		$fancyCaptcha->addFormToOutput( $this->getOutput() );
 	}
+
+	public function isMobileCapable() {
+		return true;
+	}
 }

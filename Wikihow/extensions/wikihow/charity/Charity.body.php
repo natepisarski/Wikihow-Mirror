@@ -193,4 +193,7 @@ class Charity extends SpecialPage {
 		return true;
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
 }

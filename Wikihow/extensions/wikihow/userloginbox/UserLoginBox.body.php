@@ -21,7 +21,21 @@ class UserLoginBox extends UnlistedSpecialPage {
 		global $wgSecureLogin;
 		$ctx = RequestContext::getMain();
 
-		$url = parse_url($returnto ? $returnto : $ctx->getRequest()->getRequestURL());
+		if ( !$returnto ) {
+			$reqUrl = $ctx->getRequest()->getRequestURL();
+		} elseif ( preg_match('@^https?://@', $returnto) ) {
+			$reqUrl = $returnto;
+		} else {
+			$reqUrl = '';
+		}
+		if ($reqUrl) {
+			$url = parse_url($reqUrl);
+		} else {
+			$url = [
+				'path' => $returnto,
+				'query' => '',
+			];
+		}
 		$path = !empty($url['path']) ? ltrim($url['path'],'/') : '';
 		$query = [];
 		if (!empty($path)) {

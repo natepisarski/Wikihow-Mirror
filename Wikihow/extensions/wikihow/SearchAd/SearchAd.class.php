@@ -91,4 +91,8 @@ class SearchAd extends UnlistedSpecialPage {
 		$param .= 'v'.$this->ad_version;
 		return $param;
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

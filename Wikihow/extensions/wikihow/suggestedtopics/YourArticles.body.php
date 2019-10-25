@@ -165,4 +165,3 @@ class YourArticles extends SpecialPage {
 	}
 
 }
-

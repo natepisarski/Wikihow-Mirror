@@ -8,10 +8,10 @@ class WikihowNamespacePages {
 	private static $is_wikihow_namespace_page = null;
 
 	/**
-	* our mobile-friendly wikiHow: namespace pages
-	* - auto-redirect to mobile on mobile devices
-	* - no auto-redirect to desktop
-	*/
+	 * our mobile-friendly wikiHow: namespace pages
+	 * - auto-redirect to mobile on mobile devices
+	 * - no auto-redirect to desktop
+	 */
 	public static function mobileFriendlyPages(): array {
 		return [
 			wfMessage( 'gdpr_mobile_menu_bottom_link' )->text(),
@@ -37,6 +37,36 @@ class WikihowNamespacePages {
 		];
 	}
 
+	public static function anonAvailablePages(): array {
+		$anonAvailableList = [
+			'Administrator-Notice-Board',
+			'After-You-Publish-(for-Students)',
+			'Anonymous',
+			'Carbon-Neutral',
+			'Content-Management',
+			'Contributions-to-Charity',
+			'COPPA',
+			'COPPA-Parental-Permission-Form',
+			'Editing-Basics',
+			'Engineering',
+			'External-Links',
+			'Project-Management',
+			'Staff',
+			'Title-Policy',
+			'Tourtext',
+			'Why-Hide-Ads',
+			'Why-We-wikiHow',
+		];
+		return array_merge(self::mobileFriendlyPages(), $anonAvailableList);
+	}
+
+	public static function anonAvailableTalkPages(): array {
+		$list = [
+			'Article-Review-Team',
+		];
+		return $list;
+	}
+
 	public static function mobileWithStyle(): array {
 		return [
 			wfMessage('about-page')->text(),
@@ -44,6 +74,10 @@ class WikihowNamespacePages {
 			'Jobs',
 			'Mission'
 		];
+	}
+
+	public static function listAnonTalkLinksAvailable(): array {
+		return ['Help-Team', 'Article-Review-Team'];
 	}
 
 	public static function wikiHowNamespacePage(): bool {
@@ -100,19 +134,13 @@ class WikihowNamespacePages {
 				$h1 = wfMessage('trustworthy-h1')->text();
 				$out->setPageTitle($h1); //fancy h1
 				$out->setHTMLTitle(wfMessage('trustworthy-title')->text());
-				$out->addModules('ext.wikihow.trustworthy_styles');
-
-				//inline these styles so there's no flicker
-				$style = Misc::getEmbedFile('css', __DIR__ . '/resources/trustworthy.css');
-				$style = ResourceLoader::filter('minify-css', $style);
-				$style = HTML::inlineStyle($style);
-				$out->addHeadItem('topcss3', $style);
+				$out->addModuleStyles('ext.wikihow.trustworthy_styles');
 
 				$out->setRobotPolicy('index,follow');
 			}
 
 			$title = $out->getTitle();
-			if ($title) {
+			if ($title && Misc::isMobileMode()) {
 				if (in_array($title->getDBkey(), self::mobileWithStyle())) {
 					$out->addModules('mobile.wikihow.wikihow_namespace_styles');
 				}

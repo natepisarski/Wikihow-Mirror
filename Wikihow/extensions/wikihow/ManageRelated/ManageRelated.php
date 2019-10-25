@@ -6,7 +6,6 @@ $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'ManageRelated',
 	'author' => 'Travis Derouin',
 	'description' => 'Provides a way of searching, previewing and adding related wikiHows to an existing article',
-	'url' => 'http://www.wikihow.com/WikiHow:ManageRelated-Extension',
 );
 
 $wgSpecialPages['ManageRelated'] = 'ManageRelated';

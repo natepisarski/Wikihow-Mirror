@@ -7,9 +7,7 @@ if (!defined('MEDIAWIKI')) {
 $wgExtensionCredits['specialpage'][] = [
 	'name' => 'Ouroboros',
 	'author' => 'George Bahij',
-	'namemsg' => 'ouroboros',
 	'description' => 'A deconstructive manifestation of the cyclical nature of the multiverse transposed into our physical realm through the fractal medium of emergent complexity at the contemporary intersection of life and technology',
-	'descriptionmsg' => 'ouroborosdescription',
 	'version' => 1
 ];
 

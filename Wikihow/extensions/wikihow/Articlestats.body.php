@@ -1,6 +1,6 @@
 <?php
 
-class ArticleStats extends SpecialPage {
+class ArticleStats extends UnlistedSpecialPage {
 
 	public function __construct() {
 		parent::__construct( 'ArticleStats' );

@@ -23,7 +23,7 @@ $wgExtensionCredits['specialpage'][] = array(
 	'author' => 'Lojjik Braughler',
 	'url' => 'http://src.wikihow.com',
 	'license-name' => 'GPL-3.0+',
-	'descriptionmsg' => 'patrolthrottle-desc'
+	'description' => 'For community managers and admins to limit the number of patrols a user can do per day',
 );
 
 // Internationalization
@@ -49,4 +49,3 @@ $wgResourceModules['ext.wikihow.PatrolThrottle'] = array(
 );
 
 $wgHooks['MarkPatrolledBatchComplete'][] = 'PatrolUser::onMarkPatrolledBatchComplete';
-

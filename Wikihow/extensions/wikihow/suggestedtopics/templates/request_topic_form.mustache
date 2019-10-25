@@ -37,7 +37,9 @@
 	<tr>
 		<td></td>
 		<td>
-			<a href="/Special:ListRequestedTopics" style="line-height:27px; margin-left:10px;">{{msg.view_current_list}}</a>
+			{{#user_loggedin}}
+				<a href="/Special:ListRequestedTopics" style="line-height:27px; margin-left:10px;">{{msg.view_current_list}}</a>
+			{{/user_loggedin}}
 			<input class="button primary" onmouseout="button_unswap(this);" onmouseover="button_swap(this);" type="submit" value="Submit" style="float:left;">
 		</td>
 	</tr>

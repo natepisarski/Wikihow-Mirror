@@ -828,4 +828,9 @@ class SpecialContributions extends IncludableSpecialPage {
 	protected function getGroupName() {
 		return 'users';
 	}
+
+	// Wikihow: make this special page available to anons
+	public function isAnonAvailable() {
+		return true;
+	}
 }

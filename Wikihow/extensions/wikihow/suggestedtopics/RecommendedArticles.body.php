@@ -15,6 +15,10 @@ class RecommendedArticles extends SpecialPage {
 		$title = $this->getTitle();
 		$langCode = $this->getLanguage()->getCode();
 
+		if ($user->isAnon()) {
+			return;
+		}
+
 		if ($langCode != 'en') {
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;

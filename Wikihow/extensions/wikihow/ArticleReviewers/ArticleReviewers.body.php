@@ -80,7 +80,7 @@ class ArticleReviewers extends UnlistedSpecialPage {
 			if ( !isset($expertCategories[$expert->category][$expert->name]) ) {
 				$expertCategories[$expert->category][$expert->name] = array();
 
-				$expert->imagePath = wfGetPad( $expert->imagePath );
+				$expert->imagePath = $expert->imagePath != '' ? wfGetPad( $expert->imagePath ) : '';
 				$expert->anchorName = $anchorName;
 				$expertCategories[$expert->category][$expert->name]['expert'] = $expert;
 				$expertCategories[$expert->category][$expert->name]['count'] = 0;

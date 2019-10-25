@@ -221,4 +221,9 @@ class SpecialVideoBrowser extends SpecialPage {
 		$showBreadCrumb = false;
 		return true;
 	}
+
+	public function isMobileCapable() {
+		return true;
+	}
+
 }

@@ -278,4 +278,10 @@ class SpecialNotifications extends SpecialPage {
 		return true;
 	}
 
+	// Added by Wikihow
+	public function isAnonAvailable() {
+		$user = $this->getUser();
+		return $user->hasCookies();
+	}
+
 }

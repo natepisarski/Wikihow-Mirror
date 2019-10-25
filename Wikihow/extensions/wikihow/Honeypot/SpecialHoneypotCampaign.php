@@ -46,4 +46,8 @@ class SpecialHoneypotCampaign extends SpecialPage {
 		$output->setPageTitle( $wgHoneypotCampaigns[$subPage]['title'] );
 		$output->addHTML( self::renderCampaign( $subPage ) );
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

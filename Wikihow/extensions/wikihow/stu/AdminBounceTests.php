@@ -4,8 +4,8 @@ if ( !defined('MEDIAWIKI') ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'Stu',
-	'author' => 'Reuben Smith',
-	'description' => 'Tool for support personnel to get bounce stats, given a list of wikiHow URLs',
+	'author' => 'Reuben',
+	'description' => 'Tool for support personnel to get Stu stats, given a list of wikiHow URLs',
 );
 
 $wgSpecialPages['AdminBounceTests'] = 'AdminBounceTests';

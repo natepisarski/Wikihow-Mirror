@@ -281,6 +281,10 @@ class LoginFacebook extends UnlistedSpecialPage {
 
 		return true;
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }
 
 class LoginCheck extends UnlistedSpecialPage {

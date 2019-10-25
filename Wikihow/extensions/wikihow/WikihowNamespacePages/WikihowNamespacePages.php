@@ -16,3 +16,11 @@ $wgResourceModules['mobile.wikihow.wikihow_namespace_styles'] = [
 	'position' => 'top'
 ];
 
+$wgResourceModules['ext.wikihow.trustworthy_styles'] = [
+	'styles' => [ 'trustworthy.css' ],
+	'localBasePath' => __DIR__.'/resources',
+	'remoteExtPath' => 'wikihow/WikihowNamespacePages/resources',
+	'targets' => [ 'desktop', 'mobile' ],
+	'position' => 'top'
+];
+

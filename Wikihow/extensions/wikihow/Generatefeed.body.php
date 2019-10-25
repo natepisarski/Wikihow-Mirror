@@ -176,4 +176,8 @@ class GenerateFeed extends UnlistedSpecialPage {
 		}
 		$feed->outFooter();
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

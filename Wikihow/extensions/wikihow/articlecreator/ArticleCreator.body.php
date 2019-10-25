@@ -288,4 +288,8 @@ class ArticleCreator extends SpecialPage {
 		}
 		return true;
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

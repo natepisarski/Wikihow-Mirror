@@ -135,4 +135,9 @@ class GDPR extends UnlistedSpecialPage {
 		$script = Html::inlineScript( $script );
 		return $script;
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
+
 }
