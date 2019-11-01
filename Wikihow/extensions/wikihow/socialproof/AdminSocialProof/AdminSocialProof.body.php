@@ -23,6 +23,12 @@ class AdminSocialProof extends UnlistedSpecialPage {
 			return;
 		}
 
+		if ( Misc::isIntl() ) {
+			$enURL = 'https://www.wikihow.com/Special:AdminSocialProof';
+			$out->addHTML("Please use this tool on the English site: <a href='$enURL'>$enURL</a>");
+			return;
+		}
+
 		if ( !$request->wasPosted() ) {
 			$this->outputAdminPageHtml();
 			return;

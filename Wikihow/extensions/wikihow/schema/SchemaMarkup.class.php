@@ -681,7 +681,11 @@ class SchemaMarkup {
 			'description' => $description,
 			'thumbnailUrl' => $thumbnailUrl,
 			'contentUrl' => $contentUrl,
-			'interactionCount' => $plays,
+			'interactionStatistic' => [
+				'@type' => 'InteractionCounter',
+				'interactionType' => [ '@type' => 'http://schema.org/WatchAction' ],
+				'userInteractionCount' => $plays
+			],
 			'uploadDate' => $uploadDate,
 		];
 		return $data;
@@ -776,7 +780,11 @@ class SchemaMarkup {
 					'thumbnailUrl' => $item->snippet->thumbnails->default->url,
 					'contentUrl' => "https://www.youtube.com/watch?v={$id}",
 					'embedUrl' => "https://www.youtube.com/embed/{$id}",
-					'interactionCount' => $item->statistics->viewCount,
+					'interactionStatistic' => [
+						'@type' => 'InteractionCounter',
+						'interactionType' => [ '@type' => 'http://schema.org/WatchAction' ],
+						'userInteractionCount' => $item->statistics->viewCount
+					],
 					'uploadDate' => $item->snippet->publishedAt
 				];
 				// Add publisher info for videos on our own channels

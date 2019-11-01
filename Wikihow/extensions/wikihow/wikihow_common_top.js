@@ -55,7 +55,7 @@ WH.ga.loadGoogleAnalytics = function(siteVersion, propertyId, config) {
 
 	// Do the main GA ping
 	ga('create', propertyId, 'auto', { 'allowLinker': true });
-	ga('linker:autoLink', [/^.*wikihow\.(com|cz|it|jp|vn|com\.tr)$/]);
+	ga('linker:autoLink', [/^.*\.wikihow\.(com|cz|it|jp|vn|com\.tr)$/]);
 	ga('send', 'pageview');
 	ga('set', 'anonymizeIp', true);
 	// ... and extra events if we got any

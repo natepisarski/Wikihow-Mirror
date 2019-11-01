@@ -6,6 +6,7 @@ class ApiApp extends ApiBase {
 		'credits',
 		'featured',
 		'search',
+		'fsearch',
 		'psearch',
 		'langs'
 	);
@@ -126,6 +127,10 @@ class ApiApp extends ApiBase {
 				$result->addValue( null, $module, array('articles' => $results) );
 			}
 			break;
+		case 'fsearch':
+			$featuredSearchResults = self::featuredSearch($q, $wt, $rows);
+			$result->addValue( null, "response", $featuredSearchResults );
+			break;
 		case 'psearch':
 			$q = $params['q'];
 			$wt = $params['wt'];
@@ -135,7 +140,6 @@ class ApiApp extends ApiBase {
 			echo $contents;
 			exit();
 			break;
-
 		case 'langs':
 			$langs = AppDataFormatter::getLangEndpoints();
 			$result->addValue( null, $module, array('langs' => $langs) );
@@ -157,6 +161,28 @@ class ApiApp extends ApiBase {
 		}
 
 		return true;
+	}
+
+	private static function featuredSearch($q, $wt, $rows) {
+		$docs = AppDataFormatter::getFeaturedDocs( 40 );
+		$newDocs = array();
+		foreach ( $docs as $doc ) {
+			$id = $doc['id'];
+			$title = wfMessage( 'howto', $doc['title'] );
+			$img = $doc['image_58x58'];
+			$newDocs[] = array(
+				'id' => $id,
+				'title' => $title,
+				'image_58x58' => $img
+			);
+		}
+		$numResults = count( $newDocs );
+		$result = array(
+			'numFound' => $numResults,
+			'start' => 0,
+			'docs' => $newDocs,
+		);
+		return $result;
 	}
 
 	function websolrSearch($q, $wt, $rows) {
@@ -304,6 +330,15 @@ class AppDataFormatter {
 	}
 
 	static function featuredArticles($num) {
+		$titles = array();
+		$fas = FeaturedArticles::getTitles($num);
+		foreach ($fas as $fa) {
+			$titles[] = $fa['title'];
+		}
+		return self::formatResults($titles);
+	}
+
+	static function getFeaturedDocs( $num ) {
 		$titles = array();
 		$fas = FeaturedArticles::getTitles($num);
 		foreach ($fas as $fa) {

@@ -168,7 +168,7 @@ class SpecialVideoBrowser extends SpecialPage {
 				if ( $youtubeIds[$viewing['id']] ) {
 					$schema = SchemaMarkup::getYouTubeVideo( $output->getTitle(), $youtubeIds[$viewing['id']] );
 					if ( $schema ) {
-						$viewing['plays'] = $schema['interactionCount'];
+						$viewing['plays'] = $schema['interactionStatistic']['userInteractionCount'];
 						$viewing['updated'] = $schema['uploadDate'];
 					}
 				} else {

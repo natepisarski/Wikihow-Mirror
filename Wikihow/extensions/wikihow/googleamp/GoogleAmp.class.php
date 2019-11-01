@@ -513,20 +513,24 @@ class GoogleAmp {
 
 		$hasIntroAd = true;
 
+		// for targeting dfp ads
+		$bucket = rand( 1, 20 );
+		$bucket = sprintf( "%02d", $bucket );
+
 		if ( $hasIntroAd == true ) {
-			$adhtml = self::getAd( $intro, $pageId, $intlSite );
+			$adhtml = self::getAd( $intro, $pageId, $intlSite, $bucket );
 			pq( "#intro" )->append( $adhtml );
 
 
 			// put an ad after second step if there is more than 1 step in first method
 			if ( pq( ".steps_list_2:first > li" )->length > 2 ) {
-				$adhtml = self::getAd( $firstStep, $pageId, $intlSite );
+				$adhtml = self::getAd( $firstStep, $pageId, $intlSite, $bucket );
 				pq(".steps_list_2:first > li:eq(1)")->append( $adhtml );
 			}
 		} else {
 			// put an ad after first step if there is more than 1 step in first method
 			if ( pq( ".steps_list_2:first > li" )->length > 1 ) {
-				$adhtml = self::getAd( $firstStep, $pageId, $intlSite );
+				$adhtml = self::getAd( $firstStep, $pageId, $intlSite, $bucket );
 				pq(".steps_list_2:first > li:eq(0)")->append( $adhtml );
 			}
 		}
@@ -534,31 +538,31 @@ class GoogleAmp {
 
 		// put an ad after fifth step if there is more than 5 steps in first method
 		if ( pq( ".steps_list_2:first > li" )->length > 5 ) {
-			$adhtml = self::getAd( $fifthStep, $pageId, $intlSite );
+			$adhtml = self::getAd( $fifthStep, $pageId, $intlSite, $bucket );
 			pq(".steps_list_2:first > li:eq(4)")->append( $adhtml );
 		}
 
 		// ad in last step of each method
 		$methodNumber = 1;
 		foreach ( pq(".steps:not('.sample') .steps_list_2 > li:last-child") as $lastStep ) {
-			$adhtml = self::getAd( $method, $pageId, $intlSite, $methodNumber );
+			$adhtml = self::getAd( $method, $pageId, $intlSite, $bucket, $methodNumber );
 			pq( $lastStep )->append( $adhtml );
 			$methodNumber++;
 		}
 
 		$relatedsname = RelatedWikihows::getSectionName();
 		if ( pq("#{$relatedsname}")->length ) {
-			$adhtml = GoogleAmp::getAd( $related, $pageId, $intlSite );
+			$adhtml = GoogleAmp::getAd( $related, $pageId, $intlSite, $bucket );
 			pq("#{$relatedsname}")->append($adhtml);
 		} elseif ( pq("#relatedwikihows")->length ) {
-			$adhtml = GoogleAmp::getAd( $related, $pageId, $intlSite );
+			$adhtml = GoogleAmp::getAd( $related, $pageId, $intlSite, $bucket );
 			pq("#relatedwikihows")->append($adhtml);
 		}
 
 		// tips
 		$tipsTarget = 'div#' . mb_strtolower( wfMessage( 'tips' )->text() );
 		if ( pq( $tipsTarget )->length ) {
-			$adHtml = GoogleAmp::getAd( $tips, $pageId, $intlSite );
+			$adHtml = GoogleAmp::getAd( $tips, $pageId, $intlSite, $bucket );
 			if ( $adHtml ) {
 				pq( $tipsTarget )->append( $adHtml );
 			}
@@ -567,14 +571,14 @@ class GoogleAmp {
 		// warnings
 		$warningsTarget = 'div#' . mb_strtolower( wfMessage( 'warnings' )->text() );
 		if ( pq( $warningsTarget )->length ) {
-			$adHtml = GoogleAmp::getAd( $warnings, $pageId, $intlSite );
+			$adHtml = GoogleAmp::getAd( $warnings, $pageId, $intlSite, $bucket );
 			if ( $adHtml ) {
 				pq( $warningsTarget )->append( $adHtml );
 			}
 		}
 
 		// page bottom
-		$adHtml = GoogleAmp::getAd( $bottomOfPage, $pageId, $intlSite );
+		$adHtml = GoogleAmp::getAd( $bottomOfPage, $pageId, $intlSite, $bucket );
 		if ( $adHtml && pq( '#article_rating_mobile' )->length > 0 ) {
 			$bottomAdContainer = Html::element( 'div', ['id' => 'pagebottom'] );
 			pq( '#article_rating_mobile' )->after( $bottomAdContainer );
@@ -650,7 +654,7 @@ class GoogleAmp {
 		return "";
 	}
 
-	public static function getAd( $num, $pageId, $intl, $methodNumber = 0 ) {
+	public static function getAd( $num, $pageId, $intl, $bucket, $methodNumber = 0 ) {
 		$adType = self::getAdType( $num, $pageId, $intl );
 
 		if ( $adType == "adsense" ) {
@@ -658,11 +662,11 @@ class GoogleAmp {
 		}
 
 		if ( $adType == 'gpt' ) {
-			return self::getGPTAd( $num, $intl, $methodNumber );
+			return self::getGPTAd( $num, $intl, $bucket, $methodNumber );
 		}
 	}
 
-	public static function getGPTAd( $num, $intl, $methodNumber = 0 ) {
+	public static function getGPTAd( $num, $intl, $bucket, $methodNumber = 0 ) {
 		global $wgLanguageCode, $wgTitle;
 		$pageId = 0;
 		if ( $wgTitle ) {
@@ -715,6 +719,13 @@ class GoogleAmp {
 		$whAdLabelBottom = Html::element( 'div', [ 'class' => 'ad_label_bottom' ], "Advertisement" );
 		$whAdClass .= " wh_ad_steps";
 
+		$targeting = ['targeting' => [
+			'bucket' => $bucket,
+			'language' => $wgLanguageCode,
+			'format' => 'amp'
+		]];
+		$targeting = json_encode( $targeting );
+
 		// width auto with will let the ad be centered
 		// have to use multi size to request the 300x250 ad we want
 		// setting multi size validation to false so the ad shows up on tablets
@@ -723,13 +734,17 @@ class GoogleAmp {
 			'height' => 250,
 			'type' => 'doubleclick',
 			'data-slot' => $slot,
+			'json' => $targeting,
 		);
 
-		if ( $num == 7 || $num == 8 || $num == 9 ) {
+		if ( $num == 2 || $num == 7 || $num == 8 || $num == 9 ) {
 			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
 
-		if ( rand( 1, 2 ) == 1 && $num == 2 ) {
+		if ( rand( 1, 5 ) == 1 && $num == 4 && $methodNumber == 1 ) {
+			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		}
+		if ( rand( 1, 5 ) == 1 && $num == 4 && $methodNumber == 2 ) {
 			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
 
@@ -940,9 +955,13 @@ class GoogleAmp {
 		$badges = pq('.qa_expert, .qa_person_circle');
 
 		foreach ( $badges as $badge ) {
-			preg_match("@background-image:\s?url\((.*)\)@", pq($badge)->attr('style'), $m);
+			preg_match('/background-image:\s?(.*)/', pq($badge)->attr('style'), $m);
 			if (!empty($m[1])) {
-				$ampImg = self::getAmpArticleImg($m[1], 80, 80);
+				//we could have multiple bg images, just use the first one
+				$ampImg = explode('url(', $m[1])[1];
+				$ampImg = preg_replace('/\)(,|$)/i', '', $ampImg);
+
+				$ampImg = self::getAmpArticleImg($ampImg, 80, 80);
 				pq($badge)->html($ampImg);
 				pq($badge)->removeAttr('style');
 			}

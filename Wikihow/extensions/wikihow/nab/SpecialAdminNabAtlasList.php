@@ -14,8 +14,9 @@ class SpecialAdminNabAtlasList extends QueryPage {
 		$this->offset = $wgRequest->getVal('offset', 0);
 
 		// little easter egg for debugging
-		if ($wgRequest->getVal('debug')) {
-			print_r( NabAtlasList::getNewRevisions() );exit;
+		if ($wgRequest->getVal('nab_debug')) {
+			print_r( NabAtlasList::getNewRevisions() );
+			exit;
 		}
 	}
 

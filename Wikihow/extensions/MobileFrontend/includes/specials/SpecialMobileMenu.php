@@ -29,7 +29,9 @@ class SpecialMobileMenu extends MobileSpecialPage {
 	}
 
 	public function isMobileCapable() {
-		return true;
+		// Hide this page for anons
+		$user = $this->getUser();
+		return !$user->isAnon();
 	}
 
 }

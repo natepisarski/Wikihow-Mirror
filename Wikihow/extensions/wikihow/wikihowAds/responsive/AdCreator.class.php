@@ -56,15 +56,18 @@ abstract class AdCreator {
 	public function getDFPKeyValsJSON() {
 		$dfpKeyVals = $this->mDFPKeyVals;
 
-		// the default value of this always present key val pair
-		if ( $this->mRefreshableRightRail ) {
-			$dfpKeyVals['/10095428/RR3_Test_32']['refreshing'] = '1';
-			$dfpKeyVals['/10095428/Refreshing_Ad_RR1_Test']['refreshing'] = '1';
-			$dfpKeyVals['/10095428/RR3_DFP_Test']['refreshing'] = '1';
-		} else {
-			$dfpKeyVals['/10095428/RR3_Test_32']['refreshing'] = 'not';
-			$dfpKeyVals['/10095428/Refreshing_Ad_RR1_Test']['refreshing'] = 'not';
-			$dfpKeyVals['/10095428/RR3_DFP_Test']['refreshing'] = '1';
+		foreach ( $this->mAdSetupData as $adType => $adData ) {
+			if ( !isset( $this->mAdSetupData[$adType]['service'] ) ) {
+				continue;
+			}
+			if ( $this->mAdSetupData[$adType]['service'] != 'dfp' ) {
+				continue;
+			}
+			if ( !isset( $this->mAdSetupData[$adType]['refreshable'] ) ) {
+				continue;
+			}
+			$adUnitPath = $this->mAdSetupData[$adType]['adUnitPath'];
+			$dfpKeyVals[$adUnitPath]['refreshing'] = '1';
 		}
 
 		$dfpKeyVals = json_encode( $dfpKeyVals );
@@ -724,9 +727,7 @@ abstract class AdCreator {
 		$indexHeadScript = "";
 		$dfpScript = "";
 		if ( $addDFP ) {
-			if ( rand( 1, 2 ) == 1 ) {
-				$indexHeadScript = $this->getIndexHeadScript();
-			}
+			$indexHeadScript = $this->getIndexHeadScript();
 			$dfpScript = '';
 			if ( $this->mLateLoadDFP == false ) {
 				//$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';

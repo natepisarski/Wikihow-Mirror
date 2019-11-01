@@ -36,7 +36,7 @@ class GenerateURLs extends Maintenance {
 		if (!$categories) {
 			self::listArticles($titles_only, $since, $relative, $forSitemap, $randomPercentage);
 		} else {
-			self::listCategories($titles_only);
+			self::listCategories($titles_only, $relative, $forSitemap);
 		}
 	}
 
@@ -165,14 +165,19 @@ class GenerateURLs extends Maintenance {
 		}
 	}
 
-	private static function listCategories($titlesOnly) {
-		$epoch = wfTimestamp( TS_MW, strtotime('January 1, 2010') );
-
-		$ch = new CategoryHelper();
-		$tree = $ch->getCategoryTreeArray();
-		unset($tree['WikiHow']);
+	private static function listCategories($titlesOnly, $relativeURLs = false, $forSitemap = false) {
 		$list = [];
-		self::categoryTreeToList($tree, $list);
+
+		if ($forSitemap) {
+			$tree = CategoryHelper::getIndexableCategoriesFromTree();
+			$list = array_keys($tree);
+		} else {
+			$ch = new CategoryHelper();
+			$tree = $ch->getCategoryTreeArray();
+			unset($tree['WikiHow']);
+			self::categoryTreeToList($tree, $list);
+		}
+
 		$uniqueList = [];
 
 		foreach ($list as $cat) {
@@ -193,18 +198,24 @@ class GenerateURLs extends Maintenance {
 			}
 			$uniqueList[$aid] = true;
 
-			// only include categories that are indexable
-			// Note: this is quite slow and apparently implied with how the list
-			// is generated.
-			//$indexed = RobotPolicy::isTitleIndexable($title);
-			//if (!$indexed) {
-			//	continue;
-			//}
+			// Only include categories that are visible to anons.  Getting the WikiHowCategoryViewer articles count is
+			// unfortunately is the best way to get this data currently.
+			if ($forSitemap) {
+				$viewer = new WikihowCategoryViewer($title, RequestContext::getMain());
+				// we still do this call even if we don't want FA section on this page b/c
+				// it initializes the article viewer object
+				$fas = $viewer->getFAs();
+				if(count($viewer->articles) <= 0) { //nothing to show
+					continue;
+				}
+			}
+
 
 			if ($titlesOnly) {
 				$line = $aid . ' ' . $title->getPrefixedDBkey();
 			} else {
-				$line = $title->getCanonicalURL() . ' lastmod=' .  self::iso8601_date($epoch);
+				$line = $relativeURLs ? $title->getLocalURL() : $title->getCanonicalURL();
+				$line .= ' lastmod=' . self::iso8601_date($title->getTouched());
 			}
 			print "$line\n";
 		}

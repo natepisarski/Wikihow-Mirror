@@ -10,10 +10,10 @@ class TranscoderException extends HybridMediaException { }
 
 interface Transcodable {
 	//after transcoding is done.
-    public function processTranscodingArticle($articleId, $creator);
+	public function processTranscodingArticle($articleId, $creator);
 
 	//transcode or schedule transcode
-    public function processMedia( $pageId, $creator, $imageList, $warning, $isHybridMedia );
+	public function processMedia( $pageId, $creator, $imageList, $warning, $isHybridMedia );
 }
 
 abstract class AbsTranscoder implements Transcodable {
@@ -28,11 +28,11 @@ abstract class AbsTranscoder implements Transcodable {
 	}
 	
 	public static function d( $msg, $val = null ) {
-	    WikiVisualTranscoder::log( $msg, false, "DEBUG", $val );
+		WikiVisualTranscoder::log( $msg, false, "DEBUG", $val );
 	}
 
 	public static function i( $msg, $val = null ) {
-	    WikiVisualTranscoder::log( $msg, true, "INFO", $val );
+		WikiVisualTranscoder::log( $msg, true, "INFO", $val );
 	}
 
 	/**
@@ -218,7 +218,7 @@ abstract class AbsTranscoder implements Transcodable {
 
 			$text = str_replace($stepsToken, rtrim($steps), $text);
 
-            foreach ($hybridMediaList as &$media) {
+			foreach ($hybridMediaList as &$media) {
 				$titleChangeSkip = $media['titlechangeskip'];
 				$video = null;
 				if ( array_key_exists( 'video', $media ) ) {
@@ -275,18 +275,18 @@ abstract class AbsTranscoder implements Transcodable {
 						}
 					}
 					
-                    // check for min and max image size
-                    if ( !$hadSizeProblems && !empty( $image['width'] ) ) {
+					// check for min and max image size
+					if ( !$hadSizeProblems && !empty( $image['width'] ) ) {
 						$err .= $this->checkImageMinWidth( $image, $videoList );
 						if ( $err ) {
-                            $hadSizeProblems = true;
+							$hadSizeProblems = true;
 						}
 						$maxImgDimen = $image['width'] > $image['height'] ? $image['width'] : $image['height'];
 						if ($maxImgDimen > WikiVisualTranscoder::ERROR_MAX_IMG_DIMEN) {
 							$err .= "size:{$image['width']}px > max size ". WikiVisualTranscoder::ERROR_MAX_IMG_DIMEN ."px:{$image['name']}\n";
 							$hadSizeProblems = true;
 						}
-                    }
+					}
 				}
 			
 				if ( $video ) {
@@ -486,17 +486,17 @@ abstract class AbsTranscoder implements Transcodable {
 	}
 	
 	//abstract public function addWikiHowVideo($pageId, &$video);
-    /**
-     * Add a new video file into the mediawiki infrastructure so that it can
-     * be accessed as {{whvid|filename.mp4|Preview.jpg}}
-     */
-    public function addWikiHowVideo($articleId, &$video, $outputs) {
-        // find name for video; change filename to Filename 1.jpg if
-        // Filename.jpg already existed
-        $regexp = '/[^' . Title::legalChars() . ']+/';
-        $first = preg_replace($regexp, '', $video['first']);
-        // Let's also remove " and ' since s3 doesn't seem to like
-        $first = preg_replace('/["\']+/', '', $first);
+	/**
+	 * Add a new video file into the mediawiki infrastructure so that it can
+	 * be accessed as {{whvid|filename.mp4|Preview.jpg}}
+	 */
+	public function addWikiHowVideo($articleId, &$video, $outputs) {
+		// find name for video; change filename to Filename 1.jpg if
+		// Filename.jpg already existed
+		$regexp = '/[^' . Title::legalChars() . ']+/';
+		$first = preg_replace($regexp, '', $video['first']);
+		// Let's also remove " and ' since s3 doesn't seem to like
+		$first = preg_replace('/["\']+/', '', $first);
 
 		// Find version using first "canonical" output described in $video
 		$version = 1;
@@ -509,51 +509,56 @@ abstract class AbsTranscoder implements Transcodable {
 			$newName = $first . ' Version ' . ++$version . '.' . $ext;
 		} while ($version <= 1000);
 
-        // TODO: Reverse outputs so the last one to modify video is the first one in the list?
-        $outputs = array_reverse( $outputs );
-        foreach ( $outputs as $output ) {
-        	$preset = WikiVisualTranscoder::$presets[$output->aws_preset_id];
-	        $ext = $preset['height'] . 'p.mp4';
-	        if ( $version > 1 ) {
-	       		$newName = $first . ' Version ' . $version . '.' . $ext;
-	        } else {
-	       		$newName = $first . '.' . $ext;
-	        }
+		// TODO: Reverse outputs so the last one to modify video is the first one in the list?
+		$outputs = array_reverse( $outputs );
+		$posterPresets = WikiVisualTranscoder::$presetIdsByOutputType['poster'];
+		foreach ( $outputs as $output ) {
+			$preset = WikiVisualTranscoder::$presets[$output->aws_preset_id];
+			$ext = $preset['height'] . 'p.mp4';
+			if ( $version > 1 ) {
+				$newName = $first . ' Version ' . $version . '.' . $ext;
+			} else {
+				$newName = $first . '.' . $ext;
+			}
 
-	        // Move the file from one s3 bucket to another
-	        $ret = WikiVideo::copyFileToProd(WikiVisualTranscoder::AWS_TRANSCODING_OUT_BUCKET, $output->aws_uri_out, $newName);
+			// Move the file from one s3 bucket to another
+			$ret = WikiVideo::copyFileToProd(WikiVisualTranscoder::AWS_TRANSCODING_OUT_BUCKET, $output->aws_uri_out, $newName);
 			if ( $ret['error'] ) {
 				return $ret['error'];
 			}
 
-	        // instruct later processing about which mediawiki name was used
-	        $video['mediawikiName'] = $newName;
+			// instruct later processing about which mediawiki name was used
+			$video['mediawikiName'] = $newName;
 
-	        // Add preview image
-	        $img = $video;
-	        $img['ext'] = 'jpg';
-	        $err = Mp4Transcoder::addMediawikiImage($articleId, $img);
-	        if ($err) {
-	            return 'Unable to add preview image: ' . $err;
-	        } else {
-	            $video['previewMediawikiName'] = $img['mediawikiName'];
-	            // Cleanup temporary preview image
-	            if (!empty($img['filename'])) {
-	                $rmCmd = "rm " . $img['filename'];
-	                system($rmCmd);
-	            }
-	        }
-	    
-	        self::d("video['mediawikiName']=". $video['mediawikiName'] .", video['previewMediawikiName']=". $video['previewMediawikiName']);
-	        // Keep a log of where videos were uploaded in wikivisual_video_names table
-	        $dbw = WikiVisualTranscoder::getDB('write');
-	        $vidname = $articleId . '/' . basename( $output->aws_uri_out );
-	        $sql = 'INSERT INTO wikivisual_vid_names SET filename=' . $dbw->addQuotes($vidname) . ', wikiname=' . $dbw->addQuotes($video['mediawikiName']);
-	        $dbw->query($sql, __METHOD__);
-        }
+			// Only add MediaWiki Image for poster preset (the highest resolution one)
+			if ( in_array( $output->aws_preset_id, $posterPresets ) ) {
+				// Add preview image
+				$img = $video;
+				$img['ext'] = 'jpg';
 
-        return '';
-    }
+				$err = Mp4Transcoder::addMediawikiImage($articleId, $img);
+				if ($err) {
+					return 'Unable to add preview image: ' . $err;
+				} else {
+					$video['previewMediawikiName'] = $img['mediawikiName'];
+					// Cleanup temporary preview image
+					if (!empty($img['filename'])) {
+						$rmCmd = "rm " . $img['filename'];
+						system($rmCmd);
+					}
+				}
+			}
+
+			self::d("video['mediawikiName']=". $video['mediawikiName'] .", video['previewMediawikiName']=". $video['previewMediawikiName']);
+			// Keep a log of where videos were uploaded in wikivisual_video_names table
+			$dbw = WikiVisualTranscoder::getDB('write');
+			$vidname = $articleId . '/' . basename( $output->aws_uri_out );
+			$sql = 'INSERT INTO wikivisual_vid_names SET filename=' . $dbw->addQuotes($vidname) . ', wikiname=' . $dbw->addQuotes($video['mediawikiName']);
+			$dbw->query($sql, __METHOD__);
+		}
+
+		return '';
+	}
 
 	
 	private static function removeImagesFromText( $text ) {
@@ -691,7 +696,7 @@ abstract class AbsTranscoder implements Transcodable {
 	 * leaveOldMedia - bool - if true we will only replace images that we find matches for
 	 */
 	private function placeHybridMediaInSteps( $pageId, &$videos, &$images, &$stepsText, $creator, $leaveOldMedia = false, $titleChange = false ) {
-        $err = '';
+		$err = '';
 		$hybridMediaList = array();
 		$title = Title::newFromID( $pageId );
 		$replaced = 0;
@@ -814,7 +819,7 @@ abstract class AbsTranscoder implements Transcodable {
 				}
 				$hybridMediaList[] = $hybridMedia;
 			} else {
-                self::d("No match preg_match('@^(([#*]|\s)+)((.|\n)*)@m' with text [". $first."]");
+				self::d("No match preg_match('@^(([#*]|\s)+)((.|\n)*)@m' with text [". $first."]");
 			}
 		}
 	
@@ -927,7 +932,7 @@ abstract class AbsTranscoder implements Transcodable {
 				$err = 'Unable to download video for gif creation' . $vid['mediawikiName'] . ' to: ' . WikiVisualTranscoder::getStagingDir() . ' error:' . $error;;
 			}
 
-            self::d(">>>>>>>> count(\$images)". count($images));
+			self::d(">>>>>>>> count(\$images)". count($images));
 			if (!$err && $images && count($images) > 0) {
 				$err = ImageTranscoder::addAllMediaWikiImages($pageId, $images);
 
@@ -1024,13 +1029,13 @@ abstract class AbsTranscoder implements Transcodable {
 		foreach ($images as &$img) {
 			if (!preg_match('@^((.*)-\s*)?([0-9b]+|final|outro)\.(' . join('|', WikiVisualTranscoder::$imgExts) . ')$@i', $img['name'], $m)) {
 				$err .= 'Filename not in format Name-1.jpg: ' . $img['name'] . '. ';
-                self::d("Filename not in format Name-1.jpg: " . $img['name'] . '. ');
+				self::d("Filename not in format Name-1.jpg: " . $img['name'] . '. ');
 			} else {
-                self::d("preg_match m1=$m[1], m2=$m[2], m3=$m[3], m4=$m[4]");
+				self::d("preg_match m1=$m[1], m2=$m[2], m3=$m[3], m4=$m[4]");
 				$hasFinalStep = $this->addExtraMediaInfo($title, $img, $m);			
 			}
 		}
-	    return array($err, $hasFinalStep);	
+		return array($err, $hasFinalStep);
 	}
 
 	// process the list of videos to make sure we can understand all filenames
@@ -1047,7 +1052,7 @@ abstract class AbsTranscoder implements Transcodable {
 				$hasFinalStep = $this->addExtraMediaInfo($title, $vid, $m);
 			}
 		}
-	    return array($err, $hasFinalStep);	
+		return array($err, $hasFinalStep);
 	}
 	
 	// looks at a video or image file name and figures out

@@ -100,10 +100,10 @@ class AQRater extends UnlistedSpecialPage {
 				echo $row->aq_jobname;
 				if ($row->aq_status==0) {
 					// not started the job yet
-					$html .= '<p><b> Batch id - ' .$row->aq_id .' ' .$row->aq_jobname  .' not started </b><br /> '.$row->aq_jobmessage . $row->aq_error .'</p>';
+					$html .= '<p class="aqrate-job"><b> Batch id - ' .$row->aq_id .' ' .$row->aq_jobname  .' not started </b><br /> '.$row->aq_jobmessage . $row->aq_error .'</p>';
 				} elseif ($row->aq_status==1) {
 					// job started
-					$html .= '<p><b>Batch id - '.$row->aq_id .' ' .$row->aq_jobname .' is in progress </b><br />'.$row->aq_jobmessage . $row->aq_error .'</p>';
+					$html .= '<p class="aqrate-job"><b>Batch id - '.$row->aq_id .' ' .$row->aq_jobname .' is in progress </b><br />'.$row->aq_jobmessage . $row->aq_error .'</p>';
 				} elseif ($row->aq_status==2) {
 					// job completed or terminated due to error
 					// show completed message and update the db that the job is done
@@ -112,7 +112,7 @@ class AQRater extends UnlistedSpecialPage {
 					$res = $dbw->update('aqrater.aqjobs', array('aq_newjobs'=> '0'),  array('aq_id'=>$row->aq_id), __METHOD__, array());
 
 					if (empty($row->aq_error)) {
-						$html .= '<p><b>Batch id.'.$row->aq_id .' ' .$row->aq_jobname .' completed </b><br />'.$row->aq_jobmessage.'</p>';
+						$html .= '<p class="aqrate-job"><b>Batch id.'.$row->aq_id .' ' .$row->aq_jobname .' completed </b><br />'.$row->aq_jobmessage.'</p>';
 					} else {
 						//there was an error and the job got terminated because of it
 						$html .= '<p><b>'.$row->aq_jobname.$row->aq_jobmessage .' not completed because of errors: '. $row->aq_error.'</b><br/></p>';
@@ -184,6 +184,8 @@ class AQRater extends UnlistedSpecialPage {
 		$user = $this->getUser();
 		$userName=$user->getName();
 
+		$out->addModules( [ 'ext.aqrater' ] );
+
 		// Check permissions
 		$userGroups = $user->getGroups();
 		if ($userName!='Rjsbhatia') {
@@ -220,72 +222,94 @@ class AQRater extends UnlistedSpecialPage {
 		$jobStatus = $this->getJobStatus();
 
 		return <<<EOHTML
-		<script src='/extensions/min/?f=extensions/wikihow/common/download.jQuery.js,extensions/wikihow/mobile/webtoolkit.aim.min.js'></script>
 		<style>
-			.sm { font-variant:small-caps; letter-spacing:2px; margin-right: 25px; }
-			.bx { padding: 5px 10px 5px 10px; margin-bottom: 15px; border: 1px solid #dddddd; border-radius: 10px 10px 10px 10px; }
-			.bx p { padding: .5em 0; }
-			#auto_mark_status { margin-left: 1.5em; }
-			#admin-result ul { margin-top: 0; font-size: 10px; }
-			#admin-result li { margin: 3px 0; }
-			.recent_log { font-size: .8em; }
-			.errors { color: #C00; }
+			.aqrate-fieldset {
+				padding: 26px;
+				margin-bottom: 15px;
+				border: 1px solid #dddddd;
+				border-radius: 4px;
+			}
+
+			.aqrate-fieldset label {
+				display: block;
+				margin: 1em 0;
+			}
+
+			.aqrate-job {
+				margin: 1em 0;
+			}
+
+			#auto_mark_status {
+				margin-left: 1.5em;
+			}
+
+			#admin-result ul {
+				margin-top: 0;
+				font-size: 10px;
+			}
+
+			#admin-result li {
+				margin: 3px 0;
+			}
+
+			.recent_log {
+				font-size: .8em;
+			}
+
+			.errors {
+				color: #C00;
+			}
 		</style>
-
-
 		<form id="aqrate-upload-form" action="/Special:$action?upload=1" method="post" enctype="multipart/form-data">
-		<div class='bx'>
-			<p>
-				<span class='sm'>Upload CSV file to rate articles</span>
-			</p>
-			<input type="file" id="aqratefile" name="aqratefile" /><br/>
-			<div id="aq-result">
-				<ul>
-					<li>The input file needs to have 3 columns in the following order: <i>page id, revision id, title</i>.</li>
-					<li>The file needs to be in a csv format.</li>
-				</ul>
-			</div>
-		</div>
+			<fieldset class="aqrate-fieldset">
+				<p>
+					<h2>Rate articles</h2>
+				</p>
+				<div id="aq-result">
+					<ul>
+						<li>The input file needs to have 3 columns in the following order: <i>page id, revision id, title</i>.</li>
+						<li>The file needs to be in a csv format.</li>
+					</ul>
+				</div>
+				<label>
+					File to upload
+					<input type="file" id="aqratefile" name="aqratefile" />
+				</label>
+			</fieldset>
 		</form>
 
 		<form action="/Special:$action?oldbatch=1" method="post">
-		<div class=bx>
+		<fieldset class="aqrate-fieldset">
 			<p>
-				<span class=sm>Archived Batches (Choose one)</span>
+				<h2>Archived Batches</h2>
+				<p>Choose one</p>
 				<p>
-					<span class=sm>All data</span>
-					<input type='checkbox' value='' name='alldata' id='alldata' />
+					<label>
+						<input type="checkbox" value="" name="alldata" id="alldata" />
+						All data
+					</label>
 				</p>
 				<p>
-					<span class=sm>Last completed batch</span>
-					<input type='checkbox' value='' name='lastbatch' id='lastbatch' />
+					<label>
+						<input type="checkbox" value="" name="lastbatch" id="lastbatch" />
+						Last completed batch
+					</label>
 				</p>
 			</p>
 			<p>
-				<span class=sm>Batch Number</span>
-				<input type='text' value='' name='batchid' id='batchid' />
+				<label>
+					Batch Number
+					<input type="text" value="" name="batchid" id="batchid" />
+				</label>
 			</p>
-			<p><button type="submit" id="keyword-submit">Get Articles</button></p>
-		</div>
+			<p><button type="submit" id="keyword-submit" class="button primary">Get Articles</button></p>
+		</fieldset>
 		</form>
 
-		<div class=bx>
-			<p class=sm>Recent Job Status</p>
+		<fieldset class="aqrate-fieldset">
+			<h2>Recent Job Status</h2>
 			<div class="job_status">$jobStatus</div>
-		</div>
-
-		<script>
-			$('#aqratefile').change(function () {
-				var filename = $('#aqratefile').val();
-				if (!filename) {
-					alert('No file selected!');
-				} else {
-					$('#aq-result').html('uploading file...');
-					$('#aqrate-upload-form').submit();
-				}
-				return false;
-			});
-		</script>
+		</fieldset>
 EOHTML;
 	}
 

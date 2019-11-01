@@ -239,6 +239,12 @@ class WikiVisualTranscoder {
 			'1557861734804-zm431n',
 			'1557861651499-ixil9u',
 		],
+		'poster' => [
+			// 1080p for summary videos
+			'1557861651499-ixil9u',
+			// 360p no audio for clips
+			'1373409713520-t0nqq0'
+		]
 	];
 
 	static $DEBUG = false;

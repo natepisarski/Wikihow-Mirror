@@ -43,7 +43,7 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		$coauthorSheet = new CoauthorSheetMaster();
 		try {
 			$result = $coauthorSheet->doImport();
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			$msg = (string) $e;
 			$result = [
 				'errors' => [ "<b>CoauthorSheetMaster threw an exception</b>:<br><pre>$msg</pre>" ],

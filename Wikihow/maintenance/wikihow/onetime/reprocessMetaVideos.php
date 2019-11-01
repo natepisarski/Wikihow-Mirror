@@ -10,9 +10,6 @@ define( 'MEDIAWIKI', 1 );
 require_once __DIR__ . '/../../../extensions/wikihow/hooks/ArticleHooks.php';
 require_once __DIR__ . '/../../../extensions/wikihow/DatabaseHelper.class.php';
 
-$wgServer = 'wikihow.com';
-$_SERVER['HTTP_HOST'] = $wgServer;
-
 class ReprocessAMIVideos extends Maintenance {
     public function __construct() {
         parent::__construct();
@@ -50,10 +47,6 @@ class ReprocessAMIVideos extends Maintenance {
 				$nameAndId = str_pad( "{$obj->ti_page_title} ({$obj->ti_page_id})", 80 );
 				echo "Processing started: {$nameAndId}";
 				$before = self::hasSummaryVideo( $obj->ti_page_id );
-				$wgTitle = $title;
-				$wgOut->getContext()->setTitle( $title );
-				$_SERVER['REQUEST_URI'] = '/' . $title->getDBKey();
-				$wgOut->getContext()->getRequest()->setRequestUrl( $title->getDBKey() );
 				$page = WikiPage::factory( $title );
 				ArticleHooks::updateArticleMetaInfo( $page, null, $page->getContent() );
 				$diff = microtime( true ) - $start;

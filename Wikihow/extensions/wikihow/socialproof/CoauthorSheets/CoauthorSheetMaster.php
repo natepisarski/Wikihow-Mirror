@@ -1,10 +1,14 @@
 <?php
 
 class CoauthorSheetMaster extends CoauthorSheet {
-	const SHEET_ID = '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I'; // prod
-	const SHEET_ID_DEV = '1YOUprSw_GvTZs1Wys-9X4R98t-i4Vgn1jjVV0kLEpQA';
 	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
 	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
+
+	public static function getSheetId() {
+		global $wgIsDevServer;
+		return $wgIsDevServer ? '1aMbIcoMJgPZspAT9v_fzoTP7kW-nKD7AZCy3T-BlCGE'
+			: '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I';
+	}
 
 	/**
 	 * Imports the 'Master Expert Verified' sheet into the DB.
@@ -20,6 +24,8 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		$blurbs = self::fetchSheetBlurbs($token, $coauthors, $result);
 		$articles = self::fetchSheetArticles($token, $coauthors, $blurbs, $result);
 
+		self::processCoauthorRemovals($coauthors, $blurbs, $articles, $result);
+
 		if (!$result['errors']) {
 			self::reportBlurbChanges($blurbs);
 			VerifyData::replaceCoauthors('en', $coauthors);
@@ -34,15 +40,6 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		}
 
 		return $result;
-	}
-
-	public static function getSheetId() {
-		global $wgIsProduction;
-		if ($wgIsProduction) {
-			return self::SHEET_ID;
-		} else {
-			return self::SHEET_ID_DEV;
-		}
 	}
 
 	/**
@@ -86,7 +83,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			$coauthorName = trim($row->{'gsx$people'}->{'$t'});
 			$whUserName = trim($row->{'gsx$portalusername'}->{'$t'});
 			$initials = $row->{'gsx$initials'}->{'$t'};
-			$category = $row->{'gsx$category'}->{'$t'};
+			$category = trim($row->{'gsx$category'}->{'$t'});
 			$nameUrl = trim($row->{'gsx$namelinkurlelizonly'}->{'$t'});
 			$imageUrl = $row->{'gsx$approvedimageurlelizonly'}->{'$t'};
 
@@ -145,7 +142,9 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), 'coauthors');
 		foreach ($dbCoauthors as $vID => $vName) {
 			if ( !isset($coauthors[$vID]) ) {
-				$result['errors'][] = "$rowInfo Verifier was removed: id=$vID, name='$vName'";
+				$result['errors'][] = "$rowInfo Coauthor was removed from the sheet: id=$vID, name='$vName'";
+			} elseif ( $coauthors[$vID]->category == 'categ_removed' ) {
+				$result['warnings'][] = "$rowInfo Coauthor is flagged with 'categ_removed' and will go away: id=$vID, name='$vName'";
 			}
 		}
 
@@ -371,14 +370,82 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		return $articles;
 	}
 
-	private static function getTitleLink($title): array {
-		if ( !$title || !$title->exists() ) {
-			return [ '', '' ];
+	/**
+	 * Coauthors that have been flagged in the EN Master sheet with 'categ_removed'
+	 * will be deleted from the EN and INTL DBs along with their blurbs,
+	 * UNLESS there are Q&A answers or verified articles associated to the coauthor,
+	 * in which case a warning will be shown and the coauthors will be kept in the DB.
+	 */
+	private static function processCoauthorRemovals(array &$coauthors, array &$blurbs,
+													array &$articles, array &$result)
+	{
+		/**
+		 * Coauthors in the master sheet that were flagged with "categ_removed"
+		 *
+		 * [ COAUTHOR_ID1 => [
+		 *       'articles' => [AID1, AID2],   # articles in the sheet associated to the coauthor
+		 *     'qa_answers' => [QAID1, QAID2], # Q&A answers in the DB associated to the coauthor
+		 *             'vd' => VerifyData
+		 *   ],
+		 *   COAUTHOR_ID2 => ...
+		 * ]
+		 */
+		$flaggedCoauthors = [];
+		foreach ($coauthors as $cid => $coauthor) {
+			if ( $coauthor->category == 'categ_removed' ) {
+				$flaggedCoauthors[$cid] = [ 'articles'=>[], 'qa_answers'=>[], 'vd' => $coauthor ];
+			}
 		}
-		$aid = $title->getArticleID();
-		$link = Html::rawElement( 'a', ['href'=>$title->getCanonicalURL(), 'target'=>'_blank'], $title->getDBKey() );
-		$span = "<span style='float:right;'>$link ($aid)</span>";
-		return [ $link, $span ];
+
+		// Find associated articles
+		foreach ($articles as $aid => $article) {
+			$cid = $article[0]->verifierId;
+			if ( array_key_exists($cid, $flaggedCoauthors) ) {
+				$flaggedCoauthors[$cid]['articles'][] = $aid;
+			}
+		}
+
+		// Find associated Q&A answers
+		$dbr = wfGetDB( DB_REPLICA );
+		foreach ( array_keys($flaggedCoauthors) as $cid) {
+			$rows = $dbr->select(QADB::TABLE_ARTICLES_QUESTIONS,
+				[ 'qa_id', 'qa_article_id', 'qa_question_id' ],
+				[ 'qa_verifier_id' => $cid ],
+				__METHOD__
+			);
+			foreach ($rows as $row) {
+				$flaggedCoauthors[$cid]['qa_answers'][] = (int)$row->qa_id;
+			}
+		}
+
+		$coauthorsToRemove = []; // Coauthors that can be deleted from the DB
+
+		// Report articles or Q&A answers that prevent coauthor removals
+		foreach ($flaggedCoauthors as $cid => $info) {
+			$doRemove = true;
+			if ($info['articles']) {
+				$doRemove = false;
+				$result['warnings'][] = "Coauthor $cid cannot be removed because it has the following articles: " . implode(', ', $info['articles']);
+			}
+			if ($info['qa_answers']) {
+				$doRemove = false;
+				$result['warnings'][] = "Coauthor $cid cannot be removed because it has the following Q&A answers: " . implode(', ', $info['qa_answers']);
+			}
+			if ( $doRemove ) {
+				$coauthorsToRemove[$cid] = true;
+			}
+		}
+
+		$blurbsToRemove = []; // Blurbs that can be deleted from the DB
+		foreach ($blurbs as $bid => $blurb) {
+			if ( array_key_exists( $blurb->coauthorId, $coauthorsToRemove ) ) {
+				$blurbsToRemove[$bid] = true;
+			}
+		}
+
+		// Amend arrays to reflect removals. DB deletion happens via VerifyData::replace*()
+		$coauthors = array_diff_key($coauthors, $coauthorsToRemove);
+		$blurbs = array_diff_key($blurbs, $blurbsToRemove);
 	}
 
 	/**
@@ -410,6 +477,16 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		if ($body) {
 			UserMailer::send($to, $from, $subject, rtrim($body));
 		}
+	}
+
+	private static function getTitleLink($title): array {
+		if ( !$title || !$title->exists() ) {
+			return [ '', '' ];
+		}
+		$aid = $title->getArticleID();
+		$link = Html::rawElement( 'a', ['href'=>$title->getCanonicalURL(), 'target'=>'_blank'], $title->getDBKey() );
+		$span = "<span style='float:right;'>$link ($aid)</span>";
+		return [ $link, $span ];
 	}
 
 	/**

@@ -6,6 +6,17 @@ if (WH.shared.isDesktopSize) {
 	gads.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
 	var node = document.getElementsByTagName('script')[0];
 	node.parentNode.insertBefore(gads, node);
+	var bucketId = Math.floor(Math.random() * 20) + 1;
+	bucketId = ("0" + bucketId).slice(-2);
+	var format = 'sma';
+	var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
+	if (WH.isMobile == 0) {
+		format = 'dsk';
+	} else if (viewportWidth >= WH.largeScreenMinWidth) {
+		format = 'lrg';
+	} else if (viewportWidth >= WH.mediumScreenMinWidth) {
+		format = 'med';
+	}
 
 	// Load GPT asynchronously
 	function setDFPTargeting(slot, data) {
@@ -13,6 +24,11 @@ if (WH.shared.isDesktopSize) {
 		for (var key in slotData) {
 		  slot.setTargeting(key, slotData[key]);
 		}
+
+		// always set this on every ad
+		slot.setTargeting('bucket', bucketId);
+		slot.setTargeting('language', WH.pageLang);
+		slot.setTargeting('format', format);
 	}
 	var googletag = googletag || {};
 	googletag.cmd = googletag.cmd || [];

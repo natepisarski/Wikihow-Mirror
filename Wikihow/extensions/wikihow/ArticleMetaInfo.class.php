@@ -752,9 +752,15 @@ class ArticleMetaInfo {
 				$this->row = array(
 					'ami_id' => $articleID,
 					'ami_namespace' => (int)$namespace,
+					'ami_title' => $this->titleText,
 					'ami_desc_style' => $this->defaultStyle(),
 					'ami_desc' => '',
 					'ami_facebook_desc' => '',
+					'ami_updated' => '',
+					'ami_video' => '',
+					'ami_summary_video' => '',
+					'ami_summary_video_updated' => '',
+					'ami_img' => ''
 				);
 			} else {
 				foreach ($this->row as $k => $v) {

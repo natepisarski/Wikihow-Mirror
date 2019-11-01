@@ -57,8 +57,7 @@ class PagePolicy {
 					$showCurrentTitle = true;
 				} elseif ( $title->inNamespace( NS_PROJECT ) ) {
 					if ( $title->exists() ) {
-						$projectPages = WikihowNamespacePages::anonAvailablePages();
-						$showCurrentTitle = in_array( $title->getDBKey(), $projectPages );
+						$showCurrentTitle = WikihowNamespacePages::isAvailableToAnons($title);
 					} else {
 						$showCurrentTitle = true;
 					}
@@ -125,13 +124,17 @@ class PagePolicy {
 	}
 
 	private static function isVisibleAction($req) {
+		global $wgLanguageCode;
+
 		$anonVisible = true;
 		$actionParam = $req->getVal('action', '');
 		$typeParam = $req->getVal('type', '');
 		$oldidParam = $req->getVal('oldid', '');
 		// NOTE: $actionParam == 'edit' check is because we do a redirect if action=edit in
 		// a different spot back to view and the new anon edit dialog.
-		if ( in_array($actionParam, ['edit','submit','preview','submit2','purge']) ) {
+		if ( $wgLanguageCode == 'en' && $actionParam == 'edit') {
+			$anonVisible = true;
+		} elseif ( in_array($actionParam, ['preview','purge','submit','submit2']) ) {
 			$anonVisible = true;
 		} elseif ( $actionParam && $actionParam != 'view' ) {
 			// Hide pages if action is set and NOT action=view

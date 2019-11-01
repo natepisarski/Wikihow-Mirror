@@ -121,7 +121,7 @@ class Avatar extends UnlistedSpecialPage {
 			if ($raw['type'] != 'df') {
 				$cssClass = $isFacebook ? 'avatar_fb' : 'avatar_gp';
 				$imgUrl = self::getAvatarUrlFromRaw($raw);
-				$ret .= "<div id='avatarID' class='$cssClass'><img id='avatarULimg' src='{$imgUrl}'  height='50px' width='50px' alt='' /><br/>";
+				$ret .= "<div id='avatarID' class='$cssClass'><img id='avatarULimg' src='{$imgUrl}'  height='80px' width='80px' alt='' /><br/>";
 				if ($u->getID() == $wgUser->getID() && $wgTitle->inNamespace(NS_USER)) {
 					$ret .="<a href='#' onclick='removeButton();return false;'>remove</a>";
 				}

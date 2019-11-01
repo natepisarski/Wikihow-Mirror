@@ -165,14 +165,18 @@ class ConfigStorage {
 	}
 
 	public static function hasUserRestrictions($key) {
-		global $wgUser;
-
 		// if they are using a maintenance process, saving is always allowed
-		if (!$wgUser) {
+		$user = RequestContext::getMain()->getUser();
+		if (!$user) {
 			return true;
 		}
+		$username = $user->getName();
 
-		$user = $wgUser->getName();
+		// if user is not on EN, we don't apply these rules
+		$langCode = RequestContext::getMain()->getLanguage()->getCode();
+		if ($langCode != 'en') {
+			return true;
+		}
 
 		$rules = [
 			[ // rule 1
@@ -187,9 +191,10 @@ class ConfigStorage {
 				'wikihow.health', 'wikihow.life', 'wikihow.mom', 'wikihow.pet',
 				'wikihow.tech', 'wikihow-fun.com', 'wikihow.legal', 'wikihowanswers_donotedit', 'qa_blacklisted_article_ids', 'qa_box_article_ids',
 				'qa_category_blacklist', 'ad-exclude-list', 'amp_disabled_pages', 'staff_reviewers',
+				'project_pages_anon',
 			  ],
 			  'users' =>
-			    ['Anna', 'Chris H', 'ElizabethD', 'Argutier'] // Anna, Chris, Eliz == ACE!
+			    ['Argutier', 'Chris H', 'ElizabethD', 'JayneG']
 			],
 
 			[ // rule 2
@@ -210,7 +215,7 @@ class ConfigStorage {
 		foreach ($rules as $rule) {
 			if ( in_array($key, $rule['keys']) ) {
 				$coveredRule = true;
-				if ( in_array($user, $rule['users']) ) {
+				if ( in_array($username, $rule['users']) ) {
 					return true;
 				}
 			}

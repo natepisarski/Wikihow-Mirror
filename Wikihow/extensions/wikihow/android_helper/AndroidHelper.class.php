@@ -8,7 +8,8 @@ class AndroidHelper {
 	const QUERY_STRING_PARAM = "wh_an";
 
 	public static function isAndroidRequest() {
-		return stripos($_SERVER['REQUEST_URI'], self::QUERY_STRING_PARAM . '=1') !== false;
+		return isset($_SERVER['REQUEST_URI']) &&
+			stripos($_SERVER['REQUEST_URI'], self::QUERY_STRING_PARAM . '=1') !== false;
 	}
 
 	public static function onTitleSquidURLsPurgeVariants($title, &$urls) {

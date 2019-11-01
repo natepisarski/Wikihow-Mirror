@@ -873,9 +873,8 @@ class WikihowArticleHTML {
 			$widget->addWidget();
 		}
 
-		$ads = $opts['ads'];
-		if ( $ads ) {
-			$ads->addToBody();
+		if ( isset( $opts['ads'] ) && $opts['ads'] ) {
+			$opts['ads']->addToBody();
 		}
 
 		//special querystring for loading pages faster by removing step images

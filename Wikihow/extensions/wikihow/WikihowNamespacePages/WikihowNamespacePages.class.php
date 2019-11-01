@@ -12,7 +12,7 @@ class WikihowNamespacePages {
 	 * - auto-redirect to mobile on mobile devices
 	 * - no auto-redirect to desktop
 	 */
-	public static function mobileFriendlyPages(): array {
+	private static function mobileFriendlyPages(): array {
 		return [
 			wfMessage( 'gdpr_mobile_menu_bottom_link' )->text(),
 			wfMessage( 'gdpr_mobile_menu_top_link' )->text(),
@@ -33,31 +33,13 @@ class WikihowNamespacePages {
 			'Jobs',
 			'Free-Basics',
 			'Cookie-Policy-Info',
-			'Cookie-Policy-Information'
+			'Cookie-Policy-Information',
 		];
 	}
 
-	public static function anonAvailablePages(): array {
-		$anonAvailableList = [
-			'Administrator-Notice-Board',
-			'After-You-Publish-(for-Students)',
-			'Anonymous',
-			'Carbon-Neutral',
-			'Content-Management',
-			'Contributions-to-Charity',
-			'COPPA',
-			'COPPA-Parental-Permission-Form',
-			'Editing-Basics',
-			'Engineering',
-			'External-Links',
-			'Project-Management',
-			'Staff',
-			'Title-Policy',
-			'Tourtext',
-			'Why-Hide-Ads',
-			'Why-We-wikiHow',
-		];
-		return array_merge(self::mobileFriendlyPages(), $anonAvailableList);
+	public static function isAvailableToAnons($title): bool {
+		$isAvailable = ArticleTagList::hasTag( 'project_pages_anon', $title->getArticleID() );
+		return $isAvailable;
 	}
 
 	public static function anonAvailableTalkPages(): array {
@@ -175,7 +157,7 @@ class WikihowNamespacePages {
 		if (self::wikiHowNamespacePage()) {
 			//safe to run w/o checks because the IF already validated it all
 			$title = RequestContext::getMain()->getOutput()->getTitle();
-			if (in_array($title->getDBkey(), WikihowNamespacePages::mobileFriendlyPages())) $mobileAllowed = true;
+			if (in_array($title->getDBkey(), self::mobileFriendlyPages())) $mobileAllowed = true;
 		}
 	}
 }

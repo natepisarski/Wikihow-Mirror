@@ -17,6 +17,12 @@ class AdminCoauthorIntl extends UnlistedSpecialPage
 			return;
 		}
 
+		if ( Misc::isIntl() ) {
+			$enURL = 'https://www.wikihow.com/Special:AdminCoauthorIntl';
+			$out->addHTML("Please use this tool on the English site: <a href='$enURL'>$enURL</a>");
+			return;
+		}
+
 		if ( ! $req->wasPosted() ) {
 			$out->setPageTitle('Admin Coauthor INTL');
 			$out->addModules('ext.wikihow.AdminCoauthorIntl');
@@ -29,13 +35,13 @@ class AdminCoauthorIntl extends UnlistedSpecialPage
 				Misc::jsonResponse( 'Not authorized.', 400 );
 			} else {
 				ini_set('memory_limit', '1024M');
-				if ( $action == 'import_date_overrides' ) {
-					$stats = CoauthorSheetIntl::recalculateIntlArticles();
-					$stats['title'] = 'Overrides import results';
-				}
-				elseif ( $action == 'import_blurb_translations' ) {
+				if ( $action == 'import_blurb_translations' ) {
 					$stats = CoauthorSheetIntl::importTranslations();
 					$stats['title'] = 'Localization import results';
+				}
+				elseif ( $action == 'import_date_overrides' ) {
+					$stats = CoauthorSheetIntl::recalculateIntlArticles();
+					$stats['title'] = 'Overrides import results';
 				}
 				else {
 					Misc::jsonResponse( 'Action not supported.', 400 );

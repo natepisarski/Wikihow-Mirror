@@ -10,3 +10,15 @@ $wgExtensionCredits['specialpage'][] = array (
 
 $wgSpecialPages['AQRater'] = 'AQRater';
 $wgAutoloadClasses['AQRater'] = __DIR__ . '/AQRater.body.php';
+
+$wgResourceModules['ext.aqrater'] = [
+	'scripts' => [
+		'../common/download.jQuery.js',
+		'../mobile/webtoolkit.aim.min.js',
+		'aqrater.js',
+	],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/AQRater',
+	'position' => 'top',
+	'targets' => [ 'desktop' ]
+];

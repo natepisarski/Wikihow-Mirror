@@ -336,31 +336,6 @@ class VerifyData {
 
 	# IMPORT TOOL
 
-	public static function replaceBlurbs(string $lang, array $blurbs) {
-		if ( !$blurbs ) {
-			return;
-		}
-
-		$dbw = wfGetDB( DB_MASTER );
-		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
-
-		// Delete blurbs that were removed from the spreadsheet
-
-		$blurbIDsToInsert = $dbw->makeList( array_keys($blurbs) );
-		$res = $dbw->delete( $blurbTable, "cab_blurb_id NOT IN ($blurbIDsToInsert)" );
-
-		// Upsert the blurbs
-
-		$blurbRowsToUpsert = [];
-		foreach ($blurbs as $blurb) {
-			$blurbRowsToUpsert[] = CoauthorBlurb::makeDBRow($blurb);
-		}
-		$dbw->upsert($blurbTable, $blurbRowsToUpsert, [], [
-			'cab_byline = VALUES(cab_byline)',
-			'cab_blurb = VALUES(cab_blurb)',
-		]);
-	}
-
 	public static function replaceCoauthors(string $lang, array $coauthors) {
 		global $wgMemc;
 
@@ -373,8 +348,7 @@ class VerifyData {
 		$dbName = Misc::getLangDB($lang);
 		$verifierTable = $dbName . '.' . self::VERIFIER_TABLE;
 
-		// Delete coauthors that were removed from the spreadsheet.
-		// But as of 2019-04 coauthor removals are not allowed: (CoauthorSheetMaster.php).
+		// Delete coauthors that were soft-deleted from the Master spreadsheet (i.e. flagged as 'categ_removed')
 
 		$coauthorIDstoDelete = [];
 		$coauthorIDsToInsert = $dbr->makeList( array_keys($coauthors) );
@@ -413,6 +387,31 @@ class VerifyData {
 
 		$cacheKey = self::getCacheKeyForAllCoauthors( $lang );
 		$wgMemc->delete( $cacheKey );
+	}
+
+	public static function replaceBlurbs(string $lang, array $blurbs) {
+		if ( !$blurbs ) {
+			return;
+		}
+
+		$dbw = wfGetDB( DB_MASTER );
+		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
+
+		// Delete blurbs that were removed from the spreadsheet
+
+		$blurbIDsToInsert = $dbw->makeList( array_keys($blurbs) );
+		$res = $dbw->delete( $blurbTable, "cab_blurb_id NOT IN ($blurbIDsToInsert)" );
+
+		// Upsert the blurbs
+
+		$blurbRowsToUpsert = [];
+		foreach ($blurbs as $blurb) {
+			$blurbRowsToUpsert[] = CoauthorBlurb::makeDBRow($blurb);
+		}
+		$dbw->upsert($blurbTable, $blurbRowsToUpsert, [], [
+			'cab_byline = VALUES(cab_byline)',
+			'cab_blurb = VALUES(cab_blurb)',
+		]);
 	}
 
 	public static function replaceArticles(string $lang, array $articles) {

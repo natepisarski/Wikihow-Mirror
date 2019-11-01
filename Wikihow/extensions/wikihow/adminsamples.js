@@ -42,7 +42,7 @@
 				$(dname).html('<input type=\"text\" class=\"dname_edit\" name=\"dname_edit\" value=\"'+$(dname).html()+'\" /> <input type=\"button\" id=\"dname_change\" value=\"Update\" />');
 
 				$('#dname_change').click(function() {
-					var new_dname = $(this).prev().attr('value');
+					var new_dname = $(this).prev().val();
 					$.post('/Special:AdminSamples?action=edit', { 'sample': samp, 'dname': new_dname, 'pages-list': 'nothing' }, function(data) {
 						if (data.length) {
 							$(dname).html(new_dname);
@@ -68,13 +68,13 @@
 			});
 
 			$('#add_new_dname').click(function() {
-				var samp = $('#new_sample').attr('value');
-				var dname = $('#new_dname').attr('value');
+				var samp = $('#new_sample').val();
+				var dname = $('#new_dname').val();
 
 				$.post('/Special:AdminSamples?action=addnew', { 'sample': samp, 'dname': dname, 'pages-list': 'nothing' }, function(data) {
 					if (data.length) {
-						$('#new_sample').attr('value','');
-						$('#new_dname').attr('value','');
+						$('#new_sample').val('');
+						$('#new_dname').val('');
 						alert(data);
 						location.reload();
 					}

@@ -64,11 +64,43 @@ class ArticleHooks {
 	}
 
 	public static function updateArticleMetaInfo($wikiPage, $user, $content) {
-		global $wgOut;
+		global $wgOut, $wgTitle, $wgServer;
 		$title = $wikiPage->getTitle();
 		$ami = new ArticleMetaInfo( $title );
 		$lastVideo = '';
 		$summaryVideo = '';
+
+		// Fake various things that a real web-request would expect - this is needed because we
+		// call processBody (via WikihowArticleHTML::processArticleHTML) which is not designed to
+		// be run outside of a normal web request, and this hook is sometimes called due to an edit
+		// made by a maintenance script.
+		if ( !isset( $wgServer ) ) {
+			$wgServer = 'wikihow.com';
+		}
+		if ( !isset( $_SERVER['HTTP_HOST'] ) ) {
+			$_SERVER['HTTP_HOST'] = $wgServer;
+		}
+		if ( !isset( $_SERVER['REQUEST_URI'] ) ) {
+			$_SERVER['REQUEST_URI'] = '/' . $title->getDBKey();
+		}
+		if ( !isset( $wgTitle ) ) {
+			$wgTitle = $title;
+		}
+		if ( !$wgOut->getContext()->getTitle() ) {
+			$wgOut->getContext()->setTitle( $title );
+		}
+		$req = $wgOut->getContext()->getRequest();
+		$url = null;
+		try {
+			// Throws exception when requestUrl is null, see FauxRequest.php
+			$url = $req->getRequestURL();
+		} catch ( Exception $e ) {
+			$url = null;
+		} finally {
+			if ( $url === null ) {
+				$req->setRequestUrl( $title->getDBKey() );
+			}
+		}
 
 		// Only for main-site and main-namespace, otherwise we want them to be blank
 		if (
@@ -76,70 +108,81 @@ class ArticleHooks {
 			!( class_exists('AlternateDomain') &&
 				(bool)AlternateDomain::getAlternateDomainForPage( $title->getArticleID() ) )
 		) {
+			try {
+				// Parse new content
+				$context = RequestContext::getMain();
+				$context->setTitle( $title );
+				$out = $context->getOutput();
+				$parser = MediaWikiServices::getInstance()->getParserFactory()->create();
+				$options = $out->parserOptions();
+				$options->setTidy( true );
+				$options->setEditSection( false );
+				$parserOutput = $out->parse(
+					ContentHandler::getContentText( $content ),
+					$title,
+					$options
+				);
+				$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $content ) );
+				$html = WikihowArticleHTML::processArticleHTML(
+					$parserOutput,
+					[ 'no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic ]
+				);
 
-			// Parse new content
-			$context = RequestContext::getMain();
-			$context->setTitle( $title );
-			$out = $context->getOutput();
-			$parser = MediaWikiServices::getInstance()->getParserFactory()->create();
-			$options = $out->parserOptions();
-			$options->setTidy( true );
-			$options->setEditSection( false );
-			$parserOutput = $out->parse(
-				ContentHandler::getContentText( $content ),
-				$title,
-				$options
-			);
-			$magic = WikihowArticleHTML::grabTheMagic(ContentHandler::getContentText( $content ) );
-			$html = WikihowArticleHTML::processArticleHTML(
-				$parserOutput,
-				[ 'no-ads' => true, 'ns' => NS_MAIN, 'magic-word' => $magic ]
-			);
+				$doc = phpQuery::newDocument( $html );
 
-			$doc = phpQuery::newDocument( $html );
-
-			// Find the source URLs for the last video clip and the summary video
-			foreach ( pq( 'video.m-video' ) as $video ) {
-				// Inline summary video
-				if (
-					!pq( $video )->attr( 'data-summary' ) &&
-					!pq( $video )->attr( 'id' ) !== 'summary_video_poster'
-				) {
-					// Inline video clip
-					$lastVideo = pq( $video )->attr( 'data-src' );
+				// Find the source URLs for the last video clip and the summary video
+				foreach ( pq( 'video.m-video' ) as $video ) {
+					// Inline summary video
+					if (
+						!pq( $video )->attr( 'data-summary' ) &&
+						!pq( $video )->attr( 'id' ) !== 'summary_video_poster'
+					) {
+						// Inline video clip
+						$lastVideo = pq( $video )->attr( 'data-src' );
+					}
 				}
-			}
-			$src = pq( '#summary_wrapper' )->attr( 'data-summary-video-src' );
-			if ( $src ) {
-				$summaryVideo = $src;
+				$src = pq( '#summary_wrapper' )->attr( 'data-summary-video-src' );
+				if ( $src ) {
+					$summaryVideo = $src;
+				}
+
+				// Log the change
+				$ami->loadInfo();
+
+				$url = isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ?
+					$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] : '';
+
+				if ( $ami->row['ami_summary_video'] != $summaryVideo ) {
+					wfDebugLog( 'articlemetainfo', var_export( [
+						'url' => $url,
+						'page_title' => $title->getText(),
+						'page_namespace' => $title->getNamespace(),
+						'page_id' => $title->getArticleID(),
+						'summary_video' => [
+							'database' => $ami->row['ami_summary_video'],
+							'content' => $summaryVideo
+						],
+						'last_video' => [
+							'database' => $ami->row['ami_video'],
+							'content' => $lastVideo
+						],
+						'html' => isset( $doc ) ? $doc->htmlOuter() : ''
+					], true ) . "\n" );
+				}
+
+				// Update article meta info with their source URLs
+				$ami->updateVideoPaths( $lastVideo, $summaryVideo );
+				// TODO: Update summary_videos directly
+			} catch ( Exception $error ) {
+				wfDebugLog( 'articlemetainfo', var_export( [
+					'url' => $url,
+					'page_title' => $title->getText(),
+					'page_namespace' => $title->getNamespace(),
+					'page_id' => $title->getArticleID(),
+					'error' => $error->getMessage()
+				], true ) . "\n" );
 			}
 		}
-
-		// Log the change
-		$ami->loadInfo();
-
-		if ( $ami->row['ami_summary_video'] != $summaryVideo ) {
-			wfDebugLog( 'articlemetainfo', var_export( [
-				'url' => $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-				'page_title' => $title->getText(),
-				'page_namespace' => $title->getNamespace(),
-				'page_id' => $title->getArticleID(),
-				'summary_video' => [
-					'database' => $ami->row['ami_summary_video'],
-					'content' => $summaryVideo
-				],
-				'last_video' => [
-					'database' => $ami->row['ami_video'],
-					'content' => $lastVideo
-				],
-				'html' => isset( $doc ) ? $doc->htmlOuter() : ''
-			], true ) . "\n" );
-		}
-
-		// Update article meta info with their source URLs
-		$ami->updateVideoPaths( $lastVideo, $summaryVideo );
-
-		// TODO: Update summary_videos directly
 
 		return true;
 	}

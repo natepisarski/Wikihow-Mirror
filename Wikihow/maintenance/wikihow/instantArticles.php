@@ -108,7 +108,7 @@ class InstantArticles extends Maintenance {
 
 		// Do the main GA ping
 		ga('create', UA-2375655-1, 'auto', { 'allowLinker': true });
-		ga('linker:autoLink', [/^.*wikihow\.(com|jp|vn)$/]);
+		ga('linker:autoLink', [/^.*\.wikihow\.(com|jp|vn)$/]);
 		ga('send', 'pageview');</iframe></figure>";
 
 		$result->append($analytics);

@@ -32,21 +32,11 @@ class CoauthorSheetIntl extends CoauthorSheet
 	}
 
 	public static function getLocalizationSheetId(): string {
-		global $wgIsDevServer;
-		if ($wgIsDevServer) {
-			return '1IN15FiCdCgZ5U9_lXcEFwSdA5_AoTeoTZdAJCthj0FQ'; // dev
-		} else {
-			return '1wXloPN4fEahP4LEFeG_JMyyZALbK03URnP_uW3un2eg'; // prod
-		}
+		return '1wXloPN4fEahP4LEFeG_JMyyZALbK03URnP_uW3un2eg';
 	}
 
 	public static function getOverridesSheetId(): string {
-		global $wgIsDevServer;
-		if ($wgIsDevServer) {
-			return '1P1Qbm4d8QvTdd6uBUNQNntChu3uJk94qzNQUeC_WiAY'; // dev
-		} else {
-			return '1tm3USIvG-ug-OT7Bv9gYP6idhtIH3uwxy2Dji46sFZQ'; // prod
-		}
+		return '1tm3USIvG-ug-OT7Bv9gYP6idhtIH3uwxy2Dji46sFZQ';
 	}
 
 	public static function recalculateIntlArticles(): array {
@@ -89,10 +79,6 @@ class CoauthorSheetIntl extends CoauthorSheet
 			$blurb = trim($row['Blurb Translation']);
 
 			list($coauthorId, $blurbNum) = self::parseBlurbId($blurbId, 0, $errors, $rowInfo);
-
-			if ( $blurbNum && !isset($enBlurbs[$blurbId]) ) {
-				$errors[] = "$rowInfo Blurb ID not found: $blurbId";
-			}
 
 			if ( $blurbNum && isset($translations[$blurbId]) ) {
 				$errors[] = "$rowInfo Duplicate blurb ID: $blurbId";

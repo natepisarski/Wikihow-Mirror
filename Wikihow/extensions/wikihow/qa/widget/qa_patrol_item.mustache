@@ -14,12 +14,12 @@
 				<div class="qa_badge"></div>
 
 			{{#verifierId}}
-				<a href="{{verifierData.articleReviewersUrl}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image: url({{verifierData.imagePath}})"{{/verifierData.imagePath}}>
+				<a href="{{verifierData.articleReviewersUrl}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image:url({{verifierData.imagePath}}),url(/skins/WikiHow/images/80x80_user.png)"{{/verifierData.imagePath}}>
 					{{^verifierData.imagePath}}<span>{{verifierData.initials}}</span>{{/verifierData.imagePath}}</a>
 			{{/verifierId}}
 
 			{{^verifierId}}
-				<div class="qa_person_circle" {{#submitterAvatar}}style="background-image:url({{{submitterAvatar}}})"{{/submitterAvatar}}></div>
+				<div class="qa_person_circle" {{#submitterAvatar}}style="background-image:url({{{submitterAvatar}}}),url(/skins/WikiHow/images/80x80_user.png)"{{/submitterAvatar}}></div>
 			{{/verifierId}}
 
 				<div class="qa_answerer_info">

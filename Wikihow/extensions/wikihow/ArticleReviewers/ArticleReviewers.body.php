@@ -50,7 +50,7 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		$isIntl = Misc::isIntl();
 		foreach ($experts as $expert) {
 
-			if ( $expert->category == 'categ_community' ) {
+			if ( $expert->category == 'categ_community' || $expert->category == 'categ_removed' ) {
 				continue;
 			}
 
