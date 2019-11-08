@@ -26,3 +26,11 @@ $wgExtensionCredits['specialpage'][] = array(
 $wgSpecialPages['CategoryListing'] = 'CategoryListing';
 $wgAutoloadClasses['CategoryListing'] = __DIR__ . '/Categorylisting.body.php';
 $wgExtensionMessagesFiles['CategoryListingAliases'] = __DIR__ . '/Categorylisting.alias.php';
+
+$wgResourceModules['ext.wikihow.mobile_category_listing'] = [
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/categories',
+	'styles' => ['category-listing-responsive.less'],
+	'position' => 'top',
+	'targets' => ['mobile'],
+];

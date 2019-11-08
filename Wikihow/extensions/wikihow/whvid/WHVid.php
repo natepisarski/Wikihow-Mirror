@@ -15,7 +15,6 @@ $wgHooks['BeforePageDisplay'][] = 'WHVid::onBeforePageDisplay';
 $wgHooks['AddTopEmbedJavascript'][] = 'WHVid::onAddTopEmbedJavascript';
 $wgHooks['DesktopTopStyles'][] = 'WHVid::addCSS';
 $wgHooks['MobileEmbedStyles'][] = 'WHVid::addCSS';
-$wgHooks['AddMobileTOCItemData'][] = 'WHVid::onAddMobileTOCItemData';
 $wgHooks['ProcessArticleHTMLAfter'][] = 'WHVid::onProcessArticleHTMLAfter';
 $wgHooks['MobileProcessArticleHTMLAfter'][] = 'WHVid::onProcessArticleHTMLAfter';
 

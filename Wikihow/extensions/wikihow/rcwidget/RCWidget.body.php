@@ -8,6 +8,10 @@ class RCWidget extends UnlistedSpecialPage {
 		parent::__construct('RCWidget');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	private static function addRCElement(&$widget, &$count, $obj) {
 		global $wgContLang;
 		if (isset($obj['text'])
@@ -382,21 +386,19 @@ HTML;
 	}
 	*/
 
-	public static function showWidgetJS() {
+	public static function rcWidgetJS() {
 		$nab_RedThreshold = (int)(wfMessage('RCwidget-nab-red-threshold')->text());
 		$patrol_RedThreshold = (int)(wfMessage('RCwidget-unpatrolled-red-threshold')->text());
-?>
-	<script>
-		WH.rcwidgetParams = {
-			'rc_loadNow': true,
-			'rc_URL': '/Special:RCWidget',
-			'rc_ReloadInterval': 60000,
-			'rc_nabRedThreshold': <?= json_encode($nab_RedThreshold) ?>,
-			'rc_patrolRedThreshold': <?= json_encode($patrol_RedThreshold) ?>
-		};
-		mw.loader.load('ext.wikihow.rcwidget');
-	</script>
-<?php
+
+		return "<script>
+			WH.rcwidgetParams = {
+				'rc_loadNow': true,
+				'rc_URL': '/Special:RCWidget',
+				'rc_ReloadInterval': 60000,
+				'rc_nabRedThreshold': ". json_encode($nab_RedThreshold) .",
+				'rc_patrolRedThreshold': ". json_encode($patrol_RedThreshold) ."
+			};
+		</script>";
 	}
 
 	public function execute($par) {

@@ -1,11 +1,15 @@
 <div role='navigation' id='method_toc'>
 	<div>
 
+		<span class="header_toc">{{title}}</span>
 		<div id='method_toc_list'>
 
 			{{#toc}}
-			<div class='{{method_class}}' data-section="{{section}}">
-				<a href='#{{anchor_link}}'>{{text}}</a>
+			<div class='method_toc_item {{method_class}} {{class}}' id='{{id}}' data-section="{{section}}">
+				<a href='{{url}}'>
+					{{{text}}}
+					{{#icon}}<span class='{{icon}}'></span>{{/icon}}
+				</a>
 			</div>
 			{{/toc}}
 

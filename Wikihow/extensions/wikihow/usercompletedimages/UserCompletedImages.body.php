@@ -28,32 +28,47 @@ class UserCompletedImages extends UnlistedSpecialPage {
 		parent::__construct('UserCompletedImages');
 	}
 
-	//[sc] 12/2018 - removing UCI from mobile
-	// public function isMobileCapable() {
-	// 	return true;
-	// }
+	public function isMobileCapable() {
+		return true;
+	}
 
 	public function isAnonAvailable() {
 		return true;
 	}
 
 	public function execute($par) {
+		global $wgMimeType;
+
 		if ($this->getUser()->isBlocked()) {
 			throw new PermissionsError( 'usercompletedimages' );
 		}
 
 		$this->getOutput()->setArticleBodyOnly(true);
-		header('Content-type: application/json');
+		$wgMimeType = 'application/json'; // force response mime type to json
 
-		$result = array();
-		$toDelete = $this->getRequest()->getVal('delete');
-		if ($toDelete) {
-			$result = $this->deleteImage($toDelete);
-		} else {
-			$result = $this->uploadImage();
+		$result = [];
+		$request = $this->getRequest();
+		$action = $request->getVal('action', '');
+
+		// $toDelete = $request->getVal('delete');
+		// if ($toDelete) {
+		// 	$result = $this->deleteImage($toDelete);
+		// }
+
+		if ($action == 'upload') {
+			$fromPage = $request->getVal('viapage', '');
+			$result = $this->uploadImage($fromPage);
+		}
+		elseif ($action == 'get_mobile_html') {
+			global $wgSquidMaxage;
+			$this->getOutput()->setCdnMaxage($wgSquidMaxage);
+			$this->getRequest()->response()->header('X-Robots-Tag: noindex, nofollow');
+
+			$article_id = $request->getInt('article_id', 0);
+			$result = $this->getMobileSectionHTML($article_id);
 		}
 
-		//$mobile = $this->getRequest()->getFuzzyBool( 'mobile' );
+		//$mobile = $request->getFuzzyBool( 'mobile' );
 		//if ( $mobile === false ) {
 			//$result['uploadResponse'] = SocialProofStats::getSidebarVerifyHtml();
 		//}
@@ -87,13 +102,11 @@ class UserCompletedImages extends UnlistedSpecialPage {
 			array());
 	}
 
-	protected function uploadImage() {
+	protected function uploadImage($fromPage) {
 		//global $wgImageMagickConvertCommand, $wgServer;
 
 		$request = $this->getRequest();
-		$result = array();
-
-		$fromPage = $request->getVal('viapage');
+		$result = [];
 
 		// sanity check on the page to link to
 		$title = Title::newFromText($fromPage, NS_MAIN);
@@ -610,36 +623,35 @@ class UserCompletedImages extends UnlistedSpecialPage {
 		}
 	}
 
-	//[sc] 12/2018 - removing UCI from mobile
-	// public static function getMobileSectionHTML($context) {
-	// 	if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
-	// 		return '';
-	// 	}
+	public static function getMobileSectionPlaceholder(): String {
+		return '<div id="uci_section" class="section"></div>';
+	}
 
-	// 	if (!$context) {
-	// 		return '';
-	// 	}
+	private function getMobileSectionHTML(Int $article_id = 0): Array {
+		$title = Title::newFromId($article_id);
+		if (!self::validMobileUCIArticle( $title )) return [];
 
-	// 	$title = $context->getTitle();
+		$context = RequestContext::getMain();
+		$result = [];
+		$offset = 0;
+		$limit = 7;
+		$data = self::getUCIData( $context, $title, $offset, $limit );
+		if ( $data ) {
+			EasyTemplate::set_path(__DIR__.'/');
+			$result = [ 'html' => EasyTemplate::html( 'mobile-image-upload.tmpl.php', $data ) ];
+		}
 
-	// 	if ( !$title || !$title->exists() ) {
-	// 		return '';
-	// 	}
+		return $result;
+	}
 
-	// 	if (!self::onWhitelist($title)) {
-	// 		return '';
-	// 	}
+	public static function validMobileUCIArticle(Title $title = null): Bool {
+		$android_request = class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest();
 
-	// 	$offset = 0;
-	// 	$limit = 7;
-	// 	$data = self::getUCIData( $context, $title, $offset, $limit );
-	// 	if ( $data ) {
-	// 		EasyTemplate::set_path(__DIR__.'/');
-	// 		$result = EasyTemplate::html( 'mobile-image-upload.tmpl.php', $data );
-	// 	}
-
-	// 	return $result;
-	// }
+		return $title &&
+			$title->exists() &&
+			!$android_request &&
+			self::onWhitelist($title);
+	}
 
 	private static function updateWhitelist($pageIds, $val) {
 		$dbw = wfGetDB(DB_MASTER);
@@ -664,17 +676,10 @@ class UserCompletedImages extends UnlistedSpecialPage {
 		self::updateWhitelist($pageIds, 1);
 	}
 
-	//[sc] 12/2018 - removing UCI from mobile
-	// public static function onAddMobileTOCItemData($wgTitle, &$extraTOCPreData, &$extraTOCPostData) {
-	// 	if (self::onWhitelist($wgTitle)) {
-	// 		$extraTOCPostData[] = [
-	// 			'anchor' => 'uci_header',
-	// 			'name' => 'Reader Pictures',
-	// 			'priority' => 1600,
-	// 			'selector' => '.section#uci_section',
-	// 		];
-	// 	}
-
-	// 	return true;
-	// }
+	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		if (Misc::isMobileMode() && !GoogleAmp::isAmpMode($out) && self::validMobileUCIArticle( $out->getTitle() ) ) {
+			$out->addModuleStyles(['mobile.wikihow.uci_styles']);
+			$out->addModules(['mobile.wikihow.uci']);
+		}
+	}
 }

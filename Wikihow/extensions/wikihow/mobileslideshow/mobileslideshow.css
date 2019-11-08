@@ -504,3 +504,7 @@ a.pswp__share--download:hover {
 
 .pswp--minimal--dark .pswp__top-bar {
 	background: none; }
+
+.pswp__caption__info {
+	font-size: 12px;
+}

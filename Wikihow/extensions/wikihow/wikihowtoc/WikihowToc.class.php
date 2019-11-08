@@ -9,6 +9,11 @@ class WikihowToc {
 	private static $videoSummary = null;
 	private static $expertAdvice = null;
 	private static $hasAnswers = false;
+	private static $tipsandwarnings = null;
+	private static $thingsyoullneed = null;
+	private static $thingsyoullneedIsFirst = false;
+	private static $relatedwHs = null;
+	private static $ingredients = null;
 
 	const MAX_ITEMS = 8;
 	const MAX_METHODS = 3;
@@ -21,10 +26,32 @@ class WikihowToc {
 		self::$methodNames = $methodNames;
 	}
 
-	public static function setSummary() {
-		self::$summary = ['url' => '#', 'id' => 'summary_toc', 'text' => wfMessage('summary_toc')->text()];
+	public static function setTipsAndWarnings($hasTips) {
+		if($hasTips) {
+			self::$tipsandwarnings = ['url' => '#tips', 'id' => '', 'text' => wfMessage('tipsandwarnings')->text(), 'section' => '#tips'];
+		} else {
+			self::$tipsandwarnings = ['url' => '#warnings', 'id' => '', 'text' => wfMessage('tipsandwarnings')->text(), 'section' => '#warnings'];
+		}
 	}
 
+	public static function setThingsYoullNeed($isFirst = false) {
+		self::$thingsyoullneed = ['url' => '#thingsyoullneed', 'id' => '', 'text' => wfMessage('thingsyoullneed')->text(), 'section' =>' #thingsyoullneed'];
+		self::$thingsyoullneedIsFirst = $isFirst;
+	}
+
+	public static function setIngredients() {
+		self::$ingredients = ['url' => '#ingredients', 'id' => '', 'text' => wfMessage('ingredients')->text(), 'section' =>' #ingredients', 'class' => 'toc_pre'];
+	}
+
+	public static function setSummary() {
+		if(Misc::isMobileMode()) {
+			self::$summary = ['url' => '#summary_wrapper', 'id' => 'summary_toc', 'text' => wfMessage('summary_toc')->text(), 'section' => '#summary_wrapper'];
+		} else {
+			self::$summary = ['url' => '#', 'id' => 'summary_toc', 'text' => wfMessage('summary_toc')->text()];
+		}
+	}
+
+// TODO what is this .. came in on master but conflict while mergin
 	public static function setExpertAdvice(String $anchor = '', String $text = '') {
 		self::$expertAdvice = ['url' => '#'.$anchor, 'id' => 'ea_toc', 'text' => $text];
 	}
@@ -44,7 +71,8 @@ class WikihowToc {
 			'url' => $url,
 			'id' => 'summaryvideo_toc',
 			'icon' => 'summaryvideo_icon',
-			'text' => wfMessage('summaryvideo_toc')->text()
+			'text' => wfMessage('summaryvideo_toc')->text(),
+			'section' => $url
 		];
 	}
 
@@ -81,18 +109,22 @@ class WikihowToc {
 		} else {
 			$tocText = wfMessage('qa_ask_toc')->text();
 		}
-		self::$qanda = ['url' => '#Questions_and_Answers_sub', 'id' => 'qa_toc', 'text' => $tocText];
+		if(Misc::isMobileMode()) {
+			if(count($articleQuestions) > 0) {
+				self::$qanda = ['url' => '#qa_headline', 'id' => 'qa_toc', 'text' => $tocText, 'section' => '#qa_headline'];
+			}
+		} else {
+			self::$qanda = ['url' => '#Questions_and_Answers_sub', 'id' => 'qa_toc', 'text' => $tocText];
+		}
 	}
 
 	public static function setReferences() {
-		if (!Misc::isMobileMode()) {
-			$refCount = Misc::getReferencesCount();
-			if ($refCount > 0) {
-				$refTarget = Misc::getReferencesID();
-				self::$references = ['url' => $refTarget, 'id' => 'toc_ref', 'text' => wfMessage("references_toc")->text()];
-				if ( pq('#toc_ref')->length ) {
-					pq('#toc_ref')->attr('href', $refTarget);
-				}
+		$refCount = Misc::getReferencesCount();
+		if ($refCount > 0) {
+			$refTarget = Misc::getReferencesID();
+			self::$references = ['url' => $refTarget, 'id' => 'toc_ref', 'text' => wfMessage("references_toc")->text(), 'section' => $refTarget];
+			if ( pq('#toc_ref')->length ) {
+				pq('#toc_ref')->attr('href', $refTarget);
 			}
 		}
 	}
@@ -201,6 +233,145 @@ class WikihowToc {
 
 	}
 
+	public static function addMobileToc() {
+		self::processMethodNames();
+
+		$methodsShown = $primaryCount = min(self::MAX_METHODS, count(self::$methodNames));
+
+		$hasHidden = false;
+
+		$data = ['toc' => []];
+
+		if (count(self::$methodNames) > 0) {
+			for ($i = 0; $i < $methodsShown; $i++) {
+				$data['toc'][] = ['url' => "#".self::$methodAnchors[$i], 'class' => 'toc_method', 'text' => self::$methodNames[$i]];
+			}
+			for ($i = $methodsShown; $i < count(self::$methodNames); $i++) {
+				$data['toc'][] = ['url' => "#".self::$methodAnchors[$i], 'class' => 'toc_method toc_hidden', 'text' => self::$methodNames[$i]];
+				$hasHidden = true;
+			}
+		} else {
+			$data['toc'][] = ['url' => '#Steps', 'class' => 'toc_method', 'text' => wfMessage("Steps")->text()];
+			$primaryCount = 1;
+		}
+
+		if ($hasHidden) {
+			$hiddenCount = count(self::$methodNames) - $methodsShown;
+			$data['toc'][] = ['url' => '#', 'id' => 'toc_showmore', 'class' => 'toc_method toc_nav', 'text' => wfMessage("more_toc", $hiddenCount)->text()];
+			$data['toc'][] = ['url' => '#', 'id' => 'toc_showless', 'class' => 'toc_method toc_nav', 'text' => wfMessage("less_toc")->text()];
+			$primaryCount++;
+		}
+
+		$secondaryShown = self::MAX_ITEMS - $primaryCount;
+
+		//first deal with priority of the elements
+		$count = 0;
+		$tocIgnoreClass = " toc_ignore";
+		$tocPost = " toc_post";
+
+		if(self::$ingredients != null) {
+			if ($count < $secondaryShown) {
+				$count++;
+			} else {
+				self::$ingredients['class'] .= $tocIgnoreClass;
+			}
+		}
+		if(self::$references != null) {
+			self::$references['class'] .= $tocPost;
+			if ($count < $secondaryShown) {
+				$count++;
+			} else {
+				self::$references['class'] .= $tocIgnoreClass;
+			}
+		}
+		if(self::$summary != null) {
+			self::$summary['class'] .= $tocPost;
+			if ($count < $secondaryShown) {
+				$count++;
+			} else {
+				self::$summary['class'] .= $tocIgnoreClass;
+			}
+		}
+		if(self::$videoSummary != null) {
+			self::$videoSummary['class'] .= $tocPost;
+			if ($count < $secondaryShown) {
+				$count++;
+			} else {
+				self::$videoSummary['class'] .= $tocIgnoreClass;
+			}
+		}
+		if(self::$qanda != null && self::$hasAnswers) {
+			self::$qanda['class'] .= $tocPost;
+			if ($count < $secondaryShown) {
+				$count++;
+			} else {
+				self::$qanda['class'] .= $tocIgnoreClass;
+			}
+		}
+		self::$relatedwHs = ['url' => '#relatedwikihows', 'id' => 'rwh_toc', 'text' => wfMessage('related_toc'), 'class' => $tocPost, 'section' => '#relatedwikihows'];
+		if ($count < $secondaryShown) { //related wHs are always on the page
+			$count++;
+		} else {
+			self::$relatedwHs['class'] .= $tocIgnoreClass;
+		}
+		if(self::$tipsandwarnings != null) {
+			self::$tipsandwarnings['class'] .= $tocPost;
+			if ($count < $secondaryShown) {
+				$count++;
+			} else {
+				self::$tipsandwarnings['class'] .= $tocIgnoreClass;
+			}
+		}
+		if(self::$thingsyoullneed != null) {
+			self::$thingsyoullneed['class'] .= $tocPost;
+			if($count < $secondaryShown) {
+				$count++;
+			} else {
+				self::$thingsyoullneed['class'] .= $tocIgnoreClass;
+			}
+		}
+
+		//now put them in order
+		if(self::$ingredients != null) {
+			//goes before steps
+			$data['toc'] = array_merge([self::$ingredients], $data['toc']);
+		}
+		//q&a
+		if (self::$qanda != null) {
+			$data['toc'][] = self::$qanda;
+		}
+		if (self::$videoSummary != null) {
+			$data['toc'][] = self::$videoSummary;
+		}
+		if(self::$tipsandwarnings != null && !self::$thingsyoullneedIsFirst) {
+			$data['toc'][] = self::$tipsandwarnings;
+		}
+		if(self::$thingsyoullneed != null) {
+			$data['toc'][] = self::$thingsyoullneed;
+		}
+		if(self::$tipsandwarnings != null && self::$thingsyoullneedIsFirst) {
+			$data['toc'][] = self::$tipsandwarnings;
+		}
+		//related wHs
+		if (self::$relatedwHs != null) {
+			$data['toc'][] = self::$relatedwHs;
+		}
+
+		//summary
+		if (self::$summary != null) {
+			$data['toc'][] = self::$summary;
+		}
+		if (self::$references != null) {
+			$data['toc'][] = self::$references;
+		}
+
+		$data['title'] = wfMessage('title_toc')->text();
+
+		$html = self::renderTemplate('mobile_toc.mustache', $data);
+
+		pq("#intro")->prepend($html);
+	}
+
 	static function processMethodNames() {
 		$newMethodNames = [];
 		$newMethodAnchors = [];
@@ -216,7 +387,11 @@ class WikihowToc {
 			$methodName = htmlspecialchars( $methodName );
 
 			$newMethodNames[] = $methodName;
-			$newMethodAnchors[] = self::$methodAnchors[$i]."_sub";
+			if(Misc::isMobileMode()) {
+				$newMethodAnchors[] = self::$methodAnchors[$i];
+			} else {
+				$newMethodAnchors[] = self::$methodAnchors[$i] . "_sub";
+			}
 		}
 
 		self::$methodAnchors = $newMethodAnchors;
@@ -234,12 +409,7 @@ class WikihowToc {
 	}
 
 	public static function mobileToc(array $vars): string {
+		$vars['title'] = wfMessage('title_toc')->text();
 		return self::renderTemplate('mobile_toc.mustache', $vars);
-	}
-
-	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
-		if (Misc::isMobileMode()) {
-			$out->addModules(['ext.wikihow.mobile_toc']);
-		}
 	}
 }

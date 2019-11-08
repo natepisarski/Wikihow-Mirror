@@ -1,10 +1,12 @@
 .qz_container {
 	position:relative;
-	margin-top: 25px;
+	background-color: #FFF;
+	border-radius: 4px;
 }
 
 .qz_container.qz_desktop {
-	margin-bottom: 25px;
+	margin: 25px auto 25px;
+	border-radius: 0;
 }
 
 #qz_container_0 {
@@ -12,15 +14,20 @@
 }
 
 #mw-mf-page-center .qz_container {
-	margin-top: 26px;
 	font-size: 16px;
 }
 
 .qz_header {
-	background-color: #F6F5F4;
 	padding: 20px;
+	border: 1px solid #f3f3f3;
+	border-width: 1px 0;
+}
+
+.qz_desktop .qz_header {
+	background-color: #F6F5F4;
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
+	border-width: 0;
 }
 
 .content .qz_header p {
@@ -61,10 +68,6 @@
 	display: block;
 }
 
-/*.qz_section:target .qz_radio {
-	background-color: #93b874
-}*/
-
 .qz_section.incorrect .qz_explanation {
 	background-color: #f7cdc5;
 	background-image: url("/extensions/wikihow/quiz/sad_face_red.png");
@@ -80,16 +83,14 @@
 }
 
 .qz_radio {
-	margin-right: 10px;
-	float: left;
-	margin-top: 5px;
+	vertical-align: top;
+	margin-top: 1px;
+	height: 1em;
 }
 
 .qz_section label {
-	margin-left: 25px;
-	display: block;
+	margin-left: .8em;
 }
-
 
 .qz_form {
 	background-color: white;

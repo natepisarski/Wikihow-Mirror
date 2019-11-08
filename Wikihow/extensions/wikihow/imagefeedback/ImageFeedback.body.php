@@ -179,11 +179,8 @@ class ImageFeedback extends UnlistedSpecialPage {
 
 		$allowAnonFeedback = self::$allowAnonFeedback;
 
-		$isMobileMode = Misc::isMobileMode();
-
 		return $user &&
 			(!$user->isAnon() || $allowAnonFeedback) &&
-			!$isMobileMode &&
 			$title &&
 			$title->exists() &&
 			$title->inNamespace(NS_MAIN) &&

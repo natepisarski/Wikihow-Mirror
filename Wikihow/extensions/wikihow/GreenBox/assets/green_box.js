@@ -8,31 +8,41 @@
 			// detection), so re-hacking the hack:
 			// from https://stackoverflow.com/questions/3007480/determine-if-user-navigated-from-mobile-safari
 			var ua = window.navigator.userAgent;
-			var iosSafari = ua.match(/(iPad|iPhone.*WebKit)/i) && !ua.match(/CriOS/i);
-			if (iosSafari) this.addSafariTabHack();
+			var safari = ua.match(/Safari/i);
+			if (safari) this.addSafariTabHack();
 
-			var action = WH.isMobileDomain ? 'click' : 'mouseenter mouseleave';
-			var elements = '.green_box_person.expert .green_box_person_circle, .green_box_person.expert .green_box_expert_info';
+			$('.green_box_person.expert').on('mouseenter mouseleave click', function(e) {
+				if ($(e.target).length && $(e.target).hasClass('click_out')) {
+					//you shall pass...
+				}
+				else {
+					e.preventDefault();
+				}
 
-			$(elements).on(action, function() {
-				WH.GreenBox.toggleDialog(this);
+				//mobile taps trigger mouseenter and confuse some browsers
+				if (WH.isMobileDomain && e.type == 'mouseenter') return;
+
+				WH.GreenBox.toggleDialog(this, e.type);
 			});
 		},
 
-		toggleDialog: function(obj) {
+		toggleDialog: function(obj, e) {
 			if (WH.isMobileDomain) this.disallowClickClose();
 
-			var dialog = $(obj).closest('.green_box_person.expert').find('.green_box_expert_dialog');
+			var dialog = $(obj).find('.green_box_expert_dialog');
 			if (!$(dialog).length) return;
 
-			if ($(dialog).is(':visible')) {
-				$(dialog).hide();
-			}
-			else {
+			//slightly different logic for mobile taps than the desktop hover
+			var show = e == 'click' ? !$(dialog).is(':visible') : e == 'mouseenter';
+
+			if (show) {
 				$(dialog).show(100, $.proxy(function() {
 					if (WH.isMobileDomain) this.allowClickClose();
 				},this));
 				WH.maEvent('green_box_expert_dialog_open');
+			}
+			else {
+				$(dialog).hide();
 			}
 		},
 

@@ -11,18 +11,24 @@ $wgExtensionCredits['special'][] = array(
 $wgAutoloadClasses['Slider'] = __DIR__ . '/Slider.class.php';
 $wgExtensionMessagesFiles['Slider'] = __DIR__ . '/Slider.i18n.php';
 
-$wgResourceModules['ext.wikihow.slider_styles'] =
-	$wgResourceModulesDesktopBoilerStyles + [
-		'styles' => [ 'slider/slider.css' ],
-	];
+$wgResourceModules['ext.wikihow.slider_styles'] = [
+	'styles' => [ 'slider.css' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/slider',
+	'targets' => [ 'desktop', 'mobile' ],
+	'position' => 'bottom'
+];
 
-$wgResourceModules['ext.wikihow.slider'] =
-	$wgResourceModulesDesktopBoiler + [
-		'scripts' => [ 'slider/slider.js' ],
-		'messages' => [
-			'slider_cta_video',
-			'slider_url_text_video',
-			'slider_cta_category',
-			'slider_url_text_category',
-		]
-	];
+$wgResourceModules['ext.wikihow.slider'] = [
+	'scripts' => [ 'slider.js' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/slider',
+	'messages' => [
+		'slider_cta_video',
+		'slider_url_text_video',
+		'slider_cta_category',
+		'slider_url_text_category',
+	],
+	'targets' => [ 'desktop', 'mobile' ],
+	'position' => 'bottom'
+];

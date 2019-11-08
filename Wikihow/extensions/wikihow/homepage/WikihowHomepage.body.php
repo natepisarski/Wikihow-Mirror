@@ -11,7 +11,6 @@ class WikihowHomepage extends Article {
 	// Used only for English
 	const RS_CHUNKS = 2;
 
-
 	const SINGLE_WIDTH = 163; // (article_shell width - 2*article_inner padding - 3*SINGLE_SPACING)/4
 	const SINGLE_HEIGHT = 119; //should be .73*SINGLE_WIDTH
 	const SINGLE_SPACING = 16;
@@ -30,7 +29,7 @@ class WikihowHomepage extends Article {
 	}
 
 	function view() {
-		global $wgOut, $wgUser, $wgCategoryNames, $wgLanguageCode, $wgCategoryNamesEn, $wgContLang;
+		global $wgOut, $wgUser, $wgLanguageCode, $wgContLang;
 
 		// add this head item for facbook instant article verification
 		$wgOut->addHeadItem('fbinstant', '<meta property="fb:pages" content="91668358574" />');
@@ -57,77 +56,26 @@ class WikihowHomepage extends Article {
 
 		Hooks::run( 'WikihowHomepageFAContainerHtml', array( &$html, &$html2, &$html3 ) );
 
-        $totalHtml = $html . $html2 . $html3;
+		$totalHtml = $html . $html2 . $html3;
 
-        //now alter this to reduce the number of videos
-        $tempDoc = phpQuery::newDocument($totalHtml);
-        $targetCount = pq( '.thumbnail' )->length * 0.1;
-        $numVideos = pq( 'video' )->length;
-        $indices = range( 0, $numVideos - 1 );
-        shuffle( $indices );
-        for ( $i = 0; $i < pq( 'video' )->length - $targetCount; $i++ ) {
-            $video = pq('video')->eq( $indices[$i] );
-            $image = Misc::getMediaScrollLoadHtml( 'img', ['src' => $video->attr( 'data-poster' )] );
+		//now alter this to reduce the number of videos
+		$tempDoc = phpQuery::newDocument($totalHtml);
+		$targetCount = pq( '.thumbnail' )->length * 0.1;
+		$numVideos = pq( 'video' )->length;
+		$indices = range( 0, $numVideos - 1 );
+		shuffle( $indices );
+		for ( $i = 0; $i < pq( 'video' )->length - $targetCount; $i++ ) {
+			$video = pq('video')->eq( $indices[$i] );
+			$image = Misc::getMediaScrollLoadHtml( 'img', ['src' => $video->attr( 'data-poster' )] );
 			$video->next('script')->remove();
 			$video->next('noscript')->remove();
-            $video->replaceWith( $image );
-        }
-        $totalHtml = $tempDoc->documentWrapper->markup();
-
-        $container = Html::rawElement( 'div', ['id' => 'fa_container'], $totalHtml );
-
-        $wgOut->addHTML( $container );
-
-		// $catmap = CategoryHelper::getIconMap();
-		// ksort($catmap);
-
-		$categories = array();
-		foreach ($wgCategoryNames as $ck => $cat) {
-			$category = urldecode(str_replace("-", " ", $cat));
-			if ($wgLanguageCode == "zh") {
-				$category = $wgContLang->convert($category);
-			}
-			// For Non-English we shall try to get the category name from message for the link. We fallback to the category name, because
-			// abbreviated category names are used for easier display. For the icon, we convert to English category names of the corresponding category.
-			if ($wgLanguageCode != "en") {
-				$enCat = $wgCategoryNamesEn[$ck];
-				$msgKey = strtolower(str_replace(' ','-',$enCat));
-				$foreignCat = str_replace('-',' ',urldecode(wfMessage($msgKey)->text()));
-				$catTitle = Title::newFromText("Category:" . $foreignCat);
-				if (!$catTitle) {
-					$catTitle = Title::newFromText("Category:" . $cat);
-				}
-				$cat = $enCat;
-			}
-			else {
-				$catTitle = Title::newFromText("Category:" . $category);
-			}
-
-			$categories[$category] = new stdClass();
-			$categories[$category]->url = $catTitle->getLocalURL();
-			//$categories[$category]->icon = ListRequestedTopics::getCategoryImage($category);
-
-			//icon
-			if ($wgLanguageCode != "en") {
-				$cat = $wgCategoryNamesEn[$ck];
-			}
-			$cat_class = 'cat_'.strtolower(str_replace(' ','',$cat));
-			$cat_class = preg_replace('/&/','and',$cat_class);
-			$categories[$category]->icon = $cat_class;
+			$video->replaceWith( $image );
 		}
+		$totalHtml = $tempDoc->documentWrapper->markup();
 
-		$tmpl = new EasyTemplate( __DIR__ );
-		$tmpl->set_vars(array(
-			'categories' => $categories
-		));
-		$html = $tmpl->execute('categoryWidget.tmpl.php');
+		$container = Html::rawElement( 'div', ['id' => 'fa_container'], $totalHtml );
 
-		$sk = $this->getContext()->getSkin();
-
-		$langList = wfMessage('wh_in_other_langs')->text();
-		$sk->addWidget(wfMessage('main_page_worldwide_2', wfGetPad(), $langList)->text());
-
-		$sk->addWidget( $html );
+		$wgOut->addHTML( $container );
 
 		$wgOut->setRobotPolicy('index,follow', 'Main Page');
 		$wgOut->setCdnMaxage(3600);
@@ -259,5 +207,60 @@ class WikihowHomepage extends Article {
 			$languageHPs[] = $lang.':'.$hp;
 		}
 		return $languageHPs;
+	}
+
+	public static function categoryWidget(): String {
+		global $wgCategoryNames, $wgCategoryNamesEn;
+
+		$categories = [];
+		$lang = RequestContext::getMain()->getLanguage();
+		$lang_code = $lang->getCode();
+
+		foreach ($wgCategoryNames as $ck => $cat) {
+			$category = urldecode(str_replace("-", " ", $cat));
+			if ($lang_code == "zh") $category = $lang->convert($category);
+
+			// For Non-English we shall try to get the category name from message for the link. We fallback to the category name, because
+			// abbreviated category names are used for easier display. For the icon, we convert to English category names of the corresponding category.
+			if ($lang_code != "en") {
+				$enCat = $wgCategoryNamesEn[$ck];
+				$msgKey = strtolower(str_replace(' ','-',$enCat));
+				$foreignCat = str_replace('-',' ',urldecode(wfMessage($msgKey)->text()));
+				$catTitle = Title::newFromText("Category:" . $foreignCat);
+				if (!$catTitle) $catTitle = Title::newFromText("Category:" . $cat);
+				$cat = $enCat;
+			}
+			else {
+				$catTitle = Title::newFromText("Category:" . $category);
+			}
+
+			// $categories[$category] = new stdClass();
+			// $categories[$category]->url = $catTitle->getLocalURL();
+
+			//icon
+			// if ($lang_code != "en") $cat = $wgCategoryNamesEn[$ck];
+
+			// $cat_class = 'cat_'.strtolower(str_replace(' ','',$cat));
+			// $cat_class = preg_replace('/&/','and',$cat_class);
+			// $categories[$category]->icon = $cat_class;
+
+			$categories[] = [
+				'icon' => CategoryListing::getCategoryIcon($category),
+				'link' => $catTitle->getLocalURL(),
+				'name' => $category
+			];
+		}
+
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		$vars = [
+			'header' => wfMessage('browsecategories')->text(),
+			'categories' => $categories
+		];
+
+		return $m->render('categoryWidget.mustache', $vars);
 	}
 }

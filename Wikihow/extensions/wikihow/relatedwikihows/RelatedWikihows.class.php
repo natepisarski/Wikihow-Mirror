@@ -611,7 +611,7 @@ class RelatedWikihows {
 		pq( $sectionSelector )->remove();
 
 		// try to put the related wikihows section back where it was
-		// if we have created it new, then put it before 'About this wikiHow' (#sp_h2) on mobile
+		// if we have created it new, then put it before 'About this wikiHow' (#aboutthisarticle) on mobile
 		// or before sourcesandcitations on desktop
 		// or just put it as the last section if these other sections do not exist
 		if ( $prevSection && $prevSection->length > 0  ) {
@@ -620,8 +620,8 @@ class RelatedWikihows {
 			pq( ".section.sourcesandcitations" )->before( $relatedHtml );
 		} else if (!$this->mMobile && pq( ".section.references" )->length > 0 ) {
 			pq( ".section.references" )->before( $relatedHtml );
-		} else if ( pq( "#sp_h2" )->length > 0 ) {
-			pq( "#sp_h2" )->before( $relatedHtml );
+		} else if ( pq( "#aboutthisarticle" )->length > 0 ) {
+			pq( "#aboutthisarticle" )->before( $relatedHtml );
 		} else {
 			pq( ".section:last" )->after( $relatedHtml );
 		}

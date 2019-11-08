@@ -317,7 +317,7 @@ class WHVid {
 	}
 
 	/*
-	 * used by desktop to make a fake watermark on video
+	 * used to make a fake watermark on video
 	 */
 	public static function getVideoWatermarkHtml( $title ) {
 		$innerHtml = Html::element( 'img', ['class' => 'm-video-wm-img', 'src' => '/skins/WikiHow/images/WH_logo.svg'] );
@@ -448,18 +448,6 @@ class WHVid {
 			$stylePath[] = $IP . "/extensions/wikihow/quiz/quiz.css";
 		}
 
-		return true;
-	}
-
-	public static function onAddMobileTOCItemData($title, &$extraTOCPreData, &$extraTOCPostData) {
-		if (self::hasSummaryVideo($title) && !(WHVid::isYtSummaryArticle($title) && WHVid::hasYTVideo($title))) {
-			$extraTOCPostData[] = [
-				'anchor' => 'quick_summary_video_section',
-				'name' => 'Video',
-				'priority' => 1050,
-				'selector' => '#quick_summary_video_section',
-			];
-		}
 		return true;
 	}
 

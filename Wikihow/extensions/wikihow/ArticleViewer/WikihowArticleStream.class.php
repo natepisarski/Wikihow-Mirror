@@ -74,114 +74,56 @@ class WikihowArticleStream extends ContextSource {
 	public function getChunks($numChunks, $singleWidth, $singleSpacing, $singleHeight, $device = WikihowArticleStream::DESKTOP) {
 		$html = '';
 
-		switch ($device) {
-			case WikihowArticleStream::MOBILE:
-				$rowWidth = 2;
-				break;
-			default:
-				$rowWidth = 4;
-				break;
-		}
-
 		while ($numChunks--) {
 			$articles = $this->peekNext();
 			if ($articles) {
 				list($layout, $consumed) = WikihowBlockLayout::choose($articles, $device);
 				$this->consume($consumed);
 
-				$across1 = 0;
-				$doneAcross1 = false;
-				$across2 = 0;
-				$html .= "<table cellpadding='0' cellspacing='0' width='100%'><tr>";
-				foreach ($layout as $item) {
-					if (!isset($item['title']) || !$item['title']) {
-						//$html .= "- image=(null) dims={$item['dims']}<br>\n";
-					} else {
-						$dims = explode("x", $item['dims']);
-						$xUnits = intval($dims[0]);
-						$yUnits = intval($dims[1]);
-						$html .= "<td colspan='{$xUnits}' rowspan='{$yUnits}' class='image_map'>";
-						$html .= $this->getArticleThumbWithPath($item['title'], $xUnits*$singleWidth + $singleSpacing*($xUnits-1), $yUnits*$singleHeight + $singleSpacing*($yUnits-1), $item['image']);
-						$html .= "</td>";
+				if ($device == WikihowArticleStream::MOBILE) {
+					//only full blocks for the tiled layout
+					if (count($articles) < self::CHUNK_SIZE) continue;
 
-						if ($across1 < $rowWidth) {
-							//we're still on the first row
-							$across1 += $xUnits;
-							if ($yUnits > 1)
+					$html .= $this->articleBlockHtml($layout, $singleWidth, $singleSpacing, $singleHeight);
+				}
+				else {
+					$across1 = 0;
+					$doneAcross1 = false;
+					$across2 = 0;
+					$rowWidth = self::CHUNK_SIZE / 2;
+
+					$html .= "<table cellpadding='0' cellspacing='0' width='100%'><tr>";
+					foreach ($layout as $item) {
+						if (isset($item['title']) && $item['title']) {
+							$dims = explode("x", $item['dims']);
+							$xUnits = intval($dims[0]);
+							$yUnits = intval($dims[1]);
+							$html .= "<td colspan='{$xUnits}' rowspan='{$yUnits}' class='image_map'>";
+							$html .= $this->getArticleThumbWithPath($item['title'], $xUnits*$singleWidth + $singleSpacing*($xUnits-1), $yUnits*$singleHeight + $singleSpacing*($yUnits-1), $item['image']);
+							$html .= "</td>";
+
+							if ($across1 < $rowWidth) {
+								//we're still on the first row
+								$across1 += $xUnits;
+								if ($yUnits > 1)
+									$across2 += $xUnits;
+							}
+							else {
+								//we're on the second row
 								$across2 += $xUnits;
-						}
-						else {
-							//we're on the second row
-							$across2 += $xUnits;
-						}
+							}
 
-						if ($across1 == $rowWidth && !$doneAcross1) {
-							$html .= "</tr><tr>";
-							$doneAcross1 = true;
+							if ($across1 == $rowWidth && !$doneAcross1) {
+								$html .= "</tr><tr>";
+								$doneAcross1 = true;
+							}
 						}
 					}
+					$html .= "</table>";
 				}
-				$html .= "</table>";
 			}
 		}
-		if ($html) $html .= '<script>gScrollContext = ' . $this->current . ';</script>';
-		return $html;
-	}
-
-	public function getFlatChunk($numChunks, $singleWidth, $singleSpacing, $singleHeight, $device = WikihowArticleStream::DESKTOP) {
-		$html = '';
-
-		switch ($device) {
-			case WikihowArticleStream::MOBILE:
-				$rowWidth = 2;
-				break;
-			default:
-				$rowWidth = 4;
-				break;
-		}
-
-		while ($numChunks--) {
-			$articles = $this->peekNext();
-			if ($articles) {
-				list($layout, $consumed) = WikihowBlockLayout::choose($articles, $device);
-				$this->consume($consumed);
-
-				$across1 = 0;
-				$doneAcross1 = false;
-				$across2 = 0;
-				$html .= "<table cellpadding='0' cellspacing='0' width='100%'><tr>";
-				foreach ($layout as $item) {
-					if (!isset($item['title']) || !$item['title']) {
-						//$html .= "- image=(null) dims={$item['dims']}<br>\n";
-					} else {
-						$dims = explode("x", $item['dims']);
-						$xUnits = intval($dims[0]);
-						$yUnits = intval($dims[1]);
-						$html .= "<td colspan='{$xUnits}' rowspan='{$yUnits}' class='image_map'>";
-						$html .= $this->getArticleThumbWithPath($item['title'], $xUnits*$singleWidth + $singleSpacing*($xUnits-1), $yUnits*$singleHeight + $singleSpacing*($yUnits-1), $item['image']);
-						$html .= "</td>";
-
-						if ($across1 < $rowWidth) {
-							//we're still on the first row
-							$across1 += $xUnits;
-							if ($yUnits > 1)
-								$across2 += $xUnits;
-						}
-						else {
-							//we're on the second row
-							$across2 += $xUnits;
-						}
-
-						if ($across1 == $rowWidth && !$doneAcross1) {
-							$html .= "</tr><tr>";
-							$doneAcross1 = true;
-						}
-					}
-				}
-				$html .= "</table>";
-			}
-		}
-		//if ($html) $html .= '<script>gScrollContext = ' . $this->current . ';</script>';
+		// if ($html) $html .= '<script>gScrollContext = ' . $this->current . ';</script>';
 		return $html;
 	}
 
@@ -243,18 +185,60 @@ class WikihowArticleStream extends ContextSource {
 			$textBlock = "<br/><span>" . $t->getFullText() . "</span>";
 		}
 
-        $vars = array(
-            'thumbnailClasses' => implode( ' ', $thumbnailClasses ),
-            'titleUrl' => $t->getFullUrl(),
-            'mediaElement' => $mediaElement,
-            'textBlock' => $textBlock,
-        );
+		$vars = array(
+			'thumbnailClasses' => implode( ' ', $thumbnailClasses ),
+			'titleUrl' => $t->getFullUrl(),
+			'mediaElement' => $mediaElement,
+			'textBlock' => $textBlock,
+		);
 
-        $tmpl = new EasyTemplate( __DIR__ );
-        $tmpl->set_vars($vars);
-        $html = $tmpl->execute('ArticleViewerThumb.tmpl.php');
+		$tmpl = new EasyTemplate( __DIR__ );
+		$tmpl->set_vars($vars);
+		$html = $tmpl->execute('ArticleViewerThumb.tmpl.php');
 
 		return $html;
+	}
+
+	private function articleBlockHtml($layout, $singleWidth, $singleSpacing, $singleHeight): String {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		$showHighDPI = WikihowMobileTools::isHighDPI($this->getTitle());
+		$blocks = [];
+
+		$rowLimit = self::CHUNK_SIZE / 2;
+		$start_row = 1;
+
+		foreach ($layout as $key => $item) {
+			if (isset($item['title']) && $item['title']) {
+				$dims = explode("x", $item['dims']);
+				$xUnits = intval($dims[0]);
+				$yUnits = intval($dims[1]);
+
+				$box = WikihowMobileTools::makeFeaturedArticlesBox($item['title'],false,$showHighDPI);
+				$block_inner = WikihowMobileTools::getImageContainerBoxHtml( $box );
+				$start_column = ($key+1);
+
+				if ($start_column > $rowLimit) {
+					$start_column = $start_column - $rowLimit;
+					$start_row = 2;
+				}
+
+				$blocks[] = [
+					'block_column_dims' => $start_column.'_'.$xUnits,
+					'block_row_dims' => $start_row.'_'.$yUnits,
+					'block_inner' => $block_inner
+				];
+			}
+		}
+
+		$vars = [
+			'blocks' => $blocks
+		];
+
+		return $m->render('article_block_layout.mustache', $vars);
 	}
 }
 
@@ -440,7 +424,7 @@ class WikihowBlockLayout {
 		$large = self::findFirstLarge($articles, $consumed);
 
 		if ($device == WikihowArticleStream::MOBILE) {
-			$possibleFormats = self::getPossibleMobileFormats();
+			$possibleFormats = self::getPossibleWideFormats();
 		}
 		else {
 			// Get formats based on whether there is an image that could

@@ -149,6 +149,7 @@ class GoogleAmp {
 				],
 				$overlayContents
 			);
+
 			$videoPlayer = Html::rawElement( 'div', [ 'class' => 'summary-video' ], $ampVideo . $overlay );
 			return $videoPlayer;
 //		}
@@ -494,7 +495,7 @@ class GoogleAmp {
 	}
 
 	public static function insertAMPAds() {
-		global $wgLanguageCode, $wgTitle;
+		global $wgLanguageCode, $wgTitle, $wgRequest;
 		$pageId = 0;
 		if ( $wgTitle ) {
 			$pageId = $wgTitle->getArticleID();
@@ -515,7 +516,13 @@ class GoogleAmp {
 
 		// for targeting dfp ads
 		$bucket = rand( 1, 20 );
-		$bucket = sprintf( "%02d", $bucket );
+
+		if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
+			$reqBucket = $wgRequest->getInt( 'bucket' );
+			if ( $reqBucket > 0 && $reqBucket < 21 ) {
+				$bucket = $reqBucket;
+			}
+		}
 
 		if ( $hasIntroAd == true ) {
 			$adhtml = self::getAd( $intro, $pageId, $intlSite, $bucket );
@@ -719,8 +726,10 @@ class GoogleAmp {
 		$whAdLabelBottom = Html::element( 'div', [ 'class' => 'ad_label_bottom' ], "Advertisement" );
 		$whAdClass .= " wh_ad_steps";
 
+		$bucketId = sprintf( "%02d", $bucket );
+
 		$targeting = ['targeting' => [
-			'bucket' => $bucket,
+			'bucket' => $bucketId,
 			'language' => $wgLanguageCode,
 			'format' => 'amp'
 		]];
@@ -741,11 +750,24 @@ class GoogleAmp {
 			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
 
-		if ( rand( 1, 5 ) == 1 && $num == 4 && $methodNumber == 1 ) {
-			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		if ( $num == 4 && $methodNumber == 1 ) {
+			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
-		if ( rand( 1, 5 ) == 1 && $num == 4 && $methodNumber == 2 ) {
-			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+
+		if ( $num == 4 && $methodNumber == 2 ) {
+			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		}
+
+		if ( rand( 1, 2 ) == 1 && $num == 4 && $methodNumber == 3 ) {
+			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		}
+
+		if ( rand( 1, 2 ) == 1 && $num == 4 && $methodNumber == 4 ) {
+			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
+		}
+
+		if ( rand( 1, 2 ) == 1 && $num == 3 ) {
+				$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 		}
 
 		// this is a layout we never got working but
@@ -771,6 +793,10 @@ class GoogleAmp {
 		);
 
 		$adAttributes = $setSize;
+
+		//if ( $bucket == 20 ) {
+			//$dataLoadingStrategy = 2.5;
+		//}
 
 		if ( $dataLoadingStrategy ) {
 			$adAttributes['data-loading-strategy'] = $dataLoadingStrategy;
@@ -969,6 +995,8 @@ class GoogleAmp {
 	}
 
 	private static function modifyVideoSection() {
+		global $wgTitle;
+
 		$videoSelector = "#video";
 		if ( !pq( $videoSelector )->length ) {
 			return;
@@ -993,6 +1021,13 @@ class GoogleAmp {
 			'data-videoid' => $videoId,
 		);
 		$element = Html::element( 'amp-youtube', $attributes );
+
+		$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $videoId );
+		// Only videos from our own channel will have publisher information
+		if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
+			$element = SchemaMarkup::getSchemaTag( $videoSchema );
+		}
+
 		$first = true;
 		foreach ( pq( $videoSelector )->children() as $child ) {
 			if ( $first ) {
@@ -1007,17 +1042,22 @@ class GoogleAmp {
 	public static function modifyDom() {
 		self::formatQABadges();
 		self::modifyVideoSection();
-		pq( 'script' )->remove();
+		foreach ( pq( 'script' ) as $script ) {
+			if ( pq( $script )->attr( 'type' ) !== 'application/ld+json' ) {
+				pq( $script )->remove();
+			}
+		}
 		pq( 'mo' )->remove();
 		pq( 'annotation' )->remove();
 		pq( 'video' )->remove();
 		pq( '.img-whvid' )->remove();
 		pq( '.vid-whvid' )->remove();
 		pq( '.image_details' )->remove();
-		pq( '.ar_box_vote' )->removeAttr( 'pageid' );
+		pq( '.aritem' )->removeAttr( 'pageid' );
 		pq( '#info_link' )->removeAttr( 'aid');
 		pq( '.mh-method-thumbs-template' )->remove();
 		pq( 'input:not(".qz_radio, .amp_input")' )->remove();
+		pq( '#tab_admin')->removeAttr('submenuname')->remove();
 
 		pq( '.image' )->attr( 'href', '#' );
 
@@ -1029,7 +1069,6 @@ class GoogleAmp {
 
 		pq( '.edit-page' )->remove();
 		pq( '#qa_submit_button' )->remove();
-		pq( '.addTipElement' )->remove();
 
 		pq( '#qa_submit_button' )->remove();
 		pq( '#qa_edit' )->remove();
@@ -1049,6 +1088,9 @@ class GoogleAmp {
 			pq( '.qa.section' )->remove();
 		}
 		pq( '#qa_show_more_answered' )->remove();
+		pq( '.qa_staff_info' )->remove();
+		pq( '#qa_flag_options' )->remove();
+		pq( '#qa_answer_flag_options' )->remove();
 
 		// for some reason some articles use this font-size 0 inline style..removing it for now
 

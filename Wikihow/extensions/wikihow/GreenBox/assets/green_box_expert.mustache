@@ -7,7 +7,12 @@
 
 				<div class="green_box_expert_dialog_upper">
 					<div class="green_box_person_circle">{{{expert_display}}}</div>
-					<p>{{{expert_name}}}</p>
+					<p>
+						{{#expert_link}}<a href='{{expert_link}}' class='click_out'>{{/expert_link}}
+							{{{expert_name}}}
+						{{#expert_link}}</a>{{/expert_link}}
+					</p>
+
 					{{{expert_title}}}
 				</div>
 

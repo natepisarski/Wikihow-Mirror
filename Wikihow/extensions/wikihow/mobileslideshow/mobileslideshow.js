@@ -6,6 +6,7 @@
 		$pswp: null,
 		image: [],
 		items: [],
+		$hashes: [],
 
 		init: function() {
 			$('.mwimg').each(function() {
@@ -15,9 +16,38 @@
 				}
 				$(this).on('click', function(e) {
 					e.preventDefault();
+					window.location.href = $("a", this).attr("href");
 					WH.MobileSlideshow.initSlideshow(this);
 				});
 			});
+			$(document).on("click", ".ic_showmore", function(){
+				$(this).hide();
+				$(this).parent().children(".ic_hide").show();
+			});
+			this.initHashes();
+			//check the url
+			this.checkHash();
+
+		},
+
+		initHashes: function() {
+			this.$hashes = $(".mwimg > a");
+		},
+
+		checkHash: function () {
+			this.curHash = window.location.hash;
+
+			if (this.curHash !== '') {
+				this.$hashes.each($.proxy(this, 'checkHref'));
+			}
+		},
+
+		checkHref: function (index, link) {
+			var $link = $(link);
+
+			if ($link.attr('href') === this.curHash) {
+				$link.parent().click();
+			}
 		},
 
 		initSlideshow: function(step) {
@@ -55,22 +85,17 @@
 
 						//now get the first sentence of the step
 						var step = $(this).siblings('.step').find('.whb').html();
-						var method = $(this).parents('.steps').find('h3 .mw-headline').html();
-						if (typeof method !== 'undefined') {
+						var $method = $(this).parents('.steps').find('h3 .mw-headline');
+						if ($method.length > 0) {
 							//first check if there's a <br>
-							var ofIndex = method.indexOf(' of');
-							if (ofIndex > -1) {
-								//now find the <br>
-								var brIndex = method.indexOf('<');
-								var brEndIndex = method.indexOf('>');
-								if (brIndex > -1) {
-									var partialMethod = method.substring(0, ofIndex); //like 'method one'
-									var words = partialMethod.split(' ');
-									method = words[0] + ' ' + WH.MobileSlideshow.wordToNumber(words[1]) + ': ' + method.substring(brEndIndex + 1);
-								}
-							}
+							var methodText = $method.text();
+							//now get the part/method number
+							var $alt = $method.parent().find(".altblock");
+							var altText = $alt[0].childNodes[0].nodeValue;
+							altText += $alt.find("span:first-child").text();
+							methodText = altText + ": " + methodText;
 						} else {
-							method = '&nbsp'; //need it to make the close button work
+							methodText = '&nbsp'; //need it to make the close button work
 						}
 
 						var id = $('img', this).attr('id');
@@ -80,10 +105,11 @@
 							w: width,
 							h: height,
 							title: step,
-							method: method,
+							method: methodText,
 							index: index,
 							total: total,
 							id: id,
+							licensing: details.licensing
 						};
 
 						WH.MobileSlideshow.items.push(item);
@@ -133,8 +159,21 @@
 			lightBox.init();
 			lightBox.zoomTo(lightBox.currItem.fillRatio, {x: 200, y: 200});
 
+			lightBox.listen('close', function() {
+				if (history && history.pushState !== undefined) {
+					history.pushState("", document.title, window.location.pathname + window.location.search);
+				} else {
+					window.location.hash = "";
+				}
+			});
+
 			$( '#mw-mf-main-menu-button' ).click( function( ) {
 				lightBox.close();
+				if (history && history.pushState !== undefined) {
+					history.pushState("", document.title, window.location.pathname + window.location.search);
+				} else {
+					window.location.hash = "";
+				}
 			});
 		},
 

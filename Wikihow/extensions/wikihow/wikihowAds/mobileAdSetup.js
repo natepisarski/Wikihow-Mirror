@@ -179,7 +179,7 @@ WH.mobileads = (function () {
 		} else if (type == 'middlerelated') {
 			height = 200;
 		}
-		if (width >= 728 && height > 200) {
+		if (width >= WH.mediumScreenMinWidth && height > 200) {
 			height = 200;
 		}
 		return height;
@@ -609,10 +609,10 @@ WH.mobileads = (function () {
 			return;
 		}
 
-		var addTips = insertTarget.getElementsByClassName("addTipElement");
-		if (addTips.length > 0) {
-			insertTarget.classList.add('has_scrolltoad');
-		}
+		// var addTips = insertTarget.getElementsByClassName("addTipElement");
+		// if (addTips.length > 0) {
+		// 	insertTarget.classList.add('has_scrolltoad');
+		// }
 
 		// if we wrap the ad in a div it always seems to center itself better
 		var wrap = document.createElement('div');

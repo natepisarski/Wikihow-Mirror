@@ -10,23 +10,36 @@ class FastlyAction {
 	// Use Fastly's API /service/.../purge/key function, described here:
 	// http://www.fastly.com/docs/api#service
 	public static function resetTag($lang, $tag) {
+		global $wgActiveLanguages;
+
 		$services = [
 			'en' => ['key' => WH_FASTLY_EN_SERVICE_KEY],
 			'intl' => ['key' => WH_FASTLY_INTL_SERVICE_KEY] ];
 
-		if ( !isset( $services[$lang] ) ) {
+		if ( isset( $services[$lang] ) ) {
+			$apikey = $services[$lang]['key'];
+		} elseif ( in_array( $lang, $wgActiveLanguages ) ) {
+			$apikey = $services['intl']['key'];
+		} else {
+			$apikey = '';
+		}
+
+		if ( !$apikey ) {
 			return false;
 		}
 
-		$url = 'https://' . WH_FASTLY_API_SERVER . '/service/' . $services[$lang]['key'] . '/purge/' . $tag;
+		$url = 'https://' . WH_FASTLY_API_SERVER . '/service/' . $apikey . '/purge/' . $tag;
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		$headers = [
 			'X-Fastly-Key: ' . WH_FASTLY_API_KEY,
-			'Accept: application/json'));
+			'Accept: application/json' ];
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
 		$ret = curl_exec($ch);
 		$result = (array)json_decode($ret);
+
 		return $result['status'] ?? false;
 	}
 

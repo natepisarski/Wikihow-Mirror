@@ -61,6 +61,7 @@
 							return false;
 						}
 						captionEl.children[0].innerHTML = item.title;
+						captionEl.children[1].innerHTML = $.parseHTML(item.licensing)[0].data;
 						if(item.bounds) {
 							$(captionEl).css({top: (item.bounds.center.y + item.initialZoomLevel * item.h)});
 						}

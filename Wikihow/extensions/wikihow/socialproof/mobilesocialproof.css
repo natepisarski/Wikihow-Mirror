@@ -1,16 +1,7 @@
 #social_proof_mobile {
-	display:block;
-	line-height: normal;
 	background-color: #fff;
-	border: 1px solid #bfbfbf;
-	border-radius: 4px;
-	color: #686868;
-	position:relative;
-}
-#sp_h2 {
-	display: block;
-	padding-top: 19px;
-	padding-bottom: 7px;
+	font-size: .9em;
+	line-height: 1.2em;
 }
 .sp_inner {
 	overflow:auto;
@@ -51,22 +42,24 @@
 	text-align:left;
 	font-size: 15px;
 }
-#social_proof_mobile .sp_box {
+#aboutthisarticle .sp_box {
 	float:left;
 	width: 50%;
 	margin: 0;
 	padding: 15px 10px 15px 15px;
-	border-left: 1px solid #e7e7e5;
 	position: relative;
 	box-sizing: border-box;
 }
-.sp_top_box {
+#aboutthisarticle .sp_stats_box {
+	border-left: 1px solid #f3f3f3;
+}
+#aboutthisarticle .sp_top_box {
 	min-height: 70px;
 	width: 100%;
 	margin: 0;
 	padding: 15px;
 	position: relative;
-	border-bottom: 1px solid #e7e7e5;
+	border-bottom: 1px solid #f3f3f3;
 	box-sizing: border-box;
 }
 .sp_top_box .loader-dot {
@@ -75,7 +68,10 @@
 
 #sp_expert_desc {
 	padding: 10px 8px;
-	border-bottom: 1px solid #e7e7e5;
+	border-bottom: 1px solid #f3f3f3;
+}
+#aboutthisarticle #sp_expert_desc {
+	padding: 15px;
 }
 
 #sp_expert_desc + .sp_fullbox {
@@ -88,9 +84,12 @@
 
 #social_proof_mobile .sp_fullbox {
 	width: 100%;
-	border-top: 1px solid #e7e7e5;
+	border-top: 1px solid #f3f3f3;
 	border-left: none;
 	font-size: 16px;
+}
+#aboutthisarticle .sp_fullbox {
+	width: 100%;
 }
 
 #social_proof {
@@ -240,6 +239,7 @@
 	position:absolute;
 	z-index:100000007;
 	display:none;
+	min-height: 50px; /*needed to calculate height since the position is absolute */
 }
 .hint_box {
 	min-width:150px;
@@ -408,22 +408,6 @@
 	max-width: 30em;
 	font-size: 12.99px;
 }
-#sp_icon_hover:after, #sp_icon_hover:before {
-	top: -29px;
-	left: 44px;
-	border: 14px solid transparent;
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-}
-#sp_icon_hover:after {
-	border-bottom-color: #FFF;
-	margin-top: 3px;
-}
-#sp_icon_hover:before {
-	border-bottom-color: #7FA065;
-}
 
 #sp_icon_close {
 	position: absolute;
@@ -458,7 +442,17 @@
 	margin-bottom: -4px;
 }
 
+/* @medium */
 @media only screen and (min-width:728px) {
+	#social_proof_mobile {
+		font-size: inherit;
+		line-height: inherit;
+	}
+
+	.sp_inner {
+		overflow: visible;
+	}
+
 	.sp_icon_bg {
 		margin: 34px 0 5px 88px;
 	}
@@ -466,5 +460,4 @@
 	.sp_difficult_icon {
 		margin: 38px 0 5px 103px;
 	}
-
 }

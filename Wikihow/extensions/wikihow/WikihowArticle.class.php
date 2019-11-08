@@ -969,7 +969,7 @@ class WikihowArticleHTML {
 				if ( $matches[1] ) {
 					$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
 					// Only videos from our own channel will have publisher information
-					if ( array_key_exists( 'publisher', $videoSchema ) ) {
+					if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
 						pq( $video )->after(
 							SchemaMarkup::getSchemaTag( $videoSchema ) .
 							'<!-- ' . (
@@ -1731,8 +1731,7 @@ class WikihowArticleHTML {
 
 		$title = $context->getTitle();
 		$request = $context->getRequest();
-		// Making all reference links open in a new browser tab. Feature requested by Michelle.
-		pq('.reference-text a, .sources li a', $sources)->attr('target', '_blank');
+
 		// Don't hide refs if it's a printable page, we're on a special page, or we're in a diff view
 		if ($count > $limit && !$out->isPrintable()
 				&& ( $title && !$title->inNamespace( NS_SPECIAL ) )

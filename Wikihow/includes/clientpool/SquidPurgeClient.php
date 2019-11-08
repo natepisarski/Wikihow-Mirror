@@ -214,6 +214,10 @@ class SquidPurgeClient {
 			wfDeprecated( '$wgSquidPurgeUseHostHeader = false', '1.33' );
 			$request[] = "PURGE $url HTTP/1.0";
 		}
+		// Wikihow: we need this auth key to make this style of purges work with Fastly now
+		if ( defined('WH_FASTLY_API_KEY') ) {
+			$request[] = 'Fastly-Key: ' . WH_FASTLY_API_KEY;
+		}
 		$request[] = "Connection: Keep-Alive";
 		$request[] = "Proxy-Connection: Keep-Alive";
 		$request[] = "User-Agent: " . Http::userAgent() . ' ' . __CLASS__;

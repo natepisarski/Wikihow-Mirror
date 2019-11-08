@@ -527,6 +527,89 @@ class ImageHelper extends UnlistedSpecialPage {
 		return $html;
 	}
 
+	public function getImageInfoData($imagePage, $image) {
+		$out = $this->getOutput();
+
+		$data = [];
+
+		$t = Title::newFromText('Image-Templates', NS_CATEGORY);
+		if ($t) {
+			$cv = new WikihowCategoryViewer($t, $this->getContext());
+			$cv->clearCategoryState();
+			$cv->doQuery(/*$getSubcats*/ true, /*$calledFromCategoryPage*/ false);
+
+			$templates = array();
+			foreach ($cv->articles as $article) {
+				$start = strrpos($article, 'title="Template:');
+				if ($start > 0) {
+					$end = strrpos($article, '"', $start + 16 + 1);
+					if ($end > 0) {
+						$templates[] = strtolower(str_replace(' ', '-', substr($article, $start + 16, $end - $start - 16)));
+					}
+				}
+
+			}
+
+			$license = '';
+			$imageRevision = $imagePage ? $imagePage->getRevision() : null;
+			if ($imageRevision) {
+				$content = preg_replace_callback(
+					'@({{([^}|]+)(\|[^}]*)?}})@',
+					function ($m) use ($templates, &$license) {
+						$name = trim(strtolower($m[2]));
+						$name = str_replace(' ', '-', $name);
+						foreach ($templates as $template) {
+							if ($name == $template) {
+								$license .= $m[0];
+								return '';
+							}
+						}
+						return $m[1];
+					},
+					$imageRevision->getContent()->getText()
+				);
+			} else {
+				$content = '';
+			}
+		}
+
+		$data['license'] = $license;
+
+		$lastUser = $image->exists() ? $image->getUser() : null;
+		if ($lastUser) {
+			$userLink = Linker::link(Title::makeTitle(NS_USER, $lastUser), $lastUser);
+			$data['user'] = wfMessage('image_upload', $userLink)->text();
+		}
+
+		// now remove old licensing header
+		$content = str_replace("== Licensing ==", "", $content);
+		$content = str_replace("== Summary ==", "", $content);
+		$content = trim($content);
+
+
+		$parsedContent = $out->parse($content);
+
+		if(strripos($parsedContent, "ic_hide") !== false) {
+			$loc = strripos($parsedContent, "</span>");
+			$parsedContent = substr($parsedContent, 0, $loc + 7) . "<a href='#' class='ic_showmore'>Show More</a>" . substr($parsedContent, $loc + 7);
+		}
+
+		$data['summary'] = $parsedContent;
+
+		return $data;
+	}
+
+	public function getImageInfoMobile($imagePage, $image) {
+		$data = self::getImageInfoData($imagePage, $image);
+
+		$html = "";
+		if($data['summary']) {
+			$html .= $data['summary'];
+		}
+
+		return $html;
+	}
+
 	// Used by addSideWidgets
 	private static function getRelatedImagesWidget($title) {
 		$exceptions = wfMessage('ih_exceptions');

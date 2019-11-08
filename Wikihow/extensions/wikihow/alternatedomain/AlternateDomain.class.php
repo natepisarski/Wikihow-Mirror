@@ -442,33 +442,23 @@ class AlternateDomain {
 		return true;
 	}
 
-	/*
-	 * on homepage we set the items from the domain articles
-	 */
-	public static function onWikihowHomepageFAContainerHtml( &$html, &$html2, &$html3 ) {
-		if ( !self::onAlternateDomain() ) {
-			return true;
-		}
+	public static function getFATitles( $limit = 100 ): Array {
+		if ( !self::onAlternateDomain() ) return [];
 
-		$mobileMode = false;
-		$rowWidth = 4;
-		if ( $mobileMode ) {
-			$rowWidth = 2;
-		}
+		$fas = [];
 
 		$pages = array_reverse( self::getAlternateDomainPagesForCurrentDomain() );
-		$pages = array_slice( $pages, 0, 48 );
-		$pages = array_flip( $pages );
-		$related = RelatedWikihows::makeRelatedArticlesData( $pages, false );
-		$html = "";
-		$html2 = "";
-		$html3 = "";
-		foreach ( $related as $r ) {
-			$html2 .= $r->createDesktopHtml();
-		}
-		$html2 .= '<div style="clear: both;"></div>';
+		$pages = array_slice( $pages, 0, $limit );
 
-		return true;
+		foreach ($pages as $page_id) {
+			$fa_title = Title::newFromID( $page_id );
+
+			if ($fa_title) {
+				$fas[] = [ 'title' => $fa_title ];
+			}
+		}
+
+		return $fas;
 	}
 
 	/*
@@ -1313,29 +1303,6 @@ class AlternateDomain {
 
 		$sectionTitle = wfMessage( 'relatedwikihows_nobranding' )->text();
 
-		return true;
-	}
-
-	/*
-	 * for table of contents on mobile we need to change the title of the related wikihows
-	 * to not reference wikihow. it is too complicated for now to simply
-	 * override the mw message for relatedwikihows because that is used to
-	 * select the name of the section class as well
-	 */
-	public static function onAddMobileTOCItemData( $title, &$extraTOCPreData, &$extraTOCPostData ) {
-		if ( !self::onNoBrandingDomain() ) {
-			return true;
-		}
-		$key = 'Related_wikiHows';
-		if ( isset( $extraTOCPostData[$key] ) ) {
-			$extraTOCPostData[$key] =
-				[
-					'anchor' => $key,
-					'name' => wfMessage('related_wikihows_nobranding')->text(),
-					'priority' => 1500,
-					'selector' => '#' . Misc::escapeJQuerySelector($relatedAnchor),
-				];
-		}
 		return true;
 	}
 

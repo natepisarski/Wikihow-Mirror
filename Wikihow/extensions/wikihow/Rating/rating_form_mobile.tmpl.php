@@ -1,15 +1,8 @@
 <div id="article_rating_mobile" class="section_text">
 	<h2 id="article_rating_header"><span class="mw-headline"><?=$msgText?></span></h2>
-	<div id="article_rating" class="trvote_box ar_box">
-		<div id="gatAccuracyYes" pageid="<?=$pageId?>" role="button" tabindex="0" class="ar_box_vote vote_up aritem" <? if ($amp) { ?>on="tap:amp-rate-form-yes.submit"<? } ?>>
-			<div class="ar_face"></div>
-			<div class="ar_thumb_text"><?=$yesText?></div>
-		</div>
-		<div id="gatAccuracyNo" pageid="<?=$pageId?>" role="button" tabindex="1" class="ar_box_vote vote_down aritem" <? if ($amp) { ?>on="tap:amp-rate-form-no.submit"<? } ?>>
-			<div class="ar_face"></div>
-			<div class="ar_thumb_text"><?=$noText?></div>
-		</div>
-		<div class="clearall"></div>
+	<div id="article_rating">
+		<button id="gatAccuracyYes" pageid="<?=$pageId?>" role="button" tabindex="0" class="button secondary vote_up aritem" <? if ($amp) { ?>on="tap:amp-rate-form-yes.submit"<? } ?>><?=$yesText?></button>
+		<button id="gatAccuracyNo" pageid="<?=$pageId?>" role="button" tabindex="1" class="button secondary vote_down aritem" <? if ($amp) { ?>on="tap:amp-rate-form-no.submit"<? } ?>><?=$noText?></button>
 	</div>
 	<? if ($amp) { ?>
 	<form id="amp-rate-form-yes" method="post" action-xhr="/Special:RateItem" target="_top" on="submit-success:article_rating.hide,article_rating_header.hide">

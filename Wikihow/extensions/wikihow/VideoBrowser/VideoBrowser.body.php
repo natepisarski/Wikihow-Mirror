@@ -78,7 +78,7 @@ class VideoBrowser {
 		global $wgOut;
 
 		$isAndroid = class_exists( 'AndroidHelper' ) && AndroidHelper::isAndroidRequest();
-		if ( Misc::isMobileMode() && !$isAndroid ) {
+		if ( Misc::isMobileMode() && !$isAndroid && !AlternateDomain::onAlternateDomain()) {
 			$html1 .= static::render( 'mobile-widget.mustache', [
 				'howto' => 'How to',
 				'videos' => static::getHomePageVideos()

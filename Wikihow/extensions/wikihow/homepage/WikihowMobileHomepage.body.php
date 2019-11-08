@@ -1,13 +1,19 @@
 <?php
 
 class WikihowMobileHomepage extends Article {
+	var $faStream;
+
+	const FA_STARTING_CHUNKS = 6;
+
+	const SINGLE_WIDTH = 163; // (article_shell width - 2*article_inner padding - 3*SINGLE_SPACING)/4
+	const SINGLE_HEIGHT = 119; //should be .73*SINGLE_WIDTH
+	const SINGLE_SPACING = 16;
 
 	function __construct( Title $title, $oldId = null ) {
 		parent::__construct($title, $oldId);
 	}
 
 	function view() {
-		global $wgOut, $wgTitle;
 		$out = $this->getContext()->getOutput();
 		IOSHelper::addIOSAppBannerTag();
 
@@ -20,57 +26,24 @@ class WikihowMobileHomepage extends Article {
 		$out->addModuleStyles(['zzz.mobile.wikihow.homepage.styles']);
 		$out->addModules(['zzz.mobile.wikihow.homepage.scripts']);
 
-		WikihowMobileHomepage::showTopImage();
+		$faViewer = new FaViewer($this->getContext());
+		$this->faStream = new WikihowArticleStream($faViewer, $this->getContext());
+		$html = $this->faStream->getChunks(self::FA_STARTING_CHUNKS, self::SINGLE_WIDTH, self::SINGLE_SPACING, self::SINGLE_HEIGHT, WikihowArticleStream::MOBILE);
 
-		$wgOut->addHtml($this->getSearchHtml());
-
-		$showHighDPI = WikihowMobileTools::isHighDPI($wgTitle);
-
-		$fas = FeaturedArticles::getTitles(30); //Only want 24, but getting 30 to account for some titles that might not be usable
-		$html = "<div id='fa_container_outer'><div id='fa_container'>";
-		$count = 0;
-        $boxes = array();
-        $videoBoxes = array();
-		foreach ($fas as $fa) {
-			if ($count >= 24) {
-				break;
-			}
-			$box = WikihowMobileTools::makeFeaturedArticlesBox($fa['title'],false,$showHighDPI);
-			if (!$box || !$box->url) continue;
-            $boxes[] = $box;
-            $videoUrl = ArticleMetaInfo::getVideoSrc( $box->title );
-            if ( $videoUrl ) {
-                $videoBoxes[] = count($boxes) - 1;
-            }
-			$count++;
-        }
-
-        //limit the number of videos in this section
-        $maxNumVideos = count( $boxes ) * 0.10;
-        shuffle( $videoBoxes );
-        for ( $i = 0; $i < count( $videoBoxes ) - $maxNumVideos; $i++ ) {
-            $boxes[$videoBoxes[$i]]->noVideo = true;
-        }
-
-        foreach ( $boxes as $box ) {
-			//On homepage we only want one size image, not mobile and tablet image
-			$boxInnerHtml = WikihowMobileTools::getImageContainerBoxHtml( $box );
-			$html .= $boxInnerHtml;
-		}
-
-		$html .= "</div></div><div class='clearall'></div>";
 		$html2 = "";
 		$html3 = "";
 
 		Hooks::run( 'WikihowHomepageFAContainerHtml', array( &$html, &$html2, &$html3 ) );
 
-		$wgOut->addHTML( $html );
-		$wgOut->addHTML( $html2 );
-		$wgOut->addHTML( $html3 );
-		$wgOut->setRobotPolicy('index,follow', 'Main Page');
+		$clearIt = Html::rawElement( 'div', ['class' => 'clearall']);
+
+		$container = Html::rawElement( 'div', ['id' => 'article_blocks_container'], $html.$html2.$html3.$clearIt );
+		$out->addHTML( $container );
+
+		$out->setRobotPolicy('index,follow', 'Main Page');
 	}
 
-	private function getSearchHtml() {
+	private static function getSearchHtml() {
 		return '<div class="search">
 		<form action="/wikiHowTo" id="cse-search-box" _lpchecked="1">
 			<div>
@@ -80,19 +53,6 @@ class WikihowMobileHomepage extends Article {
 			</div>
 		</form>
 		</div>';
-
-		/* Google CSE - Not used as of June 2017 - Alberto
-		'<div class="search">
-			<form action="//cse.google.' .  wfMessage('cse_domain_suffix')->plain() . '/cse" id="cse-search-box" _lpchecked="1">
-				<div>
-					<input type="hidden" name="cx" value="' . wfMessage('cse_cx')->plain() . '">
-					<label for="hp_search" id="hp_search_label">' . wfMessage('wikihow_to_dot')->plain() . '</label>
-					<input type="text" id="hp_search" name="q" value="" x-webkit-speech="" ph="' . wfMessage('wikihow_to_dot')->plain() . '">
-					<input type="submit" value="" class="cse_sa" alt="">
-				</div>
-			</form>
-			</div>'
-		 */
 	}
 
 	public static function removeBreadcrumb(&$showBreadcrumb) {
@@ -104,8 +64,6 @@ class WikihowMobileHomepage extends Article {
 	 * NOTE: Much of this code is duplicated in WikihowHomepage.body.php (Alberto - 2018-09)
 	 */
 	public static function showTopImage() {
-		global $wgOut;
-
 		$items = array();
 
 		$dbr = wfGetDB(DB_REPLICA);
@@ -132,13 +90,14 @@ class WikihowMobileHomepage extends Article {
 		Hooks::run( 'WikihowHomepageAfterGetTopItems', array( &$items ) );
 
 		$tmpl = new EasyTemplate( __DIR__ );
-		$tmpl->set_vars(array(
+		$tmpl->set_vars([
 			'items' => $items,
 			'imagePath' => wfGetPad('/skins/owl/images/home1.jpg'),
-		));
+			'search_box' => self::getSearchHtml()
+		]);
 		$html = $tmpl->execute('topmobile.tmpl.php');
 
-		$wgOut->addHTML($html);
+		return $html;
 	}
 
 }

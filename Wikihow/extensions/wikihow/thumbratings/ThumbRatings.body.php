@@ -95,27 +95,37 @@ class ThumbRatings extends UnlistedSpecialPage {
 							$down = '9999+';
 					}
 
-					$prompt = "Helpful?";
-
-					$html .= "<div class='trvote_box'>
+/*					$html .= "<div class='trvote_box'>
 								<a href='#' class='trvote_up_{$hash}_{$k} vote_up tr_box'><span class='$className $nodisplay'>$up</span><span class='thumb up_$nodisplay' role='button' aria-label='" . wfMessage('aria_thumbs_up')->showIfExists() . "' /></a>
 								<span id='tr_prompt_$hash' class='tr_box tr_prompt'>$prompt</span>
 								<a href='#' class='trvote_down_{$hash}_{$k} vote_down tr_box'>&nbsp;<span class='thumb down_$nodisplay' role='button' aria-label='" . wfMessage('aria_thumbs_down')->showIfExists() . "' /><span class='$className $nodisplay'>$down</span></a>
-							</div>";
-					/*
-										$upImgSrc = wfGetPad('/skins/WikiHow/images/thr_up.png');
-										$downImgSrc = wfGetPad('/skins/WikiHow/images/thr_down.png');
+							</div>";*/
 
-										$html .= "<div>";
-										$html .= "<a href='#' class='trvote_up_{$hash}_{$k} vote_up'><span class='tr_box'>&#8204;<img src='$upImgSrc'/><span class='tr_vote $nodisplay'>$up</span></span></a>";
-										$html .= "<span id='tr_prompt_$hash' class='tr_box tr_prompt'>$prompt</span>";
-										$html .= "<a href='#' class='trvote_down_{$hash}_{$k} vote_down'><span class='tr_box'>&#8204;<span class='tr_vote $nodisplay'>$down</span><img src='$downImgSrc'/></span></a>";
-										$html .= "</div>";
-					*/
+
+					$vars = [
+						'thumbs_response' => wfMessage('thumbs_response')->text(),
+						'thumbs_nohelp' => wfMessage('qa_thumbs_nohelp')->text(),
+						'thumbs_help' => wfMessage('qa_thumbs_help')->text(),
+						'votesDown' => $down,
+						'votesUp' => $up,
+						// 'class' => 'tr_vote_up_'.$hash.'_'.$k <-- do we need this?
+					];
+
+					$html .= self::thumbRatingHtml($vars);
+
 					pq($node)->html($html);
 				}
 			}
 		}
+	}
+
+	private static function thumbRatingHtml(array $vars): string {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/../ext-utils/thumbs_up_down' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		return $m->render('thumbs_helpful.mustache', $vars);
 	}
 
 	public static function injectMobileThumbRatingsHtml(&$xpath, &$t) {

@@ -57,8 +57,10 @@ class QAWidget {
 
 	protected function getVars($loader) {
 		$isMobile = Misc::isMobileMode();
+		$isAmp = GoogleAmp::isAmpMode($this->getOutput());
 		$u = $this->getUser();
 
+		$vars['qa_amp'] = $isAmp;
 		$vars['aid'] = $aid = $this->t->getArticleID();
 		$vars['qa_admin'] = $isAdmin = self::isAdmin($u);
 		$vars['qa_editor'] = $isEditor = self::isEditor($u);
@@ -72,28 +74,25 @@ class QAWidget {
 		$vars['qa_target_page'] = self::isTargetPage();
 		$vars['qa_article_question_item'] = $loader->load('qa_article_question_item');
 		$vars['qa_question_edit_form'] = $loader->load('qa_question_edit_form');
+		$vars['qa_expert_hover'] = $loader->load('qa_expert_hover');
+		$vars['top_answerers_qa_widget'] = $loader->load('top_answerers_qa_widget_desktop'); //desktop AND mobile
+		$vars['thumbs_qa_widget'] = $loader->load('thumbs_qa_widget');
+		$vars['qa_asked_question_placeholder'] = $isMobile ? wfMessage('qa_asked_question_placeholder')->text() : wfMessage('qa_asked_question_placeholder_d')->text();
 
+		if (!$u->isAnon()) {
+			$vars['answer_flag_options'] = $this->getAnswerFlagOptions();
+		}
 		if ($isMobile) {
-			$vars['thumbs_up_down'] = $loader->load('thumbs_up_down');
 			$vars['qa_done_edit_answered'] = wfMessage('qa_done_edit_answered_mobile')->text();
-			$vars['qa_asked_question_placeholder'] = wfMessage('qa_asked_question_placeholder')->text();
 			$vars['qa_default_prompt'] = '';
 			$vars['qa_desktop'] = false;
 			$vars['qa_answered_by'] = wfMessage('qa_answered_by')->text();
-			$vars['top_answerers_qa_widget_mobile'] = $loader->load('top_answerers_qa_widget_mobile');
 		} else {
-			$vars['thumbs_qa_widget'] = $loader->load('thumbs_qa_widget');
 			$vars['qa_done_edit_answered'] = wfMessage('qa_done_edit_answered_desktop')->text();
-			$vars['qa_asked_question_placeholder'] = wfMessage('qa_asked_question_placeholder_d')->text();
 			$vars['qa_default_prompt'] = wfMessage('qa_default_prompt')->text();
 			$vars['qa_desktop'] = true;
 			$vars['qa_answered_by'] = '';
 			$vars['flag_options'] = $this->getFlagOptions();
-			$vars['qa_expert_hover'] = $loader->load('qa_expert_hover');
-			$vars['top_answerers_qa_widget_desktop'] = $loader->load('top_answerers_qa_widget_desktop');
-			if (!$u->isAnon()) {
-				$vars['answer_flag_options'] = $this->getAnswerFlagOptions();
-			}
 		}
 
 		if ($showUnansweredQuestions) {
@@ -436,18 +435,6 @@ class QAWidget {
 	public static function isFixFlaggedAnswerTool() {
 		$t = RequestContext::getMain()->getTitle();
 		return $t && $t->getText() == 'FixFlaggedAnswers';
-	}
-
-	public static function onAddMobileTOCItemData($wgTitle, &$extraTOCPreData, &$extraTOCPostData) {
-		if (QAWidget::isTargetPage()) {
-			$extraTOCPostData[] = [
-				'anchor' => 'qa_headline',
-				'name' => wfMessage('qa_toc_section')->text(),
-				'priority' => 1000,
-				'selector' => '.section.qa',
-			];
-		}
-		return true;
 	}
 
 	public static function isTargetPage($t = null) {

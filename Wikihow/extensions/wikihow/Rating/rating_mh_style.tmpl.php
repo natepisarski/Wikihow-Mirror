@@ -7,7 +7,6 @@ if (!$isMobile) {
 	$headlineClasses = 'ar_headline ar_headline_desktop';
 	$innerClassesArr = array('ar_inner');
 	$extraInputClass = ' ar_border_thin';
-	$extraButtonClass = ' ar_button_short';
 ?>
 <div class='article_rating_container clearfix'>
 <?
@@ -15,7 +14,6 @@ if (!$isMobile) {
 	$headlineClasses = 'ar_headline';
 	$innerClassesArr = array('ar_inner', 'ar_inner_mobile');
 	$extraInputClass = ' ar_border_thick';
-	$extraButtonClass = ' ar_button_long';
 }
 if ($rating == 0) {
 	$reasonClasses = implode(' ', $innerClassesArr);
@@ -49,7 +47,7 @@ if ($rating == 0) {
 	}
 ?>
 			</div>
-			<input type='button' class='ar_submit button primary ar_button ar_submit_inactive<?=$extraButtonClass?>' id='ar_submit_reason' value='<?=wfMessage('submit')->text()?>' onClick='WH.ratings.ratingReasonSubmit(window.WH.ratings._titleText, 0, $(".ar_radios input[name=ar_radio]:checked").val(), "<?=$ratingId?>");' />
+			<input type='button' class='ar_submit button primary ar_button ar_submit_inactive' id='ar_submit_reason' value='<?=wfMessage('submit')->text()?>' onClick='WH.ratings.ratingReasonSubmit(window.WH.ratings._titleText, 0, $(".ar_radios input[name=ar_radio]:checked").val(), "<?=$ratingId?>");' />
 			<div class='ar_spinner ar_submit_inactive'>
 				<img src='<?=wfGetPad('/extensions/wikihow/rotate.gif')?>' alt='<?=wfMessage('ar_submitting')->text()?>' />
 			</div>
@@ -88,10 +86,10 @@ if ($rating == 0) {
 				<p id="ar_public_error" style="display:none;"><?= wfMessage("ratearticle_error")->text()?></p>
 				<p><?= wfMessage("ratearticle_public_agree")->text()?></p>
 			</div>
-			<input type='button' class='ar_submit button primary ar_button ar_submit_inactive<?=$extraButtonClass?>' id='ar_submit_details' value='<?=wfMessage('submit')->text()?>' onClick='WH.ratings.ratingDetailsSubmit(window.WH.ratings._titleText, <?=$rating?>, $("#ar_details").val(), $("#ar_email").val(), null, $("input[name=ar_public]:checked").val(), $("#ar_firstname").val(), $("#ar_lastname").val());' />
+			<input type='button' class='ar_submit button primary ar_button ar_submit_inactive' id='ar_submit_details' value='<?=wfMessage('submit')->text()?>' onClick='WH.ratings.ratingDetailsSubmit(window.WH.ratings._titleText, <?=$rating?>, $("#ar_details").val(), $("#ar_email").val(), null, $("input[name=ar_public]:checked").val(), $("#ar_firstname").val(), $("#ar_lastname").val());' />
 <? } else { ?>
 			<input placeholder='<?=wfMessage('ratearticle_input_email')->text()?>' id='ar_email' class='ar_input<?=$extraInputClass?>' />
-			<input type='button' class='ar_submit button primary ar_button ar_submit_inactive<?=$extraButtonClass?>' id='ar_submit_details' value='<?=wfMessage('submit')->text()?>' onClick='WH.ratings.ratingDetailsSubmit(window.WH.ratings._titleText, <?=$rating?>, $("#ar_details").val(), $("#ar_email").val(), $(".ar_radios input[name=ar_radio]:checked").val());' />
+			<input type='button' class='ar_submit button primary ar_button ar_submit_inactive' id='ar_submit_details' value='<?=wfMessage('submit')->text()?>' onClick='WH.ratings.ratingDetailsSubmit(window.WH.ratings._titleText, <?=$rating?>, $("#ar_details").val(), $("#ar_email").val(), $(".ar_radios input[name=ar_radio]:checked").val());' />
 <? } ?>
 			<div class='ar_spinner ar_submit_inactive'>
 				<img src='<?=wfGetPad('/extensions/wikihow/rotate.gif')?>' alt='<?=wfMessage('ar_submitting')->text()?>' />

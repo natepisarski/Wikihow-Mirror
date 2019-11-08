@@ -65,6 +65,9 @@ class TipsAndWarnings extends UnlistedSpecialPage {
 		return '';
 	}
 
+/*
+	DO WE USE THESE ANYMORE? [sc] 7/2019
+
 	public static function injectCTAs(&$xpath, &$t) {
 		if (self::isActivePage() && self::isValidTitle($t)) {
 			$nodes = $xpath->query('//div[@id="tips"]/ul');
@@ -131,7 +134,7 @@ class TipsAndWarnings extends UnlistedSpecialPage {
 				return; //only one
 			}
 		}
-	}
+	}*/
 
 	public static function isValidTitle(&$t) {
 		return $t && $t->exists() && $t->inNamespace(NS_MAIN) && !$t->isProtected();

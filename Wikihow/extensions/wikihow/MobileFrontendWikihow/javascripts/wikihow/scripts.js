@@ -3,34 +3,17 @@
 
 //[sc] 8/2019 - this is causing issues, but maybe it's there for a reason? Just commenting out
 // if (mw.config.get('wgNamespaceNumber') === 0) {
-//     var isIOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/gi) !== null;
-//     if (isIOS) {
-//             iOSheaderFixes();
-//     }
+// 	var isIOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/gi) !== null;
+// 	if (isIOS) {
+// 		iOSheaderFixes();
+// 	}
 // }
-
 
 $(document).ready(function() {
 	if (mw.config.get('wgNamespaceNumber') === 0) {
 		initializeArticlePage();
 	}
 });
-
-/* disabling this since the on() method is no longer available - Reuben, 2019 MW upgrade
-mw.mobileFrontend.on( 'page-loaded', function() {
-	initializeArticlePage();
-
-	// Only do this in page-loaded to prevent intro removal jitter on normal
-	// article pages
-	hideBlankIntro();
-} );
-
-function hideBlankIntro() {
-	if (!$('#intro').text().trim().length) {
-		$('#intro').hide();
-	}
-}
-*/
 
 function initializeArticlePage() {
 
@@ -58,13 +41,18 @@ function initializeArticlePage() {
 	});
 
 	$('.checkmark').on('click', function() {
-		if ($(this).hasClass('checked')) {
-			$(this).removeClass('checked');
-		}
-		else {
-			$(this).addClass('checked');
-		}
+		$(this).toggleClass('checked');
+		$(this).closest('li').toggleClass('all_done');
 		return false;
+	});
+}
+
+function moveSamplesSection() {
+	//only for small
+	if ($(window).width() >= WH.mediumScreenMinWidth) return;
+
+	$('.sample').each( function() {
+		$('.steps:last').after(this);
 	});
 }
 
@@ -82,26 +70,20 @@ $(document).ready(function() {
 	// Do this in case someone hits the back button
 	// which would keep their previous search term in place
 	$('input.cse_q, #hp_search').val('');
+
+	//custom search placeholder based on screen size
+	var search_ph = mw.message('header-search-placeholder').text();
+	if ($(window).width() >= WH.largeScreenMinWidth) search_ph = mw.message('wh_search_line_ph').text();
+
+	$('#hs_query').attr('placeholder', search_ph);
 });
 
 $(document).ready(function() {
-	//hide the add tip menu item if there's no tip section
-	if ($('.addTipElement').length <= 0) {
-		var $addTipIcon = $('#icon-addtip');
-		$addTipIcon.hide();
-		//is this the last one? uh oh. Hide the whole menu section
-		if ($addTipIcon.next().hasClass('side_header')) {
-			$('#header3').hide();
-		}
-	}
-
-	var $addTip = $('#icon-addtip a');
-	if ($addTip.length > 0) {
-		$addTip.click(function(e) {
+	var $addUCI = $('#icon-adduci a');
+	if ($addUCI.length > 0) {
+		$addUCI.click(function(e) {
 			e.preventDefault();
-			$('html, body').animate({
-				scrollTop: $(".addTipElement").offset().top - 85
-			}, 2000);
+			$.scrollTo('#uci_section', 2000, {offset:-105});
 		});
 	}
 
@@ -159,6 +141,8 @@ $(document).ready(function() {
 
 		resizeVideo();
 	}
+
+	moveSamplesSection();
 });
 
 /**
@@ -193,16 +177,16 @@ function resizeVideo() {
 //[sc] 8/2019 - this is causing issues, but might be needed for something? just commenting out
 // // fix for when the keyboard pops up
 // function iOSheaderFixes() {
-//     $('.cse_q').first()
-//             .focus(function() {
-//                     //search box is being used
-//                     //WARNING: the iOS keyboard approacheth!!!
-//                     $('.header').css('position','absolute');
-//                     $(window).scrollTop(0);
-//             })
-//             .blur(function() {
-//                     $('.header').css('position','fixed');
-//             });
+// 	$('.cse_q').first()
+// 		.focus(function() {
+// 			//search box is being used
+// 			//WARNING: the iOS keyboard approacheth!!!
+// 			$('.header').css('position','absolute');
+// 			$(window).scrollTop(0);
+// 		})
+// 		.blur(function() {
+// 			$('.header').css('position','fixed');
+// 		});
 // }
 
 function addClickHandlers() {
@@ -258,12 +242,6 @@ function addClickHandlers() {
 }
 
 $(document).ready(function() {
-	$('.unnabbed_alert #nab_alert_close').on('click', function(e) {
-		e.preventDefault();
-		$('.unnabbed_alert').hide();
-		$('.unnabbed').removeClass('unnabbed');
-		$('.unnabbed_alert_top').show();
-	});
 	$('#ar_form_details').on('change', '.ar_public', function() {
 		if ($(this).val() == 'yes') {
 			$('#ar_public_info').show();
@@ -271,6 +249,24 @@ $(document).ready(function() {
 			$('#ar_public_info').hide();
 		}
 	});
+});
+
+//here's where we handle weird errors that arise from people manually resizing their client
+$( window ).resize(function() {
+
+	//@large
+	if ($(window).width() >= WH.largeScreenMinWidth) {
+
+		//close menu (lifted from MainMenu.js)
+		if ($( document.body ).hasClass( 'navigation-enabled' )) {
+			$( document.body ).removeClass( 'navigation-enabled' )
+				.removeClass( 'secondary-navigation-enabled' )
+				.removeClass( 'primary-navigation-enabled' );
+			setTimeout(function(){ $('#mw-mf-viewport').removeClass("menuopen"); }, 1250);
+		}
+
+	}
+
 });
 
 }(jQuery, mediaWiki) );

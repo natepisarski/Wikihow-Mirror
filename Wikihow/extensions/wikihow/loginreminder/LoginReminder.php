@@ -22,7 +22,7 @@ $wgResourceModules['ext.wikihow.loginreminder'] = [
     'scripts'       => 'LoginReminder.js',
     'localBasePath' => __DIR__,
     'remoteExtPath' => 'wikihow/loginreminder',
-    'targets'       => ['desktop'],
+    'targets'       => ['desktop', 'mobile'],
     'messages' => [ 'lr_choose_longer_password', 'lr_passwords_dont_match', 'lr_password_reset' ],
 	'position' => 'top'
 ];

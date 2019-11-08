@@ -97,12 +97,15 @@
 	margin-top: 2px;
 }
 
-.ar_button_short {
-	width: 200px;
+.ar_button {
+	width: 100%;
 }
 
-.ar_button_long {
-	width: 100%;
+/* @medium */
+@media only screen and (min-width:728px) {
+	.ar_button {
+		width: 200px;
+	}
 }
 
 #ar_submit_reason,#ar_submit_details {
@@ -130,6 +133,7 @@
 }
 
 .ar_spinner {
+	width: 35px;
 	height: 35px;
 	text-align: center;
 }

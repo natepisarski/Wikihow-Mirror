@@ -53,6 +53,26 @@ $wgResourceModules['ext.wikihow.common_bottom'] = [
 	]
 ];
 
+$wgResourceModules['ext.wikihow.responsive_base'] = [
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop', 'mobile' ],
+	'scripts' => [
+		'../../skins/common/wikihowbits.js',
+		'common/jquery.scrollTo.1.4.12/jquery.scrollTo.min.js',
+		'../../skins/WikiHow/google_cse_search_box.js',
+		'../../skins/WikiHow/gaWHTracker.js',
+		'../../skins/WikiHow/opWHTracker.js',
+	],
+	'dependencies' => [
+		'ext.wikihow.common_top',
+		'ext.wikihow.loginreminder',
+		'ext.wikihow.socialauth',
+		'ext.wikihow.userloginbox'
+	],
+	'remoteExtPath' => 'wikihow',
+	'position' => 'top'
+];
+
 $wgResourceModules['ext.wikihow.desktop_base'] = [
 	'localBasePath' => __DIR__,
 	'targets' => [ 'desktop' ],
@@ -83,18 +103,38 @@ $wgResourceModules['ext.wikihow.whvid'] = [
 $wgResourceModulesDesktopBoilerStyles = [
 	'localBasePath' => __DIR__,
 	'targets' => [ 'desktop' ],
-	'remoteExtPath' => 'wikihow' ];
+	'remoteExtPath' => 'wikihow'
+];
 
 $wgResourceModulesDesktopBoiler = [
 	'localBasePath' => __DIR__,
 	'targets' => [ 'desktop' ],
 	'dependencies' => [ 'ext.wikihow.desktop_base' ],
 	'remoteExtPath' => 'wikihow',
-	'position' => 'top'];
+	'position' => 'top'
+];
+
+$wgResourceModulesResponsiveBoilerStyles = [
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop', 'mobile' ],
+	'remoteExtPath' => 'wikihow'
+];
+
+$wgResourceModulesResponsiveBoiler = [
+	'localBasePath' => __DIR__,
+	'targets' => [ 'desktop', 'mobile' ],
+	'dependencies' => [ 'ext.wikihow.responsive_base' ],
+	'remoteExtPath' => 'wikihow',
+	'position' => 'top'
+];
 
 $wgResourceModules['ext.wikihow.rcwidget'] =
-	$wgResourceModulesDesktopBoiler
+	$wgResourceModulesResponsiveBoiler
 	+ [ 'scripts' => [ 'rcwidget/rcwidget.js' ] ];
+
+$wgResourceModules['ext.wikihow.rcwidget_styles'] =
+	$wgResourceModulesResponsiveBoilerStyles
+	+ [ 'styles' => [ 'rcwidget/rcwidget.css' ] ];
 
 $wgResourceModules['ext.wikihow.toptentips_styles'] =
 	$wgResourceModulesDesktopBoilerStyles

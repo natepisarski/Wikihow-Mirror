@@ -9,6 +9,10 @@ $messages['en'] = array (
 	"urf_helpful_question" => "How helpful was this article?",
 	"urf_posting_as" => "Posting as $1",
 	"urf_open_form" => "Open form",
-	"urf_thanks" => "Thanks"
+	"urf_thanks" => "Thanks",
+	"urf_close" => "Close",
+	"urf_thanks_desc" => "You are logged in and your story is being reviewed.",
+	"urf_smallprint" => "Stories are edited for length and clarity. Not all stories will appear on the article.",
+	"urf_social_desc" => "Inspire other readers and make your story stand out.<br><br>Log in with Google or Facebook, and we'll show your profile picture along with your story!<br><br>We will NOT post on your profile or timeline."
 	);
 

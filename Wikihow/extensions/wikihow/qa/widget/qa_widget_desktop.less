@@ -1,7 +1,7 @@
 @import 'qa_widget_common.less';
 
 #qa {
-	padding: 25px;
+	padding: 26px;
 }
 
 #qa_headline { margin-left: 0; }
@@ -25,9 +25,7 @@
 }
 
 .qa_answers {
-	margin: 1.3em 0 0 .1em;
-	border-left: 3.5px solid #eae9e6;
-	padding-left: 1em;
+	margin-top: 1.3em;
 }
 
 .qa_answerer_info {
@@ -76,19 +74,6 @@
 
 .qa_section_heading {
 	margin: 0 0 20px 0;
-	font-size: 18px;
-}
-
-.qa.section {
-	.altblock {
-		background-image: url(./assets/qa_question_circle.png);
-		/* @embed */
-		background-image: url(./assets/qa_question_circle.svg);
-		background-repeat: no-repeat;
-		background-size: 25px auto;
-		background-position: center;
-		height: 52px;
-	}
 }
 
 .qa_editor {
@@ -127,40 +112,12 @@
 	}
 }
 
-.qa_user_hover {
-	display: none;
-}
-
 .qa_expert_area, .qa_ta_area {
 	cursor: pointer;
 
 	.qa_person_circle, .qa_person_circle span {
 		height: 55px;
 		width: 55px;
-	}
-
-	.qa_user_hover {
-		width: 250px;
-		padding: 18px;
-		font-size: .9em;
-		background-color: #FFF;
-		position: absolute;
-		border: 3px solid rgba(0, 0, 0, .13);
-		margin: -73px 0 0 0;
-		max-width: inherit;
-		line-height: 1.2em;
-		z-index: 999;
-
-		.qa_person_circle, .qa_person_circle span {
-			height: 45px;
-			width: 45px;
-			line-height: 45px;
-			font-size: 20px;
-			margin: 0;
-		}
-	}
-	.qa_user_hover:after, .qa_user_hover:before {
-		left: 25px;
 	}
 }
 
@@ -177,127 +134,6 @@
 		width: 17px;
 		height: 22px;
 		margin: 38px 0 0 43px;
-	}
-}
-
-.qa_expert_name, .qa_ta_name {
-	padding: 5px 0 10px 55px;
-	border-bottom: 1px solid rgba(0, 0, 0, .13);
-	margin-bottom: 10px;
-	min-height: 40px;
-}
-
-.qa_expert_name a {
-	font-size: 1.1em;
-	font-weight: bold;
-	color: #545454;
-}
-
-.qa_ta_name span {
-	font-size: 1.1em;
-	font-weight: bold;
-}
-
-.qa_ta_name a {
-	color: #545454;
-}
-
-.wh_vote_container {
-	font-size: .7em;
-	color: @lightGray;
-	margin: 0;
-	display: inline-block;
-
-	a { color: @lightGray; }
-
-	a span {
-		padding: 2px 10px;
-		border-radius: 9px;
-		margin-left: 0.5em;
-		color: #686868;
-	}
-
-	.wh_vote_up {
-		padding: 0;
-		float: left;
-
-		span {
-			background-color: #D6E7C9;
-		}
-
-		&:hover {
-			border-color: #383;
-			color: #383;
-		}
-	}
-	.wh_vote_down {
-		span {
-			background-color: #EBEAE7;
-		}
-
-		&:hover {
-			border-color: #CC8969;
-			color: #CC8969;
-		}
-	}
-}
-.wh_vote_container.clicked {
-	.wh_vote_box { display: none; }
-}
-
-.wh_vote_container.qa_vote_links {
-	.qa_widget_vote_buttons {
-		display: none;
-	}
-}
-
-.wh_vote_container.qa_vote_buttons {
-	text-align: right;
-
-	.qa_widget_vote_links, .wh_thumb_default {
-		display: none;
-	}
-}
-
-.wh_thumb_default { color: @lightGray; }
-.wh_thumb_msg { width: inherit; }
-.wh_thumb_response { line-height: 3em; }
-
-.qa_widget_vote_links, .qa_widget_vote_buttons {
-	display: inline-block;
-
-	.button {
-		text-align: center;
-		line-height: 1em;
-		padding: 5px 0;
-	}
-}
-
-.qa_widget_vote_links {
-	padding: 10px 0 5px 0;
-
-	.button {
-		width: 35px;
-		margin: 0 4px;
-		font-weight: normal;
-	}
-}
-
-.qa_widget_vote_buttons {
-	a {
-		color: #686868;
-		padding: 0 1em;
-	}
-}
-
-.qa_ignore_answered_thanks { display: none; }
-
-.qa_ignore_answered, .qa_ignore_answered_thanks {
-	font-size: .7em;
-	float: right;
-
-	a {
-		color: #686868;
 	}
 }
 
@@ -318,10 +154,7 @@
 }
 
 .qa_sq.qa_editing_aq {
-	margin-right: -25px;
-	margin-left: -25px;
-	margin-bottom: 20px;
-	padding: 30px 27px 8px;
+	margin: 0 -25px 20px;
 }
 
 .qa_aq_edit_form {
@@ -338,51 +171,6 @@
 
 .qa_flag_submitted, .qa_ignore_submitted{
 	font-size: 12px;
-}
-
-#qa_flag_options {
-	display: none;
-	position: absolute;
-	bottom: 40px;
-	padding-bottom: 13px;
-	font-size: 12px;
-	z-index: 998;
-
-	.hint_box {
-		min-width: auto;
-
-		ul {
-			padding: 0;
-			list-style: none;
-
-			li {
-				margin: 0;
-			}
-		}
-	}
-}
-
-#qa_answer_flag_options {
-	display: none;
-	position: absolute;
-	bottom: 40px;
-	padding-bottom: 13px;
-	font-size: 12px;
-	min-width: 130px;
-	z-index: 998;
-
-	.hint_box {
-		min-width: auto;
-
-		ul {
-			padding: 0;
-			list-style: none;
-
-			li {
-				margin: 0;
-			}
-		}
-	}
 }
 
 #qa_related_box {

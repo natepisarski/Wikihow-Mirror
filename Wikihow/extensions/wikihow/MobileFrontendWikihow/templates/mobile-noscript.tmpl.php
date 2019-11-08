@@ -65,9 +65,6 @@
   height: 51px;
   padding: 0 14px;
 }
-.addTipElement {
-	display: none;
-}
 .articleinfo {
 	display: none;
 }

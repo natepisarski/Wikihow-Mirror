@@ -1118,7 +1118,8 @@ class MobileFrontendHooks {
 		// If the device is a mobile, Remove the category entry.
 		$context = MobileContext::singleton();
 		if ( $context->shouldDisplayMobileView() ) {
-			unset( $vars['wgCategories'] );
+			//[sc] 9/2019 - we need the categories for the slider (why unset this at all, though?)
+			// unset( $vars['wgCategories'] );
 			$vars['wgMFMode'] = $context->isBetaGroupMember() ? 'beta' : 'stable';
 			$vars['wgMFLazyLoadImages'] =
 				$featureManager->isFeatureAvailableInContext( 'MFLazyLoadImages', $context );

@@ -208,5 +208,10 @@ class EchoWikihowHooks {
 		return true;
 	}
 
+	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		if ($out->getUser()->hasCookies()) {
+			$out->addModuleStyles(['ext.wikihow.echowikihow']);
+		}
+	}
 }
 

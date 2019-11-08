@@ -95,8 +95,11 @@
 						closeBtnInside: true,
 						callbacks: {
 							beforeClose: function () {
-								if( urf.hasLoggedIn ) {
+								if (urf.hasLoggedIn) {
 									window.location.reload();
+								}
+								else {
+									urf.releaseTheScrollbar();
 								}
 							}
 						}
@@ -120,9 +123,13 @@
 		},
 		hideUserReviewForm: function () {
 			var urf = this;
+			urf.releaseTheScrollbar();
+			$.magnificPopup.close();
+		},
+		releaseTheScrollbar: function () {
+			var urf = this;
 			var scrollingElement = urf.getScrollingElement();
 			scrollingElement.removeClass( 'modal-open' );
-			$.magnificPopup.close();
 		},
 		starBehavior: function () {
 			$( '.ur_star_container' ).each( function ( index ) {

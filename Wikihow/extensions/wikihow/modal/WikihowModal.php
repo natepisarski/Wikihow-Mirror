@@ -75,7 +75,7 @@ $wgResourceModules['ext.wikihow.printview_modal'] = array(
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/modal',
 	'position' => 'bottom',
-	'targets' => array( 'desktop' )
+	'targets' => array( 'desktop', 'mobile' )
 );
 
 $wgResourceModules['ext.wikihow.graphs_modal'] = array(
@@ -121,5 +121,5 @@ $wgResourceModules['ext.wikihow.discuss_tab'] = array(
 		'ext.wikihow.common_bottom'
 	),
 	'position' => 'bottom',
-	'targets' => array( 'desktop' )
+	'targets' => array( 'desktop', 'mobile' )
 );

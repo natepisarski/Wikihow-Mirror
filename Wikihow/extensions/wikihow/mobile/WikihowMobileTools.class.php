@@ -3,9 +3,9 @@
 if (!defined('MEDIAWIKI')) die();
 
 class WikihowMobileTools {
-	private static $tableOfContentsHtml = '';
-
 	const SMALL_IMG_WIDTH = 460;
+
+	private static $referencesSection = null;
 
 	static function onMobilePreRender($mobileTemplate) {
 		global $wgOut;
@@ -13,7 +13,6 @@ class WikihowMobileTools {
 		// only do this for article pages
 		if ($wgOut->isArticle()) {
 			$mobileTemplate->data['bodytext'] = self::processDom( $mobileTemplate->data['bodytext'], $mobileTemplate->getSkin(), null, $mobileTemplate );
-			$mobileTemplate->data['tableofcontents'] = self::getTableOfContents();
 		}
 
 		if ( !GoogleAmp::isAmpMode($wgOut) ) {
@@ -80,6 +79,7 @@ class WikihowMobileTools {
 
 		//add a clearall to the end of the intro
 		pq("#intro")->append("<div class='clearall'></div>");
+
 		// Contains elements with the raw titles of methods (i.e. non-parts)
 		$nonAltMethodElements = array();
 		$showTOC = false;
@@ -125,9 +125,9 @@ class WikihowMobileTools {
 			$canonicalSteps = WikihowArticleHTML::canonicalizeHTMLSectionName(wfMessage('steps')->text());
 			if ($canonicalSectionName == $canonicalSteps) {
 
+				pq('h3')->prepend('<div class="altblock"></div>');
 				if ($h3Count > 0) {
 					//has alternate methods
-
 					$altMethodNames = array();
 					$altMethodAnchors = array();
 
@@ -141,7 +141,7 @@ class WikihowMobileTools {
 
 						$overallSet = array();
 						$overallSet[] = $node;
-						foreach ( pq("div#{$sectionName}:first") as $temp){
+						foreach (pq("div#{$sectionName}:first") as $temp) {
 							$overallSet[] = $temp;
 						}
 
@@ -149,20 +149,19 @@ class WikihowMobileTools {
 							pq($overallSet)->wrapAll("<div class='section steps'></div>");
 						} catch (Exception $e) {
 						}
-					}
-					else {
+					} else {
 						//hide the h2 tag
 						pq($node)->addClass("hidden");
 					}
 
+					// AG left this in
 					$displayMethodCount = $h3Count;
 					$isSample = array();
 					for ($i = 1; $i <= $h3Count; $i++) {
 						$isSampleItem = false;
 						if (!is_array($h3Elements[$i]) || count($h3Elements[$i]) < 1) {
 							$isSampleItem = false;
-						}
-						else {
+						} else {
 							//the sd_container isn't always the first element, need to look through all
 							foreach ($h3Elements[$i] as $node) { //not the most efficient way to do this, but couldn't get the find function to work.
 								if (pq($node)->attr("id") == "sd_container") {
@@ -171,43 +170,60 @@ class WikihowMobileTools {
 								}
 							}
 						}
-						if ( $isSampleItem )
-						{
+						if ($isSampleItem) {
 							$isSample[$i] = true;
 							$displayMethodCount--;
 						} else {
 							$isSample[$i] = false;
 						}
 					}
+					$stepsEditUrl = pq('.editsection', $node)->attr("href");
+
+					//let's play "Find the Sample"
+					for ($i = 1; $i <= $h3Count; $i++) {
+						if (!is_array($h3Elements[$i]) || count($h3Elements[$i]) < 1) continue;
+
+						$isSampleItem = false;
+
+						//the sd_container isn't always the first element, need to look through all
+						foreach ($h3Elements[$i] as $node) { //not the most efficient way to do this,
+							if (pq($node)->attr("id") == "sd_container") {
+								$isSampleItem = true;
+								break;
+							}
+						}
+
+						$isSample[$i] = $isSampleItem;
+					}
+
+					/*if ($ads) {
+						wikihowAds::setAltMethods($displayMethodCount > 1);
+					}*/
 
 					$wikitext = ContentHandler::getContentText($context->getWikiPage()->getContent(Revision::RAW));
-					$hasParts = MagicWord::get( 'parts' )->match( $wikitext );
+					$hasParts = MagicWord::get('parts')->match($wikitext);
 
 					$displayMethod = 1;
 					for ($i = 1; $i <= $h3Count; $i++) {
 
-						$methodTitle = htmlspecialchars_decode(pq("span.mw-headline", $h3Tags[$i])->html());
-						$methodTitle = pq("<div>$methodTitle</div>")->text();
+						$methodTitle = pq("span.mw-headline", $h3Tags[$i])->html();
 						$altMethodNames[] = $methodTitle;
 						$altMethodAnchors[] = pq("span.mw-headline", $h3Tags[$i])->attr("id");
-						$displayMethodWord = ucwords(Misc::numToWord($displayMethod,10));
-						$displayMethodCountWord = ucwords(Misc::numToWord($displayMethodCount,10));
-						if ($displayMethodCount > 1 && !$isSample[$i] && $hasParts && $docTitle->inNamespace(NS_MAIN)) {
-							if ($methodTitle) {
-								$methodTitle = wfMessage("part_mobile_2",$displayMethodWord,$displayMethodCountWord,$methodTitle)->text();
-							} else {
-								$methodTitle = wfMessage("part_1",$displayMethodWord, $displayMethodCountWord)->text();
-							}
-							$displayMethod++;
-						} elseif ($displayMethodCount > 1 && !$isSample[$i] && $docTitle->inNamespace(NS_MAIN)) {
-							$nonAltMethodElements[] = pq("span.mw-headline", $h3Tags[$i])->clone();
-							if ($methodTitle) {
-								$methodTitle = wfMessage("method_mobile_2",$displayMethodWord,$displayMethodCountWord, $methodTitle)->text();
-							} else {
-								$methodTitle = wfMessage("method_1",$displayMethodWord,$displayMethodCountWord)->text();
-							}
+
+						if (!$isSample[$i] && $docTitle->inNamespace(NS_MAIN)) {
+							$method_of = wfMessage('of')->text();
+							$methodPrefix = $hasParts ? wfMessage('part')->text() : wfMessage('method')->text();
+							$methodPrefix .= " <span>{$displayMethod}</span>" .
+								"<span class='method_of_count'> $method_of $displayMethodCount:</span>";
 							$displayMethod++;
 						}
+
+						if (!$isSample[$i] && $opts['ns'] == NS_MAIN) {
+							pq(".altblock", $h3Tags[$i])->html($methodPrefix);
+						} else {
+							pq(".altblock", $h3Tags[$i])->remove();
+						}
+
 						pq("span.mw-headline", $h3Tags[$i])->html($methodTitle);
 
 						$sample = $isSample[$i] ? "sample" : "";
@@ -220,7 +236,7 @@ class WikihowMobileTools {
 						}
 						$overallSet = array();
 						$overallSet[] = $h3Tags[$i];
-						foreach ( pq("div#{$sectionName}_{$i}:first") as $temp){
+						foreach (pq("div#{$sectionName}_{$i}:first") as $temp) {
 							$overallSet[] = $temp;
 						}
 						try {
@@ -235,13 +251,7 @@ class WikihowMobileTools {
 					&& !self::isInternetOrgRequest()
 					&& !AndroidHelper::isAndroidRequest()
 					&& !$wgContLang->isRTL();
-
-				if ($h3Count > 0) {
-					//chance to reformat the alt method_toc before output
-					//using for running tests
-					$bAfter = false;
-					Hooks::run('BeforeOutputAltMethodTOC', array($docTitle, &$anchorList, &$bAfter));
-				} else {
+				if ($h3Count <= 0) {
 					if ($set) {
 						try {
 							pq($set)->wrapAll("<div id='{$sectionName}' class='section_text'></div>");
@@ -251,7 +261,7 @@ class WikihowMobileTools {
 
 					$overallSet = array();
 					$overallSet[] = $node;
-					foreach ( pq("div#{$sectionName}:first") as $temp){
+					foreach (pq("div#{$sectionName}:first") as $temp) {
 						$overallSet[] = $temp;
 					}
 
@@ -263,16 +273,16 @@ class WikihowMobileTools {
 				if (class_exists('ArticleQuizzes')) {
 					$articleQuizzes = new ArticleQuizzes($wgTitle->getArticleID());
 					$count = 1;
-					foreach (pq(".steps .mw-headline span") as $headline) {
+					foreach (pq(".steps .mw-headline") as $headline) {
 						$methodType = ($hasParts?"Part ":"Method ") . $count;
 						$methodTitle = pq($headline)->html();
 						$quiz = $articleQuizzes->getQuiz($methodTitle, $methodType);
 						if ($count == 1 && $articleQuizzes->showFirstAtTop()) {
-							pq($headline)->parent()->parent()->parent()->prepend($quiz);
+							pq($headline)->parents('.steps')->prepend($quiz);
 						} else {
-							pq($headline)->parent()->parent()->parent()->append($quiz);
+							pq($headline)->parents('.steps')->append($quiz);
 							if ($articleQuizzes->showFirstAtTop()) { //this is temporary while we test
-								pq($headline)->parent()->parent()->parent()->find(".qz_top_info")->remove();
+								pq($headline)->parents('.steps')->find(".qz_top_info")->remove();
 							}
 						}
 						$count++;
@@ -281,8 +291,17 @@ class WikihowMobileTools {
 				}
 
 			} else {
-				//list page?
-				$list_page = $docTitle->inNamespace(NS_PROJECT) && ($docTitle->getDbKey() == 'RSS-feed' || $docTitle->getDbKey() == 'Rising-star-feed');
+				//is it a list page?
+				$list_page = $docTitle->inNamespace(NS_PROJECT) &&
+										($docTitle->getDbKey() == 'RSS-feed' || $docTitle->getDbKey() == 'Rising-star-feed');
+
+				//bad articles are formatted in a different way; recalculate
+				if (!$docTitle->exists()) {
+					$set = [];
+					foreach (pq($node)->nextAll() as $sibling) {
+						$set[] = $sibling;
+					}
+				}
 
 				//not a steps section
 				if ($set) {
@@ -322,6 +341,9 @@ class WikihowMobileTools {
 		foreach(pq("h3 > .mw-editsection") as $editsection) {
 			pq($editsection)->parent()->append($editsection);
 		}
+
+		//add extra green blocks to certain headers
+		pq('.tips h2, .warnings h2')->prepend('<div class="altblock"></div>');
 
 		Hooks::run('AtAGlanceTest', array( $wgTitle ) );
 
@@ -392,6 +414,10 @@ class WikihowMobileTools {
 			$videoPlayer->wrap('<div class="content-spacer" style="padding-top: 56.25%;">');
 			$videoContainer->addClass('content-fill');
 			$mVideo->addClass('content-fill');
+
+			if ( $mVideo->attr( 'data-watermark' ) ) {
+				$videoContainer->after( WHVid::getVideoWatermarkHtml( $context->getTitle() ) );
+			}
 		}
 
 		$headingsList = ConfigStorage::dbGetConfig(Wikitext::SUMMARIZED_HEADINGS_KEY);
@@ -423,6 +449,8 @@ class WikihowMobileTools {
 
 		//give the summary video title a consistent id (like the other sections)
 		pq( '.summarysection .video-player')->parents( '.section' )->find('h2 span')->attr( 'id', 'quick_summary_video_section');
+
+		pq( "#quick_summary_section")->parents('.section')->addClass("summary_with_video");
 
 		pq( 'video:not(.summary-m-video)' )->parent()->after( WHVid::getVideoControlsHtmlMobile() );
 
@@ -470,6 +498,7 @@ class WikihowMobileTools {
 		//and putting in the right size image
 		foreach (pq(".mwimg a") as $a) {
 			$img = pq($a)->find('img');
+			$originalSrc = $img->attr('src');
 			//get original info
 			$srcWidth = pq($img)->attr("width");
 			$srcHeight = pq($img)->attr("height");
@@ -477,7 +506,6 @@ class WikihowMobileTools {
 			if ($srcWidth == 0 ) {
 				continue;
 			}
-
 
 			// Decode image if the translation of image has encoded characters.
 			// Fix for alignment issues for images with apostrophes in the name: decode all image names
@@ -532,16 +560,10 @@ class WikihowMobileTools {
 				}
 
 				$thumb_ss = $url;
-
-				pq($img)->attr("data-srclarge", $thumb_ss);
+				pq($img)->attr("data-srclarge", $originalSrc);
 				// need to add microtime to handle the editor overlays so there aren't 2 images with the same id on the page
 				$thumb_id = md5(pq($img)->attr("src") . microtime());
 				pq($img)->attr("id", $thumb_id);
-
-				foreach (pq($img)->parents(".mwimg") as $parent) {
-					pq($parent)->attr("style", "");
-				}
-
 
 				// We include the local URL here as part of the hash ref for 2 reasons:
 				// (1) Using a bare "#" makes it so that clicking on an image before the
@@ -583,9 +605,25 @@ class WikihowMobileTools {
 					pq($img)->attr("retsmallset", $thumb_rs);
 					pq($img)->attr("retbigset", $thumb_rb);
 				}
+				$helper = $helper = new ImageHelper();
+				$imagePage = WikiPage::newFromID($title->getArticleID());
+				$details['licensing'] = $helper->getImageInfoMobile($imagePage, $imageObj);
 
 				pq($a)->append("<div class='image_details' style='display:none'><span style='display:none'>" . htmlentities(json_encode($details)) . "</span></div>");
 			}
+		}
+
+		// Move templates above article body contents and style appropriately
+		foreach (pq('.template_top') as $template) {
+			if ($skin->getUser()->isAnon()) {
+				pq($template)->addClass('notice_bgcolor_lo');
+			} else {
+				pq($template)->addClass('notice_bgcolor_important');
+			}
+		}
+
+		if ( !pq( '.template_top' )->find('#intro')->length ) {
+			pq('.template_top')->insertAfter('#intro');
 		}
 
 		// remove any images that are next to m-video.
@@ -596,6 +634,16 @@ class WikihowMobileTools {
 		//remove all images in the intro that aren't
 		//marked with the class "introimage"
 		pq("#intro .mwimg:not(.introimage)")->remove();
+
+		//let's remove all the empty p's in steps
+		foreach (pq(".section.steps p") as $p) {
+			if (pq($p)->parents(".steps_list_2")->count() == 0 && pq($p)->children(".anchor")->count() == 0) {
+				$content = strtolower(pq($p)->html());
+				if ($content == "<br>" || $content == "<br />") {
+					pq($p)->remove();
+				}
+			}
+		}
 
 		// We add the deferred loading scripts until the end of this html
 		$out = $context->getOutput();
@@ -609,8 +657,10 @@ class WikihowMobileTools {
 
 		if ($wgLanguageCode == "en"  && $config['show-thumbratings']) {
 			ThumbRatings::addMobileThumbRatingsHtml($doc, $docTitle);
+		}
 
-			TipsAndWarnings::addRedesignCTAs($doc, $docTitle);
+		foreach(pq('.section h3') as $methodHeader) {
+			pq($methodHeader)->parent()->find('.section_text:first')->prepend($methodHeader);
 		}
 
 		DOMUtil::hideLinksInArticle();
@@ -666,10 +716,6 @@ class WikihowMobileTools {
 			pq("#" . mb_strtolower(wfMessage('video')))->attr('id', 'video');
 		}
 
-		foreach (pq("#ingredients h3, #thingsyoullneed h3") as $item) {
-			pq($item)->prepend('<div class="altblock"></div>');
-		}
-
 		foreach (pq("#ingredients li, #thingsyoullneed li") as $item) {
 			pq($item)->prepend("<div class='checkmark'></div>");
 		}
@@ -688,9 +734,18 @@ class WikihowMobileTools {
 
 		self::formatReferencesSection( $skin );
 
-		//move any samples section below the last steps section
-		foreach (pq(".sample") as $sample) {
-			pq(".steps:last")->after($sample);
+		$showUserImagesSection = $wgLanguageCode == 'en'
+			&& class_exists('UserCompletedImages')
+			&& isset($config['show-upload-images'])
+			&& $config['show-upload-images']
+			&& !$amp
+			&& PagePolicy::showCurrentTitle($context)
+			&& UserCompletedImages::validMobileUCIArticle( $wgTitle );
+
+		if ( $showUserImagesSection ) {
+			//put it under the references section, but sometimes there's a "more references" section tacked on
+			$end_of_references = pq('.aidata')->length ? '.aidata' : self::getReferencesSection();
+			pq( $end_of_references )->after( UserCompletedImages::getMobileSectionPlaceholder() );
 		}
 
 		if (count($summarySections) > 0) {
@@ -703,7 +758,7 @@ class WikihowMobileTools {
 					$summaryText = pq("p", $summarySection);
 					$summaryText->attr("id", "summary_text")->wrap("<div id='summary_wrapper' class='section_text'></div>");
 					pq("#social_proof_mobile")->after(pq("#summary_wrapper", $summarySection));
-					pq("#summary_wrapper")->prepend("<a href='#summary_wrapper' class='collapse_link'>" . wfMessage("summary_toc")->text() . "</a>");
+					pq("#summary_wrapper")->prepend("<a href='#summary_wrapper' class='collapse_link'>" . wfMessage("summary_toc")->text() . "<span id='summary_close'>X</span></a>");
 					//if there's no video summary, then remove that old section b/c nothing is left
 					if (pq('video', $summarySection)->length == 0) {
 						pq($summarySection)->remove();
@@ -712,13 +767,14 @@ class WikihowMobileTools {
 
 				//if there's a video summary, rename the section
 				if ( pq('video', $summarySection)->length > 0) {
-					pq('.mw-headline', $summarySection)->html(wfMessage('qs_video_title')->text());
+					$titleText = wfMessage('howto', $context->getTitle()->getText())->text();
+					pq('.mw-headline', $summarySection)->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
 
 					// Add structured data
 					if ( $videoSchema ) {
 						pq('video', $summarySection)->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
 					}
-
+					WikihowToc::setSummaryVideo();
 				}
 
 				//no edit for the summary section since we're moving to templates [sc: 5/2018]
@@ -798,23 +854,11 @@ class WikihowMobileTools {
 		} else if ( $amp ) {
 			$ads = new Ads( $context, $wgUser, $wgLanguageCode, array(), false );
 			$ads->addToBody();
-		} 
-			// TODO this
-			//if (class_exists('AdblockNotice')) {
-				//AdblockNotice::insertMobileNotice();
-			//}
-
-		if ($showTOC) {
-			//we should have all the alt methods from further up,
-			//let's create the links to them under the headline
-			$vars = [
-				'toc' => self::makeTableOfContentsAnchors($altMethodAnchors, $altMethodNames, $isSample)
-			];
-
-			// Instead of appending the TOC to the DOM here, just store it in a static
-			// variable so it can be inserted outside the '.content' div
-			self::$tableOfContentsHtml = WikihowToc::mobileToc($vars);
 		}
+		// TODO this
+		//if (class_exists('AdblockNotice')) {
+			//AdblockNotice::insertMobileNotice();
+		//}
 
 		foreach ( pq( ".embedvideo_gdpr:first" ) as $node ) {
 			pq( $node )->parents( '.section:first' )->find( '.mw-headline:first' )->after( pq( $node )->html() );
@@ -838,11 +882,9 @@ class WikihowMobileTools {
 			}
 		}
 
-		// we do not have sticky section headers anymore so remove the class
-		// we do this because we often add the same html for mobile and desktop and
-		// this is a way to ensure that the sticky class is not added when it is not needed
-		pq('.section.sticky')->removeClass('sticky');
+		pq('.section')->addClass('sticky');
 
+// TODO this was a weird merge so check it out
 		// Maybe include summary video in VideoCatalog
 		$videoPlayer = pq( '#quick_summary_section .video-player' );
 		if ( $videoPlayer && class_exists( 'VideoCatalog' ) && VideoCatalog::shouldIncludeSummaryVideo( $context ) ) {
@@ -884,6 +926,7 @@ class WikihowMobileTools {
 				$src = pq( $video )->attr( 'data-src' );
 				preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
 				if ( $matches[1] ) {
+					WikihowToc::setSummaryVideo(true);
 					$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $matches[1] );
 					// Only videos from our own channel will have publisher information
 					if ( array_key_exists( 'publisher', $videoSchema ) ) {
@@ -899,6 +942,31 @@ class WikihowMobileTools {
 					}
 				}
 			}
+		}
+
+		if ($showTOC) {
+			//we should have all the alt methods from further up,
+			//let's create the links to them under the headline
+			WikihowToc::setMethods($altMethodAnchors, $altMethodNames);
+
+			if( pq('.section.tips')->length > 0 ) {
+				WikihowToc::setTipsAndWarnings(true);
+			} elseif ( pq('.section.warnings')->length > 0 ) {
+				WikihowToc::setTipsAndWarnings(false);
+			}
+			$things = pq('.section.thingsyoullneed');
+			if($things->length > 0) {
+				if($things->nextAll(".section.tips, .section.warnings")->length > 0) {
+					WikihowToc::setThingsYoullNeed(true);
+				} else {
+					WikihowToc::setThingsYoullNeed(false);
+				}
+			}
+			if(pq('.section.ingredients')->length > 0) {
+				WikihowToc::setIngredients();
+			}
+
+			WikihowToc::addMobileToc();
 		}
 
 		// add id to each stepslist2 li so we can make a url link to it if need be (like in the howto schema)
@@ -1043,280 +1111,6 @@ class WikihowMobileTools {
 		//$out->setTitle($oldTitle);
 		//MobileContext::singleton()->setContext($oldContext);
 		return $html;
-	}
-
-	/**
-	 * @return array data structure describing additional elements for the table
-	 *   of contents.
-	 */
-	protected static function getTOCExtras() {
-		global $wgTitle;
-
-		$extraTOCPreData = [];
-		$extraTOCPostData = [];
-
-		// Some functional magic to transform MW messages into their corresponding
-		// section header's element ID.
-		list(
-			$ingredientsAnchor,
-			$stepsAnchor,
-			$videoAnchor,
-			$tipsAnchor,
-			$warningsAnchor,
-			$thingsyoullneedAnchor,
-			$relatedAnchor
-		) = array_map(
-			function ($m) {
-				return preg_replace(
-					['@%@', '@\+@'],
-					['.', '-'],
-					urlencode(wfMessage($m)->plain())
-				);
-			},
-			self::getTOCSectionMessages()
-		);
-
-		// Post-upgrade, our anchors/url fragments might have dashes rather
-		// than just underscores
-		$relatedAnchorUnderscores = strtr($relatedAnchor, ['-' => '_']);
-
-		$otherWikihowsAnchor = 'Other_wikiHows';
-
-		// Note that pq() doesn't like dots in identifiers,
-		// and doesn't seem to have a way to escape them like jQuery.
-		// Some headers, like "Things You'll Need", as well as headers in int'l
-		// with non-Latin script, get assigned an element ID containing a dot,
-		// as in "Things_You.27ll_Need".
-		// Instead of selecting the header ID through pq(), iterate over
-		// .mw-headline elements and check their ID "manually".
-		$headlines = pq('.mw-headline');
-		foreach ($headlines as $headline) {
-
-			// we have a special change in Linker.php to switch the place of the headline and
-			// the edit page link, but it is still required to be that way on desktop
-			// so we just swap their places here
-			$editLink = pq($headline)->prev('.edit-page');
-			if ( pq($editLink)->length ) {
-				pq($editLink)->insertAfter($headline);
-			}
-
-			$headlineID = pq($headline)->attr('id');
-
-			switch ($headlineID) {
-			case $ingredientsAnchor:
-				$extraTOCPreData[] = [
-					'anchor' => $ingredientsAnchor,
-					'name' => wfMessage('ingredients')->text(),
-					'priority' => 1000,
-					'selector' => '#' . Misc::escapeJQuerySelector($ingredientsAnchor),
-				];
-				break;
-			case $stepsAnchor:
-				// The '#Steps' element appears on all articles, regardless of the
-				// existence of a Steps section. Make sure the section actually exists.
-				if (!pq($headline)->parent()->hasClass('hidden')) {
-					$extraTOCPreData[] = [
-						'anchor' => $stepsAnchor,
-						'name' => wfMessage('steps')->text(),
-						'priority' => 1500,
-						'selector' => '#content>.section.steps',
-					];
-				}
-				break;
-			case $videoAnchor:
-				if(!(WHVid::hasSummaryVideo($wgTitle) && !(WHVid::isYtSummaryArticle($wgTitle) && WHVid::hasYTVideo($wgTitle)))) {
-					$extraTOCPostData[] = [
-						'anchor' => $videoAnchor,
-						'name' => wfMessage('video')->text(),
-						'priority' => 1100,
-						'selector' => '#' . Misc::escapeJQuerySelector($videoAnchor),
-					];
-				}
-				break;
-			case $tipsAnchor:
-				$extraTOCPostData[] = [
-					'anchor' => $tipsAnchor,
-					'name' => wfMessage('tips')->text(),
-					'priority' => 1200,
-					'selector' => '#' . Misc::escapeJQuerySelector($tipsAnchor),
-				];
-				break;
-			case $warningsAnchor:
-				$extraTOCPostData[] = [
-					'anchor' => $warningsAnchor,
-					'name' => wfMessage('warnings')->text(),
-					'priority' => 1300,
-					'selector' => '#' . Misc::escapeJQuerySelector($warningsAnchor),
-				];
-				break;
-			case $thingsyoullneedAnchor:
-				$extraTOCPostData[] = [
-					'anchor' => $thingsyoullneedAnchor,
-					'name' => wfMessage('thingsyoullneed')->text(),
-					'priority' => 1400,
-					'selector' => '#' . Misc::escapeJQuerySelector($thingsyoullneedAnchor),
-				];
-				break;
-			case $relatedAnchorUnderscores:
-			case $relatedAnchor:
-				$anchor = $headlineID == $relatedAnchor ? $relatedAnchor : $relatedAnchorUnderscores;
-				$extraTOCPostData[$anchor] = [
-					'anchor' => $anchor,
-					'name' => wfMessage('relatedarticles')->text(),
-					'priority' => 1500,
-					'selector' => '#' . Misc::escapeJQuerySelector($anchor),
-				];
-				break;
-			case $otherWikihowsAnchor:
-				$extraTOCPostData[] = [
-					'anchor' => $otherWikihowsAnchor,
-					'name' => 'Other wikiHows',
-					'priority' => 1600,
-					'selector' => '.section.otherwikihows',
-				];
-				break;
-			default:
-				break;
-			}
-		}
-
-		Hooks::run('AddMobileTOCItemData', array($wgTitle, &$extraTOCPreData, &$extraTOCPostData));
-
-		return [$extraTOCPreData, $extraTOCPostData];
-	}
-
-	/**
-	 * @param array $altMethodAnchors
-	 * @param array $altMethodNames
-	 * @param array $isSample
-	 * @param array $tocListMethodClass
-	 *
-	 * @return array list of strings with HTML <li> items containing anchor
-	 *   elements of methods/parts for the table of contents.
-	 */
-	protected static function getTOCMethodAnchors($altMethodAnchors, $altMethodNames, $isSample, $tocListMethodClass) {
-		$anchorList = [];
-		$samplesList = [];
-		$isSampleNormalized = [];
-
-		if ($isSample && is_array($isSample)) {
-			// $isSample can have offset indices. Make sure they're normalized.
-			$isSampleNormalized = array_values($isSample);
-		}
-
-		for ($i = 0; $i < count($altMethodAnchors); $i++) {
-			$methodName = pq('<div>' . $altMethodNames[$i] . '</div>')->text();
-
-			// Remove any reference notes
-			$methodName = preg_replace("@\[\d{1,3}\]$@", "", $methodName);
-
-			if (!$methodName) {
-				continue;
-			}
-
-			$anchorItem = [
-				'method_class' => $tocListMethodClass,
-				'anchor_link' => $altMethodAnchors[$i],
-				'text' => $methodName
-			];
-
-			if ($isSampleNormalized && $isSampleNormalized[$i]) {
-				$samplesList[] = $anchorItem;
-			} else {
-				$anchorList[] = $anchorItem;
-			}
-		}
-
-		return array_merge($anchorList, $samplesList);
-	}
-
-	/**
-	 * MediaWiki message keys of the "default" sections (besides methods/parts) to
-	 * include with the TOC.
-	 *
-	 * Additional sections (for tools such as UCI and QA) are handled separately
-	 * through the AddMobileTOCItemData hook.
-	 *
-	 * Note: When adding/removing items here, make sure to also:
-	 *   - add/remove variables in the mapped list() assignment in getTOCExtras()
-	 *   - add/remove data in the switch block in getTOCExtras()
-	 *
-	 * @return array
-	 *
-	 * @see WikihowMobileTools::getTOCExtras()
-	 */
-	protected static function getTOCSectionMessages() {
-		return ['ingredients', 'steps', 'video', 'tips', 'warnings', 'thingsyoullneed', 'relatedwikihows'];
-	}
-
-	/**
-	 * Transform provided array describing extra TOC elements into HTML tags.
-	 *
-	 * @param array &$extraTOCData
-	 * @param array $defaultClassList
-	 *
-	 * @return array list of strings with HTML <li> items containing anchor
-	 *   elements of "extra" sections (non-methods/parts) for the table of
-	 *   contents.
-	 */
-	protected static function processTOCData(&$extraTOCData, $defaultClassList) {
-		usort($extraTOCData, function ($a, $b) { return $a['priority'] > $b['priority']; });
-
-		$extraAnchors = [];
-
-		for ($i = 0; $i < count($extraTOCData); $i++) {
-			$classList = $defaultClassList;
-
-			if ($extraTOCData[$i]['classes'] && is_array($extraTOCData[$i]['classes'])) {
-				$classList = array_merge($classList, $extraTOCData[$i]['classes']);
-			}
-
-			$classes = implode(' ', $classList);
-
-			$extraAnchors[] = [
-				'method_class' => $classes,
-				'section' => $extraTOCData[$i]['selector'],
-				'anchor_link' => $extraTOCData[$i]['anchor'],
-				'text' => $extraTOCData[$i]['name']
-			];
-		}
-
-		return $extraAnchors;
-	}
-
-	/**
-	 * @param array $altMethodAnchors
-	 * @param array $altMethodNames
-	 * @param array $isSample
-	 *
-	 * @return array list of strings with HTML <li> items containing anchor
-	 *   elements for the table of contents.
-	 */
-	public static function makeTableOfContentsAnchors($altMethodAnchors, $altMethodNames, $isSample) {
-		global $wgLanguageCode;
-
-		$tocListBaseClass = 'method_toc_item';
-		$tocListMethodClass = $tocListBaseClass . ' toc_method';
-
-		$anchorList = self::getTOCMethodAnchors(
-			$altMethodAnchors, $altMethodNames, $isSample, $tocListMethodClass
-		);
-
-		list($extraTOCPreData, $extraTOCPostData) = self::getTOCExtras();
-
-		$anchorList = array_merge(
-			self::processTOCData(
-				$extraTOCPreData,
-				[$tocListBaseClass, 'toc_pre']
-			),
-			$anchorList,
-			self::processTOCData(
-				$extraTOCPostData,
-				[$tocListBaseClass, 'toc_post']
-			)
-		);
-
-		return $anchorList;
 	}
 
 	protected static function getFeaturedArticlesBoxResolutions() {
@@ -1481,7 +1275,7 @@ class WikihowMobileTools {
 
 		$howToPrefix = wfMessage('howto_prefix')->showIfExists();
 		$howToSuffix = wfMessage('howto_suffix')->showIfExists();
-		$text = Html::element('span', [], $howToPrefix) . '&nbsp;' . htmlspecialchars($titleText) . $howToSuffix;
+		$text = Html::element('span', [], $howToPrefix) . htmlspecialchars($titleText) . $howToSuffix;
 		$label = Html::rawElement( 'p', [], $text );
 
 		$html = Html::rawElement('a',  ['class' => 'related_box', 'href' => $url], $mediaWrapper . $label );
@@ -1490,9 +1284,8 @@ class WikihowMobileTools {
 	}
 
 	public static function makeFeaturedArticlesBox($title, $forceProcessing=false, $showHighDPI=false) {
-		global $wgLanguageCode;
 		$nameTruncateLength = 32;
-		$maxWordLength = $wgLanguageCode == 'th' ? 17 : 12;
+		$maxWordLength = RequestContext::getMain()->getLanguage()->getCode() == 'th' ? 17 : 12;
 
 		return self::makeImageContainerBox(
 			$title,
@@ -1690,10 +1483,6 @@ class WikihowMobileTools {
 		return "<img src='{$url}' />";
 	}
 
-	protected static function getTableOfContents() {
-		return self::$tableOfContentsHtml;
-	}
-
 	private static function insertLanguageLinksHtml( $skin ) {
 		global $wgLanguageCode;
 
@@ -1743,20 +1532,32 @@ class WikihowMobileTools {
 
 		if ( pq( '#summary_wrapper' )->length ) {
 			pq( '#summary_wrapper' )->after( $html );
+			WikihowToc::setSummary();
 		} elseif ( pq( '#social_proof_mobile' )->length ) {
 			pq( '#social_proof_mobile' )->after( $html );
 		}
 	}
 
-	private static function formatReferencesSection( $skin ) {
+	//identify our references section so we can mess with it
+	private static function getReferencesSection() {
+		if (!is_null(self::$referencesSection)) return self::$referencesSection;
+
 		$sourcesSectionClass = ".".Misc::getSectionName( (wfMessage('sources')->text()));
-		$sourcesSection = pq( $sourcesSectionClass );
 
 		// if there is no sources section try references instead
-		if ( pq( $sourcesSection )->length < 1 ) {
+		if ( pq( $sourcesSectionClass )->length < 1 ) {
 			$referencesSectionClass = ".section.".Misc::getSectionName( (wfMessage('references')->text()));
-			$sourcesSection = pq( $referencesSectionClass );
+			self::$referencesSection = $referencesSectionClass;
 		}
+		else {
+			self::$referencesSection = $sourcesSectionClass;
+		}
+
+		return self::$referencesSection;
+	}
+
+	private static function formatReferencesSection( $skin ) {
+		$sourcesSection = pq( self::getReferencesSection() );
 
 		pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="firstref references">' );
 
@@ -1823,11 +1624,11 @@ class WikihowMobileTools {
 			$referencesHtml .= $articleInfoHtml . $sourcesSection;
 		}
 
-		if ( pq( '#social_proof_mobile' )->length ) {
-			pq( '#social_proof_mobile' )->after( $referencesHtml );
-		} else {
+		if ( pq( "#aboutthisarticle" )->length > 0 )
+			pq( "#aboutthisarticle" )->after( $referencesHtml );
+		else
 			pq( '#article_rating_mobile' )->before( $referencesHtml );
-		}
+
 		// because we appended the new references section we need to remove this one
 		pq( $sourcesSection )->remove();
 	}

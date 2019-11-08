@@ -1,4 +1,8 @@
-<div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}} {{noTabs}} {{#coauthor_image}}has_image{{/coauthor_image}}">
+<div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}}
+{{noTabs}}
+{{#coauthor_image}}has_image{{/coauthor_image}}
+{{^showBylineRefs}}no_references{{/showBylineRefs}}
+{{#coauthor}}has_coauthor{{/coauthor}}">
 	{{#coauthor_image}}
 		<div class="expert_coauthor_image">
 			{{#amp}}
@@ -18,29 +22,40 @@
 		{{#amp}} on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1" {{/amp}}
 	>{{slot1}}{{#slot1_desc}}, {{slot1_desc}}{{/slot1_desc}}</a>
 
-	{{#hasEarlySlot2}}
+	{{#hasSlot2}}
+	<span class="early_slot_2">
 		{{{connector}}} {{slot2_intro}}
 		<a href="{{#amp}}#{{/amp}}{{^amp}}#{{linkUrl}}{{/amp}}"
 			class="expert_coauthor_link {{slot2class}}"
 			{{#amp}}on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1"{{/amp}}
 		>{{slot2}}</a>
-	{{/hasEarlySlot2}}
+	</span>
+	{{/hasSlot2}}
 
+	{{#showBylineRefs}}
+		<span class="byline_references_top">
+			{{{connector}}} <a href="{{{refsUrl}}}">{{references_label}}</a>
+		</span>
+	{{/showBylineRefs}}
 
 	{{#lastUpdatedDate}}
 		<p>
 			{{lastUpdatedMsg}} {{lastUpdatedDate}}
 
 			{{#hasSlot2}}
+			<span class="slot_2">
 				{{{connector}}} {{slot2_intro}}
 				<a href="{{#amp}}#{{/amp}}{{^amp}}#{{linkUrl}}{{/amp}}"
 					class="expert_coauthor_link {{slot2class}}"
 					{{#amp}}on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1"{{/amp}}
 				>{{slot2}}</a>
+			</span>
 			{{/hasSlot2}}
 
 			{{#showBylineRefs}}
-				{{{connector}}} <a href="{{{refsUrl}}}">{{references_label}}</a>
+				<span class="byline_references_bottom">
+					{{{connector}}} <a href="{{{refsUrl}}}">{{references_label}}</a>
+				</span>
 			{{/showBylineRefs}}
 		</p>
 	{{/lastUpdatedDate}}

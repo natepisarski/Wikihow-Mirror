@@ -57,18 +57,10 @@
 			});
 			$(".ur_share").on("click", function(e) {
 				e.preventDefault();
-				// TODO should this be based on screen size instead?
-				if(WH.isMobileDomain) {
-					mw.loader.using('ext.wikihow.UserReviewForm.mobile', function () {
-						var urf = new window.WH.UserReviewForm();
-						urf.loadUserReviewForm();
-					});
-				} else {
-					mw.loader.using('ext.wikihow.UserReviewForm', function () {
-						var urf = new window.WH.UserReviewForm();
-						urf.loadUserReviewForm();
-					});
-				}
+				mw.loader.using('ext.wikihow.UserReviewForm', function () {
+					var urf = new window.WH.UserReviewForm();
+					urf.loadUserReviewForm();
+				});
 				$(this).hide();
 			});
 		}

@@ -3,35 +3,35 @@
 class RightRail {
 
 	public static function showSocialProofSidebar() {
-		global $wgTitle, $wgUser, $wgLanguageCode, $wgRequest;
+		$context = RequestContext::getMain();
+		$title = $context->getTitle();
+		$action = Action::getActionName($context);
 
-		$action = $wgRequest->getVal('action', 'view');
-		$isArticlePage = $wgTitle && !$isMainPage && $wgTitle->inNamespace( NS_MAIN ) && $action == 'view';
-
-		$isMainPage = $wgTitle
-			&& $wgTitle->inNamespace( NS_MAIN )
-			&& $wgTitle->getText() == wfMessage( 'mainpage' )->inContentLanguage()->text()
-			&& $action == 'view';
+		$isArticlePage = $title &&
+			$title->inNamespace( NS_MAIN ) &&
+			!$title->isMainPage() &&
+			$action == 'view';
 
 		if ( !( $isArticlePage
-			|| ( $wgTitle->inNamespace( NS_PROJECT ) && $action == 'view' )
-			|| ( $wgTitle->inNamespace( NS_USER ) && $wgTitle->isSubpage() && $action == 'view' )
-			|| ( $wgTitle->inNamespace( NS_CATEGORY ) && !$wgTitle->exists() ) ) ) {
-			return false;
-		} 
-
-		if ( $wgTitle->getArticleId() == 0 || !$wgTitle->inNamespace(NS_MAIN) ) {
+			|| ( $title->inNamespace( NS_PROJECT ) && $action == 'view' )
+			|| ( $title->inNamespace( NS_USER ) && $title->isSubpage() && $action == 'view' )
+			|| ( $title->inNamespace( NS_CATEGORY ) && !$title->exists() ) ) ) {
 			return false;
 		}
 
-		$showCurrentArticle = $wgTitle->exists() && PagePolicy::showCurrentTitle($context);
+		if ( $title->getArticleId() == 0 || !$title->inNamespace(NS_MAIN) ) {
+			return false;
+		}
+
+		$showCurrentArticle = $title->exists() && PagePolicy::showCurrentTitle($context);
 		if ( !$showCurrentArticle ) {
 			return false;
 		}
 
-		if ( $wgUser->getIntOption('showarticleinfo') != 1 ) {
+		if ( $context->getUser()->getIntOption('showarticleinfo') != 1 ) {
 			return false;
 		}
+
 		return true;
 	}
 	/*
@@ -61,15 +61,16 @@ class RightRail {
 
 		$isDocViewer = substr( $wgTitle->getText(), 0, 9 ) === "DocViewer";
 
+		$isResponsive = Misc::isMobileMode();
+
 		$showRCWidget =
 			class_exists('RCWidget') &&
 			!$wgTitle->inNamespace(NS_USER) &&
 			(!$isLoggedIn || $wgUser->getOption('recent_changes_widget_show', true) == 1 ) &&
 			($isLoggedIn || $isMainPage) &&
 			!in_array($wgTitle->getPrefixedText(),
-				array('Special:Avatar', 'Special:ProfileBox')) &&
+			array('Special:Avatar', 'Special:ProfileBox')) &&
 			strpos($wgTitle->getPrefixedText(), 'Special:UserLog') === false &&
-
 			!$isDocViewer &&
 			$action != 'edit';
 
@@ -119,6 +120,7 @@ class RightRail {
 		$showVideoBrowserWidget =
 			class_exists('VideoBrowser') &&
 			$isMainPage &&
+			!$isResponsive &&
 			in_array($wgLanguageCode, array('en'));
 
 
@@ -137,11 +139,11 @@ class RightRail {
 			//$out->addModules('ext.wikihow.usercompletedimages');
 		//}
 
-		$rightRail = new RightRail( $skin, $wgUser, $wgLanguageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $relatedWikihows, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $press_sidebox );
+		$rightRail = new RightRail( $skin, $wgUser, $wgLanguageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $relatedWikihows, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $press_sidebox, $isResponsive );
 		return $rightRail;
 	}
 
-	public function __construct( $skin, $user, $languageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $relatedWikihows, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $pressSidebox ) {
+	public function __construct( $skin, $user, $languageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $relatedWikihows, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $pressSidebox, $isResponsive ) {
 		$this->mSkin = $skin;
 		$this->mTitle = $skin->getContext()->getTitle();
 		$this->mUser = $user;
@@ -153,6 +155,7 @@ class RightRail {
 		$this->mShowCurrentArticle = $this->mTitle->exists() && PagePolicy::showCurrentTitle( $this->mContext );
 		$this->mAlternateDomain = class_exists( 'AlternateDomain' ) && AlternateDomain::onAlternateDomain();
 		$this->mAds = $ads;
+		$this->mDesktopAds = $desktopAds;
 		$this->mIsEnglishAnonView = $isEnglishAnonView;
 		$this->mIsDocViewer = $isDocViewer;
 		$this->mIsLoggedIn = $this->mUser->getID() > 0;
@@ -179,12 +182,19 @@ class RightRail {
 		$this->mShowVideoBrowserWidget = $showVideoBrowserWidget;
 		$this->mUserCompletedImagesSidebar = $userCompletedImagesSidebar;
 		$this->mPressSidebox = $pressSidebox;
+		$this->mIsResponsive = $isResponsive;
 	}
 
 	public function getRightRailHtml() {
-		$html = self::getRightRailHtmlTop();
-		$html .= self::getRightRailHtmlBottom();
-		$html = $this->mAds->modifyRightRailForAdTest( $html, $this->mRelatedWikihows );
+		if ($this->mIsMainPage) {
+			$html = !AlternateDomain::onAlternateDomain() ? self::getHomepageRightRailHtml() : '';
+		}
+		else {
+			$html = self::getRightRailHtmlTop();
+			$html .= self::getRightRailHtmlBottom();
+			$html = $this->mAds->modifyRightRailForAdTest( $html, $this->mRelatedWikihows );
+		}
+
 		return $html;
 	}
 
@@ -225,19 +235,16 @@ class RightRail {
 			$innerHtml .= Html::rawElement( 'p', ['class' => 'bottom_button'], $link );
 		}
 
-		$html = Html::rawElement( 'div', ['id' => 'side_featured_contributor', 'class' => 'sidebox'], $innerHtml );
+		$vars = [
+			'id' => 'side_featured_contributor',
+			'contents' => $innerHtml
+		];
 
-		return $html;
+		return $this->makeSidebox($vars);
 	}
 
 	public function getRCWidgetHtml() {
-		if ( !$this->mShowRCWidget ) {
-			return '';
-		}
-
-		if ( $this->mAlternateDomain ) {
-			return '';
-		}
+		if ( !$this->mShowRCWidget || $this->mAlternateDomain ) return '';
 
 		$innerHtml = RCWidget::getWidgetHtml();
 
@@ -259,9 +266,12 @@ class RightRail {
 
 		$innerHtml .= Html::rawElement( 'p', ['class' => 'bottom_link'], $message . $link );
 
-		$html = Html::rawElement( 'div', ['id' => 'side_rc_widget', 'class' => 'sidebox'], $innerHtml );
+		$vars = [
+			'id' => 'side_rc_widget',
+			'contents' => $innerHtml
+		];
 
-		return $html;
+		return $this->makeSidebox($vars);
 	}
 
 	public function getTopLinksSidebarWidgetHtml() {
@@ -326,16 +336,15 @@ class RightRail {
 	}
 
 	public function getRelatedOutput() {
-		if ( !self::isNormalArticleView() ) {
-			return "";
-		}
-		$relatedOutput = $this->mRelatedWikihows->getSideData();
+		if ( !self::isNormalArticleView() ) return '';
 
-		$after = '';
-		$attr = ['id' => 'side_related_articles', 'class' => 'sidebox related_articles'];
-		$html = Html::rawElement( 'div', $attr, $relatedOutput );
-		$html .= $after;
-		return $html;
+		$vars = [
+			'id' => 'side_related_articles',
+			'class' => 'related_articles',
+			'contents' => $this->mRelatedWikihows->getSideData()
+		];
+
+		return $this->makeSidebox($vars);
 	}
 
 	// initial part of right rail
@@ -381,30 +390,39 @@ class RightRail {
 		}
 
 		if ( $this->mShowStaffStats ) {
-			$id = 'staff_stats_box';
-			$html .= Html::element( 'div', ['id' => $id, 'class' => 'sidebox', 'style' => 'padding-top:10px;'] );
+			$vars = [
+				'id' => 'staff_stats_box',
+				'class' => 'short_sidebox'
+			];
+			$html .= $this->makeSidebox($vars);
 		}
 
 		if ( $this->mShowGraphs ) {
-			$id = 'staff_charts_box';
-			$html .= Html::element( 'div', ['id' => $id, 'class' => 'sidebox', 'style' => 'padding-top:10px;'] );
+			$vars = [
+				'id' => 'staff_charts_box',
+				'class' => 'short_sidebox'
+			];
+			$html .= $this->makeSidebox($vars);
 		}
 
 		if ( $this->mShowPageHelpfulness ) {
-			$attr = [
+			$classes = 'short_sidebox';
+			if ( $this->mShowMethodHelpfulness ) $classes .= ' smhw';
+
+			$vars = [
 				'id' => 'page_helpfulness_box',
-				'class' => ['sidebox'],
-				'style' => 'padding-top:10px;',
-				];
-			if ( $this->mShowMethodHelpfulness ) {
-				$attr['class'][] = 'smhw';
-			}
-			$html .= Html::element( 'div', $attr );
+				'class' => $classes
+			];
+			$html .= $this->makeSidebox($vars);
 		}
 
 		if ( $this->mShowWikiTextWidget ) {
 			$link = Html::element( 'a', ['id' => 'wikitext_downloader', 'href' => '#'], 'Download WikiText' );
-			$html .= Html::rawElement( 'div', ['id' => 'side_wikitext_downloader', 'class' => 'sidebox'], $link );
+			$vars = [
+				'id' => 'side_wikitext_downloader',
+				'contents' => $link
+			];
+			$html .= $this->makeSidebox($vars);
 		}
 
 		// disabling for now
@@ -432,8 +450,7 @@ class RightRail {
 
 		$userLinks = WikihowSkinHelper::getUserLinks();
 		if ( $userLinks ) {
-			$userLinks = Html::rawElement( 'div', ['class' => 'sidebox'], $userLinks );
-			$html .= $userLinks;
+			$html .= $this->makeSidebox([ 'contents' => $userLinks ]);
 		}
 
 		if ( $this->mPressSidebox ) {
@@ -455,18 +472,15 @@ class RightRail {
 			class_exists('WikihowShare');
 
 		if ( $showSocialSharing ) {
-			$classes = ['sidebox'];
-			if ( $this->mLoggedOutClass ) {
-				$classes[] = $this->mLoggedOutClass;
-			}
-			$socialSharingHtml = '';
 			$header = Html::rawElement( 'h3', array() , wfMessage( 'social_share' )->text() );
-			if ( $this->mIsMainPage ) {
-				$socialSharingHtml = WikihowShare::getMainPageShareButtons();
-			} else {
-				$socialSharingHtml = WikihowShare::getTopShareButtons();
-			}
-			$html .= Html::rawElement( 'div', ['id' => 'sidebar_share', 'class' => $classes], $header . $socialSharingHtml );
+
+			$vars = [
+				'id' => 'sidebar_share',
+				'class' => $this->mLoggedOutClass ?: '',
+				'contents' => $header . WikihowShare::getTopShareButtons()
+			];
+			$html .= $this->makeSidebox($vars);
+
 		}
 
 		// commented out sidebox shell for side fb timelnie
@@ -479,7 +493,6 @@ class RightRail {
 		//}
 
 		$showFeaturedArticlesSidebar = $this->mAction == 'view'
-			&& !$this->mIsMainPage
 			&& !$this->mIsDocViewer
 			&& !$this->mIsEnglishAnonView
 			&& !$this->mIsAnonView
@@ -488,8 +501,11 @@ class RightRail {
 		Hooks::run( 'WikihowTemplateShowFeaturedArticlesSidebar', array( &$showFeaturedArticlesSidebar ) );
 
 		if ( $showFeaturedArticlesSidebar ) {
-			$featuredArticlesSidebar = FeaturedArticles::getFeaturedArticlesBox(4, true);
-			$html .= Html::rawElement( 'div', ['id' => 'side_featured_articles', 'class' => 'sidebox'], $featuredArticlesSidebar );
+			$vars = [
+				'id' => 'side_featured_articles',
+				'contents' => FeaturedArticles::getFeaturedArticlesBox(4, true)
+			];
+			$html .= $this->makeSidebox($vars);
 		}
 
 		$html .= $this->getRCWidgetHtml();
@@ -505,18 +521,25 @@ class RightRail {
 		Hooks::run( 'WikihowTemplateShowFollowWidget', array( &$showFollowWidget ) );
 
 		if ( $showFollowWidget ) {
-			$followWidget = FollowWidget::getWidgetHtml( $this->mIsMainPage, $this->mTitle );
-			$html .= Html::rawElement( 'div', ['class' => 'sidebox follow_sidebox'], $followWidget );
+			$vars = [
+				'id' => 'side_follow',
+				'class' => 'follow_sidebox',
+				'contents' => FollowWidget::getWidgetHtml( $this->mIsMainPage, $this->mTitle )
+			];
+			$html .= $this->makeSidebox($vars);
 		}
 
 		if ( $this->mShowVideoBrowserWidget ) {
-			$videoWidget = VideoBrowser::getDesktopWidgetHtml( $context );
-			$html .= Html::rawElement( 'div', ['class' => 'sidebox videobrowser_sidebox'], $videoWidget );
+			$vars = [
+				'class' => 'videobrowser_sidebox',
+				'contents' => VideoBrowser::getDesktopWidgetHtml( $context )
+			];
+			$html .= $this->makeSidebox($vars);
 		}
 
 		$numberOfRightRailAds = 2;
 
-		if ( $numberOfRightRailAds > 2 && $this->mShowCurrentArticle && $this->mAction == 'view' && !$this->mIsMainPage && $this->mTitle->getNamespace() == NS_MAIN) {
+		if ( $numberOfRightRailAds > 2 && $this->mShowCurrentArticle && $this->mAction == 'view' && $this->mTitle->getNamespace() == NS_MAIN) {
 			$html .= RatingArticle::getDesktopSideForm( $this->mPageId, $this->mLoggedOutClass );
 		}
 
@@ -524,5 +547,56 @@ class RightRail {
 			$html .= $this->mAds->getRightRailAdHtml( 2 );
 		}
 		return $html;
+	}
+
+	protected function getHomepageRightRailHtml(): String {
+		//CATEGORIES
+		$vars = [
+			'id' => 'homepage_categories',
+			'contents' => WikihowHomepage::categoryWidget()
+		];
+		$html = $this->makeSidebox($vars);
+
+		//TOP LINKS
+		$html .= $this->getTopLinksSidebarWidgetHtml();
+
+		//WORLDWIDE
+		$langList = wfMessage('wh_in_other_langs')->text();
+		$vars = [
+			'contents' => wfMessage('main_page_worldwide_2', wfGetPad(), $langList)->text()
+		];
+		$html .= $this->makeSidebox($vars);
+
+		//RC WIDGET
+		$html .= $this->getRCWidgetHtml();
+
+		//FOLLOW WIDGET
+		$showFollowWidget =
+			class_exists( 'FollowWidget' ) &&
+			!$this->mIsEnglishAnonView &&
+			!$this->mIsAnonView &&
+			in_array( $this->mLanguageCode, array( 'en', 'de', 'es', 'pt' ) );
+
+		Hooks::run( 'WikihowTemplateShowFollowWidget', array( &$showFollowWidget ) );
+
+		if ( $showFollowWidget ) {
+			$vars = [
+				'id' => 'side_follow',
+				'class' => 'follow_sidebox',
+				'contents' => FollowWidget::getWidgetHtml( $this->mIsMainPage, $this->mTitle )
+			];
+			$html .= $this->makeSidebox($vars);
+		}
+
+		return $html;
+	}
+
+	private function makeSidebox(Array $vars = []): String {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		return $m->render('right_rail_sidebox.mustache', $vars);
 	}
 }

@@ -22,19 +22,22 @@ class UserReviewForm extends UnlistedSpecialPage {
 				__DIR__ . '/'
 			)
 		];
-		if (Misc::isMobileMode()){
-			$vars = [
-				'urf_header' => $this->msg('urf_header_mobile'),
-				'urf_prompt' => $this->msg('urf_prompt'),
-				'urf_tos' => html_entity_decode($this->msg('urf_tos'))
-			];
-		} else {
-			$vars = [
-				'urf_header' => $this->msg('urf_header'),
-				'urf_prompt' => $this->msg('urf_prompt'),
-				'urf_tos' => html_entity_decode($this->msg('urf_tos'))
-			];
-		}
+
+		$hdr_msg = Misc::isMobileMode() ? 'urf_header_mobile' : 'urf_header';
+
+		$vars = [
+			'urf_header' => wfMessage($hdr_msg)->text(),
+			'urf_prompt' => wfMessage('urf_prompt')->text(),
+			'urf_tos' => html_entity_decode($this->msg('urf_tos')),
+			'urf_open_form' => wfMessage('urf_open_form')->text(),
+			'urf_helpful_question' => wfMessage('urf_helpful_question')->text(),
+			'urf_thanks' => wfMessage('urf_thanks')->text(),
+			'urf_close' => wfMessage('urf_close')->text(),
+			'urf_thanks_desc' => wfMessage('urf_thanks_desc')->text(),
+			'urf_smallprint' => wfMessage('urf_smallprint')->text(),
+			'urf_social_desc' => wfMessage('urf_social_desc')->text()
+		];
+
 		if ($user->isLoggedIn()) {
 			$vars['loggedIn'] = true;
 			$userId = $user->getId();
@@ -43,10 +46,6 @@ class UserReviewForm extends UnlistedSpecialPage {
 			$vars['avatar_url'] = $display_data[$userId]['avatar_url'];
 			$vars['urf_posting_as'] = wfMessage('urf_posting_as', $display_data[$userId]['display_name'])->text();
 		}
-
-		$vars['urf_open_form'] = wfMessage('urf_open_form')->text();
-		$vars['urf_helpful_question'] = wfMessage('urf_helpful_question')->text();
-		$vars['urf_thanks'] = wfMessage('urf_thanks')->text();
 
 		$m = new Mustache_Engine($options);
 		return $m->render(self::TEMPLATE, $vars);

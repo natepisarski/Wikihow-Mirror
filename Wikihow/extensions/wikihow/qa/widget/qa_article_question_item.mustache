@@ -14,10 +14,8 @@
 
 		<div class="qa_answers">
 			<div class="{{qa_answerer_class}}">
-			{{#qa_desktop}}
-				<div class="qa_user_hover hint_box">{{#verifierId}}{{> qa_expert_hover}}{{/verifierId}}</div>
-			{{/qa_desktop}}
 
+				{{^qa_amp}}<div class="qa_user_hover hint_box">{{#verifierId}}{{> qa_expert_hover}}{{/verifierId}}</div>{{/qa_amp}}
 				<div class="qa_badge"></div>
 
 			{{#verifierId}}
@@ -46,22 +44,16 @@
 				</div>
 			</div>
 
-		{{#qa_desktop}}
 			<div class="qa_answer answer">{{{curatedQuestion.curatedAnswer.text}}}</div>
-			<div class="qa_answer_footer">
-				{{> thumbs_qa_widget}}
-				{{^qa_anon}}
-				<a class="qa_ignore_answered" href="#">{{qa_flag_duplicate}}</a>
-				<p class="qa_ignore_answered_thanks">Thanks!</p>
-				{{/qa_anon}}
-			</div>
-		{{/qa_desktop}}
-		{{^qa_desktop}}
-		<ul>
-			<li class="qa_answer">{{{curatedQuestion.curatedAnswer.text}}}</li>
-		</ul>
-		{{> thumbs_up_down}}
-		{{/qa_desktop}}
+			{{^qa_amp}}
+				<div class="qa_answer_footer">
+					{{> thumbs_qa_widget}}
+					{{^qa_anon}}
+					<a class="qa_ignore_answered" href="#">{{qa_flag_duplicate}}</a>
+					<p class="qa_ignore_answered_thanks">Thanks!</p>
+					{{/qa_anon}}
+				</div>
+			{{/qa_amp}}
 		</div>
 	</div>
 </li>

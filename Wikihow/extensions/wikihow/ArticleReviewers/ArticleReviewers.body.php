@@ -152,9 +152,8 @@ class ArticleReviewers extends UnlistedSpecialPage {
 	}
 
 	public static function getLinkToCoauthor(VerifyData $vd = null): string {
-		if (!$vd) {
-			return '';
-		}
+		//things we don't show on this page: 1) null data & 2) community coauthors
+		if (!$vd || $vd->category == 'categ_community') return '';
 
 		$lang = RequestContext::getMain()->getLanguage()->getCode();
 		$titleTxt = !Misc::isAltDomain() && ($lang == 'en' || $vd->hoverBlurb)

@@ -1,8 +1,3 @@
-#ur_h2 {
-	padding-top: 19px;
-	padding-bottom: 7px;
-}
-
 #ur_mobile {
 	clear: both;
 	font-size: 16px;
@@ -140,26 +135,4 @@
 .ur_divider {
 	margin: 0 -15px 15px -15px;
 	border-top: 1px solid #e5e5e5;
-}
-
-@media only screen and (min-width: 500px) and (max-aspect-ratio: 13/9),
-only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
-
-	.content .ur_author {
-		margin-top: 0;
-		height: 44px;
-	}
-
-	.content .ur_author .ur_name {
-		font-size: 20px;
-	}
-
-	.content .ur_review .ur_date {
-		font-size: 15px;
-	}
-
-	.ur_rating span {
-		font-size: 15px;
-	}
-
 }

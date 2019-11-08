@@ -9,11 +9,11 @@
 	margin: 0;
 }
 
-.don_mobile #donate_bottom {
-	background-color: #f6f5f4;
-	margin: 0 -15px -14px -15px;
-	padding: 27px;
+#donate_bottom {
 	text-align: center;
+}
+.don_default #donate_bottom {
+	margin: 0;
 }
 
 .don_mobile #donate_button {
@@ -22,19 +22,6 @@
 	padding: 14px 20px;
 	text-align: center;
 }
-
-.don_desktop #donate_bottom {
-	background-color: #f6f5f4;
-	margin: 0 -27px -26px -27px;
-	padding: 27px;
-	text-align: center;
-}
-.don_default #donate_bottom {
-	background-color: #FFF;
-	margin: 0;
-	padding: 0;
-}
-
 .don_desktop #donate_button {
 	display: inline-block;
 	margin: 0 auto;

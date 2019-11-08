@@ -293,9 +293,11 @@ class SchemaMarkup {
 			$i = 0;
 			foreach ( pq( $section )->find( '.steps_list_2 > li' ) as $stepItem ) {
 				$stepId = pq( $stepItem )->attr( 'id' );
-				$step = pq( $stepItem )->find( '.step' );
+				$step = pq( $stepItem )->find( '.step' )->clone();
+				pq( $step )->find( 'sup,script' )->remove();
 				$i++;
 				$text = pq( $step)->text();
+
 				// use this to change nbsp to regular space
 				$text = preg_replace( '~\x{00a0}~siu',' ',$text );
 				if ( !trim( $text ) ) {
@@ -485,9 +487,17 @@ class SchemaMarkup {
 	}
 
 	private static function getFAQQuestion( $qaItem ) {
-		if ( pq( $qaItem )->find( '.qa_expert_area' )->length < 1 ) {
+		$okToShow = false;
+		if ( pq( $qaItem )->find( '.qa_expert_area' )->length > 0 ) {
+			$okToShow = true;
+		}
+		if ( pq( $qaItem )->find( '.qa_user_label' )->text() == 'Staff Answer' ) {
+			$okToShow = true;
+		}
+		if ( $okToShow != true ) {
 			return;
 		}
+
 		$name = pq( $qaItem )->find( '.qa_q_txt:first' )->text();
 		$name = preg_replace( '~\x{00a0}~siu',' ',$name );
 		$name = trim( $name );
@@ -663,7 +673,10 @@ class SchemaMarkup {
 		if ( !$item ) {
 			return '';
 		}
+
+		$defaultDocumentID = phpQuery::$defaultDocumentID;
 		$doc = phpQuery::newDocument( $item );
+
 		$contentUrl = pq('.m-video')->attr('data-src');
 		if ( $contentUrl ) {
 			$contentUrl = WH_CDN_VIDEO_ROOT . wfUrlencode( $contentUrl );
@@ -673,6 +686,12 @@ class SchemaMarkup {
 		if ( !preg_match( '/^https?:\/\//', $thumbnailUrl ) ) {
 			$thumbnailUrl = $wgServer . $thumbnailUrl;
 		}
+
+		$doc->unloadDocument();
+		if ( $defaultDocumentID ) {
+			phpQuery::selectDocument( $defaultDocumentID );
+		}
+
 		$data = [
 			'@context'=> 'http://schema.org',
 			'@type' => 'VideoObject',

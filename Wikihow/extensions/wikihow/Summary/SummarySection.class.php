@@ -67,7 +67,6 @@ class SummarySection {
 
 	//this uses the phpQuery object already started in WikihowArticleHTML::processArticleHTML()
 	public static function onProcessArticleHTMLAfter($out) {
-		global $wgIsDevServer;
 		$context = RequestContext::getMain();
 
 		$context->getOutput()->addModules('ext.wikihow.summary_section_edit_link');

@@ -20,8 +20,7 @@
 	font-size: 1.2em;
 	border: 2px solid #b5ab97;
 	-moz-border-radius: 10px 10px 0 0;
-    -webkit-border-radius: 10px 10px 0 0;
-    -khtml-border-radius: 10px 10px 0 0;
+    -webkit-border-radius: 10px 10px 0 0
     border-radius: 10px 10px 0 0;
 	-moz-box-shadow: -3px 3px 4px #BFBFBF;
 	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
@@ -31,7 +30,6 @@
 a#slider_close_button {
 	float: right;
 }
-a#slider_close_button:hover { text-decoration: none; }
 
 #sliderbox{
 	width: 250px;
@@ -66,6 +64,18 @@ a#slider_close_button:hover { text-decoration: none; }
 
 .sliderbox_small .slider_cta {
 	font-size: 1.0em;
+}
+
+.button.slider_button {
+	padding: 12px 16px;
+	font-size: 12px;
+	margin-right: 10px;
+	cursor: pointer;
+	font-weight: bold;
+	background-color: #FFF;
+}
+.button.slider_button:hover {
+	background-color: #FFF;
 }
 
 .sliderbox_category .slider_button {
@@ -104,10 +114,7 @@ a#slider_close_button:hover { text-decoration: none; }
 	margin-top: 30px;
 }
 .sliderbox_video .slider_button {
-	background-image: url(/skins/owl/images/play_button@3x.svg);
-	background-repeat: no-repeat;
-	background-size: 16px;
-	background-position: center left;
+	background: #FFF url(/skins/owl/images/play_button@3x.svg) center left / 16px no-repeat;
 	border: none;
 	font-size: 13px;
 	color: #545454;
@@ -115,12 +122,19 @@ a#slider_close_button:hover { text-decoration: none; }
 	padding: 5px 0 5px 19px;
 	font-weight: bold;
 }
+.sliderbox_video a.slider_button:hover {
+	border: none;
+	background: #FFF url(/skins/owl/images/play_button@3x.svg) center left / 16px no-repeat;
+}
 
 #sliderbox a:hover{
 	text-decoration: none;
 }
 
-.slider_title {
+a.slider_title {
 	color: #79A355;
 	font-size: 20px;
+}
+.slider_title:hover {
+	color: #79A355;
 }

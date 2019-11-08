@@ -22,9 +22,9 @@ $wgExtensionMessagesFiles['UserReviewForm'] = __DIR__ . '/UserReviewForm.i18n.ph
 
 $wgResourceModules['ext.wikihow.UserReviewForm'] = [
     'localBasePath' => __DIR__ . '/',
-    'scripts' => [ 'UserReviewForm.js'],
-    'styles' => [ 'UserReviewFormDesktop.css', 'UserReviewForm.css'],
-    'targets' => [ 'desktop' ],
+    'scripts' => [ 'UserReviewForm.js' ],
+    'styles' => [ 'UserReviewForm.css' ],
+    'targets' => [ 'desktop', 'mobile' ],
     'remoteExtPath' => 'wikihow/userreview/UserReviewForm',
     'position' => 'top',
     'dependencies' => [
@@ -32,22 +32,6 @@ $wgResourceModules['ext.wikihow.UserReviewForm'] = [
         'ext.wikihow.common_top',
         'ext.wikihow.common_bottom',
         'ext.wikihow.socialauth',
-        'ext.wikihow.sociallogin.buttons'
-    ]
- ];
-
-$wgResourceModules['ext.wikihow.UserReviewForm.mobile'] = [
-    'localBasePath' => __DIR__ . '/',
-    'scripts' => [ 'UserReviewForm.js'],
-    'styles' => [ 'UserReviewFormMobile.css', 'UserReviewForm.css'],
-    'targets' => [ 'mobile' ],
-    'remoteExtPath' => 'wikihow/userreview/UserReviewForm',
-    'position' => 'top',
-    'dependencies' => [
-        'ext.wikihow.socialauth',
-        'ext.wikihow.magnificpopup',
-        'ext.wikihow.common_top',
-        'ext.wikihow.common_bottom',
         'ext.wikihow.sociallogin.buttons'
     ]
 ];

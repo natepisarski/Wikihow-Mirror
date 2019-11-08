@@ -1,5 +1,6 @@
 <?php
 
+
 if ( !defined('MEDIAWIKI') ) die();
 
 $wgExtensionMessagesFiles['AlternateDomain'] = __DIR__ . '/AlternateDomain.i18n.php';
@@ -12,7 +13,6 @@ $wgHooks['ImageHelperGetThumbnail'][] = 'AlternateDomain::onGetThumbnail';
 $wgHooks['RelatedWikihowsBeforeLoadRelatedArticles'][] = 'AlternateDomain::onRelatedWikihowsBeforeLoadRelatedArticles';
 $wgHooks['RelatedWikihowsAfterLoadRelatedArticles'][] = 'AlternateDomain::onRelatedWikihowsAfterLoadRelatedArticles';
 $wgHooks['WikihowHomepageAfterGetTopItems'][] = 'AlternateDomain::onWikihowHomepageAfterGetTopItems';
-$wgHooks['WikihowHomepageFAContainerHtml'][] = 'AlternateDomain::onWikihowHomepageFAContainerHtml';
 $wgHooks['WikihowTemplateShowFollowWidget'][] = 'AlternateDomain::onWikihowTemplateShowFollowWidget';
 $wgHooks['WikihowTemplateShowFeaturedArticlesSidebar'][] = 'AlternateDomain::onWikihowTemplateShowFeaturedArticlesSidebar';
 $wgHooks['WikihowTemplateShowTopLinksSidebar'][] = 'AlternateDomain::onWikihowTemplateShowTopLinksSidebar';
@@ -25,6 +25,7 @@ $wgHooks['LSearchYahooAfterGetCacheKey'][] = 'AlternateDomain::onLSearchYahooAft
 $wgHooks['LSearchBeforeYahooSearch'][] = 'AlternateDomain::onLSearchBeforeYahooSearch';
 $wgHooks['WikihowAdsAfterGetTypeTag'][] = 'AlternateDomain::onWikihowAdsAfterGetTypeTag';
 $wgHooks['SitemapOutputHtml'][] = 'AlternateDomain::onSitemapOutputHtml';
+// TODO this
 $wgHooks['WikihowAdsAfterGetCategoryAd'][] = 'AlternateDomain::onWikihowAdsAfterGetCategoryAd';
 $wgHooks['MiscGetExtraGoogleAnalyticsCodes'][] = 'AlternateDomain::onMiscGetExtraGoogleAnalyticsCodes';
 $wgHooks['WikihowCategoryViewerQueryBeforeProcessTitle'][] = 'AlternateDomain::onWikihowCategoryViewerQueryBeforeProcessTitle';
@@ -59,7 +60,6 @@ $wgHooks['HeaderBuilderAfterGenNavTabs'][] = 'AlternateDomain::onHeaderBuilderAf
 $wgHooks['MobileTemplateBeforeRenderFooter'][] = 'AlternateDomain::onMobileTemplateBeforeRenderFooter';
 $wgHooks['WikihowTemplateAfterGetTopSearch'][] = 'AlternateDomain::onWikihowTemplateAfterGetTopSearch';
 $wgHooks['RelatedWikihowsBeforeGetSectionHtml'][] = 'AlternateDomain::onRelatedWikihowsBeforeGetSectionHtml';
-$wgHooks['AddMobileTOCItemData'][] = 'AlternateDomain::onAddMobileTOCItemData';
 $wgHooks['GetLinkColours'][] = 'AlternateDomain::onGetLinkColours';
 $wgHooks['OutputPageBeforeHTML'][] = 'AlternateDomain::onOutputPageBeforeHTML';
 $wgHooks['SpecialPageBeforeExecute'][] = 'AlternateDomain::onSpecialPageBeforeExecute';

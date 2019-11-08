@@ -118,10 +118,6 @@
 	line-height: 1.4em;
 }
 
-.qa_staff_info {
-	display: none;
-}
-
 .qa_person_circle, .qa_person_circle img {
 	position: absolute;
 	background-size: contain;
@@ -230,31 +226,55 @@
 	margin: 0;
 	bottom: 0;
 	width: 100%;
-	background-color: #91B874;
+	font-size: .9em;
+	background-color: #93B874;
 	text-align: center;
 	color: #FFF;
 }
 #footer a {
 	color: #FFF;
 }
+
 #footer_inner {
-	padding: 23px 1em 1.5em;
+	padding: 20px 1em 1em;
 	margin: 0 auto;
 	max-width: 728px;
 }
+
 #footer_logo {
 	display: block;
 	height: 21px;
 	margin-bottom: 1em;
 }
+
 #footer_middle {
 	border-top: 1px solid #77a555;
-	padding: 1.4em 1em 0;
+	padding: 1em 1em 0;
 	margin: 0 -1em;
 }
+
 #footer form {
 	position: relative;
 }
+
+#footer_links ul {
+	display: inline-block;
+	-webkit-columns: 2;
+	-moz-columns: 2;
+	columns: 2;
+	text-align: left;
+	margin: 1em auto 0;
+	font-weight: 450;
+}
+
+#footer_links li {
+	line-height: 2em;
+}
+
+#footer_crumbs {
+	margin-bottom: 1em;
+}
+
 .search_text {
 	box-sizing: border-box;
 	padding: .7em 33px .7em .7em;
@@ -264,7 +284,7 @@
 	background-color: #FFF;
 	font-size: 16px; /*CSS hack to stop zooming when the iOS keyboard appears*/
 }
-.search_button {
+#footer_search {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -273,6 +293,8 @@
 	background: url(/extensions/wikihow/mobile/images/gray_mag.png) center / 17px no-repeat;
 	/* @embed */
 	background-image: url(/extensions/wikihow/mobile/images/gray_mag.svg);
+	border: none;
+	margin-right: 0;
 }
 #footer_links ul {
 	display: inline-block;
@@ -424,11 +446,14 @@
 	background: url(/skins/WikiHow/wH-initials_152x152.png) #93b874 no-repeat 45% 50%/81%;
 }
 
-#social_proof_mobile .sp_top_box, #sp_inner .sp_fullbox:first-child {
+#social_proof_mobile .sp_top_box, .sp_inner .sp_fullbox:first-child {
 	border-top: none;
 }
 .references {
 	list-style: decimal inside;
+}
+.section.aidata {
+	margin-top: -1em;
 }
 .info_label {
 	font-weight: bold;
@@ -442,7 +467,7 @@
 	padding: 0 15px;
 }
 #summary_wrapper {
-	border-top: 1px solid #e7e7e5;
+	border-top: 1px solid #f3f3f3;
 	margin-top: -5px;
 	position: relative;
 	border-radius: 0;
@@ -456,11 +481,6 @@
 
 .section.video {
 	display: block;
-}
-
-#ur_h2 {
-	padding-top: 19px;
-	padding-bottom: 7px;
 }
 
 #ur_mobile {
@@ -596,7 +616,6 @@
 #sd_container {
 	padding:15px;
 	background-color: #FFF;
-	border: 1px solid rgba(0, 0, 0, .1);
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
@@ -637,7 +656,10 @@
 	font-size: 22px;
 	display: block;
 }
-#article_rating { display: block; }
+#article_rating {
+	display: block;
+	padding-bottom: 1em;
+}
 .ar_box{
 	margin: 0 auto;
 }
@@ -650,22 +672,20 @@
 	font-weight: bold;
 	color: #93b874;
 }
-#article_rating_mobile .ar_face {
-	margin: 0 auto;
-	width: 40px;
-	height: 40px;
-	background-size: contain;
-	background-repeat: no-repeat;
-}
-#article_rating_mobile .vote_up .ar_face {
-	background-image: url(/extensions/wikihow/Rating/images/face_smile.png);
+
+#gatAccuracyYes {
+	color: #97ba78;
+	background: url(/extensions/wikihow/Rating/images/face_smile_green.png) 15px center / 30px no-repeat;
 	/* @embed */
-	background-image: url(/extensions/wikihow/Rating/images/face_smile.svg);
+	background-image: url(/extensions/wikihow/Rating/images/face_smile_green.svg);
+	padding-left: 50px;
 }
-#article_rating_mobile .vote_down .ar_face {
-	background-image: url(/extensions/wikihow/Rating/images/face_sad.png);
+#gatAccuracyNo {
+	color: #686868;
+	background: url(/extensions/wikihow/Rating/images/face_sad_gray.png) 15px center / 30px no-repeat;
 	/* @embed */
-	background-image: url(/extensions/wikihow/Rating/images/face_sad.svg);
+	background-image: url(/extensions/wikihow/Rating/images/face_sad_gray.svg);
+	padding-left: 50px;
 }
 
 .ar_box, .section_text.ar_box {
@@ -683,6 +703,20 @@
 .m-video-intro-over {
 	visibility: visible;
 }
+
+.tips li div.wh_vote_container,
+.warnings li div.wh_vote_container {
+	display: block;
+}
+
+.content .tips .section_text ul,
+.content .warnings .section_text ul {
+	padding-left: 1em;
+}
+.content .tips .section_text ul li,
+.content .warnings .section_text ul li {
+	margin-bottom: 1.5em;
+}
 .don_mobile #donate_bottom {
 	text-align: center;
 }
@@ -691,6 +725,7 @@
 	margin: 0;
 	padding: 14px 20px;
 }
+
 .amp-geo-group-eu .icon-aboutwikihow {
 	 display: list-item;
 }
@@ -929,6 +964,9 @@ p.green_box_bullet {
 .unnabbed_alert {
 	display: none;
 }
+.section..articleinfo {
+	margin-top: 0;
+}
 #articleinfo {
 	border-top: 0;
 }
@@ -1022,4 +1060,12 @@ p.green_box_bullet {
 	.sd_thumb {
 		width: 170px;
 	}
+}
+
+.section {
+	padding-top: 0px;
+}
+
+.section h2, .steps h3 {
+	position: relative;
 }

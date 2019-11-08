@@ -102,6 +102,7 @@ p.green_box_bullet, .stable .content .green_box p.green_box_bullet {
 
 .green_box.expert .green_box_person {
 	padding: 0 .3em .5em .3em;
+	cursor: pointer;
 }
 
 .green_box.expert_qa .green_box_person {

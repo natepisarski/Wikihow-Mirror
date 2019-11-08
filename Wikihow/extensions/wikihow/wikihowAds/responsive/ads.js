@@ -446,18 +446,22 @@ WH.ads = (function () {
 		this.desktopOnly = this.adElement.getAttribute('data-desktoponly') == 1;
 		if (this.desktopOnly && !this.isDesktopSize) {
 			this.disabled = true;
+			adElement.style.display = 'none';
 			return;
 		}
 
 		this.mediumOnly = this.adElement.getAttribute('data-mediumonly') == 1;
 		if (this.mediumOnly && !this.isMediumSize) {
 			this.disabled = true;
+			//adElement.parentElement.removeChild(adElement);
+			adElement.style.display = 'none';
 			return;
 		}
 
 		this.largeOnly = this.adElement.getAttribute('data-largeonly') == 1;
 		if (this.largeOnly && !this.isLargeSize) {
 			this.disabled = true;
+			adElement.style.display = 'none';
 			return;
 		}
 
@@ -493,11 +497,15 @@ WH.ads = (function () {
 		this.height = this.adElement.getAttribute('data-height');
 		this.mobileHeight = this.adElement.getAttribute('data-mobileheight');
 		this.mobileSlot = this.adElement.getAttribute('data-mobileslot');
+		this.mobileService = this.adElement.getAttribute('data-mobileservice');
 		if (!this.isDesktopSize) {
 			this.channels = this.mobileChannels;
 			this.slot = this.mobileSlot;
 			this.height = this.mobileHeight;
 			this.width = getMobileAdWidth(this.type);;
+			if (this.mobileService) {
+				this.service = this.mobileService;
+			}
 			if (this.service == 'adsense' && !this.slot) {
 				this.disabled = true;
 				return;
@@ -1167,6 +1175,9 @@ WH.ads = (function () {
 			return;
 		}
 		var target = $(anchor).next('.section').find('.steps_list_2 > li:first');
+		if ($(anchor).hasClass("mw-headline")) {
+			target = $(anchor).parents('.section:first').find('.steps_list_2 > li:first');
+		}
 		if (!target.length) {
 			return;
 		}
@@ -1227,21 +1238,6 @@ WH.ads = (function () {
             rightRailElements[rightRailElements.length -1].last = false;
         }
 		rightRailElements.push(elem);
-	}
-
-	function addQuizAd(id) {
-		var innerAd = document.getElementById(id);
-		var wrap = innerAd.parentElement;
-		var ad = new QuizAd(wrap);
-		var quizContainer = wrap.parentElement;
-		quizAds[quizContainer.id] = ad;
-		quizContainer.addEventListener("change", function(e) {
-			var id = this.id;
-			if (quizAds[id]) {
-				quizAds[id].show()
-				quizAds[id].load()
-			}
-		});
 	}
 
 	function getIntroAd() {

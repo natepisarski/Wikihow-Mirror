@@ -10,7 +10,11 @@
 			if($("#summary_video_link").length > 0) {
 				$(".slider_become_main").append("<a class='button slider_button'> " + mw.message("slider_cta_video").text() + "</a>");
 				$(".slider_become_main .slider_button").attr("href", encodeURI($("#summary_video_link").attr("href")));
-				var titleText = $(".firstHeading a").text();
+				if(WH.isMobile) {
+					var titleText = $("#section_0").text();
+				} else {
+					var titleText = $(".firstHeading a").text();
+				}
 				if(titleText.length > 51) {
 					titleText = titleText.substring(0, 51);
 					if(titleText.charAt(titleText.length-1) == " ") {
@@ -101,11 +105,10 @@
 		var ua = navigator.userAgent.toLowerCase(); // get client browser info
 		var m = ua.match(/msie (\d+)\./);
 		var msieVer = (m ? Number.parseInt(m[1],10) : false);
-		var isiPad = ua.indexOf('ipad');
 		var isiPhone = ua.indexOf('iphone');
 
 		var oldMSIE = msieVer && msieVer <= 7;
-		if ($('#slideshowdetect').length && typeof WH.WHSlider == 'object' && !mw.cookie.get(WH.WHSlider.cookieName) && isiPhone < 0 && isiPad < 0 && !oldMSIE) {
+		if ($('#slideshowdetect').length && typeof WH.WHSlider == 'object' && !mw.cookie.get(WH.WHSlider.cookieName) && isiPhone < 0 && !oldMSIE) {
 
 			if ($('#slideshowdetect_mainpage').length) {
 				//homepage
@@ -136,9 +139,12 @@
 		}
 	}
 
-	WH.WHSlider.init();
+	if ($(window).width() >= WH.mediumScreenMinWidth) {
+		WH.WHSlider.init();
 
-	mw.loader.using( 'mediawiki.cookie', function() {
-		loadSlider();
-	} );
+		mw.loader.using( 'mediawiki.cookie', function() {
+			loadSlider();
+		} );
+	}
+
 }($, mw));

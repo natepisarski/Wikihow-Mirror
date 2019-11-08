@@ -19,16 +19,25 @@
   margin: 20px auto;
   width: 96%;
   min-height: 475px;
+  font-size: .9em;
 }
 
  #header-container {
   display: block;
   position: relative;
   line-height: 1em;
-  color: #ffffff;
   font-weight: bold;
   font-size: 1.2em;
- }
+  background-color: #93b874;
+  padding: 11px 0;
+  height: auto;
+}
+
+#urf-header{
+  padding-left: 20px;
+  color: #FFF;
+    font-size: 1.1em;
+}
 
 #urf-close-container {
   position: absolute;
@@ -186,8 +195,13 @@ p#social_login_smallprint {
     vertical-align: middle;
 }
 
-.urf-social-close {
-    display: inline-block;
+a.urf-social-close {
+  display: block;
+  color: #FFF !important;
+  background-color: #93b874;
+  padding: 12px;
+  width: 4em;
+  text-align: center;
 }
 
 #urf-form-tos {
@@ -198,15 +212,14 @@ p#social_login_smallprint {
 
 #urf-submit {
  -webkit-appearance: none;
-  margin-top: 2px 0px 0px 0px;
+  margin: 2px 0 0 0;
   padding: 12px;
   width: 49%;
-  color: #ffffff;
+  color: #FFF;
   background-color: #93b874;
-  color: #ffffff;
-  font-weight: normal;
   font-size: 1em;
   margin-right: 0;
+  font-weight: normal;
 }
 
 #urf-cancel {
@@ -260,4 +273,12 @@ p#social_login_smallprint {
   position: absolute;
   background-size: cover;
   background-repeat: no-repeat;
+}
+
+.skin-minervawh #urf-social-login p {
+    font-size: 16px;
+}
+
+.skin-minervawh #urf-social-login {
+    padding: 20px;
 }

@@ -1,204 +1,261 @@
-/*
- * Main-Page
- */
-.page-Main_Page #mw-mf-page-center {
-  background-color: #ecebe8;
+@import '../../../less/variables.less';
+
+.page-Main_Page {
+	#content_wrapper {
+		padding-top: 0;
+		background-color: @bgColor;
+	}
+
+	#mw-mf-page-center {
+		background-color: @bgColor;
+	}
 }
 
-#fa_container_outer {
-	display: block;
-	position: relative;
-	text-align: center;
-	margin: 3px 3px 0 -5px;
+#article_blocks_container {
+	margin-top: 5px;
 }
 
-#fa_container {
-	display: inline-block;
-	max-width: 2000px;
-	min-width: 100%;
-	text-align: left;
-}
+.article_blocks {
+	.related_box {
+		height: 120px;
+		background-color: @bgColor;
+		border-color: @bgColor;
 
-#fa_container .related_box {
-	height: 120px;
-	border-left-width: 8px;
-	border-right-width: 0;
-	background-color: #ecebe8;
-	border-color: #ecebe8;
-}
+		&:hover {
+			p {
+				background: #ffffff;
+				color: #2483ef;
+			}
+		}
 
-#fa_container .related_img_wrapper {
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
+		span {
+			padding-right: .25em;
+		}
+	}
 }
 
 .search {
-  padding: 5px;
-  background-color: white;
-  margin: 0 -5px 0 -5px;
-  line-height: 30px;
-  min-height:25px;
-  overflow: hidden;
-  height: 30px;
+	padding: 5px;
+	background-color: white;
+	margin: 0 -5px 0 -5px;
+	line-height: 30px;
+	min-height:25px;
+	height: 30px;
 }
 
-#bodyContent .search {
-  position: absolute;
-  top: 130px;
-  width: 83%;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  -khtml-border-radius: 4px;
-  border-radius: 4px;
-  z-index: 3;
-  margin: 0 6%;
+#mw-mf-page-center .search {
+	position: absolute;
+	top: 87px;
+	width: 83%;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	z-index: 3;
+	margin: 0 7%;
+	overflow: hidden;
+
+	.cse_sa {
+		float: right;
+		background: @green url(/extensions/wikihow/mobile/images/white_mag.png) center / 25px no-repeat;
+		/* @embed */
+		background-image: url(/extensions/wikihow/mobile/images/white_mag.svg);
+		width: 40px;
+		height: 40px;
+		margin: -5px;
+		border-radius: 0;
+	}
 }
 
 #hp_search_label {
-  color: #94b777;
-  font-size: 16px;
+	color: #94b777;
+	font-size: 16px;
 }
+
 #hp_search {
-  width: 82%;
-  border: 0px;
-  color: #545454;
-  font-size: 16px;
-}
+	width: 82%;
+	border: 0px;
+	color: @fontColor;
 
-#hp_search::-webkit-input-placeholder { /* WebKit browsers */
-  color:    #545454;
-}
-
-#hp_search:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-  color:    #545454;
-  opacity:  1;
-}
-
-#hp_search::-moz-placeholder { /* Mozilla Firefox 19+ */
-  color:    #545454;
-  opacity:  1;
-}
-
-#hp_search:-ms-input-placeholder { /* Internet Explorer 10+ */
-  color:    #545454;
-}
-
-.search .cse_sa {
-  margin-top: 2px !important;
-  border: 0px !important;
-  float: right;
-  background-image: url(/extensions/wikihow/mobile/images/white_mag.png) !important;
-  /* @embed */
-  background-image: url(/extensions/wikihow/mobile/images/white_mag.svg) !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  background-size: 25px 25px !important;
-  width: 40px;
-  height: 40px;
-  padding: 0px !important;
-  margin: -5px !important;
-  border-top-left-radius: 0px !important;
-  border-bottom-left-radius: 0px !important;
+	&::placeholder,
+	&::-webkit-input-placeholder, /* WebKit browsers */
+	&:-moz-placeholder, /* Mozilla Firefox 4 to 18 */
+	&::-moz-placeholder /* Mozilla Firefox 19+ */
+	{
+		color: @fontColor;
+		opacity: 1;
+	}
 }
 
 p.hp_howto {
-  margin-bottom: 0px !important;
-  padding-bottom: 20px;
+	margin-bottom: 0px !important;
+	padding-bottom: 20px;
 }
 
 
 #hp_container {
-  position: relative;
-  /*min-height: 191px;*/
-  overflow: hidden;
-  background-color: #000;
-  margin: 0 -5px; /* default window size */
+	position: relative;
+	overflow: hidden;
+	background-color: #000;
+	margin-top: @smallHeaderHeight;
+	box-sizing: border-box;
 }
 
 .hp_image {
-  opacity: 0.6;
+	opacity: 0.6;
+	max-width: 100%;
+	width: 100%;
+	height: auto;
 }
 
 .hp_top {
-  position: absolute;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
+	position: absolute;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
 }
 
 .hp_top a {
-  display: block;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
-  background: url(/skins/owl/images/1x1_transparent.gif) repeat;
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 5;
+	background: url(/skins/owl/images/1x1_transparent.gif) repeat;
 }
 
 #hp_middle {
-  position: absolute;
-  z-index: 6;
-  bottom: 20px;
-  background-color: rgba(255, 255, 255, .8);
-  color: #465146;
-  padding: 5px;
-  width: 100%;
-  text-align: center;
+	position: absolute;
+	z-index: 6;
+	bottom: 20px;
+	background-color: rgba(255, 255, 255, .8);
+	color: #465146;
+	padding: 5px;
+	width: 100%;
+	text-align: center;
 }
 
 .hp_howto {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 0;
+	font-size: 20px;
+	font-weight: bold;
+	margin-bottom: 0;
 }
 
 .hp_tag {
-  position: absolute;
-  top: 53px;
-  color: #fff;
-  text-align: center;
-  width: 100%;
-  font-size: 26px;
-  z-index: 3;
+	position: absolute;
+	top: 47px;
+	color: #fff;
+	text-align: center;
+	width: 100%;
+	font-size: 26px;
+	z-index: 3;
 }
 
 .hp_tag span {
-  color: #465146;
+	color: #465146;
 }
 
 #hp_navigation {
-  z-index: 5;
-  bottom: 10px;
-  width: 100%;
-  text-align: center;
+	z-index: 5;
+	bottom: 10px;
+	width: 100%;
+	text-align: center;
 }
 
 .hp_nav {
-  background: url('../../images/wikihow/hp_nav_mobile.png') 0px 0px no-repeat;
-  width: 8px;
-  height: 8px;
-  display: inline-block;
-  margin: 0 4px;
-  cursor: pointer;
-  background-size: 8px 18px;
+	background: url('../../images/wikihow/hp_nav_mobile.png') 0px 0px no-repeat;
+	width: 8px;
+	height: 8px;
+	display: inline-block;
+	margin: 0 4px;
+	cursor: pointer;
+	background-size: 8px 18px;
 }
 
 .hp_nav.on {
-  background-position: 0 -10px;
+	background-position: 0 -10px;
 }
 
-@media only screen and (min-width: 500px) and (orientation: landscape) {
-	#slider { margin: 0 -25px; }
+#homepage_categories {
+	margin: .5em 1em;
+	text-align: center;
+
+	h3 {
+		font-size: 1em;
+		text-align: left;
+	}
+}
+
+#hp_categories {
+	text-align: left;
+
+	li {
+		list-style: none;
+		padding: 0 .5em .7em;
+		font-size: 1.1em;
+		clear: both;
+
+		a {
+			padding-left: 1em;
+			line-height: 25px;
+		}
+
+		img {
+			float: left;
+			width: 25px;
+		}
+	}
+}
+
+#content_wrapper #sidebar {
+	display: block;
+	margin: 1em 12px;
+
+	.sidebox {
+		background-color: #FFF;
+		padding: 16px;
+		margin: 0 0 15px 0;
+		position: relative;
+		border-radius: 4px;
+		color:#686868;
+		font-size: 13px;
+		line-height: 1.3em;
+		box-sizing: border-box;
+
+		p {
+			font-size: 14px;
+			line-height: 17px;
+			margin: 12px 0 0;
+		}
+
+		h3 {
+			font-size: 13px;
+			font-weight: bold;
+			color: #686868;
+			margin-bottom: 11px;
+			padding: 0px;
+			background: none;
+		}
+
+		&.short_sidebox {
+			padding-top: 10px;
+		}
+	}
+
+	#top_links,
+	#side_rc_widget,
+	#side_follow {
+		display: none;
+	}
 }
 
 @media only screen and (min-width: 500px),
 only screen and (max-height: 421px) and (orientation:landscape) {
-  .hp_howto {
-    font-size: 2em;
-    line-height: inherit !important;
-  }
-
+	.hp_howto {
+		font-size: 2em;
+		line-height: inherit !important;
+	}
 }
 
 /* We need multiple sizes for the top height */
@@ -225,38 +282,193 @@ only screen and (max-height: 421px) and (orientation:landscape) {
 	.slider {
 		height: 350px;
 	}
-	#bodyContent .search{
+
+	#mw-mf-page-center .search{
 		min-height: 35px;
 		line-height: 35px;
-		top: 205px;
-	}
-	.search .cse_sa {
-		width: 45px;
-		height: 45px;
+		top: 170px;
+
+		.cse_sa {
+			width: 45px;
+			height: 45px;
+		}
 	}
 	.hp_tag {
 		top: 125px;
 		font-size: 30px;
 	}
 	#hp_search {
-      font-size: 24px;
+		font-size: 24px;
+		line-height: 1.5em;
 	}
 }
 
-@media only screen and (min-width: 500px) {
-	#fa_container .related_box {
-		width: 50%;
+@media @medium {
+
+	#content_wrapper #sidebar {
+		max-width: 720px;
+		margin: 0 auto;
+		height: auto;
+
+		.sidebox {
+			width: 49%;
+			float: left;
+			margin-left: 2%;
+		}
+
+		#homepage_categories {
+			margin-left: 0;
+			padding-bottom: 25px;
+		}
+
+		#top_links {
+			display: block;
+			padding: 30px 15px;
+			white-space: nowrap;
+			text-align: center;
+			font-size: .65em;
+			font-weight: bold;
+
+			#gatWriteAnArticle {
+				margin-right: 0;
+			}
+		}
+
+		#side_rc_widget,
+		#side_follow {
+			display: block;
+		}
 	}
+
+	.article_blocks {
+		display: -ms-grid;
+		display: grid;
+		-ms-grid-columns: 1fr 1fr 1fr 1fr;
+		grid-template-columns: repeat(4, 1fr);
+		-ms-grid-rows: 120px 120px;
+		grid-template-rows: 120px 120px;
+
+		.related_box {
+			height: 100%;
+			border-width: 2px;
+
+			p {
+				font-size: 16px;
+				border-radius: 0;
+
+				span {
+					font-size: 11px;
+					display: block;
+					font-weight: normal;
+				}
+			}
+
+			.thumbnail {
+				border: none;
+			}
+
+			/* column or row _ start space _ span length */
+			&.col_1_1 {
+				-ms-grid-column: 1;
+				grid-column: 1;
+			}
+			&.col_2_1 {
+				-ms-grid-column: 2;
+				grid-column: 2;
+			}
+			&.col_3_1 {
+				-ms-grid-column: 3;
+				grid-column: 3;
+			}
+			&.col_4_1 {
+				-ms-grid-column: 4;
+				grid-column: 4;
+			}
+			&.col_1_2 {
+				-ms-grid-column: 1;
+				-ms-grid-column-span: 2;
+				grid-column: 1 ~"/" span 2;
+			}
+			&.col_2_2 {
+				-ms-grid-column: 2;
+				-ms-grid-column-span: 2;
+				grid-column: 2 ~"/" span 2;
+			}
+			&.col_3_2 {
+				-ms-grid-column: 3;
+				-ms-grid-column-span: 2;
+				grid-column: 3 ~"/" span 2;
+			}
+			&.row_1_1 {
+				-ms-grid-row: 1;
+				grid-row: 1;
+			}
+			&.row_2_1 {
+				-ms-grid-row: 2;
+				grid-row: 2;
+			}
+			&.row_1_2 {
+				-ms-grid-row: 1;
+				-ms-grid-row-span: 2;
+				grid-row: 1 ~"/" span 2;
+				height: 240px;
+			}
+		}
+
+		.related_img_wrapper {
+			border-radius: 0;
+		}
+	}
+
+	.content .article_blocks video {
+		object-fit: cover;
+		height: 100%;
+	}
+
+
 }
 
-@media only screen and (min-width: 1000px) {
-	#fa_container .related_box {
-		width: 33.333%;
+@media @large {
+	#hp_container {
+		margin-top: @largeHeaderHeight;
+		min-height: 527px;
+		max-height: 700px;
 	}
-}
 
-@media only screen and (min-width: 1500px) {
-	#fa_container .related_box {
-		width: 25%;
+	.hp_tag {
+		font-size: 3em;
+		top: 152px;
+	}
+
+	#hp_search {
+		padding-left: .4em;
+	}
+
+	#mw-mf-page-center .search {
+		top: 232px;
+		width: 40%;
+		margin: 0 30%;
+		min-height: 45px;
+		line-height: 52px;
+
+		.cse_sa {
+			width: 55px;
+			height: 55px;
+		}
+	}
+
+	#content_wrapper #sidebar {
+		columns: initial;
+		margin-top: 8px;
+
+		.sidebox {
+			width: 100%;
+			float: none;
+			margin-left: 0;
+		}
+
+		#homepage_categories {
+			padding-bottom: 16px;
+		}
 	}
 }

@@ -105,6 +105,8 @@ class WikihowNamespacePages {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		global $wgHooks;
+
 		if (self::wikiHowNamespacePage()) {
 			Misc::setHeaderMobileFriendly();
 
@@ -159,5 +161,10 @@ class WikihowNamespacePages {
 			$title = RequestContext::getMain()->getOutput()->getTitle();
 			if (in_array($title->getDBkey(), self::mobileFriendlyPages())) $mobileAllowed = true;
 		}
+	}
+
+	public static function removeSideBarCallback(&$showSideBar) {
+		$showSideBar = false;
+		return true;
 	}
 }

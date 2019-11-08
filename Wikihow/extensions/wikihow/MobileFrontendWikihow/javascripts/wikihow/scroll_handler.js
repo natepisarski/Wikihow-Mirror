@@ -17,6 +17,12 @@
 		TOC_SPEED: 500,
 		UNDERLINE_SPEED: 200,
 
+		//MAX items to show on medium/large
+		MAX_ITEMS: 8,
+
+		//are we showing the floating TOC stuck to the top?
+		stickyToc: false,
+
 		//toggle to pause the scroll logic
 		scrollHandlerEnabled: true,
 
@@ -37,16 +43,51 @@
 		initialize: function() {
 			if (mw.config.get('wgNamespaceNumber') !== 0 || this.$toc.length === 0) return;
 
-			var shouldSimplify = window.isOldAndroid || window.isOldIOS || window.isWindowsPhone;
-			if (shouldSimplify) {
-				$('#method_toc').remove();
-				return;
+			//sticky toc for small; inline toc for medium and large
+			this.stickyToc = $(window).width() < WH.mediumScreenMinWidth;
+
+			if (this.stickyToc) {
+				var shouldSimplify = window.isOldAndroid || window.isOldIOS || window.isWindowsPhone;
+				if (shouldSimplify) {
+					$('#method_toc').remove();
+					return;
+				}
+				else {
+					mw.loader.load('ext.wikihow.mobile_toc');
+				}
+
+				//remove some elements that we don't want on small
+				$(".toc_summary").remove();
+				$("#toc_showmore").remove();
+				$("#toc_showless").remove();
+				this.$tocItems = $(".method_toc_item"); //reset this because we deleted some
+			} else {
+				$(document).on('click', '#toc_showmore', function(e){
+					e.preventDefault();
+					$(this).hide();
+					$("#toc_showless").css("display", "block");
+					$("#method_toc .toc_hidden").addClass("toc_shown").removeClass("toc_hidden");
+				});
+				$(document).on('click', '#toc_showless', function(e){
+					e.preventDefault();
+					$(this).hide();
+					$("#toc_showmore").show();
+					$("#method_toc .toc_shown").addClass("toc_hidden").removeClass("toc_shown");
+				});
+				$(document).on("click", "#summary_toc", function(e){
+					e.preventDefault();
+					$("#summary_wrapper").show();
+				});
+				$(document).on("click", "#summary_wrapper .collapse_link", function(e){
+					e.preventDefault();
+					$("#summary_wrapper").hide();
+				});
 			}
 
 			// Make sure the hash and scroll handling are initiated on load.
 			window.setTimeout($.proxy(function() {
 				this.scrollToSection('');
-				this.handleMobileScroll();
+				if (this.stickyToc) this.handleMobileScroll();
 			},this), 1000);
 
 			this.addHandlers();
@@ -57,7 +98,7 @@
 
 			$('.method_toc_item a').click(this.hashAnchorClick);
 
-			if (this.scrollHandlerEnabled) WH.addThrottledScrollHandler(WH.tocScrollHandler.handleMobileScroll);
+			if (this.stickyToc) WH.addThrottledScrollHandler(WH.tocScrollHandler.handleMobileScroll);
 		},
 
 		// Return jQuery objects of the elements for the sections the ToC covers
@@ -152,15 +193,30 @@
 			var sh = WH.tocScrollHandler;
 			sh.scrollHandlerEnabled = false;
 
+			//if it's the summary section, open it
+			if ($(this).parent().attr("id") == "summary_toc") {
+				if($(window).width() < WH.mediumScreenMinWidth) {
+					$("#summary_text").show();
+					$("#summary_wrapper .collapse_link").addClass("open");
+				} else {
+					return;
+				}
+			}
+
 			//update the url
 			history.pushState({}, '', this.href);
 
 			//update the TOC
-			var toc_element = $(this).parent();
-			sh.positionTOC(toc_element);
+			if (sh.stickyToc) {
+				var toc_element = $(this).parent();
+				sh.positionTOC(toc_element);
+			}
 
 			//scroll to the section
 			var href = $.attr(this, 'href');
+			if (WH.ads) {
+				WH.ads.loadTOCAd(href);
+			}
 			sh.scrollToSection(href);
 		},
 
@@ -177,15 +233,22 @@
 				return;
 			}
 
-			anchor = decodeURI(location.hash);
-			var tocOuterHeight = sh.$toc.outerHeight() || sh.TOC_DEFAULT_OUTER_HEIGHT;
 			var toElement = sh.getHashedElement(anchor);
 			if (!toElement.length) return;
 
-			var y = toElement.offset().top - tocOuterHeight + sh.ANCHOR_SCROLL_OFFSET;
+			var y = toElement.offset().top - sh.tocOuterHeight() + sh.ANCHOR_SCROLL_OFFSET;
 
 			$('html, body')
-				.animate({ scrollTop: y }, sh.SCROLLING_SPEED, 'swing')
+				.animate(
+					{ scrollTop: y },
+					sh.SCROLLING_SPEED,
+					'swing',
+					function() {
+						//do a sanity check of where we land
+						//(important because scroll-to ads might have changed the height of the page)
+						sh.offsetHashAnchor( false );
+					}
+				)
 				.promise().then(function() {
 					sh.scrollHandlerEnabled = true;
 				});
@@ -226,25 +289,24 @@
 
 		// Adjust scroll position on hash change so header is visible.
 		// For non-TOC anchor actions
-		offsetHashAnchor: function() {
+		offsetHashAnchor: function( resetToc ) {
 			var sh = WH.tocScrollHandler;
-
+			if (typeof(resetToc) == 'undefined') resetToc = true;
 
 			if (location.hash.length !== 0) {
-
 				// Don't do this for the "more references" dropdown section at the bottom of the refs section
-				if (location.hash == "#aiinfo") {
-					return;
-				}
+				if (location.hash == "#aiinfo") return;
 
-				sh.resetToc(); //start fresh
+				if (this.stickyToc && resetToc) sh.resetToc(); //start fresh
 
 				var hash = decodeURI(location.hash);
 				var hashedElem = sh.getHashedElement(hash);
 
 				if (hashedElem.length) {
-					var tocOuterHeight = sh.$toc.outerHeight() || sh.TOC_DEFAULT_OUTER_HEIGHT;
-					var y = hashedElem.offset().top - tocOuterHeight + sh.ANCHOR_SCROLL_OFFSET;
+					var header = $(hashedElem).closest('.section').find('h2');
+					var header_height = header.length ? $(header).height() : 0;
+
+					var y = hashedElem.offset().top - sh.tocOuterHeight() + sh.ANCHOR_SCROLL_OFFSET;
 
 					window.scrollTo(window.scrollX, y);
 					return false;
@@ -287,12 +349,22 @@
 			//references section is weird...
 			if (hash == '#references_first') hash = '#'+mw.message('references').text();
 
-			return $( this.escapeSelector(hash) );
+			//Now supporting links with hashes to Images, so want to ignore these
+			if (hash.indexOf("#/Image:") == 0) return $();
+
+			//Individual step links need to stay at the step (important for Google SERP deep links)
+			if (hash.indexOf("#step-id") == 0) return $();
+
+			return $( this.escapeSelector(hash) ).closest('.section');
 		},
 
 		// To make sure we can handle hashes with weird characters
 		escapeSelector: function( id ) {
 			return id.replace( /(:|\.|\[|\]|,|=|@|-)/g, "\\$1" );
+		},
+
+		tocOuterHeight: function() {
+			return this.stickyToc ? this.$toc.outerHeight() || this.TOC_DEFAULT_OUTER_HEIGHT : 0;
 		}
 	}
 

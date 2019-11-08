@@ -19,7 +19,13 @@ abstract class ArticleViewer extends ContextSource {
 
 class FaViewer extends ArticleViewer {
 	function doQuery() {
-		$fas = FeaturedArticles::getTitles(45);
+		$number_of_articles = Misc::isMobileMode() ? 30 : 45;
+
+		if (AlternateDomain::onAlternateDomain())
+			$fas = AlternateDomain::getFATitles( $number_of_articles );
+		else
+			$fas = FeaturedArticles::getTitles( $number_of_articles );
+
 		foreach ($fas as $fa) {
 			$this->articles[] = Linker::link($fa['title']);
 		}

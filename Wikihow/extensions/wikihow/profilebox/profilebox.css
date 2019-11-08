@@ -247,7 +247,7 @@ div.autocomplete ul li {
 	margin-right: 365px;
 }
 
-#rcElement_list {
+.sidebox #rcElement_list {
 	height:auto;
 }
 

@@ -11,6 +11,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	protected $isMainPage;
 	protected $isArticlePage;
 	protected $isSearchPage;
+	protected $showCurrentArticle;
 	protected $breadCrumb = '';
 
 	public function execute() {
@@ -22,6 +23,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if (preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI'])) {
 			$this->isSearchPage = true;
 		}
+		$this->showCurrentArticle = $this->getSkin()->getTitle()->exists() && PagePolicy::showCurrentTitle($this);
 		$this->breadCrumb = $this->setBreadcrumbHtml();
 		parent::execute();
 	}
@@ -34,9 +36,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if (Misc::isAltDomain()) return '';
 
 		$context = RequestContext::getMain();
-
-		$parenttree = CategoryHelper::getCurrentParentCategoryTree();
-		$fullCategoryTree = CategoryHelper::cleanCurrentParentCategoryTree($parenttree);
+		$fullCategoryTree = [];
 
 		$catLinksTop = WikihowHeaderBuilder::getCategoryLinks(true, $context, $fullCategoryTree);
 		Hooks::run('getBreadCrumbs', array(&$catLinksTop));
@@ -150,23 +150,25 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 		Hooks::run( 'MobileTemplateBeforeRenderFooter', array( &$footerPlaceholder ) );
 
-		EasyTemplate::set_path( $IP.'/extensions/wikihow/mobile/' );
-
-		if ($data['amp']) {
-			$search_box = GoogleAmp::getSearchBar( "footer_search", $footerPlaceholder );
-		}
-		else {
-			$search_box = EasyTemplate::html(
-			'search-box.tmpl.php', [
-				'id' => 'search_footer',
-				'placeholder' => $footerPlaceholder,
-				'class' => '',
-				'lang' => RequestContext::getMain()->getLanguage()->getCode(),
-				'form_id' => 'cse-search-box-bottom'
-			]);
-		}
-
 		if ( !$data['disableSearchAndFooter'] ) {
+
+			if ($data['amp']) {
+				$search_box = GoogleAmp::getSearchBar( "footer_search", $footerPlaceholder );
+			}
+			else {
+				EasyTemplate::set_path( $IP.'/extensions/wikihow/mobile/' );
+				$search_box = EasyTemplate::html(
+					'search-box.tmpl.php',
+					[
+						'id' => 'search_footer',
+						'placeholder' => $footerPlaceholder,
+						'class' => '',
+						'lang' => RequestContext::getMain()->getLanguage()->getCode(),
+						'form_id' => 'cse-search-box-bottom'
+					]
+				);
+			}
+
 			$vars = [
 				'disableFooter' => @$data['disableFooter'],
 				'mainLink' => Title::newMainPage()->getLocalURL(),
@@ -176,13 +178,14 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				'searchBox' => $search_box,
 				'links' => $this->footerLinks(),
 				'socialFooter' => class_exists('SocialFooter') ? SocialFooter::getSocialFooter() : '',
+				'slider' => class_exists('Slider') ? Slider::getBox() : '',
 				'amp' => $data['amp']
 			];
 
 			echo $this->footerHtml($vars);
-
-			if (class_exists("MobileSlideshow")) echo MobileSlideshow::getHtml();
 		}
+
+		if (class_exists("MobileSlideshow")) echo MobileSlideshow::getHtml();
 	}
 
 	protected function footerHtml(array $vars): string {
@@ -268,14 +271,12 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if ( $adsJs ) {
 			$html = Html::inlineScript( Misc::getEmbedFiles( 'js', [$adsJs] ) );
 		}
+
 		return $html;
 	}
 
-
 	private function getRightRailHtml( $data ) {
-		if ( $data['amp'] ) {
-			return;
-		}
+		if ( $data['amp'] ) return;
 
 		$rightRail = $data['rightrail'];
 		$rightRailHtml = $rightRail->getRightRailHtml();
@@ -309,7 +310,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 
 		$rightRailHtml = $this->getRightRailHtml( $data );
-
+		$useRightRail = true;
+		Hooks::run("UseMobileRightRail", [&$useRightRail]);
 		// begin rendering
 		echo $data[ 'headelement' ];
 		if ( $data['amp'] ) {
@@ -319,7 +321,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 		?>
 		<? /* BEBETH: Moving header to the top to deal with links in static header */ ?>
-		<div class="header" role="navigation">
+		<div id="header_container">
+			<div class="header" id="header" role="navigation">
 		<?php
 		$this->html( 'menuButton' );
 		if ( $data['amp'] ) {
@@ -352,22 +355,38 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			?>
 			<div id="hs" class="<?= implode( $classes, ' ' ) ?>">
 				<form action="/wikiHowTo" class="search" target="_top">
-					<input type="text" id="hs_query" role="textbox" tabindex="0" <?= $expand ?> name="search" value="<?= $query ?>" required placeholder="<?= wfMessage( 'header-search-placeholder' )->text() ?>" <?= !$data['amp'] ? 'x-webkit-speech' : '' ?> aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
+					<input type="text" id="hs_query" role="textbox" tabindex="0" <?= $expand ?> name="search" value="<?= $query ?>" required placeholder="" <?= !$data['amp'] ? 'x-webkit-speech' : '' ?> aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
 					<button type="submit" id="hs_submit"></button>
 					<div id="hs_close" role="button" tabindex="0" <?= $collapse ?> ></div>
 				</form>
 			</div>
 			<?php
 		}
+		$notifications = 0;
+		$navTabs = WikihowHeaderBuilder::genNavigationTabs($this->getSkin(), $notifications);
 		?>
+				<? if(!$data['amp']): ?>
+				<ul id="actions" role="menubar" aria-label="<?= wfMessage('aria_header')->showIfExists() ?>">
+					<? foreach ($navTabs as $tabid => $tab): ?>
+						<li id="<?= $tabid ?>_li" class="nav_item" role="menuitem" aria-labelledby="<?= $tabid ?>">
+							<div class="nav_icon"></div>
+							<a id='<?= $tabid ?>' class='nav' href='<?= $tab['link'] ?>' <?= ($tab['data-link'] ? "data-link='{$tab['data-link']}'" : "") ?>><?= $tab['text'] ?></a>
+							<?= $tab['menu'] ?>
+						</li>
+					<? endforeach; ?>
+				</ul><!--end actions-->
+				<? endif; ?>
+
 		<?php
 		echo $data['secondaryButtonData'];
 		?>
+			</div>
 		</div>
 		<?
 		// JRS 06/23/14 Add a hook to add classes to the top-level viewport object
 		// to make it easier to customize css based on classes
-		$classes = array();
+		$classes = [];
+		if(!$useRightRail) $classes[] = 'no_sidebar';
 		Hooks::run('MinervaViewportClasses', array(&$classes));
 		$classes = empty($classes) ? '' : implode(" ", $classes);
 		?>
@@ -388,38 +407,51 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				endforeach;
 				?>
 
+				<? if ($this->isMainPage) echo WikihowMobileHomepage::showTopImage(); ?>
+
 				<div id="content_wrapper" role="main">
 					<?php
 						$html = $this->getTopContentJS( $data );
 						echo $html;
+
+						$showArticleTabs = $this->isArticlePage;
+						$tabsArray = WikihowHeaderBuilder::getTabsArray($showArticleTabs, $this->getSkin(), $this->showCurrentArticle);
+						if (count($tabsArray) > 0 && !$data['amp']) {
+					?>
+					<div id="actionbar" role="navigation">
+						<?php echo WikihowHeaderBuilder::getTabsHtml($tabsArray); ?>
+
+						<ul id="breadcrumb" class="breadcrumbs" aria-label="<?= wfMessage('aria_breadcrumbs')->showIfExists() ?>">
+							<?php echo $this->breadCrumb ?>
+						</ul>
+					</div>
+					<?php
+						}
 					?>
 					<div id="content_inner">
-						<?php
+					<?php
 						$this->renderContentWrapper( $data );
 						?>
 					</div>
 
+					<? if($useRightRail): ?>
 					<div id="sidebar">
 					<?php
 						echo $rightRailHtml;
 					?>
 					</div>
+					<? endif; ?>
 				</div>
 				<br class="clearall" />
 
-				<? $schema = SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
-				if ( $schema ) {
-					echo $schema;
-				}?>
-
 				<?php
 
-				if ( isset( $data['tableofcontents'] ) ) {
-					echo $data['tableofcontents'];
-				}
+				$schema = SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
+				if ( $schema ) echo $schema;
 
 				$this->renderFooter( $data );
-		?>
+
+				?>
 		</div>
 		<div id='servedtime'><?= Misc::reportTimeMS(); ?></div>
 		<?php

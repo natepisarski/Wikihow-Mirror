@@ -453,9 +453,3 @@ span.ucis_count {
 		width: 25%;
 	}
 }
-
-@media only screen and (min-width: 900px) {
-	.uci_thumbnail {
-		width: 200px;
-	}
-}

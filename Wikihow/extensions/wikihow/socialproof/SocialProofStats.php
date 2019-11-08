@@ -458,41 +458,51 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private function getEndOptions(): array {
-			//PRINT
-			$options = [
-					[
-							'link' => '#',
-							'id' => 'printLink',
-							'name' => wfMessage( 'print' )->plain()
-					]
-			];
+		//use this to send users to the desktop
+		$url_prefix = WikihowMobileTools::getNonMobileSite();
 
-			if (!Misc::isAltDomain()) {
-					$editUrl = $this->getTitle()->getEditUrl();
+		//PRINT
+		$options = [
+			[
+				'link' => '#',
+				'id' => 'printLink',
+				'name' => wfMessage( 'print' )->plain()
+			]
+		];
 
-					if ($this->getUser()->isAnon() && $this->getLanguage()->getCode() != 'en') {
-							$editLinkAttribs['data-return-to'] = substr($editUrl, 1); // strip leading "/"
-							$editUrl = '#';
+		if (!Misc::isAltDomain()) {
+
+			if (!$this->getUser()->isAnon()) {
+				$editUrl = $this->getTitle()->getEditUrl();
+
+				if ($this->getLanguage()->getCode() == 'en') {
+					$editUrl = $url_prefix.$editUrl;
+				}
+				else {
+					if ($this->getUser()->isAnon()) {
+						$editLinkAttribs['data-return-to'] = substr($editUrl, 1); // strip leading "/"
+						$editUrl = '#';
 					}
+				}
 
-					//EDIT
-					$options[] = [
-							'link' => $editUrl,
-							'id' => 'gatEditFooter',
-							'name' => wfMessage('edit')->text()
-					];
-
-					//FAN MAIL / KUDOS
-					$options[] = [
-							'link' => '/index.php?title=Special:ThankAuthors&target='.$this->getTitle()->getPrefixedURL(),
-							'id' => 'gatThankAuthors',
-							'name' => wfMessage('at_fanmail')->text()
-					];
+				//EDIT
+				$options[] = [
+					'link' => $editUrl,
+					'id' => 'gatEditFooter',
+					'name' => wfMessage('edit')->text()
+				];
 			}
 
-			return $options;
-	}
+			//FAN MAIL / KUDOS
+			$options[] = [
+				'link' => '#',
+				'id' => 'gatThankAuthors',
+				'name' => wfMessage('at_fanmail')->text()
+			];
+		}
 
+		return $options;
+	}
 
 	public static function getSidebarVerifyHtml() {
 		// get any vars to pass to the template

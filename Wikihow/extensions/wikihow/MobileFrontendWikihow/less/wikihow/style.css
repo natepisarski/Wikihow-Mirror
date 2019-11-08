@@ -10,10 +10,6 @@ a:hover {
 	text-decoration: none;
 }
 
-a.external {
-	background-image: none;
-}
-
 /**********
  * FOOTER *
  **********/
@@ -22,6 +18,7 @@ a.external {
 	margin: 0;
 	bottom: 0;
 	width: 100%;
+	font-size: .9em;
 	background-color: #93B874;
 	text-align: center;
 	color: #FFF;
@@ -31,7 +28,7 @@ a.external {
 }
 
 #footer_inner {
-	padding: 23px 1em 1.5em;
+	padding: 20px 1em 1em;
 	margin: 0 auto;
 	max-width: 728px;
 }
@@ -44,7 +41,7 @@ a.external {
 
 #footer_middle {
 	border-top: 1px solid #77a555;
-	padding: 1.4em 1em 0;
+	padding: 1em 1em 0;
 	margin: 0 -1em;
 }
 
@@ -56,10 +53,10 @@ a.external {
 	box-sizing: border-box;
 	padding: .7em 33px .7em .7em;
 	width: 100%;
-	border: 1px solid #5f8344;
 	border-radius: 5px;
-	background-color: #FFF;
 	font-size: 16px; /*CSS hack to stop zooming when the iOS keyboard appears*/
+	background-color: #ffffff;
+	border: 1px solid #5f8344;
 }
 
 #search_footer .cse_sa {
@@ -71,6 +68,9 @@ a.external {
 	background: url(/extensions/wikihow/mobile/images/gray_mag.png) center / 17px no-repeat;
 	/* @embed */
 	background-image: url(/extensions/wikihow/mobile/images/gray_mag.svg);
+	cursor: pointer;
+	border: none;
+	margin: 0;
 }
 
 #footer_links ul {
@@ -137,46 +137,7 @@ a.external {
 		font-size: .9em;
 	}
 }
-
 /* End footer */
-
-#mw-mf-last-modified{
-	display: none;
-}
-
-.addTipElement {
-	border: 2px solid #dadcda;
-	width: 267px;
-	border-radius: 4px;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	line-height: 0;
-	margin: 15px 0 0 0;
-}
-
-.newtip {
-	border: none;
-	padding: 5px;
-	width: 215px;
-	height: 32px;
-	display: inline-block;
-	line-height: 32px;
-}
-
-textarea.newtip {
-	font-size: 16px;
-}
-
-a.addtip {
-	background-color: #93b874;
-	width: 42px;
-	height: 42px;
-	text-align: center;
-	float: right;
-	line-height: 42px;
-	color: #fff;
-}
-
 
 /* TODO: do we need these three #relatedwikihows rules? */
 #relatedwikihows .error {
@@ -197,14 +158,20 @@ a.addtip {
 }
 
 .tips li div, .warnings li div { display: inline; }
-.tips li div.trvote_box, .warnings li div.trvote_box { display: block; }
 
-/* for those sticky headers */
-.section h2.sticking, .section h3.sticking, .tool div.sticking {
-	position: fixed;
-	top: 40px;
-	z-index: 5;
-	opacity: .9;
+.tips li div.wh_vote_container,
+.warnings li div.wh_vote_container {
+	display: block;
+}
+
+
+.content .tips .section_text ul,
+.content .warnings .section_text ul {
+	padding-left: 1em;
+}
+.content .tips .section_text ul li,
+.content .warnings .section_text ul li {
+	margin-bottom: 1.5em;
 }
 
 .content .edit-page {
@@ -225,13 +192,10 @@ a.addtip {
 	background-position: center !important;
 }
 
-.content .sticking .edit-page { margin-right: 10px; }
-
 #mw-mf-viewport { background-color: #5C5C5C; }
 #mw-mf-page-left {
 	background-color: #5C5C5C;
 	border: none;
-	padding-bottom: 3em;
 	font-size: 1.2em;
 	box-sizing: border-box;
 }
@@ -515,21 +479,35 @@ body.navigation-enabled #footer {
 	margin-bottom: 10px;
 }
 
+.section.aidata {
+	margin-top: -1em;
+	padding-top: 0;
+}
+
 /*BUTTONS*/
-.content .button:hover, .content button:hover, .content input[type="submit"]:hover, .panel .button:hover, .panel button:hover, .panel input[type="submit"]:hover, .buttonBar .button:hover, .buttonBar button:hover, .buttonBar input[type="submit"]:hover, .content input[type="submit"]:hover {
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+.panel .button:hover,
+.panel button:hover,
+.panel input[type="submit"]:hover,
+.buttonBar .button:hover,
+.buttonBar button:hover,
+.buttonBar input[type="submit"]:hover,
+input[type="submit"]:hover {
 	background-color: #83a168;
 	border: 1px solid #83a168;
 	background-image: none;
 	box-shadow: none;
 }
 
-.content .button.small {
+.button.small {
 	padding: 2px 6px;
 	font-size: 10px;
 	height: 20px;
 }
 
-.content .button:hover {
+.button:hover {
 	text-decoration: none;
     -webkit-transition: 0.2s ease; -moz-transition: 0.2s ease; -ms-transition: 0.2s ease; -o-transition: 0.2s ease; transition: 0.2s ease;
 	background-image: none;
@@ -558,31 +536,33 @@ a.button.disabled:hover, input.button.disabled:hover, a.button.clickfail:hover, 
 	/*color: #686868;*/
 }
 
-.content .button.primary{
+.button.primary{
 	background-color: #97ba78;
 	border: 1px solid #97ba78;
 	color: #ffffff;
 	background-image: none;
 }
 
-.content .button.primary:hover{
+.button.primary:hover{
 	background-color: #83a168;
 	border: 1px solid #83a168;
 	background-image: none;
 }
 
-.content .button.secondary {
+.button.secondary {
 	color: #686868;
 	background-color: #fff;
 	background-image: none;
 	border: 1px solid #e5e5e5;
 }
 
-.content .button.secondary:hover{
+.button.secondary:hover{
+	color: #2483ef;
+	border: 1px solid #2483ef;
 	background-image: none;
 }
 
-.content .button.red:hover {
+.button.red:hover {
 	color: #f11c1c;
 	border: 1px solid #f11c1c;
 }
@@ -606,7 +586,6 @@ a.button.disabled:hover, input.button.disabled:hover, a.button.clickfail:hover, 
 #sd_container {
 	padding:15px;
 	background-color: #FFF;
-	border: 1px solid rgba(0, 0, 0, .1);
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
@@ -749,24 +728,9 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 		font-size: 22px;
 	}
 
-	.addTipElement {
-		width: 410px;
-	}
-
-	.newtip {
-		width: 348px;
-	}
-
-	a.addtip {
-		padding: 0 5px;
-	}
-
 	textarea.newtip {
 		font-size: 18px;
 	}
-	.sticky { padding-top: 67px; }
-
-	.sticky h2 { line-height: 1.7em; }
 	.content .edit-page, #page-actions li#ca-edit { background-size: 20px; }
 	#page-actions li#ca-edit { height: 20px; }
 
@@ -823,10 +787,6 @@ only screen and (max-height: 421px) and (min-aspect-ratio: 13/9) {
 	display: none;
 }
 
-.preview .addTipElement {
-	display: none;
-}
-
 .preview #uci_section{
 	display: none;
 }
@@ -865,18 +825,15 @@ a.reference-anchor {
 	display: none;
 }
 
-#social_proof_mobile +  #summary_wrapper {
-	border-top: 1px solid #e7e7e5;
-	margin-top: -5px;
-	position: relative;
-	border-radius: 0;
+#article_rating_mobile {
+	border-radius: 4px;
 }
 
 /* Checkmarks */
 .checkmark.checked {
 	border-color: #93b874;
-	background: #93b874 url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iNDAuMTI5cHgiIGhlaWdodD0iMzAuMzgzcHgiIHZpZXdCb3g9IjAgMCA0MC4xMjkgMzAuMzgzIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA0MC4xMjkgMzAuMzgzIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0xMy45NDksMzAuMzgzYy0xLjA3NiwwLTIuMTUxLTAuNDEtMi45NzItMS4yM0wwLDE4LjE3NWw1Ljk0My01Ljk0M2w4LjAwNSw4LjAwNEwzNC4xODYsMGw1Ljk0Miw1Ljk0Mw0KCQlMMTYuOTIsMjkuMTUyQzE2LjEsMjkuOTczLDE1LjAyNCwzMC4zODMsMTMuOTQ5LDMwLjM4M3oiLz4NCjwvZz4NCjwvc3ZnPg0K) no-repeat 1px 2px;
-	background-size: 12px;
+	background: #93b874 url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iNDAuMTI5cHgiIGhlaWdodD0iMzAuMzgzcHgiIHZpZXdCb3g9IjAgMCA0MC4xMjkgMzAuMzgzIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA0MC4xMjkgMzAuMzgzIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0xMy45NDksMzAuMzgzYy0xLjA3NiwwLTIuMTUxLTAuNDEtMi45NzItMS4yM0wwLDE4LjE3NWw1Ljk0My01Ljk0M2w4LjAwNSw4LjAwNEwzNC4xODYsMGw1Ljk0Miw1Ljk0Mw0KCQlMMTYuOTIsMjkuMTUyQzE2LjEsMjkuOTczLDE1LjAyNCwzMC4zODMsMTMuOTQ5LDMwLjM4M3oiLz4NCjwvZz4NCjwvc3ZnPg0K) no-repeat center;
+	background-size: .8em;
 }
 
 /* this class is set on the contact wikihow template which appears on the cookie policy page */
@@ -899,15 +856,10 @@ a.reference-anchor {
 #language_links {
 	display: none;
 }
-#summary_wrapper +  #other_languages {
-	border-top: 1px solid #e7e7e5;
-	margin-top: -5px;
-	border-radius: 0;
-}
 #other_languages {
 	position: relative;
 	margin-top: -5px;
-	border-top: 1px solid #e7e7e5;
+	border-top: 1px solid #f3f3f3;
 }
 .language_link {
 	line-height: 25px;
@@ -934,9 +886,23 @@ a.reference-anchor {
 .menu.view-border-box {
 	display: none;
 }
+#aboutthisarticle > .section_text {
+	border-top: 1px solid #f3f3f3;
+	border-radius: 0;
+	position: relative;
+}
+
+.all_done {
+	color: #BBB;
+}
+
+.ic_hide {display: none;}
 
 .mw-special-container {
 	background: #fff;
 	padding: 15px;
 	border-radius: 4px;
+}
+#ur_star_section p {
+	font-size: 14px;
 }

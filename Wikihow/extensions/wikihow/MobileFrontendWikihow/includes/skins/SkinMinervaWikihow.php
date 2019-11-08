@@ -89,6 +89,9 @@ class SkinMinervaWikihow extends SkinMinerva {
 		// Hreflang links
 		$this->addHreflangs();
 
+		//IE compatibility meta tag
+		$out->addMeta('http:X-UA-Compatible', 'IE=edge');
+
 		// HTML title
 		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
 			$out->setHTMLTitle($this->getTitle()->getText());
@@ -162,7 +165,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		// Disabling edit (pencil) links on mobile for now. We talked about
 		// this, and feel it's likely that our new responsive site would need
 		// deal with different mobile/desktop editing experiences too. We
-		// almost certainly will need to have 1 editing experience when 
+		// almost certainly will need to have 1 editing experience when
 		// responsive design rolls out, and mobile editing won't be it. Once
 		// responsive design site rolls out (and includes desktop+mobile on www
 		// domain), we'll probably have either an edit or pencil link again, and
@@ -299,32 +302,32 @@ class SkinMinervaWikihow extends SkinMinerva {
 			);
 		}
 
-		$title = $this->getSkin()->getTitle();
-		if ($title) {
-			//add page help header
-			$items['header3'] =  array(
-				'text' => wfMessage('menu-help-page')->text(),
-				'class' => 'side_header',
-				'id' => 'header3',
-			);
-			$help_page_added = false;
+		// $title = $this->getSkin()->getTitle();
+		// if ($title) {
+			// //add page help header
+			// $items['header3'] =  array(
+			// 	'text' => wfMessage('menu-help-page')->text(),
+			// 	'class' => 'side_header',
+			// 	'id' => 'header3',
+			// );
+			// $help_page_added = false;
 
-			$isMainPage = $title->getText() == wfMessage('mainpage')->text();
-			if ($title->inNamespace(NS_MAIN) && !$isMainPage) {
-				if (class_exists('TipsAndWarnings')
-					&& TipsAndWarnings::isActivePage()
-					&& TipsAndWarnings::isValidTitle($title)
-					&& !$isAmp
-				) {
-					$items['addtip'] = array(
-						'text' => wfMessage( 'mobile-wikihow-addtip-link' )->escaped(),
-						'href' => '#',
-						'class' => 'icon-addtip',
-						'id' => 'icon-addtip',
-					);
-					$help_page_added = true;
-				}
-			}
+			// $isMainPage = $title->getText() == wfMessage('mainpage')->text();
+			// if ($title->inNamespace(NS_MAIN) && !$isMainPage) {
+			// 	if (class_exists('TipsAndWarnings')
+			// 		&& TipsAndWarnings::isActivePage()
+			// 		&& TipsAndWarnings::isValidTitle($title)
+			// 		&& !$isAmp
+			// 	) {
+			// 		$items['addtip'] = array(
+			// 			'text' => wfMessage( 'mobile-wikihow-addtip-link' )->escaped(),
+			// 			'href' => '#',
+			// 			'class' => 'icon-addtip',
+			// 			'id' => 'icon-addtip',
+			// 		);
+			// 		$help_page_added = true;
+			// 	}
+			// }
 
 			// if (class_exists("UserCompletedImages") && UserCompletedImages::onWhitelist($title)) {
 			// 	$out = &$this->getOutput();
@@ -338,8 +341,8 @@ class SkinMinervaWikihow extends SkinMinerva {
 			// }
 
 			//didn't add anything? maybe we should remove that header then...
-			if (!$help_page_added) unset($items['header3']);
-		}
+			// if (!$help_page_added) unset($items['header3']);
+		// }
 
 		//add discovery header
 		$items['header2'] =  array(
@@ -781,5 +784,6 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		return $s;
 	}
+
 
 }

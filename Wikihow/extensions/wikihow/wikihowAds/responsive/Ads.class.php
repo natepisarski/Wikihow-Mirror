@@ -330,10 +330,12 @@ class Ads {
 		return $ad->mHtml;
 	}
 
+
 	/*
 	 * determine which ad creator to use
 	 */
 	private function getAdCreator() {
+		global $wgRequest;
 		$pageId = $this->mTitle->getArticleID();
 		if ( $this->mAlternateDomain == true ) {
 			$adCreator = new DefaultAlternateDomainAdCreator();
@@ -353,7 +355,21 @@ class Ads {
 				$adCreator = new DefaultInternationalSearchPageAdCreator( $searchQuery );
 			}
 		} else {
-			$adCreator = new DefaultAdCreator();
+			$bucket = rand( 1, 20 );
+			if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
+				$reqBucket = $wgRequest->getInt( 'bucket' );
+				if ( $reqBucket > 0 && $reqBucket < 21 ) {
+					$bucket = $reqBucket;
+				}
+			}
+			$bucketId = sprintf( "%02d", $bucket );
+			if ( $bucket == 19 ) {
+				$adCreator = new AllDFPForDesktopAdCreatorOne( $bucketId );
+			} elseif ( $bucket == 20 ) {
+				$adCreator = new AllDFPForDesktopAdCreatorTwo( $bucketId );
+			} else {
+				$adCreator = new DefaultAdCreator( $bucketId );
+			}
 
 			if ( !$this->mEnglishSite ) {
 				if ( $pageId % 4 == 1 ) {

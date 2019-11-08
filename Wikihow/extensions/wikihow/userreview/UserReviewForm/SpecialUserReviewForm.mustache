@@ -52,9 +52,7 @@
 	{{! Example adapted from qa_social_login_form.mustache }}
 	<div id="urf-social-login">
 		<div id="urf-social-login-before">
-			<p>Inspire other readers and make your story stand out.</p>
-			<p>Log in with Google or Facebook, and we'll show your profile picture along with your story!</p>
-			<p>We will NOT post on your profile or timeline.</p>
+			<p>{{{urf_social_desc}}}</p>
 			<div class="qa_social_login_button_container">
 				<div class="qa_button social_login_button facebook_button">
 					<span class="social_login_button_icon"></span>
@@ -65,14 +63,14 @@
 					<span class="social_login_button_text">Google</span>
 				</div>
 			</div>
-			<p id="social_login_smallprint">Stories are edited for length and clarity. Not all stories will appear on the article.</p>
+			<p id="social_login_smallprint">{{urf_smallprint}}</p>
 		</div>
 		<div id="urf-social-login-done">
 			<img src="#" class="urf-social-avatar" />
 			<p>{{urf_thanks}} <a href="#" target="_blank" class="urf-user-link"></a>!</p>
 
-			<p>You are logged in and your story is being reviewed.</p>
-			<a href="#" class="button primary urf-social-close">Close</a>
+			<p>{{urf_thanks_desc}}</p>
+			<a href="#" class="button primary urf-social-close">{{urf_close}}</a>
 		</div>
 	</div>
 </div>

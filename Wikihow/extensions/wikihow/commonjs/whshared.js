@@ -302,7 +302,7 @@ WH.shared = (function () {
 		this.finishedLoadingEvent = 'load';
 		this.src = element.getAttribute( 'data-src' );
 		// detect if we are on an ipad (in the same way that the old defer code does
-		if (window.WH.sizer && !window.WH.sizer.isPhone()) {
+		if (isDesktopSize) {
 			// look for the data-srclarge and use it if it is set
 			var large = element.getAttribute( 'data-srclarge' );
 			if (large != null) {

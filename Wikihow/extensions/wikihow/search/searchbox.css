@@ -57,6 +57,7 @@ input:focus:-ms-input-placeholder { color:transparent; }
 
 .skin-minervawh .searchbox-button button.button.primary {
 	padding-left: 30px;
+	background-image: url(/skins/owl/images/search.png);
 }
 
 .skin-minervawh .searchbox-button button span {

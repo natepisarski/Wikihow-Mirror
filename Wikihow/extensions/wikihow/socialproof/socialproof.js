@@ -59,7 +59,7 @@
 	}
 
 	function enableStarVoting() {
-		starVotingEnabled = !WH.isMobile || $(window).width() >= WH.largeScreenMinWidth;
+		starVotingEnabled = true; //for everyone!
 	}
 
 	$(document).ready( function() {
@@ -109,7 +109,7 @@
 							'page_id': wgArticleId,
 							'rating': currStarId,
 							'type': 'star',
-							'source': 'desktop'
+							'source': WH.isMobile ? 'mobile' : 'desktop'
 					};
 					$.post('/Special:RateItem',
 						postData,
@@ -135,7 +135,7 @@
 					'page_id': wgArticleId,
 					'rating': currStarId,
 					'type': 'star',
-					'source': 'desktop'
+					'source': WH.isMobile ? 'mobile' : 'desktop'
 				};
 				$.post('/Special:RateItem',
 					postData,
@@ -172,7 +172,7 @@
 			mouseleave: hideHelpfulnessPopup
 		});
 
-		if ($('.sp_expert').length > 0 ) {
+		if ($('.sp_expert').length > 0  && $(window).width() >= WH.largeScreenMinWidth) {
 			$('.sp_expert').click(function(e) {
 				//e.preventDefault();
 				if ($('#sp_namelink').length) {
@@ -181,16 +181,16 @@
 						var action = 'expert_name_click';
 						var val = $('#sp_namelink').text();
 						WH.ga.sendEvent('socialproof', action, val, null, 0);
-						WH.sp.sendEvent(action, val, target, function() {
+						/*WH.sp.sendEvent(action, val, target, function() {
 							//document.location = target;
-						});
+						});*/
 						return true;
 					}
 				}
 			});
 		}
 
-		if ($('.sp_namelink').length) {
+		if ($('.sp_namelink').length && $(window).width() >= WH.largeScreenMinWidth) {
 			$('.sp_namelink').click(function(e) {
 				var target = $(this).attr('href');
 				if (WH && WH.ga) {
@@ -202,111 +202,101 @@
 					}
 					var val = $('.sp_namelink').text();
 					WH.ga.sendEvent('socialproof', action, val, null, 0);
-					WH.sp.sendEvent(action, val, target, function() {
+					/*WH.sp.sendEvent(action, val, target, function() {
 						//document.location = target;
-					});
+					});*/
 					return true;
 				}
 			});
 		}
 
-		//side bar hover (for non-experts or community experts)
-		$('#sidebar .sp_top_box_hoverable.sp_nonverifier_text, #sidebar .sp_community .sp_top_box_hoverable').hover(function() {
-			dialog_box(true, this, 'icon_hover');
-		}, function() {
-			dialog_box(false, this, 'icon_hover');
+		$('.expert_coauthor_link').click(function() {
+			return false;
 		});
-
-
-		if (!WH.isMobile) {
-			//(i) icon & top badge hover
-			$('.sp_info_icon, #sp_icon_hover, .sp_expert_inline, .expert_coauthor_link').hover(function() {
-				dialog_box(true, this, 'icon_hover');
-				if ($(this).hasClass('sp_info_icon')) WH.maEvent('article-information-hover');
-			}, function() {
-				dialog_box(false, this, 'icon_hover');
-			});
-
-			$('.sp_expert_inline, .expert_coauthor_link').click(function() {
-				return false;
-			});
-		}
 
 		//(i) dialog link tracking
 		$(document).on('click', '.sp_learn_more_link', function() {
 			WH.maEvent('article-information-hover-learnmore-click');
 		});
-		var clickable_elements = '.ec_view, .sp_expert_inline, .expert_coauthor_link';
+
+		var elements = '.sp_info_icon, .expert_coauthor_link, '+
+			'#sidebar .sp_top_box_hoverable.sp_nonverifier_text, '+
+			'#sidebar .sp_community .sp_top_box_hoverable';
+		var actions = $(window).width() >= WH.largeScreenMinWidth ? 'mouseenter mouseleave click' : 'click';
 
 		// badge at the top
-		$(clickable_elements).click(function(e) {
+		$(elements).on(actions, function(e) {
 			e.preventDefault();
-			if ($('#sp_icon_hover').is(':visible')) {
-				dialog_box(false, this, 'badge_click');
-			}
-			else {
-				dialog_box(true, this, 'badge_click');
-				WH.maEvent('article-info-badge-click-mobile');
-			}
+
+			//slightly different logic for mobile taps than the desktop hover
+			var show = e.type == 'click' ? !$('#sp_icon_hover').is(':visible') : e.type == 'mouseenter';
+
+			dialog_box(show, this, e.type);
+
+			if (!show && e.type == 'click') WH.maEvent('article-info-badge-click-mobile');
 		});
 
-		//badge dialog click (close it)
-		$('#sp_icon_hover').click(function() {
-			var obj = $(this).parent().find(clickable_elements);
-			dialog_box(false, obj, 'badge_click');
+		//badge dialog closing
+		$('#sp_icon_hover').on(actions, function(e) {
+			if (e.type == 'click' && $(e.target).length && $(e.target).is('a')) return;
+
+			e.preventDefault();
+
+			//slightly different logic for mobile taps than the desktop hover
+			var show = e.type == 'click' ? !$(this).is(':visible') : e.type == 'mouseenter';
+
+			dialog_box(show, this, e.type);
 		});
 
-		$("body").click(function(){
+		$("body").click(function(e){
 			if($("#sp_icon_hover").is(':visible')) {
-				dialog_box(false, this, 'badge_click');
+				dialog_box(false, this, e.type);
 			}
 		})
 
 		var on_bubble = false;
 
 		function dialog_box(show, obj, type) {
-			var finalTopPopupPosition, startTopPopupPosition, popupContainer;
+			var finalTopPopupPosition, startTopPopupPosition;
+			var finalLeftPopupPosition = 0;
+			var popupContainer = $('#sp_icon_hover');
+			var objHeight = $(obj).height();
 
-			if (type == 'icon_hover') {
+			if (type != 'click') {
 				if ($('#sp_icon_hover').length == 0) return;
 
-				popupContainer = $('#sp_icon_hover');
-
-				if ($(obj).is($(popupContainer)))
-					finalTopPopupPosition = $(popupContainer).position().top;
-				else
-					finalTopPopupPosition = $(obj).position().top + $(obj).height() + 2;
+				if (!$(obj).is($(popupContainer))) {
+					//for sidebar, use the whole box because it's positioned correctly
+					var offset = $(obj).is('.sp_top_box_hoverable') ? $('#social_proof_sidebox').position().top : 2;
+					finalTopPopupPosition = $(obj).position().top + objHeight + offset;
+				}
 
 				if ($(obj).is($('.expert_coauthor_link'))) {
-					$(popupContainer).css('left', $(obj).position().left);
+					finalLeftPopupPosition = $(obj).position().left;
 				}
-				else {
-					if (!$(obj).is($('#sp_icon_hover'))) {
-						$(popupContainer).css('left', 667); //reset (gotta keep in sync w/ main.css; lame)
-					}
+				else if ($(obj).is($('.sp_top_box_hoverable'))) {
+					finalLeftPopupPosition = 619;
 				}
 
 				startTopPopupPosition = finalTopPopupPosition + 10;
 			}
-			else if (type == 'badge_click') {
-				if ($('#sp_icon_hover').length == 0) return;
+			else {
+				if ($(popupContainer).length == 0) return;
 
-				popupContainer = $('#sp_icon_hover');
-				finalTopPopupPosition = $(obj).position().top + $(obj).height() + 15;
+				finalTopPopupPosition = $(obj).position().top + objHeight + 15;
 				startTopPopupPosition = finalTopPopupPosition + 10;
 
 				if (WH.shared.isDesktopSize && $(obj).is($('.expert_coauthor_link'))) {
-					$(popupContainer).css('left', $(obj).position().left);
+					finalLeftPopupPosition = $(obj).position().left;
 				}
-			}
-			else {
-				return;
 			}
 
 			if (show) {
-				var wait = on_bubble && type != 'badge_click' ? 300 : 0;
+				var wait = on_bubble && type != 'click' ? 300 : 0;
 				var speed = 75;
 				clearTimeout($(obj).data('sp_timeout2'));
+
+				if (!$(obj).is(popupContainer)) $(popupContainer).css('left', finalLeftPopupPosition);
 
 				$(obj).data('sp_timeout', setTimeout( function () {
 					$(popupContainer)
@@ -315,10 +305,11 @@
 						.animate({ top: finalTopPopupPosition, opacity: 1 }, speed);
 
 					on_bubble = true;
-				  }, wait));
+					}, wait)
+				);
 			}
 			else {
-				var wait = type != 'badge_click' ? 300: 0;
+				var wait = type != 'click' ? 300: 0;
 				var speed = 65;
 				clearTimeout($(obj).data('sp_timeout'));
 
@@ -328,7 +319,8 @@
 						.fadeOut({queue: false, duration: speed})
 						.animate({ top: startTopPopupPosition }, speed);
 					on_bubble = false;
-				  }, wait));
+					}, wait)
+				);
 			}
 		}
 	});

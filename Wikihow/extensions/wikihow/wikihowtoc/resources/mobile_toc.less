@@ -1,3 +1,5 @@
+@import '../../less/variables.less';
+
 #method_toc {
 	display: none;
 	position: fixed;
@@ -26,6 +28,10 @@
 
 	> div {
 		position: relative;
+	}
+
+	.header_toc {
+		display: none;
 	}
 }
 
@@ -64,4 +70,11 @@
 	height: 4px;
 	border-radius: 4px 4px 0 0;
 	transform: translate3d(0,0,0);
+}
+
+@media @medium {
+	/* @medium doesn't load this file, so make this !important */
+	#method_toc {
+		display: none !important;
+	}
 }

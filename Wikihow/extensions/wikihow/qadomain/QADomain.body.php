@@ -401,7 +401,8 @@ class QADomain extends UnlistedSpecialPage {
 			if ( GoogleAmp::isAmpMode( $out ) ) {
 				$less = ResourceLoader::getLessCompiler();
 				$style = Misc::getEmbedFile('css', __DIR__ . '/qadomain.less');
-				$style = $less->compile($style);
+				$less->parse($style);
+				$style = $less->getCss();
 				$style = ResourceLoader::filter('minify-css', $style);
 				$style = HTML::inlineStyle($style);
 				$style = str_replace( "<style>", "<style amp-custom>", $style);

@@ -851,7 +851,7 @@ Liam's modifications:
 				window.timer = window.setTimeout(proxy(this._onTimeoutAutoplay, this), duration);
 			}
 		},
-        
+
         /* Liam 07-08-2015 */
         autoplayReset: function() {
             if (!this._options.autoplay) {
@@ -1153,7 +1153,7 @@ Liam's modifications:
 					);
 					break;
 			}
-            
+
             // Continue autoplay
             //this._options.autoplay = true; // Liam- disabled to stop autoplay in the middle of swipe
 		},
@@ -1162,10 +1162,10 @@ Liam's modifications:
 			this._playing = false;
 			if (this._touchData.toleranceReached) {
 				event.preventDefault();
-                
+
                 // Liam- Re-enable autoplay
                 this.autoplayReset();
-                
+
 				var
 					differenceAbs,
 					direction
@@ -1282,7 +1282,7 @@ Liam's modifications:
 			if (!animated) {
 				this._updatePagers();
 			}
-            
+
 			if (typeof this._options.onUpdate === 'function') {
 				this._options.onUpdate(this.$el);
 			}
@@ -1411,8 +1411,8 @@ Liam's modifications:
 			//Calculate height:
 			this._itemsAll.each(function() {
 				//height = Math.max($(this).outerHeight(true), height);
-                
-                // Use height of slider div rather than actual slider, for 
+
+                // Use height of slider div rather than actual slider, for
                 // which unpredictable page loads can cause height issues
                 height = Math.max($('.slider').outerHeight(true), height);
 			});

@@ -46,7 +46,6 @@ $wgMessagesDirs['QAHelpfulnessEmailJob'] = [ __DIR__ . '/jobs/i18n/' ];
 
 $wgHooks['BeforePageDisplay'][] = 'QAWidget::onBeforePageDisplay';
 $wgHooks['AddDesktopTOCItems'][] = array('QAWidget::onAddDesktopTOCItems');
-$wgHooks['AddMobileTOCItemData'][] = array('QAWidget::onAddMobileTOCItemData');
 $wgHooks['UnitTestsList'][] = array('ArticleQuestion::onUnitTestsList');
 $wgHooks['UnitTestsList'][] = array( 'QAUtil::onUnitTestsList');
 $wgHooks['InsertArticleQuestion'][] = ['QAWidgetCache::onInsertArticleQuestion'];
@@ -92,6 +91,10 @@ $wgResourceModules['mobile.wikihow.qa_widget'] = array(
 		'qa_ca_error_phone',
 		'thumbs_default_prompt',
 		'thumbs_response',
+		'qa_thumbs_yes',
+		'qa_thumbs_no',
+		'qa_thumbs_nohelp',
+		'qa_thumbs_help',
 		'qa_curate_mobile',
 		'qa_edit_form_verifier_label',
 		'qa_thanks_for_answer',

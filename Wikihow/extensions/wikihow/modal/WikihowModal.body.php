@@ -156,4 +156,8 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 		return $html;
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 }

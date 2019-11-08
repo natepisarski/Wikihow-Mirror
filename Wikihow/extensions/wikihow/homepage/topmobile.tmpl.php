@@ -28,7 +28,6 @@
 	color: #000;
 	-moz-border-radius: 5px 0 0 5px;
 	-webkit-border-radius: 5px 0 0 5px;
-	-khtml-border-radius: 5px 0 0 5px;
 	border-radius: 5px 0 0 5px;
 }
 #mw-mf-main-menu-button {
@@ -46,10 +45,9 @@
 	background-color: #B3CE9C;
 	float:none;
 	width:85%;
-	-moz-border-radius: 5px 5px 5px 5px;
-	-webkit-border-radius: 5px 5px 5px 5px;
-	-khtml-border-radius: 5px 5px 5px 5px;
-	border-radius: 5px 5px 5px 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 #search_footer .cse_sa {
 	background-image: url(/extensions/wikihow/mobile/images/white_mag.png);
@@ -75,3 +73,5 @@
 
 </style>
 </noscript>
+
+<?= $search_box ?>

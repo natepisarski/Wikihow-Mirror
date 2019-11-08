@@ -49,12 +49,6 @@ a.addtip {
 #header_logo {
 	display:none;
 }
-.related-article {
-	float: left;
-	position: relative;
-	width: 100%;
-	margin-bottom: 2%;
-}
 .related-image-link {
 	display: block;
 	vertical-align: top;

@@ -392,7 +392,7 @@ class FinnerHooks {
 	 *
 	 * TODO: Add a flag ($doTitusUpdate).
 	 */
-	public static function onCirrusSearchBuildDocumentFinishBatch( &$pages ) {
+	public static function onCirrusSearchBuildDocumentFinishBatch( $pages ) {
 
 		// Trevor, 2019-08-16 - This needs to be rewritten to work with the new
 		// CirrusSearchBuildDocumentFinishBatch hook, then everything has to be re-indexed

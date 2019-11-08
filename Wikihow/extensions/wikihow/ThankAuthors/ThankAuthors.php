@@ -28,7 +28,7 @@ $wgResourceModules[ 'ext.wikihow.thankAuthors' ] = [
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/ThankAuthors',
 	'position' => 'bottom',
-	'targets' => [ 'desktop' ],
+	'targets' => [ 'desktop', 'mobile' ],
 	'messages' => [
 		'enjoyed-reading-article',
 		'enjoyed-reading-article-anon',

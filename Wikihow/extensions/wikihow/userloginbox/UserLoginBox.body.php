@@ -59,6 +59,13 @@ class UserLoginBox extends UnlistedSpecialPage {
 			wfAppendQuery($userlogin_link, ['type' => 'signup']) :
 			wfAppendQuery($userlogin_link, array_merge(['type' => 'signup'], $query));
 
+		//make [some] urls absolute to desktop if we're on mobile
+		if (Misc::isMobileMode()) {
+			$url_prefix = WikihowMobileTools::getNonMobileSite();
+			$wH_login_link = $url_prefix.$wH_login_link;
+			$wH_signup_link = $url_prefix.$wH_signup_link;
+		}
+
 		$privacyLink = "";
 		$tmpl = new EasyTemplate( __DIR__ );
 		$tmpl->set_vars(array(

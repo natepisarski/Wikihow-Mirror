@@ -18,13 +18,14 @@ $wgAutoloadClasses['EchoWikihowMentionPresentationModel'] = __DIR__ . '/formatte
 $wgAutoloadClasses['EchoWikihowUserRightsPresentationModel'] = __DIR__ . '/formatters/WikihowUserRightsPresentationModel.php';
 
 /****************** HOOK, LINE, WINNER ***/
-$wgHooks['BeforeCreateEchoEvent'][] = array('EchoWikiHowHooks::onBeforeCreateEchoEvent');
+$wgHooks['BeforeCreateEchoEvent'][] = ['EchoWikiHowHooks::onBeforeCreateEchoEvent'];
 // $wgHooks['EchoGetDefaultNotifiedUsers'][] = array('EchoWikiHowHooks::onEchoGetDefaultNotifiedUsers');
-$wgHooks['CreateEmailPreferences'][] = array('EchoWikiHowHooks::onCreateEmailPreferences');
-$wgHooks['GetPreferences'][] = array('EchoWikiHowHooks::onGetPreferences');
-$wgHooks['EchoAbortEmailNotification'][] = array('EchoWikiHowHooks::onEchoAbortEmailNotification');
-$wgHooks['UserClearNewKudosNotification'][] = array('EchoWikihowHooks::onUserClearNewKudosNotification');
-$wgHooks['BeforeEchoEventInsert'][] = array('EchoWikihowHooks::onBeforeEchoEventInsert');
+$wgHooks['CreateEmailPreferences'][] = ['EchoWikiHowHooks::onCreateEmailPreferences'];
+$wgHooks['GetPreferences'][] = ['EchoWikiHowHooks::onGetPreferences'];
+$wgHooks['EchoAbortEmailNotification'][] = ['EchoWikiHowHooks::onEchoAbortEmailNotification'];
+$wgHooks['UserClearNewKudosNotification'][] = ['EchoWikihowHooks::onUserClearNewKudosNotification'];
+$wgHooks['BeforeEchoEventInsert'][] = ['EchoWikihowHooks::onBeforeEchoEventInsert'];
+$wgHooks['BeforePageDisplay'][] = ['EchoWikihowHooks::onBeforePageDisplay'];
 
 // only notify via web
 $wgEchoNotifiers = [

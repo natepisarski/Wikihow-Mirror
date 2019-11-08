@@ -102,7 +102,7 @@
 	};
 
 	WH.usercompletedimagesupload = (function() {
-		var url = "/Special:UserCompletedImages?viapage=" + wgPageName;
+		var url = "/Special:UserCompletedImages?action=upload&viapage=" + wgPageName;
 		var startTime = null;
 		var domain = WH.isMobileDomain ? "mobile" : "desktop";
 		var submitted = 0;
@@ -114,12 +114,7 @@
 
 		$(document).on("click", "#uci_userreview_cta a", function(e){
 			e.preventDefault();
-			if( WH.isMobileDomain ) {
-				var ext = 'ext.wikihow.UserReviewForm.mobile';
-			} else {
-				var ext = 'ext.wikihow.UserReviewForm';
-			}
-			mw.loader.using(ext, function () {
+			mw.loader.using('ext.wikihow.UserReviewForm', function () {
 				var urf = new window.WH.UserReviewForm();
 				urf.loadUserReviewForm();
 				$(document).on("click", '#urf-popup', function(){

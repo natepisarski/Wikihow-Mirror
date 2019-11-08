@@ -19,6 +19,7 @@ abstract class AdCreator {
 	var $mGptSlotDefines = array();
 	var $mDFPData = array();
 	var $mLateLoadDFP = false;
+	var $mBucket = null;
 
 	// TODO figure out the channels
 	var $mAdsenseChannels = array();
@@ -206,7 +207,7 @@ abstract class AdCreator {
 		if ( pq( $target )->length == 0 ) {
 			return;
 		}
-		pq( $target )->append( $ad->mHtml );
+		pq( $target )->append( '<br>'.$ad->mHtml );
 	}
 
 	protected function insertTipsAd() {
@@ -496,6 +497,8 @@ abstract class AdCreator {
 		if ( $wgTitle ) {
 			$this->mPageId = $wgTitle->getArticleID();
 		}
+		$this->mBucketId = rand( 1, 20 );
+		$this->mBucketId = sprintf( "%02d", $bucket );
 	}
 
 	public function getBodyAd( $type ) {
@@ -560,6 +563,7 @@ abstract class AdCreator {
 		}
 		$attributes['data-mobilechannels'] += $this->mMobileAdsenseChannels ?: [];
 		$attributes['data-mobilechannels'] = implode( ',', $attributes['data-mobilechannels'] );
+
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
 		$html .= Html::inlineScript( "WH.ads.addBodyAd('{$ad->mTargetId}')" );
@@ -731,7 +735,8 @@ abstract class AdCreator {
 			$dfpScript = '';
 			if ( $this->mLateLoadDFP == false ) {
 				//$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
-				$dfpInit = file_get_contents( __DIR__."/DFPinit.js" );
+				$dfpScript = Html::inlineScript( "var bucketId = '$this->mBucketId';\n" );
+				$dfpInit .= file_get_contents( __DIR__."/DFPinit.js" );
 				$dfpScript .= Html::inlineScript( $dfpInit );
 				if ( $apsLoad ) {
 					$apsInit = file_get_contents( __DIR__."/APSinit.js" );
@@ -835,8 +840,11 @@ class DefaultCategoryPageAdCreator extends AdCreator {
 }
 
 class DefaultAdCreator extends AdCreator {
-	public function __construct() {
+	public function __construct( $bucket = null ) {
 		parent::__construct();
+		if ( $bucket ) {
+			$this->mBucketId = $bucket;
+		}
 
 		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $this->mPageId ) ) {
 			$this->mMobileAdsenseChannels[] = 8411928010;
@@ -954,6 +962,527 @@ class DefaultAdCreator extends AdCreator {
 				'type' => 'rightrail',
 				'largeonly' => 1,
 				'inline-html' => 1,
+			),
+			'rightrail1' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_right_rail_2',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true,
+				'refreshable' => 1,
+				'viewablerefresh' => 1,
+				'first-refresh-time' => 30000,
+				'refresh-time' => 28000,
+				'aps-timeout' => 800,
+				'width' => 300,
+				'height' => 600,
+				'containerheight' => 3300,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'largeonly' => 1,
+			),
+			'scrollto' => array(
+				'service' => 'adsense',
+				'type' => 'scrollto',
+				'slot' => 4177820525,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'width' => 728,
+				'height' => 90,
+				'largeonly' => 1,
+			),
+			'quiz' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_quiz',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'class' => ['hidden'],
+				'type' => 'quiz',
+			),
+			'related' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_rwh',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'desktoponly' => 1,
+			),
+			'qa' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_qa',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'desktoponly' => 1,
+			),
+			'mobilemethod' => array(
+				'service' => 'adsense',
+				'mobileslot' => 7710650179,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'method',
+				'mobiledomain' => 1,
+			),
+			'mobilerelated' => array(
+				'service' => 'adsense',
+				'mobileslot' => 9047782573,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'related',
+				'mobiledomain' => 1,
+			),
+			'middlerelated' => array(
+				'service' => 'adsense',
+				'mobileslot' => 3859396687,
+				'mobileheight' => 250,
+				'type' => 'middlerelated',
+				'mobiledomain' => 1,
+			),
+			'mobileqa' => array(
+				'service' => 'adsense',
+				'mobileslot' => 1240030252,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'qa',
+				'mobiledomain' => 1,
+			),
+			'tips' => array(
+				'service' => 'adsense',
+				'mobileslot' => 8787347780,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'tips',
+				'mobiledomain' => 1,
+			),
+			'warnings' => array(
+				'service' => 'adsense',
+				'mobileslot' => 3674621907,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'warnings',
+				'mobiledomain' => 1,
+			),
+			'pagebottom' => array(
+				'service' => 'adsense',
+				'mobileslot' => 3788982605,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'pagebottom',
+				'mobiledomain' => 1,
+			),
+		);
+
+		if ( !WikihowToc::isNewArticle() ) {
+			unset( $this->mAdSetupData['toc'] );
+		}
+
+		if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $this->mPageId)) ) {
+			unset( $this->mAdSetupData['intro'] );
+		}
+		if ( !Misc::isMobileMode() ) {
+			foreach ( $this->mAdSetupData as $adType => $adData ) {
+				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
+					unset( $this->mAdSetupData[$adType]);
+				}
+			}
+		}
+	}
+}
+
+class AllDFPForDesktopAdCreatorTwo extends AdCreator {
+	public function __construct( $bucket = null ) {
+		parent::__construct();
+		if ( $bucket ) {
+			$this->mBucketId = $bucket;
+		}
+
+		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $this->mPageId ) ) {
+			$this->mMobileAdsenseChannels[] = 8411928010;
+		} else {
+			$this->mMobileAdsenseChannels[] = 7928712280;
+			// this group of pages have adsense on AMP, so we want to put a special channel to measure it
+			// and we will put a corresponding channel on the adsense ads
+			if ( $pageId % 100 < 10 ) {
+				$this->mMobileAdsenseChannels[] = 9252820051;
+			}
+		}
+
+		$this->mAdSetupData = array(
+			'intro' => array(
+				'service' => 'dfp',
+				'mobileservice' => 'adsense',
+				'instantload' => 1,
+				'adUnitPath' => '/10095428/eng_gam_x02_intro',
+				'size' => '[[728, 90],[728, 120]]',
+				'apsLoad' => true,
+				'aps-timeout' => 800,
+				'width' => 728,
+				'height' => 120,
+				'mobileslot' => 8943394577,
+				'mobileheight' => 120,
+				'class' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'intro',
+			),
+			'method' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_method_1',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'desktoponly' => 1,
+			),
+			'method2' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_2',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'method3' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_3',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'method4' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_4',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'method5' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_5',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'methodextra' => array(
+				'service' => 'adsense',
+				'slot' => 8674374823,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'methodlast' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_last',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'toc' => array(
+				'service' => 'adsense',
+				'slot' => 4313551892,
+				'width' => 728,
+				'height' => 90,
+				'type' => 'toc',
+			),
+			'rightrail0' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/eng_gam_x02_rght1',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true,
+				'aps-timeout' => 800,
+				'width' => 300,
+				'height' => 600,
+				'containerheight' => 2000,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'largeonly' => 1,
+			),
+			'rightrail1' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_right_rail_2',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true,
+				'refreshable' => 1,
+				'viewablerefresh' => 1,
+				'first-refresh-time' => 30000,
+				'refresh-time' => 28000,
+				'aps-timeout' => 800,
+				'width' => 300,
+				'height' => 600,
+				'containerheight' => 3300,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'largeonly' => 1,
+			),
+			'scrollto' => array(
+				'service' => 'adsense',
+				'type' => 'scrollto',
+				'slot' => 4177820525,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'width' => 728,
+				'height' => 90,
+				'largeonly' => 1,
+			),
+			'quiz' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_quiz',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'class' => ['hidden'],
+				'type' => 'quiz',
+			),
+			'related' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_rwh',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'desktoponly' => 1,
+			),
+			'qa' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_qa',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'desktoponly' => 1,
+			),
+			'mobilemethod' => array(
+				'service' => 'adsense',
+				'mobileslot' => 7710650179,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'method',
+				'mobiledomain' => 1,
+			),
+			'mobilerelated' => array(
+				'service' => 'adsense',
+				'mobileslot' => 9047782573,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'related',
+				'mobiledomain' => 1,
+			),
+			'middlerelated' => array(
+				'service' => 'adsense',
+				'mobileslot' => 3859396687,
+				'mobileheight' => 250,
+				'type' => 'middlerelated',
+				'mobiledomain' => 1,
+			),
+			'mobileqa' => array(
+				'service' => 'adsense',
+				'mobileslot' => 1240030252,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'qa',
+				'mobiledomain' => 1,
+			),
+			'tips' => array(
+				'service' => 'adsense',
+				'mobileslot' => 8787347780,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'tips',
+				'mobiledomain' => 1,
+			),
+			'warnings' => array(
+				'service' => 'adsense',
+				'mobileslot' => 3674621907,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'warnings',
+				'mobiledomain' => 1,
+			),
+			'pagebottom' => array(
+				'service' => 'adsense',
+				'mobileslot' => 3788982605,
+				'mobileheight' => 250,
+				'mobilelabel' => 1,
+				'type' => 'pagebottom',
+				'mobiledomain' => 1,
+			),
+		);
+
+		if ( !WikihowToc::isNewArticle() ) {
+			unset( $this->mAdSetupData['toc'] );
+		}
+
+		if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $this->mPageId)) ) {
+			unset( $this->mAdSetupData['intro'] );
+		}
+		if ( !Misc::isMobileMode() ) {
+			foreach ( $this->mAdSetupData as $adType => $adData ) {
+				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
+					unset( $this->mAdSetupData[$adType]);
+				}
+			}
+		}
+	}
+}
+class AllDFPForDesktopAdCreatorOne extends AdCreator {
+	public function __construct( $bucket = null ) {
+		parent::__construct();
+		if ( $bucket ) {
+			$this->mBucketId = $bucket;
+		}
+
+		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $this->mPageId ) ) {
+			$this->mMobileAdsenseChannels[] = 8411928010;
+		} else {
+			$this->mMobileAdsenseChannels[] = 7928712280;
+			// this group of pages have adsense on AMP, so we want to put a special channel to measure it
+			// and we will put a corresponding channel on the adsense ads
+			if ( $pageId % 100 < 10 ) {
+				$this->mMobileAdsenseChannels[] = 9252820051;
+			}
+		}
+
+		$this->mAdSetupData = array(
+			'intro' => array(
+				'service' => 'dfp',
+				'mobileservice' => 'adsense',
+				'instantload' => 1,
+				'adUnitPath' => '/10095428/engl/eng_gam_x01_intro',
+				'size' => '[[728, 90],[728, 120]]',
+				'apsLoad' => true,
+				'aps-timeout' => 800,
+				'width' => 728,
+				'height' => 120,
+				'mobileslot' => 8943394577,
+				'mobileheight' => 120,
+				'class' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'intro',
+			),
+			'method' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_method_1',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'desktoponly' => 1,
+			),
+			'method2' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_2',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'method3' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_3',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'method4' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_4',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'method5' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_5',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'methodextra' => array(
+				'service' => 'adsense',
+				'slot' => 8674374823,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'methodlast' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_m_method_last',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'mediumonly' => 1,
+				'mobiledomain' => 1,
+			),
+			'toc' => array(
+				'service' => 'adsense',
+				'slot' => 4313551892,
+				'width' => 728,
+				'height' => 90,
+				'type' => 'toc',
+			),
+			'rightrail0' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/engl/eng_gam_x01_rght1',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true,
+				'aps-timeout' => 800,
+				'width' => 300,
+				'height' => 600,
+				'containerheight' => 2000,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'largeonly' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',

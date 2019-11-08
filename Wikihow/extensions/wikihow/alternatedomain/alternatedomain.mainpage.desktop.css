@@ -1,3 +1,7 @@
+#fa_container {
+	max-width: 700px;
+	margin: 0 auto;
+}
 .userlogin,#sidebar {
 	display: none;
 }

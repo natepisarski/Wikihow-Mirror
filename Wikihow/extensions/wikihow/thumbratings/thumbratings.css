@@ -164,41 +164,53 @@
 }
 .article_rating_result {
 	color: #606060;
-	padding:15px;
 	font-weight: initial;
 }
 
 #article_rating_mobile {
 	text-align: center;
-	margin-top: 20px;
-	font-size: 22px;
+	margin-top: 1rem;
 }
 
-#article_rating_mobile h2 { padding-top: 0; }
+#article_rating_mobile h2 {
+	font-size: 1.1em;
+	padding: .5em 0 1em;
+}
+
 #article_rating_mobile .mw-headline {
 	font-weight: normal;
-	font-size: 22px;
 }
-#article_rating_mobile #article_rating {
+
+#article_rating .button.aritem {
+	min-width: 100px;
+	padding: 0 10px 0 50px;
+	font-size: 18px;
+	line-height: 2.5em;
 	font-weight: bold;
-	color: #93b874;
+	text-align: center;
+	display: inline-block;
+	margin-bottom: 1rem;
 }
-#article_rating_mobile .ar_face {
-	margin: 0 auto;
-	width: 40px;
-	height: 40px;
-	background-size: contain;
-	background-repeat: no-repeat;
-}
-#article_rating_mobile .vote_up .ar_face {
-	background-image: url(../Rating/images/face_smile.png);
+
+#gatAccuracyYes {
+	color: #97ba78;
+	background: url(../Rating/images/face_smile_green.png) 15px center / 30px no-repeat;
 	/* @embed */
-	background-image: url(../Rating/images/face_smile.svg);
+	background-image: url(../Rating/images/face_smile_green.svg);
 }
-#article_rating_mobile .vote_down .ar_face {
-	background-image: url(../Rating/images/face_sad.png);
+#gatAccuracyYes:hover {
+	border: 1px solid #97ba78;
+}
+
+#gatAccuracyNo {
+	color: #686868;
+	background: url(../Rating/images/face_sad_gray.png) 15px center / 30px no-repeat;
 	/* @embed */
-	background-image: url(../Rating/images/face_sad.svg);
+	background-image: url(../Rating/images/face_sad_gray.svg);
+	margin-right: 0;
+}
+#gatAccuracyNo:hover {
+	border: 1px solid #686868;
 }
 
 .ar_box{
@@ -271,19 +283,4 @@
 	display: inline-block;
 	margin: 10px auto;
 	width:100%;
-}
-
-@media only screen and (max-width: 400px) {
-	.article_rating_detail {
-		font-size:0.85em;
-	}
-
-	#article_rating_mobile, #article_rating_mobile .mw-headline {
-		font-size: 18px;
-	}
-
-	#article_rating_mobile .ar_face {
-		width: 30px;
-		height: 30px;
-	}
 }

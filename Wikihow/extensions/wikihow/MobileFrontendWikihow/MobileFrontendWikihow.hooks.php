@@ -175,7 +175,6 @@ class MobileFrontendWikiHowHooks {
 		}
 
 		$out->addModules('mobile.wikihow');
-
 		$out->addModules('mobile.wikihow.stable.styles');
 
 		// Add the logged out overlay module.
@@ -229,6 +228,17 @@ class MobileFrontendWikiHowHooks {
 			$out->addModules('mobile.wikihow.socialproof');
 		}
 
+		$showImageFeedback = class_exists('ImageFeedback') && ImageFeedback::isValidPage();
+		if ($showImageFeedback) {
+			$out->addModules('ext.wikihow.image_feedback');
+		}
+
+		$showSlider = class_exists('Slider') && Slider::isValidPage();
+		if ($showSlider) {
+			$out->addModuleStyles('ext.wikihow.slider_styles');
+			$out->addModules('ext.wikihow.slider');
+		}
+
 		// this adds the ability to display debug messages to the debug toolbar
 		// in javascript which is useful for ajax requests debugging
 		WikihowSkinHelper::maybeAddDebugToolbar($out);
@@ -244,19 +254,29 @@ class MobileFrontendWikiHowHooks {
 			));
 		}
 
-		// only add this on regular article pages for now:
+		// only add this on regular article pages and main page for now:
 		//we're checking this elsewhere, so if we get here, it's ok
-		$specialPagesWithCss = ['SiteMap', 'NewPages', 'ReindexedPages'];
-		if ( $wgTitle && ($wgTitle->inNamespace( NS_MAIN ) && !$wgTitle->isMainPage()) || ($wgTitle->inNamespace(NS_SPECIAL) && in_array($wgTitle->getText(), $specialPagesWithCss)) ) {
-		        // $stylePaths[] = __DIR__ . '/less/wikihow/responsive.css';
-		        $less = ResourceLoader::getLessCompiler();
-		        $style = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/responsive.less');
-		        $less->parse($style);
-		        $style = $less->getCss();
-		        $style = ResourceLoader::filter('minify-css', $style);
-		        $style = HTML::inlineStyle($style);
-		        $out->addHeadItem('topcss2', $style);
+		$specialPagesWithCss = ['SiteMap', 'NewPages', 'ReindexedPages', 'CategoryListing'];
+		if ( $wgTitle &&
+			$wgTitle->inNamespace( NS_MAIN ) ||
+			($wgTitle->inNamespace( NS_PROJECT ) && $wgTitle->getDBkey() == wfMessage('trustworthy-page')->text()) ||
+			($wgTitle->inNamespace(NS_SPECIAL) && in_array($wgTitle->getText(), $specialPagesWithCss)) )
+		{
+			global $wgResourceLoaderLESSImportPaths;
+			$wgResourceLoaderLESSImportPaths = [ "$IP/extensions/wikihow/less/" => '' ];
+
+			$less = ResourceLoader::getLessCompiler();
+			$style = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/responsive.less');
+			$less->parse($style);
+			$style = $less->getCss();
+			$style = ResourceLoader::filter('minify-css', $style);
+			$style = HTML::inlineStyle($style);
+			$out->addHeadItem('topcss2', $style);
 		}
+
+		$out->addHTML(RCWidget::rcWidgetJS());
+		$out->addModules(['ext.wikihow.rcwidget']);
+		$out->addModuleStyles(['ext.wikihow.rcwidget_styles']);
 
 		return true;
 	}
@@ -365,13 +385,8 @@ class MobileFrontendWikiHowHooks {
 		return true;
 	}
 
-	public static function onHeaderBuilderGetCategoryLinksShowCategoryListing( &$showCategoryListing ) {
+	public function onHeaderBuilderGetCategoryLinksShowCategoryListing( &$showCategoryListing ) {
 		$title = RequestContext::getMain()->getTitle();
-		if (!$title) return;
-
-		//only show "Categories" in the mobile footer breadcrumb if it's an article page
-		if (!$title->inNamespace(NS_MAIN) || $title->getText() == wfMessage('Mainpage')->text()) {
-			$showCategoryListing = false;
-		}
+		$showCategoryListing = $title && $title->inNamespace(NS_MAIN) && !$title->isMainPage();
 	}
 }

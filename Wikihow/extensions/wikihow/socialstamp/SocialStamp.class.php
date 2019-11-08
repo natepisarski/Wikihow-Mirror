@@ -174,7 +174,7 @@ class SocialStamp {
 		}
 
 		if ($isMobile) {
-			$articleWithTabs = class_exists('MobileTabs') && MobileTabs::isTabArticle( RequestContext::getMain()->getTitle() );
+			$articleWithTabs = class_exists('MobileTabs') && MobileTabs::isTabArticle( RequestContext::getMain()->getTitle());
 			$params['noTabs'] = $articleWithTabs ? '' : 'no_tabs';
 		}
 
@@ -267,27 +267,21 @@ class SocialStamp {
 				$hoverText .= UserReview::getIconHoverText($articleId);
 				$isUserReview = true;
 			}
+
 			if ($isDefault) {
-				$params['slot2_intro'] = array_key_exists( 'slot2_intro', $params ) ?
-					ucfirst( $params['slot2_intro'] ) : '';
-
-				if ($isMobile) {
-					//mobile uses slot 2 on line 1, so move it there
-					$params['hasEarlySlot2'] = $params['hasSlot2'];
-					$params['hasSlot2'] = false;
-				}
-			}
-
-			if (!empty($params['showBylineRefs']) && $isMobile) {
-				$params['hasSlot2'] = false;
+				$params['slot2_intro'] = ucfirst($params['slot2_intro']);
 			}
 		}
 
 		// Show references either in the byline or the TOC, but not both
-		if ( empty($params['showBylineRefs']) ) {
-			WikihowToc::setReferences();
+		if(!Misc::isMobileMode()) {
+			if (empty($params['showBylineRefs']) && !Misc::isMobileMode()) {
+				WikihowToc::setReferences();
+			} else {
+				pq('#toc_ref')->addClass('hidden');
+			}
 		} else {
-			pq('#toc_ref')->addClass('hidden');
+			WikihowToc::setReferences();
 		}
 
 		# Hover text

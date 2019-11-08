@@ -97,6 +97,8 @@ class WikihowUserPage extends Article {
 
 		if ($this->getContext()->getUser()->isLoggedIn()) {
 			$skin->addWidget($this->getRCUserWidget()); // fix for WelcomeWagon
+			$out->addModules('ext.wikihow.rcwidget');
+			$out->addModuleStyles('ext.wikihow.rcwidget_styles');
 		}
 
 		if ($checkStats || $checkStartedEdited) {

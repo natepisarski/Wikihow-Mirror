@@ -34,10 +34,9 @@ class FastlyActionJob extends Job {
 		if ($action == 'reset-tag') {
 			$lang = $this->params['lang'];
 			$tag = $this->params['tag'];
-			print "got reset-tag ($lang): $tag\n";
 			$result = FastlyAction::resetTag($lang, $tag);
 		} else {
-			print "action not understood: $action\n";
+			throw new MWException(__METHOD__ . " action not understood: $action\n");
 		}
 		return true;
 	}

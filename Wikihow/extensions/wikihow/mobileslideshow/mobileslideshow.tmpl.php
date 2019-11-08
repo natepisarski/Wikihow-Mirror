@@ -30,6 +30,7 @@
 			</button>
 			<div class="pswp__caption">
 				<div class="pswp__caption__center"></div>
+				<div class="pswp__caption__info"></div>
 			</div>
 			<div class="pswp__method"></div>
 			<div class="pswp__counter"></div>

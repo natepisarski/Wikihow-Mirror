@@ -6,8 +6,6 @@ if (WH.shared.isDesktopSize) {
 	gads.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
 	var node = document.getElementsByTagName('script')[0];
 	node.parentNode.insertBefore(gads, node);
-	var bucketId = Math.floor(Math.random() * 20) + 1;
-	bucketId = ("0" + bucketId).slice(-2);
 	var format = 'sma';
 	var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
 	if (WH.isMobile == 0) {

@@ -3,9 +3,8 @@
 class EchoWikihowMenu {
 
 	public static function addHTML(&$html, &$notificationCount) {
-		global $wgUser, $wgLang, $wgOut;
-
-		$wgOut->addModuleStyles("ext.wikihow.echowikihow");
+		$context = RequestContext::getMain();
+		$user = $context->getUser();
 
 		$MAX_NOTES_SHOWN = 5;
 
@@ -18,16 +17,18 @@ class EchoWikihowMenu {
 
 		# old code: finds out which echo notifications the user has on
 		#$attributeManager = EchoAttributeManager::newFromGlobalVars();
-		#$eventTypes = $attributeManager->getUserEnabledEvents( $wgUser, 'web' );
+		#$eventTypes = $attributeManager->getUserEnabledEvents( $user, 'web' );
 		# new code: added a hack to Echo which speeds up the main DB query a ton
 		$eventTypes = ['*'];
 		$notifMapper = new EchoNotificationMapper();
-		$notif = $notifMapper->fetchByUser( $wgUser, $MAX_NOTES_SHOWN, 0, $eventTypes );
+		$notif = $notifMapper->fetchByUser( $user, $MAX_NOTES_SHOWN, 0, $eventTypes );
 
 		if ($notif) {
+			$lang = $context->getLanguage();
+
 			// show the first N notifications we found
 			foreach ($notif as $note) {
-				$formatted = EchoDataOutputFormatter::formatOutput( $note, 'html', $wgUser, $wgLang );
+				$formatted = EchoDataOutputFormatter::formatOutput( $note, 'html', $user, $lang );
 				$currentNotif = $formatted['*'];
 				// if unread, format differently
 				if ( !isset( $formatted['read'] ) ) {
@@ -37,7 +38,7 @@ class EchoWikihowMenu {
 			}
 
 			// get the unread count
-			$notifUser = MWEchoNotifUser::newFromUser($wgUser);
+			$notifUser = MWEchoNotifUser::newFromUser($user);
 			$notificationCount = $notifUser->getNotificationCount();
 
 			// add view all link

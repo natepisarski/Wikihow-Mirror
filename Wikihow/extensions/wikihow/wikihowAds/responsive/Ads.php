@@ -7,6 +7,8 @@ $wgAutoloadClasses['Ads'] = __DIR__ . '/Ads.class.php';
 $wgAutoloadClasses['AdCreator'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['SecondaryAdCreator'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['DefaultAdCreator'] = __DIR__ . '/AdCreator.class.php';
+$wgAutoloadClasses['AllDFPForDesktopAdCreatorOne'] = __DIR__ . '/AdCreator.class.php';
+$wgAutoloadClasses['AllDFPForDesktopAdCreatorTwo'] = __DIR__ . '/AdCreator.class.php';
 
 $wgAutoloadClasses['DefaultInternationalAdCreator'] = __DIR__ . '/AdCreator.class.php';
 $wgAutoloadClasses['DefaultInternationalAdCreatorAllAdsense'] = __DIR__ . '/AdCreator.class.php';

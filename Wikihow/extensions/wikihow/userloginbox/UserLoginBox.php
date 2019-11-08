@@ -15,7 +15,8 @@ $wgMessagesDirs['UserLoginBox'] = __DIR__ . '/i18n/';
 $wgResourceModules['ext.wikihow.userloginbox'] = array(
 	'scripts' => 'userloginbox.js',
 	'messages' => [ 'ulb-btn-loading' ],
-	'targets' => array( 'desktop' ),
+	'targets' => [ 'desktop', 'mobile' ],
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/userloginbox',
+	'position' => 'bottom'
 );

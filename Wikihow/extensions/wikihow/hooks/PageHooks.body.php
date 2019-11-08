@@ -1025,6 +1025,19 @@ class PageHooks {
 		if ( $wikiPage ) {
 			RobotPolicy::clearArticleMemc( $wikiPage );
 			RelatedWikihows::clearArticleMemc( $wikiPage );
+
+			// This hook is called on Article-Name?action=purge, and we want
+			// to fire off a Fastly tag purge job when this happens.
+			$title = $wikiPage->getTitle();
+			$pageid = $title->getArticleID();
+			$langCode = RequestContext::getMain()->getLanguage()->getCode();
+			if ($langCode && $pageid > 0) {
+				$idResetTag = FastlyAction::getTag($langCode, $pageid);
+				// Create a job that clears a particular fastly surrogate-key via the api
+				$params = ['action' => 'reset-tag', 'lang' => $langCode, 'tag' => $idResetTag];
+				$job = new FastlyActionJob($title, $params);
+				JobQueueGroup::singleton()->push($job);
+			}
 		}
 		return true;
 	}

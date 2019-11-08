@@ -370,25 +370,33 @@
 				this.$articleQuestions.find('.qa_edit_aq:first').click();
 			}, this));
 
-			if (!WH.isMobileDomain) {
-				$('#qa')
-					.on('mouseenter mouseleave', '.qa_expert_area', function(e) {
-						WH.QAWidget.popExpertInfo($(this).parent().find('.qa_user_hover'), e.type);
-					});
-			}
+			$('#qa')
+				.on('mouseenter mouseleave click', '.qa_expert_area', function(e) {
+					if($(window).width() < WH.largeScreenMinWidth) {
+						return true;
+					}
+					if ($(e.target).length && $(e.target).hasClass('click_out')) {
+						//you shall pass...
+					}
+					else {
+						e.preventDefault();
+					}
+
+					WH.QAWidget.popExpertInfo($(this).parent().find('.qa_user_hover'), e.type);
+				});
 
 			//-- Top Answerers --
-			if (WH.isMobileDomain) {
-				$('#qa').on('click', '.qa_ta_area', function() {
-					WH.QAWidget.topAnswererBox($(this));
+			$('#qa')
+				.on('mouseenter mouseleave click', '.qa_ta_area', function(e) {
+					if ($(e.target).length && $(e.target).hasClass('click_out')) {
+						//you shall pass...
+					}
+					else {
+						e.preventDefault();
+					}
+
+					WH.QAWidget.topAnswererBox($(this).parent(), e.type);
 				});
-			}
-			else {
-				$('#qa')
-					.on('mouseenter mouseleave', '.qa_ta_area', function(e) {
-						WH.QAWidget.topAnswererBox($(this).parent(), e.type);
-					});
-			}
 			//--------------------
 
 			if(!WH.isMobileDomain && this.isUnpatrolledQuestionsTarget) {
@@ -642,17 +650,11 @@
 
 		getArticleQuestion: function(aq) {
 			// Add thumbs up/down template
-			var partials;
 			var msgs;
 			var aqTemplateId;
-			if (WH.isMobileDomain) {
-				aq['qa_desktop'] = false;
-				partials = {thumbs_up_down: this.escapeHtml($('#qa_thumbs_up_down').html())};
-			} else {
-				aq['qa_desktop'] = true;
-				partials = {thumbs_qa_widget: this.escapeHtml($('#qa_thumbs_qa_widget').html())};
-			}
+			var partials = {thumbs_qa_widget: this.escapeHtml($('#qa_thumbs_qa_widget').html())};
 
+			aq['qa_desktop'] = !WH.isMobileDomain;
 			aq['qa_editor'] = this.isEditor;
 			aq['qa_anon'] = !mw.config.get('wgUserId');
 
@@ -1122,7 +1124,10 @@
 			var pos_start = this.calcMarginTop(obj, this.exbox_pos_start);
 			var pos_end = this.calcMarginTop(obj, this.exbox_pos_end);
 
-			if (e == 'mouseenter') {
+			//slightly different logic for mobile taps than the desktop hover
+			var show = e == 'click' ? !$(obj).is(':visible') : e == 'mouseenter';
+
+			if (show) {
 				if (!$(obj).is(':visible')) $(obj).css('marginTop', pos_end);
 
 				$(obj)
@@ -1258,13 +1263,10 @@
 			if (WH.isAltDomain)
 				return;
 
-			var tabox = WH.isMobileDomain ? $(obj).find('.qa_ta_mobile_extra') : $(obj).find('.qa_ta_area .hint_box');
-			var show = '';
+			var tabox =$(obj).find('.qa_ta_area .hint_box');
 
-			if (WH.isMobileDomain)
-				show = !$(tabox).is(':visible'); //base it on if the box is showing or not
-			else
-				show = e == 'mouseenter'; //base it on the event type
+			//slightly different logic for mobile taps than the desktop hover
+			var show = e == 'click' ? !$(tabox).is(':visible') : e == 'mouseenter';
 
 			if (show && $(tabox).html() == '') {
 				//showing the box AND we haven't already loaded it? load it
@@ -1288,7 +1290,8 @@
 								ta_label: 				mw.msg('ta_label'),
 								ta_answers_label: mw.msg('ta_answers_label'),
 								ta_subcats_intro: mw.msg('ta_subcats_intro'),
-								ta_subcats_outro: mw.msg('ta_subcats_outro')
+								ta_subcats_outro: mw.msg('ta_subcats_outro'),
+								anon: 						!mw.config.get('wgUserName')
 							});
 
 							$(tabox).html(this.escapeHtml(html)).promise().done($.proxy(function() {
@@ -1317,28 +1320,18 @@
 			var pos_end = this.calcMarginTop(tabox, this.tabox_pos_end);
 
 			if (show) {
-				if (WH.isMobileDomain) {
-					$(tabox).show();
-				}
-				else {
-					if (!$(tabox).is(':visible')) $(tabox).css('marginTop', pos_end);
+				if (!$(tabox).is(':visible')) $(tabox).css('marginTop', pos_end);
 
-					$(tabox)
-						.stop(true)
-						.fadeIn({queue: false, duration: this.tabox_duration})
-						.animate({ marginTop: pos_start, opacity: 1 }, this.tabox_duration);
-				}
+				$(tabox)
+					.stop(true)
+					.fadeIn({queue: false, duration: this.tabox_duration})
+					.animate({ marginTop: pos_start, opacity: 1 }, this.tabox_duration);
 			}
 			else {
 				//HIDE
-				if (WH.isMobileDomain) {
-					$(tabox).hide();
-				}
-				else {
-					$(tabox)
-						.animate({ marginTop: pos_end }, this.tabox_duration)
-						.fadeOut({queue: false, duration: this.tabox_duration});
-				}
+				$(tabox)
+					.animate({ marginTop: pos_end }, this.tabox_duration)
+					.fadeOut({queue: false, duration: this.tabox_duration});
 			}
 		},
 

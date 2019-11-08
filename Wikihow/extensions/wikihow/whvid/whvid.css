@@ -7,9 +7,14 @@
 	background: rgba(0, 0, 0, .3);
 	height: 100%;
 }
-.summary_with_video h2 {
+.section.summary_with_video h2 {
 	background-color: #93b874;
 	color: #fff;
+	border-radius: 4px 4px 0 0;
+	border-bottom: 0;
+}
+.summary_with_video h2 span.mw-headline {
+	color: #FFF;
 }
 
 .m-video-play-count-triangle {

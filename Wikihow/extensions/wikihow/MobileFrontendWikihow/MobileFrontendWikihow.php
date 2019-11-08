@@ -22,7 +22,6 @@ $wgHooks['HeaderBuilderGetCategoryLinksShowCategoryListing'][] = [
 	'MobileFrontendWikiHowHooks::onHeaderBuilderGetCategoryLinksShowCategoryListing'
 ];
 
-
 /**
  * A boilerplate for the MFResourceLoaderModule that supports templates
  */
@@ -57,7 +56,6 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'javascripts/wikihow/scripts.js',
 			'javascripts/wikihow/scroll_handler.js',
 			'../thumbratings/thumbratings.js',
-			'../tipsandwarnings/tipsandwarnings.js',
 			'../common/jquery.scrollTo/jquery.scrollTo.js',
 			'../../../skins/WikiHow/opWHTracker.js',
 			'../mobileslideshow/mobileslideshow.js',
@@ -69,9 +67,12 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'mobile-facebook-login-failed',
 			'sources',
 			'references',
-			'image-attribution'
+			'image-attribution',
+			'wh_search_line_ph',
+			'header-search-placeholder'
 		),
 		'dependencies' => array(
+			'ext.wikihow.responsive_base',
 			'ext.wikihow.common_top',
 		),
 	),

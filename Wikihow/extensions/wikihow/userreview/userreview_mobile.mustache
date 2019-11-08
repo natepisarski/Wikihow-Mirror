@@ -1,63 +1,65 @@
-<h2 id="ur_h2" class="mw-headline">Reader Success Stories</h2>
-<div id="ur_mobile" class="section_text">
-	<div id="userreview_anchor"></div>
-	<div id="ur_anchor"></div>
-	<div id="ur_anchor_off"></div>
-	<div id="ur_anchor_full"></div>
-	<ul>
-	{{# reviews}}
-		{{^hideReview}}
-		<li class="ur_review ur_review{{count}}">
-			<div class="ur_divider"></div>
-			<div class="ur_user">
-				{{#avatarUrl}}
-					{{#amp}}
+<div id="userreviews_mobile" class="section">
+	<h2 id="ur_h2"><span class="mw-headline">Reader Success Stories</span></h2>
+	<div id="ur_mobile" class="section_text">
+		<div id="userreview_anchor"></div>
+		<div id="ur_anchor"></div>
+		<div id="ur_anchor_off"></div>
+		<div id="ur_anchor_full"></div>
+		<ul>
+		{{# reviews}}
+			{{^hideReview}}
+			<li class="ur_review ur_review{{count}}">
+				<div class="ur_divider"></div>
+				<div class="ur_user">
+					{{#avatarUrl}}
+						{{#amp}}
+							<span class="ur_initials">
+								{{initials}}
+							</span>
+						{{/amp}}
+						{{^amp}}
+						<img src="{{{avatarUrl}}}" class="ur_avatar" />
+						{{/amp}}
+					{{/avatarUrl}}
+					{{^avatarUrl}}
 						<span class="ur_initials">
 							{{initials}}
 						</span>
-					{{/amp}}
-					{{^amp}}
-					<img src="{{{avatarUrl}}}" class="ur_avatar" />
-					{{/amp}}
-				{{/avatarUrl}}
-				{{^avatarUrl}}
-					<span class="ur_initials">
-						{{initials}}
-					</span>
-				{{/avatarUrl}}
-				<div class="ur_author">
-					<p class="ur_name">{{{fullname}}}</p>
-					<p class="ur_date">{{date}}</p>
+					{{/avatarUrl}}
+					<div class="ur_author">
+						<p class="ur_name">{{{fullname}}}</p>
+						<p class="ur_date">{{date}}</p>
+					</div>
 				</div>
+				<div class="ur_review_text">
+					{{{uc_review}}}
+				</div>
+				<div class="ur_rating">
+					{{#hasrating}}
+						<span>Rated this article: </span>
+						{{#ratings}}
+							<div class="ur_star {{ratingClass}}"></div>
+						{{/ratings}}
+						<div class="clearall"></div>
+					{{/hasrating}}
+				</div>
+				{{#imageUrl}}
+					<img src="{{{imageUrl}}}" class="ur_uci" />
+				{{/imageUrl}}
+			</li>
+			{{/hideReview}}
+		{{/ reviews}}
+		</ul>
+		{{#navigation}}
+			<div class="ur_nav_container">
+				<a href="#ur_anchor" class="ur_more">More reader stories</a>
+				<a href="#ur_anchor" class="ur_even_more">All reader stories</a>
+				<a href="#ur_anchor_off" class="ur_hide">Hide reader stories</a>
 			</div>
-			<div class="ur_review_text">
-				{{{uc_review}}}
-			</div>
-			<div class="ur_rating">
-				{{#hasrating}}
-					<span>Rated this article: </span>
-					{{#ratings}}
-						<div class="ur_star {{ratingClass}}"></div>
-					{{/ratings}}
-					<div class="clearall"></div>
-				{{/hasrating}}
-			</div>
-			{{#imageUrl}}
-				<img src="{{{imageUrl}}}" class="ur_uci" />
-			{{/imageUrl}}
-		</li>
-		{{/hideReview}}
-	{{/ reviews}}
-	</ul>
-	{{#navigation}}
-		<div class="ur_nav_container">
-			<a href="#ur_anchor" class="ur_more">More reader stories</a>
-			<a href="#ur_anchor" class="ur_even_more">All reader stories</a>
-			<a href="#ur_anchor_off" class="ur_hide">Hide reader stories</a>
+		{{/navigation}}
+		{{^amp}} {{^is_alt}}
+		<a href="#" class="ur_share">Share your story</a>
+		{{/is_alt}} {{/amp}}
 		</div>
-	{{/navigation}}
-	{{^amp}} {{^is_alt}}
-	<a href="#" class="ur_share">Share your story</a>
-	{{/is_alt}} {{/amp}}
 	</div>
 </div>

@@ -6,6 +6,10 @@ class ThankAuthors extends UnlistedSpecialPage {
 		parent::__construct('ThankAuthors');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	public function execute($par) {
 		global $wgFilterCallback, $wgLanguageCode;
 
@@ -105,9 +109,5 @@ class ThankAuthors extends UnlistedSpecialPage {
 		} else {
 			return false;
 		}
-	}
-
-	public function isMobileCapable() {
-		return true;
 	}
 }

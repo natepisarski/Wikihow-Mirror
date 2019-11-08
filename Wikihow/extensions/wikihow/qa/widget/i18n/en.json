@@ -5,7 +5,7 @@
 	"QAWidget": "Q&A Article Widget",
 	"qa_title": "Community Q&A",
 	"qa_prompt_first": "Don't see your question? Ask it here:",
-	"qa_asked_question_placeholder": "Your question here",
+	"qa_asked_question_placeholder": "What do you need to know?",
 	"qa_asked_question_placeholder_d": "What do you need to know? We'll do our best to find the answer.",
 	"qa_asked_count": "$1 {{PLURAL:$1|character|characters}} left",
 	"qa_email_placeholder": "Email address (optional)",

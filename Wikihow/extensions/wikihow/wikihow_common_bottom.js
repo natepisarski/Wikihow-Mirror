@@ -163,9 +163,7 @@ WH.loadPrintModule = function () {
 	// Need to detect IE9 or lower
 	var userAgent = navigator.userAgent;
 	var m = userAgent.match(/MSIE (\d+)\./);
-	if (!WH.isMobileDomain &&
-		!(m && Number.parseInt(m[1],10) < 10)
-	) {
+	if (!(m && Number.parseInt(m[1],10) < 10)) {
 		mw.loader.using(['ext.wikihow.printable']);
 		WH.bindPrintEvents();
 	}
@@ -414,7 +412,7 @@ function onLoadWikihowCommonBottom() {
 }
 
 // ThankAuthors dialog
-$( '#end_options .endop_fanmail a' ).click( function ( e ) {
+$( '#end_options .endop_fanmail a, #end_options #gatThankAuthors' ).click( function ( e ) {
 	var $endop_fanmail = $( this ).parent();
 	$endop_fanmail.addClass( 'endop_loading' );
 	mw.loader.using( 'ext.wikihow.thankAuthors', function () {
