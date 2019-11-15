@@ -1,0 +1,148 @@
+.reviewer {
+	border: 1px solid #e5e5e5;
+	width: 298px;
+	padding: 25px 30px;
+	background-color: #fff;
+	position: relative;
+	display: table-cell;
+}
+
+.reviewer_top {
+	padding-left: 90px;
+	min-height: 80px;
+}
+
+.ar_name {
+	color: #686868;
+	font-weight: bold;
+	margin-bottom: 4px;
+	font-size: 1.15em;
+}
+
+.ar_blurb {
+	color: #777;
+	font-weight: bold;
+	font-size: 13px;
+}
+
+.ar_hoverblurb {
+	color: #787878;
+	line-height: 1.3em;
+	border-top: 1px solid #e5e5e5;
+	padding-top: 10px;
+	margin-top: 10px;
+	font-size: .9em;
+}
+
+.ar_category {
+	padding: 0;
+}
+
+.ar_category h3 {
+	font-size: 24px;
+	padding: 23px 30px;
+}
+
+.ar_icon {
+	position:absolute;
+	top: 28px;
+	left: 27px;
+	width: 40px;
+	height: 40px;
+	/* @embed */
+	background: url(../Badge-Certificate-Green-01.svg) 0 0 / 40px no-repeat;
+}
+
+.ar_initials {
+	background-color: #d8d8d8;
+	width: 80px;
+	height: 80px;
+	font-size: 40px;
+	line-height: 80px;
+	border-radius: 10%;
+	border: none;
+}
+
+.ar_avatar {
+	border-radius: 10%;
+	width: 80px;
+	height: 80px;
+	background-size: cover;
+}
+
+.ar_row {
+	margin: 0 -1px 7px;
+}
+
+.ar_row:last-child {
+	margin-bottom: 0px;
+}
+
+.ar_spacer {
+	width: 7px;
+	display: table-cell;
+}
+
+.wh_block h1 {
+	padding-left: 47px;
+	/* @embed */
+	background: url(../Badge-Certificate-Green-01.svg) 0 0 / 40px no-repeat;
+	line-height: 40px;
+	height: 40px;
+}
+
+.wh_block p {
+	line-height: 1.5em;
+	margin-top: 10px;
+}
+
+.ar_anchor {
+	position: absolute;
+	top: -90px;
+}
+.ar_name_link {
+	display: block;
+	font-weight: bold;
+	font-size: 13px;
+	margin-bottom: 5px;
+	margin-top: -9px;
+}
+
+.ar_sidebar {
+	background-color: #FFF;
+	padding: 0;
+}
+
+.ar_sidebar h2 {
+	font-size: 18px;
+	padding: 30px 30px 5px 30px;
+}
+
+.ar_apply {
+	font-size: 0.9em;
+	margin: 0 0 20px 30px;
+}
+
+.ar_sidebar_item {
+	border-left: 10px solid #FFF;
+	padding: 15px 22px;
+	cursor: pointer;
+}
+
+.ar_sidebar_item:hover {
+	background-color: #F6F5F4;
+	border-color: #F6F5F4;
+}
+
+.ar_sidebar_item.selected {
+	background-color: #F6F5F4;
+	border-color: #93B874;
+	font-weight: bold;
+}
+
+.reviewer a.external {
+	background: url(/skins/owl/images/external_link_ltr.png) right center / 14px no-repeat;
+	/* @embed */
+	background-image: url(/skins/owl/images/external_link_ltr.svg);
+	padding-right: 20px;
+}

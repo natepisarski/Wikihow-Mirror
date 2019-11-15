@@ -1529,7 +1529,7 @@ class DerivedPageDataUpdater implements IDBAccessObject {
 
 		// Wikihow/JRS, circa 2013: call ArticleEditUpdateNewTalk on User_kudos edits
 		if ( $title->inNamespace( NS_USER_KUDOS ) && $shortTitle != $legacyUser->getTitleKey() ) {
-			if ( Hooks::run( 'ArticleEditUpdateNewTalk', [ &$this ] ) ) {
+			if ( Hooks::run( 'ArticleEditUpdateNewTalk', [ $this ] ) ) {
 				$other = User::newFromName( $shortTitle );
 				if ( is_null( $other ) && User::isIP( $shortTitle ) ) {
 					// An anonymous user

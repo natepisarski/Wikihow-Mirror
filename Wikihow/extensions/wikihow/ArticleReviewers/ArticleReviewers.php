@@ -13,30 +13,30 @@ $wgSpecialPages['ArticleReviewers'] = 'ArticleReviewers';
 $wgExtensionMessagesFiles['ArticleReviewers'] = __DIR__ . '/ArticleReviewers.i18n.php';
 $wgExtensionMessagesFiles['ArticleReviewersAliases'] = __DIR__ . '/ArticleReviewers.alias.php';
 
-$wgResourceModules['ext.wikihow.articlereviewers_styles'] = array(
-	'styles' => array('articlereviewers.css'),
-	'localBasePath' => __DIR__ . '/',
-	'remoteExtPath' => 'wikihow/ArticleReviewers',
+$wgResourceModules['ext.wikihow.articlereviewers_styles'] = [
+	'styles' => ['articlereviewers.css'],
+	'localBasePath' => __DIR__ . '/resources',
+	'remoteExtPath' => 'wikihow/ArticleReviewers/resources',
 	'position' => 'top',
-	'targets' => array( 'desktop', 'mobile' ),
-);
+	'targets' => [ 'desktop' ],
+];
 
-$wgResourceModules['ext.wikihow.articlereviewers_script'] = array(
-	'scripts' => array('articlereviewers.js'),
-	'localBasePath' => __DIR__ . '/',
-	'remoteExtPath' => 'wikihow/ArticleReviewers',
+$wgResourceModules['ext.wikihow.articlereviewers_script'] = [
+	'scripts' => ['articlereviewers.js'],
+	'localBasePath' => __DIR__ . '/resources',
+	'remoteExtPath' => 'wikihow/ArticleReviewer/resources',
 	'position' => 'bottom',
-	'targets' => array( 'desktop' ),
-);
+	'targets' => [ 'desktop', 'mobile' ],
+];
 
-$wgResourceModules['ext.wikihow.mobilearticlereviewers'] = array(
-	'styles' => array('mobilearticlereviewers.css'),
+$wgResourceModules['ext.wikihow.mobilearticlereviewers'] = [
+	'styles' => ['mobilearticlereviewers.less'],
 	'group' => 'prio2', // This RL group says load after main css bundle
-	'localBasePath' => __DIR__ . '/',
-	'remoteExtPath' => 'wikihow/ArticleReviewers',
+	'localBasePath' => __DIR__ . '/resources',
+	'remoteExtPath' => 'wikihow/ArticleReviewers/resources',
 	'position' => 'top',
-	'targets' => array( 'desktop', 'mobile' ),
-);
+	'targets' => [ 'mobile' ],
+];
 
 if (Misc::isIntl()) {
 	return;
@@ -45,19 +45,19 @@ if (Misc::isIntl()) {
 $wgSpecialPages['AdminArticleReviewers'] = 'AdminArticleReviewers';
 $wgAutoloadClasses['AdminArticleReviewers'] = __DIR__ . '/AdminArticleReviewers.body.php';
 
-$wgHooks['FileUpload'][] = array('AdminArticleReviewers::onFileUpload');
+$wgHooks['FileUpload'][] = ['AdminArticleReviewers::onFileUpload'];
 
-$wgResourceModules['ext.wikihow.adminarticlereviewers'] = array(
-	'styles' => array('../common/uploadify/uploadify.css'),
-	'localBasePath' => __DIR__ . '/',
-	'remoteExtPath' => 'wikihow/ArticleReviewers',
+$wgResourceModules['ext.wikihow.adminarticlereviewers'] = [
+	'styles' => ['../../common/uploadify/uploadify.css'],
+	'localBasePath' => __DIR__ . '/resources',
+	'remoteExtPath' => 'wikihow/ArticleReviewers/resources',
 	'position' => 'top',
-	'targets' => array( 'desktop', 'mobile' ),
-	'scripts' => array(
-		'../common/uploadify/jquery.uploadify.min.js',
+	'targets' => [ 'desktop', 'mobile' ],
+	'scripts' => [
+		'../../common/uploadify/jquery.uploadify.min.js',
 		'adminarticlereviewers.js',
-	),
-);
+	],
+];
 
 /*********
 

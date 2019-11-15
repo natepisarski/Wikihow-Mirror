@@ -21,7 +21,7 @@ class Quizzes extends UnlistedSpecialPage {
 		return true;
 	}
 
-	public static function getCanonicalUrl(&$this, &$url, $query) {
+	public static function getCanonicalUrl(&$titleObj, &$url, $query) {
 		$url = self::$quizURL;
 		return true;
 	}

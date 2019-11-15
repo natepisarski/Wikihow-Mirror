@@ -134,7 +134,7 @@ class RequestTopic extends SpecialPage {
 		}
 
 		$categs = explode("\n", ContentHandler::getContentText( $revision->getContent() ));
-		$opts = '';
+		$opts = [];
 		foreach ($categs as $line) {
 			$line = trim($line);
 			if ($line == '' || strpos($line, '[[') === 0) {

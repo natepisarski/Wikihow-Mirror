@@ -1,5 +1,5 @@
 <?php
-// Get all alfredo articles, that have an extra intro space
+// Get all ImageTransfer articles that have an extra intro space
 require_once("commandLine.inc");
 
 $dbr = wfGetDB(DB_REPLICA);

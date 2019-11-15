@@ -565,6 +565,8 @@ class UserCompletedImages extends UnlistedSpecialPage {
 
 	public static function getDesktopSectionHTML( $context, $title = null, $offset = 0, $limit = 5 ) {
 		$result = '';
+		// Temporarily disable UCI
+		return $result;
 
 		if (!$context) {
 			return '';
@@ -645,6 +647,8 @@ class UserCompletedImages extends UnlistedSpecialPage {
 	}
 
 	public static function validMobileUCIArticle(Title $title = null): Bool {
+		// temporarily disable UCI images
+		return false;
 		$android_request = class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest();
 
 		return $title &&

@@ -25,7 +25,7 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			return;
 		}
 
-		if (count($req->getVal('diff')) > 0) {
+		if ($req->getVal('diff')) {
 			return Article::view();
 		}
 

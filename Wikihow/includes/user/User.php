@@ -4054,8 +4054,8 @@ class User implements IDBAccessObject, UserIdentity {
 		}
 
 		// JRS, upgrade 1.21: Added User Kudos clear
-		if ($title->inNamespace( NS_USER_KUDOS ) && $title->getText() == $this->getName() ) {
-			if ( !Hooks::run('UserClearNewKudosNotification', [ &$this ]) ) {
+		if ( $title->inNamespace( NS_USER_KUDOS ) && $title->getText() == $this->getName() ) {
+			if ( !Hooks::run( 'UserClearNewKudosNotification', [ $this ] ) ) {
 				return;
 			}
 			$this->setNewKudos( false );

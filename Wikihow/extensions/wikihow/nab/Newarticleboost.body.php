@@ -575,6 +575,16 @@ class NewArticleBoost extends SpecialPage {
 				array('rev_page' => $aid),
 				__METHOD__);
 
+			// we have seen exceptions in the production app server logs
+			// where the above query returns null, and, looking deeper, there
+			// was no page associated with $aid in the page table either.
+			// I'm guessing that is because the page was deleted or something?
+			if (!$min_ts) {
+				// I'm not sure this is the right thing to do, but I believe
+				// it's better than abruptly ending execution of this request.
+				$min_ts = wfTimestampNow();
+			}
+
 			$dbw->insert(self::NAB_TABLE,
 				array(
 					'nap_page' => $aid,

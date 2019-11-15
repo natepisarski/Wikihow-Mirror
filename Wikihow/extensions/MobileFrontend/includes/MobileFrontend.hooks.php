@@ -61,6 +61,14 @@ class MobileFrontendHooks {
 				$skinName = 'SkinMinervaWikihow';
 			}
 		}
+		// Jordan: Setting up an amp test for a list of articles
+		$t = RequestContext::getMain()->getTitle();
+		global $wgLanguageCode;
+		if ($wgLanguageCode == "pt"
+			&& $t->inNamespace(NS_MAIN)
+			&& ArticleTagList::hasTag( 'amp_pt_speed_test', $t->getArticleID()) ) {
+			$skinName = 'SkinMinervaWikihowAmp';
+		}
 
 		if ( class_exists( $skinName ) ) {
 			$skin = new $skinName( $context );

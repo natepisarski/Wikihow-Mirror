@@ -543,20 +543,4 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		return $result;
 	}
 
-	public static function getJSsnippet() {
-?>
-<style>
-#phr_ratings_undo_clear {
-	font-size:12px;
-	position: absolute;
-	right: 17px;
-	display:none;
-}
-</style>
-<script>
-	mw.loader.load('ext.wikihow.pagehelpfulness_staff');
-</script>
-<?php
-	}
-
 }

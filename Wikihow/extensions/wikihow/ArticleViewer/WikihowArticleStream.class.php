@@ -217,7 +217,7 @@ class WikihowArticleStream extends ContextSource {
 				$xUnits = intval($dims[0]);
 				$yUnits = intval($dims[1]);
 
-				$box = WikihowMobileTools::makeFeaturedArticlesBox($item['title'],false,$showHighDPI);
+				$box = WikihowMobileTools::makeFeaturedArticlesBox($item['title'], true, $showHighDPI);
 				$block_inner = WikihowMobileTools::getImageContainerBoxHtml( $box );
 				$start_column = ($key+1);
 

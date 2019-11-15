@@ -471,12 +471,6 @@ abstract class AdCreator {
 		$this->insertIntroAd();
 		$this->insertTocAd();
 		$this->insertMethodAd();
-		$this->insertMethod2Ad();
-		$this->insertMethod3Ad();
-		$this->insertMethod4Ad();
-		$this->insertMethod5Ad();
-		$this->insertMethodExtraAd();
-		$this->insertMethodLastAd();
 		$this->insertMobileMethodAds();
 		$this->insertScrollToAd();
 		$this->insertStepAd();
@@ -498,6 +492,10 @@ abstract class AdCreator {
 			$this->mPageId = $wgTitle->getArticleID();
 		}
 		$this->mBucketId = rand( 1, 20 );
+		if ( $bucket == 20 ) {
+			$extra = rand( 0, 4 );
+			$bucket += $extra;
+		}
 		$this->mBucketId = sprintf( "%02d", $bucket );
 	}
 
@@ -517,10 +515,29 @@ abstract class AdCreator {
 		$innerHtml = '';
 		$skipInlineHtml = true;
 
-		if ( !Misc::isMobileMode() && $ad->setupData['inline-html'] == 1 ) {
-			// do not use js to load the add but load it with html
-			$innerHtml .= $this->getInlineHtmlForAd( $ad );
-			$skipInlineHtml = false;
+		if ( $type == 'toc' && !WikihowToc::isNewArticle() ) {
+			return;
+		}
+
+		if ( $type == 'intro' && class_exists( "TechLayout" ) && ArticleTagList::hasTag( TechLayout::CONFIG_LIST, $this->mPageId ) ) {
+			return;
+		}
+
+		// for now only show small and medium sized ads on mobile domain
+		if ( Misc::isMobileMode() ) {
+			if ( $ad->setupData['small'] !== 1 && $ad->setupData['medium'] !== 1 ) {
+				return;
+			}
+		} else {
+			// on desktop domain only show ads with large
+			if ( $ad->setupData['large'] !== 1 ) {
+				return;
+			}
+			if ( $ad->setupData['inline-html'] == 1 ) {
+				// do not use js to load the add but load it with html
+				$innerHtml .= $this->getInlineHtmlForAd( $ad );
+				$skipInlineHtml = false;
+			}
 		}
 
 		$innerAdHtml = Html::rawElement( 'div', $attributes, $innerHtml );
@@ -536,7 +553,7 @@ abstract class AdCreator {
 				foreach ( $val as $classVal ) {
 					$attributes['class'][] = $classVal;
 				}
-			} elseif ( $key == 'mobilelabel' ) {
+			} elseif ( $key == 'smalllabel' ) {
 				$label = $this->getAdLabelText();
 				$innerAdHtml .= Html::rawElement( 'div', [ 'class' => 'ad_label_method' ], $label );
 			} elseif ( $key == 'containerheight' ) {
@@ -717,8 +734,16 @@ abstract class AdCreator {
 			}
 
 			if ( $service == "dfp" ) {
-				$addDFP = true;
+				// if we are in mobile mode, then only add dfp if the ad is small or medium
+				if ( Misc::isMobileMode() ) {
+					if ( $ad->setupData['small'] == 1 || $ad->setupData['medium'] == 1 ) {
+						$addDFP = true;
+					}
+				} else {
+					$addDFP = true;
+				}
 			}
+
 			$apsLoad = $apsLoad || $adData['apsLoad'];
 		}
 
@@ -765,9 +790,11 @@ abstract class AdCreator {
 	}
 
 	protected function getIndexHeadScript() {
-		$html =  '<script async src="//js-sec.indexww.com/ht/p/184011-188477170437417.js"></script>';
-		return $html;
+		$init = file_get_contents( __DIR__."/IndexExchangeInit.js" );
+		$script .= Html::inlineScript( $init );
+		return $script;
 	}
+
 	protected function addToGPTDefines( $ad ) {
 		$adUnitPath = $ad->setupData['adUnitPath'];
 		$adUnitPath = $this->getGPTAdSlot( $adUnitPath );
@@ -779,6 +806,11 @@ abstract class AdCreator {
 
 	public function getGPTDefine() {
 		global $wgIsDevServer;
+		// for now return nothing on mobile domain but the correct solution is to search
+		// to see if we have any active DFP ads for this setup, and if we do not then return nothing
+		if ( Misc::isMobileMode() ) {
+			return '';
+		}
 		$dfpKeyVals = $this->getDFPKeyValsJSON();
 		$gpt = "var gptAdSlots = [];\n";
 		$gpt .= "var dfpKeyVals = $dfpKeyVals;\n";
@@ -864,11 +896,14 @@ class DefaultAdCreator extends AdCreator {
 				'slot' => 7672188889,
 				'width' => 728,
 				'height' => 120,
-				'mobileslot' => 8943394577,
-				'mobileheight' => 120,
+				'smallslot' => 8943394577,
+				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
 				'inline-html' => 1,
+				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -878,70 +913,7 @@ class DefaultAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
-			),
-			'method2' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_2',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method3' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_3',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method4' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_4',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method5' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_5',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodextra' => array(
-				'service' => 'adsense',
-				'slot' => 8674374823,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodlast' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_last',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
+				'large' => 1,
 			),
 			'toc' => array(
 				'service' => 'adsense',
@@ -949,6 +921,8 @@ class DefaultAdCreator extends AdCreator {
 				'width' => 728,
 				'height' => 90,
 				'type' => 'toc',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'rightrail0' => array(
 				'service' => 'adsense',
@@ -960,8 +934,8 @@ class DefaultAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
 				'inline-html' => 1,
+				'large' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
@@ -979,7 +953,7 @@ class DefaultAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -989,7 +963,7 @@ class DefaultAdCreator extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'quiz' => array(
 				'service' => 'dfp',
@@ -1001,6 +975,8 @@ class DefaultAdCreator extends AdCreator {
 				'height' => 90,
 				'class' => ['hidden'],
 				'type' => 'quiz',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'related' => array(
 				'service' => 'dfp',
@@ -1010,7 +986,7 @@ class DefaultAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'large' => 1,
 			),
 			'qa' => array(
 				'service' => 'dfp',
@@ -1020,79 +996,271 @@ class DefaultAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'large' => 1,
 			),
 			'mobilemethod' => array(
 				'service' => 'adsense',
-				'mobileslot' => 7710650179,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 7710650179,
+				'width' => 728,
+				'height' => 90,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'method',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'mobilerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 9047782573,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 3648874275,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 9047782573,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'related',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'middlerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3859396687,
-				'mobileheight' => 250,
+				'smallslot' => 3859396687,
+				'smallheight' => 250,
 				'type' => 'middlerelated',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'mobileqa' => array(
 				'service' => 'adsense',
-				'mobileslot' => 1240030252,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 4167749029,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 1240030252,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'qa',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'tips' => array(
 				'service' => 'adsense',
-				'mobileslot' => 8787347780,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 8787347780,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'tips',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'warnings' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3674621907,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3674621907,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'warnings',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'pagebottom' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3788982605,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3788982605,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'pagebottom',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 		);
-
-		if ( !WikihowToc::isNewArticle() ) {
-			unset( $this->mAdSetupData['toc'] );
+	}
+}
+class DefaultAdCreatorMobile extends AdCreator {
+	public function __construct( $bucket = null ) {
+		parent::__construct();
+		if ( $bucket ) {
+			$this->mBucketId = $bucket;
 		}
 
-		if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $this->mPageId)) ) {
-			unset( $this->mAdSetupData['intro'] );
-		}
-		if ( !Misc::isMobileMode() ) {
-			foreach ( $this->mAdSetupData as $adType => $adData ) {
-				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
-					unset( $this->mAdSetupData[$adType]);
-				}
+		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $this->mPageId ) ) {
+			$this->mMobileAdsenseChannels[] = 8411928010;
+		} else {
+			$this->mMobileAdsenseChannels[] = 7928712280;
+			// this group of pages have adsense on AMP, so we want to put a special channel to measure it
+			// and we will put a corresponding channel on the adsense ads
+			if ( $pageId % 100 < 10 ) {
+				$this->mMobileAdsenseChannels[] = 9252820051;
 			}
 		}
+
+		$this->mAdSetupData = array(
+			'intro' => array(
+				'service' => 'adsense',
+				'instantload' => 1,
+				'slot' => 5694321795,
+				'width' => 728,
+				'height' => 120,
+				'smallslot' => 8943394577,
+				'smallheight' => 120,
+				'class' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'intro',
+				'inline-html' => 1,
+				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
+			),
+			'method' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_method_1',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'large' => 1,
+			),
+			'toc' => array(
+				'service' => 'adsense',
+				'slot' => 4313551892,
+				'width' => 728,
+				'height' => 90,
+				'type' => 'toc',
+				'medium' => 1,
+				'large' => 1,
+			),
+			'rightrail0' => array(
+				'service' => 'adsense',
+				'slot' => 5490902193,
+				'instantload' => 0,
+				'width' => 300,
+				'height' => 600,
+				'containerheight' => 2000,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'inline-html' => 1,
+				'large' => 1,
+			),
+			'rightrail1' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_right_rail_2',
+				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+				'apsLoad' => true,
+				'refreshable' => 1,
+				'viewablerefresh' => 1,
+				'first-refresh-time' => 30000,
+				'refresh-time' => 28000,
+				'aps-timeout' => 800,
+				'width' => 300,
+				'height' => 600,
+				'containerheight' => 3300,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'large' => 1,
+			),
+			'scrollto' => array(
+				'service' => 'adsense',
+				'type' => 'scrollto',
+				'slot' => 4177820525,
+				'maxsteps' => 2,
+				'maxnonsteps' => 0,
+				'width' => 728,
+				'height' => 90,
+				'large' => 1,
+			),
+			'quiz' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_quiz',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'class' => ['hidden'],
+				'type' => 'quiz',
+				'medium' => 1,
+				'large' => 1,
+			),
+			'related' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_rwh',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'large' => 1,
+			),
+			'qa' => array(
+				'service' => 'dfp',
+				'adUnitPath' => '/10095428/dfp_responsive_lm_qa',
+				'size' => '[728, 90]',
+				'apsLoad' => true,
+				'aps-timeout' => 2000,
+				'width' => 728,
+				'height' => 90,
+				'large' => 1,
+			),
+			'mobilemethod' => array(
+				'service' => 'adsense',
+				'slot' => 7710650179,
+				'width' => 728,
+				'height' => 90,
+				'smallheight' => 250,
+				'smalllabel' => 1,
+				'type' => 'method',
+				'small' => 1,
+				'medium' => 1,
+			),
+			'mobilerelated' => array(
+				'service' => 'adsense',
+				'slot' => 3648874275,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 9047782573,
+				'smallheight' => 250,
+				'smalllabel' => 1,
+				'type' => 'related',
+				'small' => 1,
+				'medium' => 1,
+			),
+			'middlerelated' => array(
+				'service' => 'adsense',
+				'smallslot' => 3859396687,
+				'smallheight' => 250,
+				'type' => 'middlerelated',
+				'small' => 1,
+			),
+			'mobileqa' => array(
+				'service' => 'adsense',
+				'slot' => 4167749029,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 1240030252,
+				'smallheight' => 250,
+				'smalllabel' => 1,
+				'type' => 'qa',
+				'small' => 1,
+				'medium' => 1,
+			),
+			'tips' => array(
+				'service' => 'adsense',
+				'smallslot' => 8787347780,
+				'smallheight' => 250,
+				'smalllabel' => 1,
+				'type' => 'tips',
+				'small' => 1,
+			),
+			'warnings' => array(
+				'service' => 'adsense',
+				'smallslot' => 3674621907,
+				'smallheight' => 250,
+				'smalllabel' => 1,
+				'type' => 'warnings',
+				'small' => 1,
+			),
+			'pagebottom' => array(
+				'service' => 'adsense',
+				'smallslot' => 3788982605,
+				'smallheight' => 250,
+				'smalllabel' => 1,
+				'type' => 'pagebottom',
+				'small' => 1,
+			),
+		);
 	}
 }
 
@@ -1117,18 +1285,21 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 		$this->mAdSetupData = array(
 			'intro' => array(
 				'service' => 'dfp',
-				'mobileservice' => 'adsense',
+				'smallservice' => 'adsense',
 				'instantload' => 1,
-				'adUnitPath' => '/10095428/eng_gam_x02_intro',
+				'adUnitPath' => '/10095428/engl/eng_gam_x02_intro',
 				'size' => '[[728, 90],[728, 120]]',
 				'apsLoad' => true,
 				'aps-timeout' => 800,
 				'width' => 728,
 				'height' => 120,
-				'mobileslot' => 8943394577,
-				'mobileheight' => 120,
+				'smallslot' => 8943394577,
+				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
+				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -1138,70 +1309,7 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
-			),
-			'method2' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_2',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method3' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_3',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method4' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_4',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method5' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_5',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodextra' => array(
-				'service' => 'adsense',
-				'slot' => 8674374823,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodlast' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_last',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
+				'large' => 1,
 			),
 			'toc' => array(
 				'service' => 'adsense',
@@ -1209,10 +1317,12 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'width' => 728,
 				'height' => 90,
 				'type' => 'toc',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'rightrail0' => array(
 				'service' => 'dfp',
-				'adUnitPath' => '/10095428/eng_gam_x02_rght1',
+				'adUnitPath' => '/10095428/engl/eng_gam_x02_rght1',
 				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
 				'apsLoad' => true,
 				'aps-timeout' => 800,
@@ -1222,7 +1332,7 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
@@ -1240,7 +1350,7 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -1250,7 +1360,7 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'quiz' => array(
 				'service' => 'dfp',
@@ -1262,6 +1372,8 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'height' => 90,
 				'class' => ['hidden'],
 				'type' => 'quiz',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'related' => array(
 				'service' => 'dfp',
@@ -1271,7 +1383,7 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'large' => 1,
 			),
 			'qa' => array(
 				'service' => 'dfp',
@@ -1281,79 +1393,75 @@ class AllDFPForDesktopAdCreatorTwo extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'large' => 1,
 			),
 			'mobilemethod' => array(
 				'service' => 'adsense',
-				'mobileslot' => 7710650179,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 7710650179,
+				'width' => 728,
+				'height' => 90,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'method',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'mobilerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 9047782573,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 3648874275,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 9047782573,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'related',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'middlerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3859396687,
-				'mobileheight' => 250,
+				'smallslot' => 3859396687,
+				'smallheight' => 250,
 				'type' => 'middlerelated',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'mobileqa' => array(
 				'service' => 'adsense',
-				'mobileslot' => 1240030252,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 4167749029,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 1240030252,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'qa',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'tips' => array(
 				'service' => 'adsense',
-				'mobileslot' => 8787347780,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 8787347780,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'tips',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'warnings' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3674621907,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3674621907,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'warnings',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'pagebottom' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3788982605,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3788982605,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'pagebottom',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 		);
-
-		if ( !WikihowToc::isNewArticle() ) {
-			unset( $this->mAdSetupData['toc'] );
-		}
-
-		if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $this->mPageId)) ) {
-			unset( $this->mAdSetupData['intro'] );
-		}
-		if ( !Misc::isMobileMode() ) {
-			foreach ( $this->mAdSetupData as $adType => $adData ) {
-				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
-					unset( $this->mAdSetupData[$adType]);
-				}
-			}
-		}
 	}
 }
 class AllDFPForDesktopAdCreatorOne extends AdCreator {
@@ -1377,7 +1485,7 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 		$this->mAdSetupData = array(
 			'intro' => array(
 				'service' => 'dfp',
-				'mobileservice' => 'adsense',
+				'smallservice' => 'adsense',
 				'instantload' => 1,
 				'adUnitPath' => '/10095428/engl/eng_gam_x01_intro',
 				'size' => '[[728, 90],[728, 120]]',
@@ -1385,10 +1493,13 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'aps-timeout' => 800,
 				'width' => 728,
 				'height' => 120,
-				'mobileslot' => 8943394577,
-				'mobileheight' => 120,
+				'smallslot' => 8943394577,
+				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
+				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -1398,70 +1509,7 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
-			),
-			'method2' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_2',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method3' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_3',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method4' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_4',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method5' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_5',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodextra' => array(
-				'service' => 'adsense',
-				'slot' => 8674374823,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodlast' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_m_method_last',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
+				'large' => 1,
 			),
 			'toc' => array(
 				'service' => 'adsense',
@@ -1469,6 +1517,8 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'width' => 728,
 				'height' => 90,
 				'type' => 'toc',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'rightrail0' => array(
 				'service' => 'dfp',
@@ -1482,7 +1532,7 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
@@ -1500,7 +1550,7 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -1510,7 +1560,7 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'quiz' => array(
 				'service' => 'dfp',
@@ -1522,6 +1572,8 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'height' => 90,
 				'class' => ['hidden'],
 				'type' => 'quiz',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'related' => array(
 				'service' => 'dfp',
@@ -1531,7 +1583,7 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'large' => 1,
 			),
 			'qa' => array(
 				'service' => 'dfp',
@@ -1541,79 +1593,75 @@ class AllDFPForDesktopAdCreatorOne extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'large' => 1,
 			),
 			'mobilemethod' => array(
 				'service' => 'adsense',
-				'mobileslot' => 7710650179,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 7710650179,
+				'width' => 728,
+				'height' => 90,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'method',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'mobilerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 9047782573,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 3648874275,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 9047782573,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'related',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'middlerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3859396687,
-				'mobileheight' => 250,
+				'smallslot' => 3859396687,
+				'smallheight' => 250,
 				'type' => 'middlerelated',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'mobileqa' => array(
 				'service' => 'adsense',
-				'mobileslot' => 1240030252,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 4167749029,
+				'width' => 728,
+				'height' => 90,
+				'smallslot' => 1240030252,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'qa',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'tips' => array(
 				'service' => 'adsense',
-				'mobileslot' => 8787347780,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 8787347780,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'tips',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'warnings' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3674621907,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3674621907,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'warnings',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'pagebottom' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3788982605,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3788982605,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'pagebottom',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 		);
-
-		if ( !WikihowToc::isNewArticle() ) {
-			unset( $this->mAdSetupData['toc'] );
-		}
-
-		if ( (class_exists("TechLayout") && ArticleTagList::hasTag(TechLayout::CONFIG_LIST, $this->mPageId)) ) {
-			unset( $this->mAdSetupData['intro'] );
-		}
-		if ( !Misc::isMobileMode() ) {
-			foreach ( $this->mAdSetupData as $adType => $adData ) {
-				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
-					unset( $this->mAdSetupData[$adType]);
-				}
-			}
-		}
 	}
 }
 
@@ -1662,11 +1710,14 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'slot' => 2583804979,
 				'width' => 728,
 				'height' => 120,
-				'mobileslot' => 2831688978,
-				'mobileheight' => 120,
+				'smallslot' => 2831688978,
+				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
 				'inline-html' => 1,
+				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -1676,70 +1727,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
-			),
-			'method2' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/intl/intl_gam_lgm_meth2',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method3' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/intl/intl_gam_lgm_meth3',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method4' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/intl/intl_gam_lgm_meth4',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method5' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/intl/intl_gam_lgm_meth5',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodextra' => array(
-				'service' => 'adsense',
-				'slot' => 7653942783,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodlast' => array(
-				'service' => 'dfp',
-				'adUnitPath' => '/10095428/intl/intl_gam_lgm_methl',
-				'size' => '[728, 90]',
-				'apsLoad' => true,
-				'aps-timeout' => 2000,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
+				'large' => 1,
 			),
 			'rightrail0' => array(
 				'service' => 'adsense',
@@ -1751,8 +1739,8 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
 				'inline-html' => 1,
+				'large' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
@@ -1770,7 +1758,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -1780,7 +1768,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'quiz' => array(
 				'service' => 'dfp',
@@ -1792,6 +1780,8 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'height' => 90,
 				'class' => ['hidden'],
 				'type' => 'quiz',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'related' => array(
 				'service' => 'dfp',
@@ -1801,7 +1791,8 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'qa' => array(
 				'service' => 'dfp',
@@ -1811,72 +1802,68 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'mobilemethod' => array(
 				'service' => 'adsense',
-				'mobileslot' => 6771527778,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 6771527778,
+				'width' => 728,
+				'height' => 90,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'method',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'mobilerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 9724994176,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 9724994176,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'related',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'middlerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 7143285827,
-				'mobileheight' => 250,
+				'smallslot' => 7143285827,
+				'smallheight' => 250,
 				'type' => 'middlerelated',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'mobileqa' => array(
 				'service' => 'adsense',
-				'mobileslot' => 4517122485,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 4517122485,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'qa',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'tips' => array(
 				'service' => 'adsense',
-				'mobileslot' => 8125162876,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 8125162876,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'tips',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'warnings' => array(
 				'service' => 'adsense',
-				'mobileslot' => 4621387358,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 4621387358,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'warnings',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'pagebottom' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3373074232,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3373074232,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'pagebottom',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 		);
-
-		if ( !Misc::isMobileMode() ) {
-			foreach ( $this->mAdSetupData as $adType => $adData ) {
-				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
-					unset( $this->mAdSetupData[$adType]);
-				}
-			}
-		}
 	}
 }
 class DefaultIntlCategoryListingAdCreator extends AdCreator {
@@ -1896,18 +1883,10 @@ class DefaultIntlCategoryListingAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
 				'inline-html' => 1,
+				'large' => 1,
 			),
 		);
-
-		if ( !Misc::isMobileMode() ) {
-			foreach ( $this->mAdSetupData as $adType => $adData ) {
-				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
-					unset( $this->mAdSetupData[$adType]);
-				}
-			}
-		}
 	}
 }
 
@@ -1930,66 +1909,21 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'slot' => 2583804979,
 				'width' => 728,
 				'height' => 120,
-				'mobileslot' => 2831688978,
-				'mobileheight' => 120,
+				'smallslot' => 2831688978,
+				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
 				'inline-html' => 1,
+				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'method' => array(
 				'service' => 'adsense',
 				'slot' => 3315713030,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
-			),
-			'method2' => array(
-				'service' => 'adsense',
-				'slot' => 2114320424,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method3' => array(
-				'service' => 'adsense',
-				'slot' => 8444280277,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method4' => array(
-				'service' => 'adsense',
-				'slot' => 9033924321,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'method5' => array(
-				'service' => 'adsense',
-				'slot' => 6407760984,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodextra' => array(
-				'service' => 'adsense',
-				'slot' => 7653942783,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
-			),
-			'methodlast' => array(
-				'service' => 'adsense',
-				'slot' => 9074835666,
-				'width' => 728,
-				'height' => 90,
-				'mediumonly' => 1,
-				'mobiledomain' => 1,
+				'large' => 1,
 			),
 			'rightrail0' => array(
 				'service' => 'adsense',
@@ -2001,8 +1935,8 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
 				'inline-html' => 1,
+				'large' => 1,
 			),
 			'rightrail1' => array(
 				'service' => 'adsense',
@@ -2013,7 +1947,7 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'rightrail2' => array(
 				'service' => 'adsense',
@@ -2024,7 +1958,7 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'scrollto' => array(
 				'service' => 'adsense',
@@ -2034,7 +1968,7 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
-				'largeonly' => 1,
+				'large' => 1,
 			),
 			'quiz' => array(
 				'service' => 'adsense',
@@ -2043,89 +1977,84 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'height' => 90,
 				'class' => ['hidden'],
 				'type' => 'quiz',
+				'medium' => 1,
+				'large' => 1,
 			),
 			'related' => array(
 				'service' => 'adsense',
 				'slot' => 6448672327,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'qa' => array(
 				'service' => 'adsense',
 				'slot' => 7334857519,
 				'width' => 728,
 				'height' => 90,
-				'desktoponly' => 1
+				'medium' => 1,
+				'large' => 1,
 			),
 			'mobilemethod' => array(
 				'service' => 'adsense',
-				'mobileslot' => 6771527778,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'slot' => 6771527778,
+				'width' => 728,
+				'height' => 90,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'method',
-				'mobiledomain' => 1,
+				'small' => 1,
+				'medium' => 1,
 			),
 			'mobilerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 9724994176,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 9724994176,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'related',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'middlerelated' => array(
 				'service' => 'adsense',
-				'mobileslot' => 7143285827,
-				'mobileheight' => 250,
+				'smallslot' => 7143285827,
+				'smallheight' => 250,
 				'type' => 'middlerelated',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'mobileqa' => array(
 				'service' => 'adsense',
-				'mobileslot' => 4517122485,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 4517122485,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'qa',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'tips' => array(
 				'service' => 'adsense',
-				'mobileslot' => 8125162876,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 8125162876,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'tips',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'warnings' => array(
 				'service' => 'adsense',
-				'mobileslot' => 4621387358,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 4621387358,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'warnings',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 			'pagebottom' => array(
 				'service' => 'adsense',
-				'mobileslot' => 3373074232,
-				'mobileheight' => 250,
-				'mobilelabel' => 1,
+				'smallslot' => 3373074232,
+				'smallheight' => 250,
+				'smalllabel' => 1,
 				'type' => 'pagebottom',
-				'mobiledomain' => 1,
+				'small' => 1,
 			),
 		);
-
-		if ( WikihowToc::isNewArticle() ) {
-			unset( $this->mAdSetupData['toc'] );
-		}
-
-		if ( !Misc::isMobileMode() ) {
-			foreach ( $this->mAdSetupData as $adType => $adData ) {
-				if ( isset( $this->mAdSetupData[$adType]['mobiledomain'] ) ) {
-					unset( $this->mAdSetupData[$adType]);
-				}
-			}
-		}
 	}
 
 }
@@ -2154,6 +2083,7 @@ class DefaultSearchPageAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'large' => 1,
 			),
 		);
 	}
@@ -2183,6 +2113,7 @@ class DefaultInternationalSearchPageAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'large' => 1,
 			),
 		);
 	}

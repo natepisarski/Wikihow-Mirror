@@ -1,3 +1,4 @@
+
 /**
  * @license
  * Copyright 2015 The Incremental DOM Authors. All Rights Reserved.
@@ -48,7 +49,7 @@
    */
   function Blank() {}
 
-  Blank.prototype = {}
+  Blank.prototype = Object.create(null);
 
   /**
    * Used to prevent property collisions between our "map" and its prototype.
@@ -840,7 +841,7 @@
 
   /** @const */
   var symbols = {
-    'default': '__default'
+    default: '__default'
   };
 
   /**
@@ -938,7 +939,7 @@
   var applyAttributeTyped = function (el, name, value) {
     var type = typeof value;
 
-    if (type === 'object' || type === 'function') {
+    if (type === 'object' || type === 'function' || type === 'boolean') {
       applyProp(el, name, value);
     } else {
       applyAttr(el, name, /** @type {?(boolean|number|string)} */value);
@@ -959,7 +960,7 @@
       return;
     }
 
-    var mutator = attributes[name] || attributes[symbols['default']];
+    var mutator = attributes[name] || attributes[symbols.default];
     mutator(el, name, value);
 
     attrs[name] = value;
@@ -973,7 +974,7 @@
 
   // Special generic mutator that's called for any attribute that does not
   // have a specific mutator.
-  attributes[symbols['default']] = applyAttributeTyped;
+  attributes[symbols.default] = applyAttributeTyped;
 
   attributes['style'] = applyStyle;
 
@@ -1217,3 +1218,5 @@
   exports.importNode = importNode;
 
 }));
+
+//# sourceMappingURL=incremental-dom.js.map

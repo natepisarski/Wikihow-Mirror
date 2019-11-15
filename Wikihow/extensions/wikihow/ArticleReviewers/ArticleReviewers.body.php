@@ -105,22 +105,24 @@ class ArticleReviewers extends UnlistedSpecialPage {
 			$localizedCategs[$localizedCateg] = $expertCategories[$category];
 		}
 
-		$tmpl = new EasyTemplate( __DIR__ );
+		$tmpl = new EasyTemplate( __DIR__ . '/templates' );
 		$tmpl->set_vars(array('numRows' => self::REVIEWER_ROWS));
 		$tmpl->set_vars(array('expertCategories' => $localizedCategs));
+
 		if (Misc::isMobileMode()) {
 			$out->addModuleStyles("ext.wikihow.mobilearticlereviewers");
 			$out->addHTML($tmpl->execute('mobilereviewers.tmpl.php'));
 		} else {
 			$out->addModuleStyles(["ext.wikihow.articlereviewers_styles"]);
-			$out->addModules(["ext.wikihow.articlereviewers_script"]);
 			$out->addHTML($tmpl->execute('reviewers.tmpl.php'));
-			$out->getSkin()->addWidget($this->getSideBar($localizedCategs, $expert_count), 'ar_sidebar');
 		}
+
+		$out->addModules(["ext.wikihow.articlereviewers_script"]);
+		$out->getSkin()->addWidget($this->getSideBar($localizedCategs, $expert_count), 'ar_sidebar');
 	}
 
 	private function getSideBar($expertCategories, $expert_count) {
-		$tmpl = new EasyTemplate( __DIR__ );
+		$tmpl = new EasyTemplate( __DIR__ . '/templates' );
 		$tmpl->set_vars([
 			'expertCategories' => $expertCategories,
 			'expert_count' => $expert_count,

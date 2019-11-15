@@ -495,13 +495,12 @@ class ResourceLoaderClientHtml {
 
 						// Decide whether to use 'style' or 'script' element
 						if ( $only === ResourceLoaderModule::TYPE_STYLES ) {
-							$chunk = Html::linkedStyle( $url );
+							$chunk = Html::linkedStylePreload( $url );
 						} else {
 							if ( $context->getRaw() || $isRaw ) {
 								$chunk = Html::element( 'script', [
 									// In SpecialJavaScriptTest, QUnit must load synchronous
-// UPGRADE TODO: async is not possible while we still have mw.loader.load() <script> refs in dom
-//									'async' => !isset( $extraQuery['sync'] ),
+									'async' => !isset( $extraQuery['sync'] ),
 									'src' => $url
 								] );
 							} else {

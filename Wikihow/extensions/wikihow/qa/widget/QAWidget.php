@@ -443,7 +443,7 @@ class QAWidget {
 		$request = RequestContext::getMain()->getRequest();
 		$lang = RequestContext::getMain()->getLanguage()->getCode();
 		$action =$request->getVal('action','view');
-		if (count($request->getVal('diff')) > 0) $action = 'diff';
+		if ($request->getVal('diff')) $action = 'diff';
 
 		if (is_null($t)) {
 			$t = RequestContext::getMain()->getTitle();

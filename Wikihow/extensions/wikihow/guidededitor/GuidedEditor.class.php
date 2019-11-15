@@ -160,7 +160,9 @@ class GuidedEditor extends EditPage {
 		$out->addModules( ['ext.wikihow.editor_script', 'ext.wikihow.guided_editor']);
 		$out->addModules( ['ext.wikihow.popbox', 'ext.wikihow.createpage'] );
 
-		Hooks::run( 'EditPage::showEditForm:initial', [ &$this, $out ] ) ;
+		// PHP 7.1+ doesn't let you create a reference from the $this pointer, so we create a variable
+		$editPageObj = $this;
+		Hooks::run( 'EditPage::showEditForm:initial', [ &$editPageObj, $out ] ) ;
 
 		// are we called with just action=edit and no title?
 		$create_article = false;

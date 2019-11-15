@@ -268,7 +268,7 @@ class SocialStamp {
 				$isUserReview = true;
 			}
 
-			if ($isDefault) {
+			if ($isDefault && isset( $params['slot2_intro'] )) {
 				$params['slot2_intro'] = ucfirst($params['slot2_intro']);
 			}
 		}

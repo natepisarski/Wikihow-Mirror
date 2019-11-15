@@ -6,7 +6,7 @@ WH.VideoBrowser.VideoComponent = WH.Render.createComponent( {
 	render: function () {
 		var video = this.video = WH.VideoBrowser.catalog.videos().filter( { id: this.props.id } ).first();
 		return [ this.props.link ? 'a.videoBrowser-video' : 'div.videoBrowser-video',
-			{ key: video.id, href: video.pathname, onclick: 'onClick' },
+			{ key: video.id, href: WH.VideoBrowser.router.link( '/' + video.slug ), onclick: 'onClick' },
 			[ 'div.videoBrowser-video-content',
 				[ 'div.videoBrowser-video-image',
 					video.clip && !this.props.static ?
@@ -49,7 +49,7 @@ WH.VideoBrowser.VideoComponent = WH.Render.createComponent( {
 		// 		userSessionStreak: WH.VideoBrowser.sessionStreak
 		// 	}, function () {
 		// 		if ( window.location.pathname !== video.pathname ) {
-		// 			window.location = video.pathname;
+		// 			window.location = WH.VideoBrowser.router.link( '/' + video.slug );
 		// 		}
 		// 	} );
 		// }

@@ -345,7 +345,9 @@ class LSearch extends SpecialPage {
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, ['Host: search.wikihow']);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
 			// Parse response contents or return on failure
 
@@ -510,7 +512,7 @@ class LSearch extends SpecialPage {
 
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 			// Parse response contents or return on failure
 
@@ -622,7 +624,7 @@ class LSearch extends SpecialPage {
 			//echo($url);exit;
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$rsp = curl_exec($ch);
 
 			$contents = null;
@@ -715,7 +717,7 @@ class LSearch extends SpecialPage {
 			$ch = curl_init($queryUrl);
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, ["Ocp-Apim-Subscription-Key: "
 				. WH_AZURE_COGNITIVE_SERVICES_BING_API_V7_SUBSCRIPTION_KEY]);
 

@@ -227,11 +227,16 @@ abstract class RatingsTool {
 	public function addRating($itemId, $user, $userText, $rating, $source) {
 		$dbw = wfGetDB(DB_MASTER);
 
+		$itemIdCleaned = (int)$itemId;
+		if ($this->tableName == 'rating' && $itemIdCleaned <= 0) {
+			throw new MWException(__METHOD__ . ': Invalid itemId for table ' . $this->tableName);
+		}
+
 		$pf = $this->tablePrefix;
 		$month = date("Y-m");
 		$table = $this->tableName;
 		$rows = array();
-		$rows[$pf."page"] = $itemId;
+		$rows[$pf."page"] = $itemIdCleaned;
 		$rows[$pf."user"] = $user;
 		$rows[$pf."user_text"] = $userText;
 		$rows[$pf."rating"] = $rating;
@@ -248,9 +253,9 @@ abstract class RatingsTool {
 		$dbw->upsert($table, $rows, array(), $set, __METHOD__);
 		$ratingId = $dbw->insertId();
 
-		Hooks::run("RatingAdded", array($this->ratingType, $itemId));
+		Hooks::run("RatingAdded", array($this->ratingType, $itemIdCleaned));
 
-		return $this->getRatingResponse($itemId, $rating, $source, $ratingId);
+		return $this->getRatingResponse($itemIdCleaned, $rating, $source, $ratingId);
 	}
 
 	// Used in Special:ClearRatings

@@ -83,7 +83,10 @@ $( function () {
 
 			WH.VideoBrowser.missingPosterUrl = '/extensions/wikihow/VideoBrowser/resources/images/no-poster.png';
 			WH.VideoBrowser.router = new WH.Router( WH.VideoBrowser.root );
-			WH.VideoBrowser.catalog = new WH.VideoBrowser.Catalog();
+			WH.VideoBrowser.catalog = new WH.VideoCatalog( {
+				videos: WH.VideoBrowser.data.videos,
+				store: 'video-browser'
+			} );
 
 			var app = new WH.VideoBrowser.BrowserComponent();
 

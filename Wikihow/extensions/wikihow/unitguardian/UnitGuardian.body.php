@@ -295,7 +295,7 @@ class UnitGuardian extends UnlistedSpecialPage {
 				$content = ContentHandler::makeContent( $newWikitext, $title );
 
 				$user = User::newFromName("UnitGuardian");
-				$wp->doEditContent($content, "Adding conversion template.", null, false, $user);
+				$wp->doEditContent($content, "Adding conversion template", 0, false, $user);
 			}
 		}
 	}

@@ -10,7 +10,8 @@ $wgAutoloadClasses['PageHelpfulness'] = __DIR__ . '/PageHelpfulness.body.php';
 
 $wgResourceModules['ext.wikihow.pagehelpfulness_styles'] =
 	$wgResourceModulesDesktopBoilerStyles + [
-		'styles' => [ 'pagehelpfulness/pagehelpfulness.css' ]
+		'styles' => [ 'pagehelpfulness/pagehelpfulness.css' ],
+		'position' => 'bottom'
 	];
 
 $wgResourceModules['ext.wikihow.pagehelpfulness_staff'] =

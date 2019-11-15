@@ -356,17 +356,23 @@ class Ads {
 			}
 		} else {
 			$bucket = rand( 1, 20 );
+			if ( $bucket == 20 ) {
+				$extra = rand( 0, 4 );
+				$bucket += $extra;
+			}
 			if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
 				$reqBucket = $wgRequest->getInt( 'bucket' );
-				if ( $reqBucket > 0 && $reqBucket < 21 ) {
+				if ( $reqBucket > 0 && $reqBucket <= 24 ) {
 					$bucket = $reqBucket;
 				}
 			}
 			$bucketId = sprintf( "%02d", $bucket );
-			if ( $bucket == 19 ) {
+			if ( $bucket == 19 && !Misc::isMobileMode() ) {
 				$adCreator = new AllDFPForDesktopAdCreatorOne( $bucketId );
-			} elseif ( $bucket == 20 ) {
+			} elseif ( $bucket >= 20 && !Misc::isMobileMode() ) {
 				$adCreator = new AllDFPForDesktopAdCreatorTwo( $bucketId );
+			} elseif ( Misc::isMobileMode() ){
+				$adCreator = new DefaultAdCreatorMobile( $bucketId );
 			} else {
 				$adCreator = new DefaultAdCreator( $bucketId );
 			}

@@ -208,10 +208,8 @@ class MobileFrontendWikiHowHooks {
 			$out->addHeadItem('vars', HTML::inlineScript($varScript));
 		}
 
-		if ( $out->getTitle()->inNamespace(NS_MAIN) || $out->getTitle()->getText() == 'TopicTagging' ) {
-			$sharedjs = array( __DIR__. '/../../wikihow/commonjs/whshared.compiled.js' );
-			$out->addHeadItem( 'sharedjs', Html::inlineScript( Misc::getEmbedFiles( 'js', $sharedjs ) ) );
-		}
+		$sharedjs = array( __DIR__. '/../../wikihow/commonjs/whshared.compiled.js' );
+		$out->addHeadItem( 'sharedjs', Html::inlineScript( Misc::getEmbedFiles( 'js', $sharedjs ) ) );
 
 		$gdprjs = array( __DIR__. '/../../wikihow/GDPR/gdpr.js' );
 		$out->addHeadItem( 'gdpr', Html::inlineScript( Misc::getEmbedFiles( 'js', $gdprjs ) ) );
@@ -254,14 +252,7 @@ class MobileFrontendWikiHowHooks {
 			));
 		}
 
-		// only add this on regular article pages and main page for now:
-		//we're checking this elsewhere, so if we get here, it's ok
-		$specialPagesWithCss = ['SiteMap', 'NewPages', 'ReindexedPages', 'CategoryListing'];
-		if ( $wgTitle &&
-			$wgTitle->inNamespace( NS_MAIN ) ||
-			($wgTitle->inNamespace( NS_PROJECT ) && $wgTitle->getDBkey() == wfMessage('trustworthy-page')->text()) ||
-			($wgTitle->inNamespace(NS_SPECIAL) && in_array($wgTitle->getText(), $specialPagesWithCss)) )
-		{
+		if (self::validResponsivePage( $wgTitle )) {
 			global $wgResourceLoaderLESSImportPaths;
 			$wgResourceLoaderLESSImportPaths = [ "$IP/extensions/wikihow/less/" => '' ];
 
@@ -279,6 +270,22 @@ class MobileFrontendWikiHowHooks {
 		$out->addModuleStyles(['ext.wikihow.rcwidget_styles']);
 
 		return true;
+	}
+
+	private static function validResponsivePage(Title $title): Bool {
+		$wHnamespacePagesWithCss = [ wfMessage('trustworthy-page')->text() ];
+		$specialPagesWithCss = [
+			'SiteMap',
+			'NewPages',
+			'ReindexedPages',
+			'CategoryListing',
+			'ArticleReviewers'
+		];
+
+		return $title &&
+			$title->inNamespace( NS_MAIN ) ||
+			($title->inNamespace( NS_PROJECT ) && in_array($title->getDBkey(), $wHnamespacePagesWithCss)) ||
+			($title->inNamespace(NS_SPECIAL) && in_array($title->getText(), $specialPagesWithCss));
 	}
 
 	public static function onSpecialPage_initList( &$list ) {

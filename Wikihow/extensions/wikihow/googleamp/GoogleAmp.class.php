@@ -9,6 +9,15 @@ class GoogleAmp {
 	public static function isAmpMode( $out ) {
 		$amp = $out->getRequest()->getVal( self::QUERY_STRING_PARAM ) == 1;
 
+		// Jordan: Setting up an amp test for a list of articles
+		$t = $out->getTitle();
+		global $wgLanguageCode;
+		if ($wgLanguageCode == "pt"
+			&& $t->inNamespace(NS_MAIN)
+			&& ArticleTagList::hasTag( 'amp_pt_speed_test', $t->getArticleID()) ) {
+			$amp = true;
+		}
+
 		// Don't enable AMP mode for certain android app requests
 		if (class_exists('AndroidHelper')
 			&& AndroidHelper::isAndroidRequest()
@@ -516,10 +525,14 @@ class GoogleAmp {
 
 		// for targeting dfp ads
 		$bucket = rand( 1, 20 );
+		if ( $bucket == 20 ) {
+			$extra = rand( 0, 4 );
+			$bucket += $extra;
+		}
 
 		if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
 			$reqBucket = $wgRequest->getInt( 'bucket' );
-			if ( $reqBucket > 0 && $reqBucket < 21 ) {
+			if ( $reqBucket > 0 && $reqBucket <= 25 ) {
 				$bucket = $reqBucket;
 			}
 		}
@@ -746,29 +759,7 @@ class GoogleAmp {
 			'json' => $targeting,
 		);
 
-		if ( $num == 2 || $num == 7 || $num == 8 || $num == 9 ) {
-			$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
-		}
-
-		if ( $num == 4 && $methodNumber == 1 ) {
-			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
-		}
-
-		if ( $num == 4 && $methodNumber == 2 ) {
-			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
-		}
-
-		if ( rand( 1, 2 ) == 1 && $num == 4 && $methodNumber == 3 ) {
-			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
-		}
-
-		if ( rand( 1, 2 ) == 1 && $num == 4 && $methodNumber == 4 ) {
-			   $setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
-		}
-
-		if ( rand( 1, 2 ) == 1 && $num == 3 ) {
-				$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
-		}
+		$setSize['rtc-config'] = '{"vendors": {"aps":{"PUB_ID": "3271","PARAMS":{"amp":"1"}}}}';
 
 		// this is a layout we never got working but
 		// it has some interesting media queries worth remembering
@@ -794,9 +785,13 @@ class GoogleAmp {
 
 		$adAttributes = $setSize;
 
-		//if ( $bucket == 20 ) {
-			//$dataLoadingStrategy = 2.5;
-		//}
+		if ( $bucket == 24 ) {
+			$dataLoadingStrategy = 2.5;
+		}
+
+		if ( $bucket == 23 ) {
+			$dataLoadingStrategy = 3;
+		}
 
 		if ( $dataLoadingStrategy ) {
 			$adAttributes['data-loading-strategy'] = $dataLoadingStrategy;
@@ -1025,7 +1020,7 @@ class GoogleAmp {
 		$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $videoId );
 		// Only videos from our own channel will have publisher information
 		if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
-			$element = SchemaMarkup::getSchemaTag( $videoSchema );
+			$element .= SchemaMarkup::getSchemaTag( $videoSchema );
 		}
 
 		$first = true;

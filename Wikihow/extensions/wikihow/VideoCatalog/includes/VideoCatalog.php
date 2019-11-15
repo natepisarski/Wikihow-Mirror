@@ -182,7 +182,7 @@ class VideoCatalog {
 	/**
 	 * Link a catalog item to a page.
 	 *
-	 * This should be called when parsing/rendering the summary video section of an article.
+	 * This should be called when editing an article.
 	 *
 	 * Item and link rows will be automatically found/updated/created using the given $articleId and
 	 * by parsing $sourceUrl.

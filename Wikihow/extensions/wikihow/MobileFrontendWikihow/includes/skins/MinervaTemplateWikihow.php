@@ -278,8 +278,23 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	private function getRightRailHtml( $data ) {
 		if ( $data['amp'] ) return;
 
-		$rightRail = $data['rightrail'];
-		$rightRailHtml = $rightRail->getRightRailHtml();
+		$rightRailHtml = '';
+		$customSideBar = '';
+		Hooks::run('CustomSideBar', array(&$customSideBar));
+
+		if ($customSideBar) {
+			$widgets = $this->getSkin()->mSidebarWidgets;
+
+			if (count($widgets)) {
+				foreach($widgets as $sbWidget) {
+					$rightRailHtml .= $sbWidget;
+				}
+			}
+		}
+		else {
+			$rightRail = $data['rightrail'];
+			$rightRailHtml = $rightRail->getRightRailHtml();
+		}
 
 		return $rightRailHtml;
 	}
@@ -416,7 +431,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 						$showArticleTabs = $this->isArticlePage;
 						$tabsArray = WikihowHeaderBuilder::getTabsArray($showArticleTabs, $this->getSkin(), $this->showCurrentArticle);
-						if (count($tabsArray) > 0 && !$data['amp']) {
+						if (!empty($tabsArray) && !$data['amp']) {
 					?>
 					<div id="actionbar" role="navigation">
 						<?php echo WikihowHeaderBuilder::getTabsHtml($tabsArray); ?>

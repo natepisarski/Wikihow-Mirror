@@ -67,8 +67,9 @@ class ArticleHooks {
 		global $wgOut, $wgTitle, $wgServer;
 		$title = $wikiPage->getTitle();
 		$ami = new ArticleMetaInfo( $title );
-		$lastVideo = '';
-		$summaryVideo = '';
+		$lastVideoSrc = '';
+		$summaryVideoSrc = '';
+		$summaryVideoPoster = '';
 
 		// Fake various things that a real web-request would expect - this is needed because we
 		// call processBody (via WikihowArticleHTML::processArticleHTML) which is not designed to
@@ -138,21 +139,25 @@ class ArticleHooks {
 						!pq( $video )->attr( 'id' ) !== 'summary_video_poster'
 					) {
 						// Inline video clip
-						$lastVideo = pq( $video )->attr( 'data-src' );
+						$lastVideoSrc = pq( $video )->attr( 'data-src' );
 					}
 				}
 				$src = pq( '#summary_wrapper' )->attr( 'data-summary-video-src' );
 				if ( $src ) {
-					$summaryVideo = $src;
+					$summaryVideoSrc = $src;
+				}
+				$poster = pq( '#summary_wrapper' )->attr( 'data-summary-video-poster' );
+				if ( $poster ) {
+					$summaryVideoPoster = $poster;
 				}
 
-				// Log the change
 				$ami->loadInfo();
 
 				$url = isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ?
 					$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] : '';
 
-				if ( $ami->row['ami_summary_video'] != $summaryVideo ) {
+				if ( $ami->row['ami_summary_video'] != $summaryVideoSrc ) {
+					// Log the change
 					wfDebugLog( 'articlemetainfo', var_export( [
 						'url' => $url,
 						'page_title' => $title->getText(),
@@ -160,19 +165,26 @@ class ArticleHooks {
 						'page_id' => $title->getArticleID(),
 						'summary_video' => [
 							'database' => $ami->row['ami_summary_video'],
-							'content' => $summaryVideo
+							'content' => $summaryVideoSrc
 						],
 						'last_video' => [
 							'database' => $ami->row['ami_video'],
-							'content' => $lastVideo
+							'content' => $lastVideoSrc
 						],
 						'html' => isset( $doc ) ? $doc->htmlOuter() : ''
 					], true ) . "\n" );
 				}
 
 				// Update article meta info with their source URLs
-				$ami->updateVideoPaths( $lastVideo, $summaryVideo );
-				// TODO: Update summary_videos directly
+				$ami->updateVideoPaths( $lastVideoSrc, $summaryVideoSrc );
+
+				// Update video catalog
+				VideoCatalog::updateArticleLink(
+					$title->getArticleID(),
+					$summaryVideoSrc,
+					$summaryVideoPoster,
+					$lastVideoSrc
+				);
 			} catch ( Exception $error ) {
 				wfDebugLog( 'articlemetainfo', var_export( [
 					'url' => $url,

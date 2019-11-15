@@ -20,6 +20,7 @@ class updateRecipeSchema extends Maintenance {
         parent::__construct();
         $this->mDescription = "update recipe scheme";
 		$this->addOption( 'title', 'title of page', false, true, 't' );
+		$this->addOption( 'force', 'force recalculation of recipe schema', false, false, 'f' );
     }
 
 	private function processTitle( $title, $forceUpdate = false ) {
@@ -70,8 +71,11 @@ class updateRecipeSchema extends Maintenance {
 				$indexableTitles[] = $title;
 			}
 		}
+
+		$forceUpdate = $this->getOption( "force" );
+
 		foreach( $indexableTitles as $title ) {
-			$this->processTitle( $title );
+			$this->processTitle( $title, $forceUpdate );
 		}
 	}
 

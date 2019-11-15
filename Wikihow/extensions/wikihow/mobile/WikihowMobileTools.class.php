@@ -929,16 +929,8 @@ class WikihowMobileTools {
 					WikihowToc::setSummaryVideo(true);
 					$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $matches[1] );
 					// Only videos from our own channel will have publisher information
-					if ( array_key_exists( 'publisher', $videoSchema ) ) {
-						pq( $video )->after(
-							SchemaMarkup::getSchemaTag( $videoSchema ) .
-							'<!-- ' . (
-								$videoSchema ?
-									'YouTube info from cache' :
-									'YouTube info being fetched'
-								) .
-							' -->'
-						);
+					if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
+						pq( $video )->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
 					}
 				}
 			}
@@ -985,7 +977,6 @@ class WikihowMobileTools {
 		}
 
 		SchemaMarkup::calcHowToSchema( $out );
-		SchemaMarkup::calcFAQSchema( $out );
 
 		Hooks::run('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
 

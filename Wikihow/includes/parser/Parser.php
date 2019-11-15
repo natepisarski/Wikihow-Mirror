@@ -2473,7 +2473,7 @@ class Parser {
 			}
 
 			if ($ns == NS_DOCUMENT || $ns == NS_QUIZ || $ns == NS_WIDGET) {
-				Hooks::run( 'BeforeParserFetchFileAndTitle2', array( &$this, &$nt, &$ret, $ns ) );
+				Hooks::run( 'BeforeParserFetchFileAndTitle2', [ $this, &$nt, &$ret, $ns ] );
 				$s .= $prefix . $this->armorLinks( $ret ) . $trail;
 				continue;
 			}

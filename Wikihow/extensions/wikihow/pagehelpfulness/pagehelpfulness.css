@@ -93,3 +93,10 @@
 .phr_ratings_old {
 	display:none;
 }
+
+#phr_ratings_undo_clear {
+	font-size:12px;
+	position: absolute;
+	right: 17px;
+	display:none;
+}

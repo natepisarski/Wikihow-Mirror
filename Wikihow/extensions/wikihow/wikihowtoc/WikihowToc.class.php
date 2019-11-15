@@ -22,8 +22,8 @@ class WikihowToc {
 	const CONFIG_LIST_NAME = "new_toc";
 
 	public static function setMethods($methodAnchors, $methodNames) {
-		self::$methodAnchors = $methodAnchors;
-		self::$methodNames = $methodNames;
+		self::$methodAnchors = !empty($methodAnchors) ? $methodAnchors : [];
+		self::$methodNames = !empty($methodNames) ? $methodNames : [];
 	}
 
 	public static function setTipsAndWarnings($hasTips) {

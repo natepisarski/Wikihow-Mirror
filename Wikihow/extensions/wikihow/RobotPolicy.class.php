@@ -557,15 +557,14 @@ class RobotPolicy {
 	}
 
 	/**
-	 * Check whether the article is yet to be nabbed and is short in length.
-	 * Use byte size as a proxy for length for better performance.
+	 * Check whether the article is yet to be NABbed.
 	 */
 	private function isUnNABbedArticle() {
 		$ret = false;
 		if ($this->wikiPage
 			&& $this->title->inNamespace(NS_MAIN)
 			&& class_exists('NewArticleBoost')
-			&& !NewArticleBoost::isNABbed( $this->getDB(), $this->title->getArticleID() )
+			&& !NewArticleBoost::isNABbed( wfGetDB(DB_MASTER), $this->title->getArticleID() )
 		) {
 			$ret = true;
 		}

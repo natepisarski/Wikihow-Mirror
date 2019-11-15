@@ -8,6 +8,7 @@ use MediaWiki\MediaWikiServices;
 class SkinMinervaWikihow extends SkinMinerva {
 	public $skinname = 'minervawh';
 	public $template = 'MinervaTemplateWikihow';
+	public $mSidebarWidgets = [];
 
 	/*
 	 * Override parent method to add a few more things to the html head element
@@ -728,9 +729,12 @@ class SkinMinervaWikihow extends SkinMinerva {
 		return $className;
 	}
 
-	// Do nothing in this method. But method must exist because it's called
-	// from our StandingsIndividual class.
-	public function addWidget($html) {
+	public function addWidget(String $html, String $class = '') {
+		$widget_classes = [ 'sidebox' ];
+		if ($class != '') $widget_classes[] = $class;
+
+		$display = Html::rawElement('div', ['class' => $widget_classes], $html);
+		array_push($this->mSidebarWidgets, $display);
 	}
 
 	protected function addHreflangs() {

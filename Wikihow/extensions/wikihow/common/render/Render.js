@@ -112,7 +112,7 @@ function extend( child, parent, prototype ) {
 	child.prototype.constructor = child;
 	if ( prototype ) {
 		for ( var key in prototype ) {
-			if ( prototype.hasOwnProperty( key ) ) {
+			if ( Object.prototype.hasOwnProperty.call( prototype, key ) ) {
 				child.prototype[key] = prototype[key];
 			}
 		}
@@ -319,7 +319,7 @@ Renderable.prototype.touch = function ( changer ) {
  * @param {Object} [context={}] Rendering context
  * @return {Array} JASONML rendering
  */
-Renderable.prototype.render = function ( context ) {
+Renderable.prototype.render = function ( context, renderer ) {
 	if ( this.trickleDown || this.bubbleUp || !this.cache ) {
 		// console.log(
 		// 	'render',
@@ -327,6 +327,7 @@ Renderable.prototype.render = function ( context ) {
 		// 	this.component.constructor.name
 		// );
 		this.cache = this.component.render( context || {} );
+		this.cache.changeable = this.component;
 		this.bubbleUp = false;
 		// this.trickleDown is cleared by renderer after children have been added and rendered
 		if ( this.renderer ) {
@@ -490,11 +491,11 @@ Renderer.prototype.render = function () {
 	// Root
 	var renderable = this.add( this.root );
 	var context = {};
-	var list = renderable.render( context );
+	var list = renderable.render( context, this );
 
 	// Traverse and render - breath first
 	var stack = [ { renderable: renderable, context: context, list: list } ];
-	var current, i, len, changeable, item, child, key, method,
+	var current, i, len, item, child, key, method,
 		index = 0;
 	while ( ( current = stack[index++] ) ) {
 		renderable = current.renderable;
@@ -505,21 +506,22 @@ Renderer.prototype.render = function () {
 			if ( i > 0 && item instanceof Changeable ) {
 				// Special objects - handle, then use rendering or discard
 				if ( item instanceof Component ) {
-					// Add child to this rendering cycle
+					// Add component to this rendering cycle
 					child = this.add( item, renderable.component );
 					// Trickle-down invalidation
 					if ( renderable && renderable.trickleDown ) {
 						child.trickleDown = true;
 					}
 					// Replace child with its rendering
-					list[i] = child.render( context );
+					list[i] = child.render( context, this );
 					// Descend into item in future iteration
 					stack.push( { renderable: child, context: context, list: list[i] } );
 				} else {
 					// Discard non-renderable item from rendering
 					delete list[i];
+					// Handle contexts
 					if ( item instanceof Context ) {
-						// Add child to this rendering cycle
+						// Add context to this rendering cycle
 						this.add( item, renderable.component );
 						// Ammend context prototype chain
 						context = Object.create( context );
@@ -539,6 +541,10 @@ Renderer.prototype.render = function () {
 					}
 				}
 			} else if ( Array.isArray( item ) ) {
+				// Cached component output
+				if ( item.changeable && renderable ) {
+					renderable = this.add( item.changeable, renderable.component );
+				}
 				// Element - Descend into child
 				stack.push( { renderable: renderable, context: context, list: item } );
 			}

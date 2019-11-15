@@ -658,6 +658,30 @@ class Html {
 		] );
 	}
 
+	// following the instructions here https://web.dev/defer-non-critical-css/
+	// which is linked to from here https://developers.google.com/speed/pagespeed/insights/
+	// as of the time this code waasa written
+	public static function linkedStylePreload( $url, $media = 'all' ) {
+		$link = self::element( 'link', [
+			'rel' => 'preload',
+			'href' => $url,
+			'as' => 'style',
+			'onload' => 'this.onload=null;this.rel="stylesheet"'
+		] );
+
+		/*
+		 * <link rel="preload" /> isn't well supported (https://caniuse.com/#search=preload)
+		 * so putting both preload and stylesheet into the page and the browser will pick the best one
+		 * (https://stackoverflow.com/questions/45321043/preload-css-file-not-supported-on-firefox-and-safari-mac)
+		 */
+		$fallbackLink = self::element( 'link', [
+			'rel' => 'stylesheet',
+			'href' => $url,
+		] );
+
+		return $link . $fallbackLink;
+	}
+
 	/**
 	 * Convenience function to produce an "<input>" element.  This supports the
 	 * new HTML5 input types and attributes.

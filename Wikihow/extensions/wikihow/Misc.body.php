@@ -427,7 +427,7 @@ class Misc {
 	 * Get list of active languages with their names
 	 */
 	public static function getActiveLanguageNames() {
-		global $wgActiveLanguages, $wgLanguageNames;
+		global $wgActiveLanguages;
 
 		$languageInfo[] = array('languageCode' => 'en', 'languageName' => 'English');
 		foreach ($wgActiveLanguages as $lang) {

@@ -899,7 +899,6 @@ class WikihowArticleHTML {
 		}
 
 		SchemaMarkup::calcHowToSchema( $out );
-		SchemaMarkup::calcFAQSchema( $out );
 
 		Hooks::run('ProcessArticleHTMLAfter', array( $out ) );
 
@@ -922,14 +921,19 @@ class WikihowArticleHTML {
 		// Maybe include summary video in VideoCatalog
 		$videoPlayer = pq( '#quick_summary_section .video-player' );
 		if ( $videoPlayer && class_exists( 'VideoCatalog' ) && VideoCatalog::shouldIncludeSummaryVideo( $context ) ) {
-			// Grab the original video source before the video is messed with
-			$src = $videoPlayer->find( 'video' )->attr( 'data-src' );
-
-			if ( $src ) {
-				// Add it to the summary wrapper for safe keeping - this is where
-				// maintenance/wikihow/updateSummaryVideos.php will be looking for it
-				// In the case of a random YouTube embed, $src is empty
-				pq('#summary_wrapper')->attr( 'data-summary-video-src', $src );
+			// Grab the original video source and poster before the video is messed with
+			$video = $videoPlayer->find( 'video' );
+			if ( $video ) {
+				$src = $video->attr( 'data-src' );
+				$poster = $video->attr( 'data-poster' );
+				if ( $src ) {
+					// Add the video source and poster to the summary wrapper for safe keeping -
+					// this is where maintenance/wikihow/updateSummaryVideos.php will be looking for
+					// it. In the case of a random YouTube embed, $src is empty
+					pq('#summary_wrapper')
+						->attr( 'data-summary-video-src', $src )
+						->attr( 'data-summary-video-poster', $poster );
+				}
 			}
 
 			// Maybe replace inline player with link to VideoBrowser
@@ -970,15 +974,7 @@ class WikihowArticleHTML {
 					$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
 					// Only videos from our own channel will have publisher information
 					if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
-						pq( $video )->after(
-							SchemaMarkup::getSchemaTag( $videoSchema ) .
-							'<!-- ' . (
-								$videoSchema ?
-									'YouTube info from cache' :
-									'YouTube info being fetched'
-								) .
-							' -->'
-						);
+						pq( $video )->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
 					}
 				}
 			}

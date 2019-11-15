@@ -359,7 +359,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 	onNextClick: function () {
 		var video = WH.VideoBrowser.catalog.videos().filter( { id: this.state.nextVideoId } ).first();
 		if ( video ) {
-			WH.VideoBrowser.router.go( video.pathname );
+			WH.VideoBrowser.router.go( WH.VideoBrowser.router.link( '/' + video.slug ) );
 			this.cancelCountdown();
 		}
 	},
@@ -403,7 +403,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 			if ( state.countdown <= 1 ) {
 				var video = WH.VideoBrowser.catalog.videos().filter( { id: state.nextVideoId } ).first();
 				this.cancelCountdown();
-				WH.VideoBrowser.router.go( video.pathname );
+				WH.VideoBrowser.router.go( WH.VideoBrowser.router.link( '/' + video.slug ) );
 			} else {
 				this.change( { countdown: state.countdown - 1 } );
 			}

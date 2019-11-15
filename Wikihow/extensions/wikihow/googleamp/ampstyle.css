@@ -653,24 +653,23 @@
 #article_rating_mobile {
 	text-align: center;
 	margin: 20px auto;
-	font-size: 22px;
 	display: block;
+	padding: 1.3em;
 }
 #article_rating {
-	display: block;
-	padding-bottom: 1em;
+	padding: 1em;
 }
-.ar_box{
-	margin: 0 auto;
+#article_rating_mobile h2 {
+	padding: 0;
+	font-size: 1.1em;
 }
-#article_rating_mobile h2 { padding-top: 0; }
-#article_rating_mobile .mw-headline {
-	font-weight: normal;
-	font-size: 22px;
-}
-#article_rating_mobile #article_rating {
+
+#article_rating .button.aritem {
+	min-width: 100px;
+	padding: 0 10px 0 50px;
+	line-height: 2.5em;
 	font-weight: bold;
-	color: #93b874;
+	border-color: #e5e5e5;
 }
 
 #gatAccuracyYes {
@@ -678,28 +677,15 @@
 	background: url(/extensions/wikihow/Rating/images/face_smile_green.png) 15px center / 30px no-repeat;
 	/* @embed */
 	background-image: url(/extensions/wikihow/Rating/images/face_smile_green.svg);
-	padding-left: 50px;
 }
 #gatAccuracyNo {
 	color: #686868;
 	background: url(/extensions/wikihow/Rating/images/face_sad_gray.png) 15px center / 30px no-repeat;
 	/* @embed */
 	background-image: url(/extensions/wikihow/Rating/images/face_sad_gray.svg);
-	padding-left: 50px;
+	margin-right: 0;
 }
 
-.ar_box, .section_text.ar_box {
-	max-width: 150px;
-	color: #cdcdcc;
-	padding: 0;
-}
-
-.ar_box_vote {
-	float:left;
-	width: 49%;
-	text-align:center;
-	margin-top:8px;
-}
 .m-video-intro-over {
 	visibility: visible;
 }

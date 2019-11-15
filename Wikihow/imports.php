@@ -34,7 +34,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/titlefish/Titlefish.php");
 	require_once("$IP/extensions/wikihow/retranslatefish/Retranslatefish.php");
 	require_once("$IP/extensions/wikihow/bots/messenger_bot/MessengerBot.php");
-	require_once("$IP/extensions/wikihow/bots/alexa_skills/AlexaSkills.php");
 	require_once("$IP/extensions/wikihow/tipsandwarnings/TipsAndWarnings.php");
 	require_once("$IP/extensions/wikihow/tipsandwarnings/TipsPatrol.php");
 	require_once("$IP/extensions/wikihow/docviewer/DocViewer.php");
@@ -103,6 +102,7 @@ if ($wgLanguageCode == 'en') {
 }
 
 require_once("$IP/extensions/wikihow/AsyncHttp.php");
+require_once("$IP/extensions/wikihow/CopyArticleImages/CopyArticleImages.php");
 require_once("$IP/extensions/wikihow/DupImage.php");
 require_once("$IP/extensions/wikihow/MemStaticBagOStuff.php");
 require_once("$IP/extensions/wikihow/whredis/WHRedis.php");
@@ -120,6 +120,7 @@ require_once("$IP/extensions/wikihow/ios_helper/IOSHelper.php");
 require_once("$IP/extensions/wikihow/usage_logs/UsageLogs.php");
 require_once("$IP/extensions/wikihow/MassEdit/AdminMassEdit.php");
 require_once("$IP/extensions/wikihow/qadomain/QADomain.php");
+require_once("$IP/extensions/wikihow/tags/ArticleTags.php");
 wfLoadExtension( 'MobileFrontend' );
 wfLoadSkin( 'MinervaNeue' );
 require_once("$IP/extensions/wikihow/MobileFrontendWikihow/MobileFrontendWikihow.php");
@@ -170,7 +171,6 @@ require_once("$IP/extensions/wikihow/civic_login/CivicLogin.php");
 require_once("$IP/extensions/wikihow/WikihowArticle.php");
 require_once("$IP/extensions/wikihow/Wikitext.class.php");
 require_once("$IP/extensions/wikihow/RobotPolicy.class.php");
-require_once("$IP/extensions/wikihow/tags/ArticleTags.php");
 require_once("$IP/extensions/wikihow/WikiPhoto.php");
 require_once("$IP/extensions/wikihow/FBAppContact.php");
 require_once("$IP/extensions/wikihow/categories/Categorylisting.php");
@@ -285,7 +285,6 @@ require_once("$IP/extensions/wikihow/AdminSamples.php");
 require_once("$IP/extensions/wikihow/custom_meta/AdminCustomMeta.php");
 require_once("$IP/extensions/wikihow/quizzes/Quizzes.php");
 require_once("$IP/extensions/wikihow/WikihowUserPage/UserPagePolicy.php");
-require_once("$IP/extensions/wikihow/alfredo/Alfredo.php");
 require_once("$IP/extensions/wikihow/schema/SchemaMarkup.php");
 require_once("$IP/extensions/wikihow/AdminUserCompletedImages.php");
 require_once("$IP/extensions/wikihow/AdminClearRatings.php");

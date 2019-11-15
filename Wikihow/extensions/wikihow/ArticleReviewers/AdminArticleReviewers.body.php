@@ -104,7 +104,7 @@ class AdminArticleReviewers extends UnlistedSpecialPage {
 	function displayForm() {
 		global $wgOut;
 
-		$tmpl = new EasyTemplate( __DIR__ );
+		$tmpl = new EasyTemplate( __DIR__ . '/templates' );
 		$html = $tmpl->execute('adminform.tmpl.php');
 
 		$wgOut->addHTML($html);

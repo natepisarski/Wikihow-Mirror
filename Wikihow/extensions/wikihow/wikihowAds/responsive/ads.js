@@ -382,7 +382,7 @@ WH.ads = (function () {
 		var css = 'display:inline-block;width:'+ad.width+'px;height:'+ad.height+'px;';
 		var noWidthTypes = ["method", "qa", "tips", "warnings"];
 		// TODO do not use includes
-		if (noWidthTypes.includes(ad.type)) {
+		if (ad.adSize == 'small' && noWidthTypes.includes(ad.type)) {
 			css = 'display:block;height:'+ad.height+'px;';
 		}
 		i.style.cssText = css;
@@ -430,37 +430,33 @@ WH.ads = (function () {
 		return width;
 	}
 	function Ad(element) {
-		// the ad ELement has all the data attributes about the ad
+		// the ad element has all the data attributes about the ad
 		// the element is the contained div which is the target of the ad insertion
 		// it is nested due to making css easier
 		var adElement = element.parentElement;
 		var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
-		this.isDesktopSize = viewportWidth >= WH.mediumScreenMinWidth;
-		this.isLargeSize = viewportWidth >= WH.largeScreenMinWidth;
-		this.isMediumSize = this.isDesktopSize && !this.isLargeSize;
+
+		var isSmallSize = viewportWidth < WH.mediumScreenMinWidth;
+		var isMediumSize = !isSmallSize && viewportWidth < WH.largeScreenMinWidth;
+		var isLargeSize = !isSmallSize && !isMediumSize;
 
 		this.element = element;
 		this.adElement = adElement;
 		this.height = this.adElement.offsetHeight;
 		this.adTargetId = element.id;
-		this.desktopOnly = this.adElement.getAttribute('data-desktoponly') == 1;
-		if (this.desktopOnly && !this.isDesktopSize) {
-			this.disabled = true;
-			adElement.style.display = 'none';
-			return;
+
+		var small = this.adElement.getAttribute('data-small') == 1;
+		var medium = this.adElement.getAttribute('data-medium') == 1;
+		var large = this.adElement.getAttribute('data-large') == 1;
+
+		var okForSize = false;
+		if (small && isSmallSize || medium && isMediumSize || large && isLargeSize) {
+			okForSize = true;
 		}
 
-		this.mediumOnly = this.adElement.getAttribute('data-mediumonly') == 1;
-		if (this.mediumOnly && !this.isMediumSize) {
+		if (!okForSize) {
 			this.disabled = true;
 			//adElement.parentElement.removeChild(adElement);
-			adElement.style.display = 'none';
-			return;
-		}
-
-		this.largeOnly = this.adElement.getAttribute('data-largeonly') == 1;
-		if (this.largeOnly && !this.isLargeSize) {
-			this.disabled = true;
 			adElement.style.display = 'none';
 			return;
 		}
@@ -469,11 +465,6 @@ WH.ads = (function () {
 		this.service = this.adElement.getAttribute('data-service');
 		this.apsload = this.adElement.getAttribute('data-apsload') == 1;
 		this.slot = this.adElement.getAttribute('data-slot');
-		if (this.isDesktopSize && this.service == 'adsense' && !this.slot) {
-			this.disabled = true;
-			adElement.style.display = 'none';
-			return;
-		}
 		this.adunitpath = this.adElement.getAttribute('data-adunitpath');
 		this.channels = this.adElement.getAttribute('data-channels');
 		this.mobileChannels = this.adElement.getAttribute('data-mobilechannels');
@@ -495,21 +486,33 @@ WH.ads = (function () {
 		this.renderrefresh = this.adElement.getAttribute('data-renderrefresh') == 1;
 		this.width = this.adElement.getAttribute('data-width');
 		this.height = this.adElement.getAttribute('data-height');
-		this.mobileHeight = this.adElement.getAttribute('data-mobileheight');
-		this.mobileSlot = this.adElement.getAttribute('data-mobileslot');
-		this.mobileService = this.adElement.getAttribute('data-mobileservice');
-		if (!this.isDesktopSize) {
+
+		//override any size specific settings
+		if (small && isSmallSize) {
+			this.adSize = 'small';
 			this.channels = this.mobileChannels;
-			this.slot = this.mobileSlot;
-			this.height = this.mobileHeight;
-			this.width = getMobileAdWidth(this.type);;
-			if (this.mobileService) {
-				this.service = this.mobileService;
-			}
-			if (this.service == 'adsense' && !this.slot) {
-				this.disabled = true;
-				return;
-			}
+			this.slot = this.adElement.getAttribute('data-smallslot') || this.slot;
+			this.height = this.adElement.getAttribute('data-smallheight') || this.height;
+			this.width = getMobileAdWidth(this.type);
+			this.service = this.adElement.getAttribute('data-smallservice') || this.service;
+		}
+
+		if (medium && isMediumSize) {
+			this.adSize = 'medium';
+			this.slot = this.adElement.getAttribute('data-mediumslot') || this.slot;
+			this.height = this.adElement.getAttribute('data-mediumslot') || this.height;
+			this.width = this.adElement.getAttribute('data-mediumwidth') || this.width;
+			this.service = this.adElement.getAttribute('data-mediumservice') || this.service;
+		}
+
+		if (large && isLargeSize) {
+			this.adSize = 'large';
+		}
+
+		if (this.service == 'adsense' && !this.slot) {
+			this.disabled = true;
+			adElement.style.display = 'none';
+			return;
 		}
 
 		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
@@ -567,9 +570,6 @@ WH.ads = (function () {
 		this.load = function() {
 			// if already loaded do nothing
 			if (this.isLoaded == true) {
-				return;
-			}
-			if (!this.isLargeSize && this.isRightRail) {
 				return;
 			}
 			if (this.service == 'dfp') {

@@ -12,6 +12,8 @@ class AwsFiles {
 		global $IP;
 		if (is_null(self::$aws)) {
 			// Create a service builder using a configuration file
+			// NOTE: by default, our connection to AWS uses TLS
+			// https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/faq.html
 			self::$aws = Aws::factory(array(
 				'key'    => WH_AWS_IMAGES_ACCESS_KEY,
 				'secret' => WH_AWS_IMAGES_SECRET_KEY,
@@ -47,6 +49,8 @@ class AwsFiles {
 				$fp = fopen($tempFile, 'w');
 			}
 
+			// NOTE on security: These http connections are local within the same
+			// data center. If we ever change that, we should add security.
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $fetchUrl);
 			curl_setopt($ch, CURLOPT_FILE, $fp);

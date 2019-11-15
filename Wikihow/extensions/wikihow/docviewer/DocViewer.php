@@ -42,7 +42,7 @@ function wfDocIsEligibleForMobile(&$isEligible) {
 	return true;
 }
 
-function wfGrabDocThumb(&$parser, &$nt, &$ret, $ns) {
+function wfGrabDocThumb($parser, &$nt, &$ret, $ns) {
 	global $wgCanonicalNamespaceNames;
 	if (!$nt) return true;
 	if ($ns == NS_DOCUMENT) {

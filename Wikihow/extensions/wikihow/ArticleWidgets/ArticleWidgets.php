@@ -29,7 +29,7 @@ $wgArticleWidgets = array(
 
 $wgHooks["BeforeParserFetchFileAndTitle2"][] = array("wfGrabWidget");
 
-function wfGrabWidget(&$parser, &$nt, &$ret, $ns) {
+function wfGrabWidget($parser, &$nt, &$ret, $ns) {
 	global $wgCanonicalNamespaceNames;
 	if (!$nt) return true;
 	if ($ns == NS_WIDGET) {

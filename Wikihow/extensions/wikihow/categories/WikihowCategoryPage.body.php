@@ -3,7 +3,7 @@
 class WikihowCategoryPage {
 	public static function onArticleFromTitle(&$title, &$page) {
 		$request = RequestContext::getMain()->getRequest();
-		if ($title && $title->exists() && !count($request->getVal('diff')) > 0) {
+		if ($title && $title->exists() && !$request->getVal('diff')) {
 			switch ($title->getNamespace()) {
 				case NS_CATEGORY:
 					if (Misc::isMobileMode()) {

@@ -1,5 +1,5 @@
 <?php
-// Get all alfredo articles, that have an extra newline between steps
+// Get all ImageTransfer articles that have an extra newline between steps
 require_once("commandLine.inc");
 
 $dbr = wfGetDB(DB_REPLICA);

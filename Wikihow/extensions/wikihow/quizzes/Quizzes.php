@@ -38,7 +38,7 @@ $wgResourceModules['ext.wikihow.quizzes'] = [
 //$wgHooks["PageContentSaveComplete"][] = array("wfConnectQuiz");
 
 /* disabled unused code
-function wfGrabQuizCTA(&$parser, &$nt, &$ret, $ns) {
+function wfGrabQuizCTA($parser, &$nt, &$ret, $ns) {
 	global $wgCanonicalNamespaceNames;
 	if (!$nt) return true;
 	if ($ns == NS_QUIZ) {

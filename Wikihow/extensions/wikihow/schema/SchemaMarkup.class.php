@@ -1067,11 +1067,6 @@ class SchemaMarkup {
 				$schema .= $howToSchema;
 			}
 
-			$faqSchema = self::getFAQSchema();
-			if ( $faqSchema ) {
-				$schema .= $faqSchema;
-			}
-
 			$schema .= self::getBreadcrumbSchema( $out );
 
 			if ( CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {

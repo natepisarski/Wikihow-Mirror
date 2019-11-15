@@ -33,7 +33,6 @@ $wgResourceModules['ext.wikihow.videoBrowser'] = [
 		'resources/styles/ViewerComponent.less',
 	],
 	'scripts' => [
-		'resources/scripts/Catalog.js',
 		'resources/scripts/ActionBarComponent.js',
 		'resources/scripts/ArticleComponent.js',
 		'resources/scripts/BrowserComponent.js',
@@ -70,9 +69,9 @@ $wgResourceModules['ext.wikihow.videoBrowser'] = [
 	],
 	'targets' => [ 'desktop', 'mobile' ],
 	'dependencies' => [
+		'ext.wikihow.videoCatalog',
 		'wikihow.router',
 		'wikihow.render',
-		'wikihow.common.taffy',
 		'ext.wikihow.common_top',
 		'ext.wikihow.common_bottom'
 	]
