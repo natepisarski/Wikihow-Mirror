@@ -22,7 +22,7 @@ class S3Images {
 			}
 		}
 		foreach ($buckets as $bucket) {
-			$localUrl = 'http://' . $localIP  . '/images/' . $localFile->getRel();
+			$localUrl = 'https://' . $localIP  . '/images/' . $localFile->getRel();
 			$jobParams = array(
 				'fetchUrl' => $localUrl,
 				'fetchHost' => Misc::getLangDomain($wgLanguageCode),

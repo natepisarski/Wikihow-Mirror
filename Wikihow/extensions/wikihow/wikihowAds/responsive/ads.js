@@ -27,6 +27,33 @@ WH.ads = (function () {
 
 	var topMenuHeight = WH.shared.TOP_MENU_HEIGHT;
 	var bottomMarginHeight = WH.shared.BOTTOM_MARGIN;
+	var initialViewportHeight = (window.innerHeight || document.documentElement.clientHeight);
+
+	var adLoadingObserver = null;
+	var loadingMargin = initialViewportHeight * 2;
+	var rootLoadingMargin = "0px 0px " + loadingMargin + "px 0px";
+
+	if ("IntersectionObserver" in window) {
+		adLoadingObserver = new IntersectionObserver(function(entries, observer) {
+			entries.forEach(function(entry) {
+				if (entry.isIntersecting) {
+					loadElement(entry.target);
+					adLoadingObserver.unobserve(entry.target);
+				}
+			});
+		}, {
+			rootMargin: rootLoadingMargin
+		});
+	}
+
+	// do not use the intersection observer yet
+	function useIntersectionObserver() {
+		if (adLoadingObserver == null) {
+			return false;
+		}
+		return true;
+	}
+
 	if (WH.isMobile) {
 		topMenuHeight = 92;
 		bottomMarginHeight = 314;
@@ -540,6 +567,9 @@ WH.ads = (function () {
 			this.firstRefreshTime = parseInt(this.firstRefreshTime);
 		}
 
+		this.useScrollLoader = true;
+		this.observerLoading = this.adElement.getAttribute('data-observerloading') == 1;
+
 		this.getRefreshTime = function() {
 			if (this.firstRefresh == true ) {
 				this.firstRefresh = false;
@@ -547,7 +577,6 @@ WH.ads = (function () {
 			} else {
 				return this.refreshTime;
 			}
-
 		}
 
 		// special type of adsense ad that is immediately loaded which we will refresh
@@ -912,6 +941,9 @@ WH.ads = (function () {
 		if (ad.isLoaded) {
 			return;
 		}
+		if (ad.useScrollLoader == false) {
+			return;
+		}
 		var rect = ad.element.getBoundingClientRect();
 		// check viewport size + additional 20% so we load before the video is in view
 		if (isInViewport(rect, viewportHeight, true, ad)) {
@@ -1218,6 +1250,11 @@ WH.ads = (function () {
 			});
 		} else {
 			bodyAds.push(ad);
+			var useObserver = useIntersectionObserver();
+			if (useObserver && ad.observerLoading) {
+				ad.useScrollLoader = false;
+				adLoadingObserver.observe(ad.element);
+			}
 		}
 		if (ad.service == 'dfp') {
 			googletag.cmd.push(function() { googletag.display(ad.adTargetId); });;
@@ -1242,6 +1279,16 @@ WH.ads = (function () {
 
 	function getIntroAd() {
 		return introAd;
+	}
+
+	// finds the ScrollLoad item matching the element and loads it
+	function loadElement(element) {
+		for (var i = 0; i < bodyAds.length; i+=1) {
+			var item = bodyAds[i];
+			if (item.element == element) {
+				item.load()
+			}
+		}
 	}
 
 	return {

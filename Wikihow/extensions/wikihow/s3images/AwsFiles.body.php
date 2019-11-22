@@ -56,6 +56,8 @@ class AwsFiles {
 			curl_setopt($ch, CURLOPT_FILE, $fp);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 90);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Host: ' . $fetchHost));
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			$result = curl_exec($ch);
 			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			$curlError = !$result || $httpCode != 200;
@@ -81,7 +83,7 @@ class AwsFiles {
 	 * Uploads a file from a local filesystem path to S3.
 	 *
 	 * Created using documentation here:
-	 * http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html
+	 * https://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html
 	 *
 	 * @param string $filePath full path to local filesystem file
 	 * @param string $bucket bucket on S3 of destination file
@@ -155,10 +157,10 @@ class AwsFiles {
 	 * Deletes a file on S3.
 	 *
 	 * From:
-	 * http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_deleteObject
+	 * https://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_deleteObject
 	 *
 	 * Created using documentation here:
-	 * http://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html
+	 * https://docs.aws.amazon.com/aws-sdk-php/guide/latest/service-s3.html
 	 *
 	 * @param string $bucket bucket on S3 of destination file
 	 * @param string $s3obj path/key on S3 of destination

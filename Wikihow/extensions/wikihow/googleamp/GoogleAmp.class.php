@@ -785,14 +785,6 @@ class GoogleAmp {
 
 		$adAttributes = $setSize;
 
-		if ( $bucket == 24 ) {
-			$dataLoadingStrategy = 2.5;
-		}
-
-		if ( $bucket == 23 ) {
-			$dataLoadingStrategy = 3;
-		}
-
 		if ( $dataLoadingStrategy ) {
 			$adAttributes['data-loading-strategy'] = $dataLoadingStrategy;
 		}

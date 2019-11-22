@@ -26,6 +26,7 @@ if (WH.shared.isDesktopSize) {
 		slot.setTargeting('bucket', bucketId);
 		slot.setTargeting('language', WH.pageLang);
 		slot.setTargeting('format', format);
+		slot.setTargeting('hostname', window.location.hostname);
 	}
 	var googletag = googletag || {};
 	googletag.cmd = googletag.cmd || [];

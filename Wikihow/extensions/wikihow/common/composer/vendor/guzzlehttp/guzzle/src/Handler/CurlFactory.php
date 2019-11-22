@@ -64,7 +64,8 @@ class CurlFactory implements CurlFactoryInterface
         $resource = $easy->handle;
         unset($easy->handle);
 
-        if (count($this->handles) >= $this->maxHandles) {
+		$handleCount = is_array($this->handles) ? count($this->handles) : 0;
+        if ($handleCount >= $this->maxHandles) {
             curl_close($resource);
         } else {
             // Remove all callback functions as they can hold onto references

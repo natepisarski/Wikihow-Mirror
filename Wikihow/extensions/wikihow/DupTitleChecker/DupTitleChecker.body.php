@@ -26,7 +26,10 @@ class DupNode {
 	}
 
 	public function getCount() {
-		return count( $this->duplicates ) + count( $this->likely ) + count( $this->possible );
+		$countDups = is_array( $this->duplicates ) ? count( $this->duplicates ) : 0;
+		$countLikely = is_array( $this->likely ) ? count( $this->likely ) : 0;
+		$countPossible = is_array( $this->possible ) ? count( $this->possible ) : 0;
+		return $countDups + $countLikely + $countPossible;
 	}
 
 	public function addItem( $n, $label ) {
@@ -145,7 +148,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 	}
 
 	private function addToDedupTool( $importTimestamp, $query, $enc_ids, $exactMatch ) {
-		if ( count ( $enc_ids ) == 0 ) {
+		if ( empty( $enc_ids ) ) {
 			// nothing found
 			DedupTool::addToTool( $importTimestamp, "", $query, -1 );
 		}
@@ -505,7 +508,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 			// get similar titles
 			// do search if not found.
 			$hits = $this->getSimilarTitles( $query );
-			if ( count( $hits ) > 0 ) {
+			if ( !empty( $hits ) ) {
 				$ids = [];
 				$exactMatch = 0;
 
@@ -549,7 +552,7 @@ class DupTitleChecker extends UnlistedSpecialPage {
 
 		foreach ( $this->queries as $query ) {
 			$hits = $this->getSimilarTitles( $query, true );
-			if ( count( $hits ) > 0 ) {
+			if ( !empty( $hits ) ) {
 				$rank = 0;
 
 				foreach ( $hits as $hit ) {

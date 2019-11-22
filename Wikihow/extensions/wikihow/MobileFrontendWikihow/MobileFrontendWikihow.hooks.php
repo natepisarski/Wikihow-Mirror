@@ -2,6 +2,8 @@
 
 class MobileFrontendWikiHowHooks {
 
+	private static $isvalidResponsivePage = null;
+
 	static function onSpecialPageBeforeExecute($special, $subPage) {
 		global $wgOut, $wgRequest, $wgIsAnswersDomain;
 
@@ -252,7 +254,7 @@ class MobileFrontendWikiHowHooks {
 			));
 		}
 
-		if (self::validResponsivePage( $wgTitle )) {
+		if (self::validResponsivePage()) {
 			global $wgResourceLoaderLESSImportPaths;
 			$wgResourceLoaderLESSImportPaths = [ "$IP/extensions/wikihow/less/" => '' ];
 
@@ -272,7 +274,11 @@ class MobileFrontendWikiHowHooks {
 		return true;
 	}
 
-	private static function validResponsivePage(Title $title): Bool {
+	private static function validResponsivePage(): Bool {
+		if (!is_null(self::$isvalidResponsivePage)) return self::$isvalidResponsivePage;
+
+		$title = RequestContext::getMain()->getTitle();
+
 		$wHnamespacePagesWithCss = [ wfMessage('trustworthy-page')->text() ];
 		$specialPagesWithCss = [
 			'SiteMap',
@@ -282,10 +288,16 @@ class MobileFrontendWikiHowHooks {
 			'ArticleReviewers'
 		];
 
-		return $title &&
+		self::$isvalidResponsivePage = $title &&
 			$title->inNamespace( NS_MAIN ) ||
 			($title->inNamespace( NS_PROJECT ) && in_array($title->getDBkey(), $wHnamespacePagesWithCss)) ||
 			($title->inNamespace(NS_SPECIAL) && in_array($title->getText(), $specialPagesWithCss));
+
+		return self::$isvalidResponsivePage;
+	}
+
+	public static function onMinvervaTemplateBeforeRender( &$data ) {
+		if (self:: validResponsivePage()) $data['is_responsive'] = true;
 	}
 
 	public static function onSpecialPage_initList( &$list ) {

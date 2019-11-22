@@ -71,9 +71,9 @@ class VideoCatalog {
 	 * @param {string} $message Message to log
 	 * @param {mixed} $object Variable to export
 	 */
-	protected static function log( $message, $object = [] ) {
-		$export = var_export( $object, true );
-		wfDebugLog( 'videocatalog', "-\n>> VideoCatalog {$message} {$export} \n" );
+	protected static function log( $message, $object = null ) {
+		$export = $object ? "\n" . var_export( $object, true ) : '';
+		wfDebugLog( 'videocatalog', "-\n>> VideoCatalog {$message}{$export}\n" );
 	}
 
 	/**
@@ -194,17 +194,29 @@ class VideoCatalog {
 	 * @param {bool} Article link successfully updated
 	 */
 	public static function updateArticleLink( $articleId, $sourceUrl = '', $posterUrl = '', $clipUrl = '' ) {
-		static::log( 'updateArticleLink', [
-			'articleId' => $articleId,
-			'sourceUrl' => $sourceUrl,
-			'posterUrl' => $posterUrl,
-			'clipUrl' => $clipUrl
-		] );
+		// static::log( 'updateArticleLink', [
+		// 	'articleId' => $articleId,
+		// 	'sourceUrl' => $sourceUrl,
+		// 	'posterUrl' => $posterUrl,
+		// 	'clipUrl' => $clipUrl
+		// ] );
 
 		if ( $sourceUrl === '' ) {
 			// Remove link
 			$link = VideoCatalogLink::getFromArticleId( $articleId );
-			return $link ? $link->delete() : false;
+			if ( $link ) {
+				if ( $link->delete() ) {
+					// static::log(
+					// 	" -> deleting link failed",
+					// 	[ 'linkItemId' => $link->getItemId() ]
+					// );
+				} else {
+					// static::log( " -> deleted link", [ 'linkItemId' => $link->getItemId() ] );
+				}
+			} else {
+				// static::log( " -> link doesn't exist, and shouldn't - nothing to do" );
+				return false;
+			}
 		}
 
 		// Read/create item
@@ -217,7 +229,10 @@ class VideoCatalog {
 				$item->setClipUrl( $clipUrl );
 				if ( !$item->update() ) {
 					// Update failed
+					// static::log( " -> updating poster/clip failed" );
 					return false;
+				} else {
+					// static::log( " -> updated poster/clip", [ 'itemId' => $item->getId() ] );
 				}
 			}
 		} else {
@@ -228,7 +243,10 @@ class VideoCatalog {
 			$item->setOriginalArticleId( $articleId );
 			if ( !$item->create() ) {
 				// Creation failed
+				// static::log( " -> creating new item failed" );
 				return false;
+			} else {
+				// static::log( " -> created new item", [ 'itemId' => $item->getId() ] );
 			}
 		}
 
@@ -241,17 +259,32 @@ class VideoCatalog {
 				$link->setItemId( $item->getId() );
 				if ( !$link->update() ) {
 					// Update failed
+					// static::log( " -> updating existing link failed" );
 					return false;
+				} else {
+					// static::log(
+					// 	" -> updated existing link",
+					// 	[ 'linkItemId' => $link->getItemId() ]
+					// );
 				}
+			} else {
+				// static::log(
+				// 	" -> existing link fine as is",
+				// 	[ 'linkItemId' => $link->getItemId(), 'itemId' => $item->getId() ]
+				// );
 			}
 		} else {
 			// No link exists, create one
 			$link = VideoCatalogLink::newFromArticleIdAndItemId( $articleId, $item->getId() );
 			if ( !$link->create() ) {
 				// Create failed
+				// static::log( " -> creating new link failed" );
 				return false;
+			} else {
+				// static::log( " -> created new link", [ 'linkItemId' => $link->getItemId() ] );
 			}
 		}
+		// static::log( " -> done" );
 		return true;
 	}
 }

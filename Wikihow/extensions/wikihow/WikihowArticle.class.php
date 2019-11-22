@@ -131,7 +131,11 @@ class WikihowArticleHTML {
 		// output should vary based on domain and HTTP/S status.
 		foreach (pq('.whcdn') as $node) {
 			$pqNode = pq($node);
-			$pqNode->attr('src', wfGetPad( $pqNode->attr('src') ) );
+			if ( $pqNode->attr( 'src' ) == 'https://www.wikihow.com' ) {
+				$pqNode->removeAttr( 'src' );
+			} else if ( $pqNode->attr('src') ) {
+				$pqNode->attr('src', wfGetPad( $pqNode->attr('src') ) );
+			}
 		}
 
 		//add a clearall to the end of the intro
@@ -285,19 +289,23 @@ class WikihowArticleHTML {
 						$removeRet = WikihowArticleEditor::removeMethodNamePrefix( $methodTitle );
 						$altMethodNames[] = $methodTitle;
 						$altMethodAnchors[] = pq("span.mw-headline", $h3Tags[$i])->attr("id");
+
 						//[sc] ***INTERMEDIATE STEP (swap if logic below)
 						//if ($displayMethodCount > 1 && $hasParts && $opts['ns'] == NS_MAIN) {
-						if ($displayMethodCount > 1 && !$isSample[$i] && ($removeRet['has_parts'] || $hasParts) && $opts['ns'] == NS_MAIN) {
+						if ($displayMethodCount > 0 && !$isSample[$i] && ($removeRet['has_parts'] || $hasParts) && $opts['ns'] == NS_MAIN) {
 							$methodPrefix = wfMessage("part")->text() . " <span>{$displayMethod}</span>";
 							$displayMethod++;
-						} elseif ($displayMethodCount > 1 && !$isSample[$i] && $opts['ns'] == NS_MAIN) {
+						} elseif ($displayMethodCount > 0 && !$isSample[$i] && $opts['ns'] == NS_MAIN) {
 							$nonAltMethodElements[] = pq("span.mw-headline", $h3Tags[$i])->clone();
 							$labelTxt = wfMessage("method")->text();
 							$methodPrefix =  "<label class='method_label'>{$labelTxt}</label> <span>{$displayMethod}</span>";
 							$displayMethod++;
+						} else {
+							$methodPrefix = '';
 						}
+
 						pq("span.mw-headline", $h3Tags[$i])->html($methodTitle);
-						if (!$isSample[$i] && $opts['ns'] == NS_MAIN) {
+						if (!$isSample[$i] && $opts['ns'] == NS_MAIN && $methodPrefix != '') {
 							pq(".altblock", $h3Tags[$i])->html($methodPrefix);
 						} else {
 							pq(".altblock", $h3Tags[$i])->remove();

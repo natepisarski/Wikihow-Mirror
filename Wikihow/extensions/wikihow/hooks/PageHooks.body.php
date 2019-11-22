@@ -227,12 +227,9 @@ class PageHooks {
 	 */
 	public static function addSurrogateKeyHeaders($out, $title, $req) {
 		if ($req && $title) {
-			$layoutStr = Misc::isMobileMode() ? 'mb' : 'dt';
-			$req->response()->header("X-Layout: $layoutStr");
-			$out->addVaryHeader('X-Layout');
-
 			$langCode = $out->getLanguage()->getCode();
 			$id = $title->getArticleID();
+			$layoutStr = Misc::isMobileMode() ? 'mb' : 'dt';
 			$rollingResetTensStr = ($id > 0 ? ' rollnn' . ($id % 10) : '');
 			$rollingResetHundredsStr = ($id > 0 ? ' rollnnn' . ($id % 100) : '');
 			$idResetStr = ($id > 0 ? " id$langCode$id" : '');

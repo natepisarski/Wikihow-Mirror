@@ -119,7 +119,7 @@ class HistoricalPV extends UnlistedSpecialPage {
 		}
 		$pages = TitusQueryTool::getIdsFromUrls($lines);
 
-		if (count($dates) == 0 || count($lines) == 0) {
+		if (empty($dates) || empty($lines)) {
 			return false;
 		}
 

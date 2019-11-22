@@ -90,6 +90,10 @@ class DeleteBatch extends Maintenance {
 				continue;
 			}
 			$title = Title::newFromText( $line );
+			// Wikihow: if title doesn't exist, try looking it up as a page ID
+			if ( !is_null( $title ) && !$title->exists() && preg_match('@^[0-9]+$@', $line) ) {
+				$title = Title::newFromID( (int)$line );
+			}
 			if ( is_null( $title ) ) {
 				$this->output( "Invalid title '$line' on line $linenum\n" );
 				continue;

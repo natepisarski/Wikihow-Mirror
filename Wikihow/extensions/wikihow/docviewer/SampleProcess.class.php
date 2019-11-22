@@ -375,7 +375,7 @@ class SampleProcess {
 		$service = self::buildService();
 		if (!isset($service)) return array('sample' => 'cannot get to the Google', 'formats' => '');
 
-		$result = '';
+		$result = [];
 		foreach ($ids as $id) {
 			$result[] = self::downloadFiles($service, $id);
 		}

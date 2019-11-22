@@ -49,7 +49,7 @@ class Keywordtool extends UnlistedSpecialPage {
 				$batchId = (int) $postedValues[ 'batchid' ];
 				$conds= [ "kwt_id" => $batchId ];
 				$row = $dbr->selectRow( 'keywordtool.kwtjobs', [ 'kwt_id' , 'kwt_other_cols', 'kwt_question' ], $conds, __METHOD__, [] );
-				if (row) {
+				if ($row) {
 					$questionType = $row->kwt_question;
 					$colHeader = explode( ',', str_replace( [ '(' , ')'  ], '' , $row->kwt_other_cols ) );
 				}

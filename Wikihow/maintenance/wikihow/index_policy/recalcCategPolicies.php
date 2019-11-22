@@ -7,7 +7,7 @@ require_once __DIR__ . '/../WHMaintenance.php';
  */
 class RecalcCategPolicies extends WHMaintenance {
 
-	protected $emailRecipients = 'alberto@wikihow.com, reuben@wikihow.com, adriana@wikihow.com';
+	protected $emailRecipients = 'alberto@wikihow.com, reuben@wikihow.com';
 
 	public function __construct() {
 		parent::__construct();

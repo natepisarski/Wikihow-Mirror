@@ -467,7 +467,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		}
 
 		$from = new MailAddress('alerts@wikihow.com');
-		$to = new MailAddress( $wgIsDevServer ? 'alberto@wikihow.com' : 'adriana@wikihow.com, vanna@wikihow.com' );
+		$to = new MailAddress( $wgIsDevServer ? 'alberto@wikihow.com' : 'vanna@wikihow.com' );
 		$subject = "Coauthor Blurb Updates";
 		$body = '';
 		if ($added)   { $body .= "New: "      . implode(', ', array_keys($added))   . "\n"; }

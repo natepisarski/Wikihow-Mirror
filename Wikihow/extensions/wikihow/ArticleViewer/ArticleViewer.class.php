@@ -35,7 +35,7 @@ class FaViewer extends ArticleViewer {
 class RsViewer extends ArticleViewer {
 	var $maxNum;
 
-	function __construct(IContextSource $context, $maxNum = 16) {
+	function __construct(IContextSource $context, $maxNum = 20) {
 		parent::__construct($context);
 		$this->maxNum = $maxNum;
 	}

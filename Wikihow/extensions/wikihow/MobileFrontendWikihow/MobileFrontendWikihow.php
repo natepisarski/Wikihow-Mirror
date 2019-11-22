@@ -21,6 +21,7 @@ $wgHooks['MobileEndOfPage'][] = array('MobileFrontendWikiHowHooks::onMobileEndOf
 $wgHooks['HeaderBuilderGetCategoryLinksShowCategoryListing'][] = [
 	'MobileFrontendWikiHowHooks::onHeaderBuilderGetCategoryLinksShowCategoryListing'
 ];
+$wgHooks['MinvervaTemplateBeforeRender'][] = ['MobileFrontendWikiHowHooks::onMinvervaTemplateBeforeRender'];
 
 /**
  * A boilerplate for the MFResourceLoaderModule that supports templates

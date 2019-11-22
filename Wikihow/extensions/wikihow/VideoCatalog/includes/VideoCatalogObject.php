@@ -77,7 +77,7 @@ abstract class VideoCatalogObject {
 		} else {
 			static::log( '✘ ERROR	insert', $this );
 		}
-		return $created;
+		return (bool)$created;
 	}
 
 	/**
@@ -97,6 +97,7 @@ abstract class VideoCatalogObject {
 		} else {
 			static::log( '✘ ERROR	update', $this );
 		}
+		return (bool)$updated;
 	}
 
 	/**
@@ -117,7 +118,7 @@ abstract class VideoCatalogObject {
 		} else {
 			static::log( '✘ ERROR	delete', $this );
 		}
-		return $deleted;
+		return (bool)$deleted;
 	}
 
 	/* Public Static Methods */

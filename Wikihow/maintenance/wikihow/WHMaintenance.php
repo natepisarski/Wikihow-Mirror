@@ -19,7 +19,7 @@ abstract class WHMaintenance extends Maintenance {
 	public function execute()
 	{
 		global $wgLanguageCode;
-		$this->debug = $this->getOption('debug', false);
+		$this->debug = (bool)$this->getOption('debug', false);
 		$this->echo("Starting ($wgLanguageCode)" . ($this->debug ? ' (debug)' : '') );
 	}
 
@@ -61,7 +61,7 @@ abstract class WHMaintenance extends Maintenance {
 	/**
 	 * Get the name of file where the child class lives
 	 */
-	private function getFileName(): string
+	protected function getFileName(): string
 	{
 		$reflector = new ReflectionClass(get_class($this));
 		return basename($reflector->getFileName());

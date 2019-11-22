@@ -195,22 +195,6 @@ class Ads {
 			return;
 		}
 
-		if ( Misc::isAltDomain() ) {
-			$currentDomain = AlternateDomain::getCurrentRootDomain();
-			if ( $currentDomain == 'wikihow.mom' ) {
-				$this->mActive = false;
-				return;
-			}
-			if ( $currentDomain == 'wikihow.health' ) {
-				$this->mActive = false;
-				return;
-			}
-			if ( $currentDomain == 'wikihow.legal' ) {
-				$this->mActive = false;
-				return;
-			}
-		}
-
 		// check for decline cookie policy cookie
 		if ( $this->mIsMainPage	) {
 			$this->mActive = false;
@@ -367,15 +351,7 @@ class Ads {
 				}
 			}
 			$bucketId = sprintf( "%02d", $bucket );
-			if ( $bucket == 19 && !Misc::isMobileMode() ) {
-				$adCreator = new AllDFPForDesktopAdCreatorOne( $bucketId );
-			} elseif ( $bucket >= 20 && !Misc::isMobileMode() ) {
-				$adCreator = new AllDFPForDesktopAdCreatorTwo( $bucketId );
-			} elseif ( Misc::isMobileMode() ){
-				$adCreator = new DefaultAdCreatorMobile( $bucketId );
-			} else {
-				$adCreator = new DefaultAdCreator( $bucketId );
-			}
+			$adCreator = new DefaultAdCreator( $bucketId );
 
 			if ( !$this->mEnglishSite ) {
 				if ( $pageId % 4 == 1 ) {

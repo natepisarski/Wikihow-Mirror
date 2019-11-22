@@ -324,6 +324,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		global $wgLanguageCode;
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 
+		$headerContainerData = $data['is_responsive'] ? 'data-responsive="1"' : '';
+
 		$rightRailHtml = $this->getRightRailHtml( $data );
 		$useRightRail = true;
 		Hooks::run("UseMobileRightRail", [&$useRightRail]);
@@ -336,7 +338,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 		?>
 		<? /* BEBETH: Moving header to the top to deal with links in static header */ ?>
-		<div id="header_container">
+		<div id="header_container" <?= $headerContainerData ?>>
 			<div class="header" id="header" role="navigation">
 		<?php
 		$this->html( 'menuButton' );
