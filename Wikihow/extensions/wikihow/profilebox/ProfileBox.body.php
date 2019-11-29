@@ -865,7 +865,7 @@ class ProfileStats {
 		$this->isOwnPage = RequestContext::getMain()->getUser()->getID() == $this->user->getID();
 	}
 
-	public function fetchCreatedData($limit) {
+	public function fetchCreatedData($limit): array {
 		global $wgMemc;
 
 		$cacheKey = wfMemcKey(ProfileStats::CACHE_PREFIX, 'created', $this->user->getID(), $limit);
@@ -894,6 +894,7 @@ class ProfileStats {
 			]
 		);
 
+		$results = [];
 		if ($res) {
 			$fas = ProfileBox::getFeaturedArticles();
 			foreach ($res as $row) {

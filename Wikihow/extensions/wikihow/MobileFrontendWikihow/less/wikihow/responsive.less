@@ -500,6 +500,32 @@
 	}
 	#preload-wm-img { background: url(/skins/WikiHow/images/WH_logo.svg) no-repeat -9999px -9999px; }
 
+	.wikitable {
+		background-color: #f8f9fa;
+		color: #222;
+		margin: 1em 0;
+		border: 1px solid #a2a9b1;
+		border-collapse: collapse;
+
+		> tr > th,
+		> tr > td,
+		> * > tr > th,
+		> * > tr > td {
+			border: 1px solid #a2a9b1;
+			padding: 0.2em 0.4em;
+		}
+
+		> tr > th,
+		> * > tr > th {
+			background-color: #eaecf0;
+			text-align: center;
+		}
+
+		> caption {
+			font-weight: bold;
+		}
+	}
+
 	.content .m-video-wm-img {
 		width: auto !important;
 		height: 11px !important;

@@ -334,6 +334,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if ( $data['amp'] ) {
 			$this->renderAmpSidebar();
 		} else {
+			echo Misc::getTTIBody();
+			echo Misc::getFIDBody();
 			echo $data['rightrail']->mAds->getGPTDefine();
 		}
 		?>

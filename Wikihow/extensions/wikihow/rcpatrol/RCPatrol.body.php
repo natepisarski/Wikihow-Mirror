@@ -398,7 +398,7 @@ EOHTML;
 		$s .= "<div id='rollback-status' style='background-color: #FFFF00;'></div>";
 		$s .= "<div id='thumbsup-status' style='background-color: #FFA;display:none;padding:2px;'></div>";
 		$s .= "<div id='numrcusers' style='display:none;'>" . sizeof($result['users']) . "</div>";
-		$s .= "<div id='numedits' style='display:none;'>". sizeof($result['count']) . "</div>";
+		$s .= "<div id='numedits' style='display:none;'>". $result['count'] . "</div>";
 		$s .= "<div id='quickedit_response_wrapper'></div>";
 		return $s;
 	}

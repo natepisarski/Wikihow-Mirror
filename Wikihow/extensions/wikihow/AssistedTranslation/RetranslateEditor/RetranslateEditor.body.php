@@ -186,9 +186,6 @@ class RetranslateEditor extends UnlistedSpecialPage {
 			$wikiText .= $name . $text;
 		}
 
-		// Remove extra new line from quick summary section
-		$wikiText = preg_replace('/-->.*== ?Quick Summary ?==/is', "-->\n== Quick Summary ==", $wikiText);
-
 		// Localize section headers
 
 		$sectionTranslations = EditorUtil::getSectionTranslations();

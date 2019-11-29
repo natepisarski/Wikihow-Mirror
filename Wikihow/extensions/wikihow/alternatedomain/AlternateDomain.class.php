@@ -679,6 +679,11 @@ class AlternateDomain {
 						continue;
 					}
 
+					// allow bucket param for testing ads
+					if ( $key == "bucket" ) {
+						continue;
+					}
+
 					// allow printable view
 					if ( $key == "printable" && $value == "yes" ) {
 						continue;

@@ -20,8 +20,8 @@ abstract class AdCreator {
 	var $mDFPData = array();
 	var $mLateLoadDFP = false;
 
-	// TODO figure out the channels
 	var $mAdsenseChannels = array();
+	var $mMobileAdsenseChannels = array();
 
 	public function getPreContentAdHtml() {
 		return "";
@@ -37,6 +37,37 @@ abstract class AdCreator {
 		return $type . '_ad_' . $this->mAdCounts[$type];
 	}
 
+	/*
+	 * sets the channels and mobilechannels data attributes for the ad
+	 * this will be used later when creating the ad html element
+	 * it also sets extra channels for testing based on the bucket of the test
+	 * TODO we could possibly improve this by returning early if this is not an adsense ad
+	 * however we would have to check more than just the 'type' attribue but also 'smalltype'
+	 */
+	private function setAdChannels( &$ad ) {
+		// create the channel attributes if they are not there already
+		// these would likely contain ad specific channels
+		if ( !isset( $ad->setupData['channels'] ) ) {
+			$ad->setupData['channels'] = array();
+		}
+		if ( !isset( $ad->setupData['mobilechannels'] ) ) {
+			$ad->setupData['mobilechannels'] = array();
+		}
+
+		// add any bucket specific channels
+		if ( $this->mBucketId == '18' ) {
+			$ad->setupData['channels'][] = 5941219836;
+			$ad->setupData['mobilechannels'][] = 5941219836;
+		} else {
+			$ad->setupData['channels'][] = 8567383174;
+			$ad->setupData['mobilechannels'][] = 8567383174;
+		}
+
+		// add any channels that were set for this ad creator object
+		$ad->setupData['channels'] =  array_merge( $ad->setupData['channels'], $this->mAdsenseChannels);
+		$ad->setupData['mobilechannels'] =  array_merge( $ad->setupData['mobilechannels'], $this->mMobileAdsenseChannels);
+	}
+
 	protected function getNewAd( $type ) {
 
 		$ad = new Ad( $type );
@@ -46,6 +77,8 @@ abstract class AdCreator {
 		}
 
 		$ad->mTargetId = $this->getAdTargetId( $type );
+
+		$this->setAdChannels( $ad );
 
 		return $ad;
 	}
@@ -486,15 +519,21 @@ abstract class AdCreator {
 	}
 
 	public function __construct() {
-		global $wgTitle;
+		global $wgTitle, $wgRequest;
 		$this->mPageId = 0;
 		if ( $wgTitle ) {
 			$this->mPageId = $wgTitle->getArticleID();
 		}
-		$this->mBucketId = rand( 1, 20 );
+		$bucket = rand( 1, 20 );
 		if ( $bucket == 20 ) {
 			$extra = rand( 0, 4 );
 			$bucket += $extra;
+		}
+		if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
+			$reqBucket = $wgRequest->getInt( 'bucket' );
+			if ( $reqBucket > 0 && $reqBucket <= 24 ) {
+				$bucket = $reqBucket;
+			}
 		}
 		$this->mBucketId = sprintf( "%02d", $bucket );
 	}
@@ -502,7 +541,7 @@ abstract class AdCreator {
 	public function getBodyAd( $type ) {
 		$ad = $this->getNewAd( $type );
 
-		if ( !isset( $this->mAdSetupData[$ad->mType] ) ) {
+		if ( !isset( $ad->setupData ) ) {
 			return null;
 		}
 
@@ -548,7 +587,7 @@ abstract class AdCreator {
 		);
 
 		// all the settings for the ad come from the adSetupData
-		foreach ( $this->mAdSetupData[$ad->mType] as $key => $val ) {
+		foreach ( $ad->setupData as $key => $val ) {
 			if ( $key == 'class' ) {
 				foreach ( $val as $classVal ) {
 					$attributes['class'][] = $classVal;
@@ -556,6 +595,14 @@ abstract class AdCreator {
 			} elseif ( $key == 'smalllabel' ) {
 				$label = $this->getAdLabelText();
 				$innerAdHtml .= Html::rawElement( 'div', [ 'class' => 'ad_label_method' ], $label );
+			} elseif ( $key == 'channels' ) {
+				$val = implode(',', $val);
+				$adKey = 'data-'.$key;
+				$attributes[$adKey] = $val;
+			} elseif ( $key == 'mobilechannels' ) {
+				$val = implode(',', $val);
+				$adKey = 'data-'.$key;
+				$attributes[$adKey] = $val;
 			} elseif ( $key == 'containerheight' ) {
 				$attributes['style'] = "height:{$val}px";
 			} elseif ( $skipInlineHtml && $key == 'inline-html' ) {
@@ -569,31 +616,14 @@ abstract class AdCreator {
 			}
 		}
 
-		if ( !isset( $attributes['data-channels'] ) ) {
-			$attributes['data-channels'] = array();
-		}
 		if ( $this->mBucketId == '18' ) {
 			$attributes['data-observerloading'] = 1;
-			$attributes['data-channels'][] = 5941219836;
-			$attributes['data-mobilechannels'][] = 5941219836;
-		} else {
-			$attributes['data-channels'][] = 8567383174;
-			$attributes['data-mobilechannels'][] = 8567383174;
 		}
-
-		$attributes['data-channels'] += $this->mAdsenseChannels ?: [];
-		$attributes['data-channels'] = implode( ',', $attributes['data-channels'] );
-
-		if ( !isset( $attributes['data-mobilechannels'] ) ) {
-			$attributes['data-mobilechannels'] = array();
-		}
-		$attributes['data-mobilechannels'] += $this->mMobileAdsenseChannels ?: [];
-		$attributes['data-mobilechannels'] = implode( ',', $attributes['data-mobilechannels'] );
-
 
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
 		$html .= Html::inlineScript( "WH.ads.addBodyAd('{$ad->mTargetId}')" );
+
 		$ad->mHtml = $html;
 
 		if ( $ad->setupData['service'] == 'dfp' ) {
@@ -603,7 +633,7 @@ abstract class AdCreator {
 		return $ad;
 	}
 
-
+	// for now this only works on regular adsense not smallservice = adsense
 	private function getInlineHtmlForAd( $ad ) {
 		if ( $ad->setupData['service'] != 'adsense' ) {
 			return;
@@ -627,11 +657,12 @@ abstract class AdCreator {
 		return $ins . $script;
 	}
 
+	// gets the js snippet used to load an adsense ad
+	// it is used if we inline the html insteaad of lazy load it
+	// currently only works for desktop channels since it only looks at data-channels
+	// not data-mobilechannels
 	private function getAdsByGoogleJS( $ad ) {
-		if ( !isset( $attributes['data-channels'] ) ) {
-			$channels = array();
-		}
-		$channels += $this->mAdsenseChannels ?: [];
+		$channels = $ad->setupData['channels'];
 		$channels = implode( ',', $channels );
 		$script = "(adsbygoogle = window.adsbygoogle || []).push({";
 		if ( $channels ) {
@@ -736,6 +767,11 @@ abstract class AdCreator {
 		$addAdsense = false;
 		$addDFP = false;
 		$apsLoad = false;
+
+		if ( empty( $this->mAdSetupData ) ) {
+			return;
+		}
+
 		foreach ( $this->mAdSetupData as $adType => $adData ) {
 			$service = $adData['service'];
 

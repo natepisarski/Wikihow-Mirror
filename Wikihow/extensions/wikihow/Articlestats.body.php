@@ -1,9 +1,43 @@
 <?php
 
+/*
+CREATE TABLE `js_timing` (
+	`jt_key` varbinary(20) NOT NULL DEFAULT '',
+	`jt_val` varbinary(20) NOT NULL DEFAULT '',
+	`jt_page` int(10) unsigned NOT NULL,
+	`jt_hostname` varbinary(20) NOT NULL DEFAULT '',
+	`jt_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+*/
 class ArticleStats extends UnlistedSpecialPage {
+	const JT_TABLE = 'js_timing';
 
 	public function __construct() {
 		parent::__construct( 'ArticleStats' );
+	}
+
+	public function isMobileCapable() {
+		return true;
+	}
+
+	private function recordStats() {
+		$req = $this->getRequest();
+		$key = $req->getVal( 'key' );
+
+		$val = $req->getVal( 'val' );
+		$hostname = $req->getVal( 'hostname' );
+		$pageId = $req->getInt( 'pageid' );
+
+		$dbw = wfGetDB( DB_MASTER );
+		$insertData = array(
+			'jt_page' => $pageId,
+			'jt_key' => $key,
+			'jt_val' => $val,
+			'jt_hostname' => $hostname,
+		);
+
+		$options = array();
+		$dbw->insert( self::JT_TABLE, $insertData, __METHOD__, $options );
 	}
 
 	public function execute($par) {
@@ -11,6 +45,12 @@ class ArticleStats extends UnlistedSpecialPage {
 
 		$req = $this->getRequest();
 		$out = $this->getOutput();
+
+		if ( $req->wasPosted() ) {
+			$out->setArticleBodyOnly( true );
+			$this->recordStats();
+			return;
+		}
 
 		$this->setHeaders();
 

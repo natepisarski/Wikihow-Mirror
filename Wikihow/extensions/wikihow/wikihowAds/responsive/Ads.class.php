@@ -319,7 +319,6 @@ class Ads {
 	 * determine which ad creator to use
 	 */
 	private function getAdCreator() {
-		global $wgRequest;
 		$pageId = $this->mTitle->getArticleID();
 		if ( $this->mAlternateDomain == true ) {
 			$adCreator = new DefaultAlternateDomainAdCreator();
@@ -339,20 +338,7 @@ class Ads {
 				$adCreator = new DefaultInternationalSearchPageAdCreator( $searchQuery );
 			}
 		} else {
-			$bucket = rand( 1, 20 );
-			if ( $bucket == 20 ) {
-				$extra = rand( 0, 4 );
-				$bucket += $extra;
-			}
-			if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
-				$reqBucket = $wgRequest->getInt( 'bucket' );
-				if ( $reqBucket > 0 && $reqBucket <= 24 ) {
-					$bucket = $reqBucket;
-				}
-			}
-			$bucketId = sprintf( "%02d", $bucket );
-			$adCreator = new DefaultAdCreator( $bucketId );
-
+			$adCreator = new DefaultAdCreator();
 			if ( !$this->mEnglishSite ) {
 				if ( $pageId % 4 == 1 ) {
 					$adCreator = new DefaultInternationalAdCreatorAllAdsense();

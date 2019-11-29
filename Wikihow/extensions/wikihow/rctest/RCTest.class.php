@@ -508,7 +508,7 @@ class RCTest {
 			$sql = "SELECT count(*) as C FROM rctest_quizzes WHERE rq_deleted = 0 AND rq_difficulty <= $difficulty";
 			// Exclude any quizzes already taken
 			$userInfo = $this->getUserInfo();
-			if (sizeof($userInfo['ru_quiz_ids'])) {
+			if ( $userInfo['ru_quiz_ids'] ) {
 				$sql .= " AND rq_id NOT IN (" . $userInfo['ru_quiz_ids'] . ") ";
 			}
 			$res = $dbr->query($sql);

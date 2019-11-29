@@ -3286,9 +3286,12 @@ class OutputPage extends ContextSource {
 		}
 
 		$pieces[] = Html::element( 'title', null, $this->getHTMLTitle() );
+
 		// Wikihow: we can't have any Javascript in the head, and post-processing
 		// this after the fact is tougher.
 		if ( !GoogleAmp::isAmpMode($this) ) {
+			$pieces[] = Misc::getTTIHead();
+			$pieces[] = Misc::getFIDHead();
 			$pieces[] = $this->getRlClient()->getHeadHtml();
 		}
 		$pieces[] = $this->buildExemptModules();

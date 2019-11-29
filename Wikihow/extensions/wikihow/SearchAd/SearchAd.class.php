@@ -71,7 +71,7 @@ class SearchAd extends UnlistedSpecialPage {
 	private function getVersion(): string {
 		$num = $this->getRequest()->getInt('v'); //to force a version
 
-		if (empty($num) || count($num) != 1) {
+		if ( $num !== 1 ) {
 			$num = mt_rand(1, count($this->versions));
 		}
 
