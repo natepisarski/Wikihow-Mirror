@@ -1067,7 +1067,14 @@ class SchemaMarkup {
 				$schema .= $howToSchema;
 			}
 
-			$schema .= self::getBreadcrumbSchema( $out );
+			$faqSchema = self::getFAQSchema();
+			if ( $faqSchema ) {
+				$schema .= $faqSchema;
+			}
+
+			if ( !ArticleTagList::hasTag( 'breadcrumb_schema_off', $title->getArticleID() ) ) {
+				$schema .= self::getBreadcrumbSchema( $out );
+			}
 
 			if ( CategoryHelper::isTitleInCategory( $title, "Recipes" ) ) {
 				if ( $wgIsDevServer ) {

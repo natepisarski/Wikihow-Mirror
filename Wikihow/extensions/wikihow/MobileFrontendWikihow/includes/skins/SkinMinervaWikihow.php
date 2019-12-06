@@ -277,7 +277,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		$items['categories'] = array(
 			'text' => wfMessage( 'menu-categories' )->escaped(),
-			'href' => SpecialPage::getTitleFor( 'CategoryListing' )->getFullUrl(),
+			'href' => Title::makeTitle(NS_SPECIAL, "CategoryListing")->getLocalUrl(),
 			'class' => 'icon-categories',
 			'id' => 'icon-categories',
 		);
@@ -288,7 +288,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 			//add notifications
 			$items['notifications'] = array(
 				'text' => wfMessage( 'menu-notifications' )->escaped(),
-				'href' => SpecialPage::getTitleFor( 'Notifications' )->getFullUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "Notifications")->getLocalUrl(),
 				'class' => 'icon-notification',
 				'id' => 'icon-notification',
 			);
@@ -297,7 +297,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if (WikihowNamespacePages::showMobileAboutWikihow()) {
 			$items['aboutwikihow'] = array(
 				'text' => wfMessage( 'menu-aboutwikihow' )->escaped(),
-				'href' => Title::newFromText( wfMessage('about-page')->text(), NS_PROJECT )->getFullUrl(),
+				'href' => Title::makeTitle(NS_PROJECT, wfMessage("about-page")->text())->getLocalUrl(),
 				'class' => 'icon-aboutwikihow',
 				'id' => 'icon-aboutwikihow',
 			);
@@ -357,7 +357,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($wgLanguageCode == "en" && class_exists('SortQuestions')) {
 			$items['sortquestions'] = array(
 				'text' => wfMessage('menu-sortquestions')->text(),
-				'href' => SpecialPage::getTitleFor('sortquestions')->getFullUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "SortQuestions")->getLocalUrl(),
 				'class' => 'icon-sortquestions',
 				'id' => 'icon-sortquestions',
 			);
@@ -367,7 +367,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($wgLanguageCode == "en" && class_exists('SpecialTechFeedback')) {
 			$items['techfeedback'] = array(
 				'text' => wfMessage( 'menu-techfeedback' )->escaped(),
-				'href' => SpecialPage::getTitleFor( 'SpecialTechFeedback' )->getFullUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "SpecialTechFeedback")->getLocalUrl(),
 				'class' => 'icon-techfeedback',
 				'id' => 'icon-techfeedback',
 			);
@@ -409,7 +409,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($wgLanguageCode == "en" && class_exists('Spellchecker')) {
 			$items['spellchecker'] = array(
 				'text' => wfMessage( 'menu-spellchecker' )->escaped(),
-				'href' => SpecialPage::getTitleFor( 'Spellchecker' )->getFullUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "Spellchecker")->getLocalUrl(),
 				'class' => 'icon-spellchecker',
 				'id' => 'icon-spellchecker',
 			);
@@ -419,7 +419,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($wgLanguageCode == "en" && class_exists('QuizYourself')) {
 			$items['quizyourself'] = array(
 				'text' => wfMessage( 'menu-quizyourself' )->escaped(),
-				'href' => SpecialPage::getTitleFor( 'QuizYourself' )->getFullUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "QuizYourself")->getLocalUrl(),
 				'class' => 'icon-quizyourself',
 				'id' => 'icon-quizyourself',
 			);
@@ -460,7 +460,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($hasCommunityTools) {
 			$items['morethings'] = array(
 				'text' => wfMessage('menu-morethings')->text(),
-				'href' => SpecialPage::getTitleFor('CommunityDashboard')->getFullUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "CommunityDashboard")->getLocalUrl(),
 				'class' => 'icon-morethings',
 				'id' => 'icon-morethings',
 			);
@@ -509,10 +509,10 @@ class SkinMinervaWikihow extends SkinMinerva {
 		$query = wfArrayToCgi( $a );
 
 		if ( $this->getUser()->isLoggedIn() ) {
-			$url = SpecialPage::getTitleFor( 'Userlogout' )->getFullURL( $query );
+			$url = Title::makeTitle(NS_SPECIAL, "Userlogout")->getLocalUrl( $query );
 			$text = wfMessage( 'mobile-frontend-main-menu-logout' )->escaped();
 		} else {
-			$url = SpecialPage::getTitleFor( 'CreateAccount' )->getLocalURL( $query );
+			$url = Title::makeTitle(NS_SPECIAL, "CreateAccount")->getLocalUrl( $query );
 			// Link to sign up page if there's no history of previous sign in
 			if ($this->getRequest()->getCookie('UserName') == null) {
 				$url .= '&type=signup';
@@ -787,6 +787,11 @@ class SkinMinervaWikihow extends SkinMinerva {
 		}
 
 		return $s;
+	}
+
+	// Override/Remove the print source (which is put in the print footer) to not show anything
+	function printSource() {
+		return "";
 	}
 
 

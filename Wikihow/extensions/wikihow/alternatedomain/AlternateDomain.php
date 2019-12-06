@@ -13,6 +13,7 @@ $wgHooks['ImageHelperGetThumbnail'][] = 'AlternateDomain::onGetThumbnail';
 $wgHooks['RelatedWikihowsBeforeLoadRelatedArticles'][] = 'AlternateDomain::onRelatedWikihowsBeforeLoadRelatedArticles';
 $wgHooks['RelatedWikihowsAfterLoadRelatedArticles'][] = 'AlternateDomain::onRelatedWikihowsAfterLoadRelatedArticles';
 $wgHooks['WikihowHomepageAfterGetTopItems'][] = 'AlternateDomain::onWikihowHomepageAfterGetTopItems';
+$wgHooks['WikihowHomepageFAContainerHtml'][] = 'AlternateDomain::onWikihowHomepageFAContainerHtml';
 $wgHooks['WikihowTemplateShowFollowWidget'][] = 'AlternateDomain::onWikihowTemplateShowFollowWidget';
 $wgHooks['WikihowTemplateShowFeaturedArticlesSidebar'][] = 'AlternateDomain::onWikihowTemplateShowFeaturedArticlesSidebar';
 $wgHooks['WikihowTemplateShowTopLinksSidebar'][] = 'AlternateDomain::onWikihowTemplateShowTopLinksSidebar';

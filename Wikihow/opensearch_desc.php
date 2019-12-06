@@ -78,13 +78,13 @@ $urls = [];
 // search results or a specific found page.
 // At least Firefox and IE 7 support this.
 //
-// Reuben 2/3/2014: hacked to use our Special:LSearch instead of
+// 12/5/19 - Hacked to use the wikiHowTo search instead of
 // Mediawiki's Special:Search
-$searchPage = SpecialPage::getTitleFor( 'LSearch' );
+$searchUrl = PROTO_HTTPS . Misc::getCanonicalDomain() . '/wikiHowTo?search={searchTerms}';
 $urls[] = [
 	'type' => 'text/html',
 	'method' => 'get',
-	'template' => $searchPage->getCanonicalURL( 'search={searchTerms}' ) ];
+	'template' => $searchUrl ];
 
 foreach ( $wgOpenSearchTemplates as $type => $template ) {
 	if ( !$template ) {
@@ -113,6 +113,6 @@ foreach ( $urls as $attribs ) {
 // sends you to the domain root if you hit "enter" with an empty
 // search box.
 print Xml::element( 'moz:SearchForm', null,
-	$searchPage->getCanonicalURL() );
+	$searchUrl );
 
 print '</OpenSearchDescription>';

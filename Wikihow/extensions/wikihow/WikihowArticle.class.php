@@ -907,6 +907,7 @@ class WikihowArticleHTML {
 		}
 
 		SchemaMarkup::calcHowToSchema( $out );
+		SchemaMarkup::calcFAQSchema( $out );
 
 		Hooks::run('ProcessArticleHTMLAfter', array( $out ) );
 

@@ -158,9 +158,9 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		if (!$vd || $vd->category == 'categ_community') return '';
 
 		$lang = RequestContext::getMain()->getLanguage()->getCode();
-		$titleTxt = !Misc::isAltDomain() && ($lang == 'en' || $vd->hoverBlurb)
-			? 'ArticleReviewers'     // English or INTL with blurb translation: link locally
-			: 'en:ArticleReviewers'; // Alts or INTL without blurb translation: link to wikihow.com
+		$titleTxt = Misc::isAltDomain() || $lang == 'en' || $vd->hoverBlurb
+			? 'ArticleReviewers'     // English or Alts or INTL with blurb translation: link locally
+			: 'en:ArticleReviewers'; // INTL without blurb translation: link to wikihow.com
 
 		$title = Title::newFromText($titleTxt, NS_SPECIAL);
 		if ( !$title ) {

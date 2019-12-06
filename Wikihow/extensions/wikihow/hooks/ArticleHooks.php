@@ -179,12 +179,15 @@ class ArticleHooks {
 				$ami->updateVideoPaths( $lastVideoSrc, $summaryVideoSrc );
 
 				// Update video catalog
-				VideoCatalog::updateArticleLink(
-					$title->getArticleID(),
-					$summaryVideoSrc,
-					$summaryVideoPoster,
-					$lastVideoSrc
-				);
+
+				if ( class_exists( 'VideoCatalog' ) ) {
+					VideoCatalog::updateArticleLink(
+						$title->getArticleID(),
+						$summaryVideoSrc,
+						$summaryVideoPoster,
+						$lastVideoSrc
+					);
+				}
 			} catch ( Exception $error ) {
 				wfDebugLog( 'articlemetainfo', var_export( [
 					'url' => $url,

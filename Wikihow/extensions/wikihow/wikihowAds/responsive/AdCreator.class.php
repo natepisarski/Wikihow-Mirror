@@ -55,7 +55,7 @@ abstract class AdCreator {
 		}
 
 		// add any bucket specific channels
-		if ( $this->mBucketId == '18' ) {
+		if ( intval( $this->mBucketId ) >= 16 ) {
 			$ad->setupData['channels'][] = 5941219836;
 			$ad->setupData['mobilechannels'][] = 5941219836;
 		} else {
@@ -1131,6 +1131,7 @@ class DefaultDocViewerAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['docviewerad', 'ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'large' => 1,
 			),
 			'docviewer1' => array(
 				'service' => 'dfp',
@@ -1141,6 +1142,7 @@ class DefaultDocViewerAdCreator extends AdCreator {
 				'width' => 728,
 				'height' => 90,
 				'class' => ['docview_top', 'ad_label', 'ad_label_dollar'],
+				'large' => 1,
 			),
 		);
 	}

@@ -977,6 +977,7 @@ class WikihowMobileTools {
 		}
 
 		SchemaMarkup::calcHowToSchema( $out );
+		SchemaMarkup::calcFAQSchema( $out );
 
 		Hooks::run('MobileProcessArticleHTMLAfter', [ $skin->getOutput() ] );
 

@@ -125,18 +125,21 @@ class RetranslateEditor extends UnlistedSpecialPage {
 			return $res;
 		}
 
-		### Process the EN article wikiText
+		### Process the EN article wikiText ###
 
-		$wikiText = $enPageInfo['revisions'][0]['*'];
-		$wikiText = EditorUtil::replaceInternalLinks( $wikiText );
+		$enWikiText = $enPageInfo['revisions'][0]['*']; // Original EN wikiText
+		$intlPage = WikiPage::newFromID($intlAid);
+		$intlWikiText = ContentHandler::getContentText( $intlPage->getContent() ); // Original INTL wikiText
+
+		$wikiText = EditorUtil::replaceInternalLinks( $enWikiText ); // Resulting wikiText after processing
+
+		$wikiText = EditorUtil::replaceCategories( $wikiText, $intlWikiText );
 
 		// Replace the EN Quick Summary with its translation
 
 		$enDbKey = $dbr->selectField( 'wikidb_112.page', 'page_title', ['page_id'=>$enAid] );
 		$enSummary = EditorUtil::getSummary( $wikiText, $enDbKey );
 		if ( $enSummary ) {
-			$intlPage = WikiPage::newFromID($intlAid);
-			$intlWikiText = ContentHandler::getContentText( $intlPage->getContent() );
 			$intlSummary = EditorUtil::getSummary( $intlWikiText, $intlPage->getTitle()->getDBkey() );
 			$wikiText = str_replace($enSummary, $intlSummary, $wikiText);
 		}

@@ -1066,6 +1066,11 @@ class Misc {
 		return $id;
 	}
 
+	public static function getLocalizedNamespace(int $ns): ?string {
+		$namespaces = RequestContext::getMain()->getLanguage()->getNamespaces();
+		return $namespaces[$ns] ?? null;
+	}
+
 	public static function getTTIHead() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();

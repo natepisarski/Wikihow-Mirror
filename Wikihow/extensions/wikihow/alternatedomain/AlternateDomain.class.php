@@ -442,6 +442,20 @@ class AlternateDomain {
 		return true;
 	}
 
+	/*
+	 * on homepage we set the items from the domain articles
+	 */
+	public static function onWikihowHomepageFAContainerHtml( &$html, &$html2, &$html3 ) {
+		if ( !self::onAlternateDomain() ) {
+			return true;
+		}
+
+		$html2 = "";
+		$html3 = "";
+
+		return true;
+	}
+
 	public static function getFATitles( $limit = 100 ): Array {
 		if ( !self::onAlternateDomain() ) return [];
 
@@ -570,6 +584,10 @@ class AlternateDomain {
 			if ( strpos( $aboutPage, $title->getDBKey() ) !== false ) {
 				return true;
 			}
+		}
+
+		if ( strstr( $titleText, 'StuInspector' ) ) {
+			return true;
 		}
 
 		return false;

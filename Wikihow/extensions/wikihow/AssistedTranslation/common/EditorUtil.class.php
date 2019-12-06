@@ -142,6 +142,33 @@ class EditorUtil {
 		return $wikitext;
 	}
 
+	/**
+	 * Preserve existing category tags from the INTL article, and remove any EN category tags
+	 */
+	public static function replaceCategories(string $enWikiText, string $intlWikiText): string
+	{
+		// Remove EN category tags
+
+		$enRegex = "/\[\[Category:[^\]]+\]\]/";
+		preg_match_all($enRegex, $enWikiText, $enMatches);
+		foreach ($enMatches[0] as $categTag) {
+			$categTag = preg_quote($categTag) . '\s*\n?';
+			$enWikiText = preg_replace("/$categTag/", '', $enWikiText);
+		}
+
+		// Add INTL category tags
+
+		$intlCateg = preg_quote( Misc::getLocalizedNamespace(NS_CATEGORY) );
+		$intlRegex = "/\[\[(?:Category|$intlCateg):[^\]]+\]\]/";
+		preg_match_all($intlRegex, $intlWikiText, $intlMatches);
+		if ($intlMatches[0]) {
+			$categTags = implode("\n", $intlMatches[0]);
+			$enWikiText = $categTags . "\n" . $enWikiText;
+		}
+
+		return $enWikiText;
+	}
+
 	public static function getSummary(string $wikiText, string $dbKey): string {
 		$ns = MWNamespace::getCanonicalName(NS_SUMMARY);
 		$regex = '(' . preg_quote($dbKey) . '|' . preg_quote($dbKey) . ')';

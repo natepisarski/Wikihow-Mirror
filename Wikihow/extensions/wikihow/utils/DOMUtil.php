@@ -56,8 +56,7 @@ class DOMHelper {
 		$articleLinks = [];
 		$categoryLinks = [];
 
-		$namespaces = RequestContext::getMain()->getLanguage()->getNamespaces();
-		$categPrefix = preg_quote( $namespaces[NS_CATEGORY].':' ); // e.g. 'Categoría:'
+		$categPrefix = preg_quote( Misc::getLocalizedNamespace(NS_CATEGORY) . ':' ); // e.g. 'Categoría\:'
 
 		foreach ( pq($query) as $a ) {
 
