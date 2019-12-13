@@ -21,13 +21,23 @@
 	<?
 	$noImgCount = 0;
 	foreach($results as $i => $result):
+		$no_result = '';
+		$thumb = '';
 
-		if (empty($result['img_thumb_100'])) {
-			$result['img_thumb_100'] = $noImgCount ++ % 2 == 0 ?
-				$no_img_green : $no_img_blue;
+		if (!empty($result['img_thumb_250'])) {
+			$thumb = 'background-image: url('.$result['img_thumb_250'].')';
+		}
+		else {
+			$no_result = $noImgCount ++ % 2 == 0 ? 'no_result_green' : 'no_result_blue';
 		}
 		if ($i == 5) {
 			echo '<div id="search_adblock_middle" class="search_adblock"></div>';
+		}
+		if (!$result['is_category']) {
+			$result_title = $result['title_match'];
+		}
+		else {
+			$result_title = wfMessage('lsearch_article_category', $result['title_match']);
 		}
 		if (!(class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest() && $result['is_category'])):
 	?>
@@ -39,40 +49,26 @@
 		?>
 		<a class="result_link" href=<?= $url ?> >
 			<div class="result">
-				<? if (!$result['is_category']): ?>
-					<div class='result_thumb'>
-					<? if (!empty($result['img_thumb_100'])): ?>
-						<img src="<?= $result['img_thumb_100'] ?>" />
-					<? endif; ?>
-					</div>
-				<? else: ?>
-					<div class='result_thumb cat_thumb'><img src="<?= $result['img_thumb_100'] ? $result['img_thumb_100'] : $noImg ?>" /></div>
-				<? endif; ?>
-
+				<div class='result_thumb <?= $no_result ?>' style='<?= $thumb ?>'>
+					<? if ($no_result != '') echo $howTo ?>
+				</div>
 				<div class="result_data">
+					<div class="result_title"><?= $result_title ?></div>
 				<? if ($result['has_supplement']): ?>
-					<? if (!$result['is_category']): ?>
-						<div class="result_title"><?= $result['title_match'] ?></div>
-					<? else: ?>
-						<div class="result_title"><?= wfMessage('lsearch_article_category', $result['title_match']) ?></div>
-					<? endif; ?>
-					<div class="result_data_divider"></div>
 					<ul class="search_results_stats">
-						<li class="sr_view"><span class="sp_circle sp_views_icon"></span>
+						<li class="sr_view">
 							<?=wfMessage('lsearch_views', number_format($result['popularity']))->text();?>
 						</li>
-						<li class="sr_updated"><span class="sp_circle sp_updated_icon"></span>
+						<li class="sr_updated">
+							<span><?= $updated ?></span>
 							<?=wfTimeAgo(wfTimestamp(TS_UNIX, $result['timestamp']), true);?>
 						</li>
 						<? if (class_exists('SocialProofStats') && $result['verified']): ?>
 							<li class="sp_verif">
-								<span class="sp_circle sp_verif_icon"></span>
-								<span class="sp_search_verified"><?= SocialProofStats::getIntroMessage($result['verified']) ?></span>
+								<?= str_replace('<br>',' ', SocialProofStats::getIntroMessage($result['verified'])) ?>
 							</li>
 						<? endif ?>
 					</ul>
-				<? else: ?>
-					<div class="result_title"><?= $result['title_match'] ?></div>
 				<? endif; // has_supplement ?>
 				<? // Sherlock-form ?>
 				<?= EasyTemplate::html(

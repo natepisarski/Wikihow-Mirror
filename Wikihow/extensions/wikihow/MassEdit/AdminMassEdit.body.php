@@ -76,9 +76,9 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		return $user;
 	}
 
-	public function removeTemplateIfExists($toAdd, $summary, $titles) {
+	public static function removeTemplateIfExists($toAdd, $summary, $titles) {
 		global $wgLanguageCode;
-		$user = $this->getBotUser();
+		$user = self::getBotUser();
 		$results = [];
 
 		foreach($titles as $titleText=>$pageId) {
@@ -118,7 +118,7 @@ class AdminMassEdit extends UnlistedSpecialPage {
 
 			if ($result->value['revision'] !== null) {
 				$rev = $result->value['revision'];
-				$results[] = "Text removed from" . Misc::getLangBaseURL($wgLanguageCode) . "/index.php?curid=$pageId " . Misc::getLangBaseURL($wgLanguageCode) . "/$title.  New revision is: ".$rev->getId();
+				$results[] = "Text removed from " . Misc::getLangBaseURL($wgLanguageCode) . "/index.php?curid=$pageId " . Misc::getLangBaseURL($wgLanguageCode) . "/$title.  New revision is: ".$rev->getId();
 			} else {
 				$results[] = "No text removed.  No revision made on $title";
 			}
@@ -126,9 +126,9 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		return $results;
 	}
 
-	public function addToBeginning($toAdd, $summary, $titles) {
+	public static function addToBeginning($toAdd, $summary, $titles) {
 		global $wgLanguageCode;
-		$user = $this->getBotUser();
+		$user = self::getBotUser();
 		$results = [];
 
 		foreach($titles as $titleText=>$pageId) {
@@ -181,12 +181,12 @@ class AdminMassEdit extends UnlistedSpecialPage {
 	}
 
 
-	public function mailUserEditsDone($user, $results) {
-		if ($user->getEmail()) {
+	public static function mailUserEditsDone($userEmail, $results) {
+		if ($userEmail) {
 			$message = "Here are the results of the mass edit:\n\n";
 			$message .= implode("\n\n", $results);
 			$headers = "From: Stub Bot <wiki@wikihow.com>";
-			mail($user->getEmail(), 'Stub Bot finished editing pages', $message, $headers);
+			mail($userEmail, 'Stub Bot finished editing pages', $message, $headers);
 		}
 	}
 
@@ -229,32 +229,41 @@ class AdminMassEdit extends UnlistedSpecialPage {
 
 			// collect list of articles
 			$titleInfo = $this->getTitles($request->getVal('articles'));
+			$titles = $titleInfo->titles;
 			$results = $titleInfo->bad;
 
-			if (empty($titleInfo->titles) && empty($results)) {
+			if (empty($titles) && empty($results)) {
 				return $this->error('no articles to update');
 			}
 
+			$max = 1000;
+			if ( count($titles) > $max ) {
+				return $this->error("This tool can only process up to $max articles at a time.");
+			}
+
 			// do the edits on the text
+			$userEmail = $this->getUser()->getEmail();
 			if ( $undo ) {
 				if (!$this->isAllowedUndoText($text)) {
 					return $this->error('error: text must be {{stub}}');
 				}
-				$results = $results + $this->removeTemplateIfExists($text, $summary, $titleInfo->titles);
-			} else {
+				$update = new UnstubUpdate($userEmail, $results, $text, $summary, $titles);
+			}
+			else {
 				if (!$this->isAllowedText($text)) {
 					return $this->error('text is not allowed');
 				}
-				$results = $results + $this->addToBeginning($text, $summary, $titleInfo->titles);
+				$update = new StubUpdate($userEmail, $results, $text, $summary, $titles);
 			}
 
-			// email when done (b/c its so slow)
+			if ( count($titles) < 50 ) {
+				$results = $update->doUpdate();
+			} else {
+				DeferredUpdates::addUpdate( $update );
+				$results = [ "Results will be sent to your email address." ];
+			}
 
-			self::mailUserEditsDone($this->getUser(), $results);
-
-			$result = array("result"=>implode("<br>", $results));
-
-			print json_encode($result);
+			print json_encode( [ 'result' => implode('<br>', $results) ] );
 			return;
 		}
 
@@ -307,5 +316,34 @@ class AdminMassEdit extends UnlistedSpecialPage {
 		$html = ob_get_contents();
 		ob_end_clean();
 		return $html;
+	}
+}
+
+abstract class AdminMassEditUpdate implements DeferrableUpdate
+{
+	public function __construct($userEmail, $results, $text, $summary, $titles) {
+		$this->userEmail = $userEmail;
+		$this->results = $results;
+		$this->text = $text;
+		$this->summary = $summary;
+		$this->titles = $titles;
+	}
+}
+
+class StubUpdate extends AdminMassEditUpdate
+{
+	public function doUpdate() {
+		$this->results += AdminMassEdit::addToBeginning($this->text, $this->summary, $this->titles);
+		AdminMassEdit::mailUserEditsDone($this->userEmail, $this->results);
+		return $this->results;
+	}
+}
+
+class UnstubUpdate extends AdminMassEditUpdate
+{
+	public function doUpdate() {
+		$this->results += AdminMassEdit::removeTemplateIfExists($this->text, $this->summary, $this->titles);
+		AdminMassEdit::mailUserEditsDone($this->userEmail, $this->results);
+		return $this->results;
 	}
 }

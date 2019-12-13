@@ -10,8 +10,7 @@ class LSearch extends SpecialPage {
 	}
 
 	const RESULTS_PER_PAGE = 30;
-	const RESULTS_PER_PAGE_DESKTOP = 10;
-	const RESULTS_PER_PAGE_MOBILE = 20;
+	const RESULTS_PER_PAGE_RESPONSIVE = 15;
 
 	const SEARCH_OTHER = 0;
 	const SEARCH_LOGGED_IN = 1;
@@ -46,8 +45,6 @@ class LSearch extends SpecialPage {
 	var $showSuicideHotline = false;
 	var $enableCdnCaching = true;
 	var $mResultsSource = '';
-
-	var $mEnableBeta = true;
 
 	public function __construct() {
 		global $wgHooks;
@@ -228,10 +225,8 @@ class LSearch extends SpecialPage {
 	private function regularSearch($internal = false) {
 		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
 			$resultsPerPage = self::RESULTS_PER_PAGE;
-		} elseif (Misc::isMobileMode()) {
-			$resultsPerPage = self::RESULTS_PER_PAGE_MOBILE;
 		} else {
-			$resultsPerPage = self::RESULTS_PER_PAGE_DESKTOP;
+			$resultsPerPage = self::RESULTS_PER_PAGE_RESPONSIVE;
 		}
 
 		if ($internal) {
@@ -280,11 +275,7 @@ class LSearch extends SpecialPage {
 			if ( $searchType == self::SEARCH_INTERNAL ) {
 				$count = $this->externalSearchResultsBing( $q, $start, $limit, $searchType );
 			} else {
-				if ( $this->mEnableBeta ) {
-					$count = $this->externalSearchResultsSolr( $q, $start, $limit, $searchType );
-				} else {
-					$count = $this->externalSearchResultsYahoo( $q, $start, $limit, $searchType );
-				}
+				$count = $this->externalSearchResultsSolr( $q, $start, $limit, $searchType );
 			}
 
 			if ( $count > 0 ) {
@@ -1101,6 +1092,7 @@ class LSearch extends SpecialPage {
 			$title['has_supplement'] = intval($hasSupplement);
 			$isCategory = $title['namespace'] == NS_CATEGORY;
 			$title['is_category'] = intval($isCategory);
+
 			$results[] = $title;
 		}
 
@@ -1140,9 +1132,6 @@ class LSearch extends SpecialPage {
 		$disabled = !($total > $start + $resultsPerPage && $last == $start + $resultsPerPage);
 		// equivalent to: $disabled = $total <= $start + $resultsPerPage || $last != $start + $resultsPerPage;
 		$next_url = '/' . $me . '?search=' . urlencode($q) . '&start=' . ($start + $resultsPerPage) . $androidParam;
-		if ( $this->mEnableBeta ) {
-			$next_url .= '&beta=true';
-		}
 
 		$next_label = wfMessage( "lsearch_next" )->text();
 		if ( $disabled ) {
@@ -1164,10 +1153,6 @@ class LSearch extends SpecialPage {
 		// equivalent to: $disabled = $start < $resultsPerPage;
 
 		$prev_url = '/' . $me . '?search=' . urlencode($q) . ($start - $resultsPerPage !== 0 ? '&start=' . ($start - $resultsPerPage) : '') . $androidParam;
-		if ( $this->mEnableBeta ) {
-			$prev_url .= '&beta=true';
-		}
-
 
 		$prev_label = wfMessage( "lsearch_previous" )->text();
 		if ( $disabled ) {
@@ -1186,7 +1171,7 @@ class LSearch extends SpecialPage {
 
 		$page = (int) ($start / $resultsPerPage) + 1;
 
-		$adProvider = $this->mEnableBeta ? 'google' : 'yahoo';
+		$adProvider = 'google';
 
 		if (!$resultsSource) {
 			$resultsSource = '(unknown)';
@@ -1211,15 +1196,15 @@ class LSearch extends SpecialPage {
 			'next_button' => $next_button,
 			'prev_button' => $prev_button,
 			'results_source' => $resultsSource,
-			'searchId' => $searchId
+			'searchId' => $searchId,
+			'howTo' => strtoupper(wfMessage('howto','')->text()),
+			'updated' => wfMessage('lsearch_last_updated_responsive')->text()
 		);
 
 		$out->addModules( 'ext.wikihow.lsearch' );
-		if (Misc::isMobileMode()) {
+		if (Misc::doResponsive( RequestContext::getMain() )) {
 			$tmpl = 'search-results-mobile.tmpl.php';
 			$out->addModuleStyles('ext.wikihow.lsearch.mobile.styles');
-			$vars['no_img_blue'] = $this->mNoImgBlueMobile;
-			$vars['no_img_green'] = $this->mNoImgGreenMobile;
 		} else {
 			$tmpl = 'search-results-desktop.tmpl.php';
 			$out->addModuleStyles('ext.wikihow.lsearch.desktop.styles');

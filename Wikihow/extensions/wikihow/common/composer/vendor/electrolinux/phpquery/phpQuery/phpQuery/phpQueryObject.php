@@ -1876,7 +1876,7 @@ class phpQueryObject
 	}
 	/**
 	 * Enter description here...
-	 * 
+	 *
 	 * @param $code
 	 * @return unknown_type
 	 */
@@ -1887,7 +1887,7 @@ class phpQueryObject
 	}
 	/**
 	 * Enter description here...
-	 * 
+	 *
 	 * @param $code
 	 * @return unknown_type
 	 */
@@ -2123,7 +2123,10 @@ class phpQueryObject
 				}
 				break;
 		}
-		phpQuery::debug("From ".count($insertFrom)."; To ".count($insertTo)." nodes");
+		if ( $insertFrom && $insertTo) { // wikiHow 2019-12 (Alberto)
+			phpQuery::debug("From ".count($insertFrom)."; To ".count($insertTo)." nodes");
+		}
+		if ( $insertTo ) // wikiHow 2019-12 (Alberto)
 		foreach($insertTo as $insertNumber => $toNode) {
 			// we need static relative elements in some cases
 			switch( $type) {
@@ -2262,7 +2265,7 @@ class phpQueryObject
 		}
 		return $return;
 	}
-	
+
 	/**
 	 * @return The text content of each matching element, like
 	 * text() but returns an array with one entry per matched element.
@@ -2275,7 +2278,7 @@ class phpQueryObject
 		}
 		return $results;
 	}
-	
+
 	/**
 	 * Enter description here...
 	 *
@@ -2643,7 +2646,7 @@ class phpQueryObject
 		return is_null($value)
 			? '' : $this;
 	}
-	
+
 	/**
 	 * @return The same attribute of each matching element, like
 	 * attr() but returns an array with one entry per matched element.
@@ -2947,7 +2950,7 @@ class phpQueryObject
 	}
 	/**
 	 * Enter description here...
-	 * 
+	 *
 	 * @param <type> $key
 	 * @param <type> $value
 	 */
@@ -2964,7 +2967,7 @@ class phpQueryObject
 	}
 	/**
 	 * Enter description here...
-	 * 
+	 *
 	 * @param <type> $key
 	 */
 	public function removeData($key) {

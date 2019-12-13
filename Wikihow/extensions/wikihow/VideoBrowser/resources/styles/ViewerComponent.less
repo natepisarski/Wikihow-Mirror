@@ -1,3 +1,5 @@
+@import '../../../less/variables.less';
+
 @min-thumb-width: 240px;
 @aspect-ratio: 9 / 16;
 
@@ -270,19 +272,107 @@
 	}
 }
 
-@media only screen and (max-width: (@min-thumb-width * 2)) {
-	.skin-minervawh {
-		.videoBrowser-viewer-related .videoBrowser-video-title,
-		.videoBrowser-viewer-related .videoBrowser-article-title {
-			font-size: 12px;
-		}
-	}
-}
-
 @media only screen and (min-width: 500px) {
 	.skin-minervawh {
 		.videoBrowser-viewer {
 			font-size: 22px
+		}
+	}
+}
+
+@media @medium {
+	.skin-minervawh {
+		ul#breadcrumb {
+			float: right;
+			max-width: 700px;
+			max-height: 20px;
+			overflow: hidden;
+		}
+
+		#breadcrumb a {
+			color: #767676;
+		}
+
+		#breadcrumb li {
+			background-color: inherit;
+		}
+
+		.videoBrowser-viewer .videoBrowser-actionBar {
+			height: 40px;
+			margin-top: 0px;
+		}
+
+		.videoBrowser-viewer-player {
+			border-top-right-radius: 0px;
+			border-top-left-radius: 0px;
+		}
+
+		.videoBrowser-viewer-context {
+			margin: -1em 0 0 0;
+			font-weight: bold;
+			font-size: initial;
+			color: #545454;
+		}
+
+		.videoBrowser-title {
+			font-size: 1.8em;
+			font-weight: bold;
+		}
+	}
+}
+
+@media @large {
+	.skin-minervawh {
+		ul#breadcrumb {
+			float: right;
+			max-width: 700px;
+			max-height: 20px;
+			overflow: hidden;
+		}
+
+		#breadcrumb li {
+			background-color: inherit;
+		}
+
+		#breadcrumb li > a:hover {
+			text-decoration: underline;
+		}
+
+		.videoBrowser-viewer .videoBrowser-actionBar {
+			height: 40px;
+			margin-top: -26px;
+		}
+
+		.videoBrowser-viewer-player {
+			border-top-right-radius: 0px;
+			border-top-left-radius: 0px;
+		}
+
+		.videoBrowser-viewer-context {
+			margin: -1em 0 10px 0;
+		}
+
+		.videoBrowser-viewer-related-title {
+			font-size: 20px;
+			padding: 0 1.6em .5em 1.6em;
+		}
+
+		.videoBrowser-viewer-related-title label {
+			display: inherit;
+			top: 5px;
+			right: 1.8em;
+			font-weight: bold;
+		}
+
+		.videoBrowser-viewer-related .videoBrowser-video,
+		.videoBrowser-viewer-related .videoBrowser-article {
+			padding-bottom: 8px;
+			width: 300px;
+			padding-right: 1%;
+		}
+
+		.videoBrowser-viewer-related {
+			padding-top: 26px;
 		}
 	}
 }

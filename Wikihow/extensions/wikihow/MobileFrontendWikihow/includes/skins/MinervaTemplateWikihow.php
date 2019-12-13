@@ -19,10 +19,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$title = $this->getSkin()->getTitle();
 		$action = $this->getSkin()->getRequest()->getVal('action', 'view');
 		$this->isArticlePage = $title && !$this->isMainPage && $title->inNamespace(NS_MAIN) && $action == 'view';
-		$this->isSearchPage = false;
-		if (preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI'])) {
-			$this->isSearchPage = true;
-		}
+		$this->isSearchPage = preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI']);
 		$this->showCurrentArticle = $this->getSkin()->getTitle()->exists() && PagePolicy::showCurrentTitle($this);
 		$this->breadCrumb = $this->setBreadcrumbHtml();
 		parent::execute();

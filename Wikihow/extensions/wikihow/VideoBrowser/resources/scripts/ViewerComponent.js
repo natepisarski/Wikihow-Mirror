@@ -72,7 +72,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 	},
 	render: function () {
 		var viewer = this;
-		var isMobile = !!mw.mobileFrontend;
+		var isMobile = window.innerWidth < WH.largeScreenMinWidth; // Set to false so responsive large will work on mobile
 		var state = this.state;
 		var video = this.video;
 		if ( !video || video.slug !== state.slug ) {
@@ -129,7 +129,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 							related: true
 						} );
 					} )
-					.slice( 0, isMobile ? 4 : 9 );
+					.slice( 0, 8 );
 			} );
 
 			// Related Articles
@@ -139,7 +139,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 					.map( function ( relatedArticle ) {
 						return new WH.VideoBrowser.ArticleComponent( relatedArticle );
 					} )
-					.slice( 0, isMobile ? 4 : 9 );
+					.slice( 0, 8 );
 			} );
 
 			// Page title
@@ -376,7 +376,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		var nextVideoId;
 		var currentVideoId = this.video.id;
 
-		if ( !WH.VideoBrowser.preferences.autoPlayNextUp || !!mw.mobileFrontend || this.seeking ) {
+		if ( !WH.VideoBrowser.preferences.autoPlayNextUp || window.innerWidth < WH.largeScreenMinWidth || this.seeking ) {
 			return;
 		}
 

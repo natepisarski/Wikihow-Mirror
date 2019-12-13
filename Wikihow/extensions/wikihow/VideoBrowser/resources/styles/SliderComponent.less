@@ -1,3 +1,5 @@
+@import '../../../less/variables.less';
+
 @thumb-width: 300px;
 @thumb-height: @thumb-width * ( 9 / 16 );
 
@@ -51,5 +53,27 @@
 		overflow-y: auto;
 		white-space: normal;
 		padding: 0;
+	}
+}
+
+@media @medium {
+	.skin-minervawh {
+
+	}
+}
+
+@media @large {
+	.skin-minervawh {
+		.videoBrowser-slider-back,
+		.videoBrowser-slider-forward {
+			display: initial;
+		}
+
+		.videoBrowser-slider-items {
+			overflow-x: scroll;
+			overflow-y: hidden;
+			white-space: nowrap;
+			padding: 0 2em;
+		}
 	}
 }

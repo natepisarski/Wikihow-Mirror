@@ -2,7 +2,7 @@
 
 class TechRating {
 
-	public static function insertTechRating($articleId) {
+	public static function techRatingHtml($articleId) {
 		if(AlternateDomain::getAlternateDomainForCurrentPage() != "wikihow.tech") return;
 
 		$loader = new Mustache_Loader_CascadingLoader([
@@ -31,7 +31,6 @@ class TechRating {
 			$data['tech_class'] = "none";
 		}
 
-		$html = $m->render('techrating', $data);
-		pq('.firstHeading')->before($html);
+		return $m->render('techrating.mustache', $data);
 	}
 }

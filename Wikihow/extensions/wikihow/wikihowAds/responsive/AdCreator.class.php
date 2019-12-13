@@ -55,7 +55,7 @@ abstract class AdCreator {
 		}
 
 		// add any bucket specific channels
-		if ( intval( $this->mBucketId ) >= 16 ) {
+		if ( intval( $this->mBucketId ) >= 11 ) {
 			$ad->setupData['channels'][] = 5941219836;
 			$ad->setupData['mobilechannels'][] = 5941219836;
 		} else {
@@ -538,6 +538,24 @@ abstract class AdCreator {
 		$this->mBucketId = sprintf( "%02d", $bucket );
 	}
 
+	public function isAdOkForDomain( $ad ) {
+		$result = true;
+
+		// for now only show small and medium sized ads on mobile domain
+		if ( Misc::isMobileMode() ) {
+			if ( $ad->setupData['small'] !== 1 && $ad->setupData['medium'] !== 1 ) {
+				$result = false;
+			}
+		} else {
+			// on desktop domain only show ads with large
+			if ( $ad->setupData['large'] !== 1 ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
 	public function getBodyAd( $type ) {
 		$ad = $this->getNewAd( $type );
 
@@ -562,16 +580,10 @@ abstract class AdCreator {
 			return;
 		}
 
-		// for now only show small and medium sized ads on mobile domain
-		if ( Misc::isMobileMode() ) {
-			if ( $ad->setupData['small'] !== 1 && $ad->setupData['medium'] !== 1 ) {
-				return;
-			}
-		} else {
-			// on desktop domain only show ads with large
-			if ( $ad->setupData['large'] !== 1 ) {
-				return;
-			}
+		if ( !$this->isAdOkForDomain( $ad ) ) {
+			return;
+		}
+		if ( !Misc::isMobileMode() ) {
 			if ( $ad->setupData['inline-html'] == 1 ) {
 				// do not use js to load the add but load it with html
 				$innerHtml .= $this->getInlineHtmlForAd( $ad );
@@ -782,7 +794,7 @@ abstract class AdCreator {
 			if ( $service == "dfp" ) {
 				// if we are in mobile mode, then only add dfp if the ad is small or medium
 				if ( Misc::isMobileMode() ) {
-					if ( $ad->setupData['small'] == 1 || $ad->setupData['medium'] == 1 ) {
+					if ( $adData['small'] == 1 || $adData['medium'] == 1 ) {
 						$addDFP = true;
 					}
 				} else {
@@ -801,12 +813,19 @@ abstract class AdCreator {
 
 		$indexHeadScript = "";
 		$dfpScript = "";
+
+		// some setups do not allow dfp ads at all so let them override it here
+		if ( !$this->isDFPOkForSetup() ) {
+			$addDFP = false;
+		}
 		if ( $addDFP ) {
 			$indexHeadScript = $this->getIndexHeadScript();
 			$dfpScript = '';
 			if ( $this->mLateLoadDFP == false ) {
+				$category = $this->getCategoryForDFP();
 				//$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
 				$dfpScript = Html::inlineScript( "var bucketId = '$this->mBucketId';\n" );
+				$dfpScript .= Html::inlineScript( "var dfpCategory = '$category';\n" );
 				$dfpInit .= file_get_contents( __DIR__."/DFPinit.js" );
 				$dfpScript .= Html::inlineScript( $dfpInit );
 				if ( $apsLoad ) {
@@ -819,6 +838,33 @@ abstract class AdCreator {
 		$adLabelStyle = $this->getAdLabelStyle();
 
 		return $indexHeadScript . $adsenseScript . $dfpScript . $adLabelStyle;
+	}
+
+	private function getCategoryForDFP() {
+		global $wgTitle;
+		$catList = SchemaMarkup::getCategoryListForBreadcrumb( $wgTitle );
+		if ( count( $catList ) == 0 ) {
+			return '';
+		}
+		$first = $catList[0];
+		if ( count( $first ) == 0 ) {
+			return '';
+		}
+		$text = $first[0]->getText();
+		$text = strtolower( $text );
+		$text = str_replace( ' ', '_', $text );
+		if ( !$text ) {
+			$text = false;
+		}
+		return $text;
+	}
+
+	protected function isDFPOkForSetup() {
+		global $wgTitle;
+		if ( Misc::isMobileMode() ) {
+			return false;
+		}
+		return true;
 	}
 
 	protected function getAdLabelStyle() {
@@ -852,9 +898,11 @@ abstract class AdCreator {
 
 	public function getGPTDefine() {
 		global $wgIsDevServer;
-		// for now return nothing on mobile domain but the correct solution is to search
-		// to see if we have any active DFP ads for this setup, and if we do not then return nothing
-		if ( Misc::isMobileMode() ) {
+		if ( !$this->isDFPOkForSetup() ) {
+			return '';
+		}
+
+		if ( empty( $this->mGptSlotDefines ) ) {
 			return '';
 		}
 		$dfpKeyVals = $this->getDFPKeyValsJSON();
@@ -1127,10 +1175,11 @@ class DefaultDocViewerAdCreator extends AdCreator {
 				'aps-timeout' => 2000,
 				'width' => 300,
 				'height' => 600,
-				'containerheight' => 3300,
+				'containerheight' => 600,
 				'class' => ['rr_container'],
 				'innerclass' => ['docviewerad', 'ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
+				'medium' => 1,
 				'large' => 1,
 			),
 			'docviewer1' => array(
@@ -1142,9 +1191,18 @@ class DefaultDocViewerAdCreator extends AdCreator {
 				'width' => 728,
 				'height' => 90,
 				'class' => ['docview_top', 'ad_label', 'ad_label_dollar'],
+				'medium' => 1,
 				'large' => 1,
 			),
 		);
+	}
+
+	public function isAdOkForDomain( $ad ) {
+		return true;
+    }
+
+	protected function isDFPOkForSetup() {
+		return true;
 	}
 }
 
@@ -1537,6 +1595,10 @@ class DefaultSearchPageAdCreator extends AdCreator {
 				'large' => 1,
 			),
 		);
+	}
+
+	public function isAdOkForDomain( $ad ) {
+		return true;
 	}
 }
 

@@ -36,6 +36,35 @@ WH.shared = (function () {
 		// we have a backup of the old scroll loading code
 	}
 
+	function getScreenSize() {
+		// Get viewport width without using jQuery.
+		// This method was taken and modified from stu.js
+		function getViewPortWidth() {
+			var d = document,
+				c = d.documentElement,
+				e = d.body,
+				g = e && e.clientWidth,
+				cw = 0;
+			if (c && c.clientWidth && ('CSS1Compat' === d.compatMode || !g)) {
+				cw = c.clientWidth;
+			} else {
+				if (g) {
+					cw = e.clientWidth;
+				}
+			}
+			return cw;
+		}
+
+		var width = getViewPortWidth();
+		if (width == 0 || width >= WH.largeScreenMinWidth) {
+			return 'large';
+		} else if (width >= WH.mediumScreenMinWidth) {
+			return 'medium';
+		} else {
+			return 'small';
+		}
+	}
+
 	function resize() {
 		if ( resizeFunctions.forEach ) {
 			resizeFunctions.forEach(function(callback) {
@@ -444,6 +473,7 @@ WH.shared = (function () {
 
 	return {
 		'isDesktopSize' : isDesktopSize,
+		'getScreenSize' : getScreenSize,
 		'throttle' : throttle,
 		'TOP_MENU_HEIGHT' : TOP_MENU_HEIGHT,
 		'autoPlayVideo' : autoPlayVideo,

@@ -418,6 +418,11 @@ class MobileContext extends ContextSource {
 			return true;
 		}
 
+		$ctx = $this->getContext();
+		if ( Misc::doResponsive($ctx) ) {
+			return true;
+		}
+
 		if ( QADomain::isQADomain() ) {
 			return true;
 		}

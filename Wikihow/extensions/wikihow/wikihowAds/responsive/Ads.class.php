@@ -320,7 +320,7 @@ class Ads {
 	 */
 	private function getAdCreator() {
 		$pageId = $this->mTitle->getArticleID();
-		if ( $this->mAlternateDomain == true ) {
+		if ( $this->mAlternateDomain == true && !$this->mSearchPage == true ) {
 			$adCreator = new DefaultAlternateDomainAdCreator();
 			return $adCreator;
 		}
@@ -377,7 +377,7 @@ class Ads {
 		if ( !$this->mActive ) {
 			return '';
 		}
-		return __DIR__ . "/ads.js";
+		return __DIR__ . "/ads.compiled.js";
 	}
 }
 

@@ -65,7 +65,7 @@ $wgResourceModules['ext.wikihow.lsearch.desktop.styles'] = [
 ];
 
 $wgResourceModules['ext.wikihow.lsearch.mobile.styles'] = [
-	'styles' => array('searchresults.css', 'searchresults_mobile.css'),
+	'styles' => ['searchresults_responsive.less'],
 	'localBasePath' => __DIR__ . '/../../../skins/owl',
 	'remoteExtPath' => 'skins/owl',
 	'targets' => [ 'desktop', 'mobile' ],

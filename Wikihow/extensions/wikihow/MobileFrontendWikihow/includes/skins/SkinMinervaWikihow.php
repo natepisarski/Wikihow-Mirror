@@ -737,6 +737,14 @@ class SkinMinervaWikihow extends SkinMinerva {
 		array_push($this->mSidebarWidgets, $display);
 	}
 
+	public function addWidgetNoSidebox(String $html, String $class = '') {
+		$widget_classes = [];
+		if ($class != '') $widget_classes[] = $class;
+
+		$display = Html::rawElement('div', ['class' => $widget_classes], $html);
+		array_push($this->mSidebarWidgets, $display);
+	}
+
 	protected function addHreflangs() {
 		global $wgLanguageCode, $wgRequest;
 

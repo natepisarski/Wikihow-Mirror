@@ -1,3 +1,5 @@
+@import '../../../less/variables.less';
+
 @min-thumb-width: 240px;
 
 .videoBrowser-article {
@@ -75,5 +77,31 @@
 		background-color: rgba(67,95,44,.4);
 		color: #fff;
 		text-decoration: none;
+	}
+}
+
+@media @large {
+	.skin-minervawh {
+		.videoBrowser-article-title p {
+			display: block;
+			font-size: 12px;
+			//line-height: 16px !important;
+			margin-bottom: 0;
+		}
+
+		.videoBrowser-article-content {
+			border-radius: 0;
+			-webkit-mask-image: none;
+		}
+
+		.videoBrowser-article-title {
+			background-color: rgba(50,50,50,.5);
+			color: #fff;
+		}
+
+		.videoBrowser-article:hover .videoBrowser-article-title {
+			background-color: white;
+			color: #2483ef;
+		}
 	}
 }

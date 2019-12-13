@@ -199,11 +199,19 @@ class SchemaMarkup {
 		// and google:  https://developers.google.com/search/mobile-sites/mobile-first-indexing.
 		// Alt domains should serve up the 'en' domain url (eg www or m.wikihow.com) as suggested by
 		// search brothers seo
+		//
+		// 12/10/19 - Make the alt domains (which are now responsive) always point to www. As we make other domains
+		// responsive we should do the same
+		if (Misc::isAltDomain()) {
+			$url = Misc::getLangBaseURL($wgLanguageCode);
+		} else {
+			$url = Misc::getLangBaseURL($wgLanguageCode, Misc::isMobileMode());
+		}
 		$data = [
 			"@context"=> "http://schema.org",
 			"@type" => "Organization",
 			"name" => "wikiHow",
-			"url" => Misc::getLangBaseURL($wgLanguageCode, Misc::isMobileMode()),
+			"url" => $url,
 			"logo" => $logo,
 		];
 
@@ -1163,6 +1171,7 @@ class SchemaMarkup {
 	public static function getCategoryListForBreadcrumb( $title ) {
 		$tree = CategoryHelper::getCurrentParentCategoryTree();
 		$allCats = array();
+
 		// get the list
 		foreach ( $tree as $catTitle => $parents ) {
 			// skip any in categories to ignore
@@ -1187,6 +1196,10 @@ class SchemaMarkup {
 			$cats = [$catTitle];
 			$parentCats = CategoryHelper::flattenCategoryTree( $parents );
 			if ( !$parentCats ) {
+				// edge case if the article is in a top level category
+				if ( count( $tree ) == 1 ) {
+					$allCats[] = array_reverse( $cats );
+				}
 				continue;
 			}
 			foreach ( $parentCats as $parent ) {

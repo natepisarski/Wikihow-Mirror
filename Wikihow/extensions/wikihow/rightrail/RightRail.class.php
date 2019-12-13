@@ -383,7 +383,13 @@ class RightRail {
 			}
 		}
 
-		$showTopLinksSidebar = !$this->mIsDocViewer && !$this->mSocialProofSidebar && !$this->mIsEnglishAnonView;
+		$isSearchPage = $this->mTitle->isSpecial( 'LSearch' );
+
+		$showTopLinksSidebar = !$this->mIsDocViewer &&
+			!$this->mSocialProofSidebar &&
+			!$this->mIsEnglishAnonView &&
+			!$isSearchPage;
+
 		Hooks::run( 'WikihowTemplateShowTopLinksSidebar', array( &$showTopLinksSidebar ) );
 		if ( $showTopLinksSidebar ) {
 			$html .= $this->getTopLinksSidebarWidgetHtml();
@@ -439,7 +445,9 @@ class RightRail {
 
 	public function getRightRailHtmlBottom() {
 		$html = '';
-		if ( !$this->mIsDocViewer && $this->mSocialProofSidebar && !$this->mIsEnglishAnonView ) {
+		$isSearchPage = $this->mTitle->isSpecial( 'LSearch' );
+
+		if ( !$this->mIsDocViewer && $this->mSocialProofSidebar && !$this->mIsEnglishAnonView && !$isSearchPage ) {
 			$html .= $this->getTopLinksSidebarWidgetHtml();
 		}
 
@@ -496,7 +504,8 @@ class RightRail {
 			&& !$this->mIsDocViewer
 			&& !$this->mIsEnglishAnonView
 			&& !$this->mIsAnonView
-			&& !$this->mTitle->inNamespace( NS_USER );
+			&& !$this->mTitle->inNamespace( NS_USER )
+			&& !$isSearchPage;
 
 		Hooks::run( 'WikihowTemplateShowFeaturedArticlesSidebar', array( &$showFeaturedArticlesSidebar ) );
 
@@ -516,6 +525,7 @@ class RightRail {
 			!$this->mIsDocViewer &&
 			!$this->mIsEnglishAnonView &&
 			!$this->mIsAnonView &&
+			!$isSearchPage &&
 			in_array( $this->mLanguageCode, array( 'en', 'de', 'es', 'pt' ) );
 
 		Hooks::run( 'WikihowTemplateShowFollowWidget', array( &$showFollowWidget ) );

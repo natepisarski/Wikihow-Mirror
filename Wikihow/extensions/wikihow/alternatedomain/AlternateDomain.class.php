@@ -221,7 +221,7 @@ class AlternateDomain {
 		if ( $wgIsDevServer )  {
 			$prefix = 'dev.';
 			if ( $domain == "wikihow.com" ) {
-				$prefix = "a.";
+				$prefix = "a."; // dev redirects to a.wikidogs.com
 				$domain = "wikidogs.com";
 			}
 			if ( Misc::isMobileMode() ) {
@@ -708,7 +708,7 @@ class AlternateDomain {
 					}
 
 					// if on mobile then allow the amp param for amp mode
-					if ( Misc::isMobileMode() && $key == "amp" && $value == "1") {
+					if ( $key == "amp" && $value == "1") {
 						continue;
 					}
 
@@ -1069,10 +1069,10 @@ class AlternateDomain {
 			'href' => $canonicalUrl
 		) );
 
-		$serverUrl = "https://m.".$domain;
+		//$serverUrl = "https://m.".$domain;
 		if ( $hasAmpHtml ) {
-			$ampUrl = wfExpandUrl( $serverUrl . '/' . $out->getContext()->getTitle()->getPrefixedURL(), PROTO_CANONICAL );
-			$ampUrl =  $ampUrl . "?amp=1";
+			//$ampUrl = wfExpandUrl( $serverUrl . '/' . $out->getContext()->getTitle()->getPrefixedURL(), PROTO_CANONICAL );
+			$ampUrl =  $canonicalUrl . "?amp=1";
 
 			$headLinks[] = Html::element( "link", array( "rel" => "amphtml", "href" => $ampUrl ) );
 		}

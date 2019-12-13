@@ -1,3 +1,5 @@
+@import '../../../less/variables.less';
+
 @min-thumb-width: 240px;
 
 .videoBrowser-videoList .section_text {
@@ -91,6 +93,32 @@
 	.skin-minervawh {
 		.videoBrowser-videoList .videoBrowser-video {
 			width: 100%;
+		}
+	}
+}
+
+@media @medium {
+	.skin-minervawh {
+		.videoBrowser-videoList-subtitle {
+			line-height: 62px;
+			display: initial;
+		}
+	}
+}
+
+@media @large {
+	.skin-minervawh {
+		.videoBrowser-videoList .videoBrowser-video {
+			padding-right: 13px;
+			padding-bottom: 13px;
+		}
+		
+		.videoBrowser-index .videoBrowser-title {
+			padding: 27px;
+		}
+
+		.videoBrowser-videoList-subtitle {
+			line-height: 62px;
 		}
 	}
 }

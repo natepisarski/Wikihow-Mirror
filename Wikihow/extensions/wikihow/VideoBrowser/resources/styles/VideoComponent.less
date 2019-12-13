@@ -1,3 +1,5 @@
+@import '../../../less/variables.less';
+
 @min-thumb-width: 240px;
 
 .videoBrowser-video {
@@ -154,4 +156,32 @@
 	width: 20px;
 	height: 20px;
 	text-align: center;
+}
+
+@media @large {
+	.skin-minervawh {
+		.videoBrowser-video-content {
+			border-radius: 0;
+			-webkit-mask-image: none;
+		}
+
+		.videoBrowser-video-title {
+			background-color: rgba(50,50,50,.5);
+			font-size: 16px;
+			line-height: 20px !important;
+			min-height: 32px;
+			margin-bottom: 0;
+		}
+
+		.videoBrowser-video-title p {
+			display: block;
+			font-size: 12px;
+			line-height: 25px;
+		}
+
+		.videoBrowser-video:hover .videoBrowser-video-title {
+			background-color: white;
+			color: #2483ef;
+		}
+	}
 }

@@ -59,7 +59,6 @@ $wgHooks['InitializeArticleMaybeRedirect'][] = array('PageHooks::onInitializeArt
 
 $wgHooks['BeforePageDisplay'][] = array('PageHooks::addVarnishHeaders');
 $wgHooks['BeforePageDisplay'][] = array('PageHooks::addInternetOrgVaryHeader');
-$wgHooks['OutputPageBeforeHTML'][] = array('PageHooks::enforceCountryPageViewBan');
 
 $wgHooks['OutputPageBeforeHTML'][] = array('PageHooks::setPage404IfNotExists');
 $wgHooks['TitleMoveComplete'][] = array('PageHooks::fix404AfterMove');

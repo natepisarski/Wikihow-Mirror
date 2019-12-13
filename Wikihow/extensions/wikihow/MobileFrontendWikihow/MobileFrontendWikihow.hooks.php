@@ -274,10 +274,11 @@ class MobileFrontendWikiHowHooks {
 		return true;
 	}
 
-	private static function validResponsivePage(): Bool {
+	public static function validResponsivePage(): bool {
 		if (!is_null(self::$isvalidResponsivePage)) return self::$isvalidResponsivePage;
 
 		$title = RequestContext::getMain()->getTitle();
+		$isSearchPage = preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI']);
 
 		$wHnamespacePagesWithCss = [ wfMessage('trustworthy-page')->text() ];
 		$specialPagesWithCss = [
@@ -291,7 +292,10 @@ class MobileFrontendWikiHowHooks {
 		self::$isvalidResponsivePage = $title &&
 			$title->inNamespace( NS_MAIN ) ||
 			($title->inNamespace( NS_PROJECT ) && in_array($title->getDBkey(), $wHnamespacePagesWithCss)) ||
-			($title->inNamespace(NS_SPECIAL) && in_array($title->getText(), $specialPagesWithCss));
+			($title->inNamespace(NS_SPECIAL) && in_array($title->getText(), $specialPagesWithCss)) ||
+			($title->inNamespace(NS_SPECIAL) && stripos($title->getText(), 'VideoBrowser') === 0) ||
+			($title->inNamespace(NS_SPECIAL) && stripos($title->getText(), 'DocViewer/') === 0) ||
+			$isSearchPage;
 
 		return self::$isvalidResponsivePage;
 	}

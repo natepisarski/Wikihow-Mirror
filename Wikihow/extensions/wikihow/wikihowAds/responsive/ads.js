@@ -55,7 +55,6 @@ WH.ads = (function () {
 	}
 
 	if (WH.isMobile) {
-		topMenuHeight = 92;
 		bottomMarginHeight = 314;
 	}
 	function log() {

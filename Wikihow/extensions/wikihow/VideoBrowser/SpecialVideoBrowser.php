@@ -26,6 +26,7 @@ class SpecialVideoBrowser extends SpecialPage {
 		}
 
 		$wgHooks['CustomSideBar'][] = [ $this, 'makeCustomSideBar' ];
+		$wgHooks['UseMobileRightRail'][] = [ $this, 'useMobileRightRail' ];
 		$wgHooks['ShowBreadCrumbs'][] = [ $this, 'removeBreadCrumbsCallback' ];
 
 		$output->addModules( [ 'ext.wikihow.videoBrowser' ] );
@@ -214,6 +215,11 @@ class SpecialVideoBrowser extends SpecialPage {
 
 	public static function makeCustomSideBar( &$customSideBar ) {
 		$customSideBar = true;
+		return true;
+	}
+
+	public static function useMobileRightRail( &$useMobileRightRail ) {
+		$useMobileRightRail = false;
 		return true;
 	}
 

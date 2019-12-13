@@ -1,6 +1,5 @@
 <?php
 
-
 class DefaultAlternateDomainAdCreator extends AdCreator {
 	public function __construct() {
 		parent::__construct();
@@ -184,4 +183,22 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 			),
 		);
 	}
+
+	public function isAdOkForDomain( $ad ) {
+		$result = true;
+
+		if ( !Misc::isMobileMode() ) {
+			// on desktop domain only show ads with large
+			if ( $ad->setupData['large'] !== 1 ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+	protected function isDFPOkForSetup() {
+		return true;
+	}
+
 }

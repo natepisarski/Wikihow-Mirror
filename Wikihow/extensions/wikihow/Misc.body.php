@@ -701,6 +701,45 @@ class Misc {
 		return false;
 	}
 
+	// RESPONSIVE, Dec 2019: In our transition to the responsive site on www.wikihow.com,
+	// we want to transition certain specific pages and classes of pages one at a time.
+	// We will add more pages here as needed, until every URL on our site returns "true"
+	// from this method. At that point, we can remove the complexity from the logic here
+	// and we will have completed our transition to responsive.
+	//
+	// CURRENTLY: we're transitioning all article pages on alt domains. (Dec 4 2019)
+	//
+	// After this transition, we should a big cleanup project to minimize the role of
+	// MobileFrontend and remove our old desktop skin. We should start renaming certain
+	// methods and classes away from "Mobile" too, since everything should be responsive.
+	//
+	// We will need to add varnish/fastly redirects from m.wikihow.com to www.wikihow.com
+	// (and for the INTL sites) at that point too.
+	public static function doResponsive($ctx) {
+		if ( self::isMobileModeLite() ) {
+			return true;
+		}
+
+		$title = $ctx->getTitle();
+		$req = $ctx->getRequest();
+		if ( $req && $title
+			&& self::isAltDomain()
+			&& MobileFrontendWikiHowHooks::validResponsivePage()
+		) {
+			$actionParam = $req->getVal('action', '');
+			$typeParam = $req->getVal('type', '');
+			$oldidParam = $req->getVal('oldid', '');
+			if ( ($actionParam == '' || $actionParam == 'view')
+				&& $typeParam != 'revision'
+				&& !$oldidParam
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	// This header is used by our Fastly VCL to allow mobile redirection
 	// when the stars align (ie, they have a mobile User-Agent, they don't
 	// have special cookies, and they are on a desktop domain).
@@ -1074,7 +1113,7 @@ class Misc {
 	public static function getTTIHead() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831];
+		$okPages = [6253, 4831, 28404, 31799];
 		if ( !in_array( $pageId, $okPages ) ) {
 			return;
 		}
@@ -1085,7 +1124,7 @@ class Misc {
 	public static function getFIDHead() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831];
+		$okPages = [6253, 4831, 28404, 31799];
 		if ( !in_array( $pageId, $okPages ) ) {
 			return;
 		}
@@ -1098,7 +1137,7 @@ class Misc {
 	public static function getTTIBody() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831];
+		$okPages = [6253, 4831, 28404, 31799];
 		if ( !in_array( $pageId, $okPages ) ) {
 			return;
 		}
@@ -1113,7 +1152,7 @@ class Misc {
 	public static function getFIDBody() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831];
+		$okPages = [6253, 4831, 28404, 31799];
 		if ( !in_array( $pageId, $okPages ) ) {
 			return;
 		}

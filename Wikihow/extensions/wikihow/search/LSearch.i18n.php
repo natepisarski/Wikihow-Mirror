@@ -18,6 +18,7 @@ $messages['en'] = array(
 	'lsearch_edited_by_others' => 'Edited by $1 and $2 others',
 	'lsearch_last_updated' => 'Updated $1 by $2',
 	'lsearch_last_updated_desktop' => 'Updated $1',
+	'lsearch_last_updated_responsive' => 'Updated',
 	'lsearch_featured' => 'Featured',
 	'lsearch_has_video' => 'Has Video',
 	'lsearch_steps' => '$1 Steps',

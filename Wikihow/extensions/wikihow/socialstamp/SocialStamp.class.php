@@ -21,8 +21,9 @@ class SocialStamp {
 
 		pq('.firstHeading')->after($html);
 
-		if(class_exists('TechRating')) {
-			TechRating::insertTechRating(RequestContext::getMain()->getOutput()->getTitle()->getArticleID());
+		if (class_exists('TechRating')) {
+			$techRating = TechRating::techRatingHtml( $out->getTitle()->getArticleID() );
+			pq('.firstHeading')->before( $techRating );
 		}
 	}
 
@@ -81,6 +82,11 @@ class SocialStamp {
 		$html = self::getBylineHtml();
 
 		$data['prebodytext'] .= $html;
+
+		if(class_exists('TechRating') && !$data['amp']) {
+			$techRating = TechRating::techRatingHtml( $data['articleid'] );
+			$data['prebodytext'] = $techRating . $data['prebodytext'];
+		}
 	}
 
 	private static function isEligibleForByline() {
@@ -359,6 +365,11 @@ class SocialStamp {
 		}
 
 		$params = array_merge($params, self::getIconHoverVars($hoverText, $isMobile, $isAmp, $isExpert, $isAlternateDomain));
+
+		if ($isAlternateDomain) {
+			$altDomain = AlternateDomain::getAlternateDomainForCurrentPage();
+			$params['altDomainClass'] = AlternateDomain::getAlternateDomainClass( $altDomain );
+		}
 
 		return $params;
 	}

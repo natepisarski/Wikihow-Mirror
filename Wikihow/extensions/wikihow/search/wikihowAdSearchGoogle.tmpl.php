@@ -23,7 +23,7 @@
 		number: 3,
 		fontSizeTitle: 16,
 		noTitleUnderline: true,
-		colorTitleLink: WH.isMobile ? '#93b874' : '#363',
+		colorTitleLink: '#363',
 		colorDomainLink: '#363',
 		colorText: '#545454',
 		colorBorder : '#d2d8cd',
@@ -34,7 +34,7 @@
 		number: 4,
 		fontSizeTitle: 16,
 		noTitleUnderline: true,
-		colorTitleLink: WH.isMobile ? '#93b874' : '#363',
+		colorTitleLink: '#363',
 		colorDomainLink: '#363',
 		colorText: '#545454',
 		colorBorder : '#d2d8cd',
@@ -43,20 +43,17 @@
 	if (WH.gdpr && WH.gdpr.isEULocation()) {
 		pageOptions['personalizedAds'] = false;
 	}
-	if (WH.isMobile) {
-		var adBlockMiddle = {
-			container: 'search_adblock_middle',
-			number: 1,
-			fontSizeTitle: 16,
-			noTitleUnderline: true,
-			colorTitleLink: WH.isMobile ? '#93b874' : '#363',
-			colorDomainLink: '#363',
-			colorText: '#545454',
-			colorBorder : '#d2d8cd',
-		};
-		_googCsa('ads', pageOptions, adBlockTop, adBlockMiddle, adBlockBottom);
-	} else {
-		_googCsa('ads', pageOptions, adBlockTop, adBlockBottom);
-	}
+
+	var adBlockMiddle = {
+		container: 'search_adblock_middle',
+		number: 1,
+		fontSizeTitle: 16,
+		noTitleUnderline: true,
+		colorTitleLink: '#363',
+		colorDomainLink: '#363',
+		colorText: '#545454',
+		colorBorder : '#d2d8cd',
+	};
+	_googCsa('ads', pageOptions, adBlockTop, adBlockMiddle, adBlockBottom);
 
 </script>

@@ -39,6 +39,7 @@ class DocViewer extends UnlistedSpecialPage {
 	private static $firstRelatedTitle = '';
 	private static $pdf_carrot = '';
 	private static $isPdf;
+	private static $isResponsive = true;
 
 	public function __construct() {
 		parent::__construct( 'DocViewer' );
@@ -108,7 +109,7 @@ class DocViewer extends UnlistedSpecialPage {
 	 * Display the HTML for this special page
 	 */
 	private function displayContainer($doc_name='',$is_mobile) {
-		global $wgCanonicalServer, $wgUploadDirectory, $wgLanguageCode;
+		global $wgCanonicalServer, $wgUploadDirectory, $wgLanguageCode, $wgOut;
 
 		$ads = "";
 		$ads2 = "";
@@ -148,12 +149,13 @@ class DocViewer extends UnlistedSpecialPage {
 				$doc_array['ext_link'] = urlencode($wgCanonicalServer.$doc_array['xls']);
 			}
 
-			if ( !$is_mobile ) {
+			if ( !$is_mobile || self::$isResponsive ) {
 				$adCreator = new Ads( $this->getContext(), $this->getUser(), $wgLanguageCode, array(), false );
 				$ads = $adCreator->getDocViewerAdHtml( 0 );
 				if ( !self::showPdf($doc_name) ) {
 					$ads2 = $adCreator->getDocViewerAdHtml( 1 );
 				}
+				$wgOut->addHeadItem('gptdefine', $adCreator->getGPTDefine());
 			}
 
 			$tmpl = new EasyTemplate( __DIR__ );
@@ -189,14 +191,18 @@ class DocViewer extends UnlistedSpecialPage {
 			));
 
 			if ($is_mobile) {
-				$tmpl_name = 'docviewer_mobile.tmpl.php';
+				if (self::$isResponsive) {
+					$tmpl_name = 'docviewer_responsive.tmpl.php';
+				} else {
+					$tmpl_name = 'docviewer_mobile.tmpl.php';
+				}
 			}
 			else {
 				$tmpl_name = 'docviewer.tmpl.php';
 			}
 			$html = $tmpl->execute($tmpl_name);
 
-			if (!$is_mobile) self::addWidgets($tmpl);
+			if (!$is_mobile || self::$isResponsive) self::addWidgets($tmpl);
 		}
 		else {
 			//no name passed in?
@@ -221,7 +227,11 @@ class DocViewer extends UnlistedSpecialPage {
 
 		$html = $tmpl->execute('widget_ads.tmpl.php');
 		if (!empty($html)) {
-			$sk->addWidget($html, 'sample_ads');
+			if (self::$isResponsive && Misc::isMobileMode()) {
+				$sk->addWidgetNoSidebox($html, 'sample_ads');
+			} else {
+				$sk->addWidget($html, 'sample_ads');
+			}
 		}
 	}
 
@@ -260,12 +270,11 @@ class DocViewer extends UnlistedSpecialPage {
 		if ( self::showPdf($doc_name) ) {
 			$path = str_replace('sampledocs','samplepdfs',$doc_uri_path);
 			$path = preg_replace('/^\//','',$path);
-			$dv_display_pdf = 'http://www.wikihow.com/'.$path.'/'.$doc_name.'.pdf';
+			$dv_display_pdf = 'https://www.wikihow.com/'.$path.'/'.$doc_name.'.pdf';
 			$dv_fallback_img = self::getFallbackImg($doc_name);
 			$pdf_code = '<h1>'.$doc_title.'</h1>
-						<div class="sample_ribbon pdf_ribbon"></div>
 						<div class="sample_container pdf_container">
-						<object id="pdfobject" data="https://drive.google.com/viewerng/viewer?embedded=true&url='.$dv_display_pdf.'" width="720" height="600">
+						<object id="pdfobject" data="'.$dv_display_pdf.'" type="application/pdf" width="720" height="600">
 							   <!--fallback for IE and other non-PDF-embeddable browsers-->
 							   <img src="'.$dv_fallback_img.'" id="fallback_img" alt="'.$doc_title.'" />
 						</object></div>';
@@ -562,7 +571,13 @@ class DocViewer extends UnlistedSpecialPage {
 			return;
 		}
 
-		if ($isMobile) $out->addModules('zzz.mobile.wikihow.sample');
+		if ($isMobile) {
+			if (self::$isResponsive) {
+				$out->addModules('zzz.mobile.wikihow.sample_responsive');
+			} else {
+				$out->addModules('zzz.mobile.wikihow.sample');
+			}
+		}
 
 		$sample = preg_replace('@-@',' ',$par);
 

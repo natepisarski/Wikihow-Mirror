@@ -18,7 +18,6 @@ window.WH.Stu = (function () {
 var WH = window['WH'];
 var countableView = WH['stuCount'],
 	pageLang = WH['pageLang'],
-	isMobile = WH['isMobile'],
 	dev = !!(location.href.match(/\.wikidogs\.com/)),
 	exitTimerEnabled = (countableView && pageLang == 'en') || dev,
 	pingTimersEnabled = (location.href.match(/\.wikihow\.[a-z]+\//) && pageLang == 'en') || dev,
@@ -72,6 +71,36 @@ var debugCallbackFunc = null,
 // can eventually offer to edit articles that might be in their interests.
 var timers = [{'t':1}, {'t':10}, {'t':20}, {'t':30}, {'t':45}, {'t':60}, {'t':90}, {'t':120}, {'t':180}, {'t':240}, {'t':300}, {'t':360}, {'t':420}, {'t':480}, {'t':540}, {'t':600} ];
 
+function isMobileDomain() {
+	return !!(location.href.match(/\bm\./));
+}
+
+function isMobile() {
+	if (isMobileDomain()) {
+		return 1;
+	}
+
+	// While responsive is rolling out, we don't want to look at the screen width
+	// NOTE: Responsive has rolled out on desktop alt domains
+	if ( !location.href.match(/(wikihow\.life|wikihow\.fitness|wikihow\.tech|wikihow\.mom|wikihow\.pet|wikihow-fun\.com|wikihow\.legal|wikihow\.health)/) ) {
+		return 0;
+	}
+
+	// For responsive, we are sometimes a mobile screen/device on the old desktop
+	// domain www.wikihow.com.
+	//
+	// NOTE: we consider both tablet (medium) and mobile (small) sizes to be mobile
+	//   for the purposes of stu. If we can't find the viewport width, we assume large.
+	// NOTE 2: instead of getViewPortDimensions() we could use
+	//   WH.shared.getScreenSize() == 'large'
+	var viewport = getViewPortDimensions().split('x')[0];
+	if (typeof WH['largeScreenMinWidth'] != 'undefined' && viewport && parseInt(viewport, 10) < WH['largeScreenMinWidth']) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 function makeID(len) {
 	var text = '';
 	var possible = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -115,12 +144,8 @@ function sendExitPing(priority, domain, message, doAsync) {
 
 function getDomain() {
 	if (fromGoogle) {
-		// isMobile defines whether we're on a mobile wikihow domain
-		// NOTE: we keep this calculation here rather than using the isMobile
-		// defined just outside this scope because the definitions are slightly
-		// different and we want to keep this one the same for historical Stu.
-		var isMobile = !!(location.href.match(/\bm\./i));
-		if (isMobile) {
+		// isMobile() defines whether we're on a mobile wikihow domain
+		if (isMobile()) {
 			return 'vm'; // virtual domain mapping to mb and pv domains
 		} else {
 			return 'vw'; // virtual domain mapping to bt and pv domains
@@ -527,6 +552,25 @@ function mergeObjects(o1, o2) {
 	return o1;
 }
 
+// Calculate view port dimensions
+function getViewPortDimensions() {
+	var d = document,
+		c = d.documentElement,
+		e = d.body,
+		g = e && e.clientWidth && e.clientHeight,
+		ca = [];
+	//c && c.clientWidth && c.clientHeight && ('CSS1Compat' === d.compatMode || !g) ? ca = [c.clientWidth, c.clientHeight] : g && (ca = [e.clientWidth, e.clientHeight]);
+	if (c && c.clientWidth && c.clientHeight && ('CSS1Compat' === d.compatMode || !g)) {
+		ca = [c.clientWidth, c.clientHeight];
+	} else {
+		if (g) {
+			ca = [e.clientWidth, e.clientHeight];
+		}
+	}
+	c = 0 >= ca[0] || 0 >= ca[1] ? '' : ca.join('x');
+	return c;
+}
+
 // Generate a few stats only accessible via Javascript in the browser
 function fullStatsGen(extraAttrs) {
 	// Borrowed and modified from Google's very public analytics.js
@@ -569,25 +613,6 @@ function fullStatsGen(extraAttrs) {
 	}
 	 */
 
-	// Calculate view port dimensions
-	function viewPort() {
-		var d = document,
-			c = d.documentElement,
-			e = d.body,
-			g = e && e.clientWidth && e.clientHeight,
-			ca = [];
-		//c && c.clientWidth && c.clientHeight && ('CSS1Compat' === d.compatMode || !g) ? ca = [c.clientWidth, c.clientHeight] : g && (ca = [e.clientWidth, e.clientHeight]);
-		if (c && c.clientWidth && c.clientHeight && ('CSS1Compat' === d.compatMode || !g)) {
-			ca = [c.clientWidth, c.clientHeight];
-		} else {
-			if (g) {
-				ca = [e.clientWidth, e.clientHeight];
-			}
-		}
-		c = 0 >= ca[0] || 0 >= ca[1] ? '' : ca.join('x');
-		return c;
-	}
-
 	try {
 		var n = window.navigator,
 			d = document,
@@ -598,7 +623,7 @@ function fullStatsGen(extraAttrs) {
 			ul = (n && (n.language || n.browserLanguage) || '').toLowerCase(),
 			sd = sc && sc.colorDepth + '-bit',
 			sr = sc && sc.width + 'x' + sc.height,
-			vp = viewPort(),
+			vp = getViewPortDimensions(),
 			pr = typeof window.devicePixelRatio != 'undefined' ? window.devicePixelRatio : 0;
 		var attrs = {
 			'de': de,
@@ -647,7 +672,7 @@ function basicStatsGen(extraAttrs) {
 		'ra': randPageViewSessionID,
 		'cv': countableView,
 		'cl': pageLang,
-		'cm': isMobile,
+		'cm': isMobile(),
 		'dl': location.href,
 		'b': STU_BUILD
 	};

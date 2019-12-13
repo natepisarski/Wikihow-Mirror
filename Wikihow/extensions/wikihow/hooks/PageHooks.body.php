@@ -258,20 +258,6 @@ class PageHooks {
 		return true;
 	}
 
-	// Check country ban
-	public static function enforceCountryPageViewBan(&$outputPage, &$text) {
-		$countryBanHeader = $outputPage->getRequest()->getHeader('x-country-ban');
-		if ($countryBanHeader == 'YES'
-			//|| $outputPage->getRequest()->getVal('test') == 'ban'
-		) {
-			$text = '
-				<p><br/>
-				Article cannot be viewed<br/>
-				Please visit <a href="/Main-Page">wikiHow Main Page</a> instead.</p>';
-		}
-		return true;
-	}
-
 	/* data schema
 	 *
 	 CREATE TABLE redirect_page (

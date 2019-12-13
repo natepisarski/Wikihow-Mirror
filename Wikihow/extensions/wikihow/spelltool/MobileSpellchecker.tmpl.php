@@ -4,7 +4,7 @@
 			<?= wfMessage('spch-mobile-question', '<span class="mt_prompt_article_title"></span>')->text();?>
 		</div>
 	</div>
-	<div id="spch-snippet" class="clearall mt_box">
+	<div id="spch-snippet" class="mt_box">
 		<?=wfMessage('spch-loading-next')->text();?>
 	</div>
 	<div id="spch-options" class="mt_button_bar">

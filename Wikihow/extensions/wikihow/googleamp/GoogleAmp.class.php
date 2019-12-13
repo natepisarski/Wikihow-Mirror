@@ -496,7 +496,9 @@ class GoogleAmp {
 		if ( self::isAmpMode( $out ) || !WikihowSkinHelper::shouldShowMetaInfo($out) ) {
 			return;
 		}
-		$serverUrl =  Misc::getLangBaseURL( $languageCode, true );
+		// RESPONSIVE: roll out responsive design on all alt domain sites
+		$useMobileDomainUrl = !Misc::isAltDomain();
+		$serverUrl =  Misc::getLangBaseURL( $languageCode, $useMobileDomainUrl );
 		$ampUrl = wfExpandUrl( $serverUrl . '/' . $out->getTitle()->getPrefixedURL(), PROTO_CANONICAL );
 		$ampUrl =  $ampUrl . "?amp=1";
 

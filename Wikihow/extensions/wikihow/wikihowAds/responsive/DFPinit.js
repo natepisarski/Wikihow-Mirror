@@ -27,6 +27,9 @@ if (WH.shared.isDesktopSize) {
 		slot.setTargeting('language', WH.pageLang);
 		slot.setTargeting('format', format);
 		slot.setTargeting('site', window.location.hostname);
+		if (dfpCategory != '') {
+			slot.setTargeting('category', dfpCategory);
+		}
 	}
 	var googletag = googletag || {};
 	googletag.cmd = googletag.cmd || [];

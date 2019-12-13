@@ -174,10 +174,16 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'dependencies' => array('mobile.notifications.overlay'),
 	),
 	'zzz.mobile.wikihow.sample' => $wgMFMobileResourceBoilerplateWikihow + array(
-		'styles' => array(
-			'../docviewer/docviewer_m.css',
-		),
+		'styles' => ['../docviewer/docviewer_m.css'],
+		'position' => 'top',
+		'targets' => ['mobile'],
 	),
+
+	'zzz.mobile.wikihow.sample_responsive' => $wgMFMobileResourceBoilerplateWikihow + array(
+			'styles' => ['../docviewer/docviewer_m-responsive.less'],
+			'position' => 'top',
+			'targets' => ['mobile'],
+		),
 	// Have to add zzz to beginning of module to ensure it loads after other mw modules
 	// and properly overrides css without having to add !important with all the rules.
 	// A hack, for sure, but has to be done since the OutputPage alphabetically sorts
