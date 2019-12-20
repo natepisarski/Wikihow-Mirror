@@ -34,6 +34,15 @@ class WikihowNamespacePages {
 			'Free-Basics',
 			'Cookie-Policy-Info',
 			'Cookie-Policy-Information',
+			'Terms-of-Use',
+			'About-wikiHow.health',
+			'About-wikiHow.legal',
+			'About-wikiHow.mom',
+			'About-wikiHow.fitness',
+			'About-wikiHow.tech',
+			'About-wikiHow.pet',
+			'About-wikiHow.life',
+			'About-wikiHow-fun'
 		];
 	}
 
@@ -54,7 +63,17 @@ class WikihowNamespacePages {
 			wfMessage('about-page')->text(),
 			wfMessage('trustworthy-page')->text(),
 			'Jobs',
-			'Mission'
+			'Mission',
+			'Privacy-Policy',
+			'Terms-of-Use',
+			'About-wikiHow.health',
+			'About-wikiHow.legal',
+			'About-wikiHow.mom',
+			'About-wikiHow.fitness',
+			'About-wikiHow.tech',
+			'About-wikiHow.pet',
+			'About-wikiHow.life',
+			'About-wikiHow-fun'
 		];
 	}
 
@@ -84,13 +103,20 @@ class WikihowNamespacePages {
 	private static function aboutWikihowPage(): bool {
 		$title = RequestContext::getMain()->getTitle();
 		if (!$title) return false;
+
 		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('about-page')->text();
 	}
 
-	private static function trustworthyWikihowPage(): bool {
+	private static function trustworthyPage(): bool {
 		$title = RequestContext::getMain()->getTitle();
 		if (!$title) return false;
 		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('trustworthy-page')->text();
+	}
+
+	private static function jobsPage(): bool {
+		$title = RequestContext::getMain()->getTitle();
+		if (!$title) return false;
+		return self::wikiHowNamespacePage() && $title->getDBkey() == 'Jobs';
 	}
 
 	public static function showMobileAboutWikihow(): bool {
@@ -105,16 +131,17 @@ class WikihowNamespacePages {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
-		global $wgHooks;
-
 		if (self::wikiHowNamespacePage()) {
+			$isResponsive = Misc::doResponsive( RequestContext::getMain() );
+
 			Misc::setHeaderMobileFriendly();
 
 			if (self::aboutWikihowPage()) {
 				$out->setPageTitle(wfMessage('aboutwikihow')->text());
-				$out->addModules('ext.wikihow.press_boxes');
+				$module = $isResponsive ? 'ext.wikihow.press_boxes' : 'ext.wikihow.press_boxes_desktop';
+				$out->addModuleStyles( $module );
 			}
-			elseif (self::trustworthyWikihowPage()) {
+			elseif (self::trustworthyPage()) {
 				$h1 = wfMessage('trustworthy-h1')->text();
 				$out->setPageTitle($h1); //fancy h1
 				$out->setHTMLTitle(wfMessage('trustworthy-title')->text());
@@ -124,9 +151,9 @@ class WikihowNamespacePages {
 			}
 
 			$title = $out->getTitle();
-			if ($title && Misc::isMobileMode()) {
+			if ($title && $isResponsive) {
 				if (in_array($title->getDBkey(), self::mobileWithStyle())) {
-					$out->addModules('mobile.wikihow.wikihow_namespace_styles');
+					$out->addModuleStyles('mobile.wikihow.wikihow_namespace_styles');
 				}
 			}
 		}
@@ -138,21 +165,25 @@ class WikihowNamespacePages {
 
 	//this uses the phpQuery object
 	public static function onMobileProcessArticleHTMLAfter(OutputPage $out) {
-		if (!self::aboutWikihowPage() || !self::showMobileAboutWikihow()) return;
+		$goodAboutPage = self::aboutWikihowPage() && self::showMobileAboutWikihow();
 
-		foreach (pq('.section.steps') as $key => $step) {
-			$section_title = pq($step)->find('h3 span')->text();
+		if ($goodAboutPage) {
+			foreach (pq('.section.steps') as $step) {
+				$section_title = trim(pq($step)->find('h3 span')->text());
 
-			if ($section_title == wfMessage('section_title_before_mobile_pressbox')->text()) {
-				//add press box after the designated section
-				pq($step)->after(PressBoxes::pressSidebox());
+				if ($section_title == trim(wfMessage('section_title_before_mobile_pressbox')->text())) {
+					//add press box after the designated section
+					pq($step)->after(PressBoxes::pressSidebox());
+				}
+				elseif ($section_title == trim(wfMessage('section_title_for_slideshow')->text())) {
+					//remove the slideshow because it looks bad on mobile
+					pq($step)->remove();
+				}
 			}
-			elseif ($section_title == wfMessage('section_title_for_slideshow')->text()) {
-				//remove the slideshow because it looks bad on mobile
-				pq($step)->remove();
-			}
-
 		}
+
+		//special table of contents
+		if ($goodAboutPage || self::jobsPage()) pq('#method_toc')->addClass('whns_toc');
 	}
 
 	public static function onIsEligibleForMobile( &$mobileAllowed ) {
@@ -161,10 +192,5 @@ class WikihowNamespacePages {
 			$title = RequestContext::getMain()->getOutput()->getTitle();
 			if (in_array($title->getDBkey(), self::mobileFriendlyPages())) $mobileAllowed = true;
 		}
-	}
-
-	public static function removeSideBarCallback(&$showSideBar) {
-		$showSideBar = false;
-		return true;
 	}
 }

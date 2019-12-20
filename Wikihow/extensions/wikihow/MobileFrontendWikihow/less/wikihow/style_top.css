@@ -477,6 +477,9 @@ pre {
 	margin-bottom: .5em;
 	padding: 15px 20px;
 }
+#section_0 a {
+	color: #222;
+}
 
 #intro {
 	background-color: #FFF;
@@ -799,9 +802,7 @@ h3 .altblock {
 .header #mw-mf-main-menu-button{
 	width: 72px;
 	border-right: none;
-	background: url(/extensions/wikihow/mobile/images/main_menu_button.png) 15px center / 18px no-repeat;
-	/* @embed */
-	background-image: url(/extensions/wikihow/mobile/images/main_menu_button.svg);
+	background:  url(/extensions/wikihow/mobile/images/main_menu_button.svg) 15px center / 18px no-repeat;
 }
 .header #mw-mf-main-menu-button, .header #secondary-button { height: auto; }
 

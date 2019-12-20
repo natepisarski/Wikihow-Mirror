@@ -18,9 +18,9 @@ h1 span,
 
 @media only screen and (min-width:728px) {
 	h1,
-	#section_0.title_sm,
-	#section_0.title_md,
-	#section_0.title_lg {
+	h1#section_0.title_sm,
+	h1#section_0.title_md,
+	h1#section_0.title_lg {
 		font-size: 2.3em;
 	}
 }

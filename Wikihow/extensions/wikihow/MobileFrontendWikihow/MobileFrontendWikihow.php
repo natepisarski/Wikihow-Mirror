@@ -115,28 +115,6 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 	// is to pull out specific styles for each mw module we are overriding and inject
 	// css into those modules. This approach, of course, is brittle and still will largely
 	// be influenced by the sort order
-	'zzz.mobile.wikihow.homepage.styles' => $wgMFMobileResourceBoilerplateWikihow + array(
-			'styles' => array(
-				'less/wikihow/homepage.less',
-				'less/wikihow/related_boxes.css',
-				'../homepage/less/hipsterSlider.css',
-			),
-			'position' => 'top',
-	),
-	'zzz.mobile.wikihow.homepage.scripts' => $wgMFMobileResourceBoilerplateWikihow + array(
-			'scripts' => array(
-				'../homepage/javascripts/wikihow/jquery.hipsterSlider.js',
-				'../homepage/javascripts/wikihow/homepage.js',
-			),
-			'position' => 'top',
-		),
-	// Have to add zzz to beginning of module to ensure it loads after other mw modules
-	// and properly overrides css without having to add !important with all the rules.
-	// A hack, for sure, but has to be done since the OutputPage alphabetically sorts
-	// all the modules before building a ss url.  Another alternative, if we want to spend the time,
-	// is to pull out specific styles for each mw module we are overriding and inject
-	// css into those modules. This approach, of course, is brittle and still will largely
-	// be influenced by the sort order
 	'zzz.mobile.wikihow.notifications' => $wgMFMobileResourceBoilerplateWikihow + array(
 		'styles' => array(
 			'less/wikihow/notifications.css',

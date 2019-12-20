@@ -937,7 +937,11 @@ class ArticleMetaInfo {
 
 		$return = '';
 		if ($wgTitle->inNamespace(NS_MAIN) && $wgTitle->getFullText() == wfMessage('mainpage')->text()) {
-			$return = wfMessage('mainpage_meta_description')->text();
+			if(!AlternateDomain::onAlternateDomain()) {
+				$return = wfMessage('hp_meta_description')->text();
+			} else {
+				$return = wfMessage('mainpage_meta_description')->text();
+			}
 		} elseif ($wgTitle->inNamespace(NS_MAIN)) {
 			$ami = self::getAMICache();
 			$desc = $ami->getDescription();

@@ -133,19 +133,9 @@ class CustomTitle {
 	}
 
 	private static function makeTitleInner(string $howto, int $numSteps, bool $withPictures = false): string {
-		if (RequestContext::getMain()->getLanguage()->getCode() == 'en') {
-			$stepsText = self::makeTitleSteps($numSteps);
-			$picsText = $withPictures ? wfMessage('custom_title_with_pictures')->text() : '';
-			$ret = $howto.$stepsText.$picsText;
-		}
-		else {
-			if (wfMessage('title_inner', $howto, $numSteps, $withPictures)->isBlank()) {
-				$inner = $howto;
-			} else {
-				$inner = wfMessage('title_inner', $howto, $numSteps, $withPictures)->text();
-			}
-			$ret = preg_replace("@ +$@", "", $inner);
-		}
+		$stepsText = self::makeTitleSteps($numSteps);
+		$picsText = $withPictures ? wfMessage('custom_title_with_pictures')->text() : '';
+		$ret = $howto . $stepsText . $picsText;
 		return trim($ret);
 	}
 
@@ -169,8 +159,40 @@ class CustomTitle {
 	}
 
 	private static function makeTitleSteps(int $numSteps): string {
-		if ($numSteps <= 0 || $numSteps > 15) return '';
-		return wfMessage('custom_title_step_number', $numSteps)->text();
+		if ($numSteps <= 0 || $numSteps > 15) {
+			return '';
+		}
+
+		$lang = RequestContext::getMain()->getLanguage()->getCode();
+		switch ($lang) {
+			case 'ar':
+				if ( $numSteps == 1 ) {
+					$txt = wfMessage('custom_title_step_number_ar_1')->text();
+				} elseif ( $numSteps == 2 ) {
+					$txt = wfMessage('custom_title_step_number_ar_2')->text();
+				} elseif ( $numSteps >= 3 && $numSteps <= 10 ) {
+					$txt = wfMessage('custom_title_step_number_ar_3_10', $numSteps)->text();
+				} else {
+					$txt = wfMessage('custom_title_step_number_ar_many', $numSteps)->text();
+				}
+				break;
+
+			case 'cs':
+				if ( $numSteps == 1 ) {
+					$txt = wfMessage('custom_title_step_number_cs_1', $numSteps)->text();
+				} elseif ( $numSteps >= 1 && $numSteps <= 5 ) {
+					$txt = wfMessage('custom_title_step_number_cs_2_5', $numSteps)->text();
+				} else {
+					$txt = wfMessage('custom_title_step_number_cs_many', $numSteps)->text();
+				}
+				break;
+
+			default:
+				$txt = wfMessage('custom_title_step_number', $numSteps)->text();
+				break;
+		}
+
+		return trim($txt);
 	}
 
 	private static function genTitle(Title $title, int $type = 0, string $custom = ''): string {
@@ -193,7 +215,6 @@ class CustomTitle {
 		else
 		{
 			$titleTxt = self::makeTitle($title);
-
 			if (self::$saveCustomTitle) {
 				//whenever we do the hard work to figure out the title...save it
 				$dbw = wfGetDB(DB_MASTER);
@@ -222,7 +243,7 @@ class CustomTitle {
 		if ($methods >= 3 && !$hasParts) {
 			$inner = self::makeTitleWays($methods, $pageName, $wrm_created);
 			$titleText = wfMessage('pagetitle', $inner)->text();
-			if (strlen($titleText) > $maxTitleLength) {
+			if (mb_strlen($titleText) > $maxTitleLength) {
 				$titleText = $inner;
 			}
 		}
@@ -240,24 +261,24 @@ class CustomTitle {
 			$titleText = wfMessage('pagetitle', $inner)->text();
 
 			// first, try articlename + metadata + wikihow
-			if (strlen($titleText) > $maxTitleLength) {
+			if (mb_strlen($titleText) > $maxTitleLength) {
 				// next, try articlename + metadata
 				$titleText = $inner;
 
-				if ($numSteps > 0 && strlen($titleText) > $maxTitleLength) {
+				if ($numSteps > 0 && mb_strlen($titleText) > $maxTitleLength) {
 					// next, try articlename + steps
 					$titleText = self::makeTitleInner($howto, $numSteps);
 				}
 
-				if (strlen($titleText) > $maxTitleLength) {
+				if (mb_strlen($titleText) > $maxTitleLength) {
 					// next, try articlename + wikihow
 					$titleText = wfMessage('pagetitle', $howto)->text();
 
-					if (strlen($titleText) > $maxTitleLength) {
+					if (mb_strlen($titleText) > $maxTitleLength) {
 						// next, set title just as articlename
 						$titleText = $howto;
 
-						if (strlen($titleText) > $maxTitleLength) {
+						if (mb_strlen($titleText) > $maxTitleLength) {
 							//lastly, do the default "how to"
 							$titleText = wfMessage('howto', $pageName)->text();
 						}

@@ -263,6 +263,17 @@ class AlternateDomain {
 					$style .= Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.mainpage.mobile.css' );
 				}
 			}
+
+			//custom Terms of Use page
+			if ($title->inNamespace( NS_PROJECT ) && $title->getText() == 'Terms of Use') {
+				$altDomain = self::getCurrentRootDomain();
+				$pageTitle = $altDomain.' '.wfMessage('termsofuse')->text();
+				$out->setPageTitle($pageTitle);
+
+				$out->clearHTML();
+				$out->addHTML( self::termsOfUseHTML() );
+			}
+
 		} else {
 			if ( self::onNoBrandingDomain() ) {
 				$style = Misc::getEmbedFile( 'css', __DIR__ . '/alternatedomain.nobranding.desktop.css' );
@@ -1715,6 +1726,11 @@ class AlternateDomain {
 			return true;
 		}
 		$showCategoryListing = false;
+	}
+
+	private static function termsOfUseHTML(): string {
+		$msg = wfMessage('termsofuse_altdomain')->parse();
+		return HTML::rawElement('div', ['class' => 'section_text'], $msg);
 	}
 }
 

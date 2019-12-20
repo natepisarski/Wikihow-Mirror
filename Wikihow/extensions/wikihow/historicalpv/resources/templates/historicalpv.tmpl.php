@@ -44,7 +44,7 @@
 	</div>
 	<div>
 		<label for='email'>Email for notifications</label>
-		<input type='text' name='email' />
+		<input type='text' name='email' value="<?= $user_email ?>" />
 	</div>
 	<br />
 	<input type='submit' class='btn' value='Go!' />

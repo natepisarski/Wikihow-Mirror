@@ -99,7 +99,7 @@ $wgHooks['NewRevisionFromEditComplete'][] = array('ArticleHooks::onNewRevisionFr
 $wgHooks['ArticlePageDataAfter'][] = array('ArticleHooks::firstEditPopIt');
 $wgHooks['AddDesktopTOCItems'][] = array('ArticleHooks::addDesktopTOCItems');
 $wgHooks['BeforeDisplayNoArticleInterface'][] = 'ArticleHooks::onBeforeDisplayNoArticleInterface';
-
+$wgHooks['EditFilterMergedContent'][] = 'ArticleHooks::onEditFilterMergedContent';
 
 $wgHooks['GoodRevisionUpdated'][] = array('ArticleHooks::updateExpertVerifiedRevision');
 

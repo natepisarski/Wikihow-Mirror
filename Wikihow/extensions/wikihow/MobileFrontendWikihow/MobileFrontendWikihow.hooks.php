@@ -255,11 +255,15 @@ class MobileFrontendWikiHowHooks {
 		}
 
 		if (self::validResponsivePage()) {
-			global $wgResourceLoaderLESSImportPaths;
+			global $wgResourceLoaderLESSImportPaths, $wgUser;
 			$wgResourceLoaderLESSImportPaths = [ "$IP/extensions/wikihow/less/" => '' ];
 
+			$embedStyles = [__DIR__ . '/less/wikihow/responsive.less'];
+			if (!$wgUser->isAnon()) {
+				$embedStyles []= __DIR__ . '/less/wikihow/responsive_loggedin.less';
+			}
+			$style = Misc::getEmbedFiles('css', $embedStyles);
 			$less = ResourceLoader::getLessCompiler();
-			$style = Misc::getEmbedFile('css', __DIR__ . '/less/wikihow/responsive.less');
 			$less->parse($style);
 			$style = $less->getCss();
 			$style = ResourceLoader::filter('minify-css', $style);
@@ -280,9 +284,24 @@ class MobileFrontendWikiHowHooks {
 		$title = RequestContext::getMain()->getTitle();
 		$isSearchPage = preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI']);
 
-		$wHnamespacePagesWithCss = [ wfMessage('trustworthy-page')->text() ];
+		$wHnamespacePagesWithCss = [
+			wfMessage('trustworthy-page')->text(),
+			wfMessage('about-page')->text(),
+			'Privacy-Policy',
+			'Jobs',
+			'Terms-of-Use',
+			'About-wikiHow.health',
+			'About-wikiHow.legal',
+			'About-wikiHow.mom',
+			'About-wikiHow.fitness',
+			'About-wikiHow.tech',
+			'About-wikiHow.pet',
+			'About-wikiHow.life',
+			'About-wikiHow-fun'
+		];
+
 		$specialPagesWithCss = [
-			'SiteMap',
+			'Sitemap',
 			'NewPages',
 			'ReindexedPages',
 			'CategoryListing',
@@ -295,6 +314,7 @@ class MobileFrontendWikiHowHooks {
 			($title->inNamespace(NS_SPECIAL) && in_array($title->getText(), $specialPagesWithCss)) ||
 			($title->inNamespace(NS_SPECIAL) && stripos($title->getText(), 'VideoBrowser') === 0) ||
 			($title->inNamespace(NS_SPECIAL) && stripos($title->getText(), 'DocViewer/') === 0) ||
+			$title->inNamespace( NS_CATEGORY) ||
 			$isSearchPage;
 
 		return self::$isvalidResponsivePage;

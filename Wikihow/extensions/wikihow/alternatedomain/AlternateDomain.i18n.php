@@ -68,4 +68,5 @@ $messages['en'] = array (
 	'meta_keywords_wikihow-fun.com' => 'imagination, games, costumes, cosplay, boy, girl, boys, girls, pretend, imagine, youth, fun, funny',
 	'meta_keywords_wikihow.health' => 'health, healthy, healthcare, illness, sickness, ill, sick, treatment, how to treat, diagnose, diagnosis, medical, injury, symptoms, disease, pain, diet, recovery',
 	'meta_keywords_wikihow.legal' => 'legal, law, right, lawyer, attorney, court, lawsuit, sue, civil, criminal, felony, bankruptcy, housing, business, claim, copyright, patent, motion, trial, defend, prosecute, file, contract, malpractice, divorce, license, custody',
+	'termsofuse_altdomain' => 'At wikiHow our mission is to empower every person on the planet to learn how to do anything.  We do this by collaborating to create the world’s most helpful instructions. Please review our [https://www.wikihow.com/wikiHow:Terms-of-Use Terms of Use] in detail on wikiHow.com.'
 );

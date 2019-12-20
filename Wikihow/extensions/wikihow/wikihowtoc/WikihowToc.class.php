@@ -236,6 +236,8 @@ class WikihowToc {
 	public static function addMobileToc() {
 		self::processMethodNames();
 
+		$isNewArticle = self::isNewArticle();
+
 		$methodsShown = $primaryCount = min(self::MAX_METHODS, count(self::$methodNames));
 
 		$hasHidden = false;
@@ -248,7 +250,7 @@ class WikihowToc {
 			}
 			for ($i = $methodsShown; $i < count(self::$methodNames); $i++) {
 				$data['toc'][] = ['url' => "#".self::$methodAnchors[$i], 'class' => 'toc_method toc_hidden', 'text' => self::$methodNames[$i]];
-				$hasHidden = true;
+				if ($isNewArticle) $hasHidden = true;
 			}
 		} else {
 			$data['toc'][] = ['url' => '#Steps', 'class' => 'toc_method', 'text' => wfMessage("Steps")->text()];
@@ -262,107 +264,109 @@ class WikihowToc {
 			$primaryCount++;
 		}
 
-		$secondaryShown = self::MAX_ITEMS - $primaryCount;
+		if ($isNewArticle) {
+			$secondaryShown = self::MAX_ITEMS - $primaryCount;
 
-		//first deal with priority of the elements
-		$count = 0;
-		$tocIgnoreClass = " toc_ignore";
-		$tocPost = " toc_post";
+			//first deal with priority of the elements
+			$count = 0;
+			$tocIgnoreClass = " toc_ignore";
+			$tocPost = " toc_post";
 
-		if(self::$ingredients != null) {
-			if ($count < $secondaryShown) {
+			if(self::$ingredients != null) {
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$ingredients['class'] .= $tocIgnoreClass;
+				}
+			}
+			if(self::$references != null) {
+				self::$references['class'] .= $tocPost;
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$references['class'] .= $tocIgnoreClass;
+				}
+			}
+			if(self::$summary != null) {
+				self::$summary['class'] .= $tocPost;
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$summary['class'] .= $tocIgnoreClass;
+				}
+			}
+			if(self::$videoSummary != null) {
+				self::$videoSummary['class'] .= $tocPost;
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$videoSummary['class'] .= $tocIgnoreClass;
+				}
+			}
+			if(self::$qanda != null && self::$hasAnswers) {
+				self::$qanda['class'] .= $tocPost;
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$qanda['class'] .= $tocIgnoreClass;
+				}
+			}
+			self::$relatedwHs = ['url' => '#relatedwikihows', 'id' => 'rwh_toc', 'text' => wfMessage('related_toc'), 'class' => $tocPost, 'section' => '#relatedwikihows'];
+			if ($count < $secondaryShown) { //related wHs are always on the page
 				$count++;
 			} else {
-				self::$ingredients['class'] .= $tocIgnoreClass;
+				self::$relatedwHs['class'] .= $tocIgnoreClass;
 			}
-		}
-		if(self::$references != null) {
-			self::$references['class'] .= $tocPost;
-			if ($count < $secondaryShown) {
-				$count++;
-			} else {
-				self::$references['class'] .= $tocIgnoreClass;
+			if(self::$tipsandwarnings != null) {
+				self::$tipsandwarnings['class'] .= $tocPost;
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$tipsandwarnings['class'] .= $tocIgnoreClass;
+				}
 			}
-		}
-		if(self::$summary != null) {
-			self::$summary['class'] .= $tocPost;
-			if ($count < $secondaryShown) {
-				$count++;
-			} else {
-				self::$summary['class'] .= $tocIgnoreClass;
+			if(self::$thingsyoullneed != null) {
+				self::$thingsyoullneed['class'] .= $tocPost;
+				if($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$thingsyoullneed['class'] .= $tocIgnoreClass;
+				}
 			}
-		}
-		if(self::$videoSummary != null) {
-			self::$videoSummary['class'] .= $tocPost;
-			if ($count < $secondaryShown) {
-				$count++;
-			} else {
-				self::$videoSummary['class'] .= $tocIgnoreClass;
-			}
-		}
-		if(self::$qanda != null && self::$hasAnswers) {
-			self::$qanda['class'] .= $tocPost;
-			if ($count < $secondaryShown) {
-				$count++;
-			} else {
-				self::$qanda['class'] .= $tocIgnoreClass;
-			}
-		}
-		self::$relatedwHs = ['url' => '#relatedwikihows', 'id' => 'rwh_toc', 'text' => wfMessage('related_toc'), 'class' => $tocPost, 'section' => '#relatedwikihows'];
-		if ($count < $secondaryShown) { //related wHs are always on the page
-			$count++;
-		} else {
-			self::$relatedwHs['class'] .= $tocIgnoreClass;
-		}
-		if(self::$tipsandwarnings != null) {
-			self::$tipsandwarnings['class'] .= $tocPost;
-			if ($count < $secondaryShown) {
-				$count++;
-			} else {
-				self::$tipsandwarnings['class'] .= $tocIgnoreClass;
-			}
-		}
-		if(self::$thingsyoullneed != null) {
-			self::$thingsyoullneed['class'] .= $tocPost;
-			if($count < $secondaryShown) {
-				$count++;
-			} else {
-				self::$thingsyoullneed['class'] .= $tocIgnoreClass;
-			}
-		}
 
-		//now put them in order
-		if(self::$ingredients != null) {
-			//goes before steps
-			$data['toc'] = array_merge([self::$ingredients], $data['toc']);
-		}
-		//q&a
-		if (self::$qanda != null) {
-			$data['toc'][] = self::$qanda;
-		}
-		if (self::$videoSummary != null) {
-			$data['toc'][] = self::$videoSummary;
-		}
-		if(self::$tipsandwarnings != null && !self::$thingsyoullneedIsFirst) {
-			$data['toc'][] = self::$tipsandwarnings;
-		}
-		if(self::$thingsyoullneed != null) {
-			$data['toc'][] = self::$thingsyoullneed;
-		}
-		if(self::$tipsandwarnings != null && self::$thingsyoullneedIsFirst) {
-			$data['toc'][] = self::$tipsandwarnings;
-		}
-		//related wHs
-		if (self::$relatedwHs != null) {
-			$data['toc'][] = self::$relatedwHs;
-		}
+			//now put them in order
+			if(self::$ingredients != null) {
+				//goes before steps
+				$data['toc'] = array_merge([self::$ingredients], $data['toc']);
+			}
+			//q&a
+			if (self::$qanda != null) {
+				$data['toc'][] = self::$qanda;
+			}
+			if (self::$videoSummary != null) {
+				$data['toc'][] = self::$videoSummary;
+			}
+			if(self::$tipsandwarnings != null && !self::$thingsyoullneedIsFirst) {
+				$data['toc'][] = self::$tipsandwarnings;
+			}
+			if(self::$thingsyoullneed != null) {
+				$data['toc'][] = self::$thingsyoullneed;
+			}
+			if(self::$tipsandwarnings != null && self::$thingsyoullneedIsFirst) {
+				$data['toc'][] = self::$tipsandwarnings;
+			}
+			//related wHs
+			if (self::$relatedwHs != null) {
+				$data['toc'][] = self::$relatedwHs;
+			}
 
-		//summary
-		if (self::$summary != null) {
-			$data['toc'][] = self::$summary;
-		}
-		if (self::$references != null) {
-			$data['toc'][] = self::$references;
+			//summary
+			if (self::$summary != null) {
+				$data['toc'][] = self::$summary;
+			}
+			if (self::$references != null) {
+				$data['toc'][] = self::$references;
+			}
 		}
 
 		$data['title'] = wfMessage('title_toc')->text();

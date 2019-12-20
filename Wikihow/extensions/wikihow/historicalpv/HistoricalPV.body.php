@@ -71,6 +71,7 @@ class HistoricalPV extends UnlistedSpecialPage {
 			"redshift_fields" => $this->getRedshiftFields(),
 			"job_id" => ($job_id ? $job_id : ""),
 			"job_status" => $job_status,
+			"user_email" => $this->getUser()->getEmail(),
 		];
 		$this->getOutput()->addHtml(EasyTemplate::html('resources/templates/historicalpv.tmpl.php', $vars));
 	}
@@ -88,6 +89,7 @@ class HistoricalPV extends UnlistedSpecialPage {
 			$result[] = $row->column;
 		}
 
+		sort($result);
 		return $result;
 	}
 

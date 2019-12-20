@@ -107,6 +107,9 @@ Disallow: /api.php
 Disallow: /index.php
 Disallow: /Special:
 
+User-agent: AdsBot-Google
+Allow: /
+
 User-agent: Mediapartners-Google
 Allow: /
 

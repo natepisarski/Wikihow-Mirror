@@ -68,7 +68,11 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 			$vars['relatedHeader'] = wfMessage("cat_related")->text();
 			$vars['topicsHeader'] = wfMessage("cat_topics")->text();
 			$vars['cat_more'] = wfMessage("cat_more")->text();
-			$vars['allArticlesHeader'] = wfMessage("cat_allarticles", $categoryName)->text();
+			if($categoryName == "Featured Articles") {
+				$vars['allArticlesHeader'] = $categoryName;
+			} else {
+				$vars['allArticlesHeader'] = wfMessage("cat_allarticles", $categoryName)->text();
+			}
 
 			$viewer = new WikihowCategoryViewer($this->mTitle, $this->getContext());
 

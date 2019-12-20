@@ -218,7 +218,7 @@ class WikihowMobileTools {
 							$displayMethod++;
 						}
 
-						if (!$isSample[$i] && $opts['ns'] == NS_MAIN) {
+						if (!$isSample[$i] && $wgTitle->inNamespace(NS_MAIN)) {
 							pq(".altblock", $h3Tags[$i])->html($methodPrefix);
 						} else {
 							pq(".altblock", $h3Tags[$i])->remove();

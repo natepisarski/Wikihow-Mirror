@@ -70,9 +70,9 @@ class CopyArticleImagesMaintenance extends Maintenance {
 		] ) );
  		$result = $command->execute();
 		if ( $result->getExitCode() > 0 ) {
-			$error = $result->getStderr();
+			$error = trim( $result->getStderr() );
 			$this->output( "  CopyArticleImages error: failed to process: {$error}\n" );
-			return null;
+			return [ 'error' => "failed to process: {$error}" ];
 		} else {
 			return json_decode( $result->getStdout(), JSON_OBJECT_AS_ARRAY );
 		}
@@ -90,8 +90,9 @@ class CopyArticleImagesMaintenance extends Maintenance {
 		] );
  		$result = $command->execute();
 		if ( $result->getExitCode() > 0 ) {
-			$error = $result->getStderr();
+			$error = trim( $result->getStderr() );
 			$this->output( "  CopyArticleImages error: failed to fetch: {$error}\n" );
+			return [ 'error' => "failed to fetch: {$error}" ];
 		} else {
 			return json_decode( $result->getStdout(), JSON_OBJECT_AS_ARRAY );
 		}
@@ -153,72 +154,76 @@ class CopyArticleImagesMaintenance extends Maintenance {
 				$creators[] = $transfer->creator;
 
 				$from = $this->fetchAndCache( $transfer->fromLang, $transfer->fromAID );
-				if ( !is_array( $from ) ) {
-					$this->output(
-						$this->colorize(
-							"✗ {$transfer->fromLang}:{$from['title']} ({$transfer->fromAID}) → " .
-								"{$transfer->toLang}:{$to['title']} ({$transfer->toAID})\n",
-							'error',
-							$useColor
-						) .
-						$this->colorize(
-							"  CopyArticleImages error: Source page fetch failed\n",
-							'error-details',
-							$useColor
-						)
-						
-					);
+				if ( isset( $from['error'] ) ) {
+					// $this->output(
+					// 	$this->colorize(
+					// 		"✗ {$transfer->fromLang}/{$transfer->fromAID} → " .
+					// 			"{$transfer->toLang}/{$transfer->toAID}\n",
+					// 		'error',
+					// 		$useColor
+					// 	) .
+					// 	$this->colorize(
+					// 		"  Error: {$from['error']}\n",
+					// 		'error-details',
+					// 		$useColor
+					// 	)
+					// );
+					$errors[$transfer->creator][] = $transfer;
+					$transfer->reportError( $from['error'], $dryRun, false );
 					continue;
 				}
 				$to = $this->fetch( $transfer->toLang, $transfer->toAID );
-				if ( !is_array( $to ) ) {
-					$this->output(
-						$this->colorize(
-							"✗ {$transfer->fromLang}:{$from['title']} ({$transfer->fromAID}) → " .
-								"{$transfer->toLang}:{$to['title']} ({$transfer->toAID})\n",
-							'error',
-							$useColor
-						) .
-						$this->colorize(
-							"  CopyArticleImages error: Target page fetch failed\n",
-							'error-details',
-							$useColor
-						)
-					);
+				if ( isset( $to['error'] ) ) {
+					// $this->output(
+					// 	$this->colorize(
+					// 		"✗ {$transfer->fromLang}/({$transfer->fromAID}) → " .
+					// 			"{$transfer->toLang}/({$transfer->toAID})\n",
+					// 		'error',
+					// 		$useColor
+					// 	) .
+					// 	$this->colorize(
+					// 		"  Error: {$to['error']}\n",
+					// 		'error-details',
+					// 		$useColor
+					// 	)
+					// );
+					$errors[$transfer->creator][] = $transfer;
+					$transfer->reportError( $to['error'], $dryRun, false );
 					continue;
 				}
 
 				$result = $this->process( $transfer, $from, $to, $dryRun );
-				$transfer->status = trim( $result['message'] );
-
-				if ( $result && $result['status'] ) {
-					$successes[$transfer->creator][] = $transfer;
-					$this->output(
-						$this->colorize(
-							"✔ {$transfer->fromLang}:{$from['title']} ({$transfer->fromAID}) → " .
-								"{$transfer->toLang}:{$to['title']} ({$transfer->toAID})\n",
-							'success',
-							$useColor
-						) .
-						$this->colorize(
-							"  - {$transfer->status}\n",
-							'success-details',
-							$useColor
-						)
-					);
-				} else {
+				if ( isset( $result['error'] ) ) {
+					$error = trim( $result['error'] );
 					$errors[$transfer->creator][] = $transfer;
+					$transfer->reportError( $result['error'], $dryRun, false );
 					$toTitle = isset( $to['title'] ) ? $to['title'] : '(not found)';
 					$this->output(
 						$this->colorize(
-							"✗ {$transfer->fromLang}:{$from['title']} ({$transfer->fromAID}) → " .
-								"{$transfer->toLang}:{$to['title']} ({$transfer->toAID})\n",
+							"✗ {$transfer->fromLang}/{$transfer->fromAID} ({$from['title']}) → " .
+								"{$transfer->toLang}/{$transfer->toAID} ({$to['title']})\n",
 							'error',
 							$useColor
 						) .
 						$this->colorize(
-							"  - {$transfer->status}\n",
+							"  - Error: {$error}\n",
 							'error-details',
+							$useColor
+						)
+					);
+				} else {
+					$message = trim( $result['message'] );
+					$successes[$transfer->creator][] = $transfer;
+					$this->output(
+						$this->colorize(
+							"✔ {$transfer->fromLang}/{$transfer->fromAID} ({$from['title']}) → " .
+								"{$transfer->toLang}/{$transfer->toAID} ({$to['title']})\n",
+							'success',
+							$useColor
+						) .
+						$this->colorize(
+							"  - Success: {$message}\n",
+							'success-details',
 							$useColor
 						)
 					);
@@ -251,6 +256,10 @@ class CopyArticleImagesMaintenance extends Maintenance {
 	}
 
 	private function onProcess() {
+		global $wgUser;
+
+		$wgUser = User::newFromName( 'AlfredoBot' );
+
 		$input = json_decode( file_get_contents( 'php://stdin' ), JSON_OBJECT_AS_ARRAY );
 		$row = (object)$input['transfer'];
 		$transfer = ImageTransfer::newFromRow( $row );
@@ -259,60 +268,83 @@ class CopyArticleImagesMaintenance extends Maintenance {
 		$status = $transfer->addImages( $input['from'], $input['to'], $input['dryRun'] );
 		$output = ob_get_clean();
 
-		$this->output( json_encode( [ 'status' => $status, 'message' => $output ] ) );
+		if ( !$status ) {
+			$this->fatalError( $output );
+			return;
+		}
+		$this->output( json_encode( [ 'message' => $output ] ) );
 	}
 
 	private function onFetch() {
 		global $wgContLang;
 
 		$articleId = (int)$this->getOption( 'fetch' );
+		$code = $wgContLang->getCode();
 
 		$dbr = wfGetDB( DB_REPLICA );
 
-		if ( is_numeric( $articleId ) ) {
-			$rev = Revision::loadFromPageId( $dbr, $articleId );
-			$title = Title::newFromId( $articleId );
-			if ( $rev ) {
-				$txt = ContentHandler::getContentText( $rev->getContent() );
-				$intro = Wikitext::getIntro( $txt );
-				$text = Wikitext::getStepsSection( $txt, true );
-				$lines = preg_split( "/\n/", $text[0] );
-				$text = '';
-
-				// We remove extra lines technically in the 'steps' section, but which don't
-				// actually contain steps
-				// Find the last line starting with a '#'
-				$lastLine = 0;
-				$n = 0;
-				foreach ( $lines as $line ) {
-					if ( $line[0] == '#') {
-						$lastLine = $n;
-					}
-					$n++;
-				}
-
-				// Truncate lines after the last line with a '#'
-				$n = 0;
-				foreach ( $lines as $line ) {
-					if ( $n > $lastLine ) {
-						break;
-					}
-					if ( $n != 0 ) {
-						$text .= "\n";
-					}
-					$text .= $line;
-					$n++;
-				}
-				if ( strlen( $text ) > 0 ) {
-					$this->output( json_encode( [
-						'title' => $title->getDBKey(),
-						'steps' => $text,
-						'intro' => $intro,
-						'altImageTags' => [ $wgContLang->getNSText( NS_IMAGE ) ]
-					] ) );
-				}
-			}
+		if ( !is_numeric( $articleId ) ) {
+			$this->fatalError( "Invalid or missing article ID, likely a software bug" );
+			return;
 		}
+		$rev = Revision::loadFromPageId( $dbr, $articleId );
+		if ( !$rev ) {
+			$this->fatalError( "Could not load revision, article may have been deleted" );
+			return;
+		}
+		$title = Title::newFromId( $articleId );
+		if ( !$title ) {
+			$this->fatalError( "Could not load title, article may have been deleted" );
+			return;
+		}
+		$txt = ContentHandler::getContentText( $rev->getContent() );
+		$intro = Wikitext::getIntro( $txt );
+		$text = Wikitext::getStepsSection( $txt, true );
+		$lines = preg_split( "/\n/", $text[0] );
+		$text = '';
+
+		// Sometimes there are problems with the wikitext that cause the steps section
+		// to not be findable, such as mismatching heading marks (e.g. '==Steps===') or
+		// not using the right section name (e.g. '==Steps to take==')
+		if ( implode( $lines ) === '' ) {
+			$this->fatalError( 'Steps cannot be found, look for mistakes in the wikitext' );
+			return;
+		}
+
+		// We remove extra lines technically in the 'steps' section, but which don't
+		// actually contain steps
+		// Find the last line starting with a '#'
+		$lastLine = 0;
+		$n = 0;
+		foreach ( $lines as $line ) {
+			if ( $line[0] == '#') {
+				$lastLine = $n;
+			}
+			$n++;
+		}
+
+		// Truncate lines after the last line with a '#'
+		$n = 0;
+		foreach ( $lines as $line ) {
+			if ( $n > $lastLine ) {
+				break;
+			}
+			if ( $n != 0 ) {
+				$text .= "\n";
+			}
+			$text .= $line;
+			$n++;
+		}
+		if ( !strlen( $text ) ) {
+			$this->fatalError( "Failed parsing steps, look for mistakes in the wikitext" );
+			return;
+		}
+		$this->output( json_encode( [
+			'title' => $title->getDBKey(),
+			'steps' => $text,
+			'intro' => $intro,
+			'altImageTags' => [ $wgContLang->getNSText( NS_IMAGE ) ]
+		] ) );
 	}
 
 	private function emailUsers( $errors, $successes, $creators, $pages, $errorURLs ) {
@@ -371,14 +403,14 @@ class CopyArticleImagesMaintenance extends Maintenance {
 					$toPage = $pages[$transfer->toLang][$transfer->toAID];
 					$fromUrl = getUrl( $fromPage );
 					$toUrl = getUrl( $toPage );
-					$status = ucfirst( $transfer->status ? $transfer->status : 'error' );
-					$csv[] = [ $fromUrl, $toUrl, $status ];
-					$status = nl2br( $status );
+					$statusText = $transfer->error ? ucfirst( $transfer->error ) : 'Error';
+					$statusHtml = nl2br( $statusText );
+					$csv[] = [ $fromUrl, $toUrl, $statusText ];
 					$alt = $alt === 'even' ? 'odd' : 'even';
 					$msg .= "<tr style='{$errorCss}''>" .
 						"<td style='{$tdCss}{$tdAltCss[$alt]}'><a href='{$fromUrl}'>{$fromUrl}</a></td>" .
 						"<td style='{$tdCss}{$tdAltCss[$alt]}'><a href='{$toUrl}'>{$toUrl}</a></td>" .
-						"<td style='{$tdCss}{$tdAltCss[$alt]}'>{$status}</td>" .
+						"<td style='{$tdCss}{$tdAltCss[$alt]}'>{$statusHtml}</td>" .
 					"</tr>\n";
 				}
 			}
@@ -388,14 +420,13 @@ class CopyArticleImagesMaintenance extends Maintenance {
 					$toPage = $pages[$transfer->toLang][$transfer->toAID];
 					$fromUrl = getUrl( $fromPage );
 					$toUrl = getUrl( $toPage );
-					$status = ucfirst( $transfer->status != '' ? $transfer->status : "success" );
-					$csv[] = [ $fromUrl, $toUrl, $status ];
-					$status = nl2br( $status );
+					$statusText = "Success";
+					$csv[] = [ $fromUrl, $toUrl, $statusText ];
 					$alt = $alt === 'even' ? 'odd' : 'even';
 					$msg .= "<tr style='{$successCss}''>" .
 						"<td style='{$tdCss}{$tdAltCss[$alt]}'><a href='{$fromUrl}'>{$fromUrl}</a></td>" .
 						"<td style='{$tdCss}{$tdAltCss[$alt]}'><a href='{$toUrl}'>{$toUrl}</a></td>" .
-						"<td style='{$tdCss}{$tdAltCss[$alt]}'>{$status}</td>" .
+						"<td style='{$tdCss}{$tdAltCss[$alt]}'>{$statusText}</td>" .
 					"</tr>\n";
 				}
 			}

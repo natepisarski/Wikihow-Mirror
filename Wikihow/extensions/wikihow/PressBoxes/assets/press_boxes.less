@@ -1,13 +1,13 @@
-#press_sidebox {
+@import '../../less/variables.less';
+
+.press_section {
 	color: #333;
-	padding: 16px 10px;
+	padding: 0;
 
-	h3, a {
+	a,
+	a:hover,
+	a:visited {
 		color: #333;
-	}
-
-	a:hover {
-		text-decoration: none;
 	}
 }
 
@@ -15,15 +15,20 @@
 .press_block {
 	background-color: #FFF;
 	min-height: 65px;
-	padding: 2.5em 1.3em 2.5em 1em;
+	padding: 1em 1em 0 1em;
 	margin-bottom: 1em;
-	border-radius: 4px;
+	font-size: .9em;
+
+	&:last-child .press_quote {
+		border: none;
+	}
 
 	.press_quote {
-		padding-left: 80px;
-		font-size: 1.1em;
+		padding: 0 0 2em 80px;
+		font-size: 1em;
 		line-height: 1.4em;
 		min-height: 65px;
+		border-bottom: 1px solid #EEE;
 
 		.quote_mark {
 			font-size: 1.3em;
@@ -33,30 +38,43 @@
 
 	.press_outlet {
 		position: absolute;
+		padding-bottom: 2em;
 		margin-top: .2em;
 		width: 65px;
 		height: 65px;
 	}
 }
 
-#press_sidebox.mobile {
-	padding: 0;
+@media @large {
+	.press_section {
+		margin-bottom: 15px;
 
-	.press_quote {
-		font-size: 1em;
-		padding-bottom: 2em;
-		border-bottom: 1px solid #EEE;
-	}
+		&.section {
+			margin-top: 0;
 
-	.press_outlet {
-		padding-bottom: 2em;
+			h3 {
+				font-size: .8em;
+			}
+		}
 	}
 
 	.press_block {
-		padding: 1em 1em 0 1em;
+		padding: 1.5em 1.5em 0 1.5em;
+		border-bottom: 1px solid #EEE;
+		margin: 0;
 
-		&:last-child .press_quote {
+		.press_quote {
 			border: none;
+		}
+
+		&:last-of-type {
+			border-radius: 0 0 @borderRadius @borderRadius;
+		}
+	}
+
+	#bodyContent {
+		.press_section {
+			display: none;
 		}
 	}
 }

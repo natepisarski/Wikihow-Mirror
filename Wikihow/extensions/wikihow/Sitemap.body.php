@@ -126,7 +126,7 @@ class Sitemap extends SpecialPage {
 				.cat_list_ul {
 					margin-left: 5px;
 					background-color: #fff;
-                    padding-left: 10px;
+                    padding: 20px;
 				}
 
 				@media only screen and (min-width:728px) {
@@ -141,6 +141,21 @@ class Sitemap extends SpecialPage {
 					}
 					#content_inner { width: 100%; }
 					#cat_outer { margin-top: -10px; }
+				}
+				
+				@media only screen and (min-width:1070px) {
+					.content {
+					    border: 1px solid #e5e5e5;
+					    padding: 22px 27px;
+					}
+					
+					#cat_outer {
+						margin-top: 0px;
+					}
+					
+					.cat_list h3 {
+						padding: 0 0 0.5em 0;
+					}
 				}
 			</style>";
 

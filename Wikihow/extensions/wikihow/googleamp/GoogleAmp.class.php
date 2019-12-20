@@ -988,7 +988,11 @@ class GoogleAmp {
 
 		$videoSelector = "#video";
 		if ( !pq( $videoSelector )->length ) {
-			return;
+			// Spanish special case. #3100
+			$videoSelector = "#vídeo";
+			if ( !pq( $videoSelector )->length ) {
+				return;
+			}
 		}
 		// make sure the src is a youtube video
 		$src = pq( $videoSelector )->find( '.embedvideo:first' )->attr( 'data-src' );

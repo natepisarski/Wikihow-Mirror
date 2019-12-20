@@ -190,7 +190,7 @@
 			 * -x and -y positioning attributes are non-standard.
 			 * Keep background-position for browsers that don't support them.
 			 */
-			background-position: 0px 5px;
+			background-position: left center;
 			background-position-x: left;
 			padding-left: 12px;
 			background-size: 7px;
@@ -722,7 +722,6 @@
 	}
 
 	#header_logo {
-		background-image: url(/skins/owl/images/wikihow_logo_intl.png);
 		background-position: left 20px;
 		background-size: 162px;
 		width: 158px;
@@ -2266,5 +2265,33 @@
 	}
 	#qa .wh_ad_inner {
 		margin-left: -@largeSectionPadding;
+	}
+
+	#side_featured_articles .text {
+		background-color: rgba(50,50,50,.5);
+		padding: 2% 4%;
+		width: 92.75%;
+		min-height: 32px;
+		position: absolute;
+		bottom: 0;
+		cursor: pointer;
+		color: #fff;
+		font-weight: bold;
+	}
+
+	#side_featured_articles .text:hover {
+		background: white;
+	}
+
+	.thumbnail a:hover p {
+		color: #2483ef;
+	}
+
+	.sidebox .thumbnail p {
+		font-size: 12px !important;
+	}
+
+	.sidebox .thumbnail p span {
+		font-size: 13px !important;
 	}
 }

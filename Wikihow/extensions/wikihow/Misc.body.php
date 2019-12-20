@@ -722,17 +722,22 @@ class Misc {
 
 		$title = $ctx->getTitle();
 		$req = $ctx->getRequest();
+		$langCode = $ctx->getLanguage()->getCode();
 		if ( $req && $title
-			&& self::isAltDomain()
 			&& MobileFrontendWikiHowHooks::validResponsivePage()
 		) {
 			$actionParam = $req->getVal('action', '');
 			$typeParam = $req->getVal('type', '');
 			$oldidParam = $req->getVal('oldid', '');
-			if ( ($actionParam == '' || $actionParam == 'view')
+			if ( self::isAltDomain()
+				&& ($actionParam == '' || $actionParam == 'view')
 				&& $typeParam != 'revision'
 				&& !$oldidParam
 			) {
+				return true;
+			}
+
+			if ($title->isMainPage() && $langCode == 'en') {
 				return true;
 			}
 		}
@@ -1113,8 +1118,7 @@ class Misc {
 	public static function getTTIHead() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831, 28404, 31799];
-		if ( !in_array( $pageId, $okPages ) ) {
+		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
 		$result = "<script>!function(){if('PerformanceLongTaskTiming' in window){var g=window.__tti={e:[]};g.o=new PerformanceObserver(function(l){g.e=g.e.concat(l.getEntries())});g.o.observe({entryTypes:['longtask']})}}();</script>";
@@ -1124,8 +1128,7 @@ class Misc {
 	public static function getFIDHead() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831, 28404, 31799];
-		if ( !in_array( $pageId, $okPages ) ) {
+		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
 		$result = '!function(n,e){var t,o,i,c=[],f={passive:!0,capture:!0},r=new Date,a="pointerup",u="pointercancel";function p(n,c){t||(t=c,o=n,i=new Date,w(e),s())}function s(){o>=0&&o<i-r&&(c.forEach(function(n){n(o,t)}),c=[])}function l(t){if(t.cancelable){var o=(t.timeStamp>1e12?new Date:performance.now())-t.timeStamp;"pointerdown"==t.type?function(t,o){function i(){p(t,o),r()}function c(){r()}function r(){e(a,i,f),e(u,c,f)}n(a,i,f),n(u,c,f)}(o,t):p(o,t)}}function w(n){["click","mousedown","keydown","touchstart","pointerdown"].forEach(function(e){n(e,l,f)})}w(n),self.perfMetrics=self.perfMetrics||{},self.perfMetrics.onFirstInputDelay=function(n){c.push(n),s()}}(addEventListener,removeEventListener);';
@@ -1137,8 +1140,7 @@ class Misc {
 	public static function getTTIBody() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831, 28404, 31799];
-		if ( !in_array( $pageId, $okPages ) ) {
+		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
 		$polyfill = "<script src='skins/common/tti-polyfill.js'></script>";
@@ -1152,8 +1154,7 @@ class Misc {
 	public static function getFIDBody() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
-		$okPages = [6253, 4831, 28404, 31799];
-		if ( !in_array( $pageId, $okPages ) ) {
+		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
 		$result = "<script>perfMetrics.onFirstInputDelay(function(delay, evt) {

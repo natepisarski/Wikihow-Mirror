@@ -37,6 +37,9 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			$title = Title::newFromText('Main-Page');
 			$job = Job::factory('ReverificationMaintenanceJob', $title);
 			JobQueueGroup::singleton()->push($job);
+
+			// Clear the cache on the Article Reviewers page so that any newly imported experts can show
+			ArticleReviewers::clearCache();
 		}
 
 		return $result;

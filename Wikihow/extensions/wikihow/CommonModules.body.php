@@ -19,9 +19,13 @@ EOS;
 		$out->addHeadItem('shared_head_scripts',  HTML::inlineScript($headScript));
 
 		$out->addModules( array( 'ext.wikihow.common_top' ) );
-		if ( !$skin->getUser()->isAnon() || $skin->getTitle()->isMainPage() ) {
-			$out->addModuleStyles( array( 'ext.wikihow.common_bottom_styles' ) );
-		}
+
+		$hideFollowCSS = $skin->getTitle()->inNamespace( NS_MAIN ) &&
+			$skin->getUser()->isAnon() &&
+			!$skin->getTitle()->isMainPage();
+
+		if (!$hideFollowCSS) $out->addModuleStyles( array( 'ext.wikihow.common_bottom_styles' ) );
+
 		$out->addModules( array( 'ext.wikihow.common_bottom' ) );
 	}
 

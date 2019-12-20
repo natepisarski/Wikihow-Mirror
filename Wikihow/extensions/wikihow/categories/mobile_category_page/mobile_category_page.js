@@ -6,14 +6,20 @@
 		hasMoreSubcats: true,
 		carousels: [],
 		init: function() {
-			$('.cat_carousel').each(
-				$.proxy(
-					function (idx, carousel) {
-						this.carousels.push(new WH.CategoryCarousel(carousel.id));
-					},
-					this
-				)
-			);
+			$(document).on("click", ".subcat_container", function(e){
+				if(!$(e.target).hasClass("cat_link")) {
+					if ($(".show_more", this).length > 0) {
+						e.preventDefault();
+						if ($(this).hasClass("expanded")) {
+							//open, now close
+							$(this).removeClass("expanded");
+						} else {
+							//close, now open
+							$(this).addClass("expanded");
+						}
+					}
+				}
+			});
 		},
 
 	};

@@ -137,12 +137,16 @@ class ImageTransfer {
 	 *
 	 * @param {string} $error Error message
 	 * @param {bool} [$dryRun] Bypass database writes
+	 * @param {bool} [$echo] Output status info
 	 * @return {bool} Error was successfully reported
 	 */
-	public function reportError( $error, $dryRun = true ) {
+	public function reportError( $error, $dryRun = true, $echo = true ) {
+		$this->timeFinished = wfTimestampNow();
 		$this->error = $error;
 
-		echo $this->error . "\n";
+		if ( $echo ) {
+			echo $this->error . "\n";
+		}
 
 		if ( !$dryRun ) {
 			$dbw = wfGetDB( DB_MASTER );
@@ -150,7 +154,10 @@ class ImageTransfer {
 				// Table to update
 				self::DB_NAME . "." . self::TABLE_NAME,
 				// Values to update
-				[ 'itj_error' => $this->error ],
+				[
+					'itj_time_finished' => $this->timeFinished,
+					'itj_error' => $this->error
+				],
 				// Conditions to find matching row
 				[
 					'itj_from_lang' => $this->fromLang,
@@ -168,17 +175,20 @@ class ImageTransfer {
 	 * Report success transferring image.
 	 *
 	 * @param {bool} [$dryRun] Bypass database writes
+	 * @param {bool} [$echo] Output status info
 	 * @return {bool} Success was successfully reported
 	 */
-	public function reportSuccess( $dryRun = true ) {
+	public function reportSuccess( $dryRun = true, $echo = true ) {
 		$this->timeFinished = wfTimestampNow();
 
-		echo "success";
-		if ( count( $this->warnings ) ) {
-			echo " with warnings, (images were still transfered where possible):" .
-				"\n  -" . implode( "\n  - ", $this->warnings );
+		if ( $echo ) {
+			echo "success";
+			if ( count( $this->warnings ) ) {
+				echo " with warnings, (images were still transfered where possible):" .
+					"\n  -" . implode( "\n  - ", $this->warnings );
+			}
+			echo "\n";
 		}
-		echo "\n";
 
 		if ( !$dryRun ) {
 			$dbw = wfGetDB( DB_MASTER );

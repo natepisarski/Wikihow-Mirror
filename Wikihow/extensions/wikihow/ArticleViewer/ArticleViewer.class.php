@@ -18,7 +18,10 @@ abstract class ArticleViewer extends ContextSource {
 }
 
 class FaViewer extends ArticleViewer {
+	var $articleTitles;
+
 	function doQuery() {
+		$this->articleTitles = [];
 		$number_of_articles = Misc::isMobileMode() ? 30 : 45;
 
 		if (AlternateDomain::onAlternateDomain())
@@ -28,12 +31,14 @@ class FaViewer extends ArticleViewer {
 
 		foreach ($fas as $fa) {
 			$this->articles[] = Linker::link($fa['title']);
+			$this->articleTitles[] = $fa['title'];
 		}
 	}
 }
 
 class RsViewer extends ArticleViewer {
 	var $maxNum;
+	var $articleTitles;
 
 	function __construct(IContextSource $context, $maxNum = 20) {
 		parent::__construct($context);
@@ -42,6 +47,7 @@ class RsViewer extends ArticleViewer {
 
 	function doQuery() {
 		$rs = RisingStar::getRS();
+		$this->articleTitles = [];
 
 		if ($rs) {
 			$i = 0;
@@ -49,6 +55,7 @@ class RsViewer extends ArticleViewer {
 				$title = Title::newFromText($titleString);
 				if ($title) {
 					$this->articles[] = Linker::link($title);
+					$this->articleTitles[] = $title;
 				}
 				if (++$i >= $this->maxNum) {
 					break;

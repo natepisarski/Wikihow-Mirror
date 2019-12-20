@@ -1,3 +1,5 @@
+@import '../../less/variables.less';
+
 #sf {
 	margin: 15px 68px 0 0;
 	float: right;
@@ -7,6 +9,12 @@
 	margin: 13px 0 0 0;
 	float: none;
 	text-align: center;
+}
+
+@media @medium {
+	#sf.mobile {
+		text-align: left;
+	}
 }
 
 #sf .sf_icon {
@@ -46,4 +54,8 @@
 	background: url(/extensions/wikihow/SocialFooter/images/yt.png);
 	/* @embed */
 	background: url(/extensions/wikihow/SocialFooter/images/yt.svg);
+}
+
+#sf_nl {
+	background: url(/extensions/wikihow/SocialFooter/images/nl.svg);
 }

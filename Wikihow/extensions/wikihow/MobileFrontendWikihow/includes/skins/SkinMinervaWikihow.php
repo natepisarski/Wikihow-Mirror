@@ -585,6 +585,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 					//standard; add "How to"
 					$titleMsg = $wgLanguageCode == 'ja' ? 'howto_article_heading' : 'howto';
 					$titleTxt = wfMessage($titleMsg, $pageHeading)->text();
+					$titleTxt = HTML::rawElement( 'a', [ 'href' => $title->getFullURL() ], $titleTxt);
 				} else {
 					$titleTxt = $pageHeading;
 				}

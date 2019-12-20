@@ -69,7 +69,7 @@ class RightRail {
 			(!$isLoggedIn || $wgUser->getOption('recent_changes_widget_show', true) == 1 ) &&
 			($isLoggedIn || $isMainPage) &&
 			!in_array($wgTitle->getPrefixedText(),
-			array('Special:Avatar', 'Special:ProfileBox')) &&
+				array('Special:Avatar', 'Special:ProfileBox')) &&
 			strpos($wgTitle->getPrefixedText(), 'Special:UserLog') === false &&
 			!$isDocViewer &&
 			$action != 'edit';
@@ -136,7 +136,7 @@ class RightRail {
 		}
 		// TODO this
 		//if ( $userCompletedImagesSidebar ) {
-			//$out->addModules('ext.wikihow.usercompletedimages');
+		//$out->addModules('ext.wikihow.usercompletedimages');
 		//}
 
 		$rightRail = new RightRail( $skin, $wgUser, $wgLanguageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $relatedWikihows, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $press_sidebox, $isResponsive );
@@ -251,17 +251,17 @@ class RightRail {
 		$message = wfMessage( 'welcome', $this->mUser->getName(), $this->mUser->getUserPage()->getLocalURL() )->text();
 		if ( !$this->mIsLoggedIn ) {
 			$message = $link = Html::element(
-					'a',
-					['href' => "/Special:UserLogin", 'id' => "gatWidgetBottom"],
-					wfMessage( 'rcwidget_join_in' )->text()
-					);
+				'a',
+				['href' => "/Special:UserLogin", 'id' => "gatWidgetBottom"],
+				wfMessage( 'rcwidget_join_in' )->text()
+			);
 		}
 
 		$linkAttributes = [
 			'id' => 'play_pause_button',
 			'href' => '#',
 			'onclick' => "WH.RCWidget.rcTransport(this); return false;"
-				];
+		];
 		$link = Html::element( 'a', $linkAttributes );
 
 		$innerHtml .= Html::rawElement( 'p', ['class' => 'bottom_link'], $message . $link );
@@ -276,21 +276,21 @@ class RightRail {
 
 	public function getTopLinksSidebarWidgetHtml() {
 		$randomizerLink = Html::element(
-				'a',
-				['id' => 'gatRandom', 'href' => '/Special:Randomizer', 'accesskey' => 'x', 'class' => 'button secondary'],
-				wfMessage( 'randompage' )->text()
-				);
+			'a',
+			['id' => 'gatRandom', 'href' => '/Special:Randomizer', 'accesskey' => 'x', 'class' => 'button secondary'],
+			wfMessage( 'randompage' )->text()
+		);
 
 		$createPageLink = Html::element(
-				'a',
-				['id' => 'gatWriteAnArticle', 'href' => '/Special:CreatePage', 'class' => 'button secondary'],
-				wfMessage( 'writearticle' )->text()
-				);
+			'a',
+			['id' => 'gatWriteAnArticle', 'href' => '/Special:CreatePage', 'class' => 'button secondary'],
+			wfMessage( 'writearticle' )->text()
+		);
 
 		$attr = [
 			'id' => 'top_links',
 			'class' => ['sidebox'],
-			];
+		];
 		if ( $this->mLoggedOutClass ) {
 			$attr['class'][] = $this->mLoggedOutClass;
 		}
@@ -433,7 +433,7 @@ class RightRail {
 
 		// disabling for now
 		//if ( class_exists( 'Honeypot' ) && $this->mTitle->inNamespace( NS_MAIN ) && !$this->mIsMainPage && $this->mEnglishSite ) {
-			//$html .= Honeypot::getDesktopWidgetHtml( $this->mContext );
+		//$html .= Honeypot::getDesktopWidgetHtml( $this->mContext );
 		//}
 
 		if ( $this->mAds ) {

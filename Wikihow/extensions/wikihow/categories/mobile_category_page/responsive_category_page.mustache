@@ -1,0 +1,89 @@
+<div class="cat_section" id="cat_description">
+	<h1>{{catName}}</h1>
+	{{{description}}}
+</div>
+{{#hasFeatured}}
+	<div class="cat_section" id="cat_featured">
+		<h2>{{featuredHeader}}</h2>
+		<div class="cat_grid">
+			{{#featured}}
+				{{> responsive_thumb.mustache}}
+			{{/featured}}
+		</div>
+		<div class="clearall"></div>
+	</div>
+{{/hasFeatured}}
+<div id="cat_container">
+	<div class="cat_section" id="cat_all">
+		<h2>{{allArticlesHeader}}</h2>
+		<div class="cat_grid">
+		{{#all}}
+			{{> responsive_thumb.mustache }}
+		{{/all}}
+		</div>
+		<div class="clearall"></div>
+		<div id="large_pagination">
+			{{{pagination}}}
+		</div>
+	</div>
+	{{#hasSubcats}}
+		<div class="cat_section" id="cat_sub_categories">
+
+			<h2>{{topicsHeader}}</h2>
+			<div id="subcats">
+				<ul>
+				{{#subcats1}}
+					<li><div class="subcat_container {{#hasSubsubcats}}with_subsubcats{{/hasSubsubcats}}"><span>{{{categoryLink}}}
+						{{#hasSubsubcats}}
+							<a class="show_more"></a></span>
+							<div class="subcategory">
+								{{#subsubcats}}
+									{{{categoryLink}}}
+								{{/subsubcats}}
+							</div>
+						{{/hasSubsubcats}}
+					{{^hasSubsubcats}}</span>{{/hasSubsubcats}}
+					</div></li>
+				{{/subcats1}}
+				</ul>
+				<ul>
+					{{#subcats2}}
+						<li><div class="subcat_container {{#hasSubsubcats}}with_subsubcats{{/hasSubsubcats}}"><span>{{{categoryLink}}}
+							{{#hasSubsubcats}}
+								<a class="show_more"></a></span>
+								<div class="subcategory">
+									{{#subsubcats}}
+										{{{categoryLink}}}
+									{{/subsubcats}}
+								</div>
+							{{/hasSubsubcats}}
+							{{^hasSubsubcats}}</span>{{/hasSubsubcats}}
+						</div></li>
+					{{/subcats2}}
+				</ul>
+			</div>
+		</div>
+	{{/hasSubcats}}
+	<div class="clearall"></div>
+</div>
+{{#hasRelated}}
+	<div class="cat_section" id="cat_related">
+		<h2>Featured Articles from {{topCat}}</h2>
+		<div id="cat_related_articles">
+			{{#related}}
+				<div class="{{classes}}">
+					<a href="{{url}}">
+						<img data-src="{{data-src}}" src="{{data-src}}" id="{{id}}" alt="" />
+						<div class="text"><p>{{{textBlock}}}</p></div>
+					</a>
+				</div>
+			{{/related}}
+		</div>
+		<div class="clearall"></div>
+	</div>
+{{/hasRelated}}
+{{#furtherEditing}}
+	<div class="cat_section" id="cat_furtherediting">
+		{{{furtherEditing}}}
+	</div>
+{{/furtherEditing}}

@@ -1,0 +1,23 @@
+<div id="hp_container_outer" class="{{classes}}">
+	<div id="hp_container_inner">
+		{{#useAltTopImage}}
+			<img src="/extensions/wikihow/homepage/images/fun-bkg.png" id="hp_blob_fun" />
+		{{/useAltTopImage}}
+		{{^useAltTopImage}}
+			<img src="/extensions/wikihow/homepage/images/shadow.png" id="hp_shadow"/>
+			<img src="/extensions/wikihow/homepage/images/books2.png" id="hp_books"/>
+		{{/useAltTopImage}}
+		<h1>{{hp_question}}</h1>
+		<p>{{topText}}</p>
+
+		<div class="search">
+			<form action="/wikiHowTo" id="cse-search-box" _lpchecked="1">
+				<div>
+					<label for="hp_search" id="hp_search_label"></label>
+					<input type="text" id="hp_search" name="search" value="" x-webkit-speech="" placeholder="{{searchPlaceholder}}">
+					<input type="submit" value="" class="cse_sa" alt="">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

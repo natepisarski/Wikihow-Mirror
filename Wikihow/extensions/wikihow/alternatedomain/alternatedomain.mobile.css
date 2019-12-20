@@ -70,6 +70,14 @@
 
 #nav_explore_li.nav_item .menu  { right: 0px; }
 
+.page-wikiHow_Terms_of_Use #sidebar {
+	height: 600px;
+}
+
+.page-wikiHow_Terms_of_Use #intro .section_text {
+	padding: 26px 0;
+}
+
 /***** TECH DOMAIN ******/
 #tech_rating {
 	display: none;

@@ -109,6 +109,9 @@ Disallow: /
 User-agent: ZyBORG
 Disallow: /
 
+User-agent: AdsBot-Google
+Allow: /
+
 User-agent: Mediapartners-Google
 Allow: /
 

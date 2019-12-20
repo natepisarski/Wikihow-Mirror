@@ -11,7 +11,6 @@
 		query: <?= $query ?>,
 		hl: <?= $lang ?>,
 		adPage: <?= $page ?>,
-		channel: <?= $channel ?>,
 		//adtest: <?= $test ?>,
 		location: true,
 		sellerRatings: true,

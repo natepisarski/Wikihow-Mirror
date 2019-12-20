@@ -1,23 +1,33 @@
 <?php
 
 class WikihowMobileHomepage extends Article {
-	var $faStream;
+	const POPULAR_LIST = "hp_popular";
+	const EXPERT_LIST = "hp_expert";
+	const WATCH_LIST = "hp_watch";
+	const COAUTHOR_LIST = "hp_coauthor";
 
-	const FA_STARTING_CHUNKS = 6;
+	const MAX_WATCH = 12;
+	const MAX_FEATURED = 24;
+	const MAX_EXPERT = 6;
+	const MAX_ALTDOMAIN = 50;
+	const MAX_RS = 4;
 
-	const SINGLE_WIDTH = 163; // (article_shell width - 2*article_inner padding - 3*SINGLE_SPACING)/4
-	const SINGLE_HEIGHT = 119; //should be .73*SINGLE_WIDTH
-	const SINGLE_SPACING = 16;
+	static $isAltDomain = null;
+	static $altDomainName;
 
 	function __construct( Title $title, $oldId = null ) {
 		parent::__construct($title, $oldId);
 	}
 
 	function view() {
-		$out = $this->getContext()->getOutput();
-		IOSHelper::addIOSAppBannerTag();
+		global $wgHooks;
+		$wgHooks['UseMobileRightRail'][] = ['WikihowMobileHomepage::removeSideBarCallback'];
 
-		$out->setHTMLTitle('wikiHow - '.wfMessage('main_title')->text());
+		$out = $this->getContext()->getOutput();
+		if(self::$isAltDomain == null)
+			self::setAltDomain();
+
+		IOSHelper::addIOSAppBannerTag();
 
 		/* This will not work if any dependencies are added to the mobile homepage module.
 		 * Perhaps an alternative would be creating a dependency module that loads the styles
@@ -26,33 +36,54 @@ class WikihowMobileHomepage extends Article {
 		$out->addModuleStyles(['zzz.mobile.wikihow.homepage.styles']);
 		$out->addModules(['zzz.mobile.wikihow.homepage.scripts']);
 
-		$faViewer = new FaViewer($this->getContext());
-		$this->faStream = new WikihowArticleStream($faViewer, $this->getContext());
-		$html = $this->faStream->getChunks(self::FA_STARTING_CHUNKS, self::SINGLE_WIDTH, self::SINGLE_SPACING, self::SINGLE_HEIGHT, WikihowArticleStream::MOBILE);
+		$vars = [
+			'howto' => wfMessage('howto_prefix')->text(),
+			'hp_trustworthy_cta' => wfMessage('hp_trustworthy_cta')->text()
+		];
 
-		$html2 = "";
-		$html3 = "";
+		//coauthor
+		$this->getCoauthorArticles($vars);
 
-		Hooks::run( 'WikihowHomepageFAContainerHtml', array( &$html, &$html2, &$html3 ) );
+		//popular
+		$this->getPopularArticles($vars);
 
-		$clearIt = Html::rawElement( 'div', ['class' => 'clearall']);
+		//expert interviews
+		$this->getExpertArticles($vars);
 
-		$container = Html::rawElement( 'div', ['id' => 'article_blocks_container'], $html.$html2.$html3.$clearIt );
-		$out->addHTML( $container );
+		$this->getWatchArticles($vars);
+
+		//fas
+		$this->getFeaturedArticles($vars);
+
+		$this->getAltDomainArticles($vars);
+		if(self::$isAltDomain && !in_array(self::$altDomainName, ['wikihow-fun.com', 'wikihow.life'])) {
+			//$vars['showTrustworthy'] = true;
+		}
+
+
+		//categories
+		$vars = array_merge($vars, WikihowMobileHomepage::categoryWidget());
+
+		//international
+		$vars = array_merge($vars, WikihowMobileHomepage::internationalWidget());
+
+		if(self::$isAltDomain) {
+			$vars['trustworthyLink'] = '/wikiHow:About-wikiHow.'. AlternateDomain::getAlternateDomainClass(self::$altDomainName);
+			$vars['hp_trustworthy_cta'] = wfMessage('hp_trustworthy_cta_altdomain')->text();
+			$out->addHtml(self::renderTemplate('responsive_altdomain.mustache', $vars));
+		} else {
+			$vars['trustworthyLink'] = '/wikiHow:Delivering-a-Trustworthy-Experience';
+			$out->addHtml(self::renderTemplate('responsive.mustache', $vars));
+		}
 
 		$out->setRobotPolicy('index,follow', 'Main Page');
 	}
 
-	private static function getSearchHtml() {
-		return '<div class="search">
-		<form action="/wikiHowTo" id="cse-search-box" _lpchecked="1">
-			<div>
-				<label for="hp_search" id="hp_search_label"></label>
-				<input type="text" id="hp_search" name="search" value="" x-webkit-speech="">
-				<input type="submit" value="" class="cse_sa" alt="">
-			</div>
-		</form>
-		</div>';
+	public static function setAltDomain() {
+		self::$isAltDomain = AlternateDomain::onAlternateDomain();
+		if(self::$isAltDomain) {
+			self::$altDomainName = AlternateDomain::getAlternateDomainForCurrentPage();
+		}
 	}
 
 	public static function removeBreadcrumb(&$showBreadcrumb) {
@@ -63,41 +94,266 @@ class WikihowMobileHomepage extends Article {
 	/**
 	 * NOTE: Much of this code is duplicated in WikihowHomepage.body.php (Alberto - 2018-09)
 	 */
-	public static function showTopImage() {
-		$items = array();
+	public static function showTopSection() {
+		$vars = [];
+		//if(!RequestContext::getMain()->getUser()->isLoggedin()) {
+			$vars['loggedout'] = true;
+		//}
 
-		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select(WikihowHomepageAdmin::HP_TABLE, array('*'), array('hp_active' => 1), __METHOD__, array('ORDER BY' => 'hp_order'));
+		if(self::$isAltDomain == null)
+			self::setAltDomain();
 
-		$i = 0;
-		foreach ($res as $result) {
-			$item = new stdClass();
-			$title = Title::newFromID($result->hp_page);
-			// Append Google Analytics tracking to slider URLs
-			$item->url = $title->getLocalURL() . "?utm_source=wikihow&utm_medium=main_page_carousel&utm_campaign=mobile";
-			$item->text = $title->getText() . wfMessage('howto_suffix')->showIfExists();
-			$imageTitle = Title::newFromID($result->hp_image);
-			if ($imageTitle) {
-				$file = wfFindFile($imageTitle->getText());
-				if ($file) {
-					$item->imagePath = wfGetPad($file->getUrl());
-					$item->itemNum = ++$i;
-					$items[] = $item;
-				}
-			}
+		$vars['topText'] = wfMessage('hp_top')->text();
+		$vars['hp_question'] = wfMessage('hp_question')->text();
+		$vars['searchPlaceholder'] = wfMessage('hp_search_placeholder')->text();
+		$vars['classes'] = self::$isAltDomain ? 'altdomain' : '';
+		if(self::$isAltDomain && in_array(self::$altDomainName, ['wikihow-fun.com', 'wikihow.life'])) {
+			$vars['useAltTopImage'] = true;
+		}
+		if(self::$isAltDomain) {
+			$vars['hp_question'] = wfMessage('hp_question_' . AlternateDomain::getAlternateDomainClass(self::$altDomainName))->text();
+			$vars['topText'] = wfMessage('hp_top_' . AlternateDomain::getAlternateDomainClass(self::$altDomainName))->text();
+		}
+		return self::renderTemplate('responsive_top.mustache', $vars);
+	}
+
+	private function renderTemplate(string $template, array $vars): string {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+		return $m->render($template, $vars);
+	}
+
+	public static function internationalWidget() {
+
+		$vars = ['languages' => [], 'hp_lang_header' => wfMessage('hp_lang_header')->text()];
+		$message = wfMessage('hp_languages')->text();
+		$languages = explode("\n", $message);
+		foreach($languages as $lang) {
+			$vars['languages'][] = $lang;
 		}
 
-		Hooks::run( 'WikihowHomepageAfterGetTopItems', array( &$items ) );
+		return $vars;
+	}
 
-		$tmpl = new EasyTemplate( __DIR__ );
-		$tmpl->set_vars([
-			'items' => $items,
-			'imagePath' => wfGetPad('/skins/owl/images/home1.jpg'),
-			'search_box' => self::getSearchHtml()
-		]);
-		$html = $tmpl->execute('topmobile.tmpl.php');
+	public static function removeSideBarCallback(&$showSideBar) {
+		$showSideBar = false;
+		return true;
+	}
 
-		return $html;
+	public function getFeaturedArticles(&$vars) {
+		$faViewer = new FaViewer($this->getContext());
+		$faViewer->doQuery();
+		$rsViewer = new RsViewer($this->getContext());
+		$rsViewer->doQuery();
+
+		$vars['hp_featured_header'] = wfMessage("hp_featured_header")->text();
+		$vars['featured_items'] = [];
+
+		$rs = [];
+		$count = 0;
+		$dbr = wfGetDB(DB_REPLICA);
+		$cutoffDate = wfTimestamp(TS_MW, strtotime("1 month ago"));
+		foreach($rsViewer->articleTitles as $title) {
+			//check first edit
+			$fedate = $dbr->selectField('firstedit', 'fe_timestamp', ['fe_page' => $title->getArticleID()], __METHOD__);
+			if($fedate < $cutoffDate) continue;
+
+			$rs[] = self::getThumbnailVars($title);
+			$count++;
+			if($count >= self::MAX_RS) break;
+		}
+
+		foreach($faViewer->articleTitles as $title) {
+			$vars['featured_items'][] = self::getThumbnailVars($title);
+			$count++;
+			if($count >= self::MAX_FEATURED) break;
+		}
+
+		$vars['featured_items'] = array_merge($vars['featured_items'], $rs);
+	}
+
+	public function getAltDomainArticles(&$vars) {
+		$vars['hp_all_header'] = wfMessage("hp_all_header_" . AlternateDomain::getAlternateDomainClass(self::$altDomainName))->text();
+
+		$faViewer = new FaViewer($this->getContext());
+		$faViewer->doQuery();
+
+		$articles = [];
+		$count = 0;
+		foreach($faViewer->articleTitles as $title) {
+			$vars['all_items'][] = self::getThumbnailVars($title);
+			$count++;
+			if($count >= self::MAX_ALTDOMAIN) break;
+		}
+
+
+	}
+
+	public function getPopularArticles(&$vars) {
+		$vars['hp_popular_header'] = wfMessage("hp_popular_header")->text();
+		$vars['popular_items'] = [];
+
+		$ids = ConfigStorage::dbGetConfig(self::POPULAR_LIST);
+		$idArray = explode("\n", $ids);
+		$count = 0;
+		foreach($idArray as $id) {
+			$title = Title::newFromID($id);
+			if(!$title || !$title->exists()) {
+				continue;
+			}
+
+			$vars['popular_items'][] = self::getThumbnailVars($title);
+			$count++;
+			if($count >= self::MAX_EXPERT) break;
+		}
+	}
+
+	public function getExpertArticles(&$vars) {
+		$vars['has_expert'] = false;
+		$vars['hp_expert_header'] = wfMessage("hp_expert_header")->text();
+		$vars['expert_items'] = [];
+
+		$ids = ConfigStorage::dbGetConfig(self::EXPERT_LIST);
+		$idArray = explode("\n", $ids);
+		foreach($idArray as $id) {
+			$title = Title::newFromID($id);
+			if(!$title || !$title->exists()) {
+				continue;
+			}
+
+			$vars['expert_items'][] = self::getThumbnailVars($title, true, '#Video');
+		}
+	}
+
+	public function getCoauthorArticles(&$vars) {
+		$vars['has_coauthor'] = true;
+		$vars['hp_coauthor_header'] = wfMessage("hp_coauthor_header")->text();
+		$vars['coauthor_items'] = [];
+
+		$ids = ConfigStorage::dbGetConfig(self::COAUTHOR_LIST);
+		$idArray = explode("\n", $ids);
+		$count = 0;
+		foreach($idArray as $id) {
+			$title = Title::newFromID($id);
+			if(!$title || !$title->exists()) {
+				continue;
+			}
+
+			$vars['coauthor_items'][] = self::getThumbnailVars($title);
+			$count++;
+			if($count >= self::MAX_EXPERT) break;
+		}
+	}
+
+	public function getWatchArticles(&$vars) {
+		$vars['has_watch'] = true;
+		$vars['hp_watch_header'] = wfMessage("hp_watch_header")->text();
+		$vars['watch_items'] = [];
+
+		$ids = ConfigStorage::dbGetConfig(self::WATCH_LIST);
+		$idArray = explode("\n", $ids);
+		$count = 0;
+		foreach($idArray as $id) {
+			$title = Title::newFromID($id);
+			if (!$title || !$title->exists()) {
+				continue;
+			}
+
+			$result = ApiSummaryVideos::query(['page' => $id]);
+			if($result['videos'] && count($result['videos']) > 0) {
+				$info = $result['videos'][0];
+
+				if ( $info['clip'] !== '' ) {
+					$src = $info['clip'];
+					$prefix = 'https://www.wikihow.com/video';
+					if ( substr( $src, 0, strlen( $prefix ) ) == $prefix ) {
+						$src = substr( $src, strlen( $prefix ) );
+					}
+					$preview = Misc::getMediaScrollLoadHtml(
+						'video', [ 'src' => $src, 'poster' => $info['poster'] ]
+					);
+				} else {
+					$preview = Misc::getMediaScrollLoadHtml( 'img', [ 'src' => $info['poster'] ] );
+				}
+
+				$vars['watch_items'][] = [
+					'url' => '/Video/' . str_replace( ' ', '-', $info['title'] ),
+					'title' => $info['title'],
+					'image' => $preview,
+					'isVideo' => true
+				];
+				$count++;
+				if($count >= self::MAX_WATCH) break;
+			}
+		}
+	}
+
+	private static function getThumbnailVars($title, $isVideo = false, $urlParam = '') {
+		$image = Wikitext::getTitleImage($title);
+		if (!($image && $image->getPath() && strpos($image->getPath(), "?") === false)
+			|| preg_match("@\.gif$@", $image->getPath())) {
+			$image = Wikitext::getDefaultTitleImage($title);
+		}
+
+		$params = ['width' => 375, 'height' => 250, 'crop' => 1, WatermarkSupport::NO_WATERMARK => true];
+		$thumb = $image->transform($params);
+		$vars = [
+				'url' => $title->getLocalURL($urlParam),
+				'title' => $title->getText(),
+				'image' => "<img src='{$thumb->getUrl()}' />"
+			];
+		if($isVideo) $vars['isVideo'] = true;
+
+		return $vars;
+	}
+
+	public static function categoryWidget() {
+		global $wgCategoryNames, $wgCategoryNamesEn;
+
+		$categories = [];
+		$lang = RequestContext::getMain()->getLanguage();
+		$lang_code = $lang->getCode();
+
+		foreach ($wgCategoryNames as $ck => $cat) {
+			$category = urldecode(str_replace("-", " ", $cat));
+			if ($lang_code == "zh") $category = $lang->convert($category);
+
+			// For Non-English we shall try to get the category name from message for the link. We fallback to the category name, because
+			// abbreviated category names are used for easier display. For the icon, we convert to English category names of the corresponding category.
+			if ($lang_code != "en") {
+				$enCat = $wgCategoryNamesEn[$ck];
+				$msgKey = strtolower(str_replace(' ','-',$enCat));
+				$foreignCat = str_replace('-',' ',urldecode(wfMessage($msgKey)->text()));
+				$catTitle = Title::newFromText("Category:" . $foreignCat);
+				if (!$catTitle) $catTitle = Title::newFromText("Category:" . $cat);
+				$cat = $enCat;
+			}
+			else {
+				$catTitle = Title::newFromText("Category:" . $category);
+			}
+
+			if(strtolower($category) ==  "wikihow") continue;
+
+			$categories[] = [
+				'icon' => CategoryListing::getCategoryIcon($category),
+				'link' => $catTitle->getLocalURL(),
+				'name' => $category
+			];
+		}
+
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		$vars = [
+			'hp_cat_header' => wfMessage('hp_cat_header')->text(),
+			'categories' => $categories
+		];
+
+		return $vars;
 	}
 
 }

@@ -23,6 +23,7 @@ $wgAutoloadClasses['CategoryCarousel'] = __DIR__ . '/category_carousel/CategoryC
 $wgAutoloadClasses['TopCategoryData'] = __DIR__ . '/TopCategoryData.class.php';
 
 $wgHooks['ArticleFromTitle'][] = array('WikihowCategoryPage::onArticleFromTitle');
+$wgMessagesDirs['MobileWikihowCategoryPage'] = __DIR__ . '/i18n/';
 
 $wgResourceModules['ext.wikihow.desktop_category_page'] = array(
 	'scripts' => array('categories-owl.js'),
@@ -37,7 +38,6 @@ $wgResourceModules['mobile.wikihow.mobile_category_page_styles'] = array(
 	'styles' => array('mobile_category_page.less'),
 	'localBasePath' => __DIR__ . '/mobile_category_page',
 	'remoteExtPath' => 'wikihow/categories/mobile_category_page',
-	'position' => 'top',
 	'targets' => array('mobile', 'desktop'),
 );
 
@@ -47,7 +47,6 @@ $wgResourceModules['mobile.wikihow.mobile_category_page'] = array(
 	'remoteExtPath' => 'wikihow/categories/mobile_category_page',
 	'position' => 'top',
 	'targets' => array('mobile', 'desktop'),
-	'dependencies' => array('mobile.wikihow.category_carousel','ext.wikihow.common_top'),
 	'messages' => [
 		'cat_show_more',
 		'cat_show_less'

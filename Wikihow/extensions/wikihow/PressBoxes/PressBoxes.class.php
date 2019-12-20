@@ -11,7 +11,11 @@ class PressBoxes {
 
 	const PRESS_IMAGE_PATH = '/extensions/wikihow/PressBoxes/assets/images/';
 
+	private static $pressHTML = '';
+
 	public static function pressSidebox(): string {
+		if (self::$pressHTML != '') return self::$pressHTML;
+
 		$loader = new Mustache_Loader_CascadingLoader( [
 			new Mustache_Loader_FilesystemLoader( __DIR__ . '/assets' )
 		] );
@@ -26,7 +30,9 @@ class PressBoxes {
 		];
 
 		$template = Misc::isMobileMode() ? 'press_mobile' : 'press_sidebox';
-		return $m->render($template, $vars);
+		self::$pressHTML = $m->render($template, $vars);
+
+		return self::$pressHTML;
 	}
 
 	private static function pressData(): array {

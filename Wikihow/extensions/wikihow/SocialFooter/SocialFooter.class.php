@@ -7,7 +7,8 @@ class SocialFooter {
 		'ig' => 'instagram',
 		'fb' => 'facebook',
 		'tt' => 'twitter',
-		'yt' => 'youtube'
+		'yt' => 'youtube',
+		'nl' => 'newsletter'
 	];
 
 	public static function getSocialFooter(): string {

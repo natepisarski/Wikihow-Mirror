@@ -1,10 +1,11 @@
+@import '../../less/variables.less';
+
 .content {
 
 	.steps {
 		.section_text {
 			background-color: #FFF;
 			padding: 15px;
-			border: 1px solid #bfbfbf;
 
 			ul {
 				list-style: disc inside;
@@ -20,10 +21,27 @@
 				}
 			}
 		}
+
+		h3 {
+			margin: -15px -15px 1em;
+			width: calc(~'100% + 30px');
+
+			span.mw-headline {
+				padding: 1em 15px;
+			}
+		}
 	}
 
 	.mwimg {
 		border: none;
+	}
+
+	.section {
+		h2 {
+			span.mw-headline {
+				padding: .8em 15px;
+			}
+		}
 	}
 }
 
@@ -41,4 +59,133 @@
 	background-image: url(/skins/owl/images/sp_expert_icon.png);
 	/* @embed */
 	background-image: url(/skins/owl/images/sp_expert_icon.svg);
+}
+
+/* this class is set on the contact wikihow template which appears on the cookie policy page, About-wikiHow, Jobs... */
+.contactwikihow {
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	-webkit-flex-wrap: wrap;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-justify-content: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	-webkit-align-content: flex-start;
+	-ms-flex-line-pack: start;
+	align-content: flex-start;
+	-webkit-align-items: stretch;
+	-ms-flex-align: stretch;
+	align-items: stretch;
+	color: #000;
+	background: @grayLight;
+
+	> div {
+		width: 100%;
+		border: 2px solid #FFF;
+		box-sizing: border-box;
+	}
+
+	.cw-head {
+		background: #ecebe8;
+		padding: .3em .5em;
+		font-weight: bold;
+		font-size: 1.2em;
+	}
+
+	.cw-body {
+		padding: 1em;
+	}
+}
+
+@media @medium {
+	.content {
+
+		#intro {
+			padding: .5em @largeSectionPadding;
+		}
+
+		.section_text {
+			padding: @largeSectionPadding;
+		}
+
+		.steps {
+			.section_text {
+				padding: 0 @largeSectionPadding;
+
+				h3 {
+					margin: 0 -@largeSectionPadding .5em;
+					width: @largeArticleWidth;
+
+					span.mw-headline {
+						padding: .8em @largeSectionPadding;
+					}
+				}
+
+				p:last-of-type {
+					padding-bottom: 1em;
+				}
+			}
+		}
+
+		.section {
+			h2 {
+				span.mw-headline {
+					padding: .8em @largeSectionPadding;
+				}
+			}
+		}
+	}
+
+	#section_0.title_lg,
+	#section_0.title_md,
+	#section_0.title_sm {
+		padding: .5em @largeSectionPadding 0;
+	}
+
+	.contactwikihow {
+		> div {
+			width: 50%;
+		}
+	}
+
+	#method_toc.whns_toc {
+		box-sizing: border-box;
+		width: @largeArticleWidth;
+		margin: 0 -@largeSectionPadding .5em;
+		float: none;
+		border-radius: 0;
+		padding: 1em @largeSectionPadding;
+
+		span,
+		a {
+			display: inline;
+			margin-right: .7em;
+			font-size: 1em;
+		}
+
+		span {
+			border: none;
+			padding: 0;
+			margin-bottom: 0;
+		}
+
+		.toc_hidden {
+			display: inline-block;
+		}
+	}
+
+	#method_toc_list {
+		display: inline;
+
+		.toc_method {
+			display: inline-block;
+			white-space: nowrap;
+		}
+	}
+
 }

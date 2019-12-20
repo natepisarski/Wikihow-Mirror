@@ -1300,23 +1300,11 @@ class LSearch extends SpecialPage {
 
 		$query = LSearch::formatSearchQuery($query);
 
-		$channels = [
-			'en' => [ 'desktop' => 2304462817, 'mobile' => 5227630311 ],
-			'intl' => [ 'desktop' => 9166875328, 'mobile' => 2932639465 ]
-		];
-		if ( array_key_exists( $wgLanguageCode, $channels ) ) {
-			$channel = $channels[$wgLanguageCode];
-		} else {
-			$channel = $channels['intl'];
-		}
-		$channel = $channel[Misc::isMobileMode() ? 'mobile' : 'desktop'];
-
 		$vars = [
 			"query" => json_encode($query),
 			"lang" => json_encode($wgLanguageCode),
 			"page" => json_encode($page),
 			"test" => json_encode($wgIsDevServer ? 'on' : 'off'),
-			"channel" => json_encode((string)$channel)
 		];
 
 		$tmpl = new EasyTemplate(__DIR__); // TODO use mustache

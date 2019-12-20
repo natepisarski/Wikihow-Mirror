@@ -478,4 +478,26 @@ class ArticleHooks {
 		$html = $text;
 	}
 
+	/**
+	 * Limit max article length
+	 */
+	public static function onEditFilterMergedContent( $context, $content, $status, $summary, $user, $minoredit ) {
+		$title = $context->getTitle();
+		if ( ! $title->inNamespace(NS_MAIN) ) {
+			return true;
+		}
+		if ( ! $content instanceof TextContent ) {
+			return true;
+		}
+
+		$text = $content->getText();
+		$len = mb_strlen($text);
+		$max = 200000;
+		if ( $len > $max ) {
+			$status->fatal('editpage-error-text-too-long', $len, $max);
+		}
+
+		return true;
+	}
+
 }

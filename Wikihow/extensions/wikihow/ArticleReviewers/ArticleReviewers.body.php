@@ -4,6 +4,9 @@ class ArticleReviewers extends UnlistedSpecialPage {
 
 	const REVIEWER_ROWS = 2;
 	const MEDICAL_EXCLUSION_LIST = "medical_exclusions";
+	const MEMCACHE_EXPIRY = 60*60*24;
+	const CACHE_KEY_EXPERTS = 'article_reviewers_experts';
+	const CACHE_KEY_USER_COUNT = 'article_reviewers_user_count';
 
 	public function __construct() {
 		global $wgHooks;
@@ -11,8 +14,16 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
+	public static function getCacheKey($keyName, $langCode = '') {
+		global $wgLanguageCode, $wgCachePrefix;
+		if (empty($langCode)) {
+			$langCode = $wgLanguageCode;
+		}
+
+		return wfForeignMemcKey(Misc::getLangDB($langCode), $wgCachePrefix, $keyName);
+	}
 	public function execute($par) {
-		global $wgHooks;
+		global $wgHooks, $wgMemc;
 
 		$wgHooks['CustomSideBar'][] = array($this, 'makeCustomSideBar');
 		$wgHooks['ShowBreadCrumbs'][] = array($this, 'removeBreadCrumbsCallback');
@@ -22,28 +33,28 @@ class ArticleReviewers extends UnlistedSpecialPage {
 
 		$out->setHTMLTitle(wfMessage('ar_page_title')->text());
 
-		$expertArticles = VerifyData::getAllArticlesFromDB();
-		$experts = VerifyData::getAllVerifierInfoFromDB();
-
-		$expertCategories = array();
-
-		$userCount = array();
-		$activeUsers = []; // Experts that reviewed an article after $oldestAllowed
-		$oldestAllowed = new DateTime('-180 days');
-		foreach ($expertArticles as $article) {
-			if (!isset($userCount[$article->name])) {
-				$userCount[$article->name] = 0;
-			}
-			$userCount[$article->name]++;
-
-			if (!isset($activeUsers[$article->name])) {
-				$reviewDate = DateTime::createFromFormat('n/j/Y', $article->date);
-				if ($reviewDate === false || $reviewDate > $oldestAllowed) {
-					$activeUsers[$article->name] = true;
+		$key = self::getCacheKey(self::CACHE_KEY_USER_COUNT);
+		$userCount = $wgMemc->get($key);
+		if (!$userCount) {
+			$expertArticles = VerifyData::getAllArticlesFromDB();
+			$userCount = array();
+			foreach ($expertArticles as $article) {
+				if (!isset($userCount[$article->name])) {
+					$userCount[$article->name] = 0;
 				}
+				$userCount[$article->name]++;
 			}
+			$wgMemc->set($key, $userCount, self::MEMCACHE_EXPIRY);
 		}
 
+		$key = self::getCacheKey('article_reviewers_experts');
+		$experts = $wgMemc->get($key);
+		if (!$experts) {
+			$experts = VerifyData::getAllVerifierInfoFromDB();
+			$wgMemc->set($key, $experts, self::MEMCACHE_EXPIRY);
+		}
+
+		$expertCategories = array();
 		$medicalExceptions = explode("\n", ConfigStorage::dbGetConfig(self::MEDICAL_EXCLUSION_LIST, true));
 		$requestedName = $req->getText('name');
 		$expert_count = 0;
@@ -188,5 +199,19 @@ class ArticleReviewers extends UnlistedSpecialPage {
 	public function isMobileCapable() {
 		return true;
 	}
+
+	public static function clearCache() {
+		global $wgMemc;
+
+		// Eliz only wanted this purged for english for the time being.
+		$langs = ['en'];
+		foreach ($langs as $lang) {
+			$key = self::getCacheKey(self::CACHE_KEY_EXPERTS, $lang);
+			$wgMemc->delete($key);
+
+			$key = self::getCacheKey(self::CACHE_KEY_USER_COUNT, $lang);
+			$wgMemc->delete($key);
+		}
+    }
 
 }
