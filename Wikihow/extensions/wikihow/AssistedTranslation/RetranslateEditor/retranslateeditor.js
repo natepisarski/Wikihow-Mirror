@@ -14,6 +14,7 @@
 		.done(function(data, textStatus, jqXHR) {
 			$("#wpTextbox1").val(data.wikiText);
 			$('#wpSummary').val("This article was updated to match the English source article");
+			$('#editform').append('<input type="hidden" name="is_retrans" value="1" />');
 		})
 		.fail(function(jqXHR, textStatus, errorThrown) {
 			var data = JSON.parse(jqXHR.responseText);

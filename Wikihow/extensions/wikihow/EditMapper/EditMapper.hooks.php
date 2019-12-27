@@ -10,9 +10,6 @@ use User;
 use WikiPage;
 use CommentStoreComment;
 
-use EditMapper\PortalEditMapper;
-use EditMapper\TranslatorEditMapper;
-
 /**
  * Provide hooks to map article edits to different users
  */
@@ -76,13 +73,14 @@ class EditMapperHooks {
 
 	/**
 	 * Multiple EditMapper instances can be added to map edits under different conditions.
-	 * Note that the order of the instances in the array determine their priority.
+	 * Note that the order of the instances in the array determines their priority.
 	 */
 	private static function getAllEditMappers(): array {
 		static::$mappers = static::$mappers ?? [
 			new TranslateSummariesEditMapper(),
 			new TranslatorEditMapper(),
-			new PortalEditMapper()
+			new PortalEditMapper(),
+			new RetranslatorEditMapper(),
 		];
 		return static::$mappers;
 	}

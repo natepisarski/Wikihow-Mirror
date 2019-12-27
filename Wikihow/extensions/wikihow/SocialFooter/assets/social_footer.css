@@ -1,4 +1,7 @@
-@import '../../less/variables.less';
+/* This file is included in GoogleAmp.class.php using Misc::getEmbedFiles, which does not support
+ * LESS compilation, so for now variables will have to be inlined
+// @import '../../less/variables.less';
+ */
 
 #sf {
 	margin: 15px 68px 0 0;
@@ -11,7 +14,11 @@
 	text-align: center;
 }
 
-@media @medium {
+/**
+ * See above comment about LESS compilation.
+ * @media @medium {
+ */
+@media only screen and (min-width:728px) {
 	#sf.mobile {
 		text-align: left;
 	}

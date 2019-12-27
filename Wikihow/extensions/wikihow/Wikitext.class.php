@@ -845,8 +845,12 @@ class Wikitext {
 			$image = mt_rand(0,1) == 0 ?
 				 "Default_wikihow_green_wide" . $intlSuffix . ".png" : "Default_wikihow_blue_wide" . $intlSuffix . ".png";
 		} else {
-			$image = mt_rand(0,1) == 0 ?
-				"Default_yellow" . $intlSuffix . ".png" : "Default_green" . $intlSuffix. ".png";
+			if(AlternateDomain::onAlternateDomain()) {
+				$image = "Default_mag_1" . $intlSuffix . ".jpg";
+			} else {
+				$image = mt_rand(0,1) == 0 ?
+					"Default_yellow" . $intlSuffix . ".png" : "Default_green" . $intlSuffix. ".png";
+			}
 		}
 		$file = wfFindFile($image, false);
 		if (!$file) {

@@ -13,7 +13,9 @@ $wgAutoloadClasses['EditorUtil'] = __DIR__ . '/common/EditorUtil.class.php';
 
 $wgAutoloadClasses['TranslateEditor'] = __DIR__ . '/TranslateEditor/TranslateEditor.body.php';
 $wgAutoloadClasses['EditMapper\TranslatorEditMapper'] = __DIR__ . '/TranslateEditor/TranslatorEditMapper.class.php';
+
 $wgSpecialPages['TranslateEditor'] = 'TranslateEditor';
+
 $wgResourceModules['ext.wikihow.translateeditor'] = [
 	'scripts' => [ 'translateeditor.js' ],
 	'localBasePath' => __DIR__ . '/TranslateEditor',
@@ -27,7 +29,10 @@ $wgResourceModules['ext.wikihow.translateeditor'] = [
 
 $wgAutoloadClasses['RetranslateEditor'] =
 $wgAutoloadClasses['RetranslateEditorHooks'] = __DIR__ . '/RetranslateEditor/RetranslateEditor.body.php';
+$wgAutoloadClasses['EditMapper\RetranslatorEditMapper'] = __DIR__ . '/RetranslateEditor/RetranslatorEditMapper.class.php';
+
 $wgSpecialPages['RetranslateEditor'] = 'RetranslateEditor';
+
 $wgResourceModules['ext.wikihow.retranslateeditor'] = [
 	'scripts' => [ 'retranslateeditor.js' ],
 	'localBasePath' => __DIR__ . '/RetranslateEditor',

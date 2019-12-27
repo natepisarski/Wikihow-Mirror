@@ -142,17 +142,17 @@ class Sitemap extends SpecialPage {
 					#content_inner { width: 100%; }
 					#cat_outer { margin-top: -10px; }
 				}
-				
-				@media only screen and (min-width:1070px) {
+
+				@media only screen and (min-width:1020px) {
 					.content {
 					    border: 1px solid #e5e5e5;
 					    padding: 22px 27px;
 					}
-					
+
 					#cat_outer {
 						margin-top: 0px;
 					}
-					
+
 					.cat_list h3 {
 						padding: 0 0 0.5em 0;
 					}
