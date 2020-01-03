@@ -26,7 +26,7 @@ class FirstCharsFromPage extends Maintenance {
 			$latestGood = $gr->latestGood();
 			if ( !$latestGood ) {
 				decho("no latest good from gr", $title);
-				die();
+				continue;
 			}
 
 			$r = Revision::newFromId( $latestGood );

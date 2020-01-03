@@ -15,6 +15,9 @@ class WikihowMobileHomepage extends Article {
 	static $isAltDomain = null;
 	static $altDomainName;
 
+	const THUMB_WIDTH = 375;
+	const THUMB_HEIGHT = 250;
+
 	function __construct( Title $title, $oldId = null ) {
 		parent::__construct($title, $oldId);
 	}
@@ -160,13 +163,21 @@ class WikihowMobileHomepage extends Article {
 			$fedate = $dbr->selectField('firstedit', 'fe_timestamp', ['fe_page' => $title->getArticleID()], __METHOD__);
 			if($fedate < $cutoffDate) continue;
 
-			$rs[] = self::getThumbnailVars($title);
+			$rs[] = [
+				'url' => $title->getLocalURL(),
+				'title' => $title->getText(),
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+			];
 			$count++;
 			if($count >= self::MAX_RS) break;
 		}
 
 		foreach($faViewer->articleTitles as $title) {
-			$vars['featured_items'][] = self::getThumbnailVars($title);
+			$vars['featured_items'][] = [
+				'url' => $title->getLocalURL(),
+				'title' => $title->getText(),
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+			];
 			$count++;
 			if($count >= self::MAX_FEATURED) break;
 		}
@@ -180,10 +191,13 @@ class WikihowMobileHomepage extends Article {
 		$faViewer = new FaViewer($this->getContext());
 		$faViewer->doQuery();
 
-		$articles = [];
 		$count = 0;
 		foreach($faViewer->articleTitles as $title) {
-			$vars['all_items'][] = self::getThumbnailVars($title);
+			$vars['all_items'][] = [
+				'url' => $title->getLocalURL(),
+				'title' => $title->getText(),
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+			];
 			$count++;
 			if($count >= self::MAX_ALTDOMAIN) break;
 		}
@@ -204,7 +218,11 @@ class WikihowMobileHomepage extends Article {
 				continue;
 			}
 
-			$vars['popular_items'][] = self::getThumbnailVars($title);
+			$vars['popular_items'][] = [
+				'url' => $title->getLocalURL(),
+				'title' => $title->getText(),
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+			];
 			$count++;
 			if($count >= self::MAX_EXPERT) break;
 		}
@@ -212,7 +230,8 @@ class WikihowMobileHomepage extends Article {
 
 	public function getExpertArticles(&$vars) {
 		$vars['has_expert'] = false;
-		$vars['hp_expert_header'] = wfMessage("hp_expert_header")->text();
+
+		/*$vars['hp_expert_header'] = wfMessage("hp_expert_header")->text();
 		$vars['expert_items'] = [];
 
 		$ids = ConfigStorage::dbGetConfig(self::EXPERT_LIST);
@@ -223,8 +242,13 @@ class WikihowMobileHomepage extends Article {
 				continue;
 			}
 
-			$vars['expert_items'][] = self::getThumbnailVars($title, true, '#Video');
-		}
+			$vars['expert_items'][] = [
+				'url' => $title->getLocalURL('#Video'),
+				'title' => $title->getText(),
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] ),
+				'isVideo' => true
+			];
+		}*/
 	}
 
 	public function getCoauthorArticles(&$vars) {
@@ -241,7 +265,11 @@ class WikihowMobileHomepage extends Article {
 				continue;
 			}
 
-			$vars['coauthor_items'][] = self::getThumbnailVars($title);
+			$vars['coauthor_items'][] = [
+				'url' => $title->getLocalURL(),
+				'title' => $title->getText(),
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+			];
 			$count++;
 			if($count >= self::MAX_EXPERT) break;
 		}
@@ -290,23 +318,16 @@ class WikihowMobileHomepage extends Article {
 		}
 	}
 
-	private static function getThumbnailVars($title, $isVideo = false, $urlParam = '') {
+	private static function getThumbnailUrl($title) {
 		$image = Wikitext::getTitleImage($title);
 		if (!($image && $image->getPath() && strpos($image->getPath(), "?") === false)
 			|| preg_match("@\.gif$@", $image->getPath())) {
 			$image = Wikitext::getDefaultTitleImage($title);
 		}
 
-		$params = ['width' => 375, 'height' => 250, 'crop' => 1, WatermarkSupport::NO_WATERMARK => true];
+		$params = ['width' => self::THUMB_WIDTH, 'height' => self::THUMB_HEIGHT, 'crop' => 1, WatermarkSupport::NO_WATERMARK => true];
 		$thumb = $image->transform($params);
-		$vars = [
-				'url' => $title->getLocalURL($urlParam),
-				'title' => $title->getText(),
-				'image' => "<img src='{$thumb->getUrl()}' />"
-			];
-		if($isVideo) $vars['isVideo'] = true;
-
-		return $vars;
+		return $thumb->getUrl();
 	}
 
 	public static function categoryWidget() {
@@ -342,11 +363,6 @@ class WikihowMobileHomepage extends Article {
 				'name' => $category
 			];
 		}
-
-		$loader = new Mustache_Loader_CascadingLoader( [
-			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
-		] );
-		$m = new Mustache_Engine(['loader' => $loader]);
 
 		$vars = [
 			'hp_cat_header' => wfMessage('hp_cat_header')->text(),

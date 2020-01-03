@@ -384,6 +384,14 @@ WH.ads = (function () {
 		updateVisibility();
 	}
 
+	function ccpaOptOut() {
+		var hasCookie = document.cookie.indexOf('ccpa_out=');
+		if (hasCookie >= 0) {
+			return true;
+		}
+		return false;
+	}
+
 	function insertAdsenseAd(ad) {
 		// set the height of he ad to the adsense height
 		var client = "ca-pub-9543332082073187";
@@ -399,6 +407,11 @@ WH.ads = (function () {
 			return;
 		}
 		i.setAttribute('data-ad-slot', slot);
+
+		// look for ccpa cookie
+		if (ccpaOptOut()) {
+			i.setAttribute('data-restrict-data-processing', 1);
+		}
 
 		if (ad.type == 'middlerelated') {
 			i.setAttribute('data-ad-format', 'fluid');
@@ -542,10 +555,6 @@ WH.ads = (function () {
 		}
 
 		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
-		this.inlineHtml = this.adElement.getAttribute('data-inline-html') == 1;
-		if (this.inlineHtml) {
-			this.isLoaded = true;
-		}
 		this.adLabelClass = this.adElement.getAttribute('data-adlabelclass');
 		this.instantLoad = this.adElement.getAttribute('data-instantload') == 1;
 		this.apsTimeout = this.adElement.getAttribute('data-aps-timeout');

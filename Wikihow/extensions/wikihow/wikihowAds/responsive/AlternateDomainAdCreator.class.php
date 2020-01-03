@@ -16,7 +16,6 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
-				'inline-html' => 1,
 				'small' => 1,
 				'medium' => 1,
 				'large' => 1,
@@ -50,7 +49,6 @@ class DefaultAlternateDomainAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'inline-html' => 1,
 				'large' => 1,
 			),
 			'rightrail1' => array(

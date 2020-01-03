@@ -9,12 +9,8 @@ class GoogleAmp {
 	public static function isAmpMode( $out ) {
 		$amp = $out->getRequest()->getVal( self::QUERY_STRING_PARAM ) == 1;
 
-		// Jordan: Setting up an amp test for a list of articles
 		$t = $out->getTitle();
-		global $wgLanguageCode;
-		if ($wgLanguageCode == "pt"
-			&& $t->inNamespace(NS_MAIN)
-			&& ArticleTagList::hasTag( 'amp_pt_speed_test', $t->getArticleID()) ) {
+		if (self::isAmpSpeedTest($t)) {
 			$amp = true;
 		}
 
@@ -27,10 +23,27 @@ class GoogleAmp {
 
 		return $amp;
 	}
+
+	// Jordan: Setting up an amp test for a list of articles
+	public static function isAmpSpeedTest($t) {
+		global $wgLanguageCode;
+
+		$isSpeedTest = false;
+		if (in_array($wgLanguageCode, ["pt", "es", "en"])
+			&& Misc::isMobileMode()
+			&& $t->inNamespace(NS_MAIN)
+			&& ArticleTagList::hasTag( 'amp_speed_test', $t->getArticleID()) ) {
+			$isSpeedTest = true;
+		}
+
+		return $isSpeedTest;
+	}
+
 	public static function hasAmpParam( $request ) {
 		$amp = $request->getVal( self::QUERY_STRING_PARAM ) == 1;
 		return $amp;
 	}
+
 	public static function getAmpUrl( $title ) {
 		return $title->getFullURL()."?".self::QUERY_STRING_PARAM."=1";
 	}
@@ -370,30 +383,41 @@ class GoogleAmp {
 		pq( 'div:first' )->after( $ampElement );
 	}
 
-	private static function addConsentElement() {
-		global $wgLanguageCode;
+	public static function getConsentElement() {
+		global $wgLanguageCode, $wgRequest, $wgTitle;
 
 		$config = [
 			'ISOCountryGroups' => [
-				'eu' => ["al", "ad", "am", "at", "by", "be", "ba", "bg", "ch", "cy", "cz", "de", "dk", "ee", "es", "fo", "fi", "fr", "gb", "ge", "gi", "gr", "hu", "hr", "ie", "is", "it", "lt", "lu", "lv", "mc", "mk", "mt", "no", "nl", "po", "pt", "ro", "ru", "se", "si", "sk", "sm", "tr", "ua", "uk", "va"]
+				'eea' => ["preset-eea", "unknown"],
+				"us" => ["us"]
 			]
 		];
 
-		global $wgRequest;
 		// for testings
 		$eu = $wgRequest->getVal( "EUtest" ) == 1;
 		if ( $eu ) {
 			$config = [
 				'ISOCountryGroups' => [
-					'eu' => ["us", "jp", "al", "ad", "am", "at", "by", "be", "ba", "bg", "ch", "cy", "cz", "de", "dk", "ee", "es", "fo", "fi", "fr", "gb", "ge", "gi", "gr", "hu", "hr", "ie", "is", "it", "lt", "lu", "lv", "mc", "mk", "mt", "no", "nl", "po", "pt", "ro", "ru", "se", "si", "sk", "sm", "tr", "ua", "uk", "va"]
+					'eea' => ["preset-eea", "unknown", "us", "jp"],
+					"us" => ["us"]
+				]
+			];
+		}
+
+		$ccpaTest = $wgRequest->getVal( "ccpatest" ) >= 1;
+
+		if ( $ccpaTest ) {
+			$config = [
+				'ISOCountryGroups' => [
+					'eea' => ["preset-eea", "unknown"],
+					"us" => ["us", "jp"]
 				]
 			];
 		}
 
 		$jsonObject = json_encode( $config, JSON_PRETTY_PRINT );
 		$scriptElement = Html::element( 'script', [ 'type' => 'application/json' ], $jsonObject );
-		$ampElement = Html::rawElement( 'amp-geo', ['layout'=>'nodisplay'], $scriptElement );
-		pq( 'div:first' )->after( $ampElement );
+		$groupsHtml = Html::rawElement( 'amp-geo', ['layout'=>'nodisplay'], $scriptElement );
 
 		$messageName = "gdpr_message";
 		if ( $wgLanguageCode == 'en' ) {
@@ -404,17 +428,30 @@ class GoogleAmp {
 		if ( strpos( $messageInner, '[[' ) !== FALSE ) {
 			$messageInner = wfMessage( $messageName )->parse();
 		}
+
+		$ccpaFooterMessage = wfMessage( 'footer_ccpa' )->text();
+
+		$ccpaEndpoint = '/x/amp-consent-ccpa';
+		if ( $ccpaTest ) {
+			$ccpaEndpoint = '/Special:CCPA';
+		}
+		if ( $wgRequest->getVal( "ccpatest" ) == 2 ) {
+			$ccpaEndpoint = '/x/amp-consent-ccpa';
+		}
 		$vars = array(
-			'gdpr_message' => $messageInner,
+			'ccpa_message' => $ccpaFooterMessage,
+			'ccpa_endpoint' => $ccpaEndpoint,
+			'gdpr_message' => 'test',
 			'gdpr_accept' => wfMessage("gdpr_accept")->text()
 		);
+
 		$loader = new Mustache_Loader_CascadingLoader([
 			new Mustache_Loader_FilesystemLoader( __DIR__ )
 		]);
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$html = $m->render( 'amp_consent.mustache', $vars );
-		pq( 'div:first' )->after( $html );
+		return $groupsHtml . $html;
 	}
 
 	private static function addGoogleAnalytics( $id, $num ) {
@@ -790,6 +827,9 @@ class GoogleAmp {
 		if ( $dataLoadingStrategy ) {
 			$adAttributes['data-loading-strategy'] = $dataLoadingStrategy;
 		}
+		//$adAttributes['data-block-on-consent'] = "_till_responded";
+		$adAttributes['data-block-on-consent'] = "";
+		//$adAttributes['data-block-on-consent'] = "_auto_reject";
 
 		$ad = Html::element( "amp-ad", $adAttributes );
 
@@ -887,6 +927,7 @@ class GoogleAmp {
 			$adAttributes['data-loading-strategy'] = $dataLoadingStrategy;
 		}
 
+		$adAttributes['data-block-on-consent'] = "_till_responded";
 		$ad = Html::element( "amp-ad", $adAttributes );
 
 		$content = $ad . $whAdLabelBottom;
@@ -1151,8 +1192,6 @@ class GoogleAmp {
 			self::addGoogleAnalytics( WH_GA_ID_ANDROID_APP, $i++ );
 		} else {
 			self::addGoogleAnalytics( WH_GA_ID, $i++ );
-			self::addConsentElement();
-
 		}
 
 		$gaCnf = Misc::getGoogleAnalyticsConfig();

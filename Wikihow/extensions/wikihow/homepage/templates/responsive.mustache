@@ -1,5 +1,5 @@
 <div id="hp_coauthor" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/coauthor.svg" />{{hp_coauthor_header}}</h3>
+	<h3><img src="/extensions/wikihow/homepage/images/coauthor.svg" loading="lazy" />{{hp_coauthor_header}}</h3>
 	<div id="hp_coauthor_container">
 		{{#coauthor_items}}
 			{{> responsive_thumb.mustache}}
@@ -7,7 +7,7 @@
 	</div>
 </div>
 <div id="hp_popular" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/popular.svg" />{{hp_popular_header}}</h3>
+	<h3><img src="/extensions/wikihow/homepage/images/popular.svg" loading="lazy" />{{hp_popular_header}}</h3>
 	<div id="hp_popular_container">
 	{{#popular_items}}
 		{{> responsive_thumb.mustache}}
@@ -19,7 +19,7 @@
 
 <div class="hp_narrow">
 	<div id="hp_featured">
-		<h3><img src="/extensions/wikihow/homepage/images/featured.svg" />{{hp_featured_header}}</h3>
+		<h3><img src="/extensions/wikihow/homepage/images/featured.svg" loading="lazy" />{{hp_featured_header}}</h3>
 		<div id="hp_featured_container">
 			{{#featured_items}}
 				{{> responsive_thumb.mustache}}
@@ -29,18 +29,18 @@
 	</div>
 
 	<div id="hp_categories">
-		<h3><img src="/extensions/wikihow/homepage/images/categories.svg" />{{hp_cat_header}}</h3>
+		<h3><img src="/extensions/wikihow/homepage/images/categories.svg" loading="lazy" />{{hp_cat_header}}</h3>
 		<ul id="hp_categories_list">
 			{{#categories}}
 				<li class="cat_icon">
-					<a href="{{link}}"><img src="{{icon}}" />{{name}}</a>
+					<a href="{{link}}"><img src="{{icon}}" loading="lazy" />{{name}}</a>
 				</li>
 			{{/categories}}
 		</ul>
 	</div>
 
 	<div id="hp_languages">
-		<h3><img src="/extensions/wikihow/homepage/images/international.svg" />{{hp_lang_header}}</h3>
+		<h3><img src="/extensions/wikihow/homepage/images/international.svg" loading="lazy" />{{hp_lang_header}}</h3>
 		<div id="hp_lang_list">
 			{{#languages}}
 				{{{.}}}
@@ -55,26 +55,29 @@
 		<a href="/wikiHow:About-wikiHow">Read our story.</a>
 		<div id="hp_news_container">
 			<div id="hp_news2">
-				<img src="/extensions/wikihow/homepage/images/atlantic.png" />
+				<img src="/extensions/wikihow/homepage/images/atlantic.png" loading="lazy" />
 				<span><strong>The Atlantic</strong> on<br /> November 11, 2019</span>
-				<p>"wikiHow may be the largest commercial platform in existence that hasn’t been accused of exploiting its users."</p>
+				<p class="news_quote">"wikiHow may be the largest commercial platform in existence that hasn’t been accused of exploiting its users."</p>
+				<p class="news_author">- Kaitlyn Tiffany<br />&nbsp;&nbsp;Technology Writer, <i>The Atlantic</i></p>
 			</div>
 			<div id="hp_news1">
-				<img src="/extensions/wikihow/homepage/images/gizmodo.png" />
-				<span><strong>Gizmodo</strong> on<br /> October 19, 2018</span>
-				<p>"wikiHow is a consistently useful resource, providing surprisingly detailed step-by-step guides."</p>
+				<img src="/extensions/wikihow/homepage/images/vice.png" loading="lazy" />
+				<span><strong>Vice</strong> on<br /> November 12, 2019</span>
+				<p class="news_quote">"I've been yelling for a while about how wikiHow is doing the best consistent service journalism on the web right now."</p>
+				<p class="news_author">- Rachel Miller<br />&nbsp;&nbsp;Deputy Editor, <i>Vice</i></p>
 			</div>
 			<div id="hp_news3">
-				<img src="/extensions/wikihow/homepage/images/wired.png" />
+				<img src="/extensions/wikihow/homepage/images/wired.png" loading="lazy" />
 				<span><strong>Wired UK</strong> on<br /> March 2, 2019</span>
-				<p>"[wikiHow] has become the internet’s answer to almost every question."</p>
+				<p class="news_quote">"[wikiHow] has become the internet’s answer to almost every question."</p>
+				<p class="news_author">- Nicole Kobie<br />&nbsp;&nbsp;Contributing Editor, <i>Wired UK</i></p>
 			</div>
 		</div>
 	</div>
 </div>
 
 <div id="hp_watch" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/watch.svg" />{{hp_watch_header}}<a href="/Video" class="more_link">See more <img src="/extensions/wikihow/homepage/images/more.png" /></a></h3>
+	<h3><img src="/extensions/wikihow/homepage/images/watch.svg" loading="lazy" />{{hp_watch_header}}<a href="/Video" class="more_link">See more <img src="/extensions/wikihow/homepage/images/more.png" /></a></h3>
 	<div id="hp_watch_container">
 		{{#watch_items}}
 			{{> responsive_thumb.mustache}}
@@ -85,7 +88,7 @@
 
 {{#hasExpert}}
 <div id="hp_expert" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/expert.svg" />{{hp_expert_header}}<a target="_blank" href="https://www.youtube.com/playlist?list=PLrxlAuU-npiVD1CImGZzzPlZf18HFSSuW" class="more_link">See more <img src="/extensions/wikihow/homepage/images/more.png" /></a></h3>
+	<h3><img src="/extensions/wikihow/homepage/images/expert.svg" loading="lazy" />{{hp_expert_header}}<a target="_blank" href="https://www.youtube.com/playlist?list=PLrxlAuU-npiVD1CImGZzzPlZf18HFSSuW" class="more_link">See more <img src="/extensions/wikihow/homepage/images/more.png" /></a></h3>
 	<div id="hp_expert_container">
 		{{#expert_items}}
 			{{> responsive_thumb.mustache}}

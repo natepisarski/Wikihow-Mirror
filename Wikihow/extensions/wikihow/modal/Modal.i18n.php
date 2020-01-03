@@ -56,6 +56,15 @@ $messages['en'] =
 		'fad_btn_skip' => 'Skip',
 		'fad_btn_submit' => 'Submit',
 		//Discuss Tab
-		'discuss_tab_hdr' => 'Discuss Article'
+		'discuss_tab_hdr' => 'Discuss Article',
+		// CCPA modal
+		'ccpa_popup_title' => 'Do Not Sell My Personal Information',
+		'ccpa_top_text' > 'California wikiHow users, please choose one of the following options regarding your personal data:',
+		'ccpa_text_second' => '<b>Opt out</b>: Do not share my personal information with marketers or advertisers. I do not wish to see advertisements based upon my interests and browsing history.<br><br>If you would like us not to share your personal information with marketers, advertisers, and other third parties, click the Apply button below.',
+		'ccpa_opt_out_button' => 'Apply',
+		'ccpa_no_opt_out_button' => 'Cancel',
+		'ccpa_notice_text' => '<b>CCPA notice:</b> wikiHow intentionally stores minimal personal data about our users and account holders. If you would like to request deletion of your personal data and wikiHow account, or would like to have a copy of the information wikiHow has stored about you, please email <a href="mailto:support@wikihow.com">support@wikihow.com</a>, and provide your wikiHow user name and the email address associated with your wikiHow account.',
+		'ccpa_opted_out_text_second' => '<b>Opt out</b>: We will not share your personal information with marketers, advertisers, and other third parties.',
+		'ccpa_optedout_ok_button' => 'Ok'
 	);
 

@@ -93,8 +93,8 @@ class TranslateEditor extends UnlistedSpecialPage {
 		$options =  ['loader' => new Mustache_Loader_FilesystemLoader(__DIR__)];
 		$m = new Mustache_Engine($options);
 		$vars = [
-			'remove_templates' => json_encode( array_map(preg_quote, EditorUtil::getMsgArray('remove_templates')) ),
-			'remove_sections'  => json_encode( array_map(preg_quote, EditorUtil::getMsgArray('remove_sections')) ),
+			'remove_templates' => json_encode( array_map('preg_quote', EditorUtil::getMsgArray('remove_templates')) ),
+			'remove_sections'  => json_encode( array_map('preg_quote', EditorUtil::getMsgArray('remove_sections')) ),
 			'sources_name' => json_encode(wfMessage('Sources')->text()),
 			'steps_name' => json_encode(wfMessage('Steps')->text()),
 			'references_name' => json_encode(wfMessage('references')->text())

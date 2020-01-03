@@ -63,10 +63,7 @@ class MobileFrontendHooks {
 		}
 		// Jordan: Setting up an amp test for a list of articles
 		$t = RequestContext::getMain()->getTitle();
-		global $wgLanguageCode;
-		if ($wgLanguageCode == "pt"
-			&& $t->inNamespace(NS_MAIN)
-			&& ArticleTagList::hasTag( 'amp_pt_speed_test', $t->getArticleID()) ) {
+		if (GoogleAmp::isAmpSpeedTest($t)) {
 			$skinName = 'SkinMinervaWikihowAmp';
 		}
 

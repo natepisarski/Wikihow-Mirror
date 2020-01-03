@@ -92,4 +92,7 @@
 	background-image: -webkit-linear-gradient(transparent, transparent), url(../../skins/owl/images/app_store_cta.svg);
 	background-size: auto;
 }
+#footer_ccpa {
+	display: none;
+}
 

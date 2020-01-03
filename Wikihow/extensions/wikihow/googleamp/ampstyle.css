@@ -1055,3 +1055,9 @@ p.green_box_bullet {
 .section h2, .steps h3 {
 	position: relative;
 }
+.footer_ccpa_amp {
+	display: none;
+}
+.amp-geo-group-us #footer_ccpa {
+	display: inline;
+}

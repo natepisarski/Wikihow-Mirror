@@ -583,13 +583,6 @@ abstract class AdCreator {
 		if ( !$this->isAdOkForDomain( $ad ) ) {
 			return;
 		}
-		if ( !Misc::isMobileMode() ) {
-			if ( $ad->setupData['inline-html'] == 1 ) {
-				// do not use js to load the add but load it with html
-				$innerHtml .= $this->getInlineHtmlForAd( $ad );
-				$skipInlineHtml = false;
-			}
-		}
 
 		$innerAdHtml = Html::rawElement( 'div', $attributes, $innerHtml );
 
@@ -617,8 +610,6 @@ abstract class AdCreator {
 				$attributes[$adKey] = $val;
 			} elseif ( $key == 'containerheight' ) {
 				$attributes['style'] = "height:{$val}px";
-			} elseif ( $skipInlineHtml && $key == 'inline-html' ) {
-				// skip this key
 			} else {
 				if ( is_array( $val ) ) {
 					$val = implode(' ', $val);
@@ -643,30 +634,6 @@ abstract class AdCreator {
 		}
 
 		return $ad;
-	}
-
-	// for now this only works on regular adsense not smallservice = adsense
-	private function getInlineHtmlForAd( $ad ) {
-		if ( $ad->setupData['service'] != 'adsense' ) {
-			return;
-		}
-
-		$slot = $ad->setupData['slot'];
-		if ( !$slot ) {
-			return;
-		}
-		$width = $ad->setupData['width'];
-		$height = $ad->setupData['height'];
-		$attributes = array(
-				'class' => 'adsbygoogle',
-				'style' => "display:inline-block;width:".$width."px;height:".$height."px;",
-				'data-ad-client' => "ca-pub-9543332082073187",
-				'data-ad-slot' => $slot
-		);
-		$ins = Html::element( "ins", $attributes );
-		$script = $this->getAdsByGoogleJS( $ad );
-		$script = Html::inlineScript( $script );
-		return $ins . $script;
 	}
 
 	// gets the js snippet used to load an adsense ad
@@ -994,7 +961,6 @@ class DefaultAdCreator extends AdCreator {
 				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
-				'inline-html' => 1,
 				'small' => 1,
 				'medium' => 1,
 				'large' => 1,
@@ -1028,7 +994,6 @@ class DefaultAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'inline-html' => 1,
 				'large' => 1,
 			),
 			'rightrail1' => array(
@@ -1223,7 +1188,6 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
-				'inline-html' => 1,
 				'small' => 1,
 				'medium' => 1,
 				'large' => 1,
@@ -1248,7 +1212,6 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'inline-html' => 1,
 				'large' => 1,
 			),
 			'rightrail1' => array(
@@ -1392,7 +1355,6 @@ class DefaultIntlCategoryListingAdCreator extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'inline-html' => 1,
 				'large' => 1,
 			),
 		);
@@ -1422,7 +1384,6 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'smallheight' => 120,
 				'class' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'intro',
-				'inline-html' => 1,
 				'small' => 1,
 				'medium' => 1,
 				'large' => 1,
@@ -1444,7 +1405,6 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
-				'inline-html' => 1,
 				'large' => 1,
 			),
 			'rightrail1' => array(

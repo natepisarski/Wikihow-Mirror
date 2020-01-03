@@ -77,6 +77,20 @@ $wgResourceModules['ext.wikihow.printview_modal'] = array(
 	'position' => 'bottom',
 	'targets' => array( 'desktop', 'mobile' )
 );
+$wgResourceModules['ext.wikihow.ccpa_modal'] = array(
+	'scripts' => array(
+		'../common/jquery.simplemodal.1.4.4.min.js',
+		'ccpa.js',
+	),
+	'styles' => array(
+		'modal.css',
+		'ccpa.css',
+	),
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/modal',
+	'position' => 'bottom',
+	'targets' => array( 'desktop', 'mobile' )
+);
 
 $wgResourceModules['ext.wikihow.graphs_modal'] = array(
 	'scripts' => array(

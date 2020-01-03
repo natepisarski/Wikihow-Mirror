@@ -175,7 +175,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				'imageAlt' => 'wikiHow',
 				'crumbs' => $this->breadCrumb,
 				'searchBox' => $search_box,
-				'links' => $this->footerLinks(),
+				'links' => $this->footerLinks( $data['amp'] ),
 				'socialFooter' => class_exists('SocialFooter') ? SocialFooter::getSocialFooter() : '',
 				'slider' => class_exists('Slider') ? Slider::getBox() : '',
 				'amp' => $data['amp']
@@ -196,7 +196,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $m->render('footer.mustache', $vars);
 	}
 
-	protected function footerLinks(): array {
+	protected function footerLinks( $amp ): array {
 		$links = [
 			['link' => wfMessage('footer_home')->parse()]
 		];
@@ -214,6 +214,20 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 		if ($this->isMainPage && !AlternateDomain::onAlternateDomain())
 			$links[] = ['link' => wfMessage('footer_newpages')->parse()];
+
+		$ccpaHref = '#';
+		if ( $amp ) {
+			$ccpaHref = '?open_ccpa=1';
+		}
+		$links[] = ['link' => Html::element( 'a', ['id' => 'footer_ccpa', 'href' => $ccpaHref], wfMessage('footer_ccpa')->parse() ) ];
+		$links[] = ['link' => Html::element( 'a', ['id' => 'footer_ccpa_optout', 'href' => '#'], wfMessage('footer_ccpa_optout')->parse() ) ];
+
+		if ( $amp ) {
+			if ( !class_exists( 'AndroidHelper' ) || !AndroidHelper::isAndroidRequest() ) {
+				$consentHtml = GoogleAmp::getConsentElement();
+				$links[] = ['link' => $consentHtml];
+			}
+		}
 
 		return $links;
 	}
@@ -361,6 +375,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 					echo $data['specialPageHeader'];
 				} else {
 					$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
+					$query = filter_var( $query, FILTER_SANITIZE_STRING );
 					$expand = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=true)"' : '';
 					$collapse = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=false)"' : '';
 					$classes = [];

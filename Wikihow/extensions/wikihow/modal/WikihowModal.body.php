@@ -34,6 +34,12 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 		elseif ($modal_type == 'printview') {
 			$modal = self::getPrintViewModal();
 		}
+		elseif ($modal_type == 'ccpa') {
+			$modal = self::getCCPAModal();
+		}
+		elseif ($modal_type == 'ccpa_optedout') {
+			$modal = self::getCCPAOptedOutModal();
+		}
 		elseif ($modal_type == 'login') {
 			$modal = PagePolicy::getLoginModal($request->getVal('returnto'));
 		}
@@ -130,6 +136,23 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 
 	private static function getPrintViewModal() {
 		return EasyTemplate::html('printview.tmpl.php');
+	}
+
+	private static function getCCPAModal() {
+		$vars['ccpa_popup_title'] = wfMessage( 'ccpa_popup_title' )->text();
+		$vars['ccpa_notice_text'] = wfMessage( 'ccpa_notice_text' )->text();
+		$vars['ccpa_text_second'] = wfMessage( 'ccpa_text_second' )->text();
+		$vars['ccpa_opt_out_button'] = wfMessage( 'ccpa_opt_out_button' )->text();
+		$vars['ccpa_no_opt_out_button'] = wfMessage( 'ccpa_no_opt_out_button' )->text();
+		return EasyTemplate::html('ccpa.tmpl.php', $vars);
+	}
+
+	private static function getCCPAOptedOutModal() {
+		$vars['ccpa_popup_title'] = wfMessage( 'ccpa_popup_title' )->text();
+		$vars['ccpa_notice_text'] = wfMessage( 'ccpa_notice_text' )->text();
+		$vars['ccpa_text_second'] = wfMessage( 'ccpa_opted_out_text_second' )->text();
+		$vars['ccpa_optedout_ok_button'] = wfMessage( 'ccpa_optedout_ok_button' )->text();
+		return EasyTemplate::html('ccpa_optedout.tmpl.php', $vars);
 	}
 
 	private static function getFlagAsDetailsModal() {

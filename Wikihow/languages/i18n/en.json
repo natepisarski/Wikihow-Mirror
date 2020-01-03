@@ -6470,5 +6470,7 @@
 	"aria_catguard_reject": "Vote no, article does not belong in category",
 	"step_anchor": "step_$1_$2",
 	"sources": "Sources and Citations",
+	"footer_ccpa": "Do not Sell My Info",
+	"footer_ccpa_optout": "Not Selling Info",
 	"userlogout-continue": "Do you want to log out?"
 }

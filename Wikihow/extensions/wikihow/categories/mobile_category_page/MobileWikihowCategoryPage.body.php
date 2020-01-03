@@ -308,13 +308,16 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$textBlock = "<br/><span>" . $title->getFullText() . "</span>";
 		}
 
+		$image = Misc::getMediaScrollLoadHtml( 'img', ['src' => $thumbSrc] );
+
 		return [
 			//'classes' => implode( ' ', $thumbnailClasses ),
 			'url' => $title->getFullUrl(),
 			'data-src' => $thumbSrc,
 			'textBlock' => $textBlock,
 			'title' => $articleName,
-			'howto' => $howToPrefix
+			'howto' => $howToPrefix,
+			'image' => $image
 		];
 	}
 

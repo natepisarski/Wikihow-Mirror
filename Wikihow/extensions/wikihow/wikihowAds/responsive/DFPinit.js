@@ -46,5 +46,9 @@ if (WH.shared.isDesktopSize) {
 				WH.ads.impressionViewable(event.slot);
 			}
 		});
+		var hasCookie = document.cookie.indexOf('ccpa_out=');
+		if (hasCookie >= 0) {
+			googletag.pubads().setPrivacySettings({'restrictDataProcessing': true});
+		}
 	});
 }

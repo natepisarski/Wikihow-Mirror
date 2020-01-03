@@ -1,18 +1,23 @@
 <amp-consent id="myUserConsent" layout="nodisplay">
 	<script type="application/json">
 	{
-		"consents": {
-			"eu": {
-				"promptIfUnknownForGeoGroup": "eu",
-					"promptUI": "myConsentFlow"
+		"consentInstanceId": "world-wide-consent",
+		"consentRequired": false,
+		"geoOverride": {
+			"eea": {
+				"promptUI": "eea-consent-ui",
+				"consentRequired": true },
+			"us": {
+				"consentRequired": "remote",
+				"checkConsentHref": "{{ccpa_endpoint}}"
 			}
 		}
 	}
 	</script>
-	<div id="myConsentFlow" class="popupOverlay">
+	<div id="eea-consent-ui" class="popupOverlay">
 		<div id="gdpr" class="consentPopup">
 			<div id="gdpr_text">{{{gdpr_message}}}</div>
-			<button class="gdpr_button" on="tap:myUserConsent.accept" class="ampstart-btn ampstart-btn-secondary caps mx1">{{gdpr_accept}}</button>
+			<button on="tap:myUserConsent.accept" class="ampstart-btn ampstart-btn-secondary caps mx1 gdpr_button">{{gdpr_accept}}</button>
 		</div>
 	</div>
 </amp-consent>

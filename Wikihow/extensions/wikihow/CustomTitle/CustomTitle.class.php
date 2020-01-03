@@ -84,7 +84,22 @@ class CustomTitle {
 		$ct_type = isset($this->row['ct_type']) ? (int)$this->row['ct_type'] : 0;
 		$ct_custom = isset($this->row['ct_custom']) ? $this->row['ct_custom'] : '';
 
-		return self::genTitle($this->title, $ct_type, $ct_custom);
+		$titleText = self::genTitle($this->title, $ct_type, $ct_custom);
+
+		// Hack for alt domains.  Do some preg_replace magic on (non-custom) titles that may contain "- wikiHow" at
+		// the end and use.  We can't do this in the title generation process as it's possible the custom title could
+		// be generated when a logged in user (most likely wikiHow staff or editors) views it after editing.
+		// Also, for this reason, don't save it in the db.
+		if (AlternateDomain::onAlternateDomain() && $ct_type != self::TYPE_CUSTOM) {
+			$titleText = preg_replace(
+				"/- wikiHow$/",
+				"- wikiHow " .
+				ucwords(AlternateDomain::getAlternateDomainClass(AlternateDomain::getAlternateDomainForCurrentPage())),
+				$titleText
+			);
+		}
+
+		return $titleText;
 	}
 
 	public function getDefaultTitle(): array {
