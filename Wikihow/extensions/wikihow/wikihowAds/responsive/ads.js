@@ -18,7 +18,6 @@ WH.ads = (function () {
     var rightRailExtra = null;
 
 	var quizAds = {};
-	var introAd;
 	var scrollToAd;
 	var scrollToAdInsertCount = 0;
 	var TOCAd;
@@ -46,7 +45,7 @@ WH.ads = (function () {
 		});
 	}
 
-	// do not use the intersection observer yet
+	// use interesection observer for loading if the browser supports it
 	function useIntersectionObserver() {
 		if (adLoadingObserver == null) {
 			return false;
@@ -150,12 +149,6 @@ WH.ads = (function () {
 				ad = tempAd;
 			}
 		}
-        if (!ad && introAd) {
-            // check intro ad
-			if (gptAdSlots[introAd.adTargetId] == slot) {
-				ad = introAd;
-			}
-        }
 		if (!ad) {
 			return;
 		}
@@ -227,163 +220,6 @@ WH.ads = (function () {
 		});
 	}
 
-	function insertDFPLightAd(ad) {
-		var i = window.document.createElement('div');
-		i.setAttribute('data-glade', '');
-		var path = ad.adunitpath;
-		i.setAttribute('class', 'gptlight');
-		i.setAttribute('data-ad-unit-path', path);
-		i.setAttribute('width', 728);
-		i.setAttribute('height', 90);
-		var target = ad.adTargetId;
-		var glade = document.createElement('script');
-		glade.async = true;
-		glade.src = 'https://securepubads.g.doubleclick.net/static/glade.js';
-		window.document.getElementById(target).appendChild(i);
-		window.document.getElementById(target).appendChild(glade);
-	}
-
-	function insertNewAdsenseAd(ad) {
-		if (adInsertCount >= AD_INSERT_MAX_COUNT) {
-			return;
-		}
-
-		var count = rightRailElements.length + adInsertCount;
-		var newItemId = 'rightrail' + count;
-		var newRightrailAd = document.createElement("div");
-		newRightrailAd.className = 'rr_container';
-		newRightrailAd.id = newItemId;
-		newRightrailAd.style.height = '3300px';
-
-		var newAdItem = document.createElement("div");
-		newAdItem.className = 'whad';
-		newAdItem.setAttribute('data-service', 'adsense');
-		newAdItem.setAttribute('data-refreshable', ad.refreshable ? 1 : 0);
-		newAdItem.setAttribute('data-viewablerefresh', ad.viewablerefresh ? 1 : 0);
-		newAdItem.setAttribute('data-refresh-time', ad.refreshTime );
-		newAdItem.setAttribute('data-insert-refresh', ad.insertRefresh ? 1 : 0);
-		newAdItem.setAttribute('data-adlabelclass', 'ad_label ad_label_dollar');
-		newAdItem.setAttribute('data-adtargetid', newItemId);
-		newAdItem.setAttribute('data-adsensewidth', ad.width);
-		newAdItem.setAttribute('data-height', ad.height);
-		newAdItem.setAttribute('data-channels', ad.channels);
-		newAdItem.setAttribute('data-loaded', 0);
-		newAdItem.setAttribute('data-slot', ad.slot);
-		newRightrailAd.appendChild(newAdItem);
-		ad.element.parentElement.insertBefore(newRightrailAd, ad.element);
-
-		var newAd = new RightRailAd(newRightrailAd);
-		for (var i = 0; i < rightRailElements.length; i++) {
-			if (ad == rightRailElements[i]) {
-				rightRailElements[i] = newAd;
-			}
-		}
-
-		if (ad.last == true) {
-			ad.last = false;
-			newAd.last = true;
-		}
-		log("inserted adsense ad", newAd);
-		ad.element.parentNode.removeChild(ad.element);
-		adInsertCount++;
-		updateVisibility();
-	}
-
-	function insertNewDFPAd(ad) {
-		if (adInsertCount >= AD_INSERT_MAX_COUNT) {
-			log("insertNewDFPAd: max refreshes reached");
-			return;
-		}
-
-		var count = rightRailElements.length + adInsertCount;
-		var newItemId = 'rightrail' + count;
-		var newRightrailAd = document.createElement("div");
-		newRightrailAd.className = 'rr_container';
-		newRightrailAd.id = newItemId;
-		newRightrailAd.style.height = '3300px';
-
-		var newTargetId = 'rightrail_gpt_' + count;
-		var newAdItem = document.createElement("div");
-		newAdItem.className = 'whad';
-		newAdItem.setAttribute('data-service', 'dfp');
-		newAdItem.setAttribute('data-refreshable', ad.refreshable ? 1 : 0);
-		newAdItem.setAttribute('data-viewablerefresh', ad.viewablerefresh ? 1 : 0);
-		newAdItem.setAttribute('data-refresh-time', ad.refreshTime );
-		newAdItem.setAttribute('data-insert-refresh', ad.insertRefresh ? 1 : 0);
-		newAdItem.setAttribute('data-apsload', ad.apsload ? 1 : 0);
-		newAdItem.setAttribute('data-aps-timeout', ad.apsTimeout );
-		newAdItem.setAttribute('data-adtargetid', newTargetId);
-		newAdItem.setAttribute('data-loaded', 0);
-		var newTarget = document.createElement("div");
-		newTarget.id = newTargetId;
-		newTarget.className = 'ad_label ad_label_dollar';
-		newAdItem.appendChild(newTarget);
-		newRightrailAd.appendChild(newAdItem);
-		ad.element.parentElement.insertBefore(newRightrailAd, ad.element);
-
-
-		if (ad.service == 'adsense') {
-			var slotName = ad.slotName;
-			var sizesArray = ad.sizesArray;
-			googletag.cmd.push(function() {
-				gptAdSlots[newTargetId] = googletag.defineSlot(slotName, sizesArray, newTargetId).addService(googletag.pubads());
-				googletag.display(newTargetId);
-			});
-
-			var newAd = new RightRailAd(newRightrailAd);
-			for (var i = 0; i < rightRailElements.length; i++) {
-				if (ad == rightRailElements[i]) {
-					rightRailElements[i] = newAd;
-				}
-			}
-
-			if (ad.last == true) {
-				ad.last = false;
-				newAd.last = true;
-			}
-
-			ad.element.parentNode.removeChild(ad.element);
-		} else {
-			// get the slot name and sizes of the current ad to use it
-			// to define a new ad
-			var slotName = gptAdSlots[ad.adTargetId].getAdUnitPath();
-			var sizes = gptAdSlots[ad.adTargetId].getSizes();
-			var sizesArray = [];
-			for (var i = 0; i < sizes.length; i++) {
-				var sizesSub = [];
-				sizesSub.push(sizes[i].getWidth());
-				sizesSub.push(sizes[i].getHeight());
-				sizesArray.push(sizesSub);
-			}
-			googletag.cmd.push(function() {
-				gptAdSlots[newTargetId] = googletag.defineSlot(slotName, sizesArray, newTargetId).addService(googletag.pubads());
-				googletag.display(newTargetId);
-			});
-
-			var newAd = new RightRailAd(newRightrailAd);
-			for (var i = 0; i < rightRailElements.length; i++) {
-				if (ad == rightRailElements[i]) {
-					rightRailElements[i] = newAd;
-				}
-			}
-
-			if (ad.last == true) {
-				ad.last = false;
-				newAd.last = true;
-			}
-
-			googletag.cmd.push(function() {
-				var result = googletag.destroySlots([gptAdSlots[ad.adTargetId]]);
-			});
-			// remove the ad causes a warning in GPT, but it's probably not a big deal..
-			// in any case we already destroyed the ad so hiding it should be fine too
-			ad.element.parentNode.removeChild(ad.element);
-			//ad.element.style.display = "none";
-		}
-		adInsertCount++;
-		updateVisibility();
-	}
-
 	function ccpaOptOut() {
 		var hasCookie = document.cookie.indexOf('ccpa_out=');
 		if (hasCookie >= 0) {
@@ -408,9 +244,18 @@ WH.ads = (function () {
 		}
 		i.setAttribute('data-ad-slot', slot);
 
+		var channels = null;
+
 		// look for ccpa cookie
 		if (ccpaOptOut()) {
 			i.setAttribute('data-restrict-data-processing', 1);
+			if (ad.type == 'intro') {
+				channels = 2385774741;
+			}
+		} else {
+			if (ad.type == 'intro') {
+				channels = 2001974826;
+			}
 		}
 
 		if (ad.type == 'middlerelated') {
@@ -432,7 +277,20 @@ WH.ads = (function () {
 			return;
 		}
 
-		var channels = ad.channels ? ad.channels: "";
+		// if the ad has specific channels then add it
+		if (ad.channels) {
+			if (channels) {
+				channels = ad.channels + "," + channels;
+			} else {
+				channels = ad.channels;
+			}
+		}
+
+		// make sure the channels is an empty string if it would otherwise be null
+		if (!channels) {
+			channels = '';
+		}
+
 		if (typeof adsbygoogle === 'undefined') {
 			window.adsbygoogle = [];
 		}
@@ -468,16 +326,12 @@ WH.ads = (function () {
 		}
 		return width;
 	}
+
 	function Ad(element) {
 		// the ad element has all the data attributes about the ad
 		// the element is the contained div which is the target of the ad insertion
 		// it is nested due to making css easier
 		var adElement = element.parentElement;
-		var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
-
-		var isSmallSize = viewportWidth < WH.mediumScreenMinWidth;
-		var isMediumSize = !isSmallSize && viewportWidth < WH.largeScreenMinWidth;
-		var isLargeSize = !isSmallSize && !isMediumSize;
 
 		this.element = element;
 		this.adElement = adElement;
@@ -489,7 +343,7 @@ WH.ads = (function () {
 		var large = this.adElement.getAttribute('data-large') == 1;
 
 		var okForSize = false;
-		if (small && isSmallSize || medium && isMediumSize || large && isLargeSize) {
+		if (small && WH.shared.isSmallSize || medium && WH.shared.isMedSize || large && WH.shared.isLargeSize) {
 			okForSize = true;
 		}
 
@@ -508,7 +362,6 @@ WH.ads = (function () {
 		this.channels = this.adElement.getAttribute('data-channels');
 		this.mobileChannels = this.adElement.getAttribute('data-mobilechannels');
 		this.refreshable = this.adElement.getAttribute('data-refreshable') == 1;
-		this.insertRefresh = this.adElement.getAttribute('data-insert-refresh') == 1;
 		this.slotName = this.adElement.getAttribute('data-slot-name');
 		this.refreshType = this.adElement.getAttribute('data-refresh-type');
 		this.sizesArray = this.adElement.getAttribute('data-sizes-array');
@@ -527,7 +380,7 @@ WH.ads = (function () {
 		this.height = this.adElement.getAttribute('data-height');
 
 		//override any size specific settings
-		if (small && isSmallSize) {
+		if (small && WH.shared.isSmallSize) {
 			this.adSize = 'small';
 			this.channels = this.mobileChannels;
 			this.slot = this.adElement.getAttribute('data-smallslot') || this.slot;
@@ -536,7 +389,7 @@ WH.ads = (function () {
 			this.service = this.adElement.getAttribute('data-smallservice') || this.service;
 		}
 
-		if (medium && isMediumSize) {
+		if (medium && WH.shared.isMedSize) {
 			this.adSize = 'medium';
 			this.slot = this.adElement.getAttribute('data-mediumslot') || this.slot;
 			this.height = this.adElement.getAttribute('data-mediumslot') || this.height;
@@ -544,7 +397,7 @@ WH.ads = (function () {
 			this.service = this.adElement.getAttribute('data-mediumservice') || this.service;
 		}
 
-		if (large && isLargeSize) {
+		if (large && WH.shared.isLargeSize) {
 			this.adSize = 'large';
 		}
 
@@ -585,12 +438,6 @@ WH.ads = (function () {
 			} else {
 				return this.refreshTime;
 			}
-		}
-
-		// special type of adsense ad that is immediately loaded which we will refresh
-		if (this.service == 'adsense' && this.insertRefresh && this.refreshTime) {
-			var ad = this;
-			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
 		}
 
 		this.getRefreshValue = function() {
@@ -666,16 +513,7 @@ WH.ads = (function () {
 			if (this.service != 'adsense') {
 				updateKeyVal(this.adTargetId, 'refreshing', refreshValue);
 			}
-			if (this.service == 'adsense') {
-				if (this.refreshType == 'dfp') {
-					insertNewDFPAd(this);
-				} else {
-					log("will insert new adsense ad");
-					insertNewAdsenseAd(this);
-				}
-			} else if (this.insertRefresh) {
-				insertNewDFPAd(this);
-			} else if (this.apsload) {
+			if (this.apsload) {
 				apsLoad(this);
 			} else {
 				var id = this.adTargetId;
@@ -884,17 +722,6 @@ WH.ads = (function () {
 		};
 	}
 
-	function IntroAd(element) {
-		Ad.call(this, element);
-		// TODO get all of these values from data attributes
-		this.refreshTime = INTRO_REFRESH_TIME;
-        this.maxRefresh = 2;
-		this.stickingHeaderElement = document.getElementsByClassName("firstadsticking")[0];
-		this.isAnimating = false;
-		this.hasAnimated = false;
-		this.sticky = element.getAttribute('data-sticky') == 1;
-	}
-
     function RightRailAd(element) {
 		Ad.call(this, element);
 		// store the right rail container element and height for use later
@@ -1084,6 +911,9 @@ WH.ads = (function () {
 	 * to make sure the rr ads are not longer than the article
 	 */
 	function checkSidebarHeight(rightRailElements, adHeights) {
+		if (!WH.shared.isLargeSize) {
+			return;
+		}
 		if (rrSizeChanged) {
 			return;
 		}
@@ -1157,16 +987,6 @@ WH.ads = (function () {
 			updateAdLoading(ad, viewportHeight);
 		}
 
-		// now for the intro ad
-		if (introAd) {
-			if (!introAd.stickingHeaderElement) {
-				introAd.stickingHeaderElement = document.getElementsByClassName("firstadsticking")[0];
-			}
-			if (introAd.sticky) {
-				updateFixedPositioningIntro(introAd, viewportHeight);
-			}
-		}
-
 		if (hasRightRail) {
 			checkSidebarHeight(rightRailElements, adHeights);
 		}
@@ -1184,30 +1004,6 @@ WH.ads = (function () {
 			WH.shared.addResizeFunction(updateVisibility);
 		}
 	}
-
-	function addScrollToAd(id) {
-		var el = document.getElementById(id);
-		scrollToAd = new ScrollToAd(el);
-	}
-
-	function addIntroAd(id) {
-		var introElement = document.getElementById(id);
-		introAd = new IntroAd(introElement);
-		if (introAd.service == 'dfplight') {
-			introAd.load();
-		}
-	}
-
-    function addRightRailAd(id) {
-        var rightRailElement = document.getElementById(id);
-        var ad = new RightRailAd(rightRailElement);
-
-        ad.last = true;
-        if (rightRailElements.length > 0) {
-            rightRailElements[rightRailElements.length -1].last = false;
-        }
-        rightRailElements.push(ad);
-    }
 
 	// requires jquery to have been loaded
     function loadTOCAd(anchor) {
@@ -1269,27 +1065,8 @@ WH.ads = (function () {
 		}
 	}
 
-	function RightRailElement(element) {
-		this.adElement = element.getElementsByClassName('rr_inner')[0];
-		this.element = element;
-		this.height = element.offsetHeight;
-	}
-
-	function addRightRailElement(id) {
-		var rightRailElement = document.getElementById(id);
-		var elem = new RightRailElement(rightRailElement);
-        elem.last = true;
-        if (rightRailElements.length > 0) {
-            rightRailElements[rightRailElements.length -1].last = false;
-        }
-		rightRailElements.push(elem);
-	}
-
-	function getIntroAd() {
-		return introAd;
-	}
-
 	// finds the ScrollLoad item matching the element and loads it
+	// used by intersection observer ad loading
 	function loadElement(element) {
 		for (var i = 0; i < bodyAds.length; i+=1) {
 			var item = bodyAds[i];
@@ -1301,12 +1078,8 @@ WH.ads = (function () {
 
 	return {
 		'init' :init,
-		'addIntroAd': addIntroAd,
-		'addRightRailAd': addRightRailAd,
-		'addRightRailElement': addRightRailElement,
 		'addBodyAd': addBodyAd,
 		'loadTOCAd': loadTOCAd,
-		'getIntroAd' : getIntroAd,
 		'slotRendered' : slotRendered,
 		'impressionViewable' : impressionViewable,
 		'apsFetchBids' : apsFetchBids,

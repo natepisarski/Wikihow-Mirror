@@ -470,7 +470,6 @@ class SchemaMarkup {
 
 		$data += self::getSchemaImage();
 		$data += self::getAuthors( $title );
-		$data += self::getAggregateRating( $title );
 		$data += self::getDatePublished( $title );
 		$data += self::getDateModified( $title );
 		$data += self::getPublisher();

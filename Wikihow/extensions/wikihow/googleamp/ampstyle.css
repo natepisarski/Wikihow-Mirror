@@ -1047,7 +1047,15 @@ p.green_box_bullet {
 		width: 170px;
 	}
 }
+@media only screen and (min-width: 1000px) {
+	#mw-mf-viewport {
+		margin-left: 20%;
+	}
+}
 
+#mw-mf-viewport {
+	max-width: 768px;
+}
 .section {
 	padding-top: 0px;
 }

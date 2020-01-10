@@ -70,8 +70,8 @@
 
 #nav_explore_li.nav_item .menu  { right: 0px; }
 
-.page-wikiHow_Terms_of_Use #sidebar {
-	height: 600px;
+.page-wikiHow_Terms_of_Use #mw-content-text {
+	padding-bottom: 13rem;
 }
 
 .page-wikiHow_Terms_of_Use #intro .section_text {
@@ -134,5 +134,13 @@
 
 	#expert_coauthor.tech {
 		border: none;
+	}
+
+	.page-wikiHow_Terms_of_Use #sidebar {
+		height: auto;
+	}
+
+	.page-wikiHow_Terms_of_Use #mw-content-text {
+		padding-bottom: 20rem;
 	}
 }

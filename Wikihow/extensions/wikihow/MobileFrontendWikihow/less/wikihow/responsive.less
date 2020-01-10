@@ -28,6 +28,7 @@
 	}
 
 	#content_inner {
+		width: 100%;
 		max-width: 728px;
 		margin: 0 auto;
 		position: relative;
@@ -746,7 +747,7 @@
 		background: none;
 		height: auto;
 		width: 75%;
-		min-width: 276px;
+		min-width: 230px;
 		padding: 9px 7px 4px;
 
 		&::placeholder {
@@ -779,12 +780,11 @@
 	}
 
 	.header #actions {
-		display: block;
-		float: right;
+		display: table-cell;
 		padding: 0px;
 		margin: 0px;
 		border-right: 1px solid #89ac6c;
-		width: 380px;
+		width: 50%;
 	}
 	.header #actions li {
 		border-left: 1px solid #89ac6c;
@@ -793,20 +793,20 @@
 		float: right;
 		list-style: none !important;
 		margin: 0px;
-		overflow:hidden;
 		cursor: pointer;
+		width: 14%;
+		position: relative;
 	}
 	.nav_item:hover, .nav_item_selected { background-color: #85A669; }
 
 	.header #actions li .nav {
-		font-size: 10px;
+		font-size: ~"calc(8px + (10 - 8) * ((100vw - 801px) / (1020 - 801)))";
 		font-weight: bold;
 		color: #475347;
 		display: block;
 		padding-top: 47px;
 		position: relative;
 		text-align: center;
-		width: 74px;
 		z-index: 1;
 	}
 	.header #actions li:hover .nav {
@@ -824,6 +824,7 @@
 		z-index: 1000;
 		background-color: #f9f9f9;
 		display: none;
+		right: 0;
 	}
 
 	.menu_login { padding: 15px 25px; }
@@ -934,11 +935,6 @@
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22.471' height='22.327' viewBox='0 0 22.471 22.327'%3E%3Cpath fill='%232C3C2C' d='M22.011 4.287L18.169.444c-.592-.592-1.631-.592-2.223 0L2.042 14.348c-.464.463-.933 1.329-1.067 1.973l-.941 4.501c-.086.41-.005.794.228 1.08.224.274.557.425.939.425.087 0 .179-.008.274-.025l4.64-.844c.661-.12 1.519-.569 1.993-1.045L22.011 6.509c.297-.297.46-.691.46-1.112s-.164-.815-.46-1.11zM5.909 20.333l-2.715.494-1.649-1.649.548-2.622c.034-.16.11-.35.2-.542l4.139 4.139a2.505 2.505 0 0 1-.523.18z'/%3E%3C/svg%3E");
 		transform: scale(1.1,1.1);
 	}
-
-	#nav_edit_li .menu { right: 300px; }
-	#nav_help_li .menu { right: 225px; }
-	#nav_explore_li .menu  { right: 150px; }
-	#nav_profile_li .menu , #nav_profile_li .menu_login { right: 75px; }
 
 	/* notifications */
 	.header {
@@ -1382,7 +1378,7 @@
 	#sidebar {
 		display: block;
 		width: 300px;
-		height: 1900px;
+		min-height: 500px;
 		float: right;
 		position: relative;
 
@@ -2270,20 +2266,38 @@
 		margin-left: -@largeSectionPadding;
 	}
 
-	#side_featured_articles .text {
-		background-color: rgba(50,50,50,.5);
-		padding: 2% 4%;
-		width: 92.75%;
-		min-height: 32px;
-		position: absolute;
-		bottom: 0;
-		cursor: pointer;
-		color: #fff;
-		font-weight: bold;
+	#side_featured_articles {
+		.text {
+			background-color: rgba(50,50,50,.5);
+			padding: 2% 4%;
+			width: 92.75%;
+			min-height: 32px;
+			position: absolute;
+			bottom: 0;
+			cursor: pointer;
+			color: #fff;
+			font-weight: bold;
+
+			&:hover {
+				background: white;
+			}
+		}
 	}
 
-	#side_featured_articles .text:hover {
-		background: white;
+	#side_featured_contributor {
+		.bottom_button {
+			text-align: center;
+
+			.button {
+				margin: .1em 0;
+				display: inline-block;
+			}
+		}
+	}
+
+	#fc_id_img {
+		float: left;
+		margin-right: .8em;
 	}
 
 	.thumbnail a:hover p {
@@ -2296,5 +2310,20 @@
 
 	.sidebox .thumbnail p span {
 		font-size: 13px !important;
+	}
+
+	#gdpr {
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+
+	#gdpr_text {
+		font-size: 13px;
+	}
+}
+
+@media only screen and (min-width:1020px) {
+	.header #actions li .nav {
+		font-size: 10px;
 	}
 }

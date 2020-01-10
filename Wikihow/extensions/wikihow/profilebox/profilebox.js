@@ -21,6 +21,15 @@
 				return false;
 			} );
 
+			$('#profileBoxForm').submit( function() {
+				//do the same validation we use in ProfileBox.body.php
+				//when we decide to display it or not
+				if (!$('#occupation').val().match('^https?:\/\/') && $('#occupation').val().trim().length > 0) {
+					alert('Your website must be a valid url for it to show up.');
+					return false;
+				}
+			});
+
 			WH.ProfileBox.addFacebookEnableAccountHandler();
 			WH.ProfileBox.addGooglePlusDisconnectAccountHandler();
 		},
@@ -33,8 +42,7 @@
 
 				$.get( url, function ( data ) {
 					gatTrack( 'Profile','Remove_profile','Remove_profile' );
-					$( '#profileBoxID' ).hide();
-					$( '#pb_aboutme' ).hide();
+					window.location.reload();
 				} );
 			}
 			return false;

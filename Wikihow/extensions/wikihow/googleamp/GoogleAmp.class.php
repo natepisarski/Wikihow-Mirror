@@ -384,7 +384,7 @@ class GoogleAmp {
 	}
 
 	public static function getConsentElement() {
-		global $wgLanguageCode, $wgRequest, $wgTitle;
+		global $wgLanguageCode, $wgRequest, $wgTitle, $wgDFPAdBucket;
 
 		$config = [
 			'ISOCountryGroups' => [
@@ -405,12 +405,22 @@ class GoogleAmp {
 		}
 
 		$ccpaTest = $wgRequest->getVal( "ccpatest" ) >= 1;
-
 		if ( $ccpaTest ) {
 			$config = [
 				'ISOCountryGroups' => [
 					'eea' => ["preset-eea", "unknown"],
 					"us" => ["us", "jp"]
+				]
+			];
+		}
+
+		// do not set up CCPA consent if user is in certain buckets
+		// for now this is set to < 0 so it is disabled
+		if ( $wgDFPAdBucket < 0 ) {
+			$config = [
+				'ISOCountryGroups' => [
+					'eea' => ["preset-eea", "unknown"],
+					"us" => []
 				]
 			];
 		}
@@ -543,7 +553,7 @@ class GoogleAmp {
 	}
 
 	public static function insertAMPAds() {
-		global $wgLanguageCode, $wgTitle, $wgRequest;
+		global $wgLanguageCode, $wgTitle, $wgRequest, $wgDFPAdBucket;
 		$pageId = 0;
 		if ( $wgTitle ) {
 			$pageId = $wgTitle->getArticleID();
@@ -563,11 +573,7 @@ class GoogleAmp {
 		$hasIntroAd = true;
 
 		// for targeting dfp ads
-		$bucket = rand( 1, 20 );
-		if ( $bucket == 20 ) {
-			$extra = rand( 0, 4 );
-			$bucket += $extra;
-		}
+		$bucket = $wgDFPAdBucket;
 
 		if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
 			$reqBucket = $wgRequest->getInt( 'bucket' );

@@ -623,6 +623,21 @@ $( '#avatarULimg' ).each( function () {
 jQuery( '#gatAvatarCropAndSave' ).click( ajaxCropit );
 jQuery( '#gatAvatarCancel' ).click( closeButton );
 
+$('.editAvatar').click(function() {
+	editButton();
+	return false;
+});
+
+$('.removeAvatar').click(function() {
+	removeButton();
+	return false;
+});
+
+$('.avatar_upload').click(function() {
+	uploadImageLink();
+	return false;
+});
+
 window.uploadImageLink = uploadImageLink;
 window.removeButton = removeButton;
 window.closeButton = closeButton;

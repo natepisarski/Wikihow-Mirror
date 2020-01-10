@@ -4,8 +4,12 @@
 			<img src="/extensions/wikihow/homepage/images/fun-bkg.png" loading="lazy" id="hp_blob_fun" />
 		{{/useAltTopImage}}
 		{{^useAltTopImage}}
-			<img src="/extensions/wikihow/homepage/images/shadow.png" loading="lazy" id="hp_shadow"/>
-			<img src="/extensions/wikihow/homepage/images/books2.png" loading="lazy" id="hp_books"/>
+		<picture>
+			<source type="image/webp" srcset="/extensions/wikihow/homepage/images/books3.webp 582w, /extensions/wikihow/homepage/images/books2.webp 1164w" sizes="(max-width: 728px) 290px" />
+			<source type="image/png" srcset="/extensions/wikihow/homepage/images/books3.png 582w, /extensions/wikihow/homepage/images/books2.png 1164w" sizes="(max-width: 728px) 290px" />
+
+			<img src="/extensions/wikihow/homepage/images/books2.png" loading="lazy" id="hp_books" />
+		</picture>
 		{{/useAltTopImage}}
 		<h1>{{hp_question}}</h1>
 		<p>{{topText}}</p>

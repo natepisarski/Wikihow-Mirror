@@ -143,7 +143,7 @@ class Sitemap extends SpecialPage {
 					#cat_outer { margin-top: -10px; }
 				}
 
-				@media only screen and (min-width:1020px) {
+				@media only screen and (min-width:801px) {
 					.content {
 					    border: 1px solid #e5e5e5;
 					    padding: 22px 27px;

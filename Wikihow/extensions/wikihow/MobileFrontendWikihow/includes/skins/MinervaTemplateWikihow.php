@@ -10,6 +10,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 	protected $isMainPage;
 	protected $isArticlePage;
+	protected $isUserPage;
 	protected $isSearchPage;
 	protected $showCurrentArticle;
 	protected $breadCrumb = '';
@@ -20,6 +21,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$action = $this->getSkin()->getRequest()->getVal('action', 'view');
 		$this->isArticlePage = $title && !$this->isMainPage && $title->inNamespace(NS_MAIN) && $action == 'view';
 		$this->isSearchPage = preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI']);
+		$this->isUserPage = $title && $title->inNamespaces(NS_USER, NS_USER_TALK, NS_USER_KUDOS);
 		$this->showCurrentArticle = $this->getSkin()->getTitle()->exists() && PagePolicy::showCurrentTitle($this);
 		$this->breadCrumb = $this->setBreadcrumbHtml();
 		parent::execute();
@@ -446,8 +448,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				<?php
 				$html = $this->getTopContentJS( $data );
 				echo $html;
-
-				$showArticleTabs = $this->isArticlePage;
+				$showArticleTabs = $this->isArticlePage || $this->isUserPage;
 				$tabsArray = WikihowHeaderBuilder::getTabsArray($showArticleTabs, $this->getSkin(), $this->showCurrentArticle);
 				?>
 				<div id="actionbar" role="navigation">
@@ -473,9 +474,10 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 						echo $rightRailHtml;
 						?>
 					</div>
-				<? endif; ?>
-			</div>
-			<br class="clearall" />
+					<? endif; ?>
+					<br class="clearall" />
+				</div>
+				<br class="clearall" />
 
 			<?php
 
@@ -502,3 +504,4 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		<?php
 	}
 }
+

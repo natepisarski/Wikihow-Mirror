@@ -41,11 +41,12 @@ $messages['en'] =
 			'pb-viewless' => '« View less',
 			'pb-badge-nab' => 'BOOSTER',
 			'pb-badge-admin' => 'ADMIN',
-			'pb-badge-fa' => 'FEATURED AUTHOR',
+			'pb-badge-fa' => 'FEATURED',
 			'pb-badge-welcome' => 'WELCOMER',
 			'pb-google-login-enabled' => 'Login enabled',
 			'pb-unlink-google-account' => 'unlink',
 			'pb-checkbox-articlesstartededited' => "List of articles I've started and edited, with number of views",
 			'pb-checkbox-questionsanswered' => "List of categories where I've answered the most questions",
-			'pb-count' => 'Answers'
+			'pb-count' => 'Answers',
+			'clear_profile' => 'clear profile'
 		);

@@ -543,9 +543,7 @@ abstract class AdCreator {
 
 		// for now only show small and medium sized ads on mobile domain
 		if ( Misc::isMobileMode() ) {
-			if ( $ad->setupData['small'] !== 1 && $ad->setupData['medium'] !== 1 ) {
-				$result = false;
-			}
+			$result = true;
 		} else {
 			// on desktop domain only show ads with large
 			if ( $ad->setupData['large'] !== 1 ) {
@@ -619,9 +617,7 @@ abstract class AdCreator {
 			}
 		}
 
-		if ( $this->mBucketId == '18' ) {
-			$attributes['data-observerloading'] = 1;
-		}
+		$attributes['data-observerloading'] = 1;
 
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
@@ -828,9 +824,6 @@ abstract class AdCreator {
 
 	protected function isDFPOkForSetup() {
 		global $wgTitle;
-		if ( Misc::isMobileMode() ) {
-			return false;
-		}
 		return true;
 	}
 

@@ -2,7 +2,7 @@
 
 class MobileWikihowCategoryPage extends CategoryPage {
 
-	const PULL_CHUNKS = 72;
+	const PULL_CHUNKS = 96;
 	const SMALL_PULL_CHUNKS = 12;
 	const MAX_FA = 48;
 	const SINGLE_WIDTH = 375;
@@ -158,9 +158,6 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			for ($i = $start; $i < count($articles) && $i < ($start + $articlesPerPage); $i++){
 				$info = $this->getArticleThumbWithPathFromTitle($articles[$i]);
 				if ($info) {
-					if($count >= self::SMALL_PULL_CHUNKS) {
-						//$info['classes'] .= " small_extra";
-					}
 					$allArticles[] = $info;
 					$count++;
 				}

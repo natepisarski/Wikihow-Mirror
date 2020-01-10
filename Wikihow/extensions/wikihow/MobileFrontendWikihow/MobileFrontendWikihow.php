@@ -99,7 +99,7 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 	),
 	'mobile.wikihow.user' => $wgMFMobileResourceBoilerplateWikihow + array(
 		'styles' => array(
-			'less/wikihow/userpage.css',
+			'less/wikihow/userpage.less',
 		),
 		'position' => 'top',
 	),
@@ -206,13 +206,19 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'position' => 'top',
 	),
 	'mobile.wikihow.stable.styles' => $wgMFMobileResourceBoilerplateWikihow + array(
-			'styles' => array(
-				'less/modules/tutorialswikihow.less',
-			),
-			'position' => 'top',
-#			'dependencies' => array('mobile.stable.styles'),
+		'styles' => array(
+			'less/modules/tutorialswikihow.less',
 		),
-));
+		'position' => 'top',
+#			'dependencies' => array('mobile.stable.styles'),
+	),
+	'mobile.wikihow.nosuchpage.styles' =>  $wgMFMobileResourceBoilerplateWikihow + [
+			'styles' => ['less/wikihow/no_such_page.less'],
+			'position' => 'top',
+			'targets' => ['mobile']
+		]
+	)
+);
 
 // wikiHow, Trevor, 2019-08-09 - Wipe out the styles for these modules to avoid collapsing sections and other
 // shenanigans, tomfoolery and malarkey that MobileFrontend/Minerva might be up to

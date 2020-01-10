@@ -232,7 +232,7 @@ class PagePolicy {
 					// For existing pages that are being hidden, show a login to view message and form
 					$out->addModules( 'ext.wikihow.login_popin' );
 					$out->addHTML( self::render(
-						Misc::isMobileMode() ? 'login_mobile' : 'login_desktop',
+						Misc::doResponsive( RequestContext::getMain() ) ? 'login_mobile' : 'login_desktop',
 						[
 							'encoded_title' => $wgTitle->getPrefixedUrl(),
 							'login_message' => wfMessage( 'pagepolicy_login_message' )->text()
@@ -242,7 +242,7 @@ class PagePolicy {
 			} else {
 				// Otherwise, show a "title doesn't exist" message
 				$out->addHTML( self::render(
-					Misc::isMobileMode() ? 'notitle_mobile' : 'notitle_desktop',
+					Misc::doResponsive( RequestContext::getMain() ) ? 'notitle_mobile' : 'notitle_desktop',
 					[
 						'error_message' => wfMessage( 'nopagetitle' )->text()
 					]

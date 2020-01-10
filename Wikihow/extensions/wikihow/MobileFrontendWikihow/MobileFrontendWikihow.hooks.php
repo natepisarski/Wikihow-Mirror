@@ -271,9 +271,11 @@ class MobileFrontendWikiHowHooks {
 			$out->addHeadItem('topcss2', $style);
 		}
 
-		$out->addHTML(RCWidget::rcWidgetJS());
-		$out->addModules(['ext.wikihow.rcwidget']);
-		$out->addModuleStyles(['ext.wikihow.rcwidget_styles']);
+		if (self::showRCWidget()) {
+			$out->addHTML(RCWidget::rcWidgetJS());
+			$out->addModules(['ext.wikihow.rcwidget']);
+			$out->addModuleStyles(['ext.wikihow.rcwidget_styles']);
+		}
 
 		return true;
 	}
@@ -305,11 +307,13 @@ class MobileFrontendWikiHowHooks {
 			'NewPages',
 			'ReindexedPages',
 			'CategoryListing',
-			'ArticleReviewers'
+			'ArticleReviewers',
+			'ProfileBox',
+			'Avatar'
 		];
 
 		self::$isvalidResponsivePage = $title &&
-			$title->inNamespace( NS_MAIN ) ||
+			$title->inNamespaces( NS_MAIN, NS_USER, NS_USER_TALK, NS_USER_KUDOS ) ||
 			($title->inNamespace( NS_PROJECT ) && in_array($title->getDBkey(), $wHnamespacePagesWithCss)) ||
 			($title->inNamespace(NS_SPECIAL) && in_array($title->getText(), $specialPagesWithCss)) ||
 			($title->inNamespace(NS_SPECIAL) && stripos($title->getText(), 'VideoBrowser') === 0) ||
@@ -322,6 +326,22 @@ class MobileFrontendWikiHowHooks {
 
 	public static function onMinvervaTemplateBeforeRender( &$data ) {
 		if (self:: validResponsivePage()) $data['is_responsive'] = true;
+	}
+
+	private static function showRCWidget(): bool {
+		$context = RequestContext::getMain();
+		$title = $context->getTitle();
+		$user = $context->getUser();
+		$isLoggedIn = $user->isLoggedIn();
+
+		return class_exists('RCWidget') &&
+			!$title->inNamespaces(NS_USER, NS_USER_TALK) &&
+			(!$isLoggedIn || $user->getOption('recent_changes_widget_show', true) == 1 ) &&
+			($isLoggedIn || $title->isMainPage()) &&
+			!in_array($title->getPrefixedText(), ['Special:Avatar', 'Special:ProfileBox']) &&
+			strpos($title->getPrefixedText(), 'Special:UserLog') === false &&
+			substr( $title->getText(), 0, 9 ) !== "DocViewer" &&
+			Action::getActionName($context) != 'edit';
 	}
 
 	public static function onSpecialPage_initList( &$list ) {

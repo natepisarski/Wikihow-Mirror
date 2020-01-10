@@ -291,6 +291,8 @@ class WikihowMobileTools {
 				}
 
 			} else {
+				//not a steps section
+
 				//is it a list page?
 				$list_page = $docTitle->inNamespace(NS_PROJECT) &&
 										($docTitle->getDbKey() == 'RSS-feed' || $docTitle->getDbKey() == 'Rising-star-feed');
@@ -303,7 +305,15 @@ class WikihowMobileTools {
 					}
 				}
 
-				//not a steps section
+				//custom user page content
+				if ($docTitle->inNamespace(NS_USER)) {
+					$set = [];
+					foreach (pq($node)->nextAll() as $sibling) {
+						if (pq($sibling)->is('h2')) break;
+						$set[] = $sibling;
+					}
+				}
+
 				if ($set) {
 					$sec_id = ($list_page) ? '' : 'id="'.$sectionName.'"';
 					try {

@@ -11,7 +11,7 @@
 	<? endif; ?>
 	</div>
 <? endif ?>
-<? if (! $GLOBALS["wgUser"]->isAnon() && $GLOBALS['wgUser']->isEmailConfirmed() 
+<? if (! $GLOBALS["wgUser"]->isAnon() && $GLOBALS['wgUser']->isEmailConfirmed()
 	&& $GLOBALS['wgUser']->isAllowed('sendemail')): ?>
 	<div class="pb_contact"><a href="<?= $pb_email_url ?>">Email <?= $pb_user_name ?></a></div>
 <? endif ?>

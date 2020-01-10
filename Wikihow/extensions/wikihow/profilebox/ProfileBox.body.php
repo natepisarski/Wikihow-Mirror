@@ -3,9 +3,14 @@
 class ProfileBox extends UnlistedSpecialPage {
 
 	static $featuredArticles = array();
+	const DEFAULT_DATE = '20060725043938';
 
 	public function __construct() {
 		parent::__construct( 'ProfileBox' );
+	}
+
+	public function isMobileCapable() {
+		return true;
 	}
 
 	public static function getUserPageHeaderHTML() {
@@ -25,52 +30,28 @@ class ProfileBox extends UnlistedSpecialPage {
 		return $html;
 	}
 
-	private function getPBTitle() {
-		$user = $this->getUser();
-
-		$name = "";
-
-		$name .= wfMessage('profilebox-name')->text();
-		$name .= " for ". $user->getName();
-		$avatar = Avatar::getPicture($user->getName());
-
-		if ($user->getID() > 0) {
-			$userReg = $user->getRegistration();
-			if ($userReg) {
-				$ts = wfTimestamp(TS_UNIX, $userReg);
-			} else {
-				$ts = wfTimestamp(TS_UNIX, '20060725043938');
-			}
-			$pbDate = self::getMemberSince($ts);
-		}
-		$heading = $avatar . "<div id='avatarNameWrap'><h1 class=\"firstHeading\">" . $name . "</h1><div id='regdate'>" . wfMessage('pb-joinedwikihow', $pbDate)->text() . "</div></div><div style='clear: both;'> </div>";
-
-		return $heading;
-	}
-
 	private function displayForm() {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 		$langCode = $this->getLanguage()->getCode();
 
-		$out->addHTML('<div class="section_text">');
-		$out->addHTML($this->getPBTitle());
-		$out->addHTML('</div>');
-
 		$live = '';
 		$occupation = '';
 		$aboutme = '';
+
 		if ($user->getOption('profilebox_display') == 1) {
 			$t = Title::newFromText($user->getUserPage() . '/profilebox-live');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
 				$live = ContentHandler::getContentText( $r->getContent() );
 			}
+
 			$t = Title::newFromText($user->getUserPage() . '/profilebox-occupation');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
 				$occupation = ContentHandler::getContentText( $r->getContent() );
 			}
+
 			$t = Title::newFromText($user->getUserPage() . '/profilebox-aboutme');
 			if ($t->getArticleId() > 0) {
 				$r = Revision::newFromTitle($t);
@@ -79,80 +60,65 @@ class ProfileBox extends UnlistedSpecialPage {
 				$aboutme = stripslashes($aboutme);
 			}
 
-			if ($user->getOption('profilebox_stats') == 1) { $checkStats = 'CHECKED'; }
-			if ($user->getOption('profilebox_startedEdited') == 1) { $checkStartedEdited = 'CHECKED'; }
-			if ($user->getOption('profilebox_questions_answered',1) == 1) { $checkQuestionsAnswered = 'CHECKED'; }
-			if ($user->getOption('profilebox_favs') == 1) { $checkFavs = 'CHECKED'; }
-
-			if ($t = Title::newFromID($user->getOption('profilebox_fav1'))) {
-				if ($t->getArticleId() > 0) {
-					$fav1 = $t->getText();
-					$fav1id = $t->getArticleId();
-				}
-			}
-			if ($t = Title::newFromID($user->getOption('profilebox_fav2'))) {
-				if ($t->getArticleId() > 0) {
-					$fav2 = $t->getText();
-					$fav2id = $t->getArticleId();
-				}
-			}
-			if ($t = Title::newFromID($user->getOption('profilebox_fav3'))) {
-				if ($t->getArticleId() > 0) {
-					$fav3 = $t->getText();
-					$fav3id = $t->getArticleId();
-				}
-			}
-
-		} else {
-			$checkStats = 'CHECKED';
-			$checkStartedEdited = 'CHECKED';
-			$checkQuestionsAnswered = 'CHECKED';
-			$checkFavs = 'CHECKED';
+			$checkStats = $user->getOption('profilebox_stats') == 1;
+			$checkStartedEdited = $user->getOption('profilebox_startedEdited') == 1;
+			$checkQuestionsAnswered = $user->getOption('profilebox_questions_answered',1) == 1;
+		}
+		else {
+			$checkStats = true;
+			$checkStartedEdited = true;
+			$checkQuestionsAnswered = true;
 		}
 
-		// can/should we be using ext.wikihow.profile_box{,_styles} RL modules here?
-		$out->addHTML("
-<script language='javascript' src='" . wfGetPad('/extensions/wikihow/profilebox/profilebox.js?') . WH_SITEREV . "'></script>
-<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/profilebox/profilebox.css?') . WH_SITEREV . "' type='text/css' />
+		$pbDate = '';
+		if ($user->getID() > 0) {
+			$userReg = $user->getRegistration();
 
-<form method='post' name='profileBoxForm'>
-<div class='section_text'><div class='altblock'></div>" .wfMessage('pb-demographic')->text() . "
+			if ($userReg)
+				$ts = wfTimestamp(TS_UNIX, $userReg);
+			else
+				$ts = wfTimestamp(TS_UNIX, self::DEFAULT_DATE);
 
-<div class='pb_block'>" .wfMessage('pb-location')->text() . "<br />
-<input class='input_med' type='text' name='live' value='".$live."' placeholder='" .wfMessage('pb-location-ph')->text() . "'>
-</div>
+			$pbDate = self::getMemberSince($ts);
+		}
 
-<div class='pb_block'>" .
-($langCode == "en" ? wfMessage('pb-website-entry')->text() : wfMessage('pb-website')->text()) . "<br />
-<input class='input_med' type='text' name='occupation' value='".$occupation."' placeholder='" .wfMessage('pb-website-ph')->text() . "'>
-</div>
+		$loader = new Mustache_Loader_CascadingLoader([
+			new Mustache_Loader_FilesystemLoader( __DIR__ )
+		]);
+		$m = new Mustache_Engine([ 'loader' => $loader ]);
 
-<div class='pb_block'>" .
-wfMessage('pb-aboutme')->text() . "<br />
-<textarea class='textarea_med' name='aboutme' cols='55' rows='3' style='overflow:auto;' placeholder='".wfMessage('pb-aboutme-ph')->text()."' >".$aboutme."</textarea>
-</div>
+		$vars = [
+			'avatar' => Avatar::getPicture($user->getName()),
+			'name' => wfMessage('profilebox-name')->text() . " for ". $user->getName(),
+			'regdate' => wfMessage('pb-joinedwikihow', $pbDate)->text(),
+			'pb-demographic' => wfMessage('pb-demographic')->text(),
+			'pb-location' => wfMessage('pb-location')->text(),
+			'live' => $live,
+			'pb-location-ph' => wfMessage('pb-location-ph')->text(),
+			'website' => $langCode == "en" ? wfMessage('pb-website-entry')->text() : wfMessage('pb-website')->text(),
+			'occupation' => $occupation,
+			'pb-website-ph' => wfMessage('pb-website-ph')->text(),
+			'pb-aboutme' => wfMessage('pb-aboutme')->text(),
+			'pb-aboutme-ph' => wfMessage('pb-aboutme-ph')->text(),
+			'aboutme' => $aboutme,
+			'pb-displayinfo' => wfMessage('pb-displayinfo')->text(),
+			'profilebox-checkbox-stats' => wfMessage('profilebox-checkbox-stats')->text(),
+			'checkStats' => $checkStats,
+			'checkStartedEdited' => $checkStartedEdited,
+			'checkQuestionsAnswered' => $checkQuestionsAnswered,
+			'pb-checkbox-articlesstartededited' => wfMessage('pb-checkbox-articlesstartededited')->text(),
+			'pb-checkbox-questionsanswered' => wfMessage('pb-checkbox-questionsanswered')->text(),
+			'cancel' => wfMessage('cancel')->text(),
+			'pb-save' => wfMessage('pb-save')->text(),
+			'userpage_url' => '/'.$user->getUserPage()
+		];
 
-</div>
-<br />
-<div class='section_text'><div class='altblock'></div>" .
-wfMessage('pb-displayinfo')->text() . "<br /><br />
-<input type='checkbox' name='articleStats' id='articleStats' ".$checkStats."> <label for='articleStats'>".wfMessage('profilebox-checkbox-stats')->text()."</label><br /><br />
-<input type='checkbox' name='articleStartedEdited' id='articleStartedEdited' ".$checkStartedEdited."> <label for='articleStartedEdited'>".wfMessage('pb-checkbox-articlesstartededited')->text()."</label><br /><br />
-<input type='checkbox' name='questionsAnswered' id='questionsAnswered' ".$checkQuestionsAnswered."> <label for='questionsAnswered'>".wfMessage('pb-checkbox-questionsanswered')->text()."</label><br />
-");
+		$out->addHTML( $m->render('form.mustache', $vars) );
+		$out->addModuleStyles('ext.wikihow.profile_box_styles');
+		$out->addModules('ext.wikihow.profile_box');
 
-$out->addHTML("
-<!-- <input type='checkbox' name='recentTalkpage'> Most recent talk page messages<br /> -->
-</div>
-<br />
-
-<div class='profileboxform_btns'>
-	<a href='/".$user->getUserPage()."' class='button secondary'>" . wfMessage('cancel')->text() . "</a>
-	<input class='button primary' type='submit' id='gatProfileSaveButton' name='save' value='" . wfMessage('pb-save')->text() . "' />
-</div>
-
-</form>
-");
+		$name = wfMessage('profilebox-name')->text()." - ". $user->getName();
+		$out->setHTMLTitle($name);
 	}
 
 	public static function onInitProfileBox($user) {
@@ -529,8 +495,8 @@ $out->addHTML("
 		$out = $this->getOutput();
 		$request = $this->getRequest();
 		$user = $this->getContext()->getUser();
-
 		$type = $request->getVal('type');
+
 		if (!$user || $user->getID() == 0 && $type != 'ajax') {
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
@@ -547,6 +513,8 @@ $out->addHTML("
 			print $this->favsTitleSelector();
 			return;
 		} elseif ($type == 'ajax') {
+			global $wgMimeType;
+			$wgMimeType = 'application/json';
 			$out->setArticleBodyOnly(true);
 			$element = $request->getVal('element');
 			$dbr = wfGetDB(DB_REPLICA);
@@ -625,7 +593,7 @@ $out->addHTML("
 		if ($u->getRegistration() != '') {
 			$pb_regdate = self::getMemberSince(wfTimestamp(TS_UNIX,$u->getRegistration()));
 		} else {
-			$pb_regdate = self::getMemberSince(wfTimestamp(TS_UNIX,'20060725043938'));
+			$pb_regdate = self::getMemberSince(wfTimestamp(TS_UNIX,self::DEFAULT_DATE));
 		}
 
 		$callback = 'ProfileBox::callbackRemoveHTMLAttribs';
@@ -684,14 +652,16 @@ $out->addHTML("
 			'pb_email_url' => "/" . SpecialPage::getTitleFor('Emailuser')->getPrefixedText() ."?target=" . $u->getName(),
 		);
 
-		$tmpl = new EasyTemplate( __DIR__ );
-		$tmpl->set_vars($vars);
+		if ($isMobile) {
+			return $vars;
+		}
+		else {
+			RequestContext::getMain()->getOutput()->addModules('jquery.ui.dialog');
 
-		$tmpl_file = ($isMobile) ? 'header_mobile.tmpl.php' : 'header.tmpl.php';
-
-		RequestContext::getMain()->getOutput()->addModules('jquery.ui.dialog');
-
-		return $tmpl->execute($tmpl_file);
+			$tmpl = new EasyTemplate( __DIR__ );
+			$tmpl->set_vars($vars);
+			return $tmpl->execute('header.tmpl.php');
+		}
 	}
 
 	private static function getMemberSince($joinDate) {
@@ -770,37 +740,6 @@ $out->addHTML("
 			$inner = "<div class='pb-fa pb-badge' style='{$side}:{$distance}px'></div>";
 			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
 			$distance += 75;
-		}
-
-		return $display;
-	}
-
-	// Used in WikihowUserPage
-	public static function getDisplayBadgeMobile($data) {
-		$display = '';
-		$isLoggedIn = !RequestContext::getMain()->getUser()->isAnon();
-
-		if ($data['nab'] == 1) {
-			$inner = "<div class='pb-nab pb-badge'><div><p>".wfMessage('pb-badge-nab')->text()."</p></div></div>";
-			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
-		}
-		if ($data['admin'] == 1){
-			$inner = "<div class='pb-admin pb-badge'><div><p>".wfMessage('pb-badge-admin')->text()."</p></div></div>";
-			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
-		}
-		if ($data['fa'] == 1){
-			$inner = "<div class='pb-fa pb-badge'><div><p>".wfMessage('pb-badge-fa')->text()."</p></div></div>";
-			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
-		}
-		if ($data['welcome'] == 1) {
-			$inner = "<div class='pb-welcome pb-badge'><div><p>".wfMessage('pb-badge-welcome')->text()."</p></div></div>";
-			$display .= $isLoggedIn ? "<a href='/Special:ProfileBadges'>$inner</a>" : $inner;
-		}
-
-		if ($display) {
-			$display = '<div class="section_text userpage_section pb_badge_section">'.
-						$display.
-						'<div class="clearall"></div></div>';
 		}
 
 		return $display;
@@ -894,6 +833,9 @@ class ProfileStats {
 			]
 		);
 
+		$user = RequestContext::getMain()->getUser();
+		$isLoggedIn = $user && !$user->isAnon();
+
 		$results = [];
 		if ($res) {
 			$fas = ProfileBox::getFeaturedArticles();
@@ -907,6 +849,8 @@ class ProfileStats {
 
 				$rs = RisingStar::isRisingStar($title->getArticleID(), $dbr);
 				$created['rs'] = (bool)$rs;
+
+				if (!$isLoggedIn) $created['hide_link'] = !RobotPolicy::isTitleIndexable($title);
 
 				$results[] = $created;
 			}
@@ -961,6 +905,7 @@ class ProfileStats {
 				}
 				else {
 					$page['ago'] = wfTimeAgo($row->rev_timestamp);
+					$page['hide_link'] = !RobotPolicy::isTitleIndexable($t);
 				}
 
 				$results[] = $page;
@@ -1114,5 +1059,4 @@ class ProfileStats {
 
 		return $userstats;
 	}
-
 }

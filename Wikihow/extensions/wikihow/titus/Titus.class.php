@@ -608,6 +608,7 @@ class TitusConfig {
 		$stats = array (
 			"PageId" => 1,
 			"Timestamp" => 1,
+			"TimestampDaily" => 1,
 			"LanguageCode" => 1,
 			"Title" => 1,
 			"Views" => 1,
@@ -2089,6 +2090,20 @@ class TSTimestamp extends TitusStat {
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		return array("ti_timestamp" => wfTimestamp(TS_MW));
+	}
+}
+
+/*
+ * Last time daily stats were calculated for this article
+ * ALTER TABLE titus_intl ADD COLUMN ti_timestamp_daily varchar(14) DEFAULT NULL AFTER ti_timestamp;
+ */
+class TSTimestampDaily extends TitusStat {
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return TitusDB::DAILY_EDIT_IDS;
+	}
+
+	public function calc( $dbr, $r, $t, $pageRow ) {
+		return [ 'ti_timestamp_daily' => wfTimestamp(TS_MW) ];
 	}
 }
 

@@ -887,3 +887,13 @@ a.reference-anchor {
 #ur_star_section p {
 	font-size: 14px;
 }
+
+#mw-credits {
+	background-color: #fff;
+	padding: 22px 27px;
+	margin-top: 20px;
+}
+
+.action-credits #section_0 {
+	padding-bottom: 27px;
+}

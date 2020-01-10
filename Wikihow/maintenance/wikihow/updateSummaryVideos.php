@@ -90,6 +90,7 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 		echo "Replacing...\t";
 		foreach ( $rows as $row ) {
 			$title = Title::newFromId( $row->ami_id );
+			$cats = (array)CategoryHelper::getBreadcrumbCategories( $title );
 			$replaced[] = $title->getText();
 			$replacements[] = [
 				'sv_id' => $row->ami_id,
@@ -99,8 +100,8 @@ class UpdateSummaryVideosNightlyMaintenance extends Maintenance {
 				'sv_video' => static::getVideoUrlFromVideo( $row->ami_summary_video ),
 				'sv_poster' => static::getPosterUrlFromVideo( $row->ami_summary_video, $title ),
 				'sv_clip' => static::getVideoUrlFromVideo( $row->ami_video ),
-				'sv_categories' => static::getCategoryListFromCatInfo( $row->page_catinfo ),
-				'sv_breadcrumbs' => implode( (array)CategoryHelper::getBreadcrumbCategories( $title ), ',' ),
+				'sv_categories' => end( $cats ) ? end( $cats ) : "",
+				'sv_breadcrumbs' => implode( $cats, ',' ),
 				'sv_popularity' => $row->ti_30day_views_unique,
 				'sv_featured' => $row->ti_featured,
 				'sv_plays' => $row->plays,

@@ -31,19 +31,6 @@
 }
 .intl .pb-star { display: none; }
 
-.pb-icon {
-	width: 22px;
-	height: 20px;
-	margin: 0 auto;
-	background-size: cover;
-}
-.pb-rising-icon {
-	background-image: url(star-green.png);
-}
-.pb-featured-icon {
-	background-image: url(star-blue.png);
-}
-
 .pb-feature{
 	text-align: center;
 	border-top:1px dotted #E1E1E1;
@@ -51,6 +38,16 @@
 	width:50px;
 }
 .intl .pb-feature { display: none; }
+
+.pb-star svg {
+	width: 22px;
+	fill: #FFB845;
+}
+
+.pb-feature svg {
+	width: 22px;
+	fill: #93B874;
+}
 
 .pb-view{
 	text-align: right;
@@ -100,8 +97,11 @@
 }
 
 .profileboxform_btns { text-align: right; }
-.profileboxform_btns .button { margin: 0 0 0 10px; }
-.profileboxform_btns a { padding: 14px 16px; }
+.profileboxform_btns .button {
+	margin: 0 0 0 10px;
+	height: auto;
+	display: inline-block;
+}
 
 .stats_stat {
 	float: left;
@@ -318,10 +318,13 @@ iframe[src^="https://apis.google.com"] {
 }
 
 .minor_section form .pb_block .input_med {
-	width: 50%;
+	width: 100%;
+	box-sizing: border-box;
 	border: 1px solid #E5E5E5;
 	margin-top: 5px;
 	font-size: 14px;
+	padding: 11px;
+	border-radius: 5px;
 }
 
 .pb_block .textarea_med {
@@ -337,6 +340,9 @@ iframe[src^="https://apis.google.com"] {
 .altblock {
 	height: 1em;
 	width: 1em;
+	background-color: #93b874;
+	float: left;
+	margin-right: 8px;
 }
 
 .view_toggle { font-size: .75em; }

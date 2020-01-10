@@ -10,6 +10,10 @@ class Avatar extends UnlistedSpecialPage {
 		parent::__construct( 'Avatar' );
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	// return the URL of the avatar
 	public static function getAvatarRaw($name) {
 		$u = User::newFromName($name);

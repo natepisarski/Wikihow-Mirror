@@ -1,13 +1,9 @@
 <?php
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-    exit(1);
-}
-
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'ProfileBox',
-    'author' => 'Vu <vu@wikihow.com>',
-    'description' => 'Magic word used in profile to display user data and stats',
+  'name' => 'ProfileBox',
+  'author' => 'Vu <vu@wikihow.com>',
+  'description' => 'Magic word used in profile to display user data and stats',
 );
 
 $wgSpecialPages['ProfileBox'] = 'ProfileBox';
@@ -17,27 +13,29 @@ $wgExtensionMessagesFiles['ProfileBox'] = __DIR__ . "/ProfileBox.i18n.php";
 
 $wgHooks['AddNewAccount'][] = 'ProfileBox::onInitProfileBox';
 
-$wgResourceModules['ext.wikihow.profile_box_styles'] = array(
-    'styles' => array('profilebox.css'),
-    'localBasePath' => __DIR__,
-    'remoteExtPath' => 'wikihow/profilebox',
-    'position' => 'top',
-    'targets' => array('desktop'),
-);
+$wgResourceModules['ext.wikihow.profile_box_styles'] = [
+  'styles' => [ 'profilebox.css' ],
+  'localBasePath' => __DIR__,
+  'remoteExtPath' => 'wikihow/profilebox',
+  'position' => 'top',
+  'targets' => ['desktop', 'mobile']
+];
 
-$wgResourceModules['ext.wikihow.profile_box'] = array(
-    'scripts' => array('profilebox.js'),
-    'messages' => array(
-      'profilebox_remove_confirm',
-      'pb-viewmore',
-      'pb-viewless'
-    ),
-    'localBasePath' => __DIR__,
-    'remoteExtPath' => 'wikihow/profilebox',
-    'position' => 'top',
-    'targets' => array('desktop'),
-    'dependencies' => array('ext.wikihow.common_top'),
-);
+$wgResourceModules['ext.wikihow.profile_box'] = [
+  'scripts' => [ 'profilebox.js' ],
+  'messages' => [
+    'profilebox_remove_confirm',
+    'pb-viewmore',
+    'pb-viewless'
+  ],
+  'localBasePath' => __DIR__,
+  'remoteExtPath' => 'wikihow/profilebox',
+  'position' => 'bottom',
+  'targets' => [ 'desktop', 'mobile'],
+  'dependencies' => [
+    'ext.wikihow.common_top'
+  ]
+];
 
 /*
 CREATE TABLE `profilebox` (

@@ -7,12 +7,15 @@
 
 class WikihowUserPage extends Article {
 
+	const DEFAULT_DISPLAY_LIMIT = 5;
+
 	var $featuredArticles;
 	var $user;
 	var $isPageOwner;
 
 	public static function onArticleFromTitle($title, &$page) {
 		$isMobileMode = Misc::isMobileMode();
+
 		if ($title &&
 			(  $title->inNamespace(NS_USER) ||
 			  ($title->inNamespace(NS_USER_KUDOS) && $isMobileMode) ||
@@ -50,6 +53,8 @@ class WikihowUserPage extends Article {
 			header('HTTP/1.1 404 Not Found');
 			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchuser-error', 'Noarticletext_user' );
+			$out->setPageTitle( $this->user->getName() );
+			$out->addModuleStyles('mobile.wikihow.nosuchpage.styles');
 			return;
 		}
 
@@ -110,22 +115,19 @@ class WikihowUserPage extends Article {
 
 			//articles created
 			if ($checkStartedEdited) {
-				$max = 5;
-				$createdData = $profileStats->fetchCreatedData($max);
+				$createdData = $profileStats->fetchCreatedData(self::DEFAULT_DISPLAY_LIMIT);
 				$this->flagDeindexedArticles($createdData);
-				$out->addHTML($this->createdHTML($createdData, $stats['created'], $max));
+				$out->addHTML($this->createdHTML($createdData, $stats['created'], self::DEFAULT_DISPLAY_LIMIT));
 
 				//thumbed up edits
-				$max = 5;
-				$thumbsData = $profileStats->fetchThumbsData($max);
+				$thumbsData = $profileStats->fetchThumbsData(self::DEFAULT_DISPLAY_LIMIT);
 				$this->flagDeindexedArticles($thumbsData);
-				$out->addHTML($this->thumbedHTML($thumbsData, $stats['thumbs_received'], $max));
+				$out->addHTML($this->thumbedHTML($thumbsData, $stats['thumbs_received'], self::DEFAULT_DISPLAY_LIMIT));
 			}
 
 			if ($checkQuestionsAnswered) {
-				$max = 5;
-				$answeredData = $profileStats->fetchAnsweredData($max);
-				$out->addHTML($this->answeredHTML($answeredData, $stats['qa_answered'], $max));
+				$answeredData = $profileStats->fetchAnsweredData(self::DEFAULT_DISPLAY_LIMIT);
+				$out->addHTML($this->answeredHTML($answeredData, $stats['qa_answered'], self::DEFAULT_DISPLAY_LIMIT));
 
 			}
 		}
@@ -152,25 +154,25 @@ class WikihowUserPage extends Article {
 
 	private function getMobileView() {
 		$out = $this->getContext()->getOutput();
-		$lang = $this->getContext()->getLanguage();
 
 		$out->addModuleStyles('mobile.wikihow.user');
-		$out->addModules('mobile.wikihow.userscript');
+		$out->addModules([ 'mobile.wikihow.userscript', 'ext.wikihow.profile_box', 'jquery.ui.dialog' ]);
 
 		//head
 		if ($this->mTitle->inNamespace(NS_USER) || $this->mTitle->inNamespace(NS_USER_TALK)) {
-			$avatar = ($lang->getCode() == 'en') ? Avatar::getAvatarURL($this->user->getName()) : "";
-			$tabs = ($this->user->isAnon()) ? '' : $this->getUserHeadTabs($this->user->getName());
-			$header = '<div id="user_head">
-						<img src="'.$avatar.'" style="width:60px" class="avatar" width="60" height="60" />
-						<p>'.$this->user->getName().'</p>
-						'.$tabs.'
-						</div>';
-			$out->addHTML($header);
+			$out->addHTML( $this->responsiveHeader() );
+			$out->addModules( 'ext.wikihow.avatar' );
+			$out->addModuleStyles( 'ext.wikihow.avatar_styles' );
 		}
 		else {
 			//kudos
 			$out->setPageTitle(wfMessage('user-kudos')->plain().$this->user->getName());
+		}
+
+		if ($this->getContext()->getUser()->isLoggedIn()) {
+			$out->getSkin()->addWidget($this->getRCUserWidget()); // fix for WelcomeWagon
+			$out->addModules('ext.wikihow.rcwidget');
+			$out->addModuleStyles('ext.wikihow.rcwidget_styles');
 		}
 
 		if ($this->mTitle->inNamespace(NS_USER)) {
@@ -184,29 +186,59 @@ class WikihowUserPage extends Article {
 	}
 
 	private function getMobileUserPage() {
-		$out = $this->getContext()->getOutput();
+		$html = '';
 
-		//general info
-		$out->addHTML(ProfileBox::getPageTop($this->user,true));
-
-		//user settings
 		$profileStats = new ProfileStats($this->user);
 		$checkStats = ($this->user->getOption('profilebox_stats') == 1);
+		$checkStartedEdited = ($this->user->getOption('profilebox_startedEdited') == 1);
+		$checkQuestionsAnswered = ($this->user->getOption('profilebox_questions_answered',1) == 1);
 
-		//badges
-		$badgeData = $profileStats->getBadges();
-		$out->addHTML(ProfileBox::getDisplayBadgeMobile($badgeData));
-
-		//stats
 		if ($checkStats) {
 			$stats = ProfileBox::fetchStats("User:" . $this->user->getName());
-			$out->addHTML($this->statsHTML($stats, true));
+			$html .= $this->statsHTML($stats);
 		}
+
+		if ($checkStartedEdited) {
+			$createdData = $profileStats->fetchCreatedData(self::DEFAULT_DISPLAY_LIMIT);
+			$this->flagDeindexedArticles($createdData);
+			$html .= $this->createdHTML($createdData, $stats['created'], self::DEFAULT_DISPLAY_LIMIT);
+
+			$thumbsData = $profileStats->fetchThumbsData(self::DEFAULT_DISPLAY_LIMIT);
+			$this->flagDeindexedArticles($thumbsData);
+			$html .= $this->thumbedHTML($thumbsData, $stats['thumbs_received'], self::DEFAULT_DISPLAY_LIMIT);
+		}
+
+		if ($checkQuestionsAnswered) {
+			$answeredData = $profileStats->fetchAnsweredData(self::DEFAULT_DISPLAY_LIMIT);
+			$html .= $this->answeredHTML($answeredData, $stats['qa_answered'], self::DEFAULT_DISPLAY_LIMIT);
+		}
+
+		// should be? $this->mTitle = Title::newFromText('User:' . $this->user->getName());
+		$this->mTitle = $this->getTitle();
+		$wp = new WikiPage($this->mTitle);
+		$popts = $this->getContext()->getOutput()->parserOptions();
+		$popts->setTidy(false);
+		$content = $wp->getContent();
+		if ($content) {
+			$parserOutput = $content->getParserOutput($this->mTitle, null, $popts, false)->getText();
+			$user_article = WikihowMobileTools::processDom( $parserOutput, $this->getContext()->getSkin() );
+			$attributes = [ 'class' => 'user_article' ];
+
+			if ($user_article != '') $html .= Html::rawElement('div', $attributes, $user_article);
+		}
+
+		//contributions and views
+		$contributions = $profileStats->getContributions();
+		$views = ProfileBox::getPageViews();
+		$html .= ProfileBox::getFinalStats($contributions, $views);
+
+		$this->getContext()->getOutput()->addHTML( $html );
 	}
 
 	private function getMobileUserTalkPage() {
 		$out = $this->getContext()->getOutput();
 		$user = $this->getContext()->getUser();
+		$isKudosPage = $this->mTitle->inNamespace(NS_USER_KUDOS);
 
 		//get the guts
 		$wikitext = ContentHandler::getContentText( $this->getPage()->getContent() );
@@ -228,7 +260,7 @@ class WikihowUserPage extends Article {
 		//add target link
 		$html .= '<div id="at_the_bottom"></div>';
 
-		if ($this->mTitle->inNamespace(NS_USER_KUDOS)) {
+		if ($isKudosPage) {
 			$html = '<div class="user_kudos">'.$html.'</div>';
 		}
 		else {
@@ -245,18 +277,107 @@ class WikihowUserPage extends Article {
 		}
 
 		//add a link to scroll to the bottom
-		$html = '<div id="touchdown"><a href="#">'.$bottom_link_text.'</a></div><div class="clearall"></div>'.$html;
+		$attributes = [ 'id' => 'touchdown' ];
+		if ($isKudosPage) $attributes['class'] = 'user_kudos';
+		$contents = '<a href="#">'.$bottom_link_text.'</a></div><div class="clearall">';
+		$td = Html::rawElement('div', $attributes, $contents);
 
-		$out->addHTML($html);
+		$out->addHTML($td . $html);
 	}
 
-	private function statsHTML($stats, $is_mobile = false) {
-		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
-		]);
-		$options = array('loader' => $loader);
-		$m = new Mustache_Engine($options);
+	private function responsiveHeader(): string {
+		$context = $this->getContext();
+		$viewUser = $context->getUser();
+		$langCode = $context->getLanguage()->getCode();
 
+		$profileUserName = $this->user->getName();
+		$isUserPageView = Action::getActionName($context) == 'view' && $context->getTitle()->inNamespace(NS_USER);
+
+		$isThisUser = $profileUserName == $viewUser->getName() && !$this->user->isAnon();
+
+		$bioData = ProfileBox::getPageTop($this->user, true);
+		$livesIn = Html::rawElement('strong', [], $bioData['pb_live']);
+		$startedOn = Html::rawElement('strong', [], $bioData['pb_regdate']);
+
+		$avatar_url = Avatar::getAvatarURL($profileUserName);
+		if (stristr($avatar_url, basename(Avatar::getDefaultProfile())) !== false) {
+			//default; prompt to upload pic
+			$avatar_url = '';
+		}
+
+		$showEmail = $isUserPageView &&
+			!$viewUser->isAnon() &&
+			$viewUser->isEmailConfirmed() &&
+			$viewUser->isAllowed('sendemail');
+
+		$vars = [
+			'showAvatar' => $langCode == 'en',
+			'avatar' => $avatar_url,
+			'username' => $profileUserName,
+			'showEditability' => $isThisUser && $isUserPageView,
+			'badges' => $isUserPageView ? $this->userBadges() : [],
+			'isLoggedIn' => $viewUser->isLoggedIn(),
+			'showBio' => $bioData['pb_display_show'] && $isUserPageView,
+			'location' => $bioData['pb_live'] ? wfMessage('pb-livesin', $livesIn)->text() : '',
+			'startDate' => wfMessage('pb-beenonwikihow', $startedOn)->text(),
+			'showEmail' => $showEmail,
+			'website' => htmlspecialchars($bioData['pb_work']),
+			'websiteText' => wfMessage('pb-website')->text(),
+			'aboutMe' => $bioData['pb_aboutme'],
+			'emailLink' => $bioData['pb_email_url'],
+			'emailText' => wfMessage('email')->text().' '.$profileUserName,
+			'social' => $isUserPageView ? $bioData['pb_social'] : '',
+			'edit' => strtolower(wfMessage('edit')->text()),
+			'clearProfile' => wfMessage('clear_profile')->text(),
+			'remove' => strtolower(wfMessage('remove')->text()),
+			'tabs' => $this->userTabs()
+		];
+
+		return $this->renderTemplate('responsive_header.mustache', $vars);
+	}
+
+	private function userBadges(): array {
+		$badges = [];
+		$profileStats = new ProfileStats($this->user);
+
+		foreach ($profileStats->getBadges() as $badge => $state) {
+			if (!$state) continue;
+
+			$badges[] = [
+				'id' => $badge,
+				'name' => wfMessage('pb-badge-'.$badge)->text()
+			];
+		}
+
+		return $badges;
+	}
+
+	private function userTabs(): array {
+		global $IP;
+
+		$hideTabs = $this->getContext()->getUser()->isAnon() &&
+			!in_array( $this->getTitle()->getDBKey(), UserPagePolicy::listUserTalkAnonVisible());
+		if ($hideTabs) return [];
+
+		return [
+			[
+				'link' => $this->user->getUserPage()->getLocalURL(),
+				'class' => 'user_page',
+				'text' => wfMessage('mobile-frontend-profile-title-wh')->text(),
+				'icon' => file_get_contents($IP.'/extensions/wikihow/WikihowUserPage/assets/user_icon.svg'),
+				'selected' => $this->getTitle()->inNamespace(NS_USER)
+			],
+			[
+				'link' => $this->user->getTalkPage()->getLocalURL(),
+				'class' => 'usertalk_page',
+				'text' => wfMessage('mobile-frontend-talk-overlay-header')->text(),
+				'icon' => file_get_contents($IP.'/extensions/wikihow/WikihowUserPage/assets/usertalk_icon.svg'),
+				'selected' => $this->getTitle()->inNamespace(NS_USER_TALK)
+			]
+		];
+	}
+
+	private function statsHTML($stats) {
 		$html = '';
 
 		if ($stats['created'] > 0 ||
@@ -268,7 +389,7 @@ class WikihowUserPage extends Article {
 
 			$created = '';
 			if ($stats['created'] > 0) {
-				if ($this->getContext()->getUser()->isAnon() || $is_mobile) {
+				if ($this->getContext()->getUser()->isAnon()) {
 					$created = wfMessage('pb-articlesstarted-stat', $stats['created'])->text();
 				}
 				else {
@@ -279,7 +400,7 @@ class WikihowUserPage extends Article {
 
 			$patrolled = '';
 			if ($stats['patrolled'] > 0) {
-				if ($this->getContext()->getUser()->isAnon() || $is_mobile) {
+				if ($this->getContext()->getUser()->isAnon()) {
 					$patrolled = wfMessage('pb-editspatrolled', $stats['patrolled'])->text();
 				}
 				else {
@@ -289,7 +410,6 @@ class WikihowUserPage extends Article {
 			}
 
 			$vars = [
-				'mobile'			=> $is_mobile,
 				'pb-mystats'	=> wfMessage('pb-mystats')->text(),
 				'created' 		=> $created,
 				'edited' 			=> $stats['edited'] > 0 ? wfMessage('pb-articleedits', $stats['edited'])->text() : '',
@@ -298,10 +418,8 @@ class WikihowUserPage extends Article {
 				'answered'		=> $stats['qa_answered'] > 0 ? wfMessage('pb-answered-stat', $stats['qa_answered'])->text() : ''
 			];
 
-			$template = $is_mobile ? 'stats_section_mobile' : 'stats_section';
-			$html = $m->render($template, $vars);
+			$html = $this->renderTemplate('stats_section.mustache', $vars);
 		}
-
 
 		return $html;
 	}
@@ -326,43 +444,14 @@ class WikihowUserPage extends Article {
 		return $html;
 	}
 
-	private function getUserHeadTabs($username) {
-		$carat = '<span id="uht_carat" class="icon"></span>';
-		$off_class = 'uht_off';
-
-		$attributes = array(
-			'class' => ($this->mTitle->inNamespace(NS_USER)) ? '' : $off_class,
-			'id' => 'uht_profile',
-
-		);
-		$profile_link_inner = $carat.'<span class="icon"></span>'.wfMessage('mobile-frontend-profile-title-wh');
-		$profile_link = Linker::link(Title::makeTitle(NS_USER, $username), $profile_link_inner, $attributes, '', array('known'));
-
-		$attributes = array(
-			'class' => ($this->mTitle->inNamespace(NS_USER_TALK)) ? '' : $off_class,
-			'id' => 'uht_talk',
-
-		);
-		$talk_link_inner = $carat.'<span class="icon"></span>'.wfMessage('mobile-frontend-talk-overlay-header');
-		$talk_link = Linker::link(Title::makeTitle(NS_USER_TALK, $username), $talk_link_inner, $attributes, '', array('known'));
-
-		$html = '<div id="user_head_tabs">'.
-				$profile_link.
-				$talk_link.
-				'</div>';
-
-		return $html;
-	}
-
 	private function createdHTML($data, $create_count, $max) {
 		$loader = new Mustache_Loader_CascadingLoader([
 			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
 		]);
-		$options = array('loader' => $loader);
-		$m = new Mustache_Engine($options);
+		$m = new Mustache_Engine([ 'loader' => $loader ]);
 
 		$more = false;
-		if (count($data) > $max) {
+		if (is_array($data) && count($data) > $max) {
 			array_pop($data);
 			$more = true;
 		}
@@ -371,8 +460,6 @@ class WikihowUserPage extends Article {
 			'created_item'	=> $loader->load('created_item'),
 			'items' 				=> $data,
 			'article_count'	=> $create_count,
-			'rising'				=> wfGetPad('/extensions/wikihow/profilebox/star-green.png'),
-			'featured'			=> wfGetPad('/extensions/wikihow/profilebox/star-blue.png'),
 			'view_toggle' 	=> $more,
 			'empty_text'		=> $this->isPageOwner ? wfMessage('pb-noarticles')->text() : wfMessage('pb-noarticles-anon')->text(),
 			'intl'					=> $this->getContext()->getLanguage()->getCode() == 'en' ? '' : 'intl'
@@ -388,20 +475,17 @@ class WikihowUserPage extends Article {
 		];
 		$vars = array_merge($vars, $this->getMWMessageVars($msgKeys));
 
-		$html = $m->render('created_section', $vars);
-
-		return $html;
+		return $m->render('created_section.mustache', $vars);
 	}
 
 	private function thumbedHTML($data, $thumb_count, $max) {
 		$loader = new Mustache_Loader_CascadingLoader([
 			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
 		]);
-		$options = array('loader' => $loader);
-		$m = new Mustache_Engine($options);
+		$m = new Mustache_Engine([ 'loader' => $loader ]);
 
 		$more = false;
-		if (count($data) > $max) {
+		if (is_array($data) && count($data) > $max) {
 			array_pop($data);
 			$more = true;
 		}
@@ -422,20 +506,17 @@ class WikihowUserPage extends Article {
 		];
 		$vars = array_merge($vars, $this->getMWMessageVars($msgKeys));
 
-		$html = $m->render('thumbed_section', $vars);
-
-		return $html;
+		return $m->render('thumbed_section.mustache', $vars);
 	}
 
 	private function answeredHTML($data, $answered_count, $max) {
 		$loader = new Mustache_Loader_CascadingLoader([
 			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
 		]);
-		$options = array('loader' => $loader);
-		$m = new Mustache_Engine($options);
+		$m = new Mustache_Engine([ 'loader' => $loader ]);
 
 		$more = false;
-		if (count($data) > $max) {
+		if (is_array($data) && count($data) > $max) {
 			array_pop($data);
 			$more = true;
 		}
@@ -456,11 +537,7 @@ class WikihowUserPage extends Article {
 		];
 		$vars = array_merge($vars, $this->getMWMessageVars($msgKeys));
 
-		if (!Misc::isIntl()) {
-			$html = $m->render('answered_section', $vars);
-		}
-
-		return $html;
+		return !Misc::isIntl() ? $m->render('answered_section.mustache', $vars) : '';
 	}
 
 	private function getMWMessageVars($keys) {
@@ -482,6 +559,17 @@ class WikihowUserPage extends Article {
 			$title = Title::newFromID($article['page_id']);
 			$article['hide_link'] = !RobotPolicy::isTitleIndexable($title);
 		}
+	}
+
+	private function renderTemplate(String $template = '', Array $vars = []): string {
+		if ($template == '') return '';
+
+		$loader = new Mustache_Loader_CascadingLoader([
+			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
+		]);
+		$m = new Mustache_Engine([ 'loader' => $loader ]);
+
+		return $m->render($template, $vars);
 	}
 
 }

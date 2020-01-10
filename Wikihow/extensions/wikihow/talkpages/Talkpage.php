@@ -6,15 +6,15 @@ $wgExtensionCredits['TalkPageFormatter'][] = array(
 	'author' => 'Lojjik Braughler'
 );
 
-$wgResourceModules['ext.wikihow.talkpages'] = array(
-	'scripts' => array(
-		'talkpages.js'
-	),
-	'dependencies' => array(
-		'wikihow.common.jquery.dateformat'),
-	'localBasePath' => __DIR__ . '/',
-	'remoteExtPath' => 'wikihow/talkpages'
-);
+$wgResourceModules['ext.wikihow.talkpages'] = [
+	'scripts' => [ 'talkpages.js' ],
+	'dependencies' => [
+		'wikihow.common.jquery.dateformat'
+	],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/talkpages',
+	'targets' => [ 'desktop', 'mobile' ]
+];
 
 $wgHooks['BeforePageDisplay'][] = 'TalkPageFormatter::addTalkPageScripts';
 

@@ -18,7 +18,11 @@ WH.shared = (function () {
 		nv.match(/Chrome/) && !nv.match(/Edge/),
 	// Note: this is the same as php global WH_CDN_VIDEO_ROOT
 	videoRoot = 'https://www.wikihow.com/video',
-	isDesktopSize = (window.innerWidth || document.documentElement.clientWidth) >= WH.mediumScreenMinWidth;
+	viewportWidth = (window.innerWidth || document.documentElement.clientWidth),
+	isSmallSize = viewportWidth < WH.mediumScreenMinWidth,
+	isMedSize = !isSmallSize && viewportWidth < WH.largeScreenMinWidth,
+	isLargeSize = !isSmallSize && !isMedSize,
+	isDesktopSize = isLargeSize,
 	lazyLoadingObserver = null;
 	if ("IntersectionObserver" in window) {
 		lazyLoadingObserver = new IntersectionObserver(function(entries, observer) {
@@ -473,6 +477,9 @@ WH.shared = (function () {
 
 	return {
 		'isDesktopSize' : isDesktopSize,
+		'isSmallSize' : isSmallSize,
+		'isMedSize' : isMedSize,
+		'isLargeSize' : isLargeSize,
 		'getScreenSize' : getScreenSize,
 		'throttle' : throttle,
 		'TOP_MENU_HEIGHT' : TOP_MENU_HEIGHT,

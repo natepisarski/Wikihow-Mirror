@@ -6,6 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgAutoloadClasses['UserStaffWidget'] = __DIR__ . '/UserStaffWidget.body.php';
 $wgHooks['PageHeaderDisplay'][] = 'UserStaffWidget::onBeforeHeaderDisplay';
+$wgHooks['MinvervaTemplateBeforeRender'][] = 'UserStaffWidget::onBeforeHeaderDisplay';
 $wgHooks['BeforePageDisplay'][] = 'UserStaffWidget::onBeforePageDisplay';
 $wgSpecialPages['UserStaffWidget'] = 'UserStaffWidget';
 
@@ -14,7 +15,7 @@ $wgResourceModules['ext.wikihow.user_widget_userpage'] = [
     'dependencies' => ['jquery', 'ext.wikihow.common_bottom'],
     'localBasePath' => __DIR__,
     'remoteExtPath' => 'wikihow/userstaffwidget',
-    'targets' => [ 'desktop' ],
+    'targets' => [ 'desktop', 'mobile' ],
     'position' => 'top',
 ];
 
@@ -23,6 +24,6 @@ $wgResourceModules['ext.wikihow.user_widget_usertalkpage'] = [
     'dependencies' => ['jquery', 'ext.wikihow.common_bottom'],
     'localBasePath' => __DIR__,
     'remoteExtPath' => 'wikihow/userstaffwidget',
-    'targets' => [ 'desktop' ],
+    'targets' => [ 'desktop', 'mobile' ],
     'position' => 'top',
 ];

@@ -18,6 +18,13 @@ WH.VideoBrowser.IndexComponent = WH.Render.createComponent( {
 		} 
 		this.lists = categories
 			.get()
+			.filter( function( category) {
+				if ( category.title.length > 0 ) {
+					return true;
+				} else {
+					return false;
+				}
+			})
 			.map( function ( category ) {
 				return new WH.VideoBrowser.VideoListComponent( {
 					category: category,
