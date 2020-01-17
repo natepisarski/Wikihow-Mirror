@@ -823,6 +823,8 @@ a.reference-anchor {
 	display: none;
 }
 
+#summary_last_sentence { display: none; }
+
 #article_rating_mobile {
 	border-radius: 4px;
 }
@@ -897,3 +899,5 @@ a.reference-anchor {
 .action-credits #section_0 {
 	padding-bottom: 27px;
 }
+
+.s-help-wrap { display: none;}

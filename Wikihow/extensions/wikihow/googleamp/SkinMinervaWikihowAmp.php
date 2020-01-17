@@ -163,6 +163,12 @@ class SkinMinervaWikihowAmp extends SkinMinervaWikihow {
 			$out->setCanonicalUrl($canonicalUrl);
 		}
 
+		if ( $out->getTitle()->inNamespace( NS_MAIN ) && !$isMainPage ) {
+			if ( !GoogleAmp::hasAmpParam( $out->getRequest() ) && GoogleAmp::isAmpCustomAdsTest( $out->getTitle() ) ) {
+				GoogleAmp::addAmpHtmlLink( $out, $wgLanguageCode );
+			}
+		}
+
 		// Meta Description
 		$description = ArticleMetaInfo::getCurrentTitleMetaDescription();
 		if ($description) {

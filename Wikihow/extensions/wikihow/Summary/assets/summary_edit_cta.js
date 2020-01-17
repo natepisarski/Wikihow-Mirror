@@ -7,7 +7,7 @@
 		},
 
 		addHandlers: function() {
-			$('#main_container').on('click', '.summary_edit_link', $.proxy(function() {
+			$('body').on('click', '.summary_edit_link', $.proxy(function() {
 				this.summaryEditUI();
 				return false;
 			},this));

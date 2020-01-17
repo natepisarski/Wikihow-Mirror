@@ -66,3 +66,49 @@
 	background: rgba(0, 0, 0, 0.5);
 }
 
+#sidebar #staff_stats_box p { margin: 0; }
+
+#staff-editing-menu-submit {
+	display: none;
+}
+#staff-editing-menu-content, #mts-content {
+	display: none;
+	font-size: 12px;
+	top: 18px;
+}
+#staff-editing-menu, #motion-to-static {
+	position: relative;
+}
+#semt-type, #mtst-type {
+	border: 1px solid #999999;
+	width: 95%;
+	padding: 5px;
+	font-size: 13px;
+	color: #000000;
+	background-color: #FFF;
+	cursor: default;
+	margin-bottom: 3px;
+}
+#staff-editing-menu-title, #mts-title {
+	padding-bottom: 5px;
+	text-decoration: underline;
+	cursor: default;
+	color: #383;
+}
+#sem-textarea, #mts-textarea {
+	width: 95%;
+	resize: vertical;
+	border: 1px solid #999999;
+}
+#sem-hp, #mts-hp {
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+.sem-h,.mts-h {
+	display: none;
+}
+#staff-editing-menu-content a.sem-c-selected {
+	color: white;
+	background-color: #91af79;
+	text-decoration: none;
+}

@@ -33,7 +33,7 @@ $wgResourceModules[ 'ext.wikihow.editDialog' ] = [
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/EditDialog',
 	'position' => 'bottom',
-	'targets' => [ 'desktop' ],
+	'targets' => [ 'desktop', 'mobile' ],
 	'messages' => [
 		'editing',
 		'summary',

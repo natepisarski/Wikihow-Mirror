@@ -6,6 +6,10 @@ class PageStats extends UnlistedSpecialPage {
 		parent::__construct('PageStats');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	public static function getTitusData($pageId) {
 		$context = RequestContext::getMain();
 		$lang = $context->getLanguage()->getCode();
@@ -229,9 +233,15 @@ class PageStats extends UnlistedSpecialPage {
 
 		// Inbound links
 		$target = SpecialPage::getTitleFor('Whatlinkshere', $t->getText());
+		$target .= '?namespace=0&hideredirs=1';
+
+		if (Misc::doResponsive( $this->getContext() )) {
+			$target = WikihowMobileTools::getNonMobileSite().'/'.$target;
+		}
 		$anchor = ArticleStats::getInboundLinkCount($t);
-		$query = [ 'namespace' => 0, 'hideredirs' => 1 ];
-		$link = Linker::link($target, $anchor, [], $query);
+
+		$link = HTML::rawElement('a', ['href' => $target], $anchor);
+
 		$html .= "<hr style='margin:5px 0;' />";
 		$html .= "<p>Inbound links: $link</p>";
 
@@ -490,15 +500,23 @@ class PageStats extends UnlistedSpecialPage {
 		return $file;
 	}
 
-	public static function getCSSsnippet() {
-		$file = __DIR__ . "/pagestats.css";
-		$files = array( $file );
-		echo Html::inlineStyle( Misc::getEmbedFiles( "css", $files ) );
-	}
-
 	public static function getJSsnippet() {
 		$out = RequestContext::getMain()->getOutput();
 		$out->addModules( 'ext.wikihow.pagestats' );
+	}
+
+	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		$title = $out->getTitle();
+		$user = $out->getUser();
+
+		if ( $title &&
+			$title->inNamespace(NS_MAIN) &&
+			!$title->isMainPage() &&
+			Misc::isUserInGroups($user, ['staff', 'staff_widget', 'editor_team']) &&
+			$user->isLoggedIn() )
+		{
+			$out->addModules( 'ext.wikihow.pagestats' );
+		}
 	}
 
 }

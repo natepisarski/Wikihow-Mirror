@@ -209,7 +209,7 @@ class LSearch extends SpecialPage {
 		$t = SpecialPage::getTitleFor('LSearch');
 		$canonicalLink = Html::element( 'link', array(
 			'rel' => 'canonical',
-			'href' => wfExpandUrl($t->getLocalURL(), PROTO_CANONICAL)
+			'href' => WikihowMobileTools::getNonMobileSite() . $t->getLocalURL()
 		) );
 
 		foreach($headLinks as $key => $val) {

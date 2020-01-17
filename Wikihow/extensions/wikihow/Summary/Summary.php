@@ -32,7 +32,7 @@ $wgResourceModules['ext.wikihow.summary_section_edit_link'] = [
 	'messages' => [
 		'summary_section_no_edit'
 	],
-	'targets' => [ 'desktop' ],
+	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'bottom'
 ];
 
@@ -40,7 +40,7 @@ $wgResourceModules['ext.wikihow.summary_edit_cta'] = [
 	'scripts' => [ 'summary_edit_cta.js' ],
 	'localBasePath' => __DIR__.'/assets',
 	'remoteExtPath' => 'wikihow/Summary/assets',
-	'targets' => [ 'desktop' ],
+	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'bottom'
 ];
 
@@ -53,7 +53,7 @@ $wgResourceModules['ext.wikihow.summary_edit_tool'] = [
 		'set_err_no_summary',
 		'set_err_no_last_sentence'
 	],
-	'targets' => [ 'desktop' ],
+	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'bottom'
 ];
 

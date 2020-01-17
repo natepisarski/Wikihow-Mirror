@@ -78,7 +78,7 @@
 					e.preventDefault();
 					$("#summary_wrapper").show();
 				});
-				$(document).on("click", "#summary_wrapper .collapse_link", function(e){
+				$(document).on("click", "#summary_wrapper .collapse_link, .firststeplink", function(e){
 					e.preventDefault();
 					$("#summary_wrapper").hide();
 				});

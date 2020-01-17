@@ -7,6 +7,10 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		parent::__construct('PageHelpfulness');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	public static function getRatingReasonFeedback($item, $type, $limit=10) {
 		$dbr = wfGetDB(DB_REPLICA);
 
@@ -449,7 +453,9 @@ class PageHelpfulness extends UnlistedSpecialPage {
 		$html .= "</table>";
 
 		if (Misc::isUserInGroups($this->getUser(), array('staff', 'staff_widget'))) {
-			$link = Linker::linkKnown($cl, 'view all', array(), array('item'=>$title));
+			$cl .= '?item='.$title;
+			if (Misc::doResponsive( $this->getContext() )) $cl = WikihowMobileTools::getNonMobileSite().'/'.$cl;
+			$link = HTML::rawElement('a', ['href' => $cl], 'view all');
 			$html .= "<div class='phr_reasons_more'>{$link}</div>";
 		}
 		$html .= "</div>";
@@ -541,6 +547,21 @@ class PageHelpfulness extends UnlistedSpecialPage {
 			$result['restored'] = $dbw->affectedRows();
 		}
 		return $result;
+	}
+
+	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		$title = $out->getTitle();
+		$user = $out->getUser();
+
+		if ( $title &&
+			$title->inNamespace(NS_MAIN) &&
+			!$title->isMainPage() &&
+			Misc::isUserInGroups($user, ['staff', 'staff_widget', 'newarticlepatrol', 'sysop', 'editor_team']) &&
+			$user->isLoggedIn() &&
+			$user->getIntOption('showhelpfulnessdata') == 1 )
+		{
+			$out->addModules( 'ext.wikihow.pagehelpfulness_styles' );
+		}
 	}
 
 }

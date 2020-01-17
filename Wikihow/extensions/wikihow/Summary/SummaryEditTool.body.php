@@ -13,6 +13,10 @@ class SummaryEditTool extends UnlistedSpecialPage {
 		parent::__construct( 'SummaryEditTool');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	public function execute($par) {
 		$out = $this->getOutput();
 		$user = $this->getUser();

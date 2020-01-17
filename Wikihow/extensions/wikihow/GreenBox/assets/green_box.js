@@ -20,7 +20,7 @@
 				}
 
 				//mobile taps trigger mouseenter and confuse some browsers
-				if (WH.isMobileDomain && e.type == 'mouseenter') return;
+				if (WH.isMobileDomain &&  $(window).width() < WH.largeScreenMinWidth && e.type == 'mouseenter') return;
 
 				WH.GreenBox.toggleDialog(this, e.type);
 			});

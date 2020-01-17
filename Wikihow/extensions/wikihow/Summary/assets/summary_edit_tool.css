@@ -7,12 +7,19 @@ h2#summary_edit_header {
 	color: #FFF;
 }
 
+#mw-content-text h2#summary_edit_header span {
+	color: #FFF;
+	padding-left: 27px;
+}
+
 #summary_edit_close {
 	position: absolute;
 	right: 2em;
+	top: 2em;
 	color: #FFF;
 	font-size: .75rem;
 	font-weight: normal;
+	line-height: 1em;
 }
 
 #summary_edit_err {
@@ -28,6 +35,10 @@ h2#summary_edit_header {
 .set_textarea {
 	width: 96%;
 	margin-bottom: 1em;
+	border: 2px solid #999;
+	padding: 5px;
+	font-size: .9em;
+	line-height: normal;
 }
 
 #set_content {
@@ -41,6 +52,11 @@ h2#summary_edit_header {
 #set_buttons {
 	text-align: left;
 	padding-top: 1em;
+}
+
+#mw-content-text #set_buttons .button {
+	font-weight: bold;
+	font-size: .75em;
 }
 
 #set_post_submit_buttons {

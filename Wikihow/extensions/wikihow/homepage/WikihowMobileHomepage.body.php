@@ -63,6 +63,8 @@ class WikihowMobileHomepage extends Article {
 			//$vars['showTrustworthy'] = true;
 		}
 
+		//newsletter
+		WikihowMobileHomepage::getNewsletterWidget($vars);
 
 		//categories
 		$vars = array_merge($vars, WikihowMobileHomepage::categoryWidget());
@@ -140,6 +142,11 @@ class WikihowMobileHomepage extends Article {
 		return $vars;
 	}
 
+	public static function getnewsletterWidget(&$vars) {
+		$vars['newsletter_url'] = wfMessage('newsletter_url')->text();
+		$vars['hp_newsletter_header'] = wfMessage('hp_newsletter_header')->text();
+	}
+
 	public static function removeSideBarCallback(&$showSideBar) {
 		$showSideBar = false;
 		return true;
@@ -166,7 +173,8 @@ class WikihowMobileHomepage extends Article {
 			$rs[] = [
 				'url' => $title->getLocalURL(),
 				'title' => $title->getText(),
-				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] ),
+				'isExpert' => self::isExpert($title->getArticleID())
 			];
 			$count++;
 			if($count >= self::MAX_RS) break;
@@ -176,7 +184,8 @@ class WikihowMobileHomepage extends Article {
 			$vars['featured_items'][] = [
 				'url' => $title->getLocalURL(),
 				'title' => $title->getText(),
-				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] ),
+				'isExpert' => self::isExpert($title->getArticleID())
 			];
 			$count++;
 			if($count >= self::MAX_FEATURED) break;
@@ -196,7 +205,8 @@ class WikihowMobileHomepage extends Article {
 			$vars['all_items'][] = [
 				'url' => $title->getLocalURL(),
 				'title' => $title->getText(),
-				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] ),
+				'isExpert' => self::isExpert($id)
 			];
 			$count++;
 			if($count >= self::MAX_ALTDOMAIN) break;
@@ -221,7 +231,8 @@ class WikihowMobileHomepage extends Article {
 			$vars['popular_items'][] = [
 				'url' => $title->getLocalURL(),
 				'title' => $title->getText(),
-				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] ),
+				'isExpert' => self::isExpert($id)
 			];
 			$count++;
 			if($count >= self::MAX_EXPERT) break;
@@ -268,7 +279,8 @@ class WikihowMobileHomepage extends Article {
 			$vars['coauthor_items'][] = [
 				'url' => $title->getLocalURL(),
 				'title' => $title->getText(),
-				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] )
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] ),
+				'isExpert' => self::isExpert($id)
 			];
 			$count++;
 			if($count >= self::MAX_EXPERT) break;
@@ -370,6 +382,17 @@ class WikihowMobileHomepage extends Article {
 		];
 
 		return $vars;
+	}
+
+	private static function isExpert($articleId) {
+		$verifierInfo = VerifyData::getByPageId($articleId);
+		if(is_array($verifierInfo)) {
+			foreach ($verifierInfo as $info) {
+				if ($info->worksheetName == "expert") {
+					return 1;
+				}
+			}
+		}
 	}
 
 }

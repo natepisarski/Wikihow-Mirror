@@ -21,6 +21,114 @@
 }
 
 @media @medium {
+	.menu, .menu_login, .menu_messages {
+		font-size: 1rem;
+		position: absolute;
+		border: 1px solid #91af79;
+		margin: 0;
+		padding: 10px 0;
+		top: 71px;
+		z-index: 1000;
+		background-color: #f9f9f9;
+		display: none;
+		right: 0;
+	}
+
+	.menu_login { padding: 15px 25px; }
+
+	.menu a {
+		display: block;
+		padding:0 20px 0 15px;
+		line-height: 26px;
+		color: #669933;
+	}
+	#AdminOptions.menu a {
+		color: #363;
+	}
+
+	.menu a:hover {
+		color: white;
+		background-color: #91af79;
+		text-decoration: none;
+	}
+
+	#AdminOptions.menu a:hover {
+		color: white;
+	}
+
+	.admin_arrow {
+		width: 0;
+		height: 0;
+		border-left: 3px solid transparent;
+		border-right: 3px solid transparent;
+		border-top: 5px solid #AAAAAA;
+		display:inline-block;
+		margin-left:3px;
+		margin-bottom:1px;
+	}
+
+	.menu a.admin_tab_hide { display: none; }
+
+	/**** TABS ****/
+	#actionbar {
+		position: relative;
+		height: 35px;
+		margin-top: -10px;
+		z-index: 2;
+	}
+
+	/* show tabs/breadcrumbs for logged in users */
+	.is-authenticated #actionbar { display: block; }
+
+	ul#tabs {
+		position: absolute;
+		top: 0px;
+		left: 2px;
+		margin: 0px;
+		padding: 0px;
+
+		li {
+			float: left;
+			list-style: none;
+			padding: 0px;
+			margin: 0px;
+			padding-right: 15px;
+			line-height: 2em;
+
+			a {
+				font-size: 13px;
+				font-weight: 500;
+
+				&.on {
+					color: #454545;
+					font-weight: bold;
+				}
+			}
+		}
+	}
+
+	.mobile_tab:first-child {
+		margin-left: 2.3em;
+	}
+
+	#AdminOptions{
+		position: absolute;
+		top: 30px;
+		font-size: 1em;
+		border: 1px solid #91af79;
+		color: #363;
+		margin: 0;
+		background-color: #f9f9f9;
+		width: 100%;
+		width: -moz-max-content;
+		width: -webkit-max-content;
+		width: -o-max-content;
+	}
+
+	ul#AdminOptions li {
+		padding-left: 0px;
+	}
+
 	#content_wrapper {
 		margin: 1em auto;
 		max-width: 1052px;
@@ -339,7 +447,6 @@
 		}
 	}
 
-
 	.content {
 		margin: 0 0 1.5em;
 
@@ -539,6 +646,18 @@
 		padding-left: 42px;
 	}
 
+	.content {
+		.tips, .warnings {
+			.section_text ul li {
+				margin-bottom: 5px;
+
+				div.wh_vote_container {
+					display: none;
+				}
+			}
+		}
+	}
+
 	#end_options {
 		display: block;
 
@@ -661,17 +780,21 @@
 			left: 25%;
 			right: 25%;
 			display: block;
-		}
 
-		#summary_text h2 {
-			background-color: #93b874;
-			color: #fff;
-			margin: -15px -20px 10px -15px;
-			padding: 15px;
+			h2 {
+				background-color: #93b874;
+				color: #fff;
+				margin: -15px -20px 10px -15px;
+				padding: 15px;
+			}
 		}
 
 		.text_summary_wrapper {
 			overflow-y: auto;
+		}
+
+		#summary_last_sentence {
+			display: inline;
 		}
 
 		#summary_close {
@@ -689,6 +812,7 @@
 			text-decoration: none;
 			font-size: 16px;
 			display: block;
+			background: #93b874;
 		}
 
 		.page_stats {
@@ -696,7 +820,36 @@
 			text-align: center;
 			border-radius: 0 0 4px 4px;
 		}
+
+		#other_languages {
+			.collapse_link {
+				background: none;
+
+				&::after {
+					content: ':';
+				}
+			}
+		}
+
+		#language_links {
+			display: block;
+			margin-top: .5em;
+		}
+
+		.language_link {
+			display: inline;
+
+			a::after {
+				content: ',';
+				color: @fontColor;
+			}
+
+			&:last-child a::after {
+				content: '';
+			}
+		}
 	}
+
 	.ad_label_method {
 		display: none;
 	}
@@ -704,6 +857,9 @@
 }
 
 @media @large {
+
+	/* show tabs/breadcrumbs for all users */
+	#actionbar { display: block; }
 
 	#mw-mf-viewport {
 		min-width: 1070px;
@@ -813,54 +969,6 @@
 		color: #2C3C2C;
 		text-decoration: none;
 	}
-
-	.menu, .menu_login, .menu_messages {
-		font-size: 1rem;
-		position: absolute;
-		border: 1px solid #91af79;
-		margin: 0;
-		padding: 10px 0;
-		top: 71px;
-		z-index: 1000;
-		background-color: #f9f9f9;
-		display: none;
-		right: 0;
-	}
-
-	.menu_login { padding: 15px 25px; }
-
-	.menu a {
-		display: block;
-		padding:0 20px 0 15px;
-		line-height: 26px;
-		color: #669933;
-	}
-	#AdminOptions.menu a {
-		color: #363;
-	}
-
-	.menu a:hover {
-		color: white;
-		background-color: #91af79;
-		text-decoration: none;
-	}
-
-	#AdminOptions.menu a:hover {
-		color: white;
-	}
-
-	.admin_arrow {
-		width: 0;
-		height: 0;
-		border-left: 3px solid transparent;
-		border-right: 3px solid transparent;
-		border-top: 5px solid #AAAAAA;
-		display:inline-block;
-		margin-left:3px;
-		margin-bottom:1px;
-	}
-
-	.menu a.admin_tab_hide { display: none; }
 
 	.nav_icon {
 		position: relative;
@@ -1220,66 +1328,13 @@
 		padding: 5px;
 	}
 
-
-	/**** TABS ****/
-	#actionbar {
-		display: block;
-		position: relative;
-		height: 35px;
-		margin-top: -10px;
-		z-index: 2;
-	}
-
-	ul#tabs {
-		position: absolute;
-		top: 0px;
-		left: 2px;
-		margin: 0px;
-		padding: 0px;
-
-		li {
-			float: left;
-			list-style: none;
-			padding: 0px;
-			margin: 0px;
-			padding-right: 15px;
-			line-height: 2em;
-
-			a {
-				font-size: 13px;
-				font-weight: 500;
-
-				&.on {
-					color: #454545;
-					font-weight: bold;
-				}
-			}
-		}
-	}
-
-	.mobile_tab:first-child {
-		margin-left: 2.3em;
-	}
-
-	#AdminOptions{
-		position: absolute;
-		top: 30px;
-		font-size: 1em;
-		border: 1px solid #91af79;
-		color: #363;
-		margin: 0;
-		background-color: #f9f9f9;
-		width: 100%;
-		width: -moz-max-content;
-		width: -webkit-max-content;
-		width: -o-max-content;
-	}
-
-	ul#AdminOptions li {
-		padding-left: 0px;
+	/* Ensure dialogs overlap properly */
+	.oo-ui-windowManager-modal > .oo-ui-window.oo-ui-dialog {
+		z-index: 11;
 	}
 
 	#breadcrumb {
+		display: block;
 		float: right;
 		text-align: right;
 		padding-top: .5em;
@@ -2234,6 +2289,11 @@
 			padding: 1.6em @largeSectionPadding;
 		}
 
+		#summary_text {
+			border-bottom: none;
+			margin-bottom: 0;
+		}
+
 	}
 
 	.no_sidebar {
@@ -2320,6 +2380,45 @@
 	#gdpr_text {
 		font-size: 13px;
 	}
+
+	.s-help-response {
+		padding-left: 10px;
+		cursor: pointer;
+		border: none;
+		font-size: 16px;
+		font-family: Helvetica, arial, sans-serif;
+		color: #363;
+		background: none;
+	}
+	.s-help-wrap {
+		position: relative;
+		width: 50%;
+		top: 25%;
+		left: 25%;
+		right: 25%;
+		display: block;
+		background-color: #fff;
+		padding: 0 20px 15px 15px;
+		border: 1px solid #93b874;
+		border-top: none;
+	}
+
+	.s-help-response:hover {
+		text-decoration: underline;
+		background-color: inherit;
+		border: none;
+	}
+	#introad-outer > .gptlight  {
+		width: 728px;
+		height: 90px;
+	}
+	.s-help-wrap > .s-help-feedback-wrap {
+		padding-bottom: 30px;
+	}
+	.s-help-feedback-wrap {
+		display: none;
+	}
+
 }
 
 @media only screen and (min-width:1020px) {

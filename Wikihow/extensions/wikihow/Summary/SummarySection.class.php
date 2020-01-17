@@ -101,7 +101,9 @@ class SummarySection {
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		$title = $out->getTitle();
-		if ($title && $title->inNamespace( NS_SUMMARY ) && $out->getLanguage()->getCode() == 'en') {
+		if (!$title || !$title->exists() || $out->getLanguage()->getCode() != 'en') return;
+
+		if ($title->inNamespace( NS_SUMMARY )) {
 			//add instruction message
 			$page_url = $out->getTitle()->getText();
 			$html = '<b>'.wfMessage('summary_namespace_instructions', $page_url)->parse().'</b><br /><br />';
@@ -110,6 +112,19 @@ class SummarySection {
 			//hide last sentence if querystring tells us to
 			if (RequestContext::getMain()->getRequest()->getInt('hide_last_sentence',0)) {
 				$out->addModules('ext.wikihow.summary_ns_hide');
+			}
+		}
+		else {
+			$user = $out->getUser();
+			$action = Action::getActionName( RequestContext::getMain() );
+
+			if ( $title->inNamespace( NS_MAIN ) &&
+				!$title->isMainPage() &&
+				$user->isLoggedIn() &&
+				$action == 'view' &&
+				SummaryEditTool::authorizedUser($user) )
+			{
+				$out->addModules(['ext.wikihow.summary_edit_cta']);
 			}
 		}
 	}

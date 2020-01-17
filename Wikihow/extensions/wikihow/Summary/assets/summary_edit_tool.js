@@ -103,10 +103,19 @@
 						//only replace existing summary
 						//(don't write a whole new TOC or anything crazy)
 						if ($('#summary_wrapper').length) {
-							$('#summary_wrapper').hide().find('#summary_text p').remove();
-
 							var summary = data.parse.text['*'];
-							$('#summary_wrapper h2').after(summary);
+
+							if ($('#summary_wrapper h2').length) {
+								//desktop formatting
+								$('#summary_wrapper').hide().find('#summary_text p').remove();
+								$('#summary_wrapper h2').after(summary);
+							}
+							else {
+								//responsive formatting
+								//remove last sentence
+								summary = summary.replace($(summary).find('#summary_last_sentence').text(), '');
+								$('#summary_wrapper').hide().find('p').first().html(summary);
+							}
 
 							$('html, body').animate({scrollTop: 0}, 300, function() {
 								$('#summary_wrapper').show();

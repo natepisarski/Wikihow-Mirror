@@ -14,6 +14,9 @@ class GoogleAmp {
 			$amp = true;
 		}
 
+		if (self::isAmpCustomAdsTest($t)) {
+			$amp = true;
+		}
 		// Don't enable AMP mode for certain android app requests
 		if (class_exists('AndroidHelper')
 			&& AndroidHelper::isAndroidRequest()
@@ -37,6 +40,40 @@ class GoogleAmp {
 		}
 
 		return $isSpeedTest;
+	}
+
+	public static function isAmpCustomAdsTest( $t ) {
+		global $wgLanguageCode, $wgDFPAdBucket;
+
+		if ( !Misc::isMobileMode() ) {
+			return false;
+		}
+
+		if ( !in_array($wgLanguageCode, ["en"] ) ) {
+			return false;
+		}
+		if ( !$t->inNamespace( NS_MAIN ) ) {
+			return false;
+		}
+
+		if ( $wgDFPAdBucket != 2 ) {
+			return false;
+		}
+
+		if ( Misc::isAltDomain() ) {
+			return false;
+		}
+
+		if ( $t->isMainPage() ) {
+			return false;
+		}
+
+		// do not overlap with the speed test
+		if ( self::isAmpSpeedTest( $t ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public static function hasAmpParam( $request ) {
@@ -275,7 +312,9 @@ class GoogleAmp {
 		$out->addHeadItem( 'ampboilerplate',
 			'<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>' );
 		$out->addHeadItem( 'ampscript', '<script async src="https://cdn.ampproject.org/v0.js"></script>' );
-		$out->addHeadItem( 'ampadscript', '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>' );
+		if ( self::hasAmpParam( $out->getRequest() ) || !self::isAmpCustomAdsTest( $out->getTitle() ) ) {
+			$out->addHeadItem( 'ampadscript', '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>' );
+		}
 		$out->addHeadItem( 'ampanalytics',
 			'<script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>' );
 		$out->addHeadItem( 'ampsidebar',
@@ -295,6 +334,17 @@ class GoogleAmp {
 					}
 				}
 			}
+		}
+
+		if ( !self::hasAmpParam( $out->getRequest() ) && self::isAmpCustomAdsTest( $out->getTitle() ) ) {
+			// add ads code and its dependencies
+			$adsScripts = [];
+			$adsScripts[] = __DIR__ . '/amp_extra.js';
+			$adsScripts[] = __DIR__ . '/../commonjs/whshared.compiled.js';
+			$adsScripts[] = __DIR__ . '/../wikihowAds/adsenseSetup.js';
+			$adsScripts[] = __DIR__ . '/../wikihowAds/responsive/ads.compiled.js';
+			$adsScript = Misc::getEmbedFiles( 'js', $adsScripts );
+			$out->addHeadItem( 'ads_js', HTML::inlineScript( $adsScript ) );
 		}
 	}
 
@@ -415,8 +465,7 @@ class GoogleAmp {
 		}
 
 		// do not set up CCPA consent if user is in certain buckets
-		// for now this is set to < 0 so it is disabled
-		if ( $wgDFPAdBucket < 0 ) {
+		if ( $wgDFPAdBucket == 1 ) {
 			$config = [
 				'ISOCountryGroups' => [
 					'eea' => ["preset-eea", "unknown"],
@@ -541,7 +590,9 @@ class GoogleAmp {
 			return;
 		}
 		if ( self::isAmpMode( $out ) || !WikihowSkinHelper::shouldShowMetaInfo($out) ) {
-			return;
+			if ( !self::isAmpCustomAdsTest( $out->getTitle() ) ) {
+				return;
+			}
 		}
 		// RESPONSIVE: roll out responsive design on all alt domain sites
 		$useMobileDomainUrl = !Misc::isAltDomain();
@@ -565,7 +616,6 @@ class GoogleAmp {
 		$fifthStep = 3;
 		$method = 4;
 		$related = 5;
-		$testStep = 6;
 		$tips = 7;
 		$warnings = 8;
 		$bottomOfPage = 9;
@@ -731,59 +781,87 @@ class GoogleAmp {
 		}
 	}
 
-	public static function getGPTAd( $num, $intl, $bucket, $methodNumber = 0 ) {
-		global $wgLanguageCode, $wgTitle;
-		$pageId = 0;
-		if ( $wgTitle ) {
-			$pageId = $wgTitle->getArticleID();
-		}
-		$intlSite = $wgLanguageCode != 'en';
-		$whAdClass = "wh_ad";
-		$whAdLabelBottom = "";
-		$dataLoadingStrategy = null;
-		$slot = '/10095428/AMP_Test_1';
+	public static function getGPTAdSlot( $num, $intl, $bucket, $methodNumber = 0 ) {
+		global $wgLanguageCode;
 
-		if ( $intlSite ) {
-			$slot = '/10095428/AMP_Test_2';
-		}
 		// no DFP ads for the intro
 		if ( $num == 1 ) {
-			// leaving this here in case we add DFP to intro
-			//$slot = '/10095428/june19_amp_intro';
 			return '';
 		}
 
-		if ( $num == 2 ) {
-			$slot = '/10095428/june19_amp_step';
-		}
-		if ( $num == 3 ) {
-			$slot = '/10095428/june19_amp_step_2';
-		}
-		// method
-		if ( $num == 4 ) {
-			// figure out which method
-			$slot = '/10095428/june19_amp_method_1';
-			if ( $methodNumber > 0 ) {
-				$slot = '/10095428/june19_amp_method_'.$methodNumber;
+		$useEnAdNames = false;
+		// for now use new ad names only for bucket 24 but in the future we will make this the default
+		if ( $bucket == 24 && AlternateDomain::onAlternateDomain() ) {
+			$adSlots = [
+				2 => '/10095428/altd/altd_gam_amp_step2',
+				3 => '/10095428/altd/altd_gam_amp_step5',
+				4 => '/10095428/altd/altd_gam_amp_meth1',
+				5 => '/10095428/altd/altd_gam_amp_relat',
+				7 => '/10095428/altd/altd_gam_amp_tipps',
+				8 => '/10095428/altd/altd_gam_amp_warns',
+				9 => '/10095428/altd/altd_gam_amp_bottm',
+			];
+
+			// method
+			if ( $num == 4 ) {
+				if ( $methodNumber > 0 ) {
+					$slot = '/10095428/altd/altd_gam_amp_meth'.$methodNumber;
+				}
+			} else {
+				$slot = $adSlots[$num];
+			}
+		} else if ( $bucket == 24 && $wgLanguageCode == 'en' ) {
+			$adSlots = [
+				2 => '/10095428/engl/engl_gam_amp_step2',
+				3 => '/10095428/engl/engl_gam_amp_step5',
+				4 => '/10095428/engl/engl_gam_amp_meth1',
+				5 => '/10095428/engl/engl_gam_amp_relat',
+				7 => '/10095428/engl/engl_gam_amp_tipps',
+				8 => '/10095428/engl/engl_gam_amp_warns',
+				9 => '/10095428/engl/engl_gam_amp_bottm',
+			];
+
+			// method
+			if ( $num == 4 ) {
+				if ( $methodNumber > 0 ) {
+					$slot = '/10095428/engl/engl_gam_amp_meth'.$methodNumber;
+				}
+			} else {
+				$slot = $adSlots[$num];
+			}
+		} else {
+			$adSlots = [
+				2 => '/10095428/june19_amp_step',
+				3 => '/10095428/june19_amp_step_2',
+				4 => '/10095428/june19_amp_method_1',
+				5 => '/10095428/matt_test_RwH_1',
+				7 => '/10095428/AMP_DFP_Ad_for_Tips',
+				8 => '/10095428/AMP_DFP_Ad_for_Warnings',
+				9 => '/10095428/AMP_DFP_Ad_for_Bottom_of_Page',
+			];
+
+			// method
+			if ( $num == 4 ) {
+				if ( $methodNumber > 0 ) {
+					$slot = '/10095428/june19_amp_method_'.$methodNumber;
+				}
+			} else {
+				$slot = $adSlots[$num];
 			}
 		}
-		if ( $num == 5 ) {
-			$slot = '/10095428/matt_test_RwH_1';
-		}
 
-		if ( $num == 7 ) {
-			$slot = '/10095428/AMP_DFP_Ad_for_Tips';
-		}
-		if ( $num == 8 ) {
-			$slot = '/10095428/AMP_DFP_Ad_for_Warnings';
-		}
-		if ( $num == 9 ) {
-			$slot = '/10095428/AMP_DFP_Ad_for_Bottom_of_Page';
-		}
+		return $slot;
 
+	}
+
+	public static function getGPTAd( $num, $intl, $bucket, $methodNumber = 0 ) {
+		$slot = self::getGPTAdSlot( $num, $intl, $bucket, $methodNumber );
 		$whAdLabelBottom = Html::element( 'div', [ 'class' => 'ad_label_bottom' ], "Advertisement" );
 		$whAdClass .= " wh_ad_steps";
 
+		$dataLoadingStrategy = null;
+		$whAdClass = "wh_ad";
+		$whAdLabelBottom = "";
 		$bucketId = sprintf( "%02d", $bucket );
 
 		$targeting = ['targeting' => [
@@ -791,6 +869,16 @@ class GoogleAmp {
 			'language' => $wgLanguageCode,
 			'format' => 'amp'
 		]];
+
+		// change format if we are running on regular mobile
+		if ( !self::hasAmpParam( $out->getRequest() ) ) {
+			$targeting = ['targeting' => [
+				'bucket' => $bucketId,
+				'language' => $wgLanguageCode,
+				'format' => 'mat'
+			]];
+		}
+
 		$targeting = json_encode( $targeting );
 
 		// width auto with will let the ad be centered
@@ -1079,12 +1167,45 @@ class GoogleAmp {
 		}
 	}
 
+	// replaces math images with amp versions
+	private static function mathImage( $elem ) {
+		$img = pq($elem)->find( 'img:first' );
+		pq($elem)->find( 'span' )->remove();
+		$style = $img->attr( 'style' );
+		$split = explode( ';', $style );
+		$height = null;
+		$width = null;
+		$src = $img->attr( 'src' );
+		foreach ( $split as $rule ) {
+			if ( strstr( $rule, 'width:' ) ) {
+				$width = str_replace( "width:", '', $rule );
+				$width = str_replace( "ex", '', $width );
+			}
+			if ( strstr( $rule, 'height:' ) ) {
+				$height = str_replace( "height:", '', $rule );
+				$height = str_replace( "ex", '', $height );
+			}
+		}
+		$attr = [
+			'src' => $src,
+			'width' => $width * 8.36,
+			'height' => $height * 8.36,
+			'layout' => 'fixed',
+			'class' => 'math-img'
+		];
+		$ampImg = Html::element( "amp-img", $attr );
+		pq($elem )->find( 'img:first' )->after( $ampImg );
+	}
+
 	public static function modifyDom() {
+		global $wgOut;
 		self::formatQABadges();
 		self::modifyVideoSection();
 		foreach ( pq( 'script' ) as $script ) {
 			if ( pq( $script )->attr( 'type' ) !== 'application/ld+json' ) {
-				pq( $script )->remove();
+				if ( self::hasAmpParam( $wgOut->getRequest() ) || !self::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
+					pq( $script )->remove();
+				}
 			}
 		}
 		pq( 'mo' )->remove();
@@ -1157,13 +1278,9 @@ class GoogleAmp {
 			}
 		}
 
-		foreach ( pq( '.mwe-math-mathml-inline' ) as $elem ) {
-			$text = pq( $elem )->attr( 'data-original-text' );
-			$text = htmlspecialchars( $text );
-			pq($elem)->after( $text );
+		foreach ( pq( '.mwe-math-element' ) as $elem ) {
+			self::mathImage( $elem );
 		}
-		pq( '.mwe-math-mathml-inline' )->remove();
-		pq( '.mwe-math-fallback-image-inline' )->remove();
 
 		// this would be hidden and can have inline styles so just remove it for now
 		pq( '.template_top' )->remove();
@@ -1402,6 +1519,10 @@ class GoogleAmp {
 		$article = new Article( $title, $revision );
 
 		return true;
+	}
+
+	public static function onShowArticleTabs( &$showTabs ) {
+		if (self::isAmpMode( RequestContext::getMain() )) $showTabs = false;
 	}
 }
 

@@ -495,10 +495,11 @@ abstract class AdCreator {
 			return;
 		}
 
-		// TODO this has not been tested yet
 		if ( GoogleAmp::isAmpMode( $wgOut ) ) {
-			GoogleAmp::insertAMPAds();
-			return;
+			if ( GoogleAmp::hasAmpParam( $wgOut->getRequest() ) || !GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
+				GoogleAmp::insertAMPAds();
+				return;
+			}
 		}
 
 		$this->insertIntroAd();
@@ -539,11 +540,16 @@ abstract class AdCreator {
 	}
 
 	public function isAdOkForDomain( $ad ) {
+		global $wgOut;
 		$result = true;
 
-		// for now only show small and medium sized ads on mobile domain
 		if ( Misc::isMobileMode() ) {
-			$result = true;
+			// for now only show small and medium sized ads on amp test
+			if ( GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
+				if ( $ad->setupData['small'] !== 1 && $ad->setupData['medium'] !== 1 ) {
+					$result = false;
+				}
+			}
 		} else {
 			// on desktop domain only show ads with large
 			if ( $ad->setupData['large'] !== 1 ) {
@@ -823,7 +829,10 @@ abstract class AdCreator {
 	}
 
 	protected function isDFPOkForSetup() {
-		global $wgTitle;
+		global $wgOut;
+		if ( GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
+			return false;
+		}
 		return true;
 	}
 
@@ -941,6 +950,11 @@ class DefaultAdCreator extends AdCreator {
 			if ( $pageId % 100 < 10 ) {
 				$this->mMobileAdsenseChannels[] = 9252820051;
 			}
+		}
+		if ( intval( $this->mBucketId ) == 2 ) {
+			$this->mMobileAdsenseChannels[] = 8177814015;
+		} else {
+			$this->mMobileAdsenseChannels[] = 6429618073;
 		}
 
 		$this->mAdSetupData = array(
@@ -1117,6 +1131,183 @@ class DefaultAdCreator extends AdCreator {
 				'small' => 1,
 			),
 		);
+
+		if ( $this->mBucketId == 24 ) {
+			$this->mAdSetupData = array(
+				'intro' => array(
+					'service' => 'adsense',
+					'instantload' => 1,
+					'slot' => 7672188889,
+					'width' => 728,
+					'height' => 120,
+					'smallslot' => 8943394577,
+					'smallheight' => 120,
+					'class' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'intro',
+					'small' => 1,
+					'medium' => 1,
+					'large' => 1,
+				),
+				'method' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_meth1',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'toc' => array(
+					'service' => 'adsense',
+					'slot' => 4313551892,
+					'width' => 728,
+					'height' => 90,
+					'type' => 'toc',
+					'medium' => 1,
+					'large' => 1,
+				),
+				'rightrail0' => array(
+					'service' => 'adsense',
+					'slot' => 5490902193,
+					'instantload' => 0,
+					'width' => 300,
+					'height' => 600,
+					'containerheight' => 2000,
+					'class' => ['rr_container'],
+					'innerclass' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'rightrail',
+					'large' => 1,
+				),
+				'rightrail1' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_rght2',
+					'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+					'apsLoad' => true,
+					'refreshable' => 1,
+					'viewablerefresh' => 1,
+					'first-refresh-time' => 30000,
+					'refresh-time' => 28000,
+					'aps-timeout' => 800,
+					'width' => 300,
+					'height' => 600,
+					'containerheight' => 3300,
+					'class' => ['rr_container'],
+					'innerclass' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'rightrail',
+					'large' => 1,
+				),
+				'scrollto' => array(
+					'service' => 'adsense',
+					'type' => 'scrollto',
+					'slot' => 4177820525,
+					'maxsteps' => 2,
+					'maxnonsteps' => 0,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'quiz' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_quizz',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'class' => ['hidden'],
+					'type' => 'quiz',
+					'medium' => 1,
+					'large' => 1,
+				),
+				'related' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_relat',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'qa' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_qanda',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'mobilemethod' => array(
+					'service' => 'adsense',
+					'slot' => 7710650179,
+					'width' => 728,
+					'height' => 90,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'method',
+					'small' => 1,
+					'medium' => 1,
+				),
+				'mobilerelated' => array(
+					'service' => 'adsense',
+					'slot' => 3648874275,
+					'width' => 728,
+					'height' => 90,
+					'smallslot' => 9047782573,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'related',
+					'small' => 1,
+					'medium' => 1,
+				),
+				'middlerelated' => array(
+					'service' => 'adsense',
+					'smallslot' => 3859396687,
+					'smallheight' => 250,
+					'type' => 'middlerelated',
+					'small' => 1,
+				),
+				'mobileqa' => array(
+					'service' => 'adsense',
+					'slot' => 4167749029,
+					'width' => 728,
+					'height' => 90,
+					'smallslot' => 1240030252,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'qa',
+					'small' => 1,
+					'medium' => 1,
+				),
+				'tips' => array(
+					'service' => 'adsense',
+					'smallslot' => 8787347780,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'tips',
+					'small' => 1,
+				),
+				'warnings' => array(
+					'service' => 'adsense',
+					'smallslot' => 3674621907,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'warnings',
+					'small' => 1,
+				),
+				'pagebottom' => array(
+					'service' => 'adsense',
+					'smallslot' => 3788982605,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'pagebottom',
+					'small' => 1,
+				),
+			);
+		}
 	}
 }
 

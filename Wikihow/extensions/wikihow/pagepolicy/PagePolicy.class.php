@@ -251,16 +251,6 @@ class PagePolicy {
 		}
 	}
 
-	/**
-	 * Remove all tabs if we are showing the page as 404
-	 */
-	public static function onHeaderBuilderAfterGetTabsArray(&$tabs) {
-		$context = RequestContext::getMain();
-		if ( !self::showCurrentTitle($context) ) {
-			$tabs = [];
-		}
-	}
-
 	public static function getLoginModal($returnto) {
 		return self::render(
 			'login_popin',

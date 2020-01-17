@@ -436,11 +436,13 @@ WH.shared = (function () {
 			el.parentElement.style['paddingTop'] = ((height / width) * 100) + '%';
 		}
 
-		updateVisibility();
+		if (!useObserver) {
+			updateVisibility();
+		}
 		if (autoLoad) {
 			item.load();
 		} else {
-			if (!scrollLoadingHandler) {
+			if (!scrollLoadingHandler && !useObserver) {
 				scrollLoadingHandler = throttle(updateVisibility, 500);
 				window.addEventListener('scroll', scrollLoadingHandler);
 			}

@@ -23,6 +23,9 @@ WH.ads = (function () {
 	var TOCAd;
 	var bodyAds = [];
 	var lastScrollPosition = window.scrollY;
+	var scrollLoadingHandler = null;
+	var scrollToAdLoadingHandler = null;
+	var rightRailPositionHandler = null;
 
 	var topMenuHeight = WH.shared.TOP_MENU_HEIGHT;
 	var bottomMarginHeight = WH.shared.BOTTOM_MARGIN;
@@ -33,6 +36,7 @@ WH.ads = (function () {
 	var rootLoadingMargin = "0px 0px " + loadingMargin + "px 0px";
 
 	if ("IntersectionObserver" in window) {
+	//if (false) {
 		adLoadingObserver = new IntersectionObserver(function(entries, observer) {
 			entries.forEach(function(entry) {
 				if (entry.isIntersecting) {
@@ -652,6 +656,10 @@ WH.ads = (function () {
 		this.updateVisibility = function() {
 			// handle scrollTo ad if we have one
 			if (this.maxNonSteps < 1 && this.maxSteps < 1) {
+				if (scrollToAdLoadingHandler) {
+					window.removeEventListener('scroll', scrollToAdLoadingHandler);
+					scrollToAdLoadingHandler = null;
+				}
 				return;
 			}
 
@@ -961,44 +969,67 @@ WH.ads = (function () {
 	}
 
 	// this is registered by the scroll handler
-	function updateVisibility() {
-		lastScrollPosition = window.scrollY;
+	function rightRailFixedPosition() {
 		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
-		var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
-		// TODO put this into the ad itself instead of rechecking constantly?
-		var hasRightRail = viewportWidth >= WH.largeScreenMinWidth;
-		var hasDesktopAds = viewportWidth >= WH.mediumScreenMinWidth;
-
 		// keep track of ad heights for possible use if they are too tall for the article
 		var adHeights = [];
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var ad = rightRailElements[i];
-			if (!hasRightRail) {
-				continue;
-			}
-			updateAdLoading(ad, viewportHeight);
 			if (ad.notfixedposition) {
 				continue;
 			}
 			adHeights[i] = updateFixedPositioning(ad, viewportHeight);
 		}
+		checkSidebarHeight(rightRailElements, adHeights);
+	}
+
+	function updateVisibility() {
+		var allAdsLoaded = true;
+		lastScrollPosition = window.scrollY;
+		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
+
+		// update ad loading on right rail ads
+		for (var i = 0; i < rightRailElements.length; i++) {
+			var ad = rightRailElements[i];
+			if (!ad.isLoaded) {
+				allAdsLoaded = false;
+				updateAdLoading(ad, viewportHeight);
+			}
+		}
+
+		// update ad loading on regular article ads
 		for (var i = 0; i < bodyAds.length; i++) {
 			var ad = bodyAds[i];
-			updateAdLoading(ad, viewportHeight);
+			if (!ad.isLoaded) {
+				allAdsLoaded = false;
+				updateAdLoading(ad, viewportHeight);
+			}
 		}
 
-		if (hasRightRail) {
-			checkSidebarHeight(rightRailElements, adHeights);
-		}
-
-		if (scrollToAd) {
-			scrollToAd.updateVisibility();
+		if (allAdsLoaded ) {
+			window.removeEventListener('scroll', scrollLoadingHandler);
+			scrollLoadingHandler = null;
 		}
 	}
 
+	function updateScrollToAdVisibility() {
+			scrollToAd.updateVisibility();
+	}
+
 	function init() {
-		updateVisibility();
-		window.addEventListener('scroll', WH.shared.throttle(updateVisibility, 10));
+		var viewportWidth = (window.innerWidth || document.documentElement.clientWidth);
+		var hasRightRail = viewportWidth >= WH.largeScreenMinWidth;
+
+		if ( !adLoadingObserver ) {
+			scrollLoadingHandler = WH.shared.throttle(updateVisibility, 100);
+			window.addEventListener('scroll', scrollLoadingHandler);
+		}
+
+		if (hasRightRail == true ) {
+			rightRailPositionHandler = WH.shared.throttle(rightRailFixedPosition, 10);
+			window.addEventListener('scroll', rightRailPositionHandler);
+		}
+
 		document.addEventListener('DOMContentLoaded', function() {updateVisibility();}, false);
 		if (WH.shared) {
 			WH.shared.addResizeFunction(updateVisibility);
@@ -1027,22 +1058,31 @@ WH.ads = (function () {
         var element = document.getElementById(id);
         var ad = new BodyAd(element);
 
+		var useObserver = useIntersectionObserver();
 		// check if ad is disabled for this size screen
-		// TODO could keep a list of disabled ads and try them if screen size changes
 		if (ad.disabled) {
 			return;
 		}
+
 		if (ad.type == 'rightrail') {
 			ad.last = true;
 			if (rightRailElements.length > 0) {
 				rightRailElements[rightRailElements.length -1].last = false;
 			}
 			rightRailElements.push(ad);
+			if (useObserver && ad.observerLoading && ad.instantLoad == false) {
+				ad.useScrollLoader = false;
+				adLoadingObserver.observe(ad.element);
+			}
 		} else if (ad.type == 'toc') {
 			TOCAd = ad;
 			ad.adElement.style.display = "none";
 		} else if (ad.type == 'scrollto') {
 			scrollToAd = new ScrollToAd(element);
+			if (scrollToAd && !scrollToAd.disabled) {
+				scrollToAdLoadingHandler = WH.shared.throttle(updateScrollToAdVisibility, 100);
+				window.addEventListener('scroll', scrollToAdLoadingHandler);
+			}
 		} else if (ad.type == 'quiz') {
 			quizAds[ad.adElement.parentElement.id] = ad;
 			ad.adElement.parentElement.addEventListener("change", function(e) {
@@ -1054,8 +1094,7 @@ WH.ads = (function () {
 			});
 		} else {
 			bodyAds.push(ad);
-			var useObserver = useIntersectionObserver();
-			if (useObserver && ad.observerLoading) {
+			if (useObserver && ad.observerLoading && ad.instantLoad == false) {
 				ad.useScrollLoader = false;
 				adLoadingObserver.observe(ad.element);
 			}
@@ -1067,9 +1106,16 @@ WH.ads = (function () {
 
 	// finds the ScrollLoad item matching the element and loads it
 	// used by intersection observer ad loading
+	// TODO can be improved by storing assoc array of the ads w element as key
 	function loadElement(element) {
 		for (var i = 0; i < bodyAds.length; i+=1) {
 			var item = bodyAds[i];
+			if (item.element == element) {
+				item.load()
+			}
+		}
+		for (var i = 0; i < rightRailElements.length; i+=1) {
+			var item = rightRailElements[i];
 			if (item.element == element) {
 				item.load()
 			}

@@ -1069,3 +1069,7 @@ p.green_box_bullet {
 .amp-geo-group-us #footer_ccpa {
 	display: inline;
 }
+.math-img {
+	vertical-align: -3px;
+	max-width: 100%;
+}

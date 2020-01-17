@@ -215,7 +215,9 @@ class AlternateDomain {
 
 		$prefix = 'www.';
 		if ( Misc::isMobileMode() ) {
-			$prefix = 'm.';
+			if ( $domain == "wikihow.com" ) {
+				$prefix = 'm.';
+			}
 		}
 
 		if ( $wgIsDevServer )  {
@@ -225,7 +227,7 @@ class AlternateDomain {
 				$domain = "wikidogs.com";
 			}
 			if ( Misc::isMobileMode() ) {
-				$prefix = 'dev.m.';
+				$prefix = 'dev.';
 				if ( $domain == "wikihow.com" || $domain == "wikidogs.com" ) {
 					$prefix = "a.m.";
 				}
@@ -1653,15 +1655,6 @@ class AlternateDomain {
 	}
 
 	/*
-	 * a hook alters the main page title
-	 */
-	public static function onGetTabsArrayShowDiscussTab( &$showDiscussTab ) {
-		if ( !self::onAlternateDomain() ) {
-			return true;
-		}
-		$showDiscussTab = false;
-	}
-	/*
 	 * a hook alters the links in the sidebar on mobile
 	 */
 	public static function onWikihowMobileSkinAfterPrepareDiscoveryTools( &$items ) {
@@ -1688,16 +1681,6 @@ class AlternateDomain {
 			return true;
 		}
 		unset( $items['auth'] );
-	}
-
-	/*
-	 * remove the links from the top tabs (like article and edit links)
-	 */
-	public static function onHeaderBuilderAfterGetTabsArray( &$tabs ) {
-		if ( !self::onAlternateDomain() ) {
-			return true;
-		}
-		$tabs = array();
 	}
 
 	/*
@@ -1731,6 +1714,20 @@ class AlternateDomain {
 	private static function termsOfUseHTML(): string {
 		$msg = wfMessage('termsofuse_altdomain')->parse();
 		return HTML::rawElement('div', ['class' => 'section_text'], $msg);
+	}
+
+	/*
+	 * remove the links from the top tabs (like article and edit links)
+	 */
+	public static function onShowArticleTabs( &$showTabs ) {
+		if (self::onAlternateDomain()) $showTabs = false;
+	}
+
+	/*
+	 * remove the breadcrumbs
+	 */
+	public static function onShowBreadCrumbs( &$showCrumbs ) {
+		if (self::onAlternateDomain()) $showCrumbs = false;
 	}
 }
 

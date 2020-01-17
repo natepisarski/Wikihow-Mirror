@@ -12,6 +12,10 @@ class SensitiveArticleWidgetApi extends \UnlistedSpecialPage
 		parent::__construct('SensitiveArticleWidgetApi');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	function execute($par)
 	{
 		$req = $this->getRequest();

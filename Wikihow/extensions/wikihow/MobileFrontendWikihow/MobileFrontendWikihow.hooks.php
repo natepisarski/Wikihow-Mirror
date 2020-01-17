@@ -48,10 +48,7 @@ class MobileFrontendWikiHowHooks {
 
 			//article pages
 			if ($wgTitle && $wgTitle->inNamespace(NS_MAIN)) {
-				$action = $wgRequest ? $wgRequest->getVal('action') : '';
-				if ($action != "edit") {
-					$mobileAllowed = true;
-				}
+				$mobileAllowed = true;
 			}
 			//main page
 			if ($wgTitle && $wgTitle->isMainPage()) {

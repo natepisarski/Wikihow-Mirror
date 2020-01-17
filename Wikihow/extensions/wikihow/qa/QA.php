@@ -110,7 +110,10 @@ $wgResourceModules['mobile.wikihow.qa_widget'] = array(
 		'ta_label',
 		'ta_subcats_intro',
 		'ta_subcats_outro',
-		'qa_question_label'
+		'qa_question_label',
+		'qa_flag_duplicate',
+		'qa_afo_incorrect',
+		'qa_afo_other'
 	],
 	'targets' => [
 		'mobile',

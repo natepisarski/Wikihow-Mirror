@@ -102,7 +102,7 @@ $wgResourceModules['ext.wikihow.graphs_modal'] = array(
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/modal',
 	'position' => 'bottom',
-	'targets' => array('desktop'),
+	'targets' => array('desktop','mobile'),
 );
 
 $wgResourceModules['ext.wikihow.flag_as_details'] = array(
@@ -117,7 +117,7 @@ $wgResourceModules['ext.wikihow.flag_as_details'] = array(
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/modal',
 	'position' => 'bottom',
-	'targets' => array( 'desktop' )
+	'targets' => array( 'desktop', 'mobile' )
 );
 
 $wgResourceModules['ext.wikihow.discuss_tab'] = array(

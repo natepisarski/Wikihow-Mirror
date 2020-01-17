@@ -145,7 +145,8 @@ h6.steps_text .edit-page,
 .pswp,
 #mw-mf-last-modified,
 .page_stats,
-#end_options {
+#end_options,
+#breadcrumb {
 	display:none;
 }
 
@@ -935,6 +936,10 @@ body.action-view #fa_container p {
 
 .content .section_text .steps_list_2 ul li, .content .ingredients ul li, .content .thingsyoullneed ul li {
 	margin-bottom: 0;
+}
+
+.content .ingredients ul ul {
+	margin: 20px 0 0 26px;
 }
 
 #social_proof_anchor {

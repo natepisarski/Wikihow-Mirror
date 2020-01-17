@@ -773,6 +773,8 @@ class WikihowMobileTools {
 					if (pq('video', $summarySection)->length == 0) {
 						pq($summarySection)->remove();
 					}
+					$html = RateItem::getSummarySectionRatingHtml( false );
+					$summaryText->append($html);
 				}
 
 				//if there's a video summary, rename the section
@@ -789,9 +791,6 @@ class WikihowMobileTools {
 
 				//no edit for the summary section since we're moving to templates [sc: 5/2018]
 				pq($summarySection)->find('.edit-page')->remove();
-
-				//no last sentence for mobile (since we're forcing it lower)
-				pq('#summary_last_sentence')->remove();
 			}
 		}
 
@@ -927,10 +926,6 @@ class WikihowMobileTools {
 		// Check the YouTube videos
 		if ( pq( '.embedvideocontainer' )->length > 0 && WHVid::isYtSummaryArticle( $wgTitle ) ) {
 			wikihowToc::setSummaryVideo( true );
-			$summary = pq( '.summary_with_video' );
-			if ( $summary->length ) {
-				$summary->replaceWith( pq( '#summary_wrapper' ) );
-			}
 			// Add schema to all YouTube videos that are from our channel
 			foreach ( pq( '.embedvideo' ) as $video ) {
 				$src = pq( $video )->attr( 'data-src' );

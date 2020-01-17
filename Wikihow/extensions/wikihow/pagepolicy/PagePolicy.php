@@ -7,7 +7,6 @@ $wgHooks['ArticleViewHeader'][] = 'PagePolicy::onArticleViewHeader';
 $wgHooks['BeforePageDisplay'][] = 'PagePolicy::onBeforePageDisplay';
 $wgHooks['PreWikihowProcessHTML'][] = 'PagePolicy::onPreWikihowProcessHTML';
 $wgHooks['IsEligibleForMobile'][] = 'PagePolicy::onIsEligibleForMobile';
-$wgHooks['HeaderBuilderAfterGetTabsArray'][] = 'PagePolicy::onHeaderBuilderAfterGetTabsArray';
 
 $wgMessagesDirs['PagePolicy'] = __DIR__ . '/i18n/';
 

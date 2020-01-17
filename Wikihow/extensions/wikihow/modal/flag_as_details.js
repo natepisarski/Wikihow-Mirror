@@ -26,7 +26,8 @@
 			},this));
 
 			//x or skip
-			$('#wh_modal_close, #wh_modal_btn_skip').click(function() {
+			$('#wh_modal_close, #wh_modal_btn_skip').click(function(e) {
+				e.preventDefault();
 				$.modal.close();
 			});
 		},

@@ -13,7 +13,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	protected $isUserPage;
 	protected $isSearchPage;
 	protected $showCurrentArticle;
-	protected $breadCrumb = '';
+	protected $breadCrumbs = '';
 
 	public function execute() {
 		$this->isMainPage = $this->getSkin()->getTitle()->isMainPage();
@@ -23,24 +23,12 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$this->isSearchPage = preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI']);
 		$this->isUserPage = $title && $title->inNamespaces(NS_USER, NS_USER_TALK, NS_USER_KUDOS);
 		$this->showCurrentArticle = $this->getSkin()->getTitle()->exists() && PagePolicy::showCurrentTitle($this);
-		$this->breadCrumb = $this->setBreadcrumbHtml();
+		$this->breadCrumbs = WikihowHeaderBuilder::getBreadcrumbs();
 		parent::execute();
 	}
 
 	public function getWikihowTools() {
 		return $this->data['wikihow_urls'];
-	}
-
-	protected function setBreadcrumbHtml(): string {
-		if (Misc::isAltDomain()) return '';
-
-		$context = RequestContext::getMain();
-		$fullCategoryTree = [];
-
-		$catLinksTop = WikihowHeaderBuilder::getCategoryLinks(true, $context, $fullCategoryTree);
-		Hooks::run('getBreadCrumbs', array(&$catLinksTop));
-
-		return $catLinksTop;
 	}
 
 	protected function renderPreContent( $data ) {
@@ -175,7 +163,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				'mainLink' => Title::newMainPage()->getLocalURL(),
 				'logoImage' => '/skins/owl/images/wikihow_logo_intl.png',
 				'imageAlt' => 'wikiHow',
-				'crumbs' => $this->breadCrumb,
+				'crumbs' => $this->breadCrumbs,
 				'searchBox' => $search_box,
 				'links' => $this->footerLinks( $data['amp'] ),
 				'socialFooter' => class_exists('SocialFooter') ? SocialFooter::getSocialFooter() : '',
@@ -335,8 +323,182 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		<?php
 	}
 
-	protected function render( $data ) { // FIXME: replace with template engines
+
+	protected function renderJSTimingPage( $data ) {
 		global $wgLanguageCode;
+
+		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
+
+		$headerContainerData = $data['is_responsive'] ? 'data-responsive="1"' : '';
+
+		$rightRailHtml = $this->getRightRailHtml( $data );
+		$useRightRail = true;
+		Hooks::run("UseMobileRightRail", [&$useRightRail]);
+
+		$outputHtml = '';
+
+		// begin rendering
+		$headElementHtml = $data[ 'headelement' ];
+		echo $headElementHtml;
+
+		echo Misc::getTTIBody();
+		echo Misc::getFIDBody();
+		echo $data['rightrail']->mAds->getGPTDefine();
+		?>
+		<? /* BEBETH: Moving header to the top to deal with links in static header */ ?>
+		<div id="header_container" <?= $headerContainerData ?>>
+			<div class="header" id="header" role="navigation">
+				<?php
+				$this->html( 'menuButton' );
+
+				$headerClass = '';
+				Hooks::run( 'MinervaTemplateWikihowBeforeCreateHeaderLogo', array( &$headerClass ) );
+				?>
+				<a href="<?= Title::newMainPage()->getLocalURL() ?>" id="header_logo" class="<?= $headerClass ?>"></a>
+				<?php
+				if ( !( Misc::isAltDomain() ) ) {
+					?>
+					<a href="/Hello" id="noscript_header_logo" class="hide <?= $headerClass ?>"></a>
+					<?php
+				}
+				if ( $data['disableSearchAndFooter'] ) {
+					echo $data['specialPageHeader'];
+				} else {
+					$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
+					$query = filter_var( $query, FILTER_SANITIZE_STRING );
+					$classes = [];
+					if ( $this->isSearchPage ) {
+						$classes[] = 'hs_active';
+					}
+					if ( $data['secondaryButtonData'] ) {
+						$classes[] = 'hs_notif';
+					}
+					?>
+					<div id="hs" class="<?= implode( $classes, ' ' ) ?>">
+						<form action="/wikiHowTo" class="search" target="_top">
+							<input type="text" id="hs_query" role="textbox" tabindex="0" name="search" value="<?= $query ?>" required placeholder="" aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
+							<button type="submit" id="hs_submit"></button>
+							<div id="hs_close" role="button" tabindex="0" ></div>
+						</form>
+					</div>
+					<?php
+				}
+				$notifications = 0;
+				$navTabs = WikihowHeaderBuilder::genNavigationTabs($this->getSkin(), $notifications);
+				?>
+
+				<ul id="actions" role="menubar" aria-label="<?= wfMessage('aria_header')->showIfExists() ?>">
+					<? foreach ($navTabs as $tabid => $tab): ?>
+						<li id="<?= $tabid ?>_li" class="nav_item" role="menuitem" aria-labelledby="<?= $tabid ?>">
+							<div class="nav_icon"></div>
+							<a id='<?= $tabid ?>' class='nav' href='<?= $tab['link'] ?>' <?= ($tab['data-link'] ? "data-link='{$tab['data-link']}'" : "") ?>><?= $tab['text'] ?></a>
+							<?= $tab['menu'] ?>
+						</li>
+					<? endforeach; ?>
+				</ul><!--end actions-->
+
+
+				<?php
+				echo $data['secondaryButtonData'];
+				?>
+			</div>
+		</div>
+		<?
+		// JRS 06/23/14 Add a hook to add classes to the top-level viewport object
+		// to make it easier to customize css based on classes
+		$classes = [];
+		if(!$useRightRail) $classes[] = 'no_sidebar';
+		Hooks::run('MinervaViewportClasses', array(&$classes));
+		$classes = empty($classes) ? '' : implode(" ", $classes);
+		?>
+	<div id="mw-mf-viewport" class="<?=$classes?>">
+		<?php
+		$this->renderPageLeft( $data );
+		?>
+		<div id='mw-mf-page-center'>
+			<? if ( class_exists( 'GDPR' ) ) {
+				if ( $this->isMainPage || $this->isArticlePage || $this->isSearchPage ) {
+					echo GDPR::getHTML();
+					echo GDPR::getInitJs();
+				}
+			} ?>
+			<?php
+			foreach( $this->data['banners'] as $banner ):
+				echo $banner;
+			endforeach;
+			?>
+
+			<? if ($this->isMainPage) echo WikihowMobileHomepage::showTopSection(); ?>
+
+			<div id="content_wrapper" role="main">
+				<?php
+				$html = $this->getTopContentJS( $data );
+				echo $html;
+
+				$articleTabs = WikihowHeaderBuilder::getArticleTabs();
+				if ($articleTabs != '' || $this->breadCrumbs != ''):
+				?>
+				<div id="actionbar" role="navigation">
+					<?= $articleTabs ?>
+
+					<? if ($this->breadCrumbs != ''): ?>
+					<ul id="breadcrumb" class="breadcrumbs" aria-label="<?= wfMessage('aria_breadcrumbs')->showIfExists() ?>">
+						<?php echo $this->breadCrumbs ?>
+					</ul>
+					<? endif; ?>
+				</div>
+				<? endif; ?>
+
+				<div id="content_inner">
+					<?php
+					$this->renderContentWrapper( $data );
+					?>
+				</div>
+
+				<? if($useRightRail): ?>
+
+					<div id="sidebar">
+						<?php
+						echo $rightRailHtml;
+						?>
+					</div>
+					<? endif; ?>
+					<br class="clearall" />
+				</div>
+				<br class="clearall" />
+
+			<?php
+
+			$schema = SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
+			if ( $schema ) echo $schema;
+
+			$this->renderFooter( $data );
+
+			?>
+		</div>
+		<div id='servedtime'><?= Misc::reportTimeMS(); ?></div>
+		<?php
+		echo MWDebug::getDebugHTML( $this->getSkin()->getContext() );
+		echo wfReportTime();
+		//echo $data['bottomscripts'];
+
+		// Reuben: using this hook to post-load the ResourceLoader startup
+		//Hooks::run( 'MobileEndOfPage', array( $data ) );
+		?>
+		</body>
+		</html>
+		<?php
+	}
+
+	protected function render( $data ) { // FIXME: replace with template engines
+
+		if ( ArticleTagList::hasTag( 'js_timing_pages', $data['articleid'] ) ) {
+			if ( !$data['amp'] ) {
+				self::renderJSTimingPage( $data );
+				return;
+			}
+		}
+
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 
 		$headerContainerData = $data['is_responsive'] ? 'data-responsive="1"' : '';
@@ -448,20 +610,21 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				<?php
 				$html = $this->getTopContentJS( $data );
 				echo $html;
-				$showArticleTabs = $this->isArticlePage || $this->isUserPage;
-				$tabsArray = WikihowHeaderBuilder::getTabsArray($showArticleTabs, $this->getSkin(), $this->showCurrentArticle);
+
+				$articleTabs = WikihowHeaderBuilder::getArticleTabs();
+				if ($articleTabs != '' || $this->breadCrumbs != ''):
 				?>
 				<div id="actionbar" role="navigation">
-					<? if (count($tabsArray) > 0 && !$data['amp']):
-						echo WikihowHeaderBuilder::getTabsHtml($tabsArray);
-					endif;
-					?>
-					<? if(!$this->isMainPage): ?>
+					<?= $articleTabs ?>
+
+					<? if ($this->breadCrumbs != ''): ?>
 					<ul id="breadcrumb" class="breadcrumbs" aria-label="<?= wfMessage('aria_breadcrumbs')->showIfExists() ?>">
-						<?php echo $this->breadCrumb ?>
+						<?php echo $this->breadCrumbs ?>
 					</ul>
 					<? endif; ?>
 				</div>
+				<? endif; ?>
+
 				<div id="content_inner">
 					<?php
 					$this->renderContentWrapper( $data );
