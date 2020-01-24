@@ -490,6 +490,14 @@ class WikihowArticleHTML {
 			$id = md5(pq($li)->html() . mt_rand(1, 100));
 			pq($li)->html("<input id='item_$id' class='css-checkbox' type='checkbox'/><label for='item_$id' name='item_{$id}_lbl' class='css-checkbox-label'></label><div class='checkbox-text'>" . pq($li)->html() . '</div>');
 		}
+
+		// Remove logged in templates for logged out users so that they don't display in the html
+		if ($user->isAnon()) {
+			foreach (pq(".tmp_li") as $template) {
+				pq($template)->remove();
+			}
+		}
+
 		// Move templates above article body contents and style appropriately
 		foreach (pq('.template_top') as $template) {
 			pq($template)->addClass('sidebox');
@@ -1736,6 +1744,9 @@ class WikihowArticleHTML {
 
 		$title = $context->getTitle();
 		$request = $context->getRequest();
+
+		//open all links in new tabs
+		pq('.reference-text a, .sources li a', $sources)->attr('target', '_blank');
 
 		// Don't hide refs if it's a printable page, we're on a special page, or we're in a diff view
 		if ($count > $limit && !$out->isPrintable()

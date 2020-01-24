@@ -43,37 +43,7 @@ class GoogleAmp {
 	}
 
 	public static function isAmpCustomAdsTest( $t ) {
-		global $wgLanguageCode, $wgDFPAdBucket;
-
-		if ( !Misc::isMobileMode() ) {
-			return false;
-		}
-
-		if ( !in_array($wgLanguageCode, ["en"] ) ) {
-			return false;
-		}
-		if ( !$t->inNamespace( NS_MAIN ) ) {
-			return false;
-		}
-
-		if ( $wgDFPAdBucket != 2 ) {
-			return false;
-		}
-
-		if ( Misc::isAltDomain() ) {
-			return false;
-		}
-
-		if ( $t->isMainPage() ) {
-			return false;
-		}
-
-		// do not overlap with the speed test
-		if ( self::isAmpSpeedTest( $t ) ) {
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	public static function hasAmpParam( $request ) {
@@ -855,6 +825,7 @@ class GoogleAmp {
 	}
 
 	public static function getGPTAd( $num, $intl, $bucket, $methodNumber = 0 ) {
+		global $wgLanguageCode;
 		$slot = self::getGPTAdSlot( $num, $intl, $bucket, $methodNumber );
 		$whAdLabelBottom = Html::element( 'div', [ 'class' => 'ad_label_bottom' ], "Advertisement" );
 		$whAdClass .= " wh_ad_steps";
@@ -871,7 +842,8 @@ class GoogleAmp {
 		]];
 
 		// change format if we are running on regular mobile
-		if ( !self::hasAmpParam( $out->getRequest() ) ) {
+		$ctx = RequestContext::getMain();
+		if ( !self::hasAmpParam( $ctx->getRequest() ) ) {
 			$targeting = ['targeting' => [
 				'bucket' => $bucketId,
 				'language' => $wgLanguageCode,

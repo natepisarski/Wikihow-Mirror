@@ -12,11 +12,10 @@ $wgMessagesDirs['PagePolicy'] = __DIR__ . '/i18n/';
 
 $wgSpecialPages['Validatron'] = 'SpecialValidatron';
 
-$wgResourceModules['ext.wikihow.login_popin'] = $wgResourceModulesDesktopBoiler + [
+$wgResourceModules['ext.wikihow.login_popin'] = $wgResourceModulesResponsiveBoiler + [
 	'styles' => [ 'pagepolicy/login_popin.css' ],
 	'scripts' => [
 		'common/jquery.simplemodal.1.4.4.min.js',
 		'pagepolicy/login_popin.js'
 	]
 ];
-$wgResourceModules['ext.wikihow.login_popin']['dependencies'][] = 'jquery.ui.dialog';

@@ -53,6 +53,8 @@
 		} );
 	};
 
-	window.WH.LoginPopin.showModal();
+	if ($(window).width() >= WH.largeScreenMinWidth) {
+		window.WH.LoginPopin.showModal();
+	}
 
 } ) ( mediaWiki, jQuery );

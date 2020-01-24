@@ -182,7 +182,7 @@ class ConfigStorage {
 			[ // rule 1
 			  'keys' => [
 				'UserPageWhitelist', 'deindexed_link_removal_whitelist', 'difficult-articles', 'editfish-article-exclude-list',
-				'expert_inline_articles', 'fresh_q&a_pages', 'header-test', 'header-test2',
+				'expert_inline_articles', 'header-test', 'header-test2',
 				'hide-ratings', 'howyougetfit.com', 'howyoulivelife.com', 'lazyload_destkop_images_disabled',
 				'lazyloadstutest', 'notable_coauthor', 'opti_desktop', 'opti_header',
 				'opti_mobile', 'picture_patrol_blacklist', 'picture_patrol_whitelist', 'quickanswers_garden_donotedit',

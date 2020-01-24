@@ -42,14 +42,11 @@
 		exbox_pos_start: 45,
 		exbox_pos_end: 55,
 		exbox_duration: 150,
-		initial_question_count: 0,
 
 		init: function() {
 			this.initListeners();
 
-			this.initial_question_count = this.getAllQuestions().length;
-
-			if (!this.initial_question_count) {
+			if (!this.getAllQuestions().length) {
 				this.$prompt.html(mw.msg('qa_prompt_first')).show();
 
 				// Hide Answered questions section for non-admins if there aren't any
@@ -892,16 +889,13 @@
 
 		onShowMoreAnswered: function() {
 			var widget = this;
-			var offset = this.getAllQuestions().length;
-
-			if (this.$articleQuestions.hasClass('qa_fresh')) offset += this.initial_question_count;
 
 			$.post(
 				this.endpoint,
 				{
 					a: 'gaqs',
 					aid: $('.qa').data('aid'),
-					offset: offset,
+					offset: this.getAllQuestions().length,
 					limit: this.maxQuestionsVisible
 				},
 				function(aqs) {

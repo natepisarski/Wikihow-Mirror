@@ -1,7 +1,7 @@
 /*jslint browser: true, white:true, sloppy:true*/
 //our media query breakpoints (also in responsive.less)
 WH.mediumScreenMinWidth = 728;
-WH.largeScreenMinWidth = 1020;
+WH.largeScreenMinWidth = 801;
 WH.shared = (function () {
 	'use strict';
 

@@ -12,7 +12,6 @@ class QAWidget {
 	const QA_EDITOR_USER_GROUP = 'qa_editors';
 	const QA_ASKED_QUESTION_MAXLENGTH = 200;
 	const LIMIT_UPATROLLED_QUESTIONS = 5;
-	const FRESH_QA_PAGE_TAG = 'fresh_q&a_pages';
 	const LIMIT_SUBMITTED_QUESTIONS = 5;
 
 	var $t = null;
@@ -148,11 +147,9 @@ class QAWidget {
 		$vars['qa_asked_question_maxlength'] = self::QA_ASKED_QUESTION_MAXLENGTH;
 		$vars['qa_asked_count'] = wfMessage('qa_asked_count', self::QA_ASKED_QUESTION_MAXLENGTH)->text();
 		$vars['qa_submitted_question_item'] = $loader->load('qa_submitted_question_item');
-		$vars['qa_fresh'] = $fresh_qa = ArticleTagList::hasTag(self::FRESH_QA_PAGE_TAG, $aid);
 
 		$limit = $isMobile ? self::LIMIT_MOBILE_ANSWERED_QUESTIONS : self::LIMIT_DESKTOP_ANSWERED_QUESTIONS;
-		$offset = $fresh_qa ? $limit : 0;
-		$articleQuestions = self::getArticleQuestions($aid, $isEditor, $limit, $offset);
+		$articleQuestions = self::getArticleQuestions($aid, $isEditor, $limit);
 		WikihowToc::setQandA( $articleQuestions );
 		if (count($articleQuestions) >= $limit) {
 			$vars['qa_show_more_answered'] = wfMessage('qa_show_more_answered')->text();

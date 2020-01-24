@@ -623,6 +623,13 @@ class WikihowMobileTools {
 			}
 		}
 
+		// Remove logged in templates for logged out users so that they don't display
+		if ($skin->getUser()->isAnon()) {
+			foreach (pq(".tmp_li") as $template) {
+				pq($template)->remove();
+			}
+		}
+
 		// Move templates above article body contents and style appropriately
 		foreach (pq('.template_top') as $template) {
 			if ($skin->getUser()->isAnon()) {
@@ -796,14 +803,6 @@ class WikihowMobileTools {
 
 		if ( !$amp ) {
 			self::insertLanguageLinksHtml( $skin );
-		}
-
-		// Remove logged in templates for logged out users
-		// so that they don't display
-		if ($wgUser->getID() == 0) {
-			foreach (pq(".tmp_li") as $template) {
-				pq($template)->remove();
-			}
 		}
 
 		//remove the table under the video
@@ -1557,6 +1556,9 @@ class WikihowMobileTools {
 		$sourcesSection = pq( self::getReferencesSection() );
 
 		pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="firstref references">' );
+
+		//open all links in new tabs
+		pq( $sourcesSection )->find('a')->attr('target','_blank');
 
 		// take out all li items and move them in to an ol
 		foreach ( pq( $sourcesSection )->find( 'li' ) as $listItem ) {

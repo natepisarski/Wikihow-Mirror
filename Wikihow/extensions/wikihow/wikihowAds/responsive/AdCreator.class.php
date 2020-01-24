@@ -1132,7 +1132,7 @@ class DefaultAdCreator extends AdCreator {
 			),
 		);
 
-		if ( $this->mBucketId == 24 ) {
+		if ( $this->mBucketId > 10 ) {
 			$this->mAdSetupData = array(
 				'intro' => array(
 					'service' => 'adsense',

@@ -31,8 +31,51 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $this->data['wikihow_urls'];
 	}
 
-	protected function renderPreContent( $data ) {
+	private function getPageCenterHtml( $data ) {
+		$pageCenterInner = '';
+
+		// TODO this does not need to be so high up in the page load!
+		$pageCenterInner .= $this->getGDPRHtml( $data );
+
+		$pageCenterInner .= $this->getBannersHtml( $data );
+
+		if ($this->isMainPage) {
+			$pageCenterInner .= WikihowMobileHomepage::showTopSection();
+		}
+
+		$pageCenterInner .= $this->getContentWrapper( $data );
+
+		$pageCenterInner .= Html::openElement( 'br', ['class' => 'clearall'] );
+
+		$pageCenterInner .= SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
+
+		$pageCenterInner .= $this->getFooterHtml( $data );
+
+		$pageCenterHtml = Html::rawElement( 'div', ['id' => 'mw-mf-page-center'], $pageCenterInner );
+
+		return $pageCenterHtml;
+	}
+
+	private function getViewportHtml( $data ) {
+		$innerHtml = '';
+		$innerHtml .= $this->getPageLeftHtml( $data );
+		$innerHtml .= $this->getPageCenterHtml( $data );
+
+		// JRS 06/23/14 Add a hook to add classes to the top-level viewport object
+		// to make it easier to customize css based on classes
+		$viewportClass = [];
+		if ( !$data['rightRailHtml'] ) {
+			$viewportClass[] = 'no_sidebar';
+		}
+		Hooks::run( 'MinervaViewportClasses', array( &$viewportClass ) );
+		$viewport = Html::rawElement( 'div', ['id' => 'mw-mf-viewport', 'class' => $viewportClass], $innerHtml );
+		return $viewport;
+	}
+
+	protected function getPreContentHtml( $data ) {
 		global $wgLanguageCode, $wgUser;
+
+		$preContentHtml = '';
 
 		//Scott - use this hook to tweak display title
 		Hooks::run( 'MobilePreRenderPreContent', array( &$data ) );
@@ -41,64 +84,64 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$isSpecialPage = $this->isSpecialPage;
 		$preBodyText = isset( $data['prebodytext'] ) ? $data['prebodytext'] : '';
 
-		if ( $internalBanner || $preBodyText ) {
-			?>
-			<?php
+		if ( $internalbanner || $preBodyText ) {
 			//XXCHANGED: BEBETH 2/3/2015 to put in unnabbed alert
 			$skin = $this->getSkin();
 			$title = $skin->getTitle();
 			if ($wgLanguageCode == "en" && $title->inNamespace(NS_MAIN) && !NewArticleBoost::isNABbedNoDb($title->getArticleID())) {
 				/* Show element if showdemoted option is enabled */
 				$style = ($wgUser->getOption('showdemoted') == '1') ? "style='display:block'" : '';
-				echo "<div class='unnabbed_alert_top' $style>" . wfMessage('nab_warning_top')->parse() . "</div>";
+				$topAlerts =  "<div class='unnabbed_alert_top' $style>" . wfMessage('nab_warning_top')->parse() . "</div>";
+				$preContentHtml .= $topAlerts;
 			}
-			?>
-			<div class="pre-content">
-				<?php
-				// FIXME: Temporary solution until we have design
-				if ( isset( $data['_old_revision_warning'] ) ) {
-					echo $data['_old_revision_warning'];
-					//XX CHANGED: BEBETH
-				} elseif ( !$isSpecialPage && !$this->isMainPage ){
-					$this->renderPageActions( $data );
-				}
-				//XXCHANGED: BEBETH
-				echo $preBodyText;
-				echo $internalBanner;
-				?>
-			</div>
-			<?php
+
+			$preContentInner = '';
+			// FIXME: Temporary solution until we have design
+			if ( isset( $data['_old_revision_warning'] ) ) {
+				$preContentInner .= $data['_old_revision_warning'];
+				//XX CHANGED: BEBETH
+			}
+			//XXCHANGED: BEBETH
+			$preContentInner .= $preBodyText;
+			$preContentInner .= $internalBanner;
+			$preContent .= Html::rawElement( 'div', ['class' => 'pre-content'], $preContentInner );
+
+			return $preContent;
 		}
 	}
 
-	protected function renderContentWrapperAmp( $data ) {
-		if ( class_exists('MobileAppCTA') ) {
-			$cta = new MobileAppCTA();
-			if ($cta->isTargetPage()) {
-				echo $cta->getHtml();
-			}
-		}
-		$this->renderPreContent( $data );
-		print $this->getContentHtml($data);
+	private function getContentWrapper( $data ) {
+		$content = '';
+
+		$content .= $this->getTopContentJS( $data );
+
+		$content .= $this->getActionBarHtml();
+
+		$content .= $this->getContentInner( $data );
+
+		$content .= $data['rightRailHtml'];
+
+		$content .= Html::openElement( 'br', ['class' => 'clearall'] );
+
+		$contentWrapper = Html::rawElement( 'div', ['id' => 'content_wrapper', 'role' => 'main'], $content );
+
+		return $contentWrapper;
 	}
 
-	protected function renderContentWrapper( $data ) {
-		if ( $data['amp'] == true ) {
-			return $this->renderContentWrapperAmp( $data );
+	private function getContentInner( $data ) {
+		$contentInner = '';
+
+		if ( !$data['amp'] ) {
+			$contentInner .= "<script>if (typeof mw != 'undefined') { mw.mobileFrontend.emit( 'header-loaded' ); }</script>";
 		}
-		?>
-		<script>
-			if (typeof mw != 'undefined') { mw.mobileFrontend.emit( 'header-loaded' ); }
-		</script>
-		<?php
+
 		if ( class_exists('MobileAppCTA') ) {
 			$cta = new MobileAppCTA();
 			if ($cta->isTargetPage()) {
-				echo $cta->getHtml();
+				$contentInner .= $cta->getHtml();
 			}
 		}
-		$this->renderPreContent( $data );
-		print $this->getContentHtml($data);
+
 		//was: $this->renderContent( $data );
 		// NOTE: we don't call parent::render() because it adds the
 		// header before the content, which we've already added. We
@@ -106,29 +149,35 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		// /prod/skins/MinervaNeue/includes/skins/SkinMinerva.php
 		// in case there are things missing from our mobile page that
 		// would be displayed in vanilla Mediawiki MobileFrontend.
+		$contentInner .= $this->getPreContentHtml( $data );
+		$contentInner .= $this->getContentHtml($data);
+
+		$result = Html::rawElement( 'div', ['id' => 'content_inner'], $contentInner );
+		return $result;
 	}
 
-	protected function renderMainMenu( $data ) {
-		?>
-		<ul>
-			<?php
-			foreach( $this->get('discovery_urls') as $key => $val ):
-				echo $this->makeListItem( $key, $val );
-			endforeach;
-			?>
-		</ul>
-		<ul>
-			<?php
-			foreach( $this->get('personal_urls') as $key => $val ):
-				echo $this->makeListItem( $key, $val );
-			endforeach;
-			?>
-		</ul>
-		<?php
+	protected function getMainMenuHtml( $data ) {
+		$result = '';
+
+		$discoveryItems = '';
+		foreach( $this->get('discovery_urls') as $key => $val ) {
+			$discoveryItems .= $this->makeListItem( $key, $val );
+		}
+		$discovery = Html::rawElement( 'ul', [], $discoveryItems );
+
+		$personalItems = '';
+		foreach( $this->get('personal_urls') as $key => $val ) {
+			$personalItems .= $this->makeListItem( $key, $val );
+		}
+		$personal = Html::rawElement( 'ul', [], $personalItems );
+		$result = $discovery . $personal;
+		return $result;
 	}
 
-	protected function renderFooter( $data ) {
+	protected function getFooterHtml( $data ) {
 		global $IP;
+
+		$footerHtml = '';
 
 		if ($this->isArticlePage && $data['titletext'])
 			$footerPlaceholder = wfMessage('howto', $data['titletext'])->text();
@@ -171,10 +220,14 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				'amp' => $data['amp']
 			];
 
-			echo $this->footerHtml($vars);
+			$footerHtml = $this->footerHtml($vars);
 		}
 
-		if (class_exists("MobileSlideshow")) echo MobileSlideshow::getHtml();
+		if (class_exists("MobileSlideshow")) {
+			$footerHtml .= MobileSlideshow::getHtml();
+		}
+
+		return $footerHtml;
 	}
 
 	protected function footerHtml(array $vars): string {
@@ -241,18 +294,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $twitterlink;
 	}
 
-	protected function renderPageActions( $data ) {
-		Hooks::run('BeforeRenderPageActionsMobile', array(&$data));
-		/* // Disabling the pencil icon from loading at all during upgrade -> responsive time window
-				?><ul id="page-actions" class="hlist"><?php
-				foreach( $this->getPageActions() as $key => $val ):
-					echo $this->makeListItem( $key, $val );
-				endforeach;
-				?></ul><?php
-		*/
-	}
-
-
 	// this function exists in this class instead of the google amp
 	// helper class because it calls some protected functions on the class
 	private function renderAmpSidebar() {
@@ -278,8 +319,35 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $html;
 	}
 
+	private function getGDPRHtml( $data ) {
+		$result = '';
+		if ( !class_exists( 'GDPR' ) ) {
+			return $result;
+		}
+		if ( $data['amp'] ) {
+			return $result;
+		}
+
+		if ( $this->isMainPage || $this->isArticlePage || $this->isSearchPage ) {
+			$result = GDPR::getHTML();
+			$result .= GDPR::getInitJs();
+		}
+		return $result;
+	}
+
+	private function getBannersHtml( $data ) {
+		$result = '';
+		foreach( $this->data['banners'] as $banner ) {
+			$result .= $banner;
+		}
+		return $result;
+	}
+
 	private function getRightRailHtml( $data ) {
-		if ( $data['amp'] ) return;
+		$result = '';
+		if ( $data['amp'] ) {
+			return $result;
+		}
 
 		$rightRailHtml = '';
 		$customSideBar = '';
@@ -293,371 +361,289 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 					$rightRailHtml .= $sbWidget;
 				}
 			}
-		}
-		else {
+		} else {
 			$rightRail = $data['rightrail'];
 			$rightRailHtml = $rightRail->getRightRailHtml();
 		}
 
-		return $rightRailHtml;
+		$result = Html::rawElement( 'div', ['id' => 'sidebar'], $rightRailHtml );
+
+		return $result;
 	}
 
-	private function renderPageLeft( $data ) {
+	private function getPageLeftHtml( $data ) {
 		// in amp mode we have to add the header as a direct decendent of <body>
 		// so the sidebar is added in a different place
 		if ( $data['amp'] ) {
-			return;
+			return '';
 		}
 
 		// Don't show desktop link to anons if the page is noindex
 		$desktopLink = WikihowSkinHelper::shouldShowMetaInfo($this->getSkin()->getOutput())
 			? $this->data['mobile-switcher'] : '';
 
-		?>
-		<div id="mw-mf-page-left">
-			<?php
-			$this->renderMainMenu( $data );
-			print $desktopLink;
-			?>
-		</div>
-		<?php
+		$innerHtml = $this->getMainMenuHtml( $data );
+		$innerHtml .= $desktopLink;
+
+		$pageLeftHtml = Html::rawElement( 'div', ['id' => 'mw-mf-page-left'], $innerHtml );
+
+		return $pageLeftHtml;
 	}
 
+	private function getHeaderSearch( $data ) {
+		if ( $data['disableSearchAndFooter'] ) {
+			return $data['specialPageHeader'];
+		}
 
-	protected function renderJSTimingPage( $data ) {
-		global $wgLanguageCode;
+		$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
+		$query = filter_var( $query, FILTER_SANITIZE_STRING );
+		$classes = [];
+		if ( $this->isSearchPage ) {
+			$classes[] = 'hs_active';
+		}
+		if ( $data['secondaryButtonData'] ) {
+			$classes[] = 'hs_notif';
+		}
+		$label = wfMessage('aria_search')->showIfExists();
+
+		$inputAttr = [
+			'id' => 'hs_query',
+			'type' => 'text',
+			'role' => 'textbox',
+			'tabindex' => '0',
+			'name' => 'search',
+			'value' => $query,
+			'aria-label' => $label,
+			'required' => '',
+			'placeholder' => '',
+			'x-webkit-speech' => ''
+		];
+
+		if ( $data['amp'] ) {
+			$inputAttr['on'] = 'tap:hs.toggleClass(class="hs_active",force=true)';
+			unset( $inputAttr['x-webkit-speech'] );
+		}
+
+		$formInput = Html::openElement( 'input', $inputAttr );
+
+		$buttonAttr = [ 'type' => 'submit', 'id' => 'hs_submit' ];
+		$formButton = Html::element( 'button', $buttonAttr );
+
+		$closeAttr = [ 'id' => 'hs_close', 'role' => 'button', 'tabindex' => '0' ];
+		if ( $data['amp'] ) {
+			$closeAttr['on'] = 'tap:hs.toggleClass(class="hs_active",force=false)';
+		}
+		$formClose = Html::element( 'div', $closeAttr );
+
+		$formAttributes = [ 'action' => '/wikiHowTo', 'class' => 'search', 'target' => '_top' ];
+		$formInner = $formInput . $formButton . $formClose;
+		$searchForm = Html::rawElement( 'form', $formAttributes, $formInner );
+
+		$outerAttr = array(
+			'id' => 'hs',
+			'class' => $classes
+		);
+		$outer = Html::rawElement( 'div', $outerAttr, $searchForm );
+
+		return $outer;
+	}
+
+	private function getActionBarHtml() {
+		$articleTabs = WikihowHeaderBuilder::getArticleTabs();
+		if ( !$articleTabs && !$this->breadCrumbs ) {
+			return '';
+		}
+
+		$actionBarContents = $articleTabs;
+
+		if ( $this->breadCrumbs ) {
+			$breadCrumbsAttr = [
+				'id' => 'breadcrumb',
+				'class' => 'breadcrumbs',
+			];
+			$ariaBreadCrumbs = wfMessage('aria_breadcrumbs')->showIfExists();
+			if ( $ariaBreadCrumbs ) {
+				$breadCrumbsAttr['aria-label'] = $ariaBreadCrumbs;
+			}
+			$breadCrumbHtml = Html::rawElement( 'ul', $breadCrumbsAttr, $this->breadCrumbs );
+			$actionBarContents .= $breadCrumbHtml;
+		}
+
+		$actionBarAttr = [
+			'id' => 'actionbar',
+			'role' => 'navigation'
+		];
+		$actionBar = Html::rawElement( 'div', $actionBarAttr, $actionBarContents );
+		return $actionBar;
+	}
+
+	protected function getHeaderContainer( $data ) {
+		$headerContents = '';
+
+		$headerContents .= $data['menuButton'];
+
+		if ( $data['amp'] ) {
+			$headerContents .= GoogleAmp::getHeaderSidebarButton();
+		}
+
+		$headerLogoAttr = [
+			'id' => 'header_logo',
+			'href' => Title::newMainPage()->getLocalURL(),
+		];
+		$headerLogoClass = '';
+		Hooks::run( 'MinervaTemplateWikihowBeforeCreateHeaderLogo', array( &$headerLogoClass ) );
+		if ( $headerLogoClass ) {
+			$headerLogoAttr['class'] = $headerLogoClass;
+		}
+		$headerLogoHtml = Html::element( 'a', $headerLogoAttr );
+		$headerContents .= $headerLogoHtml;
+
+		if ( !( Misc::isAltDomain() ) ) {
+			$noScriptLogoAttr = [
+				'id' => 'noscript_header_logo',
+				'href' => '/Hello',
+				'class' => 'hide',
+			];
+			if ( $headerLogoClass ) {
+				$noScriptLogoAttr['class'] = 'hide ' . $headerLogoClass;
+			}
+			$noScriptLogo = Html::element( 'a', $noScriptLogoAttr );
+		}
+
+		$headerContents .= $this->getHeaderSearch( $data );
+
+		$headerContents .= $this->getActionsMenubarHtml( $data );
+
+		$headerContents .= $data['secondaryButtonData'];
+
+		$headerHtmlAttr = [
+			'id' => 'header',
+			'class' => 'header',
+			'role' => 'navigation'
+		];
+		$headerHtml = Html::rawElement( 'div', $headerHtmlAttr, $headerContents );
+
+		$headerContainerAttr = [
+			'id' => 'header_container'
+		];
+		if ( $data['is_responsive'] ) {
+			$headerContainerAttr['data-responsive'] = "1";
+		}
+
+		$headerContainer = Html::rawElement( 'div', $headerContainerAttr, $headerHtml );
+		return $headerContainer;
+	}
+
+	protected function getActionsMenubarHtml( $data ) {
+		$html = '';
+		if ( $data['amp'] ) {
+			return $html;
+		}
+
+		$notifications = 0;
+		$navTabs = WikihowHeaderBuilder::genNavigationTabs($this->getSkin(), $notifications);
+
+		$liItems = '';
+		foreach ( $navTabs as $tabId => $tab ) {
+			$navIcon = Html::element( 'div', ['class' => 'nav_icon'] );
+
+			$navAnchorAttr = [
+				'id' => $tabId,
+				'class' => 'nav',
+				'href' => $tab['link']
+			];
+			if ( $tab['data-link'] ) {
+				$navAnchorAttr['data-link'] = $tab['data-link'];
+			}
+			$navAnchor = Html::element( 'a', $navAnchorAttr, $tab['text'] );
+
+			$liAttr = [
+				'id' => $tabId . '_li',
+				'class' => 'nav_item',
+				'role' => 'menuitem',
+				'aria-labelledby' => $tabId
+			];
+			$liInner = $navIcon . $navAnchor . $tab['menu'];
+			$liItem = Html::rawElement( 'li', $liAttr, $liInner );
+			$liItems .= $liItem;
+		}
+		$ulAttr = [
+			'id' => 'actions',
+			'role' => 'menubar',
+			'aria-label' => wfMessage('aria_header')->showIfExists()
+		];
+		$html = Html::rawElement( 'ul', $ulAttr, $liItems );
+		return $html;
+	}
+
+	protected function getJSTimingScripts( $data ) {
+		$result = '';
+		if ( $data['amp'] ) {
+			return $result;
+		}
+		$result = Misc::getTTIBody();
+		$result .= Misc::getFIDBody();
+		return $result;
+	}
+
+	protected function getHeadAdsJS( $data ) {
+		$result = '';
+		if ( $data['amp'] ) {
+			return $result;
+		}
+		$result = $data['rightrail']->mAds->getGPTDefine();
+		return $result;
+	}
+
+	protected function render( $data ) { // FIXME: replace with template engines
+		$fastRenderTest = false;
+		if ( !$data['amp'] && ArticleTagList::hasTag( 'js_fast_render', $data['articleid'] ) ) {
+			$fastRenderTest = true;
+		}
 
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 
-		$headerContainerData = $data['is_responsive'] ? 'data-responsive="1"' : '';
-
-		$rightRailHtml = $this->getRightRailHtml( $data );
+		$data['rightRailHtml'] = '';
 		$useRightRail = true;
 		Hooks::run("UseMobileRightRail", [&$useRightRail]);
-
-		$outputHtml = '';
+		if ( $useRightRail ) {
+			$data['rightRailHtml'] = $this->getRightRailHtml( $data );
+		}
 
 		// begin rendering
 		$headElementHtml = $data[ 'headelement' ];
 		echo $headElementHtml;
 
-		echo Misc::getTTIBody();
-		echo Misc::getFIDBody();
-		echo $data['rightrail']->mAds->getGPTDefine();
-		?>
-		<? /* BEBETH: Moving header to the top to deal with links in static header */ ?>
-		<div id="header_container" <?= $headerContainerData ?>>
-			<div class="header" id="header" role="navigation">
-				<?php
-				$this->html( 'menuButton' );
-
-				$headerClass = '';
-				Hooks::run( 'MinervaTemplateWikihowBeforeCreateHeaderLogo', array( &$headerClass ) );
-				?>
-				<a href="<?= Title::newMainPage()->getLocalURL() ?>" id="header_logo" class="<?= $headerClass ?>"></a>
-				<?php
-				if ( !( Misc::isAltDomain() ) ) {
-					?>
-					<a href="/Hello" id="noscript_header_logo" class="hide <?= $headerClass ?>"></a>
-					<?php
-				}
-				if ( $data['disableSearchAndFooter'] ) {
-					echo $data['specialPageHeader'];
-				} else {
-					$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
-					$query = filter_var( $query, FILTER_SANITIZE_STRING );
-					$classes = [];
-					if ( $this->isSearchPage ) {
-						$classes[] = 'hs_active';
-					}
-					if ( $data['secondaryButtonData'] ) {
-						$classes[] = 'hs_notif';
-					}
-					?>
-					<div id="hs" class="<?= implode( $classes, ' ' ) ?>">
-						<form action="/wikiHowTo" class="search" target="_top">
-							<input type="text" id="hs_query" role="textbox" tabindex="0" name="search" value="<?= $query ?>" required placeholder="" aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
-							<button type="submit" id="hs_submit"></button>
-							<div id="hs_close" role="button" tabindex="0" ></div>
-						</form>
-					</div>
-					<?php
-				}
-				$notifications = 0;
-				$navTabs = WikihowHeaderBuilder::genNavigationTabs($this->getSkin(), $notifications);
-				?>
-
-				<ul id="actions" role="menubar" aria-label="<?= wfMessage('aria_header')->showIfExists() ?>">
-					<? foreach ($navTabs as $tabid => $tab): ?>
-						<li id="<?= $tabid ?>_li" class="nav_item" role="menuitem" aria-labelledby="<?= $tabid ?>">
-							<div class="nav_icon"></div>
-							<a id='<?= $tabid ?>' class='nav' href='<?= $tab['link'] ?>' <?= ($tab['data-link'] ? "data-link='{$tab['data-link']}'" : "") ?>><?= $tab['text'] ?></a>
-							<?= $tab['menu'] ?>
-						</li>
-					<? endforeach; ?>
-				</ul><!--end actions-->
-
-
-				<?php
-				echo $data['secondaryButtonData'];
-				?>
-			</div>
-		</div>
-		<?
-		// JRS 06/23/14 Add a hook to add classes to the top-level viewport object
-		// to make it easier to customize css based on classes
-		$classes = [];
-		if(!$useRightRail) $classes[] = 'no_sidebar';
-		Hooks::run('MinervaViewportClasses', array(&$classes));
-		$classes = empty($classes) ? '' : implode(" ", $classes);
-		?>
-	<div id="mw-mf-viewport" class="<?=$classes?>">
-		<?php
-		$this->renderPageLeft( $data );
-		?>
-		<div id='mw-mf-page-center'>
-			<? if ( class_exists( 'GDPR' ) ) {
-				if ( $this->isMainPage || $this->isArticlePage || $this->isSearchPage ) {
-					echo GDPR::getHTML();
-					echo GDPR::getInitJs();
-				}
-			} ?>
-			<?php
-			foreach( $this->data['banners'] as $banner ):
-				echo $banner;
-			endforeach;
-			?>
-
-			<? if ($this->isMainPage) echo WikihowMobileHomepage::showTopSection(); ?>
-
-			<div id="content_wrapper" role="main">
-				<?php
-				$html = $this->getTopContentJS( $data );
-				echo $html;
-
-				$articleTabs = WikihowHeaderBuilder::getArticleTabs();
-				if ($articleTabs != '' || $this->breadCrumbs != ''):
-				?>
-				<div id="actionbar" role="navigation">
-					<?= $articleTabs ?>
-
-					<? if ($this->breadCrumbs != ''): ?>
-					<ul id="breadcrumb" class="breadcrumbs" aria-label="<?= wfMessage('aria_breadcrumbs')->showIfExists() ?>">
-						<?php echo $this->breadCrumbs ?>
-					</ul>
-					<? endif; ?>
-				</div>
-				<? endif; ?>
-
-				<div id="content_inner">
-					<?php
-					$this->renderContentWrapper( $data );
-					?>
-				</div>
-
-				<? if($useRightRail): ?>
-
-					<div id="sidebar">
-						<?php
-						echo $rightRailHtml;
-						?>
-					</div>
-					<? endif; ?>
-					<br class="clearall" />
-				</div>
-				<br class="clearall" />
-
-			<?php
-
-			$schema = SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
-			if ( $schema ) echo $schema;
-
-			$this->renderFooter( $data );
-
-			?>
-		</div>
-		<div id='servedtime'><?= Misc::reportTimeMS(); ?></div>
-		<?php
-		echo MWDebug::getDebugHTML( $this->getSkin()->getContext() );
-		echo wfReportTime();
-		//echo $data['bottomscripts'];
-
-		// Reuben: using this hook to post-load the ResourceLoader startup
-		//Hooks::run( 'MobileEndOfPage', array( $data ) );
-		?>
-		</body>
-		</html>
-		<?php
-	}
-
-	protected function render( $data ) { // FIXME: replace with template engines
-
-		if ( ArticleTagList::hasTag( 'js_timing_pages', $data['articleid'] ) ) {
-			if ( !$data['amp'] ) {
-				self::renderJSTimingPage( $data );
-				return;
-			}
-		}
-
-		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
-
-		$headerContainerData = $data['is_responsive'] ? 'data-responsive="1"' : '';
-
-		$rightRailHtml = $this->getRightRailHtml( $data );
-		$useRightRail = true;
-		Hooks::run("UseMobileRightRail", [&$useRightRail]);
-		// begin rendering
-		echo $data[ 'headelement' ];
+		// TODO this one
 		if ( $data['amp'] ) {
 			$this->renderAmpSidebar();
-		} else {
-			echo Misc::getTTIBody();
-			echo Misc::getFIDBody();
-			echo $data['rightrail']->mAds->getGPTDefine();
 		}
-		?>
-		<? /* BEBETH: Moving header to the top to deal with links in static header */ ?>
-		<div id="header_container" <?= $headerContainerData ?>>
-			<div class="header" id="header" role="navigation">
-				<?php
-				$this->html( 'menuButton' );
-				if ( $data['amp'] ) {
-					echo GoogleAmp::getHeaderSidebarButton();
-				}
 
-				$headerClass = '';
-				Hooks::run( 'MinervaTemplateWikihowBeforeCreateHeaderLogo', array( &$headerClass ) );
-				?>
-				<a href="<?= Title::newMainPage()->getLocalURL() ?>" id="header_logo" class="<?= $headerClass ?>"></a>
-				<?php
-				if ( !( Misc::isAltDomain() ) ) {
-					?>
-					<a href="/Hello" id="noscript_header_logo" class="hide <?= $headerClass ?>"></a>
-					<?php
-				}
-				if ( $data['disableSearchAndFooter'] ) {
-					echo $data['specialPageHeader'];
-				} else {
-					$query = $this->isSearchPage ? $this->getSkin()->getRequest()->getVal( 'search', '' ) : '';
-					$query = filter_var( $query, FILTER_SANITIZE_STRING );
-					$expand = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=true)"' : '';
-					$collapse = $data['amp'] ? 'on="tap:hs.toggleClass(class=\'hs_active\',force=false)"' : '';
-					$classes = [];
-					if ( $this->isSearchPage ) {
-						$classes[] = 'hs_active';
-					}
-					if ( $data['secondaryButtonData'] ) {
-						$classes[] = 'hs_notif';
-					}
-					?>
-					<div id="hs" class="<?= implode( $classes, ' ' ) ?>">
-						<form action="/wikiHowTo" class="search" target="_top">
-							<input type="text" id="hs_query" role="textbox" tabindex="0" <?= $expand ?> name="search" value="<?= $query ?>" required placeholder="" <?= !$data['amp'] ? 'x-webkit-speech' : '' ?> aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
-							<button type="submit" id="hs_submit"></button>
-							<div id="hs_close" role="button" tabindex="0" <?= $collapse ?> ></div>
-						</form>
-					</div>
-					<?php
-				}
-				$notifications = 0;
-				$navTabs = WikihowHeaderBuilder::genNavigationTabs($this->getSkin(), $notifications);
-				?>
-				<? if(!$data['amp']): ?>
-					<ul id="actions" role="menubar" aria-label="<?= wfMessage('aria_header')->showIfExists() ?>">
-						<? foreach ($navTabs as $tabid => $tab): ?>
-							<li id="<?= $tabid ?>_li" class="nav_item" role="menuitem" aria-labelledby="<?= $tabid ?>">
-								<div class="nav_icon"></div>
-								<a id='<?= $tabid ?>' class='nav' href='<?= $tab['link'] ?>' <?= ($tab['data-link'] ? "data-link='{$tab['data-link']}'" : "") ?>><?= $tab['text'] ?></a>
-								<?= $tab['menu'] ?>
-							</li>
-						<? endforeach; ?>
-					</ul><!--end actions-->
-				<? endif; ?>
+		$jsTimingScripts = $this->getJSTimingScripts( $data );
+		echo $jsTimingScripts;
 
-				<?php
-				echo $data['secondaryButtonData'];
-				?>
-			</div>
-		</div>
-		<?
-		// JRS 06/23/14 Add a hook to add classes to the top-level viewport object
-		// to make it easier to customize css based on classes
-		$classes = [];
-		if(!$useRightRail) $classes[] = 'no_sidebar';
-		Hooks::run('MinervaViewportClasses', array(&$classes));
-		$classes = empty($classes) ? '' : implode(" ", $classes);
-		?>
-	<div id="mw-mf-viewport" class="<?=$classes?>">
-		<?php
-		$this->renderPageLeft( $data );
-		?>
-		<div id='mw-mf-page-center'>
-			<? if ( class_exists( 'GDPR' ) && !$data['amp'] ) {
-				if ( $this->isMainPage || $this->isArticlePage || $this->isSearchPage ) {
-					echo GDPR::getHTML();
-					echo GDPR::getInitJs();
-				}
-			} ?>
-			<?php
-			foreach( $this->data['banners'] as $banner ):
-				echo $banner;
-			endforeach;
-			?>
+		$headAdsJS = $this->getHeadAdsJS( $data );
+		echo $headAdsJS;
 
-			<? if ($this->isMainPage) echo WikihowMobileHomepage::showTopSection(); ?>
+		$headerContainer = $this->getHeaderContainer( $data );
+		echo $headerContainer;
 
-			<div id="content_wrapper" role="main">
-				<?php
-				$html = $this->getTopContentJS( $data );
-				echo $html;
+		$viewport = $this->getViewportHtml( $data );
+		echo $viewport;
 
-				$articleTabs = WikihowHeaderBuilder::getArticleTabs();
-				if ($articleTabs != '' || $this->breadCrumbs != ''):
-				?>
-				<div id="actionbar" role="navigation">
-					<?= $articleTabs ?>
+		$servedTime = Html::element( 'div', ['id' => 'servedtime'], Misc::reportTimeMS() );
+		echo $servedTime;
 
-					<? if ($this->breadCrumbs != ''): ?>
-					<ul id="breadcrumb" class="breadcrumbs" aria-label="<?= wfMessage('aria_breadcrumbs')->showIfExists() ?>">
-						<?php echo $this->breadCrumbs ?>
-					</ul>
-					<? endif; ?>
-				</div>
-				<? endif; ?>
+		$debugHtml = MWDebug::getDebugHTML( $this->getSkin()->getContext() );
+		echo $debugHtml;
 
-				<div id="content_inner">
-					<?php
-					$this->renderContentWrapper( $data );
-					?>
-				</div>
-
-				<? if($useRightRail): ?>
-					<div id="sidebar">
-						<?php
-						echo $rightRailHtml;
-						?>
-					</div>
-					<? endif; ?>
-					<br class="clearall" />
-				</div>
-				<br class="clearall" />
-
-			<?php
-
-			$schema = SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
-			if ( $schema ) echo $schema;
-
-			$this->renderFooter( $data );
-
-			?>
-		</div>
-		<div id='servedtime'><?= Misc::reportTimeMS(); ?></div>
-		<?php
-		echo MWDebug::getDebugHTML( $this->getSkin()->getContext() );
 		if ( !$data['amp'] ) {
-			echo wfReportTime();
+			$reportTime = wfReportTime();
+			echo $reportTime;
 		}
-		echo $data['bottomscripts'];
+
+		$bottomScripts = $data['bottomscripts'];
+		echo $bottomScripts;
 
 		// Reuben: using this hook to post-load the ResourceLoader startup
 		Hooks::run( 'MobileEndOfPage', array( $data ) );

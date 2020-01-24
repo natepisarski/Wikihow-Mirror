@@ -1075,12 +1075,15 @@ class AlternateDomain {
 			}
 		}
 
+		// Add a canonical for everything but search urls
 		$prefUrl = $out->getContext()->getTitle()->getPrefixedURL();
-		$canonicalUrl = 'https://www.' . $domain . '/' . $prefUrl;
-		$headLinks[] = Html::element( 'link', array(
-			'rel' => 'canonical',
-			'href' => $canonicalUrl
-		) );
+		if($prefUrl !== "Special:LSearch") {
+			$canonicalUrl = 'https://www.' . $domain . '/' . $prefUrl;
+			$headLinks[] = Html::element( 'link', array(
+				'rel' => 'canonical',
+				'href' => $canonicalUrl
+			) );
+		}
 
 		//$serverUrl = "https://m.".$domain;
 		if ( $hasAmpHtml ) {
@@ -1600,46 +1603,19 @@ class AlternateDomain {
 			return true;
 		}
 
-		$altDomain = self::getCurrentRootDomain();
-
-		if ( $altDomain == 'howyougetfit.com' ) {
-			$firstAd = 6329126174;
-			$regularAd = 7805859374;
-		} elseif ( $altDomain == 'wikihow.tech' ) {
-			$firstAd = 3236058970;
-			$regularAd = 4712792172;
-		} elseif ( $altDomain == 'wikihow.pet' ) {
-			$firstAd = 9282592570;
-			$regularAd = 1759325775;
-		} elseif ( $altDomain == 'howyoulivelife.com' ) {
-			$firstAd = 7885008625;
-			$regularAd = 1407230185;
-		} elseif ( $altDomain == 'wikihow.life' ) {
-			$firstAd = 2905689278;
-			$regularAd = 5874633394;
-		} elseif ( $altDomain == 'wikihow.mom' ) {
-			$firstAd = 7962574839;
-			$regularAd = 8359172411;
-		} elseif ( $altDomain == 'wikihow.fitness' ) {
-			$firstAd = 3823185129;
-			$regularAd = 6557993821;
-		} elseif ( $altDomain == 'wikihow.health' ) {
-			$firstAd = 0;
-			$regularAd = 0;
-		} elseif ( $altDomain == 'wikihow-fun.com' ) {
-			$firstAd = 4732467955;
-			$regularAd = 6442147207;
-		} elseif ( $altDomain == 'wikihow.legal' ) {
-			$firstAd = 0;
-			$regularAd = 0;
-		}
+		$firstAd = 2905689278;
+		$regularAd = 1759325775;
 
 		$slotData['en'] = array(
 			1 => $firstAd,
-			2 => $firstAd,
+			2 => $regularAd,
 			3 => $regularAd,
 			4 => $regularAd,
 			5 => $regularAd,
+			6 => $regularAd,
+			7 => $regularAd,
+			8 => $regularAd,
+			9 => $regularAd,
 		);
 	}
 
