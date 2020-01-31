@@ -394,7 +394,7 @@ class AlternateDomain {
 	 */
 	public static function onRelatedWikihowsAfterLoadRelatedArticles( $title, &$relatedArticles ) {
 		if ( self::onAlternateDomain() ) {
-			$limit = 10;
+			$limit = 14;
 			$relatedArticles = array_flip( self::getTopArticlesInDomain( $limit ) );
 			return true;
 		} else {

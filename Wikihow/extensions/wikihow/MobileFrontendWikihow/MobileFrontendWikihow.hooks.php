@@ -389,62 +389,6 @@ class MobileFrontendWikiHowHooks {
 		}
 	}
 
-	// Called at very end of page while html is displaying, before </body></html>
-	public static function onMobileEndOfPage($data) {
-		if ( $data['amp'] ) {
-			return true;
-		}
-		// Include any deferred scripts, such as possibly ResourceLoader startup
-		// scripts, at start of footer
-		$context = $data['skin']->getContext();
-
-		EasyTemplate::set_path( __DIR__ );
-
-		// Include GA and other 3rd party scripts
-		$footerVars = array();
-
-		// Include Optimizely script
-		$footerVars['optimizelyJs'] = '';
-		if ( class_exists('OptimizelyPageSelector') ) {
-			$footerVars['optimizelyJs'] =
-				OptimizelyPageSelector::getOptimizelyTag( $context, 'body' );
-		}
-
-		$footerVars['showInternetOrgAnalytics'] = WikihowMobileTools::isInternetOrgRequest();
-
-		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
-			$propertyId = WH_GA_ID_ANDROID_APP; // Android app
-		} elseif(class_exists('QADomain') && QADomain::isQADomain()) {
-			$propertyId = WH_GA_ID_QUICKANSWERS; //QuickAnswers
-		} else{
-			$propertyId = WH_GA_ID; // wikihow.com;
-		}
-
-		$gaConfig = json_encode(Misc::getGoogleAnalyticsConfig());
-
-		$html = '';
-		$html .= HTML::inlineScript(
-			EasyTemplate::html(
-				'includes/skins/analytics-js.tmpl.php',
-				array(
-					'propertyId' => $propertyId,
-					'gaConfig' => $gaConfig
-				)
-			)
-		);
-
-		// Script to be loaded for ad blocker detection
-		if (class_exists('AdblockNotice')) {
-			$html .= AdblockNotice::getBottomScript();
-		}
-
-		$html .= EasyTemplate::html('includes/skins/wh_mobileFrontendFooter.tmpl.php', $footerVars);
-
-		print $html;
-
-		return true;
-	}
-
 	public function onHeaderBuilderGetCategoryLinksShowCategoryListing( &$showCategoryListing ) {
 		$title = RequestContext::getMain()->getTitle();
 		$showCategoryListing = $title && $title->inNamespace(NS_MAIN) && !$title->isMainPage();

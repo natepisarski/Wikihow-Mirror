@@ -17,7 +17,6 @@ $wgHooks['MinervaPreRender'][] = 'WikihowMobileTools::onMobilePreRender';
 $wgHooks['SpecialPage_initList'][] = 'MobileFrontendWikiHowHooks::onSpecialPage_initList';
 $wgHooks['MobileToggleView'][] = array('MobileFrontendWikiHowHooks::onMobileToggleView');
 $wgHooks['SpecialPageBeforeExecute'][] = array('MobileFrontendWikiHowHooks::onSpecialPageBeforeExecute');
-$wgHooks['MobileEndOfPage'][] = array('MobileFrontendWikiHowHooks::onMobileEndOfPage');
 $wgHooks['HeaderBuilderGetCategoryLinksShowCategoryListing'][] = [
 	'MobileFrontendWikiHowHooks::onHeaderBuilderGetCategoryLinksShowCategoryListing'
 ];

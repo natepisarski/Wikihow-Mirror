@@ -151,7 +151,7 @@ class WikihowNamespacePages {
 			}
 
 			$title = $out->getTitle();
-			if ($title && $isResponsive) {
+			if ($title) {
 				if (in_array($title->getDBkey(), self::mobileWithStyle())) {
 					$out->addModuleStyles('mobile.wikihow.wikihow_namespace_styles');
 				}

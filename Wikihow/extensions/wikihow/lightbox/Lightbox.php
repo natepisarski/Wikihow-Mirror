@@ -48,7 +48,7 @@ class Lightbox {
 
 	public static function modifyDOM($pageId) {
 		if (DeferImages::isArticlePage() && self::enabled()) {
-			$links = pq(DeferImages::ANCHOR_SELECTOR);
+			$links = pq('.mwimg a.image');
 
 			foreach($links as $node) {
 				$link = pq($node);

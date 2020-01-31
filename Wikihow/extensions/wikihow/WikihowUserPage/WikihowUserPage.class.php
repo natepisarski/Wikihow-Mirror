@@ -294,13 +294,14 @@ class WikihowUserPage extends Article {
 		$isUserPageView = Action::getActionName($context) == 'view' && $context->getTitle()->inNamespace(NS_USER);
 
 		$isThisUser = $profileUserName == $viewUser->getName() && !$this->user->isAnon();
+		$showEditability = $isThisUser && $isUserPageView;
 
 		$bioData = ProfileBox::getPageTop($this->user, true);
 		$livesIn = Html::rawElement('strong', [], $bioData['pb_live']);
 		$startedOn = Html::rawElement('strong', [], $bioData['pb_regdate']);
 
 		$avatar_url = Avatar::getAvatarURL($profileUserName);
-		if (stristr($avatar_url, basename(Avatar::getDefaultProfile())) !== false) {
+		if ($showEditability && stristr($avatar_url, basename(Avatar::getDefaultProfile())) !== false) {
 			//default; prompt to upload pic
 			$avatar_url = '';
 		}
@@ -314,7 +315,7 @@ class WikihowUserPage extends Article {
 			'showAvatar' => $langCode == 'en',
 			'avatar' => $avatar_url,
 			'username' => $profileUserName,
-			'showEditability' => $isThisUser && $isUserPageView,
+			'showEditability' => $showEditability,
 			'badges' => $isUserPageView ? $this->userBadges() : [],
 			'isLoggedIn' => $viewUser->isLoggedIn(),
 			'showBio' => $bioData['pb_display_show'] && $isUserPageView,

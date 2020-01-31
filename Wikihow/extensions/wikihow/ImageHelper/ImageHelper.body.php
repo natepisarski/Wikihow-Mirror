@@ -791,12 +791,12 @@ class ImageHelper extends UnlistedSpecialPage {
 	}
 
 	// gets the thumbnail for an article and optionally a query param on the link
-	public static function getArticleThumb($t, $width, $height, $query = array(), $defer = false) {
+	public static function getArticleThumb($t, $width, $height, $query = array()) {
 		$data = FeaturedArticles::featuredArticlesAttrs($t, "", $width, $height);
-		return self::getArticleThumbFromData( $data, $query, $defer );
+		return self::getArticleThumbFromData( $data, $query );
 	}
 
-	public static function getArticleThumbFromData($data, $query = array(), $defer = false) {
+	public static function getArticleThumbFromData($data, $query = array()) {
 		global $wgContLang, $wgLanguageCode, $wgTitle;
 
 		if ($wgLanguageCode == "zh") {
@@ -814,15 +814,8 @@ class ImageHelper extends UnlistedSpecialPage {
 			"alt" => $articleName,
 		);
 
-		$defer = $defer && $wgTitle && $wgTitle->inNamespace(NS_MAIN);
+		$img = Html::element( 'img', $imgAttributes );
 
-		if ($defer) {
-			$imgAttributes['class'] = 'defer';
-			list($img, $noscript) = DeferImages::generateDeferredImageHTML($imgAttributes);
-		} else {
-			$img = Html::element( 'img', $imgAttributes );
-			$noscript = '';
-		}
 		$msg = wfMessage('howto_prefix');
 		$howToPrefix = $msg->exists() ? ($msg->text() . '<br>') : '';
 		$howToSuffix = wfMessage('howto_suffix')->showIfExists();
@@ -836,7 +829,6 @@ class ImageHelper extends UnlistedSpecialPage {
 			</p>
 		</div>
 	</a>
-	{$noscript}
 </div>
 EOT;
 		return $html;

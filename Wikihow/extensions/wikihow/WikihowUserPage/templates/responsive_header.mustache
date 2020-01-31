@@ -24,7 +24,9 @@
 			{{/avatar}}
 
 			{{^avatar}}
-			<a href='#' class='avatar_upload' id='gatUploadImageLink'></a>
+				{{#showEditability}}
+				<a href='#' class='avatar_upload' id='gatUploadImageLink'></a>
+				{{/showEditability}}
 			{{/avatar}}
 
 		</div>

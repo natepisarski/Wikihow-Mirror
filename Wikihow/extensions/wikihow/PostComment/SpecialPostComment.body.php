@@ -366,6 +366,7 @@ class PostcommentPreview extends UnlistedSpecialPage {
 	public function execute($par) {
 		global $wgParser;
 
+		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 		$user = $this->getUser();
 
 		$comment = $this->getRequest()->getVal("comment");

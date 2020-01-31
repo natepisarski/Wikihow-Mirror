@@ -23,8 +23,14 @@ WH.shared = (function () {
 	isMedSize = !isSmallSize && viewportWidth < WH.largeScreenMinWidth,
 	isLargeSize = !isSmallSize && !isMedSize,
 	isDesktopSize = isLargeSize,
+	useBrowserNativeLazyLoading = false,
 	lazyLoadingObserver = null;
-	if ("IntersectionObserver" in window) {
+
+	if ('loading' in HTMLImageElement.prototype && WH.nativeBrowserLazyLoadingTest == 1) {
+		useBrowserNativeLazyLoading = true;
+	}
+
+	if (useBrowserNativeLazyLoading == false && "IntersectionObserver" in window) {
 		lazyLoadingObserver = new IntersectionObserver(function(entries, observer) {
 			entries.forEach(function(entry) {
 				if (entry.isIntersecting) {
@@ -35,9 +41,6 @@ WH.shared = (function () {
 		}, {
 			rootMargin: "0px 0px 100% 0px"
 		});
-	} else {
-		// in the future we can load the polyfill as a backup, but for now
-		// we have a backup of the old scroll loading code
 	}
 
 	function getScreenSize() {
@@ -344,7 +347,7 @@ WH.shared = (function () {
 		}
 
 		this.src = getCompressedImageSrc( this.src );
-		if ( element && element.classList !== undefined ) {
+		if ( element && element.classList !== undefined) {
 			element.classList.add( 'img-loading-hide' );
 		}
 
@@ -396,6 +399,12 @@ WH.shared = (function () {
 		return true;
 	}
 
+	function setBrowserNativeLazyLoading(item) {
+		item.element.classList.remove( 'img-loading-hide' );
+		item.element.setAttribute('loading', 'lazy');
+		item.load();
+	}
+
 	function addScrollLoadItem(id) {
 		var el = document.getElementById(id);
 		if (!el) {
@@ -408,6 +417,9 @@ WH.shared = (function () {
 			if (useObserver) {
 				item.useScrollLoader = false;
 				lazyLoadingObserver.observe(item.element);
+			} else if (useBrowserNativeLazyLoading == true) {
+				item.useScrollLoader = false;
+				setBrowserNativeLazyLoading(item);
 			}
 		} else if (el.nodeName.toLowerCase() === 'video') {
 			item = new ScrollLoadVideo(el);

@@ -296,12 +296,12 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 	// this function exists in this class instead of the google amp
 	// helper class because it calls some protected functions on the class
-	private function renderAmpSidebar() {
+	private function getAmpSidebarHtml() {
 		$items = '';
 		foreach( $this->get('discovery_urls') as $key => $val ) {
 			$items .= $this->makeListItem( $key, $val );
 		}
-		echo GoogleAmp::getAmpSidebar( $items );
+		return GoogleAmp::getAmpSidebar( $items );
 	}
 
 	private function getTopContentJS( $data ) {
@@ -595,10 +595,65 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $result;
 	}
 
+	public static function getMobileEndOfPageHtml( $data ) {
+		if ( $data['amp'] ) {
+			return '';
+		}
+		// Include any deferred scripts, such as possibly ResourceLoader startup
+		// scripts, at start of footer
+		$context = $data['skin']->getContext();
+
+		EasyTemplate::set_path( __DIR__ );
+
+		// Include GA and other 3rd party scripts
+		$footerVars = array();
+
+		// Include Optimizely script
+		$footerVars['optimizelyJs'] = '';
+		if ( class_exists('OptimizelyPageSelector') ) {
+			$footerVars['optimizelyJs'] =
+				OptimizelyPageSelector::getOptimizelyTag( $context, 'body' );
+		}
+
+		$footerVars['showInternetOrgAnalytics'] = WikihowMobileTools::isInternetOrgRequest();
+
+		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
+			$propertyId = WH_GA_ID_ANDROID_APP; // Android app
+		} elseif(class_exists('QADomain') && QADomain::isQADomain()) {
+			$propertyId = WH_GA_ID_QUICKANSWERS; //QuickAnswers
+		} else{
+			$propertyId = WH_GA_ID; // wikihow.com;
+		}
+
+		$gaConfig = json_encode(Misc::getGoogleAnalyticsConfig());
+
+		$html = '';
+		$html .= HTML::inlineScript(
+			EasyTemplate::html(
+				'analytics-js.tmpl.php',
+				array(
+					'propertyId' => $propertyId,
+					'gaConfig' => $gaConfig
+				)
+			)
+		);
+
+		// Script to be loaded for ad blocker detection
+		if (class_exists('AdblockNotice')) {
+			$html .= AdblockNotice::getBottomScript();
+		}
+
+		$html .= EasyTemplate::html('wh_mobileFrontendFooter.tmpl.php', $footerVars);
+
+		return $html;
+	}
+
 	protected function render( $data ) { // FIXME: replace with template engines
+		$html = '';
+
 		$fastRenderTest = false;
 		if ( !$data['amp'] && ArticleTagList::hasTag( 'js_fast_render', $data['articleid'] ) ) {
-			$fastRenderTest = true;
+			$data['fastRenderTest'] = true;
 		}
 
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
@@ -614,9 +669,9 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$headElementHtml = $data[ 'headelement' ];
 		echo $headElementHtml;
 
-		// TODO this one
 		if ( $data['amp'] ) {
-			$this->renderAmpSidebar();
+			$ampSidebar = $this->getAmpSidebarHtml();
+			echo $ampSidebar;
 		}
 
 		$jsTimingScripts = $this->getJSTimingScripts( $data );
@@ -645,12 +700,13 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$bottomScripts = $data['bottomscripts'];
 		echo $bottomScripts;
 
-		// Reuben: using this hook to post-load the ResourceLoader startup
-		Hooks::run( 'MobileEndOfPage', array( $data ) );
-		?>
-		</body>
-		</html>
-		<?php
+		$endOfPageHtml = $this->getMobileEndOfPageHtml( $data );
+		echo $endOfPageHtml;
+
+		$closeBody = Html::closeElement( 'body' );
+		echo $closeBody;
+		$closeHtml = Html::closeElement( 'html' );
+		echo $closeHtml;
 	}
 }
 

@@ -36,6 +36,7 @@ class DailyEdits {
 			$dbw = wfGetDB(DB_MASTER);
 			$dbw->query($sql, __METHOD__);
 		} catch(Exception $e) {
+			wfDebugLog( 'alber', __METHOD__ . " | $aid | " . preg_replace( '/\s+/', ' ', $dbw->lastQuery() ) );
 			return false;
 		}
 
@@ -53,7 +54,9 @@ class DailyEdits {
 					ON DUPLICATE KEY UPDATE de_timestamp = '$ts', de_edit_type = $type";
 				$dbw = wfGetDB(DB_MASTER);
 				$dbw->query($sql, __METHOD__);
-			} catch(Exception $e) {}
+			} catch(Exception $e) {
+				wfDebugLog( 'alber', __METHOD__ . " | $aid | " . preg_replace( '/\s+/', ' ', $dbw->lastQuery() ) );
+			}
 		}
 		return true;
 	}
@@ -70,7 +73,9 @@ class DailyEdits {
 						ON DUPLICATE KEY UPDATE de_timestamp = '$ts', de_edit_type = $type";
 					$dbw = wfGetDB(DB_MASTER);
 					$dbw->query($sql, __METHOD__);
-				} catch(Exception $e) {}
+				} catch(Exception $e) {
+					wfDebugLog( 'alber', __METHOD__ . " | $aid | " . preg_replace( '/\s+/', ' ', $dbw->lastQuery() ) );
+				}
 			}
 		}
 		return true;
@@ -86,7 +91,9 @@ class DailyEdits {
 			$sql = "INSERT IGNORE INTO daily_edits (de_page_id, de_timestamp, de_edit_type) VALUES ($aid, '$ts', $type)
 				ON DUPLICATE KEY UPDATE de_timestamp = '$ts', de_edit_type = $type";
 			$dbw->query($sql, __METHOD__);
-		} catch(Exception $e) {}
+		} catch(Exception $e) {
+			wfDebugLog( 'alber', __METHOD__ . " | $aid | " . preg_replace( '/\s+/', ' ', $dbw->lastQuery() ) );
+		}
 		return true;
 	}
 
@@ -102,7 +109,9 @@ class DailyEdits {
 				$sql = "INSERT IGNORE INTO daily_edits (de_page_id, de_timestamp, de_edit_type) VALUES ($aid, '$ts', $type)
 					ON DUPLICATE KEY UPDATE de_timestamp = '$ts', de_edit_type = $type";
 				$dbw->query($sql, __METHOD__);
-			} catch(Exception $e) {}
+			} catch(Exception $e) {
+				wfDebugLog( 'alber', __METHOD__ . " | $aid | " . preg_replace( '/\s+/', ' ', $dbw->lastQuery() ) );
+			}
 		}
 		return true;
 	}
@@ -118,6 +127,7 @@ class DailyEdits {
 				$dbw = wfGetDB(DB_MASTER);
 				$dbw->query($sql, __METHOD__);
 			} catch(DBError $e) {
+				wfDebugLog( 'alber', __METHOD__ . " | $aid | " . preg_replace( '/\s+/', ' ', $dbw->lastQuery() ) );
 				//whoops! Oh, well. Don't sweat the little stuff. #YOLO
 			}
 		}

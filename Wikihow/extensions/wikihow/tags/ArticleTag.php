@@ -221,6 +221,20 @@ class ArticleTag {
 		return true;
 	}
 
+	public static function onBeforePageDisplayAddArticleTagJSVars( $out, $skin ) {
+		// add a variable to see if we are in the test group for image lazy loaidng
+		$nativeBrowserLazyLoading = 0;
+		$title = $out->getTitle();
+		//if ( ArticleTagList::hasTag( 'native_browser_lazy_loading', $out->getTitle()->getArticleID() ) ) {
+			//$nativeBrowserLazyLoading = 1;
+		//}
+		if ( $title->inNamespace( NS_MAIN ) && $title->getArticleID() % 100 == 53 ) {
+			$nativeBrowserLazyLoading = 1;
+		}
+		$nativeBrowserLazyLoadingScript =  "window.WH.nativeBrowserLazyLoadingTest=$nativeBrowserLazyLoading;";
+		$out->addHeadItem( 'native_browser_lazy_loading',  HTML::inlineScript( $nativeBrowserLazyLoadingScript ) );
+	}
+
 	// For automated testing
 	public static function onUnitTestsList( &$files ) {
 		$files = array_merge( $files, [ __DIR__ . "/tests/" . get_class() . "Test.php" ] );

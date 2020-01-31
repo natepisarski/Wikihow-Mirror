@@ -512,7 +512,7 @@ class RightRail {
 		if ( $showFeaturedArticlesSidebar ) {
 			$vars = [
 				'id' => 'side_featured_articles',
-				'contents' => FeaturedArticles::getFeaturedArticlesBox(4, true)
+				'contents' => FeaturedArticles::getFeaturedArticlesBox(4)
 			];
 			$html .= $this->makeSidebox($vars);
 		}

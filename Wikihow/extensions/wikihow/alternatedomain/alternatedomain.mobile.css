@@ -86,24 +86,32 @@
 @media only screen and (min-width:728px) {
 	#tech_rating {
 		float: right;
-		display: table;
+		display: block;
+		margin-left: 10px;
 	}
 
 	#tech_rating_help {
 		color: #79A355;
-		margin: 0 8px 0 0;
+		margin: 0 8px;
 		font-size: 12px;
 		font-weight: bold;
 		line-height: 15px;
-		display: table-row;
 		text-align: center;
+		border: 1px solid #79A355;
+		border-radius: 5px;
+		padding: 7px 0;
+		display: block;
 	}
 	#tech_rating_help:hover {
 		color: #439B05;
 	}
 
-	.none #tech_rating_help{
-		color: #545454;
+	#tech_rating_help.clicked {
+		border: none;
+	}
+	#tech_rating_help.clicked:hover {
+		color: #79A355;
+		cursor: auto;
 	}
 
 	#tech_rating_data {
@@ -116,15 +124,16 @@
 		background: url(/extensions/wikihow/Rating/images/intro-banner-dark-green.svg) top right / 135px 67px no-repeat;
 		width: 132px;
 		height: 67px;
-		vertical-align: middle;
-		display: table-cell;
 		font-weight: bold;
 		padding-bottom: 5px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.none #tech_rating_data {
-		background-image: url(/extensions/wikihow/Rating/images/intro-banner-light-green.svg);
-		color: #545454;
+		text-transform: none;
+		font-size: 14px;
 	}
 
 	#tech_rating_data #tech_count {

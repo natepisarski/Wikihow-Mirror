@@ -404,7 +404,7 @@ class GoogleAmp {
 	}
 
 	public static function getConsentElement() {
-		global $wgLanguageCode, $wgRequest, $wgTitle, $wgDFPAdBucket;
+		global $wgLanguageCode, $wgRequest, $wgTitle, $wgIsDevServer;
 
 		$config = [
 			'ISOCountryGroups' => [
@@ -434,16 +434,6 @@ class GoogleAmp {
 			];
 		}
 
-		// do not set up CCPA consent if user is in certain buckets
-		if ( $wgDFPAdBucket == 1 ) {
-			$config = [
-				'ISOCountryGroups' => [
-					'eea' => ["preset-eea", "unknown"],
-					"us" => []
-				]
-			];
-		}
-
 		$jsonObject = json_encode( $config, JSON_PRETTY_PRINT );
 		$scriptElement = Html::element( 'script', [ 'type' => 'application/json' ], $jsonObject );
 		$groupsHtml = Html::rawElement( 'amp-geo', ['layout'=>'nodisplay'], $scriptElement );
@@ -463,6 +453,13 @@ class GoogleAmp {
 		$ccpaEndpoint = '/x/amp-consent-ccpa';
 		if ( $ccpaTest ) {
 			$ccpaEndpoint = '/Special:CCPA';
+		}
+		if ( $wgIsDevServer ) {
+			// check if url has "cached" in it.. if it does not then we will use the fallback endpoint
+			$host = $_SERVER['HTTP_HOST'];
+			if ( $host && strpos( 'cached', $host ) === false ) {
+				$ccpaEndpoint = '/Special:CCPA';
+			}
 		}
 		if ( $wgRequest->getVal( "ccpatest" ) == 2 ) {
 			$ccpaEndpoint = '/x/amp-consent-ccpa';
@@ -760,8 +757,8 @@ class GoogleAmp {
 		}
 
 		$useEnAdNames = false;
-		// for now use new ad names only for bucket 24 but in the future we will make this the default
-		if ( $bucket == 24 && AlternateDomain::onAlternateDomain() ) {
+		// for now use new ad names only for buckets 11-24 but in the future we will make this the default
+		if ( $bucket > 10 && AlternateDomain::onAlternateDomain() ) {
 			$adSlots = [
 				2 => '/10095428/altd/altd_gam_amp_step2',
 				3 => '/10095428/altd/altd_gam_amp_step5',
@@ -780,7 +777,7 @@ class GoogleAmp {
 			} else {
 				$slot = $adSlots[$num];
 			}
-		} else if ( $bucket == 24 && $wgLanguageCode == 'en' ) {
+		} else if ( $bucket > 10 && $wgLanguageCode == 'en' ) {
 			$adSlots = [
 				2 => '/10095428/engl/engl_gam_amp_step2',
 				3 => '/10095428/engl/engl_gam_amp_step5',
@@ -828,10 +825,9 @@ class GoogleAmp {
 		global $wgLanguageCode;
 		$slot = self::getGPTAdSlot( $num, $intl, $bucket, $methodNumber );
 		$whAdLabelBottom = Html::element( 'div', [ 'class' => 'ad_label_bottom' ], "Advertisement" );
-		$whAdClass .= " wh_ad_steps";
+		$whAdClass = "wh_ad wh_ad_steps";
 
 		$dataLoadingStrategy = null;
-		$whAdClass = "wh_ad";
 		$whAdLabelBottom = "";
 		$bucketId = sprintf( "%02d", $bucket );
 

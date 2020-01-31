@@ -634,6 +634,11 @@ abstract class AdCreator {
 		if ( $ad->setupData['service'] == 'dfp' ) {
 			$this->addToGPTDefines( $ad );
 		}
+		if ( Misc::isMobileMode() && $this->mBucketId == 24 ) {
+			if ( $ad->setupData['smallservice'] == 'dfp' ) {
+				$this->addToGPTDefines( $ad );
+			}
+		}
 
 		return $ad;
 	}
@@ -861,6 +866,9 @@ abstract class AdCreator {
 		$adUnitPath = $this->getGPTAdSlot( $adUnitPath );
 		$adSize = $ad->setupData['size'];
 		$adId = $ad->mTargetId;
+		if ( !$adSize ) {
+			throw new Exception( 'dfp ad must have adSize parameter.' );
+		}
 		$gpt = "gptAdSlots['$adId'] = googletag.defineSlot(".$adUnitPath.", $adSize, '$adId').addService(googletag.pubads());\n";
 		$this->mGptSlotDefines[] = $gpt;
 	}
@@ -971,6 +979,7 @@ class DefaultAdCreator extends AdCreator {
 				'small' => 1,
 				'medium' => 1,
 				'large' => 1,
+				'mobilechannels' => [8375811488],
 			),
 			'method' => array(
 				'service' => 'dfp',
@@ -1147,6 +1156,7 @@ class DefaultAdCreator extends AdCreator {
 					'small' => 1,
 					'medium' => 1,
 					'large' => 1,
+					'mobilechannels' => [8375811488],
 				),
 				'method' => array(
 					'service' => 'dfp',
@@ -1305,6 +1315,214 @@ class DefaultAdCreator extends AdCreator {
 					'smalllabel' => 1,
 					'type' => 'pagebottom',
 					'small' => 1,
+				),
+			);
+		}
+
+		// dfp on mobile
+		if ( $this->mBucketId == 24 ) {
+			$this->mAdSetupData = array(
+				'intro' => array(
+					'service' => 'adsense',
+					'instantload' => 1,
+					'slot' => 7672188889,
+					'width' => 728,
+					'height' => 120,
+					'smallheight' => 120,
+					'class' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'intro',
+					'small' => 1,
+					'medium' => 1,
+					'large' => 1,
+					'mobilechannels' => [7551128051],
+				),
+				'method' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_meth1',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'toc' => array(
+					'service' => 'adsense',
+					'slot' => 4313551892,
+					'width' => 728,
+					'height' => 90,
+					'type' => 'toc',
+					'medium' => 1,
+					'large' => 1,
+				),
+				'rightrail0' => array(
+					'service' => 'adsense',
+					'slot' => 5490902193,
+					'instantload' => 0,
+					'width' => 300,
+					'height' => 600,
+					'containerheight' => 2000,
+					'class' => ['rr_container'],
+					'innerclass' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'rightrail',
+					'large' => 1,
+				),
+				'rightrail1' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_rght2',
+					'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+					'apsLoad' => true,
+					'refreshable' => 1,
+					'viewablerefresh' => 1,
+					'first-refresh-time' => 30000,
+					'refresh-time' => 28000,
+					'aps-timeout' => 800,
+					'width' => 300,
+					'height' => 600,
+					'containerheight' => 3300,
+					'class' => ['rr_container'],
+					'innerclass' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'rightrail',
+					'large' => 1,
+				),
+				'scrollto' => array(
+					'service' => 'adsense',
+					'type' => 'scrollto',
+					'slot' => 4177820525,
+					'maxsteps' => 2,
+					'maxnonsteps' => 0,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'quiz' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_quizz',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'class' => ['hidden'],
+					'type' => 'quiz',
+					'medium' => 1,
+					'large' => 1,
+				),
+				'related' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_relat',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'qa' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_qanda',
+					'size' => '[728, 90]',
+					'apsLoad' => true,
+					'aps-timeout' => 2000,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
+				),
+				'mobilemethod' => array(
+					'service' => 'adsense',
+					'slot' => 7710650179,
+					'width' => 728,
+					'height' => 90,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'method',
+					'small' => 1,
+					'medium' => 1,
+					'smallservice' => 'dfp',
+					'class' => ['dfp_small'],
+					'adUnitPath' => '/10095428/engl/engl_gam_sma_meth0',
+					'apsLoad' => true,
+					'size' => '[300, 250]',
+				),
+				'mobilerelated' => array(
+					'service' => 'adsense',
+					'slot' => 3648874275,
+					'width' => 728,
+					'height' => 90,
+					'smallslot' => 9047782573,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'related',
+					'small' => 1,
+					'medium' => 1,
+					'smallservice' => 'dfp',
+					'class' => ['dfp_small'],
+					'adUnitPath' => '/10095428/engl/engl_gam_sma_relat',
+					'size' => '[300, 250]',
+					'apsLoad' => true,
+				),
+				'middlerelated' => array(
+					'service' => 'adsense',
+					'smallslot' => 3859396687,
+					'smallheight' => 250,
+					'type' => 'middlerelated',
+					'small' => 1,
+				),
+				'mobileqa' => array(
+					'service' => 'adsense',
+					'slot' => 4167749029,
+					'width' => 728,
+					'height' => 90,
+					'smallslot' => 1240030252,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'qa',
+					'small' => 1,
+					'medium' => 1,
+					'smallservice' => 'dfp',
+					'class' => ['dfp_small'],
+					'adUnitPath' => '/10095428/engl/engl_gam_sma_qanda',
+					'size' => '[300, 250]',
+					'apsLoad' => true,
+				),
+				'tips' => array(
+					'service' => 'adsense',
+					'smallslot' => 8787347780,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'tips',
+					'small' => 1,
+					'smallservice' => 'dfp',
+					'class' => ['dfp_small'],
+					'adUnitPath' => '/10095428/engl/engl_gam_sma_tipps',
+					'size' => '[300, 250]',
+					'apsLoad' => true,
+				),
+				'warnings' => array(
+					'service' => 'adsense',
+					'smallslot' => 3674621907,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'warnings',
+					'small' => 1,
+					'smallservice' => 'dfp',
+					'class' => ['dfp_small'],
+					'adUnitPath' => '/10095428/engl/engl_gam_sma_warns',
+					'size' => '[300, 250]',
+					'apsLoad' => true,
+				),
+				'pagebottom' => array(
+					'service' => 'adsense',
+					'smallslot' => 3788982605,
+					'smallheight' => 250,
+					'smalllabel' => 1,
+					'type' => 'pagebottom',
+					'small' => 1,
+					'smallservice' => 'dfp',
+					'class' => ['dfp_small'],
+					'adUnitPath' => '/10095428/engl/engl_gam_sma_bottm',
+					'size' => '[300, 250]',
+					'apsLoad' => true,
 				),
 			);
 		}

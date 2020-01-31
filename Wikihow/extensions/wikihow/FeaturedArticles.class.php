@@ -356,7 +356,7 @@ class FeaturedArticles {
 		return $data;
 	}
 
-	public static function getFeaturedArticlesBox($linksLimit = 4, $defer = false) {
+	public static function getFeaturedArticlesBox($linksLimit = 4) {
 		$feed = self::getFeaturedArticlesBoxData($linksLimit);
 
 		$html = "<h3><span onclick=\"location='" . wfMessage('featuredarticles_url')->text() . "';\" style=\"cursor:pointer;\">" . wfMessage('featuredarticles')->text() . "</span></h3>\n";
@@ -367,10 +367,7 @@ class FeaturedArticles {
 				if ($attrs['img']) {
 					$attrs['img'] = wfGetPad( $attrs['img'] );
 				}
-				if ($defer) {
-					$attrs['class'] = 'defer';
-				}
-				$html .= ImageHelper::getArticleThumbFromData( $attrs, [], $defer );
+				$html .= ImageHelper::getArticleThumbFromData( $attrs, [] );
 			}
 		}
 

@@ -14,21 +14,19 @@ class TechRating {
 		//find out if we've helped someone recently
 		$weekAgo = wfTimestamp(TS_DB, strtotime("1 week ago"));
 		$monthAgo = wfTimestamp(TS_DB, strtotime("1 month ago"));
+		$forever = wfTimestamp(TS_DB, strtotime("January 1, 2005"));
 
 		$articleRating = new RatingArticle();
-		$weekCount = $articleRating->getRatingCountForPeriod($articleId, $weekAgo);
-		$monthCount = $articleRating->getRatingCountForPeriod($articleId, $monthAgo);
-		if($weekCount > 0) {
-			$data['helped_count'] = $weekCount;
-			$readers = $weekCount == 1 ? "reader" : "readers";
-			$data['helped_text'] = "<br /><span class='tech_reader'>{$readers}</span> helped<br/>this week!";
-		} elseif($monthCount > 0) {
-			$data['helped_count'] = $monthCount;
-			$readers = $monthCount == 1 ? "reader" : "readers";
-			$data['helped_text'] = "<br /><span class='tech_reader'>{$readers}</span> helped<br/>this month!";
+		$foreverCount = $articleRating->getRatingCountForPeriod($articleId, $forever);
+		if($foreverCount > 0) {
+			$readers = $foreverCount == 1 ? "reader" : "readers";
+			$data['helped_count'] = $foreverCount;
+			$data['helped_text'] = "<br /><span class='tech_reader'>{$readers}</span>&nbsp;helped!";
+			$data['tech_rating_help']  = "+1<br/>this helped me";
 		} else {
 			$data['helped_text'] = "Did this article<br />help you?";
 			$data['tech_class'] = "none";
+			$data['tech_rating_help'] = "Yes this helped!";
 		}
 
 		return $m->render('techrating.mustache', $data);

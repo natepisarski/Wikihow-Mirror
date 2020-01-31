@@ -27,11 +27,6 @@ AND WOULD REQUIRE TESTING IN ALL LANGUAGES
     //var match = /(?:; ([^;)]+) Build\/.*)?\bSilk\/([0-9._-]+)\b(.*\bMobile Safari\b)?/.exec(navigator.userAgent);
     var ua = navigator.userAgent.toLowerCase();
 
-    //TODO: determine if this will ever be used again...
-    //if (typeof match !== 'undefined' && match != null && typeof match[1] === 'undefined') {
-        //showAds = false;
-    //}
-
     // determining the version of android
     if (ua.indexOf('android') != -1) {
         //first check for firefox, we'll make all these small
@@ -41,9 +36,6 @@ AND WOULD REQUIRE TESTING IN ALL LANGUAGES
 
         var androidVersion = parseFloat(ua.match(/android\s+([\d\.]+)/)[1]);
 
-        //if (androidVersion < 2) {
-            //showAds = false;
-        //}
         // Show small ads on androids 2.x and lower to address too wide ad sizes we've been encountering
         if (androidVersion < 3.0) {
             window.isOldAndroid = true;

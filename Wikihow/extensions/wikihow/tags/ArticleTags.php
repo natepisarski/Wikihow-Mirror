@@ -10,6 +10,7 @@ $wgAutoloadClasses['ArticleTagList'] = __DIR__ . '/ArticleTagList.php';
 $wgExtensionMessagesFiles['ArticleTagAlias'] = __DIR__ . '/ArticleTags.alias.php';
 
 $wgHooks['ConfigStorageStoreConfig'] = ['ArticleTag::onConfigStorageStoreConfig'];
+$wgHooks['BeforePageDisplay'][] = array('ArticleTag::onBeforePageDisplayAddArticleTagJSVars');
 $wgSpecialPages['AdminTags'] = 'AdminTags';
 $wgSpecialPages['AdminConfigEditor'] = 'AdminTags'; // alias from old special page name
 

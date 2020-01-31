@@ -1,4 +1,4 @@
-if (WH.shared.isDesktopSize) {
+if (WH.shared.isDesktopSize || bucketId == '24') {
 	var gads = document.createElement('script');
 	gads.async = true;
 	gads.type = 'text/javascript';

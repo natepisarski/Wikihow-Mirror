@@ -1,6 +1,8 @@
 <div id="tech_rating" class="{{tech_class}}">
-	<p id="tech_rating_data"><span id="tech_count">{{helped_count}}</span>{{{helped_text}}}</p>
-	<a href="#" id="tech_rating_help">+1 did this<br/>help you?</a>
+	<div id="tech_rating_data">
+		<p><span id="tech_count">{{helped_count}}</span>{{{helped_text}}}</p>
+	</div>
+	<a href="#" id="tech_rating_help">{{{tech_rating_help}}}</a>
 </div>
 <script type="text/javascript">
 	var helpButton = document.getElementById("tech_rating_help");

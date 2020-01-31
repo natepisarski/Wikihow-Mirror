@@ -780,8 +780,10 @@ class WikihowMobileTools {
 					if (pq('video', $summarySection)->length == 0) {
 						pq($summarySection)->remove();
 					}
-					$html = RateItem::getSummarySectionRatingHtml( false );
-					$summaryText->append($html);
+					if(!$amp) {
+						$html = RateItem::getSummarySectionRatingHtml( false );
+						$summaryText->append($html);
+					}
 				}
 
 				//if there's a video summary, rename the section
