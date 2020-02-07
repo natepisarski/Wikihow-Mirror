@@ -78,7 +78,7 @@ a#slider_close_button {
 	background-color: #FFF;
 }
 
-.sliderbox_category .slider_button {
+.sliderbox_category .slider_button, .sliderbox_newsletter .slider_button {
 	color: #93b874;
 	border: 1px solid #93b874;
 	border-radius: 17px;
@@ -93,6 +93,12 @@ a#slider_close_button {
 	font-size: 11px;
 	line-height: 20px;
 }
+
+.sliderbox_newsletter .slider_readmore {
+	color: #676767;
+	font-size: 13px;
+}
+
 .slider_category {
 	color: #484B4A;
 	font-size: 22px;

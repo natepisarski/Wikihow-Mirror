@@ -28,10 +28,15 @@ class EditorUtil {
 			'format' => 'json',
 		], $params);
 
-		$url = "https://www.wikihow.com/api.php?" . http_build_query($params);
+		$queryString = http_build_query($params);
+		$url = "https://www.wikihow.com/api.php?" . $queryString;
+		if ( IEUrlExtension::isUrlExtensionBad($queryString) ) {
+			$url = IEUrlExtension::fixUrlForIE6($url);
+		}
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
+		// curl_setopt($ch, CURLOPT_USERPWD, WH_DEV_ACCESS_AUTH); // dev-only
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$text = curl_exec($ch);
 		curl_close($ch);
@@ -171,7 +176,7 @@ class EditorUtil {
 
 	public static function getSummary(string $wikiText, string $dbKey): string {
 		$ns = MWNamespace::getCanonicalName(NS_SUMMARY);
-		$regex = '(' . preg_quote($dbKey) . '|' . preg_quote($dbKey) . ')';
+		$regex = preg_quote($dbKey, '/');
 
 		$regex = '<!--.*-->\n' 						// comment
 			   . '==.*==\n' 						// header

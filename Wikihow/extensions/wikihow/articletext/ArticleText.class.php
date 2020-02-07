@@ -10,10 +10,12 @@ class ArticleText {
 
 	var $methods;
 	var $methodsImages;
+	var $methodsNames;
 	var $articleTitle = "";
 	var $articleUrl = "";
 	var $articleId = 0;
 	var $topLevelCategories = [];
+	var $hasParts = false;
 	var $hasSummary = false;
 	var $summaryText = "";
 	var $summaryVideoUrl = "";
@@ -30,23 +32,9 @@ class ArticleText {
 	}
 
 	public static function newFromTitle($t, $numMethods = null) {
-		global $wgMemc;
-
 		if (is_null($numMethods) || $numMethods < 1) {
 			$numMethods = self::ALL_METHODS;
 		}
-
-		// Turning off memcaching for now
-//		$key = self::getMemcacheKey($t->getArticleId(), $numMethods);
-//		$serializedArticleModel = $wgMemc->get($key);
-//		if (empty($serializedArticleModel)) {
-//			wfDebugLog(self::LOG_GROUP, var_export('Cache key empty for article: ' . $t->getText(), true), true);
-//			$model = new ArticleText($t, $numMethods);
-//			$wgMemc->set($key, serialize($model));
-//		} else {
-//			wfDebugLog(self::LOG_GROUP, var_export('Cache key found for article: ' . $t->getText(), true), true);
-//			$model = unserialize($serializedArticleModel);
-//		}
 
 		$model = new ArticleText($t, $numMethods);
 		return $model;
@@ -85,6 +73,7 @@ class ArticleText {
 		for ($i = 0; $i < $numMethods && $i < $de->getMethodCount(); $i++) {
 			$this->methods []= $de->getStepText($i);
 			$this->methodsImages []= $de->getStepImages($i);
+			$this->methodsNames []= $de->getMethodName($i);
 
 			$summaryText = $de->getSummarizedSectionText();
 			if (!empty($summaryText)) {
@@ -93,6 +82,8 @@ class ArticleText {
 				$this->setSummaryVideoUrl($de->getSummarizedSectionVideoUrl());
 			}
 		}
+
+		$this->hasParts = $de->getHasParts();
 
 		$lifeHackData = $this->getLifeHackDataFromDB();
 		if (!empty($lifeHackData['hack_text'])) {

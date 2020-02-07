@@ -85,9 +85,6 @@ class SpecialPagesHooks {
 		//only for new accounts
 		if ($type != 'signup') return;
 
-		// Mobile does the default
-		if (Misc::isMobileMode()) return;
-
 		$type = 'successredirect';
 
 		if (RequestContext::getMain()->getLanguage()->getCode() != 'en') {

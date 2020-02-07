@@ -226,14 +226,6 @@ abstract class LoginSignupSpecialPage extends AuthManagerSpecialPage {
 		// sure a session cookie or some equivalent mechanism is set.
 		$session->persist();
 
-		// WIKIHOW: These used to be added by WikihowLogin, but that's dead code now
-		$this->getOutput()->addModuleStyles( 'ext.wikihow.loginpage_styles' );
-
-		// WIKIHOW: is the user already logged in?
-		if ( $this->isSignup() && !$this->getUser()->isAnon() ) {
-			throw new ErrorPageError( 'createaccount', 'alreadysignedin', [ 'Special:UserLogout' ] );
-		}
-
 		$this->load( $subPage );
 		$this->setHeaders();
 		$this->checkPermissions();

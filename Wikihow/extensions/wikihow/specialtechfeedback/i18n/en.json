@@ -1,13 +1,22 @@
 {
-    "@metadata": {
-        "authors": []
-    },
-    "specialtechfeedback": "Review Tech Feedback",
+	"@metadata": {
+		"authors": []
+	},
+	"specialtechfeedback": "Review Tech Feedback",
 	"specialtechfeedbacknext": "Next",
 	"specialtechfeedbacktext": "Could this reader feedback be used to improve the article $1?",
 	"specialtechfeedbacktool": "Vote on feedback",
 	"specialtechfeedbackcurrentstats": "Your Tech Feedback Stats",
 	"specialtechfeedbackleaderboardtitle": "Top Tech Feedback User- Last 7 Days",
-    "specialtechfeedbacklogentryvote": "Action '$2' on Tech Feedback for [[$1]] -- rating reason id: $3",
-    "tech_update_tool": "Review Tech Feedback"
+	"specialtechfeedbacklogentryvote": "Action '$2' on Tech Feedback for [[$1]] -- rating reason id: $3",
+	"tech_update_tool": "Review Tech Feedback",
+	"stf_remaining": "remaining",
+	"stf_prompt": "A wikiHow reader said",
+	"stf_show_article": "Show full article",
+	"stf_hide_article": "Hide article",
+	"stf_desktop_yes": "Yes, send to editors",
+	"stf_desktop_no": "No, not useful",
+	"stf_notsure": "Not Sure",
+	"stf_yes": "Yes",
+	"stf_no": "No"
 }

@@ -58,7 +58,7 @@
 
 
 /* @large & desktop */
-@media only screen and (min-width:801px) {
+@media only screen and (min-width:975px) {
 	#article_tabs #tab_edit,
 	#page-actions,
 	#breadcrumb {

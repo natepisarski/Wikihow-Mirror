@@ -69,18 +69,6 @@ class MobileFrontendWikiHowHooks {
 				$mobileAllowed = true;
 			}
 
-			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getText() == "UserLogin") {
-				$mobileAllowed = true;
-			}
-
-			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getText() == "Spellchecker") {
-				$mobileAllowed = true;
-			}
-
-			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getText() == "PicturePatrol") {
-				$mobileAllowed = true;
-			}
-
 			if ($wgTitle && $wgTitle->inNamespace(NS_USER)) {
 				if ($wgUser->getID() > 0) { //if the current user is logged in
 					$userName = $wgTitle->getText();
@@ -166,6 +154,8 @@ class MobileFrontendWikiHowHooks {
 		else {
 			//load top
 			$out->addModuleStyles('zzz.mobile.wikihow.styles_late_load');
+			//add side-styles
+			$out->addModuleStyles('ext.wikihow.nonarticle_styles');
 		}
 
 		if ($wgTitle->inNamespace(NS_SPECIAL)
@@ -183,18 +173,6 @@ class MobileFrontendWikiHowHooks {
 		if (class_exists('Recommendations')) {
 			$whr = new Recommendations();
 			$whr->addModules();
-		}
-
-		$isLoginPage = $page_title == (string)SpecialPage::getTitleFor( 'Userlogin' )
-					|| $page_title == (string)SpecialPage::getTitleFor( 'CreateAccount' );
-
-
-		if ( $isLoginPage ) {
-			$out->addModules('mobile.wikihow.login');
-			$out->addModuleStyles('zzz.mobile.wikihow.login.styles');
-			$pagetitle = $out->getPageTitle();
-			$out->setPageTitle('');
-			$out->setHTMLTitle($pagetitle);
 		}
 
 		if ( $page_title == SpecialPage::getTitleFor('PasswordReset') ) {
@@ -306,15 +284,25 @@ class MobileFrontendWikiHowHooks {
 			'CategoryListing',
 			'ArticleReviewers',
 			'ProfileBox',
-			'Avatar'
+			'Avatar',
+			'UserLogin',
+			'CreateAccount',
+			'UserLogout',
+			'PasswordReset'
+		];
+
+		$responsiveTools = [
+			'TechFeedback',
+			'SortQuestions'
 		];
 
 		self::$isvalidResponsivePage = $title &&
 			$title->inNamespaces( NS_MAIN, NS_USER, NS_USER_TALK, NS_USER_KUDOS ) ||
 			($title->inNamespace( NS_PROJECT ) && in_array($title->getDBkey(), $wHnamespacePagesWithCss)) ||
-			($title->inNamespace(NS_SPECIAL) && in_array($title->getText(), $specialPagesWithCss)) ||
-			($title->inNamespace(NS_SPECIAL) && stripos($title->getText(), 'VideoBrowser') === 0) ||
-			($title->inNamespace(NS_SPECIAL) && stripos($title->getText(), 'DocViewer/') === 0) ||
+			($title->isSpecialPage() && in_array($title->getText(), $specialPagesWithCss)) ||
+			($title->isSpecialPage() && in_array($title->getText(), $responsiveTools)) ||
+			($title->isSpecialPage() && stripos($title->getText(), 'VideoBrowser') === 0) ||
+			($title->isSpecialPage() && stripos($title->getText(), 'DocViewer/') === 0) ||
 			$title->inNamespace( NS_CATEGORY) ||
 			$isSearchPage;
 

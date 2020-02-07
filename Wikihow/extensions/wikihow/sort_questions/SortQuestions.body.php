@@ -37,8 +37,8 @@ class SortQuestions extends UnlistedSpecialPage {
 		$this->user = $this->getUser();
 		$this->request = $this->getRequest();
 
-		//$wgHooks['ShowSideBar'][] = [$this, 'removeSideBarCallback'];
-		$wgHooks['ShowBreadCrumbs'][] = [$this, 'removeBreadCrumbsCallback'];
+		$wgHooks['ShowArticleTabs'][] = [$this, 'onShowArticleTabs'];
+		$wgHooks['ShowBreadCrumbs'][] = [$this, 'onShowBreadCrumbs'];
 	}
 
 
@@ -103,7 +103,8 @@ class SortQuestions extends UnlistedSpecialPage {
 	private function getMainHTML() {
 		$vars = [
 			'get_next_msg' => wfMessage('sqt_get_next')->text(),
-			'tool_info' => class_exists('ToolInfo') ? ToolInfo::getTheIcon($this->getContext()) : ''
+			'tool_info' => class_exists('ToolInfo') ? ToolInfo::getTheIcon($this->getContext()) : '',
+			'is_desktop' => !Misc::isMobileModeLite()
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader([
@@ -111,7 +112,7 @@ class SortQuestions extends UnlistedSpecialPage {
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
-		$html = $m->render('sort_questions', $vars);
+		$html = $m->render('sort_questions.mustache', $vars);
 
 		return $html;
 	}
@@ -264,7 +265,7 @@ class SortQuestions extends UnlistedSpecialPage {
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
-		$html = $m->render('sort_questions_inner', $vars);
+		$html = $m->render('sort_questions_inner.mustache', $vars);
 
 		return $html;
 	}
@@ -373,11 +374,11 @@ class SortQuestions extends UnlistedSpecialPage {
 		return (in_array('staff', $userGroups) || in_array('admin', $userGroups) || in_array('newarticlepatrol', $userGroups));
 	}
 
-	public function removeSideBarCallback( &$showSideBar ) {
-		$showSideBar = false;
+	public function onShowArticleTabs( &$showArticleTabs ) {
+		$showArticleTabs = false;
 	}
 
-	public function removeBreadCrumbsCallback( &$showBreadCrumbs ) {
+	public function onShowBreadCrumbs( &$showBreadCrumbs ) {
 		$showBreadCrumbs = false;
 	}
 

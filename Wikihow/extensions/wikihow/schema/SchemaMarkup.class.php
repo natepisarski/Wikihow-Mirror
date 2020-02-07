@@ -288,6 +288,7 @@ class SchemaMarkup {
 		global $wgTitle, $wgServer;
 		$sections = array();
 		$sectionNumber = 1;
+
 		foreach ( pq( '.section.steps' ) as $section ) {
 			if ( pq( $section )->hasClass( '.sample' ) ) {
 				continue;
@@ -307,20 +308,21 @@ class SchemaMarkup {
 				$text = pq( $step)->text();
 
 				// use this to change nbsp to regular space
-				$text = preg_replace( '~\x{00a0}~siu',' ',$text );
-				if ( !trim( $text ) ) {
+				$text = trim( preg_replace( '~\x{00a0}~siu',' ',$text ) );
+				if ( !$text ) {
 					continue;
 				}
-				$directionData = [
-					"@type" => "HowToDirection",
-					"position" => 1,
-					"text" => trim( $text )
-				];
 				$stepData = [
 					"@type" => "HowToStep",
-					"position" => $i,
-					"itemListElement" => $directionData
+					"text" => $text
 				];
+
+				// TODO this?
+				$stepName = "";
+				if ( $stepName ) {
+					$stepData['name'] = $stepName;
+				}
+
 				$stepImage = self::getHowToStepImageFromStep( $stepItem );
 				if ( $stepImage ) {
 					$stepData['image'] = $stepImage;
@@ -332,26 +334,34 @@ class SchemaMarkup {
 				}
 				$steps[] = $stepData;
 			}
-			if ( empty( $steps ) ) {
+
+			if ( count( $steps ) < 2 ) {
 				continue;
 			}
-			$data = [
-				"@type" => "HowToSection",
-				"name" => $name,
-				"position" => $sectionNumber,
-				"itemListElement" => $steps
-			];
 
 			$sectionNumber++;
 
-			$sections[] = $data;
+			$sections[] = array( 'stepdata' => $steps, 'name' => $name );
 		}
+
 
 		if ( empty( $sections ) ) {
 			return array();
 		}
 
-		$result = [ 'step' => $sections ];
+		if ( count( $sections ) == 1 ) {
+			$result = ['step' => $sections[0]['stepdata']];
+		} else {
+			$howToSections = array();
+			foreach ( $sections as $section ) {
+				$howToSections[] = [
+					'@type' => 'HowToSection',
+					'name' => $section['name'],
+					'itemListElement' => $section['stepdata']
+				];
+			}
+			$result = [ 'step' => $howToSections ];
+		}
 		return $result;
 	}
 
@@ -453,6 +463,8 @@ class SchemaMarkup {
 
 	// run in the context of php query to get the how to schema information
 	public static function calcHowToSchema( $out ) {
+		global $wgLanguageCode;
+
 		// does sanity checks on the title and wikipage and $out
 		if ( !self::okToShowSchema( $out ) ) {
 			return '';
@@ -474,12 +486,13 @@ class SchemaMarkup {
 		$data += self::getDateModified( $title );
 		$data += self::getPublisher();
 		$data += self::getContributors( $title );
+
 		$steps = self::getHowToSteps();
 
 		$schema = '';
 		if ( !empty( $steps ) ) {
 			if ( is_array( $steps ) ) {
-				$data = array_merge( $data, self::getHowToSteps() );
+				$data = array_merge( $data, $steps );
 			}
 
 			$data['description'] = self::getDescription( $title );

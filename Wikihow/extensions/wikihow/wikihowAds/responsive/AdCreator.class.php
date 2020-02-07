@@ -634,7 +634,7 @@ abstract class AdCreator {
 		if ( $ad->setupData['service'] == 'dfp' ) {
 			$this->addToGPTDefines( $ad );
 		}
-		if ( Misc::isMobileMode() && $this->mBucketId == 24 ) {
+		if ( Misc::isMobileMode() && $this->isDFPSmallTest() ) {
 			if ( $ad->setupData['smallservice'] == 'dfp' ) {
 				$this->addToGPTDefines( $ad );
 			}
@@ -797,21 +797,37 @@ abstract class AdCreator {
 			$dfpScript = '';
 			if ( $this->mLateLoadDFP == false ) {
 				$category = $this->getCategoryForDFP();
-				//$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
-				$dfpScript = Html::inlineScript( "var bucketId = '$this->mBucketId';\n" );
-				$dfpScript .= Html::inlineScript( "var dfpCategory = '$category';\n" );
-				$dfpInit .= file_get_contents( __DIR__."/DFPinit.js" );
-				$dfpScript .= Html::inlineScript( $dfpInit );
-				if ( $apsLoad ) {
-					$apsInit = file_get_contents( __DIR__."/APSinit.js" );
-					$dfpScript .= Html::inlineScript( $apsInit );
+				$isCoppa = $this->isChildDirectedPage() ? "true" : "false";
+				$dfpSmallTest = 'false';
+				if ( $this->isDFPSmallTest() ) {
+					$dfpSmallTest = 'true';
 				}
+				//$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
+				$dfpScript = "var bucketId = '$this->mBucketId';";
+				$dfpScript .= "var dfpSmallTest = $dfpSmallTest;";
+				$dfpScript .= "var dfpCategory = '$category';";
+				$dfpScript .= "var isCoppa = '$isCoppa';";
+				$dfpScript .= "\n";
+				$dfpScript .= file_get_contents( __DIR__."/DFPinit.js" );
+				if ( $apsLoad ) {
+					$dfpScript .= file_get_contents( __DIR__."/APSinit.js" );
+				}
+				$dfpScript = Html::inlineScript( $dfpScript );
 			}
 		}
 
 		$adLabelStyle = $this->getAdLabelStyle();
 
 		return $indexHeadScript . $adsenseScript . $dfpScript . $adLabelStyle;
+	}
+
+	protected function isDFPSmallTest() {
+		$bucketId = intval( $this->mBucketId );
+		$testBuckets = [3, 7, 11, 15, 19];
+		if ( in_array( $bucketId, $testBuckets ) ) {
+			return true;
+		}
+		return false;
 	}
 
 	private function getCategoryForDFP() {
@@ -873,6 +889,17 @@ abstract class AdCreator {
 		$this->mGptSlotDefines[] = $gpt;
 	}
 
+	private static function isChildDirectedPage() {
+		global $wgTitle;
+
+		if ( AlternateDomain::getAlternateDomainForCurrentPage() == "wikihow-fun.com" ) {
+			return true;
+		}
+
+		$val = Categoryhelper::isTitleInCategory( $wgTitle, "Youth" );
+		return $val;
+	}
+
 	public function getGPTDefine() {
 		global $wgIsDevServer;
 		if ( !$this->isDFPOkForSetup() ) {
@@ -891,6 +918,9 @@ abstract class AdCreator {
 		$gpt .= "function defineGPTSlots() {\n";
 		// TODO in the future we can possibly define the GPT slot in js along with the new BodyAd call
 		$gpt .= implode( $this->mGptSlotDefines );
+		//if ( $this->isChildDirectedPage() ) {
+			//$gpt .= "googletag.pubads().setTagForChildDirectedTreatment(1);\n";
+		//}
 		$gpt .= "googletag.pubads().enableSingleRequest();\n";
 		$gpt .= "googletag.pubads().disableInitialLoad();\n";
 		//if ( !$wgIsDevServer ) {
@@ -965,6 +995,12 @@ class DefaultAdCreator extends AdCreator {
 			$this->mMobileAdsenseChannels[] = 6429618073;
 		}
 
+		if ( $this->isDFPSmallTest() ) {
+			$this->mMobileAdsenseChannels[] = 7551128051;
+		} else {
+			$this->mMobileAdsenseChannels[] = 8375811488;
+		}
+
 		$this->mAdSetupData = array(
 			'intro' => array(
 				'service' => 'adsense',
@@ -979,11 +1015,10 @@ class DefaultAdCreator extends AdCreator {
 				'small' => 1,
 				'medium' => 1,
 				'large' => 1,
-				'mobilechannels' => [8375811488],
 			),
 			'method' => array(
 				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_lm_method_1',
+				'adUnitPath' => '/10095428/engl/engl_gam_lgm_meth1',
 				'size' => '[728, 90]',
 				'apsLoad' => true,
 				'aps-timeout' => 2000,
@@ -1014,7 +1049,7 @@ class DefaultAdCreator extends AdCreator {
 			),
 			'rightrail1' => array(
 				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_lm_right_rail_2',
+				'adUnitPath' => '/10095428/engl/engl_gam_lgm_rght2',
 				'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
 				'apsLoad' => true,
 				'refreshable' => 1,
@@ -1042,7 +1077,7 @@ class DefaultAdCreator extends AdCreator {
 			),
 			'quiz' => array(
 				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_lm_quiz',
+				'adUnitPath' => '/10095428/engl/engl_gam_lgm_quizz',
 				'size' => '[728, 90]',
 				'apsLoad' => true,
 				'aps-timeout' => 2000,
@@ -1055,7 +1090,7 @@ class DefaultAdCreator extends AdCreator {
 			),
 			'related' => array(
 				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_lm_rwh',
+				'adUnitPath' => '/10095428/engl/engl_gam_lgm_relat',
 				'size' => '[728, 90]',
 				'apsLoad' => true,
 				'aps-timeout' => 2000,
@@ -1065,7 +1100,7 @@ class DefaultAdCreator extends AdCreator {
 			),
 			'qa' => array(
 				'service' => 'dfp',
-				'adUnitPath' => '/10095428/dfp_responsive_lm_qa',
+				'adUnitPath' => '/10095428/engl/engl_gam_lgm_qanda',
 				'size' => '[728, 90]',
 				'apsLoad' => true,
 				'aps-timeout' => 2000,
@@ -1141,186 +1176,8 @@ class DefaultAdCreator extends AdCreator {
 			),
 		);
 
-		if ( $this->mBucketId > 10 ) {
-			$this->mAdSetupData = array(
-				'intro' => array(
-					'service' => 'adsense',
-					'instantload' => 1,
-					'slot' => 7672188889,
-					'width' => 728,
-					'height' => 120,
-					'smallslot' => 8943394577,
-					'smallheight' => 120,
-					'class' => ['ad_label', 'ad_label_dollar'],
-					'type' => 'intro',
-					'small' => 1,
-					'medium' => 1,
-					'large' => 1,
-					'mobilechannels' => [8375811488],
-				),
-				'method' => array(
-					'service' => 'dfp',
-					'adUnitPath' => '/10095428/engl/engl_gam_lgm_meth1',
-					'size' => '[728, 90]',
-					'apsLoad' => true,
-					'aps-timeout' => 2000,
-					'width' => 728,
-					'height' => 90,
-					'large' => 1,
-				),
-				'toc' => array(
-					'service' => 'adsense',
-					'slot' => 4313551892,
-					'width' => 728,
-					'height' => 90,
-					'type' => 'toc',
-					'medium' => 1,
-					'large' => 1,
-				),
-				'rightrail0' => array(
-					'service' => 'adsense',
-					'slot' => 5490902193,
-					'instantload' => 0,
-					'width' => 300,
-					'height' => 600,
-					'containerheight' => 2000,
-					'class' => ['rr_container'],
-					'innerclass' => ['ad_label', 'ad_label_dollar'],
-					'type' => 'rightrail',
-					'large' => 1,
-				),
-				'rightrail1' => array(
-					'service' => 'dfp',
-					'adUnitPath' => '/10095428/engl/engl_gam_lgm_rght2',
-					'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
-					'apsLoad' => true,
-					'refreshable' => 1,
-					'viewablerefresh' => 1,
-					'first-refresh-time' => 30000,
-					'refresh-time' => 28000,
-					'aps-timeout' => 800,
-					'width' => 300,
-					'height' => 600,
-					'containerheight' => 3300,
-					'class' => ['rr_container'],
-					'innerclass' => ['ad_label', 'ad_label_dollar'],
-					'type' => 'rightrail',
-					'large' => 1,
-				),
-				'scrollto' => array(
-					'service' => 'adsense',
-					'type' => 'scrollto',
-					'slot' => 4177820525,
-					'maxsteps' => 2,
-					'maxnonsteps' => 0,
-					'width' => 728,
-					'height' => 90,
-					'large' => 1,
-				),
-				'quiz' => array(
-					'service' => 'dfp',
-					'adUnitPath' => '/10095428/engl/engl_gam_lgm_quizz',
-					'size' => '[728, 90]',
-					'apsLoad' => true,
-					'aps-timeout' => 2000,
-					'width' => 728,
-					'height' => 90,
-					'class' => ['hidden'],
-					'type' => 'quiz',
-					'medium' => 1,
-					'large' => 1,
-				),
-				'related' => array(
-					'service' => 'dfp',
-					'adUnitPath' => '/10095428/engl/engl_gam_lgm_relat',
-					'size' => '[728, 90]',
-					'apsLoad' => true,
-					'aps-timeout' => 2000,
-					'width' => 728,
-					'height' => 90,
-					'large' => 1,
-				),
-				'qa' => array(
-					'service' => 'dfp',
-					'adUnitPath' => '/10095428/engl/engl_gam_lgm_qanda',
-					'size' => '[728, 90]',
-					'apsLoad' => true,
-					'aps-timeout' => 2000,
-					'width' => 728,
-					'height' => 90,
-					'large' => 1,
-				),
-				'mobilemethod' => array(
-					'service' => 'adsense',
-					'slot' => 7710650179,
-					'width' => 728,
-					'height' => 90,
-					'smallheight' => 250,
-					'smalllabel' => 1,
-					'type' => 'method',
-					'small' => 1,
-					'medium' => 1,
-				),
-				'mobilerelated' => array(
-					'service' => 'adsense',
-					'slot' => 3648874275,
-					'width' => 728,
-					'height' => 90,
-					'smallslot' => 9047782573,
-					'smallheight' => 250,
-					'smalllabel' => 1,
-					'type' => 'related',
-					'small' => 1,
-					'medium' => 1,
-				),
-				'middlerelated' => array(
-					'service' => 'adsense',
-					'smallslot' => 3859396687,
-					'smallheight' => 250,
-					'type' => 'middlerelated',
-					'small' => 1,
-				),
-				'mobileqa' => array(
-					'service' => 'adsense',
-					'slot' => 4167749029,
-					'width' => 728,
-					'height' => 90,
-					'smallslot' => 1240030252,
-					'smallheight' => 250,
-					'smalllabel' => 1,
-					'type' => 'qa',
-					'small' => 1,
-					'medium' => 1,
-				),
-				'tips' => array(
-					'service' => 'adsense',
-					'smallslot' => 8787347780,
-					'smallheight' => 250,
-					'smalllabel' => 1,
-					'type' => 'tips',
-					'small' => 1,
-				),
-				'warnings' => array(
-					'service' => 'adsense',
-					'smallslot' => 3674621907,
-					'smallheight' => 250,
-					'smalllabel' => 1,
-					'type' => 'warnings',
-					'small' => 1,
-				),
-				'pagebottom' => array(
-					'service' => 'adsense',
-					'smallslot' => 3788982605,
-					'smallheight' => 250,
-					'smalllabel' => 1,
-					'type' => 'pagebottom',
-					'small' => 1,
-				),
-			);
-		}
-
 		// dfp on mobile
-		if ( $this->mBucketId == 24 ) {
+		if ( $this->isDFPSmallTest() ) {
 			$this->mAdSetupData = array(
 				'intro' => array(
 					'service' => 'adsense',
@@ -1334,7 +1191,6 @@ class DefaultAdCreator extends AdCreator {
 					'small' => 1,
 					'medium' => 1,
 					'large' => 1,
-					'mobilechannels' => [7551128051],
 				),
 				'method' => array(
 					'service' => 'dfp',
@@ -1440,6 +1296,7 @@ class DefaultAdCreator extends AdCreator {
 					'medium' => 1,
 					'smallservice' => 'dfp',
 					'class' => ['dfp_small'],
+					'innerclass' => ['dfp_small_inner'],
 					'adUnitPath' => '/10095428/engl/engl_gam_sma_meth0',
 					'apsLoad' => true,
 					'size' => '[300, 250]',
@@ -1457,6 +1314,7 @@ class DefaultAdCreator extends AdCreator {
 					'medium' => 1,
 					'smallservice' => 'dfp',
 					'class' => ['dfp_small'],
+					'innerclass' => ['dfp_small_inner'],
 					'adUnitPath' => '/10095428/engl/engl_gam_sma_relat',
 					'size' => '[300, 250]',
 					'apsLoad' => true,
@@ -1481,6 +1339,7 @@ class DefaultAdCreator extends AdCreator {
 					'medium' => 1,
 					'smallservice' => 'dfp',
 					'class' => ['dfp_small'],
+					'innerclass' => ['dfp_small_inner'],
 					'adUnitPath' => '/10095428/engl/engl_gam_sma_qanda',
 					'size' => '[300, 250]',
 					'apsLoad' => true,
@@ -1494,6 +1353,7 @@ class DefaultAdCreator extends AdCreator {
 					'small' => 1,
 					'smallservice' => 'dfp',
 					'class' => ['dfp_small'],
+					'innerclass' => ['dfp_small_inner'],
 					'adUnitPath' => '/10095428/engl/engl_gam_sma_tipps',
 					'size' => '[300, 250]',
 					'apsLoad' => true,
@@ -1507,6 +1367,7 @@ class DefaultAdCreator extends AdCreator {
 					'small' => 1,
 					'smallservice' => 'dfp',
 					'class' => ['dfp_small'],
+					'innerclass' => ['dfp_small_inner'],
 					'adUnitPath' => '/10095428/engl/engl_gam_sma_warns',
 					'size' => '[300, 250]',
 					'apsLoad' => true,
@@ -1520,6 +1381,7 @@ class DefaultAdCreator extends AdCreator {
 					'small' => 1,
 					'smallservice' => 'dfp',
 					'class' => ['dfp_small'],
+					'innerclass' => ['dfp_small_inner'],
 					'adUnitPath' => '/10095428/engl/engl_gam_sma_bottm',
 					'size' => '[300, 250]',
 					'apsLoad' => true,

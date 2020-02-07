@@ -163,7 +163,7 @@ TODO: \/ remove all CSS below this if this test is the new normal \/
 
 	#hs_query, .hs_active #hs_query, #hs_submit {
 		position: absolute;
-		background: url(/extensions/wikihow/mobile/images/search_white.svg) right 4px center / 20px no-repeat #B3CE9C;
+		background: url(/extensions/wikihow/mobile/images/mag_banner.png) right 4px center / 20px no-repeat #B3CE9C;
 	}
 
 	#hs_submit {

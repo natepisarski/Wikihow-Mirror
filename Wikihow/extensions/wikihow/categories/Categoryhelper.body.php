@@ -811,7 +811,7 @@ new Autocompleter.Local(\'category_search\', \'cat_search\', Category_list, {ful
             foreach ($tree as $key => $value) {
                 $results[] = $key;
                 if (is_array($value)) {
-                    $x = self::flattenCategoryTree($value);
+                    $x = self::flattenMultiCategoryTree($value);
                     if (!is_array($x)) {
                         $x = array($x);
                     }

@@ -45,7 +45,6 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 
 			//grab the next one
 			$data = $this->getNextItemData();
-			//print json_encode( array( 'html' => $html ) );
 			print json_encode( $data );
 
 			return;
@@ -63,11 +62,12 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 			return;
 		}
 
-		$this->out->setPageTitle( wfMessage( 'specialtechfeedback' )->text() );
+		$this->out->setPageTitle(''); //no h1 title
+		$this->out->setHtmlTitle( wfMessage( 'specialtechfeedback' )->text() ); //<title> title, though
+
 		$this->addStandingGroups();
 		$this->out->addModuleStyles( 'ext.wikihow.specialtechfeedback.styles' );
-		$this->out->addModules( 'ext.wikihow.specialtechfeedback', 'ext.wikihow.UsageLogs' );
-		$this->out->addModules('ext.wikihow.toolinfo');
+		$this->out->addModules(['ext.wikihow.specialtechfeedback', 'ext.wikihow.UsageLogs', 'ext.wikihow.toolinfo']);
 
 		$html = $this->getMainHTML();
 		$this->out->addHTML( $html );
@@ -88,20 +88,6 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 	public static function isTitleInTechCategory( $title ) {
 		$result = CategoryHelper::isTitleInCategory( $title, 'Computers and Electronics' );
 		return $result;
-	}
-
-	/*
-	 * a hook that is called after a rating reason response is made
-	 * so we can alter it if we want to
-	 * @param $id the rating reason id that was inserted
-	 * @param $data the array of data which was used in the insert
-	 */
-	public static function onRatingReasonAfterGetRatingReasonResponse( $rating, $pageId, &$response ) {
-		$title = Title::newFromId( $data['ratr_page_id'] );
-
-		if ( !self::isTitleInTechCategory( $title ) ) {
-			$response = wfMessage( 'ratearticle_reason_submitted_mobile' )->text();
-		}
 	}
 
 	/*
@@ -158,22 +144,18 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 		return true;
 	}
 
-	private function getMainHTML() {
-		$titleTop = '';
-		if ( !Misc::isMobileMode() ) {
-			$titleTop = '<div id="desktop-title"><div id="header-remaining"><h3 id="header-count"></h3>remaining</div><h5>Review Tech Feedback</h5><div id="header-title"></div></div>';
-		}
+	private function getMainHTML(): string {
 		$vars = [
-			'title_top' => $titleTop,
+			'tool_title' => wfMessage('tech_update_tool')->text(),
+			'remaining' => wfMessage('stf_remaining')->text(),
 			'get_next_msg' => wfMessage( 'specialtechfeedbacknext' )->text(),
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
-		$html = $m->render( 'specialtechfeedback', $vars );
 
-		return $html;
+		return $m->render( 'specialtechfeedback.mustache', $vars );
 	}
 
 	/*
@@ -228,22 +210,22 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 		return $result;
 	}
 
-	private function getArticleHtml( $pageId ) {
-		if ( Misc::isMobileMode() ) {
-			return '';
-		}
+	private function getArticleHtml( $pageId ): string {
 		$html = '';
 		$page = WikiPage::newFromId( $pageId );
-		$out = $this->getOutput();
-		$popts = $out->parserOptions();
+
+		$popts = $this->getOutput()->parserOptions();
 		$popts->setTidy(true);
+
 		$content = $page->getContent();
+
 		if ($content) {
 			$parserOutput = $content->getParserOutput($page->getTitle(), null, $popts, false)->getText();
 			$html = WikihowArticleHTML::processArticleHTML($parserOutput, array('no-ads' => true, 'ns' => NS_MAIN));
 			$header = Html::element( 'h2', array(), 'Full Article' );
 			$html = $header . $html;
 		}
+
 		return $html;
 	}
 
@@ -270,23 +252,22 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 
 		$titleLink = Linker::link( $title, $titleText, ['target'=>'_blank'] );
 
-		if ( Misc::isMobileMode() ) {
-			$platformClass = "mobile";
-		} else {
-			$platformClass = "desktop";
-		}
 		$articleHtml = $this->getArticleHtml( $pageId );
-		$articleLoaded = false;
-		if ( $articleHtml ) {
-			$articleLoaded = true;
-		}
+
 		$vars = [
 			'items' => $ratingReason,
-			'platformclass' => $platformClass,
 			'title' => wfMessage( 'specialtechfeedbacktext', $titleLink )->text(),
 			'pageId' => $pageId,
 			'titleText' => $title->getText(),
-			'tool_info' => class_exists( 'ToolInfo' ) ? ToolInfo::getTheIcon( $this->getContext() ) : ''
+			'tool_info' => class_exists( 'ToolInfo' ) ? ToolInfo::getTheIcon( $this->getContext() ) : '',
+			'stf_prompt' => wfMessage('stf_prompt')->text(),
+			'stf_show_article' => wfMessage('stf_show_article')->text(),
+			'stf_hide_article' => wfMessage('stf_hide_article')->text(),
+			'stf_desktop_yes' => wfMessage('stf_desktop_yes')->text(),
+			'stf_desktop_no' => wfMessage('stf_desktop_no')->text(),
+			'stf_notsure' => wfMessage('stf_notsure')->text(),
+			'stf_yes' => wfMessage('stf_yes')->text(),
+			'stf_no' => wfMessage('stf_no')->text()
 		];
 
 		$loader = new Mustache_Loader_CascadingLoader( [new Mustache_Loader_FilesystemLoader( __DIR__ )] );
@@ -294,17 +275,17 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 
-		$html = $m->render( 'specialtechfeedback_inner', $vars );
+		$html = $m->render( 'specialtechfeedback_inner.mustache', $vars );
 
 		$remainingCount = $this->mUserRemainingCount;
-		$result = array(
+
+		return [
 			'html' => $html,
 			'articlehtml' => $articleHtml,
 			'title' => $titleLink,
 			'remaining' => $remainingCount,
 			'pageId' => $pageId,
-		);
-		return $result;
+		];
 	}
 
 	public static function getRemainingCount() {

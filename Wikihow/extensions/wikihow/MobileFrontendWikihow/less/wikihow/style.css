@@ -28,7 +28,7 @@ a:hover {
 }
 
 #footer_inner {
-	padding: 20px 1em 1em;
+	padding: 30px 1em;
 	margin: 0 auto;
 	max-width: 728px;
 }
@@ -37,12 +37,6 @@ a:hover {
 	display: block;
 	height: 21px;
 	margin-bottom: 1em;
-}
-
-#footer_middle {
-	border-top: 1px solid #77a555;
-	padding: 1em 1em 0;
-	margin: 0 -1em;
 }
 
 #cse-search-box-bottom {
@@ -56,7 +50,6 @@ a:hover {
 	border-radius: 8px;
 	font-size: 16px; /*CSS hack to stop zooming when the iOS keyboard appears*/
 	background-color: #ffffff;
-	border: 1px solid #5f8344;
 }
 
 #search_footer .cse_sa {
@@ -89,36 +82,31 @@ a:hover {
 	line-height: 2em;
 }
 
-#footer_crumbs {
-	margin-bottom: 1.4em;
+#footer_crumbs li:last-child{
+	margin-bottom: 13px;
+}
+
+.footer_divider {
+	border-top: 1px solid #77a555;
+}
+
+#search_footer {
+	margin-top: 30px;
+}
+
+#footer_links {
+	margin-bottom: 20px;
 }
 
 @media only screen and (min-width:728px) {
 	#footer {
-		border-top: 2px solid #77a555;
 		text-align: left;
 	}
 
-	#footer_middle {
-		border: solid #77a555;
-		border-width: 1px 0;
-		padding: 0;
-		display: table;
-		width: 100%;
-		max-width: 728px;
-		margin: 0 auto;
-	}
-
-	#search_footer {
-		display: table-cell;
-		vertical-align: middle;
-		width: 60%;
-	}
-
 	#footer_links {
-		display: table-cell;
 		text-align: center;
 		padding-left: 1em;
+		margin-bottom: 0;
 	}
 
 	#footer_links ul {
@@ -133,6 +121,10 @@ a:hover {
 
 	#footer_crumbs {
 		font-size: .9em;
+	}
+
+	#search_footer {
+		margin-top: 0;
 	}
 }
 /* End footer */

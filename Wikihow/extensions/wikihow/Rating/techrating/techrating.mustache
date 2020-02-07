@@ -1,6 +1,9 @@
 <div id="tech_rating" class="{{tech_class}}">
 	<div id="tech_rating_data">
 		<p><span id="tech_count">{{helped_count}}</span>{{{helped_text}}}</p>
+		{{#count_back}}
+			<p id="tech_week">{{{count_back}}}</p>
+		{{/count_back}}
 	</div>
 	<a href="#" id="tech_rating_help">{{{tech_rating_help}}}</a>
 </div>
@@ -24,10 +27,12 @@
 	function updateCount() {
 		if(!$("#tech_rating").hasClass("none")) {
 			var count = parseInt($("#tech_count").text());
+			var weekcount = parseInt($("#tech_week span").text());
 			if(count == 1) {
 				$(".tech_reader").html("readers");
 			}
 			$("#tech_count").html(count+1);
+			$("#tech_week span").html(weekcount+1);
 		}
 	}
 </script>

@@ -1,4 +1,4 @@
-if (WH.shared.isDesktopSize || bucketId == '24') {
+if (WH.shared.isDesktopSize || dfpSmallTest) {
 	var gads = document.createElement('script');
 	gads.async = true;
 	gads.type = 'text/javascript';
@@ -27,6 +27,7 @@ if (WH.shared.isDesktopSize || bucketId == '24') {
 		slot.setTargeting('language', WH.pageLang);
 		slot.setTargeting('format', format);
 		slot.setTargeting('site', window.location.hostname);
+		slot.setTargeting('coppa', isCoppa);
 		if (dfpCategory != '') {
 			slot.setTargeting('category', dfpCategory);
 		}

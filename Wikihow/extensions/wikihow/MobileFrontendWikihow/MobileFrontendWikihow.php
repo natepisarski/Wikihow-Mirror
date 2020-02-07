@@ -168,12 +168,6 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 	// is to pull out specific styles for each mw module we are overriding and inject
 	// css into those modules. This approach, of course, is brittle and still will largely
 	// be influenced by the sort order
-	'zzz.mobile.wikihow.login.styles' => $wgMFMobileSpecialPageResourceBoilerplateWikihow + array(
-		'styles' => array(
-			'less/wikihow/login.css',
-		),
-		'position' => 'bottom',
-	),
 	'mobile.wikihow.login' => $wgMFMobileResourceBoilerplateWikihow + array(
 		'scripts' => array(
 			'javascripts/wikihow/login_mobile.js'
@@ -237,10 +231,10 @@ $autoloadClasses = array (
 	'SkinMinervaWikihowAmp' => '../googleamp/SkinMinervaWikihowAmp.php',
 	'MobileFrontendWikiHowHooks' => 'MobileFrontendWikihow.hooks.php',
 	'UserLoginAndCreateTemplate'=> 'includes/skins/wh_UserLoginAndCreateTemplate.php',
-	'UserLoginMobileTemplate' => 'includes/skins/wh_UserLoginMobileTemplate.php',
+	// 'UserLoginMobileTemplate' => 'includes/skins/wh_UserLoginMobileTemplate.php',
 	'UserAccountCreateMobileTemplate' => 'includes/skins/wh_UserAccountCreateMobileTemplate.php',
 	'SpecialMobileNotifications' => 'includes/specials/wh_SpecialMobileNotifications.php',
-	'SpecialPasswordReset' => 'includes/specials/SpecialPasswordResetWikihow.php',
+	// 'SpecialPasswordReset' => 'includes/specials/SpecialPasswordResetWikihow.php',
 	'SpecialMobileLoggedOutComplete' => 'includes/specials/SpecialMobileLoggedOutComplete.php',
 	'ApiMobileViewWikihow' => 'includes/api/ApiMobileViewWikihow.php',
 	'SkinMinervaQADomain' => '../qadomain/SkinMinervaQADomain.php',

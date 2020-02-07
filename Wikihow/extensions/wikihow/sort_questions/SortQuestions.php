@@ -1,7 +1,4 @@
 <?php
-if (!defined('MEDIAWIKI')) {
-	die();
-}
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'Sort Questions',

@@ -6,53 +6,63 @@
 		cookieName: '_slider_box',
 
 		init: function() {
-			//does this page have a video?
-			if($("#summary_video_link").length > 0) {
-				$(".slider_become_main").append("<a class='button slider_button'> " + mw.message("slider_cta_video").text() + "</a>");
-				$(".slider_become_main .slider_button").attr("href", encodeURI($("#summary_video_link").attr("href")));
-				if(WH.isMobile) {
-					var titleText = $("#section_0").text();
-				} else {
-					var titleText = $(".firstHeading a").text();
-				}
-				if(titleText.length > 51) {
-					titleText = titleText.substring(0, 51);
-					if(titleText.charAt(titleText.length-1) == " ") {
-						titleText = titleText.substring(0, 50);
-					}
-					titleText += "...";
-				}
-				$(".slider_become_main").append("<a class='slider_title'>" + titleText + "</a>");
-				$(".slider_become_main .slider_title").attr("href", encodeURI($("#summary_video_link").attr("href")));
-
-				$("#sliderbox").addClass("sliderbox_video");
+			var random = Math.random();
+			if(random < .5) {
+				//show the newsletter 50% of the time
+				$(".slider_become_main").append("<p class='slider_readmore'>" + mw.message("slider_cta_newsletter") + "</p>");
+				$(".slider_become_main").append("<p class='slider_category'>" + mw.message("slider_newsletter") + "</p>");
+				$(".slider_become_main").append("<a class='button slider_button'>" + mw.message("slider_url_text_newsletter") + "</a>");
+				$(".slider_become_main .slider_button").attr("href", encodeURI(mw.message("newsletter_url").text()));
+				$("#sliderbox").addClass("sliderbox_newsletter");
 			} else {
-				//grab a related wH from the page instead
-				var numRelated = $("#side_related_articles .related-article").length;
-				var $related = $("#side_related_articles .related-article")[Math.floor(Math.random() * numRelated)];
-
-				//now put the stuff in
-				var categories = mw.config.get("wgCategories");
-				var catTitle;
-				for(var i = 0; i < categories.length; i++){
-					if(categories[i] != "Featured Articles" && categories[i] != "Honors" && categories[i] != "WikiHow") {
-						catTitle = categories[i];
-						break;
+				//does this page have a video?
+				if ($("#summary_video_link").length > 0) {
+					$(".slider_become_main").append("<a class='button slider_button'> " + mw.message("slider_cta_video").text() + "</a>");
+					$(".slider_become_main .slider_button").attr("href", encodeURI($("#summary_video_link").attr("href")));
+					if (WH.isMobile) {
+						var titleText = $("#section_0").text();
+					} else {
+						var titleText = $(".firstHeading a").text();
 					}
-				}
-				if(catTitle.length > 33) {
-					catTitle = catTitle.substring(0, 33);
-					if(catTitle.charAt(catTitle.length-1) == " ") {
-						catTitle = catTitle.substring(0, 32);
+					if (titleText.length > 51) {
+						titleText = titleText.substring(0, 51);
+						if (titleText.charAt(titleText.length - 1) == " ") {
+							titleText = titleText.substring(0, 50);
+						}
+						titleText += "...";
 					}
-					catTitle += "...";
-				}
+					$(".slider_become_main").append("<a class='slider_title'>" + titleText + "</a>");
+					$(".slider_become_main .slider_title").attr("href", encodeURI($("#summary_video_link").attr("href")));
 
-				$(".slider_become_main").append("<p class='slider_readmore'>" + mw.message("slider_cta_category").text() + "</p>");
-				$(".slider_become_main").append("<p class='slider_category'>" + catTitle + "</p>");
-				$(".slider_become_main").append("<a class='button slider_button'>" + mw.message("slider_url_text_category").text() + "</a>");
-				$(".slider_become_main .slider_button").attr("href", encodeURI($(".related-title", $related).attr("href")));
-				$("#sliderbox").addClass("sliderbox_category");
+					$("#sliderbox").addClass("sliderbox_video");
+				} else {
+					//grab a related wH from the page instead
+					var numRelated = $("#side_related_articles .related-article").length;
+					var $related = $("#side_related_articles .related-article")[Math.floor(Math.random() * numRelated)];
+
+					//now put the stuff in
+					var categories = mw.config.get("wgCategories");
+					var catTitle;
+					for (var i = 0; i < categories.length; i++) {
+						if (categories[i] != "Featured Articles" && categories[i] != "Honors" && categories[i] != "WikiHow") {
+							catTitle = categories[i];
+							break;
+						}
+					}
+					if (catTitle.length > 33) {
+						catTitle = catTitle.substring(0, 33);
+						if (catTitle.charAt(catTitle.length - 1) == " ") {
+							catTitle = catTitle.substring(0, 32);
+						}
+						catTitle += "...";
+					}
+
+					$(".slider_become_main").append("<p class='slider_readmore'>" + mw.message("slider_cta_category").text() + "</p>");
+					$(".slider_become_main").append("<p class='slider_category'>" + catTitle + "</p>");
+					$(".slider_become_main").append("<a class='button slider_button'>" + mw.message("slider_url_text_category").text() + "</a>");
+					$(".slider_become_main .slider_button").attr("href", encodeURI($(".related-title", $related).attr("href")));
+					$("#sliderbox").addClass("sliderbox_category");
+				}
 			}
 
 			$(".slider_become_main a").on("click", function(e){

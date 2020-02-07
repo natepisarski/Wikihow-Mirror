@@ -6,7 +6,7 @@
 
 class WikiHowArticleDomExtractor {
 
-	static $hasParts;
+	var $hasParts = false;
 	var $revision = null;
 	var $parsedHtml = null;
 	var $phpQueryDocId = null;
@@ -96,6 +96,8 @@ class WikiHowArticleDomExtractor {
 
 		$content = $r->getContent(Revision::RAW);
 		$text = ContentHandler::getContentText($content);
+		$this->hasParts = WikihowArticleHTML::grabTheMagic($text) == MagicWord::get('parts');
+
 		$popts = $out->parserOptions();
 		$popts->setTidy(true);
 		$parsedHtml = $out->parse($text, $t, $popts);
@@ -103,6 +105,13 @@ class WikiHowArticleDomExtractor {
 		$this->setParsedHtml($parsedHtml);
 
 		return $parsedHtml;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getHasParts() {
+		return $this->hasParts;
 	}
 
 	public function getMethodCount() {
@@ -147,6 +156,20 @@ class WikiHowArticleDomExtractor {
 		return $extractedData;
 	}
 
+	protected function extractFromMethods($extractingFunction, $methodNum = 0) {
+		$extractedData = "";
+		$sections = $this->getStepsSectionsNodes();
+		//TODO non-alt method article logic
+		foreach ($sections as $i => $section) {
+			if ($i == $methodNum) {
+				$extractedData = $extractingFunction($section);
+				break;
+			}
+		}
+
+		return $extractedData;
+	}
+
 	public function getStepText($methodNum = 0) {
 		$extractionFn = function($step) {
 			@pq($step)->find('script')->html('')->remove();
@@ -155,6 +178,14 @@ class WikiHowArticleDomExtractor {
 		};
 
 		return $this->extractFromSteps($extractionFn, $methodNum, true);
+	}
+
+	public function getMethodName($methodNum = 0) {
+		$extractionFn = function($section) {
+			return trim(@pq($section)->find('h3 span.mw-headline')->text());
+		};
+
+		return $this->extractFromMethods($extractionFn, $methodNum, true);
 	}
 
 	public function getVideoPlaceHolderImages($methodNum = 0) {
@@ -510,7 +541,7 @@ class WikiHowArticleDomExtractor {
 
 		// Remove refs
 		pq('.reference')->remove();
-
+//var_dump($this->getPhpQueryDoc()->htmlOuter());exit;
 
 		return $this->getPhpQueryDoc()->htmlOuter();
 	}

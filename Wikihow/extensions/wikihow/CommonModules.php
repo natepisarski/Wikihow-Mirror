@@ -173,7 +173,7 @@ $wgResourceModules['ext.wikihow.specials_styles'] =
 	+ [ 'styles' => [ '../../skins/owl/special.css' ] ];
 
 $wgResourceModules['ext.wikihow.nonarticle_styles'] =
-	$wgResourceModulesDesktopBoilerStyles
+	$wgResourceModulesResponsiveBoilerStyles
 	+ [ 'styles' => [ '../../skins/owl/nonarticle.css' ] ];
 
 $wgResourceModules['ext.wikihow.diff_styles'] =

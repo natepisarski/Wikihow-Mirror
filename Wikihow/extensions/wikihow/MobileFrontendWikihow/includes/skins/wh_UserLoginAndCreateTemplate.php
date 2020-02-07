@@ -191,53 +191,34 @@ abstract class UserLoginAndCreateTemplate extends QuickTemplate {
 	}
 
 	public static function getMobileTabs(bool $isSignup): string {
-		if ( !Misc::isMobileMode() ) {
-			return '';
-		}
+		global $IP;
 
-		$req = RequestContext::getMain()->getRequest();
+		$context = RequestContext::getMain();
+		if ( !Misc::doResponsive( $context ) ) return '';
 
 		// Build log in query
-
 		$query = [];
-		$fullQuery = $req->getQueryValues();
-		if ( $fullQuery['returnto'] )  {
-			$query['returnto'] = $fullQuery['returnto'];
-		}
-		if ( $fullQuery['returntoquery'] )  {
-			$query['returntoquery'] = $fullQuery['returntoquery'];
-		}
-		if ( $fullQuery['useformat'] )  {
-			$query['useformat'] = $fullQuery['useformat'];
-		}
+		$fullQuery = $context->getRequest()->getQueryValues();
+		if ( $fullQuery['returnto'] ) $query['returnto'] = $fullQuery['returnto'];
+		if ( $fullQuery['returntoquery'] ) $query['returntoquery'] = $fullQuery['returntoquery'];
+		if ( $fullQuery['useformat'] ) $query['useformat'] = $fullQuery['useformat'];
 
-		// Build log in tabs
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( $IP . '/extensions/wikihow/WikihowLogin/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		$vars = [
+			'signup' => wfMessage('mobile-frontend-edit-signup-wh-link'),
+			'signup_url' => SpecialPage::getTitleFor('CreateAccount')->getLocalUrl($query),
+			'login' => wfMessage('mobile-frontend-edit-login-wh-link'),
+			'login_url' => SpecialPage::getTitleFor('Userlogin')->getLocalUrl($query),
+			'is_signup' => $isSignup
+		];
+
+		return $m->render('login_tabs.mustache', $vars);
 
 		$carat = '<span id="lt_carat" class="icon"></span>';
-		$off_class = 'lt_off';
-
-		$attributes = array(
-			'class' => ($isSignup) ? '' : $off_class,
-			'id' => 'lt_signup',
-
-		);
-		$signup_link_inner = $carat.'<span class="icon"></span>'.wfMessage('mobile-frontend-edit-signup-wh-link');
-		$signup_link = Linker::link(SpecialPage::getTitleFor( 'CreateAccount' ), $signup_link_inner, $attributes, $query, array('known'));
-
-		$attributes = array(
-			'class' => (!$isSignup) ? '' : $off_class,
-			'id' => 'lt_login',
-
-		);
-		$login_link_inner = $carat.'<span class="icon"></span>'.wfMessage('mobile-frontend-edit-login-wh-link');
-		$login_link = Linker::link(SpecialPage::getTitleFor( 'Userlogin' ), $login_link_inner, $attributes, $query, array('known'));
-
-		$html = '<div id="login_tabs">'.
-				$signup_link.
-				$login_link.
-				'</div>';
-
-		return $html;
 	}
 
 }

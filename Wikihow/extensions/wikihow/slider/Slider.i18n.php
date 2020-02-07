@@ -21,4 +21,7 @@ $messages['en'] = array (
 	"slider_url_text_video" => "Watch",
 	"slider_cta_category" => "READ ANOTHER ARTICLE IN",
 	"slider_url_text_category" => "Let's go!",
+	"slider_cta_newsletter" => "Don’t miss out! Sign up for",
+	"slider_newsletter" => "wikiHow’s newsletter",
+	"slider_url_text_newsletter" => "Subscribe"
 );

@@ -297,7 +297,7 @@ class LSearch extends SpecialPage {
 	 * @return int  Amount of results
 	 */
 	private function externalSearchResultsSolr($q, $start, $limit = 30, $gm_type = self::SEARCH_OTHER): int {
-		global $wgMemc, $wgSearchServerBase;
+		global $wgMemc, $wgSearchServerBase, $wgContLang;
 
 		$q = trim($q);
 
@@ -398,18 +398,19 @@ class LSearch extends SpecialPage {
 					$formattedTitle = $response->highlighting->{$result->id}->formatted_title ?
 						$response->highlighting->{$result->id}->formatted_title[0] : $result->formatted_title[0];
 					if ( $result->category === 1 ) {
-						$url = 'Category:' . str_replace( ' ', '-', $result->formatted_title[0] );
+						$category = urlencode($wgContLang->getNSText(NS_CATEGORY)) . ":";
+						$url = $category . urlencode( str_replace( ' ', '-', $result->formatted_title[0] ) ) ;
 					} else {
 						$title = Title::newFromID( $result->pageid );
 						if ( !$title ) {
 							continue;
 						}
-						$url = $title->getDBKey();
+						$url = urlencode( $title->getDBKey() );
 					}
 					$data['results'][] = [
 						'title' => $formattedTitle,
 						'description' => '...',
-						'url' => 'https://' . $domain . '/' . urlencode( $url )
+						'url' => 'https://' . $domain . '/' . $url
 					];
 				}
 			}

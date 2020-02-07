@@ -1,0 +1,77 @@
+@import '../less/variables.less';
+
+#ti_icon {
+	float: right;
+	height: 18px;
+	/* @embed */
+	background: url(../../../skins/owl/images/info.svg) no-repeat 0 0;
+	background-size: 18px;
+	margin-right: 17px;
+	cursor: pointer;
+	padding-left: 24px;
+	color: #93B874;
+	line-height: 18px;
+}
+
+#ti_outer_box {
+	clear: both;
+	padding: 0;
+	position: relative;
+}
+
+#ti_box {
+	background-color: #FFF;
+	border-radius: 0 0 @borderRadius @borderRadius;
+	border: 3px solid #93B874;
+	border-top-width: 0;
+	overflow: hidden;
+	padding: 20px;
+
+	li {
+		list-style: none;
+		font-size: 13px;
+		margin-bottom: 10px;
+		line-height: 18px;
+		/* @embed */
+		background: url(../../../skins/owl/images/checkmark_green.svg) no-repeat left 3px;
+		padding-left: 22px;
+		background-size: 13px;
+	}
+}
+
+#ti_hdr {
+	border-radius: @borderRadius @borderRadius 0 0;
+	background-color: #93B874;
+	color: #FFF;
+	padding: 8px;
+	text-align: center;
+	font-size: 16px;
+}
+
+#ti_caret_box {
+	height: 27px;
+}
+
+#ti_caret {
+	width: 0;
+	height: 0;
+	border-left: 25px solid transparent;
+	border-right: 25px solid transparent;
+	border-bottom: 25px solid #93B874;
+	position: absolute;
+	right: 40px;
+	margin-top: 3px;
+}
+
+#ti_link {
+	text-align: center;
+	font-weight: bold;
+	font-size: 14px;
+	margin: 1.5em 0 0;
+}
+
+@media @medium {
+	#ti_box li {
+		font-size: 15px;
+	}
+}

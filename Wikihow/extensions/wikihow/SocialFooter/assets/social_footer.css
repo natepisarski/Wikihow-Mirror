@@ -4,39 +4,25 @@
  */
 
 #sf {
-	margin: 15px 68px 0 0;
-	float: right;
-}
-
-#sf.mobile {
 	margin: 13px 0 0 0;
 	float: none;
 	text-align: center;
 }
 
-/**
- * See above comment about LESS compilation.
- * @media @medium {
- */
-@media only screen and (min-width:728px) {
-	#sf.mobile {
-		text-align: left;
-	}
+#sf p {
+	color: #fff;
+	font-size: 17px;
+	font-weight: bold;
+	margin: 18px 0 10px 0;
 }
 
 #sf .sf_icon {
-	width: 32px;
-	height: 32px;
-	display: inline-block;
-	margin: 0 3px;
-	background-repeat: no-repeat;
-	background-size: cover;
-}
-
-#sf.mobile .sf_icon {
 	width: 40px;
 	height: 40px;
 	margin: 0 5px;
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 
 #sf_ig {

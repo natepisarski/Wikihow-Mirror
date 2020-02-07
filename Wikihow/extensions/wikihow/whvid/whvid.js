@@ -15,7 +15,7 @@ WH.video = (function () {
 		var xmlHttp = new XMLHttpRequest();
 		var url = '/x/event' +
 			'?action=' + encodeURIComponent( action ) +
-			'&page=' + encodeURIComponent( mw.config.get( 'wgArticleId' ) );
+			'&page=' + encodeURIComponent( window.WH.pageID );
 		xmlHttp.open( 'GET', url, true );
 		xmlHttp.send( null );
 	}

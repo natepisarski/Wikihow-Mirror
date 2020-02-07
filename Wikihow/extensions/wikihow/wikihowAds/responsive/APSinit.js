@@ -1,4 +1,4 @@
-if (WH.shared.isDesktopSize || bucketId == '24') {
+if (WH.shared.isDesktopSize || dfpSmallTest) {
 	//Load the APS JavaScript Library
 	!function(a9,a,p,s,t,A,g){if(a[a9])return;function q(c,r){a[a9]._Q.push([c,r])}a[a9]={init:
 		function(){q("i",arguments)},fetchBids:function(){q("f",arguments)},setDisplayBids:function()

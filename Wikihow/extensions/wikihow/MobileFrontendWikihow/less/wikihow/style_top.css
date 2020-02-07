@@ -360,7 +360,7 @@ a.external {
 
 	#hs_query,
 	#hs_submit {
-		background-image: url(/extensions/wikihow/mobile/images/search_white.svg);
+		background-image: url(/extensions/wikihow/mobile/images/mag_white.png);
 	}
 	#hs_query:valid ~ #hs_submit {
 		display: block;

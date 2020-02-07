@@ -467,7 +467,7 @@ class GoogleAmp {
 		$vars = array(
 			'ccpa_message' => $ccpaFooterMessage,
 			'ccpa_endpoint' => $ccpaEndpoint,
-			'gdpr_message' => 'test',
+			'gdpr_message' => $messageInner,
 			'gdpr_accept' => wfMessage("gdpr_accept")->text()
 		);
 

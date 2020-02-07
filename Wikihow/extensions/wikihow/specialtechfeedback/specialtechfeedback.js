@@ -6,14 +6,14 @@
 		lastPageId : null,
 		articleVisible: false,
 		tool: '/Special:TechFeedback',
+		smallScreen: $(window).width() < WH.mediumScreenMinWidth,
+
 		init: function() {
 			WH.xss.addToken();
-			if (!$('#bodycontents').length) {
-				// on mobile
-				$('.content').prepend('<div id="bodycontents"></div>');
-			}
-			$('#bodycontents').append('<div id="tool-data"></div>');
-			$('#bodycontents').after('<div id="article-data"></div>');
+
+			var topElement = $('#stf-title').parent();
+			$(topElement).append('<div id="tool-data"></div>');
+			$(topElement).after('<div id="article-data"></div>');
 
 			this.getNext();
 
@@ -82,6 +82,7 @@
 
 		getNext: function() {
 			var url = this.tool+'?getQs=1';
+			var smallScreen = this.smallScreen;
 
 			$('#article-data').fadeOut();
 			$('#tool-data').fadeOut(function() {
@@ -94,7 +95,7 @@
 							$('#tool-data').html(data.html);
 							$('#header-title').html(data.title);
 							$('#header-count').html(data.remaining);
-							if (data.articlehtml) {
+							if (data.articlehtml && !smallScreen) {
 								$('#article-data').html(data.articlehtml);
 								$('#article-data').data('loaded', true);
 							} else {
