@@ -49,6 +49,9 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 		elseif ($modal_type == 'discusstab') {
 			$modal = self::getDiscussTabModal($request->getVal('aid'), $request->getVal('already_rated'));
 		}
+		elseif ($modal_type == 'image_feedback') {
+			$modal = self::getImageFeedbackModal();
+		}
 
 		$out->setArticleBodyOnly(true);
 		$out->addHTML($modal);
@@ -157,6 +160,15 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 
 	private static function getFlagAsDetailsModal() {
 		return EasyTemplate::html('flag_as_details.tmpl.php');
+	}
+
+	private static function getImageFeedbackModal() {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/image_feedback' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+		$html = $m->render('image_feedback.mustache', []);
+		return $html;
 	}
 
 	private static function getDiscussTabModal($aid, $already_rated) {

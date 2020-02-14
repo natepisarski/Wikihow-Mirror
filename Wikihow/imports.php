@@ -402,7 +402,6 @@ require_once("$IP/extensions/wikihow/NoScriptHomepage/Hello.php");
 
 require_once("$IP/extensions/wikihow/eoq/EndOfQueue.php");
 require_once("$IP/extensions/wikihow/FastlyAction.php");
-require_once("$IP/extensions/wikihow/category_contacts/CategoryContacts.php");
 require_once("$IP/extensions/wikihow/GooglePresentationTag.php");
 require_once("$IP/extensions/wikihow/ListDemotedArticles/ListDemotedArticles.php");
 require_once("$IP/extensions/wikihow/VideoEmbedHelperTool/VideoEmbedHelperTool.php");

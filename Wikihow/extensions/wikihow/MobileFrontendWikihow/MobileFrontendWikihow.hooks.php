@@ -205,6 +205,7 @@ class MobileFrontendWikiHowHooks {
 
 		$showImageFeedback = class_exists('ImageFeedback') && ImageFeedback::isValidPage();
 		if ($showImageFeedback) {
+			$out->addModuleStyles('ext.wikihow.image_feedback_styles');
 			$out->addModules('ext.wikihow.image_feedback');
 		}
 
@@ -293,7 +294,8 @@ class MobileFrontendWikiHowHooks {
 
 		$responsiveTools = [
 			'TechFeedback',
-			'SortQuestions'
+			'SortQuestions',
+			'QuizYourself'
 		];
 
 		self::$isvalidResponsivePage = $title &&

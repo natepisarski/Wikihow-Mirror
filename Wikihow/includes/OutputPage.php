@@ -3290,6 +3290,7 @@ class OutputPage extends ContextSource {
 		// Wikihow: we can't have any Javascript in the head, and post-processing
 		// this after the fact is tougher.
 		if ( !GoogleAmp::isAmpMode($this) ) {
+			$pieces[] = Misc::getFCPHead();
 			$pieces[] = Misc::getTTIHead();
 			$pieces[] = Misc::getFIDHead();
 			$pieces[] = $this->getRlClient()->getHeadHtml();

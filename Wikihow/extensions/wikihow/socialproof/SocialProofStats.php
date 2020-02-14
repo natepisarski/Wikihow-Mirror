@@ -427,7 +427,11 @@ class SocialProofStats extends ContextSource {
 	public function getDesktopSidebarHtml() {
 		$stats = $this->getStatsForDisplay();
 		$stats['helpful_sidebox'] = (int)$stats['helpful']['value'] >= 80 ? 'helpful_sidebox' : '';
-		$stats['helpful_statement'] = wfMessage('sp_helpful_statement',$stats['helpful']['value'])->text();
+		$t = RequestContext::getMain()->getTitle();
+		$isRecipe = CategoryHelper::isTitleInCategory( $t, "Recipes" );
+		$stats['helpful_statement'] = $isRecipe ?
+			wfMessage('sp_helpful_statement_recipe',$stats['helpful']['value'])->text() :
+			wfMessage('sp_helpful_statement',$stats['helpful']['value'])->text();
 		$stats['show_top_box'] = !$stats['helpful_sidebox'] || $stats['difficult_article'] || !empty($stats['expert']);
 		$stats['arrow_box'] = $stats['show_top_box'] && empty($stats['expert']);
 

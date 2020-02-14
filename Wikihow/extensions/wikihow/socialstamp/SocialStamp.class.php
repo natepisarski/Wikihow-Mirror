@@ -7,6 +7,7 @@ class SocialStamp {
 	private static $verifiers = [];
 
 	private static $hoverText = "";
+	private static $hoverTextNoLink = "";
 	private static $byLineHtml = "";
 	private static $isNotable = null;
 
@@ -43,6 +44,14 @@ class SocialStamp {
 		return self::$hoverText;
 	}
 
+	private static function getHoverTextNoLink() {
+		if (self::$hoverTextNoLink == "") {
+			self::setBylineVariables();
+		}
+
+		return self::$hoverTextNoLink;
+	}
+
 	private static function setBylineVariables() {
 		$out = RequestContext::getMain()->getOutput();
 		$isAmp = GoogleAmp::isAmpMode($out);
@@ -55,11 +64,12 @@ class SocialStamp {
 		$html = self::getHtmlFromTemplate($template, $params);
 
 		self::$hoverText = $params['body'];
+		self::$hoverTextNoLink = $params['body_nolink'];
 		self::$byLineHtml = $html;
 	}
 
 	public static function getHoverTextForArticleInfo(){
-		$text = trim(self::getHoverText());
+		$text = trim(self::getHoverTextNoLink());
 		$brLoc = stripos($text, "<br");
 		if ($brLoc !== false) {
 			$text = substr($text, 0, $brLoc);
@@ -145,6 +155,7 @@ class SocialStamp {
 		$isIntl = Misc::isIntl();
 
 		$hoverText = "";
+		$hoverTextNoLink = '';
 
 		if ( ArticleTagList::hasTag("expert_test", $articleId) && !RequestContext::getMain()->getUser()->isLoggedIn() ) {
 			$vd = VerifyData::getVerifierInfoById($verifiers['expert']->verifierId);
@@ -279,16 +290,8 @@ class SocialStamp {
 			}
 		}
 
-		// Show references either in the byline or the TOC, but not both
-		if(!Misc::isMobileMode()) {
-			if (empty($params['showBylineRefs']) && !Misc::isMobileMode()) {
-				WikihowToc::setReferences();
-			} else {
-				pq('#toc_ref')->addClass('hidden');
-			}
-		} else {
-			WikihowToc::setReferences();
-		}
+		// Show references
+		WikihowToc::setReferences();
 
 		# Hover text
 
@@ -310,6 +313,7 @@ class SocialStamp {
 			if ($isIntl) {
 				if ( $vData->hoverBlurb ) { // show link only if blurb is translated
 					$coauthorLink = Html::element('a', ['href' => $link], $vData->name);
+					$coauthorNoLink = $vData->name;
 					$msg = 'ss_coauthored_by';
 				} else {
 					$coauthorLink = $vData->name;
@@ -317,12 +321,14 @@ class SocialStamp {
 				}
 
 				$hoverText = wfMessage($msg, $coauthorLink )->text() . ' ' . $vData->hoverBlurb . $citations;
+				$hoverTextNoLink = wfMessage($msg, $coauthorNoLink )->text() . ' ' . $vData->hoverBlurb . $citations;
 			} else {
 				$coauthoredBy = lcfirst(wfMessage("sp_expert_attribution")->text());
 				if (SocialProofStats::isSpecialInline()) {
 					$coauthoredBy = lcfirst(wfMessage("ss_special_author")->text());
 				}
 				$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();
+				$hoverTextNoLink = wfMessage('ss_expert_nolink', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();
 			}
 		}
 		elseif ($isCommunity) {
@@ -364,7 +370,9 @@ class SocialStamp {
 			}
 		}
 
-		$params = array_merge($params, self::getIconHoverVars($hoverText, $isMobile, $isAmp, $isExpert, $isAlternateDomain));
+		$params = array_merge($params, self::getIconHoverVars($hoverText, $hoverTextNoLink, $isMobile, $isAmp, $isExpert, $isAlternateDomain));
+
+		$params = self::initRecipeByline($params, $isExpert);
 
 		if ($isAlternateDomain) {
 			$altDomain = AlternateDomain::getAlternateDomainForCurrentPage();
@@ -376,7 +384,9 @@ class SocialStamp {
 
 	private static function getHtmlFromTemplate($template, $data) {
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
+			new Mustache_Loader_FilesystemLoader(__DIR__.'/../socialproof/templates'),
+			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates'),
+			new Mustache_Loader_FilesystemLoader(__DIR__.'/reader_success_stories_dialog/templates')
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
@@ -385,10 +395,11 @@ class SocialStamp {
 		return $html;
 	}
 
-	private static function getIconHoverVars(string $hover_text, bool $is_mobile, bool $amp, bool $isExpert, bool $isAlternateDomain) {
+	private static function getIconHoverVars(string $hover_text, string $hover_text_no_link, bool $is_mobile, bool $amp, bool $isExpert, bool $isAlternateDomain) {
 		$vars = [
 			'header' => wfMessage('sp_hover_expert_header')->text(),
 			'body' => $hover_text,
+			'body_nolink' => $hover_text_no_link,
 			'mobile' => $is_mobile,
 			'amp' => $amp
 		];
@@ -505,5 +516,94 @@ class SocialStamp {
 		if (!self::showTrustBanner()) return;
 		$html = self::getTrustBanner();
 		if ($html) $data['prebodytext'] = $html . $data['prebodytext'];
+	}
+
+	/**
+	 * Only add this portion of the byline if it's a recipe article
+	 *
+	 * @param $params
+	 * @return mixed
+	 */
+	private static function initRecipeByline($params, $isExpert) {
+		// Don't show the recipe byline if there is an expert or it's not eligible
+		if (self::isRecipeArticleBylineEligible()  && !$isExpert) {
+			$out = RequestContext::getMain()->getOutput();
+			$isAmp = GoogleAmp::isAmpMode($out);
+
+			// Add the cta for recipe articles (but not on amp) - even if the recipe byline doesn't show due to below rules
+			if (!$isAmp) {
+				self::addReaderSuccessStoriesCTA();
+			}
+
+			$articleId = RequestContext::getMain()->getTitle()->getArticleID();
+			$isMobile = Misc::isMobileMode();
+			$parenttree = CategoryHelper::getCurrentParentCategoryTree();
+			$fullCategoryTree = CategoryHelper::cleanCurrentParentCategoryTree($parenttree);
+			$helpfulness = SocialProofStats::getHelpfulness($articleId, $fullCategoryTree, $isMobile);
+
+			// Only show byline if there are >= 3 votes and a percentage of 80 or better
+			$showRatingsByline = $helpfulness['count'] >= 3 && $helpfulness['value'] >= 80;
+			if ($showRatingsByline) {
+				$params['helpful'] = $helpfulness;
+				$params['helpful_byline_noamp'] = !$isAmp;
+				$params['helpful_byline_amp'] = $isAmp;
+				$params['helpful_byline'] = 'sp_byline';
+				$params['helpful_count_label'] = wfMessage('rss_helpful_count_label')->text();
+				$params['showBylineRefs'] = false;
+				// Only show the success stories message if there is at least 1 success story
+				if (UserReview::getTotalCuratedReviews($articleId) >= 1) {
+					$params['show_success_stories'] = true;
+					$params['success_stories_label'] = wfMessage('ss_success_stories_label')->text();
+					$params['lastUpdatedDate'] = false;
+				} else {
+					$params['show_success_stories'] = false;
+					// Show the last updated date for recipe bylines that don't have enough ratings to show
+					// the "Success Stories" link
+					if ($params['lastUpdatedDate']) {
+						$params['recipesLastUpdatedDate'] = $params['lastUpdatedDate'];
+						$params['lastUpdatedDate'] = false;
+					}
+
+				}
+				// Add corresponding dialog for non-amp versions
+				if (!$isAmp) {
+					self::addReaderSuccessStoriesDialog();
+				}
+			}
+		}
+		return $params;
+	}
+
+	private static function addReaderSuccessStoriesDialog() {
+		$out = RequestContext::getMain()->getOutput();
+		$out->addModules('ext.wikihow.reader_success_stories_dialog');
+
+		$data = [
+			'ss_dialog_title' => wfMessage('rss_dialog_title')->text(),
+			'ss_title' => wfMessage('rss_ss_title')->text(),
+			'ss_share_title'  => wfMessage('rss_ss_share_title')->text(),
+			'ss_share_button_title'  => wfMessage('rss_ss_share_button_title')->text(),
+		];
+		$html  = self::getHtmlFromTemplate('reader_success_stories_dialog', $data);
+		$selector = Misc::isMobileMode() ? '#mw-content-text' : '#bodycontents';
+		if (pq($selector)->length) {
+			pq($selector)->append($html);
+		}
+	}
+
+	private static function addReaderSuccessStoriesCTA() {
+		$data = [
+			'ss_share_title'  => wfMessage('rss_ss_share_title')->text(),
+			'ss_share_button_title'  => wfMessage('rss_ss_share_button_title')->text(),
+		];
+		$html  = self::getHtmlFromTemplate('reader_success_stories_cta', $data);
+		if (pq('.ingredients')->length) {
+			pq('.ingredients')->after($html);
+		}
+	}
+
+	private static function isRecipeArticleBylineEligible() {
+		$t = RequestContext::getMain()->getTitle();
+		return $t->inNamespace(NS_MAIN) && CategoryHelper::isTitleInCategory( $t, "Recipes" );
 	}
 }

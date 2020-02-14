@@ -21,7 +21,7 @@ WH.ads = (function () {
 	var scrollToAd;
 	var scrollToAdInsertCount = 0;
 	var TOCAd;
-	var bodyAds = [];
+	var bodyAds = {};
 	var lastScrollPosition = window.scrollY;
 	var scrollLoadingHandler = null;
 	var scrollToAdLoadingHandler = null;
@@ -998,7 +998,7 @@ WH.ads = (function () {
 		}
 
 		// update ad loading on regular article ads
-		for (var i = 0; i < bodyAds.length; i++) {
+		for (var i in bodyAds) {
 			var ad = bodyAds[i];
 			if (!ad.isLoaded) {
 				allAdsLoaded = false;
@@ -1093,7 +1093,7 @@ WH.ads = (function () {
 				}
 			});
 		} else {
-			bodyAds.push(ad);
+			bodyAds[ad.element.id] = ad;
 			if (useObserver && ad.observerLoading && ad.instantLoad == false) {
 				ad.useScrollLoader = false;
 				adLoadingObserver.observe(ad.element);
@@ -1108,11 +1108,9 @@ WH.ads = (function () {
 	// used by intersection observer ad loading
 	// TODO can be improved by storing assoc array of the ads w element as key
 	function loadElement(element) {
-		for (var i = 0; i < bodyAds.length; i+=1) {
-			var item = bodyAds[i];
-			if (item.element == element) {
-				item.load()
-			}
+		var item = bodyAds[element.id];
+		if (item) {
+			item.load()
 		}
 		for (var i = 0; i < rightRailElements.length; i+=1) {
 			var item = rightRailElements[i];

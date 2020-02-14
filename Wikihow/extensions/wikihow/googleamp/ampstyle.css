@@ -570,14 +570,12 @@
 	background-size: cover;
 }
 .ur_rating_off {
-	background-image: url(/skins/owl/images/sp_helpful_icon_star_empty.png);
 	/* @embed */
 	background-image: linear-gradient(transparent, transparent), url(/skins/owl/images/sp_helpful_icon_star_empty.optimized.svg);
 }
 
 .ur_rating_on {
 	background-size: cover;
-	background-image: url(/skins/owl/images/sp_helpful_icon_star.png);
 	/* @embed */
 	background-image: linear-gradient(transparent, transparent), url(/skins/owl/images/sp_helpful_icon_star.optimized.svg);
 }
@@ -591,19 +589,23 @@
 	border-top: 1px solid #e5e5e5;
 }
 
-#ur_anchor:target ~ ul .ur_review {
+#ur_anchor:target ~ ul .ur_review, #userreviews_mobile:target .ur_review {
 	display: list-item;
+}
+
+#userreviews_mobile:target .ur_more {
+	display: none;
 }
 
 #ur_anchor:target ~ .ur_hide {
 	display: block;
 }
 
-#ur_mobile li:first-child .ur_divider, #ur_anchor:target ~ ul .ur_ellipsis, #ur_anchor:target ~  ul .ur_review_show, #ur_anchor:target ~ .ur_more, #ur_anchor_full:target ~ ul .ur_review_show, #ur_anchor_full:target ~ ul .ur_ellipsis {
+#ur_mobile li:first-child .ur_divider, #ur_anchor:target ~ ul .ur_ellipsis, #ur_anchor:target ~  ul .ur_review_show, #ur_anchor:target ~ .ur_more, #ur_anchor_full:target ~ ul .ur_review_show, #ur_anchor_full:target ~ ul .ur_ellipsis, #userreviews_mobile:target .ur_review_show, #userreviews_mobile:target .ur_ellipsis {
 	display: none;
 }
 
-#ur_anchor:target ~ ul .ur_review_more, #ur_anchor_full:target ~ ul .ur_review_more {
+#ur_anchor:target ~ ul .ur_review_more, #ur_anchor_full:target ~ ul .ur_review_more, #userreviews_mobile:target .ur_review_more {
 	display: inline;
 }
 
@@ -668,9 +670,8 @@
 
 #gatAccuracyYes {
 	color: #97ba78;
-	background: url(/extensions/wikihow/Rating/images/face_smile_green.png) 15px center / 30px no-repeat;
 	/* @embed */
-	background-image: url(/extensions/wikihow/Rating/images/face_smile_green.svg);
+	background: url(/extensions/wikihow/Rating/images/face_smile_green.svg) 15px center / 30px no-repeat;
 }
 #gatAccuracyNo {
 	color: #686868;

@@ -22,3 +22,7 @@
 .sp_helpful_box{
 	display: block;
 }
+
+.mfp-hide, #rss_diag {
+    display: none;
+}

@@ -15,8 +15,11 @@
 					return;
 				}
 				$(this).on('click', function(e) {
+					if($(e.target).hasClass("rpt_img")) {
+						return;
+					}
 					e.preventDefault();
-					window.location.href = $("a", this).attr("href");
+					window.location.href = $("a:not(.rpt_img)", this).attr("href");
 					WH.MobileSlideshow.initSlideshow(this);
 				});
 			});

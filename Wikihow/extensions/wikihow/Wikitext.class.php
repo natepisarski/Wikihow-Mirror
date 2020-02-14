@@ -786,7 +786,7 @@ class Wikitext {
 		//[[Image:...]]
 		preg_match_all("@\[\[" . $nsTxt . ":([^\|]+)[^\]]*\]\]@im", $steps[0], $matches_img);
 		if (!empty($matches_img[2])) {
-			$matches = $matches_img[2];
+			$matches = array_map('trim', $matches_img[2]);
 		}
 		else {
 			//{{largeimage|...}}

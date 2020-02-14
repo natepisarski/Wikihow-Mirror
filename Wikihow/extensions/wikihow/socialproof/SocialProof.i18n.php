@@ -58,6 +58,7 @@ $messages['en'] = array (
 	'sp_team_label_reviewed' => "Reviewed By:",
 	'sp_section_star_name' => "Helpfulness Rating",
 	'sp_helpful_statement' => "<span>$1%</span> of voters found this article <b>helpful</b>.",
+	'sp_helpful_statement_recipe' => "<span>$1%</span> of voters found this recipe <b>helpful</b>.",
 	'sp_hover_reviewed_label' => " was reviewed by ",
 	'sp_staff_reviewed' => 'wikiHow Staff Editor',
 	'sp_staff_reviewed_hover' => "A wikiHow Staff Editor reviewed this article to make sure it's clear and accurate.",

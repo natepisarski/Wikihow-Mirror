@@ -48,7 +48,7 @@ $wgResourceModules['ext.wikihow.quiz_yourself'] = [
 	'scripts' => [ 'quiz_yourself.js' ],
 	'localBasePath' => __DIR__.'/QuizYourself/resources',
 	'remoteExtPath' => 'wikihow/quiz/QuizYourself/resources',
-	'targets' => [ 'mobile' ],
+	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'top'
 ];
 

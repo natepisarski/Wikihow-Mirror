@@ -758,7 +758,7 @@ class GoogleAmp {
 
 		$useEnAdNames = false;
 		// for now use new ad names only for buckets 11-24 but in the future we will make this the default
-		if ( $bucket > 10 && AlternateDomain::onAlternateDomain() ) {
+		if ( AlternateDomain::onAlternateDomain() ) {
 			$adSlots = [
 				2 => '/10095428/altd/altd_gam_amp_step2',
 				3 => '/10095428/altd/altd_gam_amp_step5',
@@ -777,7 +777,7 @@ class GoogleAmp {
 			} else {
 				$slot = $adSlots[$num];
 			}
-		} else if ( $bucket > 10 && $wgLanguageCode == 'en' ) {
+		} else if ( $wgLanguageCode == 'en' ) {
 			$adSlots = [
 				2 => '/10095428/engl/engl_gam_amp_step2',
 				3 => '/10095428/engl/engl_gam_amp_step5',
@@ -830,22 +830,22 @@ class GoogleAmp {
 		$dataLoadingStrategy = null;
 		$whAdLabelBottom = "";
 		$bucketId = sprintf( "%02d", $bucket );
+		$format = 'amp';
+		$ctx = RequestContext::getMain();
+		if ( !self::hasAmpParam( $ctx->getRequest() ) ) {
+			$format = 'mat';
+		}
+		$isCoppa = 'false';
+		if ( AdCreator::isChildDirectedPage() ) {
+			$isCoppa = 'true';
+		}
 
 		$targeting = ['targeting' => [
 			'bucket' => $bucketId,
 			'language' => $wgLanguageCode,
-			'format' => 'amp'
+			'coppa' => $isCoppa,
+			'format' => $format,
 		]];
-
-		// change format if we are running on regular mobile
-		$ctx = RequestContext::getMain();
-		if ( !self::hasAmpParam( $ctx->getRequest() ) ) {
-			$targeting = ['targeting' => [
-				'bucket' => $bucketId,
-				'language' => $wgLanguageCode,
-				'format' => 'mat'
-			]];
-		}
 
 		$targeting = json_encode( $targeting );
 

@@ -153,11 +153,11 @@ $wgResourceModules['ext.wikihow.homepage'] =
 	+ [ 'scripts' => [ 'homepage/wikihowhomepage.js' ] ];
 
 $wgResourceModules['ext.wikihow.image_feedback_styles'] =
-	$wgResourceModulesDesktopBoilerStyles
+	$wgResourceModulesResponsiveBoilerStyles
 	+ [ 'styles' => [ 'imagefeedback/imagefeedback.css' ] ];
 
 $wgResourceModules['ext.wikihow.image_feedback'] =
-	$wgResourceModulesDesktopBoiler
+	$wgResourceModulesResponsiveBoiler
 	+ [ 'scripts' => [ 'imagefeedback/imagefeedback.js' ] ];
 
 $wgResourceModules['ext.wikihow.editor_script'] =

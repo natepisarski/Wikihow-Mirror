@@ -361,11 +361,11 @@ class WikihowToc {
 			}
 
 			//summary
-			if (self::$summary != null) {
-				$data['toc'][] = self::$summary;
-			}
 			if (self::$references != null) {
 				$data['toc'][] = self::$references;
+			}
+			if (self::$summary != null) {
+				$data['toc'][] = self::$summary;
 			}
 		}
 

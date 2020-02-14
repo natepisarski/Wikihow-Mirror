@@ -1,8 +1,4 @@
-@green: #93b874;
-@red: #ff5254;
-@grey_text: #ABABAB;
-
-@tablet: ~"only screen and (min-width: 500px) and (max-aspect-ratio: 13/9), only screen and (max-height: 421px) and (min-aspect-ratio: 13/9)";
+@import '../../../less/variables.less';
 
 #content {
 	margin: 0 0 1.5em;
@@ -10,10 +6,6 @@
 
 #quiz_yourself_app {
 	color: #222;
-
-	@media @tablet {
-		font-size: 1.2em;
-	}
 
 	&.categories {
 		.head {
@@ -38,7 +30,7 @@
 
 	.quiz_count {
 		font-weight: normal;
-		color: @grey_text;
+		color: @grayMedium;
 	}
 }
 
@@ -75,6 +67,7 @@
 	margin-top: -52px;
 	position: fixed;
 	width: 100%;
+	max-width: @largeArticleWidth;
 	display: table;
 	height: 46px;
 	box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
@@ -126,7 +119,7 @@
 	margin: 52px 0 1em 0;
 
 	span {
-		color: @grey_text;
+		color: @grayMedium;
 		font-size: .9em;
 		font-weight: bold;
 	}
@@ -156,7 +149,7 @@
 }
 
 .question_label {
-	color: @grey_text;
+	color: @grayMedium;
 	font-size: .9em;
 	font-weight: bold;
 }
@@ -194,7 +187,7 @@
 
 	&.quiz_error {
 		.circle {
-			background-color: @red;
+			background-color: #ff5254;
 			box-shadow: none;
 		}
 	}
@@ -229,4 +222,12 @@
 	p:last-child {
 		text-align: center;
 	}
+}
+
+@media @medium {
+
+	#quiz_yourself_app {
+		font-size: 1.2em;
+	}
+
 }

@@ -1,4 +1,4 @@
-.rpt_img {
+.mwimg a.rpt_img {
 	position: absolute;
 	bottom: 10px;
 	z-index: 2;
@@ -26,6 +26,9 @@
 	height: 55px;
 	width: 320px;
 	margin: 5px 0 10px 0;
+	border: 1px solid #f2f0eb;
+	border-radius: 5px;
+	padding: 11px;
 }
 
 .rpt_button {
@@ -55,5 +58,13 @@
 
 .rpt_input_spacing {
 	margin-left: 20px;
+}
+
+.rpt_content {
+	text-align: left;
+}
+
+#wh_modal.rpt_modal {
+	width: 450px;
 }
 

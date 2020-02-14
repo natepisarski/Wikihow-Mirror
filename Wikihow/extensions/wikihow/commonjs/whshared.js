@@ -7,7 +7,7 @@ WH.shared = (function () {
 
 	var TOP_MENU_HEIGHT = 52,
 	resizeFunctions = [],
-	scrollLoadItems = [],
+	scrollLoadItems = {},
 	scrollLoadingHandler,
 	autoPlayVideo,
 	autoLoad = false,
@@ -162,16 +162,12 @@ WH.shared = (function () {
 		}
 	}
 	function addLoadedCallback(id, callback) {
-		for (var i = 0; i < scrollLoadItems.length; i++) {
-			var item = scrollLoadItems[i];
-			if (item.element.id == id) {
-				item.loadedCallback = callback;
-			}
-		}
+		var item = scrollLoadItems[id];
+		item.loadedCallback = callback;
 	}
 	// loads all scroll load items. will be called if the user prints the page
 	function loadAllImages() {
-		for (var i = 0; i < scrollLoadItems.length; i++) {
+		for (var i in scrollLoadItems) {
 			var item = scrollLoadItems[i];
 			if (item.isLoaded) {
 				continue;
@@ -182,7 +178,7 @@ WH.shared = (function () {
 
 	// loads all scroll load embed videos. will be called if we click on video in toc
 	function loadAllEmbed() {
-		for (var i = 0; i < scrollLoadItems.length; i++) {
+		for (var i in scrollLoadItems) {
 			var item = scrollLoadItems[i];
 			if (item.isLoaded) {
 				continue;
@@ -197,7 +193,7 @@ WH.shared = (function () {
 		var unloadedItems = false,
 			viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
 
-		for (var i = 0; i < scrollLoadItems.length; i+=1) {
+		for (var i in scrollLoadItems) {
 			var item = scrollLoadItems[i];
 			if (item.useScrollLoader == false) {
 				continue;
@@ -438,7 +434,7 @@ WH.shared = (function () {
 			return;
 		}
 		if (item) {
-			scrollLoadItems.push(item);
+			scrollLoadItems[item.element.id] = item;
 		}
 
 		// set padding top on the parent spacer element
@@ -480,12 +476,9 @@ WH.shared = (function () {
 
 	// finds the ScrollLoad item matching the element and loads it
 	function loadElement(element) {
-		for (var i = 0; i < scrollLoadItems.length; i+=1) {
-			var item = scrollLoadItems[i];
-			if (item.element == element) {
-				item.load()
-			}
-		}
+		var id = element.id;
+		var item = scrollLoadItems[id];
+		item.load()
 	}
 
 

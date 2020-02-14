@@ -5,6 +5,9 @@
 {{#coauthor}}has_coauthor{{/coauthor}}
 {{altDomainClass}}
 ">
+	{{#helpful_byline}}
+		{{> stars}}
+	{{/helpful_byline}}
 	{{#coauthor_image}}
 		<div class="expert_coauthor_image">
 			{{#amp}}
@@ -23,6 +26,14 @@
 		class="{{slot1class}} expert_coauthor_link"
 		{{#amp}} on='tap:sp_icon_hover.toggleVisibility' role="button" tabindex="1" {{/amp}}
 	>{{slot1}}{{#slot1_desc}}, {{slot1_desc}}{{/slot1_desc}}</a>
+
+	{{^show_success_stories}}
+		{{#recipesLastUpdatedDate}}
+			<span class="ss_pipe">|</span>
+			{{lastUpdatedMsg}} {{recipesLastUpdatedDate}}
+		{{/recipesLastUpdatedDate}}
+	{{/show_success_stories}}
+
 
 	{{#hasSlot2}}
 	<span class="early_slot_2">

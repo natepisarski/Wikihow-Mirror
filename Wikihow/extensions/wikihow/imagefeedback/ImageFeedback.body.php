@@ -195,4 +195,8 @@ class ImageFeedback extends UnlistedSpecialPage {
 			&& $title->inNamespace(NS_MAIN)
 			&& $title->getText() == wfMessage('mainpage')->text();
 	}
+
+	public function isMobileCapable() {
+		return true;
+	}
 }

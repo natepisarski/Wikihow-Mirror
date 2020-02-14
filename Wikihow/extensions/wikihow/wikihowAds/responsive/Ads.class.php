@@ -379,5 +379,15 @@ class Ads {
 		}
 		return __DIR__ . "/ads.compiled.js";
 	}
+
+	public function getEndOfPageHtml() {
+		if ( !$this->mActive ) {
+			return '';
+		}
+		if ( !$this->mAdCreator->showBlockthroughJs() ) {
+			return '';
+		}
+		return '<script src="//wikihow-com.videoplayerhub.com/galleryloader.js" async></script>';
+	}
 }
 

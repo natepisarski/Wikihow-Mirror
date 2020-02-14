@@ -157,6 +157,7 @@ a, a:active, a:visited, a.new {
 }
 a:active, a:hover {
 	color: #439B05;
+	text-decoration: underline;
 }
 
 a.external {
@@ -579,7 +580,7 @@ h4.steps_text {
 }
 
 #quick_summary_section .mwimg {
-	margin-bottom: 0px;
+	margin-bottom: 0;
 }
 
 .mwimg a img {
@@ -657,7 +658,7 @@ h4.steps_text {
 }
 
 #quicksummary {
-	padding-bottom: 0px;
+	padding-bottom: 0;
 	margin-bottom: -15px;
 }
 
@@ -790,7 +791,7 @@ h3 .altblock {
 #header_logo {
 	display: table-cell;
 	vertical-align: middle;
-	background: center center/115px no-repeat url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);
+	background: center / 115px no-repeat url(/extensions/wikihow/mobile/images/wikiHow_logo_heart_mobile.png);
 	width: auto;
 	height: 38px;
 	padding: 0 14px;
@@ -1280,17 +1281,15 @@ a.related-title,a.related-title:active, a.related-title:visited {
 }
 
 .expert_icon, .staff_icon, .community_icon {
-	background: url(/skins/owl/images/sp_expert_icon_white.png) right center / 13px no-repeat;
 	/* @embed */
-	background-image: url(/skins/owl/images/sp_expert_icon_white.svg);
+	background: url(/skins/owl/images/sp_expert_icon_white.svg) right center / 13px no-repeat;
 	padding-right: 17px;
 	font-weight: bold;
 }
 
 .author_icon {
-	background: url(/skins/owl/images/sp_icon_info_green6.png) left center / 11px no-repeat;
 	/* @embed */
-	background-image: url(/skins/owl/images/sp_icon_info_green6.svg);
+	background: url(/skins/owl/images/sp_icon_info_green6.svg) left center / 11px no-repeat;
 	padding-left: 15px;
 	font-weight: bold;
 }
@@ -1332,8 +1331,8 @@ a.related-title,a.related-title:active, a.related-title:visited {
 }
 
 #expert_coauthor .expert_check {
-	background: url(/skins/owl/images/badge@2x.png) right center / 15px no-repeat;
-	background-image: url(/skins/owl/images/badge@3x.svg);
+	/* @embed */
+	background: url(/skins/owl/images/badge@3x.svg) right center / 15px no-repeat;
 	width: 15px;
 	height: 15px;
 	position: absolute;
@@ -1364,8 +1363,32 @@ a.related-title,a.related-title:active, a.related-title:visited {
 }
 
 
-/* Tablet Support */
+.sp_byline {
+	float: none;
+	width: 350px;
+	height: 20px;
+	padding: 0 0 5px 0;
+}
 
+.sp_num_votes {
+	display: inline-block;
+	margin: 4px 0 0 4px;
+}
+
+.success_stories:hover  {
+	color: #439B05;
+}
+
+.sp_star_container {
+	position: relative;
+	width: 21px;
+	height: 20px;
+	float: left;
+	border-right: 2px solid transparent;
+	background: url(/skins/owl/images/sp_helpful_icon_star_empty.svg) center / cover no-repeat;
+}
+
+/* Tablet Support */
 @media only screen and (min-width: 500px) and (min-aspect-ratio: 13/9) {
 	.content .sticking .edit-page {
 		margin-right: 50px;
@@ -1454,7 +1477,7 @@ a.related-title,a.related-title:active, a.related-title:visited {
 /***** jp trending box ******/
 /* Copied from prod/skins/owl/main.css */
 #sidebar #jpt_sidebox {
-	padding: 0px;
+	padding: 0;
 	background-color: #f6f5f4;
 }
 

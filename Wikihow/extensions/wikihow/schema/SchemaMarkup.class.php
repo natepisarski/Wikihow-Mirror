@@ -127,6 +127,27 @@ class SchemaMarkup {
 		return [ 'dateModified' => $dm->format('Y-m-d') ];
 	}
 
+	private static function getLastReviewedDate( $title ): array {
+		$result = [];
+		$modifiedDate = null;
+
+		$verifiers = VerifyData::getByPageId($title->getArticleID());
+
+		if ( !empty( $verifiers ) ) {
+			$verifier = array_pop( $verifiers );
+			if (!empty( $verifier ) && !empty($verifier->date)) {
+				$modifiedDate = date_create($verifier->date);
+			}
+		}
+
+		if ($modifiedDate) {
+			$result = [ 'lastReviewed' => $modifiedDate->format('Y-m-d') ];
+		}
+
+		return $result;
+	}
+
+
 	private static function getNutritionInformation( $t ) {
 		$result = array();
 
@@ -952,6 +973,17 @@ class SchemaMarkup {
 		return $result;
 	}
 
+	private static function getReviewedBy( $t ) {
+		$result = [];
+
+		$verifier = self::getVerifierName( $t );
+		if ($verifier) {
+			$result['reviewedBy'] = [ '@type' => 'Person', 'name' => $verifier ];
+		}
+
+		return $result;
+	}
+
 	private static function getVerifierName( $t ) {
 		$verifiers = VerifyData::getByPageId( $t->getArticleID() );
 
@@ -967,11 +999,11 @@ class SchemaMarkup {
 		return $verifier->name;
 	}
 
-	private static function getAuthors( $t ) {
+	private static function getAuthors( $t, $isMedicalWebpage = false) {
 		$author = self::getWikihowOrganization();
 
 		$aid = $t->getArticleID();
-		if ( ArticleTagList::hasTag( 'schema_expert_author', $aid ) ) {
+		if ( !$isMedicalWebpage && ArticleTagList::hasTag( 'schema_expert_author', $aid ) ) {
 			$verifier = self::getVerifierName( $t );
 			if ( $verifier ) {
 				$author = $verifier;
@@ -1102,6 +1134,10 @@ class SchemaMarkup {
 					self::processRecipeSchema( $title, $goodRevision, true );
 				}
 				$schema .= self::getRecipeSchema( $title, $out->getRevisionId() );
+			}
+
+			if ( ArticleTagList::hasTag('schema_medicalwebpage', $title->getArticleId() ) ) {
+				$schema .= self::getMedicalWebPageShema( $out );
 			}
 		}
 
@@ -1287,6 +1323,37 @@ class SchemaMarkup {
 		$data += self::getContributors( $title );
 
 		$data['description'] = self::getDescription( $title );
+
+		Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
+
+		$schema = Html::rawElement( 'script', [ 'type'=>'application/ld+json' ], json_encode( $data, JSON_PRETTY_PRINT | JSON_HEX_TAG ) );
+		return $schema;
+	}
+
+	public static function getMedicalWebPageShema($out ) {
+		// does sanity checks on the title and wikipage and $out
+		if ( !self::okToShowSchema( $out ) ) {
+			return '';
+		}
+
+		$title = $out->getTitle();
+
+		// TODO do we want the headline to say How to??
+		$data = [
+			"@context"=> "http://schema.org",
+			"@type" => "MedicalWebPage",
+			"headline" => $title->getText(),
+			"name" => "How to " . $title->getText(),
+		];
+		$data += self::getMainEntityOfPage( $title );
+		$data += self::getSchemaImage();
+		$data += self::getAuthors( $title, true );
+		$data += self::getDatePublished( $title );
+		$data += self::getDateModified( $title );
+		$data += self::getLastReviewedDate( $title );
+		$data += self::getPublisher();
+		$data += self::getReviewedBy( $title );
+
 
 		Hooks::run( 'SchemaMarkupAfterGetData', array( &$data ) );
 

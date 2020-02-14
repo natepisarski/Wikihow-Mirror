@@ -7,8 +7,8 @@
 
 		init: function() {
 			var random = Math.random();
-			if(random < .5) {
-				//show the newsletter 50% of the time
+			if(random < 1) {
+				//show the newsletter 100% of the time
 				$(".slider_become_main").append("<p class='slider_readmore'>" + mw.message("slider_cta_newsletter") + "</p>");
 				$(".slider_become_main").append("<p class='slider_category'>" + mw.message("slider_newsletter") + "</p>");
 				$(".slider_become_main").append("<a class='button slider_button'>" + mw.message("slider_url_text_newsletter") + "</a>");

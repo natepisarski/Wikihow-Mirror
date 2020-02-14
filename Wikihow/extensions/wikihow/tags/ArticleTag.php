@@ -228,7 +228,7 @@ class ArticleTag {
 		//if ( ArticleTagList::hasTag( 'native_browser_lazy_loading', $out->getTitle()->getArticleID() ) ) {
 			//$nativeBrowserLazyLoading = 1;
 		//}
-		if ( $title->inNamespace( NS_MAIN ) && $title->getArticleID() % 100 == 53 ) {
+		if ( $title->inNamespace( NS_MAIN ) && $title->getArticleID() % 2 == 1 ) {
 			$nativeBrowserLazyLoading = 1;
 		}
 		$nativeBrowserLazyLoadingScript =  "window.WH.nativeBrowserLazyLoadingTest=$nativeBrowserLazyLoading;";

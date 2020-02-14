@@ -2,6 +2,8 @@
 
 	var toolUrl = '/Special:SocialProof';
 	var starVotingEnabled = false;
+	var voted = false;
+	var initialized = false;
 
 	WH.sp = (function() {
 		function sendEvent(action, expert_name, target, callbackFunc) {
@@ -22,6 +24,7 @@
 	}());
 
 	function showStarRating() {
+		if (voted) return;
 		var box = $(this).closest('.sp_box');
 		$(box).find('.sp_helpful_rating_count').hide();
 		$(box).find('.sp_star_rating_text').show();
@@ -29,6 +32,7 @@
 	}
 
 	function hideStarRating() {
+		if (voted) return;
 		var box = $(this).closest('.sp_box');
 		$(box).find('.sp_helpful_rating_count').show();
 		$(box).find('.sp_star_rating_text').hide();
@@ -36,13 +40,9 @@
 	}
 
 	function votedStarRating() {
-		$(".sp_star_container").off("click");
-		$(".sp_star_container").off("hover");
-		$(".sp_star_section_upper").off("hover");
-		$(".sp_star_section_upper").off('mouseenter mouseleave');
-		$(".sp_helpful_lower").off("hover");
+		voted = true;
+
 		$(".sp_helpful_hoverable").removeClass("sp_box_hoverable");
-		$(".sp_star_section_hoverable,.helpfulness_text").off("hover");
 
 		var thanks = mw.msg('sp_votethanks');
 		if ($('.helpful_sidebox').length) {
@@ -51,25 +51,50 @@
 			$(".sp_star_rating_text").hide();
 			$('.helpfulness_text').html(thanks);
 		}
-
-		// Second star hover on desktop that needs turning off
-		for (var k = 1; k <= 5; k++) {
-			$('#sidebar').off('mouseenter mouseleave click', '#star' + k);
-		}
 	}
 
 	function enableStarVoting() {
 		starVotingEnabled = true; //for everyone!
 	}
 
-	$(document).ready( function() {
-		enableStarVoting();
-
-		if (starVotingEnabled) {
-			$(".sp_star_section_upper").on({
-				mouseenter: showStarRating,
-				mouseleave: hideStarRating
+	function initRecipeBylineFeature() {
+		// Add logic to launch dialog if this is a recipe article with a star rating byline
+		$(document).on('click', '.success_stories', function (e) {
+			e.preventDefault();
+			mw.loader.using('ext.wikihow.reader_success_stories_dialog', function () {
+				var dialog = new window.WH.ReaderSuccessStoriesDialog();
+				dialog.launch();
 			});
+		});
+
+		// This button is both in the article body and in the WH.ReaderSuccessStoriesDialog
+		$(document).on('click', '.bss_share_button', function (e) {
+			e.preventDefault();
+			if (WH.UserReview.reviewFormShown) return;
+			mw.loader.using('ext.wikihow.UserReviewForm', function () {
+				var urf = new window.WH.UserReviewForm();
+				urf.loadUserReviewForm();
+
+				// Hide buttons that can launch this form after clicked to prevent multiple reviews
+				$('.bss_share_container').hide();
+				$('.ur_share').hide()
+			});
+		});
+	}
+
+	$(document).ready( function() {
+		if (initialized) return;
+
+		// set a flag so that we don't add additional click handlers if the ready event is called more than once
+		initialized = true;
+
+		initRecipeBylineFeature();
+
+		enableStarVoting();
+		var selector = "div:not(.sp_byline) > .sp_star_section_upper";
+		if (starVotingEnabled) {
+			$(document).on('mouseenter', selector, showStarRating);
+			$(document).on('mouseleave', selector, hideStarRating);
 		}
 
 		var voteText = {
@@ -82,51 +107,59 @@
 
 		function starBehavior(i) {
 			var currStarId = i;
-
-			$(".star" + i).bind({
-				mouseenter: function () {
-					var box = $(this).closest('.sp_box');
-					for (var j = 1; j <= currStarId; j++){
-						$(box).find(".star" + j + " > div").addClass("mousevote");
-					}
-					$(box).find(".sp_star_rating_text").text(voteText[currStarId]);
-					$("#sp_star_rating_text").text(voteText[currStarId]);
-				},
-				mouseleave: function () {
-					var box = $(this).closest('.sp_box');
-					for (var j = 1; j <= currStarId; j++){
-						$(box).find(".star" + j + " > div").removeClass("mousevote");
-					}
-					$(box).find(".sp_star_rating_text").text("");
-				},
-				click: function () {
-					var box = $(this).closest('.sp_box');
-					for (var j = 1; j <= currStarId; j++){
-						$(box).find(".star" + j + " > div").addClass("mousedone");
-					}
-					var postData = {
-							'action': 'rate_page',
-							'page_id': wgArticleId,
-							'rating': currStarId,
-							'type': 'star',
-							'source': WH.isMobile ? 'mobile' : 'desktop'
-					};
-					$.post('/Special:RateItem',
-						postData,
-						function(result) {
-						},
-						'json'
-						);
-					votedStarRating()
+			var selector = "div.sp_box:not(.sp_byline) div.star" + i;
+			$(document).on('mouseenter', selector, function () {
+				if (voted) return;
+				var box = $(this).closest('.sp_box');
+				for (var j = 1; j <= currStarId; j++){
+					$(box).find(".star" + j + " > div").addClass("mousevote");
 				}
-			} );
+				$(box).find(".sp_star_rating_text").text(voteText[currStarId]);
+				$("#sp_star_rating_text").text(voteText[currStarId]);
+			});
+
+			$(document).on('mouseleave', selector, function () {
+				if (voted) return;
+				var box = $(this).closest('.sp_box');
+				for (var j = 1; j <= currStarId; j++){
+					$(box).find(".star" + j + " > div").removeClass("mousevote");
+				}
+				$(box).find(".sp_star_rating_text").text("");
+			});
+
+			$(document).on('click', selector, function () {
+				if (voted) return;
+				votedStarRating();
+				var box = $(this).closest('.sp_box');
+
+				for (var j = 1; j <= currStarId; j++){
+					$(box).find(".star" + j + " > div").addClass("mousedone");
+				}
+				var postData = {
+					'action': 'rate_page',
+					'page_id': wgArticleId,
+					'rating': currStarId,
+					'type': 'star',
+					'source': WH.isMobile ? 'mobile' : 'desktop'
+				};
+				$.post('/Special:RateItem',
+					postData,
+					function(result) {
+					},
+					'json'
+				);
+			});
+
 			$('#sidebar').on('mouseleave', '#star' + i, function () {
+				if (voted) return;
 				for (var j = 1; j <= currStarId; j++) {
 					$("#star" + j + " > div").removeClass("mousevote");
 				}
 				$("#sp_star_rating_text").text("");
 			} );
 			$('#sidebar').on('click', '#star' + i, function () {
+				if (voted) return;
+				votedStarRating();
 				for (var j = 1; j <= currStarId; j++) {
 					$("#star" + j + " > div").addClass("mousedone");
 				}
@@ -141,7 +174,6 @@
 					postData,
 					function(result) { },
 					'json' );
-				votedStarRating();
 			} );
 		}
 
@@ -156,7 +188,7 @@
 		}
 
 		function displayHelpfulnessPopup() {
-			$('.sp_popup_container')
+			$('div.sp_box:not(.sp_byline) .sp_popup_container')
 				.fadeIn({queue: false, duration: 150})
 				.animate({ top: "-=13px" }, 150);
 		}

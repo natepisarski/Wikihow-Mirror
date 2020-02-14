@@ -94,3 +94,73 @@
 #sidebar {
 	display: none;
 }
+
+.sp_byline {
+	float: none;
+	width: 350px;
+	height: 20px;
+	padding: 0 0 5px 0;
+}
+
+.sp_num_votes {
+	display: inline-block;
+	margin: 4px 0 0 4px;
+	color: #373;
+}
+
+.success_stories:hover, .sp_num_votes:hover  {
+	color: #439B05;
+}
+
+.sp_star_container {
+	position: relative;
+	width: 21px;
+	height: 20px;
+	float: left;
+	border-right: 2px solid transparent;
+	background: url(/skins/owl/images/sp_helpful_icon_star_empty.svg) center / cover no-repeat;
+}
+
+.sp_helpful_icon_star {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-image: url(/skins/owl/images/sp_helpful_icon_star.png);
+}
+
+.pretty_star {
+	background-image: url(/extensions/wikihow/socialproof/star.svg);
+}
+
+.section.bss_share_container {
+	text-align: center;
+}
+
+.bss_share_title.section-heading {
+	border: 0;
+}
+
+.bss_share_container .section_text {
+	padding-top: 0px;
+}
+
+.bss_share_button.button.secondary {
+	display: inline-block;
+	font-weight: bold;
+	color: #97ba78;
+	border: 1px #97ba78 solid;
+	background-color: #fff;
+	margin-right: 0;
+}
+
+@media only screen and (min-width: 768px) {
+	.sp_num_votes {
+		margin-top: 2px;
+	}
+
+	.section .bss_share_button.button.secondary {
+		width: 75%;
+	}
+}

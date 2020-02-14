@@ -2,6 +2,7 @@
 WH.video = (function () {
 	'use strict';
 	var videos = [];
+	var allVideos = {};
 	var VISIBILITY_PERCENT = 75;
 	var TOP_MENU_HEIGHT = 80;
 	var autoPlayVideo = false;
@@ -10,6 +11,58 @@ WH.video = (function () {
 	var mobile = false;
 	var imageFallback = false;
 	var okToLoadVideos = false;
+	var lazyLoadingObserver = null;
+	var autoPlayObserver = null;
+
+	if ("IntersectionObserver" in window) {
+		lazyLoadingObserver = new IntersectionObserver(function(entries, observer) {
+			entries.forEach(function(entry) {
+				if (entry.isIntersecting) {
+					loadElement(entry.target);
+					lazyLoadingObserver.unobserve(entry.target);
+				}
+			});
+		}, {
+			rootMargin: "0px 0px 100% 0px"
+		});
+		autoPlayObserver = new IntersectionObserver(function(entries, observer) {
+			entries.forEach(function(entry) {
+				playPauseElement(entry);
+			});
+		}, {
+			rootMargin: "0px",
+			threshold: 0.75 
+		});
+	}
+
+	function useIntersectionObserver() {
+		if (lazyLoadingObserver == null) {
+			return false;
+		}
+		return true;
+	}
+
+	// finds the item matching the element and loads it
+	function playPauseElement(entry) {
+		var video = allVideos[entry.target.id];
+		if (video.isLoaded == false) {
+			return;
+		}
+		if (entry.isIntersecting && !video.isPlaying) {
+			video.play();
+		}
+		if (!entry.isIntersecting && video.isPlaying) {
+			video.pause();
+		}
+	}
+
+	// finds the item matching the element and loads it
+	function loadElement(element) {
+		var video = allVideos[element.id];
+		if (video.isLoaded == false) {
+			video.load();
+		}
+	}
 
 	function logAction(action) {
 		var xmlHttp = new XMLHttpRequest();
@@ -100,6 +153,9 @@ WH.video = (function () {
 
 	// this is registered by the scroll handler
 	function updateVisibility() {
+		if (useIntersectionObserver()) {
+			return;
+		}
 		for (var i = 0; i < videos.length; i++ ) {
 			updateItemVisibility(videos[i]);
 		}
@@ -555,6 +611,12 @@ WH.video = (function () {
 				// set up ads for this video
 				WH.videoads.setUpIMA(video);
 			}
+			if (useIntersectionObserver()) {
+				lazyLoadingObserver.observe(video.element);
+				if (video.autoplay) {
+					autoPlayObserver.observe(video.element);
+				}
+			}
 		}
 		updateVisibility();
 
@@ -594,7 +656,7 @@ WH.video = (function () {
 		}
 		// we can use the dev bucket for testing if the video is in the dev s3 account (uncommon)
 		//cdnRoot= '//d2mnwthlgvr25v.cloudfront.net'
-		if (WH.shared) {
+		if (WH.shared && !useIntersectionObserver()) {
 			window.addEventListener('scroll', WH.shared.throttle(updateVisibility, 100));
 		}
 
@@ -610,7 +672,12 @@ WH.video = (function () {
 		} else if (mVideo) {
 			item = new Video(mVideo);
 			videos.push(item);
-			updateItemVisibility(item);
+			if (useIntersectionObserver()) {
+				item.useScrollLoader = false;
+				allVideos[item.element.id] = item;
+			} else {
+				updateItemVisibility(item);
+			}
 		}
 	}
 

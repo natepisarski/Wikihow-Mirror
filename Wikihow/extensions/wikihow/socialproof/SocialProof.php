@@ -36,6 +36,7 @@ $wgResourceModules['ext.wikihow.socialproof'] = array(
 	'dependencies' => array(
 		'wikihow.common.jquery.dateformat',
 		'ext.wikihow.common_top',
+		'ext.wikihow.userreview'
 	),
 	'remoteExtPath' => 'wikihow/socialproof',
 	'messages' => [
@@ -57,6 +58,7 @@ $wgResourceModules['mobile.wikihow.socialproof'] = array(
 	'dependencies' => array(
 		'wikihow.common.jquery.dateformat',
 		'ext.wikihow.common_top',
+		'mobile.wikihow.userreview'
 	),
 	'remoteExtPath' => 'wikihow/socialproof',
 	'messages' => [

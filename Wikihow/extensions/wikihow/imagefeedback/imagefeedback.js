@@ -1,6 +1,7 @@
 WH = WH || {};
 
 WH.imageFeedback = function() {
+	if($(window).width() < WH.largeScreenMinWidth) return;
 	// Add feedback link to article images
 	var link = "<a class='rpt_img' href='#'><span class='rpt_img_ico'></span>Helpful?</a>";
 	$('div.mwimg:not(.techicon,.summarysection)').prepend(link);
@@ -8,46 +9,43 @@ WH.imageFeedback = function() {
 	$('.rpt_img').on('click', function(e) {
 		e.preventDefault();
 		var rpt_img = this;
-		mw.loader.using( ['jquery.ui.dialog'], function () {
-			e.preventDefault();
-
-			var msg = 'This image:';
-			var inputs = '<p class="rpt_margin_5px"><input type="radio" name="voteType" value="good" checked> Is helpful<input class="rpt_input_spacing" type="radio" name="voteType" value="bad"> Needs improvement</p>';
-			inputs += '<p class="rpt_margin_20px">Please provide as much information as you can.<textarea name="rpt_reason" class="rpt_reason input_med"></textarea>';
-			var buttons = '<p class="rpt_controls"><input type="button" class="button primary rpt_button" value="Submit"></input><a href="#" class="rpt_cancel">Cancel</a></s></p>';
-			$("#dialog-box").html('<p>' + msg + '</p>' + inputs + '' + buttons);
-			$("#dialog-box").dialog( {
-				modal: true,
-				title: "Send Image Feedback",
-				width: 400,
-				position: 'center',
-				closeText: 'x'
+		$.get('/Special:BuildWikihowModal?modal=image_feedback', $.proxy(function(data) {
+			$.modal(data, {
+				zIndex: 100000007,
+				maxWidth: 450,
+				minWidth: 450,
+				overlayCss: { "background-color": "#000" }
 			});
+		},this));
 
-			$('.rpt_button').on('click', function(e) {
-				var reason = $('.rpt_reason').val();
-				if (reason.length) {
-					var url;
-					var $video = $( rpt_img ).parent().find( 'video' );
-					if ( $video.length ) {
-						// Extract wikiname from URL like /image/x/xx/{{NAME}}/scaler-params
-						url = '/Image:' + $video.attr('data-poster').split( '/' )[5];
+		//x or skip
+		$(document).on("click", '#wh_modal_close, .rpt_cancel', function(e) {
+			e.preventDefault();
+			$.modal.close();
+		});
+
+		$(document).on("click", '.rpt_button', function(e) {
+			var reason = $('.rpt_reason').val();
+			if (reason.length) {
+				var url;
+				var $video = $( rpt_img ).parent().find( 'video' );
+				if ( $video.length ) {
+					// Extract wikiname from URL like /image/x/xx/{{NAME}}/scaler-params
+					url = '/Image:' + $video.attr('data-poster').split( '/' )[5];
+				} else {
+					if(WH.isMobileDomain) {
+						url = $(rpt_img).parent().children('a.image').attr("href").substring(1);
 					} else {
 						url = $(rpt_img).parent().children('a.image').first().attr('data-href').split(/[?#]/)[0];
 					}
-					console.log( url );
-					$.post('/Special:ImageFeedback', {imgUrl: url, aid: wgArticleId, 'reason': reason, 'voteType' : $('input[name=voteType]:checked').val()});
-					$('#dialog-box').dialog('close');
 				}
-				return false;
-			});
-			$('.rpt_cancel').on('click', function(e) {
-				e.preventDefault();
-				$('#dialog-box').dialog('close');
-				return false;
-			});
+				console.log( url );
+				$.post('/Special:ImageFeedback', {imgUrl: url, aid: wgArticleId, 'reason': reason, 'voteType' : $('input[name=voteType]:checked').val()});
+				$.modal.close();
+			}
 			return false;
 		});
+		return false;
 	});
 
 	var timer = 0;

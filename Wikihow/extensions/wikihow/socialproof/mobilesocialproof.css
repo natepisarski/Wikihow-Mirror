@@ -21,7 +21,7 @@
 	position:relative;
 	border: 1px solid #e5e5e5;
 }
-#aag_sidebox {
+#aag_sidebox, .mfp-hide, #rss_diag {
 	display: none;
 }
 .arrow_box:after {
@@ -146,11 +146,7 @@
 }
 
 .sp_expert_icon {
-	background-size: contain;
-	background-repeat: no-repeat;
-	background-image: url(/skins/owl/images/sp_expert_icon.png);
-	/* @embed */
-	background-image: url(/skins/owl/images/sp_expert_icon.svg);
+	background: url(/skins/owl/images/sp_expert_icon.svg) 0 0 / contain no-repeat;
 }
 
 .sp_expert_text {
@@ -189,7 +185,6 @@
 	height: 30px;
 	margin: 8px auto 0;
 	background-size: cover;
-	background-image: url(/skins/owl/images/sp_video_icon.png);
 	/* @embed */
 	background-image: url(/skins/owl/images/sp_video_icon.svg);
 }
@@ -292,16 +287,13 @@
 
 .sp_star_container {
 	position: relative;
-	width: 23px;
-	height: 23px;
+	width: 21px;
+	height: 20px;
 	float: left;
 	border-right: 2px solid transparent;
-	background-size: cover;
-	background-repeat: no-repeat;
-	background-image: url(/skins/owl/images/sp_helpful_icon_star_empty.png);
-	/* @embed */
-	background-image: linear-gradient(transparent, transparent), url(/skins/owl/images/sp_helpful_icon_star_empty.svg);
+	background: url(/skins/owl/images/sp_helpful_icon_star_empty.svg) center / cover no-repeat;
 }
+
 .sp_helpful_icon_star {
 	width: 100%;
 	height: 100%;
@@ -322,9 +314,7 @@
 }
 
 .pretty_star {
-	 background-image:url(star.png);
-	/* @embed */
-	 background-image:url(star.svg);
+	 background-image:url(/extensions/wikihow/socialproof/star.svg);
 }
 
 .sp_h_icon {

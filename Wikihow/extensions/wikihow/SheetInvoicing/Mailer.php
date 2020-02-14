@@ -92,8 +92,6 @@ if ( $wgUser->getName() == 'Albur' ) {
 				'replyTo' => $this->replyTo,
 			];
 			$status = UserMailer::send($to, $this->sender, $subject, $body, $opts);
-// TODO remove
-wfDebugLog('alber', "From '" . $this->sender . "' to '$to': $subject | " . var_export($status, true) );
 			return '';
 		} catch (\Exception $e) {
 			return $e->getMessage();

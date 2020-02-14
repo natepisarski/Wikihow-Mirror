@@ -17,7 +17,7 @@
 
 	window.WH = window.WH || {};
 	window.WH.UserReview = {
-
+		reviewFormShown: false,
 
 		init: function () {
 			// Auto-repair broken avatar images

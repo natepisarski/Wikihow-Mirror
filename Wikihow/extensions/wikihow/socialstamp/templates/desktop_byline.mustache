@@ -1,5 +1,7 @@
 <div id="expert_coauthor" class="{{^hasSlot2}}{{check}}{{/hasSlot2}}">
-
+	{{#helpful_byline}}
+		{{> stars}}
+	{{/helpful_byline}}
 	{{#coauthor_image}}
 		<div class="expert_coauthor_image"><img src="{{{coauthor_image}}}" /></div>
 		<div class="expert_wrapper">
@@ -7,13 +9,22 @@
 
 	{{coauthor}}
 
-	<a href="#{{linkUrl}}" class="{{slot1class}} expert_coauthor_link"
-	>{{slot1}}{{#slot1_desc}}, {{slot1_desc}}{{/slot1_desc}}</a>
+	<a href="#{{linkUrl}}" class="{{slot1class}} expert_coauthor_link">
+		{{slot1}}{{#slot1_desc}}, {{slot1_desc}}{{/slot1_desc}}
+	</a>
+
+	{{^show_success_stories}}
+		{{#recipesLastUpdatedDate}}
+			<span class="ss_pipe">|</span>
+			{{lastUpdatedMsg}} {{recipesLastUpdatedDate}}
+		{{/recipesLastUpdatedDate}}
+	{{/show_success_stories}}
 
 	{{#hasSlot2}}
 		{{{connector}}} {{slot2_intro}}
-		<a href="#{{linkUrl}}" class="expert_coauthor_link {{slot2class}}"
-		>{{slot2}}</a>
+		<a href="#{{linkUrl}}" class="expert_coauthor_link {{slot2class}}">
+			{{slot2}}
+		</a>
 	{{/hasSlot2}}
 
 	{{#showBylineRefs}}

@@ -21,12 +21,6 @@ class QuizYourself extends SpecialPage {
 		$out->setRobotPolicy('noindex,nofollow');
 		$this->getRequest()->response()->header('x-robots-tag: noindex, nofollow');
 
-		//mobile-only
-		if (!Misc::isMobileMode()) {
-			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
-			return;
-		}
-
 		$action = $this->getRequest()->getText('action', '');
 
 		if ($action != '') {

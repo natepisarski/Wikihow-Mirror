@@ -1626,7 +1626,7 @@ class WikihowMobileTools {
 		}
 
 		if ( pq( "#aboutthisarticle" )->length > 0 )
-			pq( "#aboutthisarticle" )->after( $referencesHtml );
+			pq( "#aboutthisarticle" )->before( $referencesHtml );
 		else
 			pq( '#article_rating_mobile' )->before( $referencesHtml );
 

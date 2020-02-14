@@ -66,6 +66,37 @@ abstract class AdCreator {
 		// add any channels that were set for this ad creator object
 		$ad->setupData['channels'] =  array_merge( $ad->setupData['channels'], $this->mAdsenseChannels);
 		$ad->setupData['mobilechannels'] =  array_merge( $ad->setupData['mobilechannels'], $this->mMobileAdsenseChannels);
+
+		// add ad channels based on our bucket number. 0 will never be used because buckets are 1-24
+		$bucketToChannel = [
+			0,
+			1179844797,
+			8866763126,
+			4314124659,
+			3001042984,
+			3614436449,
+			7362109766,
+			6049028097,
+			5232454650,
+			3919372983,
+			7667046301,
+			3727801297,
+			2414719621,
+			8788556287,
+			7475474614,
+			8596984590,
+			4657739586,
+			9718494570,
+			7092331233,
+			5779249560,
+			3153086224,
+			9526922888,
+			8213841216,
+			6900759545,
+			7929936032,
+		];
+		$bucketInt = intval( $this->mBucketId );
+		$ad->setupData['channels'][] = $bucketToChannel[$bucketInt];
 	}
 
 	protected function getNewAd( $type ) {
@@ -797,7 +828,7 @@ abstract class AdCreator {
 			$dfpScript = '';
 			if ( $this->mLateLoadDFP == false ) {
 				$category = $this->getCategoryForDFP();
-				$isCoppa = $this->isChildDirectedPage() ? "true" : "false";
+				$isCoppa = self::isChildDirectedPage() ? "true" : "false";
 				$dfpSmallTest = 'false';
 				if ( $this->isDFPSmallTest() ) {
 					$dfpSmallTest = 'true';
@@ -889,7 +920,7 @@ abstract class AdCreator {
 		$this->mGptSlotDefines[] = $gpt;
 	}
 
-	private static function isChildDirectedPage() {
+	public static function isChildDirectedPage() {
 		global $wgTitle;
 
 		if ( AlternateDomain::getAlternateDomainForCurrentPage() == "wikihow-fun.com" ) {
@@ -918,7 +949,7 @@ abstract class AdCreator {
 		$gpt .= "function defineGPTSlots() {\n";
 		// TODO in the future we can possibly define the GPT slot in js along with the new BodyAd call
 		$gpt .= implode( $this->mGptSlotDefines );
-		//if ( $this->isChildDirectedPage() ) {
+		//if ( self::isChildDirectedPage() ) {
 			//$gpt .= "googletag.pubads().setTagForChildDirectedTreatment(1);\n";
 		//}
 		$gpt .= "googletag.pubads().enableSingleRequest();\n";
@@ -931,6 +962,19 @@ abstract class AdCreator {
 		$gpt .= "}\n";
 		$result = Html::inlineScript( $gpt );
 		return $result;
+	}
+
+	public function showBlockthroughJs() {
+		global $wgRequest;
+		if ( Misc::isMobileMode() ) {
+			return false;
+		}
+
+		if ( $wgRequest->getInt( 'blockthrough' )  == 1 ) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
@@ -1294,12 +1338,6 @@ class DefaultAdCreator extends AdCreator {
 					'type' => 'method',
 					'small' => 1,
 					'medium' => 1,
-					'smallservice' => 'dfp',
-					'class' => ['dfp_small'],
-					'innerclass' => ['dfp_small_inner'],
-					'adUnitPath' => '/10095428/engl/engl_gam_sma_meth0',
-					'apsLoad' => true,
-					'size' => '[300, 250]',
 				),
 				'mobilerelated' => array(
 					'service' => 'adsense',
@@ -1312,12 +1350,6 @@ class DefaultAdCreator extends AdCreator {
 					'type' => 'related',
 					'small' => 1,
 					'medium' => 1,
-					'smallservice' => 'dfp',
-					'class' => ['dfp_small'],
-					'innerclass' => ['dfp_small_inner'],
-					'adUnitPath' => '/10095428/engl/engl_gam_sma_relat',
-					'size' => '[300, 250]',
-					'apsLoad' => true,
 				),
 				'middlerelated' => array(
 					'service' => 'adsense',
@@ -1379,15 +1411,15 @@ class DefaultAdCreator extends AdCreator {
 					'smalllabel' => 1,
 					'type' => 'pagebottom',
 					'small' => 1,
-					'smallservice' => 'dfp',
-					'class' => ['dfp_small'],
-					'innerclass' => ['dfp_small_inner'],
-					'adUnitPath' => '/10095428/engl/engl_gam_sma_bottm',
-					'size' => '[300, 250]',
-					'apsLoad' => true,
 				),
 			);
 		}
+
+		// testing max scrollto ads
+		if ( intval( $this->mBucketId ) > 10 ) {
+			$this->mAdSetupData['scrollto']['maxsteps'] = 3;
+		}
+
 	}
 }
 

@@ -1115,6 +1115,17 @@ class Misc {
 		return $namespaces[$ns] ?? null;
 	}
 
+	public static function getFCPHead() {
+		global $wgTitle;
+		$pageId = $wgTitle->getArticleID();
+		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
+			return;
+		}
+		$fcpHead = file_get_contents( __DIR__."/commonjs/fcphead.js" );
+		$fcpHead = Html::inlineScript( $fcpHead );
+		return $fcpHead;
+	}
+
 	public static function getTTIHead() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
@@ -1157,10 +1168,9 @@ class Misc {
 		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
+		// todo possibly log what the first event actually is
 		$result = "<script>perfMetrics.onFirstInputDelay(function(delay, evt) {
 			logJSTime(delay, 'fid');
-			console.log('First Input Delay', delay);
-			console.log('Event details', evt);
 		});</script>";
 		return $result;
 	}
