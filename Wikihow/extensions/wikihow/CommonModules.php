@@ -161,7 +161,7 @@ $wgResourceModules['ext.wikihow.image_feedback'] =
 	+ [ 'scripts' => [ 'imagefeedback/imagefeedback.js' ] ];
 
 $wgResourceModules['ext.wikihow.editor_script'] =
-	$wgResourceModulesDesktopBoiler
+	$wgResourceModulesResponsiveBoiler
 	+ [ 'scripts' => [ '../../skins/common/editor_script.js' ] ];
 
 $wgResourceModules['ext.wikihow.notindexed_styles'] =

@@ -41,11 +41,6 @@ class UnitGuardian extends UnlistedSpecialPage {
 		$request = $this->getRequest();
 		$out = $this->getOutput();
 
-		if (!Misc::isMobileMode()) {
-			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
-			return;
-		}
-
 		//code for maintenance message
 		$underMaintenance = false;
 		if ($underMaintenance) {

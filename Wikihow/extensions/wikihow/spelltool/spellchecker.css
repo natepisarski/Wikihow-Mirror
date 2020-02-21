@@ -13,6 +13,17 @@
 	font: inherit;
 }
 
+#spch-prompt {
+	position: relative;
+}
+
+#spch-disclaimer {
+	position: absolute;
+	font-size: .9em;
+	right: 1em;
+	bottom: 0;
+}
+
 #spch-content{
 	height:450px;
 	overflow-y: scroll;
@@ -127,7 +138,7 @@
 }
 
 #whitelistTable {
-	
+
 }
 
 #whitelistTable thead td {

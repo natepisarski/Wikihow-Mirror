@@ -4,8 +4,13 @@
 		<a href="/Use-the-wikiHow-Category-Checker" target="_blank">Learn how</a>
 	</div>
 -->
+
+	<? if (!$mobile): ?>
+		<div id="desktop_disclaimer"><?= $desktopDisclaimer ?></div>
+	<? endif; ?>
+
 	<div class="tool_header mobile-header">
-	
+
 		<div class="quiz-body">
 			<div class="spinner"></div>
 
@@ -27,7 +32,7 @@
 <!-- javascript template for rendering the article from JSON response -->
 <div id="quiz-template" style="display:none;">
 	<div class="question">
-		<?= wfMessage('catch-question') ?> 
+		<?= wfMessage('catch-question') ?>
 		{{#category.link}}
 			<a href="{{category.link}}" aria-label="<?= wfMessage('aria_catguard_category')->showIfExists() ?> {{category.mTextform}}">
 				<strong>&ldquo;{{category.mTextform}}&rdquo;?</strong>
@@ -37,7 +42,7 @@
 			<strong>&ldquo;{{category.mTextform}}&rdquo;?</strong>
 		{{/category.link}}
 	</div>
-	
+
 	<div class="answer-container">
 		{{#articles}}
 			<div class="answer" data-cat_slug="{{category.mDbkeyform}}" data-page_id="{{page_id}}" data-id="{{id}}" data-votes_up="{{votes_up}}" data-votes_down="{{votes_down}}" data-pqc_id="{{pqc_id}}">

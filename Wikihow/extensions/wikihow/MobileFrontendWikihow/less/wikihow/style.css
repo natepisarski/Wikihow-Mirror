@@ -512,16 +512,22 @@ A.new { color: #B30000; } /** Broken links **/
 	padding:0 15px;
 }
 
-a.button.disabled, input.button.disabled, a.button.clickfail, input.button.clickfail {
+a.button.disabled,
+a.button[disabled],
+input.button.disabled,
+input.button[disabled],
+a.button.clickfail,
+input.button.clickfail {
 	background:#e4e4e4;
 	cursor: default;
 }
 
-a.button.disabled {
-	border-color:#e4e4e4;
-}
-
-a.button.disabled:hover, input.button.disabled:hover, a.button.clickfail:hover, input.button.clickfail:hover {
+a.button.disabled:hover,
+a.button[disabled]:hover,
+input.button.disabled:hover,
+input.button[disabled]:hover,
+a.button.clickfail:hover,
+input.button.clickfail:hover {
 	background:#e4e4e4;
 	/*color: #686868;*/
 }
@@ -893,3 +899,180 @@ a.reference-anchor {
 }
 
 .s-help-wrap { display: none;}
+
+/** Login Dropdown **/
+
+.menu_login { font-size: .8em; }
+
+.userlogin_links {
+	padding: 6px 14px 0 0;
+	clear: both;
+}
+
+.userlogin_links a {
+	font-weight: bold;
+	color: #363;
+	text-decoration: underline;
+}
+
+.ulb_button {
+	height: 49px;
+	margin: 5px 0 15px 0;
+	position: relative;
+	border-radius: 2px;
+	display: block;
+	color: #FFF;
+	line-height: 50px;
+	text-align: center;
+	padding-left: 50px;
+	font-size: 1.3em;
+}
+
+.ulb_button:hover {
+	text-decoration: none;
+	color: #FFF;
+}
+
+/* Loading Indicator */
+
+@-webkit-keyframes swipe {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	50% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	51% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+}
+
+@keyframes swipe {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	50% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	51% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+}
+
+.ulb_loading_indicator {
+	position: absolute;
+	bottom: 0;
+	height: 2px;
+	left: 0;
+	right: 0;
+	background-color: white;
+	opacity: 0.5;
+	animation: swipe 2s ease-out;
+	animation-iteration-count: infinite;
+	transform-origin: center;
+	display: none;
+}
+
+.loading .ulb_loading_indicator {
+	display: block;
+}
+
+/* Login Links */
+
+#fb_login_head, #gplus_login_head, #civic_login_head, #wh_login_head {
+	width: 170px;
+}
+
+.ulb_icon {
+	height: 49px;
+	width: 100%;
+	left: 0;
+	position: absolute;
+	filter: alpha(opacity=10);
+	opacity: 0.10;
+	border-radius: 2px;
+}
+.ulb_button:hover .ulb_icon  {
+	background-color: #000;
+}
+
+.ulb_button.loading {
+	opacity: 0.75;
+	cursor: default;
+}
+
+.ulb_status {
+	display: none;
+}
+
+.ulb_describe.loading .ulb_label {
+	display: none;
+}
+
+
+.ulb_describe.loading .ulb_status {
+	display: block;
+}
+
+
+#fb_login, #fb_login_head {
+	background: #365494 url(/extensions/wikihow/userloginbox/images/ulb_facebook.png) 2px center / 45px no-repeat;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
+}
+
+#gplus_login, #gplus_login_head {
+	background: #3F82F7 url(/extensions/wikihow/userloginbox/images/ulb_google.png) 2px center / 45px no-repeat;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
+}
+
+#civic_login, #civic_login_head {
+	background: #AAAAAA url(/extensions/wikihow/userloginbox/images/ulb_civic.png) 2px center / 45px no-repeat;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
+}
+
+.ulb_login {
+	background: #93b874 url(/extensions/wikihow/userloginbox/images/ulb_person.png) 2px center / 45px no-repeat;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_person.svg);
+}

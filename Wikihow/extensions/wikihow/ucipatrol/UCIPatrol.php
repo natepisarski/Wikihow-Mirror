@@ -9,6 +9,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['UCIPatrol'] = 'UCIPatrol';
+$wgSpecialPages['MobileUCIPatrol'] = 'MobileUCIPatrol';
 $wgAutoloadClasses['UCIPatrol'] = __DIR__ . '/UCIPatrol.body.php';
 $wgExtensionMessagesFiles['UCIPatrol'] = __DIR__ . '/UCIPatrol.i18n.php';
 $wgExtensionMessagesFiles['UCIPatrolAliases'] = __DIR__ . '/UCIPatrol.alias.php';

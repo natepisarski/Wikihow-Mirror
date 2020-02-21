@@ -10,6 +10,7 @@ class GreenBox {
 	const GREENBOX_EXPERT_SHORT_MARKER = 'SHORT';
 
 	private static $coauthor_data = null;
+	private static $show_green_box_cta = null;
 
 	//here are the official flavors of our green boxes
 	public static $green_box_types = [
@@ -179,6 +180,24 @@ class GreenBox {
 		return self::$coauthor_data;
 	}
 
+	private static function showGreenBoxCTA(): bool {
+		if (!is_null(self::$show_green_box_cta)) return self::$show_green_box_cta;
+
+		$context = RequestContext::getMain();
+		$out = $context->getOutput();
+
+		$diff_num = $out->getRequest()->getVal('diff', '');
+		$title = $out->getTitle();
+		$article_page = !empty($title) ? $title->inNamespace(NS_MAIN) : false;
+
+		self::$show_green_box_cta = Action::getActionName($context) == 'view' &&
+			empty($diff_num) &&
+			$article_page &&
+			GreenBoxEditTool::authorizedUser($out->getUser());
+
+		return self::$show_green_box_cta;
+	}
+
 	public static function onParserFirstCallInit(Parser &$parser) {
 		$parser->setFunctionHook( 'greenbox', 'GreenBox::renderBox', SFH_NO_HASH );
 		$parser->setFunctionHook( 'expertgreenbox', 'GreenBox::renderExpertBox', SFH_NO_HASH );
@@ -187,6 +206,10 @@ class GreenBox {
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		$out->addModuleStyles(['ext.wikihow.green_box']);
 		$out->addModules(['ext.wikihow.green_box.scripts']);
+
+		if (self::showGreenBoxCTA()) {
+			$out->addModules('ext.wikihow.green_box_cta');
+		}
 	}
 
 	//this uses the phpQuery object
@@ -228,17 +251,7 @@ class GreenBox {
 
 		//add the green box edit links (for authorized users)
 		//--------------------------------
-		$action = $out->getRequest()->getText('action', 'view');
-		$diff_num = $out->getRequest()->getVal('diff', '');
-		$title = $out->getTitle();
-		$article_page = !empty($title) ? $title->inNamespace(NS_MAIN) : false;
-
-		$show_green_box_cta = $action == 'view' && empty($diff_num) && $article_page
-			&& !Misc::isMobileMode() && GreenBoxEditTool::authorizedUser($out->getUser());
-
-		if ($show_green_box_cta) {
-			$out->addModules('ext.wikihow.green_box_cta');
-
+		if (self::showGreenBoxCTA()) {
 			$green_box_cta = Html::element(
 				'a',
 				[

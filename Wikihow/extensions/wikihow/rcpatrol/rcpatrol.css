@@ -173,3 +173,7 @@ td.patrolcount {
 	display: none;
 }
 
+#rc_disclaimer {
+	font-size: .9em;
+	float: right;
+}

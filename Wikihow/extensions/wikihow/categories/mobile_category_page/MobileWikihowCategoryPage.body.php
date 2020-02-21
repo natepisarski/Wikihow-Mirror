@@ -232,6 +232,15 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			if (count($allArticles) == 0) {
 				//nothin' in this category
 				$out->setStatusCode(404);
+				$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
+				$out->addHTML( $m->render('responsive_no_results.mustache',
+					[
+						'title' => $categoryName,
+						'special_message' => wfMessage( 'Noarticletextanon' )->parse(),
+						'search_header' => wfMessage( 'pagepolicy_search_header' )->text(),
+						'searchbox' => SearchBox::render( $out )
+					]
+				) );
 				return;
 			} else {
 				$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
@@ -414,6 +423,15 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$m = new Mustache_Engine($options);
 		$html = $m->render("responsive_navigation.mustache", $vars);
 		$data['prebodytext'] = $html;
+	}
+
+	private static function renderTemplate( $template, $vars ) {
+		$m = new Mustache_Engine( array(
+			'loader' => new Mustache_Loader_CascadingLoader( [
+				new Mustache_Loader_FilesystemLoader( __DIR__ ),
+			] )
+		) );
+		return $m->render( $template, $vars );
 	}
 
 }

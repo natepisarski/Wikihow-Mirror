@@ -39,6 +39,7 @@ WH.dashboard.appShortCodes = <?= json_encode($appShortCodes) ?>;
 			<? endif; ?>
 			<div class="clearall"></div>
 		</div>
+		<div id="comdash-disclaimer"><?= $desktopDisclaimer ?></div>
 	</div>
 
 	<div class="minor_section">

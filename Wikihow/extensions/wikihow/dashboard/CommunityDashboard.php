@@ -22,6 +22,8 @@ $wgExtensionCredits['special'][] = array(
 );
 
 $wgSpecialPages['CommunityDashboard'] = 'CommunityDashboard';
+$wgSpecialPages['MobileCommunityDashboard'] = 'CommunityDashboard';
+
 $wgAutoloadClasses['CommunityDashboard'] = __DIR__ . '/CommunityDashboard.body.php';
 $wgAutoloadClasses['DashboardData'] = __DIR__ . '/DashboardData.php';
 $wgAutoloadClasses['DashboardWidget'] = __DIR__ . '/DashboardWidget.php';
@@ -70,10 +72,10 @@ $wgWidgetList = array(
 	'TopicAppWidget',
 	'NfdAppWidget',
 	'TipsPatrolWidget',
-	'TipsGuardianAppWidget',
+	// 'TipsGuardianAppWidget',
 	'SpellcheckerAppWidget',
 	'CategoryGuardianAppWidget',
-	'UCIPatrolWidget',
+	// 'UCIPatrolWidget',
 	'WelcomeWagonWidget',
 	// 'RateAppWidget',
 	'UnitGuardianAppWidget',
@@ -104,10 +106,10 @@ $wgWidgetShortCodes = array(
 	'TopicAppWidget' => 'tpc',
 	'NfdAppWidget' => 'nfd',
 	'TipsPatrolWidget' => 'tip',
-	'TipsGuardianAppWidget' => 'tg',
+	// 'TipsGuardianAppWidget' => 'tg',
 	'SpellcheckerAppWidget' => 'spl',
 	'CategoryGuardianAppWidget' => 'catch',
-	'UCIPatrolWidget' => 'uci',
+	// 'UCIPatrolWidget' => 'uci',
 	'WelcomeWagonWidget' => 'welcomewagon',
 	// 'RateAppWidget' => 'rat',
 	'UnitGuardianAppWidget' => 'ung',
@@ -134,8 +136,8 @@ $wgMobilePriorityWidgetList = array(
 $wgMobileWidgetList = array(
 	'TopicTaggingAppWidget',
 	'CategoryGuardianAppWidget',
-	'TipsGuardianAppWidget',
-	'UCIPatrolWidget',
+	// 'TipsGuardianAppWidget',
+	// 'UCIPatrolWidget',
 	'RecentChangesAppWidget',
 	'UnitGuardianAppWidget',
 	'QuizYourselfWidget'
@@ -143,7 +145,7 @@ $wgMobileWidgetList = array(
 
 /*widgets that SHOULD NOT show on desktop*/
 $wgMobileOnlyWidgetList = array(
-	'TipsGuardianAppWidget',
+	// 'TipsGuardianAppWidget',
 	'UnitGuardianAppWidget',
 	'QuizYourselfWidget'
 );

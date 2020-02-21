@@ -38,6 +38,7 @@
 	},
 	"SpecialPages": {
 		"Notifications": "SpecialNotifications",
+		"MobileNotifications": "SpecialNotifications",
 		"DisplayNotificationsConfiguration": "SpecialDisplayNotificationsConfiguration",
 		"NotificationsMarkRead": "SpecialNotificationsMarkRead"
 	},

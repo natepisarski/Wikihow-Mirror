@@ -20,7 +20,10 @@ class UCIPatrol extends SpecialPage {
 	const TABLE_NAME = "user_completed_images";
 
 	public function __construct() {
-		parent::__construct("PicturePatrol", "ucipatrol");
+		global $wgTitle;
+
+		$this->specialPage = $wgTitle->getPartialUrl();
+		parent::__construct($this->specialPage, "ucipatrol");
 	}
 
 	private static function printStatsUploads($uploads) {
@@ -77,6 +80,10 @@ class UCIPatrol extends SpecialPage {
 
 	protected function addTemplateHtml() {
 		$tmpl = new EasyTemplate(__DIR__);
+
+		$tmpl->set_vars([
+			'desktopDisclaimer' => wfMessage('mobile-desktop-cta', 'Special:MobileUCIPatrol')->parse()
+		]);
 
 		$out = $this->getOutput();
 		$out->addHTML($tmpl->execute('UCIPatrol.tmpl.php'));

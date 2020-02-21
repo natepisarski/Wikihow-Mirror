@@ -102,6 +102,10 @@ class RCPatrol extends SpecialPage {
 			$out->addHTML("<div id='rc_header' class='tool_header'>");
 			$out->addHtml('<p id="rc_helplink" class="tool_help"><a href="/Patrol-Recent-Changes-on-wikiHow" target="_blank">Learn how</a></p>');
 			$out->addHTML('<a href="#" id="rcpatrol_keys">Get Shortcuts</a>');
+
+			$desktop_cta = wfMessage('mobile-desktop-cta', 'Special:RCLite')->parse();
+			$out->addHTML('<div id="rc_disclaimer">'.$desktop_cta.'</div>');
+
 			$out->addHTML(self::getListOfTemplatesHtml($result['title']));
 			// if this was a redirect, the title may have changed so update our context
 			$oldTitle = $this->getContext()->getTitle();

@@ -197,7 +197,7 @@
 
 		function loadResult(result) {
 			debugResult(result);
-			
+
 			$('body').data({
 				event_type: 'picture_patrol',
 				article_id: result.pageId,
@@ -319,7 +319,7 @@
 				}
 			}
 		}
-		
+
 		function showMobileInterstitial() {
 			$('#uci_waiting').show();
 			$('h1.firstHeading').css('visibility','hidden');
@@ -327,13 +327,13 @@
 			$('#uci_article').html('');
 		}
 
-		function showNext() {			
+		function showNext() {
 			if (!userVoterShown) {
 				$("#user_voter").prepend(userVoter['name']);
 				$("#user_voter").prepend(userVoter['image']);
 				userVoterShown = true;
 			}
-			
+
 			if (!articleTitle) {
 				$.get('/Special:EndOfQueue?this_tool=uci', function(data) {
 					if (isMobile) {
@@ -350,10 +350,12 @@
 						$("#uci_patrol_buttons").hide();
 						$(".tip_bubble").hide();
 						$(".wh_block").hide();
+						$("#uci_keys").hide();
+						$("#uci_disclaimer").hide();
 						$("#uci_header h1").html('Picture Patrol');
 						$("#uci_header h1").after(data);
 					}
-					
+
 					$("#uci").show();
 				});
 				return;
@@ -366,7 +368,7 @@
 				'background-image': 'url('+thumbUrl+')',
 				'max-width': imageWidth
 			});
-			
+
 			$("#uci_waiting").fadeOut();
 			if (isMobile) {
 				WH.ArticleDisplayWidget.updateArticleId(articleId);
@@ -531,7 +533,7 @@
 					isMobile = true;
 					WH.ArticleDisplayWidget.init();
 				}
-				
+
 				if (!isMobile) initToolTitle();
 				initMousetrap();
 

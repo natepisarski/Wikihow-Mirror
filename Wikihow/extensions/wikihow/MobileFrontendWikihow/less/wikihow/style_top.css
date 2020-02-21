@@ -268,6 +268,10 @@ a.external {
 	padding-left: 0 !important;
 }
 
+.hs_active .search {
+	padding-right: 50px;
+}
+
 #hs_query, #hs_close, #hs_submit {
 	display: block;
 	position: absolute;
@@ -477,6 +481,7 @@ pre {
 }
 #section_0 a {
 	color: #222;
+	text-decoration: none;
 }
 
 #intro {
@@ -791,7 +796,7 @@ h3 .altblock {
 #header_logo {
 	display: table-cell;
 	vertical-align: middle;
-	background: center / 115px no-repeat url(/extensions/wikihow/mobile/images/wikiHow_logo_heart_mobile.png);
+	background: center / 115px no-repeat url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);
 	width: auto;
 	height: 38px;
 	padding: 0 14px;
@@ -933,6 +938,14 @@ body.action-view #fa_container p {
 
 .content #intro li, .content .section_text ul li {
 	margin-bottom: 5px;
+}
+
+.content .section_text.expert_advice_section ul li {
+	margin-bottom: 12px;
+}
+
+.content .expert_advice_section p {
+	margin-bottom: 1em;
 }
 
 .content .section_text .steps_list_2 ul li, .content .ingredients ul li, .content .thingsyoullneed ul li {
@@ -1234,7 +1247,6 @@ a.related-title,a.related-title:active, a.related-title:visited {
 #articleinfo #info_link {
 	width: 100%;
 	display: block;
-	color: #545454;
 }
 
 #articleinfo #info_link,
@@ -1527,9 +1539,6 @@ a.related-title,a.related-title:active, a.related-title:visited {
 	color: #686868;
 	vertical-align: middle;
 }
-#footer_ccpa {
-	display: none;
-}
-#footer_ccpa_optout {
+#footer_ccpa, #footer_ccpa_optout {
 	display: none;
 }

@@ -349,6 +349,9 @@
 			//references section is weird...
 			if (hash == '#references_first') hash = '#'+mw.message('references').text();
 
+			//summary section for small is a bit weird too...
+			if (hash == '#summary_wrapper') return $( this.escapeSelector(hash) );
+
 			//Now supporting links with hashes to Images, so want to ignore these
 			if (hash.indexOf("#/Image:") == 0) return $();
 

@@ -144,6 +144,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 				// add the latest revision
 				$tempTitle = Title::newFromID( $pageId );
 				$gr = GoodRevision::newFromTitle( $tempTitle );
+				if (!$gr) continue;
 				$latestGood = $gr->latestGood();
 				$insertRow['stvi_revision_id'] = $latestGood;
 				if ( $new ) {

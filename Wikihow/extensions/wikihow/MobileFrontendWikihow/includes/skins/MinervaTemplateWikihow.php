@@ -104,6 +104,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			//XXCHANGED: BEBETH
 			$preContentInner .= $preBodyText;
 			$preContentInner .= $internalBanner;
+			$preContentInner = $preContentHtml . $preContentInner;
 			$preContent .= Html::rawElement( 'div', ['class' => 'pre-content'], $preContentInner );
 
 			return $preContent;
@@ -645,6 +646,20 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 		$html .= EasyTemplate::html('wh_mobileFrontendFooter.tmpl.php', $footerVars);
 
+		if ( isset( $data['rightrail'] ) ) {
+			$html .= $data['rightrail']->mAds->getEndOfPageHtml();
+		}
+
+		return $html;
+	}
+
+	protected function getProfilerExtraHtml( $data ) {
+		global $wgProfiler;
+		global $wgIsDevServer;
+		$html = '';
+		if ( $wgIsDevServer && $wgProfiler['visible'] == true ) {
+			$html = "<style>body > pre{position:absolute;top:500px;background:white;z-index:10000;}</style>";
+		}
 		return $html;
 	}
 
@@ -655,6 +670,9 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if ( !$data['amp'] && ArticleTagList::hasTag( 'js_fast_render', $data['articleid'] ) ) {
 			$data['fastRenderTest'] = true;
 		}
+
+		$profilerExtraHtml = $this->getProfilerExtraHtml( $data );
+		echo $profilerExtraHtml;
 
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 

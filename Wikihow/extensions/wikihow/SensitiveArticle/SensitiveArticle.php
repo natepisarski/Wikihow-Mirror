@@ -39,6 +39,7 @@ $wgResourceModules['ext.wikihow.SensitiveArticle.admin'] = [
 
 // Special:TopicTagging
 $wgSpecialPages['TopicTagging'] = 'SensitiveArticle\TopicTagging';
+$wgSpecialPages['MobileTopicTagging'] = 'SensitiveArticle\TopicTagging';
 $wgAutoloadClasses['SensitiveArticle\TopicTagging'] = __DIR__ . '/tool/TopicTagging.body.php';
 $wgResourceModules['ext.wikihow.topic_tagging_tool'] = [
 	'targets' => ['desktop', 'mobile'],

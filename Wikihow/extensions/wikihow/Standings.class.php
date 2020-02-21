@@ -691,7 +691,7 @@ class TechTestingStandingsGroup extends StandingsGroup  {
 		global $wgSharedDB;
 		$sql = "SELECT user_name, count(*) as C ".
 			"FROM logging left join ".$wgSharedDB.".user on log_user = user_id ".
-			"WHERE log_user <> '' and log_type = 'test_tech_articles' and log_timestamp >= '$ts' ".
+			"WHERE log_user <> '' and log_action != 'skip' and log_type = 'test_tech_articles' and log_timestamp >= '$ts' ".
 			"GROUP BY user_name ORDER by C desc limit 25";
 		return $sql;
 	}
@@ -1057,6 +1057,7 @@ class TechTestingStandingsIndividual extends StandingsIndividual {
 		$opts = array();
 		$opts['log_user'] =$wgUser->getID();
 		$opts['log_type'] ='test_tech_articles';
+		$opts[] = 'log_action != "skip"';
 		if ($ts) {
 			$opts[]= "log_timestamp >'{$ts}'";
 		}

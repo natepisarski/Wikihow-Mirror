@@ -137,7 +137,7 @@ class ReverificationDB {
 			self::TABLE_REVERIFICATIONS,
 			'*',
 			['rv_id' => $reverificationId],
-			_METHOD__
+			__METHOD__
 		);
 
 		$reverification = null;
@@ -187,7 +187,7 @@ class ReverificationDB {
 			self::TABLE_REVERIFICATIONS,
 			'*',
 			$where,
-			_METHOD__
+			__METHOD__
 		);
 
 		$reverifications = [];

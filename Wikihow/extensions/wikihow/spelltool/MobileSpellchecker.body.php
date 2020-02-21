@@ -2,12 +2,6 @@
 
 class MobileSpellchecker extends Spellchecker {
 
-	function __construct() {
-		global $wgHooks;
-		parent::__construct('Spellchecker');
-		$wgHooks['getMobileToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
-	}
-
 	protected function addJSAndCSS($out) {
 		$out->addModules('ext.wikihow.UsageLogs'); // usage logs
 		$out->addModules('ext.wikihow.mobile.spellchecker');	// Spellchecker js and mw messages
@@ -15,8 +9,12 @@ class MobileSpellchecker extends Spellchecker {
 
 	public static function onIsEligibleForMobileSpecial(&$mobileAllowed) {
 		global $wgTitle;
-		if ($wgTitle && strrpos($wgTitle->getText(), "Spellchecker") === 0) {
-			$mobileAllowed = true;
+		if ($wgTitle) {
+			if (strrpos($wgTitle->getText(), "Spellchecker") === 0 ||
+				strrpos($wgTitle->getText(), "MobileSpellchecker") === 0)
+			{
+				$mobileAllowed = true;
+			}
 		}
 		return true;
 	}
@@ -31,10 +29,6 @@ class MobileSpellchecker extends Spellchecker {
 	 * No standings groups for mobile
 	 */
 	public function addStandingGroups() {}
-
-	public function isMobileCapable() {
-		return true;
-	}
 
 	/**
 	 * @param $out

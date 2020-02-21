@@ -3,9 +3,11 @@
 class MobileUCIPatrol extends UCIPatrol {
 
 	function __construct() {
-		global $wgHooks;
+		global $wgHooks, $wgTitle;
 
-		parent::__construct("PicturePatrol", "ucipatrol");
+		$this->specialPage = $wgTitle->getPartialUrl();
+		parent::__construct($this->specialPage, "ucipatrol");
+
 		$wgHooks['getMobileToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 

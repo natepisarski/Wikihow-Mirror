@@ -223,7 +223,8 @@ class SchemaMarkup {
 		//
 		// 12/10/19 - Make the alt domains (which are now responsive) always point to www. As we make other domains
 		// responsive we should do the same
-		if (Misc::isAltDomain()) {
+		// 2/19/20 - en is now responsive so make that the desktop version as well
+		if (Misc::isAltDomain() || !Misc::isMobileModeLite()) {
 			$url = Misc::getLangBaseURL($wgLanguageCode);
 		} else {
 			$url = Misc::getLangBaseURL($wgLanguageCode, Misc::isMobileMode());
@@ -484,8 +485,6 @@ class SchemaMarkup {
 
 	// run in the context of php query to get the how to schema information
 	public static function calcHowToSchema( $out ) {
-		global $wgLanguageCode;
-
 		// does sanity checks on the title and wikipage and $out
 		if ( !self::okToShowSchema( $out ) ) {
 			return '';
@@ -503,11 +502,11 @@ class SchemaMarkup {
 
 		$data += self::getSchemaImage();
 		$data += self::getAuthors( $title );
+		$data += self::getAggregateRating( $title );
 		$data += self::getDatePublished( $title );
 		$data += self::getDateModified( $title );
 		$data += self::getPublisher();
 		$data += self::getContributors( $title );
-
 		$steps = self::getHowToSteps();
 
 		$schema = '';

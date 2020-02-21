@@ -25,8 +25,11 @@ class CategoryGuardian extends UnlistedSpecialPage {
 	public $sql;
 
 	function __construct() {
-		global $wgHooks, $wgDebugToolbar;
-		parent::__construct('CategoryGuardian');
+		global $wgHooks, $wgDebugToolbar, $wgTitle;
+
+		$this->specialPage = $wgTitle->getPartialUrl();
+		parent::__construct($this->specialPage);
+
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 
 		$this->user = $this->getUser();
@@ -118,7 +121,7 @@ class CategoryGuardian extends UnlistedSpecialPage {
 			'articles'=> $slugs
 		);
 
-		if ( !Misc::isMobileMode() ) {
+		if ( $this->specialPage != 'MobileCategoryGuardian' ) {
 			$payload['category']['link'] = $result['cat']->getFullURL();
 		}
 
@@ -132,6 +135,12 @@ class CategoryGuardian extends UnlistedSpecialPage {
 
 	protected function addTemplateHtml() {
 		$tpl = new EasyTemplate(__DIR__);
+
+		$tpl->set_vars([
+			'mobile' => $this->specialPage == 'MobileCategoryGuardian',
+			'desktopDisclaimer' => wfMessage('mobile-desktop-cta', 'Special:MobileCategoryGuardian')->parse()
+		]);
+
 		$html = $tpl->execute('CategoryGuardian.tmpl.php');
 		$this->out->addHTML($html);
 	}
@@ -146,9 +155,9 @@ class CategoryGuardian extends UnlistedSpecialPage {
 		);
 		$this->out->addModuleStyles('ext.wikihow.CategoryGuardian.styles');
 
-	  if (Misc::isMobileMode()) {
-		$this->out->addModuleStyles('ext.wikihow.CategoryGuardian.styles.mobile');
-	  }
+		if ($this->specialPage == 'MobileCategoryGuardian') {
+			$this->out->addModuleStyles('ext.wikihow.CategoryGuardian.styles.mobile');
+		}
 	}
 
 	public static function onArticleChange($wikiPage) {

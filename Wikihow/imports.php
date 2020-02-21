@@ -285,7 +285,6 @@ require_once("$IP/extensions/wikihow/translationlinkoverride/TranslationLinkOver
 require_once("$IP/extensions/wikihow/reverttool/RevertTool.php");
 require_once("$IP/extensions/wikihow/AdminSamples.php");
 require_once("$IP/extensions/wikihow/custom_meta/AdminCustomMeta.php");
-require_once("$IP/extensions/wikihow/quizzes/Quizzes.php");
 require_once("$IP/extensions/wikihow/WikihowUserPage/UserPagePolicy.php");
 require_once("$IP/extensions/wikihow/schema/SchemaMarkup.php");
 require_once("$IP/extensions/wikihow/AdminUserCompletedImages.php");

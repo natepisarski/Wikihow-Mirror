@@ -729,8 +729,7 @@ class Misc {
 			$actionParam = $req->getVal('action', '');
 			$typeParam = $req->getVal('type', '');
 			$oldidParam = $req->getVal('oldid', '');
-			if ( self::isAltDomain()
-				&& ($actionParam == '' || $actionParam == 'view')
+			if ( ($actionParam == '' || $actionParam == 'view')
 				&& $typeParam != 'revision'
 				&& !$oldidParam
 			) {

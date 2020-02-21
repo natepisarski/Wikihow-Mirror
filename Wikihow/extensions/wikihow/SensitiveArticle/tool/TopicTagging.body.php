@@ -7,7 +7,10 @@ class TopicTagging extends \UnlistedSpecialPage {
 	var $isMobile = false;
 
 	public function __construct() {
-		parent::__construct( 'TopicTagging');
+		global $wgTitle;
+
+		$this->specialPage = $wgTitle->getPartialUrl();
+		parent::__construct($this->specialPage);
 	}
 
 	public function isMobileCapable() {
@@ -25,7 +28,7 @@ class TopicTagging extends \UnlistedSpecialPage {
 			throw new UserBlockedError( $user->getBlock() );
 		}
 
-		$this->isMobile = \Misc::isMobileMode();
+		$this->isMobile = $this->specialPage == 'MobileTopicTagging';
 
 		$this->skipTool = new \ToolSkip("TopicTagging");
 
@@ -89,10 +92,11 @@ class TopicTagging extends \UnlistedSpecialPage {
 			'no' => wfMessage('htmlform-no')->text(),
 			'skip' => wfMessage('topic_tagging_button_skip')->text(),
 			'is_mobile' => $this->isMobile,
-			'tool_help' => \ToolInfo::getTheIcon($this, [wfMessage('topic_tagging_default_topic_phrase')->text()])
+			'tool_help' => \ToolInfo::getTheIcon($this, [wfMessage('topic_tagging_default_topic_phrase')->text()]),
+			'desktop_disclaimer' => wfMessage('mobile-desktop-cta', 'Special:MobileTopicTagging')->parse()
 		];
 
-		$html = $m->render('topic_tagging_tool', $vars);
+		$html = $m->render('topic_tagging_tool.mustache', $vars);
 		return $html;
 	}
 

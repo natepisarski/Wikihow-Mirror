@@ -854,7 +854,7 @@ abstract class AdCreator {
 
 	protected function isDFPSmallTest() {
 		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [3, 7, 11, 15, 19];
+		$testBuckets = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
 		if ( in_array( $bucketId, $testBuckets ) ) {
 			return true;
 		}
@@ -966,9 +966,6 @@ abstract class AdCreator {
 
 	public function showBlockthroughJs() {
 		global $wgRequest;
-		if ( Misc::isMobileMode() ) {
-			return false;
-		}
 
 		if ( $wgRequest->getInt( 'blockthrough' )  == 1 ) {
 			return true;
@@ -1844,13 +1841,59 @@ class DefaultSearchPageAdCreator extends AdCreator {
 				'instantload' => 1,
 				'width' => 300,
 				'height' => 600,
+				'containerheight' => 630,
+				'class' => ['rr_container'],
+				'innerclass' => ['ad_label', 'ad_label_dollar'],
+				'type' => 'rightrail',
+				'large' => 1,
+				'channels' => [7445610171],
+			),
+		);
+
+		if ( intval( $this->mBucketId ) == 1 ) {
+			$this->mAdSetupData['rightrail1'] = array(
+				'service' => 'adsense',
+				'slot' => 7544893816,
+				'width' => 300,
+				'height' => 600,
 				'containerheight' => 2000,
 				'class' => ['rr_container'],
 				'innerclass' => ['ad_label', 'ad_label_dollar'],
 				'type' => 'rightrail',
 				'large' => 1,
-			),
-		);
+				'channels' => [2161493906],
+			);
+		}
+		if ( intval( $this->mBucketId ) == 2 ) {
+			$this->mAdSetupData = array(
+				'rightrail0' => array(
+					'service' => 'adsense',
+					'slot' => 5494086178,
+					'instantload' => 1,
+					'width' => 300,
+					'height' => 250,
+					'containerheight' => 250,
+					'class' => ['rr_container'],
+					'type' => 'rightrail',
+					'large' => 1,
+					'ad-format' => 'link',
+					'full-width-responsive' => 'true',
+					'channels' => [9848412230],
+				),
+				'rightrail1' => array(
+					'service' => 'adsense',
+					'slot' => 2504442946,
+					'width' => 300,
+					'height' => 600,
+					'containerheight' => 2000,
+					'class' => ['rr_container'],
+					'innerclass' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'rightrail',
+					'large' => 1,
+					'channels' => [9848412230],
+				),
+			);
+		}
 	}
 
 	public function isAdOkForDomain( $ad ) {

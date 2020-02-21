@@ -7,7 +7,7 @@ class SocialStamp {
 	private static $verifiers = [];
 
 	private static $hoverText = "";
-	private static $hoverTextNoLink = "";
+	private static $authorInfoText = "";
 	private static $byLineHtml = "";
 	private static $isNotable = null;
 
@@ -44,12 +44,12 @@ class SocialStamp {
 		return self::$hoverText;
 	}
 
-	private static function getHoverTextNoLink() {
-		if (self::$hoverTextNoLink == "") {
+	private static function getAuthorInfoText() {
+		if (self::$authorInfoText == "") {
 			self::setBylineVariables();
 		}
 
-		return self::$hoverTextNoLink;
+		return self::$authorInfoText;
 	}
 
 	private static function setBylineVariables() {
@@ -64,12 +64,28 @@ class SocialStamp {
 		$html = self::getHtmlFromTemplate($template, $params);
 
 		self::$hoverText = $params['body'];
-		self::$hoverTextNoLink = $params['body_nolink'];
+		self::$authorInfoText = $params['author_info_text'];
 		self::$byLineHtml = $html;
 	}
 
 	public static function getHoverTextForArticleInfo(){
-		$text = trim(self::getHoverTextNoLink());
+		$text = trim(self::getHoverText());
+		$brLoc = stripos($text, "<br");
+		if ($brLoc !== false) {
+			$text = substr($text, 0, $brLoc);
+		} else {
+			$learnmoreLoc = strripos($text, "</a>");
+			if ($learnmoreLoc == strlen($text) - 4) {
+				//remove the learn more
+				$text = substr($text, 0, strripos($text, "<a"));
+			}
+		}
+
+		return $text;
+	}
+
+	public static function getAuthorInfoTextforArticleInfo(){
+		$text = trim(self::getAuthorInfoText());
 		$brLoc = stripos($text, "<br");
 		if ($brLoc !== false) {
 			$text = substr($text, 0, $brLoc);
@@ -155,10 +171,14 @@ class SocialStamp {
 		$isIntl = Misc::isIntl();
 
 		$hoverText = "";
-		$hoverTextNoLink = '';
+		$authorInfoText = '';
 
 		if ( ArticleTagList::hasTag("expert_test", $articleId) && !RequestContext::getMain()->getUser()->isLoggedIn() ) {
-			$vd = VerifyData::getVerifierInfoById($verifiers['expert']->verifierId);
+			if(isset($verifiers['expert'])) {
+				$vd = VerifyData::getVerifierInfoById($verifiers['expert']->verifierId);
+			} elseif (isset($verifiers['academic'])) {
+				$vd = VerifyData::getVerifierInfoById($verifiers['academic']->verifierId);
+			}
 			$params['coauthor_image'] = $vd->imagePath;
 		}
 
@@ -321,26 +341,26 @@ class SocialStamp {
 				}
 
 				$hoverText = wfMessage($msg, $coauthorLink )->text() . ' ' . $vData->hoverBlurb . $citations;
-				$hoverTextNoLink = wfMessage($msg, $coauthorNoLink )->text() . ' ' . $vData->hoverBlurb . $citations;
+				$authorInfoText = wfMessage($msg, $coauthorNoLink )->text() . ' ' . $vData->hoverBlurb . $citations;
 			} else {
 				$coauthoredBy = lcfirst(wfMessage("sp_expert_attribution")->text());
 				if (SocialProofStats::isSpecialInline()) {
 					$coauthoredBy = lcfirst(wfMessage("ss_special_author")->text());
 				}
 				$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();
-				$hoverTextNoLink = wfMessage('ss_expert_nolink', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();
+				$authorInfoText = wfMessage('ss_expert_nolink', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();
 			}
 		}
 		elseif ($isCommunity) {
-			$hoverText = wfMessage("ss_community", $verifiers[$key]->name, $verifiers[$key]->hoverBlurb, $citations)->text();
+			$hoverText = $authorInfoText = wfMessage("ss_community", $verifiers[$key]->name, $verifiers[$key]->hoverBlurb, $citations)->text();
 		}
 		elseif ($isStaff) {
 			if ($isTested) {
-				$hoverText = wfMessage('ss_staff_tested', $citations, self::getHoverInfo($testKey))->text();
+				$hoverText = $authorInfoText = wfMessage('ss_staff_tested', $citations, self::getHoverInfo($testKey))->text();
 			} elseif ($isUserReview) {
-				$hoverText = wfMessage('ss_staff_readers', $citations, UserReview::getIconHoverText($articleId))->text();
+				$hoverText = $authorInfoText = wfMessage('ss_staff_readers', $citations, UserReview::getIconHoverText($articleId))->text();
 			} else {
-				$hoverText = wfMessage('ss_staff', $citations)->text();
+				$hoverText = $authorInfoText = wfMessage('ss_staff', $citations)->text();
 			}
 		}
 		elseif ($isDefault) {
@@ -354,23 +374,23 @@ class SocialStamp {
 			}
 
 			if ($isIntl) {
-				$hoverText = wfMessage('ss_default')->text() . ' ' . $editorBlurb . $citations;
+				$hoverText = $authorInfoText = wfMessage('ss_default')->text() . ' ' . $editorBlurb . $citations;
 			} else {
 				$views = RequestContext::getMain()->getWikiPage()->getCount();
 				if ($isTested) {
-					$hoverText = wfMessage("ss_default_tested", $editorBlurb, $citations, self::getHoverInfo($testKey) )->text();
+					$hoverText = $authorInfoText = wfMessage("ss_default_tested", $editorBlurb, $citations, self::getHoverInfo($testKey) )->text();
 				} elseif ($isUserReview) {
-					$hoverText = wfMessage("ss_default_readers", $editorBlurb, $citations, UserReview::getIconHoverText($articleId) )->text();
+					$hoverText = $authorInfoText = wfMessage("ss_default_readers", $editorBlurb, $citations, UserReview::getIconHoverText($articleId) )->text();
 				} else {
 					if ($views > self::MIN_VIEWS) {
 						$viewText = wfMessage("ss_default_views", number_format($views))->text();
 					}
-					$hoverText = wfMessage('ss_default', $editorBlurb, $citations, $viewText)->text();
+					$hoverText = $authorInfoText = wfMessage('ss_default', $editorBlurb, $citations, $viewText)->text();
 				}
 			}
 		}
 
-		$params = array_merge($params, self::getIconHoverVars($hoverText, $hoverTextNoLink, $isMobile, $isAmp, $isExpert, $isAlternateDomain));
+		$params = array_merge($params, self::getIconHoverVars($hoverText, $authorInfoText, $isMobile, $isAmp, $isExpert, $isAlternateDomain));
 
 		$params = self::initRecipeByline($params, $isExpert);
 
@@ -395,11 +415,11 @@ class SocialStamp {
 		return $html;
 	}
 
-	private static function getIconHoverVars(string $hover_text, string $hover_text_no_link, bool $is_mobile, bool $amp, bool $isExpert, bool $isAlternateDomain) {
+	private static function getIconHoverVars(string $hover_text, string $author_info_text, bool $is_mobile, bool $amp, bool $isExpert, bool $isAlternateDomain) {
 		$vars = [
 			'header' => wfMessage('sp_hover_expert_header')->text(),
 			'body' => $hover_text,
-			'body_nolink' => $hover_text_no_link,
+			'author_info_text' => $author_info_text,
 			'mobile' => $is_mobile,
 			'amp' => $amp
 		];

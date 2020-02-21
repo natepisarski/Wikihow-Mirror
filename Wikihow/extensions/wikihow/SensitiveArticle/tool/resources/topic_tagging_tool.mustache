@@ -20,6 +20,8 @@
 		<button id="ttt_vote_no" class="button primary">{{no}}</button>
 	</div>
 
+	{{^is_mobile}}<div id="ttt_disclaimer">{{{desktop_disclaimer}}}</div>{{/is_mobile}}
+
 </div>
 <div id="ttt_spinner"></div>
 <div id="ttt_article_html" {{#is_mobile}}class="mobile"{{/is_mobile}}></div>

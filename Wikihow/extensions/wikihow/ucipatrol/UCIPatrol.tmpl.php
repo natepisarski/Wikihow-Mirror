@@ -1,6 +1,7 @@
 <div id="uci" class="tool" style="display:none">
 	<div id="uci_header" class="tool_header">
 		<a href="#" id="uci_keys"><?= wfMessage('uci-shortcuts')->text(); ?></a>
+		<div id="uci_disclaimer"><?= $desktopDisclaimer ?></div>
 		<h1><?= wfMessage('uci-question')->text(); ?></h1>
 		<div id="uci_img_wrap">
 			<img src='<?= wfGetPad('/extensions/wikihow/rotate.gif') ?>' id='uci_img_spinner' alt='' />

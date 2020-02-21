@@ -11,11 +11,14 @@ class RCLite extends MobileSpecialPage {
 	const EDIT_USER_TALK = 'talk';
 	const EDIT_TIP = 'tip';
 	var $data = null;
+	protected $hasDesktopVersion = true;
 
 	function __construct() {
-		global $wgHooks;
+		global $wgHooks, $wgTitle;
 
-		parent::__construct("RCPatrol", "rcpatrol");
+		$this->specialPage = $wgTitle->getPartialUrl();
+		parent::__construct($this->specialPage, "rcpatrol");
+
 		$wgHooks['getMobileToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 

@@ -9,6 +9,7 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['Spellchecker'] = 'Spellchecker';
+$wgSpecialPages['MobileSpellchecker'] = 'MobileSpellchecker';
 $wgSpecialPages['Spellcheckerwhitelist'] = 'Spellcheckerwhitelist';
 $wgSpecialPages['SpellcheckerArticleWhitelist'] = 'SpellcheckerArticleWhitelist';
 $wgAutoloadClasses['Spellchecker'] = __DIR__ . '/Spellchecker.body.php';
@@ -28,7 +29,7 @@ $wgLogHeaders['whitelist'] = 'whitelist_log';
 $wgHooks["PageContentSaveComplete"][] = "wfCheckspelling";
 $wgHooks["ArticleDelete"][] = "wfRemoveCheckspelling";
 $wgHooks["ArticleUndelete"][] = "wfUndeleteCheckpelling";
-$wgHooks["IsEligibleForMobileSpecial"][] = array("MobileSpellchecker::onIsEligibleForMobileSpecial");
+// $wgHooks["IsEligibleForMobileSpecial"][] = array("MobileSpellchecker::onIsEligibleForMobileSpecial");
 $wgHooks['NABMarkPatrolled'][] = 'Spellchecker::onMarkNabbed';
 $wgHooks['NABArticleDemoted'][] = 'Spellchecker::onArticleDemoted';
 

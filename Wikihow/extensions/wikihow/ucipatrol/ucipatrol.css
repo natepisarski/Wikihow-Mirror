@@ -23,7 +23,7 @@
 	margin-right: auto;
 }
 
-#uci_img_wrap { 
+#uci_img_wrap {
 	margin-top: 0;
 	text-align: center;
 }
@@ -32,7 +32,7 @@
 	margin: 100px 0 0 -15px;
 }
 
-#uci_img { 
+#uci_img {
 	margin: 0 auto;
 	max-height: 300px;
 	max-width: 450px;
@@ -278,9 +278,9 @@
 	background-position: 0 -78px;
 }
 
-#uci_header a.clickfail:hover { 
+#uci_header a.clickfail:hover {
 	text-decoration: none;
-	background-position: 0 -78px; 
+	background-position: 0 -78px;
 }
 
 h1.firstHeading a:hover {
@@ -308,4 +308,10 @@ h1.firstHeading a:hover {
     float: right;
     font-size: 10px;
     margin-top: -45px;
+}
+
+#uci_disclaimer {
+	float: right;
+	font-size: .8em;
+	margin-top: -33px;
 }

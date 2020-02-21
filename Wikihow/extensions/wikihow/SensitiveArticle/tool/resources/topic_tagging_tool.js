@@ -10,7 +10,7 @@
 		is_mobile: 0,
 
 		init: function() {
-			if (WH.isMobileDomain) this.is_mobile = 1;
+			if ($(window).width() < WH.largeScreenMinWidth) this.is_mobile = 1;
 			this.getNextArticle();
 			if (this.is_mobile) this.removeFooter();
 		},

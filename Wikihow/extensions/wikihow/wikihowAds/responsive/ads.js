@@ -262,6 +262,13 @@ WH.ads = (function () {
 			}
 		}
 
+		if (ad.adElement.getAttribute('data-ad-format')) {
+			i.setAttribute('data-ad-format', ad.adElement.getAttribute('data-ad-format'));
+		}
+		if (ad.adElement.getAttribute('data-full-width-responsive')) {
+			i.setAttribute('data-full-width-responsive', ad.adElement.getAttribute('data-full-width-responsive'));
+		}
+
 		if (ad.type == 'middlerelated') {
 			i.setAttribute('data-ad-format', 'fluid');
 			i.setAttribute('data-ad-layout-key', '-fb+5w+4e-db+86');

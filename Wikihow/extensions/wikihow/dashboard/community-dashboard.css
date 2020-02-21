@@ -69,7 +69,7 @@
 
 .comdash-priorities, .comdash-widgets { margin: 0 -9px; }
 
-.comdash-widget-box { 
+.comdash-widget-box {
 	color: #212121;
 	float: left;
 	margin: 0 10px 26px 10px;
@@ -84,28 +84,28 @@
 /*gradient backgrounds*/
 .comdash-widget-box.stormy {
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#CFD5D7), to(#EEEEF0));
-	background-image: -webkit-linear-gradient(top, #CFD5D7, #EEEEF0); 
+	background-image: -webkit-linear-gradient(top, #CFD5D7, #EEEEF0);
 	background-image:    -moz-linear-gradient(top, #CFD5D7, #EEEEF0);
 	background-image:     -ms-linear-gradient(top, #CFD5D7, #EEEEF0);
 	background-image:      -o-linear-gradient(top, #CFD5D7, #EEEEF0);
 }
 .comdash-widget-box.rainy {
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#DDE2E4), to(#F1F9FB));
-	background-image: -webkit-linear-gradient(top, #DDE2E4, #F1F9FB); 
+	background-image: -webkit-linear-gradient(top, #DDE2E4, #F1F9FB);
 	background-image:    -moz-linear-gradient(top, #DDE2E4, #F1F9FB);
 	background-image:     -ms-linear-gradient(top, #DDE2E4, #F1F9FB);
 	background-image:      -o-linear-gradient(top, #DDE2E4, #F1F9FB);
 }
 .comdash-widget-box.cloudy {
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#DEEAEE), to(#F1F7FB));
-	background-image: -webkit-linear-gradient(top, #DEEAEE, #F1F7FB); 
+	background-image: -webkit-linear-gradient(top, #DEEAEE, #F1F7FB);
 	background-image:    -moz-linear-gradient(top, #DEEAEE, #F1F7FB);
 	background-image:     -ms-linear-gradient(top, #DEEAEE, #F1F7FB);
 	background-image:      -o-linear-gradient(top, #DEEAEE, #F1F7FB);
 }
 .comdash-widget-box.sunny {
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#EEFAFE), to(#F1FAFB));
-	background-image: -webkit-linear-gradient(top, #EEFAFE, #F1FAFB); 
+	background-image: -webkit-linear-gradient(top, #EEFAFE, #F1FAFB);
 	background-image:    -moz-linear-gradient(top, #EEFAFE, #F1FAFB);
 	background-image:     -ms-linear-gradient(top, #EEFAFE, #F1FAFB);
 	background-image:      -o-linear-gradient(top, #EEFAFE, #F1FAFB);
@@ -118,6 +118,13 @@
 	z-index: 2;
 	top:5px;
 	left:2px;
+}
+
+#comdash-disclaimer {
+	text-align: right;
+	padding-top: 1.5em;
+	font-size: .8em;
+	margin-bottom: -.5em;
 }
 
 .cd-info{

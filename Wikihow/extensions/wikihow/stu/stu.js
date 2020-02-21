@@ -82,9 +82,9 @@ function isMobile() {
 
 	// While responsive is rolling out, we don't want to look at the screen width
 	// NOTE: Responsive has rolled out on desktop alt domains
-	if ( !location.href.match(/(wikihow\.life|wikihow\.fitness|wikihow\.tech|wikihow\.mom|wikihow\.pet|wikihow-fun\.com|wikihow\.legal|wikihow\.health)/) ) {
-		return 0;
-	}
+//	if ( !location.href.match(/(wikihow\.life|wikihow\.fitness|wikihow\.tech|wikihow\.mom|wikihow\.pet|wikihow-fun\.com|wikihow\.legal|wikihow\.health)/) ) {
+//		return 0;
+//	}
 
 	// For responsive, we are sometimes a mobile screen/device on the old desktop
 	// domain www.wikihow.com.

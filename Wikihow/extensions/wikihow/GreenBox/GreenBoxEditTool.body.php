@@ -6,6 +6,10 @@ class GreenBoxEditTool extends UnlistedSpecialPage {
 		parent::__construct( 'GreenBoxEditTool');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	public function execute($par) {
 		$out = $this->getOutput();
 		$user = $this->getUser();

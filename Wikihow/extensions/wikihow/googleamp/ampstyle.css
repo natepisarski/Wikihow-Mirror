@@ -662,7 +662,7 @@
 
 #article_rating .button.aritem {
 	min-width: 100px;
-	padding: 0 10px 0 50px;
+	padding: 3px 10px 3px 50px;
 	line-height: 2.5em;
 	font-weight: bold;
 	border-color: #e5e5e5;

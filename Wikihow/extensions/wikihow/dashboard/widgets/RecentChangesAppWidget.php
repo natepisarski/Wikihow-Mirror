@@ -36,10 +36,12 @@ class RecentChangesAppWidget extends DashboardWidget {
 	 * Returns the start link for this widget
 	 */
 	public function getStartLink($showArrow, $widgetStatus){
+		$toolLink = $this->toolLink();
+
 		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
-			$link = "<a href='/Special:RCPatrol' class='comdash-start'>Start";
+			$link = "<a href='/".$toolLink."' class='comdash-start'>Start";
 		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
-			$link = "<a href='/Special:Userlogin?returnto=Special:RCPatrol' class='comdash-start'>Login";
+			$link = "<a href='/Special:Userlogin?returnto=".$toolLink."' class='comdash-start'>Login";
 		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-login'>Start";
 		if ($showArrow)
@@ -47,6 +49,15 @@ class RecentChangesAppWidget extends DashboardWidget {
 		$link .= "</a>";
 
 		return $link;
+	}
+
+	protected function toolLink(): string {
+		global $wgTitle;
+
+		if ($wgTitle->getPartialUrl() == 'MobileCommunityDashboard')
+			return 'Special:RCLite';
+		else
+			return 'Special:RCPatrol';
 	}
 
 	public function showMobileCount() {

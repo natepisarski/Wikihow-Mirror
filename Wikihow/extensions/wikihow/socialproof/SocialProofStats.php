@@ -277,34 +277,29 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private static function mapVerifyDataToVerifyType($verify_data, $pageId) {
+		$worksheetName = !empty($verify_data->worksheetName) ? $verify_data->worksheetName : '';
 
-		if (!empty($verify_data)) {
-			switch ($verify_data->worksheetName) {
-				case 'expert':
-					return self::VERIFIER_TYPE_EXPERT;
-				case 'academic':
-					return self::VERIFIER_TYPE_ACADEMIC;
-				case 'video':
-					return self::VERIFIER_TYPE_YOUTUBER;
-				case 'chefverified':
-					return self::VERIFIER_TYPE_CHEF;
-				case 'videoverified':
-					return self::VERIFIER_TYPE_VIDEO;
-			}
+		//sorted by priority
+		if ($worksheetName == 'expert')
+			$type = self::VERIFIER_TYPE_EXPERT;
+		elseif ($worksheetName == 'academic')
+			$type = self::VERIFIER_TYPE_ACADEMIC;
+		elseif ($worksheetName == 'video')
+			$type = self::VERIFIER_TYPE_YOUTUBER;
+		elseif ($worksheetName != 'chefverified' && $worksheetName != 'videoverified' && $worksheetName != '')
+			$type = self::VERIFIER_TYPE_COMMUNITY;
+		elseif (StaffReviewed::staffReviewedCheck($pageId))
+			$type = self::VERIFIER_TYPE_STAFF;
+		elseif ($worksheetName == 'chefverified')
+			$type = self::VERIFIER_TYPE_CHEF;
+		elseif ($worksheetName == 'videoverified')
+			$type = self::VERIFIER_TYPE_VIDEO;
+		elseif (self::techArticleCheck($pageId))
+			$type = self::VERIFIER_TYPE_TECH;
+		else
+			$type = '';
 
-			if (stripos( $verify_data->blurb, "wikiHow Test Kitchen" ) !== FALSE) {
-				return self::VERIFIER_TYPE_COMMUNITY;
-			}
-
-			return self::VERIFIER_TYPE_COMMUNITY;
-		}
-		else {
-			if (self::techArticleCheck($pageId)) return self::VERIFIER_TYPE_TECH;
-
-			if (StaffReviewed::staffReviewedCheck($pageId)) return self::VERIFIER_TYPE_STAFF;
-		}
-
-		return '';
+		return $type;
 	}
 
 	private static function mapVerifyDataToVerifyTypeSpreadsheetOnly($verify_data) {
@@ -442,7 +437,7 @@ class SocialProofStats extends ContextSource {
 		$stats = $this->getStatsForDisplay(true);
 		$stats['category_links'] = WikihowHeaderBuilder::getCategoryLinks(false, $this, $this->categoryTree);
 		$stats['amp'] = GoogleAmp::isAmpMode( $this->getOutput() );
-		$stats['author_info'] = SocialStamp::getHoverTextForArticleInfo();
+		$stats['author_info'] = SocialStamp::getAuthorInfoTextforArticleInfo();
 		$stats['is_intl'] = Misc::isIntl();
 		$stats['page_stats'] = $this->getSkin()->pageStats();
 		$stats['end_options'] = $this->getEndOptions();
@@ -503,6 +498,23 @@ class SocialProofStats extends ContextSource {
 				'id' => 'gatThankAuthors',
 				'name' => wfMessage('at_fanmail')->text()
 			];
+
+			//WATCH
+			if($this->getUser()->isLoggedIn()) {
+				if ($this->getUser()->isWatched($this->getTitle())) {
+					$options[] = [
+						'link' => $this->getTitle()->getLocalURL('action=unwatch'),
+						'id' => 'gatWatch',
+						'name' => wfMessage('at_remove_watch')->text()
+					];
+				} else {
+					$options[] = [
+						'link' => $this->getTitle()->getLocalURL('action=watch'),
+						'id' => 'gatWatch',
+						'name' => wfMessage('at_watch')->text()
+					];
+				}
+			}
 		}
 
 		return $options;

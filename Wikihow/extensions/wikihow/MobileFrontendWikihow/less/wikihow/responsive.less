@@ -22,6 +22,7 @@
 	max-width: 300px;
 	height: 250px;
 	width: 300px;
+	margin-bottom: 12px;
 }
 .dfp_small_inner {
 	text-align: center;
@@ -31,14 +32,12 @@
 	width: 300px;
 	overflow: auto;
 }
-.dfp_small > .ad_label_method {
-}
 #tips > .wh_ad_inner > div > ins {
 	margin-top: 12px;
 }
 
 @media @medium {
-	.menu, .menu_login, .menu_messages {
+	.menu {
 		font-size: 1rem;
 		position: absolute;
 		border: 1px solid #91af79;
@@ -50,8 +49,6 @@
 		display: none;
 		right: 0;
 	}
-
-	.menu_login { padding: 15px 25px; }
 
 	.menu a {
 		display: block;
@@ -475,6 +472,7 @@
 		> li {
 			border: none;
 			margin-bottom: 1.5em;
+			position: relative;
 		}
 	}
 
@@ -553,9 +551,8 @@
 		background: #fff;
 	}
 	.rr_container .ad_label {
-		background-color: #ecebe8;
+		background-color: #f3f3f3;
 	}
-
 	#intro .ad_label {
 		display: block;
 	}
@@ -684,7 +681,7 @@
 	.content {
 		.tips, .warnings {
 			.section_text ul li {
-				margin-bottom: 0.5em;
+				margin-bottom: 0.8em;
 
 				div.wh_vote_container {
 					display: none;
@@ -897,10 +894,27 @@
 	.ad_label_method {
 		display: none;
 	}
+	#expertadvice > ul {
+		padding-top: 10px;
+	}
 
 }
 
 @media @large {
+
+	.menu_login, .menu_messages {
+		position: absolute;
+		border: 1px solid #91af79;
+		margin: 0;
+		padding: 10px 0;
+		top: 71px;
+		z-index: 1000;
+		background-color: #f9f9f9;
+		display: none;
+		right: 0;
+	}
+
+	.menu_login { padding: 15px 25px; }
 
 	/* show tabs/breadcrumbs for all users */
 	#actionbar { display: block; }
@@ -948,7 +962,7 @@
 		background: none;
 		height: auto;
 		width: 75%;
-		min-width: 230px;
+		min-width: 276px;
 		padding: 9px 7px 4px;
 
 		&::placeholder {
@@ -1151,183 +1165,6 @@
 				line-height: 36px;
 			}
 		}
-	}
-
-
-	/** Login Dropdown **/
-
-	.menu_login { font-size: .8em; }
-
-	.userlogin_links {
-		padding: 6px 14px 0 0;
-		clear: both;
-		a {
-			font-weight: bold;
-			color: #363;
-			text-decoration: underline;
-		}
-	}
-
-	.ulb_button {
-		height: 49px;
-		margin: 5px 0 15px 0;
-		position: relative;
-		border-radius: 2px;
-		display: block;
-		color: #FFF;
-		line-height: 50px;
-		text-align: center;
-		padding-left: 50px;
-		font-size: 1.3em;
-
-		&:hover {
-			text-decoration: none;
-			color: #FFF;
-		}
-	}
-
-	/* Loading Indicator */
-
-	@-webkit-keyframes swipe {
-		0% {
-			opacity: 0;
-			-webkit-transform: scale( 0, 1 );
-			transform: scale( 0, 1 );
-			-webkit-transform-origin: left;
-			transform-origin: left;
-		}
-		50% {
-			opacity: 0.5;
-			-webkit-transform: scale( 1, 1 );
-			transform: scale( 1, 1 );
-			-webkit-transform-origin: left;
-			transform-origin: left;
-		}
-		51% {
-			opacity: 0.5;
-			-webkit-transform: scale( 1, 1 );
-			transform: scale( 1, 1 );
-			-webkit-transform-origin: right;
-			transform-origin: right;
-		}
-		100% {
-			opacity: 0;
-			-webkit-transform: scale( 0, 1 );
-			transform: scale( 0, 1 );
-			-webkit-transform-origin: right;
-			transform-origin: right;
-		}
-	}
-
-	@keyframes swipe {
-		0% {
-			opacity: 0;
-			-webkit-transform: scale( 0, 1 );
-			transform: scale( 0, 1 );
-			-webkit-transform-origin: left;
-			transform-origin: left;
-		}
-		50% {
-			opacity: 0.5;
-			-webkit-transform: scale( 1, 1 );
-			transform: scale( 1, 1 );
-			-webkit-transform-origin: left;
-			transform-origin: left;
-		}
-		51% {
-			opacity: 0.5;
-			-webkit-transform: scale( 1, 1 );
-			transform: scale( 1, 1 );
-			-webkit-transform-origin: right;
-			transform-origin: right;
-		}
-		100% {
-			opacity: 0;
-			-webkit-transform: scale( 0, 1 );
-			transform: scale( 0, 1 );
-			-webkit-transform-origin: right;
-			transform-origin: right;
-		}
-	}
-
-	.ulb_loading_indicator {
-		position: absolute;
-		bottom: 0;
-		height: 2px;
-		left: 0;
-		right: 0;
-		background-color: white;
-		opacity: 0.5;
-		animation: swipe 2s ease-out;
-		animation-iteration-count: infinite;
-		transform-origin: center;
-		display: none;
-	}
-
-	.loading .ulb_loading_indicator {
-		display: block;
-	}
-
-	/* Login Links */
-
-	#fb_login_head, #gplus_login_head, #civic_login_head, #wh_login_head {
-		width: 170px;
-	}
-
-	.ulb_icon {
-		height: 49px;
-		width: 100%;
-		left: 0;
-		position: absolute;
-		filter: alpha(opacity=10);
-		opacity: 0.10;
-		border-radius: 2px;
-	}
-	.ulb_button:hover .ulb_icon  {
-		background-color: #000;
-	}
-
-	.ulb_button.loading {
-		opacity: 0.75;
-		cursor: default;
-	}
-
-	.ulb_status {
-		display: none;
-	}
-
-	.ulb_describe.loading {
-		.ulb_label {
-			display: none;
-		}
-
-		.ulb_status {
-			display: block;
-		}
-	}
-
-	#fb_login, #fb_login_head {
-		background: #365494 url(/extensions/wikihow/userloginbox/images/ulb_facebook.png) 2px center / 45px no-repeat;
-		/* @embed */
-		background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
-	}
-
-	#gplus_login, #gplus_login_head {
-		background: #3F82F7 url(/extensions/wikihow/userloginbox/images/ulb_google.png) 2px center / 45px no-repeat;
-		/* @embed */
-		background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
-	}
-
-	#civic_login, #civic_login_head {
-		background: #AAAAAA url(/extensions/wikihow/userloginbox/images/ulb_civic.png) 2px center / 45px no-repeat;
-		/* @embed */
-		background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
-	}
-
-	.ulb_login {
-		background: #93b874 url(/extensions/wikihow/userloginbox/images/ulb_person.png) 2px center / 45px no-repeat;
-		/* @embed */
-		background-image: url(/extensions/wikihow/userloginbox/images/ulb_person.svg);
 	}
 
 	#qa .wh_ad_inner {
@@ -1803,6 +1640,7 @@
 		}
 		.sp_top_icon_bg {
 			position: absolute;
+			left: 15px;
 			width: 50px;
 			height: 50px;
 			background-color: #ADC996;
@@ -1814,7 +1652,7 @@
 		}
 
 		#sp_section_name {
-			color: #8f8f8f;
+			color: @fontColor;
 			font-size: 11px;
 			padding-bottom: 6px;
 		}
@@ -1930,9 +1768,6 @@
 		#sp_expert_name {
 			font-size: 16px;
 			font-weight: bold;
-		}
-		#sp_expert_name a {
-			color: @fontColor;
 		}
 		#sp_expert_blurb {
 			padding-top: 2px;

@@ -38,5 +38,7 @@
 		}
 	}
 
-	WH.GreenBoxCTA.init();
+	if ($(window).width() >= WH.largeScreenMinWidth) {
+		WH.GreenBoxCTA.init();
+	}
 })(jQuery, mw);

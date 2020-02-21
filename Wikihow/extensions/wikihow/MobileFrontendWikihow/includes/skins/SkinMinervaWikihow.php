@@ -409,7 +409,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($wgLanguageCode == "en" && class_exists('Spellchecker')) {
 			$items['spellchecker'] = array(
 				'text' => wfMessage( 'menu-spellchecker' )->escaped(),
-				'href' => Title::makeTitle(NS_SPECIAL, "Spellchecker")->getLocalUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "MobileSpellchecker")->getLocalUrl(),
 				'class' => 'icon-spellchecker',
 				'id' => 'icon-spellchecker',
 			);
@@ -460,7 +460,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		if ($hasCommunityTools) {
 			$items['morethings'] = array(
 				'text' => wfMessage('menu-morethings')->text(),
-				'href' => Title::makeTitle(NS_SPECIAL, "CommunityDashboard")->getLocalUrl(),
+				'href' => Title::makeTitle(NS_SPECIAL, "MobileCommunityDashboard")->getLocalUrl(),
 				'class' => 'icon-morethings',
 				'id' => 'icon-morethings',
 			);
@@ -764,7 +764,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		if (is_array($hreflangs) && !empty($hreflangs)) {
 			// Include self-referencing hreflang
-			$href = PROTO_HTTPS . Misc::getCanonicalDomain('', true) . $this->getTitle()->getLocalURL();
+			$href = PROTO_HTTPS . Misc::getCanonicalDomain('', Misc::isMobileModeLite()) . $this->getTitle()->getLocalURL();
 			array_unshift($hreflangs, ['code' => $wgLanguageCode, 'href' => $href]);
 			foreach ($hreflangs as $item) {
 				$lang = $item['code'];

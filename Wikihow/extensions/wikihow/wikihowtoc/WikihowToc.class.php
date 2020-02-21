@@ -96,7 +96,7 @@ class WikihowToc {
 	public static function setQandA(array $articleQuestions) {
 		$expertAnswers = 0;
 		foreach ($articleQuestions as $aq) {
-			if ($aq->getVerifierId()) $expertAnswers++;
+			if ($aq->getVerifierId() && !$aq->getInactive()) $expertAnswers++;
 		}
 
 		if ($expertAnswers > self::QA_EXPERT_MINIMUM) {
@@ -233,6 +233,27 @@ class WikihowToc {
 
 	}
 
+	private static function getExpertAdvice() {
+		$section_name = pq( '#expertadvice' )->length() ? 'expertadvice' : '';
+		if ( $section_name == '' && pq( '#expertqampa' )->length() ) {
+			$section_name = 'expertqampa';
+		}
+		if ( $section_name == '' ) {
+			return null;
+		}
+
+		$section_text = pq('.'.$section_name)->find('h2 span.mw-headline')->text();
+
+		$result = [
+			'url' => '#'.$section_name,
+			'id' => 'ea_toc',
+			'section' => '#'.$section_name,
+			'text' => $section_text
+		];
+
+		return $result;
+	}
+
 	public static function addMobileToc() {
 		self::processMethodNames();
 
@@ -303,7 +324,16 @@ class WikihowToc {
 					self::$videoSummary['class'] .= $tocIgnoreClass;
 				}
 			}
-			if(self::$qanda != null && self::$hasAnswers) {
+			self::$expertAdvice = self::getExpertAdvice();
+			if ( self::$expertAdvice ) {
+				self::$expertAdvice['class'] .= $tocPost;
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$expertAdvice['class'] .= $tocIgnoreClass;
+				}
+			}
+			if(self::$qanda != null && !self::$expertAdvice && self::$hasAnswers) {
 				self::$qanda['class'] .= $tocPost;
 				if ($count < $secondaryShown) {
 					$count++;
@@ -339,8 +369,12 @@ class WikihowToc {
 				//goes before steps
 				$data['toc'] = array_merge([self::$ingredients], $data['toc']);
 			}
+
+			if (self::$expertAdvice != null) {
+				$data['toc'][] = self::$expertAdvice;
+			}
 			//q&a
-			if (self::$qanda != null) {
+			if (self::$qanda != null && !self::$expertAdvice) {
 				$data['toc'][] = self::$qanda;
 			}
 			if (self::$videoSummary != null) {

@@ -1,4 +1,6 @@
-.green_box_cta {
+a.green_box_cta,
+a.green_box_cta:visited,
+a.green_box_cta:active {
 	display: none;
 	font-size: .8em;
 	font-weight: bold;

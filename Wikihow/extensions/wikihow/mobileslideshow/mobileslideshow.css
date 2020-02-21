@@ -444,6 +444,16 @@ a.pswp__share--download:hover {
 	height: 33px;
 	width: 100%; }
 
+/* TODO: if this ever gets converted to a less file, use @large variable for media query */
+@media only screen and (min-width:975px) {
+	.pswp__top-bar {
+		top: 72px;
+	}
+	.shrunk_header .pswp__top-bar {
+		top: 42px;
+	}
+}
+
 @media all and (orientation:portrait) {
 	.pswp__top-bar {
 		height: 44px;
@@ -507,4 +517,6 @@ a.pswp__share--download:hover {
 
 .pswp__caption__info {
 	font-size: 12px;
+	margin: 10px auto;
+	max-width: 737px;
 }

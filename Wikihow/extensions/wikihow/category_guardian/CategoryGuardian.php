@@ -10,6 +10,8 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['CategoryGuardian'] = 'CategoryGuardian';
+$wgSpecialPages['MobileCategoryGuardian'] = 'CategoryGuardian';
+
 $wgAutoloadClasses['CategoryGuardianStandingsGroup'] = __DIR__ . '/CategoryGuardianStandingsGroup.php';
 $wgAutoloadClasses['CategoryGuardianStandingsIndividual'] = __DIR__ . '/CategoryGuardianStandingsIndividual.php';
 

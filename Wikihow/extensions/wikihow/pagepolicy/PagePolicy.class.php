@@ -192,6 +192,13 @@ class PagePolicy {
 				$userPageOverride = $user && $user->getID() !== 0;
 			}
 
+			$specialPageOverride = false;
+			if( $wgTitle->inNamespace(NS_SPECIAL) && Misc::isMobileMode() ) {
+				$spFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
+				$specialPage = $spFactory->getPage( $wgTitle->getDBkey() );
+				$specialPageOverride = is_null($specialPage) && $wgUser->getID() == 0;
+			}
+
 			// If it's a special page URL and that special page exists, prompt
 			// the user to login on the 404 page
 			$virtualLogin = false;
@@ -213,6 +220,7 @@ class PagePolicy {
 				|| $virtualLogin
 				|| $wgTitle->inNamespaces(NS_TALK, NS_USER, NS_USER_TALK)
 				|| $userPageOverride
+				|| $specialPageOverride
 			) {
 				if ( $wgTitle->inNamespace( NS_MAIN ) && self::isVisibleAction( $out->getRequest() ) ) {
 					$login = Title::newFromText( 'Special:UserLogin' );
@@ -226,6 +234,17 @@ class PagePolicy {
 							'search_header' => wfMessage( 'pagepolicy_search_header' )->text(),
 							'searchbox' => SearchBox::render( $out ),
 							'home_message' => wfMessage( 'pagepolicy_home_message' )->parse()
+						]
+					) );
+				} elseif ($specialPageOverride) {
+					$login = Title::newFromText( 'Special:UserLogin' );
+					$url = $login->getCanonicalURL( [ 'returnto' => $wgTitle->getPrefixedUrl() ] );
+					$out->setPageTitle(wfMessage( 'pagepolicy_special_header' )->text());
+					$out->addHTML( self::render( 'special_not_exists',
+						[
+							'special_message' => wfMessage( 'Noarticletextanon' )->parse(),
+							'search_header' => wfMessage( 'pagepolicy_search_header' )->text(),
+							'searchbox' => SearchBox::render( $out )
 						]
 					) );
 				} else {

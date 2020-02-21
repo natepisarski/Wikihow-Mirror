@@ -13,6 +13,13 @@ class WikihowUserPage extends Article {
 	var $user;
 	var $isPageOwner;
 
+	private static $hideTabs = null;
+
+	public function __construct() {
+		global $wgHooks;
+		$wgHooks['ShowArticleTabs'][] = [$this, 'onShowArticleTabs'];
+	}
+
 	public static function onArticleFromTitle($title, &$page) {
 		$isMobileMode = Misc::isMobileMode();
 
@@ -319,6 +326,7 @@ class WikihowUserPage extends Article {
 			'badges' => $isUserPageView ? $this->userBadges() : [],
 			'isLoggedIn' => $viewUser->isLoggedIn(),
 			'showBio' => $bioData['pb_display_show'] && $isUserPageView,
+			'bioName' => $bioData['pb_display_name'],
 			'location' => $bioData['pb_live'] ? wfMessage('pb-livesin', $livesIn)->text() : '',
 			'startDate' => wfMessage('pb-beenonwikihow', $startedOn)->text(),
 			'showEmail' => $showEmail,
@@ -356,9 +364,7 @@ class WikihowUserPage extends Article {
 	private function userTabs(): array {
 		global $IP;
 
-		$hideTabs = $this->getContext()->getUser()->isAnon() &&
-			!in_array( $this->getTitle()->getDBKey(), UserPagePolicy::listUserTalkAnonVisible());
-		if ($hideTabs) return [];
+		if (self::hideTabsForUserPages()) return [];
 
 		return [
 			[
@@ -376,6 +382,17 @@ class WikihowUserPage extends Article {
 				'selected' => $this->getTitle()->inNamespace(NS_USER_TALK)
 			]
 		];
+	}
+
+	private static function hideTabsForUserPages(): bool {
+		if (!is_null(self::$hideTabs)) return self::$hideTabs;
+
+		$context = RequestContext::getMain();
+
+		self::$hideTabs = $context->getUser()->isAnon() &&
+			!in_array( $context->getTitle()->getDBKey(), UserPagePolicy::listUserTalkAnonVisible());
+
+		return self::$hideTabs;
 	}
 
 	private function statsHTML($stats) {
@@ -571,6 +588,10 @@ class WikihowUserPage extends Article {
 		$m = new Mustache_Engine([ 'loader' => $loader ]);
 
 		return $m->render($template, $vars);
+	}
+
+	public static function onShowArticleTabs( &$showTabs ) {
+		$showTabs = !self::hideTabsForUserPages();
 	}
 
 }

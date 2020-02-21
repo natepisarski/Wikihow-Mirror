@@ -564,7 +564,7 @@ class WikihowMobileTools {
 							$layout = "fixed";
 						}
 						$ampImg = GoogleAmp::getAmpArticleImg( $smallSrc, $smallWidth, $smallHeight, $srcSet, $layout );
-						pq($img)->replaceWith( $ampImg );
+						pq( $a )->replaceWith( $ampImg );
 					}
 					continue;
 				}
@@ -772,7 +772,7 @@ class WikihowMobileTools {
 
 				if (pq("p", $summarySection)->length > 0) {
 					//move the text part only to the article info section
-					$summaryText = pq("p", $summarySection);
+					$summaryText = pq("p.text_summary_wrapper", $summarySection);
 					$summaryText->attr("id", "summary_text")->wrap("<div id='summary_wrapper' class='section_text'></div>");
 					pq("#social_proof_mobile")->after(pq("#summary_wrapper", $summarySection));
 					pq("#summary_wrapper")->prepend("<a href='#summary_wrapper' class='collapse_link'>" . wfMessage("summary_toc")->text() . "<span id='summary_close'>X</span></a>");
@@ -1618,8 +1618,9 @@ class WikihowMobileTools {
 		$referencesHtml = $referencesFirst;
 
 		// create a show more link if needed
-		if ( pq( $sourcesSection )->find( 'li' )->length > 0 ) {
-			$showMore = Html::element( 'a', ['id' => 'info_link', 'href' => '#aiinfo'], wfMessage('more_references')->text() );
+		$moreCount = pq( $sourcesSection )->find( 'li' )->length;
+		if ( $moreCount > 0 ) {
+			$showMore = Html::element( 'a', ['id' => 'info_link', 'href' => '#aiinfo'], wfMessage('more_references', $moreCount)->text() );
 			$sectionText = Html::rawElement( 'div', ['id'=>'articleinfo', 'class'=>'section_text'], $showMore );
 			$articleInfoHtml = Html::rawElement( 'div', ['id' => 'aiinfo', 'class' => 'section articleinfo'], $sectionText );
 			$referencesHtml .= $articleInfoHtml . $sourcesSection;

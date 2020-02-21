@@ -1,8 +1,9 @@
 <div id="spch-container" class="tool">
 	<div id="spch-head" class="spch-head tool_header">
-	<p id="spch_help" class="tool_help"><a href="/Use-the-wikiHow-Spell-Checker" target="_blank">Learn how</a></p>
-        <div id="spch-prompt">
-		<h1><?= wfMessage('spch-question'); ?></h1>
+		<p id="spch_help" class="tool_help"><a href="/Use-the-wikiHow-Spell-Checker" target="_blank">Learn how</a></p>
+		<div id="spch-prompt">
+			<h1><?= wfMessage('spch-question'); ?></h1>
+			<p id="spch-disclaimer"><?= $desktopDisclaimer ?></p>
 		</div>
 		<div id="spch-snippet" class="spch-snippet clearall">
 			<?=wfMessage('spch-loading-next')->text();?>

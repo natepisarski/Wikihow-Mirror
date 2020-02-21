@@ -8,9 +8,16 @@ class Spellchecker extends UnlistedSpecialPage {
 	const SPCH_IDS_LAST_CHECKED_KEY = 'spch_avail_ids_last_checked1';
 
 	public function __construct() {
-		global $wgHooks;
-		parent::__construct('Spellchecker');
+		global $wgHooks, $wgTitle;
+
+		$this->specialPage = $wgTitle->getPartialUrl();
+		parent::__construct($this->specialPage);
+
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
+	}
+
+	public function isMobileCapable() {
+		return true;
 	}
 
 	public function execute($par) {
@@ -482,6 +489,11 @@ class Spellchecker extends UnlistedSpecialPage {
 	 */
 	protected function addSpellCheckerTemplateHtml($out) {
 		$tmpl = new EasyTemplate(__DIR__);
+
+		$tmpl->set_vars([
+			'desktopDisclaimer' => wfMessage('mobile-desktop-cta', 'Special:MobileSpellchecker')->parse()
+		]);
+
 		$out->addHTML($tmpl->execute('Spellchecker.tmpl.php'));
 	}
 

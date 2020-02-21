@@ -70,6 +70,11 @@ class MobileFrontendWikiHowHooks {
 			}
 
 			if ($wgTitle && $wgTitle->inNamespace(NS_USER)) {
+				// for the responsive on www rollout
+				if ( !Misc::isMobileModeLite() ) {
+					$mobileAllowed = true;
+				}
+
 				if ($wgUser->getID() > 0) { //if the current user is logged in
 					$userName = $wgTitle->getText();
 					$user = User::newFromName($userName);
@@ -158,8 +163,7 @@ class MobileFrontendWikiHowHooks {
 			$out->addModuleStyles('ext.wikihow.nonarticle_styles');
 		}
 
-		if ($wgTitle->inNamespace(NS_SPECIAL)
-			&& $page_title == SpecialPage::getTitleFor( 'Notifications' )) {
+		if ($wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getPartialUrl() == 'MobileNotifications' ) {
 			$out->addModuleStyles('zzz.mobile.wikihow.notifications');
 		}
 
@@ -275,7 +279,15 @@ class MobileFrontendWikiHowHooks {
 			'About-wikiHow.tech',
 			'About-wikiHow.pet',
 			'About-wikiHow.life',
-			'About-wikiHow-fun'
+			'About-wikiHow-fun',
+			'Language-Projects',
+			'Mission',
+			'Creative-Commons',
+			'Gives-Back',
+			'Powered-and-Inspired-by-MediaWiki',
+			'Carbon-Neutral',
+			'Hybrid-Organization',
+			'Tour'
 		];
 
 		$specialPagesWithCss = [
@@ -289,13 +301,21 @@ class MobileFrontendWikiHowHooks {
 			'UserLogin',
 			'CreateAccount',
 			'UserLogout',
-			'PasswordReset'
+			'PasswordReset',
+			'MobileCommunityDashboard',
+			'MobileNotifications'
 		];
 
 		$responsiveTools = [
 			'TechFeedback',
 			'SortQuestions',
-			'QuizYourself'
+			'QuizYourself',
+			'MobileSpellchecker',
+			'RCLite',
+			'MobileUCIPatrol',
+			'UnitGuardian',
+			'MobileTopicTagging',
+			'MobileCategoryGuardian'
 		];
 
 		self::$isvalidResponsivePage = $title &&
@@ -336,11 +356,6 @@ class MobileFrontendWikiHowHooks {
 		$ctx = MobileContext::singleton();
 		if ( $ctx->shouldDisplayMobileView() ) {
 			$list['MobileLoggedOutComplete'] = 'SpecialMobileLoggedOutComplete';
-			if ( $wgLanguageCode == "en" ) {
-				$list['Spellchecker'] = 'MobileSpellchecker';
-				$list['PicturePatrol'] = 'MobileUCIPatrol';
-				$list['RCPatrol'] = 'RCLite';
-			}
 		}
 		return true;
 	}

@@ -82,7 +82,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 			$fields = explode("\t", $line);
 			// skip any line that doesn't have at least a pageid and a custom title/desc
 			if (count($fields) < 2) continue;
-			$fields = array_map(trim, $fields);
+			$fields = array_map('trim', $fields);
 			// skip first line if it's the pageid\t... header
 			$categoryUrl = $fields[0];
 			$title = Title::newFromText(Misc::fullUrlToPartial($categoryUrl), NS_CATEGORY);

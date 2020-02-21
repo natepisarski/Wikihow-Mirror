@@ -11,6 +11,7 @@ $messages['en'] = array (
 	'footer-search-placeholder' => 'Search How to...',
 	'header-search-placeholder' => 'Search wikiHow...',
 	'surprise-me-footer' => 'Surprise Me!',
+	'mobile-desktop-cta' => 'On a mobile device? [[$1|Try this mobile friendly version of the tool]]!',
 	//login page
 	'mobile-frontend-login-title' => 'Welcome to wikiHow',
 	'mobile-frontend-edit-login-wh' => 'Welcome Back!',

@@ -29,10 +29,11 @@ class GoogleAmp {
 
 	// Jordan: Setting up an amp test for a list of articles
 	public static function isAmpSpeedTest($t) {
-		global $wgLanguageCode;
+		global $wgLanguageCode, $wgUser;
 
 		$isSpeedTest = false;
 		if (in_array($wgLanguageCode, ["pt", "es", "en"])
+			&& $wgUser->isAnon()
 			&& Misc::isMobileMode()
 			&& $t->inNamespace(NS_MAIN)
 			&& ArticleTagList::hasTag( 'amp_speed_test', $t->getArticleID()) ) {

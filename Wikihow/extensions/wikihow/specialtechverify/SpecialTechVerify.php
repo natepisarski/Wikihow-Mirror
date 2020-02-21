@@ -24,6 +24,7 @@ $wgResourceModules['ext.wikihow.specialtechverify'] = array(
 	'targets' => array( 'desktop', 'mobile' ),
 	'dependencies' => [
 		'wikihow.common.querybuilder',
+		'jquery.cookie'
 	],
 );
 

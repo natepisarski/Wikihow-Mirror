@@ -13,9 +13,13 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	const GLOBAL_DATA_REFRESH_TIME_SECS = 15;
 	const USER_DATA_REFRESH_TIME_SECS = 180;
 	const USERNAME_MAX_LENGTH = 12;
+
 	public function __construct() {
-		global $wgHooks;
-		parent::__construct('CommunityDashboard');
+		global $wgHooks, $wgTitle;
+
+		$this->specialPage = $wgTitle->getPartialUrl();
+		parent::__construct($this->specialPage);
+
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
@@ -102,7 +106,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			$out->setRobotPolicy('noindex,nofollow');
 			$out->addModules( ['jquery.ui.sortable', 'jquery.ui.dialog'] );
 
-			$isMobile = MobileContext::singleton()->shouldDisplayMobileView();
+			$isMobile = $this->getTitle()->getPartialUrl() == 'MobileCommunityDashboard';
 
 			if ($isMobile) {
 				$html = $this->displayMobileContainer();
@@ -268,6 +272,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			'tipsLink' => $tipsLink,
 			'needBoosterAlert' => $needBoosterAlert,
 			'NABcount' => $nabCount,
+			'desktopDisclaimer' => wfMessage('mobile-desktop-cta', 'Special:MobileCommunityDashboard')->parse()
 		));
 
 		$html = $tmpl->execute('dashboard-container.tmpl.php');
