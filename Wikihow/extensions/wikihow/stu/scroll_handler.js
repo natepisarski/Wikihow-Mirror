@@ -69,7 +69,7 @@ function maybeDoStatsPing() {
 
 // check wgNamespaceNumber to make sure it's NS_MAIN and wgIsArticle
 // to make sure we're not on the edit/history/etc page
-if (mw.config.get('wgNamespaceNumber') === 0 && mw.config.get('wgIsArticle')) {
+if (WH.pageNamespace === 0 && mw.config.get('wgIsArticle')) {
 	WH.addThrottledScrollHandler(maybeDoStatsPing);
 }
 

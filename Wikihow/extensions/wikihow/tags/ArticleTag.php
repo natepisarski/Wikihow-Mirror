@@ -225,14 +225,18 @@ class ArticleTag {
 		// add a variable to see if we are in the test group for image lazy loaidng
 		$nativeBrowserLazyLoading = 0;
 		$title = $out->getTitle();
-		//if ( ArticleTagList::hasTag( 'native_browser_lazy_loading', $out->getTitle()->getArticleID() ) ) {
-			//$nativeBrowserLazyLoading = 1;
-		//}
 		if ( $title->inNamespace( NS_MAIN ) && $title->getArticleID() % 2 == 1 ) {
 			$nativeBrowserLazyLoading = 1;
 		}
 		$nativeBrowserLazyLoadingScript =  "window.WH.nativeBrowserLazyLoadingTest=$nativeBrowserLazyLoading;";
 		$out->addHeadItem( 'native_browser_lazy_loading',  HTML::inlineScript( $nativeBrowserLazyLoadingScript ) );
+
+		$jsFastRender = 0;
+		if ( ArticleTagList::hasTag( 'js_fast_render', $out->getTitle()->getArticleID() ) ) {
+			$jsFastRender = 1;
+		}
+		$nativeBrowserLazyLoadingScript =  "window.WH.jsFastRender=$jsFastRender;";
+		$out->addHeadItem( 'js_fast_render',  HTML::inlineScript( $nativeBrowserLazyLoadingScript ) );
 	}
 
 	// For automated testing

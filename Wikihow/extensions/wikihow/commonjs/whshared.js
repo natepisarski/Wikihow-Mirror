@@ -24,10 +24,16 @@ WH.shared = (function () {
 	isLargeSize = !isSmallSize && !isMedSize,
 	isDesktopSize = isLargeSize,
 	useBrowserNativeLazyLoading = false,
+	intersectionObserverRootMargin = "0px 0px 100% 0px",
 	lazyLoadingObserver = null;
 
 	if ('loading' in HTMLImageElement.prototype && WH.nativeBrowserLazyLoadingTest == 1) {
 		useBrowserNativeLazyLoading = true;
+	}
+
+	if (WH.jsFastRender == 1) {
+		useBrowserNativeLazyLoading = false;
+		intersectionObserverRootMargin = "0px 0px 0px 0px";
 	}
 
 	if (useBrowserNativeLazyLoading == false && "IntersectionObserver" in window) {
@@ -39,7 +45,7 @@ WH.shared = (function () {
 				}
 			});
 		}, {
-			rootMargin: "0px 0px 100% 0px"
+			rootMargin: intersectionObserverRootMargin
 		});
 	}
 

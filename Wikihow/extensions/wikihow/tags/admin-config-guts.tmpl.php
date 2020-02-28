@@ -70,7 +70,7 @@
 <div id="cs-edit-history">
 	<br>
 	<br>
-	<p><span style="text-decoration: underline">History</span> (last 20 changes)</p>
+	<p><span style="text-decoration: underline">History</span> (most recent changes)</p>
 	<tt>
 	<table>
 		<colgroup>
@@ -137,6 +137,9 @@
 
 	<p class="underline">Summary</p>
 	<p class="csh-summary"></p>
+
+	<p class="underline">Editor</p>
+	<p class="csh-editor"></p>
 
 	<p class="underline">Changes</p>
 	<p class="csh-changes"></p>

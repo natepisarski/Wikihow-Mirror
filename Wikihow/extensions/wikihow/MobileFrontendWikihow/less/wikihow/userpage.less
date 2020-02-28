@@ -292,10 +292,9 @@ iframe[src^="https://apis.google.com"] {
 .discussion_entry,
 #discussion_entry {
 	padding: 15px;
-	margin: 15px 0 15px 65px;
+	margin: 0 0 15px 65px;
 	position: relative;
 	background-color: #FFF;
-	border: 1px solid #DDD;
 	border-radius: 5px;
 	word-break: break-word;
 }
@@ -365,6 +364,13 @@ iframe[src^="https://apis.google.com"] {
 			display: inline;
 		}
 	}
+}
+
+.user_talk {
+	background: #EDEDED;
+	border-radius: @borderRadius;
+	padding: 1em;
+	margin-top: 1em;
 }
 
 .stable .content {
@@ -612,17 +618,15 @@ iframe[src^="https://apis.google.com"] {
 		.postcomment_usericon {
 			margin-bottom: .2em;
 		}
-	}
 
-	.de_user img,
-	.user_kudos .de_user img,
-	.postcomment_usericon img {
-		position: absolute;
-		top: 1em;
-		left: 1em;
-	}
+		.de_user img,
+		.user_kudos .de_user img,
+		.postcomment_usericon img {
+			position: absolute;
+			top: 1em;
+			left: 1em;
+		}
 
-	.stable .content {
 		.de_comment,
 		.discussion_entry_comment {
 			font-size: .9em;

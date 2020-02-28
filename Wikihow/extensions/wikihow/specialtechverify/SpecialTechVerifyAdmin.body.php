@@ -472,7 +472,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	/**
 	 * @return Google_Spreadsheet_File
 	 */
-	private static function getSheetsFile( $isSummaryVideoFeedback = false ): Google_Spreadsheet_File {
+	private static function getSheetsFile(): Google_Spreadsheet_File {
 		global $wgIsProduction;
 
 		$keys = (Object)[

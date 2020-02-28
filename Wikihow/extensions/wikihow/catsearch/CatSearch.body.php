@@ -11,7 +11,11 @@ class CatSearch extends UnlistedSpecialPage {
 		$out->setRobotPolicy( 'noindex,nofollow' );
 
 		$out->setArticleBodyOnly(true);
-		if ($q = $this->getRequest()->getVal('q')) {
+		$r = $this->getRequest();
+		$q = $this->getRequest()->getVal('q', null);
+		if ($r->getVal('t', '') === 'categorizer' && $q) {
+			echo json_encode(array("results" => $this->formatResults($this->categorizerSearch($q))));
+		} else if ($q) {
 			echo json_encode(array("results" => $this->formatResults($this->catToolSearch($q))));
 		}
 
@@ -99,7 +103,7 @@ class CatSearch extends UnlistedSpecialPage {
 
 		$key = wfMemcKey("cattoolsearch_" . strtolower($q));
 		$results = $wgMemc->get($key);
-		if (!is_string($results)) {
+		if (!$results) {
 			$catSearchResults = $this->catSearch($q);
 			if (sizeof($catSearchResults) > 5) {
 				$catSearchResults = array_splice($catSearchResults, 0, 5);
@@ -112,6 +116,54 @@ class CatSearch extends UnlistedSpecialPage {
 			}
 
 			$results = array_unique(array_merge($catSearchResults, $partialMatches));
+			$wgMemc->set($key, $results);
+		}
+		return $results;
+	}
+
+	/**
+	 * Return the topmost categories related to found results for a given query.
+	 *
+	 * @param $q
+	 * @return array|mixed
+	 */
+	function categorizerSearch($q) {
+		global $wgMemc;
+		$key = wfMemcKey("categorizer_search" . strtolower($q));
+		$results = $wgMemc->get($key);
+		if (!$results) {
+			$catSearchResults = $this->catSearch($q);
+			if (sizeof($catSearchResults) > 5) {
+				$catSearchResults = array_splice($catSearchResults, 0, 10);
+			}
+			$results = $catSearchResults;
+
+			$topMostCats = [];
+			$trees = [];
+			foreach ($results as  $cat) {
+				$t = Title::newFromText($cat, NS_CATEGORY);
+				if ($t && $t->exists()) {
+					$tree = CategoryHelper::getCurrentParentCategoryTree($t);
+					foreach ($tree as $treeKey => $catTree) {
+						$treeDump['category'] = $cat;
+						$treeDump['treeKey'] = $treeKey;
+						$newTree = [$treeKey => $catTree];
+						$flattenedTree = CategoryHelper::flattenArrayCategoryKeys($newTree);
+						$treeDump['flattenedTree'] = $flattenedTree;
+						$flattenedTree =  array_splice(array_reverse($flattenedTree), 0, 4);
+						$flattenedTree = array_map(function($i) {
+							return  str_replace('Category:', '', $i);
+						}, $flattenedTree);
+						$treeDump['flattenedTreeSpliced'] = $flattenedTree;
+						$topMostCats = array_merge($topMostCats, $flattenedTree);
+						$trees []= $treeDump;
+					}
+				}
+			}
+			$topMostCats = array_splice(array_unique($topMostCats), 0, 10);
+			$topMostCats = array_filter($topMostCats, function($i) { return !$this->ignoreCategory($i);});
+			$results = $topMostCats;
+
 			$wgMemc->set($key, $results);
 		}
 		return $results;

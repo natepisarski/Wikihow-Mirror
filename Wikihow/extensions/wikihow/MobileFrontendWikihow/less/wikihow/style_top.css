@@ -17,7 +17,6 @@ acronym,
 address,
 big,
 cite,
-code,
 del,
 ins,
 em,
@@ -159,6 +158,12 @@ a:active, a:hover {
 	color: #439B05;
 	text-decoration: underline;
 }
+a.new {
+	color: #B30000;
+}
+a[title^='User'] {
+	color: #307530;
+}
 
 a.external {
 	background-image: none;
@@ -210,6 +215,7 @@ a.external {
 	white-space: nowrap;
 	margin: 0 auto;
 	width: 100%;
+	border-top: none;
 }
 .header > * {
   width: 3em;
@@ -1167,9 +1173,6 @@ body.action-view #fa_container p {
 	font-size: 1em;
 }
 .mw-mf-display-toggle {
-	/* @embed */
-	background: url(/extensions/wikihow/MobileFrontendWikihow/images/wikihow/icon-full.svg) 0 .2em / 17px no-repeat;
-	padding-left: 25px;
 	bottom: 0;
 	margin: 3em 0 10px 13px;
 	color: #AFAFAF;

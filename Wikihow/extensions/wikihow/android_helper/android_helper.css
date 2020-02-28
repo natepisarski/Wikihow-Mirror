@@ -41,3 +41,25 @@ div.video {
 #qa_show_more_answered {
 	display: none;
 }
+
+#hp_container_outer {
+	margin-top: 0;
+}
+
+
+#catlist, #cat_grid {
+	display: block;
+}
+
+#catlist a {
+	display: initial;
+}
+
+.responsive_thumb {
+	margin-bottom: 10px;
+}
+
+.hp_thumb {
+	margin-bottom: 5px;
+}
+

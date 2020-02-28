@@ -315,6 +315,10 @@
 	border-radius: 8px;
 }
 
+#cat_text_only {
+	display: none;
+}
+
 @media @medium {
 	#subcats {
 		grid-template-columns: 1fr 1fr;
@@ -366,5 +370,11 @@
 @media @large {
 	.cat_grid {
 		grid-template-columns: repeat(6, minmax(0, 1fr));
+	}
+
+	#cat_text_only {
+		float: right;
+		font-size: 12px;
+		display: block;
 	}
 }

@@ -559,11 +559,16 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 		parent::prepareHeaderAndFooter( $tpl );
 		$title = $this->getTitle();
+		$customTitle = CustomTitle::newFromTitle( $title );
 		$out = $this->getOutput();
 
 		$pageHeading = '';
 		if (!$title->isMainPage()) {
-			$pageHeading = $out->getPageTitle();
+			if ( $customTitle) {
+				$pageHeading = $customTitle->getHeading();
+			} else {
+				$pageHeading = $out->getPageTitle();
+			}
 		}
 
 		if ( $title->isSpecialPage() ) {
@@ -582,10 +587,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		} else {
 			if ( $pageHeading ) {
 				if ($title->inNamespace(NS_MAIN)) {
-					//standard; add "How to"
-					$titleMsg = $wgLanguageCode == 'ja' ? 'howto_article_heading' : 'howto';
-					$titleTxt = wfMessage($titleMsg, $pageHeading)->text();
-					$titleTxt = HTML::rawElement( 'a', [ 'href' => $title->getFullURL() ], $titleTxt);
+					$titleTxt = HTML::rawElement( 'a', [ 'href' => $title->getFullURL() ], $pageHeading);
 				} else {
 					$titleTxt = $pageHeading;
 				}
@@ -633,24 +635,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		$randomLink = '<a href="/Special:Randomizer" >' . wfMessage('randompage')->text() . '</a>';
 		$tpl->set('random', $randomLink);
 
-		// Don't create this link for non-en anon users due to GSC problems relating to mobile usability.
-		// This is a test implementation to see if we can please the Google gods.
-		$isAnon = $this->getUser()->isAnon();
-
-		// Create url to switch to desktop site (and set cookie so varnish
-		// doesn't redirect user right back).
-		if ( ! $this->isMobileAnonOnly($title) && !$isAnon ) {
-			$req = $this->getRequest();
-			$url = $this->getDesktopUrl( wfExpandUrl(
-				$this->getTitle()->getLocalURL( $req->appendQueryValue( 'mobileaction', 'toggle_view_desktop' ) )
-			) );
-			$fullSiteText = wfMessage( 'mobile-frontend-view-desktop-wh' )->escaped();
-			$switcherHtml = self::getMobileMenuFullSiteLink( $fullSiteText, $url );
-		} else {
-			// There are certain special pages which only run on our mobile
-			// site, so we don't want to display a "Desktop site" link for these.
-			$switcherHtml = '';
-		}
+		$switcherHtml = self::getMobileTOSLink( );
 		$tpl->set( 'mobile-switcher', $switcherHtml );
 	}
 
@@ -662,21 +647,17 @@ class SkinMinervaWikihow extends SkinMinerva {
 	}
 
 	// annoying but for gdpr we make the section twice and use the one that is appropriate
-	public static function getMobileMenuFullSiteLink( $message, $url ) {
-		$first = Html::rawElement( 'a', ['class' => 'mw-mf-display-toggle-link gdpr-menu', 'href' => $url], $message );
-		$original = Html::rawElement( 'div', ['class' => ['mw-mf-display-toggle', 'gdpr_no_display']], $first );
-
+	public static function getMobileTOSLink( ) {
 		$gdprText = wfMessage('gdpr_mobile_menu_bottom')->text();
 		$href = Title::newFromText( wfMessage("gdpr_mobile_menu_bottom_link")->text(), NS_PROJECT )->getLinkURL();
 		$attr = array(
 			'href' => $href,
 			'class' => 'gdpr-menu'
 		);
-		$gdpr .= Html::element( "span", [], " | " );
-		$gdpr .= Html::rawElement( 'a', $attr, $gdprText );
-		$gdpr = Html::rawElement( 'div', ['class' => ['mw-mf-display-toggle', 'gdpr_only_display']], $first . $gdpr );
+		$gdpr = Html::rawElement( 'a', $attr, $gdprText );
+		$gdpr = Html::rawElement( 'div', ['class' => ['mw-mf-display-toggle']], $gdpr );
 
-		return $original . $gdpr;
+		return $gdpr;
 	}
 
 	protected function preparePageActions( BaseTemplate $tpl ) {
@@ -705,8 +686,19 @@ class SkinMinervaWikihow extends SkinMinerva {
 	public function getDefaultModules() {
 		$modules = parent::getDefaultModules();
 
+		$pageId = $this->getTitle()->getArticleID();
 		unset($modules['toggling']);
 		//unset($modules['newusers']);
+
+		if ( ArticleTagList::hasTag( 'js_fast_render', $pageId ) ) {
+			unset( $modules['minerva'] );
+			unset( $modules['styles'] );
+			unset( $modules['content'] );
+			unset( $modules['search'] );
+			unset( $modules['watch'] );
+			unset( $modules['user'] );
+			unset( $modules['syndicate'] );
+		}
 
 		return $modules;
 	}

@@ -149,10 +149,45 @@ class CategoryHelper extends UnlistedSpecialPage {
 		return $lines;
 	}
 
-	public static function getCategoryTreeArray() {
+	/**
+	 * Returns the category tree in an associative array form
+	 *
+	 * @param null $depth Return an array representation of the category tree up to the depth, if specified
+	 * @return array the category tree array
+	 */
+	public static function getCategoryTreeArray($depth = null) {
 		$lines = self::getAllCategories();
 		$result = self::makeCategoryArray(1, $lines);
+		if (is_int($depth) && $depth > 0) {
+			$result = self::pruneCategoryTree($result, $depth);
+		}
 		return $result;
+	}
+
+	/**
+	 * Returns a pruned array of the category tree array below the depth specified
+	 *
+	 * @param $array the category tree array from CategoryHelper::makeCategoryArray
+	 * @param $depth prune any leaf nodes below this number
+	 * @return array the pruned tree
+	 */
+	protected static function pruneCategoryTree ( $array, $depth )   {
+		$prunedArray = [];
+		foreach ( $array as $key => $val )  {
+			if ( is_array( $val ) )  {
+				if ( $depth > 1 )   {
+					$prunedArray[$key] = self::pruneCategoryTree ( $val, $depth - 1 );
+				}
+				else    {
+					$prunedArray[$key] = $key;
+				}
+			}
+			else    {
+				$prunedArray[$val] = $val;
+			}
+		}
+
+		return $prunedArray;
 	}
 
 	/**

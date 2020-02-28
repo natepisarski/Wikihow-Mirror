@@ -33,11 +33,7 @@ WH.imageFeedback = function() {
 					// Extract wikiname from URL like /image/x/xx/{{NAME}}/scaler-params
 					url = '/Image:' + $video.attr('data-poster').split( '/' )[5];
 				} else {
-					if(WH.isMobileDomain) {
-						url = $(rpt_img).parent().children('a.image').attr("href").substring(1);
-					} else {
-						url = $(rpt_img).parent().children('a.image').first().attr('data-href').split(/[?#]/)[0];
-					}
+					url = $(rpt_img).parent().children('a.image').attr("href").substring(1);
 				}
 				console.log( url );
 				$.post('/Special:ImageFeedback', {imgUrl: url, aid: wgArticleId, 'reason': reason, 'voteType' : $('input[name=voteType]:checked').val()});

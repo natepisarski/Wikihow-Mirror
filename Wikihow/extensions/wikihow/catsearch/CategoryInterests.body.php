@@ -422,9 +422,9 @@ class CategoryInterests extends UnlistedSpecialPage {
 		return $catPath;
 	}
 
-	public static function getCategoryTreeArray() {
+	public static function getCategoryTreeArray($depth = null) {
 		$ch = new CategoryHelper();
-		return $ch->getCategoryTreeArray();
+		return $ch->getCategoryTreeArray($depth);
 	}
 
 	public function getUsedCat($t = null) {

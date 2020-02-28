@@ -1110,7 +1110,7 @@ class DefaultAdCreator extends AdCreator {
 				'service' => 'adsense',
 				'type' => 'scrollto',
 				'slot' => 4177820525,
-				'maxsteps' => 2,
+				'maxsteps' => 3,
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
@@ -1286,7 +1286,7 @@ class DefaultAdCreator extends AdCreator {
 					'service' => 'adsense',
 					'type' => 'scrollto',
 					'slot' => 4177820525,
-					'maxsteps' => 2,
+					'maxsteps' => 3,
 					'maxnonsteps' => 0,
 					'width' => 728,
 					'height' => 90,
@@ -1410,11 +1410,6 @@ class DefaultAdCreator extends AdCreator {
 					'small' => 1,
 				),
 			);
-		}
-
-		// testing max scrollto ads
-		if ( intval( $this->mBucketId ) > 10 ) {
-			$this->mAdSetupData['scrollto']['maxsteps'] = 3;
 		}
 
 	}
@@ -1850,7 +1845,7 @@ class DefaultSearchPageAdCreator extends AdCreator {
 			),
 		);
 
-		if ( intval( $this->mBucketId ) == 1 ) {
+		if ( in_array( intval( $this->mBucketId ), [1, 3, 5, 7, 9] ) ) {
 			$this->mAdSetupData['rightrail1'] = array(
 				'service' => 'adsense',
 				'slot' => 7544893816,
@@ -1864,7 +1859,7 @@ class DefaultSearchPageAdCreator extends AdCreator {
 				'channels' => [2161493906],
 			);
 		}
-		if ( intval( $this->mBucketId ) == 2 ) {
+		if ( in_array( intval( $this->mBucketId ), [2, 4, 6, 8, 10] ) ) {
 			$this->mAdSetupData = array(
 				'rightrail0' => array(
 					'service' => 'adsense',

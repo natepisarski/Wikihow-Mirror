@@ -299,7 +299,8 @@ $(function() {
 				url: catSearchUrl,
 				dataType: "json",
 				data: {
-					q: request.term
+					q: request.term,
+					t: 'categorizer'
 				},
 				success: function( data ) {
 					if (!data.results.length) {

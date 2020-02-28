@@ -8,10 +8,7 @@ class SpecialNotifications extends SpecialPage {
 	const DISPLAY_NUM = 20;
 
 	public function __construct() {
-		global $wgTitle;
-		// Wikihow: stopgap solution for mobile version
-		$this->specialPage = $wgTitle->getPartialUrl();
-		parent::__construct($this->specialPage);
+		parent::__construct( 'Notifications' );
 	}
 
 	/**
@@ -30,12 +27,6 @@ class SpecialNotifications extends SpecialPage {
 			'help' => '//www.mediawiki.org/wiki/Special:MyLanguage/Help:Notifications/Special:Notifications',
 			'preferences' => SpecialPage::getTitleFor( 'Preferences' )->getLinkURL() . '#mw-prefsection-echo',
 		] );
-
-		// Wikihow: stopgap solution for mobile version
-		if ($this->getTitle()->getPartialUrl() == 'Notifications') {
-			$desktop_cta = wfMessage('mobile-desktop-cta', 'Special:MobileNotifications')->parse();
-			$out->addHtml( $desktop_cta );
-		}
 
 		// Wikihow: allow anons
 		$user = $this->getUser();

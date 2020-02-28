@@ -76,8 +76,9 @@
 
 						// Conditional logic taken from image-swap-js.tmpl.php
 						// Use big versions so that image will expand in a landscape device orientation
+						var isRetina = window.devicePixelRatio !== undefined && window.devicePixelRatio > 1;
 						var showRetina;
-						if (typeof retinaAvailable == 'undefined' || typeof isRetina == 'undefined') {
+						if (typeof retinaAvailable == 'undefined' || isRetina == false) {
 							showRetina = false;
 						} else {
 							showRetina = retinaAvailable && isRetina;

@@ -167,7 +167,7 @@
 			i.setAttribute('data-ad-slot', '9589201673');
 			i.setAttribute('class', 'adsbygoogle');
 			//var css = "display:block;width:320px;height:50px;margin:-5px auto 10px auto;";;
-			if(window.isBig) {
+			if(WH.shared.isMedSize) {
 				i.style.cssText = "display:block;width:500px;height:50px;margin:-5px auto 10px auto;";
 			} else {
 				i.style.cssText = "display:block;width:320px;height:50px;margin:-5px auto 10px auto;";

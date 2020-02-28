@@ -163,7 +163,7 @@ class MobileFrontendWikiHowHooks {
 			$out->addModuleStyles('ext.wikihow.nonarticle_styles');
 		}
 
-		if ($wgTitle->inNamespace(NS_SPECIAL) && $wgTitle->getPartialUrl() == 'MobileNotifications' ) {
+		if ($wgTitle->inNamespace(NS_SPECIAL) && $page_title == SpecialPage::getTitleFor( 'Notifications' )) {
 			$out->addModuleStyles('zzz.mobile.wikihow.notifications');
 		}
 
@@ -181,12 +181,6 @@ class MobileFrontendWikiHowHooks {
 
 		if ( $page_title == SpecialPage::getTitleFor('PasswordReset') ) {
 			$out->addModuleStyles('zzz.mobile.wikihow.passwordreset');
-		}
-
-		// Include Javascript for setting global size vars
-		if ($out->getTitle()->inNamespace(NS_MAIN) || $out->getTitle()->inNamespace(NS_SPECIAL)) {
-			$varScript = Misc::getEmbedFile('js', "$IP/extensions/wikihow/load_images/sizing-vars.compiled.js");
-			$out->addHeadItem('vars', HTML::inlineScript($varScript));
 		}
 
 		$sharedjs = array( __DIR__. '/../../wikihow/commonjs/whshared.compiled.js' );
@@ -303,7 +297,7 @@ class MobileFrontendWikiHowHooks {
 			'UserLogout',
 			'PasswordReset',
 			'MobileCommunityDashboard',
-			'MobileNotifications'
+			'Notifications'
 		];
 
 		$responsiveTools = [
@@ -342,7 +336,7 @@ class MobileFrontendWikiHowHooks {
 		$isLoggedIn = $user->isLoggedIn();
 
 		return class_exists('RCWidget') &&
-			!$title->inNamespaces(NS_USER, NS_USER_TALK) &&
+			!$title->inNamespaces(NS_USER) &&
 			(!$isLoggedIn || $user->getOption('recent_changes_widget_show', true) == 1 ) &&
 			($isLoggedIn || $title->isMainPage()) &&
 			!in_array($title->getPrefixedText(), ['Special:Avatar', 'Special:ProfileBox']) &&

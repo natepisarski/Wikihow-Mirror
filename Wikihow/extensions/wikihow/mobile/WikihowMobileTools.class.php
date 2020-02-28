@@ -803,6 +803,10 @@ class WikihowMobileTools {
 			}
 		}
 
+		if ( pq( '#summary_wrapper' )->length ) {
+			WikihowToc::setSummary();
+		}
+
 		if ( !$amp ) {
 			self::insertLanguageLinksHtml( $skin );
 		}
@@ -1005,6 +1009,10 @@ class WikihowMobileTools {
 			DeferImages::modifyDOM();
 		}
 
+		if ( ArticleTagList::hasTag( 'js_fast_render', $pageId ) ) {
+			self::fastRenderModifyDOM();
+		}
+
 		if ( class_exists( 'AlternateDomain' ) ) {
 			AlternateDomain::modifyDom();
 		}
@@ -1027,6 +1035,15 @@ class WikihowMobileTools {
 		}
 
 		return $html;
+	}
+
+	private static function fastRenderModifyDOM() {
+		pq('.printfooter')->remove();
+		foreach ( pq('.collapsible-block') as $node ) {
+			if ( pq($node)->children()->count() == 0 && trim(pq($node)->html()) =='' ) {
+				pq($node)->remove();
+			}
+		}
 	}
 
 	private static function getDefaultArticleConfig() {
@@ -1530,7 +1547,6 @@ class WikihowMobileTools {
 
 		if ( pq( '#summary_wrapper' )->length ) {
 			pq( '#summary_wrapper' )->after( $html );
-			WikihowToc::setSummary();
 		} elseif ( pq( '#social_proof_mobile' )->length ) {
 			pq( '#social_proof_mobile' )->after( $html );
 		}

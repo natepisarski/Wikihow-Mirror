@@ -261,6 +261,7 @@ class AdminTags extends UnlistedSpecialPage {
 					$result = [
 						'csh_key' => $data['csh_key'],
 						'csh_summary' => $data['csh_log_short'],
+						'csh_username' => $data['csh_username'],
 						'csh_changes' => $data['csh_log_full'],
 					];
 				}

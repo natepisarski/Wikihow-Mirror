@@ -426,11 +426,7 @@ class PageStats extends UnlistedSpecialPage {
 			} else {
 				$title = "unknown";
 			}
-			$isSummaryVideoFeedback = false;
-			if ( $type == 'Edit In A Hurry' ) {
-				$isSummaryVideoFeedback = true;
-			}
-			$file = $this->getSheetsFile( $isSummaryVideoFeedback );
+			$file = $this->getSheetsFile();
 			$sheet = $file->sheet('default');
 			$userName = $this->getUser()->getName();
 			$data = array(
@@ -442,16 +438,6 @@ class PageStats extends UnlistedSpecialPage {
 				'pageid' => $pageId,
 				'highpriority' => $highPriority,
 			);
-			if ( $isSummaryVideoFeedback ) {
-				$data = array(
-					'time' => date('Y-m-d'),
-					'submitter' => $userName,
-					'pageid' => $pageId,
-					'url' => $title,
-					'comments' => $textBox,
-					'new' => $highPriority,
-				);
-			}
 			$sheet->insert( $data );
 			return;
 		}
@@ -460,7 +446,7 @@ class PageStats extends UnlistedSpecialPage {
 	/**
 	 * @return Google_Spreadsheet_File
 	 */
-	private function getSheetsFile( $isSummaryVideoFeedback = false ): Google_Spreadsheet_File {
+	private function getSheetsFile(): Google_Spreadsheet_File {
 		global $wgIsProduction;
 
 		$keys = (Object)[
@@ -483,17 +469,9 @@ class PageStats extends UnlistedSpecialPage {
 		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
 
 		if ($wgIsProduction) {
-			if ( $isSummaryVideoFeedback ) {
-				$fileId = '1E86B9G_Za-FSicM14vsMTwjCNHIScZgPsAbfq7HYQOU';
-			} else {
-				$fileId = '11BpgghgRSFuRfylWoViEhQnn8ib-jCXGrNE7qkGchJk';
-			}
+			$fileId = '11BpgghgRSFuRfylWoViEhQnn8ib-jCXGrNE7qkGchJk';
 		} else {
-			if ( $isSummaryVideoFeedback ) {
-				$fileId = '1xpmYq7euPEEcweyTWkljDmloaT7scM0WDVn4vrIIh3M';
-			} else {
-				$fileId = '1sMPfAjcG2zCj2c-m3o57QIQpnG19a8Z1SgohR0FP6GA';
-			}
+			$fileId = '1sMPfAjcG2zCj2c-m3o57QIQpnG19a8Z1SgohR0FP6GA';
 		}
 		$file = $client->file($fileId);
 

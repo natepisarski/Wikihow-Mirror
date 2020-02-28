@@ -1297,7 +1297,11 @@ class GoogleAmp {
 		}
 
 		self::changeGDPRInfoLabel();
-		self::addFastlyPing();
+		
+		// Only add this ping if it's not an amp speed test page to not double count visits
+		if (!self::isAmpSpeedTest(RequestContext::getMain()->getTitle())) {
+			self::addFastlyPing();
+		}
 		self::addNewAnchortags();
 
 		// do this last to make sure we don't add any inline styles or js, and that the doc is as
@@ -1373,8 +1377,7 @@ class GoogleAmp {
 		$items .= Html::element( 'li', ['class' => 'side_header gdpr_only_display'], $otherSectionName );
 
 		// bottom menu search
-		$fullSiteText = wfMessage( 'mobile-frontend-view-full-site-wh' )->escaped();
-		$fullSiteLink = SkinMinervaWikihow::getMobileMenuFullSiteLink( $fullSiteText, $mobileCanonical );
+		$fullSiteLink = SkinMinervaWikihow::getMobileTOSLink( );
 		$fullSiteLink = Html::rawElement( 'li', [], $fullSiteLink );
 		$items .= $fullSiteLink;
 

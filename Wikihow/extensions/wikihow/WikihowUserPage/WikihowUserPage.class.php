@@ -163,7 +163,7 @@ class WikihowUserPage extends Article {
 		$out = $this->getContext()->getOutput();
 
 		$out->addModuleStyles('mobile.wikihow.user');
-		$out->addModules([ 'mobile.wikihow.userscript', 'ext.wikihow.profile_box', 'jquery.ui.dialog' ]);
+		$out->addModules([ 'ext.wikihow.profile_box', 'jquery.ui.dialog' ]);
 
 		//head
 		if ($this->mTitle->inNamespace(NS_USER) || $this->mTitle->inNamespace(NS_USER_TALK)) {
@@ -177,7 +177,6 @@ class WikihowUserPage extends Article {
 		}
 
 		if ($this->getContext()->getUser()->isLoggedIn()) {
-			$out->getSkin()->addWidget($this->getRCUserWidget()); // fix for WelcomeWagon
 			$out->addModules('ext.wikihow.rcwidget');
 			$out->addModuleStyles('ext.wikihow.rcwidget_styles');
 		}
@@ -185,6 +184,10 @@ class WikihowUserPage extends Article {
 		if ($this->mTitle->inNamespace(NS_USER)) {
 			//USER
 			$this->getMobileUserPage();
+
+			if ($this->getContext()->getUser()->isLoggedIn()) {
+				$out->getSkin()->addWidget($this->getRCUserWidget());
+			}
 		}
 		else {
 			//USER_TALK OR USER_KUDOS
@@ -256,12 +259,15 @@ class WikihowUserPage extends Article {
 
 		// Remove all links to non-existent user pages
 		$doc = phpQuery::newDocument($html);
-		foreach (pq('.de_user a[class="new"]') as $a) {
+		$user_msg = wfMessage('User')->text();
+
+		foreach (pq('.de_user a.new[title^="'.$user_msg.'"]') as $a) {
 			$pq_a = pq($a);
 			// Replace <a class="new" ...> with <span>
 			$span = pq('<span></span>')->html( $pq_a->html() );
 			$pq_a->replaceWith( $span );
 		}
+
 		$html = $doc->htmlOuter();
 
 		//add target link
@@ -271,6 +277,8 @@ class WikihowUserPage extends Article {
 			$html = '<div class="user_kudos">'.$html.'</div>';
 		}
 		else {
+			$html = '<div class="user_talk">'.$html.'</div>';
+
 			//add the posting form
 			if ($this->user != $user->getName() && !$user->isAnon()) {
 				$postcomment = new PostComment();
@@ -286,7 +294,7 @@ class WikihowUserPage extends Article {
 		//add a link to scroll to the bottom
 		$attributes = [ 'id' => 'touchdown' ];
 		if ($isKudosPage) $attributes['class'] = 'user_kudos';
-		$contents = '<a href="#">'.$bottom_link_text.'</a></div><div class="clearall">';
+		$contents = '<a href="#at_the_bottom">'.$bottom_link_text.'</a></div><div class="clearall">';
 		$td = Html::rawElement('div', $attributes, $contents);
 
 		$out->addHTML($td . $html);

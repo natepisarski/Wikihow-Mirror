@@ -7,12 +7,15 @@ CREATE TABLE custom_titles(
 	ct_page varbinary(255) NOT NULL,
 	ct_type int(2) unsigned NOT NULL,
 	ct_custom blob,
+	ct_custom_heading blob,
 	ct_custom_note blob,
 	ct_timestamp varbinary(14) NOT NULL DEFAULT '',
 	PRIMARY KEY (ct_pageid)
 );
 -- added this column to help with debugging if title generation isn't happening properly
 alter table custom_titles add column ct_timestamp varbinary(14) NOT NULL DEFAULT '';
+-- added this column to add support for custom headings
+alter table custom_titles add column ct_custom_heading blob;
 */
 
 
@@ -34,9 +37,6 @@ class CustomTitle {
 
 	// Flag can be set to avoid using memcache altogether
 	static $forceNoCache = false;
-
-	// Flag can be set so we only generate the title, but don't save it (for testing purposes)
-	static $saveCustomTitle = true;
 
 	// Constructor called by factory method
 	protected function __construct($title, $row) {
@@ -69,7 +69,7 @@ class CustomTitle {
 			$dbr = wfGetDB(DB_REPLICA);
 			$row = $dbr->selectRow(
 				self::TABLE,
-				[ 'ct_type', 'ct_custom' ],
+				[ 'ct_type', 'ct_custom', 'ct_custom_heading', 'ct_custom_note' ],
 				[ 'ct_pageid' => $pageid ],
 				__METHOD__);
 			$row = $row ? (array)$row : [];
@@ -113,6 +113,24 @@ class CustomTitle {
 		$typeNum = $isCustom ? self::TYPE_CUSTOM : self::TYPE_SITE_PREVIOUS;
 		$oldPageTitle = self::genTitle($this->title, $typeNum, $this->row['ct_custom']);
 		return $oldPageTitle;
+	}
+
+	public function getHeading() {
+		global $wgLanguageCode;
+		$headingText = $this->row['ct_custom_heading'];
+		if ( empty( $headingText ) ) {
+			$titleMsg = $wgLanguageCode == 'ja' ? 'howto_article_heading' : 'howto';
+			$headingText = wfMessage( $titleMsg, $this->title->getText() )->text();
+		}
+		return $headingText;
+	}
+
+	public function getData() {
+		return [
+			'title' => $this->row['ct_custom'],
+			'heading' => $this->row['ct_custom_heading'],
+			'note' => $this->row['ct_custom_note']
+		];
 	}
 
 	private static function getWikitext(Title $title): array {
@@ -211,13 +229,10 @@ class CustomTitle {
 	}
 
 	private static function genTitle(Title $title, int $type = 0, string $custom = ''): string {
-		if (!empty($custom) && ($type == self::TYPE_CUSTOM || $type == self::TYPE_AUTO_GENERATED))
-		{
+		if (!empty($custom) && ($type == self::TYPE_CUSTOM || $type == self::TYPE_AUTO_GENERATED)) {
 			//we already have it; use it
 			$titleTxt = $custom;
-		}
-		elseif ($type == self::TYPE_SITE_PREVIOUS)
-		{
+		} elseif ($type == self::TYPE_SITE_PREVIOUS) {
 			//legacy support
 			list($wikitext, $stepsText) = self::getWikitext($title);
 			list($numSteps, $withPictures) = self::getTitleExtraInfo($wikitext, $stepsText);
@@ -226,16 +241,8 @@ class CustomTitle {
 			$inner = self::makeTitleInner($howto, $numSteps, $withPictures);
 
 			$titleTxt = wfMessage('pagetitle', $inner)->text();
-		}
-		else
-		{
+		} else {
 			$titleTxt = self::makeTitle($title);
-			if (self::$saveCustomTitle) {
-				//whenever we do the hard work to figure out the title...save it
-				$dbw = wfGetDB(DB_MASTER);
-				$note = wfMessage('custom_note_auto_gen')->text();
-				self::dbSetCustomTitle($dbw, $title, $titleTxt, $note, self::TYPE_AUTO_GENERATED);
-			}
 		}
 
 		return $titleTxt;
@@ -365,7 +372,7 @@ class CustomTitle {
 	 * Adds or replaces the current title with a custom one specified by
 	 * a string from the admin. Note: must be a main namespace title.
 	 */
-	public static function dbSetCustomTitle(&$dbw, Title $title, string $custom, string $custom_note = '',
+	public static function dbSetCustomTitle(&$dbw, Title $title, string $custom, string $custom_heading = '', string $custom_note = '',
 		int $type = self::TYPE_CUSTOM)
 	{
 		global $wgMemc;
@@ -378,6 +385,7 @@ class CustomTitle {
 			  'ct_page' => $title->getDBkey(),
 			  'ct_type' => $type,
 			  'ct_custom' => $custom,
+			  'ct_custom_heading' => $custom_heading,
 			  'ct_custom_note' => $custom_note,
 			  'ct_timestamp' => wfTimestampNow() ],
 			__METHOD__);
@@ -390,7 +398,7 @@ class CustomTitle {
 	 */
 	public static function dbListCustomTitles(&$dbr): array {
 		$res = $dbr->select(self::TABLE,
-			[ 'ct_pageid', 'ct_page', 'ct_custom', 'ct_custom_note' ],
+			[ 'ct_pageid', 'ct_page', 'ct_custom', 'ct_custom_heading', 'ct_custom_note' ],
 			[ 'ct_type' => self::TYPE_CUSTOM ],
 			__METHOD__);
 		$pages = [];

@@ -380,8 +380,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 
 		// Don't show desktop link to anons if the page is noindex
-		$desktopLink = WikihowSkinHelper::shouldShowMetaInfo($this->getSkin()->getOutput())
-			? $this->data['mobile-switcher'] : '';
+		$desktopLink = $this->data['mobile-switcher'];
 
 		$innerHtml = $this->getMainMenuHtml( $data );
 		$innerHtml .= $desktopLink;
@@ -532,6 +531,22 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 
 		$headerContainer = Html::rawElement( 'div', $headerContainerAttr, $headerHtml );
+		if ( $data['fastRenderTest']  ) {
+
+			// add js to open the menu
+			$snippet = "<script>var menu = document.getElementById('mw-mf-main-menu-button');
+				menu.addEventListener('click', function(){
+					var menu = document.getElementById('mw-mf-viewport');
+					menu.classList.toggle('menuopen');
+					//var body = document.getElementsByTagName('body')[0];
+					//body.classList.toggle('navigation-enabled');
+					//body.classList.toggle('primary-navigation-enabled');
+				});</script>";
+
+			$snippet .= "<style>.menuopen #mw-mf-page-left{display:block;z-index:9;}</style>";
+
+			$headerContainer .= $snippet;
+		}
 		return $headerContainer;
 	}
 

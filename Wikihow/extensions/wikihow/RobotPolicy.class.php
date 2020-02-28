@@ -47,6 +47,7 @@ class RobotPolicy {
 		],
 		NS_SPECIAL => [
 			'profilebadges'     => [ 'lang' => 'intl', 'policy' => self::POLICY_NOINDEX_NOFOLLOW ],
+			'newpages'          => [ 'lang' => '*', 'policy' => self::POLICY_INDEX_FOLLOW ],
 		]
 	];
 
@@ -647,12 +648,15 @@ class RobotPolicy {
 		$policy = -1;
 
 		$ns = $this->title->getNamespace();
-		$txt = strtolower($this->title->getText());
-		$cnf = self::$overrides[$ns][$txt] ?? null;
-		if ($cnf) {
-			$lang = $cnf['lang'];
-			if ( $lang == '*' || $wgLanguageCode == $lang || ($lang == 'intl' && Misc::isIntl()) ) {
-				$policy = $cnf['policy'];
+		$titles = self::$overrides[$ns];
+		foreach($titles as $key => $info) {
+			$title = SpecialPage::getTitleFor($key);
+			if( strtolower($this->title->getText()) == strtolower($title->getText()) ) {
+				$lang = $info['lang'];
+				if ( $lang == '*' || $wgLanguageCode == $lang || ($lang == 'intl' && Misc::isIntl()) ) {
+					$policy = $info['policy'];
+					break;
+				}
 			}
 		}
 

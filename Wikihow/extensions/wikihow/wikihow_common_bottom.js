@@ -137,7 +137,7 @@ WH.checkMethods = function() {
 // links to english wikihow about pages and cookie policy pages
 // and this is simpler to do than to change fastlys rules for redirecting to mobile
 WH.updateProjectLinks = function() {
-	if (wgNamespaceNumber != 4) {
+	if (WH.pageNamespace != 4) {
 		return;
 	}
 

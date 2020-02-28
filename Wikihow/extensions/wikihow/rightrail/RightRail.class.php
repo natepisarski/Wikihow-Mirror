@@ -195,6 +195,28 @@ class RightRail {
 			$html = $this->mAds->modifyRightRailForAdTest( $html, $this->mRelatedWikihows );
 		}
 
+		if ( ArticleTagList::hasTag( 'js_fast_render', $this->mPageId ) ) {
+			$html = $this->fastRenderModifyDOM( $html );
+		}
+		return $html;
+	}
+
+	private function fastRenderModifyDOM( $html ) {
+		$doc = phpQuery::newDocument( $html );
+
+		$first = true;
+		foreach ( pq('.ur_review') as $node ) {
+			if ( $first == true ) {
+				$first = false;
+				continue;
+			}
+			pq($node)->remove();
+		}
+
+		$html = $doc->documentWrapper->markup();
+
+		// TODO not sure if we really want to remove the sidebar or not in js..
+		$html .= '<script>if(WH.shared.isSmallSize){document.getElementById("sidebar").outerHTML="";}</script>';
 		return $html;
 	}
 

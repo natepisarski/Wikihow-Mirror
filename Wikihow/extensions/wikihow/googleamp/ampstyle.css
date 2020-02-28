@@ -750,6 +750,10 @@
 	display: inline-block;
 	padding: 0;
 }
+#top-sidebar ul li a.gdpr-menu {
+	padding: 30px 0 0 10px;
+	font-size: 14px;
+}
 #top-sidebar {
 	background-color: #4E4E4E;
 }

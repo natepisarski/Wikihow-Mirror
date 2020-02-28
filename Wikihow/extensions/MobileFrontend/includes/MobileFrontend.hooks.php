@@ -785,7 +785,13 @@ class MobileFrontendHooks {
 			// In mobile mode, MediaWiki:Common.css/MediaWiki:Common.js is not loaded.
 			// We load MediaWiki:Mobile.css/js instead
 			// We load mobile.init so that lazy loading images works on all skins
-			$out->addModules( [ 'mobile.site', 'mobile.init' ] );
+			$pageId = 0;
+			if ( $out && $out->getTitle() && $out->getTitle()->getArticleID() ) {
+				$pageId = $out->getTitle()->getArticleID();
+			}
+			if ( !ArticleTagList::hasTag( 'js_fast_render', $pageId ) ) {
+				$out->addModules( [ 'mobile.site', 'mobile.init' ] );
+			}
 			if ( $title->isMainPage() && $config->get( 'MFMobileMainPageCss' ) ) {
 				$out->addModuleStyles( [ 'mobile.mainpage.css' ] );
 			}

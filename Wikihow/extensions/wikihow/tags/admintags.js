@@ -227,6 +227,7 @@ $(document).ready( function() {
 
 					$('.csh-key').html(data['csh_key']);
 					$('.csh-summary').html(data['csh_summary']);
+					$('.csh-editor').html(data['csh_username']);
 					$('.csh-changes').html(data['csh_changes']);
 
 					$('#csh-details-dialog-box').dialog({

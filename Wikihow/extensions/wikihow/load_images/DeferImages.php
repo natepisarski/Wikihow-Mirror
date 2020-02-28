@@ -4,7 +4,7 @@ class DeferImages {
 	const SCROLL_LOAD_SELECTOR = '.mwimg:not(.floatright, .tcenter) a.image:not(.mwimg-caption-image) img';
 
     public static function modifyDOM() {
-        if ( !self::isArticlePage() ) {
+        if ( !self::validPage() ) {
             return;
         }
 
@@ -33,14 +33,17 @@ class DeferImages {
         }
     }
 
-	public static function isArticlePage() {
-		global $wgTitle, $wgRequest;
-		if (!$wgTitle || !$wgRequest) {
-			return false;
-		}
+  public static function validPage(): bool {
+		$title = RequestContext::getMain()->getTitle();
+  	return self::isArticlePage() ||
+  		($title && $title->inNamespaces(NS_USER, NS_USER_TALK, NS_USER_KUDOS));
+  }
 
-		$action = $wgRequest->getVal('action', 'view');
-		return $wgTitle->inNamespace(NS_MAIN) && $action == 'view';
+	public static function isArticlePage() {
+		$context = RequestContext::getMain();
+		$title = $context->getTitle();
+
+		return $title && $title->inNamespace(NS_MAIN) && Action::getActionName($context) == 'view';
 	}
 
 	public static function enabled() {

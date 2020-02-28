@@ -86,15 +86,11 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 			$fields = explode("\t", $line);
 			// skip any line that doesn't have at least a pageid and a custom title/desc
 			if (count($fields) < 2) continue;
-			$fields = array_map(trim, $fields);
+			$fields = array_map('trim', $fields);
 			// skip first line if it's the pageid\t... header
 			$pageid = (int)$fields[0];
-			$custom = $fields[1]; // can be the empty string
-			$custom_note = count($fields) > 2 ? $fields[2] : '';
 			if (!$pageid) continue;
-			$changes[$pageid] = array(
-				'custom' => $custom,
-				'custom_note' => $custom_note);
+			$changes[$pageid] =  $this->customMeta::mapItemFields( $fields );
 		}
 		if (!$changes) {
 			return array('error' => 'No lines to process in upload');
@@ -170,18 +166,11 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 	private function getGuts() {
 		$action = $this->action;
 		$recent = self::displayRecentChanges();
-		$switchPage = $this->type == 'title' ? 'Special:AdminMetaDescs' : 'Special:AdminTitles';
-		$switchName = $this->type == 'title' ? 'meta descriptions' : 'titles';
-		$switchPage2 = $this->type == 'title' ? 'Special:AdminEditPageTitles' : 'Special:AdminEditMetaInfo';
-		$switchName2 = $this->type == 'title' ? 'individual titles' : 'individual meta descriptions';
 		$tmpl = new EasyTemplate( __DIR__ . '/templates' );
 		$tmpl->set_vars( [
 			'action' => $action,
 			'recent' => $recent,
-			'switchPage' => $switchPage,
-			'switchName' => $switchName,
-			'switchPage2' => $switchPage2,
-			'switchName2' => $switchName2,
+			'type' => $this->type
 		] );
 		$html = $tmpl->execute('admin-custom-meta.tmpl.php');
 		// Note: we should refactor this to use Mustache
@@ -202,11 +191,19 @@ class CustomTitleChanges extends CustomMetaChanges {
 		$output = array();
 		foreach ($titles as $row) {
 			$id = $row['ct_pageid'];
-			$data = [ 'custom' => $row['ct_custom'], 'custom_note' => $row['ct_custom_note'] ];
+			$data = [
+				'custom' => $row['ct_custom'],
+				'custom_heading' => $row['ct_custom_heading'],
+				'custom_note' => $row['ct_custom_note']
+			];
 			if ($labelledData) {
 				$output[ $id ] = $data;
 			} else {
-				$output[ $id ] = [ $data['custom'], $data['custom_note'] ];
+				$output[ $id ] = [
+					$data['custom'],
+					$row['ct_custom_heading'],
+					$data['custom_note']
+				];
 			}
 		}
 		return $output;
@@ -214,7 +211,46 @@ class CustomTitleChanges extends CustomMetaChanges {
 
 	// return how columns are displayed to the user
 	public function getCustomHeaders() {
-		return ['pageid', 'custom_title', 'custom_note'];
+		return ['pageid', 'custom_title', 'custom_heading', 'custom_note'];
+	}
+
+	// Check if two data items are equivilent
+	public static function areItemsEqual( $a, $b ) {
+		return (
+			$a['custom'] == $b['custom'] &&
+			$a['custom_heading'] == $b['custom_heading'] &&
+			$a['custom_note'] == $b['custom_note']
+		);
+	}
+
+	public static function describeDifferences( $pageid, $a, $b ) {
+		$changes = '';
+		if ( $a['custom'] != $b['custom'] ) {
+			$changes .= "Changed custom $pageid: {$b['custom']}\n";
+		}
+		if ( $a['custom_heading'] != $b['custom_heading'] ) {
+			$changes .= "Changed custom heading $pageid: {$b['custom_heading']}\n";
+		}
+		if ( $a['custom_note'] != $b['custom_note'] ) {
+			$changes .= "Changed custom note $pageid: {$b['custom_note']}\n";
+		}
+		return $changes;
+	}
+
+	public static function getItemData( $item ) {
+		return [
+			'custom' => $item['custom'],
+			'custom_heading' => $item['custom_heading'],
+			'custom_note' => $item['custom_note']
+		];
+	}
+
+	public static function mapItemFields( $fields ) {
+		return [
+			'custom' => $fields[1],
+			'custom_heading' => $fields[2],
+			'custom_note' => $fields[3],
+		];
 	}
 
 	protected function dbDeleteItemID($dbw, $pageid) {
@@ -222,7 +258,7 @@ class CustomTitleChanges extends CustomMetaChanges {
 	}
 
 	protected function dbSetItemID($dbw, $titleObj, $item) {
-		CustomTitle::dbSetCustomTitle($dbw, $titleObj, $item['custom'], $item['custom_note']);
+		CustomTitle::dbSetCustomTitle($dbw, $titleObj, $item['custom'], $item['custom_heading'], $item['custom_note']);
 	}
 }
 
@@ -254,6 +290,39 @@ class CustomDescChanges extends CustomMetaChanges {
 
 	public function getCustomHeaders() {
 		return ['pageid', 'custom_desc', 'custom_note'];
+	}
+
+	// Check if two data items are equivilent
+	public static function areItemsEqual( $a, $b ) {
+		return (
+			$a['custom'] == $b['custom'] &&
+			$a['custom_note'] == $b['custom_note']
+		);
+	}
+
+	public static function describeDifferences( $pageid, $a, $b ) {
+		$changes = '';
+		if ( $a['custom'] != $b['custom'] ) {
+			$changes .= "Changed custom $pageid: {$b['custom']}\n";
+		}
+		if ( $a['custom_note'] != $b['custom_note'] ) {
+			$changes .= "Changed custom note $pageid: {$b['custom_note']}\n";
+		}
+		return $changes;
+	}
+
+	public static function getItemData( $item ) {
+		return [
+			'custom' => $item['custom'],
+			'custom_note' => $item['custom_note']
+		];
+	}
+
+	public static function mapItemFields( $fields ) {
+		return [
+			'custom' => $fields[1],
+			'custom_note' => $fields[2],
+		];
 	}
 
 	protected function dbDeleteItemID($dbw, $pageid) {
@@ -288,6 +357,10 @@ abstract class CustomMetaChanges {
 
 	public abstract function getCustomList($labelledData);
 	public abstract function getCustomHeaders();
+	public abstract static function areItemsEqual($a, $b);
+	public abstract static function describeDifferences($pageid, $a, $b);
+	public abstract static function getItemData($item);
+	public abstract static function mapItemFields($fields);
 	protected abstract function dbDeleteItemID($dbw, $pageid);
 	protected abstract function dbSetItemID($dbw, $titleObj, $item);
 
@@ -305,10 +378,9 @@ abstract class CustomMetaChanges {
 
 			if (!isset($list[$pageid])) {
 				if ($change['custom']) {
-					$list[$pageid] = array(
-						'custom' => $change['custom'],
-						'custom_note' => $change['custom_note'],
-						'status' => 'new');
+					$list[$pageid] = array_merge(
+						static::getItemData( $change ), [ 'status' => 'new' ]
+					);
 					$summary .= "New custom $pageid: {$change['custom']}\n";
 					$stats['new']++;
 				} else {
@@ -322,14 +394,11 @@ abstract class CustomMetaChanges {
 				$summary .= "Delete $pageid\n";
 				$stats['delete']++;
 			} else {
-				if ($list[$pageid]['custom'] != $change['custom']
-					|| $list[$pageid]['custom_note'] != $change['custom_note'])
-				{
-					$list[$pageid] = array(
-						'custom' => $change['custom'],
-						'custom_note' => $change['custom_note'],
-						'status' => 'change');
-					$summary .= "Changed custom $pageid: {$change['custom']}\n";
+				if ( !static::areItemsEqual( $list[$pageid], $change ) ) {
+					$summary .= static::describeDifferences( $pageid, $list[$pageid], $change );
+					$list[$pageid] = array_merge(
+						static::getItemData( $change ), [ 'status' => 'change' ]
+					);
 					$stats['change']++;
 				} else {
 					// No custom title/desc or note change
@@ -439,7 +508,7 @@ class CustomMetaChangesLog {
 		return [
 			'mccl_timestamp' => 'When',
 			'mccl_userid' => 'User',
-			'mccl_type' => 'Change type',
+			'mccl_type' => 'Type',
 			'mccl_summary' => 'Summary' ];
 	}
 

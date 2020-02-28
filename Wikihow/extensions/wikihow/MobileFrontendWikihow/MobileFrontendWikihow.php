@@ -102,11 +102,6 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 		),
 		'position' => 'top',
 	),
-	'mobile.wikihow.userscript' => $wgMFMobileResourceBoilerplateWikihow + array(
-		'scripts' => array(
-			'javascripts/wikihow/userpage.js',
-		),
-	),
 	// Have to add zzz to beginning of module to ensure it loads after other mw modules
 	// and properly overrides css without having to add !important with all the rules.
 	// A hack, for sure, but has to be done since the OutputPage alphabetically sorts
@@ -231,10 +226,7 @@ $autoloadClasses = array (
 	'SkinMinervaWikihowAmp' => '../googleamp/SkinMinervaWikihowAmp.php',
 	'MobileFrontendWikiHowHooks' => 'MobileFrontendWikihow.hooks.php',
 	'UserLoginAndCreateTemplate'=> 'includes/skins/wh_UserLoginAndCreateTemplate.php',
-	// 'UserLoginMobileTemplate' => 'includes/skins/wh_UserLoginMobileTemplate.php',
 	'UserAccountCreateMobileTemplate' => 'includes/skins/wh_UserAccountCreateMobileTemplate.php',
-	// 'SpecialMobileNotifications' => 'includes/specials/wh_SpecialMobileNotifications.php',
-	// 'SpecialPasswordReset' => 'includes/specials/SpecialPasswordResetWikihow.php',
 	'SpecialMobileLoggedOutComplete' => 'includes/specials/SpecialMobileLoggedOutComplete.php',
 	'ApiMobileViewWikihow' => 'includes/api/ApiMobileViewWikihow.php',
 	'SkinMinervaQADomain' => '../qadomain/SkinMinervaQADomain.php',

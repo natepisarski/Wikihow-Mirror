@@ -1184,8 +1184,9 @@ abstract class File implements IDBAccessObject {
 		$normalisedParams = $transformParams;
 		$handler->normaliseParams( $this, $normalisedParams );
 
-		$thumbName = $this->thumbName( $normalisedParams );
+		$thumbName = $this->thumbName( $normalisedParams, $transformParams );
 		$thumbUrl = $this->getThumbUrl( $thumbName );
+
 		$thumbPath = $this->getThumbPath( $thumbName ); // final thumb path
 
 		$tmpThumbPath = $tmpFile->getPath();

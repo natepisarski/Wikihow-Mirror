@@ -190,10 +190,15 @@ class GreenBox {
 		$title = $out->getTitle();
 		$article_page = !empty($title) ? $title->inNamespace(NS_MAIN) : false;
 
+		$android_app = class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest();
+
 		self::$show_green_box_cta = Action::getActionName($context) == 'view' &&
 			empty($diff_num) &&
 			$article_page &&
-			GreenBoxEditTool::authorizedUser($out->getUser());
+			GreenBoxEditTool::authorizedUser($out->getUser()) &&
+			!GoogleAmp::isAmpMode( $out ) &&
+			!$android_app &&
+			!Misc::isAltDomain();
 
 		return self::$show_green_box_cta;
 	}

@@ -40,6 +40,35 @@
 		// lazy-computed var used by getSectionElements()
 		sectionElements: null,
 
+		// this code used to live in sizing vars but was only used in this file so moved it here
+		// so it doesn't run on every page load
+		shouldSimplify: function() {
+			// taken from http://docs.aws.amazon.com/silk/latest/developerguide/detecting-silk-ua.html
+			//var match = /(?:; ([^;)]+) Build\/.*)?\bSilk\/([0-9._-]+)\b(.*\bMobile Safari\b)?/.exec(navigator.userAgent);
+			var ua = navigator.userAgent.toLowerCase();
+			// determining the version of android
+			if (ua.indexOf('android') != -1) {
+				var androidVersion = parseFloat(ua.match(/android\s+([\d\.]+)/)[1]);
+
+				// Show small ads on androids 2.x and lower to address too wide ad sizes we've been encountering
+				if (androidVersion < 3.0) {
+					return true;
+				}
+			}
+
+			var osIndex = navigator.userAgent.indexOf('OS');
+			if ((navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('iPad') > -1) && osIndex > -1) {
+				var iOSversion = window.Number(navigator.userAgent.substr(osIndex + 3, 3).replace('_', '.'));
+				if (iOSversion < 6) {
+					return true;
+				}
+			}
+
+			if (navigator.userAgent.indexOf('iemobile') > -1) {
+				return true;
+			}
+		},
+
 		initialize: function() {
 			if (mw.config.get('wgNamespaceNumber') !== 0 || this.$toc.length === 0) return;
 
@@ -47,6 +76,11 @@
 			this.stickyToc = $(window).width() < WH.mediumScreenMinWidth;
 
 			if (this.stickyToc) {
+				// see if we are on old device
+				if (this.shouldSimplify()) {
+					$('#method_toc').remove();
+					return;
+				}
 				var shouldSimplify = window.isOldAndroid || window.isOldIOS || window.isWindowsPhone;
 				if (shouldSimplify) {
 					$('#method_toc').remove();

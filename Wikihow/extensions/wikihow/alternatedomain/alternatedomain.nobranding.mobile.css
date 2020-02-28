@@ -74,7 +74,9 @@ a.addtip {
 	font-weight: bold;
 }
 
-.related-title:hover {
+.related-title:hover,
+.related-title:visited:hover,
+.related-title:active:hover {
 	background-color: white;
 	color: #2483ef;
 	text-decoration: none;

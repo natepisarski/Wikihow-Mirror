@@ -225,74 +225,39 @@
 				});
 			}
 
-			if (WH.isMobileDomain) {
+			$('.qa').on('click', '.qa_ignore_submitted',  function(e) {
+				e.preventDefault();
+				WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_ignore_submitted');
+				var widget = WH.QAWidget;
+				var $li = $(this).closest('.qa_sq');
+				$.post(
+					widget.endpoint,
+					{
+						a: 'sq_ignore',
+						sqid: $li.data('sqid')
+					},
+					$.proxy(function(result) {
+						$li.slideUp();
+					}, this)
+				);
+			});
 
-				//(mobile only)
-				$('.qa').on('click', '.qa_ignore_submitted',  function(e) {
-					e.preventDefault();
-					WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_ignore_submitted');
-					var widget = WH.QAWidget;
-					var $li = $(this).closest('.qa_sq');
-					$.post(
-						widget.endpoint,
-						{
-							a: 'sq_ignore',
-							sqid: $li.data('sqid')
-						},
-						$.proxy(function(result) {
-							$li.slideUp();
-						}, this)
-					);
-				});
-
-				$('.qa').on('click', '.qa_flag_submitted',  function(e) {
-					e.preventDefault();
-					WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_flag_submitted');
-					var widget = WH.QAWidget;
-					var $li = $(this).closest('.qa_sq');
-					$.post(
-						widget.endpoint,
-						{
-							a: 'sq_flag',
-							sqid: $li.data('sqid')
-						},
-						$.proxy(function(result) {
-							$li.find('.qa_li_container').html(mw.msg('qa_flagged_confirmation'));
-						}, this)
-					);
-				});
-			}
-			else {
-
-				//(desktop only)
-				//*** Flag as... pop-up ***
-				$('.qa').on('mouseenter', '.qa_ignore_submitted, .qa_flag_submitted',  function() {
-					WH.QAWidget.popFlagOptions($(this));
-				})
-				.on('mouseleave', '.qa_ignore_submitted, .qa_flag_submitted', function() {
-					WH.QAWidget.hideFlagOptions();
-				})
-				.on('click', '.qa_ignore_submitted, .qa_flag_submitted', function() {
-					return false;
-				});
-
-				$("#qa_flag_options").hover(function() {
-					$(this)
-						.stop(true)
-						.fadeIn({queue: false, duration: 150})
-						.animate({ bottom: WH.QAWidget.fo_reg_height, opacity: 1 }, 80);
-				}, function() {
-					$(this)
-						.fadeOut({queue: false, duration: 150})
-						.animate({ bottom: WH.QAWidget.fo_trans_height }, 150);
-				});
-
-				$('#qa_flag_options a').click(function(e){
-					e.preventDefault();
-					WH.QAWidget.submitFlagOption($(this));
-				});
-				//^^^ Flag as... pop-up ^^^
-			}
+			$('.qa').on('click', '.qa_flag_submitted',  function(e) {
+				e.preventDefault();
+				WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_flag_submitted');
+				var widget = WH.QAWidget;
+				var $li = $(this).closest('.qa_sq');
+				$.post(
+					widget.endpoint,
+					{
+						a: 'sq_flag',
+						sqid: $li.data('sqid')
+					},
+					$.proxy(function(result) {
+						$li.find('.qa_li_container').html(mw.msg('qa_flagged_confirmation'));
+					}, this)
+				);
+			});
 
 			$('.qa').on('click', '.qa_aq_cancel',  function(e) {
 				e.preventDefault();
@@ -1079,11 +1044,10 @@
 
 					var sqsHtml = '';
 					$.each(sqs, function(i, sq) {
-						sq.qa_curate =  WH.isMobileDomain ?
-							mw.msg('qa_curate_mobile') : mw.msg('qa_curate')
-						sq.qa_ignore = mw.msg('qa_ignore');
+						sq.qa_curate =  mw.msg('qa_curate_mobile');
+						sq.qa_ignore = mw.msg('qa_ignore_mobile');
 						sq.qa_flag = mw.msg('qa_flag');
-						sq.qa_desktop = !WH.isMobileDomain;
+						sq.qa_desktop = false;
 
 						sqsHtml += Mustache.render(unescape($('#qa_submitted_question_item').html()), sq);
 					});

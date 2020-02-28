@@ -212,6 +212,11 @@ class EchoWikihowHooks {
 		if ($out->getUser()->hasCookies()) {
 			$out->addModuleStyles(['ext.wikihow.echowikihow']);
 		}
+
+		$notifications_text = wfMessage('Notifications')->text();
+		if ($out->getTitle()->inNamespace(NS_SPECIAL) && $out->getTitle()->getDBkey() == $notifications_text) {
+			$out->addModuleStyles(['ext.wikihow.specialnotifications.styles']);
+		}
 	}
 }
 

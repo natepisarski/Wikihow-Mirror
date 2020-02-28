@@ -48,3 +48,11 @@ $wgResourceModules['ext.wikihow.echowikihow'] = [
 	'position' => 'top',
 	'targets' => [ 'desktop', 'mobile' ]
 ];
+
+$wgResourceModules['ext.wikihow.specialnotifications.styles'] = [
+	'styles' => ['specialnotifications.less'],
+	'localBasePath' => __DIR__ . '/' ,
+	'remoteExtPath' => 'wikihow/EchoWikihow',
+	'position' => 'top',
+	'targets' => [ 'desktop', 'mobile' ]
+];

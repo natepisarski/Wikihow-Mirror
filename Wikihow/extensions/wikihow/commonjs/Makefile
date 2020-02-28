@@ -15,3 +15,4 @@ $(COMPILED): $(SOURCES)
 
 clean:
 	rm -f *.compiled.js
+

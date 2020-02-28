@@ -70,9 +70,10 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$children,
 		$articles_fa,
 		$sortAlpha,
+		$sortDirection,
 		$article_info; //this is used to keep info about the various titles (currently using template info)
 
-	public function __construct($title, IContextSource $context, $sortAlpha = false) {
+	public function __construct($title, IContextSource $context, $sortAlpha = false, $sortDirection = 'ASC') {
 		global $wgCategoryPagingLimit;
 
 		parent::__construct($context);
@@ -80,6 +81,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$this->title = $title;
 		$this->limit = $wgCategoryPagingLimit;
 		$this->sortAlpha = $sortAlpha;
+		$this->sortDirection = $sortDirection;
 	}
 
 	public function getFAs() {
@@ -165,7 +167,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$indexConds = $this->getUser()->isAnon() ? 'ii_policy IN (1, 4)' : '1=1';
 		$safeTitle = $this->title->getDBKey();
 		if ($this->sortAlpha) {
-			$order = "cl_sortkey ASC";
+			$order = "cl_sortkey {$this->sortDirection}";
 		} else {
 			$order = "ti_30day_views DESC";
 		}

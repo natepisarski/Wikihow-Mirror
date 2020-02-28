@@ -1304,10 +1304,11 @@ class LSearch extends SpecialPage {
 		// control channel
 		$channel = 3021647686;
 
-		if ( $bucket == 1 ) {
+		if ( in_array( $bucket, [1, 3, 5, 7, 9] ) ) {
 			$channel = 8761059525;
 		}
-		if ( $bucket == 2 ) {
+
+		if ( in_array( $bucket, [2, 4, 6, 8, 10] ) ) {
 			$channel = 4186362021;
 		}
 		return $channel;

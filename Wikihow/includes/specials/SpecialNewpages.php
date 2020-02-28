@@ -139,8 +139,6 @@ class SpecialNewpages extends IncludableSpecialPage {
 		$user = $this->getUser();
 
 		$this->setHeaders();
-		// Wikihow/JRS, circa 2014: manually overriding default robot policy to noindex,follow
-		$out->setRobotPolicy('noindex,follow');
 
 		$this->getOutput()->addHTML("<div class='mw-special-container'>");
 		$this->outputHeader();

@@ -2,12 +2,15 @@ body {
 	-webkit-tap-highlight-color: inherit;
 }
 
-
 /*iOS device bug fix so a tap doesn't show the gray box*/
 * { -webkit-tap-highlight-color: transparent; }
 
 a:hover {
 	text-decoration: none;
+}
+
+code {
+	font-family: monospace;
 }
 
 /**********
@@ -504,8 +507,6 @@ input[type="submit"]:hover {
 }
 
 /** for links that are in a row with buttons **/
-
-A.new { color: #B30000; } /** Broken links **/
 
 .content .button.large {
 	font-size: 16px;

@@ -207,7 +207,7 @@ function addClickHandlers() {
 		var hsCloseClicks = 0;
 		var open = $( '.hs_active' ).length > 0;
 		var pageType = 'other';
-		if ( wgIsArticle ) {
+		if (mw.config.get('wgIsArticle')) {
 			pageType = 'article';
 		} else if ( wgTitle === 'LSearch' ) {
 			pageType = 'search';

@@ -24,7 +24,7 @@
 		 */
 		flagging: function() {
 			//anon only
-			if (wgUserName !== null) return false;
+			if (mw.config.get('wgUserName') !== null) return false;
 
 			//not flagging if we've already set the cookie
 			var mmf = mw.cookie.get(this.COOKIE_NAME);

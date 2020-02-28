@@ -38,17 +38,29 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$out->setPageTitle($categoryTitle->getText());
 		if ($req->getVal('viewMode',0)) {
 			//this is for the text view
-			$viewer = new WikihowCategoryViewer( $this->mTitle, $this->getContext(), true);
+			$sortDirection =  $req->getVal('rev', 'ASC');
+			$oppSortDirection = ($sortDirection == 'ASC') ? "DESC" : "ASC";
+			$viewer = new WikihowCategoryViewer($this->mTitle, $this->getContext(), true, $sortDirection);
 			$viewer->clearState();
 			$viewer->doQuery();
-			$out->addHtml('<div class="section minor_section">');
-			$out->addHtml('<ul>');
+			$vars = [
+				'reverseURL' => $categoryTitle->getLocalURL('viewMode=text&rev=' . $oppSortDirection),
+				'categoryName' => $categoryName,
+				'articles' => []
+			];
 			$articles = $viewer->articles;
 			foreach ($articles as $title) {
-				$out->addHtml( "<li>" . Linker::link($title) . "</li>");
+				$vars['articles'][] = ['articleLink' => Linker::link($title)];
 			}
-			$out->addHtml('</ul>');
-			$out->addHtml('</div>');
+
+			$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
+			$options = array('loader' => $loader);
+
+			$m = new Mustache_Engine($options);
+			$html = $m->render('responsive_textonly.mustache', $vars);
+			$out->addHTML($html);
+
+			$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
 		}
 		else {
 			//don't have a ?pg=1 page
@@ -70,6 +82,10 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$vars['featuredHeader'] = wfMessage("cat_featured")->text();
 			$vars['topicsHeader'] = wfMessage("cat_topics")->text();
 			$vars['cat_more'] = wfMessage("cat_more")->text();
+			if($ctx->getUser()->isLoggedIn()) {
+				$vars['text_only_url'] = $categoryTitle->getLocalURL('viewMode=text');
+				$vars['text_only_text'] = wfMessage('text_view')->text();
+			}
 			if($categoryName == "Featured Articles") {
 				$vars['allArticlesHeader'] = $categoryName;
 			} else {

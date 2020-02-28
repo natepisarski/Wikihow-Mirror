@@ -10,6 +10,7 @@ class Categorizer extends UnlistedSpecialPage {
 	var $oneHour = 0;
 	var $halfHour = 0;
 	var $oneWeek = 0;
+	const CATEGORY_TREE_DEPTH = 4;
 
 	public function __construct() {
 		global $wgHooks;
@@ -279,7 +280,7 @@ class Categorizer extends UnlistedSpecialPage {
 	private function setVars(&$vars, &$t) {
 		$vars['cat_head'] = $this->getHeadHtml($t, $vars);
 		$vars['cat_help_url'] = wfMessage('cat_help_url');
-		$vars['tree'] = json_encode(CategoryInterests::getCategoryTreeArray());
+		$vars['tree'] = json_encode(CategoryInterests::getCategoryTreeArray(self::CATEGORY_TREE_DEPTH));
 		$vars['cat_search_label'] = wfMessage('cat_search_label');
 		$vars['cat_subcats_label'] = wfMessage('cat_subcats_label');
 		if ($this->editPage) {

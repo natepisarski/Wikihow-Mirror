@@ -17,7 +17,9 @@ class CommunityDashboard extends UnlistedSpecialPage {
 	public function __construct() {
 		global $wgHooks, $wgTitle;
 
-		$this->specialPage = $wgTitle->getPartialUrl();
+		$bits = explode('/', $wgTitle->getPartialUrl(), 2);
+		$this->specialPage = $bits[0];
+
 		parent::__construct($this->specialPage);
 
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');

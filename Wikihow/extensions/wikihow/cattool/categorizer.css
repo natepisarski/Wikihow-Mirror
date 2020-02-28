@@ -32,23 +32,12 @@ ul.ui-corner-all {
 
 #cat_search {
 	width: 375px;
+	height: 27px;
+	border-width: 1px;
+	padding: 5px;
+	margin-top: 5px;
+	border-radius: 5px;
 }
-/*
-.cat_search_button {
-	width: 63px;
-	height: 29px;
-	background: url(/skins/WikiHow/images/button_white.png) -270px 0 no-repeat;
-	color: #01769F;
-	border: none;
-	font-size: .8em;
-	font-weight: bold;
-	padding: 0 3px 2px 0;
-	cursor: pointer;
-}
-
-.cat_search_button:hover {
-	background: url(/skins/WikiHow/images/button_white.png) -270px -29px no-repeat;
-}*/
 
 .cat_category {
 	display: inline-block;
