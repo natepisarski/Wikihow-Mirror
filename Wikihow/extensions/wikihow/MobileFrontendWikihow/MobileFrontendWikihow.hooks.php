@@ -29,7 +29,7 @@ class MobileFrontendWikiHowHooks {
 	}
 
 	static function onBeforePageDisplay( &$out ) {
-		global $wgTitle, $wgUser, $wgRequest, $wgLang, $wgLanguageCode, $wgDebugToolbar, $IP;
+		global $wgTitle, $wgUser, $wgRequest, $wgLang, $wgLanguageCode, $wgDebugToolbar, $IP, $wgProfiler, $wgIsDevServer;
 		if (QADomain::isQADomain()) {
 			return true;
 		}
@@ -106,7 +106,11 @@ class MobileFrontendWikiHowHooks {
 
 		$page_title = trim($out->getContext()->getTitle());
 
-		$stylePaths = [__DIR__ . '/less/wikihow/style_top.css'];
+		$stylePaths = [];
+
+		//if ( !Misc::isFastRenderTest() ) {
+			$stylePaths[] = __DIR__ . '/less/wikihow/style_top.css';
+		//}
 
 		if (WikihowMobileTools::isInternetOrgRequest()) {
 			$stylePaths[] = __DIR__ . '/less/wikihow/iorg.css';
@@ -155,6 +159,7 @@ class MobileFrontendWikiHowHooks {
 			//load bottom
 			$out->addModules('zzz.mobile.wikihow.styles_late_load');
 			$out->addModules('zzz.mobile.wikihow.scripts_late_load');
+			$out->addModules('mobile.wikihow.tabsonmobile');
 		}
 		else {
 			//load top
@@ -236,6 +241,11 @@ class MobileFrontendWikiHowHooks {
 			if (!$wgUser->isAnon()) {
 				$embedStyles []= __DIR__ . '/less/wikihow/responsive_loggedin.less';
 			}
+
+			if ( Misc::isFastRenderTest() ) {
+				$embedStyles [] = __DIR__ . '/less/wikihow/responsive_fastrender.less';
+			}
+
 			$style = Misc::getEmbedFiles('css', $embedStyles);
 			$less = ResourceLoader::getLessCompiler();
 			$less->parse($style);
@@ -249,6 +259,12 @@ class MobileFrontendWikiHowHooks {
 			$out->addHTML(RCWidget::rcWidgetJS());
 			$out->addModules(['ext.wikihow.rcwidget']);
 			$out->addModuleStyles(['ext.wikihow.rcwidget_styles']);
+		}
+
+		// this adds some extra css to the page if we are on dev site
+		if ( $wgIsDevServer && $wgProfiler['visible'] == true ) {
+			$pCss = "<style>body > pre{position:absolute;top:500px;background:white;z-index:10000;}</style>";
+			$out->addHeadItem('profilercss', $pCss);
 		}
 
 		return true;
@@ -297,7 +313,9 @@ class MobileFrontendWikiHowHooks {
 			'UserLogout',
 			'PasswordReset',
 			'MobileCommunityDashboard',
-			'Notifications'
+			'Notifications',
+			'HighSchoolHacks',
+			'RequestTopic'
 		];
 
 		$responsiveTools = [

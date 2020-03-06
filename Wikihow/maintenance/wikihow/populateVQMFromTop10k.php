@@ -5,7 +5,6 @@
 
 require_once __DIR__ . '/../Maintenance.php';
 
-require_once("$IP/extensions/wikihow/titus/GoogleSpreadsheet.class.php");
 
 class VQMFromTop10k extends Maintenance {
 
@@ -20,11 +19,7 @@ class VQMFromTop10k extends Maintenance {
 	}
 
 	public function processSpreadsheet() {
-		$gs = new GoogleSpreadsheet();
-		$startColumn = 1;
-		$endColumn = 5;
-		$startRow = 2;
-		$cols = $gs->getColumnData( WH_TITUS_TOP10K_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
+		$cols = GoogleSheets::getRows( WH_TITUS_TOP10K_GOOGLE_DOC, 'Super Titus!A2:E' );
 		foreach ( $cols as $col ) {
 			if ($col[2] == "en" ) {
 				$queries =  preg_split("@, *@",$col[0]);

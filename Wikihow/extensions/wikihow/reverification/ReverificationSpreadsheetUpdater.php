@@ -18,9 +18,8 @@ class ReverificationSpreadsheetUpdater {
 	var $verifierSkipCount = [];
 	var $startTime = null;
 	var $sheetNames = ['Expert', 'Academic'];
-	//var $sheetNames = ['Academic'];
+	// var $sheetNames = ['Academic'];
 	var $errors = [];
-	var $sheetsFile = null;
 	const TIMEOUT_LENGTH = 600;
 	const MAX_PER_DAY = 15;
 
@@ -28,17 +27,14 @@ class ReverificationSpreadsheetUpdater {
 		$this->startTime = wfTimestampNow();
 
 		$this->getExportData();
-
-		$file = $this->sheetsFile = $this->getSheetsFile();
-
 		$this->totalUpdateCount = count($this->exportData);
 		$this->log($this->totalUpdateCount . " reverifications to update");
 
 		if ($this->totalUpdateCount > 0) {
+			$spreadsheetId = CoauthorSheetMaster::getSheetId();
 			foreach ($this->sheetNames as $sheetName) {
-				$sheet = $file->sheet($sheetName);
 				$this->log("Processing Sheet: $sheetName");
-				$this->processSheet($sheet);
+				$this->processSheet($spreadsheetId, $sheetName);
 			}
 		}
 
@@ -47,10 +43,11 @@ class ReverificationSpreadsheetUpdater {
 		// $this->sendReport();
 	}
 
-	protected function processSheet(Google_Spreadsheet_Sheet $sheet) {
+	protected function processSheet($spreadsheetId, $sheetName) {
 		$updateCount = 0;
 		$skipCount = 0;
-		foreach ($sheet->items as $row => $data) {
+		$rows = GoogleSheets::getRowsAssoc($spreadsheetId, $sheetName);
+		foreach ($rows as $row => $data) {
 			$rowAid = $data["ArticleID"];
 			$shouldUpdateRow = true;
 			if (isset($this->exportData[$rowAid]) && $rever = $this->exportData[$rowAid]) {
@@ -87,16 +84,22 @@ class ReverificationSpreadsheetUpdater {
 					if ($t && $t->exists()) {
 						$this->log("-Updating spreadsheet 'Revision Link' and 'Verified Date' field");
 
-						$sheet->update($row, "Revision Link",
-							Misc::getLangBaseURL('en') . $t->getLocalURL("oldid=" . $rever->getNewRevId()));
-						$sheet->update($row, "Verified Date",
-							ReverificationData::formatDate(date(ReverificationData::FORMAT_DB), ReverificationData::FORMAT_SPREADSHEET));
+						$newRow = $data;
+						$newRevLink = Misc::getLangBaseURL('en') . $t->getLocalURL("oldid=" . $rever->getNewRevId());
+						$newVerifDate = ReverificationData::formatDate(date(ReverificationData::FORMAT_DB), ReverificationData::FORMAT_SPREADSHEET);
+						$newRow['Revision Link'] = $newRevLink;
+						$newRow['Verified Date'] = $newVerifDate;
 
 						if ($rever->getVerifierId() && ($rever->getVerifierId() != $verifierId) ) {
 							$this->log("-Updating spreadsheet 'Coauthor ID' field. Replacing " .
 							"{$data["Coauthor ID"]} with {$rever->getVerifierId()}");
-							$sheet->update($row, 'Verifier Name', $rever->getVerifierName());
+							$newRow['Verifier Name'] = $rever->getVerifierName();
 						}
+
+						$range = "{$sheetName}!A{$row}:J";
+						$rows = [ array_values($newRow) ];
+						GoogleSheets::updateRows($spreadsheetId, $range, $rows);
+
 						$this->verifierCount[$verifierId]++;
 					} else {
 						$this->log("-Skipping. Title doesn't exist for Article ID $rowAid");
@@ -193,33 +196,4 @@ class ReverificationSpreadsheetUpdater {
 		return $this->exportData;
 	}
 
-	/**
-	 * @return Google_Spreadsheet_File
-	 */
-	protected function getSheetsFile(): Google_Spreadsheet_File {
-		global $wgIsProduction;
-
-		$keys = (Object)[
-			'client_email' => WH_GOOGLE_SERVICE_APP_EMAIL,
-			'private_key' => file_get_contents(WH_GOOGLE_DOCS_P12_PATH)
-		];
-		$client = Google_Spreadsheet::getClient($keys);
-
-		// Set the curl timeout within the raw google client.  Had to do it this way because the google client
-		// is a private member within the Google_Spreadsheet_Client
-		$rawClient = function(Google_Spreadsheet_Client $client) {
-			return $client->client;
-		};
-		$rawClient = Closure::bind($rawClient, null, $client);
-		$configOptions = [
-			CURLOPT_CONNECTTIMEOUT => self::TIMEOUT_LENGTH,
-			CURLOPT_TIMEOUT => self::TIMEOUT_LENGTH
-		];
-		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
-
-		$fileId = CoauthorSheetMaster::getSheetId();
-		$file = $client->file($fileId);
-
-		return $file;
-	}
 }

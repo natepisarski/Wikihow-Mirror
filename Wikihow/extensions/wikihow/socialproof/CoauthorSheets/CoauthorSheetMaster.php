@@ -1,12 +1,10 @@
 <?php
 
 class CoauthorSheetMaster extends CoauthorSheet {
-	const FEED_LINK = 'https://spreadsheets.google.com/feeds/list/';
-	const FEED_LINK_2 = '/private/values?alt=json&access_token=';
 
 	public static function getSheetId() {
 		global $wgIsDevServer;
-		return $wgIsDevServer ? '1aMbIcoMJgPZspAT9v_fzoTP7kW-nKD7AZCy3T-BlCGE'
+		return $wgIsDevServer ? '1f9e8jFSreExVIChrX-M_Ihh3CV-MD2P1VOQcCsVFdKY'
 			: '19KNiXjlz9s9U0zjPZ5yKQbcHXEidYPmjfIWT7KiIf-I';
 	}
 
@@ -16,13 +14,12 @@ class CoauthorSheetMaster extends CoauthorSheet {
 	 */
 	public function doImport(): array
 	{
-		$token = self::getApiAccessToken();
 		$dbVerifiers = self::getVerifiersFromDB(); // TODO use VerifyData::getAllVerifierInfoFromDB()
 		$result = ['errors' => [], 'warnings' => [], 'imported' => []];
 
-		$coauthors = self::fetchSheetCoauthors($token, $dbVerifiers, $result);
-		$blurbs = self::fetchSheetBlurbs($token, $coauthors, $result);
-		$articles = self::fetchSheetArticles($token, $coauthors, $blurbs, $result);
+		$coauthors = self::fetchSheetCoauthors($dbVerifiers, $result);
+		$blurbs = self::fetchSheetBlurbs($coauthors, $result);
+		$articles = self::fetchSheetArticles($coauthors, $blurbs, $result);
 
 		self::processCoauthorRemovals($coauthors, $blurbs, $articles, $result);
 
@@ -45,50 +42,42 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		return $result;
 	}
 
-	/**
-	 * Worksheet ("tab") IDs for the old Google Sheets API (v3).
-	 *
-	 * They can be found in:
-	 * https://spreadsheets.google.com/feeds/worksheets/{$spreadsheetId}/private/full?alt=json&access_token={$token}
-	 */
-	public static function getWorksheetIds() {
+	public static function getArticleSheets() {
+		// [ name => ID ]
 		return [
-			'od6'     => 'expert',
-			'oc6ksye' => 'academic',
-			'o3x9v8q' => 'video',
-			'ocopjuk' => 'community',
-			'onbrokt' => 'videoverified',
-			'oy6rv04' => 'chefverified',
+			'Expert' => 'expert',
+			'Academic' => 'academic',
+			'YouTube' => 'video',
+			'Community' => 'community',
+			'Video Team Verified' => 'videoverified',
+			'Chef Verified' => 'chefverified',
 		];
 	}
 
 	/**
 	 * Import article coauthors from "Co-Author Lookup".
 	 *
-	 * @param  $token        Google Docs API token
 	 * @param  $dbCoauthors  Existing coauthors, so we can detect removals
 	 * @param  &$result      To be populated with info/errors/warnings
 	 *
 	 * @return array         Valid coauthors in the sheet
 	 */
-	private static function fetchSheetCoauthors(string $token, array $dbCoauthors, array &$result): array
+	private static function fetchSheetCoauthors(array $dbCoauthors, array &$result): array
 	{
-		$coauthorsSheetId = 'op2q2od';
-		$data = self::getWorksheetData( self::FEED_LINK, self::getSheetId(), $coauthorsSheetId, self::FEED_LINK_2, $token );
-		$num = 1;
 		$coauthors = [];
 		$names = [];
+		$rowGenerator = GoogleSheets::getRowsAssoc(self::getSheetId(), 'Co-Author Lookup');
 
-		foreach ($data as $row) {
-			$rowInfo = self::makeRowInfoHtml(++$num, self::getSheetId(), 'coauthors');
+		foreach ($rowGenerator as $num => $row) {
+			$rowInfo = self::makeRowInfoHtml($num, self::getSheetId(), 'coauthors');
 
-			$coauthorIdStr = $row->{'gsx$coauthorid'}->{'$t'};
-			$coauthorName = trim($row->{'gsx$people'}->{'$t'});
-			$whUserName = trim($row->{'gsx$portalusername'}->{'$t'});
-			$initials = $row->{'gsx$initials'}->{'$t'};
-			$category = trim($row->{'gsx$category'}->{'$t'});
-			$nameUrl = trim($row->{'gsx$namelinkurlelizonly'}->{'$t'});
-			$imageUrl = $row->{'gsx$approvedimageurlelizonly'}->{'$t'};
+			$coauthorIdStr = $row['Coauthor ID'];
+			$coauthorName = trim( $row['People'] );
+			$whUserName = trim( $row['Portal Username'] );
+			$initials = $row['Initials'];
+			$category = trim( $row['Category'] );
+			$nameUrl = trim( $row['Name Link URL (Eliz only)'] );
+			$imageUrl = $row['Approved Image Url (Eliz only)'];
 
 			$coauthorId = self::parseCoauthorId($coauthorIdStr, $result['errors'], $rowInfo);
 			if ( $coauthorId && isset($coauthors[$coauthorId]) ) {
@@ -151,32 +140,35 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			}
 		}
 
+		$errMsg = $rowGenerator->getReturn();
+		if ($errMsg) {
+			$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), 'coauthors');
+			$result['errors'][] = "$rowInfo $errMsg";
+		}
+
 		return $coauthors;
 	}
 
 	/**
 	 * Import from the "Blurb Lookup" worksheet
 	 *
-	 * @param  $token       Google Docs API token
 	 * @param  &$coauthors  Verifiers in 'Co-Author Lookup', so we can detect mismatches
 	 * @param  &$result     To be populated with info/errors/warnings
 	 *
 	 * @return array        Valid blurbs in the sheet
 	 */
-	private static function fetchSheetBlurbs(string $token, array &$coauthors, array &$result): array
+	private static function fetchSheetBlurbs(array &$coauthors, array &$result): array
 	{
-		$blurbsSheetId = 'o85rbmm';
-		$data = self::getWorksheetData( self::FEED_LINK, self::getSheetId(), $blurbsSheetId, self::FEED_LINK_2, $token );
-		$num = 1;
 		$blurbs = [];
+		$rowGenerator = GoogleSheets::getRowsAssoc(self::getSheetId(), 'Blurb Lookup');
 
-		foreach ($data as $row) {
-			$rowInfo = self::makeRowInfoHtml(++$num, self::getSheetId(), 'blurbs');
+		foreach ($rowGenerator as $num => $row) {
+			$rowInfo = self::makeRowInfoHtml($num, self::getSheetId(), 'blurbs');
 
-			$coauthorIdStr = $row->{'gsx$coauthorid'}->{'$t'};
-			$blurbId = trim($row->{'gsx$blurbid'}->{'$t'});
-			$byline = trim($row->{'gsx$byline'}->{'$t'});
-			$blurb = trim($row->{'gsx$blurb'}->{'$t'});
+			$coauthorIdStr = $row['Coauthor ID'];
+			$blurbId = trim( $row['Blurb ID'] );
+			$byline = trim( $row['Byline'] );
+			$blurb = trim( $row['Blurb'] );
 
 			$coauthorId = self::parseCoauthorId($coauthorIdStr, $result['errors'], $rowInfo, $coauthors);
 
@@ -222,6 +214,12 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			}
 		}
 
+		$errMsg = $rowGenerator->getReturn();
+		if ($errMsg) {
+			$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), 'blurbs');
+			$result['errors'][] = "$rowInfo $errMsg";
+		}
+
 		return $blurbs;
 	}
 
@@ -229,37 +227,37 @@ class CoauthorSheetMaster extends CoauthorSheet {
 	 * Import verified articles from: "Expert", "Academic", "YouTube", "Community",
 	 * "Video Team Verified", and "Chef Verified".
 	 *
-	 * @param  $token      Google Docs API token
 	 * @param  $coauthors  Verifiers in 'Co-Author Lookup', so we can detect mismatches
 	 * @param  $blurbs     Blurbs in 'Blurbs', so we can detect mismatches
 	 * @param  &$result    To be populated with info/errors/warnings
 	 *
 	 * @return array       Valid articles in the sheet
 	 */
-	private static function fetchSheetArticles( string $token, array $coauthors, array $blurbs, array &$result ): array {
+	private static function fetchSheetArticles(array $coauthors, array $blurbs, array &$result ): array {
 		$allRows = []; // every row in every worksheet
 		$aids = [];    // article IDs every worksheet: [ aid => count ] (to detect duplicates)
 		$dups = [];
 
-		foreach ( self::getWorksheetIds() as $worksheetId => $worksheetName ) {
+		foreach ( self::getArticleSheets() as $worksheetName => $worksheetId )
+		{
+			$rowGenerator = GoogleSheets::getRowsAssoc(self::getSheetId(), $worksheetName);
 
-			$rows = self::getWorksheetData( self::FEED_LINK, self::getSheetId(), $worksheetId, self::FEED_LINK_2, $token );
-			if ( !$rows || !is_array($rows) ) {
-				$result['errors'][] = "Unable to access worksheet '$worksheetName' (id=$worksheetId)";
-				continue;
-			}
-
-			$num = 1;
-			foreach( $rows as $row ) {
-				$row->num = ++$num;
-				$skip = 1 === intval( $row->{'gsx$devleaveblankifnotdev'}->{'$t'} );
+			foreach ($rowGenerator as $num => $row) {
+				$skip = ( 1 === intval($row['dev (leave blank if not dev)']) );
 				if ($skip) {
 					continue;
 				}
-				$row->worksheetName = $worksheetName;
+				$row['num'] = $num;
+				$row['worksheetId'] = $worksheetId;
 				$allRows[] = $row;
-				$aid = (int) $row->{'gsx$articleid'}->{'$t'};
+				$aid = (int) $row['ArticleID'];
 				$aids[$aid] = 1 + ($aids[$aid] ?? 0);
+			}
+
+			$errMsg = $rowGenerator->getReturn();
+			if ($errMsg) {
+				$rowInfo = self::makeRowInfoHtml(0, self::getSheetId(), $worksheetId);
+				$result['errors'][] = "$rowInfo $errMsg";
 			}
 		}
 
@@ -267,16 +265,16 @@ class CoauthorSheetMaster extends CoauthorSheet {
 		$titles = self::newFromIDsAssoc( $aids );
 
 		foreach( $allRows as $row ) {
-			$worksheetName = $row->worksheetName;
-			$rowInfo = self::makeRowInfoHtml($row->num, self::getSheetId(), $worksheetName);
+			$worksheetId = $row['worksheetId'];
+			$rowInfo = self::makeRowInfoHtml($row['num'], self::getSheetId(), $worksheetId);
 
 			// Data validation
 
 			$errors = [];
 
-			$pageIdStr = $row->{'gsx$articleid'}->{'$t'};
+			$pageIdStr = $row['ArticleID'];
 			$pageId = (int) $pageIdStr;
-			$articleName = $row->{'gsx$articlename'}->{'$t'};
+			$articleName = $row['Article Name'];
 
 			// $pageId
 			$title = $titles[$pageId];
@@ -287,7 +285,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 			} elseif ( $pageId <= 0 ) {
 				$errors[] = "$rowInfo Invalid article ID: $pageIdStr";
 			} elseif ( $aids[$pageId] > 1 ) {
-				$dups[$pageId][] = self::makeRowLink($row->num, self::getSheetId(), $worksheetName);
+				$dups[$pageId][] = self::makeRowLink($row['num'], self::getSheetId(), $worksheetId);
 			} elseif ( !$title ) {
 				$errors[] = "$rowInfo Article ID not found in DB: $pageIdStr";
 			} elseif ( !$title->inNamespace(NS_MAIN) ) {
@@ -309,11 +307,11 @@ class CoauthorSheetMaster extends CoauthorSheet {
 				$errors[] = "$rowInfo Mismatch: ArticleID is $pageIdStr, but the ID for '$key2' is $id2";
 			}
 
-			if ( !in_array($worksheetName, ['chefverified', 'videoverified']) ) {
-				$coauthorIdStr = $row->{'gsx$coauthorid'}->{'$t'};
+			if ( !in_array($worksheetId, ['chefverified', 'videoverified']) ) {
+				$coauthorIdStr = $row['Coauthor ID'];
 				$coauthorId = self::parseCoauthorId($coauthorIdStr, $result['errors'], $rowInfo, $coauthors);
 
-				$blurbId = trim($row->{'gsx$blurbid'}->{'$t'});
+				$blurbId = trim( $row['Blurb ID'] );
 				list($coauthorId2, $blurbNum) = self::parseBlurbId(
 					$blurbId, $coauthorId, $result['errors'], $rowInfo);
 
@@ -322,12 +320,12 @@ class CoauthorSheetMaster extends CoauthorSheet {
 				}
 			}
 
-			if ( $worksheetName != 'chefverified' ) {
-				$date = trim($row->{'gsx$verifieddate'}->{'$t'});
+			if ( $worksheetId != 'chefverified' ) {
+				$date = trim( $row['Verified Date'] );
 				if ( !$date ) { // TODO validate
 					$errors[] = "$rowInfo Empty Verified Date";
 				}
-				$revisionLink = trim($row->{'gsx$revisionlink'}->{'$t'});
+				$revisionLink = trim( $row['Revision Link'] );
 				$revId = (int) self::getRevId( $revisionLink );
 				if ( !trim($revisionLink) ) {
 					$errors[] = "$rowInfo Empty Revision Link URL";
@@ -343,11 +341,11 @@ class CoauthorSheetMaster extends CoauthorSheet {
 
 			// Make a VerifyData object
 
-			if ( $worksheetName == 'chefverified' ) { // this sheet has no verifier data
-				$verifyData = VerifyData::newChefArticle( $worksheetName, $pageId );
+			if ( $worksheetId == 'chefverified' ) { // this sheet has no verifier data
+				$verifyData = VerifyData::newChefArticle( $worksheetId, $pageId );
 			}
-			elseif ( $worksheetName == 'videoverified' ) {
-				$verifyData = VerifyData::newVideoTeamArticle( $worksheetName, $pageId, $revId, $date );
+			elseif ( $worksheetId == 'videoverified' ) {
+				$verifyData = VerifyData::newVideoTeamArticle( $worksheetId, $pageId, $revId, $date );
 			}
 			else {
 				$primaryBlurb = $blurbs[$blurbId]->byline;
@@ -356,7 +354,7 @@ class CoauthorSheetMaster extends CoauthorSheet {
 				$coauthorName = $coauthors[$coauthorId]->name;
 
 				$verifyData = VerifyData::newArticle( $pageId, $coauthorId, $date, $coauthorName, $blurbId, $primaryBlurb,
-					$hoverBlurb, $revId, $worksheetName );
+					$hoverBlurb, $revId, $worksheetId );
 			}
 			$articles[$pageId][] = $verifyData;
 			$result['imported'][] = [ $pageId => $verifyData ];

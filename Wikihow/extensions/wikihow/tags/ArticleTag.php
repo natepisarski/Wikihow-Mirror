@@ -232,7 +232,7 @@ class ArticleTag {
 		$out->addHeadItem( 'native_browser_lazy_loading',  HTML::inlineScript( $nativeBrowserLazyLoadingScript ) );
 
 		$jsFastRender = 0;
-		if ( ArticleTagList::hasTag( 'js_fast_render', $out->getTitle()->getArticleID() ) ) {
+		if ( Misc::isFastRenderTest() ) {
 			$jsFastRender = 1;
 		}
 		$nativeBrowserLazyLoadingScript =  "window.WH.jsFastRender=$jsFastRender;";

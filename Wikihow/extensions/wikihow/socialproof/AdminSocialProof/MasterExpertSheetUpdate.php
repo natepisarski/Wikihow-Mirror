@@ -86,7 +86,7 @@ class MasterExpertSheetUpdate implements DeferrableUpdate {
 		$total = count( $pages );
 
 		// set up result array
-		$counts = array_flip( CoauthorSheetMaster::getWorksheetIds() );
+		$counts = array_flip( CoauthorSheetMaster::getArticleSheets() );
 		$counts = array_map( function() { return 0; }, $counts );
 		$counts['total'] = $total;
 

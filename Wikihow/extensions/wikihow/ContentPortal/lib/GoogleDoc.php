@@ -1,11 +1,6 @@
 <?php
-namespace ContentPortal;
-global $IP;
-require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheetTools.php");
-require_once("$IP/extensions/wikihow/titus/GoogleSpreadsheet.class.php");
 
-use Title, GoogleSpreadsheet, Google_Service_Drive_Permission, CoauthorSheetTools,
-	Google_Service_Drive_ParentReference, Google_Service_Drive_DriveFile, Google_Service_Drive_Permissions_Resource;
+namespace ContentPortal;
 
 class GoogleDoc {
 
@@ -13,57 +8,38 @@ class GoogleDoc {
 	public $article;
 	public $folderId;
 
-	const DOH_FOLDER = '0B66Rhz56bzLHflROYm5oYlc2dWtHRHNoRE1RandlaG0tY1l0YUtLVWZLMXVydHlZeUtZbk0';
+	const DEV_FOLDER = '1l2q77Jb5yVvhyHVcB6f62rnPl-MBIRw_';
 	const PROD_FOLDER = '0B66Rhz56bzLHfllfVlJlTzNhRFJGOTNudnpDaFgxMkM5bmtLeUNFYjdxYmd4TUVKd3hIYWc';
 
 	public function __construct(Article $article) {
 		$this->article = $article;
-		$gs = new GoogleSpreadsheet();
-		$this->folderId = ENV == 'production' ? self::PROD_FOLDER : self::DOH_FOLDER;
-		$this->service = $gs->getService();
-	}
-
-	public static function build(Article $article) {
-		return new GoogleDoc($article);
+		$this->folderId = ENV == 'production' ? self::PROD_FOLDER : self::DEV_FOLDER;
+		$this->service = \GoogleDrive::getService();
 	}
 
 	public function createWritingDoc() {
-		$file = new Google_Service_Drive_DriveFile();
-		$file->setTitle($this->article->title);
-		$file->setDescription('created document for writing');
-		$file->setParents([$this->getFolder()]);
-
-		$createdFile = $this->service->files->insert($file, [
-			'data'       => '',
-			'mimeType'   => 'text/html',
-			'uploadType' => 'multipart',
-			'convert'    => 'true'
+		$fileMeta = new \Google_Service_Drive_DriveFile([
+			'name' => $this->article->title,
+			'parents' => [ $this->folderId ],
+			'mimeType' => 'application/vnd.google-apps.document'
 		]);
+		$reqParams = ['fields' => 'id,name,description,webViewLink'];
+		$file = $this->service->files->create($fileMeta, $reqParams);
 
-		$this->setPermissions($createdFile);
-		return $createdFile;
+		$perm = new \Google_Service_Drive_Permission([
+			'type' => 'anyone',
+			'role' => 'commenter',
+		]);
+		$res = $this->service->permissions->create($file->id, $perm);
+
+		return $file;
 	}
 
 	public function createVerificationDoc() {
-		$tools = new CoauthorSheetTools();
-		$title = Title::newFromId($this->article->wh_article_id);
+		$tools = new \ExpertDocTools();
+		$title = \Title::newFromId($this->article->wh_article_id);
 		$slug = $title->getText();
-		return $tools->createExpertDoc($this->service, $slug, null, Router::getInstance()->getContext(), $this->folderId );
+		return $tools->createExpertDoc($slug, null, Router::getInstance()->getContext(), $this->folderId );
 	}
-
-	private function getFolder() {
-		$parent = new Google_Service_Drive_ParentReference();
-		$parent->setId($this->folderId);
-		return $parent;
-	}
-
-	private function setPermissions($file, $role='writer') {
-		$perm = new Google_Service_Drive_Permission();
-		$perm->setRole($role);
-		$perm->setType('anyone');
-		$perm->setAdditionalRoles(['commenter']);
-		$this->service->permissions->insert($file->id, $perm);
-	}
-
 
 }

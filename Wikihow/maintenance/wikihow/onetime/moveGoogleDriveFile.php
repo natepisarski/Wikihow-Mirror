@@ -26,9 +26,7 @@ class MoveDriveFiles extends Maintenance {
 		$newFolderId = "0B66Rhz56bzLHfllfVlJlTzNhRFJGOTNudnpDaFgxMkM5bmtLeUNFYjdxYmd4TUVKd3hIYWc";
 
 		$stdin = $this->getStdin();
-		global $IP;
-		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
-		$service = SampleProcess::buildService();
+		$service = GoogleDrive::getService();
 
 		$newParent = new Google_Service_Drive_ParentReference();
 		$newParent->setId( $newFolderId );

@@ -3,56 +3,28 @@
 class QuizImporter {
 	var $methodInfo;
 
-	const SHEETS_URL = "https://docs.google.com/spreadsheets/d/";
-
-	const FEED_LINK = "https://spreadsheets.google.com/feeds/list/";
-	const FEED_LINK_2 = "/private/values?alt=json&access_token=";
 	const SHEET_ID = "1PEqxKugzmaWPRH8vQO4qLS2xA7r9gV0Y_qURs5ReI0s";
-
-	const WORKSHEET = "/od6";
-	const DEV_WORKSHEET = "/o988xiv";
 
 	function __construct() {
 		$this->methodInfo = [];
 	}
 
-	public function importSpreadsheet () {
+	public function importSpreadsheet() {
 		global $wgIsDevServer;
 
-		$worksheet = $wgIsDevServer ? self::DEV_WORKSHEET : self::WORKSHEET;
-		$data = $this->getSpreadsheetData(self::SHEET_ID, $worksheet);
+		$worksheet = $wgIsDevServer ? 'testing - do not delete' : 'Quiz Importer';
+		$data = GoogleSheets::getRowsAssoc(self::SHEET_ID, $worksheet);
 		return $this->processSheetData($data);
 	}
 
-	private function getSpreadsheetData($sheetId, $worksheetId) {
-		global $IP;
-		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
-
-		$service = SampleProcess::buildService();
-		if ( !isset($service) ) {
-			return;
-		}
-
-		$client = $service->getClient();
-		$token = $client->getAccessToken();
-		$token = json_decode($token);
-		$token = $token->access_token;
-
-		$feedLink = self::FEED_LINK . $sheetId . $worksheetId . self::FEED_LINK_2;
-		$sheetData = file_get_contents($feedLink . $token);
-		$sheetData = json_decode($sheetData);
-		$sheetData = $sheetData->{'feed'}->{'entry'};
-
-		return $sheetData;
-	}
-
-	private function processSheetData($sheetData) {
+	private function processSheetData(Iterator $sheetData) {
 		$quizzes = [];
 		$quizzesToInsert = [];
 		$badUrls = [];
-
+		$totalCount = 0;
 		foreach ($sheetData as $row) {
-			$articleUrl = $row->{'gsx$url'}->{'$t'};
+			$totalCount++;
+			$articleUrl = $row['URL'];
 			$title = Misc::getTitleFromText($articleUrl);
 
 			if (!$title || !$title->exists()) {
@@ -60,32 +32,32 @@ class QuizImporter {
 				continue;
 			}
 			$aid = $title->getArticleID();
-			$method = $row->{'gsx$section'}->{'$t'};
-			$question = html_entity_decode($row->{'gsx$question'}->{'$t'});
-			$answer = ord(strtolower($row->{'gsx$correctanswer'}->{'$t'})) - ord("a");
+			$method = $row['Section'];
+			$question = html_entity_decode($row['Question']);
+			$answer = ord(strtolower($row['Correct answer'])) - ord("a");
 			$data = ['options' => [], 'explanations' => []];
 
-			if ($row->{'gsx$answera'}->{'$t'} != "") {
-				$data['options'][] = html_entity_decode($row->{'gsx$answera'}->{'$t'});
-				$data['explanations'][] = html_entity_decode($row->{'gsx$responsea'}->{'$t'});
+			if ($row['Answer A'] != "") {
+				$data['options'][] = html_entity_decode($row['Answer A']);
+				$data['explanations'][] = html_entity_decode($row['Response A']);
 			}
-			if ($row->{'gsx$answerb'}->{'$t'} != "") {
-				$data['options'][] = html_entity_decode($row->{'gsx$answerb'}->{'$t'});
-				$data['explanations'][] = html_entity_decode($row->{'gsx$responseb'}->{'$t'});
+			if ($row['Answer B'] != "") {
+				$data['options'][] = html_entity_decode($row['Answer B']);
+				$data['explanations'][] = html_entity_decode($row['Response B']);
 			}
-			if ($row->{'gsx$answerc'}->{'$t'} != "") {
-				$data['options'][] = html_entity_decode($row->{'gsx$answerc'}->{'$t'});
-				$data['explanations'][] = html_entity_decode($row->{'gsx$responsec'}->{'$t'});
+			if ($row['Answer C'] != "") {
+				$data['options'][] = html_entity_decode($row['Answer C']);
+				$data['explanations'][] = html_entity_decode($row['Response C']);
 			}
-			if ($row->{'gsx$answerd'}->{'$t'} != "") {
-				$data['options'][] = html_entity_decode($row->{'gsx$answerd'}->{'$t'});
-				$data['explanations'][] = html_entity_decode($row->{'gsx$responsed'}->{'$t'});
+			if ($row['Answer D'] != "") {
+				$data['options'][] = html_entity_decode($row['Answer D']);
+				$data['explanations'][] = html_entity_decode($row['Response D']);
 			}
-			if ($row->{'gsx$answere'}->{'$t'} != "") {
-				$data['options'][] = html_entity_decode($row->{'gsx$answere'}->{'$t'});
-				$data['explanations'][] = html_entity_decode($row->{'gsx$responsee'}->{'$t'});
+			if ($row['Answer E'] != "") {
+				$data['options'][] = html_entity_decode($row['Answer E']);
+				$data['explanations'][] = html_entity_decode($row['Response E']);
 			}
-			$author = $row->{'gsx$author'}->{'$t'};
+			$author = $row['Author'];
 
 			$isValid = $this->checkMethodName($title, $method);
 			if (!$isValid) {
@@ -122,7 +94,7 @@ class QuizImporter {
 		}
 
 		$info = [];
-		$info['good'] = count($sheetData) - count($badUrls);
+		$info['good'] = $totalCount - count($badUrls);
 		$info['bad'] = count($badUrls);
 		$info['errors'] = $badUrls;
 		$info['deleted'] = $numDeleted;

@@ -397,7 +397,7 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 		global $wgIsDevServer;
 		if ( $wgIsDevServer ) {
 			$vars['view_feedback_sheet_dev'] = "Dev Feedback Sheet";
-			$vars['feedback_sheet_url_dev'] = "https://docs.google.com/spreadsheets/d/1IrK1-AUeR99mwXQnDjQ1UAuUD7WEpAC1GY2zidNYN7o/edit#gid=0";
+			$vars['feedback_sheet_url_dev'] = "https://docs.google.com/spreadsheets/d/1Atcg2gM1aBbT5PSXMd5LdVvUKYLy2GtwQNag0K2R078/edit#gid=0";
 		}
 		$html = $m->render( 'specialtechverifyadmin', $vars );
 
@@ -405,16 +405,17 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 	}
 
 	public static function updateSheet() {
-		$file = self::getSheetsFile();
-		$sheet = $file->sheet('default');
+		global $wgIsProduction;
 
-		$items = $sheet->select();
-		$lastItem = end( $items );
-		$lastId = $lastItem['id'];
+		$spreadsheetId = $wgIsProduction
+			? '1uILCHWGw9DNnrETQoW7HOnPC63W3qH7q58Pw035XstI'
+			: '1Atcg2gM1aBbT5PSXMd5LdVvUKYLy2GtwQNag0K2R078';
+
+		$rows = GoogleSheets::getRows($spreadsheetId, 'default');
+		$lastItem = end( $rows );
+		$lastId = $lastItem[11];
 		$allData = self::getSheetFeedbackData( $lastId );
-		foreach ( $allData as $data ) {
-			$sheet->insert( $data );
-		}
+		$res = GoogleSheets::appendRows($spreadsheetId, 'default', $allData);
 	}
 
 	private static function getSheetFeedbackData( $lastId ) {
@@ -430,22 +431,21 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 			     );
 		$options = array( 'ORDER BY' => 'stvi_id ASC' );
 		$res = $dbr->select( $table, $var, $cond, __METHOD__, $options );
-
         $allData = array();
         foreach ( $res as $row ) {
             $data = array(
-                'user' => self::getUserFromId( $row->stvi_user_id ),
-                'page' => self::getPageFromId( $row->stvi_page_id ),
-                'revision' => $row->stvi_revision_id,
-                'vote' => $row->stvi_vote,
-                'batch' => $row->stvi_batch_name,
-                'platform' => $row->stvi_platform,
-                'model' => $row->stvi_feedback_model,
-                'version' => $row->stvi_feedback_version,
-                'text' => $row->stvi_feedback_text,
-                'reason' => $row->stvi_feedback_reason,
-                'timestamp' => $row->stvi_timestamp,
-                'id' => $row->stvi_id,
+                $row->stvi_batch_name, // batch
+                self::getUserFromId( $row->stvi_user_id ), // user
+                self::getPageFromId( $row->stvi_page_id ), // page
+                $row->stvi_revision_id, // revision
+                $row->stvi_vote, // vote
+                $row->stvi_platform, // platform
+                $row->stvi_feedback_model, // model
+                $row->stvi_feedback_version, // version
+                $row->stvi_feedback_text, // text
+                $row->stvi_feedback_reason, // reason
+                $row->stvi_timestamp, // timestamp
+                $row->stvi_id, // id
             );
             $allData[] = $data;
         }
@@ -467,41 +467,6 @@ class SpecialTechVerifyAdmin extends UnlistedSpecialPage {
 			return "https:" . $title->getFullURL();
 		}
 		return $pageId;
-	}
-
-	/**
-	 * @return Google_Spreadsheet_File
-	 */
-	private static function getSheetsFile(): Google_Spreadsheet_File {
-		global $wgIsProduction;
-
-		$keys = (Object)[
-			'client_email' => WH_GOOGLE_SERVICE_APP_EMAIL,
-			'private_key' => file_get_contents(WH_GOOGLE_DOCS_P12_PATH)
-		];
-		$client = Google_Spreadsheet::getClient($keys);
-
-		// Set the curl timeout within the raw google client.  Had to do it this way because the google client
-		// is a private member within the Google_Spreadsheet_Client
-		$rawClient = function(Google_Spreadsheet_Client $client) {
-			return $client->client;
-		};
-		$rawClient = Closure::bind($rawClient, null, $client);
-		$timeoutLength = 600;
-		$configOptions = [
-			CURLOPT_CONNECTTIMEOUT => $timeoutLength,
-			CURLOPT_TIMEOUT => $timeoutLength
-		];
-		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
-
-		if ($wgIsProduction) {
-			$fileId = '1uILCHWGw9DNnrETQoW7HOnPC63W3qH7q58Pw035XstI';
-		} else {
-			$fileId = '1IrK1-AUeR99mwXQnDjQ1UAuUD7WEpAC1GY2zidNYN7o';
-		}
-		$file = $client->file($fileId);
-
-		return $file;
 	}
 
 	private function getDataForBatch( $batchName ) {

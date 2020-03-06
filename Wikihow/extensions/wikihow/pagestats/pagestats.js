@@ -227,8 +227,7 @@ window.setupEditMenu = function() {
 		}
 		var textBox = $('#sem-textarea').val();
 		var type = $('#sem-textarea').data('type');
-		var isSummary = type == 'Edit In A Hurry';
-		if (textBox == '' && !isSummary) {
+		if (textBox == '') {
 			alert("you must enter text to submit");
 			e.preventDefault();
 			return;

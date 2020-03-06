@@ -24,6 +24,24 @@ function initializeArticlePage() {
 	$('.section.video').show();
 	$('#hp_navigation').show();
 
+	$(document).on("click", '#toggle_link', function(e){
+		if( mw.cookie.get('showtabs') === '1' ) {
+			mw.cookie.set('showtabs', null);
+			$("#actionbar").removeClass("forcetabs");
+		} else {
+			mw.cookie.set('showtabs', '1');
+			$("#actionbar").addClass("forcetabs");
+		}
+	});
+
+	mw.loader.using('mediawiki.cookie', function() {
+		var userGroups = mw.config.get('wgUserGroups');
+		var adminTabEligible = userGroups.includes('staff') || userGroups.includes('sysop') || userGroups.includes('newarticlepatrol');
+		if ($(window).width() < WH.mediumScreenMinWidth && adminTabEligible && mw.cookie.get('showtabs') == '1') {
+			$("#actionbar").addClass("forcetabs");
+		}
+	});
+
 	// Hide pencil button if we're on a page that doesn't exist
 	if (mw.config.get('wgArticleId') === 0) {
 		$('#ca-edit').hide();

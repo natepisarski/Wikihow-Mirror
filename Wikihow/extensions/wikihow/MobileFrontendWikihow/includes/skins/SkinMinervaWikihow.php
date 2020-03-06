@@ -108,6 +108,11 @@ class SkinMinervaWikihow extends SkinMinerva {
 			$out->addHeadItem( 'desktopadshead', $headHtml );
 		}
 
+		if ( !$isAmp ) {
+			$headItems = MinervaTemplateWikihow::getAdditionalHeadItems();
+			$out->addHeadItem( 'js_fast_render_head', $headItems );
+		}
+
 		$tmpl = parent::prepareQuickTemplate();
 		$this->prepareWikihowTools($tmpl);
 		$this->prepareDiscoveryTools($tmpl);
@@ -648,14 +653,22 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 	// annoying but for gdpr we make the section twice and use the one that is appropriate
 	public static function getMobileTOSLink( ) {
-		$gdprText = wfMessage('gdpr_mobile_menu_bottom')->text();
+		global $wgUser;
+
+		$tosText = wfMessage('gdpr_mobile_menu_bottom')->text();
 		$href = Title::newFromText( wfMessage("gdpr_mobile_menu_bottom_link")->text(), NS_PROJECT )->getLinkURL();
 		$attr = array(
 			'href' => $href,
 			'class' => 'gdpr-menu'
 		);
-		$gdpr = Html::rawElement( 'a', $attr, $gdprText );
-		$gdpr = Html::rawElement( 'div', ['class' => ['mw-mf-display-toggle']], $gdpr );
+		$menuText = Html::rawElement( 'a', $attr, $tosText );
+		$userGroups = $wgUser->getGroups();
+		if( in_array('staff', $userGroups) || in_array('newarticlepatrol', $userGroups) || in_array('sysop', $userGroups) ) {
+			$menuText .= " | ";
+			$menuText .= Html::rawElement('a', ['href' => '#', 'class' => 'gdpr-menu', 'id' => 'toggle_link'], 'Toggle edit links');
+		}
+
+		$gdpr = Html::rawElement( 'div', ['class' => ['mw-mf-display-toggle']], $menuText );
 
 		return $gdpr;
 	}
@@ -686,11 +699,10 @@ class SkinMinervaWikihow extends SkinMinerva {
 	public function getDefaultModules() {
 		$modules = parent::getDefaultModules();
 
-		$pageId = $this->getTitle()->getArticleID();
 		unset($modules['toggling']);
 		//unset($modules['newusers']);
 
-		if ( ArticleTagList::hasTag( 'js_fast_render', $pageId ) ) {
+		if ( Misc::isFastRenderTest() ) {
 			unset( $modules['minerva'] );
 			unset( $modules['styles'] );
 			unset( $modules['content'] );

@@ -60,7 +60,7 @@ class AdminCustomMeta extends UnlistedSpecialPage {
 
 	private function downloadChanges() {
 		$filePrefix = $this->customMeta->getFilePrefix();
-		self::httpDownloadHeaders($filePrefix . date('Ymd') . '.txt');
+		self::httpDownloadHeaders($filePrefix . date('Ymd') . '.tsv');
 		$headers = $this->customMeta->getCustomHeaders();
 		$list = $this->customMeta->getCustomList(false /* return unlabelled data */);
 		print join("\t", $headers) . "\n";

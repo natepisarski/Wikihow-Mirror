@@ -159,6 +159,8 @@ class AdminSamples extends UnlistedSpecialPage {
 	 * Execute special page.  Only available to wikihow staff.
 	 */
 	public function execute($par) {
+		global $wgIsDevServer;
+
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
@@ -170,7 +172,7 @@ class AdminSamples extends UnlistedSpecialPage {
 			return;
 		}
 
-		if ($_SERVER['HTTP_HOST'] != 'parsnip.wikiknowhow.com') {
+		if (!$wgIsDevServer && $_SERVER['HTTP_HOST'] != 'parsnip.wikiknowhow.com') {
 			$out->redirect('https://parsnip.wikiknowhow.com/Special:AdminSamples');
 		}
 

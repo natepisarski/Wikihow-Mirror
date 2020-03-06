@@ -387,7 +387,10 @@ class Ads {
 		if ( !$this->mAdCreator->showBlockthroughJs() ) {
 			return '';
 		}
-		return '<script src="//wikihow-com.videoplayerhub.com/galleryloader.js" async></script>';
+
+		$script = file_get_contents( __DIR__."/blockthrough.js" );
+		$script = Html::inlineScript( $script );
+		return $script;
 	}
 }
 

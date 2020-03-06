@@ -2,14 +2,12 @@
 
 namespace ExpInv;
 
-use GoogleSpreadsheet;
-
 use SheetInv\ParsingResult;
 
 /**
  * The project's read-only data source, supported by Google Sheets.
  */
-class Spreadsheet extends GoogleSpreadsheet
+class Spreadsheet
 {
 	private $sheetId; // String
 
@@ -17,7 +15,6 @@ class Spreadsheet extends GoogleSpreadsheet
 	{
 		global $wgIsProduction;
 
-		parent::__construct();
 		$this->sheetId = $wgIsProduction
 			? '12Yocb0MhECB71uQLoJf84r5yNzGa3I4WN_nYP2JuhPI'
 			: '1yqi-uEZ-pekfakrVvUYGYeMhXp50_6IOV6SsooiYpq0';
@@ -25,30 +22,28 @@ class Spreadsheet extends GoogleSpreadsheet
 
 	public function parseSheet(): ParsingResult
 	{
-		$types = ['verified', 'reverified'];
-		$result = $this->parseSummarySheet("{$this->sheetId}/1");
-		$result = $this->parseVerificationSheet($result, $types[0], "{$this->sheetId}/2", 'Verification Details');
-		$result = $this->parseVerificationSheet($result, $types[1], "{$this->sheetId}/3", 'Re-Verification Details');
+		$result = $this->parseSummarySheet('Payment Summary!A2:E');
+		$result = $this->parseVerificationSheet($result, 'verified', 'Verification Details!A2:B', 'Verification Details');
+		$result = $this->parseVerificationSheet($result, 'reverified', 'Re-Verification Details!A2:B', 'Re-Verification Details');
 		$result->data = array_values($result->data); // Use integer keys so we can iterate over the array in mustache
 		return $result;
 	}
 
-	private function parseSummarySheet(string $sheetId) : ParsingResult
+	private function parseSummarySheet(string $range) : ParsingResult
 	{
-		$minCol = 1; $maxCol = 5; $minRow = 2;
-		$xml = $this->fetchSheetData($sheetId, $minCol, $maxCol, $minRow);
 		$data = [];
 		$errors = [];
 		$idx = 1;
+		$rows = \GoogleSheets::getRows($this->sheetId, $range);
 
-		foreach ($xml->entry as $row) {
+		foreach ($rows as $row) {
 
 			$idx++;
-			$expertName = trim($row->xpath('gsx:name')[0]);
-			$email = trim($row->xpath('gsx:email')[0]);
-			$verifiedCnt = trim($row->xpath('gsx:ofarticlesverified')[0]);
-			$reverifiedCnt = trim($row->xpath('gsx:ofarticlesre-verified')[0]);
-			$paid = trim($row->xpath('gsx:amountpaid')[0]);
+			$expertName = trim($row[0]);
+			$email = trim($row[1]);
+			$verifiedCnt = trim($row[2]);
+			$reverifiedCnt = trim($row[3]);
+			$paid = trim($row[4]);
 
 			if (!$expertName || !$email || $verifiedCnt === '' || $reverifiedCnt === '' || !$paid) {
 				$errors[] = "Empty cells in row $idx of the 'Payment Summary' sheet";
@@ -79,22 +74,21 @@ class Spreadsheet extends GoogleSpreadsheet
 	}
 
 	private function parseVerificationSheet(ParsingResult $res, string $type,
-			string $sheetId, string $sheetName): ParsingResult
+		string $range, string $sheetName): ParsingResult
 	{
 		if ($res->isBad()) {
 			return $res;
 		}
 
-		$minCol = 1; $maxCol = 2; $minRow = 2;
-		$xml = $this->fetchSheetData($sheetId, $minCol, $maxCol, $minRow);
 		$expertName = null;
 		$skipExpert = false;
 		$idx = 1;
+		$rows = \GoogleSheets::getRows($this->sheetId, $range);
 
-		foreach ($xml->entry as $row) {
+		foreach ($rows as $row) {
 			$idx++;
-			$firstCol = trim($row->xpath('gsx:name')[0]); // It can be an expert name or an article URL
-			$articleCnt = trim($row->xpath('gsx:ofarticles')[0]);
+			$firstCol = trim($row[0]); // It can be an expert name or an article URL
+			$articleCnt = trim($row[1]);
 
 			if (!$firstCol || !$articleCnt) {
 				$res->errors[] = "Empty cells in row $idx of the '$sheetName' sheet";
@@ -122,23 +116,6 @@ class Spreadsheet extends GoogleSpreadsheet
 			}
 		}
 		return $res;
-	}
-
-	/**
-	 * @return SimpleXMLElement|bool
-	 */
-	private function fetchSheetData(string $worksheet, int $minCol, int $maxCol, int $minRow)
-	{
-		$url = "https://spreadsheets.google.com/feeds/list/$worksheet/private/full";
-		$query = [
-			'access_token' => $this->getToken(),
-			'min-col' => $minCol,
-			'max-col' => $maxCol,
-			'min-row' => $minRow,
-		];
-
-		$res = $this->doAtomXmlRequest($url, $query);
-		return simplexml_load_string($res);
 	}
 
 }

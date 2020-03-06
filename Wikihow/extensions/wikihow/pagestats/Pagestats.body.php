@@ -375,6 +375,8 @@ class PageStats extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
+		global $wgIsProduction;
+
 		$out = $this->getContext()->getOutput();
 		$request = $this->getRequest();
 		$action = $request->getVal('action');
@@ -426,56 +428,25 @@ class PageStats extends UnlistedSpecialPage {
 			} else {
 				$title = "unknown";
 			}
-			$file = $this->getSheetsFile();
-			$sheet = $file->sheet('default');
-			$userName = $this->getUser()->getName();
-			$data = array(
-				'submitter' => $userName,
-				'time' => date('Y-m-d'),
-				'option' => $type,
-				'comment' => $textBox,
-				'url' => $title,
-				'pageid' => $pageId,
-				'highpriority' => $highPriority,
+
+			$spreadsheetId = $wgIsProduction
+				? '11BpgghgRSFuRfylWoViEhQnn8ib-jCXGrNE7qkGchJk'  // prod
+				: '1UDw74v8RTDYS2AVWHBsJKKgHdKflGaHdwd9C-pGlVs0'; // dev
+			$newRow = array(
+				$pageId, // pageid
+				$title, // url
+				$type, // option
+				$textBox, // comment
+				$this->getUser()->getName(), // submitter
+				$highPriority, // highpriority
+				date('Y-m-d'), // time
 			);
-			$sheet->insert( $data );
+
+			$range = 'default';
+			$rows = [ $newRow ];
+			GoogleSheets::appendRows($spreadsheetId, $range, $rows);
 			return;
 		}
-	}
-
-	/**
-	 * @return Google_Spreadsheet_File
-	 */
-	private function getSheetsFile(): Google_Spreadsheet_File {
-		global $wgIsProduction;
-
-		$keys = (Object)[
-			'client_email' => WH_GOOGLE_SERVICE_APP_EMAIL,
-			'private_key' => file_get_contents(WH_GOOGLE_DOCS_P12_PATH)
-		];
-		$client = Google_Spreadsheet::getClient($keys);
-
-		// Set the curl timeout within the raw google client.  Had to do it this way because the google client
-		// is a private member within the Google_Spreadsheet_Client
-		$rawClient = function(Google_Spreadsheet_Client $client) {
-			return $client->client;
-		};
-		$rawClient = Closure::bind($rawClient, null, $client);
-		$timeoutLength = 600;
-		$configOptions = [
-			CURLOPT_CONNECTTIMEOUT => $timeoutLength,
-			CURLOPT_TIMEOUT => $timeoutLength
-		];
-		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
-
-		if ($wgIsProduction) {
-			$fileId = '11BpgghgRSFuRfylWoViEhQnn8ib-jCXGrNE7qkGchJk';
-		} else {
-			$fileId = '1sMPfAjcG2zCj2c-m3o57QIQpnG19a8Z1SgohR0FP6GA';
-		}
-		$file = $client->file($fileId);
-
-		return $file;
 	}
 
 	public static function getJSsnippet() {

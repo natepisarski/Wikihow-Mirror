@@ -337,37 +337,6 @@ $(document).ready(function() {
 	});
 });
 
-// strips step text of extra the text from script tags
-function stripScripts(s) {
-	var div = $('<div>');
-	div.innerHTML = s;
-	var scripts = div.find('script');
-	var i = scripts.length;
-
-	while (i-- > 0) {
-	  scripts[i].parentNode.removeChild(scripts[i]);
-	}
-
-	var noscripts = div.find('noscript');
-	i = noscripts.length;
-
-	while (i-- > 0) {
-	  noscripts[i].parentNode.removeChild(noscripts[i]);
-	}
-
-	var rptimg = div.find('rpt_img');
-	i = rptimg.length;
-	while (i-- > 0) {
-		rptimg[i].parentNode.removeChild(rptimg[i]);
-	}
-
-	return div.innerHTML;
-}
-
-// switch class for given element
-function switchClass(elem, currentClass, replacementClass) {
-	$(elem).removeClass(currentClass).addClass(replacementClass);
-}
 
 /**
  * Display a notice if we detect an ad blocker. Adapted from:

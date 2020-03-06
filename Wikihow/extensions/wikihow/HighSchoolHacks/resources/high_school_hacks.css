@@ -81,24 +81,13 @@
 	color: #383;
 }
 
-#bodycontents, body #content {
+#bodyContent {
 	background-color: #FFF;
-}
-
-body #content {
 	padding-top: 1.7em;
 	margin: 7px;
-	-moz-border-radius: 6px;
-	-webkit-border-radius: 6px;
 	border-radius: 6px;
 }
 
 body #mw-mf-page-center {
 	padding-bottom: 7px;
-}
-
-#bodycontents {
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
-	border-radius: 10px;
 }

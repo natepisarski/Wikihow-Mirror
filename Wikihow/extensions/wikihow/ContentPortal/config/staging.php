@@ -1,7 +1,10 @@
 <?php
 $this->db = [
-	'user'     => WH_DATABASE_CF_USER,
-	'password' => WH_DATABASE_CF_PASSWORD,
+	'user'     => WH_DATABASE_USER,
+	'password' => WH_DATABASE_PASSWORD,
+	// The 'content' MySQL user doesn't exist on dig (Alberto, 2020-02)
+	// 'user'     => WH_DATABASE_CF_USER,
+	// 'password' => WH_DATABASE_CF_PASSWORD,
 	'host'     => WH_DATABASE_MASTER,
 	'database' => WH_DATABASE_CF
 ];

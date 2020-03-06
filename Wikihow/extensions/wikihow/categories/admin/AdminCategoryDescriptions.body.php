@@ -2,7 +2,7 @@
 
 class AdminCategoryDescriptions extends UnlistedSpecialPage {
 	const CATEGORY_DESCRIPTIONS = "category_descriptions";
-	const CACHE_KEY_DESCRIPTION = "cat_desc6";
+	const CACHE_KEY_DESCRIPTION = "cat_desc5";
 	const CACHE_LENGTH = 60*60*24*14; //2 weeks
 
 	const MESSAGE_NO_ARTICLES = "Category_meta_description_noarticles";
@@ -227,7 +227,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 					['ti_page_id'],
 					['ii_policy IN (1, 4)', 'cl_to' => $title->getDBkey()],
 					__METHOD__,
-					['ORDER BY' => 'ti_30day_views DESC', 'LIMIT' => 3],
+					['ORDER BY' => 'ti_30day_views DESC', 'LIMIT' => 12],
 					[
 						'index_info' => ['INNER JOIN', 'cl_from = ii_page'],
 						$titus_copy => ['LEFT JOIN', 'cl_from = ti_page_id AND ti_language_code = "'. $wgLanguageCode . '"']
@@ -235,15 +235,20 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 				);
 
 				$titles = [];
+				$count = 0;
 				if ($dbr->numRows($res) > 0) {
 					foreach ($res as $row) {
 						$newTitle = Title::newFromID($row->ti_page_id);
+						if(AlternateDomain::getAlternateDomainForPage( $row->ti_page_id ) || $newTitle->isRedirect())
+							continue;
 						if ($newTitle) {
 							if ($useLinks) {
 								$titles[] = Linker::link($newTitle, wfMessage("howto", $newTitle->getText())->text());
 							} else {
 								$titles[] = wfMessage("howto", $newTitle->getText())->text();
 							}
+							$count++;
+							if($count == 3) break;
 						}
 					}
 					$description = wfMessage(self::MESSAGE_DESCRIPTION_DEFAULT, $title->getText(), implode(", ", $titles))->text();

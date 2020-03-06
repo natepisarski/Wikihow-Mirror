@@ -11,8 +11,7 @@ class ProfileBadges extends SpecialPage {
 
 		$this->setHeaders();
 
-		$out->addHTML(HtmlSnips::makeUrlTag('/extensions/wikihow/ProfileBadges.css'));
-
+		$out->addModuleStyles('ext.wikihow.profilebadges');
 		$out->setPageTitle(wfMessage('ab-title'));
 
 		$out->addHTML("<div class='undoArticleInner'>");

@@ -427,10 +427,16 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 	 * posts voted in data to google spreadsheet
 	 */
 	public static function sendToSpreadsheet( $pageId, $date, $comment ) {
-		$file = self::getSheetsFile();
-		$sheet = $file->sheet('default');
+		global $wgIsProduction;
+
+		$spreadsheetId = $wgIsProduction
+			? '1wmyrN1fzNMqTiAnRSucVYBPL-khCr4mrTzexhyKmpfI'  // prod
+			: '1GbVBdh-qhw8M_0BFwdIgHVpq71jcE_BfQOLuudg0IG8'; // dev
+
 		$data = self::getVoteSpreadsheetData( $pageId, $date, $comment );
-		$sheet->insert( $data );
+		$sheet = 'default';
+		$rows = [$data];
+		GoogleSheets::appendRows($spreadsheetId, $sheet, $rows);
 	}
 
 	/*
@@ -451,50 +457,16 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 
 		$date = date( 'Y-m-d', $date );
 		$data = array(
-			'pageid' => $pageId,
-			'pageurl' => 'http://www.wikihow.com/'.$row->ti_page_title,
-			'pv-30d-unique' => $row->ti_30day_views_unique,
-			'helpful-vote-count' => $row->ti_helpful_total,
-			'helpful-percent' => $row->ti_helpful_percentage,
-			'comment-text' => $comment,
-			'comment-approved-date' => $date,
+			$pageId, // pageid
+			'http://www.wikihow.com/'.$row->ti_page_title, // pageurl
+			$row->ti_30day_views_unique, // pv-30d-unique
+			$row->ti_helpful_total, // helpful-vote-count
+			$row->ti_helpful_percentage, // helpful-percent
+			$comment, // comment-text
+			$date, // comment-approved-date
 		);
+
 		return $data;
-	}
-
-	/**
-	 * @return Google_Spreadsheet_File
-	 */
-	private static function getSheetsFile(): Google_Spreadsheet_File {
-		global $wgIsProduction;
-
-		$keys = (Object)[
-			'client_email' => WH_GOOGLE_SERVICE_APP_EMAIL,
-			'private_key' => file_get_contents(WH_GOOGLE_DOCS_P12_PATH)
-		];
-		$client = Google_Spreadsheet::getClient($keys);
-
-		// Set the curl timeout within the raw google client.  Had to do it this way because the google client
-		// is a private member within the Google_Spreadsheet_Client
-		$rawClient = function(Google_Spreadsheet_Client $client) {
-			return $client->client;
-		};
-		$rawClient = Closure::bind($rawClient, null, $client);
-		$timeoutLength = 600;
-		$configOptions = [
-			CURLOPT_CONNECTTIMEOUT => $timeoutLength,
-			CURLOPT_TIMEOUT => $timeoutLength
-		];
-		$rawClient($client)->setClassConfig('Google_IO_Curl', 'options', $configOptions);
-
-		if ($wgIsProduction) {
-			$fileId = '1wmyrN1fzNMqTiAnRSucVYBPL-khCr4mrTzexhyKmpfI';
-		} else {
-			$fileId = '1GOXHa5YBpHyZGObHnIoA724tl3ZHGjR5dnFbgwEk6M8';
-		}
-		$file = $client->file($fileId);
-
-		return $file;
 	}
 
 	public function isAnonAvailable() {

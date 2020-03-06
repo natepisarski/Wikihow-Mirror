@@ -12,45 +12,18 @@ class SampleProcess {
 	const SAMPLE_STATUS_DB = 'dv_sampledocs_status';
 
 	static $check_for_plagiarism = false;
-	static $client;
 
-	/**
-	 * Build and returns a Drive service object authorized with the service accounts.
-	 *
-	 * @return Google_DriveService service object.
-	 */
-	public static function buildService() {
-		$key = file_get_contents(WH_GOOGLE_DOCS_P12_PATH);
-		$cred = new Google_Auth_AssertionCredentials(
-			WH_GOOGLE_SERVICE_APP_EMAIL,
-			array( 'https://www.googleapis.com/auth/drive', 'https://spreadsheets.google.com/feeds'),
-			//array( 'https://www.googleapis.com/auth/drive'),
-			$key
-		);
-
-		$client = new Google_Client();
-		$client->setAssertionCredentials($cred);
-
-		// optional way to get the access token if you need it for other purposes
-		// we don't specifically need it at the moment btu it's used for other google drive api calls
-		if ($client->getAuth()->isAccessTokenExpired()) {
-			  $client->getAuth()->refreshTokenWithAssertion();
-		}
-		$service = new Google_Service_Drive($client);
-
-		self::$client = $client;
-
-		return $service;
-	}
-
-	private static function downloadFiles($service, $fileId) {
+	private static function downloadFiles($fileId) {
 		try {
-			$file = $service->files->get($fileId);
-
+			$service = GoogleDrive::getService();
+			$file = $service->files->get($fileId, ['fields' => 'id,name,mimeType,exportLinks']);
 			$downloadUrls = $file->getExportLinks();
-			if (!count($downloadUrls)) return array('sample' => $fileId, 'formats' => 'Error: no exportable links');
+			if ( !$downloadUrls ) {
+				return [ 'sample' => $fileId, 'formats' => 'Error: no exportable links' ];
+			}
 
-			$title = trim($file->getTitle());
+
+			$title = trim($file->getName());
 			$title = preg_replace('@^/@','',$title); //can't start with a slash
 			$title = preg_replace('@\.$@', '', $title); //no period at the end
 			$title = strip_tags($title); //let's "use the big hammer" as Reuben says
@@ -372,12 +345,9 @@ class SampleProcess {
 	public static function importSamples($ids, $check_for_plagiarism) {
 		self::$check_for_plagiarism = $check_for_plagiarism;
 
-		$service = self::buildService();
-		if (!isset($service)) return array('sample' => 'cannot get to the Google', 'formats' => '');
-
 		$result = [];
 		foreach ($ids as $id) {
-			$result[] = self::downloadFiles($service, $id);
+			$result[] = self::downloadFiles($id);
 		}
 
 		return $result;

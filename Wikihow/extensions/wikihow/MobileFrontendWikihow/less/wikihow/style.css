@@ -567,6 +567,17 @@ input.button.clickfail:hover {
 .buttonright { float: right; }
 .buttonleft { float: left; }
 
+.input_med {
+	padding: 11px;
+	border: 1px solid #f2f0eb;
+	margin-bottom: 5px;
+	border-radius: 5px;
+	width: auto;
+}
+#wpCaptchaWord {
+	width: 100%;
+}
+
 /*Samples*/
 .sd_thumb {
 	text-align: center;

@@ -13,7 +13,7 @@
 				WH.HighSchoolHacks.topicClick(this);
 			});
 
-			if (!WH.isMobileDomain) {
+			if (WH.shared.isLargeSize) {
 				$('.hsh_topic').hover(function() {
 					$(this).addClass('over');
 				},

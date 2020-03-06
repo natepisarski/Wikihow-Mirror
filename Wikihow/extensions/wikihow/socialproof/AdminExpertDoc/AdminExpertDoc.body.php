@@ -2,14 +2,15 @@
 
 class AdminExpertDoc extends UnlistedSpecialPage {
 
-    public function __construct() {
-        $this->specialpage = $this->getContext()->getTitle()->getPartialUrl();
-        parent::__construct($this->specialpage);
-    }
+	private $tools; // ExpertDocTools
 
-    public function execute( $subPage ) {
-		global $wgDebugToolbar, $IP;
-		require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheetTools.php");
+	public function __construct() {
+		$this->specialpage = $this->getContext()->getTitle()->getPartialUrl();
+		parent::__construct($this->specialpage);
+	}
+
+	public function execute( $subPage ) {
+		global $wgDebugToolbar;
 
 		$request = $this->getRequest();
 		$out = $this->getOutput();
@@ -27,6 +28,7 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 			return;
 		}
 
+		$this->tools = new ExpertDocTools();
 		$result = array();
 
 		ini_set('memory_limit', '512M');
@@ -34,37 +36,15 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 
 		$out->setArticleBodyOnly(true);
 
-		$tools = new CoauthorSheetTools();
-		$context = $this->getContext();
-
-		if ( $request->getVal( 'action' ) == "ed_permission" ) {
-			$result['data'] = $tools->updatePermissions( $context );
-		}
 		if ( $request->getVal( 'action' ) == "ed_create" ) {
-			$result['data'] = $tools->createExpertDocs( $context );
-		}
-		if ( $request->getVal( 'action' ) == "ed_list" ) {
-			$result['data'] = $tools->listExpertDocs( $context );
-		}
-		if ( $request->getVal( 'action' ) == "ed_parents" ) {
-			$result['data'] = $tools->listExpertDocParents( $context );
-		}
-		if ( $request->getVal( 'action' ) == "ed_move" ) {
-			ini_set('memory_limit', '512M');
-
-			global $wgIsDevServer;
-			if ( $wgIsDevServer ) {
-				set_time_limit(0);
-				ignore_user_abort(true);
-			}
-
-			$result['data'] = $tools->moveFiles( $context );
-		}
-		if ( $request->getVal( 'action' ) == "ed_delete" ) {
-			$result['data'] = $tools->deleteExpertDocs( $context );
+			$result['data'] = $this->createExpertDocs();
 		}
 
-		if ($wgDebugToolbar) {
+		elseif ( $request->getVal( 'action' ) == "ed_permission" ) {
+			$result['data'] = $this->updatePermissions();
+		}
+
+		elseif ($wgDebugToolbar) {
 			WikihowSkinHelper::maybeAddDebugToolbar($out);
 			$info =  MWDebug::getDebugInfo($this->getContext());
 			$result['debug']['log'] = $info['log'];
@@ -72,19 +52,55 @@ class AdminExpertDoc extends UnlistedSpecialPage {
 		}
 
 		echo json_encode($result);
-    }
+	}
 
-    public function getTemplateHtml( $templateName, $vars = array() ) {
-        EasyTemplate::set_path( __DIR__ );
-        return EasyTemplate::html( $templateName, $vars );
-    }
+	private function getTemplateHtml( $templateName, $vars = array() ) {
+		EasyTemplate::set_path( __DIR__ );
+		return EasyTemplate::html( $templateName, $vars );
+	}
 
-    function outputAdminPageHtml() {
+	private function outputAdminPageHtml() {
 		$out = $this->getOutput();
 
-        $out->setPageTitle( "Admin Expert Doc Creation" );
+		$out->setPageTitle( "Admin Expert Doc Creation" );
 		$out->addModules( 'ext.wikihow.adminexpertdoc' );
-        $out->addHtml( $this->getTemplateHtml( 'AdminExpertDoc.tmpl.php' ) );
-    }
+		$out->addHtml( $this->getTemplateHtml( 'AdminExpertDoc.tmpl.php' ) );
+	}
+
+	private function createExpertDocs() {
+		global $wgIsDevServer;
+
+		$context = $this->getContext();
+		$request = $context->getRequest();
+
+		$folderId = $wgIsDevServer
+			? ExpertDocTools::EXPERT_FEEDBACK_FOLDER_DEV
+			: ExpertDocTools::EXPERT_FEEDBACK_FOLDER;
+		$name = $request->getVal( 'name' );
+		$articles = $request->getArray( 'articles' );
+		$articles = array_filter( $articles );
+
+		$this->includeImages = $request->getFuzzyBool( 'images' );
+
+		$files = array();
+		foreach ( $articles as $article ) {
+			$file = $this->tools->createExpertDoc( $article, $name, $context, $folderId );
+			if ( !$file ) {
+				$files[] = array(
+					"title" => $article,
+					"error"=>"Error: cannot make title from ".$article);
+			} else {
+				$files[] = $file;
+			}
+		}
+		return $files;
+	}
+
+	// on old docs, update the permissions so only wikihow can view
+	private function updatePermissions() {
+		$request = $this->getContext()->getRequest();
+		$service = GoogleDrive::getService();
+		$this->tools->fixPermissions( $service );
+	}
 
 }

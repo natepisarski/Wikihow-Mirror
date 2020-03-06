@@ -382,7 +382,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$html = $prev.$next;
 
 		// set <head> links for SEO
-		if ($pg > 1) $out->setRobotPolicy('noindex');
+		if ($pg > 1) $out->setCanonicalUrl($out->getTitle()->getFullURL().'?pg='.$pg);
 		if ($pg == 2) {
 			$out->addHeadItem('prev_pagination','<link rel="prev" href="'.$wgCanonicalServer.$here.'" />');
 		}

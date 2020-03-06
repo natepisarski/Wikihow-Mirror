@@ -547,6 +547,11 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 			$headerContainer .= $snippet;
 		}
+
+		if ( $data['amp'] ) {
+			$ampSidebar = $this->getAmpSidebarHtml();
+			$headerContainer .= $ampSidebar;
+		}
 		return $headerContainer;
 	}
 
@@ -602,7 +607,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $result;
 	}
 
-	protected function getHeadAdsJS( $data ) {
+	protected function getTopAdsJS( $data ) {
 		$result = '';
 		if ( $data['amp'] ) {
 			return $result;
@@ -611,12 +616,51 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $result;
 	}
 
-	public static function getMobileEndOfPageHtml( $data ) {
+
+	protected function getGAConfigVars( $data ) {
+		$html = '';
+		if ( $data['amp'] ) {
+			return $html;
+		}
+		EasyTemplate::set_path( __DIR__ );
+		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
+			$propertyId = WH_GA_ID_ANDROID_APP; // Android app
+		} elseif(class_exists('QADomain') && QADomain::isQADomain()) {
+			$propertyId = WH_GA_ID_QUICKANSWERS; //QuickAnswers
+		} else{
+			$propertyId = WH_GA_ID; // wikihow.com;
+		}
+
+		$gaConfig = json_encode(Misc::getGoogleAnalyticsConfig());
+
+		$html = HTML::inlineScript(
+			EasyTemplate::html(
+				'analytics-js.tmpl.php',
+				array(
+					'propertyId' => $propertyId,
+					'gaConfig' => $gaConfig
+				)
+			)
+		);
+
+		return $html;
+	}
+
+	protected function getEndOfPageHtml( $data ) {
 		if ( $data['amp'] ) {
 			return '';
 		}
-		// Include any deferred scripts, such as possibly ResourceLoader startup
-		// scripts, at start of footer
+
+		$html = Html::element( 'div', ['id' => 'servedtime'], Misc::reportTimeMS() );
+
+		// adds the debug toolbar if that is enabled
+		$html .= MWDebug::getDebugHTML( $this->getSkin()->getContext() );
+
+		// adds extra scripts such as resource loader startup
+		$html .= $data['bottomscripts'];
+
+		$html .= wfReportTime();
+
 		$context = $data['skin']->getContext();
 
 		EasyTemplate::set_path( __DIR__ );
@@ -633,27 +677,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 
 		$footerVars['showInternetOrgAnalytics'] = WikihowMobileTools::isInternetOrgRequest();
 
-		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest()) {
-			$propertyId = WH_GA_ID_ANDROID_APP; // Android app
-		} elseif(class_exists('QADomain') && QADomain::isQADomain()) {
-			$propertyId = WH_GA_ID_QUICKANSWERS; //QuickAnswers
-		} else{
-			$propertyId = WH_GA_ID; // wikihow.com;
-		}
-
-		$gaConfig = json_encode(Misc::getGoogleAnalyticsConfig());
-
-		$html = '';
-		$html .= HTML::inlineScript(
-			EasyTemplate::html(
-				'analytics-js.tmpl.php',
-				array(
-					'propertyId' => $propertyId,
-					'gaConfig' => $gaConfig
-				)
-			)
-		);
-
 		// Script to be loaded for ad blocker detection
 		if (class_exists('AdblockNotice')) {
 			$html .= AdblockNotice::getBottomScript();
@@ -668,26 +691,43 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		return $html;
 	}
 
-	protected function getProfilerExtraHtml( $data ) {
-		global $wgProfiler;
-		global $wgIsDevServer;
-		$html = '';
-		if ( $wgIsDevServer && $wgProfiler['visible'] == true ) {
-			$html = "<style>body > pre{position:absolute;top:500px;background:white;z-index:10000;}</style>";
-		}
-		return $html;
+	// this function will add extra js to the head of the page
+	// it is in this class because it makes it simpler to orgainze where all the js is going in the page
+	// to have it here even though it is called by the SkinMinervaWikihow before the rest of the
+	// functions in this class are ever used. but by the time the render function in this class is called,
+	// it is too late to add items to the head of the page
+	public static function getAdditionalHeadItems() {
+		global $wgOut;
+
+		$result = '';
+		$result .= Misc::getFCPHead();
+		$result .= Misc::getTTIHead();
+		$result .= Misc::getFIDHead();
+
+		return $result;
+	}
+
+	// try to get all of the js to be included at the top of the page in one group and in one function
+	protected function getTopJs( $data ) {
+		$result = '';
+
+		$result .= $this->getJSTimingScripts( $data );
+
+		$result .= $this->getTopAdsJS( $data );
+
+		$result .= $this->getGAConfigVars( $data );
+
+		return $result;
 	}
 
 	protected function render( $data ) { // FIXME: replace with template engines
 		$html = '';
 
 		$fastRenderTest = false;
-		if ( !$data['amp'] && ArticleTagList::hasTag( 'js_fast_render', $data['articleid'] ) ) {
+		if ( Misc::isFastRenderTest() ) {
 			$data['fastRenderTest'] = true;
+			$fastRenderTest = true;
 		}
-
-		$profilerExtraHtml = $this->getProfilerExtraHtml( $data );
-		echo $profilerExtraHtml;
 
 		Hooks::run( "MinvervaTemplateBeforeRender", array( &$data ) );
 
@@ -698,46 +738,30 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			$data['rightRailHtml'] = $this->getRightRailHtml( $data );
 		}
 
-		// begin rendering
+		// the head element includes opening and closing <head> tags
+		// to add more items to the head, use the function getAdditionalHeadItems above
 		$headElementHtml = $data[ 'headelement' ];
 		echo $headElementHtml;
 
-		if ( $data['amp'] ) {
-			$ampSidebar = $this->getAmpSidebarHtml();
-			echo $ampSidebar;
-		}
+		// GA config variables, js timing scripts and js for ads
+		$topJs = $this->getTopJs( $data );
+		echo $topJs;
 
-		$jsTimingScripts = $this->getJSTimingScripts( $data );
-		echo $jsTimingScripts;
-
-		$headAdsJS = $this->getHeadAdsJS( $data );
-		echo $headAdsJS;
-
+		// this is the html for the top menu
 		$headerContainer = $this->getHeaderContainer( $data );
 		echo $headerContainer;
 
+		// this contains all the actual content of the page and right rail
 		$viewport = $this->getViewportHtml( $data );
 		echo $viewport;
 
-		$servedTime = Html::element( 'div', ['id' => 'servedtime'], Misc::reportTimeMS() );
-		echo $servedTime;
-
-		$debugHtml = MWDebug::getDebugHTML( $this->getSkin()->getContext() );
-		echo $debugHtml;
-
-		if ( !$data['amp'] ) {
-			$reportTime = wfReportTime();
-			echo $reportTime;
-		}
-
-		$bottomScripts = $data['bottomscripts'];
-		echo $bottomScripts;
-
-		$endOfPageHtml = $this->getMobileEndOfPageHtml( $data );
+		// adds extra js to bottom of page such as optimizely and resource loader startup
+		$endOfPageHtml = $this->getEndOfPageHtml( $data );
 		echo $endOfPageHtml;
 
 		$closeBody = Html::closeElement( 'body' );
 		echo $closeBody;
+
 		$closeHtml = Html::closeElement( 'html' );
 		echo $closeHtml;
 	}

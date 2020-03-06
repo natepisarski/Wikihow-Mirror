@@ -9,9 +9,6 @@ class UserReviewImporter extends UnlistedSpecialPage {
 	const SHEET_ID_UNCURATED = "1c5yJwDmKdpuKneyZeLIoeerxB3PTgqB-18iWGTTBEV4";
 	const SHEET_ID_CURATED = "1sJHmgHgLBVc-Yc1B1zBHI9ZNPqxtmVO3PUOUXUOSSBA";
 
-	const WORKSHEET_CURATED = "/od6";
-	const WORKSHEET_UNCURATED = "/od6";
-
 	public function __construct() {
 		parent::__construct('UserReviewImporter');
 	}
@@ -61,85 +58,67 @@ class UserReviewImporter extends UnlistedSpecialPage {
 	}
 
 	public static function importUncuratedSpreadsheet () {
-		$data = self::getSpreadsheetData(self::SHEET_ID_UNCURATED, self::WORKSHEET_UNCURATED);
+		$data = GoogleSheets::getRowsAssoc(self::SHEET_ID_UNCURATED, 'Sheet1');
 		return self::processUncuratedSheetData($data);
 	}
 
 	public static function importCuratedSpreadsheet() {
-		$data = self::getSpreadsheetData(self::SHEET_ID_CURATED, self::WORKSHEET_CURATED);
+		$data = GoogleSheets::getRowsAssoc(self::SHEET_ID_CURATED, 'Sheet1');
 		return self::processCuratedSheetData($data);
 	}
 
-	private static function getSpreadsheetData($sheetId, $worksheetId) {
-		global $IP;
-		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
-
-		$service = SampleProcess::buildService();
-		if ( !isset($service) ) {
-			return;
-		}
-
-		$client = $service->getClient();
-		$token = $client->getAccessToken();
-		$token = json_decode($token);
-		$token = $token->access_token;
-
-		$feedLink = self::FEED_LINK . $sheetId . $worksheetId . self::FEED_LINK_2;
-		$sheetData = file_get_contents($feedLink . $token);
-		$sheetData = json_decode($sheetData);
-		$sheetData = $sheetData->{'feed'}->{'entry'};
-
-		return $sheetData;
-	}
-
-	private static function processUncuratedSheetData($data) {
+	private static function processUncuratedSheetData(Iterator $data): int {
+		$count = 0;
 		foreach($data as $row) {
-			$isEligible = UserReview::isArticleEligibleForReviews($row->{'gsx$articleid'}->{'$t'});
-			$submitId = $row->{'gsx$usidblankifnew'}->{'$t'};
+			$count++;
+			$isEligible = UserReview::isArticleEligibleForReviews($row['Article ID']);
+			$submitId = $row['us_id (blank if new)'];
 			if ($submitId != "") {
 				self::updateReview(
 					$submitId,
-					$row->{'gsx$articleid'}->{'$t'},
-					$row->{'gsx$email'}->{'$t'},
-					$row->{'gsx$firstname'}->{'$t'},
-					$row->{'gsx$lastname'}->{'$t'},
-					$row->{'gsx$originalreview'}->{'$t'},
+					$row['Article ID'],
+					$row['Email'],
+					$row['First Name'],
+					$row['Last Name'],
+					$row['Original Review'],
 					wfTimestampNow(),
-					($row->{'gsx$markasdeleted'}->{'$t'} == "" ? UserReviewTool::STATUS_AVAILABLE : UserReviewTool::STATUS_DELETED),
+					($row['Mark as deleted?'] == "" ? UserReviewTool::STATUS_AVAILABLE : UserReviewTool::STATUS_DELETED),
 					$isEligible,
-					$row->{'gsx$markaspositive'}->{'$t'} == "" ? 0 : 1,
+					$row['Mark as positive?'] == "" ? 0 : 1,
 					false
 				);
 			} else {
 				self::insertNewReview(
-					$row->{'gsx$articleid'}->{'$t'},
-					$row->{'gsx$email'}->{'$t'},
-					$row->{'gsx$firstname'}->{'$t'},
-					$row->{'gsx$lastname'}->{'$t'},
-					$row->{'gsx$originalreview'}->{'$t'},
+					$row['Article ID'],
+					$row['Email'],
+					$row['First Name'],
+					$row['Last Name'],
+					$row['Original Review'],
 					wfTimestampNow(),
-					($row->{'gsx$markasdeleted'}->{'$t'} == "" ? UserReviewTool::STATUS_AVAILABLE : UserReviewTool::STATUS_DELETED),
+					($row['Mark as deleted?'] == "" ? UserReviewTool::STATUS_AVAILABLE : UserReviewTool::STATUS_DELETED),
 					$isEligible,
-					$row->{'gsx$markaspositive'}->{'$t'} == "" ? 0 : 1,
+					$row['Mark as positive?'] == "" ? 0 : 1,
 					false
 				);
 			}
 		}
 
-		return count($data);
+		return $count;
 	}
 
-	private static function processCuratedSheetData($data) {
-		foreach($data as $row) {
-			$isEligible = UserReview::isArticleEligibleForReviews($row->{'gsx$articleid'}->{'$t'});
-			$reviewId = $row->{'gsx$usidfromsubmittedtable'}->{'$t'};
+	private static function processCuratedSheetData(Iterator $rows): int {
+		$count = 0;
+		foreach($rows as $row) {
+			$count++;
+			$isEligible = UserReview::isArticleEligibleForReviews($row['Article ID']);
+			$reviewId = $row['us_id (from submitted table)'];
 			if ($reviewId == "") {
 				self::insertNewReview(
-					$row->{'gsx$articleid'}->{'$t'},
-					$row->{'gsx$email'}->{'$t'},
-					$row->{'gsx$firstname'}->{'$t'},
-					$row->{'gsx$lastname'}->{'$t'},
-					$row->{'gsx$curatedreview'}->{'$t'},
+					$row['Article ID'],
+					$row['Email'],
+					$row['First Name'],
+					$row['Last Name'],
+					$row['Curated Review'],
 					wfTimestampNow(),
 					UserReviewTool::STATUS_CURATED,
 					$isEligible,
@@ -148,11 +127,11 @@ class UserReviewImporter extends UnlistedSpecialPage {
 				);
 			} else {
 				self::updateReview($reviewId,
-					$row->{'gsx$articleid'}->{'$t'},
-					$row->{'gsx$email'}->{'$t'},
-					$row->{'gsx$firstname'}->{'$t'},
-					$row->{'gsx$lastname'}->{'$t'},
-					$row->{'gsx$curatedreview'}->{'$t'},
+					$row['Article ID'],
+					$row['Email'],
+					$row['First Name'],
+					$row['Last Name'],
+					$row['Curated Review'],
 					wfTimestampNow(),
 					UserReviewTool::STATUS_CURATED,
 					$isEligible,
@@ -162,7 +141,7 @@ class UserReviewImporter extends UnlistedSpecialPage {
 			}
 		}
 
-		return count($data);
+		return $count;
 	}
 
 	public static function insertNewReview($articleId, $email, $firstname, $lastname, $review, $timestamp, $status, $eligible, $isPositive, $autoCurate) {

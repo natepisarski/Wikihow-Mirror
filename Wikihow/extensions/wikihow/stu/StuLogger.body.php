@@ -49,8 +49,8 @@ class StuLogger extends UnlistedSpecialPage {
 		$action = $req->getVal('action', 'view');
 		$langCode = $lang->getCode();
 		$isMobile = (int)Misc::isMobileMode();
-
 		$countablePageview = (int)($title->inNamespace(NS_MAIN) && $action == 'view');
+		$isAltDomain = (int)Misc::isAltDomain();
 
 		// Note: WH.timeStart, WH.pageName and WH.pageID are set for Stu pings
 $headScript = <<<EOS
@@ -60,6 +60,7 @@ window.WH.pageNamespace=$pageNamespace;
 window.WH.pageLang='$langCode';
 window.WH.isMobile=$isMobile;
 window.WH.stuCount=$countablePageview;
+window.WH.isAltDomain=$isAltDomain;
 EOS;
 
 		$out->addHeadItem('stu_head_scripts',  HTML::inlineScript($headScript));

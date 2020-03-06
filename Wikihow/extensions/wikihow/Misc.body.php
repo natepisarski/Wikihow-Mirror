@@ -1120,7 +1120,7 @@ class Misc {
 		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
-		$fcpHead = file_get_contents( __DIR__."/commonjs/fcphead.js" );
+		$fcpHead = file_get_contents( __DIR__."/commonjs/fcphead.compiled.js" );
 		$fcpHead = Html::inlineScript( $fcpHead );
 		return $fcpHead;
 	}
@@ -1153,11 +1153,9 @@ class Misc {
 		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
-		$polyfill = "<script src='skins/common/tti-polyfill.js'></script>";
-		//$polyfill = "<script async src='skins/common/tti-polyfill-debug.js'></script>";
-		$ttiBody = file_get_contents( __DIR__."/commonjs/ttibody.js" );
-		$ttiBody = Html::inlineScript( $ttiBody );
-		$result = $polyfill . $ttiBody;
+		$polyfill = file_get_contents( __DIR__."/commonjs/tti-polyfill.compiled.js" );
+		$ttiBody = file_get_contents( __DIR__."/commonjs/ttibody.compiled.js" );
+		$result = Html::inlineScript( $polyfill . $ttiBody );
 		return $result;
 	}
 
@@ -1174,4 +1172,17 @@ class Misc {
 		return $result;
 	}
 
+	public static function isFastRenderTest() {
+		global $wgTitle, $wgOut, $wgUser;
+		if ( GoogleAmp::isAmpMode( $wgOut ) ) {
+			return false;
+		}
+		if ( !$wgUser->isAnon() ) {
+			return false;
+		}
+		if ( ArticleTagList::hasTag( 'js_fast_render', $wgTitle->getArticleID() ) ) {
+			return true;
+		}
+		return false;
+	}
 }

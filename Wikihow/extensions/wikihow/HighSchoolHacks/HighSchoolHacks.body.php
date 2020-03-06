@@ -24,7 +24,7 @@ class HighSchoolHacks extends SpecialPage {
 		parent::__construct( 'HighSchoolHacks');
 
 		global $wgHooks;
-		$wgHooks['ShowSideBar'][] = ['HighSchoolHacks::removeSideBarCallback'];
+		$wgHooks['UseMobileRightRail'][] = ['HighSchoolHacks::removeSideBarCallback'];
 		$wgHooks['ShowBreadCrumbs'][] = ['HighSchoolHacks::removeBreadCrumbsCallback'];
 	}
 
@@ -34,12 +34,10 @@ class HighSchoolHacks extends SpecialPage {
 
 	public static function removeSideBarCallback(&$showSideBar) {
 		$showSideBar = false;
-		return true;
 	}
 
 	public static function removeBreadCrumbsCallback(&$showBreadCrumbs) {
 		$showBreadCrumbs = false;
-		return true;
 	}
 
 	public function execute($par) {
@@ -66,7 +64,9 @@ class HighSchoolHacks extends SpecialPage {
 			return;
 		}
 
-		$out->addModules(['ext.wikihow.high_school_hacks.styles','ext.wikihow.high_school_hacks.scripts']);
+		$out->addModuleStyles('ext.wikihow.high_school_hacks.styles');
+		$out->addModules('ext.wikihow.high_school_hacks.scripts');
+
 		$out->setHtmlTitle(wfMessage('high_school_hacks')->text());
 		$out->setCanonicalUrl( Misc::getLangBaseURL().'/'.self::$custom_url );
 		$out->addHTML($this->bodyHtml());
@@ -85,7 +85,7 @@ class HighSchoolHacks extends SpecialPage {
 			'high_school_hacks_article_list' => $loader->load('high_school_hacks_article_list')
 		];
 
-		return $m->render('high_school_hacks', $vars);
+		return $m->render('high_school_hacks.mustache', $vars);
 	}
 
 	private function topicData(): array {
@@ -119,7 +119,7 @@ class HighSchoolHacks extends SpecialPage {
 			'text' => wfMessage('high_school_hacks')->text()
 		];
 
-		return $m->render('article_icon', $vars);
+		return $m->render('article_icon.mustache', $vars);
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin) {

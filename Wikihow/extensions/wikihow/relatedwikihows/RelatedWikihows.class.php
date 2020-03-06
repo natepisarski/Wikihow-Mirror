@@ -21,11 +21,17 @@ class RelatedWikihow {
 		return $this->createHtml( RelatedWikihows::RELATED_IMG_WIDTH, RelatedWikihows::RELATED_IMG_HEIGHT );
 	}
 
+	public function createFastRenderHtml() {
+		return $this->createHtmlFastRender( RelatedWikihows::RELATED_IMG_WIDTH, RelatedWikihows::RELATED_IMG_HEIGHT );
+	}
+
 	public function createAmpHtml() {
 		return $this->createHtml( RelatedWikihows::RELATED_IMG_WIDTH, RelatedWikihows::RELATED_IMG_HEIGHT, false, true );
 	}
 
-	private function createHtml( $width, $height, $isSidebar = false, $ampMode = false, $largeSidebar = false ) {
+	// creates the html for the related wikihows image, including fallback noscript tag and the scrollloading js snippet for lazy loading
+	// will use a video instead of an image if the article has a video src
+	private function createRelatedImgHtml( $width, $height, $isSidebar, $ampMode, $largeSidebar, $afterImgElement = '' ) {
 		$imgSrc = '';
 		$videoSrc = $this->mVideoUrl;
 		if ( $isSidebar ) {
@@ -87,7 +93,7 @@ class RelatedWikihow {
 			$img = $videoElement;
 		}
 
-		$img = Html::rawElement( 'div', [ 'class' => 'content-spacer' ], $img );
+		$img = Html::rawElement( 'div', [ 'class' => 'content-spacer' ], $img . $afterImgElement);
 		$script = "WH.shared.addScrollLoadItem('$id')";
 		$script = Html::inlineScript( $script );
 		$img .= $script . $noscript;
@@ -102,10 +108,35 @@ class RelatedWikihow {
 			];
 			$img = Html::rawElement( 'amp-img', $imgAttributes );
 		}
+		return $img;
+	}
+
+	// creates html that has fewer dom elements than the regular version
+	private function createHtmlFastRender( $width, $height, $isSidebar = false, $ampMode = false, $largeSidebar = false ) {
+		// the text to show for each related wikihow
+		$howToPrefix = wfMessage( 'howto_prefix' )->showIfExists();
+		$howToPrefix = Html::element( 'div', ['class' => 'related-wh-howto'], $howToPrefix );
+		$howToText = $howToPrefix . $this->mText . wfMessage('howto_suffix')->showIfExists();
+		$titleText = Html::rawElement( "span", [ 'class' => 'related-wh-title' ], $howToText );
+
+		$img = $this->createRelatedImgHtml($width, $height, $isSidebar, $ampMode, $largeSidebar, $titleText );
+
+		$linkAttributes = [
+			'class' => 'related-wh',
+			'href' => $this->mUrl
+		];
+		$link = Html::rawElement( "a", $linkAttributes, $img );
+
+		return $link;
+	}
+
+
+	private function createHtml( $width, $height, $isSidebar = false, $ampMode = false, $largeSidebar = false ) {
+		$img = $this->createRelatedImgHtml($width, $height, $isSidebar, $ampMode, $largeSidebar);
 
 		$linkAttributes = [
 			'class' => 'related-image-link',
-			'href' => $url
+			'href' => $this->mUrl
 		];
 		$link = Html::rawElement( "a", $linkAttributes, $img );
 
@@ -117,14 +148,13 @@ class RelatedWikihow {
 
 
 		// the text to show for each related wikihow
-
 		$msg = wfMessage('howto_prefix');
 		$howToPrefix = $msg->exists() ? ('<p>' . $msg->text() . '</p>') : '';
-		$howToText = $howToPrefix . $text . wfMessage('howto_suffix')->showIfExists();
+		$howToText = $howToPrefix . $this->mText . wfMessage('howto_suffix')->showIfExists();
 		$titleText = Html::rawElement( "span", [ 'class' => 'related-title-text' ], $howToText );
 		$titleAttributes = [
 			'class' => 'related-title',
-			'href' => $url
+			'href' => $this->mUrl
 		];
 		$titleLink = Html::rawElement( "a", $titleAttributes, $titleText );
 
@@ -560,10 +590,17 @@ class RelatedWikihows {
 			array_pop( $relatedWikihows );
 		}
 
+		$fastRender = false;
+		if ( Misc::isFastRenderTest() ) {
+			$fastRender = true;
+		}
+
 		$thumbs = "";
 		foreach ( $relatedWikihows as $relatedWikihow ) {
 			if ( $this->mAmpMode ) {
 				$thumbs .= $relatedWikihow->createAmpHtml();
+			} elseif ( $fastRender ) {
+				$thumbs .= $relatedWikihow->createFastRenderHtml();
 			} elseif ( $this->mMobile ) {
 				$thumbs .= $relatedWikihow->createMobileHtml();
 			} else {
@@ -738,41 +775,15 @@ class SensitiveRelatedWikihows {
 	const SENSITIVE_RELATED_REMOVE_PAGE_TABLE = "sensitive_related_remove_page";
 
 	public static function saveSensitiveRelatedArticles() {
-		global $IP, $wgIsDevServer;
+		global $wgIsDevServer;
 
-		require_once("$IP/extensions/wikihow/docviewer/SampleProcess.class.php");
+		$sheetId = $wgIsDevServer ? '1jxVrhC7lk3TYJaQ2iBwEJXThBfVkE5qAR1zrfgOeHUo' : self::SHEET_ID;
 
-		$service = SampleProcess::buildService();
-		if ( !isset( $service ) ) {
-			return;
-		}
-		$result = array();
-
-		$client = $service->getClient();
-		$token = $client->getAccessToken();
-		$token = json_decode($token);
-		$token = $token->access_token;
-
-		$removeListWorksheetId = "ojdakpw";
-		$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.$removeListWorksheetId . self::FEED_LINK_2;
-		//if ( $wgIsDevServer ) {
-			//$feedLink = self::FEED_LINK . '1F7z21I1ePX43Rh9lj2ojMcvoD1rHlw-oxHWhGnf9Y0A'.'/'.$removeListWorksheetId . self::FEED_LINK_2;
-		//}
-		$sheetData = file_get_contents( $feedLink . $token );
-		$sheetData = json_decode( $sheetData );
-		//decho('sheetData', $sheetData->{'feed'});exit;
-		$sheetData = $sheetData->{'feed'}->{'entry'};
+		$sheetData = GoogleSheets::getRows($sheetId, 'Remove list!A2:C');
 		$removeList = self::parseRemoveList( $sheetData );
 		$result = self::saveRemoveList( $removeList );
 
-		$sensitiveMasterWorksheetId = "od6";
-		$feedLink = self::FEED_LINK . self::SHEET_ID.'/'.$sensitiveMasterWorksheetId . self::FEED_LINK_2;
-		//if ( $wgIsDevServer ) {
-			//$feedLink = self::FEED_LINK . '1F7z21I1ePX43Rh9lj2ojMcvoD1rHlw-oxHWhGnf9Y0A'.'/'.$sensitiveMasterWorksheetId . self::FEED_LINK_2;
-		//}
-		$sheetData = file_get_contents( $feedLink . $token );
-		$sheetData = json_decode( $sheetData );
-		$sheetData = $sheetData->{'feed'}->{'entry'};
+		$sheetData = GoogleSheets::getRows($sheetId, 'Sensitive master!A2:C');
 		$sensitiveMasterList = self::parseSensitiveMaster( $sheetData );
 		$result .= self::saveSensitiveMasterList( $sensitiveMasterList );
 		return $result;
@@ -870,8 +881,8 @@ class SensitiveRelatedWikihows {
 			return $result;
 		}
 		foreach ( $data as $row ) {
-			$lang = $row->{'gsx$language'}->{'$t'};
-			$pageId = $row->{'gsx$id'}->{'$t'};
+			$lang = $row[0]; // column name: Language
+			$pageId = $row[1]; // column name: ID
 			$result[$lang][] = $pageId;
 		}
 
@@ -881,8 +892,8 @@ class SensitiveRelatedWikihows {
 	private static function parseSensitiveMaster( $data ) {
 		$result = array();
 		foreach ( $data as $row ) {
-			$pageId = $row->{'gsx$id'}->{'$t'};
-			$url = $row->{'gsx$url'}->{'$t'};
+			$pageId = $row[0]; // column name: ID
+			$url = $row[1]; // column name: URL
 			$result[] = array( $pageId, $url );
 		}
 

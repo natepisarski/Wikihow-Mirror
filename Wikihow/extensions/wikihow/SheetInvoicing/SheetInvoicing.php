@@ -4,8 +4,6 @@ if (!defined('MEDIAWIKI')) {
     die();
 }
 
-require_once("$IP/extensions/wikihow/titus/GoogleSpreadsheet.class.php");
-
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'SheetInvoicing',
     'author' => 'Alberto Burgos',

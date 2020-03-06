@@ -3287,28 +3287,36 @@ class OutputPage extends ContextSource {
 
 		$pieces[] = Html::element( 'title', null, $this->getHTMLTitle() );
 
+		$isAmp = false;
+		if ( GoogleAmp::isAmpMode($this) ) {
+			$isAmp = true;
+		}
+
+		$isJsSpeedTest = false;
+		if ( Misc::isFastRenderTest() ) {
+			$isJsSpeedTest = false;
+		}
 		// Wikihow: we can't have any Javascript in the head, and post-processing
 		// this after the fact is tougher.
-		if ( !GoogleAmp::isAmpMode($this) ) {
-			$pieces[] = Misc::getFCPHead();
-			$pieces[] = Misc::getTTIHead();
-			$pieces[] = Misc::getFIDHead();
+		if ( !$isAmp && !$isJsSpeedTest) {
 			$pieces[] = $this->getRlClient()->getHeadHtml();
 		}
 		$pieces[] = $this->buildExemptModules();
 		$pieces = array_merge( $pieces, array_values( $this->getHeadLinksArray() ) );
 		$pieces = array_merge( $pieces, array_values( $this->mHeadItems ) );
 
-		// Use an IE conditional comment to serve the script only to old IE
-		$pieces[] = '<!--[if lt IE 9]>' .
-			ResourceLoaderClientHtml::makeLoad(
-				ResourceLoaderContext::newDummyContext(),
-				[ 'html5shiv' ],
-				ResourceLoaderModule::TYPE_SCRIPTS,
-				[ 'sync' => true ],
-				$this->getCSPNonce()
-			) .
-			'<![endif]-->';
+		if ( !$isAmp ) {
+			// Use an IE conditional comment to serve the script only to old IE
+			$pieces[] = '<!--[if lt IE 9]>' .
+				ResourceLoaderClientHtml::makeLoad(
+					ResourceLoaderContext::newDummyContext(),
+					[ 'html5shiv' ],
+					ResourceLoaderModule::TYPE_SCRIPTS,
+					[ 'sync' => true ],
+					$this->getCSPNonce()
+				) .
+				'<![endif]-->';
+		}
 
 		$pieces[] = Html::closeElement( 'head' );
 

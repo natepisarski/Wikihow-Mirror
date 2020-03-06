@@ -3,7 +3,6 @@ global $IP;
 
 require_once __DIR__ . '/../../commandLine.inc';
 require_once ("$IP/extensions/wikihow/DatabaseHelper.class.php");
-require_once("$IP/extensions/wikihow/titus/GoogleSpreadsheet.class.php");
 
 $status2s = array('how to 360 mountain bike',
 'how to access kindle books on computer',
@@ -2498,11 +2497,7 @@ $dbw = wfGetDB(DB_MASTER);
 
 print "Step 1 of 4: Get supertitus spreadsheet data\n";
 try {
-	$gs = new GoogleSpreadsheet();
-	$startColumn = 1;
-	$endColumn = 4;
-	$startRow = 2;
-	$cols = $gs->getColumnData( WH_TITUS_TOP10K_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
+	$cols = GoogleSheets::getRows( WH_TITUS_TOP10K_GOOGLE_DOC, 'Super Titus!A2:D' );
 	$urlList = array();
 	$pageIds = array();
 	$dups = "";

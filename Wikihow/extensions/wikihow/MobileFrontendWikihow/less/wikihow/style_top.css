@@ -1545,3 +1545,12 @@ a.related-title,a.related-title:active, a.related-title:visited {
 #footer_ccpa, #footer_ccpa_optout {
 	display: none;
 }
+
+.reference.trusted {
+	background: url(/skins/owl/images/sp_expert_icon_white.svg) no-repeat right 2px/12px;
+	padding-right: 14px;
+}
+
+.reference {
+	position: relative;
+}

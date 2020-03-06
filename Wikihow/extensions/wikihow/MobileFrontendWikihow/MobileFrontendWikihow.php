@@ -204,6 +204,11 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'styles' => ['less/wikihow/no_such_page.less'],
 			'position' => 'top',
 			'targets' => ['mobile']
+		],
+	'mobile.wikihow.tabsonmobile' => $wgMFMobileResourceBoilerplateWikihow + [
+			'styles' => ['less/wikihow/tabs_on_small.less'],
+			'position' => 'top',
+			'targets' => ['mobile']
 		]
 	)
 );

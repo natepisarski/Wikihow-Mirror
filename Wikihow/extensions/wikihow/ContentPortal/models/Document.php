@@ -31,7 +31,7 @@ class Document extends AppModel {
 		$gDoc = new GoogleDoc($this->article);
 		$file = $this->isWriting() ? $gDoc->createWritingDoc() : $gDoc->createVerificationDoc();
 		$this->doc_id = $file->id;
-		$this->doc_url = $file->alternateLink;
+		$this->doc_url = $file->webViewLink;
 		return true;
 	}
 }

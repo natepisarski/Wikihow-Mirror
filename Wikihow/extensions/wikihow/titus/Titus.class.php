@@ -12,7 +12,6 @@ if ( !defined('MEDIAWIKI') ) die();
 
 require_once __DIR__ . "/../DatabaseHelper.class.php";
 require_once __DIR__ . "/../TranslationLink.php";
-require_once __DIR__ . '/GoogleSpreadsheet.class.php';
 
 class TitusDB {
 	var $db = [];
@@ -416,22 +415,6 @@ class TitusDB {
 			TitusDB::TITUS_INTL_TABLE_NAME,
 			'*',
 			array(),
-			__METHOD__,
-			array(),
-			2000,
-			$dbr
-		);
-
-		return $rows;
-	}
-
-	public function getOldRecords( $datestamp ) {
-		$dbr = $this->getTitusDB('read');
-
-		$rows = DatabaseHelper::batchSelect(
-			TitusDB::TITUS_HISTORICAL_TABLE_NAME,
-			'*',
-			array( 'ti_datestamp' => $datestamp ),
 			__METHOD__,
 			array(),
 			2000,
@@ -847,7 +830,7 @@ abstract class TitusStat {
 	}
 
 	protected function fixDate( $d ) {
-		if ( is_numeric( $d ) && sizeof( $d ) == 14 ) {
+		if ( is_numeric( $d ) && strlen( $d ) == 14 ) {
 			return substr( $d, 0, 8 );
 		} else {
 			$p = date_parse( $d );
@@ -3008,11 +2991,7 @@ class TSTop10k extends TitusStat {
 		global $wgLanguageCode;
 		print "Getting Top10K spreadsheet\n";
 		try {
-			$gs = new GoogleSpreadsheet();
-			$startColumn = 1;
-			$endColumn = 4;
-			$startRow = 2;
-			$cols = $gs->getColumnData( WH_TITUS_TOP10K_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
+			$cols = GoogleSheets::getRows( WH_TITUS_TOP10K_GOOGLE_DOC, 'Super Titus!A2:D' );
 			$urlList = array();
 			$pageIds = array();
 			$dups = "";
@@ -3117,11 +3096,7 @@ class TSRatings extends TitusStat {
 		global $wgLanguageCode;
 		print "Getting ratings spreadsheet\n";
 		try {
-			$gs = new GoogleSpreadsheet();
-			$startColumn = 1;
-			$endColumn = 3;
-			$startRow = 2;
-			$cols = $gs->getColumnData( WH_TITUS_RATINGS_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
+			$cols = GoogleSheets::getRows( WH_TITUS_RATINGS_GOOGLE_DOC, 'for greshon!A2:C' );
 			$ids = array();
 			$badDates = 0;
 			foreach ($cols as $col) {
@@ -3291,11 +3266,7 @@ class TSLibrarian extends TitusStat {
 		global $wgLanguageCode;
 		print "Getting librarian spreadsheet\n";
 		try {
-			$gs = new GoogleSpreadsheet();
-			$startColumn = 1;
-			$endColumn = 4;
-			$startRow = 2;
-			$cols = $gs->getColumnData( WH_TITUS_LIBRARIAN_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
+			$cols = GoogleSheets::getRows( WH_TITUS_LIBRARIAN_GOOGLE_DOC, 'Master!A2:D' );
 			$ids = array();
 			$badDates = 0;
 			foreach ( $cols as $col ) {
@@ -3403,11 +3374,7 @@ class TSLastFellowStubEdit extends TitusStat {
 		global $wgLanguageCode;
 		print "Getting stub editor spreadsheet\n";
 		try {
-			$gs = new GoogleSpreadsheet();
-			$startColumn = 1;
-			$endColumn = 3;
-			$startRow = 2;
-			$cols = $gs->getColumnData( WH_TITUS_STUB_EDITOR_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
+			$cols = GoogleSheets::getRows( WH_TITUS_STUB_EDITOR_GOOGLE_DOC, 'Stub Edits!A2:C' );
 			$ids = array();
 			$badDates = 0;
 			foreach ($cols as $col) {
@@ -3501,11 +3468,7 @@ class TSLastFellowEdit extends TitusStat {
 		global $wgLanguageCode;
 		print "Getting editor spreadsheet\n";
 		try {
-			$gs = new GoogleSpreadsheet();
-			$startColumn = 1;
-			$endColumn = 3;
-			$startRow = 2;
-			$cols = $gs->getColumnData( WH_TITUS_EDITOR_GOOGLE_DOC, $startColumn, $endColumn, $startRow );
+			$cols = GoogleSheets::getRows( WH_TITUS_EDITOR_GOOGLE_DOC, 'Master!A2:C' );
 			$ids = [];
 			$badDates = 0;
 			foreach ($cols as $col) {
@@ -5242,8 +5205,7 @@ class TSExpertVerifiedSince extends TitusStat {
 		$this->isSheetProcessed = true;
 
 		try {
-			$sheet =@ new GoogleSpreadsheet();
-			$cols = $sheet->getSheetData(WH_TITUS_ORIGINAL_VERIFICATIONS_GOOGLE_DOC, 'production!A2:D');
+			$cols = GoogleSheets::getRows(WH_TITUS_ORIGINAL_VERIFICATIONS_GOOGLE_DOC, 'production!A2:D');
 		} catch (Exception $e) {
 			$this->reportError("Problem fetching spreadsheet: " . $e->getMessage());
 			return;
@@ -5323,8 +5285,7 @@ class TSQuickSummaryCreated extends TitusStat {
 		$this->isSheetProcessed = true;
 
 		try {
-			$sheet =@ new GoogleSpreadsheet();
-			$cols = $sheet->getSheetData(WH_TITUS_QUICK_SUMMARY_CREATED_DATE_GOOGLE_DOC, 'production!A2:D');
+			$cols = GoogleSheets::getRows(WH_TITUS_QUICK_SUMMARY_CREATED_DATE_GOOGLE_DOC, 'production!A2:D');
 		} catch (Exception $e) {
 			$this->reportError("Problem fetching spreadsheet: " . $e->getMessage());
 			return;

@@ -705,7 +705,7 @@ class GoogleAmp {
 		// setup by language, then by ad number (0 is default) then by ad type (adsense or gpt)
 		$testSetup = [
 			'en' => [
-				0 => ['adsense' => 1, 'gpt' => 99],
+				0 => ['gpt' => 100],
 				1 => ['adsense' => 100],
 			],
 			'intl' => [

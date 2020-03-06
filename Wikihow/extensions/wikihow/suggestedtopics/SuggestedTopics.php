@@ -41,10 +41,10 @@ $wgAutoloadClasses['YourArticles']              = $dir . 'YourArticles.body.php'
 $wgHooks['NABArticleFinished'][] = [ 'SuggestedTopicsHooks::notifyRequesterOnNab' ];
 
 $wgResourceModules['ext.wikihow.SuggestedTopics_styles'] = [
-	'styles' => [ 'suggestedtopics.css' ],
-	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/suggestedtopics',
-	'targets' => [ 'desktop' ],
+	'styles' => [ 'suggestedtopics.less' ],
+	'localBasePath' => __DIR__ . '/resources',
+	'remoteExtPath' => 'wikihow/suggestedtopics/resources',
+	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'top',
 ];
 
@@ -56,17 +56,17 @@ $wgResourceModules['ext.wikihow.SuggestedTopics'] = [
 		'suggest_please_enter_email'
 	],
 	'dependencies' => [ 'ext.wikihow.common_top', 'jquery.ui.dialog' ],
-	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/suggestedtopics',
-	'targets' => [ 'desktop' ],
+	'localBasePath' => __DIR__ . '/resources',
+	'remoteExtPath' => 'wikihow/suggestedtopics/resources',
+	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'top'
 ];
 
 $wgResourceModules['ext.wikihow.ManageSuggestedTopics'] = [
 	'scripts' => [ 'managesuggestedtopics.js' ],
 	'dependencies' => [ 'ext.wikihow.SuggestedTopics' ],
-	'localBasePath' => __DIR__,
-	'remoteExtPath' => 'wikihow/suggestedtopics',
-	'targets' => [ 'desktop' ],
+	'localBasePath' => __DIR__ . '/resources',
+	'remoteExtPath' => 'wikihow/suggestedtopics/resources',
+	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'top'
 ];

@@ -209,13 +209,25 @@ class EchoWikihowHooks {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
-		if ($out->getUser()->hasCookies()) {
+		global $wgResourceModules;
+
+		$cookie_user = $out->getUser()->hasCookies();
+
+		if ($cookie_user) {
 			$out->addModuleStyles(['ext.wikihow.echowikihow']);
 		}
 
 		$notifications_text = wfMessage('Notifications')->text();
 		if ($out->getTitle()->inNamespace(NS_SPECIAL) && $out->getTitle()->getDBkey() == $notifications_text) {
-			$out->addModuleStyles(['ext.wikihow.specialnotifications.styles']);
+
+			if ($cookie_user) {
+				$out->addModuleStyles(['ext.wikihow.specialnotifications.styles']);
+			}
+			else {
+				//login pop-up prompt / hiding notifications
+				$wgResourceModules['ext.echo.special'] = [];
+			}
+
 		}
 	}
 }

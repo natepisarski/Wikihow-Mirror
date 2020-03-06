@@ -2,31 +2,23 @@
 
 namespace WVI;
 
-use GoogleSpreadsheet;
-
 use SheetInv\ParsingResult;
 
 /**
  * The project's read-only data source, supported by Google Sheets.
  *
  */
-class Spreadsheet extends GoogleSpreadsheet
+class Spreadsheet
 {
-	private $summarySheetId;	// String
-	private $detailsSheetId;	// String
+	private $sheetId;	// String
 
 	public function __construct ()
 	{
 		global $wgIsProduction;
 
-		parent::__construct();
-
-		$sheetId = $wgIsProduction
+		$this->sheetId = $wgIsProduction
 			? '1ImKmb5gyFmpa3RaTW3ZYD_YjRYQF739ub3MqykcT-Qg'
 			: '1exPmD6RuqWnS_4C_UkYKBk33xlQ_zIP3Uw2Kl_sWtA4';
-
-		$this->summarySheetId = "$sheetId/1";
-		$this->detailsSheetId = "$sheetId/2";
 	}
 
 	public function parseSheet(): ParsingResult
@@ -37,22 +29,21 @@ class Spreadsheet extends GoogleSpreadsheet
 
 	private function parseSummarySheet() : ParsingResult
 	{
-		$minCol = 1; $maxCol = 7; $minRow = 2;
-		$xml = $this->fetchSheetData($this->summarySheetId, $minCol, $maxCol, $minRow);
+		$rows = \GoogleSheets::getRows($this->sheetId, 'Summary!A2:G');
 		$data = [];
 		$errors = [];
 		$idx = 1;
 
-		foreach ($xml->entry as $row) {
+		foreach ($rows as $row) {
 
 			$idx++;
-			$ftp = trim($row->xpath('gsx:ftp')[0]);
-			$name = trim($row->xpath('gsx:name')[0]);
-			$email = trim($row->xpath('gsx:email')[0]);
-			$articles = trim($row->xpath('gsx:articles')[0]);
-			$images = trim($row->xpath('gsx:images')[0]);
-			$loan = trim($row->xpath('gsx:loandeducted')[0]);
-			$paid = trim($row->xpath('gsx:amountpaid')[0]);
+			$ftp = trim($row[0]);
+			$name = trim($row[1]);
+			$email = trim($row[2]);
+			$articles = trim($row[3]);
+			$images = trim($row[4]);
+			$loan = trim($row[5]);
+			$paid = trim($row[6]);
 
 			if (!$ftp || !$name || !$email || !$paid || $articles == '' || $images == '') {
 				$errors[] = "Empty cells in row $idx of the 'Summary' sheet";
@@ -90,19 +81,18 @@ class Spreadsheet extends GoogleSpreadsheet
 			return $res;
 		}
 
-		$minCol = 1; $maxCol = 3; $minRow = 2;
-		$xml = $this->fetchSheetData($this->detailsSheetId, $minCol, $maxCol, $minRow);
+		$rows = \GoogleSheets::getRows($this->sheetId, 'Details!A2:C');
 		$parent = null;
 		$child = null;
 		$skipChild = false;
 		$idx = 1;
 
-		foreach ($xml->entry as $row) {
+		foreach ($rows as $row) {
 
 			$idx++;
-			$firstCol = trim($row->xpath('gsx:ftp')[0]); // It can be an FTP, or an article URL
-			$urlCount = trim($row->xpath('gsx:ofarticles')[0]);
-			$imgCount = trim($row->xpath('gsx:ofimages')[0]);
+			$firstCol = trim($row[0]); // It can be an FTP, or an article URL
+			$urlCount = trim($row[1]);
+			$imgCount = trim($row[2]);
 
 			if (!$firstCol || !$urlCount || !$imgCount) {
 				$res->errors[] = "Empty cells in row $idx of the 'Details' sheet";
@@ -154,23 +144,6 @@ class Spreadsheet extends GoogleSpreadsheet
 		$res->data = $data;
 
 		return $res;
-	}
-
-	/**
-	 * @return SimpleXMLElement|bool
-	 */
-	private function fetchSheetData(string $worksheet, int $minCol, int $maxCol, int $minRow)
-	{
-		$url = "https://spreadsheets.google.com/feeds/list/$worksheet/private/full";
-		$query = [
-			'access_token' => $this->getToken(),
-			'min-col' => $minCol,
-			'max-col' => $maxCol,
-			'min-row' => $minRow,
-		];
-
-		$res = $this->doAtomXmlRequest($url, $query);
-		return simplexml_load_string($res);
 	}
 
 }

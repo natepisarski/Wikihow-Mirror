@@ -249,16 +249,15 @@ class Reverification extends UnlistedSpecialPage {
 	 * @return string|null
 	 */
 	protected function getExtensiveFeedbackDocUrl($reverification) {
-		global $wgIsDevServer, $IP;
-		require_once("$IP/extensions/wikihow/socialproof/CoauthorSheets/CoauthorSheetTools.php");
+		global $wgIsDevServer;
 
-		$tools = new CoauthorSheetTools();
+		$tools = new ExpertDocTools();
 		$title = Title::newFromId($reverification->getAid());
 		$folderId = $wgIsDevServer ?
-			CoauthorSheetTools::CPORTAL_DOH_FOLDER : CoauthorSheetTools::CPORTAL_PROD_FOLDER;
+			ExpertDocTools::CPORTAL_FOLDER_DEV : ExpertDocTools::CPORTAL_FOLDER;
 
-		$doc = $tools->createExpertDoc(null, $title->getText(), null, $this->getContext(), $folderId);
-		return $doc ? $doc->alternateLink : null;
+		$doc = $tools->createExpertDoc($title->getText(), null, $this->getContext(), $folderId);
+		return $doc ? $doc->webViewLink : null;
 	}
 
 	/**

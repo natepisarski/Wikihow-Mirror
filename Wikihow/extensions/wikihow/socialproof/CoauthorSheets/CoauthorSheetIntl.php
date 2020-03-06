@@ -6,12 +6,11 @@ class CoauthorSheetIntl extends CoauthorSheet
 		global $wgActiveLanguages;
 
 		$stats = [ 'imported'=>[], 'errors'=>[], 'warnings'=>[] ];
-		$apiToken = self::getApiAccessToken();
 
 		$enBlurbs = VerifyData::getAllBlurbsFromDB('en');
 		$enCoauthors = VerifyData::getAllVerifierInfoFromDB('en');
 		$enArticles = VerifyData::getAllArticlesFromDB('en');
-		list($overrides, $errors) = self::fetchDateOverridesFromSheet($apiToken);
+		list($overrides, $errors) = self::fetchDateOverridesFromSheet();
 
 		foreach ($wgActiveLanguages as $lang) {
 			list($translations, $errors, $warnings) = self::fetchBlurbTranslationsFromSheet($lang, $enBlurbs, $apiToken);
@@ -42,9 +41,8 @@ class CoauthorSheetIntl extends CoauthorSheet
 	public static function recalculateIntlArticles(): array {
 		global $wgActiveLanguages;
 
-		$apiToken = self::getApiAccessToken();
 		$enArticles = VerifyData::getAllArticlesFromDB('en');
-		list($overrides, $errors) = self::fetchDateOverridesFromSheet($apiToken);
+		list($overrides, $errors) = self::fetchDateOverridesFromSheet();
 
 		foreach ($wgActiveLanguages as $lang) {
 			$intlBlurbs = VerifyData::getAllBlurbsFromDB($lang);
@@ -61,7 +59,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 		return [ 'imported' => $overrideCount, 'errors' => $errors, 'warnings' => [] ];
 	}
 
-	private static function fetchBlurbTranslationsFromSheet(string $lang, array $enBlurbs, string $apiToken): array
+	private static function fetchBlurbTranslationsFromSheet(string $lang, array $enBlurbs): array
 	{
 		$translations = [];
 		$errors = [];
@@ -69,7 +67,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 		$sheetId = self::getLocalizationSheetId();
 		$worksheetName = strtoupper($lang);
-		$rowGenerator = self::getWorksheetDataV4($sheetId, $worksheetName, $apiToken);
+		$rowGenerator = GoogleSheets::getRowsAssoc($sheetId, $worksheetName);
 
 		foreach ($rowGenerator as $num => $row)
 		{
@@ -217,7 +215,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 		return $articles;
 	}
 
-	private static function fetchDateOverridesFromSheet(string $apiToken): array
+	private static function fetchDateOverridesFromSheet(): array
 	{
 		global $wgActiveLanguages;
 
@@ -227,7 +225,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 		$sheetId = self::getOverridesSheetId();
 		$worksheetName = 'Master';
-		$rowGenerator = self::getWorksheetDataV4($sheetId, $worksheetName, $apiToken);
+		$rowGenerator = GoogleSheets::getRowsAssoc($sheetId, $worksheetName);
 
 		foreach ($rowGenerator as $num => $row) {
 			$rowInfo = self::makeRowInfoHtml($num, $sheetId, $worksheetName);

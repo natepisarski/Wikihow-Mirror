@@ -238,6 +238,8 @@ class VideoCatalog {
 		} else {
 			// No item exists, create one
 			$item = VideoCatalogItem::newFromSourceUrl( $sourceUrl );
+			if (!$item) return false;
+
 			$item->setPosterUrl( $posterUrl );
 			$item->setClipUrl( $clipUrl );
 			$item->setOriginalArticleId( $articleId );

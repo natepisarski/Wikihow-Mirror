@@ -750,6 +750,9 @@ class WikihowMobileTools {
 		}
 
 		self::formatReferencesSection( $skin );
+		if(class_exists("TrustedSources")) {
+			TrustedSources::markTrustedSources($pageId);
+		}
 
 		$showUserImagesSection = $wgLanguageCode == 'en'
 			&& class_exists('UserCompletedImages')
@@ -1009,7 +1012,7 @@ class WikihowMobileTools {
 			DeferImages::modifyDOM();
 		}
 
-		if ( ArticleTagList::hasTag( 'js_fast_render', $pageId ) ) {
+		if ( Misc::isFastRenderTest() ) {
 			self::fastRenderModifyDOM();
 		}
 

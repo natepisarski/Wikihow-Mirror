@@ -12,7 +12,7 @@
 		} );
 
 		function displayResult(result) {
-			lastResult = result; 
+			lastResult = result;
 
 			if (!result || !result['data']) {
 				return;
@@ -33,12 +33,12 @@
 				var comment = entry['description'];
 
 				var ed_title = $('<div class="ed_file_title ed_result_item"></div>');
-				ed_title.text(entry['title']);
+				ed_title.text(entry['name']);
 				ed_file.append(ed_title);
 
 				var ed_link = $('<a target="_blank" class="ed_link ed_result_item"></a>');
-				ed_link.text(entry['alternateLink']);
-				ed_link.attr('href', entry['alternateLink']);
+				ed_link.text(entry['webViewLink']);
+				ed_link.attr('href', entry['webViewLink']);
 				ed_file.append(ed_link);
 
 				//var ed_file_id = $('<div class="ed_file_id ed_result_item"></div>');
@@ -129,14 +129,14 @@
 				var data = [["title", "link", "name"]];
 
 				lastResult['data'].forEach(function(entry) {
-					var link = entry['alternateLink'];
+					var link = entry['webViewLink'];
 
 					var comment = entry['description'];
 					if (!comment) {
 						comment = ' ';
 					}
 
-					data.push([entry['title'], link, comment]);
+					data.push([entry['name'], link, comment]);
 				});
 
 				var csvContent = "data:text/csv;charset=utf-8,";

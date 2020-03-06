@@ -3,7 +3,7 @@
 class StaffReviewed {
 
 	const STAFF_REVIEWED_ARTICLES_HANDPICKED_TAG = 'staff_reviewed_articles_handpicked';
-	const STAFF_REVIEWED_KEY = 'staff_reviewed_article';
+	const STAFF_REVIEWED_KEY = 'staff_reviewed_article_2';
 
 	public static function staffReviewedCheck(int $page_id, bool $checkMemc = true): bool {
 		global $wgMemc, $wgLanguageCode;

@@ -177,7 +177,7 @@ class WatermarkSupport {
 		$green="#93b874";
 		$color = $green;
 
-		$wm = $IP.'/skins/WikiHow/images/WH_logo.svg';
+		$wm = $IP.'/skins/WikiHow/images/WH_logo_green.png';
 
 		$dissolveSetting = "";
 		if ( $dissolve < 100 ) {

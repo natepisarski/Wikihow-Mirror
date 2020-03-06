@@ -447,19 +447,23 @@ EOHTML;
 			if ('reset' == substr($action,0,5)) {
 				if ('reset' == $action) { // both www and mobile
 					foreach (self::$domains as $domain=>$foo) {
-						$html .= self::resetStats($urls, $domain);
+#						$html .= self::resetStats($urls, $domain);
 					}
 				} else { // just one domain
 					$domain = substr($action, -2);
-					$html = self::resetStats($urls, $domain);
+#					$html = self::resetStats($urls, $domain);
 				}
 
 				// keep track of stu resets in the rating_history table
+				$count = 0;
 				foreach ($urls as $url) {
 					if ($url['title'] && $url['title']->getArticleID() > 0) {
 						RatingsTool::keepHistory( $url['title']->getArticleID(), 'stu' );
+						$count++;
 					}
 				}
+
+				$html = "Successfully reset $count URL(s) in Stu2";
 
 				self::resetVarnishes($urls);
 

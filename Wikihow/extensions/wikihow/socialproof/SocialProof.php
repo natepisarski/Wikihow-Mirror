@@ -9,6 +9,7 @@ $wgSpecialPages['SocialProof'] = 'SocialProof';
 $wgAutoloadClasses['SocialProof'] = __DIR__ . '/SocialProof.body.php';
 $wgAutoloadClasses['StaffReviewed'] = __DIR__ . '/StaffReviewed.class.php';
 $wgAutoloadClasses['ExpertAdviceSection'] = __DIR__ . '/ExpertAdviceSection.class.php';
+$wgAutoloadClasses['ExpertDocTools'] = __DIR__ . '/ExpertDocTools.php';
 
 $wgHooks['ArticlePurge'][] = ['SocialProofStats::onArticlePurge'];
 $wgHooks['BylineStamp'][] = ['SocialProofStats::setBylineInfo'];

@@ -18,6 +18,7 @@ class RequestTopic extends SpecialPage {
 		}
 
 		$out->setPageTitle(wfMessage('suggest_header')->text());
+		$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
 
 		$mustacheEngine = new Mustache_Engine([
 			'loader' => new Mustache_Loader_FilesystemLoader(__DIR__ . '/templates' )
@@ -76,8 +77,6 @@ class RequestTopic extends SpecialPage {
 					['st_title' => $title->getDBKey()]
 				);
 			}
-			$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
-			$out->addModules(['ext.wikihow.SuggestedTopics']);
 			$vars = [
 				'title' => $title->getText(),
 				'url' => $title->getFullURL(),
@@ -90,9 +89,6 @@ class RequestTopic extends SpecialPage {
 
 		$out->setHTMLTitle('Requested Topics - wikiHow');
 		$out->setRobotPolicy('noindex,nofollow');
-
-		$out->addModuleStyles( ['ext.wikihow.SuggestedTopics_styles'] );
-		$out->addModules(['ext.wikihow.SuggestedTopics']);
 
 		// Followed the example in SimpleCaptcha::addFormInformationToOutput()
 		$info = $fancyCaptcha->getFormInformation();
@@ -121,6 +117,8 @@ class RequestTopic extends SpecialPage {
 				'notification_label' => wfMessage('request_topic_notification_label')->text(),
 				'email_me' => wfMessage('request_topic_email_me')->text(),
 				'view_current_list' => wfMessage('request_topic_view_current_list')->text(),
+				'howto_placeholder' => wfMessage('nojs_search_placeholder')->text(),
+				'submit' => wfMessage('submit')->text()
 			]
 		]));
 	}
@@ -149,6 +147,10 @@ class RequestTopic extends SpecialPage {
 	}
 
 	public function isAnonAvailable() {
+		return true;
+	}
+
+	public function isMobileCapable() {
 		return true;
 	}
 

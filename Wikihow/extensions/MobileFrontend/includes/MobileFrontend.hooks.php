@@ -789,7 +789,7 @@ class MobileFrontendHooks {
 			if ( $out && $out->getTitle() && $out->getTitle()->getArticleID() ) {
 				$pageId = $out->getTitle()->getArticleID();
 			}
-			if ( !ArticleTagList::hasTag( 'js_fast_render', $pageId ) ) {
+			if ( !Misc::isFastRenderTest() ) {
 				$out->addModules( [ 'mobile.site', 'mobile.init' ] );
 			}
 			if ( $title->isMainPage() && $config->get( 'MFMobileMainPageCss' ) ) {
