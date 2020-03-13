@@ -25,24 +25,28 @@ class VideoBrowser {
 	 * @return {bool} Replace inline player
 	 */
 	public static function inlinePlayerShouldBeReplaced( $context ) {
-		// Get the summary video row, indicating whether VideoBrowser knows about this video yet
-		$dbr = wfGetDb( DB_REPLICA );
-		$summaryVideo = $dbr->selectRow(
-			'summary_videos', '*', [ 'sv_id' => $context->getTitle()->getArticleID() ], __METHOD__
-		);
-		// Get the recipe schema, since it includes video info in it
-		$recipeSchema = SchemaMarkup::getRecipeSchema(
-			$context->getTitle(), $context->getOutput()->getRevisionId()
-		);
+		// HACK - Trevor, 2020/03/11 - this just ensures we always leave the inline player, which
+		// we want to do temporarily at least
+		return false;
 
-		return (bool)(
-			// Make sure VideoBrowser knows about the video, there could be lag between save and
-			// summary_video being populated, this is a safety net
-			$summaryVideo &&
-			// Special exception for recipe articles, play those inline since the recipe schema
-			// advertises the video is here
-			!$recipeSchema
-		);
+		// // Get the summary video row, indicating whether VideoBrowser knows about this video yet
+		// $dbr = wfGetDb( DB_REPLICA );
+		// $summaryVideo = $dbr->selectRow(
+		// 	'summary_videos', '*', [ 'sv_id' => $context->getTitle()->getArticleID() ], __METHOD__
+		// );
+		// // Get the recipe schema, since it includes video info in it
+		// $recipeSchema = SchemaMarkup::getRecipeSchema(
+		// 	$context->getTitle(), $context->getOutput()->getRevisionId()
+		// );
+
+		// return (bool)(
+		// 	// Make sure VideoBrowser knows about the video, there could be lag between save and
+		// 	// summary_video being populated, this is a safety net
+		// 	$summaryVideo &&
+		// 	// Special exception for recipe articles, play those inline since the recipe schema
+		// 	// advertises the video is here
+		// 	!$recipeSchema
+		// );
 	}
 
 	/**

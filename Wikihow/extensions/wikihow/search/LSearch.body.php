@@ -1288,29 +1288,6 @@ class LSearch extends SpecialPage {
 		return '';
 	}
 
-	private static function getSearchAdChannel() {
-		global $wgDFPAdBucket;
-
-		$bucket = $wgDFPAdBucket;
-
-		if ( $wgRequest && $wgRequest->getInt( 'bucket' ) ) {
-			$reqBucket = $wgRequest->getInt( 'bucket' );
-			if ( $reqBucket > 0 && $reqBucket <= 25 ) {
-				$bucket = $reqBucket;
-			}
-		}
-		$bucket = intval( $bucket );
-
-		// control channel
-		$channel = 3021647686;
-
-
-		if ( in_array( $bucket, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] ) ) {
-			$channel = 4186362021;
-		}
-		return $channel;
-	}
-
 	private static function getSearchAdsGoogle(string $query, int $page): string {
 		global $wgLanguageCode, $wgIsDevServer;
 
@@ -1324,14 +1301,11 @@ class LSearch extends SpecialPage {
 
 		$query = LSearch::formatSearchQuery($query);
 
-		$channel = self::getSearchAdChannel();
-
 		$vars = [
 			"query" => json_encode($query),
 			"lang" => json_encode($wgLanguageCode),
 			"page" => json_encode($page),
 			"test" => json_encode($wgIsDevServer ? 'on' : 'off'),
-			"channel" => $channel,
 		];
 
 		$tmpl = new EasyTemplate(__DIR__); // TODO use mustache

@@ -12,7 +12,6 @@
 class CreatePage extends SpecialPage {
 	function __construct() {
 		parent::__construct('CreatePage');
-		EasyTemplate::set_path( __DIR__ );
 	}
 
 	function cleanupProposedRedirects(&$text) {
@@ -35,17 +34,19 @@ class CreatePage extends SpecialPage {
 
 	function getTitleResult($t, $target, $redir=false) {
 		$title_text = $redir ? $target : $t->getText();
-		$html = "<div id='cpr_text_top'>".
-				wfMessage('cp_title_exists_top',$title_text,$t->getPartialURL())->text() . "<br /><br />" .
-				"<input id='cpr_write_something' type='button' class='button secondary' value='".wfMessage('cp_left_btn')->text()."' />" .
-				"<input id='cpr_add_something' type='button' class='button primary' value='".wfMessage('cp_right_btn')->text()."' /></div>" .
-				"<div id='cpr_text_bottom'><div class='triangle_up'></div>" .
-				"<div id='cp_title_input_block' class='cp_block'><form>" .
-				"<b>".wfMessage('howto','')->text()."</b><input autocomplete='off' maxLength='256' id='cp_existing_title_input' name='target' value='' class='search_input' type='text' placeholder='".wfMessage('cp_title_ph2')->text()."' />" .
-				"<input type='submit' id='cp_existing_title_btn' value='". wfMessage('cp_title_submit2')->text() ."' class='button primary createpage_button' />" .
-				"</form></div>" .
-				"<div id='cpr_text_details'>".wfMessage('cp_title_exists_details',$t->getText(),$t->getPartialURL(),$t->getEditURL())->text()."</div></div>";
-		return $html;
+
+		$cp_title_ph2 = wfMessage('howto_prefix')->showIfExists().' &#8220;'.wfMessage('cp_title_ph2')->text().'&#8221;';
+
+		$vars = [
+			'cp_exists_text' => wfMessage('cp_title_exists_top', $title_text, $t->getPartialURL())->text(),
+			'cp_left_btn' => wfMessage('cp_left_btn')->text(),
+			'cp_right_btn' => wfMessage('cp_right_btn')->text(),
+			'cp_title_ph2' => $cp_title_ph2,
+			'cp_title_submit2' => wfMessage('cp_title_submit2')->text(),
+			'cp_exists_details' => wfMessage('cp_title_exists_details', $t->getText(), $t->getPartialURL(), $t->getEditURL())->text()
+		];
+
+		return $this->renderTemplate('createpage_results.mustache', $vars);
 	}
 
 	function getRelatedTopicsText($target) {
@@ -245,30 +246,36 @@ class CreatePage extends SpecialPage {
 	}
 
 	function outputCreatePageForm() {
-		global $wgOut, $wgScriptPath;
+		$out = $this->getOutput();
 
-		$boxes = EasyTemplate::html('createpage_boxes.tmpl.php');
+		$out->addModuleStyles(['ext.wikihow.common_bottom_styles']);
+		$out->addModules(['ext.wikihow.editor_script', 'ext.wikihow.common_top', 'ext.wikihow.common_bottom']);
 
-		$wgOut->addModules('ext.wikihow.editor_script');
+		$cp_title_ph = wfMessage('howto_prefix')->showIfExists().' &#8220;'.wfMessage('cp_title_ph')->text().'&#8221;';
 
-		$wgOut->addHTML("
-		<script>
-			function checkform() {
-				if (document.createform.target.value.indexOf('?') > 0 ) {
-					alert('The character ? is not allowed in the title of an article.');
-					return false;
-				}
-				return true;
-			}
-		</script>
-		"
-		. $boxes
-		);
+		$vars = [
+			'cp_title_head' => wfMessage('cp_title_head')->text(),
+			'cp_title_ph' => $cp_title_ph,
+			'cp_title_submit' => wfMessage('cp_title_submit')->text(),
+			'showTopicSuggestions' => $this->getLanguage()->getCode() == 'en',
+			'createpage_topic_sugg_head' => wfMessage('createpage_topic_sugg_head')->text(),
+			'cp_topic_ph' => wfMessage('cp_topic_ph')->text(),
+			'cp_topic_submit' => wfMessage('cp_topic_submit')->text(),
+			'createpage_other_head' => wfMessage('createpage_other_head')->text(),
+			'cp_other_details' => wfMessage('cp_other_details')->text(),
+		];
 
-		$wgOut->addModuleStyles(['ext.wikihow.common_bottom_styles']);
-		$wgOut->addModules(array('ext.wikihow.common_top', 'ext.wikihow.common_bottom'));
+		$boxes = $this->renderTemplate('createpage_boxes.mustache', $vars);
+		$out->addHTML($boxes);
+	}
 
-		return;
+	private function renderTemplate( string $template, array $vars = [] ): string {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		return $m->render($template, $vars);
 	}
 
 	function grabEditURL($t) {
@@ -320,4 +327,9 @@ class CreatePage extends SpecialPage {
 	function isAnonAvailable() {
 		return true;
 	}
+
+	public function isMobileCapable() {
+		return true;
+	}
+
 }

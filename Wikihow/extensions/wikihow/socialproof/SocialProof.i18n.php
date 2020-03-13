@@ -83,7 +83,8 @@ $messages['en'] = array (
 	'sp_hover_text_academic' => "When you see the green expert <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review by an expert. In this case, someone with an appropriate advanced degree has reviewed this article.<br><br>This particular article was reviewed by <b><a href='$1'>$2</a></b> ($3).",
 	'sp_hover_text_youtuber' => "When you see the green expert <span class='sp_expert_icon'></span> checkmark on a wikiHow article, you know that the article has received careful review. In this case, someone with proven expertise on this subject has reviewed this article.<br><br>This particular article was reviewed by <b><a href='$1'>$2</a></b> ($3).",
 	'sp_inline_expert_label' => "Written by:",
+	'sp_medical_expert_label' => "Medically reviewed by:",
 	'sp_expert_attribution' => 'Co-authored by',
-	'sp_hover_text_staff_addendum' => "<a href='/Special:ArticleReviewers#wikihow%20content%20team%20managers'><b>wikiHow's Content Management Team</b></a> closely monitors the work from our editorial staff to ensure it meets our high standards.",
+	'sp_hover_text_staff_addendum' => "<a href='/Experts#wikihow%20content%20team%20managers'><b>wikiHow's Content Management Team</b></a> closely monitors the work from our editorial staff to ensure it meets our high standards.",
 	'expert_advice' => 'Expert Advice'
 );

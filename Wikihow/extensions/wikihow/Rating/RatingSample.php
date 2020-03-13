@@ -82,7 +82,7 @@ class RatingSample extends RatingsTool {
 
 	function getRatingForm() {
 
-		$html = "<div id='sample_rating'>
+		$html = "<div id='sample_rating' class='docviewer_box'>
 			<h4>" . wfMessage('ratesample_question')->text() . "</h4>
 			<div id='sample_accuracy_buttons'>
 				<a href='#' id='sampleAccuracyYes' class='button secondary'>Yes</a>

@@ -1088,3 +1088,30 @@ a.reference-anchor {
 	/* @embed */
 	background-image: url(/extensions/wikihow/userloginbox/images/ulb_person.svg);
 }
+
+.wikitable {
+	background: #f8f9fa;
+	color: #222;
+	margin: 1em 0;
+	border: 1px solid #a2a9b1;
+	border-collapse: collapse;
+	overflow: auto;
+	display: block;
+}
+.wikitable > tr > th,
+.wikitable > tr > td,
+.wikitable > * > tr > th,
+.wikitable > * > tr > td {
+	border: 1px solid #a2a9b1;
+	padding: 0.2em 0.4em;
+}
+
+.wikitable > tr > th,
+.wikitable > * > tr > th {
+	background: #eaecf0;
+	text-align: center;
+}
+
+.wikitable > caption {
+	font-weight: bold;
+}

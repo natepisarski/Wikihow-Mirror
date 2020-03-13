@@ -61,7 +61,8 @@
 							return false;
 						}
 						captionEl.children[0].innerHTML = item.title;
-						captionEl.children[1].innerHTML = $.parseHTML(item.licensing)[0].data;
+						var instructions = item.instructions ?  $.parseHTML(item.instructions)[0].data : '';
+						captionEl.children[1].innerHTML =  $.parseHTML(item.licensing)[0].data + instructions;
 						if(item.bounds) {
 							$(captionEl).css({top: (item.bounds.center.y + item.initialZoomLevel * item.h)});
 						}
@@ -375,7 +376,7 @@
 								gap.bottom = bars.top; // if no caption, set size of bottom gap to size of top
 							}
 						} else {
-							gap.bottom = bars.bottom === 'auto' ? 0 : bars.bottom;
+							gap.bottom = bars.bottom === 'auto' ? 0 : bars.bottom + 50;
 						}
 
 						// height of top bar is static, no need to calculate it
@@ -602,16 +603,18 @@
 				});
 
 				// Allow text selection in caption
-				_listen('preventDragEvent', function(e, isDown, preventObj) {
-					var t = e.target || e.srcElement;
-					if(
-						t &&
-						t.className && e.type.indexOf('mouse') > -1 &&
-						( t.className.indexOf('__caption') > 0 || (/(SMALL|STRONG|EM)/i).test(t.tagName) )
-					) {
-						preventObj.prevent = false;
-					}
-				});
+				// _listen('preventDragEvent', function(e, isDown, preventObj) {
+				// 	var t = e.target || e.srcElement;
+				// 	preventObj.prevent = false;
+				// 	if(
+				// 		t &&
+				// 		t.className && e.type.indexOf('mouse') > -1 &&
+				// 		( t.tagName.toUpperCase() == 'NOWIKI' || t.className.indexOf('__caption') > 0 || (/(SMALL|STRONG|EM)/i).test(t.tagName) )
+				// 	) {
+				// 		console.log('prevent!');
+				// 		preventObj.prevent = true;
+				// 	}
+				// });
 
 				// bind events for UI
 				_listen('bindEvents', function() {
@@ -904,8 +907,13 @@
 				return api;
 			};
 
-
-
+			// var allowSwipe = false;
+			// function preventSwipe (e) {
+			// 	if (!allowSwipe) {
+			// 		e.preventDefault();
+			// 		e.stopPropagation();
+			// 	}
+			// }
 		};
 	return PhotoSwipeUI_Default;
 

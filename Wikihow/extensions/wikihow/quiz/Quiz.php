@@ -44,8 +44,15 @@ $wgResourceModules['ext.wikihow.adminquiz'] = [
 ];
 
 $wgResourceModules['ext.wikihow.quiz_yourself'] = [
-	'styles' => [ 'quiz_yourself.less' ],
 	'scripts' => [ 'quiz_yourself.js' ],
+	'localBasePath' => __DIR__.'/QuizYourself/resources',
+	'remoteExtPath' => 'wikihow/quiz/QuizYourself/resources',
+	'targets' => [ 'desktop', 'mobile' ],
+	'position' => 'top'
+];
+
+$wgResourceModules['ext.wikihow.quiz_yourself.styles'] = [
+	'styles' => [ 'quiz_yourself.less' ],
 	'localBasePath' => __DIR__.'/QuizYourself/resources',
 	'remoteExtPath' => 'wikihow/quiz/QuizYourself/resources',
 	'targets' => [ 'desktop', 'mobile' ],

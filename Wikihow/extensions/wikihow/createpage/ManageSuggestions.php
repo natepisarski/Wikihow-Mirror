@@ -15,7 +15,8 @@ class ManageSuggestions extends UnlistedSpecialPage {
 		}
 
 		$this->setHeaders();
-		$wgOut->addHTML("<style type='text/css' media='all'>/*<![CDATA[*/ @import '" . wfGetPad('/extensions/min/f/extensions/wikihow/createpage/createpage.css?') . WH_SITEREV . "'; /*]]>*/</style> ");
+		$wgOut->addModuleStyles('ext.wikihow.createpage_styles');
+
 		if ($wgRequest->wasPosted() && $wgRequest->getVal('q') != null) {
 			$matches = SuggestionSearch::matchKeyTitles($wgRequest->getVal('q'), 30);
 			if (count($matches) == 0) {

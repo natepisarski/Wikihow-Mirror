@@ -648,7 +648,7 @@ class RobotPolicy {
 		$policy = -1;
 
 		$ns = $this->title->getNamespace();
-		$titles = self::$overrides[$ns];
+		$titles = isset(self::$overrides[$ns]) ? self::$overrides[$ns] : [];
 		foreach($titles as $key => $info) {
 			$title = SpecialPage::getTitleFor($key);
 			if( strtolower($this->title->getText()) == strtolower($title->getText()) ) {

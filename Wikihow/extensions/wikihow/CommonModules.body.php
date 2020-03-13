@@ -4,6 +4,13 @@ class CommonModules {
 
 	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
 
+		// putting this special case here because for whatever reason
+		// (probably order of which we include classes and sign up for hooks)
+		// this particular onBeforePageDisplay happens earlier than most, and for this speed test
+		// we want the css to be at the very top of the head
+		if ( Misc::isFastRenderTest() ) {
+			$out->addHeadItem( 'responsive_fast_render',  Misc::getResponsiveFastRenderSnippet() );
+		}
 		// Note: WH.timeStart should be calculated as high in the page as possible
 		// to get an accurate time when the page started running JS.
 $headScript = <<<EOS

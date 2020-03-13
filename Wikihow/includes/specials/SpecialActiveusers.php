@@ -50,10 +50,6 @@ class SpecialActiveUsers extends SpecialPage {
 		$this->setHeaders();
 		$this->outputHeader();
 
-		// WH, Reuben: Temporary, while database upgrades are occurring. Talked with K about this, 2015/3/23.
-		$out->addHTML('We have to disable this page for at least a few weeks during our database upgrades, since it was causing system load issues. :(');
-		return;
-
 		$opts = new FormOptions();
 
 		$opts->add( 'username', '' );

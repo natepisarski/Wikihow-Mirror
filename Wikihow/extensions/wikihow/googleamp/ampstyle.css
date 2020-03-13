@@ -446,7 +446,7 @@
 .references {
 	list-style: decimal inside;
 }
-.section.aidata {
+.section.aidata, #aii_references_second {
 	margin-top: -1em;
 }
 .info_label {
@@ -1071,4 +1071,102 @@ p.green_box_bullet {
 .math-img {
 	vertical-align: -3px;
 	max-width: 100%;
+}
+
+.wikitable {
+	background: #f8f9fa;
+	color: #222;
+	margin: 1em 0;
+	border: 1px solid #a2a9b1;
+	border-collapse: collapse;
+}
+.wikitable > tr > th,
+.wikitable > tr > td,
+.wikitable > * > tr > th,
+.wikitable > * > tr > td {
+	border: 1px solid #a2a9b1;
+	padding: 0.2em 0.4em;
+}
+
+.wikitable > tr > th,
+.wikitable > * > tr > th {
+	background: #eaecf0;
+	text-align: center;
+}
+
+.wikitable > caption {
+	font-weight: bold;
+}
+.ts_trustworthy {
+	background-image: url(/skins/owl/images/sp_expert_icon_white.svg);
+	background-repeat: no-repeat;
+	padding-left: 18px;
+	font-size: 12px;
+}
+
+.ts_popup {
+	position: absolute;
+	background-color: #fff;
+	border: 2px solid #76a164;
+	border-radius: 7px;
+	padding: 15px;
+	z-index: 2;
+	left: 0;
+	width: 250px;
+	white-space: normal;
+}
+
+.stable .content .ts_description {
+	line-height: 14px;
+	font-size: 12px;
+	margin-bottom: 20px;
+	display: block;
+}
+
+.stable .content .ts_name {
+	font-weight: bold;
+	line-height: 17px;
+	font-size: 15px;
+	margin-bottom: 5px;
+	display: block;
+}
+
+.trustedsource .ts_name {
+	margin-top: 10px;
+}
+
+.ts_source {
+	font-size: 12px;
+}
+
+.ts_close {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 14px;
+	height: 14px;
+	color: #7FA065;
+	border: 1px solid #7FA065;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 14px;
+	font-weight: bold;
+	text-decoration: none;
+	font-size: 9px;
+	cursor: pointer;
+}
+#info_link {
+	color: #307530;
+}
+
+:focus {
+	outline: none;
+}
+
+.reference {
+	position: static;
+}
+
+.step {
+	position: relative;
 }

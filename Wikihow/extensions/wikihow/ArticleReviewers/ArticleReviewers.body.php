@@ -23,13 +23,22 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		return wfForeignMemcKey(Misc::getLangDB($langCode), $wgCachePrefix, $keyName);
 	}
 	public function execute($par) {
-		global $wgHooks, $wgMemc;
+		global $wgHooks, $wgMemc, $wgCanonicalServer;
 
 		$wgHooks['CustomSideBar'][] = array($this, 'makeCustomSideBar');
 		$wgHooks['ShowBreadCrumbs'][] = array($this, 'removeBreadCrumbsCallback');
 
 		$req = $this->getRequest();
 		$out = $this->getOutput();
+
+		$specialPageTitle = Title::makeTitle( NS_SPECIAL, 'ArticleReviewers' );
+
+		if ( preg_match( '@^/' . preg_quote( $specialPageTitle, '@' ) . '@', $req->getRequestURL() ) ) {
+			$out->redirect( '/Experts' );
+			return;
+		}
+
+		$out->setCanonicalUrl( $wgCanonicalServer . '/Experts' );
 
 		$out->setHTMLTitle(wfMessage('ar_page_title')->text());
 
@@ -169,19 +178,17 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		if (!$vd || $vd->category == 'categ_community') return '';
 
 		$lang = RequestContext::getMain()->getLanguage()->getCode();
-		$titleTxt = Misc::isAltDomain() || $lang == 'en' || $vd->hoverBlurb
-			? 'ArticleReviewers'     // English or Alts or INTL with blurb translation: link locally
-			: 'en:ArticleReviewers'; // INTL without blurb translation: link to wikihow.com
 
-		$title = Title::newFromText($titleTxt, NS_SPECIAL);
+		$titleTxt = Misc::isAltDomain() || $lang == 'en' || $vd->hoverBlurb
+			? 'Experts'     // English or Alts or INTL with blurb translation: link locally
+			: 'en:Experts'; // INTL without blurb translation: link to wikihow.com
+
+		$title = Title::newFromText( $titleTxt );
 		if ( !$title ) {
 			return '';
 		}
 
 		$url = $title->getLocalUrl();
-		if ( $titleTxt == 'en:ArticleReviewers' && Misc::isMobileMode() ) {
-			$url = str_replace('/www.', '/m.', $url); // fix absolute URL
-		}
 
 		$abbrName = urlencode(self::getAnchorName($vd->name));
 		if ($abbrName == '') {
@@ -213,5 +220,9 @@ class ArticleReviewers extends UnlistedSpecialPage {
 			$wgMemc->delete($key);
 		}
     }
+
+    public static function onWebRequestPathInfoRouter( $router ) {
+		$router->addStrict( '/Experts', array( 'title' => 'Special:ArticleReviewers' ) );
+	}
 
 }

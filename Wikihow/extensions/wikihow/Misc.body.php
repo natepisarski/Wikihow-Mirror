@@ -1185,4 +1185,25 @@ class Misc {
 		}
 		return false;
 	}
+
+	// this gets the responsive fast render css file from a less file
+	// it also gets a script which conditionally includes a link tag to the responsive css which loads on med and large
+	public static function getResponsiveFastRenderSnippet() {
+		global $IP, $wgResourceLoaderLESSImportPaths;
+		$wgResourceLoaderLESSImportPaths = [ "$IP/extensions/wikihow/less/" => '' ];
+		$embedStyles = array();
+		$embedStyles[] = __DIR__ . '/MobileFrontendWikihow/less/wikihow/responsive_fastrender.less';
+		$style = Misc::getEmbedFiles('css', $embedStyles);
+		$less = ResourceLoader::getLessCompiler();
+		$less->parse( $style );
+		$style = $less->getCss();
+		$style = ResourceLoader::filter('minify-css', $style);
+		$style = HTML::inlineStyle($style);
+
+		$link = "load.php?debug=false&lang=en&modules=ext.wikihow.responsive_large&only=styles";
+		$link .= "&siterev=".WH_SITEREV;
+		$script = "if ((window.innerWidth || document.documentElement.clientWidth) > 728) {document.write('<link rel=\"stylesheet\" type=\"text/css\" href=\"$link\" />');}";
+		$script = Html::inlineScript( $script );
+		return $style . $script;
+	}
 }

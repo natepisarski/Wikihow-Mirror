@@ -491,7 +491,7 @@ class WHVid {
 		if ($remove_video_section) pq('.section.video')->remove();
 
 		//only do this on mobile. This happens for desktopp in WikihowArticle.class.php
-		if($hasYTVideo && $isYTSummaryArticle && $isMobile) {
+		if($hasYTVideo && $isYTSummaryArticle && $isMobile && (!$user || $user->isAnon())) {
 			pq( '.quicksummary')->remove();
 		}
 	}

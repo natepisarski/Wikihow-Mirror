@@ -17,5 +17,7 @@
 	"quiz_yourself_eoq_category": "Awesome! You've finished all of the quizzes in the $1 category!",
 	"quiz_yourself_more_prompt": "Try more?",
 	"quiz_yourself_go_home": "Exit Quizzes",
-	"quiz_yourself_eoq_all": "You've finished every quiz! Come back later for more."
+	"quiz_yourself_eoq_all": "You've finished every quiz! Come back later for more.",
+	"qy-waiting-heading": "Hi There!",
+	"qy-waiting-sub": "We're loading things up"
 }

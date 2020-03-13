@@ -2,6 +2,8 @@
 
 class VideoAdder extends SpecialPage {
 
+	const CONTAINS_WIKIHOW_VIDEO_TAG = "youtube_wikihow_videos";
+
 	public function __construct() {
 		global $wgHooks;
 		parent::__construct( 'VideoAdder' );
@@ -246,6 +248,7 @@ class VideoAdder extends SpecialPage {
 	/**
 	 * hasProblems
 	 * (returns TRUE if there's a problem)
+	 * - Checks if the article already has a video created by wikiHow
 	 * - Checks to see if there's an {{nfd}} template
 	 * - Makes sure an article has been NABbed
 	 * - Makes sure last edit has been patrolled
@@ -253,6 +256,11 @@ class VideoAdder extends SpecialPage {
 	private static function hasProblems($t, $dbr) {
 		global $wgParser;
 		$r = Revision::newFromTitle($t);
+
+		if ( ArticleTagList::hasTag( VideoAdder::CONTAINS_WIKIHOW_VIDEO_TAG , $t->getArticleID() ) ) {
+			return true;
+		}
+
 		if ($r) {
 			$intro = $wgParser->getSection(ContentHandler::getContentText( $r->getContent() ), 0);
 

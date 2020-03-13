@@ -131,6 +131,7 @@
 			this.$jqWindow.on('hashchange orientationchange', this.offsetHashAnchor);
 
 			$('.method_toc_item a').click(this.hashAnchorClick);
+			$('#ingredients a.ingredient_method').click(this.hashAnchorClick);
 
 			if (this.stickyToc) WH.addThrottledScrollHandler(WH.tocScrollHandler.handleMobileScroll);
 		},

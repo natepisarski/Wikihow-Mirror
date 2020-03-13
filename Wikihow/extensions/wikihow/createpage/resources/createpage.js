@@ -197,38 +197,6 @@ function keyxxx(e) {
 	}
 }
 
-// Used in createpage_step1box.tmpl.php inline html
-window.searchTopics = function() {
-	var cp_request = null;
-
-	try {
-		cp_request = new XMLHttpRequest();
-	} catch (error) {
-		try {
-			cp_request = new ActiveXObject('Microsoft.XMLHTTP');
-		} catch (error) {
-			return false;
-		}
-	}
-
-	var t = document.getElementById('createpage_title').value;
-	cp_request.open('GET', "http://" + window.location.hostname + "/Special:CreatePageTitleResults?target=" + encodeURIComponent(t));
-	cp_request.send('');
-	cp_request.onreadystatechange = function() {
-		if ( cp_request.readyState == 4) {
-			if ( cp_request.status == 200) {
-				var e = document.getElementById('createpage_search_results');
-				e.innerHTML = cp_request.responseText;
-				document.getElementById('cp_next').disabled = false;
-			}
-		}
-	};
-
-	var e = document.getElementById('createpage_search_results');
-	e.innerHTML = "<center><img src='/extensions/wikihow/rotate.gif'><br/>Searching...</center>";
-	return true;
-};
-
 // Hide all the results
 function resetTool(bShowInput) {
 	$('#cp_title_results').slideUp(function() {
@@ -239,7 +207,7 @@ function resetTool(bShowInput) {
 	$('#cp_topic_results').slideUp(function() {
 		$('#cpr_topic_text').html('');
 		$('#cp_topic_input').val('');
-		$('.search_input').blur();
+		$('.search_input input').blur();
 	});
 }
 

@@ -755,9 +755,11 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		$viewport = $this->getViewportHtml( $data );
 		echo $viewport;
 
-		// adds extra js to bottom of page such as optimizely and resource loader startup
-		$endOfPageHtml = $this->getEndOfPageHtml( $data );
-		echo $endOfPageHtml;
+		if ( !$fastRenderTest ) {
+			// adds extra js to bottom of page such as optimizely and resource loader startup
+			$endOfPageHtml = $this->getEndOfPageHtml( $data );
+			echo $endOfPageHtml;
+		}
 
 		$closeBody = Html::closeElement( 'body' );
 		echo $closeBody;

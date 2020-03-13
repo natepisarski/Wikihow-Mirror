@@ -70,7 +70,7 @@ class TrustedSources {
 	public static function markTrustedSources($articleId) {
 		$out = RequestContext::getMain()->getOutput();
 		$isAmp = GoogleAmp::isAmpMode($out);
-		if($isAmp) return;
+
 		$loader = new Mustache_Loader_CascadingLoader([
 			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
 		]);
@@ -80,39 +80,37 @@ class TrustedSources {
 
 		//first grab all the links in the article
 		foreach(pq(".reference") as $reference) {
-			$note = pq("a", $reference)->attr("href");
+			$vars = [];
+			$link = pq("a", $reference);
+			$note = $link->attr("href");
+			if(pq($note)->parents('#references_second')->length > 0) {
+				$vars['expand'] = 1;
+			}
+			$num = substr($link->text(), 1, -1);
 			$bottomReference = pq($note);
 			$url = pq(".reference-text a", $bottomReference)->attr("href");
 
+			$vars['num'] = $num;
+			if($isAmp) {
+				//remove the href tag
+				$link->attr("href", "#");
+				$vars['isAmp'] = 1;
+				$vars['url'] = $note;
+
+				pq($reference)->attr("on", 'tap:ts_popup_' . $num . '.toggleVisibility')->attr("role", "button")->attr("tabindex", "0");
+				pq($reference)->append(pq($link)->text());
+				pq($link)->remove();
+			}
 			if($tr = self::getTrustedReferenceOnTheFly($url)) {
 				pq($reference)->addClass("trusted");
-				//pq($bottomReference)->addClass("trusted");
-				$tr['reference'] = $url;
-				$tr['trustedclass'] = 'trustedsource';
-				$html = $m->render('source_popup.mustache', $tr);
-				pq($reference)->append($html);
-			} else {
-				//not trusted, so show something different
-				$tr['url'] = $url;
-				$html = $m->render('source_popup.mustache', $tr);
-				pq($reference)->append($html);
+				$vars['trustedclass'] = 'trustedsource';
+				$vars['ts_name'] = $tr['ts_name'];
+				$vars['ts_description'] = $tr['ts_description'];
 			}
 
-		}
+			$html = $m->render('source_popup.mustache', $vars);
+			pq($reference)->append($html);
 
-		//now check any remaining references not from the text
-		foreach(pq("#references li") as $reference) {
-			if(is_null(pq($reference)->attr("id"))) {
-				$url = pq(".reference-text a", $reference)->attr("href");
-
-				if($tr = self::getTrustedReferenceOnTheFly($url)) {
-					pq($reference)->addClass("trusted");
-
-					$tr['reference'] = $url;
-					$html = $m->render('source_popup.mustache', $tr);
-					pq($html)->insertAfter($reference);
-				}
-			}
 		}
 	}
 

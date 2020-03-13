@@ -115,6 +115,14 @@ $(document).ready(function() {
 		getPassword($("#wpName1_head").val());
 		return false;
 	});
+
+	// Setting focus/ cursor to the first element in sign up form (Username) without causing any scrolling
+	var usernameField = document.getElementById( "wpName2" );
+	if ( usernameField != null ) {
+		var x = window.scrollX, y = window.scrollY;
+		usernameField.focus();
+		window.scrollTo( x, y );
+	}
 });
 
 function checkName(username) {

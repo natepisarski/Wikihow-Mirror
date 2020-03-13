@@ -10,6 +10,7 @@ class SocialProofStats extends ContextSource {
 	var $verifierType;
 
 	static private $mSpecialInline = null;
+	static private $mMedicallyReviewed = null;
 
 	const PAGE_RATING_CACHE_KEY 		= "page_rating";
 	const VERIFIED_CACHE_KEY 				= "page_verified_4";
@@ -25,7 +26,8 @@ class SocialProofStats extends ContextSource {
 	const VERIFIER_TYPE_READER 			= 'user_review'; // <-- for UserReview badges
 	const VERIFIER_TYPE_AUTHORS 		= 'authors'; // for n authors in the community
 
-	const EXPERT_INLINE_ARTICLES_TAG = 'expert_inline_articles';
+	const EXPERT_WRITTEN_BY_ARTICLES_TAG 			= 'expert_written_by';
+	const EXPERT_MEDICAL_REVIEW_ARTICLES_TAG 	= 'expert_medically_reviewed_by';
 
 	const LEARN_MORE_LINK = '/wikiHow:Delivering-a-Trustworthy-Experience';
 
@@ -580,12 +582,10 @@ class SocialProofStats extends ContextSource {
 	}
 
 	private function getSectionName($is_mobile): string {
-		if (self::isSpecialInline()) {
-			return wfMessage('Sp_inline_expert_label')->text();
-		}
-		if (SocialStamp::isNotable()) {
-			return wfMessage( 'ss_notable')->text();
-		}
+		//special cases
+		if (self::isSpecialInline()) return wfMessage('Sp_inline_expert_label')->text();
+		if (self::isMedicallyReviewed()) return wfMessage('sp_medical_expert_label')->text();
+		if (SocialStamp::isNotable()) return wfMessage( 'ss_notable')->text();
 
 		switch ($this->verifierType) {
 			case self::VERIFIER_TYPE_EXPERT:
@@ -664,8 +664,17 @@ class SocialProofStats extends ContextSource {
 		if (!is_null(self::$mSpecialInline)) return self::$mSpecialInline;
 		$context = RequestContext::getMain();
 		$pageId = $context->getTitle()->getArticleId();
-		self::$mSpecialInline = $context->getUser()->isAnon() && ArticleTagList::hasTag(self::EXPERT_INLINE_ARTICLES_TAG, $pageId);
+		self::$mSpecialInline = $context->getUser()->isAnon() &&
+			ArticleTagList::hasTag(self::EXPERT_WRITTEN_BY_ARTICLES_TAG, $pageId);
 		return self::$mSpecialInline;
+	}
+
+	public static function isMedicallyReviewed(): bool {
+		if (!is_null(self::$mMedicallyReviewed)) return self::$mMedicallyReviewed;
+		$context = RequestContext::getMain();
+		$pageId = $context->getTitle()->getArticleId();
+		self::$mMedicallyReviewed = ArticleTagList::hasTag(self::EXPERT_MEDICAL_REVIEW_ARTICLES_TAG, $pageId);
+		return self::$mMedicallyReviewed;
 	}
 
 	public static function setBylineInfo(&$verifiers, $pageId) {

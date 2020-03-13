@@ -104,6 +104,10 @@
 
 						var id = $('img', this).attr('id');
 
+						var instr = null;
+						if (WH.shared.isLargeSize) {
+							instr = details.instructions || null;
+						}
 						var item = {
 							src: url,
 							w: width,
@@ -113,7 +117,8 @@
 							index: index,
 							total: total,
 							id: id,
-							licensing: details.licensing
+							licensing: details.licensing,
+							instructions: instr
 						};
 
 						WH.MobileSlideshow.items.push(item);

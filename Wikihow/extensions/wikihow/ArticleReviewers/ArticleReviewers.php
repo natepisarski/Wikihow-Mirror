@@ -46,6 +46,7 @@ $wgSpecialPages['AdminArticleReviewers'] = 'AdminArticleReviewers';
 $wgAutoloadClasses['AdminArticleReviewers'] = __DIR__ . '/AdminArticleReviewers.body.php';
 
 $wgHooks['FileUpload'][] = ['AdminArticleReviewers::onFileUpload'];
+$wgHooks['WebRequestPathInfoRouter'][] = ['ArticleReviewers::onWebRequestPathInfoRouter'];
 
 $wgResourceModules['ext.wikihow.adminarticlereviewers'] = [
 	'styles' => ['../../common/uploadify/uploadify.css'],

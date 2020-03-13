@@ -356,6 +356,7 @@ require_once("$IP/extensions/wikihow/api/ApiSchemaMarkup.php");
 require_once("$IP/extensions/wikihow/api/ApiSummaryVideos.php");
 require_once("$IP/extensions/wikihow/api/ApiSummarySection.php");
 require_once("$IP/extensions/wikihow/api/ApiRelatedArticles.php");
+require_once("$IP/extensions/wikihow/api/ApiTitleFeed.php");
 
 if (in_array($wgLanguageCode, $wgActiveAlexaApiLanguages)) {
 	require_once("$IP/extensions/wikihow/bots/Bots.php");

@@ -505,7 +505,7 @@ class GoogleAmp {
 			return;
 		}
 
-		$domain = wfCanonicalDomain( $wgLanguageCode, true );
+		$domain = wfCanonicalDomain( $wgLanguageCode, Misc::isMobileModeLite() );
 
 		$config = [
 			'requests' => [
@@ -1090,16 +1090,13 @@ class GoogleAmp {
 	private static function modifyVideoSection() {
 		global $wgTitle;
 
-		$videoSelector = "#video";
-		if ( !pq( $videoSelector )->length ) {
-			// Spanish special case. #3100
-			$videoSelector = "#vídeo";
-			if ( !pq( $videoSelector )->length ) {
-				return;
-			}
+		$videoSection = pq('.embedvideo:first')->parents('.section_text:first');
+		if (!pq($videoSection)->length) {
+			return;
 		}
+
 		// make sure the src is a youtube video
-		$src = pq( $videoSelector )->find( '.embedvideo:first' )->attr( 'data-src' );
+		$src = pq( $videoSection )->find( '.embedvideo:first' )->attr( 'data-src' );
 		if ( strstr( $src, "www.youtube.com" ) === false ) {
 			return;
 		}
@@ -1126,7 +1123,7 @@ class GoogleAmp {
 		}
 
 		$first = true;
-		foreach ( pq( $videoSelector )->children() as $child ) {
+		foreach ( pq( $videoSection )->children() as $child ) {
 			if ( $first ) {
 				pq($child)->replaceWith( $element );
 				$first = false;
@@ -1185,6 +1182,9 @@ class GoogleAmp {
 		pq( '.image_details' )->remove();
 		pq( '.aritem' )->removeAttr( 'pageid' );
 		pq( '#info_link' )->removeAttr( 'aid');
+		$referenceText = pq("#info_link")->text();
+		pq("#references_second")->parent()->attr("id", "aii_references_second")->attr("hidden", "")->removeClass("aidata");
+		pq("#info_link")->replaceWith("<span id='info_link' on='tap:aiinfo.hide, aii_references_second.show' role='button' tabindex='0'>" . $referenceText . "</span>");
 		pq( '.mh-method-thumbs-template' )->remove();
 		pq( 'input:not(".qz_radio, .amp_input")' )->remove();
 		pq( '#tab_admin')->removeAttr('submenuname')->remove();

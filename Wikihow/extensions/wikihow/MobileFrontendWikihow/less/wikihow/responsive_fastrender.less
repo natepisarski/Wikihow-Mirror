@@ -1,4 +1,435 @@
 @import 'variables.less';
+html {
+	height: 100%;
+	margin: 0;
+}
+input, p, h1, ul, ol {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+ul {
+	list-style: none;
+}
+a, a:active, a:visited {
+	color: #307530;
+	text-decoration: none;
+}
+body {
+	background-color: #f3f3f3;
+	color: #545454;
+	font-family: "Helvetica", "Nimbus Sans L", "Arial", "Liberation Sans", sans-serif;
+	line-height: 1.4;
+	font-size: 16px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	height: 100%;
+	margin: 0;
+}
+.clearall {
+	clear: both;
+	height: 0;
+}
+/**** top menu header ****/
+#header_container {
+	background-color: #93B874;
+	position: fixed;
+	border: 0;
+	z-index: 10;
+	top: 0;
+	width: 100%;
+}
+.header {
+	height: 40px;
+	display: table;
+	white-space: nowrap;
+	margin: 0 auto;
+	width: 100%;
+	border-top: none;
+}
+#mw-mf-main-menu-button {
+	display: table-cell;
+	height: auto;
+	width: 72px;
+	border-right: none;
+	background: url(/extensions/wikihow/mobile/images/main_menu_button.svg) 15px center / 18px no-repeat;
+}
+#header_logo {
+	display: table-cell;
+	vertical-align: middle;
+	background: center / 115px no-repeat url(/extensions/wikihow/mobile/images/wikihow_logo_230.png);
+	width: auto;
+	height: 38px;
+	padding: 0 14px;
+}
+#hs {
+	display: table-cell;
+	width: 72px;
+	position: static;
+}
+.header .search {
+	display: table-cell;
+}
+#hs_query {
+	border: solid 5px #93B874;
+	border-radius: 10px;
+	padding: 0 5px;
+	-webkit-appearance: none;
+	background: #FFF url(/extensions/wikihow/mobile/images/search_gray.svg) right 4px center / 20px no-repeat;
+	box-sizing: border-box;
+	color: transparent;
+	font-size: 16px;
+	transition: width 100ms ease-in-out;
+	outline: none;
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 39px;
+	margin: 1px 0 0;
+	width: 72px;
+}
+#hs_close {
+	width: 0;
+	background: url(/extensions/wikihow/mobile/images/close.svg) center / 15px no-repeat;
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 39px;
+	margin: 1px 0 0;
+	padding: 0;
+}
+#hs_submit {
+	display: none;
+}
+#actions {
+	display: none;
+}
+/**** left mobile menu ****/
+#mw-mf-page-left {
+	position: fixed !important;
+	overflow-y: scroll;
+	height: 100%;
+	background-color: #5C5C5C;
+    font-size: 1.2em;
+	display: none;
+}
+#mw-mf-page-left ul:first-child {
+	margin-top: 40px;
+}
+.mw-mf-display-toggle {
+	margin: 3em 0 10px 13px;
+	font-size: .75em;
+}
+.mw-mf-display-toggle > a {
+	color: #AFAFAF;
+}
+#mw-mf-page-left ul li a {
+	font-size: .75em;
+	color: #FFF;
+	display: block;
+	line-height: 1.7em;
+	background-repeat: no-repeat;
+	background-position: 10px;
+	background-size: 20px 20px;
+	padding: 6px 0 6px 12px;
+	margin: 0;
+}
+.side_header {
+	background-color: #666;
+	color: #FFF;
+	font-size: .9em;
+	font-weight: bold;
+	padding: 7px 10px;
+	margin-top: 5px;
+}
+#mw-mf-page-left ul li.icon-anon {
+	background-color: #666;
+	font-weight: bold;
+}
+/**** main viewport ****/
+#mw-mf-viewport {
+	background-color: #E9E7E3;
+	position: relative;
+	height: 100%;
+}
+#mw-mf-page-center {
+	padding: 0;
+	min-height: 100%;
+	width: 100%;
+	position: relative;
+	z-index: 3;
+	background-color: #f3f3f3;
+}
+#content_wrapper {
+	padding-top: 40px;
+}
+#actionbar {
+	display: none;
+}
+.pre-content {
+	background-color: #FFF;
+}
+#trust_banner {
+	background-color: #f6f8f7;
+	padding: .5em 15px;
+	font-size: 12px;
+	line-height: 1em;
+}
+#trust_banner a {
+	color: #417505;
+	padding-left: 18px;
+	font-weight: normal;
+	background-position: left center;
+}
+#section_0 {
+	border-bottom: none;
+	color: #222;
+	font-weight: bold;
+	line-height: 1.3em;
+	padding: 12px 15px 0;
+	clear: both;
+}
+.title_sm {
+	font-size: 1.3em;
+}
+.title_md {
+	font-size: 1.5em;
+}
+.title_lg {
+	font-size: 1.6em;
+}
+#section_0 a {
+	color: #222;
+}
+#expert_coauthor.no_tabs {
+	padding-top: 6px;
+	border: 1px solid #ECEBE8;
+	border-width: 1px 0;
+	margin-top: 4px;
+}
+#expert_coauthor {
+	padding: 0 15px 6px;
+	color: #222;
+	font-size: 12px;
+	line-height: 16px;
+}
+.expert_icon, .staff_icon, .community_icon {
+	background: url(/skins/owl/images/sp_expert_icon_white.svg) right center / 13px no-repeat;
+	padding-right: 17px;
+	font-weight: bold;
+}
+.slot_2, #expert_coauthor.has_coauthor .early_slot_2 {
+	display: none;
+}
+.ss_pipe {
+	color: #e9e7e3;
+	padding: 0 2px;
+}
+#expert_coauthor.no_references.has_coauthor .slot_2 {
+	display: inline-block;
+}
+#expert_coauthor p {
+	padding-top: .1em;
+}
+.author_icon {
+	background: url(/skins/owl/images/sp_icon_info_green6.svg) left center / 11px no-repeat;
+	padding-left: 15px;
+	font-weight: bold;
+}
+.byline_references_top {
+	display: none;
+}
+#mobile_tab_container {
+	display: none;
+}
+.content {
+	margin: 0 5px;
+	word-wrap: break-word;
+}
+.content .tips .section_text ul li, .content .warnings .section_text ul li {
+	margin-bottom: 1.5em;
+}
+#intro {
+	background-color: #FFF;
+	margin: 0 -5px;
+	padding: 7px 15px 3px;
+}
+.section {
+	margin-top: 1em;
+	position: relative;
+}
+#intro p {
+	line-height: 20px;
+	margin-bottom: .7em;
+}
+#method_toc {
+	display: none;
+}
+#intro .wh_ad_inner {
+	line-height: 0;
+	overflow: visible;
+}
+.wh_ad_inner {
+	overflow: hidden;
+}
+.ad_label:before {
+	display: none;
+}
+.ad_label_method, .ad_label_related {
+	text-align: center;
+	font-size: 12px;
+	color: #999;
+}
+.hidden {
+	display: none;
+}
+.steps .section_text {
+	background-color: inherit;
+	padding: 0;
+	border: none;
+}
+.section_text, .steps_text {
+	padding: 15px;
+	background-color: #FFF;
+	border-radius: 0 0 4px 4px;
+	font-size: 16px;
+}
+.section h2, .steps h3 {
+	background-color: #FFF;
+	width: 100%;
+	border-radius: 4px 4px 0 0;
+	font-weight: bold;
+	font-size: 1em;
+	box-sizing: border-box;
+	padding: 0;
+	border-bottom: 1px solid #f3f3f3;
+    line-height: 1.3;
+}
+h1, h2, h3, h4 {
+	color: #222;
+	margin: 0;
+}
+h3 .altblock {
+	padding: 1rem 1rem 0;
+	font-weight: normal;
+}
+.steps h3 span.mw-headline {
+	display: inline-block;
+	padding: 0 1em 1em;
+}
+.section h2 span.mw-headline, .steps.sample h3 span.mw-headline {
+	display: inline-block;
+	padding: .8em;
+	color: #222;
+}
+.sample.steps_first {
+	display: none;
+}
+.steps_list_2 {
+	padding: 0;
+	margin: 0;
+}
+.stable .content p, .stable .content li, .stable .content dl {
+	line-height: 25px;
+}
+.stepanchor {
+	visibility: hidden;
+}
+.steps_list_2 .mwimg.largeimage {
+	margin: -20px -20px 10px;
+}
+.content-spacer {
+	position: relative;
+}
+.mwimg {
+	border-bottom: 1px solid rgba(0,0,0,0.1);
+	line-height: 0;
+	margin-bottom: 1em;
+	position: relative;
+	text-align: center;
+}
+
+.steps_list_2 li {
+	margin-bottom: 1em;
+	font-size: 16px;
+	line-height: normal;
+	list-style: none;
+	background-color: #FFF;
+	border-radius: 4px;
+	padding: 20px;
+	clear: both;
+}
+.steps_list_2 li:first-child .mwimg a img {
+	border-radius: 0;
+}
+.mwimg a img {
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+}
+.content img {
+	max-width: 100%;
+	width: 100%;
+	height: auto;
+}
+.content video {
+	max-width: 100%;
+	width: 100%;
+	height: auto;
+}
+.m-video-wm {
+	display: none;
+}
+
+
+.content-fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	width: 1px;
+	min-width: 100%;
+	height: 1px;
+	min-height: 100%;
+}
+
+/** inside steps **/
+.step_num {
+	font-size: 30px;
+	color: #545454;
+	padding: 0 15px 0 0;
+	float: left;
+	font-weight: bold;
+	line-height: 39px;
+}
+.mwimg.techicon {
+	display: inline;
+	border: none;
+}
+.mwimg {
+	border-bottom: 1px solid rgba(0,0,0,0.1);
+	line-height: 0;
+	margin-bottom: 1em;
+	position: relative;
+	text-align: center;
+}
+.mwimg.techicon img {
+	width: auto;
+	height: 30px !important;
+	position: relative;
+	min-height: 0;
+	min-width: 0;
+}
+.steps_list_2 li li {
+	list-style: disc;
+padding: 0;
+}
+.content .steps_list_2 ul, .content .steps_list_2 ol {
+	margin: 8px 0 0 30px;
+}
+/**** related wikihows ****/
 .related-wh {
 	display: block;
 	margin-bottom: 2%;
@@ -18,13 +449,601 @@
 .related-wh-howto {
 	font-size: 12px;
 }
+/*** qa section ***/
+#qa_aq_search_container {
+	display: none;
+}
+#qa_add_curated_question {
+	display: none;
+}
+.qa_question_tab {
+	display: inline-block;
+	background-color: #93b874;
+	color: #FFF;
+	font-size: .8em;
+	font-weight: bold;
+	padding: 0px 10px;
+	margin-bottom: .5em;
+	border-radius: 4px;
+}
+.qa_aq .qa_q_txt {
+	padding-bottom: 1em;
+}
+.qa_q_txt {
+	font-weight: bold;
+	line-height: 1.4em;
+}
 
+.qa_user_area .qa_person_circle {
+	background-image: url(https://www.wikihow.com/skins/WikiHow/images/80x80_user.png);
+}
+.qa_person_circle {
+	height: 56px;
+	width: 56px;
+	margin-left: 0;
+	position: absolute;
+	background-size: contain;
+	display: block;
+	border-radius: 50%;
+}
+.qa_answerer_info {
+	padding-left: 70px;
+	font-size: 0.8em;
+	line-height: 1.3em;
+	height: 56px;
+	vertical-align: middle;
+	display: table-cell;
+}
+.qa_user_name {
+	font-weight: bold;
+}
+.qa_user_label {
+	font-size: .9em;
+	line-height: 1em;
+	font-weight: bold;
+	color: #BBB;
+}
+.qa_answers {
+	margin: 0 0 0 .1em;
+	border-left: 3.5px solid #eae9e6;
+	padding-left: 1em;
+}
+.qa_questions, .qa_answers {
+	list-style: none;
+	list-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);
+	margin: 0;
+}
+#qa .qa_answer {
+	margin: 1em 0 0 0;
+	text-indent: -0em;
+}
+.qa_answer_footer {
+	position: relative;
+	padding-top: .3em;
+}
+.wh_vote_container.qa_vote_buttons {
+	text-align: right;
+}
+.wh_vote_container {
+	font-size: .7em;
+	color: #ababab;
+	margin: 0;
+	display: inline-block;
+}
+.wh_thumb_response {
+	margin-right: 15px;
+	line-height: 3em;
+	display: none;
+}
+.wh_thumb_msg {
+	width: inherit;
+	white-space: nowrap;
+}
+.wh_vote_container.qa_vote_buttons .qa_widget_vote_links, .wh_vote_container.qa_vote_buttons .wh_thumb_default {
+	display: none;
+}
+.qa_widget_vote_links {
+	padding: 10px 0 5px 0;
+}
+.qa_widget_vote_links, .qa_widget_vote_buttons {
+	display: inline-block;
+}
+.qa_widget_vote_buttons a {
+	padding: 0 1em;
+}
+.wh_vote_down {
+	margin-left: 15px;
+}
+.wh_vote_container .wh_vote_up {
+	padding: 0;
+	float: left;
+}
+.wh_vote_container .wh_vote_up span {
+	background-color: #D6E7C9;
+}
+.wh_vote_container .wh_vote_down span {
+	background-color: #EBEAE7;
+}
+.wh_vote_container a span {
+	padding: 2px 10px;
+	border-radius: 9px;
+	margin-left: 0.5em;
+	color: #686868;
+}
+.qa_li_container {
+	padding: .6em 0 1.3em 0;
+}
+li .qa_divider {
+	margin-bottom: 0;
+	border-width: 1px;
+}
+.qa_divider {
+	margin-left: -15px;
+	margin-right: -15px;
+	border-top: 3px solid #f3f3f3;
+}
+.qa_no_unpatrolled_questions {
+	display: none;
+}
+#qa_article_questions li:first-child .qa_divider {
+	display: none;
+}
+/** unanswered questions **/
+#qa_submitted_questions li:first-child .qa_divider {
+	display: none;
+}
+#qa_submitted_questions_container, #qa_answered_questions_container {
+	border: none;
+	margin-bottom: 20px;
+}
+.qa_section_heading {
+	display: inline-block;
+	font-size: 1.1em;
+	font-weight: bold;
+	margin-bottom: .75em;
+}
+.qa_sq .qa_q_txt {
+	font-weight: normal;
+}
+.qa_sq .qa_editor_tools {
+	margin-top: 8px;
+}
+/*** ask a question section  ***/
+#qa_ask_heading {
+	margin-top: 25px;
+}
+#qa_submitted_question_form {
+	line-height: 1.4em;
+}
+
+#qa input[type=text], #qa input[type=textarea] {
+	display: block;
+	width: 100%;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+#qa_asked_count {
+	margin-top: -1em;
+	display: none;
+	float: right;
+	font-size: .8em;
+	color: #383;
+}
+#qa input#qa_email, #qa input.qa_pa_email, #qa_first {
+	display: none;
+}
+#qa {
+	padding-top: 12px
+}
+#qa_submit_button {
+	font-size: 16px;
+	line-height: 16px;
+	font-weight: bold;
+	padding: 10px 0;
+	width: 100%;
+	display: block;
+}
+.button {
+	border-radius: 4px;
+	text-align: center;
+	color: #FFF;
+	margin-right: 10px;
+	background-image: none;
+	background-color: #97ba78;
+	border: 1px solid #97ba78;
+}
+#qa_asked_question {
+	font-size: inherit;
+	margin: 0 0 .75em 0;
+	border: 1px solid #f3f3f3;
+	padding: 22px 10px;
+	height: 37px;
+	border-radius: 3px;
+}
+/** references **/
+.sourcesandcitations .section_text {
+	padding-left: 30px;
+}
+/*** about this  article ***/
+#social_proof_mobile {
+	background-color: #fff;
+	font-size: .9em;
+	line-height: 1.2em;
+}
+.sp_top_box {
+	margin: 0;
+	padding: 15px;
+	border-bottom: 1px solid #f3f3f3;
+}
+.sp_top_icon_bg {
+	/* margin: 0; */
+	position: absolute;
+	/* left: 15px; */
+	/* width: 50px; */
+	/* height: 50px; */
+	/* background-color: #ADC996; */
+	border-radius: 50%;
+	border: 3px solid #6F8460;
+}
+.sp_expert_text {
+	line-height: 52px;
+	/* text-align: left; */
+	margin-left: 66px;
+}
+.ar_check, .sp_top_icon_check {
+	background-image: url(https://www.wikihow.com/skins/owl/images/sp_expert_icon_white.png);
+	background-image: url(https://www.wikihow.com/skins/owl/images/sp_expert_icon_white.svg);
+	width: 18px;
+	height: 18px;
+	position: absolute;
+	z-index: 4;
+	/* background-size: 18px; */
+	background-repeat: no-repeat;
+	right: -5px;
+	bottom: -4px;
+}
+.sp_staff_icon {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: #93b874;
+	background-size: 81%;
+	background-position: 45% 50%;
+	background-image: url(https://www.wikihow.com/skins/WikiHow/wH-initials_152x152.png);
+	background-repeat: no-repeat;
+}
+.sp_expert_text > div {
+	line-height: normal;
+	display: inline-block;
+	vertical-align: middle;
+	/* margin: 0 auto; */
+	color: #222;
+}
+#sp_expert_name, #sp_expert_team {
+	font-size: 16px;
+	font-weight: bold;
+}
+/*#aboutthisarticle #sp_expert_desc {*/
+#sp_expert_desc {
+	padding: 15px;
+	border-bottom: 1px solid #f3f3f3;
+}
+/*#aboutthisarticle .sp_box {*/
+.sp_box {
+	float: left;
+	width: 50%;
+	margin: 0;
+	padding: 15px 10px 15px 15px;
+	position: relative;
+	box-sizing: border-box;
+}
+.sp_helpful_box {
+	border: none;
+/*	padding: 19px 15px 15px;*/
+}
+.sp_star_section_upper {
+	display: inline-block;
+}
+.sp_star_container {
+	position: relative;
+	width: 21px;
+	height: 20px;
+	float: left;
+	border-right: 2px solid transparent;
+	background: url(/skins/owl/images/sp_helpful_icon_star_empty.svg) center / cover no-repeat;
+}
+.sp_helpful_icon_star {
+/*	width: 100%;*/
+	height: 100%;
+	position: absolute;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-image: url(/skins/owl/images/sp_helpful_icon_star.png);
+}
+/*#aboutthisarticle .sp_stats_box {*/
+.sp_stats_box {
+	border-left: 1px solid #f3f3f3;
+}
+.sp_text:first-child {
+	padding-top: 0;
+}
+.sp_text {
+	padding-top: 8px;
+	line-height: 1em;
+}
+.sp_text_data {
+	font-weight: bold;
+}
+/* #aboutthisarticle .sp_fullbox {*/
+.sp_fullbox {
+	width: 100%;
+}
+#social_proof_mobile .sp_fullbox {
+	width: 100%;
+	border-top: 1px solid #f3f3f3;
+	border-left: none;
+	font-size: 16px;
+}
+/* article summary  */
+#aboutthisarticle > .section_text {
+	border-top: 1px solid #f3f3f3;
+	border-radius: 0;
+	position: relative;
+}
+.section_text .collapse_link {
+	width: 100%;
+	display: block;
+	color: #545454;
+}
+#articleinfo #info_link, .collapse_link {
+	background: url(/extensions/wikihow/mobile/images/show_sources.svg) right .5em center / 20px no-repeat;
+}
+#summary_close {
+	display: none;
+}
+#summary_text {
+	display: none;
+}
+.s-help-wrap {
+	display: none;
+}
+/*  other languages  */
+#other_languages {
+	/* position: relative; */
+	margin-top: -5px;
+	/* border-top: 1px solid #f3f3f3; */
+}
+#language_links {
+	display: none;
+}
+#end_options {
+	display: none;
+}
+.page_stats  {
+	display: none;
+}
+/* reader  success  stories */
+#ur_mobile {
+	clear: both;
+	font-size: 16px;
+	line-height: 25px;
+}
+#ur_mobile ul li.ur_review:first-child {
+	display: list-item;
+}
+#ur_mobile ul li.ur_review {
+	/* background: none; */
+	margin-bottom: 20px;
+	/* padding: 0; */
+	display: none;
+}
+#ur_mobile li:first-child .ur_divider {
+	display: none;
+}
+.ur_divider {
+	margin: 0 -15px 15px -15px;
+	border-top: 1px solid #e5e5e5;
+}
+/*.ur_initials, .content .ur_avatar {*/
+.ur_initials {
+	width: 36px;
+	height: 36px;
+	background-color: #adc996;
+	display: inline-block;
+	vertical-align: bottom;
+	border-radius: 18px;
+	margin-right: 10px;
+	line-height: 36px;
+	text-align: center;
+	color: white;
+	/* vertical-align: text-bottom; */
+}
+.ur_author {
+	margin-top: 5px;
+	color: #c3c3c3;
+	font-weight: normal;
+	display: inline-block;
+	height: 36px;
+	vertical-align: bottom;
+	/* display: block; */
+	/* margin-top: 5px; */
+	/* color: #c3c3c3; */
+	/* font-style: normal; */
+}
+.content .ur_author .ur_name {
+	font-size: 15px;
+	color: #545454;
+	font-weight: bold;
+	line-height: normal;
+	margin-bottom: 0;
+}
+.content .ur_review .ur_date {
+	font-size: 11px;
+	color: #9c9c9c;
+	line-height: 17px;
+}
+.ur_review_more {
+	display: none;
+}
+.ur_nav_container {
+	margin-bottom: 10px;
+}
+.ur_even_more {
+	display: none;
+}
+.ur_hide {
+	display: none;
+}
+#content_inner .ur_share {
+	border-top: 1px solid #e5e5e5;
+	display: block;
+	margin: 0 -15px;
+	padding: 15px 15px 0 15px;
+}
+/*  article_rating_mobile is display none TODO style it */
+#article_rating_mobile{
+	display: none;
+}
+#pagebottom {
+	margin-top: 12px;
+}
+
+/*** fooeter ***/
+#footer {
+	padding: 0;
+	margin: 0;
+	bottom: 0;
+	width: 100%;
+	font-size: .9em;
+	background-color: #93B874;
+	text-align: center;
+	color: #FFF;
+}
+#footer_inner {
+	padding: 30px 1em;
+	margin: 0 auto;
+	max-width: 728px;
+}
+#footer a {
+	color: #FFF;
+}
+#footer_logo {
+	display: block;
+	height: 21px;
+	margin-bottom: 1em;
+}
+.footer_divider {
+	    border-top: 1px solid #77a555;
+	}
+#search_footer {
+	margin-top: 30px;
+}
+#cse-search-box-bottom {
+	position: relative;
+}
+#search_footer .cse_q {
+	box-sizing: border-box;
+	padding: .7em 33px .7em .7em;
+	width: 100%;
+	border-radius: 8px;
+	font-size: 16px;
+	background-color: #ffffff;
+}
+#footer_crumbs li:last-child {
+	margin-bottom: 13px;
+}
+#search_footer .cse_sa {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 38px;
+	height: 42px;
+	background: url(https://www.wikihow.com/extensions/wikihow/homepage/images/mag.png) center / 17px no-repeat;
+	cursor: pointer;
+	border: none;
+	margin: 0;
+}
+.breadcrumbs li.home {
+	display: none;
+}
+
+.breadcrumbs li {
+	display: inline-block;
+	padding-right: .3em;
+}
+.breadcrumbs li:after {
+	content: '\0020 \00BB';
+}
+#footer_links {
+	margin-bottom: 20px;
+}
+#footer_links ul {
+	display: inline-block;
+	-webkit-columns: 2;
+	-moz-columns: 2;
+	columns: 2;
+	-webkit-column-gap: 1.5em;
+	-moz-column-gap: 1.5em;
+	column-gap: 1.5em;
+	margin: 1.2em auto 0;
+	font-size: 1.1em;
+	text-align: left;
+	overflow: hidden;
+}
+#footer_links li {
+	line-height: 2em;
+}
+#footer_ccpa, #footer_ccpa_optout {
+	display: none;
+}
 @media @medium {
 	.related-wh {
 		float: left;
 		width: 48%;
 		margin-right: 2%;
 	}
+}
+#qa_email_prompt {
+	font-size: .85em;
+	margin-bottom: .75em;
+	display: none;
+}
+#sf p {
+	color: #fff;
+	font-size: 17px;
+	font-weight: bold;
+	margin: 18px 0 10px 0;
+}
+#sf .sf_icon {
+	width: 40px;
+	height: 40px;
+	margin: 0 5px;
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+#sf_ig {
+	background: url(https://www.wikihow.com/extensions/wikihow/SocialFooter/images/ig.png);
+	background: url(https://www.wikihow.com/extensions/wikihow/SocialFooter/images/ig.svg);
+}
+#sf_fb {
+	background: url(https://www.wikihow.com/extensions/wikihow/SocialFooter/images/fb.png);
+	background: url(https://www.wikihow.com/extensions/wikihow/SocialFooter/images/fb.svg);
+}
+
+#sf_tt {
+	background: url(/extensions/wikihow/SocialFooter/images/tt.png);
+	background: url(/extensions/wikihow/SocialFooter/images/tt.svg);
+}
+
+#sf_yt {
+	background: url(/extensions/wikihow/SocialFooter/images/yt.png);
+	background: url(/extensions/wikihow/SocialFooter/images/yt.svg);
+}
+
+#sf_nl {
+	background: url(/extensions/wikihow/SocialFooter/images/nl.svg);
 }
 
 @media @large {

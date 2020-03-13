@@ -4,7 +4,11 @@ WH.imageFeedback = function() {
 	if($(window).width() < WH.largeScreenMinWidth) return;
 	// Add feedback link to article images
 	var link = "<a class='rpt_img' href='#'><span class='rpt_img_ico'></span>Helpful?</a>";
-	$('div.mwimg:not(.techicon,.summarysection)').prepend(link);
+	$('div.mwimg').each(function(){
+		if($(this).closest('.techicon, .summarysection').length == 0) {
+			$(this).prepend(link);
+		}
+	});
 
 	$('.rpt_img').on('click', function(e) {
 		e.preventDefault();

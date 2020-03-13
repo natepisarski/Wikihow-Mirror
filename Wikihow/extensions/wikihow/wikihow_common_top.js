@@ -189,6 +189,12 @@ WH.whEvent = function(category, action, group, label, version, fromMAEvent) {
 WH.maEventInitialized = false;
 WH.maEvent = function(eventName, eventProps, callback) {
 
+	//-------------
+	//[sc] 3/9/2020 - TURNING OFF MACHINIFY CALLS BECAUSE WE DON'T USE IT ANY LONGER
+	//keeping around in case we need to turn it back on per Elizabeth
+	return;
+	//-------------
+
 	mw.loader.using('mediawiki.cookie', function() {
 		if (typeof MachinifyAPI == 'undefined') {
 			if (typeof console != 'undefined') {

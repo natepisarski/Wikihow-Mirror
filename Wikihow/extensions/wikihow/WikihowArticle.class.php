@@ -68,8 +68,13 @@ class WikihowArticleHTML {
 		// * (T37247) Output from Parser::parse() will now be wrapped in a div with
 		//   class="mw-parser-output" by default. This may be changed or disabled using
 		//   ParserOptions::setWrapOutputClass().
-		pq(".mw-parser-output")->parent()->append(pq(".mw-parser-output")->html());
-		pq(".mw-parser-output")->remove();
+		//
+		// Alberto (Jan 2020): preserving the mw-parser-output wrapper in user pages,
+		// so we can select and hide links in that section (see LH 3124).
+		if ( @$opts['ns'] != NS_USER ) {
+			pq(".mw-parser-output")->parent()->append(pq(".mw-parser-output")->html());
+			pq(".mw-parser-output")->remove();
+		}
 		Hooks::run('WikihowArticleBeforeProcessBody', array( $title ) );
 
 		$featurestar = pq("div#featurestar");
@@ -852,7 +857,7 @@ class WikihowArticleHTML {
 
 		self::formatSourcesSection( $sources, $context );
 
-		DOMUtil::hideLinksInArticle();
+		DOMUtil::hideLinksForAnons();
 
 
 		if ( class_exists('ArticleQuizzes') && $wgRequest->getText('action') != 'submit' ) {

@@ -6,7 +6,7 @@
 		display: none;
 }
 </style>
-<div id="docviewer_sample">
+<div id="docviewer_sample" class="docviewer_box">
 	<?= $dv_ads2 ?>
 	<div class="preview_head"><?=wfMessage('dv-preview')?></div>
 	<img src="<?=$dv_fallback_img?>" id="sample_img" />
@@ -15,7 +15,7 @@
 	</div>
 </div>
 
-<div id="docviewer_choices" class="dv_mobile">
+<div id="docviewer_choices" class="dv_mobile docviewer_box">
 	<h4><?=$header_get?></h4>
 	<ul id="dv_dls">
 		<? if (($dv_dl_file_pdf != '') && ($dv_dl_file_xls == '')) { ?>

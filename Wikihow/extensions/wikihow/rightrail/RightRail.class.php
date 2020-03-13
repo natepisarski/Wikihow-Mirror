@@ -203,7 +203,7 @@ class RightRail {
 
 	private function fastRenderModifyDOM( $html ) {
 		// TODO not sure if we really want to remove the sidebar or not in js..
-		$html .= '<script>if(WH.shared.isSmallSize){document.getElementById("sidebar").outerHTML="";}</script>';
+		$html .= '<script>if(!WH.shared.isLargeSize){document.getElementById("sidebar").outerHTML="";}</script>';
 		return $html;
 
 		// $doc = phpQuery::newDocument( $html );

@@ -224,6 +224,46 @@
 	}
 }
 
+.qy-waiting {
+	background: url(/extensions/wikihow/rclite/rcl_background.png) repeat;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	filter: alpha(opacity=90);
+	color: white;
+	padding: 100px 0;
+	text-align: center;
+
+	.heading {
+		font-size: 38px;
+	}
+
+	.subheading {
+		font-size: 24px;
+	}
+
+	.spinner {
+		background: url(/skins/owl/images/200x200_circle.png) center;
+		width: 200px;
+		height: 200px;
+		margin: 50px auto;
+		-webkit-animation: rotation 2s infinite linear;
+	}
+}
+
+@-webkit-keyframes rotation {
+	from {
+		-webkit-transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(359deg);
+	}
+}
+
+
 @media @medium {
 
 	#quiz_yourself_app {

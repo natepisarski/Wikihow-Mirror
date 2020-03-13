@@ -618,6 +618,10 @@ class WikihowMobileTools {
 				$helper = $helper = new ImageHelper();
 				$imagePage = WikiPage::newFromID($title->getArticleID());
 				$details['licensing'] = $helper->getImageInfoMobile($imagePage, $imageObj);
+				if ($wgUser->isLoggedIn()) {
+					$details['instructions'] .= wfMessage('image_instructions', $title->getFullText())->text();
+
+				}
 
 				pq($a)->append("<div class='image_details' style='display:none'><span style='display:none'>" . htmlentities(json_encode($details)) . "</span></div>");
 			}
@@ -680,7 +684,7 @@ class WikihowMobileTools {
 			pq($methodHeader)->parent()->find('.section_text:first')->prepend($methodHeader);
 		}
 
-		DOMUtil::hideLinksInArticle();
+		DOMUtil::hideLinksForAnons();
 
 		if ( $wgTitle->inNamespace(NS_MAIN) && PagePolicy::showCurrentTitle($context) ) {
 
@@ -735,6 +739,32 @@ class WikihowMobileTools {
 
 		foreach (pq("#ingredients li, #thingsyoullneed li") as $item) {
 			pq($item)->prepend("<div class='checkmark'></div>");
+		}
+
+		//linking to methods for ingredients (if they match)
+		$minimumIngredientsLinkCharacters = 5;
+		foreach (pq('#ingredients h3 .mw-headline') as $list_name) {
+			$header = trim(pq($list_name)->html());
+			$header = preg_replace('/<.*>/', '', $header); //remove links and refs
+
+			if (strlen($header) >= $minimumIngredientsLinkCharacters) {
+				$header_matchable = Sanitizer::escapeIdForLink(htmlspecialchars_decode($header));
+				$header_matchable = str_replace('_', '-', $header_matchable); //dashes; not underscores
+
+				foreach(pq('.steps h3 .mw-headline') as $method) {
+					$anchor = pq($method)->attr('id');
+
+					if (stripos($anchor, $header_matchable) !== false) {
+						$link = HTML::rawElement('a', ['href' => '#'.$anchor, 'class' => 'ingredient_method'], $header);
+
+						$list_header = pq($list_name)->html();
+						$list_header = preg_replace('/'.$header.'/', $link, $list_header);
+
+						pq($list_name)->html($list_header);
+						break;
+					}
+				}
+			}
 		}
 
 		if ($config['show-related-articles']) {

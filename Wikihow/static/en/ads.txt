@@ -38,3 +38,5 @@ pubmatic.com, 156078, RESELLER, 5d62403b186f2ace
 contextweb.com, 558299, RESELLER, 89ff185a4c4e857c
 yieldmo.com, 2399319417490972848, DIRECT
 yieldmo.com, 2399329105309802674, DIRECT
+appnexus.com, 7911, RESELLER
+rubiconproject.com, 17070, RESELLER, 0bfd66d529a55807

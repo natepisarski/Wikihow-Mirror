@@ -32,8 +32,10 @@ $wgResourceModules['ext.wikihow.common_bottom_styles'] = [
 
 $wgResourceModules['ext.wikihow.common_bottom'] = [
 	'scripts' => [
-		'../../skins/WikiHow/MachinifyAPI.js',
 		'wikihow_common_bottom.js',
+		//[sc] 3/9/2020 - TURNING OFF MACHINIFY CALLS BECAUSE WE DON'T USE IT ANY LONGER
+		//keeping around in case we need to turn it back on per Elizabeth
+		// '../../skins/WikiHow/MachinifyAPI.js',
 	],
 	'targets' => [ 'desktop', 'mobile' ],
 	'localBasePath' => __DIR__,
@@ -154,11 +156,17 @@ $wgResourceModules['ext.wikihow.homepage'] =
 
 $wgResourceModules['ext.wikihow.image_feedback_styles'] =
 	$wgResourceModulesResponsiveBoilerStyles
-	+ [ 'styles' => [ 'imagefeedback/imagefeedback.css' ] ];
+	+ [ 'styles' => [
+		'modal/modal.css',
+		'imagefeedback/imagefeedback.css'
+	] ];
 
 $wgResourceModules['ext.wikihow.image_feedback'] =
 	$wgResourceModulesResponsiveBoiler
-	+ [ 'scripts' => [ 'imagefeedback/imagefeedback.js' ] ];
+	+ [ 'scripts' => [
+		'common/jquery.simplemodal.1.4.4.min.js',
+		'imagefeedback/imagefeedback.js'
+	] ];
 
 $wgResourceModules['ext.wikihow.editor_script'] =
 	$wgResourceModulesResponsiveBoiler
@@ -204,3 +212,9 @@ $wgResourceModules['ext.wikihow.magnificpopup'] = [
 	'styles' => ['common/magnific/magnific.1.1.0.css'],
 	'remoteExtPath' => 'wikihow',
 	'position' => 'top' ];
+
+// this is only used by the js speed test pages for now
+$wgResourceModules['ext.wikihow.responsive_large'] = [
+	'localBasePath' => __DIR__,
+	'styles' => ['MobileFrontendWikihow/less/wikihow/responsive_large.less'],
+];

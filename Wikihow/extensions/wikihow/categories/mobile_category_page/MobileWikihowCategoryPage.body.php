@@ -83,6 +83,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$vars['topicsHeader'] = wfMessage("cat_topics")->text();
 			$vars['cat_more'] = wfMessage("cat_more")->text();
 			if($ctx->getUser()->isLoggedIn()) {
+				$vars['default_expanded_class'] = 'expanded';
 				$vars['text_only_url'] = $categoryTitle->getLocalURL('viewMode=text');
 				$vars['text_only_text'] = wfMessage('text_view')->text();
 			}
@@ -382,7 +383,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$html = $prev.$next;
 
 		// set <head> links for SEO
-		if ($pg > 1) $out->setCanonicalUrl($out->getTitle()->getFullURL().'?pg='.$pg);
+		if ($pg > 1) $out->setRobotPolicy('noindex');
 		if ($pg == 2) {
 			$out->addHeadItem('prev_pagination','<link rel="prev" href="'.$wgCanonicalServer.$here.'" />');
 		}

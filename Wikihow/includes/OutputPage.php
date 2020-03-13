@@ -3294,10 +3294,11 @@ class OutputPage extends ContextSource {
 
 		$isJsSpeedTest = false;
 		if ( Misc::isFastRenderTest() ) {
-			$isJsSpeedTest = false;
+			$isJsSpeedTest = true;
 		}
-		// Wikihow: we can't have any Javascript in the head, and post-processing
+		// Wikihow: we can't have any Javascript in the head for AMP pages, and post-processing
 		// this after the fact is tougher.
+		// also do not want any of the default resource loader js for the js speed test pages
 		if ( !$isAmp && !$isJsSpeedTest) {
 			$pieces[] = $this->getRlClient()->getHeadHtml();
 		}

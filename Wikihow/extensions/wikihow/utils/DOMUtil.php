@@ -6,48 +6,58 @@ class DOMUtil
 	 * Hide links to de-indexed articles and categories so web crawlers
 	 * don't see them, which can hurt SEO.
 	 */
-	public static function hideLinksInArticle()
+	public static function hideLinksForAnons()
 	{
-		$query = Misc::isMobileMode() ? 'a' : '#bodycontents a';
-		$domHelper = new DOMHelper();
-		$domHelper->hideLinks($query);
+		$user = RequestContext::getMain()->getUser();
+		if ( $user->isLoggedIn() ) {
+			return;
+		}
+
+		$title = RequestContext::getMain()->getTitle();
+		if ( $title->inNamespace(NS_USER) ) {
+			DomHelper::hideLinksInUserPage();
+			return;
+		}
+
+		$aid = $title->getArticleID();
+		$whitelist = 'deindexed_link_removal_whitelist';
+		if ( RobotPolicy::isIndexable($title) && !ArticleTagList::hasTag($whitelist, $aid) ) {
+			$query = Misc::isMobileMode() ? 'a' : '#bodycontents a';
+			DomHelper::hideLinks($query);
+		}
 	}
 
-	/* Unused for now - Alberto, 2018-04-01
-	public static function hideLinksInComments()
-	{
-		$query = '.de_comment a';
-		$domHelper = new DOMHelper();
-		$domHelper->hideLinks($query);
-	}
-	*/
 }
 
 class DOMHelper {
 
-	public function hideLinks(string $query) {
-		if (!$this->shouldHideLinks()) {
-			return;
+	public static function hideLinksInUserPage() {
+		foreach ( pq('div.mw-parser-output a') as $a ) {
+			if ( self::isImageLink($a) ) {
+				continue;
+			}
+			self::hideLink($a);
 		}
-		list($articleLinks, $categoryLinks) = $this->findLinks($query);
-		$this->processLinks($articleLinks, $categoryLinks);
-		// if (Debugger::$debug) { Debugger::dumpResults(); }
 	}
 
-	private function shouldHideLinks(): bool {
-		$title = RequestContext::getMain()->getTitle();
-		$user = RequestContext::getMain()->getUser();
-
-		return
-			// Replace links only for anons...
-			$user->isAnon() &&
-			// in indexable pages...
-			RobotPolicy::isIndexable($title) &&
-			// that haven't been whitelisted
-			!ArticleTagList::hasTag('deindexed_link_removal_whitelist', $title->getArticleID());
+	public static function hideLinks(string $query) {
+		list($articleLinks, $categoryLinks) = self::findLinks($query);
+		self::processLinks($articleLinks, $categoryLinks);
 	}
 
-	private function findLinks(string $query): array {
+	private static function isImageLink(DOMElement $link): bool {
+		return preg_match('/\s*image\s*/', $link->getAttribute('class'));
+	}
+
+	/**
+	 * Replace an HTML link with its anchor text
+	 */
+	private function hideLink(DOMElement $link) {
+		$pqObject = pq($link);
+		$pqObject->replaceWith($pqObject->text());
+	}
+
+	private static function findLinks(string $query): array {
 		/**
 		 * Each of these arrays have the structure: [ HREF1 => [DOM_LINK1, DOM_LINK2], ... ]
 		 * key   string        relative URL without the leading '/' (from href)
@@ -60,10 +70,7 @@ class DOMHelper {
 
 		foreach ( pq($query) as $a ) {
 
-			// if (Debugger::$debug) { Debugger::trackLink($a); }
-
-			$isImageLink = preg_match('/\s*image\s*/', $a->getAttribute('class'));
-			if ($isImageLink) {
+			if ( self::isImageLink($a) ) {
 				continue;
 			}
 
@@ -92,7 +99,7 @@ class DOMHelper {
 		return [$articleLinks, $categoryLinks];
 	}
 
-	private function processLinks(array $articleLinks, array $categoryLinks) {
+	private static function processLinks(array $articleLinks, array $categoryLinks) {
 
 		// Find out which pages are indexed
 
@@ -133,75 +140,11 @@ class DOMHelper {
 			foreach ( $links as $href => $domLinks ) { // [ HREF1 => [DOM_LINK1, DOM_LINK2], ... ]
 				if ( !isset($isIndexed[$ns][$href]) ) {
 					foreach ( $domLinks as $domLink ) {
-						$this->hideLink($domLink);
-						// if (Debugger::$debug) { Debugger::flagHidden($domLink); }
+						self::hideLink($domLink);
 					}
 				}
 			}
 		}
 	}
 
-	/**
-	 * Replace an HTML link with its anchor text
-	 */
-	private function hideLink(DOMElement $link) {
-		$pqObject = pq($link);
-		$pqObject->replaceWith($pqObject->text());
-	}
-
 }
-
-/**
- * Dev-only
- */
-// class Debugger
-// {
-// 	public static $debug = false; // IMPORTANT: make sure this flag 'false' in production
-// 	private static $links = [];
-
-// 	public static function trackLink(DOMElement $a): void {
-// 		$namespaces = RequestContext::getMain()->getLanguage()->getNamespaces();
-// 		$categPrefix = preg_quote( $namespaces[NS_CATEGORY].':' ); // e.g. 'Categoría:'
-// 		$pqObject = pq($a);
-
-// 		$href = trim( urldecode($a->getAttribute('href')) );
-// 		$title = trim( $a->getAttribute('title') );
-// 		$anchor = trim( $pqObject->text() );
-
-// 		$isCateg = 2 === count( mb_split("$categPrefix", $href) );
-// 		$isImageLink = preg_match('/\s*image\s*/', $a->getAttribute('class'));
-
-// 		$hasTitle = (int) ( !empty($title) );
-// 		$hasHref = (int) ( !empty($href) );
-// 		$isLocal = (int) ( $href[0] === '/' );
-// 		$isDotPhp = (int) ( strpos($href, '.php') !== false );
-// 		$isRedLink = (int) ( strpos($href, 'redlink=1') !== false );
-// 		$isHidden = 0;
-
-// 		$key = spl_object_id($a);
-// 		self::$links[$key] = compact('href', 'title', 'anchor', 'isCateg', 'isImageLink',
-// 				'hasTitle', 'hasHref', 'isLocal', 'isDotPhp', 'isRedLink', 'isHidden');
-// 	}
-
-// 	public static function flagHidden(DOMElement $a): void {
-// 		$key = spl_object_id($a);
-// 		self::$links[$key]['isHidden'] = 1;
-// 	}
-
-// 	public static function dumpResults(): void {
-// 		global $wgTitle;
-// 		$dbKey = $wgTitle->getDBkey();
-
-// 		$f = fopen("/tmp/link_hiding.$dbKey.csv", 'w');
-// 		$csvHeaders = array_keys( reset(self::$links) );
-// 		fputcsv($f, $csvHeaders, "\t", '"');
-// 		foreach (self::$links as $info) {
-// 			if ( !$info['href'] && !$info['anchor'] && !$info['title'] ) {
-// 				continue;
-// 			}
-// 			$csvRow = array_map(function ($x) { return trim($x); }, $info);
-// 			fputcsv($f, $csvRow, "\t", '"');
-// 		}
-// 		fclose($f);
-// 	}
-// }

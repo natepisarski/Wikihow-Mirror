@@ -34,9 +34,10 @@ function initializeArticlePage() {
 		}
 	});
 
+
+
 	mw.loader.using('mediawiki.cookie', function() {
-		var userGroups = mw.config.get('wgUserGroups');
-		var adminTabEligible = userGroups.includes('staff') || userGroups.includes('sysop') || userGroups.includes('newarticlepatrol');
+		var adminTabEligible = mw.config.get('wgUserId') > 0;
 		if ($(window).width() < WH.mediumScreenMinWidth && adminTabEligible && mw.cookie.get('showtabs') == '1') {
 			$("#actionbar").addClass("forcetabs");
 		}
@@ -245,16 +246,8 @@ function addClickHandlers() {
 			open = false;
 			WH.maEvent( 'mobile_search_close', { count: closeCount, pageType: pageType } );
 		} );
-		var hsFormSubmitLogged = false;
 		$('#hs form').on( 'submit', function ( e ) {
-			if ( !hsFormSubmitLogged ) {
-				WH.maEvent( 'mobile_search_submit', { pageType: pageType }, function () {
-					hsFormSubmitLogged = true;
-					$('#hs form').submit();
-				} );
-				e.preventDefault();
-				return false;
-			}
+			WH.maEvent( 'mobile_search_submit', { pageType: pageType } );
 		} );
 
 }

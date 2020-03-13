@@ -239,6 +239,7 @@ class AdminCategoryDescriptions extends UnlistedSpecialPage {
 				if ($dbr->numRows($res) > 0) {
 					foreach ($res as $row) {
 						$newTitle = Title::newFromID($row->ti_page_id);
+						if(is_null($row->ti_page_id)) continue;
 						if(AlternateDomain::getAlternateDomainForPage( $row->ti_page_id ) || $newTitle->isRedirect())
 							continue;
 						if ($newTitle) {

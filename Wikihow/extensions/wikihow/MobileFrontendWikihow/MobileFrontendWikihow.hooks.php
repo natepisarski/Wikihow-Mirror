@@ -108,9 +108,15 @@ class MobileFrontendWikiHowHooks {
 
 		$stylePaths = [];
 
-		//if ( !Misc::isFastRenderTest() ) {
+		$isFastRenderTest = false;
+		if ( Misc::isFastRenderTest() ) {
+			$isFastRenderTest = true;
+		}
+
+		// do not include style top at all for fast render test
+		if ( !$isFastRenderTest ) {
 			$stylePaths[] = __DIR__ . '/less/wikihow/style_top.css';
-		//}
+		}
 
 		if (WikihowMobileTools::isInternetOrgRequest()) {
 			$stylePaths[] = __DIR__ . '/less/wikihow/iorg.css';
@@ -121,7 +127,11 @@ class MobileFrontendWikiHowHooks {
 		// the amp css was getting so large we now have a separate css file
 		// which contains css that will NOT be used on amp
 		$ampStylePaths = $stylePaths;
-		$stylePaths[] = __DIR__ . '/less/wikihow/noamp_style_top.css';
+
+		// for fast render test do not include this css file either
+		if ( !$isFastRenderTest ) {
+			$stylePaths[] = __DIR__ . '/less/wikihow/noamp_style_top.css';
+		}
 
 		$top_style = Misc::getEmbedFiles('css', $stylePaths, null, $wgLang->isRTL());
 
@@ -237,22 +247,26 @@ class MobileFrontendWikiHowHooks {
 			global $wgResourceLoaderLESSImportPaths, $wgUser;
 			$wgResourceLoaderLESSImportPaths = [ "$IP/extensions/wikihow/less/" => '' ];
 
-			$embedStyles = [__DIR__ . '/less/wikihow/responsive.less'];
+			$embedStyles = [];
+			// do not use the responsive.less file on fast render test. it uses its own responsive_fastrender.less file
+			// which is included in another BeforePageDisplay hook which outputs higher up in the head
+			if ( !$isFastRenderTest ) {
+				$embedStyles[] = __DIR__ . '/less/wikihow/responsive.less';
+			}
 			if (!$wgUser->isAnon()) {
-				$embedStyles []= __DIR__ . '/less/wikihow/responsive_loggedin.less';
+				$embedStyles[] = __DIR__ . '/less/wikihow/responsive_loggedin.less';
 			}
 
-			if ( Misc::isFastRenderTest() ) {
-				$embedStyles [] = __DIR__ . '/less/wikihow/responsive_fastrender.less';
+			// if we are on the fast render test, there may be no embedStyles to putput, so checking the size here
+			if ( count( $embedStyles ) ) {
+				$style = Misc::getEmbedFiles('css', $embedStyles);
+				$less = ResourceLoader::getLessCompiler();
+				$less->parse($style);
+				$style = $less->getCss();
+				$style = ResourceLoader::filter('minify-css', $style);
+				$style = HTML::inlineStyle($style);
+				$out->addHeadItem('topcss2', $style);
 			}
-
-			$style = Misc::getEmbedFiles('css', $embedStyles);
-			$less = ResourceLoader::getLessCompiler();
-			$less->parse($style);
-			$style = $less->getCss();
-			$style = ResourceLoader::filter('minify-css', $style);
-			$style = HTML::inlineStyle($style);
-			$out->addHeadItem('topcss2', $style);
 		}
 
 		if (self::showRCWidget()) {
@@ -263,8 +277,9 @@ class MobileFrontendWikiHowHooks {
 
 		// this adds some extra css to the page if we are on dev site
 		if ( $wgIsDevServer && $wgProfiler['visible'] == true ) {
-			$pCss = "<style>body > pre{position:absolute;top:500px;background:white;z-index:10000;}</style>";
+			$pCss = "<style>#profilerout{position:absolute;top:500px;background:white;z-index:10000;max-width:100%}#profilerout span{position:absolute;right:10px;</style>";
 			$out->addHeadItem('profilercss', $pCss);
+			$out->addHeadItem('profilerjs', $pCss);
 		}
 
 		return true;
@@ -297,7 +312,9 @@ class MobileFrontendWikiHowHooks {
 			'Powered-and-Inspired-by-MediaWiki',
 			'Carbon-Neutral',
 			'Hybrid-Organization',
-			'Tour'
+			'Tour',
+			'Free-Basics',
+			'History-of-wikiHow'
 		];
 
 		$specialPagesWithCss = [
@@ -315,7 +332,8 @@ class MobileFrontendWikiHowHooks {
 			'MobileCommunityDashboard',
 			'Notifications',
 			'HighSchoolHacks',
-			'RequestTopic'
+			'RequestTopic',
+			'CreatePage'
 		];
 
 		$responsiveTools = [
@@ -410,4 +428,5 @@ class MobileFrontendWikiHowHooks {
 		$title = RequestContext::getMain()->getTitle();
 		$showCategoryListing = $title && $title->inNamespace(NS_MAIN) && !$title->isMainPage();
 	}
+
 }

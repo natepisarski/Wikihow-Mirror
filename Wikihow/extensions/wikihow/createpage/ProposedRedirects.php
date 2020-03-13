@@ -87,7 +87,7 @@ class ProposedRedirects extends SpecialPage {
 		$t = Title::makeTitle(NS_PROJECT, "Proposed Redirects");
 		$a = new Article($t);
 
-		$wgOut->addHTML("<style type='text/css' media='all'>/*<![CDATA[*/ @import '" . wfGetPad('/extensions/min/f/extensions/wikihow/createpage/createpage.css?') . WH_SITEREV . "'; /*]]>*/</style> ");
+		$wgOut->addModuleStyles('ext.wikihow.createpage_styles');
 
 		if ($wgRequest->wasPosted()) {
 			// deal with collisions of loading and saving

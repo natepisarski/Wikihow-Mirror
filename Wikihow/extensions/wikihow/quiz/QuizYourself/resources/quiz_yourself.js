@@ -158,6 +158,8 @@
 				this.setScore();
 				this.addQuizHandlers();
 			}
+
+			this.hideSpinner();
 		},
 
 		loadAd: function(adId) {
@@ -203,6 +205,10 @@
 				'answer': $(obj).data('option') + 1,
 				'correct': $(obj).hasClass('correct') ? 'yes' : 'no'
 			});
+		},
+
+		hideSpinner: function() {
+			$('.qy-waiting').fadeOut();
 		}
 
 	}

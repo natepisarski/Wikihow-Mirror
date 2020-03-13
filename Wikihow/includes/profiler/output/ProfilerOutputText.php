@@ -36,6 +36,12 @@ class ProfilerOutputText extends ProfilerOutput {
 		$this->thresholdMs = $params['thresholdMs'] ?? 1.0;
 	}
 	public function log( array $stats ) {
+		global $wgProfiler;
+		$closeButton = false;
+		if ( $wgProfiler['closebutton'] == 1 ) {
+			$closeButton = true;
+		}
+
 		if ( $this->collector->getTemplated() ) {
 			$out = '';
 
@@ -60,9 +66,12 @@ class ProfilerOutputText extends ProfilerOutput {
 			if ( wfIsCLI() ) {
 				print "<!--\n{$out}\n-->\n";
 			} elseif ( $contentType === 'text/html' ) {
+				if ( $closeButton) {
+					$out = "<span onclick='this.parentNode.parentNode.removeChild(this.parentNode); return false;'>x</span>" . $out;
+				}
 				$visible = $this->params['visible'] ?? false;
 				if ( $visible ) {
-					print "<pre>{$out}</pre>";
+					print "<pre id='profilerout'>{$out}</pre>";
 				} else {
 					print "<!--\n{$out}\n-->\n";
 				}

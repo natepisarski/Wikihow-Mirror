@@ -662,8 +662,8 @@ class SkinMinervaWikihow extends SkinMinerva {
 			'class' => 'gdpr-menu'
 		);
 		$menuText = Html::rawElement( 'a', $attr, $tosText );
-		$userGroups = $wgUser->getGroups();
-		if( in_array('staff', $userGroups) || in_array('newarticlepatrol', $userGroups) || in_array('sysop', $userGroups) ) {
+
+		if( $wgUser->isLoggedIn() ) {
 			$menuText .= " | ";
 			$menuText .= Html::rawElement('a', ['href' => '#', 'class' => 'gdpr-menu', 'id' => 'toggle_link'], 'Toggle edit links');
 		}

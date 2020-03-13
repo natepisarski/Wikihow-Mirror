@@ -255,6 +255,9 @@ class SocialStamp {
 			if (SocialProofStats::isSpecialInline()) {
 				$params['coauthor'] = wfMessage("ss_special_author")->text();
 			}
+			if (SocialProofStats::isMedicallyReviewed()) {
+				$params['coauthor'] = wfMessage("ss_medical_author")->text();
+			}
 			if (SocialStamp::isNotable()) {
 				$params['coauthor'] = wfMessage("ss_notable")->text();
 			}
@@ -346,6 +349,9 @@ class SocialStamp {
 				$coauthoredBy = lcfirst(wfMessage("sp_expert_attribution")->text());
 				if (SocialProofStats::isSpecialInline()) {
 					$coauthoredBy = lcfirst(wfMessage("ss_special_author")->text());
+				}
+				if (SocialProofStats::isMedicallyReviewed()) {
+					$coauthoredBy = lcfirst(wfMessage("ss_medical_author")->text());
 				}
 				$hoverText = wfMessage('ss_expert', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();
 				$authorInfoText = wfMessage('ss_expert_nolink', $vData->name, $vData->hoverBlurb, $link, $citations, $coauthoredBy )->text();

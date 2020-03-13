@@ -36,7 +36,7 @@
 			<div id="subcats">
 				<ul>
 				{{#subcats1}}
-					<li><div class="subcat_container {{#hasSubsubcats}}with_subsubcats{{/hasSubsubcats}}"><span>{{{categoryLink}}}
+					<li><div class="subcat_container {{#hasSubsubcats}}with_subsubcats {{#default_expanded_class}}expanded {{/default_expanded_class}}{{/hasSubsubcats}}"><span>{{{categoryLink}}}
 						{{#hasSubsubcats}}
 							<a class="show_more"></a></span>
 							<div class="subcategory">
@@ -51,7 +51,7 @@
 				</ul>
 				<ul>
 					{{#subcats2}}
-						<li><div class="subcat_container {{#hasSubsubcats}}with_subsubcats{{/hasSubsubcats}}"><span>{{{categoryLink}}}
+						<li><div class="subcat_container {{#hasSubsubcats}}with_subsubcats {{#default_expanded_class}}expanded {{/default_expanded_class}}{{/hasSubsubcats}}"><span>{{{categoryLink}}}
 							{{#hasSubsubcats}}
 								<a class="show_more"></a></span>
 								<div class="subcategory">

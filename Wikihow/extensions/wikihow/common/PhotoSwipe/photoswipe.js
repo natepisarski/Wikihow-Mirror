@@ -1623,6 +1623,10 @@ var _gestureStartTime,
 
 	// Pointerdown/touchstart/mousedown handler
 	_onDragStart = function(e) {
+		if (_dragOverride(e)) {
+			_mainScrollAnimating = true; // prevent photoswipe default tap event when drag released outside caption
+			return;
+		}
 
 		// Allow dragging only via left mouse button.
 		// As this handler is not added in IE8 - we ignore e.which
@@ -1738,6 +1742,10 @@ var _gestureStartTime,
 
 	// Pointermove/touchmove/mousemove handler
 	_onDragMove = function(e) {
+		if (_dragOverride(e)) {
+			_mainScrollAnimating = true; // prevent photoswipe default tap event when drag released outside caption
+			return;
+		}
 
 		e.preventDefault();
 
@@ -1934,9 +1942,44 @@ var _gestureStartTime,
 		}
 
 	},
-	
+
+	/**
+	 * 2020/03/06 - Added hack to get around issues with selecting text in photoswipe.
+	 * This will override the default drag behavior if certain caption-related elements are detected.
+	 *
+	 * Adapted from
+	 * https://github.com/dimsemenov/PhotoSwipe/issues/1192 and
+	 * https://github.com/dimsemenov/PhotoSwipe/issues/1195
+	 *
+	 * @param e - event
+	 * @returns {boolean} whether or not to override  the default drag behavior for photoswipe
+	 * @private
+	 */
+	_dragOverride = function(e) {
+		var override = false;
+		var t = e.target || e.srcElement;
+
+		// Check for a caption class, a NOWIKI tag (which contains the [[Image:]] copying instructions or the mw-parser-output class name
+		// to prevent scrolling on the caption info below images
+		if (t &&
+			(
+				t.className.indexOf('__caption') > 0 ||
+				t.tagName.toUpperCase() == 'NOWIKI' ||
+				t.parentElement.className.indexOf('mw-parser-output') > -1)
+			) {
+			override = true;
+		}
+
+		return override;
+	},
+
 	// Pointerup/pointercancel/touchend/touchcancel/mouseup event handler
 	_onDragRelease = function(e) {
+
+		if (_dragOverride(e)) {
+			_mainScrollAnimating = true; // prevent photoswipe default tap event when drag released outside caption
+			return;
+		}
 
 		if(_features.isOldAndroid ) {
 
@@ -2456,8 +2499,9 @@ _registerModule('Gestures', {
 				_likelyTouchDevice = (navigator.maxTouchPoints > 1) || (navigator.msMaxTouchPoints > 1);
 			}
 			// make variable public
-			self.likelyTouchDevice = _likelyTouchDevice; 
-			
+			self.likelyTouchDevice = _likelyTouchDevice;
+
+			console.log('here touch ' + self.likelyTouchDevice);
 			_globalEventHandlers[_dragStartEvent] = _onDragStart;
 			_globalEventHandlers[_dragMoveEvent] = _onDragMove;
 			_globalEventHandlers[_dragEndEvent] = _onDragRelease; // the Kraken

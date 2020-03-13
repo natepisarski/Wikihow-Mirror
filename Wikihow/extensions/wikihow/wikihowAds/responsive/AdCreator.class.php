@@ -628,6 +628,10 @@ abstract class AdCreator {
 
 		// get the inner ad
 		$innerClass = $ad->setupData['innerclass'] ?:'';
+		if ( is_array( $innerClass ) && $this->showBlockthroughJs() ) {
+			$innerClass[] = "blockthrough";
+		}
+
 		$attributes = array(
 			'id' => $ad->mTargetId,
 			'class' => $innerClass,
@@ -966,6 +970,14 @@ abstract class AdCreator {
 
 	public static function isChildDirectedPage() {
 		global $wgTitle;
+
+		if ( !$wgTitle ) {
+			return false;
+		}
+
+		if ( ArticleTagList::hasTag( 'coppa_exclude', $wgTitle->getArticleID() ) ) {
+			return false;
+		}
 
 		if ( AlternateDomain::getAlternateDomainForCurrentPage() == "wikihow-fun.com" ) {
 			return true;
@@ -1932,38 +1944,6 @@ class DefaultSearchPageAdCreator extends AdCreator {
 				'channels' => [7445610171],
 			),
 		);
-
-		if ( in_array( intval( $this->mBucketId ), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] ) ) {
-			$this->mAdSetupData = array(
-			        'rightrail0' => array(
-			                'service' => 'adsense',
-			                'slot' => 5494086178,
-			                'instantload' => 1,
-			                'width' => 300,
-			                'height' => 250,
-			                'containerheight' => 250,
-			                'class' => ['rr_container'],
-			                'type' => 'rightrail',
-			                'large' => 1,
-			                'ad-format' => 'link',
-			                'full-width-responsive' => 'true',
-			                'channels' => [9848412230],
-			        ),
-			        'rightrail1' => array(
-			                'service' => 'adsense',
-			                'slot' => 2504442946,
-			                'width' => 300,
-			                'height' => 600,
-			                'containerheight' => 2000,
-			                'class' => ['rr_container'],
-			                'innerclass' => ['ad_label', 'ad_label_dollar'],
-			                'type' => 'rightrail',
-			                'large' => 1,
-			                'channels' => [9848412230],
-			        ),
-			);
-		}
-
 	}
 
 	public function isAdOkForDomain( $ad ) {

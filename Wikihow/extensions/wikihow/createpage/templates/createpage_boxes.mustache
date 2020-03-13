@@ -1,0 +1,47 @@
+<div class="createpage_section cp_write">
+	<h3>{{cp_title_head}}</h3>
+
+	<div id="cp_title_results">
+		<div id="cpr_title_hdr" class="cpr_hdr"></div>
+		<div id="cpr_title_text" class="cpr_text"></div>
+	</div>
+
+	<form id="cp_title_input_block" class="cp_block">
+		<div class='search_input'>
+			<input autocomplete='off' maxLength='256' id='cp_title_input' name='target' value='' type='text' placeholder='{{{cp_title_ph}}}' />
+		</div>
+		<div class='search_button'>
+			<button type='submit' id='cp_title_btn' class='button primary'>{{cp_title_submit}}</button>
+		</div>
+	</form>
+</div>
+
+{{#showTopicSuggestions}}
+<div class="createpage_section cp_suggest">
+	<h3>{{createpage_topic_sugg_head}}</h3>
+
+		<form class="cp_block">
+			<div class='search_input'>
+				<input type='text' id='cp_topic_input' name='q' placeholder='{{cp_topic_ph}}' />
+			</div>
+			<div class='search_button'>
+				<button type='submit' id='cp_topic_btn' class='button primary'>{{cp_topic_submit}}</button>
+			</div>
+		</form>
+
+	<div id="cp_topic_results">
+		<div id="cpr_topic_hdr" class="cpr_hdr"></div>
+		<div id="cpr_topic_text" class="cpr_text"></div>
+	</div>
+</div>
+{{/showTopicSuggestions}}
+
+<div class="createpage_section cp_publish">
+	<h3>{{createpage_other_head}}</h3>
+
+	<br />
+
+	<div class="cp_block2">
+		{{{cp_other_details}}}
+	</div>
+</div>

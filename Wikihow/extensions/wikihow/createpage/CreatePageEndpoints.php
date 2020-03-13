@@ -66,7 +66,7 @@ class CreatepageReview extends UnlistedSpecialPage {
 class CreatepageFinished extends UnlistedSpecialPage {
 	public function __construct() {
 		parent::__construct('CreatepageFinished');
-		EasyTemplate::set_path( __DIR__ );
+		EasyTemplate::set_path( __DIR__ .'/templates' );
 	}
 
 	public function execute($par) {

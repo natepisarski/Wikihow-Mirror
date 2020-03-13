@@ -129,7 +129,7 @@ class CategoryQuestions {
 		if ($validCategory && array_key_exists($category, $tree)) {
 			return self::flattenSubTree(array($category => $tree[$category]));
 		}
-
+		return [];
 	}
 
 	private static function flattenSubTree($tree = array()) {

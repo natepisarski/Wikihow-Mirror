@@ -64,21 +64,21 @@ $wgLogHeaders['redirects'] = 'redirectstext';
 $wgLogActions['redirects/added'] = 'redirects_logsummary';
 
 $wgResourceModules['ext.wikihow.createpage_styles'] = [
-    'styles' => ['createpage.css'],
-    'localBasePath' => __DIR__,
-    'remoteExtPath' => 'wikihow/createpage',
-    'targets' => ['desktop'],
-    'position' => 'top',
+	'styles' => ['createpage.less'],
+	'localBasePath' => __DIR__ .'/resources',
+	'remoteExtPath' => 'wikihow/createpage/resources',
+	'targets' => ['desktop','mobile'],
+	'position' => 'top',
 	'group' => 'prio2',
 ];
 
 $wgResourceModules['ext.wikihow.createpage'] = [
-    'scripts' => ['createpage.js'],
-    'localBasePath' => __DIR__,
-    'remoteExtPath' => 'wikihow/createpage',
-    'targets' => ['desktop'],
-    'position' => 'top',
-    'dependencies' => ['ext.wikihow.common_top'],
+	'scripts' => ['createpage.js'],
+	'localBasePath' => __DIR__ .'/resources',
+	'remoteExtPath' => 'wikihow/createpage/resources',
+	'targets' => ['desktop','mobile'],
+	'position' => 'top',
+	'dependencies' => ['ext.wikihow.common_top'],
 ];
 
 function wfGetSuggTitlesMemcKey($articleID) {

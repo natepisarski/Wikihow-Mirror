@@ -39,9 +39,11 @@ class QuizYourself extends SpecialPage {
 			return;
 		}
 
+		$out->addModuleStyles(['ext.wikihow.quiz_yourself.styles']);
+		$out->addModules(['ext.wikihow.quiz_yourself']);
+
 		$out->setHtmlTitle(wfMessage('quiz_yourself_title')->text());
 		$out->addHTML($this->getBaseHTML());
-		$out->addModules(['ext.wikihow.quiz_yourself']);
 	}
 
 	private function renderTemplate(string $template, array $vars = []): string {
@@ -54,7 +56,12 @@ class QuizYourself extends SpecialPage {
 	}
 
 	private function getBaseHTML(): string {
-		return $this->renderTemplate('quiz_yourself_app.mustache');
+		$vars = [
+			'heading' => wfMessage('qy-waiting-heading')->text(),
+			'subheading' => wfMessage('qy-waiting-sub')->text()
+		];
+
+		return $this->renderTemplate('quiz_yourself_app.mustache', $vars);
 	}
 
 	private function getQuiz(): array {
