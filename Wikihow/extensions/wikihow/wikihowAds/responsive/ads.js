@@ -177,6 +177,7 @@ WH.ads = (function () {
 			return;
 		}
 		ad.height = ad.element.offsetHeight;
+		ad.element.classList.remove('blockthrough');
         // don't even bother checking the space unless the ad is less than 300px in height
 		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
         if (ad.extraChild && size && parseInt(size[1]) < 300) {

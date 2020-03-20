@@ -174,6 +174,11 @@ class VideoEmbedHelperTool extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
+		$context = RequestContext::getMain();
+		$user = $context->getUser();
+		$out = $context->getOutput();
+		$req = $context->getRequest();
+
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || (!in_array('staff', $userGroups) && !in_array('staff_widget', $userGroups))) {
 			$out->setRobotPolicy('noindex,nofollow');

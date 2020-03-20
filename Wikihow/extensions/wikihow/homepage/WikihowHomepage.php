@@ -20,6 +20,7 @@ $wgMessagesDirs['WikihowMobileHomepage'] = __DIR__ . '/i18n/';
 $wgHooks['ArticleFromTitle'][] = array('WikihowHomepage::onArticleFromTitle');
 $wgHooks['ArticleJustBeforeBodyClose'][] = array('WikihowHomepage::onArticleJustBeforeBodyClose');
 $wgHooks['MobileEndOfPage'][] = array('WikihowHomepage::onArticleJustBeforeBodyClose');
+$wgHooks['ConfigStorageAfterStoreConfig'][] = ['WikihowMobileHomepage::onConfigStorageAfterStoreConfig'];
 
 // Have to add zzz to beginning of module to ensure it loads after other mw modules
 // and properly overrides css without having to add !important with all the rules.

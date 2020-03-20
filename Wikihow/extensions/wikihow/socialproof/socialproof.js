@@ -270,7 +270,10 @@
 
 		//badge dialog closing
 		$('#sp_icon_hover').on(actions, function(e) {
-			if (e.type == 'click' && $(e.target).length && $(e.target).is('a')) return;
+			if (e.type == 'click' && $(e.target).length && $(e.target).is('a')) {
+				$('#sp_icon_hover').hide();
+				return;
+			}
 
 			e.preventDefault();
 

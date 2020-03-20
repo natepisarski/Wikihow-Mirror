@@ -6,7 +6,12 @@ class GoogleAmp {
 	const RELATED_IMG_HEIGHT = 231;
 	const QUERY_STRING_PARAM = "amp";
 
+	private static $isAmpMode  = null;
+
 	public static function isAmpMode( $out ) {
+		if ( self::$isAmpMode !== null  ) {
+			return self::$isAmpMode;
+		}
 		$amp = $out->getRequest()->getVal( self::QUERY_STRING_PARAM ) == 1;
 
 		$t = $out->getTitle();
@@ -14,16 +19,13 @@ class GoogleAmp {
 			$amp = true;
 		}
 
-		if (self::isAmpCustomAdsTest($t)) {
-			$amp = true;
-		}
 		// Don't enable AMP mode for certain android app requests
 		if (class_exists('AndroidHelper')
 			&& AndroidHelper::isAndroidRequest()
 			&& (!$out->getTitle()->inNamespace(NS_MAIN) || $out->getTitle()->isMainPage())) {
 			$amp = false;
 		}
-
+		self::$isAmpMode = $amp;
 		return $amp;
 	}
 
@@ -41,10 +43,6 @@ class GoogleAmp {
 		}
 
 		return $isSpeedTest;
-	}
-
-	public static function isAmpCustomAdsTest( $t ) {
-		return false;
 	}
 
 	public static function hasAmpParam( $request ) {
@@ -283,9 +281,7 @@ class GoogleAmp {
 		$out->addHeadItem( 'ampboilerplate',
 			'<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>' );
 		$out->addHeadItem( 'ampscript', '<script async src="https://cdn.ampproject.org/v0.js"></script>' );
-		if ( self::hasAmpParam( $out->getRequest() ) || !self::isAmpCustomAdsTest( $out->getTitle() ) ) {
-			$out->addHeadItem( 'ampadscript', '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>' );
-		}
+		$out->addHeadItem( 'ampadscript', '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>' );
 		$out->addHeadItem( 'ampanalytics',
 			'<script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>' );
 		$out->addHeadItem( 'ampsidebar',
@@ -305,17 +301,6 @@ class GoogleAmp {
 					}
 				}
 			}
-		}
-
-		if ( !self::hasAmpParam( $out->getRequest() ) && self::isAmpCustomAdsTest( $out->getTitle() ) ) {
-			// add ads code and its dependencies
-			$adsScripts = [];
-			$adsScripts[] = __DIR__ . '/amp_extra.js';
-			$adsScripts[] = __DIR__ . '/../commonjs/whshared.compiled.js';
-			$adsScripts[] = __DIR__ . '/../wikihowAds/adsenseSetup.js';
-			$adsScripts[] = __DIR__ . '/../wikihowAds/responsive/ads.compiled.js';
-			$adsScript = Misc::getEmbedFiles( 'js', $adsScripts );
-			$out->addHeadItem( 'ads_js', HTML::inlineScript( $adsScript ) );
 		}
 	}
 
@@ -509,7 +494,7 @@ class GoogleAmp {
 
 		$config = [
 			'requests' => [
-				'pageview' => '//' . $domain . '/x/amp-view?url=${sourcePath}'
+				'pageview' => 'https://' . $domain . '/x/amp-view?url=${sourcePath}'
 			],
 			'triggers' => [
 				'trackPageview' => [
@@ -557,13 +542,8 @@ class GoogleAmp {
 		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $out->getTitle()->getArticleID() ) ) {
 			return;
 		}
-		if ( self::isAmpMode( $out ) || !WikihowSkinHelper::shouldShowMetaInfo($out) ) {
-			if ( !self::isAmpCustomAdsTest( $out->getTitle() ) ) {
-				return;
-			}
-		}
-		// RESPONSIVE: roll out responsive design on all alt domain sites
-		$useMobileDomainUrl = !Misc::isAltDomain();
+		// RESPONSIVE: make amp display on www domain
+		$useMobileDomainUrl = false;
 		$serverUrl =  Misc::getLangBaseURL( $languageCode, $useMobileDomainUrl );
 		$ampUrl = wfExpandUrl( $serverUrl . '/' . $out->getTitle()->getPrefixedURL(), PROTO_CANONICAL );
 		$ampUrl =  $ampUrl . "?amp=1";
@@ -1169,9 +1149,7 @@ class GoogleAmp {
 		self::modifyVideoSection();
 		foreach ( pq( 'script' ) as $script ) {
 			if ( pq( $script )->attr( 'type' ) !== 'application/ld+json' ) {
-				if ( self::hasAmpParam( $wgOut->getRequest() ) || !self::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
-					pq( $script )->remove();
-				}
+				pq( $script )->remove();
 			}
 		}
 		pq( 'mo' )->remove();

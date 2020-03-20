@@ -399,6 +399,13 @@ function wfStreamThumb( array $params ) {
 		$errorCode = 400;
 	}
 
+	// if the error is a 500 check if it is a special case of bad delegate
+	//  from trying to convert a bad jpg
+	if ( $errorCode == 500 && strstr( $errorMsg, 'html2ps' ) ) {
+		$errorCode = 404;
+		$errorMsg = 'Invalid input file.';
+	}
+
 	if ( $errorMsg !== false ) {
 		wfThumbError( $errorCode, $errorMsg, null, [ 'file' => $thumbName, 'path' => $thumbPath ] );
 	} else {

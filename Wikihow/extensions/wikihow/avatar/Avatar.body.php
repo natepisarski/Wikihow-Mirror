@@ -298,18 +298,15 @@ class Avatar extends UnlistedSpecialPage {
 			$avatarNew = "var avatarNew = true;";
 		}
 
-		$wgOut->addModuleStyles( ['ext.wikihow.avatar_styles'] );
+		$wgOut->addModuleStyles( ['ext.wikihow.avatar_styles', 'ext.wikihow.avatar_cropper.styles'] );
 		$wgOut->addModules( ['ext.wikihow.avatar'] );
-
-		$wgOut->addHTML("\n<!-- AVATAR CODE START -->\n<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/avatar/avatar.css?') . WH_SITEREV . "' type='text/css' />\n");
-
 
 		$prototypeSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/prototype.js?') . WH_SITEREV;
 		$builderSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/builder.js?') . WH_SITEREV;
 		$dragdropSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/dragdrop.js?') . WH_SITEREV;
 		$cropperSrc = wfGetPad('/extensions/wikihow/common/cropper/cropper.js?') . WH_SITEREV;
 
-		$wgOut->addHTML( "
+		$wgOut->addHTML( "\n<!-- AVATAR CODE START -->\n
 <script>
 var wgUserID = '".$wgUser->getID()."';
 var nonModal = true;
@@ -317,22 +314,11 @@ var userpage = '".$wgUser->getUserPage()."';
 $avatarReload\n
 $avatarNew\n
 
-function initAvatarPage() {
-	jQuery.noConflict();
-	jQuery.getScript( '$prototypeSrc' )
-		.then( function () {
-			return jQuery.getScript( '$builderSrc' )
-		} )
-		.then( function () {
-			return jQuery.getScript( '$dragdropSrc' )
-		} )
-		.then( function () {
-			return jQuery.getScript( '$cropperSrc' )
-		} )
-		.then( initNonModal );
-}
+var prototypeSrc = '$prototypeSrc';
+var builderSrc = '$builderSrc';
+var dragdropSrc = '$dragdropSrc';
+var cropperSrc = '$cropperSrc';
 </script>
-	<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/common/cropper/cropper.css?') . WH_SITEREV . "' type='text/css' />
 	  <div class='avatarModalBody minor_section'>
 	  <div>". wfMessage('avatar-instructions',$wgUser->getName())."</div>
 		 <div id='avatarUpload' >

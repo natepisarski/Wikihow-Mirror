@@ -18,20 +18,13 @@ WH.ThumbRatings = (function($) {
 				ga('send', 'event', 'm-thumbrating', action, wgTitle);
 			}
 
-			changeThumbRatingState(className, vals);	
+			showResponse(className, vals);
 		}
 	});
 
-	function changeThumbRatingState(className, vals) {
-		$('a.' + className).each(function() {
-			var tr_vote = $(this).find('span.tr_vote');
-			var tr_box = $(this);
-			var color = vals[1] == 'up' ? '#93b874' : '#cc8969';
-			var msg = vals[1] == 'up' ? getUpMsg() : getDownMsg();
-			$(this).addClass("clicked");
-			$(tr_vote).removeClass('nodisplay').html(parseInt($(tr_vote).html()) + 1);
-			$('span#tr_prompt_' + vals[2]).css('color', color).html(msg);
-		});
+	function showResponse(className, vals) {
+		var msg = vals[1] == 'up' ? getUpMsg() : getDownMsg();
+		$('a.'+className).parent().html( msg );
 	}
 
 	function getUpMsg() {

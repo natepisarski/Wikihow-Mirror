@@ -554,10 +554,8 @@ abstract class AdCreator {
 		}
 
 		if ( GoogleAmp::isAmpMode( $wgOut ) ) {
-			if ( GoogleAmp::hasAmpParam( $wgOut->getRequest() ) || !GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
-				GoogleAmp::insertAMPAds();
-				return;
-			}
+			GoogleAmp::insertAMPAds();
+			return;
 		}
 
 		$this->insertIntroAd();
@@ -602,14 +600,7 @@ abstract class AdCreator {
 		global $wgOut;
 		$result = true;
 
-		if ( Misc::isMobileMode() ) {
-			// for now only show small and medium sized ads on amp test
-			if ( GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
-				if ( $ad->setupData['small'] !== 1 && $ad->setupData['medium'] !== 1 ) {
-					$result = false;
-				}
-			}
-		} else {
+		if ( !Misc::isMobileMode() ) {
 			// on desktop domain only show ads with large
 			if ( $ad->setupData['large'] !== 1 ) {
 				$result = false;
@@ -889,17 +880,6 @@ abstract class AdCreator {
 		if ( Misc::isFastRenderTest() ) {
 			return false;
 		}
-
-		global $wgTitle;
-		if ( $wgTitle->getArticleID() == 41306 ) {
-			return true;
-		}
-
-		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
-		if ( in_array( $bucketId, $testBuckets ) ) {
-		        return true;
-		}
 		return false;
 	}
 
@@ -923,10 +903,6 @@ abstract class AdCreator {
 	}
 
 	protected function isDFPOkForSetup() {
-		global $wgOut;
-		if ( GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
-			return false;
-		}
 		return true;
 	}
 
@@ -1008,7 +984,7 @@ abstract class AdCreator {
 		$gpt .= "function defineGPTSlots() {\n";
 		// TODO in the future we can possibly define the GPT slot in js along with the new BodyAd call
 		$gpt .= implode( $this->mGptSlotDefines );
-		if ( self::isChildDirectedPage() &&  intval( $this->mBucketId ) == 2 ) {
+		if ( self::isChildDirectedPage() &&  intval( $this->mBucketId ) <= 10 ) {
 			$gpt .= "googletag.pubads().setTagForChildDirectedTreatment(1);\n";
 		}
 		$gpt .= "googletag.pubads().enableSingleRequest();\n";

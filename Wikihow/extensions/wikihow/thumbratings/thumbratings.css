@@ -46,8 +46,17 @@
 	width: auto;
 }
 
+.vote_up span {
+	background-color: #D6E7C9;
+}
+
 .vote_down {
 	text-align: left;
+	margin-left: 1em;
+}
+
+.vote_down span {
+	background-color: #EBEAE7;
 }
 
 .vote_down .thumb, .content .vote_down .thumb {

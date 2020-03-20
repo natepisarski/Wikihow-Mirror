@@ -240,9 +240,10 @@ class WikihowMobileHomepage extends Article {
 	}
 
 	public function getExpertArticles(&$vars) {
-		$vars['has_expert'] = false;
+		global $wgMemc;
 
-		/*$vars['hp_expert_header'] = wfMessage("hp_expert_header")->text();
+		$vars['hasExpert'] = true;
+		$vars['hp_expert_header'] = wfMessage("hp_expert_header")->text();
 		$vars['expert_items'] = [];
 
 		$ids = ConfigStorage::dbGetConfig(self::EXPERT_LIST);
@@ -253,13 +254,26 @@ class WikihowMobileHomepage extends Article {
 				continue;
 			}
 
+			$youtubeId = WikihowMobileHomepage::getVideoId($id);
+			if(is_null($youtubeId)) continue;
+
+			$info = SchemaMarkup::getYouTubeVideo($title, $youtubeId);
+
+			if ( empty( $info ) || $info === false ) continue;
+
+			$thumb = $info['thumbnailUrl'][count($info['thumbnailUrl']) - 1];
+
 			$vars['expert_items'][] = [
 				'url' => $title->getLocalURL('#Video'),
 				'title' => $title->getText(),
-				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => self::getThumbnailUrl($title)] ),
+				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => $thumb] ),
 				'isVideo' => true
 			];
-		}*/
+		}
+
+		if(count($vars['expert_items']) == 0) {
+			$vars['hasExpert'] = false;
+		}
 	}
 
 	public function getCoauthorArticles(&$vars) {
@@ -391,6 +405,52 @@ class WikihowMobileHomepage extends Article {
 				if ($info->worksheetName == "expert") {
 					return 1;
 				}
+			}
+		}
+	}
+
+	/******************
+	 * @param $articleId
+	 * @return |null
+	 * Gets the youtube id for the video linked in the wikitext.
+	 * If no video exists, returns null
+	 */
+	public static function getVideoId($articleId) {
+		$title = Title::newFromID($articleId);
+		$videoSection = Wikitext::getVideoSection(Wikitext::getWikitext($title), false);
+		preg_match('@^{{video:([^|}]*)@i', $videoSection[0], $m);
+
+		if( count($m) < 2 || is_null($m[1]) ) return null;
+
+		$title = Title::newFromText($m[1], NS_VIDEO);
+		$revision = Revision::newFromTitle($title);
+
+		preg_match_all('/{{Curatevideo\|whyoutube\|([^\|]*)\|/', ContentHandler::getContentText( $revision->getContent() ), $m);
+
+		if(count($m) > 1) {
+			return $m[1][0];
+		} else {
+			return null;
+		}
+	}
+
+	/*******
+	 * @param $key
+	 * @param $config
+	 * When the hp_expert config list is changed, make sure all yt videos have the info we
+	 * need for them
+	 */
+	public static function onConfigStorageAfterStoreConfig($key, $config) {
+		if($key == self::EXPERT_LIST) {
+			$articleIds = explode("\n", $config);
+			foreach($articleIds as $articleId) {
+				$youtubeId = WikihowMobileHomepage::getVideoId($articleId);
+
+				if(!is_null($youtubeId)) {
+					//this call will grab it from the db and if it's not there, will start a job to do it
+					SchemaMarkup::getYouTubeVideo(Title::newFromID($articleId), $youtubeId, true);
+				}
+
 			}
 		}
 	}

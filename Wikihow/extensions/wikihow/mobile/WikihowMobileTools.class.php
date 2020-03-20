@@ -4,6 +4,7 @@ if (!defined('MEDIAWIKI')) die();
 
 class WikihowMobileTools {
 	const SMALL_IMG_WIDTH = 460;
+	const IMG_LICENSE_MEMCACHED_KEY = 'img_licenses';
 
 	private static $referencesSection = null;
 
@@ -504,6 +505,8 @@ class WikihowMobileTools {
 		$imageCreators = array();
 		$pageId = $wgTitle->getArticleID();
 
+		$imageLicensesOriginal = self::getImageLicenses( $pageId );
+
 		//deal with swapping out all images for tablet
 		//and putting in the right size image
 		foreach (pq(".mwimg a") as $a) {
@@ -615,16 +618,27 @@ class WikihowMobileTools {
 					pq($img)->attr("retsmallset", $thumb_rs);
 					pq($img)->attr("retbigset", $thumb_rb);
 				}
-				$helper = $helper = new ImageHelper();
-				$imagePage = WikiPage::newFromID($title->getArticleID());
-				$details['licensing'] = $helper->getImageInfoMobile($imagePage, $imageObj);
-				if ($wgUser->isLoggedIn()) {
-					$details['instructions'] .= wfMessage('image_instructions', $title->getFullText())->text();
 
+				$licenseInfo = self::getImageLicenseInfo( $title, $imageLicensesOriginal, $imageObj );
+				$details['licensing'] = $licenseInfo;
+				$imageLicenses[$title->getArticleID()] = $licenseInfo;
+
+				if ( $wgUser->isLoggedIn() ) {
+					$details['instructions'] .= wfMessage( 'image_instructions', $title->getFullText() )->text();
 				}
 
-				pq($a)->append("<div class='image_details' style='display:none'><span style='display:none'>" . htmlentities(json_encode($details)) . "</span></div>");
+				$details = htmlentities( json_encode( $details ) );
+				$detailsInner = Html::rawElement( 'span', ['style' => 'display:none;'],  $details );
+				$detailsAttr = ['class' => 'image_details', 'style' => 'display:none;'];
+				$imageDetailsHtml = Html::rawElement( 'div', $detailsAttr, $detailsInner );
+
+				pq($a)->append( $imageDetailsHtml );
 			}
+		}
+
+		// now save the image license info if it has changed
+		if ( $imageLicenses != $imageLicensesOriginal ) {
+			self::saveImageLicenses( $pageId, $imageLicenses );
 		}
 
 		// Remove logged in templates for logged out users so that they don't display
@@ -654,7 +668,9 @@ class WikihowMobileTools {
 
 		//remove all images in the intro that aren't
 		//marked with the class "introimage"
-		pq("#intro .mwimg:not(.introimage)")->remove();
+		if ($wgTitle->inNamespace(NS_MAIN)) {
+			pq("#intro .mwimg:not(.introimage)")->remove();
+		}
 
 		//let's remove all the empty p's in steps
 		foreach (pq(".section.steps p") as $p) {
@@ -744,8 +760,9 @@ class WikihowMobileTools {
 		//linking to methods for ingredients (if they match)
 		$minimumIngredientsLinkCharacters = 5;
 		foreach (pq('#ingredients h3 .mw-headline') as $list_name) {
-			$header = trim(pq($list_name)->html());
+			$header = pq($list_name)->html();
 			$header = preg_replace('/<.*>/', '', $header); //remove links and refs
+			$header = trim($header);
 
 			if (strlen($header) >= $minimumIngredientsLinkCharacters) {
 				$header_matchable = Sanitizer::escapeIdForLink(htmlspecialchars_decode($header));
@@ -768,9 +785,11 @@ class WikihowMobileTools {
 		}
 
 		if ($config['show-related-articles']) {
-			$relatedsName = RelatedWikihows::getSectionName();
-			$relatedWikihows = new RelatedWikihows( $context, $wgUser, pq( ".section.".$relatedsName ) );
-			$relatedWikihows->addRelatedWikihowsSection();
+			if ( $mobileTemplate && $mobileTemplate->data && $mobileTemplate->data['rightrail']
+			                && $mobileTemplate->data['rightrail']->mRelatedWikihows ) {
+			        $relatedWikihows = $mobileTemplate->data['rightrail']->mRelatedWikihows;
+			        $relatedWikihows->addRelatedWikihowsSection();
+			}
 		}
 
 		//add read more button
@@ -1068,6 +1087,36 @@ class WikihowMobileTools {
 		}
 
 		return $html;
+	}
+
+	// gets list of licences on this page from memcached since it is very expensive to recompute
+	// if not in memcached just return empty array and it will be recalculated later
+	private static function getImageLicenses( $pageId ) {
+		global $wgMemc;
+		$cachekey = wfMemcKey( self::IMG_LICENSE_MEMCACHED_KEY, $pageId );
+		$val = $wgMemc->get( $cachekey );
+		if ( $val ) {
+			return $val;
+		}
+		return array();
+	}
+
+	private static function saveImageLicenses( $pageId, $data ) {
+		global $wgMemc;
+		$cachekey = wfMemcKey( self::IMG_LICENSE_MEMCACHED_KEY, $pageId );
+		$wgMemc->set( $cachekey, $data, 86400 * 30 );
+	}
+
+	private static function getImageLicenseInfo( $imageTitle, $imageLicenses, $imageObject ) {
+		$id = $imageTitle->getArticleID();
+		if ( isset( $imageLicenses[ $id ] ) ) {
+			return $imageLicenses[ $id ];
+		}
+
+		$helper = $helper = new ImageHelper();
+		$imagePage = WikiPage::newFromID( $imageTitle->getArticleID() );
+		$result = $helper->getImageInfoMobile( $imagePage, $imageObject );
+		return $result;
 	}
 
 	private static function fastRenderModifyDOM() {

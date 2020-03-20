@@ -66,9 +66,6 @@ class MobileFrontendHooks {
 		if (GoogleAmp::isAmpSpeedTest($t)) {
 			$skinName = 'SkinMinervaWikihowAmp';
 		}
-		if (GoogleAmp::isAmpCustomAdsTest($t)) {
-			$skinName = 'SkinMinervaWikihowAmp';
-		}
 
 		if ( class_exists( $skinName ) ) {
 			$skin = new $skinName( $context );

@@ -69,4 +69,5 @@
 }
 .menu_messages .mw-echo-state {
     padding: .5em;
+    white-space: normal;
 }

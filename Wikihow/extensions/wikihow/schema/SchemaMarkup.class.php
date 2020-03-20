@@ -680,12 +680,10 @@ class SchemaMarkup {
 		$exploded = explode( '|', trim( $videoTemplateText, '{}' ) );
 		if ( $exploded )  {
 			$last = end( $exploded );
-			if ( strstr( $last, '.jpg' ) ) {
-				$last = Title::newFromText( $last, NS_IMAGE );
-				if ( $last ) {
-					$uploadDate = $last->getEarliestRevTime();
-					$uploadDate = wfTimestamp( TS_ISO_8601, $uploadDate );
-				}
+			$last = Title::newFromText( $last, NS_IMAGE );
+			if ( $last ) {
+				$uploadDate = $last->getEarliestRevTime();
+				$uploadDate = wfTimestamp( TS_ISO_8601, $uploadDate );
 			}
 		}
 
@@ -807,10 +805,11 @@ class SchemaMarkup {
 	 *     main namespace this will be used to purge the cache and regnerate the page after the info
 	 *     has been fetched
 	 * @param  [type] $id YouTube video ID string
+	 * @param  [type] $forceRefresh Forces the function to call out to the YouTube api to get new data
 	 * @return [array|string] Array containing VideoObject schema data or an empty string if schema
 	 *   is currently being fetched
 	 */
-	public static function getYouTubeVideo( $title, $id ) {
+	public static function getYouTubeVideo( $title, $id, $forceRefresh = false ) {
 		global $wgMemc, $wgCanonicalServer;
 
 		$requestKey = "YouTubeInfo({$id})";
@@ -827,7 +826,7 @@ class SchemaMarkup {
 		);
 
 		$info = $wgMemc->get( $cacheKey );
-		if ( $info === false ) {
+		if ( $info === false || $forceRefresh) {
 			// Lookup info in DB
 			$response = AsyncHttp::read( $requestKey );
 			if ( $response && $response['status'] === 200 ) {
@@ -836,7 +835,10 @@ class SchemaMarkup {
 				$info = [
 					'name' => $item->snippet->title,
 					'description' => $item->snippet->description,
-					'thumbnailUrl' => $item->snippet->thumbnails->default->url,
+					'thumbnailUrl' => [
+						$item->snippet->thumbnails->default->url,
+						$item->snippet->thumbnails->high->url
+					],
 					'contentUrl' => "https://www.youtube.com/watch?v={$id}",
 					'embedUrl' => "https://www.youtube.com/embed/{$id}",
 					'interactionStatistic' => [
@@ -866,7 +868,7 @@ class SchemaMarkup {
 
 			// If the DB doesn't have it or it's more than a week old, setup a job to fetch it
 			$lastWeek = wfTimestamp( TS_MW, strtotime( '-1 week' ) );
-			if ( !$response || $response['updated'] < $lastWeek ) {
+			if ( !$response || $response['updated'] < $lastWeek || $forceRefresh ) {
 				$purgeUrls = [];
 				if ( $title->inNamespace( NS_MAIN ) ) {
 					$purgeUrls[] = $wgCanonicalServer . '/' . $title->getPrefixedDBkey();
@@ -887,7 +889,8 @@ class SchemaMarkup {
 					'id' => $id,
 					'requestKey' => $requestKey,
 					'cacheKey' => $cacheKey,
-					'purgeUrls' => $purgeUrls
+					'purgeUrls' => $purgeUrls,
+					'forceRefresh' => $forceRefresh
 				] );
 				JobQueueGroup::singleton()->push( $job );
 			}

@@ -251,54 +251,6 @@ class Ads {
 		return $this->mAdCreator->getGPTDefine();
 	}
 
-	public function modifyForHealthlineTest( $html, $relatedWikihows ) {
-		// first two rr elements are already in the html
-		$rr3 = $this->getRightRailAdHtml( 3 );
-		$html .= $rr3;
-
-		//  add the rr that goes on the top of each method
-		for ( $i = 4; $i < 10; $i++ ) {
-			$rr = $this->getRightRailAdHtml( $i );
-			if ( $rr ) {
-				$html .= $rr;
-			}
-		}
-
-		$doc = phpQuery::newDocument( $html );
-
-		if ( pq( '#sp_stats_sidebox' )->length ) {
-			pq( '#sp_stats_sidebox' )->after( pq( '#rightrail0' ) );
-		} else if ( pq( '#social_proof_sidebox' )->length ) {
-			pq( '#social_proof_sidebox' )->after( pq( '#rightrail0' ) );
-		}
-
-		pq( '#rightrail0' )->next()->prependTo( pq( '#rightrail1 .whad' ) );
-		pq( '#rightrail0' )->after( pq( '#rightrail1' ) );
-
-		pq( '#side_related_articles' )->prependTo( pq( '#rightrail2 .whad' ) );
-		pq( '#rightrail1' )->after( pq( '#rightrail2' ) );
-
-		pq( '#ratearticle_sidebar' )->prependTo( pq( '#rightrail3 .whad' ) );
-		pq( '#rightrail2' )->after( pq( '#rightrail3' ) );
-
-		if ( $relatedWikihows ) {
-			$relatedWikihowsLarger = $relatedWikihows->getSideDataLarger();
-			$attr = ['id' => 'side_related_articles_larger', 'class' => 'sidebox related_articles'];
-			$relatedWikihowsLarger = Html::rawElement( 'div', $attr, $relatedWikihowsLarger );
-			pq( $relatedWikihowsLarger )->prependTo( pq( '#rightrail4 .whad' ) );
-		}
-
-		// now add spacing on the right rail ads
-		pq( '.rr_container' )->addClass( 'nofixed' );
-
-		// clear the heights
-		pq( '.rr_container' )->attr( 'style', '' );
-
-		$rightRailHtml = $doc->htmlOuter();
-
-		return $rightRailHtml;
-	}
-
 	/*
 	 * @param int the doc viewer ad
 	 * @return the html for doc viewer ad

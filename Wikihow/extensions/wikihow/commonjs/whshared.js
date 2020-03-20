@@ -27,7 +27,7 @@ WH.shared = (function () {
 	intersectionObserverRootMargin = "0px 0px 100% 0px",
 	lazyLoadingObserver = null;
 
-	if ('loading' in HTMLImageElement.prototype && WH.nativeBrowserLazyLoadingTest == 1) {
+	if ('loading' in HTMLImageElement.prototype) {
 		useBrowserNativeLazyLoading = true;
 	}
 

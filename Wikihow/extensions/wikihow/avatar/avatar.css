@@ -102,6 +102,10 @@
 	margin: 8px 0 0 8px;
 }
 
+#imgCrop_avatarIn {
+	max-width: initial;
+}
+
 #cropSubmit
 {
 	text-align: right;
