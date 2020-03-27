@@ -409,6 +409,15 @@ class CustomTitle {
 	}
 
 	/**
+	 * Reset title to auto-generated
+	 */
+	public static function dbResetTitle($dbw, Title $title) {
+		$titleTxt = CustomTitle::genTitle( $title );
+		$note = wfMessage( 'custom_note_auto_gen' )->text();
+		self::dbSetCustomTitle( $dbw, $title, $titleTxt, '', $note, CustomTitle::TYPE_AUTO_GENERATED );
+	}
+
+	/**
 	 * Remove a title from the list
 	 */
 	public static function dbRemoveTitle($dbw, Title $title) {
@@ -436,22 +445,29 @@ class CustomTitle {
 	public static function recalculateCustomTitleOnPageSave(WikiPage $wikiPage, User $user, Content $content,
 			string $summary, int $minor, $null1, $null2, int $flags)
 	{
-		$isNew = $flags & EDIT_NEW;
-
-		if (!$isNew) {
-			$title = $wikiPage->getTitle();
-
-			$custom_title = CustomTitle::newFromTitle($title);
-			if (!empty($custom_title) && $custom_title->row['ct_type'] == self::TYPE_AUTO_GENERATED) {
-				self::genTitle($title);
+		$title = $wikiPage->getTitle();
+		if ( $title->inNamespace( NS_MAIN ) && !$title->isRedirect() ) {
+			$custom_title = CustomTitle::newFromTitle( $title );
+			if (
+				// Add new one
+				empty( $custom_title->row ) ||
+				// Update existing (auto-generated only, as to not overwrite a custom one)
+				$custom_title->row['ct_type'] == self::TYPE_AUTO_GENERATED
+			) {
+				$dbw = wfGetDB( DB_MASTER );
+				self::dbResetTitle( $dbw, $title );
 			}
 		}
 	}
 
-	public static function onTitleMoveComplete(Title $oldTitle, Title $newTitle) {
-		$dbw = wfGetDB(DB_MASTER);
-		if ($oldTitle) self::dbRemoveTitle($dbw, $oldTitle);
-		if ($newTitle) self::dbRemoveTitle($dbw, $newTitle);
+	public static function onTitleMoveComplete( Title $oldTitle, Title $newTitle ) {
+		$dbw = wfGetDB( DB_MASTER );
+		if ( $oldTitle ) {
+			self::dbRemoveTitle( $dbw, $oldTitle );
+		}
+		if ( $newTitle && $newTitle->inNamespace( NS_MAIN ) && !$newTitle->isRedirect() ) {
+			self::dbResetTitle($dbw, $newTitle);
+		}
 	}
 
 	public static function onArticleDelete(WikiPage $wikiPage) {

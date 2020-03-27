@@ -13,9 +13,15 @@ require_once __DIR__ . '/../Maintenance.php';
 
 class RefreshDashboardStats extends Maintenance {
 
+	// the directory where we store the log file and PID file
 	const BASE_DIR = '/data/community_dashboard/';
+
+	// refresh the data once a minute
 	const REFRESH_SECONDS = 60.0;
-	const STOP_AFTER_ERRORS = 60; // stop
+
+	// stop after 5 minutes roughly; the service will be restarted a minute
+	// after it is stopped
+	const STOP_AFTER_ERRORS = 5;
 
 	const TOKEN_FILE = 'refresh-stats-token.txt';
 	const LOG_FILE = 'log.txt';

@@ -301,6 +301,10 @@ body {
 	position: relative;
 	overflow: hidden;
 
+	&.hp_noprefix p {
+		margin-top: 5px;
+	}
+
 	a p {
 		font-size: 16px;
 		color: @textColor;
@@ -551,6 +555,15 @@ body {
 	color: #6f8461;
 }
 
+figure {
+	margin: 0;
+	overflow: hidden;
+
+	img {
+		margin: -9.875% 0;
+	}
+}
+
 
 @media @medium {
 	body {
@@ -569,6 +582,10 @@ body {
 		h3 > img {
 			display: none;
 		}
+	}
+
+	.content #hp_expert_container .play_button {
+		top: 13%;
 	}
 
 	.content .play_button {

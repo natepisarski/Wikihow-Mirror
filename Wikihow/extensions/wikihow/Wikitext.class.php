@@ -839,7 +839,7 @@ class Wikitext {
 
 		$intlSuffix = "";
 		if ($wgLanguageCode != "en") {
-			$intlSuffix = "_intl";
+			$intlSuffix = ""; //right now we want intl use the same images as en, but this could easily be changed
 		}
 		if ($wide) {
 			$image = mt_rand(0,1) == 0 ?

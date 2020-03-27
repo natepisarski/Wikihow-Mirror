@@ -9,6 +9,7 @@
 	border-radius: 4px;
 	box-sizing: border-box;
 	color: #434343;
+	word-break: break-word;
 }
 
 .green_box.mobile {

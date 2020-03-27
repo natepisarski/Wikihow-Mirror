@@ -99,7 +99,10 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/contribute/Contribute.php");
 	require_once("$IP/extensions/wikihow/admintools/AdminImageLists.php");
 	require_once("$IP/extensions/wikihow/specialbotblockipwhitelist/BotBlockIPWhitelist.php");
+	require_once("$IP/extensions/wikihow/newpages/NewPages.php");
 	require_once("$IP/extensions/wikihow/TrustedSources/TrustedSources.php");
+	require_once("$IP/extensions/wikihow/ArticleTopMessage/ArticleTopMessage.php");
+	require_once("$IP/extensions/wikihow/Disclaimer/Disclaimer.php");
 }
 
 require_once("$IP/extensions/wikihow/AsyncHttp.php");

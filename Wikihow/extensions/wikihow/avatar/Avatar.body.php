@@ -257,13 +257,13 @@ class Avatar extends UnlistedSpecialPage {
 			// Remove avatar url (av_image) for FB users
 			$user = User::newFromID($u);
 			if ($user && $user->isFacebookUser()) {
-				$sql = "UPDATE avatar set av_image='' where av_user=" . $dbw->addQuotes($u);
+				$sql = "UPDATE avatar set av_image='', av_imageHash=NULL where av_user=" . $dbw->addQuotes($u);
 				$res = $dbw->query($sql, __METHOD__);
 				return "SUCCESS: Facebook avatar removed";
 			}
 			// Remove avatar url (av_image) for G+ users
 			if ($user && $user->isGPlusUser()) {
-				$sql = "UPDATE avatar set av_image='' where av_user=" . $dbw->addQuotes($u);
+				$sql = "UPDATE avatar set av_image='', av_imageHash=NULL where av_user=" . $dbw->addQuotes($u);
 				$res = $dbw->query($sql, __METHOD__);
 				return "SUCCESS: Google+ avatar removed";
 			}
@@ -704,12 +704,31 @@ var cropperSrc = '$cropperSrc';
 		return $text;
 	}
 
+	public static function getImageHash( string $avatarUrl ) {
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $avatarUrl );
+		curl_setopt( $curl, CURLOPT_HEADER, 0 );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, 1 );
+		$response = curl_exec( $curl );
+		$status = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+		if ( !$response || $status != 200 ) {
+			$hash = '! HTTP ' . $status;
+		} else {
+			$hash = md5( $response );
+		}
+		curl_close( $curl );
+		return $hash;
+	}
+
 	public static function updateAvatar(int $whUserId, string $avatarUrl) {
 		global $wgLanguageCode;
 
 		if ($wgLanguageCode != 'en') {
 			return;
 		}
+
+		$avatarHash = self::getImageHash($avatarUrl);
 
 		$dbw = wfGetDB(DB_MASTER);
 		$res = $dbw->select('avatar', ['av_image', 'av_patrol'], ["av_user" => $whUserId]);
@@ -719,14 +738,14 @@ var cropperSrc = '$cropperSrc';
 				$table = 'avatar',
 				$rows = ['av_user' => $whUserId, 'av_image' => $avatarUrl, 'av_patrol' => 0],
 				$uniqueIndexes = ['av_user'],
-				$set = ['av_image' => $avatarUrl, 'av_patrol' => 0]
+				$set = ['av_image' => $avatarUrl, 'av_imageHash' => $avatarHash, 'av_patrol' => 0]
 			);
 		} elseif ($row->av_image && ($row->av_patrol == 0 || $row->av_patrol == 1)) {
 			$dbw->upsert(
 				$table = 'avatar',
 				$rows = ['av_user' => $whUserId, 'av_image' => $avatarUrl],
 				$uniqueIndexes = ['av_user'],
-				$set = ['av_image' => $avatarUrl]
+				$set = ['av_image' => $avatarUrl, 'av_imageHash' => $avatarHash]
 			);
 		}
 	}

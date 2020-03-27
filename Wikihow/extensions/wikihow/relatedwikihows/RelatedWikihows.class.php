@@ -185,6 +185,12 @@ class RelatedWikihows {
 	var $mIdName = "relatedwikihows";
 	var $mAd = null;
 
+	static $relatedWikihowsInstance = null;
+
+	public static function getRelatedWikihows() {
+		return self::$relatedWikihowsInstance;
+	}
+
 	public function __construct( $context, $user, $relatedSection = '' ) {
 		$title = $context->getTitle();
 		$this->mTitle = $title;
@@ -212,6 +218,7 @@ class RelatedWikihows {
 		}
 
 		$this->mAmpMode = GoogleAmp::isAmpMode( $context->getOutput() );
+		self::$relatedWikihowsInstance = $this;
 	}
 
 	/*

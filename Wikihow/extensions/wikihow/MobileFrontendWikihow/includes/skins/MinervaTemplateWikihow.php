@@ -37,6 +37,10 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		// TODO this does not need to be so high up in the page load!
 		$pageCenterInner .= $this->getGDPRHtml( $data );
 
+		if (class_exists('ArticleTopMessage')) {
+			$pageCenterInner .= ArticleTopMessage::showArticleTopMessage();
+		}
+
 		$pageCenterInner .= $this->getBannersHtml( $data );
 
 		if ($this->isMainPage) {
@@ -576,7 +580,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			if ( $tab['data-link'] ) {
 				$navAnchorAttr['data-link'] = $tab['data-link'];
 			}
-			$navAnchor = Html::element( 'a', $navAnchorAttr, $tab['text'] );
+			$navAnchor = Html::rawElement( 'a', $navAnchorAttr, $tab['text'] );
 
 			$liAttr = [
 				'id' => $tabId . '_li',

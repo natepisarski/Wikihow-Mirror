@@ -39,7 +39,7 @@ class TitusMaintenance extends Maintenance {
 			$this->updateHistorical();
 			$this->trimHistorical();
 			$this->incrementTitusDatestamp();
-			$this->removeDeletedPages();
+			$this->flagDeletedPages();
 			$this->removeRedirects();
 
 			$this->updateTitus();
@@ -185,6 +185,66 @@ class TitusMaintenance extends Maintenance {
 		$today = wfTimestamp(TS_MW, strtotime(date('Ymd', time())));
 		$sql = "UPDATE titus_intl set ti_datestamp = '$today' WHERE ti_language_code='". $wgLanguageCode . "'";
 		$this->performMaintenanceQuery($sql, __METHOD__);
+	}
+
+	private function flagDeletedPages() {
+		global $wgLanguageCode, $wgIsTitusServer;
+
+		$dbr = wfGetDB(DB_REPLICA);
+		$pageTable = $this->getWikiDBName() . '.page';
+		$titusTable = $wgIsTitusServer
+			? TitusDB::getDBName() . '.' . TitusDB::TITUS_INTL_TABLE_NAME
+			: Misc::getLangDB('en') . '.titus_copy';
+
+		// Find pages in `titus_intl` that are missing from `page`
+
+		$tables = [ $titusTable, $pageTable ];
+		$fields = [ 'ti_page_id' ];
+		$where = [
+			'ti_language_code' => $wgLanguageCode,
+			'page_id IS NULL', // the page was deleted...
+			'ti_deleted_date IS NULL' // ... but is not yet flagged as such
+
+		];
+		$opts = [];
+		$join = [ $pageTable => [ 'LEFT JOIN', [ 'ti_page_id = page_id' ] ] ];
+		$rows = $dbr->select($tables, $fields, $where, __METHOD__, $opts, $join);
+		$aids = []; // [ page_id => log_timestamp ]
+		foreach ($rows as $r) {
+			$aid = (int)$r->ti_page_id;
+			$aids[$aid] = '';
+		}
+
+		if (!$aids) {
+			return;
+		}
+
+		// Find in the logs when those pages were removed
+
+		$tables = [ $this->getWikiDBName() . '.logging' ];
+		$fields = [ 'log_page', 'log_timestamp' => 'MAX(log_timestamp)' ];
+		$where = [ 'log_page' => array_keys($aids), 'log_type' => 'delete', 'log_action' => 'delete' ];
+		$opts = [ 'GROUP BY' => 'log_page' ];
+		$rows = $dbr->select($tables, $fields, $where, __METHOD__, $opts);
+		foreach ($rows as $r) {
+			$aid = (int)$r->log_page;
+			$aids[$aid] = $r->log_timestamp;
+		}
+
+		// Update ti_deleted_date
+
+		$dbw = wfGetDB(DB_MASTER);
+		foreach ($aids as $aid => $timestamp) {
+			$dbw->update(
+				$titusTable,
+				[ 'ti_deleted_date' => $timestamp ],
+				[ 'ti_language_code' => $wgLanguageCode, 'ti_page_id' => $aid ],
+				__METHOD__
+			);
+		}
+
+		$count = count($aids);
+		print "Updated 'ti_deleted_date' for $count articles\n";
 	}
 
 	private function removeDeletedPages() {

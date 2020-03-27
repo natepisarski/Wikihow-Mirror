@@ -851,12 +851,14 @@ abstract class AdCreator {
 			if ( $this->mLateLoadDFP == false ) {
 				$category = $this->getCategoryForDFP();
 				$isCoppa = self::isChildDirectedPage() ? "true" : "false";
+				$loadGPT = $this->loadGPT();
 				$dfpSmallTest = 'false';
 				if ( $this->isDFPSmallTest() ) {
 					$dfpSmallTest = 'true';
 				}
 				//$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
 				$dfpScript = "var bucketId = '$this->mBucketId';";
+				$dfpScript .= "var loadGPT = $loadGPT;";
 				$dfpScript .= "var dfpSmallTest = $dfpSmallTest;";
 				$dfpScript .= "var dfpCategory = '$category';";
 				$dfpScript .= "var isCoppa = '$isCoppa';";
@@ -881,6 +883,10 @@ abstract class AdCreator {
 			return false;
 		}
 		return false;
+	}
+
+	private function loadGPT() {
+		return 1;
 	}
 
 	private function getCategoryForDFP() {
@@ -984,7 +990,7 @@ abstract class AdCreator {
 		$gpt .= "function defineGPTSlots() {\n";
 		// TODO in the future we can possibly define the GPT slot in js along with the new BodyAd call
 		$gpt .= implode( $this->mGptSlotDefines );
-		if ( self::isChildDirectedPage() &&  intval( $this->mBucketId ) <= 10 ) {
+		if ( self::isChildDirectedPage() ) {
 			$gpt .= "googletag.pubads().setTagForChildDirectedTreatment(1);\n";
 		}
 		$gpt .= "googletag.pubads().enableSingleRequest();\n";
@@ -1011,6 +1017,10 @@ abstract class AdCreator {
 		}
 
 		if ( $this->mPageId == 400630 ) {
+			return true;
+		}
+
+		if ( intval( $this->mBucketId ) == 20 ) {
 			return true;
 		}
 

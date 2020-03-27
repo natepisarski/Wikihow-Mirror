@@ -40,9 +40,12 @@ class WikihowMobileHomepage extends Article {
 		$out->addModules(['zzz.mobile.wikihow.homepage.scripts']);
 
 		$vars = [
-			'howto' => wfMessage('howto_prefix')->text(),
+			'howto' => wfMessage('howto_prefix')->showIfExists(),
 			'hp_trustworthy_cta' => wfMessage('hp_trustworthy_cta')->text()
 		];
+		if( !wfMessage('howto_prefix')->exists() ) {
+			$vars['hp_noprefix'] = true;
+		}
 
 		//coauthor
 		$this->getCoauthorArticles($vars);
@@ -259,7 +262,7 @@ class WikihowMobileHomepage extends Article {
 
 			$info = SchemaMarkup::getYouTubeVideo($title, $youtubeId);
 
-			if ( empty( $info ) || $info === false ) continue;
+			if ( empty( $info ) || $info === false  || !is_array($info['thumbnailUrl'])) continue;
 
 			$thumb = $info['thumbnailUrl'][count($info['thumbnailUrl']) - 1];
 
@@ -267,7 +270,8 @@ class WikihowMobileHomepage extends Article {
 				'url' => $title->getLocalURL('#Video'),
 				'title' => $title->getText(),
 				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => $thumb] ),
-				'isVideo' => true
+				'isVideo' => true,
+				'needsCrop' => true //these videos are from youtube and the figure element to allow us to crop out the black bars
 			];
 		}
 
@@ -356,7 +360,7 @@ class WikihowMobileHomepage extends Article {
 		return $thumb->getUrl();
 	}
 
-	public static function categoryWidget() {
+	public static function categoryWidget($showWikihow = false) {
 		global $wgCategoryNames, $wgCategoryNamesEn;
 
 		$categories = [];
@@ -381,7 +385,7 @@ class WikihowMobileHomepage extends Article {
 				$catTitle = Title::newFromText("Category:" . $category);
 			}
 
-			if(strtolower($category) ==  "wikihow") continue;
+			if(strtolower($category) ==  "wikihow" && !$showWikihow) continue;
 
 			$categories[] = [
 				'icon' => CategoryListing::getCategoryIcon($category),

@@ -1,0 +1,160 @@
+@import '../../less/variables.less';
+
+#section_0.special_title {
+	padding-left: 18px !important;
+}
+
+#np_categories {
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	grid-gap: 10px;
+
+	span {
+		border: 1px solid #e6e6e6;
+		border-radius: 7px;
+		font-size: 14px;
+		vertical-align: middle;
+		display: table;
+		width: 100%;
+		height: 32px;
+		margin-bottom: 2px;
+		overflow: hidden;
+
+		a {
+			padding-left: 14px;
+			line-height: 32px;
+			color: #444f45;
+		}
+
+		img {
+			float: left;
+			width: 22px;
+			background-color: #94B778;
+			padding: 5px;
+		}
+	}
+}
+
+
+
+.np_section {
+	background-color: #ffffff;
+	padding: 15px 10px 40px 10px;
+	margin-bottom: 10px;
+	border-radius: 6px;
+	margin-top: -20px;
+}
+
+.np_grid {
+	display: grid;
+	grid-template-columns: minmax(0,1fr);
+	grid-gap: 10px;
+}
+
+.content h2 {
+	clear: both;
+	font-size: 20px;
+	margin-top: 30px;
+	font-weight: bold;
+	position: relative;
+
+	span {
+		top: -50px;
+		display: block;
+		position: absolute;
+	}
+
+	a {
+		float: right;
+		font-size: 16px;
+	}
+}
+
+.stable .content .np_thumb {
+	border: 1px solid #dfdfdf;
+	border-radius: 7px;
+	position: relative;
+	overflow: hidden;
+	padding: 10px 10px 20px 10px;
+
+	span {
+		font-size: 11px;
+		color: #808080;
+	}
+
+	.np_title {
+		font-size: 16px;
+		color: #6E8A57;
+		font-weight: bold;
+		margin-bottom: 0;
+		line-height: 21px;
+	}
+
+	.np_text {
+		margin: 10px 0;
+		font-size: 14px;
+		color: #707070;
+		line-height: 18px;
+	}
+
+	.np_date {
+		text-transform: uppercase;
+		font-size: 11px;
+		color: #707070;
+		margin-bottom: 0;
+		line-height: normal;
+		font-weight: bold;
+		position: absolute;
+		bottom: 10px;
+	}
+
+	a:hover {
+		text-decoration: none;
+
+		span, .np_title {
+			color: #2483ef;
+			text-decoration: none;
+		}
+	}
+}
+
+.np_next {
+	float: right;
+	margin-top: 10px;
+}
+.np_prev {
+	float: left;
+	margin-top: 10px;
+}
+
+@media @medium {
+	#np_categories {;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.np_grid {
+		grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+	}
+
+	.np_section {
+		padding: 15px 20px 40px 20px;
+		margin-top: -50px;
+	}
+
+	h2 a {
+		display: block;
+		float: right;
+		font-size: 16px;
+	}
+}
+
+
+@media @large {
+	#np_categories {;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.np_grid {
+		grid-template-columns: repeat(3,minmax(0,1fr));
+	}
+}

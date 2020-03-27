@@ -143,7 +143,7 @@ class AdminEditInfo extends UnlistedSpecialPage {
 		$dbw = wfGetDB(DB_MASTER);
 
 		if ('default' == $type) {
-			CustomTitle::dbRemoveTitle($dbw, $title);
+			CustomTitle::dbResetTitle($dbw, $title);
 		} elseif ('edited' == $type && $pageTitle) {
 			CustomTitle::dbSetCustomTitle($dbw, $title, $pageTitle, $heading, $note);
 		} else {
@@ -152,7 +152,7 @@ class AdminEditInfo extends UnlistedSpecialPage {
 
 		$ct = CustomTitle::newFromTitle($title);
 		if ($ct) {
-			return $ct->getTitle();
+			return $ct->getData();
 		} else {
 			return '';
 		}
@@ -238,14 +238,19 @@ class AdminEditInfo extends UnlistedSpecialPage {
 				$pageTitle = $req->getVal('data', '');
 				$heading = $req->getVal('heading', '');
 				$note = $req->getVal('note', '');
-				$msg = 'saved';
-				$pageTitle = self::savePageTitle($type, $page, $pageTitle, $heading, $note);
-				$result = array(
-					'result' => $msg,
-					'data' => $pageTitle,
-					'heading' => $type !== 'default' ? $heading : '',
-					'note' => $type !== 'default' ? $note : ''
-				);
+				$data = self::savePageTitle($type, $page, $pageTitle, $heading, $note);
+				if ( $data ) {
+					$result = array(
+						'result' => 'saved',
+						'data' => $data['title'],
+						'heading' => $data['heading'],
+						'note' => $data['note']
+					);
+				} else {
+					$result = array(
+						'result' => 'error'
+					);
+				}
 			} elseif ('list-all-csv' == $action) {
 				self::listPageTitlesCSV($titles);
 			} else {

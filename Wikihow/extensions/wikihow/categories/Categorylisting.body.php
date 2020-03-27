@@ -20,7 +20,9 @@ class CategoryListing extends SpecialPage {
 
 		$out = $this->getOutput();
 
-		$wgHooks['UseMobileRightRail'][] = ['CategoryListing::removeSideBarCallback'];
+		if (RequestContext::getMain()->getLanguage()->getCode() == "en") {
+			$wgHooks['UseMobileRightRail'][] = ['CategoryListing::removeSideBarCallback'];
+		}
 
 		$this->setHeaders();
 		$out->setPageTitle(wfMessage("Categories")->text());
@@ -44,18 +46,27 @@ class CategoryListing extends SpecialPage {
 
 	function renderMobile($catData) {
 		$out = $this->getOutput();
-		$this->getCategoryListingData($catData);
 
-		$out->addModuleStyles('ext.wikihow.mobile_category_listing');
-		//$css = Misc::getEmbedFile('css', __DIR__ . '/category-listing-responsive.less');
-		//$out->addHeadItem('listcss', HTML::inlineStyle($css));
+		if (RequestContext::getMain()->getLanguage()->getCode() != "en") {
+			$out->addHTML("<br /><br />");
+			$out->addHTML("<div class='section_text'>");
+			foreach ($catData['subcats'] as $row) {
+				$out->addHTML("<div class='thumbnail'><a href='{$row['url']}'><img src='{$row['img_url']}'/><div class='text'><p><span>{$row['cat_title']}</span></p></div></a></div>");
+			}
+			$out->addHTML("<div class='clearall'></div>");
+			$out->addHTML("</div><!-- end section_text -->");
+		} else {
+			$this->getCategoryListingData($catData);
 
-		$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
-		$options = array('loader' => $loader);
-		$m = new Mustache_Engine($options);
-		$html = $m->render("/templates/responsive.mustache", $catData);
+			$out->addModuleStyles('ext.wikihow.mobile_category_listing');
 
-		$out->addHTML($html);
+			$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
+			$options = array('loader' => $loader);
+			$m = new Mustache_Engine($options);
+			$html = $m->render("/templates/responsive.mustache", $catData);
+
+			$out->addHTML($html);
+		}
 
 		$out->setPageTitle(wfMessage('categories')->text());
 	}
@@ -188,47 +199,52 @@ class CategoryListing extends SpecialPage {
 	}
 
 	public static function getCategoryIcon($catName) {
-		switch($catName) {
-			case 'Arts and Entertainment':
-				return '/extensions/wikihow/categories/images/arts_and_entertainment.svg';
-			case 'Cars & Other Vehicles':
-				return '/extensions/wikihow/categories/images/cars_and_other_vehicles.svg';
-			case 'Computers and Electronics':
-				return '/extensions/wikihow/categories/images/computers_and_electronics.svg';
-			case 'Education and Communications':
-				return '/extensions/wikihow/categories/images/education_and_communication.svg';
-			case 'Family Life':
-				return '/extensions/wikihow/categories/images/family_life.svg';
-			case 'Finance and Business':
-				return '/extensions/wikihow/categories/images/finance_and_business.svg';
-			case 'Food and Entertaining':
-				return '/extensions/wikihow/categories/images/food_and_entertaining.svg';
-			case 'Health':
-				return '/extensions/wikihow/categories/images/health.svg';
-			case 'Hobbies and Crafts':
-				return '/extensions/wikihow/categories/images/hobbies_and_crafts.svg';
-			case 'Holidays and Traditions':
-				return '/extensions/wikihow/categories/images/holidays_and_tradition.svg';
-			case 'Home and Garden':
-				return '/extensions/wikihow/categories/images/home_and_garden.svg';
-			case 'Personal Care and Style':
-				return '/extensions/wikihow/categories/images/personal_care_and_style.svg';
-			case 'Pets and Animals':
-				return '/extensions/wikihow/categories/images/pets_and_animals.svg';
-			case 'Philosophy and Religion':
-				return '/extensions/wikihow/categories/images/philosophy_and_religion.svg';
-			case 'Relationships':
-				return '/extensions/wikihow/categories/images/relationships.svg';
-			case 'Sports and Fitness':
-				return '/extensions/wikihow/categories/images/sports_and_fitness.svg';
-			case 'Travel':
-				return '/extensions/wikihow/categories/images/travel.svg';
-			case 'Work World':
-				return '/extensions/wikihow/categories/images/work_world.svg';
-			case 'Youth':
-				return '/extensions/wikihow/categories/images/youth.svg';
-			case 'WikiHow':
-				return '/extensions/wikihow/categories/images/wikihow.svg';
+		global $wgCategoryNames;
+		foreach($wgCategoryNames as $key => $cat) {
+			if($catName == $cat) {
+				switch($key) {
+					case CAT_ARTS:
+						return '/extensions/wikihow/categories/images/arts_and_entertainment.svg';
+					case CAT_CARS:
+						return '/extensions/wikihow/categories/images/cars_and_other_vehicles.svg';
+					case CAT_COMPUTERS:
+						return '/extensions/wikihow/categories/images/computers_and_electronics.svg';
+					case CAT_EDUCATION:
+						return '/extensions/wikihow/categories/images/education_and_communication.svg';
+					case CAT_FAMILY:
+						return '/extensions/wikihow/categories/images/family_life.svg';
+					case CAT_FINANCE:
+						return '/extensions/wikihow/categories/images/finance_and_business.svg';
+					case CAT_FOOD:
+						return '/extensions/wikihow/categories/images/food_and_entertaining.svg';
+					case CAT_HEALTH:
+						return '/extensions/wikihow/categories/images/health.svg';
+					case CAT_HOBBIES:
+						return '/extensions/wikihow/categories/images/hobbies_and_crafts.svg';
+					case CAT_HOLIDAYS:
+						return '/extensions/wikihow/categories/images/holidays_and_tradition.svg';
+					case CAT_HOME:
+						return '/extensions/wikihow/categories/images/home_and_garden.svg';
+					case CAT_PERSONAL:
+						return '/extensions/wikihow/categories/images/personal_care_and_style.svg';
+					case CAT_PETS:
+						return '/extensions/wikihow/categories/images/pets_and_animals.svg';
+					case CAT_PHILOSOPHY:
+						return '/extensions/wikihow/categories/images/philosophy_and_religion.svg';
+					case CAT_RELATIONSHIPS:
+						return '/extensions/wikihow/categories/images/relationships.svg';
+					case CAT_SPORTS:
+						return '/extensions/wikihow/categories/images/sports_and_fitness.svg';
+					case CAT_TRAVEL:
+						return '/extensions/wikihow/categories/images/travel.svg';
+					case CAT_WORK:
+						return '/extensions/wikihow/categories/images/work_world.svg';
+					case CAT_YOUTH:
+						return '/extensions/wikihow/categories/images/youth.svg';
+					case CAT_WIKIHOW:
+						return '/extensions/wikihow/categories/images/wikihow.svg';
+				}
+			}
 		}
 	}
 

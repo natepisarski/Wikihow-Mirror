@@ -135,7 +135,7 @@ class SpecialPageFactory {
 		'Newimages' => \SpecialNewFiles::class,
 		'Log' => \SpecialLog::class,
 		'Watchlist' => \SpecialWatchlist::class,
-		'Newpages' => \SpecialNewpages::class,
+		//'Newpages' => \SpecialNewpages::class,
 		'Recentchanges' => \SpecialRecentChanges::class,
 		'Recentchangeslinked' => \SpecialRecentChangesLinked::class,
 		'Tags' => \SpecialTags::class,

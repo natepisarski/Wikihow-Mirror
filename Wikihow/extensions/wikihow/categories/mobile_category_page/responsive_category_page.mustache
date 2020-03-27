@@ -69,22 +69,6 @@
 	{{/hasSubcats}}
 	<div class="clearall"></div>
 </div>
-{{#hasRelated}}
-	<div class="cat_section" id="cat_related">
-		<h2>Featured Articles from {{topCat}}</h2>
-		<div id="cat_related_articles">
-			{{#related}}
-				<div class="{{classes}}">
-					<a href="{{url}}">
-						<img data-src="{{data-src}}" src="{{data-src}}" id="{{id}}" alt="" />
-						<div class="text"><p>{{{textBlock}}}</p></div>
-					</a>
-				</div>
-			{{/related}}
-		</div>
-		<div class="clearall"></div>
-	</div>
-{{/hasRelated}}
 {{#furtherEditing}}
 	<div class="cat_section" id="cat_furtherediting">
 		{{{furtherEditing}}}

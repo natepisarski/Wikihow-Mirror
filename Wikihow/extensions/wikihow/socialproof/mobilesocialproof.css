@@ -1,8 +1,13 @@
 #social_proof_mobile {
 	background-color: #fff;
 	font-size: .9em;
-	line-height: 1.2em;
 }
+
+#social_proof_mobile,
+#social_proof_mobile p {
+ line-height: 1.2em;
+}
+
 .sp_inner {
 	overflow:auto;
 }
@@ -433,7 +438,8 @@
 
 /* @medium */
 @media only screen and (min-width:728px) {
-	#social_proof_mobile {
+	#social_proof_mobile,
+	#social_proof_mobile p {
 		font-size: inherit;
 		line-height: inherit;
 	}

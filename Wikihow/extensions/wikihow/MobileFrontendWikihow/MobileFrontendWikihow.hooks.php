@@ -333,7 +333,8 @@ class MobileFrontendWikiHowHooks {
 			'Notifications',
 			'HighSchoolHacks',
 			'RequestTopic',
-			'CreatePage'
+			'CreatePage',
+			'Newpages'
 		];
 
 		$responsiveTools = [

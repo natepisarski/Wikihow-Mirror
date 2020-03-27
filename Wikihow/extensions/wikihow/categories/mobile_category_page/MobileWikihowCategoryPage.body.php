@@ -204,39 +204,6 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			}
 			$vars['all'] = $allArticles;
 
-			//Now the related section (which only shows if the "all articles" section isn't full AND there isn't a featured section
-			if (!isset($vars['pagination']) && $vars['hasFeatured'] != true) {
-				if ($isTopCat) {
-					$topCat = $categoryTitle->getDBkey();
-					$topCatText = $categoryTitle->getText();
-				} else {
-					$topCat = CategoryHelper::getTopCategory($categoryTitle);
-					if ($topCat) {
-						$topCatText = Title::newFromDBkey($topCat, NS_CATEGORY)->getText();
-					} else {
-						$topCatText = "";
-					}
-				}
-
-				$pageIds = TopCategoryData::getPagesForCategory($topCat, TopCategoryData::FEATURED, 12);
-				$featuredArticles = [];
-				foreach ($pageIds as $pageId) {
-					$addedTitle = Title::newFromID($pageId);
-					if ($addedTitle) {
-						$info = $this->getArticleThumbWithPathFromTitle($addedTitle);
-						if ($info) {
-							$featuredArticles[] = $info;
-						}
-					}
-				}
-
-				if (count($featuredArticles)) {
-					$vars['hasRelated'] = true;
-					$vars['topCat'] = $topCatText;
-					$vars['related'] = $featuredArticles;
-				}
-			}
-
 			if ($ctx->getUser()->isLoggedIn()) {
 				$furtherEditing = $viewer->getArticlesFurtherEditing($viewer->articles, $viewer->article_info);
 				if ($furtherEditing != "") {

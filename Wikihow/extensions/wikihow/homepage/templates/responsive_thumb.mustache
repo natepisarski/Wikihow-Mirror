@@ -1,4 +1,4 @@
-<div class="hp_thumb">
+<div class="hp_thumb {{#hp_noprefix}}hp_noprefix{{/hp_noprefix}}">
 	{{#isExpert}}
 		<div class="hp_expert">EXPERT</div>
 	{{/isExpert}}
@@ -6,7 +6,9 @@
 		{{#isVideo}}
 			<img src="/extensions/wikihow/homepage/images/play.png" loading="lazy" class="play_button" />
 		{{/isVideo}}
-		{{{image}}}
+		{{#needsCrop}}<figure>{{/needsCrop}}
+			{{{image}}}
+		{{#needsCrop}}</figure>{{/needsCrop}}
 		<div>
 			<span>{{howto}}</span>
 			<p>{{title}}</p>

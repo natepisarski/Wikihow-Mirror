@@ -69,8 +69,13 @@
 			}
 		},
 
+		validPage: function() {
+			return mw.config.get('wgNamespaceNumber') === 0 && this.$toc.length !== 0 ||
+				mw.config.get('wgNamespaceNumber') === 4;
+		},
+
 		initialize: function() {
-			if (mw.config.get('wgNamespaceNumber') !== 0 || this.$toc.length === 0) return;
+			if (!this.validPage()) return;
 
 			//sticky toc for small; inline toc for medium and large
 			this.stickyToc = $(window).width() < WH.mediumScreenMinWidth;

@@ -74,8 +74,6 @@ class RightRail {
 			!$isDocViewer &&
 			$action != 'edit';
 
-		$relatedWikihows = new RelatedWikihows( $context, $context->getUser());
-
 		// TODO add adblock notice
 		$siteNotice = $isMainPage || $isDocViewer ? '' : WikihowSkinHelper::getSiteNotice();
 		$cookieNotice = $isMainPage || $isDocViewer ? '' : WikihowSkinHelper::getCookieNotice();
@@ -139,11 +137,11 @@ class RightRail {
 		//$out->addModules('ext.wikihow.usercompletedimages');
 		//}
 
-		$rightRail = new RightRail( $skin, $wgUser, $wgLanguageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $relatedWikihows, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $press_sidebox, $isResponsive );
+		$rightRail = new RightRail( $skin, $wgUser, $wgLanguageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $press_sidebox, $isResponsive );
 		return $rightRail;
 	}
 
-	public function __construct( $skin, $user, $languageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $relatedWikihows, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $pressSidebox, $isResponsive ) {
+	public function __construct( $skin, $user, $languageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $pressSidebox, $isResponsive ) {
 		$this->mSkin = $skin;
 		$this->mTitle = $skin->getContext()->getTitle();
 		$this->mUser = $user;
@@ -160,7 +158,6 @@ class RightRail {
 		$this->mIsDocViewer = $isDocViewer;
 		$this->mIsLoggedIn = $this->mUser->getID() > 0;
 		$this->mShowRCWidget = $showRCWidget;
-		$this->mRelatedWikihows = $relatedWikihows;
 
 		$this->mSiteNotice = $siteNotice;
 		$this->mCookieNotice = $cookieNotice;
@@ -192,7 +189,7 @@ class RightRail {
 		else {
 			$html = self::getRightRailHtmlTop();
 			$html .= self::getRightRailHtmlBottom();
-			$html = $this->mAds->modifyRightRailForAdTest( $html, $this->mRelatedWikihows );
+			$html = $this->mAds->modifyRightRailForAdTest( $html );
 		}
 
 		if ( Misc::isFastRenderTest() ) {
@@ -359,10 +356,14 @@ class RightRail {
 	public function getRelatedOutput() {
 		if ( !self::isNormalArticleView() ) return '';
 
+		$relatedWikihows = RelatedWikihows::getRelatedWikihows();
+		if ( !$relatedWikihows ) {
+			return '';
+		}
 		$vars = [
 			'id' => 'side_related_articles',
 			'class' => 'related_articles',
-			'contents' => $this->mRelatedWikihows->getSideData()
+			'contents' => $relatedWikihows->getSideData()
 		];
 
 		return $this->makeSidebox($vars);

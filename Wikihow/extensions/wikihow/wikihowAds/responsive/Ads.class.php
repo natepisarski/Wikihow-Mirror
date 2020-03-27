@@ -237,7 +237,7 @@ class Ads {
 	 *
 	 * due to this bug I am disabling this function until we fix the issue
 	 * */
-	public function modifyRightRailForAdTest( $html, $relatedWikihows ) {
+	public function modifyRightRailForAdTest( $html ) {
 		if ( !$this->isActive() ) {
 			return $html;
 		}

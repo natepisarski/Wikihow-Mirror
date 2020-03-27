@@ -492,7 +492,7 @@ class WHVid {
 
 		//only do this on mobile. This happens for desktopp in WikihowArticle.class.php
 		if($hasYTVideo && $isYTSummaryArticle && $isMobile && !( $user && $user->hasGroup('staff') )) {
-			pq( '.quicksummary')->remove();
+			pq( '.summary_with_video')->remove();
 		}
 	}
 

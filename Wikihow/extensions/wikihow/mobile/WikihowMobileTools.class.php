@@ -785,11 +785,9 @@ class WikihowMobileTools {
 		}
 
 		if ($config['show-related-articles']) {
-			if ( $mobileTemplate && $mobileTemplate->data && $mobileTemplate->data['rightrail']
-			                && $mobileTemplate->data['rightrail']->mRelatedWikihows ) {
-			        $relatedWikihows = $mobileTemplate->data['rightrail']->mRelatedWikihows;
-			        $relatedWikihows->addRelatedWikihowsSection();
-			}
+			$relatedsName = RelatedWikihows::getSectionName();
+			$relatedWikihows = new RelatedWikihows( $context, $wgUser, pq( ".section.".$relatedsName ) );
+			$relatedWikihows->addRelatedWikihowsSection();
 		}
 
 		//add read more button
@@ -798,7 +796,27 @@ class WikihowMobileTools {
 			pq('.relatedwikihows')->before($rm_button);
 		}
 
-		self::formatReferencesSection( $skin );
+		$referencesSection = pq( self::getReferencesSection() );
+
+		//self::compareReferencesHtml( $skin );
+		// get the php querty document id because the references code changes it
+		// so ew can set it back later
+		$phpQueryDocumentId = $referencesSection->getDocumentID();
+		$referencesSectionHtml = self::getNewReferencesSection( $referencesSection );
+		phpQuery::selectDocument($phpQueryDocumentId);
+		//$referencesSectionHtml = self::formatReferencesSection( $skin );
+		if ( $referencesSectionHtml ) {
+			if ( pq( "#aboutthisarticle" )->length > 0 ) {
+				pq( "#aboutthisarticle" )->before( $referencesSectionHtml );
+			} else {
+				pq( '#article_rating_mobile' )->before( $referencesSectionHtml );
+			}
+		}
+		// this sets the php querty document id back to what it was before
+
+		// because we appended the new references section we need to remove the old one
+		pq( $referencesSection )->remove();
+
 		if(class_exists("TrustedSources")) {
 			TrustedSources::markTrustedSources($pageId);
 		}
@@ -1653,8 +1671,9 @@ class WikihowMobileTools {
 	}
 
 	private static function formatReferencesSection( $skin ) {
-		$sourcesSection = pq( self::getReferencesSection() );
+		$sourcesSection = pq( self::getReferencesSection() )->clone();
 
+		pq( $sourcesSection )->find( '.section-heading' )->removeAttr( 'onclick' );
 		pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="firstref references">' );
 
 		//open all links in new tabs
@@ -1724,13 +1743,99 @@ class WikihowMobileTools {
 			$referencesHtml .= $articleInfoHtml . $sourcesSection;
 		}
 
-		if ( pq( "#aboutthisarticle" )->length > 0 )
-			pq( "#aboutthisarticle" )->before( $referencesHtml );
-		else
-			pq( '#article_rating_mobile' )->before( $referencesHtml );
+		return $referencesHtml;
+	}
 
-		// because we appended the new references section we need to remove this one
-		pq( $sourcesSection )->remove();
+	private static function getReferencesListFromReferencesSection( $referencesText ) {
+		$result = [];
+
+		$referencesText->find('a')->attr('target','_blank');
+		// take out all li items and move them in to an ol
+		foreach ( $referencesText->find( 'li' ) as $listItem ) {
+			// clone the item so  we do not mess with the data in our list we are iterating over
+			$tempListItem = phpQuery::newDocument( pq( $listItem ) );
+
+			// remove any sub lists from each item
+			$tempListItem->find( 'ol,ul' )->remove();
+
+			$text = $tempListItem->text();
+			// skip any empty items
+			if ( !trim( $text ) ) {
+				continue;
+			}
+			// if the item does not have a ref text class wrap it in a span with that class
+			if ( $tempListItem->find( '.reference-text' )->length == 0 ) {
+				$tempListItem->find('li')->wrapInner('<span class="reference-text">');
+			}
+			$result[] = $tempListItem->html();
+		}
+
+		return $result;
+	}
+
+	// input: referencesSection - php query object which is the references section
+	// output: the html of the reformatted references section
+	private static function getNewReferencesSection( $referencesSection ) {
+		$refsList = self::getReferencesListFromReferencesSection( $referencesSection->find( '.section_text' ) );
+		if ( !count( $refsList ) ) {
+			return '';
+		}
+
+		// these for now are used for ids and class names below but that should be changed to just english strings
+		$refMsg = wfMessage( 'references' )->text();
+		$refLowerCase = strtolower( $refMsg );
+
+		// create the first section
+		// TODO all these classes are not needed eventually
+		$sectionHeadingInner = Html::element( 'div', ['class' => 'mw-ui-icon mw-ui-icon-element indicator', 'id' => 'references_first'] );
+		$sectionHeadingInner .= Html::element( 'span', ['class' => 'mw-headline', 'id' => $refMsg], $refMsg );
+		$sectionHeading = Html::rawElement( "h2", ['class' => 'section-heading'], $sectionHeadingInner );
+
+		$refsFirst = array_slice( $refsList, 0, 9 );
+		$refsFirst = implode($refsFirst);
+		$refsFirstList = Html::rawElement( 'ol', ['class' => 'firstref references'], $refsFirst );
+		$sectionText = Html::rawElement( 'div', ['id' => $refLowerCase, 'class' => 'section_text'], $refsFirstList );
+
+
+		$firstSectionInner = $sectionHeading . $sectionText;
+		$firstSection = Html::rawElement( 'div', ['class' => 'section references sourcesandcitations'], $firstSectionInner );
+		$result = $firstSection;
+
+		// create the second section if needed
+		if ( count( $refsList ) > 9 ) {
+			$refsSecond = array_slice( $refsList, 9 );
+			$moreCount = count( $refsSecond );
+
+			$showMore = Html::element( 'a', ['id' => 'info_link', 'href' => '#aiinfo'], wfMessage( 'more_references', $moreCount )->text() );
+			$articleInfoSectionInner = Html::rawElement( 'div', ['id'=>'articleinfo', 'class'=>'section_text'], $showMore );
+			$articleInfoSection = Html::rawElement( 'div', ['id' => 'aiinfo', 'class' => 'section articleinfo'], $articleInfoSectionInner );
+
+			$refs = implode( $refsSecond );
+			$refsList = Html::rawElement( 'ol', ['class' => 'firstref references', 'start' => 10], $refs );
+			$sectionInner = Html::rawElement( 'div', ['id' => 'references_second', 'class' => 'section_text'], $refsList );
+			$secondSection = Html::rawElement( 'div', ['class' => 'section references aidata sourcesandcitations'], $sectionInner );
+
+			$result .= $articleInfoSection . $secondSection;
+		}
+
+		return $result;
+	}
+
+	// no currently used, but was used to help in refactoring the references section
+	// to make sure new and old output match, so it is kind of useful to keep around for
+	// future refactoring
+	private static function compareReferencesHtml( $skin ) {
+		// for testing the old vs new way of creating references
+		$referencesSection = pq( self::getReferencesSection() );
+		$old = self::formatReferencesSection( $skin );
+		$new = self::getNewReferencesSection( $referencesSection );
+		$old = str_replace(array("\n", "\r"), '', $old);
+		$new = str_replace(array("\n", "\r"), '', $new);
+		if ( $old != $new ) {
+			decho('old', $old);
+			decho('new', $new);
+			exit;
+		}
 	}
 
 }
