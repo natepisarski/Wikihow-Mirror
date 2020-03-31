@@ -1,9 +1,0 @@
-{
-	"@metadata": {
-		"authors": [
-			"Chelin"
-		]
-	},
-	"eventlogging-invalid-json": "JSON nun valido",
-	"eventlogging-revision-id": "Vversione $1"
-}

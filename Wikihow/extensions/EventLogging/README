@@ -1,2 +1,0 @@
-For information on how to install and use this extension, please see:
-  <https://www.mediawiki.org/wiki/Extension:EventLogging>

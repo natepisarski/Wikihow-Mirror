@@ -1,6 +1,0 @@
-# non-www.wikihow.com robots.txt
-
-# Everyone else
-User-agent: *
-Disallow: /
-
