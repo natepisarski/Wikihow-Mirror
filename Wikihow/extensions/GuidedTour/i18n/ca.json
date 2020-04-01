@@ -1,0 +1,33 @@
+{
+	"@metadata": {
+		"authors": [
+			"QuimGil",
+			"Vriullop"
+		]
+	},
+	"guidedtour-desc": "Permet incorporar una visita guiada a les pàgines per a ajudar nous usuaris.",
+	"guidedtour-help-url": "Help:Visites guiades",
+	"guidedtour-help-guider-url": "Help:Visites guiades/guia",
+	"guidedtour-next-button": "Següent",
+	"guidedtour-okay-button": "D'acord",
+	"guidedtour-tour-test-testing": "Proves",
+	"guidedtour-tour-test-test-description": "Això és una prova de la descripció. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Prova les crides",
+	"guidedtour-tour-test-portal-description": "Aquesta és la pàgina {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Prova el processament de MediaWiki",
+	"guidedtour-tour-test-description-page": "Prova les pàgines de descripció de MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Vés a la pàgina de descripció",
+	"guidedtour-tour-test-launch-tour": "Prova l'inici de la visita",
+	"guidedtour-tour-test-launch-tour-description": "Les guies poden iniciar altres visites guiades. Molt bo, eh?",
+	"guidedtour-tour-firstedit-edit-page-title": "Disposat a editar?",
+	"guidedtour-tour-firstedit-edit-page-description": "Cliqueu la pestanya '$1' per fer els vostres canvis.",
+	"guidedtour-tour-firstedit-edit-section-title": "Modificació d'una secció",
+	"guidedtour-tour-firstedit-edit-section-description": "Hi ha enllaços \"{{int:editsection}}\" per a cada secció en un article que permeten centrar-se només en una part.",
+	"guidedtour-tour-firstedit-preview-title": "Previsualització opcional dels canvis",
+	"guidedtour-tour-firstedit-preview-description": "Si cliqueu a '{{int:showpreview}}' podreu comprovar com quedarà la pàgina amb els vostres canvis. En acabat, no us oblideu de desar!",
+	"guidedtour-tour-firstedit-save-title": "Gairebé ja està!",
+	"guidedtour-tour-firstedit-save-description": "Quan ho tingueu a punt, cliqueu a '{{int:publishchanges}}' i els vostres canvis ja seran visibles per a tothom.",
+	"guidedtour-tour-firsteditve-edit-page-description": "Feu clic a «{{int:vector-view-edit}}» per a fer els vostres canvis.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Disposeu d'enllaços «{{int:editsection}}» a cada secció principal, per a concentrar-vos només en aquesta part.",
+	"guidedtour-tour-firsteditve-save-description": "Quan estigueu a punt, fent clic a \"{{int:visualeditor-toolbar-savedialog}}\" fareu els vostres canvis visibles per a tothom."
+}

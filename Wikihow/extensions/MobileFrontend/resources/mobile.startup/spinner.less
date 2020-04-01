@@ -1,0 +1,32 @@
+@import 'mediawiki.mixins.less';
+
+.mw-ui-icon-mf-spinner {
+	&:before {
+		.background-image( 'images/ajax-loader.gif' );
+	}
+}
+
+.mw-ui-icon-mf-refresh {
+	&:before {
+		.background-image-svg-quick( 'images/refresh' );
+	}
+}
+
+// Asynchronous loading
+//
+// Use the loading class along with spinner or content class whilst asynchronously loading content.
+//
+// Markup:
+// <div class="fancycaptcha-reload-loading"></div>
+//
+// Styleguide 6.2.
+// e.g. EditorOverlay, MediaViewer
+.overlay-content .loading,
+.media-viewer .loading,
+.content .loading {
+	&.spinner {
+		text-align: center;
+		background-position: 50%;
+		margin: 8px auto;
+	}
+}

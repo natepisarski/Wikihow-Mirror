@@ -1,0 +1,58 @@
+@import '../../less/mixins.less';
+@import '../../less/variables.less';
+
+@colorSuccess: #5cb85c;
+@colorWarning: #f0ad4e;
+@colorError: #d9534f;
+
+.wh_block {
+
+  font-size: 1.1em;
+
+  h1 {
+    margin-bottom: 10px;
+  }
+
+  ul {
+    margin-left: 20px;
+  }
+
+}
+
+ul.qa_admin_functions {
+  li {
+    margin-bottom: 25px;
+  }
+}
+
+.qa_button {
+  padding: 12px;
+  font-size: 1em;
+  display: inline-block;
+}
+
+.qa_success {
+  display: none;
+  background: @colorSuccess;
+  padding: 5px;
+  color: white;
+  .roundedAll(5px);
+  width: 90%;
+}
+
+.qa_error {
+  background: @colorError;
+}
+
+.qa_textarea {
+  display: block;
+  .roundedAll(5px);
+  margin: 10px 0;
+  width: 90%;
+  height: 200px;
+  background: @grayLight;
+  border: 0;
+}
+
+
+

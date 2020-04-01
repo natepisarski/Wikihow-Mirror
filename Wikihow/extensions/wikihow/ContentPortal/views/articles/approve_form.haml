@@ -1,0 +1,24 @@
+
+.modal-header
+	%h3.modal-title
+		= $article->state->action_label
+		%small= $article->title
+
+.modal-body
+
+	%form.f-reject-message-form.form.prevent-double{method:"post", action: url('articles/done', ['id' => $article->id])}
+		.form-group.title
+			%label = $article->isBlocked() ? "Your Answer:" : "Your Message:"
+			%input{type:"hidden", name:"article_id", value: $article->id}
+			%textarea(rows="5" class="f-message form-control" name="message" placeholder="Optional")
+			%span.help-block 
+				- if ($article->isBlocked())
+					Please answer the question above the best you can.
+				- else
+					Enter a "Nice Job" message if you would like.
+
+		%input#message-submit.btn.btn-primary{type:"submit", value: $article->state->action_label}
+		%button(type="button" class="btn btn-default" data-dismiss="modal") Cancel
+
+:javascript
+	window.utils.preventDouble.setup();

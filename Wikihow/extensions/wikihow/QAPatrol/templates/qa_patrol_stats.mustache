@@ -1,0 +1,38 @@
+<div id="qap_stats_exposition">
+	Add parameters to URL to see:
+	<ul>
+		<li>&amp;user=[username] (specific patroller)</li>
+		<li>&amp;expert=true (expert answers from Answer Tool)</li>
+		<li>&amp;ta=true (top answerer answers)</li>
+	</ul>
+</div>
+
+{{#user_name}}<h2>User: <span id="user_name">{{user_name}}</span></h2>{{/user_name}}
+{{mode_label}} Q&amp;As approved for articles:<br />
+
+<div id="qap_top_stats">
+{{#stats_summary}}
+	<div class="qap_span">{{span}}</div>
+	<div class="qap_count">{{count}}</div>
+{{/stats_summary}}
+</div>
+
+<input id="qaps_range_from" class="qaps_date_input" readonly/>
+ &rarr; <input id="qaps_range_to" class="qaps_date_input" readonly/>
+<button id='qap_export' class='button secondary'>Export patroller stats</button>
+
+<br /><br />
+Last {{limit}} {{mode_label}} Q&amp;A additions:
+<br /><br />
+{{#recent_qas}}
+<div>
+	<a href="{{page_link}}" target="_blank">{{page_title}}</a><br />
+	<b>Q:</b> {{question}}<br />
+	<b>A:</b> {{answer}}<br />
+	<b>Patroller:</b> {{patroller}}<br />
+	<b>Answerer:</b> {{answerer}}
+</div><br />
+{{/recent_qas}}
+
+{{#expert_mode}}<input type="hidden" id="expert_mode" />{{/expert_mode}}
+{{#top_answerer_mode}}<input type="hidden" id="top_answerer_mode" />{{/top_answerer_mode}}

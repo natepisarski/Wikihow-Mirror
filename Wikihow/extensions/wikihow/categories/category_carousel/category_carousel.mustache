@@ -1,0 +1,31 @@
+<div class="cat_carousel" id="carousel_{{cat_id}}" data-subcat="{{issubcat}}" data-last_page="{{cat_articles.last_page}}" data-cat_id="{{cat_id}}">
+	<div class="cat_nav"></div>
+    <div class="cat_title">
+        {{#issubcat}}
+			<a href="{{url}}">{{cat_title}} <i class="fa fa-chevron-right"></i></a>
+            {{#has_subsublist}}<a href="#" class="cat_subcat_toggle closed">{{show_more}}</a>{{/has_subsublist}}
+        {{/issubcat}}
+        {{^issubcat}}
+            {{all_articles_title}}
+        {{/issubcat}}
+    </div>
+	{{#postload}}<div class="cat_loading"></div>{{/postload}}
+	<div class="cat_imgs">
+	{{^postload}}
+        {{#cat_articles.articles}}
+            {{> category_carousel_item}}
+        {{/cat_articles.articles}}
+	{{/postload}}
+	</div>
+	{{#has_subsublist}}
+		<ul class="subcat_list">
+		{{#subsublist}}
+			<li><a href="{{url}}">{{text}}</a></li>
+			<li>·</li>
+		{{/subsublist}}
+		</ul>
+	{{/has_subsublist}}
+	{{#has_pagination}}
+		{{> category_carousel_pagination}}
+	{{/has_pagination}}
+</div>

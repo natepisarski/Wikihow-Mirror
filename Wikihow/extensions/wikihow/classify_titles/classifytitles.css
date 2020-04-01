@@ -1,0 +1,22 @@
+.sm { 
+    font-variant:small-caps; 
+    letter-spacing:2px; 
+    margin-right: 25px; 
+}
+.bx { 
+    padding: 5px 10px 5px 10px; 
+    margin-bottom: 15px; 
+    border: 1px solid #dddddd; 
+    border-radius: 10px 10px 10px 10px; 
+}
+.bx p { 
+    padding: .5em 0; 
+}
+
+.jobStatusStyle { 
+    font-size: .8em; 
+}
+
+.errors { 
+    color: #C00; 
+}

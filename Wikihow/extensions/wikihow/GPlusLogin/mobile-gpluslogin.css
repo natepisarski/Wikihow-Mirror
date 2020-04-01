@@ -1,0 +1,56 @@
+/* Special:GPlusLogin */
+
+#gpl {
+	border: none;
+	margin: 15px 10px;
+}
+#gpl input[type='text'], #gpl_faux_username {
+	width: 100%;
+	padding: 12px 10px;
+	box-sizing: border-box;
+	margin: 5px 0 20px 0;
+}
+#gpl_faux_username {
+	padding: 0px;
+	border: 1px solid #ccc;
+}
+#gpl table {
+	margin-top: 4px;
+}
+#gpl td {
+	padding: 9px 5px;
+}
+#gpl_error {
+	padding: 10px 0 0 0;
+}
+#gpl_header {
+	border: none;
+}
+#gpl_header, #gpl_submit {
+	font-size: 1em;
+}
+#gpl_submit {
+	font-weight: bold;
+}
+#gpl_submit {
+	padding: 11px 18px;
+	margin-top: 4px;
+}
+#gpl_x:after {
+    margin: 12px 15px 0 0;
+}
+.gpl_label {
+	font-size: 0.95em;
+	text-align: left;
+	display: block;
+}
+.gpl_label.first {
+	margin-top: 10px;
+}
+.gpl_readonly {
+	color: #777;
+}
+.gpl_user_avatar {
+	border-radius: 3px 0 0 3px;
+	width: 42px;
+}

@@ -1,0 +1,60 @@
+.article-editor{"data-article" => $article->id}
+	%iframe.google-doc-frame{name: "google-editor", src: url('articles/doc', params()), marginheight: 40, frameborder: 0, id:"google-editor"}
+
+	- if ($article->belongsTo($currentUser) && !$article->isBlocked())
+
+		.btn-group.state-identifier
+			- if ($article->state->needs_doc)
+				!= partial('articles/_reject_btn', ['article' => $article])
+
+				- if (showEditLink($article))
+					%a.btn.btn-warning{target:"_blank", href: $article->editLink()}
+						%i.fa.fa-external-link
+						Edit on WikiHow
+
+				- else
+					%a.btn.btn-warning{title:"Finish Later", "data-content" => "You can come back later to this article.", "data-toggle" => "popover", href: url('articles/saveForLater', ['id' => $article->id])}
+						%i.fa.fa-floppy-o
+						Save Draft
+				- if ($article->prevAssignment())
+					%a.modal-trigger.btn.btn-success{href: url('articles/approve_form', ['id' => $article->id])}
+						%i.fa.fa-check
+						= $article->state->action_label
+				- elseif (canShowDone($article))
+					%a.btn.btn-success.confirm{href: url('articles/done', ['id' => $article->id]), "data-placement" => "top", "data-content" => doneWarning($article), title: "Done?"}
+						%i.fa.fa-check
+						= $article->state->action_label
+
+	.sidebar-container
+		#history.overlay-pane.history-pane
+			.content
+				!= partial('articles/_completed_steps');
+				- foreach($article->events as $event)
+					!= partial('events/_event', ['event' => $event])
+
+
+			%a.left-tab(href="#history" data-placement="right" title="Article's History")
+				%i.fa.fa-clock-o
+				// History
+
+		- if ($article->notes)
+			#notes.overlay-pane
+				.content
+					!= partial('notes/index')
+
+				%a.left-tab(href="#notes" data-placement="right" title="Article's Messages")
+					%i.fa.fa-weixin
+					%span.badge= count($article->notes)
+
+		- if ($article->documents)
+			#documents.overlay-pane
+				.content
+					!= partial('documents/_index')
+
+				%a.left-tab(href="#documents" data-placement="right" title="Article's Documents")
+					%i.fa.fa-file-word-o
+					%span.badge= docsCount($article)
+
+!= partial('notes/_modal')
+- addScript("WH.cfEditor.init();")
+

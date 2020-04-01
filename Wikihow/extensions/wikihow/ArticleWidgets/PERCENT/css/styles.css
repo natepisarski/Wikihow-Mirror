@@ -1,0 +1,91 @@
+.more {
+	top:98px;
+	left:294px;
+	}	
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+	padding-bottom:40px;
+   	width: 305px;
+	}
+#result {
+	color: #809080;
+    float: left;
+    font-family: 'Museo500';
+    font-size: 50px;
+    font-weight: bold;
+    margin: 55px 0 0 15px;
+    text-align: center;
+    width: 94%;
+	}
+.whlabel_element {
+	margin:0 auto;
+	}		
+.right {
+	width:295px;
+	float:left;
+	position:relative;
+	}	
+.wh_ud_input {
+	padding:0 5px;
+	text-align:right;
+	}	
+#header h1 {
+	width:100%;
+	}
+.wh_ud_editable_input {
+	text-align:right;
+	float:left;
+	width:151px !important; 
+	}
+.wh_ud_editable_value  {
+	float:right;
+	width:140px;
+	}	
+.wh_ud_ellipsis {
+	font-size:22px;
+	}		
+.whupdown_element {
+	float:left;
+	}		
+#part {
+	float:left;
+	margin:-50px 0 0 75px;
+	width:193px !important; 
+	position:relative;
+	}
+#total {
+	float:left;
+	margin:-50px 0 0 75px;
+	width:193px !important; 
+	position:relative;
+	}
+.wh_ud_increase {
+	position:absolute;
+	right:0;
+	top:0;
+	}
+.wh_ud_decrease {
+	position:absolute;
+	right:0;
+	bottom:0;
+	}	
+.wh_ud_input {
+	margin-left:-10px;
+	}	
+.label {
+	font-family:Museo500;
+	color:#809080;
+	margin:37px 0 0 30px;
+	float:left;
+	width:38px;
+	text-align:right;
+	}
+.percentages .active_input	
+.wh_ud_editable_value input  {
+	float:right;
+	margin:0 -5px 0 0;
+	padding-right:4px;
+	
+	}	

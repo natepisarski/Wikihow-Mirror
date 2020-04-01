@@ -1,0 +1,333 @@
+/*reset*/
+@charset "utf-8";
+/* CSS Document */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+margin: 0;
+padding: 0;
+border: 0;
+outline: 0;
+font-size: 100%;
+background: transparent;
+}
+body {
+line-height: 1;
+}
+ol, ul {
+list-style: none;
+}
+blockquote, q {
+quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+content: '';
+}
+/* remember to define focus styles! */
+:focus {
+outline: 0;
+}
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+/*end reset*/
+@font-face {
+    font-family: 'Museo700';
+    src: url('../fonts/museo700-regular-webfont.eot');
+    src: url('../fonts/museo700-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/museo700-regular-webfont.woff') format('woff'),
+         url('../fonts/museo700-regular-webfont.ttf') format('truetype'),
+         url('../fonts/museo700-regular-webfont.svg#Museo700') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+@font-face {
+    font-family: 'Museo900';
+    src: url('../fonts/museo900-regular-webfont.eot');
+    src: url('../fonts/museo900-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/museo900-regular-webfont.woff') format('woff'),
+         url('../fonts/museo900-regular-webfont.ttf') format('truetype'),
+         url('../fonts/museo900-regular-webfont.svg#Museo900') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+@font-face {
+    font-family: 'Museo500';
+    src: url('../fonts/museo500-regular-webfont.eot');
+    src: url('../fonts/museo500-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/museo500-regular-webfont.woff') format('woff'),
+         url('../fonts/museo500-regular-webfont.ttf') format('truetype'),
+         url('../fonts/museo500-regular-webfont.svg#Museo500') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+@font-face {
+    font-family: 'LucidaGrandeRegular';
+    src: url('../fonts/lucig-webfont.eot');
+    src: url('../fonts/lucig-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/lucig-webfont.woff') format('woff'),
+         url('../fonts/lucig-webfont.ttf') format('truetype'),
+         url('../fonts/lucig-webfont.svg#LucidaGrandeRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+#wrapper {
+	width:620px;
+	margin: 0 auto;
+	}
+* html #wrapper {
+	width:619px;
+	margin: 0 auto;
+	}
+#header {
+	background:url(../images/header.png) repeat-x;
+	width:100%;
+	height:57px;
+	float:left;
+	position:relative;
+	}
+#header h1 {
+    font-family: 'Museo700';
+	font-size:22px;
+    font-weight: normal;
+    font-style: normal;
+	text-align:center;
+	color:#fff;
+	height:57px;
+	line-height:57px;
+	float:left;
+	text-shadow:0 -1px 0 #72796f;
+	}
+.corner_left {
+	background:url(../images/article_widget_sprite.png) no-repeat -81px -25px;
+	width: 11px;
+	height: 10px;
+	position:absolute;
+	left:0;
+	bottom:-10px;
+	}
+.corner_right {
+	background:url(../images/article_widget_sprite.png) no-repeat -103px -25px;
+	width: 11px;
+	height: 10px;
+	position:absolute;
+	right:0;
+	bottom:-10px;
+	}	
+ul.tabs {
+	margin: 11px 6px 0 0;
+	padding: 0;
+	float: right;
+	}
+ul.tabs li {
+	float: left;
+	padding: 0;
+	height: 46px; /*--Subtract 1px from the height of the unordered list--*/
+	line-height: 49px; /*--Vertically aligns the text within the tab--*/
+	overflow: hidden;
+	position: relative;
+	margin-right:5px;
+	}
+* html ul.tabs li {
+	margin-left:-11px;
+	margin-right:17px;
+	}
+* html .tabs li a  {
+	cursor:pointer;
+	}	
+ul.tabs li a {
+	background:url(../images/tabs.png) no-repeat right -49px;
+    font-family: 'Museo500';
+	text-decoration: none;
+	font-size:20px;
+	color:#ffffff;
+	text-shadow:0 -1px #2f5e6f;
+	outline: none;
+	display:inline-block;
+	float:left;
+	}
+* html 	ul.tabs li a  {
+     background-image:url(../images/tabs.png);
+	 background-position:right -49px;
+	 background-repeat:no-repeat;
+	}
+ul.tabs li a p {
+	background:url(../images/tabs.png) no-repeat 0 -49px;
+	display:inline-block;
+	margin:0 6px 0 0px;
+	padding:0 18px 0 21px;
+	white-space:normal;
+	}
+* html 	ul.tabs li a p  {
+     background-image:url(../images/tabs.png);
+	 background-position:0 -49px;
+	 background-repeat:no-repeat;
+	}
+* html	ul.tabs li a p {
+	cursor:pointer;
+	width:25px;
+	}
+ul.tabs li.active a  { 
+	background:url(../images/tabs.png) no-repeat right 0px;
+	color: #809080;
+	text-shadow:none;
+	}
+* html 	ul.tabs li.active a  {
+     background-image:url(../images/tabs.png);
+	 background-position:right 0px;
+	 background-repeat:no-repeat;
+	}
+* html ul.tabs li.active a p {
+     background-image:url(../images/tabs.png);
+	 background-position:0 0px;
+	 background-repeat:no-repeat;
+	}
+ul.tabs li.active a p {
+	background:url(../images/tabs.png) no-repeat 0 0px;
+	display:inline-block;
+	white-space:normal;
+	}
+#content {
+	background:url(../images/content.jpg) repeat-y;
+	width:610px;
+	margin:9px 0 0 5px;
+	padding:11px 0 10px 0;
+	float:left;
+	position:relative;
+	}
+* html	#content {
+	margin-left:2px;
+	}	
+.tab_container {
+	overflow: hidden;
+	clear: both;
+	float: left;
+	width: 100%;
+	}
+.tab_content {
+	float: left;
+	}
+.ravno {
+	background:url(../images/article_widget_sprite.png) no-repeat -272px -26px;
+	width:35px;
+	height:35px;
+	position:absolute;
+	}
+.more {
+	background:url(../images/article_widget_sprite.png) no-repeat -224px -26px;
+	width:35px;
+	height:35px;
+	position:absolute;
+	}		
+.left h1,.right h1 {
+    font-family: 'Museo700';
+	font-size:22px;
+    font-weight: normal;
+    font-style: normal;
+	text-align:center;
+	color:#809080;
+	height:25px;
+	float:left;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+	width:100%;
+	}
+.left h2,.right h2 {
+	font-family: 'LucidaGrandeRegular';
+	font-size:11px;
+	color:#a1a1a1;
+	float:left;
+	width:100%;
+	text-align:center;
+    font-weight: normal;
+    font-style: normal;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+	}
+* html .right p  {
+	margin:41px 0 0 8px;
+	}
+* html .bottom	{
+	margin:0 0 0 2px;
+	}
+.bottom {
+	background:url(../images/article_widget_sprite.png) no-repeat 0 0;
+	width:610px;
+	height:14px;
+	margin:0 0 0 5px;
+	float:left;
+	}
+.form {
+	float:left;
+	width:100%;
+	}
+.cop  {
+    font-family: 'Museo700';
+	font-size:11px;
+    font-weight: normal;
+    font-style: normal;
+	color:#809080;
+	float:right;
+	margin:-2px 15px -10px 0;
+	*margin-top:5px; /*IE7 hack*/
+	width:135px;
+	position:relative;
+	}
+.cop span {
+	/*position:absolute;*/
+	left:0;
+	width:63px;
+	top:0;
+	}	
+.cop a {
+	background:url(../images/article_widget_sprite.png) no-repeat 0 -22px;
+	width:69px;
+	height:16px;
+	position:absolute;
+	text-indent:-99999px;
+	right:0;
+	top:-3px;
+	}
+.label,.lanel,.addon {
+	
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+	}
+.result,#result,#calories,#calories_si {
+	
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+	}	
+#uk,#si{
+	
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+	} 				
+.whlabel_element {
+	margin-left:auto;
+	margin-right:auto;
+	}

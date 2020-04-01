@@ -1,0 +1,10 @@
+<?php
+
+$magicWords = [];
+$magicWords['en'] = [
+	'ARTICLESSTARTED' => [ 0, 'ARTICLESSTARTED' ],
+	'PATROLCOUNT' => [ 0, 'PATROLCOUNT' ],
+	'NABCOUNT' => [ 0, 'NABCOUNT' ],
+	'VIEWERSHIP' => [ 1, 'VIEWERSHIP' ],
+	'NUMBEROFARTICLESSTARTED' => [ 1, 'NUMBEROFARTICLESSTARTED' ],
+];

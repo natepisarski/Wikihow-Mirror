@@ -1,0 +1,29 @@
+<div id="catlist">
+	<div id="cat_separator"></div>
+	{{#subcats}}<a href="{{{url}}}">{{cat_title}}</a><span>&middot;</span>{{/subcats}}
+</div>
+
+{{#subcats}}
+<div class="cat_container">
+	<h3><a href="{{{url}}}">{{cat_title}}</a></h3>
+	<div class="subcat_container">
+	{{#subsubcats}}
+	<div class="subcat">
+		<div class="thumbnail" style="width:{{cat_width}}px; height:{{cat_height}}px;">
+			<a href="{{{cat_url}}}">
+				<img src="{{{cat_image}}}" width="{{cat_width}}" height="{{cat_height}}" />
+				<div class="text">
+					<p><span>{{cat_text}}</span</p>
+				</div>
+			</a>
+		</div>
+		<div class="subcat_articles">
+			{{#cat_titles}}
+				{{{title_image}}}
+			{{/cat_titles}}
+		</div>
+	</div>
+	{{/subsubcats}}
+	</div>
+</div>
+{{/subcats}}

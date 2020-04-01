@@ -1,0 +1,38 @@
+<div class="wha_container">
+	<div class="wha_header">
+		<a href="/" >
+		{{#amp}}
+			<amp-img src="{{{logo}}}" alt="quickAnswers" layout="responsive" width="166" height="19" id="wha_logo" />
+		{{/amp}}
+		{{^amp}}
+			<img src="{{{logo}}}" alt="quickAnswers" id="wha_logo" />
+		{{/amp}}
+		</a>
+	</div>
+	<div class="wha_section">
+		<p class="wha_breadcrumb">{{breadcrumb}} &gt; <span>{{titleTextLower}}</span></p>
+		{{{analytics}}}
+		<h2><span>Q</span> {{question}}</h2>
+		<p class="answer"><span>A</span> {{{answer}}}</p>
+	</div>
+	<div class="wha_section">
+		<h1>Related Questions</h1>
+		<ul id="wha_relateds">
+		{{#relateds}}
+				<li><a href="{{url}}">{{question}}</a><a href="{{url}}" class="caret"></a></li>
+		{{/relateds}}
+		</ul>
+	</div>
+	<div class="wha_section">
+		<h1>Other Questions</h1>
+		<ul id="wha_relateds">
+			{{#others}}
+				<li><a href="{{url}}">{{question}}</a><a href="{{url}}" class="caret"></a></li>
+			{{/others}}
+		</ul>
+	</div>
+	<div id="footer">
+		<a href="/{{randomUrl}}">Random Question</a>
+		<p id="wha_copyright">&copy;2017 quickAnswers</p>
+	</div>
+</div>

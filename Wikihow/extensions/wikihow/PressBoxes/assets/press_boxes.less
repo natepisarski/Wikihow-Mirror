@@ -1,0 +1,84 @@
+@import '../../less/variables.less';
+
+.press_section {
+	color: #333;
+	padding: 0;
+
+	a,
+	a:hover,
+	a:visited {
+		color: #333;
+	}
+}
+
+/* the press block */
+.press_block {
+	background-color: #FFF;
+	min-height: 65px;
+	padding: 1em 1em 0 1em;
+	margin-bottom: 1em;
+	font-size: .9em;
+
+	&:last-child .press_quote {
+		border: none;
+	}
+
+	.press_quote {
+		padding: 0 0 2em 80px;
+		font-size: 1em;
+		line-height: 1.4em;
+		min-height: 65px;
+		border-bottom: 1px solid #EEE;
+
+		.quote_mark {
+			font-size: 1.3em;
+			font-family: 'Times New Roman', Georgia, serif;
+		}
+	}
+
+	.press_outlet {
+		position: absolute;
+		padding-bottom: 2em;
+		margin-top: .2em;
+		width: 65px;
+		height: 65px;
+	}
+}
+
+@media @large {
+	.press_section {
+		margin-bottom: 15px;
+
+		&.section {
+			margin-top: 0;
+
+			h3 {
+				font-size: .8em;
+			}
+		}
+	}
+
+	.press_block {
+		padding: 1.5em 1.5em 0 1.5em;
+		border-bottom: 1px solid #EEE;
+		margin: 0;
+
+		a:hover {
+			text-decoration: none;
+		}
+
+		.press_quote {
+			border: none;
+		}
+
+		&:last-of-type {
+			border-radius: 0 0 @borderRadius @borderRadius;
+		}
+	}
+
+	#bodyContent {
+		.press_section {
+			display: none;
+		}
+	}
+}

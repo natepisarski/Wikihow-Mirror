@@ -1,0 +1,59 @@
+.ravno {
+	top:52px;
+	left:389px;
+	}
+.ravno_2 {
+	top:52px;
+	left:188px;
+	}
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+   	width: 199px;
+	padding-bottom:11px;
+	}
+.right {
+	width:199px;
+	float:left;
+	position:relative;
+	margin-left:0px;
+	padding-bottom:11px;
+	}	
+.left_center  {
+	border-right:1px solid #D8D8D8;
+	float: left;
+	padding-bottom:13px;
+	margin-left:0px;
+   	width: 199px;
+	}	
+.result {
+	font-family: 'Museo700';
+	font-size:30px;
+	color:#809080;
+	font-weight:bold;
+	float:left;
+	width:87%;
+	text-align:center;
+	margin:19px 0 0 11px;
+	}
+#kelv .wh_ud_input {
+	text-align:right;
+	}			
+#header h1 {
+	width:100%;
+	}
+.whupdown_element {margin: -9px  auto;
+	}
+.right  .whupdown_element {margin: -9px  auto;}
+.wh_ud_input {
+	text-align:right;
+	}
+.wh_ud_editable_value input {
+	float:right;
+	width:100%;
+	text-align:right;
+	}
+.right  .result {
+    margin: 19px 0 0 16px;
+}						

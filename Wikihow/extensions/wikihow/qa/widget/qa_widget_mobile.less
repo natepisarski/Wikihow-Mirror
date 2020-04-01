@@ -1,0 +1,315 @@
+@import 'qa_widget_common.less';
+
+#qa {
+	padding: 12px 15px 15px 15px;
+}
+
+#qa input[type=text], #qa input[type=textarea] {
+	display: block;
+	width: 100%;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#qa_submit_button {
+	font-size: 16px;
+	line-height: 16px;
+	font-weight: bold;
+	padding: 10px 0;
+	width: 100%;
+	display: block;
+}
+
+#qa_asked_question {
+	margin: 0 0 .5em 0;
+}
+
+#qa_email, .qa_pa_email, #qa_asked_question {
+	font-size: inherit;
+	margin: 0 0 .75em 0;
+	border: 1px solid @formBorderColor;
+	padding: 22px 10px;
+}
+
+#qa_email {
+	margin-bottom: .25em;
+}
+
+#qa_email_prompt {
+	font-size: .85em;
+	margin-bottom: .75em;
+}
+
+#qa_asked_count {
+	margin-top: -1em;
+}
+
+#qa ul {
+	list-style: none;
+	margin: 0;
+	padding-left: 0;
+}
+
+#qa_article_questions li:first-child .qa_divider {
+	display: none;
+}
+
+.qa_li_container {
+	padding: .6em 0 1.3em 0;
+}
+
+.qa_bullet {
+	display: none;
+}
+
+.qa_q_txt {
+	font-weight: bold;
+}
+
+#qa .qa_answer {
+	margin: 1em 0 0 0;
+	text-indent: -0em;
+}
+
+#qa input#qa_email,
+#qa input.qa_pa_email,
+#qa_first {
+	display: none;
+}
+
+#qa_prompt {
+	margin-bottom: 1em;
+	display: none;
+}
+
+#qa_related_box .related_box {
+	background-color: #F6F8F7;
+	border-color: #F6F8F7;
+	height: 160px;
+}
+
+.qa_cq_text {
+	height: 4em;
+	padding: .25em .25em .5em .25em;
+}
+
+.qa_ca_text {
+	height: 6em;
+	padding: .5em .25em .25em .25em;
+}
+
+.qa_invalid_msg {
+	text-align: inherit;
+	line-height: 1.2em;
+};
+
+.qa_sq.qa_editing_aq {
+	margin: 0 -15px;
+	padding: 1em 15px 0;
+}
+
+@media @medium {
+	.qa_sq.qa_editing_aq {
+		padding: 30px 27px 8px;
+	}
+
+	#qa_submit_button {
+		max-width: 150px;
+	}
+}
+
+.qa_editing.qa_admin #qa_add_curated_question {
+	display: block;
+	margin-bottom: 10px;
+	float: none;
+}
+
+.qa_editor {
+	#qa_edit, #qa_edit_done {
+		float: right;
+		font-size: .8em;
+		padding: 1em;
+	}
+}
+
+.qa_pa_email {
+	width: 100%;
+	border: 1px solid @formBorderColor !important;
+	background-color: #FFF;
+}
+
+.qa_aq {
+	.qa_q_txt {
+		padding-bottom: 1em;
+	}
+}
+
+.qa_sq {
+	.qa_q_txt {
+	font-weight: normal;
+	}
+
+	.qa_editor_tools {
+	margin-top: 8px;
+	}
+}
+
+.qa_divider {
+	margin-left: -15px;
+	margin-right: -15px;
+}
+
+li .qa_divider {
+	margin-bottom: 0;
+	border-width: 1px;
+}
+
+#qa_submitted_questions_container, #qa_answered_questions_container {
+	border: none;
+	margin-bottom: 20px;
+}
+
+#qa_answered_questions_container li:first-of-type .qa_li_container {
+	padding-top: 0;
+}
+
+.content .button.secondary.qa_edit_submitted {
+	color: rgb(151, 186, 120);
+	border-color: rgb(151, 186, 120);
+	font-size: 12px;
+	margin: 0;
+	position: absolute;
+	right: 0;
+	padding: 5px;
+}
+
+#qa_submitted_questions li:first-child .qa_divider {
+	display: none;
+}
+
+.qa_person_circle {
+	height: 56px;
+	width: 56px;
+	margin-left: 0;
+
+	span {
+		line-height: 56px;
+		font-size: 23px;
+	}
+}
+
+.qa_answerer_info {
+	padding-left: 70px;
+	font-size: 0.8em;
+	line-height: 1.3em;
+	height: 56px; /* acts as min-height because of display type table-cell */
+}
+
+.qa_user_title {
+	font-size: .9em;
+	padding: .3em 0;
+}
+
+.qa_expert_area, .qa_ta_area {
+	.qa_person_circle, .qa_person_circle span {
+		height: 52px;
+		width: 52px;
+		font-size: 21px;
+	}
+}
+
+.qa_expert_area {
+	.qa_badge {
+		height: 19px;
+		width: 19px;
+		margin: 40px 0 0 40px;
+	}
+}
+
+.qa_ta_area {
+	.qa_badge {
+		height: 25px;
+		width: 18px;
+		margin: 34px 0 0 37px;
+	}
+}
+
+
+.qa_ta_mobile_extra {
+	display: none;
+	line-height: 1.1em;
+	margin-top: .1em;
+	font-size: .9em;
+}
+
+.wh_thumb_response {
+	margin-right: 15px;
+}
+
+#qa_ask_heading {
+	margin-top: 25px;
+}
+
+/* Social Login */
+
+.qa_social_login {
+	padding: 1em 1em 0 1em;
+
+	.qa_checkmark {
+		margin-top: -4px;
+	}
+}
+
+.qa_social_login_avatar {
+	margin-right: 15px;
+	margin-top: -4px;
+}
+
+a.button.qa_social_login_done {
+	font-size: 1em;
+}
+
+.qa_social_login_button_container {
+	text-align: center;
+}
+
+.qa_button.social_login_button {
+	width: 47%;
+
+	span.social_login_button_text {
+		@media only screen and (min-width: 500px) {
+			font-size: 0.9em;
+		}
+	}
+}
+
+@media only screen and (min-width: 500px) {
+	#qa_related_box .related_box {
+		width: 50%;
+	}
+}
+
+@media only screen and (min-width: 1000px) {
+	#qa_related_box .related_box {
+		width: 33.333%;
+	}
+}
+
+@media only screen and (min-width: 1500px) {
+	#qa_related_box .related_box {
+		width: 25%;
+	}
+}
+
+@media only screen and (min-width: 2000px) {
+	#qa_related_box .related_box {
+		width: 20%;
+	}
+}
+
+@media only screen and (min-width: 2500px) {
+	#qa_related_box .related_box {
+		width: 500px;
+	}
+}

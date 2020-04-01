@@ -1,0 +1,155 @@
+#ttt_top {
+	background: #FFF;
+	padding: 1.5em 1.5em 1em 1.5em;
+	margin: -22px -27px 1em;
+
+	#ttt_remaining {
+		font-size: .7em;
+		float: right;
+		text-align: right;
+
+		p {
+			font-size: 3em;
+			font-weight: bold;
+		}
+	}
+}
+
+#topic_tagging_tool {
+	#ti_icon {
+		margin: 12px 0 0 0;
+		float: left;
+	}
+
+	#ti_caret {
+		left: 52px;
+		right: inherit;
+	}
+
+	#ti_box ul {
+		padding: 0 8px 8px 0;
+		text-align: left;
+	}
+
+	&.mobile {
+		#ti_icon {
+			margin-top: 0;
+			float: right;
+		}
+
+		#ti_caret {
+			right: 52px;
+			left: inherit;
+		}
+
+		#ti_outer_box {
+			margin: 0;
+		}
+
+		#ti_box ul {
+			padding: 14px 8px 8px 8px;
+		}
+	}
+}
+
+#ttt_tool_title {
+	font-weight: bold;
+	padding-bottom: .3em;
+}
+
+#ttt_question {
+	font-size: 1.5em;
+	margin-bottom: .1em;
+	font-weight: bold;
+}
+
+#ttt_buttons {
+	margin-top: 1em;
+	text-align: right;
+}
+
+#ttt_spinner {
+	display: none;
+	background: url(/extensions/wikihow/rotate.gif) center no-repeat;
+	height: 33px;
+}
+
+.mobile {
+
+	#ttt_top {
+		padding: .5em 1em;
+		margin: 0 -5px;
+	}
+
+	#ttt_tool_title {
+		background: none;
+		font-size: 1.2em;
+		padding: 0;
+	}
+
+	#ttt_guts {
+		padding: 1em .5em 1.5em .5em;
+	}
+
+	#ttt_buttons {
+		background-color: #f6f5f4;
+		text-align: center;
+		position: fixed;
+		z-index: 1;
+		bottom: 0;
+		left: 0;
+		padding: 10px;
+		width: 100%;
+		box-sizing: border-box;
+		-webkit-overflow-scrolling: touch;
+		-webkit-backface-visibility: hidden;
+		-webkit-transform: translateZ(0);
+
+		.button {
+			width: 30%;
+			margin: 0;
+		}
+
+		#ttt_vote_skip {
+			margin: 0 1%;
+		}
+	}
+}
+
+#ttt_title {
+	font-size: 2em;
+	color: #363;
+	text-decoration: none;
+}
+
+#method_toc.sp_method_toc {
+	margin-top: -27px;
+	border-radius: 4px 4px 0 0;
+	margin-bottom: 1em;
+}
+
+#ttt_article_html {
+	&.mobile {
+		margin-top: .5em;
+
+		#ttt_title {
+			display: none;
+			line-height: 1.2em;
+			padding-bottom: .3em;
+		}
+
+		#intro {
+			padding: 15px;
+		}
+
+		#method_toc {
+			display: none;
+		}
+	}
+}
+
+#ttt_disclaimer {
+	font-size: .8em;
+	text-align: right;
+	margin-top: 1em;
+}

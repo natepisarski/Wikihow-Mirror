@@ -1,0 +1,128 @@
+.wh_ad_step {
+	margin-left: -20px;
+}
+.wh_ad_related {
+	margin-left: -15px;
+}
+#header .logo.tech_logo {
+	width: 135px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 33px;
+}
+#header #logo_link.no_tag {
+	overflow: visible !important
+}
+#header.shrunk .logo.tech_logo {
+	margin-top: 0px;
+	margin-left: 33px;
+}
+#header .logo.pet_logo {
+	width: 155px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 13px;
+
+}
+#header.shrunk .logo.pet_logo {
+	margin-top: 0px;
+	margin-left: 13px;
+}
+#header .logo.mom_logo {
+	width: 151px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 17px;
+}
+#header.shrunk .logo.mom_logo {
+	margin-top: 0px;
+	margin-left: 17px;
+}
+#header .logo.fitness_logo {
+	width: 147px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 22px;
+}
+#header .logo.legal_logo {
+	width: 147px;
+	height: auto;
+	margin-top: 20px;
+	margin-left: 22px;
+}
+#header.shrunk .logo.fitness_logo {
+	margin-top: 0px;
+	margin-left: 22px;
+}
+#header.shrunk .logo.legal_logo {
+	margin-top: 0px;
+	margin-left: 22px;
+}
+#nav_explore_li.nav_item .menu  { right: 0px; }
+#nav_edit_li.nav_item .menu { right: 75px; }
+.qa_social_login_form .x_button {
+	display: none;
+}
+
+/* Remove edit links from all section headers on alt domains */
+.mw-editsection {
+	display: none;
+}
+
+/***** TECH DOMAIN ******/
+#tech_rating {
+	float: right;
+	display: table;
+	margin: -41px -27px 0 10px;
+}
+
+#tech_rating_help {
+	color: #79A355;
+	margin: 0 8px 0 0;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 15px;
+	display: table-row;
+	text-align: center;
+}
+
+.none #tech_rating_help{
+	color: #545454;
+}
+
+#tech_rating_data {
+	color: #ffffff;
+	font-size: 10px;
+	line-height: 14px;
+	text-align: center;
+	position: relative;
+	text-transform: uppercase;
+	background-image: url(/extensions/wikihow/Rating/images/intro-banner-dark-green.svg);
+	background-size: 135px 67px;
+	background-repeat: no-repeat;
+	background-position: top right;
+	width: 132px;
+	height: 67px;
+	vertical-align: middle;
+	display: table-cell;
+	font-weight: bold;
+	padding-bottom: 5px;
+}
+
+.none #tech_rating_data {
+	background-image: url(/extensions/wikihow/Rating/images/intro-banner-light-green.svg);
+	color: #545454;
+}
+
+#tech_rating_data #tech_count {
+	font-size: 22px;
+	font-weight: normal;
+}
+
+#intro.tech {
+	padding-top: 41px;
+}
+
+.tech #expert_coauthor {
+	border: none;
+}

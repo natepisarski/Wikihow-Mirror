@@ -1,0 +1,31 @@
+{{#amp}}
+	<amp-img src="{{{hero}}}" alt="quickAnswers" layout="responsive" width="1600" height="450" id="wha_hero" />
+{{/amp}}
+{{^amp}}
+	<img src="{{{hero}}}" alt="quickAnswers" id="wha_hero" />
+{{/amp}}
+<div id="wha_home_header">
+	<div id="wha_logo_container">
+		{{#amp}}
+			<amp-img src="{{{logo}}}" alt="quickAnswers" layout="responsive" width="166" height="19" id="wha_logo" />
+		{{/amp}}
+		{{^amp}}
+			<img src="{{{logo}}}" alt="quickAnswers" id="wha_logo" />
+		{{/amp}}
+	</div>
+</div>
+<div class="wha_container wha_home">
+	{{{analytics}}}
+	<div class="wha_section">
+		<h1>Recent Questions</h1>
+		<ul id="wha_relateds">
+			{{#questions}}
+				<li><a href="{{url}}">{{question}}</a><a href="{{url}}" class="caret"></a></li>
+			{{/questions}}
+		</ul>
+	</div>
+	<div id="footer">
+		<a href="{{randomUrl}}">Random Question</a>
+		<p id="wha_copyright">&copy;2017 quickAnswers</p>
+	</div>
+</div>

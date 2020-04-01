@@ -1,0 +1,8 @@
+.mh-button.mh-submit-submitting,.mh-spinner.mh-submit-active,.mh-spinner.mh-submit-inactive {
+	display: none;
+}
+
+.mh-wordwrap {
+   word-wrap: break-word;
+}
+

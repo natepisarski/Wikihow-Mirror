@@ -1,0 +1,269 @@
+#header h1 {
+	width:375px;
+	margin:8px 0 0 20px;
+	line-height:21px;
+	text-align:left;
+	}
+.more {
+	top:146px;
+	left:409px;
+	}	
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+   	width: 420px;
+	}
+.right {
+	width:180px;
+	float:left;
+	position:relative;
+	}	
+.label, .lanel {
+   color: #809080;
+   float: left;
+   font-family: Museo500;
+   font-size: 16px;
+   margin: 20px 10px 0 30px;
+   text-align: right;
+}
+.form {
+	float:left;
+	width:auto !important;
+	margin-top:6px;
+	}
+#target,#target_si {
+	margin-top:-10px;
+	}	
+.wh_dd_input .wh_dd_value {
+	float:left;
+	margin-left:10px;
+	}
+.line {
+    background: none repeat scroll 0 0 #D8D8D8;
+    float: left;
+    height: 1px;
+    margin: 18px 0 15px 24px;
+    width: 372px;
+}	
+.float {
+	float:left;
+	width:112px;
+	margin:15px 0 0 21px;
+	}
+.float_2		
+.float .lanel {
+	text-align:center;
+	width:100%;
+	margin:0;
+	}
+.float .wh_dd_input {
+	margin-left:0;
+	} 
+.float_2 {
+	margin-left:19px;
+	} 
+.float_3 {
+	margin-left:19px;
+	width:242px;
+	}	
+#height_ft,#height_m {
+	margin-right:18px;
+	}		
+.float .lanel {
+	width:100%;
+	text-align:center;
+	margin:0 0 -20px 0;
+	}	
+.wh_ud_input {
+	text-align:right;
+	}
+.wh_ud_editable_value input {
+	float:right;
+	width:100%;
+	text-align:right;
+	height:37px;
+	font-size: 20px;
+	line-height:37px;
+	margin-top:-2px;
+	}	
+.result{ 
+    color: #809080;
+    float: left;
+    font-size: 40px;
+    margin: 94px 0 0 16px;
+    text-align: center;
+    width: 82%;
+	}
+	
+.hint { 
+    color: #809080;
+    float: left;
+    font-size: 40px;
+    margin: 69px 0 0 16px;
+    text-align: center;
+    width: 82%;
+	}
+#calories .whlabel_element	,#calories_si .whlabel_element	{
+    font-family: 'Museo500';
+	}
+.addon	{
+    font-family: 'Museo500';
+    color: #809080;
+    text-align: center;
+	font-size:14px;
+    float: left;
+    width: 82%;
+    margin: 3px 0 0 16px;
+	}
+	
+ul.tabs {
+    margin-top: -54px ;
+	*margin-top: 11px; /*IE7 hack*/
+}
+
+/*wh.dropdown.calories.css*/
+.whdropdown_element > * {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.wh_dd_input {
+    font-family: 'Museo700';
+	background:url(../../common/images/buttons.png) no-repeat 0 -400px;
+	height:37px;
+	line-height:37px;
+	color:#717171;
+	margin:19px 0 0 3px;
+	float:left;
+	font-size: 20px;
+    cursor: pointer; 
+	position:relative;
+}
+
+.wh_dd_select {
+    opacity:0;
+    filter:alpha(opacity=0); /* For IE8 and earlier */
+	height:37px;
+	background:none;
+    cursor: pointer;
+	/*float:left;*/
+	position: relative;
+}
+
+.wh_dd_value {
+	background:url(../../common/images/buttons.png) no-repeat right -400px;
+    float:left;
+    position: absolute;
+    height:37px;
+    line-height:38px;
+}
+
+.wh_dd_active_input 
+.wh_dd_value {
+	background:url(../../common/images/buttons.png) no-repeat right -301px;
+}
+
+.wh_dd_active_input {
+	background:url(../../common/images/buttons.png) no-repeat 0 -243px;
+}
+
+/*wh.updown.calories.css*/
+.whupdown_element > * {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.wh_ud_input {
+    font-family: 'Museo700';
+	background:url(../../common/images/buttons.png) no-repeat 0 -400px;
+	height:37px;
+	line-height:38px;
+	color:#717171;
+	margin:19px 0 0 3px;
+	float:left;
+	font-size: 20px;
+    cursor: text; 
+	position:relative;
+}
+.wh_ud_input.active_input {
+	background:url(../../common/images/buttons.png) no-repeat 0 -437px;
+	height:37px;
+	font-size: 20px;
+	line-height:38px;
+}
+
+.active_input  .wh_ud_units {
+	background:url(../../common/images/buttons.png) no-repeat right -437px;
+	}
+		
+.wh_ud_input span {
+    font-family: 'Museo500';
+	color:#a0a0a0;
+	-moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none; 
+}	
+	
+.wh_ud_units { /* SPAN with feeds, inches and s.o. */
+   float: right;
+   margin-right: 0px;
+   padding-left: 5px;
+   padding-right:10px;
+   cursor: default;
+}
+
+.wh_ud_increase {
+	background:url(../../common/images/buttons.png) no-repeat -59px -197px;
+	width:29px;
+	height:18px;
+	margin:19px 0 0 0px;
+	float:left;
+	cursor: pointer;
+}	
+	
+.wh_ud_increase:active {
+	background:url(../../common/images/buttons.png) no-repeat  -87px -197px;
+}
+	
+.wh_ud_decrease {
+	background:url(../../common/images/buttons.png) no-repeat -59px -215px;
+	width:29px;
+	height:19px;
+	margin:0px 0 0 0px;
+	float:left;
+	cursor: pointer;
+}
+
+.wh_ud_decrease:active {
+	background:url(../../common/images/buttons.png) no-repeat -87px -215px;
+}
+
+.wh_ud_editable_input {
+    float: right;  
+    border: none; 
+    background: transparent; 
+    font-family: 'Museo700'; 
+    line-height:38px;
+    color:#717171;
+    font-size: 23px;
+    padding-top: 3px;
+    height: 37px;
+    margin-right: -1px;
+    cursor: text; 
+}
+
+.wh_ud_ellipsis:before {
+    content: "…";
+}
+.percentages .active_input	
+.wh_ud_editable_value input  {
+	background:url(../../common/images/buttons.png) no-repeat right -147px;
+	
+	}		

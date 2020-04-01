@@ -1,0 +1,17 @@
+{{#errCnt}}
+	<b>Errors:</b>
+
+	<ul>
+	{{#errors}}
+		<li>{{.}}</li>
+	{{/errors}}
+	</ul>
+{{/errCnt}}
+
+<b>Queries added:</b>
+
+<ul>
+{{#queries}}
+	<li>({{aes_lang}}) {{aes_query}}</li>
+{{/queries}}
+</ul>

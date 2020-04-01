@@ -1,0 +1,133 @@
+.mwimg-caption {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin-left:auto;
+	margin-right:auto;
+	vertical-align: baseline;
+	text-align: center;
+	z-index: 5;
+	visibility: hidden;
+	top: 5%;
+}
+.mwimg-caption.mwimg-caption-show {
+	visibility: visible;
+}
+.mwimg-caption-bottom {
+	bottom: 7%;
+	top: inherit;
+}
+.mwimg-caption-fade {
+	opacity: 0;
+}
+.mwimg-caption-hidden {
+	opacity: 0;
+}
+.caption-wrap-small {
+	text-align: left;
+}
+.mwimg-caption-text {
+	padding-top: 2%;
+	padding-bottom: 4%;
+	white-space: nowrap;
+}
+.mwimg-caption-text-first {
+	padding-top: 4%;
+}
+.mwimg-caption-text > b {
+	color: #93b874;
+}
+.caption-wrap-small > .mwimg-caption-text {
+	padding-left: 4%;
+}
+.caption-wrap-icon > .mwimg-caption-text {
+	padding-left: 8%;
+}
+.caption-wrap {
+	background-color: rgb(85,85,85);
+	background-color: rgba(85,85,85,0.8);
+	font-family: Verdana, Geneva, sans-serif;
+	font-weight: bold;
+	color: white;
+	margin-left: 2%;
+	margin-right: 2%;
+	position: relative;
+}
+.caption-bg-grey {
+	background-image: repeating-linear-gradient(
+		135deg,
+		rgba(100,100,100,.35),
+		rgba(100,100,100,.35) 0.08em,
+		transparent 0.08em,
+		transparent 0.2em
+	);
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+}
+.caption-bg-white {
+	background-color: rgb(255,255,255);
+	background-color: rgba(255,255,255,.85);
+	color: rgb(84, 84, 84);
+	background-image: repeating-linear-gradient(
+		135deg,
+		rgba(235,235,235,.35),
+		rgba(235,235,235,.35) 0.08em,
+		transparent 0.08em,
+		transparent 0.2em
+	);
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+}
+.caption-icon-lightbulb {
+	position:absolute;
+	background-image: url(/extensions/wikihow/imagecaption/lightbulb_v2.png);
+	top: -10px;
+	left: -4px;
+	width: 25px;
+	height: 25px;
+	background-size: cover;
+}
+.caption-icon-lightbulb-2 {
+	background-image: url(/extensions/wikihow/imagecaption/lightbulb_v1.png);
+}
+.caption-icon-flag {
+	position:absolute;
+	top: -2px;
+	left: 2%;
+	width: 10px;
+	height: 10px;
+	background: #89ac6c;
+	border-top-right-radius: 2px;
+	border-top-left-radius: 2px;
+	filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+	-webkit-filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
+}
+.caption-icon-orange {
+	background: #FD7646;
+}
+.caption-icon-flag:before {
+	right: 50%;
+	border-right: 5px solid transparent;
+}
+.caption-icon-flag:after {
+	left: 50%;
+	border-left: 5px solid transparent;
+}
+.caption-icon-flag:before, .caption-icon-flag:after {
+	content: '';
+	position: absolute;
+	top: 100%;
+	width: 50%;
+	box-sizing: border-box;
+	border-top: 5px solid #89ac6c;
+}
+.caption-icon-orange:before, .caption-icon-orange:after {
+	border-top: 5px solid #FD7646;
+}
+.mwimg-caption-image, .mwimg-caption-mobile.nogif {
+	display: inline-block;
+	position: relative;
+	width: auto;
+}

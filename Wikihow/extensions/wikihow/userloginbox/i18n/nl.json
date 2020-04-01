@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "Inloggen",
+	"ulb_nologin": "Nog geen account?",
+	"ulb_create": "Account aanmaken",
+	"ulb_wh_act": "account",
+	"ulb_joinwh": "Meld je aan bij wikiHow",
+	"ulb_email": "E-mail",
+	"ulb_haveacct": "Heb je een account?",
+	"ulb_whacct": "wikiHow-account",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "Bezig met laden..."
+}

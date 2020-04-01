@@ -1,0 +1,22 @@
+{
+	"@metadata": {
+		"authors": [
+			"Wizardist"
+		]
+	},
+	"guidedtour-desc": "Дазваляе паказваць на старонках усплыўныя падказкі для дапамогі новым удзельнікам",
+	"guidedtour-help-url": "Help:Экскурсіі па сайце",
+	"guidedtour-help-guider-url": "Help:Экскурсіі па сайце/даведка",
+	"guidedtour-next-button": "Далей",
+	"guidedtour-okay-button": "Далей",
+	"guidedtour-tour-test-testing": "Тэставаньне",
+	"guidedtour-tour-test-test-description": "Гэта тэст апісаньня. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Тэст вынятак",
+	"guidedtour-tour-test-portal-description": "Гэта старонка {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Тэст сынтакса MediaWiki",
+	"guidedtour-tour-test-wikitext-description": "Выняткі ў экскурсіях па сайце могуць зьмяшчаць вікітэкст, дзякуючы onShow і parseDescription. Іх можна выкарыстаць, каб стварыць спасылку на [[{{MediaWiki:Guidedtour-help-url}}|дакумэнтацыю па экскурсіях]], або вонкавую спасылку на [https://github.com/tychay/mwgadget.GuidedTour GitHub].",
+	"guidedtour-tour-test-description-page": "Тэст старонак апісаньня MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Перайсьці на старонку апісаньня",
+	"guidedtour-tour-test-launch-tour": "Тэставы запуск экскурсіі",
+	"guidedtour-tour-test-launch-tour-description": "У часе адной экскурсіі можна пачаць і іншыя. Крута, га?"
+}

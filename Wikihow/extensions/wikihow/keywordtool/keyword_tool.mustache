@@ -1,0 +1,65 @@
+<form id="classify-titles-upload-form" action="/Special:{{action}}?upload=1" method="post" enctype="multipart/form-data">
+<div class=bx>
+	<p>
+		<span> This page can be used to post jobs to keyword tool api. The types of queries that can be posted are
+		<ul>
+			<li> Query phrases or keywords to get search volume data</li>
+			<li> Query keywords and get questions or suggestions based on those keywords along with search volume data</li>
+			<li> Upload dedup results and get search volume data for the phrases in it</li>
+	</ul>
+	</p>
+</div>
+<div class=bx>
+	<p>
+                <span><ul>
+                <li> Select Questions or Suggestions to expand query words. </li>
+                <li> Select Dedup to upload results from dedup.</li>
+                <li> If nothing is selected, the tool will get search volume for the queries provided. Selecting Dedup gets only the search volume for the queries in the dedup results.</li>
+                </ul></span>
+		<br/>
+		<input type ="radio" name ='questionbox' value ='1'/><span> Questions </span>
+		<input type ="radio" name ='questionbox' value ='2'/><span> Suggestions </span>
+		<input type ="radio" name ='questionbox' value ='3'/><span> Dedup Results </span>
+        </p>
+	<p>
+		<span class='sm'>Upload CSV file containing queries to be asked from Keywordtool API</span>
+	</p>
+	<input type="file" id="ctitlesfile" name="ctitlesfile" /><br/>
+	<div id="ct-result">
+		<ul>
+            <li>The input file can either be the output from Dedup OR</li>
+			<li>The input file needs to be in csv format</li>
+			<li>The input file can have short phrases (max 75 characters) for getting search volume data or one/two keywords per row if querying for questions.
+			<li>The csv needs to have a header with the query column labelled as 'query'.</li>
+			<li>The csv can have any number of columns, and the information will be preserved.</li>
+			<li>Characters that cause issues with the api and will be ignored: +, ", #, & </li>
+		</ul>
+	</div>
+</div>
+</form>
+
+<form action="/Special:{{action}}?oldbatch=1" method="post">
+<div class=bx>
+	<p>
+		<span class=sm>Archived Batches (Choose one)</span>
+		<p>
+			<span class=sm>All data</span>
+			<input type='checkbox' value='' name='alldata' id='alldata' />
+		</p>
+		<p>
+			<span class=sm>Last completed batch</span>
+			<input type='checkbox' value='' name='lastbatch' id='lastbatch' />
+		</p>
+	</p>
+	<p>
+		<span class=sm>Batch Number</span>
+		<input type='text' value='' name='batchid' id='batchid' />
+	</p>
+	<p><button type="submit" id="keyword-submit">Get Records</button></p>
+</div>
+</form>
+
+<div class=bx>
+	<p class=sm>Recent Job Status</p>
+	<div class="jobStatusStyle">{{{jobStatus}}}</div>
+</div>

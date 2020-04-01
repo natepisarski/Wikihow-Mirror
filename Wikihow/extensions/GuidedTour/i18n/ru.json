@@ -1,0 +1,36 @@
+{
+	"@metadata": {
+		"authors": [
+			"DCamer",
+			"KPu3uC B Poccuu",
+			"Okras"
+		]
+	},
+	"guidedtour-desc": "Позволяет добавлять на страницы обучающие туры со всплывающими подсказками, чтобы помочь новым пользователям",
+	"guidedtour-help-url": "Help:Обучающие туры",
+	"guidedtour-help-guider-url": "Help:Обучающие туры/гиды",
+	"guidedtour-next-button": "Далее",
+	"guidedtour-okay-button": "Ок",
+	"guidedtour-back-button": "Назад",
+	"guidedtour-tour-test-testing": "Тестирование",
+	"guidedtour-tour-test-test-description": "Это проверка описания. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Тест выноски",
+	"guidedtour-tour-test-portal-description": "Это страница, относящаяся к разделу {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Тест mediawiki parse",
+	"guidedtour-tour-test-description-page": "Тестирование страниц описания MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Перейти на страницу описания",
+	"guidedtour-tour-test-launch-tour": "Тестовый запуск тура",
+	"guidedtour-tour-test-launch-tour-description": "Гиды могут запускать другие туры. Довольно круто, да?",
+	"guidedtour-tour-test-launch-editing": "Запустить тур по редактированию",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Редактировать}} всю страницу…",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Нажмите}} кнопку «$1», чтобы внести изменения.",
+	"guidedtour-tour-firstedit-edit-section-title": "Или {{GENDER:|измените}} только раздел",
+	"guidedtour-tour-firstedit-edit-section-description": "Cсылки «{{int:editsection}}» есть для каждого из основных разделов страницы, так что вы можете сосредоточиться только на конкретной её части.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Предварительно просмотрите}} свои изменения (не обязательно)",
+	"guidedtour-tour-firstedit-preview-description": "Нажатие «{{int:showpreview}}» позволяет проверить, как будет выглядеть страница с вашими изменениями. Только не забудьте её потом сохранить!",
+	"guidedtour-tour-firstedit-save-title": "Вы почти закончили!",
+	"guidedtour-tour-firstedit-save-description": "Когда вы будете готовы, нажатие «{{int:publishchanges}}» сделает изменения видимыми для всех.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Нажмите}} кнопку «$1», чтобы внести свои изменения.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Ссылки «$1» существуют для каждого раздела страницы, так что вы можете сосредоточиться только на этой её части.",
+	"guidedtour-tour-firsteditve-save-description": "Когда вы будете готовы, нажатие «{{int:visualeditor-toolbar-savedialog}}» сделает изменения видимыми для всех."
+}

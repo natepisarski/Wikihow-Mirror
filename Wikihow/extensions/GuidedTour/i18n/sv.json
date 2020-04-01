@@ -1,0 +1,38 @@
+{
+	"@metadata": {
+		"authors": [
+			"Ainali",
+			"Jopparn",
+			"Lokal Profil",
+			"Tobulos1",
+			"WikiPhoenix"
+		]
+	},
+	"guidedtour-desc": "Tillåter sidor att ge en popup-guidad tur för att hjälpa nya användare",
+	"guidedtour-help-url": "Help:Guidade turer",
+	"guidedtour-help-guider-url": "Help:Guidade turer/guider",
+	"guidedtour-next-button": "Nästa",
+	"guidedtour-okay-button": "Okej",
+	"guidedtour-back-button": "Tillbaka",
+	"guidedtour-tour-test-testing": "Testar",
+	"guidedtour-tour-test-test-description": "Detta är ett test av beskrivningen. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Testa utpekning",
+	"guidedtour-tour-test-portal-description": "Detta är sidan {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Testa MediaWikitolkning",
+	"guidedtour-tour-test-description-page": "Testa sidbeskrivning för MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Gå till beskrivningssida",
+	"guidedtour-tour-test-launch-tour": "Testa starta tur",
+	"guidedtour-tour-test-launch-tour-description": "Turer kan starta andra guidade turer. Ganska coolt, va?",
+	"guidedtour-tour-test-launch-editing": "Starta en tur om redigering",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Redigera}} hela sidan...",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Klicka}} på knappen \"$1\" för att göra dina ändringar.",
+	"guidedtour-tour-firstedit-edit-section-title": "Eller {{GENDER:|redigera}} ett avsnitt",
+	"guidedtour-tour-firstedit-edit-section-description": "Det finns \"{{int:editsection}}\"-länkar för varje större avsnitt på en sida, så att du kan fokusera på endast den delen.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Förhandsgranska}} dina ändringar (valfritt)",
+	"guidedtour-tour-firstedit-preview-description": "Genom att klicka på \"{{int:showpreview}}\" kan du kontrollera hur sidan ser ut med dina ändringar. Glöm bara inte att spara!",
+	"guidedtour-tour-firstedit-save-title": "Du är nästan klar!",
+	"guidedtour-tour-firstedit-save-description": "När du är redo, kommer ett klick på \"{{int:publishchanges}}\" att synliggöra dina ändringar för alla.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Klicka}} på \"$1\"-knappen för att göra dina ändringar.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Det finns \"$1\"-länkar för varje större avsnitt på en sida, så att du kan fokusera på endast den delen.",
+	"guidedtour-tour-firsteditve-save-description": "När du är redo, kommer ett klick på \"{{int:visualeditor-toolbar-savedialog}}\" att synliggöra dina ändringar för alla."
+}

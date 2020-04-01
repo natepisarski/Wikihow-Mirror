@@ -1,0 +1,27 @@
+#wh_modal {
+	width: 360px;
+}
+
+#wh_modal_top {
+	font-size: 1.3em;
+	padding: .5em;
+}
+
+.wh_modal_section {
+	padding: 1em .5em .5em;
+}
+
+.wh_modal_text {
+	color: #434343;
+	font-size: 1em;
+	padding-bottom: 1em;
+}
+
+#wh_modal_close {
+	font-weight: bold;
+	padding-right: 2px;
+	margin-top: -2px;
+}
+
+#wh_modal_close:hover { text-decoration: none; }
+

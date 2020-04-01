@@ -1,0 +1,25 @@
+
+table.pagelist {
+	width: 75%;
+	margin-left:auto; margin-right:auto;
+	border: 1px solid #ccc;
+}
+
+table.pagelist td {
+	padding: 3px;
+}
+
+tr.shaded {
+	background: #eee;
+}
+
+#newtitle {
+	font-size: 1.1em;
+	width: 400px;
+	margin-left: 20px;
+}
+input.addicon {
+	height: 32px;
+	width: 32px;
+}
+

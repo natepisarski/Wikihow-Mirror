@@ -1,0 +1,64 @@
+<div class='minor_section'>
+	<div class="section_text">
+		{{{avatar}}}
+
+		<div id='avatarNameWrap'>
+			<h1 class='firstHeading'>{{name}}</h1>
+			<div>{{regdate}}</div>
+		</div>
+
+		<br class='clearall' />
+	</div>
+
+	<form method='post' name='profileBoxForm' id="profileBoxForm">
+		<div class='section_text'>
+
+			<div class='altblock'></div>
+			{{{pb-demographic}}}
+
+			<div class='pb_block'>
+				{{pb-location}}<br />
+				<input class='input_med' type='text' name='live' value='{{live}}' placeholder='{{pb-location-ph}}' />
+			</div>
+
+			<div class='pb_block'>
+				{{website}}<br />
+				<input class='input_med' type='text' name='occupation' id='occupation' value='{{occupation}}' placeholder='{{pb-website-ph}}' />
+			</div>
+
+			<div class='pb_block'>
+				{{pb-aboutme}}<br />
+				<textarea class='textarea_med' name='aboutme' cols='55' rows='3' style='overflow:auto;' placeholder='{{pb-aboutme-ph}}'>{{aboutme}}</textarea>
+			</div>
+
+		</div>
+
+		<br />
+
+		<div class='section_text'>
+
+			<div class='altblock'></div>
+			{{{pb-displayinfo}}}
+			<br /><br />
+
+			<input type='checkbox' name='articleStats' id='articleStats' {{#checkStats}}CHECKED{{/checkStats}} />
+			<label for='articleStats'>{{profilebox-checkbox-stats}}</label>
+			<br /><br />
+
+			<input type='checkbox' name='articleStartedEdited' id='articleStartedEdited' {{#checkStartedEdited}}CHECKED{{/checkStartedEdited}} />
+			<label for='articleStartedEdited'>{{pb-checkbox-articlesstartededited}}</label>
+			<br /><br />
+
+			<input type='checkbox' name='questionsAnswered' id='questionsAnswered' {{#checkQuestionsAnswered}}CHECKED{{/checkQuestionsAnswered}} />
+			<label for='questionsAnswered'>{{pb-checkbox-questionsanswered}}</label>
+			<br />
+		</div>
+		<br />
+
+		<div class='profileboxform_btns'>
+			<a href='{{userpage_url}}' class='button secondary'>{{cancel}}</a>
+			<input class='button primary' type='submit' id='gatProfileSaveButton' name='save' value='{{pb-save}}' />
+		</div>
+
+	</form>
+</div>

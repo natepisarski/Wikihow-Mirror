@@ -1,0 +1,18 @@
+{
+	"@metadata": {
+		"authors": [
+			"Candalua"
+		]
+	},
+	"cirrussearch-parse-error": "No gavemo capìo la domanda. Par piaser fala pi fàsile. Se la gavemo segnà par mejorar el sistema de riserca.",
+	"cirrussearch-now-using": "Sto projeto el dòpara un motor de riserca novo ([[mw:Special:MyLanguage/Help:CirrusSearch|piassè informassion]]).",
+	"cirrussearch-pref-label": "Riserca nova",
+	"cirrussearch-give-feedback": "Dìne 'sa te par",
+	"prefs-completion": "Conpletamento de la riserca",
+	"cirrussearch-pref-completion-section-desc": "Sugeridor de conpletamento",
+	"cirrussearch-completion-profile-fuzzy-pref-name": "Predefinìo (consejà)",
+	"cirrussearch-completion-profile-fuzzy-pref-desc": "El corèje fin a do erori de batidura. El risolve i rimandi vissini.",
+	"cirrussearch-completion-profile-fuzzy-subphrases-pref-name": "Corespondensa de tochi de frase (racomandà par i titoli pi longhi)",
+	"cirrussearch-completion-profile-classic-pref-name": "Riserca clàsega par prime létare",
+	"cirrussearch-completion-profile-classic-pref-desc": "Nissuna coression dei erori de batidura. El cata i scominzi dei titoli."
+}

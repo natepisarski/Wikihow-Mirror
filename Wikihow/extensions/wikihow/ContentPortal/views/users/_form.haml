@@ -1,0 +1,62 @@
+
+!= partial("shared/errors")
+
+%form.prevent-double{action: urlFor($user), method:"post"}
+	.form-group.username
+		%label WikiHow Username
+		%input.input-lg.form-control{name:"user[username]", value: $user->username, disabled: $user->id ? true : false,  placeholder:"Username"}
+
+		.checkbox
+			%label
+				%input(type="hidden" name="user[is_established]" value="0")
+				%input{type:"checkbox", name:"user[is_established]", value:"1", checked: $user->is_established}
+				Is user an established / trusted user?
+
+		- if ($user->isAdmin())
+			.row
+				.col-md-6
+					.radio
+						%label
+							%input{type:"radio", name:"user[dashboard_type]", value:"admin", checked: $user->dashboard_type == 'admin'}
+							Admin dashboard
+					.radio
+						%label
+							%input{type:"radio", name:"user[dashboard_type]", value:"normal", checked: $user->dashboard_type == 'normal'}
+							Normal dashboard
+
+				.col-md-6
+					%input(type="hidden" name="user[send_mail]" value=0)
+					.checkbox
+						%label
+							%input{type:"checkbox", name:"user[send_mail]", value: 1, checked: $user->send_mail == 1}
+							Recieve Nightly Emails
+
+	.row
+		.col-md-6
+			.form-group.categories
+				%label Category
+				%select(name="user[category_id]" class="form-control" placeholder="Category")
+					- foreach($categories as $category)
+						%option{value: $category->id, selected: $category->id == $user->category_id}
+							= $category->title
+
+			.alert.alert-warning
+				Roles determine what actions a user can perform. Also determines their place in the workflow of articles.
+
+		.col-md-6
+			%label Roles
+			- foreach($roles as $role)
+				.checkbox
+					%label
+						%input{name:"roles[]", value: $role->id, type:"checkbox", checked: $user->hasRoleId($role->id)}
+							= $role->title
+
+	.form-group
+		%label Notes
+		%textarea.form-control(name='user[note]' rows="5" placeholder="Enter notes about this user here.")= $user->note
+
+	%hr
+
+	%input(type="submit" class="btn btn-primary btn-lg" value="Save")
+	%a.btn.btn-default.btn-lg{href: url("users")} Cancel
+

@@ -1,0 +1,43 @@
+<h1 class="ur_title"><a href="{{articleUrl}}" target="_blank">{{articleText}}</a></h1>
+<p class="ur_eligible">
+	{{#eligible}}
+		Eligible to show reviews
+	{{/eligible}}
+	{{^eligible}}
+		Not eligible to show reviews
+	{{/eligible}}
+</p>
+<div id="ur_submitted_list">
+	<h3>Unprocessed Reviews (<span>{{reviewCount}}</span>)</h3>
+	{{# reviews}}
+	<div class="ur_submitted" reviewid="{{us_id}}">
+		<a href="#" class="ur_delete">Delete</a>  <a href="#" class="ur_edit">Edit</a>
+		{{#username}}
+			<p class="ur_linked_account">{{username}} (linked account, not editable)</p>
+		{{/username}}
+		<form>
+			{{^username}}
+			<input class="ur_firstname" name="firstname" value="{{us_firstname}}" /> <input class="ur_lastname" name="lastname" value="{{us_lastname}}" />
+			<br /><br />
+			{{/username}}
+			<textarea class="ur_review" name="review">{{us_review}}</textarea>
+			<input type="hidden" name="aid" value="{{us_article_id}}" />
+			<input type="hidden" name="eligible" value="{{eligible}}" />
+			<input type="hidden" name="timestamp" value="{{us_submitted_timestamp}}" />
+			<input type="hidden" name="rating" value="{{us_rating}}" />
+			<input type="hidden" name="userid" value="{{us_user_id}}" />
+			<input type="hidden" name="image" value="{{us_image}}" />
+			<div class="ur_original">
+				<p>Original review:</p>
+				<div>{{us_review}}</div>
+			</div><br />
+			{{#imageUrl}}
+				<img src="{{imageUrl}}" class="ur_image" />
+			{{/imageUrl}}
+		</form><div style="clear:both"></div>
+		<a href="#" class="ur_approve">Approve and put live</a>
+		<a href="#" class="ur_save">Save</a>
+	</div>
+	{{/ reviews}}
+</div>
+<a href="#" class="button primary ur_skip">Next page</a>

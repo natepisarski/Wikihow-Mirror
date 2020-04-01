@@ -1,0 +1,91 @@
+#content_wrapper {
+	padding-top: 0;
+}
+#method_toc {
+	visibility: hidden;
+}
+#mw-mf-page-center {
+	padding-bottom: 0;
+}
+a, a:active, a:visited {
+	color: #5a3696;
+}
+.sp_intro_expert {
+	pointer-events: none;
+}
+.sp_namelink {
+	pointer-events: none;
+}
+.sp_fullbox,#page-actions,.header,#footer,.pswp,.content .edit-page,.interwiki_otherdomain {
+	display: none;
+}
+a.addtip {
+	background-color: #556;
+}
+.content .button.primary {
+	background-color: #556;
+	border: 1px solid #556;
+}
+.mhmt-vote,#article_rating_mobile #article_rating {
+	color: #556;
+}
+#articleinfo #info_link {
+	background: none;
+	position: relative;
+}
+#articleinfo #info_link:after {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	content: "";
+	width: 18px;
+	height: 18px;
+	border: solid #556;
+	border-width: 0 4px 4px 0;
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+#header_logo {
+	display:none;
+}
+.related-image-link {
+	display: block;
+	vertical-align: top;
+}
+.related-image-link img {
+	display: block;
+	border: none;
+	width: 100%;
+	height: auto;
+}
+.related-title {
+	background-color: rgba(50,50,50,.5);
+	padding-right: 4%;
+	padding-left: 4%;
+	padding-top: 2%;
+	padding-bottom: 2%;
+	width: 92%;
+	min-height: 32px;
+	position: absolute;
+	bottom: 0;
+	cursor: pointer;
+	color: #fff;
+	font-weight: bold;
+}
+
+.related-title:hover,
+.related-title:visited:hover,
+.related-title:active:hover {
+	background-color: white;
+	color: #2483ef;
+	text-decoration: none;
+}
+.related-title-text p {
+	font-size: 12px;
+	line-height: 15px;
+}
+
+.related-image-link {
+	text-decoration: none;
+}

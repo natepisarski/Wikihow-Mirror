@@ -1,0 +1,10 @@
+table { border: 0; border-spacing: 4px; width: 100%; }
+.outer { border: 1px solid #ddd; }
+th { font-size: 9px; }
+tr { vertical-align: top; }
+tr.out>td { padding: 10px; }
+.mid {vertical-align: middle; }
+.wid-id { display: none; }
+.odd { background-color: #ddd; }
+h4 { padding: 5px 0 5px 0; letter-spacing: 0.2em }
+.dlabel { color: #999; }

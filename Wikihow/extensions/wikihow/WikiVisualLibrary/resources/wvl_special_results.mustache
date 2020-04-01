@@ -1,0 +1,129 @@
+<div class='wvl-results-contents'>
+	{{#pagerInfo}}
+		<div class='wvl-pager-container'>
+			<div class='wvl-pager-result-info'>
+				Showing results <b>{{resultRangeLower}}</b> &ndash; <b>{{resultRangeUpper}}</b> of <b>{{count}}</b> on page <b>{{pageCurrentFormatted}}</b> of <b>{{pageMaxFormatted}}</b>.
+			</div>
+			<div class='wvl-pager'>
+				<a href='#' class='wvl-pager-fast-back' title='Go to first page'>&#x23ee;</a>
+				<a href='#' class='wvl-pager-back' title='Go one page back'>&#x23ea;</a>
+				{{#pagesBefore}}
+					<a href='?{{pagerUrlString}}&page={{page}}&action=give_images_plz' class='wvl-pager-page' data-page='{{page}}' title='Go to page {{page}}'>{{page}}</a>
+				{{/pagesBefore}}
+				<span class='wvl-pager-current' data-page='{{pageCurrent}}'><b>{{pageCurrent}}</b></span>
+				{{#pagesAfter}}
+					<a href='?{{pagerUrlString}}&page={{page}}&action=give_images_plz' class='wvl-pager-page' data-page='{{page}}' title='Go to page {{page}}'>{{page}}</a>
+				{{/pagesAfter}}
+				<a href='#' class='wvl-pager-forward' title='Go one page forward'>&#x23e9;</a>
+				<a href='#' class='wvl-pager-fast-forward' data-page='{{pageMax}}' title='Go to page {{pageMax}}'>&#x23ed;</a>
+			</div>
+			<div class='wvl-pager-waiting' style='display: none;'></div>
+		</div>
+	{{/pagerInfo}}
+	{{#imageResults}}
+		<div class='wvl-result-container'>
+			<div class='wvl-result-header'>
+				{{#pageDisplayURL}}
+					<a href='{{pageDisplayURL}}' title='{{pageDisplayTitle}}' target='_blank' class='wvl-page-title wvl-title-link'>{{pageDisplayTitle}}</a>
+				{{/pageDisplayURL}}
+				{{^pageDisplayURL}}
+					{{#pageDisplayTitle}}
+						<span class='wvl-page-title wvl-title-no-link'>{{pageDisplayTitle}}</span>
+					{{/pageDisplayTitle}}
+					{{^pageDisplayTitle}}
+						<span class='wvl-page-title wvl-title-missing'>No article</span>
+					{{/pageDisplayTitle}}
+				{{/pageDisplayURL}}
+				&mdash;
+				{{#creators}}
+					<span class='wvl-creators wvl-creators-list'>Created by: {{creators}}</span>
+				{{/creators}}
+				{{^creators}}
+					<span class='wvl-creators wvl-creators-missing'>No known creators</span>
+				{{/creators}}
+				&mdash;
+				{{#imageCount}}
+					<span class='wvl-image-count'>{{imageCount}} total images</span>
+				{{/imageCount}}
+				{{^imageCount}}
+					<span class='wvl-image-count'>No images</span>
+				{{/imageCount}}
+				&mdash;
+				{{#videoCount}}
+					<span class='wvl-video-count'>{{videoCount}} total videos</span>
+				{{/videoCount}}
+				{{^videoCount}}
+					<span class='wvl-video-count'>No videos</span>
+				{{/videoCount}}
+			</div>
+			<ul class='wvl-result-images-container'>
+				{{#images}}
+					{{#assetURL}}
+						<li class='wvl-result-image'>
+							<div class='wvl-result-image-wrapper'>
+								<a href='{{assetURL}}' target='_blank'>
+									<img alt='{{assetThumbAlt}}' src='{{assetThumbURL}}' width='{{assetThumbWidth}}' height='{{assetThumbHeight}}' class='whcdn wvl-image-thumb'>
+								</a>
+								<div class='wvl-result-actions-wrapper'>
+									<div class='wvl-result-actions active'>
+										{{#assetWikitext}}
+											<button class='wvl-result-action-btn wvl-result-action-copy-wikitext'>Wiki</button>
+										{{/assetWikitext}}
+										<button class='wvl-result-action-btn wvl-result-action-copy-url'>URL</button>
+									</div>
+									{{#assetWikitext}}
+										<textarea class='wvl-result-wikitext wvl-result-copy-field inactive' rows='1' readonly>{{assetWikitext}}</textarea>
+									{{/assetWikitext}}
+									<textarea class='wvl-result-url wvl-result-copy-field inactive' rows='1' readonly>{{assetURL}}</textarea>
+									<div class='wvl-copied-toast-wrapper'>
+										<div class='wvl-copied-toast' style='display:none;'>Copied!</div>
+									</div>
+								</div>
+							</div>
+						</li>
+					{{/assetURL}}
+					{{^assetURL}}
+						<li class='wvl-result-no-image'>
+							{{imageTitle}}
+						</li>
+					{{/assetURL}}
+				{{/images}}
+				{{^images}}
+					No images. :(
+				{{/images}}
+			</ul>
+		</div>
+	{{/imageResults}}
+	{{^imageResults}}
+		No results. :(
+	{{/imageResults}}
+	{{#pagerInfo}}
+		<div class='wvl-pager-container'>
+			<div class='wvl-pager'>
+				<a href='#' class='wvl-pager-fast-back' title='Go to first page'>&#x23ee;</a>
+				<a href='#' class='wvl-pager-back' title='Go one page back'>&#x23ea;</a>
+				{{#pagesBefore}}
+					<a href='#' class='wvl-pager-page' data-page='{{page}}' title='Go to page {{page}}'>{{page}}</a>
+				{{/pagesBefore}}
+				<span class='wvl-pager-current' data-page='{{pageCurrent}}'><b>{{pageCurrent}}</b></span>
+				{{#pagesAfter}}
+					<a href='#' class='wvl-pager-page' data-page='{{page}}' title='Go to page {{page}}'>{{page}}</a>
+				{{/pagesAfter}}
+				<a href='#' class='wvl-pager-forward' title='Go one page forward'>&#x23e9;</a>
+				<a href='#' class='wvl-pager-fast-forward' data-page='{{pageMax}}' title='Go to page {{pageMax}}'>&#x23ed;</a>
+			</div>
+			<div class='wvl-pager-waiting' style='display: none;'></div>
+		</div>
+	{{/pagerInfo}}
+	{{#runtimeInfo}}
+		<div class='wvl-runtime-container'>
+			Served from DB in <b>{{assetGenerationTime}} seconds</b>. Thumbnails generated in <b>{{imageFormattingTime}} seconds</b>.
+		</div>
+	{{/runtimeInfo}}
+	<!--
+	{{#query}}
+		<pre id='wvl-query' style='display:none;'>{{query}}</pre>
+	{{/query}}
+	-->
+</div>
+

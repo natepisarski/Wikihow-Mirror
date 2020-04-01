@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "Đăng nhập",
+	"ulb_nologin": "Chưa có tài khoản?",
+	"ulb_create": "Tạo tài khoản",
+	"ulb_wh_act": "tài khoản",
+	"ulb_joinwh": "Tham gia wikiHow",
+	"ulb_email": "Thư điện tử",
+	"ulb_haveacct": "Đã có tài khoản?",
+	"ulb_whacct": "Tài khoản wikiHow",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "Đang tải..."
+}

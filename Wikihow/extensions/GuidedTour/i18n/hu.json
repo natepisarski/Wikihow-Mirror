@@ -1,0 +1,35 @@
+{
+	"@metadata": {
+		"authors": [
+			"Tgr",
+			"Misibacsi",
+			"Csega"
+		]
+	},
+	"guidedtour-desc": "Lehetővé teszi szövegbuborékokból álló bemutatók megjelenítését az új felhasználóknak.",
+	"guidedtour-help-url": "Help:Útikalauz",
+	"guidedtour-help-guider-url": "Segítség:Útikalauz/kalauz",
+	"guidedtour-next-button": "Tovább",
+	"guidedtour-okay-button": "Rendben",
+	"guidedtour-back-button": "Vissza",
+	"guidedtour-tour-test-testing": "Teszt",
+	"guidedtour-tour-test-test-description": "Ez egy teszt leírás. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Szövegbuborék teszt",
+	"guidedtour-tour-test-portal-description": "Ez a {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "MediaWiki parser teszt",
+	"guidedtour-tour-test-description-page": "MediaWiki leírás teszt",
+	"guidedtour-tour-test-go-description-page": "Ugrás a leírásra",
+	"guidedtour-tour-test-launch-tour": "Útikalauz-indítás teszt",
+	"guidedtour-tour-test-launch-tour-description": "Az útikalauzok újabb útikalauzokat indíthatnak. Jó, mi?",
+	"guidedtour-tour-firstedit-edit-page-title": "A teljes oldal {{GENDER:|szerkesztése}}...",
+	"guidedtour-tour-firstedit-edit-page-description": "Kattints a „$1” gombra a szöveg módosításához.",
+	"guidedtour-tour-firstedit-edit-section-title": "Egyetlen szakasz szerkesztése",
+	"guidedtour-tour-firstedit-edit-section-description": "A lap minden nagyobb szakaszához tartozik egy „{{int:editsection}}” link, ha csak azzal a résszel akarsz foglalkozni.",
+	"guidedtour-tour-firstedit-preview-title": "Nézd meg az {{GENDER:|előnézetet}} (opcionális)",
+	"guidedtour-tour-firstedit-preview-description": "Az „{{int:showpreview}}” gombra kattintva ellenőrizheted, hogyan fog kinézni az oldal a módosításaiddal együtt. Ne felejtsd el a végén elmenteni!",
+	"guidedtour-tour-firstedit-save-title": "Majdnem kész vagy!",
+	"guidedtour-tour-firstedit-save-description": "Ha végeztél, a „{{int:publishchanges}}” gombra kattintva a változtatásaid bekerülnek a cikkbe.",
+	"guidedtour-tour-firsteditve-edit-page-description": "A lap módosításához kattints a „$1” gombra.",
+	"guidedtour-tour-firsteditve-edit-section-description": "A lap minden nagyobb szakaszához tartozik egy „$1” link, ha csak azzal a résszel akarsz foglalkozni.",
+	"guidedtour-tour-firsteditve-save-description": "Ha kész vagy, a „{{int:visualeditor-toolbar-savedialog}}” gombra kattintva teheted a változtatásaidat mindenki számára láthatóvá."
+}

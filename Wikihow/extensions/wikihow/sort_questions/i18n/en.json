@@ -1,0 +1,12 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "sort_questions": "Approve Questions",
+	"sqt_get_next": "Next",
+	"sqt_txt": "Are these good questions about $1?",
+	"sort_questions_tool": "Approve Questions",
+	"sqt-logentry-vote": "Voted '$2' to a question on Approve Questions for [[$1]] -- Q: $3",
+	"sortquestions_currentstats": "Your Approve Questions Stats",
+	"sortquestionsstats_leaderboard_title": "Top Question Approver - Last 7 Days"
+}

@@ -1,0 +1,20 @@
+#eoq_box {
+	text-align: center;
+	font-size: 1.1em;
+}
+
+#eoq_button {
+	margin: 2em 0 1em 0;
+	display: inline-block;
+}
+
+@media only screen and (max-width: 599px), 
+	only screen and (max-height: 420px) and (orientation:landscape) {
+	
+	#eoq_box { font-size: 1.3em; }
+	#eoq_button { 
+		font-size: 1.2em;
+		padding: .5em;
+	}
+}
+

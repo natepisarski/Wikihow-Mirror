@@ -1,0 +1,40 @@
+<?php
+
+$messages = array();
+
+$messages['en'] = array (
+	'rclite' => 'RC Patrol',
+	'rclite_title' => 'RC Patrol',
+	'rcl-queue-end' => "You've reached the end of the queue. Please check back in a little while to see if there are more changes to patrol. In the mean time try some [[Special:Spellchecker|spell checking]].",
+	'rcl-yes' => "It's Good",
+	'rcl-yes-plural' => "Yes",
+	'rcl-no' => "No, It's Not",
+	'rcl-no-plural' => "No",
+	'rcl-unsure' => "Not Sure",
+	'rcl-image-placeholder-txt' => "Image removed.",
+	'rcl-old-rc' => "Article cannot be rolled back since this rc isn't the latest",
+	'rcl-bad-rc' => "Not a valid recent change for the RC Lite tool.",
+	'rcl-waiting-initial-heading' => "Hi There!",
+	'rcl-waiting-initial-sub' => "We're loading things up",
+	'rcl-waiting-yes-heading' => "Awesome!",
+	'rcl-waiting-yes-sub' => "Thanks for your help.",
+	'rcl-waiting-maybe-heading' => "Alright then,",
+	'rcl-waiting-maybe-sub' => "Let's try another one.",
+	'rcl-waiting-no-heading' => "Good catch.",
+	'rcl-waiting-no-sub' => "You're doing fantastic.",
+	'rcl-msg-anon-limit' => "You're awesome! Can you join us and keep helping?<br><br>Pretty Please?<br><br>$1",
+	'rcl-login' => 'log in',
+	'rcl-signup' => 'Sure!',
+	'rcl-one-day-patrollers' => 'Active patrollers (past 24 hours)',
+	'rcl-one-week-patrollers' => 'Active patrollers (past 7 days)',
+	'rcl-error-missing-revision' => "Oops!  Looks like we're missing a revision to show you. Please reload the tool to try again.",
+	'rcl-error-old-browser' => "Oops! Your browser is too old to work with this tool.  Please download a newer browser and try again.",
+	'rcl-error-unknown' => 'Oops! Something weird just happened.  Are you still connected to the Internet?  Please refresh this page and try again.',
+	'rcl-error-unknown-edit' => "Oops!  We encountered a weird edit and got a little confused! Please refresh this page and try again.",
+	'rcl-type-tip' => "Is this a good tip for $1?",
+	'rcl-type-talk' => "Is this message free of abuse on $1?",
+	'rcl-type-talk-title' => "$1's talk page",
+	'rcl-type-spelling-plural' => "Are these good spelling changes for $1?",
+	'rcl-type-spelling' => "Is this a good spelling change for $1?",
+	'rcl-error-patrolblocked' => "Woah nelly.  Looks like this tool is off limits for you. "
+);

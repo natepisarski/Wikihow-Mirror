@@ -1,0 +1,37 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "grunt test",
+    "qunit": "grunt qunit",
+    "doc": "jsduck",
+    "postdoc": "grunt copy:jsduck",
+    "selenium": "bash ./tests/selenium/selenium.sh",
+    "selenium-daily": "npm run selenium-test -- --mochaOpts.grep @daily",
+    "selenium-test": "wdio ./tests/selenium/wdio.conf.js"
+  },
+  "devDependencies": {
+    "eslint-config-wikimedia": "0.10.1",
+    "grunt": "1.0.3",
+    "grunt-banana-checker": "0.6.0",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-watch": "1.1.0",
+    "grunt-eslint": "21.0.0",
+    "grunt-jsonlint": "1.1.0",
+    "grunt-karma": "3.0.0",
+    "grunt-stylelint": "0.10.1",
+    "karma": "3.0.0",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-firefox-launcher": "1.1.0",
+    "karma-mocha-reporter": "2.2.5",
+    "karma-qunit": "2.1.0",
+    "postcss-less": "2.0.0",
+    "qunit": "2.9.1",
+    "stylelint-config-wikimedia": "0.5.0",
+    "wdio-junit-reporter": "0.2.0",
+    "wdio-mediawiki": "file:tests/selenium/wdio-mediawiki",
+    "wdio-mocha-framework": "0.5.13",
+    "wdio-sauce-service": "0.3.1",
+    "wdio-spec-reporter": "0.0.5",
+    "webdriverio": "4.12.0"
+  }
+}

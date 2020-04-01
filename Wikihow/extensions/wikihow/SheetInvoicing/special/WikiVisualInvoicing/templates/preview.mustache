@@ -1,0 +1,76 @@
+{{! The main template for the Special:WikiVisualInvoicing page}}
+
+<div id="sheet_invoicing">
+
+	<p id="sheetInv_intro">This tool can be used to preview and send invoices to WikiVisual contractors by email. Click any row to preview the email that will be sent to the contractor.</p>
+
+	<h2>Invoice preview</h2>
+
+{{#errors}}
+	<div class="errors"><b>Errors:</b><br><br>
+		<pre>{{errors}}</pre>
+	</div>
+{{/errors}}
+
+{{#warnings}}
+	<div class="errors"><b>Warnings:</b><br><br>
+		<pre>{{warnings}}</pre>
+	</div>
+{{/warnings}}
+
+{{^errors}}
+
+	<table id="sheetInv_preview_table">
+		<tr>
+			<th>FTP</th>
+			<th>Articles</th>
+			<th>Images</th>
+			<th>Paid</th>
+			<th>Loan</th>
+		</tr>
+		{{#items}}
+		<tr class="preview_row" data-ftp="{{ftp}}">
+			<td>{{ftp}}</td>
+			<td>{{url_total}}</td>
+			<td>{{img_total}}</td>
+			<td>{{paid}}</td>
+			<td>{{loan}}</td>
+		</tr>
+		{{/items}}
+	</table>
+
+	{{#items}}
+	<div class="preview_div hidden" data-ftp="{{ftp}}">
+		{{>invoice}}
+	</div>
+	{{/items}}
+
+	<form id="sheetInv_settings">
+		<h3>Settings</h3>
+		<table class='settings_table'>
+			<tr>
+				<td>Email subject (w/o loan):</td>
+				<td><input type="text" name="subject_wo_loan" placeholder="[INVOICE mm/dd/yyyy] Pay Period: mm/dd-mm/dd"></td>
+			</tr>
+			<tr>
+				<td>Email subject (w/ loan):</td>
+				<td><input type="text" name="subject_w_loan" placeholder="[INVOICE/LOAN mm/dd/yyyy] Pay Period: mm/dd-mm/dd"></td>
+			</tr>
+			<tr>
+				<td>Send staff report to:</td>
+				<td><input type="text" name="report_recipients" value="{{report_recipients}}"></td>
+			</tr>
+		</table>
+	</form>
+
+	<button class="button primary" id="sheetInv_send_btn" data-action="send">Send emails</button>
+
+	{{^is_prod}}
+	<div class="note">
+		<b>Note:</b> This is a dev server and contractors will not receive any emails.
+	</div>
+	{{/is_prod}}
+
+{{/errors}}
+
+</div>

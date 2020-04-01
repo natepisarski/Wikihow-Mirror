@@ -1,0 +1,153 @@
+.whupdown_element > * {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.wh_ud_input {
+    font-family: 'Museo700';
+	background:url(../../common/images/buttons.png) no-repeat 0 -99px;
+	height:46px;
+	line-height:46px;
+	color:#717171;
+	margin:19px 0 0 3px;
+	float:left;
+	font-size: 23px;
+    cursor: text; 
+	position:relative;
+}
+.form_uk .wh_dd_input{
+	background:url(../../common/images/buttons.png) no-repeat 0 -340px;
+	}
+
+
+
+
+.wh_ud_input.active_input {
+	background:url(../../common/images/buttons.png) no-repeat 0 -147px;
+}
+
+.active_input  .wh_ud_units {
+	background:url(../../common/images/buttons.png) no-repeat right -147px;
+	}
+		
+.wh_ud_input span {
+    font-family: 'Museo500';
+	color:#a0a0a0;
+	-moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none; 
+}	
+	
+.wh_ud_units { /* SPAN with feeds, inches and s.o. */
+   float: right;
+   margin-right: 0px;
+   padding-left: 5px;
+   padding-right:10px;
+   cursor: default;
+}
+
+.wh_ud_increase {
+	background:url(../../common/images/buttons.png) no-repeat 0 -197px;
+	width:29px;
+	height:23px;
+	margin:19px 0 0 0px;
+	float:left;
+	cursor: pointer;
+}	
+	
+.wh_ud_increase:active {
+	background:url(../../common/images/buttons.png) no-repeat 0 -220px;
+}
+	
+.wh_ud_decrease {
+	background:url(../../common/images/buttons.png) no-repeat -29px -197px;
+	width:29px;
+	height:23px;
+	margin:0px 0 0 0px;
+	float:left;
+	cursor: pointer;
+}
+
+.wh_ud_decrease:active {
+	background:url(../../common/images/buttons.png) no-repeat -29px -220px;
+}
+
+.wh_ud_editable_input {
+    float: right;  
+    border: none; 
+    background: transparent; 
+    font-family: 'Museo700'; 
+    line-height:40px;
+    color:#717171;
+    font-size: 23px;
+    padding-top: 3px;
+    height: 40px;
+    margin-right: -1px;
+    cursor: text; 
+}
+
+.wh_ud_ellipsis:before {
+    content: "…";
+}
+.whdropdown_element > * {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.wh_dd_input {
+    font-family: 'Museo700';
+	background:url(../../common/images/buttons.png) no-repeat 0 -99px;
+	height:46px;
+	line-height:46px;
+	text-align:center;
+	color:#717171;
+    margin-right: 0;
+	float:right;
+	font-size: 23px;
+    cursor: pointer; 
+	position:relative;
+}
+
+.wh_dd_select {
+    opacity:0;
+    filter:alpha(opacity=0); /* For IE8 and earlier */
+	height:46px;
+	background:none;
+    cursor: pointer;
+	/*float:left;*/
+}
+
+.wh_dd_value {
+	background:url(../../common/images/buttons.png) no-repeat right -255px;
+    float:left;
+    position: absolute;
+    height:46px;
+    line-height:46px;
+    text-align:center;
+}
+
+.wh_dd_active_input 
+.wh_dd_value {
+	background:url(../../common/images/buttons.png) no-repeat right -301px;
+}
+
+.wh_dd_active_input {
+	background:url(../../common/images/buttons.png) no-repeat 0 -243px;
+}
+.form_uk  .wh_dd_active_input{
+	background:url(../../common/images/buttons.png) no-repeat -75px -340px;
+}
+.form_uk  .wh_dd_active_input .wh_dd_value {
+	background:none;
+}
+
+.form_uk .active_input .wh_ud_editable_value  {
+    background: url(../../common/images/buttons.png) no-repeat  right -354px transparent;
+	padding-right:7px;
+	}	

@@ -1,0 +1,16 @@
+.uci_button {
+	vertical-align: middle;
+}
+.uci_button:hover {
+	background-position: 0px -26px;
+}
+.uci_controls {
+	line-height: 26px;
+	float: right;
+}
+.uci_cancel {
+	margin-left: 5px;
+}
+.uci_margin {
+	margin-top: 5px;
+}

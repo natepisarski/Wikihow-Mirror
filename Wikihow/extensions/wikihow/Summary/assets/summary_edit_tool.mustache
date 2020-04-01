@@ -1,0 +1,34 @@
+<div id="summary_edit_tool" class="section">
+	<h2 id="summary_edit_header">
+		<a href="#" id="summary_edit_close" class="editsection summary_edit_close">{{cancel_button}}</a>
+		<span class="mw-headline">{{header}}</span>
+	</h2>
+	<div id="summary_edit_err"></div>
+	<div id="summary_edit_main" class="summary_edit_section section_text">
+
+		<div class="set_header">{{section_content_header}}</div>
+		<textarea id="set_content" class="set_textarea">{{section_content}}</textarea>
+
+		<div class="set_header">{{last_sentence_header}}</div>
+		<textarea id="set_last_sentence" class="set_textarea">{{last_sentence}}</textarea>
+
+		<!-- input type="checkbox" id="set_checkbox" {{#checked}}checked="checked"{{/checked}} />
+		<label for="set_checkbox">{{checkbox_label}}</label -->
+
+		<div id="set_buttons">
+			<input id="set_submit" type="button" class="button primary" value="{{save_button}}" />
+			<input id="set_cancel" type="button" class="button secondary summary_edit_close" value="{{cancel_button}}" />
+		</div>
+	</div>
+
+	<div id="set_post_submit_buttons" class="section_text">
+		<input id="set_close" type="button" class="button primary summary_edit_close" value="{{close_button}}" />
+	</div>
+</div>
+
+<div id="temp_summary" class="section quicksummary sticky">
+	<h2><a href="#" class="editsection">{{edit}}</a><span>{{default_summary_header}}</span></h2>
+	<div class="section_text">
+		<div class="clearall"></div>
+	</div>
+</div>

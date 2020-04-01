@@ -1,0 +1,17 @@
+<div id="videoBrowser-widget">
+	<h3 class="videoBrowser-widget-title"><a href="/Video">{{title}}</a></h3>
+	<div class="videoBrowser-widget-videos">
+		{{#videos}}
+		<a class="videoBrowser-video" href="{{link}}">
+			<div class="videoBrowser-video-content">
+				<div class="videoBrowser-video-image">
+					{{{preview}}}
+				</div>
+				<p class="videoBrowser-video-title">{{howto}}<br><span>{{title}}</span></p>
+				<div class="videoBrowser-video-button videoBrowser-video-button-play"><span>Watch</span></div>
+			</div>
+		</a>
+		{{/videos}}
+		<div style="clear:both"></div>
+	</div>
+</div>

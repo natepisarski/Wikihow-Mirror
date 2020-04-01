@@ -1,0 +1,44 @@
+p {
+	margin-bottom: 10px;
+}
+
+#user-search-form {
+	margin-top: 20px;
+}
+
+#user-search-username {
+	font-size: 1em;
+}
+
+#user-search-submit {
+	font-size: 0.9em;
+	margin-left: 15px;
+}
+
+#search-results {
+    display: none;
+}
+
+#search-results h2 {
+    margin-bottom: 15px;
+}
+
+.search-result {
+    margin-bottom: 10px;
+}
+
+.search-result > div {
+    display: inline-block;
+}
+
+.search-result > div:first-child {
+    min-width: 150px;
+}
+
+.search-result a {
+    cursor: pointer;
+}
+
+#error-box h2 {
+    color: #d31414;
+}

@@ -1,0 +1,108 @@
+#bulk_topic_tagging {
+	> div {
+		padding-bottom: 1em;
+	}
+
+	#btt_results {
+		float: right;
+		width: 49%;
+		box-sizing: border-box;
+		padding: 1em;
+
+		&.btt_error {
+			color: #C00;
+		}
+
+		h2 {
+			margin: 0;
+		}
+
+		.btt_result_set {
+			display: table;
+			margin: .2em 0 1em 0;
+			width: 100%;
+
+			.btt_result_headers {
+				display: table-row;
+				font-weight: bold;
+				font-size: .8em;
+
+				> div {
+					display: table-cell;
+					padding: .3em .5em;
+				}
+			}
+
+			.btt_result_row {
+				display: table-row;
+
+				&:nth-child(even) {
+					background-color: #E4E4E4;
+				}
+
+				> div {
+					display: table-cell;
+					padding: .3em .5em;
+				}
+			}
+		}
+
+		#btt_export {
+			position: absolute;
+			top: 10px;
+			right: 0;
+		}
+	}
+
+	.btt_label {
+		padding-bottom: .2em;
+	}
+
+	.btt_sublabel {
+		font-style: italic;
+		font-size: .8em;
+	}
+
+	input, textarea, select {
+		padding: 0.3em;
+		border: 1px solid #545454;
+		resize: none;
+	}
+
+	#btt_article_list {
+		width: 49%;
+
+		textarea {
+			width: 99%;
+			height: 300px;
+			box-sizing: border-box;
+		}
+	}
+
+	#btt_reasons {
+		font-size: 1.1em;
+	}
+
+	input[type="radio"] {
+		margin: 0 .4em 0 .5em;
+		cursor: pointer;
+	}
+
+	label {
+		cursor: pointer;
+	}
+
+	&.processing {
+		#btt_save {
+			display: none;
+		}
+
+		#btt_results {
+			background: url(/extensions/wikihow/rotate.gif) center no-repeat;
+
+			> div {
+				display: none;
+			}
+		}
+	}
+}

@@ -1,0 +1,104 @@
+
+
+- if (empty($tags))
+	.alert.alert-warning
+		You dont have any tags assigned to you.
+		Please request an administrator assign you some tags.
+
+/ .row
+/ .col-md-8
+.well
+	%h2
+		Reserve Articles for Editing
+	%p.lead
+		Check articles that you would like to reserve, and then submit.
+		They will then appear under your "My Work" page.
+
+	%form.form-inline#tag-selector-form{action: url('reservations'), type: 'get'}
+		.form-group
+			%label Select Tag
+			%select.form-control#tag-selector{name: "tag"}
+				- foreach($tags as $tag)
+					!= option($tag['raw_tag'], $tag['raw_tag'], $currentTag)
+					= $tag['raw_tag'] == $currentTag
+
+	.well-body
+		%h3
+			Available Articles in
+			= $currentTag
+
+		- if (empty($articles))
+			.alert.alert-warning
+				There are currently no available articles with this tag.
+
+		- else
+
+
+			!= paginate();
+
+			%table.table.table-striped
+				%thead
+					%th(width="5%")
+					!= sortHeader('Title', 'ct_page_title')
+					!= sortHeader('Categories', 'ct_categories')
+					%th Notes
+
+				%tbody
+					- foreach($articles as $article)
+						%tr.an-delay
+							%td
+								%button.reserve.btn.btn-primary.btn-sm{"data-wh_article_id" => $article->page_id, "data-title" => $article->page_title, "data-tag" => $currentTag, "data-notes" => $article->notes}
+									%i.fa.fa-plus
+							%td
+								%a{target: "_blank", href: titleToUrl($article->page_title)}
+									= $article->page_title
+									%i.fa.fa-external-link
+
+							%td= $article->categories
+							%td
+								- if ($article->notes)
+									.alert.alert-warning.small
+										= $article->notes
+
+			!= paginate();
+
+// != partial('reservations/_reserved_sidebar')
+
+#errors-modal.modal.fade
+	// contents rendered with handlebars
+
+
+%script#error-template(type="text/jst")
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+					%span(aria-hidden="true") &times;
+				%h3.modal-title
+					%i.fa.fa-warning
+					The article
+					%em "{{title}}"
+					could not be reserved.
+
+			.modal-body
+				%ul
+					{{#errors}}
+					%li
+						{{.}}
+					{{/errors}}
+
+			.modal-footer
+				.help-block.pull-left
+					Please email
+					%a{href: "mailto:" . PORTAL_CONTACT . "?subject={{title}}"}
+						=PORTAL_CONTACT
+					for further help.
+
+				%button(type="button" class="btn btn-primary" data-dismiss="modal") Ok
+
+
+%script#confirm-template(type="text/jst")
+	%td(colspan="4")
+		.alert.alert-success Article has been reserved.
+
+- addScript("WH.reservations.init();")

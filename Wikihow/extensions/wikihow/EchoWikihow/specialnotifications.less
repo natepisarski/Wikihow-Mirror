@@ -1,0 +1,102 @@
+@import '../less/variables.less';
+
+.content {
+	.mw-echo-ui-notificationsInboxWidget-toolbarWrapper {
+		background: none;
+		box-shadow: none;
+		position: static;
+		padding: 0;
+
+		.mw-echo-ui-notificationsInboxWidget-main-toolbar-top {
+			.mw-echo-ui-notificationsInboxWidget-row {
+				text-align: center;
+				color: @linkColor;
+			}
+		}
+	}
+
+	.mw-echo-ui-paginationWidget {
+		margin: 0 auto;
+	}
+
+	.mw-echo-ui-datedNotificationsWidget {
+		background: #EDEDED;
+		padding: @smallSectionPadding;
+		border-radius: @borderRadius;
+	}
+
+	.mw-echo-ui-notificationItemWidget-content-actions {
+		> .mw-echo-ui-notificationItemWidget-content-actions-buttons {
+			&.oo-ui-buttonSelectWidget {
+				white-space: initial;
+				width: 100%;
+			}
+		}
+	}
+
+	.mw-echo-ui-datedSubGroupListWidget-title {
+		padding-top: 0;
+	}
+
+	.mw-echo-ui-datedSubGroupListWidget-title-primary {
+		font-size: .65em;
+	}
+
+	.mw-echo-ui-datedNotificationsWidget {
+		.mw-echo-ui-subGroupListWidget-header {
+			margin-bottom: 0;
+		}
+	}
+
+	.mw-echo-ui-notificationItemWidget {
+		background: #FFF;
+		border: none;
+		margin-bottom: .2em;
+
+		&:first-of-type {
+			border-top-left-radius: @borderRadius;
+			border-top-right-radius: @borderRadius;
+		}
+
+		&:last-of-type {
+			border-bottom-left-radius: @borderRadius;
+			border-bottom-right-radius: @borderRadius;
+			border-bottom: none;
+		}
+	}
+
+	.mw-echo-ui-notificationItemWidget-icon {
+		float: left;
+		position: static;
+
+		img {
+			width: 1em;
+			margin-right: .5em;
+		}
+	}
+
+	.mw-echo-ui-notificationItemWidget-content {
+		margin: 0;
+		padding: 0;
+	}
+
+	.oo-ui-iconElement-icon {
+		width: 1em;
+	}
+
+	.oo-ui-decoratedOptionWidget {
+		padding-left: 2em;
+		font-size: .85em;
+	}
+
+	.mw-echo-ui-notificationItemWidget-content-actions-timestamp {
+		font-size: .85em;
+		vertical-align: middle;
+	}
+
+	@media @medium {
+		.mw-echo-ui-datedNotificationsWidget {
+			padding: @largeSectionPadding;
+		}
+	}
+}

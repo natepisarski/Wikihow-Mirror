@@ -1,0 +1,198 @@
+#editfinder_preview, #editfinder_preview_updated {
+
+}
+#editfinder_preview_updated { padding-top: 0; }
+
+#editfinder_preview .edit {
+	display: none;
+}
+
+#editfinder_tool_title {
+	background-color: #F6F5F4;
+	border-radius: 4px 4px 0 0;
+	padding: 15px;
+	font-weight: bold;
+}
+
+.wh_block { 
+	border-radius: 0; 
+	border: none;
+	padding: 15px 15px 20px 15px;
+}
+
+#editfinder_head {
+	border: none;
+	border-radius: 0 0 4px 4px;
+	padding: 15px;
+}
+
+#editfinder_skip { margin: 0; }
+
+#editfinder_upper {
+	background: url(eraser.jpg) no-repeat top right;
+	height: 82px;
+	line-height: 82px;
+	padding-left: 20px;
+}
+
+#editfinder_hdr_choose { 
+	position: relative;
+	float: right; 
+	font-weight: normal;
+	cursor: pointer;
+}
+
+#editfinder_interests {
+	display: none;
+	background-color: #FFF;
+	margin-bottom: 3em;
+	padding: 15px;
+}
+
+#editfinder_options {
+	font-size: 1em;
+	float: right;
+}
+#editfinder_options .button {
+	float: right;
+}
+
+.editfinder_button_yes {
+	background:url(./editfinder_yes.png) no-repeat scroll left top transparent;
+	height:26px;
+	line-height:25px;
+	width:153px;
+	padding-left: 10px;
+	font-size: .9em;
+}
+.editfinder_button_yes:hover { background-position: 0 -28px; }
+.editfinder_button_yes:active { background-position: 0 -57px; }
+
+#efcc_choices {
+	text-align: right;
+	line-height: 27px;
+	}
+	#efcc_yes { margin-right: 8px; }
+	#efcc_no { float: right; }
+
+#editfinder_title {
+	margin: 15px 15px 0 15px;
+	border: 1px solid #CDCDCD;
+	background-color: #F5F5F5;
+}
+#editfinder_title h1 {
+	font-size: 1.5em;
+	padding: 10px 15px;
+}
+
+#editfinder_spinner {
+	display: none;
+	margin: 50px;
+	text-align: center;
+}
+
+#editfinder_cat_footer {
+	padding: 0 0 25px 0;
+	text-align: center;
+	font-size: 18px;
+	border-top: #CDCDCD;
+}
+#editfinder_cat_footer a {
+	padding-left: 2px;
+}
+
+h2 .editsectionbutton {
+	display: none;
+}
+
+.template_top {
+	display: none;
+}
+
+#article_tabs_line {
+	display: none;
+}
+
+div#article { padding-bottom: 0; }
+
+#drafts-list-box { display: none; }
+#wpDiff, #wpDraftSave { display: none; }
+#othereditlink { display: none; }
+
+.editfinder_stats table {
+    border-collapse: collapse;
+    color: #555555;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2px;
+    width: 90%;
+}
+
+.editfinder_stats td {
+	border-bottom: 1px dotted #A59983;
+    border-collapse: collapse;
+    padding: 2px;
+}
+
+
+#editfinder_preview_updated { display: none; }
+
+#editfinder_preview_updated .previewnote {
+	background: #FDFCDE;
+	padding:15px;
+	border-bottom: 1px solid #CCC;
+	margin-bottom: 20px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.editfinder_modal p {
+	padding-bottom: 1em;
+}
+
+.editfinder_modal .template_type {
+	font-weight: bold;
+}
+
+a.clickfail {
+	color: #888;
+	cursor: default;
+	background-position: 0 -87px;
+}
+a.clickfail:hover {
+	text-decoration: none;
+	background-position: 0 -87px;
+}
+
+.editOptions #wpSummary {
+	font-size: 12px;
+}
+
+.editOptions {
+	font-size:14px;
+}
+
+#wpTextbox1{
+	height: auto;
+}
+
+.editButtons {
+	padding-top:13px;
+	text-align: right;
+}
+
+#editfinder_cat_header {
+	display: none;
+	font-size: .75em;
+	padding-top: .5em;
+}
+
+#edit_keys {
+    float: right;
+	font-size: 10px;
+	margin-top: -37px;
+	margin-right: 2px;
+}
+
+#mw-anon-edit-warning { padding-top: 1em; }

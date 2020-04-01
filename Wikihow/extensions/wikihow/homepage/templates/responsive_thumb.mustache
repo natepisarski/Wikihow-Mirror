@@ -1,0 +1,15 @@
+<div class="hp_thumb">
+	{{#isExpert}}
+		<div class="hp_expert">EXPERT</div>
+	{{/isExpert}}
+	<a href="{{url}}">
+		{{#isVideo}}
+			<img src="/extensions/wikihow/homepage/images/play.png" loading="lazy" class="play_button" />
+		{{/isVideo}}
+		{{{image}}}
+		<div>
+			<span>{{howto}}</span>
+			<p>{{title}}</p>
+		</div>
+	</a>
+</div>

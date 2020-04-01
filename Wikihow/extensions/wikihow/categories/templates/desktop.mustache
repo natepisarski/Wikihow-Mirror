@@ -1,0 +1,92 @@
+
+<div class="cat_section" id="cat_description">
+	{{{description}}}
+</div>
+{{#hasFeatured}}
+<div class="cat_section" id="cat_featured">
+	<h2>{{featuredHeader}}</h2>
+	<div id="cat_featured_articles">
+		{{#featured}}
+		<div class="{{classes}}">
+			<a href="{{url}}">
+				<img data-src="{{data-src}}" src="{{data-src}}" id="{{id}}" alt="" />
+				<div class="text"><p>{{{textBlock}}}</p></div>
+			</a>
+		</div>
+		{{/featured}}
+	</div>
+	<div class="clearall"></div>
+</div>
+{{/hasFeatured}}
+{{#hasTopLevel}}
+<div id="cat_related_tags">
+	<p>{{relatedHeader}}
+		{{#topLevel}}
+			<a href="{{relatedUrl}}" class="button secondary">{{relatedText}}</a>
+		{{/topLevel}}
+		{{#hasTopLevelSecondRow}}
+			<a href="#" class="button secondary" id="cat_more">{{cat_more}}...</a>
+			<div id="top_level_more">
+			{{#topLevelSecondRow}}
+				<a href="{{relatedUrl}}" class="button secondary">{{relatedText}}</a>
+			{{/topLevelSecondRow}}
+			</div>
+		{{/hasTopLevelSecondRow}}
+	</p>
+</div>
+{{/hasTopLevel}}
+<div id="cat_container">
+	<div class="cat_section {{^hasSubcats}}cat_nosidebar{{/hasSubcats}}" id="cat_all">
+		<h2>{{allArticlesHeader}}</h2>
+		{{#all}}
+			<div class="{{classes}}">
+				<a href="{{url}}">
+					<img data-src="{{data-src}}" src="{{data-src}}" id="{{id}}" alt="" />
+					<div class="text"><p>{{{textBlock}}}</p></div>
+				</a>
+			</div>
+		{{/all}}
+		<div class="clearall"></div>
+		{{{pagination}}}
+	</div>
+	{{#hasSubcats}}
+	<div class="cat_section" id="cat_sub_categories">
+
+		<h2>{{topicsHeader}}</h2>
+		{{#subcats}}
+			<div>{{{categoryLink}}}
+			{{#hasSubsubcats}}
+					<ul>
+					{{#subsubcats}}
+					<li>{{{categoryLink}}}</li>
+						<li>&middot;</li>
+					{{/subsubcats}}
+					</ul>
+			{{/hasSubsubcats}}
+			</div>
+		{{/subcats}}
+	</div>
+	{{/hasSubcats}}
+	<div class="clearall"></div>
+</div>
+{{#hasRelated}}
+	<div class="cat_section" id="cat_related">
+		<h2>Featured Articles from {{topCat}}</h2>
+		<div id="cat_related_articles">
+			{{#related}}
+				<div class="{{classes}}">
+					<a href="{{url}}">
+						<img data-src="{{data-src}}" src="{{data-src}}" id="{{id}}" alt="" />
+						<div class="text"><p>{{{textBlock}}}</p></div>
+					</a>
+				</div>
+			{{/related}}
+		</div>
+		<div class="clearall"></div>
+	</div>
+{{/hasRelated}}
+{{#furtherEditing}}
+	<div class="cat_section" id="cat_furtherediting">
+		{{{furtherEditing}}}
+	</div>
+{{/furtherEditing}}

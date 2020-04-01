@@ -1,0 +1,33 @@
+
+table.mwmessages {
+	margin-top: 25px;
+	width: 100%;
+}
+
+table.mwmessages td{
+	border-bottom: 1px solid #ccc;
+	padding: 5px;
+	vertical-align: top;
+}
+
+td.mw_val {
+	width: 300px;
+	padding: 10px;
+	font-size: 80%;
+	font-family: Courier New;	
+	border: 1px solid #ccc;
+}
+
+div.mwmessages {
+	border: 1px solid #808080;
+	padding: 10px;
+	font-size: 110%;
+}
+
+#wpSummaryLabel {
+	display:none;
+}
+
+div.mw-newarticletext {
+	display:none;
+}

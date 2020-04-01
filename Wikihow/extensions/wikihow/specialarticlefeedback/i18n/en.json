@@ -1,0 +1,13 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "specialarticlefeedback": "Review Article Feedback",
+	"specialarticlefeedbacknext": "Next",
+	"specialarticlefeedbacktext": "Could this reader feedback be used to improve the article $1?",
+	"specialarticlefeedbacktool": "Vote on feedback",
+	"specialarticlefeedbackcurrentstats": "Your Article Feedback Stats",
+	"specialarticlefeedbackleaderboardtitle": "Top Article Feedback User- Last 7 Days",
+    "specialarticlefeedbacklogentryvote": "Action '$2' on Article Feedback for [[$1]] -- rating reason id: $3",
+    "article_feedback_tool": "Review Article Feedback"
+}

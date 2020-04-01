@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": [
+			"Lojjik Braughler"
+		]
+	},
+
+	"listdemotedarticles": "List of demoted articles",
+	"listdemotedarticles-desc": "Lists articles that have been demoted.",
+	"action-listdemotedarticles": "view the list of demoted articles"
+}

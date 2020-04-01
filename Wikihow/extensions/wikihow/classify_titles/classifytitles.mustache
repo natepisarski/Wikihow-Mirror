@@ -1,0 +1,41 @@
+<form id="classify-titles-upload-form" action="/Special:{{action}}?upload=1" method="post" enctype="multipart/form-data">
+<div class='bx'>
+	<p>
+		<span class='sm'>Upload CSV file containing short phrases, the classifier will mark them as good or bad as potential titles</span>
+	</p>
+	<input type="file" id="ctitlesfile" name="ctitlesfile" /><br/>
+	<div id="ct-result">
+		<ul>
+			<li>The input file needs to have the short phrases in the first column. It can have any number of columns and that information
+				will be preserved.</i>.</li>
+			<li>The file needs to be in a csv format.</li>
+		</ul>
+	</div>
+</div>
+</form>
+
+<form action="/Special:{{action}}?oldbatch=1" method="post">
+<div class=bx>
+	<p>
+		<span class=sm>Archived Batches (Choose one)</span>
+		<p>
+			<span class=sm>All data</span>
+			<input type='checkbox' value='' name='alldata' id='alldata' />
+		</p>
+		<p>
+			<span class=sm>Last completed batch</span>
+			<input type='checkbox' value='' name='lastbatch' id='lastbatch' />
+		</p>
+	</p>
+	<p>
+		<span class=sm>Batch Number</span>
+		<input type='text' value='' name='batchid' id='batchid' />
+	</p>
+	<p><button type="submit" id="keyword-submit">Get Records</button></p>
+</div>
+</form>
+
+<div class=bx>
+	<p class=sm>Recent Job Status</p>
+	<div class="jobStatusStyle">{{{jobStatus}}}</div>
+</div>

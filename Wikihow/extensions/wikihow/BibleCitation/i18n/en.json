@@ -1,0 +1,25 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"bible_citation_header": "Let wikiHow Create Your Citation!",
+	"bible_citation_error": "Please correct marked fields",
+	"bible_citation_format": "Citation Format",
+	"bible_citation_title": "Bible Title",
+	"bible_citation_optional": "Optional",
+	"bible_citation_volume_placeholder": "Volume",
+	"bible_citation_edition_placeholder": "Edition (Ex. 1st)",
+	"bible_citation_section": "Section",
+	"bible_citation_publication": "Publication",
+	"bible_citation_publisher_placeholder": "Publisher",
+	"bible_citation_city_placeholder": "City",
+	"bible_citation_year_placeholder": "Year",
+	"bible_citation_submit": "Create Citation",
+	"bible_citation_format_options": "MLA 8,APA",
+	"bible_citation_section_options": "Entire source,Genesis,Exodus,Leviticus,Numbers,Deuteronomy,Joshua,Judges,Ruth,1 Samuel,2 Samuel,1 Kings,2 Kings,1 Chronicles,2 Chronicles,Ezra,Nehemiah,Esther,Job,Psalms,Proverbs,Ecclesiastes,Song of Soloman (also Canticles),Isaiah,Jeremiah,Lamentations,Ezekiel,Daniel,Hosea,Joel,Amos,Obadiah,Jonah,Micah,Nahum,Habakkuk,Zephaniah,Malachi,Matthew,Mark,Luke,John,Acts,Romans,1 Corinthians,2 Corinthians,Galatians,Ephesians,Philippians,Colossians,1 Thessalonians,2 Thessalonians,1 Timothy,2 Timothy,Titus,Philemon,Hebrews,James,1 Peter,2 Peter,1 John,2 John,3 John,Jude,Revelation (also Apocalypse)",
+	"bible_citation_copy": "Copy Citation",
+	"bible_citation_create": "Create New Citation",
+	"bible_citation_complete": "Your $1 citation is complete!",
+	"bible_citation_copied": "Citation copied to your clipboard",
+	"bible_citation_error_edition": "If you are adding an edition number, don't forget the ordinal indicator (st, nd, rd, th)."
+}

@@ -1,0 +1,58 @@
+.well
+	%h2 Auto-Assignment Rules
+	%p
+		%i.fa.fa-arrow-right.text-success
+		= "= for articles going to review"
+	%p
+		%i.fa.fa-question.text-info
+		= "= for questions"
+
+	.well-body
+		- if (count($rules) > 0)
+
+			%form.prevent-double{action: $formAction, method: "post"}
+				%table.table.table-striped
+					%thead
+						%tr
+							%th.text-center
+							%th.text-center
+							%th Name
+							%th From
+							%th To
+							%th.text-center Max
+							%th.text-center Enabled
+
+					%tbody
+						- foreach ($rules as $rule)
+							%tr
+								%td.text-center(width="20px")
+									- if ($rule->rule_type == 'question')
+										%i.fa.fa-question.text-info
+									- else
+										%i.fa.fa-arrow-right.text-success
+								%td(width="20px")
+									= $rule->priority
+								%td
+									= $rule->name
+								%td
+									- if ($rule->from_type == 'catchall')
+										Catchall
+									- else
+										= $rule->from_name
+								%td
+									= $rule->to_name
+								%td.text-center
+									- if ($rule->max == 0)
+										= "-"
+									- else
+										= $rule->max
+								%td.text-center(width="60px")
+									%input{type: "checkbox", name: "enabled[]", value: $rule->id, checked: $rule->disabled == 0}
+
+				%input.btn.btn-primary.btn-lg{type: "submit", value: "Update rules"}
+				%a.btn.btn-default.btn-lg{href: url("articles/index")} Cancel
+
+		- else
+			.alert.alert-danger
+				%strong I could not find any assignment rules
+				%p There are no auto-assignment rules in the system, but it seems like there should be, right?

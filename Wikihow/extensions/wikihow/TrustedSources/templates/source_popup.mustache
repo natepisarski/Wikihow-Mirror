@@ -1,0 +1,14 @@
+<span class="ts_popup {{trustedclass}}" hidden id="ts_popup_{{num}}" style="display: none;" >
+	<span class="ts_close" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility" role="button" tabindex="0"{{/isAmp}}>X</span>
+	{{#trustedclass}}
+		<a class="ts_trustworthy" href="/wikiHow:Delivering-a-Trustworthy-Experience">Trustworthy Source</a>
+
+		<span class="ts_name">{{ts_name}}</span>
+		<span class="ts_description">{{ts_description}}</span>
+		<a href="{{#isAmp}}#References{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>Go to source</a>
+	{{/trustedclass}}
+	{{^trustedclass}}
+		<span class="ts_name">Research source</span>
+		<a href="{{#isAmp}}#References{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>{{#isAmp}}Go to Source{{/isAmp}}</a>
+	{{/trustedclass}}
+</span>

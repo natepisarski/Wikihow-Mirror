@@ -1,0 +1,72 @@
+.social_login_button {
+	display: inline-block;
+	width: 100%;
+	border-radius: 2px;
+	white-space: nowrap;
+	color: white;
+	text-align: center;
+
+	&:hover {
+		cursor: pointer;
+	}
+
+	span.social_login_button_text {
+		display: inline-block;
+		font-size: .8em;
+		line-height: .8em;
+		vertical-align: middle;
+		text-align: center;
+		margin-top: 15px;
+		margin-left: -1px;
+	}
+
+	span.social_login_button_icon {
+		display: inline-block;
+		vertical-align: middle;
+		width: 35px;
+		height: 35px;
+		float: left;
+		background-color: transparent;
+		background-repeat: no-repeat;
+	}
+
+	&.google_button {
+		border: none;
+		background-color: #3F82F7;
+
+		span.social_login_button_icon {
+			background-position: top left;
+			background-size: 35px;
+			background-image: url(/extensions/wikihow/userloginbox/images/ulb_google_small.png);
+			/* @embed */
+			background-image: url(/extensions/wikihow/userloginbox/images/ulb_google_small.svg);
+		}
+	}
+
+	&.facebook_button {
+		border: none;
+		background-color: #365494;
+
+		span.social_login_button_icon {
+			background-position: top left;
+			background-size: 35px;
+			background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook_small.png);
+			/* @embed */
+			background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook_small.svg);
+		}
+	}
+
+	&.civic_button {
+		border: none;
+		background-color: #AAAAAA;
+
+		span.social_login_button_icon {
+			background-position: top left;
+			background-size: 35px;
+			background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic_small.png);
+			/* @embed */
+			background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic_small.svg);
+		}
+	}
+}
+

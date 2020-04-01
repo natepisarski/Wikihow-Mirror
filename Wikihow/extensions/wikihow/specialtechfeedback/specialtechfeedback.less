@@ -1,0 +1,264 @@
+@import '../less/variables.less';
+
+#stf-title {
+	background-color: #FFF;
+	padding: @smallSectionPadding;
+	line-height: normal;
+
+	h5 {
+		font-weight: bold;
+		padding: 0;
+	}
+}
+
+#current-title {
+	padding: 10px;
+	font-size: 18px;
+	line-height: 21px;
+
+	a {
+		font-weight: bold;
+	}
+}
+
+#footer,
+#buttons-large {
+	display: none;
+}
+
+#icon {
+	margin-bottom: 18px;
+}
+
+#icon-image {
+	float:left;
+	background-image: url(/skins/WikiHow/images/80x80_user.png);
+	background-size: cover;
+	width: 40px;
+	height: 40px;
+	border-radius: 100%;
+}
+
+#icon-text {
+	line-height: 40px;
+	margin-left: 50px;
+	font-size: 18px;
+}
+
+#icon-text-wrap {
+	padding: 15px;
+	border-radius: 4px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+#text-line {
+	position: relative;
+	font-size: 18px;
+	background-color: #f6f5f4;
+	text-align: left;
+	border-radius: @borderRadius;
+	padding: 10px;
+	margin: 0;
+}
+
+#show-article-line {
+	margin-top: 8px;
+	margin-left: 12px;
+}
+
+.full-link {
+	position: relative;
+	padding-right: 10px;
+}
+
+.hide-full-link {
+	position: relative;
+	padding-right: 10px;
+	display: none;
+}
+
+.button {
+	text-align: center;
+	width: 20%;
+	max-width: 75px;
+}
+
+#article-data {
+	display: none;
+	margin-top: 25px;
+}
+
+#tool-data {
+	padding: @smallSectionPadding;
+	background: #FFF;
+	margin-top: 1em;
+}
+
+#tool-data-line {
+	margin-top: -20px;
+}
+
+#header-title {
+	margin-top: 5px;
+
+	a {
+		font-size: 2em;
+		color: #363;
+		text-decoration: none;
+	}
+}
+
+#header-remaining {
+	color: #555;
+	float: right;
+	font-size: .7em;
+	text-align: right;
+
+	h3 {
+		padding: 0;
+	}
+}
+
+#header-count {
+	color: #555;
+	font-size: 3em;
+	line-height: 1em;
+	background: none;
+}
+
+.empty-queue {
+	padding: 10px;
+	margin-top: 10px;
+}
+
+#ti_icon {
+	margin-bottom: 5px;
+}
+
+.arrow_box::before {
+	bottom: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(113, 158, 206, 0);
+	border-bottom-color: #f6f5f4;
+	border-width: 12px;
+	left: 10%;
+	margin-left: -20px;
+}
+
+#buttons-line {
+	background-color: #f6f5f4;
+	text-align: center;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	padding: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	-webkit-overflow-scrolling: touch;
+	-webkit-backface-visibility: hidden;
+	-webkit-transform: translateZ(0);
+}
+
+#icon-text-wrap {
+	padding: 15px;
+	border-radius: 4px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+#mw-mf-page-center #eoq_button {
+	max-width: none;
+	width: auto;
+}
+#eoq_button {
+	max-width: none;
+}
+
+@media @medium {
+
+	#bodycontents {
+		padding: 0;
+		background: transparent;
+	}
+
+	#stf-title {
+		padding: @largeSectionPadding;
+		border-radius: @borderRadius;
+	}
+
+	#tool-data {
+		padding: @largeSectionPadding;
+		border-radius: @borderRadius;
+	}
+
+	#current-title {
+		padding: 10px 0;
+		margin-bottom: 11px;
+	}
+
+	.arrow_box {
+		&::after {
+			right: 100%;
+			top: 20px;
+			border: solid transparent;
+			content: " ";
+			height: 0;
+			width: 0;
+			position: absolute;
+			pointer-events: none;
+			border-color: rgba(255, 255, 255, 0);
+			border-right-color: #f6f5f4;
+			border-width: 11px;
+			margin-top: -10px;
+		}
+		&::before {
+			display: none;
+		}
+	}
+
+	#show-article-line {
+		display: none;
+	}
+
+	#buttons-line {
+		margin-top: 40px 0 5px 0;
+		position: relative;
+		text-align: left;
+		background: none;
+		display: inline-block;
+		width: auto;
+	}
+
+	#buttons-large {
+		display: block;
+
+		.button {
+			font-size: .75em;
+			font-weight: bold;
+			padding: 1em 1.5em;
+		}
+	}
+
+	#icon {
+		margin: 0;
+	}
+
+	#icon-text,
+	#buttons-small {
+		display: none;
+	}
+
+	#text-line {
+		margin: 0 0 10px 55px;
+	}
+
+	#ti_outer_box {
+		margin: 0;
+	}
+}

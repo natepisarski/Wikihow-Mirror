@@ -1,0 +1,136 @@
+@import '../../less/variables';
+@import '../../less/mixins';
+
+@grayCategoryBorder: #dbdbdb;
+
+.cat_carousel {
+  margin: 10px auto;
+  background: white;
+  border-top: 1px solid @grayCategoryBorder;
+  border-bottom: 1px solid @grayCategoryBorder;
+  padding: 0 10px 10px 10px;
+  min-height: 120px;
+
+  .slick-slider {
+    margin-bottom: 0;
+  }
+
+  .slick-list {
+    min-height: 120px;
+  }
+}
+
+.cat_carousel.cat_listing {
+  padding: 10px;
+}
+
+.cat_title {
+  font-size: 1.2em;
+  margin: 5px;
+}
+
+.subcat_list {
+  display: none;
+
+  li:last-child {
+    display: none;
+  }
+
+  li {
+    display: inline-block;
+  }
+}
+
+.cat_subcat_toggle {
+  float: right;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.pagination {
+  text-align: center;
+  li {
+    list-style: none;
+    display: inline-block;
+    margin: 5px;
+  }
+}
+
+.content .button.page_prev {
+  margin-left: .5em;
+  font-size: .9em;
+}
+
+.content .button.page_next {
+  margin-right: .5em;
+  font-size: .9em;
+}
+.cat_item {
+  position: relative;
+  overflow: hidden;
+  display: none;
+}
+
+.cat_item img {
+  .roundedAll(5px);
+}
+
+.cat_item_title_box {
+  position: absolute;
+  bottom: 0;
+  color: white;
+  height: 100%;
+  line-height: 1.1em;
+  width: 100%;
+  max-width: 127px;
+  font-size: .95em;
+  .roundedAll(5px);
+
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.5))), repeat; /* Chrome,Safari4+ */
+  background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%), repeat;  /* FF3.6+ */
+  background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%), repeat; /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.85) 100%), repeat; /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 100%), repeat; /* IE10+ */
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 100%), repeat; /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#50000000',GradientType=0 ); /* IE6-9 */
+}
+
+.cat_listing .cat_item_title_box {
+  font-size: 1em;
+  max-width: 201px;
+}
+
+.cat_item_title {
+  padding: 0 5px 5px 5px;
+  position: absolute;
+  bottom: 0;
+}
+
+.cat_howto_prefix {
+  font-size: .7em;
+}
+
+.slick-slide {
+  margin: 0 .3em;
+  height: 100%;
+}
+
+.fa {
+  font-size: .85em !important;
+}
+
+.slick-vertical .cat_item_spacing {
+  margin: 0 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+@media only screen and (min-width: 768px) {
+  .cat_carousel {
+    max-width: 670px;
+  }
+
+  //.cat_nav {
+  //  margin: 3px 5px 0 10px;
+  //}
+}

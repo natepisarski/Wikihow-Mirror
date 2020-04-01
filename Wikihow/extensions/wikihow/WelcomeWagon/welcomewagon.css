@@ -1,0 +1,78 @@
+#form-header h1{
+	font-size:1.6em;
+}
+
+.ww_content {
+	margin-left: 15px;
+	margin-right: 15px;
+}
+
+#ww_error { padding: 10px; }
+
+#skip-user {
+	line-height: 3em;
+	padding-right: 1em;
+	font-size: 1.1em;
+}
+
+#message-box {
+    resize:none;
+    padding-left:0px;
+    margin-bottom:0px;
+	width: 100%;
+}
+
+#message-view { margin-bottom: 22px; }
+
+#message-text { background-color: #FFF; }
+
+#message-buttons {
+	margin-top: 9px;
+	text-align: right;
+}
+
+.pb-stats { margin-bottom: 15px; }
+
+.pb-articles { margin-left: 0px; }
+
+#markaspatrolledlinks { display: none; }
+
+/* a bunch of formatting for the recent changes section*/
+.bunchtable {
+	table-layout:fixed;
+}
+.bunchtable td div {
+	word-wrap:break-word;
+	max-width: 305px;
+}
+.bunchtable tbody tr td .diff {
+	padding:10px;
+}
+.bunchtable tbody tr td .diff a {
+	font-size: 13px;
+}
+.bunchtable tbody tr td a {
+	font-size: 18px;
+}
+.bunchtable tbody tr td {
+	padding: 8px;
+}
+.bunchtable tbody tr td tr td {
+	padding: 0px;
+}
+
+#article_tabs { margin-left: 2em; }
+
+.welcome-tab {
+	display: block;
+	float: left;
+	font-size: .9em;
+	margin: 0;
+	padding: .5em 1em;
+	height: 20px;
+	border-radius: 5px 5px 0 0;
+	-moz-border-radius: 5px 5px 0 0;
+	-webkit-border-radius: 5px 5px 0 0;
+	-khtml-border-radius: 5px 5px 0 0;
+}
+.welcome-tab.on { background-color: #FFF; }

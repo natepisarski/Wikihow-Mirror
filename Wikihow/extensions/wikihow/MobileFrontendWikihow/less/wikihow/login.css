@@ -1,0 +1,327 @@
+#mw-mf-login .headmsg, #mw-mf-accountcreate .headmsg {
+	padding-bottom: 15px;
+	padding-top: 5px;
+	text-align: center;
+	border: none;
+	font-size: 1.1em;
+	margin: -10px -10px 0;
+	background-color: transparent;
+}
+
+.headmsg {
+	color: #606060 !important;
+}
+
+#mw-mf-login .headmsg div, #mw-mf-accountcreate .headmsg div { font-size: .9em; }
+
+#mw-mf-login .section-title, #mw-mf-accountcreate .section-title {
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+#login_tabs {
+	width: 100%;
+	display: table;
+	margin: 0 -10px 1.5em;
+	padding: 0 8px;
+	border-bottom: 1px solid #DDD;
+	background-color: #FFF;
+	text-align: center;
+}
+#login_tabs a {
+	width: 50%;
+	display: table-cell;
+	height: 2.5em;
+	vertical-align: middle;
+}
+#lt_signup { border-right: 1px solid #DDD; }
+a.lt_off, a.lt_off:visited { color: #606060; }
+
+#login_tabs .icon {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMjUuODQ0cHgiIGhlaWdodD0iMjYuNjhweCIgdmlld0JveD0iMCAwIDI1Ljg0NCAyNi42OCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMjUuODQ0IDI2LjY4IiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0eWxlMHtmaWxsOgkjOTNCODc0O308L3N0eWxlPjxnPjxnPjxwYXRoIGQ9Ik0yMC41NzQgMjIuNzE1Yy0wLjUxNCAwLTEuMDI1LTAuMTk2LTEuNDE2LTAuNTg3Yy0wLjc4LTAuNzgyLTAuNzc4LTIuMDQ4IDAuMDA0LTIuODI5IGMxLjcwNC0xLjcgMi42ODItNC4wMjUgMi42ODItNi4zNzdjMC00LjkyLTQuMDAyLTguOTIyLTguOTIyLTguOTIyUzQgOCA0IDEyLjkyMmMwIDIuMyAxIDQuNyAyLjcgNi40IGMwLjc3NyAwLjggMC44IDIuMDUyLTAuMDE2IDIuODI4Yy0wLjc4NiAwLjc3OC0yLjA1NCAwLjc3MS0yLjgyOC0wLjAxNkMxLjQwMyAxOS42IDAgMTYuMyAwIDEyLjkgQzAgNS44IDUuOCAwIDEyLjkgMHMxMi45MjIgNS44IDEyLjkgMTIuOTIyYzAgMy40MDctMS40MDYgNi43NjQtMy44NTcgOS4yIEMyMS41OTcgMjIuNSAyMS4xIDIyLjcgMjAuNiAyMi43MTV6IiBjbGFzcz0ic3R5bGUwIi8+PC9nPjxnPjxwYXRoIGQ9Ik0xMi45MjIgMjYuNjhjLTEuMTA0IDAtMi0wLjg5Ni0yLTJWMTMuNjAzYzAtMS4xMDQgMC44OTYtMiAyLTJjMS4xMDQgMCAyIDAuOSAyIDJWMjQuNjggQzE0LjkyMiAyNS44IDE0IDI2LjcgMTIuOSAyNi42OHoiIGNsYXNzPSJzdHlsZTAiLz48L2c+PGc+PHBhdGggZD0iTTE3LjUwNCAxNS42MjNjLTAuNTEyIDAtMS4wMjMtMC4xOTUtMS40MTQtMC41ODZsLTMuMTY4LTMuMTY3bC0zLjE2OCAzLjIgYy0wLjc4MSAwLjc4LTIuMDQ3IDAuNzgtMi44MjggMGMtMC43ODEtMC43ODEtMC43ODEtMi4wNDcgMC0yLjgyOGw1Ljk5Ni01Ljk5Nmw1Ljk5NiA1Ljk5NmMwLjc4MSAwLjggMC44IDIgMCAyLjggQzE4LjUyNyAxNS40IDE4IDE1LjYgMTcuNSAxNS42MjN6IiBjbGFzcz0ic3R5bGUwIi8+PC9nPjwvZz48L3N2Zz4=);
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 19px;
+	display: inline-block;
+	background-size: 16px;
+	margin: 0 5px -5px 0;
+}
+#lt_signup .icon {
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjM2LjQ5cHgiIGhlaWdodD0iMjkuNzAxcHgiIHZpZXdCb3g9IjAgMCAzNi40OSAyOS43MDEiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDM2LjQ5IDI5LjcwMSIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBmaWxsPSIjOTNCODc0IiBkPSJNMzMuNDk3LDIuNDQxYy0zLjU0Ny0zLjI1NS05LjI5Ni0zLjI1NS0xMi44NDQsMGwtMi40MDgsMi4yMTFsLTIuNDA5LTIuMjExDQoJCWMtMy41NDYtMy4yNTUtOS4yOTYtMy4yNTUtMTIuODQzLDBjLTMuOTksMy42NjItMy45OSw5LjU5OSwwLDEzLjI2MmwxNS4yNTIsMTMuOTk4bDE1LjI1Mi0xMy45OTgNCgkJQzM3LjQ4NywxMi4wNDEsMzcuNDg3LDYuMTAzLDMzLjQ5NywyLjQ0MXogTTI4LjMwNywxMS4wMThjLTAuNDA0LDAtMC42NjksMC4wMjUtMC43OTUsMC4wNzVjLTAuMTI2LDAuMDUtMC4yMzYsMC4xMjktMC4zMjgsMC4yMzgNCgkJYy0wLjExOCwwLjE1OS0wLjI0OCwwLjQzNC0wLjM5MSwwLjgyNmwtMy4zNjksOC45NDJoLTMuMzE4bC0xLjg2NC01LjAxOWwtMS44OTMsNS4wMTloLTMuMzQ0TDkuNzEsMTIuMTU4DQoJCWMtMC4xMTctMC4zMTctMC4yNTktMC41OC0wLjQyNi0wLjc4OWMtMC4xLTAuMTQyLTAuMjA3LTAuMjM0LTAuMzE5LTAuMjc1Yy0wLjExMy0wLjA0Mi0wLjM3NC0wLjA2Ny0wLjc4My0wLjA3NVY4LjYwMWg2LjYyNXYyLjQxNw0KCQloLTAuMjc2Yy0wLjMxNywwLTAuNTIyLDAuMDM0LTAuNjE0LDAuMWMtMC4xMTcsMC4wODQtMC4xNzUsMC4xOTYtMC4xNzUsMC4zMzhjMCwwLjEyNSwwLjAzOCwwLjMwNSwwLjExMywwLjUzOWwxLjc0OSw1LjQNCgkJbDEuNTE0LTQuMjI3bC0wLjM5Ni0xLjE3M2MtMC4xMTctMC4zNTEtMC4yNjEtMC41OTctMC40MzItMC43MzljLTAuMTcxLTAuMTQyLTAuNDI0LTAuMjIxLTAuNzU4LTAuMjM4VjguNjAxaDYuMjk5djIuNDE3aC0wLjUxNA0KCQljLTAuMjg0LDAtMC40ODEsMC4wNDItMC41ODksMC4xMjVjLTAuMTA5LDAuMDg0LTAuMTYzLDAuMjA1LTAuMTYzLDAuMzYzYzAsMC4xNSwwLjA1LDAuMzY3LDAuMTUsMC42NTFsMS41MDcsNC40ODlsMS41MjYtNC40ODkNCgkJYzAuMS0wLjI5MiwwLjE1LTAuNTEzLDAuMTUtMC42NjRjMC0wLjE1OC0wLjA2LTAuMjc3LTAuMTgtMC4zNTdjLTAuMTItMC4wNzktMC4zNy0wLjExOS0wLjc1LTAuMTE5aC0wLjI4NVY4LjYwMWg1LjYyM1YxMS4wMTh6Ii8+DQo8L2c+DQo8L3N2Zz4=);
+	background-position: 0 3px;
+}
+#lt_signup.lt_off .icon { background-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjM2LjQ5cHgiIGhlaWdodD0iMjkuNzAxcHgiIHZpZXdCb3g9IjAgMCAzNi40OSAyOS43MDEiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDM2LjQ5IDI5LjcwMSIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBmaWxsPSIjM0UzRDNDIiBkPSJNMzMuNDk3LDIuNDQxYy0zLjU0Ny0zLjI1NS05LjI5Ni0zLjI1NS0xMi44NDQsMGwtMi40MDgsMi4yMTFsLTIuNDA5LTIuMjExDQoJCWMtMy41NDYtMy4yNTUtOS4yOTYtMy4yNTUtMTIuODQzLDBjLTMuOTksMy42NjItMy45OSw5LjU5OSwwLDEzLjI2MmwxNS4yNTIsMTMuOTk4bDE1LjI1Mi0xMy45OTgNCgkJQzM3LjQ4NywxMi4wNDEsMzcuNDg3LDYuMTAzLDMzLjQ5NywyLjQ0MXogTTI4LjMwNywxMS4wMThjLTAuNDA0LDAtMC42NjksMC4wMjUtMC43OTUsMC4wNzVjLTAuMTI2LDAuMDUtMC4yMzYsMC4xMjktMC4zMjgsMC4yMzgNCgkJYy0wLjExOCwwLjE1OS0wLjI0OCwwLjQzNC0wLjM5MSwwLjgyNmwtMy4zNjksOC45NDJoLTMuMzE4bC0xLjg2NC01LjAxOWwtMS44OTMsNS4wMTloLTMuMzQ0TDkuNzEsMTIuMTU4DQoJCWMtMC4xMTctMC4zMTctMC4yNTktMC41OC0wLjQyNi0wLjc4OWMtMC4xLTAuMTQyLTAuMjA3LTAuMjM0LTAuMzE5LTAuMjc1Yy0wLjExMy0wLjA0Mi0wLjM3NC0wLjA2Ny0wLjc4My0wLjA3NVY4LjYwMWg2LjYyNXYyLjQxNw0KCQloLTAuMjc2Yy0wLjMxNywwLTAuNTIyLDAuMDM0LTAuNjE0LDAuMWMtMC4xMTcsMC4wODQtMC4xNzUsMC4xOTYtMC4xNzUsMC4zMzhjMCwwLjEyNSwwLjAzOCwwLjMwNSwwLjExMywwLjUzOWwxLjc0OSw1LjQNCgkJbDEuNTE0LTQuMjI3bC0wLjM5Ni0xLjE3M2MtMC4xMTctMC4zNTEtMC4yNjEtMC41OTctMC40MzItMC43MzljLTAuMTcxLTAuMTQyLTAuNDI0LTAuMjIxLTAuNzU4LTAuMjM4VjguNjAxaDYuMjk5djIuNDE3aC0wLjUxNA0KCQljLTAuMjg0LDAtMC40ODEsMC4wNDItMC41ODksMC4xMjVjLTAuMTA5LDAuMDg0LTAuMTYzLDAuMjA1LTAuMTYzLDAuMzYzYzAsMC4xNSwwLjA1LDAuMzY3LDAuMTUsMC42NTFsMS41MDcsNC40ODlsMS41MjYtNC40ODkNCgkJYzAuMS0wLjI5MiwwLjE1LTAuNTEzLDAuMTUtMC42NjRjMC0wLjE1OC0wLjA2LTAuMjc3LTAuMTgtMC4zNTdjLTAuMTItMC4wNzktMC4zNy0wLjExOS0wLjc1LTAuMTE5aC0wLjI4NVY4LjYwMWg1LjYyM1YxMS4wMTh6Ii8+DQo8L2c+DQo8L3N2Zz4=); }
+#lt_login.lt_off .icon { background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMjUuODQ0cHgiIGhlaWdodD0iMjYuNjhweCIgdmlld0JveD0iMCAwIDI1Ljg0NCAyNi42OCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMjUuODQ0IDI2LjY4IiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0eWxlMHtmaWxsOiAjM0UzRDNDO308L3N0eWxlPjxnPjxnPjxwYXRoIGQ9Ik0yMC41NzQgMjIuNzE1Yy0wLjUxNCAwLTEuMDI1LTAuMTk2LTEuNDE2LTAuNTg3Yy0wLjc4LTAuNzgyLTAuNzc4LTIuMDQ4IDAuMDA0LTIuODI5IGMxLjcwNC0xLjcgMi42ODItNC4wMjUgMi42ODItNi4zNzdjMC00LjkyLTQuMDAyLTguOTIyLTguOTIyLTguOTIyUzQgOCA0IDEyLjkyMmMwIDIuMyAxIDQuNyAyLjcgNi40IGMwLjc3NyAwLjggMC44IDIuMDUyLTAuMDE2IDIuODI4Yy0wLjc4NiAwLjc3OC0yLjA1NCAwLjc3MS0yLjgyOC0wLjAxNkMxLjQwMyAxOS42IDAgMTYuMyAwIDEyLjkgQzAgNS44IDUuOCAwIDEyLjkgMHMxMi45MjIgNS44IDEyLjkgMTIuOTIyYzAgMy40MDctMS40MDYgNi43NjQtMy44NTcgOS4yIEMyMS41OTcgMjIuNSAyMS4xIDIyLjcgMjAuNiAyMi43MTV6IiBjbGFzcz0ic3R5bGUwIi8+PC9nPjxnPjxwYXRoIGQ9Ik0xMi45MjIgMjYuNjhjLTEuMTA0IDAtMi0wLjg5Ni0yLTJWMTMuNjAzYzAtMS4xMDQgMC44OTYtMiAyLTJjMS4xMDQgMCAyIDAuOSAyIDJWMjQuNjggQzE0LjkyMiAyNS44IDE0IDI2LjcgMTIuOSAyNi42OHoiIGNsYXNzPSJzdHlsZTAiLz48L2c+PGc+PHBhdGggZD0iTTE3LjUwNCAxNS42MjNjLTAuNTEyIDAtMS4wMjMtMC4xOTUtMS40MTQtMC41ODZsLTMuMTY4LTMuMTY3bC0zLjE2OCAzLjIgYy0wLjc4MSAwLjc4LTIuMDQ3IDAuNzgtMi44MjggMGMtMC43ODEtMC43ODEtMC43ODEtMi4wNDcgMC0yLjgyOGw1Ljk5Ni01Ljk5Nmw1Ljk5NiA1Ljk5NmMwLjc4MSAwLjggMC44IDIgMCAyLjggQzE4LjUyNyAxNS40IDE4IDE1LjYgMTcuNSAxNS42MjN6IiBjbGFzcz0ic3R5bGUwIi8+PC9nPjwvZz48L3N2Zz4=); }
+#login_tabs  #lt_carat {
+	background-image: url(../../images/wikihow/userpage_sprite.png);
+	background-size: 80px;
+	position: absolute;
+	background-position: 0 -40px;
+	margin: 28px 0 0 18px;
+	width: 21px;
+}
+#login_tabs  .lt_off #lt_carat { display: none; }
+
+
+form.user-login { margin-bottom: 1em; }
+
+form.user-login {
+	background: #FFF;
+	padding: 15px 12px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	border: 1px solid #E1E1E1;
+}
+
+form.user-login .inputs-box {
+	border: none;
+	margin: 0;
+	text-align: left;
+}
+
+form.user-login .inputs-box input:not([type="submit"]) { padding-left: 55px; }
+form.user-login .inputs-box input#wpCaptchaWord { padding-left: .5em; }
+
+form.user-login .inputs-box .input-icon {
+	padding: 16px;
+	width: 15px;
+	height: 13px;
+	border-right: 1px solid #CCC;
+	position: absolute;
+}
+
+form.user-login .input-icon div {
+	background: url(../../images/wikihow/login_sprite.png) no-repeat -137px 0;
+	width: 14px;
+	height: 13px;
+	background-size: 300px;
+}
+form.user-login .input-icon.login_error #input-icon-username { background-position: -161px 0; }
+form.user-login .input-icon #input-icon-pwd { background-position: -137px -21px; }
+form.user-login .input-icon.login_error #input-icon-pwd { background-position: -160px -22px; }
+form.user-login .input-icon #input-icon-pwd2 { background-position: -137px -21px; }
+form.user-login .input-icon.login_error #input-icon-pwd2 { background-position: -160px -22px; }
+form.user-login .input-icon #input-icon-email { background-position: -137px -38px; }
+form.user-login .input-icon.login_error #input-icon-email { background-position: -162px -38px; }
+
+form.user-login .fancycaptcha-image {
+	margin: 0 auto;
+	display: block;
+}
+
+form.user-login .inputs-box input:not([type="submit"]) {
+	margin-bottom: 0.5em;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	border: 1px solid #E1E1E1;
+}
+
+#wpName1 {
+	margin-bottom: .5em;
+}
+
+form.user-login .inputs-box input:not([type="submit"]).login_error ,
+form.user-login .inputs-box .input-icon.login_error { border-color: #F8A900; }
+
+form.user-login .login_error_msg {
+	color: #F8A900;
+	padding-bottom: 1em;
+}
+
+.forgot-pwd-link {
+	text-align: center;
+}
+
+form.user-login .captcha_fineprint { padding-top: .5em; }
+
+#userlogin2, form.user-login {
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+#wpCreateaccount, #wpCaptchaWord {
+	max-width: 400px;
+	margin: 5px auto;
+}
+
+div.inputs-box {
+	max-width: 500px;
+	margin: 0 auto !important;
+}
+
+div.captcha_fineprint {
+	max-width: 500px;
+	margin: 0 auto;
+}
+
+div.user-login-social {
+	margin: 15px 0;
+	padding: 0;
+	text-align: center;
+}
+
+#wpLoginAttempt {
+	max-width: 200px;
+	margin: 15px auto 15px;
+}
+
+#fb-root {
+	display: none;
+}
+
+#social-login-form .social_login_button {
+	max-width: 105px;
+	width: 47%;
+}
+
+#social-login-form .social_login_button_text {
+	margin-top: 10px;
+}
+
+#social-login-form .social_login_button.loading {
+	opacity: 0.75;
+	background-size: 20px;
+}
+
+#social-login-form .loading .social_login_button_text {
+	opacity: 0;
+}
+
+/*** Social Login (Special:UserLogin) ***/
+
+#userlogin_alt_logins,
+#userloginForm .mw-htmlform,
+#userLoginOr,
+.sub_social_login {
+	margin-left: auto;
+	margin-right: auto;
+	width: 290px;
+
+}
+
+#userlogin_alt_logins {
+	box-sizing: border-box;
+	display: table;
+	margin-top: 15px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.warningbox {
+	display: none;
+}
+
+#userLoginOr {
+	margin-bottom: 5px;
+}
+
+/* Social Login | Copied from desktop: prod/skins/owl/main.css */
+
+#fb_login_head, #gplus_login_head, #civic_login_head, #wh_login_head {
+	width: 170px;
+}
+
+.ulb_icon {
+	height: 49px;
+	width: 100%;
+	left: 0;
+	position: absolute;
+	filter: alpha(opacity=10);
+	opacity: 0.10;
+	border-radius: 2px;
+}
+.ulb_button:hover .ulb_icon  {
+	background-color: #000;
+}
+
+.ulb_button.loading {
+	opacity: 0.75;
+	cursor: default;
+}
+
+.ulb_status {
+	display: none;
+}
+
+.ulb_describe.loading .ulb_label {
+	display: none;
+}
+
+.ulb_describe.loading .ulb_status {
+	display: block;
+}
+
+#fb_login, #fb_login_head {
+	background-color: #365494;
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
+	background-size: 45px 45px;
+}
+
+#gplus_login, #gplus_login_head {
+	background-color: #3F82F7;
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
+	background-size: 45px 45px;
+}
+
+#civic_login, #civic_login_head {
+	background-color: #AAAAAA;
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
+	background-size: 45px 45px;
+}
+
+.ulb_login {
+	background-color: #93b874;
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_person.png);
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_person.svg);
+	background-size: 45px 45px;
+}
+
+.ulb_button {
+	height: 49px;
+	margin: 5px 0 15px 0;
+	position: relative;
+	border-radius: 2px;
+	display: block;
+	color: #FFF;
+	line-height: 50px;
+	text-align: center;
+	padding-left: 50px;
+	font-size: 1.3em;
+	background-repeat: no-repeat;
+	background-position: 2px center;
+	background-size: 47px 47px;
+}
+.ulb_button:hover {
+	text-decoration: none;
+}
+
+/* Social Login | Adapted from desktop: prod/extensions/wikihow/WikihowLogin/wikihowlogin.css */
+
+#userlogin_alt_logins .ulb_button {
+	height: 40px;
+	background-size: 36px;
+	line-height: 40px;
+	margin-bottom: 15px;
+	font-size: 14px;
+	/* @noflip */
+	padding-left: 40px;
+}
+
+#userlogin_alt_logins .ulb_button .ulb_icon {
+	height: 40px;
+}
+
+.htmlform-tip,
+.mw-htmlform-field-HTMLFancyCaptchaField.mw-ui-vform-field.captcha > label,
+.mw-htmlform-field-HTMLFancyCaptchaField.mw-ui-vform-field.captcha > p:first-of-type {
+	display: none;
+}

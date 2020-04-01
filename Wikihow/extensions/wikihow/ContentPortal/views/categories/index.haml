@@ -1,0 +1,60 @@
+.row
+	.col-md-8
+		.well
+			%h2 Categories
+			.well-body
+
+				- if (count($categories) > 0)
+					!= paginate()
+
+					%table.table.table-striped
+						%thead
+							%tr
+								%th Title / Description:
+								%th Articles
+								%th Users
+								%th &nbsp;
+
+						%tbody
+							- foreach ($categories as $category)
+								%tr
+									%td
+										%strong= $category->title
+										%small= $category->description
+
+									%td
+										%span.badge= count($category->articles)
+
+									%td
+										%span.badge= count($category->users)
+
+									%td.text-right
+										.btn-group
+											%button.btn.btn-default.btn-xs.dropdown-toggle(type="button" data-toggle="dropdown" aria-expanded="false")
+												%i.fa.fa-cog
+
+											%ul.dropdown-menu(role="menu")
+												%li
+													%a{href: url("categories/edit", ["id" => $category->id])}
+														%i.fa.fa-pencil
+														Edit
+												%li
+													%a.confirm{href: url("categories/delete", ["id" => $category->id])}
+														%i.fa.fa-times
+														Delete
+					!= paginate()
+
+				- else
+					.alert.alert-danger
+						%strong I could not find any categories
+						%p There are no categories in the system, you should create some now.
+
+	.col-md-4
+		.panel.panel-default
+			.panel-heading Add a new category
+			.panel-body
+				Add a new category for articles and users to belong to.
+				%hr
+				%a.btn.btn-primary.btn-block{href: url('categories/new')}
+					%i.fa.fa-plus
+					Create Category

@@ -1,0 +1,34 @@
+.wh_cta_drawer {
+	a.button {
+		margin: 1em auto;
+		max-width: 300px;
+	}
+
+	.drawer_button.social_login_button {
+		@icon_width: 35px;
+
+		margin-top: 1em;
+		max-width: 324px;
+
+		span.social_login_button_text {
+			font-size: 1.1em;
+			margin-top: 9px;
+			margin-left: -(@icon_width + 1);
+		}
+
+		span.social_login_button_icon {
+			width: @icon_width;
+			height: @icon_width;
+		}
+
+		&.google_button span.social_login_button_icon {
+			background-position: 2px 2px;
+			background-size: 32px;
+		}
+
+		&.facebook_button span.social_login_button_icon {
+			background-position: 3px 2px;
+			background-size: 31px;
+		}
+	}
+}

@@ -1,0 +1,37 @@
+
+- if (isset($roles))
+	- foreach($roles as $role)
+		- $filtered = filterByRole($articles, $role)
+
+		- if (count($filtered) > 0)
+			.panel.panel-default.bulk-block.group{id: "panel-#{$role->id}"}
+				.panel-heading
+					%label
+						%input.toggle-all{type: "checkbox", id: "#{$role->id}-select-all", "data-panel" => "#panel-#{$role->id}"}
+						= $role->present_tense
+
+				%form{action: url("bulk/destroy"), method:"post"}
+					- foreach($articles as $article)
+						%input{type: "hidden", name: "all_articles_ids[]", value: $article->id}
+						%input{type: "hidden", name: "role_id", value: $role->id}
+
+					.panel-body
+						%table.table.table-striped.table-condensed
+							%tbody
+								- foreach($filtered as $article)
+									%tr
+										%td(width="20px")
+											%input{type:"checkbox", name:"article_ids[]", value: $article->id}
+
+										%td
+											%a{href: url('articles/show', ['id' => $article->id])}
+												= $article->title
+
+										%td= $article->category->title
+										%td= $article->updated_at->format('m/d/Y h:m a')
+										%td= articlesUsername($article)
+
+					.panel-footer{id: $role->key}
+						.form-group
+							%button.btn.btn-warning(type="submit")
+								= "Delete selected articles"

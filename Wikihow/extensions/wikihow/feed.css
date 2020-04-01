@@ -1,0 +1,15 @@
+
+div.feeditem {
+	width: 600px;
+	border: 1px solid #eee;
+	margin-bottom: 10px;
+	margin-left: 20px; 
+	font-size: 0.95em;
+	padding: 5px;
+}
+
+div.actions {
+	font-size: 0.90em;
+	padding-left: 380px;
+}
+

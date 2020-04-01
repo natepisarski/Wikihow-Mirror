@@ -1,0 +1,14 @@
+
+%h4
+	Search results for
+	%q= params('title_search')
+	%small
+		%a.btn.btn-default.btn-xs.pull-right{href: url('articles/index')}
+			%i.fa.fa-times-circle
+			Clear Search
+%hr
+
+- if (empty($articles))
+	!= alert("There were no articles found.");
+- else
+	!= partial('articles/_admin_table')

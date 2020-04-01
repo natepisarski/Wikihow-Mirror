@@ -1,0 +1,80 @@
+<div id='aci_container'>
+
+<div class='spa_sectioncontents'>
+
+	<div class="column_container">
+
+		<div>
+			<h4>Localization (everything)</h4>
+			<p style="height:54px"> Recalculates all coauthor data on INTL (articles, blurbs, coauthors), taking into account both the Overrides and the Localization sheets. </p>
+			<p> Go to <a target='_blank' href='{{linkToL18nSheet}}'>sheet</a> </p>
+			<form class='aci_form'>
+				<input type='hidden' name='action' value='import_blurb_translations'>
+				<input type='hidden' name='token' value='{{token}}'>
+				<button type='submit' class='aci_submit_btn button primary'>Import</button>
+			</form>
+		</div>
+
+		<div>
+			<h4>Overrides (articles only)</h4>
+			<p style="height:54px"> Recalculates the set of coauthored articles on INTL, taking into account the Overrides sheet. </p>
+			<p> Go to <a target='_blank' href='{{linkToOverrideSheet}}'>sheet</a> </p>
+			<form class='aci_form'>
+				<input type='hidden' name='action' value='import_date_overrides'>
+				<input type='hidden' name='token' value='{{token}}'>
+				<button type='submit' class='aci_submit_btn button primary'>Import</button>
+			</form>
+		</div>
+
+	</div>
+
+	<hr>
+
+	<div style='text-align: center'>
+		<label id='aci_progress_label' class='hidden'>Import in progress...</label>
+	</div>
+
+</div>
+
+<div id='spa_details_container'>
+
+	{{#title}}
+		<h3 style='margin-top: 25px'>{{title}}</h3>
+	{{/title}}
+
+	{{#imported.0}}
+	<div>
+		<h5 class='aci_imported'>Imported</h5>
+		<div class='spa_results_list'>
+			<ul>
+				{{#imported}} <li>{{{.}}}</li> {{/imported}}
+			</ul>
+		</div>
+	</div>
+	{{/imported.0}}
+
+	{{#errors.0}}
+	<div>
+		<h5 class='spa_error'>Errors</h5>
+		<div class='spa_results_list'>
+			<ul>
+				{{#errors}} <li>{{{.}}}</li> {{/errors}}
+			</ul>
+		</div>
+	</div>
+	{{/errors.0}}
+
+	{{#warnings.0}}
+	<div>
+		<h5 class='spa_warn'>Warnings</h5>
+		<div class='spa_results_list'>
+			<ul>
+				{{#warnings}} <li>{{{.}}}</li> {{/warnings}}
+			</ul>
+		</div>
+	</div>
+	{{/warnings.0}}
+
+</div>
+
+</div>

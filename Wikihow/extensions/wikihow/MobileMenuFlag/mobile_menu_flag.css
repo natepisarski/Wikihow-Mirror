@@ -1,0 +1,24 @@
+#mmf_ham {
+	background-color: #C91F2C;
+	color: #FFF;
+	position: absolute;
+	width: 14px;
+	padding: 2px;
+	text-align: center;
+	top: 15px;
+	left: 26px;
+	border: none;
+	border-radius: 3px;
+}
+
+#mmf_menu {
+	background-color: #C91F2C;
+	color: #FFF;
+	font-size: 10px;
+	font-weight: bold;
+	position: absolute;
+	right: 10px;
+	top: 12px;
+	padding: 1px 4px;
+	border-radius: 3px;
+}

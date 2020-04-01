@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"socialauth-fblogin-login-failed": "Lo sentimos, no podemos conectarte a Facebook. Inténtalo de nuevo más tarde.",
+	"socialauth-gpluslogin-login-failed": "Lo sentimos, no podemos conectarte a Google. Inténtalo de nuevo más tarde.",
+	"socialauth-civiclogin-login-failed": "Lo sentimos, no podemos conectarte a Civic. Inténtalo de nuevo más tarde."
+}

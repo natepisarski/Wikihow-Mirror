@@ -1,0 +1,44 @@
+.caption-wrap-small {
+	width: 50%;
+}
+.caption-wrap-right {
+	float: right;
+}
+.mwimg-caption-text {
+	padding-top: 5px;
+	padding-bottom: 25px;
+}
+.mwimg-caption-text-first {
+	padding-top: 25px;
+}
+.caption-wrap-small > .mwimg-caption-text-first {
+	padding-top: 22px;
+}
+.caption-wrap-small > .mwimg-caption-text {
+	padding-left: 15px;
+	padding-bottom: 22px;
+}
+.caption-wrap-icon > .mwimg-caption-text {
+	padding-left: 30px;
+}
+.caption-wrap {
+	margin-left: 25px;
+	margin-right: 25px;
+}
+.caption-icon-lightbulb {
+	top: -14px;
+	left: -7px;
+	width: 35px;
+	height: 35px;
+}
+.caption-icon-flag {
+	top: -2px;
+	width: 16px;
+	height: 20px;
+}
+.caption-icon-flag:before {
+	border-right: 8px solid transparent;
+}
+.caption-icon-flag:after {
+	border-left: 8px solid transparent;
+}

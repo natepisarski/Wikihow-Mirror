@@ -1,0 +1,16 @@
+.m-video-intro-text:nth-child(1){
+	font-size: 2em;
+}
+.m-video-intro-text.m-video-intro-text-long {
+	font-size: 1.5em;
+}
+.m-video-intro-text.m-video-intro-text-very-long {
+	font-size: 1em;
+}
+#m-video-intro-time-v2 {
+	bottom: -11px;
+	font-size: 1.2em;
+	height: 48px;
+	width: 43px;
+	line-height: 2.65em;
+}

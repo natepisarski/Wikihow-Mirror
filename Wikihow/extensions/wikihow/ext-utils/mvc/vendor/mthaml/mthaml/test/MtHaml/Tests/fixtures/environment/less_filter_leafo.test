@@ -1,0 +1,35 @@
+--FILE--
+<?php
+// enforce class \lessc from "leafo/lessphp" package and fix conflict with the same class from "oyejorge/less.php" package
+new \lessc_formatter_classic;
+$filter = new MtHaml\Filter\Less\LeafoLess(new \lessc);
+$env = new MtHaml\Environment('twig', array('enable_escaper' => false), array('less' => $filter));
+echo $env->compileString($parts['HAML'], "$file.haml");
+
+--HAML--
+:less
+ .mixin (@color) {
+   color: @color;
+ }
+
+ p {
+   .mixin(blue);
+ }
+:less
+ p.#{class} {
+   text-align: left;
+ }
+--EXPECT--
+<style type="text/css">
+/*<![CDATA[*/
+p {
+  color: blue;
+}
+
+/*]]>*/
+</style>
+{% filter mthaml_less %}p.{% line 10 %}{{ class }} {
+  text-align: left;
+}
+{% endfilter %}
+

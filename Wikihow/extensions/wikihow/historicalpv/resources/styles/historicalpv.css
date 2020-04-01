@@ -1,0 +1,89 @@
+.wh_block {
+	background-image: url("http://www.wikihow.com/images/3/3e/Be-a-History-Buff-Step-1-Version-2.jpg");
+	background-size: 180px 100px;
+	background-repeat: no-repeat;
+	background-color: rgba(232,159,125,100);
+	background-position: right top;
+}
+
+#content div {
+	padding-bottom: 10px;
+}
+
+#date_type_label {
+	padding-left: 10px;
+}
+
+.btn {
+	text-transform: none;
+	display: inline-block;
+	padding: 6px 12px;
+	margin-bottom: 0px;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.42857;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	cursor: pointer;
+	background-image: none;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	color: #FFF;
+	background-color: #5CB85C;
+	border-color: #4CAE4C;
+}
+
+.fade.in {
+    opacity: 1;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.alert-error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.fade {
+    opacity: 0;
+    -webkit-transition: opacity .15s linear;
+    -o-transition: opacity .15s linear;
+    transition: opacity .15s linear;
+}
+
+.close {
+    float: right;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    filter: alpha(opacity=20);
+    opacity: .2;
+}
+
+#modal > a {
+    color: #337ab7;
+    text-decoration: none;
+}
+
+#modal > a {
+    background-color: transparent;
+}
+
+th {
+	border-bottom: 1px solid black;
+}

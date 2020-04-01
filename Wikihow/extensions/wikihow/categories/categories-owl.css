@@ -1,0 +1,242 @@
+.minor_section {
+}
+
+h1 {
+	font-size: 36px;
+}
+
+.wh_block {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	padding-left: 64px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+#bodycontents {
+	margin-bottom: 30px;
+}
+
+.cat_section {
+	clear: both;
+	background-color: #ffffff;
+	padding: 22px 64px;
+	position: relative;
+	border-radius: 8px;
+	margin-bottom: 10px;
+}
+
+#cat_description {
+	padding-left: 64px;
+	padding-right: 64px;
+	padding-top: 8px;
+	border-bottom: 1px solid #e3ebe8;
+	margin-bottom: 10px;
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
+}
+
+#cat_featured_articles, #cat_related_articles {
+	width: 928px;
+	margin: 0 auto;
+}
+
+#cat_related {
+
+	border-top: 1px solid #ecebe8;
+}
+
+#cat_featured {
+	border-bottom: 1px solid #ecebe8;
+}
+
+#cat_all {
+	padding-left: 64px;
+	width: 696px;
+	float: left;
+	padding-right: 0px;
+}
+
+#cat_all.cat_nosidebar {
+	float: none;
+	width: 928px;
+}
+
+#cat_related_tags {
+	padding: 8px 15px 8px 64px;
+	background-color: #fff;
+	border-bottom: 1px solid #ecebe8;
+	color: #222;
+	font-weight: bold;
+	margin-bottom: 10px;
+	border-radius: 8px;
+}
+
+#cat_related_tags p {
+	display: inline;
+}
+
+#cat_related_tags .button.secondary {
+	color: #383;
+	padding: 8px;
+	margin: 8px 4px;
+	display: inline-block;
+	font-weight: normal;
+	border-color: #383;
+}
+
+#cat_related_tags .button.secondary:hover {
+	color: #2483ef;
+	border-color: #2483ef;
+}
+
+.cat-spinner {
+	margin: 15px auto;
+	background: url(/extensions/wikihow/mobile/images/hillary_spin.gif) no-repeat center center;
+	height: 30px;
+}
+
+.pagination { 
+	text-align: center;
+	margin: 16px 0;
+}
+
+.pagination li {
+	list-style: none;
+	display: inline-block;
+	margin-bottom: 5px;
+	width: 1.8em;
+	padding: .2em 0;
+}
+.pag_prev {
+	margin: 8px 0 10px 0px;
+	border-radius: 8px;
+	font-size: 1em;
+}
+.pag_next {
+	margin: 8px 6px 10px 0;
+	border-radius: 8px;
+	font-size: 1em;
+}
+
+.s-width {
+	width: 224px;
+}
+
+.s-height {
+	height: 192px;
+}
+
+.thumbnail {
+	border-radius: 6px;
+	margin-right: 8px;
+	margin-bottom: 8px;
+	border: none;
+}
+
+#cat_sub_categories {
+	font-size: 14px;
+	float: left;
+	width: 234px;
+	clear: none;
+	padding-left: 24px;
+	padding-right: 32px;
+}
+
+#cat_sub_categories > div {
+	margin-bottom: 10px;
+}
+
+#cat_sub_categories > div > a {
+	font-weight: bold;
+}
+
+#cat_sub_categories > ul > li:first-child {
+	margin-top: 0;
+}
+
+#cat_sub_categories > ul > li {
+	margin-top: 8px;
+}
+
+#cat_sub_categories ul > li {
+	list-style: none;
+	display: inline-block;
+}
+
+#cat_sub_categories li:last-child {
+	display: none;
+}
+
+#cat_sub_categories ul li li a {
+	font-weight: normal;
+}
+
+#cat_sub_categories ul ul {
+	margin-bottom: 10px;
+}
+
+#top_level_more {
+	display: inline;
+	display: none;
+}
+
+#cat_furtherediting h3 {
+	background-color: #fff;
+	margin-bottom: 10px;
+}
+
+#cat_furtherediting ul {
+	-webkit-column-count: 3;
+	-moz-column-count: 3;
+	column-count: 3;
+	list-style: none;
+	margin-top: 20px;
+}
+
+#cat_furtherediting li {
+	margin-bottom: 10px;
+}
+
+#cat_sub_categories ul {
+	display: inline-block;
+}
+
+.cat_section .slick-prev:before, .cat_section .slick-next:before {
+	font-size: 40px;
+	line-height: 39px;
+	margin-left: -4px;
+	opacity: 1;
+}
+
+.cat_section .slick-prev, .cat_section .slick-next {
+	width: 31px;
+	height: 31px;
+	background-color: #8fb978;
+	border-radius: 14px;
+}
+
+.cat_section .slick-prev {
+	left: -44px;
+}
+
+.cat_section .slick-next {
+	right: -40px;
+}
+
+.cat_section .slick-prev:hover, .cat_section .slick-next:hover {
+	background-color: #8fb978;
+	color: inherit;
+}
+
+.cat_section .slick-prev:hover:before, .cat_section .slick-next:hover:before {
+	opacity: 1;
+}
+
+#cat_container {
+	background-color: #fff;
+	margin-bottom: 10px;
+	border-radius: 8px;
+}

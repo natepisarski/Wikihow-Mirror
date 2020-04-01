@@ -1,0 +1,17 @@
+{
+  "@metadata": {
+    "authors": []
+  },
+  "CivicLogin": "Civic Login",
+  "cl_login_failed": "Sorry, we were unable to log you in via Civic. Please try again later.",
+  "cl_username_inuse": "We are sorry, but the username '$1' is already in use. Please choose another username.",
+  "cl_username_not_valid": "The username '$1' is not valid. Please choose another username.",
+  "cl_tog-show_civic_authorship": "Link your Civic profile to the content you post.",
+  "cl_welcome_back": "Signed in as <a href='$1' id='civic_logged_in'>$2</a>",
+  "cl_savetime": "To save you time, the registration form below has been prefilled using your Civic profile.",
+  "cl_username": "wikiHow Username",
+  "cl_email": "Email Address",
+  "cl_page_title": "Log in with Civic - wikiHow",
+  "cl_login_failed": "Sorry, we were unable to log you in via Civic. Please try again later.",
+  "cl_unsupported_action": "Unsupported action."
+}

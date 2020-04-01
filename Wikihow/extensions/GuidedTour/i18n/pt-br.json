@@ -1,0 +1,40 @@
+{
+	"@metadata": {
+		"authors": [
+			"HenriqueCrang",
+			"Raylton P. Sousa",
+			"Dianakc",
+			"Araceletorres",
+			"!Silent",
+			"Felipe L. Ewald"
+		]
+	},
+	"guidedtour-desc": "Permite que páginas proporcionem uma visita guiada por pop-ups, para ajudar os novos usuários",
+	"guidedtour-help-url": "Help:Visitas guiadas",
+	"guidedtour-help-guider-url": "Help:Visitas guiadas/tutorial",
+	"guidedtour-next-button": "Próximo",
+	"guidedtour-okay-button": "Entendi",
+	"guidedtour-back-button": "Voltar",
+	"guidedtour-tour-test-testing": "Teste",
+	"guidedtour-tour-test-test-description": "Está é uma descrição teste. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Chamadas de teste",
+	"guidedtour-tour-test-portal-description": "Esta é a página do {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Teste de parsing do Mediawiki",
+	"guidedtour-tour-test-wikitext-description": "Um guia em sua turnê on-wiki pode conter texto wiki. Use-o para criar um wikilink para a [[{{MediaWiki:Guidedtour-help-url}}|Documentação de visitas guiadas]]. Ou um [https://example.com link externo], por exemplo.",
+	"guidedtour-tour-test-description-page": "Teste de páginas de descrição do MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Ir para página de descrição",
+	"guidedtour-tour-test-launch-tour": "Teste do lançamento do guia",
+	"guidedtour-tour-test-launch-tour-description": "Os guias podem lançar outras visitas guiadas, muito legal, não?",
+	"guidedtour-tour-test-launch-editing": "Iniciar um ''tour'' na edição",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Editar}} a página inteira…",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Clique}} o botão \"$1\" para realizar as suas mudanças.",
+	"guidedtour-tour-firstedit-edit-section-title": "Ou {{GENDER:|edite}} uma seção",
+	"guidedtour-tour-firstedit-edit-section-description": "Existem links para \"{{int:editsection}}\" em cada seção principal de um artigo, assim você pode se focar na edição apenas naquela parte.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Pré-visualize}} suas alterações (opcional)",
+	"guidedtour-tour-firstedit-preview-description": "Clicando em \"{{int:showpreview}}\" você pode conferir como vai ficar com suas mudanças. Só não esqueça de salvar!",
+	"guidedtour-tour-firstedit-save-title": "Você está quase terminando!",
+	"guidedtour-tour-firstedit-save-description": "Quando estiver pronto, clique em \"{{int:publishchanges}}\" para tornar suas mudanças visíveis para todos.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Clique}} o botão \"$1\" para realizar as suas mudanças.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Há links \"$1\" em cada seção principal da página, para que você possa se concentrar apenas nesta parte.",
+	"guidedtour-tour-firsteditve-save-description": "Quando estiver pronto, clique em \"{{int:visualeditor-toolbar-savedialog}}\" para tornar suas mudanças visíveis para todos."
+}

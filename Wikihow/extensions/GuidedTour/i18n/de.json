@@ -1,0 +1,37 @@
+{
+	"@metadata": {
+		"authors": [
+			"Kghbln",
+			"Metalhead64",
+			"Rillke"
+		]
+	},
+	"guidedtour-desc": "Ermöglicht Pop-up-gestützte Rundgänge zur Unterstützung neuer Benutzer",
+	"guidedtour-help-url": "Help:Geführte Touren",
+	"guidedtour-help-guider-url": "Help:Geführte Touren/Guider",
+	"guidedtour-next-button": "Weiter",
+	"guidedtour-okay-button": "Okay",
+	"guidedtour-back-button": "Zurück",
+	"guidedtour-tour-test-testing": "Testen",
+	"guidedtour-tour-test-test-description": "Dies ist ein Test der Beschreibung. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Legenden testen",
+	"guidedtour-tour-test-portal-description": "Dies ist die Seite „{{int:portal}}“.",
+	"guidedtour-tour-test-mediawiki-parse": "MediaWiki-Parser testen",
+	"guidedtour-tour-test-wikitext-description": "Eine Führung in deiner Wikitour kann Wikitext beinhalten. Benutze ihn, um beispielsweise einen Wikilink zur [[{{MediaWiki:Guidedtour-help-url}}|Dokumentation]] oder einen [https://example.com externen Link] zu erstellen.",
+	"guidedtour-tour-test-description-page": "MediaWiki-Beschreibungsseiten testen",
+	"guidedtour-tour-test-go-description-page": "Gehe zur Beschreibungsseite",
+	"guidedtour-tour-test-launch-tour": "Tourstart testen",
+	"guidedtour-tour-test-launch-tour-description": "Guider können andere geführte Touren starten. Ziemlich cool, nicht wahr?",
+	"guidedtour-tour-test-launch-editing": "Eine Tour zur Bearbeitung starten",
+	"guidedtour-tour-firstedit-edit-page-title": "Die ganze Seite {{GENDER:|bearbeiten}} …",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Klicke}} auf „$1“, um deine Änderungen durchzuführen.",
+	"guidedtour-tour-firstedit-edit-section-title": "Oder einen Abschnitt {{GENDER:|bearbeiten}}",
+	"guidedtour-tour-firstedit-edit-section-description": "Es gibt „{{int:editsection}}“-Links für jeden Seitenabschnitt, so dass du dich nur auf diesen Teil fokussieren kannst.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Vorschau}} deiner Änderungen (optional)",
+	"guidedtour-tour-firstedit-preview-description": "Mit Klick auf „{{int:showpreview}}“ kannst du überprüfen, wie die Seite mit deinen Änderungen aussehen wird. Vergiss nicht zu speichern!",
+	"guidedtour-tour-firstedit-save-title": "Du bist fast fertig!",
+	"guidedtour-tour-firstedit-save-description": "Wenn du fertig bist, macht das Klicken auf „{{int:publishchanges}}“ deine Änderungen für jeden sichtbar.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Klicke}} auf „$1“, um deine Änderungen durchzuführen.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Für jeden Seitenabschnitt gibt es die Links „$1“, so dass du dich nur auf diesen Teil konzentrieren kannst.",
+	"guidedtour-tour-firsteditve-save-description": "Wenn du fertig bist, klicke auf „{{int:visualeditor-toolbar-savedialog}}“, um deine Änderungen für jeden sichtbar zu machen."
+}

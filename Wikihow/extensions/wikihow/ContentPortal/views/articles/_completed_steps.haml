@@ -1,0 +1,20 @@
+
+%table.table.table-striped.table-condensed
+	%thead
+		%tr
+			%th User
+			%th Step
+			%th Assigned
+			%th Completed
+
+	%tbody
+		- foreach($article->user_articles as $assoc)
+			%tr{id: $assoc->id, class: isArticleState($assoc->role, $article) ? 'warning' : '' }
+				%td= $assoc->user ? $assoc->user->username : 'Error: Bad User'
+				%td= $assoc->role->present_tense
+
+				%td= timeAgo($assoc->created_at)
+				%td
+					- if ($assoc->complete)
+						%i.fa.fa-check-circle
+						= timeAgo($assoc->completed_at)

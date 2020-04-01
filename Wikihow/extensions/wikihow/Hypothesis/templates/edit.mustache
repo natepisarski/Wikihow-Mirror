@@ -1,0 +1,56 @@
+{{#experiment}}
+<div class="section">
+	<h2>
+		<input type="text" id="hyp-input-name" class="hyp-input-heading" placeholder="Name" value="{{hypx_name}}">
+		<div class="hyp-tools">
+			<a href="/Special:Hypothesis/{{#hypx_id}}view/{{hypx_id}}{{/hypx_id}}" class="button secondary hyp-cancel">Cancel</a>
+			{{#hypx_id}}
+			<a href="#" class="button primary hyp-save">Save</a>
+			{{/hypx_id}}
+			{{^hypx_id}}
+			<a href="#" class="button primary hyp-create">Create</a>
+			{{/hypx_id}}
+		</div>
+	</h2>
+	<div class="section_text">
+		<div class="hyp-row">
+			<div class="hyp-col-6">
+				<label class="hyp-field {{status.class}}">
+					<p><small>Status</small></p>
+					<p><span class="hyp-status"></span> {{status.label}}</p>
+				</label>
+				<label class="hyp-field">
+					<p><small>Audiences</small></p>
+					<p>Anonymous users on
+						<select id="hyp-input-target" class="hyp-input-select">
+							{{#target.options}}
+							<option value="{{value}}" {{selected}}>{{label}}</option>
+							{{/target.options}}
+						</select>
+					</p>
+				</label>
+			</div>
+			<div class="hyp-col-6">
+				<label class="hyp-field">
+					<p><small>Experiment Traffic Allocation</small></p>
+					<input id="hyp-input-traffic" class="hyp-input-text hyp-input-inline" type="number" min="0.01" max="100" step="0.01" value="{{hypx_traffic}}"> %
+				</label>
+				<label class="hyp-field">
+				<p><small>Variation Traffic Distribution</small></p>
+				<p>
+					<input type="number" class="hyp-input-text hyp-input-inline" value="50" min="0" max="100" disabled> % /
+					<input type="number" class="hyp-input-text hyp-input-inline" value="50" min="0" max="100" disabled> %
+				</p>
+				</label>
+			</div>
+		</div>
+		{{#hypx_id}}
+		<div class="hyp-row">
+			<div class="hyp-col-12">
+				<p><a href="https://app.optimizely.com/v2/projects/{{hypx_opti_project}}/experiments/{{hypx_opti_experiment}}" class="hyp-link-optimizely" target="_blank">Open in Optimizely</a></p>
+			</div>
+		</div>
+		{{/hypx_id}}
+	</div>
+</div>
+{{/experiment}}

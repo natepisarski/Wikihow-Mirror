@@ -1,0 +1,488 @@
+/*reset*/
+@charset "utf-8";
+/* CSS Document */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+margin: 0;
+padding: 0;
+border: 0;
+outline: 0;
+font-size: 100%;
+background: transparent;
+}
+body {
+line-height: 1;
+}
+ol, ul {
+list-style: none;
+}
+blockquote, q {
+quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+content: '';
+}
+/* remember to define focus styles! */
+:focus {
+outline: 0;
+}
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+/*end reset*/
+@font-face {
+    font-family: 'Museo700';
+    src: url('../fonts/museo700-regular-webfont.eot');
+    src: url('../fonts/museo700-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/museo700-regular-webfont.woff') format('woff'),
+         url('../fonts/museo700-regular-webfont.ttf') format('truetype'),
+         url('../fonts/museo700-regular-webfont.svg#Museo700') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+@font-face {
+    font-family: 'Museo900';
+    src: url('../fonts/museo900-regular-webfont.eot');
+    src: url('../fonts/museo900-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/museo900-regular-webfont.woff') format('woff'),
+         url('../fonts/museo900-regular-webfont.ttf') format('truetype'),
+         url('../fonts/museo900-regular-webfont.svg#Museo900') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+@font-face {
+    font-family: 'Museo500';
+    src: url('../fonts/museo500-regular-webfont.eot');
+    src: url('../fonts/museo500-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/museo500-regular-webfont.woff') format('woff'),
+         url('../fonts/museo500-regular-webfont.ttf') format('truetype'),
+         url('../fonts/museo500-regular-webfont.svg#Museo500') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+@font-face {
+    font-family: 'LucidaGrandeRegular';
+    src: url('../fonts/lucig-webfont.eot');
+    src: url('../fonts/lucig-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/lucig-webfont.woff') format('woff'),
+         url('../fonts/lucig-webfont.ttf') format('truetype'),
+         url('../fonts/lucig-webfont.svg#LucidaGrandeRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+	}
+#wrapper {
+	width:620px;
+	/*margin:290px auto;*/
+	margin: 0 auto;
+	}
+* html #wrapper {
+	width:619px;
+	/*margin:290px auto;*/
+	margin: 0 auto;
+	}
+#header {
+	background:url(../images/header_green.png) repeat-x;
+	width:100%;
+	height:57px;
+	float:left;
+	position:relative;
+	}
+.corner_left {
+	position:absolute;
+	left:0;
+	bottom:-10px;
+	}
+.corner_right {
+	position:absolute;
+	right:0;
+	bottom:-10px;
+	}	
+ul.tabs {
+	margin: 11px 5px 0 11px;
+	padding: 0;
+	float: right;
+	}
+ul.tabs li {
+	float: left;
+	padding: 0;
+	height: 46px; /*--Subtract 1px from the height of the unordered list--*/
+	line-height: 49px; /*--Vertically aligns the text within the tab--*/
+	overflow: hidden;
+	position: relative;
+	margin-right:5px;
+	}
+* html ul.tabs li {
+	margin-left:-11px;
+	margin-right:17px;
+	}
+* html .tabs li a  {
+	cursor:pointer;
+	}	
+ul.tabs li a {
+	background:url(../images/buttons.png) no-repeat right -49px;
+    font-family: 'Museo500';
+	text-decoration: none;
+	font-size:20px;
+	color:#ffffff;
+	text-shadow:0 -1px #2f5e6f;
+	outline: none;
+	display:inline-block;
+	float:left;
+	}
+* html 	ul.tabs li a  {
+     background-image:url(../images/buttons.png);
+	 background-position:right -49px;
+	 background-repeat:no-repeat;
+     -pie-png-fix: true;
+     behavior: url(PIE.htc);
+	}
+ul.tabs li a p {
+	background:url(../images/buttons.png) no-repeat 0 -49px;
+	display:inline-block;
+	margin:0 6px 0 0px;
+	padding:0 18px 0 21px;
+	white-space:normal;
+	}
+* html 	ul.tabs li a p  {
+     background-image:url(../images/buttons.png);
+	 background-position:0 -49px;
+	 background-repeat:no-repeat;
+     -pie-png-fix: true;
+     behavior: url(PIE.htc);
+	}
+* html	ul.tabs li a p {
+	cursor:pointer;
+	width:25px;
+	}
+ul.tabs li.active a  { 
+	background:url(../images/buttons.png) no-repeat right 0px;
+	/*color: #2f8fa3;*/
+	color: #809080;
+	text-shadow:none;
+	}
+* html 	ul.tabs li.active a  {
+     background-image:url(../images/buttons.png);
+	 background-position:right 0px;
+	 background-repeat:no-repeat;
+     -pie-png-fix: true;
+     behavior: url(PIE.htc);
+	}
+* html ul.tabs li.active a p {
+     background-image:url(../images/buttons.png);
+	 background-position:0 0px;
+	 background-repeat:no-repeat;
+     -pie-png-fix: true;
+     behavior: url(PIE.htc);
+	}
+ul.tabs li.active a p {
+	background:url(../images/buttons.png) no-repeat 0 0px;
+	display:inline-block;
+	white-space:normal;
+	}
+#header_text {
+    font-family: 'Museo500';
+	font-size:25px;
+	color:#ffffff;
+	line-height: 2.1em;
+	padding-left: 1em;
+}
+#content {
+    background-color: #ffffff;
+	width:610px;
+	margin:0 0 0 5px;
+	padding:11px 0 20px 0;
+	float:left;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-top-left-radius: 0;
+    -moz-border-top-left-radius: 0;
+    -webkit-border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    -moz-border-top-right-radius: 0;
+    -webkit-border-top-right-radius: 0;
+    border-top: 0px;
+	}
+* html	#content {
+	margin-left:2px;
+	}	
+.tab_container {
+	overflow: hidden;
+	clear: both;
+	float: left;
+	width: 100%;
+	margin-bottom: 5px;
+	}
+.tab_content {
+	float: left;
+	}
+.left {
+	float: left;
+   margin-left: 6px;
+   width: 305px;
+	}
+.right {
+	width:295px;
+	float:left;
+	position:relative;
+	}	
+.left h1,.right h1 {
+    font-family: 'Museo700';
+	font-size:22px;
+    font-weight: normal;
+    font-style: normal;
+	text-align:center;
+	/*color:#3a9baf;*/
+	color: #809080;
+	height:25px;
+	float:left;
+	width:100%;
+	}
+.left h2,.right h2 {
+	font-family: 'LucidaGrandeRegular';
+	font-size:11px;
+	color:#a1a1a1;
+	float:left;
+	width:100%;
+	text-align:center;
+    font-weight: normal;
+    font-style: normal;
+	}
+.right p {
+    font-family: 'Museo500';
+	font-size:16px;
+	/*color:#3a9baf;*/
+	color: #809080;
+	width:255px;
+	margin:41px 0 0 19px;
+	line-height:18px;
+	text-align:center;
+	float:left;
+	}
+* html .right p  {
+	margin:41px 0 0 8px;
+	}	
+.line {
+	background:#d8d8d8;
+	width:1px;
+	margin:5px 0 0 0;
+	height:161px;
+	float:left;
+	}
+* html .bottom	{
+	margin:0 0 0 2px;
+	}
+.bottom {
+	background:url(../images/bottom.jpg) no-repeat;
+	width:610px;
+	height:14px;
+	margin:0 0 0 5px;
+	float:left;
+	}
+.form {
+	float:left;
+	width:100%;
+	}
+.form p.first {
+    /*color: #3A9BAF;*/
+	color: #809080;
+   float: left;
+   font-family: 'Museo500';
+   font-size: 16px;
+   /*margin: 28px 4px 0 10px;*/
+   margin: 33px 4px 0 10px;
+   text-align: right;
+   width: 136px;
+	}
+* html .form  p.first {
+	/*margin:28px 8px 0 4px;*/
+	margin:33px 8px 0 4px;
+	} 	
+.form_input {
+	float:left;
+	width:155px;
+	}
+* html .form_input {
+	float:left;
+	width:136px;
+	}	
+.input {
+    font-family: 'Museo700';
+	background:url(../images/buttons.png) no-repeat 0 -99px;
+	width:111px;
+	height:46px;
+	line-height:46px;
+	text-align:center;
+	color:#717171;
+	margin:19px 0 0 3px;
+	float:left;
+	font-size: 22px;
+	}
+.input.active_input {
+	background:url(../images/buttons.png) no-repeat 0 -147px;
+	}
+.input span {
+    font-family: 'Museo500';
+	color:#a0a0a0;
+	-moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none; 
+	}	
+.more {
+	background:url(../images/buttons.png) no-repeat 0 -197px;
+	width:29px;
+	height:23px;
+	margin:19px 0 0 0px;
+	float:left;
+	cursor: pointer;
+	}	
+.more:active {
+	background:url(../images/buttons.png) no-repeat 0 -220px;
+	}
+* html .small {
+	margin:-12px 0 0 0;
+	float:right;
+	}
+.small {
+	background:url(../images/buttons.png) no-repeat -29px -197px;
+	width:29px;
+	height:23px;
+	margin:0px 0 0 0px;
+	float:left;
+	cursor: pointer;
+	}
+.small:active {
+	background:url(../images/buttons.png) no-repeat -29px -220px;
+	}
+.form p.tho {
+	margin: 26px 4px 0;
+   width: 80px;
+	}
+.second {
+	margin-right: 5px;
+   width: 100px;
+	}
+.second .input{
+	width: 68px;
+	}
+.second .input.active_input {
+	background:url(../images/buttons.png) no-repeat -143px -147px;
+	}	
+* html .second  {
+	width:100px;
+	margin-right:-3px;
+	}
+* html .second  .small {
+	margin:42px 0 0 -29px;
+	float:left;
+	}	
+.form p.second_kg {
+    font-family: 'Museo500';
+	/*color:#3a9baf;*/
+	color: #809080;
+	font-size:16px;
+	width:136px;
+	margin:33px 4px 0 10px;
+	float:left;
+	text-align:right;
+	}	
+.scale {
+    font-family: 'Museo700';
+	float:left;
+	width:100%;
+	font-size:50px;
+	/*color:#3a9baf;*/
+	color: #809080;
+	text-align:center;
+	margin:14px 0 0 0; 
+	}
+.about_scale {
+    font-family: 'Museo500';
+	float:left;
+	width:100%;
+	font-size:16px;
+	/*color:#3a9baf;*/
+	color: #809080;
+	text-align:center;
+	margin:0px 0 0 0; 
+	}	
+.about_scale span {
+    font-family: 'Museo900';
+	text-transform:uppercase;
+	}
+.ruler {
+	float:left;
+	margin:29px 0 0 15px;
+	position:relative;
+	}
+* html .ruler{
+	margin:29px 0 0 12px;
+	}
+.i_m {
+	background:url(../images/i_m.png) no-repeat;
+	width:80px;
+	height:28px;
+	font-size:14px;
+	text-align:center;
+	padding-top:8px;
+    font-family: 'Museo700';
+	/*color:#3a9baf;*/
+	color: #809080;
+	position:absolute;
+}
+/**/
+.editable_div { /* DIV with inch,cm,kg,ft values */
+	float: right;
+   text-align: right;
+   width: 50%;
+}
+#current_input { /* Dynamic input, created by js */
+	float: right;  
+	border: none; 
+	background: transparent; 
+	font-family: 'Museo700'; 
+	line-height:40px;
+	text-align:right;
+	color:#717171;
+	font-size: 22px;
+	padding-top: 3px;
+	width: 60px;
+	height: 40px;
+	margin-right: -1px; 
+}
+.si { /* SPAN with feeds, inches and s.o. */
+ 	float: right;
+   margin-right: 10px;
+   padding-left: 5px;
+   text-align: left;
+   width: 25%;
+}
+.result_set { /* DIV with result set */
+	display: none;
+}
+.active_input { 
+	background:url(../images/buttons.png) no-repeat 0 -147px;
+}
+.custom_in {
+	margin-right: 12px;
+}
+
+#powered_by {
+	font-family: 'Museo700'; 
+	text-align: right;
+	/*color:#3a9baf;*/
+	color: #809080;
+	margin: 0 20px -10px 0;
+	font-size: .7em;
+}

@@ -1,0 +1,7 @@
+{
+	"extends": [
+		"../.eslintrc.json",
+		"wikimedia/client",
+		"../.eslintshared.json"
+	]
+}

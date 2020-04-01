@@ -1,0 +1,49 @@
+<div class="section">
+	<h2>
+		<span>Experiments</span>
+		<div class="hyp-tools">
+			{{#canPurge}}<a href="#" class="button red {{#isEmpty}}disabled{{/isEmpty}} hyp-purge">Purge Archived</a>{{/canPurge}}
+			<a href="#" class="button secondary hyp-create">Create</a>
+		</div>
+	</h2>
+	<table>
+		<thead>
+			<tr class="hyp-controls">
+				<td colspan="5">
+					<div class="hyp-row">
+						<div class="hyp-col-9 hyp-filters">
+							<span class="hyp-switches">
+								{{#filters}}<a href="{{link}}" class="hyp-switch {{#selected}}hyp-selected{{/selected}}">{{label}}</a>{{/filters}}
+							</span>
+						</div>
+						<div class="hyp-col-3 hyp-pagers">
+							<span class="hyp-switches">
+								{{#pagers}}<a href="{{link}}" class="hyp-switch {{#disabled}}hyp-disabled{{/disabled}}">{{label}}</a>{{/pagers}}
+							</span>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th width="1%" colspan="2">Status</th>
+				<th width="38%">Name</th>
+				<th width="60%">Pages</th>
+			</tr>
+		</thead>
+		<tbody class="hyp-experiments">
+			{{#experiments}}
+			<tr class="hyp-item {{status.class}}" data-id="{{hypx_id}}">
+				<td class="hyp-status"></td>
+				<td class="hyp-traffic">{{hypx_traffic}}%</td>
+				<td class="hyp-name hyp-truncate"><span>{{hypx_name}}</span></td>
+				<td class="hyp-tests hyp-truncate"><span>{{page_titles}}</span></td>
+			</tr>
+			{{/experiments}}
+			{{^experiments}}
+			<tr>
+				<td class="hyp-empty" colspan="5">No {{filterName}} experiments</td>
+			</tr>
+			{{/experiments}}
+		</tbody>
+	</table>
+</div>

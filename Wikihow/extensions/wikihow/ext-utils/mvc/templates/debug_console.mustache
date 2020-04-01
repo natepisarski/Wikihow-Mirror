@@ -1,0 +1,23 @@
+<script type="text/javascript">
+	console.groupCollapsed('Debugger');
+
+		console.groupCollapsed('Traced Objects')
+			console.log({{{objects}}});
+		console.groupEnd();
+
+		console.groupCollapsed("SQL QUERIES {{queryCount}}");
+			{{#queries}}
+				console.log("{{.}}");
+			{{/queries}}
+		console.groupEnd();
+
+		console.groupCollapsed("$_GET");
+			console.log({{{get}}});
+		console.groupEnd();
+
+		console.groupCollapsed("$_POST");
+			console.log({{{post}}});
+		console.groupEnd();
+
+	console.groupEnd();
+</script>

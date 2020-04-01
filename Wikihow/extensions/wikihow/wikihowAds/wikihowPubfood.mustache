@@ -1,0 +1,338 @@
+var wikihowFood = new pubfood();
+var googletag = window.googletag || {};
+googletag.cmd = googletag.cmd || [];
+{{#amazon}}
+var amznads = amznads || {};
+{{/amazon}}
+{{#yieldbot}}
+var ybotq = ybotq || [];
+{{/yieldbot}}
+
+var slot;
+var params;
+var unitData = '{{{units}}}';
+var units = JSON.parse(unitData).units;
+for(i = 0; i < units.length; i++) {
+
+	slot = wikihowFood.addSlot({
+		name: units[i].name,
+		elementId: units[i].id,
+		sizes: units[i].size,
+		bidProviders: units[i].providers
+	});
+	for(j = 0; j < units[i].keys.length; j++) {
+		params = {};
+		if(units[i].keys[j].key) {
+			params['slot'] = units[i].keys[j].key;
+		}
+		if(units[i].keys[j].id) {
+			params['id'] = units[i].keys[j].id;
+		}
+		if(units[i].keys[j].banner) {
+			params['banner'] = units[i].keys[j].banner;
+			params['alias'] = units[i].id;
+		}
+		slot.setParam(units[i].keys[j].name, params);
+	}
+
+}
+
+{{#yieldbot}}
+wikihowFood.addBidProvider({
+	name: 'yieldbot',
+	libUri: '//cdn.yldbt.com/js/yieldbot.intent.js',
+	init: function(slots, pushBid, done) {
+		var slotMap = {};
+		ybotq.push(function() {
+			yieldbot.psn('t1tc');
+
+			for (var k = 0; k < slots.length; k++) {
+				var slot = slots[k], 
+					slotParams = slot.getParam('yieldbot');
+					yieldbot.defineSlot(slotParams.slot, {
+						sizes: slot.sizes
+					});
+				slotMap[slotParams.slot] = slot.name;
+			}
+			yieldbot.enableAsync();
+			yieldbot.go();
+		});
+
+		ybotq.push(function() {
+			var pageCriteria = yieldbot.getPageCriteria(),
+					pageSlots = pageCriteria !== '' ? pageCriteria.split(',') : [];
+			for (var i = 0; i < pageSlots.length; i++) {
+				var slotInfo = pageSlots[i].split(':'),
+						slot = slotInfo[0],
+						size = slotInfo[1],
+						bid = 0;
+
+				if (slotInfo.length && slotInfo[2]) {
+					bid = parseFloat(slotInfo[2], 10);
+				}
+
+				var sizes = size.split('x');
+				sizes[0] = parseInt(sizes[0], 10);
+				sizes[1] = parseInt(sizes[1], 10);
+
+				var bidObject = {
+					slot: slotMap[slot],
+					value: bid,
+					sizes: sizes,
+					targeting: {
+						ybot_ad: 'y',
+						ybot_slot: slot
+					},
+					label: 'price'
+				};
+				pushBid(bidObject);
+			}
+
+			done();
+		});
+	},
+	refresh: function(slots, pushBid, done) {
+		var slotMap = {};
+		ybotq.push(function() {
+			var refreshSlots = {};
+			for (var i = 0; i < slots.length; i++) {
+				var slot = slots[i],
+						slotParams = slot.getParam('yieldbot');
+				refreshSlots[slotParams.slot] = slot.sizes;
+				slotMap[slotParams.slot] = slot.name;
+			}
+			yieldbot.nextPageview(refreshSlots);
+		});
+
+		ybotq.push(function() {
+			var pageCriteria = yieldbot.getPageCriteria(),
+					pageSlots = pageCriteria !== '' ? pageCriteria.split(',') : [];
+			for (var i = 0; i < pageSlots.length; i++) {
+				var slotInfo = pageSlots[i].split(':'),
+						slot = slotInfo[0],
+						size = slotInfo[1],
+						bid = 0;
+
+				if (slotInfo.length && slotInfo[2]) {
+					bid = parseFloat(slotInfo[2], 10);
+				}
+
+				var sizes = size.split('x');
+				sizes[0] = parseInt(sizes[0], 10);
+				sizes[1] = parseInt(sizes[1], 10);
+
+				var bidObject = {
+					slot: slotMap[slot],
+					value: bid,
+					sizes: sizes,
+					targeting: {
+						ybot_ad: 'y',
+						ybot_slot: slot
+					},
+					label: 'price'
+				};
+				pushBid(bidObject);
+			}
+
+			pushBid({
+				value: bid,
+				sizes: sizes,
+				targeting: {
+					ybot_ad: 'y',
+					ybot: yieldbot.getPageCriteria()
+				},
+				label: 'ybc'
+			});
+
+			done();
+
+		});
+	}
+});
+{{/yieldbot}}
+
+{{#amazon}}
+wikihowFood.addBidProvider({
+	name: 'amazon',
+	libUri: '//c.amazon-adsystem.com/aax2/amzn_ads.js',
+	init: function(slots, pushBid,done){
+		amznads.asyncParams = {
+			'id': '3271',
+			'callbackFn': function() {
+				try {
+					amznads.setTargetingForGPTAsync('amznslots');
+				} catch (e) { /*ignore*/ }
+				done();
+			}
+
+		};
+	},
+	refresh: function(slots, pushBid, done){
+
+	}
+});
+{{/amazon}}
+
+{{#sovrn}}
+/*var url = 'http://gslbeacon.lijit.com/beacon?viewId=littlethings';
+url = url + '&rand=' + Math.floor(9e3 * Math.random());
+url = url + '&informer=12761363&type=fpads';
+url = url + "&loc=" +  window.location.hostname;
+url = url + "&v=1.2";
+(new Image()).src = url;*/ //sovrn beacon, not using yet
+
+var sovrn_keys = [];
+var pfSlots = wikihowFood.getSlots();
+for (var index in pfSlots) {
+	if(pfSlots[index].getParam('sovrn')){
+		var item = {
+			'id': pfSlots[index].params_.sovrn.alias,
+			'banner': pfSlots[index].params_.sovrn.banner,
+			'tagid': pfSlots[index].params_.sovrn.id
+		}
+		sovrn_keys.push(item)
+	}
+}
+
+var sovrn_json = {
+	"id": 2272143,
+	"site": {
+		"domain": window.location.host,
+		"page":  window.location.pathname
+	},
+	"imp": sovrn_keys
+};
+
+var sovrn_json_string = JSON.stringify(sovrn_json);
+
+var encodedSovrn = encodeURIComponent(sovrn_json_string);
+
+window.sovrn_render = function (e, slt) {
+	try {
+		for (var j=0; j<sovrn_results.length; j++) {
+			var bid_obj = sovrn_results[j];
+			if (bid_obj.impid == slt) {
+				(new Image()).src = decodeURIComponent(bid_obj.nurl);
+				var svrn_ad = decodeURIComponent(bid_obj.adm);
+				e.write(svrn_ad);
+				break;
+			}
+		}
+	} catch (s) {}
+};
+
+wikihowFood.addBidProvider({
+	name:'sovrn',
+	libUri: 'http://ap.lijit.com/rtb/bid?callback=sovrn_callback&br=' + encodedSovrn + '&rand=' + Math.floor(9e6 * Math.random()),
+	init: function(slots,pushBid,done){
+		window.sovrn_callback = function (sovrn_data) {
+
+			try {
+				window.sovrn_results = sovrn_data.seatbid[0].bid;
+				for (var j=0; j<sovrn_data.seatbid[0].bid.length; j++) {
+					var bid_obj = sovrn_data.seatbid[0].bid[j];
+					if (bid_obj.impid && bid_obj.adm && bid_obj.nurl.length != 0) {
+						var cpm = bid_obj.price;
+						var sovrn_bid = 10 > cpm ? (Math.floor(10 * cpm) / 10).toFixed(2) : 35 > cpm ? (Math.floor(4 * cpm) / 4).toFixed(2) : "35.00";
+						var sizes;
+						var svrn_slot = bid_obj.impid;
+
+						var auction_slot = 'undefined_slot';
+
+						for (var k = 0; k < slots.length; k++) {
+							if(slots[k].params_.sovrn.alias == svrn_slot){
+								sizes = [slots[k].params_.sovrn.banner.w, slots[k].params_.sovrn.banner.h]
+								auction_slot = slots[k].name;
+								break;
+							}
+						}
+
+						var slotTargeting = {};
+						slotTargeting['svrn_alias'] = svrn_slot;
+						//slotTargeting['sovrn_pf_pb'] = sovrn_bid;
+
+						var bidObject = {
+							slot: auction_slot,
+							value: sovrn_bid,
+							sizes: sizes,
+							targeting: slotTargeting,
+							label: 'pf_pb'
+						};
+
+						pushBid(bidObject);
+					}
+				}
+			} catch (e) {}
+			done();
+		};
+	},
+	refresh: function(slots,pushBid,done){}
+});
+{{/sovrn}}
+
+{{#index}}
+// INDEX
+function cygnus_index_parse_res(){}function cygnus_index_start(){function e(e){var t=n[e];return"string"==typeof t?t:"\\u"+("0000"+e.charCodeAt(0).toString(16)).slice(-4)}function t(t){return s.lastIndex=0,s.test(t)?t.replace(s,e):t}function i(e,t,i){if(this.initialized=!1,"number"!=typeof e||e%1!==0||0>e)throw"Invalid Site ID";if("number"==typeof i&&i%1==0&&i>=0&&(this.timeoutDelay=i),this.siteID=e,this.impressions=[],this._parseFnName=void 0,top===self?(this.sitePage=location.href,this.topframe=1):(this.sitePage=document.referrer,this.topframe=0),"undefined"!=typeof t){if("function"!=typeof t)throw"Invalid jsonp target function";this._parseFnName="cygnus_index_args.parseFn"}"undefined"==typeof _IndexRequestData.requestCounter?_IndexRequestData.requestCounter=Math.floor(256*Math.random()):_IndexRequestData.requestCounter=(_IndexRequestData.requestCounter+1)%256,this.requestID=String((new Date).getTime()%2592e3*256+_IndexRequestData.requestCounter+256),this.initialized=!0}cygnus_index_args.parseFn=cygnus_index_parse_res;var s=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,n={"\b":"\\b","	":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"};i.prototype.serialize=function(){var e='{"id":'+this.requestID+',"site":{"page":"'+t(this.sitePage)+'"';"string"==typeof document.referrer&&(e+=',"ref":"'+t(document.referrer)+'"'),e+='},"imp":[';for(var i=0;i<this.impressions.length;i++){var s=this.impressions[i],n=[];e+='{"id":"'+s.id+'", "banner":{"w":'+s.w+',"h":'+s.h+',"topframe":'+String(this.topframe)+"}","number"==typeof s.bidfloor&&(e+=',"bidfloor":'+s.bidfloor,"string"==typeof s.bidfloorcur&&(e+=',"bidfloorcur":"'+t(s.bidfloorcur)+'"')),"string"!=typeof s.slotID||s.slotID.match(/^\s*$/)||n.push('"sid":"'+t(s.slotID)+'"'),"number"==typeof s.siteID&&n.push('"siteID":'+s.siteID),n.length>0&&(e+=',"ext": {'+n.join()+"}"),e+=i+1==this.impressions.length?"}":"},"}return e+="]}"},i.prototype.setPageOverride=function(e){return"string"!=typeof e||e.match(/^\s*$/)?!1:(this.sitePage=e,!0)},i.prototype.addImpression=function(e,t,i,s,n,r){var o={id:String(this.impressions.length+1)};if("number"!=typeof e||1>=e)return null;if("number"!=typeof t||1>=t)return null;if(("string"==typeof n||"number"==typeof n)&&String(n).length<=50&&(o.slotID=String(n)),o.w=e,o.h=t,void 0!=i&&"number"!=typeof i)return null;if("number"==typeof i){if(0>i)return null;if(o.bidfloor=i,void 0!=s&&"string"!=typeof s)return null;o.bidfloorcur=s}if("undefined"!=typeof r){if(!("number"==typeof r&&r%1===0&&r>=0))return null;o.siteID=r}return this.impressions.push(o),o.id},i.prototype.buildRequest=function(){if(0!=this.impressions.length&&this.initialized===!0){var e=encodeURIComponent(this.serialize()),t="https:"===window.location.protocol?"https://as-sec.casalemedia.com":"http://as.casalemedia.com";return t+="/headertag?v=9&x3=1&fn=cygnus_index_parse_res&s="+this.siteID+"&r="+e,"number"==typeof this.timeoutDelay&&this.timeoutDelay%1==0&&this.timeoutDelay>=0&&(t+="&t="+this.timeoutDelay),t}};try{if("undefined"==typeof cygnus_index_args||"undefined"==typeof cygnus_index_args.siteID||"undefined"==typeof cygnus_index_args.slots)return;"undefined"==typeof _IndexRequestData&&(_IndexRequestData={},_IndexRequestData.impIDToSlotID={},_IndexRequestData.reqOptions={});var r=new i(cygnus_index_args.siteID,cygnus_index_args.parseFn,cygnus_index_args.timeout);cygnus_index_args.url&&"string"==typeof cygnus_index_args.url&&r.setPageOverride(cygnus_index_args.url),_IndexRequestData.impIDToSlotID[r.requestID]={},_IndexRequestData.reqOptions[r.requestID]={};for(var o,u,a=0;a<cygnus_index_args.slots.length;a++)o=cygnus_index_args.slots[a],u=r.addImpression(o.width,o.height,o.bidfloor,o.bidfloorcur,o.id,o.siteID),u&&(_IndexRequestData.impIDToSlotID[r.requestID][u]=String(o.id));return"number"==typeof cygnus_index_args.targetMode&&(_IndexRequestData.reqOptions[r.requestID].targetMode=cygnus_index_args.targetMode),"function"==typeof cygnus_index_args.callback&&(_IndexRequestData.reqOptions[r.requestID].callback=cygnus_index_args.callback),r.buildRequest()}catch(d){}}cygnus_index_args={timeout:300,siteID:172263,slots:[{id:"1",width:728,height:90,siteID:172263},{id:"2",width:300,height:250,siteID:172804},{id:"3",width:728,height:90,siteID:172805},{id:"4",width:728,height:90,siteID:172807},{id:"5",width:728,height:90,siteID:172808},{id:"6",width:728,height:90,siteID:172809},{id:"7",width:300,height:250,siteID:172813},{id:"8",width:300,height:250,siteID:172814}]};
+
+var bidProviderConfig = {
+	name: 'index',
+	libUri: ' ',
+	init: function(slots, pushBid, done) {
+
+		var scriptTag = document.createElement("script");
+		scriptTag.setAttribute("src", cygnus_index_start());
+
+		scriptTag.setAttribute("type", "text/javascript");
+		var firstScript = document.getElementsByTagName("script")[0];
+		if (firstScript.parentNode) {
+			firstScript.parentNode.insertBefore(scriptTag, firstScript);
+		}
+
+
+		done();
+	},
+	refresh: function(slots, pushBid, done) {}
+};
+wikihowFood.addBidProvider(bidProviderConfig);
+
+// END INDEX
+{{/index}}
+
+wikihowFood.setAuctionProvider({
+	name: 'Google',
+	libUri: '//www.googletagservices.com/tag/js/gpt.js',
+	init: function(targeting, done) {
+		googletag.cmd.push(function() {
+			wikihowFood.getAuctionProvider().setParam('isRefresh', false);
+			var slots = {};
+			for (var i = 0; i < targeting.length; i++) {
+				var tgtObject = targeting[i];
+
+				var gptObject;
+				if (tgtObject.name) {
+					gptObject = googletag.defineSlot(tgtObject.name, tgtObject.sizes, tgtObject.elementId).addService(googletag.pubads());
+					slots[tgtObject.name] = gptObject;
+
+				} else {
+					gptObject = googletag.pubads();
+				}
+				for (var p in tgtObject.targeting) {
+					gptObject.setTargeting(p, tgtObject.targeting[p]);
+				}
+
+			}
+			wikihowFood.getAuctionProvider().setParam('slots', slots);
+		});
+		googletag.cmd.push(function() {
+			googletag.pubads().enableSingleRequest();
+			googletag.enableServices();
+			done();
+		});
+	}
+});
+
+wikihowFood.timeout({{timeout}});
+wikihowFood.observe(function(ev) {
+	console.log(ev);
+});
+wikihowFood.start();

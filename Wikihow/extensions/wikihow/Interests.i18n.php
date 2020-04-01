@@ -1,0 +1,3 @@
+<?php
+$messages = [];
+$messages['en'] = [];

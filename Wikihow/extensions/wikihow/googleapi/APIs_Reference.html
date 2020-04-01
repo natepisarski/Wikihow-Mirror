@@ -1,0 +1,2182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Google Web APIs Reference</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<STYLE>BODY {
+	BACKGROUND-COLOR: white; COLOR: black; MARGIN-LEFT: 5%; MARGIN-RIGHT: 5%
+}
+</STYLE>
+
+<META content="MSHTML 5.00.3315.2870" name=GENERATOR></HEAD>
+<BODY bgColor=#ffffff><BR>
+
+<TABLE border=0 cellPadding=0 cellSpacing=0 width="100%">
+
+  <TR>
+    <TD width="0%"></TD>
+    <TD bgColor=#ffffff vAlign=center>
+      <TABLE cellPadding=2 width="100%">
+
+        <TR>
+          <TD align=right bgColor=#ffffff><FONT face=arial,sans-serif><B><A
+            
+            name=top></A></B></FONT>&nbsp;</TD></TR>
+        <TR>
+          <TD bgColor=#006699><FONT color=#ffffff
+            
+            face=arial,sans-serif>&nbsp;<B>Google Web APIs Reference</B></FONT></TD></TR>
+        <TR>
+          <TD bgColor=#ffffff><FONT face=arial,sans-serif size=-1>Beta 2 -
+            August, 2002</FONT></TD></TR></TABLE></TD>
+         </TR>
+</TABLE>
+
+
+<TABLE border=0 cellPadding=3 cellSpacing=0 width="100%">
+
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B>Contents</B></FONT></TD>
+    <TD align=right bgColor=#d8e4f1><BR></TD>
+   </TR>
+</TABLE>
+
+<BLOCKQUOTE> 
+  <p><A href="#overview"><b>1.&nbsp; Overview</b></A> </p>
+  <blockquote>
+<p><A href="#search_requests">1.1&nbsp; Search Requests<br>
+      </A><A href="#cache_requests">1.2&nbsp; Cache Requests<br>
+      </A><A href="#spelling_requests">1.3&nbsp; Spelling Requests </A> </p>
+  </blockquote>
+  <p><A href="#request_format" target=_self><b>2.&nbsp; Search Request Format</b></A></p>
+  <blockquote> 
+    <p><A href="#request_parameters">2.1&nbsp; Search Parameters<br>
+      </A><A href="#request_query_terms">2.2&nbsp; Query Terms<br>
+      </A><A href="#request_filtering">2.3&nbsp; Automatic Filtering<br>
+      </A><A 
+    href="#request_lr">2.4&nbsp; Restricts<br>
+      </A><A href="#request_ie_oe">2.5&nbsp; Input and Output Encoding<br>
+      </A><A 
+    href="#request_safesearch">2.6&nbsp; SafeSearch<br>
+      </A><A 
+    href="#request_limits">2.7&nbsp; Limitations</A></p>
+  </blockquote>
+  <p><A href="#results_format"><b>3. Search Results Format</b></A></p>
+  <blockquote>
+    <p><A href="#response_definitions">3.1&nbsp; Search Response<br>
+      </A><A href="#resultElement">3.2&nbsp; Result Element<br>
+      </A><A href="#directory_category">3.3&nbsp; Directory Category</A></p>
+  </blockquote>
+  <p><B><A 
+    href="http://www.corp.google.com/bizdev/docs/ws_reference.htm#results_format"><BR>
+    </A></B></p>
+</BLOCKQUOTE>
+<HR>
+
+<DIV align=center>
+ <TABLE border=0 cellPadding=3 cellSpacing=0 width="100%">
+
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B>
+    <A name=overview></A></B></FONT><FONT face=arial,sans-serif><B>1. Overview</B></FONT>
+    </TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top"><FONT
+      face=arial size="-1" sans-serif="">Back to top</FONT></A>
+     <BR></TD>
+   </TR>
+</TABLE></DIV>
+<BLOCKQUOTE> 
+  <blockquote> 
+    <p>This document explains in detail the semantics of the function calls you 
+      can make using the Google Web APIs service. In this document, you will learn:</p>
+    <ul>
+      <li>How Google's query syntax works. 
+      <li>How to restrict your queries to portions of 
+      Google's index, such as a particular language or country. 
+      <li>How to interpret the search results information sent back by the Google 
+        Web APIs service.</li>
+    </ul>
+    <p>You may also find the following files from the Google Web APIs developer 
+      kit to be helpful:</p>
+    <ul>
+      <li> GoogleSearch.wsdl - WSDL description for Google 
+      Web APIs SOAP interface. 
+      <li>soap-samples/ - example SOAP messages and 
+      responses. 
+      <li>javadoc/index.html - javadoc for the example Java 
+      libraries.</li>
+    </ul>
+    <p>This is a beta document. If you have comments, find 
+    errors, or just have questions, please contact <A 
+    href="mailto:api-support@google.com">api-support@google.com</A>              
+         .</p>
+  </blockquote>
+<TABLE border=0 cellPadding=3 cellSpacing=0 width="95%">
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B><A
+      name=#search_requests></A>1.1 Search Requests</B></FONT></TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top"><FONT
+      face=arial size="-1" sans-serif="">Back to top</FONT></A></TD>
+   </TR>
+</TABLE>
+
+  <blockquote> 
+    <p>Search requests submit a query string and a set of parameters to the Google 
+      Web APIs service and receive in return a set of search results. Search results 
+      are derived from Google's index of over 2 billion Web pages. </p>
+    <p>The details of the interactions involved with search requests are covered 
+      in the <A href="#request_format">Search Request Format</A> and <A href="#results_format">Search Results 
+      Format</A> sections of this document.</p>
+  </blockquote>
+ <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%">
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B><A
+      name=cache_requests></A>1.2 Cache Requests</B></FONT></TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top"><FONT
+      face=arial size="-1" sans-serif="">Back to top</FONT></A></TD>
+   </TR>
+</TABLE>
+  <blockquote> 
+    <p>Cache requests submit a URL to the Google Web APIs service and receive in 
+      return the contents of the URL when Google's crawlers last visited the page 
+      (if available). </p>
+    <p>Please note that Google is not affiliated with the authors of cached pages 
+      nor responsible for their content.</p>
+    <p>The return type for cached pages is base64 encoded text. </p>
+  </blockquote>
+<TABLE border=0 cellPadding=3 cellSpacing=0 width="95%">
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B><A
+      name=spelling_requests></A>1.3 Spelling Requests</B></FONT></TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top"><FONT
+      face=arial size="-1" sans-serif="">Back to top</FONT></A></TD>
+   </TR>
+</TABLE>
+  <blockquote>
+    <p>Spelling requests submit a query to the Google Web APIs service and receive 
+      in return a suggested spell correction for the query (if available). Spell 
+      corrections mimic the same behavior as found on Google's Web site. </p>
+    <p>Spelling requests are subject to the same query string <A href="#request_limits">limitations</A> 
+      as any other search request. (The input string is limited to 2048 bytes and 
+      10 individual words.) </p>
+    <p>The return type for spelling requests is a text string.</p>
+  </blockquote>
+</BLOCKQUOTE>
+<HR>
+
+<TABLE border=0 cellPadding=3 cellSpacing=0 width="100%">
+
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B>
+    <A name=request_format></A></B></FONT><FONT face=arial,sans-serif><B>2. Search Request Format</B></FONT>
+    </TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top"><FONT
+      face=arial size="-1" sans-serif="">Back to top</FONT></A>
+     <BR></TD>
+   </TR>
+</TABLE>
+<BLOCKQUOTE>
+<TABLE border=0 cellPadding=3 cellSpacing=0 width="95%">
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B><A
+      name=request_parameters></A>2.1 Search Parameters</B></FONT></TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top"><FONT
+      face=arial size="-1" sans-serif="">Back to top</FONT></A></TD>
+   </TR>
+</TABLE>
+<BLOCKQUOTE>
+  <P>This table lists all the valid name-value pairs that can be used in a 
+  search request and describes how these parameters will modify the search 
+  results.</P>
+  <TABLE width="90%" border="1" nosave="">
+    <CENTER>
+      <TBODY>
+      <TR bgColor="#006699" nosave=""> 
+        <TD align=middle width="9%" bgColor="#006699" nosave=""> 
+          <CENTER>
+            <B><FONT color=#ffffff>Name</FONT></B> 
+          </CENTER>
+        </TD>
+        <TD colspan="2" bgColor=#006699> 
+          <CENTER>
+            <B><FONT color=#ffffff>Description</FONT></B> 
+          </CENTER>
+        </TD>
+      </TR>
+      <TR> 
+        <TD align=middle width="9%" height=27> 
+          <DIV align=center><TT><STRONG>key</STRONG></TT></DIV>
+        </TD>
+        <TD colspan="2" height=27> 
+          <P>Provided by Google, this is required for you to access the Google 
+            service. Google uses the key for authentication and logging.</P>
+        </TD>
+      </TR>
+      <TR> 
+        <TD align=middle width="9%"> 
+          <P align=center><TT><STRONG>q</STRONG></TT></P>
+        </TD>
+        <CENTER>
+          <TD colspan="2"> 
+            <DIV align=left>(See <A href="#request_query_terms">Query Terms</A> 
+              section for details on query syntax.) </DIV>
+          </TD>
+        </CENTER>
+      </TR>
+      <TR> 
+        <TD align=middle width="9%"> 
+          <P align=center><TT><STRONG>start</STRONG></TT></P>
+        </TD>
+        <TD colspan="2">Zero-based index of the first desired result. </TD>
+      </TR>
+      <TR> 
+        <TD align=middle width="9%"><TT><STRONG>maxResults</STRONG></TT></TD>
+        <TD colspan="2"> 
+            <P align=left>Number of results desired per query. The maximum value 
+              per query is 10.<BR>
+            <STRONG>Note:</STRONG> If you do a query that doesn't have many matches, 
+            the actual number of results you get may be smaller than what you 
+            request.</P>
+        </TD>
+      </TR>
+    </CENTER>
+    <TR> 
+      <TD vAlign=center align=middle width="9%" height=67> 
+        <DIV align=center> 
+          <P align=center><TT><STRONG>filter</STRONG></TT> </P>
+        </DIV>
+      </TD>
+      <TD vAlign=center colspan="2" height=67>Activates or deactivates automatic 
+        results filtering, which hides very similar results and results that all 
+        come from the same Web host. Filtering tends to improve the end user experience 
+        on Google, but for your application you may prefer to turn it off. (See 
+        <A href="#request_filtering">Automatic Filtering</A> section for more 
+        details.) </TD>
+    </TR>
+    <TR> 
+      <TD align=middle width="9%" height=46> 
+        <P align=center><TT><STRONG>restrict</STRONG></TT></P>
+      </TD>
+      <TD colspan="2" height=46>Restricts the search to a subset of the Google 
+        Web index, such as a country like "Ukraine" or a topic like "Linux." (See 
+        <A href="#request_lr">Restricts</A> for more details.) </TD>
+    </TR>
+    <TR> 
+      <TD align=middle width="9%" 
+        height=46><TT><STRONG>safeSearch</STRONG></TT></TD>
+      <TD colspan="2" height=46>A Boolean value which enables filtering of adult 
+        content in the search results. See <A 
+        href="#request_safesearch">SafeSearch</A> for more details.</TD>
+    </TR>
+    <TR> 
+      <TD align=middle width="9%"> 
+        <P align=center><TT><STRONG>lr</STRONG></TT></P>
+      </TD>
+      <TD colspan="2"><I>Language Restrict </I>- Restricts the search to documents 
+        within one or more languages.</TD>
+    </TR>
+    <TR> 
+      <TD align=middle width="9%"> 
+        <P align=center><TT><STRONG>ie</STRONG></TT></P>
+      </TD>
+      <TD colspan="2"><I>Input Encoding</I> - this parameter has been
+         deprecated and is ignored. All requests to the APIs should
+         be made with UTF-8 encoding.
+        (See <A 
+        href="#request_ie_oe">Input and Output Encodings</A> section for details.)</TD>
+    </TR>
+    <CENTER>
+    </CENTER>
+    <TR> 
+      <TD align=middle width="9%"> 
+        <P align=center><TT><STRONG>oe</STRONG></TT></P>
+      </TD>
+      <TD colspan="2"><I>Output Encoding</I> - this parameter has been
+         deprecated and is ignored. All requests to the APIs should
+         be made with UTF-8 encoding.
+        (See <A 
+        href="#request_ie_oe">Input and Output Encodings</A> for details.)</TD>
+    </TR></TBODY>
+    <CENTER></CENTER>
+  </TABLE><BR></BLOCKQUOTE>
+<TABLE border=0 cellPadding=3 cellSpacing=0 width="95%">
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif><B><A
+      name=request_query_terms></A> 2.2&nbsp;Query Terms - 
+    &lt;q&gt;</B></FONT></TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top"><FONT
+      face=arial size="-1" sans-serif="">Back to top</FONT></A></TD>
+   </TR>
+</TABLE>
+<BLOCKQUOTE>
+  <P><B>Default Search</B></P>
+  <P> By default, Google only returns pages that include all of the terms in 
+  the query string. There is no need to include "AND" between 
+  terms.&nbsp;Keep in mind that the order of the terms in the query will impact the search 
+  results.&nbsp; </P>
+  <P><B>Stop Words</B></P>
+  <P> Google ignores common words and characters such as <EM>"where"</EM> and 
+  <EM>"how,"</EM> as well as certain single digits and single letters. Common 
+  words that are ignored are known as <I>stop words</I>. </P>
+  <P>However, you can prevent Google from ignoring stop words by enclosing them 
+  in quotes, such as in the phrase "to be or not to be". </P>
+  <P><B>Special Characters</B></P>
+  <P>By default, all non-alphanumeric characters that are included in a search 
+  query are treated as word separators.&nbsp;&nbsp;</P>
+  <P>The only exceptions are the following: double quote mark ("), plus sign (+), 
+  minus sign or hyphen (-), and ampersand (&amp;).&nbsp; </P>
+  <P>The ampersand character (&amp;) is treated as another character in the 
+  query term in which it is included, while the remaining exception characters 
+  correspond to search features listed in the section below.</P>
+  <P><B>Special Query Terms</B></P>
+  <P>Google supports the use of several special query 
+    terms that allow the user or search administrator to access additional 
+    capabilities of the Google search engine.<BR>&nbsp;<BR>
+  <TABLE cellSpacing=3 cellPadding=3 width="90%" align=center border=1>
+    
+    <TR>
+      <TD width="25%" bgColor=#006699>
+        <DIV align=center><FONT color=#ffffff><B>Special Query 
+        Capability</B></FONT></DIV></TD>
+      <TD width="25%" bgColor=#006699>
+        <DIV align=center><FONT color=#ffffff><B>Example 
+      Query</B></FONT></DIV></TD>
+      <TD width="50%" bgColor=#006699>
+        <DIV align=center><FONT 
+    color=#ffffff><B>Description</B></FONT></DIV></TD></TR>
+    <TR>
+      <TD width="25%"><B>Include Query Term</B> </TD>
+      <TD width="25%"><B><TT>Star Wars Episode +I</TT></B> </TD>
+      <TD vAlign=top width="50%">
+        <P class=indent>If a common word is essential to getting the results you 
+        want, you can include it by putting a "+" sign in front of it.&nbsp; 
+      </P></TD></TR>
+    <TR>
+      <TD width="25%" height=62><B>Exclude Query Term</B></TD>
+      <TD width="25%" height=62><B><TT>bass -music</TT></B></TD>
+      <TD width="50%" height=62>You can exclude a word from your search by 
+        putting a minus sign ("-") immediately in front of the term you want to 
+        exclude from the search results.</TD></TR>
+    <TR>
+      <TD width="25%" height=147><B>Phrase Search</B></TD>
+      <TD width="25%" height=147><B><TT>"yellow pages"</TT></B></TD>
+      <TD width="50%" height=147>
+        <P class=indent>Search for complete phrases by enclosing them in 
+        quotation marks or connecting them with hyphens. Words marked in this 
+        way will appear together in all results exactly as entered. </P>
+        <P class=indent><B>Note:</B> You may need to use a "+" to force 
+        inclusion of common words in a phrase. </P></TD></TR>
+    <TR>
+      <TD width="25%"><B>Boolean OR Search</B></TD>
+      <TD width="25%"><B><TT>vacation london OR paris</TT></B></TD>
+      <TD width="50%">Google search supports the Boolean "OR" operator. To 
+        retrieve pages that include either word A or word B, use an uppercase OR 
+        between terms. </TD></TR>
+    <TR>
+      <TD width="25%" height=258><B>Site Restricted Search</B></TD>
+      <TD width="25%" height=258><B><TT>admission 
+        site:www.stanford.edu</TT></B></TD>
+      <TD width="50%" height=258>
+        <P>If you know the specific web site you want to search but aren't sure 
+        where the information is located within that site, you can use Google to 
+        search only within a specific web site.&nbsp;</P>
+        <P>Do this by entering your query followed by the string <I>"site:"</I> 
+        followed by the host name. </P>
+        <P><B>Note:</B> The exclusion operator ("-") can be applied to this 
+        query term to remove a web site from consideration in the 
+        search.<B><BR>Note:</B> Only one <I>site: </I>term per query is 
+        supported. </P></TD></TR>
+    <TR>
+      <TD width="25%"><B>Date Restricted Search</B></TD>
+      <TD width="25%"><B><TT>Star Wars daterange:2452122-2452234</TT></B></TD>
+      <TD width="50%">If you want to limit your results to documents that were 
+        published within a specific date range, then you can use the 
+        "<I>daterange:</I> " query term to accomplish this.&nbsp;The 
+        "<I>daterange:</I>" query term must be in the following format: 
+        <BLOCKQUOTE>
+          <P><TT><B>daterange:&lt;start_date&gt;-&lt;end 
+        date&gt;</B></TT></P></BLOCKQUOTE>
+        <P>where</P>
+        <BLOCKQUOTE>
+          <P><TT><B>&lt;start_date&gt;</B></TT> = Julian date indicating the 
+          start of the date range<BR><TT><B>&lt;end_date&gt;</B></TT> = 
+  Julian 
+          date indicating the end of the date range</P></BLOCKQUOTE>
+        <P> The Julian date is calculated by the number of days since January 
+        1, 4713 BC.&nbsp;For example, the Julian date for August 1, 2001 is 
+        2452122. </P></TD></TR>
+    <TR>
+      <TD width="25%"><B>Title Search (term)</B></TD>
+      <TD width="25%"><B><TT>intitle:Google search</TT></B></TD>
+      <TD width="50%">If you prepend <I>"intitle:"</I>   to a query 
+        term, Google search restricts the results to documents containing that word 
+        in the title.&nbsp;Note there can be no space between the 
+        <I>"intitle:"</I> and the following word. 
+        <P><B>Note:</B> Putting <I>"intitle:"</I> in front of every word in your 
+        query is equivalent to putting <I>"allintitle:"</I> at the front of your 
+        query.</P></TD></TR>
+    <TR>
+      <TD width="25%"><B>Title Search (all)</B></TD>
+      <TD width="25%"><B><TT>allintitle: Google search</TT></B></TD>
+      <TD width="50%">  Starting a query with the term 
+        <I>"allintitle:"</I>    restricts the results to those 
+        with all of the query words in the title.</TD></TR>
+    <TR>
+      <TD width="25%"><B>URL Search (term)</B></TD>
+      <TD width="25%"><B><TT>inurl:Google search</TT></B></TD>
+      <TD width="50%">If you prepend <I>"inurl:"</I>   to a query 
+        term, Google search restricts the results to documents containing that word 
+        in the result URL.&nbsp;Note there can be no space between the 
+        <I>"inurl:"</I> and the following word. 
+        <P><B>Note:</B>&nbsp; <I>"inurl:"</I> works only on <I>words</I>  
+        , not URL components. In particular, it ignores punctuation 
+        and uses only&nbsp;the first word following the <I>"inurl:"</I>  operator.&nbsp;To 
+        find multiple words in a result URL, use the <I>"inurl:"</I> operator 
+        for each word. 
+        <P><B>Note:</B> Putting <I>"inurl:"</I> in front of every word in your 
+        query is equivalent to putting <I>"allinurl:"</I> at the front of your 
+        query.</P></TD></TR>
+    <TR>
+      <TD width="25%"><B>URL Search (all)</B></TD>
+      <TD width="25%"><B><TT>allinurl: Google search</TT></B></TD>
+      <TD width="50%">  Starting a query with the term <I>"allinurl:"</I> 
+          restricts the results to those with all of the query words in 
+        the result URL. 
+        <P><B>Note:</B> <I 
+            >"allinurl:"</I> works only on <I 
+            >words,</I> not URL components. In particular, it 
+        ignores punctuation.&nbsp; Thus, <I>"allinurl: 
+        foo/bar"</I> restricts the results to pages with the words 
+        "foo" and "bar" in the URL, but does not require that they be 
+        separated by a slash within that URL, that they be adjacent, or that 
+        they be in that particular word order. There is currently no way to 
+        enforce these constraints.</P></TD></TR>
+    <TR>
+      <TD width="25%"><B>Text Only 
+        Search (all)</B></TD>
+      <TD width="25%"><B><TT 
+            >allintext: Google search</TT></B></TD>
+      <TD width="50%">  Starting a query with the term 
+        <I>"allintext:"</I>   restricts the 
+        results to those with all of the query words in only the body text, 
+        ignoring link, URL, and title matches.</TD></TR>
+    <TR>
+      <TD width="25%"><B>Links Only 
+        Search (all)</B></TD>
+      <TD width="25%"><B><TT 
+            >allinlinks: Google search</TT></B></TD>
+      <TD width="50%">  Starting a query with the term 
+        <I>"allinlinks:"</I>   restricts the 
+        results to those with all of the query words in the URL links on the 
+        page.</TD></TR>
+    <TR>
+      <TD width="25%"><B>File Type 
+        Filtering</B></TD>
+      <TD width="25%"><B><TT 
+            >Google filetype:doc&nbsp;OR 
+filetype:pdf</TT></B></TD>
+      <TD width="50%">The query prefix <I 
+            >"filetype:"</I>   filters the results 
+        returned to include only documents with the extension specified 
+        immediately after.&nbsp;Note there can be no space between <I 
+            >"filetype:"</I> and the specified extension. 
+        <P><B>Note:</B> Multiple file 
+        types can be included in a filtered search by adding more <I 
+            >"filetype:"</I> terms to the search 
+query.</P></TD></TR>
+    <TR>
+      <TD width="25%"><B>File Type 
+        Exclusion</B></TD>
+      <TD width="25%"><B><TT 
+            >Google -filetype:doc&nbsp;-filetype:pdf</TT></B></TD>
+      <TD width="50%">The query prefix <I 
+            >"-filetype:"</I>  filters the results to 
+        exclude documents with the extension specified immediately after.&nbsp; 
+        Note there can be no space between <I 
+            >"-filetype:"</I> and the specified extension. 
+        <P><B>Note:</B> Multiple file 
+        types can be excluded in a filtered search by adding more <I 
+            >"-filetype:"</I> terms to the search 
+    query.</P></TD></TR>
+    <TR>
+      <TD width="25%"><B>Web 
+        Document Info</B></TD>
+      <TD width="25%"><B><TT 
+            >info:www.google.com&nbsp;</TT></B></TD>
+      <TD width="50%">The query prefix <I 
+            >"info:"</I>  returns a single result for the 
+        specified URL if it exists in the index. 
+        <P><B>Note:</B> No other query 
+        terms can be specified when using this special query term.</P></TD></TR>
+    <TR>
+      <TD height=129 width="25%"><B 
+            >Back Links</B></TD>
+      <TD height=129 width="25%"><B 
+            ><TT 
+            >link:www.google.com&nbsp;</TT></B></TD>
+      <TD height=129 width="50%">The query prefix <I 
+            >"link:"</I>  lists web pages that have links to 
+        the specified web page. Note there can be no space between <I 
+          >"link:"</I> and the web page URL. 
+        <P><B>Note:</B> No other query 
+        terms can be specified when using this special query term. </P></TD></TR>
+    <TR>
+      <TD height=113 width="25%"><B 
+            >Related Links</B></TD>
+      <TD height=113 width="25%"><B 
+            ><TT 
+            >related:www.google.com&nbsp;</TT></B></TD>
+      <TD height=113 width="50%">The query prefix <I 
+            >"related:"</I>   lists web pages that 
+        are similar to the specified web page.&nbsp;Note there can be no space 
+        between <I>"link:"</I> and the web page URL. 
+        <P><B>Note:</B> No other query 
+        terms can be specified when using this special query term. </P></TD></TR>
+    <TR>
+      <TD height=163 width="25%"><B 
+            >Cached Results Page</B></TD>
+          <TD height=163 width="25%"><B 
+          ><TT>cache:www.google.com 
+          web</TT></B></TD>
+        <TD height=163 width="50%">The query prefix <I 
+          >"cache:"</I> returns the cached HTML version of 
+          the specified web document that the Google search crawled.&nbsp;Note 
+          there can be no space between <I>"cache:"</I> and 
+          the web page URL. 
+          <P>If you include other words in the query, 
+          Google will highlight those words within the cached 
+      document.</P></TD></TR></TABLE>             
+             
+         <p></P></BLOCKQUOTE></BLOCKQUOTE>
+<P>
+<blockquote>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A name=request_filtering 
+         ><FONT face=arial,sans-serif 
+        ><B><A>2.3&nbsp;Automatic Filtering - 
+        &lt;filter&gt;</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE>
+    <P>The &lt;filter&gt; parameter causes Google to filter 
+    out some of the results for a given search. This is done to enhance the user 
+    experience on Google.com, but for your application, you may prefer to turn 
+    filtering off <B></B>in order to get the full set of 
+    search results.</P>
+    <P>When enabled, filtering takes the following 
+    actions:</P>
+    <UL>
+      <LI><B>Near-Duplicate Content 
+      Filter</B> = If multiple search results contain identical titles and 
+      snippets, then only one of the documents is returned. 
+      <LI><B>Host Crowding</B> = If 
+      multiple results come from the same Web host, then only the first two are 
+      returned. </LI></UL></BLOCKQUOTE>
+  <P>
+  <P>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A name=request_lr 
+         ><FONT face=arial,sans-serif 
+        ><B><A>2.4&nbsp;Restricts - &lt;lr&gt; 
+        &lt;restrict&gt;</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE>
+    <P>Google provides the ability to search a predefined 
+    subset of Google's Web index. This is enabled by using the <B 
+    ><TT>lr </TT></B>and <B 
+    ><TT>restrict 
+    </TT></B>parameters.</P>
+    <P><B><A 
+    name=request_subcollections_auto_language 
+    ></A>&lt;lr&gt; - language restrict </B></P>
+    <P>To search for documents within a particular 
+    language, use the &lt;lr&gt; parameter, using one of the values in the table 
+    below. </P>
+    <TABLE align=center border=1 cellPadding=3 cellSpacing=3 width="31%" 
+    >
+      
+      <TR>
+        <TD bgColor=#006699 width="28%">
+          <DIV align=center><FONT color=#ffffff size=-2 
+          ><B 
+        >Language</B></FONT></DIV></TD>
+        <TD bgColor=#006699 width="22%"><FONT 
+          color=#ffffff size=-2><B 
+          >&lt;lr&gt; value </B></FONT></TD>
+        <TD bgColor=#006699 width="4%">&nbsp;</TD>
+        <TD bgColor=#006699 width="26%">
+          <DIV align=center><FONT color=#ffffff size=-2 
+          ><B 
+        >Language</B></FONT></DIV></TD>
+        <TD bgColor=#006699 width="20%"><FONT 
+          color=#ffffff size=-2><B 
+          >&lt;lr&gt; value </B></FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Arabic</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_ar</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Icelandic</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_is</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Chinese (S)</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_zh-CN</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Italian</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_it</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Chinese (T)</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_zh-TW</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Japanese</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_ja</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Czech</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_cs</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Korean</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_ko</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Danish</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_da</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Latvian</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_lv</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Dutch</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_nl</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Lithuanian</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_lt</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >English</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_en</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Norwegian</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_no</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Estonian</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_et</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Portuguese</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_pt</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Finnish</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_fi</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Polish</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_pl</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >French</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_fr</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Romanian</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_ro</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >German</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_de</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Russian</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_ru</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Greek</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_el</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Spanish</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_es</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Hebrew</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_iw</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Swedish</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_sv</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Hungarian</FONT></TD>
+        <TD width="22%"><FONT size=-2 
+          >lang_hu</FONT></TD>
+        <TD width="4%">&nbsp;</TD>
+        <TD width="26%"><FONT size=-2 
+          >Turkish</FONT></TD>
+        <TD width="20%"><FONT size=-2 
+          >lang_tr</FONT></TD></TR></TABLE></BLOCKQUOTE>
+  <P></P>
+  <blockquote>
+    <P><B><A name=request_country 
+    ></A>&lt;restrict&gt; - Country and Topic 
+    Restricts</B></P>
+    <P>Google allows you to search for Web information 
+    within one or more countries, using an algorithm that considers the top 
+    level domain name of the server and the geographic location of the server IP 
+    address. </P>
+    <P></P>
+    <P>The automatic country sub-collections currently 
+    supported are listed below: </P>
+    <BLOCKQUOTE>
+      <TABLE align=center border=1 cellPadding=3 cellSpacing=3 width="42%" 
+      >
+        
+        <TR>
+          <TD bgColor=#006699 height=50 width="37%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B 
+          >Country</B></FONT></DIV></TD>
+          <TD bgColor=#006699 height=50 width="24%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B>&lt;restrict&gt; value 
+            </B></FONT><B><FONT color=#ffffff size=-2 
+            >AD-EC</FONT></B></DIV></TD>
+          <TD bgColor=#006699 height=50 width="37%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B 
+          >Country</B></FONT></DIV></TD>
+          <TD bgColor=#006699 height=50 width="24%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B>&lt;restrict&gt; value 
+            EE-KY</B></FONT></DIV></TD>
+          <TD bgColor=#006699 height=50 width="37%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B 
+          >Country</B></FONT></DIV></TD>
+          <TD bgColor=#006699 height=50 width="24%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B>&lt;restrict&gt; value 
+            KZ-PY</B></FONT></DIV></TD>
+          <TD bgColor=#006699 height=50 width="37%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B 
+          >Country</B></FONT></DIV></TD>
+          <TD bgColor=#006699 height=50 width="24%">
+            <DIV align=center><FONT color=#ffffff size=-2 
+            ><B>&lt;restrict&gt; value 
+            QA-ZR</B></FONT></DIV></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Andorra</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAD</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Estonia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryEE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Kazakhstan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKZ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Qatar</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryQA</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >United Arab Emirates</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Egypt</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryEG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Lao People's Democratic Republic</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLA</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Reunion</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryRE</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Afghanistan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAF</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Western Sahara</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryEH</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Lebanon</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLB</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Romania</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryRO</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Antigua and Barbuda</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Eritrea</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryER</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Saint Lucia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLC</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Russian Federation</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryRU</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Anguilla</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Spain</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryES</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Liechtenstein</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Rwanda</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryRW</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Albania</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAL</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Ethiopia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryET</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Sri Lanka</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Saudi Arabia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySA</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Armenia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >European Union</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryEU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Liberia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Solomon Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySB</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Netherlands Antilles</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Finland</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryFI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Lesotho</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLS</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Seychelles</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySC</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Angola</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Fiji</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryFJ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Lithuania</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Sudan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySD</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Antarctica</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAQ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Falkland Islands (Malvinas)</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryFK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Luxembourg</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Sweden</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySE</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Argentina</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Micronesia, Federated States of</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryFM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Latvia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLV</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Singapore</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySG</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >American Samoa</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAS</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Faroe Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryFO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Libyan Arab Jamahiriya</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryLY</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >St. Helena</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySH</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Austria</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >France</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryFR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Morocco</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMA</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Slovenia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySI</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Australia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >France, Metropolitan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryFX</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Monaco</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMC</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Svalbard and Jan Mayen Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySJ</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Aruba</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAW</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Gabon</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGA</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Moldova</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMD</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Slovakia (Slovak Republic)</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySK</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Azerbaijan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryAZ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >United Kingdom</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryUK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Madagascar</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Sierra Leone</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySL</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bosnia and Herzegowina</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBA</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Grenada</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGD</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Marshall Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMH</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >San Marino</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySM</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Barbados</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBB</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Georgia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Macedonia, The Former Yugoslav Republic 
+            of</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Senegal</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySN</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bangladesh</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBD</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >French Quiana</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGF</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Mali</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryML</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Somalia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySO</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Belgium</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Ghana</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGH</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Myanmar</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Suriname</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySR</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Burkina Faso</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBF</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Gibraltar</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Mongolia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Sao Tome and Principe</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryST</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bulgaria</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Greenland</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGL</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Macau</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >El Salvador</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySV</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bahrain</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBH</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Gambia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Northern Mariana Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMP</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Syria</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySY</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Burundi</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Guinea</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Martinique</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMQ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Swaziland</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countrySZ</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Benin</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBJ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Guadeloupe</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGP</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Mauritania</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Turks and Caicos Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTC</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bermuda</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Equatorial Guinea</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGQ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Montserrat</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMS</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Chad</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTD</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Brunei Darussalam</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Greece</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Malta</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >French Southern Territories</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTF</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bolivia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >South Georgia and the South Sandwich 
+            Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGS</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Mauritius</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Togo</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTG</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Brazil</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Guatemala</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Maldives</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMV</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Thailand</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTH</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bahamas</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBS</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Guam</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Malawi</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMW</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Tajikistan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTJ</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bhutan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Guinea-Bissau</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGW</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Mexico</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMX</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Tokelau</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTK</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Bouvet Island</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBV</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Guyana</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryGY</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Malaysia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMY</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Turkmenistan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTM</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Botswana</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBW</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Hong Kong</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryHK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Mozambique</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryMZ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Tunisia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTN</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Belarus</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBY</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Heard and Mc Donald Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryHM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Namibia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNA</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Tonga</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTO</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Belize</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryBZ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Honduras</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryHN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >New Caledonia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNC</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >East Timor</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTP</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Canada</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCA</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Croatia (local name: Hrvatska)</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryHR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Niger</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Turkey</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTR</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Cocos (Keeling) Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCC</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Haiti</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryHT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Norfolk Island</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNF</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Trinidad and Tobago</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTT</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Congo, The Democratic Republic of the</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCD</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Hungary</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryHU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Nigeria</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Tuvalu</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTV</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Central African Republic</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCF</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Indonesia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryID</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Nicaragua</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Taiwan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTW</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Congo</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Ireland</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Netherlands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNL</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Tanzania</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryTZ</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Switzerland</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCH</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Israel</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIL</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Norway</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Ukraine</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryUA</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Cote D'ivoire</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >India</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Nepal</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNP</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Uganda</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryUG</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Cook Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >British Indian Ocean Territory</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Nauru</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >United States Minor Outlying Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryUM</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Chile</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCL</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Iraq</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIQ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Niue</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >United States</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryUS</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Cameroon</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Iran (Islamic Republic of)</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >New Zealand</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryNZ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Uruguay</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryUY</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >China</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Iceland</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIS</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Oman</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryOM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Uzbekistan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryUZ</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Colombia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Italy</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryIT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Panama</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPA</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Holy See (Vatican City State)</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryVA</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Costa Rica</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Jamaica</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryJM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Peru</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Saint Vincent and the Grenadines</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryVC</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Cuba</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCU</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Jordan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryJO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >French Polynesia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPF</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Venezuela</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryVE</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Cape Verde</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCV</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Japan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryJP</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Papua New Guinea</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Virgin Islands (British)</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryVG</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Christmas Island</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCX</FONT></TD>
+          <TD height=26 width="37%"><FONT size=-2 
+            >Kenya</FONT></TD>
+          <TD height=26 width="24%"><FONT size=-2 
+            >countryKE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Philippines</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPH</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Virgin Islands (U.S.)</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryVI</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Cyprus</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCY</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Kyrgyzstan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKG</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Pakistan</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Vietnam</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryVN</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Czech Republic</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryCZ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Cambodia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKH</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Poland</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPL</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Vanuatu</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryVU</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Germany</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryDE</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Kiribati</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKI</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >St. Pierre and Miquelon</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Wallis and Futuna Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryWF</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Djibouti</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryDJ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Comoros</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Pitcairn</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Samoa</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryWS</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Denmark</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryDK</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Saint Kitts and Nevis</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKN</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Puerto Rico</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Yemen</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryYE</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Dominica</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryDM</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Korea, Democratic People's Republic 
+of</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKP</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Palestine</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPS</FONT></TD>
+          <TD height=28 width="37%"><FONT size=-2 
+            >Mayotte</FONT></TD>
+          <TD height=28 width="24%"><FONT size=-2 
+            >countryYT</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Dominican Republic</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryDO</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Korea, Republic of</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKR</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Portugal</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPT</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Yugoslavia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryYU</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Algeria</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryDZ</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Kuwait</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKW</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Palau</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPW</FONT></TD>
+          <TD height=28 width="37%"><FONT size=-2 
+            >South Africa</FONT></TD>
+          <TD height=28 width="24%"><FONT size=-2 
+            >countryZA</FONT></TD></TR>
+        <TR>
+          <TD width="37%"><FONT size=-2 
+            >Ecuador</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryEC</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Cayman Islands</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryKY</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Paraguay</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryPY</FONT></TD>
+          <TD width="37%"><FONT size=-2 
+            >Zambia</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryZM</FONT></TD></TR>
+        <TR>
+          <TD width="37%">&nbsp;</TD>
+          <TD width="24%">&nbsp;</TD>
+          <TD width="37%">&nbsp;</TD>
+          <TD width="24%">&nbsp;</TD>
+          <TD width="37%">&nbsp;</TD>
+          <TD width="24%">&nbsp;</TD>
+          <TD width="37%"><FONT size=-2 
+            >Zaire</FONT></TD>
+          <TD width="24%"><FONT size=-2 
+            >countryZR</FONT></TD></TR></TABLE></BLOCKQUOTE>
+    <P>Google also has four topic restricts:</P>
+    <TABLE align=center border=1 cellPadding=3 cellSpacing=3 width="31%" 
+    >
+      
+      <TR>
+        <TD bgColor=#006699 width="28%">
+          <DIV align=center><FONT color=#ffffff size=-2 
+          ><B>Topic</B></FONT></DIV></TD>
+        <TD bgColor=#006699 width="24%"><FONT 
+          color=#ffffff size=-2><B 
+          >&lt;restrict&gt; value </B></FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >US. Government </FONT></TD>
+        <TD width="24%"><FONT size=-2 
+          >unclesam</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Linux</FONT></TD>
+        <TD width="24%"><FONT size=-2 
+          >linux</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >Macintosh</FONT></TD>
+        <TD width="24%"><FONT size=-2 
+          >mac</FONT></TD></TR>
+      <TR>
+        <TD width="28%"><FONT size=-2 
+          >FreeBSD</FONT></TD>
+        <TD width="24%"><FONT size=-2 
+          >bsd</FONT></TD></TR></TABLE>
+    <P></P>
+    <P><B><A 
+    name=request_subcollections_combining></A>Combining the 
+    &lt;lr&gt; and &lt;restrict&gt; parameters</B></P>
+    <P>Search requests which use the <B 
+    ><TT>lr</TT></B> and <B 
+    ><TT>restrict</TT></B> parameters 
+    support the Boolean operators identified in the table below (in order of 
+    precedence). </P>
+    <P><B>Note:</B> If both <B 
+    ><TT>lr</TT></B> and <B 
+    ><TT>restrict</TT></B> parameters 
+    are used in a search request, the sub-collection strings will be combined 
+    together using "AND" logic.</P>
+    <BLOCKQUOTE>
+      <TABLE align=center border=1 cellPadding=3 cellSpacing=3 width="90%" 
+      >
+        
+        <TR>
+          <TD bgColor=#006699 width="25%">
+            <DIV align=center><FONT color=#ffffff 
+            ><B>Boolean 
+            Operator</B></FONT></DIV></TD>
+          <TD bgColor=#006699 width="25%">
+            <DIV align=center><FONT color=#ffffff 
+            ><B>Sample 
+            Usage</B></FONT></DIV></TD>
+          <TD bgColor=#006699 width="50%">
+            <DIV align=center><FONT color=#ffffff 
+            ><B 
+            >Description</B></FONT></DIV></TD></TR>
+        <TR>
+          <TD width="25%"><B>Boolean 
+            NOT [ - ]</B> </TD>
+          <TD width="25%">
+            <P align=center><B><TT 
+            >-lang_fr</TT></B> </P></TD>
+          <TD vAlign=top width="50%">Removes all results 
+            which are defined as part of the sub-collection immediately 
+            following the <I>"-"</I> operator. 
+            <P>The example <B><TT 
+            >restrict </TT></B>value would remove all 
+            results in French.</P></TD></TR>
+        <TR>
+          <TD width="25%"><B>Boolean 
+            AND [ . ]</B> </TD>
+          <TD width="25%">
+            <P align=center><B><TT 
+            >linux.countryFR</TT></B> </P></TD>
+          <TD vAlign=top width="50%">Returns results 
+            which are in the intersection of the results returned by the 
+            sub-collection to either side of the <I>"."</I> 
+            operator. 
+            <P>The example <B><TT 
+            >restrict </TT></B>value would return all 
+            results which are from both the "linux" subtopic and identified as 
+            being located in France.</P></TD></TR>
+        <TR>
+          <TD width="25%"><B>Boolean 
+            OR [ | ]</B> </TD>
+          <TD width="25%">
+            <P align=center><B><TT 
+            >lang_en|lang_fr</TT></B> </P></TD>
+          <TD vAlign=top width="50%">Returns results 
+            which are in either of the results returned by the sub-collection to 
+            either side of the <I>"|"</I> operator. 
+            <P>The example <B><TT 
+            >restrict </TT></B>value would return all 
+            results matching the query that are in either the French or English 
+            sub-collections.</P></TD></TR>
+        <TR>
+          <TD width="25%"><B 
+            >Parentheses [ ( ) ]</B> </TD>
+          <TD width="25%">
+            <P align=center><B><TT 
+            >(linux).(-(conutryUK|countryUS))</TT></B> 
+          </P></TD>
+          <TD vAlign=top width="50%">
+            <P class=indent>All terms within the innermost 
+            set of parentheses in a sub-collection string will be evaluated 
+            before terms outside the parentheses are evaluated.&nbsp; Use 
+            parentheses to adjust the order of term evaluation. </P>
+            <P class=indent>The example <B 
+            ><TT>restrict 
+            </TT></B>value would return all results in the "linux" custom 
+            sub-collection that are not in either the United States or United 
+            Kingdom sub-collections. </P></TD></TR></TABLE></BLOCKQUOTE>
+    <P><B>Note:</B> Spaces are not 
+    valid characters in the <B><TT 
+    >restrict</TT></B> parameter. </P></BLOCKQUOTE>
+  <P>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A name=request_ie_oe 
+         ><FONT face=arial,sans-serif 
+        ><B><A>2.5&nbsp;Input and Output Encodings - 
+        &lt;ie&gt;, &lt;oe&gt;</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE>
+    <P>In order to support searching documents in multiple
+    languages and character encodings the Google Web APIs perform
+    all requests and responses in the UTF-8 encoding. The
+    parameters &lt;ie&gt; and &lt;oe&gt; are required in client
+    requests but their values are ignored. 
+    Clients
+    should encode all request data in UTF-8 and should expect 
+    results to be in UTF-8.
+
+</BLOCKQUOTE>
+  <P>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A name=request_safesearch 
+         ><FONT face=arial,sans-serif 
+        ><B><A>2.6&nbsp; SafeSearch - 
+        &lt;safeSearch&gt;</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE>
+    <P class=indent>Many Google users prefer not to have 
+    adult sites included in their search results. Google's SafeSearch feature 
+    screens for sites that contain this type of information and eliminates them 
+    from search results. While no filter is 100% accurate, Google's filter uses 
+    advanced proprietary technology that checks keywords and phrases, URLs, and 
+    Open Directory categories. </P>
+    <P class=indent>If you find sites that contain 
+    offensive content in your results, even with SafeSearch activated; please 
+    send an email with the site's URL to <A href="mailto:safesearch@google.com" >safesearch@google.com</A> and 
+    Google will investigate it.</P></BLOCKQUOTE>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A name=request_limits 
+         ><FONT face=arial,sans-serif 
+        ><B><A>2.7&nbsp; Limitations</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE>
+    <P>There are some important limitations you should be 
+    aware of. Some of these are because Google's infrastructure is currently 
+    optimized for end users. However, in the future we hope to vastly increase 
+    the limits for Google Web APIs developers. </P>
+    <TABLE border=1 width="90%">
+      
+      <TR>
+        <TD align=left bgColor=#006699 width="50%"><B 
+          ><FONT color=#ffffff 
+          >Component</FONT></B> </TD>
+        <TD align=left bgColor=#006699 width="50%"><B 
+          ><FONT color=#ffffff 
+          >Limit</FONT></B> </TD></TR>
+      <TR>
+        <TD align=left width="50%">Search request 
+        length</TD>
+        <TD width="50%">2048 bytes</TD></TR>
+      <TR>
+        <TD align=left height=20 width="50%">Maximum 
+          number of words in the query <BR></TD>
+        <TD height=20 width="50%">10</TD></TR>
+      <TR>
+        <TD align=left width="50%">Maximum number of <I 
+          >site:</I> terms in the query<BR 
+          ></TD>
+        <TD width="50%">1 (per search request)</TD></TR>
+      <TR>
+        <TD align=left width="50%">Maximum number of 
+          results per query</TD>
+        <TD width="50%">10</TD>
+      </TR>
+      <TR>
+        <TD align=left width="50%">Maximum value of 
+          &lt;start&gt; + &lt;maxResults&gt;</TD>
+        <TD width="50%" 
+  >1000</TD></TR></TABLE></BLOCKQUOTE></BLOCKQUOTE>
+<HR>
+
+<TABLE border=0 cellPadding=3 cellSpacing=0 width="100%">
+  
+  <TR>
+    <TD bgColor=#d8e4f1><FONT face=arial,sans-serif 
+      ><B><A name=results_format 
+      ></A></B></FONT><FONT face=arial,sans-serif 
+      ><B>3. Search Results 
+      Format</B></FONT> </TD>
+    <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+       sans-serif="">Back to top</FONT></A> <BR 
+      ></TD></TR></TABLE>
+<BLOCKQUOTE>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A 
+        name=response_definitions ><FONT face=arial,sans-serif 
+        ><B><A>3.1&nbsp; Search 
+        Response</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE>
+    <P>Each time you issue a search request to the Google 
+    service, a response is returned back to you. This section describes the 
+    meanings of the values returned to you.</P>
+    <P><B 
+    >&lt;documentFiltering&gt;</B> - A Boolean value 
+    indicating whether filtering was performed on the search results. This will 
+    be "true" only if (a) you requested filtering and (b) filtering actually 
+    occurred.</P>
+    <P><B>&lt;searchComments&gt; </B>- 
+    A text string intended for display to an end user. One of the most common 
+    messages found here is a note that "stop words" were removed from the search 
+    automatically. (This happens for very common words such as "and" and "as.") 
+    </P>
+    <P><B 
+    >&lt;estimatedTotalResultsCount&gt; </B>- The estimated total number of results 
+      that exist for the query.<BR>
+      <B 
+    >Note:</B> The estimated number may be either higher or lower than the actual 
+      number of results that exist.&nbsp; </P>
+    <P><B>&lt;estimateIsExact&gt; </B>- A Boolean value indicating that the estimate 
+      is actually the exact value.</P>
+    <P><B>&lt;resultElements&gt; </B>- 
+    An array of &lt;resultElement&gt; items. This corresponds to the actual list 
+    of search results.</P>
+    <P><B>&lt;searchQuery&gt;</B> - 
+    This is the value of &lt;q&gt; for the search request. </P>
+    <P><B>&lt;startIndex&gt; </B>- 
+    Indicates the index (1-based) of the<I> first 
+    </I>search result in &lt;resultElements&gt;.</P>
+    <P><B>&lt;endIndex&gt;</B> - 
+    Indicates the index (1-based) of the <I>last </I>search 
+    result in &lt;resultElements&gt;.</P>
+    <P><B>&lt;searchTips&gt;</B> - A 
+    text string intended for display to the end user. It provides instructive 
+    suggestions on how to use Google. </P>
+    <P><B>&lt;directoryCategories&gt; 
+    </B>- An array of &lt;directoryCategory&gt; items. This corresponds to the 
+    ODP directory matches for this search.</P>
+    <P><B>&lt;searchTime&gt;</B> - 
+    Text, floating-point number indicating the total server time to return the 
+    search results, measured in seconds.</P></BLOCKQUOTE>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A name=resultElement 
+         ><FONT face=arial,sans-serif 
+        ><B><A>3.2&nbsp; Result Element</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE><B>&lt;summary&gt; 
+    </B>- If the search result has a listing in the ODP directory, the ODP 
+    summary appears here as a text string. 
+    <P><B>&lt;URL&gt;</B> - The URL of 
+    the search result, returned as text, with an absolute URL path.</P>
+    <P><B>&lt;snippet&gt; </B>- A 
+    snippet which shows the query in context on the URL where it appears. This 
+    is formatted HTML and usually includes &lt;B&gt; tags within it. Note that 
+    the query term does not always appear in the snippet. <B 
+    >Note:</B> Query terms will be in highlighted in bold in 
+    the results, and line breaks will be included for proper text wrapping. </P>
+    <P><B>&lt;title&gt;</B> - The 
+    title of the search result, returned as HTML.</P>
+    <P><B>&lt;cachedSize&gt; </B>- 
+    Text (Integer + "k"). Indicates that a cached version of the &lt;URL&gt; is 
+    available; size is indicated in kilobytes.</P>
+    <P><B 
+    >&lt;relatedInformationPresent&gt;</B> - Boolean 
+    indicating that the <I>"related:"</I> query term is 
+    supported for this URL. </P>
+    <P><B>&lt;hostName&gt;</B> - When 
+    filtering occurs, a maximum of&nbsp;two results from any given host is 
+    returned. When this occurs, the second resultElement that comes from that 
+    host contains the host name in this parameter.</P>
+    <P><B 
+    >&lt;directoryCategory&gt;</B> - See below.</P>
+    <P><B>&lt;directoryTitle&gt;</B> - 
+    If the URL for this resultElement is contained in the ODP directory, the 
+    title that appears in the directory appears here as a text string. Note that 
+    the directoryTitle may be different from the URL's &lt;title&gt;. 
+  </P></BLOCKQUOTE>
+  <TABLE border=0 cellPadding=3 cellSpacing=0 width="95%" 
+    >
+    <TR>
+      <TD bgColor=#d8e4f1><A name=directory_category 
+         ><FONT face=arial,sans-serif 
+        ><B><A>3.3&nbsp; Directory Category</b></font></A></TD>
+      <TD align=right bgColor=#d8e4f1><A href="#top" ><FONT face=arial size=-1 
+         sans-serif="">Back to 
+  top</FONT></A></TD></TR></TABLE>
+  <BLOCKQUOTE>
+    <P></P>
+    <P><B>&lt;fullViewableName&gt;</B> 
+    - Text, containing the ODP directory name for the current ODP category.</P>
+    <P><B>&lt;specialEncoding&gt;</B> 
+    - Specifies the encoding scheme of the directory information.</P></BLOCKQUOTE>
+  <HR>
+
+  <CENTER></CENTER>
+  <CENTER><FONT face=arial,geneva,helvetica 
+  ><FONT size=-1>©&nbsp;2002 Google, 
+  Inc. All Rights Reserved.</FONT></FONT> </CENTER></BLOCKQUOTE>
+<BLOCKQUOTE></BLOCKQUOTE>
+<BLOCKQUOTE></BLOCKQUOTE></BODY></HTML>

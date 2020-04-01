@@ -1,0 +1,21 @@
+<form>
+	<h3 style="margin: 10px 0;">Add a new artist</h3>
+	Name: <input type="text" name="creator_name_add" id="creator_name_add" /> 
+	<select style="margin: 0 10px;" id="creator_type">
+		<option selected disabled>Choose artist type</option>
+		<option value="Illustrator">Illustrator</option>
+		<option value="Screenshotter">Screenshotter</option>
+		<option value="Photographer">Photographer</option>
+		<option value="Animator">Animator</option>
+	</select>
+	<input type="submit" id="add_btn" />
+	
+	<h3 style="margin: 10px 0;">Remove artist</h3>
+	<select id="creator_remove" style="margin-right: 10px;">
+		<option selected disabled>Choose artist name</option>
+	{{#creators}}
+		<option value="{{creatorId}}">{{creator}} ({{creatorType}})</option>
+	{{/creators}}
+	</select>
+	<input type="submit" id="remove_btn" />
+</form>

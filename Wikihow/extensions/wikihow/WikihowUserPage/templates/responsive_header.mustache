@@ -1,0 +1,86 @@
+<div id='user_head'>
+
+	<div id='user_tabs'>
+		{{#tabs}}
+		<a href="{{link}}" class='{{class}} {{#selected}}pb_on{{/selected}}'>
+			{{{icon}}}
+			{{text}}
+		</a>
+		{{/tabs}}
+		{{^tabs}}<br />{{/tabs}}
+	</div>
+
+	<div id='user_head_main'>
+		{{#showAvatar}}
+		<div id='user_pic'>
+
+			{{#avatar}}
+			<img src='{{avatar}}' alt="{{username}}" />
+				{{#showEditability}}
+				<div>
+						<a href='#' class='editAvatar'>{{edit}}</a> | <a href='#' class='removeAvatar'>{{remove}}</a>
+				</div>
+				{{/showEditability}}
+			{{/avatar}}
+
+			{{^avatar}}
+				{{#showEditability}}
+				<a href='#' class='avatar_upload' id='gatUploadImageLink'></a>
+				{{/showEditability}}
+			{{/avatar}}
+
+		</div>
+		{{/showAvatar}}
+
+		<div id="user_info">
+			<div id='user_name'>{{username}}</div>
+
+			{{#showBio}}
+			<div id='bio'>
+				<strong>{{bioName}}</strong>
+				{{#location}}{{{location}}},<br />{{/location}}
+				{{{startDate}}}
+
+				{{#website}}
+				<div>
+					{{websiteText}}: <a href='{{website}}' rel='nofollow'>{{website}}</a>
+				</div>
+				{{/website}}
+			</div>
+			{{/showBio}}
+
+			{{#showEmail}}
+			<div id='user_contact'>
+				<a href='{{emailLink}}'>{{emailText}}</a>
+			</div>
+			{{/showEmail}}
+		</div>
+
+		{{#badges.0}}
+		<div id='user_badges'>
+		{{#badges}}
+			<a {{#isLoggedIn}}href='/Special:ProfileBadges'{{/isLoggedIn}} class='pb-{{id}} pb-badge'>
+				<span>{{{name}}}</span>
+			</a>
+		{{/badges}}
+		</div>
+		{{/badges.0}}
+	</div>
+
+	{{#showBio}}
+		{{#aboutMe}}<div id="about_me">{{{aboutMe}}}</div>{{/aboutMe}}
+	{{/showBio}}
+
+	{{#showEditability}}
+	<div id='user_head_footer'>
+		<div id='gatEditRemoveButtons'>
+			<a href='/index.php?title=Special:ProfileBox' id='gatProfileEditButton'>{{edit}}</a>
+			|
+			<a href='#' id='remove_user_page'>{{clearProfile}}</a>
+		</div>
+
+		{{{social}}}
+	</div>
+	{{/showEditability}}
+
+</div>

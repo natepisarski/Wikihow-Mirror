@@ -1,0 +1,15 @@
+<div id="videoBrowser-widget">
+	<div class="videoBrowser-widget-videos">
+		{{#videos}}
+		<a class="videoBrowser-video" href="{{link}}">
+			<div class="videoBrowser-video-content">
+				<div class="videoBrowser-video-image">
+					{{{preview}}}
+				</div>
+				<p class="videoBrowser-video-title">{{howto}} {{title}}</p>
+				<div class="videoBrowser-video-button videoBrowser-video-button-play"><span>Watch</span></div>
+			</div>
+		</a>
+		{{/videos}}
+	</div>
+</div>

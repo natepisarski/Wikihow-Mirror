@@ -1,0 +1,56 @@
+<h5>{{titleTop}}</h5>
+<div id='tooltitle'>
+	<div>
+		<a href={{feedback_sheet_url}} target="_blank" id='feedback_sheet' class=''>{{view_feedback_sheet}}</a>
+	</div>
+	{{#updateSheet}}
+	<div>
+		<a href={{feedback_sheet_url_dev}} target="_blank" id='feedback_sheet' class=''>{{view_feedback_sheet_dev}}</a>
+	</div>
+	{{/updateSheet}}
+
+    <button id='addnew' class='button primary'>{{addNew}}</button>
+	{{#updateSheet}}
+		<button id='updatesheet' class='button primary'>{{updateSheet}}</button>
+	{{/updateSheet}}
+
+	{{#jobs.0}}
+	<div id="stva_jobs">
+		<div class="stva_job_row stva_job_headers">
+			<div>{{job_column_batch_name}}</div>
+			<div>Platform</div>
+			<div>Edit</div>
+			<div class='hidden'>{{job_column_date}}</div>
+			<div>{{job_column_article_count}}</div>
+			<div>{{job_column_yes_count}}</div>
+			<div>{{job_column_no_count}}</div>
+			<div>{{job_column_unresolved_count}}</div>
+			<div>Download List</div>
+			<div>{{job_column_enabled}}</div>
+		</div>
+		{{#jobs}}
+		<div class="stva_job_row" data-batch_name="{{batch_name}}">
+			<div><div class="job_batch_name">{{batch_name}}</div></div>
+			<div><div class="platform">{{platform}}</div></div>
+			<div><i class="fa fa-pencil stva_edit" /></div>
+			<div class='hidden'>{{dateCreated}}</div>
+			<div>{{article_count}}</div>
+			<div>{{yes_count}}</div>
+			<div>{{no_count}}</div>
+			<div>{{unresolved_count}}</div>
+			<div><button class="button secondary stva_report">{{report_button_label}}</button></div>
+			<div>
+				{{#enabled}}<i class="fa fa-toggle-on stva_enabled"></i>{{/enabled}}
+				{{^enabled}}<i class="fa fa-toggle-off stva_enabled"></i>{{/enabled}}
+				<button class="button primary stva_change_enabled">{{enabled_button_label}}</button>
+			</div>
+		</div>
+		{{/jobs}}
+	</div>
+	{{/jobs.0}}
+</div>
+<div class="spinner"></div>
+
+<script id="job_edit" type="text/x-handlebars-template">
+	{{job_edit}}
+</script>

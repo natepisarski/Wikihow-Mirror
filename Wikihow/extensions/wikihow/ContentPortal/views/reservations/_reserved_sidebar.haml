@@ -1,0 +1,27 @@
+.col-md-4
+	.panel.panel-default
+		.panel-heading
+			Reserved Articles
+
+		.panel-body
+			.alert.alert-info
+				Below are the articles that you have reserved and will appear on "Your Work" page under editing.
+				To release any, you can do so here.
+
+			- if (empty($assignedArticles))
+				.alert.alert.alert-warning
+					You don't have any articles reserved.
+					Once you reserve articles, they will appear in this column.
+
+			- else
+				%form{action: url('reservations/destroy'), method: 'post'}
+					%input{type: 'hidden', name: 'tag', value: $currentTag}
+
+					- foreach($assignedArticles as $article)
+						%label
+							%input{type: 'checkbox', name: 'article_ids[]', value: $article->page_id}
+							= $article->page_title
+						%br
+
+					%hr
+					%button.btn.btn-block.btn-primary(type="submit") Release Selected Articles

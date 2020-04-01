@@ -1,0 +1,32 @@
+<div id="qaar_box" class="{{mobile_class}}">
+	<div id="qaar_hdr">{{hdr_txt}}</div>
+
+	<div id="qaar_body">
+		<div id="qaar_question">{{question_prompt}}</div>
+		<div id="qaar_example">
+			<div id="qaar_example_head">
+				<span class="qaar_user">{{username}}</span>
+				<span class="qaar_anon">{{ip}}</span>
+				{{head_end}}
+			</div>
+			<br />
+			{{{example}}}
+		</div>
+
+		<textarea id="qaar_answer" name="qaar_answer" class="qaar_ta_1" placeholder="{{textarea_ph}}"></textarea>
+		<div id="qaar_anon_checkbox"><input type="checkbox" id="qaar_anon"> <label for="qaar_anon">{{anon_checkbox}}</label></div>
+
+		<div id="qaar_footnote">
+			<div class="qaar_user">{{footnote}}</div>
+			<div class="qaar_anon">{{footnote_anon}}</div>
+		</div>
+
+		<input type="submit" value="Submit" id="qaar_submit" class="button qaar_button primary" />
+	</div>
+
+	<input type="hidden" value="1" id="qaar_vote" />
+	<input type="hidden" value="{{submittedTimestamp}}" id="qaar_st" />
+	<input type="hidden" value="{{emailTimestamp}}" id="qaar_et" />
+	<input type="hidden" value="{{qa_id}}" id="qaar_qa_id" />
+	<input type="hidden" value="{{is_anon}}" id="qaar_is_anon" />
+</div>

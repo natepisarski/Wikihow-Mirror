@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"socialauth-fblogin-login-failed": "죄송합니다. Facebook으로 연결할 수 없습니다. 다시 시도해주십시오.",
+	"socialauth-gpluslogin-login-failed": "죄송합니다. Google으로 연결할 수 없습니다. 다시 시도해주십시오.",
+	"socialauth-civiclogin-login-failed": "죄송합니다. Civic으로 연결할 수 없습니다. 다시 시도해주십시오."
+}

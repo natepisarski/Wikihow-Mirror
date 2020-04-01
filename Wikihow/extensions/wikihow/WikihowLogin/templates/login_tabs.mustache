@@ -1,0 +1,10 @@
+<div id="login_tabs">
+	<a href="{{signup_url}}" id="lt_signup" {{^is_signup}}class="lt_off"{{/is_signup}}>
+		{{#is_signup}}<div class="caret"></div>{{/is_signup}}
+		<span>{{signup}}</span>
+	</a>
+	<a href="{{login_url}}" id="lt_login" {{#is_signup}}class="lt_off"{{/is_signup}}>
+		{{^is_signup}}<div class="caret"></div>{{/is_signup}}
+		<span>{{login}}</span>
+	</a>
+</div>

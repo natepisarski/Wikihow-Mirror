@@ -1,0 +1,34 @@
+{
+	"@metadata": {
+		"authors": [
+			"Robby",
+			"Soued031"
+		]
+	},
+	"guidedtour-desc": "Erméiglecht Pop-up-ënnerstëtzt Toure fir nei Benotzer z'assistéieren",
+	"guidedtour-help-url": "Help:Guidéiert Touren",
+	"guidedtour-help-guider-url": "Help:Guided tours/Guide",
+	"guidedtour-next-button": "Nächst",
+	"guidedtour-okay-button": "OK",
+	"guidedtour-back-button": "Zréck",
+	"guidedtour-tour-test-testing": "Testen",
+	"guidedtour-tour-test-test-description": "Dëst ass en Test vun der Beschreiwung. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Callouts testen",
+	"guidedtour-tour-test-portal-description": "Dëst ass d'{{int:portal}}-Säit",
+	"guidedtour-tour-test-mediawiki-parse": "MediaWiki-Parser testen",
+	"guidedtour-tour-test-description-page": "MediaWiki-Beschreiwungssäiten testen",
+	"guidedtour-tour-test-go-description-page": "Op d'Beschreiwungssäit goen",
+	"guidedtour-tour-test-launch-tour": "Ufank vum Tour testen",
+	"guidedtour-tour-test-launch-tour-description": "Guide kënne aner geféiert Toure lancéieren. Cool, oder net?",
+	"guidedtour-tour-firstedit-edit-page-title": "Déi ganz Säit {{GENDER:|änneren}}...",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Klickt}} op de Knäppchen ''$1'' fir Är Ännerungen ze maachen.",
+	"guidedtour-tour-firstedit-edit-section-title": "Oder een Abschnitt {{GENDER:|änneren}}",
+	"guidedtour-tour-firstedit-edit-section-description": "Et gëtt \"{{int:editsection}}\"-Linke fir all gréisseren Abschnitt op enger Säit, sou kënnt Dir Iech just op deen Deel konzentréieren.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Kuckt}} Är Ännerungen ouni ze späicheren (fakultativ)",
+	"guidedtour-tour-firstedit-preview-description": "Klicken op \"{{int:showpreview}}\", erlaabt Iech ze gesinn, wéi d'Säit mat Ären Ännerungen ausgesäit. Vergiesst net ze späicheren.",
+	"guidedtour-tour-firstedit-save-title": "Dir sidd bal fäerdeg!",
+	"guidedtour-tour-firstedit-save-description": "Wann Dir fäerdeg sidd, klickt op {{int:publishchanges}}' fir Är Ännerunge jiddwerengem ze weisen.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Klickt}} op den \"$1\" Knäppche fir Är Ännerungen ze maachen.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Et gëtt \"$1\"-Linke fir all gréisseren Abschnitt op enger Säit, sou kënnt Dir Iech just op deen Deel konzentréieren.",
+	"guidedtour-tour-firsteditve-save-description": "Wann Dir fäerdeg sidd, klickt op \"{{int:visualeditor-toolbar-savedialog}}\" fir Är Ännerunge fir jiddweree visibel ze maachen."
+}

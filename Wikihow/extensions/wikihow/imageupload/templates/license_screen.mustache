@@ -1,0 +1,41 @@
+<div id="iu_upload" style="display:none">
+
+	<h2>{{upload_details_msg}}</h2>
+
+	<div id="iu_preview_image"></div>
+
+	<div id="iu_main_col">
+		<form id='iu_detailsform' name='iu_detailsform' method='post' action='/Special:ImageUploader'>
+			<input type='hidden' name='action' value='insertimage'/>
+
+			<h3>{{image_msg}}</h3>
+			<input id="iu_mw_name" type="text" name="mwname" size="50">
+			<img src="/extensions/wikihow/rotate.gif" alt="" class="iu_wheel" id="iu_wheel_exists_check" />
+			<br>
+			<div id="iu_image_description">{{eg_descriptive_file_msg}}.<span>jpg</span></div>
+			<div id="iu_file_exists"></div>
+			<br>
+
+			<h3>{{license_msg}}</h3>
+			<ul id="iu_license_options">
+			{{#licenses}}
+				<li>
+					<input id="license-{{name}}" type="radio" name="license" value="{{name}}">
+					<label for="license-{{name}}">{{{text}}}</label>
+				</li>
+			{{/licenses}}
+			</ul>
+
+			<div id='iu_insertfile'>
+				<button id="iu_insert_image" class="button primary" disabled='disabled'>{{{insert_button_msg}}}</button>
+				<img src="/extensions/wikihow/rotate.gif" alt="" class="iu_wheel" id="iu_wheel_insert" />
+				<div id="iu_insert_error"></div>
+			</div>
+
+			<input type='submit' id='iu_upload_btn' value='Insert File' />
+		</form>
+
+		<p>{{{image_upload_notice_msg}}}</p>
+	</div>
+
+</div>

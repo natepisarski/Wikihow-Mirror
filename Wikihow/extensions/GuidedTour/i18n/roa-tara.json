@@ -1,0 +1,35 @@
+{
+	"@metadata": {
+		"authors": [
+			"Joetaras",
+			"Matěj Suchánek"
+		]
+	},
+	"guidedtour-desc": "Permette a le pàggene de avè 'nu popup cu gire guidate pe aijutà le utinde nuève",
+	"guidedtour-help-url": "Help:Gire guidate",
+	"guidedtour-help-guider-url": "Help:Gire guidate/guidature",
+	"guidedtour-next-button": "Prossime",
+	"guidedtour-okay-button": "Apposte",
+	"guidedtour-back-button": "Rrete",
+	"guidedtour-tour-test-testing": "Stoche a teste",
+	"guidedtour-tour-test-test-description": "Quiste jè 'nu teste d'a descrizione. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Teste de le didascalie",
+	"guidedtour-tour-test-portal-description": "Queste jè 'a pàgene {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Analizzatore d'u teste de MediaUicchi",
+	"guidedtour-tour-test-description-page": "Test pàggene de descrizione de MediaUicchi",
+	"guidedtour-tour-test-go-description-page": "Vèje sus 'a pàgene de descrizione",
+	"guidedtour-tour-test-launch-tour": "Test de lange d'u gire",
+	"guidedtour-tour-test-launch-tour-description": "Le guidature ponne langià otre gire guidate. A uerre, no!?",
+	"guidedtour-tour-test-launch-editing": "Lange 'na guide sus a le cangiaminde",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Cange}} 'a pàgene 'ndere ...",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Cazze}} 'u buttone \"$1\" pe fà le cangiaminde tune.",
+	"guidedtour-tour-firstedit-edit-section-title": "O {{GENDER:|cange}} giuste 'na sezione",
+	"guidedtour-tour-firstedit-edit-section-description": "Stonne collegaminde \"{{int:editsection}}\" pe ogne sezione prengepàle jndr'à vôsce, accussì tu puè congendrarte sus a quedda parte.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Fà vedè l'andeprime}} de le cangiaminde tune (facoltative)",
+	"guidedtour-tour-firstedit-preview-description": "Cazzanne '{{int:showpreview}}' te permette de verificà ca 'a pàgene iesse cu le cangiaminde tune. No te demendicà de reggistrà.",
+	"guidedtour-tour-firstedit-save-title": "Tu l'è ggià fatte!",
+	"guidedtour-tour-firstedit-save-description": "Quanne si pronde, cazzanne \"{{int:publishchanges}}\" face devendà le cangiaminde tune visibbile a tutte.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Cazze}} 'u buttone \"$1\" pe fà le cangiaminde tune.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Stonne collegaminde \"$1\" pe ogne sezione prengepàle jndr'à vôsce, accussì tu puè congendrarte sus a quedda parte.",
+	"guidedtour-tour-firsteditve-save-description": "Quanne sì pronde, cazzanne \"{{int:visualeditor-toolbar-savedialog}}\" le cangiaminde tune addevendane visibbile a tutte."
+}

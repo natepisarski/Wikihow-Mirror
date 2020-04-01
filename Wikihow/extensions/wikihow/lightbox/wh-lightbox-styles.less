@@ -1,0 +1,362 @@
+@animationLessTime: 1.2s;
+@animationLessLocation: '../common/animated/';
+
+@import '../less/mixins.less';
+
+@import "@{animationLessLocation}animated.less";
+@import "@{animationLessLocation}fadeIn.less";
+@import "@{animationLessLocation}fadeInDownBig.less";
+@import "@{animationLessLocation}fadeOutUpBig.less";
+
+
+@lightGray: #f4f4f4;
+@padding: 30px;
+@closeBtnSize: 50px;
+@overlayWidth: 900px;
+@smallText: 14px;
+@largeText: 16px;
+@imgWidth: 900px;
+@imgHeight: 675px;
+@duration: 0.2s;
+@overlayBarHeight: 50px;
+@arrowSize: 75px;
+@startingZ: 21474836400;
+@imageDir: "/extensions/wikihow/common/featherlight/img/";
+
+.wh-featherlight {
+	z-index: @startingZ;
+	position:fixed;
+	top: 0; right: 0; bottom: 0; left: 0;
+	background: rgba(0, 0, 0, 0.7) !important; 
+	overflow: auto;
+	padding: 0;
+	font-size: @smallText;
+	
+	.fullImageLink {
+		padding: 0;
+		border: none;
+		background: transparent;
+	}
+	
+	.featherlight-close-icon.featherlight-close {
+		.opacity(0.6);
+		position: fixed;
+		top: @padding/2;
+		right: @padding/2;
+		width: @closeBtnSize;
+		height: @closeBtnSize;
+		line-height: @closeBtnSize;
+		font-size: @closeBtnSize / 1.2;
+		font-weight: bold;
+		color: white;
+		text-shadow: 0px 0px 4px #333;
+		background: transparent;
+		cursor: pointer;
+		z-index: @startingZ + 2;
+		
+		background-image: url("@{imageDir}close.png");
+		background-repeat: no-repeat;
+		background-position: center 0;
+		
+		&:hover {
+			.opacity(1);
+		}
+	}
+	
+	.featherlight-content {
+		// .transition(@duration all);
+		.box-shadow(3px 3px 8px #333);
+		// .opacity(0);
+		// .roundedAll(5px) !important;
+	
+		.box-sizing(border-box);
+		
+		display: block;
+		max-height: none;
+		padding: 0 !important;
+		overflow: visible;
+		width: @imgWidth;
+		position: absolute;
+		top: @padding/2;
+		left: 50%;
+		margin-left: -@imgWidth/2;
+		margin-bottom: @padding;
+		padding: none !important;
+	}
+	
+	.featherlight-previous, .featherlight-next {
+		display: none;
+	}
+	
+	/* Hide navigation while loading */
+	.featherlight-loading .featherlight-previous, .featherlight-loading .featherlight-next {
+		display:none;
+	}
+	
+	.content-container {
+		display: block;
+		overflow: hidden;
+		height: auto;
+		position: relative;
+		
+		a {
+			color: #383 !important;
+		}
+	}
+	
+	.img-container {
+		position: relative;
+		padding: none;
+		// width: @imgWidth;
+		// min-height: @imgHeight/2;
+		background-color: #222;
+		text-align: center;
+		overflow: hidden;
+		
+		background-image: url("@{imageDir}rotate-dark.gif");
+		background-position: center center;
+		background-repeat: no-repeat;
+		font-size: 0;
+		
+		img {
+			display: inline-block;
+		}
+				
+		.featherlight-previous, .featherlight-next {
+			.opacity(0.0);
+			background-color: black;
+			cursor: pointer;
+			display: inline-block;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			width: 20%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			
+			span {
+				.opacity(0.7);
+				display: none;
+				position: absolute;
+				background-repeat: no-repeat;
+				background-position: center center;
+
+				top: 50%;
+				left: 0;
+				width: 100%;
+				height: @arrowSize;
+				line-height: @arrowSize;
+
+				text-align: center;
+				font-size: @arrowSize;
+
+				/* center vertically */
+				margin-top: -@arrowSize/2;
+				color: #fff;
+			}
+			
+			&:hover {
+				.opacity(0.5);
+				display: inline-block;
+				
+				span {
+					display: block;
+					// color: rgba(255, 255, 255, 0.6);
+				}
+			}
+		}
+		
+		.featherlight-previous span {
+				background-image: url("@{imageDir}prev-arrow.png")
+		}
+		
+		.featherlight-next {
+			left: 80%;
+			
+			span {
+				background-image: url("@{imageDir}next-arrow.png")
+			}
+		}
+	}
+	
+	#im-info {
+		.box-sizing(border-box);
+		// position: fixed;
+		// bottom: 0;
+		// left: 0;
+		// width: 100%;
+		overflow: hidden;
+		padding: @padding/2 @padding;
+		background-color: white;
+		// rgba(0, 0, 0, 0.9);
+		// z-index: 4;
+		// text-align: center;
+		// border-bottom: 1px solid #ccc;
+		
+		
+		.im-info-item {
+			display: inline-block;
+			float: center;
+			width: auto;
+			font-weight: bold;
+			padding: 0;
+			line-height: 21px;
+			margin: 0;
+			color: #777;
+			
+			&:empty {
+				display: none;
+			}
+			
+			a {
+				margin-right: @padding/2;
+				font-weight: normal;
+				// border-right: 1px solid #333;
+			}
+			
+		}
+	}
+	
+	.mw-headline {
+		display: none;
+	}
+	
+	#filehistory {
+		font-size: @largeText;
+		display: block;
+	}
+	
+	.minor_section, .wh_block {
+		border: none;
+		background-color: white;
+		padding: 0;
+	}
+	
+	.minor_section {
+		.roundedAll(0px);
+		padding: 0 @padding @padding @padding;
+		
+		ul {
+			margin: 0;
+			padding: 0;
+			list-style: none;
+			
+			li {
+				color: #999;
+			}
+		}
+		
+		table {
+			margin-top: @padding/2;
+			border-spacing: 0;
+			width: 100%;
+			border-collapse: separate;
+			
+			td {
+				font-size: @smallText;
+				vertical-align: top;
+				padding: @padding/2 0 !important;
+				border-top: 1px solid #ccc;
+				
+				&:first-child {
+					width: 10%;
+				}
+				
+				&:nth-child(2) {width: 8%;}
+			}
+		}
+	}
+	
+	.featherlight-inner, .minor_section, .wh_block {
+		display: block;
+		margin: 0;
+		white-space: wrap;
+		width: auto !important;
+	}
+}
+
+body.wh-featherlight-open {
+	overflow: hidden;
+	position: relative;
+	
+	#main_container, #header, #footer {
+		filter: blur(2px);
+		-webkit-filter: blur(2px);
+	}
+}
+
+// media queries....
+@media (max-height: 700px) {
+	.wh-featherlight .img-container {
+		// height: auto !important;
+		max-height: 500px !important;
+		
+		img {
+			max-height: 500px;
+		}
+	}
+}
+
+@media (max-width: 700px) {
+	.wh-featherlight .featherlight-content {
+		#filehistory, table, .wh_block p {
+			display: none !important;
+		}
+		
+		.img-container {
+			height: auto !important;
+			max-height: 500px !important;
+		}
+		
+		.minor_section {
+			padding: @padding/2;
+		}
+		
+		#im-info {
+			padding: @padding/2 @padding/2;
+			text-align: left;
+			
+			.im-info-item {
+				display: block !important;
+				line-height: 18px;
+			}
+		}
+		
+		ul li {
+			margin-top: -@padding/2;
+		}	
+	}	
+}
+
+@media (max-width: @imgWidth) {
+	.wh-featherlight {
+		.img-container {
+			min-height: 0;
+			display: block;
+			height: auto !important;
+			
+			img {
+				max-width: 100%;
+				height: auto;
+			}
+		}
+		
+		.featherlight-close-icon.featherlight-close {
+			margin-top: 3px;
+		}
+		
+		.featherlight-content {
+			left: 2.5%;
+			margin-left: 0;
+			margin-top: 0;
+			// margin-bottom: @padding*4;
+			width: 95%;
+				
+			#im-info {
+				padding: @padding/2;
+				text-align: left;
+			}
+		}
+	}
+}

@@ -1,0 +1,233 @@
+<script type="text/javascript">
+	var amazonComplete = false, indexComplete = false, sovrnComplete = false;
+	{{^index}}
+		indexComplete = true;
+	{{/index}}
+	{{^amazon}}
+		amazonComplete = true;
+	{{/amazon}}
+	{{^sovrn}}
+		sovrnComplete = true;
+	{{/sovrn}}
+	var dfpLoaded = false;
+	var googletag = googletag || {};
+	googletag.cmd = googletag.cmd || [];
+	var adsToBeCalled = [];
+	var slots = [];
+
+	function callDfpUnit(unitNumber, lazy = false) {
+		{{#yieldbot}}
+		ybotq.push(function () {
+		{{/yieldbot}}
+		googletag.cmd.push(function () {
+			if (lazy) {
+				googletag.pubads().refresh([slots[unitNumber]["slot"]]);
+			} else {
+				googletag.display(unitNumber);
+				if(!slots[unitNumber]["lazy"]) {
+					googletag.pubads().refresh([slots[unitNumber]["slot"]]);
+				}
+			}
+		});
+		{{#yieldbot}}
+		});
+		{{/yieldbot}}
+	}
+
+	function tryInitDfp() {
+		if(checkAllDone()) {
+			initDfp();
+		}
+	}
+
+	function checkAllDone() {
+		return amazonComplete && indexComplete;
+	}
+
+	function initDfp() {
+		if(dfpLoaded) {
+			return;
+		}
+		dfpLoaded = true;
+		var gads = document.createElement("script");
+		gads.async = true;
+		gads.type = "text/javascript";
+		var useSSL = "https:" == document.location.protocol;
+		gads.src = (useSSL ? "https:" : "http:") + "//www.googletagservices.com/tag/js/gpt.js";
+		var node = document.getElementsByTagName("script")[0];
+		node.parentNode.insertBefore(gads, node);
+
+		{{#yieldbot}}
+		ybotq.push(function () {
+		{{/yieldbot}}
+
+		googletag.cmd.push(function() {
+			{{#units}}
+				slots['{{id}}'] = [];
+				slots['{{id}}']["slot"] = googletag.defineSlot('{{name}}', {{size}}, '{{id}}').addService(googletag.pubads());
+				slots['{{id}}']["lazy"] = {{lazy}}; 
+			{{/units}}
+
+			googletag.pubads().enableSingleRequest();
+			googletag.pubads().disableInitialLoad();
+			{{targeting}}
+
+			googletag.enableServices();
+			{{#sovrn}}
+				pbjs.que.push(function() {
+					pbjs.setTargetingForGPTAsync()
+				});
+			{{/sovrn}}
+			{{#yieldbot}}
+				googletag.pubads().setTargeting("ybot",yieldbot.getPageCriteria());
+			{{/yieldbot}}
+		});
+		{{#yieldbot}}
+		});
+		{{/yieldbot}}
+
+		//now check and see if any units are already on the page
+		for(var i = 0; i < adsToBeCalled.length; i++) {
+			callDfpUnit(adsToBeCalled[i]);
+		}
+	}
+
+	{{#nobidders}}
+		if(!dfpLoaded) {
+			initDfp();
+		}
+	{{/nobidders}}
+	{{^nobidders}}
+		setTimeout(function() { if (!dfpLoaded) {initDfp()}},{{timeout}});
+	{{/nobidders}}
+</script>
+{{#index}}
+<script>function cygnus_index_parse_res(){}function cygnus_index_start(){function e(e){var t=n[e];return"string"==typeof t?t:"\\u"+("0000"+e.charCodeAt(0).toString(16)).slice(-4)}function t(t){return s.lastIndex=0,s.test(t)?t.replace(s,e):t}function i(e,t,i){if(this.initialized=!1,"number"!=typeof e||e%1!==0||0>e)throw"Invalid Site ID";if("number"==typeof i&&i%1==0&&i>=0&&(this.timeoutDelay=i),this.siteID=e,this.impressions=[],this._parseFnName=void 0,top===self?(this.sitePage=location.href,this.topframe=1):(this.sitePage=document.referrer,this.topframe=0),"undefined"!=typeof t){if("function"!=typeof t)throw"Invalid jsonp target function";this._parseFnName="cygnus_index_args.parseFn"}"undefined"==typeof _IndexRequestData.requestCounter?_IndexRequestData.requestCounter=Math.floor(256*Math.random()):_IndexRequestData.requestCounter=(_IndexRequestData.requestCounter+1)%256,this.requestID=String((new Date).getTime()%2592e3*256+_IndexRequestData.requestCounter+256),this.initialized=!0}cygnus_index_args.parseFn=cygnus_index_parse_res;var s=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,n={"\b":"\\b","	":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"};i.prototype.serialize=function(){var e='{"id":'+this.requestID+',"site":{"page":"'+t(this.sitePage)+'"';"string"==typeof document.referrer&&(e+=',"ref":"'+t(document.referrer)+'"'),e+='},"imp":[';for(var i=0;i<this.impressions.length;i++){var s=this.impressions[i],n=[];e+='{"id":"'+s.id+'", "banner":{"w":'+s.w+',"h":'+s.h+',"topframe":'+String(this.topframe)+"}","number"==typeof s.bidfloor&&(e+=',"bidfloor":'+s.bidfloor,"string"==typeof s.bidfloorcur&&(e+=',"bidfloorcur":"'+t(s.bidfloorcur)+'"')),"string"!=typeof s.slotID||s.slotID.match(/^\s*$/)||n.push('"sid":"'+t(s.slotID)+'"'),"number"==typeof s.siteID&&n.push('"siteID":'+s.siteID),n.length>0&&(e+=',"ext": {'+n.join()+"}"),e+=i+1==this.impressions.length?"}":"},"}return e+="]}"},i.prototype.setPageOverride=function(e){return"string"!=typeof e||e.match(/^\s*$/)?!1:(this.sitePage=e,!0)},i.prototype.addImpression=function(e,t,i,s,n,r){var o={id:String(this.impressions.length+1)};if("number"!=typeof e||1>=e)return null;if("number"!=typeof t||1>=t)return null;if(("string"==typeof n||"number"==typeof n)&&String(n).length<=50&&(o.slotID=String(n)),o.w=e,o.h=t,void 0!=i&&"number"!=typeof i)return null;if("number"==typeof i){if(0>i)return null;if(o.bidfloor=i,void 0!=s&&"string"!=typeof s)return null;o.bidfloorcur=s}if("undefined"!=typeof r){if(!("number"==typeof r&&r%1===0&&r>=0))return null;o.siteID=r}return this.impressions.push(o),o.id},i.prototype.buildRequest=function(){if(0!=this.impressions.length&&this.initialized===!0){var e=encodeURIComponent(this.serialize()),t="https:"===window.location.protocol?"https://as-sec.casalemedia.com":"http://as.casalemedia.com";return t+="/headertag?v=9&x3=1&fn=cygnus_index_parse_res&s="+this.siteID+"&r="+e,"number"==typeof this.timeoutDelay&&this.timeoutDelay%1==0&&this.timeoutDelay>=0&&(t+="&t="+this.timeoutDelay),t}};try{if("undefined"==typeof cygnus_index_args||"undefined"==typeof cygnus_index_args.siteID||"undefined"==typeof cygnus_index_args.slots)return;"undefined"==typeof _IndexRequestData&&(_IndexRequestData={},_IndexRequestData.impIDToSlotID={},_IndexRequestData.reqOptions={});var r=new i(cygnus_index_args.siteID,cygnus_index_args.parseFn,cygnus_index_args.timeout);cygnus_index_args.url&&"string"==typeof cygnus_index_args.url&&r.setPageOverride(cygnus_index_args.url),_IndexRequestData.impIDToSlotID[r.requestID]={},_IndexRequestData.reqOptions[r.requestID]={};for(var o,u,a=0;a<cygnus_index_args.slots.length;a++)o=cygnus_index_args.slots[a],u=r.addImpression(o.width,o.height,o.bidfloor,o.bidfloorcur,o.id,o.siteID),u&&(_IndexRequestData.impIDToSlotID[r.requestID][u]=String(o.id));return"number"==typeof cygnus_index_args.targetMode&&(_IndexRequestData.reqOptions[r.requestID].targetMode=cygnus_index_args.targetMode),"function"==typeof cygnus_index_args.callback&&(_IndexRequestData.reqOptions[r.requestID].callback=cygnus_index_args.callback),r.buildRequest()}catch(d){}}cygnus_index_args={timeout:300,siteID:172263,slots:[{id:"1",width:728,height:90,siteID:172263},{id:"2",width:300,height:250,siteID:172804},{id:"3",width:728,height:90,siteID:172805},{id:"4",width:728,height:90,siteID:172807},{id:"5",width:728,height:90,siteID:172808},{id:"6",width:728,height:90,siteID:172809},{id:"7",width:300,height:250,siteID:172813},{id:"8",width:300,height:250,siteID:172814},{id: "9", width: 300, height: 250, siteID: 172806}]};</script>
+<script type="text/javascript">
+	//INDEX CODE
+	var scriptTag = document.createElement( "script" );
+	scriptTag.setAttribute( "src", cygnus_index_start( ) );
+	scriptTag.setAttribute( "type", "text/javascript" );
+	scriptTag.setAttribute( "async", "true" );
+	var firstScript = document.getElementsByTagName( "script" )[0];
+	if ( firstScript.parentNode ) {
+		firstScript.parentNode.insertBefore( scriptTag, firstScript );
+	}
+	function cygnus_index_ready_state() {
+		var slots_O = new Array();
+		var slots_P = new Array();
+		var cygnus_rb = new Array();
+		for (var i = 0; i < index_slots.length; i++) {
+			var index_params = index_slots[i].split('_');
+			var op = index_params.shift();
+			var k = op;
+			var v = index_params.join('_');
+			if (k == 'O') {
+				slots_O.push(v);
+			} else if (k == 'P') {
+				slots_P.push(v);
+			}
+			cygnus_log('key:' + k + ' val:' + v);
+			cygnus_rb.push(index_slots[i]);
+		}
+		if (slots_O.length > 0) {
+			googletag.pubads().setTargeting('IOM', slots_O);
+			index_targets['O'] = slots_O;
+		}
+		if (slots_P.length > 0) {
+			googletag.pubads().setTargeting('IPM', slots_P);
+			index_targets['P'] = slots_P;
+		}
+		indexComplete = true;
+		tryInitDfp();
+	}
+</script>
+{{/index}}
+{{#amazon}}
+<script type="text/javascript">
+	//amazon code
+	var dfp_trig = function() {
+		amazonComplete = true;
+		tryInitDfp();
+	};
+</script>
+<script type='text/javascript'>
+	var amznads = amznads || {};
+	var googletag = googletag || {};
+	googletag.cmd = googletag.cmd || [];
+	amznads.asyncParams = {
+		'id': '3271',
+		'callbackFn': function() {
+			try {
+				amznads.setTargetingForGPTAsync('amznslots');
+			} catch (e) { /*ignore*/ }
+			/* Continue your DFP call here (optional) */
+			dfp_trig();
+		},
+		'timeout': {{timeout}}
+	};
+	(function() {
+		var a, s = document.getElementsByTagName("script")[0];
+		a = document.createElement("script");
+		a.type = "text/javascript";
+		a.async = true;
+		a.src = "http://c.amazon-adsystem.com/aax2/amzn_ads.js";
+		s.parentNode.insertBefore(a, s);
+	})();
+</script>
+{{/amazon}}
+{{#sovrn}}
+<script>
+	//sovrn code
+	//<![CDATA[
+	function newR(e){/in/.test(document.readyState)?setTimeout("newR("+e+")",9):e()}function initAdserver(){if(!pbjs.initAdserverSet){pbjs.initAdserverSet=!0}}var PREBID_TIMEOUT=500;window.log=function(){window.log.history=window.log.history||[];window.log.history.push(arguments);this.console&&console.log(Array.prototype.slice.call(arguments))};var googletag=googletag||{};googletag.cmd=googletag.cmd||[];setTimeout(initAdserver,PREBID_TIMEOUT);var pbjs=pbjs||{};pbjs.que=pbjs.que||[];!function(){var e=document,n=e.createElement("script");e.location.protocol;n.type="text/javascript";n.src="//ap.lijit.com/www/headerauction/prebid.min.js";var t=document.getElementsByTagName("head")[0];t.insertBefore(n,t.firstChild)}();pbjs.que.push(function(){var e=[{"code":"div-gpt-0-First-Step","bids":[{"bidder":"sovrn","params":{"tagid":14073}}],"sizes":[[728,90]]},{"code":"div-gpt-2-Method1","bids":[{"bidder":"sovrn","params":{"tagid":14074}}],"sizes":[[728,90]]},{"code":"div-gpt-3-Method2","bids":[{"bidder":"sovrn","params":{"tagid":342719}}],"sizes":[[728,90]]},{"code":"div-gpt-4-Method3","bids":[{"bidder":"sovrn","params":{"tagid":345156}}],"sizes":[[728,90]]},{"code":"div-gpt-ad-rr-top","bids":[{"bidder":"sovrn","params":{"tagid":345157}}],"sizes":[[300,250]]},{"code":"div-gpt-1a-Tips-L","bids":[{"bidder":"sovrn","params":{"tagid":345158}}],"sizes":[[300,250]]},{"code":"div-gpt-1b-Tips-R","bids":[{"bidder":"sovrn","params":{"tagid":345159}}],"sizes":[[300,250]]}];pbjs.addAdUnits(e);pbjs.addCallback("adUnitBidsBack",function(e){window.log("ad unit bids back for : "+e)});pbjs.requestBids({bidsBackHandler:function(e){initAdserver()}});pbjs.bidderSettings={standard:{adserverTargeting:[{key:"hb_bidder",val:function(e){return e.bidderCode}},{key:"hb_adid",val:function(e){return e.adId}},{key:"hb_pb",val:function(e){var cpm=e.pbHg;return 10>cpm?(Math.floor(10*cpm)/10).toFixed(2):20>cpm?(Math.floor(4*cpm)/4).toFixed(2):"20.00";}}]}}});window.sovrn=window.sovrn||{};window.sovrn.auction=window.sovrn.auction||{};
+	//]]>
+</script>
+{{/sovrn}}
+{{#yieldbot}}
+	<!-- Yieldbot.com Intent Tag -->
+	<script type="text/javascript">
+		function ybWidth(){
+			var w = window,
+					d = document,
+					e = d.documentElement,
+					x = Math.max(e.scrollWidth,e.offsetWidth,e.clientWidth);
+			return x;
+		}
+	</script>
+
+	<!-- Yieldbot.com Intent Tag LOADING -->
+	<script type="text/javascript">
+		var ybotq = ybotq || [];
+		(function() {
+			var js = document.createElement('script');
+			js.src = '//cdn.yldbt.com/js/yieldbot.intent.js';
+			js.async = true;
+			var node = document.getElementsByTagName('script')[0];
+			node.parentNode.insertBefore(js, node);
+		})();
+	</script>
+
+	<script type="text/javascript">
+		ybotq.push(function () {
+			if(ybWidth()>=481){
+				yieldbot.pub('t1tc');
+				yieldbot.defineSlot('leaderboard');
+				yieldbot.defineSlot('rec');
+				yieldbot.defineSlot('sb');
+				yieldbot.defineSlot('leaderboard_1');
+				yieldbot.defineSlot('rec_1');
+			} else {
+				yieldbot.pub('x41V');
+				yieldbot.defineSlot('MLB');
+				yieldbot.defineSlot('mobrec');
+			}
+			yieldbot.enableAsync();
+			yieldbot.go();
+		});
+	</script>
+	<!-- END Yieldbot.com Intent Tag -->
+{{/yieldbot}}
+{{#districtm}}
+	<script type="text/javascript" src="//cdn.districtm.ca/merge/merge.103406.js" async="true"></script>
+{{/districtm}}

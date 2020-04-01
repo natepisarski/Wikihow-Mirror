@@ -1,0 +1,16 @@
+#show_tips_container {
+	margin-bottom: 25px;
+}
+#tip_more {
+	display: inline-block;
+	margin: 5px 0  0;
+}
+
+.tip_expander {
+	padding: 5px;
+	width: 25px;
+	height: 25px;
+	border-radius: 8px;
+	border: 0px;
+	margin: 0 5px 0 0;
+}

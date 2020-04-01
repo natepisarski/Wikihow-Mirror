@@ -1,0 +1,26 @@
+<div id="tl_steps">
+	<div id="tl_nav">
+		<h2>Steps</h2>
+		<ul>
+		{{#navigation}}
+			<li class="{{class}}">
+				<a href="#" id="tl_nav_{{num}}" class="tl_nav_item">
+					<div class="tl_num">{{num}}.</div>
+					<div class="tl_nav_text">{{navText}}</div>
+					<div class="tl_step_text">{{stepText}}</div>
+				</a>
+			</li>
+		{{/navigation}}
+		</ul>
+	</div>
+	<div id="tl_step_container">
+		{{#steps}}
+			<div id="tl_step_{{step_num}}" class="tl_step">
+				<a class="tl_prev tl_arrow"></a>
+				<div class="tl_image">{{{step_image}}}</div>
+				<a class="tl_next tl_arrow"></a>
+			</div>
+		{{/steps}}
+	</div>
+	<div class="clearall"></div>
+</div>

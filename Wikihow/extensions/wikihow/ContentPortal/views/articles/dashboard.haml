@@ -1,0 +1,52 @@
+
+.dashboard
+	.well
+		%h1
+			Your Work,
+			%small
+				= userArticleCategories($activeArticles) . " Articles"
+
+		.row
+			.col-md-9
+				.well-body
+					- foreach($currentUser->kudos() as $note)
+						!= partial('notes/_kudos', ['note' => $note])
+
+					- if (empty($activeArticles))
+						!= alert('You currently don\'t have any work to do. When an article is assigned to you, it will appear here.', 'warning');
+
+					.row.sm-gutter
+						- foreach($roles as $role)
+							%div{class: "col-md-" . gridWidth(count($roles))}
+								.bucket
+									.bucket-heading
+										= "Being {$role->past_tense}"
+										%span.pull-right.badge
+											= countByState($activeArticles, $role)
+
+									- foreach($activeArticles as $article)
+										- if ($article->state_id == $role->id)
+											!= partial('articles/_card', ['article' => $article]);
+
+
+			.col-md-3
+				- if (currentUser()->rejectedArticles())
+					.panel.panel-default
+						.panel-heading Returned Articles
+						.panel-body
+							- foreach(currentUser()->rejectedArticles() as $article)
+								.alert.alert-danger
+									%i.fa.fa-times-circle
+									%strong
+										= $article->title . " was sent back to " . $article->state->present_tense
+
+				.panel.panel-default
+					.panel-heading Approved Articles
+					.panel-body
+						- foreach(currentUser()->approvedArticles() as $assoc)
+							.alert.alert-success
+								%i.fa.fa-check-circle
+								!= approvedMessage($assoc)
+
+!= partial('shared/_info_modal')
+!= partial('notes/_modal')

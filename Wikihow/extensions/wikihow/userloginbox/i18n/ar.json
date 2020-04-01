@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "تسجيل الدخول",
+	"ulb_nologin": "ليس لديك حسابًا؟",
+	"ulb_create": "أنشئ حسابًا",
+	"ulb_wh_act": "حساب",
+	"ulb_joinwh": "انضم إلى ويكي هاو",
+	"ulb_email": "البريد الإلكتروني",
+	"ulb_haveacct": "لديك حساب؟",
+	"ulb_whacct": "حساب ويكي هاو",
+	"ulb-btn-fb": "فيسبوك",
+	"ulb-btn-gplus": "جوجل",
+	"ulb-btn-civic": "سيفيك",
+	"ulb-btn-loading": "جاري التحميل..."
+}

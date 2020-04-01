@@ -1,0 +1,185 @@
+#mh-bottom-form {
+	position: relative;
+	margin: 0 auto;
+	background-color: #fff;
+	text-align: left;
+
+	line-height: 25px;
+}
+
+.mhbf-inner {
+	width: 100%;
+	float: left;
+}
+
+.mhbf-thanks {
+	text-align: center;
+}
+
+.mhbf-header {
+	margin-bottom: 10px;
+}
+
+.mhbf-headline {
+	font-size: 30px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+#mhbf-selector-list {
+	padding: 4px 5px 20px 0px;
+}
+
+.mhbf-selector-item {
+	list-style-type: none;
+	line-height: 25px;
+	clear: both;
+	height: 100%;
+}
+
+.mhbf-selector-checkbox {
+	position: absolute;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+}
+
+.mhbf-selector-label {
+	background-image: url(/skins/owl/images/article_sprite.png);
+}
+
+.mhbf-selector-element {
+	display: table-cell;
+	height: 100%;
+}
+
+input[type=checkbox].mhbf-selector-checkbox+label.mhbf-selector-label {
+	height: 17px;
+	width: 17px;
+	background-repeat: no-repeat;
+	background-position: -87px 0;
+	cursor: pointer;
+	display: inline-block;
+	margin-right: 5px;
+	margin-top: 2px;
+}
+
+input[type=checkbox].mhbf-selector-checkbox:checked+label.mhbf-selector-label {
+	background-position: -87px -18px;
+}
+
+.mhbf-selector-text {
+	vertical-align: top;
+	line-height: 22px;
+	cursor: pointer;
+}
+
+#mhbf-details, .mhbf-input, .mhbf-button, .mhbf-spinner {
+	font-size: .77em;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+}
+
+#mhbf-details, .mhbf-input {
+	width: 100%;
+	max-width: 100%;
+}
+
+#mhbf-details {
+	resize: none;
+}
+
+.mhbf-input {
+	margin-bottom: 5px;
+	padding: 8px;
+}
+
+.mhbf-button {
+	-webkit-transition: background-color 0.2s ease, color 0.2s ease;
+    -moz-transition: background-color 0.2s ease, color 0.2s ease;
+    -o-transition: background-color 0.2s ease, color 0.2s ease;
+    -ms-transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Override existing styling on mobile by utilizing the higher priority of IDs */
+#mhbf-submit.mh-submit-inactive,#mhbf-submit.mh-submit-inactive:hover,
+#mhbf-details-submit.mh-submit-inactive,#mhbf-details-submit.mh-submit-inactive:hover {
+	background-color: #eee;
+	color: #aaa;
+	cursor: default;
+}
+
+.mhbf-spinner,#mhbf-submit,#mhbf-details-submit {
+	border: none;
+}
+
+.mhbf-spinner {
+	height: 35px;
+	border: none;
+}
+
+.mhbf-spinner>img {
+	position: absolute;
+	left: 47%;
+}
+
+.mhbf-hidden {
+	display: none;
+}
+
+#mhbf-public-info {
+	display:none;
+	margin-bottom: 10px;
+}
+
+#mhbf-public-info p {
+	font-size: 11px;
+	line-height: normal;
+}
+
+#mhbf-public-info input {
+	width: 300px;
+	padding: 10px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: textfield;
+	-moz-appearance: textfield;
+	appearance: textfield;
+	font-size: 14px;
+	margin: 0 5px 10px 0;
+}
+
+.mhbf-public-label {
+	font-size: 14px;
+}
+
+#mhbf-public-error {
+	margin-top: 10px;
+	color: #ff0000;
+}
+
+#mhbf-public-info input.mhbf-error {
+	border: 1px solid #ff0000;
+}
+
+#article_rating #mhbf-public-prompt {
+	margin: 15px 0 5px 0;
+}
+
+@media only screen and (max-width: 340px) {
+	#ar_public_info input {
+		width: 100%;
+	}
+}

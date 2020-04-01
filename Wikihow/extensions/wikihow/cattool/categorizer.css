@@ -1,0 +1,241 @@
+.ui-autocomplete-loading { 
+	background: white url('/skins/WikiHow/images/csui_working.gif') right center no-repeat; 
+} 
+
+.ui-autocomplete {
+	z-index: 1003 !important;
+}
+
+ul.ui-corner-all {
+	-moz-border-radius-topleft: 0px 0px;
+	-moz-border-radius-topright: 0px 0px;
+	-moz-border-radius-bottomleft: 8px;
+	-moz-border-radius-bottomright: 8px;
+	-webkit-border-top-left-radius: 0px 0px;
+	-webkit-border-top-right-radius: 0px 0px;
+	-webkit-border-bottom-right-radius: 8px 8px;
+	-webkit-border-bottom-left-radius: 8px 8px;
+	border-top-left-radius: 0px 0px;
+	border-top-right-radius: 0px 0px;
+	border-bottom-right-radius: 8px 8px;
+	border-bottom-left-radius: 8px 8px;
+	/*border:2px solid #999999;*/
+}
+
+.cat_nodisplay {
+	display: none;
+}
+
+#cat_search_box {
+	margin-top: 5px;
+}
+
+#cat_search {
+	width: 375px;
+	height: 27px;
+	border-width: 1px;
+	padding: 5px;
+	margin-top: 5px;
+	border-radius: 5px;
+}
+
+.cat_category {
+	display: inline-block;
+	background: white;
+	border: 1px #363 solid;
+	color: #545454;
+	font-weight: bold;
+	padding: 4px;
+	margin: 2px;
+	opacity: 0;
+	filter: alpha(opacity=0);
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+}
+
+.cat_category_initial {
+	opacity: 1;
+	filter: alpha(opacity=100);
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+}
+
+.cat_active {
+	border: 2px #383 solid;
+}
+
+
+.cat_close {
+	cursor: pointer;
+	/*background: url(/skins/WikiHow/images/csui_minus.png) 0 0 no-repeat;*/
+	font-weight: bold;
+	background-size: 15px 15px;
+	color: #383;
+	margin: 0 0 2px 5px;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/skins/WikiHow/images/csui_minus.png',sizingMethod='scale');
+	-ms-filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/skins/WikiHow/images/csui_minus.png',sizingMethod='scale')";
+}
+
+.cat_close:hover {
+	text-decoration: underline;
+}
+
+
+.cat_subcats {
+	margin-top: 3px;
+	margin-bottom: 10px;
+}
+
+.cat_divider {
+	border-bottom: 1px solid #BDB7A7;
+	height: 1px;
+	margin: 5px 0 5px 0;
+}
+.cat_subcats_outer {
+	font-weight: normal;
+	margin: 5px;
+	width: 100%;
+	display: none;
+}
+
+.cat_font_small {
+	font-size: 11px;
+}
+
+#cat_none {
+	display: inline-block;
+	line-height: 21px;
+	padding: 4px;
+}
+
+#cat_close_popup {
+	background-position: 0% 0px;
+	cursor: pointer;
+	margin-top: 25px;
+	margin-left: auto;
+}
+
+#cat_breadcrumbs_outer {
+	display: none;
+}
+ul#cat_breadcrumbs {
+	display: inline-block;
+	width: 83%;
+	padding: 6px 0 0 5px;
+}
+
+ul#cat_breadcrumbs li {
+	display: inline;
+	color: #414141;
+}
+
+.cat_breadcrumb_add {
+	display: inline-block;
+	margin: 5px 0;
+}
+
+.cat_subcat {
+	font-size: 12px;
+	cursor: pointer;
+}
+
+#cat_subcats_list {
+	list-style: none !important;
+	padding: 0 0 0 0 !important;
+}
+
+#cat_tree {
+	display: none;
+}
+
+#cat_upper {
+	padding-left: 20px;
+}
+
+#cat_head {
+	margin: 5px 0 0 0;
+}
+
+#cat_options {
+	font-size: 1em;
+	float: right;
+}
+#cat_options a { float: right; }
+
+#cat_skip {margin-right: 0;}
+
+.cat_button_save_disabled {
+	cursor: default;
+}
+
+#cat_head h1 {
+	font-size: 1.6em;
+	padding: 0;
+}
+
+#bodycontents div.article_inner {
+	padding: 0px;
+}
+
+/* buggy
+.cat_multicolumn {
+	-moz-column-count: 3;
+	-moz-column-gap: 15px;
+	-webkit-column-count: 3;
+	-webkit-column-gap: 15px;
+	column-count: 3;
+	column-gap: 15px;
+}*/
+
+#cat_aid {
+	display:none;
+}
+
+#cat_spinner {
+	display: none;
+	margin-left: auto;
+	width: 30px;
+}
+
+#cat_notify {
+	display: none;
+	background: #fdfcde;
+	font-weight: bold;
+	border-bottom: #BDB7A7 1px solid;
+	padding: 5px 5px 5px 20px;
+}
+
+#cat_more {
+	width: 11px;
+	height: 11px;
+	background: url(/skins/WikiHow/images/arrow_blue.png) 0 -11px no-repeat;
+	float: left;
+	margin-right: 3px;
+}
+
+#cat_more.off {
+	background-position: 0 -11px;
+}
+
+#cat_more.on {
+	background-position: 0 0;
+}
+
+#cat_article_intro {
+	display: none;
+}
+
+#cat_introlink {
+	display: inline-block;
+	padding: 3px;
+}
+
+ul#cat_subcats_list li {
+	width: 190px;
+	overflow: auto;
+	padding-top: 6px;
+}
+
+#cat_head_outer h1 {
+	margin-bottom:50px;
+}
+
+#eoq_box { padding-top: 1.5em; }

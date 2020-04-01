@@ -1,0 +1,132 @@
+#gpl {
+	border: 1px solid #C1C1C1 ;
+	color: #222;
+	margin: 0 auto;
+}
+
+.gpl_hidden {
+	display: none;
+	visibility: hidden;
+}
+
+#gpl_header {
+	border-bottom: 1px solid #C1C1C1;
+	padding: 15px;
+	font-size: 0.8em;
+	background-color: #F1F1F1;
+}
+
+#gpl_error {
+	color: #A40000;
+	padding-left: 10px;
+}
+
+#gpl_x:after {
+	display: inline-block;
+	content: "\00d7";
+	float: right;
+	font-size: 27px;
+	margin: -2px -3px 0 0;
+	color: #a5a4a2;
+	margin-left: 8px;
+	font-weight: bold;
+	font-family: Helvetica,arial,sans-serif;
+}
+
+#gpl_x:hover {
+	cursor: pointer;
+}
+
+#gpl_icon {
+	margin-right: 1px;
+	vertical-align: middle;
+}
+
+.gpl_header_text {
+	display:inline-block;
+	zoom: 1;
+	*display: inline;
+	padding-top: 0px;
+	vertical-align: middle;
+}
+
+#gpl_header_prefill {
+	visibility: hidden;
+	display: none;
+}
+
+#gpl table {
+	margin-top: 15px;
+	margin-bottom: 10px;
+	width: 100%;
+}
+
+#gpl input[type='text'], #gpl_faux_username {
+	width: 232px;
+}
+
+#gpl_faux_username {
+	padding: 4px 16px 4px 7px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+}
+
+#gpl_user_text {
+	display: inline-block;
+	zoom: 1;
+	*display:inline;
+	vertical-align: middle;
+	margin-left: 5px;
+}
+
+#gpl_user_text_username {
+	margin-left: 3px;
+}
+
+#gpl_user_text_info {
+	font-size: 9px;
+}
+
+.gpl_readonly {
+	color: #999;
+	background-color: #E5E5E5;
+}
+
+.gpl_label {
+	text-align: right;
+	font-weight: bold;
+	color: #545454;
+	font-size: 0.8em;
+}
+
+.gpl_user_avatar {
+	width: 32px;
+	height: 32px;
+	border: 0px;
+	vertical-align: middle;
+}
+.gpl_avatar {
+	width: 24px;
+	height: 24px;
+	border: 0px;
+	vertical-align: middle;
+}
+
+#gpl td.gpl_check {
+	text-align: right;
+	padding-right: 65px;
+	font-size: .9em;
+}
+#gpl td.gpl_check input { margin-left: 5px; }
+
+#gpl span.gpl_logo_small {
+	display: inline-block;
+	background: url(/skins/WikiHow/images/social.png) no-repeat 0 -247px;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+	margin-right: 10px;
+	padding-bottom: 2px;
+}

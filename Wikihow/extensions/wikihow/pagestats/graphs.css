@@ -1,0 +1,18 @@
+.graphs-small {
+	height: 200px;
+	padding-top: 5px;
+}
+
+.graphs-large {
+	height: 60%;
+	width: 60%;
+}
+
+text.gtitle > a, text.gtitle > a:link, text.gtitle > a:visited, text.gtitle > a:hover {
+	color: black !important;
+	fill: rgb(0,0,0) !important;
+}
+
+#staff_chart_get_helpfulness_data {
+	border-top: 1px solid #9a9a9a;
+}

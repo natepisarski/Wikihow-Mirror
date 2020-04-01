@@ -1,0 +1,23 @@
+PHPSPELLCHECK.COM hereby grants you a non-exclusive license to the PHPSPELLCHECK Software Component (the Software).
+
+By downloading or using the Software, the Licensee agrees not to utilize the software in a manner which is disparaging to PHPSPELLCHECK.COM, and not to rent, lease or otherwise transfer rights to the Software.  The Licensee agrees that no attempt will be made by the Licensee or associated parties to translate, reverse engineer, modify, de-compile, disassemble or distribute the Software.
+
+LICENSE TERMS
+License terms are offered on the following terms, as purchased. If no purchase or insufficient purchase has been made then the Free Trial License terms apply.
+1) Free Trial License - Allows the use of the software for private evaluation purposes only. The software should not be used for public or commercial use of any kind.
+2) Single Website License - Allows the use of the software on any number of web / intranet pages belonging to a single domain, hosted on a single server.
+3) Single Server License - This license allows the usage of the software on any number of web / intranet pages for any number of domains located on a single server.
+4) Enterprise License - This license allows the usage of the software on any number of web / intranet pages for any number of domains located on any number of servers belonging to one company or organization.
+5) Redistribution License - This license allows the usage of the software as the spellchecking solution within the Licensee's discreet PHP software product.
+
+COPYRIGHT
+Title, ownership rights, and intellectual property rights in and to the Software shall remain with PHPSPELLCHECK.COM. The Software is protected by the international copyright laws. Title, ownership rights, and intellectual property rights in and to the content accessed through the Software is the property of the applicable content owner and may be protected by applicable copyright or other law. This License gives you no rights to such content.
+
+LIMITATION OF LIABILITY.
+THIS SOFTWARE IS PROVIDED "AS IS," WITHOUT A WARRANTY OF ANY KIND. ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. PHPSPELLCHECK.COM AND ITS LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR DISTRIBUTING THE SOFTWARE OR ITS DERIVATIVES. IN NO EVENT WILL PHPSPELLCHECK.COM OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE SOFTWARE, EVEN IF PHPSPELLCHECK.COM HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+MISCELLANEOUS
+This software is not designed or intended for use in on-line control of aircraft, air traffic, aircraft navigation or aircraft communications; or in the design, construction, operation or maintenance of any nuclear facility. Licensee represents and warrants that it will not use or redistribute the Software for such purposes.  New York law and controlling U.S. Federal law will govern any action related to this License. No choice of law rules of any jurisdiction will apply. If any provision of this License is held to be unenforceable, such provision shall be reformed only to the extent necessary to make it enforceable.  This License represents the complete agreement concerning subject matter hereof.
+
+
+

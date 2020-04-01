@@ -1,0 +1,12 @@
+<div id="summary_section_sidebox" class="sidebox {{class_summary_side_with_user_reviews}}">
+	<h3 id="summary_side_header">{{summary_header}}</h3>
+	<div id="summary_side_content">
+		{{summary_content_1}}{{#summary_content_2}}<span class='summary_review_more' style='display:none'>{{summary_content_2}}</span><span class='summary_ellipsis'>... </span>
+		<a href='#' class='summary_review_show'>{{read_more}}</a>
+		{{/summary_content_2}}
+	</div>
+	{{#has_user_reviews}}
+	<div class="summary_side_line"></div>
+	<h3 id="summary_side_review_header">{{review_header}}</h3>
+	{{/has_user_reviews}}
+</div>

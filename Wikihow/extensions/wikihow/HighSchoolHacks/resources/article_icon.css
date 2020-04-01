@@ -1,0 +1,20 @@
+#high_school_hacks_article_icon {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	padding: 10px;
+	background-color: #FFF;
+	z-index: 4;
+}
+
+.hsh_icon {
+	width: 35px;
+	height: 35px;
+	margin: -18px -18px 0 5px;
+	background-size: 35px;
+	float: right;
+}
+
+#high_school_hacks_article_icon a {
+	padding-left: .3em;
+}

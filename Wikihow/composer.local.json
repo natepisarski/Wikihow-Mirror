@@ -1,0 +1,18 @@
+{
+	"require": {
+		"mediawiki/vector-skin": "~1"
+	},
+	"extra": {
+		"merge-plugin": {
+			"include": [
+				"extensions/Mpdf/composer.json",
+				"extensions/SyntaxHighlight_GeSHi/composer.json"
+			]
+		}
+	},
+	"config": {
+		"preferred-install": "source",
+		"optimize-autoloader": true
+	}
+}
+

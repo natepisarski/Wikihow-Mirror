@@ -1,0 +1,200 @@
+#created_modal {
+	width: 400px;
+	background-color: #FFF;
+	overflow: hidden;
+	color: #7E7E7E;
+}
+
+#created_modal_close {
+	position: absolute;
+	color: #FFF;
+	right: 5px;
+	top: 5px;
+	cursor: pointer;
+}
+
+#created_modal_top {
+	background-color: #97B97A;
+	color: #FFF;
+	font-weight: bold;
+	text-align: center;
+	height: 5em;
+}
+
+.created_modal_section { padding: 1em; }
+
+#created_modal_bar {
+	margin-top: .5em;
+	font-size: 1.2em;
+}
+
+.created_modal_line {
+	display: inline-block;
+	width: 125px;
+	border-bottom: 2px solid #FFF;
+	margin: 0px -6px 6px;
+}
+
+.created_modal_bar_step {
+	font-size: .7em;
+	position: absolute;
+	width: 6em;
+	margin-top: 5px;
+}
+#created_modal_bar_step1 { left: 27px; }
+#created_modal_bar_step2 { left: 166px; }
+#created_modal_bar_step3 { left: 306px; }
+
+.wait_for_it { opacity: .5; }
+
+.created_modal_input_box {
+	border: 1px solid #D6D6D6;
+	color: #D6D6D6;
+	padding: 8px;
+	margin-top: 5px;
+	font-weight: bold;
+	border-radius: 4px;
+	background-color: #FFF;
+}
+#created_modal_share_by_email { 
+	display: none;
+	padding: 0 10px;
+}
+
+#cm_share_email_msg {
+	font-size: .7em;
+	padding-top: .5em;
+}
+
+#created_modal_email_error {
+	background-color: #EDA03C;
+	color: #FFF;
+	font-size: .9em;
+	padding: .5em;
+	margin-bottom: -.5em;
+	display: none;
+}
+
+#created_modal_toggle {
+	color: #97B97A;
+	margin: -3px 5px 0 2px;
+	cursor: pointer;
+	font-size: 1.3em;
+	float: left;
+}
+#created_modal_toggle.fa-toggle-off { color: #D6D6D6; }
+
+#created_modal_input_hdr {
+	font-weight: bold;
+	font-size: .8em;
+}
+#created_modal_info { 
+	color: #D6D6D6;
+	cursor: pointer; 
+	font-size: 1.3em;
+	position: absolute;
+	margin-left: 5px;
+}
+
+#info_tooltip {
+	position: absolute;
+	top: 81px;
+	left: 184px;
+	display: none;
+}
+
+.cm_input {
+	border: none;
+	margin-left: 8px;
+	font-size: 1em;
+	color: #7E7E7E;
+	width: 310px;
+}
+
+.created_modal_email_msg { 
+	font-size: .9em;
+	padding-bottom: 1em;
+}
+.created_modal_email_anon_msg { font-size: .9em; }
+
+#created_modal_signup {
+	text-align: center;
+	margin: 0 0 0 .5em;
+	display: inline-block;
+	width: 150px;
+}
+#created_modal_view_article_btn.secondary { margin: 0 .5em .8em 0; }
+
+#created_modal_share_it {
+	background-color: #F4F4F4;
+	padding: .5em;
+}
+
+#created_modal_button_bar { 
+	height: 1.8em; 
+}
+
+#created_modal_share_it_hdr {
+	text-align: center;
+	font-size: .8em;
+	margin-bottom: .5em;
+}
+
+.created_modal_share_button {
+	position: absolute;
+	cursor: pointer;
+	font-size: .7em;
+}
+.created_modal_share_button_icon { 
+	font-size: 2em;
+	float: left;
+}
+#created_modal_share_fb { 
+	left: 135px;
+	color: #3A5893;
+}
+#created_modal_share_tw {
+	left: 188px;
+	color: #0FACF0;
+}
+#created_modal_share_em { 
+	right: 135px;
+	color: #7E7E7E;
+}
+
+#created_modal_bottom, #created_modal_bottom_anon {
+	text-align: right;
+	font-size: .7em;
+	padding-bottom: .5em;
+}
+#created_modal_bottom_anon { padding-top: 0; }
+
+#created_modal_view_article_btn {
+	width: 35%;
+	margin: 0 0 .8em 0;
+	padding-left: 1em;
+}
+
+#created_modal_checkbox_div {
+	float: left;
+	margin: 28px 0 0 5px;
+}
+
+#created_modal_checkbox {
+	margin-right: .1em;
+}
+
+.cm_input::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #D6D6D6;
+}
+.cm_input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color:    #D6D6D6;
+   opacity:  1;
+}
+.cm_input::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color:    #D6D6D6;
+   opacity:  1;
+}
+.cm_input:-ms-input-placeholder { /* Internet Explorer 10+ */
+   color:    #D6D6D6;
+}

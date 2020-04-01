@@ -1,0 +1,11 @@
+
+.message
+	.header
+		= noteAuthor($note)
+		= noteRecipient($note)
+
+		.pull-right= timeAgo($note->created_at)
+	%p!= ($note->message)
+
+	- foreach($note->notes as $reply)
+		!= partial('notes/_note', ['note' => $reply])

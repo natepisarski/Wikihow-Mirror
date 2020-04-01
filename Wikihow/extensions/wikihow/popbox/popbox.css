@@ -1,0 +1,24 @@
+.poplink { background-color: #FFC; }
+
+#popbox {
+	position: absolute;
+	width: 254px;
+	display: none;
+	margin: 0;
+	padding: 0;
+	background-color: transparent;
+}
+
+#dialog-box {
+	padding: 8px;
+	margin: 0;
+}
+
+#dialog-box P#nothanks A { color: #000; }
+#dialog-box OL LI {
+	list-style: none;
+	margin-bottom: 1px;
+	padding: 5px 0;
+}
+
+.popbox_header { font-weight: bold; margin-bottom: .5em; }

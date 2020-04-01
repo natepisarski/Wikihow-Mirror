@@ -1,0 +1,35 @@
+{
+	"@metadata": {
+		"authors": [
+			"Xuacu"
+		]
+	},
+	"guidedtour-desc": "Permite que les páxines ufran una visita guiada p'ayudar a los usuarios nuevos",
+	"guidedtour-help-url": "Help:Visites guiaes",
+	"guidedtour-help-guider-url": "Help:Visites guiaes/guía",
+	"guidedtour-next-button": "Siguiente",
+	"guidedtour-okay-button": "Aceutar",
+	"guidedtour-back-button": "Anterior",
+	"guidedtour-tour-test-testing": "Probar",
+	"guidedtour-tour-test-test-description": "Esto ye una prueba de la descripción. ¡Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Probar les llamaes de salida",
+	"guidedtour-tour-test-portal-description": "Esta ye la páxina del {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Probar l'analís de MediaWiki",
+	"guidedtour-tour-test-wikitext-description": "Un guía de la visita de la wiki pue contener testu wiki usando onShow y parseDescription. Uselo pa crear un enllaz a la [[{{MediaWiki:Guidedtour-help-url}}|documentación de les visites guiaes]]. O un enllaz esternu [https://github.com/tychay/mwgadget.GuidedTour a GitHub], por exemplu.",
+	"guidedtour-tour-test-description-page": "Probar les páxines de descripción de MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Dir a la páxina de descripción",
+	"guidedtour-tour-test-launch-tour": "Probar el llanzamientu de visites",
+	"guidedtour-tour-test-launch-tour-description": "Los guíes puen llanzar otres visites guiaes. Prestoso, ¿acuéi?",
+	"guidedtour-tour-test-launch-editing": "Llanzar una visita guiada sobro edición",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Editar}} la páxina entera...",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Fai click}} nel botón «$1» pa facer los cambios.",
+	"guidedtour-tour-firstedit-edit-section-title": "O {{GENDER:|edita}} una seición",
+	"guidedtour-tour-firstedit-edit-section-description": "Hai enllaces «{{int:editsection}}» pa cada seición principal d'una páxina, de mou que pue centrase sólo nesa parte.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Entever}} los cambios (opcional)",
+	"guidedtour-tour-firstedit-preview-description": "Si calca '{{int:showpreview}}' podrá comprobar como se verá la páxina colos cambios. ¡Pero nun escaeza guardala!",
+	"guidedtour-tour-firstedit-save-title": "¡Yá casi ta fecho!",
+	"guidedtour-tour-firstedit-save-description": "Cuando tea preparáu, en calcando '{{int:publishchanges}}', los cambios sedrán visibles pa toos.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Calca}} nel botón «$1» pa facer los cambios.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Hai enllaces «$1» pa cada seición principal d'una páxina, de mou que pue centrase sólo nesa parte.",
+	"guidedtour-tour-firsteditve-save-description": "Cuando tea preparáu, en calcando \"{{int:visualeditor-toolbar-savedialog}}\" los cambios tarán visibles pa toos."
+}

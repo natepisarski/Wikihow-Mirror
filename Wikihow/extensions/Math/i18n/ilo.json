@@ -1,0 +1,20 @@
+{
+	"@metadata": {
+		"authors": [
+			"Lam-ang",
+			"Saluyot"
+		]
+	},
+	"math-desc": "Agipaay kadagiti matematiko a pagannurotan a nagbaetan dagiti <code>&lt;math&gt;</code> ... <code>&lt;/math&gt;</code> nga etiketa",
+	"math_failure": "Napaay a na-parse",
+	"math_invalidjson": "$1 Ti server a sungbat ket imbalido a JSON.",
+	"math_invalidresponse": "$1: Imbalido a sungbat ('$3') manipud ti server '$2':",
+	"math_invalidxml": " MathML ket imbalido a XML.",
+	"math_syntax_error": "biddut ti gramatika",
+	"math_unknown_error": "di amammo a biddut",
+	"math_unknown_function": "di ammo a pamay-an ti '$1'",
+	"mw_math_latexml": "LaTeXML (eksperimental; agus-usar ti MathML)",
+	"mw_math_png": "Dagiti ladawan ti PNG",
+	"mw_math_source": "Taudan ti LaTeX (para kadagiti pagbasabasa ti teksto)",
+	"prefs-math": "Math"
+}

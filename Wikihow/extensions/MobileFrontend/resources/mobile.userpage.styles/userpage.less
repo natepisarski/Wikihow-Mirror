@@ -1,0 +1,31 @@
+@import '../../mobile.less/mobile.variables';
+@import 'mediawiki.mixins';
+
+.cta-holder {
+	background-color: @colorGray14;
+	.box-sizing( border-box );
+	padding: 30px 20px;
+	text-align: center;
+	border-radius: @borderRadius;
+
+	.icon {
+		margin: 0 auto 20px;
+		opacity: 0.2;
+	}
+
+	// be specific in order to override default padding
+	.content & h3 {
+		font-size: 1em;
+		font-family: sans-serif;
+		padding: 0 0 10px;
+	}
+
+	.desc {
+		color: @colorGray7;
+		margin-bottom: 20px;
+	}
+
+	.disabled {
+		visibility: hidden;
+	}
+}

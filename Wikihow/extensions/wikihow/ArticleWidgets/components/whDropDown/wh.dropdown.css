@@ -1,0 +1,47 @@
+.whdropdown_element > * {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.wh_dd_input {
+    font-family: 'Museo700';
+	background:url(../../common/images/buttons.png) no-repeat 0 -99px;
+	height:46px;
+	line-height:46px;
+	color:#717171;
+	margin:19px 0 0 3px;
+	float:left;
+	font-size: 23px;
+    cursor: pointer; 
+	position:relative;
+}
+
+.wh_dd_select {
+    opacity:0;
+    filter:alpha(opacity=0); /* For IE8 and earlier */
+	height:46px;
+	background:none;
+    cursor: pointer;
+	/*float:left;*/
+	position: relative;
+}
+
+.wh_dd_value {
+	background:url(../../common/images/buttons.png) no-repeat right -255px;
+    float:left;
+    position: absolute;
+    height:46px;
+    line-height:46px;
+}
+
+.wh_dd_active_input 
+.wh_dd_value {
+	background:url(../../common/images/buttons.png) no-repeat right -301px;
+}
+
+.wh_dd_active_input {
+	background:url(../../common/images/buttons.png) no-repeat 0 -243px;
+}

@@ -1,0 +1,38 @@
+<div class="qa_aq_edit_form">
+	<div class="qa_aq_edit_form_status"></div>
+	<textarea class="qa_cq_text" spellcheck="true" placeholder="{{qa_edit_form_question_placeholder}}">{{qa_edit_form_question}}</textarea>
+	<div class="qa_invalid_msg qa_cq_text_error qap_char_limit">{{qa_cq_text_error}}</div>
+	<textarea class="qa_ca_text" spellcheck="true" placeholder="{{qa_edit_form_answer_placeholder}}">{{qa_edit_form_answer}}</textarea>
+	<div class="qa_invalid_msg qa_ca_text_error qap_char_limit">{{qa_ca_text_error}}</div>
+	<div class="qa_invalid_msg qa_ca_text_error2 qap_char_limit">{{qa_ca_text_min}}</div>
+	<div class="qa_invalid_msg qa_ca_text_error3 qap_char_limit">{{qa_ca_error_url}}</div>
+	<div class="qa_invalid_msg qa_ca_text_error_phone qap_char_limit">{{qa_ca_error_phone}}</div>
+	<input class="qa_pa_email" placeholder="{{qa_pa_email_placeholder}}"/>
+
+	{{#qa_admin}}
+		<span class="qa_edit_form_verifier_container">
+			{{qa_edit_form_verifier_label}}
+			<select class="qa_edit_form_verifier">
+				{{#qa_edit_form_verifiers}}
+					<option value="{{id}}" {{selected}}>{{name}}</option>
+				{{/qa_edit_form_verifiers}}
+			</select>
+		</span>
+		{{#qa_edit_form_show_remove_submitter}}
+		<span class="qa_edit_form_remove_submitter_container">
+			<label for="qa_aq_remove_submitter">{{qa_edit_form_remove_submitter}}</label> <input type="checkbox" id="qa_aq_remove_submitter" class="qa_checkbox" />
+		</span>
+		{{/qa_edit_form_show_remove_submitter}}
+	{{/qa_admin}}
+
+	<span class="qa_edit_form_inactive_container">
+		<label for="qa_aq_inactive">{{qa_edit_form_inactive}}</label> <input type="checkbox" id="qa_aq_inactive" class="qa_checkbox" {{qa_edit_form_inactive_val}}>
+	</span>
+
+	<div class="clearall"></div>
+
+	{{#qa_admin}}<a class="qa_aq_delete button primary">{{qa_edit_form_delete}}</a>{{/qa_admin}}
+	<a class="qa_aq_submit button primary">{{qa_edit_form_submit}}</a>
+	<span class="qa_spinner"></span>
+	<a class="qa_aq_cancel button secondary">{{qa_edit_form_cancel}}</a>
+</div>

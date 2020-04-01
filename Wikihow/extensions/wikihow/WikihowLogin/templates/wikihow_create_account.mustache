@@ -1,0 +1,26 @@
+{{{ mobile_tabs }}}
+
+{{#alreadysignedin}}
+	<div class="alreadysignedin">
+
+		<p>{{{alreadysignedin}}}</p>
+
+		{{#return_link}}
+		<p>{{{returnto}}}</p>
+		{{/return_link}}
+
+	</div>
+{{/alreadysignedin}}
+
+
+{{^alreadysignedin}}
+
+	{{> alt_logins}}
+
+	<div id="userloginForm" class="usercreateform">
+		<div id="userLoginOr">{{loginor}}</div>
+		<div class="sub_social_login">{{or_create_an_account}}</div>
+		{{{form}}}
+	</div>
+
+{{/alreadysignedin}}

@@ -1,0 +1,29 @@
+@import '../../../less/variables.less';
+
+.videoBrowser-widget-videos .videoBrowser-video {
+	width: 100%;
+	padding: 8px 8px 0;
+	margin: 0;
+}
+
+.content p.videoBrowser-video-title {
+	width: 100%;
+	margin: 0;
+	padding: 8px;
+}
+
+@media @medium {
+	.skin-minervawh .content .videoBrowser-video-content {
+		border-radius: 0;
+	}
+
+	.videoBrowser-widget-videos .videoBrowser-video {
+		padding: 4px;
+	}
+}
+
+@media only screen and (min-width: 500px) {
+	.videoBrowser-widget-videos .videoBrowser-video {
+		width: 50%;
+	}
+}

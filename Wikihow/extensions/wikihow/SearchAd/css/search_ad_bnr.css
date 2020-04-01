@@ -1,0 +1,42 @@
+#searchad_lnk {
+	text-decoration: none;
+	color: #545454;
+	display: block;
+	height: 90px;
+	width: 728px;
+}
+
+#searchad {
+	cursor: pointer;
+	width: 728px;
+	height: 90px;
+	background-position: 0 0;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+#searchad_text {
+	font-family: Helvetica,arial,sans-serif;
+	font-size: 22px;
+	line-height: 94px;
+	margin-left: 275px;
+	white-space: nowrap;
+	overflow: hidden;
+	width: 377px;
+}
+
+.searchad_bnr_1 {
+	background-image: url(//www.wikihow.com/extensions/wikihow/SearchAd/images/searchad_bnr_1.png);
+}
+
+.searchad_bnr_2 {
+	background-image: url(//www.wikihow.com/extensions/wikihow/SearchAd/images/searchad_bnr_2.png);
+}
+
+.searchad_bnr_3 {
+	background-image: url(//www.wikihow.com/extensions/wikihow/SearchAd/images/searchad_bnr_3.png);
+}
+
+.searchad_bnr_4 {
+	background-image: url(//www.wikihow.com/extensions/wikihow/SearchAd/images/searchad_bnr_4.png);
+}

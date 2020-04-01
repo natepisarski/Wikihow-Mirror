@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="article">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title" />
+        <xs:element ref="tags" />
+        <xs:element ref="categories" />
+        <xs:element ref="content" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="attribution">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="numeditors" />
+        <xs:element ref="names" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="categories">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="category" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="category">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type" type="xs:NMTOKEN" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="content">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="introduction" />
+        <xs:element ref="steps" />
+        <xs:element ref="tips" />
+        <xs:element ref="warnings" />
+        <xs:element ref="things" />
+        <xs:element ref="attribution" />
+        <xs:element ref="videos" minOccurs="0" />
+        <xs:element ref="sources" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="image">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="images">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="image" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="introduction">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="images" />
+        <xs:element ref="text" />
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="names">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="text" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="numeditors">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="source">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="text" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="sources">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="source" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="step">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="images" />
+        <xs:element ref="text" />
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="steps">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="subsection" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="subsection">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded"> 
+        <xs:element ref="step" />
+        <xs:element ref="substeps" />
+        <xs:element ref="title" />
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="substeps">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="step" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="tags">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="text">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="thing">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="text" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="things">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="thing" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="tip">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="text" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="tips">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tip" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="title">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="video">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="videos">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="video" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="warning">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="text" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="warnings">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="warning" minOccurs="0" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="wikihowmedia">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="article" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

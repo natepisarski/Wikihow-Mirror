@@ -1,0 +1,22 @@
+{{! Staff email report }}
+
+{{^is_ok}}
+
+	<h2>Errors:</h2>
+
+	<p>Something went wrong when we tried to email the following people:</p>
+
+	<ul style="list-style: square;">
+	{{#bad}}
+		<li>{{fullName}} ({{email}}). Error: {{error}}</li>
+	{{/bad}}
+	</ul>
+
+{{/is_ok}}
+
+<h2>Invoices sent to the contractors:</h2>
+
+{{#good}}
+	{{>report_divider}}
+	{{{body}}}
+{{/good}}

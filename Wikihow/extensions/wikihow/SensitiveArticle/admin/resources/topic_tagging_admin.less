@@ -1,0 +1,119 @@
+#tta_add_new_button {
+	float: right;
+}
+
+#topic_tagging_admin {
+
+	#tta_jobs {
+		display: table;
+		width: 100%;
+
+		.tta_job_row {
+			display: table-row;
+
+			&:nth-child(even) {
+				background-color: #E4E4E4;
+			}
+
+			&.tta_job_headers {
+				font-size: 1.4em;
+				letter-spacing: -.05em;
+			}
+
+			> div {
+				display: table-cell;
+				padding: .5em;
+				text-align: center;
+				vertical-align: middle;
+
+				&:nth-child(2),
+				&:nth-child(3) {
+					text-align: left;
+				}
+			}
+
+			.job_number {
+				color: #FFF;
+				font-size: 1.5em;
+				background-color: #545454;
+				border-radius: 1.5em;
+				width: 1.5em;
+				height: 1.5em;
+				line-height: 1.5em;
+				margin: 0 auto;
+			}
+
+			.tta_edit {
+				cursor: pointer;
+			}
+
+			.tta_enabled {
+				font-size: 1.7em;
+				cursor: pointer;
+			}
+
+			.tta_change_enabled {
+				display: none;
+				margin-right: 0;
+			}
+		}
+	}
+
+}
+
+.tta_job_edit {
+	background-color: #EFEFEF;
+	padding: 1.5em;
+	width: 500px;
+	box-sizing: border-box;
+	border-radius: 5px;
+	box-shadow: -4px 4px 10px #333;
+
+	.fa-times {
+		position: absolute;
+		font-size: 1.5em;
+		cursor: pointer;
+		top: 6px;
+		right: 8px;
+	}
+
+	> div {
+		padding-bottom: .5em;
+	}
+
+	input, textarea {
+		padding: 0.3em;
+		border: 1px solid #545454;
+		width: 98%;
+		resize: none;
+	}
+
+	input {
+		font-size: 1.2em;
+	}
+
+	.tta_example {
+		font-size: .8em;
+		font-style: italic;
+		padding: .2em 0 .5em;
+	}
+
+	#tta_article_list {
+		height: 200px;
+	}
+
+	#tta_message {
+		&.tta_error {
+			color: #C00;
+		}
+	}
+
+	.button_div {
+		text-align: right;
+		padding: 0;
+
+		#tta_edit_done {
+			display: none;
+		}
+	}
+}

@@ -1,0 +1,32 @@
+<script src='/extensions/wikihow/common/download.jQuery.js'></script>
+
+<form method='post' action='/Special:Validatron'>
+<div>
+Enter a list of URLs or page IDs, such as <code>http://www.wikihow.com/Lose-Weight-Fast</code>, to which to add validation parameters.  One per line.
+</div>
+<br/>
+<textarea id='pages-list' type='text' rows='20' cols='70'></textarea>
+<div>
+<button id='pages-go' disabled='disabled'>process</button><br/>
+</div>
+<br/>
+<div id='pages-result'>
+</div>
+</form>
+
+<script>
+(function($) {
+	$(document).ready(function() {
+		$('#pages-go')
+			.prop('disabled', false)
+			.click(function () {
+				$('#pages-result').html('sending list ...');
+				var url = '/Special:Validatron';
+				var form = 'pages-list=' + encodeURIComponent($('#pages-list').val());
+				$.download(url, form);
+				return false;
+			});
+		$('#pages-list').focus();
+	});
+})(jQuery);
+</script>

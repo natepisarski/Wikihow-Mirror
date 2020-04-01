@@ -1,0 +1,169 @@
+<div id='wvl-container'>
+	<div class='noselect inactive' id='wvl-navbar-toggle-container'>
+		<div class='wvl-navbar-toggle active' id='wvl-navbar-collapse'>Collapse search parameters <b>&#x23eb;</b></div>
+		<div class='wvl-navbar-toggle inactive' id='wvl-navbar-expand'>Expand search parameters <b>&#x23ec;</b></div>
+	</div>
+	<div class='clearall'></div>
+
+	<div class='active' id='wvl-navbar-container'>
+	<div class='wvl-navbar wvl-bar-1'>
+		<div class='wvl-nav-item wvl-nav-item-l inactive' id='wvl-creator'>
+			<div class='wvl-help-container'>
+				<div class='wvl-help'>
+					<p>
+						Restrict results based on creator.<br /><br />
+						«Orphaned assets» are assets without an assigned creator.
+					</p>
+				</div>
+			</div>
+			<div><b>Creator</b></div>
+			<div class='wvl-dropdown-container'>
+				<select class='wvl-dropdown' id='wvl-creator-list'>
+					<option id='wvl-creator-any' value='' selected>Any</option>
+					<!--<option id='wvl-creator-none' value='.orphaned'>Orphaned assets {{#orphanedCount}}({{images}} img, {{videos}} vid){{/orphanedCount}}</option>-->
+					<!--<option id='wvl-creator-assigned' value='.assigned'>Non-orphaned assets {{#assignedCount}}({{images}} img, {{videos}} vid){{/assignedCount}}</option>-->
+					{{#creators}}
+					<option id='wvl-creator-{{index}}' value='{{creator}}'>{{alias}} ({{images}} images, {{creatorType}})<!--, {{videos}} vid)--></option>
+					{{/creators}}
+				</select>
+				<span class='caret'></span>
+			</div>
+		</div>
+		<div class='wvl-nav-item wvl-nav-item-c inactive' id='wvl-topcat'>
+			<div class='wvl-help-container'>
+				<div class='wvl-help'>
+					<p>
+						Restrict results to pages within a desired top category.<!--<br /><br />
+						Note, however, that pageless assets do not have an assigned category and will thus not be included in the results if a category restriction is provided.-->
+					</p>
+				</div>
+			</div>
+			<div><b>Topcat</b></div>
+			<div class='wvl-dropdown-container'>
+				<select class='wvl-dropdown' id='wvl-topcat-list'>
+					<option id='wvl-topcat-any' value='' selected>Any</option>
+					{{#topcats}}
+					<option id='wvl-topcat-{{index}}'>{{topcat}}</option>
+					{{/topcats}}
+				</select>
+				<span class='caret'></span>
+			</div>
+		</div>
+		<div class='wvl-nav-item wvl-nav-item-r inactive' id='wvl-title'>
+			<div class='wvl-help-container'>
+				<div class='wvl-help'>
+					<p>
+						Restrict result to assets on pages with the desired keyword in their title, or a URL.<br /><br />
+						Note that a dumb, strict matching is used. «cat» will match on «How to <b>Cat</b>er», while «cats» will <i>not</i> match on «How to Adopt a Cat». <span class='disabled'>Pageless assets will be excluded if a keyword restriction is set.</span>
+					</p>
+				</div>
+			</div>
+			<div><b>Keyword/URL</b></div>
+			<div class='wvl-input-container'>
+				<input class='wvl-input' id='wvl-title-input' placeholder='Enter title keywords or a URL here' />
+			</div>
+		</div>
+		<div class='wvl-nav-item wvl-nav-item-r inactive disabled' id='wvl-date'>
+			<div><b>Date range</b></div>
+			<div class='wvl-date-container'>
+				<input type='text' class='wvl-datepicker' id='wvl-date-from' placeholder='from (mm/dd/yyyy)'></input>
+				<input type='text' class='wvl-datepicker' id='wvl-date-to' placeholder='to (mm/dd/yyyy)'></input>
+			</div>
+		</div>
+	</div>
+
+	<div class='wvl-navbar wvl-bar-2 disabled'>
+		<div class='wvl-nav-item wvl-nav-item-l inactive' id='wvl-sort'>
+			<div class='wvl-help-container'>
+				<div class='wvl-help'>
+					<p>
+						Determine how results should be sorted.<br /><br />
+						«Title», «Time» and «Views» provide options for ascending (<span style='color:#adb;'>&#x25B2;</span>) or descending (<span style='color:#adb;'>&#x25BC;</span>) order, which may be toggled by clicking the respective button again after selecting it. Note that «Random» sort disables the result pager.<br /><br />
+						Note: Views and Random not yet implemented
+					</p>
+				</div>
+			</div>
+			<div><b>Sort by</b></div>
+			<div class='wvl-button-row' id='wvl-sort-selector'>
+				<button class='wvl-selector-button wvl-sb-l sort-order active' value='title' id='wvl-sort-title'>
+					Title
+					<div class='wvl-sort-order wvl-sb-extras' data-type='order'>
+						<div class='wvl-asc active' data-value='asc'>&#x25B2;</div>
+						<div class='wvl-desc inactive' data-value='desc'>&#x25BC;</div>
+					</div>
+				</button>
+				<button class='wvl-selector-button wvl-sb-c sort-order inactive' value='time' id='wvl-sort-date'>
+					Time
+					<div class='wvl-sort-order wvl-sb-extras' data-type='order'>
+						<div class='wvl-asc inactive' data-value='asc'>&#x25B2;</div>
+						<div class='wvl-desc active' data-value='desc'>&#x25BC;</div>
+					</div>
+				</button>
+				<button class='wvl-selector-button wvl-sb-c sort-order inactive' value='views' id='wvl-sort-pv'>
+					Views
+					<div class='wvl-sort-order wvl-sb-extras' data-type='order'>
+						<div class='wvl-asc inactive' data-value='asc'>&#x25B2;</div>
+						<div class='wvl-desc active' data-value='desc'>&#x25BC;</div>
+					</div>
+				</button>
+				<button class='wvl-selector-button wvl-sb-r inactive' value='random' id='wvl-sort-random'>
+					Random
+				</button>
+			</div>
+		</div>
+		<div class='wvl-nav-item wvl-nav-item-c inactive' id='wvl-pageless'>
+			<div><b>Pageless assets</b> (currently disabled)</div>
+			<div class='wvl-button-row' id='wvl-pageless-selector'>
+				<button class='wvl-selector-button wvl-sb-l active' value='exclude' id='wvl-pageless-exclude'>
+					Excluded
+				</button>
+				<button class='wvl-selector-button wvl-sb-c inactive' value='include' id='wvl-pageless-include'>
+					Included
+				</button>
+				<button class='wvl-selector-button wvl-sb-r inactive' value='only' id='wvl-pageless-only'>
+					Only
+				</button>
+			</div>
+		</div>
+		<div class='wvl-nav-item wvl-nav-item-c inactive' id='wvl-type'>
+			<div><b>Asset type</b> (currently no videos)</div>
+			<div class='wvl-button-row' id='wvl-type-selector'>
+				<button class='wvl-selector-button wvl-sb-l inactive' value='all' id='wvl-type-all'>
+					All
+				</button>
+				<button class='wvl-selector-button wvl-sb-c active' value='image' id='wvl-type-image'>
+					Images
+				</button>
+				<button class='wvl-selector-button wvl-sb-r inactive' value='video' id='wvl-type-video'>
+					Videos
+				</button>
+			</div>
+		</div>
+		<div class='wvl-nav-item wvl-nav-item-r inactive' id='wvl-per-page'>
+			<div><b>Results per page</b> (please stick to 5!)</div>
+			<div class='wvl-button-row' id='wvl-per-page-selector'>
+				<button class='wvl-selector-button wvl-sb-l {{^devServer}}in{{/devServer}}active' value='5' id='wvl-per-page-5'>
+					5
+				</button>
+				<button class='wvl-selector-button wvl-sb-c inactive' value='10' id='wvl-per-page-10'>
+					10
+				</button>
+				<button class='wvl-selector-button wvl-sb-r {{#devServer}}in{{/devServer}}active' value='20' id='wvl-per-page-20'>
+					20
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<button class='button primary active' id='wvl-fetch'>Fetch</button>
+	</div>
+
+	<div id='wvl-results-container'></div>
+
+	<div id='wvl-results-template' style='display:none;'>
+		{{{resultsTemplate}}}
+	</div>
+
+	<div class='clearall'></div>
+</div>
+

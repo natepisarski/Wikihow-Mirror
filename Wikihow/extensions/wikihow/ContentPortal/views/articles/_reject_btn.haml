@@ -1,0 +1,17 @@
+
+
+
+- if (canReject($article))
+	- if ($article->state->require_message)
+		%a.btn.btn-danger.modal-trigger{href: url('articles/reject_form', ['id' => $article->id]), "data-id" => $article->id}
+			%i.fa.fa-times
+			= rejectLabel($article)
+
+	- else
+		- $msg = "Press this button to send your feedback to the ". strtolower($article->state->revert_step->title) . "Once you press this button, the " . strtolower($article->state->revert_step->title) . " will be required to submit another revision of their article."
+
+		%a.confirm.confirm-simple.btn.btn-danger{href: url('articles/reject', ['id' => $article->id]), "data-toggle" => "popover", title: "Reject?", "data-content" => $msg}
+			%i.fa.fa-times
+			= rejectLabel($article)
+
+

@@ -1,0 +1,29 @@
+<div class="np_section">
+	<h3>{{add_prompt}}</h3>
+	<input type="text" id="page_name" />
+	<button id="submit" class="button primary">{{submit_button}}</button>
+	<button id="reset" class="button secondary">{{reset_button}}</button>
+</div>
+
+<div id="story_order_change" class="np_section">
+	{{story_order_change_prompt}}
+	<button id="save_story_order_change" class="button primary">{{story_order_change_button}}</button>
+</div>
+
+<div id="story_order_done" class="np_section">
+	<div id="close_story_order_done"><i class="fa fa-times-circle"></i></div>
+	<i class="fa fa-check"></i>
+	{{story_order_done}}
+</div>
+
+<div id="current_stories" class="np_section">
+	<h3>{{current_stories_hdr}}</h3>
+	{{#current_stories}}
+		{{> reader_story}}
+	{{/current_stories}}
+</div>
+
+<div id="article_stories" class="np_section">
+	<h3>{{article_stories_hdr}}</h3>
+	<div></div>
+</div>

@@ -1,0 +1,11 @@
+<div id="press_sidebox" class="sidebox">
+	<h3>{{header}}</h3>
+	{{#press}}
+	{{#link}}<a rel="nofollow" href="{{link}}">{{/link}}
+	<div class="press_block">
+		<img src="{{img}}" width="65" height="65" alt="{{outlet}}" class="press_outlet" />
+		<div class="press_quote">{{{quote}}}</div>
+	</div>
+	{{#link}}</a>{{/link}}
+	{{/press}}
+</div>

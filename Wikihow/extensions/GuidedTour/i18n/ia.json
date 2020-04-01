@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": [
+			"McDutchie"
+		]
+	},
+	"guidedtour-desc": "Permitte que un guida appare in paginas pro assister nove usatores",
+	"guidedtour-help-url": "Help:Visitas guidate",
+	"guidedtour-help-guider-url": "Help:Visitas guidate/guida",
+	"guidedtour-next-button": "Sequente",
+	"guidedtour-okay-button": "OK",
+	"guidedtour-tour-test-testing": "Test",
+	"guidedtour-tour-test-test-description": "Isto es un test del description. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-portal-description": "Iste es le pagina del {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Test del analysator syntactic de MediaWiki",
+	"guidedtour-tour-test-description-page": "Test del paginas de description de MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Vader al pagina de description",
+	"guidedtour-tour-test-launch-tour": "Test del lanceamento del visita guidate",
+	"guidedtour-tour-test-launch-tour-description": "Le guidas pote lancear altere visitas guidate. Multo bon, nonne?",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Modifica}} tote le pagina…",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Clicca}} sur le button \"$1\" pro facer tu cambiamentos.",
+	"guidedtour-tour-firstedit-edit-section-title": "O {{GENDER:|modifica}} un section",
+	"guidedtour-tour-firstedit-edit-section-description": "Il ha ligamines \"{{int:editsection}}\" pro cata major section in un pagina, de sorta que tu pote concentrar te a iste parte.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Previsualisa}} tu modificationes (optional)",
+	"guidedtour-tour-firstedit-preview-description": "Cliccar sur \"{{int:showpreview}}\" permitte verificar le aspecto del pagina con tu modificationes. Solmente non oblida de salveguardar lo!",
+	"guidedtour-tour-firstedit-save-title": "Tu ha quasi finite!",
+	"guidedtour-tour-firstedit-save-description": "Quando tu es preste, un clic sur \"{{int:publishchanges}}\" rendera tu cambiamentos visibile a tote le mundo."
+}

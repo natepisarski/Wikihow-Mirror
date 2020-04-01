@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"socialauth-fblogin-login-failed": "Özür dileriz, sizi Facebook'a bağlayamadık. Lütfen daha sonra yeniden deneyin.",
+	"socialauth-gpluslogin-login-failed": "Özür dileriz, sizi Google'a bağlayamadık. Lütfen daha sonra yeniden deneyin.",
+	"socialauth-civiclogin-login-failed": "Özür dileriz, sizi Civic'e bağlayamadık. Lütfen daha sonra yeniden deneyin."
+}

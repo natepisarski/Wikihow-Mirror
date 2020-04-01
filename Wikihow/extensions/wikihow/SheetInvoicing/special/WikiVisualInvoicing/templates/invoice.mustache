@@ -1,0 +1,39 @@
+{{! The invoice sent to contractors }}
+
+<div style="font-family:arial,sans,sans-serif;font-size:14px;">
+
+	<p>Hi there!</p>
+	<p>Here is a summary of your invoice:</p>
+
+	<ul>
+		<li>
+			<b>Total paid:</b> {{paid}}
+			{{#loan}} <ul> <li> <i>Includes loan payment deduction of: {{loan}}</i> </li> </ul> {{/loan}}
+		</li>
+		<li> <b>URLs, Article count, Image count:</b> </li>
+	</ul>
+
+	<table cellspacing="0" cellpadding="0" border="1" style="table-layout:fixed;font-size:13px;border-collapse:collapse;border:none">
+		<tbody>
+			{{#contractors}}
+			<tr>
+				<td style="padding: 4px; color: white; background-color: #93b874;">{{ftp}}</td>
+				<td style="padding: 4px; color: white; background-color: #93b874; text-align: right">{{url_total}}</td>
+				<td style="padding: 4px; color: white; background-color: #93b874; text-align: right">{{img_total}}</td>
+			</tr>
+				{{#urls}}
+				<tr>
+					<td style="padding: 3px 4px; color: black;"><a href="{{url}}">{{url}}</a></td>
+					<td style="padding: 3px 4px; color: black; text-align:right">{{url_count}}</td>
+					<td style="padding: 3px 4px; color: black; text-align:right">{{img_count}}</td>
+				</tr>
+				{{/urls}}
+			{{/contractors}}
+		</tbody>
+	</table>
+
+	<div style="margin-top: 20px;">
+		Thank you,<br>wikiVisual
+	</div>
+
+</div>

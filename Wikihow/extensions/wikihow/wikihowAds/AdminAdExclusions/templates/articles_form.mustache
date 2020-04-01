@@ -1,0 +1,23 @@
+{{>tabs}}
+
+<form id="ae_form">
+	<p id="ae_intro">
+		Input full URLs (e.g. http://www.wikihow.com/Kiss) for articles that should (or should not)
+		have ads on them. Articles on the www.wikihow.com domain will have ads added/removed
+		from all translations. Articles on other domains will only have ads added/removed from
+		that article. Please only process 10 urls at a time.
+	</p>
+	<textarea id="ae_input_area" cols="55" rows="5"></textarea>
+	<br>
+	<input type="submit" class="button primary" id="ae_add" name="ae_modify" value="Add articles">
+	<input type="submit" class="button primary" id="ae_remove" name="ae_modify" value="Remove articles">
+</form>
+
+<div id="ae_results"></div>
+<div id="ae_purging"></div>
+
+<form action="/Special:AdminAdExclusions" method="post">
+	<input type="hidden" name="list" value="true">
+	<input type="submit" class="button secondary" value="Get all articles">
+	<a class="button secondary" id="ae_delete_all">Delete all articles</a>
+</form>

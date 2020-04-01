@@ -1,0 +1,39 @@
+.ravno {
+	top:49px;
+	left:294px;
+	}	
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+   	width: 305px;
+	}
+.form {
+	-webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+	}	 	
+.right {
+	width:295px;
+	float:left;
+	position:relative;
+	}	
+#header h1 {
+	width:100%;
+	}
+.whupdown_element {
+	margin:-11px  auto;
+	}	
+.left{
+	padding-bottom:13px;
+	}
+.wh_ud_input {
+	text-align:right;
+	}
+.wh_ud_editable_value input {
+	float:right;
+	width:100%;
+	text-align:right;
+	}			

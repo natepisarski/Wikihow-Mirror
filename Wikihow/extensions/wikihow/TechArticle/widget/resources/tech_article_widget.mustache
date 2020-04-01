@@ -1,0 +1,37 @@
+<div id="tech_article_widget" class="minor_section">
+
+	<h2 class="taw_heading">{{msg_heading}}</h2>
+
+	<h4>{{msg_product_title}}</h4>
+
+	<select id="taw_product" name="taw_product">
+		<option selected disabled value>-- {{msg_dropdown_select_one}} --</option>
+		{{#products}}
+			{{#enabled}}
+				<option {{#selected}} selected {{/selected}} value="{{id}}">{{name}}</option>
+			{{/enabled}}
+		{{/products}}
+	</select>
+
+	<h4>{{msg_platform_title}}</h4>
+
+	<table>
+		<tr>
+			<th colspan="2">{{msg_dropdown_platform}}</th>
+			<th>{{msg_dropdown_tested}}</th>
+		</tr>
+		{{#platforms}}
+			{{#enabled}}
+			<tr>
+				<td> <input type="checkbox" name="taw_platform[]" value="{{id}}" {{#selected}} checked {{/selected}}> </td>
+				<td>{{name}}</td>
+				<td> <input type="checkbox" name="taw_tested[]"   value="{{id}}"   {{#tested}} checked {{/tested}} {{^selected}} class="hidden" {{/selected}}> </td>
+			</tr>
+			{{/enabled}}
+		{{/platforms}}
+	</table>
+
+	<input id="taw_action" type="hidden" name="taw_action" value="skip">
+	<input id="taw_page_id" type="hidden" value="{{page_id}}">
+
+</div>

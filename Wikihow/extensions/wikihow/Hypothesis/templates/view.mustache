@@ -1,0 +1,101 @@
+{{#experiment}}
+<div class="section">
+	<h2>
+		<span>{{hypx_name}}</span>
+		<div class="hyp-tools">
+			<a href="/Special:Hypothesis/" class="button secondary hyp-close">Close</a>
+			<a href="/Special:Hypothesis/edit/{{hypx_id}}" class="button primary hyp-edit">Edit</a>
+		</div>
+	</h2>
+	<div class="section_text">
+		<div class="hyp-row">
+			<div class="hyp-col-6 {{status.class}}">
+				<div class="hyp-field">
+					<p><small>Status</small></p>
+					<p class="hyp-status-actions">
+						{{#canPause}}
+						<a href="#" class="button secondary hyp-pause">Pause</a>
+						{{/canPause}}
+						{{#canStart}}
+						<a href="#" class="button secondary hyp-start">Start</a>
+						{{/canStart}}
+						{{#canArchive}}
+						<a href="#" class="button red hyp-archive">Archive</a>
+						{{/canArchive}}
+						{{#canUnarchive}}
+						<a href="#" class="button secondary hyp-unarchive">Restore</a>
+						{{/canUnarchive}}
+					</p>
+					<p><span class="hyp-status"></span> {{status.label}}</p>
+				</div>
+				<div class="hyp-field">
+					<p><small>Audiences</small></p>
+					<p>Anonymous users on {{target.label}}</p>
+				</div>
+				<div class="hyp-optimizely">
+					<p><small>View in Optimizely</small></p>
+					<p>
+						<a href="https://app.optimizely.com/v2/projects/{{hypx_opti_project}}/results/experiments/{{hypx_opti_experiment}}" class="button secondary" target="_blank">Results</a>
+						<a href="https://app.optimizely.com/v2/projects/{{hypx_opti_project}}/experiments/{{hypx_opti_experiment}}" class="button secondary" target="_blank">Configure</a>
+					</p>
+				</div>
+			</div>
+			<div class="hyp-col-6">
+				<div class="hyp-field">
+					<p><small>Experiment Traffic Allocation</small></p>
+					<p>{{hypx_traffic}}%</p>
+				</div>
+				<div class="hyp-field">
+					<p><small>Variation Traffic Distribution</small></p>
+					<p>50% / 50%</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{/experiment}}
+
+<div class="section">
+	<h2>
+		<span>Targeting &amp; Variations</span>
+	</h2>
+	<table>
+		<thead>
+			<tr>
+				<th width="50%">Page</th>
+				<th width="25%">First revision</th>
+				<th width="25%">Second revision</th>
+				<th colspan="3"></th>
+			</tr>
+		</thead>
+		<tbody class="hyp-tests">
+			{{#tests}}
+			<tr class="hyp-item" data-id="{{hypt_id}}">
+				<td class="hyp-name hyp-truncate">
+					<span>{{title}}</span>
+				</td>
+				<td class="hyp-rev-a">
+					<a href="/{{page_title}}?oldid={{hypt_rev_a}}" target="_blank" title="First revision under test">{{timing.dateA}}</a>
+				</td>
+				<td class="hyp-rev-b">
+					<a href="/{{page_title}}?oldid={{hypt_rev_b}}" target="_blank" title="Second revision under test">{{timing.dateB}}</a>
+				</td>
+				<td class="hyp-view">
+					<a href="/{{page_title}}" target="_blank" class="hyp-icon hyp-icon-view" title="View page"></a>
+				</td>
+				<td class="hyp-history">
+					<a href="/{{page_title}}?diff={{hypt_rev_a}}&oldid={{hypt_rev_b}}" target="_blank" class="hyp-icon hyp-icon-diff" title="View differences between revisions"></a>
+				</td>
+				<td class="hyp-history">
+					<a href="/{{page_title}}?action=history" target="_blank" class="hyp-icon hyp-icon-edit" title="Make changes to test on history page"></a>
+				</td>
+			</tr>
+			{{/tests}}
+			{{^tests}}
+			<tr>
+				<td class="hyp-empty" colspan="5">No targets</td>
+			</tr>
+			{{/tests}}
+		</tbody>
+	</table>
+</div>

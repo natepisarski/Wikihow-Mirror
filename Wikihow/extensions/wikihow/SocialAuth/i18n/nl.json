@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"socialauth-fblogin-login-failed": "Het is niet gelukt verbinding te maken met Facebook. Probeer het later nog een keer.",
+	"socialauth-gpluslogin-login-failed": "Het is niet gelukt verbinding te maken met Google. Probeer het later nog een keer.",
+	"socialauth-civiclogin-login-failed": "Het is niet gelukt verbinding te maken met Civic. Probeer het later nog een keer."
+}

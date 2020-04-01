@@ -1,0 +1,117 @@
+<div id="ch_body" class="ch_{{platform}}">
+	<div id="ch_header" class="charity_background_box">
+		<div id="ch_logo"><img src="{{wh_logo}}" /></div>
+		<p id="ch_landing">{{ch_landing}}</p>
+	</div>
+
+	<p id="ch_about" class="ch_heading">{{ch_about}}</p>
+
+	<div class="ch_wh_pics">
+		<img src="{{ch_team_image}}" id="ch_team_image" />
+		<img src="{{ch_comm_image}}" id="ch_comm_image" />
+	</div>
+
+	<div class="ch_tiles">
+		<div><p>{{{ch_top_tile_text}}}</p></div>
+	</div>
+
+	{{^wikihow_specific}}
+	<div id="ch_about_charity">
+		<h3>{{ch_about_header}}</h3>
+		<p id="ch_charity_general">{{{ch_charity_general}}}</p>
+		<div id="ch_about_charity_box" {{! class="trifold" }}>
+			<img src="{{{ch_general_image}}}" id="ch_charity_image" />
+			<a href="{{ch_charity_link}}" target="_blank"><img src="{{{ch_charity_logo}}}" id="ch_charity_logo"  /></a>
+			<div id="ch_charity_specific"><p>{{{ch_charity_specific}}}</p></div>
+		</div>
+		<div class="clearall"></div>
+	</div>
+	{{/wikihow_specific}}
+
+	<p id="ch_about_2" class="ch_heading">{{ch_about_2}}</p>
+
+	<div class="ch_wh_pics">
+		<img src="{{ch_about_wH}}" id="ch_about_wH" />
+	</div>
+
+	<div class="ch_tiles">
+		<div>
+			<p class="ch_bold">{{ch_universal}}</p>
+			<p>{{{ch_tile_1}}}</p>
+		</div>
+		<div>
+			<p class="ch_bold">{{ch_useful}}</p>
+			<p>{{ch_tile_2}}</p>
+		</div>
+		<div>
+			<p class="ch_bold">{{ch_opensource}}</p>
+			<p>{{ch_tile_3}}</p>
+		</div>
+	</div>
+
+	<div id="ch_stories">
+		<h3>{{{ch_stories_header_1}}}</h3>
+		<h4>{{ch_stories_header_2}}</h4>
+		{{#reviews}}
+			<div class="ch_review">
+				<div class="ch_user">
+					{{#avatarUrl}}
+						<img src="{{{avatarUrl}}}" class="ch_avatar" />
+					{{/avatarUrl}}
+					{{^avatarUrl}}
+						<span class="ch_initials">
+							{{initials}}
+						</span>
+					{{/avatarUrl}}
+					<p class="ch_name">{{{fullname}}}</p>
+				</div>
+				<div class="ch_review_text">
+					&quot;{{{uc_review}}}&quot;
+				</div>
+				<div class="ch_from_article">{{{from_article}}}</div>
+			</div>
+		{{/reviews}}
+		{{^is_mobile}}
+		<div class="ch_review">
+			<div class="ch_user">
+				<img src="{{ch_default_avatar}}" class="ch_avatar"><p class="ch_name"><b>{{ch_name_you}}</b></p>
+			</div>
+			{{ch_share_prompt}}<br />
+			<a href="https://goo.gl/forms/ognWU6xj0qS7M9jg1" target="_blank" id="ch_share_button" class="button secondary">{{ch_share_button}}</a>
+		</div>
+		{{/is_mobile}}
+	</div>
+
+	<div id="ch_footer">
+		{{#is_mobile}}
+			<p class="ch_social_prompt">{{ch_bottom_prompt_mobile}}</p>
+		{{/is_mobile}}
+		<div id="ch_footer_inner">
+			{{^is_mobile}}
+			<img id="ch_koala" src="{{ch_koala_img}}" />
+			{{/is_mobile}}
+			<div id="ch_footer_inner_inner">
+				{{#is_mobile}}
+					<a href="/Main-Page" id="ch_explore_button" class="button primary">{{{ch_bottom_button_text_mobile}}}</a>
+					<span class="ch_social_prompt">{{ch_or}}</span>
+					<a id="ch_insta_button" href="https://www.instagram.com/wikihow/?hl=en" class="button primary">{{ch_instagram_mobile}}</a>
+				{{/is_mobile}}
+				{{^is_mobile}}
+					<a href="/Main-Page" id="ch_explore_button" class="button primary">{{ch_bottom_main_text}}</a>
+				{{/is_mobile}}
+			</div>
+		</div>
+
+		{{^is_mobile}}
+		<div id="ch_social">
+			{{ch_social_prompt}}
+			<div class="ch_social_button">
+				<div class="fb-like" data-href="https://www.wikihow.com/wikiHow:Gives-Back" data-layout="button" data-action="like" data-size="small" data-show-faces="false" data-share="false"></div>
+			</div>
+			<div class="ch_social_button">
+				<a href="https://twitter.com/share" data-lang="{{language_code}}" style="display:none; background-image: none; color: #ffffff;" class="twitter-share-button" data-count="vertical" data-via="wikiHow" data-text="{{ch_tweet_text}}" data-related="JackH:Founder of wikiHow" data-url="https://www.wikihow.com/wikiHow:Gives-Back">Tweet</a>
+			</div>
+		</div>
+		{{/is_mobile}}
+	</div>
+</div>

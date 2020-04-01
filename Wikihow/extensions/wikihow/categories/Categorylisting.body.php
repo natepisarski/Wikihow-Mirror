@@ -1,0 +1,252 @@
+<?php
+
+class CategoryListing extends SpecialPage {
+	const LISTING_TABLE = "categorylisting";
+	const CAT_WIDTH = 459;
+	const CAT_HEIGHT = 344;
+	const ARTICLE_WIDTH = 137;
+	const ARTICLE_HEIGHT = 120;
+
+	function __construct($source = null) {
+		global $wgHooks;
+		parent::__construct( 'CategoryListing' );
+		if (RequestContext::getMain()->getLanguage()->getCode() == "en") {
+			$wgHooks['ShowSideBar'][] = ['AdminCategoryDescriptions::removeSideBarCallback'];
+		}
+	}
+
+	function execute($par) {
+		global $wgHooks;
+
+		$out = $this->getOutput();
+
+		$wgHooks['UseMobileRightRail'][] = ['CategoryListing::removeSideBarCallback'];
+
+		$this->setHeaders();
+		$out->setPageTitle(wfMessage("Categories")->text());
+		$out->setRobotPolicy('index,follow');
+		$out->setCdnMaxage(6 * 60 * 60);
+
+
+		$catData = CategoryData::getCategoryListingData();
+		if (Misc::isMobileMode()) {
+			$this->renderMobile($catData);
+		} else {
+			$wgHooks['ShowGrayContainer'][] = array('CategoryListing::removeGrayContainerCallback');
+
+			// allow varnish to redirect this page to mobile if browser conditions are right
+			Misc::setHeaderMobileFriendly();
+
+			$this->getCategoryListingData($catData);
+			$this->renderDesktop($catData);
+		}
+	}
+
+	function renderMobile($catData) {
+		$out = $this->getOutput();
+		$this->getCategoryListingData($catData);
+
+		$out->addModuleStyles('ext.wikihow.mobile_category_listing');
+		//$css = Misc::getEmbedFile('css', __DIR__ . '/category-listing-responsive.less');
+		//$out->addHeadItem('listcss', HTML::inlineStyle($css));
+
+		$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
+		$options = array('loader' => $loader);
+		$m = new Mustache_Engine($options);
+		$html = $m->render("/templates/responsive.mustache", $catData);
+
+		$out->addHTML($html);
+
+		$out->setPageTitle(wfMessage('categories')->text());
+	}
+
+	function renderDesktop($catData) {
+		$out = $this->getOutput();
+		if (RequestContext::getMain()->getLanguage()->getCode() != "en") {
+			$out->addHTML("<br /><br />");
+			$out->addHTML("<div class='section_text'>");
+			foreach ($catData['subcats'] as $row) {
+				$out->addHTML("<div class='thumbnail'><a href='{$row['url']}'><img src='{$row['img_url']}'/><div class='text'><p><span>{$row['cat_title']}</span></p></div></a></div>");
+			}
+			$out->addHTML("<div class='clearall'></div>");
+			$out->addHTML("</div><!-- end section_text -->");
+		} else {
+
+
+			$css = Misc::getEmbedFile('css', __DIR__ . '/categories-listing.css');
+			$out->addHeadItem('listcss', HTML::inlineStyle($css));
+
+			$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
+			$options = array('loader' => $loader);
+			$m = new Mustache_Engine($options);
+			$html = $m->render("/templates/categorylisting", $catData);
+
+			$out->addHTML($html);
+		}
+	}
+
+
+	public function isMobileCapable() {
+		return true;
+	}
+
+	private function getCategoryListingData(&$data) {
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select(
+			self::LISTING_TABLE,
+			'*',
+			[],
+			__METHOD__
+		);
+
+		$data['cat_width'] = self::CAT_WIDTH;
+		$data['cat_height'] = self::CAT_HEIGHT;
+
+		foreach ($res as $row) {
+			$catName = $row->cl_category;
+			foreach ($data['subcats'] as &$item) {
+				if ($item['cat_title'] == $catName) {
+					$item['img'] = $this->getCategoryIcon($catName);
+					if (!isset($item['subsubcats'])) {
+						$item['subsubcats'] = [];
+					}
+					$imageTitle = Title::newFromText($row->cl_sub_image, NS_IMAGE);
+					$file = wfFindFile($imageTitle, false);
+					if (!$file) {
+						$file = Wikitext::getDefaultTitleImage($imageTitle);
+					}
+
+					$params = array(
+						'width' => self::CAT_WIDTH,
+						'height' => self::CAT_HEIGHT,
+						'crop' => 1
+					);
+					$thumb = $file->transform($params, 0);
+					$title = Title::newFromText($row->cl_sub_category, NS_CATEGORY);
+					$subsubcat = [
+						'cat_text' => $row->cl_sub_category,
+						'cat_url' => $title->getLocalURL(),
+						'cat_image' => wfGetPad($thumb->getUrl()),
+						'cat_titles' => []
+					];
+
+					for ($i = 1; $i <= 3; $i++) {
+						$title = Title::newFromId($row->{"cl_article_id{$i}"});
+						if (!$title) {
+							UserMailer::send(
+								new MailAddress('bebeth@wikihow.com'),
+								new MailAddress('ops@wikihow.com'),
+								"Category listing page issue",
+								"The article with id " . $row->{"cl_article_id{$i}"} . " no longer exists"
+							);
+							continue;
+						}
+						if (!RobotPolicy::isTitleIndexable($title)) {
+							UserMailer::send(
+								new MailAddress('bebeth@wikihow.com'),
+								new MailAddress('ops@wikihow.com'),
+								"Category listing page issue",
+								"The article with id " . $row->{"cl_article_id{$i}"} . " is no longer indexed"
+							);
+							continue;
+						}
+						if ($title->isRedirect()) {
+							UserMailer::send(
+								new MailAddress('bebeth@wikihow.com'),
+								new MailAddress('ops@wikihow.com'),
+								"Category listing page issue",
+								"The article with id " . $row->{"cl_article_id{$i}"} . " is now a redirect"
+							);
+							continue;
+						}
+
+						if(Misc::isMobileMode()) {
+							$image = ImageHelper::getGalleryImage($title, self::ARTICLE_WIDTH, self::ARTICLE_HEIGHT);
+						} else {
+							$image = ImageHelper::getArticleThumb($title, self::ARTICLE_WIDTH, self::ARTICLE_HEIGHT);
+						}
+						$catInfo = [
+							'title_text' => $title->getText(),
+							'title_url' => $title->getLocalURL(),
+							'title_image' => $image,
+							'howto' => wfMessage('howto_prefix')->text()
+						];
+						if($i < 3) {
+							$catInfo['spacer'] = 1;
+						}
+						$subsubcat['cat_titles'][] = $catInfo;
+					}
+					$item['subsubcats'][] = $subsubcat;
+				}
+			}
+		}
+	}
+
+	public static function removeGrayContainerCallback(&$showGrayContainer) {
+		$showGrayContainer = false;
+		return true;
+	}
+
+	public static function getCategoryIcon($catName) {
+		switch($catName) {
+			case 'Arts and Entertainment':
+				return '/extensions/wikihow/categories/images/arts_and_entertainment.svg';
+			case 'Cars & Other Vehicles':
+				return '/extensions/wikihow/categories/images/cars_and_other_vehicles.svg';
+			case 'Computers and Electronics':
+				return '/extensions/wikihow/categories/images/computers_and_electronics.svg';
+			case 'Education and Communications':
+				return '/extensions/wikihow/categories/images/education_and_communication.svg';
+			case 'Family Life':
+				return '/extensions/wikihow/categories/images/family_life.svg';
+			case 'Finance and Business':
+				return '/extensions/wikihow/categories/images/finance_and_business.svg';
+			case 'Food and Entertaining':
+				return '/extensions/wikihow/categories/images/food_and_entertaining.svg';
+			case 'Health':
+				return '/extensions/wikihow/categories/images/health.svg';
+			case 'Hobbies and Crafts':
+				return '/extensions/wikihow/categories/images/hobbies_and_crafts.svg';
+			case 'Holidays and Traditions':
+				return '/extensions/wikihow/categories/images/holidays_and_tradition.svg';
+			case 'Home and Garden':
+				return '/extensions/wikihow/categories/images/home_and_garden.svg';
+			case 'Personal Care and Style':
+				return '/extensions/wikihow/categories/images/personal_care_and_style.svg';
+			case 'Pets and Animals':
+				return '/extensions/wikihow/categories/images/pets_and_animals.svg';
+			case 'Philosophy and Religion':
+				return '/extensions/wikihow/categories/images/philosophy_and_religion.svg';
+			case 'Relationships':
+				return '/extensions/wikihow/categories/images/relationships.svg';
+			case 'Sports and Fitness':
+				return '/extensions/wikihow/categories/images/sports_and_fitness.svg';
+			case 'Travel':
+				return '/extensions/wikihow/categories/images/travel.svg';
+			case 'Work World':
+				return '/extensions/wikihow/categories/images/work_world.svg';
+			case 'Youth':
+				return '/extensions/wikihow/categories/images/youth.svg';
+			case 'WikiHow':
+				return '/extensions/wikihow/categories/images/wikihow.svg';
+		}
+	}
+
+	public static function removeSideBarCallback(&$showSideBar) {
+		$showSideBar = false;
+		return true;
+	}
+}
+
+/****
+ CREATE TABLE `categorylisting` (
+  `cl_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `cl_category` varbinary(255) NOT NULL DEFAULT '',
+  `cl_sub_category` varbinary(255) NOT NULL DEFAULT '',
+  `cl_sub_image` varbinary(255) NOT NULL DEFAULT '',
+  `cl_article_id1` int(10) unsigned NOT NULL,
+  `cl_article_id2` int(10) unsigned NOT NULL,
+  `cl_article_id3` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`cl_id`)
+) ENGINE=InnoDB;
+******/

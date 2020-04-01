@@ -1,0 +1,16 @@
+<li class="qa_sq" data-sqid="{{id}}">
+	<div class="qa_divider"></div>
+	<div class="qa_li_container">
+		<div class="qa_bullet"></div>
+		<div class="qa_sq_question">
+			<div class="qa_q_txt">{{{text}}}</div>
+			<div class="qa_editor_tools">
+				<a class="qa_edit_submitted {{#qa_desktop}}button secondary{{/qa_desktop}}">{{qa_curate}}</a>
+				{{^mobile_anon_user}}
+				<a class="qa_flag_submitted" data-type="sq_flag">{{qa_flag}}</a>
+				<a class="qa_ignore_submitted" data-type="sq_ignore">{{qa_ignore}}</a>
+				{{/mobile_anon_user}}
+			</div>
+		</div>
+	</div>
+</li>

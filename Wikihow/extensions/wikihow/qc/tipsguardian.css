@@ -1,0 +1,36 @@
+#tg_result { margin: 0 5px; }
+
+#intro {
+	margin: 0 !important;
+	font-size: 1em;
+	padding-top: 8px !important;
+}
+
+#numqcusers { display: none; }
+
+#tg_tip { text-align: left; }
+
+#qc_box h3 { display: none; }
+#qc_box ul { list-style: none; }
+
+#buttonBlocker {
+	width: 95%;
+	height: 50%;
+	position: absolute;
+	z-index: -1;
+}
+
+#tg_limit_reached {
+	padding: 20px;
+	text-align: center;
+	background-color: #FFF;
+}
+
+#tg_waiting {
+	text-align: center;
+	padding: 10px;
+}
+
+#eoq_box { padding-top: 1em; }
+
+#adw_root { margin-bottom: 12px; }

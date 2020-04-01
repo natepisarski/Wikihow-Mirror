@@ -1,0 +1,33 @@
+<div id="bulk_topic_tagging">
+
+	<div id="btt_results"></div>
+
+	<div>
+		{{{tag_label}}}:
+		<select id="btt_reasons" data-placeholder="{{default_reason}}" multiple="multiple">
+			{{#reasons}}
+				{{#enabled}}
+				<option id="{{id}}">{{name}}</option>
+				{{/enabled}}
+			{{/reasons}}
+		</select>
+	</div>
+
+	<div>
+		{{action_label}}:
+		<input type="radio" name="btt_action" id="btt_add" value="add" checked="checked" />
+		<label for="btt_add">{{action_add_label}}</label>
+		<input type="radio" name="btt_action" value="remove" id="btt_remove" />
+		<label for="btt_remove">{{action_remove_label}}</label>
+	</div>
+
+	<div id="btt_article_list">
+		<div class="btt_label">{{article_list_label}}</div>
+		<div class="btt_sublabel">{{article_list_sublabel}}</div>
+		<textarea id="btt_article_ids"></textarea>
+	</div>
+
+	<button id="btt_save" class="button primary">{{save_button}}</button>
+
+	<div class="clearall"></div>
+</div>

@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": [
+			"Lojjik Braughler"
+		]
+	},
+	"patrolthrottle": "Set user patrol throttles",
+	"patrolthrottle-title": "Recent Changes Patrol Throttle",
+	"log-name-throttle": "Patrol Throttle log",
+	"log-description-throttle": "Tracks when a patrol limit is added, changed, or removed by an admin",
+	"logentry-throttle-added": "$1 added a patrol throttle of $4 to $3",
+	"logentry-throttle-changed": "$1 changed the patrol throttle for $3 from $4 to $5",
+	"logentry-throttle-removed": "$1 removed the patrol throttle from $3",
+	"patrolthrottle-correct-errors": "Please correct the following errors:",
+	"patrolthrottle-column-user": "User",
+	"patrolthrottle-column-limit": "Limit (daily)",
+	"patrolthrottle-column-today": "Patrols (today)",
+	"patrolthrottle-column-alltime": "Patrols (all time)",
+	"patrolthrottle-column-changed": "Last added/changed",
+	"patrolthrottle-input-patroller": "Patroller:",
+	"patrolthrottle-input-limit": "Daily Limit:",
+	"patrolthrottle-auto-expiry-age": "30",
+	"patrolthrottle-no-limited-users": "There are currently no patrol-limited users.",
+	"patrolthrottle-link-prev": "<< Prev",
+	"patrolthrottle-link-next": "Next >>",
+	"patrolthrottle-error-no-user": "No user with that name exists.",
+	"patrolthrottle-error-number": "Limit must either be 0 or between 10 and 9999",
+	"patrolthrottle-error-nodifference": "The limit you entered is the same as before.",
+	"patrolthrottle-button-apply": "Apply"
+}

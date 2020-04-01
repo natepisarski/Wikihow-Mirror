@@ -1,0 +1,162 @@
+<a name="Questions_and_Answers_sub" class="anchor"></a>
+<div class="qa section sticky {{#qa_show_unanswered_questions}}qa_show_unanswered_questions{{/qa_show_unanswered_questions}} {{#qa_admin}}qa_admin{{/qa_admin}} {{#qa_editor}}qa_editor{{/qa_editor}} {{^qa_has_visible_answers}}qa_no_answered{{/qa_has_visible_answers}}" data-few_contribs="{{qa_few_contribs}}" data-search_enabled="{{search_enabled}}" data-aid="{{aid}}">
+
+	<h2>
+		<div class="altblock"></div>
+			{{#qa_editor}}
+				<a id="qa_edit" class="mw-editsection">{{qa_edit_answered}}</a>
+				<a id="qa_edit_done" class="editsection">{{qa_done_edit_answered}}</a>
+			{{/qa_editor}}
+		<span class="mw-headline" id="qa_headline">{{qa_title}}</span>
+	</h2>
+	<div id="qa" class="section_text">
+		<div id="qa_answered_questions_container">
+			<div id="qa_aq_search_container">
+				<div id="qa_aq_search_heading" class="qa_section_heading">Search</div>
+				<input class="qa_aq_search" placeholder="Type your query here"/>
+			</div>
+			<a id="qa_add_curated_question">{{qa_add_curated}}</a>
+			<ul id="qa_article_questions" class="qa_questions qa_aqs {{#qa_show_more_answered}}qa_waittheresmore{{/qa_show_more_answered}}">
+			{{#article_questions}}
+				{{> qa_article_question_item}}
+			{{/article_questions}}
+			</ul>
+			{{#qa_whalink}}
+				<a href="{{qa_whalink}}" rel="nofollow" target="_blank" id="qa_see_more_answered">{{qa_see_more_answered}}</a>
+			{{/qa_whalink}}
+			{{^qa_whalink}}
+				{{#qa_show_more_answered}}
+					<a id="qa_show_more_answered">{{qa_show_more_answered}}</a>
+				{{/qa_show_more_answered}}
+			{{/qa_whalink}}
+		</div>
+		<div class="qa_divider {{^qa_has_unpatrolled}}qa_no_unpatrolled_questions{{/qa_has_unpatrolled}}"></div>
+		{{#qa_has_unpatrolled}}
+		<div class="qa_section_heading">{{qa_section_unpatrolled}}</div>
+		<div id="qa_unpatrolled_questions_container">
+			<ul id="qa_article_unpatrolled" class="qa_questions">
+			{{#unpatrolled_questions}}
+				{{> qa_patrol_item}}
+			{{/unpatrolled_questions}}
+			</ul>
+			{{#qa_show_more_unpatrolled}}
+				<a id="qa_show_more_unpatrolled">{{qa_show_more_unpatrolled}}</a>
+			{{/qa_show_more_unpatrolled}}
+		</div>
+		{{/qa_has_unpatrolled}}
+		<div class="qa_divider {{^qa_has_visible_answers}}qa_no_visible_answers{{/qa_has_visible_answers}}"></div>
+
+		{{#qa_show_unanswered_questions}}
+			{{#submitted_questions.0}}
+				<div id="qa_submitted_questions_container">
+					<div class="qa_section_heading">{{qa_section_submitted}}</div>
+					<ul id="qa_submitted_questions" class="qa_questions">
+						{{#submitted_questions}}
+							{{> qa_submitted_question_item}}
+						{{/submitted_questions}}
+					</ul>
+					<div id="qa_submitted_spinner" class="qa_spinner"></div>
+					<a id="qa_submitted_link"></a>
+					{{#qa_show_more_submitted}}
+						<a id="qa_show_more_submitted">{{qa_show_more_submitted}}</a>
+					{{/qa_show_more_submitted}}
+				</div>
+				<div class="qa_divider"></div>
+			{{/submitted_questions.0}}
+		{{/qa_show_unanswered_questions}}
+
+		<div class="qa_section_heading" id="qa_ask_heading">{{qa_section_ask}}</div>
+		<div id="qa_submitted_question_form">
+			<input id="qa_asked_question" type="text" maxlength="{{qa_asked_question_maxlength}}" placeholder="{{qa_asked_question_placeholder}}"/>
+			<div id="qa_asked_count">{{qa_asked_count}}</div>
+			<input id="qa_email" type="text" placeholder="{{qa_email_placeholder}}"/>
+			<div id="qa_email_prompt">{{qa_email_prompt}}</div>
+			<a id="qa_submit_button" class="button primary">{{qa_submit_button}}</a>
+		</div>
+
+		{{#qa_show_unanswered_questions}}
+			<!--  Template for rendering a submitted question -->
+			<script id="qa_submitted_question_item" type="text/x-handlebars-template">
+				{{qa_submitted_question_item}}
+			</script>
+
+			<!--  Template for answer confirmation  -->
+			<script id="qa_answer_confirmation" type="text/x-handlebars-template">
+				{{qa_answer_confirmation}}
+			</script>
+
+			<!--  Template form for creating/updating a curated question  -->
+			<script id="qa_question_edit_form" type="text/x-handlebars-template">
+				{{qa_question_edit_form}}
+			</script>
+
+			<!--  Template for the social login/signup form  -->
+			<script id="qa_social_login_form" type="text/x-handlebars-template">
+				{{qa_social_login_form}}
+			</script>
+
+			<!--  Template for social login/signup confirmation  -->
+			<script id="qa_social_login_confirmation" type="text/x-handlebars-template">
+				{{qa_social_login_confirmation}}
+			</script>
+		{{/qa_show_unanswered_questions}}
+		{{#qa_unpatrolled_edit_form}}
+			<script id="qa_unpatrolled_edit_form" type="text/x-handlebars-template">
+				{{qa_unpatrolled_edit_form}}
+			</script>
+		{{/qa_unpatrolled_edit_form}}
+
+		<div id="qa_flag_options" data-type="">
+			<div class="hint_box">
+				<ul>
+				{{#flag_options}}
+					<li><a href="#" data-option="{{name}}">{{value}}</a></li>
+				{{/flag_options}}
+				</ul>
+			</div>
+		</div>
+		<div id="qa_answer_flag_options" data-type="">
+			<div class="hint_box">
+				<ul>
+					{{#answer_flag_options}}
+						<li><a href="#" data-option="{{name}}">{{value}}</a></li>
+					{{/answer_flag_options}}
+				</ul>
+			</div>
+		</div>
+
+		<!--  Template for rendering a desktop ArticleQuestion -->
+		<script id="qa_article_question_item" type="text/x-handlebars-template">
+			{{qa_article_question_item}}
+		</script>
+
+		<!-- Template for rendering an unpatrolled QA -->
+		{{#qa_has_unpatrolled}}
+		<script id="qa_patrol_item" type="text/x-handlebars-template">
+			{{qa_patrol_item}}
+		</script>
+		{{/qa_has_unpatrolled}}
+
+		<!--  Template form for desktop thumbs up/down functionality  -->
+		<script id="qa_thumbs_qa_widget" type="text/x-handlebars-template">
+			{{thumbs_qa_widget}}
+		</script>
+
+		<!--  Template for rendering a Top Answerers data -->
+		<script id="top_answerers_qa_widget" type="text/x-handlebars-template">
+			{{top_answerers_qa_widget}}
+		</script>
+
+		{{#qa_admin}}
+			<span id="qa_admin"></span>
+		{{/qa_admin}}
+
+		{{#qa_editor}}
+			<span id="qa_editor"></span>
+		{{/qa_editor}}
+
+		{{#qa_staff}}
+			<span id="qa_staff"></span>
+		{{/qa_staff}}
+	</div>
+</div>

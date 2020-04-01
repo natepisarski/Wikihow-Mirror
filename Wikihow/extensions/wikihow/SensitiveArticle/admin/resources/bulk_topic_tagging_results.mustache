@@ -1,0 +1,59 @@
+{{^no_results}}
+<button id="btt_export" class="button primary">{{export_button}}</button>
+{{/no_results}}
+
+{{#bad_urls.0}}
+<h2>{{bad_urls_header}}</h2>
+<div id="bad_urls" class="btt_result_set">
+	<div class="btt_result_headers">
+		<div>{{tag_header}}</div>
+		<div>{{url_header}}</div>
+		<div>{{page_id_header}}</div>
+	</div>
+{{#bad_urls}}
+	<div class="btt_result_row">
+		<div>{{tag}}</div>
+		<div>{{url}}</div>
+		<div>{{page_id}}</div>
+	</div>
+{{/bad_urls}}
+</div>
+{{/bad_urls.0}}
+
+{{#duplicate_urls.0}}
+<h2>{{duplicate_urls_header}}</h2>
+<div id="duplicate_urls" class="btt_result_set">
+	<div class="btt_result_headers">
+		<div>{{tag_header}}</div>
+		<div>{{url_header}}</div>
+		<div>{{page_id_header}}</div>
+	</div>
+{{#duplicate_urls}}
+	<div class="btt_result_row">
+		<div>{{tag}}</div>
+		<div>{{url}}</div>
+		<div>{{page_id}}</div>
+	</div>
+{{/duplicate_urls}}
+</div>
+{{/duplicate_urls.0}}
+
+{{#good_urls.0}}
+<h2>{{good_urls_header}}</h2>
+<div id="good_urls" class="btt_result_set">
+	<div class="btt_result_headers">
+		<div>{{tag_header}}</div>
+		<div>{{url_header}}</div>
+		<div>{{page_id_header}}</div>
+	</div>
+{{#good_urls}}
+	<div class="btt_result_row">
+		<div>{{tag}}</div>
+		<div>{{url}}</div>
+		<div>{{page_id}}</div>
+	</div>
+{{/good_urls}}
+</div>
+{{/good_urls.0}}
+
+{{no_results}}

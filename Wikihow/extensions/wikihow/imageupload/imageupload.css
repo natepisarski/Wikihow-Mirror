@@ -1,0 +1,69 @@
+#iu_dialog {
+	display: none;
+	padding: 30px;
+}
+
+#iu_dialog a { color: #383; }
+
+#iu_initial {
+	width: 685px;
+	position: relative;
+}
+
+#iu_dialog_inner h3 {
+	background: none;
+	padding-top: 1em;
+}
+
+#iu_upload { display: none; }
+#iu_file_exists, #iu_insert_error, #iu_error_message {
+	display: none;
+	color: #B30000;
+	margin-top: 5px;
+}
+#iu_error_message { padding: 15px; }
+
+#iu_start_error { display: none; border: 1px red solid; padding: 15px; }
+#iu_preview_image { float: right; display: none; }
+.iu_uploadfile, #iu_upload_btn { opacity: 0; z-index: -1; }
+
+.iu_wheel {
+	display: none;
+	width: 20px;
+	margin: 8px;
+	position: absolute;
+}
+
+#iu_image_description {
+	font-style: italic;
+	margin-top: 5px;
+	font-size: .9em;
+}
+
+#iu_mw_name {
+	padding: 8px;
+	border: 1px solid #CDCDCD;
+	border-radius: 4px;
+}
+
+#iu_license_options {
+	list-style: none;
+	margin: 10px 0 0 0;
+}
+#iu_license_options li {
+	padding: 0 0 10px 0;
+}
+#iu_license_options label {
+	margin-left: 5px;
+}
+
+#iu_insert_image {
+	margin-top: 10px;
+}
+
+.ui-dialog .ui-dialog-titlebar-close span {
+	font-size: 22px;
+	position: absolute;
+	top: -12px;
+	left: -16px;
+}

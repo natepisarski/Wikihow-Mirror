@@ -1,0 +1,26 @@
+h1,
+#section_0.title_sm,
+#section_0.title_md,
+#section_0.title_lg {
+	color: #222;
+	font-size: 1.6em;
+	text-align: center;
+	font-weight: normal;
+	letter-spacing: -1px;
+}
+h1 span,
+#section_0 span {
+	color: #97ba78;
+	font-size: 1.5em;
+	font-weight: bold;
+	padding: 0 .1em;
+}
+
+@media only screen and (min-width:728px) {
+	h1,
+	h1#section_0.title_sm,
+	h1#section_0.title_md,
+	h1#section_0.title_lg {
+		font-size: 2.3em;
+	}
+}

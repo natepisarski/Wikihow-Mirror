@@ -1,0 +1,34 @@
+.slide-container {
+	-webkit-transition: all 0.3s ease;
+	-moz-transition:    all 0.3s ease;
+	-ms-transition:     all 0.3s ease;
+	-o-transition:      all 0.3s ease;
+	
+	display: block;
+	overflow: hidden;
+	height: auto;
+	position: relative;
+	width: 100%;
+}
+
+.slide-container .slide {
+	-webkit-transition: all 0.5s ease;  
+	-moz-transition:    all 0.5s ease;
+	-ms-transition:     all 0.5s ease; 
+	-o-transition:      all 0.5s ease;  
+
+	position: absolute;
+	display: inline-block;
+	width: 100%;
+	height: auto;
+	right: -100%;
+	top: 0;
+}
+
+.slide-container .slide.trans-in {
+	right: 0px;
+}
+
+.slide-container .slide.trans-out {
+	right: 100%;
+}

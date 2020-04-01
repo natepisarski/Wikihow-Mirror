@@ -1,0 +1,50 @@
+<div id="translate_summaries_admin">
+	<form id="tsa_upload" enctype="multipart/form-data" method="post" action="{{form_action}}">
+		<h4>{{upload_head}}</h4>
+		<p class="subtext">{{upload_subtext}}</p>
+
+		<label for="upload_file" class="button primary">{{import}}</label>
+		<input type="file" id="upload_file" name="upload_file" />
+
+		<input type="hidden" name="action" value="upload_summaries" />
+	</form>
+
+	<form id="tsa_report" method="post" action="{{form_action}}">
+		<h4>{{report_head}}</h4>
+
+		<div>
+			<input id="tsa_range_from" name="date_from" class="tsa_date_input" readonly/>
+			&rarr; <input id="tsa_range_to" name="date_to" class="tsa_date_input" readonly/>
+			&nbsp; <button type="submit" class="button primary">{{report_button}}</button>
+		</div>
+
+		<input type="hidden" name="action" value="run_report" />
+	</form>
+
+	<form id="tsa_big_report" method="post" action="{{form_action}}">
+		<h4>{{big_report_head}}</h4>
+		<a href="#" id="run_big_report">{{big_report_text}}</a>
+		<input type="hidden" name="action" value="run_big_report" />
+	</div>
+
+	<div>
+		<h4>{{delete_head}}</h4>
+
+		{{delete_text}}
+		<select id="delete_language_select">
+			<option value='' selected> -- </option>
+		{{#languages}}
+			<option value='{{.}}'>{{.}}</option>
+		{{/languages}}
+		</select>
+
+		<form id="tsa_delete_summaries" method="post" action="{{form_action}}">
+			<p>{{delete_description}}</p>
+			<textarea name="delete_ids"></textarea>
+			<button type="submit" class="button primary">{{delete_button}}</button>
+			<input type="hidden" name="action" value="delete_summaries" />
+			<input type="hidden" id="delete_language" name="language" value="" />
+		</form>
+		<br class="clearall" />
+	</div>
+</div>

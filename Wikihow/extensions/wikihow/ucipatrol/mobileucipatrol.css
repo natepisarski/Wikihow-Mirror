@@ -1,0 +1,58 @@
+.uci_button {
+	margin: 0;
+}
+
+#uci_header {
+	margin: 0px;
+}
+
+#uci {
+	margin: 0px;
+}
+
+#uci_img_wrap {
+	position: relative;
+}
+
+#uci_img_spinner {
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+	margin: auto;
+}
+
+#uci_votecomplete {
+	top:0px;
+}
+#uci_voters {
+	margin-top:36px;
+}
+#uci_complete_buttons {
+	position:absolute;
+	width:100%;
+	border:0px;
+}
+
+#uci_end_of_queue {
+	margin-top: 50px;
+	font-size: 1.3em;
+	padding: 0 10px;
+}
+
+
+#eoq_box { margin-top: 3em; }
+
+
+@media only screen and (max-width: 500px) {
+	.uci_voter {
+		width:60px;
+		height:60px;
+	}
+
+
+	#uci_complete_sub {
+		margin-bottom:0px;
+	}
+}

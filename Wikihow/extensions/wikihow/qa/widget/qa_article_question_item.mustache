@@ -1,0 +1,59 @@
+	<li class="qa_aq qa_block {{#inactive}}qa_inactive{{/inactive}}" data-aqid="{{id}}" data-cqid="{{curatedQuestion.id}}" data-caid="{{curatedQuestion.curatedAnswer.id}}" data-sqid="{{curatedQuestion.submittedId}}" data-qa_inactive="{{inactive}}" data-votes_up="{{votesUp}}" data-votes_down="{{votesDown}}" data-verifier_id="{{verifierId}}" data-submitter_id="{{submitterUserId}}">
+	<div class="qa_divider"></div>
+
+	<div class="qa_li_container">
+		<div class="qa_question_tab">{{qa_question_label}}</div>
+		<div class="qa_q_txt{{#qa_desktop}} question{{/qa_desktop}}">{{{curatedQuestion.text}}}</div>
+		{{#qa_staff}}<div class="qa_staff_info">{{staffInfo}}</div>{{/qa_staff}}
+
+		{{#show_editor_tools}}
+		<div class="qa_editor_tools">
+			<a class="qa_edit_aq">{{qa_edit}}</a>
+		</div>
+		{{/show_editor_tools}}
+
+		<div class="qa_answers">
+			<div class="{{qa_answerer_class}}">
+
+				{{^qa_amp}}<div class="qa_user_hover hint_box">{{#verifierId}}{{> qa_expert_hover}}{{/verifierId}}</div>{{/qa_amp}}
+				<div class="qa_badge"></div>
+
+			{{#verifierId}}
+				<a href="{{verifierData.articleReviewersUrl}}" class="sp_namelink qa_person_circle" target="_blank" {{#verifierData.imagePath}}style="background-image:url({{verifierData.imagePath}}),url(/skins/WikiHow/images/80x80_user.png)"{{/verifierData.imagePath}}>
+					{{^verifierData.imagePath}}<span>{{verifierData.initials}}</span>{{/verifierData.imagePath}}</a>
+			{{/verifierId}}
+
+			{{^verifierId}}
+				<div class="qa_person_circle" {{#submitterAvatar}}style="background-image:url({{{submitterAvatar}}}),url(/skins/WikiHow/images/80x80_user.png)"{{/submitterAvatar}}></div>
+			{{/verifierId}}
+
+				<div class="qa_answerer_info">
+				{{#verifierId}}
+					<div class="qa_user_name">
+						<a href="{{verifierData.articleReviewersUrl}}" target="_blank">{{verifierData.name}}</a>
+					</div>
+					<div class="qa_user_title">{{{verifierData.blurb}}}</div>
+				{{/verifierId}}
+
+				{{^verifierId}}
+					<div class="qa_user_name">{{{submitterDisplayName}}}</div>
+				{{/verifierId}}
+
+					<div class="qa_user_label">{{qa_answerer_label}}</div>
+					{{#isTopAnswerer}}{{^qa_desktop}}<div class="qa_ta_mobile_extra"></div>{{/qa_desktop}}{{/isTopAnswerer}}
+				</div>
+			</div>
+
+			<div class="qa_answer answer">{{{curatedQuestion.curatedAnswer.text}}}</div>
+			{{^qa_amp}}
+				<div class="qa_answer_footer">
+					{{> thumbs_qa_widget}}
+					{{^qa_anon}}
+					<a class="qa_ignore_answered" href="#">{{qa_flag_duplicate}}</a>
+					<p class="qa_ignore_answered_thanks">Thanks!</p>
+					{{/qa_anon}}
+				</div>
+			{{/qa_amp}}
+		</div>
+	</div>
+</li>

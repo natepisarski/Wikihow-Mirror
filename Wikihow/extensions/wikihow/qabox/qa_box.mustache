@@ -1,0 +1,12 @@
+<div id="qa_box" class="section sticky">
+	<h2>
+		<input type="button" id="qab_refresh" class="button secondary" value="{{qab_refresh_btn}}" />
+		<span class="mw-headline">{{qab_hdr}}</span>
+	</h2>
+	<div id="qab_inner" class="section_text">
+	{{#questions}}
+		{{> qa_box_question}}
+	{{/questions}}
+	</div>
+	{{#qab_staff}}<span id="qab_staff"></span>{{/qab_staff}}
+</div>

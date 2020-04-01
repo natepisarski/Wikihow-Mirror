@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "ログイン",
+	"ulb_nologin": "アカウント登録はお済みですか？",
+	"ulb_create": "アカウントを作成する",
+	"ulb_wh_act": "アカウント",
+	"ulb_joinwh": "wikiHowに会員登録する",
+	"ulb_email": "メール",
+	"ulb_haveacct": "アカウントをお持ちですか？",
+	"ulb_whacct": "wikiHowアカウント",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "ロード中"
+}

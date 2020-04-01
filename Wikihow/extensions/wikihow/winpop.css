@@ -1,0 +1,51 @@
+#winpop_overlay {
+position:fixed;
+top:0;
+right:0;
+bottom:0;
+left:0;
+height:100%;
+width:100%;
+margin:0;
+padding:0;
+background:#AAA;
+opacity:.30;
+filter: alpha(opacity=30);
+-moz-opacity: 0.30;
+z-index:101;
+}
+
+
+
+#winpop_outer {
+    position:fixed;
+	top:10%;
+	left:25%;
+	margin:0;
+	padding: 10px;
+	z-index:102;
+	width:679px;
+	height: auto;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	background-color: #F6F5F4;
+}
+
+#winpop_inner h3{
+	margin:0 0 5px 0;
+	font-size:1.25em;
+}
+
+#winpop_inner ul{
+	margin:10px 0 0 15px;
+	padding:0;
+}
+
+#winpop_close {
+	float: right;
+	font-size: .8em;
+	margin: 10px 10px 10px;
+	cursor: pointer;
+}

@@ -1,0 +1,36 @@
+
+.modal-header
+	%button.close(data-dismiss="modal")
+		%span &times;
+
+	%h3.modal-title
+		= $article->isBlocked() ? "Send back" : rejectLabel($article)
+		%small= $article->title
+
+.modal-body
+
+	- if ($article->isBlocked())
+		.message-container
+			!= partial('notes/_note', ['note' => __::last($article->notes)])
+
+	%form.f-reject-message-form.form.prevent-double{method:"post", action: url('articles/reject', ['id' => $article->id])}
+		.form-group.title
+			%label Your Message:
+			%input{type:"hidden", name:"article_id", value: $article->id}
+			%input{type:"hidden", name:"ajax", value: params('ajax', false)}
+			%input{type:"hidden", name:"auto_assign", value: params('auto_assign', false)}
+			%textarea.required.form-control(rows="5" name="message" placeholder="Required")
+			%span.help-block
+				- if ($article->isBlocked())
+					Please answer the question above the best you can.
+				- else
+					Enter a message as to why you are sending this back
+		- if ($article->isBlocked())
+			%input#message-submit.btn.btn-success{type:"submit", value: "Answer Question"}
+		- else
+			%input#message-submit.btn.btn-danger{type:"submit", value: rejectLabel($article)}
+
+		%button(type="button" class="btn btn-default" data-dismiss="modal") Cancel
+
+:javascript
+	window.utils.preventDouble.setup();

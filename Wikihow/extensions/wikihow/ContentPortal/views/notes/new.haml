@@ -1,0 +1,27 @@
+
+
+.modal-header
+	%h3.modal-title
+		Ask Question
+		%small= $article->title
+
+.modal-body
+	%form.f-reject-message-form.form.prevent-double{method:"post", action: url('notes/create')}
+		.form-group.title
+			%label Your Question:
+
+			- $key = ContentPortal\Note::BLOCKING
+
+			%input{type:"hidden", name:"note[user_id]", value: currentUser()->id}
+			%input{type:"hidden", name:"note[type]", value: $key}
+			%input{type:"hidden", name:"note[article_id]", value: $article->id}
+
+			%textarea.required.form-control(rows="5" name="note[message]" placeholder="Required")
+			%span.help-block
+				Ask the question you need answered before you can continue with this article. The article return to you when the question is answered.
+
+		%input#message-submit.btn.btn-primary(type="submit" value="Ask Question")
+		%button(type="button" class="btn btn-default" data-dismiss="modal") Cancel
+
+:javascript
+	window.utils.preventDouble.setup();

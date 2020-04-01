@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"socialauth-fblogin-login-failed": "Maaf, kami tidak dapat menghubungkan Anda ke Facebook. Mohon coba kembali beberapa saat lagi.",
+	"socialauth-gpluslogin-login-failed": "Maaf, kami tidak dapat menghubungkan Anda ke Google. Mohon coba kembali beberapa saat lagi.",
+	"socialauth-civiclogin-login-failed": "Maaf, kami tidak dapat menghubungkan Anda ke Civic. Mohon coba kembali beberapa saat lagi."
+}

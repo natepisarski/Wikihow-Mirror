@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"Erdemaslancan",
+			"Mirzali",
+			"Gorizon",
+			"Gırd"
+		]
+	},
+	"scribunto-parser-dialog-title": "Xırabiya scripti",
+	"scribunto-error-long": "Xırabiya scripti:\n$1",
+	"scribunto-console-clear": "Bestere",
+	"scribunto-lua-error": "Xetay lua: $2.",
+	"scribunto-luastandalone-proc-error": "Xetay lua: Proses nêşeno bıvıraziyo.",
+	"scribunto-limitreport-timeusage-value": "$1/$2 saniyeyi",
+	"scribunto-limitreport-profile": "Profilê lua",
+	"scribunto-limitreport-profile-ms": "$1 ms",
+	"scribunto-limitreport-logs": "Qeydê lua"
+}

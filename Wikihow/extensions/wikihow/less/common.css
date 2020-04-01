@@ -1,0 +1,185 @@
+.stats-container {
+  display: block;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  padding: 10px;
+  border: 1px solid #dddddd;
+}
+table.stats-table {
+  border-spacing: 0px;
+  font-size: 13px;
+}
+table.stats-table th {
+  text-align: left;
+  padding: 10px;
+  background-color: #f5f5f5;
+  color: black;
+}
+table.stats-table tr {
+  background-color: #eaeaea;
+  border: 1px solid #aaaaaa !important;
+}
+table.stats-table tr:nth-child(odd) {
+  background-color: white;
+  margin: 0;
+}
+table.stats-table td {
+  padding: 10px;
+  margin: 1px;
+}
+table.stats-table td.percent:after {
+  display: inline-block;
+  margin-left: -3px;
+  content: '%';
+}
+.spinner {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 0px 5px #aaaaaa;
+  -moz-box-shadow: 0px 0px 5px #aaaaaa;
+  box-shadow: 0px 0px 5px #aaaaaa;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  display: inline-block;
+  text-align: center;
+  background-color: white;
+  z-index: 1000;
+  background-image: url('/extensions/wikihow/rotate.gif');
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.spinner .msg {
+  font-size: 14px;
+  display: block;
+  padding: 5px;
+  font-style: italic;
+  color: #888;
+}
+.button-bar {
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  padding: 10px;
+  background-color: #f5f5f5;
+}
+.button-bar .button.block {
+  padding: 13px;
+}
+.button-bar .button.block.primary {
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  border: 1px solid #71984e;
+  background-color: #97ba78;
+}
+.button-bar .button.block.primary:hover {
+  background-color: #7da956;
+}
+.button-bar .arrow-right {
+  border: none !important;
+  position: relative;
+  font-size: 16px;
+  line-height: 16px;
+  box-sizing: border-box;
+}
+.button-bar .arrow-right .arrow {
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -o-transition: all 0.3s;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 21px solid transparent;
+  border-bottom: 21px solid transparent;
+  border-left: 21px solid #97ba78;
+  background-color: #f5f5f5;
+}
+.button-bar .arrow-right.primary:hover {
+  background-color: #7da956;
+}
+.button-bar .arrow-right.primary:hover .arrow {
+  border-left: 21px solid #7da956;
+}
+.button-bar .arrow-right.primary.arrow {
+  background-color: #97ba78;
+}
+.alert {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  display: block;
+  padding: 20px;
+  font-size: 12px;
+  border: 1px solid #f5f5f5;
+}
+.alert a {
+  font-weight: bold;
+}
+.alert.icon:before {
+  font-family: 'FontAwesome';
+  display: inline-block;
+  float: left;
+  margin: 0 5px 0 5px;
+}
+.alert.success {
+  color: #4b6534;
+  background-color: #e5eedd;
+  border-color: #b1cb9a;
+}
+.alert.success.icon:before {
+  content: "\f164";
+}
+.alert.danger {
+  color: #b30000;
+  background-color: #ffe6e6;
+  border-color: #ff8080;
+}
+.alert.danger.icon:before {
+  content: "\f071";
+}
+.counter {
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  box-shadow: 0px 0px 1px #666;
+  display: inline-block;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 5px;
+  margin: 0;
+  color: white;
+  position: absolute;
+  top: 2px;
+  right: -10px;
+  border: 1px solid #f5f5f5;
+  background-color: white;
+}
+.counter:empty {
+  display: none;
+}
+.counter.red {
+  border: none;
+  background-color: #ff6666;
+}
+.counter.green {
+  border: none;
+  background-color: #b1cb9a;
+}
+.hidden {
+  display: none;
+}
+.button.block {
+  display: block;
+  text-align: center;
+  margin-right: 0 !important;
+}

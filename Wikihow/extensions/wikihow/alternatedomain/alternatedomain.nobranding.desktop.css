@@ -1,0 +1,107 @@
+#header_outer {
+	display: none;
+}
+#footer_outer {
+	background-color: #556 !important;
+}
+#actionbar {
+	display: none;
+}
+.editsection {
+	display: none;
+}
+#article_info .info {
+	display: none;
+}
+.endop_discuss,.endop_edit,.endop_fanmail {
+	display: none;
+}
+#header_space {
+	display: none;
+}
+.section h2.sticking, .section h3.sticking, .tool div.sticking {
+	top: 0 !important;
+}
+a {
+	color: #444;
+}
+.showsources {
+	background: none !important;
+	position: relative;
+}
+.showsources:after {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	content: "";
+	width: 18px;
+	height: 18px;
+	border: solid #556;
+	border-width: 0 4px 4px 0;
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+#method_toc a:before {
+	position: absolute;
+	left: 0px;
+	top: 4px;
+	content: "";
+	width: 10px;
+	height: 10px;
+	background: #556;
+}
+#method_toc a {
+	background: none !important;
+	position: relative;
+	color: #445 !important;
+}
+.altblock {
+	background-color: #556 !important;
+}
+ul#tabs li a {
+	color: #445;
+}
+.sp_intro_expert {
+	color: #445;
+}
+.section_text a {
+	color: #445;
+}
+.sp_inner a {
+	color: #445;
+}
+a.related-title {
+	color: #fff;
+}
+.sp_intro_expert {
+	pointer-events: none;
+}
+.sp_namelink {
+	pointer-events: none;
+}
+.interwiki_otherdomain {
+	display: none;
+}
+.wh_ad_step {
+	margin-left: -20px;
+}
+.wh_ad_related {
+	margin-left: -15px;
+}
+.button.primary {
+	background-color: #556 !important;
+	border: 1px solid #556 !important;
+}
+#uci_fileinput_square:hover {
+	border: 2px dashed #556 !important;
+}
+.uci_fileinput_center  {
+	color: #556 !important;
+}
+.qa_answers .qa_person_circle {
+	display: none;
+}
+.wh_vote_container .wh_vote_box.wh_vote_up span {
+	background-color: #D6D7D9;
+}

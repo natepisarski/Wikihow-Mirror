@@ -1,0 +1,70 @@
+/*just use our fonts...gah!*/
+.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { 
+	font-family: inherit; 
+}
+
+.ui-widget, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { 
+	font-size: 12px;
+}
+
+.ui-widget-content { border: none; }
+
+.ui-dialog { 
+	padding: 0;
+	border-radius: 0; 
+	background-color: #FFF;
+	font-size: 14px;
+}
+.ui-dialog .ui-dialog-titlebar {
+	background: #97B97A;
+	color: #FFF; 
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+	padding: 0;
+	font-weight: bold;
+	width: auto;
+}
+.ui-dialog .ui-dialog-titlebar-close:hover {
+	text-decoration: none;
+}
+.ui-dialog .ui-dialog-titlebar-close span {
+	color: #FFF;
+	font-weight: bold;
+	margin-top: -2px;
+}
+
+#dialog-box { 
+	padding: 16px !important;
+}
+#dialog-box h3, #dialog-box h4 { background: none; }
+
+.ui-dialog-content::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+}
+
+.ui-dialog-content::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 2px solid white; /* should match background, can't be transparent */
+  background-color: rgba(0, 0, 0, .5);
+}
+
+.ui-dialog-titlebar-close .ui-icon {
+	text-indent: 0;
+	width: auto;
+	height: auto;
+	background: none !important;
+	color: #363;
+	font-weight: normal;
+	font-size: .8em;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+	margin-top: 0;
+	padding-top: 0;
+}
+.ui-dialog .ui-dialog-buttonpane button { padding: .2em; }
+
+.modal2 .ui-dialog-content { background: none !important; }

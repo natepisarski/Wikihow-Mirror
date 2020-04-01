@@ -1,0 +1,28 @@
+<div id="green_box_edit_tool" class="{{default_type_class}}">
+	<div id="green_box_edit_header">{{header}}</div>
+
+	<select id="green_box_type">
+		{{#green_box_types}}<option value="{{type}}">{{name}}</option>{{/green_box_types}}
+	</select>
+
+	<div id="green_box_toolbar"></div>
+
+	<div class="green_box_qa_label">{{question_label}}</div>
+	<textarea id="green_box_edit_content"></textarea>
+
+	<div class="green_box_qa_label">{{answer_label}}</div>
+	<textarea id="green_box_edit_content_2"></textarea>
+
+	<div id="green_box_edit_expert_section">
+		{{expert_label}}
+		<select id="green_box_edit_expert">
+			{{#experts}}<option value="{{id}}">{{name}}</option>{{/experts}}
+		</select>
+	</div>
+
+	<div id="green_box_edit_err"></div>
+
+	<input type="button" class="button primary" id="green_box_edit_submit" value="{{save_button}}" />
+	<input type="button" class="button secondary" id="green_box_edit_cancel" value="{{cancel_button}}" />
+	<input type="button" class="button secondary" id="green_box_edit_delete" value="{{delete_button}}" />
+</div>

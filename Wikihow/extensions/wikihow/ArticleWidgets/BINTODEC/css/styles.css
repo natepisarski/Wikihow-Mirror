@@ -1,0 +1,58 @@
+.more {
+	top:51px;
+	left:294px;
+	}	
+#bin { 
+    color: #809080;
+    float: left;
+    font-family: 'Museo500';
+    font-weight: bold;
+    margin: 18px 0 0 20px;
+    text-align: center;
+    width: 88%;
+	}
+.whinputtext_element {
+	margin:-11px 0 0 40px;
+	}		
+.left {
+	border-right:1px solid #D8D8D8;
+	float: left;
+   	margin-left: 6px;
+   	width: 305px;
+	padding-bottom:13px;
+	}
+.right {
+	width:295px;
+	float:left;
+	position:relative;
+	}	
+#header h1 {
+	width:100%;
+	}
+.wh_it_input{
+	text-align:left;
+	}
+.wh_it_editable_value {
+	margin-left:10px;
+	padding-right:0 !important;
+	width:97% !important;
+	}  	
+.active_input  .wh_it_editable_value {
+	margin-left:-2px;
+	padding-right:11px !important;
+	margin-top:0;
+	}
+@media all and (-webkit-min-device-pixel-ratio:10000),
+not all and (-webkit-min-device-pixel-ratio:0) {
+     .active_input  .wh_it_editable_value { 
+	margin-left:0px;
+	padding-right:11px !important;
+	margin-top:0px;
+	 } 
+} 	
+@media all and (-webkit-min-device-pixel-ratio:0) { .active_input  .wh_it_editable_value { 
+	margin-left:-2px;
+	padding-right:11px !important;
+	padding-top:1px;
+	height:45px;
+	 } }

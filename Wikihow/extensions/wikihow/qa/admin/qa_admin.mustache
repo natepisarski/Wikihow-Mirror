@@ -1,0 +1,25 @@
+<div class="wh_block">
+	<h1>Submitted Question Tasks</h1>
+	<ul class="qa_admin_functions">
+		<li>
+			APPROVE submitted questions from a list of submitted question ids (one per line, max 2000)
+			<div class="qa_approved_success qa_success"></div>
+			<textarea id="qa_approve_sqids" class="qa_textarea"></textarea>
+			<a id="qa_sqids_approve_submit" class="button primary qa_button">Mark Approved</a>
+		</li>
+		<li>
+			IGNORE submitted questions from a list of submitted question ids (one per line, max 2000)
+			<div class="qa_ignored_success qa_success"></div>
+			<textarea id="qa_ignore_sqids" class="qa_textarea"></textarea>
+			<a id="qa_sqids_ignore_submit" class="button primary qa_button">Mark Ignored</a>
+		</li>
+		<li>
+			UPDATE AND APPROVE submitted questions from a pasted csv in format <br>
+			&lt;question id&gt;,&lt;updated text&gt; <br>
+			(one per line, max 2000)
+			<div class="qa_update_success qa_success"></div>
+			<textarea id="qa_update_csv" class="qa_textarea"></textarea>
+			<a id="qa_update_csv_submit" class="button primary qa_button">Update and Approve</a>
+		</li>
+	</ul>
+</div>

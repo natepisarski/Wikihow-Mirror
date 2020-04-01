@@ -1,0 +1,28 @@
+<div class="section donate sticky don_{{platform}} {{default_class}}">
+	<h2>
+		{{#showAltBlock}}<div class="altblock" />{{/showAltBlock}}
+		{{#showX}}<a id="donate_close" href="#"></a>{{/showX}}
+		<span id="donate_headline" class="mw-headline">{{donate_headline}}</span>
+	</h2>
+	<div id="donate" class="section_text">
+		{{#isAmp}}
+			<amp-img src="{{{image}}}" layout="responsive" width="675" height="338" />
+		{{/isAmp}}
+		{{^isAmp}}
+			{{{image_tag}}}
+		{{/isAmp}}
+		{{#donate_quote}}
+		<div class="donate_quote_line" />
+		<div id="donate_quote">
+			<p id="donate_quote_opening">{{{donate_quote_opening}}}<p>
+			<p>{{{donate_quote}}}</p>
+		</div>
+		<div class="donate_quote_line" />
+		{{/donate_quote}}
+		<div id="donate_text"><p>{{{donate_text}}}</p></div>
+		<br><div class="clearall"></div>
+		<div id="donate_bottom">
+			<a href="/wikiHow:Gives-Back" class="button primary" id="donate_button">{{donate_link}}</a>
+		</div>
+	</div>
+</div>

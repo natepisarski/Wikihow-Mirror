@@ -1,0 +1,11 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "duplicatetitles": "Find Duplicate Titles",
+    "duplicatetitles_logentry": "Voted on whether to create $1 as a redirect to $2",
+    "duplicatetitlescurrentstats": "Your Duplicate Titles Stats",
+    "duplicatetitlesleaderboardtitle": "Top Duplicate Reviewers - Last 7 Days",
+    "ti_DuplicateTitles_bullets": "<li><b>Vote yes</b> if both titles mean exactly the same thing in all cases and connotations. This is rare!</li><li><b>Vote no</b> if the titles are related or similar, but not exactly the same. This is the most common.</li><li><b>Choose not sure</b> to skip to the next pair if you can't make a decision.</li>",
+    "log-name-duplicatetitles": "Duplicate Titles Log"
+}

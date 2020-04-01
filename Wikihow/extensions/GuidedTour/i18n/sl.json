@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Dbc334",
+			"Eleassar",
+			"Janezdrilc"
+		]
+	},
+	"guidedtour-back-button": "Nazaj",
+	"guidedtour-tour-test-go-description-page": "Pojdi na opisno stran",
+	"guidedtour-tour-firsteditve-edit-page-description": "Za prikaz sprememb, ki ste jih vnesli, {{GENDER:|kliknite}} gumb »$1«.",
+	"guidedtour-tour-firsteditve-edit-section-description": "V vsakem večjem razdelku strani so na razpolago povezave »$1«, s katerimi se lahko osredotočite samo na ta del.",
+	"guidedtour-tour-firsteditve-save-description": "Ko boste pripravljeni, lahko s klikom gumba »{{int:visualeditor-toolbar-savedialog}}« svoje spremembe napravite vidne vsakomur."
+}

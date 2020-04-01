@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"socialauth-fblogin-login-failed": "عفوًا! لا نقدر على توصيلك بفيسبوك. من فضلك أعد المحاولة في وقت لاحق.",
+	"socialauth-gpluslogin-login-failed": "عفوًًا! لا نقدر على توصيلك بجوجل بلس. من فضلك أعد المحاولة في وقت لاحق.",
+	"socialauth-civiclogin-login-failed": "عفوًا! لا نقدر على توصيلك بسيفيك \"Civic\". من فضلك أعد المحاولة في وقت لاحق."
+}

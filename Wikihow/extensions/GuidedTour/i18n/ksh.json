@@ -1,0 +1,34 @@
+{
+	"@metadata": {
+		"authors": [
+			"Purodha"
+		]
+	},
+	"guidedtour-desc": "Määd et müjjelesch dat Sigge en „Föhrong“ för neu Metmaacher aanbehde.",
+	"guidedtour-help-url": "Help:„Föhronge“",
+	"guidedtour-help-guider-url": "Help:„Föhronge“/Föhrer",
+	"guidedtour-next-button": "Vörahn",
+	"guidedtour-okay-button": "Lohß Jonn!",
+	"guidedtour-back-button": "Retuhr",
+	"guidedtour-tour-test-testing": "Versöhke",
+	"guidedtour-tour-test-test-description": "Dat es ene Versohch för en Beschrievong. <i xml:lang=\"la\" lang=\"la\" dir=ltr\">Lorem ipsum dolor sit!</i>",
+	"guidedtour-tour-test-callouts": "Lejände ußprobehre",
+	"guidedtour-tour-test-portal-description": "Dat es de {{int:portal}} Sigg.",
+	"guidedtour-tour-test-mediawiki-parse": "Dem MehdijaWikki singe Pahser ußprobehre",
+	"guidedtour-tour-test-wikitext-description": "Ene „Föhrer“ en Dinge „Föhrong“ dorj-et Wikki kann Wikkitäx enthallde met „<code lang=\"en\" xml:lang=\"en\" dir=\"ltr\">onShow </code>“ un „<code lang=\"en\" xml:lang=\"en\" dir=\"ltr\">parseDescription</code>“ dren. Di kam_mer nämme, öm ene Lengk op de [[{{MediaWiki:Guidedtour-help-url}}|Dokemäntazjuhn vu de Guided „Föhronge“]] ennzeboue, udder ene lengk noh ußerhallev, för e Beijschpell <i lang=\"en\" xml:lang=\"en\" dir=\"ltr\" title=\"GitHub - ene Deens för et Zesammewerke beim Projrammehre, un esu\">[https://github.com/tychay/mwgadget.GuidedTour noh GitHub]</i>.",
+	"guidedtour-tour-test-description-page": "Dem MehdijaWikki sing Sigge met Äkliehronge ußprobehre",
+	"guidedtour-tour-test-go-description-page": "Jangk op di Sigg met Äkliehronge",
+	"guidedtour-tour-test-launch-tour": "Fang aan, en „Föhrong“ ußzeprobehre",
+	"guidedtour-tour-test-launch-tour-description": "„Föhrer“ künne andere „Föhronge“ aanfange. Joht, wah?",
+	"guidedtour-tour-firstedit-edit-page-title": "Donn de jannze Sigg ändere&nbsp;…{{GENDER:|}}",
+	"guidedtour-tour-firstedit-edit-page-description": "Donn „$1“ klecke, öm Ding Änderonge op Dohr faßzehallde.{{GENDER:|}}",
+	"guidedtour-tour-firstedit-edit-section-title": "udder änder ene Affschnett{{GENDER:|}}",
+	"guidedtour-tour-firstedit-edit-section-description": "För jehde Affschnedd en dä Sigg häs De ene Lengk „{{int:editsection}}“. Su kanns De Desch op dä Affschnett konzäntrehre.",
+	"guidedtour-tour-firstedit-preview-title": "Donn Ding Änderonge aanlohre, der ohne se ald em Wikki faßzehallde un öffentlesch ze maache. Dat moß nit sin, es ävver nözlesch.\n{{GENDER:|}}",
+	"guidedtour-tour-firstedit-preview-description": "Op „{{int:showpreview}}“ klecke löht desch belohre, wi Ding Ängeronge ußsinn, der ohne se faßzehallde un öffentlesch ze maache.\nDonn ävver donoh och aan Afscheischere dängke!",
+	"guidedtour-tour-firstedit-save-title": "Do bes bahl fähdesch!",
+	"guidedtour-tour-firstedit-save-description": "Wann De fähdesch beß, klegg op „{{int:publishchanges}}“ un ding Änderonge sen för jehderein seechbaa.",
+	"guidedtour-tour-firsteditve-edit-page-description": "Kleck op „$1“, öm Ding Änderonge äntjöltesch faßzehallde.{{GENDER:|}}",
+	"guidedtour-tour-firsteditve-edit-section-description": "För jehde Affschnedd en dä Sigg häs De ene Lengk „$1“. Su kanns De Desch op dä Affschnett konzäntrehre.",
+	"guidedtour-tour-firsteditve-save-description": "Wann De fähdesch beß, klegg op „{{int:visualeditor-toolbar-savedialog}}“ un ding Änderonge wähde för jehderein seechbaa."
+}

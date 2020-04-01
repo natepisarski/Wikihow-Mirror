@@ -1,0 +1,35 @@
+<div class="green_box expert_qa">
+	<div class="green_box_tab_label">{{green_box_tab_label}}</div>
+	<div class="green_box_row">
+		<div class="green_box_person">
+			<div class="green_box_person_circle questioner">{{questioner}}</div>
+		</div>
+		<div class="green_box_content">{{{content}}}</div>
+	</div>
+	<div class="green_box_row">
+		<div class="green_box_person expert" data-link="{{expert_link}}">
+
+			{{#expert_dialog_text}}
+				<div class="green_box_expert_dialog">
+
+					<div class="green_box_expert_dialog_upper">
+						<div class="green_box_person_circle">{{{expert_display}}}</div>
+						<p>
+							{{#expert_link}}<a href='{{expert_link}}' class='click_out'>{{/expert_link}}
+								{{{expert_name}}}
+							{{#expert_link}}</a>{{/expert_link}}
+						</p>
+
+						{{{expert_title}}}
+					</div>
+
+					{{{expert_dialog_text}}}
+				</div>
+			{{/expert_dialog_text}}
+
+			<div class="green_box_person_circle">{{{expert_display}}}</div>
+			<div class="green_box_expert_label">{{expert_label}}</div>
+		</div>
+		<div class="green_box_content">{{{content_2}}}</div>
+	</div>
+</div>

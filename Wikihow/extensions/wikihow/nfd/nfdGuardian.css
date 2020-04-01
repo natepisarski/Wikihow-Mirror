@@ -1,0 +1,246 @@
+#nfd_article_info{
+	width:90%;
+	margin:0 auto 20px auto;
+	font-size:1.1em;
+}
+#nfd_article_info td{
+	padding:5px;
+	vertical-align: top;
+}
+#nfd_article_info td.first{
+	width:100px;
+}
+
+#nfd_article_info img{
+	width:26px;
+	vertical-align: middle;
+}
+
+#nnf_skip {
+	margin-right:30px;
+}
+
+#articleEdit, #articleDiscussion, #articleHistory, #articleHelpfulness {
+	display: none;
+}
+
+.mw-editsection {
+	display: none;
+}
+
+#page_helpfulness_box { background-color: #f6f5f4 }
+
+div.nfd_title {
+	background-color: #F5F5F5;
+	border-top: 1px dashed #111;
+	font-size: 2em;
+	padding-top: 10px;
+}
+
+#nfd_changedby {
+	text-align: left;
+	clear: both;
+	padding-bottom: 10px;
+}
+
+#nfd_head {
+	margin-bottom:0;
+}
+
+.nfd_alldone {
+	padding-top: 30px;
+	font-size: 2em;
+}
+
+
+/* INTRO IMAGE */
+#nfd_bigpic {
+	background-color: #F5F5F5;
+	padding: 20px 0;
+	text-align: center;
+}
+
+#nfd_bigpic IMG {
+	border: 1px solid #BFBFBF;
+	-moz-box-shadow: -3px 3px 4px #BFBFBF;
+	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
+	box-shadow: -3px 3px 4px #BFBFBF;
+}
+
+
+/* VIDEO */
+#nfd_bigvid { margin-top: 20px; }
+
+#nfd_bigvid h2 { display: none; }
+
+#nfd_bigvid embed {
+	border: 1px solid #BFBFBF;
+	-moz-box-shadow: -3px 3px 4px #BFBFBF;
+	-webkit-box-shadow: -3px 3px 4px #BFBFBF;
+	box-shadow: -3px 3px 4px #BFBFBF;
+}
+
+#nfd_bigvid center {
+	margin: 0;
+	padding: 0;
+}
+
+#nfd_vidtitle {
+	text-align: center;
+	margin: 0 0 8px 0;
+	color: #4A3C31;
+	font-weight: normal;
+	font-size: 1.5em;
+}
+
+
+/* RC PATROL */
+#nfd_box table.diff { margin-top: 10px; }
+#nfd_box table.diff, #nfd_box td.diff-otitle, #nfd_box td.diff-ntitle { background-color: #F5F5F5; }
+
+#nfd_box table.diff #mw-diff-otitle2b,
+#nfd_box table.diff #mw-diff-ntitle2b,
+#nfd_box table.diff .mw-rollback-link
+{ display: none; }
+
+#nfd_box td.diff-otitle, #nfd_box td.diff-ntitle { padding-bottom: 15px; }
+
+
+#nfd_head h1 {
+	font-size: 1.6em;
+	float: left;
+	padding:0;
+}
+
+#nfd_buttons {
+	width: 130px;
+	margin: 0 auto;
+}
+
+#nfd_head .button { float: right; margin-bottom:10px;}
+
+#qcrules {
+	float: right;
+	padding-top: 20px;
+}
+
+#nfd_articletitle { margin: 0 0 15px 0; float:left; width:260px; }
+
+#nfd_options {
+	width: 300px;
+	margin: 20px auto 0 auto;
+	/*height: 125px;*/
+	height: 50px;
+	display: none;
+}
+#nfd_options div {
+	float: left;
+	padding: 0 20px;
+}
+
+#qcrules_submit { margin: 0 0 0 auto; float: right; }
+
+#article div.article_inner { padding-bottom: 0; }
+
+#article div#qccontents { min-height: 250px; }
+
+#article_tabs_line {  }
+#article_tabs{clear:both; height: 40px;}
+ul#tabs {
+	position: relative;
+}
+#featurestar { display: none; }
+
+/* VOTE BLOCK */
+#nfd_voteblock {
+	display:none;
+}
+
+#nfd_votes { height: 65px; }
+#nfd_vote_1 { float: left; width:100px; }
+#nfd_vote_2 {
+	width: 60px;
+	margin: 0 auto;
+}
+#nfd_vote_3 { float: right; width:100px; }
+
+.nfd_vote_img {
+	background: url(/extensions/wikihow/qc/qc_voteblock.png) no-repeat 0 0;
+	height: 25px;
+	width: 25px;
+	float: left;
+	margin-top: 2px;
+}
+.nfd_img_ { background-position: 0 0; height: 35px; width: 35px; }
+.nfd_img_tie { background-position: 0 -39px; }
+.nfd_img_approved { background-position: 0 -97px; }
+.nfd_img_removed { background-position: 0 -68px; }
+
+#nfd_vote_text { margin-bottom: 4px; }
+#nfd_vote_text p { padding-left: 40px; }
+#nfd_vote_text p.first { font-size: 1.3em; }
+
+.nfd_vote_head {
+	font-size: .85em;
+	border-bottom: 1px solid #111;
+	margin: 4px;
+}
+.nfd_head_no { text-align: right; }
+
+.nfd_avatar {
+	float: left;
+	margin: 0 4px 4px 4px;
+	height: 25px;
+	width: 25px;
+}
+.nfd_avatar img, .nfd_avatar a.tooltip {
+	height: 25px;
+	width: 25px;
+	display: block;
+}
+
+.nfd_emptybox {
+	height: 23px;
+	width: 23px;
+	float: left;
+	margin: 0 4px 4px 4px;
+	color:#cccccc;
+	text-align: center;
+	line-height: 25px;
+	font-size:0.55em;
+	border:1px dashed;
+}
+
+.nfd_arrow {
+	background: url(/extensions/wikihow/qc/qc_voteblock.png) no-repeat 0 0;
+	width: 22px;
+	height: 22px;
+	float: left;
+	margin: 23px 4px 0 4px;
+}
+.nfd_left { background-position: -40px 0; }
+.nfd_right{ background-position: -40px -29px; }
+.nfd_left_win { background-position: -40px -57px; }
+.nfd_right_win { background-position: -40px -83px; }
+
+.waiting{text-align: center;}
+
+#nfd_delete_confirm{display:none;}
+
+#wpDiff, #wpDraftSave {display:none;}
+
+#nfd_reasons{
+	height:50px;
+	text-align: center;
+	margin-top:10px;
+}
+
+#nfd_reasons span{
+	margin-right:10px;
+}
+
+/* Fixes #1522 */
+.tool textarea {
+	/* This width comes from .postcommentForm_textarea defined in owl/nonarticle.css */
+	width: 87%;
+}

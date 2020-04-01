@@ -1,0 +1,29 @@
+{
+	"@metadata": {
+		"authors": [
+			"Crt",
+			"Linnea",
+			"Nike",
+			"Samoasambia",
+			"Silvonen",
+			"Str4nd",
+			"Pyscowicz",
+			"01miki10"
+		]
+	},
+	"antispoof-desc": "Estää käyttäjätunnusten luonnin, jos ne sisältävät eri kirjoitusjärjestelmiä, harhaanjohtavia tai samankaltaisia käyttäjätunnuksia.",
+	"antispoof-conflict-top": "Tunnus ”$1” on liian samankaltainen kuin seuraava(t)\n{{PLURAL:$2|tunnus|tunnusta}}:",
+	"antispoof-conflict-bottom": "Valitse toinen käyttäjänimi.",
+	"antispoof-name-illegal": "Käyttäjänimeä ”$1” ei sallita hämäävien tai huijaustarkoitukseen sopivien tunnusten välttämiseksi: $2. Valitse toinen käyttäjänimi.",
+	"antispoof-badtype": "Virheellinen tietotyyppi",
+	"antispoof-empty": "Tyhjä merkkijono",
+	"antispoof-blacklisted": "Sisältää kielletyn merkin $1",
+	"antispoof-combining": "Alkaa yhdistävällä merkillä $1",
+	"antispoof-unassigned": "Sisältää määrittämättömiä merkkejä $1",
+	"antispoof-deprecated": "Sisältää kielletyn merkin $1",
+	"antispoof-noletters": "Ei sisällä mitään kirjaimia",
+	"antispoof-mixedscripts": "se sisältää yhteensopimattomia kirjoitusjärjestelmiä",
+	"antispoof-tooshort": "Normalisoitu nimi liian lyhyt",
+	"antispoof-ignore": "Älä käytä hämäävien tunnusten tarkistusta",
+	"right-override-antispoof": "Ohittaa tarkastukset samankaltaisista tai epäilyttävistä käyttäjätunnuksista"
+}

@@ -1,0 +1,27 @@
+<div class="stva_job_edit">
+	<i class="fa fa-times"></i>
+
+	<div>
+		{{stva_batch_label}}<br />
+		<input type="text" {{#existing}}class="existingbatch" disabled{{/existing}} id="stva_batch_name" value="{{batchName}}" />
+	</div>
+
+	<div>
+		{{stva_platform_label}}<br />
+		<input type="text" id="stva_platform_name" value="{{platform}}" />
+	</div>
+
+	<div>
+		<p>{{articles_prompt}}</p>
+		<p class="stva_example">{{articles_example}}</p>
+		<textarea id="stva_article_list">{{#pageIds}}{{.}}
+{{/pageIds}}</textarea>
+	</div>
+
+	<div id="stva_message"></div>
+
+	<div class="button_div">
+		<button id="stva_edit_submit" class="button primary">{{job_submit_button}}</button>
+		<button id="stva_edit_done" class="button secondary">{{job_done_button}}</button>
+	</div>
+</div>

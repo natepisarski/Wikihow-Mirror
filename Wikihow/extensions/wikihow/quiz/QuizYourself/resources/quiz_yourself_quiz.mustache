@@ -1,0 +1,39 @@
+<div id="quiz_yourself_quiz_header">
+	<div id="quiz_categories">{{categories}}</div>
+
+	<div id="quiz_yourself_score">
+		<div></div>
+		{{score_label}}
+	</div>
+
+	<div class="quiz_next">{{next}}</div>
+</div>
+
+<div id="quiz_info">
+	<span>{{quiz_label}}</span>
+	<a href="{{article_link}}" id="quiz_article" data-id="{{article_id}}">{{article_title}}</a>
+</div>
+
+{{#quizzes}}
+{{#showAds}}
+	<!-- Adsense Quiz App Mobile Not Responsive -->
+	<div id="quiz_{{quizNum}}"></div>
+	<script>WH.QuizYourself.loadAd('quiz_{{quizNum}}');</script>
+{{/showAds}}
+<div class="quiz {{#showAds}}withAds{{/showAds}}">
+	<div class="question_label">{{question_label}} {{quizNum}} {{quiz_of_count}}</div>
+	<h2>{{question}}</h2>
+
+	{{#options}}
+	<div class="quiz_option {{class}}" data-quiz="{{quizNum}}" data-option="{{optionNum}}">
+		<div><span class="circle"></span></div>
+		<div>{{option}}</div>
+	</div>
+	<div class="quiz_explanation">{{explanation}}</div>
+	{{/options}}
+</div>
+{{/quizzes}}
+
+<div id="quiz_yourself_quiz_after">
+	<button class="button primary quiz_next">{{next}}</button>
+</div>

@@ -1,0 +1,15 @@
+
+select.topcategory_dropdown {	
+	background: #eee;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+select.subcategory_dropdown {	
+	width: 400px;
+	margin-bottom: 5px;
+}
+#showmorecats {
+	font-size: 0.8em;
+	text-align: right;
+}
+

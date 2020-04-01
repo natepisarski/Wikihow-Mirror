@@ -1,0 +1,9 @@
+
+%ol.breadcrumb
+	%li
+		%a{href: url("categories")} All Categories
+	%li.active Edit Category #{$category->title}
+.well
+	%h2 Edit #{$category->title}
+	.well-body
+		!= partial("categories/_form")

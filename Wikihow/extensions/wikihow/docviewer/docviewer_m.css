@@ -1,0 +1,103 @@
+#docviewer_sample {
+	border: 1px solid #DDD;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	background-color: #FFF;
+	margin: 0 auto 1em;
+	max-width: 600px;
+}
+
+.preview_head {
+	background-color: #7cd6f8;
+	padding: 5px;
+	text-align: center;
+	font-size: .9em;
+	color: #FFF;
+	font-weight: bold;
+}
+
+#docviewer_choices {
+	padding: 10px;
+	border: 1px solid #DDD;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	background-color: #FFF;
+	max-width: 580px;
+	margin: 0 auto;
+}
+
+	#docviewer_choices h4 {
+	}
+
+	#docviewer_choices .back_link {
+		padding-top: 3em;
+		font-weight: bold;
+	}
+
+	#docviewer_choices .button { margin:0 auto; }
+
+	ul#dv_dls {
+		padding: 5px 0;
+	}
+
+		#dv_dls li {
+			list-style: none;
+			list-style-image: none;
+			background-image: url(/extensions/wikihow/docviewer/images/sample_icon_sprite.png);
+			background-repeat: no-repeat;
+			height: 37px;
+			padding-bottom: 13px;
+			margin-bottom: 5px;
+			font-size: .85em;
+		}
+		#dv_dls li.dv_dl_pdf { background-position: 0 0; }
+		#dv_dls li.dv_dl_pdf:hover { background-position: 0 -70px; }
+		#dv_dls li.dv_dl_doc { background-position: 0 -140px; }
+		#dv_dls li.dv_dl_doc:hover { background-position: 0 -210px; }
+		#dv_dls li.dv_dl_txt { background-position: 0 -280px; }
+		#dv_dls li.dv_dl_txt:hover { background-position: 0 -352px; }
+		#dv_dls li.dv_dl_xls { background-position: 0 -558px; }
+		#dv_dls li.dv_dl_xls:hover { background-position: 0 -630px; }
+
+		#dv_dls p {
+			padding: 8px 0 0 55px;
+			line-height: 1.5em;
+		}
+
+		#dv_dls span {
+			font-size: 1.3em;
+			font-weight: bold;
+		}
+
+		#dv_dls .dv_dl_block {
+			display: block;
+			height: 50px;
+			width: 45px;
+			float: left;
+		}
+
+	#dv_found td {
+		border-bottom: 1px solid #D6D5CE;
+		font-size: 0.95em;
+		padding: 2px;
+	}
+
+		#dv_found img {
+			margin-right: 6px;
+			border-radius: 6px;
+			-moz-border-radius: 6px;
+			-webkit-border-radius: 6px;
+		}
+
+
+/********************RESPONSIVE PART*/
+/* SCREEN < 599 PIXELS (PORTRAIT WIDTH OR LANDSCAPE HEIGHT) */
+@media only screen and (max-width: 599px),
+	only screen and (max-height: 420px) and (orientation:landscape) {
+
+	h1 { padding-top: 55px; }
+	#docviewer_choices { padding-bottom: 25px; }
+
+}

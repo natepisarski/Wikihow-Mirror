@@ -1,0 +1,47 @@
+.mhw-info-box {
+	margin: 5px;
+	padding: 5px;
+	background-color: #fff;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+
+.mhw-table {
+	width: 100%;
+	margin: 0;
+	border-spacing: 0;
+}
+
+.mhw-tr {
+	font-size: 13px;
+	line-height: normal;
+	color: #686868;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	background: #fff;
+}
+
+.mhw-tr:nth-child(odd) {
+	background-color: #fff;
+}
+
+.mhw-tr:nth-child(even) {
+	background-color: #f7f9f6;
+}
+
+.mhw-th {
+	font-weight: bold;
+	text-align: left;
+	color: #686868;
+}
+
+.mhw-td {
+	padding: 2px;
+}
+
+.mhw-k-0 {
+	word-break: break-all;
+}
+

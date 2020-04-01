@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"ulb_login": "Войти",
+	"ulb_nologin": "Еще не зарегистрированы?",
+	"ulb_create": "Зарегистрироваться",
+	"ulb_wh_act": "учетная запись",
+	"ulb_joinwh": "Присоединиться к wikiHow",
+	"ulb_email": "Электронная почта",
+	"ulb_haveacct": "Уже зарегистрированы?",
+	"ulb_whacct": "Учетная запись wikiHow",
+	"ulb-btn-fb": "Facebook",
+	"ulb-btn-gplus": "Google",
+	"ulb-btn-civic": "Civic",
+	"ulb-btn-loading": "Загрузка..."
+}

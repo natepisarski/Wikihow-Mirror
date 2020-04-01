@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"socialauth-fblogin-login-failed": "Chúng tôi rất tiếc, chúng tôi không thể kết nối với Facebook. Vui lòng thử lại sau.",
+	"socialauth-gpluslogin-login-failed": "Chúng tôi rất tiếc, chúng tôi không thể kết nối với Google. Vui lòng thử lại sau.",
+	"socialauth-civiclogin-login-failed": "Chúng tôi rất tiếc, chúng tôi không thể kết nối với Civic. Vui lòng thử lại sau."
+}

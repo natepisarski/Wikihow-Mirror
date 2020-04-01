@@ -1,0 +1,64 @@
+#fbc {
+	font-size: 1em;
+	border: none;
+	margin: 15px 10px;
+	color: #222;
+}
+#fbc_header {
+	padding: 15px;
+	border: 0;
+}
+#fbc_icon {
+	margin: 1px 10px 0 0;
+}
+.fbc_header_text {
+	display: block;
+	margin: 0;
+	line-height: 1.35em;
+}
+.fbc_label.first {
+	margin-top: 10px;
+}
+.fbc_label {
+	font-size: 0.95em;
+	text-align: left;
+	display: block;
+}
+#fbc input[type='text'], #fbc_faux_username {
+	width: 100%;
+	padding: 12px 10px;
+	box-sizing: border-box;
+	margin: 5px 0 20px 0;
+	font-size: 1.1em;
+}
+#fbc_faux_username {
+	padding: 0px;
+	border: 1px solid #ccc;
+}
+.fbc_user_avatar {
+	border-radius: 3px 0 0 3px;
+	width: 42px;
+}
+#fbc_header, #fbc_submit {
+	font-size: 1em;
+}
+#fbc_submit {
+	font-weight: bold;
+}
+#fbc_submit {
+	padding: 11px 18px;
+	margin-top: 4px;
+}
+#fbc_x:after {
+	margin: 4px 15px 0 0;
+}
+#fbc_error {
+	padding: 10px 0 0 0;
+}
+#fbc_footer {
+	font-size: 12px;
+	margin-top: 25px;
+}
+#fbc_user_text_info {
+	font-size: 11px;
+}

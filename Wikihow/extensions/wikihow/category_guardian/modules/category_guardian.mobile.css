@@ -1,0 +1,87 @@
+/*
+PLEASE DONT EDIT THE CSS DIRECTLY
+FILE IS COMPILED FROM category_checker_mobile.less
+*/
+/*
+PLEASE DONT EDIT THE CSS DIRECTLY
+FILE IS COMPILED FROM mobile.common.less
+*/
+h1.special_title {
+  color: #555;
+  font-size: 18px;
+  margin: 0 !important;
+  font-weight: normal;
+  background-color: white;
+}
+body,
+html {
+  background-color: #f5f5f5;
+}
+.content {
+  margin: 0;
+}
+.spinner {
+  position: fixed;
+}
+.quiz {
+  background-image: none !important;
+}
+.quiz .alert {
+  margin: 10px;
+}
+.quiz .question {
+  margin: 0;
+  line-height: 21px;
+  padding: 10px 10px 10px 20px !important;
+}
+.quiz .quiz-instruct {
+  display: none !important;
+}
+.quiz #next-container {
+  box-shadow: 0px 0px 2px #999;
+  box-sizing: border-box;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+.quiz .question.anon-limit {
+  margin-top: 5px;
+}
+#footer {
+  display: none !important;
+}
+#mw-mf-page-center {
+  padding-bottom: 80px !important;
+}
+#skip_prompt {
+  background-color: #FFF;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 -2px 7px #666666;
+}
+#skip_prompt_inner {
+  padding: 1.5em;
+  font-size: 1.1em;
+}
+#firstP {
+  font-weight: bold;
+  margin-bottom: 0;
+  font-size: 1.3em;
+}
+#skip_prompt_x {
+  float: right;
+  color: #CCC;
+  font-size: 1.5em;
+  margin: -0.5em -0.5em 0px 0px;
+}
+#skip_prompt_button {
+  padding: 12px;
+  width: 60%;
+}
+#eoq_box {
+  margin-top: 1em;
+}

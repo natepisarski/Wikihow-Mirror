@@ -1,0 +1,32 @@
+{
+	"@metadata": {
+		"authors": [
+			"EileenSanda"
+		]
+	},
+	"guidedtour-desc": "Loyvir síðum at veita ein kunnandi túr gjøgnum popp-up vindeyga fyri at hjálpa nýggjum brúkarum",
+	"guidedtour-help-url": "Help:Kunnandi túrar",
+	"guidedtour-help-guider-url": "Help:Kunnandi túrar",
+	"guidedtour-next-button": "Næsta",
+	"guidedtour-okay-button": "Í lagi",
+	"guidedtour-tour-test-testing": "Ein roynd",
+	"guidedtour-tour-test-test-description": "Hetta er ein roynd av frágreiðingini. Lorem ipsum dolor sit!",
+	"guidedtour-tour-test-callouts": "Royn útpeikan",
+	"guidedtour-tour-test-portal-description": "Hetta er síðan {{int:portal}}.",
+	"guidedtour-tour-test-mediawiki-parse": "Royna MediaWiki tulking",
+	"guidedtour-tour-test-description-page": "Royna síðufrágreiðing fyri MediaWiki",
+	"guidedtour-tour-test-go-description-page": "Far til frágreiðingarsíðu",
+	"guidedtour-tour-test-launch-tour": "Royn byrjunartúr",
+	"guidedtour-tour-test-launch-tour-description": "Túrar kunnu seta aðrir kunnandi túrar í gongd. Rættiliga kul, ha?",
+	"guidedtour-tour-firstedit-edit-page-title": "{{GENDER:|Rætta}} alla síðuna...",
+	"guidedtour-tour-firstedit-edit-page-description": "{{GENDER:|Trýst}} á \"$1\" knøttin fyri at gera tínar broytingar.",
+	"guidedtour-tour-firstedit-edit-section-title": "Ella {{GENDER:|rætta}} eitt brot",
+	"guidedtour-tour-firstedit-edit-section-description": "Tað eru \"{{int:editsection}}\" leinkjur fyri hvønn høvuðspart á einari síðu, so tú kanst fokusera á júst tann partin.",
+	"guidedtour-tour-firstedit-preview-title": "{{GENDER:|Hygg eftir}} tínum broytingum áðrenn tú goymir (valfrítt)",
+	"guidedtour-tour-firstedit-preview-description": "Eitt klikk á \"{{int:showpreview}}\" loyvir tær at eftirkanna, hvussu síðan fer at síggja út við tínum broytingum. Tú mást bara ikki gloyma at goyma.",
+	"guidedtour-tour-firstedit-save-title": "Tú ert næstan liðug/ur!",
+	"guidedtour-tour-firstedit-save-description": "Tá tú ert liguð/ur, so kemur eitt klikk á \"{{int:publishchanges}}\" at gera tínar broytingar sjónligar fyri øllum.",
+	"guidedtour-tour-firsteditve-edit-page-description": "{{GENDER:|Trýst}} á \"$1\" knøttin fyri at gera tínar broytingar.",
+	"guidedtour-tour-firsteditve-edit-section-description": "Tað eru \"$1\" leinkjur fyri hvønn høvuðspart á einari síðu, so tú kanst fokusera um júst tann partin.",
+	"guidedtour-tour-firsteditve-save-description": "Tá tú ert liguð/ur, so kemur eitt klikk á \"{{int:visualeditor-toolbar-savedialog}}\" at gera tínar broytingar sjónligar fyri øllum."
+}

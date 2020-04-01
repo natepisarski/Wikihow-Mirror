@@ -1,0 +1,41 @@
+!= paginate()
+
+%table#admin-articles.articles-table
+	%thead
+		%tr
+			%th &nbsp;
+			!= sortHeader('Title', 'title')
+			!= sortHeader('Category', 'category_id')
+			!= sortHeader('Assignee', 'assigned_id')
+			!= sortHeader('WH', 'wh_article_id', true, 'DESC')
+			!= sortHeader('State', 'state_id')
+			// != sortHeader('Returned', 'info_notes', true, 'DESC')
+			%th # Review Returned
+			!= sortHeader('Updated', 'lastTouched', false, 'DESC')
+			%th Last Event / Feedback
+
+	%tbody
+		- foreach($articles as $article)
+			!= partial('articles/_article_tr', ['article' => $article])
+
+#article-stale-modal.modal.fade
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+					%span(aria-hidden="true") &times;
+				%h4.modal-title
+					%i.fa.fa-warning
+					The article has changed.
+
+			.modal-body
+				%p
+					The article you are trying to assign has changed since this page was loaded. I have refreshed the article for you.
+
+			.modal-footer
+				%button(type="button" class="btn btn-primary" data-dismiss="modal") Ok
+
+!= paginate()
+!= partial('shared/_info_modal')
+!= partial('notes/_modal')
+- addScript("WH.articleTable.init();")

@@ -1,0 +1,40 @@
+.domitian_section {
+	margin-bottom: 48px;
+}
+
+.domitian_checkbox_grid {
+	display: table;
+}
+
+.domitian_checkbox_grid li {
+	display: table-cell;
+	float: left;
+	width: 30%;
+	padding: 0 7px;
+}
+
+.domitian_buttons {
+	margin-top: 12px;
+	margin-bottom: 24px;
+}
+
+.domitian_header {
+	margin: 12px 0;
+}
+
+.domitian_query {
+	margin-bottom: 12px;
+}
+
+.domitian_query_pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+.domitian_hidden {
+	display: none;
+}
+

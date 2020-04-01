@@ -1,0 +1,32 @@
+<div class="overlay-header-container position-fixed">
+	<div class="overlay-header">
+		<ul class="v-border bottom-border">
+			<li><button class="cancel icon">{{closeMsg}}</button></li>
+		</ul>
+		<div class="bottom-border">
+			<form action="http://www.google.{{cse_domain_suffix}}/cse" id="cse-search-box">
+				<div>
+					<input type="hidden" name="cx" value="{{cse_cx}}" />
+					<!--<input type="hidden" name="cof" value="FORID:10" />-->
+					<input type="hidden" name="ie" value="UTF-8" />
+					<input type="text" class="cse_q search_box" name="q" value="" x-webkit-speech />
+					<input type="submit" value="" class="cse_sa" alt="" />
+				</div>
+			</form>
+		</div>
+		<ul class="bottom-border">
+			<li><button class="clear icon">{{clearMsg}}</button></li>
+		</ul>
+	</div>
+</div>
+<div class="search-content overlay-header">
+	<ul class="v-border bottom-border">
+		<li><button class="icon">{{searchContentMsg}}</button></li>
+	</ul>
+	<div class="caption bottom-border">
+		<p class="with-results">{{searchContentMsg}}</p>
+		<p class="without-results">{{noResultsMsg}}</p>
+		<p class="without-results">{{{searchContentNoResultsMsg}}}</p>
+	</div>
+</div>
+<div class="results spinner"></div>

@@ -1,0 +1,80 @@
+#PatrolThrottle table,#PatrolThrottle  th,#PatrolThrottle  td {
+	border: 1px solid #DEEED4;
+	border-collapse: collapse;
+	color: #555;
+}
+
+#PatrolThrottle caption {
+	font-size: 150%;
+	font-weight: bold;
+	margin: 5px;
+}
+
+#PatrolThrottle td,#PatrolThrottle  th {
+	padding: 4px;
+}
+
+#PatrolThrottle thead th {
+	text-align: center;
+	background: #E6EDF5;
+	color: #4F76A3;
+	font-size: 100% !important;
+}
+
+#PatrolThrottle tbody th {
+	font-weight: bold;
+}
+
+#PatrolThrottle tbody tr { background: #FCFDFE; }
+
+#PatrolThrottle tbody tr.odd { background: #F7F9FC; }
+
+#PatrolThrottle table a:link {
+	color: #383;
+	text-decoration: none;
+}
+
+#PatrolThrottle table a:visited {
+	color: #383;
+	text-decoration: none;
+}
+
+#PatrolThrottle table a:hover {
+	color: #383;
+	text-decoration: underline !important;
+}
+
+.approaching {
+	color:#7A0404 !important;
+}
+#PatrolThrottle tfoot th,#PatrolThrottle  tfoot td {
+	font-size: 85%;
+}
+
+#linkprev {
+	display:inline;
+	float:left;
+}
+
+#linknext {
+	display:inline;
+	float:right;
+}
+
+#pttable {
+	min-width:100%;
+}
+
+#ptentry {
+	border-spacing:5px;
+}
+
+#notes {
+	margin-top:15px;
+	margin-bottom:15px;
+	display:block;
+}
+
+#notesblock {
+	margin-bottom:30px;
+}

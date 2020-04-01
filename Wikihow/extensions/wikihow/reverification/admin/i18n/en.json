@@ -1,0 +1,12 @@
+{
+    "@metadata": {
+        "authors": []
+    },
+    "ReverificationAdmin": "ReverificationAdmin",
+    "rva_tool_title": "Reverfication Admin",
+    "rva_range_from": "From",
+    "rva_range_to": "To",
+    "rva_btn_download_range": "Export Reverifications",
+    "rva_btn_download_all": "Export All Reverifications",
+    "rva_not_found": "No reverifications found"
+}

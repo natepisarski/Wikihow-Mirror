@@ -1,0 +1,10 @@
+.tres td {
+	padding: 5px;
+}
+
+.tres td.boost {
+	text-align: center;
+}
+.tres td.nab_id {
+	text-align: center;
+}
