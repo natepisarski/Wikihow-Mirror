@@ -21,6 +21,9 @@ class ArticleText {
 	var $summaryVideoUrl = "";
 	var $lifeHack = "";
 	var $lifeHackImageUrl = "";
+	var $updated = 0;
+	var $views = 0;
+	var $rating = -1;
 
 	/**
 	 * ReadArticleModel constructor.
@@ -92,6 +95,23 @@ class ArticleText {
 
 		if (!empty($lifeHackData['image_url'])) {
 			$this->setLifeHackImageUrl($lifeHackData['image_url']);
+		}
+
+		$this->setUpdated($t->getTouched());
+
+		$page = WikiPage::newFromId($t->getArticleId());
+		if ($page) {
+			$this->setViews($page->getCount());
+		}
+
+		// Get the star rating if available and there are at least 12 votes
+		$isMobile = Misc::isMobileMode();
+		$parenttree = CategoryHelper::getCurrentParentCategoryTree();
+		$fullCategoryTree = CategoryHelper::cleanCurrentParentCategoryTree($parenttree);
+		$helpfulness = SocialProofStats::getHelpfulness($t->getArticleID(), $fullCategoryTree, $isMobile);
+		if (isset($helpfulness['value'])  &&
+			$helpfulness['count'] >= 12) {
+			$this->setRating($helpfulness['value']);
 		}
 	}
 
@@ -270,6 +290,30 @@ class ArticleText {
 
 	public function setTopLevelCategories($cats) {
 		$this->topLevelCategories = $cats;
+	}
+
+	public function getUpdated() {
+		return $this->updated;
+	}
+
+	public function setUpdated($updated) {
+		$this->updated = $updated;
+	}
+
+	public function getViews() {
+		return $this->updated;
+	}
+
+	public function setViews($views) {
+		$this->views = $views;
+	}
+
+	public function getRating() {
+		return $this->rating;
+	}
+
+	public function setRating($rating) {
+		$this->rating = $rating;
 	}
 
 	/**

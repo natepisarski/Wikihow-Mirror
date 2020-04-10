@@ -110,15 +110,7 @@ class GDPR extends UnlistedSpecialPage {
 	}
 
 	public static function getHTML() {
-		global $wgLanguageCode;
-
 		$messageName = "gdpr_message";
-		if ( Misc::isMobileMode() ) {
-			if ( $wgLanguageCode == 'en' ) {
-				$messageName = "gdpr_message_mobile";
-			}
-		}
-
 		$messageInner = wfMessage( $messageName )->text();
 		if ( strpos( $messageInner, '[[' ) !== FALSE ) {
 			$messageInner = wfMessage( $messageName )->parse();

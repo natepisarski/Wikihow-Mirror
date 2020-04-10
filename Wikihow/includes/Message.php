@@ -180,6 +180,7 @@ class Message implements MessageSpecifier, Serializable {
 		'text' => 'listToText',
 	];
 
+	private static $noParamMessages = [];
 	/**
 	 * In which language to get this message. True, which is the default,
 	 * means the current user language, false content language.
@@ -854,6 +855,12 @@ class Message implements MessageSpecifier, Serializable {
 	 * @suppress SecurityCheck-DoubleEscaped phan false positive
 	 */
 	public function toString( $format = null ) {
+		//if ( $format === self::FORMAT_TEXT && count( $this->parameters ) == 0 ) {
+			//$res = self::$noParamMessages[$this->key];
+			//if ( $res ) {
+				//return $res;
+			//}
+		//}
 		if ( $format === null ) {
 			$ex = new LogicException( __METHOD__ . ' using implicit format: ' . $this->format );
 			\MediaWiki\Logger\LoggerFactory::getInstance( 'message-format' )->warning(
@@ -901,6 +908,9 @@ class Message implements MessageSpecifier, Serializable {
 		# Raw parameter replacement
 		$string = $this->replaceParameters( $string, 'after', $format );
 
+		//if ( $format === self::FORMAT_TEXT && count( $this->parameters ) == 0 ) {
+			//self::$noParamMessages[$this->key] = $string;
+		//}
 		return $string;
 	}
 

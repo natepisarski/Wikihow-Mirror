@@ -199,6 +199,19 @@ class TranslationLink {
 		return true;
 	}
 
+	public static function updateTranslationStatusComplete($aid, $toLang) {
+		$dbw = wfGetDB(DB_MASTER);
+		$dbw->update( WH_DATABASE_NAME . ".translation_link",
+			['tl_translated' => self::TL_TRANSLATED],
+			[
+				'tl_from_lang' => "en",
+				'tl_to_lang' => $toLang,
+				'tl_from_aid' => $aid
+			],
+			__METHOD__
+		);
+	}
+
 	/**
 	 * Bulk insert of translation links. If a translation link is updateable, we will do an update
 	 */

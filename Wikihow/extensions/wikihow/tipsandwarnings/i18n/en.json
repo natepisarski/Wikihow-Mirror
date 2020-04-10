@@ -1,0 +1,31 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"submit_a_tip_header": "Submit a Tip",
+	"submit_a_tip_subheader": "All tip submissions are carefully reviewed before being published",
+	"submit_a_tip_ph": "Your tip here",
+	"submit_a_tip_thanks": "Thanks for submitting a tip for review!",
+	"tipspatrol": "Tips Patrol",
+	"newtips": "Tips Patrol",
+	"newtips-approved-logentry": "Added '$2' to [[$1]] from QG",
+	"newtips-rejected-logentry": "Deleted '$2' from [[$1]]",
+	"newtips-sentToQG-logentry": "Sent '$2' on [[$1]] to QG",
+	"newtips-article-edit-entry": "New tip approved in QG",
+	"newtips-article-edit-entry_tp": "New tip approved in Tips Patrol",
+	"newtips-approved-logentry_tp": "Approved '$2' on [[$1]] in Tips Patrol",
+	"tip_keep_title": "publish [ctrl+alt p]",
+	"tip_skip_title": "skip [ctrl+alt s]",
+	"tip_delete_title": "delete [ctr+alt d]",
+	"addedtip": "New Tip Added",
+	"addedtip-added-logentry": "Added new tip '$2' to [[$1]]",
+	"tp_hello": "Hello",
+	"tp_patrol_coach": "I am the Tips Patrol Coach",
+	"tp_dismiss": "Dismiss",
+	"tp_reject": "Reject",
+	"tp_shortcuts": "Get Shortcuts",
+	"tp_header": "Should we publish this tip or delete it?",
+	"tp_subheader": "Only publish this if the information in the tip is relevant, helpful, and non-obvious. Therefore, most tips should be rejected.",
+	"tp_reviewed_checkbox": "This tip has been fully reviewed and is ready to be published on the article.",
+	"tp_bubble_text": "Only publish this tip if you can make it helpful, clear, and grammatically correct. The tip must also be relevant and non-obvious. Most tips should get deleted."
+}

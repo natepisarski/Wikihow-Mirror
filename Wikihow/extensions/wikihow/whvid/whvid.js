@@ -31,7 +31,7 @@ WH.video = (function () {
 			});
 		}, {
 			rootMargin: "0px",
-			threshold: 0.75 
+			threshold: 0.75
 		});
 	}
 

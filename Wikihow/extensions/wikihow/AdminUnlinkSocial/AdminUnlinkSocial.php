@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'AdminUnlinkSocial',
-    'author' => 'Alberto Burgos',
+    'author' => 'Alberto',
     'description' => "This tool can be used to unlink a user's Google or Facebook account "
                    . "from their wikiHow account",
 );

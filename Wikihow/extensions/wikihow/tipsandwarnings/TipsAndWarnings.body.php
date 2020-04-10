@@ -4,6 +4,17 @@ class TipsAndWarnings extends UnlistedSpecialPage {
 
 	const EDIT_COMMENT = "edited tip from [[Special:TipsPatrol|Tips Patrol]]";
 
+	private static $is_valid_new_tip_title = null;
+	private static $excludedNewTipCategories = [
+		'Cars-&-Other-Vehicles',
+		'Education',
+		'Family-Life',
+		'Finance-and-Business',
+		'Health',
+		'Pets',
+		'Work-World'
+	];
+
 	public function __construct() {
 		parent::__construct('TipsAndWarnings');
 	}
@@ -65,83 +76,90 @@ class TipsAndWarnings extends UnlistedSpecialPage {
 		return '';
 	}
 
-/*
-	DO WE USE THESE ANYMORE? [sc] 7/2019
-
-	public static function injectCTAs(&$xpath, &$t) {
-		if (self::isActivePage() && self::isValidTitle($t)) {
-			$nodes = $xpath->query('//div[@id="tips"]/ul');
-			foreach ($nodes as $node) {
-				$newHtml = "Insert new tip here:<br/>";
-				$newHtml .= "<textarea class='newtip' style='margin-right:5px; height:35px; width:200px;'></textarea>";
-				$newHtml .= "<a href='#' class='addtip button white_button' style='vertical-align:top'>Add</a>";
-				$newHtml .= "<img class='tip_waiting' style='display:none' src='" . wfGetPad('/extensions/wikihow/rotate.gif') . "' alt='' />";
-				$newNode = $node->ownerDocument->createElement('div', "");
-				$newNode->setAttribute('class', 'addTipElement');
-				$newNode->innerHTML = $newHtml;
-
-				if ($node->nextSibling !== null) {
-					$node->parentNode->insertBefore($newNode, $node->nextSibling);
-				}
-				else {
-					$node->parentNode->appendChild($newNode);
-				}
-
-				$i++;
-			}
+	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		if (self::isValidNewTipTitle( $out->getTitle() )) {
+			$out->addModuleStyles('ext.wikihow.submit_a_tip.styles');
+			$out->addModules('ext.wikihow.submit_a_tip');
 		}
 	}
 
-	public static function injectRedesignCTAs(&$xpath, &$t) {
-		if (self::isValidTitle($t) && self::isActivePage()) {
-			$nodes = $xpath->query('//div[@id="tips"]/ul');
-			foreach ($nodes as $node) {
-				$newHtml = "<textarea class='newtip' placeholder='Know a good tip? Add it.'></textarea>";
-				$newHtml .= "<a href='#' class='addtip'>Add</a>";
-				$newNode = $node->ownerDocument->createElement('div', "");
-				$newNode->setAttribute('class', 'addTipElement');
-				$newNode->innerHTML = $newHtml;
+	public static function onMobileProcessArticleHTMLAfter( OutputPage $out ) {
+		if (self::isValidNewTipTitle( $out->getTitle() )) {
 
-				if ($node->nextSibling !== null) {
-					$node->parentNode->insertBefore($newNode, $node->nextSibling);
-				}
-				else {
-					$node->parentNode->appendChild($newNode);
-				}
+			$showDivider = true;
 
-				$i++;
+			if (!pq('.section.tips')->length) {
+				$emptyTips = self::emptyTipsSection();
+				$showDivider = false;
+
+				if (pq('.section.warnings')->length) {
+					pq('.section.warnings')->before($emptyTips);
+				}
+				elseif (pq('.section.video')->length) {
+					pq('.section.video')->after($emptyTips);
+				}
+				elseif (pq('.section.qa')->length) {
+					pq('.section.qa')->after($emptyTips);
+				}
+				elseif (pq('.steps:last')->length) {
+					pq('.steps:last')->after($emptyTips);
+				}
 			}
+
+			$newNode = self::submitTipHtml( $showDivider );
+			pq("#tips")->append( $newNode );
 		}
 	}
 
-	public static function addRedesignCTAs(&$doc, &$t) {
-		if (self::isValidTitle($t) && self::isActivePage()) {
+	private static function submitTipHtml( bool $showDivider ): string {
+		$vars = [
+			'add_tip_aria' => wfMessage('aria_add_tip')->showIfExists(),
+			'submit' => wfMessage('submit')->text(),
+			'newtip_ph' => wfMessage('submit_a_tip_ph')->text(),
+			'header' => wfMessage('submit_a_tip_header')->text(),
+			'subheader' => wfMessage('submit_a_tip_subheader')->text(),
+			'thanks' => wfMessage('submit_a_tip_thanks')->text(),
+			'divider' => $showDivider
+		];
 
-			foreach (pq("#tips > ul") as $node) {
-				$newHtml = "<textarea class='newtip' placeholder='Know a good tip? Add it.'></textarea>";
-				$newHtml .= "<a href='#' class='addtip op-action' role='button' aria-label='" . wfMessage('aria_add_tip')->showIfExists() . "'>Add</a>";
-
-				$newNode = "<div class='addTipElement'>{$newHtml}</div>";
-
-				$nextNode = pq($node)->next();
-
-				if ($nextNode->length > 0 ) {
-					pq($newNode)->insertBefore($nextNode);
-				}
-				else {
-					pq($node)->parent()->append($newNode);
-				}
-				return; //only one
-			}
-		}
-	}*/
-
-	public static function isValidTitle(&$t) {
-		return $t && $t->exists() && $t->inNamespace(NS_MAIN) && !$t->isProtected();
+		return self::renderTemplate('submit_a_tip.mustache', $vars);
 	}
 
-	public static function isActivePage() {
-		return true;
+	private static function emptyTipsSection(): string {
+		$vars = [
+			'tips' => wfMessage('tips')->text()
+		];
+
+		return self::renderTemplate('empty_tips_section.mustache', $vars);
+	}
+
+	private static function renderTemplate( string $template, array $vars = [] ): string {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		return $m->render( $template, $vars );
+	}
+
+	public static function isValidNewTipTitle($t): bool {
+		if (!is_null(self::$is_valid_new_tip_title)) return self::$is_valid_new_tip_title;
+
+		$android_app = class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest();
+
+		self::$is_valid_new_tip_title = $t &&
+			$t->exists() &&
+			$t->inNamespace(NS_MAIN) &&
+			!$t->isProtected() &&
+			$t->getPageLanguage()->getCode() == 'en' &&
+			!GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() ) &&
+			!Misc::isAltDomain() &&
+			!$android_app &&
+			!in_array(CategoryHelper::getTopCategory($t), self::$excludedNewTipCategories) &&
+			!VerifyData::isExpertVerified( $t->getArticleId() ) &&
+			!Ads::isExcluded($t);
+
+		return self::$is_valid_new_tip_title;
 	}
 
 	function getSQL() {

@@ -63,24 +63,6 @@
 
 /* this class is set on the contact wikihow template which appears on the cookie policy page, About-wikiHow, Jobs... */
 .contactwikihow {
-	display: -ms-flexbox;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: row;
-	-ms-flex-direction: row;
-	flex-direction: row;
-	-webkit-flex-wrap: wrap;
-	-ms-flex-wrap: wrap;
-	flex-wrap: wrap;
-	-webkit-justify-content: center;
-	-ms-flex-pack: center;
-	justify-content: center;
-	-webkit-align-content: flex-start;
-	-ms-flex-line-pack: start;
-	align-content: flex-start;
-	-webkit-align-items: stretch;
-	-ms-flex-align: stretch;
-	align-items: stretch;
 	color: #000;
 	background: @grayLight;
 
@@ -100,6 +82,87 @@
 	.cw-body {
 		padding: 1em;
 	}
+}
+
+.contactwikihow,
+.featured_experts {
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	-webkit-flex-wrap: wrap;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	-webkit-justify-content: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	-webkit-align-content: flex-start;
+	-ms-flex-line-pack: start;
+	align-content: flex-start;
+	-webkit-align-items: stretch;
+	-ms-flex-align: stretch;
+	align-items: stretch;
+}
+
+.featured_experts {
+	font-size: 12px;
+
+	> div {
+		-webkit-flex: 1 1 auto;
+		-ms-flex: 1 1 auto;
+		flex: 1 1 auto;
+		margin: 0 5px 20px;
+		background-color: #EFF4EB;
+		width: 156px;
+		max-width: 300px;
+	}
+
+	.expert_category {
+		font-weight: bold;
+		font-size: 10px;
+		color: #6E8A57;
+		padding: 8px 6px 6px;
+	}
+
+	.expert_name {
+		font-size: 13px;
+		font-weight: bold;
+		color: #222;
+		padding: 0 6px;
+
+		span {
+			font-size: 12px;
+		}
+	}
+
+	.expert_title {
+		color: #444F45;
+		padding: 6px;
+		min-height: 2.8em;
+	}
+
+	.expert_desc {
+		padding: 6px;
+	}
+
+	.mwimg {
+		margin-bottom: 0;
+
+		img {
+			border-radius: 0;
+		}
+	}
+}
+
+.content .steps .section_text p.featured_experts_more:last-of-type {
+	padding-bottom: 24px;
+}
+
+table {
+	overflow-x: auto;
+	display: block;
 }
 
 @media @medium {

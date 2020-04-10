@@ -72,6 +72,7 @@ $wgResourceModules['mobile.wikihow.qa_widget'] = array(
 		'qa_curate',
 		'qa_ignore_mobile',
 		'qa_flag',
+		'qa_flag_mobile',
 		'qa_edit',
 		'qa_mark_inactive',
 		'qa_edit_form_submit',

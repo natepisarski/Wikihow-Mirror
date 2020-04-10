@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminCloseAccount',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => "A tool for staff members to close user accounts",
 );
 

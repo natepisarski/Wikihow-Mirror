@@ -154,6 +154,24 @@ WH.xss = {
 	}
 };
 
+WH.event = function(name, params) {
+	params = params || {};
+	params.action = name;
+	params.screen = WH.shared.getScreenSize();
+	params.page = params.page || mw.config.get('wgArticleId');
+	var url = '/x/event?' + new URLSearchParams(params).toString();
+
+	var isDev = window.location.href.indexOf(".wikidogs.") >= 0;
+	if (isDev) {
+		console.log("ping: " + url);
+		return;
+	}
+
+	var xhr = new XMLHttpRequest();
+	xhr.open( 'GET', url, true );
+	xhr.send( null );
+};
+
 // NOTE: using this method is deprecated (March 2017)
 // You should call WH.maEvent directly now. We no longer use the
 // old "whEvent" system, so this method just called into machinify.

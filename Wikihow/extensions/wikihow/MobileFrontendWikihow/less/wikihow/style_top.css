@@ -340,7 +340,7 @@ a.external {
 		width: 100%;
 		padding-left: 34px;
 		padding-right: 34px;
-		background-position: 6px center;
+		background-position: left 6px bottom 50%;
 	}
 
 	.hs_active #hs_query:valid ~ #hs_submit {
@@ -813,7 +813,7 @@ h3 .altblock {
 .header #mw-mf-main-menu-button{
 	width: 72px;
 	border-right: none;
-	background:  url(/extensions/wikihow/mobile/images/main_menu_button.svg) 15px center / 18px no-repeat;
+	background:  url(/extensions/wikihow/mobile/images/main_menu_button.svg) left 15px bottom 50% / 18px no-repeat;
 }
 .header #mw-mf-main-menu-button, .header #secondary-button { height: auto; }
 

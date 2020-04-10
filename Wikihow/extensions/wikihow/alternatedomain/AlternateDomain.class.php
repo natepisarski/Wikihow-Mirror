@@ -1078,6 +1078,10 @@ class AlternateDomain {
 		// Add a canonical for everything but search urls
 		$prefUrl = $out->getContext()->getTitle()->getPrefixedURL();
 		if($prefUrl !== "Special:LSearch") {
+			// Hack to fix the canonical URL on /Experts; since Special:ArticleReviewers has been redirected to /Experts
+			if ( $prefUrl == "Special:ArticleReviewers" ) {
+				$prefUrl = "Experts";
+			}
 			$canonicalUrl = 'https://www.' . $domain . '/' . $prefUrl;
 			$headLinks[] = Html::element( 'link', array(
 				'rel' => 'canonical',

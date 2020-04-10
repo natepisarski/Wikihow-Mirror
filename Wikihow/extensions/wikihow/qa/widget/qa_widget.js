@@ -1046,7 +1046,7 @@
 					$.each(sqs, function(i, sq) {
 						sq.qa_curate =  mw.msg('qa_curate_mobile');
 						sq.qa_ignore = mw.msg('qa_ignore_mobile');
-						sq.qa_flag = mw.msg('qa_flag');
+						sq.qa_flag = mw.msg('qa_flag_mobile');
 						sq.qa_desktop = false;
 
 						sqsHtml += Mustache.render(unescape($('#qa_submitted_question_item').html()), sq);

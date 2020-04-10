@@ -9,10 +9,6 @@ class RelatedWikihow {
 		return $this->createHtml( RelatedWikihows::SIDEBAR_IMG_WIDTH, RelatedWikihows::SIDEBAR_IMG_HEIGHT, true );
 	}
 
-	public function createSidebarLargerHtml() {
-		return $this->createHtml( RelatedWikihows::SIDEBAR_LARGER_IMG_WIDTH, RelatedWikihows::SIDEBAR_LARGER_IMG_HEIGHT, false, false, true );
-	}
-
 	public function createDesktopHtml() {
 		return $this->createHtml( RelatedWikihows::RELATED_IMG_WIDTH, RelatedWikihows::RELATED_IMG_HEIGHT, false );
 	}
@@ -31,20 +27,16 @@ class RelatedWikihow {
 
 	// creates the html for the related wikihows image, including fallback noscript tag and the scrollloading js snippet for lazy loading
 	// will use a video instead of an image if the article has a video src
-	private function createRelatedImgHtml( $width, $height, $isSidebar, $ampMode, $largeSidebar, $afterImgElement = '' ) {
+	private function createRelatedImgHtml( $width, $height, $isSidebar, $ampMode, $afterImgElement = '' ) {
 		$imgSrc = '';
-		$videoSrc = $this->mVideoUrl;
-		if ( $isSidebar ) {
-			$imgSrc = $this->mThumbUrlSide;
-			$videoSrc = "";
-		} elseif ( $largeSidebar ) {
-			$imgSrc = $this->mThumbUrlSideLarger;
-			$videoSrc = "";
-		} else {
-			$imgSrc = $this->mThumbUrl;
-			if ( isset( $this->mGifUrl ) ) {
-				$imgSrc = $this->mGifUrl;
-			}
+		$file = RepoGroup::singleton()->findFile( $this->mTitleImageName );
+		if ( $file ) {
+			$thumb = $file->getThumbnail( $width, $height, true, true ) ;
+			$imgSrc = $thumb->getUrl();
+		}
+		$videoSrc = '';
+		if ( !$isSidebar ) {
+			$videoSrc = $this->mVideoUrl;
 		}
 
 		$imgSrc = wfGetPad( $imgSrc );
@@ -82,7 +74,7 @@ class RelatedWikihow {
 				'playsinline' => '',
 				'webkit-playsinline' => '',
 				'muted' => '',
-				'data-poster' => $this->mThumbUrl,
+				'data-poster' => $imgSrc,
 				'loop' => '',
 				//'autoplay' => ''
 			];
@@ -112,14 +104,14 @@ class RelatedWikihow {
 	}
 
 	// creates html that has fewer dom elements than the regular version
-	private function createHtmlFastRender( $width, $height, $isSidebar = false, $ampMode = false, $largeSidebar = false ) {
+	private function createHtmlFastRender( $width, $height, $isSidebar = false, $ampMode = false ) {
 		// the text to show for each related wikihow
 		$howToPrefix = wfMessage( 'howto_prefix' )->showIfExists();
 		$howToPrefix = Html::element( 'div', ['class' => 'related-wh-howto'], $howToPrefix );
 		$howToText = $howToPrefix . $this->mText . wfMessage('howto_suffix')->showIfExists();
 		$titleText = Html::rawElement( "span", [ 'class' => 'related-wh-title' ], $howToText );
 
-		$img = $this->createRelatedImgHtml($width, $height, $isSidebar, $ampMode, $largeSidebar, $titleText );
+		$img = $this->createRelatedImgHtml($width, $height, $isSidebar, $ampMode, $titleText );
 
 		$linkAttributes = [
 			'class' => 'related-wh',
@@ -131,8 +123,8 @@ class RelatedWikihow {
 	}
 
 
-	private function createHtml( $width, $height, $isSidebar = false, $ampMode = false, $largeSidebar = false ) {
-		$img = $this->createRelatedImgHtml($width, $height, $isSidebar, $ampMode, $largeSidebar);
+	private function createHtml( $width, $height, $isSidebar = false, $ampMode = false ) {
+		$img = $this->createRelatedImgHtml( $width, $height, $isSidebar, $ampMode  );
 
 		$linkAttributes = [
 			'class' => 'related-image-link',
@@ -193,6 +185,12 @@ class RelatedWikihows {
 	var $mIdName = "relatedwikihows";
 	var $mAd = null;
 
+	static $relatedWikihowsInstance = null;
+
+	public static function getRelatedWikihows() {
+		return self::$relatedWikihowsInstance;
+	}
+
 	public function __construct( $context, $user, $relatedSection = '' ) {
 		$title = $context->getTitle();
 		$this->mTitle = $title;
@@ -220,6 +218,7 @@ class RelatedWikihows {
 		}
 
 		$this->mAmpMode = GoogleAmp::isAmpMode( $context->getOutput() );
+		self::$relatedWikihowsInstance = $this;
 	}
 
 	/*
@@ -418,17 +417,13 @@ class RelatedWikihows {
 	// takes in an array of titles
 	// return an array containing just the info needed to create the related section
 	// also gets the image thumbnails
-	public static function makeRelatedArticlesData( $relatedArticles, $useCategoryThumbs = true) {
+	public static function makeRelatedArticlesData( $relatedArticles ) {
 		// now that we have the list of titles, we can make a more compact array of related data
 		// that is easily cachable
 		$width = self::RELATED_IMG_WIDTH;
 		$height = self::RELATED_IMG_HEIGHT;
 		$sideWidth = self::SIDEBAR_IMG_WIDTH;
 		$sideHeight = self::SIDEBAR_IMG_HEIGHT;
-		$sideWidthLarger = self::SIDEBAR_LARGER_IMG_WIDTH;
-		$sideHeightLarger = self::SIDEBAR_LARGER_IMG_HEIGHT;
-		$mobileWidth = self::MOBILE_IMG_WIDTH;
-		$mobileHeight = self::MOBILE_IMG_HEIGHT;
 		$related = array();
 
 		foreach ( $relatedArticles as $id => $val ) {
@@ -439,30 +434,16 @@ class RelatedWikihows {
 			// uncomment this to get the article's representative gif and video
 			//$gifUrl = ArticleMetaInfo::getGif( $title );
 			$videoUrl = ArticleMetaInfo::getVideoSrc( $title );
-			$thumbnailImage = ArticleMetaInfo::getRelatedThumb( $title, $width, $height );
-			$thumbnailImageSide = ArticleMetaInfo::getRelatedThumb( $title, $sideWidth, $sideHeight );
-			$thumbnailImageSideLarger = ArticleMetaInfo::getRelatedThumb( $title, $sideWidthLarger, $sideHeightLarger );
-			$thumbnailImageMobile = ArticleMetaInfo::getRelatedThumb( $title, $mobileWidth, $mobileHeight );
+			$titleImageName = ArticleMetaInfo::getTitleImageName( $title );
 
-			if ( !$thumbnailImage ) {
+			if ( !$titleImageName ) {
 				continue;
 			}
 
-			if ( !$useCategoryThumbs && strstr( $thumbnailImage->getUrl(), "Category" ) ) {
-				if ( mt_rand( 1, 3 ) <= 2 ) {
-					$defaultImageFile = Wikitext::getDefaultTitleImage();
-					$thumbnailImage = ImageHelper::getThumbnail( $defaultImageFile, $width, $height );
-					$thumbnailImageSide = ImageHelper::getThumbnail( $defaultImageFile, $sideWidth, $sideHeight );
-					$thumbnailImageMobile = ImageHelper::getThumbnail( $defaultImageFile, $mobileWidth, $mobileHeight );
-				}
-			}
 			$item = new RelatedWikihow();
 			//$item->mGifUrl = $gifUrl;
 			$item->mVideoUrl = $videoUrl;
-			$item->mThumbUrl = $thumbnailImage->getUrl();
-			$item->mThumbUrlSide = $thumbnailImageSide->getUrl();
-			$item->mThumbUrlSideLarger = $thumbnailImageSideLarger->getUrl();
-			$item->mThumbUrlMobile = $thumbnailImageMobile->getUrl();
+			$item->mTitleImageName = $titleImageName;
 			$item->mText = $title->getText();
 			$item->mUrl = $title->getLocalURL();
 
@@ -664,28 +645,6 @@ class RelatedWikihows {
 		}
 	}
 
-	// get 4 related wikihows to show in the side bar for an ad test
-	public function getSideDataLarger() {
-		$header = Html::element( 'h3', array(), wfMessage('relatedarticles')->text() );
-
-		$relatedWikihows = $this->mRelatedWikihows;
-
-		if ( count( $relatedWikihows ) == 0 ) {
-			return "";
-		}
-
-		$relatedWikihows = array_slice( $relatedWikihows, 0, 4 );
-
-		$thumbs = "";
-		foreach ( $relatedWikihows as $relatedWikihow ) {
-			$thumbs .= $relatedWikihow->createSidebarLargerHtml();
-		}
-
-		$clear = Html::rawElement( "div", array( 'class' => 'clearall' ) );
-
-		$html = $header.$thumbs.$clear;
-		return $html;
-	}
 	// get 4 related wikihows to show in the side bar
 	public function getSideData() {
 		$header = Html::element( 'h3', array(), wfMessage('relatedarticles')->text() );

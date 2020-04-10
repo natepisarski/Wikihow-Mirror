@@ -31,12 +31,13 @@ class FindStaleArticlePolicies extends WHMaintenance {
 		$opts = [];
 		$join = [ 'index_info' => [ 'JOIN', [ 'page_id = ii_page' ] ] ];
 
-		// Once stale policies are a thing of the past, we can check a bit less frequently
-		// $isSaturday = (date('w') === '6');
-		// if ( !$isSaturday ) {
-		// 	$limit = ($wgLanguageCode == 'en') ? 10000 : 1000;
-		// 	$opts = [ 'ORDER BY' => 'RAND()', 'LIMIT' => $limit ];
-		// }
+		// We only check all articles on Saturdays, but we still want to check a subset
+		// every day, to quickly detect potential bugs that affect the indexation policy.
+		$isSaturday = (date('w') === '6');
+		if ( !$isSaturday ) {
+			$limit = ($wgLanguageCode == 'en') ? 10000 : 1000;
+			$opts = [ 'ORDER BY' => 'RAND()', 'LIMIT' => $limit ];
+		}
 
 		$rows = $dbr->select($tables, $fields, $where, __METHOD__, $opts, $join);
 		$changes = [ 'indexed' => [], 'deindexed' => [] ];

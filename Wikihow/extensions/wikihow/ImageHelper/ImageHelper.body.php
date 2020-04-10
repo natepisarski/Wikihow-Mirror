@@ -876,6 +876,7 @@ EOT;
 		}
 
 		$params['heightPreference'] = $heightPreference;
+
 		// Reuben: No longer use RENDER_NOW flag because it's unnecessary and
 		// messes up the transformVia404 stuff
 		//$flags = $render ? File::RENDER_NOW : 0;

@@ -645,6 +645,23 @@ window.editButton = editButton;
 window.initNonModal = initNonModal;
 window.ajaxCropit = ajaxCropit;
 
-if ( window.initAvatarPage ) {
-	window.initAvatarPage();
+$(document).ready(function() {
+	//avatar edit page
+	if ( window.nonModal ) {
+		initAvatarPage();
+	}
+});
+
+function initAvatarPage() {
+	$.getScript( prototypeSrc )
+		.then( function () {
+			return jQuery.getScript( builderSrc )
+		} )
+		.then( function () {
+			return jQuery.getScript( dragdropSrc )
+		} )
+		.then( function () {
+			return jQuery.getScript( cropperSrc )
+		} )
+		.then( initNonModal );
 }

@@ -259,7 +259,7 @@ class MobileFrontendWikiHowHooks {
 
 			// if we are on the fast render test, there may be no embedStyles to putput, so checking the size here
 			if ( count( $embedStyles ) ) {
-				$style = Misc::getEmbedFiles('css', $embedStyles);
+				$style = Misc::getEmbedFiles('css', $embedStyles, null, $wgLang->isRTL());
 				$less = ResourceLoader::getLessCompiler();
 				$less->parse($style);
 				$style = $less->getCss();
@@ -294,9 +294,12 @@ class MobileFrontendWikiHowHooks {
 		$wHnamespacePagesWithCss = [
 			wfMessage('trustworthy-page')->text(),
 			wfMessage('about-page')->text(),
+			wfMessage('corona-guide')->text(),
+			wfMessage('terms-page')->text(),
+			wfMessage('cookie_policy_page')->text(),
+			wfMessage("community")->text(), //intl dash
 			'Privacy-Policy',
 			'Jobs',
-			'Terms-of-Use',
 			'About-wikiHow.health',
 			'About-wikiHow.legal',
 			'About-wikiHow.mom',
@@ -314,7 +317,9 @@ class MobileFrontendWikiHowHooks {
 			'Hybrid-Organization',
 			'Tour',
 			'Free-Basics',
-			'History-of-wikiHow'
+			'History-of-wikiHow',
+			'Deletion-Policy',
+			'Attribution'
 		];
 
 		$specialPagesWithCss = [
@@ -325,15 +330,17 @@ class MobileFrontendWikiHowHooks {
 			'ArticleReviewers',
 			'ProfileBox',
 			'Avatar',
-			'UserLogin',
-			'CreateAccount',
-			'UserLogout',
+			SpecialPage::getTitleValueFor('CreateAccount')->getDBkey(),
+			SpecialPage::getTitleValueFor('UserLogin')->getDBkey(),
+			SpecialPage::getTitleValueFor('UserLogout')->getDBkey(),
+			SpecialPage::getTitleValueFor('Notifications')->getDBkey(),
 			'PasswordReset',
 			'MobileCommunityDashboard',
-			'Notifications',
 			'HighSchoolHacks',
 			'RequestTopic',
-			'CreatePage'
+			'CreatePage',
+			'Newpages',
+			'Hello',
 		];
 
 		$responsiveTools = [
@@ -345,7 +352,8 @@ class MobileFrontendWikiHowHooks {
 			'MobileUCIPatrol',
 			'UnitGuardian',
 			'MobileTopicTagging',
-			'MobileCategoryGuardian'
+			'MobileCategoryGuardian',
+			'TipsGuardian',
 		];
 
 		self::$isvalidResponsivePage = $title &&

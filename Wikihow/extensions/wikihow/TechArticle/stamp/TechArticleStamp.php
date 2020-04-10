@@ -2,8 +2,6 @@
 
 /**
  * "Community Tested" stamp in the upper right corner of the article intro box
- *
- * @author Alberto Burgos
  */
 
 if (!defined('MEDIAWIKI'))

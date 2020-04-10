@@ -17,19 +17,20 @@ class RenameS3CacheFileMaintenance extends Maintenance {
 	const BUCKET_NAME = 'cache.wikihow.com';
 
 	static $s3;
-	
-	public function execute() {
-		self::main();
+
+	public function __construct() {
+		parent::__construct();
+		$this->mDescription = 'Used by "Offline Cache" process/system that runs on tools server; this script renames a file on S3 in the bucket ' . self::BUCKET_NAME;
+
+		// addOption(long_form, description, required (bool), takes_args (bool), short_form)
+		$this->addOption('domain', 'Target domain within offline cache', true, true);
+
+		// addArg(name, description, required (bool))
+		$this->addArg('files...', 'File(s) containing list of S3 objects to rename', true);
 	}
 
-	static function main() {
-		// TODO: should be re-written to use $this->getOption() etc
-		global $argv;
-		if (count($argv) < 2) {
-			print "usage: " . __FILE__ . " domain-name files...\n";
-			exit;
-		}
-		$domain = array_shift($argv);
+	public function execute() {
+		$domain = $this->getOption('domain');
 		if (!defined('WH_AWS_CACHE_ACCESS_KEY') || !WH_AWS_CACHE_ACCESS_KEY ||
 			!defined('WH_AWS_CACHE_SECRET_KEY') || !WH_AWS_CACHE_SECRET_KEY
 		) {
@@ -38,7 +39,11 @@ class RenameS3CacheFileMaintenance extends Maintenance {
 		}
 		self::$s3 = new S3(WH_AWS_CACHE_ACCESS_KEY, WH_AWS_CACHE_SECRET_KEY);
 
-		foreach ($argv as $file) {
+		$i = 0;
+		while ($this->hasArg($i)) {
+		    $file = $this->getArg($i);
+			$i++;
+
 			$lines = file($file);
 			$renames = 0;
 			foreach ($lines as $i => $line) {

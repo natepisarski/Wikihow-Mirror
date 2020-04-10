@@ -14,6 +14,20 @@
 	margin-bottom: 10px;
 }
 
+.cat_expert {
+	border: 1px solid #6f8461;
+	border-radius: 7px;
+	background: #fff url(/skins/owl/images/sp_expert_icon_white.svg) 2px center/11px no-repeat;
+	font-size: 8px;
+	padding: 0 5px 0 15px;
+	display: inline;
+	position: absolute;
+	line-height: 17px;
+	left: 5px;
+	top: 5px;
+	color: #6f8461;
+}
+
 #cat_parent {
 	display: table-cell;
 	padding: 15px;
@@ -319,6 +333,55 @@
 	display: none;
 }
 
+#cat_covid_message {
+	min-height: 220px;
+
+	.cat_subheader {
+		padding: .5em 0;
+		color: @linkColor;
+		font-weight: bold;
+		display: block;
+	}
+
+	a.button {
+		border-radius: 10px;
+		margin-top: .25em;
+		display: inline-block;
+		width: 100%;
+		box-sizing: border-box;
+	}
+}
+
+#parentsguide_cover {
+	display: block;
+	text-align: center;
+
+	img {
+		width: 100%;
+		max-width: 440px;
+		border-radius: 7px;
+		border: 1px solid #dfdfdf;
+	}
+}
+
+
+#cat_watch_container {
+	display: grid;
+	grid-gap: 20px;
+
+	h2 a {
+		display: none;
+	}
+}
+
+.content .play_button {
+	position: absolute;
+	width: 50px;
+	left: 50%;
+	margin-left: -25px;
+	top: 26%;
+}
+
 @media @medium {
 	#subcats {
 		grid-template-columns: 1fr 1fr;
@@ -361,6 +424,35 @@
 			}
 		}
 	}
+
+	#cat_covid_message {
+		a.button {
+			max-width: 500px;
+		}
+	}
+
+	#parentsguide_cover {
+		width: 220px;
+		float: right;
+		margin: -2em 0 0 5%;
+	}
+
+	#cat_watch_container {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		grid-gap: 25px;
+
+		> a {
+			display: none;
+		}
+	}
+
+	.content .play_button {
+		width: 40px;
+		left: 50%;
+		margin-left: -20px;
+		top: 25px;
+	}
 }
 
 @media @large {
@@ -372,5 +464,11 @@
 		float: right;
 		font-size: 12px;
 		display: block;
+	}
+
+	#cat_watch_container {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+		grid-gap: 10px;
 	}
 }

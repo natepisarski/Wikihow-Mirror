@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'TwitterReport',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => "A tool to help staff members find relevant Tweets",
 );
 

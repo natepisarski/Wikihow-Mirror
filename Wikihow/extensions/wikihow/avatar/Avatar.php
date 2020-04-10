@@ -43,5 +43,12 @@ $wgResourceModules['ext.wikihow.avatar'] = [
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/avatar',
 	'targets' => [ 'desktop', 'mobile' ],
-	'position' => 'top'
+	'position' => 'bottom'
+];
+
+$wgResourceModules['ext.wikihow.avatar_cropper.styles'] = [
+	'styles' => [ 'cropper.css' ],
+	'localBasePath' => __DIR__ . '/../common/cropper',
+	'remoteExtPath' => 'wikihow/common/cropper',
+	'targets' => [ 'desktop', 'mobile' ]
 ];

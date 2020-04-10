@@ -221,8 +221,9 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		}
     }
 
-    public static function onWebRequestPathInfoRouter( $router ) {
-		$router->addStrict( '/Experts', array( 'title' => 'Special:ArticleReviewers' ) );
+	public static function onWebRequestPathInfoRouter( $router ) {
+		$specialPageTitle = Title::makeTitle( NS_SPECIAL, 'ArticleReviewers' );
+		$router->addStrict( '/Experts', array( 'title' => $specialPageTitle->getNsText() . ":" . $specialPageTitle->getText() ) );
 	}
 
 }

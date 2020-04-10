@@ -121,6 +121,11 @@ div.qc_title {
 	float: right;
 }
 
+#qc_desktop_disclaimer {
+	float: right;
+	margin-top: 1em;
+}
+
 #qcrules {
 	float: right;
 	padding-top: 20px;

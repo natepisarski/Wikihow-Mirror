@@ -9,13 +9,8 @@
 		<a id="tg_unsure" href="#" class="button primary" data-event_action="skip"><?=wfMessage('tg_unsure')?></a>
 		<a id="tg_no" href="#" class="button secondary op-action" data-event_action="vote_down"><?=wfMessage('tg_no')?></a>
 	</div>
-	
-	<div id="tg_limit_reached" style="display:none;">
-		<p><?= wfMessage('catch-msg-anon-limit')->text() ?></p>
-		<a href="/Special:UserLogin?type=signup&amp;returnto=Special:TipsGuardian" class="button primary">
-			<?= wfMessage('catch-sign-up')->text() ?>
-		</a>
-	</div>
+
+	<div id="tg_limit_reached"></div>
 	<?=$articleWidgetHtml?>
 	<?=$tool_info?>
 	<div id='tg_waiting'><img src='<?= wfGetPad('/extensions/wikihow/rotate.gif') ?>' alt='' /></div>

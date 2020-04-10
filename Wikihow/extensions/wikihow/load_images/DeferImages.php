@@ -36,7 +36,7 @@ class DeferImages {
   public static function validPage(): bool {
 		$title = RequestContext::getMain()->getTitle();
   	return self::isArticlePage() ||
-  		($title && $title->inNamespaces(NS_USER, NS_USER_TALK, NS_USER_KUDOS));
+  		($title && $title->inNamespaces(NS_USER, NS_USER_TALK, NS_USER_KUDOS, NS_PROJECT));
   }
 
 	public static function isArticlePage() {

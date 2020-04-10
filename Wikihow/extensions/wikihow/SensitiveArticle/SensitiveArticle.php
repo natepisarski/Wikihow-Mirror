@@ -2,7 +2,7 @@
 
 $wgExtensionCredits['other'][] = array(
 	'name' => 'SensitiveArticle',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => 'Sensitive Article Tagging'
 );
 

@@ -24,3 +24,10 @@ $wgResourceModules['ext.wikihow.trustworthy_styles'] = [
 	'position' => 'top'
 ];
 
+$wgResourceModules['ext.wikihow.corona_guide_styles'] = [
+	'styles' => [ 'corona_guide.less' ],
+	'localBasePath' => __DIR__.'/resources',
+	'remoteExtPath' => 'wikihow/WikihowNamespacePages/resources',
+	'targets' => [ 'desktop', 'mobile' ]
+];
+

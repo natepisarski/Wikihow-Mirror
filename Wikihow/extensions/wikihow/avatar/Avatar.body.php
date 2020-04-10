@@ -257,13 +257,13 @@ class Avatar extends UnlistedSpecialPage {
 			// Remove avatar url (av_image) for FB users
 			$user = User::newFromID($u);
 			if ($user && $user->isFacebookUser()) {
-				$sql = "UPDATE avatar set av_image='' where av_user=" . $dbw->addQuotes($u);
+				$sql = "UPDATE avatar set av_image='', av_imageHash=NULL where av_user=" . $dbw->addQuotes($u);
 				$res = $dbw->query($sql, __METHOD__);
 				return "SUCCESS: Facebook avatar removed";
 			}
 			// Remove avatar url (av_image) for G+ users
 			if ($user && $user->isGPlusUser()) {
-				$sql = "UPDATE avatar set av_image='' where av_user=" . $dbw->addQuotes($u);
+				$sql = "UPDATE avatar set av_image='', av_imageHash=NULL where av_user=" . $dbw->addQuotes($u);
 				$res = $dbw->query($sql, __METHOD__);
 				return "SUCCESS: Google+ avatar removed";
 			}
@@ -298,18 +298,15 @@ class Avatar extends UnlistedSpecialPage {
 			$avatarNew = "var avatarNew = true;";
 		}
 
-		$wgOut->addModuleStyles( ['ext.wikihow.avatar_styles'] );
+		$wgOut->addModuleStyles( ['ext.wikihow.avatar_styles', 'ext.wikihow.avatar_cropper.styles'] );
 		$wgOut->addModules( ['ext.wikihow.avatar'] );
-
-		$wgOut->addHTML("\n<!-- AVATAR CODE START -->\n<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/avatar/avatar.css?') . WH_SITEREV . "' type='text/css' />\n");
-
 
 		$prototypeSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/prototype.js?') . WH_SITEREV;
 		$builderSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/builder.js?') . WH_SITEREV;
 		$dragdropSrc = wfGetPad('/extensions/wikihow/common/cropper/lib/dragdrop.js?') . WH_SITEREV;
 		$cropperSrc = wfGetPad('/extensions/wikihow/common/cropper/cropper.js?') . WH_SITEREV;
 
-		$wgOut->addHTML( "
+		$wgOut->addHTML( "\n<!-- AVATAR CODE START -->\n
 <script>
 var wgUserID = '".$wgUser->getID()."';
 var nonModal = true;
@@ -317,22 +314,11 @@ var userpage = '".$wgUser->getUserPage()."';
 $avatarReload\n
 $avatarNew\n
 
-function initAvatarPage() {
-	jQuery.noConflict();
-	jQuery.getScript( '$prototypeSrc' )
-		.then( function () {
-			return jQuery.getScript( '$builderSrc' )
-		} )
-		.then( function () {
-			return jQuery.getScript( '$dragdropSrc' )
-		} )
-		.then( function () {
-			return jQuery.getScript( '$cropperSrc' )
-		} )
-		.then( initNonModal );
-}
+var prototypeSrc = '$prototypeSrc';
+var builderSrc = '$builderSrc';
+var dragdropSrc = '$dragdropSrc';
+var cropperSrc = '$cropperSrc';
 </script>
-	<link rel='stylesheet' media='all' href='" . wfGetPad('/extensions/wikihow/common/cropper/cropper.css?') . WH_SITEREV . "' type='text/css' />
 	  <div class='avatarModalBody minor_section'>
 	  <div>". wfMessage('avatar-instructions',$wgUser->getName())."</div>
 		 <div id='avatarUpload' >
@@ -718,12 +704,31 @@ function initAvatarPage() {
 		return $text;
 	}
 
+	public static function getImageHash( string $avatarUrl ) {
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $avatarUrl );
+		curl_setopt( $curl, CURLOPT_HEADER, 0 );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, 1 );
+		$response = curl_exec( $curl );
+		$status = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+		if ( !$response || $status != 200 ) {
+			$hash = '! HTTP ' . $status;
+		} else {
+			$hash = md5( $response );
+		}
+		curl_close( $curl );
+		return $hash;
+	}
+
 	public static function updateAvatar(int $whUserId, string $avatarUrl) {
 		global $wgLanguageCode;
 
 		if ($wgLanguageCode != 'en') {
 			return;
 		}
+
+		$avatarHash = self::getImageHash($avatarUrl);
 
 		$dbw = wfGetDB(DB_MASTER);
 		$res = $dbw->select('avatar', ['av_image', 'av_patrol'], ["av_user" => $whUserId]);
@@ -733,14 +738,14 @@ function initAvatarPage() {
 				$table = 'avatar',
 				$rows = ['av_user' => $whUserId, 'av_image' => $avatarUrl, 'av_patrol' => 0],
 				$uniqueIndexes = ['av_user'],
-				$set = ['av_image' => $avatarUrl, 'av_patrol' => 0]
+				$set = ['av_image' => $avatarUrl, 'av_imageHash' => $avatarHash, 'av_patrol' => 0]
 			);
 		} elseif ($row->av_image && ($row->av_patrol == 0 || $row->av_patrol == 1)) {
 			$dbw->upsert(
 				$table = 'avatar',
 				$rows = ['av_user' => $whUserId, 'av_image' => $avatarUrl],
 				$uniqueIndexes = ['av_user'],
-				$set = ['av_image' => $avatarUrl]
+				$set = ['av_image' => $avatarUrl, 'av_imageHash' => $avatarHash]
 			);
 		}
 	}

@@ -1,8 +1,5 @@
 <div class="wh_block">
 	<h1 class="firstHeading">Creating "How to <?=htmlspecialchars($pageTitle)?>"</h1>
-	<div class="editpage_links">
-		<?=$advancedEditLink?>
-	</div>
 </div>
 <div id='ac_token'><?=$token?></div>
 <div id='<?=$idname?>' class="section <?=$idname?>">

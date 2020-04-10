@@ -78,14 +78,16 @@ class ArticleCreator extends SpecialPage {
 		}
 
 		$t = Title::newFromText($request->getVal('t'));
-		$advancedEditLink = Linker::linkKnown( $t, wfMessage('advanced_editing_link')->text(), array(), array('action' => 'edit', 'advanced' => 'true'), array('ac_advanced_link', 'known', 'noclasses') );
+
+		// Remove link to switch to advanced editor (since switching editor causes content loss)
+		// $advancedEditLink = Linker::linkKnown( $t, wfMessage('advanced_editing_link')->text(), array(), array('action' => 'edit', 'advanced' => 'true'), array('ac_advanced_link', 'known', 'noclasses') );
 
 		$out->addHtml($this->getTemplatesHtml($t));
 
 		$sections = array(
 			array('name' => wfMessage('ac-section-intro-name')->text(),
 					'token' => $this->getContext()->getUser()->getEditToken(),
-					'advancedEditLink' => $advancedEditLink,
+					//'advancedEditLink' => $advancedEditLink,
 					'pageTitle' => $t->getText(),
 					'desc' => wfMessage('ac-section-intro-desc')->text(),
 					'buttonTxt' => wfMessage('ac-section-intro-button-txt')->text(),

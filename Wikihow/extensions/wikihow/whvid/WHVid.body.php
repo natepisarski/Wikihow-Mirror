@@ -451,10 +451,10 @@ class WHVid {
 		return true;
 	}
 
-	public static function hasSummaryVideo($title) {
+	public static function hasSummaryVideo($title, $forceCalculate = false) {
 		if(!$title || !$title->exists()) return false;
 
-		if(is_null(self::$titleHasSummaryVideo)) {
+		if(is_null(self::$titleHasSummaryVideo) || $forceCalculate) {
 			$wikiText = Wikitext::getWikitext($title);
 			self::$titleHasSummaryVideo = Wikitext::countSummaryVideos($wikiText) > 0;
 		}
@@ -462,10 +462,10 @@ class WHVid {
 		return self::$titleHasSummaryVideo;
 	}
 
-	public static function hasYTVideo($title) {
+	public static function hasYTVideo($title, $forceCalculate = false) {
 		if(!$title || !$title->exists()) return false;
 
-		if(is_null(self::$titleHasYTVideo)) {
+		if(is_null(self::$titleHasYTVideo) || $forceCalculate) {
 			$wikiText = Wikitext::getWikitext($title);
 			self::$titleHasYTVideo = strlen(Wikitext::getVideoSection($wikiText)[0]) > 0;
 		}
@@ -491,8 +491,21 @@ class WHVid {
 		if ($remove_video_section) pq('.section.video')->remove();
 
 		//only do this on mobile. This happens for desktopp in WikihowArticle.class.php
-		if($hasYTVideo && $isYTSummaryArticle && $isMobile && (!$user || $user->isAnon())) {
-			pq( '.quicksummary')->remove();
+		if($hasYTVideo && $isYTSummaryArticle && $isMobile && !( $user && $user->hasGroup('staff') )) {
+			pq( '.summary_with_video')->remove();
+		}
+	}
+
+	public static function getVideoAnchorForLoggedOut($title) {
+		$hasYTVideo = self::hasYTVideo($title, true);
+		$isYTSummaryArticle = self::isYtSummaryArticle($title);
+
+		if($hasYTVideo && $isYTSummaryArticle) {
+			return  wfMessage("Videoheader")->text();
+		} elseif(self::hasSummaryVideo($title, true)) {
+			return 'quick_summary_section';
+		} else {
+			return '';
 		}
 	}
 

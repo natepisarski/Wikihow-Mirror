@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['other'][] = array(
     'name' => 'UserTiming',
-    'author' => 'Alberto Burgos',
+    'author' => 'Alberto',
     'description' => "Provides the ability to time events on the website",
 );
 

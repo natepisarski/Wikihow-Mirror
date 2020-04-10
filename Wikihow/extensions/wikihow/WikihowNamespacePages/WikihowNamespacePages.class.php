@@ -19,6 +19,9 @@ class WikihowNamespacePages {
 			wfMessage( 'cookie_policy_page' )->text(),
 			wfMessage('about-page')->text(),
 			wfMessage('trustworthy-page')->text(),
+			wfMessage('corona-guide')->text(),
+			wfMessage('terms-page')->text(),
+			wfMessage('community')->text(),
 			'Privacy-Policy',
 			"Writer's-Guide",
 			'Language-Projects',
@@ -32,9 +35,6 @@ class WikihowNamespacePages {
 			'Powered-and-Inspired-by-MediaWiki',
 			'Jobs',
 			'Free-Basics',
-			'Cookie-Policy-Info',
-			'Cookie-Policy-Information',
-			'Terms-of-Use',
 			'About-wikiHow.health',
 			'About-wikiHow.legal',
 			'About-wikiHow.mom',
@@ -42,7 +42,9 @@ class WikihowNamespacePages {
 			'About-wikiHow.tech',
 			'About-wikiHow.pet',
 			'About-wikiHow.life',
-			'About-wikiHow-fun'
+			'About-wikiHow-fun',
+			'Deletion-Policy',
+			'Attribution'
 		];
 	}
 
@@ -62,10 +64,11 @@ class WikihowNamespacePages {
 		return [
 			wfMessage('about-page')->text(),
 			wfMessage('trustworthy-page')->text(),
+			wfMessage('terms-page')->text(),
+			wfMessage('corona-guide')->text(),
 			'Jobs',
 			'Mission',
 			'Privacy-Policy',
-			'Terms-of-Use',
 			'About-wikiHow.health',
 			'About-wikiHow.legal',
 			'About-wikiHow.mom',
@@ -73,7 +76,8 @@ class WikihowNamespacePages {
 			'About-wikiHow.tech',
 			'About-wikiHow.pet',
 			'About-wikiHow.life',
-			'About-wikiHow-fun'
+			'About-wikiHow-fun',
+			'Deletion-Policy'
 		];
 	}
 
@@ -119,6 +123,12 @@ class WikihowNamespacePages {
 		return self::wikiHowNamespacePage() && $title->getDBkey() == 'Jobs';
 	}
 
+	private static function coronaGuidePage(): bool {
+		$title = RequestContext::getMain()->getTitle();
+		if (!$title) return false;
+		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('corona-guide')->text();
+	}
+
 	public static function showMobileAboutWikihow(): bool {
 		$mobile_about_languages = ['en', 'es'];
 		return in_array(RequestContext::getMain()->getLanguage()->getCode(), $mobile_about_languages) &&
@@ -148,6 +158,10 @@ class WikihowNamespacePages {
 				$out->addModuleStyles('ext.wikihow.trustworthy_styles');
 
 				$out->setRobotPolicy('index,follow');
+			}
+			elseif (self::coronaGuidePage()) {
+				$out->setPageTitle( wfMessage('corona-guide-title')->text() );
+				$out->addModuleStyles('ext.wikihow.corona_guide_styles');
 			}
 
 			$title = $out->getTitle();

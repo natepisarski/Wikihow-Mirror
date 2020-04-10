@@ -1,5 +1,6 @@
 /** FOLLOW US WIDGET **/
 #follow_table {
+	padding: 0px 20px 0px 20px;
 	margin-left: 7px;
 }
 #follow_table_cta #follow_table {
@@ -16,16 +17,13 @@
 .follow_sidebox,
 #content_wrapper #sidebar #side_follow {
 	overflow: auto;
-	padding: 15px 8px 9px 15px;
+	padding: 15px 15px 9px 15px;
 }
 .fw_cell {
 	float:left;
 	height: 32px;
 	width: 32px;
-	margin-left: 9px;
-	margin-top: -2px;
-	margin-right: 8px;
-	margin-bottom: 11px;
+	margin: 0px 10px 20px 10px;
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-position: 50%;
@@ -33,7 +31,7 @@
 }
 #gatFollowFacebook {
 	/* @embed */
-	background-image: url(../../skins/owl/images/facebook-64.png);
+	background-image: url(../../skins/owl/images/facebook-2020logo64-opti.png);
 }
 #gatFollowTwitter {
 	/* @embed */
@@ -44,13 +42,8 @@
 	background-image: url(../../skins/owl/images/rss-64.png);
 }
 #gatFollowNewsletter {
-	border-radius: 6px;
-	background-color: #FFF;
-	background-size: 35px;
-	background-position: 40%;
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_email.png);
-	/* @embed */
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_email.svg);
+	background-image: url(../../skins/owl/images/mailing_list.png);
+
 }
 #follow_table_cta #gatFollowNewsletter {
 	background-size: 47px;
@@ -60,27 +53,35 @@
 }
 #gatFollowPinterest {
 	/* @embed */
-	background-image: url(../../skins/owl/images/pinterest-64.png);
+	background-image: url(../../skins/owl/images/pinterest_rgb_opti.png);
 }
 #gatFollowTumblr {
 	/* @embed */
 	background-image: url(../../skins/owl/images/tumblr-64.png);
+}
+#gatFollowYouTube {
+	/* @embed */
+	background-image: url(../../skins/owl/images/youtube64_opti.png);
 }
 #gatFollowStumbleupon {
 	/* @embed */
 	background-image: url(../../skins/owl/images/stumbleupon-64.png);
 }
 #gatFollowAndroid {
+	margin: 0px 0px 10px 0px;
+	width: 114px;
 	/* @embed */
-	background-image: url(../../skins/owl/images/android-64.png);
+	background-image: url(../../skins/owl/images/play-store-optimized-badge.png);
 }
 #gatFollowApp {
+	margin: 0px 0px 10px 0px;
+    width: 98px;
 	/* @embed */
-	background-image: url(../../skins/owl/images/app_store_icon.png);
+	background-image: url(../../skins/owl/images/apple-app-store-optimized-badge.png);
 }
 #gatFollowInstagram {
 	/* @embed */
-	background-image: url(../../skins/owl/images/instagram-64.png);
+	background-image: url(../../skins/owl/images/instagram_glyph_optimized.png);
 }
 #follow_table_cta #gatFollowApp {
 	height:40px;

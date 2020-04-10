@@ -3,7 +3,9 @@
 class Sitemap extends SpecialPage {
 
 	public function __construct() {
+		global $wgHooks;
 		parent::__construct( 'Sitemap' );
+		$wgHooks['IsEligibleForMobileSpecial'][] = ['Sitemap::isEligibleForMobileSpecial'];
 	}
 
 	private function getTopLevelCategories() {
@@ -46,118 +48,12 @@ class Sitemap extends SpecialPage {
 		$out = $this->getOutput();
 		$out->setRobotPolicy('noindex,follow');
 		$out->setHTMLTitle('wikiHow Sitemap');
-
-		if(Misc::isMobileMode()) {
-			$this->displayMobilePage();
-			return;
-		}
-
-		$topcats = $this->getTopLevelCategories();
-
-		$count = 0;
-		$html = "
-			<style>
-				#catentry li {
-					margin-bottom: 0;
-				}
-				table.cats {
-					width: 100%;
-				}
-				.cats td {
-					vertical-align: top;
-					border: 1px solid #e5e5e5;
-					padding: 10px;
-					background: white;
-					-moz-border-radius: 4px;
-					-webkit-border-radius: 4px;
-					-khtml-border-radius: 4px;
-					border-radius: 4px;
-				}
-			</style>
-			<table align='center' class='cats' cellspacing=10px>";
-
-		foreach ($topcats as $cat) {
-			$t = Title::newFromText($cat, NS_CATEGORY);
-			if ($count % 2 == 0)
-				$html .= "<tr>";
-			if ($t) {
-				$subcats = $this->getSubcategories($t);
-				$html .= "<td><h3>" . Linker::link($t, $t->getText()) . "</h3><ul id='catentry'>";
-				foreach ($subcats as $sub) {
-					$html .= "<li>" . Linker::link($sub, $sub->getText()) . "</li>\n";
-				}
-				$html .= "</ul></td>\n";
-			}
-			else {
-				if ($count % 2 == 1) {
-					$html .= "<tr>";
-				}
-				$html .= "<td><h3 style=\"color:red;\">" . $cat . "</h3></td>\n";
-			}
-			if ($count % 2 == 1)
-				$html .= "</tr>";
-			$count++;
-
-		}
-
-		$html .= "</table>";
-
-		Hooks::run( 'SitemapOutputHtml', array( &$html ) );
-
-		$out->addHTML( $html );
+		$out->addModuleStyles('ext.wikihow.sitemap_styles');
+		$this->displayMobilePage();
 	}
 
 	private function displayMobilePage() {
 		$topcats = $this->getTopLevelCategories();
-
-		$htmlcss = "
-			<style>
-				.cat_list {
-					border: 1px solid #e5e5e5;
-				    padding: 10px;
-				    background: white;
-				    margin: 10px;
-				}
-
-				.cat_list ul {
-					padding-left: 0;
-				}
-
-				.cat_list_ul {
-					margin-left: 5px;
-					background-color: #fff;
-                    padding: 20px;
-				}
-
-				@media only screen and (min-width:728px) {
-					.cat_container {
-						display: table;
-						border-spacing: 10px;
-						width: 100%;
-					}
-					.cat_list {
-						width: 50%;
-						display: table-cell;
-					}
-					#content_inner { width: 100%; }
-					#cat_outer { margin-top: -10px; }
-				}
-
-				@media only screen and (min-width:975px) {
-					.content {
-					    border: 1px solid #e5e5e5;
-					    padding: 22px 27px;
-					}
-
-					#cat_outer {
-						margin-top: 0px;
-					}
-
-					.cat_list h3 {
-						padding: 0 0 0.5em 0;
-					}
-				}
-			</style>";
 
 		$data = ['cats' => []];
 		$count = 0;
@@ -182,7 +78,7 @@ class Sitemap extends SpecialPage {
 		}
 
 		$loader = new Mustache_Loader_CascadingLoader([
-			new Mustache_Loader_FilesystemLoader(__DIR__)
+			new Mustache_Loader_FilesystemLoader(__DIR__ . '/templates')
 		]);
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
@@ -190,18 +86,12 @@ class Sitemap extends SpecialPage {
 		$html = $m->render('Sitemap.mustache', $data);
 
 		Hooks::run( 'SitemapOutputHtml', array( &$html ) );
-		$html = $htmlcss . $html;
 
 		$this->getOutput()->addHTML( $html );
 	}
 
 	public static function isEligibleForMobileSpecial(&$isEligible) {
-		global $wgTitle;
-		if ($wgTitle && strrpos($wgTitle->getText(), "Sitemap") === 0) {
-			$isEligible = true;
-		}
-
-		return true;
+		$isEligible = true;
 	}
 
 	public function isAnonAvailable() {

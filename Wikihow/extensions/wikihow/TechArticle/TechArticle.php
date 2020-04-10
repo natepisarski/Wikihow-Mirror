@@ -5,7 +5,7 @@ if (!defined('MEDIAWIKI'))
 
 $wgExtensionCredits['other'][] = array(
 	'name' => 'TechArticle',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => 'Provides the Tech Article Widget features and admin tools'
 );
 

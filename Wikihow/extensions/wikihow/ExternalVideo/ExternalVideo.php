@@ -11,7 +11,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['other'][] = array(
     'name' => 'ExternalVideo',
-    'author' => 'Alberto Burgos',
+    'author' => 'Alberto',
     'description' => "Helper to manage article videos from third-party providers",
 );
 

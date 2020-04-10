@@ -7,6 +7,8 @@ WH.ads = (function () {
 	var adLabelHeight = 39;
 	var rightRailElements = [];
 
+	var prebidRequestAds = [];
+
 	// keep track of the state of the right rail elements size
 	// only check the size MaxCount times
 	var rrSizeChanged = false;
@@ -35,6 +37,8 @@ WH.ads = (function () {
 	var loadingMargin = initialViewportHeight * 2;
 	var rootLoadingMargin = "0px 0px " + loadingMargin + "px 0px";
 
+	window.PWT = window.PWT || {};
+
 	if ("IntersectionObserver" in window) {
 	//if (false) {
 		adLoadingObserver = new IntersectionObserver(function(entries, observer) {
@@ -60,7 +64,12 @@ WH.ads = (function () {
 	if (WH.isMobile) {
 		bottomMarginHeight = 314;
 	}
+
 	function log() {
+		var url = window.location.href;
+		if (url.indexOf('adslog=1') != -1) {
+			console.log.apply(console, arguments);
+		}
 	}
 
 	function isDocumentHidden() {
@@ -77,8 +86,11 @@ WH.ads = (function () {
 		return hidden;
 	}
 
-	function apsFetchBids(slotValues, gptSlotIds, timeoutValue) {
-		log("apsFetchBids", slotValues, gptSlotIds, timeoutValue);
+	function apsFetchBids(slotValues, gptSlotIds, ad) {
+		//log("apsFetchBids:", ad.adTargetId);
+		if (!ad.apsTimeout) {
+			console.warn('ad has no timeout value', ad);
+		}
 		var gptSlots = [];
 		for (var i = 0; i < gptSlotIds.length; i++) {
 			gptSlots.push(gptAdSlots[gptSlotIds[i]]);
@@ -86,17 +98,204 @@ WH.ads = (function () {
 
 		apstag.fetchBids({
 			slots: slotValues,
-			timeout: timeoutValue
+			timeout: ad.apsTimeout
 		}, function(bids) {
 			googletag.cmd.push(function(){
 				apstag.setDisplayBids();
-				for (var i = 0; i < gptSlots.length; i++ ) {
-					var slot = gptSlots[i];
-					setDFPTargeting(slot, dfpKeyVals);
+				ad.apsDisplayBidsCalled = true;
+				if (!ad.prebidload) {
+					setDFPTargetingAndRefresh(ad);
+				} else if (ad.prebidKVPadded == true) {
+					log('apsFetchBids: prebid bidinfo done. will refresh', ad.adTargetId);
+					setDFPTargetingAndRefresh(ad);
+				} else {
+					log('apsFetchBids: prebidload bids not ready. not refreshing', ad.adTargetId);
 				}
-				googletag.pubads().refresh(gptSlots);
 			});
 		});
+	}
+
+	var allBids = [];
+	function showBidStack() {
+		console.log("bids", allBids);
+	}
+
+	function showBidMap() {
+		console.log("bids", PWT.bidMap);
+	}
+
+	function addBidsToArray(ad) {
+		for (var adunit in PWT.bidMap) {
+			if (adunit != ad.bidLookupKey) {
+				continue;
+			}
+			for (var adapter in PWT.bidMap[adunit].adapters) {
+				for (var bid in PWT.bidMap[adunit].adapters[adapter].bids) {
+					var b = PWT.bidMap[adunit].adapters[adapter].bids[bid];
+					allBids.push({
+						'ecpm': b.grossEcpm,
+						'lookupKey': ad.bidLookupKey,
+						'winningBid': false,
+						'discardAt': new Date().getTime() + 55000,
+						'pwtsid':b.bidID,
+						'pwtbst':b.status,
+						'pwtecp':b.netEcpm.toFixed(2),
+						'pwtdid':b.dealID,
+						'pwtpid':b.adapterID,
+						'pwtpubid':"159181",
+						'pwtprofid':openWrapProfileId,
+						'pwtverid':openWrapProfileVersionId ? openWrapProfileVersionId : 1,
+						'pwtsz':b.width + "x" + b.height,
+						'pwtplt':b.native ? "native" : "display"
+					});
+				}
+			}
+		}
+
+		// TODO not sure if we want to do this here or in getWinningBid..
+		allBids = allBids.filter(thisBid => thisBid.discardAt > new Date().getTime());
+	}
+
+	function prebidLoad(ad) {
+		if (PWT.isLoaded) {
+			prebidLoadInternal(ad);
+		} else {
+			log("prebidLoad: PWT not ready yet. will queue load", ad.adTargetId);
+			ad.prebidloadcommands.push(function(){
+				prebidLoadInternal(ad);
+			});
+		}
+	}
+	function prebidRequest(ad) {
+		if (PWT.isLoaded) {
+			googletag.cmd.push(function() {
+				prebidRequestBidsAndStore(ad);
+			});
+		} else {
+			log("prebidLoad: PWT not ready yet. will queue request", ad.adTargetId);
+			prebidRequestAds.push(ad);
+		}
+	}
+
+	function setDFPTargetingAndRefresh(ad) {
+		var slot = gptAdSlots[ad.adTargetId]
+		setDFPTargeting(slot, dfpKeyVals);
+		log('setDFPTargetingAndRefresh:', ad.adTargetId, 'targeting', slot.getTargetingMap());
+		googletag.pubads().refresh([slot]);
+	}
+
+	function prebidLoadInternal(ad) {
+		//log("prebidLoadInternal:", ad.adTargetId);
+
+		var bidsFound = setBidTargetingKVPForPrebid(ad);
+		if (!bidsFound) {
+			ad.prebidloadcommands.push(function(){
+				prebidLoadInternal(ad);
+			});
+			prebidRequestBidsAndStore(ad);
+			return;
+		}
+		ad.prebidKVPadded = true;
+
+		if (!ad.apsload) {
+			log('prebidLoadInternal: apsload not active. calling gpt refresh', ad.adTargetId);
+			setDFPTargetingAndRefresh(ad);
+		} else if (ad.apsDisplayBidsCalled == true) {
+			log('prebidLoadInternal: aps bids done. will refresh', ad.adTargetId);
+			setDFPTargetingAndRefresh(ad);
+		} else {
+			log('prebidLoadInternal: aps bids not recieved yet for', ad.adTargetId);
+		}
+	}
+
+	function getWinningBid(ad) {
+		//filter out any bids that are too old
+		allBids = allBids.filter(thisBid => thisBid.discardAt > new Date().getTime());
+
+		//get all the bids in the allBids array associated with a specific div ID
+		var thisPool = allBids.filter(thisBid => thisBid.lookupKey == ad.bidLookupKey)
+
+		if (thisPool.length == 0) {
+			return null;
+		}
+		let max = thisPool[0].ecpm;
+
+		// then we iterate through the other rows and overwrite the max bid
+		// if it is greater than the existing value. We also write winningBid = false on each row
+		for (let i = 0, len=thisPool.length; i < len; i++) {
+			let v = thisPool[i].ecpm;
+			max = (v > max) ? v : max;
+			thisPool[i].winningBid = false;
+		}
+
+		//get the index of the max bid and set the winningBid value on that row to true
+		let winningIndex = thisPool.findIndex(bid => bid.ecpm === max);
+		thisPool[winningIndex].winningBid = true;
+		thisPool[winningIndex].discardAt = 0;
+
+		return thisPool[winningIndex];
+	}
+
+	function setBidTargetingKVPForPrebid(ad) {
+		var bid = getWinningBid(ad);
+		if (!bid) {
+			return false;
+		}
+		var slot = gptAdSlots[ad.adTargetId];
+		//log("prebidLoad: winning bid for", ad.adTargetId, "is", bid);
+		slot.setTargeting('pwtsid',bid.pwtsid);
+		slot.setTargeting('pwtbst',bid.pwtbst);
+		slot.setTargeting('pwtecp',bid.pwtecp);
+		slot.setTargeting('pwtpid',bid.pwtpid);
+		slot.setTargeting('pwtpubid',bid.pwtpubid);
+		slot.setTargeting('pwtprofid',bid.pwtprofid);
+		slot.setTargeting('pwtverid',bid.pwtverid);
+		slot.setTargeting('pwtsz',bid.pwtsz);
+		slot.setTargeting('pwtplt',bid.pwtplt);
+		return true;
+	}
+
+
+	PWT.jsLoaded = function() {
+		PWT.isLoaded = true;
+		// if either of these do not exist we will have an error later in other code
+		// so TODO we could disable PWT somehow in this case
+		if (typeof PWT.removeKeyValuePairsFromGPTSlots !== 'function') {
+			log("PWT.removeKeyValuePairsFromGPTSlots is not a function. PWT is", PWT);
+		}
+		if (typeof PWT.requestBids !== 'function') {
+			log("PWT.requestBids is not a function. PWT is", PWT);
+		}
+		log("prebid js loaded");
+
+		prebidRunQueuedRequests();
+	};
+
+	// refreshes any bids that were set up before PWT was loaded
+	function prebidRunQueuedRequests() {
+		log("prebidRunQueuedRequests");
+		for (var i = 0; i < prebidRequestAds.length; i+=1) {
+			let ad = prebidRequestAds[i];
+			googletag.cmd.push(function() {
+				prebidRequestBidsAndStore(ad);
+			});
+		}
+		prebidRequestAds = [];
+	}
+
+	// request bids on a specific ad and store the results
+	function prebidRequestBidsAndStore(ad) {
+		var gptSlots = [gptAdSlots[ad.bidLookupKey]];
+		PWT.requestBids(
+			PWT.generateConfForGPT(gptSlots), function(adUnitsArray) {
+				ad.currentAdUnitsArray = adUnitsArray;
+				addBidsToArray(ad);
+				for (var i = 0; i < ad.prebidloadcommands.length; i+=1) {
+					ad.prebidloadcommands[i]();
+				}
+				ad.prebidloadcommands = [];
+			}
+		);
 	}
 
 	function apsLoad(ad) {
@@ -112,7 +311,7 @@ WH.ads = (function () {
 		}
 		var slotsArray = [{slotID: id, slotName: slotName, sizes: sizesArray}];
 		var gptSlotIds = [id];
-		apsFetchBids(slotsArray, gptSlotIds, ad.apsTimeout);
+		apsFetchBids(slotsArray, gptSlotIds, ad);
 	}
 
 	function updateKeyVal(adId, key, value) {
@@ -139,13 +338,12 @@ WH.ads = (function () {
 			updateKeyVal(id, 'refreshing', refreshValue);
 			setDFPTargeting(gptAdSlots[id], dfpKeyVals);
 			// the refresh call actually loads the ad
-			log("gptLoad calling pubads().refresh on", gptAdSlots[id]);
 			googletag.pubads().refresh([gptAdSlots[id]]);
 		});
 	}
 
 	function impressionViewable(slot) {
-		log('impressionViewable: slot', slot);
+		log('impressionViewable:', slot.getSlotId().getDomId(), slot.getSlotId().getAdUnitPath());
 		var ad;
 		for (var i = 0; i < rightRailElements.length; i++) {
 			var tempAd = rightRailElements[i];
@@ -164,64 +362,57 @@ WH.ads = (function () {
 	}
 
 	function slotRendered(slot, size, e) {
-		log('slotRendered: slot, e', slot, e);
+		log('slotRendered:', slot.getSlotId().getDomId(), slot.getSlotId().getAdUnitPath());
 		// look for right rail ads which are the only ones that will be moved/refreshed
 		var ad;
 		for (var i = 0; i < rightRailElements.length; i++) {
-			var tempAd = rightRailElements[i];
+			let tempAd = rightRailElements[i];
 			if (gptAdSlots[tempAd.adTargetId] == slot) {
 				ad = tempAd;
 			}
 		}
+
+		if (!ad) {
+			// try scrollTo ad
+			if (scrollToAd.adTargetId == slot.getSlotId().getDomId()) {
+				ad = scrollToAd;
+			}
+		}
+
+		// if there is still no ad just return
 		if (!ad) {
 			return;
 		}
-		ad.height = ad.element.offsetHeight;
-        // don't even bother checking the space unless the ad is less than 300px in height
-		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
-        if (ad.extraChild && size && parseInt(size[1]) < 300) {
-			ad.extraChild.style.visibility = "visible";
-        } else if (ad.extraChild) {
-            ad.extraChild.style.visibility = "hidden";
-        }
-		if (!ad.notfixedposition) {
-			updateFixedPositioning(ad, viewportHeight);
+
+		ad.prebidKVPadded = false;
+		ad.apsDisplayBidsCalled = false;
+
+		// removing existing kvp on ad
+		if (ad.prebidload) {
+			PWT.removeKeyValuePairsFromGPTSlots(slot);
 		}
 
-		if (ad.refreshable && ad.renderrefresh) {
-			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
-		}
-	}
+		if (ad.type == 'rightrail') {
+			ad.height = ad.element.offsetHeight;
+			ad.element.classList.remove('blockthrough');
+			// don't even bother checking the space unless the ad is less than 300px in height
+			var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
+			if (ad.extraChild && size && parseInt(size[1]) < 300) {
+				ad.extraChild.style.visibility = "visible";
+			} else if (ad.extraChild) {
+				ad.extraChild.style.visibility = "hidden";
+			}
+			if (!ad.notfixedposition) {
+				updateFixedPositioning(ad, viewportHeight);
+			}
 
-	function DFPInit() {
-		(function() {
-			var gads = document.createElement('script');
-			gads.async = true;
-			gads.type = 'text/javascript';
-			var useSSL = 'https:' == document.location.protocol;
-			gads.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
-			var node = document.getElementsByTagName('script')[0];
-			node.parentNode.insertBefore(gads, node);
-		})();
-		function setDFPTargeting(slot, data) {
-			var slotData = data[slot.getAdUnitPath()];
-			for (var key in slotData) {
-			  slot.setTargeting(key, slotData[key]);
+			if (ad.refreshable && ad.renderrefresh) {
+				setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
+			}
+			if (PWT.isLoaded) {
+				prebidRequestBidsAndStore(ad);
 			}
 		}
-		googletag.cmd.push(function() {
-			defineGPTSlots();
-			googletag.pubads().addEventListener('slotRenderEnded', function(event) {
-				if (WH.ads) {
-					WH.ads.slotRendered(event.slot, event.size, event);
-				}
-			});
-			googletag.pubads().addEventListener('impressionViewable', function(event) {
-				if (WH.ads) {
-					WH.ads.impressionViewable(event.slot);
-				}
-			});
-		});
 	}
 
 	function ccpaOptOut() {
@@ -368,6 +559,11 @@ WH.ads = (function () {
 		this.gptLateLoad = this.adElement.getAttribute('data-lateload') == 1;
 		this.service = this.adElement.getAttribute('data-service');
 		this.apsload = this.adElement.getAttribute('data-apsload') == 1;
+		this.apsDisplayBidsCalled = false;
+		this.prebidload = this.adElement.getAttribute('data-prebidload') == 1;
+		this.prebidKVPadded = false;
+		this.prebidloadcommands = [];
+		this.bidLookupKey = this.adTargetId;
 		this.slot = this.adElement.getAttribute('data-slot');
 		this.adunitpath = this.adElement.getAttribute('data-adunitpath');
 		this.channels = this.adElement.getAttribute('data-channels');
@@ -375,10 +571,11 @@ WH.ads = (function () {
 		this.refreshable = this.adElement.getAttribute('data-refreshable') == 1;
 		this.slotName = this.adElement.getAttribute('data-slot-name');
 		this.refreshType = this.adElement.getAttribute('data-refresh-type');
-		this.sizesArray = this.adElement.getAttribute('data-sizes-array');
+		this.sizesArray = this.adElement.getAttribute('data-size');
 		if (this.sizesArray) {
 			this.sizesArray = JSON.parse(this.sizesArray);
 		}
+		this.dfpdisplaylate = this.adElement.getAttribute('data-gptdisplaylate') == 1;
 		this.type = this.adElement.getAttribute('data-type');
 		if (this.type == 'rightrail') {
 			this.position = 'initial';
@@ -468,11 +665,6 @@ WH.ads = (function () {
 				return;
 			}
 			if (this.service == 'dfp') {
-				// if dfp was not already initialized do so now
-				if (gptRequested == false) {
-					DFPInit();
-					gptRequested = true;
-				}
 				if (this.apsload) {
 					var id = this.adTargetId;
 					var slot = gptAdSlots[id];
@@ -485,7 +677,16 @@ WH.ads = (function () {
 					} else {
 						apsLoad(ad);
 					}
-				} else {
+				}
+
+				if (this.prebidload) {
+					var ad = this;
+					googletag.cmd.push(function() {
+						prebidLoad(ad);
+					});
+				}
+
+				if ( !this.apsload && !this.prebidload) {
 					gptLoad(this);
 				}
 			} else if (this.service == 'dfplight') {
@@ -497,7 +698,7 @@ WH.ads = (function () {
 		};
 
 		this.refresh = function() {
-			log('refresh: ad', this);
+			//log('refresh: ad', this);
 			var ad = this;
 			if (isDocumentHidden()) {
 				// check again later
@@ -524,9 +725,14 @@ WH.ads = (function () {
 			if (this.service != 'adsense') {
 				updateKeyVal(this.adTargetId, 'refreshing', refreshValue);
 			}
+
 			if (this.apsload) {
 				apsLoad(this);
-			} else {
+			}
+			if (this.prebidload) {
+				prebidLoad(this);
+			}
+			if ( !this.apsload && !this.prebidload) {
 				var id = this.adTargetId;
 				var display = this.gptLateLoad;
 				googletag.cmd.push(function() {
@@ -721,9 +927,10 @@ WH.ads = (function () {
 			if ( !insertTarget.id ) {
 				insertTarget.id = 'scrollto-ad-'+scrollToAdInsertCount;
 			}
+			this.insertSlotValue = '00'+scrollToAdInsertCount;
 			this.adTargetId = insertTarget.id;
 
-			insertAdsenseAd(this);
+			insertScrollToAd(this);
 
 			if (isStep) {
 				this.maxSteps--;
@@ -735,6 +942,28 @@ WH.ads = (function () {
 
 			return;
 		};
+	}
+
+    function insertScrollToAd(ad) {
+		if (ad.service == 'dfp') {
+			googletag.cmd.push(function() {
+				gptAdSlots[ad.adTargetId] = googletag.defineSlot(ad.adunitpath, ad.sizesArray, ad.adTargetId).addService(googletag.pubads());
+				gptAdSlots[ad.adTargetId].setTargeting('slot', ad.insertSlotValue);
+				googletag.display(ad.adTargetId);
+				if (ad.apsload) {
+					apsLoad(ad);
+				}
+				if (ad.prebidload) {
+					prebidLoad(ad);
+					//  since we loaded an ad, we need to make sure we have a new one in the pool
+					if (PWT.isLoaded) {
+						prebidRequestBidsAndStore(ad);
+					}
+				}
+			});
+		} else {
+			insertAdsenseAd(ad);
+		}
 	}
 
     function RightRailAd(element) {
@@ -1106,9 +1335,22 @@ WH.ads = (function () {
 				adLoadingObserver.observe(ad.element);
 			}
 		}
+
 		if (ad.service == 'dfp') {
-			googletag.cmd.push(function() { googletag.display(ad.adTargetId); });;
+			if (ad.dfpdisplaylate) {
+				googletag.cmd.push(function() {
+					gptAdSlots[ad.adTargetId] = googletag.defineSlot(ad.adunitpath, ad.sizesArray, ad.adTargetId).addService(googletag.pubads());
+					googletag.display(ad.adTargetId);
+				});
+			} else {
+				googletag.cmd.push(function() { googletag.display(ad.adTargetId); });
+			}
 		}
+
+		if (ad.prebidload) {
+			prebidRequest(ad);
+		}
+
 	}
 
 	// finds the ScrollLoad item matching the element and loads it
@@ -1132,9 +1374,11 @@ WH.ads = (function () {
 		'addBodyAd': addBodyAd,
 		'loadTOCAd': loadTOCAd,
 		'slotRendered' : slotRendered,
+		'showBidStack' : showBidStack,
+		'showBidMap' : showBidMap,
 		'impressionViewable' : impressionViewable,
-		'apsFetchBids' : apsFetchBids,
 	};
+
 
 })();
 WH.ads.init();

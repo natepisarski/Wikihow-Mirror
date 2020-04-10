@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'ReindexedPages',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => "A list of articles that became indexable recently.",
 );
 

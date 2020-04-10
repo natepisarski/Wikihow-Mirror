@@ -91,7 +91,11 @@ class MotionToStatic {
 			"@\{\{ *whvid\|[^\}]+ *\}\}@",
 			function ($matches) {
 				$result = $matches[0];
-				$templateArgs = explode( "|", $matches[0] );
+				$explodeString = $matches[0];
+				if ( substr( $explodeString, -2 ) == '}}' ) {
+					$explodeString = substr( $explodeString, 0, -2 );
+				};
+				$templateArgs = explode( "|", $explodeString );
 				$staticImage = '';
 				$previewImage = '';
 				foreach( $templateArgs as $arg ) {
@@ -165,7 +169,11 @@ class MotionToStatic {
 					$stepString = 'Step ' . $step .' ';
 					$stepStringDot = 'Step ' . $step .'.';
 					if ( substr_count( $matches[0], $stepString ) || substr_count( $matches[0], $stepStringDot ) ) {
-						$templateArgs = explode( "|", $matches[0] );
+						$explodeString = $matches[0];
+						if ( substr( $explodeString, -2 ) == '}}' ) {
+							$explodeString = substr( $explodeString, 0, -2 );
+						};
+						$templateArgs = explode( "|", $explodeString );
 						$staticImage = '';
 						$previewImage = '';
 						foreach( $templateArgs as $arg ) {

@@ -60,7 +60,7 @@ class WikihowToc {
 		global $wgTitle;
 
 		if($isYoutube && WHVid::isYtSummaryArticle($wgTitle)) {
-			$url = "#Video";
+			$url = "#".wfMessage('videoheader')->text();
 		} elseif (!$isYoutube) {
 			$url = '#quick_summary_section';
 		} else {

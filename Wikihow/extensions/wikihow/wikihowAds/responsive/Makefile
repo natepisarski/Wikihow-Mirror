@@ -5,7 +5,7 @@ JAVA=java
 # From: https://developers.google.com/closure/compiler/
 CLOSURE=/home/reuben/google-closure/compiler.jar
 #CLOSURE=/opt/google-closure/compiler.jar
-SOURCES=ads.js APSinit.js DFPinit.js IndexExchangeInit.js adsenseSetup.js
+SOURCES=ads_old.js ads.js APSinit.js DFPinit.js IndexExchangeInit.js adsenseSetup.js
 COMPILED=$(SOURCES:.js=.compiled.js)
 
 all: $(COMPILED)

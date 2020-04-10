@@ -311,7 +311,7 @@ abstract class AdCreator {
 		if ( pq( $target )->length == 0 ) {
 			return;
 		}
-		pq( $target )->append( $ad->mHtml );
+		pq( $target )->append( '<br>'.$ad->mHtml );
 	}
 
 	protected function insertWarningsAd() {
@@ -554,10 +554,8 @@ abstract class AdCreator {
 		}
 
 		if ( GoogleAmp::isAmpMode( $wgOut ) ) {
-			if ( GoogleAmp::hasAmpParam( $wgOut->getRequest() ) || !GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
-				GoogleAmp::insertAMPAds();
-				return;
-			}
+			GoogleAmp::insertAMPAds();
+			return;
 		}
 
 		$this->insertIntroAd();
@@ -602,14 +600,7 @@ abstract class AdCreator {
 		global $wgOut;
 		$result = true;
 
-		if ( Misc::isMobileMode() ) {
-			// for now only show small and medium sized ads on amp test
-			if ( GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
-				if ( $ad->setupData['small'] !== 1 && $ad->setupData['medium'] !== 1 ) {
-					$result = false;
-				}
-			}
-		} else {
+		if ( !Misc::isMobileMode() ) {
 			// on desktop domain only show ads with large
 			if ( $ad->setupData['large'] !== 1 ) {
 				$result = false;
@@ -687,6 +678,12 @@ abstract class AdCreator {
 		}
 
 		$attributes['data-observerloading'] = 1;
+
+		if ( $this->isDFPLateDefineTest() ) {
+
+			$attributes['data-sizes-array'] = $attributes['data-size'];
+			$attributes['data-gptdisplaylate'] = 1;
+		}
 
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
@@ -806,10 +803,30 @@ abstract class AdCreator {
 	/*
 	 * get js snippet to refresh the first set of ads in a single call
 	 */
+	// TODO this is not used anymore refactor/remove it
 	protected function getInitialRefreshSnippet() {
 		$html = $this->getInitialRefreshSnippetApsLoad();
 		$html .= $this->getInitialRefreshSnippetGPT();
 		return $html;
+	}
+
+	private function isDFPRefactorTest() {
+		if ( intval( $this->mBucketId ) == 15 ) {
+			return true;
+		}
+		return false;
+	}
+
+	private function isDFPLateDefineTest() {
+		if ( $this->isPrebidPage() ) {
+			return true;
+		}
+
+		if ( intval( $this->mBucketId ) == 16 ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/*
@@ -817,9 +834,17 @@ abstract class AdCreator {
 	 * @return string html for head
 	 */
 	public function getHeadHtml() {
+		if ( $this->isDFPRefactorTest() ) {
+			return $this->getHeadHtmlCompileCheck();
+		}
+		return $this->getHeadHtmlOld();
+	}
+
+	public function getHeadHtmlOld() {
 		$addAdsense = false;
 		$addDFP = false;
 		$apsLoad = false;
+		$prebidLoad = false;
 
 		if ( empty( $this->mAdSetupData ) ) {
 			return;
@@ -834,16 +859,11 @@ abstract class AdCreator {
 
 			if ( $service == "dfp" ) {
 				// if we are in mobile mode, then only add dfp if the ad is small or medium
-				if ( Misc::isMobileMode() ) {
-					if ( $adData['small'] == 1 || $adData['medium'] == 1 ) {
-						$addDFP = true;
-					}
-				} else {
-					$addDFP = true;
-				}
+				$addDFP = true;
 			}
 
 			$apsLoad = $apsLoad || $adData['apsLoad'];
+			$prebidLoad = $prebidLoad || $adData['prebidLoad'];
 		}
 
 		$scripts = [];
@@ -856,21 +876,31 @@ abstract class AdCreator {
 			$addDFP = false;
 		}
 		if ( $addDFP ) {
-			$scripts[] = $this->getIndexHeadScript();
+			if ( !$prebidLoad ) {
+				$scripts[] = $this->getIndexHeadScript();
+			}
 			if ( $this->mLateLoadDFP == false ) {
 				$category = $this->getCategoryForDFP();
-				$isCoppa = self::isChildDirectedPage() ? "true" : "false";
+				$isCoppa = self::getCoppaValue();
+				$loadGPT = $this->loadGPT();
 				$dfpSmallTest = 'false';
 				if ( $this->isDFPSmallTest() ) {
 					$dfpSmallTest = 'true';
 				}
 				//$dfpScript .= '<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>';
 				$dfpScript = "var bucketId = '$this->mBucketId';";
+				$dfpScript .= "var loadGPT = $loadGPT;";
 				$dfpScript .= "var dfpSmallTest = $dfpSmallTest;";
 				$dfpScript .= "var dfpCategory = '$category';";
 				$dfpScript .= "var isCoppa = '$isCoppa';";
 				$dfpScript .= "\n";
-				$dfpScript .= file_get_contents( __DIR__."/DFPinit.compiled.js" );
+				if ( $prebidLoad ) {
+					// for now include the non compiled version of dfpinit so it is easier to debug
+					$dfpScript .= file_get_contents( __DIR__."/DFPinit.compiled.js" );
+					$dfpScript .= file_get_contents( __DIR__."/prebidinit.js" );
+				} else {
+					$dfpScript .= file_get_contents( __DIR__."/DFPinit.compiled.js" );
+				}
 				if ( $apsLoad ) {
 					$dfpScript .= file_get_contents( __DIR__."/APSinit.compiled.js" );
 				}
@@ -885,22 +915,95 @@ abstract class AdCreator {
 		return $result;
 	}
 
+	/*
+	 * gets script for adsense and dfp
+	 * @return string html for head
+	 */
+	public function getHeadHtmlCompileCheck() {
+		$addAdsense = false;
+		$addDFP = false;
+		$apsLoad = false;
+		$prebidLoad = false;
+
+		if ( empty( $this->mAdSetupData ) ) {
+			return;
+		}
+
+		foreach ( $this->mAdSetupData as $adType => $adData ) {
+			$service = $adData['service'];
+
+			if ( $service == "adsense" ) {
+				$addAdsense = true;
+			}
+
+			if ( $service == "dfp" ) {
+				$addDFP = true;
+			}
+
+			$apsLoad = $apsLoad || $adData['apsLoad'];
+			$prebidLoad = $prebidLoad || $adData['prebidLoad'];
+		}
+
+		$scripts = [];
+		if ( $addAdsense ) {
+			$scripts[] = __DIR__."/adsenseSetup.compiled.js";
+		}
+
+		// some setups do not allow dfp ads at all so let them override it here
+		if ( !$this->isDFPOkForSetup() ) {
+			$addDFP = false;
+		}
+		$dfpScript = "";
+		if ( $addDFP ) {
+			if ( !$prebidLoad ) {
+				$scripts[] = __DIR__."/IndexExchangeInit.compiled.js";
+			}
+			if ( $this->mLateLoadDFP == false ) {
+				$category = $this->getCategoryForDFP();
+				$isCoppa = self::getCoppaValue();
+				$loadGPT = $this->loadGPT();
+				$dfpSmallTest = 'false';
+				if ( $this->isDFPSmallTest() ) {
+					$dfpSmallTest = 'true';
+				}
+				$dfpScript = "window.bucketId = '$this->mBucketId';";
+				$dfpScript .= "window.loadGPT = $loadGPT;";
+				$dfpScript .= "window.dfpSmallTest = $dfpSmallTest;";
+				$dfpScript .= "window.dfpCategory = '$category';";
+				$dfpScript .= "window.isCoppa = '$isCoppa';";
+				$dfpScript .= "\n";
+				$scripts[] = __DIR__."/DFPinit.compiled.js";
+				if ( $prebidLoad ) {
+					$scripts[] = __DIR__."/prebidinit.js";
+				}
+				if ( $apsLoad ) {
+					$scripts[] = __DIR__."/APSinit.compiled.js";
+				}
+			}
+		}
+
+		$scriptsOutput = '';
+		if ( $dfpScript ) {
+			$scriptsOutput .= Html::inlineScript( $dfpScript );
+		}
+		if ( $scripts ) {
+			$scriptsOutput .= Html::inlineScript( Misc::getEmbedFiles( "js", $scripts ) );
+		}
+		$styles = $this->getAdLabelStyle();
+		$result = $scriptsOutput . $styles;
+
+		return $result;
+	}
+
 	protected function isDFPSmallTest() {
 		if ( Misc::isFastRenderTest() ) {
 			return false;
 		}
-
-		global $wgTitle;
-		if ( $wgTitle->getArticleID() == 41306 ) {
-			return true;
-		}
-
-		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
-		if ( in_array( $bucketId, $testBuckets ) ) {
-		        return true;
-		}
 		return false;
+	}
+
+	private function loadGPT() {
+		return 1;
 	}
 
 	private function getCategoryForDFP() {
@@ -923,10 +1026,6 @@ abstract class AdCreator {
 	}
 
 	protected function isDFPOkForSetup() {
-		global $wgOut;
-		if ( GoogleAmp::isAmpCustomAdsTest( $wgOut->getTitle() ) ) {
-			return false;
-		}
 		return true;
 	}
 
@@ -957,6 +1056,9 @@ abstract class AdCreator {
 	}
 
 	protected function addToGPTDefines( $ad ) {
+		if ( $this->isDFPLateDefineTest() ) {
+			return;
+		}
 		$adUnitPath = $ad->setupData['adUnitPath'];
 		$adUnitPath = $this->getGPTAdSlot( $adUnitPath );
 		$adSize = $ad->setupData['size'];
@@ -966,6 +1068,21 @@ abstract class AdCreator {
 		}
 		$gpt = "gptAdSlots['$adId'] = googletag.defineSlot(".$adUnitPath.", $adSize, '$adId').addService(googletag.pubads());\n";
 		$this->mGptSlotDefines[] = $gpt;
+	}
+
+	public static function getCoppaValue() {
+		global $wgTitle;
+		$result = 'false';
+
+		if ( self::isChildDirectedPage() ) {
+			$result = 'true';
+
+		}
+		if ( ArticleTagList::hasTag( 'coppa_exclude', $wgTitle->getArticleID() ) ) {
+			$result = 'admin';
+		}
+
+		return $result;
 	}
 
 	public static function isChildDirectedPage() {
@@ -997,7 +1114,11 @@ abstract class AdCreator {
 		}
 
 		if ( empty( $this->mGptSlotDefines ) ) {
-			return '';
+			// for this ad test, we allow gpt js even if there are no slot defines
+			// because the slot defines are done in js
+			if ( !$this->isDFPLateDefineTest() ) {
+				return '';
+			}
 		}
 		$dfpKeyVals = $this->getDFPKeyValsJSON();
 		$gpt = "var gptAdSlots = [];\n";
@@ -1008,14 +1129,14 @@ abstract class AdCreator {
 		$gpt .= "function defineGPTSlots() {\n";
 		// TODO in the future we can possibly define the GPT slot in js along with the new BodyAd call
 		$gpt .= implode( $this->mGptSlotDefines );
-		if ( self::isChildDirectedPage() &&  intval( $this->mBucketId ) == 2 ) {
+		if ( self::isChildDirectedPage() ) {
 			$gpt .= "googletag.pubads().setTagForChildDirectedTreatment(1);\n";
 		}
 		$gpt .= "googletag.pubads().enableSingleRequest();\n";
 		$gpt .= "googletag.pubads().disableInitialLoad();\n";
-		//if ( !$wgIsDevServer ) {
+		if ( !$wgIsDevServer ) {
 			$gpt .= "googletag.pubads().collapseEmptyDivs();\n";
-		//}
+		}
 		$gpt .= "googletag.enableServices();\n";
 
 		$gpt .= "}\n";
@@ -1035,6 +1156,30 @@ abstract class AdCreator {
 		}
 
 		if ( $this->mPageId == 400630 ) {
+			return true;
+		}
+
+		if ( intval( $this->mBucketId ) == 10 ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public function showNewAdsJs() {
+		global $wgRequest;
+
+		if ( intval( $this->mBucketId ) == 24 ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public function isPrebidPage() {
+		global $wgRequest;
+
+		if ( $wgRequest->getInt( 'prebid' )  == 1 ) {
 			return true;
 		}
 
@@ -1494,6 +1639,69 @@ class DefaultAdCreator extends AdCreator {
 					'smalllabel' => 1,
 					'type' => 'pagebottom',
 					'small' => 1,
+				),
+			);
+		}
+
+		if ( $this->isPrebidPage() ) {
+			$this->mAdSetupData = array(
+				'intro' => array(
+					'service' => 'adsense',
+					'instantload' => 1,
+					'slot' => 7672188889,
+					'width' => 728,
+					'height' => 120,
+					'smallheight' => 120,
+					'class' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'intro',
+					'small' => 1,
+					'medium' => 1,
+					'large' => 1,
+				),
+				'rightrail0' => array(
+					'service' => 'adsense',
+					'slot' => 5490902193,
+					'instantload' => 0,
+					'width' => 300,
+					'height' => 600,
+					'containerheight' => 2000,
+					'class' => ['rr_container'],
+					'innerclass' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'rightrail',
+					'large' => 1,
+				),
+				'rightrail1' => array(
+					'service' => 'dfp',
+					'adUnitPath' => '/10095428/engl/engl_gam_lgm_rght2',
+					'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
+					'prebidLoad' => true,
+					'apsLoad' => true,
+					'refreshable' => 1,
+					'viewablerefresh' => 1,
+					'first-refresh-time' => 30000,
+					'refresh-time' => 28000,
+					'aps-timeout' => 800,
+					'width' => 300,
+					'height' => 600,
+					'containerheight' => 3300,
+					'class' => ['rr_container'],
+					'innerclass' => ['ad_label', 'ad_label_dollar'],
+					'type' => 'rightrail',
+					'large' => 1,
+				),
+				'scrollto' => array(
+					'service' => 'dfp',
+					'type' => 'scrollto',
+					'adUnitPath' => '/10095428/engl/engl_gam_all_scrol',
+					'size' => '[728, 90]',
+					'prebidLoad' => true,
+					'apsLoad' => true,
+					'aps-timeout' => 800,
+					'maxsteps' => 5,
+					'maxnonsteps' => 1,
+					'width' => 728,
+					'height' => 90,
+					'large' => 1,
 				),
 			);
 		}

@@ -24,18 +24,12 @@ class Hello extends UnlistedSpecialPage {
 			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
 			return;
 		}
-		if ( !Misc::isMobileMode() ) {
-			$out->setRobotPolicy('noindex,nofollow');
-			$out->showErrorPage('nosuchspecialpage', 'nospecialpagetext');
-			return;
-		}
 
 		$out->setCdnMaxage($wgSquidMaxage);
 
 		$out->setPageTitle("WikiHow");
         $vars = $this->getDefaultVars();
         $out->addHtml($this->getTemplateHtml('Hello.tmpl.php', $vars));
-
     }
 
     public function getTemplateHtml($templateName, &$vars) {

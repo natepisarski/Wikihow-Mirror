@@ -4,9 +4,22 @@ class Sherlock {
 	const SHS_TABLE = 'whdata.sherlock_search';
 	const SHA_TABLE = 'whdata.sherlock_article';
 
-	public function __contstruct() {
+	public function __construct() {
 	}
 
+	private static function checkDatabaseReadOnly($db) {
+		$res = $db->query('SELECT @@global.read_only');
+		if (!$res) { // cannot query this? we say NOT readonly
+			return false;
+		} else {
+			$row = $res->fetchRow();
+			if (!$row || !isset($row[0])) {
+				return false;
+			} else {
+				return $row[0] == 1;
+			}
+		}
+	}
 	// Make a new Sherlock Search entry. This corresponds to a
 	// search being done against our WH search product.
 	public static function logSherlockSearch($q, $vId, $numResults, $logged, $platform) {
@@ -17,6 +30,10 @@ class Sherlock {
 
 		// Establish DB connection
 		$dbw = wfGetDB(DB_MASTER);
+
+		if ( self::checkDatabaseReadOnly($dbw) ) {
+			return '';
+		}
 
 		// Encode the query
 		$q = $dbw->strencode($q);
@@ -48,6 +65,10 @@ class Sherlock {
 		}
 
 		$dbw = wfGetDB(DB_MASTER);
+
+		if ( self::checkDatabaseReadOnly($dbw) ) {
+			return '';
+		}
 
 		$data = array(
 			"shs_key"           => $shs_key,

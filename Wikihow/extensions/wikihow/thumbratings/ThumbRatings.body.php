@@ -108,7 +108,8 @@ class ThumbRatings extends UnlistedSpecialPage {
 						'thumbs_help' => wfMessage('qa_thumbs_help')->text(),
 						'votesDown' => $down,
 						'votesUp' => $up,
-						// 'class' => 'tr_vote_up_'.$hash.'_'.$k <-- do we need this?
+						'class_up' => 'trvote_up_'.$hash.'_'.$k,
+						'class_down' => 'trvote_down_'.$hash.'_'.$k
 					];
 
 					$html .= self::thumbRatingHtml($vars);

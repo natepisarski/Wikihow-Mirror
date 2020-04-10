@@ -333,7 +333,7 @@ class SpecialTechFeedback extends UnlistedSpecialPage {
 			'stfi_vote' => $vote
 		);
 
-		$dbw->insert( $table, $values, __METHOD__ );
+		$dbw->insert( $table, $values, __METHOD__, 'IGNORE' );
 		return;
 	}
 

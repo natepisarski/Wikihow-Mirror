@@ -13,6 +13,8 @@ class YouTubeInfoJob extends Job {
 
 	public function __construct( Title $title, array $params, $id = 0 ) {
 		parent::__construct( 'YouTubeInfoJob', $title, $params, $id );
+		//default for jobs class is to allow duplicates, but we don't want to in this case.
+		$this->removeDuplicates = true;
 	}
 
 	/**
@@ -23,6 +25,7 @@ class YouTubeInfoJob extends Job {
 	 * 	{string} requestKey Unique key for request
 	 * 	{string} [cacheKey] Memcache key to purge after running
 	 * 	{string} [purgeUrls] URLs to purge after running
+	 * 	{stirng} [forceRefresh] Whether or not to force hitting the api
 	 *
 	 * @return bool
 	 */
@@ -35,14 +38,15 @@ class YouTubeInfoJob extends Job {
 				'id' => $this->params['id'],
 				'requestKey' => $this->params['requestKey'],
 				'cacheKey' => $this->params['cacheKey'],
-				'purgeUrls' => $this->params['purgeUrls']
+				'purgeUrls' => $this->params['purgeUrls'],
+				'forceRefresh' => $this->params['forceRefresh'],
 			], true ) . "\n"
 		);
 
 		// Only hit the API if the data isn't stored or is older than a week
 		$response = AsyncHttp::read( $this->params['requestKey'] );
 		$lastWeek = wfTimestamp( TS_MW, strtotime( '-1 week' ) );
-		if ( !$response || $response['updated'] < $lastWeek ) {
+		if ( !$response || $response['updated'] < $lastWeek || $this->params['forceRefresh'] == 'true' ) {
 			// Hit the YouTube API
 			WikihowStatsd::increment( 'youtube.YouTubeInfoJob' );
 			$body = file_get_contents( wfAppendQuery(
@@ -61,6 +65,8 @@ class YouTubeInfoJob extends Job {
 					'requestKey' => $this->params['requestKey'],
 					'cacheKey' => $this->params['cacheKey'],
 					'purgeUrls' => $this->params['purgeUrls'],
+					'forceRefresh' => $this->params['forceRefresh'],
+
 					'status' => $http_response_header[0]
 				], true ) . "\n"
 			);

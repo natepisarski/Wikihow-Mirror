@@ -134,7 +134,7 @@ class PagePolicy {
 		// a different spot back to view and the new anon edit dialog.
 		if ( $wgLanguageCode == 'en' && $actionParam == 'edit') {
 			$anonVisible = true;
-		} elseif ( in_array($actionParam, ['preview','purge','submit','submit2']) ) {
+		} elseif ( in_array($actionParam, ['login','preview','purge','submit','submit2']) ) {
 			$anonVisible = true;
 		} elseif ( $actionParam && $actionParam != 'view' ) {
 			// Hide pages if action is set and NOT action=view

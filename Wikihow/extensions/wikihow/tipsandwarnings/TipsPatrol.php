@@ -10,21 +10,27 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['TipsPatrol'] = 'TipsPatrol';
 $wgAutoloadClasses['TipsPatrol'] = __DIR__ . '/TipsPatrol.body.php';
-$wgExtensionMessagesFiles['TipsPatrol'] = __DIR__ . '/TipsPatrol.i18n.php';
 $wgExtensionMessagesFiles['TipsPatrolAliases'] = __DIR__ . '/TipsPatrol.alias.php';
+$wgMessagesDirs['TipsPatrol'] = __DIR__ . '/i18n/';
 
 $wgLogTypes[] = 'newtips';
 $wgLogNames['newtips'] = 'newtips';
 $wgLogHeaders['newtips'] = 'newtips';
 
 $wgResourceModules['ext.wikihow.tips_patrol'] = [
-    'styles' => ['tipspatrol.css'],
-    'scripts' => ['tipspatrol.js'],
-    'localBasePath' => __DIR__,
-    'remoteExtPath' => 'wikihow/tipsandwarnings',
-    'position' => 'top',
-    'targets' => ['desktop', 'mobile'],
-    'dependencies' => ['ext.wikihow.common_top'],
+  'scripts' => ['tipspatrol.js'],
+  'localBasePath' => __DIR__ . '/resources',
+  'remoteExtPath' => 'wikihow/tipsandwarnings/resources',
+  'position' => 'top',
+  'targets' => ['desktop', 'mobile'],
+  'dependencies' => ['ext.wikihow.common_top'],
+];
+
+$wgResourceModules['ext.wikihow.tips_patrol.styles'] = [
+  'styles' => ['tipspatrol.less'],
+  'localBasePath' => __DIR__ . '/resources',
+  'remoteExtPath' => 'wikihow/tipsandwarnings/resources',
+  'targets' => ['desktop', 'mobile']
 ];
 
 /*****

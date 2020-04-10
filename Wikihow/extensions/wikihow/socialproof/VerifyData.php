@@ -223,6 +223,20 @@ class VerifyData {
 		return $allowed;
 	}
 
+	public static function isExpertVerified( $articleId ): bool {
+		$verifierInfo = self::getByPageId($articleId);
+
+		if (is_array($verifierInfo)) {
+			foreach ($verifierInfo as $info) {
+				if ($info->worksheetName == "expert") {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	# COAUTHORS
 
 	public static function newVerifier( $verifierId, $name, $blurb, $hoverBlurb,

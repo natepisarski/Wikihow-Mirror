@@ -72,7 +72,7 @@ $wgWidgetList = array(
 	'TopicAppWidget',
 	'NfdAppWidget',
 	'TipsPatrolWidget',
-	// 'TipsGuardianAppWidget',
+	'TipsGuardianAppWidget',
 	'SpellcheckerAppWidget',
 	'CategoryGuardianAppWidget',
 	// 'UCIPatrolWidget',
@@ -106,7 +106,7 @@ $wgWidgetShortCodes = array(
 	'TopicAppWidget' => 'tpc',
 	'NfdAppWidget' => 'nfd',
 	'TipsPatrolWidget' => 'tip',
-	// 'TipsGuardianAppWidget' => 'tg',
+	'TipsGuardianAppWidget' => 'tg',
 	'SpellcheckerAppWidget' => 'spl',
 	'CategoryGuardianAppWidget' => 'catch',
 	// 'UCIPatrolWidget' => 'uci',
@@ -136,7 +136,7 @@ $wgMobilePriorityWidgetList = array(
 $wgMobileWidgetList = array(
 	'TopicTaggingAppWidget',
 	'CategoryGuardianAppWidget',
-	// 'TipsGuardianAppWidget',
+	'TipsGuardianAppWidget',
 	// 'UCIPatrolWidget',
 	'RecentChangesAppWidget',
 	'UnitGuardianAppWidget',
@@ -145,7 +145,7 @@ $wgMobileWidgetList = array(
 
 /*widgets that SHOULD NOT show on desktop*/
 $wgMobileOnlyWidgetList = array(
-	// 'TipsGuardianAppWidget',
+	'TipsGuardianAppWidget',
 	'UnitGuardianAppWidget',
 	'QuizYourselfWidget'
 );

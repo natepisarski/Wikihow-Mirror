@@ -19,6 +19,10 @@ class TipsPatrol extends SpecialPage {
 		$wgHooks['getToolStatus'][] = array('SpecialPagesHooks::defineAsTool');
 	}
 
+	public function isMobileCapable() {
+		return true;
+	}
+
 	public function execute($par) {
 		global $wgDebugToolbar;
 
@@ -30,7 +34,7 @@ class TipsPatrol extends SpecialPage {
 			throw new UserBlockedError( $user->getBlock() );
 		}
 
-		if ($user->isAnon() || self::isBlockedFromTipsPatrol($user)) {
+		if (!self::userAllowed( $user )) {
 			$out->setRobotPolicy( 'noindex,nofollow' );
 			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
@@ -91,27 +95,46 @@ class TipsPatrol extends SpecialPage {
 		$out->setHTMLTitle(wfMessage('tipspatrol')->text());
 		$out->setPageTitle(wfMessage('tipspatrol')->text());
 
-		$out->addModules('ext.wikihow.UsageLogs');
-		$out->addModules('jquery.ui.dialog');
-		$out->addModules('common.mousetrap');
-		$out->addModules('ext.wikihow.tips_patrol');
+		$out->addModuleStyles([ 'ext.wikihow.tips_patrol.styles' ]);
+		$out->addModules([ 'ext.wikihow.UsageLogs', 'jquery.ui.dialog', 'common.mousetrap', 'ext.wikihow.tips_patrol' ]);
 
 		WikihowSkinHelper::maybeAddDebugToolbar($out);
 
-		EasyTemplate::set_path(__DIR__);
-		$vars = array();
-		$vars['tip_skip_title'] = wfMessage('tip_skip_title')->text();
-		$vars['tip_keep_title'] = wfMessage('tip_keep_title')->text();
-		$vars['tip_delete_title'] = wfMessage('tip_delete_title')->text();
-		$out->addHTML(EasyTemplate::html('TipsPatrol.tmpl.php', $vars));
+		$out->addHTML( $this->tipsPatrolHtml() );
 		$coach = $this->getRequest()->getVal("coach");
 		// code to init the tipspatrol javascript.. doing it here lets us pass in extra variables when we init
 		$out->addScript("<script>WH.tipsPatrolCoachSetting = '$coach';</script>");
 
-		$bubbleText = "Only publish this tip if you can make it helpful, clear, and grammatically correct. Most tips should get deleted.";
+		InterfaceElements::addBubbleTipToElement('tip_tip', 'tptrl', wfMessage('tp_bubble_text')->text());
 
-		InterfaceElements::addBubbleTipToElement('tip_tip', 'tptrl', $bubbleText);
 		$this->displayLeaderboards();
+	}
+
+	private function tipsPatrolHtml(): string {
+		$loader = new Mustache_Loader_CascadingLoader( [
+			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
+		] );
+		$m = new Mustache_Engine(['loader' => $loader]);
+
+		$vars = [
+			'tip_skip_title' => wfMessage('tip_skip_title')->text(),
+			'tip_keep_title' => wfMessage('tip_keep_title')->text(),
+			'tip_delete_title' => wfMessage('tip_delete_title')->text(),
+			'tipspatrol_keys' => wfMessage('tipspatrol_keys')->text(),
+			'rotate_gif_url' => wfGetPad('/extensions/wikihow/rotate.gif'),
+			'hello' => wfMessage('tp_hello')->text(),
+			'patrol_coach' => wfMessage('tp_patrol_coach')->text(),
+			'dismiss' => wfMessage('tp_dismiss')->text(),
+			'shortcuts' => wfMessage('tp_shortcuts')->text(),
+			'tp_header' => wfMessage('tp_header')->text(),
+			'tp_subheader' => wfMessage('tp_subheader')->text(),
+			'tp_reviewed_checkbox' => wfMessage('tp_reviewed_checkbox')->text(),
+			'skip' => wfMessage('skip')->text(),
+			'publish' => wfMessage('publish')->text(),
+			'delete' => wfMessage('tp_reject')->text()
+		];
+
+		return $m->render('tipspatrol.mustache', $vars);
 	}
 
 /*
@@ -146,7 +169,14 @@ CREATE TABLE `tipspatrol_views` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 */
-	private function isBlockedFromTipsPatrol($user) {
+
+	public static function userAllowed(User $user): bool {
+		return !$user->isAnon() &&
+			Misc::isUserInGroups( $user, [ 'staff', 'staff_widget', 'newarticlepatrol', 'sysop' ] ) &&
+			!self::isBlockedFromTipsPatrol($user);
+	}
+
+	private static function isBlockedFromTipsPatrol($user) {
 		$dbr = wfGetDB(DB_REPLICA);
 		$blocked = $dbr->selectField('tipspatrol_views', 'tpv_user_blocked', 'tpv_user_id = ' . intval($user->getID())) ?: false;
 		return $blocked;

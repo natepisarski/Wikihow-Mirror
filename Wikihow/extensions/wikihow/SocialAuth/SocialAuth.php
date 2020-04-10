@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['other'][] = array(
 	'name' => 'SocialAuth',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => "Classes for shared social authentication features",
 );
 

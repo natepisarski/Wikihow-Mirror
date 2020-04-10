@@ -5,7 +5,7 @@ if (!defined('MEDIAWIKI'))
 
 $wgExtensionCredits['edithook'][] = array(
 	'name' => 'EditMapper',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => "Provide hooks to map article edits to different users",
 );
 

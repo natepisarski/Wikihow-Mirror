@@ -1,5 +1,5 @@
 /* most functions taken and tweaked from qc.js */
-var qc_vote = 0; 
+var qc_vote = 0;
 var qc_skip = 0;
 var qc_id   = 0;
 var pqt_id  = -1;
@@ -10,7 +10,7 @@ $("document").ready(function() {
 	getNewTip();
 	readyButtons();
 	WH.ArticleDisplayWidget.init();
-	
+
 	throttler = new WH.AnonThrottle({
 		toolName: 'tips_checker_anon_edits',
 		maxEdits: MAX_NUM_ANON_CHECKED
@@ -33,34 +33,34 @@ function getNewTip() {
 
 function loadResult(result) {
 	//wipe 'em
-	qc_vote = 0; 
+	qc_vote = 0;
 	qc_skip = 0;
 	qc_id   = 0;
 	pqt_id  = -1;
-	
+
 	//are we done for now?
 	if (result['done']) {
-		$('#tg_toolbar').hide();
-		$('#tg_result').html(result['msg']);
+		$('#tg_header, #tg_tip, #tg_toolbar, #adw_root, #ti_icon').hide();
 		loadingStuff(false);
+		$('#tg_limit_reached').html(result['msg']);
 		return;
 	}
-	
+
 	//anon user throttled?
 	if (throttler.limitReached()) {
 		showLimitReached();
 		return;
 	}
-	
-	tip = result['html'] ? result['html']['tip_html'] : '';
-	
+
+	var tip = result['html'] ? $(result['html']).html() : '';
+
 	$('#tg_article_title').html(mw.message('howto', result['title_unformatted']).text());
 	$('#tg_tip').html(tip);
-	WH.ArticleDisplayWidget.updateArticleId(result['html']['article_id']);
+	WH.ArticleDisplayWidget.updateArticleId(result['article_id']);
 	qc_id = result['qc_id'];
 	pqt_id = result['pqt_id'];
 	loadingStuff(false);
-	
+
 	//increase throttle count
 	throttler.recordEdit(1);
 	//trigger all that article stuff
@@ -89,7 +89,7 @@ function submitResponse() {
 	loadingStuff(true);
 
 	$.post('/Special:QG',
-		{ 
+		{
 		  postResults: true,
 		  qc_vote: qc_vote,
 		  qc_skip: qc_skip,
@@ -113,13 +113,13 @@ function qcVote(vote) {
 	}
 	else {
 		(vote) ? (qc_vote = 1) :(qc_vote = 0);
-		qc_skip = 0;  
+		qc_skip = 0;
 		submitResponse();
 	}
 }
 
 function qcSkip() {
-	qc_skip = 1; 
+	qc_skip = 1;
 	submitResponse();
 }
 

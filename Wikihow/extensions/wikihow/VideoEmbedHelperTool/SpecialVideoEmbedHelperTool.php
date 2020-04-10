@@ -112,7 +112,8 @@ class VideoEmbedHelperTool extends UnlistedSpecialPage {
 			$newtext = $newsection;
 		}
 		$watch = $this->getUser()->isWatched($title);
-		$newtext = $this->addBulletCitation($newtext, $videoCitation);
+		//BS: don't want to add anything to the sources right now 3/20/2020
+		//$newtext = $this->addBulletCitation($newtext, $videoCitation);
 
 		$editSummary = $this->msg('evht_addingvideo_summary');
 		$a->updateArticle($newtext, $editSummary, false, $watch);
@@ -174,6 +175,11 @@ class VideoEmbedHelperTool extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
+		$context = RequestContext::getMain();
+		$user = $context->getUser();
+		$out = $context->getOutput();
+		$req = $context->getRequest();
+
 		$userGroups = $user->getGroups();
 		if ($user->isBlocked() || (!in_array('staff', $userGroups) && !in_array('staff_widget', $userGroups))) {
 			$out->setRobotPolicy('noindex,nofollow');
@@ -193,7 +199,7 @@ class VideoEmbedHelperTool extends UnlistedSpecialPage {
 					'videoUrl' => $videoUrl);
 
 			$target = $this->getArticleFromUrl($target);
-			if (preg_match('/[0-9]{1,8}/', $target)) {
+			if (is_numeric($target)) {
 				$title = Title::newFromID((int)$target);
 			} else {
 				$title = Misc::getTitleFromText($target);

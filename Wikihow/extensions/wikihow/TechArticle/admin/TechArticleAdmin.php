@@ -3,8 +3,6 @@
 /**
  * Exposes the /Special:TechArticleAdmin page, which staff members can use
  * to modify the Tech Article Widget data.
- *
- * @author Alberto Burgos
  */
 
 if (!defined('MEDIAWIKI'))

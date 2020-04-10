@@ -33,6 +33,9 @@ class SocialLoginUtil {
 			 // Instantiate the WikiHow user linked to the social account
 			$event = 'login';
 			$user = User::newFromID($socialUser->getWhUser()->getId());
+			if ($user && $avatar) {
+				Avatar::updateAvatar($user->getId(), $avatar);
+			}
 		} else {
 			// Create a new WikiHow user and link it to the social account
 			$event = 'signup';

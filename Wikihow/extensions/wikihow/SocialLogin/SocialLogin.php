@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'SocialLogin',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => "Endpoint to perform automated social logins/signups",
 );
 

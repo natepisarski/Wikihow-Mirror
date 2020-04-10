@@ -37,6 +37,10 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		// TODO this does not need to be so high up in the page load!
 		$pageCenterInner .= $this->getGDPRHtml( $data );
 
+		if (class_exists('ArticleTopMessage')) {
+			$pageCenterInner .= ArticleTopMessage::showArticleTopMessage();
+		}
+
 		$pageCenterInner .= $this->getBannersHtml( $data );
 
 		if ($this->isMainPage) {
@@ -256,9 +260,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		// $links[] = ['link' => wfMessage('footer_experts')->parse()];
 		$links[] = ['link' => wfMessage('footer_terms')->parse()];
 
-		if ($this->isMainPage && !AlternateDomain::onAlternateDomain())
-			$links[] = ['link' => wfMessage('footer_newpages')->parse()];
-
 		$ccpaHref = '#';
 		if ( $amp ) {
 			$ccpaHref = '?open_ccpa=1';
@@ -309,14 +310,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if ( $data['amp'] ) {
 			return;
 		}
-
 		$rightRail = $data['rightrail'];
-		$adsJs = $rightRail->mAds->getJavascriptFile();
-		$html = '';
-		if ( $adsJs ) {
-			$html = Html::inlineScript( Misc::getEmbedFiles( 'js', [$adsJs] ) );
-		}
-
+		$html = $rightRail->mAds->getTopAdsJavascript();
 		return $html;
 	}
 
@@ -576,7 +571,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			if ( $tab['data-link'] ) {
 				$navAnchorAttr['data-link'] = $tab['data-link'];
 			}
-			$navAnchor = Html::element( 'a', $navAnchorAttr, $tab['text'] );
+			$navAnchor = Html::rawElement( 'a', $navAnchorAttr, $tab['text'] );
 
 			$liAttr = [
 				'id' => $tabId . '_li',

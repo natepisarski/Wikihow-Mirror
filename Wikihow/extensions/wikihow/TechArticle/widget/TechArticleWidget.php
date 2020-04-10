@@ -2,8 +2,6 @@
 
 /**
  * Embeds the Tech Article Widget into the edit page.
- *
- * @author Alberto Burgos
  */
 
 if (!defined('MEDIAWIKI'))

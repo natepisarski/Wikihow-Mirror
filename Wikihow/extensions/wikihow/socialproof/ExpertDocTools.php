@@ -87,10 +87,17 @@ class ExpertDocTools {
 			$fileList = $service->files->listFiles( $parameters );
 			$emptyMeta = new Google_Service_Drive_DriveFile();
 			$reqParams = [ 'addParents' => $newParent, 'removeParents' => $oldParent ];
+			$permsToRemove = [ 'anyone', 'anyoneWithLink' ];
 
 			foreach( $fileList->getFiles() as $file ) {
 				echo "id: {$file->id}\tname: {$file->name}\n";
-				$service->permissions->delete( $file->id, 'anyoneWithLink' );
+				foreach ($permsToRemove as $perm) {
+					try {
+						$service->permissions->delete( $file->id, $perm );
+					} catch (Google_Service_Exception $e) {
+						// ^ raised when trying to remove a permission that the file does not have
+					}
+				}
 				$service->files->update($file->id, $emptyMeta, $reqParams);
 				$processedCount++;
 			}

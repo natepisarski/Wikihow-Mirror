@@ -46,8 +46,17 @@
 	width: auto;
 }
 
+.vote_up span {
+	background-color: #D6E7C9;
+}
+
 .vote_down {
 	text-align: left;
+	margin-left: 1em;
+}
+
+.vote_down span {
+	background-color: #EBEAE7;
 }
 
 .vote_down .thumb, .content .vote_down .thumb {
@@ -194,7 +203,7 @@
 
 #gatAccuracyYes {
 	color: #97ba78;
-	background: url(../Rating/images/face_smile_green.png) 15px center / 30px no-repeat;
+	background: url(../Rating/images/face_smile_green.png) left 15px bottom 50% / 30px no-repeat;
 	/* @embed */
 	background-image: url(../Rating/images/face_smile_green.svg);
 }
@@ -204,7 +213,7 @@
 
 #gatAccuracyNo {
 	color: #686868;
-	background: url(../Rating/images/face_sad_gray.png) 15px center / 30px no-repeat;
+	background: url(../Rating/images/face_sad_gray.png) left 15px bottom 50% / 30px no-repeat;
 	/* @embed */
 	background-image: url(../Rating/images/face_sad_gray.svg);
 	margin-right: 0;

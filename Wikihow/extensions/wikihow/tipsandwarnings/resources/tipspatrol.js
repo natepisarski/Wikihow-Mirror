@@ -38,10 +38,6 @@ function initBindings() {
 		}
 	});
 
-	$('#tip_header').on('keyup', '#tip_tip', function(e) {
-		$('#tip_read').attr('checked', true);
-	});
-
 	$('#tip_header').on( "click", "#tip_keep", function(e) {
 		e.preventDefault();
 
@@ -85,7 +81,7 @@ function validate() {
 	}
 
 	if (!$('#tip_read').is(':checked')) {
-		alert("Did you mean to publish this tip without editing it? If you did please check the box above the 'Skip' button.");	
+		alert("Did you mean to publish this tip without editing it? If you did please check the box above the 'Skip' button.");
 		return false;
 	}
 
@@ -267,7 +263,7 @@ function init(force) {
 			closeText: 'x',
 			position: 'center',
 		});
-	});	
+	});
 
 	$("#article").prepend("<div id='tip_count' class='tool_count'><h3></h3><span>tips remaining</span></div>");
 

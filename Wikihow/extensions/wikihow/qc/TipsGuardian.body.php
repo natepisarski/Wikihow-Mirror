@@ -3,7 +3,7 @@
  * Mobile only use of QG that only does tips
  *
  */
-class TipsGuardian extends MobileSpecialPage {
+class TipsGuardian extends UnlistedSpecialPage {
 
 	public function __construct() {
 		global $wgHooks;
@@ -16,11 +16,11 @@ class TipsGuardian extends MobileSpecialPage {
 		return true;
 	}
 
-	public function isMobileAnonOnly() {
-		return true;
+	public function isAnonAvailable() {
+		return false;
 	}
 
-	public function executeWhenAvailable($par) {
+	public function execute($par) {
 		$out = $this->getOutput();
 		$user = $this->getUser();
 
@@ -31,11 +31,12 @@ class TipsGuardian extends MobileSpecialPage {
 			throw new UserBlockedError( $user->getBlock() );
 		}
 
-		// redir to QG if desktop
-		if ( !$this->getRequest()->wasPosted() && !Misc::isMobileMode() ) {
-			$out->redirect(SpecialPage::getTitleFor('QG')->getFullURL());
+		if ($user->isAnon()) {
+			$out->setRobotPolicy( 'noindex,nofollow' );
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
 			return;
 		}
+
 
 		$out->setPageTitle(''); //making our own header
 		$out->setHTMLTitle(wfMessage('tipsguardian_title'));
@@ -52,8 +53,7 @@ class TipsGuardian extends MobileSpecialPage {
 	protected function addModules() {
 		$out = $this->getOutput();
 		$out->addModuleStyles('mobile.tipsguardian.styles');
-		$out->addModules('mobile.tipsguardian.scripts');
-		$out->addModules('ext.wikihow.UsageLogs');
+		$out->addModules([ 'mobile.tipsguardian.scripts', 'ext.wikihow.UsageLogs' ]);
 	}
 
 	private function getTGVars() {

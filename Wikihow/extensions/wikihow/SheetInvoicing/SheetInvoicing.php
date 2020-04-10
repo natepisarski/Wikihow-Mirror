@@ -6,7 +6,7 @@ if (!defined('MEDIAWIKI')) {
 
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'SheetInvoicing',
-    'author' => 'Alberto Burgos',
+    'author' => 'Alberto',
     'description' => 'Admin tools used to email invoices to contractors, built on top of Google Sheets',
 );
 

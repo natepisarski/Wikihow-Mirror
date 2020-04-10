@@ -198,6 +198,7 @@ $messages['en'] = array(
 	'cd-tip-phrase-prog' => 'patrolling tips',
 	'cd-tip-link' => '/Special:TipsPatrol',
 	'cd-tip-event-type' => 'tips_patrol',
+	'cd-tip-disabled-info' => 'You must be a NABer or an Admin in order to patrol tips.',
 
 	'cd-qap-title' => 'Patrol Q&A',
 	'cd-qap-countdescription' => 'Q&As to patrol',

@@ -2,7 +2,7 @@
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AdminCoauthorIntl',
-	'author' => 'Alberto Burgos',
+	'author' => 'Alberto',
 	'description' => "Manage coauthor blurb translations",
 );
 

@@ -7,6 +7,8 @@
 class Misc {
 
 	public static $referencesCount = null;
+	public static $isMobileMode = null;
+	public static $isFastRenderTest = null;
 
 	/*
 	 * adminPostTalkMessage
@@ -672,9 +674,12 @@ class Misc {
 	 * @return bool true if mobile skin, false if desktop
 	 */
 	public static function isMobileMode() {
+		if ( self::$isMobileMode !== null ) {
+			return self::$isMobileMode;
+		}
 		$ctx = MobileContext::singleton();
-		$isMobileMode = $ctx->shouldDisplayMobileView();
-		return $isMobileMode;
+		self::$isMobileMode = $ctx->shouldDisplayMobileView();
+		return self::$isMobileMode;
 	}
 
 	// Uses raw headers rather than trying to instantiate a mobile
@@ -1173,7 +1178,12 @@ class Misc {
 	}
 
 	public static function isFastRenderTest() {
+		if (self::$isFastRenderTest !== null ) {
+			return self::$isFastRenderTest;
+		}
+
 		global $wgTitle, $wgOut, $wgUser;
+		self::$isFastRenderTest = false;
 		if ( GoogleAmp::isAmpMode( $wgOut ) ) {
 			return false;
 		}
@@ -1181,6 +1191,7 @@ class Misc {
 			return false;
 		}
 		if ( ArticleTagList::hasTag( 'js_fast_render', $wgTitle->getArticleID() ) ) {
+			self::$isFastRenderTest = true;
 			return true;
 		}
 		return false;

@@ -132,8 +132,12 @@ class TipsPatrolWidget  extends DashboardWidget {
 	public function isAllowed($isLoggedIn, $userId=0) {
 		if (!$isLoggedIn)
 			return false;
-		else
-			return true;
+		elseif ($isLoggedIn && $userId == 0)
+			return false;
+		else {
+			$user = User::newFromId($userId);
+			return TipsPatrol::userAllowed($user);
+		}
 	}
 
 }

@@ -6,5 +6,10 @@
 	"cat_toplevel": "Top Level Articles",
 	"cat_toplevel_all": "Articles about $1",
 	"cat_previous": "Previous",
-	"cat_next": "Next"
+	"cat_next": "Next",
+	"cat_videos": "Videos about $1",
+	"cat_covid_msg_header": "Family Resource",
+	"cat_covid_msg_subheader": "The Essential Parents’ Guide to Talking to Your Child about Coronavirus",
+	"cat_covid_msg_text": "Complete with our signature step-by-step guides, wikiHow has created a free, helpful resource to empower you to speak with your child about COVID-19 and teach them healthy daily habits.",
+	"cat_covid_msg_more": "Learn more about this free resource from wikiHow"
 }

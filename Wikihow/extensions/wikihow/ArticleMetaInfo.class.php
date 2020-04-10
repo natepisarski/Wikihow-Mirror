@@ -1162,11 +1162,26 @@ class ArticleMetaInfo {
 		return self::getTitleImageThumb( $title, $width, $height, $usePageId, $crop );
 	}
 
+	public static function getTitleImageName( $title ) {
+		$dbr = wfGetDB(DB_REPLICA);
+		$table = 'article_meta_info';
+		$var = 'ami_img';
+		$cond = array( 'ami_id'  => $title->getArticleID() );
+		$imageName = $dbr->selectField( $table, $var, $cond, __METHOD__ );
+
+		if ( !$imageName ) {
+			return null;
+		}
+
+		$exploded = explode( '/', $imageName );
+
+		$imageName = end( $exploded );
+		return $imageName;
+	}
 	// get the thumbnail object for the title image of an article
 	// defaults to the width of desktop images
 	// has optional param to use the page id to generate the new style watermarks
 	public static function getTitleImageThumb( $title = null, $width = 728, $height = -1, $usePageId = true, $crop = false ) {
-
 		$pageId = null;
 		if ( $usePageId ) {
 			$pageId = self::getArticleID( $title );

@@ -1,15 +1,15 @@
 (function($, mw) {
 
 window.turnOffMtsSelect = function() {
-	$('#header_outer').removeClass('mts-mode');
+	$('#header_container').removeClass('mts-mode');
 	$('.mts-toggle').remove();
 	$('#mts-header').remove();
 	$('.mts-h').hide();
 };
 
 window.setupMtsSelect = function() {
-	$('#header_outer').addClass('mts-mode');
-	$('#header_outer').prepend('<div id="mts-header"></div>');
+	$('#header_container').addClass('mts-mode');
+	$('#header_container').prepend('<div id="mts-header"></div>');
 	var mtsModeHeader = 'Motion To Static Mode - Steps Selected: none';
 	$('#mts-header').text(mtsModeHeader);
 	$('#mts-header').prepend('<a id="mts-close" href="#">X</a>');

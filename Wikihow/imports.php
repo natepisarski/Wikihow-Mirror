@@ -98,8 +98,12 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/BibleCitation/BibleCitation.php");
 	require_once("$IP/extensions/wikihow/contribute/Contribute.php");
 	require_once("$IP/extensions/wikihow/admintools/AdminImageLists.php");
+	require_once("$IP/extensions/wikihow/admintools/AdminYouTubeIds.php");
 	require_once("$IP/extensions/wikihow/specialbotblockipwhitelist/BotBlockIPWhitelist.php");
+	require_once("$IP/extensions/wikihow/newpages/NewPages.php");
 	require_once("$IP/extensions/wikihow/TrustedSources/TrustedSources.php");
+	require_once("$IP/extensions/wikihow/ArticleTopMessage/ArticleTopMessage.php");
+	require_once("$IP/extensions/wikihow/Disclaimer/Disclaimer.php");
 }
 
 require_once("$IP/extensions/wikihow/AsyncHttp.php");
@@ -180,7 +184,7 @@ require_once("$IP/extensions/wikihow/categories/Categorylisting.php");
 require_once("$IP/extensions/wikihow/Randomizer.php");
 require_once("$IP/extensions/wikihow/Generatefeed.php");
 require_once("$IP/extensions/wikihow/ToolbarHelper.php");
-require_once("$IP/extensions/wikihow/Sitemap.php");
+require_once("$IP/extensions/wikihow/Sitemap/Sitemap.php");
 require_once("$IP/extensions/wikihow/suggestedtopics/SuggestedTopics.php");
 require_once("$IP/extensions/wikihow/MWMessages.php");
 require_once("$IP/extensions/wikihow/Rating/Rating.php");
@@ -317,7 +321,7 @@ if ($wgIsTitusServer || $wgIsDevServer) {
 	require_once("$IP/extensions/wikihow/domitian/Domitian.php");
 	require_once("$IP/extensions/wikihow/turker/Turker.php");
 	require_once("$IP/extensions/wikihow/turker/EditTurk.php");
-	require_once("$IP/extensions/wikihow/keywordtool/Keywordtool.php");
+	require_once("$IP/extensions/wikihow/keywordtool/KeywordTool.php");
 	require_once("$IP/extensions/wikihow/aqrater/AQRater.php");
 	require_once("$IP/extensions/wikihow/mmk/AdminMMKQueries.php");
 	require_once("$IP/extensions/wikihow/classify_titles/ClassifyTitles.php");

@@ -606,7 +606,7 @@ class TitusConfig {
 			"Intl" => 0,
 			"Video" => 1,
 			"Summarized" => 1,
-			"EventLog" => 1,
+			"VideoEvents" => 1,
 			"ItemRatings" => 1,
 			"FirstEdit" => 1,
 			"LastEdit" => 1,
@@ -1515,7 +1515,10 @@ class TSSummarized extends TitusStat {
  * ALTER TABLE titus_intl add column `ti_summary_video_play_mobile` int(10) unsigned NOT NULL DEFAULT '0' after ti_summary_video_views_mobile;
  * ALTER TABLE titus_intl add column `ti_summary_video_ctr_mobile` tinyint(3) unsigned NOT NULL DEFAULT '0' after ti_summary_video_play_mobile;
  */
-class TSEventLog extends TitusStat {
+class TSVideoEvents extends TitusStat {
+
+	private $videoActions = [ 'svideoplay', 'svideoview' ];
+
 	public function getPageIdsToCalc( $dbr, $date ) {
 		global $wgLanguageCode;
 
@@ -1526,8 +1529,9 @@ class TSEventLog extends TitusStat {
 		if ( !$dbr->tableExists( $table ) ) {
 			return array();
 		}
+		$where = [ 'el_action' => $this->videoActions ];
 		$options = array( 'DISTINCT' );
-		$res = $dbr->select( $table, 'el_page_id', '', __METHOD__, $options );
+		$res = $dbr->select( $table, 'el_page_id', $where, __METHOD__, $options );
 		$pageIds = array();
 		foreach ( $res as $row ) {
 			$pageIds[] = $row->el_page_id;
@@ -1572,6 +1576,7 @@ class TSEventLog extends TitusStat {
 			$var = array( 'el_count', 'el_action' );
 			$cond = array(
 				'el_page_id' => $pageId,
+				'el_action' => $this->videoActions,
 			);
 			if ( $domain ) {
 				$cond['el_domain'] = $domain;
@@ -1597,18 +1602,19 @@ class TSEventLog extends TitusStat {
  */
 class TSFeatured extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
-		return TitusDB::DAILY_EDIT_IDS;
+		$pages  = WikihowMobileHomepage::getPageIdsOnHomepage();
+		return $pages;
 	}
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
-		$stats = [
-			'ti_featured' => $pageRow->page_is_featured,
-			'ti_featured_date' => ''
-		];
+		$todayDate = time();
 
-		if ($pageRow->page_is_featured) {
-			$stats['ti_featured_date'] = $this->featuredDate($t);
-		}
+		//is it featured on the homepage? Yes, because getPageIdsToCalc
+		//ensures that it was.
+		$stats = [
+			'ti_featured' => 1,
+			'ti_featured_date' =>  date('Y-m-d', $todayDate)
+		];
 
 		return $stats;
 	}

@@ -1,8 +1,14 @@
 <div class="wh_vote_container">
 	<span class='wh_thumb_response wh_thumb_msg'>{{thumbs_response}}</span>
 	<div>
-		<a href="#" class="wh_vote_down wh_vote_box">{{thumbs_nohelp}} <span>{{votesDown}}</span></a>
-		<a href="#" class="wh_vote_up wh_vote_box">{{thumbs_help}} <span>{{votesUp}}</span></a>
+		<a href="#" class="{{class_up}} vote_up wh_vote_box">
+			{{thumbs_help}}
+			<span class="tr_vote">{{votesUp}}</span>
+		</a>
+		<a href="#" class="{{class_down}} vote_down wh_vote_box">
+			{{thumbs_nohelp}}
+			<span class="tr_vote">{{votesDown}}</span>
+		</a>
 	</div>
 </div>
 

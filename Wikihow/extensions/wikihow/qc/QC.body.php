@@ -10,6 +10,8 @@ abstract class QCRule {
 	var $mResult	= null; // action item to patrol, a row from the qc table
 	var $mTitle		= null;
 
+	CONST YOUTUBE_VIDEOS_TAG = 'youtube_wikihow_videos';
+
 	public function __construct($article) {
 		global $wgHooks;
 		$this->mArticle = $article;
@@ -247,8 +249,13 @@ abstract class QCRule {
 			$dbw = wfGetDB(DB_MASTER);
 			$expired = wfTimestamp(TS_MW, time() - 3600);
 
+			$youtube_wH_vid_tag_ID = $dbw->selectField('articletag', 'at_id', array('at_tag' => QCRule::YOUTUBE_VIDEOS_TAG), __METHOD__);
+
 			$sql = "SELECT * FROM qc LEFT JOIN qc_vote ON qc_id=qcv_qcid AND qcv_user = {$user->getID()}
-					WHERE ( qc_checkout_time < '{$expired}' OR qc_checkout_time = '')
+					LEFT JOIN (SELECT * FROM articletaglinks WHERE atl_tag_id = {$youtube_wH_vid_tag_ID}) AS articletagalias
+					ON (qc_page = articletagalias.atl_page_id AND qc_key = 'changedvideo')
+					WHERE (atl_tag_id != {$youtube_wH_vid_tag_ID} or atl_tag_id is NULL)
+					AND (qc_checkout_time < '{$expired}' OR qc_checkout_time = '')
 					AND qc_patrolled = 0 AND qcv_qcid IS NULL
 					AND qc_page > 0 AND qc_key != 'changedintroimage'";
 
@@ -1608,6 +1615,7 @@ class QG extends SpecialPage {
 	}
 
 	private function getButtons($item) {
+		$disclaimer = wfMessage('mobile-desktop-cta', 'Special:TipsGuardian')->parse();
 
 		$buttons =	"<div id='qc_head' class='tool_header'>
 						<h1 id='question'></h1>
@@ -1615,6 +1623,7 @@ class QG extends SpecialPage {
 						<a href='#' class='button primary op-action' id='qc_yes' " . $this->dataAttr($item, 'vote_up') . ">Yes</a>
 						<a href='#' class='button secondary op-action' id='qc_no' " . $this->dataAttr($item, 'vote_down') . ">No</a>
 						<div class='clearall'></div>
+						<div id='qc_desktop_disclaimer'>$disclaimer</div>
 					</div>
 					<input type='hidden' id='qcrule_choices' value='' />";
 		return $buttons;
@@ -1648,6 +1657,7 @@ class QG extends SpecialPage {
 			$result['sql']			= $c->sql;
 			$result['pqt_id']		= $c->mResult->pqt_id;
 			$result['title_unformatted'] = $c->mTitle->getText();
+			$result['article_id'] = $c->mTitle->getArticleID();
 		} else {
 			$tool = $qc_type == 'NewTip' ? 'tg' : 'qc';
 			$eoq = new EndOfQueue();

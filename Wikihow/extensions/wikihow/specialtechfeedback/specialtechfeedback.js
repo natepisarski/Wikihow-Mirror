@@ -49,6 +49,7 @@
 			});
 
 			$(document).on('click', '#buttons-line', function(event) {
+				$('#buttons-line').hide();
 				var vote = 0;
 				if ($(event.target).hasClass("yes")) {
 					vote = 1;
@@ -88,6 +89,7 @@
 			$('#tool-data').fadeOut(function() {
 				$('.spinner').fadeIn(function() {
 					$.getJSON(url, function(data) {
+						$('#buttons-line').show();
 						if (data.remaining == 0) {
 							$('#header-count').html(data.remaining);
 							$('#tool-data').html(data.html);

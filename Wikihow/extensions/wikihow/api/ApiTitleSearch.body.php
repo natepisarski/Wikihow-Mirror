@@ -65,10 +65,13 @@ class ApiTitleSearch extends ApiBase {
 
 		$formatted = [];
 		foreach ($titles as $t) {
+			$page = WikiPage::newFromId($t->getArticleId());
 			$formatted []= [
 				'id' => $t->getArticleID(),
 				'titleText' => $t->getText(),
 				'url' => Misc::getLangBaseURL($wgLanguageCode) . '/' . $t->getPartialURL(),
+				'updated' => $t->getTouched(),
+				'views' => $page ? $page->getCount() : 0
 			];
 		}
 		return $formatted;

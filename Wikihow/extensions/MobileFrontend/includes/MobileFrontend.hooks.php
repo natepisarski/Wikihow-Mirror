@@ -66,9 +66,6 @@ class MobileFrontendHooks {
 		if (GoogleAmp::isAmpSpeedTest($t)) {
 			$skinName = 'SkinMinervaWikihowAmp';
 		}
-		if (GoogleAmp::isAmpCustomAdsTest($t)) {
-			$skinName = 'SkinMinervaWikihowAmp';
-		}
 
 		if ( class_exists( $skinName ) ) {
 			$skin = new $skinName( $context );
@@ -278,8 +275,9 @@ class MobileFrontendHooks {
 
 		// Bug 43123: force mobile URLs only for local redirects
 		if ( $context->isLocalUrl( $redirect ) ) {
-			$out->addVaryHeader( 'X-Subdomain' );
-			$out->addVaryHeader( 'X-CS' );
+			// Reuben, March 2020: removed these from being added to the Vary header, since we are responsive at wikihow
+			#$out->addVaryHeader( 'X-Subdomain' );
+			#$out->addVaryHeader( 'X-CS' );
 			$redirect = $context->getMobileUrl( $redirect );
 		}
 

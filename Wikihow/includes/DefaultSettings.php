@@ -1013,7 +1013,7 @@ $wgTrustedMediaFormats = [
 	MEDIATYPE_AUDIO, // all audio formats
 	MEDIATYPE_VIDEO, // all plain video formats
 	"image/svg+xml", // svg (only needed if inline rendering of svg is not supported)
-	"application/pdf", // PDF files
+//	"application/pdf", // PDF files
 	# "application/x-shockwave-flash", //flash/shockwave movie
 ];
 

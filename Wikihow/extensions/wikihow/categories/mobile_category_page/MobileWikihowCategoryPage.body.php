@@ -4,9 +4,14 @@ class MobileWikihowCategoryPage extends CategoryPage {
 
 	const PULL_CHUNKS = 96;
 	const SMALL_PULL_CHUNKS = 12;
+	const ONE_ROW_CHUNKS = 6;
 	const MAX_FA = 48;
 	const SINGLE_WIDTH = 375;
 	const SINGLE_HEIGHT = 321;
+	const WATCH_LIST = 'covid19_category_videos';
+	const MAX_WATCH = 12;
+	const THUMB_WIDTH = 375;
+	const THUMB_HEIGHT = 250;
 
 	public function view() {
 		global $wgHooks;
@@ -21,7 +26,6 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$req = $ctx->getRequest();
 		$out = $ctx->getOutput();
 		$categoryTitle = $ctx->getTitle();
-		$categoryName = $categoryTitle->getText();
 
 		if (!$categoryTitle->exists()) {
 			parent::view();
@@ -32,10 +36,14 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			return Article::view();
 		}
 
+		$categoryName = $categoryTitle->getText();
+		if ($categoryName == 'COVID 19') $categoryName = 'COVID-19';
+
 		$out->setRobotPolicy('index,follow', 'Category Page');
 		// allow redirections to mobile domain
 		Misc::setHeaderMobileFriendly();
-		$out->setPageTitle($categoryTitle->getText());
+		$out->setPageTitle($categoryName);
+
 		if ($req->getVal('viewMode',0)) {
 			//this is for the text view
 			$sortDirection =  $req->getVal('rev', 'ASC');
@@ -53,11 +61,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 				$vars['articles'][] = ['articleLink' => Linker::link($title)];
 			}
 
-			$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
-			$options = array('loader' => $loader);
-
-			$m = new Mustache_Engine($options);
-			$html = $m->render('responsive_textonly.mustache', $vars);
+			$html = self::renderTemplate('responsive_textonly.mustache', $vars);
 			$out->addHTML($html);
 
 			$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
@@ -69,13 +73,11 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			//get pg and start info
 			$pg = $req->getInt('pg',1);
 
+			$covidPage = $categoryName == 'COVID-19';
+
 			$topCats = CategoryHelper::getTopLevelCategoriesForDropDown();
 			$isTopCat = in_array($categoryName, $topCats);
 
-			$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
-			$options = array('loader' => $loader);
-
-			$m = new Mustache_Engine($options);
 			$vars = [];
 			$vars['description'] = AdminCategoryDescriptions::getCategoryDescription($this->mTitle);
 			$vars['catName'] = $categoryName;
@@ -162,7 +164,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			if (count($subcatsArray) > 0) {
 				$articlesPerPage = self::PULL_CHUNKS;
 			} else {
-				$articlesPerPage = ceil(self::PULL_CHUNKS/4)*4;
+				$articlesPerPage = $covidPage ? self::ONE_ROW_CHUNKS*4 : ceil(self::PULL_CHUNKS/4)*4;
 			}
 
 			//now just regular articles
@@ -198,59 +200,31 @@ class MobileWikihowCategoryPage extends CategoryPage {
 				}
 			}
 
-
 			if (count($articles) > $articlesPerPage) {
 				$vars['pagination'] = $this->getPaginationHTML($pg, count($articles), $articlesPerPage);
 			}
 			$vars['all'] = $allArticles;
 
-			//Now the related section (which only shows if the "all articles" section isn't full AND there isn't a featured section
-			if (!isset($vars['pagination']) && $vars['hasFeatured'] != true) {
-				if ($isTopCat) {
-					$topCat = $categoryTitle->getDBkey();
-					$topCatText = $categoryTitle->getText();
-				} else {
-					$topCat = CategoryHelper::getTopCategory($categoryTitle);
-					if ($topCat) {
-						$topCatText = Title::newFromDBkey($topCat, NS_CATEGORY)->getText();
-					} else {
-						$topCatText = "";
-					}
-				}
+			$showFurtherEditing = $ctx->getUser()->isLoggedIn() && !$covidPage;
 
-				$pageIds = TopCategoryData::getPagesForCategory($topCat, TopCategoryData::FEATURED, 12);
-				$featuredArticles = [];
-				foreach ($pageIds as $pageId) {
-					$addedTitle = Title::newFromID($pageId);
-					if ($addedTitle) {
-						$info = $this->getArticleThumbWithPathFromTitle($addedTitle);
-						if ($info) {
-							$featuredArticles[] = $info;
-						}
-					}
-				}
-
-				if (count($featuredArticles)) {
-					$vars['hasRelated'] = true;
-					$vars['topCat'] = $topCatText;
-					$vars['related'] = $featuredArticles;
-				}
-			}
-
-			if ($ctx->getUser()->isLoggedIn()) {
+			if ($showFurtherEditing) {
 				$furtherEditing = $viewer->getArticlesFurtherEditing($viewer->articles, $viewer->article_info);
 				if ($furtherEditing != "") {
 					$vars['furtherEditing'] = $furtherEditing;
 				}
 			}
 
-			$html = $m->render("responsive_category_page.mustache", $vars);
+			if ($pg == 1) $this->getVideoArticles($vars);
+
+			$vars['covid_section'] = $this->covidSection();
+
+			$html = self::renderTemplate("responsive_category_page.mustache", $vars);
 
 			if (count($allArticles) == 0) {
 				//nothin' in this category
 				$out->setStatusCode(404);
 				$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
-				$out->addHTML( $m->render('responsive_no_results.mustache',
+				$out->addHTML( self::renderTemplate('responsive_no_results.mustache',
 					[
 						'title' => $categoryName,
 						'special_message' => wfMessage( 'Noarticletextanon' )->parse(),
@@ -340,7 +314,9 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			'textBlock' => $textBlock,
 			'title' => $articleName,
 			'howto' => $howToPrefix,
-			'image' => $image
+			'image' => $image,
+			'isExpert' => VerifyData::isExpertVerified($title->getArticleID()),
+			'expertLabel' => ucwords(wfMessage('expert')->text())
 		];
 	}
 
@@ -434,21 +410,110 @@ class MobileWikihowCategoryPage extends CategoryPage {
 
 		$vars['cat_parent_url'] = $t ? $t->getLocalUrl() : SpecialPage::getTitleFor('CategoryListing')->getLocalURL();
 
+		$html = self::renderTemplate("responsive_navigation.mustache", $vars);
+		$data['prebodytext'] = $html;
+	}
+
+	private function getVideoArticles(&$vars) {
+		//only for COVID-19 currently
+		$dbkey = $this->getTitle()->getDBkey();
+		if ($dbkey != 'COVID-19') return;
+
+		$vars['videoHeader'] = wfMessage('cat_videos', $dbkey)->text();
+		$this->getWatchArticles($vars);
+	}
+
+	private function covidSection(): string {
+		if ($this->getTitle()->getDBkey() != 'COVID-19') return '';
+
+		$vars = [
+			'header' => wfMessage('cat_covid_msg_header')->text(),
+			'subheader' => wfMessage('cat_covid_msg_subheader')->text(),
+			'text' => wfMessage('cat_covid_msg_text')->text(),
+			'learn_more' => wfMessage('cat_covid_msg_more')->text(),
+			'learn_more_link' => Title::newFromText(wfMessage('corona-guide')->text(), NS_PROJECT)->getLocalURL()
+		];
+
+		return self::renderTemplate('category_covid_message.mustache', $vars);
+	}
+
+	private static function renderTemplate( string $template, array $vars = [] ): string {
 		$loader = new Mustache_Loader_FilesystemLoader(__DIR__);
 		$options = array('loader' => $loader);
 
 		$m = new Mustache_Engine($options);
-		$html = $m->render("responsive_navigation.mustache", $vars);
-		$data['prebodytext'] = $html;
+		return $m->render( $template, $vars );
 	}
 
-	private static function renderTemplate( $template, $vars ) {
-		$m = new Mustache_Engine( array(
-			'loader' => new Mustache_Loader_CascadingLoader( [
-				new Mustache_Loader_FilesystemLoader( __DIR__ ),
-			] )
-		) );
-		return $m->render( $template, $vars );
+	public function getWatchArticles(&$vars) {
+		$vars['watch_items'] = [];
+
+		$ids = ConfigStorage::dbGetConfig(self::WATCH_LIST);
+		$idArray = explode("\n", $ids);
+
+		if($ids !== false && $ids != "") {
+			$vars['has_watch'] = true;
+			$count = 0;
+			foreach ($idArray as $id) {
+				$title = Title::newFromID($id);
+				if (!$title || !$title->exists()) {
+					continue;
+				}
+
+				if ($this->getContext()->getLanguage()->getCode() == "en") {
+					$result = ApiSummaryVideos::query(['page' => $id]);
+					if ($result['videos'] && count($result['videos']) > 0) {
+						$info = $result['videos'][0];
+
+						if ($info['clip'] !== '') {
+							$src = $info['clip'];
+							$prefix = 'https://www.wikihow.com/video';
+							if (substr($src, 0, strlen($prefix)) == $prefix) {
+								$src = substr($src, strlen($prefix));
+							}
+							$preview = Misc::getMediaScrollLoadHtml(
+								'video', ['src' => $src, 'poster' => $info['poster']]
+							);
+						} else {
+							$preview = Misc::getMediaScrollLoadHtml('img', ['src' => $info['poster']]);
+						}
+
+						$vars['watch_items'][] = [
+							'url' => $title->getLocalURL('#'.wfMessage('videoheader')->text()),
+							'title' => $info['title'],
+							'image' => $preview,
+							'howto' => wfMessage('howto_prefix')->showIfExists(),
+							'isVideo' => true
+						];
+						$count++;
+						if ($count >= self::MAX_WATCH) break;
+					}
+				} else {
+					$vars['watch_items'][] = [
+						'url' => $title->getLocalURL() . "#" . wfMessage("Videoheader")->text(),
+						'title' => $title->getText(),
+						'image' => Misc::getMediaScrollLoadHtml('img', ['src' => self::getThumbnailUrl($title)]),
+						'isExpert' => VerifyData::isExpertVerified($id)
+					];
+
+					$count++;
+					if ($count >= self::MAX_WATCH) break;
+				}
+
+			}
+		}
+	}
+
+	private static function getThumbnailUrl($title) {
+		$image = Wikitext::getTitleImage($title);
+		if (!($image && $image->getPath() && strpos($image->getPath(), "?") === false)
+			|| preg_match("@\.gif$@", $image->getPath())) {
+			$image = Wikitext::getDefaultTitleImage($title);
+		}
+
+		$params = ['width' => self::THUMB_WIDTH, 'height' => self::THUMB_HEIGHT, 'crop' => 1, WatermarkSupport::NO_WATERMARK => true];
+		$thumb = $image->transform($params);
+		return $thumb->getUrl();
 	}
 
 }

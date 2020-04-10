@@ -988,15 +988,18 @@ class WikihowArticleHTML {
 			if ( $summary->length ) {
 				$summary->replaceWith( pq( '#summary_wrapper' ) );
 			}
-			// Add schema to all YouTube videos that are from our channel
-			foreach ( pq( '.embedvideo' ) as $video ) {
-				$src = pq( $video )->attr( 'data-src' );
-				preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
-				if ( $matches[1] ) {
-					$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
-					// Only videos from our own channel will have publisher information
-					if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
-						pq( $video )->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
+			// Only consider adding schema on pages tagged with youtube_wikihow_videos
+			if ( ArticleTagList::hasTag( 'youtube_wikihow_videos', $title->getArticleID() ) ) {
+				// Add schema to all YouTube videos that are from our channel
+				foreach ( pq( '.embedvideo' ) as $video ) {
+					$src = pq( $video )->attr( 'data-src' );
+					preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
+					if ( $matches[1] ) {
+						$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
+						// Only videos from our own channel will have publisher information
+						if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
+							pq( $video )->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
+						}
 					}
 				}
 			}

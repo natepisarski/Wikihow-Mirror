@@ -222,15 +222,6 @@ class ArticleTag {
 	}
 
 	public static function onBeforePageDisplayAddArticleTagJSVars( $out, $skin ) {
-		// add a variable to see if we are in the test group for image lazy loaidng
-		$nativeBrowserLazyLoading = 0;
-		$title = $out->getTitle();
-		if ( $title->inNamespace( NS_MAIN ) && $title->getArticleID() % 2 == 1 ) {
-			$nativeBrowserLazyLoading = 1;
-		}
-		$nativeBrowserLazyLoadingScript =  "window.WH.nativeBrowserLazyLoadingTest=$nativeBrowserLazyLoading;";
-		$out->addHeadItem( 'native_browser_lazy_loading',  HTML::inlineScript( $nativeBrowserLazyLoadingScript ) );
-
 		$jsFastRender = 0;
 		if ( Misc::isFastRenderTest() ) {
 			$jsFastRender = 1;
