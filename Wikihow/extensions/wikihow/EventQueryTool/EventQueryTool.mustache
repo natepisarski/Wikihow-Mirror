@@ -1,0 +1,43 @@
+<form id='eq_form' action='/Special:EventQueryTool' method='post'>
+
+	<label for='eq_select_event'>Event:</label>
+	<select name='event' id='eq_select_event'>
+		<option value=''>-- select --</option>
+		{{#dropdown_config}}
+		 <optgroup label='{{requester}}'>
+			 {{#events}}
+				<option value='{{.}}'>{{.}}</option>
+			 {{/events}}
+		</optgroup>
+		{{/dropdown_config}}
+	</select>
+
+	<label class="leftmargin" for='eq_date_start'>From:</label>
+	<input id='eq_date_start' name='date_start' type='text' />
+
+	<label class="leftmargin" for='eq_date_end'>Until:</label>
+	<input id='eq_date_end' name='date_end' type='text' />
+
+	<button type='submit' id='eq_submit'>Go</button>
+
+	<fieldset id="eq_breakdownby_fieldset">
+		<legend>Break down by:</legend>
+
+		<input type="checkbox" id="bdb_checkall">
+		<label for="bdb_checkall">All</label>
+
+		<input type="checkbox" name="breakdownby[]" value="date" id="bdb_1" checked>
+		<label for="bdb_1">Date</label>
+
+		<input type="checkbox" name="breakdownby[]" value="domain" id="bdb_2">
+		<label for="bdb_2">Domain</label>
+
+		<input type="checkbox" name="breakdownby[]" value="page" id="bdb_3">
+		<label for="bdb_3">Page</label>
+
+		<input type="checkbox" name="breakdownby[]" value="screen" id="bdb_4">
+		<label for="bdb_4">Screen</label>
+
+	</fieldset>
+
+</form>

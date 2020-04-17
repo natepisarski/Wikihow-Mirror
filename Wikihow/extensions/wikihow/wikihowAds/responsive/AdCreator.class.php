@@ -680,7 +680,6 @@ abstract class AdCreator {
 		$attributes['data-observerloading'] = 1;
 
 		if ( $this->isDFPLateDefineTest() ) {
-
 			$attributes['data-sizes-array'] = $attributes['data-size'];
 			$attributes['data-gptdisplaylate'] = 1;
 		}
@@ -814,6 +813,9 @@ abstract class AdCreator {
 		if ( intval( $this->mBucketId ) == 15 ) {
 			return true;
 		}
+		if ( intval( $this->mBucketId ) == 17 ) {
+			return true;
+		}
 		return false;
 	}
 
@@ -823,6 +825,9 @@ abstract class AdCreator {
 		}
 
 		if ( intval( $this->mBucketId ) == 16 ) {
+			return true;
+		}
+		if ( intval( $this->mBucketId ) == 17 ) {
 			return true;
 		}
 
@@ -1169,7 +1174,7 @@ abstract class AdCreator {
 	public function showNewAdsJs() {
 		global $wgRequest;
 
-		if ( intval( $this->mBucketId ) == 24 ) {
+		if ( intval( $this->mBucketId ) >= 23 ) {
 			return true;
 		}
 
@@ -1697,8 +1702,8 @@ class DefaultAdCreator extends AdCreator {
 					'prebidLoad' => true,
 					'apsLoad' => true,
 					'aps-timeout' => 800,
-					'maxsteps' => 5,
-					'maxnonsteps' => 1,
+					'maxsteps' => 6,
+					'maxnonsteps' => 3,
 					'width' => 728,
 					'height' => 90,
 					'large' => 1,

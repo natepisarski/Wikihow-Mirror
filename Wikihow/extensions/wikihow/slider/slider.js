@@ -6,73 +6,29 @@
 		cookieName: '_slider_box',
 
 		init: function() {
-			var random = Math.random();
-			if(random < 1) {
-				//show the newsletter 100% of the time
-				$(".slider_become_main").append("<p class='slider_readmore'>" + mw.message("slider_cta_newsletter") + "</p>");
-				$(".slider_become_main").append("<p class='slider_category'>" + mw.message("slider_newsletter") + "</p>");
-				$(".slider_become_main").append("<a class='button slider_button'>" + mw.message("slider_url_text_newsletter") + "</a>");
-				$(".slider_become_main .slider_button").attr("href", encodeURI(mw.message("newsletter_url").text()));
-				$("#sliderbox").addClass("sliderbox_newsletter");
+			var cats = mw.config.get('wgCategories');
+			var isRelationshipArticle = ( cats && cats.indexOf("Relationships") !== -1 );
+			if ( isRelationshipArticle ) {
+				// Show a special slider for any article with a top-level category of Relationships
+				var cta = mw.message("slider_cta_marriage"),
+				    title = mw.message("slider_marriage"),
+				    txt = mw.message("slider_url_text_marriage"),
+				    url = mw.message("slider_url_marriage");
 			} else {
-				//does this page have a video?
-				if ($("#summary_video_link").length > 0) {
-					$(".slider_become_main").append("<a class='button slider_button'> " + mw.message("slider_cta_video").text() + "</a>");
-					$(".slider_become_main .slider_button").attr("href", encodeURI($("#summary_video_link").attr("href")));
-					if (WH.isMobile) {
-						var titleText = $("#section_0").text();
-					} else {
-						var titleText = $(".firstHeading a").text();
-					}
-					if (titleText.length > 51) {
-						titleText = titleText.substring(0, 51);
-						if (titleText.charAt(titleText.length - 1) == " ") {
-							titleText = titleText.substring(0, 50);
-						}
-						titleText += "...";
-					}
-					$(".slider_become_main").append("<a class='slider_title'>" + titleText + "</a>");
-					$(".slider_become_main .slider_title").attr("href", encodeURI($("#summary_video_link").attr("href")));
-
-					$("#sliderbox").addClass("sliderbox_video");
-				} else {
-					//grab a related wH from the page instead
-					var numRelated = $("#side_related_articles .related-article").length;
-					var $related = $("#side_related_articles .related-article")[Math.floor(Math.random() * numRelated)];
-
-					//now put the stuff in
-					var categories = mw.config.get("wgCategories");
-					var catTitle;
-					for (var i = 0; i < categories.length; i++) {
-						if (categories[i] != "Featured Articles" && categories[i] != "Honors" && categories[i] != "WikiHow") {
-							catTitle = categories[i];
-							break;
-						}
-					}
-					if (catTitle.length > 33) {
-						catTitle = catTitle.substring(0, 33);
-						if (catTitle.charAt(catTitle.length - 1) == " ") {
-							catTitle = catTitle.substring(0, 32);
-						}
-						catTitle += "...";
-					}
-
-					$(".slider_become_main").append("<p class='slider_readmore'>" + mw.message("slider_cta_category").text() + "</p>");
-					$(".slider_become_main").append("<p class='slider_category'>" + catTitle + "</p>");
-					$(".slider_become_main").append("<a class='button slider_button'>" + mw.message("slider_url_text_category").text() + "</a>");
-					$(".slider_become_main .slider_button").attr("href", encodeURI($(".related-title", $related).attr("href")));
-					$("#sliderbox").addClass("sliderbox_category");
-				}
+				// Show the newsletter otherwise
+				var cta = mw.message("slider_cta_newsletter"),
+				    title = mw.message("slider_newsletter"),
+				    txt = mw.message("slider_url_text_newsletter"),
+				    url = mw.message("newsletter_url");
 			}
+			$(".slider_become_main").append("<p class='slider_readmore'>" + cta + "</p>");
+			$(".slider_become_main").append("<p class='slider_category'>" + title + "</p>");
+			$(".slider_become_main").append("<a class='button slider_button'>" + txt + "</a>");
+			$(".slider_become_main .slider_button").attr("href", encodeURI(url.text()));
+			$("#sliderbox").addClass("sliderbox_newsletter");
 
-			$(".slider_become_main a").on("click", function(e){
-				var $slider = $(this).closest("#sliderbox");
-				if($slider.hasClass("sliderbox_category")) {
-					WH.maEvent("slider_click", { type: 'category' }, false);
-				} else if($slider.hasClass("sliderbox_video")) {
-					WH.maEvent("slider_click", { type: 'video' }, false);
-				}
-
+			!isRelationshipArticle && $(".slider_become_main .slider_button").click(function() {
+				WH.event("article_promo_newsletter_slider_click_go_em");
 			});
 		},
 

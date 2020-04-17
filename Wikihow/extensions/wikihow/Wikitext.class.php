@@ -113,7 +113,15 @@ class Wikitext {
 		$text = preg_replace('@[\']{2,}@', '', $text);
 
 		// remove other special wikitext stuff
-		$text = preg_replace('@(__FORCEADV__|__TOC__|#REDIRECT|__PARTS__)@i', '', $text);
+		$magic_words = [
+			'__FORCEADV__',
+			'__TOC__',
+			'#REDIRECT',
+			'__PARTS__',
+			'__CUSTOMCOLLECTION__',
+			'__CUSTOMRIGHTRAIL__'
+		];
+		$text = preg_replace('@('.implode('|',$magic_words).')@i', '', $text);
 
 		// convert special HTML characters into spaces
 		$text = preg_replace('@(<br[^>]*>|&nbsp;)+@i', ' ', $text);

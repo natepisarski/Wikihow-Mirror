@@ -114,25 +114,6 @@ a#slider_close_button {
 	position: relative;
 }
 
-/*** VIDEO ***/
-.sliderbox_video .slider_cta {
-	font-size: 1.0em;
-	margin-top: 30px;
-}
-.sliderbox_video .slider_button {
-	background: #FFF url(/skins/owl/images/play_button@3x.svg) center left / 16px no-repeat;
-	border: none;
-	font-size: 13px;
-	color: #545454;
-	display: block;
-	padding: 5px 0 5px 19px;
-	font-weight: bold;
-}
-.sliderbox_video a.slider_button:hover {
-	border: none;
-	background: #FFF url(/skins/owl/images/play_button@3x.svg) center left / 16px no-repeat;
-}
-
 #sliderbox a:hover{
 	text-decoration: none;
 }

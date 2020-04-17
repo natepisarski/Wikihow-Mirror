@@ -10,8 +10,6 @@ abstract class QCRule {
 	var $mResult	= null; // action item to patrol, a row from the qc table
 	var $mTitle		= null;
 
-	CONST YOUTUBE_VIDEOS_TAG = 'youtube_wikihow_videos';
-
 	public function __construct($article) {
 		global $wgHooks;
 		$this->mArticle = $article;
@@ -249,7 +247,7 @@ abstract class QCRule {
 			$dbw = wfGetDB(DB_MASTER);
 			$expired = wfTimestamp(TS_MW, time() - 3600);
 
-			$youtube_wH_vid_tag_ID = $dbw->selectField('articletag', 'at_id', array('at_tag' => QCRule::YOUTUBE_VIDEOS_TAG), __METHOD__);
+			$youtube_wH_vid_tag_ID = $dbw->selectField('articletag', 'at_id', array('at_tag' => Misc::YT_WIKIHOW_VIDEOS), __METHOD__);
 
 			$sql = "SELECT * FROM qc LEFT JOIN qc_vote ON qc_id=qcv_qcid AND qcv_user = {$user->getID()}
 					LEFT JOIN (SELECT * FROM articletaglinks WHERE atl_tag_id = {$youtube_wH_vid_tag_ID}) AS articletagalias

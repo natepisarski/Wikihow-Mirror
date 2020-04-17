@@ -1,14 +1,5 @@
 <?php
 
-/**
-CREATE TABLE `youtube_info` (
-	`yt_id` varbinary(24) NOT NULL,
-	`yt_updated` varbinary(14) NOT NULL DEFAULT '',
-	`yt_response` blob NOT NULL,
-	PRIMARY KEY (`yt_id`)
-);
- */
- 
 class YouTubeInfoJob extends Job {
 
 	public function __construct( Title $title, array $params, $id = 0 ) {
@@ -25,7 +16,7 @@ class YouTubeInfoJob extends Job {
 	 * 	{string} requestKey Unique key for request
 	 * 	{string} [cacheKey] Memcache key to purge after running
 	 * 	{string} [purgeUrls] URLs to purge after running
-	 * 	{stirng} [forceRefresh] Whether or not to force hitting the api
+	 * 	{boolean} [forceRefresh] Whether or not to force hitting the api
 	 *
 	 * @return bool
 	 */
@@ -35,21 +26,24 @@ class YouTubeInfoJob extends Job {
 		wfDebugLog(
 			'youtubeinfo',
 			">> YouTubeInfoJob::run\n" . var_export( [
+				'title' => $this->getTitle()->getText(),
 				'id' => $this->params['id'],
 				'requestKey' => $this->params['requestKey'],
 				'cacheKey' => $this->params['cacheKey'],
 				'purgeUrls' => $this->params['purgeUrls'],
 				'forceRefresh' => $this->params['forceRefresh'],
+				'status' => 'fetching'
 			], true ) . "\n"
 		);
 
 		// Only hit the API if the data isn't stored or is older than a week
 		$response = AsyncHttp::read( $this->params['requestKey'] );
-		$lastWeek = wfTimestamp( TS_MW, strtotime( '-1 week' ) );
-		if ( !$response || $response['updated'] < $lastWeek || $this->params['forceRefresh'] == 'true' ) {
+		$forceRefresh = !!$this->params['forceRefresh'];
+		if ( !$response || AsyncHttp::isExpired( $this->params['requestKey'] ) || $forceRefresh ) {
 			// Hit the YouTube API
 			WikihowStatsd::increment( 'youtube.YouTubeInfoJob' );
-			$body = file_get_contents( wfAppendQuery(
+			// TODO: Replace with CURL
+			$body = @file_get_contents( wfAppendQuery(
 				'https://www.googleapis.com/youtube/v3/videos',
 				[
 					'part' => 'statistics,snippet',
@@ -60,33 +54,49 @@ class YouTubeInfoJob extends Job {
 
 			wfDebugLog(
 				'youtubeinfo',
-				">> YouTubeInfoJob::run - interpreting response\n" . var_export( [
+				">> YouTubeInfoJob::run\n" . var_export( [
+					'title' => $this->getTitle()->getText(),
 					'id' => $this->params['id'],
 					'requestKey' => $this->params['requestKey'],
 					'cacheKey' => $this->params['cacheKey'],
 					'purgeUrls' => $this->params['purgeUrls'],
 					'forceRefresh' => $this->params['forceRefresh'],
-
-					'status' => $http_response_header[0]
+					'status' => $http_response_header[0],
 				], true ) . "\n"
 			);
 
 			// Parse the status code
-			if ( !preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $http_response_header[0], $match ) ) {
-				return false;
+			$status = 0;
+			if ( $body ) {
+				if ( !preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $http_response_header[0], $match ) ) {
+					return false;
+				}
+				$status = intval( $match[1] );
 			}
-			$status = intval( $match[1] );
 
-			// Store the response
-			AsyncHttp::store( $this->params['requestKey'], $status, $body );
-
-			// Purge cache so new data gets used
-			if ( array_key_exists( 'cacheKey', $this->params ) && $wgMemc ) {
-				$wgMemc->delete( $this->params['cacheKey'] );
-			}
-			if ( array_key_exists( 'purgeUrl', $this->params ) && $wgUseSquid && count( $this->params['purgeUrls'] ) ) {
-				$update = new SquidUpdate( $this->params['purgeUrls'] );
-				$update->doUpdate();
+			if ( $status === 200 ) {
+				// Store the successful response
+				AsyncHttp::store( $this->params['requestKey'], $status, $body );
+				// Purge cache so new data gets used
+				if ( array_key_exists( 'cacheKey', $this->params ) && $wgMemc ) {
+					$wgMemc->delete( $this->params['cacheKey'] );
+				}
+				if (
+					$wgUseSquid &&
+					array_key_exists( 'purgeUrls', $this->params ) &&
+					count( $this->params['purgeUrls'] )
+				) {
+					$update = new SquidUpdate( $this->params['purgeUrls'] );
+					$update->doUpdate();
+				}
+			} else {
+				// Renew the response so we can try again later
+				if ( $status === 403 ) {
+					$ttl = 60 * 60 * 24;
+				} else {
+					$ttl = 60 * 60 * 24 * 7;
+				}
+				AsyncHttp::renew( $this->params['requestKey'], $ttl );
 			}
 		}
 

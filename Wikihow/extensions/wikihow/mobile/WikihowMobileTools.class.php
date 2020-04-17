@@ -1000,12 +1000,14 @@ class WikihowMobileTools {
 		if ( pq( '.embedvideocontainer' )->length > 0 && WHVid::isYtSummaryArticle( $wgTitle ) ) {
 			wikihowToc::setSummaryVideo( true );
 			// Only consider adding schema on pages tagged with youtube_wikihow_videos
-			if ( ArticleTagList::hasTag( 'youtube_wikihow_videos', $wgTitle->getArticleID() ) ) {
+			if ( ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS, $wgTitle->getArticleID() ) ) {
 				// Add schema to all YouTube videos that are from our channel
 				foreach ( pq( '.embedvideo' ) as $video ) {
 					$src = pq( $video )->attr( 'data-src' );
 					preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
 					if ( $matches[1] ) {
+						$videoReport = SchemaMarkup::getYouTubeVideoReport( $matches[1] );
+						pq( $video )->after( "<!--\n{$videoReport}\n-->" );
 						WikihowToc::setSummaryVideo(true);
 						$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $matches[1] );
 						// Only videos from our own channel will have publisher information

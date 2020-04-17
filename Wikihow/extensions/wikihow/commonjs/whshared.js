@@ -8,14 +8,15 @@ WH.shared = (function () {
 	var TOP_MENU_HEIGHT = 52,
 	resizeFunctions = [],
 	scrollLoadItems = {},
+	scrollLoadItemQueue = [],
 	scrollLoadingHandler,
 	autoPlayVideo,
 	autoLoad = false,
 	getNow = Date.now || function() { return new Date().getTime(); },
 	nv = navigator.userAgent,
-	webpSupport = nv.match(/Linux/) && nv.match(/Android/) ||
-		nv.match(/Opera/) ||
-		nv.match(/Chrome/) && !nv.match(/Edge/),
+	// Old fallback functionality to use to allow for speedy loading of browsers we know support webp
+	webpSupport = nv.match(/Linux/) && nv.match(/Android/) || nv.match(/Opera/) || nv.match(/Chrome/) && !nv.match(/Edge/),
+	webpSupportInitialized = false,
 	// Note: this is the same as php global WH_CDN_VIDEO_ROOT
 	videoRoot = 'https://www.wikihow.com/video',
 	viewportWidth = (window.innerWidth || document.documentElement.clientWidth),
@@ -26,6 +27,30 @@ WH.shared = (function () {
 	useBrowserNativeLazyLoading = false,
 	intersectionObserverRootMargin = "0px 0px 100% 0px",
 	lazyLoadingObserver = null;
+
+	// Check for lossy webp support. Adapted from https://developers.google.com/speed/webp/faq
+	function setWebpSupport(callback) {
+		var img = new Image();
+		img.onload = function () {
+			callback((img.width > 0) && (img.height > 0));
+		};
+		img.onerror = function () {
+			callback(false);
+		};
+		// Lossy feature detection
+		img.src = "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";
+	}
+
+
+	function handleWebpSupport(hasWebpSupport)  {
+		webpSupport = hasWebpSupport;
+		webpSupportInitialized = true;
+		scrollLoadItemQueue.forEach(function(id) {
+			addScrollLoadItem(id);
+		});
+	}
+
+	setWebpSupport(handleWebpSupport);
 
 	if ('loading' in HTMLImageElement.prototype) {
 		useBrowserNativeLazyLoading = true;
@@ -407,11 +432,21 @@ WH.shared = (function () {
 		item.load();
 	}
 
+	function queueScrollLoadItem(id) {
+		scrollLoadItemQueue.push(id);
+	}
+
 	function addScrollLoadItem(id) {
 		var el = document.getElementById(id);
 		if (!el) {
 			return;
 		}
+
+		if (!webpSupport && !webpSupportInitialized) {
+			queueScrollLoadItem(id);
+			return;
+		}
+
 		var item = null;
 		var useObserver = useIntersectionObserver();
 		if (el.nodeName.toLowerCase() === 'img') {

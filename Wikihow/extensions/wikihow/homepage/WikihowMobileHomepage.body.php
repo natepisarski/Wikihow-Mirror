@@ -365,7 +365,7 @@ class WikihowMobileHomepage extends Article {
 			$thumb = $info['thumbnailUrl'][count($info['thumbnailUrl']) - 1];
 
 			$vars['expert_items'][] = [
-				'url' => $title->getLocalURL('#'.wfMessage('videoheader')->text()),
+				'url' => $title->getLocalURL() . '#' . wfMessage('videoheader')->text(),
 				'title' => $title->getText(),
 				'image' => Misc::getMediaScrollLoadHtml( 'img', ['src' => $thumb] ),
 				'isVideo' => true,

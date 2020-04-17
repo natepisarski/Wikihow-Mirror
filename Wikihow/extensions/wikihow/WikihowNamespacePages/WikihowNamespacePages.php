@@ -2,11 +2,13 @@
 
 $wgAutoloadClasses['WikihowNamespacePages'] = __DIR__ . '/WikihowNamespacePages.class.php';
 $wgMessagesDirs['WikihowNamespacePages'] = __DIR__ . '/i18n/';
+$wgExtensionMessagesFiles['WikihowNamespacePagesMagic'] = __DIR__ . '/WikihowNamespacePages.i18n.magic.php';
 
 $wgHooks['WikihowTemplateShowTopLinksSidebar'][] = ['WikihowNamespacePages::onWikihowTemplateShowTopLinksSidebar'];
 $wgHooks['BeforePageDisplay'][] = ['WikihowNamespacePages::onBeforePageDisplay'];
 $wgHooks['MobileProcessArticleHTMLAfter'][] = ['WikihowNamespacePages::onMobileProcessArticleHTMLAfter'];
 $wgHooks['IsEligibleForMobile'][] = ['WikihowNamespacePages::onIsEligibleForMobile'];
+$wgHooks['GetDoubleUnderscoreIDs'][] = ['WikihowNamespacePages::onGetDoubleUnderscoreIDs'];
 
 $wgResourceModules['mobile.wikihow.wikihow_namespace_styles'] = [
 	'styles' => [ 'wikihow_namespace_styles.less' ],
@@ -24,8 +26,16 @@ $wgResourceModules['ext.wikihow.trustworthy_styles'] = [
 	'position' => 'top'
 ];
 
-$wgResourceModules['ext.wikihow.corona_guide_styles'] = [
+$wgResourceModules['ext.wikihow.corona_guide'] = [
 	'styles' => [ 'corona_guide.less' ],
+	'scripts' => [ 'corona_guide.js' ],
+	'localBasePath' => __DIR__.'/resources',
+	'remoteExtPath' => 'wikihow/WikihowNamespacePages/resources',
+	'targets' => [ 'desktop', 'mobile' ]
+];
+
+$wgResourceModules['ext.wikihow.teachers_guide'] = [
+	'scripts' => [ 'teachers_guide.js' ],
 	'localBasePath' => __DIR__.'/resources',
 	'remoteExtPath' => 'wikihow/WikihowNamespacePages/resources',
 	'targets' => [ 'desktop', 'mobile' ]

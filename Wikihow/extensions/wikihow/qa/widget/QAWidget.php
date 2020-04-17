@@ -478,6 +478,9 @@ class QAWidget {
 			if ( isset( $display_data[$q->getSubmitterUserId()] ) ) {
 				$q->setProfileDisplayData($display_data[$q->getSubmitterUserId()]);
 			}
+			if ($q->isTopAnswerer && $q->getSubmitterDisplayName() == wfMessage('qa_staff_editor')->text()) {
+				$q->isTopAnswerer = false; //staff can't be top answerers
+			}
 			$q->show_editor_tools = self::showEditorTools($q, $isEditor, $isAdmin);
 			$q->qa_answerer_class = self::getAnswererClass($q);
 			$q->qa_answerer_label = self::getAnswererLabel($q);

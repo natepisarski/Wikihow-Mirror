@@ -3,6 +3,7 @@
 class SocialStamp {
 	const MIN_AUTHOR = 9;
 	const MIN_VIEWS = 1000;
+	const KEY_RECIPE_BYLINE_TAG = "recipe_byline_eligible";
 
 	private static $verifiers = [];
 
@@ -630,6 +631,8 @@ class SocialStamp {
 
 	private static function isRecipeArticleBylineEligible() {
 		$t = RequestContext::getMain()->getTitle();
-		return $t->inNamespace(NS_MAIN) && CategoryHelper::isTitleInCategory( $t, "Recipes" );
+		$isTaggedArticle = ArticleTagList::hasTag(self::KEY_RECIPE_BYLINE_TAG, $t->getArticleID());
+		return $isTaggedArticle ||
+			($t->inNamespace(NS_MAIN) && CategoryHelper::isTitleInCategory($t, "Recipes"));
 	}
 }

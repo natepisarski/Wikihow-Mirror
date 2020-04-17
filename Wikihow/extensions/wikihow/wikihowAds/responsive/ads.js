@@ -555,6 +555,7 @@ WH.ads = (function () {
 			adElement.style.display = 'none';
 			return;
 		}
+		this.adElement.classList.add('wh_ad_active');
 
 		this.gptLateLoad = this.adElement.getAttribute('data-lateload') == 1;
 		this.service = this.adElement.getAttribute('data-service');
@@ -792,32 +793,28 @@ WH.ads = (function () {
 
 		var viewportHeight = (window.innerHeight || document.documentElement.clientHeight);
 		var sections = document.getElementsByClassName("section");
-		var target = null;
+		var target = null
 		var found = false;
-		for (var i = 0; i <= sections.length; i++) {
-			var section = null;
-			if (i == sections.length) {
-				section = document.getElementById('ur_mobile');
-				if (!section) {
-					break;
-				}
-			} else {
-				section = sections[i];
-			}
+		for (var i = 0; i < sections.length; i++) {
+			var section = sections[i];
 			if (section.id == "aiinfo") {
 				continue;
 			}
-
 			if (found == true) {
 				var sectionText = section.getElementsByClassName("section_text");
-				if (!sectionText || !sectionText[0]) {
+				if (!sectionText.length) {
 					return null;
 				}
-				section = sectionText[0];
+				section = sectionText[sectionText.length - 1];
+				if (section.id == "references_second") {
+					continue;
+				}
+
 				var rect = section.getBoundingClientRect();
 				if (isNearEndOfStep(rect, viewportHeight)) {
 					continue;
 				}
+				target = section;
 				break;
 			}
 
@@ -905,7 +902,7 @@ WH.ads = (function () {
 			if (existingAds.length > 0) {
 				return;
 			}
-			existingAds = insertTarget.getElementsByClassName("wh_ad_inner")
+			existingAds = insertTarget.getElementsByClassName("wh_ad_active")
 			if (existingAds.length > 0) {
 				return;
 			}
@@ -917,9 +914,8 @@ WH.ads = (function () {
 
 			var wrap = document.createElement('div');
 			if (isStep) {
-				wrap.className = "wh_ad_inner step_ad scrollto_wrap";
+				wrap.className = "wh_ad_inner wh_ad_active";
 			} else {
-				wrap.className = "wh_ad_inner scrollto_wrap";
 			}
 			insertTarget.appendChild(wrap);
 			insertTarget = wrap;
@@ -927,7 +923,11 @@ WH.ads = (function () {
 			if ( !insertTarget.id ) {
 				insertTarget.id = 'scrollto-ad-'+scrollToAdInsertCount;
 			}
-			this.insertSlotValue = '00'+scrollToAdInsertCount;
+			if (scrollToAdInsertCount > 10 ) {
+				this.insertSlotValue = '00'+scrollToAdInsertCount;
+			} else {
+				this.insertSlotValue = '0'+scrollToAdInsertCount;
+			}
 			this.adTargetId = insertTarget.id;
 
 			insertScrollToAd(this);

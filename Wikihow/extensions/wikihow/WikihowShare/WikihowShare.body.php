@@ -105,7 +105,7 @@ class WikihowShare {
 					}
 				}
 				else {
-				  $url = "/skins/WikiHow/images/wikihow_large.jpg";
+				  $url = "/skins/WikiHow/images/wh_square_512_optimized.png";
 					if ($fromPad) {
 					  $url = wfGetPad($url);
 				  }
@@ -114,7 +114,7 @@ class WikihowShare {
 					}
 				}
 			} else {
-				$url = "/skins/WikiHow/images/wikihow_large.jpg";
+				$url = "/skins/WikiHow/images/wh_square_512_optimized.png";
 				if ($fromPad) {
 					$url = wfGetPad($url);
 				}

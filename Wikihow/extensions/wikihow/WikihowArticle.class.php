@@ -989,12 +989,14 @@ class WikihowArticleHTML {
 				$summary->replaceWith( pq( '#summary_wrapper' ) );
 			}
 			// Only consider adding schema on pages tagged with youtube_wikihow_videos
-			if ( ArticleTagList::hasTag( 'youtube_wikihow_videos', $title->getArticleID() ) ) {
+			if ( ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS, $title->getArticleID() ) ) {
 				// Add schema to all YouTube videos that are from our channel
 				foreach ( pq( '.embedvideo' ) as $video ) {
 					$src = pq( $video )->attr( 'data-src' );
 					preg_match( '/youtube\.com\/embed\/([A-Za-z0-9_-]+)/', $src, $matches );
 					if ( $matches[1] ) {
+						$videoReport = SchemaMarkup::getYouTubeVideoReport( $matches[1] );
+						pq( $video )->after( "<!--\n{$videoReport}\n-->" );
 						$videoSchema = SchemaMarkup::getYouTubeVideo( $title, $matches[1] );
 						// Only videos from our own channel will have publisher information
 						if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {

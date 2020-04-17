@@ -9,13 +9,13 @@
 		init: function() {
 			$('#atm_more').click($.proxy(function() {
 				this.showAll();
-				WH.event('covid_readmore');
+				WH.event('all_banner_covid_click_expand_em');
 				return false;
 			},this));
 
 			$('#atm_close').click($.proxy(function() {
 				this.closeUp();
-				WH.event('covid_close');
+				WH.event('all_banner_covid_click_close_em');
 				return false;
 			},this));
 		},

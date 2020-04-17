@@ -6,6 +6,7 @@ class CategoryCarousel {
 	var $subcategories = null;
 	var $data = null;
 
+	// A call involving wfLocalFile() and $wgDefaultImage should probably be used instead of this path
 	const DEFAULT_THUMB_IMG = '/images/thumb/b/b5/Default_wikihow_green.png/-crop-127-120-127px-Default_wikihow_green.png';
 
 	public function __construct($data, $isSubcategory, $subcategories = []) {

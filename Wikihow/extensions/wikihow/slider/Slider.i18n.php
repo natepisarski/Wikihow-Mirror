@@ -23,5 +23,9 @@ $messages['en'] = array (
 	"slider_url_text_category" => "Let's go!",
 	"slider_cta_newsletter" => "Don’t miss out! Sign up for",
 	"slider_newsletter" => "wikiHow’s newsletter",
-	"slider_url_text_newsletter" => "Subscribe"
+	"slider_url_text_newsletter" => "Subscribe",
+	"slider_cta_marriage" => "Take our course, How to",
+	"slider_marriage" => "Improve Your Marriage!",
+	"slider_url_text_marriage" => "Start Course",
+	"slider_url_marriage" => "https://mailchi.mp/5926534001fc/how-to-improve-your-marriage",
 );

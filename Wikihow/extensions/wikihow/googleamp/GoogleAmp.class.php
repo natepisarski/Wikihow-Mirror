@@ -668,10 +668,13 @@ class GoogleAmp {
 		);
 		$element = Html::element( 'amp-youtube', $attributes );
 
-		$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $videoId );
-		// Only videos from our own channel will have publisher information
-		if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
-			$element .= SchemaMarkup::getSchemaTag( $videoSchema );
+		// Only consider adding schema on pages tagged with youtube_wikihow_videos
+		if ( ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS, $wgTitle->getArticleID() ) ) {
+			$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $videoId );
+			// Only videos from our own channel will have publisher information
+			if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {
+				$element .= SchemaMarkup::getSchemaTag( $videoSchema );
+			}
 		}
 
 		$first = true;
@@ -992,55 +995,6 @@ class GoogleAmp {
 		$form = Html::rawElement( "form", $formAttr, $formContents );
 
 		return $form;
-	}
-
-	public static function onArticleFromTitle(&$title, &$article) {
-		if ( !$title ) {
-			return true;
-		}
-
-		$checkFixedRevision = false;
-		// we only fix revisions in mobile mode for amp or if optimizely is disabled
-		if ( Misc::isMobileMode() ) {
-			$ctx = MobileContext::singleton();
-			$amp = $ctx->getRequest()->getVal( self::QUERY_STRING_PARAM ) == 1;
-			if ( $amp ) {
-				$checkFixedRevision = true;
-			}
-			if ( !OptimizelyPageSelector::isArticleEnabled( $title ) ) {
-				$checkFixedRevision = true;
-			}
-		}
-
-
-		// if optimizely is enabled, then we do not have to change the revision
-		if ( !$checkFixedRevision ) {
-			return true;
-		}
-
-		// see if this title is set to a fixed revision
-		$revision = null;
-		$urls = explode( "\n", ConfigStorage::dbGetConfig( "mobilefixedrevision" ) );
-		foreach ( $urls as $url ) {
-			$paramString = parse_url( $url, PHP_URL_QUERY );
-			$params = array();
-			parse_str( $paramString, $params );
-			if ( !$params || !isset( $params['title'] ) || !isset( $params['oldid'] ) ) {
-				continue;
-			}
-			if ( $title->getDBKey() == $params['title'] ) {
-				$revision = $params['oldid'];
-				break;
-			}
-		}
-
-		if ( !$revision ) {
-			return true;
-		}
-
-		$article = new Article( $title, $revision );
-
-		return true;
 	}
 
 	public static function onShowArticleTabs( &$showTabs ) {

@@ -22,7 +22,8 @@
 		<div id="donate_text"><p>{{{donate_text}}}</p></div>
 		<br><div class="clearall"></div>
 		<div id="donate_bottom">
-			<a href="/wikiHow:Gives-Back" class="button primary" id="donate_button">{{donate_link}}</a>
+			<button class="button primary" id="donate_button" {{#isAmp}}on="tap:donate_thanks.show,donate_button.hide"{{/isAmp}}>{{donate_link}}</button>
+			<div id="donate_thanks" {{#isAmp}}hidden{{/isAmp}}>{{donate_thanks}}</div>
 		</div>
 	</div>
 </div>

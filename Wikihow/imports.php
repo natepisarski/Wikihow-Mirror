@@ -104,6 +104,8 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/TrustedSources/TrustedSources.php");
 	require_once("$IP/extensions/wikihow/ArticleTopMessage/ArticleTopMessage.php");
 	require_once("$IP/extensions/wikihow/Disclaimer/Disclaimer.php");
+	require_once("$IP/extensions/wikihow/EventQueryTool/EventQueryTool.php");
+	require_once("$IP/extensions/wikihow/ArticleTiles/ArticleTiles.php");
 }
 
 require_once("$IP/extensions/wikihow/AsyncHttp.php");

@@ -49,13 +49,6 @@ class ImportFastlyEventLog extends Maintenance {
 
 	protected static $counters = [ 'svideoplay', 'svideoview' ]; // legacy
 
-	protected static $eventConfig = [
-		'svideoplay' => [],
-		'svideoview' => [],
-		'covid_readmore' => [],
-		'covid_close' => [],
-	];
-
 	public function __construct() {
 		parent::__construct();
 		$this->addOption( 'file', 'input file', true, true, 'f' );
@@ -73,9 +66,13 @@ class ImportFastlyEventLog extends Maintenance {
 			return;
 		}
 
+		$tz = new DateTimeZone('America/Los_Angeles');
 		$counters = [];
 		$events = [];
 		while ( ( $row = fgetcsv( $handle, 0, ' ' ) ) ) {
+
+			// Create a Title object
+
 			$title = null;
 			$eventUrl = parse_url( 'https://' . urldecode( $row[1] ) );
 			if ( $eventUrl ) {
@@ -92,24 +89,41 @@ class ImportFastlyEventLog extends Maintenance {
 				}
 			}
 
-			// Verify we have a valid title
 			if ( !$title ) {
 				decho( 'invalid event row', implode( ' ', $row ) );
 				continue;
 			}
 
-			// Extract useful information from log line
-			$domain = $eventUrl['host']; // todo: sanitize (must contain 'wikihow')
-			$pageId = $title->getArticleID();
+			// Validate event
+
 			$action = $params['action'] ?? '';
-			$screenSize = $params['screen'] ?? ''; // todo: sanitize (must be: large|medium|small)
-			$dateTime = DateTime::createFromFormat( DateTime::RFC1123, $row[0] );
+			$config = EventConfig::EVENTS[$action] ?? null;
+			if ( !$config ) {
+				decho( 'invalid action', $action, false );
+				continue;
+			}
+
+			$domain = $eventUrl['host'];
+			if ( strpos($domain, 'wikihow') === false ) {
+				decho( 'invalid domain', $domain, false );
+				continue;
+			}
+
+			$screenSize = $params['screen'] ?? '';
+			if ( ! in_array($screenSize, ['', 'small','medium','large']) ) {
+				decho( 'invalid screen', $screenSize, false );
+				continue;
+			}
+
+			$pageId = $title->getArticleID();
+			$dateTime = DateTime::createFromFormat( DateTime::RFC1123, $row[0] )->setTimezone($tz);
 			$dateString = $dateTime->format( 'Y-m-d H:i:s' );
 
-			// Filter out bad actions
-			if ( !isset(self::$eventConfig[$action]) ) {
-				decho( "invalid action", $action, false );
-				continue;
+			// TODO remove temporary name mapping:
+			$alias = $config[2] ?? null;
+			if ( $alias ) {
+				$action = $alias;
+				$config = EventConfig::EVENTS[$action];
 			}
 
 			$isCounter = in_array($action, self::$counters);
@@ -132,7 +146,7 @@ class ImportFastlyEventLog extends Maintenance {
 					}
 				}
 			} else {
-				$extraParams = self::$eventConfig[$action];
+				$extraParams = $config[1];
 				$cleanParams = [];
 				foreach ($extraParams as $paramName) {
 					$cleanParams[$paramName] = isset($params[$paramName])

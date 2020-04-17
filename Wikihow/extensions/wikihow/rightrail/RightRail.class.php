@@ -2,6 +2,8 @@
 
 class RightRail {
 
+	const CUSTOM_RIGHT_RAIL_MW_MSG_SUFFIX = '-rightrail';
+
 	public static function showSocialProofSidebar() {
 		$context = RequestContext::getMain();
 		$title = $context->getTitle();
@@ -129,19 +131,21 @@ class RightRail {
 		}
 
 		$press_sidebox = '';
+		$custom_right_rail = false;
 		if ( class_exists( 'WikihowNamespacePages' ) ) {
 			$press_sidebox = WikihowNamespacePages::getAboutPagePressSidebox();
+			$custom_right_rail = WikihowNamespacePages::customRightRailPage();
 		}
 		// TODO this
 		//if ( $userCompletedImagesSidebar ) {
 		//$out->addModules('ext.wikihow.usercompletedimages');
 		//}
 
-		$rightRail = new RightRail( $skin, $wgUser, $wgLanguageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $press_sidebox, $isResponsive );
+		$rightRail = new RightRail( $skin, $wgUser, $wgLanguageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $press_sidebox, $custom_right_rail, $isResponsive );
 		return $rightRail;
 	}
 
-	public function __construct( $skin, $user, $languageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $pressSidebox, $isResponsive ) {
+	public function __construct( $skin, $user, $languageCode, $isMainPage, $action, $ads, $isEnglishAnonView, $isDocViewer, $showRCWidget, $siteNotice, $cookieNotice, $socialProofSidebar, $showWikiTextWidget, $showStaffStats, $showGraphs, $showPageHelpfulness, $showMethodHelpfulness, $showVideoBrowserWidget, $userCompletedImagesSidebar, $pressSidebox, $customRightRail, $isResponsive ) {
 		$this->mSkin = $skin;
 		$this->mTitle = $skin->getContext()->getTitle();
 		$this->mUser = $user;
@@ -179,12 +183,16 @@ class RightRail {
 		$this->mShowVideoBrowserWidget = $showVideoBrowserWidget;
 		$this->mUserCompletedImagesSidebar = $userCompletedImagesSidebar;
 		$this->mPressSidebox = $pressSidebox;
+		$this->mCustomRightRail = $customRightRail;
 		$this->mIsResponsive = $isResponsive;
 	}
 
 	public function getRightRailHtml() {
 		if ($this->mIsMainPage) {
 			$html = !AlternateDomain::onAlternateDomain() ? self::getHomepageRightRailHtml() : '';
+		}
+		elseif ($this->mCustomRightRail) {
+			$html = self::getCustomRightRailHtml();
 		}
 		else {
 			$html = self::getRightRailHtmlTop();
@@ -581,7 +589,7 @@ class RightRail {
 		return $html;
 	}
 
-	protected function getHomepageRightRailHtml(): String {
+	protected function getHomepageRightRailHtml(): string {
 		//CATEGORIES
 		$vars = [
 			'id' => 'homepage_categories',
@@ -623,7 +631,12 @@ class RightRail {
 		return $html;
 	}
 
-	private function makeSidebox(Array $vars = []): String {
+	private function getCustomRightRailHtml(): string {
+		$message = $this->mTitle->getDBKey() . self::CUSTOM_RIGHT_RAIL_MW_MSG_SUFFIX;
+		return wfMessage( $message )->parse();
+	}
+
+	private function makeSidebox(array $vars = []): string {
 		$loader = new Mustache_Loader_CascadingLoader( [
 			new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
 		] );

@@ -55,7 +55,7 @@ class AdminYouTubeIds extends UnlistedSpecialPage {
 		$ids = $dbr->selectField(
 			'config_storage',
 			'cs_config',
-			[ 'cs_key' => 'youtube_wikihow_videos' ],
+			[ 'cs_key' => Misc::YT_WIKIHOW_VIDEOS ],
 			__METHOD__
 		);
 		$ids = explode( "\n", $ids );

@@ -94,7 +94,8 @@
 		},
 
 		buttonResponseMessage: function() {
-			$('#donate_button').replaceWith(mw.message('donate_button_response').text());
+			$('#donate_button').hide();
+			$('#donate_thanks').show();
 		}
 	};
 

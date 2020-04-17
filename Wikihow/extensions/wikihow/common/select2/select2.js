@@ -1404,7 +1404,10 @@ S2.define('select2/selection/base',[
       self.$selection.removeAttr('aria-activedescendant');
       self.$selection.removeAttr('aria-owns');
 
-      self.$selection.focus();
+      // wikiHow (Alberto) - comment this line out to solve a bug in Safari where
+      // you get scrolled to the bottom of the page after selecting from the dropdown.
+      // More info: https://github.com/select2/select2/issues/4983#issuecomment-320522579
+      // self.$selection.focus();
 
       self._detachCloseHandler(container);
     });

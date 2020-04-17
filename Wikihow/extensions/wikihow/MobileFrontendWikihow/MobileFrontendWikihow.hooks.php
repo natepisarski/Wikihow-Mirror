@@ -28,64 +28,74 @@ class MobileFrontendWikiHowHooks {
 		}
 	}
 
-	static function onBeforePageDisplay( &$out ) {
+
+	private static function isMobileAllowed() {
+		global $wgTitle;
+		if ( $wgTitle ) {
+			//article pages
+			if ( $wgTitle->inNamespace(NS_MAIN) ) {
+				return true;
+			}
+			//we're checking this elsewhere, so if we get here, it's ok
+			if ( $wgTitle->inNamespace(NS_SPECIAL) ) {
+				return true;
+			}
+
+			// Category Pages
+			if ( $wgTitle->inNamespace(NS_CATEGORY) ) {
+				return true;
+			}
+
+			//main page
+			if ( $wgTitle->isMainPage() ) {
+				return true;
+			}
+
+			//user talk pages
+			if ( $wgTitle->inNamespace(NS_USER_TALK) ) {
+				return true;
+			}
+
+			//discussion pages for logged out users (we're 404ing instead of redirecting them now)
+			if ( $wgTitle->inNamespace(NS_TALK) && !$wgUser->isLoggedIn() ) {
+				return true;
+			}
+
+			if ( $wgTitle->inNamespace(NS_USER_KUDOS) ) {
+				return true;
+			}
+
+			if ( $wgTitle->inNamespace(NS_USER) ) {
+				// for the responsive on www rollout
+				if ( !Misc::isMobileModeLite() ) {
+					return true;
+				}
+
+				global $wgUser;
+				if ( $wgUser->getID() > 0) { //if the current user is logged in
+					$userName = $wgTitle->getText();
+					$user = User::newFromName( $userName);
+					if ( $user && $user->getID() > 0) {
+						return true;
+					}
+				}
+			}
+		}
+
+		$mobileAllowed = false;
+		Hooks::run( 'IsEligibleForMobile', array( &$mobileAllowed ) );
+
+		return $mobileAllowed;
+	}
+
+
+	public static function onBeforePageDisplay( &$out ) {
 		global $wgTitle, $wgUser, $wgRequest, $wgLang, $wgLanguageCode, $wgDebugToolbar, $IP, $wgProfiler, $wgIsDevServer;
 		if (QADomain::isQADomain()) {
 			return true;
 		}
 		if (Misc::isMobileMode()) {
-			$mobileAllowed = false;
-
-			//we're checking this elsewhere, so if we get here, it's ok
-			if ($wgTitle && $wgTitle->inNamespace(NS_SPECIAL)) {
-				$mobileAllowed = true;
-			}
-
-			// Category Pages
-			if ($wgTitle && $wgTitle->inNamespace(NS_CATEGORY)) {
-				$mobileAllowed = true;
-			}
-
-			//article pages
-			if ($wgTitle && $wgTitle->inNamespace(NS_MAIN)) {
-				$mobileAllowed = true;
-			}
-			//main page
-			if ($wgTitle && $wgTitle->isMainPage()) {
-				$mobileAllowed = true;
-			}
-
-			//user talk pages
-			if ($wgTitle && $wgTitle->inNamespace(NS_USER_TALK)) {
-				$mobileAllowed = true;
-			}
-
-			//discussion pages for logged out users (we're 404ing instead of redirecting them now)
-			if ($wgTitle && $wgTitle->inNamespace(NS_TALK) && !$wgUser->isLoggedIn()) {
-				$mobileAllowed = true;
-			}
-
-			if ($wgTitle && $wgTitle->inNamespace(NS_USER_KUDOS)) {
-				$mobileAllowed = true;
-			}
-
-			if ($wgTitle && $wgTitle->inNamespace(NS_USER)) {
-				// for the responsive on www rollout
-				if ( !Misc::isMobileModeLite() ) {
-					$mobileAllowed = true;
-				}
-
-				if ($wgUser->getID() > 0) { //if the current user is logged in
-					$userName = $wgTitle->getText();
-					$user = User::newFromName($userName);
-					if ($user && $user->getID() > 0) {
-						$mobileAllowed = true;
-					}
-				}
-			}
-
-			Hooks::run( 'IsEligibleForMobile', array( &$mobileAllowed ) );
-
+			$mobileAllowed = self::isMobileAllowed();
 			if (!$mobileAllowed) {
 				$context = MobileContext::singleton();
 				$context->setTempRedirectCookie();
@@ -259,14 +269,11 @@ class MobileFrontendWikiHowHooks {
 
 			// if we are on the fast render test, there may be no embedStyles to putput, so checking the size here
 			if ( count( $embedStyles ) ) {
-				$style = Misc::getEmbedFiles('css', $embedStyles, null, $wgLang->isRTL());
-				$less = ResourceLoader::getLessCompiler();
-				$less->parse($style);
-				$style = $less->getCss();
-				$style = ResourceLoader::filter('minify-css', $style);
+				$style = Misc::getEmbedFiles('less', $embedStyles, null, $wgLang->isRTL());
 				$style = HTML::inlineStyle($style);
 				$out->addHeadItem('topcss2', $style);
 			}
+
 		}
 
 		if (self::showRCWidget()) {
@@ -289,6 +296,18 @@ class MobileFrontendWikiHowHooks {
 		if (!is_null(self::$isvalidResponsivePage)) return self::$isvalidResponsivePage;
 
 		$title = RequestContext::getMain()->getTitle();
+		if ( !$title ) {
+			self::$isvalidResponsivePage = false;
+			return false;
+		}
+
+		// short circuit response for main namespace pages..speeds up page rendering
+		// so we do not have to get special page titles below which is expensive
+		if ( $title->inNamespaces( NS_MAIN, NS_USER, NS_USER_TALK, NS_USER_KUDOS ) ) {
+			self::$isvalidResponsivePage = true;
+			return true;
+		}
+
 		$isSearchPage = preg_match('@/wikiHowTo@',  $_SERVER['REQUEST_URI']);
 
 		$wHnamespacePagesWithCss = [
@@ -319,7 +338,8 @@ class MobileFrontendWikiHowHooks {
 			'Free-Basics',
 			'History-of-wikiHow',
 			'Deletion-Policy',
-			'Attribution'
+			'Attribution',
+			wfMessage('contact-page')->text()
 		];
 
 		$specialPagesWithCss = [
@@ -356,9 +376,9 @@ class MobileFrontendWikiHowHooks {
 			'TipsGuardian',
 		];
 
-		self::$isvalidResponsivePage = $title &&
-			$title->inNamespaces( NS_MAIN, NS_USER, NS_USER_TALK, NS_USER_KUDOS ) ||
+		self::$isvalidResponsivePage =
 			($title->inNamespace( NS_PROJECT ) && in_array($title->getDBkey(), $wHnamespacePagesWithCss)) ||
+			WikihowNamespacePages::customCollectionPage() ||
 			($title->isSpecialPage() && in_array($title->getText(), $specialPagesWithCss)) ||
 			($title->isSpecialPage() && in_array($title->getText(), $responsiveTools)) ||
 			($title->isSpecialPage() && stripos($title->getText(), 'VideoBrowser') === 0) ||

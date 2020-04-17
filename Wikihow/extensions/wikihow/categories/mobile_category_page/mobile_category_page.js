@@ -27,4 +27,9 @@
 	$(document).ready(function(){
 		WH.MobileCategoryPage.init();
 	});
+
+	$('#cat_covid_message a').click(function(e) {
+		WH.event('cat_promo_parents_guide_covid_click_go_em');
+	});
+
 }($, mw));

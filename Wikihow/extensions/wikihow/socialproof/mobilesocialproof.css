@@ -97,6 +97,11 @@
 	width: 100%;
 }
 
+#aboutthisarticle .sp_disclaimer a {
+	font-size: .875em;
+	color: #545454;
+}
+
 #social_proof {
 	font-size: 11px;
 	line-height: normal;

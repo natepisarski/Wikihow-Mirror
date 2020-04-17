@@ -26,11 +26,17 @@ class Disclaimer {
 		return self::$show_disclaimer_on_article;
 	}
 
+	public static function onBeforePageDisplay( OutputPage &$out, Skin &$skin ) {
+		if (self::pageNeedsDisclaimer()) {
+			$out->addModules("ext.wikihow.Disclaimer");
+		}
+	}
+
 	public static function onMobileProcessArticleHTMLAfter( OutputPage $out ) {
 		if (self::pageNeedsDisclaimer()) {
 			$disclaimer = Html::rawElement(
 				'div',
-				[ 'class' => [ 'sp_box', 'sp_fullbox' ] ],
+				[ 'class' => [ 'sp_box', 'sp_fullbox', 'sp_disclaimer' ] ],
 				wfMessage('medical_disclaimer')->parse()
 			);
 

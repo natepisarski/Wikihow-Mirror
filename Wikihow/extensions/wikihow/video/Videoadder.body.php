@@ -2,8 +2,6 @@
 
 class VideoAdder extends SpecialPage {
 
-	const CONTAINS_WIKIHOW_VIDEO_TAG = "youtube_wikihow_videos";
-
 	public function __construct() {
 		global $wgHooks;
 		parent::__construct( 'VideoAdder' );
@@ -257,7 +255,7 @@ class VideoAdder extends SpecialPage {
 		global $wgParser;
 		$r = Revision::newFromTitle($t);
 
-		if ( ArticleTagList::hasTag( VideoAdder::CONTAINS_WIKIHOW_VIDEO_TAG , $t->getArticleID() ) ) {
+		if ( ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS , $t->getArticleID() ) || ArticleTagList::hasTag( Misc::YT_GUIDECENTRAL_VIDEOS , $t->getArticleID() ) ) {
 			return true;
 		}
 

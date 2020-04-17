@@ -10,6 +10,9 @@ class Misc {
 	public static $isMobileMode = null;
 	public static $isFastRenderTest = null;
 
+	const YT_WIKIHOW_VIDEOS = "youtube_wikihow_videos";
+	const YT_GUIDECENTRAL_VIDEOS = "youtube_guidecentral_videos";
+
 	/*
 	 * adminPostTalkMessage
 	 * - returns true/false
@@ -559,6 +562,8 @@ class Misc {
 			$filter = 'minify-css';
 		} elseif ($scriptType == 'js') {
 			$filter = 'minify-js';
+		} elseif ($scriptType == 'less') {
+			$filter = 'minify-css';
 		} else {
 			throw new Exception("Unrecognized scriptType '$scriptType' in " . __METHOD__);
 		}
@@ -637,6 +642,15 @@ class Misc {
 			if (!$res) {
 				$res = '';
 				$expiry = 300; // 5 minutes
+			}
+
+			if ($scriptType == 'less') {
+				$less = ResourceLoader::getLessCompiler();
+				$less->parse($res);
+				$res = $less->getCss();
+				if ($flipCss) {
+					$res = CSSJanus::transform($res, true, false);
+				}
 			}
 
 			if ($flipCss && $scriptType == 'css') {
@@ -1200,15 +1214,10 @@ class Misc {
 	// this gets the responsive fast render css file from a less file
 	// it also gets a script which conditionally includes a link tag to the responsive css which loads on med and large
 	public static function getResponsiveFastRenderSnippet() {
-		global $IP, $wgResourceLoaderLESSImportPaths;
+		global $IP, $wgResourceLoaderLESSImportPaths, $wgLang;
 		$wgResourceLoaderLESSImportPaths = [ "$IP/extensions/wikihow/less/" => '' ];
-		$embedStyles = array();
-		$embedStyles[] = __DIR__ . '/MobileFrontendWikihow/less/wikihow/responsive_fastrender.less';
-		$style = Misc::getEmbedFiles('css', $embedStyles);
-		$less = ResourceLoader::getLessCompiler();
-		$less->parse( $style );
-		$style = $less->getCss();
-		$style = ResourceLoader::filter('minify-css', $style);
+		$embedStyles = [__DIR__ . '/MobileFrontendWikihow/less/wikihow/responsive_fastrender.less'];
+		$style = Misc::getEmbedFiles('less', $embedStyles, null, $wgLang->isRTL());
 		$style = HTML::inlineStyle($style);
 
 		$link = "load.php?debug=false&lang=en&modules=ext.wikihow.responsive_large&only=styles";

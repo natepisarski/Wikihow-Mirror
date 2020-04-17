@@ -15,7 +15,8 @@ CREATE TABLE `qa_box_questions` (
 	`qbq_last_updated` varbinary(14) NOT NULL DEFAULT '',
 	`qbq_random` double UNSIGNED NOT NULL,
 	KEY (`qbq_answered`),
-	KEY (`qbq_random`)
+	KEY (`qbq_random`),
+	KEY (`qbq_last_updated`)
 );
 */
 

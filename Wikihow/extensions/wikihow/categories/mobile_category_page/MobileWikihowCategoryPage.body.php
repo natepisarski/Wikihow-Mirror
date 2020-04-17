@@ -479,7 +479,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 						}
 
 						$vars['watch_items'][] = [
-							'url' => $title->getLocalURL('#'.wfMessage('videoheader')->text()),
+							'url' => $title->getLocalURL() . '#' . wfMessage('videoheader')->text(),
 							'title' => $info['title'],
 							'image' => $preview,
 							'howto' => wfMessage('howto_prefix')->showIfExists(),

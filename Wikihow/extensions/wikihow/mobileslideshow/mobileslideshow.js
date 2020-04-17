@@ -14,6 +14,10 @@
 				if ($(this).find('.whvgif').length || $(this).find('.m-video').length) {
 					return;
 				}
+				//disable if there's no a tag to get the href from
+				if ($(this).find("a").length == 0) {
+					return;
+				}
 				$(this).on('click', function(e) {
 					if($(e.target).hasClass("rpt_img")) {
 						return;

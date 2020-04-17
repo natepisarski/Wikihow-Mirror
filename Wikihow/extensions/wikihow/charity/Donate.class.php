@@ -101,9 +101,10 @@ class Donate extends ContextSource {
 			'donate_quote_opening' => $donate_quote_opening,
 			'donate_quote' => $donate_quote,
 			'donate_text' => wfMessage('donate_text_'.$non_profit)->parse(),
-			'donate_link' => $donate_link
+			'donate_link' => $donate_link,
+			'donate_thanks' => wfMessage('donate_button_response')->text()
 		];
-		$html = $m->render('info', $vars);
+		$html = $m->render('info.mustache', $vars);
 		return $html;
 	}
 

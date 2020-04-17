@@ -6,6 +6,8 @@
 class WikihowNamespacePages {
 
 	private static $is_wikihow_namespace_page = null;
+	private static $custom_collection_page = null;
+	private static $custom_right_rail = null;
 
 	/**
 	 * our mobile-friendly wikiHow: namespace pages
@@ -44,13 +46,14 @@ class WikihowNamespacePages {
 			'About-wikiHow.life',
 			'About-wikiHow-fun',
 			'Deletion-Policy',
-			'Attribution'
+			'Attribution',
+			wfMessage('contact-page')->text()
 		];
 	}
 
 	public static function isAvailableToAnons($title): bool {
-		$isAvailable = ArticleTagList::hasTag( 'project_pages_anon', $title->getArticleID() );
-		return $isAvailable;
+		return self::customCollectionPage() ||
+			ArticleTagList::hasTag( 'project_pages_anon', $title->getArticleID() );
 	}
 
 	public static function anonAvailableTalkPages(): array {
@@ -105,28 +108,16 @@ class WikihowNamespacePages {
 	}
 
 	private static function aboutWikihowPage(): bool {
-		$title = RequestContext::getMain()->getTitle();
-		if (!$title) return false;
-
-		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('about-page')->text();
+		return self::isWikihowNamespacePage( wfMessage('about-page')->text() );
 	}
 
-	private static function trustworthyPage(): bool {
-		$title = RequestContext::getMain()->getTitle();
-		if (!$title) return false;
-		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('trustworthy-page')->text();
-	}
+	private static function isWikihowNamespacePage( string $dbkey = '' ): bool {
+		if ($dbkey == '') return false;
 
-	private static function jobsPage(): bool {
 		$title = RequestContext::getMain()->getTitle();
 		if (!$title) return false;
-		return self::wikiHowNamespacePage() && $title->getDBkey() == 'Jobs';
-	}
 
-	private static function coronaGuidePage(): bool {
-		$title = RequestContext::getMain()->getTitle();
-		if (!$title) return false;
-		return self::wikiHowNamespacePage() && $title->getDBkey() == wfMessage('corona-guide')->text();
+		return self::wikiHowNamespacePage() && $title->getDBkey()	== $dbkey;
 	}
 
 	public static function showMobileAboutWikihow(): bool {
@@ -140,18 +131,24 @@ class WikihowNamespacePages {
 		return class_exists('PressBoxes') && self::aboutWikihowPage() ? PressBoxes::pressSidebox() : '';
 	}
 
+	public static function removeSideBarCallback( &$showSideBar ) {
+		$showSideBar = false;
+	}
+
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
 		if (self::wikiHowNamespacePage()) {
 			$isResponsive = Misc::doResponsive( RequestContext::getMain() );
 
 			Misc::setHeaderMobileFriendly();
 
+			$title = $out->getTitle();
+
 			if (self::aboutWikihowPage()) {
 				$out->setPageTitle(wfMessage('aboutwikihow')->text());
 				$module = $isResponsive ? 'ext.wikihow.press_boxes' : 'ext.wikihow.press_boxes_desktop';
 				$out->addModuleStyles( $module );
 			}
-			elseif (self::trustworthyPage()) {
+			elseif (self::isWikihowNamespacePage( wfMessage('trustworthy-page')->text() )) {
 				$h1 = wfMessage('trustworthy-h1')->text();
 				$out->setPageTitle($h1); //fancy h1
 				$out->setHTMLTitle(wfMessage('trustworthy-title')->text());
@@ -159,18 +156,61 @@ class WikihowNamespacePages {
 
 				$out->setRobotPolicy('index,follow');
 			}
-			elseif (self::coronaGuidePage()) {
+			elseif (self::isWikihowNamespacePage( wfMessage('corona-guide')->text() )) {
 				$out->setPageTitle( wfMessage('corona-guide-title')->text() );
-				$out->addModuleStyles('ext.wikihow.corona_guide_styles');
+				$out->addModules('ext.wikihow.corona_guide');
+			}
+			elseif (self::isWikihowNamespacePage( wfMessage('contact-page')->text() )) {
+				$out->setPageTitle( wfMessage('contact-title')->text() );
+			}
+			elseif (self::isWikihowNamespacePage( "WikiHow-Teacher's-Corner" )) {
+				$out->addModules('ext.wikihow.teachers_guide');
 			}
 
-			$title = $out->getTitle();
-			if ($title) {
-				if (in_array($title->getDBkey(), self::mobileWithStyle())) {
-					$out->addModuleStyles('mobile.wikihow.wikihow_namespace_styles');
+			if (self::customCollectionPage()) {
+				$out->addModuleStyles('ext.wikihow.article_tiles');
+				$out->setPageTitle( $title->getText() );
+
+				if (!self::customRightRailPage()) {
+					global $wgHooks;
+					$wgHooks['UseMobileRightRail'][] = ['WikihowNamespacePages::removeSideBarCallback'];
 				}
 			}
+
+			if (in_array($title->getDBkey(), self::mobileWithStyle()) || self::customCollectionPage()) {
+				$out->addModuleStyles('mobile.wikihow.wikihow_namespace_styles');
+			}
 		}
+	}
+
+	public static function customCollectionPage(): bool {
+		if (is_null(self::$custom_collection_page)) {
+			self::$custom_collection_page = self::hasMagicWord('custom_collection');
+		}
+
+		return self::$custom_collection_page;
+	}
+
+	public static function customRightRailPage(): bool {
+		if (is_null(self::$custom_right_rail)) {
+			self::$custom_right_rail = self::hasMagicWord('custom_right_rail');
+		}
+
+		return self::$custom_right_rail;
+	}
+
+	private static function hasMagicWord( string $magic_word = '' ): bool {
+		if ($magic_word == '') return false;
+
+		$title =  RequestContext::getMain()->getTitle();
+		if (!$title || !$title->exists()) return false;
+
+		$revision = Revision::newFromTitle( $title );
+		if (!$revision) return false;
+
+		$content = $revision->getContent();
+
+		return $content && $content->matchMagicWord( MagicWord::get( $magic_word ) );
 	}
 
 	public static function onWikihowTemplateShowTopLinksSidebar(bool &$showTopLinksSidebar) {
@@ -197,14 +237,23 @@ class WikihowNamespacePages {
 		}
 
 		//special table of contents
-		if ($goodAboutPage || self::jobsPage()) pq('#method_toc')->addClass('whns_toc');
+		if ($goodAboutPage || self::isWikihowNamespacePage('Jobs')) pq('#method_toc')->addClass('whns_toc');
+
+		if (self::customCollectionPage()) pq('.section')->removeClass('sticky');
 	}
 
 	public static function onIsEligibleForMobile( &$mobileAllowed ) {
 		if (self::wikiHowNamespacePage()) {
 			//safe to run w/o checks because the IF already validated it all
 			$title = RequestContext::getMain()->getOutput()->getTitle();
-			if (in_array($title->getDBkey(), self::mobileFriendlyPages())) $mobileAllowed = true;
+			if (in_array($title->getDBkey(), self::mobileFriendlyPages()) || self::customCollectionPage()) {
+				$mobileAllowed = true;
+			}
 		}
+	}
+
+	public static function onGetDoubleUnderscoreIDs(&$magic_array) {
+		$magic_array[] = 'custom_collection';
+		$magic_array[] = 'custom_right_rail';
 	}
 }

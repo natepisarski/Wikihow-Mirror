@@ -6,8 +6,6 @@ class WHVid {
 	static $titleHasSummaryVideo = null;
 	static $titleHasYTVideo = null;
 
-	const YT_VIDEOS_LIKE_SUMMARY_LIST = "youtube_wikihow_videos";
-
 	public static function setParserFunction($parser) {
 		# Setup parser hook
 		$parser->setFunctionHook( 'whvid', 'WHVid::parserFunction' );
@@ -510,6 +508,6 @@ class WHVid {
 	}
 
 	public static function isYtSummaryArticle($title) {
-		return ArticleTagList::hasTag(WHVid::YT_VIDEOS_LIKE_SUMMARY_LIST, $title->getArticleID());
+		return ArticleTagList::hasTag(Misc::YT_WIKIHOW_VIDEOS, $title->getArticleID()) || ArticleTagList::hasTag(Misc::YT_GUIDECENTRAL_VIDEOS, $title->getArticleID());
 	}
 }

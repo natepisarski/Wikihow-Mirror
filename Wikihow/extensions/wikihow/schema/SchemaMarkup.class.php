@@ -790,6 +790,26 @@ class SchemaMarkup {
 		return '';
 	}
 
+	public static function getYouTubeVideoReport( $id ) {
+		global $wgMemc;
+		$requestKey = "YouTubeInfo({$id})";
+		$cacheKey = wfMemcKey( $requestKey );
+		$info = $wgMemc->get( $cacheKey );
+		$response = AsyncHttp::read( $requestKey );
+		$isExpired = AsyncHttp::isExpired( $requestKey );
+		$apiCacheKey = md5( $requestKey );
+		$apiCacheStatus = $response ? ( $isExpired ? 'expired' : 'ok' ) : 'not-found';
+		if ( $response['updated'] != $response['created'] ) {
+			$apiCacheStatus .= ' - retry pending';
+		}
+		$objectCacheStatus = $info ? 'ok' : 'not-found';
+		return "Video Schema Report\n" .
+			"Video ID: {$id}\n" .
+			"API Cache Key: {$apiCacheKey}\n" .
+			"API Cache Status: {$apiCacheStatus}\n" .
+			"Object Cache Status: {$objectCacheStatus}";
+	}
+
 	/**
 	 * Gets schema markup for a YouTube video.
 	 *
@@ -814,16 +834,6 @@ class SchemaMarkup {
 
 		$requestKey = "YouTubeInfo({$id})";
 		$cacheKey = wfMemcKey( $requestKey );
-
-		wfDebugLog(
-			'youtubeinfo',
-			">> SchemaMarkup::getYouTubeVideo " . var_export( [
-				'title' => $title->getText(),
-				'id' => $id,
-				'requestKey' => $requestKey,
-				'cacheKey' => $cacheKey,
-			], true ) . "\n"
-		);
 
 		$info = $wgMemc->get( $cacheKey );
 		if ( $info === false || $forceRefresh) {
@@ -853,35 +863,31 @@ class SchemaMarkup {
 					$info = array_merge( [ 'publisher' => self::getWikihowOrganization() ], $info );
 				}
 
-				wfDebugLog(
-					'youtubeinfo',
-					">> SchemaMarkup::getYouTubeVideo - caching stored info\n" . var_export( [
-						'title' => $title->getText(),
-						'id' => $id,
-						'requestKey' => $requestKey,
-						'cacheKey' => $cacheKey
-					], true ) . "\n"
-				);
-
 				$wgMemc->set( $cacheKey, $info );
 			}
 
-			// If the DB doesn't have it or it's more than a week old, setup a job to fetch it
-			$lastWeek = wfTimestamp( TS_MW, strtotime( '-1 week' ) );
-			if ( !$response || $response['updated'] < $lastWeek || $forceRefresh ) {
+			// If the response is missing or expired, setup a job to fetch it
+			if ( !$response || AsyncHttp::isExpired( $requestKey ) || $forceRefresh ) {
 				$purgeUrls = [];
 				if ( $title->inNamespace( NS_MAIN ) ) {
-					$purgeUrls[] = $wgCanonicalServer . '/' . $title->getPrefixedDBkey();
+					$altDomain = AlternateDomain::getAlternateDomainForPage( $title->getArticleID() );
+					if ( $altDomain ) {
+						$purgeUrls[] = 'https://' . $altDomain . '/' . $title->getPrefixedDBkey();
+					} else {
+						$purgeUrls[] = $wgCanonicalServer . '/' . $title->getPrefixedDBkey();
+					}
 				}
 
 				wfDebugLog(
 					'youtubeinfo',
-					">> SchemaMarkup::getYouTubeVideo - queuing job\n" . var_export( [
+					">> SchemaMarkup::getYouTubeVideo\n" . var_export( [
 						'title' => $title->getText(),
 						'id' => $id,
 						'requestKey' => $requestKey,
 						'cacheKey' => $cacheKey,
 						'purgeUrls' => $purgeUrls,
+						'forceRefresh' => $forceRefresh,
+						'status' => 'queuing'
 					], true ) . "\n"
 				);
 

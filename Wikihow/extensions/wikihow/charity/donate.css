@@ -16,6 +16,10 @@
 	margin: 0;
 }
 
+#donate_thanks {
+	display: none;
+}
+
 .don_mobile #donate_button {
 	display: inline-block;
 	margin: 0 auto;
