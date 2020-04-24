@@ -371,6 +371,7 @@ abstract class AdCreator {
 	 * assumes the php query article is loaded
 	 */
 	protected function insertMethodAd() {
+
 		if ( pq( ".steps_list_2:first > li" )->length <= 2 ) {
 			return;
 		}
@@ -810,25 +811,36 @@ abstract class AdCreator {
 	}
 
 	private function isDFPRefactorTest() {
-		if ( intval( $this->mBucketId ) == 15 ) {
-			return true;
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
 		}
-		if ( intval( $this->mBucketId ) == 17 ) {
-			return true;
+
+		$bucketId = intval( $this->mBucketId );
+		$testBuckets = [1, 2, 3, 7, 8, 9, 15, 17];
+		if ( in_array( $bucketId, $testBuckets ) ) {
+		        return true;
 		}
+
 		return false;
 	}
 
 	private function isDFPLateDefineTest() {
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
+		}
+
 		if ( $this->isPrebidPage() ) {
 			return true;
 		}
 
-		if ( intval( $this->mBucketId ) == 16 ) {
-			return true;
-		}
-		if ( intval( $this->mBucketId ) == 17 ) {
-			return true;
+		$bucketId = intval( $this->mBucketId );
+		$testBuckets = [4, 5, 6, 7, 8, 9, 16, 17];
+		if ( in_array( $bucketId, $testBuckets ) ) {
+		        return true;
 		}
 
 		return false;
@@ -882,7 +894,10 @@ abstract class AdCreator {
 		}
 		if ( $addDFP ) {
 			if ( !$prebidLoad ) {
-				$scripts[] = $this->getIndexHeadScript();
+				$indexScript = $this->getIndexHeadScript();
+				if ( $indexScript ) {
+					$scripts[] = $indexScript;
+				}
 			}
 			if ( $this->mLateLoadDFP == false ) {
 				$category = $this->getCategoryForDFP();
@@ -1049,6 +1064,11 @@ abstract class AdCreator {
 	}
 
 	protected function getIndexHeadScript() {
+		global $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return '';
+		}
 		$result = file_get_contents( __DIR__."/IndexExchangeInit.compiled.js" );
 		return $result;
 	}
@@ -1150,7 +1170,11 @@ abstract class AdCreator {
 	}
 
 	public function showBlockthroughJs() {
-		global $wgRequest;
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
+		}
 
 		if ( $wgRequest->getInt( 'blockthrough' )  == 1 ) {
 			return true;
@@ -1172,7 +1196,11 @@ abstract class AdCreator {
 	}
 
 	public function showNewAdsJs() {
-		global $wgRequest;
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
+		}
 
 		if ( intval( $this->mBucketId ) >= 23 ) {
 			return true;
@@ -1182,7 +1210,11 @@ abstract class AdCreator {
 	}
 
 	public function isPrebidPage() {
-		global $wgRequest;
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
+		}
 
 		if ( $wgRequest->getInt( 'prebid' )  == 1 ) {
 			return true;
@@ -1192,7 +1224,11 @@ abstract class AdCreator {
 	}
 
 	public function enableRewardedWebDefault() {
-		global $wgRequest;
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
+		}
 
 		if ( $wgRequest->getInt( 'rw' )  == 1 ) {
 			return true;
@@ -1201,7 +1237,11 @@ abstract class AdCreator {
 		return false;
 	}
 	public function enableRewardedWebExample() {
-		global $wgRequest;
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
+		}
 
 		if ( $wgRequest->getInt( 'rw' )  == 2 ) {
 			return true;
@@ -1837,7 +1877,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'service' => 'adsense',
 				'type' => 'scrollto',
 				'slot' => 5411724845,
-				'maxsteps' => 2,
+				'maxsteps' => 3,
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,
@@ -2034,7 +2074,7 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'service' => 'adsense',
 				'type' => 'scrollto',
 				'slot' => 5411724845,
-				'maxsteps' => 2,
+				'maxsteps' => 3,
 				'maxnonsteps' => 0,
 				'width' => 728,
 				'height' => 90,

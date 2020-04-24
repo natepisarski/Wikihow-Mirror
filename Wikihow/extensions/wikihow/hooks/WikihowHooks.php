@@ -122,6 +122,8 @@ $wgHooks['PostLoginRedirect'][] = array('SpecialPagesHooks::onPostLoginRedirect'
 $wgHooks['SpecialRecentChangesPanel'][] = array('SpecialPagesHooks::onSpecialRecentChangesPanel');
 $wgHooks['wgQueryPages'][] = array('SpecialPagesHooks::onPopulateWgQueryPages');
 $wgHooks['WantedPages::getQueryInfo'][] = array('SpecialPagesHooks::onWantedPagesGetQueryInfo');
+$wgHooks['LocalUserCreated'][] = array('SpecialPagesHooks::onLocalUserCreated');
+$wgHooks['AuthManagerLoginAuthenticateAudit'][] = array('SpecialPagesHooks::onAuthManagerLoginAuthenticateAudit');
 $wgHooks['UserLogoutComplete'][] = array('SpecialPagesHooks::onUserLogoutComplete');
 $wgHooks['WebRequestPathInfoRouter'][] = array('SpecialPagesHooks::onWebRequestPathInfoRouter');
 

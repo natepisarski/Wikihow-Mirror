@@ -63,6 +63,7 @@ class SocialLoginUtil {
 		}
 
 		if (!$user || !$socialUser) {
+			WikihowStatsd::increment( "auth.{$type}.fail" );
 			return 'error';
 		}
 
@@ -90,6 +91,12 @@ class SocialLoginUtil {
 		}
 
 		Misc::addAnalyticsEventToCookie('User Accounts', $event, $type);
+
+		WikihowStatsd::increment( "auth.{$type}.{$event}" );
+		// Mimic local signup+login logging
+		if ( $event === 'signup' ) {
+			WikihowStatsd::increment( "auth.{$type}.login" );
+		}
 
 		return $event;
 	}

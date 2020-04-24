@@ -48,6 +48,11 @@ class MobileTabs {
 			return self::$isTabArticle;
 		}
 
+		if($title->isMainPage()) {
+			self::$isTabArticle = false;
+			return self::$isTabArticle;
+		}
+
 		self::$hasSummaryVideo = WHVid::hasSummaryVideo($title);
 		self::$isYTListVideo = WHVid::isYtSummaryArticle($title);
 		if(!self::$hasSummaryVideo && !self::$isYTListVideo) {

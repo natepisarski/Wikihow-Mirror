@@ -748,7 +748,7 @@ class Misc {
 			$actionParam = $req->getVal('action', '');
 			$typeParam = $req->getVal('type', '');
 			$oldidParam = $req->getVal('oldid', '');
-			if ( ($actionParam == '' || $actionParam == 'view')
+			if ( ($actionParam == '' || $actionParam == 'view' || $actionParam == 'login')
 				&& $typeParam != 'revision'
 				&& !$oldidParam
 			) {
@@ -1118,13 +1118,8 @@ class Misc {
 	}
 
 	public static function getReferencesID(): string {
-		$id = '#' . self::getSectionName( wfMessage('sources')->text() );
-		if ( phpQuery::$defaultDocumentID ) {
-			$references = '#' . self::getSectionName( wfMessage('references')->text() );
-			if ( pq( $references )->length > 0 ) {
-				$id = $references;
-			}
-		}
+		$id = '#' . self::getSectionName( wfMessage('references')->text() );
+
 		return $id;
 	}
 

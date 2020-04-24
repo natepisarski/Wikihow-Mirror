@@ -976,8 +976,9 @@ class SchemaMarkup {
 		$result = [];
 
 		$verifier = self::getVerifierName( $t );
-
-		$result['contributor'] = [ '@type' => 'Person', 'name' => $verifier ];
+		if ($verifier) {
+			$result['contributor'] = ['@type' => 'Person', 'name' => $verifier];
+		}
 		return $result;
 	}
 

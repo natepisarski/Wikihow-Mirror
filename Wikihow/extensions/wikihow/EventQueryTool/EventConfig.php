@@ -36,17 +36,5 @@ class EventConfig
 		'hp_section_covid_resources_click_go_em' => [ 'Emily', [] ],
 		'all_banner_covid_click_expand_em' => [ 'Emily', [] ],
 		'all_banner_covid_click_close_em' => [ 'Emily', [] ],
-
-		// TODO: remove old aliases:
-		'covid_guide_download' => [ 'Emily', [], 'lp_resource_parents_guide_covid_click_download_em' ],
-		'covid_parents_guide' => [ 'Emily', [], 'cat_promo_parents_guide_covid_click_go_em' ],
-		'hp_amazon_ignite_btn' => [ 'Elizabeth', [], 'hp_promo_amazon_ignite_click_go_ecd' ],
-		'hp_cover_letter_btn' => [ 'Elizabeth', [], 'hp_promo_cover_letter_course_click_go_ecd' ],
-		'hp_covid_resources_btn' => [ 'Emily', [], 'hp_section_covid_resources_click_go_em' ],
-		'covid_readmore' => [ 'Emily', [], 'all_banner_covid_click_expand_em' ],
-		'covid_close' => [ 'Emily', [], 'all_banner_covid_click_close_em' ],
-
-		'svideoview' => [ 'Aaron', [] ],
-		'svideoplay' => [ 'Aaron', [] ],
 	];
 }

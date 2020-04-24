@@ -19,8 +19,12 @@
 		dateFormat: 'M d, yy',
 	}).datepicker('setDate', '-1d');
 
-	$('#bdb_checkall').click(function(){
-		$('#eq_breakdownby_fieldset input:checkbox').not(this).prop('checked', this.checked);
+	$('#eq_gb_checkall').click(function() {
+		$('#eq_groupby_fieldset input:checkbox').not(this).prop('checked', this.checked);
+	});
+
+	$('#eq_groupby_fieldset input:checkbox:not(#eq_gb_checkall)').click(function() {
+		$('#eq_gb_checkall').prop('checked', false);
 	});
 
 	$('#eq_form').submit(function() {

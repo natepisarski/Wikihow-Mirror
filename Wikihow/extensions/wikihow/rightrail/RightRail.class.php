@@ -537,6 +537,10 @@ class RightRail {
 			&& !$this->mTitle->inNamespace( NS_USER )
 			&& !$isSearchPage;
 
+		if ( $showFeaturedArticlesSidebar && !$this->mEnglishSite && $this->mTitle->isSpecial( 'CategoryListing' ) ) {
+			$showFeaturedArticlesSidebar = false;
+		}
+
 		Hooks::run( 'WikihowTemplateShowFeaturedArticlesSidebar', array( &$showFeaturedArticlesSidebar ) );
 
 		if ( $showFeaturedArticlesSidebar ) {
@@ -557,6 +561,10 @@ class RightRail {
 			!$this->mIsAnonView &&
 			!$isSearchPage &&
 			in_array( $this->mLanguageCode, array( 'en', 'de', 'es', 'pt' ) );
+
+		if ( $showFollowWidget && !$this->mEnglishSite && $this->mTitle->isSpecial( 'CategoryListing' ) ) {
+			$showFollowWidget = false;
+		}
 
 		Hooks::run( 'WikihowTemplateShowFollowWidget', array( &$showFollowWidget ) );
 

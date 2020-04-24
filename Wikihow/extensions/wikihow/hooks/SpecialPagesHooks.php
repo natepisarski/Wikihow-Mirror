@@ -139,6 +139,20 @@ class SpecialPagesHooks {
 		return true;
 	}
 
+	// Trevor 2020-04-21
+	public static function onLocalUserCreated( $user, $autocreated ) {
+		WikihowStatsd::increment( "auth.wikihow.signup" );
+	}
+
+	// Trevor 2020-04-21
+	public static function onAuthManagerLoginAuthenticateAudit( $response, $user, $username ) {
+		if ( $response->status === 'FAIL' ) {
+			WikihowStatsd::increment( "auth.wikihow.fail" );
+		} else {
+			WikihowStatsd::increment( "auth.wikihow.login" );
+		}
+	}
+
 	// AG - styling for logout page
 	public static function onUserLogoutComplete( &$user, &$injected_html, $oldName) {
 

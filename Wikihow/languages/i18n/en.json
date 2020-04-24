@@ -6472,5 +6472,6 @@
 	"sources": "Sources and Citations",
 	"footer_ccpa": "Do Not Sell My Info",
 	"footer_ccpa_optout": "Not Selling Info",
-	"userlogout-continue": "Do you want to log out?"
+	"userlogout-continue": "Do you want to log out?",
+	"footer_contact_us": "[[wikiHow:Contact-Us|Contact Us]]"
 }

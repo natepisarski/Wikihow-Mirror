@@ -460,6 +460,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 				.get()
 		);
 	},
+	/* Disabled on April 2020 (Alberto)
 	logAction: function ( action ) {
 		var xmlHttp = new XMLHttpRequest();
 		var url = '/x/event' +
@@ -468,6 +469,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		xmlHttp.open( 'GET', url, true );
 		xmlHttp.send( null );
 	},
+	*/
 	trackProgress: function ( duration, progress ) {
 		// Trevor - 5/30/19 - Disabling tracking for now since Machinfy is being slow
 		// var prev = Math.floor( this.progress * 4 );
@@ -490,7 +492,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		// }
 	},
 	trackView: function () {
-		this.logAction( 'svideoview' );
+		// this.logAction( 'svideoview' );
 		// Trevor - 5/30/19 - Disabling tracking for now since Machinfy is being slow
 		// WH.VideoBrowser.sessionStreak++;
 		// WH.maEvent( 'videoBrowser_view', {
@@ -505,7 +507,7 @@ WH.VideoBrowser.ViewerComponent = WH.Render.createComponent( {
 		// } );
 	},
 	trackPlay: function () {
-		this.logAction( 'svideoplay' );
+		// this.logAction( 'svideoplay' );
 	},
 	trackMute: function () {
 		// Trevor - 5/30/19 - Disabling tracking for now since Machinfy is being slow

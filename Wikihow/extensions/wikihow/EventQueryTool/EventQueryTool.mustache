@@ -1,8 +1,9 @@
 <form id='eq_form' action='/Special:EventQueryTool' method='post'>
 
-	<label for='eq_select_event'>Event:</label>
+	<label class="aligned" for='eq_select_event'>Event:</label>
 	<select name='event' id='eq_select_event'>
 		<option value=''>-- select --</option>
+		<option value='all'>All Events</option>
 		{{#dropdown_config}}
 		 <optgroup label='{{requester}}'>
 			 {{#events}}
@@ -12,32 +13,36 @@
 		{{/dropdown_config}}
 	</select>
 
-	<label class="leftmargin" for='eq_date_start'>From:</label>
-	<input id='eq_date_start' name='date_start' type='text' />
+	<div class="eq_date_container">
+		<label class="aligned" for='eq_date_start'>From:</label>
+		<input id='eq_date_start' name='date_start' type='text' />
+	</div>
 
-	<label class="leftmargin" for='eq_date_end'>Until:</label>
-	<input id='eq_date_end' name='date_end' type='text' />
+	<div class="eq_date_container">
+		<label class="aligned" for='eq_date_end'>Until:</label>
+		<input id='eq_date_end' name='date_end' type='text' />
+	</div>
 
-	<button type='submit' id='eq_submit'>Go</button>
+	<fieldset id="eq_groupby_fieldset">
+		<legend>Group by:</legend>
 
-	<fieldset id="eq_breakdownby_fieldset">
-		<legend>Break down by:</legend>
+		<input type="checkbox" id="eq_gb_checkall">
+		<label for="eq_gb_checkall">All</label>
 
-		<input type="checkbox" id="bdb_checkall">
-		<label for="bdb_checkall">All</label>
+		<input type="checkbox" name="groupby[]" value="date" id="eq_gb_1" checked>
+		<label for="eq_gb_1">Date</label>
 
-		<input type="checkbox" name="breakdownby[]" value="date" id="bdb_1" checked>
-		<label for="bdb_1">Date</label>
+		<input type="checkbox" name="groupby[]" value="domain" id="eq_gb_2">
+		<label for="eq_gb_2">Domain</label>
 
-		<input type="checkbox" name="breakdownby[]" value="domain" id="bdb_2">
-		<label for="bdb_2">Domain</label>
-
-		<input type="checkbox" name="breakdownby[]" value="page" id="bdb_3">
+		<input type="checkbox" name="groupby[]" value="page_id" id="bdb_3">
 		<label for="bdb_3">Page</label>
 
-		<input type="checkbox" name="breakdownby[]" value="screen" id="bdb_4">
-		<label for="bdb_4">Screen</label>
+		<input type="checkbox" name="groupby[]" value="screen" id="eq_gb_4">
+		<label for="eq_gb_4">Screen</label>
 
 	</fieldset>
+
+	<button type='submit' id='eq_submit'>Go</button>
 
 </form>

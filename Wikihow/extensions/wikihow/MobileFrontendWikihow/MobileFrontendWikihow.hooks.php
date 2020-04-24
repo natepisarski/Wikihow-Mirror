@@ -361,6 +361,8 @@ class MobileFrontendWikiHowHooks {
 			'CreatePage',
 			'Newpages',
 			'Hello',
+			SpecialPage::getTitleValueFor('FBLogin')->getDBkey(),
+			SpecialPage::getTitleValueFor('GPlusLogin')->getDBkey()
 		];
 
 		$responsiveTools = [

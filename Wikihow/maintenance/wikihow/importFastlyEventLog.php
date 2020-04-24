@@ -47,8 +47,6 @@ The format is 3 quoted strings, it looks like:
 
 class ImportFastlyEventLog extends Maintenance {
 
-	protected static $counters = [ 'svideoplay', 'svideoview' ]; // legacy
-
 	public function __construct() {
 		parent::__construct();
 		$this->addOption( 'file', 'input file', true, true, 'f' );
@@ -67,7 +65,6 @@ class ImportFastlyEventLog extends Maintenance {
 		}
 
 		$tz = new DateTimeZone('America/Los_Angeles');
-		$counters = [];
 		$events = [];
 		while ( ( $row = fgetcsv( $handle, 0, ' ' ) ) ) {
 
@@ -90,28 +87,29 @@ class ImportFastlyEventLog extends Maintenance {
 			}
 
 			if ( !$title ) {
-				decho( 'invalid event row', implode( ' ', $row ) );
+				decho( 'invalid event row', implode(' ', $row), false );
 				continue;
 			}
 
 			// Validate event
 
 			$action = $params['action'] ?? '';
+			if ( in_array($action, ['svideoview', 'svideoplay'] ) ) { continue; } // TODO: remove this temporary safeguard
 			$config = EventConfig::EVENTS[$action] ?? null;
 			if ( !$config ) {
-				decho( 'invalid action', $action, false );
+				decho( "invalid action '$action'", implode(' ', $row), false );
 				continue;
 			}
 
 			$domain = $eventUrl['host'];
 			if ( strpos($domain, 'wikihow') === false ) {
-				decho( 'invalid domain', $domain, false );
+				decho( "invalid domain '$domain'", implode(' ', $row), false );
 				continue;
 			}
 
 			$screenSize = $params['screen'] ?? '';
 			if ( ! in_array($screenSize, ['', 'small','medium','large']) ) {
-				decho( 'invalid screen', $screenSize, false );
+				decho( "invalid screen '$screenSize'", implode(' ', $row), false );
 				continue;
 			}
 
@@ -119,13 +117,58 @@ class ImportFastlyEventLog extends Maintenance {
 			$dateTime = DateTime::createFromFormat( DateTime::RFC1123, $row[0] )->setTimezone($tz);
 			$dateString = $dateTime->format( 'Y-m-d H:i:s' );
 
-			// TODO remove temporary name mapping:
-			$alias = $config[2] ?? null;
-			if ( $alias ) {
-				$action = $alias;
-				$config = EventConfig::EVENTS[$action];
+			$extraParams = $config[1];
+			$cleanParams = [];
+			foreach ($extraParams as $paramName) {
+				$cleanParams[$paramName] = isset($params[$paramName])
+					? substr($params[$paramName], 0, 200)
+					: null;
 			}
+			$events[] = [
+				'el_page_id' => $pageId,
+				'el_domain' => $domain,
+				'el_screen' => $screenSize,
+				'el_date' => $dateString,
+				'el_action' => $action,
+				'el_count' => 1,
+				'el_params' => json_encode($cleanParams),
+			];
+		}
 
+		fclose($handle);
+
+		// TODO: batch inserts
+
+		$dbw = wfGetDB( DB_MASTER );
+		$errors = 0;
+
+		decho( 'inserting', count( $events ) . ' events', false );
+		foreach ( $events as $event ) {
+			if ($dryRun) {
+				echo implode(', ', $event) . "\n";
+			} else {
+				$res = $dbw->insert( 'event_log', $event, __METHOD__ );
+				if ( $res !== true ) {
+					$errors++;
+				}
+			}
+		}
+
+		decho("DB errors", $errors);
+
+	}
+}
+
+$maintClass = "ImportFastlyEventLog";
+require_once( RUN_MAINTENANCE_IF_MAIN );
+
+
+/* Code to track legacy video counters
+
+	protected static $counters = [ 'svideoplay', 'svideoview' ];
+	// ...
+		$counters = [];
+	// ...
 			$isCounter = in_array($action, self::$counters);
 			if ( $isCounter ) {
 				// Build list of row insertions, summing counts for duplicate domain/pageID/action
@@ -146,49 +189,18 @@ class ImportFastlyEventLog extends Maintenance {
 					}
 				}
 			} else {
-				$extraParams = $config[1];
-				$cleanParams = [];
-				foreach ($extraParams as $paramName) {
-					$cleanParams[$paramName] = isset($params[$paramName])
-						? substr($params[$paramName], 0, 200)
-						: null;
-				}
-				$events[] = [
-					'el_page_id' => $pageId,
-					'el_domain' => $domain,
-					'el_screen' => $screenSize,
-					'el_date' => $dateString,
-					'el_action' => $action,
-					'el_count' => 1,
-					'el_params' => json_encode($cleanParams),
-				];
+				// ...
 			}
-		}
-
-		fclose($handle);
-
-		$dbw = wfGetDB( DB_MASTER );
-
+	// ...
 		decho( 'inserting', count( $counters ) . ' counters', false );
 		foreach ( $counters as $key => $event ) {
 			if ($dryRun) {
 				echo "$key | " . implode(', ', $event) . "\n";
 			} else {
-				$dbw->insert( 'event_log', $event, __METHOD__ );
+				$res = $dbw->insert( 'event_log', $event, __METHOD__ );
+				if ( $res !== true ) {
+					$errors++;
+				}
 			}
 		}
-
-		decho( 'inserting', count( $events ) . ' events', false );
-		foreach ( $events as $event ) {
-			if ($dryRun) {
-				echo implode(', ', $event) . "\n";
-			} else {
-				$dbw->insert( 'event_log', $event, __METHOD__ );
-			}
-		}
-
-	}
-}
-
-$maintClass = "ImportFastlyEventLog";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+*/

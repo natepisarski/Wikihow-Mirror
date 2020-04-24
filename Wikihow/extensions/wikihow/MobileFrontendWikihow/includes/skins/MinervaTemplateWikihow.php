@@ -245,6 +245,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 	}
 
 	protected function footerLinks( $amp ): array {
+		$is_intl = RequestContext::getMain()->getLanguage()->getCode() != 'en';
+
 		$links = [
 			['link' => wfMessage('footer_home')->parse()]
 		];
@@ -252,12 +254,16 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if (!wfMessage('footer_about_wh')->isBlank())
 			$links[] = ['link' => wfMessage('footer_about_wh')->parse()];
 
-		if (RequestContext::getMain()->getLanguage()->getCode() == 'en' && !AlternateDomain::onAlternateDomain())
+		$links[] = ['link' => wfMessage('footer_experts')->parse()];
+
+		if (!$is_intl && !AlternateDomain::onAlternateDomain())
 			$links[] = ['link' => wfMessage('footer_jobs')->parse()];
+
+		if (!$is_intl)
+			$links[] = ['link' => wfMessage('footer_contact_us')->parse()];
 
 		$links[] = ['link' => wfMessage('footer_site_map')->parse()];
 
-		// $links[] = ['link' => wfMessage('footer_experts')->parse()];
 		$links[] = ['link' => wfMessage('footer_terms')->parse()];
 
 		$ccpaHref = '#';

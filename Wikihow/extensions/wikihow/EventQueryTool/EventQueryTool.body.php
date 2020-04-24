@@ -47,11 +47,6 @@ class EventQueryTool extends UnlistedSpecialPage
 	private function getEvents(): array {
 		$events = [];
 		foreach (EventConfig::EVENTS as $eventName => $eventConf) {
-			// TODO remove temporary code to hide aliases
-			$isAlias = isset($eventConf[2]);
-			if ($isAlias) {
-				continue;
-			}
 			$requester = $eventConf[0];
 			$events[$requester]['requester'] = $requester; // extra field for Mustache
 			$events[$requester]['events'][] = $eventName; // group events by requester
@@ -73,9 +68,12 @@ class EventQueryTool extends UnlistedSpecialPage
 		$dateStart = $dbr->addQuotes( $dtA->format('Y-m-d 00:00:00') );
 		$dateEnd = $dbr->addQuotes( $dtB->format('Y-m-d 00:00:00') );
 
-		$validFields = [ 'date', 'domain', 'page', 'screen' ];
-		$groupBy = $req->getArray('breakdownby', []);
-		$groupBy = array_intersect($validFields, $groupBy);
+		$groupBy = $req->getArray('groupby', []);
+		if ($groupBy) {
+			$groupBy = array_merge( ['event'], $groupBy ); // always include the 'event' field
+			$validFields = [ 'event', 'date', 'domain', 'page_id', 'screen' ];
+			$groupBy = array_intersect($validFields, $groupBy); // sanitize
+		}
 
 		// Read events from DB
 
@@ -84,14 +82,14 @@ class EventQueryTool extends UnlistedSpecialPage
 			'event' => 'el_action',
 			'date' => 'date(el_date)',
 			'domain' => 'el_domain',
-			'page' => 'el_page_id',
+			'page_id' => 'el_page_id',
 			'screen' => 'el_screen',
 			'params' => 'el_params',
 		];
-		$where = [
-			'el_action' => $event,
-			"el_date BETWEEN $dateStart AND $dateEnd"
-		];
+		$where = [ "el_date BETWEEN $dateStart AND $dateEnd" ];
+		if ( $event != 'all' ) {
+			$where['el_action'] = $event;
+		}
 
 		if ($groupBy) {
 			foreach ( array_keys($fields) as $field) {
@@ -105,20 +103,42 @@ class EventQueryTool extends UnlistedSpecialPage
 				'GROUP BY' => $groupBy,
 				'ORDER BY' => $groupBy,
 			];
+			$paramNames = []; // results are being aggregated, so we won't show any extra params
 		} else {
-			$opts = [ 'ORDER BY' => 'date, domain, page, screen' ];
+			$opts = [ 'ORDER BY' => 'date, domain, page_id, screen' ];
+			$eventConf = EventConfig::EVENTS[$event] ?? [];
+			$paramNames = $eventConf[1] ?? [];
 		}
 
 		$rows = $dbr->select($table, $fields, $where, __METHOD__, $opts);
+		$pages = isset($fields['page_id']) ? $this->getPages($where) : [];
 
-		// Transform DB rows into CSV $lines
+		// Determine the CSV headers
 
-		$headers = array_keys($fields);
+		unset($fields['params']); // JSON properties are unpacked into CSV columns
+		$colNames = array_keys($fields);
+		$headers = $colNames;
+		if ($pages) {
+			$headers[] = 'orig_url';
+		}
+		$headers = array_merge($headers, $paramNames);
+
+		// Assemble the CSV lines
+
 		$lines = [ $headers ];
 		foreach ($rows as $r) {
-			$line = [];
-			foreach ($headers as $header) {
-				$line[] = $r->$header;
+				$line = [];
+			foreach ($colNames as $colName) {
+				$line[] = $r->$colName;
+			}
+			if ($pages) {
+				$line[] = '/' . $pages[$r->page_id];
+			}
+			if ($paramNames) {
+				$params = json_decode($r->params, true);
+				foreach ($paramNames as $paramName) {
+					$line[] = $params[$paramName] ?? null;
+				}
 			}
 			$lines[] = $line;
 		}
@@ -131,4 +151,18 @@ class EventQueryTool extends UnlistedSpecialPage
 		FileUtil::deleteFile($fname);
 	}
 
+	private function getPages(array $where): array {
+		$dbr = wfGetDB(DB_REPLICA);
+		$tables = ['event_log', 'page'];
+		$fields = ['el_page_id' => 'DISTINCT(el_page_id)', 'page_title'];
+		$opts = [];
+		$join = [ 'page' => [ 'LEFT JOIN', [ 'el_page_id = page_id' ] ] ];
+		$rows = $dbr->select($tables, $fields, $where, __METHOD__, $opts, $join);
+
+		$pages = [];
+		foreach ($rows as $r) {
+			$pages[$r->el_page_id] = $r->page_title;
+		}
+		return $pages;
+	}
 }

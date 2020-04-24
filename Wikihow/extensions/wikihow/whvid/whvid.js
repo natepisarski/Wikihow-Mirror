@@ -64,6 +64,7 @@ WH.video = (function () {
 		}
 	}
 
+	/* Disabled on April 2020 (Alberto)
 	function logAction(action) {
 		var xmlHttp = new XMLHttpRequest();
 		var url = '/x/event' +
@@ -72,6 +73,7 @@ WH.video = (function () {
 		xmlHttp.open( 'GET', url, true );
 		xmlHttp.send( null );
 	}
+	*/
 
 	function visibilityChanged(video) {
 		if (video.isVisible == true && video.isPlaying == false) {
@@ -379,7 +381,7 @@ WH.video = (function () {
 			video.element.style.filter = "none";
 			if (!video.played) {
 				video.played = true;
-				logAction('svideoplay');
+				// logAction('svideoplay');
 			}
 		}
 	}
@@ -416,9 +418,9 @@ WH.video = (function () {
 		if (this.summaryVideo) {
 			this.autoplay = false;
 			// Wait for other dependant scripts to have loaded
-			document.addEventListener( 'DOMContentLoaded', function () {
-				logAction( 'svideoview' );
-			}, false );
+			// document.addEventListener( 'DOMContentLoaded', function () {
+			// 	logAction( 'svideoview' );
+			// }, false );
 		}
 		getVideoControls(this);
 		if (this.inlinePlayButton == false && !this.summaryVideo) {
