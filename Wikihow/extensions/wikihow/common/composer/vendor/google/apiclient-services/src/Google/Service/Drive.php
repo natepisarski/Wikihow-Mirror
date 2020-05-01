@@ -458,6 +458,10 @@ class Google_Service_Drive extends Google_Service
                   'type' => 'string',
                   'required' => true,
                 ),
+                'enforceSingleParent' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'ignoreDefaultVisibility' => array(
                   'location' => 'query',
                   'type' => 'boolean',
@@ -483,6 +487,10 @@ class Google_Service_Drive extends Google_Service
               'path' => 'files',
               'httpMethod' => 'POST',
               'parameters' => array(
+                'enforceSingleParent' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'ignoreDefaultVisibility' => array(
                   'location' => 'query',
                   'type' => 'boolean',
@@ -650,6 +658,10 @@ class Google_Service_Drive extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'enforceSingleParent' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'keepRevisionForever' => array(
                   'location' => 'query',
                   'type' => 'boolean',
@@ -719,6 +731,14 @@ class Google_Service_Drive extends Google_Service
                 'emailMessage' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'enforceSingleParent' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
+                'moveToNewOwnersRoot' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'sendNotificationEmail' => array(
                   'location' => 'query',

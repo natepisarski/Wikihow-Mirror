@@ -30,17 +30,18 @@ class Google_Service_Monitoring_Resource_ProjectsGroupsMembers extends Google_Se
    * (members.listProjectsGroupsMembers)
    *
    * @param string $name Required. The group whose members are listed. The format
-   * is "projects/{project_id_or_number}/groups/{group_id}".
+   * is: projects/[PROJECT_ID_OR_NUMBER]/groups/[GROUP_ID]
    * @param array $optParams Optional parameters.
    *
    * @opt_param string interval.endTime Required. The end of the time interval.
-   * @opt_param string filter An optional list filter describing the members to be
-   * returned. The filter may reference the type, labels, and metadata of
-   * monitored resources that comprise the group. For example, to return only
-   * resources representing Compute Engine VM instances, use this filter:
-   * resource.type = "gce_instance"
+   * @opt_param string filter An optional list filter
+   * (https://cloud.google.com/monitoring/api/learn_more#filtering) describing the
+   * members to be returned. The filter may reference the type, labels, and
+   * metadata of monitored resources that comprise the group. For example, to
+   * return only resources representing Compute Engine VM instances, use this
+   * filter: `resource.type = "gce_instance"`
    * @opt_param string pageToken If this field is not empty then it must contain
-   * the nextPageToken value returned by a previous call to this method. Using
+   * the next_page_token value returned by a previous call to this method. Using
    * this field causes the method to return additional results from the previous
    * method call.
    * @opt_param int pageSize A positive number that is the maximum number of

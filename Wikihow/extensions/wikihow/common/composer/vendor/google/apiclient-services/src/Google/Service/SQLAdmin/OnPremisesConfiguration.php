@@ -20,8 +20,11 @@ class Google_Service_SQLAdmin_OnPremisesConfiguration extends Google_Model
   public $caCertificate;
   public $clientCertificate;
   public $clientKey;
+  public $dumpFilePath;
   public $hostPort;
   public $kind;
+  public $password;
+  public $username;
 
   public function setCaCertificate($caCertificate)
   {
@@ -47,6 +50,14 @@ class Google_Service_SQLAdmin_OnPremisesConfiguration extends Google_Model
   {
     return $this->clientKey;
   }
+  public function setDumpFilePath($dumpFilePath)
+  {
+    $this->dumpFilePath = $dumpFilePath;
+  }
+  public function getDumpFilePath()
+  {
+    return $this->dumpFilePath;
+  }
   public function setHostPort($hostPort)
   {
     $this->hostPort = $hostPort;
@@ -62,5 +73,21 @@ class Google_Service_SQLAdmin_OnPremisesConfiguration extends Google_Model
   public function getKind()
   {
     return $this->kind;
+  }
+  public function setPassword($password)
+  {
+    $this->password = $password;
+  }
+  public function getPassword()
+  {
+    return $this->password;
+  }
+  public function setUsername($username)
+  {
+    $this->username = $username;
+  }
+  public function getUsername()
+  {
+    return $this->username;
   }
 }

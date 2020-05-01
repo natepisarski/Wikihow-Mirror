@@ -11,6 +11,15 @@ class EventConfig
 	const EVENTS = [
 		// please add new events at the beginning of this array,
 		// so they are sorted chronologically in descending order
+		'article_byline_hover_learnmore_click_go_em' => [ 'Emily', [] ],
+		'all_footer_social_links_click_go_em' => [ 'Emily', [ 'type' ] ],
+		'article_meta_print_click_go_em' => [ 'Emily', [] ],
+		'all_popup_ccpa_optout_apply_click_go_em' => [ 'Emily', [] ],
+		'all_nav_search_query_submit_go_em' => [ 'Emily', [] ],
+		'all_nav_search_box_click_focus_em' => [ 'Emily', [] ],
+		'article_promo_marriage_slider_click_go_ecd' => [ 'Elizabeth', [] ],
+		'article_heading_recipe_ingredients_list_click_go_em' => [ 'Emily', [] ],
+		'all_footer_sitewide_links_click_go_em' => [ 'Emily', [ 'dest_url' ] ],
 		'lp_section_teachers_corner_downloadable_resources_click_go_em' => [ 'Emily', [ 'dest_url' ] ],
 		'lp_section_teachers_corner_for_your_students_click_go_em' => [ 'Emily', [ 'dest_url' ] ],
 		'lp_section_teachers_corner_math_science_click_go_em' => [ 'Emily', [ 'dest_url' ] ],

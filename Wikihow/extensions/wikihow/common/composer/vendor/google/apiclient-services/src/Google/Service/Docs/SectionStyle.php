@@ -40,6 +40,7 @@ class Google_Service_Docs_SectionStyle extends Google_Collection
   protected $marginRightDataType = '';
   protected $marginTopType = 'Google_Service_Docs_Dimension';
   protected $marginTopDataType = '';
+  public $pageNumberStart;
   public $sectionType;
   public $useFirstPageHeaderFooter;
 
@@ -204,6 +205,14 @@ class Google_Service_Docs_SectionStyle extends Google_Collection
   public function getMarginTop()
   {
     return $this->marginTop;
+  }
+  public function setPageNumberStart($pageNumberStart)
+  {
+    $this->pageNumberStart = $pageNumberStart;
+  }
+  public function getPageNumberStart()
+  {
+    return $this->pageNumberStart;
   }
   public function setSectionType($sectionType)
   {

@@ -92,6 +92,27 @@ class Google_Service_DLP_Resource_ProjectsLocationsJobTriggers extends Google_Se
     return $this->call('get', array($params), "Google_Service_DLP_GooglePrivacyDlpV2JobTrigger");
   }
   /**
+   * Inspect hybrid content and store findings to a trigger. The inspection will
+   * be processed asynchronously. To review the findings monitor the jobs within
+   * the trigger. Early access feature is in a pre-release state and might change
+   * or have limited support. For more information, see
+   * https://cloud.google.com/products#product-launch-stages.
+   * (jobTriggers.hybridInspect)
+   *
+   * @param string $name Required. Resource name of the trigger to execute a
+   * hybrid inspect on, for example `projects/dlp-test-
+   * project/jobTriggers/53234423`.
+   * @param Google_Service_DLP_GooglePrivacyDlpV2HybridInspectJobTriggerRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_DLP_GooglePrivacyDlpV2HybridInspectResponse
+   */
+  public function hybridInspect($name, Google_Service_DLP_GooglePrivacyDlpV2HybridInspectJobTriggerRequest $postBody, $optParams = array())
+  {
+    $params = array('name' => $name, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('hybridInspect', array($params), "Google_Service_DLP_GooglePrivacyDlpV2HybridInspectResponse");
+  }
+  /**
    * Lists job triggers. See https://cloud.google.com/dlp/docs/creating-job-
    * triggers to learn more. (jobTriggers.listProjectsLocationsJobTriggers)
    *

@@ -111,14 +111,14 @@ class Google_Service_BigQueryDataTransfer_Resource_ProjectsLocationsTransferConf
    * `projects/{project_id}/locations/{location_id}`
    * @param array $optParams Optional parameters.
    *
-   * @opt_param int pageSize Page size. The default page size is the maximum value
-   * of 1000 results.
-   * @opt_param string dataSourceIds When specified, only configurations of
-   * requested data sources are returned.
    * @opt_param string pageToken Pagination token, which can be used to request a
    * specific page of `ListTransfersRequest` list results. For multiple-page
    * results, `ListTransfersResponse` outputs a `next_page` token, which can be
    * used as the `page_token` value to request the next page of list results.
+   * @opt_param int pageSize Page size. The default page size is the maximum value
+   * of 1000 results.
+   * @opt_param string dataSourceIds When specified, only configurations of
+   * requested data sources are returned.
    * @return Google_Service_BigQueryDataTransfer_ListTransferConfigsResponse
    */
   public function listProjectsLocationsTransferConfigs($parent, $optParams = array())

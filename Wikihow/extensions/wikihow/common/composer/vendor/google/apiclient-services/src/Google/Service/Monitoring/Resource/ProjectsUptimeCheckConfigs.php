@@ -29,7 +29,7 @@ class Google_Service_Monitoring_Resource_ProjectsUptimeCheckConfigs extends Goog
    * Creates a new Uptime check configuration. (uptimeCheckConfigs.create)
    *
    * @param string $parent Required. The project in which to create the Uptime
-   * check. The format  is projects/[PROJECT_ID].
+   * check. The format is: projects/[PROJECT_ID_OR_NUMBER]
    * @param Google_Service_Monitoring_UptimeCheckConfig $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_Monitoring_UptimeCheckConfig
@@ -47,7 +47,8 @@ class Google_Service_Monitoring_Resource_ProjectsUptimeCheckConfigs extends Goog
    * (uptimeCheckConfigs.delete)
    *
    * @param string $name Required. The Uptime check configuration to delete. The
-   * format  is projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].
+   * format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/uptimeCheckConfigs/[UPTIME_CHECK_ID]
    * @param array $optParams Optional parameters.
    * @return Google_Service_Monitoring_MonitoringEmpty
    */
@@ -61,7 +62,8 @@ class Google_Service_Monitoring_Resource_ProjectsUptimeCheckConfigs extends Goog
    * Gets a single Uptime check configuration. (uptimeCheckConfigs.get)
    *
    * @param string $name Required. The Uptime check configuration to retrieve. The
-   * format  is projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].
+   * format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/uptimeCheckConfigs/[UPTIME_CHECK_ID]
    * @param array $optParams Optional parameters.
    * @return Google_Service_Monitoring_UptimeCheckConfig
    */
@@ -77,7 +79,7 @@ class Google_Service_Monitoring_Resource_ProjectsUptimeCheckConfigs extends Goog
    * (uptimeCheckConfigs.listProjectsUptimeCheckConfigs)
    *
    * @param string $parent Required. The project whose Uptime check configurations
-   * are listed. The format  is projects/[PROJECT_ID].
+   * are listed. The format is: projects/[PROJECT_ID_OR_NUMBER]
    * @param array $optParams Optional parameters.
    *
    * @opt_param string pageToken If this field is not empty then it must contain
@@ -103,10 +105,11 @@ class Google_Service_Monitoring_Resource_ProjectsUptimeCheckConfigs extends Goog
    * the updated configuration. (uptimeCheckConfigs.patch)
    *
    * @param string $name A unique resource name for this Uptime check
-   * configuration. The format
-   * is:projects/[PROJECT_ID]/uptimeCheckConfigs/[UPTIME_CHECK_ID].This field
-   * should be omitted when creating the Uptime check configuration; on create,
-   * the resource name is assigned by the server and included in the response.
+   * configuration. The format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/uptimeCheckConfigs/[UPTIME_CHECK_ID] This
+   * field should be omitted when creating the Uptime check configuration; on
+   * create, the resource name is assigned by the server and included in the
+   * response.
    * @param Google_Service_Monitoring_UptimeCheckConfig $postBody
    * @param array $optParams Optional parameters.
    *

@@ -19,6 +19,8 @@ class Google_Service_Compute_ResourcePolicy extends Google_Model
 {
   public $creationTimestamp;
   public $description;
+  protected $groupPlacementPolicyType = 'Google_Service_Compute_ResourcePolicyGroupPlacementPolicy';
+  protected $groupPlacementPolicyDataType = '';
   public $id;
   public $kind;
   public $name;
@@ -43,6 +45,20 @@ class Google_Service_Compute_ResourcePolicy extends Google_Model
   public function getDescription()
   {
     return $this->description;
+  }
+  /**
+   * @param Google_Service_Compute_ResourcePolicyGroupPlacementPolicy
+   */
+  public function setGroupPlacementPolicy(Google_Service_Compute_ResourcePolicyGroupPlacementPolicy $groupPlacementPolicy)
+  {
+    $this->groupPlacementPolicy = $groupPlacementPolicy;
+  }
+  /**
+   * @return Google_Service_Compute_ResourcePolicyGroupPlacementPolicy
+   */
+  public function getGroupPlacementPolicy()
+  {
+    return $this->groupPlacementPolicy;
   }
   public function setId($id)
   {

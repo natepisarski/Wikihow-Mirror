@@ -1,7 +1,7 @@
 (function( window, document, $) {
 	'use strict';
 
-	$('#eq_select_event').select2();
+	$('#eq_select_event').select2({ width: '90%' });
 
 	$('#eq_date_start').datepicker({
 		changeMonth: true,
@@ -28,7 +28,7 @@
 	});
 
 	$('#eq_form').submit(function() {
-		if ( ! $('#eq_select_event').val() ) {
+		if ( ! $('#eq_select_event').val().length ) {
 			alert('Please select an event');
 			return false;
 		}

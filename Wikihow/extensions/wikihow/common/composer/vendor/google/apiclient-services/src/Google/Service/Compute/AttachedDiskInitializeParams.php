@@ -23,6 +23,7 @@ class Google_Service_Compute_AttachedDiskInitializeParams extends Google_Collect
   public $diskSizeGb;
   public $diskType;
   public $labels;
+  public $onUpdateAction;
   public $resourcePolicies;
   public $sourceImage;
   protected $sourceImageEncryptionKeyType = 'Google_Service_Compute_CustomerEncryptionKey';
@@ -70,6 +71,14 @@ class Google_Service_Compute_AttachedDiskInitializeParams extends Google_Collect
   public function getLabels()
   {
     return $this->labels;
+  }
+  public function setOnUpdateAction($onUpdateAction)
+  {
+    $this->onUpdateAction = $onUpdateAction;
+  }
+  public function getOnUpdateAction()
+  {
+    return $this->onUpdateAction;
   }
   public function setResourcePolicies($resourcePolicies)
   {

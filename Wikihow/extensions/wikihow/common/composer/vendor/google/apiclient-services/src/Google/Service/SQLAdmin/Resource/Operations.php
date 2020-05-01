@@ -32,9 +32,6 @@ class Google_Service_SQLAdmin_Resource_Operations extends Google_Service_Resourc
    * @param string $project Project ID of the project that contains the instance.
    * @param string $operation Instance operation ID.
    * @param array $optParams Optional parameters.
-   *
-   * @opt_param string resourceName The name of the operation for Cloud SQL to
-   * get. Format: projects/{project}/locations/{location}/operations/{operation}
    * @return Google_Service_SQLAdmin_Operation
    */
   public function get($project, $operation, $optParams = array())
@@ -56,9 +53,6 @@ class Google_Service_SQLAdmin_Resource_Operations extends Google_Service_Resourc
    * @opt_param string pageToken A previously-returned page token representing
    * part of the larger set of results to view.
    * @opt_param string maxResults Maximum number of operations per response.
-   * @opt_param string parent Indirect parent. The direct parent should combine
-   * with the instance name, which owns this collection of operations. Format:
-   * projects/{project}/locations/{location}
    * @return Google_Service_SQLAdmin_OperationsListResponse
    */
   public function listOperations($project, $optParams = array())

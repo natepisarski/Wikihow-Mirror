@@ -33,7 +33,7 @@ class Google_Service_FirebaseManagement_Resource_ProjectsAndroidApps extends Goo
    * completion, so there is no need to call `DeleteOperation`.
    * (androidApps.create)
    *
-   * @param string $parent The parent Project for which to list Apps, in the
+   * @param string $parent The parent Project in which to create an App, in the
    * format: projects/projectId
    * @param Google_Service_FirebaseManagement_AndroidApp $postBody
    * @param array $optParams Optional parameters.

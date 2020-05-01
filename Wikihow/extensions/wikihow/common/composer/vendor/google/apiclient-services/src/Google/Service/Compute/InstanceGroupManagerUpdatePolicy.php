@@ -23,6 +23,7 @@ class Google_Service_Compute_InstanceGroupManagerUpdatePolicy extends Google_Mod
   protected $maxUnavailableType = 'Google_Service_Compute_FixedOrPercent';
   protected $maxUnavailableDataType = '';
   public $minimalAction;
+  public $replacementMethod;
   public $type;
 
   public function setInstanceRedistributionType($instanceRedistributionType)
@@ -68,6 +69,14 @@ class Google_Service_Compute_InstanceGroupManagerUpdatePolicy extends Google_Mod
   public function getMinimalAction()
   {
     return $this->minimalAction;
+  }
+  public function setReplacementMethod($replacementMethod)
+  {
+    $this->replacementMethod = $replacementMethod;
+  }
+  public function getReplacementMethod()
+  {
+    return $this->replacementMethod;
   }
   public function setType($type)
   {

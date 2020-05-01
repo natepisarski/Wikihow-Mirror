@@ -86,6 +86,8 @@ class Google_Service_Container_Cluster extends Google_Collection
   public $tpuIpv4CidrBlock;
   protected $verticalPodAutoscalingType = 'Google_Service_Container_VerticalPodAutoscaling';
   protected $verticalPodAutoscalingDataType = '';
+  protected $workloadIdentityConfigType = 'Google_Service_Container_WorkloadIdentityConfig';
+  protected $workloadIdentityConfigDataType = '';
   public $zone;
 
   /**
@@ -591,6 +593,20 @@ class Google_Service_Container_Cluster extends Google_Collection
   public function getVerticalPodAutoscaling()
   {
     return $this->verticalPodAutoscaling;
+  }
+  /**
+   * @param Google_Service_Container_WorkloadIdentityConfig
+   */
+  public function setWorkloadIdentityConfig(Google_Service_Container_WorkloadIdentityConfig $workloadIdentityConfig)
+  {
+    $this->workloadIdentityConfig = $workloadIdentityConfig;
+  }
+  /**
+   * @return Google_Service_Container_WorkloadIdentityConfig
+   */
+  public function getWorkloadIdentityConfig()
+  {
+    return $this->workloadIdentityConfig;
   }
   public function setZone($zone)
   {

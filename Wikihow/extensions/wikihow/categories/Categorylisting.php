@@ -34,3 +34,11 @@ $wgResourceModules['ext.wikihow.mobile_category_listing'] = [
 	'position' => 'top',
 	'targets' => ['mobile'],
 ];
+
+$wgResourceModules['ext.wikihow.mobile_category_listing_intl'] = [
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/categories',
+	'styles' => ['category-listing-responsive-intl.less'],
+	'position' => 'top',
+	'targets' => ['mobile'],
+];

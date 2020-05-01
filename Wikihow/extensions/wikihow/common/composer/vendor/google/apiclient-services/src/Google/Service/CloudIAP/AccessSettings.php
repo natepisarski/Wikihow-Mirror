@@ -23,6 +23,8 @@ class Google_Service_CloudIAP_AccessSettings extends Google_Model
   protected $gcipSettingsDataType = '';
   protected $oauthSettingsType = 'Google_Service_CloudIAP_OAuthSettings';
   protected $oauthSettingsDataType = '';
+  protected $policyDelegationSettingsType = 'Google_Service_CloudIAP_PolicyDelegationSettings';
+  protected $policyDelegationSettingsDataType = '';
 
   /**
    * @param Google_Service_CloudIAP_CorsSettings
@@ -65,5 +67,19 @@ class Google_Service_CloudIAP_AccessSettings extends Google_Model
   public function getOauthSettings()
   {
     return $this->oauthSettings;
+  }
+  /**
+   * @param Google_Service_CloudIAP_PolicyDelegationSettings
+   */
+  public function setPolicyDelegationSettings(Google_Service_CloudIAP_PolicyDelegationSettings $policyDelegationSettings)
+  {
+    $this->policyDelegationSettings = $policyDelegationSettings;
+  }
+  /**
+   * @return Google_Service_CloudIAP_PolicyDelegationSettings
+   */
+  public function getPolicyDelegationSettings()
+  {
+    return $this->policyDelegationSettings;
   }
 }

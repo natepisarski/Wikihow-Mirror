@@ -46,9 +46,12 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsDicomStor
    * De-identifies data from the source store and writes it to the destination
    * store. The metadata field type is OperationMetadata. If the request is
    * successful, the response field type is DeidentifyDicomStoreSummary. If errors
-   * occur, error details field type is DeidentifyErrorDetails. Errors are also
-   * logged to Stackdriver (see [Viewing logs](/healthcare/docs/how-tos
-   * /stackdriver-logging)). (dicomStores.deidentify)
+   * occur, error is set. The LRO result may still be successful if de-
+   * identification fails for some DICOM instances. The output DICOM store will
+   * not contain these failed resources. Failed resource totals are tracked in
+   * Operation.metadata. Error details are also logged to Stackdriver (see
+   * [Viewing logs](/healthcare/docs/how-tos/stackdriver-logging)).
+   * (dicomStores.deidentify)
    *
    * @param string $sourceStore Source DICOM store resource name. For example, `pr
    * ojects/{project_id}/locations/{location_id}/datasets/{dataset_id}/dicomStores
@@ -79,7 +82,9 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsDicomStor
   }
   /**
    * Exports data to the specified destination by copying it from the DICOM store.
-   * The metadata field type is OperationMetadata. (dicomStores.export)
+   * Errors are also logged to Stackdriver Logging. For more information, see
+   * [Viewing logs](/healthcare/docs/how-tos/stackdriver-logging). The metadata
+   * field type is OperationMetadata. (dicomStores.export)
    *
    * @param string $name The DICOM store resource name from which to export the
    * data. For example, `projects/{project_id}/locations/{location_id}/datasets/{d
@@ -135,11 +140,9 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsDicomStor
   }
   /**
    * Imports data into the DICOM store by copying it from the specified source.
-   * For errors, the Operation is populated with error details (in the form of
-   * ImportDicomDataErrorDetails in error.details), which hold finer-grained error
-   * information. Errors are also logged to Stackdriver Logging. For more
-   * information, see [Viewing logs](/healthcare/docs/how-tos/stackdriver-
-   * logging). The metadata field type is OperationMetadata. (dicomStores.import)
+   * Errors are logged to Stackdriver Logging. For more information, see [Viewing
+   * logs](/healthcare/docs/how-tos/stackdriver-logging). The metadata field type
+   * is OperationMetadata. (dicomStores.import)
    *
    * @param string $name The name of the DICOM store resource into which the data
    * is imported. For example, `projects/{project_id}/locations/{location_id}/data

@@ -201,7 +201,8 @@
 #article #sample_html h2 { background: none; }
 
 #sample_rating{
-	width:520px;
+	width: 100%;
+	max-width:520px;
 	padding:10px;
 	text-align: center;
 	margin-right: auto;

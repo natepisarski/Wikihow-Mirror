@@ -436,7 +436,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		}
 		$formClose = Html::element( 'div', $closeAttr );
 
-		$formAttributes = [ 'action' => '/wikiHowTo', 'class' => 'search', 'target' => '_top' ];
+		$formAttributes = [ 'action' => '/wikiHowTo', 'class' => 'search', 'target' => '_top', 'id' => 'search_form_top' ];
 		$formInner = $formInput . $formButton . $formClose;
 		$searchForm = Html::rawElement( 'form', $formAttributes, $formInner );
 

@@ -17,11 +17,14 @@
 
 class Google_Service_AndroidPublisher_Sampling extends Google_Collection
 {
-  protected $collection_key = 'modRanges';
+  protected $collection_key = 'stratifiedSamplings';
   protected $modRangesType = 'Google_Service_AndroidPublisher_ModRange';
   protected $modRangesDataType = 'array';
   public $modulus;
   public $salt;
+  protected $stratifiedSamplingsType = 'Google_Service_AndroidPublisher_StratifiedSampling';
+  protected $stratifiedSamplingsDataType = 'array';
+  public $useAndroidId;
 
   /**
    * @param Google_Service_AndroidPublisher_ModRange
@@ -52,5 +55,27 @@ class Google_Service_AndroidPublisher_Sampling extends Google_Collection
   public function getSalt()
   {
     return $this->salt;
+  }
+  /**
+   * @param Google_Service_AndroidPublisher_StratifiedSampling
+   */
+  public function setStratifiedSamplings($stratifiedSamplings)
+  {
+    $this->stratifiedSamplings = $stratifiedSamplings;
+  }
+  /**
+   * @return Google_Service_AndroidPublisher_StratifiedSampling
+   */
+  public function getStratifiedSamplings()
+  {
+    return $this->stratifiedSamplings;
+  }
+  public function setUseAndroidId($useAndroidId)
+  {
+    $this->useAndroidId = $useAndroidId;
+  }
+  public function getUseAndroidId()
+  {
+    return $this->useAndroidId;
   }
 }

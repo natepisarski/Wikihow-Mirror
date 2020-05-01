@@ -23,22 +23,22 @@
  *
  * <p>
  * For more information about this service, see the API
- * <a href="https://developers.google.com/accounts/docs/OAuth2" target="_blank">Documentation</a>
+ * <a href="https://developers.google.com/identity/protocols/oauth2/" target="_blank">Documentation</a>
  * </p>
  *
  * @author Google, Inc.
  */
 class Google_Service_Oauth2 extends Google_Service
 {
-  /** Associate you with your personal info on Google. */
-  const PLUS_ME =
-      "https://www.googleapis.com/auth/plus.me";
   /** View your email address. */
   const USERINFO_EMAIL =
       "https://www.googleapis.com/auth/userinfo.email";
   /** See your personal info, including any personal info you've made publicly available. */
   const USERINFO_PROFILE =
       "https://www.googleapis.com/auth/userinfo.profile";
+  /** Associate you with your personal info on Google. */
+  const OPENID =
+      "openid";
 
   public $userinfo;
   public $userinfo_v2_me;
@@ -92,11 +92,7 @@ class Google_Service_Oauth2 extends Google_Service
         '',
         array(
           'methods' => array(
-            'getCertForOpenIdConnect' => array(
-              'path' => 'oauth2/v2/certs',
-              'httpMethod' => 'GET',
-              'parameters' => array(),
-            ),'tokeninfo' => array(
+            'tokeninfo' => array(
               'path' => 'oauth2/v2/tokeninfo',
               'httpMethod' => 'POST',
               'parameters' => array(
@@ -108,27 +104,11 @@ class Google_Service_Oauth2 extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
-                'token_handle' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                ),
               ),
             ),
           )
         )
     );
-  }
-  /**
-   * (getCertForOpenIdConnect)
-   *
-   * @param array $optParams Optional parameters.
-   * @return Google_Service_Oauth2_Jwk
-   */
-  public function getCertForOpenIdConnect($optParams = array())
-  {
-    $params = array();
-    $params = array_merge($params, $optParams);
-    return $this->base_methods->call('getCertForOpenIdConnect', array($params), "Google_Service_Oauth2_Jwk");
   }
   /**
    * (tokeninfo)
@@ -137,7 +117,6 @@ class Google_Service_Oauth2 extends Google_Service
    *
    * @opt_param string access_token
    * @opt_param string id_token
-   * @opt_param string token_handle
    * @return Google_Service_Oauth2_Tokeninfo
    */
   public function tokeninfo($optParams = array())

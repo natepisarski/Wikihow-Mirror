@@ -18,10 +18,12 @@
 class Google_Service_CloudHealthcare_OperationMetadata extends Google_Model
 {
   public $apiMethodName;
+  public $cancelRequested;
   protected $counterType = 'Google_Service_CloudHealthcare_ProgressCounter';
   protected $counterDataType = '';
   public $createTime;
   public $endTime;
+  public $logsUrl;
 
   public function setApiMethodName($apiMethodName)
   {
@@ -30,6 +32,14 @@ class Google_Service_CloudHealthcare_OperationMetadata extends Google_Model
   public function getApiMethodName()
   {
     return $this->apiMethodName;
+  }
+  public function setCancelRequested($cancelRequested)
+  {
+    $this->cancelRequested = $cancelRequested;
+  }
+  public function getCancelRequested()
+  {
+    return $this->cancelRequested;
   }
   /**
    * @param Google_Service_CloudHealthcare_ProgressCounter
@@ -60,5 +70,13 @@ class Google_Service_CloudHealthcare_OperationMetadata extends Google_Model
   public function getEndTime()
   {
     return $this->endTime;
+  }
+  public function setLogsUrl($logsUrl)
+  {
+    $this->logsUrl = $logsUrl;
+  }
+  public function getLogsUrl()
+  {
+    return $this->logsUrl;
   }
 }

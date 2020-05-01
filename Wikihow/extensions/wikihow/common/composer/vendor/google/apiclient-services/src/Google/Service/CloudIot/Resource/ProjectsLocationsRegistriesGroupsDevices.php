@@ -33,16 +33,6 @@ class Google_Service_CloudIot_Resource_ProjectsLocationsRegistriesGroupsDevices 
    * example, `projects/my-project/locations/us-central1/registries/my-registry`.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string pageToken The value returned by the last
-   * `ListDevicesResponse`; indicates that this is a continuation of a prior
-   * `ListDevices` call and the system should return the next page of data.
-   * @opt_param string fieldMask The fields of the `Device` resource to be
-   * returned in the response. The fields `id` and `num_id` are always returned,
-   * along with any other fields specified.
-   * @opt_param int pageSize The maximum number of devices to return in the
-   * response. If this value is zero, the service will select a default size. A
-   * call may return fewer objects than requested. A non-empty `next_page_token`
-   * in the response indicates that more data is available.
    * @opt_param string deviceIds A list of device string IDs. For example,
    * `['device0', 'device12']`. If empty, this field is ignored. Maximum IDs:
    * 10,000
@@ -62,6 +52,16 @@ class Google_Service_CloudIot_Resource_ProjectsLocationsRegistriesGroupsDevices 
    * can be numeric (`num_id`) or the user-defined string (`id`). For example, if
    * `123` is specified, only devices bound to the gateway with `num_id` 123 are
    * returned.
+   * @opt_param string pageToken The value returned by the last
+   * `ListDevicesResponse`; indicates that this is a continuation of a prior
+   * `ListDevices` call and the system should return the next page of data.
+   * @opt_param string fieldMask The fields of the `Device` resource to be
+   * returned in the response. The fields `id` and `num_id` are always returned,
+   * along with any other fields specified.
+   * @opt_param int pageSize The maximum number of devices to return in the
+   * response. If this value is zero, the service will select a default size. A
+   * call may return fewer objects than requested. A non-empty `next_page_token`
+   * in the response indicates that more data is available.
    * @return Google_Service_CloudIot_ListDevicesResponse
    */
   public function listProjectsLocationsRegistriesGroupsDevices($parent, $optParams = array())

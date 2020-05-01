@@ -217,4 +217,21 @@ class Google_Service_CloudRedis_Resource_ProjectsLocationsInstances extends Goog
     $params = array_merge($params, $optParams);
     return $this->call('patch', array($params), "Google_Service_CloudRedis_Operation");
   }
+  /**
+   * Upgrades Redis instance to the newer Redis version specified in the request.
+   * (instances.upgrade)
+   *
+   * @param string $name Required. Redis instance resource name using the form:
+   * `projects/{project_id}/locations/{location_id}/instances/{instance_id}` where
+   * `location_id` refers to a GCP region.
+   * @param Google_Service_CloudRedis_UpgradeInstanceRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_CloudRedis_Operation
+   */
+  public function upgrade($name, Google_Service_CloudRedis_UpgradeInstanceRequest $postBody, $optParams = array())
+  {
+    $params = array('name' => $name, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('upgrade', array($params), "Google_Service_CloudRedis_Operation");
+  }
 }

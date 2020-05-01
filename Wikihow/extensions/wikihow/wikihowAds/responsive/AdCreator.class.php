@@ -818,9 +818,9 @@ abstract class AdCreator {
 		}
 
 		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [1, 2, 3, 7, 8, 9, 15, 17];
+		$testBuckets = [1, 2, 3, 4, 5, 6, 7, 8];
 		if ( in_array( $bucketId, $testBuckets ) ) {
-		        return true;
+			return true;
 		}
 
 		return false;
@@ -838,9 +838,9 @@ abstract class AdCreator {
 		}
 
 		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [4, 5, 6, 7, 8, 9, 16, 17];
+		$testBuckets = [1, 2, 3, 4, 5, 6, 7, 8];
 		if ( in_array( $bucketId, $testBuckets ) ) {
-		        return true;
+			return true;
 		}
 
 		return false;
@@ -1188,7 +1188,9 @@ abstract class AdCreator {
 			return true;
 		}
 
-		if ( intval( $this->mBucketId ) == 10 ) {
+		$bucketId = intval( $this->mBucketId );
+		$testBuckets = [9, 10, 11];
+		if ( in_array( $bucketId, $testBuckets ) ) {
 			return true;
 		}
 
@@ -1202,7 +1204,7 @@ abstract class AdCreator {
 			return false;
 		}
 
-		if ( intval( $this->mBucketId ) >= 23 ) {
+		if ( intval( $this->mBucketId ) >= 24 ) {
 			return true;
 		}
 
@@ -1843,6 +1845,15 @@ class DefaultInternationalAdCreator extends AdCreator {
 				'height' => 90,
 				'large' => 1,
 			),
+			'toc' => array(
+				'service' => 'adsense',
+				'slot' => 9337577313,
+				'width' => 728,
+				'height' => 90,
+				'type' => 'toc',
+				'medium' => 1,
+				'large' => 1,
+			),
 			'rightrail0' => array(
 				'service' => 'adsense',
 				'slot' => 4060538172,
@@ -1939,7 +1950,7 @@ class DefaultInternationalAdCreator extends AdCreator {
 			),
 			'middlerelated' => array(
 				'service' => 'adsense',
-				'smallslot' => 7143285827,
+				'smallslot' => 7920322351,
 				'smallheight' => 250,
 				'type' => 'middlerelated',
 				'small' => 1,
@@ -1954,11 +1965,16 @@ class DefaultInternationalAdCreator extends AdCreator {
 			),
 			'tips' => array(
 				'service' => 'adsense',
+				'slot' => 6103187118,
+				'width' => 728,
+				'height' => 90,
 				'smallslot' => 8125162876,
 				'smallheight' => 250,
 				'smalllabel' => 1,
 				'type' => 'tips',
 				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'warnings' => array(
 				'service' => 'adsense',
@@ -2034,6 +2050,15 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 				'slot' => 3315713030,
 				'width' => 728,
 				'height' => 90,
+				'large' => 1,
+			),
+			'toc' => array(
+				'service' => 'adsense',
+				'slot' => 9337577313,
+				'width' => 728,
+				'height' => 90,
+				'type' => 'toc',
+				'medium' => 1,
 				'large' => 1,
 			),
 			'rightrail0' => array(
@@ -2127,7 +2152,7 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 			),
 			'middlerelated' => array(
 				'service' => 'adsense',
-				'smallslot' => 7143285827,
+				'smallslot' => 7920322351,
 				'smallheight' => 250,
 				'type' => 'middlerelated',
 				'small' => 1,
@@ -2142,11 +2167,16 @@ class DefaultInternationalAdCreatorAllAdsense extends AdCreator {
 			),
 			'tips' => array(
 				'service' => 'adsense',
+				'slot' => 6103187118,
+				'width' => 728,
+				'height' => 90,
 				'smallslot' => 8125162876,
 				'smallheight' => 250,
 				'smalllabel' => 1,
 				'type' => 'tips',
 				'small' => 1,
+				'medium' => 1,
+				'large' => 1,
 			),
 			'warnings' => array(
 				'service' => 'adsense',

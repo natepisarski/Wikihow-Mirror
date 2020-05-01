@@ -18,6 +18,7 @@
 class Google_Service_CloudBuild_PushFilter extends Google_Model
 {
   public $branch;
+  public $invertRegex;
   public $tag;
 
   public function setBranch($branch)
@@ -27,6 +28,14 @@ class Google_Service_CloudBuild_PushFilter extends Google_Model
   public function getBranch()
   {
     return $this->branch;
+  }
+  public function setInvertRegex($invertRegex)
+  {
+    $this->invertRegex = $invertRegex;
+  }
+  public function getInvertRegex()
+  {
+    return $this->invertRegex;
   }
   public function setTag($tag)
   {

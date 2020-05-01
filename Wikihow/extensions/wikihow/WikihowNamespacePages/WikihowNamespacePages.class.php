@@ -25,10 +25,10 @@ class WikihowNamespacePages {
 			wfMessage('terms-page')->text(),
 			wfMessage('community')->text(),
 			'Privacy-Policy',
-			"Writer's-Guide",
+			wfMessage('writers-guide-page')->text(),
 			'Language-Projects',
 			'Hybrid-Organization',
-			'History-of-wikiHow',
+			wfMessage('history-page')->text(),
 			'Tour',
 			'Mission',
 			'Creative-Commons',
@@ -121,10 +121,7 @@ class WikihowNamespacePages {
 	}
 
 	public static function showMobileAboutWikihow(): bool {
-		$mobile_about_languages = ['en', 'es'];
-		return in_array(RequestContext::getMain()->getLanguage()->getCode(), $mobile_about_languages) &&
-					!Misc::isAltDomain() &&
-					wfMessage('about-page')->exists();
+		return !Misc::isAltDomain() && wfMessage('about-page')->exists();
 	}
 
 	public static function getAboutPagePressSidebox(): string {
@@ -219,15 +216,14 @@ class WikihowNamespacePages {
 
 	//this uses the phpQuery object
 	public static function onMobileProcessArticleHTMLAfter(OutputPage $out) {
-		$goodAboutPage = self::aboutWikihowPage() && self::showMobileAboutWikihow();
 
-		if ($goodAboutPage) {
+		if (self::aboutWikihowPage()) {
 			foreach (pq('.section.steps') as $step) {
 				$section_title = trim(pq($step)->find('h3 span')->text());
 
 				if ($section_title == trim(wfMessage('section_title_before_mobile_pressbox')->text())) {
 					//add press box after the designated section
-					pq($step)->after(PressBoxes::pressSidebox());
+					if (class_exists('PressBoxes')) pq($step)->after(PressBoxes::pressSidebox());
 				}
 				elseif ($section_title == trim(wfMessage('section_title_for_slideshow')->text())) {
 					//remove the slideshow because it looks bad on mobile
@@ -236,8 +232,8 @@ class WikihowNamespacePages {
 			}
 		}
 
-		//special table of contents
-		if ($goodAboutPage || self::isWikihowNamespacePage('Jobs')) pq('#method_toc')->addClass('whns_toc');
+		$showSpecialTOC = self::aboutWikihowPage() || self::isWikihowNamespacePage('Jobs');
+		if ($showSpecialTOC) pq('#method_toc')->addClass('whns_toc');
 
 		if (self::customCollectionPage()) pq('.section')->removeClass('sticky');
 	}

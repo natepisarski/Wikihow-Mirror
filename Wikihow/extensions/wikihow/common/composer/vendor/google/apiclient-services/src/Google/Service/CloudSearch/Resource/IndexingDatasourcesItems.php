@@ -129,6 +129,8 @@ class Google_Service_CloudSearch_Resource_IndexingDatasourcesItems extends Googl
    * datasources/{source_id}
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string pageToken The next_page_token value returned from a
+   * previous List request, if any.
    * @opt_param int pageSize Maximum number of items to fetch in a request. The
    * max value is 1000 when brief is true.  The max value is 10 if brief is false.
    * The default value is 10
@@ -143,8 +145,6 @@ class Google_Service_CloudSearch_Resource_IndexingDatasourcesItems extends Googl
    * structured_data.hash, content.hash, itemType, itemStatus.code,
    * itemStatus.processingError.code, itemStatus.repositoryError.type, If this
    * value is false, then all the fields are populated in Item.
-   * @opt_param string pageToken The next_page_token value returned from a
-   * previous List request, if any.
    * @return Google_Service_CloudSearch_ListItemsResponse
    */
   public function listIndexingDatasourcesItems($name, $optParams = array())
@@ -237,7 +237,7 @@ class Google_Service_CloudSearch_Resource_IndexingDatasourcesItems extends Googl
    * used is the one whitelisted in the corresponding data source. (items.upload)
    *
    * @param string $name Name of the Item to start a resumable upload. Format:
-   * datasources/{source_id}/items/{item_id}.
+   * datasources/{source_id}/items/{item_id}. The maximum length is 1536 bytes.
    * @param Google_Service_CloudSearch_StartUploadItemRequest $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_CloudSearch_UploadItemRef

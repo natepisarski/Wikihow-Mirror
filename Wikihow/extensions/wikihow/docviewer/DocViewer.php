@@ -26,6 +26,13 @@ $wgHooks["IsEligibleForMobileSpecial"][] = array("wfDocIsEligibleForMobile");
 
 $wgResourceModules['ext.wikihow.samples'] = array(
 	'scripts' => 'docviewer.js',
+	'localBasePath' => __DIR__ . '/',
+	'remoteExtPath' => 'wikihow/docviewer',
+	'position' => 'top',
+	'targets' => array( 'desktop', 'mobile' )
+);
+
+$wgResourceModules['ext.wikihow.samples_main_styles'] = array(
 	'styles' => 'docviewer.css',
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/docviewer',

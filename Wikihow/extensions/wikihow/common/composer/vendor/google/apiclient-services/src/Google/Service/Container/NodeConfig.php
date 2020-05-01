@@ -40,6 +40,8 @@ class Google_Service_Container_NodeConfig extends Google_Collection
   public $tags;
   protected $taintsType = 'Google_Service_Container_NodeTaint';
   protected $taintsDataType = 'array';
+  protected $workloadMetadataConfigType = 'Google_Service_Container_WorkloadMetadataConfig';
+  protected $workloadMetadataConfigDataType = '';
 
   /**
    * @param Google_Service_Container_AcceleratorConfig
@@ -206,5 +208,19 @@ class Google_Service_Container_NodeConfig extends Google_Collection
   public function getTaints()
   {
     return $this->taints;
+  }
+  /**
+   * @param Google_Service_Container_WorkloadMetadataConfig
+   */
+  public function setWorkloadMetadataConfig(Google_Service_Container_WorkloadMetadataConfig $workloadMetadataConfig)
+  {
+    $this->workloadMetadataConfig = $workloadMetadataConfig;
+  }
+  /**
+   * @return Google_Service_Container_WorkloadMetadataConfig
+   */
+  public function getWorkloadMetadataConfig()
+  {
+    return $this->workloadMetadataConfig;
   }
 }

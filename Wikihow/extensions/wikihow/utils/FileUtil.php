@@ -10,9 +10,39 @@ class FileUtil
 	const TEMP_FILE_DIR = '/data/file_utils/default/';
 	const RATE_LIMIT = 1048576; // 1024*1024 B/s
 
+	public static function getPath(string $fname): string {
+		return static::TEMP_FILE_DIR . $fname;
+	}
+
+	public static function deleteFile(string $fname): bool
+	{
+		return unlink( static::getPath($fname) );
+	}
+
+	public static function streamFile(string $fname, string $mimeType)
+	{
+		static::setHeaders($fname, $mimeType);
+		$fpath = static::getPath($fname);
+		header('Content-Length: ' . filesize($fpath));
+		readfile($fpath);
+	}
+
+	/**
+	 * Like streamFile(), but slower
+	 */
+	public static function downloadFile(string $fname, string $mimeType)
+	{
+		$fp = fopen( static::getPath($fname) , 'r');
+		while (!feof($fp)) {
+			static::outputFile($fname, fread($fp, round(static::RATE_LIMIT)), $mimeType);
+			sleep(1);
+		}
+		fclose($fp);
+	}
+
 	public static function writeCSV(string $fname, array &$csv): string
 	{
-		$path = static::TEMP_FILE_DIR . $fname;
+		$path = static::getPath($fname);
 		$fp = fopen($path, 'w');
 		if ($fp === false) {
 			echo "Can't open file: $path\n";
@@ -45,7 +75,7 @@ class FileUtil
 		static::downloadFile($fname, 'application/zip');
 	}
 
-	protected static function outputFile(string $fname, string &$body, string $mimeType)
+	protected static function setHeaders(string $fname, string $mimeType)
 	{
 		header('Pragma: public');
 		header('Expires: 0');
@@ -57,23 +87,13 @@ class FileUtil
 		header('Content-Type: application/download');
 		header('Content-Disposition: attachment; filename="'. addslashes($fname) . '"');
 		header('Content-Transfer-Encoding: binary');
+	}
+
+	protected static function outputFile(string $fname, string &$body, string $mimeType)
+	{
+		static::setHeaders($fname, $mimeType);
 		flush();
 		print $body;
-	}
-
-	public static function downloadFile(string $fname, string $mimeType)
-	{
-		$fp = fopen(static::TEMP_FILE_DIR . $fname, 'r');
-		while (!feof($fp)) {
-			static::outputFile($fname, fread($fp, round(static::RATE_LIMIT)), $mimeType);
-			sleep(1);
-		}
-		fclose($fp);
-	}
-
-	public static function deleteFile(string $fname): bool
-	{
-		return unlink(static::TEMP_FILE_DIR . $fname);
 	}
 }
 

@@ -16,11 +16,11 @@
  */
 
 /**
- * Service definition for SecretManager (v1beta1).
+ * Service definition for SecretManager (v1).
  *
  * <p>
- * Stores and manages access to application secrets. Provides convenience while
- * improving security.</p>
+ * Stores sensitive data such as API keys, passwords, and certificates. Provides
+ * convenience while improving security.</p>
  *
  * <p>
  * For more information about this service, see the API
@@ -51,7 +51,7 @@ class Google_Service_SecretManager extends Google_Service
     $this->rootUrl = $rootUrl ?: 'https://secretmanager.googleapis.com/';
     $this->servicePath = '';
     $this->batchPath = 'batch';
-    $this->version = 'v1beta1';
+    $this->version = 'v1';
     $this->serviceName = 'secretmanager';
 
     $this->projects_locations = new Google_Service_SecretManager_Resource_ProjectsLocations(
@@ -61,7 +61,7 @@ class Google_Service_SecretManager extends Google_Service
         array(
           'methods' => array(
             'get' => array(
-              'path' => 'v1beta1/{+name}',
+              'path' => 'v1/{+name}',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'name' => array(
@@ -71,17 +71,13 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'list' => array(
-              'path' => 'v1beta1/{+name}/locations',
+              'path' => 'v1/{+name}/locations',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'name' => array(
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
-                ),
-                'filter' => array(
-                  'location' => 'query',
-                  'type' => 'string',
                 ),
                 'pageToken' => array(
                   'location' => 'query',
@@ -90,6 +86,10 @@ class Google_Service_SecretManager extends Google_Service
                 'pageSize' => array(
                   'location' => 'query',
                   'type' => 'integer',
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
                 ),
               ),
             ),
@@ -103,7 +103,7 @@ class Google_Service_SecretManager extends Google_Service
         array(
           'methods' => array(
             'addVersion' => array(
-              'path' => 'v1beta1/{+parent}:addVersion',
+              'path' => 'v1/{+parent}:addVersion',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'parent' => array(
@@ -113,7 +113,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'create' => array(
-              'path' => 'v1beta1/{+parent}/secrets',
+              'path' => 'v1/{+parent}/secrets',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'parent' => array(
@@ -127,7 +127,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'delete' => array(
-              'path' => 'v1beta1/{+name}',
+              'path' => 'v1/{+name}',
               'httpMethod' => 'DELETE',
               'parameters' => array(
                 'name' => array(
@@ -137,7 +137,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'get' => array(
-              'path' => 'v1beta1/{+name}',
+              'path' => 'v1/{+name}',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'name' => array(
@@ -147,7 +147,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'getIamPolicy' => array(
-              'path' => 'v1beta1/{+resource}:getIamPolicy',
+              'path' => 'v1/{+resource}:getIamPolicy',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'resource' => array(
@@ -161,7 +161,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'list' => array(
-              'path' => 'v1beta1/{+parent}/secrets',
+              'path' => 'v1/{+parent}/secrets',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'parent' => array(
@@ -179,7 +179,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'patch' => array(
-              'path' => 'v1beta1/{+name}',
+              'path' => 'v1/{+name}',
               'httpMethod' => 'PATCH',
               'parameters' => array(
                 'name' => array(
@@ -193,7 +193,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'setIamPolicy' => array(
-              'path' => 'v1beta1/{+resource}:setIamPolicy',
+              'path' => 'v1/{+resource}:setIamPolicy',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'resource' => array(
@@ -203,7 +203,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'testIamPermissions' => array(
-              'path' => 'v1beta1/{+resource}:testIamPermissions',
+              'path' => 'v1/{+resource}:testIamPermissions',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'resource' => array(
@@ -223,7 +223,7 @@ class Google_Service_SecretManager extends Google_Service
         array(
           'methods' => array(
             'access' => array(
-              'path' => 'v1beta1/{+name}:access',
+              'path' => 'v1/{+name}:access',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'name' => array(
@@ -233,7 +233,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'destroy' => array(
-              'path' => 'v1beta1/{+name}:destroy',
+              'path' => 'v1/{+name}:destroy',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'name' => array(
@@ -243,7 +243,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'disable' => array(
-              'path' => 'v1beta1/{+name}:disable',
+              'path' => 'v1/{+name}:disable',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'name' => array(
@@ -253,7 +253,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'enable' => array(
-              'path' => 'v1beta1/{+name}:enable',
+              'path' => 'v1/{+name}:enable',
               'httpMethod' => 'POST',
               'parameters' => array(
                 'name' => array(
@@ -263,7 +263,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'get' => array(
-              'path' => 'v1beta1/{+name}',
+              'path' => 'v1/{+name}',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'name' => array(
@@ -273,7 +273,7 @@ class Google_Service_SecretManager extends Google_Service
                 ),
               ),
             ),'list' => array(
-              'path' => 'v1beta1/{+parent}/versions',
+              'path' => 'v1/{+parent}/versions',
               'httpMethod' => 'GET',
               'parameters' => array(
                 'parent' => array(

@@ -26,6 +26,8 @@ class Google_Service_Monitoring_Service extends Google_Model
   protected $customType = 'Google_Service_Monitoring_Custom';
   protected $customDataType = '';
   public $displayName;
+  protected $meshIstioType = 'Google_Service_Monitoring_MeshIstio';
+  protected $meshIstioDataType = '';
   public $name;
   protected $telemetryType = 'Google_Service_Monitoring_Telemetry';
   protected $telemetryDataType = '';
@@ -93,6 +95,20 @@ class Google_Service_Monitoring_Service extends Google_Model
   public function getDisplayName()
   {
     return $this->displayName;
+  }
+  /**
+   * @param Google_Service_Monitoring_MeshIstio
+   */
+  public function setMeshIstio(Google_Service_Monitoring_MeshIstio $meshIstio)
+  {
+    $this->meshIstio = $meshIstio;
+  }
+  /**
+   * @return Google_Service_Monitoring_MeshIstio
+   */
+  public function getMeshIstio()
+  {
+    return $this->meshIstio;
   }
   public function setName($name)
   {

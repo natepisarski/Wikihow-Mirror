@@ -24,6 +24,8 @@ class Google_Service_ServiceManagement_BackendRule extends Google_Model
   public $minDeadline;
   public $operationDeadline;
   public $pathTranslation;
+  public $protocol;
+  public $renameTo;
   public $selector;
 
   public function setAddress($address)
@@ -81,6 +83,22 @@ class Google_Service_ServiceManagement_BackendRule extends Google_Model
   public function getPathTranslation()
   {
     return $this->pathTranslation;
+  }
+  public function setProtocol($protocol)
+  {
+    $this->protocol = $protocol;
+  }
+  public function getProtocol()
+  {
+    return $this->protocol;
+  }
+  public function setRenameTo($renameTo)
+  {
+    $this->renameTo = $renameTo;
+  }
+  public function getRenameTo()
+  {
+    return $this->renameTo;
   }
   public function setSelector($selector)
   {

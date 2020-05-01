@@ -1,7 +1,7 @@
 <form id='eq_form' action='/Special:EventQueryTool' method='post'>
 
-	<label class="aligned" for='eq_select_event'>Event:</label>
-	<select name='event' id='eq_select_event'>
+	<label class="aligned" for='eq_select_event'>Events:</label>
+	<select name='events[]' id='eq_select_event' multiple='multiple'>
 		<option value=''>-- select --</option>
 		<option value='all'>All Events</option>
 		{{#dropdown_config}}

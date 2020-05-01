@@ -693,7 +693,6 @@ class SchemaMarkup {
 		if ( $summaryData && array_key_exists( 'content', $summaryData ) ) {
 			$description = trim( strip_tags( SummarySection::summaryData( $titleText )['content'] ) );
 		}
-		$item = MessageCache::singleton()->parse( $videoTemplateText, null, false, false )->getText();
 
 		// Get combined mobile/desktop play count for summary video
 		$dbr = wfGetDB( DB_REPLICA );
@@ -708,26 +707,21 @@ class SchemaMarkup {
 		);
 		$plays = $row ? $row->plays : 0;
 
-		if ( !$item ) {
+		$videoTemplate = explode( '|', $videoTemplateText );
+		if ( count( $videoTemplate ) < 2 ) {
 			return '';
 		}
-
-		$defaultDocumentID = phpQuery::$defaultDocumentID;
-		$doc = phpQuery::newDocument( $item );
-
-		$contentUrl = pq('.m-video')->attr('data-src');
+		$videoName = $videoTemplate[1];
+		$contentUrl= WHVid::getVidUrl( $videoName );
 		if ( $contentUrl ) {
 			$contentUrl = WH_CDN_VIDEO_ROOT . wfUrlencode( $contentUrl );
 		}
 
-		$thumbnailUrl = pq('.m-video')->attr('data-poster');
+		$previewImg = str_replace( "}}", "", $videoTemplate[2] );
+		$summaryIntroImage = WHVid::getSummaryImage( $previewImg );
+		$thumbnailUrl= WHVid::getSummaryImageThumbUrl( $summaryIntroImage, 1000 );
 		if ( !preg_match( '/^https?:\/\//', $thumbnailUrl ) ) {
-			$thumbnailUrl = $wgServer . $thumbnailUrl;
-		}
-
-		$doc->unloadDocument();
-		if ( $defaultDocumentID ) {
-			phpQuery::selectDocument( $defaultDocumentID );
+			$thumbnailUrl= $wgServer . $thumbnailUrl;
 		}
 
 		$data = [

@@ -1047,6 +1047,17 @@ WH.ads = (function () {
 
 	// requires jquery to have been loaded
     function loadTOCAd(anchor) {
+		if (typeof anchor !== 'string' ) {
+			return;
+		}
+		// remove the # from the anchor
+		anchor = anchor.slice(1);
+
+		// first get the element by id this way. on intl sites there are many
+		// cases where this correctly gets the element but simply using jquery alone
+		// fails to get any element
+		anchor = document.getElementById(anchor);
+
 		if (!TOCAd) {
 			return;
 		}

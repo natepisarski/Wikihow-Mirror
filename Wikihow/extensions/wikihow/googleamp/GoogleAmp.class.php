@@ -541,8 +541,11 @@ class GoogleAmp {
 		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $out->getTitle()->getArticleID() ) ) {
 			return;
 		}
-		// RESPONSIVE: make amp display on www domain
-		$useMobileDomainUrl = false;
+		// TEMPORARY, RESPONSIVE: make amp display on www domain for EN language only right now
+		// Eventually, do this:
+		//$useMobileDomainUrl = false;
+		global $wgLanguageCode;
+		$useMobileDomainUrl = $wgLanguageCode != 'en';
 		$serverUrl =  Misc::getLangBaseURL( $languageCode, $useMobileDomainUrl );
 		$ampUrl = wfExpandUrl( $serverUrl . '/' . $out->getTitle()->getPrefixedURL(), PROTO_CANONICAL );
 		$ampUrl =  $ampUrl . "?amp=1";
@@ -852,7 +855,7 @@ class GoogleAmp {
 		}
 
 		self::changeGDPRInfoLabel();
-		
+
 		// Only add this ping if it's not an amp speed test page to not double count visits
 		if (!self::isAmpSpeedTest(RequestContext::getMain()->getTitle())) {
 			self::addFastlyPing();
@@ -871,7 +874,7 @@ class GoogleAmp {
 	static function addNewAnchortags() {
 		if ( class_exists('MobileTabs') && pq(".summarysection .summary-video")->length > 0 ) {
 			//add a new anchor tag so it will jump to the right place
-			$anchor = MobileTabs::getSummarySectionAnchorName();
+			$anchor = WHVid::getVideoAnchor( RequestContext::getMain()->getTitle() );
 			pq('.summarysection')->attr("id",'')->parent()->attr("id", $anchor);
 		}
 	}

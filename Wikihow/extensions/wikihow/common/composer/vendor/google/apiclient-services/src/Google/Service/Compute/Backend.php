@@ -20,6 +20,7 @@ class Google_Service_Compute_Backend extends Google_Model
   public $balancingMode;
   public $capacityScaler;
   public $description;
+  public $failover;
   public $group;
   public $maxConnections;
   public $maxConnectionsPerEndpoint;
@@ -52,6 +53,14 @@ class Google_Service_Compute_Backend extends Google_Model
   public function getDescription()
   {
     return $this->description;
+  }
+  public function setFailover($failover)
+  {
+    $this->failover = $failover;
+  }
+  public function getFailover()
+  {
+    return $this->failover;
   }
   public function setGroup($group)
   {

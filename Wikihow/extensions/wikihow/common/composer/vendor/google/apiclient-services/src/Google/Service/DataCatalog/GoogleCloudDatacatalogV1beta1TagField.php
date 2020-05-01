@@ -22,6 +22,7 @@ class Google_Service_DataCatalog_GoogleCloudDatacatalogV1beta1TagField extends G
   public $doubleValue;
   protected $enumValueType = 'Google_Service_DataCatalog_GoogleCloudDatacatalogV1beta1TagFieldEnumValue';
   protected $enumValueDataType = '';
+  public $order;
   public $stringValue;
   public $timestampValue;
 
@@ -62,6 +63,14 @@ class Google_Service_DataCatalog_GoogleCloudDatacatalogV1beta1TagField extends G
   public function getEnumValue()
   {
     return $this->enumValue;
+  }
+  public function setOrder($order)
+  {
+    $this->order = $order;
+  }
+  public function getOrder()
+  {
+    return $this->order;
   }
   public function setStringValue($stringValue)
   {

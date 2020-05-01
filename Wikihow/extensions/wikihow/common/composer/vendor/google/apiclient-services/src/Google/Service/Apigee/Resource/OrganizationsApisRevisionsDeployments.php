@@ -26,8 +26,8 @@
 class Google_Service_Apigee_Resource_OrganizationsApisRevisionsDeployments extends Google_Service_Resource
 {
   /**
-   * Lists all deployments of an API proxy revision and actual state reported by
-   * runtime pods. (deployments.listOrganizationsApisRevisionsDeployments)
+   * Lists all deployments of an API proxy revision.
+   * (deployments.listOrganizationsApisRevisionsDeployments)
    *
    * @param string $parent Required. Name of the API proxy revision for which to
    * return deployment information in the following format:

@@ -151,7 +151,7 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 		'targets' => ['mobile'],
 	),
 
-	'zzz.mobile.wikihow.sample_responsive' => $wgMFMobileResourceBoilerplateWikihow + array(
+	'mobile.wikihow.sample_responsive' => $wgMFMobileResourceBoilerplateWikihow + array(
 			'styles' => ['../docviewer/docviewer_m-responsive.less'],
 			'position' => 'top',
 			'targets' => ['mobile'],
@@ -209,6 +209,10 @@ $wgResourceModules = array_merge( $wgResourceModules, array(
 			'styles' => ['less/wikihow/tabs_on_small.less'],
 			'position' => 'top',
 			'targets' => ['mobile']
+		],
+	'mobile.wikihow.intl_hyphen' => $wgMFMobileResourceBoilerplateWikihow + [
+			'styles' => ['less/wikihow/intl_hyphen.less'],
+			'position' => 'top',
 		]
 	)
 );

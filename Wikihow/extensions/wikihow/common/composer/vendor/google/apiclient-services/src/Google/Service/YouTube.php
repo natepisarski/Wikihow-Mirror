@@ -34,6 +34,9 @@ class Google_Service_YouTube extends Google_Service
   /** Manage your YouTube account. */
   const YOUTUBE =
       "https://www.googleapis.com/auth/youtube";
+  /** See a list of your current active channel members, their current level, and when they became a member. */
+  const YOUTUBE_CHANNEL_MEMBERSHIPS_CREATOR =
+      "https://www.googleapis.com/auth/youtube.channel-memberships.creator";
   /** See, edit, and permanently delete your YouTube videos, ratings, comments and captions. */
   const YOUTUBE_FORCE_SSL =
       "https://www.googleapis.com/auth/youtube.force-ssl";

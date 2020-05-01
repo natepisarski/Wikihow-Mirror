@@ -145,6 +145,11 @@ class MobileFrontendWikiHowHooks {
 
 		$top_style = Misc::getEmbedFiles('css', $stylePaths, null, $wgLang->isRTL());
 
+		$intlHyphenLanguages = ['de', 'nl'];
+		if( $wgTitle && ($wgTitle->inNamespace(NS_CATEGORY) || $wgTitle->isMainPage()) && in_array($wgLanguageCode, $intlHyphenLanguages ) ) {
+			$out->addModuleStyles('mobile.wikihow.intl_hyphen');
+		}
+
 		// Add some custom meta info for android phone requests.
 		// These requests should always have the wh_an=1 query string parameter set.
 		if (class_exists('AndroidHelper') && AndroidHelper::isAndroidRequest() && class_exists('ArticleMetaInfo')) {
@@ -213,6 +218,11 @@ class MobileFrontendWikiHowHooks {
 
 		$gdprjs = array( __DIR__. '/../../wikihow/GDPR/gdpr.js' );
 		$out->addHeadItem( 'gdpr', Html::inlineScript( Misc::getEmbedFiles( 'js', $gdprjs ) ) );
+
+		if (class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest()) {
+			$kaiosjs = array( __DIR__. '/../../wikihow/kaios_helper/kaios_helper.js' );
+			$out->addHeadItem( 'kaios', Html::inlineScript( Misc::getEmbedFiles( 'js', $kaiosjs ) ) );
+		}
 
 		//include noscript styling for people without javascript (like internet.org users)
 		if ($wgTitle && !$wgTitle->isMainPage()) {
@@ -284,9 +294,8 @@ class MobileFrontendWikiHowHooks {
 
 		// this adds some extra css to the page if we are on dev site
 		if ( $wgIsDevServer && $wgProfiler['visible'] == true ) {
-			$pCss = "<style>#profilerout{position:absolute;top:500px;background:white;z-index:10000;max-width:100%}#profilerout span{position:absolute;right:10px;</style>";
+			$pCss = "<style>#profilerout{position:absolute;top:500px;background:white;z-index:10000;max-width:100%;font-size:16px;font-family:monospace;}#profilerout span{position:absolute;right:10px;</style>";
 			$out->addHeadItem('profilercss', $pCss);
-			$out->addHeadItem('profilerjs', $pCss);
 		}
 
 		return true;
@@ -328,7 +337,7 @@ class MobileFrontendWikiHowHooks {
 			'About-wikiHow.life',
 			'About-wikiHow-fun',
 			'Language-Projects',
-			'Mission',
+			wfMessage('mission-page')->text(),
 			'Creative-Commons',
 			'Gives-Back',
 			'Powered-and-Inspired-by-MediaWiki',
@@ -336,10 +345,11 @@ class MobileFrontendWikiHowHooks {
 			'Hybrid-Organization',
 			'Tour',
 			'Free-Basics',
-			'History-of-wikiHow',
+			wfMessage('history-page')->text(),
 			'Deletion-Policy',
 			'Attribution',
-			wfMessage('contact-page')->text()
+			wfMessage('contact-page')->text(),
+			wfMessage('writers-guide-page')->text()
 		];
 
 		$specialPagesWithCss = [
@@ -359,7 +369,7 @@ class MobileFrontendWikiHowHooks {
 			'HighSchoolHacks',
 			'RequestTopic',
 			'CreatePage',
-			'Newpages',
+			SpecialPage::getTitleValueFor('NewPages')->getDBkey(),
 			'Hello',
 			SpecialPage::getTitleValueFor('FBLogin')->getDBkey(),
 			SpecialPage::getTitleValueFor('GPlusLogin')->getDBkey()

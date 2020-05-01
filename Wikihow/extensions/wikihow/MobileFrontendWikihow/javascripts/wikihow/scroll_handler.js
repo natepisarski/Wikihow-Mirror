@@ -162,7 +162,7 @@
 					$.merge(
 						['#bodyContent div>.section.steps'],
 						$('.method_toc_item.toc_pre,.method_toc_item.toc_post').map(function () {
-							return $(this).data('section');
+							return WH.tocScrollHandler.escapeSelector( $(this).data('section') );
 						})
 					).join(',');
 
@@ -336,6 +336,11 @@
 			if (location.hash.length !== 0) {
 				// Don't do this for the "more references" dropdown section at the bottom of the refs section
 				if (location.hash == "#aiinfo") return;
+
+				// Don't do this for Image clicks on any language
+				var namespaces = mw.config.get('wgFormattedNamespaces');
+				var imageNS = typeof(namespaces[6] !== 'undefined') ? '/'+namespaces[6] : '';
+				if (decodeURI(location.hash).indexOf( imageNS ) >= 0) return;
 
 				if (this.stickyToc && resetToc) sh.resetToc(); //start fresh
 

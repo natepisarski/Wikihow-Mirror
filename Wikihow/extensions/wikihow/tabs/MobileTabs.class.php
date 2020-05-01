@@ -26,16 +26,12 @@ class MobileTabs {
 				],
 				[
 					'text' => mb_strtoupper(wfMessage('video')->text()),
-					'anchor' => self::getSummarySectionAnchorName()
+					'anchor' => WHVid::getVideoAnchor( $title )
 				]
 			]
 		];
 
 		$data['prebodytext'] .= $m->render('mobile_tabs.mustache', $vars);
-	}
-
-	public static function getSummarySectionAnchorName() {
-		return self::$hasYTVideo && self::$isYTListVideo ? 'Video' : 'quick_summary_video_section';
 	}
 
 	public static function isTabArticle($title) {

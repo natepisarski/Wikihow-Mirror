@@ -17,18 +17,18 @@
 
 class Google_Service_CloudHealthcare_ImportDicomDataRequest extends Google_Model
 {
-  protected $gcsSourceType = 'Google_Service_CloudHealthcare_GoogleCloudHealthcareV1beta1DicomGcsSource';
+  protected $gcsSourceType = 'Google_Service_CloudHealthcare_GoogleCloudHealthcareV1DicomGcsSource';
   protected $gcsSourceDataType = '';
 
   /**
-   * @param Google_Service_CloudHealthcare_GoogleCloudHealthcareV1beta1DicomGcsSource
+   * @param Google_Service_CloudHealthcare_GoogleCloudHealthcareV1DicomGcsSource
    */
-  public function setGcsSource(Google_Service_CloudHealthcare_GoogleCloudHealthcareV1beta1DicomGcsSource $gcsSource)
+  public function setGcsSource(Google_Service_CloudHealthcare_GoogleCloudHealthcareV1DicomGcsSource $gcsSource)
   {
     $this->gcsSource = $gcsSource;
   }
   /**
-   * @return Google_Service_CloudHealthcare_GoogleCloudHealthcareV1beta1DicomGcsSource
+   * @return Google_Service_CloudHealthcare_GoogleCloudHealthcareV1DicomGcsSource
    */
   public function getGcsSource()
   {

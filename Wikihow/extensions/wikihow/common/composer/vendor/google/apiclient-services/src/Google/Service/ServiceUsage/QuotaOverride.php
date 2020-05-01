@@ -18,8 +18,10 @@
 class Google_Service_ServiceUsage_QuotaOverride extends Google_Model
 {
   public $dimensions;
+  public $metric;
   public $name;
   public $overrideValue;
+  public $unit;
 
   public function setDimensions($dimensions)
   {
@@ -28,6 +30,14 @@ class Google_Service_ServiceUsage_QuotaOverride extends Google_Model
   public function getDimensions()
   {
     return $this->dimensions;
+  }
+  public function setMetric($metric)
+  {
+    $this->metric = $metric;
+  }
+  public function getMetric()
+  {
+    return $this->metric;
   }
   public function setName($name)
   {
@@ -44,5 +54,13 @@ class Google_Service_ServiceUsage_QuotaOverride extends Google_Model
   public function getOverrideValue()
   {
     return $this->overrideValue;
+  }
+  public function setUnit($unit)
+  {
+    $this->unit = $unit;
+  }
+  public function getUnit()
+  {
+    return $this->unit;
   }
 }

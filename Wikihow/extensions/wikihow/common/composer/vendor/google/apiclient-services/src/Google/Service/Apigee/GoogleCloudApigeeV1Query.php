@@ -25,6 +25,7 @@ class Google_Service_Apigee_GoogleCloudApigeeV1Query extends Google_Collection
   public $limit;
   protected $metricsType = 'Google_Service_Apigee_GoogleCloudApigeeV1QueryMetric';
   protected $metricsDataType = 'array';
+  public $name;
   public $outputFormat;
   public $reportDefinitionId;
   public $timeRange;
@@ -82,6 +83,14 @@ class Google_Service_Apigee_GoogleCloudApigeeV1Query extends Google_Collection
   public function getMetrics()
   {
     return $this->metrics;
+  }
+  public function setName($name)
+  {
+    $this->name = $name;
+  }
+  public function getName()
+  {
+    return $this->name;
   }
   public function setOutputFormat($outputFormat)
   {

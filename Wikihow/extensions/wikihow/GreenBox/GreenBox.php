@@ -15,7 +15,7 @@ $wgHooks['BeforePageDisplay'][] 						= ['GreenBox::onBeforePageDisplay'];
 $wgHooks['PageContentSave'][] 							= ['GreenBox::onPageContentSave'];
 
 $wgResourceModules['ext.wikihow.green_box'] = [
-	'styles' => [ 'green_box.css' ],
+	'styles' => [ 'green_box.less' ],
 	'localBasePath' => __DIR__.'/assets',
 	'remoteExtPath' => 'wikihow/GreenBox/assets',
 	'targets' => [ 'desktop', 'mobile' ],

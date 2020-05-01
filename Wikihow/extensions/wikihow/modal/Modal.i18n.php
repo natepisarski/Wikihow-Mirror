@@ -65,6 +65,11 @@ $messages['en'] =
 		'ccpa_no_opt_out_button' => 'Cancel',
 		'ccpa_notice_text' => '<b>CCPA notice:</b> wikiHow intentionally stores minimal personal data about our users and account holders. If you would like to request deletion of your personal data and wikiHow account, or would like to have a copy of the information wikiHow has stored about you, please email <a href="mailto:support@wikihow.com">support@wikihow.com</a>, and provide your wikiHow user name and the email address associated with your wikiHow account.',
 		'ccpa_opted_out_text_second' => '<b>Opt out</b>: We will not share your personal information with marketers, advertisers, and other third parties.',
-		'ccpa_optedout_ok_button' => 'Ok'
+		'ccpa_optedout_ok_button' => 'Ok',
+		//print view
+		'printview_header' => 'Print article',
+		'printview_question' => 'Include images in your printable article?',
+		'printview_textonly' => 'Text only',
+		'printview_images' => 'Include images'
 	);
 

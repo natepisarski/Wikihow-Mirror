@@ -36,17 +36,19 @@ class Google_Service_Clouderrorreporting_Resource_ProjectsGroupStats extends Goo
    * Example: `projects/my-project-123`.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string alignment Optional. The alignment of the timed counts to be
+   * returned. Default is `ALIGNMENT_EQUAL_AT_END`.
    * @opt_param string groupId Optional. List all ErrorGroupStats with these IDs.
    * @opt_param string serviceFilter.service Optional. The exact value to match
    * against [`ServiceContext.service`](/error-
    * reporting/reference/rest/v1beta1/ServiceContext#FIELDS.service).
    * @opt_param int pageSize Optional. The maximum number of results to return per
    * response. Default is 20.
+   * @opt_param string order Optional. The sort order in which the results are
+   * returned. Default is `COUNT_DESC`.
    * @opt_param string serviceFilter.version Optional. The exact value to match
    * against [`ServiceContext.version`](/error-
    * reporting/reference/rest/v1beta1/ServiceContext#FIELDS.version).
-   * @opt_param string order Optional. The sort order in which the results are
-   * returned. Default is `COUNT_DESC`.
    * @opt_param string serviceFilter.resourceType Optional. The exact value to
    * match against [`ServiceContext.resource_type`](/error-
    * reporting/reference/rest/v1beta1/ServiceContext#FIELDS.resource_type).
@@ -59,8 +61,6 @@ class Google_Service_Clouderrorreporting_Resource_ProjectsGroupStats extends Goo
    * identical query parameters as the first request.
    * @opt_param string timeRange.period Restricts the query to the specified time
    * range.
-   * @opt_param string alignment Optional. The alignment of the timed counts to be
-   * returned. Default is `ALIGNMENT_EQUAL_AT_END`.
    * @return Google_Service_Clouderrorreporting_ListGroupStatsResponse
    */
   public function listProjectsGroupStats($projectName, $optParams = array())

@@ -29,7 +29,10 @@
 
 			e.preventDefault();
 			e.stopPropagation();
+
 			var $popup = $(".ts_popup", $(link));
+			if ($popup.is(':visible')) return;
+
 			var url = $($("a", link).attr("href") + " span a").attr("href");
 			$(".ts_source", $popup).attr("href", url);
 			if( !$popup.hasClass("trustedsource") ) {
@@ -37,10 +40,20 @@
 			}
 			$(".ts_popup").hide();
 			$popup.show();
-			var rightPos = $popup.offset().left + $popup.outerWidth();
-			var screenWidth = $(window).width();
-			if(  rightPos > screenWidth ) {
-				$popup.css("left", (screenWidth - rightPos)+"px");
+
+			var isRTL = $('body').hasClass('rtl');
+
+			var startPosition = isRTL ? $(e.target).offset().left : $(e.target).offset().left + $(e.target).outerWidth();
+			var boxWidth = $popup.outerWidth();
+
+			var edgePos = isRTL ? startPosition - boxWidth : startPosition + boxWidth;
+			var screenEdge = isRTL ? 0 : $(window).width();
+			var adjustIt = isRTL ? edgePos < screenEdge : edgePos > screenEdge;
+
+			if (adjustIt) {
+				var offset = isRTL ? screenEdge + edgePos : screenEdge - edgePos;
+				var direction = isRTL ? 'right' : 'left';
+				$popup.css(direction, offset+'px');
 			}
 		}
 	};

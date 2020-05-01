@@ -45,6 +45,8 @@ class Google_Service_Container_ClusterUpdate extends Google_Collection
   protected $desiredShieldedNodesDataType = '';
   protected $desiredVerticalPodAutoscalingType = 'Google_Service_Container_VerticalPodAutoscaling';
   protected $desiredVerticalPodAutoscalingDataType = '';
+  protected $desiredWorkloadIdentityConfigType = 'Google_Service_Container_WorkloadIdentityConfig';
+  protected $desiredWorkloadIdentityConfigDataType = '';
 
   /**
    * @param Google_Service_Container_AddonsConfig
@@ -241,5 +243,19 @@ class Google_Service_Container_ClusterUpdate extends Google_Collection
   public function getDesiredVerticalPodAutoscaling()
   {
     return $this->desiredVerticalPodAutoscaling;
+  }
+  /**
+   * @param Google_Service_Container_WorkloadIdentityConfig
+   */
+  public function setDesiredWorkloadIdentityConfig(Google_Service_Container_WorkloadIdentityConfig $desiredWorkloadIdentityConfig)
+  {
+    $this->desiredWorkloadIdentityConfig = $desiredWorkloadIdentityConfig;
+  }
+  /**
+   * @return Google_Service_Container_WorkloadIdentityConfig
+   */
+  public function getDesiredWorkloadIdentityConfig()
+  {
+    return $this->desiredWorkloadIdentityConfig;
   }
 }

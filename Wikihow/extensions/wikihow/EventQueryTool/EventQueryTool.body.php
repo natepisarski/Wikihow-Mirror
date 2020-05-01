@@ -28,6 +28,7 @@ class EventQueryTool extends UnlistedSpecialPage
 
 		if ( $req->wasPosted() ) {
 			$out->setArticleBodyOnly(true);
+			ini_set( 'memory_limit', '512M' );
 			$this->downloadCSV($req);
 			return;
 		}
@@ -64,7 +65,11 @@ class EventQueryTool extends UnlistedSpecialPage
 		$dtA = DateTime::createFromFormat( 'M j, Y', $req->getText('date_start') );
 		$dtB = DateTime::createFromFormat( 'M j, Y', $req->getText('date_end') )->modify('+ 1 days');
 
-		$event = $req->getText('event');
+		$events = $req->getArray('events', ['all']);
+		if ( $events !== ['all'] ) {
+			$validEvents = array_keys(EventConfig::EVENTS);
+			$events = array_intersect($validEvents, $events); // sanitize
+		}
 		$dateStart = $dbr->addQuotes( $dtA->format('Y-m-d 00:00:00') );
 		$dateEnd = $dbr->addQuotes( $dtB->format('Y-m-d 00:00:00') );
 
@@ -87,8 +92,8 @@ class EventQueryTool extends UnlistedSpecialPage
 			'params' => 'el_params',
 		];
 		$where = [ "el_date BETWEEN $dateStart AND $dateEnd" ];
-		if ( $event != 'all' ) {
-			$where['el_action'] = $event;
+		if ( ! in_array('all', $events) ) {
+			$where['el_action'] = $events;
 		}
 
 		if ($groupBy) {
@@ -125,14 +130,17 @@ class EventQueryTool extends UnlistedSpecialPage
 
 		// Assemble the CSV lines
 
-		$lines = [ $headers ];
+		$fname = "events." . implode('+', $events) . '.' . $dtA->format('ymd') . '-' . $dtB->format('ymd') . '.csv';
+		$fp = fopen( FileUtil::getPath($fname), 'w' );
+		fputcsv($fp, $headers);
 		foreach ($rows as $r) {
 				$line = [];
 			foreach ($colNames as $colName) {
 				$line[] = $r->$colName;
 			}
 			if ($pages) {
-				$line[] = '/' . $pages[$r->page_id];
+				$path = $pages[$r->page_id] ?? null;
+				$line[] = $path ? "/{$path}" : '';
 			}
 			if ($paramNames) {
 				$params = json_decode($r->params, true);
@@ -140,18 +148,20 @@ class EventQueryTool extends UnlistedSpecialPage
 					$line[] = $params[$paramName] ?? null;
 				}
 			}
-			$lines[] = $line;
+			fputcsv($fp, $line);
 		}
+		fclose($fp);
 
 		// Download the CSV file
 
-		$fname = "event.{$event}." . $dtA->format('ymd') . '-' . $dtB->format('ymd') . '.csv';
-		FileUtil::writeCSV($fname, $lines);
-		FileUtil::downloadFile($fname, 'text/csv');
+		FileUtil::streamFile($fname, 'text/csv');
 		FileUtil::deleteFile($fname);
 	}
 
 	private function getPages(array $where): array {
+		if ( Misc::isIntl() ) {
+			return [];
+		}
 		$dbr = wfGetDB(DB_REPLICA);
 		$tables = ['event_log', 'page'];
 		$fields = ['el_page_id' => 'DISTINCT(el_page_id)', 'page_title'];

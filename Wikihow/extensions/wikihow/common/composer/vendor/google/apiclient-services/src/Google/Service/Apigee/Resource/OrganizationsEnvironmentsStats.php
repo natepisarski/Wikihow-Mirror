@@ -41,8 +41,6 @@ class Google_Service_Apigee_Resource_OrganizationsEnvironmentsStats extends Goog
    * `organizations/{org}/environments/{env}/stats/apiproxy,request_verb`
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string sort This parameter specifies if the sort order should be
-   * ascending or descending Supported values are DESC and ASC.
    * @opt_param string topk Take 'top k' results from results, for example, to
    * return the top 5 results 'topk=5'.
    * @opt_param bool tsAscending Lists timestamps in ascending order if set to
@@ -72,6 +70,8 @@ class Google_Service_Apigee_Resource_OrganizationsEnvironmentsStats extends Goog
    * tables, then this parameter can be used to specify the table name. If this
    * parameter is skipped, then Edge Query will try to retrieve the data from fact
    * tables which will be expensive.
+   * @opt_param string sort This parameter specifies if the sort order should be
+   * ascending or descending Supported values are DESC and ASC.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Stats
    */
   public function get($name, $optParams = array())

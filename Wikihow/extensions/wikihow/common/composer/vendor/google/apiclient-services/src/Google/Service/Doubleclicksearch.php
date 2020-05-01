@@ -120,46 +120,6 @@ class Google_Service_Doubleclicksearch extends Google_Service
               'path' => 'conversion',
               'httpMethod' => 'POST',
               'parameters' => array(),
-            ),'patch' => array(
-              'path' => 'conversion',
-              'httpMethod' => 'PATCH',
-              'parameters' => array(
-                'advertiserId' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                  'required' => true,
-                ),
-                'agencyId' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                  'required' => true,
-                ),
-                'endDate' => array(
-                  'location' => 'query',
-                  'type' => 'integer',
-                  'required' => true,
-                ),
-                'engineAccountId' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                  'required' => true,
-                ),
-                'rowCount' => array(
-                  'location' => 'query',
-                  'type' => 'integer',
-                  'required' => true,
-                ),
-                'startDate' => array(
-                  'location' => 'query',
-                  'type' => 'integer',
-                  'required' => true,
-                ),
-                'startRow' => array(
-                  'location' => 'query',
-                  'type' => 'integer',
-                  'required' => true,
-                ),
-              ),
             ),'update' => array(
               'path' => 'conversion',
               'httpMethod' => 'PUT',

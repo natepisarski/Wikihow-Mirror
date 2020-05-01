@@ -26,14 +26,11 @@
 class Google_Service_Apigee_Resource_OrganizationsDevelopersAttributes extends Google_Service_Resource
 {
   /**
-   * Deletes an attribute of a Developer resource Apigee recommends using the
-   * developer email in the API call. Developer ID is generated internally and is
-   * not guaranteed to stay the same over time. For example, Apigee could change
-   * the format or length of this variable. (attributes.delete)
+   * Deletes a developer attribute. (attributes.delete)
    *
-   * @param string $name Required. The name of the attribute for a developer. Must
-   * be of the form
-   * `organizations/{org}/developers/{developer}/attributes/{attribute}`
+   * @param string $name Required. Name of the developer attribute. Use the
+   * following structure in your request:
+   * `organizations/{org}/developers/{developer_email}/attributes/{attribute}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attribute
    */
@@ -44,14 +41,11 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAttributes extends G
     return $this->call('delete', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1Attribute");
   }
   /**
-   * Get developer attributes. Apigee recommends using the developer email in the
-   * API call. Developer ID is generated internally and is not guaranteed to stay
-   * the same over time. For example, Apigee could change the format or length of
-   * this variable. (attributes.get)
+   * Returns the value of the specified developer attribute. (attributes.get)
    *
-   * @param string $name Required. The name of the attribute for a developer. Must
-   * be of the form
-   * `organizations/{org}/developers/{developer}/attributes/{attribute}`
+   * @param string $name Required. Name of the developer attribute. Use the
+   * following structure in your request:
+   * `organizations/{org}/developers/{developer_email}/attributes/{attribute}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attribute
    */
@@ -62,15 +56,12 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAttributes extends G
     return $this->call('get', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1Attribute");
   }
   /**
-   * Returns a list of all developer attributes. Apigee recommends using the
-   * developer email in the API call. Developer ID is generated internally and is
-   * not guaranteed to stay the same over time. For example, Apigee could change
-   * the format or length of this variable.
+   * Returns a list of all developer attributes.
    * (attributes.listOrganizationsDevelopersAttributes)
    *
-   * @param string $parent Required. The parent developer for which attributes are
-   * being listed. Must be of the form
-   * `organizations/{org}/developers/{developer}`
+   * @param string $parent Required. Email address of the developer for which
+   * attributes are being listed in the following format:
+   * `organizations/{org}/developers/{developer_email}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attributes
    */
@@ -81,19 +72,18 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAttributes extends G
     return $this->call('list', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1Attributes");
   }
   /**
-   * Update developer attribute. OAuth access tokens and Key Management Service
-   * (KMS) entities (Apps, Developers, API Products) are cached for 180 seconds
-   * (current default). Any custom attributes associated with entities also get
-   * cached for at least 180 seconds after entity is accessed during runtime. This
-   * also means the ExpiresIn element on the OAuthV2 policy won't be able to
-   * expire an access token in less than 180 seconds. Apigee recommends using the
-   * developer email in the API call. Developer ID is generated internally and is
-   * not guaranteed to stay the same over time. For example, Apigee could change
-   * the format or length of this variable. (attributes.updateDeveloperAttribute)
+   * Updates a developer attribute.
    *
-   * @param string $name Required. The name of the attribute for a developer. Must
-   * be of the form
-   * `organizations/{org}/developers/{developer}/attributes/{attribute}`
+   * **Note**: OAuth access tokens and Key Management Service (KMS) entities
+   * (apps, developers, and API products) are cached for 180 seconds (default).
+   * Any custom attributes associated with these entities are cached for at least
+   * 180 seconds after the entity is accessed at runtime. Therefore, an
+   * `ExpiresIn` element on the OAuthV2 policy won't be able to expire an access
+   * token in less than 180 seconds. (attributes.updateDeveloperAttribute)
+   *
+   * @param string $name Required. Name of the developer attribute. Use the
+   * following structure in your request:
+   * `organizations/{org}/developers/{developer_email}/attributes/{attribute}`
    * @param Google_Service_Apigee_GoogleCloudApigeeV1Attribute $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attribute

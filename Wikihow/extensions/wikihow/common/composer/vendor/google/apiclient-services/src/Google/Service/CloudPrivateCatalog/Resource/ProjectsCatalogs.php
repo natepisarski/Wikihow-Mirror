@@ -36,14 +36,14 @@ class Google_Service_CloudPrivateCatalog_Resource_ProjectsCatalogs extends Googl
    * `organizations/{organization_id}`
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string query The query to filter the catalogs. The supported
-   * queries are:
-   *
-   * * Get a single catalog: `name=catalogs/{catalog_id}`
    * @opt_param string pageToken A pagination token returned from a previous call
    * to SearchCatalogs that indicates where this listing should continue from.
    * This field is optional.
    * @opt_param int pageSize The maximum number of entries that are requested.
+   * @opt_param string query The query to filter the catalogs. The supported
+   * queries are:
+   *
+   * * Get a single catalog: `name=catalogs/{catalog_id}`
    * @return Google_Service_CloudPrivateCatalog_GoogleCloudPrivatecatalogV1beta1SearchCatalogsResponse
    */
   public function search($resource, $optParams = array())

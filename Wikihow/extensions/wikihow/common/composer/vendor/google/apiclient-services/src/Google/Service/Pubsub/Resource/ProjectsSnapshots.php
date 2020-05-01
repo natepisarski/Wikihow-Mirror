@@ -41,9 +41,9 @@ class Google_Service_Pubsub_Resource_ProjectsSnapshots extends Google_Service_Re
    * generated name is populated in the returned Snapshot object. Note that for
    * REST API requests, you must specify a name in the request. (snapshots.create)
    *
-   * @param string $name User-provided name for this snapshot. If the name is not
-   * provided in the request, the server will assign a random name for this
-   * snapshot on the same project as the subscription. Note that for REST API
+   * @param string $name Required. User-provided name for this snapshot. If the
+   * name is not provided in the request, the server will assign a random name for
+   * this snapshot on the same project as the subscription. Note that for REST API
    * requests, you must specify a name.  See the  resource name rules. Format is
    * `projects/{project}/snapshots/{snap}`.
    * @param Google_Service_Pubsub_CreateSnapshotRequest $postBody
@@ -66,8 +66,8 @@ class Google_Service_Pubsub_Resource_ProjectsSnapshots extends Google_Service_Re
    * with the old snapshot or its subscription, unless the same subscription is
    * specified. (snapshots.delete)
    *
-   * @param string $snapshot The name of the snapshot to delete. Format is
-   * `projects/{project}/snapshots/{snap}`.
+   * @param string $snapshot Required. The name of the snapshot to delete. Format
+   * is `projects/{project}/snapshots/{snap}`.
    * @param array $optParams Optional parameters.
    * @return Google_Service_Pubsub_PubsubEmpty
    */
@@ -83,7 +83,7 @@ class Google_Service_Pubsub_Resource_ProjectsSnapshots extends Google_Service_Re
    * is, you can set the acknowledgment state of messages in an existing
    * subscription to the state captured by a snapshot. (snapshots.get)
    *
-   * @param string $snapshot The name of the snapshot to get. Format is
+   * @param string $snapshot Required. The name of the snapshot to get. Format is
    * `projects/{project}/snapshots/{snap}`.
    * @param array $optParams Optional parameters.
    * @return Google_Service_Pubsub_Snapshot
@@ -126,15 +126,15 @@ class Google_Service_Pubsub_Resource_ProjectsSnapshots extends Google_Service_Re
    * acknowledgment state of messages in an existing subscription to the state
    * captured by a snapshot. (snapshots.listProjectsSnapshots)
    *
-   * @param string $project The name of the project in which to list snapshots.
-   * Format is `projects/{project-id}`.
+   * @param string $project Required. The name of the project in which to list
+   * snapshots. Format is `projects/{project-id}`.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param int pageSize Maximum number of snapshots to return.
    * @opt_param string pageToken The value returned by the last
    * `ListSnapshotsResponse`; indicates that this is a continuation of a prior
    * `ListSnapshots` call, and that the system should return the next page of
    * data.
-   * @opt_param int pageSize Maximum number of snapshots to return.
    * @return Google_Service_Pubsub_ListSnapshotsResponse
    */
   public function listProjectsSnapshots($project, $optParams = array())

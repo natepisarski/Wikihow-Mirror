@@ -61,6 +61,7 @@ class Google_Service_Compute extends Google_Service
   public $forwardingRules;
   public $globalAddresses;
   public $globalForwardingRules;
+  public $globalNetworkEndpointGroups;
   public $globalOperations;
   public $healthChecks;
   public $httpHealthChecks;
@@ -153,6 +154,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -239,6 +244,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -369,6 +378,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -730,6 +743,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -936,6 +953,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -1046,6 +1067,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -1577,6 +1602,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -1942,6 +1971,159 @@ class Google_Service_Compute extends Google_Service
           )
         )
     );
+    $this->globalNetworkEndpointGroups = new Google_Service_Compute_Resource_GlobalNetworkEndpointGroups(
+        $this,
+        $this->serviceName,
+        'globalNetworkEndpointGroups',
+        array(
+          'methods' => array(
+            'attachNetworkEndpoints' => array(
+              'path' => '{project}/global/networkEndpointGroups/{networkEndpointGroup}/attachNetworkEndpoints',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'networkEndpointGroup' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'requestId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'delete' => array(
+              'path' => '{project}/global/networkEndpointGroups/{networkEndpointGroup}',
+              'httpMethod' => 'DELETE',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'networkEndpointGroup' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'requestId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'detachNetworkEndpoints' => array(
+              'path' => '{project}/global/networkEndpointGroups/{networkEndpointGroup}/detachNetworkEndpoints',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'networkEndpointGroup' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'requestId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'get' => array(
+              'path' => '{project}/global/networkEndpointGroups/{networkEndpointGroup}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'networkEndpointGroup' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'insert' => array(
+              'path' => '{project}/global/networkEndpointGroups',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'requestId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'list' => array(
+              'path' => '{project}/global/networkEndpointGroups',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'maxResults' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'orderBy' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'listNetworkEndpoints' => array(
+              'path' => '{project}/global/networkEndpointGroups/{networkEndpointGroup}/listNetworkEndpoints',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'networkEndpointGroup' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'maxResults' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'orderBy' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),
+          )
+        )
+    );
     $this->globalOperations = new Google_Service_Compute_Resource_GlobalOperations(
         $this,
         $this->serviceName,
@@ -1960,6 +2142,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -2067,6 +2253,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -2666,6 +2856,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -2677,6 +2871,26 @@ class Google_Service_Compute extends Google_Service
                 'pageToken' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+              ),
+            ),'applyUpdatesToInstances' => array(
+              'path' => '{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}/applyUpdatesToInstances',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'zone' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instanceGroupManager' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
                 ),
               ),
             ),'createInstances' => array(
@@ -2821,6 +3035,42 @@ class Google_Service_Compute extends Google_Service
                   'type' => 'string',
                 ),
               ),
+            ),'listErrors' => array(
+              'path' => '{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}/listErrors',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'zone' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instanceGroupManager' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'maxResults' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'orderBy' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
             ),'listManagedInstances' => array(
               'path' => '{project}/zones/{zone}/instanceGroupManagers/{instanceGroupManager}/listManagedInstances',
               'httpMethod' => 'POST',
@@ -2848,7 +3098,7 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'integer',
                 ),
-                'order_by' => array(
+                'orderBy' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
@@ -3028,6 +3278,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -3388,6 +3642,30 @@ class Google_Service_Compute extends Google_Service
                   'type' => 'string',
                 ),
               ),
+            ),'addResourcePolicies' => array(
+              'path' => '{project}/zones/{zone}/instances/{instance}/addResourcePolicies',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'zone' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instance' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'requestId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
             ),'aggregatedList' => array(
               'path' => '{project}/aggregated/instances',
               'httpMethod' => 'GET',
@@ -3400,6 +3678,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -3731,6 +4013,30 @@ class Google_Service_Compute extends Google_Service
                   'type' => 'string',
                 ),
                 'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),'removeResourcePolicies' => array(
+              'path' => '{project}/zones/{zone}/instances/{instance}/removeResourcePolicies',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'zone' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instance' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'requestId' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
@@ -4169,6 +4475,38 @@ class Google_Service_Compute extends Google_Service
                   'required' => true,
                 ),
               ),
+            ),'update' => array(
+              'path' => '{project}/zones/{zone}/instances/{instance}',
+              'httpMethod' => 'PUT',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'zone' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instance' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'minimalAction' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'mostDisruptiveAllowedAction' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'requestId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
             ),'updateAccessConfig' => array(
               'path' => '{project}/zones/{zone}/instances/{instance}/updateAccessConfig',
               'httpMethod' => 'POST',
@@ -4297,6 +4635,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -4794,6 +5136,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -4880,6 +5226,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -5361,6 +5711,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -5553,6 +5907,30 @@ class Google_Service_Compute extends Google_Service
                   'type' => 'string',
                 ),
               ),
+            ),'patch' => array(
+              'path' => '{project}/zones/{zone}/nodeGroups/{nodeGroup}',
+              'httpMethod' => 'PATCH',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'zone' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'nodeGroup' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'requestId' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
             ),'setIamPolicy' => array(
               'path' => '{project}/zones/{zone}/nodeGroups/{resource}/setIamPolicy',
               'httpMethod' => 'POST',
@@ -5639,6 +6017,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -5830,6 +6212,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -5916,6 +6302,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -6171,7 +6561,7 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'integer',
                 ),
-                'order_by' => array(
+                'orderBy' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
@@ -6197,7 +6587,7 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'integer',
                 ),
-                'order_by' => array(
+                'orderBy' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
@@ -6620,6 +7010,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -7199,6 +7593,26 @@ class Google_Service_Compute extends Google_Service
                   'type' => 'string',
                 ),
               ),
+            ),'applyUpdatesToInstances' => array(
+              'path' => '{project}/regions/{region}/instanceGroupManagers/{instanceGroupManager}/applyUpdatesToInstances',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'region' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instanceGroupManager' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
             ),'createInstances' => array(
               'path' => '{project}/regions/{region}/instanceGroupManagers/{instanceGroupManager}/createInstances',
               'httpMethod' => 'POST',
@@ -7341,6 +7755,42 @@ class Google_Service_Compute extends Google_Service
                   'type' => 'string',
                 ),
               ),
+            ),'listErrors' => array(
+              'path' => '{project}/regions/{region}/instanceGroupManagers/{instanceGroupManager}/listErrors',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'region' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'instanceGroupManager' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'maxResults' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'orderBy' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
             ),'listManagedInstances' => array(
               'path' => '{project}/regions/{region}/instanceGroupManagers/{instanceGroupManager}/listManagedInstances',
               'httpMethod' => 'POST',
@@ -7368,7 +7818,7 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'integer',
                 ),
-                'order_by' => array(
+                'orderBy' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
@@ -8354,6 +8804,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -8568,6 +9022,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -8757,6 +9215,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -9191,6 +9653,32 @@ class Google_Service_Compute extends Google_Service
                   'type' => 'string',
                 ),
               ),
+            ),'listPreconfiguredExpressionSets' => array(
+              'path' => '{project}/global/securityPolicies/listPreconfiguredExpressionSets',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'project' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'maxResults' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'orderBy' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
             ),'patch' => array(
               'path' => '{project}/global/securityPolicies/{securityPolicy}',
               'httpMethod' => 'PATCH',
@@ -9400,6 +9888,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -9639,6 +10131,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -9932,6 +10428,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -10060,6 +10560,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -10247,6 +10751,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -10424,6 +10932,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -10933,6 +11445,10 @@ class Google_Service_Compute extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
                 'maxResults' => array(
                   'location' => 'query',
                   'type' => 'integer',
@@ -11062,6 +11578,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -11244,6 +11764,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',
@@ -11438,6 +11962,10 @@ class Google_Service_Compute extends Google_Service
                 'filter' => array(
                   'location' => 'query',
                   'type' => 'string',
+                ),
+                'includeAllScopes' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
                 'maxResults' => array(
                   'location' => 'query',

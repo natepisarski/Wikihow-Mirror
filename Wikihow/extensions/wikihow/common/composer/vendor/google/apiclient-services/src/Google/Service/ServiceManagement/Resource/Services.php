@@ -26,8 +26,15 @@
 class Google_Service_ServiceManagement_Resource_Services extends Google_Service_Resource
 {
   /**
-   * Creates a new managed service. Please note one producer project can own no
-   * more than 20 services.
+   * Creates a new managed service.
+   *
+   * A managed service is immutable, and is subject to mandatory 30-day data
+   * retention. You cannot move a service or recreate it within 30 days after
+   * deletion.
+   *
+   * One producer project can own no more than 500 services. For security and
+   * reliability purposes, a production service should be hosted in a dedicated
+   * producer project.
    *
    * Operation (services.create)
    *
@@ -191,6 +198,8 @@ class Google_Service_ServiceManagement_Resource_Services extends Google_Service_
    *
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string producerProjectId Include services produced by the
+   * specified project.
    * @opt_param string consumerId Include services consumed by the specified
    * consumer.
    *
@@ -200,8 +209,6 @@ class Google_Service_ServiceManagement_Resource_Services extends Google_Service_
    * returned by a previous list call.
    * @opt_param int pageSize The max number of items to include in the response
    * list. Page size is 50 if not specified. Maximum value is 100.
-   * @opt_param string producerProjectId Include services produced by the
-   * specified project.
    * @return Google_Service_ServiceManagement_ListServicesResponse
    */
   public function listServices($optParams = array())

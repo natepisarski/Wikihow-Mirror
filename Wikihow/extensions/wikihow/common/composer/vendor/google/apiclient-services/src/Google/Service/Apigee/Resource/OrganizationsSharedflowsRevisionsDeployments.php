@@ -26,8 +26,8 @@
 class Google_Service_Apigee_Resource_OrganizationsSharedflowsRevisionsDeployments extends Google_Service_Resource
 {
   /**
-   * Lists all deployments of a shared flow and actual state reported by runtime
-   * pods. (deployments.listOrganizationsSharedflowsRevisionsDeployments)
+   * Lists all deployments of a shared flow revision.
+   * (deployments.listOrganizationsSharedflowsRevisionsDeployments)
    *
    * @param string $parent Required. Name of the API proxy revision for which to
    * return deployment information in the following format:

@@ -25,6 +25,8 @@ class Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2V
   protected $frameLabelAnnotationsType = 'Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2LabelAnnotation';
   protected $frameLabelAnnotationsDataType = 'array';
   public $inputUri;
+  protected $logoRecognitionAnnotationsType = 'Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2LogoRecognitionAnnotation';
+  protected $logoRecognitionAnnotationsDataType = 'array';
   protected $objectAnnotationsType = 'Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2ObjectTrackingAnnotation';
   protected $objectAnnotationsDataType = 'array';
   protected $segmentType = 'Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2VideoSegment';
@@ -93,6 +95,20 @@ class Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2V
   public function getInputUri()
   {
     return $this->inputUri;
+  }
+  /**
+   * @param Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2LogoRecognitionAnnotation
+   */
+  public function setLogoRecognitionAnnotations($logoRecognitionAnnotations)
+  {
+    $this->logoRecognitionAnnotations = $logoRecognitionAnnotations;
+  }
+  /**
+   * @return Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2LogoRecognitionAnnotation
+   */
+  public function getLogoRecognitionAnnotations()
+  {
+    return $this->logoRecognitionAnnotations;
   }
   /**
    * @param Google_Service_CloudVideoIntelligence_GoogleCloudVideointelligenceV1beta2ObjectTrackingAnnotation

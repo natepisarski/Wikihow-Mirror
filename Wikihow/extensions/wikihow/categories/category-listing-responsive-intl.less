@@ -1,0 +1,40 @@
+@import '../less/variables.less';
+
+.section_grid {
+	display: grid;
+	grid-gap: 10px;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+	.thumbnail {
+		float: none;
+
+		img {
+			vertical-align: middle;
+		}
+
+		div.text {
+			background-color: rgba(50,50,50,0.5);
+
+			&:hover {
+				background-color: #ffffff;
+			}
+
+			p {
+				font-size: 13px;
+				font-weight: bold;
+			}
+		}
+	}
+}
+
+@media @medium {
+	.section_grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+	}
+}
+
+@media @large {
+	.section_grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+	}
+}

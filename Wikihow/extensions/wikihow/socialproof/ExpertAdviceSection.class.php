@@ -12,15 +12,6 @@ class ExpertAdviceSection {
 
 			$vdata = $vdata[0];
 
-			//kinda dumb, but we need the image, so we have to call ANOTHER VerifyData function
-			//that gets pretty much the same data from a different table
-			$vInfo = VerifyData::getVerifierInfoById( $vdata->verifierId );
-
-			if ($vInfo->category == 'categ_community')
-				$avatar = Html::rawElement( 'div', ['class' => ['ar_initials', 'ar_initials_wh']] );
-			else
-				$avatar = SocialProofStats::getAvatarImageHtml( $vInfo, 'expert_advice_avatar' );
-
 			$loader = new Mustache_Loader_CascadingLoader( [
 				new Mustache_Loader_FilesystemLoader( __DIR__ . '/templates' )
 			] );
@@ -28,9 +19,7 @@ class ExpertAdviceSection {
 
 			$vars = [
 				'name' => $vdata->name,
-				'label' => $vdata->blurb,
-				'avatar' => $avatar,
-				'initials' => $vInfo->initials
+				'label' => $vdata->blurb
 			];
 
 			$html = $m->render('expert_advice_expert.mustache', $vars);
@@ -54,7 +43,7 @@ class ExpertAdviceSection {
 		if ($section_name == '') return;
 
 		$expertHtml = self::expertHtml( $out );
-		pq('#'.$section_name)->prepend($expertHtml);
+		pq('#'.$section_name)->append($expertHtml);
 		pq('#'.$section_name)->addClass('expert_advice_section');
 
 		//put above the Q&A section

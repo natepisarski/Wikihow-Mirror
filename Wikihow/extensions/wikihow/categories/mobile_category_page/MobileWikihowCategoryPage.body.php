@@ -12,6 +12,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 	const MAX_WATCH = 12;
 	const THUMB_WIDTH = 375;
 	const THUMB_HEIGHT = 250;
+	const MAX_NEW_PAGES = 12;
 
 	public function view() {
 		global $wgHooks;
@@ -54,6 +55,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$vars = [
 				'reverseURL' => $categoryTitle->getLocalURL('viewMode=text&rev=' . $oppSortDirection),
 				'categoryName' => $categoryName,
+				'reverse_order' => wfMessage('cat_reverse_order')->text(),
 				'articles' => []
 			];
 			$articles = $viewer->articles;
@@ -214,7 +216,12 @@ class MobileWikihowCategoryPage extends CategoryPage {
 				}
 			}
 
-			if ($pg == 1) $this->getVideoArticles($vars);
+			if ($pg == 1) {
+				$this->getVideoArticles($vars);
+				if($isTopCat) {
+					$this->getNewPages($vars, $categoryName);
+				}
+			}
 
 			$vars['covid_section'] = $this->covidSection();
 
@@ -359,7 +366,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$html = $prev.$next;
 
 		// set <head> links for SEO
-		if ($pg > 1) $out->setRobotPolicy('noindex');
+		if ($pg > 1) $out->setCanonicalUrl($out->getTitle()->getFullURL().'?pg='.$pg);
 		if ($pg == 2) {
 			$out->addHeadItem('prev_pagination','<link rel="prev" href="'.$wgCanonicalServer.$here.'" />');
 		}
@@ -423,8 +430,26 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		$this->getWatchArticles($vars);
 	}
 
+	private function getNewPages(&$vars, $categoryName) {
+		$pageIds = NewPages::getCategoryPageArticles($categoryName);
+
+		if(count($pageIds) == 0) return;
+
+		$vars['hasNewpages'] = true;
+		$vars['newpagesHeader'] = wfMessage('cat_newpages_header', $categoryName);
+		foreach ($pageIds as $id) {
+			$title = Title::newFromID($id);
+			if(!$title || !$title->exists()) continue;
+
+			$vars['newpages'][] = $this->getArticleThumbWithPathFromTitle($title);
+
+			if(count($vars['newpages']) >= self::MAX_NEW_PAGES) break;
+		}
+	}
+
 	private function covidSection(): string {
-		if ($this->getTitle()->getDBkey() != 'COVID-19') return '';
+		if ($this->getTitle()->getDBkey() != 'COVID-19' ||
+			$this->getTitle()->getPageLanguage()->getCode() != 'en') return '';
 
 		$vars = [
 			'header' => wfMessage('cat_covid_msg_header')->text(),

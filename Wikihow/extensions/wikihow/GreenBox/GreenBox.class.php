@@ -231,6 +231,10 @@ class GreenBox {
 			//add mobile class to mobile green boxes
 			if ($mobile) pq('.green_box')->addClass('mobile');
 
+			if(ArticleTagList::hasTag("greenbox_test", $out->getTitle()->getArticleID())) {
+				pq('.green_box:not(.expert)')->addClass('greenbox_test');
+			}
+
 			//use amp-img for AMP articles
 			foreach(pq('.green_box') as $green_box) {
 				$step = pq($green_box)->parents('.step');

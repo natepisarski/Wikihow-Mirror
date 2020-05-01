@@ -30,14 +30,12 @@
 .weather_unpatrolled {
 	float:right;
 	font-weight:bold;
-	/* @noflip */
 	padding-right: 25px;
 }
 
 .weather_nab{
 	float:right;
 	font-weight:bold;
-	/* @noflip */
 	padding-right: 25px;
 }
 

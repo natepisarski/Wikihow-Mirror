@@ -32,8 +32,8 @@ class Google_Service_Pubsub_Resource_ProjectsTopicsSnapshots extends Google_Serv
    * subscription to the state captured by a snapshot.
    * (snapshots.listProjectsTopicsSnapshots)
    *
-   * @param string $topic The name of the topic that snapshots are attached to.
-   * Format is `projects/{project}/topics/{topic}`.
+   * @param string $topic Required. The name of the topic that snapshots are
+   * attached to. Format is `projects/{project}/topics/{topic}`.
    * @param array $optParams Optional parameters.
    *
    * @opt_param string pageToken The value returned by the last

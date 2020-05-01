@@ -1492,6 +1492,7 @@ return [
 			'postedit-confirmation-saved',
 			'postedit-confirmation-published',
 		],
+		'targets' => [ 'desktop', 'mobile' ]
 	],
 	'mediawiki.action.view.redirect' => [
 		'scripts' => 'resources/src/mediawiki.action/mediawiki.action.view.redirect.js',

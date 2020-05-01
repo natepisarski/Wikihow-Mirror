@@ -118,7 +118,8 @@ class Google_Service_AccessContextManager_Resource_AccessPoliciesAccessLevels ex
    *
    * @param string $name Required. Resource name for the Access Level. The
    * `short_name` component must begin with a letter and only include alphanumeric
-   * and '_'. Format: `accessPolicies/{policy_id}/accessLevels/{short_name}`
+   * and '_'. Format: `accessPolicies/{policy_id}/accessLevels/{short_name}`. The
+   * maximum length of the `short_name` component is 50 characters.
    * @param Google_Service_AccessContextManager_AccessLevel $postBody
    * @param array $optParams Optional parameters.
    *
@@ -131,5 +132,29 @@ class Google_Service_AccessContextManager_Resource_AccessPoliciesAccessLevels ex
     $params = array('name' => $name, 'postBody' => $postBody);
     $params = array_merge($params, $optParams);
     return $this->call('patch', array($params), "Google_Service_AccessContextManager_Operation");
+  }
+  /**
+   * Replace all existing Access Levels in an Access Policy with the Access Levels
+   * provided. This is done atomically. The longrunning operation from this RPC
+   * will have a successful status once all replacements have propagated to long-
+   * lasting storage. Replacements containing errors will result in an error
+   * response for the first error encountered.  Replacement will be cancelled on
+   * error, existing Access Levels will not be affected. Operation.response field
+   * will contain ReplaceAccessLevelsResponse. Removing Access Levels contained in
+   * existing Service Perimeters will result in error. (accessLevels.replaceAll)
+   *
+   * @param string $parent Required. Resource name for the access policy which
+   * owns these Access Levels.
+   *
+   * Format: `accessPolicies/{policy_id}`
+   * @param Google_Service_AccessContextManager_ReplaceAccessLevelsRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_AccessContextManager_Operation
+   */
+  public function replaceAll($parent, Google_Service_AccessContextManager_ReplaceAccessLevelsRequest $postBody, $optParams = array())
+  {
+    $params = array('parent' => $parent, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('replaceAll', array($params), "Google_Service_AccessContextManager_Operation");
   }
 }

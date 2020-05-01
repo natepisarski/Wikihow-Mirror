@@ -321,7 +321,6 @@ class CategoryHelper extends UnlistedSpecialPage {
 			wfMessage("family-life")->text() => "Image:Category_family.jpg",
 			wfMessage("personal-care-and-style")->text() => "Image:Category_personal.jpg",
 			wfMessage("youth")->text() => "Image:Category_youth.jpg",
-			wfMessage("finance-and-legal")->text() => "Image:Category_finance.jpg",
 			wfMessage("finance-and-business")->text() => "Image:Category_finance.jpg",
 			wfMessage("pets-and-animals")->text() => "Image:Category_pets.jpg",
 			wfMessage("food-and-entertaining")->text() => "Image:Category_food.jpg",

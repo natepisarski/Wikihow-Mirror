@@ -619,6 +619,7 @@ class TitusConfig {
 			"RetranslationComplete" => 0,
 			"Photos" => 1,
 			"Featured" => 1,
+			"CategoryFeatured" => 1,
 			"RobotPolicy" => 1,
 			"RisingStar" => 1,
 			"Templates" => 1,
@@ -1483,7 +1484,7 @@ class TSSummarized extends TitusStat {
 
 	public function calc( $dbr, $r, $t, $pageRow ) {
 		$video = false;
-		$summary_position = '';
+		$summary_text = 0;
 
 		$text = Wikitext::getSummarizedSection( ContentHandler::getContentText( $r->getContent() ) );
 
@@ -1493,13 +1494,15 @@ class TSSummarized extends TitusStat {
 			}
 
 			$summary_data = SummarySection::summaryData($t->getText());
-			$summary_position = $summary_data['at_top'] ? 'top' : 'bottom';
+			if (!empty($summary_data['content'])) {
+				$summary_text = 1;
+			}
 		}
 
 		$result = array(
 			'ti_summary_video' => $video ? 1 : 0,
 			'ti_summarized' => $text ? 1 : 0,
-			'ti_summary_position' => $summary_position
+			'ti_summary_text' => $summary_text
 		);
 
 		return $result;
@@ -1594,6 +1597,20 @@ class TSVideoEvents extends TitusStat {
 			}
 		}
 		return $result;
+	}
+}
+
+/****
+ * ALTER TABLE titus_intl add column `ti_category_newpages` tinyint(1) unsigned NOT NULL DEFAULT '0' after ti_featured_date;
+ */
+class TSCategoryFeatured extends TitusStat {
+	public function getPageIdsToCalc( $dbr, $date ) {
+		return NewPages::getAllNewPagesOnCategoryPages();
+	}
+
+	public function calc( $dbr, $r, $t, $pageRow) {
+		//we know it's on a category page because the calc function ensures it
+		return ['ti_category_newpages' => 1];
 	}
 }
 

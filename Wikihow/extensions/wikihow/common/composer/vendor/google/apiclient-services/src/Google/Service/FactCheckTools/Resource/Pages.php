@@ -72,11 +72,6 @@ class Google_Service_FactCheckTools_Resource_Pages extends Google_Service_Resour
    *
    * @param array $optParams Optional parameters.
    *
-   * @opt_param int offset An integer that specifies the current offset (that is,
-   * starting result location) in search results. This field is only considered if
-   * `page_token` is unset, and if the request is not for a specific URL. For
-   * example, 0 means to return results starting from the first matching result,
-   * and 10 means to return from the 11th result.
    * @opt_param string pageToken The pagination token. You may provide the
    * `next_page_token` returned from a previous List request, if any, in order to
    * get the next page. All other fields must have the same values as in the
@@ -89,6 +84,11 @@ class Google_Service_FactCheckTools_Resource_Pages extends Google_Service_Resour
    * will be at most one result. If markup is associated with a more canonical
    * version of the URL provided, we will return that URL instead. Cannot be
    * specified along with an organization.
+   * @opt_param int offset An integer that specifies the current offset (that is,
+   * starting result location) in search results. This field is only considered if
+   * `page_token` is unset, and if the request is not for a specific URL. For
+   * example, 0 means to return results starting from the first matching result,
+   * and 10 means to return from the 11th result.
    * @return Google_Service_FactCheckTools_GoogleFactcheckingFactchecktoolsV1alpha1ListClaimReviewMarkupPagesResponse
    */
   public function listPages($optParams = array())

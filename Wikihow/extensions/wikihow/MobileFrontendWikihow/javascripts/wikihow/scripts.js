@@ -37,7 +37,7 @@ function initializeArticlePage() {
 
 
 	mw.loader.using('mediawiki.cookie', function() {
-		var adminTabEligible = mw.config.get('wgUserId') > 0;
+		var adminTabEligible = mw.config.get('wgUserId') > 0 && mw.config.get('wgPageContentLanguage') == "en";
 		if ($(window).width() < WH.mediumScreenMinWidth && adminTabEligible && mw.cookie.get('showtabs') == '1') {
 			$("#actionbar").addClass("forcetabs");
 		}

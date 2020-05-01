@@ -360,7 +360,7 @@
 	display: block;
 	line-height: 1.7em;
 	background-repeat: no-repeat;
-	background-position: 10px;
+	background-position: left 10px bottom 50%;
 	background-size: 20px 20px;
 	padding: 6px 0 6px 40px;
 	margin: 0;
@@ -766,6 +766,9 @@
 #top-sidebar {
 	background-color: #4E4E4E;
 }
+.rtl #top-sidebar {
+	padding-right: 10px;
+}
 #top-sidebar ul:first-child {
 	margin-top: 0;
 }
@@ -955,6 +958,14 @@ p.green_box_bullet {
 }
 .green_box_expert_dialog { display: none; }
 
+.green_box.mobile.greenbox_test {
+	background: #f7f7f7 url('/extensions/wikihow/homepage/images/mag.png') no-repeat 15px 15px/17px;
+	border-left: none;
+	margin-left: 10px;
+	width: 97%;
+	padding-left: 44px;
+}
+
 .unnabbed_alert_top,
 .unnabbed_alert {
 	display: none;
@@ -980,18 +991,14 @@ p.green_box_bullet {
 	top: -88px;
 }
 
-.expert_advice_section .ar_avatar,
-.expert_advice_section .ar_initials {
-	width: 50px;
-	height: 50px;
-	float: left;
-	margin-right: 10px;
-	position: static;
+.expert_advice_info {
+	border-top: 1px solid #eaecf0;
+	padding-top: 10px;
+	font-size: 12px;
 }
 
-.expert_advice_section .ar_initials {
-	box-sizing: border-box;
-	line-height: 2.1em;
+.expert_advice_info .expert_advice_label {
+	color: #808080;
 }
 
 .expert_advice_section ul {
@@ -1000,11 +1007,11 @@ p.green_box_bullet {
 
 .expert_advice_section li:before {
 	content: '';
-	width: 18px;
-	height: 18px;
+	width: 10px;
+	height: 10px;
 	position: absolute;
-	background: url(/extensions/wikihow/WikihowLogin/images/check.svg) center / cover no-repeat;
-	margin: 3px 0 0 -25px;
+	background: #93B874;
+	margin: 5px 0 0 -16px;
 }
 #expertqampa li:before {
 	background-image: url(/extensions/wikihow/socialproof/star_circle.svg);
@@ -1175,6 +1182,7 @@ p.green_box_bullet {
 
 .reference {
 	position: static;
+	color: #307530;
 }
 
 .step {

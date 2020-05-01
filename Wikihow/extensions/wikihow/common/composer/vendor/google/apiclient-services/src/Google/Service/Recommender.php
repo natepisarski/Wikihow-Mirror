@@ -34,6 +34,7 @@ class Google_Service_Recommender extends Google_Service
   const CLOUD_PLATFORM =
       "https://www.googleapis.com/auth/cloud-platform";
 
+  public $projects_locations_insightTypes_insights;
   public $projects_locations_recommenders_recommendations;
   
   /**
@@ -51,6 +52,58 @@ class Google_Service_Recommender extends Google_Service
     $this->version = 'v1beta1';
     $this->serviceName = 'recommender';
 
+    $this->projects_locations_insightTypes_insights = new Google_Service_Recommender_Resource_ProjectsLocationsInsightTypesInsights(
+        $this,
+        $this->serviceName,
+        'insights',
+        array(
+          'methods' => array(
+            'get' => array(
+              'path' => 'v1beta1/{+name}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
+              'path' => 'v1beta1/{+parent}/insights',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'parent' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'pageSize' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+              ),
+            ),'markAccepted' => array(
+              'path' => 'v1beta1/{+name}:markAccepted',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'name' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),
+          )
+        )
+    );
     $this->projects_locations_recommenders_recommendations = new Google_Service_Recommender_Resource_ProjectsLocationsRecommendersRecommendations(
         $this,
         $this->serviceName,

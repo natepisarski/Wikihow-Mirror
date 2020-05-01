@@ -57,22 +57,14 @@ class WikihowToc {
 	}
 
 	public static function setSummaryVideo($isYoutube = false) {
-		global $wgTitle;
-
-		if($isYoutube && WHVid::isYtSummaryArticle($wgTitle)) {
-			$url = "#".wfMessage('videoheader')->text();
-		} elseif (!$isYoutube) {
-			$url = '#quick_summary_section';
-		} else {
-			return;
-		}
+		$anchor = '#'.WHVid::getVideoAnchor( RequestContext::getMain()->getTitle() );
 
 		self::$videoSummary = [
-			'url' => $url,
+			'url' => $anchor,
 			'id' => 'summaryvideo_toc',
 			'icon' => 'summaryvideo_icon',
 			'text' => wfMessage('summaryvideo_toc')->text(),
-			'section' => $url
+			'section' => $anchor
 		];
 	}
 
@@ -80,17 +72,12 @@ class WikihowToc {
 		$main = RequestContext::getMain();
 		$user = $main->getUser();
 		$title = $main->getTitle();
-		$languageCode = $main->getLanguage()->getCode();
 
 		if (!$title->exists() || $title->isRedirect() || !$title->inNamespace(NS_MAIN) || (!$user->isLoggedIn() && !RobotPolicy::isIndexable($title))) {
 			return false;
 		}
 
-		if ($languageCode == "en" || $languageCode == "qqx") {
-			return true;
-		} else {
-			return false;
-		}
+		return true;
 	}
 
 	public static function setQandA(array $articleQuestions) {
@@ -285,7 +272,7 @@ class WikihowToc {
 			$primaryCount++;
 		}
 
-		if ($isNewArticle) {
+		if(self::isNewArticle()) {
 			$secondaryShown = self::MAX_ITEMS - $primaryCount;
 
 			//first deal with priority of the elements
@@ -293,14 +280,14 @@ class WikihowToc {
 			$tocIgnoreClass = " toc_ignore";
 			$tocPost = " toc_post";
 
-			if(self::$ingredients != null) {
+			if (self::$ingredients != null) {
 				if ($count < $secondaryShown) {
 					$count++;
 				} else {
 					self::$ingredients['class'] .= $tocIgnoreClass;
 				}
 			}
-			if(self::$references != null) {
+			if (self::$references != null) {
 				self::$references['class'] .= $tocPost;
 				if ($count < $secondaryShown) {
 					$count++;
@@ -308,7 +295,7 @@ class WikihowToc {
 					self::$references['class'] .= $tocIgnoreClass;
 				}
 			}
-			if(self::$summary != null) {
+			if (self::$summary != null) {
 				self::$summary['class'] .= $tocPost;
 				if ($count < $secondaryShown) {
 					$count++;
@@ -316,7 +303,7 @@ class WikihowToc {
 					self::$summary['class'] .= $tocIgnoreClass;
 				}
 			}
-			if(self::$videoSummary != null) {
+			if (self::$videoSummary != null) {
 				self::$videoSummary['class'] .= $tocPost;
 				if ($count < $secondaryShown) {
 					$count++;
@@ -325,7 +312,7 @@ class WikihowToc {
 				}
 			}
 			self::$expertAdvice = self::getExpertAdvice();
-			if ( self::$expertAdvice ) {
+			if (self::$expertAdvice) {
 				self::$expertAdvice['class'] .= $tocPost;
 				if ($count < $secondaryShown) {
 					$count++;
@@ -333,7 +320,7 @@ class WikihowToc {
 					self::$expertAdvice['class'] .= $tocIgnoreClass;
 				}
 			}
-			if(self::$qanda != null && !self::$expertAdvice && self::$hasAnswers) {
+			if (self::$qanda != null && !self::$expertAdvice && self::$hasAnswers) {
 				self::$qanda['class'] .= $tocPost;
 				if ($count < $secondaryShown) {
 					$count++;
@@ -347,7 +334,7 @@ class WikihowToc {
 			} else {
 				self::$relatedwHs['class'] .= $tocIgnoreClass;
 			}
-			if(self::$tipsandwarnings != null) {
+			if (self::$tipsandwarnings != null) {
 				self::$tipsandwarnings['class'] .= $tocPost;
 				if ($count < $secondaryShown) {
 					$count++;
@@ -355,9 +342,9 @@ class WikihowToc {
 					self::$tipsandwarnings['class'] .= $tocIgnoreClass;
 				}
 			}
-			if(self::$thingsyoullneed != null) {
+			if (self::$thingsyoullneed != null) {
 				self::$thingsyoullneed['class'] .= $tocPost;
-				if($count < $secondaryShown) {
+				if ($count < $secondaryShown) {
 					$count++;
 				} else {
 					self::$thingsyoullneed['class'] .= $tocIgnoreClass;
@@ -365,7 +352,7 @@ class WikihowToc {
 			}
 
 			//now put them in order
-			if(self::$ingredients != null) {
+			if (self::$ingredients != null) {
 				//goes before steps
 				$data['toc'] = array_merge([self::$ingredients], $data['toc']);
 			}
@@ -380,13 +367,13 @@ class WikihowToc {
 			if (self::$videoSummary != null) {
 				$data['toc'][] = self::$videoSummary;
 			}
-			if(self::$tipsandwarnings != null && !self::$thingsyoullneedIsFirst) {
+			if (self::$tipsandwarnings != null && !self::$thingsyoullneedIsFirst) {
 				$data['toc'][] = self::$tipsandwarnings;
 			}
-			if(self::$thingsyoullneed != null) {
+			if (self::$thingsyoullneed != null) {
 				$data['toc'][] = self::$thingsyoullneed;
 			}
-			if(self::$tipsandwarnings != null && self::$thingsyoullneedIsFirst) {
+			if (self::$tipsandwarnings != null && self::$thingsyoullneedIsFirst) {
 				$data['toc'][] = self::$tipsandwarnings;
 			}
 			//related wHs
@@ -403,7 +390,14 @@ class WikihowToc {
 			}
 		}
 
-		$data['title'] = wfMessage('title_toc')->text();
+		if(RequestContext::getMain()->getLanguage()->getCode() != "en") {
+			$data['toc_class'] = "intl_toc";
+			$data['isIntl'] = 1;
+			$data['title'] = wfMessage('toc_title')->text();
+
+		} else {
+			$data['title'] = wfMessage('title_toc')->text();
+		}
 
 		$html = self::renderTemplate('mobile_toc.mustache', $data);
 

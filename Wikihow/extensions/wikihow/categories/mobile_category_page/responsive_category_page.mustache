@@ -83,6 +83,19 @@
 	{{/hasSubcats}}
 	<div class="clearall"></div>
 </div>
+
+{{#hasNewpages}}
+	<div class="cat_section" id="cat_newpages">
+		<h2>{{newpagesHeader}}</h2>
+		<div class="cat_grid">
+			{{#newpages}}
+				{{> responsive_thumb.mustache}}
+			{{/newpages}}
+		</div>
+		<div class="clearall"></div>
+	</div>
+{{/hasNewpages}}
+
 {{#furtherEditing}}
 	<div class="cat_section" id="cat_furtherediting">
 		{{{furtherEditing}}}

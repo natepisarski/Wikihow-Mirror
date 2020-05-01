@@ -23,14 +23,18 @@ class GoogleDoc {
 			'parents' => [ $this->folderId ],
 			'mimeType' => 'application/vnd.google-apps.document'
 		]);
-		$reqParams = ['fields' => 'id,name,description,webViewLink'];
+		$reqParams = [
+			'fields' => 'id,name,description,webViewLink',
+			'enforceSingleParent' => true,
+		];
 		$file = $this->service->files->create($fileMeta, $reqParams);
 
 		$perm = new \Google_Service_Drive_Permission([
 			'type' => 'anyone',
 			'role' => 'commenter',
 		]);
-		$res = $this->service->permissions->create($file->id, $perm);
+		$optParams = [ 'enforceSingleParent' => true ];
+		$res = $this->service->permissions->create($file->id, $perm, $optParams);
 
 		return $file;
 	}

@@ -26,10 +26,6 @@ class WikihowMobileTools {
 	static function processDom($text, $skin, $config = null, $mobileTemplate = null ) {
 		global $wgLanguageCode, $wgTitle, $wgMFDeviceWidthMobileSmall, $IP, $wgUser, $wgContLang;
 
-		// Trevor, 5/22 - Used later on to add structred data to inline summary videos, must be
-		// called here due to mysterious issue with calling it later to be solved in the future
-		$videoSchema = SchemaMarkup::getVideo( $wgTitle );
-
 		if (is_null($config)) {
 			$config = self::getDefaultArticleConfig();
 		}
@@ -51,6 +47,9 @@ class WikihowMobileTools {
 		}
 
 		$showHighDPI = self::isHighDPI($docTitle);
+
+		$pageId = $wgTitle->getArticleID();
+		$isAnon = $wgUser->isAnon();
 
 		//move firstHeading to inside the intro
 		$firstH2 = pq("h2:first");
@@ -214,13 +213,16 @@ class WikihowMobileTools {
 						if (!$isSample[$i] && $docTitle->inNamespace(NS_MAIN)) {
 							$method_of = wfMessage('of')->text();
 							$methodPrefix = $hasParts ? wfMessage('part')->text() : wfMessage('method')->text();
-							$methodPrefix .= " <span>{$displayMethod}</span>" .
-								"<span class='method_of_count'> $method_of $displayMethodCount:</span>";
+							$altBlockInner = $methodPrefix . ' ' .
+								Html::rawElement('span', [], $displayMethod) .
+								Html::rawElement('span', ['class' => 'method_of_count'], ' '.$method_of.' '.$displayMethodCount.':');
+
+							$altBlockHtml = Html::rawElement('div', [], $altBlockInner);
 							$displayMethod++;
 						}
 
 						if (!$isSample[$i] && $wgTitle->inNamespace(NS_MAIN)) {
-							pq(".altblock", $h3Tags[$i])->html($methodPrefix);
+							pq(".altblock", $h3Tags[$i])->html($altBlockHtml);
 						} else {
 							pq(".altblock", $h3Tags[$i])->remove();
 						}
@@ -502,144 +504,7 @@ class WikihowMobileTools {
 			pq($anchor)->parent()->prepend($anchor);
 		}
 
-		$imageCreators = array();
-		$pageId = $wgTitle->getArticleID();
-
-		$imageLicensesOriginal = self::getImageLicenses( $pageId );
-
-		//deal with swapping out all images for tablet
-		//and putting in the right size image
-		foreach (pq(".mwimg a") as $a) {
-			$img = pq($a)->find('img');
-			$originalSrc = $img->attr('src');
-			//get original info
-			$srcWidth = pq($img)->attr("width");
-			$srcHeight = pq($img)->attr("height");
-
-			if ($srcWidth == 0 ) {
-				continue;
-			}
-
-			// Decode image if the translation of image has encoded characters.
-			// Fix for alignment issues for images with apostrophes in the name: decode all image names
-			$title = Title::newFromText(urldecode(substr(pq($a)->attr('href'),1)), NS_IMAGE);
-
-			$imageObj = RepoGroup::singleton()->findFile($title);
-			if ($imageObj && $imageObj->exists()) {
-				$imageCreators[$imageObj->getUser( 'text' )] = $title;
-				//get the mobile sized image
-				$smallWidth = 460; //we've chosed this as our max image size on mobile devices
-				$smallHeight = round($smallWidth*$srcHeight/$srcWidth, 0);
-				$smallQuality = self::getImageQuality($wgTitle);
-				list($thumb_small, $newWidth, $newHeight) =
-					self::makeThumbDPI($imageObj, $smallWidth, $smallHeight, false, $pageId, $smallQuality);
-				$smallSrc = wfGetPad( $thumb_small->getUrl() );
-				pq($img)->attr( 'src', $smallSrc );
-
-				//we actually need to remove these fields, not just empty them b/c IE on mobile sets them to 1 if they're empty
-				pq($img)->removeAttr('width', '');
-				pq($img)->removeAttr('height', '');
-
-				//make a srcset value
-				$bigWidth = 760; //optimized for iPad in portrait mode
-				$bigHeight = $bigWidth*$srcHeight/$srcWidth;
-				$bigQuality = self::getImageQuality($wgTitle);
-				list($thumb_big, $newWidth, $newHeight) =
-					self::makeThumbDPI($imageObj, $bigWidth, $bigHeight, false, $pageId, $bigQuality);
-				$url = wfGetPad($thumb_big->getUrl());
-
-				if ( $amp ) {
-					pq('.m-video-controls')->remove();
-					// get the video url and remove the existing <video> element
-					$video = pq( $a )->parents( '.mwimg:first' )->find( '.m-video:first');
-					if ( $video->length > 0 ) {
-						$ampVideo = GoogleAmp::getAmpVideo( $video, $summaryIntroHeadingText );
-						pq( $a )->replaceWith( $ampVideo );
-					} else {
-						$srcSet = $smallSrc. " " . $smallWidth . "w, ";
-						$srcSet .= $url. " " . $bigWidth . "w";
-						$layout = "responsive";
-						if ( pq($img)->parents( '.techicon' )->length > 0 ) {
-							//for the techicon template
-							$smallHeight = 30;
-							$smallWidth = round($smallHeight*$srcWidth/$srcHeight, 0);
-							$srcSet = null;
-							$layout = "fixed";
-						}
-						$ampImg = GoogleAmp::getAmpArticleImg( $smallSrc, $smallWidth, $smallHeight, $srcSet, $layout );
-						pq( $a )->replaceWith( $ampImg );
-					}
-					continue;
-				}
-
-				$thumb_ss = $url;
-				pq($img)->attr("data-srclarge", $originalSrc);
-				// need to add microtime to handle the editor overlays so there aren't 2 images with the same id on the page
-				$thumb_id = md5(pq($img)->attr("src") . microtime());
-				pq($img)->attr("id", $thumb_id);
-
-				// We include the local URL here as part of the hash ref for 2 reasons:
-				// (1) Using a bare "#" makes it so that clicking on an image before the
-				//     mobileslideshow.js loads makes the page jump to the top of browser
-				//     window -- definitely not what user was intending!
-				// (2) At some point in the future, we can use this hash ref to load the
-				//     image that the user wanted, after the right libraries are present.
-				pq($a)->attr("href", "#" . $title->getLocalURL());
-
-				$details = array(
-					'smallUrl' => pq($a)->find("img")->attr("src"),
-					'bigUrl' => $url,
-					'smallWidth' => $smallWidth,
-					'smallHeight' => $smallHeight,
-					'bigWidth' => $bigWidth,
-					'bigHeight' => $bigHeight,
-				);
-
-				// set the widths and height on the img for use in js to have placeholder space
-				$img->attr( 'data-width', $smallWidth );
-				$img->attr( 'data-height', $smallHeight );
-
-				if ($showHighDPI) {
-					//get all the info for retina images
-					list($retina_small, $newWidth, $newHeight) =
-						self::makeThumbDPI($imageObj, $smallWidth, $smallHeight, true, $pageId);
-					list($retina_big, $newWidth, $newHeight) =
-						self::makeThumbDPI($imageObj, $bigWidth, $bigHeight, true, $pageId);
-
-					$retinaSmallUrl = wfGetPad($retina_small->getUrl());
-					$retinaBigUrl = wfGetPad($retina_big->getUrl());
-
-					$details['retinaSmall'] = $retinaSmallUrl;
-					$details['retinaBig'] = $retinaBigUrl;
-
-					$thumb_rs = $retinaSmallUrl.' '.$bigWidth.'w';
-					$thumb_rb = $retinaBigUrl.' '.$bigWidth.'w';
-
-					pq($img)->attr("retsmallset", $thumb_rs);
-					pq($img)->attr("retbigset", $thumb_rb);
-				}
-
-				$licenseInfo = self::getImageLicenseInfo( $title, $imageLicensesOriginal, $imageObj );
-				$details['licensing'] = $licenseInfo;
-				$imageLicenses[$title->getArticleID()] = $licenseInfo;
-
-				if ( $wgUser->isLoggedIn() ) {
-					$details['instructions'] .= wfMessage( 'image_instructions', $title->getFullText() )->text();
-				}
-
-				$details = htmlentities( json_encode( $details ) );
-				$detailsInner = Html::rawElement( 'span', ['style' => 'display:none;'],  $details );
-				$detailsAttr = ['class' => 'image_details', 'style' => 'display:none;'];
-				$imageDetailsHtml = Html::rawElement( 'div', $detailsAttr, $detailsInner );
-
-				pq($a)->append( $imageDetailsHtml );
-			}
-		}
-
-		// now save the image license info if it has changed
-		if ( $imageLicenses != $imageLicensesOriginal ) {
-			self::saveImageLicenses( $pageId, $imageLicenses );
-		}
+		self::formatArticleImages( $pageId, $amp, $summaryIntroHeadingText );
 
 		// Remove logged in templates for logged out users so that they don't display
 		if ($skin->getUser()->isAnon()) {
@@ -862,6 +727,7 @@ class WikihowMobileTools {
 					pq('.mw-headline', $summarySection)->html(wfMessage('qs_video_title')->text() . ": " . $titleText);
 
 					// Add structured data
+					$videoSchema = SchemaMarkup::getVideo( $wgTitle );
 					if ( $videoSchema ) {
 						pq('video', $summarySection)->after( SchemaMarkup::getSchemaTag( $videoSchema ) );
 					}
@@ -1110,6 +976,117 @@ class WikihowMobileTools {
 		return $html;
 	}
 
+	// format the article images in modfyDom
+	private static function formatArticleImages( $pageId, $amp, $summaryIntroHeadingText ) {
+		global $wgUser;
+
+		$imageLicensesOriginal = self::getImageLicenses( $pageId );
+		$imageLicenses = [];
+
+		$imageQuality = self::getImageQuality();
+
+		$articleImages = pq( '.mwimg img' );
+
+		foreach ( $articleImages as $img ) {
+			$originalSrc = $img->getAttribute('src');
+			$img->setAttribute("data-srclarge", $originalSrc);
+
+			//get original info
+			$srcWidth = $img->getAttribute("width");
+			$img->removeAttribute('width');
+			if ($srcWidth == 0 ) {
+				continue;
+			}
+			$srcHeight = $img->getAttribute("height");
+			$img->removeAttribute('height');
+
+			$imgRatio = $srcHeight / $srcWidth;
+			$smallWidth = 460;
+			$smallHeight = round( $smallWidth * $imgRatio, 0 );
+
+			// set the widths and height on the img for use in js to have placeholder space
+			$img->setAttribute( 'data-width', $smallWidth );
+			$img->setAttribute( 'data-height', $smallHeight );
+
+			// Decode image if the translation of image has encoded characters.
+			// Fix for alignment issues for images with apostrophes in the name: decode all image names
+			$a = pq( $img )->parent();
+			$imageTitle = Title::newFromText(urldecode(substr($a->attr('href'),1)), NS_IMAGE);
+			$imageObj = RepoGroup::singleton()->findFile( $imageTitle );
+			if ( !$imageObj || !$imageObj->exists() ) {
+				continue;
+			}
+
+			list($thumb_small, $newWidth, $newHeight) =
+				self::makeThumbDPI($imageObj, $smallWidth, $smallHeight, false, $pageId, $imageQuality);
+			$smallSrc = wfGetPad( $thumb_small->getUrl() );
+			$img->setAttribute( 'src', $smallSrc );
+
+			if ( $amp ) {
+				pq('.m-video-controls')->remove();
+				// get the video url and remove the existing <video> element
+				$video = $a->parents( '.mwimg:first' )->find( '.m-video:first');
+				if ( $video->length > 0 ) {
+					$ampVideo = GoogleAmp::getAmpVideo( $video, $summaryIntroHeadingText );
+					$a->replaceWith( $ampVideo );
+				} else {
+					$srcSet = $smallSrc. " " . $smallWidth . "w, ";
+					$srcSet .= $originalSrc. " " . $srcWidth . "w";
+					$layout = "responsive";
+					if ( pq($img)->parents( '.techicon' )->length > 0 ) {
+						//for the techicon template
+						$smallHeight = 30;
+						$smallWidth = round($smallHeight*$srcWidth/$srcHeight, 0);
+						$srcSet = null;
+						$layout = "fixed";
+					}
+					$ampImg = GoogleAmp::getAmpArticleImg( $smallSrc, $smallWidth, $smallHeight, $srcSet, $layout );
+					$a->replaceWith( $ampImg );
+				}
+				continue;
+			}
+
+			// add microtime to handle the editor overlays so there aren't 2 images with the same id on the page
+			$thumb_id = md5( $img->getAttribute( "src" ) . microtime() );
+			$img->setAttribute( "id", $thumb_id );
+
+			// We include the local URL here as part of the hash ref for 2 reasons:
+			// (1) Using a bare "#" makes it so that clicking on an image before the
+			//     mobileslideshow.js loads makes the page jump to the top of browser
+			//     window -- definitely not what user was intending!
+			// (2) At some point in the future, we can use this hash ref to load the
+			//     image that the user wanted, after the right libraries are present.
+			$a->attr("href", "#" . $imageTitle->getLocalURL() );
+
+			$licenseInfo = self::getImageLicenseInfo( $imageTitle, $imageLicensesOriginal, $imageObj );
+			$imageLicenses[$imageTitle->getArticleID()] = $licenseInfo;
+
+			$details = array(
+				'smallUrl' => $smallSrc,
+				'bigUrl' => $originalSrc,
+				'smallWidth' => $smallWidth,
+				'smallHeight' => $smallHeight,
+				'bigWidth' => $srcWidth,
+				'bigHeight' => $srcHeight,
+				'licensing' => $licenseInfo,
+			);
+			if ( !$wgUser->isAnon() ) {
+				$details['instructions'] .= wfMessage( 'image_instructions', $imageTitle->getFullText() )->text();
+			}
+
+			$details = htmlentities( json_encode( $details ) );
+			$detailsInner = Html::rawElement( 'span', ['style' => 'display:none;'],  $details );
+			$detailsAttr = ['class' => 'image_details', 'style' => 'display:none;'];
+			$imageDetailsHtml = Html::rawElement( 'div', $detailsAttr, $detailsInner );
+
+			$a->append( $imageDetailsHtml );
+		}
+
+		// now save the image license info if it has changed
+		if ( $imageLicenses != $imageLicensesOriginal ) {
+			self::saveImageLicenses( $pageId, $imageLicenses );
+		}
+	}
 	// gets list of licences on this page from memcached since it is very expensive to recompute
 	// if not in memcached just return empty array and it will be recalculated later
 	private static function getImageLicenses( $pageId ) {
@@ -1484,7 +1461,7 @@ class WikihowMobileTools {
 	 *
 	 * @todo expand with more parameters?
 	 */
-	public static function getImageQuality($title) {
+	public static function getImageQuality() {
 		global $wgRequest;
 
 		$quality = $wgRequest->getIntOrNull('imgquality');
@@ -1786,12 +1763,13 @@ class WikihowMobileTools {
 
 		// these for now are used for ids and class names below but that should be changed to just english strings
 		$refMsg = wfMessage( 'references' )->text();
-		$refLowerCase = strtolower( $refMsg );
+		$refMsgForId = Sanitizer::escapeIdForAttribute( $refMsg );
+		$refLowerCase = strtolower( $refMsgForId );
 
 		// create the first section
 		// TODO all these classes are not needed eventually
 		$sectionHeadingInner = Html::element( 'div', ['class' => 'mw-ui-icon mw-ui-icon-element indicator', 'id' => 'references_first'] );
-		$sectionHeadingInner .= Html::element( 'span', ['class' => 'mw-headline', 'id' => $refMsg], $refMsg );
+		$sectionHeadingInner .= Html::element( 'span', ['class' => 'mw-headline', 'id' => $refMsgForId], $refMsg );
 		$sectionHeading = Html::rawElement( "h2", ['class' => 'section-heading'], $sectionHeadingInner );
 
 		$refsFirst = array_slice( $refsList, 0, 9 );

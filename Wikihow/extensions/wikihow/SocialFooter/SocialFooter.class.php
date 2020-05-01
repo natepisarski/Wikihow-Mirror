@@ -19,7 +19,8 @@ class SocialFooter {
 
 		$vars = [
 			'mobile' => Misc::isMobileMode(),
-			'icons' => self::iconData()
+			'icons' => self::iconData(),
+			'followus' => wfMessage('followus')->text()
 		];
 
 		return $m->render('social_footer', $vars);

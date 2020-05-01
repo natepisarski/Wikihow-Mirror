@@ -14,3 +14,13 @@ $wgSpecialPages['ReindexedPages'] = 'ReindexedPages';
 $wgAutoloadClasses['ReindexedPages'] = __DIR__ . '/ReindexedPages.body.php';
 $wgExtensionMessagesFiles['ReindexedPages'] = __DIR__ . '/ReindexedPages.i18n.php';
 $wgExtensionMessagesFiles['ReindexedPagesdAliases'] = __DIR__ . '/ReindexedPages.alias.php';
+
+$wgResourceModules['wikihow.reindexedpages.styles'] = [
+	'styles' => [
+		'reindexedpages.less',
+	],
+	'position' => 'top',
+	'localBasePath' => __DIR__ ,
+	'remoteExtPath' => 'wikihow/ReindexedPages',
+	'targets' => ['mobile', 'desktop'],
+];

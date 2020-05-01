@@ -4,8 +4,7 @@
 	window.WH.SocialFooter = {
 		addHandlers: function() {
 			$('#sf .sf_icon').click(function() {
-				var event = $(this).attr('id')+'_click';
-				WH.maEvent(event, {category:'social_footer'});
+				WH.event('all_footer_social_links_click_go_em', { type: $(this).attr('title') } );
 			});
 		}
 	};

@@ -91,10 +91,6 @@ class Google_Service_Clouderrorreporting extends Google_Service
                   'type' => 'string',
                   'required' => true,
                 ),
-                'serviceFilter.version' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                ),
                 'serviceFilter.resourceType' => array(
                   'location' => 'query',
                   'type' => 'string',
@@ -118,6 +114,10 @@ class Google_Service_Clouderrorreporting extends Google_Service
                 'pageSize' => array(
                   'location' => 'query',
                   'type' => 'integer',
+                ),
+                'serviceFilter.version' => array(
+                  'location' => 'query',
+                  'type' => 'string',
                 ),
               ),
             ),'report' => array(
@@ -149,6 +149,10 @@ class Google_Service_Clouderrorreporting extends Google_Service
                   'type' => 'string',
                   'required' => true,
                 ),
+                'alignment' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
                 'groupId' => array(
                   'location' => 'query',
                   'type' => 'string',
@@ -162,11 +166,11 @@ class Google_Service_Clouderrorreporting extends Google_Service
                   'location' => 'query',
                   'type' => 'integer',
                 ),
-                'serviceFilter.version' => array(
+                'order' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
-                'order' => array(
+                'serviceFilter.version' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
@@ -187,10 +191,6 @@ class Google_Service_Clouderrorreporting extends Google_Service
                   'type' => 'string',
                 ),
                 'timeRange.period' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                ),
-                'alignment' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),

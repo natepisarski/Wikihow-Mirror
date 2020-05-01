@@ -105,7 +105,7 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsHl7V2Stor
    *
    * Fields/functions available for filtering are:
    *
-   * *  `message_type`, from the MSH-9 segment. For example, `NOT message_type =
+   * *  `message_type`, from the MSH-9.1 field. For example, `NOT message_type =
    * "ADT"`. *  `send_date` or `sendDate`, the YYYY-MM-DD date the message was
    * sent in the dataset's time_zone, from the MSH-7 segment. For example,
    * `send_date < "2017-01-02"`. *  `send_time`, the timestamp when the message
@@ -119,21 +119,14 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsHl7V2Stor
    * key `x` as set using the Message.labels map. For example,
    * `labels."priority"="high"`. The operator `:*` can be used to assert the
    * existence of a label. For example, `labels."priority":*`.
-   *
-   * Limitations on conjunctions:
-   *
-   * *  Negation on the patient ID function or the labels field is not supported.
-   * For example, these queries are invalid: `NOT PatientId("123456", "MRN")`,
-   * `NOT labels."tag1":*`, `NOT labels."tag2"="val2"`. *  Conjunction of multiple
-   * patient ID functions is not supported, for example this query is invalid:
-   * `PatientId("123456", "MRN") AND PatientId("456789", "MRN")`. *  Conjunction
-   * of multiple labels fields is also not supported, for example this query is
-   * invalid: `labels."tag1":* AND labels."tag2"="val2"`. *  Conjunction of one
-   * patient ID function, one labels field and conditions on other fields is
-   * supported. For example, this query is valid: `PatientId("123456", "MRN") AND
-   * labels."tag1":* AND message_type = "ADT"`.
    * @opt_param string pageToken The next_page_token value returned from the
    * previous List request, if any.
+   * @opt_param int pageSize Limit on the number of messages to return in a single
+   * response. If zero the default page size of 100 is used.
+   * @opt_param string view Specifies the parts of the Message to return in the
+   * response. When unspecified, equivalent to BASIC. Setting this to anything
+   * other than BASIC with a `page_size` larger than the default can generate a
+   * large response, which impacts the performance of this method.
    * @opt_param string orderBy Orders messages returned by the specified order_by
    * clause. Syntax:
    * https://cloud.google.com/apis/design/design_patterns#sorting_order
@@ -141,8 +134,6 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsHl7V2Stor
    * Fields available for ordering are:
    *
    * *  `send_time`
-   * @opt_param int pageSize Limit on the number of messages to return in a single
-   * response. If zero the default page size of 100 is used.
    * @return Google_Service_CloudHealthcare_ListMessagesResponse
    */
   public function listProjectsLocationsDatasetsHl7V2StoresMessages($parent, $optParams = array())

@@ -33,6 +33,8 @@ class Google_Service_Compute_AttachedDisk extends Google_Collection
   public $kind;
   public $licenses;
   public $mode;
+  protected $shieldedInstanceInitialStateType = 'Google_Service_Compute_InitialStateConfig';
+  protected $shieldedInstanceInitialStateDataType = '';
   public $source;
   public $type;
 
@@ -149,6 +151,20 @@ class Google_Service_Compute_AttachedDisk extends Google_Collection
   public function getMode()
   {
     return $this->mode;
+  }
+  /**
+   * @param Google_Service_Compute_InitialStateConfig
+   */
+  public function setShieldedInstanceInitialState(Google_Service_Compute_InitialStateConfig $shieldedInstanceInitialState)
+  {
+    $this->shieldedInstanceInitialState = $shieldedInstanceInitialState;
+  }
+  /**
+   * @return Google_Service_Compute_InitialStateConfig
+   */
+  public function getShieldedInstanceInitialState()
+  {
+    return $this->shieldedInstanceInitialState;
   }
   public function setSource($source)
   {

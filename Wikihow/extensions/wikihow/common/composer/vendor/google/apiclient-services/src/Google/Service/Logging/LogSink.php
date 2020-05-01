@@ -23,12 +23,10 @@ class Google_Service_Logging_LogSink extends Google_Model
   public $description;
   public $destination;
   public $disabled;
-  public $endTime;
   public $filter;
   public $includeChildren;
   public $name;
   public $outputVersionFormat;
-  public $startTime;
   public $updateTime;
   public $writerIdentity;
 
@@ -78,14 +76,6 @@ class Google_Service_Logging_LogSink extends Google_Model
   {
     return $this->disabled;
   }
-  public function setEndTime($endTime)
-  {
-    $this->endTime = $endTime;
-  }
-  public function getEndTime()
-  {
-    return $this->endTime;
-  }
   public function setFilter($filter)
   {
     $this->filter = $filter;
@@ -117,14 +107,6 @@ class Google_Service_Logging_LogSink extends Google_Model
   public function getOutputVersionFormat()
   {
     return $this->outputVersionFormat;
-  }
-  public function setStartTime($startTime)
-  {
-    $this->startTime = $startTime;
-  }
-  public function getStartTime()
-  {
-    return $this->startTime;
   }
   public function setUpdateTime($updateTime)
   {

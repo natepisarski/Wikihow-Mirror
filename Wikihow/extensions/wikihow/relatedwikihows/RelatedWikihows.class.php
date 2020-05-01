@@ -172,7 +172,7 @@ class RelatedWikihows {
 	const SIDEBAR_LARGER_IMG_HEIGHT = 156;
 	const MIN_TO_SHOW_DESKTOP = 14;
 	const QUERY_STRING_PARAM = "newrelateds";
-	const MEMCACHED_KEY = "relarticles_data";
+	const MEMCACHED_KEY = "relarticles_data1";
 
 	var $mShowEdit = null;
 	var $mEditLink = '';
@@ -366,14 +366,14 @@ class RelatedWikihows {
 		if ( empty( $category ) ) {
 			// return a list from chris
 			$result['articles'] = self::getDefaultRelatedWikihows();
+		} else {
+			// Populate related articles box with other articles in the category,
+			$data = self::getRelatedArticlesForTitleAndCategory( $title, $category );
+
+			$result = array();
+			$result['category'] = $category;
+			$result['articles'] = $data;
 		}
-
-		// Populate related articles box with other articles in the category,
-		$data = self::getRelatedArticlesForTitleAndCategory( $title, $category );
-
-		$result = array();
-		$result['category'] = $category;
-		$result['articles'] = $data;
 
 		$wgMemc->set( $cachekey, $result );
 		return $result;
@@ -383,7 +383,45 @@ class RelatedWikihows {
 	 * a list of 14 related wikihows to show if we have no others
 	 */
 	private static function getDefaultRelatedWikihows() {
-		return array_flip( [ 57203, 4157156, 14093, 5207, 1304771, 3450, 22372, 5014, 221266, 1622, 2959, 30513, 6257, 384626 ] );
+		global $wgLanguageCode;
+		switch($wgLanguageCode) {
+			case "en":
+				return array_flip( [ 57203, 4157156, 14093, 5207, 1304771, 3450, 22372, 5014, 221266, 1622, 2959, 30513, 6257, 384626 ] );
+			case "es":
+				return array_flip( [32541, 98841, 3142, 12655, 77500, 23654, 23341, 14826, 13254, 18191, 12852, 1436, 20560, 12511] );
+			case "de":
+				return array_flip( [4198, 32518, 12406, 4673, 27225, 7799, 11686, 5815, 12586, 16561, 8326, 4876, 29492, 5084] );
+			case "fr":
+				return array_flip( [8785, 22317, 7257, 14485, 23875, 6418, 8578, 11787, 15121, 12279, 9117, 8902, 10731, 13093] );
+			case "it":
+				return array_flip( [5488, 35554, 11372, 13190, 23176, 6435, 10724, 8862, 11514, 15522, 10642, 10964, 13743, 15655] );
+			case "pt":
+				return array_flip( [11654, 66115, 17629, 19055, 28442, 6307, 4793, 16089, 46904, 22102, 12356, 4699, 22555, 22474] );
+			case "hi":
+				return array_flip( [2118790, 2115608, 2115433, 2119566, 2117838, 2115081, 2120215, 2120563, 2126158, 2115389, 2119459] );
+			case "nl":
+				return array_flip( [3526, 10973, 7119, 3753, 11836, 3561, 3586, 23329, 3840, 8867, 27734, 4479, 13008, 11375] );
+			case "ru":
+				return array_flip( [2139451, 2154339, 2139452, 2346773, 2152435, 2139442, 2140801, 2141004, 2140322, 2140260, 2155885, 2139582, 2144050, 2140571] );
+			case "cs":
+				return array_flip( [510, 7327, 515, 915, 4418, 1280, 577, 743, 920, 6899, 2649] );
+			case "id":
+				return array_flip( [2132943, 2140201, 2142509, 2133064, 2139587, 2132986, 2135809, 2133323, 2133129, 2139186, 2142251, 2133537, 2134180] );
+			case "ja":
+				return array_flip( [4503555, 4502775, 4502799, 4506169, 4503792, 4502187, 4506605, 4501557, 4502489, 4502211, 4503144] );
+			case "ar":
+				return array_flip( [2712, 4739, 2320, 10093, 5449, 2801, 4965, 3295, 14126, 19423, 2857, 8297, 6611] );
+			case "th":
+				return array_flip( [5201, 1367, 1100, 7455, 5481, 1665, 1154, 3393, 2311] );
+			case "ko":
+				return array_flip( [4247, 7347, 3844, 4207, 697, 2991, 5671, 567] );
+			case "vi":
+				return array_flip( [8173, 1578, 2139, 10746, 4459, 919, 8654, 3037, 817, 8615, 3046, 12230] );
+			case "tr":
+				return array_flip( [977, 946, 1758, 1064, 842, 4970, 3780, 2196] );
+			default:
+				return [];
+		}
 	}
 
 	// gets the related wikihow titles from wikitext

@@ -27,6 +27,8 @@ class Google_Service_Container_UpdateNodePoolRequest extends Google_Collection
   public $projectId;
   protected $upgradeSettingsType = 'Google_Service_Container_UpgradeSettings';
   protected $upgradeSettingsDataType = '';
+  protected $workloadMetadataConfigType = 'Google_Service_Container_WorkloadMetadataConfig';
+  protected $workloadMetadataConfigDataType = '';
   public $zone;
 
   public function setClusterId($clusterId)
@@ -98,6 +100,20 @@ class Google_Service_Container_UpdateNodePoolRequest extends Google_Collection
   public function getUpgradeSettings()
   {
     return $this->upgradeSettings;
+  }
+  /**
+   * @param Google_Service_Container_WorkloadMetadataConfig
+   */
+  public function setWorkloadMetadataConfig(Google_Service_Container_WorkloadMetadataConfig $workloadMetadataConfig)
+  {
+    $this->workloadMetadataConfig = $workloadMetadataConfig;
+  }
+  /**
+   * @return Google_Service_Container_WorkloadMetadataConfig
+   */
+  public function getWorkloadMetadataConfig()
+  {
+    return $this->workloadMetadataConfig;
   }
   public function setZone($zone)
   {

@@ -2,5 +2,9 @@
 	"@metadata": {
 		"authors": []
 	},
-	"admin_trusted_sources": "Trusted Sources Admin"
+	"admin_trusted_sources": "Trusted Sources Admin",
+	"ts_label": "Trustworthy Source",
+	"ts_goto": "Go to source",
+	"ts_research": "Research source"
+
 }

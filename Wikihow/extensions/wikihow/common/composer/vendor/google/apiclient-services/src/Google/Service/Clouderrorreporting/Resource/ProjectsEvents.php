@@ -36,9 +36,6 @@ class Google_Service_Clouderrorreporting_Resource_ProjectsEvents extends Google_
    * Example: `projects/my-project-123`.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string serviceFilter.version Optional. The exact value to match
-   * against [`ServiceContext.version`](/error-
-   * reporting/reference/rest/v1beta1/ServiceContext#FIELDS.version).
    * @opt_param string serviceFilter.resourceType Optional. The exact value to
    * match against [`ServiceContext.resource_type`](/error-
    * reporting/reference/rest/v1beta1/ServiceContext#FIELDS.resource_type).
@@ -53,6 +50,9 @@ class Google_Service_Clouderrorreporting_Resource_ProjectsEvents extends Google_
    * reporting/reference/rest/v1beta1/ServiceContext#FIELDS.service).
    * @opt_param int pageSize Optional. The maximum number of results to return per
    * response.
+   * @opt_param string serviceFilter.version Optional. The exact value to match
+   * against [`ServiceContext.version`](/error-
+   * reporting/reference/rest/v1beta1/ServiceContext#FIELDS.version).
    * @return Google_Service_Clouderrorreporting_ListEventsResponse
    */
   public function listProjectsEvents($projectName, $optParams = array())

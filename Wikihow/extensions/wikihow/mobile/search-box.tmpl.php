@@ -4,7 +4,7 @@
 	<? //<form action="/Special:GoogSearch" id="cse-search-box"> ?>
 	<form action="/wikiHowTo" id="<?= (@$form_id ? $form_id : 'cse-search-box') ?>">
 		<div>
-			<input type="text" class="cse_q search_box" name="search" value="" placeholder="<?=$placeholder?>" x-webkit-speech aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
+			<input type="text" class="cse_q search_box" id='search_field_bottom' name="search" value="" placeholder="<?=$placeholder?>" x-webkit-speech aria-label="<?= wfMessage('aria_search')->showIfExists() ?>" />
 			<input type="submit" value="" class="cse_sa" alt="" />
 		</div>
 	</form>

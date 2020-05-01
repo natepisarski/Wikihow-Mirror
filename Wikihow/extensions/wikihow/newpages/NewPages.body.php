@@ -9,6 +9,8 @@ class NewPages extends SpecialNewpages {
 	const MAX_HP_ARTICLES_NO_IMAGES = 3;
 	const HP_CONFIG_LIST = "hp_newpages";
 
+	//CATEGORIES Stuff
+	const CAT_TABLE = "newpagescategories";
 
 	// These templates will be removed when we translate
 	function __construct() {
@@ -66,7 +68,7 @@ class NewPages extends SpecialNewpages {
 		foreach($res as $row) {
 			if($count >= self::MAX_ROWS) break;
 			$title = Title::newFromID($row->page_id);
-			$category = $this->getCategoryFromMask($row->page_catinfo);
+			$category = $this->getCategoryFromMask($row->page_catinfo, RequestContext::getMain()->getLanguage()->getCode(), false);
 			if(!array_key_exists($category, $titles)) {
 				$catName = $category == self::UNCATEGORIZED ? "Uncategorized" : $category;
 				$titles[$category] = [
@@ -107,10 +109,21 @@ class NewPages extends SpecialNewpages {
 		return $vars;
 	}
 
-	private function getCategoryFromMask($catMask) {
-		global $wgCategoryNames;
+	private static function getCategoryFromMask($catMask, $languageCode, $forceEnglish = true) {
+		global $wgCategoryNamesEn, $wgCategoryNames;
+
+		if($languageCode == "en") {
+			$categories = $wgCategoryNames;
+		} else {
+			if($forceEnglish) {
+				$categories = $wgCategoryNamesEn;
+			} else {
+				$categories = $wgCategoryNames;
+			}
+		}
+
 		if ( $catMask ) {
-			foreach ( $wgCategoryNames as $bit => $cat ) {
+			foreach ( $categories as $bit => $cat ) {
 				if ( $bit & $catMask ) {
 					return $cat;
 				}
@@ -138,28 +151,33 @@ class NewPages extends SpecialNewpages {
 		return $res;
 	}
 
-	private static function getNewPagesFromTableforHomepage(&$dbr) {
-		$startDate = wfTimestamp(TS_MW, strtotime("5 days ago"));
-		$endDate = wfTimestamp(TS_MW, strtotime("7 days ago"));
+	private static function getNewPagesFromTableforHomepage(&$dbr, $languageCode, $startDays, $endDays) {
+		$startDate = wfTimestamp(TS_MW, strtotime("$startDays days ago"));
+		$endDate = wfTimestamp(TS_MW, strtotime("$endDays days ago"));
+		if($languageCode == "en") {
+			$author = "WRM";
+		} else {
+			$author = wfMessage('translator_account')->text();
+		}
 		$res = $dbr->select(
-			['recentchanges', 'page', 'index_info', 'titus_copy'],
+			['recentchanges', 'page', 'index_info', WH_DATABASE_NAME_EN.'.titus_copy'],
 			'*',
 			[
 				'rc_new' => 1,
 				'rc_namespace' => 0,
 				'page_is_redirect' => 0,
 				'ii_policy' => RobotPolicy::POLICY_DONT_CHANGE,
-				'rc_user_text' => 'WRM',
+				'rc_user_text' => $author,
 				'rc_timestamp > ' . $endDate,
 				'rc_timestamp < ' . $startDate,
-				'ti_language_code' => "en"
+				'ti_language_code' => $languageCode
 			],
 			__METHOD__,
 			['ORDER BY' => 'ti_30day_views_unique DESC'],
 			[
 				'page' => ['INNER JOIN', 'page_id=rc_cur_id'],
 				'index_info' => ['INNER JOIN', 'ii_page=page_id'],
-				'titus_copy' => ['INNER JOIN', 'ti_page_id=rc_cur_id']
+				WH_DATABASE_NAME_EN.'.titus_copy' => ['INNER JOIN', 'ti_page_id=rc_cur_id']
 			]
 
 		);
@@ -174,11 +192,13 @@ class NewPages extends SpecialNewpages {
 
 		foreach ($topcats as $keytop => $cattop) {
 			$cat = str_replace('-',' ',$catName);
-			if (strtolower($keytop) == $cat) {
+			if (strtolower($keytop) == strtolower($cat)) {
 				$bitcat |= $cattop;
 				break;
 			}
 		}
+
+		$startDate = wfTimestamp(TS_MW, strtotime("5 days ago"));
 
 		$res = $dbr->select(
 			['recentchanges', 'page', 'index_info'],
@@ -188,7 +208,8 @@ class NewPages extends SpecialNewpages {
 				'rc_namespace' => 0,
 				'page_is_redirect' => 0,
 				'ii_policy' => RobotPolicy::POLICY_DONT_CHANGE,
-				'page_catinfo & '.$bitcat.' <> 0'
+				'page_catinfo & '.$bitcat.' <> 0',
+				'rc_timestamp < ' . $startDate
 			],
 			__METHOD__,
 			['ORDER BY' => 'rc_timestamp DESC'],
@@ -231,34 +252,124 @@ class NewPages extends SpecialNewpages {
 		return $wikitext;
 	}
 
-	public static function setHomepageArticles() {
+	public static function setCategorypageArticles() {
+		global $wgCategoryNames;
+		$goodTitles = [];
+
+
 		$dbr = wfGetDB(DB_REPLICA);
+		foreach ($wgCategoryNames as $categoryName) {
+			$catTitles = [];
+			$res = self::getNewPagesFromTableForCategoryPage($dbr, $categoryName);
+			foreach ($res as $row) {
+				$title = Title::newFromID($row->page_id);
+				if (!$title || !$title->exists()) continue;
 
-		$res = self::getNewPagesFromTableforHomepage($dbr);
-
-		$titlesWithoutImages = [];
-		$titles = [];
-		foreach($res as $row) {
-			$title = Title::newFromID($row->page_id);
-			if(!$title || !$title->exists()) continue;
-
-			$wikitext = self::getWikitext($title, $dbr);
-
-			if(Wikitext::countImages($wikitext) == 0) {
-				$titlesWithoutImages[] = $title->getArticleID();
-			} else {
-				$titles[] = $title->getArticleID();
+				$catTitles[] = ['npc_page_id' => $title->getArticleID(), 'npc_category' => $categoryName];
+				if(count($catTitles) > MobileWikihowCategoryPage::MAX_NEW_PAGES) break;
 			}
 
-			//store 2x as much as we need so we don't end up with too little
-			if(count($titles) >= WikihowMobileHomepage::MAX_NEWPAGES) {
-				break;
-			}
+
+			$goodTitles = array_merge($goodTitles, $catTitles);
 		}
 
-		//do we have enough with images?
-		if(count($titles) < WikihowMobileHomepage::MAX_NEWPAGES) {
-			array_merge($titles, array_slice($titlesWithoutImages, 0, WikihowMobileHomepage::MAX_NEWPAGES - count($titles)));
+		$dbw = wfGetDB(DB_MASTER);
+		//grab all the old ids
+		$ids = $dbr->selectFieldValues(self::CAT_TABLE, 'npc_id', [], __METHOD__);
+
+		//insert the new rows
+		if(count($goodTitles) > 0) {
+			$dbw->insert(self::CAT_TABLE, $goodTitles, __METHOD__);
+		}
+
+		//delete the old ids
+		if(count($ids) > 0) {
+			$dbw->delete(self::CAT_TABLE, 'npc_id IN (' . $dbw->makeList($ids) . ')', __METHOD__);
+		}
+
+	}
+
+	public static function getCategoryPageArticles($category) {
+		$dbr = wfGetDB(DB_REPLICA);
+		$ids = $dbr->selectFieldValues(self::CAT_TABLE, 'npc_page_id', ['npc_category' => $category], __METHOD__);
+		return $ids;
+	}
+
+	public static function getAllNewPagesOnCategoryPages() {
+		$dbr = wfGetDB(DB_REPLICA);
+		$ids = $dbr->selectFieldValues(self::CAT_TABLE, 'npc_page_id', [], __METHOD__);
+		return $ids;
+	}
+
+	public static function setHomepageArticles(String $languageCode) {
+		$dbr = wfGetDB(DB_REPLICA);
+
+		$allCategories = ['Guns and Shooting', 'Health', 'Relationships'];
+		$arabicCagories = ['Philosophy and Religion', 'Food and Entertaining'];
+
+		$startDays = 5;
+		$endDays = 7;
+
+		$titles = [];
+		$titlesWithoutImages = [];
+		while(count($titles) < WikihowMobileHomepage::MAX_NEWPAGES && $endDays < 90) {
+
+			$res = self::getNewPagesFromTableforHomepage($dbr, $languageCode, $startDays, $endDays);
+
+			foreach ($res as $row) {
+				$title = Title::newFromID($row->page_id);
+				if (!$title || !$title->exists()) continue;
+
+				//for intl, check the categories
+				if ($languageCode != "en") {
+					$tls = TranslationLink::getLinksTo($languageCode, $row->page_id, false);
+					if (count($tls) == 0) continue;
+
+					$tl = $tls[0];
+					$category = $dbr->selectField(
+						WH_DATABASE_NAME_EN . ".categorylinks",
+						'cl_to',
+						['cl_from' => $tl->fromAID],
+						__METHOD__
+					);
+
+					if (in_array($category, $allCategories)) continue;
+					if ($languageCode == "ar" && in_array($category, $arabicCagories)) continue;
+
+					//now check the top level category
+					$catinfo = $dbr->selectField(
+						WH_DATABASE_NAME_EN . ".page",
+						'page_catinfo',
+						['page_id' => $tl->fromAID],
+						__METHOD__
+					);
+
+					$category = self::getCategoryFromMask($catinfo, $languageCode, true);
+					if (in_array($category, $allCategories)) continue;
+					if ($languageCode == "ar" && in_array($category, $arabicCagories)) continue;
+				}
+
+				$wikitext = self::getWikitext($title, $dbr);
+
+				if (Wikitext::countImages($wikitext) == 0) {
+					$titlesWithoutImages[] = $title->getArticleID();
+				} else {
+					$titles[] = $title->getArticleID();
+				}
+
+				if(count($titles) >= WikihowMobileHomepage::MAX_NEWPAGES) {
+					break;
+				}
+
+			}
+
+			//do we have enough with images?
+			if (count($titles) < WikihowMobileHomepage::MAX_NEWPAGES) {
+				array_merge($titles, array_slice($titlesWithoutImages, 0, WikihowMobileHomepage::MAX_NEWPAGES - count($titles)));
+			}
+
+			$startDays = $endDays;
+			$endDays += 2;
 		}
 
 		ConfigStorage::dbStoreConfig(self::HP_CONFIG_LIST, implode("\n", $titles), true,$err);
@@ -302,3 +413,12 @@ class NewPages extends SpecialNewpages {
 	}
 
 }
+
+/************
+CREATE TABLE `newpagescategories` (
+`npc_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+`npc_category` varbinary(255) NOT NULL DEFAULT '',
+`npc_page_id` int(10) unsigned NOT NULL,
+PRIMARY KEY (`npc_id`)
+) ENGINE=InnoDB;
+ */

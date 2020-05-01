@@ -47,7 +47,6 @@ class Google_Service_CloudRun_Resource_NamespacesRoutes extends Google_Service_R
    * number.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string continue Optional encoded string to continue paging.
    * @opt_param int limit The maximum number of records that should be returned.
    * @opt_param bool watch Flag that indicates that the client expects to watch
    * this resource as well. Not currently used by Cloud Run.
@@ -59,6 +58,7 @@ class Google_Service_CloudRun_Resource_NamespacesRoutes extends Google_Service_R
    * @opt_param string fieldSelector Allows to filter resources based on a
    * specific value for a field name. Send this in a query string format. i.e.
    * 'metadata.name%3Dlorem'. Not currently used by Cloud Run.
+   * @opt_param string continue Optional encoded string to continue paging.
    * @return Google_Service_CloudRun_ListRoutesResponse
    */
   public function listNamespacesRoutes($parent, $optParams = array())

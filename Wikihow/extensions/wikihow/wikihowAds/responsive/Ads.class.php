@@ -330,18 +330,27 @@ class Ads {
 		$adsJs = $this->getJavascriptFile();
 		$html = '';
 		if ( $adsJs ) {
-			$html = Html::inlineScript( Misc::getEmbedFiles( 'js', [$adsJs] ) );
+			if ( $wgRequest->getInt( 'adsraw' )  == 1 ) {
+				$html = Html::inlineScript( file_get_contents( $adsJs ) );
+			} else {
+				$html = Html::inlineScript( Misc::getEmbedFiles( 'js', [$adsJs] ) );
+			}
 		}
 
 		return $html;
 	}
 
 	public function getJavascriptFile() {
+		global $wgRequest;
 		if ( !$this->mActive ) {
 			return '';
 		}
 		if ( $this->mAdCreator->showNewAdsJs() ) {
-			return __DIR__ . "/ads.compiled.js";
+			if ( $wgRequest->getInt( 'adsraw' )  == 1 ) {
+				return __DIR__ . "/ads.js";
+			} else {
+				return __DIR__ . "/ads.compiled.js";
+			}
 		}
 		return __DIR__ . "/ads_old.compiled.js";
 	}

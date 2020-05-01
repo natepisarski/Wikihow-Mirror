@@ -50,8 +50,6 @@ class Google_Service_YouTubeReporting_Resource_JobsReports extends Google_Servic
    * @param string $jobId The ID of the job.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string createdAfter If set, only reports created after the
-   * specified date/time are returned.
    * @opt_param string startTimeAtOrAfter If set, only reports whose start time is
    * greater than or equal the specified date/time are returned.
    * @opt_param string pageToken A token identifying a page of results the server
@@ -66,6 +64,8 @@ class Google_Service_YouTubeReporting_Resource_JobsReports extends Google_Servic
    * himself (his own channel).
    * @opt_param string startTimeBefore If set, only reports whose start time is
    * smaller than the specified date/time are returned.
+   * @opt_param string createdAfter If set, only reports created after the
+   * specified date/time are returned.
    * @return Google_Service_YouTubeReporting_ListReportsResponse
    */
   public function listJobsReports($jobId, $optParams = array())

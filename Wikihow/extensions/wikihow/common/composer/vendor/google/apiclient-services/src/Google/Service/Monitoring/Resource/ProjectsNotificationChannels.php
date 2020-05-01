@@ -31,8 +31,8 @@ class Google_Service_Monitoring_Resource_ProjectsNotificationChannels extends Go
    * (notificationChannels.create)
    *
    * @param string $name Required. The project on which to execute the request.
-   * The format is: projects/[PROJECT_ID] Note that this names the container into
-   * which the channel will be written. This does not name the newly created
+   * The format is: projects/[PROJECT_ID_OR_NUMBER] This names the container into
+   * which the channel will be written, this does not name the newly created
    * channel. The resulting channel's name will have a normalized version of this
    * field as a prefix, but will add /notificationChannels/[CHANNEL_ID] to
    * identify the channel.
@@ -50,7 +50,8 @@ class Google_Service_Monitoring_Resource_ProjectsNotificationChannels extends Go
    * Deletes a notification channel. (notificationChannels.delete)
    *
    * @param string $name Required. The channel for which to execute the request.
-   * The format is projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID].
+   * The format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/notificationChannels/[CHANNEL_ID]
    * @param array $optParams Optional parameters.
    *
    * @opt_param bool force If true, the notification channel will be deleted
@@ -74,7 +75,8 @@ class Google_Service_Monitoring_Resource_ProjectsNotificationChannels extends Go
    * (notificationChannels.get)
    *
    * @param string $name Required. The channel for which to execute the request.
-   * The format is projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID].
+   * The format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/notificationChannels/[CHANNEL_ID]
    * @param array $optParams Optional parameters.
    * @return Google_Service_Monitoring_NotificationChannel
    */
@@ -124,25 +126,27 @@ class Google_Service_Monitoring_Resource_ProjectsNotificationChannels extends Go
    * (notificationChannels.listProjectsNotificationChannels)
    *
    * @param string $name Required. The project on which to execute the request.
-   * The format is projects/[PROJECT_ID]. That is, this names the container in
+   * The format is: projects/[PROJECT_ID_OR_NUMBER] This names the container in
    * which to look for the notification channels; it does not name a specific
    * channel. To query a specific channel by REST resource name, use the
    * GetNotificationChannel operation.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param int pageSize The maximum number of results to return in a single
-   * response. If not set to a positive number, a reasonable value will be chosen
-   * by the service.
    * @opt_param string filter If provided, this field specifies the criteria that
    * must be met by notification channels to be included in the response.For more
-   * details, see sorting and filtering.
+   * details, see sorting and filtering
+   * (https://cloud.google.com/monitoring/api/v3/sorting-and-filtering).
    * @opt_param string orderBy A comma-separated list of fields by which to sort
    * the result. Supports the same set of fields as in filter. Entries can be
    * prefixed with a minus sign to sort in descending rather than ascending
-   * order.For more details, see sorting and filtering.
+   * order.For more details, see sorting and filtering
+   * (https://cloud.google.com/monitoring/api/v3/sorting-and-filtering).
    * @opt_param string pageToken If non-empty, page_token must contain a value
    * returned as the next_page_token in a previous response to request the next
    * set of results.
+   * @opt_param int pageSize The maximum number of results to return in a single
+   * response. If not set to a positive number, a reasonable value will be chosen
+   * by the service.
    * @return Google_Service_Monitoring_ListNotificationChannelsResponse
    */
   public function listProjectsNotificationChannels($name, $optParams = array())
@@ -155,9 +159,9 @@ class Google_Service_Monitoring_Resource_ProjectsNotificationChannels extends Go
    * Updates a notification channel. Fields not specified in the field mask remain
    * unchanged. (notificationChannels.patch)
    *
-   * @param string $name The full REST resource name for this channel. The syntax
-   * is: projects/[PROJECT_ID]/notificationChannels/[CHANNEL_ID] The [CHANNEL_ID]
-   * is automatically assigned by the server on creation.
+   * @param string $name The full REST resource name for this channel. The format
+   * is: projects/[PROJECT_ID_OR_NUMBER]/notificationChannels/[CHANNEL_ID] The
+   * [CHANNEL_ID] is automatically assigned by the server on creation.
    * @param Google_Service_Monitoring_NotificationChannel $postBody
    * @param array $optParams Optional parameters.
    *

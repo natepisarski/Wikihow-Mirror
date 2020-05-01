@@ -50,6 +50,10 @@ class Google_Service_SecretManager_Resource_ProjectsSecrets extends Google_Servi
    * @param array $optParams Optional parameters.
    *
    * @opt_param string secretId Required. This must be unique within the project.
+   *
+   * A secret ID is a string with a maximum length of 255 characters and can
+   * contain uppercase and lowercase letters, numerals, and the hyphen (`-`) and
+   * underscore (`_`) characters.
    * @return Google_Service_SecretManager_Secret
    */
   public function create($parent, Google_Service_SecretManager_Secret $postBody, $optParams = array())

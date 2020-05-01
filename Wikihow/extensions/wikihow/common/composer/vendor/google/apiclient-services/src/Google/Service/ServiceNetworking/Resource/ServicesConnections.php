@@ -32,9 +32,7 @@ class Google_Service_ServiceNetworking_Resource_ServicesConnections extends Goog
    * administrator must assign one or more allocated IP ranges for provisioning
    * subnetworks in the service producer's VPC network. This connection is used
    * for all supported services in the service producer's organization, so it only
-   * needs to be invoked once. The response from the `get` operation will be of
-   * type `Connection` if the operation successfully completes.
-   * (connections.create)
+   * needs to be invoked once. (connections.create)
    *
    * @param string $parent The service that is managing peering connectivity for a
    * service producer's organization. For Google services that support this
@@ -75,9 +73,8 @@ class Google_Service_ServiceNetworking_Resource_ServicesConnections extends Goog
     return $this->call('list', array($params), "Google_Service_ServiceNetworking_ListConnectionsResponse");
   }
   /**
-   * Updates the allocated ranges that are assigned to a connection. The response
-   * from the `get` operation will be of type `Connection` if the operation
-   * successfully completes. (connections.patch)
+   * Updates the allocated ranges that are assigned to a connection.
+   * (connections.patch)
    *
    * @param string $name The private service connection that connects to a service
    * producer organization. The name includes both the private service name and

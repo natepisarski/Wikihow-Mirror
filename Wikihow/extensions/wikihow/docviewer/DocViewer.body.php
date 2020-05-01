@@ -573,7 +573,7 @@ class DocViewer extends UnlistedSpecialPage {
 
 		if ($isMobile) {
 			if (self::$isResponsive) {
-				$out->addModules('zzz.mobile.wikihow.sample_responsive');
+				$out->addModuleStyles('mobile.wikihow.sample_responsive');
 			} else {
 				$out->addModules('zzz.mobile.wikihow.sample');
 			}
@@ -618,6 +618,7 @@ class DocViewer extends UnlistedSpecialPage {
 			$out->setRobotPolicy('index,follow');
 		}
 
+		$out->addModuleStyles('ext.wikihow.samples_main_styles');
 		$out->addModules('ext.wikihow.samples');
 		$out->addHTML($html);
 	}

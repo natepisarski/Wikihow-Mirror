@@ -82,7 +82,12 @@ class Google_Service_DoubleClickBidManager extends Google_Service
             'createquery' => array(
               'path' => 'query',
               'httpMethod' => 'POST',
-              'parameters' => array(),
+              'parameters' => array(
+                'asynchronous' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
+                ),
+              ),
             ),'deletequery' => array(
               'path' => 'query/{queryId}',
               'httpMethod' => 'DELETE',
@@ -124,6 +129,10 @@ class Google_Service_DoubleClickBidManager extends Google_Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ),
+                'asynchronous' => array(
+                  'location' => 'query',
+                  'type' => 'boolean',
                 ),
               ),
             ),

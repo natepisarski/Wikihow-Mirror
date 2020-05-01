@@ -30,6 +30,9 @@ class Google_Service_DoubleClickBidManager_Resource_Queries extends Google_Servi
    *
    * @param Google_Service_DoubleClickBidManager_Query $postBody
    * @param array $optParams Optional parameters.
+   *
+   * @opt_param bool asynchronous If true, tries to run the query asynchronously.
+   * Only applicable when the frequency is ONE_TIME.
    * @return Google_Service_DoubleClickBidManager_Query
    */
   public function createquery(Google_Service_DoubleClickBidManager_Query $postBody, $optParams = array())
@@ -86,6 +89,8 @@ class Google_Service_DoubleClickBidManager_Resource_Queries extends Google_Servi
    * @param string $queryId Query ID to run.
    * @param Google_Service_DoubleClickBidManager_RunQueryRequest $postBody
    * @param array $optParams Optional parameters.
+   *
+   * @opt_param bool asynchronous If true, tries to run the query asynchronously.
    */
   public function runquery($queryId, Google_Service_DoubleClickBidManager_RunQueryRequest $postBody, $optParams = array())
   {

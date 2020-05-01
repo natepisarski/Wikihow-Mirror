@@ -183,15 +183,7 @@ class SocialStamp {
 			$params['coauthor_image'] = $vd->imagePath;
 		}
 
-		$refsUrl = "#sourcesandcitations";
-		$sourcesAnchor = '#' . Misc::getSectionName( wfMessage('sources')->text() );
-		$refsAnchor = '#' . Misc::getSectionName( wfMessage('references')->text() );
-
-		if ( pq( $refsAnchor )->length > 0 ) {
-			$refsUrl = $refsAnchor;
-		} else {
-			$refsUrl = $sourcesAnchor;
-		}
+		$refsUrl = Misc::getReferencesID();
 
 		$params["coauthor"] = wfMessage('sp_expert_attribution')->text();
 		$params["connector"] = "<span class='ss_pipe'>|</span>";
@@ -340,7 +332,7 @@ class SocialStamp {
 					$coauthorNoLink = $vData->name;
 					$msg = 'ss_coauthored_by';
 				} else {
-					$coauthorLink = $vData->name;
+					$coauthorLink = $coauthorNoLink = $vData->name;
 					$msg = 'ss_expert_no_blurb';
 				}
 

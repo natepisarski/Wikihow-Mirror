@@ -31,8 +31,8 @@ class Google_Service_Monitoring_Resource_ProjectsNotificationChannelDescriptors 
    * (notificationChannelDescriptors.get)
    *
    * @param string $name Required. The channel type for which to execute the
-   * request. The format is
-   * projects/[PROJECT_ID]/notificationChannelDescriptors/{channel_type}.
+   * request. The format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/notificationChannelDescriptors/[CHANNEL_TYPE]
    * @param array $optParams Optional parameters.
    * @return Google_Service_Monitoring_NotificationChannelDescriptor
    */
@@ -49,9 +49,9 @@ class Google_Service_Monitoring_Resource_ProjectsNotificationChannelDescriptors 
    *
    * @param string $name Required. The REST resource name of the parent from which
    * to retrieve the notification channel descriptors. The expected syntax is:
-   * projects/[PROJECT_ID] Note that this names the parent container in which to
-   * look for the descriptors; to retrieve a single descriptor by name, use the
-   * GetNotificationChannelDescriptor operation, instead.
+   * projects/[PROJECT_ID_OR_NUMBER] Note that this names the parent container in
+   * which to look for the descriptors; to retrieve a single descriptor by name,
+   * use the GetNotificationChannelDescriptor operation, instead.
    * @param array $optParams Optional parameters.
    *
    * @opt_param string pageToken If non-empty, page_token must contain a value

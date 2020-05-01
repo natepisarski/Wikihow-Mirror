@@ -27,20 +27,21 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsDicomStor
 {
   /**
    * DeleteStudy deletes all instances within the given study. Delete requests are
-   * equivalent to the GET requests specified in the Retrieve transaction.
-   * (studies.delete)
+   * equivalent to the GET requests specified in the Retrieve transaction. The
+   * method returns an Operation which will be marked successful when the deletion
+   * is complete. (studies.delete)
    *
    * @param string $parent
    * @param string $dicomWebPath The path of the DeleteStudy request. For example,
    * `studies/{study_uid}`.
    * @param array $optParams Optional parameters.
-   * @return Google_Service_CloudHealthcare_HealthcareEmpty
+   * @return Google_Service_CloudHealthcare_Operation
    */
   public function delete($parent, $dicomWebPath, $optParams = array())
   {
     $params = array('parent' => $parent, 'dicomWebPath' => $dicomWebPath);
     $params = array_merge($params, $optParams);
-    return $this->call('delete', array($params), "Google_Service_CloudHealthcare_HealthcareEmpty");
+    return $this->call('delete', array($params), "Google_Service_CloudHealthcare_Operation");
   }
   /**
    * RetrieveStudyMetadata returns instance associated with the given study

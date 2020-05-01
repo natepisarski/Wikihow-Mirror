@@ -21,6 +21,8 @@ class Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1ExplanationConfig
   protected $integratedGradientsAttributionDataType = '';
   protected $sampledShapleyAttributionType = 'Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1SampledShapleyAttribution';
   protected $sampledShapleyAttributionDataType = '';
+  protected $xraiAttributionType = 'Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1XraiAttribution';
+  protected $xraiAttributionDataType = '';
 
   /**
    * @param Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1IntegratedGradientsAttribution
@@ -49,5 +51,19 @@ class Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1ExplanationConfig
   public function getSampledShapleyAttribution()
   {
     return $this->sampledShapleyAttribution;
+  }
+  /**
+   * @param Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1XraiAttribution
+   */
+  public function setXraiAttribution(Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1XraiAttribution $xraiAttribution)
+  {
+    $this->xraiAttribution = $xraiAttribution;
+  }
+  /**
+   * @return Google_Service_CloudMachineLearningEngine_GoogleCloudMlV1XraiAttribution
+   */
+  public function getXraiAttribution()
+  {
+    return $this->xraiAttribution;
   }
 }

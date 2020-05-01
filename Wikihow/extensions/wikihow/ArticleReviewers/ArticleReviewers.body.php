@@ -33,8 +33,8 @@ class ArticleReviewers extends UnlistedSpecialPage {
 
 		$specialPageTitle = Title::makeTitle( NS_SPECIAL, 'ArticleReviewers' );
 
-		if ( preg_match( '@^/' . preg_quote( $specialPageTitle, '@' ) . '@', $req->getRequestURL() ) ) {
-			$out->redirect( '/Experts' );
+		if ( preg_match( '@^/' . preg_quote( $specialPageTitle, '@' ) . '@', urldecode($req->getRequestURL()) ) ) {
+			$out->redirect( '/' . wfMessage("Experts")->text() );
 			return;
 		}
 
@@ -180,7 +180,7 @@ class ArticleReviewers extends UnlistedSpecialPage {
 		$lang = RequestContext::getMain()->getLanguage()->getCode();
 
 		$titleTxt = Misc::isAltDomain() || $lang == 'en' || $vd->hoverBlurb
-			? 'Experts'     // English or Alts or INTL with blurb translation: link locally
+			? wfMessage('Experts')->text() // English or Alts or INTL with blurb translation: link locally
 			: 'en:Experts'; // INTL without blurb translation: link to wikihow.com
 
 		$title = Title::newFromText( $titleTxt );
@@ -223,7 +223,16 @@ class ArticleReviewers extends UnlistedSpecialPage {
 
 	public static function onWebRequestPathInfoRouter( $router ) {
 		$specialPageTitle = Title::makeTitle( NS_SPECIAL, 'ArticleReviewers' );
-		$router->addStrict( '/Experts', array( 'title' => $specialPageTitle->getNsText() . ":" . $specialPageTitle->getText() ) );
+
+		// Reuben, April 2020: something very weird going on with this code. If we use
+		// wfMessage() on English, or even use RequestContext::getMain()->getLanguage()->getCode()
+		// instead of $wgLanguageCode, then preferences no longer will save. There has to be
+		// a satisfying explanation of what's going on, but I don't have time to debug further now.
+		global $wgLanguageCode;
+		$url = $wgLanguageCode == 'en'
+			? '/Experts'
+			: '/' . urlencode( str_replace( " ", "-", wfMessage('Experts')->text() ) );
+		$router->addStrict( $url, array( 'title' => $specialPageTitle->getNsText() . ":" . $specialPageTitle->getText() ) );
 	}
 
 }

@@ -32,7 +32,7 @@ class Google_Service_FirebaseManagement_Resource_ProjectsWebApps extends Google_
    * provisioning process. The `Operation` is automatically deleted after
    * completion, so there is no need to call `DeleteOperation`. (webApps.create)
    *
-   * @param string $parent The parent Project for which to list Apps, in the
+   * @param string $parent The parent Project in which to create an App, in the
    * format: projects/projectId
    * @param Google_Service_FirebaseManagement_WebApp $postBody
    * @param array $optParams Optional parameters.

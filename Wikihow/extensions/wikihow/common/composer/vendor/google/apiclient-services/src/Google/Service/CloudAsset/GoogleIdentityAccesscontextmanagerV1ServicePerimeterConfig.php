@@ -21,6 +21,8 @@ class Google_Service_CloudAsset_GoogleIdentityAccesscontextmanagerV1ServicePerim
   public $accessLevels;
   public $resources;
   public $restrictedServices;
+  protected $vpcAccessibleServicesType = 'Google_Service_CloudAsset_GoogleIdentityAccesscontextmanagerV1VpcAccessibleServices';
+  protected $vpcAccessibleServicesDataType = '';
 
   public function setAccessLevels($accessLevels)
   {
@@ -45,5 +47,19 @@ class Google_Service_CloudAsset_GoogleIdentityAccesscontextmanagerV1ServicePerim
   public function getRestrictedServices()
   {
     return $this->restrictedServices;
+  }
+  /**
+   * @param Google_Service_CloudAsset_GoogleIdentityAccesscontextmanagerV1VpcAccessibleServices
+   */
+  public function setVpcAccessibleServices(Google_Service_CloudAsset_GoogleIdentityAccesscontextmanagerV1VpcAccessibleServices $vpcAccessibleServices)
+  {
+    $this->vpcAccessibleServices = $vpcAccessibleServices;
+  }
+  /**
+   * @return Google_Service_CloudAsset_GoogleIdentityAccesscontextmanagerV1VpcAccessibleServices
+   */
+  public function getVpcAccessibleServices()
+  {
+    return $this->vpcAccessibleServices;
   }
 }

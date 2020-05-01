@@ -52,7 +52,8 @@ class Google_Service_Tasks_Resource_Tasklists extends Google_Service_Resource
   }
   /**
    * Creates a new task list and adds it to the authenticated user's task lists.
-   * (tasklists.insert)
+   * Fails with HTTP code 403 or 429 after reaching the storage limit of 2,000
+   * lists. (tasklists.insert)
    *
    * @param Google_Service_Tasks_TaskList $postBody
    * @param array $optParams Optional parameters.

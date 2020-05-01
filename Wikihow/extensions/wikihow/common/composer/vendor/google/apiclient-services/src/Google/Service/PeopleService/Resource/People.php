@@ -66,12 +66,11 @@ class Google_Service_PeopleService_Resource_People extends Google_Service_Resour
    * separating them with commas. Defaults to empty if not set, which will skip
    * the post mutate get. Valid values are:
    *
-   * * addresses * ageRanges * biographies * birthdays * braggingRights *
-   * coverPhotos * emailAddresses * events * genders * imClients * interests *
-   * locales * memberships * metadata * names * nicknames * occupations *
-   * organizations * phoneNumbers * photos * relations * relationshipInterests *
-   * relationshipStatuses * residences * sipAddresses * skills * taglines * urls *
-   * userDefined
+   * * addresses * ageRanges * biographies * birthdays * coverPhotos *
+   * emailAddresses * events * genders * imClients * interests * locales *
+   * memberships * metadata * names * nicknames * occupations * organizations *
+   * phoneNumbers * photos * relations * residences * sipAddresses * skills * urls
+   * * userDefined
    * @return Google_Service_PeopleService_DeleteContactPhotoResponse
    */
   public function deleteContactPhoto($resourceName, $optParams = array())
@@ -101,12 +100,11 @@ class Google_Service_PeopleService_Resource_People extends Google_Service_Resour
    * fields on the person are returned. Multiple fields can be specified by
    * separating them with commas. Valid values are:
    *
-   * * addresses * ageRanges * biographies * birthdays * braggingRights *
-   * coverPhotos * emailAddresses * events * genders * imClients * interests *
-   * locales * memberships * metadata * names * nicknames * occupations *
-   * organizations * phoneNumbers * photos * relations * relationshipInterests *
-   * relationshipStatuses * residences * sipAddresses * skills * taglines * urls *
-   * userDefined
+   * * addresses * ageRanges * biographies * birthdays * coverPhotos *
+   * emailAddresses * events * genders * imClients * interests * locales *
+   * memberships * metadata * names * nicknames * occupations * organizations *
+   * phoneNumbers * photos * relations * residences * sipAddresses * skills * urls
+   * * userDefined
    * @opt_param string requestMask.includeField Required. Comma-separated list of
    * person fields to be included in the response. Each path should start with
    * `person.`: for example, `person.names` or `person.photos`.
@@ -131,12 +129,11 @@ class Google_Service_PeopleService_Resource_People extends Google_Service_Resour
    * fields on each person are returned. Multiple fields can be specified by
    * separating them with commas. Valid values are:
    *
-   * * addresses * ageRanges * biographies * birthdays * braggingRights *
-   * coverPhotos * emailAddresses * events * genders * imClients * interests *
-   * locales * memberships * metadata * names * nicknames * occupations *
-   * organizations * phoneNumbers * photos * relations * relationshipInterests *
-   * relationshipStatuses * residences * sipAddresses * skills * taglines * urls *
-   * userDefined
+   * * addresses * ageRanges * biographies * birthdays * coverPhotos *
+   * emailAddresses * events * genders * imClients * interests * locales *
+   * memberships * metadata * names * nicknames * occupations * organizations *
+   * phoneNumbers * photos * relations * residences * sipAddresses * skills * urls
+   * * userDefined
    * @opt_param string requestMask.includeField Required. Comma-separated list of
    * person fields to be included in the response. Each path should start with
    * `person.`: for example, `person.names` or `person.photos`.

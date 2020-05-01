@@ -90,7 +90,9 @@ class Google_Service_ShoppingContent_Resource_Products extends Google_Service_Re
     return $this->call('insert', array($params), "Google_Service_ShoppingContent_Product");
   }
   /**
-   * Lists the products in your Merchant Center account. (products.listProducts)
+   * Lists the products in your Merchant Center account. The response might
+   * contain fewer items than specified by maxResults. Rely on nextPageToken to
+   * determine if there are more items to be requested. (products.listProducts)
    *
    * @param string $merchantId The ID of the account that contains the products.
    * This account cannot be a multi-client account.

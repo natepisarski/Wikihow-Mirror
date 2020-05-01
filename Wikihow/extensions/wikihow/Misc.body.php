@@ -741,6 +741,9 @@ class Misc {
 
 		$title = $ctx->getTitle();
 		$req = $ctx->getRequest();
+		if ( $req->getInt( 'noresponsive' )  == 1 ) {
+			return false;
+		}
 		$langCode = $ctx->getLanguage()->getCode();
 		if ( $req && $title
 			&& MobileFrontendWikiHowHooks::validResponsivePage()
@@ -1118,7 +1121,7 @@ class Misc {
 	}
 
 	public static function getReferencesID(): string {
-		$id = '#' . self::getSectionName( wfMessage('references')->text() );
+		$id = '#' . Sanitizer::escapeIdForAttribute( wfMessage('references')->text() );
 
 		return $id;
 	}

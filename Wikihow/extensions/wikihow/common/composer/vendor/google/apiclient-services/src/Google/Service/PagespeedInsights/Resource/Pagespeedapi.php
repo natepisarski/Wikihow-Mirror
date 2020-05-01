@@ -38,8 +38,8 @@ class Google_Service_PagespeedInsights_Resource_Pagespeedapi extends Google_Serv
    * @opt_param string category A Lighthouse category to run; if none are given,
    * only Performance category will be run
    * @opt_param string locale The locale used to localize formatted results
-   * @opt_param string utm_campaign Campaign name for analytics.
    * @opt_param string url The URL to fetch and analyze
+   * @opt_param string utm_campaign Campaign name for analytics.
    * @opt_param string captchaToken The captcha token passed when filling out a
    * captcha.
    * @return Google_Service_PagespeedInsights_PagespeedApiPagespeedResponseV5

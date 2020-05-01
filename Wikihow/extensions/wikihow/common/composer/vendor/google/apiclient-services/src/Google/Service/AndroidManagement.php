@@ -150,14 +150,14 @@ class Google_Service_AndroidManagement extends Google_Service
                   'type' => 'string',
                   'required' => true,
                 ),
+                'wipeReasonMessage' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
                 'wipeDataFlags' => array(
                   'location' => 'query',
                   'type' => 'string',
                   'repeated' => true,
-                ),
-                'wipeReasonMessage' => array(
-                  'location' => 'query',
-                  'type' => 'string',
                 ),
               ),
             ),'get' => array(
@@ -472,11 +472,11 @@ class Google_Service_AndroidManagement extends Google_Service
               'path' => 'v1/signupUrls',
               'httpMethod' => 'POST',
               'parameters' => array(
-                'callbackUrl' => array(
+                'projectId' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
-                'projectId' => array(
+                'callbackUrl' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),

@@ -159,6 +159,7 @@ class RightRail {
 		$this->mAds = $ads;
 		$this->mDesktopAds = $desktopAds;
 		$this->mIsEnglishAnonView = $isEnglishAnonView;
+		$this->mIsIntlAnonView = !$this->mEnglishSite && $this->mUser->getID() == 0;
 		$this->mIsDocViewer = $isDocViewer;
 		$this->mIsLoggedIn = $this->mUser->getID() > 0;
 		$this->mShowRCWidget = $showRCWidget;
@@ -418,6 +419,7 @@ class RightRail {
 		$showTopLinksSidebar = !$this->mIsDocViewer &&
 			!$this->mSocialProofSidebar &&
 			!$this->mIsEnglishAnonView &&
+			!$this->mIsIntlAnonView &&
 			!$isSearchPage;
 
 		Hooks::run( 'WikihowTemplateShowTopLinksSidebar', array( &$showTopLinksSidebar ) );
@@ -537,10 +539,6 @@ class RightRail {
 			&& !$this->mTitle->inNamespace( NS_USER )
 			&& !$isSearchPage;
 
-		if ( $showFeaturedArticlesSidebar && !$this->mEnglishSite && $this->mTitle->isSpecial( 'CategoryListing' ) ) {
-			$showFeaturedArticlesSidebar = false;
-		}
-
 		Hooks::run( 'WikihowTemplateShowFeaturedArticlesSidebar', array( &$showFeaturedArticlesSidebar ) );
 
 		if ( $showFeaturedArticlesSidebar ) {
@@ -561,10 +559,6 @@ class RightRail {
 			!$this->mIsAnonView &&
 			!$isSearchPage &&
 			in_array( $this->mLanguageCode, array( 'en', 'de', 'es', 'pt' ) );
-
-		if ( $showFollowWidget && !$this->mEnglishSite && $this->mTitle->isSpecial( 'CategoryListing' ) ) {
-			$showFollowWidget = false;
-		}
 
 		Hooks::run( 'WikihowTemplateShowFollowWidget', array( &$showFollowWidget ) );
 

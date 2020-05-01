@@ -30,6 +30,7 @@ class Google_Service_Dataproc_InstanceGroupConfig extends Google_Collection
   protected $managedGroupConfigDataType = '';
   public $minCpuPlatform;
   public $numInstances;
+  public $preemptibility;
 
   /**
    * @param Google_Service_Dataproc_AcceleratorConfig
@@ -120,5 +121,13 @@ class Google_Service_Dataproc_InstanceGroupConfig extends Google_Collection
   public function getNumInstances()
   {
     return $this->numInstances;
+  }
+  public function setPreemptibility($preemptibility)
+  {
+    $this->preemptibility = $preemptibility;
+  }
+  public function getPreemptibility()
+  {
+    return $this->preemptibility;
   }
 }

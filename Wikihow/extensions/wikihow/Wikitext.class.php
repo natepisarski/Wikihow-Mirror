@@ -242,7 +242,7 @@ class Wikitext {
 	public static function getVideoSection($wikitext, $withHeader = true) {
 		global $wgParser;
 		static $videoMsg = '';
-		if (empty($videoMsg)) $videoMsg = wfMessage('video')->inContentLanguage()->text();
+		if (empty($videoMsg)) $videoMsg = wfMessage('videoheader')->inContentLanguage()->text();
 		return self::getSection($wikitext, $videoMsg, $withHeader);
 	}
 

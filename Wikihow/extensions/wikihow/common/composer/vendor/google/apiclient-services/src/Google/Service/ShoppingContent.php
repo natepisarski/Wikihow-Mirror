@@ -41,6 +41,7 @@ class Google_Service_ShoppingContent extends Google_Service
   public $datafeeds;
   public $datafeedstatuses;
   public $liasettings;
+  public $localinventory;
   public $orderinvoices;
   public $orderreports;
   public $orderreturns;
@@ -48,9 +49,12 @@ class Google_Service_ShoppingContent extends Google_Service
   public $pos;
   public $products;
   public $productstatuses;
+  public $pubsubnotificationsettings;
   public $regionalinventory;
   public $returnaddress;
   public $returnpolicy;
+  public $settlementreports;
+  public $settlementtransactions;
   public $shippingsettings;
   
   /**
@@ -671,6 +675,35 @@ class Google_Service_ShoppingContent extends Google_Service
                   'required' => true,
                 ),
                 'accountId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),
+          )
+        )
+    );
+    $this->localinventory = new Google_Service_ShoppingContent_Resource_Localinventory(
+        $this,
+        $this->serviceName,
+        'localinventory',
+        array(
+          'methods' => array(
+            'custombatch' => array(
+              'path' => 'localinventory/batch',
+              'httpMethod' => 'POST',
+              'parameters' => array(),
+            ),'insert' => array(
+              'path' => '{merchantId}/products/{productId}/localinventory',
+              'httpMethod' => 'POST',
+              'parameters' => array(
+                'merchantId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'productId' => array(
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
@@ -1413,6 +1446,36 @@ class Google_Service_ShoppingContent extends Google_Service
           )
         )
     );
+    $this->pubsubnotificationsettings = new Google_Service_ShoppingContent_Resource_Pubsubnotificationsettings(
+        $this,
+        $this->serviceName,
+        'pubsubnotificationsettings',
+        array(
+          'methods' => array(
+            'get' => array(
+              'path' => '{merchantId}/pubsubnotificationsettings',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'merchantId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'update' => array(
+              'path' => '{merchantId}/pubsubnotificationsettings',
+              'httpMethod' => 'PUT',
+              'parameters' => array(
+                'merchantId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),
+          )
+        )
+    );
     $this->regionalinventory = new Google_Service_ShoppingContent_Resource_Regionalinventory(
         $this,
         $this->serviceName,
@@ -1576,6 +1639,95 @@ class Google_Service_ShoppingContent extends Google_Service
                   'location' => 'path',
                   'type' => 'string',
                   'required' => true,
+                ),
+              ),
+            ),
+          )
+        )
+    );
+    $this->settlementreports = new Google_Service_ShoppingContent_Resource_Settlementreports(
+        $this,
+        $this->serviceName,
+        'settlementreports',
+        array(
+          'methods' => array(
+            'get' => array(
+              'path' => '{merchantId}/settlementreports/{settlementId}',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'merchantId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'settlementId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+              ),
+            ),'list' => array(
+              'path' => '{merchantId}/settlementreports',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'merchantId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'maxResults' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'transferEndDate' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'transferStartDate' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+              ),
+            ),
+          )
+        )
+    );
+    $this->settlementtransactions = new Google_Service_ShoppingContent_Resource_Settlementtransactions(
+        $this,
+        $this->serviceName,
+        'settlementtransactions',
+        array(
+          'methods' => array(
+            'list' => array(
+              'path' => '{merchantId}/settlementreports/{settlementId}/transactions',
+              'httpMethod' => 'GET',
+              'parameters' => array(
+                'merchantId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'settlementId' => array(
+                  'location' => 'path',
+                  'type' => 'string',
+                  'required' => true,
+                ),
+                'maxResults' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'pageToken' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'transactionIds' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                  'repeated' => true,
                 ),
               ),
             ),

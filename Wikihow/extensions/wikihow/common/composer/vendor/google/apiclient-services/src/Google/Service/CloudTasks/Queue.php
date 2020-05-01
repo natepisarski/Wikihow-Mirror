@@ -25,6 +25,8 @@ class Google_Service_CloudTasks_Queue extends Google_Model
   protected $rateLimitsDataType = '';
   protected $retryConfigType = 'Google_Service_CloudTasks_RetryConfig';
   protected $retryConfigDataType = '';
+  protected $stackdriverLoggingConfigType = 'Google_Service_CloudTasks_StackdriverLoggingConfig';
+  protected $stackdriverLoggingConfigDataType = '';
   public $state;
 
   /**
@@ -84,6 +86,20 @@ class Google_Service_CloudTasks_Queue extends Google_Model
   public function getRetryConfig()
   {
     return $this->retryConfig;
+  }
+  /**
+   * @param Google_Service_CloudTasks_StackdriverLoggingConfig
+   */
+  public function setStackdriverLoggingConfig(Google_Service_CloudTasks_StackdriverLoggingConfig $stackdriverLoggingConfig)
+  {
+    $this->stackdriverLoggingConfig = $stackdriverLoggingConfig;
+  }
+  /**
+   * @return Google_Service_CloudTasks_StackdriverLoggingConfig
+   */
+  public function getStackdriverLoggingConfig()
+  {
+    return $this->stackdriverLoggingConfig;
   }
   public function setState($state)
   {

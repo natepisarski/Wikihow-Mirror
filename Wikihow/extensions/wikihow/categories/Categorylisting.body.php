@@ -20,9 +20,7 @@ class CategoryListing extends SpecialPage {
 
 		$out = $this->getOutput();
 
-		if (RequestContext::getMain()->getLanguage()->getCode() == "en") {
-			$wgHooks['UseMobileRightRail'][] = ['CategoryListing::removeSideBarCallback'];
-		}
+		$wgHooks['UseMobileRightRail'][] = ['CategoryListing::removeSideBarCallback'];
 
 		$this->setHeaders();
 		$out->setPageTitle(wfMessage("Categories")->text());
@@ -48,13 +46,13 @@ class CategoryListing extends SpecialPage {
 		$out = $this->getOutput();
 
 		if (RequestContext::getMain()->getLanguage()->getCode() != "en") {
-			$out->addHTML("<br /><br />");
-			$out->addHTML("<div class='section_text'>");
+			$out->addHTML("<div class='section_text section_grid'>");
 			foreach ($catData['subcats'] as $row) {
 				$out->addHTML("<div class='thumbnail'><a href='{$row['url']}'><img src='{$row['img_url']}'/><div class='text'><p><span>{$row['cat_title']}</span></p></div></a></div>");
 			}
 			$out->addHTML("<div class='clearall'></div>");
 			$out->addHTML("</div><!-- end section_text -->");
+			$out->addModuleStyles('ext.wikihow.mobile_category_listing_intl');
 		} else {
 			$this->getCategoryListingData($catData);
 

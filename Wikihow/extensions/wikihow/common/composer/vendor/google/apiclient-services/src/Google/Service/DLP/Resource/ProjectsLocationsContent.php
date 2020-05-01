@@ -63,7 +63,8 @@ class Google_Service_DLP_Resource_ProjectsLocationsContent extends Google_Servic
    * @param string $parent The parent resource name, for example projects/my-
    * project-id.
    * @param string $locationId The geographic location to process content
-   * inspection. Reserved for future extensions.
+   * inspection. Reserved for future extensions. When inspecting images location
+   * is restricted to 'global', 'us', 'asia', and 'europe'.
    * @param Google_Service_DLP_GooglePrivacyDlpV2InspectContentRequest $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_DLP_GooglePrivacyDlpV2InspectContentResponse

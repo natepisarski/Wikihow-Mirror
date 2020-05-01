@@ -50,10 +50,13 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasets extends 
   /**
    * Creates a new dataset containing de-identified data from the source dataset.
    * The metadata field type is OperationMetadata. If the request is successful,
-   * the response field type is DeidentifySummary. If errors occur, error details
-   * field type is DeidentifyErrorDetails. Errors are also logged to Stackdriver
-   * Logging. For more information, see [Viewing logs](/healthcare/docs/how-tos
-   * /stackdriver-logging). (datasets.deidentify)
+   * the response field type is DeidentifySummary. If errors occur, error is set.
+   * The LRO result may still be successful if de-identification fails for some
+   * DICOM instances. The new de-identified dataset will not contain these failed
+   * resources. Failed resource totals are tracked in Operation.metadata. Error
+   * details are also logged to Stackdriver Logging. For more information, see
+   * [Viewing logs](/healthcare/docs/how-tos/stackdriver-logging).
+   * (datasets.deidentify)
    *
    * @param string $sourceDataset Source dataset resource name. For example,
    * `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}`.

@@ -19,6 +19,7 @@ class Google_Service_CloudBuild_PullRequestFilter extends Google_Model
 {
   public $branch;
   public $commentControl;
+  public $invertRegex;
 
   public function setBranch($branch)
   {
@@ -35,5 +36,13 @@ class Google_Service_CloudBuild_PullRequestFilter extends Google_Model
   public function getCommentControl()
   {
     return $this->commentControl;
+  }
+  public function setInvertRegex($invertRegex)
+  {
+    $this->invertRegex = $invertRegex;
+  }
+  public function getInvertRegex()
+  {
+    return $this->invertRegex;
   }
 }

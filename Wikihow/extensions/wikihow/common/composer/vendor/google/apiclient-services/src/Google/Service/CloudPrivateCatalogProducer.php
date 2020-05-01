@@ -447,10 +447,6 @@ class Google_Service_CloudPrivateCatalogProducer extends Google_Service
               'path' => 'v1beta1/operations',
               'httpMethod' => 'GET',
               'parameters' => array(
-                'filter' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                ),
                 'name' => array(
                   'location' => 'query',
                   'type' => 'string',
@@ -462,6 +458,10 @@ class Google_Service_CloudPrivateCatalogProducer extends Google_Service
                 'pageSize' => array(
                   'location' => 'query',
                   'type' => 'integer',
+                ),
+                'filter' => array(
+                  'location' => 'query',
+                  'type' => 'string',
                 ),
               ),
             ),

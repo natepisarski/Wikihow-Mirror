@@ -27,18 +27,24 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsKeys extends Goo
 {
   /**
    * Creates a custom consumer key and secret for a developer app. This is
-   * particularly useful if you want to migrate existing consumer keys/secrets to
-   * Edge from another system. Be aware of the following size limits on API keys.
-   * By staying within these limits, you help avoid service disruptions (2KB each
-   * for Consumer Key and Secret). After creating the consumer key and secret,
-   * associate the key with an API product using the API UpdateDeveloperAppKey If
-   * a consumer key and secret already exist, you can either keep them or delete
-   * them with this API DeleteKeyFromDeveloperApp Consumer keys and secrets can
-   * contain letters, numbers, underscores, and hyphens. No other special
-   * characters are allowed. (keys.create)
+   * particularly useful if you want to migrate existing consumer keys and secrets
+   * to Apigee hybrid from another system.
    *
-   * @param string $parent Parent of a developer app key in the form
-   * `organizations/{org}/developers/{developer}/apps`
+   * Consumer keys and secrets can contain letters, numbers, underscores, and
+   * hyphens. No other special characters are allowed.
+   *
+   * **Note**: To avoid service disruptions, a consumer key and secret should not
+   * exceed 2 KBs each.
+   *
+   * After creating the consumer key and secret, associate the key with an API
+   * product using the UpdateDeveloperAppKey API.
+   *
+   * If a consumer key and secret already exist, you can keep them or delete them
+   * using the DeleteDeveloperAppKey API. (keys.create)
+   *
+   * @param string $parent Parent of the developer app key. Use the following
+   * structure in your request:
+   * `organizations/{org}/developers/{developer_email}/apps`
    * @param Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey
@@ -50,15 +56,19 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsKeys extends Goo
     return $this->call('create', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey");
   }
   /**
-   * Deletes a consumer key that belongs to an app, and removes all API products
-   * associated with the app. Once deleted, the consumer key cannot be used to
-   * access any APIs. Note: After you delete a consumer key, you may want to: 1.
-   * Create a new consumer key and secret for the developer app, and subsequently
-   * add an API product to the key. 2. Delete the developer app, if it is no
-   * longer required. (keys.delete)
+   * Deletes an app's consumer key and removes all API products associated with
+   * the app. After the consumer key is deleted, it cannot be used to access any
+   * APIs.
    *
-   * @param string $name Resource name of a developer app key
-   * `organizations/{org}/developers/{developer}/apps/{app}/keys/{key}`
+   * **Note**: After you delete a consumer key, you may want to: 1. Create a new
+   * consumer key and secret for the developer app using the CreateDeveloperAppKey
+   * API, and subsequently add an API product to the key using the
+   * UpdateDeveloperAppKey API. 2. Delete the developer app, if it is no longer
+   * required. (keys.delete)
+   *
+   * @param string $name Name of the developer app key. Use the following
+   * structure in your request:
+   * `organizations/{org}/developers/{developer_email}/apps/{app}/keys/{key}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey
    */
@@ -70,11 +80,11 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsKeys extends Goo
   }
   /**
    * Returns details for a consumer key for a developer app, including the key and
-   * secret value, associated API products, and other information. All times are
-   * displayed as UNIX times. (keys.get)
+   * secret value, associated API products, and other information. (keys.get)
    *
-   * @param string $name Resource name of a developer app key
-   * `organizations/{org}/developers/{developer}/apps/{app}/keys/{key}`
+   * @param string $name Name of the developer app key. Use the following
+   * structure in your request:
+   * `organizations/{org}/developers/{developer_email}/apps/{app}/keys/{key}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey
    */
@@ -85,12 +95,19 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsKeys extends Goo
     return $this->call('get', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey");
   }
   /**
-   * Updates the scope of an app. Note that this API sets the scopes element under
-   * the apiProducts element in the attributes of the app.
-   * (keys.replaceDeveloperAppKey)
+   * Updates the scope of an app.
    *
-   * @param string $name Resource name of a company app key
-   * `organizations/{org}/developers/{developer}/apps/{app}/keys/{key}`
+   * This API replaces the existing scopes with those specified in the request.
+   * Include or exclude any existing scopes that you want to retain or delete,
+   * respectively. The specified scopes must already be defined for the API
+   * products associated with the app.
+   *
+   * This API sets the `scopes` element under the `apiProducts` element in the
+   * attributes of the app. (keys.replaceDeveloperAppKey)
+   *
+   * @param string $name Name of the developer app key. Use the following
+   * structure in your request:
+   * `organizations/{org}/developers/{developer_email}/apps/{app}/keys/{key}`
    * @param Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey
@@ -103,19 +120,24 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsKeys extends Goo
   }
   /**
    * Adds an API product to a developer app key, enabling the app that holds the
-   * key to access the API resources bundled in the API product. You can also use
-   * this API to add attributes to the key. Use this API to add a new API product
-   * to an existing app. After adding the API product, you can use the same key to
-   * access all API products associated with the app. You must include all
-   * existing attributes, whether or not you are updating them, as well as any new
-   * attributes that you are adding. (keys.updateDeveloperAppKey)
+   * key to access the API resources bundled in the API product.
    *
-   * @param string $name Resource name of a company app key
-   * `organizations/{org}/developers/{developer}/apps/{app}/keys/{key}`
+   * In addition, you can add attributes to a developer app key. This API replaces
+   * the existing attributes with those specified in the request. Include or
+   * exclude any existing attributes that you want to retain or delete,
+   * respectively.
+   *
+   * You can use the same key to access all API products associated with the app.
+   * (keys.updateDeveloperAppKey)
+   *
+   * @param string $name Name of the developer app key. Use the following
+   * structure in your request:
+   * `organizations/{org}/developers/{developer_email}/apps/{app}/keys/{key}`
    * @param Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey $postBody
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string action Set the action to approve or revoke.
+   * @opt_param string action Approve or revoke the consumer key by setting this
+   * value to `approve` or `revoke`, respectively.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey
    */
   public function updateDeveloperAppKey($name, Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey $postBody, $optParams = array())

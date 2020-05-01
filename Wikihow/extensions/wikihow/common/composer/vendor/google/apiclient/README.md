@@ -2,7 +2,7 @@
 
 # Google APIs Client Library for PHP #
 
-The Google API Client Library enables you to work with Google APIs such as Google+, Drive, or YouTube on your server.
+The Google API Client Library enables you to work with Google APIs such as Gmail, Drive or YouTube on your server.
 
 These client libraries are officially supported by Google.  However, the libraries are considered complete and are in maintenance mode. This means that we will address critical bugs and security issues but will not add any new features.
 
@@ -79,7 +79,7 @@ $service = new Google_Service_Books($client);
 $optParams = array('filter' => 'free-ebooks');
 $results = $service->volumes->listVolumes('Henry David Thoreau', $optParams);
 
-foreach ($results as $item) {
+foreach ($results->getItems() as $item) {
   echo $item['volumeInfo']['title'], "<br /> \n";
 }
 ```

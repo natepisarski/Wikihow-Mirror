@@ -36,7 +36,6 @@ class Google_Service_CloudPrivateCatalog_Resource_OrganizationsCatalogs extends 
    * `organizations/{organization_id}`
    * @param array $optParams Optional parameters.
    *
-   * @opt_param int pageSize The maximum number of entries that are requested.
    * @opt_param string query The query to filter the catalogs. The supported
    * queries are:
    *
@@ -44,6 +43,7 @@ class Google_Service_CloudPrivateCatalog_Resource_OrganizationsCatalogs extends 
    * @opt_param string pageToken A pagination token returned from a previous call
    * to SearchCatalogs that indicates where this listing should continue from.
    * This field is optional.
+   * @opt_param int pageSize The maximum number of entries that are requested.
    * @return Google_Service_CloudPrivateCatalog_GoogleCloudPrivatecatalogV1beta1SearchCatalogsResponse
    */
   public function search($resource, $optParams = array())

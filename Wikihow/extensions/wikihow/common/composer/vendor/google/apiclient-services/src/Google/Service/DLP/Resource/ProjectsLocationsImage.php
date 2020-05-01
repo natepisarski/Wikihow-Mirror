@@ -39,7 +39,8 @@ class Google_Service_DLP_Resource_ProjectsLocationsImage extends Google_Service_
    * @param string $parent The parent resource name, for example projects/my-
    * project-id.
    * @param string $locationId The geographic location to process the request.
-   * Reserved for future extensions.
+   * Reserved for future extensions. Location is restricted to 'global', 'us',
+   * 'asia', and 'europe'.
    * @param Google_Service_DLP_GooglePrivacyDlpV2RedactImageRequest $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_DLP_GooglePrivacyDlpV2RedactImageResponse

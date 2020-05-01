@@ -127,7 +127,7 @@ class WHVid {
 
 	}
 
-	private static function getSummaryImageThumbUrl( $image, $width ) {
+	public static function getSummaryImageThumbUrl( $image, $width ) {
 		$params = array(
 			'width' => $width,
 			WatermarkSupport::NO_WATERMARK => true,
@@ -494,12 +494,12 @@ class WHVid {
 		}
 	}
 
-	public static function getVideoAnchorForLoggedOut($title) {
+	public static function getVideoAnchor($title) {
 		$hasYTVideo = self::hasYTVideo($title, true);
 		$isYTSummaryArticle = self::isYtSummaryArticle($title);
 
-		if($hasYTVideo && $isYTSummaryArticle) {
-			return  wfMessage("Videoheader")->text();
+		if ($hasYTVideo && $isYTSummaryArticle) {
+			return Sanitizer::escapeIdForAttribute( wfMessage("videoheader")->text() );
 		} elseif(self::hasSummaryVideo($title, true)) {
 			return 'quick_summary_section';
 		} else {

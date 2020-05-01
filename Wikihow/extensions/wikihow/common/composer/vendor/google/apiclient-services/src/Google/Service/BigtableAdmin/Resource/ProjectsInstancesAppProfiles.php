@@ -28,16 +28,17 @@ class Google_Service_BigtableAdmin_Resource_ProjectsInstancesAppProfiles extends
   /**
    * Creates an app profile within an instance. (appProfiles.create)
    *
-   * @param string $parent The unique name of the instance in which to create the
-   * new app profile. Values are of the form `projects//instances/`.
+   * @param string $parent Required. The unique name of the instance in which to
+   * create the new app profile. Values are of the form
+   * `projects/{project}/instances/{instance}`.
    * @param Google_Service_BigtableAdmin_AppProfile $postBody
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string appProfileId Required. The ID to be used when referring to
+   * the new app profile within its instance, e.g., just `myprofile` rather than
+   * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
    * @opt_param bool ignoreWarnings If true, ignore safety checks when creating
    * the app profile.
-   * @opt_param string appProfileId The ID to be used when referring to the new
-   * app profile within its instance, e.g., just `myprofile` rather than
-   * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
    * @return Google_Service_BigtableAdmin_AppProfile
    */
   public function create($parent, Google_Service_BigtableAdmin_AppProfile $postBody, $optParams = array())
@@ -49,12 +50,13 @@ class Google_Service_BigtableAdmin_Resource_ProjectsInstancesAppProfiles extends
   /**
    * Deletes an app profile from an instance. (appProfiles.delete)
    *
-   * @param string $name The unique name of the app profile to be deleted. Values
-   * are of the form `projects//instances//appProfiles/`.
+   * @param string $name Required. The unique name of the app profile to be
+   * deleted. Values are of the form
+   * `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param bool ignoreWarnings If true, ignore safety checks when deleting
-   * the app profile.
+   * @opt_param bool ignoreWarnings Required. If true, ignore safety checks when
+   * deleting the app profile.
    * @return Google_Service_BigtableAdmin_BigtableadminEmpty
    */
   public function delete($name, $optParams = array())
@@ -66,8 +68,9 @@ class Google_Service_BigtableAdmin_Resource_ProjectsInstancesAppProfiles extends
   /**
    * Gets information about an app profile. (appProfiles.get)
    *
-   * @param string $name The unique name of the requested app profile. Values are
-   * of the form `projects//instances//appProfiles/`.
+   * @param string $name Required. The unique name of the requested app profile.
+   * Values are of the form
+   * `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
    * @param array $optParams Optional parameters.
    * @return Google_Service_BigtableAdmin_AppProfile
    */
@@ -81,9 +84,10 @@ class Google_Service_BigtableAdmin_Resource_ProjectsInstancesAppProfiles extends
    * Lists information about app profiles in an instance.
    * (appProfiles.listProjectsInstancesAppProfiles)
    *
-   * @param string $parent The unique name of the instance for which a list of app
-   * profiles is requested. Values are of the form `projects//instances/`. Use ` =
-   * '-'` to list AppProfiles for all Instances in a project, e.g.,
+   * @param string $parent Required. The unique name of the instance for which a
+   * list of app profiles is requested. Values are of the form
+   * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+   * AppProfiles for all Instances in a project, e.g.,
    * `projects/myproject/instances/-`.
    * @param array $optParams Optional parameters.
    *
@@ -116,8 +120,8 @@ class Google_Service_BigtableAdmin_Resource_ProjectsInstancesAppProfiles extends
    *
    * @opt_param bool ignoreWarnings If true, ignore safety checks when updating
    * the app profile.
-   * @opt_param string updateMask The subset of app profile fields which should be
-   * replaced. If unset, all fields will be replaced.
+   * @opt_param string updateMask Required. The subset of app profile fields which
+   * should be replaced. If unset, all fields will be replaced.
    * @return Google_Service_BigtableAdmin_Operation
    */
   public function patch($name, Google_Service_BigtableAdmin_AppProfile $postBody, $optParams = array())

@@ -23,6 +23,7 @@ class Google_Service_GamesManagement_Player extends Google_Model
   public $displayName;
   protected $experienceInfoType = 'Google_Service_GamesManagement_GamesPlayerExperienceInfoResource';
   protected $experienceInfoDataType = '';
+  public $friendStatus;
   public $kind;
   protected $lastPlayedWithType = 'Google_Service_GamesManagement_GamesPlayedResource';
   protected $lastPlayedWithDataType = '';
@@ -80,6 +81,14 @@ class Google_Service_GamesManagement_Player extends Google_Model
   public function getExperienceInfo()
   {
     return $this->experienceInfo;
+  }
+  public function setFriendStatus($friendStatus)
+  {
+    $this->friendStatus = $friendStatus;
+  }
+  public function getFriendStatus()
+  {
+    return $this->friendStatus;
   }
   public function setKind($kind)
   {

@@ -27,8 +27,11 @@
 			$(".slider_become_main .slider_button").attr("href", encodeURI(url.text()));
 			$("#sliderbox").addClass("sliderbox_newsletter");
 
-			!isRelationshipArticle && $(".slider_become_main .slider_button").click(function() {
-				WH.event("article_promo_newsletter_slider_click_go_em");
+			var eventName = isRelationshipArticle
+				? 'article_promo_marriage_slider_click_go_ecd'
+				: 'article_promo_newsletter_slider_click_go_em';
+			$(".slider_become_main .slider_button").click(function() {
+				WH.event(eventName);
 			});
 		},
 

@@ -63,7 +63,7 @@
 				WH.MobileSlideshow.showSlideshow(step);
 			});
 		},
-	
+
 		initImages: function() {
 			if (WH.MobileSlideshow.$pswp === null) {
 				WH.MobileSlideshow.$pswp = $('.pswp')[0];
@@ -93,16 +93,19 @@
 
 						//now get the first sentence of the step
 						var step = $(this).siblings('.step').find('.whb').html();
-						var $method = $(this).parents('.steps').find('h3 .mw-headline');
+						var $method = $(this).parents('.steps').find('h3');
+						var methodText = '';
+
 						if ($method.length > 0) {
-							//first check if there's a <br>
-							var methodText = $method.text();
-							//now get the part/method number
-							var $alt = $method.parent().find(".altblock");
-							var altText = $alt[0].childNodes[0].nodeValue;
-							altText += $alt.find("span:first-child").text();
-							methodText = altText + ": " + methodText;
-						} else {
+							var methodTitle = $method.find('span.mw-headline').text();
+
+							var $altBlock = $method.parent().find('.altblock div');
+							var methodName = $altBlock[0].childNodes[0].nodeValue;
+							var methodCount = $altBlock.find('span:first-child').text();
+
+							methodText = methodName + ' ' + methodCount + ': ' + methodTitle;
+						}
+						else {
 							methodText = '&nbsp'; //need it to make the close button work
 						}
 
@@ -136,7 +139,7 @@
 				});
 			}
 		},
-		
+
 		showSlideshow: function(step){
 
 			// WH.whEvent('mobile_slideshow', 'mobile_slideshow_start');

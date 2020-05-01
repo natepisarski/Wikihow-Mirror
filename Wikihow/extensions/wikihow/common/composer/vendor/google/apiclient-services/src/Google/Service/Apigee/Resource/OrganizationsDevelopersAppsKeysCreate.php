@@ -27,18 +27,24 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsKeysCreate exten
 {
   /**
    * Creates a custom consumer key and secret for a developer app. This is
-   * particularly useful if you want to migrate existing consumer keys/secrets to
-   * Edge from another system. Be aware of the following size limits on API keys.
-   * By staying within these limits, you help avoid service disruptions (2KB each
-   * for Consumer Key and Secret). After creating the consumer key and secret,
-   * associate the key with an API product using the API UpdateDeveloperAppKey If
-   * a consumer key and secret already exist, you can either keep them or delete
-   * them with this API DeleteKeyFromDeveloperApp Consumer keys and secrets can
-   * contain letters, numbers, underscores, and hyphens. No other special
-   * characters are allowed. (create.create)
+   * particularly useful if you want to migrate existing consumer keys and secrets
+   * to Apigee hybrid from another system.
    *
-   * @param string $parent Parent of a developer app key in the form
-   * `organizations/{org}/developers/{developer}/apps`
+   * Consumer keys and secrets can contain letters, numbers, underscores, and
+   * hyphens. No other special characters are allowed.
+   *
+   * **Note**: To avoid service disruptions, a consumer key and secret should not
+   * exceed 2 KBs each.
+   *
+   * After creating the consumer key and secret, associate the key with an API
+   * product using the UpdateDeveloperAppKey API.
+   *
+   * If a consumer key and secret already exist, you can keep them or delete them
+   * using the DeleteDeveloperAppKey API. (create.create)
+   *
+   * @param string $parent Parent of the developer app key. Use the following
+   * structure in your request:
+   * `organizations/{org}/developers/{developer_email}/apps`
    * @param Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1DeveloperAppKey

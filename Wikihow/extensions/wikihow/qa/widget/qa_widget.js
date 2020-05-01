@@ -347,20 +347,6 @@
 					WH.QAWidget.popExpertInfo($(this).parent().find('.qa_user_hover'), e.type);
 				});
 
-			//-- Top Answerers --
-			$('#qa')
-				.on('mouseenter mouseleave click', '.qa_ta_area', function(e) {
-					if ($(e.target).length && $(e.target).hasClass('click_out')) {
-						//you shall pass...
-					}
-					else {
-						e.preventDefault();
-					}
-
-					WH.QAWidget.topAnswererBox($(this).parent(), e.type);
-				});
-			//--------------------
-
 			if(!WH.isMobileDomain && this.isUnpatrolledQuestionsTarget) {
 				$('#qa').on('click', '#qa_show_more_unpatrolled', function(e) {
 					e.preventDefault();
@@ -783,6 +769,20 @@
 			if (this.isUnansweredQuestionsTarget) {
 				this.initEditorListeners();
 			}
+
+			//-- Top Answerers --
+			$('#qa')
+				.on('mouseenter mouseleave click', '.qa_ta_area', function(e) {
+					if ($(e.target).length && $(e.target).hasClass('click_out')) {
+						//you shall pass...
+					}
+					else {
+						e.preventDefault();
+					}
+
+					WH.QAWidget.topAnswererBox($(this).parent(), e.type);
+				});
+			//--------------------
 
 			$.subscribe(WH.ThumbsUpDown.VOTE_UP_EVENT, function(e, elem) {
 				var aqid = $(elem).closest('.qa_aq').data('aqid');

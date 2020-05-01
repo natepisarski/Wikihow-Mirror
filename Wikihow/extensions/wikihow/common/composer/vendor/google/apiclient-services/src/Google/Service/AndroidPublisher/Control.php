@@ -20,6 +20,8 @@ class Google_Service_AndroidPublisher_Control extends Google_Collection
   protected $collection_key = 'versionCodes';
   protected $modRangesType = 'Google_Service_AndroidPublisher_ModRange';
   protected $modRangesDataType = 'array';
+  protected $stratifiedSamplingsType = 'Google_Service_AndroidPublisher_StratifiedSampling';
+  protected $stratifiedSamplingsDataType = 'array';
   public $versionCodes;
 
   /**
@@ -35,6 +37,20 @@ class Google_Service_AndroidPublisher_Control extends Google_Collection
   public function getModRanges()
   {
     return $this->modRanges;
+  }
+  /**
+   * @param Google_Service_AndroidPublisher_StratifiedSampling
+   */
+  public function setStratifiedSamplings($stratifiedSamplings)
+  {
+    $this->stratifiedSamplings = $stratifiedSamplings;
+  }
+  /**
+   * @return Google_Service_AndroidPublisher_StratifiedSampling
+   */
+  public function getStratifiedSamplings()
+  {
+    return $this->stratifiedSamplings;
   }
   public function setVersionCodes($versionCodes)
   {

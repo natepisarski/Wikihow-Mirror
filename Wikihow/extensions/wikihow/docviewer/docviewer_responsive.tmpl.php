@@ -13,6 +13,9 @@
 	<div id="sample" class="hidden">
 		<?=$dv_sample_html?>
 	</div>
+	<div id="sample_loading">
+		<p style="text-align: center;padding:10em"><?= wfMessage( 'sample-loading' )->text() ?></p>
+	</div>
 </div>
 
 <div id="docviewer_choices" class="dv_mobile docviewer_box">

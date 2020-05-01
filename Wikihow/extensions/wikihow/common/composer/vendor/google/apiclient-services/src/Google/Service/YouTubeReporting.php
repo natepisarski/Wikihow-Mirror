@@ -160,10 +160,6 @@ class Google_Service_YouTubeReporting extends Google_Service
                   'type' => 'string',
                   'required' => true,
                 ),
-                'createdAfter' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                ),
                 'startTimeAtOrAfter' => array(
                   'location' => 'query',
                   'type' => 'string',
@@ -181,6 +177,10 @@ class Google_Service_YouTubeReporting extends Google_Service
                   'type' => 'string',
                 ),
                 'startTimeBefore' => array(
+                  'location' => 'query',
+                  'type' => 'string',
+                ),
+                'createdAfter' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
@@ -219,14 +219,6 @@ class Google_Service_YouTubeReporting extends Google_Service
               'path' => 'v1/reportTypes',
               'httpMethod' => 'GET',
               'parameters' => array(
-                'pageSize' => array(
-                  'location' => 'query',
-                  'type' => 'integer',
-                ),
-                'onBehalfOfContentOwner' => array(
-                  'location' => 'query',
-                  'type' => 'string',
-                ),
                 'pageToken' => array(
                   'location' => 'query',
                   'type' => 'string',
@@ -234,6 +226,14 @@ class Google_Service_YouTubeReporting extends Google_Service
                 'includeSystemManaged' => array(
                   'location' => 'query',
                   'type' => 'boolean',
+                ),
+                'pageSize' => array(
+                  'location' => 'query',
+                  'type' => 'integer',
+                ),
+                'onBehalfOfContentOwner' => array(
+                  'location' => 'query',
+                  'type' => 'string',
                 ),
               ),
             ),

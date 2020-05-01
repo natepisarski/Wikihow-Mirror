@@ -9,23 +9,27 @@ class updateHomepageNewpages extends Maintenance {
 	}
 
 	public function execute() {
-		NewPages::setHomepageArticles();
+		global $wgLanguageCode;
+		NewPages::setHomepageArticles($wgLanguageCode);
+		NewPages::setCategorypageArticles();
 
-		//email Graham the new set of homepage articles
-		$newPages = NewPages::getHomepageArticles();
-		$ids = "";
-		foreach($newPages as $title) {
-			if($title && $title->exists()) {
-				$ids .= $title->getArticleID() . "\n";
+		if($wgLanguageCode == "en") {
+			//email Graham the new set of homepage articles
+			$newPages = NewPages::getHomepageArticles();
+			$ids = "";
+			foreach ($newPages as $title) {
+				if ($title && $title->exists()) {
+					$ids .= $title->getArticleID() . "\n";
+				}
 			}
-		}
 
-		UserMailer::send(
-			new MailAddress('graham@wikihow.com'),
-			new MailAddress('bebeth@wikihow.com'),
-			"New Pages on Homepage Ids",
-			$ids
-		);
+			UserMailer::send(
+				new MailAddress('graham@wikihow.com'),
+				new MailAddress('bebeth@wikihow.com'),
+				"New Pages on $wgLanguageCode Homepage Ids",
+				$ids
+			);
+		}
 	}
 }
 

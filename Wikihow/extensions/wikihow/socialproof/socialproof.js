@@ -248,7 +248,7 @@
 
 		//(i) dialog link tracking
 		$(document).on('click', '.sp_learn_more_link', function() {
-			WH.maEvent('article-information-hover-learnmore-click');
+			WH.event('article_byline_hover_learnmore_click_go_em');
 		});
 
 		var elements = '.sp_info_icon, .expert_coauthor_link, '+

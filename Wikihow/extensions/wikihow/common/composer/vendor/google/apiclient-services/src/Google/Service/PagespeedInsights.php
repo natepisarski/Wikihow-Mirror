@@ -81,11 +81,11 @@ class Google_Service_PagespeedInsights extends Google_Service
                   'location' => 'query',
                   'type' => 'string',
                 ),
-                'utm_campaign' => array(
+                'url' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),
-                'url' => array(
+                'utm_campaign' => array(
                   'location' => 'query',
                   'type' => 'string',
                 ),

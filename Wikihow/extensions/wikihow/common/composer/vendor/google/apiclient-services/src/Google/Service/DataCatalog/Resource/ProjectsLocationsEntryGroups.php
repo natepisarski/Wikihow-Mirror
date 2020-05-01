@@ -26,14 +26,13 @@
 class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroups extends Google_Service_Resource
 {
   /**
-   * Creates an EntryGroup.
-   *
-   * The user should enable the Data Catalog API in the project identified by the
-   * `parent` parameter (see [Data Catalog Resource Project] (/data-
-   * catalog/docs/concepts/resource-project) for more information).
-   *
    * A maximum of 10,000 entry groups may be created per organization across all
-   * locations. (entryGroups.create)
+   * locations.
+   *
+   * Users should enable the Data Catalog API in the project identified by the
+   * `parent` parameter (see [Data Catalog Resource Project]
+   * (https://cloud.google.com/data-catalog/docs/concepts/resource-project) for
+   * more information). (entryGroups.create)
    *
    * @param string $parent Required. The name of the project this entry group is
    * in. Example:
@@ -58,10 +57,10 @@ class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroups extends G
   }
   /**
    * Deletes an EntryGroup. Only entry groups that do not contain entries can be
-   * deleted. The user should enable the Data Catalog API in the project
-   * identified by the `name` parameter (see [Data Catalog Resource Project]
-   * (/data-catalog/docs/concepts/resource-project) for more information).
-   * (entryGroups.delete)
+   * deleted. Users should enable the Data Catalog API in the project identified
+   * by the `name` parameter (see [Data Catalog Resource Project]
+   * (https://cloud.google.com/data-catalog/docs/concepts/resource-project) for
+   * more information). (entryGroups.delete)
    *
    * @param string $name Required. The name of the entry group. For example,
    * `projects/{project_id}/locations/{location}/entryGroups/{entry_group_id}`.
@@ -100,9 +99,8 @@ class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroups extends G
    * resource exists but does not have a policy set on it.
    *
    * Supported resources are:   - Tag templates.   - Entries.   - Entry groups.
-   * Note, this method cannot be used to manage policies for BigQuery, Cloud
-   * Pub/Sub and any external Google Cloud Platform resources synced to Cloud Data
-   * Catalog.
+   * Note, this method cannot be used to manage policies for BigQuery, Pub/Sub and
+   * any external Google Cloud Platform resources synced to Data Catalog.
    *
    * Callers must have following Google IAM permission   -
    * `datacatalog.tagTemplates.getIamPolicy` to get policies on tag     templates.
@@ -148,8 +146,8 @@ class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroups extends G
   /**
    * Updates an EntryGroup. The user should enable the Data Catalog API in the
    * project identified by the `entry_group.name` parameter (see [Data Catalog
-   * Resource Project] (/data-catalog/docs/concepts/resource-project) for more
-   * information). (entryGroups.patch)
+   * Resource Project] (https://cloud.google.com/data-catalog/docs/concepts
+   * /resource-project) for more information). (entryGroups.patch)
    *
    * @param string $name The resource name of the entry group in URL format.
    * Example:
@@ -174,9 +172,8 @@ class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroups extends G
   /**
    * Sets the access control policy for a resource. Replaces any existing policy.
    * Supported resources are:   - Tag templates.   - Entries.   - Entry groups.
-   * Note, this method cannot be used to manage policies for BigQuery, Cloud
-   * Pub/Sub and any external Google Cloud Platform resources synced to Cloud Data
-   * Catalog.
+   * Note, this method cannot be used to manage policies for BigQuery, Pub/Sub and
+   * any external Google Cloud Platform resources synced to Data Catalog.
    *
    * Callers must have following Google IAM permission   -
    * `datacatalog.tagTemplates.setIamPolicy` to set policies on tag     templates.
@@ -203,9 +200,8 @@ class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroups extends G
    * error).
    *
    * Supported resources are:   - Tag templates.   - Entries.   - Entry groups.
-   * Note, this method cannot be used to manage policies for BigQuery, Cloud
-   * Pub/Sub and any external Google Cloud Platform resources synced to Cloud Data
-   * Catalog.
+   * Note, this method cannot be used to manage policies for BigQuery, Pub/Sub and
+   * any external Google Cloud Platform resources synced to Data Catalog.
    *
    * A caller is not required to have Google IAM permission to make this request.
    * (entryGroups.testIamPermissions)

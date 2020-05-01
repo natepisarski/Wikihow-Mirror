@@ -129,7 +129,6 @@ class Google_Service_Directory extends Google_Service
   public $notifications;
   public $orgunits;
   public $privileges;
-  public $resolvedAppAccessSettings;
   public $resources_buildings;
   public $resources_calendars;
   public $resources_features;
@@ -1080,24 +1079,6 @@ class Google_Service_Directory extends Google_Service
                   'required' => true,
                 ),
               ),
-            ),
-          )
-        )
-    );
-    $this->resolvedAppAccessSettings = new Google_Service_Directory_Resource_ResolvedAppAccessSettings(
-        $this,
-        $this->serviceName,
-        'resolvedAppAccessSettings',
-        array(
-          'methods' => array(
-            'GetSettings' => array(
-              'path' => 'resolvedappaccesssettings',
-              'httpMethod' => 'GET',
-              'parameters' => array(),
-            ),'ListTrustedApps' => array(
-              'path' => 'trustedapps',
-              'httpMethod' => 'GET',
-              'parameters' => array(),
             ),
           )
         )

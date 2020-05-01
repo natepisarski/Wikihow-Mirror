@@ -26,20 +26,23 @@
 class Google_Service_Apigee_Resource_OrganizationsEnvironmentsResourcefiles extends Google_Service_Resource
 {
   /**
-   * Creates a resource file in an environment. `Content-Type` must be either
-   * `multipart/form-data` with the resource file provided in the only field, or
-   * 'application/octet-stream'. (resourcefiles.create)
+   * Creates a resource file.
    *
-   * @param string $parent Required. The name of the environment in which to
-   * create the resource file. Must be of the form
-   * `organizations/{organization}/environments/{environment}`.
+   * Specify the `Content-Type` as `application/octet-stream` or `multipart/form-
+   * data`.
+   *
+   * For more information about resource files, see [Resource files](/api-
+   * platform/develop/resource-files). (resourcefiles.create)
+   *
+   * @param string $parent Required. Name of the environment in which to create
+   * the resource file in the following format:
+   * `organizations/{org}/environments/{env}`.
    * @param Google_Service_Apigee_GoogleApiHttpBody $postBody
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string type Required. The resource file type, must be `js`, `jsc`,
-   * `java`, `properties`, `py`, `xsl`, `wsdl`, or `xsd`.
-   * @opt_param string name Required. The id of the resource file.  Must match the
-   * regular expression [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'` ]{1,255}
+   * @opt_param string type Required. Resource file type. {{ resource_file_type }}
+   * @opt_param string name Required. Name of the resource file.  Must match the
+   * regular expression: [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'` ]{1,255}
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ResourceFile
    */
   public function create($parent, Google_Service_Apigee_GoogleApiHttpBody $postBody, $optParams = array())
@@ -49,54 +52,59 @@ class Google_Service_Apigee_Resource_OrganizationsEnvironmentsResourcefiles exte
     return $this->call('create', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1ResourceFile");
   }
   /**
-   * Deletes a resource file in an environment. (resourcefiles.delete)
+   * Deletes a resource file.
    *
-   * @param string $parent Required. The name of the parent environment. Must be
-   * of the form `organizations/{organization}/environments/{environment}`.
-   * @param string $type Required. The resource file type, must be `js`, `jsc`,
-   * `java`, `properties`, `py`, `xsl`, `wsdl`, or `xsd`.
-   * @param string $resourceFileId Required. The id of the resource file to
-   * delete. Must match the regular expression
-   * [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'` ]{1,255}
+   * For more information about resource files, see [Resource files](/api-
+   * platform/develop/resource-files). (resourcefiles.delete)
+   *
+   * @param string $parent Required. Name of the environment in the following
+   * format:   `organizations/{org}/environments/{env}`.
+   * @param string $type Required. Resource file type. {{ resource_file_type }}
+   * @param string $name Required. ID of the resource file to delete. Must match
+   * the regular expression: [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'` ]{1,255}
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ResourceFile
    */
-  public function delete($parent, $type, $resourceFileId, $optParams = array())
+  public function delete($parent, $type, $name, $optParams = array())
   {
-    $params = array('parent' => $parent, 'type' => $type, 'resourceFileId' => $resourceFileId);
+    $params = array('parent' => $parent, 'type' => $type, 'name' => $name);
     $params = array_merge($params, $optParams);
     return $this->call('delete', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1ResourceFile");
   }
   /**
-   * Gets a resource file in an environment. (resourcefiles.get)
+   * Gets the contents of a resource file.
    *
-   * @param string $parent Required. The name of the parent environment. Must be
-   * of the form `organizations/{organization}/environments/{environment}`.
-   * @param string $type Required. The resource file type, must be `js`, `jsc`,
-   * `java`, `properties`, `py`, `xsl`, `wsdl`, or `xsd`.
-   * @param string $resourceFileId Required. The id of the resource file to get.
-   * Must match the regular expression [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'`
-   * ]{1,255}
+   * For more information about resource files, see [Resource files](/api-
+   * platform/develop/resource-files). (resourcefiles.get)
+   *
+   * @param string $parent Required. Name of the environment in the following
+   * format:   `organizations/{org}/environments/{env}`.
+   * @param string $type Required. Resource file type.  {{ resource_file_type }}
+   * @param string $name Required. ID of the resource file. Must match the regular
+   * expression: [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'` ]{1,255}
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleApiHttpBody
    */
-  public function get($parent, $type, $resourceFileId, $optParams = array())
+  public function get($parent, $type, $name, $optParams = array())
   {
-    $params = array('parent' => $parent, 'type' => $type, 'resourceFileId' => $resourceFileId);
+    $params = array('parent' => $parent, 'type' => $type, 'name' => $name);
     $params = array_merge($params, $optParams);
     return $this->call('get', array($params), "Google_Service_Apigee_GoogleApiHttpBody");
   }
   /**
-   * Lists all resource files in an environment.
+   * Lists all resource files.
+   *
+   * For more information about resource files, see [Resource files](/api-
+   * platform/develop/resource-files).
    * (resourcefiles.listOrganizationsEnvironmentsResourcefiles)
    *
-   * @param string $parent Required. The name of the environment in which to list
-   * resource files. Must be of the form
-   * `organizations/{organization}/environments/{environment}`.
+   * @param string $parent Required. Name of the environment in which to list
+   * resource files in the following format:
+   * `organizations/{org}/environments/{env}`.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string type Optional. Restricts the response to resources of the
-   * given type.
+   * @opt_param string type Optional. Type of resource files to list. {{
+   * resource_file_type }}
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ListEnvironmentResourcesResponse
    */
   public function listOrganizationsEnvironmentsResourcefiles($parent, $optParams = array())
@@ -106,14 +114,16 @@ class Google_Service_Apigee_Resource_OrganizationsEnvironmentsResourcefiles exte
     return $this->call('list', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1ListEnvironmentResourcesResponse");
   }
   /**
-   * Lists all resource files in an environment.
-   * (resourcefiles.listEnvironmentResources)
+   * Lists all resource files.
    *
-   * @param string $parent Required. The name of the environment in which to list
-   * resource files. Must be of the form
-   * `organizations/{organization}/environments/{environment}`.
-   * @param string $type Optional. Restricts the response to resources of the
-   * given type.
+   * For more information about resource files, see [Resource files](/api-
+   * platform/develop/resource-files). (resourcefiles.listEnvironmentResources)
+   *
+   * @param string $parent Required. Name of the environment in which to list
+   * resource files in the following format:
+   * `organizations/{org}/environments/{env}`.
+   * @param string $type Optional. Type of resource files to list. {{
+   * resource_file_type }}
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ListEnvironmentResourcesResponse
    */
@@ -124,24 +134,26 @@ class Google_Service_Apigee_Resource_OrganizationsEnvironmentsResourcefiles exte
     return $this->call('listEnvironmentResources', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1ListEnvironmentResourcesResponse");
   }
   /**
-   * Updates a resource file in an environment. `Content-Type` must be either
-   * `multipart/form-data` with the resource file provided in the only field, or
-   * 'application/octet-stream'. (resourcefiles.update)
+   * Updates a resource file.
    *
-   * @param string $parent Required. The name of the parent environment. Must be
-   * of the form `organizations/{organization}/environments/{environment}`.
-   * @param string $type Required. The resource file type, must be `js`, `jsc`,
-   * `java`, `properties`, `py`, `xsl`, `wsdl`, or `xsd`.
-   * @param string $resourceFileId Required. The id of the resource file to
-   * update. Must match the regular expression
-   * [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'` ]{1,255}
+   * Specify the `Content-Type` as `application/octet-stream` or `multipart/form-
+   * data`.
+   *
+   * For more information about resource files, see [Resource files](/api-
+   * platform/develop/resource-files). (resourcefiles.update)
+   *
+   * @param string $parent Required. Name of the environment in the following
+   * format:   `organizations/{org}/environments/{env}`.
+   * @param string $type Required. Resource file type. {{ resource_file_type }}
+   * @param string $name Required. ID of the resource file to update. Must match
+   * the regular expression: [a-zA-Z0-9:/\\!@#$%^&{}\[\]()+\-=,.~'` ]{1,255}
    * @param Google_Service_Apigee_GoogleApiHttpBody $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ResourceFile
    */
-  public function update($parent, $type, $resourceFileId, Google_Service_Apigee_GoogleApiHttpBody $postBody, $optParams = array())
+  public function update($parent, $type, $name, Google_Service_Apigee_GoogleApiHttpBody $postBody, $optParams = array())
   {
-    $params = array('parent' => $parent, 'type' => $type, 'resourceFileId' => $resourceFileId, 'postBody' => $postBody);
+    $params = array('parent' => $parent, 'type' => $type, 'name' => $name, 'postBody' => $postBody);
     $params = array_merge($params, $optParams);
     return $this->call('update', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1ResourceFile");
   }

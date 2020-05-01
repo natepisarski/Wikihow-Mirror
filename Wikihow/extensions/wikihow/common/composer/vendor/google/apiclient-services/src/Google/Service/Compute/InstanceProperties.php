@@ -33,6 +33,7 @@ class Google_Service_Compute_InstanceProperties extends Google_Collection
   protected $networkInterfacesDataType = 'array';
   protected $reservationAffinityType = 'Google_Service_Compute_ReservationAffinity';
   protected $reservationAffinityDataType = '';
+  public $resourcePolicies;
   protected $schedulingType = 'Google_Service_Compute_Scheduling';
   protected $schedulingDataType = '';
   protected $serviceAccountsType = 'Google_Service_Compute_ServiceAccount';
@@ -151,6 +152,14 @@ class Google_Service_Compute_InstanceProperties extends Google_Collection
   public function getReservationAffinity()
   {
     return $this->reservationAffinity;
+  }
+  public function setResourcePolicies($resourcePolicies)
+  {
+    $this->resourcePolicies = $resourcePolicies;
+  }
+  public function getResourcePolicies()
+  {
+    return $this->resourcePolicies;
   }
   /**
    * @param Google_Service_Compute_Scheduling

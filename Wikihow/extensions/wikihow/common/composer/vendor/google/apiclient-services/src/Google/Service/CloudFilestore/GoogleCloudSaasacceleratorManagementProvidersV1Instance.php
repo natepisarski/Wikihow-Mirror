@@ -28,8 +28,6 @@ class Google_Service_CloudFilestore_GoogleCloudSaasacceleratorManagementProvider
   public $producerMetadata;
   protected $provisionedResourcesType = 'Google_Service_CloudFilestore_GoogleCloudSaasacceleratorManagementProvidersV1ProvisionedResource';
   protected $provisionedResourcesDataType = 'array';
-  protected $rolloutMetadataType = 'Google_Service_CloudFilestore_GoogleCloudSaasacceleratorManagementProvidersV1RolloutMetadata';
-  protected $rolloutMetadataDataType = 'map';
   public $slmInstanceTemplate;
   protected $sloMetadataType = 'Google_Service_CloudFilestore_GoogleCloudSaasacceleratorManagementProvidersV1SloMetadata';
   protected $sloMetadataDataType = '';
@@ -113,20 +111,6 @@ class Google_Service_CloudFilestore_GoogleCloudSaasacceleratorManagementProvider
   public function getProvisionedResources()
   {
     return $this->provisionedResources;
-  }
-  /**
-   * @param Google_Service_CloudFilestore_GoogleCloudSaasacceleratorManagementProvidersV1RolloutMetadata
-   */
-  public function setRolloutMetadata($rolloutMetadata)
-  {
-    $this->rolloutMetadata = $rolloutMetadata;
-  }
-  /**
-   * @return Google_Service_CloudFilestore_GoogleCloudSaasacceleratorManagementProvidersV1RolloutMetadata
-   */
-  public function getRolloutMetadata()
-  {
-    return $this->rolloutMetadata;
   }
   public function setSlmInstanceTemplate($slmInstanceTemplate)
   {

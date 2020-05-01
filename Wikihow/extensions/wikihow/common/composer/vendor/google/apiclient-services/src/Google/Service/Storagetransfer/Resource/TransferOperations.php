@@ -61,18 +61,18 @@ class Google_Service_Storagetransfer_Resource_TransferOperations extends Google_
    * @param string $name Required. The value `transferOperations`.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string pageToken The list page token.
+   * @opt_param int pageSize The list page size. The max allowed value is 256.
    * @opt_param string filter Required. A list of query parameters specified as
    * JSON text in the form of: {"project_id":"my_project_id",
    * "job_names":["jobid1","jobid2",...],
    * "operation_names":["opid1","opid2",...],
    * "transfer_statuses":["status1","status2",...]}. Since `job_names`,
    * `operation_names`, and `transfer_statuses` support multiple values, they must
-   * be specified with array notation. `project_id` is required. `job_names`,
+   * be specified with array notation. `project``_``id` is required. `job_names`,
    * `operation_names`, and `transfer_statuses` are optional. The valid values for
-   * `transfer_statuses` are case-insensitive: `IN_PROGRESS`, `PAUSED`, `SUCCESS`,
-   * `FAILED`, and `ABORTED`.
-   * @opt_param string pageToken The list page token.
-   * @opt_param int pageSize The list page size. The max allowed value is 256.
+   * `transfer_statuses` are case-insensitive: IN_PROGRESS, PAUSED, SUCCESS,
+   * FAILED, and ABORTED.
    * @return Google_Service_Storagetransfer_ListOperationsResponse
    */
   public function listTransferOperations($name, $optParams = array())

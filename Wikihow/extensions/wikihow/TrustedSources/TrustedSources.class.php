@@ -45,7 +45,7 @@ class TrustedSources {
 		self::$trusted_sources = [];
 
 		$dbr = wfGetDB(DB_REPLICA);
-		$res = $dbr->select(self::TRUSTED_TABLE, '*', [], __METHOD__);
+		$res = $dbr->select(WH_DATABASE_NAME_EN . '.' . self::TRUSTED_TABLE, '*', [], __METHOD__);
 		while($row = $dbr->fetchRow($res)) {
 			self::$trusted_sources[$row['ts_source']] = $row;
 		}
@@ -107,6 +107,13 @@ class TrustedSources {
 				$vars['ts_name'] = $tr['ts_name'];
 				$vars['ts_description'] = $tr['ts_description'];
 			}
+
+			if(RequestContext::getMain()->getLanguage()->getCode() == "en") {
+				$vars['showDescription'] = true;
+			}
+			$vars['ts_label'] = wfMessage('ts_label')->text();
+			$vars['ts_goto'] = wfMessage('ts_goto')->text();
+			$vars['ts_research'] = wfMessage('ts_research')->text();
 
 			$html = $m->render('source_popup.mustache', $vars);
 			pq($reference)->append($html);

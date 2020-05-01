@@ -17,9 +17,11 @@
 
 class Google_Service_Recommender_GoogleCloudRecommenderV1beta1Recommendation extends Google_Collection
 {
-  protected $collection_key = 'additionalImpact';
+  protected $collection_key = 'associatedInsights';
   protected $additionalImpactType = 'Google_Service_Recommender_GoogleCloudRecommenderV1beta1Impact';
   protected $additionalImpactDataType = 'array';
+  protected $associatedInsightsType = 'Google_Service_Recommender_GoogleCloudRecommenderV1beta1RecommendationInsightReference';
+  protected $associatedInsightsDataType = 'array';
   protected $contentType = 'Google_Service_Recommender_GoogleCloudRecommenderV1beta1RecommendationContent';
   protected $contentDataType = '';
   public $description;
@@ -45,6 +47,20 @@ class Google_Service_Recommender_GoogleCloudRecommenderV1beta1Recommendation ext
   public function getAdditionalImpact()
   {
     return $this->additionalImpact;
+  }
+  /**
+   * @param Google_Service_Recommender_GoogleCloudRecommenderV1beta1RecommendationInsightReference
+   */
+  public function setAssociatedInsights($associatedInsights)
+  {
+    $this->associatedInsights = $associatedInsights;
+  }
+  /**
+   * @return Google_Service_Recommender_GoogleCloudRecommenderV1beta1RecommendationInsightReference
+   */
+  public function getAssociatedInsights()
+  {
+    return $this->associatedInsights;
   }
   /**
    * @param Google_Service_Recommender_GoogleCloudRecommenderV1beta1RecommendationContent

@@ -15,14 +15,16 @@
  * the License.
  */
 
-class Google_Service_CloudHealthcare_Hl7V2Store extends Google_Model
+class Google_Service_CloudHealthcare_Hl7V2Store extends Google_Collection
 {
+  protected $collection_key = 'notificationConfigs';
   public $labels;
   public $name;
-  protected $notificationConfigType = 'Google_Service_CloudHealthcare_NotificationConfig';
-  protected $notificationConfigDataType = '';
+  protected $notificationConfigsType = 'Google_Service_CloudHealthcare_Hl7V2NotificationConfig';
+  protected $notificationConfigsDataType = 'array';
   protected $parserConfigType = 'Google_Service_CloudHealthcare_ParserConfig';
   protected $parserConfigDataType = '';
+  public $rejectDuplicateMessage;
 
   public function setLabels($labels)
   {
@@ -41,18 +43,18 @@ class Google_Service_CloudHealthcare_Hl7V2Store extends Google_Model
     return $this->name;
   }
   /**
-   * @param Google_Service_CloudHealthcare_NotificationConfig
+   * @param Google_Service_CloudHealthcare_Hl7V2NotificationConfig
    */
-  public function setNotificationConfig(Google_Service_CloudHealthcare_NotificationConfig $notificationConfig)
+  public function setNotificationConfigs($notificationConfigs)
   {
-    $this->notificationConfig = $notificationConfig;
+    $this->notificationConfigs = $notificationConfigs;
   }
   /**
-   * @return Google_Service_CloudHealthcare_NotificationConfig
+   * @return Google_Service_CloudHealthcare_Hl7V2NotificationConfig
    */
-  public function getNotificationConfig()
+  public function getNotificationConfigs()
   {
-    return $this->notificationConfig;
+    return $this->notificationConfigs;
   }
   /**
    * @param Google_Service_CloudHealthcare_ParserConfig
@@ -67,5 +69,13 @@ class Google_Service_CloudHealthcare_Hl7V2Store extends Google_Model
   public function getParserConfig()
   {
     return $this->parserConfig;
+  }
+  public function setRejectDuplicateMessage($rejectDuplicateMessage)
+  {
+    $this->rejectDuplicateMessage = $rejectDuplicateMessage;
+  }
+  public function getRejectDuplicateMessage()
+  {
+    return $this->rejectDuplicateMessage;
   }
 }

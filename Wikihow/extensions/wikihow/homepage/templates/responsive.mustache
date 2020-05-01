@@ -1,22 +1,22 @@
 {{#has_coauthor}}
-<div id="hp_coauthor" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/coauthor2.svg" loading="lazy" />{{hp_coauthor_header}}</h3>
-	<div id="hp_coauthor_container">
-		{{#coauthor_items}}
-			{{> responsive_thumb.mustache}}
-		{{/coauthor_items}}
+	<div id="hp_coauthor" class="hp_narrow">
+		<h3><img src="/extensions/wikihow/homepage/images/coauthor2.svg" loading="lazy" />{{hp_coauthor_header}}</h3>
+		<div id="hp_coauthor_container">
+			{{#coauthor_items}}
+				{{> responsive_thumb.mustache}}
+			{{/coauthor_items}}
+		</div>
 	</div>
-</div>
 {{/has_coauthor}}
 {{#has_popular}}
-<div id="hp_popular" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/popular2.svg" loading="lazy" />{{hp_popular_header}}</h3>
-	<div id="hp_popular_container">
-	{{#popular_items}}
-		{{> responsive_thumb.mustache}}
-	{{/popular_items}}
+	<div id="hp_popular" class="hp_narrow">
+		<h3><img src="/extensions/wikihow/homepage/images/popular2.svg" loading="lazy" />{{hp_popular_header}}</h3>
+		<div id="hp_popular_container">
+			{{#popular_items}}
+				{{> responsive_thumb.mustache}}
+			{{/popular_items}}
+		</div>
 	</div>
-</div>
 {{/has_popular}}
 {{> responsive_trustworthy.mustache }}
 
@@ -42,16 +42,16 @@
 			{{/featured_items}}
 		</div>
 		{{#showmore}}
-		<a href="/Category:Featured-Articles" class="hp_button">{{showmoretext}}</a>
+			<a href="/Category:Featured-Articles" class="hp_button">{{showmoretext}}</a>
 		{{/showmore}}
 
 		{{#has_coverletter}}
-		<div id="hp_coverLetterLarge">
-			<img src="/extensions/wikihow/homepage/images/CoverLetterCourse_Large_Cropped.jpg" loading="lazy" />
-			<h3>{{{coverletter_header_desc}}}</h3>
+			<div id="hp_coverLetterLarge">
+				<img src="/extensions/wikihow/homepage/images/CoverLetterCourse_Large_Cropped.jpg" loading="lazy" />
+				<h3>{{{coverletter_header_desc}}}</h3>
 				<p>{{{coverletter_desc}}}</p>
-			<a href="{{{coverletterteachable_url}}}" target="_blank" class="hp_button" id="hp_cover_letter_btn">{{{coverletter_btn}}}</a>
-		</div>
+				<a href="{{{coverletterteachable_url}}}" target="_blank" class="hp_button" id="hp_cover_letter_btn">{{{coverletter_btn}}}</a>
+			</div>
 		{{/has_coverletter}}
 	</div>
 
@@ -64,36 +64,36 @@
 		</div>
 	</div>
 	{{#has_newsletter}}
-	<div id="hp_newsletter">
-		<h3><img src="/extensions/wikihow/homepage/images/newsletter2.svg" loading="lazy" />{{hp_newsletter_header}}</h3>
-		<div id="hp_newsletter_container">
-			<img src="/extensions/wikihow/homepage/images/newsletter.png" loading="lazy" />
-			<h4>{{hp_newsletter_subscribe}}</h4>
-			<p>{{hp_newsletter_text}}</p>
-			<a href="{{{newsletter_url}}}" target="_blank" class="hp_button">Sign me up!</a>
+		<div id="hp_newsletter">
+			<h3><img src="/extensions/wikihow/homepage/images/newsletter2.svg" loading="lazy" />{{hp_newsletter_header}}</h3>
+			<div id="hp_newsletter_container">
+				<img src="/extensions/wikihow/homepage/images/newsletter.png" loading="lazy" />
+				<h4>{{hp_newsletter_subscribe}}</h4>
+				<p>{{hp_newsletter_text}}</p>
+				<a href="{{{newsletter_url}}}" target="_blank" class="hp_button">Sign me up!</a>
+			</div>
 		</div>
-	</div>
 	{{/has_newsletter}}
 
 	{{#has_education}}
-	<div id="hp_education">
-		<h3><img src="/extensions/wikihow/homepage/images/EducationResource_opti.svg" />{{{amazon_ignite_header}}}</h3>
-		<div id="hp_educational_resources_container">
-			<img src="/extensions/wikihow/homepage/images/AmazonIgniteIllustration_opti.png" loading="lazy" />
-			<h4>{{{amazon_ignite_header_desc}}}</h4>
-			<p>{{{amazon_ignite_desc}}}</p>
-			<a href="{{{amazon_ignite_url}}}" target="_blank" class="hp_button" id="hp_amazon_ignite_btn">{{{amazon_ignite_btn}}}</a>
+		<div id="hp_education">
+			<h3><img src="/extensions/wikihow/homepage/images/EducationResource_opti.svg" />{{{amazon_ignite_header}}}</h3>
+			<div id="hp_educational_resources_container">
+				<img src="/extensions/wikihow/homepage/images/AmazonIgniteIllustration_opti.png" loading="lazy" />
+				<h4>{{{amazon_ignite_header_desc}}}</h4>
+				<p>{{{amazon_ignite_desc}}}</p>
+				<a href="{{{amazon_ignite_url}}}" target="_blank" class="hp_button" id="hp_amazon_ignite_btn">{{{amazon_ignite_btn}}}</a>
+			</div>
 		</div>
-	</div>
 	{{/has_education}}
 
 	{{#has_coverletter}}
-	<div id="hp_coverletter">
-		<img src="/extensions/wikihow/homepage/images/CoverLetterPromo_small2x_opti.png" loading="lazy" />
-		<h3>{{{coverletter_header_desc}}}</h3>
+		<div id="hp_coverletter">
+			<img src="/extensions/wikihow/homepage/images/CoverLetterPromo_small2x_opti.png" loading="lazy" />
+			<h3>{{{coverletter_header_desc}}}</h3>
 			<p>{{{coverletter_desc}}}</p>
-		<a href="{{{coverletterteachable_url}}}" target="_blank" class="hp_button">{{{coverletter_btn}}}</a>
-	</div>
+			<a href="{{{coverletterteachable_url}}}" target="_blank" class="hp_button">{{{coverletter_btn}}}</a>
+		</div>
 	{{/has_coverletter}}
 </div>
 
@@ -124,40 +124,38 @@
 	</div>
 </div>
 {{#has_watch}}
-<div id="hp_watch" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/watch2.svg" loading="lazy" />{{hp_watch_header}}{{#showmore}}<a href="/Video" class="more_link">{{showmoretext}} <img src="/extensions/wikihow/homepage/images/more.png" /></a>{{/showmore}}</h3>
-	<div id="hp_watch_container">
-		{{#watch_items}}
-			{{> responsive_thumb.mustache}}
-		{{/watch_items}}
-		{{#showmore}}
-		<a href="/Video" class="hp_button">{{showmoretext}}</a>
-		{{/showmore}}
+	<div id="hp_watch" class="hp_narrow">
+		<h3><img src="/extensions/wikihow/homepage/images/watch2.svg" loading="lazy" />{{hp_watch_header}}{{#showmore}}<a href="/Video" class="more_link">{{showmoretext}} <img src="/extensions/wikihow/homepage/images/more.png" /></a>{{/showmore}}</h3>
+		<div id="hp_watch_container">
+			{{#watch_items}}
+				{{> responsive_thumb.mustache}}
+			{{/watch_items}}
+			{{#showmore}}
+				<a href="/Video" class="hp_button">{{showmoretext}}</a>
+			{{/showmore}}
+		</div>
 	</div>
-</div>
 {{/has_watch}}
 
 {{#has_expert}}
-<div id="hp_expert" class="hp_narrow">
-	<h3><img src="/extensions/wikihow/homepage/images/expert2.svg" loading="lazy" />{{hp_expert_header}}</h3>
-	<div id="hp_expert_container">
-		{{#expert_items}}
-			{{> responsive_thumb.mustache}}
-		{{/expert_items}}
+	<div id="hp_expert" class="hp_narrow">
+		<h3><img src="/extensions/wikihow/homepage/images/expert2.svg" loading="lazy" />{{hp_expert_header}}</h3>
+		<div id="hp_expert_container">
+			{{#expert_items}}
+				{{> responsive_thumb.mustache}}
+			{{/expert_items}}
+		</div>
 	</div>
-</div>
 {{/has_expert}}
 
 {{#has_newpages}}
 	<div id="hp_newpages" class="hp_narrow">
-		<h3><img src="/extensions/wikihow/homepage/images/newpages.svg" loading="lazy" />{{hp_newpages_header}}{{#showmore}}<a href="/Special:NewPages" class="more_link">{{seemore_newpages}} <img src="/extensions/wikihow/homepage/images/more.png" /></a>{{/showmore}}</h3>
+		<h3><img src="/extensions/wikihow/homepage/images/newpages.svg" loading="lazy" />{{hp_newpages_header}}<a href="{{{newpages_url}}}" class="more_link">{{seemore_newpages}} <img src="/extensions/wikihow/homepage/images/more.png" /></a></h3>
 		<div id="hp_newpages_container">
 			{{#newpages_items}}
 				{{> responsive_thumb.mustache}}
 			{{/newpages_items}}
-			{{#showmore}}
-				<a href="/Special:NewPages" class="hp_button">{{seemore_newpages}}</a>
-			{{/showmore}}
+			<a href="{{{newpages_url}}}" class="hp_button">{{seemore_newpages}}</a>
 		</div>
 	</div>
 {{/has_newpages}}

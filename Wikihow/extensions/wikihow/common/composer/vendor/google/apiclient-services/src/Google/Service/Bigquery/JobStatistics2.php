@@ -20,9 +20,12 @@ class Google_Service_Bigquery_JobStatistics2 extends Google_Collection
   protected $collection_key = 'undeclaredQueryParameters';
   public $billingTier;
   public $cacheHit;
+  public $ddlAffectedRowAccessPolicyCount;
   public $ddlOperationPerformed;
   protected $ddlTargetRoutineType = 'Google_Service_Bigquery_RoutineReference';
   protected $ddlTargetRoutineDataType = '';
+  protected $ddlTargetRowAccessPolicyType = 'Google_Service_Bigquery_RowAccessPolicyReference';
+  protected $ddlTargetRowAccessPolicyDataType = '';
   protected $ddlTargetTableType = 'Google_Service_Bigquery_TableReference';
   protected $ddlTargetTableDataType = '';
   public $estimatedBytesProcessed;
@@ -68,6 +71,14 @@ class Google_Service_Bigquery_JobStatistics2 extends Google_Collection
   {
     return $this->cacheHit;
   }
+  public function setDdlAffectedRowAccessPolicyCount($ddlAffectedRowAccessPolicyCount)
+  {
+    $this->ddlAffectedRowAccessPolicyCount = $ddlAffectedRowAccessPolicyCount;
+  }
+  public function getDdlAffectedRowAccessPolicyCount()
+  {
+    return $this->ddlAffectedRowAccessPolicyCount;
+  }
   public function setDdlOperationPerformed($ddlOperationPerformed)
   {
     $this->ddlOperationPerformed = $ddlOperationPerformed;
@@ -89,6 +100,20 @@ class Google_Service_Bigquery_JobStatistics2 extends Google_Collection
   public function getDdlTargetRoutine()
   {
     return $this->ddlTargetRoutine;
+  }
+  /**
+   * @param Google_Service_Bigquery_RowAccessPolicyReference
+   */
+  public function setDdlTargetRowAccessPolicy(Google_Service_Bigquery_RowAccessPolicyReference $ddlTargetRowAccessPolicy)
+  {
+    $this->ddlTargetRowAccessPolicy = $ddlTargetRowAccessPolicy;
+  }
+  /**
+   * @return Google_Service_Bigquery_RowAccessPolicyReference
+   */
+  public function getDdlTargetRowAccessPolicy()
+  {
+    return $this->ddlTargetRowAccessPolicy;
   }
   /**
    * @param Google_Service_Bigquery_TableReference

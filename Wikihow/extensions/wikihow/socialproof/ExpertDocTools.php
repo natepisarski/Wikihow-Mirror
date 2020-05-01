@@ -42,7 +42,8 @@ class ExpertDocTools {
 			'data' => $content,
 			'mimeType' => 'text/html',
 			'uploadType' => 'multipart',
-			'fields' => 'id,name,description,webViewLink'
+			'fields' => 'id,name,description,webViewLink',
+			'enforceSingleParent' => true,
 		];
 		$file = $service->files->create($fileMeta, $reqParams);
 
@@ -50,7 +51,8 @@ class ExpertDocTools {
 			'type' => 'anyone',
 			'role' => 'commenter',
 		]);
-		$res = $service->permissions->create($file->id, $perm);
+		$optParams = [ 'enforceSingleParent' => true ];
+		$res = $service->permissions->create($file->id, $perm, $optParams);
 
 		return $file;
 	}
@@ -86,7 +88,11 @@ class ExpertDocTools {
 			decho("searching with q", $parameters['q']);
 			$fileList = $service->files->listFiles( $parameters );
 			$emptyMeta = new Google_Service_Drive_DriveFile();
-			$reqParams = [ 'addParents' => $newParent, 'removeParents' => $oldParent ];
+			$reqParams = [
+				'addParents' => $newParent,
+				'removeParents' => $oldParent,
+				'enforceSingleParent' => true,
+			];
 			$permsToRemove = [ 'anyone', 'anyoneWithLink' ];
 
 			foreach( $fileList->getFiles() as $file ) {

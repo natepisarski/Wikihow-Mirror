@@ -78,14 +78,14 @@ class Google_Service_Apigee_Resource_OrganizationsCompanies extends Google_Servi
    * @param string $parent The parent organization name `organizations/{org}`
    * @param array $optParams Optional parameters.
    *
-   * @opt_param bool includeDevelopers Optional. include developers in the
-   * response.
    * @opt_param string startKey To filter the keys that are returned, enter the
    * email of a developer that the list will start with.
    * @opt_param string count Limits the list to the number you specify. The limit
    * is 100.
    * @opt_param bool expand Set expand to true to return a full profile for each
    * company.
+   * @opt_param bool includeDevelopers Optional. include developers in the
+   * response.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ListCompaniesResponse
    */
   public function listOrganizationsCompanies($parent, $optParams = array())

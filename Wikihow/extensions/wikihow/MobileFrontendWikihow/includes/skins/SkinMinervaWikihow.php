@@ -653,7 +653,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 
 	// annoying but for gdpr we make the section twice and use the one that is appropriate
 	public static function getMobileTOSLink( ) {
-		global $wgUser;
+		global $wgUser, $wgLanguageCode;
 
 		$tosText = wfMessage('gdpr_mobile_menu_bottom')->text();
 		$href = Title::newFromText( wfMessage("gdpr_mobile_menu_bottom_link")->text(), NS_PROJECT )->getLinkURL();
@@ -663,7 +663,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		);
 		$menuText = Html::rawElement( 'a', $attr, $tosText );
 
-		if( $wgUser->isLoggedIn() ) {
+		if( $wgUser->isLoggedIn() && $wgLanguageCode == "en" ) {
 			$menuText .= " | ";
 			$menuText .= Html::rawElement('a', ['href' => '#', 'class' => 'gdpr-menu', 'id' => 'toggle_link'], 'Toggle edit links');
 		}

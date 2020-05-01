@@ -86,6 +86,25 @@ class Google_Service_DLP_Resource_ProjectsLocationsDlpJobs extends Google_Servic
     return $this->call('delete', array($params), "Google_Service_DLP_GoogleProtobufEmpty");
   }
   /**
+   * Finish a running hybrid DlpJob. Triggers the finalization steps and running
+   * of any enabled actions that have not yet run. Early access feature is in a
+   * pre-release state and might change or have limited support. For more
+   * information, see https://cloud.google.com/products#product-launch-stages.
+   * (dlpJobs.finish)
+   *
+   * @param string $name Required. The name of the DlpJob resource to be
+   * cancelled.
+   * @param Google_Service_DLP_GooglePrivacyDlpV2FinishDlpJobRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_DLP_GoogleProtobufEmpty
+   */
+  public function finish($name, Google_Service_DLP_GooglePrivacyDlpV2FinishDlpJobRequest $postBody, $optParams = array())
+  {
+    $params = array('name' => $name, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('finish', array($params), "Google_Service_DLP_GoogleProtobufEmpty");
+  }
+  /**
    * Gets the latest state of a long-running DlpJob. See
    * https://cloud.google.com/dlp/docs/inspecting-storage and
    * https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.
@@ -102,6 +121,25 @@ class Google_Service_DLP_Resource_ProjectsLocationsDlpJobs extends Google_Servic
     return $this->call('get', array($params), "Google_Service_DLP_GooglePrivacyDlpV2DlpJob");
   }
   /**
+   * Inspect hybrid content and store findings to a job. To review the findings
+   * inspect the job. Inspection will occur asynchronously. Early access feature
+   * is in a pre-release state and might change or have limited support. For more
+   * information, see https://cloud.google.com/products#product-launch-stages.
+   * (dlpJobs.hybridInspect)
+   *
+   * @param string $name Required. Resource name of the job to execute a hybrid
+   * inspect on, for example `projects/dlp-test-project/dlpJob/53234423`.
+   * @param Google_Service_DLP_GooglePrivacyDlpV2HybridInspectDlpJobRequest $postBody
+   * @param array $optParams Optional parameters.
+   * @return Google_Service_DLP_GooglePrivacyDlpV2HybridInspectResponse
+   */
+  public function hybridInspect($name, Google_Service_DLP_GooglePrivacyDlpV2HybridInspectDlpJobRequest $postBody, $optParams = array())
+  {
+    $params = array('name' => $name, 'postBody' => $postBody);
+    $params = array_merge($params, $optParams);
+    return $this->call('hybridInspect', array($params), "Google_Service_DLP_GooglePrivacyDlpV2HybridInspectResponse");
+  }
+  /**
    * Lists DlpJobs that match the specified filter in the request. See
    * https://cloud.google.com/dlp/docs/inspecting-storage and
    * https://cloud.google.com/dlp/docs/compute-risk-analysis to learn more.
@@ -113,18 +151,6 @@ class Google_Service_DLP_Resource_ProjectsLocationsDlpJobs extends Google_Servic
    * retrieved from. Use `-` for all locations. Reserved for future extensions.
    * @param array $optParams Optional parameters.
    *
-   * @opt_param string orderBy Comma separated list of fields to order by,
-   * followed by `asc` or `desc` postfix. This list is case-insensitive, default
-   * sorting order is ascending, redundant space characters are insignificant.
-   *
-   * Example: `name asc, end_time asc, create_time desc`
-   *
-   * Supported fields are:
-   *
-   * - `create_time`: corresponds to time the job was created. - `end_time`:
-   * corresponds to time the job ended. - `name`: corresponds to job's name. -
-   * `state`: corresponds to `state`
-   * @opt_param string type The type of job. Defaults to `DlpJobType.INSPECT`
    * @opt_param string filter Allows filtering.
    *
    * Supported syntax:
@@ -152,6 +178,18 @@ class Google_Service_DLP_Resource_ProjectsLocationsDlpJobs extends Google_Servic
    * The length of this field should be no more than 500 characters.
    * @opt_param string pageToken The standard list page token.
    * @opt_param int pageSize The standard list page size.
+   * @opt_param string orderBy Comma separated list of fields to order by,
+   * followed by `asc` or `desc` postfix. This list is case-insensitive, default
+   * sorting order is ascending, redundant space characters are insignificant.
+   *
+   * Example: `name asc, end_time asc, create_time desc`
+   *
+   * Supported fields are:
+   *
+   * - `create_time`: corresponds to time the job was created. - `end_time`:
+   * corresponds to time the job ended. - `name`: corresponds to job's name. -
+   * `state`: corresponds to `state`
+   * @opt_param string type The type of job. Defaults to `DlpJobType.INSPECT`
    * @return Google_Service_DLP_GooglePrivacyDlpV2ListDlpJobsResponse
    */
   public function listProjectsLocationsDlpJobs($parent, $locationId, $optParams = array())

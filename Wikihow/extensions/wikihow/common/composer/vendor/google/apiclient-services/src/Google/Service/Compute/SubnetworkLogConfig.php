@@ -15,12 +15,15 @@
  * the License.
  */
 
-class Google_Service_Compute_SubnetworkLogConfig extends Google_Model
+class Google_Service_Compute_SubnetworkLogConfig extends Google_Collection
 {
+  protected $collection_key = 'metadataFields';
   public $aggregationInterval;
   public $enable;
+  public $filterExpr;
   public $flowSampling;
   public $metadata;
+  public $metadataFields;
 
   public function setAggregationInterval($aggregationInterval)
   {
@@ -38,6 +41,14 @@ class Google_Service_Compute_SubnetworkLogConfig extends Google_Model
   {
     return $this->enable;
   }
+  public function setFilterExpr($filterExpr)
+  {
+    $this->filterExpr = $filterExpr;
+  }
+  public function getFilterExpr()
+  {
+    return $this->filterExpr;
+  }
   public function setFlowSampling($flowSampling)
   {
     $this->flowSampling = $flowSampling;
@@ -53,5 +64,13 @@ class Google_Service_Compute_SubnetworkLogConfig extends Google_Model
   public function getMetadata()
   {
     return $this->metadata;
+  }
+  public function setMetadataFields($metadataFields)
+  {
+    $this->metadataFields = $metadataFields;
+  }
+  public function getMetadataFields()
+  {
+    return $this->metadataFields;
   }
 }

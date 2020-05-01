@@ -28,7 +28,8 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsDicomStor
   /**
    * DeleteSeries deletes all instances within the given study and series. Delete
    * requests are equivalent to the GET requests specified in the Retrieve
-   * transaction. (series.delete)
+   * transaction. The method returns an Operation which will be marked successful
+   * when the deletion is complete. (series.delete)
    *
    * @param string $parent The name of the DICOM store that is being accessed. For
    * example, `projects/{project_id}/locations/{location_id}/datasets/{dataset_id}
@@ -36,13 +37,13 @@ class Google_Service_CloudHealthcare_Resource_ProjectsLocationsDatasetsDicomStor
    * @param string $dicomWebPath The path of the DeleteSeries request. For
    * example, `studies/{study_uid}/series/{series_uid}`.
    * @param array $optParams Optional parameters.
-   * @return Google_Service_CloudHealthcare_HealthcareEmpty
+   * @return Google_Service_CloudHealthcare_Operation
    */
   public function delete($parent, $dicomWebPath, $optParams = array())
   {
     $params = array('parent' => $parent, 'dicomWebPath' => $dicomWebPath);
     $params = array_merge($params, $optParams);
-    return $this->call('delete', array($params), "Google_Service_CloudHealthcare_HealthcareEmpty");
+    return $this->call('delete', array($params), "Google_Service_CloudHealthcare_Operation");
   }
   /**
    * RetrieveSeriesMetadata returns instance associated with the given study and

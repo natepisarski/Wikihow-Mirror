@@ -26,11 +26,11 @@
 class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsAttributes extends Google_Service_Resource
 {
   /**
-   * Deletes an app attribute. (attributes.delete)
+   * Deletes a developer app attribute. (attributes.delete)
    *
-   * @param string $name Required. Developer App Attribute name of the form:   `or
-   * ganizations/{organization_id}/developers/{developer_id}/apps/{app_name}/attri
-   * butes/{attribute_name}`
+   * @param string $name Required. Name of the developer app attribute. Use the
+   * following structure in your request:   `organizations/{org}/developers/{devel
+   * oper_email}/apps/{app}/attributes/{attribute}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attribute
    */
@@ -41,11 +41,11 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsAttributes exten
     return $this->call('delete', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1Attribute");
   }
   /**
-   * Returns the value of an app attribute. (attributes.get)
+   * Returns a developer app attribute. (attributes.get)
    *
-   * @param string $name Required. Developer App Attribute name of the form:   `or
-   * ganizations/{organization_id}/developers/{developer_id}/apps/{app_name}/attri
-   * butes/{attribute_name}`
+   * @param string $name Required. Name of the developer app attribute. Use the
+   * following structure in your request:   `organizations/{org}/developers/{devel
+   * oper_email}/apps/{app}/attributes/{attribute}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attribute
    */
@@ -56,12 +56,12 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsAttributes exten
     return $this->call('get', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1Attribute");
   }
   /**
-   * Returns a list of all app attributes.
+   * Returns a list of all developer app attributes.
    * (attributes.listOrganizationsDevelopersAppsAttributes)
    *
-   * @param string $parent Required. The parent organization name. Must be of the
-   * form:
-   * `organizations/{organization_id}/developers/{developer_id}/apps/{app_name}`
+   * @param string $parent Required. Name of the developer app. Use the following
+   * structure in your request:
+   * `organizations/{org}/developers/{developer_email}/apps/{app}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attributes
    */
@@ -72,11 +72,18 @@ class Google_Service_Apigee_Resource_OrganizationsDevelopersAppsAttributes exten
     return $this->call('list', array($params), "Google_Service_Apigee_GoogleCloudApigeeV1Attributes");
   }
   /**
-   * Updates an app attribute (attributes.updateDeveloperAppAttribute)
+   * Updates a developer app attribute.
    *
-   * @param string $name Required. Developer App Attribute name of the form:   `or
-   * ganizations/{organization_id}/developers/{developer_id}/apps/{app_name}/attri
-   * butes/{attribute_name}`
+   * **Note**: OAuth access tokens and Key Management Service (KMS) entities
+   * (apps, developers, and API products) are cached for 180 seconds (current
+   * default). Any custom attributes associated with these entities are cached for
+   * at least 180 seconds after the entity is accessed at runtime. Therefore, an
+   * `ExpiresIn` element on the OAuthV2 policy won't be able to expire an access
+   * token in less than 180 seconds. (attributes.updateDeveloperAppAttribute)
+   *
+   * @param string $name Required. Name of the developer app attribute. Use the
+   * following structure in your request:   `organizations/{org}/developers/{devel
+   * oper_email}/apps/{app}/attributes/{attribute}`
    * @param Google_Service_Apigee_GoogleCloudApigeeV1Attribute $postBody
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1Attribute

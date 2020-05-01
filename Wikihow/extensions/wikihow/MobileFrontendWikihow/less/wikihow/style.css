@@ -237,10 +237,6 @@ body.navigation-enabled {
 	border: none;
 }
 
-body.navigation-enabled #mw-mf-page-left {
-	width: 13.5em;
-}
-
 body.navigation-enabled #mw-mf-page-center {
 	background-color: #e9e7e3;
 	padding: 0px;
@@ -338,7 +334,7 @@ body.navigation-enabled #footer {
 
 #mw-mf-page-left ul li.icon-user .icon-profile {
 	background-size: 30px;
-	background-position: 5px center;
+	background-position: left 5px bottom 50%;
 }
 
 #mw-mf-page-left ul li.icon-user .icon-secondary-logout, #mw-mf-page-left ul li.icon-loginout a {

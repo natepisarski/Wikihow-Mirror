@@ -63,6 +63,8 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   public $sharedWithMeTime;
   protected $sharingUserType = 'Google_Service_Drive_User';
   protected $sharingUserDataType = '';
+  protected $shortcutDetailsType = 'Google_Service_Drive_DriveFileShortcutDetails';
+  protected $shortcutDetailsDataType = '';
   public $size;
   public $spaces;
   public $starred;
@@ -428,6 +430,20 @@ class Google_Service_Drive_DriveFile extends Google_Collection
   public function getSharingUser()
   {
     return $this->sharingUser;
+  }
+  /**
+   * @param Google_Service_Drive_DriveFileShortcutDetails
+   */
+  public function setShortcutDetails(Google_Service_Drive_DriveFileShortcutDetails $shortcutDetails)
+  {
+    $this->shortcutDetails = $shortcutDetails;
+  }
+  /**
+   * @return Google_Service_Drive_DriveFileShortcutDetails
+   */
+  public function getShortcutDetails()
+  {
+    return $this->shortcutDetails;
   }
   public function setSize($size)
   {

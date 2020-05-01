@@ -21,7 +21,10 @@ class Google_Service_Books_SeriesSeries extends Google_Model
   public $eligibleForSubscription;
   public $imageUrl;
   public $isComplete;
+  public $seriesFormatType;
   public $seriesId;
+  protected $seriesSubscriptionReleaseInfoType = 'Google_Service_Books_SeriesSeriesSeriesSubscriptionReleaseInfo';
+  protected $seriesSubscriptionReleaseInfoDataType = '';
   public $seriesType;
   public $subscriptionId;
   public $title;
@@ -58,6 +61,14 @@ class Google_Service_Books_SeriesSeries extends Google_Model
   {
     return $this->isComplete;
   }
+  public function setSeriesFormatType($seriesFormatType)
+  {
+    $this->seriesFormatType = $seriesFormatType;
+  }
+  public function getSeriesFormatType()
+  {
+    return $this->seriesFormatType;
+  }
   public function setSeriesId($seriesId)
   {
     $this->seriesId = $seriesId;
@@ -65,6 +76,20 @@ class Google_Service_Books_SeriesSeries extends Google_Model
   public function getSeriesId()
   {
     return $this->seriesId;
+  }
+  /**
+   * @param Google_Service_Books_SeriesSeriesSeriesSubscriptionReleaseInfo
+   */
+  public function setSeriesSubscriptionReleaseInfo(Google_Service_Books_SeriesSeriesSeriesSubscriptionReleaseInfo $seriesSubscriptionReleaseInfo)
+  {
+    $this->seriesSubscriptionReleaseInfo = $seriesSubscriptionReleaseInfo;
+  }
+  /**
+   * @return Google_Service_Books_SeriesSeriesSeriesSubscriptionReleaseInfo
+   */
+  public function getSeriesSubscriptionReleaseInfo()
+  {
+    return $this->seriesSubscriptionReleaseInfo;
   }
   public function setSeriesType($seriesType)
   {

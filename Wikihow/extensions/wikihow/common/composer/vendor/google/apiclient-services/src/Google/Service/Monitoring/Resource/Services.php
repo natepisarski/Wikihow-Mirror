@@ -28,13 +28,14 @@ class Google_Service_Monitoring_Resource_Services extends Google_Service_Resourc
   /**
    * Create a Service. (services.create)
    *
-   * @param string $parent Required. Resource name of the parent workspace. Of the
-   * form projects/{project_id}.
+   * @param string $parent Required. Resource name of the parent workspace. The
+   * format is: projects/[PROJECT_ID_OR_NUMBER]
    * @param Google_Service_Monitoring_Service $postBody
    * @param array $optParams Optional parameters.
    *
    * @opt_param string serviceId Optional. The Service id to use for this Service.
-   * If omitted, an id will be generated instead. Must match the pattern a-z0-9-+
+   * If omitted, an id will be generated instead. Must match the pattern
+   * [a-z0-9\-]+
    * @return Google_Service_Monitoring_Service
    */
   public function create($parent, Google_Service_Monitoring_Service $postBody, $optParams = array())
@@ -46,8 +47,8 @@ class Google_Service_Monitoring_Resource_Services extends Google_Service_Resourc
   /**
    * Soft delete this Service. (services.delete)
    *
-   * @param string $name Required. Resource name of the Service to delete. Of the
-   * form projects/{project_id}/services/{service_id}.
+   * @param string $name Required. Resource name of the Service to delete. The
+   * format is: projects/[PROJECT_ID_OR_NUMBER]/services/[SERVICE_ID]
    * @param array $optParams Optional parameters.
    * @return Google_Service_Monitoring_MonitoringEmpty
    */
@@ -60,8 +61,8 @@ class Google_Service_Monitoring_Resource_Services extends Google_Service_Resourc
   /**
    * Get the named Service. (services.get)
    *
-   * @param string $name Required. Resource name of the Service. Of the form
-   * projects/{project_id}/services/{service_id}.
+   * @param string $name Required. Resource name of the Service. The format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/services/[SERVICE_ID]
    * @param array $optParams Optional parameters.
    * @return Google_Service_Monitoring_Service
    */
@@ -75,8 +76,8 @@ class Google_Service_Monitoring_Resource_Services extends Google_Service_Resourc
    * List Services for this workspace. (services.listServices)
    *
    * @param string $parent Required. Resource name of the parent containing the
-   * listed services, either a project or Stackdriver Account (workspace).One of
-   * the forms: "projects/{project_id}" "workspaces/{host_project_id}"
+   * listed services, either a project or a Monitoring Workspace. The formats are:
+   * projects/[PROJECT_ID_OR_NUMBER] workspaces/[HOST_PROJECT_ID_OR_NUMBER]
    * @param array $optParams Optional parameters.
    *
    * @opt_param string filter A filter specifying what Services to return. The
@@ -104,8 +105,8 @@ class Google_Service_Monitoring_Resource_Services extends Google_Service_Resourc
   /**
    * Update this Service. (services.patch)
    *
-   * @param string $name Resource name for this Service. Of the form
-   * projects/{project_id}/services/{service_id}.
+   * @param string $name Resource name for this Service. The format is:
+   * projects/[PROJECT_ID_OR_NUMBER]/services/[SERVICE_ID]
    * @param Google_Service_Monitoring_Service $postBody
    * @param array $optParams Optional parameters.
    *

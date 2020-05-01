@@ -138,7 +138,13 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 	}
 
 	private static function getPrintViewModal() {
-		return EasyTemplate::html('printview.tmpl.php');
+		$vars = [
+			'printview_header' => wfMessage('printview_header')->text(),
+			'printview_question' => wfMessage('printview_question')->text(),
+			'printview_textonly' => wfMessage('printview_textonly')->text(),
+			'printview_images' => wfMessage('printview_images')->text()
+		];
+		return EasyTemplate::html('printview.tmpl.php', $vars);
 	}
 
 	private static function getCCPAModal() {

@@ -335,6 +335,24 @@ $(document).ready(function() {
 	$('#gatFollowNewsletter').click(function() {
 		WH.maEvent('newsletter_signup_rightrail', { category: 'newsletter_signup' }, false);
 	});
+
+	$('#footer_links a').click(function() {
+		var href = $(this).attr('href');
+		WH.event('all_footer_sitewide_links_click_go_em', { 'dest_url': href } );
+	});
+
+	$('#ingredients a.ingredient_method').click(function() {
+		WH.event('article_heading_recipe_ingredients_list_click_go_em');
+	});
+
+	$('#hs_query, #search_field_bottom').focus(function() {
+		WH.event('all_nav_search_box_click_focus_em');
+	});
+
+	$('#search_form_top, #cse-search-box-bottom').submit(function() {
+		WH.event('all_nav_search_query_submit_go_em');
+	});
+
 });
 
 

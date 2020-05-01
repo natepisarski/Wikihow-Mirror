@@ -17,7 +17,7 @@
 
 class Google_Service_Storage_Bucket extends Google_Collection
 {
-  protected $collection_key = 'defaultObjectAcl';
+  protected $collection_key = 'zoneAffinity';
   protected $aclType = 'Google_Service_Storage_BucketAccessControl';
   protected $aclDataType = 'array';
   protected $billingType = 'Google_Service_Storage_BucketBilling';
@@ -56,6 +56,8 @@ class Google_Service_Storage_Bucket extends Google_Collection
   protected $versioningDataType = '';
   protected $websiteType = 'Google_Service_Storage_BucketWebsite';
   protected $websiteDataType = '';
+  public $zoneAffinity;
+  public $zoneSeparation;
 
   /**
    * @param Google_Service_Storage_BucketAccessControl
@@ -336,5 +338,21 @@ class Google_Service_Storage_Bucket extends Google_Collection
   public function getWebsite()
   {
     return $this->website;
+  }
+  public function setZoneAffinity($zoneAffinity)
+  {
+    $this->zoneAffinity = $zoneAffinity;
+  }
+  public function getZoneAffinity()
+  {
+    return $this->zoneAffinity;
+  }
+  public function setZoneSeparation($zoneSeparation)
+  {
+    $this->zoneSeparation = $zoneSeparation;
+  }
+  public function getZoneSeparation()
+  {
+    return $this->zoneSeparation;
   }
 }

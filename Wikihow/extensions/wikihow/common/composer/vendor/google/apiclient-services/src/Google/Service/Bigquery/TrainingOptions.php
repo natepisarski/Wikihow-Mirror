@@ -18,13 +18,18 @@
 class Google_Service_Bigquery_TrainingOptions extends Google_Collection
 {
   protected $collection_key = 'inputLabelColumns';
+  public $batchSize;
   public $dataSplitColumn;
   public $dataSplitEvalFraction;
   public $dataSplitMethod;
   public $distanceType;
+  public $dropout;
   public $earlyStop;
+  public $feedbackType;
+  public $hiddenUnits;
   public $initialLearnRate;
   public $inputLabelColumns;
+  public $itemColumn;
   public $kmeansInitializationColumn;
   public $kmeansInitializationMethod;
   public $l1Regularization;
@@ -34,12 +39,26 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   public $learnRateStrategy;
   public $lossType;
   public $maxIterations;
+  public $maxTreeDepth;
   public $minRelativeProgress;
+  public $minSplitLoss;
   public $modelUri;
   public $numClusters;
+  public $numFactors;
   public $optimizationStrategy;
+  public $subsample;
+  public $userColumn;
+  public $walsAlpha;
   public $warmStart;
 
+  public function setBatchSize($batchSize)
+  {
+    $this->batchSize = $batchSize;
+  }
+  public function getBatchSize()
+  {
+    return $this->batchSize;
+  }
   public function setDataSplitColumn($dataSplitColumn)
   {
     $this->dataSplitColumn = $dataSplitColumn;
@@ -72,6 +91,14 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   {
     return $this->distanceType;
   }
+  public function setDropout($dropout)
+  {
+    $this->dropout = $dropout;
+  }
+  public function getDropout()
+  {
+    return $this->dropout;
+  }
   public function setEarlyStop($earlyStop)
   {
     $this->earlyStop = $earlyStop;
@@ -79,6 +106,22 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   public function getEarlyStop()
   {
     return $this->earlyStop;
+  }
+  public function setFeedbackType($feedbackType)
+  {
+    $this->feedbackType = $feedbackType;
+  }
+  public function getFeedbackType()
+  {
+    return $this->feedbackType;
+  }
+  public function setHiddenUnits($hiddenUnits)
+  {
+    $this->hiddenUnits = $hiddenUnits;
+  }
+  public function getHiddenUnits()
+  {
+    return $this->hiddenUnits;
   }
   public function setInitialLearnRate($initialLearnRate)
   {
@@ -95,6 +138,14 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   public function getInputLabelColumns()
   {
     return $this->inputLabelColumns;
+  }
+  public function setItemColumn($itemColumn)
+  {
+    $this->itemColumn = $itemColumn;
+  }
+  public function getItemColumn()
+  {
+    return $this->itemColumn;
   }
   public function setKmeansInitializationColumn($kmeansInitializationColumn)
   {
@@ -168,6 +219,14 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   {
     return $this->maxIterations;
   }
+  public function setMaxTreeDepth($maxTreeDepth)
+  {
+    $this->maxTreeDepth = $maxTreeDepth;
+  }
+  public function getMaxTreeDepth()
+  {
+    return $this->maxTreeDepth;
+  }
   public function setMinRelativeProgress($minRelativeProgress)
   {
     $this->minRelativeProgress = $minRelativeProgress;
@@ -175,6 +234,14 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   public function getMinRelativeProgress()
   {
     return $this->minRelativeProgress;
+  }
+  public function setMinSplitLoss($minSplitLoss)
+  {
+    $this->minSplitLoss = $minSplitLoss;
+  }
+  public function getMinSplitLoss()
+  {
+    return $this->minSplitLoss;
   }
   public function setModelUri($modelUri)
   {
@@ -192,6 +259,14 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   {
     return $this->numClusters;
   }
+  public function setNumFactors($numFactors)
+  {
+    $this->numFactors = $numFactors;
+  }
+  public function getNumFactors()
+  {
+    return $this->numFactors;
+  }
   public function setOptimizationStrategy($optimizationStrategy)
   {
     $this->optimizationStrategy = $optimizationStrategy;
@@ -199,6 +274,30 @@ class Google_Service_Bigquery_TrainingOptions extends Google_Collection
   public function getOptimizationStrategy()
   {
     return $this->optimizationStrategy;
+  }
+  public function setSubsample($subsample)
+  {
+    $this->subsample = $subsample;
+  }
+  public function getSubsample()
+  {
+    return $this->subsample;
+  }
+  public function setUserColumn($userColumn)
+  {
+    $this->userColumn = $userColumn;
+  }
+  public function getUserColumn()
+  {
+    return $this->userColumn;
+  }
+  public function setWalsAlpha($walsAlpha)
+  {
+    $this->walsAlpha = $walsAlpha;
+  }
+  public function getWalsAlpha()
+  {
+    return $this->walsAlpha;
   }
   public function setWarmStart($warmStart)
   {

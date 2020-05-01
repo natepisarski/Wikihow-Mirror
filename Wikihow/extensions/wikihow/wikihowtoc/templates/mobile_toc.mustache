@@ -1,9 +1,12 @@
-<div role='navigation' id='method_toc'>
+<div role='navigation' id='method_toc' class="{{toc_class}}">
 	<div>
-
+		{{^isIntl}}
 		<span class="header_toc">{{title}}</span>
+		{{/isIntl}}
 		<div id='method_toc_list'>
-
+			{{#isIntl}}
+				<span class="header_toc">{{title}}</span>
+			{{/isIntl}}
 			{{#toc}}
 			<div class='method_toc_item {{method_class}} {{class}}' id='{{id}}' data-section="{{section}}">
 				<a href='{{url}}'>

@@ -231,6 +231,7 @@ class WikihowMobileHomepage extends Article {
 				$vars['hp_newpages_header'] = wfMessage("hp_newpages_header")->text();
 				$vars['newpages_items'] = [];
 				$vars['seemore_newpages'] = wfMessage("seemore")->text() . " " . wfMessage("hp_newpages")->text();
+				$vars['newpages_url'] = Title::newFromText("NewPages", NS_SPECIAL)->getLocalURL();
 
 				$count = 0;
 				foreach ($newPages as $title) {
@@ -421,10 +422,11 @@ class WikihowMobileHomepage extends Article {
 					continue;
 				}
 
+				$anchor = WHVid::getVideoAnchor($title);
+
 				if($this->languageCode == "en") {
 					//get the anchor for this video. That will tell us which kind of
 					//video it is, and how to get the right thumbnail
-					$anchor = WHVid::getVideoAnchorForLoggedOut($title);
 					if($anchor == '') continue;
 
 					if($anchor == wfMessage("Videoheader")->text()) {
@@ -470,7 +472,7 @@ class WikihowMobileHomepage extends Article {
 					}
 				} else {
 					$vars['watch_items'][] = [
-						'url' => $title->getLocalURL() . "#" . wfMessage("Videoheader")->text(),
+						'url' => $title->getLocalURL() . "#" . $anchor,
 						'title' => $title->getText(),
 						'image' => Misc::getMediaScrollLoadHtml('img', ['src' => self::getThumbnailUrl($title)]),
 						'isExpert' => VerifyData::isExpertVerified($id)

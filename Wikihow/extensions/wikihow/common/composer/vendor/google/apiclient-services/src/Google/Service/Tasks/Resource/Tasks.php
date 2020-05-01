@@ -67,7 +67,9 @@ class Google_Service_Tasks_Resource_Tasks extends Google_Service_Resource
     return $this->call('get', array($params), "Google_Service_Tasks_Task");
   }
   /**
-   * Creates a new task on the specified task list. (tasks.insert)
+   * Creates a new task on the specified task list. Fails with HTTP code 403 or
+   * 429 after reaching the storage limit of 100,000 tasks per account.
+   * (tasks.insert)
    *
    * @param string $tasklist Task list identifier.
    * @param Google_Service_Tasks_Task $postBody

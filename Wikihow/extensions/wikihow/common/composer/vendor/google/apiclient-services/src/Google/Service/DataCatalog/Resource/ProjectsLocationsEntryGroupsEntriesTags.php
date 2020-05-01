@@ -27,9 +27,9 @@ class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroupsEntriesTag
 {
   /**
    * Creates a tag on an Entry. Note: The project identified by the `parent`
-   * parameter for the [tag](/data-catalog/docs/reference/rest/v1beta1/projects.lo
-   * cations.entryGroups.entries.tags/create#path-parameters) and the [tag
-   * template](/data-
+   * parameter for the [tag](https://cloud.google.com/data-catalog/docs/reference/
+   * rest/v1beta1/projects.locations.entryGroups.entries.tags/create#path-
+   * parameters) and the [tag template](https://cloud.google.com/data-
    * catalog/docs/reference/rest/v1beta1/projects.locations.tagTemplates/create
    * #path-parameters) used to create the tag must be from the same organization.
    * (tags.create)
@@ -73,7 +73,13 @@ class Google_Service_DataCatalog_Resource_ProjectsLocationsEntryGroupsEntriesTag
    * (tags.listProjectsLocationsEntryGroupsEntriesTags)
    *
    * @param string $parent Required. The name of the Data Catalog resource to list
-   * the tags of. The resource could be an Entry.
+   * the tags of. The resource could be an Entry or an EntryGroup.
+   *
+   * Examples:
+   *
+   * * projects/{project_id}/locations/{location}/entryGroups/{entry_group_id} * p
+   * rojects/{project_id}/locations/{location}/entryGroups/{entry_group_id}/entrie
+   * s/{entry_id}
    * @param array $optParams Optional parameters.
    *
    * @opt_param string pageToken Token that specifies which page is requested. If

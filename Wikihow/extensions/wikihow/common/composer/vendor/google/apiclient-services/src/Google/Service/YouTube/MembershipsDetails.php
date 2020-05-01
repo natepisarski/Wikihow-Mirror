@@ -17,15 +17,14 @@
 
 class Google_Service_YouTube_MembershipsDetails extends Google_Collection
 {
-  protected $collection_key = 'accessibleLevels';
+  protected $collection_key = 'membershipsDurationAtLevels';
   public $accessibleLevels;
   public $highestAccessibleLevel;
   public $highestAccessibleLevelDisplayName;
-  public $memberSince;
-  public $memberSinceCurrentLevel;
-  public $memberTotalDuration;
-  public $memberTotalDurationCurrentLevel;
-  public $purchasedLevel;
+  protected $membershipsDurationType = 'Google_Service_YouTube_MembershipsDuration';
+  protected $membershipsDurationDataType = '';
+  protected $membershipsDurationAtLevelsType = 'Google_Service_YouTube_MembershipsDurationAtLevel';
+  protected $membershipsDurationAtLevelsDataType = 'array';
 
   public function setAccessibleLevels($accessibleLevels)
   {
@@ -51,44 +50,32 @@ class Google_Service_YouTube_MembershipsDetails extends Google_Collection
   {
     return $this->highestAccessibleLevelDisplayName;
   }
-  public function setMemberSince($memberSince)
+  /**
+   * @param Google_Service_YouTube_MembershipsDuration
+   */
+  public function setMembershipsDuration(Google_Service_YouTube_MembershipsDuration $membershipsDuration)
   {
-    $this->memberSince = $memberSince;
+    $this->membershipsDuration = $membershipsDuration;
   }
-  public function getMemberSince()
+  /**
+   * @return Google_Service_YouTube_MembershipsDuration
+   */
+  public function getMembershipsDuration()
   {
-    return $this->memberSince;
+    return $this->membershipsDuration;
   }
-  public function setMemberSinceCurrentLevel($memberSinceCurrentLevel)
+  /**
+   * @param Google_Service_YouTube_MembershipsDurationAtLevel
+   */
+  public function setMembershipsDurationAtLevels($membershipsDurationAtLevels)
   {
-    $this->memberSinceCurrentLevel = $memberSinceCurrentLevel;
+    $this->membershipsDurationAtLevels = $membershipsDurationAtLevels;
   }
-  public function getMemberSinceCurrentLevel()
+  /**
+   * @return Google_Service_YouTube_MembershipsDurationAtLevel
+   */
+  public function getMembershipsDurationAtLevels()
   {
-    return $this->memberSinceCurrentLevel;
-  }
-  public function setMemberTotalDuration($memberTotalDuration)
-  {
-    $this->memberTotalDuration = $memberTotalDuration;
-  }
-  public function getMemberTotalDuration()
-  {
-    return $this->memberTotalDuration;
-  }
-  public function setMemberTotalDurationCurrentLevel($memberTotalDurationCurrentLevel)
-  {
-    $this->memberTotalDurationCurrentLevel = $memberTotalDurationCurrentLevel;
-  }
-  public function getMemberTotalDurationCurrentLevel()
-  {
-    return $this->memberTotalDurationCurrentLevel;
-  }
-  public function setPurchasedLevel($purchasedLevel)
-  {
-    $this->purchasedLevel = $purchasedLevel;
-  }
-  public function getPurchasedLevel()
-  {
-    return $this->purchasedLevel;
+    return $this->membershipsDurationAtLevels;
   }
 }

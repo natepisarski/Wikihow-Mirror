@@ -74,6 +74,9 @@ class Google_Service_CloudLifeSciences_Resource_ProjectsLocationsOperations exte
    * @param string $name The name of the operation's parent resource.
    * @param array $optParams Optional parameters.
    *
+   * @opt_param string pageToken The standard list page token.
+   * @opt_param int pageSize The maximum number of results to return. The maximum
+   * value is 256.
    * @opt_param string filter A string for filtering Operations. The following
    * filter fields are supported
    *
@@ -84,9 +87,6 @@ class Google_Service_CloudLifeSciences_Resource_ProjectsLocationsOperations exte
    * standard Google error code. * labels.key or labels."key with space" where key
    * is a label key. * done If the pipeline is running, this value is false. Once
    * the   pipeline finishes, the value is true.
-   * @opt_param string pageToken The standard list page token.
-   * @opt_param int pageSize The maximum number of results to return. The maximum
-   * value is 256.
    * @return Google_Service_CloudLifeSciences_ListOperationsResponse
    */
   public function listProjectsLocationsOperations($name, $optParams = array())

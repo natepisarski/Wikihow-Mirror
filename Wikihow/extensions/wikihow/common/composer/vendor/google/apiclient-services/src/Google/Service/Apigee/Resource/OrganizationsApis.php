@@ -38,7 +38,8 @@ class Google_Service_Apigee_Resource_OrganizationsApis extends Google_Service_Re
    * * Set the `name` query parameter to the name of the API proxy. * Set the
    * `action` query parameter to `import`. * Set the `Content-Type` header to
    * `multipart/form-data`. * Pass as a file the name of API proxy   configuration
-   * bundle stored in zip format on your local machine.
+   * bundle stored in zip format on your local machine using   the `file` form
+   * field.
    *
    * **Note**: To validate the API proxy configuration bundle only   without
    * importing it, set the `action` query   parameter to `validate`.
@@ -49,7 +50,7 @@ class Google_Service_Apigee_Resource_OrganizationsApis extends Google_Service_Re
    * validation errors is returned to the client. (apis.create)
    *
    * @param string $parent Required. Name of the organization in the following
-   * format:   `organizations/{organization_id}`
+   * format:   `organizations/{org}`
    * @param Google_Service_Apigee_GoogleApiHttpBody $postBody
    * @param array $optParams Optional parameters.
    *
@@ -76,7 +77,7 @@ class Google_Service_Apigee_Resource_OrganizationsApis extends Google_Service_Re
    * (apis.delete)
    *
    * @param string $name Required. Name of the API proxy in the following format:
-   * `organizations/{organization_id}/apis/{api_id}`
+   * `organizations/{org}/apis/{api}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ApiProxy
    */
@@ -90,7 +91,7 @@ class Google_Service_Apigee_Resource_OrganizationsApis extends Google_Service_Re
    * Gets an API proxy including a list of existing revisions. (apis.get)
    *
    * @param string $name Required. Name of the API proxy in the following format:
-   * `organizations/{organization_id}/apis/{api_id}`
+   * `organizations/{org}/apis/{api}`
    * @param array $optParams Optional parameters.
    * @return Google_Service_Apigee_GoogleCloudApigeeV1ApiProxy
    */
@@ -106,7 +107,7 @@ class Google_Service_Apigee_Resource_OrganizationsApis extends Google_Service_Re
    * proxy. (apis.listOrganizationsApis)
    *
    * @param string $parent Required. Name of the organization in the following
-   * format:   `organizations/{organization_id}`
+   * format:   `organizations/{org}`
    * @param array $optParams Optional parameters.
    *
    * @opt_param bool includeRevisions Flag that specifies whether to include a

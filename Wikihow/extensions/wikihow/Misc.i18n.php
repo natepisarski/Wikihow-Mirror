@@ -47,5 +47,6 @@ $messages['en'] = [
 	'decade-plural' => "decades",
 	'over' => 'over $1',
 	'sincetoday' => 'since today',
-	'since-unknown' => 'for a while'
+	'since-unknown' => 'for a while',
+	'followus' => 'Follow Us'
 ];
