@@ -22,7 +22,7 @@ class GPlusLogin extends UnlistedSpecialPage {
 
 		$out = $this->getOutput();
 		$req = $this->getRequest();
-		
+
 		$out->setRobotPolicy('noindex,nofollow');
 		$req->response()->header('x-robots-tag: noindex, nofollow');
 
@@ -162,14 +162,14 @@ class GPlusLogin extends UnlistedSpecialPage {
 		$wgUser->setOption('is_generated_username', false);
 		$wgUser->setOption('is_api_signup', false);
 		$wgUser->saveSettings();
-
 		$wgUser->setCookies();
 
 		if ($wgEmailAuthentication && Sanitizer::validateEmail($wgUser->getEmail())) {
 			$wgUser->sendConfirmationMail();
 		}
 
-		SocialLoginUtil::redirect($req->getText('returnTo'), $isSignup);
+		// Forcing isSignup argument in case they left without registering and then came back
+		SocialLoginUtil::redirect($req->getText('returnTo'), true);
 	}
 
 	private function unlinkGoogleAccount() {

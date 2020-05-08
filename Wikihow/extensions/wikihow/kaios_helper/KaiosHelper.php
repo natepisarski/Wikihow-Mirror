@@ -8,10 +8,10 @@ $wgResourceModules['ext.wikihow.kaios_helper'] = array(
 	),
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'wikihow/kaios_helper',
-	'position' => 'top',
+	'position' => 'bottom',
 	'targets' => array('desktop', 'mobile'),
 	'dependencies' => array('mediawiki.page.ready')
 );
 
 $wgHooks['TitleSquidURLs'][] = array('KaiosHelper::onTitleSquidURLsPurgeVariants');
-$wgHooks['ResourceLoaderGetStartupModules'][] = array('KaiosHelper::onResourceLoaderGetStartupModules');
+$wgHooks['BeforePageDisplay'][] = array('KaiosHelper::onBeforePageDisplay');

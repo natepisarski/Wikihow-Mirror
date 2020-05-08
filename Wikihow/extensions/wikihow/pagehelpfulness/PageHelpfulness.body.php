@@ -454,7 +454,7 @@ class PageHelpfulness extends UnlistedSpecialPage {
 
 		if (Misc::isUserInGroups($this->getUser(), array('staff', 'staff_widget'))) {
 			$cl .= '?item='.$title;
-			if (Misc::doResponsive( $this->getContext() )) $cl = WikihowMobileTools::getNonMobileSite().'/'.$cl;
+			$cl = WikihowMobileTools::getNonMobileSite().'/'.$cl;
 			$link = HTML::rawElement('a', ['href' => $cl], 'view all');
 			$html .= "<div class='phr_reasons_more'>{$link}</div>";
 		}

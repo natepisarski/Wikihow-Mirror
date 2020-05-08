@@ -332,9 +332,13 @@ class SocialProofStats extends ContextSource {
 		if ($data->worksheetName == "community") {
 			$nameLink = $data->name;
 		} else {
-			$nameLink = Html::rawElement( "a",
-				array( "href"=>$verifierpage, "class"=>"sp_namelink", "target"=>"_blank" ),
-				$data->name );
+			if (Misc::isIntl() && !$data->hoverBlurb) {
+				$nameLink = $data->name;
+			} else {
+				$nameLink = Html::rawElement("a",
+					array("href" => $verifierpage, "class" => "sp_namelink", "target" => "_blank"),
+					$data->name);
+			}
 		}
 
 		return [$nameLink, $data->blurb];

@@ -21,50 +21,10 @@ class UserLoginBox extends UnlistedSpecialPage {
 		global $wgSecureLogin;
 		$ctx = RequestContext::getMain();
 
-		if ( !$returnto ) {
-			$reqUrl = $ctx->getRequest()->getRequestURL();
-		} elseif ( preg_match('@^https?://@', $returnto) ) {
-			$reqUrl = $returnto;
-		} else {
-			$reqUrl = '';
-		}
-		if ($reqUrl) {
-			$url = parse_url($reqUrl);
-		} else {
-			$url = [
-				'path' => $returnto,
-				'query' => '',
-			];
-		}
-		$path = !empty($url['path']) ? ltrim($url['path'],'/') : '';
-		$query = [];
-		if (!empty($path)) {
-			$title = Title::newFromText($path);
-			if ((!$title || !$title->exists()) && !$returnto) {
-				$title = $ctx->getTitle();
-			}
-			if ($title) {
-				$query['returnto'] = $title->getPrefixedUrl();
-				if (!empty($url['query'])) {
-					$query['returntoquery'] = $url['query'];
-				}
-			}
-		}
-
 		$userlogin_link = '/'.Title::newFromText('UserLogin', NS_SPECIAL);
-		$wH_login_link = wfAppendQuery($userlogin_link, array_merge(['type' => 'login'], $query));
-		//new users never get returned to the home page
-		$homepage = str_replace(' ','-',wfMessage('mainpage')->inContentLanguage()->text());
-		$wH_signup_link = $path === $homepage ?
-			wfAppendQuery($userlogin_link, ['type' => 'signup']) :
-			wfAppendQuery($userlogin_link, array_merge(['type' => 'signup'], $query));
-
-		//make [some] urls absolute to desktop if we're on mobile
-		if (Misc::isMobileMode()) {
-			$url_prefix = WikihowMobileTools::getNonMobileSite();
-			$wH_login_link = $url_prefix.$wH_login_link;
-			$wH_signup_link = $url_prefix.$wH_signup_link;
-		}
+		$wH_login_link = '#wh-dialog-login';
+		// Trevor 2020/04/28 - No returnto for signup
+		$wH_signup_link = wfAppendQuery($userlogin_link, ['type' => 'signup']);
 
 		$privacyLink = "";
 		$tmpl = new EasyTemplate( __DIR__ );

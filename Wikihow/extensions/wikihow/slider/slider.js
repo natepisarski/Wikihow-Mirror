@@ -7,9 +7,12 @@
 
 		init: function() {
 			var cats = mw.config.get('wgCategories');
-			var isRelationshipArticle = ( cats && cats.indexOf("Relationships") !== -1 );
+			var isRelationshipArticle = ( cats && cats.indexOf("Relationships") !== -1 )
+				|| ( cats && cats.indexOf("Married Life") !== -1 )
+				|| ( cats && cats.indexOf("Parenting") !== -1 )
+				|| $('#sliderbox').hasClass('relArticle');
 			if ( isRelationshipArticle ) {
-				// Show a special slider for any article with a top-level category of Relationships
+				// Show a special slider for relationship articles
 				var cta = mw.message("slider_cta_marriage"),
 				    title = mw.message("slider_marriage"),
 				    txt = mw.message("slider_url_text_marriage"),

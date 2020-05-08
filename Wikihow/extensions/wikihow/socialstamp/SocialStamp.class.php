@@ -570,7 +570,7 @@ class SocialStamp {
 				$params['helpful_count_label'] = wfMessage('rss_helpful_count_label')->text();
 				$params['showBylineRefs'] = false;
 				// Only show the success stories message if there is at least 1 success story
-				if (UserReview::getTotalCuratedReviews($articleId) >= 1) {
+				if (UserReview::getEligibleNumCuratedReviews($articleId) >= 1) {
 					$params['show_success_stories'] = true;
 					$params['success_stories_label'] = wfMessage('ss_success_stories_label')->text();
 					$params['lastUpdatedDate'] = false;

@@ -99,7 +99,6 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/admintools/AdminImageLists.php");
 	require_once("$IP/extensions/wikihow/admintools/AdminYouTubeIds.php");
 	require_once("$IP/extensions/wikihow/specialbotblockipwhitelist/BotBlockIPWhitelist.php");
-	require_once("$IP/extensions/wikihow/ArticleTopMessage/ArticleTopMessage.php");
 	require_once("$IP/extensions/wikihow/Disclaimer/Disclaimer.php");
 	require_once("$IP/extensions/wikihow/kaios_helper/KaiosHelper.php");
 	require_once("$IP/extensions/wikihow/EventQueryTool/EventQueryTool.php");
@@ -160,6 +159,7 @@ require_once("$IP/extensions/wikihow/Newcontributors.php");
 require_once("$IP/extensions/wikihow/TitleSearch.php");
 require_once("$IP/extensions/wikihow/ThankAuthors/ThankAuthors.php");
 require_once("$IP/extensions/wikihow/EditDialog/EditDialog.php");
+require_once("$IP/extensions/wikihow/LoginDialog/LoginDialog.php");
 require_once("$IP/extensions/wikihow/createpage/CreatePage.php");
 require_once("$IP/extensions/wikihow/TwitterFeed/TwitterFeed.php");
 require_once("$IP/extensions/wikihow/Standings.php");

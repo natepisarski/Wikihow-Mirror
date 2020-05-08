@@ -209,6 +209,18 @@ a.external {
 	top: 0;
 	width: 100%;
 }
+#wh-progress-bar {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 0px;
+	height: 2px;
+	background-color: #475347;
+	transition: width 1s linear;
+	-webkit-transition: width 1s linear;
+	-moz-transition: width 1s linear;
+	-o-transition:width 1s linear;
+}
 .header {
 	height: 40px;
 	display: table;
@@ -951,7 +963,7 @@ body.action-view #fa_container p {
 .content .section_text.expert_advice_section ul li {
 	margin-bottom: 12px;
 	font-size: 14px;
-	line-height: 20px;
+	line-height: 22px;
 	list-style: none;
 }
 

@@ -128,14 +128,9 @@ class WikihowHomepage extends Article {
 		</form>';
 
 		$tmpl = new EasyTemplate( __DIR__ );
-		$loginVal = ($wgUser->getID() == 0 ? UserLoginBox::getLogin(false, false) : "");
-		if ( Misc::isAltDomain() ) {
-			$loginVal = '';
-		}
 		$tmpl->set_vars(array(
 			'items' => $items,
 			'imagePath' => wfGetPad('/skins/owl/images/home1.jpg'),
-			'login' => $loginVal,
 			'search' => $search
 		));
 		$html = $tmpl->execute('top.tmpl.php');

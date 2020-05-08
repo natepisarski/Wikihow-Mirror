@@ -7,10 +7,10 @@
 		{{#showDescription}}
 		<span class="ts_description">{{ts_description}}</span>
 		{{/showDescription}}
-		<a href="{{#isAmp}}#References{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>{{ts_goto}}</a>
+		<a href="{{#isAmp}}#{{{references}}}{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>{{ts_goto}}</a>
 	{{/trustedclass}}
 	{{^trustedclass}}
 		<span class="ts_name">{{ts_research}}</span>
-		<a href="{{#isAmp}}#References{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>{{#isAmp}}{{ts_goto}}{{/isAmp}}</a>
+		<a href="{{#isAmp}}#{{{references}}}{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>{{#isAmp}}{{ts_goto}}{{/isAmp}}</a>
 	{{/trustedclass}}
 </span>

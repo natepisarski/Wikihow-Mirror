@@ -62,12 +62,11 @@ class ArticleTagList {
 		$dbr = wfGetDB(DB_REPLICA);
 		$res = $dbr->select(
 			['articletaglinks', 'articletag'],
-			['at_tag', 'at_prob'],
+			['at_tag'],
 			['atl_tag_id = at_id', 'atl_page_id' => $aid],
 			__METHOD__);
 		foreach ($res as $row) {
-			$prob = $row->at_prob;
-			$tags[ $row->at_tag ] = $prob ? ['prob' => $prob] : true;
+			$tags[ $row->at_tag ] = true;
 		}
 
 		$wgMemc->set($cachekey, $tags);

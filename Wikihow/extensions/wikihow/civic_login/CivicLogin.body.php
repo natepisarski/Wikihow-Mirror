@@ -15,7 +15,8 @@ class CivicLogin extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		$user = $this->getUser();
+		global $wgUser;
+
 		$out = $this->getOutput();
 		$req = $this->getRequest();
 
@@ -58,14 +59,14 @@ class CivicLogin extends UnlistedSpecialPage {
 				$out->addHTML(wfMessage('cl_login_failed')->text());
 				return;
 			} elseif ($isSignup
-						|| $user->getBoolOption('is_generated_username')
-						|| strpos($user->getName(), "GP_") !== false) {
-				$currentPic = Avatar::getAvatarURL($user->getName());
+						|| $wgUser->getBoolOption('is_generated_username')
+						|| strpos($wgUser->getName(), "GP_") !== false) {
+				$currentPic = Avatar::getAvatarURL($wgUser->getName());
 				$defaultPic = Avatar::getDefaultProfile();
 				$this->showForm(
 					// Suggest a username change
 					$this->prof['name'],
-					$user->getEmail() ?: $this->prof['email'],
+					$wgUser->getEmail() ?: $this->prof['email'],
 					($currentPic != $defaultPic) ? $currentPic : $this->prof['picture'],
 					$isSignup
 				);
@@ -181,7 +182,8 @@ class CivicLogin extends UnlistedSpecialPage {
 
 		$user->setCookies();
 
-		SocialLoginUtil::redirect($req->getText('returnTo'), $isSignup);
+		// Forcing isSignup argument in case they left without registering and then came back
+		SocialLoginUtil::redirect($req->getText('returnTo'), true);
 	}
 
 	private function unlinkCivicAccount() {

@@ -15,7 +15,6 @@
 		<?php endif ?>
 		<p class="hp_title"></p>
 		<?= $search ?>
-		<?= $login ?>
 		</div>
 	</div>
 	<div id='hp_navigation'>

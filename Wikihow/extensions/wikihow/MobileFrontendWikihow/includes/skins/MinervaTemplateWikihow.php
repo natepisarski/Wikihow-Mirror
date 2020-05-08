@@ -37,10 +37,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		// TODO this does not need to be so high up in the page load!
 		$pageCenterInner .= $this->getGDPRHtml( $data );
 
-		if (class_exists('ArticleTopMessage')) {
-			$pageCenterInner .= ArticleTopMessage::showArticleTopMessage();
-		}
-
 		$pageCenterInner .= $this->getBannersHtml( $data );
 
 		if ($this->isMainPage) {
@@ -228,7 +224,8 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			$footerHtml = $this->footerHtml($vars);
 		}
 
-		if (class_exists("MobileSlideshow")) {
+		if (class_exists("MobileSlideshow")
+			&& !(class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest())) {
 			$footerHtml .= MobileSlideshow::getHtml();
 		}
 

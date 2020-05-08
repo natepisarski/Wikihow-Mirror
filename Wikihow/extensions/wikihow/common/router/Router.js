@@ -202,6 +202,10 @@
 			tag = tag.parentElement;
 		}
 		if ( tag.tagName == 'A' && tag.href && event.button == 0 ) {
+			var hash = tag.hash;
+			if ( hash !== '' && hash !== '#' ) {
+				return;
+			}
 			var pathname = tag.pathname;
 			if ( tag.origin == document.location.origin && pathname.indexOf( this.root ) == 0 ) {
 				try {
@@ -222,6 +226,10 @@
 	 * @param {Event} event Window pop-state event
 	 */
 	function onPopState( event ) {
+		var hash = document.location.hash;
+		if ( hash !== '' && hash !== '#' ) {
+			return;
+		}
 		this.go( document.location.pathname, true );
 		requestAnimationFrame( restore );
 		event.preventDefault();

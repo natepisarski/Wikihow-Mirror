@@ -40,9 +40,6 @@ class BuildWikihowModal extends UnlistedSpecialPage {
 		elseif ($modal_type == 'ccpa_optedout') {
 			$modal = self::getCCPAOptedOutModal();
 		}
-		elseif ($modal_type == 'login') {
-			$modal = PagePolicy::getLoginModal($request->getVal('returnto'));
-		}
 		elseif ($modal_type == 'flagasdetails') {
 			$modal = self::getFlagAsDetailsModal();
 		}

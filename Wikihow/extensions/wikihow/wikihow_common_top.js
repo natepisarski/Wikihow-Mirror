@@ -155,6 +155,9 @@ WH.xss = {
 };
 
 WH.event = function(name, params) {
+	if ( mw.config.get('wgContentLanguage') != 'en' ) {
+		return;
+	}
 	params = params || {};
 	params.action = name;
 	params.screen = WH.shared.getScreenSize();
@@ -410,37 +413,78 @@ if ( typeof WH.gaType != "undefined" && typeof WH.gaID != "undefined" && typeof 
 	//delete WH.gaType; delete WH.gaID; delete WH.gaConfig;
 }
 
-// Lock to prevent multiple-opening requests
-var opening = false;
+// Progress bar
 
-// Open the edit dialog
-function openEditDialog() {
-	opening = true;
-	return mw.loader.using( 'ext.wikihow.editDialog' )
-		.then( function () {
-			OO.ui.getWindowManager().openWindow( 'edit' ).opening.then( function () {
-				opening = false;
-			} );
-		} );
+function showProgressBar() {
+	var $progressBar = $( '<div id="wh-progress-bar"></div>' );
+	$('#header_container').append( $progressBar );
+	$progressBar.css( 'width', '100%' );
 }
 
-// Handle hash change event
-function onHashChange() {
-	if ( !opening && window.location.hash === '#edit' ) {
-		openEditDialog();
+function hideProgressBar() {
+	$( '#wh-progress-bar' ).remove();
+}
+
+// Dialog configurations
+var dialogRegistry = {
+	'wh-dialog-edit': {
+		module: 'ext.wikihow.editDialog',
+		window: 'edit',
+		isAvailable: function () {
+			return mw.user.isAnon() &&
+				mw.config.get( 'wgContentLanguage' ) === 'en' &&
+				mw.config.get( 'wgNamespaceNumber' ) === 0;
+		}
+	},
+	'wh-dialog-login': {
+		module: 'ext.wikihow.loginDialog',
+		window: 'login',
+		isAvailable: function () {
+			return mw.user.isAnon();
+		}
 	}
+};
+
+// Safe to remove after [RELEASE DATE + 1 WEEK]
+dialogRegistry['edit'] = dialogRegistry['wh-dialog-edit'];
+
+function onHashChange() {
+	var nextDialogKey = window.location.hash.substr( 1 );
+	var prevDialogKey = previousHash && previousHash.substr( 1 );
+	var prevDialogClosed;
+	var dialogConfig;
+
+	// Close previous dialog
+	dialogConfig = dialogRegistry[prevDialogKey];
+	if ( dialogConfig && dialogConfig.isAvailable() ) {
+		mw.loader.using( dialogConfig.module )
+			.then( function () {
+				var instance = OO.ui.getWindowManager().closeWindow( dialogConfig.window );
+				prevDialogClosed = instance.closed;
+			} );
+	}
+	$.when( prevDialogClosed ).then( function () {
+		// Open next dialog
+		dialogConfig = dialogRegistry[nextDialogKey];
+		if ( dialogConfig && dialogConfig.isAvailable() ) {
+			showProgressBar();
+			mw.loader.using( dialogConfig.module )
+				.then( function () {
+					var instance = OO.ui.getWindowManager().openWindow( dialogConfig.window );
+					instance.opened.then( function () {
+						hideProgressBar();
+					} );
+				} );
+		}
+		previousHash = window.location.hash;
+	} );
 }
 
-// Edit dialog for anons on english in main namespace
-if (
-	mw.user.isAnon() &&
-	mw.config.get( 'wgContentLanguage' ) === 'en' &&
-	mw.config.get( 'wgNamespaceNumber' ) === 0
-) {
-	// Auto-open on #edit
-	onHashChange();
-	// Listen to hash-change event
-	$( window ).on( 'hashchange', onHashChange );
-}
+// Handle hash changes to open/close dialogs, only allowing one dialog open at a time
+var previousHash = null;
+$( window ).on( 'hashchange', onHashChange );
+
+// Auto-open on load
+onHashChange();
 
 }(mediaWiki, jQuery));

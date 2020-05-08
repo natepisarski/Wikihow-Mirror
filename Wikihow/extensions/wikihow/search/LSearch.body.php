@@ -1178,6 +1178,10 @@ class LSearch extends SpecialPage {
 			$resultsSource = '(unknown)';
 		}
 
+		if (class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest()) {
+			$this->disableAds = true;
+		}
+
 		$vars = array(
 			'q' => $q,
 			'enc_q' => $enc_q,

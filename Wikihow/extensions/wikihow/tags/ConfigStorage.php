@@ -24,6 +24,10 @@ class ConfigStorage {
 
 	const MAX_KEY_LENGTH = 64;
 
+	const LOG_IT_NO = 0;
+	const LOG_IT_YES = 1;
+	const LOG_IT_IF_CHANGED = 2;
+
 	/**
 	 * List all current config keys.
 	 */
@@ -89,14 +93,19 @@ class ConfigStorage {
 	}
 
 	/**
-	 * Set the new config key in the database (along with the config value).
+	 * Set a new or existing config key in the database (along with the config value).
 	 * Clear the memcache key too.
 	 */
-	public static function dbStoreConfig($key, $config, $isArticleList, &$error, $allowArticleErrors = true, $newTagProb = 0, $logIt = true) {
+	public static function dbStoreConfig($key, $config, $isArticleList, &$error, $allowArticleErrors = true, $isTranslationTag = 0, $logIt = self::LOG_IT_YES) {
 		global $wgMemc, $wgUser;
 
 		if ( !self::hasUserRestrictions($key) ) {
 			$error = "Your username '" . $wgUser->getName() . "' cannot modify this key. Ping Elizabeth. :)";
+			return false;
+		}
+
+		if ( !$isArticleList && $isTranslationTag == 1 ) {
+			$error = __METHOD__ . ": Tag must be article list if we want to make it a translation tag";
 			return false;
 		}
 
@@ -105,7 +114,7 @@ class ConfigStorage {
 			if (!$allowArticleErrors && $error) {
 				return false;
 			}
-			Hooks::run( 'ConfigStorageStoreConfig', array( $key, $pages, $newTagProb, &$error) );
+			Hooks::run( 'ConfigStorageStoreConfig', array($key, $pages, $isTranslationTag, &$error) );
 		}
 
 		$cachekey = self::getMemcKey($key);
@@ -113,7 +122,7 @@ class ConfigStorage {
 
 		$dbw = wfGetDB(DB_MASTER);
 
-		if ($logIt) {
+		if ($logIt == self::LOG_IT_YES || $logIt == self::LOG_IT_IF_CHANGED) {
 			$old_config = self::dbGetConfigFromDatabase($key);
 		}
 
@@ -124,13 +133,40 @@ class ConfigStorage {
 			],
 			__METHOD__);
 
-		Hooks::run( 'ConfigStorageAfterStoreConfig', array( $key, $config) );
+		$affectedRows = $dbw->affectedRows();
 
-		if ($logIt) {
-			ConfigStorageHistory::dbChangeConfigStorage($key, $old_config, $config);
+		Hooks::run( 'ConfigStorageAfterStoreConfig', array($key, $config) );
+
+		$langCode = RequestContext::getMain()->getLanguage()->getCode();
+		if ($langCode == 'en') {
+			$tagObj = new ArticleTag($key);
+			$dbIsTranslationTag = $tagObj->isTranslationTag();
+			if ($dbIsTranslationTag >= 0) {
+				$isTranslationTag = $dbIsTranslationTag;
+			}
+			if ($isTranslationTag == 1) {
+				$jobParams = [ 'tag' => $key ];
+				$title = RequestContext::getMain()->getTitle();
+				$job = new UpdateTranslationAdminTagJob( $title, $jobParams );
+				JobQueueGroup::singleton()->push( $job );
+
+				if ($logIt == self::LOG_IT_YES) {
+					$logIt = self::LOG_IT_IF_CHANGED;
+				}
+			}
+
 		}
 
-		return $dbw->affectedRows() > 0;
+		if ($logIt == self::LOG_IT_YES || $logIt == self::LOG_IT_IF_CHANGED) {
+			if ($logIt == self::LOG_IT_IF_CHANGED && $old_config != $config) {
+				$logIt = self::LOG_IT_YES;
+			}
+			if ($logIt == self::LOG_IT_YES) {
+				ConfigStorageHistory::dbChangeConfigStorage($key, $old_config, $config);
+			}
+		}
+
+		return $affectedRows > 0;
 	}
 
 	public static function dbDeleteConfig($key) {

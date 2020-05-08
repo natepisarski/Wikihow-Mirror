@@ -17,6 +17,8 @@ CREATE TABLE config_storage_history (
 
 class ConfigStorageHistory {
 
+	const MAINTENANCE_USER = 'nightly maintenance';
+
 	/**
 	 * List all recent history items
 	 */
@@ -46,6 +48,15 @@ class ConfigStorageHistory {
 		return $row;
 	}
 
+	private static function getUserName() {
+		$user = RequestContext::getMain()->getUser();
+		$userName = $user->getName();
+		if ($userName == '127.0.0.1') {
+			$userName = self::MAINTENANCE_USER;
+		}
+		return $userName;
+	}
+
 	/**
 	 * Add new history entry based on item edit
 	 */
@@ -56,6 +67,7 @@ class ConfigStorageHistory {
 		$formatter = new TableDiffFormatter();
 		$formatted = $formatter->format( $diff );
 
+		$userName = self::getUserName();
 		$summary = "{$userName} changed tag '{$key}': " . self::diffSummary($diff);
 		$full = $formatted;
 
@@ -89,6 +101,7 @@ class ConfigStorageHistory {
 	}
 
 	public static function dbDeleteConfigStorage($key, $oldConfig) {
+		$userName = self::getUserName();
 		$summary = "{$userName} deleted tag '{$key}'";
 		$full = $summary . ". The contents before being deleted were:\n" . $oldConfig;
 
@@ -98,9 +111,8 @@ class ConfigStorageHistory {
 	private static function dbAddRow($key, $summary, $full) {
 		$dbw = wfGetDB(DB_MASTER);
 
-		$user = RequestContext::getMain()->getUser();
-		$userID = $user->getID();
-		$userName = $user->getName();
+		$userID = RequestContext::getMain()->getUser()->getID();
+		$userName = self::getUserName();
 
 		$dbw->insert( 'config_storage_history',
 			[ 'csh_modified' => wfTimestampNow(),

@@ -19,7 +19,8 @@ class ExpertAdviceSection {
 
 			$vars = [
 				'name' => $vdata->name,
-				'label' => $vdata->blurb
+				'label' => $vdata->blurb,
+				'name_url' => ArticleReviewers::getLinkToCoauthor($vdata)
 			];
 
 			$html = $m->render('expert_advice_expert.mustache', $vars);
@@ -51,6 +52,7 @@ class ExpertAdviceSection {
 
 		// $section_text = wfMessage($section_name)->text();
 		$section_text = pq('.'.$section_name)->find('h2 span.mw-headline')->text();
+		pq(".expertadvice.section")->find('h2')->prepend("<div class='altblock'></div>");
 
 		//add it to desktop TOC
 		WikihowToc::setExpertAdvice($section_name, $section_text);

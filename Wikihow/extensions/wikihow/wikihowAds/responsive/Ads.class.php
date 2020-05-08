@@ -177,6 +177,11 @@ class Ads {
 			return;
 		}
 
+		if ( class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest() ) {
+			$this->mActive = false;
+			return;
+		}
+
 		// check for certain restricted titles
 		if ( self::isExcluded( $this->mTitle ) ) {
 			$this->mActive = false;

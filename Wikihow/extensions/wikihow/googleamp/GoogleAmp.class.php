@@ -392,7 +392,7 @@ class GoogleAmp {
 	}
 
 	public static function getConsentElement() {
-		global $wgRequest, $wgTitle, $wgIsDevServer;
+		global $wgLanguageCode, $wgRequest, $wgTitle, $wgIsDevServer;
 
 		$config = [
 			'ISOCountryGroups' => [
@@ -400,6 +400,16 @@ class GoogleAmp {
 				"us" => ["us"]
 			]
 		];
+
+		// disable ccpa for non EN for now
+		if ( $wgLanguageCode != 'en' ) {
+			$config = [
+				'ISOCountryGroups' => [
+					'eea' => ["preset-eea", "unknown"],
+					"us" => []
+				]
+			];
+		}
 
 		// for testings
 		$eu = $wgRequest->getVal( "EUtest" ) == 1;
@@ -541,11 +551,7 @@ class GoogleAmp {
 		if ( ArticleTagList::hasTag( 'amp_disabled_pages', $out->getTitle()->getArticleID() ) ) {
 			return;
 		}
-		// TEMPORARY, RESPONSIVE: make amp display on www domain for EN language only right now
-		// Eventually, do this:
-		//$useMobileDomainUrl = false;
-		global $wgLanguageCode;
-		$useMobileDomainUrl = $wgLanguageCode != 'en';
+		$useMobileDomainUrl = false;
 		$serverUrl =  Misc::getLangBaseURL( $languageCode, $useMobileDomainUrl );
 		$ampUrl = wfExpandUrl( $serverUrl . '/' . $out->getTitle()->getPrefixedURL(), PROTO_CANONICAL );
 		$ampUrl =  $ampUrl . "?amp=1";

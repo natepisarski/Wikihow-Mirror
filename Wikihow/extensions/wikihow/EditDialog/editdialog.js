@@ -184,7 +184,8 @@ EditDialog.static.actions = [
 		action: 'cancel',
 		modes: [ 'loading', 'edit' ],
 		label: mw.message( 'cancel' ).text(),
-		flags: [ 'safe', 'destructive' ]
+		flags: [ 'safe', 'destructive' ],
+		href: '#'
 	},
 	{
 		action: 'back',
@@ -245,18 +246,20 @@ EditDialog.prototype.getSetupProcess = function ( data ) {
 		}, this );
 };
 
+EditDialog.prototype.getTeardownProcess = function ( data ) {
+	var dialog = this;
+	return EditDialog.super.prototype.getTeardownProcess.call( this, data )
+		.first( function () {
+			// Remove fragment from URL
+			if ( history.pushState ) {
+				history.pushState( null, null, '#' );
+			} else {
+				location.hash = '#';
+			}
+		}, this );
+};
+
 EditDialog.prototype.getActionProcess = function ( action ) {
-	/**
-	 * Change the current URL to have an empty fragement.
-	 */
-	function removeEditUrlFragement() {
-		// Remove #edit from URL
-		if ( history.pushState ) {
-			history.pushState( null, null, '#' );
-		} else {
-			location.hash = '#';
-		}
-	}
 	var dialog = this;
 	return EditDialog.super.prototype.getActionProcess.call( this, action )
 		.next( function () {
@@ -290,9 +293,10 @@ EditDialog.prototype.getActionProcess = function ( action ) {
 					.then( function ( data ) {
 						if ( data.edit && data.edit.result === 'Success' ) {
 							// Success
-							removeEditUrlFragement();
-							location.reload( true );
-							return $.Deferred().promise();
+							return dialog.close( { action: action } ).closed.promise()
+								.then( function () {
+									location.reload( true );
+								} );
 						} else if ( data.edit && data.edit.result === 'Failure' && data.edit.captcha ) {
 							// Captcha required
 							dialog.captcha = data.edit.captcha;
@@ -346,8 +350,7 @@ EditDialog.prototype.getActionProcess = function ( action ) {
 				dialog.stack.setItem( dialog.editPanel );
 				dialog.actions.setMode( 'edit' );
 			} else if ( action === 'cancel' ) {
-				return dialog.close( { action: action } ).closed.promise()
-					.then( removeEditUrlFragement );
+				return dialog.close( { action: action } ).closed.promise();
 			}
 			return EditDialog.super.prototype.getActionProcess.call( this, action );
 		}, this );

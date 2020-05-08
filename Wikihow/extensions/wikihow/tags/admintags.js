@@ -58,16 +58,22 @@ $(document).ready( function() {
 						$('#config-delete').prop('disabled', '');
 
 						if (data && typeof data['article-list'] != 'undefined' && data['article-list']) {
-							$("#article-list-notice").show();
-							var prob = '';
-							if (data['prob'] && parseInt(data['prob'], 10) > 0) {
-								prob = data['prob'];
+							if ( typeof data['translation-list'] != 'undefined' && data['translation-list'] == '1' ) {
+								$('#article-list-notice').hide();
+								$('#translation-list-notice').show();
+								if (mw.config.get('wgUserLanguage') != 'en') {
+									$('#config-save').prop('disabled', 'disabled');
+									$('#config-val').prop('disabled', 'disabled');
+								}
+							} else {
+								$('#article-list-notice').show();
+								$('#translation-list-notice').hide();
+								$('#config-val').prop('disabled', '');
 							}
-							$("#change-prob").val(prob);
-							$(".display-prob").show();
 						} else {
-							$("#article-list-notice").hide();
-							$(".display-prob").hide();
+							$('#article-list-notice').hide();
+							$('#translation-list-notice').hide();
+							$('#config-val').prop('disabled', '');
 						}
 					}
 				});
@@ -86,7 +92,7 @@ $(document).ready( function() {
 				{ 'action': 'save-config',
 				  'config-key': $('#config-key').val(),
 				  'config-val': $('#config-val').val(),
-				  'prob': $('#change-prob').val(),
+				  'is-translation-tag': $('#is-translation-tag').is(':checked'),
 				  'style': dispStyle },
 				function(data) {
 					$('.change-result').html(data['result']);
@@ -134,23 +140,13 @@ $(document).ready( function() {
 				alert('Key must be fewer than 64 characters: ' + newKey);
 				return;
 			}
-			var prob = parseInt( $('#new-prob').val(), 10 );
-			if ( isNaN(prob) || prob == 0 ) {
-				prob = "";
-			} else if (prob < 0 || prob > 99) {
-				alert("Illegal probability entered: " + prob + ". Must be between 0 and 99 inclusive.");
-				return;
-			} else if (prob < 50) {
-				var c = confirm("You selected a probability of < 50%. It is more efficient to have the A variant showing in the majority case. Do you want to continue?");
-				if (!c) return;
-			}
 
 			$('.add-result').html('saving ...');
 			$.post(BASE_URL,
 				{ 'action': 'create-config',
 				  'new-key': newKey,
 				  'is-article-list': $('#is-article-list').is(':checked'),
-				  'new-prob': $('#new-prob').val(),
+				  'is-translation-tag': $('#is-translation-tag').is(':checked'),
 				  'config-val-new': $('#config-val-new').val() },
 				function(data) {
 					$(".add-result").css("padding", "10px");
@@ -194,6 +190,9 @@ $(document).ready( function() {
 		.click( function() {
 			$('#add-new').show();
 			$('#new-key').focus();
+			if (mw.config.get('wgUserLanguage') != 'en') {
+				$('.display-translations').remove();
+			}
 			return false;
 		} );
 
@@ -205,7 +204,15 @@ $(document).ready( function() {
 
 	$('#article-explain')
 		.click( function() {
-			$('#dialog-box').dialog({
+			$('#article-tags-info-dialog-box').dialog({
+				width: 600
+			});
+			return false;
+		} );
+
+	$('#translation-explain')
+		.click( function() {
+			$('#translations-info-dialog-box').dialog({
 				width: 600
 			});
 			return false;
@@ -214,7 +221,7 @@ $(document).ready( function() {
 	$('#is-article-list')
 		.change( function() {
 			//if ( $(this).is(':checked') ) {
-			$('.display-prob').animate({height: 'toggle'});
+			$('.display-translations').animate({height: 'toggle'});
 		} );
 
 	$('.csh-view')

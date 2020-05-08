@@ -7,7 +7,10 @@ $wgAutoloadClasses['ConfigStorageHistory'] = __DIR__ . '/ConfigStorageHistory.ph
 $wgAutoloadClasses['AdminTags'] = __DIR__ . '/SpecialAdminTags.php';
 $wgAutoloadClasses['ArticleTag'] = __DIR__ . '/ArticleTag.php';
 $wgAutoloadClasses['ArticleTagList'] = __DIR__ . '/ArticleTagList.php';
+$wgAutoloadClasses['UpdateTranslationAdminTagJob'] = __DIR__ . '/UpdateTranslationAdminTagJob.php';
 $wgExtensionMessagesFiles['ArticleTagAlias'] = __DIR__ . '/ArticleTags.alias.php';
+
+$wgJobClasses['UpdateTranslationAdminTagJob'] = 'UpdateTranslationAdminTagJob';
 
 $wgHooks['ConfigStorageStoreConfig'] = ['ArticleTag::onConfigStorageStoreConfig'];
 $wgHooks['BeforePageDisplay'][] = array('ArticleTag::onBeforePageDisplayAddArticleTagJSVars');

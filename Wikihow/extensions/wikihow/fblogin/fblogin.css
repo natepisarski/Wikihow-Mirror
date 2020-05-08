@@ -130,3 +130,8 @@
 	width: 42px;
 	background-image: url(/skins/WikiHow/images/follow-sprite.png?4);
 }
+
+#fbc_form .input_med:not([readonly]) {
+	border: 1px solid #545454;
+	background: white;
+}

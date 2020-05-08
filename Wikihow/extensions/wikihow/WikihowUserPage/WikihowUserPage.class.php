@@ -43,7 +43,14 @@ class WikihowUserPage extends Article {
 
 		$diff = $req->getVal( 'diff' );
 		$rcid = $req->getVal( 'rcid' );
-		$title = $this->getTitle();
+
+		$title = $this->getContext()->getTitle();
+
+		// Hack for WelcomeWagon fix. If $this->mPage is not defined, function calls on $title returns warnings about mPage being null in Article class (causing a parseerror).
+		if ( $title->getDBKey() == 'WelcomeWagon' ) {
+			$this->mPage = SpecialPage::getTitleFor( $title->getDBKey() );
+		}
+
 		$this->user = ( $u ? $u : User::newFromName($title->getDBKey(), false) );
 
 		$affectedNamespaces = array(NS_USER, NS_USER_KUDOS, NS_USER_TALK);

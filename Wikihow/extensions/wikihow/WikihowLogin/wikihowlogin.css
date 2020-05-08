@@ -156,21 +156,6 @@
 	margin-left: 20px;
 }
 
-#userlogin_alt_logins .ulb_button {
-	height: 40px;
-	background-size: 36px;
-	line-height: 40px;
-	margin-bottom: 15px;
-	font-size: 14px;
-	width: 140px;
-	/* @noflip */
-	padding-left: 40px;
-}
-
-#userlogin_alt_logins .ulb_button .ulb_icon {
-	height: 40px;
-}
-
 .mw-error, .mw-info {
 	position: absolute;
 	background: #ffffff;

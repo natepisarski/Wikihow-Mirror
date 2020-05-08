@@ -11,8 +11,6 @@ window.WH.nab.needToConfirm = true;
 // Handlers for expand/contract arrows
 (function ($) {
 	// This is not in newarticleboost.js because there would be a delay if we put it there
-	$("#nap_header").next().css("margin-top", ($("#nap_header").height() + 58) + "px");
-
 	$('.nap_expand').click(function() {
 		var thisSpan = $(this);
 		var body = thisSpan.parent().next();
@@ -30,6 +28,7 @@ window.WH.nab.needToConfirm = true;
 		}
 		return false;
 	});
+
 })(window.jQuery);
 
 window.WH.nab.editClick = function(url) {
@@ -169,6 +168,7 @@ window.WH.nab.loadNextArticle = function() {
 		window.scrollTo(0, 0);
 		window.history && window.history.pushState({}, "", nextUrl);
 		document.title = nextTitle;
+		window.WH.nab.addMarginBelowHeader();
 		window.WH.nab.enableButtons();
 	});
 }
@@ -181,6 +181,10 @@ window.WH.nab.addTemplateNfdDup = function(title) {
 		window.WH.nab.submitNabForm();
 		window.WH.nab.disableButtons();
 	}
+}
+
+window.WH.nab.addMarginBelowHeader = function() {
+	$("#nap_header").next().css("margin-top", ($("#nap_header").height() + 58) + "px");
 }
 
 window.WH.nab.confirmExit = function() {
@@ -279,6 +283,8 @@ $(document).ready(function() {
 				window.WH.nab.submitNabForm();
 			}
 		});
+
+		window.WH.nab.addMarginBelowHeader();
 
 		$(window).scroll(function() {
 			$("#nap_header").css("top",$("#header").height());

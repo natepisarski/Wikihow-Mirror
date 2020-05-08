@@ -16,7 +16,7 @@ $messages['en'] = [
 	'embedvideo-illegal-width' => 'EmbedVideo received the illegal width parameter "$1".',
 	'embedvideo-gdpr' => 'Some information may be shared with YouTube',
 	'embedvideo-embed-clause' =>
-		'<div class="embedvideocontainer"><iframe class="embedvideo" data-src="$1" frameborder="0" allowfullscreen></iframe></div>',
+		'<div class="embedvideocontainer" $4><iframe class="embedvideo" data-src="$1" frameborder="0" allowfullscreen></iframe></div>',
 	'embedvideo-embed-clause-popcorn' =>
 		'<div class="embedvideocontainer"><iframe class="embedvideo" style="margin-left:-8px;" data-src="$1" frameborder="0" mozallowfullscreen webkitallowfullscreen allowfullscreen></iframe></div>',
 	'embedvideo-embed-clause-howcast' =>

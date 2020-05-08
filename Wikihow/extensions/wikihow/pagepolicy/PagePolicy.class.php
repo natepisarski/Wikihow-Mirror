@@ -112,6 +112,15 @@ class PagePolicy {
 					$showCurrentTitle = false;
 				}
 
+				// 404 login pages with returnto actions to pages that don't exist
+				// If the page does exist, PageHooks::redirectIfLoginWithReturnToRequest will
+				// redirect to the existing page and popup a login dialog. Otherwise the user will
+				// get a blank page with a login dialog.
+				// Ex: https://www.wikihow.com/Special:UserLogin?returnto=PageThatDoesNotExist
+				if ( $title->isSpecial('Userlogin') && $req->getVal('returnto', '') !== '' ) {
+					$showCurrentTitle = false;
+				}
+
 				if ( $showCurrentTitle && !self::isVisibleAction($req) ) {
 					$showCurrentTitle = false;
 				}
@@ -237,8 +246,6 @@ class PagePolicy {
 						]
 					) );
 				} elseif ($specialPageOverride) {
-					$login = Title::newFromText( 'Special:UserLogin' );
-					$url = $login->getCanonicalURL( [ 'returnto' => $wgTitle->getPrefixedUrl() ] );
 					$out->setPageTitle(wfMessage( 'pagepolicy_special_header' )->text());
 					$out->addHTML( self::render( 'special_not_exists',
 						[
@@ -248,15 +255,14 @@ class PagePolicy {
 						]
 					) );
 				} else {
-					// For existing pages that are being hidden, show a login to view message and form
-					$out->addModules( 'ext.wikihow.login_popin' );
+					// Show login dialog
 					$out->addHTML( self::render(
 						Misc::doResponsive( RequestContext::getMain() ) ? 'login_mobile' : 'login_desktop',
 						[
-							'encoded_title' => $wgTitle->getPrefixedUrl(),
 							'login_message' => wfMessage( 'pagepolicy_login_message' )->text()
 						]
 					) );
+					$out->addHTML( '<script>document.body.className += " page-hidden";window.location.hash="#wh-dialog-login";</script>' );
 				}
 			} else {
 				// Otherwise, show a "title doesn't exist" message
@@ -268,16 +274,6 @@ class PagePolicy {
 				) );
 			}
 		}
-	}
-
-	public static function getLoginModal($returnto) {
-		return self::render(
-			'login_popin',
-			[
-				'login_chunk' => UserLoginBox::getLogin( false, true, $returnto ),
-				'login_header' => wfMessage('pagepolicy_login_header')->text()
-			]
-		);
 	}
 
 	private static function validateToken($token, $pageid) {

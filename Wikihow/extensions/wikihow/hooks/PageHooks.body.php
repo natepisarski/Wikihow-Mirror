@@ -896,14 +896,6 @@ class PageHooks {
 
 	/**
 	 * If the request is for an edit page by an anon, redirect to the article.
-	 *
-	 * @param $title
-	 * @param $unused
-	 * @param $output
-	 * @param $user
-	 * @param $request
-	 * @param $mediaWiki
-	 * @return bool
 	 */
 	public static function redirectIfAnonEditRequest(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
 		global $wgServer, $wgLanguageCode;
@@ -915,7 +907,34 @@ class PageHooks {
 			$title->inNamespace( NS_MAIN ) &&
 			$request->getVal( 'action' ) === 'edit'
 		) {
-			$output->redirect( $title->getFullURL() . '#edit', 301 );
+			$output->redirect( $title->getFullURL() . '#wh-dialog-edit', 301 );
+		}
+	}
+
+	/**
+	 * If the request is for Special:UserLogin with a returnto by an anon, redirect to the article
+	 * and popup a login dialog. Otherwise set the status to 404. PagePolicy will blank the page in
+	 * this case as well.
+	 */
+	public static function redirectIfLoginWithReturnToRequest(&$title, &$unused, &$output, &$user, $request, $mediaWiki) {
+		global $wgServer, $wgLanguageCode;
+
+		$returnTo = $request->getVal( 'returnto' );
+		if (
+			$returnTo !== null &&
+			// TODO: Remove language check once LoginDialog has been released to intl
+			$wgLanguageCode == 'en' &&
+			$user->isAnon() &&
+			$title &&
+			$title->isSpecial( 'Userlogin' )
+		) {
+			$page = Title::newFromDBKey( $returnTo );
+			if ( $page && $page->exists() ) {
+				$output->redirect( $page->getFullURL() . '#wh-dialog-login', 301 );
+			} else {
+				$output->getContext()->getOutput()->setStatusCode( '404' );
+				return true;
+			}
 		}
 	}
 
@@ -991,8 +1010,7 @@ class PageHooks {
 				$uri = @$_SERVER['REQUEST_URI'];
 				if ($wgCommandLineMode
 					|| strpos($uri, 'Special:MessengerSearchBot') !== false
-					|| strpos($uri, 'Special:AlexaSkillReadArticleWebHook') !== false
-					|| strpos($uri, 'Special:APIAIWikihowAgentWebHook') !== false
+					|| strpos($uri, 'kaios=1') !== false
 				) {
 					# do something here? no.
 				} else {

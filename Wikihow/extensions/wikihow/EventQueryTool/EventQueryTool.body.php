@@ -74,9 +74,9 @@ class EventQueryTool extends UnlistedSpecialPage
 		$dateEnd = $dbr->addQuotes( $dtB->format('Y-m-d 00:00:00') );
 
 		$groupBy = $req->getArray('groupby', []);
+		$validFields = [ 'event', 'date', 'domain', 'page_id', 'screen' ];
 		if ($groupBy) {
 			$groupBy = array_merge( ['event'], $groupBy ); // always include the 'event' field
-			$validFields = [ 'event', 'date', 'domain', 'page_id', 'screen' ];
 			$groupBy = array_intersect($validFields, $groupBy); // sanitize
 		}
 
@@ -96,6 +96,7 @@ class EventQueryTool extends UnlistedSpecialPage
 			$where['el_action'] = $events;
 		}
 
+		$paramNames = []; // only shown for unaggregated reports
 		if ($groupBy) {
 			foreach ( array_keys($fields) as $field) {
 				// always show this field
@@ -108,11 +109,13 @@ class EventQueryTool extends UnlistedSpecialPage
 				'GROUP BY' => $groupBy,
 				'ORDER BY' => $groupBy,
 			];
-			$paramNames = []; // results are being aggregated, so we won't show any extra params
 		} else {
-			$opts = [ 'ORDER BY' => 'date, domain, page_id, screen' ];
-			$eventConf = EventConfig::EVENTS[$event] ?? [];
-			$paramNames = $eventConf[1] ?? [];
+			$opts = [ 'ORDER BY' => $validFields ];
+			foreach ($events as $event) {
+				$eventConf = EventConfig::EVENTS[$event] ?? [];
+				$paramNames = array_merge($paramNames, $eventConf[1] ?? []);
+			}
+			$paramNames = array_unique($paramNames);
 		}
 
 		$rows = $dbr->select($table, $fields, $where, __METHOD__, $opts);
@@ -140,12 +143,12 @@ class EventQueryTool extends UnlistedSpecialPage
 			}
 			if ($pages) {
 				$path = $pages[$r->page_id] ?? null;
-				$line[] = $path ? "/{$path}" : '';
+				$line[] = $path ? "/{$path}" : ' ';
 			}
 			if ($paramNames) {
 				$params = json_decode($r->params, true);
 				foreach ($paramNames as $paramName) {
-					$line[] = $params[$paramName] ?? null;
+					$line[] = $params[$paramName] ?? ' ';
 				}
 			}
 			fputcsv($fp, $line);

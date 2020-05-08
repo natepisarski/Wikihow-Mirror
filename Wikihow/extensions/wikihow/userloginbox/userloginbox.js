@@ -11,13 +11,9 @@
 				$( this ).addClass( 'ulb_describe' );
 			} );
 
-			var LoginPopin = window.WH.LoginPopin || {},
-				returnUrl;
-			if (LoginPopin.returnTo) { // Overrides default behavior
-				returnUrl = LoginPopin.returnTo;
-				delete LoginPopin.returnTo;
-			} else {
-				returnUrl = $( '#social-login-navbar' ).data( 'returnTo' );
+			var returnTo = $( '#social-login-navbar' ).data( 'returnTo' );
+			if ( !returnTo ) {
+				returnTo = mw.config.get( 'wgPageName' );
 			}
 
 			var buttons = {
@@ -28,16 +24,11 @@
 				buttons.civic = '#civic_login,#civic_login_head';
 			}
 
-			WH.social.setupLoginButtons( buttons, returnUrl );
+			WH.social.setupLoginButtons( buttons, returnTo );
 		}
 	} );
 
 	$( function () {
-		// Account signup
-		$( '#wpCreateaccount' ).click( function () {
-			WH.maEvent( 'account_signup', { category: 'account_signup', type: 'wikihow' }, false );
-		} );
-
 		// Social login
 		if ( WH.social ) {
 			if ( $( '#fb_login,#gplus_login,#civic_login' ).length ) {

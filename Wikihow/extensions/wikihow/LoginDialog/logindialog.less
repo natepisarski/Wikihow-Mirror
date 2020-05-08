@@ -1,0 +1,227 @@
+.civic-lights-out,
+.civic-modal {
+	z-index: 100000007 !important;
+}
+
+.page-hidden #loginDialog {
+	background-color: rgba(0,0,0,0.75);
+}
+
+#loginDialog-form,
+#loginDialog-social {
+	width: 50%;
+	box-sizing: border-box;
+	padding: 2em;
+	margin: 0;
+	vertical-align: top;
+}
+
+#loginDialog-social {
+	padding-right: 0;
+}
+
+#loginDialog-socialButtons {
+	box-shadow: 1px 0 0 0 #e5e5e5;
+	padding-right: 2em;
+	.oo-ui-buttonWidget:last-child {
+		margin-bottom: 0;
+	}
+	.oo-ui-buttonElement-button .oo-ui-labelElement-label {
+		color: white;
+		padding-left: 44px;
+	}
+	.oo-ui-buttonElement-button:after {
+		content: ' ';
+		position: absolute;
+		height: 4px;
+		background-color: white;
+		left: 0;
+		right: 0;
+		bottom: -1px;
+		opacity: 0.5;
+		animation: swipe 2s ease-out;
+		animation-iteration-count: infinite;
+		transform-origin: center;
+		display: none;
+	}
+	.loading {
+		.oo-ui-buttonElement-button {
+			opacity: 0.75;
+		}
+		.oo-ui-buttonElement-button:after {
+			display: block;
+		}
+	}
+}
+
+#loginDialog-or {
+	position: absolute;
+	top: 50%;
+	right: -1em;
+	margin-top: -1.25em;
+	width: 2em;
+	height: 2em;
+	color: #b1b1b1;
+	background-color: white;
+	text-align: center;
+	line-height: 2em;
+}
+
+.oo-ui-windowManager-fullscreen {
+	#loginDialog-form {
+		width: 100%;
+	}
+	#loginDialog-social {
+		width: 100%;
+		padding-right: 2em;
+		padding-bottom: 0;
+	}
+	#loginDialog-socialButtons {
+		box-shadow: 0 1px 0 0 #e5e5e5;
+		padding-right: 0;
+		padding-bottom: 2em;
+		.oo-ui-labelElement-label {
+			padding-left: 0;
+		}
+	}
+	#loginDialog-or {
+		top: auto;
+		right: 50%;
+		bottom: -1em;
+		margin-right: -1em;
+	}
+}
+
+#loginDialog-loginButton,
+#loginDialog-facebookButton,
+#loginDialog-googleButton,
+#loginDialog-civicButton {
+	display: block;
+	.oo-ui-buttonElement-button {
+		display: block;
+		width: 100%;
+	}
+	.oo-ui-labelElement-label {
+		font-size: 1.4em;
+	}
+	margin-right: 0;
+	margin-bottom: 0.75em;
+}
+
+#loginDialog-loginButton {
+	margin-bottom: 0;
+}
+
+#loginDialog-facebookButton .oo-ui-buttonElement-button {
+	background: #365494 url(/extensions/wikihow/userloginbox/images/ulb_facebook.png) 4px center / 40px no-repeat;
+	border: solid 1px #365494;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
+	&:hover {
+		background-color: #304B84;
+	}
+}
+
+#loginDialog-googleButton .oo-ui-buttonElement-button {
+	background: #3F82F7 url(/extensions/wikihow/userloginbox/images/ulb_google.png) 4px center / 40px no-repeat;
+	border: solid 1px #3F82F7;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
+	&:hover {
+		background-color: #3874DC;
+	}
+}
+
+#loginDialog-civicButton .oo-ui-buttonElement-button {
+	background: #AAAAAA url(/extensions/wikihow/userloginbox/images/ulb_civic.png) 4px center / 40px no-repeat;
+	border: solid 1px #AAAAAA;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
+	&:hover {
+		background-color: #979797;
+	}
+}
+
+#loginDialog-notice {
+	margin-top: 0;
+	.oo-ui-labelElement-label {
+		font-size: 12px;
+		color: #b1b1b1;
+		font-weight: normal;
+		width: 100%;
+		white-space: normal;
+	}
+}
+
+#loginDialog-errorLabel {
+	display: block;
+	padding: 0.5em 1em;
+	color: #dd3333;
+	background-color: #fae3e3;
+	border: 1px solid #fac5c5;
+	font-size: 0.8em;
+	border-radius: 4px;
+	margin-bottom: 1em;
+}
+
+@-webkit-keyframes swipe {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	50% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	51% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+}
+
+@keyframes swipe {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	50% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: left;
+		transform-origin: left;
+	}
+	51% {
+		opacity: 0.5;
+		-webkit-transform: scale( 1, 1 );
+		transform: scale( 1, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+	100% {
+		opacity: 0;
+		-webkit-transform: scale( 0, 1 );
+		transform: scale( 0, 1 );
+		-webkit-transform-origin: right;
+		transform-origin: right;
+	}
+}

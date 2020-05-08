@@ -2,7 +2,7 @@
 	'use strict';
 
 	function trackEvent(name, obj) {
-		var href = $(obj).attr('href');
+		var href = $(obj).prop('href');
 		WH.event(name, { 'dest_url': href } );
 	}
 

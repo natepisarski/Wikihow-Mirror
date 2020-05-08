@@ -254,6 +254,9 @@ class WikihowMobileTools {
 					&& !self::isInternetOrgRequest()
 					&& !AndroidHelper::isAndroidRequest()
 					&& !$wgContLang->isRTL();
+
+				Hooks::run( 'ShowTOC', [ &$showTOC ] );
+
 				if ($h3Count <= 0) {
 					if ($set) {
 						try {
@@ -640,7 +643,7 @@ class WikihowMobileTools {
 						$link = HTML::rawElement('a', ['href' => '#'.$anchor, 'class' => 'ingredient_method'], $header);
 
 						$list_header = pq($list_name)->html();
-						$list_header = preg_replace('/'.$header.'/', $link, $list_header);
+						$list_header = preg_replace('/' . preg_quote($header, '/') . '/', $link, $list_header);
 
 						pq($list_name)->html($list_header);
 						break;
@@ -682,7 +685,8 @@ class WikihowMobileTools {
 		// because we appended the new references section we need to remove the old one
 		pq( $referencesSection )->remove();
 
-		if(class_exists("TrustedSources")) {
+		if(class_exists("TrustedSources")
+			&& !(class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest())) {
 			TrustedSources::markTrustedSources($pageId);
 		}
 
@@ -1039,6 +1043,9 @@ class WikihowMobileTools {
 						$smallWidth = round($smallHeight*$srcWidth/$srcHeight, 0);
 						$srcSet = null;
 						$layout = "fixed";
+					}
+					if ($smallWidth == $srcWidth) {
+						$srcSet = null;
 					}
 					$ampImg = GoogleAmp::getAmpArticleImg( $smallSrc, $smallWidth, $smallHeight, $srcSet, $layout );
 					$a->replaceWith( $ampImg );

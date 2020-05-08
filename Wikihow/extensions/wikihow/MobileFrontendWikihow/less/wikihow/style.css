@@ -903,39 +903,97 @@ a.reference-anchor {
 
 /** Login Dropdown **/
 
-.menu_login { font-size: .8em; }
+.menu_login {
+	font-size: .8em;
+	cursor: default;
+}
 
+#social-login-navbar,
 .userlogin_links {
-	padding: 6px 14px 0 0;
-	clear: both;
+	margin-top: 1em;
 }
 
 .userlogin_links a {
 	font-weight: bold;
-	color: #363;
-	text-decoration: underline;
 }
 
-.ulb_button,
-.ulb_button:visited {
-	height: 49px;
-	margin: 5px 0 15px 0;
-	position: relative;
-	border-radius: 2px;
+.ulb_button {
 	display: block;
-	color: #FFF;
-	line-height: 50px;
+	padding: 1em 1.56em;
+	border-radius: 4px;
 	text-align: center;
-	padding-left: 50px;
-	font-size: 1.3em;
+	margin-bottom: 0.75em;
 }
-
 .ulb_button:hover {
 	text-decoration: none;
-	color: #FFF;
 }
 
-/* Loading Indicator */
+.ulb_label {
+	color: white;
+	padding-left: 44px;
+	font-size: 1.2em;
+	margin-right: 0;
+	margin-bottom: 0.75em;
+	font-weight: bold;
+}
+
+.ulb_button:after {
+	content: ' ';
+	position: absolute;
+	height: 4px;
+	background-color: white;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	opacity: 0.5;
+	animation: swipe 2s ease-out;
+	animation-iteration-count: infinite;
+	transform-origin: center;
+	display: none;
+}
+.ulb_button.loading {
+	opacity: 0.75;
+}
+.ulb_button.loading:after {
+	display: block;
+}
+
+#fb_login, #fb_login_head {
+	background: #365494 url(/extensions/wikihow/userloginbox/images/ulb_facebook.png) 4px center / 40px no-repeat;
+	border: solid 1px #365494;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
+}
+#fb_login:hover, #fb_login_head:hover {
+	background-color: #304B84;
+}
+
+#gplus_login, #gplus_login_head {
+	background: #3F82F7 url(/extensions/wikihow/userloginbox/images/ulb_google.png) 4px center / 40px no-repeat;
+	border: solid 1px #3F82F7;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
+}
+#gplus_login:hover, #gplus_login_head:hover {
+	background-color: #3874DC;
+}
+
+#civic_login, #civic_login_head {
+	background: #AAAAAA url(/extensions/wikihow/userloginbox/images/ulb_civic.png) 4px center / 40px no-repeat;
+	border: solid 1px #AAAAAA;
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
+}
+#civic_login:hover, #civic_login_head:hover {
+	background-color: #979797;
+}
+.ulb_login {
+	/* @embed */
+	background: #93b874 url(/extensions/wikihow/userloginbox/images/ulb_person.svg) 4px center / 40px no-repeat;
+}
+.ulb_login:hover {
+	background-color: #83a168;
+}
 
 @-webkit-keyframes swipe {
 	0% {
@@ -999,81 +1057,7 @@ a.reference-anchor {
 	}
 }
 
-.ulb_loading_indicator {
-	position: absolute;
-	bottom: 0;
-	height: 2px;
-	left: 0;
-	right: 0;
-	background-color: white;
-	opacity: 0.5;
-	animation: swipe 2s ease-out;
-	animation-iteration-count: infinite;
-	transform-origin: center;
-	display: none;
-}
-
-.loading .ulb_loading_indicator {
-	display: block;
-}
-
-/* Login Links */
-
-#fb_login_head, #gplus_login_head, #civic_login_head, #wh_login_head {
-	width: 170px;
-}
-
-.ulb_icon {
-	height: 49px;
-	width: 100%;
-	left: 0;
-	position: absolute;
-	filter: alpha(opacity=10);
-	opacity: 0.10;
-	border-radius: 2px;
-}
-.ulb_button:hover .ulb_icon  {
-	background-color: #000;
-}
-
-.ulb_button.loading {
-	opacity: 0.75;
-	cursor: default;
-}
-
-.ulb_status {
-	display: none;
-}
-
-.ulb_describe.loading .ulb_label {
-	display: none;
-}
-
-
-.ulb_describe.loading .ulb_status {
-	display: block;
-}
-
-
-#fb_login, #fb_login_head {
-	/* @embed */
-	background: #365494 url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg) left 2px bottom 50% / 45px no-repeat;
-}
-
-#gplus_login, #gplus_login_head {
-	/* @embed */
-	background: #3F82F7 url(/extensions/wikihow/userloginbox/images/ulb_google.svg) left 2px bottom 50% / 45px no-repeat;
-}
-
-#civic_login, #civic_login_head {
-	/* @embed */
-	background: #AAAAAA url(/extensions/wikihow/userloginbox/images/ulb_civic.svg) left 2px bottom 50% / 45px no-repeat;
-}
-
-.ulb_login {
-	/* @embed */
-	background: #93b874 url(/extensions/wikihow/userloginbox/images/ulb_person.svg) left 2px bottom 50% / 45px no-repeat;
-}
+/* Tables */
 
 .wikitable {
 	background: #f8f9fa;

@@ -156,11 +156,13 @@ class Spellchecker extends UnlistedSpecialPage {
 				MWDebug::log("Getting new spellchecker ids since last check was : " . date($lastChecked));
 				$dbr = wfGetDB(DB_REPLICA);
 				$expired = wfTimestamp(TS_MW, time() - Spellchecker::SPELLCHECKER_EXPIRED);
-				$res = $dbr->select('spellchecker',
+				$res = $dbr->select(
+					array('spellchecker', 'templatelinks'),
 					'sc_page',
-					array('sc_exempt' => 0, 'sc_errors' => 1, 'sc_dirty' => 0, "sc_checkout < '{$expired}'"),
+					array('sc_exempt' => 0, 'sc_errors' => 1, 'sc_dirty' => 0, "sc_checkout < '{$expired}'", "tl_title is NULL"),
 					__METHOD__,
-					array("LIMIT" => 500, "ORDER BY" => "RAND()"));
+					array("LIMIT" => 500, "ORDER BY" => "RAND()"),
+					array("templatelinks" => [ "LEFT JOIN", ["tl_from = sc_page", "tl_title = 'Inuse'"] ]) );
 
 				$newIds = array();
 				foreach ($res as $row) {

@@ -96,6 +96,7 @@ class TrustedSources {
 				$link->attr("href", "#");
 				$vars['isAmp'] = 1;
 				$vars['url'] = $note;
+				$vars['references'] = wfMessage('references')->text();
 
 				pq($reference)->attr("on", 'tap:ts_popup_' . $num . '.toggleVisibility')->attr("role", "button")->attr("tabindex", "0");
 				pq($reference)->append(pq($link)->text());
@@ -122,8 +123,10 @@ class TrustedSources {
 	}
 
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin) {
-		$out->addModules(['ext.wikihow.trusted_sources.scripts']);
-		$out->addModuleStyles(['ext.wikihow.trusted_sources.styles']);
+		if (!(class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest())) {
+			$out->addModules(['ext.wikihow.trusted_sources.scripts']);
+			$out->addModuleStyles(['ext.wikihow.trusted_sources.styles']);
+		}
 	}
 
 	/********

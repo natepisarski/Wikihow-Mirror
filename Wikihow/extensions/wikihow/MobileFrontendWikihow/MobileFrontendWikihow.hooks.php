@@ -30,7 +30,8 @@ class MobileFrontendWikiHowHooks {
 
 
 	private static function isMobileAllowed() {
-		global $wgTitle;
+		global $wgTitle, $wgUser;
+
 		if ( $wgTitle ) {
 			//article pages
 			if ( $wgTitle->inNamespace(NS_MAIN) ) {
@@ -71,7 +72,6 @@ class MobileFrontendWikiHowHooks {
 					return true;
 				}
 
-				global $wgUser;
 				if ( $wgUser->getID() > 0) { //if the current user is logged in
 					$userName = $wgTitle->getText();
 					$user = User::newFromName( $userName);
@@ -218,11 +218,6 @@ class MobileFrontendWikiHowHooks {
 
 		$gdprjs = array( __DIR__. '/../../wikihow/GDPR/gdpr.js' );
 		$out->addHeadItem( 'gdpr', Html::inlineScript( Misc::getEmbedFiles( 'js', $gdprjs ) ) );
-
-		if (class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest()) {
-			$kaiosjs = array( __DIR__. '/../../wikihow/kaios_helper/kaios_helper.js' );
-			$out->addHeadItem( 'kaios', Html::inlineScript( Misc::getEmbedFiles( 'js', $kaiosjs ) ) );
-		}
 
 		//include noscript styling for people without javascript (like internet.org users)
 		if ($wgTitle && !$wgTitle->isMainPage()) {

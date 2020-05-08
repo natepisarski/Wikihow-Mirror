@@ -1001,17 +1001,22 @@ p.green_box_bullet {
 	color: #808080;
 }
 
+.expert_advice_info .expert_advice_name a {
+	color: #545454;
+}
+
 .expert_advice_section ul {
 	list-style: none;
 }
 
 .expert_advice_section li:before {
 	content: '';
-	width: 10px;
-	height: 10px;
+	width: 9px;
+	height: 9px;
 	position: absolute;
 	background: #93B874;
 	margin: 5px 0 0 -16px;
+	border-radius: 2px;
 }
 #expertqampa li:before {
 	background-image: url(/extensions/wikihow/socialproof/star_circle.svg);

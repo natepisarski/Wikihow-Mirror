@@ -337,7 +337,7 @@ $(document).ready(function() {
 	});
 
 	$('#footer_links a').click(function() {
-		var href = $(this).attr('href');
+		var href = $(this).prop('href');
 		WH.event('all_footer_sitewide_links_click_go_em', { 'dest_url': href } );
 	});
 

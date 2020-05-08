@@ -85,7 +85,8 @@
 }
 
 .contactwikihow,
-.featured_experts {
+.featured_experts,
+.wH_partners {
 	display: -ms-flexbox;
 	display: -webkit-flex;
 	display: flex;
@@ -156,6 +157,31 @@
 	}
 }
 
+.wH_partners {
+	font-size: .8em;
+
+	> div {
+		padding: 0 1em 2em;
+		box-sizing: border-box;
+	}
+
+	.mwimg {
+		float: left;
+		margin-top: 8px;
+	}
+
+	.desc {
+		padding-left: 80px;
+
+		span {
+			font-size: 1.2em;
+			display: block;
+			font-weight: bold;
+		}
+	}
+
+}
+
 .content .steps .section_text p.featured_experts_more:last-of-type {
 	padding-bottom: 24px;
 }
@@ -210,7 +236,8 @@ table {
 		padding: .5em @largeSectionPadding 0;
 	}
 
-	.contactwikihow {
+	.contactwikihow,
+	.wH_partners {
 		> div {
 			width: 50%;
 		}

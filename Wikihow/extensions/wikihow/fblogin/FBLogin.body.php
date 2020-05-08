@@ -14,11 +14,10 @@ class FBLogin extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
-		global $wgContLang;
+		global $wgContLang, $wgUser;
 
 		$out = $this->getOutput();
 		$req = $this->getRequest();
-		$user = $this->getUser();
 
 		if (!$req->wasPosted()) {
 			$out->setRobotPolicy('noindex,nofollow');
@@ -46,17 +45,18 @@ class FBLogin extends UnlistedSpecialPage {
 			$res = SocialLoginUtil::doSocialLogin('facebook', $profile['id'], $profile['name'],
 				$profile['email'], $this->fbApi->getAvatarUrl($profile['id']));
 			$isSignup = ($res == 'signup');
+
 			if ($res == 'error') {
 				$out->addHTML('The login process failed');
 				return;
 			} elseif ($isSignup
-						|| $user->getBoolOption('is_generated_username')
-						|| strpos($user->getName(), "FB_") !== false) {
-				$currentPic = Avatar::getAvatarURL($user->getName());
+						|| $wgUser->getBoolOption('is_generated_username')
+						|| strpos($wgUser->getName(), "FB_") !== false) {
+				$currentPic = Avatar::getAvatarURL($wgUser->getName());
 				$defaultPic = Avatar::getDefaultProfile();
 				$this->showForm( // Suggest a username change
 					$profile,
-					$user->getEmail() ?: $profile['email'],
+					$wgUser->getEmail() ?: $profile['email'],
 					($currentPic != $defaultPic) ? $currentPic : $profile['picture'],
 					$isSignup
 				);
@@ -106,13 +106,10 @@ class FBLogin extends UnlistedSpecialPage {
 		if ($isMobile) {
 			$out->addModuleStyles('ext.wikihow.mobile.FBLogin.styles');
 		}
-
-		$out->addHtml($tags);
-		$out->addHtml($html);
 	}
 
 	private function processForm(&$profile) {
-		$user = $this->getUser();
+		global $wgUser;
 
 		$req = $this->getRequest();
 		$dbw = wfGetDB(DB_MASTER);
@@ -139,24 +136,23 @@ class FBLogin extends UnlistedSpecialPage {
 		$authenticatedTimeStamp = wfTimestampNow();
 		$dbw->update('user',
 			array('user_name' => $newname, 'user_email' => $email, 'user_email_authenticated' => $authenticatedTimeStamp),
-			array('user_id' => $user->getID()),
+			array('user_id' => $wgUser->getID()),
 			__METHOD__
 			);
 
-		$user->invalidateCache();
-		$user->loadFromID();
+		$wgUser->invalidateCache();
+		$wgUser = User::newFromName($newname);
 
-		$user->setOption('is_generated_username', false);
-		$user->setOption('is_api_signup', false);
-		$user->saveSettings();
-		$user->setCookies();
+		$wgUser->setOption('is_generated_username', false);
+		$wgUser->setOption('is_api_signup', false);
+		$wgUser->saveSettings();
+		$wgUser->setCookies();
 
-		if ($user->isEmailConfirmed()) {
-			Hooks::run('ConfirmEmailComplete', array($user));
+		if ($wgUser->isEmailConfirmed()) {
+			Hooks::run('ConfirmEmailComplete', array($wgUser));
 		}
 
-		// All registered. Send them along their merry way
-		SocialLoginUtil::redirect($req->getText('returnTo'), $isSignup);
+		// Forcing isSignup argument in case they left without registering and then came back
+		SocialLoginUtil::redirect($req->getText('returnTo'), true);
 	}
-
 }

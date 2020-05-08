@@ -114,14 +114,24 @@ class SocialLoginUtil {
 		}
 
 		$title = $pageName ? Title::newFromText(urldecode($pageName)) : null;
-		if ($title && $title->isValidRedirectTarget() && !$title->isSpecialPage('Userlogin')) {
-			$returnTo = urldecode($title->getLocalURL());
-		} elseif (Misc::isMobileMode()) {
+		if ( $isSignup ) {
+			// Community page
+			if ($wgContLang->getCode() == 'en') {
+				$returnTo = '/Special:CommunityDashboard';
+			} else {
+				$returnTo = '/' . $wgContLang->getNSText(NS_PROJECT) . ':' . wfMessage('communityportal');
+			}
+		} else if (
+			!$title ||
+			!$title->isValidRedirectTarget() ||
+			$title->isSpecial('Userlogin') ||
+			$title->isSpecial('LSearch')
+		) {
+			// Home page
 			$returnTo = '/Main-Page';
-		} elseif ($wgContLang->getCode() == 'en') {
-			$returnTo = '/Special:CommunityDashboard';
 		} else {
-			$returnTo = '/' . $wgContLang->getNSText(NS_PROJECT) . ':' . wfMessage('communityportal');
+			// Current page
+			$returnTo = urldecode($title->getLocalURL());
 		}
 
 		$wgOut->redirect($returnTo);

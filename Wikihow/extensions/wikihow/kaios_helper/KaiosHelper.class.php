@@ -6,6 +6,7 @@
 class KaiosHelper {
 
 	const QUERY_STRING_PARAM = "kaios";
+	const BODY_CLASS_NAME = "kaios";
 
 	public static function isKaiosRequest() {
 		return isset($_SERVER['REQUEST_URI']) &&
@@ -15,7 +16,7 @@ class KaiosHelper {
 	public static function onTitleSquidURLsPurgeVariants($title, &$urls) {
 		global $wgLanguageCode;
 
-		if ($title && $title->exists() && $title->inNamespace(NS_MAIN)) {
+		if ($title && $title->exists() && $title->inNamespaces(NS_MAIN, NS_CATEGORY, NS_SPECIAL)) {
 			$kaiosUrl = $title->getInternalURL();
 			$partialUrl = preg_replace("@^(https?:)?//[^/]+/@", "/", $kaiosUrl);
 			$domain = Misc::getLangDomain($wgLanguageCode, true);
@@ -29,11 +30,16 @@ class KaiosHelper {
 		return in_array($langCode, ['en']);
 	}
 
-	// Add some special js for KaiOS requests
-	static function onResourceLoaderGetStartupModules(&$moduleNames) {
-//		if (class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest()) {
-//			$moduleNames[]= "ext.wikihow.kaios_helper";
-//		}
-//		return true;
+	public static function onBeforePageDisplay($out, $skin) {
+		if (KaiosHelper::isKaiosRequest()) {
+			$style = Misc::getEmbedFile('less', __DIR__ . '/../kaios_helper/kaios_helper.less');
+			$out->addHeadItem('kaioscss', HTML::inlineStyle($style));
+
+			$kaiosjs = array( __DIR__. '/../../wikihow/kaios_helper/kaios_top.js' );
+			$out->addHeadItem( 'kaiosjs', Html::inlineScript( Misc::getEmbedFiles( 'js', $kaiosjs ) ) );
+
+			$out->addBodyClasses(KaiosHelper::BODY_CLASS_NAME);
+			$out->addModules('ext.wikihow.kaios_helper');
+		}
 	}
 }

@@ -104,7 +104,7 @@ abstract class DashboardWidget {
 	}
 
 	public function getLoginLink() {
-		return "<a href='/Special:Userlogin?returnto=Special:CommunityDashboard'>log in</a>";
+		return "<a href='#wh-dialog-login'>log in</a>";
 	}
 
 	/*

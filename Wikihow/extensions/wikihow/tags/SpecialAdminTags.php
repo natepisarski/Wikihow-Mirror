@@ -139,13 +139,13 @@ class AdminTags extends UnlistedSpecialPage {
 
 				if ($val) {
 					$isArticleList = (int)ConfigStorage::dbGetIsArticleList($key);
+					$isTranslationList = 0;
 					if ($isArticleList) {
 						$tag = new ArticleTag($key);
-						if ($tag) {
-							$result['prob'] = $tag->getProbability();
-						}
+						$isTranslationList = (int)$tag->isTranslationTag();
 					}
 					$result['article-list'] = $isArticleList;
+					$result['translation-list'] = $isTranslationList;
 				}
 
 				$allowed = ConfigStorage::hasUserRestrictions($key);
@@ -156,7 +156,6 @@ class AdminTags extends UnlistedSpecialPage {
 				$errors = '';
 				$key = $req->getVal('config-key', '');
 				$val = $req->getVal('config-val', '');
-				$prob = $req->getInt('prob');
 
 				if ($style == 'url') {
 					//validate for errors
@@ -178,10 +177,6 @@ class AdminTags extends UnlistedSpecialPage {
 				ConfigStorage::dbStoreConfig($key, $val, $isArticleList, $err, $allowArticleErrors);
 				if (!$err && $isArticleList) {
 					$tag = new ArticleTag($key);
-					$res = $tag->updateProbability($prob);
-					if (!$res) {
-						$err = 'Unabled to update probability';
-					}
 				}
 				if ($err) {
 					$errors = $err . "\n" . $errors;
@@ -218,33 +213,23 @@ class AdminTags extends UnlistedSpecialPage {
 				$result = ['result' => $result];
 			} elseif ('create-config' == $action) {
 				$err = '';
-				$prob = $req->getInt('new-prob');
-				if (!$prob) {
-					$prob = 0;
-				} else {
-					// this is a safety check that should be caught at frontend first
-					if ($prob < 1 || $prob > 99) {
-						$err = 'Invalid probability';
-					}
+				$newKey = $req->getVal('new-key', '');
+				// safety checks done on front end as well
+				if (strlen($newKey) < 2 || strlen($newKey) > 64) {
+					$err = 'Invalid tag length: ' . strlen($newKey);
 				}
 				if (!$err) {
-					$newKey = $req->getVal('new-key', '');
-					// safety checks done on front end as well
-					if (strlen($newKey) < 2 || strlen($newKey) > 64) {
-						$err = 'Invalid tag length: ' . strlen($newKey);
-					}
-					if (!$err) {
-						$res = ConfigStorage::dbGetConfig($newKey);
-						if ($res) {
-							$err = 'New key you specified already exists: ' . $newKey;
-						}
+					$res = ConfigStorage::dbGetConfig($newKey);
+					if ($res) {
+						$err = 'New key you specified already exists: ' . $newKey;
 					}
 				}
 				if (!$err) {
 					$newVal = $req->getVal('config-val-new', '');
 					$isArticleList = $req->getVal('is-article-list') == 'true';
+					$isTranslationTag = (int)($req->getVal('is-translation-tag') == 'true');
 					$allowArticleErrors = false; // force an error if articles don't exist etc
-					$res = ConfigStorage::dbStoreConfig($newKey, $newVal, $isArticleList, $err, $allowArticleErrors, $prob);
+					$res = ConfigStorage::dbStoreConfig($newKey, $newVal, $isArticleList, $err, $allowArticleErrors, $isTranslationTag);
 					if (!$res) {
 						$result = 'Key was not saved';
 					} else {

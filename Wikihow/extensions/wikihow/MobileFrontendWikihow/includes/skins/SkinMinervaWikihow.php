@@ -508,20 +508,13 @@ class SkinMinervaWikihow extends SkinMinerva {
 	}
 
 	protected function getLogInOutLink() {
-		// Taken and simplified from parent::buildPersonalUrls()
-		$page = $this->getRequest()->getVal( 'returnto', $this->getTitle() );
-		$a = ($page ? ['returnto' => $page] : []);
-		$query = wfArrayToCgi( $a );
-
 		if ( $this->getUser()->isLoggedIn() ) {
-			$url = Title::makeTitle(NS_SPECIAL, "Userlogout")->getLocalUrl( $query );
+			// Trevor 2019-04-17 - Always return to home page
+			$url = Title::makeTitle(NS_SPECIAL, "Userlogout")->getLocalUrl();
 			$text = wfMessage( 'mobile-frontend-main-menu-logout' )->escaped();
 		} else {
-			$url = Title::makeTitle(NS_SPECIAL, "CreateAccount")->getLocalUrl( $query );
-			// Link to sign up page if there's no history of previous sign in
-			if ($this->getRequest()->getCookie('UserName') == null) {
-				$url .= '&type=signup';
-			}
+			// Trevor 2019-04-13 - Using LoginDialog instead of linking to CreateAccount
+			$url = '#wh-dialog-login';
 			$text = wfMessage( 'mobile-frontend-main-menu-login' )->escaped();
 		}
 
@@ -663,7 +656,7 @@ class SkinMinervaWikihow extends SkinMinerva {
 		);
 		$menuText = Html::rawElement( 'a', $attr, $tosText );
 
-		if( $wgUser->isLoggedIn() && $wgLanguageCode == "en" ) {
+		if( $wgUser->isLoggedIn() && $wgLanguageCode == "en" && !GoogleAmp::isAmpMode(RequestContext::getMain()->getOutput()) ) {
 			$menuText .= " | ";
 			$menuText .= Html::rawElement('a', ['href' => '#', 'class' => 'gdpr-menu', 'id' => 'toggle_link'], 'Toggle edit links');
 		}

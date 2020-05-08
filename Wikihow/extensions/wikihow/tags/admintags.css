@@ -2,10 +2,6 @@ button {
 	font-size: 16px;
 	padding: 0.5em;
 }
-#new-prob {
-	font-size: 16px;
-	padding: 0.5em;
-}
 
 p {
 	padding: 5px;
@@ -41,7 +37,12 @@ h3 {
 }
 
 #article-list-notice {
-	display:none;
+	display: none;
+	font-style: italic;
+}
+
+#translation-list-notice {
+	display: none;
 	font-style: italic;
 }
 
@@ -61,4 +62,8 @@ th {
 
 .underline {
 	text-decoration: underline;
+}
+
+.dialog {
+	display: none;
 }

@@ -16,7 +16,9 @@
 
 	.expert_advice_name {
 		font-size: 12px;
-		color: #545454;
+		a {
+			color: #545454;
+		}
 	}
 
 	.expert_advice_info {
@@ -34,11 +36,12 @@
 
 		li:before {
 			content: '';
-			width: 10px;
-			height: 10px;
+			width: 9px;
+			height: 9px;
 			position: absolute;
 			background: #93B874;
-			margin: 5px 0 0 -16px;
+			margin: 6px 0 0 -16px;
+			border-radius: 2px;
 		}
 	}
 
@@ -53,12 +56,14 @@
 	.expert_advice_section {
 		.expert_advice_name {
 			font-size: 15px;
-			display: inline-block;
 		}
 
 		.expert_advice_label {
 			font-size: 14px;
-			display: inline-block;
 		}
+	}
+
+	.expertadvice .altblock {
+		background: #93b874 url(/extensions/wikihow/socialproof/icon_expert_advice.svg) center / 32px no-repeat;
 	}
 }

@@ -428,7 +428,6 @@ class GoogleAmpAds {
 			$adAttributes['data-loading-strategy'] = $dataLoadingStrategy;
 		}
 
-		$adAttributes['data-block-on-consent'] = "_till_responded";
 		$ad = Html::element( "amp-ad", $adAttributes );
 
 		$content = $ad . $whAdLabelBottom;

@@ -4,7 +4,7 @@
 
 	if ( window.WH && window.WH.social ) {
 		WH.social.fb().then( function ( fbLogin ) {
-			$( '#fl_button_save' ).live( 'click', function ( event ) {
+			$( '#fl_button_save' ).on( 'click', function ( event ) {
 				fbLogin.authenticate().then( function ( response ) {
 					var token = response.authResponse.accessToken;
 					var data = {

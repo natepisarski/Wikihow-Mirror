@@ -132,7 +132,13 @@ class WikihowNamespacePages {
 		$showSideBar = false;
 	}
 
+	public static function removeTOC( &$showTOC ) {
+		$showTOC = false;
+	}
+
 	public static function onBeforePageDisplay(OutputPage &$out, Skin &$skin ) {
+		global $wgHooks;
+
 		if (self::wikiHowNamespacePage()) {
 			$isResponsive = Misc::doResponsive( RequestContext::getMain() );
 
@@ -163,13 +169,15 @@ class WikihowNamespacePages {
 			elseif (self::isWikihowNamespacePage( "WikiHow-Teacher's-Corner" )) {
 				$out->addModules('ext.wikihow.teachers_guide');
 			}
+			elseif (self::isWikihowNamespacePage( wfMessage('writers-guide-page')->text() )) {
+				$wgHooks['ShowTOC'][] = ['WikihowNamespacePages::removeTOC'];
+			}
 
 			if (self::customCollectionPage()) {
 				$out->addModuleStyles('ext.wikihow.article_tiles');
 				$out->setPageTitle( $title->getText() );
 
 				if (!self::customRightRailPage()) {
-					global $wgHooks;
 					$wgHooks['UseMobileRightRail'][] = ['WikihowNamespacePages::removeSideBarCallback'];
 				}
 			}

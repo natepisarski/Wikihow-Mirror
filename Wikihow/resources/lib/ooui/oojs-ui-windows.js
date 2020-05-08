@@ -2,11 +2,11 @@
  * OOUI v0.30.2
  * https://www.mediawiki.org/wiki/OOUI
  *
- * Copyright 2011–2019 OOUI Team and other contributors.
+ * Copyright 2011–2020 OOUI Team and other contributors.
  * Released under the MIT license
  * http://oojs.mit-license.org
  *
- * Date: 2019-09-06T16:43:27Z
+ * Date: 2020-05-06T17:54:16Z
  */
 ( function ( OO ) {
 
@@ -3290,7 +3290,8 @@ OO.ui.ProcessDialog.prototype.initialize = function () {
  * @inheritdoc
  */
 OO.ui.ProcessDialog.prototype.getActionWidgetConfig = function ( config ) {
-	var isMobile = OO.ui.isMobile();
+	// Trevor, 2020/04/06, Force mobile styling always
+	var isMobile = true; // OO.ui.isMobile();
 
 	// Default to unframed on mobile
 	config = $.extend( { framed: !isMobile }, config );

@@ -117,16 +117,13 @@ function getTime() {
 	return +(new Date());
 }
 
-function sendRestRequest(u, a) {
-	var r = new XMLHttpRequest();
-	r.open('GET', u, a);
-	r.send();
+function sendRestRequest(url, doAsync) {
+	var req = new XMLHttpRequest();
+	req.open('GET', url, doAsync);
+	req.send();
 }
 
 function sendExitPing(priority, domain, message, doAsync) {
-	var stats = basicStatsGen({});
-	delete stats['dl']; // we don't send this longer attribute 'dl' with exit pings
-
 	var attrs = {
 		'd': domain,
 		'm': message,
@@ -135,11 +132,13 @@ function sendExitPing(priority, domain, message, doAsync) {
 	if (priority != DEFAULT_PRIORITY) {
 		attrs['p'] = priority;
 	}
+	var stats = basicStatsGen(attrs);
+	delete stats['dl']; // we don't send this longer attribute 'dl' with exit pings
 
-	var loggerUrl = (!dev ? '/Special:Stu' : '/x/devstu') + '?v=' + STU_BUILD;
-	loggerUrl += '&' + encodeAttrs(attrs) + '&' + encodeAttrs(stats);
-
-	sendRestRequest(loggerUrl, doAsync);
+	//var loggerUrl = (!dev ? '/Special:Stu' : '/x/devstu') + '?v=' + STU_BUILD;
+	//loggerUrl += '&' + encodeAttrs(attrs) + '&' + encodeAttrs(stats);
+	//sendRestRequest(loggerUrl, doAsync);
+	eventPing( 'exit', stats, doAsync );
 }
 
 function getDomain() {
@@ -182,6 +181,11 @@ function collectExitTime() {
 		return;
 	}
 
+	// Reuben, Note May 2020: testing in Chrome shows that the onUnload event can
+	// no longer successfully emit "sychronous" (non-async) XHR requests. Changing
+	// to async above to see if the collection numbers get better again. Try with
+	// the last parameter "true" at some point:
+	//sendExitPing(DEFAULT_PRIORITY, domain, message, true);
 	sendExitPing(DEFAULT_PRIORITY, domain, message, false);
 }
 
@@ -290,7 +294,7 @@ function start() {
 	//}
 
 	// If we are exit timing this page, set onUnload (and onBeforeUnload) event handlers
-	if (exitTimerEnabled) {
+	if (exitTimerEnabled || pingTimersEnabled) {
 		window.onunload = onUnload;
 		window.onbeforeunload = onUnload;
 	}
@@ -455,10 +459,11 @@ function addActivityListeners() {
 }
 
 // Ping our servers to collect data about how long the user might have stayed on the page
-function eventPing(pingType, stats) {
+function eventPing(pingType, stats, doAsync) {
 	// location url of where to ping
-	var loc = '/x/collect?t=' + pingType + '&' + encodeAttrs(stats);
-	sendRestRequest(loc, true);
+	var baseUrl = (!dev ? '/x/collect' : '/x/collect.php');
+	var loc = baseUrl + '?t=' + pingType + '&' + encodeAttrs(stats);
+	sendRestRequest(loc, doAsync);
 }
 
 function customEventPing(attrs) {
@@ -466,7 +471,7 @@ function customEventPing(attrs) {
 	// I made this change to make it so that Stu plugins don't send events
 	// out of the context of all the events generated.
 	if (exitTimerEnabled || pingTimersEnabled) {
-		eventPing( 'event', basicStatsGen(attrs) );
+		eventPing( 'event', basicStatsGen(attrs), true );
 	}
 }
 
@@ -514,9 +519,9 @@ function setupNextTimerPing() {
 
 		// our first ping should include more stats from the browser, such as view port size
 		if (currentTimerIndex === 0) {
-			eventPing( 'first', fullStatsGen(attrs) );
+			eventPing( 'first', fullStatsGen(attrs), true );
 		} else {
-			eventPing( 'later', basicStatsGen(attrs) );
+			eventPing( 'later', basicStatsGen(attrs), true );
 		}
 
 		currentTimerIndex++;

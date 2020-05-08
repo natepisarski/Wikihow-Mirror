@@ -201,7 +201,9 @@ function wfEmbedVideoParserFunction( $parser, $service=null, $id=null, $width=nu
 		$html .= Html::rawElement( 'div', ['aria-hidden'=>'true'], $gdprWarningText );
 		$gdprWarning = Html::rawElement( 'div', ['class'=>'embedvideo_gdpr gdpr_only'], $html );
 		 */
-		$html = wfMessage('embedvideo-embed-clause', $url, $width, $height)->inContentLanguage()->text();
+		$noSnippet = ArticleTagList::hasTag('video_nosnippet_test', $wgTitle->getArticleID())
+			? "data-nosnippet" : "";
+		$html = wfMessage('embedvideo-embed-clause', $url, $width, $height, $noSnippet)->inContentLanguage()->text();
 		return $parser->insertStripItem( $gdprWarning . $html );
 
 	}

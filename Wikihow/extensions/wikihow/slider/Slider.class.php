@@ -11,7 +11,23 @@ class Slider {
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
 
-		return $m->render('slider.mustache');
+		$vars['relationshipArticle'] = self::isRelationshipTaggedArticle() ? 'relArticle' : '';
+		return $m->render('slider.mustache', $vars);
+	}
+
+	public function isRelationshipTaggedArticle() {
+		$isRelationshipTaggedArticle = false;
+
+		$context = RequestContext::getMain();
+		$title = $context->getTitle();
+		if ($title
+			&& $title->exists()
+			&& $title->inNamespace(NS_MAIN)
+			&& ArticleTagList::hasTag('slider_relationships', $title->getArticleID())) {
+			$isRelationshipTaggedArticle = true;
+		}
+
+		return $isRelationshipTaggedArticle;
 	}
 
 	public function isValidPage(): Bool {

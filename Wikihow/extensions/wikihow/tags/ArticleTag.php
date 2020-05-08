@@ -17,7 +17,7 @@ if (!defined('MEDIAWIKI')) die();
 CREATE TABLE articletag (
 	at_id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	at_tag VARBINARY(64) NOT NULL,
-	at_prob INT UNSIGNED NOT NULL DEFAULT 0,
+	at_translation TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 	UNIQUE KEY(at_tag)
 );
 CREATE TABLE articletaglinks (
@@ -26,6 +26,11 @@ CREATE TABLE articletaglinks (
 	UNIQUE KEY(atl_page_id, atl_tag_id),
 	KEY(atl_tag_id)
 );
+
+-- added the column at_translation on April 23, 2020
+alter table articletag add column at_translation TINYINT(1) UNSIGNED NOT NULL DEFAULT 0;
+-- drop this old column at some point after we know it's not used on intl -- done may 6 on all langs
+alter table articletag drop column at_prob;
  */
 
 class ArticleTag {
@@ -33,13 +38,13 @@ class ArticleTag {
 	private $tag,
 		$row,
 		$tagList,
-		$newTagProbability;
+		$isTranslationTag;
 
-	public function __construct(string $tag, int $newTagProbability = 0) {
+	public function __construct(string $tag, int $isTranslationTag = 0) {
 		$this->tag = $tag;
 		$this->row = null;
 		$this->tagList = [];
-		$this->newTagProbability = $newTagProbability; // used when creating a new row
+		$this->isTranslationTag = $isTranslationTag; // used when creating a new row
 	}
 
 	/**
@@ -68,12 +73,18 @@ class ArticleTag {
 		return $list;
 	}
 
+	public function isTranslationTag() {
+		$this->dbLoadTagRow();
+		return $this->row ? $this->isTranslationTag : -1;
+	}
+
 	private function dbLoadTagRow() {
 		if (!$this->row) {
 			$dbw = wfGetDB(DB_MASTER);
-			$row = $dbw->selectRow('articletag', ['at_id', 'at_prob'], ['at_tag' => $this->tag], __METHOD__);
+			$row = $dbw->selectRow('articletag', ['at_id', 'at_translation'], ['at_tag' => $this->tag], __METHOD__);
 			if ($row) {
 				$this->row = (array)$row;
+				$this->isTranslationTag = $row->at_translation;
 			}
 		}
 	}
@@ -86,7 +97,7 @@ class ArticleTag {
 	// Creates a tag row
 	private function createTag() {
 		$dbw = wfGetDB(DB_MASTER);
-		$row = ['at_tag' => $this->tag, 'at_prob' => $this->newTagProbability];
+		$row = ['at_tag' => $this->tag, 'at_translation' => $this->isTranslationTag];
 		$dbw->insert('articletag', $row, __METHOD__);
 		$tag_id = $dbw->insertId();
 		$this->row = $row + ['at_id' => $tag_id];
@@ -124,31 +135,6 @@ class ArticleTag {
 			}
 		}
 		return $affected > 0;
-	}
-
-	/**
-	 * Get the probability attribute associated with a tag.
-	 */
-	public function getProbability() {
-		$this->dbLoadTagRow();
-		if (!$this->row) {
-			throw new MWException('articletag row could not be loaded for tag: ' . $this->tag);
-		}
-		return $this->row['at_prob'];
-	}
-
-	/**
-	 * Update the probability attribute associated with a tag.
-	 */
-	public function updateProbability(int $prob) {
-		$dbw = wfGetDB(DB_MASTER);
-		$tag_id = $this->getTagID();
-		if (!$tag_id) {
-			throw new MWException('assertion: tag_id must be set by now');
-		}
-		$res = $dbw->update('articletag', ['at_prob' => $prob], ['at_id' => $tag_id], __METHOD__);
-		$this->row['at_prob'] = $prob;
-		return $res;
 	}
 
 	/**
@@ -213,10 +199,26 @@ class ArticleTag {
 		return [$added, $deleted];
 	}
 
+	/**
+	 * Get a list of tags which are translation tags. This is used in a maintenance script to
+	 * refresh them nightly.
+	 *
+	 * NOTE: this method isn't considered efficient. Be careful where you use it.
+	 */
+	public static function listEnglishTranslationTags() {
+		$dbr = wfGetDB(DB_REPLICA);
+		$res = $dbr->select(WH_DATABASE_NAME_EN . '.articletag', ['at_tag'], ['at_translation' => 1], __METHOD__);
+		$tags = [];
+		foreach ($res as $row) {
+			$tags[] = $row->at_tag;
+		}
+		return $tags;
+	}
+
 	// Hook called when config storage object is saved to db, if this
 	// config storage message is an article list.
-	public static function onConfigStorageStoreConfig($key, $pages, $newTagProbability, &$error) {
-		$tags = new ArticleTag($key, $newTagProbability);
+	public static function onConfigStorageStoreConfig($key, $pages, $isTranslationTag, &$error) {
+		$tags = new ArticleTag($key, $isTranslationTag);
 		$tags->modifyTagList($pages);
 		return true;
 	}
@@ -234,5 +236,65 @@ class ArticleTag {
 	public static function onUnitTestsList( &$files ) {
 		$files = array_merge( $files, [ __DIR__ . "/tests/" . get_class() . "Test.php" ] );
 		return true;
+	}
+
+	// Load the pages associated with the English tag first join article_tag to translation_link in
+	// the english database
+	private static function dbLoadEnglishTagTranslations($langCode, $tag) {
+		$dbr = wfGetDB(DB_REPLICA);
+
+		// This query fetches the tag name from articletag table, joining to
+		// articletaglinks to get the list of English page IDs, which is joined
+		// to translation_link to get a list of the translation links in our current
+		// language.
+		$res = $dbr->select(
+			[ WH_DATABASE_NAME_EN . '.articletag',
+				WH_DATABASE_NAME_EN . '.articletaglinks',
+				WH_DATABASE_NAME_EN . '.translation_link' ],
+			[ 'atl_page_id', 'tl_to_aid' ],
+			[   'at_tag' => $tag,
+				'tl_from_lang' => 'en',
+				'tl_to_lang' => $langCode,
+				'at_id = atl_tag_id',
+				'atl_page_id = tl_from_aid',
+				'tl_translated' => 1,
+				'at_translation' => 1 ],
+			__METHOD__ );
+
+		$pageids = [];
+		foreach ($res as $row) {
+			if ( (int)$row->tl_to_aid > 0 ) {
+				$pageids[] = (int)$row->tl_to_aid;
+			}
+		}
+
+		return $pageids;
+	}
+
+	// NOTE: this method doesn't check that the target pages in our language definitely exist. It
+	// assumes the titus TL data is correct. (But it might not always be, since articles
+	// can be deleted in the last 24h etc, as an example of a way the data might not be perfect.)
+	public static function rewriteTranslationTag($tag) {
+		$langCode = RequestContext::getMain()->getLanguage()->getCode();
+		if ($langCode == 'en') {
+			die('This method CANNOT be run English. Read comments in here to see why: ' . __METHOD__);
+		}
+
+		// pull all the translations that exist for our current language
+		$pages = self::dbLoadEnglishTagTranslations($langCode, $tag);
+
+		// generate the $config message from the array of page IDs
+		sort($pages, SORT_NUMERIC);
+		$config = implode("\n", $pages) . "\n";
+
+		// refresh the list of articles for a given tag on current language
+		$error = '';
+		ConfigStorage::dbStoreConfig($tag,
+			$config,
+			true /* $isArticleList */,
+			$error,
+			true /* $allowArticleErrors */,
+			1 /* $isTranslationTag */,
+			ConfigStorage::LOG_IT_IF_CHANGED);
 	}
 }

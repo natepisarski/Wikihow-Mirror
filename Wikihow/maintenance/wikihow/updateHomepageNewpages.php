@@ -11,7 +11,7 @@ class updateHomepageNewpages extends Maintenance {
 	public function execute() {
 		global $wgLanguageCode;
 		NewPages::setHomepageArticles($wgLanguageCode);
-		NewPages::setCategorypageArticles();
+		NewPages::setCategorypageArticles($wgLanguageCode);
 
 		if($wgLanguageCode == "en") {
 			//email Graham the new set of homepage articles

@@ -238,7 +238,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			$tipsLink = "/Special:TipsPatrol";
 		}
 		else{
-			$tipsLink = "/Special:Userlogin?returnto=Special:TipsPatrol";
+			$tipsLink = "#wh-dialog-login";
 		}
 
 		$booster = NewArticleBoost::isNewArticlePatrol($user);
@@ -340,7 +340,7 @@ class CommunityDashboard extends UnlistedSpecialPage {
 			$tipsLink = "/Special:TipsPatrol";
 		}
 		else{
-			$tipsLink = "/Special:Userlogin?returnto=Special:TipsPatrol";
+			$tipsLink = "#wh-dialog-login";
 		}
 
 		$tmpl = new EasyTemplate( __DIR__ );

@@ -177,7 +177,7 @@ abstract class Drafts {
 		$currentDraft = Draft::newFromID( $wgRequest->getIntOrNull( 'draft' ) );
 		// Output HTML for list of drafts
 		$drafts = Drafts::get( $title, $userID );
-		if ( count( $drafts ) > 0 ) {
+		if ( is_array( $drafts ) && count( $drafts ) > 0 ) {
 			global $egDraftsLifeSpan;
 			// Internationalization
 

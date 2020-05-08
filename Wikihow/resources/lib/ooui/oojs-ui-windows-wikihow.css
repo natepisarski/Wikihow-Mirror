@@ -2,11 +2,11 @@
  * OOUI v0.30.2
  * https://www.mediawiki.org/wiki/OOUI
  *
- * Copyright 2011–2019 OOUI Team and other contributors.
+ * Copyright 2011–2020 OOUI Team and other contributors.
  * Released under the MIT license
  * http://oojs.mit-license.org
  *
- * Date: 2019-09-06T16:43:36Z
+ * Date: 2020-05-06T17:54:25Z
  */
 .oo-ui-actionWidget.oo-ui-pendingElement-pending {
   background-image: /* @embed */ url(themes/wikimediaui/images/textures/pending.gif);
@@ -233,19 +233,19 @@
   -webkit-overflow-scrolling: touch;
 }
 .oo-ui-processDialog-content .oo-ui-window-head {
-  height: 3.4em;
+  height: 2.7em;
 }
 .oo-ui-processDialog-content .oo-ui-window-body {
-  top: 3.4em;
-  border-top: 1px solid #e5e5e5;
+  top: 2.7em;
+  box-shadow: 0 -1px 0 #e5e5e5;
 }
 .oo-ui-processDialog-navigation {
   position: relative;
-  height: 3.4em;
+  height: 2.7em;
   padding: 0 1em;
 }
 .oo-ui-processDialog-location {
-  padding: 0.75em 0;
+  padding: 0.4em 0;
   height: 1.875em;
   cursor: default;
   text-align: center;
@@ -293,6 +293,22 @@
   padding: 0.75em 1em;
   vertical-align: middle;
 }
+.oo-ui-processDialog-actions-safe .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button .oo-ui-labelElement-label {
+  text-align: left;
+  padding: 0 0 0 0.25em;
+}
+.oo-ui-processDialog-actions-primary .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button .oo-ui-labelElement-label {
+  text-align: right;
+  padding: 0 0.25em 0 0;
+}
+.oo-ui-processDialog-actions-safe,
+.oo-ui-processDialog-actions-primary {
+  max-width: 30%;
+}
+.oo-ui-processDialog-actions-safe .oo-ui-actionWidget,
+.oo-ui-processDialog-actions-primary .oo-ui-actionWidget {
+  height: 100%;
+}
 .oo-ui-processDialog-actions-safe .oo-ui-actionWidget:hover,
 .oo-ui-processDialog-actions-primary .oo-ui-actionWidget:hover {
   background-color: rgba(0, 0, 0, 0.05);
@@ -300,6 +316,22 @@
 .oo-ui-processDialog-actions-safe .oo-ui-actionWidget:active,
 .oo-ui-processDialog-actions-primary .oo-ui-actionWidget:active {
   background-color: rgba(0, 0, 0, 0.1);
+}
+.oo-ui-processDialog-actions-safe .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button,
+.oo-ui-processDialog-actions-primary .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button {
+  height: 100%;
+  display: table;
+}
+.oo-ui-processDialog-actions-safe .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button .oo-ui-labelElement-label,
+.oo-ui-processDialog-actions-primary .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button .oo-ui-labelElement-label {
+  display: table-cell;
+  vertical-align: middle;
+  line-height: 1em;
+  white-space: normal;
+}
+.oo-ui-processDialog-actions-safe .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button .oo-ui-iconElement-icon,
+.oo-ui-processDialog-actions-primary .oo-ui-actionWidget.oo-ui-buttonElement-frameless .oo-ui-buttonElement-button .oo-ui-iconElement-icon {
+  min-height: 2em;
 }
 .oo-ui-processDialog-actions-safe .oo-ui-actionWidget.oo-ui-flaggedElement-progressive:hover,
 .oo-ui-processDialog-actions-primary .oo-ui-actionWidget.oo-ui-flaggedElement-progressive:hover {
@@ -329,11 +361,11 @@
 }
 .oo-ui-processDialog-errors {
   background-color: rgba(255, 255, 255, 0.9);
-  padding: 3em 3em 1.5em 3em;
+  padding: 10% 10% 5% 10%;
   text-align: center;
 }
 .oo-ui-processDialog-errors .oo-ui-buttonWidget {
-  margin: 2em 1em 2em 1em;
+  margin: 2% 5%;
 }
 .oo-ui-processDialog-errors-title {
   font-size: 1.5em;
@@ -354,7 +386,7 @@
   width: 0;
   height: 0;
   overflow: hidden;
-  z-index: 4;
+  z-index: 10;
 }
 .oo-ui-windowManager-modal > .oo-ui-dialog.oo-ui-window-active {
   width: auto;
@@ -384,7 +416,7 @@
   position: relative;
 }
 .oo-ui-windowManager-modal > .oo-ui-dialog {
-  background-color: rgba(255, 255, 255, 0.75);
+  background-color: rgba(204, 204, 204, 0.75);
   opacity: 0;
   -webkit-transition: opacity 250ms;
   -moz-transition: opacity 250ms;

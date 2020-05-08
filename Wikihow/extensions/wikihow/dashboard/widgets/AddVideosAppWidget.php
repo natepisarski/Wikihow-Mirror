@@ -13,7 +13,7 @@ class AddVideosAppWidget extends DashboardWidget {
 		if ($widgetStatus == DashboardWidget::WIDGET_ENABLED)
 			$link = "<a href='/Special:VideoAdder' class='comdash-start'>Start";
 		elseif ($widgetStatus == DashboardWidget::WIDGET_LOGIN)
-			$link = "<a href='/Special:UserLogin?returnto=Special:VideoAdder' class='comdash-login'>Login";
+			$link = "<a href='#wh-dialog-login' class='comdash-login'>Login";
 		elseif ($widgetStatus == DashboardWidget::WIDGET_DISABLED)
 			$link = "<a href='/Become-a-New-Article-Booster-on-wikiHow' class='comdash-start'>Start";
 		if ($showArrow)

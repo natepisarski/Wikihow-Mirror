@@ -185,7 +185,7 @@ class NewPages extends SpecialNewpages {
 		return $res;
 	}
 
-	private static function getNewPagesFromTableForCategoryPage(&$dbr, $catName) {
+	private static function getNewPagesFromTableForCategoryPage(&$dbr, $catName, $languageCode) {
 		global $wgCategoryNames;
 		$bitcat = 0;
 		$topcats = array_flip($wgCategoryNames);
@@ -200,24 +200,49 @@ class NewPages extends SpecialNewpages {
 
 		$startDate = wfTimestamp(TS_MW, strtotime("5 days ago"));
 
-		$res = $dbr->select(
-			['recentchanges', 'page', 'index_info'],
-			'*',
-			[
+		if($languageCode == "en") {
+			$author = "rc_user_text IN ('WRM', 'MissLunaRose')";
+			$tables = ['recentchanges', 'page', 'index_info', WH_DATABASE_NAME_EN.'.titus_copy'];
+			$where = [
 				'rc_new' => 1,
 				'rc_namespace' => 0,
 				'page_is_redirect' => 0,
+				$author,
+				'ii_policy' => RobotPolicy::POLICY_DONT_CHANGE,
+				'page_catinfo & '.$bitcat.' <> 0',
+				'rc_timestamp < ' . $startDate,
+				'ti_last_fellow_edit != ""'
+			];
+			$join = [
+				'page' => ['INNER JOIN', 'page_id=rc_cur_id'],
+				'index_info' => ['INNER JOIN', 'ii_page=page_id'],
+				WH_DATABASE_NAME_EN.'.titus_copy' => ['INNER JOIN', 'ti_page_id=rc_cur_id']
+			];
+		} else {
+			$author = 'rc_user_text = "' . wfMessage('translator_account')->text() . '"';
+			$tables = ['recentchanges', 'page', 'index_info'];
+			$where = [
+				'rc_new' => 1,
+				'rc_namespace' => 0,
+				'page_is_redirect' => 0,
+				$author,
 				'ii_policy' => RobotPolicy::POLICY_DONT_CHANGE,
 				'page_catinfo & '.$bitcat.' <> 0',
 				'rc_timestamp < ' . $startDate
-			],
-			__METHOD__,
-			['ORDER BY' => 'rc_timestamp DESC'],
-			[
+			];
+			$join = [
 				'page' => ['INNER JOIN', 'page_id=rc_cur_id'],
 				'index_info' => ['INNER JOIN', 'ii_page=page_id']
-			]
+			];
+		}
 
+		$res = $dbr->select(
+			$tables,
+			'*',
+			$where,
+			__METHOD__,
+			['ORDER BY' => 'rc_timestamp DESC'],
+			$join
 		);
 
 		return $res;
@@ -252,7 +277,7 @@ class NewPages extends SpecialNewpages {
 		return $wikitext;
 	}
 
-	public static function setCategorypageArticles() {
+	public static function setCategorypageArticles(String $languageCode) {
 		global $wgCategoryNames;
 		$goodTitles = [];
 
@@ -260,7 +285,7 @@ class NewPages extends SpecialNewpages {
 		$dbr = wfGetDB(DB_REPLICA);
 		foreach ($wgCategoryNames as $categoryName) {
 			$catTitles = [];
-			$res = self::getNewPagesFromTableForCategoryPage($dbr, $categoryName);
+			$res = self::getNewPagesFromTableForCategoryPage($dbr, $categoryName, $languageCode);
 			foreach ($res as $row) {
 				$title = Title::newFromID($row->page_id);
 				if (!$title || !$title->exists()) continue;

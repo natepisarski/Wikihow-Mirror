@@ -118,6 +118,8 @@ class RateItem extends UnlistedSpecialPage {
 	}
 
 	public function execute($par) {
+		global $wgCanonicalServer;
+
 		$req = $this->getRequest();
 		$out = $this->getOutput();
 		$user = $this->getUser();
@@ -157,11 +159,12 @@ class RateItem extends UnlistedSpecialPage {
 			$bad_header_characters = '/\n|\r/';
 			$origin = '';
 			$allowedOrigins = [
-				'https://m.wikihow.com',
-				'https://m-wikihow-com.cdn.ampproject.org',
+				$wgCanonicalServer,
+				'https://wikihow-com.cdn.ampproject.org',
+				'https://www-wikihow-com.cdn.ampproject.org',
 				'https://cdn.ampproject.org'
 			];
-			$allowedSourceOrigin = 'https://m.wikihow.com';
+			$allowedSourceOrigin = $wgCanonicalServer;
 			$sourceOrigin = $req->getVal('__amp_source_origin');
 			if (preg_match($bad_header_characters, $sourceOrigin)) $sourceOrigin = '';
 
