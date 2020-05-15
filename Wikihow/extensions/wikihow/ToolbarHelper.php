@@ -2,10 +2,11 @@
 
 if ( ! defined( 'MEDIAWIKI' ) ) die();
 
+// could be replaced by RCBuddy at some point, or an api endpoint
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'ToolbarHelper',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Server side helper for the toolbar, could be replaced by RCBuddy at some point',
+	'name' => 'ToolbarHelper',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'Server side helper for an old browser toolbar',
 );
 
 $wgSpecialPages['ToolbarHelper'] = 'ToolbarHelper';

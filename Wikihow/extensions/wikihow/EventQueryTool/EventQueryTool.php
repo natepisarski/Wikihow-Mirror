@@ -8,7 +8,6 @@ $wgExtensionCredits['specialpage'][] = array(
 
 $wgSpecialPages['EventQueryTool'] = 'EventQueryTool';
 $wgAutoloadClasses['EventQueryTool'] = __DIR__ . '/EventQueryTool.body.php';
-$wgAutoloadClasses['EventConfig'] = __DIR__ . '/EventConfig.php';
 
 $wgResourceModules['ext.wikihow.EventQueryTool'] = [
 	'targets' => ['desktop', 'mobile'],

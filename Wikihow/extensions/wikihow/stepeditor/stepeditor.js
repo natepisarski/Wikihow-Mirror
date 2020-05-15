@@ -150,7 +150,6 @@
 								$(stepLi).find(".stepeditlink").remove();
 							}
 							WH.opWHTracker.trackEdit();
-							WH.maEvent('edit_step', { category: 'edit_step' }, false);
 							$(".stepeditlink").remove();
 						} else {
 							$(".stepeditlink").remove();

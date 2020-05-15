@@ -264,8 +264,6 @@
 			var show = e.type == 'click' ? !$('#sp_icon_hover').is(':visible') : e.type == 'mouseenter';
 
 			dialog_box(show, this, e.type);
-
-			if (!show && e.type == 'click') WH.maEvent('article-info-badge-click-mobile');
 		});
 
 		//badge dialog closing

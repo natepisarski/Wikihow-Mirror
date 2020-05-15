@@ -15,9 +15,6 @@ $wgAutoloadClasses['AdminQADomain'] = __DIR__ . '/AdminQADomain.body.php';
 
 $wgResourceModules['ext.wikihow.qadomain'] = array(
 	'styles' => 'qadomain.less',
-	'scripts' => [
-		'../../../skins/WikiHow/MachinifyAPI.js',
-	],
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/qadomain',
 	'position' => 'top',

@@ -89,7 +89,7 @@ WH.ads = (function () {
 	}
 
 	function apsFetchBids(slotValues, gptSlotIds, ad) {
-		log("apsFetchBids:", ad.adTargetId);
+		//log("apsFetchBids:", ad.adTargetId);
 		if (!ad.apsTimeout) {
 			console.warn('ad has no timeout value', ad);
 		}
@@ -158,9 +158,7 @@ WH.ads = (function () {
 	}
 
 	// adds bid to PWT bidmap if it is not there anymore
-	function addBidToBidMap(ad, winningBid) {
-		var bidId = winningBid['bidData']['kvp']['pwtsid'];
-
+	function addBidToBidMap(ad, bidId) {
 		// some sanity checking
 		if(!ad.bids[bidId]){
 			console.warn("addBidToBidMap: bid not found on ad", bidId)
@@ -174,7 +172,7 @@ WH.ads = (function () {
 			PWT.bidIdMap[bidId].s = ad.adTargetId;
 		}
 		if (!(bidId in PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"])) {
-			log("addBidToBidMap adding bid data back to bidmap", adapterId, winningBid, ad.adTargetId);
+			log("addBidToBidMap adding bid data back to bidmap", adapterId, bidId, ad.adTargetId);
 			PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"][bidId] = ad.bids[bidId];
 		}
 
@@ -188,34 +186,24 @@ WH.ads = (function () {
 
 	function removeBidFromAd(ad, bidId) {
 		log("removeBidFromAd", ad.adTargetId, bidId);
-		delete ad.bids[bidId];
-		delete ad.bidEcpm[bidId];
+		if ( bidId in ad.bids ) {
+			delete ad.bids[bidId];
+			delete ad.bidEcpm[bidId];
+		}
 	}
 
 	function prebidAdRendered(bidId) {
-		console.log("prebidAdRendered", bidId);
+		log("prebidAdRendered", bidId);
 		//console.log('bidmap is', PWT.bidMap);
 		var ad = prebidBidsToAd[bidId];
 
-		//console.log("ad", ad);
-		//var adapterId = ad.winningBid['bidData']['wb']['adapterID'];
-		// TODO get adapterId from the ad[bidId].adapterId instead
-		//var adapterId = PWT.bidIdMap[bidId]['a'];
-		//console.log("adapterId", adapterId);
-		//var bids = PWT.bidMap[ad.bidLookupKey]['adapters'][adapterId]['bids'];
-		//console.log("bids", bids);
-		//var bid = bids[bidId];
-		//console.log("prebidAdRendered got bid", bid);
-		// remove this bid from the list of ids on the ad
-		removeBidFromAd(ad, bidId);
-		ad.winningBid = null;
+		// make sure it is still in the bidmap
+		addBidToBidMap(ad, bidId);
 
-		// TODO maybe remove last winning bid on the ad?
-		//ad.lastWinningBid = null;
-		//var timeAgo =  new Date().getTime() -  bid['receivedTime'];
-		//timeAgo = timeAgo / 1000;
-		//console.log("bid received seconds ago", timeAgo);
-		//prebidRequestBidsAndStore(ad);
+		// flag this bid as having won
+		ad.lastWonBid = bidId;
+
+		ad.winningBid = null;
 	}
 
 	//var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -224,11 +212,11 @@ WH.ads = (function () {
 	window.addEventListener('message', processMessage, false);
 
 	function prebidLoad(ad) {
-		log("prebid load", ad.adTargetId);
+		//log("prebid load", ad.adTargetId);
 		if (PWT.isLoaded) {
 			prebidLoadInternal(ad);
 		} else {
-			log("prebidLoad: PWT not ready yet. will queue load", ad.adTargetId);
+			//log("prebidLoad: PWT not ready yet. will queue load", ad.adTargetId);
 			ad.prebidQueuedLoadCommand = true;
 		}
 	}
@@ -247,6 +235,12 @@ WH.ads = (function () {
 	function setDFPTargetingAndRefresh(ad) {
 		var slot = gptAdSlots[ad.adTargetId]
 		setDFPTargeting(slot, dfpKeyVals);
+
+		// for debugging only - remove when live
+		var bid = slot.getTargetingMap().pwtsid;
+		if (typeof bid != 'undefined') {
+			log('setDFPTargetingAndRefresh:', parseFloat(slot.getTargetingMap().pwtecp[0]), slot.getTargetingMap().pwtpid[0], bid[0], ad.adTargetId);
+		}
 		log('setDFPTargetingAndRefresh:', ad.adTargetId, 'targeting', slot.getTargetingMap());
 		googletag.pubads().refresh([slot]);
 	}
@@ -283,18 +277,18 @@ WH.ads = (function () {
 				if (ecpm <= 0) {
 					continue;
 				}
-				log("saveBids: received bid", bidId, 'from',  adapterId, 'for', ad.adTargetId);
 				if (bidId in ad.bids) {
 					console.warn("saveBids", bidsForAd.adapters[adapterId].bids[bidId], "already stored in ad", ad.bids[bidId]);
 				}
 				validBids++;
 				ad.bids[bidId] = PWT.bidMap[ad.bidLookupKey]['adapters'][adapterId]["bids"][bidId];
 				ad.bidEcpm[bidId] = ecpm;
+				log("saveBids: saving bid:", ecpm, adapterId, bidId, ad.adTargetId);
 			}
 		}
 
 		if (validBids) {
-			log("saveBids: winningBid", winningBid);
+			log("saveBids: winningBid:", winningBid.bidData.wb.netEcpm, winningBid.bidData.wb.adapterID, winningBid.bidData.kvp.pwtsid, ad.adTargetId);
 		} else {
 			log("saveBids: no valid bids received", ad.adTargetId);
 			//prebidRequest(ad);
@@ -323,6 +317,11 @@ WH.ads = (function () {
 			log("getWinningBid: no bids for ad", ad.adTargetId);
 			return null;
 		}
+		// removing any previously won bid that was rendered from the list
+		if (ad.lastWonBid) {
+			removeBidFromAd(ad, ad.lastWonBid);
+		}
+
 		var highestBid = null;
 		var currentTime = new Date().getTime();
 		var oldBids = [];
@@ -358,15 +357,9 @@ WH.ads = (function () {
 			updateWinningBidWithNewBid(ad, highestBid);
 		}
 
-		// only here for testing
-		//if (ad.winningBid['bidData']['kvp']['pwtsid'] == highestBid) {
-			//log("getWinningBid already has winningBid object");
-			//updateWinningBidWithNewBid(ad, highestBid);
-		//}
-
 		winningBid = ad.winningBid;
 
-		log("getWinningBid:", ad.adTargetId, highestBid, winningBid);
+		log("getWinningBid: result", winningBid.bidData.wb.netEcpm, winningBid.bidData.wb.adapterID, winningBid.bidData.kvp.pwtsid, ad.adTargetId);
 
 		// save this here because we may try to delete it if it is rendered
 		prebidBidsToAd[highestBid] = ad;
@@ -382,26 +375,52 @@ WH.ads = (function () {
 		//addBidToPool(arguments[0],arguments[1])
 	//};
 
+	function clearPrebidTargeting(ad) {
+		var slot = gptAdSlots[ad.adTargetId]
+		slot.clearTargeting('pwtsid');
+		slot.clearTargeting('pwtbst');
+		slot.clearTargeting('pwtecp');
+		slot.clearTargeting('pwtpid');
+		slot.clearTargeting('pwtsz');
+		slot.clearTargeting('pwtdid');
+		slot.clearTargeting('pwtplt');
+		slot.clearTargeting('pwtprofid');
+		slot.clearTargeting('pwtpubid');
+		slot.clearTargeting('pwtverid');
+	}
+
 	function prebidLoadInternal(ad) {
 		//log("prebidLoadInternal:", ad.adTargetId);
 
 		// if we never got our first bids back then queue up the load command
 		// TODO move this in to prebidLoad
 		if (ad.bidsReceived == false) {
-			log("prebidLoadInternal: no winning bids received yet. will queue load command", ad.adTargetId);
+			//log("prebidLoadInternal: no winning bids received yet. will queue load command", ad.adTargetId);
 			ad.prebidQueuedLoadCommand = true;
 			return;
 		}
 
-		var winningBid = getWinningBid(ad);
-		// we have to update this for the case of the scrollto ad
+		// if last ad request tinme was more than 55 seconds, queue a new one instead
+		var currentTime = new Date().getTime();
+		var timeAgo = currentTime - ad.lastPrebidRequestTime;
+		if (timeAgo > 55000) {
+			log("prebidLoadInternal: bids are out of date..will request new bids", ad.adTargetId);
+			ad.prebidQueuedLoadCommand = true;
+			prebidRequestBidsAndStore(ad);
+			return;
+		}
 
+		var winningBid = getWinningBid(ad);
 
 		if (winningBid) {
 			winningBid.divId = ad.adTargetId;
-			addBidToBidMap(ad, winningBid);
+			addBidToBidMap(ad, winningBid['bidData']['kvp']['pwtsid']);
 			log("prebidLoadInternal: adding kvp to GPT slot", ad.adTargetId);
 			PWT.addKeyValuePairsToGPTSlots([winningBid]);
+		} else {
+			log("prebidLoadInternal: removing kvp from GPT slot", ad.adTargetId);
+			clearPrebidTargeting(ad);
+			// TODO do one more bid request
 		}
 
 		// set this to true to flag to APSLoad that  it is ok to load the ad
@@ -415,17 +434,12 @@ WH.ads = (function () {
 			log('prebidLoadInternal: aps bids done. will refresh', ad.adTargetId);
 			setDFPTargetingAndRefresh(ad);
 		} else {
-			log('prebidLoadInternal: aps bids not recieved yet for', ad.adTargetId);
+			//log('prebidLoadInternal: aps bids not recieved yet for', ad.adTargetId);
 		}
 	}
 
 	PWT.jsLoaded = function() {
 		PWT.isLoaded = true;
-		// if either of these do not exist we will have an error later in other code
-		// so TODO we could disable PWT somehow in this case
-		if (typeof PWT.removeKeyValuePairsFromGPTSlots !== 'function') {
-			log("PWT.removeKeyValuePairsFromGPTSlots is not a function. PWT is", PWT);
-		}
 		if (typeof PWT.requestBids !== 'function') {
 			log("PWT.requestBids is not a function. PWT is", PWT);
 		}
@@ -454,13 +468,14 @@ WH.ads = (function () {
 			ad.bidRequests = 0;
 		}
 		ad.bidRequests++;
+		ad.lastPrebidRequestTime = new Date().getTime();
 		PWT.requestBids(
 			PWT.generateConfForGPT(gptSlots), function(winningBidData) {
-				log('prebidRequestBidsAndStore: requestBids called back', ad.adTargetId);
+				//log('prebidRequestBidsAndStore: requestBids called back', ad.adTargetId);
 				ad.bidsReceived = true;
 				saveBids(ad, winningBidData);
 				if (ad.prebidQueuedLoadCommand == true) {
-					log("prebidRequestBidsAndStore queued load command", ad.adTargetId);
+					//log("prebidRequestBidsAndStore queued load command", ad.adTargetId);
 					prebidLoadInternal(ad);
 				}
 				ad.prebidQueuedLoadCommand = false;
@@ -749,6 +764,9 @@ WH.ads = (function () {
 		this.apsload = this.adElement.getAttribute('data-apsload') == 1;
 		this.apsDisplayBidsCalled = false;
 		this.prebidload = this.adElement.getAttribute('data-prebidload') == 1;
+		if (this.prebidload) {
+			this.lastPrebidRequestTime = 0;
+		}
 		this.bidsReceived = false;
 		this.prebidKVPadded = false;
 		this.prebidQueuedLoadCommand = null;

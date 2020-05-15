@@ -1,13 +1,13 @@
 <?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-    exit;
+	exit;
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'TitleSearch',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Used for the related wikihows tool drop down auto-suggest feature',
+	'name' => 'TitleSearch',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'Used for the related wikihows tool drop down auto-suggest feature',
 );
 
 $wgSpecialPages['TitleSearch'] = 'TitleSearch';

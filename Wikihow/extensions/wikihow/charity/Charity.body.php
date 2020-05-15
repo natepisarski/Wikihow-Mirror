@@ -108,7 +108,7 @@ class Charity extends SpecialPage {
 		$options = array( 'loader' => $loader );
 		$m = new Mustache_Engine( $options );
 		$out->addHTML($m->render( 'landing', $vars ));
-		$out->addModules(['ext.wikihow.charity.js', 'ext.wikihow.charity.css']);
+		$out->addModules(['ext.wikihow.charity.css']);
 		$out->setHTMLTitle(wfMessage('ch_page_title')->text());
 		$out->setCanonicalUrl( Misc::getLangBaseURL().'/wikiHow:Gives-Back' );
 	}

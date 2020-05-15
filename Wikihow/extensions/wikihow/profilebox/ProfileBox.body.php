@@ -807,7 +807,10 @@ class ProfileStats {
 	public function fetchCreatedData($limit): array {
 		global $wgMemc;
 
-		$cacheKey = wfMemcKey(ProfileStats::CACHE_PREFIX, 'created', $this->user->getID(), $limit);
+		$visitorUser = RequestContext::getMain()->getUser();
+		$isLoggedIn = $visitorUser && !$visitorUser->isAnon();
+
+		$cacheKey = wfMemcKey(ProfileStats::CACHE_PREFIX, 'created', $this->user->getID(), (int)$isLoggedIn, $limit);
 		$result = $wgMemc->get($cacheKey);
 		if (!$this->isOwnPage && $result) return $result;
 
@@ -833,9 +836,6 @@ class ProfileStats {
 			]
 		);
 
-		$user = RequestContext::getMain()->getUser();
-		$isLoggedIn = $user && !$user->isAnon();
-
 		$results = [];
 		if ($res) {
 			$fas = ProfileBox::getFeaturedArticles();
@@ -850,7 +850,10 @@ class ProfileStats {
 				$rs = RisingStar::isRisingStar($title->getArticleID(), $dbr);
 				$created['rs'] = (bool)$rs;
 
-				if (!$isLoggedIn) $created['hide_link'] = !RobotPolicy::isTitleIndexable($title);
+				if (!$isLoggedIn) {
+					$isAltDomain = !empty( AlternateDomain::getAlternateDomainForPage( $title->getArticleID() ) );
+					$created['hide_link'] = $isAltDomain || !RobotPolicy::isTitleIndexable($title);
+				}
 
 				$results[] = $created;
 			}
@@ -864,7 +867,10 @@ class ProfileStats {
 	public function fetchThumbsData($limit) {
 		global $wgMemc;
 
-		$cacheKey = wfMemcKey(ProfileStats::CACHE_PREFIX, 'thumbs', $this->user->getID(), $limit);
+		$visitorUser = RequestContext::getMain()->getUser();
+		$isLoggedIn = $visitorUser && !$visitorUser->isAnon();
+
+		$cacheKey = wfMemcKey(ProfileStats::CACHE_PREFIX, 'thumbs', $this->user->getID(), (int)$isLoggedIn, $limit);
 		$result = $wgMemc->get($cacheKey);
 		if (!$this->isOwnPage && $result) return $result;
 
@@ -890,9 +896,6 @@ class ProfileStats {
 			]
 		);
 
-		$user = RequestContext::getMain()->getUser();
-		$isLoggedIn = $user && !$user->isAnon();
-
 		$results = [];
 		if ($res) {
 			foreach ($res as $row) {
@@ -905,7 +908,8 @@ class ProfileStats {
 				}
 				else {
 					$page['ago'] = wfTimeAgo($row->rev_timestamp);
-					$page['hide_link'] = !RobotPolicy::isTitleIndexable($t);
+					$isAltDomain = !empty( AlternateDomain::getAlternateDomainForPage( $t->getArticleID() ) );
+					$page['hide_link'] = $isAltDomain || !RobotPolicy::isTitleIndexable($t);
 				}
 
 				$results[] = $page;

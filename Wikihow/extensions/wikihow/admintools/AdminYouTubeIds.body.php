@@ -2,6 +2,11 @@
 
 class AdminYouTubeIds extends UnlistedSpecialPage {
 
+	static $tags = [
+		Misc::YT_WIKIHOW_VIDEOS,
+		Misc::YT_GUIDECENTRAL_VIDEOS
+	];
+
 	function __construct() {
 		parent::__construct( 'AdminYouTubeIds' );
 	}
@@ -26,13 +31,26 @@ class AdminYouTubeIds extends UnlistedSpecialPage {
 		if ( $request->wasPosted() ) {
 			$force = $request->getBool( 'rebuild' );
 		}
-		$key = wfMemcKey( 'AdminYouTubeIds::getAllResults' );
+		$tag = in_array( $par, static::$tags ) ? $par : static::$tags[0];
+		$key = wfMemcKey( 'AdminYouTubeIds::getAllResults', $tag );
 		$data = $wgMemc->get( $key );
 		if ( !$data || $force ) {
-			$data = [ 'results' => $this->getAllResults(), 'rebuilt' => date( DATE_RFC2822 ) ];
+			$tagOptions = [];
+			foreach ( static::$tags as $value ) {
+				$tagOptons[] = [
+					'value' => $value,
+					'selected' => $value === $tag
+				];
+			}
+			$data = [
+				'tagOptions' => $tagOptons,
+				'tag' => $tag,
+				'results' => $this->getAllResults( $tag ),
+				'rebuilt' => date( DATE_RFC2822 )
+			];
 			// Cache results for a day
 			$wgMemc->set( $key, $data, 24 * 60 * 60 );
-			$out->redirect( '/Special:AdminYouTubeIds' );
+			$out->redirect( '/Special:AdminYouTubeIds/' . $tag );
 		}
 
 		$options = array(
@@ -49,13 +67,13 @@ class AdminYouTubeIds extends UnlistedSpecialPage {
 	 *
 	 * @return array List of results
 	 */
-	function getAllResults() {
+	function getAllResults( $adminTag ) {
 		// Build results
 		$dbr = wfGetDB( DB_REPLICA );
 		$ids = $dbr->selectField(
 			'config_storage',
 			'cs_config',
-			[ 'cs_key' => Misc::YT_WIKIHOW_VIDEOS ],
+			[ 'cs_key' => $adminTag ],
 			__METHOD__
 		);
 		$ids = explode( "\n", $ids );

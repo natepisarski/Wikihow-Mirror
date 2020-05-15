@@ -297,7 +297,7 @@ class Ads {
 		} else {
 			$adCreator = new DefaultAdCreator();
 			if ( !$this->mEnglishSite ) {
-				if ( $pageId % 4 == 1 ) {
+				if ( $pageId % 20 == 1 ) {
 					$adCreator = new DefaultInternationalAdCreatorAllAdsense();
 				} else {
 					$adCreator = new DefaultInternationalAdCreator();

@@ -102,6 +102,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/Disclaimer/Disclaimer.php");
 	require_once("$IP/extensions/wikihow/kaios_helper/KaiosHelper.php");
 	require_once("$IP/extensions/wikihow/EventQueryTool/EventQueryTool.php");
+	require_once("$IP/extensions/wikihow/EventTracking/EventTracking.php");
 	require_once("$IP/extensions/wikihow/ArticleTiles/ArticleTiles.php");
 }
 
@@ -437,3 +438,4 @@ require_once("$IP/extensions/wikihow/WikihowNamespacePages/WikihowNamespacePages
 require_once("$IP/extensions/wikihow/Summary/Summary.php");
 require_once("$IP/extensions/wikihow/specialbotblockipwhitelist/BotBlockIPWhitelist.php");
 require_once("$IP/extensions/wikihow/rightrail/RightRail.php");
+require_once("$IP/extensions/wikihow/load_images/HtmlElementIdMap.php");

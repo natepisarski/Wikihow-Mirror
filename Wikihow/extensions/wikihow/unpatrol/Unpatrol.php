@@ -1,6 +1,8 @@
 <?php
-if ( ! defined( 'MEDIAWIKI' ) )
+
+if ( ! defined( 'MEDIAWIKI' ) ) {
 	die();
+}
 
 /**#@+
  *
@@ -9,16 +11,15 @@ if ( ! defined( 'MEDIAWIKI' ) )
  *
  * @link http://www.wikihow.com/WikiHow:Unpatrol-Extension Documentation
  *
- *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'Unpatrol',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Unpatrol bad patrols',
+	'name' => 'Unpatrol',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'Unpatrol bad patrols',
 );
 
 $wgSpecialPages['UnpatrolTips'] = 'UnpatrolTips';
@@ -36,4 +37,3 @@ $wgLogHeaders['undotips'] = 'undotips';
 $wgLogTypes[] = 'unpatrol';
 $wgLogNames['unpatrol'] = 'unpatrol';
 $wgLogHeaders['unpatrol'] = 'unpatrol';
-

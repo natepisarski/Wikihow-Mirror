@@ -11,8 +11,4 @@ $('#fbc_form').on('submit', function(e) {
 		$('#fbc_error').html('Please enter a wikiHow username');
 		return false;
 	}
-	else {
-		WH.maEvent('account_signup', { category: 'account_signup', type: 'facebook' }, false);
-		return true;
-	}
 });

@@ -1,11 +1,13 @@
 <?php
-if ( ! defined( 'MEDIAWIKI' ) )
-  die();
+
+if ( ! defined( 'MEDIAWIKI' ) ) {
+	die();
+}
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'Dedup',
-    'author' => 'Gershon Bialer',
-    'description' => 'Dedup titles',
+	'name' => 'Dedup',
+	'author' => 'Gershon Bialer (wikiHow)',
+	'description' => 'Dedup titles',
 );
 
 $wgSpecialPages['Dedup'] = 'Dedup';

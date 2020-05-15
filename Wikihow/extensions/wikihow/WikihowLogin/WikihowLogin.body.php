@@ -55,13 +55,7 @@ class WikihowLogin {
 	private static $BAD_EMAIL_ERRORS = array('noemailtitle','invalidemailaddress');
 	private static $BAD_CAPTCHA_ERRORS = array('captcha-createaccount-fail');
 
-	/**
-	*	Added by Gershon Bialer with upgrade to add header
-	* 	Tweaked by Scott Cushman for upgrade 1.22
-	*	Made possible (in part) by a grant from the National Awesome Society
-	*	And viewers like you.
-	*/
-	static function topContent($template, $login_type) {
+	public static function topContent($template, $login_type) {
 		echo '<p class="wh_block"><span class="login_top_link">';
 			if ( $template->haveData( 'createOrLoginHref' ) ) {
 				$link_href = $template->get( 'createOrLoginHref' );
@@ -87,11 +81,12 @@ class WikihowLogin {
 		echo  '</span><span class="login_headline">' . $header_text . '</span></p>';
 	}
 
-	static function CustomSideBar(&$result) {
+	public static function CustomSideBar(&$result) {
 		$result = true;
 		return $result;
 	}
 
+/* reuben, unused May 2020
 	function generateErrorList($errorArray) {
 		$errorlist = array();
 		foreach ($errorArray as $error) {
@@ -134,6 +129,7 @@ class WikihowLogin {
 		}
 		return $errorlist;
 	}
+*/
 
 	public static function onMobilePreRenderPreContent( &$data ) {
 		if (RequestContext::getMain()->getUser()->isLoggedIn()) return;

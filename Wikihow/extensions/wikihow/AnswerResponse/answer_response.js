@@ -8,7 +8,6 @@
 		init: function() {
 			this.helpful = $('#qaar_vote').val();
 			this.setHandlers();
-			this.logIt('answeremail_helpfulness_votes');
 		},
 
 		setHandlers: function() {
@@ -44,11 +43,9 @@
 
 				if (this.helpful == 1) {
 					this.submitIt();
-					this.logIt('answer_thanks_message_submitted');
 					this.thanks('qaar_thanks_1');
 				}
 				else {
-					this.logIt('answeremail_helpfulness_comments');
 					this.thanks('qaar_thanks');
 				}
 
@@ -60,30 +57,6 @@
 			$('#qaar_body').slideUp(function() {
 				$('#qaar_body').html(mw.msg(msg)).slideDown();
 			});
-		},
-
-		logIt: function(event) {
-			if (!event) return;
-			var eventProps = {
-				'category': 'qa',
-				'vote': this.helpful == 1 ? 'helpful' : 'unhelpful',
-				'submittedTimestamp': $('#qaar_st').val(),
-				'emailTimestamp': $('#qaar_et').val(),
-				'qa_id': $('#qaar_qa_id').val()
-			};
-
-			//let's sanitize the textarea before submitting
-			var comment = $("<div/>").html($('#qaar_answer').val()).text();
-
-			if (event == 'answeremail_helpfulness_comments') {
-				eventProps['comment'] = comment;
-			}
-			else if (event == 'answer_thanks_message_submitted') {
-				eventProps['message'] = comment;
-				if ($('#qaar_anon')) eventProps['send_anonymously'] = $('#qaar_anon').attr('checked');
-			}
-
-			WH.maEvent(event, eventProps, false);
 		},
 
 		anonBoxClick: function(force_it) {

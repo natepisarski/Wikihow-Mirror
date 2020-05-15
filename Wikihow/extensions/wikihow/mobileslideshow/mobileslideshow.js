@@ -142,8 +142,6 @@
 
 		showSlideshow: function(step){
 
-			// WH.whEvent('mobile_slideshow', 'mobile_slideshow_start');
-
 			var id = $('img', step).attr('id');
 			var index = -1;
 			var i = 0;

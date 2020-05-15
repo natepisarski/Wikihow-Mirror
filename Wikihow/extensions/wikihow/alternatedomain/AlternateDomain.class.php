@@ -10,7 +10,7 @@ class AlternateDomain {
 	/*
 	 * use this to check if a page is on the non branded domain or not
 	 * @param int pageId
-	 * @return  true if the page is on a no branding domain. false otherwise
+	 * @return string|null the domain the page is on
 	 */
 	private static function getNoBrandingDomainForPage( $pageId ) {
 		$result = null;
@@ -26,7 +26,7 @@ class AlternateDomain {
 	/*
 	 * use this to check if a page is on any alternate domain (branded or non branded)
 	 * @param int pageId
-	 * @return  string the domain the page is on
+	 * @return string|null the domain the page is on
 	 */
 	public static function getAlternateDomainForPage( $pageId ) {
 		$result = self::getNoBrandingDomainForPage( $pageId );

@@ -18,13 +18,11 @@
 			$('#bible_citation_create').click($.proxy(function() {
 				this.clearForm();
 				this.showForm();
-				WH.maEvent('bible_citation_new_citation');
 				return false;
 			},this));
 
 			$('#bible_citation_copy').click($.proxy(function() {
 				this.copyToClipboard();
-				WH.maEvent('bible_citation_copy_citation');
 				return false;
 			},this));
 
@@ -47,8 +45,6 @@
 			},this));
 
 			if (!this.validCitation()) return;
-
-			WH.maEvent('bible_citation_submit', { 'format': this.citationData['format'] });
 
 			var vars = {
 				'MLA8': this.citationData['format'] == 'MLA 8',
@@ -102,7 +98,6 @@
 
 			if (bad_inputs.length) {
 				document.activeElement.blur();
-				WH.maEvent('bible_citation_error', { 'errors': bad_inputs.toString() });
 			}
 
 			return bad_inputs.length == 0;

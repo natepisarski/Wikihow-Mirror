@@ -12,10 +12,6 @@ $(document).on('submit', '#gpl_form', function(e) {
 		$('#gpl_error').html('Please enter a wikiHow username').show();
 		return false;
 	}
-	else {
-		WH.maEvent('account_signup', { category: 'account_signup', type: 'google' }, false);
-		return true;
-	}
 });
 
 

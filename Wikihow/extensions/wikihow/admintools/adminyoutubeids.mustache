@@ -9,12 +9,49 @@
 	#rebuild-form {
 		position: relative;
 		margin-top: 0;
+		margin-bottom: 0;
+	}
+	#tagOptions {
+		margin: 10px 0;
+	}
+	.tagOption {
+		display: inline-block;
+		margin: 0;
+		padding: 0.5em 1em;
+		background-color: #fff;
+		border: solid 1px #93b874;
+		font-weight: bold;
+		font-size: smaller;
+	}
+	/*  */
+	.tagOption:hover {
+		text-decoration: none;
+		background-color: #fafafa;
+	}
+	.tagOption-selected {
+		background-color: #93b874;
+		color: white;
+	}
+	.tagOption-selected:hover {
+		background-color: #6D855E;
+		border-color: #6D855E;
+	}
+	.tagOption:first-child {
+		border-top-left-radius: 4px;
+		border-bottom-left-radius: 4px;
+	}
+	.tagOption:last-child {
+		border-top-right-radius: 4px;
+		border-bottom-right-radius: 4px;
 	}
 	#results {
 		border-collapse: separate;
 		border-radius: 4px;
 		overflow: hidden;
 		border: solid 1px #ddd;
+	}
+	#results th {
+		white-space: nowrap;
 	}
 	#results th,
 	#results td {
@@ -35,12 +72,15 @@
 		background-color: pink !important;
 	}
 </style>
-<p>A list of YouTube IDs extracted from the Curatevideo templates in the video pages transcluded by the articles tagged as <a href="https://trevor.wikidogs.com/Special:AdminTags">youtube_wikihow_videos</a>.</p>
-<form action="/Special:AdminYouTubeIds" method="post" id="rebuild-form">
+<p>A list of YouTube IDs extracted from the Curatevideo templates in the video pages transcluded by articles with <a href="/Special:AdminTags">specific admin tags</a>.</p>
+<form action="/Special:AdminYouTubeIds/{{tag}}" method="post" id="rebuild-form">
 	<button type="submit" class="button" name="rebuild" value="1" id="rebuild-button">Rebuild list</button>
 	<p id="rebuild-status">Last rebuilt on {{rebuilt}}</p>
 </form>
 <table id="results">
+	<caption>
+		<div id="tagOptions">{{#tagOptions}}<a href="/Special:AdminYouTubeIds/{{value}}" class="tagOption {{#selected}}tagOption-selected{{/selected}}">{{value}}</a>{{/tagOptions}}</div>
+	</caption>
 	<thead>
 		<tr>
 			<th>Page ID</th>

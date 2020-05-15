@@ -4,13 +4,33 @@
 		<a class="ts_trustworthy" href="/wikiHow:Delivering-a-Trustworthy-Experience">{{ts_label}}</a>
 
 		<span class="ts_name">{{ts_name}}</span>
+		{{#hasImage}}
+			<a class="ts_expert_link" href="{{expert_url}}">{{{ts_expert_image}}}{{expert_name}}</a>
+		{{/hasImage}}
 		{{#showDescription}}
 		<span class="ts_description">{{ts_description}}</span>
 		{{/showDescription}}
-		<a href="{{#isAmp}}#{{{references}}}{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>{{ts_goto}}</a>
+
+		{{#isAmp}}
+			<a href="#{{{references}}}" class="ts_source" on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0">{{ts_goto}}</a>
+		{{/isAmp}}
+		{{^isAmp}}
+			{{^hideLink}}
+				<a href="#" class="ts_source" target="_blank">{{ts_goto}}</a>
+			{{/hideLink}}
+		{{/isAmp}}
 	{{/trustedclass}}
 	{{^trustedclass}}
 		<span class="ts_name">{{ts_research}}</span>
-		<a href="{{#isAmp}}#{{{references}}}{{/isAmp}}{{^isAmp}}#{{/isAmp}}" class="ts_source" {{#isAmp}}on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0"{{/isAmp}} {{^isAmp}}target="_blank"{{/isAmp}}>{{#isAmp}}{{ts_goto}}{{/isAmp}}</a>
+		<span class="ts_description">{{ts_description}}</span>
+		{{#isAmp}}
+			<a href="#{{{references}}}" class="ts_source" on="tap:ts_popup_{{num}}.toggleVisibility{{#expand}}, aii_references_second.show, aiinfo.hide{{/expand}}" role="button" tabindex="0">{{ts_goto}}</a>
+		{{/isAmp}}
+		{{^isAmp}}
+			{{^hideLink}}
+				<a href="#" class="ts_source"  target="_blank"></a>
+			{{/hideLink}}
+		{{/isAmp}}
+
 	{{/trustedclass}}
 </span>

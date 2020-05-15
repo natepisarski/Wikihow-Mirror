@@ -30,17 +30,10 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		}
 		widget.style.display = 'block';
 		image.setAttribute( 'srcset', sources[index].srcset.join() );
-		link.setAttribute( 'href', target ); 
+		link.setAttribute( 'href', target );
 		link.onclick = function ( e ) {
 			e.preventDefault();
-			// Track click
-			WH.maEvent(
-				'{{campaign}}_ad_click',
-				{ origin: location.hostname, ref: ref },
-				function () {
-					window.location = link.getAttribute( 'href' );
-				}
-			);
+			window.location = link.getAttribute( 'href' );
 		};
 		image.onload = function () {
 			// Track view
@@ -48,7 +41,6 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			var interval = setInterval( function () {
 				if ( !done && typeof MachinifyAPI !== "undefined") {
 					done = true;
-					WH.maEvent( '{{campaign}}_ad_view', { origin: location.hostname, ref: ref } );
 					clearInterval( interval );
 				}
 			}, 100 );

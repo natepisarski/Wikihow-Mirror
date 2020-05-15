@@ -332,6 +332,40 @@ class VerifyData {
 		return $dbr->selectField(self::BLURB_TABLE, 'count(*)', ['cab_coauthor_id' => $id]);
 	}
 
+	public static function getInfobyBlurbId( $blurbId ) {
+		global $wgMemc, $wgLanguageCode;
+		if ( !$blurbId ) {
+			return null;
+		}
+
+		$cacheKey = self::getCacheKeyForBlurb( $wgLanguageCode, $blurbId );
+		$vdata = $wgMemc->get( $cacheKey );
+		if ( $vdata === FALSE ) {
+			$dbr = wfGetDB(DB_REPLICA);
+			$row = $dbr->selectRow(
+				[self::BLURB_TABLE, self::VERIFIER_TABLE],
+				['*'],
+				['cab_blurb_id' => $blurbId],
+				__METHOD__,
+				[],
+				[
+					self::VERIFIER_TABLE => ['LEFT JOIN', 'cab_coauthor_id = vi_id']
+				]
+			);
+
+			if ($row == false) {
+				$vdata = null;
+			} else {
+				$vdata = VerifyData::newVerifierFromRow(get_object_vars($row));
+			}
+
+			$expirationTime = 30 * 24 * 60 * 60; //30 days
+			$wgMemc->set($cacheKey, $vdata, $expirationTime);
+		}
+
+		return $vdata;
+	}
+
 	# BLURBS
 	public static function getAllBlurbsFromDB($lang=''): array {
 		global $wgLanguageCode;
@@ -404,6 +438,8 @@ class VerifyData {
 	}
 
 	public static function replaceBlurbs(string $lang, array $blurbs) {
+		global $wgMemc;
+
 		if ( !$blurbs ) {
 			return;
 		}
@@ -426,6 +462,11 @@ class VerifyData {
 			'cab_byline = VALUES(cab_byline)',
 			'cab_blurb = VALUES(cab_blurb)',
 		]);
+
+		foreach($blurbs as $blurbId) {
+			$cacheKey = self::getCacheKeyForBlurb( $lang, $blurbId );
+			$wgMemc->delete( $cacheKey );
+		}
 	}
 
 	public static function replaceArticles(string $lang, array $articles) {
@@ -494,6 +535,8 @@ class VerifyData {
 		}
 
 		$path = parse_url($vd->image)['path'];
+		$path = urldecode($path);
+
 		$title = Title::newFromText('en:' . substr($path, 7), NS_IMAGE);
 		if ( !$title ) {
 			return '';
@@ -529,6 +572,11 @@ class VerifyData {
 	private static function getCacheKeyForAllCoauthors( $lang ) {
 		global $wgCachePrefix;
 		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vd_coauthors' );
+	}
+
+	private static function getCacheKeyForBlurb($lang, $blurbId) {
+		global $wgCachePrefix;
+		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vs_blurb', $blurbId);
 	}
 
 }

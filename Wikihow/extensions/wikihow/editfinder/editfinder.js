@@ -291,7 +291,6 @@ EditFinder.prototype.edit = function (id,title) {
 					//pop conf modal
 					if (editFinder.getEditType() == 'topic') {
 						editFinder.closeConfirmation(true);
-						WH.maEvent('edit_topic_greenhouse', { category: 'edit_topic_greenhouse' }, false);
 						return false;
 					}
 					else {

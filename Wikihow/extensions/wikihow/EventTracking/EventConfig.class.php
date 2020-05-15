@@ -6,11 +6,12 @@
  */
 class EventConfig
 {
-	// 0 = requester name
-	// 1 = additional parameters
+	// 0 => requester name
+	// 1 => additional parameters (optional)
 	const EVENTS = [
 		// please add new events at the beginning of this array,
 		// so they are sorted chronologically in descending order
+		'all_button_create_account_click_go_em' => [ 'Emily', [ 'account_type' ] ],
 		'article_byline_hover_learnmore_click_go_em' => [ 'Emily', [] ],
 		'all_footer_social_links_click_go_em' => [ 'Emily', [ 'type' ] ],
 		'article_meta_print_click_go_em' => [ 'Emily', [] ],
@@ -45,5 +46,34 @@ class EventConfig
 		'hp_section_covid_resources_click_go_em' => [ 'Emily', [] ],
 		'all_banner_covid_click_expand_em' => [ 'Emily', [] ],
 		'all_banner_covid_click_close_em' => [ 'Emily', [] ],
+	];
+
+	const DOMAINS = [
+		'www.wikihow-fun.com' => true,
+		'www.wikihow.com' => true,
+		'www.wikihow.fitness' => true,
+		'www.wikihow.health' => true,
+		'www.wikihow.legal' => true,
+		'www.wikihow.life' => true,
+		'www.wikihow.mom' => true,
+		'www.wikihow.pet' => true,
+		'www.wikihow.tech' => true,
+		'ar.wikihow.com' => true,
+		'www.wikihow.cz' => true,
+		'de.wikihow.com' => true,
+		'es.wikihow.com' => true,
+		'fr.wikihow.com' => true,
+		'hi.wikihow.com' => true,
+		'id.wikihow.com' => true,
+		'www.wikihow.it' => true,
+		'www.wikihow.jp' => true,
+		'ko.wikihow.com' => true,
+		'nl.wikihow.com' => true,
+		'pt.wikihow.com' => true,
+		'ru.wikihow.com' => true,
+		'th.wikihow.com' => true,
+		'www.wikihow.com.tr' => true,
+		'www.wikihow.vn' => true,
+		'zh.wikihow.com' => true,
 	];
 }

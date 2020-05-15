@@ -1141,7 +1141,6 @@ p.green_box_bullet {
 .stable .content .ts_description {
 	line-height: 14px;
 	font-size: 12px;
-	margin-bottom: 20px;
 	display: block;
 }
 
@@ -1153,12 +1152,43 @@ p.green_box_bullet {
 	display: block;
 }
 
+.ts_popup {
+	color: #545454;
+}
+
 .trustedsource .ts_name {
 	margin-top: 10px;
 }
 
+.trustedsource .ts_expert_image {
+	width: 30px;
+	border-radius: 15px;
+	float: left;
+	margin-right: 5px;
+}
+
+.trustedsource .ts_expert_link {
+	display: block;
+	margin-bottom: 10px;
+	font-size: 15px;
+	font-weight: bold;
+}
+
+.trustedsource .ts_expert_link amp-img {
+	width: 30px;
+	border-radius: 15px;
+	float: left;
+	margin-right: 5px;
+}
+
+.trustedsource .ts_source {
+	margin-top: 20px;
+}
+
 .ts_source {
 	font-size: 12px;
+	margin-top: 10px;
+	display: block;
 }
 
 .ts_close {

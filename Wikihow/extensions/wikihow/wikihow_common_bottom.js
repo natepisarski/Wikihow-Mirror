@@ -172,10 +172,6 @@ WH.loadPrintModule = function () {
 window.WH.beforePrintEventCount = 0;
 
 WH.bindPrintEvents = function () {
-	if (window.location.href.indexOf('printable=yes') > 0) {
-		WH.maEvent('print_article', { category: 'print_article' }, false);
-	}
-
 	window.onbeforeprint = WH.beforePrint;
 
 	var mediaQueryList = window.matchMedia('print');
@@ -189,12 +185,6 @@ WH.bindPrintEvents = function () {
 
 WH.beforePrint = function () {
 	window.WH.beforePrintEventCount += 1;
-
-	// if (window.WH.beforePrintEventCount == 1 && mw.config.get('wgArticleId') > 0) {
-		// // Track in machinify
-		// WH.maEvent('print_event', { category: 'print_article' }, false);
-	// }
-
 	return false;
 };
 
@@ -331,10 +321,6 @@ $(document).ready(function() {
 	WH.loadPrintModule();
 
 	WH.updateProjectLinks();
-
-	$('#gatFollowNewsletter').click(function() {
-		WH.maEvent('newsletter_signup_rightrail', { category: 'newsletter_signup' }, false);
-	});
 
 	$('#footer_links a').click(function() {
 		var href = $(this).prop('href');

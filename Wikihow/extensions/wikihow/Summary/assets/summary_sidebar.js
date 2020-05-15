@@ -8,7 +8,6 @@
 					.parent().find('.summary_review_more').show()
 					.parent().find('.summary_ellipsis').hide();
 
-				WH.maEvent('rr-qs-read-more-click');
 				return false;
 			});
 		}

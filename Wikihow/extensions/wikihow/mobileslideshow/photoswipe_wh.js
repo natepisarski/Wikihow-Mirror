@@ -484,7 +484,6 @@
 					name: 'button--arrow--left',
 					option: 'arrowEl',
 					onTap: function() {
-						// WH.whEvent("mobile_slideshow", 'mobile_slideshow_prev');
 						pswp.prev();
 					}
 				},
@@ -492,7 +491,6 @@
 					name: 'button--arrow--right',
 					option: 'arrowEl',
 					onTap: function() {
-						// WH.whEvent("mobile_slideshow", 'mobile_slideshow_next');
 						pswp.next();
 					}
 				},

@@ -12,8 +12,4 @@ $(document).on('submit', '#cl_form', function(e) {
 		$('#cl_error').html('Please enter a wikiHow username').show();
 		return false;
 	}
-	else {
-		WH.maEvent('account_signup', { category: 'account_signup', type: 'civic' }, false);
-		return true;
-	}
 });

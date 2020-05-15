@@ -2,36 +2,35 @@
 	"use strict";
 	window.WH = window.WH || {};
 	window.WH.SortQuestions = {
-		
+
 		target: $('#render-target'),
 		tool: '/Special:SortQuestions',
-		
+
 		init: function() {
 			WH.xss.addToken();
 			this.getQuestions();
-			
+
 			$('#next-batch').click( $.proxy(function() {
-				WH.maEvent('next', { category: 'sort_questions_tool' }, false);
 				WH.SortQuestions.target.fadeOut();
 				$('.spinner').fadeIn();
 				this.saveVotes();
 				return false;
 			}, this));
-			
+
 			$(document).on('click', '.choice', function() {
 				WH.SortQuestions.markChoice($(this));
 				return false;
 			});
 		},
-		
+
 		getQuestions: function() {
 			var aid = $('#sqt_article_id').val() ? $('#sqt_article_id').val() : '';
 			var url = this.tool+'?getQs=1&last_article='+ aid;
-			
-			//loading...			
+
+			//loading...
 			$.getJSON(url, function(data) {
 				WH.SortQuestions.target.html(data.html);
-				
+
 				$('.spinner').fadeOut(function() {
 					WH.SortQuestions.target.fadeIn();
 				});
@@ -60,7 +59,7 @@
 				});
 			});
 		},
-		
+
 		saveVotes: function () {
 			var payload = {questions: []};
 			var voteCount = 0;
@@ -71,30 +70,26 @@
 				if ($choice.length > 0) {
 					question.dir = $choice.hasClass('yes') ? 'up' : 'down';
 					voteCount++;
-					payload.questions.push(question);					
-					
-					//log
-					var label = 'vote_'+question.dir;
-					WH.maEvent(label, { category: 'sort_questions_tool' }, false);
+					payload.questions.push(question);
 				}
 			});
-			
+
 			if (payload.questions.length > 0) {
 
 				WH.SortQuestions.update(voteCount);
 
 					$.post(this.tool, payload)
 					.done($.proxy(this, 'getQuestions'));
-				
+
 			} else {
 				this.getQuestions();
 			}
 		}
 
 	};
-	
+
 	$(document).ready(function() {
 		WH.SortQuestions.init();
 	});
-	
+
 })();

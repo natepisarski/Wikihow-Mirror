@@ -1,22 +1,25 @@
 <?php
 
 /*
- * Written By Gershon Bialer
- * Translation link between articles. These are stored in the database in the translation_link table
- *
+ ALTER TABLE `translation_link` ADD COLUMN `tl_translated` tinyint default 1;
+ */
+
+/*
+ * Defines Translation Links between articles in different languages. These are stored in the
+ * database in the translation_link table.
  */
 class TranslationLink {
 
-	//These actions are written to the translation_link_log table
-	//Retrieve an article by name to be translated
+	// These actions are written to the translation_link_log table
+	// Retrieve an article by name to be translated
 	const ACTION_NAME = "n";
-	//Save a link to to the translation_link table
+	// Save a link to to the translation_link table
 	const ACTION_SAVE = "s";
-	//Delete an translation link
+	// Delete an translation link
 	const ACTION_DELETE = "d";
-	//Add an interwiki link based off the translation_link table
+	// Add an interwiki link based off the translation_link table
 	const ACTION_INTERWIKI = "i";
-	//Delete an interwiki link
+	// Delete an interwiki link
 	const ACTION_INTERWIKI_DELETE = "e";
 	// Language and article id translated from
 	public $fromLang;
@@ -57,14 +60,14 @@ class TranslationLink {
 	// Other interwiki link on to page
 	const IW_STATUS_OTHER_TO = 8;
 
-	//Whether or not the article has actually been translated yet (or just stubbed)
+	// Whether or not the article has actually been translated yet (or just stubbed)
 	public $isTranslated;
 
 	// Status on the site (some articles are created and stubbed, so we don't really consider them to be translated
 	const TL_STUBBED = 0;
 	const TL_TRANSLATED = 1;
 
-	//Translation date
+	// Translation date
 	public $translationDate;
 
 	public $iwStatus;
@@ -80,33 +83,16 @@ class TranslationLink {
 		$this->isTranslated = self::TL_TRANSLATED;
 	}
 
-	/**
-	 * Update the translation link status, saving the old status */
+	// Update the translation link status, saving the old status
 	private function setTlStatus($status) {
 		$this->oldTlStatus = $this->tlStatus;
 		$this->tlStatus = $status;
 	}
 
-	/**
-	 * Check that all basic fields aren't null */
+	// Check that all basic fields aren't null
 	private function isValid() {
 		return $this->fromLang && $this->toLang && $this->toAID && $this->fromAID;
 	}
-
-	/**
-	 * Create a translation from a translation_link database row
-	 */
-/* unused - Reuben 3/2019
-	public static function newFromRow($row) {
-		$tl = new TranslationLink();
-		$tl->fromLang = $row->tl_from_lang;
-		$tl->fromAID = $row->tl_from_aid;
-		$tl->toLang = $row->tl_to_lang;
-		$tl->toAID = $row->tl_to_aid;
-
-		return $tl;
-	}
-*/
 
 	/**
 	 * Get the from page from the respective URL
@@ -344,75 +330,6 @@ class TranslationLink {
 	}
 
 	/**
-	 * Update the interwiki status on a bunch of links.
-	 * This tells us whether the links are on interwiki pages
-	 */
-/* unused - Reuben 3/2019
-	static function batchUpdateIWStatus(&$links) {
-		$ll = array();
-		$fromLangs = array();
-		$toLangs = array();
-		$iwl = array();
-		$iwlf = array();
-		foreach ($links as &$link) {
-			$ll[$link->fromLang][$link->toLang][] = $link;
-		}
-		$dbr = wfGetDB(DB_REPLICA);
-		foreach ($ll as $lang => $llfrom) {
-			foreach ($llfrom as $lang2 => $llinks) {
-				$langDB = Misc::getLangDB($lang);
-				$langDB2 = Misc::getLangDB($lang2);
-				$sql = "select ll_from,ll_lang, page_id from $langDB.langlinks LEFT JOIN page on ll_title=page_title WHERE ll_lang=" . $dbr->addQuotes($lang) ." AND ll_from in (" . implode(array_map($llinks,function($l) {
-					return $l->fromAID;
-				}),',') . ") or page_id in (" . implode(array_map($llinks,function($l){
-					return $l->toAID;
-				}),',') . ")";
-				$res = $dbr->query($sql, __METHOD__);
-				foreach ($res as $row) {
-					$iwl[$lang . $lang2 . $row->ll_from][] = $row->page_id;
-					if ($row->page_id && is_numeric($row->page_id)) {
-						$iwlf[$lang2 . $lang . $row->page_id][] = $row->ll_from;
-					}
-				}
-
-
-				$sql = "select ll_from,ll_lang, page_id from $langDB2.langlinks LEFT JOIN page on ll_title=page_title WHERE ll_lang=" . $dbr->addQuotes($lang2) . " AND ll_from in (" . implode(array_map($llinks,function($l){
-					return $l->toAID;
-				}),',') . ") or page_id in (" . implode(array_map($llinks,function($l){
-					return $l->fromAID;
-				}),',') . ")";
-				$res2 = $dbr->query($sql, __METHOD__);
-				foreach ($res2 as $row) {
-					$iwl[$lang . $lang2 . $row2->ll_from][] = $row2->page_id;
-					if ($row2->page_id && is_numeric($row2->page_id)) {
-						$iwlf[$lang . $lang2 . $row2->page_id][] = $row->ll_from;
-					}
-				}
-			}
-		}
-		$this->iwStatus = self::IW_STATUS_NONE;
-		foreach ($links as &$link) {
-			foreach ($iwlf[$link->fromLang . $link->toLang . $link->fromAID] as $iw) {
-				if ($link->page_id == $link->fromAID) {
-					$this->iwStatus |= self::IW_STATUS_FROM;
-				}
-				else {
-					$this->iwStatus |= self::IW_STATUS_OTHER_FROM;
-				}
-			}
-			foreach ($iwl[$link->fromLang . $link->toLang . $link->page_id] as $iw) {
-				if ($link->page_id == $link->toAID) {
-					$this->iwStatus |= self::IW_STATUS_TO;
-				}
-				else {
-					$this->iwStatus |= self::IW_STATUS_OTHER_TO;
-				}
-			}
-		}
-	}
-*/
-
-	/**
 	 * Set the fromURL and toURL for a bunch of links
 	 * @param List of translation links to add URLs for
 	 * @param fullUrl If true, we get the full URL. If false, we get lang:title as the URL
@@ -446,195 +363,6 @@ class TranslationLink {
 			}
 		}
 	}
-
-	/**
-	 * Check if removal of interwiki links has rolled out, and if so delete the interwiki links from the given article
-	 * the database if the translation links have gone live for the page.
-	 * @param $forward If true, we remove links from the from, if false, we remove links from the to
-	 * @param $dryRun if true, we don't actually edit out the links
-	 * @return array('status' => 0 if no article or not rolled out, 1 if no iw links, 2 if successful in removing links, 'linksRemoved' => number of links removed)
-	 */
-/* unused - Reuben 3/2019
-	function removeInterwikis($forward, $dryRun=true) {
-		if ($forward) {
-			$title = Title::newFromId($this->fromAID);
-			$lang = $this->fromLang;
-		}
-		else {
-			$title = Title::newFromId($this->toAID);
-			$lang = $this->toLang;
-		}
-		$ret = array('status' => 0, 'linksRemoved' => 0);
-		if (!$title || !$title->exists()) {
-			return $ret;
-		}
-		$r = Revision::newFromTitle($title);
-		if (!$r) {
-			return $ret;
-		}
-		$txt = ContentHandler::getContentText( $r->getContent() );
-		$txt = preg_replace("@\[\[[a-zA-Z][a-z-A-Z]:[^\]]+\]\]@","",$txt, -1, $count);
-		$ret['status'] = 1;
-		$ret['linksRemoved'] = $count;
-		if ($count == 0) {
-			return $ret;
-		}
-		$ret['status'] = 2;
-		$wikiPage = WikiPage::factory($title);
-		$content = ContentHandler::makeContent($txt, $title);
-		if (!$dryRun) {
-			$wikiPage->doEditContent($content, wfMessage('removeiw-editsummary')->plain());
-		}
-		return $ret;
-	}
-*/
-
-	/**
-	 * Add interwiki links between page A, and page B
-	 * @param forward Do a forward link? Otherwise, we do a link from toAID to fromAID
-	 * @param dryRun Run through adding the links without actually adding the links. Instead, just output as if we added the links.
-	 * @return array('status'=>,'dup'=>) Status is 0 unable to add, 1 already added, 2 Overrode other links in same language  3 add successfully. dup is an array of other links to the same language, which are overriden if dryRun is set to to false
-	 */
-/* seems to be unused - Reuben 3/2019
-	function addLink($forward, $dryRun=true) {
-		$ret = array('status'=>0,'dup'=>array());
-		// Make sure we are adding a link between working URLs
-		if (intVal($this->fromAID) <= 0 || intVal($this->toAID) <= 0) {
-			return $ret;
-		}
-		if ($this->fromURL == NULL || $this->toURL == NULL ) {
-			return $ret;
-		}
-		if ($forward) {
-			$fromURL = urldecode($this->fromURL);
-			$toURL = urldecode($this->toURL);
-			$fromAID = $this->fromAID;
-			$toAID = $this->toAID;
-			$fromLang = $this->fromLang;
-			$toLang = $this->toLang;
-		}
-		else {
-			$fromURL = urldecode($this->toURL);
-			$toURL = urldecode($this->fromURL);
-			$toAID = $this->fromAID;
-			$fromAID = $this->toAID;
-			$fromLang = $this->toLang;
-			$toLang = $this->fromLang;
-		}
-		// We can only add links for our language code
-		$langCode = RequestContext::getMain()->getLanguage()->getCode();
-		if (!preg_match('@' . preg_quote(Misc::getLangBaseURL($langCode),"@") . '/(.+)@',$fromURL, $matches)) {
-			return $ret;
-		}
-		$fromPage = Misc::fullUrlToPartial($fromURL);
-		$toPage = Misc::fullUrlToPartial($toURL);
-
-		$fromTitle = Title::newFromId($fromAID);
-		if (!$fromTitle || !$fromTitle->inNamespace(NS_MAIN)) {
-			return $ret;
-		}
-		$r = Revision::newFromTitle($fromTitle);
-		if (!$r) {
-			return $ret;
-		}
-		$text = ContentHandler::getContentText( $r->getContent() );
-		$linkText="\n[[" . $toLang . ":" . str_replace("-"," ",$toPage) . "]]";
-		$linkTextRE="\[\[" . $toLang . ":(?:" . preg_quote($toPage,"/") . "|" . preg_quote(urlencode($toPage),"/") . ")\]\]";
-		$linkTextRE=str_replace("\-","[ -]",$linkTextRE);
-		//Duplicate
-		if (preg_match("/" . $linkTextRE . "/", $text, $matches)) {
-			$ret['status'] = 1;
-			return $ret;
-		}
-		// If other links to the same language, replace them all
-		elseif (preg_match_all("/\[\[" . $toLang . ":[^\]]+\]\]/i",$text, $matches)) {
-			$ret['status'] = 2;
-			$ret['dup'] = $matches[0];
-			foreach ($matches[0] as $match) {
-				$text=preg_replace("@[\r\n]*" . preg_quote($match) . "@","",$text);
-				$text=str_replace($match,"",$text);
-			}
-		}
-		else {
-			$ret['status'] = 3;
-		}
-		$text .= $linkText;
-		$wikiPage = WikiPage::factory($fromTitle);
-		$content = ContentHandler::makeContent($text, $fromTitle);
-		if (!$dryRun) {
-			$wikiPage->doEditContent($content, wfMessage('addll-editsummary'));
-			self::writeLog(self::ACTION_SAVE, $fromLang, $r->getId(), $fromAID, $fromPage,$toLang,$toPage,$toAID,"interwiki");
-		}
-		return $ret;
-	}
-*/
-
-	/**
-	 * Remove a translation link from interwiki page
-	 * @return True on successfully deleting links, and false otherwise
-	 */
-/* unused - Reuben 3/2019
-	public function removeLink($forward, $dryRun = true) {
-		if ($forward) {
-			$fromURL = urldecode($this->fromURL);
-			$toURL = urldecode($this->toURL);
-			$fromAID = $this->fromAID;
-			$toAID = $this->toAID;
-			$fromLang = $this->fromLang;
-			$toLang = $this->toLang;
-		} else {
-			$fromURL = urldecode($this->toURL);
-			$toURL = urldecode($this->fromURL);
-			$toAID = $this->fromAID;
-			$fromAID = $this->toAID;
-			$fromLang = $this->toLang;
-			$toLang = $this->fromLang;
-		}
-
-		// Make sure we are adding a link between working URLs
-		if ($fromAID <= 0 || $toLang == NULL) {
-			return false;
-		}
-
-		// We can only add links for our language code
-		$langCode = RequestContext::getMain()->getLanguage()->getCode();
-		if ($langCode != $fromLang) {
-			return false;
-		}
-		$fromPage = Misc::fullUrlToPartial($fromURL);
-		$toPage = Misc::fullUrlToPartial($toURL);
-
-		$fromTitle = Title::newFromId($fromAID);
-		if ( !$fromTitle || !$fromTitle->exists() || $fromTitle->isRedirect() ) {
-			return false;
-		}
-		$r = Revision::newFromTitle($fromTitle);
-		if (!$r) {
-			return false;
-		}
-		$wikiPage = WikiPage::factory($fromTitle);
-		$text = ContentHandler::getContentText( $r->getContent() );
-		$linkText="[[" . $toLang . ":" . $toPage . "]]";
-		$linkTextRE="\[\[" . $toLang . ":(?:" . preg_quote($toPage,"/") . "|" . preg_quote(urlencode($toPage),"/") . ")\]\]";
-		$linkTextRE=str_replace("\-","[ -]",$linkTextRE);
-
-		// If other links to the same language, replace them all
-		if (preg_match_all("/\[\[" . $toLang . ":[^\]]+\]\]/",$text, $matches)) {
-			$ret['status'] = 2;
-			$ret['dup'] = $matches[0];
-			foreach ($matches[0] as $match) {
-				$text = preg_replace("@[\r\n]*" . preg_quote($match) . "@","",$text);
-				$text = str_replace($match,"",$text);
-			}
-			if (!$dryRun) {
-				$content = ContentHandler::makeContent($text, $fromTitle);
-				$wikiPage->doEditContent($content, wfMessage('removell-editsummary'));
-				self::writeLog(self::ACTION_INTERWIKI_DELETE, $fromLang, $r->getId(), $fromAID, $fromPage,$toLang,$toPage,$toAID,"interwiki");
-			}
-		}
-		return true;
-	}
-*/
 
 	/**
 	 * Gets all the links between two languages satisfying
@@ -705,21 +433,21 @@ class TranslationLink {
 	 * @param fromPageId The page id of the page to get links to/from
 	 * @param getTitles Get the titles associated with the links
 	 * @param timeOrder Order by time
-     */
+	 */
 	public static function getLinksTo($fromLang, $fromPageId, $getTitles = true, $indirectLinks = false, $timeOrder = false) {
 		$dbr = wfGetDB(DB_REPLICA);
 		$enTrLinkTable = WH_DATABASE_NAME_EN . '.translation_link';
-		$fromPageId = (int) $fromPageId;
+		$fromPageId = (int)$fromPageId;
 		$safeFromLang = $dbr->addQuotes($fromLang);
 
 		// TODO: convert this to Mediawiki Database interface
 		$sql = "
 		SELECT tl_from_lang, tl_from_aid, tl_to_lang, tl_to_aid, tl_translated, tl_timestamp
 		  FROM {$enTrLinkTable}
-		 WHERE (tl_from_lang = {$safeFromLang} AND tl_from_aid = {$fromPageId})
+		  WHERE (tl_from_lang = {$safeFromLang} AND tl_from_aid = {$fromPageId})
 		    OR (tl_to_lang   = {$safeFromLang} AND tl_to_aid   = {$fromPageId})";
 		if ($timeOrder) {
-			$sql .= " order by tl_timestamp asc";
+			$sql .= " ORDER BY tl_timestamp ASC";
 		}
 
 		$res = $dbr->query($sql, __METHOD__);
@@ -895,7 +623,3 @@ class TranslationLink {
 		return true;
 	}
 }
-
-/*******
- ALTER TABLE `translation_link` ADD COLUMN `tl_translated` tinyint default 1;
- ******/

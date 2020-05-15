@@ -59,7 +59,6 @@
 		addCategoryHandlers: function() {
 			$('.topcat').click(function() {
 				WH.QuizYourself.category = $(this).data('hyphenated');
-				WH.maEvent('quiz_yourself_categories_page_taps', { 'category': WH.QuizYourself.category });
 				WH.QuizYourself.loadQuiz();
 			});
 
@@ -71,13 +70,8 @@
 
 		addQuizHandlers: function() {
 			$('#quiz_categories').click($.proxy(function() {
-				WH.maEvent('quiz_yourself_backto_category_taps');
 				this.goToCategorySelect();
 			},this));
-
-			$('#quiz_article').click(function() {
-				WH.maEvent('quiz_yourself_article_tap', { 'article_id': $(this).data('id') });
-			});
 
 			$('.quiz_next').click(function() {
 				WH.QuizYourself.next(this);
@@ -126,8 +120,6 @@
 
 		next: function(obj) {
 			var article_id = $('#quiz_article').data('id');
-			var event_suffix = $(obj).parent().attr('id') == 'quiz_yourself_quiz_after' ? 'bottom' : 'top';
-			WH.maEvent('quiz_yourself_next_'+event_suffix, { 'article_id': article_id });
 
 			this.addTheSkip(article_id);
 			this.loadQuiz();
@@ -199,12 +191,6 @@
 
 			//mark as answered
 			$(question).addClass('answered');
-
-			WH.maEvent('quiz_yourself_answer_tap', {
-				'question': $(obj).data('quiz'),
-				'answer': $(obj).data('option') + 1,
-				'correct': $(obj).hasClass('correct') ? 'yes' : 'no'
-			});
 		},
 
 		hideSpinner: function() {

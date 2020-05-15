@@ -23,6 +23,9 @@ class AdminUnlinkSocial extends UnlistedSpecialPage {
 			return;
 		}
 
+		// Dev-only
+		// if ( $req->getText('mode') == 'nuke' && $user->getName() == 'Albur' ) { $this->apiUnlinkDev(); return; }
+
 		// Set the page title and load the JS and CSS files
 		$out->setPageTitle(wfMessage('unlinksocial-page-title')->text());
 		$out->addModules('ext.wikihow.adminunlinksocial.scripts');
@@ -93,4 +96,41 @@ class AdminUnlinkSocial extends UnlistedSpecialPage {
 		Misc::jsonResponse(['error' => $msg], 400);
 	}
 
+	// Dev-only (Alberto)
+// 	private function apiUnlinkDev() {
+// 		$dbr = wfGetDB(DB_REPLICA);
+// 		$query = <<<EOS
+// SELECT user_id, sa_type, user_name, user_email
+//   FROM wiki_shared.user
+//   JOIN wiki_shared.social_auth ON user_id = sa_wh_user_id
+//  WHERE user_email IN ('testuser.wh.6@gmail.com', 'testuser.wh.7@gmail.com');
+// EOS;
+// 		$rows = $dbr->query($query);
+// 		$lines = [];
+// 		foreach ($rows as $r) {
+// 			$whUserId = (int)$r->user_id;
+// 			$loginType = $r->sa_type;
+// 			$userName = $r->user_name;
+// 			$userEmail = $r->user_email;
+
+// 			$lines[] = "--- $userName ($whUserId) - $userEmail ";
+
+// 			$su = SocialUser::newFactory($loginType)::newFromWhId($whUserId);
+// 			if (!$su) {
+// 				$lines[] = " -> No $loginType account linked to WikiHow ID $whUserId";
+// 				continue;
+// 			}
+
+// 			if ($su->unlink()) {
+// 				$lines[] = " -> $loginType has been unlinked from the account\n";
+// 			} else {
+// 				$lines[] = " -> Unable to unlink account (wikiHow ID = $whUserId, $loginType ID = {$su->getExternalId()}\n";
+// 			}
+// 		}
+
+// 		RequestContext::getMain()->getRequest()->response()->header("Content-Type: text/plain");
+// 		RequestContext::getMain()->getOutput()->disable();
+
+// 		echo implode("\n", $lines);
+// 	}
 }

@@ -5,6 +5,8 @@
  */
 class StuLogger extends UnlistedSpecialPage {
 
+	public static $isIncluded = false;
+
 	public function __construct() {
 		parent::__construct('StuLogger');
 	}
@@ -31,10 +33,9 @@ class StuLogger extends UnlistedSpecialPage {
 	}
 
 	public static function getJavascriptPaths(&$paths) {
-		static $isIncluded = false;
-		if (!$isIncluded) {
+		if (!self::$isIncluded) {
 			$paths[] = __DIR__ . '/stu.compiled.js';
-			$isIncluded = true;
+			self::$isIncluded = true;
 		}
 	}
 

@@ -1,10 +1,12 @@
 <?php
-if ( ! defined( 'MEDIAWIKI' ) )
+
+if ( ! defined( 'MEDIAWIKI' ) ) {
     die();
+}
 
 $wgExtensionCredits['specialpage'][] = array(
     'name' => 'RolloutTool',
-    'author' => 'Gershon Bialer',
+    'author' => 'Gershon Bialer (wikiHow)',
     'description' => 'Shows when things are going to rollout',
 );
 

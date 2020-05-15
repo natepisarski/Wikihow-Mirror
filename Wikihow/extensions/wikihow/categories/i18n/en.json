@@ -13,5 +13,6 @@
 	"cat_covid_msg_text": "Complete with our signature step-by-step guides, wikiHow has created a free, helpful resource to empower you to speak with your child about COVID-19 and teach them healthy daily habits.",
 	"cat_covid_msg_more": "Learn more about this free resource from wikiHow",
 	"cat_reverse_order": "Reverse Order",
-	"cat_newpages_header": "New Articles about $1"
+	"cat_newpages_header": "New Articles about $1",
+	"cat_not_exists": "This category doesn't exist or doesn't have any articles in it."
 }

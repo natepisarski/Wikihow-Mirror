@@ -130,12 +130,10 @@ class WikihowUserPage extends Article {
 			//articles created
 			if ($checkStartedEdited) {
 				$createdData = $profileStats->fetchCreatedData(self::DEFAULT_DISPLAY_LIMIT);
-				$this->flagDeindexedArticles($createdData);
 				$out->addHTML($this->createdHTML($createdData, $stats['created'], self::DEFAULT_DISPLAY_LIMIT));
 
 				//thumbed up edits
 				$thumbsData = $profileStats->fetchThumbsData(self::DEFAULT_DISPLAY_LIMIT);
-				$this->flagDeindexedArticles($thumbsData);
 				$out->addHTML($this->thumbedHTML($thumbsData, $stats['thumbs_received'], self::DEFAULT_DISPLAY_LIMIT));
 			}
 
@@ -217,11 +215,9 @@ class WikihowUserPage extends Article {
 
 		if ($checkStartedEdited) {
 			$createdData = $profileStats->fetchCreatedData(self::DEFAULT_DISPLAY_LIMIT);
-			$this->flagDeindexedArticles($createdData);
 			$html .= $this->createdHTML($createdData, $stats['created'], self::DEFAULT_DISPLAY_LIMIT);
 
 			$thumbsData = $profileStats->fetchThumbsData(self::DEFAULT_DISPLAY_LIMIT);
-			$this->flagDeindexedArticles($thumbsData);
 			$html .= $this->thumbedHTML($thumbsData, $stats['thumbs_received'], self::DEFAULT_DISPLAY_LIMIT);
 		}
 
@@ -579,19 +575,6 @@ class WikihowUserPage extends Article {
 			$vars[$key] = wfMessage($key)->text();
 		}
 		return $vars;
-	}
-
-	/**
-	 * We don't want anons to see links to deindexed articles.
-	 */
-	private function flagDeindexedArticles(&$data) {
-		if (!$data || $this->getContext()->getUser()->isLoggedIn())
-			return;
-
-		foreach ($data as &$article) {
-			$title = Title::newFromID($article['page_id']);
-			$article['hide_link'] = !RobotPolicy::isTitleIndexable($title);
-		}
 	}
 
 	private function renderTemplate(String $template = '', Array $vars = []): string {

@@ -38,11 +38,6 @@
 
 		addAd: function(html, version) {
 			$('.steps:last').after(html);
-
-			//track those clicks
-			$(document).on('click', '#instagram_article_block', function() {
-				WH.maEvent('iphonetips_ig_ad_click', { 'version': version });
-			});
 		}
 	}
 

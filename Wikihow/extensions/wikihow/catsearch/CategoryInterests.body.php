@@ -339,6 +339,7 @@ class CategoryInterests extends UnlistedSpecialPage {
 	private static function suggestNewCategories($category) {
 		$limit = 6; //we only need 3, but we remove used ones in javascipt so let's grab more
 
+		$interests = [];
 		if ($category) {
 			$ary = array($category);
 			$interests = self::getSubCategoryInterests($ary);

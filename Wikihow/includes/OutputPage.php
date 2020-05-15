@@ -393,6 +393,7 @@ class OutputPage extends ContextSource {
 		$this->copyrightUrl = $url;
 	}
 
+	// wikihow, Bebeth, May 2020: added this to expose the status code
 	/**
 	 * Set the HTTP status code to send with the output.
 	 *
@@ -400,6 +401,10 @@ class OutputPage extends ContextSource {
 	 */
 	public function setStatusCode( $statusCode ) {
 		$this->mStatusCode = $statusCode;
+	}
+
+	public function getStatusCode( ) {
+		return $this->mStatusCode;
 	}
 
 	/**

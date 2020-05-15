@@ -10,18 +10,21 @@
 		font-family: inherit !important;
 		font-size: 0.9em !important;
 	}
+	#ip_label { margin-right: 3px; }
+	#reason_label { margin: 0 3px 0 10px; }
+	#submit_btn { margin-left: 10px; }
 </style>
 
 <h1>Bot Blocking IP Whitelist</h1>
 
 <p>
-- This tool allows us to unblock IP addresses so they can access wikiHow again.
+- This tool allows you to unblock IP addresses so they can access wikiHow again.
 <br>
-- Note that it can take up to 5 minutes for access to be restored after whitelisting an IP.
+- It can take up to 5 minutes for access to be restored after whitelisting an IP.
 <br>
-- If you are not sure what this tool does, or how to use it, please contact Alberto.
+- If you need help with this tool, please contact Alberto or Reuben.
 <br><br>
-Your IP address is <b>{{ipAddr}}</b>.</p>
+Your IP address is <b>{{ipAddr}}</b></p>
 <hr>
 
 <br>
@@ -29,10 +32,13 @@ Your IP address is <b>{{ipAddr}}</b>.</p>
 <form method="POST">
 	Enter an IP address (IPv4) to be whitelisted:
 	<br><br>
-	<input type="text" name="ipwl_addr" required>
+	<label id="ip_label">IP:</label>
+	<input type="text" name="ipwl_addr" required placeholder="0.0.0.0">
+	<label id="reason_label">Reason:</label>
+	<input type="text" name="ipwl_reason" required maxlength="255" placeholder="John Doe's address">
+	<button id="submit_btn" type="submit">Whitelist</button>
 	<input type='hidden' name='token' value='{{token}}'>
 	<input type='hidden' name='action' value='submit'>
-	<button type="submit">Whitelist</button>
 </form>
 
 {{{resultHtml}}}

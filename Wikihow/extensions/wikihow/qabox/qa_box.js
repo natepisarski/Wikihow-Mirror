@@ -16,7 +16,6 @@
 			this.loadInitialData();
 
 			$(document).on('click', '#qab_refresh', function() {
-				WH.whEvent(WH.QABox.EVENT_CAT, 'answer_box_refresh', '', '', WH.QABox.event_version);
 				WH.QABox.refreshData();
 			});
 
@@ -114,7 +113,6 @@
 								data,
 								function(result) {
 									if (!result.userBlocked) {
-										WH.whEvent(WH.QABox.EVENT_CAT, 'proposed_answer_submission', '', label, WH.QABox.event_version);
 										$.publish(WH.QABox.EVENT_PROPOSED_ANSWER_SUBMISSION);
 									}
 									WH.QABox.refreshData(id);
@@ -139,11 +137,6 @@
 			var validator = this.validator = new WH.StringValidator(config);
 			isValid = validator.validate(question);
 
-			if (!isValid) {
-				var rules = validator.getFailedRules();
-				WH.whEvent(WH.QABox.EVENT_CAT, 'proposed_answer_question_discarded', rules.join(","), question);
-			}
-
 			return isValid;
 		},
 
@@ -167,11 +160,6 @@
 
 			var validator = this.validator = new WH.StringValidator(config);
 			isValid = validator.validate(answer);
-
-			if (!isValid) {
-				var rules = validator.getFailedRules();
-				WH.whEvent(WH.QABox.EVENT_CAT, 'proposed_answer_discarded', rules.join(","), answer, WH.QABox.event_version);
-			}
 
 			return isValid;
 		}

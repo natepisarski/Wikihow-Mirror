@@ -11,13 +11,13 @@ if ( ! defined( 'MEDIAWIKI' ) )
  * @link http://www.mediawiki.org/wiki/Extension:FormatEmail Documentation
  *
  *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'FormatEmail',
-	'author' => 'Travis Derouin',
+	'author' => 'Travis Derouin (wikiHow)',
 	'description' => 'Allows custom headers/footers to be added to user to user emails.',
 	'url' => 'http://www.mediawiki.org/wiki/Extension:FormatEmail',
 );

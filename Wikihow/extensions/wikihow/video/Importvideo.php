@@ -6,8 +6,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'ImportVideo',
-	'author' => 'Travis <travis@wikihow.com>',
-	'description' => 'Provides a way to search and \'import\' videos  from various sources (Youtube, 5min.com, Howcast, Videojug, WonderHowTo) into the wiki',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => "Provides a way to search and 'import' videos from various sources (YouTube, etc) into the wiki",
 );
 
 $wgSpecialPages['ImportVideo'] = 'ImportVideo';

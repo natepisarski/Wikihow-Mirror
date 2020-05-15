@@ -133,7 +133,7 @@ class EventQueryTool extends UnlistedSpecialPage
 
 		// Assemble the CSV lines
 
-		$fname = "events." . implode('+', $events) . '.' . $dtA->format('ymd') . '-' . $dtB->format('ymd') . '.csv';
+		$fname = "events." . $dtA->format('ymd') . '-' . $dtB->format('ymd') . '.csv';
 		$fp = fopen( FileUtil::getPath($fname), 'w' );
 		fputcsv($fp, $headers);
 		foreach ($rows as $r) {

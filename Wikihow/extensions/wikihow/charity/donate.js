@@ -35,16 +35,9 @@
 					e.preventDefault();
 					WH.Donate.buttonResponseMessage();
 				}
-
-				WH.maEvent("donate_click", {
-					articleId: mw.config.get('wgArticleId'),
-					articleTitle: mw.config.get('wgTitle'),
-					charityImage: WH.Donate.donateImage()
-				}, false);
 			});
 
 			$(document).on("click", "#donate_close", function(){
-				WH.maEvent("donate_close", { articleId: mw.config.get('wgArticleId'), articleTitle: mw.config.get('wgTitle') }, false);
 				$(this).closest('.section').slideUp();
 				WH.Donate.markHideCharityPreference();
 				return false;

@@ -19,8 +19,8 @@ var WH = window['WH'];
 var countableView = WH['stuCount'],
 	pageLang = WH['pageLang'],
 	dev = !!(location.href.match(/\.wikidogs\.com/)),
-	exitTimerEnabled = (countableView && pageLang == 'en') || dev,
-	pingTimersEnabled = (location.href.match(/\.wikihow\.[a-z]+\//) && pageLang == 'en') || dev,
+	pingTimersEnabled = (location.href.match(/\.wikihow(-fun)?\.[a-z]+\//) && pageLang == 'en') || dev,
+	exitTimerEnabled = pingTimersEnabled,
 	startTime = false,
 	restartTime = false,
 	activeElapsed = 0,
@@ -69,7 +69,9 @@ var debugCallbackFunc = null,
 
 // Project LIA -- logging data on periodic visitors to the site so that we
 // can eventually offer to edit articles that might be in their interests.
-var timers = [{'t':1}, {'t':10}, {'t':20}, {'t':30}, {'t':45}, {'t':60}, {'t':90}, {'t':120}, {'t':180}, {'t':240}, {'t':300}, {'t':360}, {'t':420}, {'t':480}, {'t':540}, {'t':600} ];
+// We focus on pings around the 10s and 3m mark because mobile browsers don't
+// send exit pings, and 10s and 3m are special for those that analyze stu
+var timers = [{'t':1}, {'t':3}, {'t':5}, {'t':7}, {'t':9}, {'t':10}, {'t':12}, {'t':14}, {'t':16}, {'t':18}, {'t':20}, {'t':25}, {'t':30}, {'t':37}, {'t':45}, {'t':60}, {'t':90}, {'t':120}, {'t':150}, {'t':175}, {'t':180}, {'t':185}, {'t':210}, {'t':240}, {'t':300}, {'t':360}, {'t':420}, {'t':480}, {'t':540}, {'t':600}, {'t':800}, {'t':1000}, {'t':1200}, {'t':1500}, {'t':1800}, {'t':2100}, {'t':2400} ];
 
 function isMobileDomain() {
 	return !!(location.href.match(/\bm\./));
@@ -185,7 +187,7 @@ function collectExitTime() {
 	// no longer successfully emit "sychronous" (non-async) XHR requests. Changing
 	// to async above to see if the collection numbers get better again. Try with
 	// the last parameter "true" at some point:
-	//sendExitPing(DEFAULT_PRIORITY, domain, message, true);
+	sendExitPing(DEFAULT_PRIORITY, domain, message, true);
 	sendExitPing(DEFAULT_PRIORITY, domain, message, false);
 }
 
@@ -294,7 +296,7 @@ function start() {
 	//}
 
 	// If we are exit timing this page, set onUnload (and onBeforeUnload) event handlers
-	if (exitTimerEnabled || pingTimersEnabled) {
+	if (exitTimerEnabled) {
 		window.onunload = onUnload;
 		window.onbeforeunload = onUnload;
 	}

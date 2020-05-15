@@ -1,13 +1,13 @@
 <?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-    exit(1);
+	exit(1);
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'GenerateFeed',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Generates the RSS feed for the featured articles',
+	'name' => 'GenerateFeed',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'Generates the RSS feed for the featured articles',
 );
 
 $wgSpecialPages['GenerateFeed'] = 'GenerateFeed';

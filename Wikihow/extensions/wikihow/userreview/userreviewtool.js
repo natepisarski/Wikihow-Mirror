@@ -98,7 +98,6 @@
 				'json'
 
 			);
-			WH.whEvent(WH.UserReviewTool.eventCategory, 'review_tool_delete');
 			if ($(this).parents().hasClass("ur_curated")) {
 				WH.UserReviewTool.decreaseCurated();
 			} else {
@@ -121,7 +120,6 @@
 				'json'
 
 			);
-			WH.whEvent(WH.UserReviewTool.eventCategory, 'review_tool_approve');
 			$(this).parent().appendTo($("#ur_curated_list")).addClass("disabled ur_curated locked").removeClass("ur_submitted");
 			WH.UserReviewTool.increaseCurated();
 			WH.UserReviewTool.decreaseSubmitted();

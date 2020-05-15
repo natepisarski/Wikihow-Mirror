@@ -7,12 +7,16 @@ class WikihowMobileTools {
 	const IMG_LICENSE_MEMCACHED_KEY = 'img_licenses';
 
 	private static $referencesSection = null;
+	private static $isHtmlCompareTest = false;
 
 	static function onMobilePreRender($mobileTemplate) {
 		global $wgOut;
 
 		// only do this for article pages
 		if ($wgOut->isArticle()) {
+			if ( self::$isHtmlCompareTest ) {
+				self::doHtmlCompareTest( $mobileTemplate );
+			}
 			$mobileTemplate->data['bodytext'] = self::processDom( $mobileTemplate->data['bodytext'], $mobileTemplate->getSkin(), null, $mobileTemplate );
 		}
 
@@ -30,6 +34,7 @@ class WikihowMobileTools {
 			$config = self::getDefaultArticleConfig();
 		}
 		$doc = phpQuery::newDocument($text);
+
 		$docTitle = $skin->getRelevantTitle();
 
 		$amp =  GoogleAmp::isAmpMode( $skin->getOutput() );
@@ -670,9 +675,8 @@ class WikihowMobileTools {
 		// get the php querty document id because the references code changes it
 		// so ew can set it back later
 		$phpQueryDocumentId = $referencesSection->getDocumentID();
-		$referencesSectionHtml = self::getNewReferencesSection( $referencesSection );
+		$referencesSectionHtml = self::getFormattedReferencesSection( $referencesSection );
 		phpQuery::selectDocument($phpQueryDocumentId);
-		//$referencesSectionHtml = self::formatReferencesSection( $skin );
 		if ( $referencesSectionHtml ) {
 			if ( pq( "#aboutthisarticle" )->length > 0 ) {
 				pq( "#aboutthisarticle" )->before( $referencesSectionHtml );
@@ -869,8 +873,8 @@ class WikihowMobileTools {
 		// Check the YouTube videos
 		if ( pq( '.embedvideocontainer' )->length > 0 && WHVid::isYtSummaryArticle( $wgTitle ) ) {
 			wikihowToc::setSummaryVideo( true );
-			// Only consider adding schema on pages tagged with youtube_wikihow_videos
-			if ( ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS, $wgTitle->getArticleID() ) ) {
+			// Only consider adding schema on pages with the right admin tags
+			if ( Misc::isYouTubeSchemaEmbeddable( $wgTitle->getArticleID() ) ) {
 				// Add schema to all YouTube videos that are from our channel
 				foreach ( pq( '.embedvideo' ) as $video ) {
 					$src = pq( $video )->attr( 'data-src' );
@@ -1053,8 +1057,10 @@ class WikihowMobileTools {
 				continue;
 			}
 
-			// add microtime to handle the editor overlays so there aren't 2 images with the same id on the page
-			$thumb_id = md5( $img->getAttribute( "src" ) . microtime() );
+			$imgSrc = $img->getAttribute( "src" );
+
+			$thumb_id = HtmlElementIdMap::getElementId( $imgSrc );
+
 			$img->setAttribute( "id", $thumb_id );
 
 			// We include the local URL here as part of the hash ref for 2 reasons:
@@ -1094,6 +1100,7 @@ class WikihowMobileTools {
 			self::saveImageLicenses( $pageId, $imageLicenses );
 		}
 	}
+
 	// gets list of licences on this page from memcached since it is very expensive to recompute
 	// if not in memcached just return empty array and it will be recalculated later
 	private static function getImageLicenses( $pageId ) {
@@ -1657,82 +1664,6 @@ class WikihowMobileTools {
 		return self::$referencesSection;
 	}
 
-	private static function formatReferencesSection( $skin ) {
-		$sourcesSection = pq( self::getReferencesSection() )->clone();
-
-		pq( $sourcesSection )->find( '.section-heading' )->removeAttr( 'onclick' );
-		pq( $sourcesSection )->find( '.section_text' )->prepend( '<ol class="firstref references">' );
-
-		//open all links in new tabs
-		pq( $sourcesSection )->find('a')->attr('target','_blank');
-
-		// take out all li items and move them in to an ol
-		foreach ( pq( $sourcesSection )->find( 'li' ) as $listItem ) {
-			// clone the item so  we do not mess with the data in our list we are iterating over
-			$tempListItem = pq( $listItem )->clone();
-			// remove any sub lists from each item
-			pq( $tempListItem )->find( 'ol,ul' )->remove();
-
-			$text = pq( $tempListItem )->text();
-			// skip any empty items
-			if ( !trim( $text ) ) {
-				continue;
-			}
-			// if the item does not have a ref text class wrap it in a span with that class
-			if ( !pq( $tempListItem )->find( '.reference-text' )->length ) {
-				pq( $tempListItem )->wrapinner('<span class="reference-text">');
-			}
-			// add this to the new list of references which will replace the existing one
-			pq( $sourcesSection )->find( '.firstref.references' )->append( $tempListItem );
-		}
-
-		foreach ( pq( $sourcesSection )->find( '.section_text' )->children() as $child ) {
-			if ( pq( $child )->hasClass('firstref') ) {
-				continue;
-			}
-			pq( $child )->remove();
-		}
-
-		// add classes to the section so we can target it with css
-		// also remove any stray p tags
-		pq( $sourcesSection )->addClass( 'aidata' )->find('p')->remove();
-		pq( $sourcesSection )->addClass( 'sourcesandcitations' );
-
-		// change title of section if user is anon
-		if ( $skin->getUser()->isAnon()) {
-			pq( $sourcesSection )->find('.mw-headline')->text( wfMessage( 'references' )->text() );
-		}
-
-		$referencesFirst = pq( $sourcesSection )->clone();
-		pq( $referencesFirst )->find('div:first')->attr('id', 'references_first');
-		pq( $referencesFirst )->removeClass( 'aidata' );
-		pq( $referencesFirst )->find( 'li:gt(8)' )->remove();
-
-		pq( $sourcesSection )->find( 'li:lt(8)' )->remove();
-		pq( $sourcesSection )->find( 'h2' )->remove();
-		pq( $sourcesSection )->find( 'ol' )->attr('start', 10);
-		pq( $sourcesSection )->find('div:first')->attr('id', 'references_second');
-
-		// remove all ISBN links
-		foreach ( pq( $referencesFirst )->find( '.mw-magiclink-isbn' ) as $isbn ) {
-			$replaceText = pq( $isbn )->text();
-			pq( $isbn )->replaceWith( $replaceText );
-		}
-
-		$referencesHtml = $referencesFirst;
-
-		// create a show more link if needed
-		$moreCount = pq( $sourcesSection )->find( 'li' )->length;
-		if ( $moreCount > 0 ) {
-			$showMore = Html::element( 'a', ['id' => 'info_link', 'href' => '#aiinfo'], wfMessage('more_references', $moreCount)->text() );
-			$sectionText = Html::rawElement( 'div', ['id'=>'articleinfo', 'class'=>'section_text'], $showMore );
-			$articleInfoHtml = Html::rawElement( 'div', ['id' => 'aiinfo', 'class' => 'section articleinfo'], $sectionText );
-			$referencesHtml .= $articleInfoHtml . $sourcesSection;
-		}
-
-		return $referencesHtml;
-	}
-
 	private static function getReferencesListFromReferencesSection( $referencesText ) {
 		$result = [];
 
@@ -1744,6 +1675,11 @@ class WikihowMobileTools {
 
 			// remove any sub lists from each item
 			$tempListItem->find( 'ol,ul' )->remove();
+
+			foreach ( pq( $tempListItem )->find( '.mw-magiclink-isbn' ) as $isbn ) {
+				$replaceText = $isbn->textContent;
+				pq( $isbn )->replaceWith( $replaceText );
+			}
 
 			$text = $tempListItem->text();
 			// skip any empty items
@@ -1762,7 +1698,7 @@ class WikihowMobileTools {
 
 	// input: referencesSection - php query object which is the references section
 	// output: the html of the reformatted references section
-	private static function getNewReferencesSection( $referencesSection ) {
+	private static function getFormattedReferencesSection( $referencesSection ) {
 		$refsList = self::getReferencesListFromReferencesSection( $referencesSection->find( '.section_text' ) );
 		if ( !count( $refsList ) ) {
 			return '';
@@ -1809,21 +1745,45 @@ class WikihowMobileTools {
 		return $result;
 	}
 
-	// no currently used, but was used to help in refactoring the references section
-	// to make sure new and old output match, so it is kind of useful to keep around for
-	// future refactoring
-	private static function compareReferencesHtml( $skin ) {
-		// for testing the old vs new way of creating references
-		$referencesSection = pq( self::getReferencesSection() );
-		$old = self::formatReferencesSection( $skin );
-		$new = self::getNewReferencesSection( $referencesSection );
-		$old = str_replace(array("\n", "\r"), '', $old);
-		$new = str_replace(array("\n", "\r"), '', $new);
-		if ( $old != $new ) {
-			decho('old', $old);
-			decho('new', $new);
+	// for testing purposes only
+	static function doHtmlCompareTest( $mobileTemplate ) {
+		HtmlElementIdMap::resetElementIds();
+		$bodyText = self::processDom( $mobileTemplate->data['bodytext'], $mobileTemplate->getSkin(), null, $mobileTemplate );
+		// reset some things that cause ids or things to  change between two calls
+		StuLogger::$isIncluded = false;
+		HtmlElementIdMap::resetElementIds();
+		SocialStamp::resetStaticVarsForTesting();
+		$bodyTextOld = self::processDomOld( $mobileTemplate->data['bodytext'], $mobileTemplate->getSkin(), null, $mobileTemplate );
+		//$bodyTextNew = self::processDom( $mobileTemplate->data['bodytext'], $mobileTemplate->getSkin(), null, $mobileTemplate );
+
+		self::compareForTesting( $bodyTextOld, $bodyText );
+	}
+
+	static function compareForTesting( $a, $b ) {
+		global $wgTitle, $wgRequest;
+		if ( $a == $b ) {
+			//echo("match\n");
+			exit;
+		}
+		echo("nomatch for $wgTitle\n");
+		$separator = "\n";
+		$a = explode( $separator, $a);
+		$b = explode( $separator, $b);
+
+		for ($i = 0; $i < count($a); $i++) {
+			$lineA = $a[$i];
+			$lineB = $b[$i];
+			if ( $lineA == $lineB ) {
+				continue;
+			}
+			decho("not matching i", $i, false);
+			decho("lineA", $lineA);
+			decho("lineB", $lineB);
+			if ( $wgRequest->getInt( 'testshowmore' )  == 1 ) {
+				decho("A", $a);
+				decho("B", $b);
+			}
 			exit;
 		}
 	}
-
 }

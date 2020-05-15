@@ -10,13 +10,13 @@ if ( ! defined( 'MEDIAWIKI' ) )
  * @link http://www.wikihow.com/WikiHow:BunchPatrol-Extension Documentation
  *
  *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 $wgExtensionCredits['special'][] = array(
 	'name' => 'BunchPatrol',
-	'author' => 'Travis Derouin',
+	'author' => 'Travis Derouin (wikiHow)',
 	'description' => 'Bunches many edits of a user together, so they can be patrolled all at once',
 );
 

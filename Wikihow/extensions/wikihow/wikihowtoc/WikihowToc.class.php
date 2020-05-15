@@ -110,6 +110,9 @@ class WikihowToc {
 		if ($refCount > 0) {
 			$refTarget = Misc::getReferencesID();
 			self::$references = ['url' => $refTarget, 'id' => 'toc_ref', 'text' => wfMessage("references_toc")->text(), 'section' => $refTarget];
+			if ( !phpQuery::$defaultDocumentID )  {
+				return;
+			}
 			if ( pq('#toc_ref')->length ) {
 				pq('#toc_ref')->attr('href', $refTarget);
 			}
@@ -288,7 +291,9 @@ class WikihowToc {
 				}
 			}
 			if (self::$references != null) {
-				self::$references['class'] .= $tocPost;
+				if ( !strstr( self::$references['class'], $tocPost ) ) {
+					self::$references['class'] .= $tocPost;
+				}
 				if ($count < $secondaryShown) {
 					$count++;
 				} else {

@@ -531,7 +531,8 @@ class RobotPolicy {
 		$fields = 'tl_title';
 		$maybeBadTemplates = [ 'Speedy','Stub','Copyvio',
 			'Copyviobot','Copyedit','Cleanup','Notifiedcopyviobot',
-			'CopyvioNotified','Notifiedcopyvio','Format','Nfd','Inuse' ];
+			'CopyvioNotified','Notifiedcopyvio','Format','Nfd','Inuse',
+			'Accuracy' ];
 		$where = [
 			'tl_from' => $this->title->getArticleID(),
 			'tl_title' => $maybeBadTemplates,
@@ -548,6 +549,17 @@ class RobotPolicy {
 			if ($this->wikiPage->getCount() < 10000) return true;
 			unset( $templates['Nfd'] );
 		}
+
+		// De-index articles with accuracy template if they have less than 250 views in a month.
+		if ( isset( $templates['Accuracy'] ) ) {
+			$titusData = PageStats::getTitusData( $this->title->getArticleID() );
+			$views30Day = $titusData->ti_30day_views_unique;
+			if ( $views30Day < 250 ) {
+				return true;
+			}
+			unset( $templates['Accuracy'] );
+		}
+
 		// Checks to see if the article is "In use" AND has little or no content.
 		// If so, it is de-indexed.
 		if ($templates['Inuse'] ?? '') {

@@ -19,10 +19,6 @@
 				this.swapActionIcon();
 			},this));
 
-			$('#hs form').submit($.proxy(function() {
-				WH.maEvent( 'mobile_search_submit_test', { isTablet: !this.isNotTablet, language: mw.config.get('wgContentLanguage') } );
-			},this));
-
 			//sync up the notifications click with the extra padding we give it
 			$('#secondary-button.user-button').click(function() {
 				$('#hs').removeClass('hs_notif');
@@ -38,8 +34,6 @@
 					$('#hs_query').focus();
 					this.allowClickClose();
 				},this));
-
-				WH.maEvent( 'mobile_search_open_test', { isTablet: !this.isNotTablet, language: mw.config.get('wgContentLanguage') } );
 			}
 		},
 

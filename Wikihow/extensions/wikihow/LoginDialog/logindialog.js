@@ -4,6 +4,7 @@ function LoginDialog( config ) {
 	// Configuration
 	config = config || {};
 	config.size = 'large';
+	this.mode = null;
 
 	// Inheritance
 	LoginDialog.super.call( this, config );
@@ -26,10 +27,26 @@ function LoginDialog( config ) {
 		id: 'wpPassword1',
 		type: 'password'
 	} );
+	this.newPasswordInput = new OO.ui.TextInputWidget( {
+		placeholder: mw.message( 'userlogin-yourpassword-ph' ).text(),
+		name: 'new-password',
+		type: 'password'
+	} );
+	this.confirmPasswordInput = new OO.ui.TextInputWidget( {
+		placeholder: mw.message( 'retypenew' ).text(),
+		name: 'retype-password',
+		type: 'password'
+	} );
 	this.rememberInput = new OO.ui.CheckboxInputWidget( { 'selected': true } );
 	this.loginButton = new OO.ui.ButtonInputWidget( {
 		id: 'loginDialog-loginButton',
 		label: mw.message( 'pt-login-button' ).text(),
+		flags: [ 'primary', 'progressive' ],
+		type: 'submit'
+	} );
+	this.continueLoginButton = new OO.ui.ButtonInputWidget( {
+		id: 'loginDialog-continueLoginButton',
+		label: mw.message( 'pt-login-continue-button' ).text(),
 		flags: [ 'primary', 'progressive' ],
 		type: 'submit'
 	} );
@@ -54,25 +71,25 @@ function LoginDialog( config ) {
 		label: mw.message( 'ulb-btn-civic' ).text()
 	} );
 
-	this.fieldset = new OO.ui.FieldsetLayout( {
-		id: 'loginDialog-fieldset',
+	this.loginFieldset = new OO.ui.FieldsetLayout( {
+		id: 'loginDialog-loginFieldset',
 		items: [
-			new OO.ui.FieldLayout( this.usernameInput, {
-				align: 'top'
-			} ),
-			new OO.ui.FieldLayout( this.passwordInput, {
-				align: 'top'
-			} ),
+			new OO.ui.FieldLayout( this.usernameInput, { align: 'top' } ),
+			new OO.ui.FieldLayout( this.passwordInput, { align: 'top' } ),
 			new OO.ui.FieldLayout( this.rememberInput, {
 				label: mw.message( 'rememberme' ).text(),
 				align: 'inline',
 			} ),
-			new OO.ui.FieldLayout( this.loginButton, {
-				align: 'top'
-			} ),
-			new OO.ui.FieldLayout( this.forgotPasswordButton, {
-				align: 'top'
-			} )
+			new OO.ui.FieldLayout( this.loginButton, { align: 'top' } ),
+			new OO.ui.FieldLayout( this.forgotPasswordButton, { align: 'top' } )
+		]
+	} );
+	this.resetPasswordFieldset = new OO.ui.FieldsetLayout( {
+		id: 'loginDialog-resetPasswordFieldset',
+		items: [
+			new OO.ui.FieldLayout( this.newPasswordInput, { align: 'top' } ),
+			new OO.ui.FieldLayout( this.confirmPasswordInput, { align: 'top' } ),
+			new OO.ui.FieldLayout( this.continueLoginButton, { align: 'top' } ),
 		]
 	} );
 
@@ -94,7 +111,9 @@ function LoginDialog( config ) {
 	} );
 	this.formLayout = new OO.ui.FormLayout( {
 		id: 'loginDialog-form',
-		$content: this.errorLabel.$element.add( this.fieldset.$element ),
+		$content: this.errorLabel.$element
+			.add( this.loginFieldset.$element )
+			.add( this.resetPasswordFieldset.$element ),
 		expanded: false
 	} );
 
@@ -103,6 +122,7 @@ function LoginDialog( config ) {
 	} );
 
 	this.loginButton.connect( this, { click: 'onLoginClick' } );
+	this.continueLoginButton.connect( this, { click: 'onContinueLoginClick' } );
 }
 
 /* Setup */
@@ -130,6 +150,21 @@ LoginDialog.static.actions = [
 
 /* Methods */
 
+LoginDialog.prototype.setMode = function( mode ) {
+	if ( this.mode !== mode ) {
+		if ( mode === 'login' ) {
+			this.loginFieldset.$element.show();
+			this.resetPasswordFieldset.$element.hide();
+		} else if ( mode === 'reset-password' ) {
+			this.loginFieldset.$element.hide();
+			this.resetPasswordFieldset.$element.show();
+		} else {
+			return;
+		}
+		this.mode = mode;
+	}
+};
+
 LoginDialog.prototype.initialize = function () {
 	LoginDialog.super.prototype.initialize.apply( this, arguments );
 	// Init
@@ -147,6 +182,17 @@ LoginDialog.prototype.initialize = function () {
 
 LoginDialog.prototype.onLoginClick = function ( event ) {
 	this.executeAction( 'login' );
+};
+
+LoginDialog.prototype.onContinueLoginClick = function ( event ) {
+	this.executeAction( 'continue-login' );
+};
+
+LoginDialog.prototype.getSetupProcess = function ( data ) {
+	return LoginDialog.super.prototype.getSetupProcess.call( this, data )
+		.next( function () {
+			this.setMode( 'login' );
+		}, this );
 };
 
 LoginDialog.prototype.getReadyProcess = function ( data ) {
@@ -190,7 +236,7 @@ LoginDialog.prototype.getActionProcess = function ( action ) {
 			return $.Deferred().promise();
 		} );
 	} else if (
-		action === 'login' &&
+		( action === 'login' || action === 'continue-login' ) &&
 		dialog.usernameInput.getValue() !== '' &&
 		dialog.passwordInput.getValue() !== ''
 	) {
@@ -201,15 +247,22 @@ LoginDialog.prototype.getActionProcess = function ( action ) {
 			return api.getToken( 'login' ).then(
 				function ( token ) {
 					// Action:token success
-					return api.post( {
+					var data = {
 						action: 'clientlogin',
 						loginmessageformat: 'html',
 						logintoken: token,
 						loginreturnurl: returnUrl,
 						username: dialog.usernameInput.getValue(),
 						password: dialog.passwordInput.getValue(),
-						rememberMe: dialog.rememberInput.isSelected() ? 1 : '',
-					} );
+						rememberMe: dialog.rememberInput.isSelected() ? 1 : ''
+					};
+					if ( action === 'continue-login' && dialog.mode === 'reset-password' ) {
+						data.loginpreservestate = true;
+						data.password = dialog.newPasswordInput.getValue();
+						data.retype = dialog.confirmPasswordInput.getValue();
+						data.logincontinue = true;
+					}
+					return api.post( data );
 				},
 				function ( data ) {
 					// Action:token failure
@@ -230,8 +283,21 @@ LoginDialog.prototype.getActionProcess = function ( action ) {
 						// console.log( '!PASS', data );
 						dialog.errorLabel.setLabel( $( '<span>' + data.clientlogin.message + '</span>' ) );
 						dialog.errorLabel.setInvisibleLabel( false );
-						dialog.updateSize();
+						if (
+							data.clientlogin &&
+							data.clientlogin.status === 'UI' &&
+							data.clientlogin.requests &&
+							data.clientlogin.requests[0] &&
+							data.clientlogin.requests[0].fields &&
+							data.clientlogin.requests[0].fields.password &&
+							data.clientlogin.requests[0].fields.retype
+						) {
+							dialog.setMode( 'reset-password' );
+						} else {
+							dialog.setMode( 'login' );
+						}
 						disableForm( false );
+						dialog.updateSize();
 					}
 				},
 				function ( data ) {

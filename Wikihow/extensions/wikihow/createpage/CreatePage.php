@@ -9,13 +9,13 @@ if ( !defined( 'MEDIAWIKI' ) ) exit(1);
  * @package MediaWiki
  * @subpackage Extensions
  *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'CreatePage',
-	'author' => 'Travis Derouin',
+	'author' => 'wikiHow',
 	'description' => 'Provides a basic way entering a title and searching for potential duplicate articles before creating a page',
 );
 

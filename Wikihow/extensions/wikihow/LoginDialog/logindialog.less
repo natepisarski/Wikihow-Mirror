@@ -57,9 +57,9 @@
 #loginDialog-or {
 	position: absolute;
 	top: 50%;
-	right: -1em;
+	right: -2em;
 	margin-top: -1.25em;
-	width: 2em;
+	width: 4em;
 	height: 2em;
 	color: #b1b1b1;
 	background-color: white;
@@ -92,7 +92,12 @@
 	}
 }
 
+#loginDialog fieldset {
+	margin-top: 0;
+}
+
 #loginDialog-loginButton,
+#loginDialog-continueLoginButton,
 #loginDialog-facebookButton,
 #loginDialog-googleButton,
 #loginDialog-civicButton {
@@ -108,37 +113,55 @@
 	margin-bottom: 0.75em;
 }
 
-#loginDialog-loginButton {
+#loginDialog-loginButton,
+#loginDialog-continueLoginButton {
 	margin-bottom: 0;
 }
 
+#loginDialog-socialButtons .oo-ui-buttonElement-button .oo-ui-iconElement-icon {
+	display: block;
+	position: absolute;
+	top: 2px;
+	left: 4px;
+	height: 40px;
+	width: 40px;
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
 #loginDialog-facebookButton .oo-ui-buttonElement-button {
-	background: #365494 url(/extensions/wikihow/userloginbox/images/ulb_facebook.png) 4px center / 40px no-repeat;
+	background-color: #365494;
 	border: solid 1px #365494;
-	/* @embed */
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
 	&:hover {
 		background-color: #304B84;
+	}
+	.oo-ui-iconElement-icon {
+		/* @embed */
+		background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
 	}
 }
 
 #loginDialog-googleButton .oo-ui-buttonElement-button {
-	background: #3F82F7 url(/extensions/wikihow/userloginbox/images/ulb_google.png) 4px center / 40px no-repeat;
+	background-color: #3F82F7;
 	border: solid 1px #3F82F7;
-	/* @embed */
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
 	&:hover {
 		background-color: #3874DC;
+	}
+	.oo-ui-iconElement-icon {
+		/* @embed */
+		background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
 	}
 }
 
 #loginDialog-civicButton .oo-ui-buttonElement-button {
-	background: #AAAAAA url(/extensions/wikihow/userloginbox/images/ulb_civic.png) 4px center / 40px no-repeat;
+	background-color: #AAAAAA;
 	border: solid 1px #AAAAAA;
-	/* @embed */
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
 	&:hover {
 		background-color: #979797;
+	}
+	.oo-ui-iconElement-icon {
+		/* @embed */
+		background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
 	}
 }
 

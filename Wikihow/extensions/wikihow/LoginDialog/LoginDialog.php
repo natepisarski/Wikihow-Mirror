@@ -27,6 +27,8 @@ $wgResourceModules[ 'ext.wikihow.loginDialog' ] = [
 		'userlogin-yourpassword-ph',
 		'rememberme',
 		'pt-login-button',
+		'pt-login-continue-button',
+		'retypenew',
 		'loginor',
 		'userlogin-resetpassword-link',
 		'log_in_via',

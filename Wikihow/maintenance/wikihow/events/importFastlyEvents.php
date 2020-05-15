@@ -32,6 +32,8 @@ The format is 3 quoted strings, it looks like:
 
 class ImportFastlyEvents extends Maintenance {
 
+	private $errors = [];
+
 	public function __construct() {
 		parent::__construct();
 		$this->addOption( 'dry-run', "Do not update the database" );
@@ -63,7 +65,7 @@ class ImportFastlyEvents extends Maintenance {
 			return;
 		}
 		$eventsFile = $this->downloadLogs($newLogs);
-		$events = ( new LogParser() )->parseEvents($eventsFile);
+		$events = $this->parseEvents($eventsFile);
 		if ($events) {
 			$this->insertEventsInDB($events);
 		}
@@ -131,6 +133,64 @@ class ImportFastlyEvents extends Maintenance {
 		return $outfile;
 	}
 
+	private function parseEvents(string $logFile): array {
+		echo "--- Parsing events from: $logFile\n";
+
+		$handle = fopen( $logFile, "r" );
+		if ( ! $handle ) {
+			echo "--- Error opening file $logFile\n";
+			return [];
+		}
+
+		$tz = new DateTimeZone('America/Los_Angeles');
+		$events = [];
+		while ( ( $row = fgetcsv( $handle, 0, ' ' ) ) ) {
+
+			// Validate the event origin and referrer URLs
+			$eventUrl = 'https://' . $row[1];
+			$referUrl = $row[2];
+			$urlParts = EventHelper::validateEventUrls($eventUrl, $referUrl);
+			if ( is_string($urlParts) ) {
+				$this->reportError($row, $urlParts);
+				continue;
+			}
+
+			// Validate the event parameters
+			$params = [];
+			parse_str( $urlParts['query'], $params );
+			if ( in_array($params['action'] ?? '', ['svideoview', 'svideoplay'] ) ) { continue; } // TODO: remove this temporary safeguard (at some point)
+			$eventConf = EventHelper::validateEventConfig($params);
+			if ( is_string($eventConf) ) {
+				$this->reportError($row, $eventConf);
+				continue;
+			}
+
+			// Parse the event date
+			$dateTime = DateTime::createFromFormat( DateTime::RFC1123, $row[0] )->setTimezone($tz);
+			$dateString = $dateTime->format( 'Y-m-d H:i:s' );
+
+			// Build the event row
+			$events[] = EventHelper::makeDBRow($dateString, $urlParts, $eventConf);
+		}
+
+		fclose($handle);
+
+		// Print out error summary
+		foreach ($this->errors as $type => $count) {
+			echo "--- parsing errors - $type: $count\n";
+		}
+
+		return $events;
+	}
+	private function reportError(array $row, string $type) {
+		if ( !isset( $this->errors[$type] ) ) {
+			$this->errors[$type] = 0;
+		}
+		$this->errors[$type]++;
+		$vals = array_map( function($v) { return urldecode($v); }, $row );
+		echo "-- EVENT_ERROR - $type: " . implode(' ', $vals) . "\n";
+	}
+
 	private function insertEventsInDB(array $events) {
 		$dryRun = $this->hasOption( 'dry-run' );
 		$total = count($events);
@@ -176,200 +236,5 @@ class ImportFastlyEvents extends Maintenance {
 	}
 }
 
-class LogParser {
-
-	private $errors = [];
-
-	private static $validDomains = [
-		'www.wikihow-fun.com' => true,
-		'www.wikihow.com' => true,
-		'www.wikihow.fitness' => true,
-		'www.wikihow.health' => true,
-		'www.wikihow.legal' => true,
-		'www.wikihow.life' => true,
-		'www.wikihow.mom' => true,
-		'www.wikihow.pet' => true,
-		'www.wikihow.tech' => true,
-		'ar.wikihow.com' => true,
-		'www.wikihow.cz' => true,
-		'de.wikihow.com' => true,
-		'es.wikihow.com' => true,
-		'fr.wikihow.com' => true,
-		'hi.wikihow.com' => true,
-		'id.wikihow.com' => true,
-		'www.wikihow.it' => true,
-		'www.wikihow.jp' => true,
-		'ko.wikihow.com' => true,
-		'nl.wikihow.com' => true,
-		'pt.wikihow.com' => true,
-		'ru.wikihow.com' => true,
-		'th.wikihow.com' => true,
-		'www.wikihow.com.tr' => true,
-		'www.wikihow.vn' => true,
-		'zh.wikihow.com' => true,
-	];
-
-	private static function isValidDomain(?string $domain): bool {
-		return $domain && isset( self::$validDomains[$domain] );
-	}
-
-	private function parseInt(string $v): int {
-		if ( $v !== (string)(int)$v ) {
-			return -1; // indicates that the string didn't contain an integer
-		}
-		return (int)$v;
-	}
-
-	private function reportError(array $row, string $type) {
-		if ( !isset( $this->errors[$type] ) ) {
-			$this->errors[$type] = 0;
-		}
-		$this->errors[$type]++;
-		$vals = array_map( function($v) { return urldecode($v); }, $row );
-		echo "-- EVENT_ERROR - $type: " . implode(' ', $vals) . "\n";
-	}
-
-	public function parseEvents(string $logFile): array {
-		echo "--- Parsing events from: $logFile\n";
-
-		$handle = fopen( $logFile, "r" );
-		if ( ! $handle ) {
-			echo "--- Error opening file $logFile\n";
-			return [];
-		}
-
-		$tz = new DateTimeZone('America/Los_Angeles');
-		$events = [];
-		while ( ( $row = fgetcsv( $handle, 0, ' ' ) ) ) {
-
-			// Parse and validate the event URL
-			$eventUrl = parse_url( 'https://' . urldecode( $row[1] ) );
-			if ( !$eventUrl || !isset($eventUrl['path']) || !$this->isValidDomain($eventUrl['host'] ?? null) ) {
-				$this->reportError($row, 'event_url');
-				continue;
-			}
-
-			// Parse and validate the referrer URL
-			$referUrl = parse_url( urldecode( $row[2] ) );
-			if ( !$referUrl || !isset($referUrl['path']) || !$this->isValidDomain($referUrl['host'] ?? null) ) {
-				$this->reportError($row, 'referrer_url');
-				continue;
-			}
-
-			if ( $eventUrl['host'] != $referUrl['host'] ) {
-				$this->reportError($row, 'domain_mismatch');
-				continue;
-			}
-
-			// Verify that all required parameters are present in the query string
-			parse_str( $eventUrl['query'], $params );
-			if ( in_array($params['action'] ?? '', ['svideoview', 'svideoplay'] ) ) { continue; } // TODO: remove this temporary safeguard
-			if ( !isset($params['page']) || !isset($params['action']) || !isset($params['screen']) ) {
-				$this->reportError($row, 'params');
-				continue;
-			}
-
-			// Validate page param
-			$pageId = $this->parseInt($params['page']);
-			if ( $pageId == -1 ) {
-				$this->reportError($row, 'page');
-				continue;
-			}
-
-			// Validate action param
-			$action = $params['action'];
-			$config = EventConfig::EVENTS[$action] ?? null;
-			if ( !$config ) {
-				$this->reportError($row, 'action');
-				continue;
-			}
-
-			// Validate screen param
-			$screenSize = $params['screen'];
-			if ( !in_array($screenSize, ['small','medium','large']) ) {
-				$this->reportError($row, 'screen');
-				continue;
-			}
-
-			// Parse the event date
-			$dateTime = DateTime::createFromFormat( DateTime::RFC1123, $row[0] )->setTimezone($tz);
-			$dateString = $dateTime->format( 'Y-m-d H:i:s' );
-
-			// Parse event-specific params
-			$extraParams = $config[1];
-			$cleanParams = [];
-			foreach ($extraParams as $paramName) {
-				$cleanParams[$paramName] = isset($params[$paramName])
-					? substr($params[$paramName], 0, 500) // limit length to prevent abuse
-					: null;
-			}
-
-			// Build the event row
-			$events[] = [
-				'el_page_id' => $pageId,
-				'el_domain' => $referUrl['host'],
-				'el_path' => urldecode($referUrl['path']),
-				'el_screen' => $screenSize,
-				'el_date' => $dateString,
-				'el_action' => $action,
-				'el_count' => 1,
-				'el_params' => json_encode($cleanParams),
-			];
-		}
-
-		fclose($handle);
-
-		// Print out error summary
-		foreach ($this->errors as $type => $count) {
-			echo "--- parsing errors - $type: $count\n";
-		}
-
-		return $events;
-	}
-}
-
 $maintClass = "ImportFastlyEvents";
 require_once( RUN_MAINTENANCE_IF_MAIN );
-
-
-/* Code to track legacy video counters
-
-	protected static $counters = [ 'svideoplay', 'svideoview' ];
-	// ...
-		$counters = [];
-	// ...
-			$isCounter = in_array($action, self::$counters);
-			if ( $isCounter ) {
-				// Build list of row insertions, summing counts for duplicate domain/pageID/action
-				$key = "{$domain} {$pageId} {$action}";
-				if ( !isset( $counters[$key] ) ) {
-					$counters[$key] = [
-						'el_domain' => $domain,
-						'el_screen' => $screenSize,
-						'el_page_id' => $pageId,
-						'el_action' => $action,
-						'el_count' => 1,
-						'el_date' => $dateString,
-					];
-				} else {
-					$counters[$key]['el_count']++;
-					if ( $dateString > $counters[$key]['el_date'] ) {
-						$counters[$key]['el_date'] = $dateString;
-					}
-				}
-			} else {
-				// ...
-			}
-	// ...
-		decho( 'inserting', count( $counters ) . ' counters', false );
-		foreach ( $counters as $key => $event ) {
-			if ($dryRun) {
-				echo "$key | " . implode(', ', $event) . "\n";
-			} else {
-				$res = $dbw->insert( 'event_log', $event, __METHOD__ );
-				if ( $res !== true ) {
-					$errors++;
-				}
-			}
-		}
-*/

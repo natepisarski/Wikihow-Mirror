@@ -16,6 +16,13 @@ class SocialStamp {
 	const ENHANCED_BYLINE_ARTICLE_TAG = 'enhanced_byline_test';
 	const ENHANCED_BYLINE_EXPERTS_TAG = 'enhanced_byline_experts';
 
+	// for testing - allows us to run processDom multiple times with same result
+	public static function resetStaticVarsForTesting() {
+		//self::$byLineHtml = "";
+		//self::$hoverText = "";
+		self::$authorInfoText = "";
+	}
+
 	public static function addDesktopByline($out) {
 		if (!self::isEligibleForByline()) return;
 

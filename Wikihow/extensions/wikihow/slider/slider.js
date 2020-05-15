@@ -77,10 +77,9 @@
 		var ua = navigator.userAgent.toLowerCase(); // get client browser info
 		var m = ua.match(/msie (\d+)\./);
 		var msieVer = (m ? Number.parseInt(m[1],10) : false);
-		var isiPhone = ua.indexOf('iphone');
 
 		var oldMSIE = msieVer && msieVer <= 7;
-		if ($('#slideshowdetect').length && typeof WH.WHSlider == 'object' && !mw.cookie.get(WH.WHSlider.cookieName) && isiPhone < 0 && !oldMSIE) {
+		if ($('#slideshowdetect').length && typeof WH.WHSlider == 'object' && !mw.cookie.get(WH.WHSlider.cookieName) && !oldMSIE) {
 
 			if ($('#slideshowdetect_mainpage').length) {
 				//homepage
@@ -99,11 +98,20 @@
 				//article page
 				$(window).bind('scroll', function(){
 					if  (!mw.cookie.get(WH.WHSlider.cookieName)) {
-						if (WH.isPageScrolledToWarningsORArticleInfo() && $('#sliderbox').css('right') == '-500px' && !$('#sliderbox').is(':animated')) {
-							WH.WHSlider.openSlider();
-						}
-						if (!WH.isPageScrolledToWarningsORArticleInfo() && $('#sliderbox').css('right') == '0px' && !$('#sliderbox').is(':animated')) {
-							WH.WHSlider.closeSlider();
+						if ($(window).width() < WH.mediumScreenMinWidth) {
+							if (WH.isPageScrolledToSmallTrigger() && $('#sliderbox').css('right') == '-500px' && !$('#sliderbox').is(':animated')) {
+								WH.WHSlider.openSlider();
+							}
+							if (!WH.isPageScrolledToSmallTrigger() && $('#sliderbox').css('right') == '0px' && !$('#sliderbox').is(':animated')) {
+								WH.WHSlider.closeSlider();
+							}
+						} else {
+							if (WH.isPageScrolledToWarningsORArticleInfo() && $('#sliderbox').css('right') == '-500px' && !$('#sliderbox').is(':animated')) {
+								WH.WHSlider.openSlider();
+							}
+							if (!WH.isPageScrolledToWarningsORArticleInfo() && $('#sliderbox').css('right') == '0px' && !$('#sliderbox').is(':animated')) {
+								WH.WHSlider.closeSlider();
+							}
 						}
 					}
 				});
@@ -111,7 +119,8 @@
 		}
 	}
 
-	if ($(window).width() >= WH.mediumScreenMinWidth) {
+	var showSlider = ($(window).width() >= WH.mediumScreenMinWidth) || Math.random() < .1;
+	if (showSlider) {
 		WH.WHSlider.init();
 
 		mw.loader.using( 'mediawiki.cookie', function() {

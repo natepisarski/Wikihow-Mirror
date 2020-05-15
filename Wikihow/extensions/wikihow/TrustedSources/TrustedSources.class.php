@@ -70,6 +70,7 @@ class TrustedSources {
 	public static function markTrustedSources($articleId) {
 		$out = RequestContext::getMain()->getOutput();
 		$isAmp = GoogleAmp::isAmpMode($out);
+		$isIntl = RequestContext::getMain()->getLanguage()->getCode() != "en";
 
 		$loader = new Mustache_Loader_CascadingLoader([
 			new Mustache_Loader_FilesystemLoader(__DIR__.'/templates')
@@ -81,6 +82,8 @@ class TrustedSources {
 		//first grab all the links in the article
 		foreach(pq(".reference") as $reference) {
 			$vars = [];
+			unset($url);
+			$hideBlurb = false;
 			$link = pq("a", $reference);
 			$note = $link->attr("href");
 			if(pq($note)->parents('#references_second')->length > 0) {
@@ -88,7 +91,82 @@ class TrustedSources {
 			}
 			$num = substr($link->text(), 1, -1);
 			$bottomReference = pq($note);
-			$url = pq(".reference-text a", $bottomReference)->attr("href");
+			$referenceTextObject =  pq(".reference-text", $bottomReference);
+
+			if(pq("a", $referenceTextObject)->length > 0) {
+				//has a link, so use it.
+				$url = pq("a", $referenceTextObject)->attr("href");
+
+			} else {
+				$referenceText = $referenceTextObject->html();
+				//now check the text to see if it's trusted
+				$count = preg_match_all('@\[(v[0-9]*_b[0-9]*)\].*@', $referenceText, $matches);
+				if($count !== false && $count > 0) {
+					$blurbId = $matches[1][0];
+					$verifierId = substr($blurbId, 1, strpos($blurbId, "_")-1);
+					$vdata = VerifyData::getInfobyBlurbId($blurbId);
+					if(is_null($vdata) && $isIntl) {
+						$data = VerifyData::getVerifierInfoById($verifierId);
+						if(is_array($data)) {
+							$vdata = null;
+						} else {
+							$vdata = $data;
+							$hideBlurb = true;
+
+						}
+					}
+					if(!is_null($vdata)) {
+						//we've found info!
+						$vars['trustedclass'] = 'trustedsource';
+						pq($reference)->addClass("trusted");
+
+						//now replace the text with the actual name
+						$interview = wfMessage("ts_interview")->text();
+						$hoverText = str_replace("[{$blurbId}].", "{$interview}. ", $referenceText);
+						$vars['ts_description'] = $hoverText;
+						$vars['showDescription'] = true; //show this description (usually we only show descriptions on EN
+
+						if($hideBlurb) {
+							$referenceText = str_replace("[{$blurbId}]", "{$vdata->name}. {$interview}", $referenceText);
+						} else {
+							$referenceText = str_replace("[{$blurbId}]", "{$vdata->name}. {$vdata->blurb}. {$interview}", $referenceText);
+						}
+						$referenceTextObject->html($referenceText);
+
+						$vars['hasImage'] = 1;
+						if ($isAmp) {
+							$image = GoogleAmp::makeAmpImgElement($vdata->imagePath, 30, 30);
+						} else {
+							$imgAttributes = array(
+								'data-src' => $vdata->imagePath,
+								'class' => 'ts_expert_image'
+							);
+
+							$image = Html::element('img', $imgAttributes);
+						}
+
+						$vars['ts_expert_image'] = $image;
+						if($hideBlurb) {
+							$vars['expert_name'] = $vdata->name;
+						} else {
+							$vars['expert_name'] = $vdata->name . ". " . $vdata->blurb;
+						}
+						$vars['expert_url'] = ArticleReviewers::getLinkToCoauthor($vdata);
+						$vars['ts_label'] = wfMessage('ts_label_expert')->text();
+
+						$vars['hideLink'] = 1;
+					} else {
+						//not actually an expert interview, and no link, so now format it
+						$vars['ts_description'] = $referenceText;
+						$vars['hideLink'] = 1;
+					}
+
+				} else {
+					//not a expert interview, and no link, so now format it
+					$vars['ts_description'] = $referenceText;
+					$vars['hideLink'] = 1;
+				}
+			}
 
 			$vars['num'] = $num;
 			if($isAmp) {
@@ -102,17 +180,17 @@ class TrustedSources {
 				pq($reference)->append(pq($link)->text());
 				pq($link)->remove();
 			}
-			if($tr = self::getTrustedReferenceOnTheFly($url)) {
+			if(isset($url) && $tr = self::getTrustedReferenceOnTheFly($url)) {
 				pq($reference)->addClass("trusted");
 				$vars['trustedclass'] = 'trustedsource';
 				$vars['ts_name'] = $tr['ts_name'];
 				$vars['ts_description'] = $tr['ts_description'];
+				$vars['ts_label'] = wfMessage('ts_label')->text();
 			}
 
-			if(RequestContext::getMain()->getLanguage()->getCode() == "en") {
+			if(!$isIntl) {
 				$vars['showDescription'] = true;
 			}
-			$vars['ts_label'] = wfMessage('ts_label')->text();
 			$vars['ts_goto'] = wfMessage('ts_goto')->text();
 			$vars['ts_research'] = wfMessage('ts_research')->text();
 

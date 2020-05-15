@@ -1,6 +1,8 @@
 <?php
-if ( ! defined( 'MEDIAWIKI' ) )
+
+if ( ! defined( 'MEDIAWIKI' ) ) {
 	die();
+}
 
 /**#@+
  *
@@ -9,18 +11,16 @@ if ( ! defined( 'MEDIAWIKI' ) )
  *
  * @link http://www.wikihow.com/WikiHow:CategoryListing-Extension Documentation
  *
- *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 $wgShowRatings = true; // set this to false if you want your ratings hidden
 
-
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'CategoryListing',
-    'author' => 'Travis <travis@wikihow.com>',
-	'description' => 'Provides a list of the top most categories in wikiHow',
+	'name' => 'CategoryListing',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'A curated list of the top level categories on wikiHow',
 );
 
 $wgSpecialPages['CategoryListing'] = 'CategoryListing';

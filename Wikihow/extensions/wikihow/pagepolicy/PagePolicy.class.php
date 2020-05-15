@@ -232,14 +232,12 @@ class PagePolicy {
 				|| $specialPageOverride
 			) {
 				if ( $wgTitle->inNamespace( NS_MAIN ) && self::isVisibleAction( $out->getRequest() ) ) {
-					$login = Title::newFromText( 'Special:UserLogin' );
-					$url = $login->getCanonicalURL( [ 'returnto' => $wgTitle->getPrefixedUrl() ] );
 					$out->addHTML( self::render(
 						GoogleAmp::isAmpMode( $out ) ?
 							'article_under_review_amp' : 'article_under_review',
 						[
 							'review_header' => wfMessage( 'pagepolicy_review_header' )->text(),
-							'review_message' => wfMessage( 'pagepolicy_review_message', $url )->parse(),
+							'review_message' => wfMessage( 'pagepolicy_review_message' )->parse(),
 							'search_header' => wfMessage( 'pagepolicy_search_header' )->text(),
 							'searchbox' => SearchBox::render( $out ),
 							'home_message' => wfMessage( 'pagepolicy_home_message' )->parse()

@@ -679,8 +679,8 @@ class GoogleAmp {
 		);
 		$element = Html::element( 'amp-youtube', $attributes );
 
-		// Only consider adding schema on pages tagged with youtube_wikihow_videos
-		if ( ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS, $wgTitle->getArticleID() ) ) {
+		// Only consider adding schema on pages with the right admin tags
+		if ( Misc::isYouTubeSchemaEmbeddable( $wgTitle->getArticleID() ) ) {
 			$videoSchema = SchemaMarkup::getYouTubeVideo( $wgTitle, $videoId );
 			// Only videos from our own channel will have publisher information
 			if ( $videoSchema && array_key_exists( 'publisher', $videoSchema ) ) {

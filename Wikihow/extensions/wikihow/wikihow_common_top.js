@@ -102,36 +102,6 @@ WH.ga.loadGoogleAnalytics = function(siteVersion, propertyId, config) {
 	//ga('send', 'event', 'pvs-' + siteVersion[0], pv_user_type, {
 		//'nonInteraction': 1
 	//});
-
-	WH.ga.processPendingEvents();
-};
-
-/**
- * Process pending Google Analytics events
- */
-WH.ga.processPendingEvents = function() {
-	mw.loader.using('mediawiki.cookie', function() {
-		// Process pending analytics events
-		var cookieName = mw.config.get('wgCookiePrefix') + 'GAPendingEvents';
-		var eventsJson = mw.cookie.get(cookieName);
-		if (eventsJson) {
-			try {
-				var events = JSON.parse(eventsJson);
-				for (var i = 0; i < events.length; i++) {
-					var e = events[i];
-					WH.ga.sendEvent(e.category, e.action, e.label, e.value, e.nonInter);
-				}
-			} catch (exception) {
-				if (typeof console.log != 'undefined') {
-					console.log(exception);
-				}
-			}
-			mw.cookie.set(cookieName, null, {
-				'path': '/',
-				'domain': '.' + mw.config.get('wgCookieDomain')
-			});
-		}
-	} );
 };
 
 // TODO: (Reuben, Jan 2017) maybe this method should be in wikihow_common_bottom.js.
@@ -155,7 +125,7 @@ WH.xss = {
 };
 
 WH.event = function(name, params) {
-	if ( mw.config.get('wgContentLanguage') != 'en' ) {
+	if ( mw.config.get('wgContentLanguage') != 'en' || typeof URLSearchParams === "undefined" ) {
 		return;
 	}
 	params = params || {};
@@ -173,105 +143,6 @@ WH.event = function(name, params) {
 	var xhr = new XMLHttpRequest();
 	xhr.open( 'GET', url, true );
 	xhr.send( null );
-};
-
-// NOTE: using this method is deprecated (March 2017)
-// You should call WH.maEvent directly now. We no longer use the
-// old "whEvent" system, so this method just called into machinify.
-WH.whEvent = function(category, action, group, label, version, fromMAEvent) {
-	var c, a, g, l, v;
-
-	// required parameters
-	if (typeof category != 'undefined' && category !== null) {
-		c = category;
-	} else {
-		return;
-	}
-
-	if (typeof action != 'undefined' && action !== null) {
-		a = action;
-	} else {
-		return;
-	}
-
-	// optional parameters
-	g = group || '';
-	l = label || '';
-	v = version || '';
-
-	WH.maEvent(action, {category: c, group: g, label: l, version: v}, true);
-};
-
-// Machinify event system
-// eventName should be a string identifying the event.
-// eventProps should be a dict with the data to log set in it.
-// callback is optionally a function, it's backwards safe so passing a bool as you would have using
-//    the previous noLogToWHEvent argument won't break anything
-WH.maEventInitialized = false;
-WH.maEvent = function(eventName, eventProps, callback) {
-
-	//-------------
-	//[sc] 3/9/2020 - TURNING OFF MACHINIFY CALLS BECAUSE WE DON'T USE IT ANY LONGER
-	//keeping around in case we need to turn it back on per Elizabeth
-	return;
-	//-------------
-
-	mw.loader.using('mediawiki.cookie', function() {
-		if (typeof MachinifyAPI == 'undefined') {
-			if (typeof console != 'undefined') {
-				console.log('error: Machinify API called before it was initialized! (Maybe a loading order issue?) maEvent=' + eventName);
-			}
-			return;
-		}
-
-		if (!WH.maEventInitialized) {
-			// wikiHow Machinify key
-			MachinifyAPI.setApiKey('69Me1Jf95c9f9604b77bd0cb6cedc346');
-
-			var deviceID = mw.cookie.get('whv');
-			if (deviceID) {
-				MachinifyAPI.setDeviceID(deviceID);
-			}
-
-			var platform;
-			if (WH.isAndroidAppRequest) {
-				platform = 'android_app';
-			} else if (WH.isMobileDomain) {
-				platform = 'mobile_web';
-			} else {
-				platform = 'desktop';
-			}
-
-			MachinifyAPI.setDeviceProperties( {platform: platform} );
-			MachinifyAPI.delayAllEvents(); // send events synchronously (-ish).
-			MachinifyAPI.setUserProperties(); // no one is signed in.
-			// MachinifyAPI.sendEvent('launch'); // send a launch event; no special properties.
-
-			WH.maEventInitialized = true;
-		}
-
-		if (typeof eventProps != 'object') {
-			eventProps = {};
-		}
-		var isDev = (window.location.href.indexOf(".wikidogs.") >= 0) ? 1 : 0;
-		eventProps.isDev = isDev;
-		var uid = mw.config.get('wgUserId');
-		uid = uid || 0; // user id
-		eventProps.anon = (uid <= 0);
-		var u = mw.config.get('wgUserName');
-		u = u || ''; // user name
-		if (u) eventProps.username = u;
-
-		//add language code
-		eventProps.language = mw.config.get('wgContentLanguage');
-
-		if (isDev) {
-			console.log(eventName);
-			console.log(eventProps);
-		}
-
-		MachinifyAPI.sendEvent(eventName, eventProps, callback);
-	} );
 };
 
 /**

@@ -7,8 +7,19 @@ class SchemaMarkup {
 	const ARTICLE_IMAGE_WIDTH = 1200;
 
 	const YOUTUBE_CHANNEL_IDS = [
-		'UCFSOC35EA1ugObwHQIIKRCg',
-		'UC1gi0J2xmZgP4sRFNEfcy7w',
+		'UC1gi0J2xmZgP4sRFNEfcy7w', // Multi-lingual
+	];
+	const GUIDECENTRAL_CHANNEL_IDS = [
+		'UCvMFOtVdw6HNNLr8DKP_-mQ', // English
+		'UCDed6cayU5-_OYXz8d8pnhQ', // English, Maker Stories
+		'UCwjB3hbl9ZKPWzLb1dOmWUA', // Spanish
+		'UCISX0Ox43TINPlZjXRuYnBQ', // Portuguese
+		'UC14ptrk4ZYOVpR8sDh_KNGA', // French
+		'UCVGg4nrmDnDvqVOzIztejqw', // Italian
+		'UCvQjRuwBFHJ0e6JcZtYnv-Q', // German
+		'UCHJCKmYo1W0P95ATjKQcIVA', // Russian
+		'UCkcDfW33LRA-NodnzfElorQ', // Japanese
+		'UC9cxxHEETkg7kMHjSWHujdQ', // Chinese
 	];
 
 	const SOCIAL_DATA = [
@@ -243,6 +254,26 @@ class SchemaMarkup {
 		}
 
 		return $data;
+	}
+
+	public static function getGuideCentralOrganization() {
+		return [
+			"@context"=> "http://schema.org",
+			"@type" => "Organization",
+			"name" => "GuideCentral",
+			"logo" => [
+				'@type' => 'ImageObject',
+				'url' => 'https://www.wikihow.com/skins/owl/images/guidecentral.png',
+				'width' => 250,
+				'height' => 250,
+			],
+			'sameAs' => [
+				'https://www.facebook.com/guidecentral',
+				'https://www.instagram.com/guidecentral_/',
+				'https://twitter.com/guidecentral',
+				'https://www.pinterest.com/guidecentral/',
+			]
+		];
 	}
 
 	private static function getPublisher() {
@@ -855,6 +886,8 @@ class SchemaMarkup {
 				// Add publisher info for videos on our own channels
 				if ( in_array( $item->snippet->channelId, self::YOUTUBE_CHANNEL_IDS ) ) {
 					$info = array_merge( [ 'publisher' => self::getWikihowOrganization() ], $info );
+				} else if ( in_array( $item->snippet->channelId, self::GUIDECENTRAL_CHANNEL_IDS ) ) {
+					$info = array_merge( [ 'publisher' => self::getGuideCentralOrganization() ], $info );
 				}
 
 				$wgMemc->set( $cacheKey, $info );

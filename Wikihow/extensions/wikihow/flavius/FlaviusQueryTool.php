@@ -3,13 +3,14 @@
 if ( ! defined( 'MEDIAWIKI' ) ) die();
 
 $wgExtensionCredits['specialpage'][] = array(
-  'name' => 'Flavius Query Tool',
-  'author' => 'Gershon Bialer',
-  'description' => 'A tool to query the Users',
+	'name' => 'Flavius Query Tool',
+	'author' => 'Gershon Bialer (wikiHow)',
+	'description' => 'A tool to query the Users',
 );
 
 $wgSpecialPages['FlaviusQueryTool'] = 'FlaviusQueryTool';
 $wgAutoloadClasses['FlaviusQueryTool'] = __DIR__ . '/FlaviusQueryTool.body.php';
+
 $wgResourceModules['ext.wikihow.flaviusquerytool'] = array(
 	'localBasePath' => __DIR__ . '/',
 	'remoteExtPath' => 'wikihow/flavius',

@@ -13,15 +13,6 @@ $wgExtensionMessagesFiles['CharityAliases'] = __DIR__ . '/Charity.alias.php';
 
 $wgAutoloadClasses['Donate'] = __DIR__ . '/Donate.class.php';
 
-$wgResourceModules['ext.wikihow.charity.js'] = [
-	'localBasePath' => __DIR__,
-	'targets' => [ 'desktop', 'mobile' ],
-	'scripts' => [ 'charity.js' ],
-	'remoteExtPath' => 'wikihow/charity',
-	'position' => 'bottom',
-	'dependencies' => ['ext.wikihow.common_bottom']
-];
-
 $wgResourceModules['ext.wikihow.charity.css'] = [
 	'localBasePath' => __DIR__,
 	'targets' => [ 'desktop', 'mobile' ],

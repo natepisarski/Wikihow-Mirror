@@ -39,6 +39,23 @@
 		}
 	});
 
+	$(document).on('click', '#toggleNoteType', function (e) {
+		if ($('#toggleNoteType').val() == 'toggleCSV') {
+			$('#fishnotes-normal').hide();
+			$('#fishnotes-csv').show();
+			$('#toggleNoteType').val('toggleNormal');
+			$('#toggleNoteType').html('Switch to normal input');
+		} else {
+			$('#fishnotes-csv').hide();
+			$('#fishnotes-normal').show();
+			$('#toggleNoteType').val('toggleCSV');
+			$('#toggleNoteType').html('Switch to CSV input');
+		}
+
+		return false;
+	});
+
+
 	$(document).on('click', '#removeTags', function(e) {
 		e.preventDefault();
 		var data = {'urls' : $('.urls').val(), 'a' : 'remove_tag_articles', 'tags' : getSelectedTags()};

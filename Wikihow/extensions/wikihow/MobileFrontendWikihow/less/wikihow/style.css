@@ -923,6 +923,7 @@ a.reference-anchor {
 	border-radius: 4px;
 	text-align: center;
 	margin-bottom: 0.75em;
+	position: relative;
 }
 .ulb_button:hover {
 	text-decoration: none;
@@ -958,41 +959,61 @@ a.reference-anchor {
 	display: block;
 }
 
+.ulb_icon {
+	position: absolute;
+	left: 4px;
+	top: 4px;
+	width: 40px;
+	height: 40px;
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
 #fb_login, #fb_login_head {
-	background: #365494 url(/extensions/wikihow/userloginbox/images/ulb_facebook.png) 4px center / 40px no-repeat;
+	background-color: #365494;
 	border: solid 1px #365494;
-	/* @embed */
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
 }
 #fb_login:hover, #fb_login_head:hover {
 	background-color: #304B84;
 }
+#fb_login .ulb_icon, #fb_login_head .ulb_icon {
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_facebook.svg);
+}
 
 #gplus_login, #gplus_login_head {
-	background: #3F82F7 url(/extensions/wikihow/userloginbox/images/ulb_google.png) 4px center / 40px no-repeat;
+	background-color: #3F82F7;
 	border: solid 1px #3F82F7;
-	/* @embed */
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
 }
 #gplus_login:hover, #gplus_login_head:hover {
 	background-color: #3874DC;
 }
+#gplus_login .ulb_icon, #gplus_login_head .ulb_icon {
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_google.svg);
+}
 
 #civic_login, #civic_login_head {
-	background: #AAAAAA url(/extensions/wikihow/userloginbox/images/ulb_civic.png) 4px center / 40px no-repeat;
+	background-color: #AAAAAA;
 	border: solid 1px #AAAAAA;
-	/* @embed */
-	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
 }
 #civic_login:hover, #civic_login_head:hover {
 	background-color: #979797;
 }
-.ulb_login {
+#civic_login .ulb_icon, #civic_login_head .ulb_icon {
 	/* @embed */
-	background: #93b874 url(/extensions/wikihow/userloginbox/images/ulb_person.svg) 4px center / 40px no-repeat;
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_civic.svg);
+}
+
+.ulb_login {
+	background-color: #93b874;
 }
 .ulb_login:hover {
 	background-color: #83a168;
+}
+.ulb_login .ulb_icon {
+	/* @embed */
+	background-image: url(/extensions/wikihow/userloginbox/images/ulb_person.svg);
 }
 
 @-webkit-keyframes swipe {

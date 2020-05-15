@@ -415,11 +415,7 @@ class WHVid {
 			return;
 		}
 
-		static $isIncluded = false;
-		if (!$isIncluded) {
-			$paths[] = __DIR__ . '/whvid.compiled.js';
-			$isIncluded = true;
-		}
+		$paths[] = __DIR__ . '/whvid.compiled.js';
 	}
 
 	public static function addCSS( &$css, $title ) {

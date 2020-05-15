@@ -10,16 +10,15 @@ if ( ! defined( 'MEDIAWIKI' ) )
  *
  * @link http://www.wikihow.com/WikiHow:AddRelatedLinks-Extension Documentation
  *
- *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'AddRelatedLinks',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Takes a set of URLs, finds related pages, and adds inbound links to the submitted pages',
+	'name' => 'AddRelatedLinks',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'Takes a set of URLs, finds related pages, and adds inbound links to the submitted pages',
 );
 
 $wgSpecialPages['AddRelatedLinks'] = 'AddRelatedLinks';

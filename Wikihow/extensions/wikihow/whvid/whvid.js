@@ -621,23 +621,6 @@ WH.video = (function () {
 			}
 		}
 		updateVisibility();
-
-		// Trevor, 10/30/18 - Dirty hack to track CTR of summary video links
-		// Trevor, 5/30/19 - Disabling since Machinify is being slow
-		// var link = document.getElementById( 'summary_video_link' );
-		// if ( link ) {
-		// 	link.onclick = function ( e ) {
-		// 		e.preventDefault();
-		// 		var href = this.href;
-		// 		WH.maEvent( 'videoBrowser_article_video_click', {
-		// 			origin: location.hostname,
-		// 			videoTarget: href,
-		// 			articleOrigin: location.pathname
-		// 		}, function () {
-		// 			window.location = href;
-		// 		} );
-		// 	};
-		// }
 	}
 
 	function start() {

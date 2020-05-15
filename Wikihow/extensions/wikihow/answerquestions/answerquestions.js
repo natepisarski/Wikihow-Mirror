@@ -209,31 +209,8 @@
 			var sqid = $parent.parent().attr('id');
 			var buttonText = $(button).text();
 			if(WH.AnswerQuestions.isAdmin || isDuplicate) {
-				WH.whEvent(WH.AnswerQuestions.EVENT_CAT, 'click_ignore_submitted', '', '', WH.AnswerQuestions.EVENT_VERSION);
-				WH.maEvent("answertool_question_removed", {
-					category: 'qa',
-					qs_id: sqid,
-					question: question,
-					page_id: $("#qat_article_id").val(),
-					group_name: $("#qat_group").val(),
-					expert_id: $("#qat_expert").val(),
-					welcome_msg_name: $("#qat_welcome_name").val(),
-					link_text: buttonText,
-					button_identity: label
-				}, true);
 				action = 'sq_ignore';
 			} else {
-				WH.whEvent(WH.AnswerQuestions.EVENT_CAT, 'click_flag_submitted', '', '', WH.AnswerQuestions.EVENT_VERSION);
-				WH.maEvent("answertool_question_flagged", {
-					category: 'qa',
-					qs_id: sqid,
-					question: question,
-					page_id: $("#qat_article_id").val(),
-					group_name: $("#qat_group").val(),
-					expert_id: $("#qat_expert").val(),
-					welcome_msg_name: $("#qat_welcome_name").val(),
-					link_text: buttonText
-				}, true);
 				action = 'sq_flag'
 			}
 			$.post(
@@ -388,20 +365,6 @@
 					WH.AnswerQuestions.QAEndpoint,
 					data,
 					function(result) {
-						if (!result.userBlocked) {
-							var label = 'Q: '+data.question+' | A: '+data.answer;
-							WH.whEvent(WH.AnswerQuestions.EVENT_CAT, 'proposed_answer_submission', '', label, WH.AnswerQuestions.EVENT_VERSION);
-							WH.maEvent("answertool_answer_submitted", {
-								category: 'qa',
-								qs_id: data.sqid,
-								answer: data.answer,
-								question: data.question,
-								page_id: data.aid,
-								group_name: $("#qat_group").val(),
-								expert_id: data.verifier_id,
-								welcome_msg_name: $("#qat_welcome_name").val()
-							}, true);
-						}
 						WH.AnswerQuestions.finishAnswering($parent);
 					},
 					'json'
@@ -434,22 +397,6 @@
 			var validator = new WH.StringValidator(config);
 			isValid = validator.validate(question);
 
-			if (!isValid) {
-				var rules = validator.getFailedRules();
-				WH.whEvent(WH.AnswerQuestions.EVENT_CAT, 'proposed_answer_question_discarded', rules.join(","), question, WH.AnswerQuestions.EVENT_VERSION);
-				WH.maEvent("answertool_question_discarded", {
-					category: 'qa',
-					qs_id: sqid,
-					answer: answer,
-					question: question,
-					page_id: $("#qat_article_id").val(),
-					group_name: $("#qat_group").val(),
-					expert_id: $("#qat_expert").val(),
-					welcome_msg_name: $("#qat_welcome_name").val(),
-					reason: rules.join(",")
-				}, true);
-			}
-
 			return isValid;
 		},
 
@@ -473,22 +420,6 @@
 
 			var validator = this.validator = new WH.StringValidator(config);
 			isValid = validator.validate(answer);
-
-			if (!isValid) {
-				var rules = validator.getFailedRules();
-				WH.whEvent(WH.AnswerQuestions.EVENT_CAT, 'proposed_answer_discarded', rules.join(","), answer, WH.AnswerQuestions.EVENT_VERSION);
-				WH.maEvent("answertool_answer_discarded", {
-					category: 'qa',
-					qs_id: sqid,
-					answer: answer,
-					question: question,
-					page_id: $("#qat_article_id").val(),
-					group_name: $("#qat_group").val(),
-					expert_id: $("#qat_expert").val(),
-					welcome_msg_name: $("#qat_welcome_name").val(),
-					reason: rules.join(",")
-				}, true);
-			}
 
 			return isValid;
 		},

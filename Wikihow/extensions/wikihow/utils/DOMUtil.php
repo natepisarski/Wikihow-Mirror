@@ -23,7 +23,7 @@ class DOMUtil
 		$whitelist = 'deindexed_link_removal_whitelist';
 		if ( RobotPolicy::isIndexable($title) && !ArticleTagList::hasTag($whitelist, $aid) ) {
 			$query = Misc::isMobileMode() ? 'a' : '#bodycontents a';
-			DomHelper::hideLinks($query);
+			DomHelper::hideLinksInArticle($query);
 		}
 	}
 
@@ -40,9 +40,9 @@ class DOMHelper {
 		}
 	}
 
-	public static function hideLinks(string $query) {
-		list($articleLinks, $categoryLinks) = self::findLinks($query);
-		self::processLinks($articleLinks, $categoryLinks);
+	public static function hideLinksInArticle(string $query) {
+		list($articleLinks, $categoryLinks) = self::findLinksInArticle($query);
+		self::processLinksInArticle($articleLinks, $categoryLinks);
 	}
 
 	private static function isImageLink(DOMElement $link): bool {
@@ -57,7 +57,7 @@ class DOMHelper {
 		$pqObject->replaceWith($pqObject->text());
 	}
 
-	private static function findLinks(string $query): array {
+	private static function findLinksInArticle(string $query): array {
 		/**
 		 * Each of these arrays have the structure: [ HREF1 => [DOM_LINK1, DOM_LINK2], ... ]
 		 * key   string        relative URL without the leading '/' (from href)
@@ -99,7 +99,7 @@ class DOMHelper {
 		return [$articleLinks, $categoryLinks];
 	}
 
-	private static function processLinks(array $articleLinks, array $categoryLinks) {
+	private static function processLinksInArticle(array $articleLinks, array $categoryLinks) {
 
 		// Find out which pages are indexed
 

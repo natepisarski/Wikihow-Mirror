@@ -39,7 +39,6 @@
 				$(dialog).show(100, $.proxy(function() {
 					if (WH.isMobileDomain) this.allowClickClose();
 				},this));
-				WH.maEvent('green_box_expert_dialog_open');
 			}
 			else {
 				$(dialog).hide();

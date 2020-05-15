@@ -38,6 +38,10 @@
 			if( !$popup.hasClass("trustedsource") ) {
 				$(".ts_source", $popup).text(url);
 			}
+			var $expertImage = $(".ts_expert_image", $popup);
+			if($expertImage.length > 0 && $expertImage.attr("src") != "") {
+				$expertImage.attr("src", $expertImage.data("src"));
+			}
 			$(".ts_popup").hide();
 			$popup.show();
 

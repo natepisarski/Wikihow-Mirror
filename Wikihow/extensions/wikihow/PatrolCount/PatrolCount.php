@@ -6,7 +6,7 @@
  * @subpackage Extensions
  * @link http://www.wikihow.com/WikiHow:Patrolcount-Extension Documentation
  * @author Lojjik Braughler <llbraughler@gmail.com>
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 

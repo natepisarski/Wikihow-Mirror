@@ -1,10 +1,12 @@
 <?php
 
-/** db schema:
+/**
 CREATE TABLE botblock_ip_whitelist (
   ipwl_ip_addr varbinary(45) NOT NULL,
   ipwl_added_on varbinary(14) NOT NULL,
-  ipwl_added_by int(10) unsigned NOT NULL
+  ipwl_added_by varbinary(255) NOT NULL DEFAULT '',
+  ipwl_reason varbinary(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (ipwl_ip_addr)
 );
 */
 
@@ -57,8 +59,9 @@ class BotBlockIPWhitelist extends UnlistedSpecialPage {
 		$resultHtml = '';
 		if ( $this->req->wasPosted() ) {
 			$ipAddr = trim( $this->req->getVal('ipwl_addr', '') );
-			if ( filter_var( $ipAddr, FILTER_VALIDATE_IP ) ) {
-				$this->insertIPintoDB( $ipAddr, $this->user->getId() );
+			if ( filter_var( $ipAddr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE ) ) {
+				$reason = trim( $this->req->getVal('ipwl_reason', '') );
+				$this->insertIPintoDB( $ipAddr, $reason );
 				$resultHtml = "<span style='color: green'>Success: added $ipAddr</span>";
 			} else {
 				$resultHtml = "<span style='color: red'>Error: <i>$ipAddr</i> is not a valid IP address</span>";
@@ -90,17 +93,19 @@ class BotBlockIPWhitelist extends UnlistedSpecialPage {
 	 * @param $ipAddr IP address to be inserted into DB
 	 * @param $userId User who has inserted the IP address
 	 */
-	private function insertIPintoDB( string $ipAddr, int $userId ) {
+	private function insertIPintoDB( string $ipAddr, string $reason ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$table = self::IPWL_TABLE;
 		$row = [
 			'ipwl_ip_addr' => $ipAddr,
 			'ipwl_added_on' => $dbw->timestamp( wfTimestampNow() ),
-			'ipwl_added_by' => $userId,
+			'ipwl_added_by' => $this->user->getName(),
+			'ipwl_reason' => $reason,
 		];
 		$set = [
 			'ipwl_added_on' => $row['ipwl_added_on'],
 			'ipwl_added_by' => $row['ipwl_added_by'],
+			'ipwl_reason' => $row['ipwl_reason'],
 		];
 		$dbw->upsert( $table, $row, [], $set, __METHOD__ );
 	}

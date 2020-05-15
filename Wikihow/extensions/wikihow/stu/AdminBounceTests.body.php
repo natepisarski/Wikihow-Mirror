@@ -29,9 +29,8 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		return $urls;
 	}
 
-	/**
-	 * Reset the bounce stats for a bunch of articles
-	 */
+/*
+	// Reset the bounce stats for a bunch of articles
 	private static function resetStats(&$urls,$domain='bt') {
 		foreach ($urls as &$url) {
 			$err = '';
@@ -63,6 +62,7 @@ class AdminBounceTests extends UnlistedSpecialPage {
 			return "ERROR: {$ret['err']}";
 		}
 	}
+*/
 
 	private static function resetVarnishes($urls) {
 		foreach ($urls as $url) {
@@ -72,9 +72,8 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		}
 	}
 
-	/**
-	 * Fetch the bounce stats for a bunch of articles
-	 */
+/*
+	// Fetch the bounce stats for a bunch of articles
 	private static function fetchStats(&$urls, $domain='bt') {
 		$pages = array();
 		foreach ($urls as &$url) {
@@ -107,10 +106,10 @@ class AdminBounceTests extends UnlistedSpecialPage {
 			return "<i>ERROR: $err</i><br/>";
 		}
 	}
+*/
 
-	/**
-	 * Fetch the bounce stats for a bunch of articles
-	 */
+/*
+	// Fetch the bounce stats for a bunch of articles
 	private static function outputCSV(&$urls) {
 		$domains = array('bt'=>'www','mb'=>'mobile');
 		$pages = array();
@@ -159,10 +158,9 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		}
 		return $pages;
 	}
+*/
 
-	/**
-	* Hack for Jack/Eliz - add a 3+ min field
-	*/
+	// Hack for Jack/Eliz - add a 3+ min field
 	private static function add3PlusMinField(&$page) {
 		// hack for jack/eliz
 		$over3 = 0;
@@ -172,9 +170,8 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		$page['3+m'] = $over3;
 	}
 
-	/**
-	 * Remove all data items that don't start with an '_' or end with 'm' or 's'
-	 */
+	// Remove all data items that don't start with an '_' or end with 'm' or 's'
+	// NOTE: this is used in titus
 	public static function cleanBounceData(&$results) {
 		foreach ($results as &$page) {
 			foreach ($page as $k => $v) {
@@ -188,9 +185,8 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		//var_dump($results);exit;
 	}
 
-	/**
-	 * Computer averages over all pages returned.
-	 */
+/*
+	// Computer averages over all pages returned.
 	private static function computeAvgs($stats) {
 		$totals = array();
 		$averages = array();
@@ -248,10 +244,10 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		);
 		return $stats;
 	}
+*/
 
-	/**
-	 * Used internal to compare to row heads.
-	 */
+/*
+	// Used internal to compare to row heads.
 	public static function cmpBounceDataFunc($ur, $vr) {
 		$u_ = strpos($ur, '_') !== false;
 		$v_ = strpos($vr, '_') !== false;
@@ -268,10 +264,10 @@ class AdminBounceTests extends UnlistedSpecialPage {
 		$vn = intval(preg_replace('@^(\d+)[+-].*$@', '$1', $vr));
 		return $un - $vn;
 	}
+*/
 
-	/**
-	 * Format the percentages as a table in HTML.
-	 */
+/*
+	// Format the percentages as a table in HTML.
 	private static function markupStats($stats,$domain) {
 
 		$domain = self::$domains[$domain];
@@ -336,16 +332,18 @@ EOHTML;
 		}
 		return $pos;
 	}
+*/
 
+/*
 	private static function httpDownloadHeaders() {
 		//header("Content-Type: text/csv");
 		header('Content-type: application/force-download');
 		header('Content-disposition: attachment; filename="views.csv"');
 	}
+*/
 
-	/**
-	 * Display data as CSV, not as a summary.
-	 */
+/*
+	// Display data as CSV, not as a summary.
 	private static function displayDataCSV($data) {
 		self::httpDownloadHeaders();
 
@@ -362,7 +360,9 @@ EOHTML;
 		}
 		exit;
 	}
+*/
 
+	// NOTE: used in titus
 	public static function computePercentagesForCSV(&$page, $pctSign = '%') {
 		$total = $page['__'];
 		if ($data = $page['0-10s']) {
@@ -382,7 +382,7 @@ EOHTML;
 	/**
 	 * Contact the bounce timer server.
 	 */
-	public static function runRemoteBounceQuery($query) {
+/*	public static function runRemoteBounceQuery($query) {
 		global $IP;
 
 		require_once "$IP/extensions/wikihow/stu/stu.php";
@@ -390,6 +390,7 @@ EOHTML;
 
 		return $out;
 	}
+*/
 
 	public function mailUserResetDone($user, $urls) {
 		if ($user->getEmail()) {
@@ -469,13 +470,13 @@ EOHTML;
 
 				self::mailUserResetDone($user, $urls);
 			} elseif ('fetch' == $action) {
-				$html = '';
+				$html = 'Old stu live fetching is disabled';
 				if ($dataType == 'csv') {
-					self::outputCSV($urls);
+#					self::outputCSV($urls);
 					return;
 				} else {
 					foreach (self::$domains as $domain=>$foo) {
-						$html .= self::fetchStats($urls, $domain);
+#						$html .= self::fetchStats($urls, $domain);
 					}
 				}
 			} else {

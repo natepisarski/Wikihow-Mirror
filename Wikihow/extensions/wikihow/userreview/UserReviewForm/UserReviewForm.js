@@ -12,20 +12,6 @@
 		getScrollingElement: function () {
 			return WH.isMobileDomain ? $( '#mw-mf-viewport' ) : $( 'body' );
 		},
-		machinifyLog: function () {
-			WH.maEvent( 'opti_testimonial', {
-				category: 'opti',
-				pagetitle: mw.config.get( 'wgTitle' ),
-				testemail: $( '#email' ).val(),
-				testdetail: $( '#review' ).val(),
-				testfirst: $( '#first-name' ).val(),
-				testlast: $( '#last-name' ).val(),
-				testarticleid: mw.config.get( 'wgArticleId' ),
-				testsource: WH.isMobileDomain ? 'mobile' : 'desktop',
-				testwithpageloadstat: 'yes',
-				testdetailunstripped: '',
-			}, false );
-		},
 		validateInput: function ( key, object ) {
 			$( object ).css( 'border-color', '#eee' );
 			if ( $( object ).val().length < 1 ) {
@@ -71,7 +57,6 @@
 						urf.submittedReviewId = result.success.id;
 					}
 				} );
-				urf.machinifyLog();
 			} else {
 				$( '#urf-submit' ).prop( 'disabled', false );
 			}
@@ -161,13 +146,6 @@
 
 				$( '#urf-social-login-done .urf-social-avatar' ).attr( 'src', data.user.avatarUrl );
 				$( '#urf-social-login-done .urf-user-link' ).attr( 'href', '/User:'+data.user.username ).html( data.user.realName );
-
-				var properties = {
-					category: 'account_signup',
-					type: data.type,
-					prompt_location: 'stories'
-				};
-				WH.maEvent( 'account_signup', properties, false );
 
 				//now we have the new userid, so we need to associate it with the submitted story
 				$.ajax( {

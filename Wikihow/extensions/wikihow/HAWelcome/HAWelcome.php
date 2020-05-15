@@ -32,9 +32,7 @@ $wgExtensionCredits['other'][] = array(
  */
 $wgHooks[ "PageContentSaveComplete" ][] = "HAWelcomeJob::revisionInsertComplete";
 $wgHooks[ "UserLoginComplete" ][] = "HAWelcomeJob::signUpComplete";
-$wgHooks[ "FacebookSignupComplete" ][] = "HAWelcomeJob::signUpComplete";
-$wgHooks[ "GoogleSignupComplete" ][] = "HAWelcomeJob::signUpComplete";
-$wgHooks[ "CivicSignupComplete" ][] = "HAWelcomeJob::signUpComplete";
+$wgHooks[ "SocialSignupComplete" ][] = "HAWelcomeJob::signUpComplete";
 
 
 /**

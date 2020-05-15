@@ -201,17 +201,21 @@ abstract class AdCreator {
 		pq( '.green_box' )->eq( 1 )->after( $html );
 	}
 
-	protected function insertTocAd() {
+	protected function insertTocAd( $stepsListFirst ) {
+		if ( !$stepsListFirst ) {
+			return;
+		}
+		if ( !count( $stepsListFirst->childNodes ) ) {
+			return;
+		}
 		$ad = $this->getBodyAd( 'toc' );
 		if ( !$ad ) {
 			return;
 		}
 
-		if ( !pq( ".steps_list_2:first > li:first" )->length ) {
-			return;
-		}
+		$stepsListFirstLiFirst = $stepsListFirst->childNodes[0];
 
-		pq( ".steps_list_2:first > li:first" )->append( $ad->mHtml );
+		pq( $stepsListFirstLiFirst )->append( $ad->mHtml );
 	}
 
 	protected function insertRelatedAd() {
@@ -342,49 +346,85 @@ abstract class AdCreator {
 		pq( $target )->append( $ad->mHtml );
 	}
 
-	protected function insertStepAd() {
+	protected function insertStepAd( $stepsListFirst ) {
 		$ad = $this->getBodyAd( 'step' );
 		if ( !$ad ) {
 			return;
 		}
 
-		if ( !pq( ".steps_list_2 > li:eq(0)" )->length ) {
+		if ( !$stepsListFirst ) {
 			return;
 		}
 
-		pq( ".steps_list_2 > li:eq(0)" )->append( $ad->mHtml );
+		$liCount = 0;
+		$firstLiIndex = null;
+		for( $i = 0; $i < count( $stepsListFirst->childNodes ); $i++ ) {
+			if ( $stepsListFirst->childNodes[$i]->tagName == 'li' ) {
+				$liCount++;
+				if ( $firstLiIndex === null ) {
+					$firstLiIndex = $i;
+				}
+			}
+		}
+
+		if ( !$liCount ) {
+			return;
+		}
+
+		$stepsListFirstLiFirst = $stepsListFirst->childNodes[$firstLiIndex];
+		pq( $stepsListFirstLiFirst )->append( $ad->mHtml );
 	}
 
-	protected function insertMobileMethodAds() {
-		$count = pq( ".steps_list_2 > li:last-child" )->length;
-		for ( $i = 0; $i < $count; $i++ ) {
+	protected function insertMobileMethodAds( $stepsList ) {
+		foreach ( $stepsList as $step ) {
+			$liCount = 0;
+			$lastLiIndex = 0;
+			for( $i = 0; $i < count( $step->childNodes ); $i++ ) {
+				if ( $step->childNodes[$i]->tagName == 'li' ) {
+					$liCount++;
+					$lastLiIndex = $i;
+				}
+			}
+
+			if ( !$liCount ) {
+				continue;
+			}
 			$ad = $this->getBodyAd( 'mobilemethod' );
 			if ( !$ad ) {
 				continue;
 			}
-			pq( ".steps_list_2:eq($i) > li:last-child" )->append( $ad->mHtml );
+			$stepLiLast = $step->childNodes[$lastLiIndex];
+
+			pq( $stepLiLast )->append( $ad->mHtml );
 		}
 	}
 
-	/*
-	 * adds the step and method ads to the body using php query
-	 * assumes the php query article is loaded
-	 */
-	protected function insertMethodAd() {
-
-		if ( pq( ".steps_list_2:first > li" )->length <= 2 ) {
+	protected function insertMethodAd( $stepsListFirst ) {
+		if ( !$stepsListFirst ) {
 			return;
 		}
 
-		if ( pq( ".steps_list_2:first > li:last-child)" )->length() == 0 ) {
+		$liCount = 0;
+		$lastLiIndex = 0;
+		for( $i = 0; $i < count( $stepsListFirst->childNodes ); $i++ ) {
+			if ( $stepsListFirst->childNodes[$i]->tagName == 'li' ) {
+				$liCount++;
+				$lastLiIndex = $i;
+			}
+		}
+
+		if ( $liCount <= 2 ) {
 			return;
 		}
+
+		$stepsListFirstLiLast = $stepsListFirst->childNodes[$lastLiIndex];
 
 		$ad = $this->getBodyAd( 'method' );
 		if ( !$ad ) {
 			return;
 		}
-		pq( ".steps_list_2:first > li:last-child" )->append( $ad->mHtml );
+
+		pq( $stepsListFirstLiLast )->append( $ad->mHtml );
 	}
 
 	protected function insertMethod2Ad() {
@@ -549,6 +589,9 @@ abstract class AdCreator {
 	public function insertAdsInBody() {
 		global $wgOut;
 
+		// reset ad counts
+		$this->mAdCounts = array();
+
 		// make sure we have php query object
 		if ( !phpQuery::$defaultDocumentID )  {
 			return;
@@ -559,12 +602,18 @@ abstract class AdCreator {
 			return;
 		}
 
+		$stepsList = pq( ".steps_list_2" );
+		$stepsListFirst = null;
+		if ( count( $stepsList->elements ) ) {
+			$stepsListFirst = $stepsList->elements[0];
+		}
+
 		$this->insertIntroAd();
-		$this->insertTocAd();
-		$this->insertMethodAd();
-		$this->insertMobileMethodAds();
+		$this->insertTocAd( $stepsListFirst );
+		$this->insertMethodAd( $stepsListFirst );
+		$this->insertMobileMethodAds( $stepsList );
 		$this->insertScrollToAd();
-		$this->insertStepAd();
+		$this->insertStepAd( $stepsListFirst );
 		$this->insertRelatedAd();
 		$this->insertMobileRelatedAd();
 		$this->insertMiddleRelatedAd();
@@ -680,29 +729,14 @@ abstract class AdCreator {
 
 		$attributes['data-observerloading'] = 1;
 
-		if ( $this->isDFPLateDefineTest() ) {
-			$attributes['data-sizes-array'] = $attributes['data-size'];
-			$attributes['data-gptdisplaylate'] = 1;
-		}
+		$attributes['data-sizes-array'] = $attributes['data-size'];
+		$attributes['data-gptdisplaylate'] = 1;
 
 		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
 
 		$html .= Html::inlineScript( "WH.ads.addBodyAd('{$ad->mTargetId}')" );
 
 		$ad->mHtml = $html;
-
-		if ( $ad->setupData['service'] == 'dfp' ) {
-			if ( $ad->setupData['type'] == 'rewardedweb') {
-				$this->addRewardedWebToGPTDefines( $ad );
-			} else {
-				$this->addToGPTDefines( $ad );
-			}
-		}
-		if ( Misc::isMobileMode() && $this->isDFPSmallTest() ) {
-			if ( $ad->setupData['smallservice'] == 'dfp' ) {
-				$this->addToGPTDefines( $ad );
-			}
-		}
 
 		return $ad;
 	}
@@ -810,53 +844,6 @@ abstract class AdCreator {
 		return $html;
 	}
 
-	private function isDFPRefactorTest() {
-		global $wgRequest, $wgLanguageCode;
-
-		if ( $wgLanguageCode != 'en' ) {
-			return false;
-		}
-
-		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [1, 2, 3, 4, 5, 6, 7, 8];
-		if ( in_array( $bucketId, $testBuckets ) ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private function isDFPLateDefineTest() {
-		global $wgRequest, $wgLanguageCode;
-
-		if ( $wgLanguageCode != 'en' ) {
-			return false;
-		}
-
-		if ( $this->isPrebidPage() ) {
-			return true;
-		}
-
-		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [1, 2, 3, 4, 5, 6, 7, 8];
-		if ( in_array( $bucketId, $testBuckets ) ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/*
-	 * gets script for adsense and dfp
-	 * @return string html for head
-	 */
-	public function getHeadHtml() {
-		if ( $this->isDFPRefactorTest() ) {
-			return $this->getHeadHtmlCompileCheck();
-		}
-		return $this->getHeadHtmlOld();
-	}
-
 	public function getHeadHtmlOld() {
 		$addAdsense = false;
 		$addDFP = false;
@@ -939,7 +926,7 @@ abstract class AdCreator {
 	 * gets script for adsense and dfp
 	 * @return string html for head
 	 */
-	public function getHeadHtmlCompileCheck() {
+	public function getHeadHtml() {
 		$addAdsense = false;
 		$addDFP = false;
 		$apsLoad = false;
@@ -1080,21 +1067,6 @@ abstract class AdCreator {
 		$this->mGptSlotDefines[] = $gpt;
 	}
 
-	protected function addToGPTDefines( $ad ) {
-		if ( $this->isDFPLateDefineTest() ) {
-			return;
-		}
-		$adUnitPath = $ad->setupData['adUnitPath'];
-		$adUnitPath = $this->getGPTAdSlot( $adUnitPath );
-		$adSize = $ad->setupData['size'];
-		$adId = $ad->mTargetId;
-		if ( !$adSize ) {
-			throw new Exception( 'dfp ad must have adSize parameter.' );
-		}
-		$gpt = "gptAdSlots['$adId'] = googletag.defineSlot(".$adUnitPath.", $adSize, '$adId').addService(googletag.pubads());\n";
-		$this->mGptSlotDefines[] = $gpt;
-	}
-
 	public static function getCoppaValue() {
 		global $wgTitle;
 		$result = 'false';
@@ -1138,13 +1110,6 @@ abstract class AdCreator {
 			return '';
 		}
 
-		if ( empty( $this->mGptSlotDefines ) ) {
-			// for this ad test, we allow gpt js even if there are no slot defines
-			// because the slot defines are done in js
-			if ( !$this->isDFPLateDefineTest() ) {
-				return '';
-			}
-		}
 		$dfpKeyVals = $this->getDFPKeyValsJSON();
 		$gpt = "var gptAdSlots = [];\n";
 		$gpt .= "var dfpKeyVals = $dfpKeyVals;\n";
@@ -1204,7 +1169,7 @@ abstract class AdCreator {
 			return false;
 		}
 
-		if ( intval( $this->mBucketId ) >= 24 ) {
+		if ( intval( $this->mBucketId ) >= 23 ) {
 			return true;
 		}
 
@@ -1219,6 +1184,10 @@ abstract class AdCreator {
 		}
 
 		if ( $wgRequest->getInt( 'prebid' )  == 1 ) {
+			return true;
+		}
+
+		if ( intval( $this->mBucketId ) >= 24 ) {
 			return true;
 		}
 

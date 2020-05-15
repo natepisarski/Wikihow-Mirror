@@ -1,10 +1,12 @@
 <?php
-if ( ! defined( 'MEDIAWIKI' ) )
+
+if ( ! defined( 'MEDIAWIKI' ) ) {
 	die();
+}
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'TranslationLinkOverride',
-	'author' => 'Gershon Bialer',
+	'author' => 'Gershon Bialer (wikiHow)',
 	'description' => 'Manually add translation links'
 );
 

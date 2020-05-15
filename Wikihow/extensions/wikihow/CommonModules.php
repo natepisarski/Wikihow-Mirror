@@ -33,9 +33,6 @@ $wgResourceModules['ext.wikihow.common_bottom_styles'] = [
 $wgResourceModules['ext.wikihow.common_bottom'] = [
 	'scripts' => [
 		'wikihow_common_bottom.js',
-		//[sc] 3/9/2020 - TURNING OFF MACHINIFY CALLS BECAUSE WE DON'T USE IT ANY LONGER
-		//keeping around in case we need to turn it back on per Elizabeth
-		// '../../skins/WikiHow/MachinifyAPI.js',
 	],
 	'targets' => [ 'desktop', 'mobile' ],
 	'localBasePath' => __DIR__,

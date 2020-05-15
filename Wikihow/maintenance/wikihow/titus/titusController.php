@@ -58,7 +58,6 @@ class TitusMaintenance extends Maintenance {
 
 		$statGroups = $this->titus->getPagesToCalcByStat($this->activeStats, wfTimestampNow());
 		$this->reportErrors();
-
 	}
 
 	/**
@@ -112,7 +111,8 @@ class TitusMaintenance extends Maintenance {
 		$this->calcMiscStats( $statGroups['id_stats'], $statGroups['custom_id_stats'], $this->pageIds );
 		print "TitusCheckpoint calcMiscStats finish: " . wfTimestampNow() . "\n";
 
-		// Run nightly stats
+		// Update nightly stats - stuff that can change with every run, like page
+		// views
 		print "TitusCheckpoint calcStatsForAllPages start: " . wfTimestampNow() . "\n";
 		$titus->calcStatsForAllPages($statGroups['all_id_stats'], $this->pageIds );
 		print "TitusCheckpoint calcStatsForAllPages finish: " . wfTimestampNow() . "\n";

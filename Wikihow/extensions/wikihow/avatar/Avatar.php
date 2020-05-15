@@ -5,9 +5,9 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'Avatar',
-    'author' => 'Vu <vu@wikihow.com>',
-    'description' => 'Avatar profile picture for user page',
+	'name' => 'Avatar',
+	'author' => 'Vu (wikiHow)',
+	'description' => 'Avatar profile picture for user page',
 );
 
 /*

@@ -139,8 +139,20 @@ class SpecialPagesHooks {
 		return true;
 	}
 
-	// Trevor 2020-04-21
-	public static function onLocalUserCreated( $user, $autocreated ) {
+	/**
+	 * Trevor  2020-04-21
+	 * Alberto 2020-05-11
+	 *
+	 * @param  User   $user
+	 * @param  bool   $autocreated
+	 * @param  string $type        wikihow/google/facebook/civic
+	 */
+	public static function onLocalUserCreated( $user, $autocreated, $type='wikihow' ) {
+		if (class_exists('EventHelper')) { // EN-only
+			$eventName = 'all_button_create_account_click_go_em';
+			$eventParams = [ 'account_type' => $type ];
+			EventHelper::createEventFromRequest($eventName, $eventParams);
+		}
 		WikihowStatsd::increment( "auth.wikihow.signup" );
 	}
 

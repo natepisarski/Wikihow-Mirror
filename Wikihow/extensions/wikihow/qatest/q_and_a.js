@@ -23,7 +23,7 @@
 		   startQAtimer();
 	   }
 	}
-	
+
 	function readyTheAccordion() {
 	   //open first one
 	   $('#qa_test2 .qa_test_hdr:first').next().slideDown();
@@ -42,7 +42,7 @@
 		   }
 	   });
 	}
-	
+
 	function readySideList() {
 		$('#qa_see_all').click(function() {
 			$(this).fadeOut(function() {
@@ -68,9 +68,6 @@
 		else {
 			test = '0';
 		}
-		
-		//onload tracker!
-		WH.whEvent(cat, type+test+action, label);
 	}
 
 	function startQAtimer() {
@@ -79,7 +76,7 @@
 		var cat = 'qatest';
 		var type = 'qa_';
 		var test = '';
-		
+
 		if ($('#qa_test1').length) {
 			test = 'simple';
 		}
@@ -89,39 +86,6 @@
 		else {
 			test = '0';
 		}
-		
-		//fire off the first scroll tracker
-		WH.whEvent(cat, type+test+'_load', label);
-		
-		//5 seconds
-		setTimeout(function() {
-			action = '_5s';
-			WH.whEvent(cat, type+test+action, label);
-		},5000);
-		
-		//10 seconds
-		setTimeout(function() {
-			action = '_10s';
-			WH.whEvent(cat, type+test+action, label);		
-		},10000);
-		
-		//30 seconds
-		setTimeout(function() {
-			action = '_30s';
-			WH.whEvent(cat, type+test+action, label);	
-		},30000);
-		
-		//60 seconds
-		setTimeout(function() {
-			action = '_60s';
-			WH.whEvent(cat, type+test+action, label);
-		},60000);
-		
-		//180 seconds
-		setTimeout(function() {
-			action = '_180s';
-			WH.whEvent(cat, type+test+action, label);		
-		},180000);
 	}
-	
+
 })(jQuery);

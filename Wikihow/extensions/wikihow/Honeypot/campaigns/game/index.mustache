@@ -120,23 +120,10 @@ document.addEventListener( 'DOMContentLoaded', function ( event ) {
 	var submit = document.getElementById( 'wh-game-submit' );
 	if ( email && submit ) {
 		submit.onclick = function () {
-			var ref = urlParams.get( 'ref' ) || '';
 			var origin = urlParams.get( 'origin' );
-			// Track submission
-			WH.maEvent(
-				'game_ad_submit',
-				{
-					origin: location.hostname,
-					ref: ref,
-					email: email.value,
-					emailIsValid: validateEmail( email.value )
-				},
-				function () {
-					setCookie( 'wh-game', 'submitted' );
-					window.location = location.pathname + ( origin ?
-						'?origin=' + encodeURIComponent( urlParams.get( 'origin' ) ) : ''
-					);
-				}
+			setCookie( 'wh-game', 'submitted' );
+			window.location = location.pathname + ( origin ?
+				'?origin=' + encodeURIComponent( urlParams.get( 'origin' ) ) : ''
 			);
 		};
 	}

@@ -988,8 +988,8 @@ class WikihowArticleHTML {
 			if ( $summary->length ) {
 				$summary->replaceWith( pq( '#summary_wrapper' ) );
 			}
-			// Only consider adding schema on pages tagged with youtube_wikihow_videos
-			if ( ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS, $title->getArticleID() ) ) {
+			// Only consider adding schema on pages with the right admin tags
+			if ( Misc::isYouTubeSchemaEmbeddable( $title->getArticleID() ) ) {
 				// Add schema to all YouTube videos that are from our channel
 				foreach ( pq( '.embedvideo' ) as $video ) {
 					$src = pq( $video )->attr( 'data-src' );

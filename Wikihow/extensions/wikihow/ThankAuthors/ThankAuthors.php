@@ -1,13 +1,13 @@
 <?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-    exit(1);
+	exit(1);
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'ThankAuthors',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'A way for users to leave fan mail on authors user_kudos page',
+	'name' => 'ThankAuthors',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'A way for users to leave fan mail on authors user_kudos page',
 );
 
 $wgSpecialPages['ThankAuthors'] = 'ThankAuthors';

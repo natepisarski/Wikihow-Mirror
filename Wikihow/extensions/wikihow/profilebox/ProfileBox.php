@@ -1,9 +1,9 @@
 <?php
 
 $wgExtensionCredits['specialpage'][] = array(
-  'name' => 'ProfileBox',
-  'author' => 'Vu <vu@wikihow.com>',
-  'description' => 'Magic word used in profile to display user data and stats',
+	'name' => 'ProfileBox',
+	'author' => 'Vu (wikiHow)',
+	'description' => 'Magic word used in profile to display user data and stats',
 );
 
 $wgSpecialPages['ProfileBox'] = 'ProfileBox';
@@ -11,30 +11,30 @@ $wgAutoloadClasses['ProfileBox'] = __DIR__ . '/ProfileBox.body.php';
 $wgAutoloadClasses['ProfileStats'] = __DIR__ . '/ProfileBox.body.php';
 $wgExtensionMessagesFiles['ProfileBox'] = __DIR__ . "/ProfileBox.i18n.php";
 
-$wgHooks['AddNewAccount'][] = 'ProfileBox::onInitProfileBox';
+$wgHooks['LocalUserCreated'][] = 'ProfileBox::onInitProfileBox';
 
 $wgResourceModules['ext.wikihow.profile_box_styles'] = [
-  'styles' => [ 'profilebox.css' ],
-  'localBasePath' => __DIR__,
-  'remoteExtPath' => 'wikihow/profilebox',
-  'position' => 'top',
-  'targets' => ['desktop', 'mobile']
+	'styles' => [ 'profilebox.css' ],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/profilebox',
+	'position' => 'top',
+	'targets' => ['desktop', 'mobile']
 ];
 
 $wgResourceModules['ext.wikihow.profile_box'] = [
-  'scripts' => [ 'profilebox.js' ],
-  'messages' => [
-    'profilebox_remove_confirm',
-    'pb-viewmore',
-    'pb-viewless'
-  ],
-  'localBasePath' => __DIR__,
-  'remoteExtPath' => 'wikihow/profilebox',
-  'position' => 'bottom',
-  'targets' => [ 'desktop', 'mobile'],
-  'dependencies' => [
-    'ext.wikihow.common_top'
-  ]
+	'scripts' => [ 'profilebox.js' ],
+	'messages' => [
+		'profilebox_remove_confirm',
+		'pb-viewmore',
+		'pb-viewless'
+	],
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/profilebox',
+	'position' => 'bottom',
+	'targets' => [ 'desktop', 'mobile'],
+	'dependencies' => [
+		'ext.wikihow.common_top'
+	]
 ];
 
 /*

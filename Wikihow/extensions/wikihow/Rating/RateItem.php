@@ -158,10 +158,13 @@ class RateItem extends UnlistedSpecialPage {
 		if ($req->getInt('amp')) {
 			$bad_header_characters = '/\n|\r/';
 			$origin = '';
+
+			//example: https://www-wikihow-com.cdn.ampproject.org
+			$wHcdnUrl = str_replace('.', '-', $wgCanonicalServer) . '.cdn.ampproject.org';
+
 			$allowedOrigins = [
 				$wgCanonicalServer,
-				'https://wikihow-com.cdn.ampproject.org',
-				'https://www-wikihow-com.cdn.ampproject.org',
+				$wHcdnUrl,
 				'https://cdn.ampproject.org'
 			];
 			$allowedSourceOrigin = $wgCanonicalServer;

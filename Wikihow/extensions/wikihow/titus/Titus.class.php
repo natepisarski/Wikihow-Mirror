@@ -227,9 +227,20 @@ class TitusDB {
 			return;
 		}
 
-		$options = '';
+		// get a list of "late stage" stats to calculate, so we process them
+		// after the initial set
+		$calcLateStageStats = [];
+		$possibleLateStageStats = TitusConfig::getLateStageStats();
+		foreach ($statsToCalc as $stat => $toCalc) {
+			if ($toCalc && isset($possibleLateStageStats[$stat]) && $possibleLateStageStats[$stat]) {
+				$calcLateStageStats[$stat] = 1;
+				unset($statsToCalc[$stat]); // remove from $statsToCalc map
+			}
+		}
 
+		$options = '';
 		$conditions = array( 'page_namespace' => 0, 'page_is_redirect' => 0 );
+		$columns = array( 'page_id', 'page_title', 'page_counter', 'page_is_featured', 'page_catinfo', 'page_len' );
 
 		// if the pageIds argument exists add it to the conditions
 		if ( $pageIds != null && is_array( $pageIds ) ) {
@@ -237,27 +248,59 @@ class TitusDB {
 			$conditions['page_id'] = $pageIds;
 		}
 
-		$rows = DatabaseHelper::batchSelect(
-			'page',
-			array( 'page_id', 'page_title', 'page_counter', 'page_is_featured', 'page_catinfo', 'page_len' ),
-			$conditions,
-			__METHOD__,
-			$options,
-			DatabaseHelper::DEFAULT_BATCH_SIZE,
-			$dbr
-		);
+		// check to make sure there are all pages initial-stage stats to calculate
+		if ( $statsToCalc != TitusConfig::getBasicStats() ) {
+			print "Running " . __METHOD__ . " on initial-stage Titus stats (" . date('r') ."): " . join( ',', array_keys($statsToCalc) ) . "\n";
 
-		foreach ($rows as $row) {
-			$fields = $this->calcPageStats($statsToCalc, $row);
+			$rows = DatabaseHelper::batchSelect(
+				'page',
+				$columns,
+				$conditions,
+				__METHOD__,
+				$options,
+				DatabaseHelper::DEFAULT_BATCH_SIZE,
+				$dbr
+			);
 
-			if (!empty($fields)) {
-				$this->batchStoreRecordWithError( $fields );
+			foreach ($rows as $row) {
+				$fields = $this->calcPageStats($statsToCalc, $row);
+
+				if (!empty($fields)) {
+					$this->batchStoreRecordWithError( $fields );
+				}
 			}
+
+			// flush out current batch
+			$this->flushDataBatch();
+			$this->flushDataBatchMulti();
 		}
 
-		// flush out current batch
-		$this->flushDataBatch();
-		$this->flushDataBatchMulti();
+		// calculate the late stage stats separately, after all the initial stats are done
+		if ( $calcLateStageStats ) {
+			print "Running " . __METHOD__ . " on late-stage Titus stats (" . date('r') ."): " . join( ',', array_keys($calcLateStageStats) ) . "\n";
+
+			$rows = DatabaseHelper::batchSelect(
+				'page',
+				$columns,
+				$conditions,
+				__METHOD__,
+				$options,
+				DatabaseHelper::DEFAULT_BATCH_SIZE,
+				$dbr
+			);
+
+			foreach ($rows as $row) {
+				$fields = $this->calcPageStats($calcLateStageStats, $row);
+
+				if (!empty($fields)) {
+					$this->batchStoreRecordWithError( $fields );
+				}
+			}
+
+			// flush out current batch
+			$this->flushDataBatch();
+			$this->flushDataBatchMulti();
+		}
 	}
 
 	/*
@@ -578,7 +621,7 @@ class TitusConfig {
 
 		// Stu stats don't make sense to calculate on a page edit.  This should be done nightly via
 		// across all pages
-		$stats['Stu'] = 0;
+		//$stats['Stu'] = 0;
 		$stats['Stu2'] = 0;
 		$stats['PageViews'] = 0;
 		$stats['GooglebotViews'] = 0;
@@ -599,7 +642,7 @@ class TitusConfig {
 			"AltMethods" => 1,
 			"ByteSize" => 1,
 			"Helpful" => 1,
-			"Stu" => 1,
+			//"Stu" => 1,
 			"Stu2" => 1,
 			"PageViews" => 1,
 			"GooglebotViews" => 1,
@@ -664,7 +707,7 @@ class TitusConfig {
 		);
 
 		if ( $wgLanguageCode != "en" ) {
-			$stats["Stu"] = 0;
+			//$stats["Stu"] = 0;
 			$stats["Stu2"] = 0;
 			$stats["RushData"] = 0;
 			$stats["RecentWikiphoto"] = 0;
@@ -685,6 +728,21 @@ class TitusConfig {
 			$stats["SearchVolume"] = 0;
 		}
 
+		return $stats;
+	}
+
+	// A list of stats that should be run after the rest of the daily stats
+	//
+	// NOTE, Reuben May 2020: Stu2 data is fully available at about 2:15am, and
+	// currently calcStatsForAllPages() runs between about 1am and 5am on English.
+	//
+	// I made this "late stage stats" feature so that Stu2 would be computed a little
+	// later on -- probably around 4am. This allows the night's titus run to include
+	// all of the previous day's stu data.
+	public static function getLateStageStats() {
+		$stats = [
+			"Stu2" => 1,
+		];
 		return $stats;
 	}
 
@@ -2202,7 +2260,8 @@ class TSWikiVideo extends TitusStat {
  * Stu data (www and mobile) for article
  * alter table titus_intl add column `ti_stu_1day_views` int(10) NOT NULL DEFAULT '0' after `ti_stu_10s_percentage_mobile`;
  * alter table titus_intl add column `ti_stu_7day_views` int(10) unsigned NOT NULL DEFAULT '0' after `ti_stu_1day_views`;
- */
+ *
+ * NOTE: Reuben disabled this stat in May 2020
 class TSStu extends TitusStat {
 	public function getPageIdsToCalc( $dbr, $date ) {
 		return TitusDB::ALL_IDS;
@@ -2309,6 +2368,7 @@ class TSStu extends TitusStat {
 		return $stats;
 	}
 }
+*/
 
 /*
  * Stu2 data (www and mobile) for article
@@ -2348,7 +2408,7 @@ class TSStu2 extends TitusStat {
 
 		// only calculate for english for now
 		if ( $wgLanguageCode != "en" ) {
-			return $stats;
+			return [];
 		}
 
 		$res = $dbr->select( 'stu.stu_agg',

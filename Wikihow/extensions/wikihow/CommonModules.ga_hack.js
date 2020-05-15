@@ -54,13 +54,6 @@ function loadGoogleAnalytics(siteVersion, propertyId, config) {
 						setABRtimeout(category, action, timeout);
 					} else {
 						ga(name + '.send', 'event', category, action);
-						//want to send a machnify event at the same time to compare
-						WH.maEvent(
-							'GA_abr_mimic',
-							{
-								articleId: mw.config.get('wgArticleId'),
-								articleTitle: mw.config.get('wgTitle'),
-							});
 					}
 				}, timeout);
 			})(abrCnf.eventCategory, abrCnf.eventAction, abrCnf.timeout * 1000)

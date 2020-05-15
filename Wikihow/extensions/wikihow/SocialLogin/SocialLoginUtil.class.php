@@ -5,6 +5,18 @@ use SocialAuth\FacebookSocialUser;
 use SocialAuth\GoogleSocialUser;
 
 /**
+ * README (2020)
+ * This code was written before the last MediaWiki upgrade, so it is hacky,
+ * because MW didn't provide a good way to extend the authentication system.
+ *
+ * Today, the right approach would be to implement PrimaryAuthenticationProvider.
+ *
+ * @see prod/includes/auth/AuthManager.php
+ * @see prod/includes/auth/PrimaryAuthenticationProvider.php
+ * @link https://www.mediawiki.org/wiki/Manual:SessionManager_and_AuthManager
+ */
+
+/**
  * Helper methods related to the social login/signup process
  *
  * These methods were originally copied and cleaned up from FBLogin.body.php and
@@ -80,17 +92,9 @@ class SocialLoginUtil {
 
 		// Run hooks
 		if ($event == 'signup') {
-			Hooks::run('AddNewAccount', [$wgUser, false]);
-			if ($type == 'facebook') {
-				Hooks::run( 'FacebookSignupComplete', [$wgUser]);
-			} elseif ($type == 'google') {
-				Hooks::run('GoogleSignupComplete', [$wgUser]);
-			} elseif ($type == 'civic') {
-				Hooks::run('CivicSignupComplete', [$wgUser]);
-			}
+			Hooks::run( 'LocalUserCreated', [$wgUser, false, $type] );
+			Hooks::run( 'SocialSignupComplete', [$type] );
 		}
-
-		Misc::addAnalyticsEventToCookie('User Accounts', $event, $type);
 
 		WikihowStatsd::increment( "auth.{$type}.{$event}" );
 		// Mimic local signup+login logging

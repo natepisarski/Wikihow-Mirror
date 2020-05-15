@@ -70,11 +70,11 @@ class WAPUtil {
 	// http://php.net/manual/en/function.str-getcsv.php#111665
 	// Serves as a fixed/improved version of PHP's str_getcsv.
 	public static function parse_csv($str) {
-		$str = preg_replace_callback('/([^"]*)("((""|[^"])*)"|$)/s', array(self, 'parse_csv_quotes'), $str);
+		$str = preg_replace_callback('/([^"]*)("((""|[^"])*)"|$)/s', array(__CLASS__, 'parse_csv_quotes'), $str);
 
 		$str = preg_replace('/\n$/', '', $str);
 
-		return array_map(array(self, 'parse_csv_line'), explode("\n", $str));
+		return array_map(array(__CLASS__, 'parse_csv_line'), explode("\n", $str));
 	}
 
 	// replace all the csv-special characters inside double quotes with markers using an escape sequence
@@ -89,7 +89,7 @@ class WAPUtil {
 
 	// split on comma and parse each field with a callback
 	public static function parse_csv_line($line) {
-		return array_map(array(self, 'parse_csv_field'), explode(',', $line));
+		return array_map(array(__CLASS__, 'parse_csv_field'), explode(',', $line));
 	}
 
 	// restore any csv-special characters that are part of the data

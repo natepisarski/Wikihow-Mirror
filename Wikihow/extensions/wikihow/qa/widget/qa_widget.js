@@ -151,7 +151,6 @@
 
 			$('.qa').on('click', '.qa_edit_submitted',  function(e) {
 				e.preventDefault();
-				// WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_answer_submitted');
 				if (WH.QAWidget.isAdmin) {
 					WH.QAWidget.enableEditingUI();
 				}
@@ -164,7 +163,6 @@
 
 			$('.qa').on('click', '.qa_edit_aq', function(e) {
 				e.preventDefault();
-				WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_edit_answered');
 				var $li = $(this).closest('.qa_aq');
 				WH.QAWidget.editArticleQuestion($li);
 			});
@@ -227,7 +225,6 @@
 
 			$('.qa').on('click', '.qa_ignore_submitted',  function(e) {
 				e.preventDefault();
-				WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_ignore_submitted');
 				var widget = WH.QAWidget;
 				var $li = $(this).closest('.qa_sq');
 				$.post(
@@ -244,7 +241,6 @@
 
 			$('.qa').on('click', '.qa_flag_submitted',  function(e) {
 				e.preventDefault();
-				WH.whEvent(WH.QAWidget.EVENT_CAT, 'click_flag_submitted');
 				var widget = WH.QAWidget;
 				var $li = $(this).closest('.qa_sq');
 				$.post(
@@ -361,14 +357,12 @@
 					$li.slideUp('fast', function(){$li.remove()});
 				}
 			}, this));
-			WH.QAWidget.logPatrolEvent('reject_answer', $li, {});
 		},
 
 		deleteUnpatrolledAnswer: function($li) {
 			$.get(this.patrolEndpoint+'?action=delete_question&id='+$li.data('qapid'), $.proxy(function(result) {
 				$li.slideUp('fast', function(){$li.remove()});
 			}, this));
-			WH.QAWidget.logPatrolEvent('delete_question', $li, {});
 		},
 
 		doUnpatrolledAnswerSubmission: function($li) {
@@ -405,7 +399,6 @@
 						$li.slideUp('fast', function () {
 							$(this).remove()
 						});
-						WH.QAWidget.logPatrolEvent('approve_with_edit', $li, {'similarity_score': data.similarity_score});
 						WH.QAWidget.addArticleQuestion(data.result.aq);
 					}
 				}), 'json');
@@ -471,7 +464,6 @@
 								widget.showAnswerConfirmation( $li );
 							}
 							if ( !result.userBlocked ) {
-								WH.whEvent( WH.QAWidget.EVENT_CAT, 'proposed_answer_submission' );
 								$.publish( WH.QAWidget.EVENT_PROPOSED_ANSWER_SUBMISSION );
 							}
 						},
@@ -486,7 +478,6 @@
 							$li.find('.qa_li_container').find('.qa_social_login_body').remove();
 							$li.find('.qa_li_container').find('.qa_social_login_button_container').remove();
 							if ( !result.userBlocked ) {
-								WH.whEvent( WH.QAWidget.EVENT_CAT, 'proposed_answer_submission' );
 								$.publish( WH.QAWidget.EVENT_PROPOSED_ANSWER_SUBMISSION );
 							}
 						});
@@ -552,29 +543,12 @@
 						$li.removeClass('qa_saving');
 						if (result.success) {
 							result.aq = widget.enableEditing(result.aq);
-							var eventAction = "";
-							var eventProps = {
-								'category': WH.QAWidget.EVENT_CAT,
-								'label': result.aq.id,
-								'article_name': mw.config.get('wgPageName'),
-								'question_old': $li.find('.qa_q_txt').html(),
-								'question_new': data.question,
-								'answer_new': data.answer
-							};
-
 							if ($li.hasClass('qa_sq')) {
 								$li.slideUp('fast', function() {$(this).remove()});
 								widget.addArticleQuestion(result.aq);
-								eventAction = 'edit_submitted';
 							} else {
-								eventAction = 'edit_curated';
 								$li.replaceWith(widget.getArticleQuestion(result.aq));
-
-								eventProps['answer_old'] = $li.find('.qa_answer').html();
 							}
-
-							WH.maEvent(eventAction, eventProps, false);
-
 						} else {
 							$(this).siblings('.qa_aq_edit_form_status').html(result.msg).slideDown();
 						}
@@ -887,7 +861,6 @@
 				this.hideForm();
 
 				if (this.isValidSubmittedQuestion(questionText)) {
-					WH.whEvent(this.EVENT_CAT, "submit");
 					$.post(
 						this.endpoint,
 						{
@@ -947,11 +920,6 @@
 			var validator = this.validator = new WH.StringValidator(config);
 			isValid = validator.validate(question);
 
-			if (!isValid) {
-				var rules = validator.getFailedRules();
-				WH.whEvent(WH.QAWidget.EVENT_CAT, 'proposed_answer_question_discarded', rules.join(","), question);
-			}
-
 			return isValid;
 		},
 
@@ -975,11 +943,6 @@
 
 			var validator = this.validator = new WH.StringValidator(config);
 			isValid = validator.validate(answer);
-
-			if (!isValid) {
-				var rules = validator.getFailedRules();
-				WH.whEvent(WH.QAWidget.EVENT_CAT, 'proposed_answer_discarded', rules.join(","), answer);
-			}
 
 			return isValid;
 		},
@@ -1137,21 +1100,6 @@
 						$li.slideUp();
 					}, this)
 			);
-
-			//log it
-			var uid = mw.config.get('wgUserId');
-			var event = type == 'sq_ignore' ? 'click_ignore_submitted' : 'click_flag_submitted';
-			var eventProps = {
-				'category': widget.EVENT_CAT,
-				'option': option,
-				'qs_id': $li.data('sqid'),
-				'user_id': uid != null ? uid : 0,
-				'visiter_id': $.cookie('whv'),
-				'question': $li.find('.qa_q_txt').html(),
-				'article_id': mw.config.get('wgArticleId'),
-				'article_name': mw.config.get('wgPageName')
-			};
-			WH.maEvent(event, eventProps, false);
 		},
 
 		popAnswerFlagOptions: function (flag) {
@@ -1364,14 +1312,6 @@
 			});
 
 			var whLoginDone = function(data) {
-				if (data.result == 'signup' && typeof WH.maEvent == 'function') {
-					var properties = {
-						category: 'account_signup',
-						type: data.type,
-						prompt_location: 'qa'
-					};
-					WH.maEvent('account_signup', properties, false);
-				}
 				widget.showSocialLoginFormConfirmation($li, data.user);
 				$.ajax({
 					type: 'GET',
@@ -1390,31 +1330,6 @@
 				fb: '.qa_social_login_form .facebook_button',
 				gplus: '.qa_social_login_form .google_button'
 			}, whLoginDone, whLoginFail );
-		},
-
-		logPatrolEvent: function(action, $li, eventProps) {
-			var event = 'qapatrol_action_article'; //always the same event (Alissa request)
-			eventProps['action'] = action;
-			eventProps['category'] = 'qa_patrol';
-			eventProps['original_answer'] = $li.find('.qa_answer').html();
-			eventProps['original_question'] = $li.find('.qa_q_txt').html();
-			eventProps['patroller_name'] = mw.config.get('wgUserName');
-			eventProps['qs_id'] = $li.data('sqid');
-			eventProps['qap_id'] = $li.data('qapid');
-			eventProps['article_title'] = mw.config.get('wgPageName');
-			eventProps['article_id'] = mw.config.get('wgArticleId');
-			eventProps['submit_time'] = $li.data('timestamp');
-			eventProps['verifier_id'] = $li.data('verifier_id');
-			var userName = $li.find(".qa_user_name").text();
-			eventProps['submitter_name'] = (userName == mw.msg('qa_generic_username')) ? "Anonymous" : userName;
-			if(action == "approve_with_edit") {
-				eventProps['edited_answer'] = $li.find('.qa_ca_text').val();
-				eventProps['edited_question'] = $li.find('.qa_cq_text').val();
-				eventProps['edited_verifier_id'] = $li.find('.qa_edit_form_verifier').find(":selected").val();
-				eventProps['edited_submitter_name'] = $li.find('#qa_aq_remove_submitter').is(':checked') ? "" : eventProps['submitter_name'];
-			}
-
-			WH.maEvent(event, eventProps, false);
 		},
 
 		/**

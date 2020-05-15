@@ -175,7 +175,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$res = $dbr->select(
 			['page', 'categorylinks', 'index_info', 'titus_copy'],
 			['page_title', 'page_namespace', 'page_len', 'page_further_editing', 'cl_sortkey', 'page_counter', 'page_is_featured', 'page_id as pageid'],
-			['cl_to' => $safeTitle, 'page_namespace != ' . NS_CATEGORY, $indexConds],
+			['cl_to' => $safeTitle, 'page_namespace != ' . NS_CATEGORY, $indexConds, 'page_is_redirect' => 0],
 			__METHOD__,
 			['GROUP BY' => 'page_id', 'ORDER BY' => $order, 'LIMIT' => ($this->limit + 1)],
 			[

@@ -584,7 +584,8 @@ class SkinMinervaWikihow extends SkinMinerva {
 			$tpl->set( 'disableFooter', $isTool);
 		} else {
 			if ( $pageHeading ) {
-				if ($title->inNamespace(NS_MAIN)) {
+				// Don't provide a self-referential title link if the page is a 404
+				if ($title->inNamespace(NS_MAIN) && $out->getStatusCode() !== 404) {
 					$titleTxt = HTML::rawElement( 'a', [ 'href' => $title->getFullURL() ], $pageHeading);
 				} else {
 					$titleTxt = $pageHeading;

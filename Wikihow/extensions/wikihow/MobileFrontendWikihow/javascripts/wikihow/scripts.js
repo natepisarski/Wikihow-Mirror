@@ -214,42 +214,6 @@ function addClickHandlers() {
 			//e.preventDefault();
 			WH.ga.sendEvent('m-edit', 'pencil', mw.config.get('wgTitle'));
 		});
-
-		// Track Quiz App clicks
-		$(document).on('click', '#icon-quizyourself', function() {
-			WH.maEvent('mobile_menu_quiz_app_click');
-		});
-
-		// Track search clicks
-		var openCount = 0;
-		var closeCount = 0;
-		var hsCloseClicks = 0;
-		var open = $( '.hs_active' ).length > 0;
-		var pageType = 'other';
-		if (mw.config.get('wgIsArticle')) {
-			pageType = 'article';
-		} else if ( wgTitle === 'LSearch' ) {
-			pageType = 'search';
-		} else if ( wgTitle === 'Main Page' ) {
-			pageType = 'main';
-		}
-
-		$('#hs_query').on( 'click', function ( e ) {
-			if ( !open ) {
-				openCount++;
-				open = true;
-				WH.maEvent( 'mobile_search_open', { count: openCount, pageType: pageType } );
-			}
-		} );
-		$('#hs_close').on( 'click', function ( e ) {
-			closeCount++;
-			open = false;
-			WH.maEvent( 'mobile_search_close', { count: closeCount, pageType: pageType } );
-		} );
-		$('#hs form').on( 'submit', function ( e ) {
-			WH.maEvent( 'mobile_search_submit', { pageType: pageType } );
-		} );
-
 }
 
 $(document).ready(function() {

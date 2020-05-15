@@ -322,18 +322,6 @@
 		},
 
 		log: function(event_action) {
-			var event = 'fix_flagged_answers';
-			var eventProps = {
-				category: 'fix_flagged_answers',
-				action: event_action,
-				article_title: this.qfa_data['article_title'],
-				original_question: this.qfa_data['original_question'],
-				edited_question: this.qfa_data['edited_question'],
-				original_answer: this.qfa_data['original_answer'],
-				edited_answer: this.qfa_data['edited_answer']
-			};
-			WH.maEvent(event, eventProps, false);
-
 			var question = this.qfa_data['edited_question'] ? this.qfa_data['edited_question'] : this.qfa_data['original_question'];
 			var answer = this.qfa_data['edited_answer'] ? this.qfa_data['edited_answer'] : this.qfa_data['original_answer'];
 

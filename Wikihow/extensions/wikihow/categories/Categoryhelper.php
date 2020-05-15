@@ -7,13 +7,13 @@
  *
  * @link http://www.wikihow.com/WikiHow:CategoryHelper-Extension Documentation
  *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'CategoryHelper',
-	'author' => 'Travis Derouin',
+	'author' => 'Travis Derouin (wikiHow)',
 	'description' => 'helper functions for working with categories',
 );
 

@@ -5,7 +5,6 @@
 		initialOften: 0,
 
 		init: function() {
-			WH.maEvent("contribute_landing", {}, false);
 			this.randomizeOptions();
 			this.clickHandlers();
 		},
@@ -28,10 +27,6 @@
 					$(".na_amount_error").show();
 					return;
 				}
-				var howOften = $(".na_often.active").text();
-				var howMuch = $(".na_amount.active").data("amount");
-				//alert("Sending $" + howMuch + " (" + howOften + ") to machinify");
-				WH.maEvent("contribute_submit", {amount: howMuch, frequency: howOften, initialFrequency: WH.Contribute.initialOften}, false);
 				$(this).hide();
 				$("#na_soon").show();
 			});

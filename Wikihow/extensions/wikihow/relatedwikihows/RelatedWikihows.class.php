@@ -42,7 +42,8 @@ class RelatedWikihow {
 		$imgSrc = wfGetPad( $imgSrc );
 		$text =  $this->mText;
 		$url =  $this->mUrl;
-		$id = wfRandomString(10);
+		$id = HtmlElementIdMap::getElementId( $imgSrc );
+
 		$imgAttributes = [
 			'id' => $id,
 			'class' => 'scrolldefer content-fill',

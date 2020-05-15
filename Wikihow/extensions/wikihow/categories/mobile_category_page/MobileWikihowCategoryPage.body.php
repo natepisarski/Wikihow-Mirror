@@ -24,12 +24,13 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		}
 
 		$ctx = $this->getContext();
+		$isLoggedIn = $ctx->getUser()->isLoggedIn();
 		$req = $ctx->getRequest();
 		$out = $ctx->getOutput();
 		$categoryTitle = $ctx->getTitle();
 
 		if (!$categoryTitle->exists()) {
-			parent::view();
+			self::show404Page($out, $categoryTitle->getText());
 			return;
 		}
 
@@ -107,6 +108,8 @@ class MobileWikihowCategoryPage extends CategoryPage {
 				$i = 0;
 				if (count($fas) >= 4) {
 					foreach ($fas as $fa) {
+						if( !$isLoggedIn && AlternateDomain::getAlternateDomainForPage($fa->getArticleID()) )
+							continue;
 						$info = $this->getArticleThumbWithPathFromTitle($fa);
 						if ($info) {
 							$featuredImages[] = $info;
@@ -177,6 +180,8 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$count = 0;
 			$allArticles = [];
 			for ($i = $start; $i < count($articles) && $i < ($start + $articlesPerPage); $i++){
+				if( !$isLoggedIn && AlternateDomain::getAlternateDomainForPage($articles[$i]->getArticleID()) )
+					continue;
 				$info = $this->getArticleThumbWithPathFromTitle($articles[$i]);
 				if ($info) {
 					$allArticles[] = $info;
@@ -190,6 +195,8 @@ class MobileWikihowCategoryPage extends CategoryPage {
 				foreach ($pageIds as $pageId) {
 					$addedTitle = Title::newFromID($pageId);
 					if ($addedTitle && RobotPolicy::isIndexable($addedTitle)) {
+						if( !$isLoggedIn && AlternateDomain::getAlternateDomainForPage($pageId) )
+							continue;
 						$info = $this->getArticleThumbWithPathFromTitle($addedTitle);
 						if ($info) {
 							if($count >= self::SMALL_PULL_CHUNKS) {
@@ -207,7 +214,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			}
 			$vars['all'] = $allArticles;
 
-			$showFurtherEditing = $ctx->getUser()->isLoggedIn() && !$covidPage;
+			$showFurtherEditing = $isLoggedIn && !$covidPage;
 
 			if ($showFurtherEditing) {
 				$furtherEditing = $viewer->getArticlesFurtherEditing($viewer->articles, $viewer->article_info);
@@ -226,19 +233,9 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$vars['covid_section'] = $this->covidSection();
 
 			$html = self::renderTemplate("responsive_category_page.mustache", $vars);
-
 			if (count($allArticles) == 0) {
 				//nothin' in this category
-				$out->setStatusCode(404);
-				$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
-				$out->addHTML( self::renderTemplate('responsive_no_results.mustache',
-					[
-						'title' => $categoryName,
-						'special_message' => wfMessage( 'Noarticletextanon' )->parse(),
-						'search_header' => wfMessage( 'pagepolicy_search_header' )->text(),
-						'searchbox' => SearchBox::render( $out )
-					]
-				) );
+				self::show404Page($out, $categoryName);
 				return;
 			} else {
 				$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
@@ -248,22 +245,19 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		}
 	}
 
-	private function getArticleThumbWithPathFromUrl($link){
-
-		if (preg_match('@title="([^"]+)"@', $link, $matches)) {
-			$title = Title::newFromText($matches[1]);
-			if ($title) {
-				return $this::getArticleThumbWithPathFromTitle($title);
-
-			} else {
-				return null;
-			}
-		} else {
-			return null;
-		}
-
+	public static function show404Page( $out, $categoryName ) {
+		$out->setStatusCode(404);
+		$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
+		$out->addHTML( self::renderTemplate('responsive_no_results.mustache',
+			[
+				'title' => $categoryName,
+				'special_message' => wfMessage( 'Noarticletextanon' )->parse(),
+				'search_header' => wfMessage( 'pagepolicy_search_header' )->text(),
+				'searchbox' => SearchBox::render( $out ),
+				'cat_not_exists' => wfMessage('cat_not_exists')->text()
+			]
+		) );
 	}
-
 
 	private function getArticleThumbWithPathFromTitle(Title $title) {
 		global $wgContLang, $wgLanguageCode;

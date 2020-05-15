@@ -63,20 +63,7 @@
 			});
 		},
 
-		maLog: function(action) {
-			var event = 'tech_feedback_tool';
-			var data = { 'action' : action };
-			data['article'] = $('#current-title').data('title');
-			WH.maEvent(event, data, true);
-		},
-
 		voteDone: function(data) {
-			var data = JSON.parse(data);
-			if (data.logactions) {
-				for (var i = 0; i < data.logactions.length; i++ ) {
-					this.maLog(data.logactions[i]);
-				}
-			}
 			WH.SpecialTechFeedback.updateStats();
 			this.getNext();
 		},

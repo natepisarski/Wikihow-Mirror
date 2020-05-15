@@ -1,25 +1,23 @@
 <?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-    exit(1);
+	exit(1);
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'QG',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Provides a way of reviewing a set of edits separate from RC Patrol, such as removal of stub templates.',
+	'name' => 'QG',
+	'author' => 'wikiHow',
+	'description' => 'Quality Guardian: Provides a way of reviewing certain types of special edits, such as removal of stub templates',
 );
-
-$dir = __DIR__ . '/';
 
 $wgSpecialPages['QG'] = 'QG';
 $wgSpecialPages['QC'] = 'QG';
-$wgAutoloadClasses['QG'] = $dir . 'QC.body.php';
+$wgAutoloadClasses['QG'] = __DIR__ . '/QC.body.php';
 
 $wgAutoloadClasses['QCRuleTemplateChange'] = __DIR__ . '/QC.body.php';
 
 # Internationalisation file
-$wgExtensionMessagesFiles['QG'] = $dir . 'QC.i18n.php';
+$wgExtensionMessagesFiles['QG'] = __DIR__ . '/QC.i18n.php';
 
 $wgChangedTemplatesToQC = array("stub", "format", "cleanup", "copyedit");
 $wgTemplateChangedVotesRequired = array(
@@ -27,30 +25,30 @@ $wgTemplateChangedVotesRequired = array(
 	"added" => array("yes"=>1, "no"=>2)
 );
 
-$wgAutoloadClasses["QCRule"] = $dir . 'QC.body.php';
-$wgAutoloadClasses["QCRCPatrol"] = $dir . 'QC.body.php';
-$wgAutoloadClasses["QCRuleIntroImage"] = $dir . 'QC.body.php';
-$wgAutoloadClasses["QCRuleTip"] = $dir . 'QC.body.php';
+$wgAutoloadClasses["QCRule"] = __DIR__ . '/QC.body.php';
+$wgAutoloadClasses["QCRCPatrol"] = __DIR__ . '/QC.body.php';
+$wgAutoloadClasses["QCRuleIntroImage"] = __DIR__ . '/QC.body.php';
+$wgAutoloadClasses["QCRuleTip"] = __DIR__ . '/QC.body.php';
 
 $wgResourceModules['ext.wikihow.quality_guardian'] = array(
-    'styles' => array('qc.css'),
-    'scripts' => array('qc.js'),
-    'localBasePath' => __DIR__,
-    'remoteExtPath' => 'wikihow/qc',
-    'position' => 'top',
-    'targets' => array('desktop', 'mobile'),
-    'dependencies' => array(
+	'styles' => array('qc.css'),
+	'scripts' => array('qc.js'),
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'wikihow/qc',
+	'position' => 'top',
+	'targets' => array('desktop', 'mobile'),
+	'dependencies' => array(
 		'jquery',
-    	'ext.wikihow.common_top',
-    	'ext.wikihow.common_bottom',
+		'ext.wikihow.common_top',
+		'ext.wikihow.common_bottom',
 		'jquery.cookie',
-    ),
+	),
 );
 
-$wgQCIntroImageVotesRequired = array ("yes"=>2, "no"=>2);
-$wgQCVideoChangeVotesRequired = array ("yes"=>2, "no"=>1);
-$wgQCRCPatrolVotesRequired = array ("yes"=>1, "no"=>1);
-$wgQCNewTipVotesRequired = array ("yes"=>2, "no"=>2);
+$wgQCIntroImageVotesRequired = array("yes"=>2, "no"=>2);
+$wgQCVideoChangeVotesRequired = array("yes"=>2, "no"=>1);
+$wgQCRCPatrolVotesRequired = array("yes"=>1, "no"=>1);
+$wgQCNewTipVotesRequired = array("yes"=>2, "no"=>2);
 
 
 $wgHooks["PageContentSaveComplete"][] = "wfCheckQC";
@@ -63,9 +61,9 @@ $wgAvailableRights[] = 'qc';
 $wgGroupPermissions['staff']['qc'] = true;
 
 // Log page definitions
-$wgLogTypes[]              = 'qc';
-$wgLogNames['qc']          = 'qclogpage';
-$wgLogHeaders['qc']        = 'qclogtext';
+$wgLogTypes[] = 'qc';
+$wgLogNames['qc'] = 'qclogpage';
+$wgLogHeaders['qc'] = 'qclogtext';
 
 $wgHooks['ArticleDelete'][] = array("wfClearQCOnDelete");
 

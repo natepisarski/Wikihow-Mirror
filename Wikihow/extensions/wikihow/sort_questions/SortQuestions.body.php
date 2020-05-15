@@ -43,8 +43,7 @@ class SortQuestions extends UnlistedSpecialPage {
 
 
 	function execute($par) {
-		$this->out->setRobotPolicy("noindex,follow");
-		//$this->out->setArticleBodyOnly( true );
+		$this->out->setRobotPolicy(RobotPolicy::POLICY_NOINDEX_NOFOLLOW_STR);
 
 		if ( $this->user->isBlocked() ) {
 			throw new UserBlockedError( $this->user->getBlock() );

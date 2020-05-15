@@ -61,7 +61,6 @@ $wgResourceModules['ext.wikihow.quiz_yourself.styles'] = [
 
 $wgResourceModules['ext.wikihow.quiz_yourself_cta'] = [
 	'styles' => [ 'quiz_yourself_cta.less' ],
-	'scripts' => [ 'quiz_yourself_cta.js' ],
 	'localBasePath' => __DIR__.'/QuizYourself/resources',
 	'remoteExtPath' => 'wikihow/quiz/QuizYourself/resources',
 	'targets' => [ 'mobile' ],

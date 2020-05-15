@@ -156,17 +156,14 @@
 				if (!data.power_voter) {
 					//only log regular clicks for normal users
 					log_event = vote ? 'approve_vote' : 'reject_vote';
-					WH.QAPatrol.logIt(log_event);
 				}
 
 				//max reached
 				if (data.approved) {
 					log_event = data.power_voter ? 'approve_without_edit' : 'approve_vote_majority';
-					WH.QAPatrol.logIt(log_event);
 				}
 				else if (data.deleted) {
 					log_event = data.power_voter ? 'reject_answer' : 'reject_vote_majority';
-					WH.QAPatrol.logIt(log_event);
 				}
 				//----------------------
 
@@ -237,7 +234,6 @@
 				WH.QAPatrol.qap_data['edited_question'] = stuff['question'];
 				WH.QAPatrol.qap_data['edited_answer'] = stuff['answer'];
 				WH.QAPatrol.qap_data['similarity_score'] = data.similarity_score;
-				WH.QAPatrol.logIt(log_event);
 
 				WH.QAPatrol.getQA(true);
 
@@ -333,20 +329,17 @@
 		deleteQuestion: function() {
 			WH.QAPatrol.processing();
 			$.get(this.toolURL+'?action=delete_question&id='+this.qap_data['qap_id'], function() {
-				WH.QAPatrol.logIt('delete_question');
 				WH.QAPatrol.getQA();
 			});
 		},
 
 		skipCallback: function() {
 			$.get(WH.QAPatrol.toolURL+'?action=skip&id='+WH.QAPatrol.qap_data['qap_id'], function() {
-				WH.QAPatrol.logIt('skip');
 				WH.QAPatrol.getQA();
 			});
 		},
 
 		flagGreat: function(obj) {
-			WH.QAPatrol.logIt('flag_great');
 			$(obj).parent().html(mw.message('qap_flag_thanks').text());
 		},
 
@@ -363,17 +356,6 @@
 				});
 			});
 		},
-
-		logIt: function(action) {
-			var event = action == 'flag_great' ? 'qapatrol_great_answer_flag' : 'qapatrol_action';
-			var eventProps = $.extend(true, {}, WH.QAPatrol.qap_data); //copy our data array
-
-			eventProps['category'] = 'qa_patrol',
-			eventProps['action'] = action;
-			delete eventProps['original_answer_formatted'];
-
-			WH.maEvent(event, eventProps, false);
-		}
 	}
 
 	$(document).ready(function() {

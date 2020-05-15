@@ -13,6 +13,17 @@ class Misc {
 	const YT_WIKIHOW_VIDEOS = "youtube_wikihow_videos";
 	const YT_GUIDECENTRAL_VIDEOS = "youtube_guidecentral_videos";
 
+	/**
+	 * Check if we should embed YouTube schema for a summary video on this article.
+	 *
+	 * @param {number} $articleId ArticleID
+	 * @return boolean YouTube schema is embeddable on article
+	 */
+	public static function isYouTubeSchemaEmbeddable( $articleId ) {
+		return ArticleTagList::hasTag( Misc::YT_WIKIHOW_VIDEOS, $articleId ) ||
+			ArticleTagList::hasTag( Misc::YT_GUIDECENTRAL_VIDEOS, $articleId );
+	}
+
 	/*
 	 * adminPostTalkMessage
 	 * - returns true/false
@@ -789,30 +800,6 @@ class Misc {
 		global $wgRequestTime;
 		$elapsed = microtime( true ) - $wgRequestTime;
 		return sprintf('%d', $elapsed * 1000);
-	}
-
-	/**
-	 * Add a Google Analytics event to a cookie, which will be processed and cleared via
-	 * JavaScript on the next page load.
-	 *
-	 * @param String  $category   The name you supply for the group of objects you want to track.
-	 * @param String  $action     Commonly used to define the type of user interaction for the web object.
-	 * @param String  $label      An optional string to provide additional dimensions to the event data.
-	 * @param String  $value      An integer that you can use to provide numerical data about the user event.
-	 * @param boolean $nonInter   When true, the event hit will not be used in bounce-rate calculation.
-	 */
-	public static function addAnalyticsEventToCookie($category, $action, $label = null,
-													 $value = null, $nonInter = true) {
-		global $wgCookieDomain, $wgCookiePath, $wgCookiePrefix, $wgCookieSecure;
-		$events = json_decode($_COOKIE['wiki_ga_pending']);
-		if (json_last_error() !== JSON_ERROR_NONE) {
-			$events = array();
-		}
-		$events[] = compact('category', 'action', 'label', 'value', 'nonInter');
-		$name = $wgCookiePrefix . 'GAPendingEvents';
-		$value = json_encode($events);
-		setcookie($name, $value, time() + 3600, $wgCookiePath, '.' . $wgCookieDomain, $wgCookieSecure);
-
 	}
 
 	public static function getGoogleAnalyticsConfig(): array {

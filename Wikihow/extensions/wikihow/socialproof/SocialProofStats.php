@@ -352,7 +352,7 @@ class SocialProofStats extends ContextSource {
 		if ( !$vInfo->imagePath ) return $html;
 
 		$amp = GoogleAmp::isAmpMode( RequestContext::getMain()->getOutput() );
-		$id = $id . wfRandomString(10);
+		$id = HtmlElementIdMap::getElementId( $id );
 
 		$imagePath = wfGetPad( $vInfo->imagePath );
 

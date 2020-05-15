@@ -9,14 +9,14 @@ if ( ! defined( 'MEDIAWIKI' ) )
  * @subpackage Extensions
  *
  *
- * @author Vu Nguyen <vu@wikihow.com>
+ * @author Vu Nguyen (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 
 $wgExtensionCredits['specialpage'][] = array(
 	'name' => 'AuthorEmailNotification',
-	'author' => 'Vu Nguyen',
+	'author' => 'Vu Nguyen (wikiHow)',
 	'description' => 'Notifies by email on certain events',
 );
 
@@ -25,8 +25,8 @@ $wgSpecialPages['AuthorEmailNotification'] = 'AuthorEmailNotification';
 $wgAutoloadClasses['AuthorEmailNotification'] = __DIR__ . '/AuthorEmailNotification.body.php';
 $wgAutoloadClasses['EmailActionButtonScript'] = __DIR__ . '/EmailActionButtonScript.class.php';  //Class that returns script for including gmail action buttons
 
-$wgHooks['AddNewAccount'][] = array("attributeAnon");
-$wgHooks['AddNewAccount'][] = array("setUserTalkOption");
+$wgHooks['LocalUserCreated'][] = array("attributeAnon");
+$wgHooks['LocalUserCreated'][] = array("setUserTalkOption");
 #$wgHooks['ArticlePageDataBefore'][] = array("addFirstEdit");
 $wgHooks['MarkPatrolledDB'][] = array("sendModNotification");
 $wgHooks['ConfirmEmailComplete'][] = array('setUserWatchToWatchAll');

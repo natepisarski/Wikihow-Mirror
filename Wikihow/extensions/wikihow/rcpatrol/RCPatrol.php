@@ -10,9 +10,7 @@ exit(1);
  * @package MediaWiki
  * @subpackage Extensions
  *
- *
- *
- * @author Travis Derouin <travis@wikihow.com>
+ * @author Travis Derouin (wikiHow)
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 $wgExtensionCredits['specialpage'][] = array(

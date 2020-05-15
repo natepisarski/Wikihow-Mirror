@@ -1,14 +1,15 @@
 <?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-    exit(1);
+	exit(1);
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'MultipleUpload',
-    'author' => 'Travis <travis@wikihow.com>',
-    'description' => 'Allows users to upload several files at once.',
+	'name' => 'MultipleUpload',
+	'author' => 'Travis Derouin (wikiHow)',
+	'description' => 'Allows users to upload several files at once.',
 );
+
 $wgMaxUploadFiles = 5;
 
 $wgExtensionMessagesFiles['MultipleUpload'] = __DIR__ . '/MultipleUpload.i18n.php';

@@ -6,8 +6,8 @@
 $wgExtensionCredits['api'][] = array(
   'path' => __FILE__,
   'name' => 'Titus API',
+  'author' => 'Gershon Bialer (wikiHow)',
   'description' => 'An API extension to server up Titus data',
-  'author' => 'Gershon Bialer'
 );
 
 $wgAutoloadClasses['ApiTitus'] = __DIR__ . '/ApiTitus.body.php';

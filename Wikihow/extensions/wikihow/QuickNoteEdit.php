@@ -1,13 +1,13 @@
 <?php
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-    exit(1);
+	exit(1);
 }
 
 $wgExtensionCredits['specialpage'][] = array(
-    'name' => 'QuickNoteEdit',
-    'author' => 'Vu <vu@wikihow.com>',
-    'description' => 'quick popups for notes and edit',
+	'name' => 'QuickNoteEdit',
+	'author' => 'Vu (wikiHow)',
+	'description' => 'quick popups for notes and edit',
 );
 
 $wgExtensionMessagesFiles['QuickNoteEdit'] = __DIR__ . '/QuickNoteEdit.i18n.php';
