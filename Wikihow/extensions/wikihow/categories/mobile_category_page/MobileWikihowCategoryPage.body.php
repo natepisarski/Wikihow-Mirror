@@ -42,8 +42,6 @@ class MobileWikihowCategoryPage extends CategoryPage {
 		if ($categoryName == 'COVID 19') $categoryName = 'COVID-19';
 
 		$out->setRobotPolicy('index,follow', 'Category Page');
-		// allow redirections to mobile domain
-		Misc::setHeaderMobileFriendly();
 		$out->setPageTitle($categoryName);
 
 		if ($req->getVal('viewMode',0)) {
@@ -82,7 +80,9 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$isTopCat = in_array($categoryName, $topCats);
 
 			$vars = [];
-			$vars['description'] = AdminCategoryDescriptions::getCategoryDescription($this->mTitle);
+			if($pg == 1) {
+				$vars['description'] = AdminCategoryDescriptions::getCategoryDescription($this->mTitle);
+			}
 			$vars['catName'] = $categoryName;
 			$vars['featuredHeader'] = wfMessage("cat_featured")->text();
 			$vars['topicsHeader'] = wfMessage("cat_topics")->text();
@@ -103,7 +103,7 @@ class MobileWikihowCategoryPage extends CategoryPage {
 			$fas = $viewer->getFAs(); //we still do this call even if we don't want FA section on this page b/c it initializes the article viewer object
 
 			//First get the featured articles, but only if not on the featured article category page
-			if ($this->mTitle->getLocalUrl() !== wfMessage('Featuredarticles_url')->text()) {
+			if ($this->mTitle->getLocalUrl() !== wfMessage('Featuredarticles_url')->text() && $pg == 1) {
 				$featuredImages = [];
 				$i = 0;
 				if (count($fas) >= 4) {

@@ -306,7 +306,7 @@ class SchemaMarkup {
 			}
 			$stepData = [
 				"@type" => "HowToStep",
-				"description" => $text
+				"text" => $text
 			];
 			$steps[] = $stepData;
 		}
@@ -437,7 +437,12 @@ class SchemaMarkup {
 			return "";
 		}
 
-		$cacheKey = wfMemcKey( self::RECIPE_SCHEMA_CACHE_KEY, $title->getArticleID(), $revisionId );
+		$cacheKey = wfMemcKey(
+			self::RECIPE_SCHEMA_CACHE_KEY,
+			$title->getArticleID(),
+			$revisionId,
+			$title->getTouched()
+		);
 		$val = $wgMemc->get( $cacheKey );
 		if ( $val !== false ) {
 			return $val;
@@ -498,7 +503,15 @@ class SchemaMarkup {
 		$data['description'] = self::getDescription( $title );
 		$data['recipeIngredient'] = $ingredients;
 
-		$videoData = self::getVideo( $title );
+		if ( WHVid::isYtSummaryArticle( $title ) ) {
+			$youTubeVideo = WHVid::getYTVideoFromArticle( $title );
+			if ( $youTubeVideo['status'] === 'ok' ) {
+				$videoData = self::getYouTubeVideo( $title, $youTubeVideo['youtube_id'] );
+			}
+		} else {
+			$videoData = self::getVideo( $title );
+		}
+
 		if ( $videoData ) {
 			$data['video'] = $videoData;
 		}
@@ -815,7 +828,7 @@ class SchemaMarkup {
 		return '';
 	}
 
-	public static function getYouTubeVideoReport( $id ) {
+	public static function getYouTubeVideoStatus( $id ) {
 		global $wgMemc;
 		$requestKey = "YouTubeInfo({$id})";
 		$cacheKey = wfMemcKey( $requestKey );
@@ -824,15 +837,48 @@ class SchemaMarkup {
 		$isExpired = AsyncHttp::isExpired( $requestKey );
 		$apiCacheKey = md5( $requestKey );
 		$apiCacheStatus = $response ? ( $isExpired ? 'expired' : 'ok' ) : 'not-found';
+		if ( $apiCacheStatus === 'expired' ) {
+			// Be a little more specific
+			$updated = wfTimestamp( TS_UNIX, $response['updated'] );
+			if ( $updated + $response['ttl'] < wfTimestamp() + ( 24 * 60 * 60 ) ) {
+				$apiCacheStatus .= ' - refresh pending';
+			}
+		}
 		if ( $response['updated'] != $response['created'] ) {
 			$apiCacheStatus .= ' - retry pending';
 		}
+		$apiResponseStatus = $response ? 'valid' : 'none';
+		if ( $response ) {
+			// Check for other problems that can occur
+			$data = @json_decode( $response['body'] );
+			if ( $data === null ) {
+				$apiResponseStatus = 'unparsable';
+			} else {
+				if ( !$data ) {
+					$apiResponseStatus = 'invalid';
+				} else if ( !is_array( $data->items ) || !count( $data->items ) ) {
+					$apiResponseStatus = 'empty';
+				}
+			}
+		}
 		$objectCacheStatus = $info ? 'ok' : 'not-found';
+		return [
+			'videoId' => $id,
+			'apiCacheKey' => $apiCacheKey,
+			'apiCacheStatus' => $apiCacheStatus,
+			'apiResponseStatus' => $apiResponseStatus,
+			'objectCacheStatus' => $objectCacheStatus
+		];
+	}
+
+	public static function getYouTubeVideoReport( $id ) {
+		$status = static::getYouTubeVideoStatus( $id );
 		return "Video Schema Report\n" .
-			"Video ID: {$id}\n" .
-			"API Cache Key: {$apiCacheKey}\n" .
-			"API Cache Status: {$apiCacheStatus}\n" .
-			"Object Cache Status: {$objectCacheStatus}";
+			"Video ID: {$status['videoId']}\n" .
+			"API Cache Key: {$status['apiCacheKey']}\n" .
+			"API Cache Status: {$status['apiCacheStatus']}\n" .
+			"API Response Status: {$status['apiResponseStatus']}\n" .
+			"Object Cache Status: {$status['objectCacheStatus']}";
 	}
 
 	/**

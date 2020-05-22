@@ -67,7 +67,7 @@ class YouTube implements VideoProvider {
 	public function getURL( $videoURL ) {
 		// Track requests in statds/grafana
 		WikihowStatsd::increment( 'youtube.VideoProvider' );
-		return 'https://www.googleapis.com/youtube/v3/videos?part=id,status&id=' . $videoURL . '&key=' . WH_YOUTUBE_IMPORT_API_KEY;
+		return 'https://www.googleapis.com/youtube/v3/videos?part=id,status&id=' . $videoURL . '&key=' . WH_YOUTUBE_PROVIDER_API_KEY;
 	}
 
 }

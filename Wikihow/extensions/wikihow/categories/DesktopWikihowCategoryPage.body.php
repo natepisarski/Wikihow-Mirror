@@ -30,8 +30,6 @@ class DesktopWikihowCategoryPage extends CategoryPage {
 		}
 
 		$out->setRobotPolicy('index,follow', 'Category Page');
-		// allow redirections to mobile domain
-		Misc::setHeaderMobileFriendly();
 		$out->setPageTitle($categoryTitle->getText());
 		if ($req->getVal('viewMode',0)) {
 			//this is for the text view

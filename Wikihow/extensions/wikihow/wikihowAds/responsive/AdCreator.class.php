@@ -1169,7 +1169,7 @@ abstract class AdCreator {
 			return false;
 		}
 
-		if ( intval( $this->mBucketId ) >= 23 ) {
+		if ( intval( $this->mBucketId ) >= 22 ) {
 			return true;
 		}
 
@@ -1188,6 +1188,22 @@ abstract class AdCreator {
 		}
 
 		if ( intval( $this->mBucketId ) >= 24 ) {
+			return true;
+		}
+		if ( intval( $this->mBucketId ) == 22 ) {
+			return true;
+		}
+
+		return false;
+	}
+	public function isPrebidPageNoBidCachingPage() {
+		global $wgRequest, $wgLanguageCode;
+
+		if ( $wgLanguageCode != 'en' ) {
+			return false;
+		}
+
+		if ( intval( $this->mBucketId ) == 22 ) {
 			return true;
 		}
 
@@ -1691,6 +1707,7 @@ class DefaultAdCreator extends AdCreator {
 					'adUnitPath' => '/10095428/engl/engl_gam_lgm_rght2',
 					'size' => '[[300, 250],[300, 600],[120,600],[160,600]]',
 					'prebidLoad' => true,
+					'bidcaching' => true,
 					'apsLoad' => true,
 					'refreshable' => 1,
 					'viewablerefresh' => 1,
@@ -1711,6 +1728,7 @@ class DefaultAdCreator extends AdCreator {
 					'adUnitPath' => '/10095428/engl/engl_gam_all_scrol',
 					'size' => '[728, 90]',
 					'prebidLoad' => true,
+					'bidcaching' => true,
 					'apsLoad' => true,
 					'aps-timeout' => 800,
 					'maxsteps' => 6,
@@ -1720,6 +1738,26 @@ class DefaultAdCreator extends AdCreator {
 					'large' => 1,
 				),
 			);
+		}
+
+		if ( $this->showNewAdsJs() ) {
+			if ( $this->isPrebidPage() ) {
+				$this->mAdSetupData['intro']['channels'] = [6132528505];
+				$this->mAdSetupData['rightrail0']['channels'] = [6132528505];
+			} else {
+				$this->mAdSetupData['intro']['channels'] = [1906768069];
+				$this->mAdSetupData['toc']['channels'] = [1906768069];
+				$this->mAdSetupData['rightrail0']['channels'] = [1906768069];
+				$this->mAdSetupData['scrollto']['channels'] = [1906768069];
+				$this->mAdSetupData['related']['channels'] = [1906768069];
+				$this->mAdSetupData['qa']['channels'] = [1906768069];
+			}
+
+		}
+
+		if ( $this->isPrebidPageNoBidCachingPage() ) {
+			$this->mAdSetupData['scrollto']['bidcaching'] = false;
+			$this->mAdSetupData['rightrail1']['bidcaching'] = false;
 		}
 
 		if ( self::enableRewardedWebDefault() ) {

@@ -103,6 +103,8 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/kaios_helper/KaiosHelper.php");
 	require_once("$IP/extensions/wikihow/EventQueryTool/EventQueryTool.php");
 	require_once("$IP/extensions/wikihow/EventTracking/EventTracking.php");
+	require_once("$IP/extensions/wikihow/WikihowContentAds/WikihowContentAds.php");
+	require_once("$IP/extensions/wikihow/wikihowhealth/WikihowHealth.php");
 	require_once("$IP/extensions/wikihow/ArticleTiles/ArticleTiles.php");
 }
 

@@ -36,6 +36,10 @@ $wgResourceModules['ext.wikihow.slider'] = [
 		"slider_marriage",
 		"slider_url_text_marriage",
 		"slider_url_marriage",
+		"slider_cta_dog",
+		"slider_dog",
+		"slider_url_text_dog",
+		"slider_url_dog",
 	],
 	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'bottom'

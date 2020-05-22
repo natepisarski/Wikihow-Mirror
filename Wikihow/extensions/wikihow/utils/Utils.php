@@ -9,6 +9,7 @@ $wgAutoloadClasses['RandomTitleGenerator'] = __DIR__ . '/RandomTitleGenerator.ph
 $wgAutoloadClasses['GooglePageSpeedUtil'] = __DIR__ . '/GooglePageSpeedUtil.php';
 $wgAutoloadClasses['GoogleDrive'] = __DIR__ . '/GoogleUtils.php';
 $wgAutoloadClasses['GoogleSheets'] = __DIR__ . '/GoogleUtils.php';
+$wgAutoloadClasses['GoogleWebmasters'] = __DIR__ . '/GoogleUtils.php';
 $wgAutoloadClasses['DOMUtil'] = __DIR__ . '/DOMUtil.php';
 $wgAutoloadClasses['TitleUtil'] = __DIR__ . '/TitleUtil.php';
 $wgAutoloadClasses['TitleFilters'] = __DIR__ . '/TitleFilters.php';

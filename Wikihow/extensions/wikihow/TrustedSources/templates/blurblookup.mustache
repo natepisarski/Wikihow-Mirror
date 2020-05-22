@@ -1,0 +1,12 @@
+<label>Search by name</label>
+<input type="text" id="abl_name" />
+<table>
+{{#blurbs}}
+	<tr>
+		<td class="abl_copy"><a href="#" class="button">Copy blurb id</a></td>
+		<td class="abl_blurbid"><input value="{{blurbId}}" readonly /></td>
+		<td class="abl_name">{{expertName}}</td>
+		<td class="abl_byline">{{byline}}</td>
+	</tr>
+{{/blurbs}}
+</table>

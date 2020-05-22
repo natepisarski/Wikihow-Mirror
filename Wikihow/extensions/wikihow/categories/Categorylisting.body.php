@@ -34,9 +34,6 @@ class CategoryListing extends SpecialPage {
 		} else {
 			$wgHooks['ShowGrayContainer'][] = array('CategoryListing::removeGrayContainerCallback');
 
-			// allow varnish to redirect this page to mobile if browser conditions are right
-			Misc::setHeaderMobileFriendly();
-
 			$this->getCategoryListingData($catData);
 			$this->renderDesktop($catData);
 		}

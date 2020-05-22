@@ -914,6 +914,9 @@ class WikihowMobileTools {
 			if(pq('.section.ingredients')->length > 0) {
 				WikihowToc::setIngredients();
 			}
+			if(class_exists("WikihowHealth")) {
+				WikihowHealth::processHealthArticles();
+			}
 
 			WikihowToc::addMobileToc();
 		}

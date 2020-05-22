@@ -1,0 +1,174 @@
+@import '../../less/variables.less';
+
+#hp_wca {
+	margin-bottom: 20px;
+	position: relative;
+}
+
+#wca_lightbox {
+	position: absolute;
+	width: 90%;
+	bottom: 10px;
+	background: #fff;
+	border: 1px solid #e3e3e3;
+	border-radius: 4px;
+	padding: 10px;
+	left: 5px;
+	text-align: center;
+
+	#wca_close {
+		position: absolute;
+		right: 10px;
+		top: 5px;
+	}
+
+	#wca_email {
+		display: block;
+		text-align: center;
+		padding: 4px;
+		border-radius: 7px;
+		border: 1px solid #94B778;
+		color: #94B778;
+		font-weight: bold;
+		margin: 0 46px;
+	}
+
+	p {
+		padding: 0 25px;
+	}
+
+	input {
+		display: inline;
+		border: 1px solid #e8e8e8;
+		padding: 5px;
+		box-sizing: border-box;
+		border-radius: 2px;
+		margin: 15px 38px;
+
+		&.error {
+			border-color: red;
+		}
+	}
+}
+
+#hp_wca_container {
+	background-color: #FFF6CD;
+	border-radius: 7px;
+	padding: 15px 15px 20px 15px;
+	text-align: center;
+
+	h4 {
+		font-size: 20px;
+		margin: 10px 25px 0 25px;
+		line-height: 21px;
+		text-align: center;
+		color: #444F45;
+		padding: 0;
+	}
+
+	p {
+		font-size: 16px;
+		line-height: 21px;
+		margin: 10px 35px;
+	}
+
+	a {
+		color: #668051;
+		border: 1px solid #668051;
+		background-color: #fff;
+		border-radius: 7px;
+		text-align: center;
+		display: block;
+		margin: 0 31px;
+		padding: 4px 0;
+		font-weight: bold;
+	}
+
+	img {
+		width: auto;
+	}
+
+	&.c01, &.c02, &.c03 {
+		margin-top: 25px;
+
+		img {
+			margin-top: -27px;
+		}
+	}
+
+	&.sb01 {
+		margin-top: 30px;
+
+		img{
+			margin-top: -50px;
+		}
+	}
+
+	&.sb02, &.sb03 {
+		margin-top: 70px;
+
+		img {
+			margin-top: -70px;
+		}
+	}
+
+	&.sb04, &.bc01, &.eb01, &.eb02, &.eb03, &.lc01 {
+		#wca_image_wrapper {
+			margin: -15px -15px 0 -15px;
+			border-top-right-radius: 4px;
+			border-top-left-radius: 4px;
+			overflow: hidden;
+		}
+	}
+}
+
+@media @medium {
+	#hp_wca {
+		float: right;
+		width: 260px;
+		margin-top: 15px;
+	}
+
+	#hp_wca_container {
+
+		h4 {
+			margin-top: 15px;
+		}
+
+		&.c01, &.c02, &.c03 {
+			margin-top: 25px;
+
+			img {
+				margin-top: -27px;
+				width: 90%;
+			}
+		}
+
+		p {
+			margin-left: 30px;
+			margin-rightf: 30px;
+		}
+	}
+
+	#wca_lightbox {
+		width: 240px;
+	}
+}
+
+@media @large {
+	#hp_wca {
+		width: 300px;
+	}
+
+	#hp_wca_container {
+
+		h4 {
+			margin: 15px 30px 0 30px;
+		}
+
+	}
+
+	#wca_lightbox {
+		width: 267px;
+	}
+}

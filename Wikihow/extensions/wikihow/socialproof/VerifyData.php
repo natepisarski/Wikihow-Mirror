@@ -382,6 +382,31 @@ class VerifyData {
 		return $blurbs;
 	}
 
+	public static function getAllBlurbsWithExpertsFromDB($lang=''): array {
+		global $wgLanguageCode;
+
+		if ( !$lang ) { $lang = $wgLanguageCode; }
+
+		$blurbs = [];
+		$dbr = wfGetDB(DB_REPLICA);
+		$blurbTable = Misc::getLangDB($lang) . '.' . self::BLURB_TABLE;
+		$res = $dbr->select(
+			[$blurbTable, self::VERIFIER_TABLE],
+			'*',
+			[],
+			__METHOD__,
+			[],
+			[
+				self::VERIFIER_TABLE => ['LEFT JOIN', 'cab_coauthor_id = vi_id']
+			]
+
+		);
+		foreach ($res as $row) {
+			$blurbs[$row->cab_blurb_id] = $row;
+		}
+		return $blurbs;
+	}
+
 	# IMPORT TOOL
 
 	public static function replaceCoauthors(string $lang, array $coauthors) {

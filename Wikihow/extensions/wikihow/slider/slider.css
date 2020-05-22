@@ -106,6 +106,17 @@ a#slider_close_button {
 	line-height: 24px;
 }
 
+.dogArticle .slider_readmore {
+	font-size: 21px;
+	font-weight: bold;
+	color: #484B4A;
+}
+
+.dogArticle .slider_category {
+	font-size: 21px;
+}
+
+
 #slider_close_button {
 	/* @embed */
 	background: url(/skins/owl/images/ico-x.png) no-repeat 0 0;

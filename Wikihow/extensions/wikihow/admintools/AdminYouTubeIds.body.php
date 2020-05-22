@@ -67,7 +67,7 @@ class AdminYouTubeIds extends UnlistedSpecialPage {
 	 *
 	 * @return array List of results
 	 */
-	function getAllResults( $adminTag ) {
+	public static function getAllResults( $adminTag ) {
 		// Build results
 		$dbr = wfGetDB( DB_REPLICA );
 		$ids = $dbr->selectField(
@@ -80,57 +80,9 @@ class AdminYouTubeIds extends UnlistedSpecialPage {
 		$results = [];
 		foreach ( $ids as $id ) {
 			$articleTitle = Title::newFromId( $id );
-			if ( $articleTitle ) {
-				$result = [
-					'page_id' => $id,
-					'page_title' => $articleTitle->getDbKey(),
-					'status' => 'error'
-				];
-				$articleRevision = Revision::newFromPageId( $id );
-				if ( $articleRevision ) {
-					$articleContent = $articleRevision->getContent();
-					if ( $articleContent ) {
-						$articleContentText = $articleContent->getText();
-						if ( preg_match( '/\{\{Video:([^|]*)\|/', $articleContentText, $matches ) ) {
-							$video = Title::newFromText( $matches[1], NS_VIDEO );
-							if ( $video ) {
-								$videoRevision = Revision::newFromPageId( $video->getArticleId() );
-								if ( $videoRevision ) {
-									$videoContent = $videoRevision->getContent();
-									if ( $videoContent ) {
-										$videoContentText = $videoContent->getText();
-										if ( preg_match( '/\{\{Curatevideo\|youtube\|([^|]*)\|/', $videoContentText, $matches ) ) {
-											$result['status'] = 'ok';
-											$result['youtube_id'] = $matches[1];
-											$result['channel'] = 'other';
-										} else if ( preg_match( '/\{\{Curatevideo\|whyoutube\|([^|]*)\|/', $videoContentText, $matches ) ) {
-											$result['status'] = 'ok';
-											$result['youtube_id'] = $matches[1];
-											$result['channel'] = 'wikiHow';
-										} else {
-											$result['error'] = 'Curatevideo template not found';
-										}
-									} else {
-										$result['error'] = 'Video content not found';
-									}
-								} else {
-									$result['error'] = 'Video revision not found';
-								}
-							} else {
-								$result['error'] = 'Video title not found';
-							}
-						} else {
-						$result['error'] = 'Video transclusion not found in article';
-						}
-					} else {
-						$result['error'] = 'Article content not found';
-					}
-				} else {
-					$result['error'] = 'Article revision not found';
-				}
-			} else {
-				$result['error'] = 'Article title not found';
-			}
+			$result = WHVid::getYTVideoFromArticle( $articleTitle );
+			$result['page_id'] = $id;
+			$result['page_title'] = $articleTitle->getDbKey();
 			$results[] = $result;
 		}
 		return $results;

@@ -1404,7 +1404,7 @@ a.related-title,a.related-title:active, a.related-title:visited {
 
 .sp_byline {
 	float: none;
-	width: 350px;
+	width: 360px;
 	height: 20px;
 	padding: 0 0 5px 0;
 }
@@ -1577,4 +1577,20 @@ a.related-title,a.related-title:active, a.related-title:visited {
 
 .reference {
 	position: relative;
+}
+
+/** HEALTH ARTICLES **/
+.bolded {
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.steps_text.healthintro {
+    margin-bottom: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.healtharticle {
+    margin-bottom: 25px;
 }

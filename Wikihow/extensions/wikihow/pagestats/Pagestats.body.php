@@ -77,6 +77,7 @@ class PageStats extends UnlistedSpecialPage {
 	}
 
 	private function getPagestatData($pageId) {
+		$langCode = $this->getLanguage()->getCode();
 		$t = Title::newFromID($pageId);
 		$dbr = wfGetDB(DB_REPLICA);
 
@@ -117,53 +118,51 @@ class PageStats extends UnlistedSpecialPage {
 			$html .= wfMessage('ps-pv-30day-unique-mobile', $views30DayMobile, $mobile30DayPercent )->text();
 			$html .= wfMessage('ps-pv-1day-unique-mobile', $viewsMobile, $mobilePercent )->text();
 
-			// stu data
-			$html .= "<hr style='margin:5px 0; '/>";
-			$html .= "<p>" . wfMessage('ps-stu') . " {$titusData->ti_stu_10s_percentage_www}%&nbsp;&nbsp;{$titusData->ti_stu_3min_percentage_www}%&nbsp;&nbsp;{$titusData->ti_stu_10s_percentage_mobile}%</p>";
-			$html .= "<p>" . wfMessage('ps-stu-views') . "{$titusData->ti_stu_views_www}&nbsp;&nbsp;{$titusData->ti_stu_views_mobile}</p>";
-			if ($t) {
-				$html .= "<p><a href='#' class='clearstu'>Clear Stu</a></p>";
+			// stu2 data
+			if ($langCode == 'en') {
+				$nb = '&nbsp;';
+				$r = $titusData->ti_stu2_last_reset;
+				if ($r && strlen($r) == 8) {
+					$resetLine = "<i>last reset " . substr($r, 0, 4) . '/' . substr($r, 4, 2) . '/' . substr($r, 6, 2) . "</i>";
+				} else {
+					$resetLine = "";
+				}
+				$html .= "<hr style='margin:5px 0; '/>";
+				$html .= "<p><b>Stu2</b> $nb$nb$nb$resetLine</p>";
+				if ($titusData->ti_stu2_search_mobile) {
+					$stu2Mb10sAc = sprintf( '%.1f', $titusData->ti_stu2_10s_active_mobile ) . "%";
+					$stu2Mb3mAc = sprintf( '%.1f', $titusData->ti_stu2_3m_active_mobile ) . "%";
+					$html .= "<p>mobile:$nb$stu2Mb10sAc$nb$stu2Mb3mAc$nb{$nb}views:{$titusData->ti_stu2_search_mobile}</p>";
+				} else {
+					$html .= "<p>mobile: <i>(no search views)</i></p>";
+				}
+				if ($titusData->ti_stu2_search_desktop) {
+					$stu2Dt10sAc = sprintf( '%.1f', $titusData->ti_stu2_10s_active_desktop ) . "%";
+					$stu2Dt3mAc = sprintf( '%.1f', $titusData->ti_stu2_3m_active_desktop ) . "%";
+					$html .= "<p>desktop:$nb$stu2Dt10sAc$nb$stu2Dt3mAc$nb{$nb}views:{$titusData->ti_stu2_search_desktop}</p>";
+				} else {
+					$html .= "<p>desktop: <i>(no search views)</i></p>";
+				}
+				if ($titusData->ti_stu2_activity_count_mobile) {
+					$mbAct = sprintf("%.1f%%$nb(%d)", $titusData->ti_stu2_activity_avg_mobile, $titusData->ti_stu2_activity_count_mobile);
+				} else {
+					$mbAct = "<i>(no activity)</i>";
+				}
+				if ($titusData->ti_stu2_activity_count_desktop) {
+					$dtAct = sprintf("%.1f%%$nb(%d)", $titusData->ti_stu2_activity_avg_desktop, $titusData->ti_stu2_activity_count_desktop);
+				} else {
+					$dtAct = "<i>(no activity)</i>";
+				}
+				$html .= "<p>activity{$nb}mobile:{$mbAct}{$nb}dt:{$dtAct}</p>";
+				$html .= "<p style='font-size:12px; font-weight:bold; padding-top:3px'>More info</p>";
+				$html .= "<p>search views mobile:{$titusData->ti_stu2_search_mobile}{$nb}dt:{$titusData->ti_stu2_search_desktop}</p>";
+				$html .= "<p>all views mobile:{$titusData->ti_stu2_all_mobile}{$nb}dt:{$titusData->ti_stu2_all_desktop}</p>";
+				$html .= "<p>quick{$nb}bounces{$nb}amp:{$titusData->ti_stu2_amp}{$nb}mobile:{$titusData->ti_stu2_quickbounce_mobile}{$nb}dt:{$titusData->ti_stu2_quickbounce_desktop}</p>";
+				if ($t) {
+					$html .= "<p><a href='#' class='clearstu'>Clear Stu</a></p>";
+				}
 			}
 
-			// stu2 data
-			$nb = '&nbsp;';
-			$r = $titusData->ti_stu2_last_reset;
-			if ($r && strlen($r) == 8) {
-				$resetLine = "<i>last reset " . substr($r, 0, 4) . '/' . substr($r, 4, 2) . '/' . substr($r, 6, 2) . "</i>";
-			} else {
-				$resetLine = "";
-			}
-			$html .= "<hr style='margin:5px 0; '/>";
-			$html .= "<p><b>Stu2</b> $nb$nb$nb$resetLine</p>";
-			if ($titusData->ti_stu2_search_mobile) {
-				$stu2Mb10sAc = sprintf( '%.1f', $titusData->ti_stu2_10s_active_mobile ) . "%";
-				$stu2Mb3mAc = sprintf( '%.1f', $titusData->ti_stu2_3m_active_mobile ) . "%";
-				$html .= "<p>mobile:$nb$stu2Mb10sAc$nb$stu2Mb3mAc$nb{$nb}views:{$titusData->ti_stu2_search_mobile}</p>";
-			} else {
-				$html .= "<p>mobile: <i>(no search views)</i></p>";
-			}
-			if ($titusData->ti_stu2_search_desktop) {
-				$stu2Dt10sAc = sprintf( '%.1f', $titusData->ti_stu2_10s_active_desktop ) . "%";
-				$stu2Dt3mAc = sprintf( '%.1f', $titusData->ti_stu2_3m_active_desktop ) . "%";
-				$html .= "<p>desktop:$nb$stu2Dt10sAc$nb$stu2Dt3mAc$nb{$nb}views:{$titusData->ti_stu2_search_desktop}</p>";
-			} else {
-				$html .= "<p>desktop: <i>(no search views)</i></p>";
-			}
-			if ($titusData->ti_stu2_activity_count_mobile) {
-				$mbAct = sprintf("%.1f%%$nb(%d)", $titusData->ti_stu2_activity_avg_mobile, $titusData->ti_stu2_activity_count_mobile);
-			} else {
-				$mbAct = "<i>(no activity)</i>";
-			}
-			if ($titusData->ti_stu2_activity_count_desktop) {
-				$dtAct = sprintf("%.1f%%$nb(%d)", $titusData->ti_stu2_activity_avg_desktop, $titusData->ti_stu2_activity_count_desktop);
-			} else {
-				$dtAct = "<i>(no activity)</i>";
-			}
-			$html .= "<p>activity{$nb}mobile:{$mbAct}{$nb}dt:{$dtAct}</p>";
-			$html .= "<p style='font-size:12px; font-weight:bold; padding-top:3px'>More info</p>";
-			$html .= "<p>search views mobile:{$titusData->ti_stu2_search_mobile}{$nb}dt:{$titusData->ti_stu2_search_desktop}</p>";
-			$html .= "<p>all views mobile:{$titusData->ti_stu2_all_mobile}{$nb}dt:{$titusData->ti_stu2_all_desktop}</p>";
-			$html .= "<p>quick{$nb}bounces{$nb}amp:{$titusData->ti_stu2_amp}{$nb}mobile:{$titusData->ti_stu2_quickbounce_mobile}{$nb}dt:{$titusData->ti_stu2_quickbounce_desktop}</p>";
 
 			// summary video data
 			$hasSummaryVideo = $titusData->ti_summary_video;

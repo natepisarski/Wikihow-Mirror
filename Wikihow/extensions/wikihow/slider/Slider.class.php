@@ -11,11 +11,38 @@ class Slider {
 		$options = array('loader' => $loader);
 		$m = new Mustache_Engine($options);
 
-		$vars['relationshipArticle'] = self::isRelationshipTaggedArticle() ? 'relArticle' : '';
+		$vars['sliderClass'] = self::getSliderClass();
 		return $m->render('slider.mustache', $vars);
 	}
 
+	public function getSliderClass() {
+		$className = "";
+
+		if(self::isRelationshipTaggedArticle()) {
+			$className = 'relArticle';
+		} elseif (self::isDogTaggedArticle()) {
+			$className = 'dogArticle';
+		}
+
+		return $className;
+	}
+
 	public function isRelationshipTaggedArticle() {
+		$isRelationshipTaggedArticle = false;
+		$context = RequestContext::getMain();
+		$title = $context->getTitle();
+		if ($title
+			&& $title->exists()
+			&& $title->inNamespace(NS_MAIN)
+			&& ArticleTagList::hasTag('slider_relationships', $title->getArticleID())) {
+			$isRelationshipTaggedArticle = true;
+		}
+
+		return $isRelationshipTaggedArticle;
+	}
+
+
+	public function isDogTaggedArticle() {
 		$isRelationshipTaggedArticle = false;
 
 		$context = RequestContext::getMain();
@@ -23,7 +50,7 @@ class Slider {
 		if ($title
 			&& $title->exists()
 			&& $title->inNamespace(NS_MAIN)
-			&& ArticleTagList::hasTag('slider_relationships', $title->getArticleID())) {
+			&& ArticleTagList::hasTag('slider_dogs', $title->getArticleID())) {
 			$isRelationshipTaggedArticle = true;
 		}
 

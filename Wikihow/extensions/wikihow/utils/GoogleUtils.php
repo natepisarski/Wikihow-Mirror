@@ -5,20 +5,21 @@ abstract class GoogleBase
 	protected static $token = null;   // String
 	protected static $client = null;  // Google_Client
 	protected static $service = null; // Google_Service
+	protected static $scopes = [ Google_Service_Drive::DRIVE ]; // Default scope
 
 	protected function __construct() { }
 
-	protected static function getToken(): string {
-		static::initialize();
-		return static::$token;
-	}
+	abstract protected static function newService(Google_Client $client): Google_Service;
 
 	public static function getService(): Google_Service {
 		static::initialize();
 		return static::$service;
 	}
 
-	abstract protected static function newService(Google_Client $client): Google_Service;
+	protected static function getToken(): string {
+		static::initialize();
+		return static::$token;
+	}
 
 	protected static function initialize() {
 		if ( static::$client && !static::$client->isAccessTokenExpired() ) {
@@ -27,7 +28,7 @@ abstract class GoogleBase
 
 		$client = new Google_Client();
 		$client->setAuthConfig(WH_GOOGLE_API_CREDENTIALS_PATH);
-		$client->addScope( Google_Service_Drive::DRIVE );
+		$client->addScope(static::$scopes);
 
 		if ( $client->isAccessTokenExpired() ) {
 			$client->fetchAccessTokenWithAssertion();
@@ -164,4 +165,12 @@ class GoogleSheets extends GoogleBase
 		return @file_get_contents($url);
 	}
 
+}
+
+class GoogleWebmasters extends GoogleBase {
+	protected static $scopes = [ Google_Service_Webmasters::WEBMASTERS_READONLY ];
+
+	protected static function newService(Google_Client $client): Google_Service {
+		return new Google_Service_Webmasters($client);
+	}
 }

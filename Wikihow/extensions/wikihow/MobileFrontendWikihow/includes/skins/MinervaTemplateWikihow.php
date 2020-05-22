@@ -600,8 +600,6 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		if ( $data['amp'] ) {
 			return $result;
 		}
-		$result = Misc::getTTIBody();
-		$result .= Misc::getFIDBody();
 		return $result;
 	}
 
@@ -698,9 +696,7 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 		global $wgOut;
 
 		$result = '';
-		$result .= Misc::getFCPHead();
-		$result .= Misc::getTTIHead();
-		$result .= Misc::getFIDHead();
+		$result .= Misc::getWebVitalsHead();
 
 		return $result;
 	}

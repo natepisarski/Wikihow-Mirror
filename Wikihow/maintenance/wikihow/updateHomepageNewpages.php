@@ -14,21 +14,22 @@ class updateHomepageNewpages extends Maintenance {
 		NewPages::setCategorypageArticles($wgLanguageCode);
 
 		if($wgLanguageCode == "en") {
-			//email Graham the new set of homepage articles
+			//add new ids to the spreadsheet
 			$newPages = NewPages::getHomepageArticles();
-			$ids = "";
+			$rows = [];
 			foreach ($newPages as $title) {
 				if ($title && $title->exists()) {
-					$ids .= $title->getArticleID() . "\n";
+					$rows[] = [
+						$title->getArticleID(),
+						date('m/d/Y')
+					];
 				}
 			}
 
-			UserMailer::send(
-				new MailAddress('graham@wikihow.com'),
-				new MailAddress('bebeth@wikihow.com'),
-				"New Pages on $wgLanguageCode Homepage Ids",
-				$ids
-			);
+			$sheetId = '1ZySO8TLroY20yZFvckLF4ZfTkFniOkdgueNXZl7zH68';
+
+			$sheet = 'Sheet1';
+			GoogleSheets::appendRows($sheetId, $sheet, $rows);
 		}
 	}
 }

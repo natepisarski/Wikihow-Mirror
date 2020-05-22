@@ -456,6 +456,129 @@ class WHVid {
 		return self::$titleHasSummaryVideo;
 	}
 
+	/**
+	 * Get information about a YouTube video embedded in an article.
+	 *
+	 * @param {Title} $articleTitle Article video is embedded in
+	 * @return array Result of looking for a transclusion of a Video page a Curatevideo template
+	 * @return array[status] 'error' or 'ok'
+	 * @return array[error] string describing reason for 'error' status
+	 * @return array[youtube_id] YouTube video ID
+	 * @return array[channel] Channel name, either 'wikiHow' or 'other'
+	 */
+	public static function getYTVideoFromArticle( $articleTitle ) {
+		global $wgMemc;
+
+		// Handle bad titles
+		if ( !$articleTitle || !$articleTitle->exists() ) {
+			return [ 'status' => 'error', 'error' => 'Article title not found' ];
+		}
+
+		// Try to use cached result
+		$key = wfMemcKey(
+			'WHVid::getYTVideoFromArticle',
+			$articleTitle->getArticleId(),
+			$articleTitle->getLatestRevID(),
+			$articleTitle->getTouched()
+		);
+		$result = $wgMemc->get( $key );
+
+		// Get latest revision of article page
+		if ( !$result ) {
+			$articleRevision = Revision::newFromPageId( $articleTitle->getArticleId() );
+			if ( !$articleRevision ) {
+				$result = [ 'status' => 'error', 'error' => 'Article revision not found' ];
+			}
+		}
+
+		// Get content of latest article page revision
+		if ( !$result ) {
+			$articleContent = $articleRevision->getContent();
+			if ( !$articleContent ) {
+				$result = [ 'status' => 'error', 'error' => 'Article content not found' ];
+			}
+		}
+
+		// Get text of article page content
+		if ( !$result ) {
+			$articleContentText = $articleContent->getText();
+			if ( !$articleContentText ) {
+				$result = [ 'status' => 'error', 'error' => 'Article content text not found' ];
+			}
+		}
+
+		// Get video transclusions from the article page text
+		if ( !$result ) {
+			if ( !preg_match( '/\{\{Video:([^|]*)\|/', $articleContentText, $transcludedVideoTitles ) ) {
+				$result = [ 'status' => 'error', 'error' => 'Video transclusion not found in article' ];
+			}
+		}
+
+		// Get video page title from the first article page video transclusion
+		if ( !$result ) {
+			$video = Title::newFromText( $transcludedVideoTitles[1], NS_VIDEO );
+			if ( !$video ) {
+				$result = [ 'status' => 'error', 'error' => 'Video title not found' ];
+			}
+		}
+
+		// Get latest revision from video page title
+		if ( !$result ) {
+			$videoRevision = Revision::newFromPageId( $video->getArticleId() );
+			if ( !$videoRevision ) {
+				$result = [ 'status' => 'error', 'error' => 'Video revision not found' ];
+			}
+		}
+
+		// Get content of latest video page revision
+		if ( !$result ) {
+			$videoContent = $videoRevision->getContent();
+			if ( !$videoContent ) {
+				$result = [ 'status' => 'error', 'error' => 'Video content not found' ];
+			}
+		}
+
+		// Get text of video page content
+		if ( !$result ) {
+			$videoContentText = $videoContent->getText();
+			if ( !$videoContentText ) {
+				$result = [ 'status' => 'error', 'error' => 'Video content text not found' ];
+			}
+		}
+
+		// Get embedded YouTube ID on other channels from Curatevideo template
+		if ( !$result ) {
+			if ( preg_match( '/\{\{Curatevideo\|youtube\|([^|]*)\|/', $videoContentText, $youTubeIds ) ) {
+				$result = [
+					'status' => 'ok',
+					'youtube_id' => $youTubeIds[1],
+					'channel' => 'other'
+				];
+			}
+		}
+
+		// Get embedded YouTube ID on the wikiHow channel from Curatevideo template
+		if ( !$result ) {
+			if ( preg_match( '/\{\{Curatevideo\|whyoutube\|([^|]*)\|/', $videoContentText, $youTubeIds ) ) {
+				$result = [
+					'status' => 'ok',
+					'youtube_id' => $youTubeIds[1],
+					'channel' => 'wikiHow'
+				];
+			}
+		}
+
+		// Handle the lack of a Curatevideo template
+		if ( !$result ) {
+			$result = [ 'status' => 'error', 'error' => 'Curatevideo template not found' ];
+		}
+
+		// Store result for next time
+		$wgMemc->set( $key, $result );
+
+		return $result;
+	}
+
 	public static function hasYTVideo($title, $forceCalculate = false) {
 		if(!$title || !$title->exists()) return false;
 

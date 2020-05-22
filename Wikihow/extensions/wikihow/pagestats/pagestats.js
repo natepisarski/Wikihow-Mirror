@@ -175,9 +175,13 @@ window.setupMtsMenu = function() {
 					$('#mts-textarea').data('type', '');
 					if (resetStu) {
 						console.log("will reset stu");
-						clearStu(window.location.reload());
+						clearStu( function() {
+							// reload doesn't seem to work from this context in chrome, so
+							// I'm disabling this until it can be further fixed. -Reuben, may 2020
+							//window.location.reload();
+						} );
 					} else {
-						window.location.reload();
+						//window.location.reload();
 					}
 				} else {
 					alert(data.message);

@@ -19,6 +19,10 @@ class GoogleAmp {
 			$amp = true;
 		}
 
+		if ( $amp && $t->inNamespace( NS_MAIN ) && $t->isMainPage() ) {
+			$amp = false;
+		}
+
 		// Don't enable AMP mode for certain android app requests
 		if (class_exists('AndroidHelper')
 			&& AndroidHelper::isAndroidRequest()

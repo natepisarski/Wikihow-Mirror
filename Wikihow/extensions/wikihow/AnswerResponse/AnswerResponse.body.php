@@ -39,9 +39,6 @@ class AnswerResponse extends UnlistedSpecialPage {
 		if ($helpful == '') return;
 		$this->helpful = $helpful;
 
-		// allow redirections to mobile domain
-		Misc::setHeaderMobileFriendly();
-
 		$out->setHtmlTitle(wfMessage('qaar_title')->text());
 
 		$out->addModuleStyles('wikihow.answer_response');

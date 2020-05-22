@@ -108,20 +108,10 @@ class WikihowMobileHomepage extends Article {
 		$vars = array_merge($vars, WikihowMobileHomepage::internationalWidget());
 
 		if($this->languageCode == "en") {
-			// Amazon Ignite CTA messages
-			$vars['has_education'] = true;
-			$vars['amazon_ignite_header'] = wfMessage('hp_education_header')->text();
-			$vars['amazon_ignite_header_desc'] = wfMessage('hp_education_header_desc')->text();
-			$vars['amazon_ignite_desc'] = wfMessage('hp_education_desc')->text();
-			$vars['amazon_ignite_btn'] = wfMessage('hp_education_button_text')->text();
-			$vars['amazon_ignite_url'] = wfMessage('amazonignite_url')->text();
-
-			// Cover Letter Course promo messages
-			$vars['has_coverletter'] = true;
-			$vars['coverletter_header_desc'] = wfMessage('hp_coverletter_header_desc')->text();
-			$vars['coverletter_desc'] = wfMessage('hp_coverletter_desc')->text();
-			$vars['coverletter_btn'] = wfMessage('hp_coverletter_button_text')->text();
-			$vars['coverletterteachable_url'] = wfMessage('coverlettercourse_url')->text();
+			if(class_exists("WikihowContentAds")) {
+				$vars['has_education'] = true;
+				$out->addModules("ext.wikihow.wikihowcontentads");
+			}
 		}
 
 		if(self::$isAltDomain) {

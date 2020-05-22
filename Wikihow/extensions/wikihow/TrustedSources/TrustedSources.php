@@ -9,9 +9,11 @@ $wgExtensionCredits['specialpage'][] = array(
 );
 
 $wgSpecialPages['AdminTrustedSources'] = 'AdminTrustedSources';
+$wgSpecialPages['AdminBlurbLookup'] = 'AdminBlurbLookup';
 
 $wgAutoloadClasses['TrustedSources']            = __DIR__ . '/TrustedSources.class.php';
 $wgAutoloadClasses['AdminTrustedSources']            = __DIR__ . '/AdminTrustedSources.body.php';
+$wgAutoloadClasses['AdminBlurbLookup']          = __DIR__ . '/AdminBlurbLookup.body.php';
 
 $wgMessagesDirs['TrustedSources'] = __DIR__ . '/i18n/';
 
@@ -37,11 +39,25 @@ $wgResourceModules['ext.wikihow.trusted_sources.scripts'] = [
 	'scripts' => ['trustedsources.js'],
 	'localBasePath' => __DIR__ . "/scripts" ,
 	'remoteExtPath' => 'wikihow/TrustedSources/scripts',
-	'targets' => ['mobile']
+	'targets' => ['mobile', 'desktop']
 ];
 
 $wgResourceModules['ext.wikihow.trusted_sources.styles'] = [
 	'styles' => ['trustedsources.less'],
+	'localBasePath' => __DIR__ . "/styles" ,
+	'remoteExtPath' => 'wikihow/TrustedSources/styles',
+	'targets' => ['mobile']
+];
+
+$wgResourceModules['ext.wikihow.adminblurblookup.scripts'] = [
+	'scripts' => ['adminblurblookup.js'],
+	'localBasePath' => __DIR__ . "/scripts" ,
+	'remoteExtPath' => 'wikihow/TrustedSources/scripts',
+	'targets' => ['mobile', 'desktop']
+];
+
+$wgResourceModules['ext.wikihow.adminblurblookup.styles'] = [
+	'styles' => ['adminblurblookup.less'],
 	'localBasePath' => __DIR__ . "/styles" ,
 	'remoteExtPath' => 'wikihow/TrustedSources/styles',
 	'targets' => ['mobile']

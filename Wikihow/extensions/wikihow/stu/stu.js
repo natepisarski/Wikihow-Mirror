@@ -24,7 +24,6 @@ var countableView = WH['stuCount'],
 	startTime = false,
 	restartTime = false,
 	activeElapsed = 0,
-	DEFAULT_PRIORITY = 0,
 	fromGoogle = 0,
 	exitSent = false,
 	randPageViewSessionID,
@@ -73,21 +72,7 @@ var debugCallbackFunc = null,
 // send exit pings, and 10s and 3m are special for those that analyze stu
 var timers = [{'t':1}, {'t':3}, {'t':5}, {'t':7}, {'t':9}, {'t':10}, {'t':12}, {'t':14}, {'t':16}, {'t':18}, {'t':20}, {'t':25}, {'t':30}, {'t':37}, {'t':45}, {'t':60}, {'t':90}, {'t':120}, {'t':150}, {'t':175}, {'t':180}, {'t':185}, {'t':210}, {'t':240}, {'t':300}, {'t':360}, {'t':420}, {'t':480}, {'t':540}, {'t':600}, {'t':800}, {'t':1000}, {'t':1200}, {'t':1500}, {'t':1800}, {'t':2100}, {'t':2400} ];
 
-function isMobileDomain() {
-	return !!(location.href.match(/\bm\./));
-}
-
 function isMobile() {
-	if (isMobileDomain()) {
-		return 1;
-	}
-
-	// While responsive is rolling out, we don't want to look at the screen width
-	// NOTE: Responsive has rolled out on desktop alt domains
-//	if ( !location.href.match(/(wikihow\.life|wikihow\.fitness|wikihow\.tech|wikihow\.mom|wikihow\.pet|wikihow-fun\.com|wikihow\.legal|wikihow\.health)/) ) {
-//		return 0;
-//	}
-
 	// For responsive, we are sometimes a mobile screen/device on the old desktop
 	// domain www.wikihow.com.
 	//
@@ -119,28 +104,36 @@ function getTime() {
 	return +(new Date());
 }
 
-function sendRestRequest(url, doAsync) {
-	var req = new XMLHttpRequest();
-	req.open('GET', url, doAsync);
-	req.send();
+function sendRestRequest(url, doExitPing) {
+	if (doExitPing && typeof navigator.sendBeacon === 'function') {
+		navigator.sendBeacon(url, '');
+	} else {
+		var doAsync = !doExitPing; // async == false means lock browser before page exit
+		var req = new XMLHttpRequest();
+		req.open('GET', url, doAsync);
+		req.send();
+	}
 }
 
-function sendExitPing(priority, domain, message, doAsync) {
+function sendExitPing() {
+	// No pinging for IE 6
+	if (msieVersion && msieVersion <= 6) {
+		return;
+	}
+
+	var activeTime = getCurrentActiveTime();
+	var message = WH['pageName'] + ' btraw ' + (activeTime / 1000);
+	var domain = getDomain();
+
 	var attrs = {
 		'd': domain,
 		'm': message,
 		'b': STU_BUILD
 	};
-	if (priority != DEFAULT_PRIORITY) {
-		attrs['p'] = priority;
-	}
 	var stats = basicStatsGen(attrs);
 	delete stats['dl']; // we don't send this longer attribute 'dl' with exit pings
 
-	//var loggerUrl = (!dev ? '/Special:Stu' : '/x/devstu') + '?v=' + STU_BUILD;
-	//loggerUrl += '&' + encodeAttrs(attrs) + '&' + encodeAttrs(stats);
-	//sendRestRequest(loggerUrl, doAsync);
-	eventPing( 'exit', stats, doAsync );
+	eventPing( 'exit', stats, true );
 }
 
 function getDomain() {
@@ -173,24 +166,6 @@ function getCurrentActiveTime() {
 	return activeTime;
 }
 
-function collectExitTime() {
-	var activeTime = getCurrentActiveTime();
-	var message = WH['pageName'] + ' btraw ' + (activeTime / 1000);
-	var domain = getDomain();
-
-	// No pinging for IE 6
-	if (msieVersion && msieVersion <= 6) {
-		return;
-	}
-
-	// Reuben, Note May 2020: testing in Chrome shows that the onUnload event can
-	// no longer successfully emit "sychronous" (non-async) XHR requests. Changing
-	// to async above to see if the collection numbers get better again. Try with
-	// the last parameter "true" at some point:
-	sendExitPing(DEFAULT_PRIORITY, domain, message, true);
-	sendExitPing(DEFAULT_PRIORITY, domain, message, false);
-}
-
 function onUnload(e) {
 	// Flowplayer fires unload events erroneously. We won't call
 	// onUnload if triggered by flowplayer elements.
@@ -203,7 +178,7 @@ function onUnload(e) {
 
 	if (!exitSent) {
 		exitSent = true;
-		collectExitTime();
+		sendExitPing();
 	}
 }
 
@@ -461,11 +436,11 @@ function addActivityListeners() {
 }
 
 // Ping our servers to collect data about how long the user might have stayed on the page
-function eventPing(pingType, stats, doAsync) {
+function eventPing(pingType, stats, doExitPing) {
 	// location url of where to ping
 	var baseUrl = (!dev ? '/x/collect' : '/x/collect.php');
 	var loc = baseUrl + '?t=' + pingType + '&' + encodeAttrs(stats);
-	sendRestRequest(loc, doAsync);
+	sendRestRequest(loc, doExitPing);
 }
 
 function customEventPing(attrs) {
@@ -473,7 +448,7 @@ function customEventPing(attrs) {
 	// I made this change to make it so that Stu plugins don't send events
 	// out of the context of all the events generated.
 	if (exitTimerEnabled || pingTimersEnabled) {
-		eventPing( 'event', basicStatsGen(attrs), true );
+		eventPing( 'event', basicStatsGen(attrs), false );
 	}
 }
 
@@ -521,9 +496,9 @@ function setupNextTimerPing() {
 
 		// our first ping should include more stats from the browser, such as view port size
 		if (currentTimerIndex === 0) {
-			eventPing( 'first', fullStatsGen(attrs), true );
+			eventPing( 'first', fullStatsGen(attrs), false );
 		} else {
-			eventPing( 'later', basicStatsGen(attrs), true );
+			eventPing( 'later', basicStatsGen(attrs), false );
 		}
 
 		currentTimerIndex++;

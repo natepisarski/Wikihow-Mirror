@@ -11,6 +11,10 @@ class EventConfig
 	const EVENTS = [
 		// please add new events at the beginning of this array,
 		// so they are sorted chronologically in descending order
+		'article_section_communityQandA_seemore_click_expand_em' => [ 'Emily', [] ],
+		'hp_promo_concepttest_01_click_open_em' => [ 'Emily', [ 'type', 'user_state' ] ],
+		'prebid_ad_prerender' => [ 'Aaron', [] ],
+		'gpt_ad_rendered' => [ 'Aaron', [] ],
 		'all_button_create_account_click_go_em' => [ 'Emily', [ 'account_type' ] ],
 		'article_byline_hover_learnmore_click_go_em' => [ 'Emily', [] ],
 		'all_footer_social_links_click_go_em' => [ 'Emily', [ 'type' ] ],
@@ -46,6 +50,7 @@ class EventConfig
 		'hp_section_covid_resources_click_go_em' => [ 'Emily', [] ],
 		'all_banner_covid_click_expand_em' => [ 'Emily', [] ],
 		'all_banner_covid_click_close_em' => [ 'Emily', [] ],
+		// please add new events AT THE BEGINNING of this array
 	];
 
 	const DOMAINS = [

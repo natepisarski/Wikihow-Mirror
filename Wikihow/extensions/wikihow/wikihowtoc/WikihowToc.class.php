@@ -14,6 +14,7 @@ class WikihowToc {
 	private static $thingsyoullneedIsFirst = false;
 	private static $relatedwHs = null;
 	private static $ingredients = null;
+	private static $finalTakeaway = null;
 
 	const MAX_ITEMS = 8;
 	const MAX_METHODS = 3;
@@ -24,6 +25,10 @@ class WikihowToc {
 	public static function setMethods($methodAnchors, $methodNames) {
 		self::$methodAnchors = !empty($methodAnchors) ? $methodAnchors : [];
 		self::$methodNames = !empty($methodNames) ? $methodNames : [];
+	}
+
+	public static function setTakeaway($anchor, $name) {
+		self::$finalTakeaway = ['url' => '#'.$anchor, 'id' => '', 'text' => $name, 'section' => '#'.$anchor];
 	}
 
 	public static function setTipsAndWarnings($hasTips) {
@@ -355,8 +360,20 @@ class WikihowToc {
 					self::$thingsyoullneed['class'] .= $tocIgnoreClass;
 				}
 			}
+			if (self::$finalTakeaway != null) {
+				self::$finalTakeaway['class'] .= $tocPost;
+				if ($count < $secondaryShown) {
+					$count++;
+				} else {
+					self::$finalTakeaway['class'] .= $tocIgnoreClass;
+				}
+			}
 
 			//now put them in order
+			if(self::$finalTakeaway != null) {
+				$data['toc'][] = self::$finalTakeaway;
+			}
+
 			if (self::$ingredients != null) {
 				//goes before steps
 				$data['toc'] = array_merge([self::$ingredients], $data['toc']);

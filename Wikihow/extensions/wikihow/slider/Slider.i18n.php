@@ -28,4 +28,8 @@ $messages['en'] = array (
 	"slider_marriage" => "Improve Your Marriage!",
 	"slider_url_text_marriage" => "Start Course",
 	"slider_url_marriage" => "https://mailchi.mp/5926534001fc/how-to-improve-your-marriage",
+	"slider_cta_dog" => "Is your kid ready",
+	"slider_dog" => "for a dog?",
+	"slider_url_text_dog" => "Find out now!",
+	"slider_url_dog" => "https://mailchi.mp/56c999b023f1/dogcareforkids",
 );

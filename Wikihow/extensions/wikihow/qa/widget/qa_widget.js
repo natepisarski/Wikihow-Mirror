@@ -769,6 +769,7 @@
 			});
 
 			$('#qa').on('click', '#qa_show_more_answered', $.proxy(function(e) {
+				WH.event('article_section_communityQandA_seemore_click_expand_em');
 				e.preventDefault();
 				this.onShowMoreAnswered();
 			}, this));

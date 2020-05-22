@@ -11,13 +11,28 @@
 				|| ( cats && cats.indexOf("Married Life") !== -1 )
 				|| ( cats && cats.indexOf("Parenting") !== -1 )
 				|| $('#sliderbox').hasClass('relArticle');
+
+			var isDogArticle = ( cats && cats.indexOf("Dogs") !== -1 )
+				|| ( cats && cats.indexOf("Dog Rescue") !== -1 )
+				|| ( cats && cats.indexOf("New Pets") !== -1 )
+				|| $('#sliderbox').hasClass('dogArticle');
+
 			if ( isRelationshipArticle ) {
 				// Show a special slider for relationship articles
 				var cta = mw.message("slider_cta_marriage"),
 				    title = mw.message("slider_marriage"),
 				    txt = mw.message("slider_url_text_marriage"),
 				    url = mw.message("slider_url_marriage");
-			} else {
+			}
+			else if ( isDogArticle ) {
+				// Show a special slider for relationship articles
+				$('#sliderbox').addClass('dogArticle');
+				var cta = mw.message("slider_cta_dog"),
+					title = mw.message("slider_dog"),
+					txt = mw.message("slider_url_text_dog"),
+					url = mw.message("slider_url_dog");
+			}
+			else {
 				// Show the newsletter otherwise
 				var cta = mw.message("slider_cta_newsletter"),
 				    title = mw.message("slider_newsletter"),

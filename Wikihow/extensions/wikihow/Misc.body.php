@@ -777,16 +777,6 @@ class Misc {
 		return false;
 	}
 
-	// This header is used by our Fastly VCL to allow mobile redirection
-	// when the stars align (ie, they have a mobile User-Agent, they don't
-	// have special cookies, and they are on a desktop domain).
-	public static function setHeaderMobileFriendly() {
-		if ( !self::isMobileMode() ) {
-			$ctx = RequestContext::getMain();
-			$ctx->getRequest()->response()->header('x-mobile-friendly: 1');
-		}
-	}
-
 	public static function isUserInGroups($user, $groups) {
 		foreach ($groups as $group) {
 			if (in_array($group, $user->getGroups())) {
@@ -1118,62 +1108,15 @@ class Misc {
 		return $namespaces[$ns] ?? null;
 	}
 
-	public static function getFCPHead() {
+	public static function getWebVitalsHead() {
 		global $wgTitle;
 		$pageId = $wgTitle->getArticleID();
 		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
 			return;
 		}
-		$fcpHead = file_get_contents( __DIR__."/commonjs/fcphead.compiled.js" );
+		$fcpHead = file_get_contents( __DIR__."/commonjs/webvitals.compiled.js" );
 		$fcpHead = Html::inlineScript( $fcpHead );
 		return $fcpHead;
-	}
-
-	public static function getTTIHead() {
-		global $wgTitle;
-		$pageId = $wgTitle->getArticleID();
-		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
-			return;
-		}
-		$result = "<script>!function(){if('PerformanceLongTaskTiming' in window){var g=window.__tti={e:[]};g.o=new PerformanceObserver(function(l){g.e=g.e.concat(l.getEntries())});g.o.observe({entryTypes:['longtask']})}}();</script>";
-		return $result;
-	}
-
-	public static function getFIDHead() {
-		global $wgTitle;
-		$pageId = $wgTitle->getArticleID();
-		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
-			return;
-		}
-		$result = '!function(n,e){var t,o,i,c=[],f={passive:!0,capture:!0},r=new Date,a="pointerup",u="pointercancel";function p(n,c){t||(t=c,o=n,i=new Date,w(e),s())}function s(){o>=0&&o<i-r&&(c.forEach(function(n){n(o,t)}),c=[])}function l(t){if(t.cancelable){var o=(t.timeStamp>1e12?new Date:performance.now())-t.timeStamp;"pointerdown"==t.type?function(t,o){function i(){p(t,o),r()}function c(){r()}function r(){e(a,i,f),e(u,c,f)}n(a,i,f),n(u,c,f)}(o,t):p(o,t)}}function w(n){["click","mousedown","keydown","touchstart","pointerdown"].forEach(function(e){n(e,l,f)})}w(n),self.perfMetrics=self.perfMetrics||{},self.perfMetrics.onFirstInputDelay=function(n){c.push(n),s()}}(addEventListener,removeEventListener);';
-
-		$result = HTML::inlineScript( $result );
-		return $result;
-	}
-
-	public static function getTTIBody() {
-		global $wgTitle;
-		$pageId = $wgTitle->getArticleID();
-		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
-			return;
-		}
-		$polyfill = file_get_contents( __DIR__."/commonjs/tti-polyfill.compiled.js" );
-		$ttiBody = file_get_contents( __DIR__."/commonjs/ttibody.compiled.js" );
-		$result = Html::inlineScript( $polyfill . $ttiBody );
-		return $result;
-	}
-
-	public static function getFIDBody() {
-		global $wgTitle;
-		$pageId = $wgTitle->getArticleID();
-		if ( !ArticleTagList::hasTag( 'js_timing_pages', $pageId ) ) {
-			return;
-		}
-		// todo possibly log what the first event actually is
-		$result = "<script>perfMetrics.onFirstInputDelay(function(delay, evt) {
-			logJSTime(delay, 'fid');
-		});</script>";
-		return $result;
 	}
 
 	public static function isFastRenderTest() {

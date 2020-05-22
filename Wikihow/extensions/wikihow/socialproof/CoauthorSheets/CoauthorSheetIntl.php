@@ -46,7 +46,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 		foreach ($wgActiveLanguages as $lang) {
 			$intlBlurbs = VerifyData::getAllBlurbsFromDB($lang);
-			$intlArticles = self::updateIntlArticles($lang, $enArticles, $intlBlurbs, $overrides);
+			$count = self::updateIntlArticles($lang, $enArticles, $intlBlurbs, $overrides);
 		}
 
 		$overrideCount = [];
@@ -159,7 +159,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 	 * @return array
 	 */
 	private static function updateIntlArticles(string $lang, array $enArticles,
-		array $intlBlurbs, array $overrides): array
+		array $intlBlurbs, array $overrides): int
 	{
 		$articles = [];
 
@@ -174,6 +174,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 			'intl_page_id'      => 'titus_intl.ti_page_id',
 			'intl_first_edit'   => 'titus_intl.ti_first_edit_timestamp',
 			'intl_last_retrans' => 'titus_intl.ti_last_retranslation',
+			'intl_first_trans'  => 'titus_intl.ti_first_translation_date',
 		];
 		$where = [
 			'titus_en.ti_language_code' => 'en',
@@ -191,7 +192,8 @@ class CoauthorSheetIntl extends CoauthorSheet
 			$intlAid = (int) $row->intl_page_id;
 			$valid = isset( $overrides[$lang][$intlAid] )
 				  || ( $row->intl_first_edit && strcmp($row->en_verif_date, $row->intl_first_edit) < 0 )
-				  || ( $row->intl_last_retrans && strcmp($row->en_verif_date, $row->intl_last_retrans) < 0 );
+				  || ( $row->intl_last_retrans && strcmp($row->en_verif_date, $row->intl_last_retrans) < 0 )
+				  || ( $row->intl_first_trans && strcmp($row->en_verif_date, $row->intl_first_trans) < 0 );
 			if ( !$valid ) {
 				continue;
 			}
@@ -212,7 +214,7 @@ class CoauthorSheetIntl extends CoauthorSheet
 
 		VerifyData::replaceArticles($lang, $articles);
 
-		return $articles;
+		return count($articles);
 	}
 
 	private static function fetchDateOverridesFromSheet(): array

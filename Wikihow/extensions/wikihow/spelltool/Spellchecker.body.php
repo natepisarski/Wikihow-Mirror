@@ -411,10 +411,14 @@ class Spellchecker extends UnlistedSpecialPage {
 		return array('replaced' => $replaced, 'whitelisted' => $whitelisted);
 	}
 
-	public static function onArticleDemoted($id) {
-		// remove from spellchecker
-		$spellcheckerWhitelist = new SpellcheckerArticleWhitelist();
-		$spellcheckerWhitelist->addArticleToWhitelist(Title::newFromID($id));
+	public static function onArticleDemoted($id = 0) {
+		$title = Title::newFromID($id);
+
+		if ($title && $title->exists()) {
+			// remove from spellchecker
+			$spellcheckerWhitelist = new SpellcheckerArticleWhitelist();
+			$spellcheckerWhitelist->addArticleToWhitelist( $title );
+		}
 
 		return true;
 	}
@@ -651,9 +655,38 @@ class SpellcheckerArticleWhitelist extends UnlistedSpecialPage {
 
 	public function addArticleToWhitelist($title) {
 		$dbw = wfGetDB(DB_MASTER);
-		$sql = "INSERT INTO spellchecker (sc_page, sc_timestamp, sc_dirty, sc_errors, sc_exempt) VALUES (" .
-					$title->getArticleID() . ", " . wfTimestampNow() . ", 0, 0, 1) ON DUPLICATE KEY UPDATE sc_exempt = '1', sc_errors = 0, sc_timestamp = " . wfTimestampNow();
-		return $dbw->query($sql);
+
+		//breaking this into insert/update instead of ON DUPLICATE KEY
+		//because we're running into deadlocks
+		$count = $dbw->selectField('spellchecker', 'count(*)', [ 'sc_page' => $title->getArticleID() ]);
+
+		if ((int)$count) {
+			$result = $dbw->update(
+				'spellchecker',
+				[
+					'sc_exempt' => 1,
+					'sc_errors' => 0,
+					'sc_timestamp' => wfTimestampNow()
+				],
+				[ 'sc_page' => $title->getArticleID() ],
+				__METHOD__
+			);
+		}
+		else {
+			$result = $dbw->insert(
+				'spellchecker',
+				[
+					'sc_page' => $title->getArticleID(),
+					'sc_timestamp' => wfTimestampNow(),
+					'sc_dirty' => 0,
+					'sc_errors' => 0,
+					'sc_exempt' => 1
+				],
+				__METHOD__
+			);
+		}
+
+		return $result;
 	}
 
 	public function isAnonAvailable() {

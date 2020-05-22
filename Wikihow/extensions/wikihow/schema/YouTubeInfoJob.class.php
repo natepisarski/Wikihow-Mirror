@@ -67,14 +67,20 @@ class YouTubeInfoJob extends Job {
 
 			// Parse the status code
 			$status = 0;
+			$bodyIsInvalid = false;
 			if ( $body ) {
 				if ( !preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $http_response_header[0], $match ) ) {
 					return false;
 				}
 				$status = intval( $match[1] );
+
+				$data = @json_decode( $body );
+				if ( !$data || !is_array( $data->items ) || !count( $data->items ) ) {
+					$bodyIsInvalid = true;
+				}
 			}
 
-			if ( $status === 200 ) {
+			if ( $status === 200 && !$bodyIsInvalid ) {
 				// Store the successful response
 				AsyncHttp::store( $this->params['requestKey'], $status, $body );
 				// Purge cache so new data gets used
@@ -91,7 +97,12 @@ class YouTubeInfoJob extends Job {
 				}
 			} else {
 				// Renew the response so we can try again later
-				if ( $status === 403 ) {
+				if ( $status === 403 || $bodyIsInvalid ) {
+					// Store an initial response, even if it is invalid, so we have something
+					// to renew tomorrow
+					if ( !$response ) {
+						AsyncHttp::store( $this->params['requestKey'], $status, $body );
+					}
 					$ttl = 60 * 60 * 24;
 				} else {
 					$ttl = 60 * 60 * 24 * 7;

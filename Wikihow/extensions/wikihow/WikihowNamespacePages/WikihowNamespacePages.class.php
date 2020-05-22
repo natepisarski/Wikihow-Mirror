@@ -142,8 +142,6 @@ class WikihowNamespacePages {
 		if (self::wikiHowNamespacePage()) {
 			$isResponsive = Misc::doResponsive( RequestContext::getMain() );
 
-			Misc::setHeaderMobileFriendly();
-
 			$title = $out->getTitle();
 
 			if (self::aboutWikihowPage()) {

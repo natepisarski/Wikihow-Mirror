@@ -95,13 +95,6 @@
 	display: none;
 }
 
-.sp_byline {
-	float: none;
-	width: 350px;
-	height: 20px;
-	padding: 0 0 5px 0;
-}
-
 .sp_num_votes {
 	display: inline-block;
 	margin: 4px 0 0 4px;
