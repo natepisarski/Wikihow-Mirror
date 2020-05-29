@@ -290,6 +290,8 @@ class GoogleAmp {
 		$out->addHeadItem( 'ampadscript', '<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>' );
 		$out->addHeadItem( 'ampanalytics',
 			'<script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>' );
+		$out->addHeadItem( 'ampnotification',
+			'<script async custom-element="amp-user-notification" src="https://cdn.ampproject.org/v0/amp-user-notification-0.1.js"></script>' );
 		$out->addHeadItem( 'ampsidebar',
 			'<script async custom-element="amp-sidebar" src="https://cdn.ampproject.org/v0/amp-sidebar-0.1.js"></script>' );
 		$out->addHeadItem( 'ampform',
@@ -395,6 +397,30 @@ class GoogleAmp {
 		pq( 'div:first' )->after( $ampElement );
 	}
 
+	public static function getGDPRNotification() {
+		global $wgLanguageCode, $wgRequest, $wgTitle, $wgIsDevServer;
+
+		$messageName = "gdpr_message";
+
+		$messageInner = wfMessage( $messageName )->text();
+		if ( strpos( $messageInner, '[[' ) !== FALSE ) {
+			$messageInner = wfMessage( $messageName )->parse();
+		}
+
+		$vars = array(
+			'gdpr_message' => $messageInner,
+			'gdpr_accept' => wfMessage("gdpr_accept")->text()
+		);
+
+		$loader = new Mustache_Loader_CascadingLoader([
+			new Mustache_Loader_FilesystemLoader( __DIR__ )
+		]);
+		$options = array( 'loader' => $loader );
+		$m = new Mustache_Engine( $options );
+		$html = $m->render( 'amp_gdpr_notification.mustache', $vars );
+		return $groupsHtml . $html;
+	}
+
 	public static function getConsentElement() {
 		global $wgLanguageCode, $wgRequest, $wgTitle, $wgIsDevServer;
 
@@ -440,13 +466,6 @@ class GoogleAmp {
 		$scriptElement = Html::element( 'script', [ 'type' => 'application/json' ], $jsonObject );
 		$groupsHtml = Html::rawElement( 'amp-geo', ['layout'=>'nodisplay'], $scriptElement );
 
-		$messageName = "gdpr_message";
-
-		$messageInner = wfMessage( $messageName )->text();
-		if ( strpos( $messageInner, '[[' ) !== FALSE ) {
-			$messageInner = wfMessage( $messageName )->parse();
-		}
-
 		$ccpaFooterMessage = wfMessage( 'footer_ccpa' )->text();
 
 		$ccpaEndpoint = '/x/amp-consent-ccpa';
@@ -466,8 +485,6 @@ class GoogleAmp {
 		$vars = array(
 			'ccpa_message' => $ccpaFooterMessage,
 			'ccpa_endpoint' => $ccpaEndpoint,
-			'gdpr_message' => $messageInner,
-			'gdpr_accept' => wfMessage("gdpr_accept")->text()
 		);
 
 		$loader = new Mustache_Loader_CascadingLoader([
@@ -939,10 +956,6 @@ class GoogleAmp {
 		global $wgTitle;
 		$titlePath = $wgTitle->getFullURL();
 		$mobileCanonical = $titlePath;
-
-		// extra seperator for gdpr only
-		$otherSectionName = wfMessage( 'mobile-frontend-view-other' )->text();
-		$items .= Html::element( 'li', ['class' => 'side_header gdpr_only_display'], $otherSectionName );
 
 		// bottom menu search
 		$fullSiteLink = SkinMinervaWikihow::getMobileTOSLink( );

@@ -87,12 +87,11 @@
 	}
 	
 	function updateTipExpander(tipsRemaining) {
-		s = tipsRemaining == 1 ? '' : 's';
 		if (tipsRemaining > 0) {
-			$('#tip_more').html('Show ' + tipsRemaining + ' more tip' + s);
+			$('#tip_more').html( mw.message( 'show_more_tips', tipsRemaining ).text() );
 			$('#tip_expander').removeClass('d-h-show');
 		} else {
-			$('#tip_more').html('Show fewer tips');
+			$('#tip_more').html( mw.message( 'show_fewer_tips' ).text() );
 			$('#tip_expander').addClass('d-h-show');
 		}
 	}

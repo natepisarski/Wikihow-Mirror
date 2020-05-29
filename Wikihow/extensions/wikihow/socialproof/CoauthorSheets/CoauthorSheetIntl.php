@@ -163,6 +163,10 @@ class CoauthorSheetIntl extends CoauthorSheet
 	{
 		$articles = [];
 
+		/**
+		 * @see Related method: StaffReviewed::isStaffReviewedIntl()
+		 * @see Related ticket: LH 3240
+		 */
 		$dbr = wfGetDB(DB_REPLICA);
 		$tables = [
 			'titus_en'   => Misc::getLangDB('en') . '.titus_copy',

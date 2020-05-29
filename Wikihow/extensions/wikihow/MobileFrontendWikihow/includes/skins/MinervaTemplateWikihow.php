@@ -221,7 +221,12 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 				'amp' => $data['amp']
 			];
 
-			$footerHtml = $this->footerHtml($vars);
+			$footerHtml = $this->footerHtml($vars); if ( $data['amp'] ) {
+				if ( !class_exists( 'AndroidHelper' ) || !AndroidHelper::isAndroidRequest() ) {
+					$gdpr = GoogleAmp::getGDPRNotification();
+					$footerHtml .= $gdpr;
+				}
+			}
 		}
 
 		if (class_exists("MobileSlideshow")

@@ -116,6 +116,10 @@ a#slider_close_button {
 	font-size: 21px;
 }
 
+.fliesArticle.sliderbox_newsletter .slider_button {
+	color: white;
+	background-color: #93b874;
+}
 
 #slider_close_button {
 	/* @embed */

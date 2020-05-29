@@ -48,7 +48,9 @@ $wgResourceModules['ext.wikihow.common_bottom'] = [
 		'mhmt-cheer',
 		'mhmt-oops',
 		'mhmt-helped',
-		'mhmt-thanks'
+		'mhmt-thanks',
+		'show_more_tips',
+		'show_fewer_tips'
 	]
 ];
 

@@ -7,7 +7,7 @@ class MobileTabs {
 	public static $hasSummaryVideo = null;
 	public static $isTabArticle = null;
 
-	public static function addTabsToArticle(&$data) {
+	public static function addTabsToArticle() {
 		$title = RequestContext::getMain()->getTitle();
 		if(!self::isTabArticle($title)) return;
 
@@ -31,7 +31,7 @@ class MobileTabs {
 			]
 		];
 
-		$data['prebodytext'] .= $m->render('mobile_tabs.mustache', $vars);
+		pq($m->render('mobile_tabs.mustache', $vars))->prependTo("#intro");
 	}
 
 	public static function isTabArticle($title) {

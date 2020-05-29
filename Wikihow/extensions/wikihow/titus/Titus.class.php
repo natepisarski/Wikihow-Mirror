@@ -238,6 +238,16 @@ class TitusDB {
 			}
 		}
 
+		// Note: Titus is weird. If a row is updated, it needs the Basic Stats to be part of the
+		// update because otherwise it will just write "garbage" rows to the database that aren't
+		// associated with any particular article. This might be a candidate for refactoring at
+		// some point. I don't know without looking deeper, but if all the Basic Stats are actually
+		// running (being recomputed) each time, it would save a lot of time to somehow memoize
+		// this data rather than re-pulling it multiple times in the same process. - Reuben, May 2020
+		if ($calcLateStageStats) {
+			$calcLateStageStats = TitusConfig::getBasicStats() + $calcLateStageStats;
+		}
+
 		$options = '';
 		$conditions = array( 'page_namespace' => 0, 'page_is_redirect' => 0 );
 		$columns = array( 'page_id', 'page_title', 'page_counter', 'page_is_featured', 'page_catinfo', 'page_len' );
@@ -276,7 +286,7 @@ class TitusDB {
 		}
 
 		// calculate the late stage stats separately, after all the initial stats are done
-		if ( $calcLateStageStats ) {
+		if ( $calcLateStageStats && $calcLateStageStats != TitusConfig::getBasicStats() ) {
 			print "Running " . __METHOD__ . " on late-stage Titus stats (" . date('r') ."): " . join( ',', array_keys($calcLateStageStats) ) . "\n";
 
 			$rows = DatabaseHelper::batchSelect(

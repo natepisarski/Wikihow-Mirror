@@ -143,6 +143,26 @@ class ArticleQuestion {
 
 		if ($this->verifierId > 0) {
 			$this->verifierData = VerifyData::newVerifierFromRow($row);
+
+			$pageCoauthor = VerifyData::getByPageId($this->articleId);
+			$pageCoauthor = isset($pageCoauthor[0]) ? $pageCoauthor[0] : null;
+
+			if (!is_null($pageCoauthor)) {
+				if ($this->verifierId == $pageCoauthor->verifierId) {
+					$this->verifierData->blurb = $pageCoauthor->blurb;
+					$this->verifierData->hoverBlurb = $pageCoauthor->hoverBlurb;
+				}
+				else {
+					//expert is not the same as the page coauthor
+					//if the expert has multiple blurbs, just don't show any
+					//(because it could not be the right one for the page)
+					if (!isset($this->verifierData->blurbCount) || $this->verifierData->blurbCount > 1) {
+						$this->verifierData->blurb = '';
+						$this->verifierData->hoverBlurb = '';
+					}
+				}
+			}
+
 		} else {
 			$this->verifierData = null;
 		}

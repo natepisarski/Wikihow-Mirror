@@ -22,9 +22,24 @@ class Slider {
 			$className = 'relArticle';
 		} elseif (self::isDogTaggedArticle()) {
 			$className = 'dogArticle';
+		} elseif (self::isLordOfTheFliesArticle()) {
+			$className = 'fliesArticle';
 		}
 
 		return $className;
+	}
+
+	public function isLordOfTheFliesArticle() {
+		$isLordOfTheFliesArticle = false;
+		$title = RequestContext::getMain()->getTitle();
+		if ($title
+			&& $title->exists()
+			&& $title->getArticleID() == 11934922 // https://www.wikihow.com/Study-the-Novel-Lord-of-the-Flies
+			) {
+			$isLordOfTheFliesArticle = true;
+		}
+
+		return $isLordOfTheFliesArticle;
 	}
 
 	public function isRelationshipTaggedArticle() {

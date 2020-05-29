@@ -11,6 +11,12 @@ class EventConfig
 	const EVENTS = [
 		// please add new events at the beginning of this array,
 		// so they are sorted chronologically in descending order
+		'article_promo_slider_click_go_ecd' => [ 'Elizabeth', ['type', 'dest_url'] ],
+		'article_popup_expertQandA_test_click_choose_ecd' => [ 'Emily', ['type'] ],
+		'article_button_expertQandA_test_click_open_ecd' => [ 'Emily', [] ],
+		'article_promo_lordofflies_slider_click_go_ecd' => [ 'Elizabeth', [] ],
+		'article_promo_dogs_slider_click_go_ecd' => [ 'Elizabeth', [] ],
+		'article_section_TOC_click_go_em' => [ 'Emily', [ 'link_title' ] ],
 		'article_section_communityQandA_seemore_click_expand_em' => [ 'Emily', [] ],
 		'hp_promo_concepttest_01_click_open_em' => [ 'Emily', [ 'type', 'user_state' ] ],
 		'prebid_ad_prerender' => [ 'Aaron', [] ],

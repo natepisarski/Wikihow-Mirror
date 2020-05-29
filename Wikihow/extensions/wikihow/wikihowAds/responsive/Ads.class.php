@@ -177,11 +177,6 @@ class Ads {
 			return;
 		}
 
-		if ( class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest() ) {
-			$this->mActive = false;
-			return;
-		}
-
 		// check for certain restricted titles
 		if ( self::isExcluded( $this->mTitle ) ) {
 			$this->mActive = false;
@@ -308,6 +303,11 @@ class Ads {
 			}
 		}
 
+		// Special Case for the KaiOS app
+		if ( class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest() ) {
+			$adCreator = new DefaultAdCreatorKaiOS();
+		}
+
 		return $adCreator;
 	}
 
@@ -332,6 +332,13 @@ class Ads {
 
 	public function getTopAdsJavascript() {
 		global $wgRequest;
+
+		// Special case for Kaios
+		if ( class_exists('KaiosHelper') && KaiosHelper::isKaiosRequest() ) {
+			$html = Html::linkedScript('https://static.kaiads.com/ads-sdk/ads-sdk.v3.min.js');
+			return  $html . Html::inlineScript( Misc::getEmbedFiles( 'js', [__DIR__ . "/kaiads.js"] ) ) ;
+		}
+
 		$adsJs = $this->getJavascriptFile();
 		$html = '';
 		if ( $adsJs ) {

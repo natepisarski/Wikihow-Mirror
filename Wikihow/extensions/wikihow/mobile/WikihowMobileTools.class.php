@@ -539,12 +539,6 @@ class WikihowMobileTools {
 		// in order to create the poster image for the video
 		pq( ".video-player" )->parent()->nextAll( '.image' )->remove();
 
-		//remove all images in the intro that aren't
-		//marked with the class "introimage"
-		if ($wgTitle->inNamespace(NS_MAIN)) {
-			pq("#intro .mwimg:not(.introimage)")->remove();
-		}
-
 		//let's remove all the empty p's in steps
 		foreach (pq(".section.steps p") as $p) {
 			if (pq($p)->parents(".steps_list_2")->count() == 0 && pq($p)->children(".anchor")->count() == 0) {
@@ -919,6 +913,20 @@ class WikihowMobileTools {
 			}
 
 			WikihowToc::addMobileToc();
+		}
+
+		MobileTabs::addTabsToArticle();
+		//remove all images in the intro that aren't
+		//marked with the class "introimage"
+		if ($wgTitle->inNamespace(NS_MAIN)) {
+			if(ArticleTagList::hasTag("intro_image_test", $docTitle->getArticleID())) {
+				if(pq("#mobile_tab_container")->length > 0) {
+					pq("#intro .mwimg")->insertBefore("#mobile_tab_container");
+				}
+				pq("#method_toc")->addClass("has_intro_image");
+			} else {
+				pq("#intro .mwimg:not(.introimage)")->remove();
+			}
 		}
 
 		// add id to each stepslist2 li so we can make a url link to it if need be (like in the howto schema)

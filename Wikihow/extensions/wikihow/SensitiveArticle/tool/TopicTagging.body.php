@@ -25,7 +25,13 @@ class TopicTagging extends \UnlistedSpecialPage {
 		$out->setRobotPolicy('noindex, nofollow');
 
 		if ($user->isBlocked()) {
-			throw new UserBlockedError( $user->getBlock() );
+			throw new \UserBlockedError( $user->getBlock() );
+		}
+
+		if (!$this->allowedUser($user)) {
+			$out->setRobotPolicy('noindex,nofollow');
+			$out->showErrorPage( 'nosuchspecialpage', 'nospecialpagetext' );
+			return;
 		}
 
 		$this->isMobile = $this->specialPage == 'MobileTopicTagging';
@@ -64,19 +70,17 @@ class TopicTagging extends \UnlistedSpecialPage {
 	}
 
 	private function numberOfVotesForUser(): int {
-		$user = \RequestContext::getMain()->getUser();
-		return $this->powerVoter($user) ? SensitiveArticleVote::VOTE_POWER_VOTER : 1;
+		return 1;
 	}
 
-	private function powerVoter(\User $user): bool {
-		$power_voter_groups = [
+	private function allowedUser(\User $user): bool {
+		$allowed_user_groups = [
 			'sysop',
 			'staff',
-			'staff_widget',
-			'newarticlepatrol'
+			'staff_widget'
 		];
 
-		return !$user->isAnon() && \Misc::isUserInGroups($user, $power_voter_groups);
+		return !$user->isAnon() && \Misc::isUserInGroups($user, $allowed_user_groups);
 	}
 
 	private function toolHtml(): string {

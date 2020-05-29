@@ -339,6 +339,12 @@ $(document).ready(function() {
 		WH.event('all_nav_search_query_submit_go_em');
 	});
 
+	$('#method_toc_list a').click(function() {
+		if ( $(this).attr('href') != '#' ) { // Skip 'Show N more...' / 'Show less...'
+			WH.event('article_section_TOC_click_go_em', { link_title: $(this).text().trim() });
+		}
+	});
+
 });
 
 

@@ -120,18 +120,20 @@ abstract class AdCreator {
 	public function getDFPKeyValsJSON() {
 		$dfpKeyVals = $this->mDFPKeyVals;
 
-		foreach ( $this->mAdSetupData as $adType => $adData ) {
-			if ( !isset( $this->mAdSetupData[$adType]['service'] ) ) {
-				continue;
+		if ($this->mAdSetupData) {
+			foreach ( $this->mAdSetupData as $adType => $adData ) {
+				if ( !isset( $this->mAdSetupData[$adType]['service'] ) ) {
+					continue;
+				}
+				if ( $this->mAdSetupData[$adType]['service'] != 'dfp' ) {
+					continue;
+				}
+				if ( !isset( $this->mAdSetupData[$adType]['refreshable'] ) ) {
+					continue;
+				}
+				$adUnitPath = $this->mAdSetupData[$adType]['adUnitPath'];
+				$dfpKeyVals[$adUnitPath]['refreshing'] = '1';
 			}
-			if ( $this->mAdSetupData[$adType]['service'] != 'dfp' ) {
-				continue;
-			}
-			if ( !isset( $this->mAdSetupData[$adType]['refreshable'] ) ) {
-				continue;
-			}
-			$adUnitPath = $this->mAdSetupData[$adType]['adUnitPath'];
-			$dfpKeyVals[$adUnitPath]['refreshing'] = '1';
 		}
 
 		$dfpKeyVals = json_encode( $dfpKeyVals );
@@ -931,6 +933,7 @@ abstract class AdCreator {
 		$addDFP = false;
 		$apsLoad = false;
 		$prebidLoad = false;
+		$addKaiAds = false;
 
 		if ( empty( $this->mAdSetupData ) ) {
 			return;
@@ -947,8 +950,16 @@ abstract class AdCreator {
 				$addDFP = true;
 			}
 
+			if ( $service == "kaiads" ) {
+				$addKaiAds = true;
+			}
+
 			$apsLoad = $apsLoad || $adData['apsLoad'];
 			$prebidLoad = $prebidLoad || $adData['prebidLoad'];
+		}
+
+		if ($addKaiAds) {
+			return;
 		}
 
 		$scripts = [];
@@ -1197,12 +1208,16 @@ abstract class AdCreator {
 		return false;
 	}
 	public function isPrebidPageNoBidCachingPage() {
+
 		global $wgRequest, $wgLanguageCode;
 
 		if ( $wgLanguageCode != 'en' ) {
 			return false;
 		}
 
+		if ( intval( $this->mBucketId ) >= 24 ) {
+			return true;
+		}
 		if ( intval( $this->mBucketId ) == 22 ) {
 			return true;
 		}
@@ -1273,6 +1288,77 @@ class DefaultCategoryPageAdCreator extends AdCreator {
 				'type' => 'rightrail',
 			),
 		);
+	}
+}
+
+class DefaultAdCreatorKaiOS extends AdCreator {
+	public function __construct() {
+		parent::__construct();
+		$this->mAdSetupData = array(
+			'intro' => array(
+				'service' => 'kaiads',
+				'publisher' => 'b9b87d46-5c86-4eb5-8465-84856ce26767',
+				'width' => 240,
+				'height' => 264,
+				'smallslot' => 'intro_ad_small',
+				'smallheight' => 264,
+				'smallwidth' => 240,
+				'class' => [],
+				'type' => 'intro',
+				'small' => 1,
+			),
+		);
+	}
+
+	public function getBodyAd( $type ) {
+		$ad = $this->getNewAd( $type );
+
+		if ( !isset( $ad->setupData ) ) {
+			return null;
+		}
+
+		// get the inner ad
+		$innerClass = $ad->setupData['innerclass'] ?:'';
+
+		$attributes = array(
+			'id' => $ad->mTargetId,
+			'class' => $innerClass,
+		);
+		$innerHtml = '';
+
+		if ( !$this->isAdOkForDomain( $ad ) ) {
+			return;
+		}
+
+		$innerAdHtml = Html::rawElement( 'div', $attributes, $innerHtml );
+
+		// now the wrapper
+		$attributes = array(
+			'class' => array( 'wh_ad_inner' ),
+		);
+
+		// all the settings for the ad come from the adSetupData
+		foreach ( $ad->setupData as $key => $val ) {
+			if ( $key == 'class' ) {
+				foreach ( $val as $classVal ) {
+					$attributes['class'][] = $classVal;
+				}
+			} elseif ( $key == 'containerheight' ) {
+				$attributes['style'] = "height:{$val}px";
+			} else {
+				if ( is_array( $val ) ) {
+					$val = implode(' ', $val);
+				}
+				$adKey = 'data-'.$key;
+				$attributes[$adKey] = $val;
+			}
+		}
+
+		$html = Html::rawElement( 'div', $attributes, $innerAdHtml );
+
+		$ad->mHtml = $html;
+
+		return $ad;
 	}
 }
 
@@ -1741,10 +1827,11 @@ class DefaultAdCreator extends AdCreator {
 		}
 
 		if ( $this->showNewAdsJs() ) {
-			if ( $this->isPrebidPage() ) {
+			if ( intval( $this->mBucketId ) == 24 ) {
 				$this->mAdSetupData['intro']['channels'] = [6132528505];
 				$this->mAdSetupData['rightrail0']['channels'] = [6132528505];
-			} else {
+			}
+			if ( intval( $this->mBucketId ) == 23 ) {
 				$this->mAdSetupData['intro']['channels'] = [1906768069];
 				$this->mAdSetupData['toc']['channels'] = [1906768069];
 				$this->mAdSetupData['rightrail0']['channels'] = [1906768069];
@@ -1752,7 +1839,6 @@ class DefaultAdCreator extends AdCreator {
 				$this->mAdSetupData['related']['channels'] = [1906768069];
 				$this->mAdSetupData['qa']['channels'] = [1906768069];
 			}
-
 		}
 
 		if ( $this->isPrebidPageNoBidCachingPage() ) {

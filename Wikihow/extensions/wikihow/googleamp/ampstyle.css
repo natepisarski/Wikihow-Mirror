@@ -715,19 +715,16 @@
 	margin: 0;
 	padding: 14px 20px;
 }
-
-.amp-geo-group-eu .icon-aboutwikihow {
-	 display: list-item;
+.amp-geo-group-eea .icon-aboutwikihow {
+	display: list-item;
 }
-.amp-geo-group-eu .gdpr_only {
+.amp-geo-group-eea .gdpr_only {
 	visibility: visible;
 }
-.amp-geo-group-eu .no_gdpr {
+.amp-geo-group-eea .no_gdpr {
 	visibility: hidden;
 }
-#gdpr.consentPopup {
-	position: inherit;
-	z-index: auto;
+.amp-geo-group-eea #gdpr {
 	display: block;
 }
 .click-to-play-overlay {
@@ -741,22 +738,6 @@
 	font-size: inherit;
 	background-position: 12px 9px;
 	margin: 0;
-	padding: 0;
-}
-.amp-geo-group-eu .gdpr_no_display, .gdpr_only_display {
-	display: none;
-}
-.gdpr_no_display, .amp-geo-group-eu .gdpr_only_display {
-	display: block;
-}
-.amp-geo-group-eu .mw-mf-display-toggle {
-	background: none;
-	padding-left: 10px;
-	padding-bottom: 5px;
-	padding-top: 5px;
-}
-.amp-geo-group-eu #top-sidebar ul li a.gdpr-menu {
-	display: inline-block;
 	padding: 0;
 }
 #top-sidebar ul li a.gdpr-menu {
@@ -780,13 +761,13 @@ amp-accordion section[expanded] .show-more, amp-accordion section:not([expanded]
 	padding-right: 17px;
 
 }
-.amp-geo-group-eu .embedvideo_gdpr_p {
+.amp-geo-group-eea .embedvideo_gdpr_p {
 	display: block;
 }
 .embedvideo_gdpr_p {
 	display: none;
 }
-.amp-geo-group-eu .embedvideo_gdpr_headline span {
+.amp-geo-group-eea .embedvideo_gdpr_headline span {
 	background: url(/skins/owl/images/sp_icon_info.png);
 	/* @embed */
 	background: url(/skins/owl/images/sp_icon_info.svg);

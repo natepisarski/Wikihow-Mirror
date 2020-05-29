@@ -1,5 +1,4 @@
 .embedvideo_gdpr_message {
-
 	font-size: 12px;
 	font-weight: normal;
 	line-height: 14px;
@@ -38,19 +37,6 @@
 .video .mw-headline {
 	display: inline;
 }
-.gdpr_only_display {
-	display: none;
-}
-.geo-group-eu .gdpr_only_display {
-	display: block;
-}
-.gdpr_no_display {
-	display: block;
-}
-.geo-group-eu .gdpr_no_display {
-	display: none;
-}
-
 .header .search {
 	display: table-cell;
 }

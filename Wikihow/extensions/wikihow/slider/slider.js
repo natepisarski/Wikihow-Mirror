@@ -17,20 +17,35 @@
 				|| ( cats && cats.indexOf("New Pets") !== -1 )
 				|| $('#sliderbox').hasClass('dogArticle');
 
+			var isLordOfTheFliesArticle = $('#sliderbox').hasClass('fliesArticle');
+
 			if ( isRelationshipArticle ) {
 				// Show a special slider for relationship articles
 				var cta = mw.message("slider_cta_marriage"),
 				    title = mw.message("slider_marriage"),
 				    txt = mw.message("slider_url_text_marriage"),
 				    url = mw.message("slider_url_marriage");
+
+				var eventType = 'marriage course';
 			}
 			else if ( isDogArticle ) {
-				// Show a special slider for relationship articles
+				// Show a special slider for dog articles
 				$('#sliderbox').addClass('dogArticle');
 				var cta = mw.message("slider_cta_dog"),
 					title = mw.message("slider_dog"),
 					txt = mw.message("slider_url_text_dog"),
 					url = mw.message("slider_url_dog");
+
+				var eventType = 'dog course';
+			}
+			else if ( isLordOfTheFliesArticle ) {
+				// Show a special slider for the lord of the flies article
+				var cta = mw.message("slider_cta_flies"),
+					title = mw.message("slider_flies"),
+					txt = mw.message("slider_url_text_flies"),
+					url = mw.message("slider_url_flies");
+
+				var eventType = 'lordoftheflies guide';
 			}
 			else {
 				// Show the newsletter otherwise
@@ -38,6 +53,8 @@
 				    title = mw.message("slider_newsletter"),
 				    txt = mw.message("slider_url_text_newsletter"),
 				    url = mw.message("newsletter_url");
+
+				var eventType = 'newsletter';
 			}
 			$(".slider_become_main").append("<p class='slider_readmore'>" + cta + "</p>");
 			$(".slider_become_main").append("<p class='slider_category'>" + title + "</p>");
@@ -45,11 +62,9 @@
 			$(".slider_become_main .slider_button").attr("href", encodeURI(url.text()));
 			$("#sliderbox").addClass("sliderbox_newsletter");
 
-			var eventName = isRelationshipArticle
-				? 'article_promo_marriage_slider_click_go_ecd'
-				: 'article_promo_newsletter_slider_click_go_em';
+
 			$(".slider_become_main .slider_button").click(function() {
-				WH.event(eventName);
+				WH.event('article_promo_slider_click_go_ecd', {'type': eventType, 'dest_url': url.text()});
 			});
 		},
 

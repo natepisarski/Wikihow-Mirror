@@ -81,6 +81,8 @@ class PageStats extends UnlistedSpecialPage {
 		$t = Title::newFromID($pageId);
 		$dbr = wfGetDB(DB_REPLICA);
 
+		$nb = '&nbsp;';
+
 		$html = "<h3 style='margin-bottom:5px'>Staff-only data</h3>";
 
 		if ( SummaryEditTool::authorizedUser( $this->getUser() ) ) {
@@ -96,38 +98,58 @@ class PageStats extends UnlistedSpecialPage {
 		} else {
 			// pageview data
 			$views30Day = $titusData->ti_30day_views_unique;
-			$views30DayMobile = $titusData->ti_30day_views_unique_mobile;
 			$html .= wfMessage( 'ps-pv-30day-unique', $views30Day )->text();
-			$mobile30DayPercent = 0;
-			if ( $views30Day > 0 ) {
-				$mobile30DayPercent = round( 100 * $views30DayMobile / $views30Day );
-			}
+			#$views30DayMobile = $titusData->ti_30day_views_unique_mobile;
+			#$mobile30DayPercent = 0;
+			#if ( $views30Day > 0 ) {
+			#	$mobile30DayPercent = round( 100 * $views30DayMobile / $views30Day );
+			#}
 
 			$viewsDay = $titusData->ti_daily_views_unique;
-			$viewsMobile = $titusData->ti_daily_views_unique_mobile;
 			$html .= wfMessage( 'ps-pv-1day-unique', $viewsDay )->text();
-			$mobilePercent = 0;
-			if ( $viewsDay > 0 ) {
-				$mobilePercent = round( 100 * $viewsMobile / $viewsDay );
-			}
+			#$viewsMobile = $titusData->ti_daily_views_unique_mobile;
+			#$mobilePercent = 0;
+			#if ( $viewsDay > 0 ) {
+			#	$mobilePercent = round( 100 * $viewsMobile / $viewsDay );
+			#}
 
 			$html .= "<p>{$titusData->ti_30day_views} " . wfMessage('ps-pv-30day') . "</p>";
 			$html .= "<p>{$titusData->ti_daily_views} " . wfMessage('ps-pv-1day') . "</p>";
 
-			$html .= "<hr style='margin:5px 0; '/>";
-			$html .= wfMessage('ps-pv-30day-unique-mobile', $views30DayMobile, $mobile30DayPercent )->text();
-			$html .= wfMessage('ps-pv-1day-unique-mobile', $viewsMobile, $mobilePercent )->text();
+			#$html .= "<hr style='margin:5px 0; '/>";
+			#$html .= wfMessage('ps-pv-30day-unique-mobile', $views30DayMobile, $mobile30DayPercent )->text();
+			#$html .= print_r($titusData,true);
+			$totalViewsMobile = $titusData->ti_stu2_all_mobile + $titusData->ti_stu2_amp;
+			$totalViewsDesktop = $titusData->ti_stu2_all_desktop + $titusData->ti_stu2_quickbounce_desktop;
+			$totalViewsAmp = $titusData->ti_stu2_amp;
+			$mobilePercent = 0;
+			$desktopPercent = 0;
+			$ampPercent = 0;
+			if ($totalViewsDesktop + $totalViewsMobile > 0) {
+				$mobilePercent = round( 100 * $totalViewsMobile / ($totalViewsDesktop + $totalViewsMobile) );
+				$desktopPercent = round( 100 * $totalViewsDesktop / ($totalViewsDesktop + $totalViewsMobile) );
+				$ampPercent = round( 100 * $totalViewsAmp / ($totalViewsDesktop + $totalViewsMobile) );
+			}
+
+			# Output something like this
+			# Mobile (w/ AMP): X% (xxxx 1 day views)
+			# AMP-only (% of total): Y% (yyyy 1 day views)
+			# Desktop: Z% (zzzz 1 day views)
+
+			$html .= "<hr style='margin:5px 0'/>";
+			$html .= "Mobile$nb(w/${nb}AMP):$nb$mobilePercent%$nb($totalViewsMobile${nb}1-day${nb}views)<br>";
+			$html .= "AMP-only$nb(%${nb}of${nb}total):$nb$ampPercent%$nb($totalViewsAmp${nb}1-day${nb}views)<br>";
+			$html .= "Desktop:$nb$desktopPercent%$nb($totalViewsDesktop${nb}1-day${nb}views)<br>";
 
 			// stu2 data
 			if ($langCode == 'en') {
-				$nb = '&nbsp;';
 				$r = $titusData->ti_stu2_last_reset;
 				if ($r && strlen($r) == 8) {
 					$resetLine = "<i>last reset " . substr($r, 0, 4) . '/' . substr($r, 4, 2) . '/' . substr($r, 6, 2) . "</i>";
 				} else {
 					$resetLine = "";
 				}
-				$html .= "<hr style='margin:5px 0; '/>";
+				$html .= "<hr style='margin:5px 0'/>";
 				$html .= "<p><b>Stu2</b> $nb$nb$nb$resetLine</p>";
 				if ($titusData->ti_stu2_search_mobile) {
 					$stu2Mb10sAc = sprintf( '%.1f', $titusData->ti_stu2_10s_active_mobile ) . "%";
@@ -157,7 +179,7 @@ class PageStats extends UnlistedSpecialPage {
 				$html .= "<p style='font-size:12px; font-weight:bold; padding-top:3px'>More info</p>";
 				$html .= "<p>search views mobile:{$titusData->ti_stu2_search_mobile}{$nb}dt:{$titusData->ti_stu2_search_desktop}</p>";
 				$html .= "<p>all views mobile:{$titusData->ti_stu2_all_mobile}{$nb}dt:{$titusData->ti_stu2_all_desktop}</p>";
-				$html .= "<p>quick{$nb}bounces{$nb}amp:{$titusData->ti_stu2_amp}{$nb}mobile:{$titusData->ti_stu2_quickbounce_mobile}{$nb}dt:{$titusData->ti_stu2_quickbounce_desktop}</p>";
+				$html .= "<p>quick{$nb}bounces{$nb}amp:{$titusData->ti_stu2_amp}{$nb}dt:{$titusData->ti_stu2_quickbounce_desktop}</p>";
 				if ($t) {
 					$html .= "<p><a href='#' class='clearstu'>Clear Stu</a></p>";
 				}

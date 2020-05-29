@@ -31,7 +31,7 @@ class WikihowContentAds extends UnlistedSpecialPage {
 						$user->isLoggedIn() ? "logged in" : "logged out"
 					);
 
-					$sheet = 'homepage';
+					$sheet = 'homepage (do not edit)';
 					GoogleSheets::appendRows($spreadsheetId, $sheet, [$newRow]);
 				}
 			}

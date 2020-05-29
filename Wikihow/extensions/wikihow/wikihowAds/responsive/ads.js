@@ -177,6 +177,12 @@ WH.ads = (function () {
 			PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"][bidId] = ad.bids[bidId];
 		}
 
+		// make sure impression id is updated
+		if (PWT.bidMap[ad.adTargetId]['impressionID'] != ad.bidImpressionId[bidId]) {
+			log("addBidToBidMap updating impressionID in bidmap", adapterId, bidId, ad.bidLookupKey);
+			PWT.bidMap[ad.adTargetId]['impressionID'] = ad.bidImpressionId[bidId];
+		}
+
 		// some sanity checking for dev purposes
 		if (!(bidId in PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"])) {
 			console.warn("bidId still not in bidmap", bidId);
@@ -194,12 +200,16 @@ WH.ads = (function () {
 	}
 
 	function prebidPreRender(bidId) {
-		log("prebidPreRender: pwt will render", bidId);
-		if (typeof WH.event !== 'undefined') {
-			WH.event('prebid_ad_prerender', {});
-		}
 		//console.log('bidmap is', PWT.bidMap);
 		var ad = prebidBidsToAd[bidId];
+
+		if (typeof WH.event !== 'undefined') {
+			if (ad.bidLookupKey == 'scrollto_ad_1') {
+				WH.event('prebid_ad_prerender',{'scroll':ad.adTargetId});
+			} else {
+				WH.event('prebid_ad_prerender',{});
+			}
+		}
 
 		// make sure it is still in the bidmap
 		addBidToBidMap(ad, bidId);
@@ -221,6 +231,7 @@ WH.ads = (function () {
 		ad.lastWonBid = bidId;
 
 		ad.winningBid = null;
+		log("prebidPreRender: pwt will render", bidId, ad.adTargetId, ad.bidImpressionId[bidId]);
 	}
 
 	//var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -273,9 +284,10 @@ WH.ads = (function () {
 	}
 
 	function saveBids(ad, winningBids) {
-		var winningBid = winningBids[0];
-		// this is not needed so clear it out now
-		winningBid.bidData.wb.adHtml = '';
+		var winningBid = null;
+		if (winningBids) {
+			winningBid = winningBids[0];
+		}
 
 		if (!(ad.bidLookupKey in PWT.bidMap)) {
 			console.warn("no bids after requesting bids", ad.bidLookupKey);
@@ -294,6 +306,7 @@ WH.ads = (function () {
 		if (!ad.bids) {
 			ad.bids = {};
 			ad.bidEcpm = {};
+			ad.bidImpressionId = {};
 			ad.allWinningBidIds = [];
 		}
 
@@ -308,6 +321,9 @@ WH.ads = (function () {
 					allBidIds[bidId] = true;
 				}
 				if (ad.bidCachingActive == false) {
+					if(!winningBid) {
+						continue;
+					}
 					if (winningBid.bidData.kvp.pwtsid != bidId) {
 						//log("saveBids: bid caching is off. skipping bid", bidId, ad.bidLookupKey);
 						continue;
@@ -324,19 +340,19 @@ WH.ads = (function () {
 				validBids++;
 				ad.bids[bidId] = PWT.bidMap[ad.bidLookupKey]['adapters'][adapterId]["bids"][bidId];
 				ad.bidEcpm[bidId] = ecpm;
+				ad.bidImpressionId[bidId] = PWT.bidMap[ad.bidLookupKey].impressionID;
 				log("saveBids: saving bid:", ecpm, adapterId, bidId, ad.bidLookupKey);
 			}
 		}
 
-		if (validBids) {
+		if (winningBid) {
 			log("saveBids: winningBid:", winningBid.bidData.wb.netEcpm, winningBid.bidData.wb.adapterID, winningBid.bidData.kvp.pwtsid, ad.bidLookupKey);
+			// for adding extra KVP to track if the winning bid is the one sent to gam
+			ad.winningBidId = ad.winningBid.bidData.kvp.pwtsid;
+			ad.allWinningBidIds.push(ad.winningBid.bidData.kvp.pwtsid);
 		} else {
-			log("saveBids: no valid bids received", ad.bidLookupKey);
-			//prebidRequest(ad);
+			log("saveBids: no winning bid received", ad.bidLookupKey);
 		}
-// for adding extra KVP to track if the winning bid is the one sent to gam
-		ad.winningBidId = ad.winningBid.bidData.kvp.pwtsid;
-		ad.allWinningBidIds.push(ad.winningBid.bidData.kvp.pwtsid);
 	}
 
 	function updateWinningBidWithNewBid(ad, highestBid) {
@@ -360,6 +376,10 @@ WH.ads = (function () {
 		if (!('winningBid' in ad)) {
 			log("getWinningBid: ad has no winning bid", ad);
 			// this would happen if we never got any bid response yet
+			return null;
+		}
+		if (!ad.winningBid) {
+			log("getWinningBid: ad winning bid is null", ad);
 			return null;
 		}
 		if (ad.bids.length == 0) {

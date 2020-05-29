@@ -40,6 +40,10 @@ $wgResourceModules['ext.wikihow.slider'] = [
 		"slider_dog",
 		"slider_url_text_dog",
 		"slider_url_dog",
+		"slider_cta_flies",
+		"slider_flies",
+		"slider_url_text_flies",
+		"slider_url_flies",
 	],
 	'targets' => [ 'desktop', 'mobile' ],
 	'position' => 'bottom'

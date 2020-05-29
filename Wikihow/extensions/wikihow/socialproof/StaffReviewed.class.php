@@ -63,6 +63,10 @@ class StaffReviewed {
 			return (bool) $isStaffReviewed;
 		}
 
+		/**
+		 * @see Related method: CoauthorSheetIntl::updateIntlArticles()
+		 * @see Related ticket: LH 3240
+		 */
 		$dbr = wfGetDB(DB_REPLICA);
 		$tables = [
 			'titus_en'   => Misc::getLangDB('en') . '.titus_copy',
@@ -78,7 +82,8 @@ class StaffReviewed {
 
 			'titus_en.ti_first_fellow_edit_timestamp < GREATEST(
 				COALESCE(titus_intl.ti_first_edit_timestamp, 0),
-				COALESCE(titus_intl.ti_last_retranslation, 0)
+				COALESCE(titus_intl.ti_last_retranslation, 0),
+				COALESCE(titus_intl.ti_first_translation_date, 0)
 			)'
 		];
 		$isStaffReviewed = $dbr->selectField($tables, 1, $where);

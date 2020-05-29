@@ -842,12 +842,26 @@ class ResourceLoader implements LoggerAwareInterface {
 		ResourceLoaderContext $context, $etag, $errors, array $extra = []
 	) {
 		\MediaWiki\HeaderCallback::warnIfHeadersSent();
+		$wikihowTestCount = 0;
+		$modules = $context->getModules();
+		foreach ( $modules as $name ) {
+			$module = $this->getModule( $name );
+			if ( $module ) {
+				if($module->getGroup() === 'wikihowtests') {
+					$wikihowTestCount++;
+				}
+			}
+		}
 		$rlMaxage = $this->config->get( 'ResourceLoaderMaxage' );
 		// Use a short cache expiry so that updates propagate to clients quickly, if:
 		// - No version specified (shared resources, e.g. stylesheets)
 		// - There were errors (recover quickly)
 		// - Version mismatch (T117587, T47877)
-		if ( is_null( $context->getVersion() )
+
+		if($wikihowTestCount == count($modules)) {
+			$maxage = 60 * 5;
+			$smaxage = 60 * 5;
+		} elseif ( is_null( $context->getVersion() )
 			|| $errors
 			|| $context->getVersion() !== $this->makeVersionQuery( $context )
 		) {

@@ -32,4 +32,8 @@ $messages['en'] = array (
 	"slider_dog" => "for a dog?",
 	"slider_url_text_dog" => "Find out now!",
 	"slider_url_dog" => "https://mailchi.mp/56c999b023f1/dogcareforkids",
+	"slider_cta_flies" => "Check out wikiHow's full",
+	"slider_flies" => "Literary Study Guide",
+	"slider_url_text_flies" => "Learn more",
+	"slider_url_flies" => "https://www.amazon.com/dp/B088X4YK98",
 );

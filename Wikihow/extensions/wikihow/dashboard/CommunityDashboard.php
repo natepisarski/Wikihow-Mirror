@@ -61,7 +61,7 @@ $wgWidgetList = array(
 	'WriteAppWidget',
 	'RecentChangesAppWidget',
 	'CategorizerAppWidget',
-	'TopicTaggingAppWidget',
+	// 'TopicTaggingAppWidget',
 	'FormatAppWidget',
 	'CopyeditAppWidget',
 	'CleanupAppWidget',
@@ -121,7 +121,7 @@ $wgWidgetShortCodes = array(
 	'TechTestingAppWidget' => 'tv',
 	// 'DuplicateTitlesAppWidget' => 'dt',
 	'FixFlaggedAnswersAppWidget' => 'ffa',
-	'TopicTaggingAppWidget' => 'ttt',
+	// 'TopicTaggingAppWidget' => 'ttt',
 	'QuizYourselfWidget' => 'qy'
 );
 
@@ -134,7 +134,7 @@ $wgMobilePriorityWidgetList = array(
 
 /*bottom mobile widgets*/
 $wgMobileWidgetList = array(
-	'TopicTaggingAppWidget',
+	// 'TopicTaggingAppWidget',
 	'CategoryGuardianAppWidget',
 	'TipsGuardianAppWidget',
 	// 'UCIPatrolWidget',

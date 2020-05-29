@@ -12,6 +12,8 @@ class WikihowHealth {
 
 		if(pq(".steps_text")->length == 0) return;
 
+		if(ArticleTagList::hasTag("health_exceptions", RequestContext::getMain()->getTitle()->getArticleID())) return;
+
 		//now the steps
 		foreach(pq(".steps_text") as $stepText) {
 			$step = pq($stepText)->html();

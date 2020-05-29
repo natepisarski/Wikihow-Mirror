@@ -2,9 +2,9 @@
 
 abstract class GoogleBase
 {
-	protected static $token = null;   // String
-	protected static $client = null;  // Google_Client
-	protected static $service = null; // Google_Service
+	protected static $token;   // String
+	protected static $client;  // Google_Client
+	protected static $service; // Google_Service
 	protected static $scopes = [ Google_Service_Drive::DRIVE ]; // Default scope
 
 	protected function __construct() { }
@@ -44,8 +44,23 @@ abstract class GoogleBase
 
 class GoogleDrive extends GoogleBase
 {
+	protected static $token;   // String
+	protected static $client;  // Google_Client
+	protected static $service; // Google_Service_Drive
+
 	protected static function newService(Google_Client $client): Google_Service {
 		return new Google_Service_Drive($client);
+	}
+}
+
+class GoogleWebmasters extends GoogleBase {
+	protected static $token;   // String
+	protected static $client;  // Google_Client
+	protected static $service; // Google_Service_Webmasters
+	protected static $scopes = [ Google_Service_Webmasters::WEBMASTERS_READONLY ];
+
+	protected static function newService(Google_Client $client): Google_Service {
+		return new Google_Service_Webmasters($client);
 	}
 }
 
@@ -55,6 +70,10 @@ class GoogleDrive extends GoogleBase
  */
 class GoogleSheets extends GoogleBase
 {
+	protected static $token;   // String
+	protected static $client;  // Google_Client
+	protected static $service; // Google_Service_Sheets
+
 	/**
 	 * For when you need to do more advanced stuff than this utility class provides.
 	 * https://developers.google.com/sheets/api/quickstart/php
@@ -165,12 +184,4 @@ class GoogleSheets extends GoogleBase
 		return @file_get_contents($url);
 	}
 
-}
-
-class GoogleWebmasters extends GoogleBase {
-	protected static $scopes = [ Google_Service_Webmasters::WEBMASTERS_READONLY ];
-
-	protected static function newService(Google_Client $client): Google_Service {
-		return new Google_Service_Webmasters($client);
-	}
 }

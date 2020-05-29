@@ -516,6 +516,14 @@ body.action-view #content>#intro {
 	line-height: 20px;
 }
 
+#intro .mwimg {
+	margin: -7px -15px 5px -15px;
+}
+
+#intro .mwimg img {
+	border-radius: 0;
+}
+
 .section {
 	margin-top: 1em;
 	position: relative;
@@ -1092,10 +1100,10 @@ body.action-view #fa_container p {
 }
 
 #mobile_tab_container {
-	width: 100%;
 	position: relative;
 	border-bottom: 1px solid #79A355;
 	clear: both;
+	margin: -7px -15px 7px -15px;
 }
 
 #mobile_tab_container a, #mobile_tab_container a:visited {
@@ -1241,6 +1249,7 @@ a.related-title,a.related-title:active, a.related-title:visited {
 }
 .references li span {
 	margin-left: 3px;
+	word-break: break-word;
 }
 .references li > a {
 	float: left;
