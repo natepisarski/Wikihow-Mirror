@@ -6,22 +6,6 @@ var extension = '';
 var tmpFile = '';
 var nonModalImageLoadFailed = false;
 
-
-/**
- * Check if an avatar's URL is broken, and swap it for the default as needed.
- *
- * @param {HTMLImageElement} image Image to auto-replace src for
- */
-function autoReplaceBrokenAvatar( image ) {
-	var test = new Image();
-	test.onerror = function () {
-		test.onerror = null;
-		image.src = '/skins/WikiHow/images/80x80_user.png';
-	};
-	test.src = image.src;
-}
-
-
 //var md5HashingFunction = $.md5;
 function getImgDir(name) {
 	var hash = jQuery.md5(name);
@@ -616,8 +600,8 @@ jQuery(document).on('change', '#uploadedfile', function(e) {
 });
 
 // Auto-repair broken avatar images
-$( '#avatarULimg' ).each( function () {
-	autoReplaceBrokenAvatar( this );
+$( '#avatarULimg, #user_pic img' ).each( function () {
+	WH.autoReplaceBrokenAvatar( this );
 } );
 
 jQuery( '#gatAvatarCropAndSave' ).click( ajaxCropit );

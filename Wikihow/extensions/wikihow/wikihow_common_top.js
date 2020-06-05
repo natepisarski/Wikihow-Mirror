@@ -284,6 +284,20 @@ if ( typeof WH.gaType != "undefined" && typeof WH.gaID != "undefined" && typeof 
 	//delete WH.gaType; delete WH.gaID; delete WH.gaConfig;
 }
 
+/**
+ * Check if an avatar's URL is broken, and swap it for the default as needed.
+ *
+ * @param {HTMLImageElement} image Image to auto-replace src for
+ */
+WH.autoReplaceBrokenAvatar = function ( image ) {
+	var test = new Image();
+	test.onerror = function () {
+		test.onerror = null;
+		image.src = '/skins/WikiHow/images/80x80_user.png';
+	};
+	test.src = image.src;
+};
+
 // Progress bar
 
 function showProgressBar() {

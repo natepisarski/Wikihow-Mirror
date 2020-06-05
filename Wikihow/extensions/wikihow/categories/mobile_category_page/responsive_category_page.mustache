@@ -43,6 +43,28 @@
 			{{{pagination}}}
 		</div>
 	</div>
+
+	{{#hasContentAds}}
+		<div id="cat_wca" style="display: none;">
+			<div id="cat_wca_container">
+				<div id="cat_image_wrapper">
+					<img src="" />
+				</div>
+				<h4></h4>
+				<p></p>
+				<a href="#"></a>
+			</div>
+			<div id="wca_lightbox" style="display:none;">
+				<a href="#" id="wca_close">X</a>
+				<h2>Coming Soon!</h2>
+				<p>We’re working on some exciting new educational activities and experiences.</p>
+				<p>Sign up to be the first to hear about them.</p>
+				<input type="text" placeholder="email" />
+				<a href="#" id="wca_email">Keep me updated!</a>
+			</div>
+		</div>
+	{{/hasContentAds}}
+
 	{{#hasSubcats}}
 		<div class="cat_section" id="cat_sub_categories">
 

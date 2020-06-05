@@ -16,8 +16,9 @@ class WikihowHealth {
 
 		//now the steps
 		foreach(pq(".steps_text") as $stepText) {
-			$step = pq($stepText)->html();
-			pq($stepText)->html(self::uppercaseWords($step, 6));
+			//6/1/20 - turning off bolding for now
+			//$step = pq($stepText)->html();
+			//pq($stepText)->html(self::uppercaseWords($step, 6));
 			pq($stepText)->addClass("healthintro");
 		}
 

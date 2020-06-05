@@ -66,6 +66,9 @@ class RsViewer extends ArticleViewer {
 }
 
 class WikihowCategoryViewer extends ArticleViewer {
+
+	const ADMIN_TAG_KEY_ANON_EMPTY_CATEGORIES = 'category_pages_empty_for_anons';
+
 	var $title, $limit,
 		$children,
 		$articles_fa,
@@ -237,12 +240,15 @@ class WikihowCategoryViewer extends ArticleViewer {
 		}
 
 		if ($title->inNamespace(NS_CATEGORY)) {
-			// check for subcategories
-			$subcats = $this->getSubcategories($title);
-			if (sizeof($subcats) == 0) {
-				$this->addSubcategory($title);
-			} else {
-				$this->addSubcategory($title, $subcats);
+			if (!(ArticleTagList::hasTag(self::ADMIN_TAG_KEY_ANON_EMPTY_CATEGORIES, $title->getArticleID())
+				&& $this->getUser()->isAnon())) {
+				// check for subcategories
+				$subcats = $this->getSubcategories($title);
+				if (sizeof($subcats) == 0) {
+					$this->addSubcategory($title);
+				} else {
+					$this->addSubcategory($title, $subcats);
+				}
 			}
 		} else {
 			// page in this category
@@ -267,7 +273,7 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$onlyIndexed = $this->getUser()->isAnon() || Misc::isMobileMode();
 		$dbr = wfGetDB(DB_REPLICA);
 		$tables = ['categorylinks', 'page', 'index_info'];
-		$fields = ['page_title', 'page_namespace'];
+		$fields = ['page_id', 'page_title', 'page_namespace'];
 		$where = [
 			'page_id = cl_from',
 			'ii_page = cl_from',
@@ -281,7 +287,10 @@ class WikihowCategoryViewer extends ArticleViewer {
 		$res = $dbr->select($tables, $fields, $where, __METHOD__, $options);
 		$results = array();
 		foreach ($res as $row) {
-			$results[] = Title::makeTitle($row->page_namespace, $row->page_title);
+			if (!(ArticleTagList::hasTag(self::ADMIN_TAG_KEY_ANON_EMPTY_CATEGORIES, $row->page_id)
+				&& $this->getUser()->isAnon())) {
+				$results[] = Title::makeTitle($row->page_namespace, $row->page_title);
+			}
 		}
 		return $results;
 	}

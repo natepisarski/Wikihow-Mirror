@@ -24,12 +24,12 @@ class QAWidgetCache {
 		}
 
 		// Clear mobile cache keys
-		$numPages = ($questionCount / QAWidget::LIMIT_MOBILE_ANSWERED_QUESTIONS) + 1;
-		self::clearArticleQuestionsPagingCacheKeys($aid, $numPages, QAWidget::LIMIT_MOBILE_ANSWERED_QUESTIONS);
+		$numPages = ($questionCount / QAWidget::LIMIT_ANSWERED_QUESTIONS) + 1;
+		self::clearArticleQuestionsPagingCacheKeys($aid, $numPages, QAWidget::LIMIT_ANSWERED_QUESTIONS);
 
 		// Clear desktop cache keys
-		$numPages = ($questionCount / QAWidget::LIMIT_DESKTOP_ANSWERED_QUESTIONS) + 1;
-		self::clearArticleQuestionsPagingCacheKeys($aid, $numPages, QAWidget::LIMIT_DESKTOP_ANSWERED_QUESTIONS);
+		$numPages = ($questionCount / QAWidget::LIMIT_ANSWERED_QUESTIONS) + 1;
+		self::clearArticleQuestionsPagingCacheKeys($aid, $numPages, QAWidget::LIMIT_ANSWERED_QUESTIONS);
 	}
 
 	protected static function clearArticleQuestionsPagingCacheKeys($aid, $numPages, $limit) {

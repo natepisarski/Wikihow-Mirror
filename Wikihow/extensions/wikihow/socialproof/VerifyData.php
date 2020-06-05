@@ -275,6 +275,17 @@ class VerifyData {
 		return $vd;
 	}
 
+	public static function newVerifierFromBlurbRow($row) {
+		$d = json_decode($row['vi_info']);
+		$vd = self::newVerifier($d->verifierId, $d->name, $row['cab_byline'], $d->hoverBlurb,
+			$d->nameLink, $d->category, $d->image, $d->initials, $d->whUserId, $d->whUserName);
+
+		$vd->imagePath = self::getExpertImagePath($vd);
+		$vd->blurbCount = self::getBlurbCountByIdFromDB($vd->verifierId);
+
+		return $vd;
+	}
+
 	public static function getVerifierInfoById( $id ) {
 		$result = [];
 		$vInfo = self::getAllVerifierInfo();
@@ -356,7 +367,7 @@ class VerifyData {
 			if ($row == false) {
 				$vdata = null;
 			} else {
-				$vdata = VerifyData::newVerifierFromRow(get_object_vars($row));
+				$vdata = VerifyData::newVerifierFromBlurbRow(get_object_vars($row));
 			}
 
 			$expirationTime = 30 * 24 * 60 * 60; //30 days
@@ -601,7 +612,7 @@ class VerifyData {
 
 	private static function getCacheKeyForBlurb($lang, $blurbId) {
 		global $wgCachePrefix;
-		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vs_blurb', $blurbId);
+		return wfForeignMemcKey( Misc::getLangDB($lang), $wgCachePrefix, 'vs_blurb2', $blurbId);
 	}
 
 }

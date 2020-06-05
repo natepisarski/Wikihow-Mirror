@@ -43,11 +43,19 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			$pageCenterInner .= WikihowMobileHomepage::showTopSection();
 		}
 
+		$extraHtml = '';
+		Hooks::run( 'WikihowInsertBeforeContent', [ &$extraHtml ] );
+		$pageCenterInner .= $extraHtml;
+
 		$pageCenterInner .= $this->getContentWrapper( $data );
 
 		$pageCenterInner .= Html::openElement( 'br', ['class' => 'clearall'] );
 
 		$pageCenterInner .= SchemaMarkup::getSchema( $this->getSkin()->getOutput() );
+
+		$extraHtml = '';
+		Hooks::run( 'WikihowInsertAfterContent', [ &$extraHtml ] );
+		$pageCenterInner .= $extraHtml;
 
 		$pageCenterInner .= $this->getFooterHtml( $data );
 
@@ -652,7 +660,11 @@ class MinervaTemplateWikihow extends MinervaTemplate {
 			return '';
 		}
 
-		$html = Html::element( 'div', ['id' => 'servedtime'], Misc::reportTimeMS() );
+		$hostname = $_SERVER['HOSTNAME'] ?? '';
+		$appName = preg_replace('@\.wikihow\.com$@', '', $hostname);
+		$html = Html::element( 'div',
+			['id' => 'servedtime', 'style' => 'display:none', 'data-app' => $appName],
+			Misc::reportTimeMS() );
 
 		// adds the debug toolbar if that is enabled
 		$html .= MWDebug::getDebugHTML( $this->getSkin()->getContext() );

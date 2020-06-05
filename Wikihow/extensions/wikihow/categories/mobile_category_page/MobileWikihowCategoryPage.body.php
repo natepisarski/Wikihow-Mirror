@@ -232,14 +232,21 @@ class MobileWikihowCategoryPage extends CategoryPage {
 
 			$vars['covid_section'] = $this->covidSection();
 
-			$html = self::renderTemplate("responsive_category_page.mustache", $vars);
 			if (count($allArticles) == 0) {
 				//nothin' in this category
 				self::show404Page($out, $categoryName);
 				return;
 			} else {
+				if($pg == 1) {
+					if(class_exists("WikihowContentAds")) {
+						$vars['hasContentAds'] = 1;
+						$out->addModules("ext.wikihow.wikihowcategorycontentads");
+					}
+				}
 				$out->addModuleStyles(['mobile.wikihow.mobile_category_page_styles']);
 				$out->addModules('mobile.wikihow.mobile_category_page');
+
+				$html = self::renderTemplate("responsive_category_page.mustache", $vars);
 				$out->addHTML($html);
 			}
 		}

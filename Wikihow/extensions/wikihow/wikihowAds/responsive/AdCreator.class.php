@@ -1133,7 +1133,9 @@ abstract class AdCreator {
 		if ( self::isChildDirectedPage() ) {
 			$gpt .= "googletag.pubads().setTagForChildDirectedTreatment(1);\n";
 		}
-		$gpt .= "googletag.pubads().enableSingleRequest();\n";
+		if ( !$this->isPrebidPage() ) {
+			$gpt .= "googletag.pubads().enableSingleRequest();\n";
+		}
 		$gpt .= "googletag.pubads().disableInitialLoad();\n";
 		if ( !$wgIsDevServer ) {
 			$gpt .= "googletag.pubads().collapseEmptyDivs();\n";
@@ -1165,7 +1167,7 @@ abstract class AdCreator {
 		}
 
 		$bucketId = intval( $this->mBucketId );
-		$testBuckets = [9, 10, 11];
+		$testBuckets = [4, 5, 6, 7, 8, 9, 10, 11];
 		if ( in_array( $bucketId, $testBuckets ) ) {
 			return true;
 		}
@@ -1181,6 +1183,12 @@ abstract class AdCreator {
 		}
 
 		if ( intval( $this->mBucketId ) >= 22 ) {
+			return true;
+		}
+		if ( intval( $this->mBucketId ) == 18 ) {
+			return true;
+		}
+		if ( intval( $this->mBucketId ) == 19 ) {
 			return true;
 		}
 
@@ -1204,6 +1212,9 @@ abstract class AdCreator {
 		if ( intval( $this->mBucketId ) == 22 ) {
 			return true;
 		}
+		if ( intval( $this->mBucketId ) == 19 ) {
+			return true;
+		}
 
 		return false;
 	}
@@ -1218,7 +1229,7 @@ abstract class AdCreator {
 		if ( intval( $this->mBucketId ) >= 24 ) {
 			return true;
 		}
-		if ( intval( $this->mBucketId ) == 22 ) {
+		if ( intval( $this->mBucketId ) == 19 ) {
 			return true;
 		}
 
@@ -1814,7 +1825,7 @@ class DefaultAdCreator extends AdCreator {
 					'adUnitPath' => '/10095428/engl/engl_gam_all_scrol',
 					'size' => '[728, 90]',
 					'prebidLoad' => true,
-					'bidcaching' => true,
+					'bidcaching' => false,
 					'apsLoad' => true,
 					'aps-timeout' => 800,
 					'maxsteps' => 6,
@@ -1827,11 +1838,11 @@ class DefaultAdCreator extends AdCreator {
 		}
 
 		if ( $this->showNewAdsJs() ) {
-			if ( intval( $this->mBucketId ) == 24 ) {
+			if ( intval( $this->mBucketId ) == 24 || intval( $this->mBucketId ) == 19 ) {
 				$this->mAdSetupData['intro']['channels'] = [6132528505];
 				$this->mAdSetupData['rightrail0']['channels'] = [6132528505];
 			}
-			if ( intval( $this->mBucketId ) == 23 ) {
+			if ( intval( $this->mBucketId ) == 23 || intval( $this->mBucketId ) == 18 ) {
 				$this->mAdSetupData['intro']['channels'] = [1906768069];
 				$this->mAdSetupData['toc']['channels'] = [1906768069];
 				$this->mAdSetupData['rightrail0']['channels'] = [1906768069];
@@ -1842,7 +1853,6 @@ class DefaultAdCreator extends AdCreator {
 		}
 
 		if ( $this->isPrebidPageNoBidCachingPage() ) {
-			$this->mAdSetupData['scrollto']['bidcaching'] = false;
 			$this->mAdSetupData['rightrail1']['bidcaching'] = false;
 		}
 

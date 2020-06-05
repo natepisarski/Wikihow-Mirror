@@ -22,13 +22,6 @@
 	font-weight: normal;
 	color: #545454;
 }
-
-.ur_author {
-	display: block;
-	margin-top: 5px;
-	color: #c3c3c3;
-	font-style: normal;
-}
 .ur_review_more {
 	display: none;
 }
@@ -67,14 +60,6 @@
 	border-radius: 18px;
 	margin-right: 10px;
 }
-.ur_author {
-	margin-top: 5px;
-	color: #c3c3c3;
-	font-weight: normal;
-	display: inline-block;
-	height: 36px;
-	vertical-align: bottom;
-}
 .content .ur_author .ur_name {
 	font-size: 15px;
 	color: #545454;
@@ -89,10 +74,6 @@
 	font-size: 11px;
 	color: #9c9c9c;
 	line-height: 17px;
-}
-
-.ur_rating {
-	margin-top: 5px;
 }
 
 .ur_rating span{

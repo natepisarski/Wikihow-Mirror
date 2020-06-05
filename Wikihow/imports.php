@@ -84,6 +84,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/AdminCloseAccount/AdminCloseAccount.php");
 	require_once("$IP/extensions/wikihow/SensitiveArticle/SensitiveArticle.php");
 	require_once("$IP/extensions/wikihow/techlayout/TechLayout.php");
+	require_once("$IP/extensions/wikihow/gscdata/GSCData.php");
 	require_once("$IP/extensions/wikihow/duptool/DuplicateTitles.php");
 	require_once("$IP/extensions/wikihow/charity/Charity.php");
 	require_once("$IP/extensions/wikihow/TwitterReport/TwitterReport.php");
@@ -98,6 +99,7 @@ if ($wgLanguageCode == 'en') {
 	require_once("$IP/extensions/wikihow/contribute/Contribute.php");
 	require_once("$IP/extensions/wikihow/admintools/AdminImageLists.php");
 	require_once("$IP/extensions/wikihow/admintools/AdminYouTubeIds.php");
+	require_once("$IP/extensions/wikihow/admintools/AdminCommonAvatars.php");
 	require_once("$IP/extensions/wikihow/specialbotblockipwhitelist/BotBlockIPWhitelist.php");
 	require_once("$IP/extensions/wikihow/Disclaimer/Disclaimer.php");
 	require_once("$IP/extensions/wikihow/kaios_helper/KaiosHelper.php");

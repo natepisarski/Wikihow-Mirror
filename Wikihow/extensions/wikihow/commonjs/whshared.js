@@ -302,7 +302,7 @@ WH.shared = (function () {
 			var loadingContainer = document.createElement("div");
 			loadingContainer.className = 'loading-container';
 			loadingContainer.appendChild(loader);
-			item.element.parentElement.appendChild(loadingContainer);
+			item.element.parentElement.insertAdjacentElement('afterbegin', loadingContainer);
 			item.element.addEventListener(item.finishedLoadingEvent, function() {
 				if (item.loadedCallback) {
 					item.loadedCallback();

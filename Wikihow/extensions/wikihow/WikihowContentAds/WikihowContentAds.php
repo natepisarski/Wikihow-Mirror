@@ -21,3 +21,11 @@ $wgResourceModules['ext.wikihow.wikihowcontentads'] = [
 	'remoteExtPath' => 'wikihow/WikihowContentAds/resources',
 	'targets' => ['desktop', 'mobile']
 ];
+
+$wgResourceModules['ext.wikihow.wikihowcategorycontentads'] = [
+	'scripts' => ['wikihowcategorycontentads.js'],
+	'styles' => ['wikihowcategorycontentads.less'],
+	'localBasePath' => __DIR__ . "/resources" ,
+	'remoteExtPath' => 'wikihow/WikihowContentAds/resources',
+	'targets' => ['desktop', 'mobile']
+];

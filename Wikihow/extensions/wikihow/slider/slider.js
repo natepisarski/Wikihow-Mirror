@@ -17,7 +17,10 @@
 				|| ( cats && cats.indexOf("New Pets") !== -1 )
 				|| $('#sliderbox').hasClass('dogArticle');
 
-			var isLordOfTheFliesArticle = $('#sliderbox').hasClass('fliesArticle');
+			var isBakingArticle = ( cats && cats.indexOf("Baking") !== -1 )
+				|| $('#sliderbox').hasClass('bakingArticle');
+
+			var isLiteraryArticle = $('#sliderbox').hasClass('literary');
 
 			if ( isRelationshipArticle ) {
 				// Show a special slider for relationship articles
@@ -38,14 +41,34 @@
 
 				var eventType = 'dog course';
 			}
-			else if ( isLordOfTheFliesArticle ) {
-				// Show a special slider for the lord of the flies article
-				var cta = mw.message("slider_cta_flies"),
-					title = mw.message("slider_flies"),
-					txt = mw.message("slider_url_text_flies"),
-					url = mw.message("slider_url_flies");
+			else if ( isBakingArticle ) {
+				// Show a special slider for dog articles
+				$('#sliderbox').addClass('bakingArticle');
+				var cta = mw.message("slider_cta_baking"),
+					title = mw.message("slider_baking"),
+					txt = mw.message("slider_url_text_baking"),
+					url = mw.message("slider_url_baking");
 
-				var eventType = 'lordoftheflies guide';
+				var eventType = 'baking course';
+			}
+			else if ( isLiteraryArticle ) {
+				// Show a special slider for study guide articles
+				var cta = mw.message("slider_cta_literary"),
+					title = mw.message("slider_literary"),
+					txt = mw.message("slider_url_text_literary");
+
+				var url = "#";
+				var eventType = "";
+				if ($('#sliderbox').hasClass('flies')) {
+					url = mw.message("slider_url_literary_flies");
+					eventType = 'lordoftheflies guide';
+				} else if ($('#sliderbox').hasClass('brave')) {
+					url = mw.message("slider_url_literary_brave");
+					eventType = 'BNW guide';
+				} else if ($('#sliderbox').hasClass('mockingbird')) {
+					url = mw.message("slider_url_literary_mockingbird");
+					eventType = 'TKAM guide';
+				}
 			}
 			else {
 				// Show the newsletter otherwise

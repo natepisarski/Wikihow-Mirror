@@ -26,6 +26,10 @@ class CreatepageWarn extends UnlistedSpecialPage {
 		}
 		$out->addHTML( wfMessage('createpage_bottomwarning')->plain() );
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }
 
 class CreatePageTitleResults  extends UnlistedSpecialPage {
@@ -40,6 +44,10 @@ class CreatePageTitleResults  extends UnlistedSpecialPage {
 		$s = CreatePage::getRelatedTopicsText($t);
 		$out->setArticleBodyOnly(true);
 		$out->addHTML($s);
+	}
+
+	public function isAnonAvailable() {
+		return true;
 	}
 }
 
@@ -60,6 +68,10 @@ class CreatepageReview extends UnlistedSpecialPage {
 			" . wfMessage('createpage_review_options')->plain() . "
 			</div>"
 		);
+	}
+
+	public function isAnonAvailable() {
+		return true;
 	}
 }
 
@@ -101,6 +113,10 @@ class CreatepageFinished extends UnlistedSpecialPage {
 		);
 		$box = EasyTemplate::html($template, $vars);
 		$out->addHTML($box);
+	}
+
+	public function isAnonAvailable() {
+		return true;
 	}
 }
 
@@ -149,5 +165,9 @@ class CreatepageEmailFriend extends UnlistedSpecialPage {
 				break;
 			}
 		}
+	}
+
+	public function isAnonAvailable() {
+		return true;
 	}
 }

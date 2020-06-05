@@ -837,14 +837,16 @@ class SchemaMarkup {
 		$isExpired = AsyncHttp::isExpired( $requestKey );
 		$apiCacheKey = md5( $requestKey );
 		$apiCacheStatus = $response ? ( $isExpired ? 'expired' : 'ok' ) : 'not-found';
+		$pending = false;
 		if ( $apiCacheStatus === 'expired' ) {
 			// Be a little more specific
 			$updated = wfTimestamp( TS_UNIX, $response['updated'] );
 			if ( $updated + $response['ttl'] < wfTimestamp() + ( 24 * 60 * 60 ) ) {
+				$pending = true;
 				$apiCacheStatus .= ' - refresh pending';
 			}
 		}
-		if ( $response['updated'] != $response['created'] ) {
+		if ( !$pending && $response['updated'] != $response['created'] ) {
 			$apiCacheStatus .= ' - retry pending';
 		}
 		$apiResponseStatus = $response ? 'valid' : 'none';

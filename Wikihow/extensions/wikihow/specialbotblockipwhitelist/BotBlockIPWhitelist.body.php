@@ -126,4 +126,8 @@ class BotBlockIPWhitelist extends UnlistedSpecialPage {
 	public static function onWebRequestPathInfoRouter( $router ) {
 		$router->addStrict( '/whitelist', array( 'title' => 'Special:BotBlockIPWhitelist' ) );
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

@@ -46,6 +46,19 @@
 	text-decoration: none;
 }
 
+.ur_author {
+	margin-top: 5px;
+	color: #c3c3c3;
+	font-weight: normal;
+	font-style: normal;
+	display: inline-block;
+	height: 36px;
+	vertical-align: bottom;
+}
+.ur_rating {
+	margin-top: 5px;
+}
+
 @media @medium {
 	.menu {
 		font-size: 1rem;
@@ -415,11 +428,14 @@
 	}
 
 	.section {
+		position: relative;
 		margin-top: 2.2em;
+		padding-top: 58px;
 
 		h2, h3 {
 			font-size: 1.25em;
-			position: relative;
+			top: 0;
+			position: absolute;
 
 			span.mw-headline {
 				padding: .8em;
@@ -481,10 +497,6 @@
 					height: 44px;
 				}
 			}
-		}
-
-		&.stuck {
-			padding-top: 58px;
 		}
 	}
 
@@ -586,6 +598,8 @@
 		display: inline-block;
 		margin-top: 13px;
 		background: #fff;
+	}
+	#rightrail1_ad_1 {
 	}
 	#rightrail1_ad_1.blockthrough.ad_label:before {
 		display: none;
@@ -1244,6 +1258,9 @@
 		}
 	}
 
+	.scrollto_wrap {
+		height: 90px;
+	}
 	#qa .wh_ad_inner {
 		margin-top: 18px;
 		margin-bottom: -47px;
@@ -2143,8 +2160,14 @@
 		}
 		#side_related_articles .related-article {
 			margin-right: 4%;
-			margin-bottom: 4%;
+			margin-bottom: 10px;
 			width: 45%;
+		}
+		#side_related_articles .related-title {
+			bottom: 4px;
+		}
+		#side_related_articles .related-image-link {
+			display: inline;
 		}
 		.rr_container #side_related_articles {
 			margin-top: 10px;

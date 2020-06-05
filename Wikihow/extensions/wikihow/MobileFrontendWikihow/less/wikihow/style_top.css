@@ -728,6 +728,10 @@ h3 .altblock {
 	margin-bottom: 1.1em;
 	line-height: 20px;
 }
+#thingsyoullneed li > ul {
+	margin-top: 10px;
+	margin-left: 27px;
+}
 .checkmark {
 	border: 1px solid #a3a3a3;
 	width: .9em;
@@ -1010,7 +1014,11 @@ body.action-view #fa_container p {
 	display: block;
 	vertical-align: top;
 }
-.related-image-link img, .related-image-link video {
+.related-image-link img {
+	border: none;
+	width: 100%;
+}
+.related-image-link video {
 	display: block;
 	border: none;
 	width: 100%;

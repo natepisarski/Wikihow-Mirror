@@ -1,20 +1,6 @@
 (function($, mw) {
 	"use strict";
 
-	/**
-	 * Check if an avatar's URL is broken, and swap it for the default as needed.
-	 *
-	 * @param {HTMLImageElement} image Image to auto-replace src for
-	 */
-	function autoReplaceBrokenAvatar( image ) {
-		var test = new Image();
-		test.onerror = function () {
-			test.onerror = null;
-			image.src = '/skins/WikiHow/images/80x80_user.png';
-		};
-		test.src = image.src;
-	}
-
 	window.WH = window.WH || {};
 	window.WH.UserReview = {
 		reviewFormShown: false,
@@ -22,7 +8,7 @@
 		init: function () {
 			// Auto-repair broken avatar images
 			$( '.ur_avatar' ).each( function () {
-				autoReplaceBrokenAvatar( this );
+				WH.autoReplaceBrokenAvatar( this );
 			} );
 
 			//show a few more reviews

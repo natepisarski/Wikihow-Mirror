@@ -111,7 +111,7 @@ class WikihowNamespacePages {
 		return self::isWikihowNamespacePage( wfMessage('about-page')->text() );
 	}
 
-	private static function isWikihowNamespacePage( string $dbkey = '' ): bool {
+	protected static function isWikihowNamespacePage( string $dbkey = '' ): bool {
 		if ($dbkey == '') return false;
 
 		$title = RequestContext::getMain()->getTitle();

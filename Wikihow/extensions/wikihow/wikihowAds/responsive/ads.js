@@ -24,7 +24,7 @@ WH.ads = (function () {
 
 	var quizAds = {};
 	var scrollToAd;
-	var scrollToAdInsertCount = 0;
+	var scrollToAdInsertCount = 1;
 	var TOCAd;
 	var bodyAds = {};
 	var lastScrollPosition = window.scrollY;
@@ -41,6 +41,67 @@ WH.ads = (function () {
 	var rootLoadingMargin = "0px 0px " + loadingMargin + "px 0px";
 
 	window.PWT = window.PWT || {};
+	window.googletag = window.googletag || {};
+
+
+	googletag.cmd.push(function() {
+		googletag.pubads().addEventListener('slotRequested', function(e) {
+			var slot = e.slot;
+			var target = slot.getSlotId().getDomId();
+			var path = slot.getSlotId().getAdUnitPath();
+			log('GPT slotRequested:', target, path, slot.getTargetingMap());
+		});
+	});
+
+	googletag.cmd.push(function() {
+		googletag.pubads().addEventListener('slotResponseReceived', function(e) {
+			var slot = e.slot;
+			var target = slot.getSlotId().getDomId();
+			var path = slot.getSlotId().getAdUnitPath();
+			var responseInfo = slot.getResponseInformation();
+
+			var campaignId = null;
+			var lineItem = null;
+			if (!responseInfo) {
+				log("GPT slotResponseReceived: no response information received for request", target);
+			} else {
+				campaignId = responseInfo.campaignId;
+				lineItem = responseInfo.lineItemId;
+			}
+			if (campaignId == 2684373828) {
+				log('GPT slotResponseReceived: openwrap won', target, path, 'campaign:', campaignId, 'lineItem:', lineItem, 'queryId:', slot.getEscapedQemQueryId());
+			} else {
+				log('GPT slotResponseReceived', target, path, 'response info', responseInfo, 'queryId:', slot.getEscapedQemQueryId()); 
+			}
+
+		});
+	});
+
+	googletag.cmd.push(function() {
+		googletag.pubads().addEventListener('slotOnload', function(e) {
+			var slot = e.slot;
+			var target = slot.getSlotId().getDomId();
+			var path = slot.getSlotId().getAdUnitPath();
+			// can't find any use for this yet
+			//log('GPT slotOnload:', slot.getSlotId().getDomId(), slot.getResponseInformation(), e);
+		});
+	});
+
+	function getAdFromGoogleEvent(e) {
+		var slot = e.slot;
+		var target = slot.getSlotId().getDomId();
+		if (scrollToAd.adTargetId == target) {
+			return scrollToAd;
+		} else {
+			for (var i = 0; i < rightRailElements.length; i++) {
+				let tempAd = rightRailElements[i];
+				if (gptAdSlots[tempAd.adTargetId] == slot) {
+					return tempAd;
+				}
+			}
+		}
+		return null;
+	}
 
 	if ("IntersectionObserver" in window) {
 	//if (false) {
@@ -72,6 +133,13 @@ WH.ads = (function () {
 		var url = window.location.href;
 		if (url.indexOf('adslog=1') != -1) {
 			console.log.apply(console, arguments);
+		}
+	}
+
+	function isRawMode() {
+		var url = window.location.href;
+		if (url.indexOf('adsraw=1') != -1) {
+			return true;
 		}
 	}
 
@@ -109,10 +177,10 @@ WH.ads = (function () {
 				if (!ad.prebidload) {
 					setDFPTargetingAndRefresh(ad);
 				} else if (ad.prebidKVPadded == true) {
-					log('apsFetchBids: prebid bidinfo done. will refresh', ad.bidLookupKey);
+					//log('apsFetchBids: prebid bidinfo done. will refresh', ad.adTargetId);
 					setDFPTargetingAndRefresh(ad);
 				} else {
-					log('apsFetchBids: prebidload bids not ready. not refreshing', ad.bidLookupKey);
+					//log('apsFetchBids: prebidload bids not ready. not refreshing', ad.adTargetId);
 				}
 			});
 		});
@@ -125,12 +193,12 @@ WH.ads = (function () {
 	function showBidStack() {
 		var ad = scrollToAd;
 		if (ad && ad.prebidload){
-			console.log('ad', ad.bidLookupKey, 'bids', ad.bids);
+			console.log('ad', ad.adTargetId, 'bids', ad.bids);
 		}
 		for (var i = 0; i < rightRailElements.length; i++) {
 			ad = rightRailElements[i];
 			if (ad  && ad.prebidload){
-				console.log('ad', ad.bidLookupKey, 'bids', ad.bids);
+				console.log('ad', ad.adTargetId, 'bids', ad.bids);
 			}
 		}
 	}
@@ -168,32 +236,35 @@ WH.ads = (function () {
 
 		var adapterId = ad.bids[bidId].adapterID;
 
-		if (!(ad.adTargetId in PWT.bidMap)) {
-			PWT.bidMap[ad.adTargetId] = PWT.bidMap[ad.bidLookupKey];
-			PWT.bidIdMap[bidId].s = ad.adTargetId;
-		}
-		if (!(bidId in PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"])) {
-			log("addBidToBidMap adding bid data back to bidmap", adapterId, bidId, ad.bidLookupKey);
-			PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"][bidId] = ad.bids[bidId];
+		//if (!(ad.adTargetId in PWT.bidMap)) {
+			//PWT.bidMap[ad.adTargetId] = PWT.bidMap[ad.adTargetId];
+			//PWT.bidIdMap[bidId].s = ad.adTargetId;
+		//}
+		var adTargetId = ad.bidAdTargetId[bidId];
+
+		if (!(bidId in PWT.bidMap[adTargetId]['adapters'][adapterId]["bids"])) {
+			log("addBidToBidMap adding bid data back to bidmap", adapterId, bidId, adTargetId);
+			PWT.bidMap[adTargetId]['adapters'][adapterId]["bids"][bidId] = ad.bids[bidId];
 		}
 
 		// make sure impression id is updated
-		if (PWT.bidMap[ad.adTargetId]['impressionID'] != ad.bidImpressionId[bidId]) {
-			log("addBidToBidMap updating impressionID in bidmap", adapterId, bidId, ad.bidLookupKey);
-			PWT.bidMap[ad.adTargetId]['impressionID'] = ad.bidImpressionId[bidId];
+		if (PWT.bidMap[adTargetId]['impressionID'] != ad.bidImpressionId[bidId]) {
+			log("addBidToBidMap updating impressionID in bidmap", adapterId, bidId, adTargetId);
+			PWT.bidMap[adTargetId]['impressionID'] = ad.bidImpressionId[bidId];
 		}
 
 		// some sanity checking for dev purposes
-		if (!(bidId in PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"])) {
+		if (!(bidId in PWT.bidMap[adTargetId]['adapters'][adapterId]["bids"])) {
 			console.warn("bidId still not in bidmap", bidId);
-		} else if (!PWT.bidMap[ad.bidLookupKey]['adapters'][adapterId]["bids"][bidId]) {
+		} else if (!PWT.bidMap[adTargetId]['adapters'][adapterId]["bids"][bidId]) {
 			console.warn("addBidToBidMap: bid is empty", bidId);
 		}
 	}
 
 	function removeBidFromAd(ad, bidId) {
 		if ( bidId in ad.bids ) {
-			log("removeBidFromAd", ad.bidLookupKey, bidId);
+			var adTargetId = ad.bidAdTargetId[bidId];
+			log("removeBidFromAd", adTargetId, bidId);
 			delete ad.bids[bidId];
 			delete ad.bidEcpm[bidId];
 		}
@@ -203,35 +274,18 @@ WH.ads = (function () {
 		//console.log('bidmap is', PWT.bidMap);
 		var ad = prebidBidsToAd[bidId];
 
-		if (typeof WH.event !== 'undefined') {
-			if (ad.bidLookupKey == 'scrollto_ad_1') {
-				WH.event('prebid_ad_prerender',{'scroll':ad.adTargetId});
-			} else {
-				WH.event('prebid_ad_prerender',{});
-			}
+		// make sure it is still in the bidmap.. only if  bid caching is true
+		if (ad.bidCachingActive == true) {
+			addBidToBidMap(ad, bidId);
 		}
 
-		// make sure it is still in the bidmap
-		addBidToBidMap(ad, bidId);
-
-		// for debugging purposes:
 		var slot = PWT.bidIdMap[bidId].s;
-		var adapter = PWT.bidIdMap[bidId].a;
-		var bidFromBidMap = PWT.bidMap[slot].adapters[adapter].bids[bidId];
-		if (typeof bidFromBidMap == 'undefined') {
-			log("prebidPreRender: bid not in bidmap", bidId, slot, adapter);
-		} else {
-			log("prebidPreRender: bid found in bidMap:", bidId, slot, adapter);
-		}
-		if (bidFromBidMap.adHtml == '') {
-			log("prebidPreRender: bid has empty html", bidId, slot, adapter);
-		}
 
 		// flag this bid as having won
 		ad.lastWonBid = bidId;
 
 		ad.winningBid = null;
-		log("prebidPreRender: pwt will render", bidId, ad.adTargetId, ad.bidImpressionId[bidId]);
+		log("prebidPreRender:", slot, "bidId:", bidId, 'impressionID:', ad.bidImpressionId[bidId]);
 	}
 
 	//var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -276,10 +330,10 @@ WH.ads = (function () {
 			} else {
 				slot.setTargeting('owwb', 'false');
 			}
-			log('setDFPTargetingAndRefresh:', parseFloat(slot.getTargetingMap().pwtecp[0]), slot.getTargetingMap().pwtpid[0], bid[0], ad.bidLookupKey);
+			//log('setDFPTargetingAndRefresh:', parseFloat(slot.getTargetingMap().pwtecp[0]), slot.getTargetingMap().pwtpid[0], bid[0], ad.adTargetId);
 		}
 
-		log('setDFPTargetingAndRefresh:', ad.bidLookupKey, 'targeting', slot.getTargetingMap());
+		//log('setDFPTargetingAndRefresh:', ad.adTargetId, 'targeting', slot.getTargetingMap());
 		googletag.pubads().refresh([slot]);
 	}
 
@@ -289,12 +343,12 @@ WH.ads = (function () {
 			winningBid = winningBids[0];
 		}
 
-		if (!(ad.bidLookupKey in PWT.bidMap)) {
-			console.warn("no bids after requesting bids", ad.bidLookupKey);
+		if (!(ad.adTargetId in PWT.bidMap)) {
+			console.warn("no bids after requesting bids", ad.adTargetId);
 			return;
 		}
 
-		var bidsForAd = PWT.bidMap[ad.bidLookupKey];
+		var bidsForAd = PWT.bidMap[ad.adTargetId];
 
 		//  always save the winning bid since it has the kvp data to send to gam already calculated
 		// TODO we could compared the ecpm to our current ad.winningBid if we have one and only update if it is higher
@@ -307,6 +361,7 @@ WH.ads = (function () {
 			ad.bids = {};
 			ad.bidEcpm = {};
 			ad.bidImpressionId = {};
+			ad.bidAdTargetId = {};
 			ad.allWinningBidIds = [];
 		}
 
@@ -325,7 +380,7 @@ WH.ads = (function () {
 						continue;
 					}
 					if (winningBid.bidData.kvp.pwtsid != bidId) {
-						//log("saveBids: bid caching is off. skipping bid", bidId, ad.bidLookupKey);
+						//log("saveBids: bid caching is off. skipping bid", bidId, ad.adTargetId);
 						continue;
 					}
 				}
@@ -338,20 +393,26 @@ WH.ads = (function () {
 					console.warn("saveBids", bidsForAd.adapters[adapterId].bids[bidId], "already stored in ad", ad.bids[bidId]);
 				}
 				validBids++;
-				ad.bids[bidId] = PWT.bidMap[ad.bidLookupKey]['adapters'][adapterId]["bids"][bidId];
+				ad.bids[bidId] = PWT.bidMap[ad.adTargetId]['adapters'][adapterId]["bids"][bidId];
 				ad.bidEcpm[bidId] = ecpm;
-				ad.bidImpressionId[bidId] = PWT.bidMap[ad.bidLookupKey].impressionID;
-				log("saveBids: saving bid:", ecpm, adapterId, bidId, ad.bidLookupKey);
+				ad.bidImpressionId[bidId] = PWT.bidMap[ad.adTargetId].impressionID;
+				ad.bidAdTargetId[bidId] = ad.adTargetId;
+				if (ad.bidCachingActive) {
+					log("saveBids: saving bid:", ecpm, adapterId, bidId, ad.adTargetId);
+				}
 			}
 		}
 
+		if (winningBid.bidData.kvp.pwtsid == 0) {
+			console.log("winning bid has 0 pwtsid", winningBid);
+		}
 		if (winningBid) {
-			log("saveBids: winningBid:", winningBid.bidData.wb.netEcpm, winningBid.bidData.wb.adapterID, winningBid.bidData.kvp.pwtsid, ad.bidLookupKey);
+			log("saveBids: winningBid:", winningBid.bidData.wb.netEcpm, winningBid.bidData.wb.adapterID, winningBid.bidData.kvp.pwtsid, ad.adTargetId);
 			// for adding extra KVP to track if the winning bid is the one sent to gam
 			ad.winningBidId = ad.winningBid.bidData.kvp.pwtsid;
 			ad.allWinningBidIds.push(ad.winningBid.bidData.kvp.pwtsid);
 		} else {
-			log("saveBids: no winning bid received", ad.bidLookupKey);
+			log("saveBids: no winning bid received", ad.adTargetId);
 		}
 	}
 
@@ -371,7 +432,7 @@ WH.ads = (function () {
 		ad.winningBid.bidData.wb.height = bid.height;
 	}
 
-	//get the  winningBid which is an object that PWT expects in order to set GPT targeting
+	//get the winningBid which is an object that PWT expects in order to set GPT targeting
 	function getWinningBid(ad) {
 		if (!('winningBid' in ad)) {
 			log("getWinningBid: ad has no winning bid", ad);
@@ -382,9 +443,13 @@ WH.ads = (function () {
 			log("getWinningBid: ad winning bid is null", ad);
 			return null;
 		}
+		if (ad.winningBidId == 0) {
+			log("getWinningBid: ad winning bid is has 0 bidId", ad);
+			return null;
+		}
 		if (ad.bids.length == 0) {
 			// this would happen if we did get a bid response but it had no bids
-			log("getWinningBid: no bids for ad", ad.bidLookupKey);
+			log("getWinningBid: no bids for ad", ad.adTargetId);
 			return null;
 		}
 		// removing any previously won bid that was rendered from the list
@@ -406,7 +471,7 @@ WH.ads = (function () {
 				highestBid = bidId;
 				continue;
 			}
-			if (ad.bids[bidId].netEcpm > ad.bids[highestBid].netEcpm) {
+			if (ad.bids[bidId].netEcpm >= ad.bids[highestBid].netEcpm) {
 				highestBid = bidId;
 			}
 		}
@@ -415,7 +480,7 @@ WH.ads = (function () {
 			removeBidFromAd(ad, oldBids[i]);
 		}
 		if (highestBid == null) {
-			log("getWinningBid: no highest bid could be found", ad.bidLookupKey);
+			log("getWinningBid: no highest bid could be found", ad.adTargetId);
 			return null;
 		}
 
@@ -423,25 +488,20 @@ WH.ads = (function () {
 
 		// check if this is the winningBid we have already stored
 		if (ad.winningBid['bidData']['kvp']['pwtsid'] != highestBid) {
-			log('getWinningBid: will build winning bid object from bid', highestBid, ad.bidLookupKey);
+			log('getWinningBid: will build winning bid object from bid', highestBid, ad.adTargetId);
 			updateWinningBidWithNewBid(ad, highestBid);
-		//} else {
-			//log('getWinningBid: winningBid from auction is highest bid');
-			//winningBid.fromAuction = true;
 		}
 
 		winningBid = ad.winningBid;
 
-		log("getWinningBid: result", winningBid.bidData.wb.netEcpm, winningBid.bidData.wb.adapterID, winningBid.bidData.kvp.pwtsid, ad.bidLookupKey);
+		log("getWinningBid: result", winningBid.bidData.wb.netEcpm, winningBid.bidData.wb.adapterID, winningBid.bidData.kvp.pwtsid, ad.adTargetId);
 
 		// save this here because we may try to delete it if it is rendered
 		prebidBidsToAd[highestBid] = ad;
 
-		// for testing make sure this bid will always win GPT auction
-		//winningBid['bidData']['kvp']['pwtecp'] = '10.00';
-
 		return winningBid;
 	}
+
 
 	//PWT.HookForBidReceived = function(divId, adapterId, bid, latency) {
 		//console.log('HookForBidReceived:' , arguments);
@@ -484,7 +544,7 @@ WH.ads = (function () {
 		var currentTime = new Date().getTime();
 		var timeAgo = currentTime - ad.lastPrebidRequestTime;
 		if (timeAgo > 55000) {
-			log("prebidLoadInternal: bids are out of date..will request new bids", ad.bidLookupKey);
+			log("prebidLoadInternal: bids are out of date..will request new bids", ad.adTargetId);
 			ad.prebidQueuedLoadCommand = true;
 			prebidRequestBidsAndStore(ad);
 			return;
@@ -495,10 +555,10 @@ WH.ads = (function () {
 		if (winningBid) {
 			winningBid.divId = ad.adTargetId;
 			addBidToBidMap(ad, winningBid['bidData']['kvp']['pwtsid']);
-			log("prebidLoadInternal: adding kvp to GPT slot", ad.bidLookupKey);
+			//log("prebidLoadInternal: adding kvp to GPT slot", ad.adTargetId);
 			PWT.addKeyValuePairsToGPTSlots([winningBid]);
 		} else {
-			log("prebidLoadInternal: removing kvp from GPT slot", ad.bidLookupKey);
+			log("prebidLoadInternal: removing kvp from GPT slot", ad.adTargetId);
 			clearPrebidTargeting(ad);
 			// TODO do one more bid request
 		}
@@ -508,18 +568,38 @@ WH.ads = (function () {
 		ad.prebidKVPadded = true;
 
 		if (!ad.apsload) {
-			log('prebidLoadInternal: apsload not active. calling gpt refresh', ad.bidLookupKey);
+			//log('prebidLoadInternal: apsload not active. calling gpt refresh', ad.adTargetId);
 			setDFPTargetingAndRefresh(ad);
 		} else if (ad.apsDisplayBidsCalled == true) {
-			log('prebidLoadInternal: aps bids done. will refresh', ad.bidLookupKey);
+			//log('prebidLoadInternal: aps bids done. will refresh', ad.adTargetId);
 			setDFPTargetingAndRefresh(ad);
 		} else {
 			//log('prebidLoadInternal: aps bids not recieved yet for', ad.adTargetId);
 		}
 	}
 
+	if (openWrapProfileId == 2442) {
+		PWT.HookForPrebidSetConfig = function(config){
+			console.log('HookForPrebidSetConfig: updating owpbjs for tl:', owpbjs);
+			owpbjs.bidderSettings = {
+				triplelift: {
+					sendStandardTargeting: true,
+					adserverTargeting: [
+						{
+							key: "tl_source",
+							val: function(bidResponse) {
+								return bidResponse.tl_source;
+							}
+						}
+					]
+				}
+			}
+		};
+	}
+
 	PWT.jsLoaded = function() {
 		PWT.isLoaded = true;
+
 		if (typeof PWT.requestBids !== 'function') {
 			log("PWT.requestBids is not a function. PWT is", PWT);
 		}
@@ -542,8 +622,8 @@ WH.ads = (function () {
 
 	// request bids on a specific ad and store the results
 	function prebidRequestBidsAndStore(ad) {
-		log("prebidRequestBidsAndStore: requesting bids for", ad.bidLookupKey);
-		var gptSlots = [gptAdSlots[ad.bidLookupKey]];
+		log("prebidRequestBidsAndStore: requesting bids for", ad.adTargetId);
+		var gptSlots = [gptAdSlots[ad.adTargetId]];
 		ad.lastPrebidRequestTime = new Date().getTime();
 		ad.outForAuction = true;
 		PWT.requestBids(
@@ -614,12 +694,6 @@ WH.ads = (function () {
 				ad = tempAd;
 			}
 		}
-		if (!ad) {
-			// try scrollTo ad
-			if (scrollToAd.adTargetId == slot.getSlotId().getDomId()) {
-				ad = scrollToAd;
-			}
-		}
 
 		// if there is still no ad just return
 		if (!ad) {
@@ -630,52 +704,62 @@ WH.ads = (function () {
 
 		if (ad.refreshable && ad.viewablerefresh) {
 			setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
-
 		}
-		//if (ad.prebidload) {
-			//if (PWT.isLoaded) {
-				//console.log("impressionViewable will request new bids");
-				//prebidRequestBidsAndStore(ad);
-			//}
-		//}
 	}
 
 	function slotRendered(slot, size, e) {
-		log('GAM slotRendered callback:', slot.getSlotId().getDomId(), slot.getSlotId().getAdUnitPath());
+		var slot = e.slot;
+		var target = slot.getSlotId().getDomId();
+		var path = slot.getSlotId().getAdUnitPath();
+
+		var empty = e.isEmpty;
+		var creativeHtml = slot.getHtml();
+		if (!isRawMode()) {
+			creativeHtml = [creativeHtml];
+		}
+
+		if (empty == true) {
+			log("GPT slotRenderedEnded: ad is empty:", target, path);
+		} else {
+			var campaignId = slot.getResponseInformation().campaignId;
+			if (slot.getResponseInformation().campaignId == 2684373828) {
+				log('GPT slotRenderedEnded:', target, 'openwrap creative:', creativeHtml);
+			} else {
+				log('GPT slotRenderedEnded creative:', target, creativeHtml);
+			}
+		}
+
+		//log('GPT slotRendered:getAdUnitPath());' , slot.getSlotId().getDomId(), slot.getAdUnitPath());
+		//log('GPT slotRendered:getAttributeKeys()', slot.getSlotId().getDomId(), slot.getAttributeKeys());
+		//log('GPT slotRendered:getCategoryExclusi', slot.getSlotId().getDomId(), slot.getCategoryExclusions());
+		//log('GPT slotRendered:getClickUrl());   ', slot.getSlotId().getDomId(), slot.getClickUrl());
+		//log('GPT slotRendered:getCollapseEmptyDi', slot.getSlotId().getDomId(), slot.getCollapseEmptyDiv());
+		//log('GPT slotRendered:getContentUrl()); ', slot.getSlotId().getDomId(), slot.getContentUrl());
+		//log('GPT slotRendered:getDivStartsCollap', slot.getSlotId().getDomId(), slot.getDivStartsCollapsed());
+		//log('GPT slotRendered:getHtml());       ', slot.getSlotId().getDomId(), slot.getHtml());
+		//log('GPT slotRendered:getResponseInforma', slot.getSlotId().getDomId(), slot.getResponseInformation());
+		//log('GPT slotRendered:getServices());   ', slot.getSlotId().getDomId(), slot.getServices());
+		//log('GPT slotRendered:getSlotElementId()', slot.getSlotId().getDomId(), slot.getSlotElementId());
+		//log('GPT slotRendered:getTargetingMap());  ', slot.getSlotId().getDomId(), slot.getTargetingMap());
+
 		// look for right rail ads which are the only ones that will be moved/refreshed
-		var ad;
-		for (var i = 0; i < rightRailElements.length; i++) {
-			let tempAd = rightRailElements[i];
-			if (gptAdSlots[tempAd.adTargetId] == slot) {
-				ad = tempAd;
-			}
-		}
+		var ad = getAdFromGoogleEvent(e);
 
-		if (!ad) {
-			// try scrollTo ad
-			if (scrollToAd.adTargetId == slot.getSlotId().getDomId()) {
-				ad = scrollToAd;
-			}
-		}
-
-		// if there is still no ad just return
 		if (!ad) {
 			return;
 		}
 
 		ad.prebidKVPadded = false;
 		ad.apsDisplayBidsCalled = false;
+		ad.slotRendered = true;
 
 		if (ad.prebidload) {
 			if (typeof WH.event !== 'undefined') {
-				WH.event('gpt_ad_rendered', {});
+				WH.event('gpt_ad_rendered', {'empty':empty?1:0});
 			}
-			if (PWT.isLoaded) {
-				ad.outForAuction = true;
-				setTimeout(function() {
-					log("slotRendered will request new bids");
-					prebidRequestBidsAndStore(ad);
-					}, 1000);
+			// set up the next ad
+			if (ad.type == 'scrollto') {
+				ad.adTargetId = ad.element.id;
 			}
 		}
 
@@ -693,6 +777,7 @@ WH.ads = (function () {
 				updateFixedPositioning(ad, viewportHeight);
 			}
 
+			// TODO if the ad is empty then set a timeout to refresh it
 			if (ad.refreshable && ad.renderrefresh) {
 				setTimeout(function() {ad.refresh();}, ad.getRefreshTime());
 			}
@@ -849,11 +934,11 @@ WH.ads = (function () {
 		if (this.prebidload) {
 			this.lastPrebidRequestTime = 0;
 		}
+		this.firstLoad = true;
 		this.bidCachingActive = this.adElement.getAttribute('data-bidcaching') == 1;
 		this.bidsReceived = false;
 		this.prebidKVPadded = false;
 		this.prebidQueuedLoadCommand = null;
-		this.bidLookupKey = this.adTargetId;
 		this.slot = this.adElement.getAttribute('data-slot');
 		this.adunitpath = this.adElement.getAttribute('data-adunitpath');
 		this.channels = this.adElement.getAttribute('data-channels');
@@ -956,7 +1041,7 @@ WH.ads = (function () {
 			}
 			if (this.service == 'dfp') {
 				if (slot) {
-					log('clearing kvp for ad', this.bidLookupKey);
+					log('clearing kvp for ad', this.adTargetId);
 					slot.clearTargeting();
 				}
 
@@ -978,6 +1063,7 @@ WH.ads = (function () {
 					var ad = this;
 					googletag.cmd.push(function() {
 						prebidLoad(ad);
+						ad.firstLoad = false;
 					});
 				}
 
@@ -993,10 +1079,10 @@ WH.ads = (function () {
 		};
 
 		this.refresh = function() {
-			//log('refresh: ad', this);
 			var ad = this;
 			if (isDocumentHidden()) {
 				// check again later
+				log("refresh: doc hidden");
 				setTimeout(function() {ad.refresh();}, VIEW_REFRESH_TIME);
 				return;
 			}
@@ -1025,6 +1111,10 @@ WH.ads = (function () {
 				apsLoad(this);
 			}
 			if (this.prebidload) {
+				if (!ad.firstLoad) {
+					prebidRequest(ad);
+				}
+				ad.firstLoad = false;
 				prebidLoad(this);
 			}
 			if ( !this.apsload && !this.prebidload) {
@@ -1153,11 +1243,17 @@ WH.ads = (function () {
 		element.parentElement.style.display = 'none';
 
 		this.scrollToTimer = null;
+		this.slotRendered = false;
 		this.lastScrollPositionY = 0;
 
 		this.maxNonSteps = parseInt(this.adElement.getAttribute('data-maxnonsteps'));
 		this.maxSteps = parseInt(this.adElement.getAttribute('data-maxsteps'));
 		this.updateVisibility = function() {
+			if (this.slotRendered == false && !this.firstLoad) {
+				log("updateVisibility: will not try to insert scrollto ad because prev render is not done");
+				return;
+			}
+
 			// handle scrollTo ad if we have one
 			if (this.maxNonSteps < 1 && this.maxSteps < 1) {
 				if (scrollToAdLoadingHandler) {
@@ -1206,22 +1302,25 @@ WH.ads = (function () {
 				insertTarget.classList.add('has_scrolltoad');
 			}
 
-			var wrap = document.createElement('div');
-			wrap.className = "wh_ad_inner wh_ad_active";
-			insertTarget.appendChild(wrap);
-			insertTarget = wrap;
-			// give it an id for inserting
-			if ( !insertTarget.id ) {
-				insertTarget.id = 'scrolltoad-'+scrollToAdInsertCount;
-			}
-			if (scrollToAdInsertCount > 10 ) {
-				this.insertSlotValue = '00'+scrollToAdInsertCount;
-			} else {
-				this.insertSlotValue = '0'+scrollToAdInsertCount;
-			}
-			this.adTargetId = insertTarget.id;
+			var outer = document.createElement('div');
+			var inner = document.createElement('div');
 
-			insertScrollToAd(this);
+			inner.id = this.adTargetId;
+			outer.className = "wh_ad_inner wh_ad_active";
+			outer.appendChild(inner);
+			insertTarget.appendChild(outer);
+			//this.adElement = outer;
+			//this.element = inner;
+
+			if (scrollToAdInsertCount > 10 ) {
+				this.insertSlotValue = '0'+scrollToAdInsertCount;
+			} else {
+				this.insertSlotValue = '00'+scrollToAdInsertCount;
+			}
+
+			scrollToAdInsertCount++;
+			// update the id for the next insert
+			this.element.id = 'scrollto_ad_' + scrollToAdInsertCount;
 
 			if (isStep) {
 				this.maxSteps--;
@@ -1229,7 +1328,7 @@ WH.ads = (function () {
 				this.maxNonSteps--;
 			}
 
-			scrollToAdInsertCount++;
+			insertScrollToAd(this);
 
 			return;
 		};
@@ -1237,9 +1336,14 @@ WH.ads = (function () {
 
     function insertScrollToAd(ad) {
 		if (ad.service == 'dfp') {
+			ad.slotRendered = false;
 			googletag.cmd.push(function() {
-				gptAdSlots[ad.adTargetId] = googletag.defineSlot(ad.adunitpath, ad.sizesArray, ad.adTargetId).addService(googletag.pubads());
-
+				if (!ad.firstLoad) {
+					gptAdSlots[ad.adTargetId] = googletag.defineSlot(ad.adunitpath, ad.sizesArray, ad.adTargetId).addService(googletag.pubads());
+					if (ad.prebidload) {
+						prebidRequest(ad);
+					}
+				}
 				gptAdSlots[ad.adTargetId].setTargeting('slot', ad.insertSlotValue);
 				googletag.display(ad.adTargetId);
 				if (ad.apsload) {
@@ -1247,15 +1351,14 @@ WH.ads = (function () {
 				}
 				if (ad.prebidload) {
 					prebidLoad(ad);
-					//  since we loaded an ad, we need to make sure we have a new one in the pool
-					//if (PWT.isLoaded) {
-						//prebidRequestBidsAndStore(ad);
-					//}
 				}
 			});
 		} else {
 			insertAdsenseAd(ad);
+			ad.adTargetId = ad.element.id;
+			ad.slotRendered = true;
 		}
+		ad.firstLoad = false;
 	}
 
     function RightRailAd(element) {
@@ -1655,6 +1758,7 @@ WH.ads = (function () {
 		}
 
 		if (ad.prebidload) {
+			log("setting up openwrap bidding on", ad.adTargetId, "with bid caching:", ad.bidCachingActive);
 			prebidRequest(ad);
 		}
 

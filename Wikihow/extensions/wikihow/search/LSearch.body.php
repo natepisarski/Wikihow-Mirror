@@ -1206,7 +1206,9 @@ class LSearch extends SpecialPage {
 			'updated' => wfMessage('lsearch_last_updated_responsive')->text()
 		);
 
-		$out->addModules( 'ext.wikihow.lsearch' );
+		if ( ! Misc::isIntl() ) {
+			$out->addModules( 'ext.wikihow.lsearch' );
+		}
 		if (Misc::doResponsive( RequestContext::getMain() )) {
 			$tmpl = 'search-results-mobile.tmpl.php';
 			$out->addModuleStyles('ext.wikihow.lsearch.mobile.styles');

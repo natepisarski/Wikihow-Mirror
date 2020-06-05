@@ -10,6 +10,15 @@ $wgHooks['MobileProcessArticleHTMLAfter'][] = ['WikihowNamespacePages::onMobileP
 $wgHooks['IsEligibleForMobile'][] = ['WikihowNamespacePages::onIsEligibleForMobile'];
 $wgHooks['GetDoubleUnderscoreIDs'][] = ['WikihowNamespacePages::onGetDoubleUnderscoreIDs'];
 
+
+$wgAutoloadClasses['ScienceCamp'] = __DIR__ . '/ScienceCamp.class.php';
+$wgHooks['WebRequestPathInfoRouter'][] = ['ScienceCamp::onWebRequestPathInfoRouter'];
+$wgHooks['BeforePageDisplay'][] = ['ScienceCamp::onBeforePageDisplay'];
+$wgHooks['WikihowInsertBeforeContent'][] = ['ScienceCamp::onWikihowInsertBeforeContent'];
+$wgHooks['WikihowInsertAfterContent'][] = ['ScienceCamp::onWikihowInsertAfterContent'];
+$wgHooks['ShowArticleTabs'][] = ['ScienceCamp::showArticleTabs'];
+
+
 $wgResourceModules['mobile.wikihow.wikihow_namespace_styles'] = [
 	'styles' => [ 'wikihow_namespace_styles.less' ],
 	'localBasePath' => __DIR__.'/resources',
@@ -41,3 +50,9 @@ $wgResourceModules['ext.wikihow.teachers_guide'] = [
 	'targets' => [ 'desktop', 'mobile' ]
 ];
 
+$wgResourceModules['ext.wikihow.science_camp'] = [
+	'styles' => [ 'science_camp.less' ],
+	'localBasePath' => __DIR__.'/resources',
+	'remoteExtPath' => 'wikihow/WikihowNamespacePages/resources',
+	'targets' => [ 'desktop', 'mobile' ]
+];

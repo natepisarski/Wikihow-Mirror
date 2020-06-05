@@ -7,8 +7,7 @@ class QAWidget {
 	const MINIMUM_CONTRIBS = 50;
 	const KEY_BLACKLISTED_AIDS = 'qa_blacklisted_article_ids';
 	const KEY_SEARCH_AIDS = 'qa_search_enabled_articles';
-	const LIMIT_MOBILE_ANSWERED_QUESTIONS = 10;
-	const LIMIT_DESKTOP_ANSWERED_QUESTIONS = 10;
+	const LIMIT_ANSWERED_QUESTIONS = 10;
 	const QA_EDITOR_USER_GROUP = 'qa_editors';
 	const QA_ASKED_QUESTION_MAXLENGTH = 200;
 	const LIMIT_UPATROLLED_QUESTIONS = 5;
@@ -148,12 +147,17 @@ class QAWidget {
 		$vars['qa_asked_count'] = wfMessage('qa_asked_count', self::QA_ASKED_QUESTION_MAXLENGTH)->text();
 		$vars['qa_submitted_question_item'] = $loader->load('qa_submitted_question_item');
 
-		$limit = $isMobile ? self::LIMIT_MOBILE_ANSWERED_QUESTIONS : self::LIMIT_DESKTOP_ANSWERED_QUESTIONS;
+		//only displaying the limit, but grab 1 more so we can see if there are more
+		$limit = self::LIMIT_ANSWERED_QUESTIONS + 1;
 		$articleQuestions = self::getArticleQuestions($aid, $isEditor, $limit);
+
 		WikihowToc::setQandA( $articleQuestions );
-		if (count($articleQuestions) >= $limit) {
+
+		if (count($articleQuestions) > self::LIMIT_ANSWERED_QUESTIONS) {
 			$vars['qa_show_more_answered'] = wfMessage('qa_show_more_answered')->text();
+			$ignoredResult = array_pop($articleQuestions);
 		}
+
 		if (class_exists("QADomain")) {
 			$qa_whalink = QADomain::getRandomQADomainLinkFromWikihow($this->t->getArticleID());
 			if ($qa_whalink !== false) {

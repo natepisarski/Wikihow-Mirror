@@ -333,4 +333,8 @@ class RateItem extends UnlistedSpecialPage {
 
 		return self::getSectionRatingHtml( $type, $textFeedback,  $buttonClass, $text, $wrapperClass, $finishPromptYes, $finishPromptNo, $summary_at_top );
 	}
+
+	public function isAnonAvailable() {
+		return true;
+	}
 }

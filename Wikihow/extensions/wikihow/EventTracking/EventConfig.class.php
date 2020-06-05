@@ -11,11 +11,12 @@ class EventConfig
 	const EVENTS = [
 		// please add new events at the beginning of this array,
 		// so they are sorted chronologically in descending order
+		'cat_promo_concepttest_02_click_open_em' => [ 'Emily', ['type', 'user_state'] ],
+		'article_popup_expertQandA_test_click2_choose_ecd' => [ 'Elizabeth', ['type'] ],
+		'article_button_expertQandA_test_click2_open_ecd' => [ 'Elizabeth', [] ],
 		'article_promo_slider_click_go_ecd' => [ 'Elizabeth', ['type', 'dest_url'] ],
 		'article_popup_expertQandA_test_click_choose_ecd' => [ 'Emily', ['type'] ],
 		'article_button_expertQandA_test_click_open_ecd' => [ 'Emily', [] ],
-		'article_promo_lordofflies_slider_click_go_ecd' => [ 'Elizabeth', [] ],
-		'article_promo_dogs_slider_click_go_ecd' => [ 'Elizabeth', [] ],
 		'article_section_TOC_click_go_em' => [ 'Emily', [ 'link_title' ] ],
 		'article_section_communityQandA_seemore_click_expand_em' => [ 'Emily', [] ],
 		'hp_promo_concepttest_01_click_open_em' => [ 'Emily', [ 'type', 'user_state' ] ],
@@ -28,7 +29,6 @@ class EventConfig
 		'all_popup_ccpa_optout_apply_click_go_em' => [ 'Emily', [] ],
 		'all_nav_search_query_submit_go_em' => [ 'Emily', [] ],
 		'all_nav_search_box_click_focus_em' => [ 'Emily', [] ],
-		'article_promo_marriage_slider_click_go_ecd' => [ 'Elizabeth', [] ],
 		'article_heading_recipe_ingredients_list_click_go_em' => [ 'Emily', [] ],
 		'all_footer_sitewide_links_click_go_em' => [ 'Emily', [ 'dest_url' ] ],
 		'lp_section_teachers_corner_downloadable_resources_click_go_em' => [ 'Emily', [ 'dest_url' ] ],

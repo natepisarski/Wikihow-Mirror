@@ -14,6 +14,10 @@ googletag.cmd = googletag.cmd || [];
 		openWrapProfileId = 2159;
 		url = '//ads.pubmatic.com/AdServer/js/pwt/159181/2159';
 	}
+	if (bucketId == 22) {
+		openWrapProfileId = 2442;
+		url = '//ads.pubmatic.com/AdServer/js/pwt/159181/2442';
+	}
 	if (purl.indexOf('pwtv=') > 0) {
 		var regexp = /pwtv=(.*?)(&|$)/g;
 		var matches = regexp.exec(purl);

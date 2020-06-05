@@ -21,6 +21,12 @@ class PagePolicy {
 		return self::$mustache->render( $template, $vars );
 	}
 
+	// we sometimes set up this hook/callback if the 404/login to view
+	// dialog is going to display instead
+	public function removeBreadCrumbsCallback(&$showBreadCrumbs) {
+		$showBreadCrumbs = false;
+	}
+
 	public static function showCurrentTitle( $context ) {
 		static $showCurrentTitle = -1; // compute this lazily, only once
 		if ( $showCurrentTitle === -1 ) {
@@ -121,7 +127,7 @@ class PagePolicy {
 					$showCurrentTitle = false;
 				}
 
-				if ( $showCurrentTitle && !self::isVisibleAction($req) ) {
+				if ( $showCurrentTitle && !self::isVisibleAction($req, $title) ) {
 					$showCurrentTitle = false;
 				}
 			} else {
@@ -132,16 +138,20 @@ class PagePolicy {
 		return $showCurrentTitle;
 	}
 
-	private static function isVisibleAction($req) {
+	private static function isVisibleAction($req, $title) {
 		global $wgLanguageCode;
 
 		$anonVisible = true;
 		$actionParam = $req->getVal('action', '');
 		$typeParam = $req->getVal('type', '');
 		$oldidParam = $req->getVal('oldid', '');
-		// NOTE: $actionParam == 'edit' check is because we do a redirect if action=edit in
-		// a different spot back to view and the new anon edit dialog.
-		if ( $wgLanguageCode == 'en' && $actionParam == 'edit') {
+		if ( $title->inNamespace( NS_SPECIAL ) ) {
+			// We don't want to apply these rules to special pages, which can have
+			// pretty much any action or other parameters. See also: Special:RateItem.
+			$anonVisible = true;
+		} elseif ( $wgLanguageCode == 'en' && $actionParam == 'edit') {
+			// NOTE: $actionParam == 'edit' check is because we do a redirect if action=edit in
+			// a different spot back to view and the new anon edit dialog.
 			$anonVisible = true;
 		} elseif ( in_array($actionParam, ['login','preview','purge','submit','submit2']) ) {
 			$anonVisible = true;
@@ -175,6 +185,27 @@ class PagePolicy {
 		$processHTML = self::showCurrentTitle( $wgOut->getContext() );
 	}
 
+	// We want to send a 404/login-to-view before the contents of the article are
+	// parsed, if we can tell from the URL that it will be a 404 response.
+	//
+	// Article parsing can take a long time, and it's for nothing if we are going
+	// to display the 404 page. We have had bots exploit our slow 404's a few times.
+	//
+	// Example url (which can take 19s to render in June 2020):
+	// https://www.wikihow.com/index.php?title=User_kudos:Seymour-Edits&diff=prev&oldid=25734267
+	public static function onBeforeInitialize($title, $unused, $output, $user, $request, $mediaWiki) {
+		$context = RequestContext::getMain();
+		$showArticle = self::showCurrentTitle( $context );
+		if (!$showArticle) {
+			// Make noindex,nofollow the default robot policy for these 404 pages
+			$output->setRobotPolicy('noindex,nofollow');
+			$output->setHTMLTitle( wfMessage('pagepolicy_login_message')->text() );
+			self::onBeforePageDisplay($output, null);
+			$output->output();
+			exit;
+		}
+	}
+
 	// We want to 404 deindexed pages for anon users and make them log in to see it.
 	// This hook runs within Article::view after the article object is fetch but
 	// the usual 404 page is displayed.
@@ -188,9 +219,12 @@ class PagePolicy {
 	}
 
 	public static function onBeforePageDisplay( $out, $skin ) {
-		global $wgTitle, $wgUser, $wgLanguageCode;
+		global $wgTitle, $wgUser, $wgLanguageCode, $wgHooks;
 
 		if ( !self::showCurrentTitle( $out->getContext() ) ) {
+			// Don't show breadcrumbs if this is a 404/login-to-view page
+			$wgHooks['ShowBreadCrumbs'][] = 'PagePolicy::removeBreadCrumbsCallback';
+
 			$out->getRequest()->response()->header( 'HTTP/1.1 404 Not Found' );
 			$out->clearHTML();
 
@@ -231,7 +265,7 @@ class PagePolicy {
 				|| $userPageOverride
 				|| $specialPageOverride
 			) {
-				if ( $wgTitle->inNamespace( NS_MAIN ) && self::isVisibleAction( $out->getRequest() ) ) {
+				if ( $wgTitle->inNamespace( NS_MAIN ) && self::isVisibleAction( $out->getRequest(), $wgTitle ) ) {
 					$out->addHTML( self::render(
 						GoogleAmp::isAmpMode( $out ) ?
 							'article_under_review_amp' : 'article_under_review',

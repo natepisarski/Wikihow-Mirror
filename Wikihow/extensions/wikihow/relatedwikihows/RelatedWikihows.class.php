@@ -53,6 +53,10 @@ class RelatedWikihow {
 			'height' => $height
 		];
 
+		if ( $isSidebar ) {
+			unset( $imgAttributes['class'] );
+		}
+
 		// create the fallback noscript img tag
 		$noscript = Html::openElement('noscript')
 			. Html::element('img', ['src' => $imgAttributes['src']])
@@ -86,7 +90,11 @@ class RelatedWikihow {
 			$img = $videoElement;
 		}
 
-		$img = Html::rawElement( 'div', [ 'class' => 'content-spacer' ], $img . $afterImgElement);
+		$img = $img . $afterImgElement;
+		if ( !$isSidebar ) {
+			$img = Html::rawElement( 'div', [ 'class' => 'content-spacer' ], $img );
+		}
+
 		$script = "WH.shared.addScrollLoadItem('$id')";
 		$script = Html::inlineScript( $script );
 		$img .= $script . $noscript;

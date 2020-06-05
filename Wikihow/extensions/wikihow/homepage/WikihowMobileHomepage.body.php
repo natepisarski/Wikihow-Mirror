@@ -9,6 +9,7 @@ class WikihowMobileHomepage extends Article {
 	const MAX_WATCH = 12;
 	const MAX_FEATURED = 24;
 	const MAX_EXPERT = 6;
+	const MAX_POPULAR = 12;
 	const MAX_ALTDOMAIN = 50;
 	const MAX_RS = 4;
 	const MAX_NEWPAGES = 6;
@@ -329,7 +330,7 @@ class WikihowMobileHomepage extends Article {
 					'isExpert' => VerifyData::isExpertVerified($id)
 				];
 				$count++;
-				if ($count >= self::MAX_EXPERT) break;
+				if ($count >= self::MAX_POPULAR) break;
 			}
 		}
 	}

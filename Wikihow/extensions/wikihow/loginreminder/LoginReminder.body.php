@@ -236,6 +236,9 @@ class LoginReminder extends UnlistedSpecialPage {
 		return $result;
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
 }
 
 class LoginFacebook extends UnlistedSpecialPage {
@@ -320,4 +323,7 @@ class LoginCheck extends UnlistedSpecialPage {
 		return array('success' => '1');
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
 }

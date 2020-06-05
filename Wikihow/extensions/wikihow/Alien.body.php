@@ -41,4 +41,7 @@ class Alien extends UnlistedSpecialPage {
 		}
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
 }

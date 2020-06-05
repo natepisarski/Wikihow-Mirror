@@ -43,6 +43,17 @@ class AlternateDomain {
 		return $result;
 	}
 
+	public static function getAllAlternateDomainPageIds() {
+		$domains = self::getBrandedDomains();
+		$ids = [];
+		foreach ($domains as $domain) {
+			$domainIds = self::getAlternateDomainPagesForDomain($domain);
+			$ids = array_merge($ids, $domainIds);
+		}
+
+		return $ids;
+	}
+
 	/*
 	 * get list of all alternate domains
 	 */

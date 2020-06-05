@@ -20,9 +20,16 @@ class WikihowContentAds extends UnlistedSpecialPage {
 			if ('save-email' == $action) {
 				$email = $req->getVal('email', '');
 				$campaign = $req->getVal('campaign', '');
+				$test = $req->getVal('test', '');
 
 				if($email != '' && $campaign != '') {
-					$spreadsheetId = '1QXrKKyu_XJl81nlahRQMRhweFZ9N9DV8GN_QjPRzix0';
+					if($test == "category") {
+						$spreadsheetId = '14-HmTYfwXSChjFqT-LFMtHtKHxQSG1scWpo3rYRwslM';
+						$sheet = 'Email Intake (do not edit)';
+					} else {
+						$spreadsheetId = '1QXrKKyu_XJl81nlahRQMRhweFZ9N9DV8GN_QjPRzix0';
+						$sheet = 'homepage (do not edit)';
+					}
 					$newRow = array(
 						$campaign,
 						$email,
@@ -31,7 +38,6 @@ class WikihowContentAds extends UnlistedSpecialPage {
 						$user->isLoggedIn() ? "logged in" : "logged out"
 					);
 
-					$sheet = 'homepage (do not edit)';
 					GoogleSheets::appendRows($spreadsheetId, $sheet, [$newRow]);
 				}
 			}

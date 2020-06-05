@@ -20,11 +20,11 @@
 
 			$(".qaexperttest_cta").one("click", function(e) {
 				e.preventDefault();
-				WH.event('article_button_expertQandA_test_click_open_ecd', { } );
+				WH.event('article_button_expertQandA_test_click2_open_ecd', { } );
 				$(this).parent().find(".qaexperttest_popup").show();
 				$(this).parent().find(".qaexperttest_popup input").on("click", function(e){
 					e.preventDefault();
-					WH.event('article_popup_expertQandA_test_click_choose_ecd', {'price':$(this).val() } );
+					WH.event('article_popup_expertQandA_test_click2_choose_ecd', {'type':$(this).val() } );
 					$(this).parent().hide();
 					$(".qaexperttest_cta").hide();
 					$(".qaexperttest_answerend").show();

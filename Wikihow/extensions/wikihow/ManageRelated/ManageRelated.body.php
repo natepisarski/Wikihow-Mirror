@@ -265,4 +265,7 @@ class PreviewPage extends UnlistedSpecialPage {
 		$out->addHTML($html);
 	}
 
+	public function isAnonAvailable() {
+		return true;
+	}
 }
