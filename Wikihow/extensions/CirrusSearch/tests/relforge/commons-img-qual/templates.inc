@@ -1,4 +1,0 @@
-<?php
-
-$wgCirrusSearchIgnoreOnWikiBoostTemplates = true;
-$wgCirrusSearchBoostTemplates = [];

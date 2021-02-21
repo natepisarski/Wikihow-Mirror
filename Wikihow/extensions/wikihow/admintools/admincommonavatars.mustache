@@ -1,9 +1,0 @@
-<form action="/Special:AdminCommonAvatars" method="post" id="rebuild-form">
-	<button type="submit" class="button" name="rebuild" value="1" id="rebuild-button">Rebuild list</button>
-	<p id="rebuild-status">Last rebuilt on {{rebuilt}}</p>
-</form>
-<h2>Select avatars to generate cleanup code</h2>
-<pre id="command"># generated code</pre>
-<div id="results">
-	{{#results}}<label class="avatar"><span class="avatar-qty">{{qty}}</span><input type="checkbox" value="{{hash}}" class="avatar-check"><input type="text" value="{{hash}}" class="avatar-hash"><img src="{{img}}"></label>{{/results}}
-</div>
